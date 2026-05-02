@@ -107,6 +107,7 @@ async function getMyShips(walletAddress, options = {}) {
     SELECT 
       s.id, s.fleet_id, s.ship_type_code,
       s.current_hp, s.max_hp, s.is_flagship, s.is_alive,
+      COALESCE(s.is_market_listed, false) AS is_market_listed,
       s.shield_hp, s.shield_max,
       s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
       COALESCE(s.bonus_speed, 0) AS bonus_speed,
@@ -115,11 +116,15 @@ async function getMyShips(walletAddress, options = {}) {
       st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,
       st.base_atk, st.base_def, st.base_speed,
       f.code AS faction_code, f.name_ko AS faction_name, f.color_primary AS faction_color,
-      fl.name AS fleet_name
+      fl.name AS fleet_name,
+      sml.id AS market_listing_id,
+      sml.price_gp AS market_price_gp,
+      sml.listed_at AS market_listed_at
     FROM ships s
     JOIN ship_types st ON st.code = s.ship_type_code
     LEFT JOIN factions f ON f.code = st.faction_code
     LEFT JOIN fleets fl ON fl.id = s.fleet_id
+    LEFT JOIN ship_market_listings sml ON sml.ship_id = s.id AND sml.status = 'active'
     WHERE s.owner_wallet = $1
   `;
   const params = [walletAddress];
@@ -135,16 +140,30 @@ async function getMyShips(walletAddress, options = {}) {
   query += ` ORDER BY st.sort_order DESC, s.built_at DESC`;
   
   const { rows } = await pool.query(query, params);
-  const economy = await getShipUpgradeEconomy(pool);
-  return rows.map(ship => ({
-    ...addShipUpgradeView(ship),
-    upgrade_costs: {
-      atk: calcShipUpgradeCost(ship, 'atk', economy),
-      def: calcShipUpgradeCost(ship, 'def', economy),
-      hp: calcShipUpgradeCost(ship, 'hp', economy),
-      speed: calcShipUpgradeCost(ship, 'speed', economy),
-    },
-  }));
+  const ships = [];
+  for (const ship of rows) {
+    const upgradeOffers = {};
+    for (const stat of Object.keys(SHIP_UPGRADE_STATS)) {
+      const offer = await calcShipUpgradeOffer(pool, ship, stat);
+      upgradeOffers[stat] = {
+        cost: offer.cost,
+        chance: offer.chance,
+        material_code: offer.material_code,
+        material_qty: offer.material_qty,
+      };
+    }
+    ships.push({
+      ...addShipUpgradeView(ship),
+      upgrade_costs: {
+        atk: upgradeOffers.atk.cost,
+        def: upgradeOffers.def.cost,
+        hp: upgradeOffers.hp.cost,
+        speed: upgradeOffers.speed.cost,
+      },
+      upgrade_offers: upgradeOffers,
+    });
+  }
+  return ships;
 }
 
 // ─── 진행 중 건조 작업 ───
@@ -712,6 +731,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     // 1. 함선 조회 (소유권 + 생존 확인 + build_gp_cost)
     const { rows: shipRows } = await client.query(`
       SELECT s.id, s.current_hp, s.max_hp, s.bonus_hp,
+             COALESCE(s.is_market_listed, false) AS is_market_listed,
              st.name_ko, st.build_gp_cost
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
@@ -724,6 +744,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       throw err;
     }
     const ship = shipRows[0];
+    if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
     // 2. 이미 풀체력이면 에러
     const effectiveMax = parseInt(ship.max_hp) + parseInt(ship.bonus_hp || 0);
@@ -869,7 +890,8 @@ async function chargeShield(walletAddress, shipId, units) {
 
     // 1. 함선 조회
     const { rows: shipRows } = await client.query(`
-      SELECT s.id, s.max_hp, s.bonus_hp, s.shield_hp, s.shield_max
+      SELECT s.id, s.max_hp, s.bonus_hp, s.shield_hp, s.shield_max,
+             COALESCE(s.is_market_listed, false) AS is_market_listed
       FROM ships s
       WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
       FOR UPDATE OF s
@@ -877,6 +899,7 @@ async function chargeShield(walletAddress, shipId, units) {
 
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     const ship = shipRows[0];
+    if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
     // 2. 실드 최대치 계산
     const shieldMaxRatio = parseInt(await getSetting('shield_max_ratio', '50')) || 50;
@@ -1018,6 +1041,86 @@ function addShipUpgradeView(ship) {
   };
 }
 
+function makeShipSnapshot(ship) {
+  const view = addShipUpgradeView(ship);
+  return {
+    ship_id: ship.id,
+    ship_type_code: ship.ship_type_code,
+    name_ko: ship.name_ko,
+    class_label: ship.class_label,
+    size_class: ship.size_class,
+    role: ship.role,
+    faction_code: ship.faction_code,
+    upgrade_level: toNum(ship.upgrade_level),
+    base_atk: toNum(ship.base_atk),
+    base_def: toNum(ship.base_def),
+    base_speed: toNum(ship.base_speed),
+    max_hp: toNum(ship.max_hp),
+    bonus_atk: view.bonus_atk,
+    bonus_def: view.bonus_def,
+    bonus_hp: view.bonus_hp,
+    bonus_speed: view.bonus_speed,
+    effective_atk: view.effective_atk,
+    effective_def: view.effective_def,
+    effective_speed: view.effective_speed,
+    effective_max_hp: view.effective_max_hp,
+    kills_dealt: toNum(ship.kills_dealt),
+    damage_dealt: toNum(ship.damage_dealt),
+  };
+}
+
+async function calcShipUpgradeOffer(client, ship, stat) {
+  const economy = await getShipUpgradeEconomy(client);
+  const totalPoints = upgradePoints(ship, economy.steps);
+  const baseChance = await getSettingNumber(client, 'ship_upgrade_success_base_pct', 92);
+  const decay = await getSettingNumber(client, 'ship_upgrade_success_decay_pct', 1.8);
+  const floor = await getSettingNumber(client, 'ship_upgrade_success_floor_pct', 35);
+  const chance = Math.max(floor, Math.min(99, +(baseChance - totalPoints * decay).toFixed(2)));
+  const materialCode = await getSettingText(client, `ship_upgrade_${stat}_material`, {
+    atk: 'plasma_crystal',
+    def: 'titanium_alloy',
+    hp: 'alloy_frame',
+    speed: 'nano_polymer',
+  }[stat] || 'plasma_crystal');
+  const baseQty = await getSettingNumber(client, 'ship_upgrade_material_base_qty', 2);
+  const growthPer5 = await getSettingNumber(client, 'ship_upgrade_material_growth_per_5', 1);
+  const materialQty = Math.max(1, Math.ceil(baseQty + Math.floor(totalPoints / 5) * growthPer5));
+  return {
+    cost: calcShipUpgradeCost(ship, stat, economy),
+    chance,
+    material_code: materialCode,
+    material_qty: materialQty,
+    economy,
+  };
+}
+
+async function consumeShipUpgradeMaterial(client, walletAddress, materialCode, quantity) {
+  const { rows } = await client.query(`
+    SELECT r.id AS resource_id, r.code,
+           COALESCE(uri.quantity, 0) AS quantity
+    FROM resources r
+    LEFT JOIN user_resource_inventory uri
+      ON uri.resource_id = r.id AND uri.wallet_address = $1
+    WHERE r.code = $2
+    LIMIT 1
+  `, [walletAddress, materialCode]);
+  if (!rows[0] || parseInt(rows[0].quantity) < quantity) {
+    const err = new Error('INSUFFICIENT_MATERIALS');
+    err.meta = { code: materialCode, required: quantity, have: rows[0] ? parseInt(rows[0].quantity) : 0 };
+    throw err;
+  }
+  const spent = await client.query(`
+    UPDATE user_resource_inventory
+    SET quantity = quantity - $1, updated_at = NOW()
+    WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+  `, [quantity, walletAddress, rows[0].resource_id]);
+  if (spent.rowCount === 0) {
+    const err = new Error('INSUFFICIENT_MATERIALS');
+    err.meta = { code: materialCode, required: quantity, have: 0 };
+    throw err;
+  }
+}
+
 async function upgradeShipStat(walletAddress, shipId, stat) {
   stat = String(stat || '').toLowerCase();
   const cfg = SHIP_UPGRADE_STATS[stat];
@@ -1029,6 +1132,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
 
     const { rows: shipRows } = await client.query(`
       SELECT s.id, s.owner_wallet, s.fleet_id, s.ship_type_code, s.current_hp, s.max_hp,
+             COALESCE(s.is_market_listed, false) AS is_market_listed,
              s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
              COALESCE(s.bonus_speed, 0) AS bonus_speed,
              st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,
@@ -1040,6 +1144,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     `, [shipId, walletAddress]);
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     const ship = shipRows[0];
+    if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
     try {
       const { rows: battleRows } = await client.query(`
@@ -1060,9 +1165,10 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
 
-    const economy = await getShipUpgradeEconomy(client);
+    const offer = await calcShipUpgradeOffer(client, ship, stat);
+    const economy = offer.economy;
     const delta = economy.steps[stat] || cfg.fallback;
-    const cost = calcShipUpgradeCost(ship, stat, economy);
+    const cost = offer.cost;
     if (parseInt(userRows[0].gp_balance) < cost) {
       const err = new Error('INSUFFICIENT_GP');
       err.meta = { required: cost, balance: userRows[0].gp_balance };
@@ -1071,26 +1177,47 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
 
     const fromBonus = toNum(ship[cfg.column]);
     const toBonus = +(fromBonus + delta).toFixed(stat === 'speed' ? 2 : 0);
+    const materialsUsed = { [offer.material_code]: offer.material_qty };
+    await consumeShipUpgradeMaterial(client, walletAddress, offer.material_code, offer.material_qty);
 
     await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
       [cost, walletAddress]
     );
 
-    const hpCurrentDelta = stat === 'hp' ? Math.round(delta) : 0;
-    const { rows: updatedRows } = await client.query(`
-      UPDATE ships
-      SET ${cfg.column} = $1,
-          current_hp = current_hp + $2,
-          upgrade_level = COALESCE(upgrade_level, 0) + 1
-      WHERE id = $3
-      RETURNING *
-    `, [toBonus, hpCurrentDelta, shipId]);
+    const roll = +(Math.random() * 100).toFixed(2);
+    const success = roll <= offer.chance;
+    let updatedShip = { ...ship };
+    if (success) {
+      const hpCurrentDelta = stat === 'hp' ? Math.round(delta) : 0;
+      const { rows: updatedRows } = await client.query(`
+        UPDATE ships
+        SET ${cfg.column} = $1,
+            current_hp = current_hp + $2,
+            upgrade_level = COALESCE(upgrade_level, 0) + 1
+        WHERE id = $3
+        RETURNING *
+      `, [toBonus, hpCurrentDelta, shipId]);
+      updatedShip = updatedRows[0];
+    }
 
     await client.query(`
-      INSERT INTO ship_stat_upgrade_log (ship_id, wallet_address, stat, from_bonus, to_bonus, gp_cost)
-      VALUES ($1, $2, $3, $4, $5, $6)
-    `, [shipId, walletAddress, stat, fromBonus, toBonus, cost]);
+      INSERT INTO ship_stat_upgrade_log
+        (ship_id, wallet_address, stat, from_bonus, to_bonus, gp_cost,
+         success, success_chance, roll, materials_used)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
+    `, [
+      shipId,
+      walletAddress,
+      stat,
+      fromBonus,
+      success ? toBonus : fromBonus,
+      cost,
+      success,
+      offer.chance,
+      roll,
+      JSON.stringify(materialsUsed),
+    ]);
 
     await client.query('COMMIT');
 
@@ -1103,19 +1230,278 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
       ship_id: shipId,
       stat,
       from_bonus: fromBonus,
-      to_bonus: toBonus,
+      to_bonus: success ? toBonus : fromBonus,
+      success,
+      chance: offer.chance,
+      materials_used: materialsUsed,
     });
 
-    const nextCost = calcShipUpgradeCost(updatedRows[0], stat, economy);
+    const nextOffer = await calcShipUpgradeOffer(pool, updatedShip, stat);
     return {
       success: true,
+      upgraded: success,
       ship_id: shipId,
       stat,
-      delta,
+      delta: success ? delta : 0,
       gp_cost: cost,
-      next_cost: nextCost,
-      ship: addShipUpgradeView({ ...ship, ...updatedRows[0] }),
+      chance: offer.chance,
+      roll,
+      materials_used: materialsUsed,
+      next_cost: nextOffer.cost,
+      next_chance: nextOffer.chance,
+      ship: addShipUpgradeView({ ...ship, ...updatedShip }),
     };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function getShipMarketListings(walletAddress, options = {}) {
+  const wallet = (walletAddress || '').toLowerCase();
+  const params = [];
+  let query = `
+    SELECT
+      sml.id AS listing_id, sml.ship_id, sml.seller_wallet, sml.price_gp,
+      sml.fee_gp, sml.status, sml.snapshot, sml.listed_at,
+      s.fleet_id, s.ship_type_code, s.current_hp, s.max_hp, s.is_flagship, s.is_alive,
+      COALESCE(s.is_market_listed, false) AS is_market_listed,
+      s.shield_hp, s.shield_max, s.upgrade_level,
+      s.bonus_atk, s.bonus_def, s.bonus_hp, COALESCE(s.bonus_speed, 0) AS bonus_speed,
+      s.kills_dealt, s.damage_dealt, s.built_at,
+      st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,
+      st.base_atk, st.base_def, st.base_speed,
+      f.code AS faction_code, f.name_ko AS faction_name, f.color_primary AS faction_color,
+      u.nickname AS seller_name
+    FROM ship_market_listings sml
+    JOIN ships s ON s.id = sml.ship_id
+    JOIN ship_types st ON st.code = s.ship_type_code
+    LEFT JOIN factions f ON f.code = st.faction_code
+    LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(sml.seller_wallet)
+    WHERE sml.status = 'active' AND s.is_alive = true
+  `;
+  if (options.faction) {
+    params.push(options.faction);
+    query += ` AND st.faction_code = $${params.length}`;
+  }
+  if (options.size) {
+    params.push(options.size);
+    query += ` AND st.size_class = $${params.length}`;
+  }
+  if (options.maxPrice) {
+    params.push(Number(options.maxPrice));
+    query += ` AND sml.price_gp <= $${params.length}`;
+  }
+  const sort = String(options.sort || 'listed').toLowerCase();
+  if (sort === 'price_asc') query += ` ORDER BY sml.price_gp ASC, sml.listed_at DESC`;
+  else if (sort === 'price_desc') query += ` ORDER BY sml.price_gp DESC, sml.listed_at DESC`;
+  else query += ` ORDER BY sml.listed_at DESC`;
+  query += ` LIMIT 120`;
+
+  const { rows } = await pool.query(query, params);
+  return rows.map(row => ({
+    ...addShipUpgradeView(row),
+    is_mine: wallet && String(row.seller_wallet || '').toLowerCase() === wallet,
+    price_gp: Number(row.price_gp || 0),
+    seller_short: String(row.seller_wallet || '').replace(/^(.{6}).+(.{4})$/, '$1...$2'),
+  }));
+}
+
+async function ensureFleetHasFlagship(client, fleetId) {
+  if (!fleetId) return;
+  const { rows: existing } = await client.query(
+    `SELECT 1 FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true LIMIT 1`,
+    [fleetId]
+  );
+  if (existing.length) return;
+  const { rows: candidate } = await client.query(`
+    SELECT s.id
+    FROM ships s
+    JOIN ship_types st ON st.code = s.ship_type_code
+    WHERE s.fleet_id = $1 AND s.is_alive = true
+      AND COALESCE(s.is_market_listed, false) = false
+      AND st.is_flagship_capable = true
+    ORDER BY st.sort_order DESC, s.id ASC
+    LIMIT 1
+  `, [fleetId]);
+  if (candidate[0]) {
+    await client.query(`UPDATE ships SET is_flagship = true WHERE id = $1`, [candidate[0].id]);
+  }
+}
+
+async function getShipForMarketLock(client, walletAddress, shipId) {
+  const { rows } = await client.query(`
+    SELECT s.*, st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,
+           st.base_atk, st.base_def, st.base_speed, f.code AS faction_code
+    FROM ships s
+    JOIN ship_types st ON st.code = s.ship_type_code
+    LEFT JOIN factions f ON f.code = st.faction_code
+    WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
+    FOR UPDATE OF s
+  `, [shipId, walletAddress]);
+  return rows[0] || null;
+}
+
+async function assertShipNotInBattle(client, fleetId) {
+  if (!fleetId) return;
+  try {
+    const { rows } = await client.query(`
+      SELECT 1
+      FROM fleet_battle_participants fbp
+      JOIN fleet_battles fb ON fb.id = fbp.battle_id
+      WHERE fbp.fleet_id = $1 AND fb.status IN ('pending', 'active')
+      LIMIT 1
+    `, [fleetId]);
+    if (rows.length) throw new Error('SHIP_IN_BATTLE');
+  } catch (err) {
+    if (err.message === 'SHIP_IN_BATTLE') throw err;
+  }
+}
+
+async function listShipForSale(walletAddress, shipId, priceGp) {
+  const wallet = String(walletAddress || '').toLowerCase();
+  const price = Math.round(Number(priceGp) * 100) / 100;
+  if (!Number.isFinite(price) || price <= 0) throw new Error('INVALID_PRICE');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const enabled = await getSettingText(client, 'ship_market_enabled', 'true');
+    if (String(enabled).toLowerCase() !== 'true') throw new Error('MARKET_DISABLED');
+    const minPrice = await getSettingNumber(client, 'ship_market_min_price_gp', 10);
+    const maxPrice = await getSettingNumber(client, 'ship_market_max_price_gp', 10000000);
+    if (price < minPrice || price > maxPrice) {
+      const err = new Error('INVALID_PRICE');
+      err.meta = { min: minPrice, max: maxPrice };
+      throw err;
+    }
+
+    const ship = await getShipForMarketLock(client, wallet, shipId);
+    if (!ship) throw new Error('SHIP_NOT_FOUND');
+    if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
+    await assertShipNotInBattle(client, ship.fleet_id);
+
+    const snapshot = makeShipSnapshot(ship);
+    await client.query(`
+      UPDATE ships
+      SET is_market_listed = true, fleet_id = NULL, is_flagship = false
+      WHERE id = $1
+    `, [shipId]);
+    const { rows } = await client.query(`
+      INSERT INTO ship_market_listings (ship_id, seller_wallet, price_gp, snapshot)
+      VALUES ($1, $2, $3, $4::jsonb)
+      RETURNING id, price_gp, listed_at
+    `, [shipId, wallet, price, JSON.stringify(snapshot)]);
+    await ensureFleetHasFlagship(client, ship.fleet_id);
+    await client.query('COMMIT');
+    return { success: true, listing_id: rows[0].id, ship_id: shipId, price_gp: Number(rows[0].price_gp), listed_at: rows[0].listed_at };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function cancelShipListing(walletAddress, listingId) {
+  const wallet = String(walletAddress || '').toLowerCase();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(`
+      SELECT sml.*, s.owner_wallet
+      FROM ship_market_listings sml
+      JOIN ships s ON s.id = sml.ship_id
+      WHERE sml.id = $1 AND sml.status = 'active' AND LOWER(sml.seller_wallet) = LOWER($2)
+      FOR UPDATE OF sml
+    `, [listingId, wallet]);
+    if (!rows[0]) throw new Error('LISTING_NOT_FOUND');
+    const listing = rows[0];
+    const fleetId = await getOrCreateDefaultFleet(client, wallet);
+    await client.query(`
+      UPDATE ship_market_listings
+      SET status = 'cancelled', cancelled_at = NOW()
+      WHERE id = $1
+    `, [listingId]);
+    await client.query(`
+      UPDATE ships
+      SET is_market_listed = false, fleet_id = $1
+      WHERE id = $2 AND LOWER(owner_wallet) = LOWER($3)
+    `, [fleetId, listing.ship_id, wallet]);
+    await ensureFleetHasFlagship(client, fleetId);
+    await client.query('COMMIT');
+    return { success: true, listing_id: listingId, ship_id: listing.ship_id };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function buyShipListing(walletAddress, listingId) {
+  const buyer = String(walletAddress || '').toLowerCase();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(`
+      SELECT sml.*, s.owner_wallet, s.ship_type_code
+      FROM ship_market_listings sml
+      JOIN ships s ON s.id = sml.ship_id
+      WHERE sml.id = $1 AND sml.status = 'active' AND s.is_alive = true
+      FOR UPDATE OF sml
+    `, [listingId]);
+    if (!rows[0]) throw new Error('LISTING_NOT_FOUND');
+    const listing = rows[0];
+    const seller = String(listing.seller_wallet || '').toLowerCase();
+    if (seller === buyer) throw new Error('CANNOT_BUY_OWN_LISTING');
+
+    const { rows: buyerRows } = await client.query(
+      `SELECT wallet_address, gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      [buyer]
+    );
+    if (!buyerRows[0]) throw new Error('USER_NOT_FOUND');
+    const { rows: sellerRows } = await client.query(
+      `SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      [seller]
+    );
+    if (!sellerRows[0]) throw new Error('SELLER_NOT_FOUND');
+
+    const price = Number(listing.price_gp || 0);
+    if (Number(buyerRows[0].gp_balance || 0) < price) {
+      const err = new Error('INSUFFICIENT_GP');
+      err.meta = { required: price, balance: buyerRows[0].gp_balance };
+      throw err;
+    }
+    const feePct = await getSettingNumber(client, 'ship_market_fee_pct', 5);
+    const fee = Math.max(0, Math.floor(price * feePct) / 100);
+    const sellerReceive = price - fee;
+    const buyerFleetId = await getOrCreateDefaultFleet(client, buyer);
+
+    await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [price, buyer]);
+    await client.query(`UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [sellerReceive, seller]);
+    await client.query(`
+      UPDATE ships
+      SET owner_wallet = $1, fleet_id = $2, is_flagship = false, is_market_listed = false
+      WHERE id = $3
+    `, [buyer, buyerFleetId, listing.ship_id]);
+    await client.query(`
+      UPDATE ship_market_listings
+      SET status = 'sold', buyer_wallet = $1, fee_gp = $2, sold_at = NOW()
+      WHERE id = $3
+    `, [buyer, fee, listingId]);
+    await client.query(`
+      INSERT INTO ship_market_sale_log (listing_id, ship_id, seller_wallet, buyer_wallet, price_gp, fee_gp, snapshot)
+      VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
+    `, [listingId, listing.ship_id, seller, buyer, price, fee, JSON.stringify(listing.snapshot || {})]);
+    await ensureFleetHasFlagship(client, buyerFleetId);
+    await client.query('COMMIT');
+
+    logFleetGpActivity(buyer, 'ship_market_buy', -price, { listing_id: listingId, ship_id: listing.ship_id });
+    logFleetGpActivity(seller, 'ship_market_sell', sellerReceive, { listing_id: listingId, ship_id: listing.ship_id, fee_gp: fee });
+    return { success: true, listing_id: listingId, ship_id: listing.ship_id, price_gp: price, fee_gp: fee };
   } catch (err) {
     try { await client.query('ROLLBACK'); } catch (_) {}
     throw err;
@@ -1158,6 +1544,19 @@ async function getSettingNumber(client, key, fallback) {
   } catch { return fallback; }
 }
 
+async function getSettingText(client, key, fallback) {
+  try {
+    const { rows } = await client.query(
+      `SELECT value FROM settings WHERE category = 'fleet' AND key = $1`,
+      [key]
+    );
+    if (!rows[0]) return fallback;
+    const raw = rows[0].value;
+    if (raw === null || raw === undefined) return fallback;
+    return String(raw).replace(/^"|"$/g, '');
+  } catch { return fallback; }
+}
+
 function logFleetGpActivity(walletAddress, activityType, gpDelta, meta = {}) {
   pool.query(`
     INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
@@ -1178,6 +1577,7 @@ async function scrapShip(walletAddress, shipId) {
 
     const { rows: shipRows } = await client.query(`
       SELECT s.id, s.owner_wallet, s.ship_type_code, s.is_alive,
+             COALESCE(s.is_market_listed, false) AS is_market_listed,
              st.name_ko, st.build_gp_cost, st.recipe_minerals
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
@@ -1187,6 +1587,7 @@ async function scrapShip(walletAddress, shipId) {
 
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     const ship = shipRows[0];
+    if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
     // 전투 중이거나 battle에 참여 중이면 해체 불가
     try {
@@ -1292,5 +1693,9 @@ module.exports = {
   repairShip,
   chargeShield,
   upgradeShipStat,
+  getShipMarketListings,
+  listShipForSale,
+  cancelShipListing,
+  buyShipListing,
   scrapShip,
 };

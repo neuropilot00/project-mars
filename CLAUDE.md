@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.62 (Campaign quest progress gate) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.63 (Ship market + chance upgrades + fleet FX polish) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,17 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.63 최신 핸드오프 — 함선 확률 강화/마켓 + 전투/조선소 시각 보정
+
+- 보유 함선 강화는 이제 `ship.upgrade_offers`로 GP 비용, 성공 확률, 필요 재료를 함께 제공한다.
+- `POST /api/ships/:id/upgrade-stat`는 무조건 성공하지 않는다. 성공/실패 모두 GP와 재료를 소모하고, 성공 시에만 스탯 보너스를 누적한다.
+- 강화 로그 `ship_stat_upgrade_log`는 `success`, `success_chance`, `roll`, `materials_used`를 기록한다.
+- 함선 마켓은 `ship_market_listings`와 `ships.is_market_listed`를 사용한다. 판매중 함선은 강화/수리/실드/해체가 막히고, UI에 `판매중` 스티커가 붙는다.
+- 신규 API: `GET /api/ships/market/listings`, `POST /api/ships/:id/list`, `POST /api/ships/market/listings/:id/buy`, `POST /api/ships/market/listings/:id/cancel`.
+- 조선소 청사진/보유함 미리보기는 불꽃 오버레이를 제거하고 PNG 밝기/대비를 올려 함선 본체 가독성을 우선한다.
+- 택티컬랩 빔포/미사일 이펙트는 2~3초 정도 유지되도록 길어졌고, 하단 무전 콜아웃은 버튼과 덜 겹치게 위로 올렸다.
+- 화성 상층권 배경은 기존보다 밝게 조정했다. 데모(`assets/fleet-assault-demo.html`)와 본서버(`assets/tactical-lab-v11.html`) 양쪽을 같이 수정해야 한다.
 
 ### v5.62 최신 핸드오프 — 캠페인 퀘스트 즉시 클리어 방지
 

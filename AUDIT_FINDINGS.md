@@ -1,4 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.62 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.63 / 2026-05-03)
+
+## ✅ v5.63 Ship market + chance upgrades + fleet FX polish — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 함선 확률 강화 | ✅ | `upgrade_offers`가 GP/성공확률/재료를 내려주고, 실패 시 GP+재료 소모 후 스탯 유지. |
+| 강화 재료 소모 | ✅ | 스탯별 재료(`plasma_crystal`, `titanium_alloy`, `alloy_frame`, `nano_polymer`)와 수량을 설정 기반으로 계산. |
+| 함선 마켓 등록/구매/취소 | ✅ | `ship_market_listings` 추가. 판매중 함선은 기본 함대에서 분리되고 강화/수리/실드/해체 차단. |
+| 판매중 UI | ✅ | 보유함/마켓 카드에 `판매중` 스티커와 가격/판매자/취소·구매 버튼 표시. |
+| 조선소 가독성 | ✅ | 청사진/보유함 PNG 불꽃 오버레이 제거, 함선 밝기/대비 강화. |
+| 전투 이펙트 가시성 | ✅ | 빔포/미사일 지속시간을 늘리고 미사일 트레일을 추가해 수동 스킬 사용감 보강. |
+| 무전/배경 시각 보정 | ✅ | 하단 콜아웃을 위로 올리고 화성 배경 알파/veil을 밝게 조정. |
+
+검증:
+- `node --check server/services/ship.js` 통과
+- `node --check server/routes/ships.js` 통과
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.62 Campaign quest progress gate — 수정 완료
 

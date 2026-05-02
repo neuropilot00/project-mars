@@ -2818,37 +2818,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   object-fit: contain;
   pointer-events: none;
   z-index: 3;
-  filter: drop-shadow(0 0 12px rgba(79,195,247,.16));
-}
-.bp-engine-flame {
-  position: absolute;
-  left: 50%;
-  bottom: 8px;
-  width: 28%;
-  height: 20%;
-  transform: translateX(-50%);
-  pointer-events: none;
-  z-index: 2;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.85), transparent 28%),
-    radial-gradient(ellipse at 50% 8%, rgba(88,209,255,.72), rgba(88,209,255,.28) 42%, transparent 72%);
-  filter: blur(1px);
-  opacity: .8;
-  animation: bp-engine-tail 0.68s ease-in-out infinite;
-}
-.bp-card.cv .bp-engine-flame {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.9), transparent 26%),
-    radial-gradient(ellipse at 50% 8%, rgba(255,80,35,.76), rgba(255,80,35,.3) 42%, transparent 72%);
-}
-.bp-card.fsp .bp-engine-flame {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.86), transparent 28%),
-    radial-gradient(ellipse at 50% 8%, rgba(120,255,170,.68), rgba(120,255,170,.28) 42%, transparent 72%);
-}
-@keyframes bp-engine-tail {
-  0%,100% { transform: translateX(-50%) scaleY(.78); opacity: .56; }
-  50%     { transform: translateX(-50%) scaleY(1.18); opacity: .9; }
+  filter: brightness(1.58) contrast(1.18) saturate(1.08) drop-shadow(0 0 18px rgba(120,210,255,.28));
+  opacity: 1;
 }
 .bp-visual svg.bp-ship-svg {
   width: 92%; height: 92%;
@@ -3058,8 +3029,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .queue-btn.primary { background: rgba(129,199,132,.15); color: #a5d6a7; border-color: rgba(129,199,132,.4); }
 .queue-btn.danger  { color: #ef9a9a; border-color: rgba(239,83,80,.3); }
 .queue-btn:hover:not(:disabled) { background: rgba(255,255,255,.08); }
-.ship-list {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+.ship-list, .ship-market-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 8px;
 }
 .ship-item {
@@ -3067,10 +3038,28 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   border: 1px solid rgba(255,255,255,.06);
   border-radius: 5px;
   padding: 8px 10px;
+  position: relative;
 }
 .ship-item.flagship {
   border-color: rgba(255,215,0,.4);
   background: rgba(255,215,0,.05);
+}
+.ship-item.listed {
+  border-color: rgba(255, 215, 0, .38);
+  background: linear-gradient(180deg, rgba(255,215,0,.08), rgba(255,255,255,.02));
+}
+.ship-sale-sticker {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,215,0,.55);
+  background: rgba(255,215,0,.16);
+  color: #ffd700;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
 }
 .ship-name {
   font-family: 'Orbitron', monospace;
@@ -3106,6 +3095,52 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .ship-upgrade-btn:hover { background: rgba(102,187,106,.18); box-shadow: 0 0 12px rgba(102,187,106,.18); }
 .ship-upgrade-btn .cost { display: block; color: rgba(255,215,0,.82); font-size: 7px; margin-top: 1px; }
+.ship-upgrade-btn:disabled {
+  opacity: .36;
+  cursor: not-allowed;
+  filter: grayscale(.5);
+}
+.ship-upgrade-btn .chance { display:block; color:#7ee787; font-size:7px; margin-top:1px; }
+.ship-upgrade-btn .mat { display:block; color:rgba(255,255,255,.55); font-size:7px; margin-top:1px; overflow:hidden; text-overflow:ellipsis; }
+.ship-sale-actions { display:flex; gap:4px; margin-top:6px; }
+.ship-sale-btn {
+  flex:1;
+  padding:5px 4px;
+  border-radius:5px;
+  border:1px solid rgba(255,215,0,.35);
+  background:rgba(255,215,0,.1);
+  color:#ffd700;
+  cursor:pointer;
+  font-family:var(--fn);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.8px;
+}
+.ship-sale-btn.cancel { border-color:rgba(255,138,128,.35); background:rgba(255,138,128,.1); color:#ff8a80; }
+.ship-market-card {
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:6px;
+  padding:10px;
+  position:relative;
+}
+.ship-market-price {
+  color:#ffd700;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:1px;
+  margin-top:4px;
+}
+.ship-market-meta {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  color:rgba(255,255,255,.45);
+  font-size:8px;
+  letter-spacing:.8px;
+  margin-top:4px;
+}
+.ship-market-card .bp-visual { height:160px; border-radius:6px; margin-bottom:8px; background:linear-gradient(135deg,rgba(20,50,75,.85),rgba(6,9,18,.95)); display:flex; align-items:center; justify-content:center; }
 .sy-empty {
   text-align: center; padding: 40px 20px;
   color: rgba(255,255,255,.3); font-size: 11px; letter-spacing: 2px;
@@ -41860,6 +41895,9 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
       <button class="sy-tab" data-tab="fleet" onclick="switchSyTab('fleet')">
         🚀 MY FLEET
       </button>
+      <button class="sy-tab" data-tab="market" onclick="switchSyTab('market')">
+        🏷 SHIP MARKET
+      </button>
     </div>
     <div class="shipyard-filters" id="syFilters">
       <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px">SIZE:</span>
@@ -41880,6 +41918,9 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
       <div id="syFleetTab" style="display:none">
         <div class="ship-list" id="shipList"></div>
       </div>
+      <div id="syMarketTab" style="display:none">
+        <div class="ship-market-list" id="shipMarketList"></div>
+      </div>
     </div>
     <div class="shipyard-footer" id="syFooter">
       <div class="sy-balance"><span>GP</span> <b id="syGpBalance">-</b></div>
@@ -41897,6 +41938,7 @@ var shipyardState = {
   blueprints: [],
   queue: [],
   ships: [],
+  marketListings: [],
   summary: null,
   myFaction: null,
   myInventory: {},
@@ -41931,9 +41973,11 @@ function switchSyTab(tab) {
   document.getElementById('syBlueprintsTab').style.display = tab === 'blueprints' ? '' : 'none';
   document.getElementById('syQueueTab').style.display      = tab === 'queue'      ? '' : 'none';
   document.getElementById('syFleetTab').style.display      = tab === 'fleet'      ? '' : 'none';
+  document.getElementById('syMarketTab').style.display     = tab === 'market'     ? '' : 'none';
   document.getElementById('syFilters').style.display       = tab === 'blueprints' ? '' : 'none';
   if (tab === 'queue') renderQueue();
   else if (tab === 'fleet') renderShips();
+  else if (tab === 'market') renderShipMarket();
   else renderBlueprints();
 }
 
@@ -41948,21 +41992,24 @@ function filterBySize(size) {
 async function refreshShipyard() {
   try {
     var headers = getAuthHeaders();
-    var [bpRes, jobsRes, shipsRes, summaryRes, factionRes] = await Promise.all([
+    var [bpRes, jobsRes, shipsRes, marketRes, summaryRes, factionRes] = await Promise.all([
       fetch('/api/ships/blueprints?includeLocked=1', { headers: headers }),
       fetch('/api/ships/build-jobs', { headers: headers }),
       fetch('/api/ships/my', { headers: headers }),
+      fetch('/api/ships/market/listings', { headers: headers }),
       fetch('/api/ships/summary', { headers: headers }),
       fetch('/api/factions/mine', { headers: headers }),
     ]);
     var bpData      = await bpRes.json();
     var jobsData    = await jobsRes.json();
     var shipsData   = await shipsRes.json();
+    var marketData  = await marketRes.json();
     var summaryData = await summaryRes.json();
     var factionData = await factionRes.json();
     shipyardState.blueprints = bpData.ships || [];
     shipyardState.queue      = jobsData.jobs || [];
     shipyardState.ships      = shipsData.ships || [];
+    shipyardState.marketListings = marketData.listings || [];
     shipyardState.summary    = summaryData;
     shipyardState.myFaction  = factionData.faction;
     await loadMyInventory();
@@ -41976,6 +42023,7 @@ async function refreshShipyard() {
     updateFooter();
     if (shipyardState.currentTab === 'blueprints') renderBlueprints();
     else if (shipyardState.currentTab === 'queue') renderQueue();
+    else if (shipyardState.currentTab === 'market') renderShipMarket();
     else renderShips();
   } catch (err) {
     console.error('refreshShipyard error:', err);
@@ -42295,7 +42343,6 @@ function shipVisual(sizeClass, factionCode, opts) {
   var code = (opts.code || '').toLowerCase();
   var slug = code || (factionCode + '_' + sizeClass);
   return svg
-    + '<span class="bp-engine-flame" aria-hidden="true"></span>'
     + '<img class="bp-ship-img" src="assets/ships/top/' + slug + '.png" alt="" '
     +   'onload="var s=this.parentNode&&this.parentNode.querySelector(\'svg.bp-ship-svg\');if(s)s.style.opacity=\'0\'" '
     +   'onerror="this.remove()">';
@@ -42514,7 +42561,13 @@ function renderShips() {
       ? '<div style="margin-top:3px"><div style="font-size:8px;color:#64b5f6;display:flex;justify-content:space-between"><span>🛡 SHIELD</span><span>' + syFmt(shieldHp) + ' / ' + syFmt(shieldMax) + '</span></div>'
         + '<div style="height:3px;background:rgba(100,181,246,.15);border-radius:2px;overflow:hidden"><div style="height:100%;width:' + shieldPct + '%;background:linear-gradient(90deg,#1565c0,#64b5f6);transition:width .3s"></div></div></div>'
       : '';
-    return '<div class="ship-item ' + (s.is_flagship ? 'flagship' : '') + '">' +
+    var listed = !!s.is_market_listed;
+    var listedSticker = listed ? '<span class="ship-sale-sticker">판매중</span>' : '';
+    var repairBtn = isDamaged && !listed
+      ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + effectiveMaxHp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>'
+      : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? '판매중' : '✅ 최대HP') + '</button>';
+    return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + '">' +
+      listedSticker +
       '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + s.name_ko + '</div>' +
       '<div class="ship-class">' + s.class_label + '</div>' +
       '<div class="ship-hp-bar"><div class="ship-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div></div>' +
@@ -42533,9 +42586,14 @@ function renderShips() {
         syUpgradeBtn(s, 'hp', 'HP') +
       '</div>' +
       '<div style="display:flex;gap:4px;margin-top:6px">' +
-        (isDamaged ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + effectiveMaxHp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>' : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">✅ 최대HP</button>') +
-        '<button onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + effectiveMaxHp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
-        '<button onclick="syScrapShip(' + s.id + ',\'' + s.name_ko + '\')" title="해체 (환불+소각)" style="padding:5px 6px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.35);color:#ff8a80;cursor:pointer;font-family:var(--fn)">🔥</button>' +
+        repairBtn +
+        '<button ' + (listed ? 'disabled' : '') + ' onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + effectiveMaxHp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
+        '<button ' + (listed ? 'disabled' : '') + ' onclick="syScrapShip(' + s.id + ',\'' + s.name_ko + '\')" title="해체 (환불+소각)" style="padding:5px 6px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.35);color:#ff8a80;cursor:pointer;font-family:var(--fn)">🔥</button>' +
+      '</div>' +
+      '<div class="ship-sale-actions">' +
+        (listed
+          ? '<button class="ship-sale-btn cancel" onclick="syCancelShipListing(' + s.market_listing_id + ')">판매 취소</button><button class="ship-sale-btn" disabled>' + syFmt(s.market_price_gp) + ' GP</button>'
+          : '<button class="ship-sale-btn" onclick="syListShipForSale(' + s.id + ')">판매 등록</button>') +
       '</div>' +
     '</div>';
   }).join('');
@@ -42551,19 +42609,31 @@ function syStatValue(base, bonus, decimals) {
 }
 
 function syUpgradeBtn(ship, stat, label) {
-  var cost = ship.upgrade_costs && ship.upgrade_costs[stat] ? syFmt(ship.upgrade_costs[stat]) + ' GP' : 'GP';
-  return '<button class="ship-upgrade-btn" onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
+  var offer = ship.upgrade_offers && ship.upgrade_offers[stat];
+  var cost = offer ? syFmt(offer.cost) + ' GP' : (ship.upgrade_costs && ship.upgrade_costs[stat] ? syFmt(ship.upgrade_costs[stat]) + ' GP' : 'GP');
+  var material = offer ? ((MINERAL_ICONS[offer.material_code] || '') + ' ' + (MINERAL_KO[offer.material_code] || offer.material_code) + '×' + offer.material_qty) : '';
+  return '<button class="ship-upgrade-btn" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
     label + ' +' +
     '<span class="cost">' + cost + '</span>' +
+    (offer ? '<span class="chance">' + offer.chance + '%</span><span class="mat">' + material + '</span>' : '') +
   '</button>';
 }
 
 async function syUpgradeShipStat(shipId, stat) {
   var labelMap = { atk: '공격력', def: '방어력', hp: '체력', speed: '속도' };
+  var ship = (shipyardState.ships || []).find(function(s){ return s.id === shipId; });
+  var offer = ship && ship.upgrade_offers && ship.upgrade_offers[stat];
+  if (ship && ship.is_market_listed) { showFactionToast('판매중인 함선은 강화할 수 없습니다', 'error'); return; }
+  var materialText = offer ? ((MINERAL_ICONS[offer.material_code] || '') + ' ' + (MINERAL_KO[offer.material_code] || offer.material_code) + ' ×' + offer.material_qty) : '-';
   var ok = await gameConfirm({
     title: '함선 강화', icon: '⚙️',
     body: '<div style="font-size:11px;color:#9be7a0;font-weight:700;margin-bottom:5px">' + (labelMap[stat] || stat) + '을 영구 강화합니다.</div>'
-      + '<div style="font-size:10px;color:var(--tx3)">강화는 실패하지 않고 누적됩니다. 많이 투자한 함선일수록 다음 비용이 올라갑니다.</div>',
+      + '<div style="font-size:10px;color:var(--tx3)">강화는 확률형입니다. 실패해도 GP와 재료는 소모되고, 스탯은 그대로 유지됩니다.</div>',
+    info: offer ? [
+      { k:'성공 확률', v: offer.chance + '%' },
+      { k:'GP 비용', v: syFmt(offer.cost) + ' GP' },
+      { k:'소모 재료', v: materialText }
+    ] : undefined,
     confirmText: '강화하기'
   });
   if (!ok) return;
@@ -42575,7 +42645,10 @@ async function syUpgradeShipStat(shipId, stat) {
     });
     var d = await r.json();
     if (!r.ok || d.error) { showFactionToast('강화 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast('강화 완료: ' + (labelMap[stat] || stat) + ' +' + d.delta + ' (-' + d.gp_cost + ' GP)', 'success');
+    showFactionToast(d.upgraded
+      ? ('강화 성공: ' + (labelMap[stat] || stat) + ' +' + d.delta + ' (-' + d.gp_cost + ' GP)')
+      : ('강화 실패: 확률 ' + d.chance + '% / 굴림 ' + d.roll),
+      d.upgraded ? 'success' : 'error');
     refreshBalance();
     await refreshShipyard();
   } catch(e) { showFactionToast('강화 요청 실패', 'error'); }
@@ -42665,6 +42738,108 @@ async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
     refreshBalance();
     await refreshShipyard();
   } catch(e) { showFactionToast('실드 충전 요청 실패', 'error'); }
+}
+
+function renderShipMarket() {
+  var list = document.getElementById('shipMarketList');
+  var listings = shipyardState.marketListings || [];
+  if (!list) return;
+  if (!listings.length) {
+    list.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">판매 중인 함선이 없습니다<br><span style="font-size:9px;opacity:.6">강화한 함선을 MY FLEET에서 판매 등록할 수 있습니다</span></div>';
+    return;
+  }
+  list.innerHTML = listings.map(function(s) {
+    var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
+    var hpPct = Math.max(0, Math.min(100, (s.current_hp / effectiveMaxHp) * 100));
+    var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code });
+    var seller = s.seller_name || s.seller_short || 'UNKNOWN';
+    return '<div class="ship-market-card">' +
+      '<span class="ship-sale-sticker">판매중</span>' +
+      '<div class="bp-visual">' + silhouette + '</div>' +
+      '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + fcEsc(s.name_ko || '') + '</div>' +
+      '<div class="ship-class">' + fcEsc(s.class_label || '') + ' · MOD ' + syFmt(s.upgrade_level || 0) + '</div>' +
+      '<div class="bp-stats" style="margin:7px 0 0">' +
+        '<div class="bp-stat"><div class="bp-stat-label">HP</div><div class="bp-stat-value">' + syStatValue(s.max_hp, s.bonus_hp) + '</div></div>' +
+        '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + syStatValue(s.base_atk, s.bonus_atk) + '</div></div>' +
+        '<div class="bp-stat"><div class="bp-stat-label">DEF</div><div class="bp-stat-value">' + syStatValue(s.base_def, s.bonus_def) + '</div></div>' +
+        '<div class="bp-stat"><div class="bp-stat-label">SPD</div><div class="bp-stat-value">' + syStatValue(s.base_speed, s.bonus_speed, 2) + '</div></div>' +
+      '</div>' +
+      '<div class="ship-hp-bar"><div class="ship-hp-fill" style="width:' + hpPct + '%"></div></div>' +
+      '<div class="ship-market-price">' + syFmt(s.price_gp) + ' GP</div>' +
+      '<div class="ship-market-meta"><span>SELLER</span><span>' + fcEsc(seller) + '</span></div>' +
+      '<div class="ship-sale-actions">' +
+        (s.is_mine
+          ? '<button class="ship-sale-btn cancel" onclick="syCancelShipListing(' + s.listing_id + ')">판매 취소</button>'
+          : '<button class="ship-sale-btn" onclick="syBuyShipListing(' + s.listing_id + ')">구매</button>') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function syListShipForSale(shipId) {
+  var ship = (shipyardState.ships || []).find(function(s){ return s.id === shipId; });
+  var name = ship ? (ship.name_ko || ship.name || '함선') : '함선';
+  var priceText = await gameInput({
+    title:'함선 판매 등록',
+    label:name + ' 판매가 (GP)',
+    placeholder:'예: 1200',
+    maxLength:16
+  });
+  if (priceText === null) return;
+  var price = Number(String(priceText).replace(/,/g, '').trim());
+  if (!Number.isFinite(price) || price <= 0) { showFactionToast('판매가가 올바르지 않습니다', 'error'); return; }
+  try {
+    var r = await fetch('/api/ships/' + shipId + '/list', {
+      method:'POST',
+      headers:Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body:JSON.stringify({ price_gp: price })
+    });
+    var d = await r.json();
+    if (!r.ok || d.error) { showFactionToast('판매 등록 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('판매 등록 완료: ' + syFmt(d.price_gp) + ' GP', 'success');
+    await refreshShipyard();
+  } catch(e) { showFactionToast('판매 등록 요청 실패', 'error'); }
+}
+
+async function syCancelShipListing(listingId) {
+  if (!listingId) return;
+  var ok = await gameConfirm({ title:'판매 취소', icon:'🏷', body:'판매 등록을 취소하고 함선을 내 기본 함대로 되돌립니다.', confirmText:'취소하기' });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/ships/market/listings/' + listingId + '/cancel', {
+      method:'POST',
+      headers:getAuthHeaders()
+    });
+    var d = await r.json();
+    if (!r.ok || d.error) { showFactionToast('판매 취소 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('판매 취소 완료', 'success');
+    await refreshShipyard();
+  } catch(e) { showFactionToast('판매 취소 요청 실패', 'error'); }
+}
+
+async function syBuyShipListing(listingId) {
+  var listing = (shipyardState.marketListings || []).find(function(s){ return s.listing_id === listingId; }) || {};
+  var name = listing.name_ko || '함선';
+  var price = Number(listing.price_gp || 0);
+  var ok = await gameConfirm({
+    title:'함선 구매',
+    icon:'🚀',
+    body:'<b>' + fcEsc(name) + '</b> 함선을 구매합니다.',
+    info:[{ k:'가격', v: syFmt(price) + ' GP' }],
+    confirmText:'구매하기'
+  });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/ships/market/listings/' + listingId + '/buy', {
+      method:'POST',
+      headers:getAuthHeaders()
+    });
+    var d = await r.json();
+    if (!r.ok || d.error) { showFactionToast('구매 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('구매 완료: 내 함대에 배치됨', 'success');
+    refreshBalance();
+    await refreshShipyard();
+  } catch(e) { showFactionToast('구매 요청 실패', 'error'); }
 }
 
 function updateFooter() {

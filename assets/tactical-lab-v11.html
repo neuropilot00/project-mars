@@ -104,7 +104,7 @@ body{padding:0;background:#03040b;}
 .sound-toggle.on{border-color:rgba(129,199,132,.55);color:#a5d6a7;background:rgba(7,24,12,.72);}
 .battle-comms{position:absolute;left:50%;transform:translateX(-50%);z-index:6;width:min(92%,420px);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .battle-comms.top{top:88px;}
-.battle-comms.bottom{bottom:158px;}
+.battle-comms.bottom{bottom:214px;}
 .comm-line{max-width:100%;padding:7px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(3,4,11,.78);color:#f5f7ff;font-family:'Orbitron',monospace;font-size:8px;font-weight:900;letter-spacing:1.2px;text-align:center;text-shadow:0 0 9px rgba(255,255,255,.35);box-shadow:0 0 18px rgba(0,0,0,.5);backdrop-filter:blur(7px);animation:commInOut 2.4s ease forwards;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .comm-line.atk{border-color:rgba(79,195,247,.45);color:#8fe3ff;box-shadow:0 0 18px rgba(79,195,247,.16);}
 .comm-line.def{border-color:rgba(239,83,80,.45);color:#ff9b9b;box-shadow:0 0 18px rgba(239,83,80,.16);}
@@ -114,7 +114,7 @@ body{padding:0;background:#03040b;}
 @keyframes commInOut{0%{opacity:0;transform:translateY(8px) scale(.96);}12%{opacity:1;transform:translateY(0) scale(1);}82%{opacity:1;}100%{opacity:0;transform:translateY(-8px) scale(.98);}}
 @media(max-width:600px){
   .battle-comms.top{top:124px;}
-  .battle-comms.bottom{bottom:148px;}
+  .battle-comms.bottom{bottom:196px;}
   .comm-line{font-size:7px;padding:6px 9px;letter-spacing:.75px;}
 }
 .info-toggles,.info-panel{display:none!important;}
@@ -1011,12 +1011,12 @@ function fire(sh,wsMode){
   }
 }
 
-function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual){
+function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind){
   if(PERF_MODE&&bullets.length>120)return;
   const spd=1.55+Math.random()*.45;
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
-    r:Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
-    dmg:t.atk*dmgMult*2,attackerType:t,side,ttl:190,age:0,visual:!!visual});
+    r:kind==='missile'?Math.min(t.r*.38+.6,2.8):Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
+    dmg:t.atk*dmgMult*2,attackerType:t,side,ttl:kind==='missile'?150:190,age:0,visual:!!visual,kind});
   playBulletSound();
 }
 
@@ -1366,20 +1366,20 @@ function drawBG(){
     const drift=(t*.006)%dw;
     const y=-(dh-H)*.48+Math.sin(t*.00008)*H*.025;
     CX.save();
-    CX.globalAlpha=.34;
+    CX.globalAlpha=.58;
     for(let x=-drift-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y,dw,dh);
-    CX.globalAlpha=.16;
+    CX.globalAlpha=.28;
     CX.globalCompositeOperation='screen';
     for(let x=-drift*.55-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y+H*.035,dw,dh);
     CX.restore();
   }
   const veil=CX.createLinearGradient(0,0,0,H);
-  veil.addColorStop(0,'rgba(2,3,10,.50)');
-  veil.addColorStop(.46,'rgba(2,3,10,.72)');
-  veil.addColorStop(1,'rgba(2,3,10,.84)');
+  veil.addColorStop(0,'rgba(2,3,10,.30)');
+  veil.addColorStop(.46,'rgba(2,3,10,.48)');
+  veil.addColorStop(1,'rgba(2,3,10,.62)');
   CX.fillStyle=veil;CX.fillRect(0,0,W,H);
   const gp=CX.createRadialGradient(W*.85,H*.12,0,W*.85,H*.12,W*.28);
-  gp.addColorStop(0,'rgba(160,70,25,.22)');gp.addColorStop(1,'transparent');
+  gp.addColorStop(0,'rgba(180,82,34,.34)');gp.addColorStop(1,'transparent');
   CX.fillStyle=gp;CX.fillRect(0,0,W,H);
   const gl=CX.createRadialGradient(W*.12,H*.5,0,W*.12,H*.5,W*.38);
   gl.addColorStop(0,'rgba(10,30,90,.14)');gl.addColorStop(1,'transparent');
@@ -1485,10 +1485,14 @@ function drawBullets(_wsActive){
   bullets=bullets.filter(b=>{
     b.x+=b.vx;b.y+=b.vy;b.age++;
     if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return false;
-    const al=Math.max(0,(1-b.age/b.ttl)*.42);
+    const al=Math.max(0,(1-b.age/b.ttl)*(b.kind==='missile'?.72:.42));
     CX.globalAlpha=al;
-    const ang=Math.atan2(b.vy,b.vx),len=Math.max(2,Math.abs(b.vx)*2.5);
+    const ang=Math.atan2(b.vy,b.vx),len=b.kind==='missile'?Math.max(9,Math.hypot(b.vx,b.vy)*5.5):Math.max(2,Math.abs(b.vx)*2.5);
     CX.save();CX.translate(b.x,b.y);CX.rotate(ang);
+    if(b.kind==='missile'){
+      CX.shadowColor=b.col;CX.shadowBlur=PERF_MODE?2:8;
+      CX.fillStyle='rgba(255,210,110,.55)';CX.fillRect(-len*.85,-b.r*.28,len*.75,b.r*.56);
+    }
     CX.fillStyle=b.col;CX.fillRect(-len*.1,-b.r/2,len,b.r);
     CX.fillStyle='rgba(255,255,255,.7)';CX.fillRect(len*.5,-b.r/3,len*.22,b.r*.55);
     CX.restore();CX.globalAlpha=1;
@@ -1743,7 +1747,7 @@ function cmdBeamCannon(){
     const dmg=gun.type.atk*(gun.type.size==='titan'?16:10);
     lasers.push({x1:gun.x,y1:gun.y,x2:tgt.x,y2:tgt.y,
       color:gun.type.faction==='cv'?'#ff3d2e':gun.type.faction==='fsp'?'#8cffb0':'#79dfff',
-      width,alpha:1.25,ttl:24,age:0,dmg,target:tgt,attackerType:gun.type,applied:false,side:'atk',visual:false,beamCannon:true});
+      width,alpha:1.25,ttl:160,age:0,dmg,target:tgt,attackerType:gun.type,applied:false,side:'atk',visual:false,beamCannon:true});
     mkShockwave(gun.x,gun.y,gun.type.r*5);
   });
   addLog('wn',`☢ 주포 빔포 발사 — ${guns.length}척 동기화`);
@@ -1761,7 +1765,10 @@ function cmdMissileBarrage(){
     const tgt=targets[(i*7)%targets.length];
     const dx=tgt.x-sh.x,dy=tgt.y-sh.y,len=Math.hypot(dx,dy)||1;
     sh.aimX=tgt.x;sh.aimY=tgt.y;sh.aimTTL=1000;
-    spawnB(sh.x,sh.y,dx/len+(Math.random()-.5)*.12,dy/len+(Math.random()-.5)*.12,sh.type,sh.side,1.35, false);
+    const vx=dx/len+(Math.random()-.5)*.12,vy=dy/len+(Math.random()-.5)*.12;
+    spawnB(sh.x,sh.y,vx,vy,sh.type,sh.side,1.35, false, 'missile');
+    lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
+      color:FACTIONS[sh.type.faction].color,width:1.4,alpha:.7,ttl:130,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,missileTrail:true});
   });
   addLog('wn',`☄ 미사일 일제사격 — ${Math.min(24,launchers.length)}척 발사`);
   battleCallout('미사일 전탄 발사! 궤도 열어!', 'order', 'top', 2600);

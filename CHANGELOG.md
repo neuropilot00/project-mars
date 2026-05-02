@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Ship market + chance upgrades + fleet FX polish (v5.63)
+
+- **함선 확률 강화**: 보유 함선 `ATK/DEF/SPD/HP` 강화가 성공 확률과 재료 소모를 가지도록 변경. 실패해도 GP와 재료는 소모되고 스탯은 유지됨.
+- **강화 재료 표시**: 조선소 보유함 카드에 강화 비용, 성공 확률, 필요 재료를 함께 표시.
+- **함선 마켓 추가**: 강화한 함선을 GP 가격으로 판매 등록/취소/구매할 수 있는 API와 UI 추가. 판매중 함선은 `판매중` 스티커가 붙고 강화/수리/실드/해체가 차단됨.
+- **조선소 함선 가독성 개선**: 청사진/보유함 미리보기에서 엔진 불꽃 오버레이를 제거하고, PNG 함선 밝기/대비를 올려 어둡게 묻히는 문제 완화.
+- **전투 수동 스킬 가시성 보강**: 빔포와 미사일 이펙트 지속시간을 늘리고 미사일 트레일을 추가해 사용 여부가 더 분명하게 보이도록 수정.
+- **전투 UI 보정**: 하단 무전 콜아웃을 버튼 위로 올리고 화성 배경을 더 밝게 조정.
+
+검증:
+- `node --check server/services/ship.js` 통과
+- `node --check server/routes/ships.js` 통과
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Campaign quest progress gate (v5.62)
 
 - **캠페인 작전 즉시 클리어 방지**: 스토리/결과 씬을 넘기면 바로 완료되던 흐름을 제거하고, 작전 챕터는 진행률 화면으로 이동하도록 수정.

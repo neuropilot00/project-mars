@@ -38,6 +38,24 @@ function getWallet(req) {
 
 // ═══════════════════════════════════════════════════════════════
 
+function shipErrorStatus(code) {
+  return {
+    USER_NOT_FOUND: 404,
+    SHIP_NOT_FOUND: 404,
+    LISTING_NOT_FOUND: 404,
+    INVALID_STAT: 400,
+    INVALID_PRICE: 400,
+    INVALID_UNITS: 400,
+    MARKET_DISABLED: 409,
+    SHIP_IN_BATTLE: 409,
+    SHIP_LISTED_FOR_SALE: 409,
+    CANNOT_BUY_OWN_LISTING: 409,
+    SELLER_NOT_FOUND: 409,
+    INSUFFICIENT_GP: 402,
+    INSUFFICIENT_MATERIALS: 402,
+  }[code];
+}
+
 /**
  * GET /api/ships/blueprints
  * 건조 가능 함선 목록
@@ -78,6 +96,85 @@ router.get('/my', requireAuth, async (req, res) => {
     res.json({ ships });
   } catch (err) {
     console.error('[ships] my error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * GET /api/ships/market/listings
+ * 강화된 함선 전용 마켓
+ */
+router.get('/market/listings', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    const listings = await shipService.getShipMarketListings(wallet, {
+      faction: req.query.faction,
+      size: req.query.size,
+      maxPrice: req.query.maxPrice,
+      sort: req.query.sort,
+    });
+    res.json({ listings });
+  } catch (err) {
+    console.error('[ships] market listings error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * POST /api/ships/:id/list
+ * 보유 함선을 판매 등록
+ */
+router.post('/:id/list', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    const shipId = parseInt(req.params.id);
+    if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
+    const result = await shipService.listShipForSale(wallet, shipId, req.body.price_gp);
+    res.json(result);
+  } catch (err) {
+    const status = shipErrorStatus(err.message);
+    if (status) return res.status(status).json({ error: err.message, meta: err.meta || undefined });
+    console.error('[ships] list ship error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * POST /api/ships/market/listings/:id/buy
+ */
+router.post('/market/listings/:id/buy', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    const listingId = parseInt(req.params.id);
+    if (!listingId) return res.status(400).json({ error: 'INVALID_LISTING_ID' });
+    const result = await shipService.buyShipListing(wallet, listingId);
+    res.json(result);
+  } catch (err) {
+    const status = shipErrorStatus(err.message);
+    if (status) return res.status(status).json({ error: err.message, meta: err.meta || undefined });
+    console.error('[ships] buy listing error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * POST /api/ships/market/listings/:id/cancel
+ */
+router.post('/market/listings/:id/cancel', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    const listingId = parseInt(req.params.id);
+    if (!listingId) return res.status(400).json({ error: 'INVALID_LISTING_ID' });
+    const result = await shipService.cancelShipListing(wallet, listingId);
+    res.json(result);
+  } catch (err) {
+    const status = shipErrorStatus(err.message);
+    if (status) return res.status(status).json({ error: err.message, meta: err.meta || undefined });
+    console.error('[ships] cancel listing error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
   }
 });
@@ -257,8 +354,10 @@ router.post('/:id/upgrade-stat', requireAuth, async (req, res) => {
       'INVALID_STAT':     400,
       'SHIP_NOT_FOUND':   404,
       'SHIP_IN_BATTLE':   409,
+      'SHIP_LISTED_FOR_SALE': 409,
       'USER_NOT_FOUND':   404,
       'INSUFFICIENT_GP':  402,
+      'INSUFFICIENT_MATERIALS': 402,
     };
     const status = errorMap[err.message];
     if (status) return res.status(status).json({ error: err.message, meta: err.meta || undefined });
@@ -297,6 +396,7 @@ router.post('/:id/repair', requireAuth, async (req, res) => {
       'USER_NOT_FOUND':   404,
       'INSUFFICIENT_GP':  402,
       'INSUFFICIENT_IRON': 402,
+      'SHIP_LISTED_FOR_SALE': 409,
     };
     const status = errorMap[err.message];
     if (status) {
@@ -322,7 +422,8 @@ router.post('/:id/scrap', requireAuth, async (req, res) => {
   } catch (err) {
     const map = {
       SHIP_NOT_FOUND: 404,
-      SHIP_IN_BATTLE: 409
+      SHIP_IN_BATTLE: 409,
+      SHIP_LISTED_FOR_SALE: 409
     };
     const s = map[err.message];
     if (s) return res.status(s).json({ error: err.message });
@@ -358,6 +459,7 @@ router.post('/:id/shield', requireAuth, async (req, res) => {
       'USER_NOT_FOUND':  404,
       'INSUFFICIENT_GP': 402,
       'INVALID_UNITS':   400,
+      'SHIP_LISTED_FOR_SALE': 409,
     };
     const status = errorMap[err.message];
     if (status) {
