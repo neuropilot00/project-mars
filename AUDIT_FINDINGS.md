@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v5.60 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.61 / 2026-05-03)
+
+## ✅ v5.61 Campaign completed chapter compact cards — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 완료 챕터 접힘 처리 | ✅ | 프롤로그뿐 아니라 CH1 이후 완료 챕터도 compact 카드로 표시. |
+| 결과 진입 유지 | ✅ | 접힌 완료 카드에서도 `RESULTS` 버튼으로 결과/챕터 화면 진입 가능. |
+| 진행 카드 영향 | ✅ | 진행 중/시작 가능 챕터는 기존 큰 카드와 metric 영역 유지. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.60 Campaign editor layout parity + story perf — 수정 완료
 

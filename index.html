@@ -24925,9 +24925,10 @@ function renderCampaignList(chapters){
       lockedHtml+=card;
       return;
     }
-    if(done&&Number(ch.chapterNumber)===0){
+    if(done){
+      var doneChapterLabel=Number(ch.chapterNumber)===0?'PROLOGUE':'CH '+ch.chapterNumber;
       card+='<div class="campaign-card compact done">';
-      card+='<div class="campaign-icon">✓</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' ROUTE · PROLOGUE · COMPLETED</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+      card+='<div class="campaign-icon">✓</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' ROUTE · '+doneChapterLabel+' · COMPLETED</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
       card+='<button class="campaign-btn secondary" onclick="openCampaignChapter(\''+ch.questId+'\')">RESULTS</button>';
       card+='</div>';
       html+=card;

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.60 (Campaign editor layout parity + story perf) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.61 (Campaign completed chapter compact cards) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,13 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.61 최신 핸드오프 — 완료 캠페인 챕터 전체 접힘 처리
+
+- 캠페인 리스트에서 완료(`completed`/`claimed`)된 챕터는 챕터 번호와 관계없이 compact 카드로 접어서 표시한다.
+- 기존에는 `chapterNumber === 0` 프롤로그만 접고 CH1 이후 완료 챕터는 큰 카드로 남는 조건 버그가 있었다.
+- compact 완료 카드의 메타는 `PROLOGUE` 또는 `CH N`을 표시하고, 버튼은 `RESULTS`를 유지한다.
+- 진행 중/시작 가능 챕터만 큰 카드와 metric 영역을 표시한다.
 
 ### v5.60 최신 핸드오프 — 캠페인 에디터/인게임 배치 일치 + 전환 렉 완화
 

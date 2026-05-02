@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Campaign completed chapter compact cards (v5.61)
+
+- **완료 챕터 전체 접힘 처리**: 캠페인 리스트에서 완료된 챕터는 프롤로그뿐 아니라 CH1 이후도 compact 카드로 접어서 표시.
+- **결과 확인 유지**: 접힌 완료 카드의 `RESULTS` 버튼은 그대로 유지해 결과 화면 접근 가능.
+- **진행 카드 영향 없음**: 진행 중/시작 가능 챕터만 기존 큰 카드와 metric 영역을 표시.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Campaign editor layout parity + story perf (v5.60)
 
 - **에디터/인게임 캐릭터 배치 일치**: 에디터가 저장하는 `x/y/w` top-left percent 좌표를 인게임 렌더러도 그대로 적용하도록 수정. `cx/cy` 계열만 중앙 기준으로 처리.
