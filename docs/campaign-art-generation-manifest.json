@@ -1,0 +1,1162 @@
+{
+  "schema": "occupy-mars.campaign-art-generation-manifest.v1",
+  "style_lock": "gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+  "style_lock_removed_phrases": [
+    "green CRT/radar screens",
+    "worn industrial spaceship atmosphere"
+  ],
+  "source_prompt_config": "scripts/gen_scene_level_v2.py",
+  "entries": [
+    {
+      "id": "argyre_canyon_depot",
+      "name": "Argyre Canyon Depot",
+      "location_type": "nature",
+      "must_include": "Argyre canyon supply depot on Mars, weathered prefab containers stacked between sheer red rock walls, single overhead floodlight, scattered crates and pipes, Crow Vanguard staging area, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Argyre canyon supply depot on Mars, weathered prefab containers stacked between sheer red rock walls, single overhead floodlight, scattered crates and pipes, Crow Vanguard staging area, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/argyre_canyon_depot.png",
+      "rejected": true
+    },
+    {
+      "id": "argyre_canyon_night",
+      "name": "Argyre Canyon Night",
+      "location_type": "nature",
+      "must_include": "Argyre Planitia canyon on Mars at deep night, sheer red rock walls towering hundreds of meters, narrow starfield strip above, ambush territory, single distant fire glow, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Argyre Planitia canyon on Mars at deep night, sheer red rock walls towering hundreds of meters, narrow starfield strip above, ambush territory, single distant fire glow, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/argyre_canyon_night.png",
+      "rejected": true
+    },
+    {
+      "id": "argyre_plains",
+      "name": "Argyre Plains",
+      "location_type": "nature",
+      "must_include": "Argyre Planitia battlefield on Mars before combat, vast flat red basin extending to escarpment ridge, approaching dust storm darkening half sky, two opposing fleet silhouettes at distance, exposed featureless terrain, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Argyre Planitia battlefield on Mars before combat, vast flat red basin extending to escarpment ridge, approaching dust storm darkening half sky, two opposing fleet silhouettes at distance, exposed featureless terrain, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/argyre_plains.png",
+      "rejected": true
+    },
+    {
+      "id": "argyre_plains_dusk",
+      "name": "Argyre Plains Dusk",
+      "location_type": "nature",
+      "must_include": "Argyre plains on Mars at deep dusk, blood-red horizon line between red dust and ink-violet sky, rusted hulk of wrecked cargo crawler half-buried, scattered weapon casings catching last light, aftermath silence, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Argyre plains on Mars at deep dusk, blood-red horizon line between red dust and ink-violet sky, rusted hulk of wrecked cargo crawler half-buried, scattered weapon casings catching last light, aftermath silence, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/argyre_plains_dusk.png",
+      "rejected": true
+    },
+    {
+      "id": "argyre_plains_night",
+      "name": "Argyre Plains Night",
+      "location_type": "nature",
+      "must_include": "Argyre plains on Mars at deep night, twin Martian moons low on horizon, faint cooking fire glow, distant fleet silhouettes, ambient dust haze, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Argyre plains on Mars at deep night, twin Martian moons low on horizon, faint cooking fire glow, distant fleet silhouettes, ambient dust haze, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/argyre_plains_night.png",
+      "rejected": true
+    },
+    {
+      "id": "cargo_ship_corridor",
+      "name": "Cargo Ship Corridor",
+      "location_type": "other",
+      "must_include": "narrow corridor inside battered interplanetary cargo freighter Kariope, pipes and conduits along low ceiling, warm emergency lighting, scuffed metal floor, faction travelers in tight quarters",
+      "final_prompt": "narrow corridor inside battered interplanetary cargo freighter Kariope, pipes and conduits along low ceiling, warm emergency lighting, scuffed metal floor, faction travelers in tight quarters, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/cargo_ship_corridor.png",
+      "rejected": true
+    },
+    {
+      "id": "cargo_ship_interior",
+      "name": "Cargo Ship Interior",
+      "location_type": "control",
+      "must_include": "interior cockpit of Kariope cargo freighter en route to Mars, two pilot seats facing reinforced cockpit window framing red Mars, battered control consoles with tangled cable runs, green CRT/radar screens, analog mission consoles, dim command readouts",
+      "final_prompt": "interior cockpit of Kariope cargo freighter en route to Mars, two pilot seats facing reinforced cockpit window framing red Mars, battered control consoles with tangled cable runs, green CRT/radar screens, analog mission consoles, dim command readouts, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/cargo_ship_interior.png",
+      "rejected": false
+    },
+    {
+      "id": "cargo_ship_window_mars",
+      "name": "Cargo Ship Window Mars",
+      "location_type": "nature",
+      "must_include": "porthole window view of Mars from low orbit aboard the Kariope, full red planet through scratched reinforced glass, Hellas basin and Olympus Mons visible, arrival wonder, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "porthole window view of Mars from low orbit aboard the Kariope, full red planet through scratched reinforced glass, Hellas basin and Olympus Mons visible, arrival wonder, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/cargo_ship_window_mars.png",
+      "rejected": true
+    },
+    {
+      "id": "deep_space_mars_approach",
+      "name": "Deep Space Mars Approach",
+      "location_type": "nature",
+      "must_include": "interplanetary cargo ship approaching Mars seen from outside hull, Mars dominating frame as detailed red world with polar caps, Hellas basin, dust-storm bands, freighter silhouette in foreground, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "interplanetary cargo ship approaching Mars seen from outside hull, Mars dominating frame as detailed red world with polar caps, Hellas basin, dust-storm bands, freighter silhouette in foreground, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/deep_space_mars_approach.png",
+      "rejected": true
+    },
+    {
+      "id": "deep_space_window",
+      "name": "Deep Space Window",
+      "location_type": "other",
+      "must_include": "single reinforced porthole window in departing ship cabin looking back at Mars, red planet shrinking against black space, stars and receding red dot, departure and memory",
+      "final_prompt": "single reinforced porthole window in departing ship cabin looking back at Mars, red planet shrinking against black space, stars and receding red dot, departure and memory, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/deep_space_window.png",
+      "rejected": true
+    },
+    {
+      "id": "erebus_base_exterior",
+      "name": "Erebus Base Exterior",
+      "location_type": "settlement",
+      "must_include": "Crow Vanguard fortress in Erebus crater seen from outside, volcanic rock walls carved into bunker entrances, faction banners, smoke from interior fires, weather-beaten warrior camp, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "Crow Vanguard fortress in Erebus crater seen from outside, volcanic rock walls carved into bunker entrances, faction banners, smoke from interior fires, weather-beaten warrior camp, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/erebus_base_exterior.png",
+      "rejected": true
+    },
+    {
+      "id": "erebus_base_interior",
+      "name": "Erebus Base Interior",
+      "location_type": "other",
+      "must_include": "Crow Vanguard guerrilla base interior, dark industrial corridors, combat equipment hanging on bare metal walls, emergency red lighting, weapons and survival gear, volcanic rock walls",
+      "final_prompt": "Crow Vanguard guerrilla base interior, dark industrial corridors, combat equipment hanging on bare metal walls, emergency red lighting, weapons and survival gear, volcanic rock walls, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/erebus_base_interior.png",
+      "rejected": true
+    },
+    {
+      "id": "erebus_base_interior_night",
+      "name": "Erebus Base Interior Night",
+      "location_type": "other",
+      "must_include": "Crow Vanguard base interior at deep night, low torch fires illuminating sleeping warriors among gear, anti-corporate mercenary aesthetic, war trophies on walls",
+      "final_prompt": "Crow Vanguard base interior at deep night, low torch fires illuminating sleeping warriors among gear, anti-corporate mercenary aesthetic, war trophies on walls, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/erebus_base_interior_night.png",
+      "rejected": true
+    },
+    {
+      "id": "erebus_canyon_sunset",
+      "name": "Erebus Canyon Sunset",
+      "location_type": "nature",
+      "must_include": "Erebus crater canyon at sunset, volcanic rock walls bathed in red-amber light, narrow path winding down to base entrance, lone CV operative silhouette, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Erebus crater canyon at sunset, volcanic rock walls bathed in red-amber light, narrow path winding down to base entrance, lone CV operative silhouette, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/erebus_canyon_sunset.png",
+      "rejected": true
+    },
+    {
+      "id": "erebus_crater_exterior",
+      "name": "Erebus Crater Exterior",
+      "location_type": "nature",
+      "must_include": "Erebus crater exterior on Mars, massive volcanic depression with steep walls, CV base entrance carved into rock, smoke from barrel fires rising, weathered banner, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Erebus crater exterior on Mars, massive volcanic depression with steep walls, CV base entrance carved into rock, smoke from barrel fires rising, weathered banner, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/erebus_crater_exterior.png",
+      "rejected": true
+    },
+    {
+      "id": "erebus_crater_panorama",
+      "name": "Erebus Crater Panorama",
+      "location_type": "nature",
+      "must_include": "wide panorama of Erebus crater on Mars at red dusk, full extent of volcanic depression visible, CV outposts dotting the rim, twin Martian moons rising, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "wide panorama of Erebus crater on Mars at red dusk, full extent of volcanic depression visible, CV outposts dotting the rim, twin Martian moons rising, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/erebus_crater_panorama.png",
+      "rejected": true
+    },
+    {
+      "id": "erebus_throne_hall",
+      "name": "Erebus Throne Hall",
+      "location_type": "ritual",
+      "must_include": "Crow Vanguard fortress throne room in Erebus crater, massive industrial chamber carved from volcanic rock, iron pillars with burning flame torches, battered mining chair as throne, mercenary war trophies and faction banners, torchlight, candles, skull motifs, iron ritual atmosphere",
+      "final_prompt": "Crow Vanguard fortress throne room in Erebus crater, massive industrial chamber carved from volcanic rock, iron pillars with burning flame torches, battered mining chair as throne, mercenary war trophies and faction banners, torchlight, candles, skull motifs, iron ritual atmosphere, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/erebus_throne_hall.png",
+      "rejected": true
+    },
+    {
+      "id": "fsp_assembly_hall",
+      "name": "Fsp Assembly Hall",
+      "location_type": "settlement",
+      "must_include": "FSP Free Settlement community assembly hall, warm wooden interior with panoramic windows showing Mars landscape, circular democratic seating, hand-painted murals on walls, lived-in warmth, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "FSP Free Settlement community assembly hall, warm wooden interior with panoramic windows showing Mars landscape, circular democratic seating, hand-painted murals on walls, lived-in warmth, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/fsp_assembly_hall.png",
+      "rejected": true
+    },
+    {
+      "id": "fsp_assembly_hall_evening",
+      "name": "Fsp Assembly Hall Evening",
+      "location_type": "nature",
+      "must_include": "FSP assembly hall at evening, warm amber lights through windows, eleven empty chairs in circle, dust-storm beginning outside, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "FSP assembly hall at evening, warm amber lights through windows, eleven empty chairs in circle, dust-storm beginning outside, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/fsp_assembly_hall_evening.png",
+      "rejected": true
+    },
+    {
+      "id": "fsp_assembly_hall_official",
+      "name": "Fsp Assembly Hall Official",
+      "location_type": "other",
+      "must_include": "FSP Hellas Central Assembly Hall during official session, eleven chair voting circle filled with delegates, hand-painted voting tally board above, scale-4 dust pounding tall windows",
+      "final_prompt": "FSP Hellas Central Assembly Hall during official session, eleven chair voting circle filled with delegates, hand-painted voting tally board above, scale-4 dust pounding tall windows, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/fsp_assembly_hall_official.png",
+      "rejected": true
+    },
+    {
+      "id": "fsp_base",
+      "name": "Fsp Base",
+      "location_type": "settlement",
+      "must_include": "FSP Free Settlement base on Mars surface, organic curved dome habitat architecture, solar panels and greenhouse modules, community garden with red soil, warm amber lights, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "FSP Free Settlement base on Mars surface, organic curved dome habitat architecture, solar panels and greenhouse modules, community garden with red soil, warm amber lights, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/fsp_base.png",
+      "rejected": true
+    },
+    {
+      "id": "fsp_base_exterior",
+      "name": "Fsp Base Exterior",
+      "location_type": "nature",
+      "must_include": "FSP base exterior at Martian dusk, curved dome habitats glowing warmly, distant mine lights below, FSP solidarity banner painted on wall, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "FSP base exterior at Martian dusk, curved dome habitats glowing warmly, distant mine lights below, FSP solidarity banner painted on wall, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/fsp_base_exterior.png",
+      "rejected": true
+    },
+    {
+      "id": "fsp_base_night",
+      "name": "Fsp Base Night",
+      "location_type": "settlement",
+      "must_include": "FSP settlement base interior at night, single lamp lit on table, Lena's tattooed forearm visible, FSP red solidarity patches on coats, quiet vigil, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "FSP settlement base interior at night, single lamp lit on table, Lena's tattooed forearm visible, FSP red solidarity patches on coats, quiet vigil, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/fsp_base_night.png",
+      "rejected": true
+    },
+    {
+      "id": "gaia_ship_interior",
+      "name": "Gaia Ship Interior",
+      "location_type": "other",
+      "must_include": "interior of FSP warship Gaia under construction, vast hangar bay with hull plates being welded, sparks falling, civilian volunteers laboring among machinery, the name GAIA painted on bulkhead",
+      "final_prompt": "interior of FSP warship Gaia under construction, vast hangar bay with hull plates being welded, sparks falling, civilian volunteers laboring among machinery, the name GAIA painted on bulkhead, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/gaia_ship_interior.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_central_exterior",
+      "name": "Hellas Central Exterior",
+      "location_type": "nature",
+      "must_include": "exterior of Hellas Central MCC-controlled city on Mars, corporate prefab towers and habitat domes under blood-red sky, workers in pressure suits between buildings, MCC insignia everywhere, efficient and cold, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "exterior of Hellas Central MCC-controlled city on Mars, corporate prefab towers and habitat domes under blood-red sky, workers in pressure suits between buildings, MCC insignia everywhere, efficient and cold, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_central_exterior.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_central_exterior_night",
+      "name": "Hellas Central Exterior Night",
+      "location_type": "nature",
+      "must_include": "Hellas Central city at night, MCC corporate district, blue-white corporate lights illuminating ordered streets, surveillance cameras on every corner, workers hurrying home after curfew, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Hellas Central city at night, MCC corporate district, blue-white corporate lights illuminating ordered streets, surveillance cameras on every corner, workers hurrying home after curfew, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_central_exterior_night.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_central_exterior_panorama",
+      "name": "Hellas Central Exterior Panorama",
+      "location_type": "nature",
+      "must_include": "wide panoramic view of Hellas Central on Mars, full MCC corporate city spread across basin floor, industrial zones, residential domes, processing facilities, oppressive scale, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "wide panoramic view of Hellas Central on Mars, full MCC corporate city spread across basin floor, industrial zones, residential domes, processing facilities, oppressive scale, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_central_exterior_panorama.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_exterior_road",
+      "name": "Hellas Exterior Road",
+      "location_type": "nature",
+      "must_include": "exterior road leading to Hellas Central, single lonely transport vehicle on red dust highway, distant city silhouette, evening sky, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "exterior road leading to Hellas Central, single lonely transport vehicle on red dust highway, distant city silhouette, evening sky, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_exterior_road.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_labor_district_night",
+      "name": "Hellas Labor District Night",
+      "location_type": "other",
+      "must_include": "MCC-controlled labor district C-7 on Mars at night, factory and processing plant silhouettes against dark purple sky, dim street lamps casting orange circles on dusty ground, chalk names on alley walls",
+      "final_prompt": "MCC-controlled labor district C-7 on Mars at night, factory and processing plant silhouettes against dark purple sky, dim street lamps casting orange circles on dusty ground, chalk names on alley walls, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_labor_district_night.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mine_exterior",
+      "name": "Hellas Mine Exterior",
+      "location_type": "nature",
+      "must_include": "Mars mine entrance exterior, scaffolding around shaft head, ore-cart rails leading into darkness, MCC company logos, weathered workers in pressure suits, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Mars mine entrance exterior, scaffolding around shaft head, ore-cart rails leading into darkness, MCC company logos, weathered workers in pressure suits, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mine_exterior.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mining_outpost",
+      "name": "Hellas Mining Outpost",
+      "location_type": "other",
+      "must_include": "Mars mining outpost in Hellas, single processing tower among prefab worker barracks, red dust accumulated everywhere, MCC compound with high fence",
+      "final_prompt": "Mars mining outpost in Hellas, single processing tower among prefab worker barracks, red dust accumulated everywhere, MCC compound with high fence, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_outpost.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mining_village",
+      "name": "Hellas Mining Village",
+      "location_type": "settlement",
+      "must_include": "Mars mining colony village in Hellas Planitia basin, prefab habitat modules with warm yellow porthole lights, red dust everywhere, improvised community square, hardworking miner settlement under deep crimson sky, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "Mars mining colony village in Hellas Planitia basin, prefab habitat modules with warm yellow porthole lights, red dust everywhere, improvised community square, hardworking miner settlement under deep crimson sky, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mining_village_dawn",
+      "name": "Hellas Mining Village Dawn",
+      "location_type": "settlement",
+      "must_include": "Mars mining village at dawn, first light catching the prefab habitats, miners beginning shift in pressure suits, hopeful glow despite hardship, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "Mars mining village at dawn, first light catching the prefab habitats, miners beginning shift in pressure suits, hopeful glow despite hardship, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_dawn.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mining_village_empty",
+      "name": "Hellas Mining Village Empty",
+      "location_type": "settlement",
+      "must_include": "Mars mining village abandoned, empty prefab habitats, broken windows, drifting red dust, faded chalk names on walls, ghost settlement, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "Mars mining village abandoned, empty prefab habitats, broken windows, drifting red dust, faded chalk names on walls, ghost settlement, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_empty.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mining_village_fire",
+      "name": "Hellas Mining Village Fire",
+      "location_type": "settlement",
+      "must_include": "Mars mining village at night during strike, barrel fires burning in colony square, orange firelight on pressurized habitat walls, workers gathered against cold darkness, protest and solidarity, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "Mars mining village at night during strike, barrel fires burning in colony square, orange firelight on pressurized habitat walls, workers gathered against cold darkness, protest and solidarity, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_fire.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mining_village_panorama",
+      "name": "Hellas Mining Village Panorama",
+      "location_type": "settlement",
+      "must_include": "panoramic view of full Hellas mining village across the basin floor, dozens of prefab habitats, central square fire, mine works at edge, deep red sky, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "panoramic view of full Hellas mining village across the basin floor, dozens of prefab habitats, central square fire, mine works at edge, deep red sky, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_panorama.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_mining_village_wall",
+      "name": "Hellas Mining Village Wall",
+      "location_type": "settlement",
+      "must_include": "close on weathered concrete wall in Hellas mining village covered in CHALK NAMES of dead miners — KIM YONG-JIN at top, many names below in different handwriting, single candle at base, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "close on weathered concrete wall in Hellas mining village covered in CHALK NAMES of dead miners — KIM YONG-JIN at top, many names below in different handwriting, single candle at base, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_wall.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_outer_plains",
+      "name": "Hellas Outer Plains",
+      "location_type": "nature",
+      "must_include": "vast empty Hellas outer plains on Mars, red dust extending to flat horizon, single distant communication relay tower, ambient dust haze, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "vast empty Hellas outer plains on Mars, red dust extending to flat horizon, single distant communication relay tower, ambient dust haze, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_outer_plains.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_outer_plains_sunset",
+      "name": "Hellas Outer Plains Sunset",
+      "location_type": "nature",
+      "must_include": "Hellas outer plains at Martian sunset, sun sinking behind escarpment, blue-tinged dusk on horizon, lone figure walking the dust road, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Hellas outer plains at Martian sunset, sun sinking behind escarpment, blue-tinged dusk on horizon, lone figure walking the dust road, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_outer_plains_sunset.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_various_night",
+      "name": "Hellas Various Night",
+      "location_type": "settlement",
+      "must_include": "wide vista of multiple Mars colony settlements seen from high ridge at night, dozens of pressurized habitat domes scattered across red dust plain, warm yellow porthole lights, two Martian moons, vast lonely scale, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth",
+      "final_prompt": "wide vista of multiple Mars colony settlements seen from high ridge at night, dozens of pressurized habitat domes scattered across red dust plain, warm yellow porthole lights, two Martian moons, vast lonely scale, bonfire and lantern light, lived-in frontier settlement details, communal survival warmth, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_various_night.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_zone4_deep_tunnel",
+      "name": "Hellas Zone4 Deep Tunnel",
+      "location_type": "nature",
+      "must_include": "deep abandoned mine tunnel on Mars, ancient alien ore veins glowing faint cyan in crumbling rock walls, 30-year-old mining shaft, claustrophobic darkness, rusty support beams, mineral crystals catching dim headlamp light, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "deep abandoned mine tunnel on Mars, ancient alien ore veins glowing faint cyan in crumbling rock walls, 30-year-old mining shaft, claustrophobic darkness, rusty support beams, mineral crystals catching dim headlamp light, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_deep_tunnel.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_zone4_outside_dawn",
+      "name": "Hellas Zone4 Outside Dawn",
+      "location_type": "nature",
+      "must_include": "Hellas Zone 4 ruined mining facility exterior at dawn, weathered industrial wreckage half-buried in red dust, names scratched in remaining walls, memorial silence, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Hellas Zone 4 ruined mining facility exterior at dawn, weathered industrial wreckage half-buried in red dust, names scratched in remaining walls, memorial silence, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_outside_dawn.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_zone4_ruins",
+      "name": "Hellas Zone4 Ruins",
+      "location_type": "other",
+      "must_include": "abandoned Zone 4 mining facility ruins on Mars, 30-year-old collapsed scaffolding and rusted ore processors, weathered industrial wreckage half-buried in red dust, names scratched in walls",
+      "final_prompt": "abandoned Zone 4 mining facility ruins on Mars, 30-year-old collapsed scaffolding and rusted ore processors, weathered industrial wreckage half-buried in red dust, names scratched in walls, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_ruins.png",
+      "rejected": true
+    },
+    {
+      "id": "hellas_zone4_ruins_exit",
+      "name": "Hellas Zone4 Ruins Exit",
+      "location_type": "other",
+      "must_include": "exit corridor of Zone 4 ruins, blackened blast-damage walls, multiple handprints from those who fled the disaster, single sun-shaft from above",
+      "final_prompt": "exit corridor of Zone 4 ruins, blackened blast-damage walls, multiple handprints from those who fled the disaster, single sun-shaft from above, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_ruins_exit.png",
+      "rejected": true
+    },
+    {
+      "id": "kariope_cargo_bay",
+      "name": "Kariope Cargo Bay",
+      "location_type": "other",
+      "must_include": "interior cargo bay of worn interplanetary freighter Kariope, massive metal shipping containers stacked floor to ceiling, dim industrial lighting, zero-g safety rails, diverse passengers sitting on bags between cargo",
+      "final_prompt": "interior cargo bay of worn interplanetary freighter Kariope, massive metal shipping containers stacked floor to ceiling, dim industrial lighting, zero-g safety rails, diverse passengers sitting on bags between cargo, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/kariope_cargo_bay.png",
+      "rejected": true
+    },
+    {
+      "id": "kariope_observation_deck",
+      "name": "Kariope Observation Deck",
+      "location_type": "other",
+      "must_include": "small observation deck on the Kariope cargo ship approaching Mars, cracked reinforced porthole window revealing massive red planet filling view, Mars growing larger, travelers pressed against glass",
+      "final_prompt": "small observation deck on the Kariope cargo ship approaching Mars, cracked reinforced porthole window revealing massive red planet filling view, Mars growing larger, travelers pressed against glass, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/kariope_observation_deck.png",
+      "rejected": true
+    },
+    {
+      "id": "kepler_crater",
+      "name": "Kepler Crater",
+      "location_type": "nature",
+      "must_include": "Kepler crater on Mars, ancient impact crater with deep dark interior, scientific research equipment scattered on crater floor, ancient extraterrestrial mineral deposits glinting, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Kepler crater on Mars, ancient impact crater with deep dark interior, scientific research equipment scattered on crater floor, ancient extraterrestrial mineral deposits glinting, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater.png",
+      "rejected": true
+    },
+    {
+      "id": "kepler_crater_dawn",
+      "name": "Kepler Crater Dawn",
+      "location_type": "nature",
+      "must_include": "Kepler crater on Mars at dawn, ancient impact crater rim silhouette against pink-orange sunrise, scientific equipment scattered, Liang Wei's worn outpost on rim, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Kepler crater on Mars at dawn, ancient impact crater rim silhouette against pink-orange sunrise, scientific equipment scattered, Liang Wei's worn outpost on rim, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_dawn.png",
+      "rejected": true
+    },
+    {
+      "id": "kepler_crater_dusk",
+      "name": "Kepler Crater Dusk",
+      "location_type": "nature",
+      "must_include": "Kepler crater on Mars at dusk, deep crater interior fading into shadow, last light catching ancient ore deposits, single research outpost on rim, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Kepler crater on Mars at dusk, deep crater interior fading into shadow, last light catching ancient ore deposits, single research outpost on rim, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_dusk.png",
+      "rejected": true
+    },
+    {
+      "id": "kepler_crater_edge",
+      "name": "Kepler Crater Edge",
+      "location_type": "nature",
+      "must_include": "Kepler crater rim edge, sheer drop to deep basin floor below, ancient ore samples on folding worktable, telescope pointed at horizon, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Kepler crater rim edge, sheer drop to deep basin floor below, ancient ore samples on folding worktable, telescope pointed at horizon, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_edge.png",
+      "rejected": true
+    },
+    {
+      "id": "kepler_crater_edge_dusk",
+      "name": "Kepler Crater Edge Dusk",
+      "location_type": "nature",
+      "must_include": "Kepler crater rim at dusk on Mars, ancient impact crater cliff edge backlit by red-violet evening sky, single weather-beaten research habitat clinging to rim, Liang Wei's solitary outpost, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Kepler crater rim at dusk on Mars, ancient impact crater cliff edge backlit by red-violet evening sky, single weather-beaten research habitat clinging to rim, Liang Wei's solitary outpost, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_edge_dusk.png",
+      "rejected": true
+    },
+    {
+      "id": "mars_docking_bay",
+      "name": "Mars Docking Bay",
+      "location_type": "nature",
+      "must_include": "Mars surface docking bay, massive industrial gantries holding shuttles, pressure-locked terminals with arrival/departure boards, dust-filtered light through huge bay doors, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Mars surface docking bay, massive industrial gantries holding shuttles, pressure-locked terminals with arrival/departure boards, dust-filtered light through huge bay doors, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mars_docking_bay.png",
+      "rejected": true
+    },
+    {
+      "id": "mars_landing_approach",
+      "name": "Mars Landing Approach",
+      "location_type": "nature",
+      "must_include": "atmospheric entry approach to Mars surface from shuttle window, orange-red plasma trail visible, Hellas Planitia crater basin through heat shimmer, landing descent turbulence, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "atmospheric entry approach to Mars surface from shuttle window, orange-red plasma trail visible, Hellas Planitia crater basin through heat shimmer, landing descent turbulence, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mars_landing_approach.png",
+      "rejected": true
+    },
+    {
+      "id": "mars_sunset",
+      "name": "Mars Sunset",
+      "location_type": "nature",
+      "must_include": "Martian sunset on red plains, dust-saturated atmosphere turning sun into pale-blue disk on horizon, long jagged rock silhouettes, deep crimson sky bleeding to violet, single tiny rover trail, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Martian sunset on red plains, dust-saturated atmosphere turning sun into pale-blue disk on horizon, long jagged rock silhouettes, deep crimson sky bleeding to violet, single tiny rover trail, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mars_sunset.png",
+      "rejected": true
+    },
+    {
+      "id": "mars_surface_dust_storm",
+      "name": "Mars Surface Dust Storm",
+      "location_type": "nature",
+      "must_include": "Mars surface during full dust storm, massive orange wall advancing across red plains, tiny pressure-suited figures battling wind, near-zero visibility, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Mars surface during full dust storm, massive orange wall advancing across red plains, tiny pressure-suited figures battling wind, near-zero visibility, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mars_surface_dust_storm.png",
+      "rejected": true
+    },
+    {
+      "id": "mcc_archive_sublevel",
+      "name": "Mcc Archive Sublevel",
+      "location_type": "other",
+      "must_include": "underground MCC corporate archive sublevel 4, endless rows of filing cabinets and old server racks, flickering fluorescent tube lights, damp concrete floor, classified files covering decades of Mars operations",
+      "final_prompt": "underground MCC corporate archive sublevel 4, endless rows of filing cabinets and old server racks, flickering fluorescent tube lights, damp concrete floor, classified files covering decades of Mars operations, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mcc_archive_sublevel.png",
+      "rejected": true
+    },
+    {
+      "id": "mcc_board_chamber",
+      "name": "Mcc Board Chamber",
+      "location_type": "other",
+      "must_include": "MCC executive board chamber high above Hellas Central, circular obsidian conference table for seven directors, tall narrow armored windows overlooking Mars colony far below, private oxygen scrubbers behind chairs, cold absolute corporate power",
+      "final_prompt": "MCC executive board chamber high above Hellas Central, circular obsidian conference table for seven directors, tall narrow armored windows overlooking Mars colony far below, private oxygen scrubbers behind chairs, cold absolute corporate power, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mcc_board_chamber.png",
+      "rejected": true
+    },
+    {
+      "id": "mcc_briefing_room",
+      "name": "Mcc Briefing Room",
+      "location_type": "control",
+      "must_include": "MCC corporate operations briefing chamber on Mars, long obsidian conference table lit by overhead holographic mission display showing red-sector fleet movements, high-back synthetic-leather chairs, dark brushed alloy walls, cold blue light, green CRT/radar screens, analog mission consoles, dim command readouts",
+      "final_prompt": "MCC corporate operations briefing chamber on Mars, long obsidian conference table lit by overhead holographic mission display showing red-sector fleet movements, high-back synthetic-leather chairs, dark brushed alloy walls, cold blue light, green CRT/radar screens, analog mission consoles, dim command readouts, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mcc_briefing_room.png",
+      "rejected": false
+    },
+    {
+      "id": "mcc_executive_floor",
+      "name": "Mcc Executive Floor",
+      "location_type": "nature",
+      "must_include": "MCC corporation executive penthouse floor on Mars, floor-to-ceiling armored windows revealing crimson Martian landscape and distant dust storms, minimalist cold corporate interior at exactly 25 degrees Celsius, sleek sterile luxury, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "MCC corporation executive penthouse floor on Mars, floor-to-ceiling armored windows revealing crimson Martian landscape and distant dust storms, minimalist cold corporate interior at exactly 25 degrees Celsius, sleek sterile luxury, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mcc_executive_floor.png",
+      "rejected": true
+    },
+    {
+      "id": "mcc_sector12_ruins",
+      "name": "Mcc Sector12 Ruins",
+      "location_type": "other",
+      "must_include": "MCC Sector 12 ruined facility, blast damage and broken machinery, faded company signage, names scratched into walls in chalk and metal, ghost of corporate failure",
+      "final_prompt": "MCC Sector 12 ruined facility, blast damage and broken machinery, faded company signage, names scratched into walls in chalk and metal, ghost of corporate failure, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mcc_sector12_ruins.png",
+      "rejected": true
+    },
+    {
+      "id": "mine_exterior",
+      "name": "Mine Exterior",
+      "location_type": "nature",
+      "must_include": "Mars mine entrance exterior, large industrial shaft head with cargo elevators, ore conveyors reaching into darkness, MCC compound fence, evening shift workers leaving, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Mars mine entrance exterior, large industrial shaft head with cargo elevators, ore conveyors reaching into darkness, MCC compound fence, evening shift workers leaving, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mine_exterior.png",
+      "rejected": true
+    },
+    {
+      "id": "mine_interior",
+      "name": "Mine Interior",
+      "location_type": "nature",
+      "must_include": "deep Mars mine interior, narrow tunnel with rusted support beams, exposed ore veins in rock walls, single hanging work-lamp, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "deep Mars mine interior, narrow tunnel with rusted support beams, exposed ore veins in rock walls, single hanging work-lamp, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mine_interior.png",
+      "rejected": true
+    },
+    {
+      "id": "mine_shaft",
+      "name": "Mine Shaft",
+      "location_type": "nature",
+      "must_include": "narrow Mars mine tunnel with rusted support beams holding crumbling rock above, single overhead emergency bulb, shadows stretching down passage, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "narrow Mars mine tunnel with rusted support beams holding crumbling rock above, single overhead emergency bulb, shadows stretching down passage, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/mine_shaft.png",
+      "rejected": true
+    },
+    {
+      "id": "new_athens_shipyard",
+      "name": "New Athens Shipyard",
+      "location_type": "other",
+      "must_include": "New Athens shipyard in Mars low orbit, massive industrial space docking facility, cargo ships being loaded, stars and red Mars below, dockworkers and union activity",
+      "final_prompt": "New Athens shipyard in Mars low orbit, massive industrial space docking facility, cargo ships being loaded, stars and red Mars below, dockworkers and union activity, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard.png",
+      "rejected": true
+    },
+    {
+      "id": "new_athens_shipyard_dawn",
+      "name": "New Athens Shipyard Dawn",
+      "location_type": "nature",
+      "must_include": "New Athens shipyard at Martian dawn, industrial docking gantries silhouetted against pink-orange sky, ships being readied, dockworkers beginning day shift, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "New Athens shipyard at Martian dawn, industrial docking gantries silhouetted against pink-orange sky, ships being readied, dockworkers beginning day shift, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard_dawn.png",
+      "rejected": true
+    },
+    {
+      "id": "new_athens_shipyard_interior",
+      "name": "New Athens Shipyard Interior",
+      "location_type": "other",
+      "must_include": "inside New Athens shipyard pressurized terminal, arrival hall with airlock gates, diverse travelers with luggage, mechanical signage boards, customs checkpoint, first breath of recycled Mars air",
+      "final_prompt": "inside New Athens shipyard pressurized terminal, arrival hall with airlock gates, diverse travelers with luggage, mechanical signage boards, customs checkpoint, first breath of recycled Mars air, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard_interior.png",
+      "rejected": true
+    },
+    {
+      "id": "new_athens_shipyard_night",
+      "name": "New Athens Shipyard Night",
+      "location_type": "other",
+      "must_include": "New Athens shipyard at night, dock lights reflecting off metal hulls of docked ships, quiet between shift changes, solitary figures on docks, ships in darkness",
+      "final_prompt": "New Athens shipyard at night, dock lights reflecting off metal hulls of docked ships, quiet between shift changes, solitary figures on docks, ships in darkness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard_night.png",
+      "rejected": true
+    },
+    {
+      "id": "olympus_exterior",
+      "name": "Olympus Exterior",
+      "location_type": "nature",
+      "must_include": "Olympus Mons exterior on Mars, the largest volcano in solar system filling frame, twenty-five kilometer escarpment cliffs along base, thin atmosphere allows starfield even in daylight, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Olympus Mons exterior on Mars, the largest volcano in solar system filling frame, twenty-five kilometer escarpment cliffs along base, thin atmosphere allows starfield even in daylight, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior.png",
+      "rejected": true
+    },
+    {
+      "id": "olympus_exterior_dawn",
+      "name": "Olympus Exterior Dawn",
+      "location_type": "nature",
+      "must_include": "Olympus Mons at dawn, vast volcanic dome silhouetted against rising sun, dawn light bleeding across cliff face, three faction flagpoles visible at summit, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Olympus Mons at dawn, vast volcanic dome silhouetted against rising sun, dawn light bleeding across cliff face, three faction flagpoles visible at summit, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior_dawn.png",
+      "rejected": true
+    },
+    {
+      "id": "olympus_exterior_sunset",
+      "name": "Olympus Exterior Sunset",
+      "location_type": "nature",
+      "must_include": "Olympus Mons at sunset, vast volcanic dome silhouetted against burning orange-red sky, sun dipping behind largest volcano in solar system, thin clouds catching dying light, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Olympus Mons at sunset, vast volcanic dome silhouetted against burning orange-red sky, sun dipping behind largest volcano in solar system, thin clouds catching dying light, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior_sunset.png",
+      "rejected": true
+    },
+    {
+      "id": "olympus_exterior_vast",
+      "name": "Olympus Exterior Vast",
+      "location_type": "nature",
+      "must_include": "vast panorama of Olympus Mons exterior, the entire volcanic shield visible from orbit-low altitude, three flag-mounting holes carved at summit base, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "vast panorama of Olympus Mons exterior, the entire volcanic shield visible from orbit-low altitude, three flag-mounting holes carved at summit base, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior_vast.png",
+      "rejected": true
+    },
+    {
+      "id": "olympus_summit_exterior_view",
+      "name": "Olympus Summit Exterior View",
+      "location_type": "nature",
+      "must_include": "view from Olympus Mons summit looking down, full Mars panorama visible below, three faction flagpoles in foreground, summit station entrance, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "view from Olympus Mons summit looking down, full Mars panorama visible below, three faction flagpoles in foreground, summit station entrance, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/olympus_summit_exterior_view.png",
+      "rejected": true
+    },
+    {
+      "id": "olympus_summit_station",
+      "name": "Olympus Summit Station",
+      "location_type": "nature",
+      "must_include": "research and diplomatic station at Olympus Mons summit, reinforced glass dome habitat at highest point in solar system, space and stars visible above thin clouds, three faction flags barely visible through windows, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "research and diplomatic station at Olympus Mons summit, reinforced glass dome habitat at highest point in solar system, space and stars visible above thin clouds, three faction flags barely visible through windows, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/olympus_summit_station.png",
+      "rejected": true
+    },
+    {
+      "id": "olympus_summit_station_interior",
+      "name": "Olympus Summit Station Interior",
+      "location_type": "nature",
+      "must_include": "Olympus summit station interior conference chamber, long table at center, three faction flags hanging on walls, reinforced glass dome above showing starfield, ultimate diplomatic neutrality, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Olympus summit station interior conference chamber, long table at center, three faction flags hanging on walls, reinforced glass dome above showing starfield, ultimate diplomatic neutrality, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/olympus_summit_station_interior.png",
+      "rejected": true
+    },
+    {
+      "id": "sandstone_junction",
+      "name": "Sandstone Junction",
+      "location_type": "nature",
+      "must_include": "Sandstone Junction crossroads in Mars desert, three-way intersection of dusty red paths, weathered signposts, footprints in orange sand converging from multiple directions, neutral meeting point for all three factions, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Sandstone Junction crossroads in Mars desert, three-way intersection of dusty red paths, weathered signposts, footprints in orange sand converging from multiple directions, neutral meeting point for all three factions, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/sandstone_junction.png",
+      "rejected": true
+    },
+    {
+      "id": "sandstone_junction_dusk",
+      "name": "Sandstone Junction Dusk",
+      "location_type": "nature",
+      "must_include": "Sandstone Junction at deep dusk, crossroads in red-violet light, fresh footprints scattering in three directions, single Zone 12 name carved on rock corner, wind-blown sand, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness",
+      "final_prompt": "Sandstone Junction at deep dusk, crossroads in red-violet light, fresh footprints scattering in three directions, single Zone 12 name carved on rock corner, wind-blown sand, natural Martian environment, raw red geology, dust haze, weathered rock formations, harsh open-air planetary wilderness, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/sandstone_junction_dusk.png",
+      "rejected": true
+    },
+    {
+      "id": "space_battle_start",
+      "name": "Space Battle Start",
+      "location_type": "other",
+      "must_include": "opening salvo of fleet engagement in low Mars orbit, two opposing capital ships exchange railgun and missile fire, tracer streaks across foreground, Mars limb glowing red below, fighter wings peeling off, single hull breach venting atmosphere",
+      "final_prompt": "opening salvo of fleet engagement in low Mars orbit, two opposing capital ships exchange railgun and missile fire, tracer streaks across foreground, Mars limb glowing red below, fighter wings peeling off, single hull breach venting atmosphere, gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal, warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing",
+      "saved_path": "assets/campaign/backgrounds/space_battle_start.png",
+      "rejected": true
+    }
+  ],
+  "regen_queue": [
+    {
+      "id": "argyre_canyon_depot",
+      "name": "Argyre Canyon Depot",
+      "saved_path": "assets/campaign/backgrounds/argyre_canyon_depot.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "argyre_canyon_night",
+      "name": "Argyre Canyon Night",
+      "saved_path": "assets/campaign/backgrounds/argyre_canyon_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "argyre_plains",
+      "name": "Argyre Plains",
+      "saved_path": "assets/campaign/backgrounds/argyre_plains.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "argyre_plains_dusk",
+      "name": "Argyre Plains Dusk",
+      "saved_path": "assets/campaign/backgrounds/argyre_plains_dusk.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "argyre_plains_night",
+      "name": "Argyre Plains Night",
+      "saved_path": "assets/campaign/backgrounds/argyre_plains_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "cargo_ship_corridor",
+      "name": "Cargo Ship Corridor",
+      "saved_path": "assets/campaign/backgrounds/cargo_ship_corridor.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "cargo_ship_window_mars",
+      "name": "Cargo Ship Window Mars",
+      "saved_path": "assets/campaign/backgrounds/cargo_ship_window_mars.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "deep_space_mars_approach",
+      "name": "Deep Space Mars Approach",
+      "saved_path": "assets/campaign/backgrounds/deep_space_mars_approach.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "deep_space_window",
+      "name": "Deep Space Window",
+      "saved_path": "assets/campaign/backgrounds/deep_space_window.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "erebus_base_exterior",
+      "name": "Erebus Base Exterior",
+      "saved_path": "assets/campaign/backgrounds/erebus_base_exterior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "erebus_base_interior",
+      "name": "Erebus Base Interior",
+      "saved_path": "assets/campaign/backgrounds/erebus_base_interior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "erebus_base_interior_night",
+      "name": "Erebus Base Interior Night",
+      "saved_path": "assets/campaign/backgrounds/erebus_base_interior_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "erebus_canyon_sunset",
+      "name": "Erebus Canyon Sunset",
+      "saved_path": "assets/campaign/backgrounds/erebus_canyon_sunset.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "erebus_crater_exterior",
+      "name": "Erebus Crater Exterior",
+      "saved_path": "assets/campaign/backgrounds/erebus_crater_exterior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "erebus_crater_panorama",
+      "name": "Erebus Crater Panorama",
+      "saved_path": "assets/campaign/backgrounds/erebus_crater_panorama.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "erebus_throne_hall",
+      "name": "Erebus Throne Hall",
+      "saved_path": "assets/campaign/backgrounds/erebus_throne_hall.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "fsp_assembly_hall",
+      "name": "Fsp Assembly Hall",
+      "saved_path": "assets/campaign/backgrounds/fsp_assembly_hall.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "fsp_assembly_hall_evening",
+      "name": "Fsp Assembly Hall Evening",
+      "saved_path": "assets/campaign/backgrounds/fsp_assembly_hall_evening.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "fsp_assembly_hall_official",
+      "name": "Fsp Assembly Hall Official",
+      "saved_path": "assets/campaign/backgrounds/fsp_assembly_hall_official.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "fsp_base",
+      "name": "Fsp Base",
+      "saved_path": "assets/campaign/backgrounds/fsp_base.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "fsp_base_exterior",
+      "name": "Fsp Base Exterior",
+      "saved_path": "assets/campaign/backgrounds/fsp_base_exterior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "fsp_base_night",
+      "name": "Fsp Base Night",
+      "saved_path": "assets/campaign/backgrounds/fsp_base_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "gaia_ship_interior",
+      "name": "Gaia Ship Interior",
+      "saved_path": "assets/campaign/backgrounds/gaia_ship_interior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_central_exterior",
+      "name": "Hellas Central Exterior",
+      "saved_path": "assets/campaign/backgrounds/hellas_central_exterior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_central_exterior_night",
+      "name": "Hellas Central Exterior Night",
+      "saved_path": "assets/campaign/backgrounds/hellas_central_exterior_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_central_exterior_panorama",
+      "name": "Hellas Central Exterior Panorama",
+      "saved_path": "assets/campaign/backgrounds/hellas_central_exterior_panorama.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_exterior_road",
+      "name": "Hellas Exterior Road",
+      "saved_path": "assets/campaign/backgrounds/hellas_exterior_road.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_labor_district_night",
+      "name": "Hellas Labor District Night",
+      "saved_path": "assets/campaign/backgrounds/hellas_labor_district_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mine_exterior",
+      "name": "Hellas Mine Exterior",
+      "saved_path": "assets/campaign/backgrounds/hellas_mine_exterior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mining_outpost",
+      "name": "Hellas Mining Outpost",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_outpost.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mining_village",
+      "name": "Hellas Mining Village",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mining_village_dawn",
+      "name": "Hellas Mining Village Dawn",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_dawn.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mining_village_empty",
+      "name": "Hellas Mining Village Empty",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_empty.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mining_village_fire",
+      "name": "Hellas Mining Village Fire",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_fire.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mining_village_panorama",
+      "name": "Hellas Mining Village Panorama",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_panorama.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_mining_village_wall",
+      "name": "Hellas Mining Village Wall",
+      "saved_path": "assets/campaign/backgrounds/hellas_mining_village_wall.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_outer_plains",
+      "name": "Hellas Outer Plains",
+      "saved_path": "assets/campaign/backgrounds/hellas_outer_plains.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_outer_plains_sunset",
+      "name": "Hellas Outer Plains Sunset",
+      "saved_path": "assets/campaign/backgrounds/hellas_outer_plains_sunset.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_various_night",
+      "name": "Hellas Various Night",
+      "saved_path": "assets/campaign/backgrounds/hellas_various_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_zone4_deep_tunnel",
+      "name": "Hellas Zone4 Deep Tunnel",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_deep_tunnel.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_zone4_outside_dawn",
+      "name": "Hellas Zone4 Outside Dawn",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_outside_dawn.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_zone4_ruins",
+      "name": "Hellas Zone4 Ruins",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_ruins.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "hellas_zone4_ruins_exit",
+      "name": "Hellas Zone4 Ruins Exit",
+      "saved_path": "assets/campaign/backgrounds/hellas_zone4_ruins_exit.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "kariope_cargo_bay",
+      "name": "Kariope Cargo Bay",
+      "saved_path": "assets/campaign/backgrounds/kariope_cargo_bay.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "kariope_observation_deck",
+      "name": "Kariope Observation Deck",
+      "saved_path": "assets/campaign/backgrounds/kariope_observation_deck.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "kepler_crater",
+      "name": "Kepler Crater",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "kepler_crater_dawn",
+      "name": "Kepler Crater Dawn",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_dawn.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "kepler_crater_dusk",
+      "name": "Kepler Crater Dusk",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_dusk.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "kepler_crater_edge",
+      "name": "Kepler Crater Edge",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_edge.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "kepler_crater_edge_dusk",
+      "name": "Kepler Crater Edge Dusk",
+      "saved_path": "assets/campaign/backgrounds/kepler_crater_edge_dusk.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mars_docking_bay",
+      "name": "Mars Docking Bay",
+      "saved_path": "assets/campaign/backgrounds/mars_docking_bay.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mars_landing_approach",
+      "name": "Mars Landing Approach",
+      "saved_path": "assets/campaign/backgrounds/mars_landing_approach.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mars_sunset",
+      "name": "Mars Sunset",
+      "saved_path": "assets/campaign/backgrounds/mars_sunset.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mars_surface_dust_storm",
+      "name": "Mars Surface Dust Storm",
+      "saved_path": "assets/campaign/backgrounds/mars_surface_dust_storm.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mcc_archive_sublevel",
+      "name": "Mcc Archive Sublevel",
+      "saved_path": "assets/campaign/backgrounds/mcc_archive_sublevel.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mcc_board_chamber",
+      "name": "Mcc Board Chamber",
+      "saved_path": "assets/campaign/backgrounds/mcc_board_chamber.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mcc_executive_floor",
+      "name": "Mcc Executive Floor",
+      "saved_path": "assets/campaign/backgrounds/mcc_executive_floor.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mcc_sector12_ruins",
+      "name": "Mcc Sector12 Ruins",
+      "saved_path": "assets/campaign/backgrounds/mcc_sector12_ruins.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mine_exterior",
+      "name": "Mine Exterior",
+      "saved_path": "assets/campaign/backgrounds/mine_exterior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mine_interior",
+      "name": "Mine Interior",
+      "saved_path": "assets/campaign/backgrounds/mine_interior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "mine_shaft",
+      "name": "Mine Shaft",
+      "saved_path": "assets/campaign/backgrounds/mine_shaft.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "new_athens_shipyard",
+      "name": "New Athens Shipyard",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "new_athens_shipyard_dawn",
+      "name": "New Athens Shipyard Dawn",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard_dawn.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "new_athens_shipyard_interior",
+      "name": "New Athens Shipyard Interior",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard_interior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "new_athens_shipyard_night",
+      "name": "New Athens Shipyard Night",
+      "saved_path": "assets/campaign/backgrounds/new_athens_shipyard_night.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "olympus_exterior",
+      "name": "Olympus Exterior",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "olympus_exterior_dawn",
+      "name": "Olympus Exterior Dawn",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior_dawn.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "olympus_exterior_sunset",
+      "name": "Olympus Exterior Sunset",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior_sunset.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "olympus_exterior_vast",
+      "name": "Olympus Exterior Vast",
+      "saved_path": "assets/campaign/backgrounds/olympus_exterior_vast.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "olympus_summit_exterior_view",
+      "name": "Olympus Summit Exterior View",
+      "saved_path": "assets/campaign/backgrounds/olympus_summit_exterior_view.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "olympus_summit_station",
+      "name": "Olympus Summit Station",
+      "saved_path": "assets/campaign/backgrounds/olympus_summit_station.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "olympus_summit_station_interior",
+      "name": "Olympus Summit Station Interior",
+      "saved_path": "assets/campaign/backgrounds/olympus_summit_station_interior.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "sandstone_junction",
+      "name": "Sandstone Junction",
+      "saved_path": "assets/campaign/backgrounds/sandstone_junction.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "sandstone_junction_dusk",
+      "name": "Sandstone Junction Dusk",
+      "saved_path": "assets/campaign/backgrounds/sandstone_junction_dusk.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    },
+    {
+      "id": "space_battle_start",
+      "name": "Space Battle Start",
+      "saved_path": "assets/campaign/backgrounds/space_battle_start.png",
+      "reason": "stored prompt inherited CRT/radar screens from old shared style_lock but location is not cockpit/control/command"
+    }
+  ],
+  "audit": {
+    "entry_count": 77,
+    "crt_removed_count": 75,
+    "crt_kept_count": 2,
+    "regen_queue_length": 75
+  }
+}
