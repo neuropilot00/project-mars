@@ -1,4 +1,41 @@
-# OCCUPY MARS — Codebase Audit (v5.50 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.52 / 2026-05-02)
+
+## ✅ v5.52 Top-view fleet sprite + long-range combat pass — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 함선 PNG 22종 매핑 | ✅ | `assets/ships/top/`에 전투용 축소 PNG 22종 추가. 중복 샘플 `mcc_destroyer_top.png`는 실제 22종 코드에 없어서 제외. |
+| 전투/조선소 렌더 통일 | ✅ | 전투 화면과 SHIP REGISTRY 미리보기가 같은 PNG 스프라이트를 사용하도록 전환. 기존 벡터 함선 프리뷰는 fallback으로만 유지. |
+| 엔진 불꽃 위치 보정 | ✅ | 기존 벡터 기준 파란 불꽃을 제거하고, PNG 함선 길이 기준 후방에서 나오는 공통 엔진 플레임 함수로 통일. |
+| 장거리 함대전 보정 | ✅ | 함대 간 최소/이상 교전 거리를 크게 늘려 근접 난전처럼 겹치지 않도록 수정. |
+| 카메라 화면 이탈 방지 | ✅ | 카메라 프레이밍을 함대 원이 아니라 실제 살아있는 함선 스프라이트 바운딩 박스 기준으로 계산. |
+| 사격 방향 일치 | ✅ | 함선이 이동 방향보다 현재 사격 타겟 좌표를 우선 바라보도록 `aimX/aimY/aimTTL` 적용. |
+| 대형함 움직임 | ✅ | 기함/대형함이 완전 고정처럼 보이지 않도록 중심 주변 묵직한 드리프트와 함대 전체 미세 이동 추가. |
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
+
+## ✅ v5.51 Vertical fleet war production update — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 본 서버 함대전 세로 전장 | ✅ | `assets/tactical-lab-v11.html`을 v11.1 기반 세로 전장으로 전환. 적군은 상단, 아군은 하단에 배치. |
+| 초기 함대 배치 | ✅ | 시작 함대가 일직선으로 나오지 않도록 상/하단 반원형 아크 배치 적용. 아군 기본 `wedge`, 적군 기본 `screen`. |
+| 모바일 HUD 정리 | ✅ | 속도 조절은 우상단 오버레이 단일 버튼으로 순환 처리. 증원 테스트 버튼 제거, 전술/진형/기동 버튼은 소형 그리드로 압축. |
+| 자동 줌/프레이밍 | ✅ | 가까운 교전쌍 거리로 줌 배율을 정하되 전체 생존 함대/라벨을 항상 화면 안에 포함하도록 제한. |
+| 모바일 성능 | ✅ | 모바일 퍼포먼스 모드 추가. 작은 함선 대표 렌더, 발사 밀도/총알 누적/폭발 파티클/글로우 비용 감소. |
+| 캔버스 비율 | ✅ | 내부 버퍼와 CSS 표시 비율을 `460x600`으로 맞춰 텍스트/함대가 가로로 찌그러지지 않게 보정. |
+
+검증:
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.50 Fleet camera containment hotfix — 수정 완료
 

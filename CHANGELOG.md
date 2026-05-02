@@ -1,5 +1,34 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Top-view fleet sprite + long-range combat pass (v5.52)
+
+- **함선 PNG 22종 매핑**: `assets/ships/top/`에 전투용 축소 PNG 22종을 추가하고 `mcc_destroyer_top.png` 중복 샘플은 제외.
+- **전투/조선소 렌더 통일**: 함대전 캔버스와 SHIP REGISTRY 미리보기가 같은 PNG 스프라이트를 사용하도록 변경.
+- **엔진 불꽃 통일**: 기존 벡터 기준 파란 불꽃 대신 PNG 함선 길이 기준 후방 엔진 플레임으로 전투/미리보기 모두 통일.
+- **장거리 함대전 보정**: 함대 간 최소/이상 교전 거리를 늘려 근접 난전처럼 겹치지 않게 수정.
+- **카메라 프레이밍 개선**: 실제 살아있는 함선 스프라이트 바운딩 박스 기준으로 자동 줌/팬을 계산해 함선이 화면 밖으로 잘리는 문제 완화.
+- **사격 방향 보정**: 함선이 현재 사격 타겟 좌표를 우선 바라보도록 조준 상태를 저장해 레이저 방향과 함체 방향을 맞춤.
+- **대형함 움직임 추가**: 기함/대형함에 묵직한 드리프트와 함대 전체 미세 이동을 추가해 정지된 장식처럼 보이지 않게 수정.
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+## 2026-05-02 — Vertical fleet war production update (v5.51)
+
+- **본 서버 함대전 세로화**: `assets/tactical-lab-v11.html`을 v11.1 기반 세로 전장으로 전환. 적군은 상단, 아군은 하단에 배치.
+- **초기 배치 개선**: 함대가 일직선으로 시작하지 않도록 상/하단 반원형 아크로 배치하고, 아군 기본 `wedge`, 적군 기본 `screen` 진형 적용.
+- **모바일 HUD 압축**: 속도 조절을 우상단 오버레이 단일 버튼으로 변경하고, 클릭마다 `x1/x2/x4/x8` 순환. 증원 테스트 버튼 제거, 전술 버튼은 소형 그리드로 정리.
+- **자동 줌 안전화**: 가까운 교전쌍으로 줌 강도를 계산하되 전체 생존 함대와 라벨이 화면 밖으로 나가지 않도록 프레이밍 제한.
+- **모바일 성능 최적화**: 작은 함선 대표 렌더, 발사 밀도 제한, 총알 누적 제한, 폭발 파티클 감소, 모바일 shadowBlur 축소로 렉 완화.
+- **캔버스 찌그러짐 보정**: 내부 버퍼와 CSS 표시 비율을 `460x600`으로 맞춰 텍스트/함대가 가로로 늘어나 보이던 문제 수정.
+
+검증:
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Fleet camera containment hotfix (v5.50)
 
 - **Cinema 카메라 이탈 방지**: 오버숄더 카메라가 함선을 화면 밖으로 밀어내던 문제를 수정. 카메라 중심을 소스/타겟 사이로 잡고 월드 경계 안으로 clamp.

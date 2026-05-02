@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OCCUPY MARS — Coalition War v11.2</title>
+<title>OCCUPY MARS — Coalition War v11.1 Vertical</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -15,10 +15,10 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   font-weight:900;letter-spacing:4px;text-shadow:0 0 16px rgba(60,120,255,.35);}
 .hdr small{font-size:6px;letter-spacing:2px;color:rgba(255,255,255,.12);}
 
-/* Canvas buffer is 1080×560 — capping CSS max-width prevents browser
+/* Canvas buffer is 460×600 — mobile-first vertical battlefield without CSS stretching.
    upscaling on wide desktops (1920px) which caused ~3× fragment work
    per frame. Mobile (<1080px) downscales normally which is GPU-cheap. */
-#c{display:block;width:100%;max-width:1080px;max-height:560px;margin:0 auto;
+#c{display:block;width:100%;max-width:460px;max-height:600px;margin:0 auto;
   background:#03040b;border:1px solid rgba(60,100,255,.1);
   image-rendering:auto;}
 
@@ -64,51 +64,40 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 .cb.g{border-color:rgba(102,187,106,.28);color:#66bb6a;background:rgba(102,187,106,.04);}
 .cb.p{border-color:rgba(206,147,216,.28);color:#ce93d8;background:rgba(206,147,216,.04);}
 .sep{width:1px;height:20px;background:rgba(255,255,255,.06);}
-.battle-command-toggle{display:none;}
-.controls-drawer{border-top:0;}
 @media(max-width:600px){
-  body{padding:0;background:#02030a;}
-  .wrap{max-width:none;}
-  .hdr{padding:8px 10px 6px;margin:0;}
-  .hdr h1{font-size:12px;line-height:1.25;letter-spacing:3px;}
-  .hdr small{display:none;}
-  #c{height:60svh;max-height:none;border-left:0;border-right:0;}
-  .bui{grid-template-columns:1fr 64px 1fr;padding:7px 8px;}
-  .hb{width:100%;}
-  .tn{font-size:8px;letter-spacing:1.5px;}
-  .tmr{font-size:13px;}
-  .blog{height:46px;padding:4px 8px;}
-  .bl{font-size:8px;line-height:1.55;}
-  .ctrl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px;}
-  .clbl{grid-column:1/-1;font-size:7px;color:rgba(255,255,255,.34);margin-top:2px;}
-  .sep{display:none;}
-  .cb{width:100%;font-size:11px;padding:11px 8px;min-height:44px;letter-spacing:1px;}
-  .battle-command-toggle{
-    display:flex;align-items:center;justify-content:center;gap:6px;
-    width:auto;min-width:78px;padding:10px 11px;border:1px solid rgba(206,147,216,.45);
-    border-radius:10px 0 0 10px;
-    background:linear-gradient(135deg,rgba(79,195,247,.24),rgba(206,147,216,.2));
-    color:#dff4ff;font-family:'Orbitron',monospace;font-size:9px;font-weight:900;
-    letter-spacing:1.5px;position:fixed;right:0;top:52svh;z-index:20;
-    box-shadow:0 0 20px rgba(79,195,247,.16);
-  }
-  .battle-command-toggle span:first-child{white-space:nowrap;}
-  .battle-command-toggle span:last-child{display:none;}
-  .controls-drawer{
-    position:fixed;right:8px;top:12svh;bottom:12svh;width:min(82vw,330px);
-    overflow-y:auto;z-index:19;border:1px solid rgba(206,147,216,.32);
-    border-radius:12px;background:rgba(4,6,16,.94);backdrop-filter:blur(10px);
-    box-shadow:0 18px 50px rgba(0,0,0,.48);
-    transform:translateX(112%);opacity:0;pointer-events:none;
-    transition:transform .2s ease, opacity .16s ease;
-  }
-  body:not(.controls-collapsed) .controls-drawer{transform:translateX(0);opacity:1;pointer-events:auto;}
-  .controls-drawer .ctrl{border-left:0;border-right:0;}
-  .info-toggles{display:grid;grid-template-columns:1fr 1fr;}
-  .itog{border-top:1px solid rgba(60,100,255,.08);font-size:7px;padding:9px 6px;letter-spacing:1.5px;}
-  .info-panel{max-height:42svh;padding:10px;}
-  .ship-grid,.fs-grid,.min-grid,.doctrine-grid{grid-template-columns:1fr;}
+  .cb{font-size:11px;padding:10px 16px;min-height:42px;}
+  .ctrl{gap:6px;padding:8px 10px;}
 }
+
+/* v11.1 vertical demo shell: same simulator, top/bottom battlefield. */
+html,body{width:100%;height:100%;overflow:hidden;}
+body{padding:0;background:#03040b;}
+.wrap{width:100%;max-width:460px;height:100svh;display:grid;grid-template-rows:42px auto auto 42px auto auto;overflow:hidden;position:relative;}
+.hdr{height:42px;margin:0;padding:7px 8px;border-bottom:1px solid rgba(60,100,255,.14);}
+.hdr h1{font-size:11px;line-height:1.2;letter-spacing:3px;}
+.hdr small{display:none;}
+#c{width:100%;height:auto;aspect-ratio:460/600;min-height:0;max-height:none;border-left:0;border-right:0;}
+.bui{grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr);gap:5px;padding:6px 8px;}
+.team{min-width:0;}
+.team.r{align-items:stretch;text-align:right;}
+.tn{font-size:7px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tfl{font-size:5px;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hr{width:100%;gap:3px;}
+.hl{display:none;}
+.hb{width:100%;height:5px;min-width:0;}
+.cp{padding:0 2px;}
+.vs{font-size:11px;letter-spacing:2px;}
+.tmr{font-size:12px;letter-spacing:1px;}
+.tinfo{font-size:4px;}
+.blog{height:42px;padding:4px 8px;}
+.bl{font-size:7px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ctrl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow:visible;padding:5px 7px;}
+.ctrl:nth-of-type(2){grid-template-columns:repeat(3,minmax(0,1fr));}
+.ctrl.speed-row{display:none;}
+.ctrl .clbl,.ctrl .sep{display:none;}
+.cb{min-width:0;width:100%;min-height:30px;font-size:7px;letter-spacing:.25px;padding:6px 3px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.speed-cycle{position:absolute;right:8px;top:48px;z-index:5;height:34px;min-width:58px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,193,7,.55);background:rgba(10,8,2,.72);color:#ffc107;font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:1px;box-shadow:0 0 18px rgba(255,193,7,.18);backdrop-filter:blur(6px);}
+.info-toggles,.info-panel{display:none!important;}
 
 /* 하단 정보 토글 패널 */
 .info-toggles{display:flex;gap:0;background:#05060e;
@@ -245,11 +234,12 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 <div class="wrap">
 
 <div class="hdr">
-  <h1>OCCUPY MARS — FLEET WAR v11.2</h1>
+  <h1>OCCUPY MARS — FLEET WAR v11.1 VERTICAL</h1>
   <small>// FORMATION + MANEUVER · REAL TACTICAL LAYOUTS //</small>
 </div>
 
-<canvas id="c" width="1080" height="560"></canvas>
+<canvas id="c" width="460" height="600"></canvas>
+<button class="speed-cycle" id="speedCycle" onclick="cycleSimSpeed()">×1</button>
 
 <!-- 후퇴 확인 오버레이 -->
 <div id="forfeit-overlay">
@@ -275,20 +265,10 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 <div class="blog" id="blog"></div>
 
 <!-- 컨트롤 — CMD + Formation/Maneuver (실제 전투에 반영) -->
-<button class="battle-command-toggle" onclick="toggleCommandDrawer()">
-  <span>⚡ TACTICS</span>
-  <span id="cmdDrawerState">OPEN</span>
-</button>
-<div class="controls-drawer" id="commandDrawer">
 <div class="ctrl">
   <span class="clbl">CMD</span>
   <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
   <button class="cb y" onclick="cmdEMP()">💥 EMP</button>
-  <div class="sep"></div>
-  <span class="clbl">REINFORCE</span>
-  <button class="cb" onclick="reinforce('mcc_int',10)">⚡ MCC ×10</button>
-  <button class="cb" onclick="reinforce('fsp_int',10)">⚡ FSP ×10</button>
-  <button class="cb" onclick="reinforce('mcc_crs',1)">+ Cruiser</button>
   <div class="sep"></div>
   <span class="clbl">FORMATION</span>
   <button class="cb p" onclick="cmdFormation('sphere')">⬢ Sphere</button>
@@ -306,17 +286,12 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   <div class="sep"></div>
   <button class="cb" onclick="cmdForfeit()" style="background:rgba(239,83,80,.18);border-color:rgba(239,83,80,.5);color:#ef5350;font-weight:900">🏳 RETREAT</button>
 </div>
-<div class="ctrl">
+<div class="ctrl speed-row">
   <span class="clbl">SPEED</span>
   <button class="cb" id="spd1" onclick="setSimSpeed(1)"  style="font-weight:900">×1</button>
   <button class="cb" id="spd2" onclick="setSimSpeed(2)"  style="font-weight:900">×2</button>
   <button class="cb" id="spd4" onclick="setSimSpeed(4)"  style="font-weight:900;background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.5);color:#ffc107">×4</button>
   <button class="cb" id="spd8" onclick="setSimSpeed(8)"  style="font-weight:900">×8</button>
-  <div class="sep"></div>
-  <span class="clbl">CAMERA</span>
-  <button class="cb p" id="camCinema" onclick="setCameraMode('cinema')" style="font-weight:900;background:rgba(206,147,216,.18);border-color:rgba(206,147,216,.5);color:#ce93d8">🎥 Cinema</button>
-  <button class="cb p" id="camTactical" onclick="setCameraMode('tactical')">🗺 Tactical</button>
-</div>
 </div>
 
 <!-- 하단 토글 패널 (v10 그대로) -->
@@ -519,6 +494,42 @@ function assignFormationSlots(fleet){
    ═══════════════════════════════════════════════════════════ */
 const CVs=document.getElementById('c'),CX=CVs.getContext('2d');
 const W=CVs.width,H=CVs.height;
+const PERF_MODE=window.matchMedia&&window.matchMedia('(max-width: 900px)').matches;
+const SHIP_SPRITE_CODES=[
+  'mcc_int','mcc_frg','mcc_ewar','mcc_dst','mcc_crs','mcc_snp','mcc_bs','mcc_titan',
+  'fsp_int','fsp_logi','fsp_dst','fsp_crs','fsp_logi_crs','fsp_bs','fsp_titan',
+  'cv_int','cv_frg','cv_bomb','cv_dst','cv_crs','cv_bs','cv_titan',
+];
+const SHIP_SPRITES={};
+SHIP_SPRITE_CODES.forEach(code=>{
+  const img=new Image();
+  img.decoding='async';
+  img.onload=()=>{SHIP_SPRITES[code]=trimShipSprite(img);};
+  img.src=`ships/top/${code}.png`;
+});
+function trimShipSprite(img){
+  const src=document.createElement('canvas');
+  src.width=img.naturalWidth||img.width;
+  src.height=img.naturalHeight||img.height;
+  const sx=src.getContext('2d',{willReadFrequently:true});
+  sx.drawImage(img,0,0,src.width,src.height);
+  const data=sx.getImageData(0,0,src.width,src.height).data;
+  let minX=src.width,minY=src.height,maxX=0,maxY=0,found=false;
+  for(let y=0;y<src.height;y++){
+    for(let x=0;x<src.width;x++){
+      const a=data[(y*src.width+x)*4+3];
+      if(a>12){found=true;minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);}
+    }
+  }
+  if(!found)return img;
+  const pad=3;
+  minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+  maxX=Math.min(src.width-1,maxX+pad);maxY=Math.min(src.height-1,maxY+pad);
+  const out=document.createElement('canvas');
+  out.width=maxX-minX+1;out.height=maxY-minY+1;
+  out.getContext('2d').drawImage(src,minX,minY,out.width,out.height,0,0,out.width,out.height);
+  return out;
+}
 let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[];
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
@@ -526,12 +537,20 @@ let btMs=0,turn=0,empMs=0,focusFleet=null;
 let _wsPrevShips = new Map();
 // 카메라 (자동 줌/팬)
 let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
-let cameraMode='cinema';
 
 function centeredPos(n, side) {
-  const cx = side === 'atk' ? W * 0.11 : W * 0.89;
-  if (n <= 1) return [{ cx, cy: H * 0.5 }];
-  return Array.from({ length: n }, (_, i) => ({ cx, cy: H * (0.15 + (i / (n - 1)) * 0.70) }));
+  const baseY = side === 'atk' ? H * 0.77 : H * 0.23;
+  if (n <= 1) return [{ cx: W * 0.5, cy: baseY }];
+  return Array.from({ length: n }, (_, i) => {
+    const t=(i/(n-1))*2-1;
+    const cx=W*(0.24 + (i/(n-1))*0.52);
+    const arc=(1-Math.abs(t))*H*.055;
+    const edgeSag=Math.abs(t)*H*.018;
+    const cy=side==='atk'
+      ? baseY-arc+edgeSag
+      : baseY+arc-edgeSag;
+    return {cx,cy};
+  });
 }
 function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];battleOver=false;
@@ -548,16 +567,17 @@ function initBattle(){
   fleets.forEach(f=>assignFormationSlots(f));
   const ac=ships.filter(s=>s.side==='atk').length;
   const dc=ships.filter(s=>s.side==='def').length;
-  addLog('ev',`▶ v11.2 COALITION WAR — ATK ${ac}척 vs DEF ${dc}척`);
+  addLog('ev',`▶ v11.1 COALITION WAR — ATK ${ac}척 vs DEF ${dc}척`);
 }
 
 function mkFleet(def,side,cx,cy){
   const total=Object.values(def.escort).reduce((a,b)=>a+b,0);
-  const radius=Math.max(50,Math.sqrt(total)*4.8+25);
+  const radius=Math.max(38,Math.sqrt(total)*3.0+24);
   const f={userId:def.id,tag:def.tag,side,cx,cy,vcx:0,vcy:0,
     flagship:null,ships:[],hp:0,maxHp:0,dead:false,radius,
-    facingAngle:side==='atk'?0:Math.PI,
-    formation:'sphere',maneuver:'advance',
+    facingAngle:side==='atk'?-Math.PI/2:Math.PI/2,
+    formation:side==='atk'?'wedge':'screen',maneuver:'advance',
+    driftSeed:Math.random()*Math.PI*2,orbitDir:Math.random()<.5?-1:1,
     laserHitCount:0,laserHitTimer:0,rallyCooldown:0,
     dbFleetId:def.dbFleetId||null,ownerWallet:def.ownerWallet||null};
   const fs=mkShip(def.flagship,side,cx,cy,f,true);
@@ -577,12 +597,13 @@ function mkFleet(def,side,cx,cy){
 
 function mkShip(tid,side,x,y,fleet,isFlagship){
   const t=SHIPS[tid]||SHIPS.mcc_int;
+  if(!t.code)t.code=tid;
   return {tid,type:t,side,fleet,x,y,
     slotAngle:Math.atan2(y-fleet.cy,x-fleet.cx),
     slotDist:Math.hypot(x-fleet.cx,y-fleet.cy),
     hp:t.hp,maxHp:t.hp,isFlagship,dead:false,flash:0,
-    shootT:Math.random()*t.fireInt,engF:Math.random()*100,
-    facing:side==='atk'?0:Math.PI,pincerWing:0};
+    shootT:Math.random()*t.fireInt,engF:Math.random()*100,aimX:null,aimY:null,aimTTL:0,
+    facing:side==='atk'?-Math.PI/2:Math.PI/2,pincerWing:0};
 }
 
 function autoTactics(f,dt){
@@ -621,37 +642,55 @@ function updateFleets(dt){
     const target=focusFleet&&focusFleet.side!==f.side&&!focusFleet.dead?focusFleet
       :enemies.reduce((b,e)=>Math.hypot(e.cx-f.cx,e.cy-f.cy)<Math.hypot(b.cx-f.cx,b.cy-f.cy)?e:b,enemies[0]);
     const dx=target.cx-f.cx,dy=target.cy-f.cy,dist=Math.hypot(dx,dy)||1;
-    const minDist=f.radius+target.radius+15;
+    const minDist=f.radius+target.radius+190;
+    const idealDist=f.radius+target.radius+285;
     const mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     const spdMult=mv.spdMult;
+    const nx=dx/dist,ny=dy/dist,perpX=-ny,perpY=nx;
+    const pressure=Math.max(-1,Math.min(1,(dist-idealDist)/idealDist));
+    const pulse=Math.sin(btMs*.0011+f.driftSeed);
 
     if(f.maneuver==='retreat'){
-      f.vcx-=dx/dist*.04*spdMult;f.vcy-=dy/dist*.04*spdMult;
+      f.vcx-=nx*.052*spdMult;f.vcy-=ny*.052*spdMult;
     } else if(f.maneuver==='scatter'){
-      f.vcx+=(Math.random()-.5)*.12;f.vcy+=(Math.random()-.5)*.12;
+      f.vcx+=(Math.random()-.5)*.07+perpX*f.orbitDir*.018;
+      f.vcy+=(Math.random()-.5)*.07+perpY*f.orbitDir*.018;
     } else if(f.maneuver==='flank'){
-      const perpX=-dy/dist,perpY=dx/dist;
       const flankDir=(f.userId.charCodeAt(0)%2===0)?1:-1;
-      f.vcx+=(perpX*flankDir*0.035+dx/dist*0.015)*spdMult;
-      f.vcy+=(perpY*flankDir*0.035+dy/dist*0.015)*spdMult;
+      f.vcx+=(perpX*flankDir*0.052+nx*0.012)*spdMult;
+      f.vcy+=(perpY*flankDir*0.052+ny*0.012)*spdMult;
     } else if(f.maneuver==='rally'){
-      f.vcx*=0.85;f.vcy*=0.85;
-    } else if(dist>minDist){
-      f.vcx+=dx/dist*.025*spdMult;f.vcy+=dy/dist*.025*spdMult;
+      f.vcx*=0.82;f.vcy*=0.82;
+      f.vcx+=perpX*pulse*.008;f.vcy+=perpY*pulse*.008;
     } else {
-      f.vcx*=.8;f.vcy*=.8;
+      if(dist>idealDist){
+        f.vcx+=nx*.030*spdMult;f.vcy+=ny*.030*spdMult;
+      } else if(dist<minDist){
+        f.vcx-=nx*.042;f.vcy-=ny*.042;
+      } else {
+        f.vcx+=perpX*f.orbitDir*.018*(1-Math.abs(pressure));
+        f.vcy+=perpY*f.orbitDir*.018*(1-Math.abs(pressure));
+        f.vcx+=nx*pressure*.008;f.vcy+=ny*pressure*.008;
+      }
     }
 
     if(f.formation==='pincer'){
-      const perpX=-dy/dist,perpY=dx/dist;
       const wingDir=(f.userId.charCodeAt(1)%2===0)?1:-1;
-      f.vcx+=perpX*wingDir*0.012;
-      f.vcy+=perpY*wingDir*0.012;
+      f.vcx+=perpX*wingDir*0.022;
+      f.vcy+=perpY*wingDir*0.022;
     }
+    f.vcx+=Math.cos(btMs*.00045+f.driftSeed)*.006;
+    f.vcy+=Math.sin(btMs*.00038+f.driftSeed)*.006;
+    fleets.forEach(o=>{
+      if(o===f||o.dead||o.side!==f.side)return;
+      const ox=f.cx-o.cx,oy=f.cy-o.cy,od=Math.hypot(ox,oy)||1;
+      const keep=f.radius+o.radius+26;
+      if(od<keep){f.vcx+=(ox/od)*(keep-od)*.0022;f.vcy+=(oy/od)*(keep-od)*.0022;}
+    });
 
-    f.vcx*=.90;f.vcy*=.90;
+    f.vcx*=.91;f.vcy*=.91;
     const spd=Math.hypot(f.vcx,f.vcy);
-    if(spd>.6){f.vcx=f.vcx/spd*.6;f.vcy=f.vcy/spd*.6;}
+    if(spd>.44){f.vcx=f.vcx/spd*.44;f.vcy=f.vcy/spd*.44;}
     f.cx+=f.vcx;f.cy+=f.vcy;
     f.cx=Math.max(f.radius+8,Math.min(W-f.radius-8,f.cx));
     f.cy=Math.max(f.radius+8,Math.min(H-f.radius-8,f.cy));
@@ -660,10 +699,12 @@ function updateFleets(dt){
     f.ships.forEach(sh=>{
       if(sh.dead)return;
       sh.engF+=1;if(sh.flash>0)sh.flash-=dt;
-      if(sh.isFlagship){sh.x=f.cx;sh.y=f.cy;return;}
-
       let targetX,targetY;
-      if(f.maneuver==='scatter'){
+      if(sh.isFlagship){
+        const heavyDrift=Math.sin(btMs*.0007+f.driftSeed)*Math.min(10,f.radius*.12);
+        targetX=f.cx+Math.cos(f.facingAngle+Math.PI/2)*heavyDrift;
+        targetY=f.cy+Math.sin(f.facingAngle+Math.PI/2)*heavyDrift;
+      } else if(f.maneuver==='scatter'){
         if(!sh._scatterDir){
           sh._scatterDir=Math.random()*Math.PI*2;
           sh._scatterDist=(0.9+Math.random()*0.6)*f.radius;
@@ -673,24 +714,29 @@ function updateFleets(dt){
       } else {
         if(sh._scatterDir){delete sh._scatterDir;delete sh._scatterDist;}
         const absAngle=f.facingAngle+sh.slotAngle;
-        targetX=f.cx+Math.cos(absAngle)*sh.slotDist;
-        targetY=f.cy+Math.sin(absAngle)*sh.slotDist;
+        const wave=Math.sin(btMs*.003+sh.slotDist*.07+f.driftSeed)*Math.min(10,sh.slotDist*.08);
+        targetX=f.cx+Math.cos(absAngle)*sh.slotDist+Math.cos(absAngle+Math.PI/2)*wave;
+        targetY=f.cy+Math.sin(absAngle)*sh.slotDist+Math.sin(absAngle+Math.PI/2)*wave;
       }
 
-      const lerpSpd=f.maneuver==='rally'?0.05:0.035;
+      const lerpSpd=sh.isFlagship?.018:(f.maneuver==='rally'?0.05:0.035);
       sh.x+=(targetX-sh.x)*lerpSpd;
       sh.y+=(targetY-sh.y)*lerpSpd;
 
       let tf=f.facingAngle;
+      if(sh.aimTTL>0&&Number.isFinite(sh.aimX)&&Number.isFinite(sh.aimY)){
+        sh.aimTTL-=dt;
+        tf=Math.atan2(sh.aimY-sh.y,sh.aimX-sh.x);
+      }
       const ef=fleets.filter(e=>e.side!==sh.side&&!e.dead);
-      if(ef.length){
+      if(sh.aimTTL<=0&&ef.length){
         const near=ef.reduce((b,e)=>Math.hypot(e.cx-sh.x,e.cy-sh.y)<Math.hypot(b.cx-sh.x,b.cy-sh.y)?e:b,ef[0]);
         tf=Math.atan2(near.cy-sh.y,near.cx-sh.x);
       }
       let diff=tf-sh.facing;
       while(diff>Math.PI)diff-=Math.PI*2;
       while(diff<-Math.PI)diff+=Math.PI*2;
-      sh.facing+=diff*.06;
+      sh.facing+=diff*(sh.aimTTL>0?.22:.1);
     });
   });
 }
@@ -699,6 +745,7 @@ function fire(sh,wsMode){
   if(sh.dead||sh.fleet.dead)return;
   if(empMs>0&&sh.side==='def')return;
   const t=sh.type;
+  if(PERF_MODE&&isSmall(sh)&&Math.random()<.55)return;
   const atkMult=(MANEUVERS[sh.fleet.maneuver]||MANEUVERS.advance).atkMult;
 
   if(t.fireType==='repair'){
@@ -718,6 +765,7 @@ function fire(sh,wsMode){
   const tx=tf.cx+(Math.random()-.5)*tf.radius*.5;
   const ty=tf.cy+(Math.random()-.5)*tf.radius*.5;
   const dx=tx-sh.x,dy=ty-sh.y,len=Math.hypot(dx,dy)||1;
+  sh.aimX=tx;sh.aimY=ty;sh.aimTTL=900;
 
   if(t.fireType==='laser'){
     const ts=tf.flagship&&!tf.flagship.dead?tf.flagship:tf.ships.find(s=>!s.dead);
@@ -741,10 +789,11 @@ function fire(sh,wsMode){
 }
 
 function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual){
-  const spd=1.0+Math.random()*.5;
+  if(PERF_MODE&&bullets.length>120)return;
+  const spd=1.55+Math.random()*.45;
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
     r:Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
-    dmg:t.atk*dmgMult*2,side,ttl:120,age:0,visual:!!visual});
+    dmg:t.atk*dmgMult*2,side,ttl:190,age:0,visual:!!visual});
 }
 
 function checkHit(b){
@@ -779,7 +828,7 @@ function applyDmg(sh,dmg,isLaser){
 }
 
 function mkExp(x,y,sz){
-  const n=Math.min(3+sz*2.5,18);
+  const n=Math.min(3+sz*(PERF_MODE?1.25:2.5),PERF_MODE?10:18);
   const cs=['#ffd700','#ff6d00','#ef5350','#fff','#ff8f00'];
   exps.push({x,y,ptcl:Array.from({length:n},()=>{
     const a=Math.random()*Math.PI*2,sp=.4+Math.random()*sz*.5;
@@ -979,7 +1028,59 @@ function drawCVShip(ctx,s){
   }
 }
 
+function drawShipSprite(ctx,s){
+  const img=SHIP_SPRITES[s.code];
+  if(!img)return false;
+  const finalLong={frigate:7,destroyer:11,cruiser:17,battleship:29,titan:43}[s.size]||14;
+  const long=finalLong/({frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[s.size]||1);
+  const ratio=img.width/Math.max(1,img.height);
+  const h=long;
+  const w=h*ratio;
+  ctx.save();
+  ctx.rotate(Math.PI/2);
+  ctx.drawImage(img,-w/2,-h/2,w,h);
+  ctx.restore();
+  return true;
+}
+
+function shipScreenRadius(sh){
+  const long={frigate:7,destroyer:11,cruiser:17,battleship:29,titan:43}[sh.type.size]||14;
+  return (sh.isFlagship?1.15:1)*long+18;
+}
+
+function shipVisualLength(s){
+  return {frigate:7,destroyer:11,cruiser:17,battleship:29,titan:43}[s.size]||14;
+}
+
+function drawEngineFlame(ctx,x,y,facing,type,pulse=1){
+  const len=shipVisualLength(type);
+  const size=Math.max(2.4,len*.16);
+  const back=len*.58+size*.7;
+  const ex=x-Math.cos(facing)*back;
+  const ey=y-Math.sin(facing)*back;
+  const fx=-Math.cos(facing),fy=-Math.sin(facing);
+  const grad=ctx.createRadialGradient(ex,ey,0,ex,ey,size*2.2);
+  const f=FACTIONS[type.faction]||FACTIONS.mcc;
+  grad.addColorStop(0,'rgba(255,255,255,.95)');
+  grad.addColorStop(.22,f.color==='rgba(0,0,0,0)'?'rgba(120,210,255,.9)':f.color);
+  grad.addColorStop(.48,type.faction==='cv'?'rgba(255,70,20,.65)':'rgba(70,190,255,.55)');
+  grad.addColorStop(1,'transparent');
+  ctx.save();
+  ctx.globalAlpha=.58+.32*pulse;
+  ctx.fillStyle=grad;
+  ctx.beginPath();ctx.arc(ex,ey,size*2.2,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=.78;
+  ctx.fillStyle=type.faction==='cv'?'rgba(255,70,20,.75)':'rgba(90,210,255,.7)';
+  ctx.beginPath();
+  ctx.moveTo(ex+fx*size*2.6,ey+fy*size*2.6);
+  ctx.lineTo(ex-fy*size*.8,ey+fx*size*.8);
+  ctx.lineTo(ex+fy*size*.8,ey-fx*size*.8);
+  ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+
 function drawShipByFaction(ctx,s){
+  if(drawShipSprite(ctx,s))return;
   if(s.faction==='mcc')drawMCCShip(ctx,s);
   else if(s.faction==='fsp')drawFSPShip(ctx,s);
   else drawCVShip(ctx,s);
@@ -1020,64 +1121,57 @@ function drawFleets(){
     CX.setLineDash([]);CX.lineWidth=1;
 
     const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
+    const labelDir=f.side==='atk'?1:-1;
+    const labelBase=f.cy+labelDir*(f.radius+16);
     CX.globalAlpha=.85;
     CX.textAlign='center';
-    const mobile = window.innerWidth <= 600;
-    CX.font='bold ' + (mobile ? 11 : 8) + 'px Orbitron,monospace';
+    CX.font='bold 8px Orbitron,monospace';
     CX.fillStyle=fc;
-    CX.fillText(`[${f.tag}] ${f.userId}`,f.cx,f.cy-f.radius-20);
-    CX.font=(mobile ? 8 : 6) + 'px Share Tech Mono';
+    CX.fillText(`[${f.tag}] ${f.userId}`,f.cx,labelBase);
+    CX.font='6px Share Tech Mono';
     CX.fillStyle=fm.color;
-    CX.fillText(`${fm.icon} ${fm.name}`,f.cx-22,f.cy-f.radius-10);
+    CX.fillText(`${fm.icon} ${fm.name}`,f.cx-22,labelBase+10);
     CX.fillStyle=f.maneuver==='retreat'?'#ff8a65':f.maneuver==='scatter'?'#ff5252':f.maneuver==='flank'?'#66bb6a':'rgba(255,255,255,.4)';
-    CX.fillText(`${mv.icon} ${mv.name}`,f.cx+22,f.cy-f.radius-10);
+    CX.fillText(`${mv.icon} ${mv.name}`,f.cx+22,labelBase+10);
 
     const alive=f.ships.filter(s=>!s.dead).length;
     const hpR=f.hp/f.maxHp;
-    const bw=mobile ? 76 : 58;
-    CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,f.cy-f.radius-2,bw,3);
+    const bw=58;
+    const hpY=f.cy+labelDir*(f.radius+2);
+    CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,hpY,bw,3);
     CX.fillStyle=hpR>.5?'#4caf50':hpR>.25?'#ff9800':'#f44336';
-    CX.fillRect(f.cx-bw/2,f.cy-f.radius-2,bw*hpR,3);
-    CX.font=(mobile ? 7 : 5) + 'px Share Tech Mono';
+    CX.fillRect(f.cx-bw/2,hpY,bw*hpR,3);
+    CX.font='5px Share Tech Mono';
     CX.fillStyle='rgba(255,255,255,.28)';
-    CX.fillText(`${alive}척`,f.cx,f.cy-f.radius-28);
+    CX.fillText(`${alive}척`,f.cx,labelBase-8*labelDir);
     CX.globalAlpha=1;CX.textAlign='left';
   });
 }
 
 function drawShips2(){
-  const mobile = window.innerWidth <= 600;
-  const visualBoost = mobile ? 1.65 : 1.12;
   const sorted=[...ships].sort((a,b)=>b.type.r-a.type.r);
-  sorted.forEach(sh=>{
+  sorted.forEach((sh,idx)=>{
     if(sh.dead||sh.fleet.dead)return;
     const t=sh.type;
+    if(PERF_MODE&&isSmall(sh)&&!sh.isFlagship&&idx%2===1)return;
     const F=FACTIONS[t.faction];
     CX.shadowColor=F.color;
-    CX.shadowBlur=sh.isFlagship?t.r*5:t.r*2.2;
+    CX.shadowBlur=PERF_MODE?(sh.isFlagship?8:0):(sh.isFlagship?t.r*5:t.r*2.2);
     CX.save();
     CX.translate(sh.x,sh.y);
     CX.rotate(sh.facing);
-    CX.scale(visualBoost, visualBoost);
+    const classScale={frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[t.size]||1.2;
+    CX.scale(classScale,classScale);
     if(sh.flash>0)CX.fillStyle='#fff';
     drawShipByFaction(CX,t);
     CX.restore();
     CX.shadowBlur=0;
-    if(t.r>=2){
+    if(t.r>=2&&(!PERF_MODE||sh.isFlagship||!isSmall(sh))){
       const ef=.6+.4*Math.sin(sh.engF*.18);
-      CX.globalAlpha=ef*.88;
-      const ex=sh.x-Math.cos(sh.facing)*t.r*1.6;
-      const ey=sh.y-Math.sin(sh.facing)*t.r*1.6;
-      const eg=CX.createRadialGradient(ex,ey,0,ex,ey,t.r*1.1);
-      eg.addColorStop(0,'rgba(255,210,60,1)');
-      eg.addColorStop(.45,'rgba(255,110,20,.65)');
-      eg.addColorStop(1,'transparent');
-      CX.fillStyle=eg;
-      CX.beginPath();CX.arc(ex,ey,t.r*1.1,0,Math.PI*2);CX.fill();
-      CX.globalAlpha=1;
+      drawEngineFlame(CX,sh.x,sh.y,sh.facing,t,ef);
     }
     if(t.size==='cruiser'||t.size==='battleship'||t.size==='titan'){
-      const bw=t.r*2.2*visualBoost,hr=sh.hp/sh.maxHp;
+      const bw=t.r*2.2*classScale,hr=sh.hp/sh.maxHp;
       CX.fillStyle='rgba(0,0,0,.4)';CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw,2);
       CX.fillStyle=hr>.5?'#4caf50':hr>.25?'#ff9800':'#f44336';
       CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw*hr,2);
@@ -1109,7 +1203,7 @@ function drawLasers(_wsActive){
     }
     const prog=l.age/l.ttl;
     CX.globalAlpha=(1-prog)*l.alpha*.55;
-    CX.shadowColor=l.color;CX.shadowBlur=3;
+    CX.shadowColor=l.color;CX.shadowBlur=PERF_MODE?0:3;
     CX.strokeStyle=l.color;CX.lineWidth=l.width;
     CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
     CX.strokeStyle='rgba(255,255,255,.7)';CX.lineWidth=l.width*.28;
@@ -1157,33 +1251,10 @@ function drawRepairBeams(){
    ═══════════════════════════════════════════════════════════ */
 let lt=0,turnT=0,panelT=0,battleOver=false;
 let simSpeed=1; // 기본 1x — WS 없는 로컬 시뮬 전용
-function syncCommandDrawerLabel(){
-  const label=document.getElementById('cmdDrawerState');
-  if(label) label.textContent=document.body.classList.contains('controls-collapsed')?'OPEN':'HIDE';
-}
-function toggleCommandDrawer(){
-  document.body.classList.toggle('controls-collapsed');
-  syncCommandDrawerLabel();
-}
-function closeCommandDrawerOnMobile(){
-  if(window.innerWidth<=600) {
-    document.body.classList.add('controls-collapsed');
-    syncCommandDrawerLabel();
-  }
-}
-function initCommandDrawer(){
-  if(window.innerWidth<=600) document.body.classList.add('controls-collapsed');
-  else document.body.classList.remove('controls-collapsed');
-  syncCommandDrawerLabel();
-}
-window.addEventListener('resize', initCommandDrawer);
-document.addEventListener('click', function(e){
-  const btn = e.target && e.target.closest && e.target.closest('.controls-drawer .cb');
-  if(btn) setTimeout(closeCommandDrawerOnMobile, 120);
-});
-setTimeout(initCommandDrawer, 0);
 function setSimSpeed(s){
   simSpeed=s;
+  const speedCycle=document.getElementById('speedCycle');
+  if(speedCycle)speedCycle.textContent='×'+s;
   [1,2,4,8].forEach(v=>{
     const el=document.getElementById('spd'+v);
     if(!el)return;
@@ -1194,95 +1265,10 @@ function setSimSpeed(s){
     el.style.fontWeight='900';
   });
 }
-function setCameraMode(mode){
-  cameraMode = mode || 'cinema';
-  ['Cinema','Tactical'].forEach(name=>{
-    const el=document.getElementById('cam'+name);
-    if(!el)return;
-    const on=(name.toLowerCase()===cameraMode);
-    el.style.background=on?'rgba(206,147,216,.22)':'';
-    el.style.borderColor=on?'rgba(206,147,216,.65)':'';
-    el.style.color=on?'#ce93d8':'';
-    el.style.fontWeight=on?'900':'';
-  });
-}
-function fleetAnchorShip(fleet){
-  if(!fleet)return null;
-  return fleet.flagship && !fleet.flagship.dead
-    ? fleet.flagship
-    : fleet.ships.filter(s=>!s.dead).sort((a,b)=>b.type.r-a.type.r)[0];
-}
-function setCameraFromFleets(aliveF){
-  if(aliveF.length>=2){
-    let focus = null;
-    const atkF = aliveF.filter(f=>f.side==='atk');
-    const defF = aliveF.filter(f=>f.side==='def');
-    atkF.forEach(a=>defF.forEach(d=>{
-      const dist = Math.hypot(a.cx-d.cx,a.cy-d.cy);
-      if(!focus || dist < focus.dist) focus = { a, d, dist };
-    }));
-    const focusF = focus ? [focus.a, focus.d] : aliveF;
-    const xs=focusF.flatMap(f=>[f.cx-f.radius*1.35,f.cx+f.radius*1.35]);
-    const ys=focusF.flatMap(f=>[f.cy-f.radius*1.35,f.cy+f.radius*1.35]);
-    const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
-    _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
-    const spread=Math.max(mxX-mnX,mxY-mnY)*1.22;
-    const minScale = window.innerWidth <= 600 ? 0.92 : 0.62;
-    const maxScale = window.innerWidth <= 600 ? 4.2 : 3.4;
-    _camTargetScale=Math.max(minScale,Math.min(maxScale,Math.min(W,H)/spread));
-  } else if(aliveF.length===1){
-    _camTargetCx=aliveF[0].cx;_camTargetCy=aliveF[0].cy;_camTargetScale=window.innerWidth <= 600 ? 3.2 : 2.2;
-  } else {
-    _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
-  }
-  clampCameraTarget();
-}
-function setCameraOverShoulder(sourceFleet, targetFleet){
-  const src=fleetAnchorShip(sourceFleet);
-  if(!src || !targetFleet){ setCameraFromFleets(fleets.filter(f=>!f.dead)); return; }
-  const dx=targetFleet.cx-src.x,dy=targetFleet.cy-src.y;
-  const len=Math.hypot(dx,dy)||1;
-  _camTargetCx=src.x+dx*.38;
-  _camTargetCy=src.y+dy*.38;
-  const spread=Math.max(len*.82, sourceFleet.radius + targetFleet.radius) * 1.42;
-  const maxScale=window.innerWidth<=600?3.15:2.45;
-  const minScale=window.innerWidth<=600?1.15:.75;
-  _camTargetScale=Math.max(minScale,Math.min(maxScale,Math.min(W,H)/spread));
-  clampCameraTarget();
-}
-function clampCameraCenter(cx, cy, scale){
-  const pad=window.innerWidth<=600?26:18;
-  const halfW=W/(2*Math.max(scale,.001));
-  const halfH=H/(2*Math.max(scale,.001));
-  const minX=halfW-pad, maxX=W-halfW+pad;
-  const minY=halfH-pad, maxY=H-halfH+pad;
-  return {
-    x: minX > maxX ? W/2 : Math.max(minX, Math.min(maxX, cx)),
-    y: minY > maxY ? H/2 : Math.max(minY, Math.min(maxY, cy)),
-  };
-}
-function clampCameraTarget(){
-  const c=clampCameraCenter(_camTargetCx,_camTargetCy,_camTargetScale);
-  _camTargetCx=c.x;_camTargetCy=c.y;
-}
-function updateCameraTargets(){
-  const aliveF=fleets.filter(f=>!f.dead);
-  if(cameraMode==='tactical'){ setCameraFromFleets(aliveF); return; }
-  const phase=Math.floor(btMs/6500)%4;
-  if(phase===0){ setCameraFromFleets(aliveF); return; }
-  const atkF=aliveF.filter(f=>f.side==='atk');
-  const defF=aliveF.filter(f=>f.side==='def');
-  const sourceList=phase===2?defF:atkF;
-  const targetList=phase===2?atkF:defF;
-  const source=sourceList[0];
-  const target=source&&targetList.length
-    ? targetList.reduce((best,f)=>Math.hypot(f.cx-source.cx,f.cy-source.cy)<Math.hypot(best.cx-source.cx,best.cy-source.cy)?f:best,targetList[0])
-    : null;
-  if(source&&target) setCameraOverShoulder(source,target);
-  else setCameraFromFleets(aliveF);
-  if(phase===3) {
-    _camTargetScale*=0.82;
-  }
+function cycleSimSpeed(){
+  const speeds=[1,2,4,8];
+  const idx=speeds.indexOf(simSpeed);
+  setSimSpeed(speeds[(idx+1)%speeds.length]);
 }
 function loop(ts){
   const rawDt=ts-lt;lt=ts;
@@ -1297,20 +1283,57 @@ function loop(ts){
 
   updateFleets(dt);
   const _wsActive = _wsBattle && _wsBattle.readyState === 1;
+  let fireBudget=PERF_MODE?72:9999;
   ships.forEach(sh=>{
     if(sh.dead||sh.fleet.dead)return;
     sh.shootT+=dt;
     const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
-    if(sh.shootT>fi*5){sh.shootT=0;fire(sh,_wsActive);}
+    if(sh.shootT>fi*5&&fireBudget>0){sh.shootT=0;fireBudget--;fire(sh,_wsActive);}
   });
 
-  updateCameraTargets();
+  // 자동 카메라: 붙으면 줌인, 멀어지면 줌아웃. 단, 전체 생존 함대는 항상 화면 안에 둔다.
+  const _aliveF=fleets.filter(f=>!f.dead);
+  const _atkF=_aliveF.filter(f=>f.side==='atk');
+  const _defF=_aliveF.filter(f=>f.side==='def');
+  if(_atkF.length&&_defF.length){
+    let pair={a:_atkF[0],d:_defF[0],dist:Infinity};
+    _atkF.forEach(a=>_defF.forEach(d=>{
+      const dist=Math.hypot(a.cx-d.cx,a.cy-d.cy);
+      if(dist<pair.dist)pair={a,d,dist};
+    }));
+    const aliveShips=ships.filter(s=>!s.dead&&!s.fleet.dead);
+    const xs=aliveShips.flatMap(s=>{
+      const r=shipScreenRadius(s);
+      return [s.x-r,s.x+r];
+    });
+    const ys=aliveShips.flatMap(s=>{
+      const r=shipScreenRadius(s);
+      return [s.y-r-18,s.y+r+24];
+    });
+    if(!xs.length){
+      _aliveF.forEach(f=>{
+        xs.push(f.cx-f.radius,f.cx+f.radius);
+        ys.push(f.cy-f.radius,f.cy+f.radius);
+      });
+    }
+    const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
+    _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
+    const proximity=1-Math.min(1,Math.max(0,(pair.dist-330)/620));
+    const fitAllScale=Math.min(W/(mxX-mnX),H/(mxY-mnY))*.74;
+    const desiredScale=.42+proximity*.58;
+    _camTargetScale=Math.max(.34,Math.min(1.25,fitAllScale,desiredScale));
+  } else if(_aliveF.length===1){
+    _camTargetCx=_aliveF[0].cx;_camTargetCy=_aliveF[0].cy;_camTargetScale=2.2;
+  } else {
+    _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
+  }
   const _lp=0.025;
   camScale+=(_camTargetScale-camScale)*_lp;
   camCx+=(_camTargetCx-camCx)*_lp;
   camCy+=(_camTargetCy-camCy)*_lp;
-  const _clamped=clampCameraCenter(camCx,camCy,camScale);
-  camCx=_clamped.x;camCy=_clamped.y;
+  const _halfW=W/(2*Math.max(camScale,.001)), _halfH=H/(2*Math.max(camScale,.001));
+  if(_halfW<W/2)camCx=Math.max(_halfW,Math.min(W-_halfW,camCx)); else camCx=W/2;
+  if(_halfH<H/2)camCy=Math.max(_halfH,Math.min(H-_halfH,camCy)); else camCy=H/2;
 
   drawBG();
   CX.save();
@@ -1669,6 +1692,7 @@ async function loadCatalog(){
                  r.size_class === 'destroyer' ? 3.6 : 2;
           }
           s[r.code] = {
+            code: r.code,
             faction: r.faction_code,
             size: r.size_class,
             role: r.role,

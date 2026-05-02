@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-02 v5.50 (Fleet camera containment hotfix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-02 v5.52 (Top-view fleet sprite + long-range combat pass) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,20 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.52 최신 핸드오프 — 탑뷰 함선 PNG + 장거리 함대전
+
+- `assets/tactical-lab-v11.html`은 v11.1 기반 세로 전장으로 전환됨. 적군 상단, 아군 하단.
+- `assets/fleet-assault-demo.html`은 데모/검수용 원본이며, 현재 내용은 `assets/tactical-lab-v11.html`에도 복사되어 본서버 택티컬랩과 동일해야 함.
+- `assets/ships/top/`에 실제 사용되는 22종 함선 PNG 축소본이 있음. `mcc_destroyer_top.png`는 코드상 22종에 포함되지 않는 중복 샘플이므로 매핑 제외.
+- 전투와 SHIP REGISTRY 미리보기는 같은 PNG 스프라이트 렌더러를 사용. 기존 벡터 함선은 PNG 로드 실패 시 fallback 용도로만 유지.
+- 엔진 플레임은 `drawEngineFlame()`으로 통일. 예전 벡터 기준 파란 불꽃을 별도로 되살리지 말 것.
+- 함선은 사격 시 `aimX/aimY/aimTTL`로 현재 타겟 좌표를 바라본다. 이동 방향보다 공격 대상 방향이 우선.
+- 장거리 함대전 느낌을 위해 `updateFleets()`의 `minDist`/`idealDist`는 넓게 잡혀 있음. 근접 난전처럼 함대가 겹치지 않게 유지.
+- 자동 카메라는 함대 반경이 아니라 살아있는 함선 스프라이트 바운딩 박스 기준으로 프레이밍한다.
+- 모바일 HUD는 속도 오버레이 단일 버튼(`x1/x2/x4/x8` 순환) + 소형 전술/진형/기동 그리드.
+- 증원 테스트 버튼(`MCC x10`, `FSP x10`, `Cruiser`)은 본서버 함대전 UI에서 제거.
+- 모바일 퍼포먼스 모드가 작은 함선 대표 렌더, 발사 밀도/총알 누적/폭발 파티클/글로우 비용을 제한함.
 
 ## 1. 프로젝트 한 줄 요약
 
