@@ -3502,6 +3502,31 @@ router.post('/quests/track', writeLimiter, async (req, res) => {
 });
 
 // ══════════════════════════════════════
+// CAMPAIGN EDITOR LAYOUT — server-side storage (shared across devices)
+// ══════════════════════════════════════
+router.get('/campaign/editor-layout', async (req, res) => {
+  try {
+    const r = await pool.query("SELECT value FROM settings WHERE key = 'campaign_editor_layout'");
+    res.json(r.rows[0]?.value || {});
+  } catch (e) {
+    res.json({});
+  }
+});
+router.post('/campaign/editor-layout', async (req, res) => {
+  try {
+    const payload = req.body;
+    if (!payload || typeof payload !== 'object') return res.status(400).json({ error: 'invalid payload' });
+    await pool.query(
+      "INSERT INTO settings (category, key, value, description) VALUES ('campaign', 'campaign_editor_layout', $1::jsonb, 'Campaign scene editor layout') ON CONFLICT (key) DO UPDATE SET value = $1::jsonb",
+      [JSON.stringify(payload)]
+    );
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[campaign-editor-layout] save error:', e.message);
+    res.status(500).json({ error: 'save_failed' });
+  }
+});
+
 // CAMPAIGN SYSTEM — story chapters (MVP server simulation)
 // ══════════════════════════════════════
 

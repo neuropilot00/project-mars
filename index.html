@@ -24664,6 +24664,7 @@ var _campaignShowLocked=false;
 var _campaignScenes=null;
 var _campaignSceneIndex=0;
 var _campaignTypingTimer=null;
+var _campaignEditorLayout=null; // 서버에서 로드한 에디터 레이아웃 캐시
 var _campaignTypingDone=false;
 var _campaignSceneLineIndex=0;
 var _campaignTypingElement=null;
@@ -24895,6 +24896,13 @@ function showCampaignStory(chapter){
     advanceCampaignScene();
   });
   document.body.appendChild(overlay);
+  // 에디터 레이아웃 서버에서 로드 (완료 후 첫 씬 렌더)
+  var _doRender=function(){renderCampaignScene();};
+  fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
+    if(d&&typeof d==='object') _campaignEditorLayout=d;
+    _doRender();
+  }).catch(function(){_doRender();});
+  return; // renderCampaignScene은 fetch 완료 후 호출
   // 스킵: 타이핑 중이면 즉시 완료, 끝났으면 다음 장면으로 이동
   document.getElementById('storySkipBtn').addEventListener('click',function(ev){
     ev.stopPropagation();
@@ -24911,7 +24919,6 @@ function showCampaignStory(chapter){
     ev.stopPropagation();
     abandonCampaignFromStory();
   });
-  renderCampaignScene();
 }
 
 // 스토리 화면에서 "나가기" 클릭 시 호출. 진행 중인 세션을 서버에 abandon 요청한 뒤 화면을 닫는다.
@@ -25001,7 +25008,7 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
     el.src=campaignAssetUrl('/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png');
     el.style.display='block';
     try{
-      var _edChars=JSON.parse(localStorage.getItem('editorCharacters')||'{}');
+      var _edChars=(_campaignEditorLayout&&_campaignEditorLayout.characters)||{};
       var _edLayout=_edChars[id]||_edChars[_portraitMap[id]||id];
       if(_edLayout){
         // 캐릭터는 bottom-anchor + 수평 중심점 방식 — 위쪽 overflow 클리핑 방지
@@ -25076,7 +25083,7 @@ function renderCampaignScene(){
     box.style.borderTop='1px solid rgba(255,255,255,.12)';
     box.style.backdropFilter='blur(4px)';
     try{
-      var _edDlg=JSON.parse(localStorage.getItem('editorDialog'));
+      var _edDlg=_campaignEditorLayout&&_campaignEditorLayout.dialog;
       if(_edDlg){
         // 에디터와 동일한 center-point 기준 transform 적용
         box.style.position='absolute';
@@ -25100,7 +25107,7 @@ function renderCampaignScene(){
     box.innerHTML='<div class="story-text story-narration-text"></div>';
     var _nText=_campaignStoryText(nLine.text);
     _showStoryDetailOverlay(nLine.overlay||null);
-    try{var _nFs=parseFloat(localStorage.getItem('editorFontSize')||'1');var _nEl=box.querySelector('.story-text');if(_nEl&&_nFs!==1)_nEl.style.fontSize=_nFs+'rem';}catch(_){}
+    try{var _nFs=parseFloat((_campaignEditorLayout&&_campaignEditorLayout.fontsize)||'1');var _nEl=box.querySelector('.story-text');if(_nEl&&_nFs!==1)_nEl.style.fontSize=_nFs+'rem';}catch(_){}
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
@@ -25111,7 +25118,7 @@ function renderCampaignScene(){
     box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
     var _dText=_campaignStoryText(dLine.text);
     _showStoryDetailOverlay(dLine.overlay||null);
-    try{var _dFs=parseFloat(localStorage.getItem('editorFontSize')||'1');var _dEl=box.querySelector('.story-text');if(_dEl&&_dFs!==1)_dEl.style.fontSize=_dFs+'rem';}catch(_){}
+    try{var _dFs=parseFloat((_campaignEditorLayout&&_campaignEditorLayout.fontsize)||'1');var _dEl=box.querySelector('.story-text');if(_dEl&&_dFs!==1)_dEl.style.fontSize=_dFs+'rem';}catch(_){}
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }

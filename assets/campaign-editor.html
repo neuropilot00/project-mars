@@ -468,6 +468,25 @@ function overlayKey() {
 }
 let dragState = null;
 
+// 서버 동기화 — 레이아웃 변경 시 debounce 후 POST
+let _syncTimer = null;
+function syncToServer() {
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(() => {
+    const payload = {
+      fontsize: globalFontSize,
+      dialog: globalDialog,
+      characters: globalCharacters,
+      overlays: globalOverlays
+    };
+    fetch('/api/campaign/editor-layout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+  }, 600);
+}
+
 function clamp(value, min, max) {
   const number = Number(value);
   if (Number.isNaN(number)) return min;
@@ -539,6 +558,7 @@ function setLayoutPart(part, key, values) {
     Object.assign(globalOverlays[k], values);
     localStorage.setItem('editorOverlays', JSON.stringify(globalOverlays));
   }
+  syncToServer();
 }
 
 function fallbackCharacterLayout(characters, index) {
@@ -943,12 +963,14 @@ function setGlobalFontSize(v) {
   globalFontSize = Math.round(clamp(v, 0.3, 4.0) * 100) / 100;
   document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
   localStorage.setItem('editorFontSize', globalFontSize);
+  syncToServer();
   renderCanvas();
 }
 function setGlobalDialog(field, v) {
   globalDialog[field] = Math.round(clamp(v, field === 'w' ? 5 : 0, 100));
   document.getElementById(`d${field}Display`).textContent = globalDialog[field];
   localStorage.setItem('editorDialog', JSON.stringify(globalDialog));
+  syncToServer();
   renderCanvas();
 }
 document.getElementById('fontDecBtn').addEventListener('click', () => setGlobalFontSize(globalFontSize - 0.05));
