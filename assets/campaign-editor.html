@@ -354,11 +354,31 @@ input[type="number"]:focus, select:focus, #canvas:focus {
 <div class="app">
   <header class="topbar">
     <div class="brand">CAMPAIGN SCENE EDITOR</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="color:#666;font-size:11px">Font size</span>
-      <button class="pm-btn" id="fontDecBtn" tabindex="-1">−</button>
-      <span id="fontSizeDisplay" style="min-width:34px;text-align:center;font-size:12px;color:#ddd">1.00</span>
-      <button class="pm-btn" id="fontIncBtn" tabindex="-1">+</button>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="color:#666;font-size:11px">Font</span>
+        <button class="pm-btn" id="fontDecBtn" tabindex="-1">−</button>
+        <span id="fontSizeDisplay" style="min-width:34px;text-align:center;font-size:12px;color:#ddd">1.00</span>
+        <button class="pm-btn" id="fontIncBtn" tabindex="-1">+</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="color:#666;font-size:11px">Box&nbsp;X</span>
+        <button class="pm-btn" id="dxDecBtn" tabindex="-1">−</button>
+        <span id="dxDisplay" style="min-width:28px;text-align:center;font-size:12px;color:#ddd">50</span>
+        <button class="pm-btn" id="dxIncBtn" tabindex="-1">+</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="color:#666;font-size:11px">Box&nbsp;Y</span>
+        <button class="pm-btn" id="dyDecBtn" tabindex="-1">−</button>
+        <span id="dyDisplay" style="min-width:28px;text-align:center;font-size:12px;color:#ddd">84</span>
+        <button class="pm-btn" id="dyIncBtn" tabindex="-1">+</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="color:#666;font-size:11px">Box&nbsp;W</span>
+        <button class="pm-btn" id="dwDecBtn" tabindex="-1">−</button>
+        <span id="dwDisplay" style="min-width:28px;text-align:center;font-size:12px;color:#ddd">92</span>
+        <button class="pm-btn" id="dwIncBtn" tabindex="-1">+</button>
+      </div>
     </div>
   </header>
 
@@ -461,6 +481,7 @@ let selectedSceneIndex = 0;
 let selectedLineIndex = 0;
 let dirty = false;
 let globalFontSize = parseFloat(localStorage.getItem('editorFontSize') || '1.0');
+let globalDialog = JSON.parse(localStorage.getItem('editorDialog') || 'null') || { x: 50, y: 84, w: 92 };
 let dragState = null;
 
 function clamp(value, min, max) {
@@ -548,7 +569,7 @@ function effectiveOverlayLayout() {
 }
 
 function effectiveDialogLayout() {
-  return { ...defaults.dialog, ...(getLayoutPart('dialog') || {}) };
+  return { ...defaults.dialog, ...globalDialog };
 }
 
 function visibleCharacters() {
@@ -732,7 +753,6 @@ function renderControls() {
   if (overlay) {
     parts.push(controlGroup(`Overlay: ${overlay}`, 'overlay', '', effectiveOverlayLayout(), { minW: 5 }));
   }
-  parts.push(dialogControlGroup('Dialog Box', effectiveDialogLayout()));
   els.controls.innerHTML = parts.join('');
 }
 
@@ -749,18 +769,6 @@ function controlGroup(title, part, key, layout, options) {
   `;
 }
 
-function dialogControlGroup(title, layout) {
-  return `
-    <div class="control-group" data-part="dialog" data-key="">
-      <h3>${escapeHtml(title)}</h3>
-      <div class="grid3">
-        ${numberField('x', layout.x, 0, 100)}
-        ${numberField('y', layout.y, 0, 100)}
-        ${numberField('w', layout.w, 5, 100)}
-      </div>
-    </div>
-  `;
-}
 
 function numberField(name, value, min, max, step) {
   const s = step != null ? step : 1;
@@ -967,10 +975,25 @@ function setGlobalFontSize(v) {
   localStorage.setItem('editorFontSize', globalFontSize);
   renderCanvas();
 }
+function setGlobalDialog(field, v) {
+  globalDialog[field] = Math.round(clamp(v, field === 'w' ? 5 : 0, 100));
+  document.getElementById(`d${field}Display`).textContent = globalDialog[field];
+  localStorage.setItem('editorDialog', JSON.stringify(globalDialog));
+  renderCanvas();
+}
 document.getElementById('fontDecBtn').addEventListener('click', () => setGlobalFontSize(globalFontSize - 0.05));
 document.getElementById('fontIncBtn').addEventListener('click', () => setGlobalFontSize(globalFontSize + 0.05));
+document.getElementById('dxDecBtn').addEventListener('click', () => setGlobalDialog('x', globalDialog.x - 1));
+document.getElementById('dxIncBtn').addEventListener('click', () => setGlobalDialog('x', globalDialog.x + 1));
+document.getElementById('dyDecBtn').addEventListener('click', () => setGlobalDialog('y', globalDialog.y - 1));
+document.getElementById('dyIncBtn').addEventListener('click', () => setGlobalDialog('y', globalDialog.y + 1));
+document.getElementById('dwDecBtn').addEventListener('click', () => setGlobalDialog('w', globalDialog.w - 1));
+document.getElementById('dwIncBtn').addEventListener('click', () => setGlobalDialog('w', globalDialog.w + 1));
 // 초기 표시
 document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
+document.getElementById('dxDisplay').textContent = globalDialog.x;
+document.getElementById('dyDisplay').textContent = globalDialog.y;
+document.getElementById('dwDisplay').textContent = globalDialog.w;
 
 els.resetLayoutBtn.addEventListener('click', resetLayout);
 els.saveBtn.addEventListener('click', () => saveChapter().catch(error => alert(error.message)));
