@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Campaign Scene Editor</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #1a1a1a; color: #ccc; font-family: monospace; font-size: 13px; display: flex; height: 100vh; overflow: hidden; }
+
+/* LEFT PANEL */
+#left { width: 220px; min-width: 220px; background: #222; border-right: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; }
+#left h3 { padding: 8px 10px; background: #2a2a2a; border-bottom: 1px solid #333; color: #aaa; font-size: 11px; letter-spacing: 1px; }
+#left select { width: 100%; background: #1a1a1a; color: #ccc; border: none; border-bottom: 1px solid #333; padding: 6px 8px; font-size: 12px; }
+#left select:focus { outline: none; background: #252525; }
+#bg-section { padding: 8px; border-bottom: 1px solid #333; }
+#bg-section label { display: block; font-size: 11px; color: #777; margin-bottom: 4px; }
+#ch-section { padding: 8px; border-bottom: 1px solid #333; }
+#ch-section label { display: block; font-size: 11px; color: #777; margin-bottom: 4px; }
+#ch-section .row { display: flex; gap: 4px; }
+#add-btn { flex: 0 0 auto; background: #3a5a3a; color: #7f7; border: none; padding: 4px 8px; cursor: pointer; font-size: 11px; }
+#add-btn:hover { background: #4a6a4a; }
+
+/* LAYERS */
+#layers-section { flex: 1; overflow-y: auto; }
+#layers-section h3 { position: sticky; top: 0; z-index: 1; }
+.layer-item { display: flex; align-items: center; gap: 6px; padding: 5px 8px; cursor: pointer; border-bottom: 1px solid #2a2a2a; }
+.layer-item:hover { background: #2a2a2a; }
+.layer-item.selected { background: #1e3a1e; border-left: 2px solid #4f4; }
+.layer-item .thumb { width: 28px; height: 28px; object-fit: contain; background: #111; border: 1px solid #333; }
+.layer-item .name { flex: 1; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layer-del { background: none; border: none; color: #a44; cursor: pointer; font-size: 14px; padding: 0 2px; }
+.layer-del:hover { color: #f44; }
+.layer-up, .layer-dn { background: none; border: none; color: #666; cursor: pointer; font-size: 10px; padding: 0 1px; }
+.layer-up:hover, .layer-dn:hover { color: #aaa; }
+
+/* CANVAS AREA */
+#canvas-area { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; background: #111; position: relative; }
+#scene-container { position: relative; }
+#bg-img { display: block; max-height: 90vh; }
+.char-layer { position: absolute; cursor: move; user-select: none; }
+.char-layer img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.char-layer.selected { outline: 2px solid #4f4; }
+.char-layer .handle { position: absolute; width: 10px; height: 10px; background: #4f4; border: 1px solid #000; border-radius: 2px; }
+.char-layer .handle.br { bottom: -5px; right: -5px; cursor: se-resize; }
+.char-layer .handle.bl { bottom: -5px; left: -5px; cursor: sw-resize; }
+.char-layer .handle.tr { top: -5px; right: -5px; cursor: ne-resize; }
+.char-layer .handle.tl { top: -5px; left: -5px; cursor: nw-resize; }
+.char-layer .handle.bc { bottom: -5px; left: calc(50% - 5px); cursor: s-resize; }
+.char-layer .handle.tc { top: -5px; left: calc(50% - 5px); cursor: n-resize; }
+.char-layer .handle.lc { left: -5px; top: calc(50% - 5px); cursor: w-resize; }
+.char-layer .handle.rc { right: -5px; top: calc(50% - 5px); cursor: e-resize; }
+
+/* RIGHT PANEL */
+#right { width: 200px; min-width: 200px; background: #222; border-left: 1px solid #333; overflow-y: auto; }
+#right h3 { padding: 8px 10px; background: #2a2a2a; border-bottom: 1px solid #333; color: #aaa; font-size: 11px; letter-spacing: 1px; }
+.prop-group { padding: 8px; border-bottom: 1px solid #2a2a2a; }
+.prop-group label { display: block; font-size: 10px; color: #666; margin-bottom: 3px; }
+.prop-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.prop-row label { flex: 0 0 20px; font-size: 11px; color: #888; line-height: 24px; }
+.prop-row input[type=number] { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #ccc; padding: 3px 6px; font-size: 12px; width: 100%; }
+.prop-row input[type=number]:focus { outline: none; border-color: #4f4; }
+.prop-row input[type=range] { flex: 1; }
+#btn-export { margin: 8px; width: calc(100% - 16px); background: #1e3a5e; color: #7af; border: none; padding: 7px; cursor: pointer; font-size: 12px; }
+#btn-export:hover { background: #2a4a6e; }
+#btn-copy { margin: 0 8px 8px; width: calc(100% - 16px); background: #3a2a1e; color: #fa7; border: none; padding: 7px; cursor: pointer; font-size: 12px; }
+#btn-copy:hover { background: #4a3a2e; }
+#json-out { margin: 8px; width: calc(100% - 16px); background: #111; border: 1px solid #333; color: #888; font-size: 10px; padding: 6px; height: 120px; resize: none; }
+#zoom-row { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid #2a2a2a; }
+#zoom-row label { font-size: 10px; color: #666; }
+#zoom-val { font-size: 11px; color: #aaa; min-width: 32px; }
+</style>
+</head>
+<body>
+
+<!-- LEFT: overlay + character select -->
+<div id="left">
+  <h3>OVERLAY</h3>
+  <div id="bg-section">
+    <label>Background</label>
+    <select id="bg-select" size="6"></select>
+  </div>
+  <h3>CHARACTER</h3>
+  <div id="ch-section">
+    <label>Add Character</label>
+    <div class="row">
+      <select id="ch-select" style="flex:1"></select>
+      <button id="add-btn">ADD</button>
+    </div>
+  </div>
+  <h3>LAYERS</h3>
+  <div id="layers-section">
+    <div id="layers-list"></div>
+  </div>
+</div>
+
+<!-- CENTER: canvas -->
+<div id="canvas-area">
+  <div id="scene-container">
+    <img id="bg-img" src="" alt="">
+  </div>
+</div>
+
+<!-- RIGHT: properties -->
+<div id="right">
+  <h3>PROPERTIES</h3>
+  <div id="zoom-row">
+    <label>ZOOM</label>
+    <input type="range" id="zoom-slider" min="20" max="200" value="100" style="flex:1">
+    <span id="zoom-val">100%</span>
+  </div>
+  <div class="prop-group" id="props-panel">
+    <label>NO LAYER SELECTED</label>
+  </div>
+  <button id="btn-export">EXPORT JSON</button>
+  <button id="btn-copy">COPY TO CLIPBOARD</button>
+  <textarea id="json-out" readonly placeholder="layout JSON appears here..."></textarea>
+</div>
+
+<script>
+const BG_LIST = ["argyre_canyon_depot.png","argyre_canyon_night.png","argyre_plains.png","argyre_plains_dusk.png","argyre_plains_night.png","cargo_ship_corridor.png","cargo_ship_interior.png","cargo_ship_window_mars.png","cv_ch10_from_flames_l00_00_fire_small.png","cv_ch10_from_flames_l14_00_hand_still.png","cv_ch10_from_flames_l20_00_death_still.png","cv_ch10_from_flames_l32_04_zone12_record.png","cv_ch10_from_flames_l39_00_candle_flame.png","cv_ch1_baptism_l02_00_fire_small.png","cv_ch1_baptism_l29_00_mars_horizon.png","cv_ch1_baptism_l41_00_candle_flame.png","cv_ch2_raid_l26_00_dust_storm.png","cv_ch2_raid_l32_00_hand_fist.png","cv_ch3_mine_king_l19_00_hand_still.png","cv_ch3_mine_king_l48_00_fire_small.png","cv_ch4_cinder_l10_02_collapse_debris.png","cv_ch4_cinder_l17_00_sealed_file.png","cv_ch4_cinder_l27_00_candle_flame.png","cv_ch5_kepler_king_l21_00_hand_still.png","cv_ch5_kepler_king_l27_00_death_still.png","cv_ch5_kepler_king_l37_00_death_still.png","cv_ch6_thirty_years_l01_00_death_still.png","cv_ch6_thirty_years_l07_02_sealed_file.png","cv_ch6_thirty_years_l21_00_zone12_record.png","cv_ch6_thirty_years_l38_02_candle_flame.png","cv_ch7_last_war_l00_00_death_still.png","cv_ch7_last_war_l23_00_death_still.png","cv_ch7_last_war_l39_00_fire_small.png","cv_ch8_red_parliament_cv_l03_00_hand_still.png","cv_ch8_red_parliament_cv_l15_00_death_still.png","cv_ch8_red_parliament_cv_l37_02_death_still.png","cv_ch9_olympus_l08_00_zone12_record.png","cv_ch9_olympus_l42_02_contract_sign.png","cv_ch9_olympus_l47_00_zone12_record.png","deep_space_mars_approach.png","deep_space_window.png","erebus_base_exterior.png","erebus_base_interior.png","erebus_base_interior_night.png","erebus_canyon_sunset.png","erebus_crater_exterior.png","erebus_crater_panorama.png","erebus_throne_hall.png","fsp_assembly_hall.png","fsp_assembly_hall_evening.png","fsp_assembly_hall_official.png","fsp_base.png","fsp_base_exterior.png","fsp_base_night.png","fsp_ch10_freedoms_price_l17_05_candle_flame.png","fsp_ch10_freedoms_price_l24_05_death_still.png","fsp_ch10_freedoms_price_l36_03_mars_horizon.png","fsp_ch1_breakwater_l24_00_death_still.png","fsp_ch1_breakwater_l30_00_candle_flame.png","fsp_ch2_ice_caravan_l02_00_death_still.png","fsp_ch2_ice_caravan_l27_00_candle_flame.png","fsp_ch3_blood_mine_l02_00_candle_flame.png","fsp_ch3_blood_mine_l10_00_death_still.png","fsp_ch4_diplomacy_l09_00_zone12_record.png","fsp_ch4_diplomacy_l21_00_hand_fist.png","fsp_ch4_diplomacy_l43_00_zone12_record.png","fsp_ch5_kepler_commons_l04_02_ore_sample.png","fsp_ch5_kepler_commons_l14_00_darkness_corridor.png","fsp_ch5_kepler_commons_l37_00_mars_horizon.png","fsp_ch6_the_mole_l11_00_sealed_file.png","fsp_ch6_the_mole_l27_00_death_still.png","fsp_ch7_assembly_l21_00_dust_storm.png","fsp_ch7_assembly_l36_00_alone_window.png","fsp_ch7_assembly_l40_00_candle_flame.png","fsp_ch8_water_war_l06_00_death_still.png","fsp_ch8_water_war_l35_00_mars_horizon.png","fsp_ch8_water_war_l39_00_candle_flame.png","fsp_ch9_last_harvest_l08_05_death_still.png","fsp_ch9_last_harvest_l10_00_zone12_record.png","fsp_ch9_last_harvest_l49_06_contract_sign.png","gaia_ship_interior.png","hellas_central_exterior.png","hellas_central_exterior_night.png","hellas_central_exterior_panorama.png","hellas_exterior_road.png","hellas_labor_district_night.png","hellas_mine_exterior.png","hellas_mining_outpost.png","hellas_mining_village.png","hellas_mining_village_dawn.png","hellas_mining_village_empty.png","hellas_mining_village_fire.png","hellas_mining_village_panorama.png","hellas_mining_village_wall.png","hellas_outer_plains.png","hellas_outer_plains_sunset.png","hellas_various_night.png","hellas_zone4_deep_tunnel.png","hellas_zone4_outside_dawn.png","hellas_zone4_ruins.png","hellas_zone4_ruins_exit.png","hidden_ch1_observer_l07_00_hand_still.png","hidden_ch1_observer_l14_00_candle_flame.png","hidden_ch1_observer_l21_00_collapse_debris.png","hidden_ch1_observer_l24_00_sealed_file.png","hidden_ch2_traces_l01_00_candle_flame.png","hidden_ch2_traces_l23_00_zone12_record.png","hidden_ch2_traces_l28_00_death_still.png","hidden_ch3_fourth_flag_l03_00_three_flags.png","hidden_ch3_fourth_flag_l05_00_death_still.png","hidden_ch3_fourth_flag_l11_00_sealed_file.png","hidden_ch3_fourth_flag_l28_00_mars_horizon.png","hidden_ch4_thirty_years_l07_00_hand_still.png","hidden_ch4_thirty_years_l18_00_candle_flame.png","hidden_ch4_thirty_years_l27_00_ore_sample.png","hidden_ch5_last_observation_l23_00_zone12_record.png","hidden_ch5_last_observation_l32_00_candle_flame.png","hidden_ch5_last_observation_l44_00_mars_horizon.png","kariope_cargo_bay.png","kariope_observation_deck.png","kepler_crater.png","kepler_crater_dawn.png","kepler_crater_dusk.png","kepler_crater_edge.png","kepler_crater_edge_dusk.png","mars_docking_bay.png","mars_landing_approach.png","mars_sunset.png","mars_surface_dust_storm.png","mcc_archive_sublevel.png","mcc_board_chamber.png","mcc_briefing_room.png","mcc_ch10_the_choice_l13_01_death_still.png","mcc_ch10_the_choice_l26_01_sealed_file.png","mcc_ch10_the_choice_l45_02_alone_window.png","mcc_ch10_the_choice_l55_07_mars_horizon.png","mcc_ch1_oxygen_rush_l13_02_death_still.png","mcc_ch1_oxygen_rush_l23_00_dust_storm.png","mcc_ch1_oxygen_rush_l37_00_alone_window.png","mcc_ch2_frozen_highway_l20_02_death_still.png","mcc_ch2_frozen_highway_l27_00_sealed_file.png","mcc_ch2_frozen_highway_l34_00_mars_horizon.png","mcc_ch3_boardroom_l04_00_death_still.png","mcc_ch3_boardroom_l10_02_sealed_file.png","mcc_ch3_boardroom_l34_00_alone_window.png","mcc_ch4_pirates_payroll_l17_00_ore_sample.png","mcc_ch4_pirates_payroll_l23_00_mars_horizon.png","mcc_ch4_pirates_payroll_l39_00_ore_sample.png","mcc_ch5_kepler_dispute_l07_00_sealed_file.png","mcc_ch5_kepler_dispute_l29_00_candle_flame.png","mcc_ch6_whistleblower_l08_00_candle_flame.png","mcc_ch6_whistleblower_l35_00_candle_flame.png","mcc_ch9_martian_night_l08_02_zone12_record.png","mcc_ch9_martian_night_l27_00_zone12_record.png","mcc_ch9_martian_night_l35_00_contract_sign.png","mcc_ch9_martian_night_l37_00_mars_horizon.png","mcc_executive_floor.png","mcc_sector12_ruins.png","mine_exterior.png","mine_interior.png","mine_shaft.png","new_athens_shipyard.png","new_athens_shipyard_dawn.png","new_athens_shipyard_interior.png","new_athens_shipyard_night.png","olympus_exterior.png","olympus_exterior_dawn.png","olympus_exterior_sunset.png","olympus_exterior_vast.png","olympus_summit_exterior_view.png","olympus_summit_station.png","olympus_summit_station_interior.png","prologue_cv_l12_00_mars_horizon.png","prologue_cv_l24_00_fire_small.png","prologue_cv_l34_00_fire_small.png","prologue_fsp_l05_00_candle_flame.png","prologue_fsp_l34_00_candle_flame.png","prologue_mcc_l30_00_death_still.png","prologue_mcc_l40_00_sealed_file.png","prologue_shared_l29_00_mars_horizon.png","prologue_shared_l45_00_mars_horizon.png","sandstone_junction.png","sandstone_junction_dusk.png","space_battle_start.png"];
+const CH_LIST = ["aisha.png","amara.png","bartender.png","berk.png","butcher.png","butcher_vasquez.png","chen.png","chen_weiss.png","cinder.png","cinder_alt.png","cinder_grace.png","crow.png","crow_reyes.png","cv_scout_1.png","cv_scout_2.png","director_vale.png","hagar.png","hale.png","hestia.png","jin.png","kara_vex.png","kenji.png","lena.png","li_fang.png","liang_wei.png","lifang.png","marchetti.png","marco.png","marko.png","mcc_guard.png","mikhail.png","miner_anon.png","miner_elder.png","narrator.png","observer.png","olu_adeyemi.png","osei.png","pak_seung_ho.png","phoenix.png","pilgrim_assassin.png","player.png","player_silhouette.png","prologue_voice.png","ramos.png","renata_vieira.png","rev_hale.png","reza.png","ryu.png","sera.png","stranger.png","thomas_alder.png","verk.png","worker.png","yuna.png","zhang.png"];
+
+const bgSelect = document.getElementById('bg-select');
+const chSelect = document.getElementById('ch-select');
+const bgImg = document.getElementById('bg-img');
+const container = document.getElementById('scene-container');
+const layersList = document.getElementById('layers-list');
+const propsPanel = document.getElementById('props-panel');
+const jsonOut = document.getElementById('json-out');
+const zoomSlider = document.getElementById('zoom-slider');
+const zoomVal = document.getElementById('zoom-val');
+
+BG_LIST.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f.replace('.png',''); bgSelect.appendChild(o); });
+CH_LIST.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f.replace('.png',''); chSelect.appendChild(o); });
+
+let layers = []; // {id, file, x, y, w, h, opacity, el}
+let selectedId = null;
+let zoom = 1;
+let nextId = 1;
+
+// BG select
+bgSelect.addEventListener('change', () => {
+  bgImg.src = '../campaign/backgrounds/' + bgSelect.value;
+});
+bgImg.addEventListener('load', () => {
+  container.style.width = bgImg.offsetWidth + 'px';
+  container.style.height = bgImg.offsetHeight + 'px';
+});
+// init
+bgSelect.selectedIndex = 0;
+bgImg.src = '../campaign/backgrounds/' + BG_LIST[0];
+
+// Zoom
+zoomSlider.addEventListener('input', () => {
+  zoom = zoomSlider.value / 100;
+  zoomVal.textContent = zoomSlider.value + '%';
+  container.style.transform = `scale(${zoom})`;
+  container.style.transformOrigin = 'top left';
+});
+
+// Add character
+document.getElementById('add-btn').addEventListener('click', () => {
+  const file = chSelect.value;
+  if (!file) return;
+  const id = nextId++;
+  const bgW = bgImg.offsetWidth || 800;
+  const bgH = bgImg.offsetHeight || 800;
+  const w = Math.round(bgW * 0.35);
+  const h = Math.round(w * 1.5);
+  const layer = { id, file, x: Math.round(bgW * 0.3), y: Math.round(bgH - h), w, h, opacity: 1 };
+  layers.push(layer);
+  createLayerEl(layer);
+  renderLayersList();
+  selectLayer(id);
+});
+
+function createLayerEl(layer) {
+  const el = document.createElement('div');
+  el.className = 'char-layer';
+  el.dataset.id = layer.id;
+  el.style.left = layer.x + 'px';
+  el.style.top = layer.y + 'px';
+  el.style.width = layer.w + 'px';
+  el.style.height = layer.h + 'px';
+  el.style.opacity = layer.opacity;
+
+  const img = document.createElement('img');
+  img.src = '../campaign/characters/' + layer.file;
+  img.draggable = false;
+  el.appendChild(img);
+
+  // resize handles
+  ['tl','tc','tr','lc','rc','bl','bc','br'].forEach(pos => {
+    const h = document.createElement('div');
+    h.className = 'handle ' + pos;
+    h.dataset.handle = pos;
+    el.appendChild(h);
+  });
+
+  el.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('handle')) return;
+    e.preventDefault();
+    selectLayer(layer.id);
+    startDrag(e, layer);
+  });
+
+  el.querySelectorAll('.handle').forEach(h => {
+    h.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      selectLayer(layer.id);
+      startResize(e, layer, h.dataset.handle);
+    });
+  });
+
+  layer.el = el;
+  container.appendChild(el);
+}
+
+function startDrag(e, layer) {
+  const startX = e.clientX, startY = e.clientY;
+  const origX = layer.x, origY = layer.y;
+  function onMove(e) {
+    const dx = (e.clientX - startX) / zoom;
+    const dy = (e.clientY - startY) / zoom;
+    layer.x = Math.round(origX + dx);
+    layer.y = Math.round(origY + dy);
+    layer.el.style.left = layer.x + 'px';
+    layer.el.style.top = layer.y + 'px';
+    updatePropsPanel();
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+function startResize(e, layer, handle) {
+  const startX = e.clientX, startY = e.clientY;
+  const origX = layer.x, origY = layer.y, origW = layer.w, origH = layer.h;
+  function onMove(e) {
+    const dx = (e.clientX - startX) / zoom;
+    const dy = (e.clientY - startY) / zoom;
+    let nx = origX, ny = origY, nw = origW, nh = origH;
+    if (handle.includes('r')) { nw = Math.max(20, origW + dx); }
+    if (handle.includes('l')) { nw = Math.max(20, origW - dx); nx = origX + (origW - nw); }
+    if (handle.includes('b')) { nh = Math.max(20, origH + dy); }
+    if (handle.includes('t')) { nh = Math.max(20, origH - dy); ny = origY + (origH - nh); }
+    // if corner, maintain aspect ratio with shift
+    layer.x = Math.round(nx); layer.y = Math.round(ny);
+    layer.w = Math.round(nw); layer.h = Math.round(nh);
+    layer.el.style.left = layer.x + 'px'; layer.el.style.top = layer.y + 'px';
+    layer.el.style.width = layer.w + 'px'; layer.el.style.height = layer.h + 'px';
+    updatePropsPanel();
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+function selectLayer(id) {
+  selectedId = id;
+  layers.forEach(l => {
+    l.el && l.el.classList.toggle('selected', l.id === id);
+  });
+  renderLayersList();
+  updatePropsPanel();
+}
+
+function renderLayersList() {
+  layersList.innerHTML = '';
+  [...layers].reverse().forEach(layer => {
+    const item = document.createElement('div');
+    item.className = 'layer-item' + (layer.id === selectedId ? ' selected' : '');
+    item.innerHTML = `
+      <img class="thumb" src="../campaign/characters/${layer.file}">
+      <span class="name">${layer.file.replace('.png','')}</span>
+      <button class="layer-up" data-id="${layer.id}" title="Up">▲</button>
+      <button class="layer-dn" data-id="${layer.id}" title="Down">▼</button>
+      <button class="layer-del" data-id="${layer.id}" title="Delete">✕</button>
+    `;
+    item.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) selectLayer(layer.id);
+    });
+    item.querySelector('.layer-del').addEventListener('click', (e) => { e.stopPropagation(); deleteLayer(layer.id); });
+    item.querySelector('.layer-up').addEventListener('click', (e) => { e.stopPropagation(); moveLayer(layer.id, 1); });
+    item.querySelector('.layer-dn').addEventListener('click', (e) => { e.stopPropagation(); moveLayer(layer.id, -1); });
+    layersList.appendChild(item);
+  });
+}
+
+function deleteLayer(id) {
+  const layer = layers.find(l => l.id === id);
+  if (layer && layer.el) layer.el.remove();
+  layers = layers.filter(l => l.id !== id);
+  if (selectedId === id) selectedId = null;
+  renderLayersList();
+  updatePropsPanel();
+}
+
+function moveLayer(id, dir) {
+  const idx = layers.findIndex(l => l.id === id);
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= layers.length) return;
+  [layers[idx], layers[newIdx]] = [layers[newIdx], layers[idx]];
+  // reorder DOM
+  layers.forEach(l => container.appendChild(l.el));
+  renderLayersList();
+}
+
+function updatePropsPanel() {
+  const layer = layers.find(l => l.id === selectedId);
+  if (!layer) {
+    propsPanel.innerHTML = '<label>NO LAYER SELECTED</label>';
+    return;
+  }
+  propsPanel.innerHTML = `
+    <label>${layer.file.replace('.png','')}</label>
+    <div class="prop-row"><label>X</label><input type="number" id="p-x" value="${layer.x}"></div>
+    <div class="prop-row"><label>Y</label><input type="number" id="p-y" value="${layer.y}"></div>
+    <div class="prop-row"><label>W</label><input type="number" id="p-w" value="${layer.w}"></div>
+    <div class="prop-row"><label>H</label><input type="number" id="p-h" value="${layer.h}"></div>
+    <div class="prop-row"><label>α</label><input type="range" id="p-op" min="0" max="1" step="0.05" value="${layer.opacity}"></div>
+    <div style="padding:2px 0 0 26px;font-size:10px;color:#666">opacity: ${layer.opacity}</div>
+  `;
+  const bind = (pid, prop, isFloat) => {
+    document.getElementById(pid).addEventListener('input', (e) => {
+      layer[prop] = isFloat ? parseFloat(e.target.value) : parseInt(e.target.value);
+      layer.el.style.left = layer.x + 'px';
+      layer.el.style.top = layer.y + 'px';
+      layer.el.style.width = layer.w + 'px';
+      layer.el.style.height = layer.h + 'px';
+      layer.el.style.opacity = layer.opacity;
+      if (pid === 'p-op') {
+        propsPanel.querySelector('div:last-child').textContent = 'opacity: ' + layer.opacity;
+      }
+    });
+  };
+  bind('p-x','x'); bind('p-y','y'); bind('p-w','w'); bind('p-h','h'); bind('p-op','opacity',true);
+}
+
+function exportLayout() {
+  const bgW = bgImg.naturalWidth || bgImg.offsetWidth;
+  const bgH = bgImg.naturalHeight || bgImg.offsetHeight;
+  const data = {
+    background: bgSelect.value,
+    bg_display_size: { w: bgImg.offsetWidth, h: bgImg.offsetHeight },
+    bg_natural_size: { w: bgW, h: bgH },
+    characters: layers.map(l => ({
+      file: l.file,
+      x: l.x, y: l.y,
+      w: l.w, h: l.h,
+      opacity: l.opacity,
+      // normalized 0-1 relative to display size
+      x_pct: +(l.x / bgImg.offsetWidth).toFixed(4),
+      y_pct: +(l.y / bgImg.offsetHeight).toFixed(4),
+      w_pct: +(l.w / bgImg.offsetWidth).toFixed(4),
+      h_pct: +(l.h / bgImg.offsetHeight).toFixed(4),
+    }))
+  };
+  return JSON.stringify(data, null, 2);
+}
+
+document.getElementById('btn-export').addEventListener('click', () => {
+  jsonOut.value = exportLayout();
+});
+document.getElementById('btn-copy').addEventListener('click', () => {
+  const txt = exportLayout();
+  jsonOut.value = txt;
+  navigator.clipboard.writeText(txt).catch(() => { jsonOut.select(); document.execCommand('copy'); });
+});
+
+// keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (!selectedId) return;
+  const layer = layers.find(l => l.id === selectedId);
+  if (!layer) return;
+  const step = e.shiftKey ? 10 : 1;
+  if (e.key === 'ArrowLeft') { layer.x -= step; layer.el.style.left = layer.x + 'px'; updatePropsPanel(); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { layer.x += step; layer.el.style.left = layer.x + 'px'; updatePropsPanel(); e.preventDefault(); }
+  if (e.key === 'ArrowUp') { layer.y -= step; layer.el.style.top = layer.y + 'px'; updatePropsPanel(); e.preventDefault(); }
+  if (e.key === 'ArrowDown') { layer.y += step; layer.el.style.top = layer.y + 'px'; updatePropsPanel(); e.preventDefault(); }
+  if (e.key === 'Delete' || e.key === 'Backspace') { deleteLayer(selectedId); e.preventDefault(); }
+});
+</script>
+</body>
+</html>
