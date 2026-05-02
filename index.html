@@ -25009,16 +25009,11 @@ function showCampaignStory(chapter){
     ev.stopPropagation();
     abandonCampaignFromStory();
   });
-  // 에디터 레이아웃 서버에서 로드 후 첫 씬 렌더
+  // 즉시 렌더 (레이아웃 없이도 정상 동작), 백그라운드에서 에디터 레이아웃 로드
+  renderCampaignScene();
   fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
-    var local=_campaignLocalEditorLayout();
-    var hasServer=d&&typeof d==='object'&&Object.keys(d).length>0;
-    _campaignEditorLayout=hasServer?d:(local||{});
-    renderCampaignScene();
-  }).catch(function(){
-    _campaignEditorLayout=_campaignLocalEditorLayout()||{};
-    renderCampaignScene();
-  });
+    if(d&&typeof d==='object') _campaignEditorLayout=d;
+  }).catch(function(){});
 }
 
 // 스토리 화면에서 "나가기" 클릭 시 호출. 진행 중인 세션을 서버에 abandon 요청한 뒤 화면을 닫는다.
