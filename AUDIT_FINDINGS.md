@@ -1,4 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.48 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.49 / 2026-05-02)
+
+## ✅ v5.49 Fleet combat role/preview/camera pass — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 샤드/재머 구매 이유 불명확 | ✅ | 재머 `EW` 역할을 실제 전투 엔진에 연결. EW는 낮은 직접딜 대신 적 함대 사격 간격 증가/화력 저하를 중첩시킴. |
+| 재머 비용/설명 밸런스 | ✅ | migration 207로 재머 비용/건조시간/재료를 지원함 포지션에 맞게 낮추고, 샤드/재머 설명을 역할 중심으로 정리. |
+| 조선소 역할 가독성 | ✅ | 카드에 DPS/TACKLE/EW/LOGI/TANK 역할 배지와 설명을 추가. |
+| 함대 지휘 화면 구성 재미 부족 | ✅ | 선택 함대의 진형 미리보기 보드, 함종 구성 막대, 역할 칩, 함선별 ATK/DEF/SPD를 추가. |
+| 모바일 함대전 화면 가독성 | ✅ | tactical lab v11.2: 모바일 캔버스 높이 확대, 버튼 2열 정렬, 함선 최소 표시 크기 확대, 정보 패널 모바일 그리드 정리. |
+| 모바일 전술 버튼 점유 | ✅ | 오른쪽 구석 `TACTICS` 플로팅 버튼으로 전술 패널을 수납. 버튼 선택 후 자동 접힘으로 전장 화면을 최대한 유지. |
+| 전장 카메라 | ✅ | 가장 가까운 교전 쌍 기반 자동 줌/팬과 `Cinema`/`Tactical` 카메라 모드 추가. Cinema는 기함 뒤 오버숄더 느낌의 추적샷과 전체 전장샷을 자동 교차. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `node --check server/services/battleEngine.js` 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.48 Shipyard build tab retention — 수정 완료
 

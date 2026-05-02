@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OCCUPY MARS — Coalition War v11.1</title>
+<title>OCCUPY MARS — Coalition War v11.2</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -15,10 +15,10 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   font-weight:900;letter-spacing:4px;text-shadow:0 0 16px rgba(60,120,255,.35);}
 .hdr small{font-size:6px;letter-spacing:2px;color:rgba(255,255,255,.12);}
 
-/* Canvas buffer is 1080×460 — capping CSS max-width prevents browser
+/* Canvas buffer is 1080×560 — capping CSS max-width prevents browser
    upscaling on wide desktops (1920px) which caused ~3× fragment work
    per frame. Mobile (<1080px) downscales normally which is GPU-cheap. */
-#c{display:block;width:100%;max-width:1080px;max-height:460px;margin:0 auto;
+#c{display:block;width:100%;max-width:1080px;max-height:560px;margin:0 auto;
   background:#03040b;border:1px solid rgba(60,100,255,.1);
   image-rendering:auto;}
 
@@ -64,9 +64,50 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 .cb.g{border-color:rgba(102,187,106,.28);color:#66bb6a;background:rgba(102,187,106,.04);}
 .cb.p{border-color:rgba(206,147,216,.28);color:#ce93d8;background:rgba(206,147,216,.04);}
 .sep{width:1px;height:20px;background:rgba(255,255,255,.06);}
+.battle-command-toggle{display:none;}
+.controls-drawer{border-top:0;}
 @media(max-width:600px){
-  .cb{font-size:11px;padding:10px 16px;min-height:42px;}
-  .ctrl{gap:6px;padding:8px 10px;}
+  body{padding:0;background:#02030a;}
+  .wrap{max-width:none;}
+  .hdr{padding:8px 10px 6px;margin:0;}
+  .hdr h1{font-size:12px;line-height:1.25;letter-spacing:3px;}
+  .hdr small{display:none;}
+  #c{height:60svh;max-height:none;border-left:0;border-right:0;}
+  .bui{grid-template-columns:1fr 64px 1fr;padding:7px 8px;}
+  .hb{width:100%;}
+  .tn{font-size:8px;letter-spacing:1.5px;}
+  .tmr{font-size:13px;}
+  .blog{height:46px;padding:4px 8px;}
+  .bl{font-size:8px;line-height:1.55;}
+  .ctrl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px;}
+  .clbl{grid-column:1/-1;font-size:7px;color:rgba(255,255,255,.34);margin-top:2px;}
+  .sep{display:none;}
+  .cb{width:100%;font-size:11px;padding:11px 8px;min-height:44px;letter-spacing:1px;}
+  .battle-command-toggle{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    width:auto;min-width:78px;padding:10px 11px;border:1px solid rgba(206,147,216,.45);
+    border-radius:10px 0 0 10px;
+    background:linear-gradient(135deg,rgba(79,195,247,.24),rgba(206,147,216,.2));
+    color:#dff4ff;font-family:'Orbitron',monospace;font-size:9px;font-weight:900;
+    letter-spacing:1.5px;position:fixed;right:0;top:52svh;z-index:20;
+    box-shadow:0 0 20px rgba(79,195,247,.16);
+  }
+  .battle-command-toggle span:first-child{white-space:nowrap;}
+  .battle-command-toggle span:last-child{display:none;}
+  .controls-drawer{
+    position:fixed;right:8px;top:12svh;bottom:12svh;width:min(82vw,330px);
+    overflow-y:auto;z-index:19;border:1px solid rgba(206,147,216,.32);
+    border-radius:12px;background:rgba(4,6,16,.94);backdrop-filter:blur(10px);
+    box-shadow:0 18px 50px rgba(0,0,0,.48);
+    transform:translateX(112%);opacity:0;pointer-events:none;
+    transition:transform .2s ease, opacity .16s ease;
+  }
+  body:not(.controls-collapsed) .controls-drawer{transform:translateX(0);opacity:1;pointer-events:auto;}
+  .controls-drawer .ctrl{border-left:0;border-right:0;}
+  .info-toggles{display:grid;grid-template-columns:1fr 1fr;}
+  .itog{border-top:1px solid rgba(60,100,255,.08);font-size:7px;padding:9px 6px;letter-spacing:1.5px;}
+  .info-panel{max-height:42svh;padding:10px;}
+  .ship-grid,.fs-grid,.min-grid,.doctrine-grid{grid-template-columns:1fr;}
 }
 
 /* 하단 정보 토글 패널 */
@@ -204,11 +245,11 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 <div class="wrap">
 
 <div class="hdr">
-  <h1>OCCUPY MARS — FLEET WAR v11.1</h1>
+  <h1>OCCUPY MARS — FLEET WAR v11.2</h1>
   <small>// FORMATION + MANEUVER · REAL TACTICAL LAYOUTS //</small>
 </div>
 
-<canvas id="c" width="1080" height="460"></canvas>
+<canvas id="c" width="1080" height="560"></canvas>
 
 <!-- 후퇴 확인 오버레이 -->
 <div id="forfeit-overlay">
@@ -234,6 +275,11 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 <div class="blog" id="blog"></div>
 
 <!-- 컨트롤 — CMD + Formation/Maneuver (실제 전투에 반영) -->
+<button class="battle-command-toggle" onclick="toggleCommandDrawer()">
+  <span>⚡ TACTICS</span>
+  <span id="cmdDrawerState">OPEN</span>
+</button>
+<div class="controls-drawer" id="commandDrawer">
 <div class="ctrl">
   <span class="clbl">CMD</span>
   <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
@@ -266,6 +312,11 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   <button class="cb" id="spd2" onclick="setSimSpeed(2)"  style="font-weight:900">×2</button>
   <button class="cb" id="spd4" onclick="setSimSpeed(4)"  style="font-weight:900;background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.5);color:#ffc107">×4</button>
   <button class="cb" id="spd8" onclick="setSimSpeed(8)"  style="font-weight:900">×8</button>
+  <div class="sep"></div>
+  <span class="clbl">CAMERA</span>
+  <button class="cb p" id="camCinema" onclick="setCameraMode('cinema')" style="font-weight:900;background:rgba(206,147,216,.18);border-color:rgba(206,147,216,.5);color:#ce93d8">🎥 Cinema</button>
+  <button class="cb p" id="camTactical" onclick="setCameraMode('tactical')">🗺 Tactical</button>
+</div>
 </div>
 
 <!-- 하단 토글 패널 (v10 그대로) -->
@@ -475,6 +526,7 @@ let btMs=0,turn=0,empMs=0,focusFleet=null;
 let _wsPrevShips = new Map();
 // 카메라 (자동 줌/팬)
 let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
+let cameraMode='cinema';
 
 function centeredPos(n, side) {
   const cx = side === 'atk' ? W * 0.11 : W * 0.89;
@@ -496,7 +548,7 @@ function initBattle(){
   fleets.forEach(f=>assignFormationSlots(f));
   const ac=ships.filter(s=>s.side==='atk').length;
   const dc=ships.filter(s=>s.side==='def').length;
-  addLog('ev',`▶ v11.1 COALITION WAR — ATK ${ac}척 vs DEF ${dc}척`);
+  addLog('ev',`▶ v11.2 COALITION WAR — ATK ${ac}척 vs DEF ${dc}척`);
 }
 
 function mkFleet(def,side,cx,cy){
@@ -970,10 +1022,11 @@ function drawFleets(){
     const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     CX.globalAlpha=.85;
     CX.textAlign='center';
-    CX.font='bold 8px Orbitron,monospace';
+    const mobile = window.innerWidth <= 600;
+    CX.font='bold ' + (mobile ? 11 : 8) + 'px Orbitron,monospace';
     CX.fillStyle=fc;
     CX.fillText(`[${f.tag}] ${f.userId}`,f.cx,f.cy-f.radius-20);
-    CX.font='6px Share Tech Mono';
+    CX.font=(mobile ? 8 : 6) + 'px Share Tech Mono';
     CX.fillStyle=fm.color;
     CX.fillText(`${fm.icon} ${fm.name}`,f.cx-22,f.cy-f.radius-10);
     CX.fillStyle=f.maneuver==='retreat'?'#ff8a65':f.maneuver==='scatter'?'#ff5252':f.maneuver==='flank'?'#66bb6a':'rgba(255,255,255,.4)';
@@ -981,11 +1034,11 @@ function drawFleets(){
 
     const alive=f.ships.filter(s=>!s.dead).length;
     const hpR=f.hp/f.maxHp;
-    const bw=58;
+    const bw=mobile ? 76 : 58;
     CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,f.cy-f.radius-2,bw,3);
     CX.fillStyle=hpR>.5?'#4caf50':hpR>.25?'#ff9800':'#f44336';
     CX.fillRect(f.cx-bw/2,f.cy-f.radius-2,bw*hpR,3);
-    CX.font='5px Share Tech Mono';
+    CX.font=(mobile ? 7 : 5) + 'px Share Tech Mono';
     CX.fillStyle='rgba(255,255,255,.28)';
     CX.fillText(`${alive}척`,f.cx,f.cy-f.radius-28);
     CX.globalAlpha=1;CX.textAlign='left';
@@ -993,6 +1046,8 @@ function drawFleets(){
 }
 
 function drawShips2(){
+  const mobile = window.innerWidth <= 600;
+  const visualBoost = mobile ? 1.65 : 1.12;
   const sorted=[...ships].sort((a,b)=>b.type.r-a.type.r);
   sorted.forEach(sh=>{
     if(sh.dead||sh.fleet.dead)return;
@@ -1003,6 +1058,7 @@ function drawShips2(){
     CX.save();
     CX.translate(sh.x,sh.y);
     CX.rotate(sh.facing);
+    CX.scale(visualBoost, visualBoost);
     if(sh.flash>0)CX.fillStyle='#fff';
     drawShipByFaction(CX,t);
     CX.restore();
@@ -1021,7 +1077,7 @@ function drawShips2(){
       CX.globalAlpha=1;
     }
     if(t.size==='cruiser'||t.size==='battleship'||t.size==='titan'){
-      const bw=t.r*2.2,hr=sh.hp/sh.maxHp;
+      const bw=t.r*2.2*visualBoost,hr=sh.hp/sh.maxHp;
       CX.fillStyle='rgba(0,0,0,.4)';CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw,2);
       CX.fillStyle=hr>.5?'#4caf50':hr>.25?'#ff9800':'#f44336';
       CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw*hr,2);
@@ -1101,6 +1157,31 @@ function drawRepairBeams(){
    ═══════════════════════════════════════════════════════════ */
 let lt=0,turnT=0,panelT=0,battleOver=false;
 let simSpeed=1; // 기본 1x — WS 없는 로컬 시뮬 전용
+function syncCommandDrawerLabel(){
+  const label=document.getElementById('cmdDrawerState');
+  if(label) label.textContent=document.body.classList.contains('controls-collapsed')?'OPEN':'HIDE';
+}
+function toggleCommandDrawer(){
+  document.body.classList.toggle('controls-collapsed');
+  syncCommandDrawerLabel();
+}
+function closeCommandDrawerOnMobile(){
+  if(window.innerWidth<=600) {
+    document.body.classList.add('controls-collapsed');
+    syncCommandDrawerLabel();
+  }
+}
+function initCommandDrawer(){
+  if(window.innerWidth<=600) document.body.classList.add('controls-collapsed');
+  else document.body.classList.remove('controls-collapsed');
+  syncCommandDrawerLabel();
+}
+window.addEventListener('resize', initCommandDrawer);
+document.addEventListener('click', function(e){
+  const btn = e.target && e.target.closest && e.target.closest('.controls-drawer .cb');
+  if(btn) setTimeout(closeCommandDrawerOnMobile, 120);
+});
+setTimeout(initCommandDrawer, 0);
 function setSimSpeed(s){
   simSpeed=s;
   [1,2,4,8].forEach(v=>{
@@ -1112,6 +1193,76 @@ function setSimSpeed(s){
     el.style.color=on?'#ffc107':'';
     el.style.fontWeight='900';
   });
+}
+function setCameraMode(mode){
+  cameraMode = mode || 'cinema';
+  ['Cinema','Tactical'].forEach(name=>{
+    const el=document.getElementById('cam'+name);
+    if(!el)return;
+    const on=(name.toLowerCase()===cameraMode);
+    el.style.background=on?'rgba(206,147,216,.22)':'';
+    el.style.borderColor=on?'rgba(206,147,216,.65)':'';
+    el.style.color=on?'#ce93d8':'';
+    el.style.fontWeight=on?'900':'';
+  });
+}
+function fleetAnchorShip(fleet){
+  if(!fleet)return null;
+  return fleet.flagship && !fleet.flagship.dead
+    ? fleet.flagship
+    : fleet.ships.filter(s=>!s.dead).sort((a,b)=>b.type.r-a.type.r)[0];
+}
+function setCameraFromFleets(aliveF){
+  if(aliveF.length>=2){
+    let focus = null;
+    const atkF = aliveF.filter(f=>f.side==='atk');
+    const defF = aliveF.filter(f=>f.side==='def');
+    atkF.forEach(a=>defF.forEach(d=>{
+      const dist = Math.hypot(a.cx-d.cx,a.cy-d.cy);
+      if(!focus || dist < focus.dist) focus = { a, d, dist };
+    }));
+    const focusF = focus ? [focus.a, focus.d] : aliveF;
+    const xs=focusF.flatMap(f=>[f.cx-f.radius*1.35,f.cx+f.radius*1.35]);
+    const ys=focusF.flatMap(f=>[f.cy-f.radius*1.35,f.cy+f.radius*1.35]);
+    const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
+    _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
+    const spread=Math.max(mxX-mnX,mxY-mnY)*1.22;
+    const minScale = window.innerWidth <= 600 ? 0.92 : 0.62;
+    const maxScale = window.innerWidth <= 600 ? 4.2 : 3.4;
+    _camTargetScale=Math.max(minScale,Math.min(maxScale,Math.min(W,H)/spread));
+  } else if(aliveF.length===1){
+    _camTargetCx=aliveF[0].cx;_camTargetCy=aliveF[0].cy;_camTargetScale=window.innerWidth <= 600 ? 3.2 : 2.2;
+  } else {
+    _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
+  }
+}
+function setCameraOverShoulder(sourceFleet, targetFleet){
+  const src=fleetAnchorShip(sourceFleet);
+  if(!src || !targetFleet){ setCameraFromFleets(fleets.filter(f=>!f.dead)); return; }
+  const dx=targetFleet.cx-src.x,dy=targetFleet.cy-src.y;
+  const len=Math.hypot(dx,dy)||1;
+  _camTargetCx=src.x+(dx/len)*(window.innerWidth<=600?120:160);
+  _camTargetCy=src.y+(dy/len)*(window.innerWidth<=600?74:100);
+  _camTargetScale=window.innerWidth<=600?3.45:2.65;
+}
+function updateCameraTargets(){
+  const aliveF=fleets.filter(f=>!f.dead);
+  if(cameraMode==='tactical'){ setCameraFromFleets(aliveF); return; }
+  const phase=Math.floor(btMs/6500)%4;
+  if(phase===0){ setCameraFromFleets(aliveF); return; }
+  const atkF=aliveF.filter(f=>f.side==='atk');
+  const defF=aliveF.filter(f=>f.side==='def');
+  const sourceList=phase===2?defF:atkF;
+  const targetList=phase===2?atkF:defF;
+  const source=sourceList[0];
+  const target=source&&targetList.length
+    ? targetList.reduce((best,f)=>Math.hypot(f.cx-source.cx,f.cy-source.cy)<Math.hypot(best.cx-source.cx,best.cy-source.cy)?f:best,targetList[0])
+    : null;
+  if(source&&target) setCameraOverShoulder(source,target);
+  else setCameraFromFleets(aliveF);
+  if(phase===3) {
+    _camTargetScale*=0.82;
+  }
 }
 function loop(ts){
   const rawDt=ts-lt;lt=ts;
@@ -1133,20 +1284,7 @@ function loop(ts){
     if(sh.shootT>fi*5){sh.shootT=0;fire(sh,_wsActive);}
   });
 
-  // 자동 카메라: 생존 함대 bounding box 기반 줌/팬
-  const _aliveF=fleets.filter(f=>!f.dead);
-  if(_aliveF.length>=2){
-    const xs=_aliveF.flatMap(f=>[f.cx-f.radius,f.cx+f.radius]);
-    const ys=_aliveF.flatMap(f=>[f.cy-f.radius,f.cy+f.radius]);
-    const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
-    _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
-    const spread=Math.max(mxX-mnX,mxY-mnY)*1.35;
-    _camTargetScale=Math.max(0.55,Math.min(3.2,Math.min(W,H)/spread));
-  } else if(_aliveF.length===1){
-    _camTargetCx=_aliveF[0].cx;_camTargetCy=_aliveF[0].cy;_camTargetScale=2.2;
-  } else {
-    _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
-  }
+  updateCameraTargets();
   const _lp=0.025;
   camScale+=(_camTargetScale-camScale)*_lp;
   camCx+=(_camTargetCx-camCx)*_lp;

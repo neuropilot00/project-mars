@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Fleet combat role/preview/camera pass (v5.49)
+
+- **함선 역할 밸런스 기획 반영**: 샤드는 저렴한 주력 DPS, 재머는 비싼 약한 딜러가 아니라 적 함대 사격 지연/화력 저하를 중첩시키는 EW 지원함으로 정리.
+- **EW 전투 엔진 적용**: `battleEngine`에서 `fire_type='ew'`가 적 함대에 발사 간격 증가와 공격력 저하 디버프를 부여하도록 구현.
+- **조선소 카드 개선**: 함선 카드에 역할 배지와 설명을 표시해 왜 이 함선을 사야 하는지 바로 보이게 수정.
+- **함대 지휘 UX 개선**: 선택 함대의 진형 미리보기 보드, 함종 구성 막대, 역할 칩, 함선별 ATK/DEF/SPD 표시 추가.
+- **모바일 함대전 v11.2**: 전투 캔버스 높이 확대, 버튼 2열 정렬, 함선 표시 크기 확대, 정보 패널 모바일 정리.
+- **모바일 전술 패널 수납**: 오른쪽 구석 `TACTICS` 플로팅 버튼을 추가하고, 전술/진형/기동/카메라 버튼은 사이드 패널로 열리며 선택 후 자동 접힘.
+- **시네마틱 카메라**: `Cinema`/`Tactical` 카메라 모드 추가. Cinema는 기함 뒤 오버숄더 추적샷과 전체 전장샷을 자동 전환.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `node --check server/services/battleEngine.js` 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Shipyard build stays on blueprints (v5.48)
 
 - **연속 함선 건조 UX 수정**: 함선 건조 성공 후 Build Queue 탭으로 강제 이동하던 동작을 제거해, 청사진/건조 탭에 머문 채 계속 건조할 수 있도록 수정.

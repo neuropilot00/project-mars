@@ -625,7 +625,10 @@ function processCombat(state, events) {
       if (!ship.isAlive) continue;
 
       ship.shootT += TICK_MS;
-      const effectiveFireInterval = ship.fireInterval * empMult;
+      const ewFireMult = (fleet.ewUntilTick && state.tick <= fleet.ewUntilTick)
+        ? (fleet.ewFireIntervalMult || 1)
+        : 1;
+      const effectiveFireInterval = ship.fireInterval * empMult * ewFireMult;
       if (ship.shootT < effectiveFireInterval) continue;
       ship.shootT = 0;
 
@@ -661,8 +664,18 @@ function processCombat(state, events) {
 
       const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)];
 
+      // EW ships are support picks: low direct damage, but they slow enemy fire
+      // and soften enemy outgoing damage so buying them has a fleet-composition reason.
+      if (ship.fireType === 'ew') {
+        processElectronicWarfare(targetFleet, ship, fleet, state, events);
+        continue;
+      }
+
       // 데미지 계산 (focus_fire 보너스 포함)
       let damage = computeDamage(ship, target);
+      if (fleet.ewUntilTick && state.tick <= fleet.ewUntilTick && fleet.ewAtkMult) {
+        damage = Math.max(1, Math.floor(damage * fleet.ewAtkMult));
+      }
       if (fleet.focusFireTargetId && fleet.focusFireTargetId === targetFleet.id && state.focusFireDmgBonus > 0) {
         damage = Math.floor(damage * (1 + state.focusFireDmgBonus / 100));
       }
@@ -674,6 +687,33 @@ function processCombat(state, events) {
         targetFleet.laserHitDecay = 2000;
       }
     }
+  }
+}
+
+function processElectronicWarfare(targetFleet, ewShip, attackerFleet, state, events) {
+  const active = targetFleet.ewUntilTick && state.tick <= targetFleet.ewUntilTick;
+  const stacks = Math.min(3, active ? ((targetFleet.ewStacks || 1) + 1) : 1);
+  targetFleet.ewStacks = stacks;
+  targetFleet.ewUntilTick = state.tick + Math.round(8000 / TICK_MS);
+  targetFleet.ewFireIntervalMult = 1 + stacks * 0.22;
+  targetFleet.ewAtkMult = Math.max(0.76, 1 - stacks * 0.08);
+  ewShip.damageDealt += Math.max(1, Math.round(ewShip.atk * 0.4));
+
+  if (!targetFleet._lastEwEventTick || state.tick - targetFleet._lastEwEventTick > 20) {
+    events.push({
+      tick: state.tick,
+      type: 'electronic_warfare',
+      fleet_id: targetFleet.id,
+      payload: {
+        source_fleet_id: attackerFleet.id,
+        source_ship_id: ewShip.id,
+        stacks,
+        fire_interval_mult: targetFleet.ewFireIntervalMult,
+        atk_mult: targetFleet.ewAtkMult,
+        until_tick: targetFleet.ewUntilTick,
+      }
+    });
+    targetFleet._lastEwEventTick = state.tick;
   }
 }
 

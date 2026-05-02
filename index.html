@@ -2890,6 +2890,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 9px; color: rgba(255,255,255,.4);
   letter-spacing: 1.5px; margin-bottom: 8px;
 }
+.bp-role {
+  display: flex; align-items: center; gap: 6px;
+  min-height: 22px; margin: -2px 0 8px;
+  font-size: 8px; letter-spacing: .7px; color: rgba(255,255,255,.62);
+}
+.bp-role-badge {
+  flex: 0 0 auto; padding: 2px 6px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04);
+  color: #d7ecff; font-weight: 900; letter-spacing: 1px;
+}
+.bp-role.ewar .bp-role-badge { color: #d7a8ff; border-color: rgba(215,168,255,.35); background: rgba(120,70,190,.16); }
+.bp-role.logi .bp-role-badge { color: #a5d6a7; border-color: rgba(165,214,167,.35); background: rgba(80,170,100,.12); }
+.bp-role.tank .bp-role-badge { color: #ffd37a; border-color: rgba(255,211,122,.35); background: rgba(190,130,30,.12); }
+.bp-role.tackle .bp-role-badge { color: #9ee7ff; border-color: rgba(158,231,255,.35); background: rgba(40,150,210,.12); }
+.bp-role-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bp-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
   margin-bottom: 8px;
@@ -3050,6 +3065,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background: #0a0d18;
   border: 1px solid rgba(100, 150, 255, 0.2);
   border-radius: 10px;
+  color: rgba(255,255,255,.88);
   width: 100%; max-width: 1200px;
   max-height: 95vh;
   display: flex; flex-direction: column;
@@ -3063,6 +3079,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .fleetcmd-title {
   font-family: 'Orbitron', monospace;
   font-size: 14px; font-weight: 900; letter-spacing: 3px;
+  color: #dff4ff;
+  text-shadow: 0 0 14px rgba(79,195,247,.24);
 }
 .fleetcmd-body {
   flex: 1; overflow-y: auto; padding: 14px 20px;
@@ -3114,6 +3132,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .fleet-detail-name {
   font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 2px;
+  color: rgba(255,255,255,.92);
 }
 .fleet-detail-actions { display: flex; gap: 6px; }
 .fd-btn {
@@ -3152,6 +3171,69 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 6px; max-height: 400px; overflow-y: auto; padding: 2px;
 }
+.fleet-preview {
+  display: grid; grid-template-columns: minmax(280px, 1fr) 260px;
+  gap: 10px; align-items: stretch;
+}
+.fleet-board {
+  position: relative; min-height: 220px; overflow: hidden;
+  border: 1px solid rgba(79,195,247,.18); border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(79,195,247,.11), transparent 34%),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,.025) 1px, transparent 1px),
+    #070b16;
+  background-size: auto, 32px 32px, 32px 32px, auto;
+}
+.fleet-board-axis {
+  position: absolute; inset: 50% 10% auto 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(79,195,247,.4), transparent);
+}
+.fleet-board-label {
+  position: absolute; left: 12px; top: 10px;
+  font-size: 9px; letter-spacing: 1.5px; color: rgba(145,220,255,.7);
+}
+.fleet-move-vector {
+  position: absolute; right: 12px; top: 10px;
+  font-size: 9px; letter-spacing: 1.3px; color: rgba(255,211,122,.82);
+}
+.fleet-preview-ship {
+  position: absolute; width: 42px; height: 26px;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 8px rgba(79,195,247,.22));
+}
+.fleet-preview-ship.flagship {
+  width: 54px; height: 34px; z-index: 4;
+  filter: drop-shadow(0 0 12px rgba(255,215,0,.45));
+}
+.fleet-preview-more {
+  position: absolute; right: 12px; bottom: 10px;
+  font-size: 9px; letter-spacing: 1px; color: rgba(255,255,255,.65);
+  padding: 3px 8px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px;
+  background: rgba(0,0,0,.38);
+}
+.fleet-comp-panel {
+  border: 1px solid rgba(255,255,255,.08); border-radius: 8px;
+  background: rgba(0,0,0,.22); padding: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.fleet-comp-title {
+  font-size: 9px; letter-spacing: 1.6px; color: rgba(255,255,255,.56);
+}
+.fleet-comp-row { display: grid; grid-template-columns: 70px 1fr 28px; gap: 8px; align-items: center; font-size: 9px; color: rgba(255,255,255,.72); }
+.fleet-comp-bar { height: 5px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.07); }
+.fleet-comp-fill { height: 100%; background: linear-gradient(90deg,#4fc3f7,#ffd36a); }
+.fleet-role-strip { display: flex; flex-wrap: wrap; gap: 5px; }
+.fleet-role-chip {
+  font-size: 8px; letter-spacing: .7px; color: rgba(255,255,255,.72);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px 7px;
+  background: rgba(255,255,255,.035);
+}
+.fleet-doctrine {
+  margin-top: auto; padding: 8px; border-radius: 6px;
+  background: rgba(79,195,247,.07); border: 1px solid rgba(79,195,247,.15);
+  font-size: 9px; line-height: 1.45; color: rgba(223,244,255,.78);
+}
 .fs-card {
   background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06);
   border-radius: 4px; padding: 7px 9px; cursor: pointer; position: relative; transition: all .1s;
@@ -3163,7 +3245,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px;
   margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.fs-card-class { font-size: 8px; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+.fs-card-class { font-size: 8px; color: rgba(255,255,255,.56); margin-bottom: 4px; }
+.fs-card-stats { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; font-size: 8px; color: rgba(255,255,255,.58); }
+.fs-role {
+  display: inline-block; margin-bottom: 4px; padding: 1px 5px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: 7px; letter-spacing: .8px;
+}
 .fs-card-hp-bar { height: 3px; background: rgba(255,255,255,.05); border-radius: 2px; overflow: hidden; }
 .fs-card-hp-fill { height: 100%; background: #66bb6a; transition: width .3s; }
 .fs-card-hp-fill.low { background: #ff9800; }
@@ -4410,6 +4497,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     padding-bottom: 14px;
     margin-bottom: 14px;
   }
+  .fleet-preview { grid-template-columns: 1fr; }
+  .fleet-board { min-height: 180px; }
   
   /* Battle Viewer HUD 단순화 */
   .bv-hud-top {
@@ -5958,7 +6047,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
           <!-- v11.1 Tactical Lab entry (full-width to highlight the new simulator) -->
           <div style="margin-bottom:10px">
-            <button onclick="(typeof openTacticalLab==='function')&&openTacticalLab()" style="width:100%;padding:9px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(206,147,216,.22),rgba(206,147,216,.04));border:1px solid rgba(206,147,216,.45);color:#ce93d8;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px" data-i18n="fcmd_tactical_lab">🧪 TACTICAL LAB — FORMATION v11.1</button>
+            <button onclick="(typeof openTacticalLab==='function')&&openTacticalLab()" style="width:100%;padding:9px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(206,147,216,.22),rgba(206,147,216,.04));border:1px solid rgba(206,147,216,.45);color:#ce93d8;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px" data-i18n="fcmd_tactical_lab">🧪 TACTICAL LAB — FORMATION v11.2</button>
           </div>
           <!-- World Events (Void Raider) — Phase B -->
           <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
@@ -15698,9 +15787,9 @@ var I18N = {
     fcmd_sub: 'Fleets · Shipyard · Void Raider',
     fcmd_open_shipyard: '🔨 SHIPYARD',
     fcmd_my_fleets: '⚔ MY FLEETS',
-    fcmd_tactical_lab: '🧪 TACTICAL LAB — FORMATION v11.1',
+    fcmd_tactical_lab: '🧪 TACTICAL LAB — FORMATION v11.2',
     tlab_title: '🧪 TACTICAL LAB',
-    tlab_sub: 'FORMATION / MANEUVER v11.1 — LIVE SIMULATION',
+    tlab_sub: 'FORMATION / MANEUVER v11.2 — LIVE SIMULATION',
     tlab_close: '✕ CLOSE',
     we_active_title: '⚠ ACTIVE WORLD EVENTS',
     we_none_active: 'No active events',
@@ -16372,9 +16461,9 @@ var I18N = {
     fcmd_sub: '함대 · 조선소 · Void Raider',
     fcmd_open_shipyard: '🔨 조선소',
     fcmd_my_fleets: '⚔ 내 함대',
-    fcmd_tactical_lab: '🧪 전술 실험실 — 진형 v11.1',
+    fcmd_tactical_lab: '🧪 전술 실험실 — 진형 v11.2',
     tlab_title: '🧪 전술 실험실',
-    tlab_sub: '진형 / 기동 v11.1 — 실시간 시뮬레이션',
+    tlab_sub: '진형 / 기동 v11.2 — 실시간 시뮬레이션',
     tlab_close: '✕ 닫기',
     we_active_title: '⚠ 진행 중인 월드 이벤트',
     we_none_active: '활성 이벤트가 없습니다',
@@ -17030,9 +17119,9 @@ var I18N = {
     fcmd_sub: 'フリート · 造船所 · Void Raider',
     fcmd_open_shipyard: '🔨 造船所',
     fcmd_my_fleets: '⚔ マイフリート',
-    fcmd_tactical_lab: '🧪 戦術ラボ — 陣形 v11.1',
+    fcmd_tactical_lab: '🧪 戦術ラボ — 陣形 v11.2',
     tlab_title: '🧪 戦術ラボ',
-    tlab_sub: '陣形 / 機動 v11.1 — ライブシミュレーション',
+    tlab_sub: '陣形 / 機動 v11.2 — ライブシミュレーション',
     tlab_close: '✕ 閉じる',
     we_active_title: '⚠ 進行中のワールドイベント',
     we_none_active: 'アクティブなイベントがありません',
@@ -17688,9 +17777,9 @@ var I18N = {
     fcmd_sub: '舰队 · 造船厂 · Void Raider',
     fcmd_open_shipyard: '🔨 造船厂',
     fcmd_my_fleets: '⚔ 我的舰队',
-    fcmd_tactical_lab: '🧪 战术实验室 — 阵型 v11.1',
+    fcmd_tactical_lab: '🧪 战术实验室 — 阵型 v11.2',
     tlab_title: '🧪 战术实验室',
-    tlab_sub: '阵型 / 机动 v11.1 — 实时模拟',
+    tlab_sub: '阵型 / 机动 v11.2 — 实时模拟',
     tlab_close: '✕ 关闭',
     we_active_title: '⚠ 进行中的世界事件',
     we_none_active: '暂无活跃事件',
@@ -41979,6 +42068,17 @@ function shipVisual(sizeClass, factionCode, opts) {
     +   'onerror="this.remove()">';
 }
 
+var SHIP_ROLE_INFO = {
+  dps:    { label:'DPS',    desc:'주력 화력 · 적 함선을 빠르게 줄임' },
+  tackle: { label:'TACKLE', desc:'고속 선봉 · 기함 추격과 초반 교전 담당' },
+  ewar:   { label:'EW',     desc:'전자전 · 적 사격 지연과 화력 저하 중첩' },
+  logi:   { label:'LOGI',   desc:'수리 지원 · 장기전에서 아군 생존력 증가' },
+  tank:   { label:'TANK',   desc:'방어 핵심 · 전열 유지와 대형함 보호' }
+};
+function shipRoleInfo(role) {
+  return SHIP_ROLE_INFO[(role || 'dps').toLowerCase()] || SHIP_ROLE_INFO.dps;
+}
+
 function renderBlueprintCard(s) {
   var recipe = s.recipe_minerals || {};
   var mineralCheck = Object.entries(recipe).map(function(e) {
@@ -42011,10 +42111,13 @@ function renderBlueprintCard(s) {
 
   var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.code });
   var accent = shipFactionAccent(s.faction_code);
+  var roleInfo = shipRoleInfo(s.role);
+  var roleKey = (s.role || 'dps').toLowerCase();
   return '<div class="bp-card ' + s.faction_code + ' ' + (buildDisabled ? 'locked' : '') + '">' +
     '<div class="bp-visual" style="position:relative;background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px;overflow:hidden"><div class="bp-starfield"></div>' + silhouette + '</div>' +
     '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + (s.class_label || '') + '</div>' +
+    '<div class="bp-role ' + roleKey + '"><span class="bp-role-badge">' + roleInfo.label + '</span><span class="bp-role-text">' + fcEsc(s.description_ko || roleInfo.desc) + '</span></div>' +
     '<div class="bp-stats">' +
       '<div class="bp-stat"><div class="bp-stat-label">HP</div><div class="bp-stat-value">' + syFmt(s.base_hp) + '</div></div>' +
       '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + s.base_atk + '</div></div>' +
@@ -42050,6 +42153,7 @@ async function buildShip(shipTypeCode) {
   var info = [{ k:'💰 GP', v: gpHave+' / '+ship.build_gp_cost, insufficient: gpShort, ok: !gpShort }]
     .concat(mineralList)
     .concat([
+      { k:'⚙ Role',       v: shipRoleInfo(ship.role).label + ' · ' + shipRoleInfo(ship.role).desc },
       { k:'⏱ Build Time', v: buildTimeTxt },
       { k:'🎯 Class',      v: (ship.class_label||ship.size_class||'—') + ' · T'+ship.tier }
     ]);
@@ -42458,6 +42562,7 @@ function renderFleetDetail() {
       '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
       '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
     '</div>' +
+    renderFleetPreview(f) +
     '<div class="fleet-ships-header">' +
       '<div class="fs-summary"><span>총 <b>' + f.ships_alive + '</b>척</span><span>HP <b>' + syFmt(f.total_hp) + ' / ' + syFmt(f.total_max_hp) + '</b></span><span>전적 <b>' + (f.battles_won || 0) + 'W / ' + (f.battles_lost || 0) + 'L</b></span></div>' +
       '<div class="fs-select-actions ' + (selCount > 0 ? 'active' : '') + '">' +
@@ -42469,6 +42574,77 @@ function renderFleetDetail() {
     '<div class="fleet-ships-grid">' + shipCards + '</div>';
 }
 
+function fleetPreviewPoint(i, total, formation, isFlagship) {
+  if (isFlagship) return { x: 50, y: 50 };
+  var n = Math.max(1, total - 1);
+  var idx = Math.max(0, i - 1);
+  if (formation === 'wedge') {
+    var row = Math.floor(idx / 2) + 1;
+    var side = idx % 2 === 0 ? -1 : 1;
+    return { x: 50 - row * 8, y: 50 + side * Math.min(34, 7 + row * 5) };
+  }
+  if (formation === 'screen') {
+    var col = idx % 8;
+    var rowS = Math.floor(idx / 8);
+    return { x: 28 + rowS * 9, y: 24 + col * 7 };
+  }
+  if (formation === 'pincer') {
+    var sideP = idx % 2 === 0 ? -1 : 1;
+    var depth = Math.floor(idx / 2);
+    return { x: 40 + depth * 5, y: 50 + sideP * Math.min(38, 14 + depth * 5) };
+  }
+  var angle = (idx / n) * Math.PI * 2 - Math.PI / 2;
+  var ring = 24 + (idx % 3) * 6;
+  return { x: 50 + Math.cos(angle) * ring, y: 50 + Math.sin(angle) * ring };
+}
+
+function renderFleetPreview(f) {
+  var ships = (f.ships || []).filter(function(s){ return s.is_alive !== false; });
+  var visible = ships.slice(0, 28);
+  var formation = f.formation || 'sphere';
+  var movementName = (f.movement_info && f.movement_info.name_ko) || f.movement || '-';
+  var counts = { frigate:0, destroyer:0, cruiser:0, battleship:0, titan:0 };
+  var roles = {};
+  ships.forEach(function(s){
+    counts[s.size_class] = (counts[s.size_class] || 0) + 1;
+    roles[s.role || 'dps'] = (roles[s.role || 'dps'] || 0) + 1;
+  });
+  var maxCount = Math.max(1, counts.frigate, counts.destroyer, counts.cruiser, counts.battleship, counts.titan);
+  var rows = [
+    ['FRIGATE', counts.frigate],
+    ['DESTROYER', counts.destroyer],
+    ['CRUISER', counts.cruiser],
+    ['BATTLESHIP', counts.battleship],
+    ['TITAN', counts.titan]
+  ].map(function(r){
+    return '<div class="fleet-comp-row"><span>' + r[0] + '</span><div class="fleet-comp-bar"><div class="fleet-comp-fill" style="width:' + Math.round(r[1] / maxCount * 100) + '%"></div></div><b>' + r[1] + '</b></div>';
+  }).join('');
+  var roleChips = Object.keys(roles).sort().map(function(role){
+    var ri = shipRoleInfo(role);
+    return '<span class="fleet-role-chip">' + ri.label + ' ×' + roles[role] + '</span>';
+  }).join('');
+  var boardShips = visible.map(function(s, i){
+    var p = fleetPreviewPoint(i, ships.length, formation, !!s.is_flagship);
+    return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
+      shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code }) +
+    '</div>';
+  }).join('');
+  return '<div class="fleet-preview">' +
+    '<div class="fleet-board">' +
+      '<div class="fleet-board-axis"></div>' +
+      '<div class="fleet-board-label">' + ((f.formation_info && f.formation_info.icon) || '●') + ' ' + ((f.formation_info && f.formation_info.name_ko) || formation) + '</div>' +
+      '<div class="fleet-move-vector">' + ((f.movement_info && f.movement_info.icon) || '→') + ' ' + movementName + '</div>' +
+      boardShips +
+      (ships.length > visible.length ? '<div class="fleet-preview-more">+' + (ships.length - visible.length) + ' more</div>' : '') +
+    '</div>' +
+    '<div class="fleet-comp-panel">' +
+      '<div class="fleet-comp-title">COMPOSITION</div>' + rows +
+      '<div class="fleet-comp-title" style="margin-top:4px">ROLES</div><div class="fleet-role-strip">' + roleChips + '</div>' +
+      '<div class="fleet-doctrine">진형과 기동을 바꾸면 왼쪽 미리보기 배치가 즉시 바뀝니다. 작은 함선은 전열, 대형함/기함은 중심축으로 읽히게 표시됩니다.</div>' +
+    '</div>' +
+  '</div>';
+}
+
 function renderFcShipCard(s, fleetInBattle) {
   var isSel = fleetCmdState.selectedShipIds.has(s.id);
   var hpPct = (s.current_hp / s.max_hp) * 100;
@@ -42478,6 +42654,8 @@ function renderFcShipCard(s, fleetInBattle) {
     (s.is_flagship ? '<span class="fs-card-flagship-badge">⚔</span>' : '') +
     '<div class="fs-card-name" style="color:' + color + '" title="' + fcEsc(s.name_ko) + '">' + fcEsc(s.name_ko) + '</div>' +
     '<div class="fs-card-class">' + fcEsc(s.class_label || '') + '</div>' +
+    '<span class="fs-role">' + shipRoleInfo(s.role).label + '</span>' +
+    '<div class="fs-card-stats"><span>ATK ' + (s.base_atk || '-') + '</span><span>DEF ' + (s.base_def || '-') + '</span><span>SPD ' + (s.base_speed || '-') + '</span></div>' +
     '<div class="fs-card-hp-bar"><div class="fs-card-hp-fill ' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +
     (!s.is_flagship && s.is_flagship_capable && !fleetInBattle
       ? '<button class="fd-btn" style="margin-top:4px;width:100%;font-size:8px" onclick="event.stopPropagation();setAsFlagship(' + s.id + ')">기함 지정</button>'
@@ -46054,7 +46232,7 @@ async function wbPlaceBet(eventId) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Tactical Lab (v11.1 Formation/Maneuver Simulator)
+   Tactical Lab (v11.2 Formation/Maneuver Simulator)
    — 참조 구현을 iframe으로 격리 로드해 v10 UI를 그대로 보존
    ═══════════════════════════════════════════════════════════ */
 function openTacticalLab(){
@@ -46063,7 +46241,7 @@ function openTacticalLab(){
   var frame = document.getElementById('tacticalLabFrame');
   if (frame && !frame.src) {
     // 지연 로드: 첫 오픈 시에만 iframe 초기화 → 메모리/CPU 절약
-    frame.src = 'assets/tactical-lab-v11.html';
+    frame.src = 'assets/tactical-lab-v11.html?v=20260502b';
   }
   bd.classList.add('active');
 }
@@ -46084,7 +46262,7 @@ window.closeTacticalLab = closeTacticalLab;
 
 </script>
 
-<!-- Tactical Lab Modal (v11.1 Formation/Maneuver) ================================ -->
+<!-- Tactical Lab Modal (v11.2 Formation/Maneuver) ================================ -->
 <style>
 .tlab-backdrop{position:fixed;inset:0;background:rgba(3,4,11,.94);z-index:10500;display:none;align-items:stretch;justify-content:stretch;}
 .tlab-backdrop.active{display:flex;}
@@ -46103,12 +46281,12 @@ window.closeTacticalLab = closeTacticalLab;
     <div class="tlab-header">
       <div>
         <span class="tlab-title" data-i18n="tlab_title">🧪 TACTICAL LAB</span>
-        <span class="tlab-sub" data-i18n="tlab_sub">FORMATION / MANEUVER v11.1 — LIVE SIMULATION</span>
+        <span class="tlab-sub" data-i18n="tlab_sub">FORMATION / MANEUVER v11.2 — LIVE SIMULATION</span>
       </div>
       <button class="tlab-close" onclick="closeTacticalLab()" data-i18n="tlab_close">✕ CLOSE</button>
     </div>
     <div class="tlab-frame-wrap">
-      <iframe class="tlab-frame" id="tacticalLabFrame" title="Tactical Lab v11.1" loading="lazy"></iframe>
+      <iframe class="tlab-frame" id="tacticalLabFrame" title="Tactical Lab v11.2" loading="lazy"></iframe>
     </div>
   </div>
 </div>
