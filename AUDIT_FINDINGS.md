@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.53 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.54 / 2026-05-03)
+
+## ✅ v5.54 Fleet manual beam/missile skills — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 전함/타이탄급 수동 빔포 | ✅ | `☢ 빔포` 게이지 추가. 전함/타이탄이 살아있을 때 게이지가 차고, 100%에서 수동 발사 시 우선순위 대형 목표에 굵은 주포 빔을 발사. |
+| 소형/중형함 미사일 일제사격 | ✅ | `☄ 미사일` 게이지 추가. 프리깃/구축함/순양함이 살아있을수록 빨리 차고, 100%에서 다수 미사일을 적 함대에 발사. |
+| 연출/사운드 | ✅ | 빔포 전용 두꺼운 글로우 빔, 발사 쇼크웨이브, 미사일/빔포 전용 WebAudio 효과음을 추가. |
+| 데모/본서버 동기화 | ✅ | `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`에 동일 반영. |
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.53 Fleet doctrine RPS + shipyard vertical UI pass — 수정 완료
 

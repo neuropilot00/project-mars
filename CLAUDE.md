@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-02 v5.53 (Fleet doctrine RPS + shipyard vertical UI pass) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.54 (Fleet manual beam/missile skills) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,16 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.53 최신 핸드오프 — 함선 상성/진영 밸런스 + 조선소 세로 UI
+### v5.54 최신 핸드오프 — 수동 빔포/미사일 스킬
+
+- 택티컬랩에 `☢ 빔포`와 `☄ 미사일` 수동 스킬 버튼이 있음.
+- `beamCharge`는 살아있는 ATK 전함/타이탄 수에 따라 충전된다. 100%에서 `cmdBeamCannon()`이 우선순위 대형 목표에 두꺼운 주포 빔을 발사한다.
+- `missileCharge`는 살아있는 ATK 프리깃/구축함/순양함 수에 따라 충전된다. 100%에서 `cmdMissileBarrage()`가 다수 미사일을 적 함대에 뿌린다.
+- 빔포는 `lasers[]`의 `beamCannon` 플래그로 굵기/글로우를 다르게 렌더한다.
+- 수동 스킬은 데모/본서버 택티컬랩 양쪽에 동일 반영해야 한다. `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`로 복사하는 흐름 유지.
+- 현재 수동 스킬은 택티컬랩 시뮬레이션 계층 명령이다. 실제 서버 전투 명령으로 영구 반영하려면 별도 API/WS command 타입(`beam_cannon`, `missile_barrage`)을 서버 전투 상태에 연결해야 한다.
+
+### v5.53 핸드오프 — 함선 상성/진영 밸런스 + 조선소 세로 UI
 
 - `server/services/battleEngine.js`의 `getShipMatchupMult()`가 역할/함급/파벌 상성을 실제 데미지에 반영한다.
 - 기본 상성은 `tackle > ewar/logi`, `sniper > tank/capital`, `bomb > battleship/titan`, `tank/screen > small rush`, `logi = 직접 화력 낮음`.

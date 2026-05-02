@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Fleet manual beam/missile skills (v5.54)
+
+- **수동 빔포 추가**: 전함/타이탄이 살아있으면 `☢ 빔포` 게이지가 차고, 100%에서 우선순위 대형 목표에 굵은 주포 빔을 수동 발사.
+- **미사일 일제사격 추가**: 프리깃/구축함/순양함이 살아있으면 `☄ 미사일` 게이지가 차고, 100%에서 소형/중형함들이 다수 미사일을 발사.
+- **전투 연출 강화**: 빔포 전용 두꺼운 글로우, 발사 쇼크웨이브, 미사일/빔포 전용 WebAudio 효과음 추가.
+- **본서버 택티컬랩 반영**: 데모 `assets/fleet-assault-demo.html`과 본서버 `assets/tactical-lab-v11.html`을 동일하게 유지.
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Fleet doctrine RPS + shipyard vertical UI pass (v5.53)
 
 - **함선 상성 적용**: 전투 엔진과 택티컬랩에 역할/함급/파벌 기반 데미지 배율을 추가. 태클, EW, 로지, 탱커, 저격, 폭격이 서로 카운터를 갖도록 변경.

@@ -63,6 +63,9 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 .cb.r{border-color:rgba(239,83,80,.28);color:#ef5350;background:rgba(239,83,80,.04);}
 .cb.g{border-color:rgba(102,187,106,.28);color:#66bb6a;background:rgba(102,187,106,.04);}
 .cb.p{border-color:rgba(206,147,216,.28);color:#ce93d8;background:rgba(206,147,216,.04);}
+.cb.charge{position:relative;overflow:hidden;}
+.cb.charge.ready{background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.62);color:#ffe082;box-shadow:0 0 14px rgba(255,193,7,.18);}
+.cb.charge:not(.ready){opacity:.55;}
 .sep{width:1px;height:20px;background:rgba(255,255,255,.06);}
 @media(max-width:600px){
   .cb{font-size:11px;padding:10px 16px;min-height:42px;}
@@ -272,6 +275,8 @@ body{padding:0;background:#03040b;}
   <span class="clbl">CMD</span>
   <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
   <button class="cb y" onclick="cmdEMP()">💥 EMP</button>
+  <button class="cb y charge" id="cmdMissile" onclick="cmdMissileBarrage()">☄ 미사일 0%</button>
+  <button class="cb y charge" id="cmdBeam" onclick="cmdBeamCannon()">☢ 빔포 0%</button>
   <div class="sep"></div>
   <span class="clbl">FORMATION</span>
   <button class="cb p" onclick="cmdFormation('sphere')">⬢ Sphere</button>
@@ -536,6 +541,7 @@ function trimShipSprite(img){
 let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[];
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
+let beamCharge=0,missileCharge=0;
 let audioCtx=null,audioOn=false,musicTimer=null,lastLaserSound=0,lastBulletSound=0,lastExplosionSound=0;
 // ws 함선 추적: 이전 프레임 생존 함선 맵 (id → {x,y,code})
 let _wsPrevShips = new Map();
@@ -618,6 +624,18 @@ function playExplosionSound(){
   noiseHit(.22,.045,620);
   tone(58,.24,.025,'sawtooth');
 }
+function playBeamCannonSound(){
+  if(!audioOn)return;
+  tone(90,.42,.045,'sawtooth');
+  tone(180,.34,.035,'square',.03);
+  tone(540,.18,.022,'triangle',.08);
+  noiseHit(.18,.026,1400);
+}
+function playMissileBarrageSound(){
+  if(!audioOn)return;
+  for(let i=0;i<5;i++)setTimeout(()=>noiseHit(.055,.02,2200),i*55);
+  tone(130,.2,.025,'sawtooth');
+}
 
 function combatModifier(attackerType,targetType){
   if(!attackerType||!targetType)return 1;
@@ -678,6 +696,7 @@ function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];battleOver=false;
   _wsPrevShips = new Map();
   camScale=1;camCx=W/2;camCy=H/2;_camTargetScale=1;_camTargetCx=W/2;_camTargetCy=H/2;
+  beamCharge=0;missileCharge=20;
   const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
   const defPos = centeredPos(DEF_FLEETS.length, 'def');
   ATK_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'atk',atkPos[i].cx,atkPos[i].cy)));
@@ -950,6 +969,43 @@ function applyDmg(sh,dmg,isLaser,attackerType){
       mkShockwave(sh.fleet.cx,sh.fleet.cy,sh.fleet.radius*2);
       addLog('kl',`💥 [${sh.fleet.userId}] 기함 격침 — 함대 괴멸!`);
     }
+  }
+}
+
+function aliveAtkShips(){
+  return ships.filter(s=>s.side==='atk'&&!s.dead&&!s.fleet.dead);
+}
+function aliveDefShips(){
+  return ships.filter(s=>s.side==='def'&&!s.dead&&!s.fleet.dead);
+}
+function isCapitalShip(sh){
+  return sh&&['battleship','titan'].includes(sh.type.size);
+}
+function findPriorityTarget(){
+  const targets=aliveDefShips();
+  if(!targets.length)return null;
+  const rank={titan:5,battleship:4,cruiser:3,destroyer:2,frigate:1};
+  return targets.sort((a,b)=>
+    (rank[b.type.size]||0)-(rank[a.type.size]||0) ||
+    (b.hp/b.maxHp)-(a.hp/a.maxHp)
+  )[0];
+}
+function updateSpecialCharge(dt){
+  if(battleOver)return;
+  const atk=aliveAtkShips();
+  const caps=atk.filter(isCapitalShip);
+  const smalls=atk.filter(s=>['frigate','destroyer','cruiser'].includes(s.type.size));
+  beamCharge=Math.min(100,beamCharge+dt*(caps.length?0.0032+caps.length*0.00045:0.00045));
+  missileCharge=Math.min(100,missileCharge+dt*(smalls.length?0.0048+smalls.length*0.00016:0.00035));
+  const beamBtn=document.getElementById('cmdBeam');
+  const missileBtn=document.getElementById('cmdMissile');
+  if(beamBtn){
+    beamBtn.textContent=`☢ 빔포 ${Math.floor(beamCharge)}%`;
+    beamBtn.classList.toggle('ready',beamCharge>=100);
+  }
+  if(missileBtn){
+    missileBtn.textContent=`☄ 미사일 ${Math.floor(missileCharge)}%`;
+    missileBtn.classList.toggle('ready',missileCharge>=100);
   }
 }
 
@@ -1330,10 +1386,16 @@ function drawLasers(_wsActive){
     }
     const prog=l.age/l.ttl;
     CX.globalAlpha=(1-prog)*l.alpha*.55;
-    CX.shadowColor=l.color;CX.shadowBlur=PERF_MODE?0:3;
+    CX.shadowColor=l.color;CX.shadowBlur=l.beamCannon?(PERF_MODE?8:18):(PERF_MODE?0:3);
     CX.strokeStyle=l.color;CX.lineWidth=l.width;
     CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
-    CX.strokeStyle='rgba(255,255,255,.7)';CX.lineWidth=l.width*.28;
+    if(l.beamCannon){
+      CX.globalAlpha=(1-prog)*.22;
+      CX.strokeStyle=l.color;CX.lineWidth=l.width*2.4;
+      CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
+      CX.globalAlpha=(1-prog)*.72;
+    }
+    CX.strokeStyle='rgba(255,255,255,.82)';CX.lineWidth=l.width*(l.beamCannon?.42:.28);
     CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
     CX.shadowBlur=0;CX.lineWidth=1;CX.globalAlpha=1;
     l.age++;return l.age<l.ttl;
@@ -1407,6 +1469,7 @@ function loop(ts){
   if(turnT>600){turnT=0;turn++;document.getElementById('tn').textContent=turn;}
   const ss=0|(btMs/1000)%60,mm=0|(btMs/60000);
   document.getElementById('tm').textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+  updateSpecialCharge(dt);
 
   updateFleets(dt);
   const _wsActive = _wsBattle && _wsBattle.readyState === 1;
@@ -1539,6 +1602,44 @@ function cmdFocus(){
 function cmdEMP(){
   empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');
   _bridgeToParent('emp', { duration_ms: 6000 });
+}
+function cmdBeamCannon(){
+  if(beamCharge<100){addLog('wn',`☢ 빔포 충전 중 ${Math.floor(beamCharge)}%`);return;}
+  const guns=aliveAtkShips().filter(isCapitalShip);
+  const target=findPriorityTarget();
+  if(!guns.length){addLog('wn','☢ 빔포 발사 가능한 전함/타이탄 없음');return;}
+  if(!target){addLog('wn','☢ 빔포 목표 없음');return;}
+  beamCharge=0;
+  playBeamCannonSound();
+  guns.slice(0,4).forEach((gun,i)=>{
+    const tgt=i===0?target:findPriorityTarget();
+    if(!tgt)return;
+    gun.aimX=tgt.x;gun.aimY=tgt.y;gun.aimTTL=1600;
+    const width=gun.type.size==='titan'?9:6;
+    const dmg=gun.type.atk*(gun.type.size==='titan'?16:10);
+    lasers.push({x1:gun.x,y1:gun.y,x2:tgt.x,y2:tgt.y,
+      color:gun.type.faction==='cv'?'#ff3d2e':gun.type.faction==='fsp'?'#8cffb0':'#79dfff',
+      width,alpha:1.25,ttl:24,age:0,dmg,target:tgt,attackerType:gun.type,applied:false,side:'atk',visual:false,beamCannon:true});
+    mkShockwave(gun.x,gun.y,gun.type.r*5);
+  });
+  addLog('wn',`☢ 주포 빔포 발사 — ${guns.length}척 동기화`);
+  _bridgeToParent('beam_cannon', { charge: 100, capital_count: guns.length });
+}
+function cmdMissileBarrage(){
+  if(missileCharge<100){addLog('wn',`☄ 미사일 장전 중 ${Math.floor(missileCharge)}%`);return;}
+  const launchers=aliveAtkShips().filter(s=>['frigate','destroyer','cruiser'].includes(s.type.size));
+  const targets=aliveDefShips();
+  if(!launchers.length||!targets.length){addLog('wn','☄ 미사일 발사 조건 없음');return;}
+  missileCharge=0;
+  playMissileBarrageSound();
+  launchers.slice(0,24).forEach((sh,i)=>{
+    const tgt=targets[(i*7)%targets.length];
+    const dx=tgt.x-sh.x,dy=tgt.y-sh.y,len=Math.hypot(dx,dy)||1;
+    sh.aimX=tgt.x;sh.aimY=tgt.y;sh.aimTTL=1000;
+    spawnB(sh.x,sh.y,dx/len+(Math.random()-.5)*.12,dy/len+(Math.random()-.5)*.12,sh.type,sh.side,1.35, false);
+  });
+  addLog('wn',`☄ 미사일 일제사격 — ${Math.min(24,launchers.length)}척 발사`);
+  _bridgeToParent('missile_barrage', { charge: 100, launcher_count: launchers.length });
 }
 function cmdForfeit(){
   document.getElementById('forfeit-overlay').classList.add('on');
