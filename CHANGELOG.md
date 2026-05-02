@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Completed prologue compact campaign card (v5.47)
+
+- **완료된 프롤로그 접기**: 캠페인 목록에서 완료된 `chapterNumber === 0` 프롤로그는 한 줄 compact 카드로 표시하도록 수정.
+- **결과 접근 유지**: 접힌 프롤로그 카드에도 `RESULTS` 버튼을 유지해 결과 확인은 가능.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Campaign editor layout save/apply fix (v5.46)
 
 - **에디터 수정값 서버 저장 보장**: 운영 `/api/campaign/editor-layout`가 `{}`인 상태를 확인하고, 에디터 시작 시 서버가 비어 있으면 localStorage layout을 자동 업로드하도록 수정.

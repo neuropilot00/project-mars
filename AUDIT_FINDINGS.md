@@ -1,4 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v5.46 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.47 / 2026-05-02)
+
+## ✅ v5.47 Completed prologue compact card — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 완료된 프롤로그 카드 과점유 | ✅ | 완료된 `chapterNumber === 0` 프롤로그는 stats/description 없는 compact 카드로 접어서 표시. |
+| 결과 접근 | ✅ | 접힌 카드에서도 `RESULTS` 버튼은 유지해 결과 모달 진입 가능. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.46 Campaign editor layout save/apply — 수정 완료
 
