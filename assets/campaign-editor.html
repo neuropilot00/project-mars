@@ -70,15 +70,6 @@ input[type="number"]:focus, select:focus, #canvas:focus {
   letter-spacing: .08em;
   font-weight: 700;
 }
-.view-toggle {
-  display: flex;
-  gap: 6px;
-}
-.view-toggle button.active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: #13262b;
-}
 .main {
   display: grid;
   grid-template-columns: 260px minmax(560px, 1fr) 280px;
@@ -191,11 +182,7 @@ input[type="number"]:focus, select:focus, #canvas:focus {
   background: #050505;
   box-shadow: 0 0 0 1px #303030, 0 18px 48px rgba(0,0,0,.45);
 }
-#canvas.desktop {
-  width: min(100%, calc((100vh - 150px) * 16 / 9));
-  aspect-ratio: 16 / 9;
-}
-#canvas.mobile {
+#canvas {
   height: min(100%, calc(100vh - 150px));
   aspect-ratio: 9 / 16;
 }
@@ -367,10 +354,7 @@ input[type="number"]:focus, select:focus, #canvas:focus {
 <div class="app">
   <header class="topbar">
     <div class="brand">CAMPAIGN SCENE EDITOR</div>
-    <div class="view-toggle" aria-label="Viewport">
-      <button id="desktopBtn" type="button" class="active">Desktop</button>
-      <button id="mobileBtn" type="button">Mobile</button>
-    </div>
+    <div class="brand" style="font-size:11px;color:#666;font-weight:400">Portrait (9:16)</div>
   </header>
 
   <main class="main">
@@ -403,7 +387,7 @@ input[type="number"]:focus, select:focus, #canvas:focus {
     </aside>
 
     <section class="preview-wrap">
-      <div id="canvas" class="desktop" tabindex="0" aria-label="Campaign preview canvas"></div>
+      <div id="canvas" tabindex="0" aria-label="Campaign preview canvas"></div>
     </section>
 
     <aside class="right">
@@ -412,7 +396,6 @@ input[type="number"]:focus, select:focus, #canvas:focus {
         <div id="controls" class="right-scroll"></div>
       </div>
       <div class="actions-panel">
-        <button id="copyLayoutBtn" type="button">Desktop -> Mobile</button>
         <button id="resetLayoutBtn" type="button">Reset Layout</button>
         <button id="saveBtn" type="button">Save to JSON</button>
       </div>
@@ -438,20 +421,11 @@ const portraitMap = {
   crow: 'kara_vex'
 };
 const defaults = {
-  desktop: {
-    one: { x: 50, y: 55, w: 40 },
-    twoLeft: { x: 25, y: 55, w: 35 },
-    twoRight: { x: 75, y: 55, w: 35 },
-    dialog: { x: 50, y: 82, w: 86, fontSize: 1.0 },
-    overlay: { x: 50, y: 44, w: 84 }
-  },
-  mobile: {
-    one: { x: 50, y: 60, w: 65 },
-    twoLeft: { x: 35, y: 60, w: 58 },
-    twoRight: { x: 65, y: 60, w: 58 },
-    dialog: { x: 50, y: 85, w: 90, fontSize: 1.0 },
-    overlay: { x: 50, y: 44, w: 84 }
-  }
+  one:      { x: 50, y: 55, w: 60 },
+  twoLeft:  { x: 28, y: 55, w: 50 },
+  twoRight: { x: 72, y: 55, w: 50 },
+  dialog:   { x: 50, y: 84, w: 92, fontSize: 1.0 },
+  overlay:  { x: 50, y: 44, w: 84 }
 };
 
 const els = {
@@ -465,9 +439,6 @@ const els = {
   lineInfo: document.getElementById('lineInfo'),
   canvas: document.getElementById('canvas'),
   controls: document.getElementById('controls'),
-  desktopBtn: document.getElementById('desktopBtn'),
-  mobileBtn: document.getElementById('mobileBtn'),
-  copyLayoutBtn: document.getElementById('copyLayoutBtn'),
   resetLayoutBtn: document.getElementById('resetLayoutBtn'),
   saveBtn: document.getElementById('saveBtn'),
   prevBtn: document.getElementById('prevBtn'),
@@ -483,7 +454,6 @@ let currentFile = '';
 let pendingFile = '';
 let selectedSceneIndex = 0;
 let selectedLineIndex = 0;
-let mode = 'desktop';
 let dirty = false;
 let dragState = null;
 
@@ -534,18 +504,16 @@ function assetUrl(kind, id) {
 function ensureSceneLayout() {
   const currentScene = scene();
   if (!currentScene.layout) currentScene.layout = {};
-  if (!currentScene.layout.desktop) currentScene.layout.desktop = {};
-  if (!currentScene.layout.mobile) currentScene.layout.mobile = {};
-  if (!currentScene.layout[mode].characters) currentScene.layout[mode].characters = {};
-  return currentScene.layout[mode];
+  if (!currentScene.layout.characters) currentScene.layout.characters = {};
+  return currentScene.layout;
 }
 
 function getLayoutPart(part, key) {
   const currentScene = scene();
-  const modeLayout = currentScene && currentScene.layout && currentScene.layout[mode];
-  if (!modeLayout) return null;
-  if (part === 'characters') return modeLayout.characters && modeLayout.characters[key] ? modeLayout.characters[key] : null;
-  return modeLayout[part] || null;
+  const lay = currentScene && currentScene.layout;
+  if (!lay) return null;
+  if (part === 'characters') return lay.characters && lay.characters[key] ? lay.characters[key] : null;
+  return lay[part] || null;
 }
 
 function setLayoutPart(part, key, values) {
@@ -561,8 +529,8 @@ function setLayoutPart(part, key, values) {
 }
 
 function fallbackCharacterLayout(characters, index) {
-  if (characters.length <= 1) return { ...defaults[mode].one };
-  return { ...(index === 0 ? defaults[mode].twoLeft : defaults[mode].twoRight) };
+  if (characters.length <= 1) return { ...defaults.one };
+  return { ...(index === 0 ? defaults.twoLeft : defaults.twoRight) };
 }
 
 function effectiveCharacterLayout(id, visibleCharacters, index) {
@@ -570,11 +538,11 @@ function effectiveCharacterLayout(id, visibleCharacters, index) {
 }
 
 function effectiveOverlayLayout() {
-  return { ...defaults[mode].overlay, ...(getLayoutPart('overlay') || {}) };
+  return { ...defaults.overlay, ...(getLayoutPart('overlay') || {}) };
 }
 
 function effectiveDialogLayout() {
-  return { ...defaults[mode].dialog, ...(getLayoutPart('dialog') || {}) };
+  return { ...defaults.dialog, ...(getLayoutPart('dialog') || {}) };
 }
 
 function visibleCharacters() {
@@ -689,7 +657,6 @@ function renderCanvas() {
   const lineText = currentLine ? textOf(currentLine.text) : '';
   const speakerText = currentLine && currentLine.speaker ? currentLine.speaker : '';
 
-  els.canvas.className = mode;
   els.canvas.innerHTML = '';
 
   const bgImg = document.createElement('img');
@@ -731,7 +698,7 @@ function renderCanvas() {
   // 게임 기준: desktop=1920px, mobile=390px / speaker=1.05rem(16.8px), text=1rem(16px)
   requestAnimationFrame(() => {
     const canvasW = els.canvas.offsetWidth;
-    const refW = mode === 'desktop' ? 1920 : 390;
+    const refW = 390;
     const scale = canvasW / refW;
     const fsMult = (dialog.fontSize != null ? dialog.fontSize : 1.0);
     const speakerEl = dialogBox.querySelector('.speaker');
@@ -881,14 +848,6 @@ function showToast() {
   window.setTimeout(() => els.toast.classList.remove('show'), 1300);
 }
 
-function copyDesktopToMobile() {
-  const currentScene = scene();
-  if (!currentScene) return;
-  if (!currentScene.layout) currentScene.layout = {};
-  currentScene.layout.mobile = cloneLayoutPart(currentScene.layout.desktop || {});
-  markDirty();
-  if (mode === 'mobile') renderAll();
-}
 
 function resetLayout() {
   const currentScene = scene();
@@ -1004,21 +963,6 @@ els.controls.addEventListener('click', event => {
   updateFromInput(input);
 });
 
-els.desktopBtn.addEventListener('click', () => {
-  mode = 'desktop';
-  els.desktopBtn.classList.add('active');
-  els.mobileBtn.classList.remove('active');
-  renderAll();
-});
-
-els.mobileBtn.addEventListener('click', () => {
-  mode = 'mobile';
-  els.mobileBtn.classList.add('active');
-  els.desktopBtn.classList.remove('active');
-  renderAll();
-});
-
-els.copyLayoutBtn.addEventListener('click', copyDesktopToMobile);
 els.resetLayoutBtn.addEventListener('click', resetLayout);
 els.saveBtn.addEventListener('click', () => saveChapter().catch(error => alert(error.message)));
 els.prevBtn.addEventListener('click', () => selectLine(selectedLineIndex - 1));
