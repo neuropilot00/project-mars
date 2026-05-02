@@ -25004,16 +25004,16 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
       var _edChars=JSON.parse(localStorage.getItem('editorCharacters')||'{}');
       var _edLayout=_edChars[id]||_edChars[_portraitMap[id]||id];
       if(_edLayout){
-        // 에디터는 center-point 기준(transform: translate(-50%,-50%))이므로 동일하게 적용
+        // 캐릭터는 bottom-anchor + 수평 중심점 방식 — 위쪽 overflow 클리핑 방지
         el.style.position='absolute';
-        el.style.transform='translate(-50%,-50%)';
+        el.style.transform='translateX(-50%)';
         el.style.left=_edLayout.x+'%';
-        el.style.top=_edLayout.y+'%';
-        el.style.width=_edLayout.w+'%';
-        el.style.bottom='auto';
+        el.style.bottom='0';
+        el.style.top='auto';
         el.style.right='auto';
+        el.style.width=_edLayout.w+'%';
         el.style.maxWidth='none';
-        el.style.maxHeight='none';
+        el.style.maxHeight='92%';
       }
     }catch(_){}
   });
