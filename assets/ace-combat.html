@@ -256,7 +256,7 @@
   </div>
   <div id="flash"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
   <script>
     (function () {
       "use strict";
@@ -275,6 +275,8 @@
       const LOCK_RANGE = 300;
       const LOCK_TIME = 1.5;
 
+      function init() {
+        try {
       const scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2(0x02040a, 0.00075);
 
@@ -518,18 +520,22 @@
         state = nextState;
         if (nextState === "titleScreen") {
           hud.centerMessage.classList.remove("hidden");
+          hud.centerMessage.onclick = resetGame;
           hud.messageTitle.textContent = "ACE COMBAT DEMO";
-          hud.messageSub.textContent = "PRESS ENTER TO START";
+          hud.messageSub.innerHTML = "PRESS ENTER TO START<br>CLICK OR TAP TO START";
         } else if (nextState === "missionComplete") {
           hud.centerMessage.classList.remove("hidden");
+          hud.centerMessage.onclick = null;
           hud.messageTitle.textContent = "MISSION COMPLETE";
           hud.messageSub.textContent = "PRESS ENTER TO RESTART";
         } else if (nextState === "gameOver") {
           hud.centerMessage.classList.remove("hidden");
+          hud.centerMessage.onclick = null;
           hud.messageTitle.textContent = "GAME OVER";
           hud.messageSub.textContent = "PRESS R TO RESTART";
         } else {
           hud.centerMessage.classList.add("hidden");
+          hud.centerMessage.onclick = null;
         }
       }
 
@@ -1061,6 +1067,15 @@
       }
       setState("titleScreen");
       animate();
+        } catch(e) {
+          document.body.innerHTML = '<div style="color:#f55;padding:40px;font-family:monospace;font-size:18px">ERROR: ' + e.message + '<br><br>' + e.stack + '</div>';
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     }());
   </script>
 </body>
