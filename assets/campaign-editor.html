@@ -140,7 +140,7 @@ let nextId = 1;
 
 // BG select
 bgSelect.addEventListener('change', () => {
-  bgImg.src = '../campaign/backgrounds/' + bgSelect.value;
+  bgImg.src = '/assets/campaign/backgrounds/' + bgSelect.value;
 });
 bgImg.addEventListener('load', () => {
   container.style.width = bgImg.offsetWidth + 'px';
@@ -148,7 +148,7 @@ bgImg.addEventListener('load', () => {
 });
 // init
 bgSelect.selectedIndex = 0;
-bgImg.src = '../campaign/backgrounds/' + BG_LIST[0];
+bgImg.src = '/assets/campaign/backgrounds/' + BG_LIST[0];
 
 // Zoom
 zoomSlider.addEventListener('input', () => {
@@ -185,7 +185,7 @@ function createLayerEl(layer) {
   el.style.opacity = layer.opacity;
 
   const img = document.createElement('img');
-  img.src = '../campaign/characters/' + layer.file;
+  img.src = '/assets/campaign/characters/' + layer.file;
   img.draggable = false;
   el.appendChild(img);
 
@@ -278,7 +278,7 @@ function renderLayersList() {
     const item = document.createElement('div');
     item.className = 'layer-item' + (layer.id === selectedId ? ' selected' : '');
     item.innerHTML = `
-      <img class="thumb" src="../campaign/characters/${layer.file}">
+      <img class="thumb" src="/assets/campaign/characters/${layer.file}">
       <span class="name">${layer.file.replace('.png','')}</span>
       <button class="layer-up" data-id="${layer.id}" title="Up">▲</button>
       <button class="layer-dn" data-id="${layer.id}" title="Down">▼</button>
