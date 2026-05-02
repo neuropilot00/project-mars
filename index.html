@@ -25000,6 +25000,20 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
     };
     el.src=campaignAssetUrl('/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png');
     el.style.display='block';
+    try{
+      var _edChars=JSON.parse(localStorage.getItem('editorCharacters')||'{}');
+      var _edLayout=_edChars[id]||_edChars[_portraitMap[id]||id];
+      if(_edLayout){
+        el.style.position='absolute';
+        el.style.left=_edLayout.x+'%';
+        el.style.top=_edLayout.y+'%';
+        el.style.width=_edLayout.w+'%';
+        el.style.bottom='auto';
+        el.style.right='auto';
+        el.style.maxWidth='none';
+        el.style.maxHeight='none';
+      }
+    }catch(_){}
   });
 }
 
@@ -25059,6 +25073,17 @@ function renderCampaignScene(){
     box.style.background='rgba(0,0,0,.75)';
     box.style.borderTop='1px solid rgba(255,255,255,.12)';
     box.style.backdropFilter='blur(4px)';
+    try{
+      var _edDlg=JSON.parse(localStorage.getItem('editorDialog'));
+      if(_edDlg){
+        box.style.left=_edDlg.x+'%';
+        box.style.top=_edDlg.y+'%';
+        box.style.width=_edDlg.w+'%';
+        box.style.bottom='auto';
+        box.style.right='auto';
+        box.style.position='absolute';
+      }
+    }catch(_){}
   }
   if(hint) hint.style.display='block';
 
@@ -25071,6 +25096,7 @@ function renderCampaignScene(){
     box.innerHTML='<div class="story-text story-narration-text"></div>';
     var _nText=_campaignStoryText(nLine.text);
     _showStoryDetailOverlay(nLine.overlay||null);
+    try{var _nFs=parseFloat(localStorage.getItem('editorFontSize')||'1');var _nEl=box.querySelector('.story-text');if(_nEl&&_nFs!==1)_nEl.style.fontSize=_nFs+'rem';}catch(_){}
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
@@ -25081,6 +25107,7 @@ function renderCampaignScene(){
     box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
     var _dText=_campaignStoryText(dLine.text);
     _showStoryDetailOverlay(dLine.overlay||null);
+    try{var _dFs=parseFloat(localStorage.getItem('editorFontSize')||'1');var _dEl=box.querySelector('.story-text');if(_dEl&&_dFs!==1)_dEl.style.fontSize=_dFs+'rem';}catch(_){}
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }
