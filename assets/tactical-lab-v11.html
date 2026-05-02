@@ -1235,15 +1235,35 @@ function setCameraFromFleets(aliveF){
   } else {
     _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
   }
+  clampCameraTarget();
 }
 function setCameraOverShoulder(sourceFleet, targetFleet){
   const src=fleetAnchorShip(sourceFleet);
   if(!src || !targetFleet){ setCameraFromFleets(fleets.filter(f=>!f.dead)); return; }
   const dx=targetFleet.cx-src.x,dy=targetFleet.cy-src.y;
   const len=Math.hypot(dx,dy)||1;
-  _camTargetCx=src.x+(dx/len)*(window.innerWidth<=600?120:160);
-  _camTargetCy=src.y+(dy/len)*(window.innerWidth<=600?74:100);
-  _camTargetScale=window.innerWidth<=600?3.45:2.65;
+  _camTargetCx=src.x+dx*.38;
+  _camTargetCy=src.y+dy*.38;
+  const spread=Math.max(len*.82, sourceFleet.radius + targetFleet.radius) * 1.42;
+  const maxScale=window.innerWidth<=600?3.15:2.45;
+  const minScale=window.innerWidth<=600?1.15:.75;
+  _camTargetScale=Math.max(minScale,Math.min(maxScale,Math.min(W,H)/spread));
+  clampCameraTarget();
+}
+function clampCameraCenter(cx, cy, scale){
+  const pad=window.innerWidth<=600?26:18;
+  const halfW=W/(2*Math.max(scale,.001));
+  const halfH=H/(2*Math.max(scale,.001));
+  const minX=halfW-pad, maxX=W-halfW+pad;
+  const minY=halfH-pad, maxY=H-halfH+pad;
+  return {
+    x: minX > maxX ? W/2 : Math.max(minX, Math.min(maxX, cx)),
+    y: minY > maxY ? H/2 : Math.max(minY, Math.min(maxY, cy)),
+  };
+}
+function clampCameraTarget(){
+  const c=clampCameraCenter(_camTargetCx,_camTargetCy,_camTargetScale);
+  _camTargetCx=c.x;_camTargetCy=c.y;
 }
 function updateCameraTargets(){
   const aliveF=fleets.filter(f=>!f.dead);
@@ -1289,6 +1309,8 @@ function loop(ts){
   camScale+=(_camTargetScale-camScale)*_lp;
   camCx+=(_camTargetCx-camCx)*_lp;
   camCy+=(_camTargetCy-camCy)*_lp;
+  const _clamped=clampCameraCenter(camCx,camCy,camScale);
+  camCx=_clamped.x;camCy=_clamped.y;
 
   drawBG();
   CX.save();

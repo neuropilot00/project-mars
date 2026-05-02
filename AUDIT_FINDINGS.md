@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v5.49 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.50 / 2026-05-02)
+
+## ✅ v5.50 Fleet camera containment hotfix — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| Cinema 카메라 함선 화면 이탈 | ✅ | 오버숄더 카메라 중심을 소스/타겟 사이로 재계산하고, 카메라 target/actual center를 월드 경계 안으로 clamp. |
+| 과도한 추적 줌 | ✅ | 오버숄더 줌을 함대 간 거리 기반으로 산출해 두 함대가 화면 안에 남도록 조정. |
+| 박력 한계 판단 | 🟡 | 2D 전술맵 카메라만으로는 레퍼런스 같은 3D 깊이감 한계가 명확함. 다음 큰 개선은 프리렌더/3D풍 시네마틱 전투 뷰어로 분리 권장. |
+
+검증:
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.49 Fleet combat role/preview/camera pass — 수정 완료
 

@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Fleet camera containment hotfix (v5.50)
+
+- **Cinema 카메라 이탈 방지**: 오버숄더 카메라가 함선을 화면 밖으로 밀어내던 문제를 수정. 카메라 중심을 소스/타겟 사이로 잡고 월드 경계 안으로 clamp.
+- **거리 기반 줌 안정화**: 오버숄더 줌을 함대 간 거리와 반경 기준으로 산출해 두 함대가 화면 안에 남도록 조정.
+- **시네마틱 한계 기록**: 현재 2D tactical-lab 카메라만으로는 레퍼런스 같은 3D 박력 구현에 한계가 있어, 후속으로 프리렌더/3D풍 전투 뷰어 분리 개발 권장.
+
+검증:
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Fleet combat role/preview/camera pass (v5.49)
 
 - **함선 역할 밸런스 기획 반영**: 샤드는 저렴한 주력 DPS, 재머는 비싼 약한 딜러가 아니라 적 함대 사격 지연/화력 저하를 중첩시키는 EW 지원함으로 정리.
