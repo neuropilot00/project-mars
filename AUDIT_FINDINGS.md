@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.59 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.60 / 2026-05-03)
+
+## ✅ v5.60 Campaign editor layout parity + story perf — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 에디터/인게임 캐릭터 좌표 기준 | ✅ | 에디터의 `x/y/w` top-left percent 모델을 인게임도 동일하게 해석. `cx/cy`만 center 기준으로 처리. |
+| 단일 화자 기본 배치 | ✅ | `scene.characters`가 없는 단일 화자 대화씬은 왼쪽이 아니라 중앙 캐릭터로 렌더. |
+| 다른 캐릭터 에셋 확인 | ✅ | campaign-story 전체 speaker 42종을 검사했고 누락 초상화 0건. `crow` 매핑 오류도 수정. |
+| 화면전환/대사 렉 완화 | ✅ | 배경/캐릭터/오버레이 이미지 캐시+다음 라인 선로딩, RAF 기반 타이핑, 대화창 blur 제거. |
+
+검증:
+- campaign-story speaker 42종 캐릭터 이미지 매핑 검사 통과 (missing 0)
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.59 Fleet Mars atmospheric background — 수정 완료
 

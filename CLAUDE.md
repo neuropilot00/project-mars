@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.59 (Fleet Mars atmospheric background) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.60 (Campaign editor layout parity + story perf) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,16 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.59 최신 핸드오프 — 화성 상층권 전투 배경
+### v5.60 최신 핸드오프 — 캠페인 에디터/인게임 배치 일치 + 전환 렉 완화
+
+- 캠페인 스토리 캐릭터 배치는 에디터와 같은 top-left percent `x/y/w` 기준으로 해석한다. `cx/centerX`, `cy/centerY`를 쓴 경우에만 center transform을 적용한다.
+- 단일 캐릭터 대화씬은 기본 중앙 배치(`story-character-center`)를 사용한다. `mcc_ch2_frozen_highway` s08처럼 `scene.characters`가 없는 단일 화자 씬이 왼쪽으로 밀리면 안 된다.
+- 스토리 진입 시 localStorage 에디터 레이아웃을 첫 프레임부터 적용하고, 서버 `/api/campaign/editor-layout` 응답이 다르면 재렌더한다.
+- 배경/캐릭터/오버레이 이미지는 `_campaignPreloadImage()` 캐시를 통해 현재/다음 라인을 선로딩한다.
+- 대사 타이핑은 `setInterval` 대신 `requestAnimationFrame` 기반으로 갱신한다. 대화창 blur는 제거해 화면전환/타이핑 중 repaint 비용을 줄였다.
+- 캐릭터 에셋 매핑은 전체 campaign-story speaker 42종 기준 누락 없음. `crow`는 존재하지 않는 `kara_vex`가 아니라 `crow.png`로 매핑한다.
+
+### v5.59 핸드오프 — 화성 상층권 전투 배경
 
 - 택티컬랩 전투 배경은 `assets/textures/mars_nasa_2k.jpg`를 사용한다.
 - `MARS_BATTLE_BG`가 비동기로 로드되고, `drawBG()`에서 어둡게 누른 화성 표면 텍스처를 아주 느리게 패닝한다.

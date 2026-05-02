@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Campaign editor layout parity + story perf (v5.60)
+
+- **에디터/인게임 캐릭터 배치 일치**: 에디터가 저장하는 `x/y/w` top-left percent 좌표를 인게임 렌더러도 그대로 적용하도록 수정. `cx/cy` 계열만 중앙 기준으로 처리.
+- **단일 화자 중앙 배치**: `scene.characters`가 없는 단일 화자 대화씬은 에디터처럼 중앙 캐릭터로 표시. 광부 어르신 같은 씬이 왼쪽으로 밀리는 문제 수정.
+- **캐릭터 에셋 매핑 점검**: campaign-story 전체 speaker 42종을 검사해 누락 초상화 0건 확인. `crow → kara_vex` 잘못된 매핑을 실제 존재하는 `crow.png`로 수정.
+- **스토리 전환 렉 완화**: 현재/다음 라인의 배경·캐릭터·오버레이 이미지를 캐시 선로딩하고, 대사 타이핑을 `requestAnimationFrame` 기반으로 변경. 대화창 blur 제거로 repaint 비용 감소.
+
+검증:
+- campaign-story speaker 42종 캐릭터 이미지 매핑 검사 통과 (missing 0)
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Fleet Mars atmospheric background (v5.59)
 
 - **화성 상층권 배경 추가**: 택티컬랩 전투 캔버스에 `assets/textures/mars_nasa_2k.jpg`를 배경 레이어로 로드.

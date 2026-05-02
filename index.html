@@ -1224,7 +1224,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-character-center{position:absolute;bottom:0;left:50%;transform:translateX(-50%);max-height:82%;max-width:70%;object-fit:contain;opacity:1;transition:opacity .3s ease,filter .3s ease,transform .3s ease;filter:drop-shadow(0 16px 40px rgba(0,0,0,.9))}
 .story-character-inactive{opacity:.38;filter:brightness(.5) drop-shadow(0 12px 28px rgba(0,0,0,.6))}
 /* 대화창 — 모바일 터치 고려: 패딩 넉넉하게, 글자 충분히 크게 */
-.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(4,4,12,.82);padding:20px 18px 96px;padding-bottom:max(env(safe-area-inset-bottom,96px),96px);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.1)}
+.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(4,4,12,.82);padding:20px 18px 96px;padding-bottom:max(env(safe-area-inset-bottom,96px),96px);backdrop-filter:none;-webkit-backdrop-filter:none;border-top:1px solid rgba(255,255,255,.1)}
 .story-speaker-name{font-weight:900;color:#FFD700;font-size:1.05rem;margin-bottom:6px;letter-spacing:.3px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
 .story-text{color:#f0f0f0;font-size:1rem;line-height:1.7;min-height:3.4em;white-space:pre-line;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 /* 탭 힌트 — safe area 고려 (아이폰 홈 바) */
@@ -24848,6 +24848,8 @@ var _campaignSceneLineIndex=0;
 var _campaignTypingElement=null;
 var _campaignTypingFullText='';
 var _campaignBattleTimer=null;
+var _campaignTypingFrame=null;
+var _campaignImageCache={};
 function loadCampaignStatus(){
   var el=document.getElementById('campaignList');
   var w=walletState.address;
@@ -25074,7 +25076,7 @@ function showCampaignStory(chapter){
     if(!scene) return;
     if(scene.type==='choice'||scene.type==='branch') return;
     if(!_campaignTypingDone){
-      if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+      _campaignClearTypingTimer();
       if(_campaignTypingElement) _campaignTypingElement.textContent=_campaignTypingFullText;
       _campaignTypingDone=true;
       return;
@@ -25086,7 +25088,7 @@ function showCampaignStory(chapter){
   document.getElementById('storySkipBtn').addEventListener('click',function(ev){
     ev.stopPropagation();
     if(!_campaignTypingDone){
-      if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+      _campaignClearTypingTimer();
       if(_campaignTypingElement) _campaignTypingElement.textContent=_campaignTypingFullText;
       _campaignTypingDone=true;
       return;
@@ -25098,10 +25100,20 @@ function showCampaignStory(chapter){
     ev.stopPropagation();
     abandonCampaignFromStory();
   });
-  // 즉시 렌더 (레이아웃 없이도 정상 동작), 백그라운드에서 에디터 레이아웃 로드
+  // 즉시 렌더하되, 로컬 에디터 레이아웃이 있으면 첫 프레임부터 적용한다.
+  var localLayout=_campaignLocalEditorLayout();
+  if(localLayout&&(!_campaignEditorLayout||!Object.keys(_campaignEditorLayout).length)){
+    _campaignEditorLayout=localLayout;
+  }
   renderCampaignScene();
   fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
-    if(d&&typeof d==='object') _campaignEditorLayout=d;
+    if(d&&typeof d==='object'){
+      var before=JSON.stringify(_campaignEditorLayout||{});
+      _campaignEditorLayout=d;
+      if(document.querySelector('.story-overlay')&&JSON.stringify(d)!==before){
+        renderCampaignScene();
+      }
+    }
   }).catch(function(){});
 }
 
@@ -25132,6 +25144,25 @@ async function abandonCampaignFromStory(){
 var CAMPAIGN_ASSET_VERSION='20260502c';
 function campaignAssetUrl(path){
   return path+(path.indexOf('?')>=0?'&':'?')+'v='+CAMPAIGN_ASSET_VERSION;
+}
+
+function _campaignPreloadImage(src){
+  if(!src) return null;
+  var cached=_campaignImageCache[src];
+  if(cached) return cached;
+  var img=new Image();
+  img.decoding='async';
+  img.src=src;
+  _campaignImageCache[src]=img;
+  if(img.decode) img.decode().catch(function(){});
+  return img;
+}
+
+function _campaignClearTypingTimer(){
+  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  if(_campaignTypingFrame) cancelAnimationFrame(_campaignTypingFrame);
+  _campaignTypingTimer=null;
+  _campaignTypingFrame=null;
 }
 
 function _campaignIsStoryMobile(){
@@ -25262,9 +25293,23 @@ function _campaignApplyRectLayout(el,box,opts){
 
 function _campaignApplyCharacterLayout(el,box){
   if(!el||!box) return;
-  var hasY=_campaignLayoutPick(box,['y','top','cy','centerY'])!==null||box.bottom!==undefined;
-  var hasX=_campaignLayoutPick(box,['x','left','cx','centerX'])!==null;
-  if(hasX&&!hasY){
+  var centerX=_campaignLayoutPick(box,['cx','centerX']);
+  var centerY=_campaignLayoutPick(box,['cy','centerY']);
+  var hasCenter=centerX!==null||centerY!==null;
+  var hasY=_campaignLayoutPick(box,['y','top'])!==null||box.bottom!==undefined||hasCenter;
+  var hasX=_campaignLayoutPick(box,['x','left'])!==null||hasCenter;
+  if(hasCenter){
+    _campaignApplyRectLayout(el,box,{transform:'translate(-50%,-50%)'});
+  }else if(hasX&&hasY){
+    // Campaign editor stores character boxes as top-left percent + width.
+    // Keep the game renderer on the same coordinate model so editor previews
+    // and in-game scenes match exactly for every character.
+    el.style.left=_campaignLayoutUnit(_campaignLayoutPick(box,['x','left']),'50%');
+    el.style.top=_campaignLayoutUnit(_campaignLayoutPick(box,['y','top']),'50%');
+    el.style.right='auto';
+    el.style.bottom='auto';
+    el.style.transform='none';
+  }else if(hasX&&!hasY){
     el.style.left=_campaignLayoutUnit(_campaignLayoutPick(box,['x','left','cx','centerX']),'50%');
     el.style.right='auto';
     el.style.top='auto';
@@ -25273,11 +25318,16 @@ function _campaignApplyCharacterLayout(el,box){
   }else{
     _campaignApplyRectLayout(el,box,{transform:'translate(-50%,-50%)'});
   }
+  var w=_campaignLayoutPick(box,['w','width']);
+  var h=_campaignLayoutPick(box,['h','height']);
+  if(w!==null) el.style.width=_campaignLayoutUnit(w,'auto');
+  if(h!==null) el.style.height=_campaignLayoutUnit(h,'auto');
   el.style.maxWidth='none';
   el.style.maxHeight=hasY?'none':'92%';
   if(box.scale!==undefined){
     var scale=_campaignLayoutNumber(box.scale,1);
-    el.style.transform=(el.style.transform||'translate(-50%,-50%)')+' scale('+scale+')';
+    var baseTransform=(!el.style.transform||el.style.transform==='none')?'':el.style.transform;
+    el.style.transform=(baseTransform?baseTransform+' ':'')+'scale('+scale+')';
   }
   if(box.fit||box.objectFit) el.style.objectFit=box.fit||box.objectFit;
 }
@@ -25360,18 +25410,22 @@ function _campaignStorySetBackground(scene,overlay,lineBg,line){
     _campaignApplyBackgroundLayout(bg,_campaignStoryLayout(scene,line));
     return;
   }
-  var img=new Image();
-  img.onload=function(){
+  var img=_campaignPreloadImage(src);
+  var applyLoadedBg=function(){
     bg.style.backgroundImage='url("'+src+'")';
     bg.setAttribute('data-bg-src',src);
     _campaignApplyBackgroundLayout(bg,_campaignStoryLayout(scene,line));
   };
+  if(img&&img.complete&&img.naturalWidth>0){
+    applyLoadedBg();
+    return;
+  }
+  img.onload=applyLoadedBg;
   img.onerror=function(){
     if(!bg.style.backgroundImage){
       bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';
     }
   };
-  img.src=src;
 }
 
 function _campaignStoryRenderCharacters(scene,line,overlay){
@@ -25383,25 +25437,30 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
   if(scene.type!=='dialogue') return;
   var chars=[];
   if(Array.isArray(scene.characters)){
-    chars=scene.characters.map(function(c,i){return typeof c==='string'?{id:c,position:i===0?'left':'right'}:c;});
+    chars=scene.characters.map(function(c,i){return typeof c==='string'?{id:c,position:scene.characters.length===1?'center':(i===0?'left':'right')}:c;});
+    if(chars.length===1&&!chars[0].position) chars[0].position='center';
   }else{
     var speakers=(scene.lines||[]).map(function(l){return l.speaker;}).filter(Boolean);
     speakers.forEach(function(s){if(chars.map(function(c){return c.id;}).indexOf(s)<0) chars.push({id:s,position:s==='player'?'right':'left'});});
+    if(chars.length===1) chars[0].position='center';
   }
   chars.slice(0,2).forEach(function(c,i){
-    var pos=c.position||(i===0?'left':'right');
+    var pos=c.position||(chars.length===1?'center':(i===0?'left':'right'));
     var el=pos==='right'?right:left;
     var id=c.id||c.characterId||c.speaker;
     if(!id) return;
-    el.className=pos==='right'?'story-character-right':'story-character-left';
+    el.className=pos==='center'?'story-character-left story-character-center':(pos==='right'?'story-character-right':'story-character-left');
     if(line&&line.speaker&&line.speaker!==id) el.className+=' story-character-inactive';
     el.onerror=function(){el.style.display='none';};
     // 파일명이 다르거나 새 캐릭터를 기존 초상화로 임시 매핑한다
     var _portraitMap={
       'player':'player_silhouette','observer':'player_silhouette',
-      'rev_hale':'hale','young_butcher':'butcher','crow':'kara_vex'
+      'rev_hale':'hale','young_butcher':'butcher','crow':'crow',
+      'liang':'liang_wei','kara_vex':'crow_reyes'
     };
-    el.src=campaignAssetUrl('/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png');
+    var charSrc=campaignAssetUrl('/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png');
+    _campaignPreloadImage(charSrc);
+    el.src=charSrc;
     el.style.display='block';
     var charLayout=_campaignMergeLayout({},_campaignCharacterLayout(_campaignStoryLayout(scene,line),id,pos)||{});
     if(_portraitMap[id]) _campaignMergeLayout(charLayout,_campaignCharacterLayout(_campaignStoryLayout(scene,line),_portraitMap[id],pos)||{});
@@ -25430,33 +25489,67 @@ function _showStoryDetailOverlay(overlayName,layout){
   el.src = src;
 }
 
+function _campaignPreloadSceneAssets(scene,line){
+  if(!scene) return;
+  var bgChoice=(line&&line.background)||scene.background;
+  if(bgChoice){
+    var _bgMap={
+      'hellas_central_underground':'mcc_briefing_room',
+      'hellas_outer_relay_interior':'hellas_outer_relay',
+      'erebus_base_medical':'erebus_base_interior',
+      'hellas_various_night':'hellas_labor_district_night',
+      'mcc_25deg_lounge':'mcc_briefing_room',
+      'new_athens_shipyard_launch':'new_athens_shipyard_dawn'
+    };
+    _campaignPreloadImage(campaignAssetUrl('/assets/campaign/backgrounds/'+(_bgMap[bgChoice]||bgChoice)+'.png'));
+  }
+  if(line&&line.overlay) _campaignPreloadImage(campaignAssetUrl('/assets/campaign/backgrounds/'+line.overlay+'.png'));
+  var ids=[];
+  if(Array.isArray(scene.characters)){
+    scene.characters.forEach(function(c){ids.push(typeof c==='string'?c:(c&&(c.id||c.characterId||c.speaker)));});
+  }else if(Array.isArray(scene.lines)){
+    scene.lines.forEach(function(l){if(l&&l.speaker&&ids.indexOf(l.speaker)<0) ids.push(l.speaker);});
+  }
+  var map={'player':'player_silhouette','observer':'player_silhouette','rev_hale':'hale','young_butcher':'butcher','crow':'crow','liang':'liang_wei','kara_vex':'crow_reyes'};
+  ids.filter(Boolean).forEach(function(id){
+    _campaignPreloadImage(campaignAssetUrl('/assets/campaign/characters/'+(map[id]||id)+'.png'));
+  });
+}
+
 function typeText(element,text,onComplete){
   // 클릭 즉시완료를 위해 타이머와 전체 텍스트를 전역에 보관한다.
-  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  _campaignClearTypingTimer();
   _campaignTypingElement=element;
   _campaignTypingFullText=text||'';
   _campaignTypingDone=false;
   element.textContent='';
-  var i=0;
-  _campaignTypingTimer=setInterval(function(){
-    i++;
-    element.textContent=_campaignTypingFullText.slice(0,i);
-    if(i>=_campaignTypingFullText.length){
-      clearInterval(_campaignTypingTimer);
-      _campaignTypingTimer=null;
+  var start=performance.now();
+  var lastLen=0;
+  var cps=48;
+  function step(now){
+    var len=Math.min(_campaignTypingFullText.length,Math.floor((now-start)/1000*cps));
+    if(len!==lastLen){
+      element.textContent=_campaignTypingFullText.slice(0,len);
+      lastLen=len;
+    }
+    if(len>=_campaignTypingFullText.length){
+      _campaignClearTypingTimer();
       _campaignTypingDone=true;
       if(onComplete) onComplete();
+      return;
     }
-  },30);
+    _campaignTypingFrame=requestAnimationFrame(step);
+  }
+  _campaignTypingFrame=requestAnimationFrame(step);
 }
 
 function renderCampaignScene(){
   var overlay=document.querySelector('.story-overlay');
   var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
   if(!overlay||!scene){closeCampaignStory();return;}
-  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  _campaignClearTypingTimer();
   if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
-  _campaignTypingTimer=null; _campaignBattleTimer=null; _campaignTypingDone=true;
+  _campaignBattleTimer=null; _campaignTypingDone=true;
   var currentLine=null;
   if(scene.type==='dialogue'||scene.type==='narration'||scene.type==='ending'){
     currentLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
@@ -25499,6 +25592,10 @@ function renderCampaignScene(){
     _campaignApplyDialogLayout(box,scene,nLine);
     _showStoryDetailOverlay(nLine.overlay||null,_campaignStoryLayout(scene,nLine));
     _campaignApplyStoryFontSize(box,scene,nLine);
+    _campaignPreloadSceneAssets(scene,nLine);
+    var nNextScene=_campaignScenes[_campaignSceneIndex+1];
+    var nNextLine=(scene.lines||[])[_campaignSceneLineIndex+1]||(nNextScene&&nNextScene.lines&&nNextScene.lines[0]);
+    _campaignPreloadSceneAssets(nNextScene||scene,nNextLine);
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
@@ -25511,6 +25608,10 @@ function renderCampaignScene(){
     _campaignApplyDialogLayout(box,scene,dLine);
     _showStoryDetailOverlay(dLine.overlay||null,_campaignStoryLayout(scene,dLine));
     _campaignApplyStoryFontSize(box,scene,dLine);
+    _campaignPreloadSceneAssets(scene,dLine);
+    var dNextScene=_campaignScenes[_campaignSceneIndex+1];
+    var dNextLine=(scene.lines||[])[_campaignSceneLineIndex+1]||(dNextScene&&dNextScene.lines&&dNextScene.lines[0]);
+    _campaignPreloadSceneAssets(dNextScene||scene,dNextLine);
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }
@@ -25625,9 +25726,8 @@ function closeCampaignStory(){
   // 오버레이와 타이머를 정리해 기존 캠페인 모달/시뮬레이션 흐름으로 안전하게 복귀한다.
   var overlay=document.querySelector('.story-overlay');
   if(overlay) overlay.remove();
-  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  _campaignClearTypingTimer();
   if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
-  _campaignTypingTimer=null;
   _campaignBattleTimer=null;
   _campaignTypingDone=false;
   _campaignTypingElement=null;
