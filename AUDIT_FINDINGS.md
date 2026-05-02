@@ -1,4 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v5.42 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.43 / 2026-05-02)
+
+## ✅ v5.43 Campaign character portrait generation — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 캐릭터 포트레이트 파이프라인 | ✅ | gpt-image-1 + rembg, 1024×1536, 배경 제거 |
+| pilot 3종 (butcher/chen/cinder) | ✅ | cinder v9 최종 채택 (번 스카 + 툴 벨트 확인) |
+| batch1 7종 | ✅ | amara/director_vale/mikhail/miner_elder/olu_adeyemi/phoenix/sera |
+| needs_story_check 2종 | ✅ | kenji/lena 스토리 확인 후 생성 |
+| hold 16종 | ✅ | 전 캐릭터 생성 완료 |
+| 생성 로그 | ✅ | `assets/campaign/characters/_generation_log.json` |
+
+---
 
 ## ✅ v5.42 Campaign complete internal error — 수정 완료
 

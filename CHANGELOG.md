@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Campaign character portrait generation complete (v5.43)
+
+- **캠페인 캐릭터 포트레이트 28종 생성 완료**: gpt-image-1 (1024×1536, quality=high) + rembg 배경 제거 파이프라인.
+- **생성 대상**: pilot 3종 (butcher/chen/cinder), batch1 7종, needs_story_check 2종 (kenji/lena), hold 16종 — 총 28종.
+- **주요 이슈 해결**: cinder 번 스카 identity anchor v9에서 확정 (물리적 묘사 + 얼굴 각도 + 조명 변경), chen 찻잔 제거 + MCC 뱃지 유지, 구도 1024×1536 세로 비율로 전환.
+- **생성 로그**: `assets/campaign/characters/_generation_log.json` (각 버전별 prompt/evaluation 기록).
+- **character_manifest_v2.json**: `/tmp/character_manifest_v2.json` 로컬 정의 파일 (alias/canonical/variant/create_now/hold 상태 관리).
+
 ## 2026-05-02 — Campaign complete internal error fix (v5.42)
 
 - **캠페인 완료 Internal error 수정**: `player_campaign_progress` 완료 UPDATE에서 `$1` 파라미터가 `status` 대입과 `CASE WHEN` 비교에 동시에 쓰이며 운영 PostgreSQL에서 타입 추론 충돌이 발생하던 문제 수정.
