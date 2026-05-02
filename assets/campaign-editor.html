@@ -354,7 +354,12 @@ input[type="number"]:focus, select:focus, #canvas:focus {
 <div class="app">
   <header class="topbar">
     <div class="brand">CAMPAIGN SCENE EDITOR</div>
-    <div class="brand" style="font-size:11px;color:#666;font-weight:400">Portrait (9:16)</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="color:#666;font-size:11px">Font size</span>
+      <button class="pm-btn" id="fontDecBtn" tabindex="-1">−</button>
+      <span id="fontSizeDisplay" style="min-width:34px;text-align:center;font-size:12px;color:#ddd">1.00</span>
+      <button class="pm-btn" id="fontIncBtn" tabindex="-1">+</button>
+    </div>
   </header>
 
   <main class="main">
@@ -424,7 +429,7 @@ const defaults = {
   one:      { x: 50, y: 55, w: 60 },
   twoLeft:  { x: 28, y: 55, w: 50 },
   twoRight: { x: 72, y: 55, w: 50 },
-  dialog:   { x: 50, y: 84, w: 92, fontSize: 1.0 },
+  dialog:   { x: 50, y: 84, w: 92 },
   overlay:  { x: 50, y: 44, w: 84 }
 };
 
@@ -455,6 +460,7 @@ let pendingFile = '';
 let selectedSceneIndex = 0;
 let selectedLineIndex = 0;
 let dirty = false;
+let globalFontSize = parseFloat(localStorage.getItem('editorFontSize') || '1.0');
 let dragState = null;
 
 function clamp(value, min, max) {
@@ -700,7 +706,7 @@ function renderCanvas() {
     const canvasW = els.canvas.offsetWidth;
     const refW = 390;
     const scale = canvasW / refW;
-    const fsMult = (dialog.fontSize != null ? dialog.fontSize : 1.0);
+    const fsMult = globalFontSize;
     const speakerEl = dialogBox.querySelector('.speaker');
     const textEl = dialogBox.querySelector('.line-text');
     if (speakerEl) speakerEl.style.fontSize = (16.8 * scale * fsMult).toFixed(1) + 'px';
@@ -751,9 +757,6 @@ function dialogControlGroup(title, layout) {
         ${numberField('x', layout.x, 0, 100)}
         ${numberField('y', layout.y, 0, 100)}
         ${numberField('w', layout.w, 5, 100)}
-      </div>
-      <div style="margin-top:8px">
-        ${numberField('fontSize', layout.fontSize != null ? layout.fontSize : 1.0, 0.3, 4.0, 0.05)}
       </div>
     </div>
   `;
@@ -863,14 +866,9 @@ function updateFromInput(input) {
   const key = group.dataset.key;
   const field = input.dataset.field;
   let value;
-  if (field === 'fontSize') {
-    value = clamp(parseFloat(input.value) || 1.0, 0.3, 4.0);
-    input.value = value.toFixed(2);
-  } else {
-    const min = field === 'w' ? 5 : 0;
-    value = clamp(input.value, min, 100);
-    input.value = value;
-  }
+  const min = field === 'w' ? 5 : 0;
+  value = clamp(input.value, min, 100);
+  input.value = value;
   setLayoutPart(part, key, { [field]: value });
   renderCanvas();
 }
@@ -962,6 +960,17 @@ els.controls.addEventListener('click', event => {
   input.value = step < 1 ? newVal.toFixed(2) : Math.round(newVal);
   updateFromInput(input);
 });
+
+function setGlobalFontSize(v) {
+  globalFontSize = Math.round(clamp(v, 0.3, 4.0) * 100) / 100;
+  document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
+  localStorage.setItem('editorFontSize', globalFontSize);
+  renderCanvas();
+}
+document.getElementById('fontDecBtn').addEventListener('click', () => setGlobalFontSize(globalFontSize - 0.05));
+document.getElementById('fontIncBtn').addEventListener('click', () => setGlobalFontSize(globalFontSize + 0.05));
+// 초기 표시
+document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
 
 els.resetLayoutBtn.addEventListener('click', resetLayout);
 els.saveBtn.addEventListener('click', () => saveChapter().catch(error => alert(error.message)));
