@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v5.44 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.45 / 2026-05-02)
+
+## ✅ v5.45 Campaign story background transition flash — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 장면 전환 시 파란/보라 화면 노출 | ✅ | `_campaignResetStoryLayout()`이 `.story-background` inline style 전체를 삭제해 기본 CSS 그라디언트가 먼저 보이고 이미지 로드 후 배경이 붙던 문제 수정. |
+| 배경 교체 방식 | ✅ | 현재 배경 이미지는 유지하고 위치/크기/opacity/filter만 초기화. 새 배경은 preload 성공 후 `backgroundImage`를 교체. |
+| 동일 배경 재렌더 | ✅ | `data-bg-src`로 같은 배경이면 재로드 없이 layout만 적용. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.44 Campaign story editor layout runtime bridge — 수정 완료
 

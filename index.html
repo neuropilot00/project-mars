@@ -25014,7 +25014,16 @@ function _campaignResetStoryLayout(overlay){
   var right=overlay.querySelector('.story-character-right');
   var detail=overlay.querySelector('.story-detail-overlay');
   var box=overlay.querySelector('.story-dialog-box');
-  if(bg) bg.removeAttribute('style');
+  if(bg){
+    // Keep the current background image visible until the next one has loaded.
+    // Removing the whole style here briefly exposes the default purple/blue CSS
+    // background during scene changes.
+    bg.style.backgroundPosition='50% 25%';
+    bg.style.backgroundSize='cover';
+    bg.style.opacity='';
+    bg.style.filter='';
+    bg.style.transitionDuration='';
+  }
   [left,right].forEach(function(el){
     if(!el) return;
     el.removeAttribute('style');
@@ -25146,11 +25155,22 @@ function _campaignStorySetBackground(scene,overlay,lineBg,line){
   };
   var bgId=_bgMap[bgChoice]||bgChoice;
   var src=campaignAssetUrl('/assets/campaign/backgrounds/'+bgId+'.png');
+  if(bg.getAttribute('data-bg-src')===src){
+    _campaignApplyBackgroundLayout(bg,_campaignStoryLayout(scene,line));
+    return;
+  }
   var img=new Image();
-  img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
-  img.onerror=function(){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';};
+  img.onload=function(){
+    bg.style.backgroundImage='url("'+src+'")';
+    bg.setAttribute('data-bg-src',src);
+    _campaignApplyBackgroundLayout(bg,_campaignStoryLayout(scene,line));
+  };
+  img.onerror=function(){
+    if(!bg.style.backgroundImage){
+      bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';
+    }
+  };
   img.src=src;
-  _campaignApplyBackgroundLayout(bg,_campaignStoryLayout(scene,line));
 }
 
 function _campaignStoryRenderCharacters(scene,line,overlay){

@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Campaign story background transition flash fix (v5.45)
+
+- **장면 전환 파란/보라 화면 제거**: 스토리 렌더러가 장면마다 `.story-background` inline style을 통째로 지워 기본 그라디언트가 잠깐 노출되던 문제 수정.
+- **배경 preload 후 교체**: 기존 배경 이미지를 유지한 채 새 이미지를 로드하고, 로드 성공 후에만 `backgroundImage`를 교체하도록 변경.
+- **동일 배경 재로드 방지**: `data-bg-src`로 현재 배경과 같은 경우 이미지 재로드 없이 layout만 적용.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Campaign story editor layout runtime bridge (v5.44)
 
 - **에디터 배치값 인게임 반영**: 캠페인 스토리 렌더러가 서버 저장 `_campaignEditorLayout`, `scene.layout`, `line.layout`, `editorLayout`, `stageLayout`을 읽어 캐릭터/배경/대사박스/closeup overlay 위치를 적용하도록 수정.
