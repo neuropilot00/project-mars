@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.58 (Fleet sprite preload fallback fix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.59 (Fleet Mars atmospheric background) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.58 최신 핸드오프 — 함대전 PNG 로드 전 구형 벡터 차단
+### v5.59 최신 핸드오프 — 화성 상층권 전투 배경
+
+- 택티컬랩 전투 배경은 `assets/textures/mars_nasa_2k.jpg`를 사용한다.
+- `MARS_BATTLE_BG`가 비동기로 로드되고, `drawBG()`에서 어둡게 누른 화성 표면 텍스처를 아주 느리게 패닝한다.
+- 배경 위에 어두운 veil/기존 주황·푸른 글로우/희미한 먼지 스트릭을 덧씌워 함선·레이저 가독성을 우선한다.
+- 검수용 `assets/fleet-assault-demo.html`과 본서버 `assets/tactical-lab-v11.html` 양쪽에 동일 반영해야 한다.
+- 배경 밝기/속도 조정 시 `drawBG()`의 `globalAlpha`, `drift`, `veil` 값을 조정한다. 함대전 가독성을 해치지 말 것.
+
+### v5.58 핸드오프 — 함대전 PNG 로드 전 구형 벡터 차단
 
 - 택티컬랩 전투 렌더러는 `SHIP_SPRITE_STATUS`로 22종 PNG 로드 상태를 추적한다.
 - PNG가 아직 `loading`인 함선은 구형 벡터/SVG fallback을 그리지 않는다. 첫 프레임에서 예전 실루엣이 깨져 보이는 현상을 막기 위한 처리다.

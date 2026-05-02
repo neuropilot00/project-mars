@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Fleet Mars atmospheric background (v5.59)
+
+- **화성 상층권 배경 추가**: 택티컬랩 전투 캔버스에 `assets/textures/mars_nasa_2k.jpg`를 배경 레이어로 로드.
+- **느린 표면 패닝**: 화성 표면이 매우 천천히 지나가도록 처리해 전투가 검은 우주 공간에 떠 있는 느낌을 줄임.
+- **전투 가독성 보강**: 어두운 veil과 기존 주황/푸른 글로우, 낮은 알파 먼지 스트릭으로 함선/레이저가 묻히지 않게 조정.
+- **본서버 택티컬랩 반영**: `assets/tactical-lab-v11.html`에 적용하고 검수용 데모 파일에도 동일 로직 반영.
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Fleet sprite preload fallback fix (v5.58)
 
 - **첫 프레임 구형 함선 노출 차단**: PNG 함선 이미지가 로드되기 전에는 구형 벡터/SVG fallback 함선을 그리지 않도록 변경.

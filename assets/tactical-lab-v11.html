@@ -535,6 +535,11 @@ SHIP_SPRITE_CODES.forEach(code=>{
   img.onerror=()=>{SHIP_SPRITE_STATUS[code]='failed';};
   img.src=`ships/top/${code}.png`;
 });
+const MARS_BATTLE_BG=new Image();
+let marsBattleBgReady=false;
+MARS_BATTLE_BG.decoding='async';
+MARS_BATTLE_BG.onload=()=>{marsBattleBgReady=true;};
+MARS_BATTLE_BG.src='textures/mars_nasa_2k.jpg';
 function hasShipSpriteAsset(code){return SHIP_SPRITE_CODES.includes(code);}
 function isShipSpriteReady(code){return !!SHIP_SPRITES[code];}
 function trimShipSprite(img){
@@ -1352,13 +1357,45 @@ function drawShipByFaction(ctx,s){
 }
 
 function drawBG(){
-  CX.fillStyle='#03040b';CX.fillRect(0,0,W,H);
+  CX.fillStyle='#02030a';CX.fillRect(0,0,W,H);
+  if(marsBattleBgReady&&MARS_BATTLE_BG.naturalWidth){
+    const iw=MARS_BATTLE_BG.naturalWidth,ih=MARS_BATTLE_BG.naturalHeight;
+    const scale=Math.max(W/iw,H/ih)*1.22;
+    const dw=iw*scale,dh=ih*scale;
+    const t=performance.now();
+    const drift=(t*.006)%dw;
+    const y=-(dh-H)*.48+Math.sin(t*.00008)*H*.025;
+    CX.save();
+    CX.globalAlpha=.34;
+    for(let x=-drift-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y,dw,dh);
+    CX.globalAlpha=.16;
+    CX.globalCompositeOperation='screen';
+    for(let x=-drift*.55-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y+H*.035,dw,dh);
+    CX.restore();
+  }
+  const veil=CX.createLinearGradient(0,0,0,H);
+  veil.addColorStop(0,'rgba(2,3,10,.50)');
+  veil.addColorStop(.46,'rgba(2,3,10,.72)');
+  veil.addColorStop(1,'rgba(2,3,10,.84)');
+  CX.fillStyle=veil;CX.fillRect(0,0,W,H);
   const gp=CX.createRadialGradient(W*.85,H*.12,0,W*.85,H*.12,W*.28);
   gp.addColorStop(0,'rgba(160,70,25,.22)');gp.addColorStop(1,'transparent');
   CX.fillStyle=gp;CX.fillRect(0,0,W,H);
   const gl=CX.createRadialGradient(W*.12,H*.5,0,W*.12,H*.5,W*.38);
   gl.addColorStop(0,'rgba(10,30,90,.14)');gl.addColorStop(1,'transparent');
   CX.fillStyle=gl;CX.fillRect(0,0,W,H);
+  const dustOffset=(performance.now()*.012)%96;
+  CX.save();
+  CX.globalAlpha=.11;
+  CX.strokeStyle='rgba(255,145,70,.38)';
+  CX.lineWidth=.7;
+  for(let y=dustOffset-96;y<H;y+=96){
+    CX.beginPath();
+    CX.moveTo(-W*.12,y);
+    CX.lineTo(W*1.12,y+H*.08);
+    CX.stroke();
+  }
+  CX.restore();
 }
 
 function hexRGB(h){

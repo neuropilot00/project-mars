@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.58 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.59 / 2026-05-03)
+
+## ✅ v5.59 Fleet Mars atmospheric background — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 화성 배경 레이어 | ✅ | `assets/textures/mars_nasa_2k.jpg`를 전투 캔버스 배경으로 비동기 로드. |
+| 느린 표면 이동감 | ✅ | `drawBG()`에서 화성 텍스처를 어둡게 누른 뒤 천천히 패닝해 화성 상층권 전투 느낌 추가. |
+| 가독성 유지 | ✅ | 어두운 veil, 기존 글로우, 낮은 알파 먼지 스트릭으로 함선/레이저가 묻히지 않게 처리. |
+| 본서버 택티컬랩 반영 | ✅ | `assets/tactical-lab-v11.html`에 반영. 검수용 데모 파일도 동일 로직으로 수정. |
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.58 Fleet sprite preload fallback fix — 수정 완료
 
