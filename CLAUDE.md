@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.54 (Fleet manual beam/missile skills) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.55 (Fleet battle chatter callouts) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,15 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.55 최신 핸드오프 — 함대전 무전 콜아웃
+
+- 택티컬랩 전투 화면에 `.battle-comms.top/bottom` 콜아웃 레이어가 있음.
+- 명령/진형/기동/승리 문구는 상단, 피격/격침/후퇴 경고는 하단에 표시한다.
+- `battleCallout()`, `panicCallout()`, `maybeAmbientCallout()`이 전장 무전 UI를 담당한다.
+- 소형함 격침은 확률적으로 짧은 비명/탈출 대사를 표시하고, 대형함/기함 격침은 강한 경고 문구를 표시한다.
+- 수동 스킬(`cmdFocus`, `cmdEMP`, `cmdBeamCannon`, `cmdMissileBarrage`)과 `cmdFormation`, `cmdManeuver`는 전투 로그와 별도로 콜아웃도 띄운다.
+- 데모/본서버 택티컬랩 양쪽에 동일 반영해야 한다. `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`로 복사하는 흐름 유지.
 
 ### v5.54 최신 핸드오프 — 수동 빔포/미사일 스킬
 

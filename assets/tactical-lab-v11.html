@@ -102,6 +102,21 @@ body{padding:0;background:#03040b;}
 .speed-cycle{position:absolute;right:8px;top:48px;z-index:5;height:34px;min-width:58px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,193,7,.55);background:rgba(10,8,2,.72);color:#ffc107;font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:1px;box-shadow:0 0 18px rgba(255,193,7,.18);backdrop-filter:blur(6px);}
 .sound-toggle{position:absolute;right:8px;top:88px;z-index:5;height:30px;min-width:58px;padding:0 9px;border-radius:999px;border:1px solid rgba(79,195,247,.38);background:rgba(3,12,24,.68);color:#7fd8ff;font-family:'Orbitron',monospace;font-size:7px;font-weight:900;letter-spacing:1px;box-shadow:0 0 14px rgba(79,195,247,.12);backdrop-filter:blur(6px);}
 .sound-toggle.on{border-color:rgba(129,199,132,.55);color:#a5d6a7;background:rgba(7,24,12,.72);}
+.battle-comms{position:absolute;left:50%;transform:translateX(-50%);z-index:6;width:min(92%,420px);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.battle-comms.top{top:88px;}
+.battle-comms.bottom{bottom:158px;}
+.comm-line{max-width:100%;padding:7px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(3,4,11,.78);color:#f5f7ff;font-family:'Orbitron',monospace;font-size:8px;font-weight:900;letter-spacing:1.2px;text-align:center;text-shadow:0 0 9px rgba(255,255,255,.35);box-shadow:0 0 18px rgba(0,0,0,.5);backdrop-filter:blur(7px);animation:commInOut 2.4s ease forwards;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.comm-line.atk{border-color:rgba(79,195,247,.45);color:#8fe3ff;box-shadow:0 0 18px rgba(79,195,247,.16);}
+.comm-line.def{border-color:rgba(239,83,80,.45);color:#ff9b9b;box-shadow:0 0 18px rgba(239,83,80,.16);}
+.comm-line.order{border-color:rgba(255,213,79,.5);color:#ffe082;box-shadow:0 0 18px rgba(255,213,79,.14);}
+.comm-line.panic{border-color:rgba(255,109,0,.65);color:#fff2c2;background:rgba(38,10,3,.82);box-shadow:0 0 22px rgba(255,109,0,.2);}
+.comm-line.system{border-color:rgba(206,147,216,.5);color:#e6c4ff;box-shadow:0 0 18px rgba(206,147,216,.16);}
+@keyframes commInOut{0%{opacity:0;transform:translateY(8px) scale(.96);}12%{opacity:1;transform:translateY(0) scale(1);}82%{opacity:1;}100%{opacity:0;transform:translateY(-8px) scale(.98);}}
+@media(max-width:600px){
+  .battle-comms.top{top:124px;}
+  .battle-comms.bottom{bottom:148px;}
+  .comm-line{font-size:7px;padding:6px 9px;letter-spacing:.75px;}
+}
 .info-toggles,.info-panel{display:none!important;}
 
 /* 하단 정보 토글 패널 */
@@ -246,6 +261,8 @@ body{padding:0;background:#03040b;}
 <canvas id="c" width="460" height="600"></canvas>
 <button class="speed-cycle" id="speedCycle" onclick="cycleSimSpeed()">×1</button>
 <button class="sound-toggle" id="soundToggle" onclick="toggleBattleAudio()">SOUND</button>
+<div class="battle-comms top" id="battleCommsTop"></div>
+<div class="battle-comms bottom" id="battleCommsBottom"></div>
 
 <!-- 후퇴 확인 오버레이 -->
 <div id="forfeit-overlay">
@@ -542,11 +559,46 @@ let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[]
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
 let beamCharge=0,missileCharge=0;
+let lastPanicCallout=0,lastAmbientCallout=0;
 let audioCtx=null,audioOn=false,musicTimer=null,lastLaserSound=0,lastBulletSound=0,lastExplosionSound=0;
 // ws 함선 추적: 이전 프레임 생존 함선 맵 (id → {x,y,code})
 let _wsPrevShips = new Map();
 // 카메라 (자동 줌/팬)
 let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function battleCallout(msg,type='order',slot='top',ttl=2400){
+  const host=document.getElementById(slot==='bottom'?'battleCommsBottom':'battleCommsTop');
+  if(!host)return;
+  const el=document.createElement('div');
+  el.className=`comm-line ${type}`;
+  el.textContent=msg;
+  el.style.animationDuration=`${Math.max(1200,ttl)}ms`;
+  host.appendChild(el);
+  while(host.children.length>2)host.removeChild(host.firstElementChild);
+  setTimeout(()=>el.remove(),ttl+120);
+}
+function panicCallout(sh){
+  if(btMs-lastPanicCallout<850)return;
+  lastPanicCallout=btMs;
+  const side=sh.side==='atk'?'atk':'def';
+  const heavy=['cruiser','battleship','titan'].includes(sh.type.size);
+  const lines=heavy
+    ? [`${sh.type.name} 격침! 잔해 회피!`,'선체 붕괴! 탈출 포드 사출!','기함에서 폭발 확인! 전열 이탈!']
+    : ['으아아아악!', '피격! 엔진이 나갔다!', '어머니!!', '탈출한다! 뒤를 부탁한다!'];
+  battleCallout(pick(lines),heavy?'panic':side,'bottom',heavy?2600:2100);
+}
+function maybeAmbientCallout(){
+  if(battleOver||btMs-lastAmbientCallout<9000||Math.random()>.018)return;
+  lastAmbientCallout=btMs;
+  battleCallout(pick([
+    '전 함대, 사격선 유지!',
+    '거리 벌려! 빔 궤도에 서지 마!',
+    '적 전열 흔들린다. 계속 밀어!',
+    '실드 재분배, 좌현 포격 대비!',
+    '소형함은 측면으로 돌아 들어가!'
+  ]),'system',Math.random()>.45?'top':'bottom',2400);
+}
 
 function ensureAudio(){
   if(audioCtx)return audioCtx;
@@ -962,12 +1014,17 @@ function applyDmg(sh,dmg,isLaser,attackerType){
   if(sh.hp<=0){
     sh.dead=true;
     mkExp(sh.x,sh.y,sh.type.r*1.4);
-    if(sh.type.size==='cruiser'||sh.type.size==='battleship'||sh.type.size==='titan')
+    if(sh.type.size==='cruiser'||sh.type.size==='battleship'||sh.type.size==='titan'){
       addLog('kl',`☠ ${sh.type.name} 격침 [${sh.fleet.userId}]`);
+      panicCallout(sh);
+    }else if(Math.random()<.34){
+      panicCallout(sh);
+    }
     if(sh.isFlagship){
       sh.fleet.dead=true;
       mkShockwave(sh.fleet.cx,sh.fleet.cy,sh.fleet.radius*2);
       addLog('kl',`💥 [${sh.fleet.userId}] 기함 격침 — 함대 괴멸!`);
+      battleCallout(`[${sh.fleet.userId}] 기함 침몰! 지휘망 붕괴!`,'panic','top',3000);
     }
   }
 }
@@ -1558,11 +1615,13 @@ function loop(ts){
   if(!battleOver&&(af===0||df===0)&&btMs>3000){
     battleOver=true;
     addLog('wn',`🏆 ${af>0?'ATK':'DEF'} COALITION 승리 — ${mm}:${String(ss).padStart(2,'0')}`);
+    battleCallout(`${af>0?'ATK':'DEF'} COALITION 승리! 전장 통제 완료!`,'order','top',3200);
     // ws 연결 시 자동 재시작 비활성화 — 실제 hijack 결과는 영구
     if (!_wsBattle || _wsBattle.readyState !== 1) {
       setTimeout(()=>{initBattle();battleOver=false;},4000);
     }
   }
+  maybeAmbientCallout();
   requestAnimationFrame(loop);
 }
 
@@ -1597,10 +1656,12 @@ function cmdFocus(){
   const tf=ef.sort((a,b)=>b.flagship?.type.r-a.flagship?.type.r)[0];
   focusFleet=tf;
   addLog('wn',`⚡ 집중공격 — [${tf.userId}]`);
+  battleCallout(`[${tf.userId}]에 집중포화! 전 포문 개방!`,'order','top',2500);
   _bridgeToParent('focus', { target: tf.userId });
 }
 function cmdEMP(){
   empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');
+  battleCallout('EMP 투하! 적 사격 통제를 끊어!','order','top',2400);
   _bridgeToParent('emp', { duration_ms: 6000 });
 }
 function cmdBeamCannon(){
@@ -1623,6 +1684,7 @@ function cmdBeamCannon(){
     mkShockwave(gun.x,gun.y,gun.type.r*5);
   });
   addLog('wn',`☢ 주포 빔포 발사 — ${guns.length}척 동기화`);
+  battleCallout('주포 충전 완료. 빔포 발사!', 'order', 'top', 2700);
   _bridgeToParent('beam_cannon', { charge: 100, capital_count: guns.length });
 }
 function cmdMissileBarrage(){
@@ -1639,10 +1701,12 @@ function cmdMissileBarrage(){
     spawnB(sh.x,sh.y,dx/len+(Math.random()-.5)*.12,dy/len+(Math.random()-.5)*.12,sh.type,sh.side,1.35, false);
   });
   addLog('wn',`☄ 미사일 일제사격 — ${Math.min(24,launchers.length)}척 발사`);
+  battleCallout('미사일 전탄 발사! 궤도 열어!', 'order', 'top', 2600);
   _bridgeToParent('missile_barrage', { charge: 100, launcher_count: launchers.length });
 }
 function cmdForfeit(){
   document.getElementById('forfeit-overlay').classList.add('on');
+  battleCallout('후퇴 신호 대기. 확인하면 전 함대 이탈한다.', 'panic', 'bottom', 2600);
 }
 function closeForfeitOverlay(){
   document.getElementById('forfeit-overlay').classList.remove('on');
@@ -1673,11 +1737,20 @@ function cmdFormation(form){
     assignFormationSlots(f);
   });
   addLog('fm',`${FORMATIONS[form].icon} 전 ATK 함대 진형: ${FORMATIONS[form].name}`);
+  battleCallout(`${FORMATIONS[form].name} 대형 전개!`, 'system', 'top', 2300);
   _bridgeToParent('formation', { formation: form });
 }
 function cmdManeuver(mv){
   fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{f.maneuver=mv;});
   addLog('tc',`${MANEUVERS[mv].icon} 전 ATK 함대 기동: ${MANEUVERS[mv].name}`);
+  const lines={
+    advance:'전 함대 전진 공격하라!',
+    flank:'측면으로 돌아 들어가!',
+    retreat:'후퇴! 전열을 다시 잡아!',
+    scatter:'산개! 빔 궤도에서 벗어나!',
+    rally:'재집결! 방어선을 세워!'
+  };
+  battleCallout(lines[mv]||`${MANEUVERS[mv].name} 기동!`, 'system', 'top', 2300);
   _bridgeToParent('maneuver', { maneuver: mv });
 }
 

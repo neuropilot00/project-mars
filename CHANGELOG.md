@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Fleet battle chatter callouts (v5.55)
+
+- **전장 무전 자막 추가**: 명령/진형/기동은 상단, 피격/격침/후퇴 경고는 하단에 짧게 뜨는 콜아웃으로 표시.
+- **격침 대사 추가**: 소형함 격침은 확률적으로 비명/탈출 대사가 나오고, 대형함/기함 격침은 더 강한 경고 문구 표시.
+- **수동 스킬 연출 강화**: 집중공격, EMP, 빔포, 미사일 일제사격, 후퇴 확인에 전투 무전 문구 추가.
+- **간헐 무전 추가**: 교전 중 사격선 유지, 산개, 실드 재분배 같은 ambient 콜아웃이 드물게 표시되어 전투가 덜 정적으로 보임.
+- **본서버 택티컬랩 반영**: 데모 `assets/fleet-assault-demo.html`과 본서버 `assets/tactical-lab-v11.html`을 동일하게 유지.
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Fleet manual beam/missile skills (v5.54)
 
 - **수동 빔포 추가**: 전함/타이탄이 살아있으면 `☢ 빔포` 게이지가 차고, 100%에서 우선순위 대형 목표에 굵은 주포 빔을 수동 발사.

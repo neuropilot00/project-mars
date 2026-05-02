@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.54 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.55 / 2026-05-03)
+
+## ✅ v5.55 Fleet battle chatter callouts — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 전장 무전 자막 | ✅ | 명령/진형/기동은 상단, 피격/격침/후퇴 경고는 하단에 짧은 콜아웃으로 표시. |
+| 격침 대사 | ✅ | 소형함 격침은 확률적으로 비명/탈출 대사를 표시하고, 대형함/기함 격침은 더 강한 경고 문구로 표시. |
+| 수동 스킬 대사 | ✅ | 집중공격, EMP, 빔포, 미사일 일제사격, 후퇴 확인에 각각 전투 무전 문구 추가. |
+| 전투 분위기 | ✅ | 교전 중 간헐적으로 사격선 유지/산개/실드 재분배 같은 ambient 무전이 표시되어 정적인 느낌을 줄임. |
+| 데모/본서버 동기화 | ✅ | `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`에 동일 반영. |
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.54 Fleet manual beam/missile skills — 수정 완료
 
