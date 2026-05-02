@@ -351,70 +351,6 @@
         return new THREE.Vector3(rand(-1, 1), rand(-0.6, 0.6), rand(-1, 1)).normalize();
       }
 
-      function buildFighter(color, accent) {
-        const root = new THREE.Group();
-
-        const bodyGeo = new THREE.ConeBufferGeometry(3.5, 22, 18, 1, false);
-        bodyGeo.rotateX(-Math.PI / 2);
-        bodyGeo.translate(0, 0, -3);
-        const bodyMat = new THREE.MeshPhongMaterial({
-          color,
-          emissive: accent,
-          emissiveIntensity: 0.17,
-          flatShading: true,
-          shininess: 70
-        });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        root.add(body);
-
-        const wingShape = new Float32Array([
-          -2.0, 0.0, -2.0,
-          -14.0, 0.0, 7.5,
-          -2.0, 0.0, 5.0
-        ]);
-        const leftGeo = new THREE.BufferGeometry();
-        leftGeo.setAttribute("position", new THREE.BufferAttribute(wingShape, 3));
-        leftGeo.computeVertexNormals();
-        const wingMat = new THREE.MeshPhongMaterial({
-          color,
-          emissive: accent,
-          emissiveIntensity: 0.1,
-          side: THREE.DoubleSide,
-          flatShading: true,
-          shininess: 50
-        });
-        const leftWing = new THREE.Mesh(leftGeo, wingMat);
-        leftWing.rotation.z = -0.08;
-        root.add(leftWing);
-
-        const rightGeo = leftGeo.clone();
-        const rightWing = new THREE.Mesh(rightGeo, wingMat);
-        rightWing.scale.x = -1;
-        rightWing.rotation.z = 0.08;
-        root.add(rightWing);
-
-        const cockpitGeo = new THREE.ConeBufferGeometry(1.8, 5, 10);
-        cockpitGeo.rotateX(-Math.PI / 2);
-        cockpitGeo.translate(0, 1.7, -5.4);
-        const cockpitMat = new THREE.MeshPhongMaterial({
-          color: 0x98fff2,
-          emissive: 0x0cffdd,
-          emissiveIntensity: 0.35,
-          transparent: true,
-          opacity: 0.72,
-          shininess: 95
-        });
-        root.add(new THREE.Mesh(cockpitGeo, cockpitMat));
-
-        const engineGeo = new THREE.CylinderBufferGeometry(1.5, 2.1, 2.2, 12);
-        engineGeo.rotateX(Math.PI / 2);
-        engineGeo.translate(0, 0, 8.6);
-        const engineMat = new THREE.MeshBasicMaterial({ color: accent });
-        root.add(new THREE.Mesh(engineGeo, engineMat));
-
-        return root;
-      }
-
       function createStarfield() {
         const positions = new Float32Array(2000 * 3);
         for (let i = 0; i < 2000; i += 1) {
@@ -445,11 +381,33 @@
         scene.add(new THREE.Mesh(geo, mat));
       }
 
+      const ENEMY_SHIP_TEXTURES = ["../ships/mcc_int.png", "../ships/mcc_frg.png", "../ships/fsp_int.png", "../ships/fsp_dst.png"];
+      let _enemyTexCache = {};
+
+      function getEnemyTex(index) {
+        const path = ENEMY_SHIP_TEXTURES[index % ENEMY_SHIP_TEXTURES.length];
+        if (!_enemyTexCache[path]) _enemyTexCache[path] = new THREE.TextureLoader().load(path);
+        return _enemyTexCache[path];
+      }
+
       function makePlayer() {
-        const mesh = buildFighter(0xdef8ff, 0x00ffd0);
-        scene.add(mesh);
+        const root = new THREE.Group();
+        const tex = new THREE.TextureLoader().load("../ships/mcc_dst.png");
+        const geo = new THREE.PlaneGeometry(28, 36);
+        const mat = new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = -Math.PI / 2;
+        root.add(mesh);
+        root.userData.hp = 3;
+        scene.add(root);
         return {
-          mesh,
+          mesh: root,
+          hp: 3,
           velocity: new THREE.Vector3(0, 0, -BASE_SPEED),
           shield: 100,
           hull: 100,
@@ -463,7 +421,17 @@
       }
 
       function makeEnemy(index) {
-        const mesh = buildFighter(0xff4a4a, 0xff1e10);
+        const mesh = new THREE.Group();
+        const geo = new THREE.PlaneGeometry(18, 22);
+        const mat = new THREE.MeshBasicMaterial({
+          map: getEnemyTex(index),
+          transparent: true,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        });
+        const sprite = new THREE.Mesh(geo, mat);
+        sprite.rotation.x = -Math.PI / 2;
+        mesh.add(sprite);
         const dir = randomDirection();
         const dist = rand(200, 500);
         mesh.position.copy(dir.multiplyScalar(dist));
