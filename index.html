@@ -24896,13 +24896,6 @@ function showCampaignStory(chapter){
     advanceCampaignScene();
   });
   document.body.appendChild(overlay);
-  // 에디터 레이아웃 서버에서 로드 (완료 후 첫 씬 렌더)
-  var _doRender=function(){renderCampaignScene();};
-  fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
-    if(d&&typeof d==='object') _campaignEditorLayout=d;
-    _doRender();
-  }).catch(function(){_doRender();});
-  return; // renderCampaignScene은 fetch 완료 후 호출
   // 스킵: 타이핑 중이면 즉시 완료, 끝났으면 다음 장면으로 이동
   document.getElementById('storySkipBtn').addEventListener('click',function(ev){
     ev.stopPropagation();
@@ -24919,6 +24912,11 @@ function showCampaignStory(chapter){
     ev.stopPropagation();
     abandonCampaignFromStory();
   });
+  // 에디터 레이아웃 서버에서 로드 후 첫 씬 렌더
+  fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
+    if(d&&typeof d==='object') _campaignEditorLayout=d;
+    renderCampaignScene();
+  }).catch(function(){renderCampaignScene();});
 }
 
 // 스토리 화면에서 "나가기" 클릭 시 호출. 진행 중인 세션을 서버에 abandon 요청한 뒤 화면을 닫는다.
