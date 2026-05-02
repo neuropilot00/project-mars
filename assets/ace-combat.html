@@ -256,7 +256,7 @@
   </div>
   <div id="flash"></div>
 
-  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script>
     (function () {
       "use strict";
@@ -1071,11 +1071,7 @@
           document.body.innerHTML = '<div style="color:#f55;padding:40px;font-family:monospace;font-size:18px">ERROR: ' + e.message + '<br><br>' + e.stack + '</div>';
         }
       }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
+      window.addEventListener('load', init);
     }());
   </script>
 </body>
