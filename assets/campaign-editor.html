@@ -107,20 +107,6 @@ input[type="number"]:focus, select:focus, #canvas:focus {
   text-transform: uppercase;
 }
 .chapter-box { padding: 10px; }
-.inline-warning {
-  display: none;
-  margin-top: 9px;
-  padding: 9px;
-  border: 1px solid #5a4930;
-  background: #241f12;
-  color: var(--warn);
-}
-.inline-warning.show { display: block; }
-.inline-warning .actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-}
 .scroll-list {
   min-height: 0;
   overflow-y: auto;
@@ -388,13 +374,6 @@ input[type="number"]:focus, select:focus, #canvas:focus {
         <div class="section-title">Chapter</div>
         <div class="chapter-box">
           <select id="chapterSelect"></select>
-          <div id="chapterWarning" class="inline-warning">
-            Unsaved changes - save first?
-            <div class="actions">
-              <button id="continueChapterBtn" type="button">Continue</button>
-              <button id="cancelChapterBtn" type="button">Cancel</button>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -421,8 +400,10 @@ input[type="number"]:focus, select:focus, #canvas:focus {
         <div id="controls" class="right-scroll"></div>
       </div>
       <div class="actions-panel">
-        <button id="resetLayoutBtn" type="button">Reset Layout</button>
-        <button id="saveBtn" type="button">Save to JSON</button>
+        <button id="resetLayoutBtn" type="button">Reset Overlay</button>
+        <button id="importBtn" type="button">Import Backup</button>
+        <input id="importFile" type="file" accept=".json" style="display:none">
+        <button id="saveBtn" type="button">Export Backup</button>
       </div>
     </aside>
   </main>
@@ -454,9 +435,8 @@ const defaults = {
 
 const els = {
   chapterSelect: document.getElementById('chapterSelect'),
-  chapterWarning: document.getElementById('chapterWarning'),
-  continueChapterBtn: document.getElementById('continueChapterBtn'),
-  cancelChapterBtn: document.getElementById('cancelChapterBtn'),
+  importBtn: document.getElementById('importBtn'),
+  importFile: document.getElementById('importFile'),
   sceneList: document.getElementById('sceneList'),
   lineList: document.getElementById('lineList'),
   sceneInfo: document.getElementById('sceneInfo'),
@@ -475,13 +455,17 @@ let chapters = [];
 let assets = { backgrounds: [], characters: [] };
 let chapter = null;
 let currentFile = '';
-let pendingFile = '';
 let selectedSceneIndex = 0;
 let selectedLineIndex = 0;
-let dirty = false;
 let globalFontSize = parseFloat(localStorage.getItem('editorFontSize') || '1.0');
 let globalDialog = JSON.parse(localStorage.getItem('editorDialog') || 'null') || { x: 50, y: 84, w: 92 };
 let globalCharacters = JSON.parse(localStorage.getItem('editorCharacters') || '{}');
+let globalOverlays = JSON.parse(localStorage.getItem('editorOverlays') || '{}');
+
+function overlayKey() {
+  const s = scene();
+  return s ? `${currentFile}::${s.id}` : null;
+}
 let dragState = null;
 
 function clamp(value, min, max) {
@@ -536,9 +520,11 @@ function ensureSceneLayout() {
 
 function getLayoutPart(part, key) {
   if (part === 'characters') return globalCharacters[key] || null;
-  const currentScene = scene();
-  const lay = currentScene && currentScene.layout;
-  return lay ? (lay[part] || null) : null;
+  if (part === 'overlay') {
+    const k = overlayKey();
+    return k ? (globalOverlays[k] || null) : null;
+  }
+  return null;
 }
 
 function setLayoutPart(part, key, values) {
@@ -546,11 +532,12 @@ function setLayoutPart(part, key, values) {
     if (!globalCharacters[key]) globalCharacters[key] = {};
     Object.assign(globalCharacters[key], values);
     localStorage.setItem('editorCharacters', JSON.stringify(globalCharacters));
-  } else {
-    const layout = ensureSceneLayout();
-    if (!layout[part]) layout[part] = {};
-    Object.assign(layout[part], values);
-    markDirty();
+  } else if (part === 'overlay') {
+    const k = overlayKey();
+    if (!k) return;
+    if (!globalOverlays[k]) globalOverlays[k] = {};
+    Object.assign(globalOverlays[k], values);
+    localStorage.setItem('editorOverlays', JSON.stringify(globalOverlays));
   }
 }
 
@@ -605,14 +592,8 @@ function currentOverlay() {
   return (line() && line().overlay) || (scene() && scene().overlay) || '';
 }
 
-function setDirty(value) {
-  dirty = value;
-  els.saveBtn.classList.toggle('dirty', dirty);
-}
-
-function markDirty() {
-  setDirty(true);
-}
+function setDirty(value) { /* no-op: 모든 레이아웃 localStorage 자동저장 */ }
+function markDirty() {}
 
 function renderChapterOptions() {
   els.chapterSelect.innerHTML = chapters.map(ch => {
@@ -833,22 +814,29 @@ async function loadChapter(file) {
   if (!response.ok) throw new Error(`Failed to load ${file}`);
   chapter = await response.json();
   currentFile = file;
-  pendingFile = '';
   selectedSceneIndex = 0;
   selectedLineIndex = 0;
-  setDirty(false);
-  els.chapterWarning.classList.remove('show');
   renderAll();
 }
 
-async function saveChapter() {
-  if (!chapter || !currentFile) return;
-  const response = await fetch(`${API}/chapter/${encodeURIComponent(currentFile)}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(chapter)
-  });
-  if (!response.ok) throw new Error('Save failed');
+function saveChapter() {
+  // 모든 레이아웃은 setLayoutPart에서 이미 localStorage에 자동 저장됨.
+  // 이 버튼은 전체 설정을 JSON 파일로 내보내기.
+  const backup = {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    fontsize: globalFontSize,
+    dialog: globalDialog,
+    characters: globalCharacters,
+    overlays: globalOverlays
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'campaign-layout-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
   setDirty(false);
   showToast();
 }
@@ -860,10 +848,12 @@ function showToast() {
 
 
 function resetLayout() {
-  const currentScene = scene();
-  if (!currentScene) return;
-  delete currentScene.layout;
-  markDirty();
+  // 현재 씬의 오버레이 위치만 초기화
+  const k = overlayKey();
+  if (k) {
+    delete globalOverlays[k];
+    localStorage.setItem('editorOverlays', JSON.stringify(globalOverlays));
+  }
   renderAll();
 }
 
@@ -919,26 +909,7 @@ function escapeHtml(value) {
 
 els.chapterSelect.addEventListener('change', event => {
   const nextFile = event.target.value;
-  if (nextFile === currentFile) return;
-  if (dirty) {
-    pendingFile = nextFile;
-    els.chapterWarning.classList.add('show');
-    els.chapterSelect.value = currentFile;
-    return;
-  }
-  loadChapter(nextFile).catch(error => alert(error.message));
-});
-
-els.continueChapterBtn.addEventListener('click', () => {
-  const nextFile = pendingFile;
-  pendingFile = '';
-  if (nextFile) loadChapter(nextFile).catch(error => alert(error.message));
-});
-
-els.cancelChapterBtn.addEventListener('click', () => {
-  pendingFile = '';
-  els.chapterWarning.classList.remove('show');
-  els.chapterSelect.value = currentFile;
+  if (nextFile !== currentFile) loadChapter(nextFile).catch(error => alert(error.message));
 });
 
 els.sceneList.addEventListener('click', event => {
@@ -995,7 +966,31 @@ document.getElementById('dyDisplay').textContent = globalDialog.y;
 document.getElementById('dwDisplay').textContent = globalDialog.w;
 
 els.resetLayoutBtn.addEventListener('click', resetLayout);
-els.saveBtn.addEventListener('click', () => saveChapter().catch(error => alert(error.message)));
+els.saveBtn.addEventListener('click', () => saveChapter());
+els.importBtn.addEventListener('click', () => els.importFile.click());
+els.importFile.addEventListener('change', event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.characters) { globalCharacters = data.characters; localStorage.setItem('editorCharacters', JSON.stringify(globalCharacters)); }
+      if (data.overlays)   { globalOverlays   = data.overlays;   localStorage.setItem('editorOverlays',   JSON.stringify(globalOverlays));   }
+      if (data.dialog)     { globalDialog     = data.dialog;     localStorage.setItem('editorDialog',     JSON.stringify(globalDialog));     }
+      if (data.fontsize != null) {
+        globalFontSize = data.fontsize;
+        localStorage.setItem('editorFontSize', globalFontSize);
+        document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
+      }
+      ['x','y','w'].forEach(f => { if (globalDialog[f] != null) document.getElementById(`d${f}Display`).textContent = globalDialog[f]; });
+      renderAll();
+      showToast();
+    } catch { alert('Invalid backup file'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+});
 els.prevBtn.addEventListener('click', () => selectLine(selectedLineIndex - 1));
 els.nextBtn.addEventListener('click', () => selectLine(selectedLineIndex + 1));
 
