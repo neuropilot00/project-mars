@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-02 v5.52 (Top-view fleet sprite + long-range combat pass) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-02 v5.53 (Fleet doctrine RPS + shipyard vertical UI pass) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,19 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.52 최신 핸드오프 — 탑뷰 함선 PNG + 장거리 함대전
+### v5.53 최신 핸드오프 — 함선 상성/진영 밸런스 + 조선소 세로 UI
+
+- `server/services/battleEngine.js`의 `getShipMatchupMult()`가 역할/함급/파벌 상성을 실제 데미지에 반영한다.
+- 기본 상성은 `tackle > ewar/logi`, `sniper > tank/capital`, `bomb > battleship/titan`, `tank/screen > small rush`, `logi = 직접 화력 낮음`.
+- 파벌 교리는 MCC=정밀 저격/대형함 처리, FSP=장기전/탱킹/로지, CV=러시/폭격/순간화력이다.
+- `server/migrations/208_ship_matchups_and_doctrine.sql`은 22종 함선 스탯/설명/일부 role(`mcc_snp=sniper`, `cv_bomb=bomb`)을 재조정한다.
+- `assets/tactical-lab-v11.html`에도 같은 상성 계산이 들어가 있어 데모 전투 결과와 서버 결과의 방향성이 맞아야 한다.
+- 택티컬랩 사운드는 외부 음원 없이 WebAudio로 생성한다. 브라우저 자동재생 제한 때문에 `SOUND` 버튼을 눌러야 BGM/SFX가 켜진다.
+- 세로 전장 기동 표기는 `↑ Advance`, `↓ Retreat`를 사용한다. 가로 화살표로 되돌리지 말 것.
+- 조선소 청사진은 데스크탑 4열, 모바일 1열 카드이며 `assets/ships/top/{ship_code}.png` 세로 함선 이미지를 사용한다.
+- PNG 로드 시 기존 SVG 실루엣은 숨기고 새 `.bp-engine-flame` 오버레이를 후미 불꽃으로 사용한다.
+
+### v5.52 핸드오프 — 탑뷰 함선 PNG + 장거리 함대전
 
 - `assets/tactical-lab-v11.html`은 v11.1 기반 세로 전장으로 전환됨. 적군 상단, 아군 하단.
 - `assets/fleet-assault-demo.html`은 데모/검수용 원본이며, 현재 내용은 `assets/tactical-lab-v11.html`에도 복사되어 본서버 택티컬랩과 동일해야 함.

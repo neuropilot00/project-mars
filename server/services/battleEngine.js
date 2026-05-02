@@ -747,8 +747,56 @@ function computeDamage(attacker, target) {
   else if (attacker.fireType === 'missile') typeMult = 1.1;
   else if (attacker.fireType === 'stealth_bomb') typeMult = 2.5; // 폭격 큰 데미지
   else if (attacker.fireType === 'ew') typeMult = 0.3; // EW는 낮은 딜
-  
-  return Math.max(1, Math.floor(raw * variance * typeMult));
+
+  return Math.max(1, Math.floor(raw * variance * typeMult * getShipMatchupMult(attacker, target)));
+}
+
+function getShipMatchupMult(attacker, target) {
+  const aRole = String(attacker.role || 'dps').toLowerCase();
+  const tRole = String(target.role || 'dps').toLowerCase();
+  const aSize = String(attacker.size_class || '').toLowerCase();
+  const tSize = String(target.size_class || '').toLowerCase();
+  const aCode = String(attacker.ship_type_code || '');
+  const tCode = String(target.ship_type_code || '');
+  const aFaction = aCode.split('_')[0] || '';
+  const tFaction = tCode.split('_')[0] || '';
+  let mult = 1.0;
+
+  if (aRole === 'tackle') {
+    if (tRole === 'ewar' || tRole === 'logi' || tSize === 'frigate') mult *= 1.22;
+    if (tRole === 'tank' || tSize === 'battleship' || tSize === 'titan') mult *= 0.84;
+  } else if (aRole === 'ewar') {
+    if (tRole === 'dps' || tRole === 'sniper' || tSize === 'battleship' || tSize === 'titan') mult *= 1.18;
+    if (tRole === 'tackle' || tSize === 'frigate') mult *= 0.82;
+  } else if (aRole === 'logi') {
+    mult *= 0.72;
+  } else if (aRole === 'tank') {
+    if (tRole === 'tackle' || tSize === 'frigate') mult *= 1.12;
+    if (tRole === 'sniper' || tRole === 'bomb') mult *= 0.90;
+  } else if (aRole === 'sniper') {
+    if (tRole === 'tank' || tSize === 'cruiser' || tSize === 'battleship' || tSize === 'titan') mult *= 1.25;
+    if (tRole === 'tackle' || tSize === 'frigate') mult *= 0.78;
+  } else if (aRole === 'bomb' || attacker.fireType === 'stealth_bomb') {
+    if (tSize === 'battleship' || tSize === 'titan' || tRole === 'tank') mult *= 1.28;
+    if (tSize === 'frigate' || tRole === 'tackle') mult *= 0.68;
+  } else if (aRole === 'dps') {
+    if (tRole === 'ewar' || tRole === 'logi') mult *= 1.10;
+    if (tRole === 'tank') mult *= 0.92;
+  }
+
+  // Faction doctrine: MCC precision, FSP attrition, CV raiding.
+  if (aFaction === 'mcc') {
+    if (tSize === 'battleship' || tSize === 'titan') mult *= 1.08;
+    if (tRole === 'tackle') mult *= 0.94;
+  } else if (aFaction === 'fsp') {
+    if (tRole === 'dps' || tFaction === 'cv') mult *= 1.06;
+    if (tRole === 'sniper') mult *= 0.96;
+  } else if (aFaction === 'cv') {
+    if (tFaction === 'mcc' || tRole === 'sniper') mult *= 1.08;
+    if (tRole === 'tank' || tFaction === 'fsp') mult *= 0.95;
+  }
+
+  return Math.max(0.62, Math.min(1.42, mult));
 }
 
 function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state, events) {

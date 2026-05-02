@@ -1,4 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.52 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.53 / 2026-05-02)
+
+## ✅ v5.53 Fleet doctrine RPS + shipyard vertical UI pass — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 가위바위보식 함선 상성 | ✅ | `battleEngine`와 택티컬랩 양쪽에 역할/함급/파벌 기반 데미지 배율 추가. 태클, EW, 로지, 탱커, 저격, 폭격이 서로 다른 카운터를 가짐. |
+| 진영별 함선 밸런스 | ✅ | migration 208 추가. MCC=정밀 저격, FSP=장기전/탱킹/로지, CV=러시/폭격/순간화력으로 스탯과 설명을 재조정. |
+| 전투 BGM/SFX | ✅ | 외부 파일 없이 WebAudio 기반 전투 루프 BGM, 레이저/탄막/폭발 효과음 추가. 브라우저 정책 때문에 `SOUND` 버튼으로 활성화. |
+| 세로 전장 기동 UI | ✅ | 세로 전장에 맞춰 전진/후퇴 아이콘을 `↑/↓`로 변경. 자동 기동 로그도 같은 방향 표기로 정리. |
+| 조선소 세로 함선 카드 | ✅ | 데스크탑 조선소 청사진을 4열 그리드로 변경하고 `assets/ships/top/` PNG를 세로 프리뷰로 사용. 모바일은 1열 카드로 전환. |
+| 조선소 엔진 불꽃 | ✅ | 기존 SVG 불꽃은 PNG 로드 시 숨기고, 카드 하단 후미에 새 엔진 플레임 오버레이를 적용. |
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `index.html` inline script syntax check 통과
+- `node --check server/services/battleEngine.js` 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.52 Top-view fleet sprite + long-range combat pass — 수정 완료
 

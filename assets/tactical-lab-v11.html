@@ -97,6 +97,8 @@ body{padding:0;background:#03040b;}
 .ctrl .clbl,.ctrl .sep{display:none;}
 .cb{min-width:0;width:100%;min-height:30px;font-size:7px;letter-spacing:.25px;padding:6px 3px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .speed-cycle{position:absolute;right:8px;top:48px;z-index:5;height:34px;min-width:58px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,193,7,.55);background:rgba(10,8,2,.72);color:#ffc107;font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:1px;box-shadow:0 0 18px rgba(255,193,7,.18);backdrop-filter:blur(6px);}
+.sound-toggle{position:absolute;right:8px;top:88px;z-index:5;height:30px;min-width:58px;padding:0 9px;border-radius:999px;border:1px solid rgba(79,195,247,.38);background:rgba(3,12,24,.68);color:#7fd8ff;font-family:'Orbitron',monospace;font-size:7px;font-weight:900;letter-spacing:1px;box-shadow:0 0 14px rgba(79,195,247,.12);backdrop-filter:blur(6px);}
+.sound-toggle.on{border-color:rgba(129,199,132,.55);color:#a5d6a7;background:rgba(7,24,12,.72);}
 .info-toggles,.info-panel{display:none!important;}
 
 /* 하단 정보 토글 패널 */
@@ -240,6 +242,7 @@ body{padding:0;background:#03040b;}
 
 <canvas id="c" width="460" height="600"></canvas>
 <button class="speed-cycle" id="speedCycle" onclick="cycleSimSpeed()">×1</button>
+<button class="sound-toggle" id="soundToggle" onclick="toggleBattleAudio()">SOUND</button>
 
 <!-- 후퇴 확인 오버레이 -->
 <div id="forfeit-overlay">
@@ -278,9 +281,9 @@ body{padding:0;background:#03040b;}
 </div>
 <div class="ctrl">
   <span class="clbl">MANEUVER</span>
-  <button class="cb g" onclick="cmdManeuver('advance')">→ Advance</button>
+  <button class="cb g" onclick="cmdManeuver('advance')">↑ Advance</button>
   <button class="cb g" onclick="cmdManeuver('flank')">↗ Flank</button>
-  <button class="cb g" onclick="cmdManeuver('retreat')">← Retreat</button>
+  <button class="cb g" onclick="cmdManeuver('retreat')">↓ Retreat</button>
   <button class="cb g" onclick="cmdManeuver('scatter')">✦ Scatter</button>
   <button class="cb g" onclick="cmdManeuver('rally')">◉ Rally</button>
   <div class="sep"></div>
@@ -429,9 +432,9 @@ const FORMATIONS={
   pincer:{name:'Pincer',icon:'◀▶',color:'#f06292'},
 };
 const MANEUVERS={
-  advance:{name:'Advance',icon:'→',spdMult:1.0,atkMult:1.0},
+  advance:{name:'Advance',icon:'↑',spdMult:1.0,atkMult:1.0},
   flank:{name:'Flank',icon:'↗',spdMult:1.3,atkMult:0.9},
-  retreat:{name:'Retreat',icon:'←',spdMult:1.5,atkMult:0.6},
+  retreat:{name:'Retreat',icon:'↓',spdMult:1.5,atkMult:0.6},
   scatter:{name:'Scatter',icon:'✦',spdMult:1.8,atkMult:0.5},
   rally:{name:'Rally',icon:'◉',spdMult:0.6,atkMult:0.9},
 };
@@ -533,10 +536,129 @@ function trimShipSprite(img){
 let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[];
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
+let audioCtx=null,audioOn=false,musicTimer=null,lastLaserSound=0,lastBulletSound=0,lastExplosionSound=0;
 // ws 함선 추적: 이전 프레임 생존 함선 맵 (id → {x,y,code})
 let _wsPrevShips = new Map();
 // 카메라 (자동 줌/팬)
 let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
+
+function ensureAudio(){
+  if(audioCtx)return audioCtx;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return null;
+  audioCtx=new AC();
+  return audioCtx;
+}
+function tone(freq,dur,gain,type='sine',when=0){
+  if(!audioOn)return;
+  const ac=ensureAudio(); if(!ac)return;
+  const t=ac.currentTime+when;
+  const o=ac.createOscillator(),g=ac.createGain();
+  o.type=type;o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(gain,t+.012);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(ac.destination);
+  o.start(t);o.stop(t+dur+.03);
+}
+function noiseHit(dur,gain,lowpass=900){
+  if(!audioOn)return;
+  const ac=ensureAudio(); if(!ac)return;
+  const len=Math.max(1,Math.floor(ac.sampleRate*dur));
+  const buf=ac.createBuffer(1,len,ac.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
+  const src=ac.createBufferSource(),filter=ac.createBiquadFilter(),g=ac.createGain();
+  filter.type='lowpass';filter.frequency.value=lowpass;
+  g.gain.setValueAtTime(gain,ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);
+  src.buffer=buf;src.connect(filter).connect(g).connect(ac.destination);
+  src.start();src.stop(ac.currentTime+dur+.02);
+}
+function startBattleMusic(){
+  if(musicTimer)return;
+  let step=0;
+  musicTimer=setInterval(()=>{
+    if(!audioOn)return;
+    const bass=[55,55,65.4,49][step%4];
+    tone(bass,.22,.035,'sawtooth');
+    if(step%2===0)tone(bass*2,.16,.018,'triangle',.05);
+    if(step%4===3)noiseHit(.08,.02,1600);
+    step++;
+  },520);
+}
+function stopBattleMusic(){
+  if(musicTimer){clearInterval(musicTimer);musicTimer=null;}
+}
+async function toggleBattleAudio(){
+  const btn=document.getElementById('soundToggle');
+  const ac=ensureAudio();
+  if(!ac)return;
+  if(ac.state==='suspended')await ac.resume();
+  audioOn=!audioOn;
+  btn.classList.toggle('on',audioOn);
+  btn.textContent=audioOn?'SOUND ON':'SOUND';
+  if(audioOn){startBattleMusic();tone(220,.12,.03,'triangle');}
+  else stopBattleMusic();
+}
+function playLaserSound(){
+  if(!audioOn||btMs-lastLaserSound<95)return;
+  lastLaserSound=btMs;
+  tone(760,.09,.022,'sawtooth');
+  tone(310,.08,.012,'square',.03);
+}
+function playBulletSound(){
+  if(!audioOn||btMs-lastBulletSound<130)return;
+  lastBulletSound=btMs;
+  noiseHit(.045,.018,2600);
+}
+function playExplosionSound(){
+  if(!audioOn||btMs-lastExplosionSound<180)return;
+  lastExplosionSound=btMs;
+  noiseHit(.22,.045,620);
+  tone(58,.24,.025,'sawtooth');
+}
+
+function combatModifier(attackerType,targetType){
+  if(!attackerType||!targetType)return 1;
+  const aRole=attackerType.role||'dps',tRole=targetType.role||'dps';
+  const aSize=attackerType.size,tSize=targetType.size;
+  let mult=1;
+
+  if(aRole==='tackle'){
+    if(tRole==='ewar'||tRole==='logi'||tSize==='frigate')mult*=1.22;
+    if(tRole==='tank'||tSize==='battleship'||tSize==='titan')mult*=0.84;
+  } else if(aRole==='ewar'){
+    if(tRole==='dps'||tRole==='sniper'||tSize==='battleship'||tSize==='titan')mult*=1.18;
+    if(tRole==='tackle'||tSize==='frigate')mult*=0.82;
+  } else if(aRole==='logi'){
+    mult*=0.72;
+  } else if(aRole==='tank'){
+    if(tRole==='tackle'||tSize==='frigate')mult*=1.12;
+    if(tRole==='sniper'||tRole==='bomb')mult*=0.9;
+  } else if(aRole==='sniper'){
+    if(tRole==='tank'||tSize==='cruiser'||tSize==='battleship'||tSize==='titan')mult*=1.25;
+    if(tRole==='tackle'||tSize==='frigate')mult*=0.78;
+  } else if(aRole==='bomb'||attackerType.fireType==='stealth_bomb'){
+    if(tSize==='battleship'||tSize==='titan'||tRole==='tank')mult*=1.28;
+    if(tSize==='frigate'||tRole==='tackle')mult*=0.68;
+  } else if(aRole==='dps'){
+    if(tRole==='ewar'||tRole==='logi')mult*=1.1;
+    if(tRole==='tank')mult*=0.92;
+  }
+
+  if(attackerType.faction==='mcc'){
+    if(tSize==='battleship'||tSize==='titan')mult*=1.08;
+    if(tRole==='tackle')mult*=0.94;
+  } else if(attackerType.faction==='fsp'){
+    if(tRole==='dps'||targetType.faction==='cv')mult*=1.06;
+    if(tRole==='sniper')mult*=0.96;
+  } else if(attackerType.faction==='cv'){
+    if(targetType.faction==='mcc'||tRole==='sniper')mult*=1.08;
+    if(tRole==='tank'||targetType.faction==='fsp')mult*=0.95;
+  }
+  return Math.max(.62,Math.min(1.42,mult));
+}
 
 function centeredPos(n, side) {
   const baseY = side === 'atk' ? H * 0.77 : H * 0.23;
@@ -615,7 +737,7 @@ function autoTactics(f,dt){
 
   if(hpR<0.35&&f.maneuver!=='retreat'&&f.maneuver!=='scatter'){
     f.maneuver='retreat';
-    addLog('tc',`← [${f.userId}] HP ${(hpR*100)|0}% — 자동 후퇴`);
+    addLog('tc',`↓ [${f.userId}] HP ${(hpR*100)|0}% — 자동 후퇴`);
   }
   else if(f.laserHitCount>4&&f.maneuver!=='scatter'){
     f.maneuver='scatter';
@@ -629,7 +751,7 @@ function autoTactics(f,dt){
   }
   else if(f.maneuver==='rally'&&f.rallyCooldown<=0){
     f.maneuver='advance';
-    addLog('tc',`→ [${f.userId}] 재편성 완료 — 전진`);
+    addLog('tc',`↑ [${f.userId}] 재편성 완료 — 전진`);
   }
 }
 
@@ -773,12 +895,14 @@ function fire(sh,wsMode){
     lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
       color:FACTIONS[sh.type.faction].color,
       width:sh.type.size==='titan'?3:sh.type.size==='battleship'?2.2:2,
-      alpha:1,ttl:10,age:0,dmg:t.atk*4*atkMult,target:ts,applied:false,side:sh.side,visual:wsMode});
+      alpha:1,ttl:10,age:0,dmg:t.atk*4*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
+    playLaserSound();
   } else if(t.fireType==='mixed'){
     const ts=tf.ships.filter(s=>!s.dead)[0|Math.random()*4];
     if(ts)lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
       color:FACTIONS[sh.type.faction].color,width:1.2,alpha:.5,ttl:7,age:0,
-      dmg:t.atk*2*atkMult,target:ts,applied:false,side:sh.side,visual:wsMode});
+      dmg:t.atk*2*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
+    if(ts)playLaserSound();
     spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult,wsMode);
   } else {
     for(let k=0;k<t.shots;k++){
@@ -793,7 +917,8 @@ function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual){
   const spd=1.55+Math.random()*.45;
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
     r:Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
-    dmg:t.atk*dmgMult*2,side,ttl:190,age:0,visual:!!visual});
+    dmg:t.atk*dmgMult*2,attackerType:t,side,ttl:190,age:0,visual:!!visual});
+  playBulletSound();
 }
 
 function checkHit(b){
@@ -808,7 +933,8 @@ function checkHit(b){
   return null;
 }
 
-function applyDmg(sh,dmg,isLaser){
+function applyDmg(sh,dmg,isLaser,attackerType){
+  dmg*=combatModifier(attackerType,sh.type);
   sh.hp-=dmg;sh.flash=60;sh.fleet.hp-=dmg;
   if(isLaser){
     sh.fleet.laserHitCount+=1;
@@ -828,6 +954,7 @@ function applyDmg(sh,dmg,isLaser){
 }
 
 function mkExp(x,y,sz){
+  playExplosionSound();
   const n=Math.min(3+sz*(PERF_MODE?1.25:2.5),PERF_MODE?10:18);
   const cs=['#ffd700','#ff6d00','#ef5350','#fff','#ff8f00'];
   exps.push({x,y,ptcl:Array.from({length:n},()=>{
@@ -1190,7 +1317,7 @@ function drawBullets(_wsActive){
     CX.fillStyle=b.col;CX.fillRect(-len*.1,-b.r/2,len,b.r);
     CX.fillStyle='rgba(255,255,255,.7)';CX.fillRect(len*.5,-b.r/3,len*.22,b.r*.55);
     CX.restore();CX.globalAlpha=1;
-    if(!b.visual&&!_wsActive){const hit=checkHit(b);if(hit){applyDmg(hit,b.dmg,false);return false;}}
+    if(!b.visual&&!_wsActive){const hit=checkHit(b);if(hit){applyDmg(hit,b.dmg,false,b.attackerType);return false;}}
     return true;
   });
 }
@@ -1199,7 +1326,7 @@ function drawLasers(_wsActive){
   lasers=lasers.filter(l=>{
     if(l.age===0&&!l.applied){
       l.applied=true;
-      if(!l.visual&&!_wsActive&&l.target&&!l.target.dead)applyDmg(l.target,l.dmg,true);
+      if(!l.visual&&!_wsActive&&l.target&&!l.target.dead)applyDmg(l.target,l.dmg,true,l.attackerType);
     }
     const prog=l.age/l.ttl;
     CX.globalAlpha=(1-prog)*l.alpha*.55;
@@ -1555,7 +1682,9 @@ function renderRegistry(){
     const scale=Math.min(2.8,42/s.r);
     cx.scale(scale,scale);
     cx.shadowColor=FACTIONS[s.faction].color;cx.shadowBlur=10;
+    cx.rotate(-Math.PI/2);
     drawShipByFaction(cx,s);
+    drawEngineFlame(cx,0,0,-Math.PI/2,s,.8);
     cx.restore();
   });
 }

@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Fleet doctrine RPS + shipyard vertical UI pass (v5.53)
+
+- **함선 상성 적용**: 전투 엔진과 택티컬랩에 역할/함급/파벌 기반 데미지 배율을 추가. 태클, EW, 로지, 탱커, 저격, 폭격이 서로 카운터를 갖도록 변경.
+- **진영별 밸런스 재정리**: migration 208로 MCC는 정밀 저격/대형함 처리, FSP는 장기전/탱킹/로지, CV는 러시/폭격/순간화력 중심으로 스탯과 설명 조정.
+- **전투 사운드 추가**: WebAudio 기반 BGM 루프와 레이저/탄막/폭발 SFX를 추가. 브라우저 자동재생 제한 때문에 `SOUND` 버튼으로 활성화.
+- **세로 전장 기동 표기**: 전진/후퇴 버튼과 자동 기동 로그를 세로 전장에 맞춰 `↑/↓`로 변경.
+- **조선소 세로 카드 UI**: 데스크탑 청사진은 4열 그리드, 모바일은 1열 카드로 정리. `assets/ships/top/` PNG를 세로 함선 프리뷰로 사용.
+- **조선소 엔진 플레임 보정**: PNG 로드 시 기존 SVG 프리뷰는 숨기고, 카드 하단 후미에서 새 엔진 플레임이 나오도록 변경.
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `index.html` inline script syntax check 통과
+- `node --check server/services/battleEngine.js` 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Top-view fleet sprite + long-range combat pass (v5.52)
 
 - **함선 PNG 22종 매핑**: `assets/ships/top/`에 전투용 축소 PNG 22종을 추가하고 `mcc_destroyer_top.png` 중복 샘플은 제외.

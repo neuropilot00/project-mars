@@ -2725,7 +2725,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background: #0a0d18;
   border: 1px solid rgba(100, 150, 255, 0.2);
   border-radius: 10px;
-  width: 100%; max-width: 1100px;
+  width: 100%; max-width: 1480px;
   max-height: 95vh;
   display: flex; flex-direction: column;
   overflow: hidden;
@@ -2793,8 +2793,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .bp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 .bp-card {
   background: rgba(255, 255, 255, 0.02);
@@ -2809,6 +2809,47 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bp-card.locked { opacity: 0.5; }
 /* Animated ship silhouette (battle-viz style) ------------------------- */
 .bp-visual { position: relative; overflow: hidden; }
+.bp-visual.shipyard-top-preview { height: 180px; border-radius: 6px; margin-bottom: 8px; }
+.bp-ship-img {
+  position: absolute;
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 0 12px rgba(79,195,247,.16));
+}
+.bp-engine-flame {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  width: 28%;
+  height: 20%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.85), transparent 28%),
+    radial-gradient(ellipse at 50% 8%, rgba(88,209,255,.72), rgba(88,209,255,.28) 42%, transparent 72%);
+  filter: blur(1px);
+  opacity: .8;
+  animation: bp-engine-tail 0.68s ease-in-out infinite;
+}
+.bp-card.cv .bp-engine-flame {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.9), transparent 26%),
+    radial-gradient(ellipse at 50% 8%, rgba(255,80,35,.76), rgba(255,80,35,.3) 42%, transparent 72%);
+}
+.bp-card.fsp .bp-engine-flame {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.86), transparent 28%),
+    radial-gradient(ellipse at 50% 8%, rgba(120,255,170,.68), rgba(120,255,170,.28) 42%, transparent 72%);
+}
+@keyframes bp-engine-tail {
+  0%,100% { transform: translateX(-50%) scaleY(.78); opacity: .56; }
+  50%     { transform: translateX(-50%) scaleY(1.18); opacity: .9; }
+}
 .bp-visual svg.bp-ship-svg {
   width: 92%; height: 92%;
   position: relative; z-index: 2;
@@ -2904,6 +2945,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bp-role.logi .bp-role-badge { color: #a5d6a7; border-color: rgba(165,214,167,.35); background: rgba(80,170,100,.12); }
 .bp-role.tank .bp-role-badge { color: #ffd37a; border-color: rgba(255,211,122,.35); background: rgba(190,130,30,.12); }
 .bp-role.tackle .bp-role-badge { color: #9ee7ff; border-color: rgba(158,231,255,.35); background: rgba(40,150,210,.12); }
+.bp-role.sniper .bp-role-badge { color: #d6ecff; border-color: rgba(120,190,255,.38); background: rgba(40,110,190,.13); }
+.bp-role.bomb .bp-role-badge { color: #ffb199; border-color: rgba(255,120,80,.4); background: rgba(180,55,30,.14); }
 .bp-role-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bp-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
@@ -3050,6 +3093,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sy-balance { display: flex; align-items: center; gap: 5px; }
 .sy-balance b { color: #ffd700; }
 .sy-balance.minerals b { color: #4fc3f7; }
+@media (max-width: 1180px) {
+  .bp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bp-visual.shipyard-top-preview { height: 166px; }
+}
+@media (max-width: 860px) {
+  .bp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bp-visual.shipyard-top-preview { height: 158px; }
+}
+@media (max-width: 560px) {
+  .shipyard-header { padding: 10px 12px; }
+  .shipyard-title { font-size: 11px; letter-spacing: 2px; }
+  .shipyard-tabs .sy-tab { padding: 10px 4px; font-size: 9px; letter-spacing: 1px; }
+  .shipyard-filters { padding: 8px 10px; gap: 6px; }
+  .shipyard-body { padding: 10px; }
+  .bp-grid { grid-template-columns: 1fr; gap: 10px; }
+  .bp-card { padding: 10px; }
+  .bp-visual.shipyard-top-preview { height: 190px; }
+  .bp-role-text { white-space: normal; line-height: 1.45; }
+}
 
 /* ═════ Fleet Command Modal ═════ */
 .fleetcmd-modal-backdrop {
@@ -41789,8 +41851,8 @@ function shipSizeIcon(sizeClass) {
 function shipFactionAccent(factionCode) {
   return ({
     mcc: 'linear-gradient(135deg,#1a3b5c,#0a1a2a)',
-    fsp: 'linear-gradient(135deg,#5c1a1a,#2a0a0a)',
-    cv:  'linear-gradient(135deg,#2a5c1a,#0a2a0a)'
+    fsp: 'linear-gradient(135deg,#1d4a2c,#071b0f)',
+    cv:  'linear-gradient(135deg,#5c1a1a,#2a0a0a)'
   })[factionCode] || 'linear-gradient(135deg,#333,#111)';
 }
 function shipFactionColors(factionCode) {
@@ -42058,8 +42120,9 @@ function shipVisual(sizeClass, factionCode, opts) {
   var code = (opts.code || '').toLowerCase();
   var slug = code || (factionCode + '_' + sizeClass);
   return svg
-    + '<img src="assets/ships/' + slug + '.png" alt="" '
-    +   'style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none" '
+    + '<span class="bp-engine-flame" aria-hidden="true"></span>'
+    + '<img class="bp-ship-img" src="assets/ships/top/' + slug + '.png" alt="" '
+    +   'onload="var s=this.parentNode&&this.parentNode.querySelector(\'svg.bp-ship-svg\');if(s)s.style.opacity=\'0\'" '
     +   'onerror="this.remove()">';
 }
 
@@ -42068,7 +42131,9 @@ var SHIP_ROLE_INFO = {
   tackle: { label:'TACKLE', desc:'고속 선봉 · 기함 추격과 초반 교전 담당' },
   ewar:   { label:'EW',     desc:'전자전 · 적 사격 지연과 화력 저하 중첩' },
   logi:   { label:'LOGI',   desc:'수리 지원 · 장기전에서 아군 생존력 증가' },
-  tank:   { label:'TANK',   desc:'방어 핵심 · 전열 유지와 대형함 보호' }
+  tank:   { label:'TANK',   desc:'방어 핵심 · 전열 유지와 대형함 보호' },
+  sniper: { label:'SNIPER', desc:'장거리 저격 · 대형함과 탱커를 찢음' },
+  bomb:   { label:'BOMB',   desc:'폭격 · 전함/타이탄 킬러, 소형 스크린에 약함' }
 };
 function shipRoleInfo(role) {
   return SHIP_ROLE_INFO[(role || 'dps').toLowerCase()] || SHIP_ROLE_INFO.dps;
@@ -42109,7 +42174,7 @@ function renderBlueprintCard(s) {
   var roleInfo = shipRoleInfo(s.role);
   var roleKey = (s.role || 'dps').toLowerCase();
   return '<div class="bp-card ' + s.faction_code + ' ' + (buildDisabled ? 'locked' : '') + '">' +
-    '<div class="bp-visual" style="position:relative;background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px;overflow:hidden"><div class="bp-starfield"></div>' + silhouette + '</div>' +
+    '<div class="bp-visual shipyard-top-preview" style="position:relative;background:' + accent + ';display:flex;align-items:center;justify-content:center;overflow:hidden"><div class="bp-starfield"></div>' + silhouette + '</div>' +
     '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + (s.class_label || '') + '</div>' +
     '<div class="bp-role ' + roleKey + '"><span class="bp-role-badge">' + roleInfo.label + '</span><span class="bp-role-text">' + fcEsc(s.description_ko || roleInfo.desc) + '</span></div>' +
