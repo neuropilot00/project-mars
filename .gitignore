@@ -12,6 +12,10 @@ assets/*
 !assets/nav/
 !assets/tactical-lab-v11.html
 !assets/campaign-editor.html
+!assets/ships/
+assets/ships/*
+!assets/ships/*.png
+!assets/ships/*.txt
 !assets/campaign/
 assets/campaign/*
 !assets/campaign/backgrounds/
