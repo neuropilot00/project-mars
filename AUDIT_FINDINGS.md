@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.57 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.58 / 2026-05-03)
+
+## ✅ v5.58 Fleet sprite preload fallback fix — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 첫 프레임 구형 벡터 노출 | ✅ | PNG가 로딩 중이면 구형 fallback 함선을 그리지 않도록 `SHIP_SPRITE_STATUS` 추가. |
+| 엔진 플레임 분리 노출 | ✅ | 함선 본체가 그려진 경우에만 플레임/대형함 HP bar를 표시. |
+| 본서버 택티컬랩 반영 | ✅ | `assets/tactical-lab-v11.html`에 반영. 검수용 데모 파일도 동일 로직으로 수정. |
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.57 Ship infinite stat upgrades — 수정 완료
 

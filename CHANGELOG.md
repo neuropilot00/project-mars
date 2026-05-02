@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Fleet sprite preload fallback fix (v5.58)
+
+- **첫 프레임 구형 함선 노출 차단**: PNG 함선 이미지가 로드되기 전에는 구형 벡터/SVG fallback 함선을 그리지 않도록 변경.
+- **플레임 표시 안정화**: 함선 본체가 실제로 그려진 프레임에서만 엔진 플레임과 대형함 HP bar를 표시.
+- **본서버 택티컬랩 반영**: `assets/tactical-lab-v11.html`에 적용하고 검수용 데모 파일에도 동일 로직 반영.
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Ship infinite stat upgrades (v5.57)
 
 - **보유 함선 무한 강화 추가**: 개별 함선에 `ATK/DEF/SPD/HP`를 영구 투자하는 API와 DB 로그를 추가. 실패/파괴/`+강` 등급명 없이 누적 성장.

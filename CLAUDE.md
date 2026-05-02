@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.57 (Ship infinite stat upgrades) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.58 (Fleet sprite preload fallback fix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,14 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.57 최신 핸드오프 — 보유 함선 무한 스탯 강화
+### v5.58 최신 핸드오프 — 함대전 PNG 로드 전 구형 벡터 차단
+
+- 택티컬랩 전투 렌더러는 `SHIP_SPRITE_STATUS`로 22종 PNG 로드 상태를 추적한다.
+- PNG가 아직 `loading`인 함선은 구형 벡터/SVG fallback을 그리지 않는다. 첫 프레임에서 예전 실루엣이 깨져 보이는 현상을 막기 위한 처리다.
+- PNG 로드가 실제로 실패한 경우에만 구형 벡터 fallback을 허용한다.
+- 엔진 플레임/대형함 HP bar도 함선 본체가 그려진 프레임에서만 표시한다.
+
+### v5.57 핸드오프 — 보유 함선 무한 스탯 강화
 
 - 보유 함선은 `POST /api/ships/:id/upgrade-stat`로 `atk`, `def`, `hp`, `speed` 중 하나를 영구 강화할 수 있다.
 - 강화는 실패/파괴/등급명 없이 누적된다. 조선소 보유 함선 카드에는 기본 스탯 옆에 녹색 `(+N)` 보너스가 표시된다.
@@ -30,7 +37,7 @@
 - 1:1 소규모전은 더 가까운 거리에서 크게 보이는 방향으로 조정되어야 한다. 소규모전 카메라를 다시 멀게 만들지 말 것.
 - 데모/본서버 택티컬랩 양쪽에 동일 반영해야 한다. `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`로 복사하는 흐름 유지.
 
-### v5.55 최신 핸드오프 — 함대전 무전 콜아웃
+### v5.55 핸드오프 — 함대전 무전 콜아웃
 
 - 택티컬랩 전투 화면에 `.battle-comms.top/bottom` 콜아웃 레이어가 있음.
 - 명령/진형/기동/승리 문구는 상단, 피격/격침/후퇴 경고는 하단에 표시한다.
@@ -39,7 +46,7 @@
 - 수동 스킬(`cmdFocus`, `cmdEMP`, `cmdBeamCannon`, `cmdMissileBarrage`)과 `cmdFormation`, `cmdManeuver`는 전투 로그와 별도로 콜아웃도 띄운다.
 - 데모/본서버 택티컬랩 양쪽에 동일 반영해야 한다. `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`로 복사하는 흐름 유지.
 
-### v5.54 최신 핸드오프 — 수동 빔포/미사일 스킬
+### v5.54 핸드오프 — 수동 빔포/미사일 스킬
 
 - 택티컬랩에 `☢ 빔포`와 `☄ 미사일` 수동 스킬 버튼이 있음.
 - `beamCharge`는 살아있는 ATK 전함/타이탄 수에 따라 충전된다. 100%에서 `cmdBeamCannon()`이 우선순위 대형 목표에 두꺼운 주포 빔을 발사한다.

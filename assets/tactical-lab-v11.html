@@ -526,12 +526,17 @@ const SHIP_SPRITE_CODES=[
   'cv_int','cv_frg','cv_bomb','cv_dst','cv_crs','cv_bs','cv_titan',
 ];
 const SHIP_SPRITES={};
+const SHIP_SPRITE_STATUS={};
 SHIP_SPRITE_CODES.forEach(code=>{
   const img=new Image();
   img.decoding='async';
-  img.onload=()=>{SHIP_SPRITES[code]=trimShipSprite(img);};
+  SHIP_SPRITE_STATUS[code]='loading';
+  img.onload=()=>{SHIP_SPRITES[code]=trimShipSprite(img);SHIP_SPRITE_STATUS[code]='ready';};
+  img.onerror=()=>{SHIP_SPRITE_STATUS[code]='failed';};
   img.src=`ships/top/${code}.png`;
 });
+function hasShipSpriteAsset(code){return SHIP_SPRITE_CODES.includes(code);}
+function isShipSpriteReady(code){return !!SHIP_SPRITES[code];}
 function trimShipSprite(img){
   const src=document.createElement('canvas');
   src.width=img.naturalWidth||img.width;
@@ -1338,10 +1343,12 @@ function drawEngineFlame(ctx,x,y,facing,type,pulse=1){
 }
 
 function drawShipByFaction(ctx,s){
-  if(drawShipSprite(ctx,s))return;
+  if(drawShipSprite(ctx,s))return true;
+  if(hasShipSpriteAsset(s.code)&&SHIP_SPRITE_STATUS[s.code]!=='failed')return false;
   if(s.faction==='mcc')drawMCCShip(ctx,s);
   else if(s.faction==='fsp')drawFSPShip(ctx,s);
   else drawCVShip(ctx,s);
+  return true;
 }
 
 function drawBG(){
@@ -1421,14 +1428,14 @@ function drawShips2(){
     const classScale={frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[t.size]||1.2;
     CX.scale(classScale,classScale);
     if(sh.flash>0)CX.fillStyle='#fff';
-    drawShipByFaction(CX,t);
+    const drawn=drawShipByFaction(CX,t);
     CX.restore();
     CX.shadowBlur=0;
-    if(t.r>=2&&(!PERF_MODE||sh.isFlagship||!isSmall(sh))){
+    if(drawn&&t.r>=2&&(!PERF_MODE||sh.isFlagship||!isSmall(sh))){
       const ef=.6+.4*Math.sin(sh.engF*.18);
       drawEngineFlame(CX,sh.x,sh.y,sh.facing,t,ef);
     }
-    if(t.size==='cruiser'||t.size==='battleship'||t.size==='titan'){
+    if(drawn&&(t.size==='cruiser'||t.size==='battleship'||t.size==='titan')){
       const bw=t.r*2.2*classScale,hr=sh.hp/sh.maxHp;
       CX.fillStyle='rgba(0,0,0,.4)';CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw,2);
       CX.fillStyle=hr>.5?'#4caf50':hr>.25?'#ff9800':'#f44336';
@@ -1876,8 +1883,8 @@ function renderRegistry(){
     cx.scale(scale,scale);
     cx.shadowColor=FACTIONS[s.faction].color;cx.shadowBlur=10;
     cx.rotate(-Math.PI/2);
-    drawShipByFaction(cx,s);
-    drawEngineFlame(cx,0,0,-Math.PI/2,s,.8);
+    const drawn=drawShipByFaction(cx,s);
+    if(drawn)drawEngineFlame(cx,0,0,-Math.PI/2,s,.8);
     cx.restore();
   });
 }
