@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.61 (Campaign completed chapter compact cards) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.62 (Campaign quest progress gate) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.62 최신 핸드오프 — 캠페인 퀘스트 즉시 클리어 방지
+
+- 캠페인 작전 챕터는 더 이상 스토리/결과 씬을 넘겼다는 이유만으로 즉시 `complete` 처리하지 않는다.
+- 프론트 `showCampaignSim()`은 `/api/campaign/progress`를 폴링해 서버 진행률/남은 시간을 표시하고, `readyToComplete`가 true일 때만 완료 API를 호출한다.
+- 서버 `campaign.complete()`는 프롤로그/순수 시네마틱을 제외한 챕터에서 챕터 런타임이 차기 전 `MISSION_IN_PROGRESS`를 반환한다.
+- 챕터 런타임은 `environment.totalDurationSeconds` 또는 `estimatedPlayTimeSeconds` 기준이며, 서버 진행률은 기존 압축 배율 28x를 유지한다.
+- `getProgress()`는 하드코딩된 CH1 840초 대신 각 챕터 런타임 기반 `progressPct`, `remainingSec`, `readyToComplete`를 반환한다.
 
 ### v5.61 최신 핸드오프 — 완료 캠페인 챕터 전체 접힘 처리
 

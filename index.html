@@ -24849,6 +24849,7 @@ var _campaignTypingElement=null;
 var _campaignTypingFullText='';
 var _campaignBattleTimer=null;
 var _campaignTypingFrame=null;
+var _campaignSimTimer=null;
 var _campaignImageCache={};
 function loadCampaignStatus(){
   var el=document.getElementById('campaignList');
@@ -24986,8 +24987,13 @@ function campaignStatsHtml(m,status){
     m.helion_escapes!=null?{v:m.helion_escapes,l:'ESCAPED'}:{v:'--',l:'RESULT'};
   return '<div class="campaign-stats"><div class="campaign-stat"><b>'+escapeHtmlSafe(String(a.v))+'</b><span>'+a.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(b.v))+'</b><span>'+b.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(status).toUpperCase())+'</b><span>STATUS</span></div></div>';
 }
-function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';}
+function _campaignClearSimTimer(){
+  if(_campaignSimTimer) clearTimeout(_campaignSimTimer);
+  _campaignSimTimer=null;
+}
+function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';_campaignClearSimTimer();}
 function _setCampaignModal(ch, html){
+  _campaignClearSimTimer();
   document.getElementById('campaignModalTitle').textContent=(ch.title&&ch.title.ko)||ch.questId;
   // 라우트 표시는 챕터의 실제 파벌(MCC/FSP/CV) 기반으로 동적으로 만든다 — 프롤로그/CV 챕터에서도 정확한 라우트가 보이도록 한다.
   var route=((ch.campaignId||'').replace('_route','')||ch.faction||'mcc').toUpperCase();
@@ -25709,15 +25715,27 @@ function advanceCampaignScene(){
   renderCampaignScene();
 }
 
-// 시나리오만 있는 챕터(프롤로그처럼 choices 가 비어있는 챕터)는 마지막 씬을 통과한
-// 시점에 자동으로 complete 를 호출해 챕터 진행을 닫아준다. choices 가 있는 챕터는
-// 별도의 choice 흐름이 시뮬레이션을 처리하므로 여기서는 닫기만 한다.
+function _campaignShouldAutoCompleteAfterStory(chapter){
+  if(!chapter) return false;
+  var resolution=chapter.battleResolution||'';
+  return Number(chapter.chapterNumber)===0 || resolution==='none' || resolution==='cinematic_only' || resolution==='ending_evaluation_and_cinematic';
+}
+
+function _campaignFormatDuration(sec){
+  sec=Math.max(0,Math.round(Number(sec)||0));
+  var m=Math.floor(sec/60), s=sec%60;
+  return m>0?(m+'m '+String(s).padStart(2,'0')+'s'):(s+'s');
+}
+
+// 순수 스토리 챕터만 마지막 씬에서 자동 완료한다. 작전/퀘스트 챕터는 서버 진행률
+// 폴링으로 넘겨야 "시작하자마자 클리어"가 되지 않는다.
 function _finishCampaignNoChoiceFlow(){
   var a=_campaignActive;
   var hasChoices=a&&a.chapter&&Array.isArray(a.chapter.choices)&&a.chapter.choices.length>0;
   if(a&&a.sessionId&&!hasChoices){
     closeCampaignStory();
-    completeCampaignMission();
+    if(_campaignShouldAutoCompleteAfterStory(a.chapter)) completeCampaignMission();
+    else showCampaignSim(a.chapter,a.progress||{});
     return;
   }
   closeCampaignStory();
@@ -25787,19 +25805,42 @@ async function chooseCampaignOption(choiceId){
 }
 
 function showCampaignSim(ch,p){
+  _campaignClearSimTimer();
   var radio=((ch.briefing||{}).radio||[])[0];
   _setCampaignModal(ch,
     '<div style="font-size:13px;color:var(--tx);margin-bottom:10px">작전 진행 중...</div>'
     +'<div class="campaign-dialog">'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+' 무전: '+escapeHtmlSafe((radio&&radio.ko)||'작전 진행 상황 업데이트.')+'</div>'
-    +'<div class="qc-bar" style="height:10px;margin:16px 0"><div id="campaignSimFill" class="qc-fill activity" style="width:5%"></div></div>'
-    +'<div style="font-size:9px;color:var(--tx3);text-align:center">실시간 5초 압축 시뮬레이션</div>');
-  var fill=document.getElementById('campaignSimFill');
-  var pct=5;
-  var timer=setInterval(function(){
-    pct+=9;
-    if(fill) fill.style.width=Math.min(100,pct)+'%';
-    if(pct>=100){clearInterval(timer);completeCampaignMission();}
-  },450);
+    +'<div class="qc-bar" style="height:10px;margin:16px 0"><div id="campaignSimFill" class="qc-fill activity" style="width:0%"></div></div>'
+    +'<div id="campaignSimStatus" style="font-size:10px;color:var(--gold);text-align:center">작전 상태 동기화 중...</div>'
+    +'<div id="campaignSimDetail" style="font-size:8px;color:var(--tx3);text-align:center;margin-top:6px">서버 진행률 기반으로 완료됩니다.</div>');
+  pollCampaignProgress(true);
+}
+
+async function pollCampaignProgress(immediate){
+  _campaignClearSimTimer();
+  var w=walletState.address, a=_campaignActive;
+  if(!w||!a||!a.sessionId) return;
+  try{
+    var r=await fetch('/api/campaign/progress',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId})});
+    var d=await r.json();
+    if(!r.ok){showToast(d.error||'Campaign progress failed');return;}
+    a.progress=d.progress||a.progress;
+    var preview=d.preview||{};
+    var pct=Math.max(0,Math.min(100,Number(preview.progressPct||preview.oxygenRecoveryPct||0)));
+    var fill=document.getElementById('campaignSimFill');
+    var status=document.getElementById('campaignSimStatus');
+    var detail=document.getElementById('campaignSimDetail');
+    if(fill) fill.style.width=pct+'%';
+    if(status) status.textContent='작전 진행률 '+Math.round(pct)+'%';
+    if(detail) detail.textContent='남은 시간 '+_campaignFormatDuration(preview.remainingSec||0)+' · 경과 '+_campaignFormatDuration(preview.elapsedSec||0);
+    if(preview.readyToComplete||pct>=100){
+      completeCampaignMission();
+      return;
+    }
+    _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},immediate?1200:3000);
+  }catch(e){
+    _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},5000);
+  }
 }
 
 async function completeCampaignMission(){
@@ -25808,7 +25849,13 @@ async function completeCampaignMission(){
   try{
     var r=await fetch('/api/campaign/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId})});
     var d=await r.json();
-    if(!r.ok){showToast(d.error||'Campaign complete failed');return;}
+    if(!r.ok){
+      if(d.error==='MISSION_IN_PROGRESS'){
+        showCampaignSim(a.chapter,a.progress||{});
+        return;
+      }
+      showToast(d.error||'Campaign complete failed');return;
+    }
     showCampaignResult(a.chapter,d.progress,d);
     loadCampaignStatus();
     try{refreshEmailBalances()}catch(e){}

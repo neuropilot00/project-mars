@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.61 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.62 / 2026-05-03)
+
+## ✅ v5.62 Campaign quest progress gate — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 작전 챕터 즉시 클리어 방지 | ✅ | 프롤로그/순수 시네마틱 외 챕터는 스토리 종료만으로 `complete` 호출하지 않음. |
+| 서버 완료 게이트 | ✅ | `/api/campaign/complete`가 런타임 미충족 시 `MISSION_IN_PROGRESS` 반환. 직접 API 호출로도 조기 완료 불가. |
+| 진행률 UI | ✅ | `showCampaignSim()`이 `/api/campaign/progress`를 폴링해 진행률/남은 시간 표시 후 준비되면 완료. |
+| 챕터별 런타임 | ✅ | CH1 840초 하드코딩 제거. 각 챕터 `environment.totalDurationSeconds`/`estimatedPlayTimeSeconds` 기준. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.61 Campaign completed chapter compact cards — 수정 완료
 

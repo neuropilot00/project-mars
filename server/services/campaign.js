@@ -2171,6 +2171,25 @@ function isPrologueQuest(questId) {
   return questId === 'mcc_prologue' || questId === 'fsp_prologue' || questId === 'cv_prologue';
 }
 
+const CAMPAIGN_TIME_COMPRESSION = 28;
+
+function getChapterRuntimeSeconds(questId) {
+  const chapter = CHAPTERS[questId];
+  const runtime = chapter?.environment?.totalDurationSeconds || chapter?.estimatedPlayTimeSeconds || 840;
+  return Math.max(60, Number(runtime) || 840);
+}
+
+function isInstantCampaignCompletion(questId) {
+  const resolution = CHAPTERS[questId]?.battleResolution;
+  return isPrologueQuest(questId) || resolution === 'cinematic_only' || resolution === 'ending_evaluation_and_cinematic';
+}
+
+function getCampaignElapsedSeconds(progress) {
+  if (!progress?.started_at) return 0;
+  const raw = Math.floor((Date.now() - new Date(progress.started_at).getTime()) / 1000 * CAMPAIGN_TIME_COMPRESSION);
+  return Math.max(0, raw);
+}
+
 function simulateChapter(progress) {
   if (isPrologueQuest(progress.quest_id)) return simulatePrologue(progress);
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
@@ -3385,14 +3404,23 @@ async function getProgress(wallet, sessionId) {
   );
   if (!rows[0]) return { error: 'SESSION_NOT_FOUND' };
   const p = rows[0];
-  const elapsed = p.started_at ? Math.min(840, Math.floor((Date.now() - new Date(p.started_at).getTime()) / 1000 * 28)) : 0;
-  const preview = { elapsedSec: elapsed, oxygenRecoveryPct: Math.min(100, Math.round((elapsed / 840) * 100)) };
+  const runtime = getChapterRuntimeSeconds(p.quest_id);
+  const elapsed = Math.min(runtime, getCampaignElapsedSeconds(p));
+  const progressPct = Math.min(100, Math.round((elapsed / runtime) * 100));
+  const preview = {
+    elapsedSec: elapsed,
+    runtimeSec: runtime,
+    remainingSec: Math.max(0, runtime - elapsed),
+    progressPct,
+    oxygenRecoveryPct: progressPct,
+    readyToComplete: p.status === 'in_progress' && progressPct >= 100,
+  };
   await pool.query(
     `UPDATE campaign_sessions SET current_metrics = $1, updated_at = NOW()
      WHERE session_id = $2 AND wallet = $3 AND status = 'active'`,
     [JSON.stringify(preview), sessionId, w]
   );
-  return { progress: formatProgress(p), environmentalPhase: phaseForElapsed(elapsed), preview, environmentState: getEnvironmentState(CHAPTERS[p.quest_id]?.environment, elapsed) };
+  return { progress: formatProgress(p), environmentalPhase: phaseForChapter(p.quest_id, elapsed), preview, environmentState: getEnvironmentState(CHAPTERS[p.quest_id]?.environment, elapsed) };
 }
 
 function getEnvironmentState(config, elapsedSec) {
@@ -3445,6 +3473,17 @@ async function complete(wallet, sessionId) {
     if (!progress) {
       await client.query('ROLLBACK');
       return { error: 'SESSION_NOT_FOUND' };
+    }
+    const runtime = getChapterRuntimeSeconds(progress.quest_id);
+    const elapsed = Math.min(runtime, getCampaignElapsedSeconds(progress));
+    if (!isInstantCampaignCompletion(progress.quest_id) && elapsed < runtime) {
+      await client.query('ROLLBACK');
+      return {
+        error: 'MISSION_IN_PROGRESS',
+        elapsedSec: elapsed,
+        runtimeSec: runtime,
+        remainingSec: runtime - elapsed,
+      };
     }
     if (progress.quest_id === CH10_ID) {
       const choices = Array.isArray(progress.choices_payload) ? progress.choices_payload : [];

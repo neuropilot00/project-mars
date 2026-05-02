@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Campaign quest progress gate (v5.62)
+
+- **캠페인 작전 즉시 클리어 방지**: 스토리/결과 씬을 넘기면 바로 완료되던 흐름을 제거하고, 작전 챕터는 진행률 화면으로 이동하도록 수정.
+- **서버 완료 조건 강화**: `/api/campaign/complete`가 프롤로그/순수 시네마틱 외 챕터에서 런타임이 차기 전 `MISSION_IN_PROGRESS`를 반환하도록 변경.
+- **진행률 폴링 UI**: 캠페인 작전 화면이 `/api/campaign/progress`를 주기적으로 읽어 진행률, 남은 시간, 경과 시간을 표시하고 완료 가능 시점에만 결과를 띄움.
+- **챕터별 런타임 적용**: 진행률 계산에서 CH1 840초 고정값을 제거하고 각 챕터의 `environment.totalDurationSeconds` 또는 `estimatedPlayTimeSeconds`를 사용.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Campaign completed chapter compact cards (v5.61)
 
 - **완료 챕터 전체 접힘 처리**: 캠페인 리스트에서 완료된 챕터는 프롤로그뿐 아니라 CH1 이후도 compact 카드로 접어서 표시.
