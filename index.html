@@ -25004,7 +25004,9 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
       var _edChars=JSON.parse(localStorage.getItem('editorCharacters')||'{}');
       var _edLayout=_edChars[id]||_edChars[_portraitMap[id]||id];
       if(_edLayout){
+        // 에디터는 center-point 기준(transform: translate(-50%,-50%))이므로 동일하게 적용
         el.style.position='absolute';
+        el.style.transform='translate(-50%,-50%)';
         el.style.left=_edLayout.x+'%';
         el.style.top=_edLayout.y+'%';
         el.style.width=_edLayout.w+'%';
@@ -25076,12 +25078,14 @@ function renderCampaignScene(){
     try{
       var _edDlg=JSON.parse(localStorage.getItem('editorDialog'));
       if(_edDlg){
+        // 에디터와 동일한 center-point 기준 transform 적용
+        box.style.position='absolute';
+        box.style.transform='translate(-50%,-50%)';
         box.style.left=_edDlg.x+'%';
         box.style.top=_edDlg.y+'%';
         box.style.width=_edDlg.w+'%';
         box.style.bottom='auto';
         box.style.right='auto';
-        box.style.position='absolute';
       }
     }catch(_){}
   }
