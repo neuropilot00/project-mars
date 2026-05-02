@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACE COMBAT DEMO</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #02040a;
+      color: #e8fff6;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      text-shadow: 0 0 8px rgba(0, 255, 190, 0.6);
+    }
+
+    .panel {
+      position: absolute;
+      min-width: 210px;
+      padding: 12px 14px;
+      border: 1px solid rgba(102, 255, 213, 0.36);
+      border-radius: 6px;
+      background: rgba(0, 10, 18, 0.62);
+      box-shadow: 0 0 24px rgba(0, 255, 220, 0.08) inset;
+      backdrop-filter: blur(4px);
+    }
+
+    #leftPanel {
+      top: 18px;
+      left: 18px;
+    }
+
+    #rightPanel {
+      top: 18px;
+      right: 18px;
+      text-align: right;
+    }
+
+    #weaponPanel {
+      right: 18px;
+      bottom: 18px;
+      width: 285px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .barBlock {
+      margin: 0 0 10px;
+    }
+
+    .barBlock:last-child {
+      margin-bottom: 0;
+    }
+
+    .labelRow {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 5px;
+      font-size: 13px;
+      letter-spacing: 0;
+      color: #d8fff6;
+    }
+
+    .barShell {
+      width: 190px;
+      height: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .barFill {
+      height: 100%;
+      width: 100%;
+      transform-origin: left center;
+      transition: width 80ms linear;
+    }
+
+    #shieldFill {
+      background: linear-gradient(90deg, #22f6ff, #8affff);
+      box-shadow: 0 0 12px rgba(34, 246, 255, 0.8);
+    }
+
+    #hullFill {
+      background: linear-gradient(90deg, #39ff83, #d4ff69);
+      box-shadow: 0 0 12px rgba(57, 255, 131, 0.8);
+    }
+
+    #boostFill {
+      background: linear-gradient(90deg, #ffe15d, #ff8e3c);
+      box-shadow: 0 0 12px rgba(255, 197, 70, 0.8);
+    }
+
+    .readout {
+      margin-top: 4px;
+      color: #b7fff0;
+      font-size: 14px;
+    }
+
+    #lockWrap {
+      position: absolute;
+      left: 50%;
+      bottom: 74px;
+      width: 136px;
+      height: 136px;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 90ms linear;
+    }
+
+    #lockCircle {
+      position: absolute;
+      inset: 18px;
+      border: 2px solid rgba(0, 255, 206, 0.7);
+      border-radius: 50%;
+      box-shadow: 0 0 18px rgba(0, 255, 206, 0.35), inset 0 0 18px rgba(0, 255, 206, 0.18);
+    }
+
+    #lockProgress {
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      background:
+        conic-gradient(rgba(255, 220, 64, 0.95) 0deg, rgba(255, 220, 64, 0.95) 0deg, transparent 0deg),
+        radial-gradient(circle, transparent 62%, rgba(0, 255, 206, 0.18) 63%, transparent 67%);
+      opacity: 0.95;
+    }
+
+    #lockText {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      text-align: center;
+      font-size: 13px;
+      color: #ffffff;
+    }
+
+    #centerMessage {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 26px;
+      background: radial-gradient(circle at center, rgba(0, 35, 46, 0.18), rgba(0, 0, 0, 0.28) 58%, rgba(0, 0, 0, 0.62));
+      text-align: center;
+      color: #ffffff;
+    }
+
+    #centerMessage.hidden {
+      display: none;
+    }
+
+    #messageTitle {
+      font-size: clamp(28px, 5vw, 72px);
+      line-height: 1.05;
+      letter-spacing: 0;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(0, 255, 220, 0.92), 0 0 50px rgba(0, 126, 255, 0.42);
+    }
+
+    #messageSub {
+      margin-top: 18px;
+      font-size: clamp(14px, 1.7vw, 22px);
+      color: #9dffe8;
+    }
+
+    #flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: #ffffff;
+      opacity: 0;
+      transition: opacity 100ms linear;
+    }
+
+    @media (max-width: 720px) {
+      .panel {
+        min-width: 170px;
+        padding: 9px 10px;
+      }
+
+      .barShell {
+        width: 150px;
+      }
+
+      #weaponPanel {
+        width: 230px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <div id="leftPanel" class="panel">
+      <div class="barBlock">
+        <div class="labelRow"><span>SHIELD</span><span id="shieldText">100</span></div>
+        <div class="barShell"><div id="shieldFill" class="barFill"></div></div>
+      </div>
+      <div class="barBlock">
+        <div class="labelRow"><span>HULL</span><span id="hullText">100</span></div>
+        <div class="barShell"><div id="hullFill" class="barFill"></div></div>
+      </div>
+    </div>
+
+    <div id="rightPanel" class="panel">
+      <div class="barBlock">
+        <div class="labelRow"><span>BOOST</span><span id="boostText">100</span></div>
+        <div class="barShell"><div id="boostFill" class="barFill"></div></div>
+      </div>
+      <div class="readout">ENEMIES <span id="enemyText">12</span></div>
+    </div>
+
+    <div id="weaponPanel" class="panel">
+      <div>PLASMA: <span id="plasmaText">READY</span></div>
+      <div>MISSILE: <span id="missileText">READY</span></div>
+      <div>LOCK: <span id="lockStatusText">NO TARGET</span></div>
+    </div>
+
+    <div id="lockWrap">
+      <div id="lockProgress"></div>
+      <div id="lockCircle"></div>
+      <div id="lockText">LOCKING</div>
+    </div>
+
+    <div id="centerMessage">
+      <div>
+        <div id="messageTitle">ACE COMBAT DEMO</div>
+        <div id="messageSub">PRESS ENTER TO START</div>
+      </div>
+    </div>
+  </div>
+  <div id="flash"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const WORLD_RADIUS = 800;
+      const BASE_SPEED = 40;
+      const BOOST_MULT = 1.8;
+      const BRAKE_MULT = 0.3;
+      const TURN_LERP = 0.06;
+      const CAMERA_LERP = 0.08;
+      const ENEMY_COUNT = 12;
+      const PLAYER_SHOT_SPEED = 300;
+      const ENEMY_SHOT_SPEED = 155;
+      const MISSILE_SPEED = 175;
+      const MISSILE_TURN = 0.105;
+      const LOCK_RANGE = 300;
+      const LOCK_TIME = 1.5;
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x02040a, 0.00075);
+
+      const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 2400);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x02040a, 1);
+      document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+      const ambient = new THREE.AmbientLight(0x526b86, 0.72);
+      const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+      sun.position.set(260, 430, 300);
+      scene.add(ambient, sun);
+
+      const hud = {
+        shieldText: document.getElementById("shieldText"),
+        hullText: document.getElementById("hullText"),
+        boostText: document.getElementById("boostText"),
+        enemyText: document.getElementById("enemyText"),
+        shieldFill: document.getElementById("shieldFill"),
+        hullFill: document.getElementById("hullFill"),
+        boostFill: document.getElementById("boostFill"),
+        plasmaText: document.getElementById("plasmaText"),
+        missileText: document.getElementById("missileText"),
+        lockStatusText: document.getElementById("lockStatusText"),
+        lockWrap: document.getElementById("lockWrap"),
+        lockProgress: document.getElementById("lockProgress"),
+        lockText: document.getElementById("lockText"),
+        centerMessage: document.getElementById("centerMessage"),
+        messageTitle: document.getElementById("messageTitle"),
+        messageSub: document.getElementById("messageSub"),
+        flash: document.getElementById("flash")
+      };
+
+      const keys = Object.create(null);
+      const clock = new THREE.Clock();
+      const tempVec = new THREE.Vector3();
+      const tempVec2 = new THREE.Vector3();
+      const tempQuat = new THREE.Quaternion();
+      const forwardVec = new THREE.Vector3(0, 0, -1);
+      const upVec = new THREE.Vector3(0, 1, 0);
+
+      let state = "titleScreen";
+      let player;
+      let enemies = [];
+      let playerShots = [];
+      let enemyShots = [];
+      let missiles = [];
+      let explosions = [];
+      let trails = [];
+      let lastShotTime = 0;
+      let missileCooldown = 0;
+      let lockTarget = null;
+      let lockTimer = 0;
+      let shakeTimer = 0;
+      let shakePower = 0;
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function rand(min, max) {
+        return min + Math.random() * (max - min);
+      }
+
+      function setFlash(opacity) {
+        hud.flash.style.opacity = String(opacity);
+      }
+
+      function randomDirection() {
+        return new THREE.Vector3(rand(-1, 1), rand(-0.6, 0.6), rand(-1, 1)).normalize();
+      }
+
+      function buildFighter(color, accent) {
+        const root = new THREE.Group();
+
+        const bodyGeo = new THREE.ConeBufferGeometry(3.5, 22, 18, 1, false);
+        bodyGeo.rotateX(-Math.PI / 2);
+        bodyGeo.translate(0, 0, -3);
+        const bodyMat = new THREE.MeshPhongMaterial({
+          color,
+          emissive: accent,
+          emissiveIntensity: 0.17,
+          flatShading: true,
+          shininess: 70
+        });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        root.add(body);
+
+        const wingShape = new Float32Array([
+          -2.0, 0.0, -2.0,
+          -14.0, 0.0, 7.5,
+          -2.0, 0.0, 5.0
+        ]);
+        const leftGeo = new THREE.BufferGeometry();
+        leftGeo.setAttribute("position", new THREE.BufferAttribute(wingShape, 3));
+        leftGeo.computeVertexNormals();
+        const wingMat = new THREE.MeshPhongMaterial({
+          color,
+          emissive: accent,
+          emissiveIntensity: 0.1,
+          side: THREE.DoubleSide,
+          flatShading: true,
+          shininess: 50
+        });
+        const leftWing = new THREE.Mesh(leftGeo, wingMat);
+        leftWing.rotation.z = -0.08;
+        root.add(leftWing);
+
+        const rightGeo = leftGeo.clone();
+        const rightWing = new THREE.Mesh(rightGeo, wingMat);
+        rightWing.scale.x = -1;
+        rightWing.rotation.z = 0.08;
+        root.add(rightWing);
+
+        const cockpitGeo = new THREE.ConeBufferGeometry(1.8, 5, 10);
+        cockpitGeo.rotateX(-Math.PI / 2);
+        cockpitGeo.translate(0, 1.7, -5.4);
+        const cockpitMat = new THREE.MeshPhongMaterial({
+          color: 0x98fff2,
+          emissive: 0x0cffdd,
+          emissiveIntensity: 0.35,
+          transparent: true,
+          opacity: 0.72,
+          shininess: 95
+        });
+        root.add(new THREE.Mesh(cockpitGeo, cockpitMat));
+
+        const engineGeo = new THREE.CylinderBufferGeometry(1.5, 2.1, 2.2, 12);
+        engineGeo.rotateX(Math.PI / 2);
+        engineGeo.translate(0, 0, 8.6);
+        const engineMat = new THREE.MeshBasicMaterial({ color: accent });
+        root.add(new THREE.Mesh(engineGeo, engineMat));
+
+        return root;
+      }
+
+      function createStarfield() {
+        const positions = new Float32Array(2000 * 3);
+        for (let i = 0; i < 2000; i += 1) {
+          const d = rand(300, 1600);
+          const dir = randomDirection();
+          positions[i * 3] = dir.x * d;
+          positions[i * 3 + 1] = dir.y * d;
+          positions[i * 3 + 2] = dir.z * d;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        const mat = new THREE.PointsMaterial({
+          color: 0xffffff,
+          size: 1.4,
+          sizeAttenuation: true
+        });
+        scene.add(new THREE.Points(geo, mat));
+      }
+
+      function addBoundaryShell() {
+        const geo = new THREE.SphereBufferGeometry(WORLD_RADIUS, 48, 32);
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0x0ed7ff,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.035
+        });
+        scene.add(new THREE.Mesh(geo, mat));
+      }
+
+      function makePlayer() {
+        const mesh = buildFighter(0xdef8ff, 0x00ffd0);
+        scene.add(mesh);
+        return {
+          mesh,
+          velocity: new THREE.Vector3(0, 0, -BASE_SPEED),
+          shield: 100,
+          hull: 100,
+          boost: 100,
+          lastDamage: -99,
+          invincible: 0,
+          rollTime: 0,
+          rollDir: 0,
+          alive: true
+        };
+      }
+
+      function makeEnemy(index) {
+        const mesh = buildFighter(0xff4a4a, 0xff1e10);
+        const dir = randomDirection();
+        const dist = rand(200, 500);
+        mesh.position.copy(dir.multiplyScalar(dist));
+        mesh.lookAt(0, 0, 0);
+        scene.add(mesh);
+        return {
+          mesh,
+          hp: 3,
+          cooldown: rand(2, 3),
+          strafe: rand(0, Math.PI * 2),
+          wobble: rand(0.7, 1.5),
+          speed: rand(29, 44),
+          alive: true,
+          index
+        };
+      }
+
+      function resetCollections() {
+        const all = enemies.concat(playerShots, enemyShots, missiles, explosions.map(e => e.points), trails.map(t => t.mesh));
+        for (const item of all) {
+          if (item && item.mesh) scene.remove(item.mesh);
+          else if (item) scene.remove(item);
+        }
+        enemies = [];
+        playerShots = [];
+        enemyShots = [];
+        missiles = [];
+        explosions = [];
+        trails = [];
+      }
+
+      function resetGame() {
+        resetCollections();
+        if (player && player.mesh) scene.remove(player.mesh);
+        player = makePlayer();
+        player.mesh.position.set(0, 0, 0);
+        player.mesh.quaternion.identity();
+        camera.position.set(0, 22, 78);
+        camera.lookAt(player.mesh.position);
+        for (let i = 0; i < ENEMY_COUNT; i += 1) {
+          enemies.push(makeEnemy(i));
+        }
+        lastShotTime = -99;
+        missileCooldown = 0;
+        lockTarget = null;
+        lockTimer = 0;
+        shakeTimer = 0;
+        shakePower = 0;
+        setFlash(0);
+        setState("gameplay");
+      }
+
+      function setState(nextState) {
+        state = nextState;
+        if (nextState === "titleScreen") {
+          hud.centerMessage.classList.remove("hidden");
+          hud.messageTitle.textContent = "ACE COMBAT DEMO";
+          hud.messageSub.textContent = "PRESS ENTER TO START";
+        } else if (nextState === "missionComplete") {
+          hud.centerMessage.classList.remove("hidden");
+          hud.messageTitle.textContent = "MISSION COMPLETE";
+          hud.messageSub.textContent = "PRESS ENTER TO RESTART";
+        } else if (nextState === "gameOver") {
+          hud.centerMessage.classList.remove("hidden");
+          hud.messageTitle.textContent = "GAME OVER";
+          hud.messageSub.textContent = "PRESS R TO RESTART";
+        } else {
+          hud.centerMessage.classList.add("hidden");
+        }
+      }
+
+      function makeProjectile(position, direction, color, speed, owner) {
+        const geo = new THREE.CylinderBufferGeometry(0.55, 0.55, owner === "player" ? 8 : 5, 8);
+        geo.rotateX(Math.PI / 2);
+        const mat = new THREE.MeshBasicMaterial({ color });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.copy(position);
+        mesh.quaternion.setFromUnitVectors(forwardVec, direction.clone().normalize());
+        scene.add(mesh);
+        return {
+          mesh,
+          velocity: direction.clone().normalize().multiplyScalar(speed),
+          life: owner === "player" ? 2.1 : 4.2,
+          owner
+        };
+      }
+
+      function firePlasma(time) {
+        if (time - lastShotTime < 0.15 || state !== "gameplay") return;
+        lastShotTime = time;
+        const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
+        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(player.mesh.quaternion).normalize();
+        const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(-11));
+        for (const offset of [-4.6, 4.6]) {
+          const pos = origin.clone().add(right.clone().multiplyScalar(offset));
+          const shot = makeProjectile(pos, forward, 0x32fff1, PLAYER_SHOT_SPEED, "player");
+          playerShots.push(shot);
+        }
+      }
+
+      function findNearestLockTarget() {
+        let nearest = null;
+        let nearestDist = LOCK_RANGE;
+        for (const enemy of enemies) {
+          if (!enemy.alive) continue;
+          const dist = enemy.mesh.position.distanceTo(player.mesh.position);
+          if (dist < nearestDist) {
+            nearest = enemy;
+            nearestDist = dist;
+          }
+        }
+        return nearest;
+      }
+
+      function fireMissile(target) {
+        if (!target || missileCooldown > 0) return;
+        const geo = new THREE.SphereBufferGeometry(2.1, 16, 12);
+        const mat = new THREE.MeshBasicMaterial({ color: 0xffe65a });
+        const mesh = new THREE.Mesh(geo, mat);
+        const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
+        mesh.position.copy(player.mesh.position).add(forward.clone().multiplyScalar(-13));
+        scene.add(mesh);
+        missiles.push({
+          mesh,
+          target,
+          velocity: forward.multiplyScalar(MISSILE_SPEED),
+          life: 5
+        });
+        missileCooldown = 4;
+        lockTimer = 0;
+        lockTarget = null;
+      }
+
+      function enemyFire(enemy) {
+        if (!enemy.alive) return;
+        const dir = player.mesh.position.clone().sub(enemy.mesh.position).normalize();
+        const pos = enemy.mesh.position.clone().add(dir.clone().multiplyScalar(12));
+        enemyShots.push(makeProjectile(pos, dir, 0xff2c25, ENEMY_SHOT_SPEED, "enemy"));
+      }
+
+      function spawnTrail(position, color, size) {
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+        const mat = new THREE.PointsMaterial({
+          color,
+          size,
+          transparent: true,
+          opacity: 0.8,
+          depthWrite: false
+        });
+        const mesh = new THREE.Points(geo, mat);
+        mesh.position.copy(position);
+        scene.add(mesh);
+        trails.push({ mesh, life: 0.22, maxLife: 0.22 });
+      }
+
+      function spawnExplosion(position, count, colorA, colorB, scale) {
+        const positions = new Float32Array(count * 3);
+        const velocities = [];
+        const colors = new Float32Array(count * 3);
+        const ca = new THREE.Color(colorA);
+        const cb = new THREE.Color(colorB);
+        for (let i = 0; i < count; i += 1) {
+          const v = randomDirection().multiplyScalar(rand(40, 95) * scale);
+          velocities.push(v);
+          const c = ca.clone().lerp(cb, Math.random());
+          colors[i * 3] = c.r;
+          colors[i * 3 + 1] = c.g;
+          colors[i * 3 + 2] = c.b;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+        const mat = new THREE.PointsMaterial({
+          size: 5.5 * scale,
+          vertexColors: true,
+          transparent: true,
+          opacity: 1,
+          depthWrite: false
+        });
+        const points = new THREE.Points(geo, mat);
+        points.position.copy(position);
+        scene.add(points);
+        explosions.push({ points, velocities, life: 0.6, maxLife: 0.6 });
+      }
+
+      function destroyEnemy(enemy) {
+        enemy.alive = false;
+        scene.remove(enemy.mesh);
+        spawnExplosion(enemy.mesh.position, 20, 0xfff066, 0xff671f, 1);
+      }
+
+      function damagePlayer(amount) {
+        if (!player.alive || player.invincible > 0) return;
+        player.lastDamage = clock.elapsedTime;
+        let remaining = amount;
+        if (player.shield > 0) {
+          const shieldHit = Math.min(player.shield, remaining);
+          player.shield -= shieldHit;
+          remaining -= shieldHit;
+        }
+        if (remaining > 0) {
+          player.hull -= remaining;
+        }
+        shakeTimer = 0.28;
+        shakePower = 2.8;
+        setFlash(0.32);
+        window.setTimeout(() => setFlash(0), 70);
+        if (player.hull <= 0) {
+          player.hull = 0;
+          player.alive = false;
+          spawnExplosion(player.mesh.position, 70, 0xff3b24, 0xffd15c, 1.75);
+          scene.remove(player.mesh);
+          setState("gameOver");
+        }
+      }
+
+      function updatePlayer(dt) {
+        if (!player.alive) return;
+
+        const pitchInput = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
+        const yawInput = (keys.KeyA || keys.ArrowLeft ? 1 : 0) - (keys.KeyD || keys.ArrowRight ? 1 : 0);
+        const rollBank = yawInput * 0.62;
+        const pitchRate = pitchInput * 1.18;
+        const yawRate = yawInput * 1.08;
+
+        const deltaQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+          pitchRate * dt,
+          yawRate * dt,
+          -rollBank * dt * 2.15,
+          "XYZ"
+        ));
+        tempQuat.copy(player.mesh.quaternion).multiply(deltaQuat).normalize();
+        player.mesh.quaternion.slerp(tempQuat, TURN_LERP);
+
+        if (player.rollTime > 0) {
+          player.rollTime -= dt;
+          const spin = player.rollDir * (Math.PI * 2 / 0.4) * dt;
+          player.mesh.rotateZ(spin);
+          player.invincible = Math.max(player.invincible, 0.05);
+          if (player.rollTime <= 0) {
+            player.rollTime = 0;
+          }
+        }
+
+        const boosting = (keys.ShiftLeft || keys.ShiftRight) && player.boost > 0;
+        const braking = keys.ControlLeft || keys.ControlRight;
+        let speed = BASE_SPEED;
+        if (boosting) {
+          speed *= BOOST_MULT;
+          player.boost = Math.max(0, player.boost - 50 * dt);
+        } else {
+          player.boost = Math.min(100, player.boost + 20 * dt);
+        }
+        if (braking) speed *= BRAKE_MULT;
+
+        const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
+        const desiredVelocity = forward.multiplyScalar(speed);
+        player.velocity.lerp(desiredVelocity, 0.075);
+        player.mesh.position.add(player.velocity.clone().multiplyScalar(dt));
+
+        const dist = player.mesh.position.length();
+        if (dist > WORLD_RADIUS) {
+          const normal = player.mesh.position.clone().normalize();
+          player.mesh.position.copy(normal.multiplyScalar(WORLD_RADIUS - 3));
+          player.velocity.add(normal.multiplyScalar(-player.velocity.dot(normal) * 1.55));
+        }
+
+        if (player.invincible > 0) player.invincible -= dt;
+        if (clock.elapsedTime - player.lastDamage > 3) {
+          player.shield = Math.min(100, player.shield + 10 * dt);
+        }
+      }
+
+      function startBarrelRoll(dir) {
+        if (state !== "gameplay" || player.rollTime > 0 || !player.alive) return;
+        player.rollTime = 0.4;
+        player.rollDir = dir;
+        player.invincible = 0.5;
+        setFlash(0.24);
+        window.setTimeout(() => setFlash(0), 90);
+      }
+
+      function updateCamera(dt) {
+        if (!player || !player.mesh.parent) return;
+        const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
+        const up = upVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
+        const desired = player.mesh.position.clone()
+          .add(forward.clone().multiplyScalar(-64))
+          .add(up.clone().multiplyScalar(20));
+        camera.position.lerp(desired, CAMERA_LERP);
+        const lookAt = player.mesh.position.clone()
+          .add(forward.clone().multiplyScalar(55))
+          .add(up.clone().multiplyScalar(3));
+        camera.lookAt(lookAt);
+
+        if (shakeTimer > 0) {
+          shakeTimer -= dt;
+          const strength = shakePower * (shakeTimer / 0.28);
+          camera.position.x += rand(-strength, strength);
+          camera.position.y += rand(-strength, strength);
+        }
+      }
+
+      function updateEnemies(dt) {
+        const now = clock.elapsedTime;
+        for (const enemy of enemies) {
+          if (!enemy.alive) continue;
+          const toPlayer = player.mesh.position.clone().sub(enemy.mesh.position);
+          const distance = toPlayer.length();
+          const dir = toPlayer.normalize();
+          const side = new THREE.Vector3().crossVectors(dir, upVec).normalize();
+          if (side.lengthSq() < 0.01) side.set(1, 0, 0);
+          const strafe = side.multiplyScalar(Math.sin(now * enemy.wobble + enemy.strafe) * 24);
+          const desired = dir.multiplyScalar(enemy.speed).add(strafe);
+          enemy.mesh.position.add(desired.multiplyScalar(dt));
+
+          if (distance < 90) {
+            enemy.mesh.position.add(player.mesh.position.clone().sub(enemy.mesh.position).normalize().multiplyScalar(-32 * dt));
+          }
+
+          const targetLook = player.mesh.position.clone().add(strafe.clone().multiplyScalar(0.1));
+          enemy.mesh.lookAt(targetLook);
+
+          const back = new THREE.Vector3(0, 0, 1).applyQuaternion(enemy.mesh.quaternion).normalize();
+          for (let i = 0; i < 3; i += 1) {
+            if (Math.random() < 0.65) {
+              spawnTrail(enemy.mesh.position.clone().add(back.clone().multiplyScalar(9 + i * 2)), 0xff5b31, 1.7 + i * 0.4);
+            }
+          }
+
+          enemy.cooldown -= dt;
+          if (enemy.cooldown <= 0 && distance < 520 && state === "gameplay") {
+            enemyFire(enemy);
+            enemy.cooldown = rand(2, 3);
+          }
+
+          if (enemy.mesh.position.length() > WORLD_RADIUS - 40) {
+            enemy.mesh.position.multiplyScalar((WORLD_RADIUS - 40) / enemy.mesh.position.length());
+          }
+        }
+      }
+
+      function updateProjectiles(list, dt) {
+        for (let i = list.length - 1; i >= 0; i -= 1) {
+          const shot = list[i];
+          shot.life -= dt;
+          shot.mesh.position.add(shot.velocity.clone().multiplyScalar(dt));
+          if (shot.life <= 0 || shot.mesh.position.length() > WORLD_RADIUS + 160) {
+            scene.remove(shot.mesh);
+            list.splice(i, 1);
+          }
+        }
+      }
+
+      function updateMissiles(dt) {
+        for (let i = missiles.length - 1; i >= 0; i -= 1) {
+          const missile = missiles[i];
+          missile.life -= dt;
+          if (!missile.target || !missile.target.alive || missile.life <= 0) {
+            scene.remove(missile.mesh);
+            missiles.splice(i, 1);
+            continue;
+          }
+          const toTarget = missile.target.mesh.position.clone().sub(missile.mesh.position).normalize();
+          const desired = toTarget.multiplyScalar(MISSILE_SPEED);
+          missile.velocity.lerp(desired, MISSILE_TURN).normalize().multiplyScalar(MISSILE_SPEED);
+          missile.mesh.position.add(missile.velocity.clone().multiplyScalar(dt));
+          missile.mesh.scale.setScalar(1 + Math.sin(clock.elapsedTime * 32) * 0.16);
+          spawnTrail(missile.mesh.position.clone(), 0xffe65a, 3.1);
+
+          if (missile.mesh.position.distanceTo(missile.target.mesh.position) < 13) {
+            missile.target.hp -= 3;
+            if (missile.target.hp <= 0) destroyEnemy(missile.target);
+            spawnExplosion(missile.mesh.position, 12, 0xfff57a, 0xff8a28, 0.8);
+            scene.remove(missile.mesh);
+            missiles.splice(i, 1);
+          }
+        }
+      }
+
+      function updateTrails(dt) {
+        for (let i = trails.length - 1; i >= 0; i -= 1) {
+          const trail = trails[i];
+          trail.life -= dt;
+          trail.mesh.material.opacity = Math.max(0, trail.life / trail.maxLife) * 0.8;
+          trail.mesh.scale.multiplyScalar(1 + dt * 2.5);
+          if (trail.life <= 0) {
+            scene.remove(trail.mesh);
+            trails.splice(i, 1);
+          }
+        }
+      }
+
+      function updateExplosions(dt) {
+        for (let i = explosions.length - 1; i >= 0; i -= 1) {
+          const exp = explosions[i];
+          exp.life -= dt;
+          const positions = exp.points.geometry.attributes.position.array;
+          for (let p = 0; p < exp.velocities.length; p += 1) {
+            positions[p * 3] += exp.velocities[p].x * dt;
+            positions[p * 3 + 1] += exp.velocities[p].y * dt;
+            positions[p * 3 + 2] += exp.velocities[p].z * dt;
+          }
+          exp.points.geometry.attributes.position.needsUpdate = true;
+          exp.points.material.opacity = Math.max(0, exp.life / exp.maxLife);
+          if (exp.life <= 0) {
+            scene.remove(exp.points);
+            explosions.splice(i, 1);
+          }
+        }
+      }
+
+      function updateCollisions() {
+        for (let i = playerShots.length - 1; i >= 0; i -= 1) {
+          const shot = playerShots[i];
+          let hit = false;
+          for (const enemy of enemies) {
+            if (!enemy.alive) continue;
+            if (shot.mesh.position.distanceTo(enemy.mesh.position) < 8) {
+              enemy.hp -= 1;
+              if (enemy.hp <= 0) destroyEnemy(enemy);
+              hit = true;
+              break;
+            }
+          }
+          if (hit) {
+            scene.remove(shot.mesh);
+            playerShots.splice(i, 1);
+          }
+        }
+
+        for (let i = enemyShots.length - 1; i >= 0; i -= 1) {
+          const shot = enemyShots[i];
+          if (player.alive && shot.mesh.position.distanceTo(player.mesh.position) < 6) {
+            damagePlayer(15);
+            scene.remove(shot.mesh);
+            enemyShots.splice(i, 1);
+          }
+        }
+      }
+
+      function updateLock(dt) {
+        if (missileCooldown > 0) missileCooldown = Math.max(0, missileCooldown - dt);
+
+        if (!keys.KeyZ || missileCooldown > 0 || state !== "gameplay") {
+          lockTimer = 0;
+          lockTarget = null;
+          hud.lockWrap.style.opacity = "0";
+          return;
+        }
+
+        const nearest = findNearestLockTarget();
+        if (!nearest) {
+          lockTimer = 0;
+          lockTarget = null;
+          hud.lockWrap.style.opacity = "1";
+          return;
+        }
+
+        if (lockTarget !== nearest) {
+          lockTarget = nearest;
+          lockTimer = 0;
+        }
+        lockTimer += dt;
+        hud.lockWrap.style.opacity = "1";
+        if (lockTimer >= LOCK_TIME) {
+          fireMissile(lockTarget);
+        }
+      }
+
+      function updateHud(time) {
+        const shield = player ? Math.round(player.shield) : 100;
+        const hull = player ? Math.round(player.hull) : 100;
+        const boost = player ? Math.round(player.boost) : 100;
+        const aliveEnemies = enemies.filter(enemy => enemy.alive).length;
+        hud.shieldText.textContent = String(shield);
+        hud.hullText.textContent = String(hull);
+        hud.boostText.textContent = String(boost);
+        hud.enemyText.textContent = String(aliveEnemies);
+        hud.shieldFill.style.width = clamp(shield, 0, 100) + "%";
+        hud.hullFill.style.width = clamp(hull, 0, 100) + "%";
+        hud.boostFill.style.width = clamp(boost, 0, 100) + "%";
+
+        const plasmaReady = time - lastShotTime >= 0.15;
+        hud.plasmaText.textContent = plasmaReady ? "READY" : "COOLING";
+        hud.plasmaText.style.color = plasmaReady ? "#7dffe8" : "#ffd66b";
+        hud.missileText.textContent = missileCooldown <= 0 ? "READY" : missileCooldown.toFixed(1) + "s";
+        hud.missileText.style.color = missileCooldown <= 0 ? "#7dffe8" : "#ffd66b";
+
+        const progress = clamp(lockTimer / LOCK_TIME, 0, 1);
+        hud.lockProgress.style.background =
+          "conic-gradient(rgba(255, 220, 64, 0.95) 0deg, rgba(255, 220, 64, 0.95) " +
+          Math.floor(progress * 360) +
+          "deg, transparent " +
+          Math.floor(progress * 360) +
+          "deg), radial-gradient(circle, transparent 62%, rgba(0, 255, 206, 0.18) 63%, transparent 67%)";
+
+        if (lockTarget && lockTarget.alive) {
+          hud.lockStatusText.textContent = progress >= 1 ? "LOCKED" : "LOCKING " + Math.floor(progress * 100) + "%";
+          hud.lockText.textContent = progress >= 1 ? "LOCKED" : "LOCKING";
+          hud.lockCircle.style.borderColor = progress >= 1 ? "rgba(255, 220, 64, 0.95)" : "rgba(0, 255, 206, 0.7)";
+        } else if (keys.KeyZ && missileCooldown <= 0 && state === "gameplay") {
+          hud.lockStatusText.textContent = "NO TARGET";
+          hud.lockText.textContent = "NO TARGET";
+        } else {
+          hud.lockStatusText.textContent = "STANDBY";
+          hud.lockText.textContent = "LOCKING";
+        }
+      }
+
+      function checkVictory() {
+        if (state !== "gameplay") return;
+        if (enemies.length > 0 && enemies.every(enemy => !enemy.alive)) {
+          setState("missionComplete");
+        }
+      }
+
+      function updateTitleDrift(dt) {
+        if (!player) return;
+        player.mesh.rotation.y += dt * 0.18;
+        player.mesh.rotation.z = Math.sin(clock.elapsedTime * 0.8) * 0.12;
+        camera.position.lerp(new THREE.Vector3(0, 28, 88), 0.03);
+        camera.lookAt(player.mesh.position);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const dt = Math.min(clock.getDelta(), 0.033);
+        const time = clock.elapsedTime;
+
+        if (state === "gameplay") {
+          if (keys.Space) firePlasma(time);
+          updatePlayer(dt);
+          updateEnemies(dt);
+          updateLock(dt);
+          updateProjectiles(playerShots, dt);
+          updateProjectiles(enemyShots, dt);
+          updateMissiles(dt);
+          updateCollisions();
+          updateCamera(dt);
+          checkVictory();
+        } else {
+          updateTitleDrift(dt);
+          updateProjectiles(playerShots, dt);
+          updateProjectiles(enemyShots, dt);
+          updateMissiles(dt);
+        }
+
+        updateTrails(dt);
+        updateExplosions(dt);
+        updateHud(time);
+        renderer.render(scene, camera);
+      }
+
+      function onKeyDown(event) {
+        keys[event.code] = true;
+        if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.code)) {
+          event.preventDefault();
+        }
+
+        if (event.code === "Enter" && (state === "titleScreen" || state === "missionComplete")) {
+          resetGame();
+        } else if (event.code === "KeyR" && state === "gameOver") {
+          resetGame();
+        } else if (event.code === "Space") {
+          firePlasma(clock.elapsedTime);
+        } else if (event.code === "KeyQ") {
+          startBarrelRoll(-1);
+        } else if (event.code === "KeyE") {
+          startBarrelRoll(1);
+        }
+      }
+
+      function onKeyUp(event) {
+        keys[event.code] = false;
+      }
+
+      function onResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      window.addEventListener("keydown", onKeyDown);
+      window.addEventListener("keyup", onKeyUp);
+      window.addEventListener("resize", onResize);
+
+      createStarfield();
+      addBoundaryShell();
+      player = makePlayer();
+      player.mesh.position.set(0, 0, 0);
+      camera.position.set(0, 28, 88);
+      camera.lookAt(0, 0, 0);
+      for (let i = 0; i < ENEMY_COUNT; i += 1) {
+        enemies.push(makeEnemy(i));
+      }
+      setState("titleScreen");
+      animate();
+    }());
+  </script>
+</body>
+</html>
