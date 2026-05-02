@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v5.56 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.57 / 2026-05-03)
+
+## ✅ v5.57 Ship infinite stat upgrades — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 보유 함선 영구 강화 API | ✅ | `POST /api/ships/:id/upgrade-stat` 추가. `atk/def/hp/speed` 중 하나를 실패 없이 누적 강화. |
+| DB 영속화 | ✅ | migration 209 추가. `bonus_speed`, `ship_stat_upgrade_log`, 강화 비용/증가량 설정 추가. |
+| 조선소 UI 표기 | ✅ | 보유 함선 카드에 기본 스탯과 녹색 `(+보너스)` 표시, ATK/DEF/SPD/HP 강화 버튼 추가. |
+| 전투 반영 | ✅ | `battleEngine`이 공격/방어/체력/속도 보너스를 실제 전투 스탯에 반영. |
+
+검증:
+- `node --check server/services/ship.js` 통과
+- `node --check server/routes/ships.js` 통과
+- `node --check server/services/battleEngine.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.56 Fleet battle scale-aware start distance/zoom — 수정 완료
 

@@ -109,6 +109,7 @@ async function getMyShips(walletAddress, options = {}) {
       s.current_hp, s.max_hp, s.is_flagship, s.is_alive,
       s.shield_hp, s.shield_max,
       s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
+      COALESCE(s.bonus_speed, 0) AS bonus_speed,
       s.kills_dealt, s.damage_dealt,
       s.built_at,
       st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,
@@ -134,7 +135,16 @@ async function getMyShips(walletAddress, options = {}) {
   query += ` ORDER BY st.sort_order DESC, s.built_at DESC`;
   
   const { rows } = await pool.query(query, params);
-  return rows;
+  const economy = await getShipUpgradeEconomy(pool);
+  return rows.map(ship => ({
+    ...addShipUpgradeView(ship),
+    upgrade_costs: {
+      atk: calcShipUpgradeCost(ship, 'atk', economy),
+      def: calcShipUpgradeCost(ship, 'def', economy),
+      hp: calcShipUpgradeCost(ship, 'hp', economy),
+      speed: calcShipUpgradeCost(ship, 'speed', economy),
+    },
+  }));
 }
 
 // ─── 진행 중 건조 작업 ───
@@ -939,6 +949,181 @@ async function chargeShield(walletAddress, shipId, units) {
   }
 }
 
+// ─── 함선 영구 스탯 강화 ───
+
+const SHIP_UPGRADE_STATS = {
+  atk:   { column: 'bonus_atk',   setting: 'ship_upgrade_atk_step',   fallback: 1,    multiplier: 1.00, label: 'ATK' },
+  def:   { column: 'bonus_def',   setting: 'ship_upgrade_def_step',   fallback: 1,    multiplier: 1.00, label: 'DEF' },
+  hp:    { column: 'bonus_hp',    setting: 'ship_upgrade_hp_step',    fallback: 200,  multiplier: 1.20, label: 'HP' },
+  speed: { column: 'bonus_speed', setting: 'ship_upgrade_speed_step', fallback: 0.05, multiplier: 1.45, label: 'SPD' },
+};
+
+function toNum(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function upgradePoints(ship, steps) {
+  const atk = Math.max(0, Math.floor(toNum(ship.bonus_atk) / Math.max(1, steps.atk)));
+  const def = Math.max(0, Math.floor(toNum(ship.bonus_def) / Math.max(1, steps.def)));
+  const hp = Math.max(0, Math.floor(toNum(ship.bonus_hp) / Math.max(1, steps.hp)));
+  const speedStep = Math.max(0.01, steps.speed);
+  const speed = Math.max(0, Math.floor(toNum(ship.bonus_speed) / speedStep));
+  return atk + def + hp + speed;
+}
+
+async function getShipUpgradeSteps(client) {
+  return {
+    atk: await getSettingNumber(client, 'ship_upgrade_atk_step', 1),
+    def: await getSettingNumber(client, 'ship_upgrade_def_step', 1),
+    hp: await getSettingNumber(client, 'ship_upgrade_hp_step', 200),
+    speed: await getSettingNumber(client, 'ship_upgrade_speed_step', 0.05),
+  };
+}
+
+async function getShipUpgradeEconomy(client) {
+  return {
+    base: await getSettingNumber(client, 'ship_upgrade_base_gp', 25),
+    growth: await getSettingNumber(client, 'ship_upgrade_growth', 1.14),
+    steps: await getShipUpgradeSteps(client),
+  };
+}
+
+function calcShipUpgradeCost(ship, stat, economy) {
+  const cfg = SHIP_UPGRADE_STATS[stat];
+  if (!cfg) throw new Error('INVALID_STAT');
+  const points = Math.min(180, upgradePoints(ship, economy.steps));
+  return Math.max(1, Math.ceil(economy.base * Math.pow(economy.growth, points) * cfg.multiplier));
+}
+
+async function getShipUpgradeCost(client, ship, stat) {
+  return calcShipUpgradeCost(ship, stat, await getShipUpgradeEconomy(client));
+}
+
+function addShipUpgradeView(ship) {
+  const bonusAtk = toNum(ship.bonus_atk);
+  const bonusDef = toNum(ship.bonus_def);
+  const bonusHp = toNum(ship.bonus_hp);
+  const bonusSpeed = toNum(ship.bonus_speed);
+  return {
+    ...ship,
+    bonus_atk: bonusAtk,
+    bonus_def: bonusDef,
+    bonus_hp: bonusHp,
+    bonus_speed: bonusSpeed,
+    effective_atk: toNum(ship.base_atk) + bonusAtk,
+    effective_def: toNum(ship.base_def) + bonusDef,
+    effective_speed: +(toNum(ship.base_speed) + bonusSpeed).toFixed(2),
+    effective_max_hp: toNum(ship.max_hp) + bonusHp,
+  };
+}
+
+async function upgradeShipStat(walletAddress, shipId, stat) {
+  stat = String(stat || '').toLowerCase();
+  const cfg = SHIP_UPGRADE_STATS[stat];
+  if (!cfg) throw new Error('INVALID_STAT');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: shipRows } = await client.query(`
+      SELECT s.id, s.owner_wallet, s.fleet_id, s.ship_type_code, s.current_hp, s.max_hp,
+             s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
+             COALESCE(s.bonus_speed, 0) AS bonus_speed,
+             st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,
+             st.base_atk, st.base_def, st.base_speed
+      FROM ships s
+      JOIN ship_types st ON st.code = s.ship_type_code
+      WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
+      FOR UPDATE OF s
+    `, [shipId, walletAddress]);
+    if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
+    const ship = shipRows[0];
+
+    try {
+      const { rows: battleRows } = await client.query(`
+        SELECT 1
+        FROM fleet_battle_participants fbp
+        JOIN fleet_battles fb ON fb.id = fbp.battle_id
+        WHERE fbp.fleet_id = $1 AND fb.status IN ('pending', 'active')
+        LIMIT 1
+      `, [ship.fleet_id]);
+      if (battleRows.length) throw new Error('SHIP_IN_BATTLE');
+    } catch (e) {
+      if (e.message === 'SHIP_IN_BATTLE') throw e;
+    }
+
+    const { rows: userRows } = await client.query(
+      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      [walletAddress]
+    );
+    if (!userRows[0]) throw new Error('USER_NOT_FOUND');
+
+    const economy = await getShipUpgradeEconomy(client);
+    const delta = economy.steps[stat] || cfg.fallback;
+    const cost = calcShipUpgradeCost(ship, stat, economy);
+    if (parseInt(userRows[0].gp_balance) < cost) {
+      const err = new Error('INSUFFICIENT_GP');
+      err.meta = { required: cost, balance: userRows[0].gp_balance };
+      throw err;
+    }
+
+    const fromBonus = toNum(ship[cfg.column]);
+    const toBonus = +(fromBonus + delta).toFixed(stat === 'speed' ? 2 : 0);
+
+    await client.query(
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      [cost, walletAddress]
+    );
+
+    const hpCurrentDelta = stat === 'hp' ? Math.round(delta) : 0;
+    const { rows: updatedRows } = await client.query(`
+      UPDATE ships
+      SET ${cfg.column} = $1,
+          current_hp = current_hp + $2,
+          upgrade_level = COALESCE(upgrade_level, 0) + 1
+      WHERE id = $3
+      RETURNING *
+    `, [toBonus, hpCurrentDelta, shipId]);
+
+    await client.query(`
+      INSERT INTO ship_stat_upgrade_log (ship_id, wallet_address, stat, from_bonus, to_bonus, gp_cost)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [shipId, walletAddress, stat, fromBonus, toBonus, cost]);
+
+    await client.query('COMMIT');
+
+    try {
+      const { logGPActivity } = require('../db');
+      logGPActivity(walletAddress, -cost, 'ship_stat_upgrade',
+        `함선 ${cfg.label} 강화 (ID:${shipId}) +${delta}`).catch(() => {});
+    } catch (_) {}
+    logFleetGpActivity(walletAddress, 'ship_stat_upgrade', -cost, {
+      ship_id: shipId,
+      stat,
+      from_bonus: fromBonus,
+      to_bonus: toBonus,
+    });
+
+    const nextCost = calcShipUpgradeCost(updatedRows[0], stat, economy);
+    return {
+      success: true,
+      ship_id: shipId,
+      stat,
+      delta,
+      gp_cost: cost,
+      next_cost: nextCost,
+      ship: addShipUpgradeView({ ...ship, ...updatedRows[0] }),
+    };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // ─── 헬퍼 ───
 
 async function getSettingInt(client, key, fallback) {
@@ -956,6 +1141,20 @@ async function getSettingInt(client, key, fallback) {
       return isNaN(n) ? fallback : n;
     }
     return val || fallback;
+  } catch { return fallback; }
+}
+
+async function getSettingNumber(client, key, fallback) {
+  try {
+    const { rows } = await client.query(
+      `SELECT value FROM settings WHERE category = 'fleet' AND key = $1`,
+      [key]
+    );
+    if (!rows[0]) return fallback;
+    const raw = rows[0].value;
+    const val = typeof raw === 'string' ? raw.replace(/^"|"$/g, '') : raw;
+    const n = Number(val);
+    return Number.isFinite(n) ? n : fallback;
   } catch { return fallback; }
 }
 
@@ -1092,5 +1291,6 @@ module.exports = {
   getFleetSummary,
   repairShip,
   chargeShield,
+  upgradeShipStat,
   scrapShip,
 };

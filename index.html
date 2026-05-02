@@ -2961,6 +2961,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .bp-stat-label { color: rgba(255,255,255,.35); font-size: 8px; }
 .bp-stat-value { color: rgba(255,255,255,.9); font-weight: 700; }
+.stat-bonus {
+  color: #66bb6a;
+  font-weight: 900;
+  margin-left: 3px;
+  text-shadow: 0 0 8px rgba(102,187,106,.35);
+}
 .bp-cost {
   font-size: 9px; margin-bottom: 8px;
   padding: 6px 8px;
@@ -3079,6 +3085,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .ship-hp-fill.low { background: #ff9800; }
 .ship-hp-fill.crit { background: #ef5350; }
 .ship-hp-text { font-size: 8px; color: rgba(255,255,255,.4); }
+.ship-upgrade-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 6px;
+}
+.ship-upgrade-btn {
+  padding: 5px 2px;
+  border-radius: 5px;
+  border: 1px solid rgba(102,187,106,.32);
+  background: rgba(102,187,106,.10);
+  color: #9be7a0;
+  cursor: pointer;
+  font-family: var(--fn);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .8px;
+  white-space: nowrap;
+}
+.ship-upgrade-btn:hover { background: rgba(102,187,106,.18); box-shadow: 0 0 12px rgba(102,187,106,.18); }
+.ship-upgrade-btn .cost { display: block; color: rgba(255,215,0,.82); font-size: 7px; margin-top: 1px; }
 .sy-empty {
   text-align: center; padding: 40px 20px;
   color: rgba(255,255,255,.3); font-size: 11px; letter-spacing: 2px;
@@ -42328,9 +42355,10 @@ function renderShips() {
     return;
   }
   list.innerHTML = shipyardState.ships.map(function(s) {
-    var hpPct = Math.max(0, Math.min(100, (s.current_hp / s.max_hp) * 100));
+    var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
+    var hpPct = Math.max(0, Math.min(100, (s.current_hp / effectiveMaxHp) * 100));
     var hpClass = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
-    var isDamaged = s.current_hp < s.max_hp;
+    var isDamaged = s.current_hp < effectiveMaxHp;
     var shieldHp  = parseInt(s.shield_hp) || 0;
     var shieldMax = parseInt(s.shield_max) || 0;
     var shieldPct = shieldMax > 0 ? Math.min(100, (shieldHp / shieldMax) * 100) : 0;
@@ -42342,15 +42370,67 @@ function renderShips() {
       '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + s.name_ko + '</div>' +
       '<div class="ship-class">' + s.class_label + '</div>' +
       '<div class="ship-hp-bar"><div class="ship-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div></div>' +
-      '<div class="ship-hp-text">HP ' + syFmt(s.current_hp) + ' / ' + syFmt(s.max_hp) + '</div>' +
+      '<div class="ship-hp-text">HP ' + syFmt(s.current_hp) + ' / ' + syStatValue(s.max_hp, s.bonus_hp) + '</div>' +
       shieldBar +
+      '<div class="bp-stats" style="margin:7px 0 0">' +
+        '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + syStatValue(s.base_atk, s.bonus_atk) + '</div></div>' +
+        '<div class="bp-stat"><div class="bp-stat-label">DEF</div><div class="bp-stat-value">' + syStatValue(s.base_def, s.bonus_def) + '</div></div>' +
+        '<div class="bp-stat"><div class="bp-stat-label">SPD</div><div class="bp-stat-value">' + syStatValue(s.base_speed, s.bonus_speed, 2) + '</div></div>' +
+        '<div class="bp-stat"><div class="bp-stat-label">MOD</div><div class="bp-stat-value">' + syFmt(s.upgrade_level || 0) + '</div></div>' +
+      '</div>' +
+      '<div class="ship-upgrade-grid">' +
+        syUpgradeBtn(s, 'atk', 'ATK') +
+        syUpgradeBtn(s, 'def', 'DEF') +
+        syUpgradeBtn(s, 'speed', 'SPD') +
+        syUpgradeBtn(s, 'hp', 'HP') +
+      '</div>' +
       '<div style="display:flex;gap:4px;margin-top:6px">' +
-        (isDamaged ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + s.max_hp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>' : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">✅ 최대HP</button>') +
-        '<button onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + s.max_hp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
+        (isDamaged ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + effectiveMaxHp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>' : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">✅ 최대HP</button>') +
+        '<button onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + effectiveMaxHp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
         '<button onclick="syScrapShip(' + s.id + ',\'' + s.name_ko + '\')" title="해체 (환불+소각)" style="padding:5px 6px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.35);color:#ff8a80;cursor:pointer;font-family:var(--fn)">🔥</button>' +
       '</div>' +
     '</div>';
   }).join('');
+}
+
+function syStatValue(base, bonus, decimals) {
+  var b = parseFloat(base) || 0;
+  var add = parseFloat(bonus) || 0;
+  var baseText = decimals ? b.toFixed(decimals) : syFmt(b);
+  if (add <= 0) return baseText;
+  var bonusText = decimals ? add.toFixed(decimals) : syFmt(add);
+  return baseText + '<span class="stat-bonus">(+' + bonusText + ')</span>';
+}
+
+function syUpgradeBtn(ship, stat, label) {
+  var cost = ship.upgrade_costs && ship.upgrade_costs[stat] ? syFmt(ship.upgrade_costs[stat]) + ' GP' : 'GP';
+  return '<button class="ship-upgrade-btn" onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
+    label + ' +' +
+    '<span class="cost">' + cost + '</span>' +
+  '</button>';
+}
+
+async function syUpgradeShipStat(shipId, stat) {
+  var labelMap = { atk: '공격력', def: '방어력', hp: '체력', speed: '속도' };
+  var ok = await gameConfirm({
+    title: '함선 강화', icon: '⚙️',
+    body: '<div style="font-size:11px;color:#9be7a0;font-weight:700;margin-bottom:5px">' + (labelMap[stat] || stat) + '을 영구 강화합니다.</div>'
+      + '<div style="font-size:10px;color:var(--tx3)">강화는 실패하지 않고 누적됩니다. 많이 투자한 함선일수록 다음 비용이 올라갑니다.</div>',
+    confirmText: '강화하기'
+  });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/ships/' + shipId + '/upgrade-stat', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ stat: stat })
+    });
+    var d = await r.json();
+    if (!r.ok || d.error) { showFactionToast('강화 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('강화 완료: ' + (labelMap[stat] || stat) + ' +' + d.delta + ' (-' + d.gp_cost + ' GP)', 'success');
+    refreshBalance();
+    await refreshShipyard();
+  } catch(e) { showFactionToast('강화 요청 실패', 'error'); }
 }
 
 async function syRepairShip(shipId, name, currentHp, maxHp) {

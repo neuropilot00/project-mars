@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Ship infinite stat upgrades (v5.57)
+
+- **보유 함선 무한 강화 추가**: 개별 함선에 `ATK/DEF/SPD/HP`를 영구 투자하는 API와 DB 로그를 추가. 실패/파괴/`+강` 등급명 없이 누적 성장.
+- **조선소 강화 UI 추가**: 내 함선 카드에서 기본 스탯 옆에 녹색 `(+보너스)`가 표시되고, 각 스탯 강화 버튼을 바로 누를 수 있음.
+- **전투 스탯 반영**: 서버 전투 엔진이 강화된 공격력, 방어력, 체력, 속도를 실제 전투 계산에 반영.
+- **경제 설정 추가**: `ship_upgrade_base_gp`, `ship_upgrade_growth`, `ship_upgrade_*_step` 설정으로 강화 비용과 증가량 조절 가능.
+
+검증:
+- `node --check server/services/ship.js` 통과
+- `node --check server/routes/ships.js` 통과
+- `node --check server/services/battleEngine.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Fleet battle scale-aware start distance/zoom (v5.56)
 
 - **함대 수 기반 시작 거리**: `battleScaleConfig()` 추가. 1:1 소규모전은 더 가까운 상/하단에서 시작하고, 함대 수가 많을수록 시작 간격이 넓어짐.

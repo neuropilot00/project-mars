@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.56 (Fleet battle scale-aware start distance/zoom) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.57 (Ship infinite stat upgrades) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,16 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.56 최신 핸드오프 — 함대 수 기반 전투 거리/줌
+### v5.57 최신 핸드오프 — 보유 함선 무한 스탯 강화
+
+- 보유 함선은 `POST /api/ships/:id/upgrade-stat`로 `atk`, `def`, `hp`, `speed` 중 하나를 영구 강화할 수 있다.
+- 강화는 실패/파괴/등급명 없이 누적된다. 조선소 보유 함선 카드에는 기본 스탯 옆에 녹색 `(+N)` 보너스가 표시된다.
+- `server/migrations/209_ship_infinite_stat_upgrades.sql`가 `ships.bonus_speed`, `ship_stat_upgrade_log`, 강화 비용/증가량 설정을 추가한다.
+- 강화 비용은 총 투자 횟수 기반으로 증가한다. 설정 키는 `ship_upgrade_base_gp`, `ship_upgrade_growth`, `ship_upgrade_*_step`.
+- HP 강화는 `bonus_hp`와 `current_hp`를 같이 올린다. 수리/실드/전투 계산은 `max_hp + bonus_hp` 기준을 유지한다.
+- 서버 전투 엔진은 `bonus_atk`, `bonus_def`, `bonus_hp`, `bonus_speed`를 실제 전투 스탯에 반영한다.
+
+### v5.56 핸드오프 — 함대 수 기반 전투 거리/줌
 
 - 택티컬랩 전투에는 `battleScaleConfig()`가 있음.
 - 함대 수가 적을수록 시작 간격(`startGap`), 최소/이상 교전 거리(`minPad`, `idealPad`)가 줄고 최대 카메라 줌(`maxZoom`)이 커진다.

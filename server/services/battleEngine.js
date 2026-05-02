@@ -175,6 +175,7 @@ async function loadBattleData(battleId) {
     const { rows: shipRows } = await pool.query(`
       SELECT s.id, s.ship_type_code, s.current_hp, s.max_hp, s.is_flagship,
              s.bonus_atk, s.bonus_def, s.bonus_hp,
+             COALESCE(s.bonus_speed, 0) AS bonus_speed,
              s.shield_hp, s.shield_max,
              st.name_ko, st.size_class, st.role,
              st.base_atk, st.base_def, st.base_speed,
@@ -239,7 +240,7 @@ async function loadBattleData(battleId) {
             current_hp: st.max_hp,
             max_hp: st.max_hp,
             is_flagship: false,
-            bonus_atk: 0, bonus_def: 0, bonus_hp: 0,
+            bonus_atk: 0, bonus_def: 0, bonus_hp: 0, bonus_speed: 0,
             name_ko: st.name_ko,
             size_class: st.size_class,
             role: st.role,
@@ -373,7 +374,7 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult =
     // 스탯 (전투력 배율 적용: warrior +30%, miner/crafter/merchant 패널티)
     atk: Math.max(1, Math.round((parseInt(shipData.base_atk) + parseInt(shipData.bonus_atk || 0)) * combatPowerMult)),
     def: parseInt(shipData.base_def) + parseInt(shipData.bonus_def || 0),
-    speed: parseFloat(shipData.base_speed),
+    speed: Math.max(0.05, parseFloat(shipData.base_speed) + parseFloat(shipData.bonus_speed || 0)),
     fireInterval: parseInt(shipData.fire_interval),
     fireType: shipData.fire_type,
     shots: parseInt(shipData.shots) || 1,

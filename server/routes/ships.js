@@ -9,6 +9,7 @@
 // POST /api/ships/build            — 건조 시작
 // POST /api/ships/build-jobs/:id/complete — 건조 완료 수령 (수동)
 // POST /api/ships/build-jobs/:id/cancel   — 건조 취소
+// POST /api/ships/:id/upgrade-stat        — 보유 함선 영구 스탯 강화
 // POST /api/ships/process-completed       — 완료 작업 일괄 처리 (관리자/스케줄러)
 // ═══════════════════════════════════════════════════════════════
 
@@ -232,6 +233,36 @@ router.post('/process-completed', requireAuth, async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('[ships] process-completed error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * POST /api/ships/:id/upgrade-stat
+ * Body: { stat: 'atk' | 'def' | 'hp' | 'speed' }
+ */
+router.post('/:id/upgrade-stat', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const shipId = parseInt(req.params.id);
+    if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
+
+    const stat = String(req.body.stat || '').toLowerCase();
+    const result = await shipService.upgradeShipStat(wallet, shipId, stat);
+    res.json(result);
+  } catch (err) {
+    const errorMap = {
+      'INVALID_STAT':     400,
+      'SHIP_NOT_FOUND':   404,
+      'SHIP_IN_BATTLE':   409,
+      'USER_NOT_FOUND':   404,
+      'INSUFFICIENT_GP':  402,
+    };
+    const status = errorMap[err.message];
+    if (status) return res.status(status).json({ error: err.message, meta: err.meta || undefined });
+    console.error('[ships] upgrade-stat error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
   }
 });
