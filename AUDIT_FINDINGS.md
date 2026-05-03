@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.67 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.68 / 2026-05-03)
+
+## ✅ v5.68 Shipyard material ownership visibility — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 제작 재료 보유량 표시 | ✅ | 청사진 카드의 GP/광물 요구량을 `보유 / 필요`로 표시. 충분하면 활성 녹색, 부족하면 비활성 붉은 톤. |
+| 제작 확인 모달 | ✅ | 제작 확인 단계에서도 GP와 광물 보유량을 모두 표시하고, 부족 항목이 있으면 confirm disabled. |
+| 강화 버튼 정보 | ✅ | 강화 버튼에 GP 비용, 성공 확률, 재료 `보유 / 필요`를 함께 표시. 부족한 항목은 붉은 톤. |
+| 강화 확인 모달 | ✅ | 성공 확률, GP `보유 / 필요`, 재료 `보유 / 필요`를 표시하고 GP/재료 부족 시 실행 차단. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.67 Campaign editor/in-game coordinate parity — 수정 완료
 

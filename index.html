@@ -2946,16 +2946,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .bp-cost-line { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .bp-cost-gp { color: #ffd700; font-weight: 700; }
+.bp-cost-gp.short { color: #ef9a9a; opacity: .85; }
 .bp-cost-item {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 1px 6px;
   background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
   border-radius: 3px;
   color: rgba(255,255,255,.7);
   font-size: 9px;
 }
-.bp-cost-item.ok { color: #a5d6a7; }
-.bp-cost-item.short { color: #ef9a9a; background: rgba(239,83,80,.1); }
+.bp-cost-item.ok { color: #a5d6a7; background: rgba(76,175,80,.1); border-color: rgba(129,199,132,.25); }
+.bp-cost-item.short { color: #ef9a9a; background: rgba(239,83,80,.1); border-color: rgba(239,83,80,.28); opacity: .72; }
+.bp-cost-item b { color: currentColor; font-weight: 900; }
+.bp-cost-item .need { opacity: .62; }
 .bp-build-time {
   font-size: 8px; color: rgba(255,255,255,.4);
   margin-top: 4px;
@@ -3094,6 +3100,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .ship-upgrade-btn:hover { background: rgba(102,187,106,.18); box-shadow: 0 0 12px rgba(102,187,106,.18); }
 .ship-upgrade-btn .cost { display: block; color: rgba(255,215,0,.82); font-size: 7px; margin-top: 1px; }
+.ship-upgrade-btn.need { border-color: rgba(239,83,80,.35); background: rgba(239,83,80,.08); color: #ffb3b3; }
+.ship-upgrade-btn .cost.short,
+.ship-upgrade-btn .mat.short { color: #ef9a9a; opacity: .85; }
 .ship-upgrade-btn:disabled {
   opacity: .36;
   cursor: not-allowed;
@@ -42404,16 +42413,46 @@ function shipRoleInfo(role) {
   return SHIP_ROLE_INFO[(role || 'dps').toLowerCase()] || SHIP_ROLE_INFO.dps;
 }
 
+function syGpBalance() {
+  return Math.floor(Number((shipyardState.summary && shipyardState.summary.gp_balance) || walletState.gameGP || 0));
+}
+
+function syOwnedResourceQty(code) {
+  return parseInt((shipyardState.myInventory && shipyardState.myInventory[code]) || 0, 10) || 0;
+}
+
+function syResourceName(code) {
+  return (MINERAL_ICONS[code] || '') + ' ' + (MINERAL_KO[code] || code);
+}
+
+function syNeedChip(label, have, need, okClass) {
+  var enough = Number(have) >= Number(need);
+  return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + (okClass ? ' ' + okClass : '') + '" title="보유 ' + syFmt(have) + ' / 필요 ' + syFmt(need) + '">' +
+    '<span>' + fcEsc(label) + '</span><b>' + syFmt(have) + '</b><span class="need">/ ' + syFmt(need) + '</span>' +
+  '</span>';
+}
+
+function syBuildRequirementInfo(ship) {
+  var recipe = ship.recipe_minerals || {};
+  var gpHave = syGpBalance();
+  var gpNeed = Number(ship.build_gp_cost || 0);
+  var rows = [{ k:'💰 GP', v: syFmt(gpHave) + ' / ' + syFmt(gpNeed), insufficient: gpHave < gpNeed, ok: gpHave >= gpNeed }];
+  Object.entries(recipe).forEach(function(e) {
+    var code = e[0], need = Number(e[1] || 0), have = syOwnedResourceQty(code);
+    rows.push({ k: syResourceName(code), v: syFmt(have) + ' / ' + syFmt(need), insufficient: have < need, ok: have >= need });
+  });
+  return rows;
+}
+
 function renderBlueprintCard(s) {
   var recipe = s.recipe_minerals || {};
   var mineralCheck = Object.entries(recipe).map(function(e) {
     var code = e[0], need = e[1];
-    var have = shipyardState.myInventory[code] || 0;
-    var enough = have >= need;
-    var label = (MINERAL_ICONS[code] || '') + ' ' + (MINERAL_KO[code] || code) + ' ×' + need;
-    return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + '" title="보유: ' + have + '">' + label + '</span>';
+    var have = syOwnedResourceQty(code);
+    return syNeedChip(syResourceName(code), have, need);
   }).join('');
-  var gpShort = s.build_gp_cost > ((shipyardState.summary && shipyardState.summary.gp_balance) || 0);
+  var gpHave = syGpBalance();
+  var gpShort = s.build_gp_cost > gpHave;
   var buildMinutes = Math.round(s.build_time_seconds / 60);
   var buildTime = buildMinutes >= 60 ? (Math.floor(buildMinutes/60) + '시간 ' + (buildMinutes%60) + '분') : (buildMinutes + '분');
   var limitsText = '';
@@ -42449,7 +42488,7 @@ function renderBlueprintCard(s) {
       '<div class="bp-stat"><div class="bp-stat-label">DEF</div><div class="bp-stat-value">' + s.base_def + '</div></div>' +
       '<div class="bp-stat"><div class="bp-stat-label">SPD</div><div class="bp-stat-value">' + s.base_speed + '</div></div>' +
     '</div>' +
-    '<div class="bp-cost"><div class="bp-cost-line"><span class="bp-cost-gp ' + (gpShort ? 'short' : '') + '">💰 ' + syFmt(s.build_gp_cost) + ' GP</span></div>' +
+    '<div class="bp-cost"><div class="bp-cost-line">' + syNeedChip('💰 GP', gpHave, s.build_gp_cost) + '</div>' +
       (mineralCheck ? '<div class="bp-cost-line" style="margin-top:4px">' + mineralCheck + '</div>' : '') +
       '<div class="bp-build-time">⏱ 건조: ' + buildTime + '</div></div>' +
     (limitsText ? '<div class="bp-limits">' + limitsText + '</div>' : '') +
@@ -42466,17 +42505,9 @@ async function buildShip(shipTypeCode) {
   var buildMin = Math.round((ship.build_time_seconds||0)/60);
   var buildTimeTxt = buildMin >= 60 ? (Math.floor(buildMin/60)+'h '+(buildMin%60)+'m') : (buildMin+' min');
   // 재료 체크
-  var recipe = ship.recipe_minerals || {};
-  var mineralList = Object.entries(recipe).map(function(e){
-    var code = e[0], need = e[1];
-    var have = (shipyardState.myInventory && shipyardState.myInventory[code]) || 0;
-    var enough = have >= need;
-    return { k:(MINERAL_ICONS[code]||'')+' '+(MINERAL_KO[code]||code), v: have+' / '+need, insufficient: !enough, ok: enough };
-  });
-  var gpHave = (shipyardState.summary && shipyardState.summary.gp_balance) || 0;
-  var gpShort = gpHave < ship.build_gp_cost;
-  var info = [{ k:'💰 GP', v: gpHave+' / '+ship.build_gp_cost, insufficient: gpShort, ok: !gpShort }]
-    .concat(mineralList)
+  var requirementInfo = syBuildRequirementInfo(ship);
+  var blocked = requirementInfo.some(function(r){ return r.insufficient; });
+  var info = requirementInfo
     .concat([
       { k:'⚙ Role',       v: shipRoleInfo(ship.role).label + ' · ' + shipRoleInfo(ship.role).desc },
       { k:'⏱ Build Time', v: buildTimeTxt },
@@ -42501,7 +42532,7 @@ async function buildShip(shipTypeCode) {
     body: bodyHtml,
     info: info,
     confirmText: '⚒ ' + (t && t('gov_ship_build') || 'START BUILD'),
-    disabled: gpShort || mineralList.some(function(m){ return m.insufficient; })
+    disabled: blocked
   });
   if (!ok) return;
   try {
@@ -42654,11 +42685,15 @@ function syStatValue(base, bonus, decimals) {
 function syUpgradeBtn(ship, stat, label) {
   var offer = ship.upgrade_offers && ship.upgrade_offers[stat];
   var cost = offer ? syFmt(offer.cost) + ' GP' : (ship.upgrade_costs && ship.upgrade_costs[stat] ? syFmt(ship.upgrade_costs[stat]) + ' GP' : 'GP');
-  var material = offer ? ((MINERAL_ICONS[offer.material_code] || '') + ' ' + (MINERAL_KO[offer.material_code] || offer.material_code) + '×' + offer.material_qty) : '';
-  return '<button class="ship-upgrade-btn" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
+  var gpShort = offer && syGpBalance() < Number(offer.cost || 0);
+  var matHave = offer ? syOwnedResourceQty(offer.material_code) : 0;
+  var matNeed = offer ? Number(offer.material_qty || 0) : 0;
+  var matShort = offer && matHave < matNeed;
+  var material = offer ? (syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
+  return '<button class="ship-upgrade-btn ' + (gpShort || matShort ? 'need' : '') + '" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
     label + ' +' +
-    '<span class="cost">' + cost + '</span>' +
-    (offer ? '<span class="chance">' + offer.chance + '%</span><span class="mat">' + material + '</span>' : '') +
+    '<span class="cost ' + (gpShort ? 'short' : '') + '">' + cost + '</span>' +
+    (offer ? '<span class="chance">' + offer.chance + '%</span><span class="mat ' + (matShort ? 'short' : '') + '">' + material + '</span>' : '') +
   '</button>';
 }
 
@@ -42667,22 +42702,26 @@ async function syUpgradeShipStat(shipId, stat) {
   var ship = (shipyardState.ships || []).find(function(s){ return s.id === shipId; });
   var offer = ship && ship.upgrade_offers && ship.upgrade_offers[stat];
   if (ship && ship.is_market_listed) { showFactionToast('판매중인 함선은 강화할 수 없습니다', 'error'); return; }
-  var haveQty = offer ? parseInt((shipyardState.myInventory || {})[offer.material_code] || 0, 10) : 0;
+  var haveQty = offer ? syOwnedResourceQty(offer.material_code) : 0;
   var needQty = offer ? parseInt(offer.material_qty || 0, 10) : 0;
+  var gpHave = syGpBalance();
+  var gpNeed = offer ? Number(offer.cost || 0) : 0;
+  var enoughGp = !offer || gpHave >= gpNeed;
   var enoughMaterial = !offer || haveQty >= needQty;
-  var materialName = offer ? ((MINERAL_ICONS[offer.material_code] || '') + ' ' + (MINERAL_KO[offer.material_code] || offer.material_code)) : '-';
-  var materialText = offer ? (materialName + ' ' + syFmt(haveQty) + ' / ' + syFmt(needQty) + (enoughMaterial ? ' 보유' : ' 부족')) : '-';
+  var materialName = offer ? syResourceName(offer.material_code) : '-';
+  var materialText = offer ? (syFmt(haveQty) + ' / ' + syFmt(needQty)) : '-';
+  var blocked = !enoughGp || !enoughMaterial;
   var ok = await gameConfirm({
     title: '함선 강화', icon: '⚙️',
     body: '<div style="font-size:11px;color:#9be7a0;font-weight:700;margin-bottom:5px">' + (labelMap[stat] || stat) + '을 영구 강화합니다.</div>'
       + '<div style="font-size:10px;color:var(--tx3)">강화는 확률형입니다. 실패해도 GP와 재료는 소모되고, 스탯은 그대로 유지됩니다.</div>',
     info: offer ? [
       { k:'성공 확률', v: offer.chance + '%' },
-      { k:'GP 비용', v: syFmt(offer.cost) + ' GP' },
-      { k:'소모 재료', v: materialText, insufficient: !enoughMaterial }
+      { k:'💰 GP', v: syFmt(gpHave) + ' / ' + syFmt(gpNeed), insufficient: !enoughGp, ok: enoughGp },
+      { k: materialName, v: materialText, insufficient: !enoughMaterial, ok: enoughMaterial }
     ] : undefined,
-    confirmText: enoughMaterial ? '강화하기' : '재료 부족',
-    disabled: !enoughMaterial
+    confirmText: blocked ? '재료 부족' : '강화하기',
+    disabled: blocked
   });
   if (!ok) return;
   try {
