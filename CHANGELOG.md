@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Ship upgrade material visibility + fleet command modal stability (v5.65)
+
+- **강화 재료 보유량 표시**: 함선 강화 확인 모달에 필요 재료의 보유량/필요량과 부족 여부를 표시.
+- **쐐기 진형 재배치**: 세로 전장 기준으로 앞쪽 1척에서 후방으로 퍼지는 삼각 돌격 대형으로 수정.
+- **Composition 집계 안정화**: 함선 `size_class` 별칭과 `class_label`을 정규화해 우측 수량 표시 누락을 방지.
+- **함대지휘 모달 안정화**: 진형/기동/함선 이동/기함 지정 후 모달 상태와 내부 스크롤 위치를 유지.
+- **Fleet API wallet 비교 보강**: 함대 목록/상세/수정/이동 소유권 체크에서 wallet 대소문자 차이를 허용.
+- **모바일 safe-area 보정**: Fleet Command backdrop CSS 셀렉터 오타를 수정해 모바일 모달 위치 보정이 적용되도록 변경.
+
+검증:
+- `node --check server/services/fleet.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Campaign editor position + fleet command vertical UX (v5.64)
 
 - **캠페인 에디터 위치 우선 적용**: 인게임 스토리 화면이 서버 에디터 레이아웃을 받은 뒤에도 localStorage의 최신 에디터 좌표를 다시 병합해, 방금 수정한 캐릭터 위치가 덮이지 않도록 수정.

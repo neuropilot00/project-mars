@@ -4638,7 +4638,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   }
   /* 풀스크린 모달의 backdrop도 top padding 확보 */
   .shipyard-modal-backdrop,
-  .fleetcmd-backdrop,
+  .fleetcmd-modal-backdrop,
   .faction-modal-backdrop,
   .bh-modal-backdrop,
   .tn-modal-backdrop {
@@ -42669,7 +42669,11 @@ async function syUpgradeShipStat(shipId, stat) {
   var ship = (shipyardState.ships || []).find(function(s){ return s.id === shipId; });
   var offer = ship && ship.upgrade_offers && ship.upgrade_offers[stat];
   if (ship && ship.is_market_listed) { showFactionToast('판매중인 함선은 강화할 수 없습니다', 'error'); return; }
-  var materialText = offer ? ((MINERAL_ICONS[offer.material_code] || '') + ' ' + (MINERAL_KO[offer.material_code] || offer.material_code) + ' ×' + offer.material_qty) : '-';
+  var haveQty = offer ? parseInt((shipyardState.myInventory || {})[offer.material_code] || 0, 10) : 0;
+  var needQty = offer ? parseInt(offer.material_qty || 0, 10) : 0;
+  var enoughMaterial = !offer || haveQty >= needQty;
+  var materialName = offer ? ((MINERAL_ICONS[offer.material_code] || '') + ' ' + (MINERAL_KO[offer.material_code] || offer.material_code)) : '-';
+  var materialText = offer ? (materialName + ' ' + syFmt(haveQty) + ' / ' + syFmt(needQty) + (enoughMaterial ? ' 보유' : ' 부족')) : '-';
   var ok = await gameConfirm({
     title: '함선 강화', icon: '⚙️',
     body: '<div style="font-size:11px;color:#9be7a0;font-weight:700;margin-bottom:5px">' + (labelMap[stat] || stat) + '을 영구 강화합니다.</div>'
@@ -42677,9 +42681,10 @@ async function syUpgradeShipStat(shipId, stat) {
     info: offer ? [
       { k:'성공 확률', v: offer.chance + '%' },
       { k:'GP 비용', v: syFmt(offer.cost) + ' GP' },
-      { k:'소모 재료', v: materialText }
+      { k:'소모 재료', v: materialText, insufficient: !enoughMaterial }
     ] : undefined,
-    confirmText: '강화하기'
+    confirmText: enoughMaterial ? '강화하기' : '재료 부족',
+    disabled: !enoughMaterial
   });
   if (!ok) return;
   try {
@@ -42934,7 +42939,7 @@ var MINERAL_KO = {
 
 <!-- ═══ A-3: Fleet Command Modal ═══ -->
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
-  <div class="fleetcmd-modal">
+  <div class="fleetcmd-modal" onclick="event.stopPropagation()">
     <div class="fleetcmd-header">
       <div class="fleetcmd-title">🎖 FLEET COMMAND · 함대 지휘</div>
       <button class="shipyard-close" onclick="closeFleetCmd()">✕ 닫기</button>
@@ -42974,6 +42979,21 @@ function openFleetCmd() {
 
 function closeFleetCmd() {
   document.getElementById('fleetCmdModal').classList.remove('active');
+}
+
+function fleetCmdBodyScroll() {
+  var body = document.querySelector('#fleetCmdModal .fleetcmd-body');
+  return body ? body.scrollTop : 0;
+}
+
+function keepFleetCmdOpen(scrollTop) {
+  var modal = document.getElementById('fleetCmdModal');
+  if (modal) modal.classList.add('active');
+  if (scrollTop === undefined || scrollTop === null) return;
+  requestAnimationFrame(function() {
+    var body = document.querySelector('#fleetCmdModal .fleetcmd-body');
+    if (body) body.scrollTop = scrollTop;
+  });
 }
 
 async function loadFleetOptions() {
@@ -43079,7 +43099,7 @@ function renderFleetDetail() {
       '<div class="fs-select-actions ' + (selCount > 0 ? 'active' : '') + '">' +
         '<span class="fs-select-count">' + selCount + '척 선택</span>' +
         '<button class="fd-btn" onclick="event.stopPropagation();fleetCmdState.selectedShipIds.clear();fleetCmdState.focusedShipId=null;renderFleetDetail()">해제</button>' +
-        '<button class="fd-btn primary" onclick="showMoveShipsDialog()" ' + (inBattle ? 'disabled' : '') + '>→ 이동</button>' +
+        '<button class="fd-btn primary" onclick="event.stopPropagation();showMoveShipsDialog(event)" ' + (inBattle ? 'disabled' : '') + '>→ 이동</button>' +
       '</div>' +
     '</div>' +
     '<div class="fleet-ships-grid">' + shipCards + '</div>';
@@ -43090,24 +43110,56 @@ function fleetPreviewPoint(i, total, formation, isFlagship) {
   var n = Math.max(1, total - 1);
   var idx = Math.max(0, i - 1);
   if (formation === 'wedge') {
-    var row = Math.floor(idx / 2) + 1;
-    var side = idx % 2 === 0 ? -1 : 1;
-    return { x: 50 + side * Math.min(38, 5 + row * 7), y: Math.max(18, 76 - row * 8) };
+    var row = 0;
+    var start = 0;
+    var cap = 1;
+    while (idx >= start + cap) {
+      start += cap;
+      row += 1;
+      cap = Math.min(5, row + 1);
+    }
+    var slot = idx - start;
+    var spread = Math.min(36, row * 11);
+    return fleetClampPreviewPoint({
+      x: cap === 1 ? 50 : 50 - spread + (spread * 2) * (slot / Math.max(1, cap - 1)),
+      y: 27 + row * 10
+    });
   }
   if (formation === 'screen') {
     var col = idx % 7;
     var rowS = Math.floor(idx / 7);
-    return { x: 18 + col * 10.5, y: 30 + rowS * 7 };
+    return fleetClampPreviewPoint({ x: 18 + col * 10.5, y: 30 + rowS * 7 });
   }
   if (formation === 'pincer') {
     var sideP = idx % 2 === 0 ? -1 : 1;
     var depth = Math.floor(idx / 2);
-    return { x: 50 + sideP * Math.min(40, 18 + depth * 5), y: Math.max(20, 68 - depth * 6) };
+    return fleetClampPreviewPoint({ x: 50 + sideP * Math.min(40, 18 + depth * 5), y: Math.max(20, 68 - depth * 6) });
   }
   var angle = (idx / n) * Math.PI * 2 - Math.PI / 2;
   var ringX = 18 + (idx % 3) * 5;
   var ringY = 24 + (idx % 3) * 6;
-  return { x: 50 + Math.cos(angle) * ringX, y: 56 + Math.sin(angle) * ringY };
+  return fleetClampPreviewPoint({ x: 50 + Math.cos(angle) * ringX, y: 56 + Math.sin(angle) * ringY });
+}
+
+function fleetClampPreviewPoint(p) {
+  return {
+    x: Math.max(8, Math.min(92, p.x)),
+    y: Math.max(12, Math.min(86, p.y))
+  };
+}
+
+function fleetNormalizeSizeClass(ship) {
+  var raw = String((ship && ship.size_class) || '').toLowerCase().trim();
+  if (raw === 'battle_ship') raw = 'battleship';
+  if (raw === 'ew frigate' || raw === 'interceptor') raw = 'frigate';
+  if (raw === 'logistics cruiser' || raw === 'sniper cruiser') raw = 'cruiser';
+  if (raw === 'frigate' || raw === 'destroyer' || raw === 'cruiser' || raw === 'battleship' || raw === 'titan') return raw;
+  var label = String((ship && ship.class_label) || '').toLowerCase();
+  if (label.indexOf('titan') >= 0 || label.indexOf('타이탄') >= 0) return 'titan';
+  if (label.indexOf('battleship') >= 0 || label.indexOf('전함') >= 0) return 'battleship';
+  if (label.indexOf('cruiser') >= 0 || label.indexOf('순양') >= 0) return 'cruiser';
+  if (label.indexOf('destroyer') >= 0 || label.indexOf('구축') >= 0) return 'destroyer';
+  return 'frigate';
 }
 
 function renderSelectedShipPanel(f) {
@@ -43138,7 +43190,8 @@ function renderFleetPreview(f) {
   var counts = { frigate:0, destroyer:0, cruiser:0, battleship:0, titan:0 };
   var roles = {};
   ships.forEach(function(s){
-    counts[s.size_class] = (counts[s.size_class] || 0) + 1;
+    var sizeClass = fleetNormalizeSizeClass(s);
+    counts[sizeClass] = (counts[sizeClass] || 0) + 1;
     roles[s.role || 'dps'] = (roles[s.role || 'dps'] || 0) + 1;
   });
   var maxCount = Math.max(1, counts.frigate, counts.destroyer, counts.cruiser, counts.battleship, counts.titan);
@@ -43215,6 +43268,7 @@ async function setFleetTactic(type, value) {
   if (!fleetId) return;
   var modal = document.getElementById('fleetCmdModal');
   var wasOpen = !!(modal && modal.classList.contains('active'));
+  var scrollTop = fleetCmdBodyScroll();
   var prevFleet = fleetCmdState.selectedFleet ? Object.assign({}, fleetCmdState.selectedFleet) : null;
   if (fleetCmdState.selectedFleet) {
     fleetCmdState.selectedFleet[type] = value;
@@ -43227,6 +43281,7 @@ async function setFleetTactic(type, value) {
     }
     renderFleetDetail();
     renderFleetList();
+    keepFleetCmdOpen(scrollTop);
   }
   try {
     var body = {}; body[type] = value;
@@ -43240,16 +43295,16 @@ async function setFleetTactic(type, value) {
       if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
       renderFleetDetail();
       showFactionToast('변경 실패: ' + (data.error || 'UNKNOWN'), 'error');
-      if (wasOpen && modal) modal.classList.add('active');
+      if (wasOpen) keepFleetCmdOpen(scrollTop);
       return;
     }
     showFactionToast((type === 'formation' ? '진형' : '기동') + ' 변경됨', 'success');
     await refreshFleetList();
-    if (wasOpen && modal) modal.classList.add('active');
+    if (wasOpen) keepFleetCmdOpen(scrollTop);
   } catch(e) {
     if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
     renderFleetDetail();
-    if (wasOpen && modal) modal.classList.add('active');
+    if (wasOpen) keepFleetCmdOpen(scrollTop);
     showFactionToast('네트워크 오류', 'error');
   }
 }
@@ -43312,7 +43367,9 @@ async function deleteFleetPrompt() {
   } catch(e) { showFactionToast('네트워크 오류', 'error'); }
 }
 
-async function showMoveShipsDialog() {
+async function showMoveShipsDialog(event) {
+  if (event) event.stopPropagation();
+  var scrollTop = fleetCmdBodyScroll();
   var shipIds = Array.from(fleetCmdState.selectedShipIds);
   if (!shipIds.length) return;
   var otherFleets = fleetCmdState.fleets.filter(function(f){ return f.id !== fleetCmdState.selectedFleetId && !f.is_in_battle; });
@@ -43338,6 +43395,7 @@ async function showMoveShipsDialog() {
     showFactionToast(data.moved_count + '척 이동 완료', 'success');
     fleetCmdState.selectedShipIds.clear();
     await refreshFleetList();
+    keepFleetCmdOpen(scrollTop);
   } catch(e) { showFactionToast('네트워크 오류', 'error'); }
 }
 
@@ -43345,6 +43403,7 @@ async function setAsFlagship(shipId) {
   var fleetId = fleetCmdState.selectedFleetId; if (!fleetId) return;
   var modal = document.getElementById('fleetCmdModal');
   var wasOpen = !!(modal && modal.classList.contains('active'));
+  var scrollTop = fleetCmdBodyScroll();
   try {
     var res = await fetch('/api/fleets/' + fleetId + '/flagship', {
       method: 'POST',
@@ -43362,14 +43421,14 @@ async function setAsFlagship(shipId) {
         SHIP_CANNOT_BE_FLAGSHIP:'이 함선은 기함 지정이 불가능합니다'
       };
       showFactionToast('지정 실패: ' + (msgMap[data.error] || data.error || 'UNKNOWN'), 'error');
-      if (wasOpen && modal) modal.classList.add('active');
+      if (wasOpen) keepFleetCmdOpen(scrollTop);
       return;
     }
     showFactionToast('기함 변경됨', 'success');
     await refreshFleetList();
-    if (wasOpen && modal) modal.classList.add('active');
+    if (wasOpen) keepFleetCmdOpen(scrollTop);
   } catch(e) {
-    if (wasOpen && modal) modal.classList.add('active');
+    if (wasOpen) keepFleetCmdOpen(scrollTop);
     showFactionToast('네트워크 오류', 'error');
   }
 }

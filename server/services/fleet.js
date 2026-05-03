@@ -76,7 +76,7 @@ async function listMyFleets(walletAddress) {
     FROM fleets f
     LEFT JOIN ships s ON s.fleet_id = f.id
     LEFT JOIN ship_types st ON st.code = s.ship_type_code
-    WHERE f.owner_wallet = $1
+    WHERE LOWER(f.owner_wallet) = LOWER($1)
     GROUP BY f.id
     ORDER BY f.created_at ASC
   `, [walletAddress]);
@@ -110,7 +110,7 @@ async function getFleetDetail(fleetId, walletAddress) {
       COALESCE(SUM(s.max_hp) FILTER (WHERE s.is_alive), 0) AS total_max_hp
     FROM fleets f
     LEFT JOIN ships s ON s.fleet_id = f.id
-    WHERE f.id = $1 AND f.owner_wallet = $2
+    WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)
     GROUP BY f.id
   `, [fleetId, walletAddress]);
   
@@ -160,7 +160,7 @@ async function createFleet(walletAddress, options = {}) {
     
     // 최대 함대 수 체크 (settings에서 기본 5)
     const { rows: cntRows } = await client.query(
-      `SELECT COUNT(*) AS c FROM fleets WHERE owner_wallet = $1`,
+      `SELECT COUNT(*) AS c FROM fleets WHERE LOWER(owner_wallet) = LOWER($1)`,
       [walletAddress]
     );
     const maxFleets = await getSettingInt(client, 'max_fleets_per_player', 5);
@@ -174,7 +174,7 @@ async function createFleet(walletAddress, options = {}) {
     let fleetName = name;
     if (!fleetName) {
       const { rows: userRows } = await client.query(
-        `SELECT nickname FROM users WHERE wallet_address = $1`,
+        `SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)`,
         [walletAddress]
       );
       const nickname = userRows[0]?.nickname || 'Commander';
@@ -224,7 +224,7 @@ async function updateFleet(fleetId, walletAddress, updates) {
   
   // 소유권 + 전투중 체크
   const { rows: fleetRows } = await pool.query(
-    `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND owner_wallet = $2`,
+    `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2)`,
     [fleetId, walletAddress]
   );
   if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
@@ -278,7 +278,7 @@ async function deleteFleet(fleetId, walletAddress) {
     // 소유권 + 전투중 체크
     const { rows: fleetRows } = await client.query(
       `SELECT id, is_in_battle, name FROM fleets 
-       WHERE id = $1 AND owner_wallet = $2 FOR UPDATE`,
+       WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
       [fleetId, walletAddress]
     );
     if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
@@ -286,7 +286,7 @@ async function deleteFleet(fleetId, walletAddress) {
     
     // 내 함대 총 개수 확인 (마지막 함대는 해체 금지)
     const { rows: cntRows } = await client.query(
-      `SELECT COUNT(*) AS c FROM fleets WHERE owner_wallet = $1`,
+      `SELECT COUNT(*) AS c FROM fleets WHERE LOWER(owner_wallet) = LOWER($1)`,
       [walletAddress]
     );
     const totalFleets = parseInt(cntRows[0].c);
@@ -307,7 +307,7 @@ async function deleteFleet(fleetId, walletAddress) {
       // 다른 함대 중 가장 오래된 것으로 이동
       const { rows: targetRows } = await client.query(`
         SELECT id FROM fleets 
-        WHERE owner_wallet = $1 AND id != $2
+        WHERE LOWER(owner_wallet) = LOWER($1) AND id != $2
         ORDER BY created_at ASC LIMIT 1
       `, [walletAddress, fleetId]);
       
@@ -383,7 +383,7 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     // 대상 함대 소유권 + 전투중 체크
     const { rows: targetRows } = await client.query(
       `SELECT id, is_in_battle FROM fleets 
-       WHERE id = $1 AND owner_wallet = $2 FOR UPDATE`,
+       WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
       [targetFleetId, walletAddress]
     );
     if (!targetRows[0]) throw new Error('TARGET_FLEET_NOT_FOUND');
@@ -394,7 +394,7 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
       SELECT s.id, s.fleet_id, s.is_flagship, s.is_alive, f.is_in_battle
       FROM ships s
       JOIN fleets f ON f.id = s.fleet_id
-      WHERE s.id = ANY($1::bigint[]) AND s.owner_wallet = $2
+      WHERE s.id = ANY($1::bigint[]) AND LOWER(s.owner_wallet) = LOWER($2)
       FOR UPDATE OF s
     `, [shipIds, walletAddress]);
     

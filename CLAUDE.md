@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.64 (Campaign editor layout source + fleet command vertical UX) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.65 (Ship upgrade material visibility + fleet command modal stability) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,16 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.65 최신 핸드오프 — 함선 강화 재료 표시 + 함대지휘 모달 안정화
+
+- 조선소 보유함에서 강화 버튼을 누르면 확인 모달에 필요 재료의 `보유 / 필요` 수량이 표시된다. 부족하면 `부족` 상태와 `insufficient` 플래그가 함께 들어간다.
+- Fleet Command 모바일 safe-area CSS 셀렉터 오타를 `.fleetcmd-modal-backdrop`으로 수정했다.
+- Fleet Command 모달 내부 클릭은 상위 레이어로 전파되지 않도록 막았다.
+- 진형/기동/함선 이동/기함 지정 후 `fleetcmd-body` 스크롤 위치와 모달 active 상태를 복구한다. 버튼을 눌렀다고 모달이 튕겨 나가거나 상단으로 점프하면 안 된다.
+- 쐐기 진형 미리보기는 함선이 위를 보는 세로 전장 기준으로 앞쪽 1척 → 후방 2척 → 후방 3척 식의 삼각 돌격 대형으로 표시한다. 기함은 후방 중심에 둔다.
+- Composition 수량은 `size_class`와 `class_label`을 정규화해 집계한다. `EW Frigate`, `Interceptor`, `battle_ship` 같은 별칭이 누락 카운트로 빠지지 않게 했다.
+- Fleet API의 함대 목록/상세/수정/이동 소유권 체크는 wallet 대소문자를 무시하도록 정리했다.
 
 ### v5.64 최신 핸드오프 — 캠페인 에디터 위치 우선 + 함대지휘 세로 UX
 

@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v5.64 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.65 / 2026-05-03)
+
+## ✅ v5.65 Ship upgrade material visibility + fleet command modal stability — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 강화 재료 보유량 표시 | ✅ | 강화 확인 모달에 필요 재료 `보유 / 필요` 수량과 `보유/부족` 상태를 표시. |
+| 쐐기 진형 미리보기 | ✅ | 세로 전장 기준 앞쪽 1척, 후방 2/3척으로 퍼지는 삼각 돌격 대형으로 재배치. |
+| Composition 수량 정규화 | ✅ | `EW Frigate`, `Interceptor`, `battle_ship` 등 별칭/라벨 기반 크기 집계를 정규화해 우측 수량 누락 방지. |
+| 지휘 모달 튕김 완화 | ✅ | 진형/기동/함선 이동/기함 지정 후 모달 active 상태와 내부 스크롤 위치를 복구. |
+| 모바일 safe-area | ✅ | Fleet Command backdrop 셀렉터 오타를 수정해 모바일 풀스크린 위치 계산이 적용됨. |
+| Fleet API 소유권 비교 | ✅ | 목록/상세/수정/이동에서 wallet 대소문자 차이로 실패하는 케이스 완화. |
+
+검증:
+- `node --check server/services/fleet.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.64 Campaign editor position + fleet command vertical UX — 수정 완료
 
