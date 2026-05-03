@@ -1263,6 +1263,7 @@ const OBJECTIVE_PRESETS = {
   mcc_campaign_ch1: [
     { id: 'briefing', labelKo: '에레부스 정제소 브리핑을 확인한다.', action: 'story' },
     { id: 'first_claim', labelKo: '내 영토 1개를 확보한다.', action: 'territory', stat: 'ownedClaims', target: 1 },
+    { id: 'first_art', labelKo: '영토에 이미지를 등록해 기지를 표시한다.', action: 'territory_art', stat: 'artClaims', target: 1 },
     { id: 'operation_timer', labelKo: '산소 회수 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 작전 권한을 얻는다.', action: 'claim_result' },
   ],
@@ -1275,6 +1276,8 @@ const OBJECTIVE_PRESETS = {
   mcc_campaign_ch3: [
     { id: 'briefing', labelKo: '이사회 선택지를 확인한다.', action: 'story' },
     { id: 'choice', labelKo: 'MCC 내 정치적 선택을 확정한다.', action: 'choice' },
+    { id: 'first_battle', labelKo: '함대전을 1회 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 1 },
+    { id: 'first_listing', labelKo: '함선 또는 자원 1개를 마켓에 등록한다.', action: 'market', stat: 'marketListings', target: 1 },
     { id: 'unlock_next', labelKo: '선택 결과에 따라 다음 루트를 연다.', action: 'claim_result' },
   ],
   fsp_campaign_ch1: [
@@ -1310,26 +1313,32 @@ async function getObjectiveState(wallet) {
   if (!w) {
     return {
       ownedClaims: 0,
+      artClaims: 0,
       ownedShips: 0,
       activeShips: 0,
       fleets: 0,
       marketListedShips: 0,
+      marketListings: 0,
       completedFleetBattles: 0,
     };
   }
   const [
     ownedClaims,
+    artClaims,
     ownedShips,
     activeShips,
     fleets,
     marketListedShips,
+    marketplaceListings,
     completedFleetBattles,
   ] = await Promise.all([
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
+    safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND COALESCE(image_url, '') <> ''`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_alive = true`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM fleets WHERE LOWER(owner_wallet) = $1`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_market_listed = true`, [w]),
+    safeCampaignCount(`SELECT COUNT(*) FROM marketplace_listings WHERE LOWER(seller) = $1 AND status = 'active'`, [w]),
     safeCampaignCount(`
       SELECT COUNT(DISTINCT fb.id)
       FROM fleet_battles fb
@@ -1337,12 +1346,15 @@ async function getObjectiveState(wallet) {
       WHERE LOWER(p.wallet_address) = $1 AND fb.status = 'ended'
     `, [w]),
   ]);
+  const marketListings = marketListedShips + marketplaceListings;
   return {
     ownedClaims,
+    artClaims,
     ownedShips,
     activeShips,
     fleets,
     marketListedShips,
+    marketListings,
     completedFleetBattles,
   };
 }

@@ -28,8 +28,8 @@
 ### 2.2 Next Implementation
 
 - objective 타입을 실제 시스템 데이터와 연결한다. (v5.71 시작)
-- 현재 연결됨: claim count, owned ship count, fleet count.
-- 다음 연결 후보: fleet battle count, market listing count, territory image count.
+- 현재 연결됨: claim count, territory image count, owned ship count, fleet count, fleet battle count, market listing count.
+- 다음 연결 후보: territory production count, ship upgrade count, campaign reward claim count.
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다.
 
 ### 2.3 Campaign Scope Control
@@ -120,17 +120,23 @@
 후보 objective:
 
 - first_claim: 영토 1개 확보 (v5.71 연결)
-- first_art: 영토 이미지 등록
+- first_art: 영토 이미지 등록 (v5.72 연결)
 - first_ship: 함선 1척 보유 (v5.71 연결)
 - first_fleet: 함대 1개 구성 (v5.71 연결)
-- first_battle: 함대전 1회 완료
-- first_listing: 함선/자원 마켓 등록 1회
+- first_battle: 함대전 1회 완료 (v5.72 연결)
+- first_listing: 함선/자원 마켓 등록 1회 (v5.72 연결)
 
 v5.71 구현 메모:
 
 - `/api/campaign/status` 응답에 `objectiveState`를 내려준다.
 - objective 항목은 `current`, `target`, `requirementMet`을 포함할 수 있다.
 - 완료 hard gate는 아직 적용하지 않았다. 우선 플레이어가 무엇이 부족한지 알 수 있게 표시하고, 다음 단계에서 챕터별로 gate를 선별 적용한다.
+
+v5.72 구현 메모:
+
+- `artClaims`, `completedFleetBattles`, `marketListings`를 추가했다.
+- MCC CH1은 영토 확보 뒤 이미지 등록까지 이어지게 했다.
+- MCC CH3은 함대전과 마켓 등록을 처음으로 요구하는 중반 진입 지점으로 잡았다.
 
 ## 8. Third Sprint
 

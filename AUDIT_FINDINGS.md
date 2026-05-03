@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.71 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.72 / 2026-05-04)
+
+## ✅ v5.72 Campaign objective expansion — 착수 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 영토 이미지 objective | ✅ | `claims.image_url`이 있는 내 영토 수를 `artClaims`로 집계. MCC CH1에 첫 영토 이미지 등록 목표 추가. |
+| 함대전 완료 objective | ✅ | `fleet_battles.status = 'ended'` + 참여자 wallet 기준으로 완료 전투 수를 집계. MCC CH3에 첫 함대전 완료 목표 추가. |
+| 마켓 등록 objective | ✅ | 활성 `ship_market_listings`와 일반 `marketplace_listings`를 합산해 `marketListings`로 집계. MCC CH3에 첫 마켓 등록 목표 추가. |
+| objective state 유지 | ✅ | 모든 live objective는 `current/target/requirementMet`으로 내려가며 기존 카드/브리핑 UI에서 수량 표시됨. |
+| 범위 통제 | ✅ | 완료 hard gate는 아직 미적용. objective 표시 정확성 확인 후 챕터별로 선별 적용 예정. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.71 Campaign live objective state — 착수 완료
 

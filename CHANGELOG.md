@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign objective expansion (v5.72)
+
+- **영토 이미지 목표 연결**: 내 영토 중 `image_url`이 등록된 영토 수를 `artClaims`로 집계하고 MCC CH1 objective에 추가.
+- **함대전 완료 목표 연결**: `fleet_battles`와 `fleet_battle_participants` 기준으로 유저의 완료 함대전 수를 집계하고 MCC CH3 objective에 추가.
+- **마켓 등록 목표 연결**: 활성 함선 마켓 등록과 일반 마켓 등록을 합산해 `marketListings`로 내려주고 MCC CH3 objective에 추가.
+- **목표 표시 확장**: 추가 objective도 기존 UI의 `현재/필요` 수량 표시와 done/active 상태 판정을 그대로 사용.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign live objective state (v5.71)
 
 - **캠페인 목표 실제 상태 연결**: 캠페인 상태 응답에 `objectiveState`를 추가해 영토, 함선, 함대, 판매중 함선, 완료 함대전 수를 서버에서 집계.

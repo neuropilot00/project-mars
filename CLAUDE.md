@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.71 (Campaign live objective state) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.72 (Campaign objective expansion) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,15 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.72 최신 핸드오프 — 캠페인 objective 확장
+
+- `first_art`, `first_battle`, `first_listing` objective를 실제 DB 상태와 연결했다.
+- `objectiveState.artClaims`는 플레이어 소유 `claims.image_url`이 있는 영토 수를 센다.
+- `objectiveState.completedFleetBattles`는 `fleet_battles.status = 'ended'`와 `fleet_battle_participants.wallet_address` 기준으로 완료 전투 수를 센다.
+- `objectiveState.marketListings`는 활성 `ship_market_listings`와 일반 `marketplace_listings`를 합산한다.
+- MCC CH1에는 영토 이미지 등록 objective를 추가했고, MCC CH3에는 첫 함대전 완료/첫 마켓 등록 objective를 추가했다.
+- 아직 완료 hard gate는 적용하지 않았다. 캠페인 목표 노출이 실제 상태와 잘 맞는지 먼저 확인한 뒤 챕터별 gate를 넣는 순서가 안전하다.
 
 ### v5.71 최신 핸드오프 — 캠페인 objective 실제 상태 연결
 
