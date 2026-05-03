@@ -2825,6 +2825,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   width: 92%; height: 92%;
   position: relative; z-index: 2;
 }
+.bp-visual.no-svg-fallback svg.bp-ship-svg { display: none !important; }
 .bp-ship-body {
   transform-box: fill-box;
   transform-origin: center;
@@ -3296,22 +3297,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   gap: 6px; max-height: 400px; overflow-y: auto; padding: 2px;
 }
 .fleet-preview {
-  display: grid; grid-template-columns: minmax(280px, 1fr) 260px;
+  display: grid; grid-template-columns: minmax(340px, 1fr) 240px;
   gap: 10px; align-items: stretch;
 }
 .fleet-board {
-  position: relative; min-height: 220px; overflow: hidden;
+  position: relative; min-height: 360px; overflow: hidden;
   border: 1px solid rgba(79,195,247,.18); border-radius: 8px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(79,195,247,.11), transparent 34%),
+    radial-gradient(ellipse at 50% 72%, rgba(79,195,247,.12), transparent 34%),
+    radial-gradient(ellipse at 50% 18%, rgba(239,83,80,.10), transparent 30%),
     linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
     linear-gradient(0deg, rgba(255,255,255,.025) 1px, transparent 1px),
     #070b16;
   background-size: auto, 32px 32px, 32px 32px, auto;
 }
 .fleet-board-axis {
-  position: absolute; inset: 50% 10% auto 10%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(79,195,247,.4), transparent);
+  position: absolute; left: 50%; top: 10%; bottom: 12%; width: 1px;
+  background: linear-gradient(180deg, rgba(239,83,80,.15), rgba(79,195,247,.48), transparent);
 }
 .fleet-board-label {
   position: absolute; left: 12px; top: 10px;
@@ -3322,12 +3324,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 9px; letter-spacing: 1.3px; color: rgba(255,211,122,.82);
 }
 .fleet-preview-ship {
-  position: absolute; width: 42px; height: 26px;
+  position: absolute; width: 34px; height: 52px;
   transform: translate(-50%, -50%);
   filter: drop-shadow(0 0 8px rgba(79,195,247,.22));
 }
+.fleet-preview-ship .bp-visual {
+  width: 100%; height: 100%;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  overflow: visible;
+}
+.fleet-preview-ship .bp-ship-img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: brightness(1.38) contrast(1.12) saturate(1.08) drop-shadow(0 0 8px rgba(120,210,255,.24));
+}
 .fleet-preview-ship.flagship {
-  width: 54px; height: 34px; z-index: 4;
+  width: 48px; height: 74px; z-index: 4;
   filter: drop-shadow(0 0 12px rgba(255,215,0,.45));
 }
 .fleet-preview-more {
@@ -3363,7 +3378,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   border-radius: 4px; padding: 7px 9px; cursor: pointer; position: relative; transition: all .1s;
 }
 .fs-card:hover { background: rgba(255,255,255,.05); }
-.fs-card.selected { background: rgba(79,195,247,.1); border-color: rgba(79,195,247,.5); }
+.fs-card.selected { background: rgba(79,195,247,.13); border-color: rgba(79,195,247,.78); box-shadow: 0 0 0 1px rgba(79,195,247,.32), 0 0 18px rgba(79,195,247,.12); }
+.fs-card.selected::before {
+  content: 'SELECTED';
+  position: absolute; right: 6px; top: 6px;
+  font-size: 7px; letter-spacing: 1px; color: #071018;
+  background: #4fc3f7; border-radius: 999px; padding: 2px 6px;
+  font-weight: 900;
+}
 .fs-card.flagship { border-color: rgba(255,215,0,.5); background: rgba(255,215,0,.04); }
 .fs-card-name {
   font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px;
@@ -3381,6 +3403,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .fs-card-hp-fill.crit { background: #ef5350; }
 .fs-card-flagship-badge { position: absolute; top: 4px; right: 4px; font-size: 9px; color: #ffd700; }
 .fs-empty { text-align: center; padding: 40px; color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 2px; }
+.fs-selected-panel {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border: 1px solid rgba(79,195,247,.22); border-radius: 8px;
+  background: linear-gradient(90deg, rgba(79,195,247,.12), rgba(255,255,255,.025));
+  padding: 9px 11px; margin-top: -2px;
+}
+.fs-selected-panel strong {
+  display: block; color: #dff5ff; font-size: 11px; letter-spacing: 1px; margin-bottom: 2px;
+}
+.fs-selected-panel small { color: rgba(255,255,255,.6); font-size: 8px; letter-spacing: .8px; }
+.fs-selected-stats { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+.fs-selected-stats span {
+  border: 1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.22);
+  border-radius: 999px; padding: 3px 7px; font-size: 8px; color: rgba(255,255,255,.76);
+}
 
 /* ═══ A-5: Battle Renderer CSS ═══ */
 /* ═════ Battle Hub Modal ═════ */
@@ -4622,7 +4659,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     margin-bottom: 14px;
   }
   .fleet-preview { grid-template-columns: 1fr; }
-  .fleet-board { min-height: 180px; }
+  .fleet-board { min-height: 360px; }
   
   /* Battle Viewer HUD 단순화 */
   .bv-hud-top {
@@ -25144,15 +25181,13 @@ function showCampaignStory(chapter){
   });
   // 즉시 렌더하되, 로컬 에디터 레이아웃이 있으면 첫 프레임부터 적용한다.
   var localLayout=_campaignLocalEditorLayout();
-  if(localLayout&&(!_campaignEditorLayout||!Object.keys(_campaignEditorLayout).length)){
-    _campaignEditorLayout=localLayout;
-  }
+  if(localLayout) _campaignEditorLayout=_campaignComposeEditorLayout(_campaignEditorLayout,localLayout);
   renderCampaignScene();
   fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
     if(d&&typeof d==='object'){
       var before=JSON.stringify(_campaignEditorLayout||{});
-      _campaignEditorLayout=d;
-      if(document.querySelector('.story-overlay')&&JSON.stringify(d)!==before){
+      _campaignEditorLayout=_campaignComposeEditorLayout(d,_campaignLocalEditorLayout());
+      if(document.querySelector('.story-overlay')&&JSON.stringify(_campaignEditorLayout||{})!==before){
         renderCampaignScene();
       }
     }
@@ -25232,6 +25267,16 @@ function _campaignStoryLayout(scene,line){
   var mode=_campaignIsStoryMobile()?'mobile':'desktop';
   if(layout[mode]) _campaignMergeLayout(layout,layout[mode]);
   return layout;
+}
+
+function _campaignComposeEditorLayout(serverLayout,localLayout){
+  var merged={};
+  _campaignMergeLayout(merged,serverLayout||{});
+  // The editor stores changes locally first, then syncs to the server on a
+  // debounce. If the story opens before that sync finishes, the local editor
+  // coordinates are the freshest source and must win.
+  _campaignMergeLayout(merged,localLayout||{});
+  return Object.keys(merged).length?merged:null;
 }
 
 function _campaignLocalEditorLayout(){
@@ -42916,6 +42961,7 @@ var fleetCmdState = {
   selectedFleetId: null,
   selectedFleet: null,
   selectedShipIds: new Set(),
+  focusedShipId: null,
   formations: [],
   movements: [],
 };
@@ -42982,6 +43028,7 @@ function renderFleetList() {
 async function selectFleet(fleetId) {
   fleetCmdState.selectedFleetId = fleetId;
   fleetCmdState.selectedShipIds.clear();
+  fleetCmdState.focusedShipId = null;
   await loadFleetDetail(fleetId);
   renderFleetList();
 }
@@ -43004,10 +43051,10 @@ function renderFleetDetail() {
   var inBattle   = f.is_in_battle;
   var selCount   = fleetCmdState.selectedShipIds.size;
   var formBtns = formations.map(function(fm) {
-    return '<button class="tactic-btn ' + (f.formation === fm.code ? 'active' : '') + '" onclick="setFleetTactic(\'formation\',\'' + fm.code + '\')" title="' + fcEsc(fm.desc) + '">' + fm.icon + ' ' + fm.name_ko + '</button>';
+    return '<button class="tactic-btn ' + (f.formation === fm.code ? 'active' : '') + '" onclick="event.stopPropagation();setFleetTactic(\'formation\',\'' + fm.code + '\')" title="' + fcEsc(fm.desc) + '">' + fm.icon + ' ' + fm.name_ko + '</button>';
   }).join('');
   var moveBtns = movements.map(function(mv) {
-    return '<button class="tactic-btn ' + (f.movement === mv.code ? 'active' : '') + '" onclick="setFleetTactic(\'movement\',\'' + mv.code + '\')" title="' + fcEsc(mv.desc) + '">' + mv.icon + ' ' + mv.name_ko + '</button>';
+    return '<button class="tactic-btn ' + (f.movement === mv.code ? 'active' : '') + '" onclick="event.stopPropagation();setFleetTactic(\'movement\',\'' + mv.code + '\')" title="' + fcEsc(mv.desc) + '">' + mv.icon + ' ' + mv.name_ko + '</button>';
   }).join('');
   var shipCards = (f.ships || []).length === 0
     ? '<div class="fs-empty" style="grid-column:1/-1">이 함대에 함선이 없습니다</div>'
@@ -43025,12 +43072,13 @@ function renderFleetDetail() {
       '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
       '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
     '</div>' +
+    renderSelectedShipPanel(f) +
     renderFleetPreview(f) +
     '<div class="fleet-ships-header">' +
       '<div class="fs-summary"><span>총 <b>' + f.ships_alive + '</b>척</span><span>HP <b>' + syFmt(f.total_hp) + ' / ' + syFmt(f.total_max_hp) + '</b></span><span>전적 <b>' + (f.battles_won || 0) + 'W / ' + (f.battles_lost || 0) + 'L</b></span></div>' +
       '<div class="fs-select-actions ' + (selCount > 0 ? 'active' : '') + '">' +
         '<span class="fs-select-count">' + selCount + '척 선택</span>' +
-        '<button class="fd-btn" onclick="fleetCmdState.selectedShipIds.clear();renderFleetDetail()">해제</button>' +
+        '<button class="fd-btn" onclick="event.stopPropagation();fleetCmdState.selectedShipIds.clear();fleetCmdState.focusedShipId=null;renderFleetDetail()">해제</button>' +
         '<button class="fd-btn primary" onclick="showMoveShipsDialog()" ' + (inBattle ? 'disabled' : '') + '>→ 이동</button>' +
       '</div>' +
     '</div>' +
@@ -43038,27 +43086,48 @@ function renderFleetDetail() {
 }
 
 function fleetPreviewPoint(i, total, formation, isFlagship) {
-  if (isFlagship) return { x: 50, y: 50 };
+  if (isFlagship) return { x: 50, y: 76 };
   var n = Math.max(1, total - 1);
   var idx = Math.max(0, i - 1);
   if (formation === 'wedge') {
     var row = Math.floor(idx / 2) + 1;
     var side = idx % 2 === 0 ? -1 : 1;
-    return { x: 50 - row * 8, y: 50 + side * Math.min(34, 7 + row * 5) };
+    return { x: 50 + side * Math.min(38, 5 + row * 7), y: Math.max(18, 76 - row * 8) };
   }
   if (formation === 'screen') {
-    var col = idx % 8;
-    var rowS = Math.floor(idx / 8);
-    return { x: 28 + rowS * 9, y: 24 + col * 7 };
+    var col = idx % 7;
+    var rowS = Math.floor(idx / 7);
+    return { x: 18 + col * 10.5, y: 30 + rowS * 7 };
   }
   if (formation === 'pincer') {
     var sideP = idx % 2 === 0 ? -1 : 1;
     var depth = Math.floor(idx / 2);
-    return { x: 40 + depth * 5, y: 50 + sideP * Math.min(38, 14 + depth * 5) };
+    return { x: 50 + sideP * Math.min(40, 18 + depth * 5), y: Math.max(20, 68 - depth * 6) };
   }
   var angle = (idx / n) * Math.PI * 2 - Math.PI / 2;
-  var ring = 24 + (idx % 3) * 6;
-  return { x: 50 + Math.cos(angle) * ring, y: 50 + Math.sin(angle) * ring };
+  var ringX = 18 + (idx % 3) * 5;
+  var ringY = 24 + (idx % 3) * 6;
+  return { x: 50 + Math.cos(angle) * ringX, y: 56 + Math.sin(angle) * ringY };
+}
+
+function renderSelectedShipPanel(f) {
+  var ships = f && Array.isArray(f.ships) ? f.ships : [];
+  var selected = ships.filter(function(s){ return fleetCmdState.selectedShipIds.has(s.id); });
+  if (!selected.length) return '';
+  var focused = ships.find(function(s){ return s.id === fleetCmdState.focusedShipId; }) || selected[selected.length - 1];
+  var hpPct = focused.max_hp > 0 ? Math.round((focused.current_hp / focused.max_hp) * 100) : 0;
+  var role = shipRoleInfo(focused.role);
+  return '<div class="fs-selected-panel">' +
+    '<div><strong>' + fcEsc(focused.name_ko || focused.ship_type_code || '선택 함선') + '</strong>' +
+      '<small>' + fcEsc(focused.class_label || '') + ' · ' + role.label + (selected.length > 1 ? ' · 선택 ' + selected.length + '척' : '') + '</small></div>' +
+    '<div class="fs-selected-stats">' +
+      '<span>HP ' + hpPct + '%</span>' +
+      '<span>ATK ' + (focused.base_atk || '-') + '</span>' +
+      '<span>DEF ' + (focused.base_def || '-') + '</span>' +
+      '<span>SPD ' + (focused.base_speed || '-') + '</span>' +
+      (focused.is_flagship ? '<span>기함</span>' : (focused.is_flagship_capable ? '<span>기함 가능</span>' : '')) +
+    '</div>' +
+  '</div>';
 }
 
 function renderFleetPreview(f) {
@@ -43089,7 +43158,7 @@ function renderFleetPreview(f) {
   var boardShips = visible.map(function(s, i){
     var p = fleetPreviewPoint(i, ships.length, formation, !!s.is_flagship);
     return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
-      shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code }) +
+      '<div class="bp-visual no-svg-fallback">' + shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code }) + '</div>' +
     '</div>';
   }).join('');
   return '<div class="fleet-preview">' +
@@ -43128,14 +43197,37 @@ function renderFcShipCard(s, fleetInBattle) {
 
 function toggleShipSel(shipId, event) {
   if (event) event.stopPropagation();
-  if (fleetCmdState.selectedShipIds.has(shipId)) fleetCmdState.selectedShipIds.delete(shipId);
-  else fleetCmdState.selectedShipIds.add(shipId);
+  if (fleetCmdState.selectedShipIds.has(shipId)) {
+    fleetCmdState.selectedShipIds.delete(shipId);
+    if (fleetCmdState.focusedShipId === shipId) {
+      var remaining = Array.from(fleetCmdState.selectedShipIds);
+      fleetCmdState.focusedShipId = remaining.length ? remaining[remaining.length - 1] : null;
+    }
+  } else {
+    fleetCmdState.selectedShipIds.add(shipId);
+    fleetCmdState.focusedShipId = shipId;
+  }
   renderFleetDetail();
 }
 
 async function setFleetTactic(type, value) {
   var fleetId = fleetCmdState.selectedFleetId;
   if (!fleetId) return;
+  var modal = document.getElementById('fleetCmdModal');
+  var wasOpen = !!(modal && modal.classList.contains('active'));
+  var prevFleet = fleetCmdState.selectedFleet ? Object.assign({}, fleetCmdState.selectedFleet) : null;
+  if (fleetCmdState.selectedFleet) {
+    fleetCmdState.selectedFleet[type] = value;
+    if (type === 'formation') {
+      var fm = (fleetCmdState.formations || []).find(function(x){ return x.code === value; });
+      if (fm) fleetCmdState.selectedFleet.formation_info = fm;
+    } else {
+      var mv = (fleetCmdState.movements || []).find(function(x){ return x.code === value; });
+      if (mv) fleetCmdState.selectedFleet.movement_info = mv;
+    }
+    renderFleetDetail();
+    renderFleetList();
+  }
   try {
     var body = {}; body[type] = value;
     var res = await fetch('/api/fleets/' + fleetId, {
@@ -43144,10 +43236,22 @@ async function setFleetTactic(type, value) {
       body: JSON.stringify(body)
     });
     var data = await res.json();
-    if (!res.ok) { showFactionToast('변경 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    if (!res.ok) {
+      if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
+      renderFleetDetail();
+      showFactionToast('변경 실패: ' + (data.error || 'UNKNOWN'), 'error');
+      if (wasOpen && modal) modal.classList.add('active');
+      return;
+    }
     showFactionToast((type === 'formation' ? '진형' : '기동') + ' 변경됨', 'success');
     await refreshFleetList();
-  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+    if (wasOpen && modal) modal.classList.add('active');
+  } catch(e) {
+    if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
+    renderFleetDetail();
+    if (wasOpen && modal) modal.classList.add('active');
+    showFactionToast('네트워크 오류', 'error');
+  }
 }
 
 async function createNewFleet() {
@@ -43239,6 +43343,8 @@ async function showMoveShipsDialog() {
 
 async function setAsFlagship(shipId) {
   var fleetId = fleetCmdState.selectedFleetId; if (!fleetId) return;
+  var modal = document.getElementById('fleetCmdModal');
+  var wasOpen = !!(modal && modal.classList.contains('active'));
   try {
     var res = await fetch('/api/fleets/' + fleetId + '/flagship', {
       method: 'POST',
@@ -43246,10 +43352,26 @@ async function setAsFlagship(shipId) {
       body: JSON.stringify({ ship_id: shipId })
     });
     var data = await res.json();
-    if (!res.ok) { showFactionToast('지정 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    if (!res.ok) {
+      var msgMap = {
+        FLEET_NOT_FOUND:'함대를 찾을 수 없습니다',
+        FLEET_IN_BATTLE:'전투 중인 함대는 기함을 바꿀 수 없습니다',
+        SHIP_NOT_FOUND:'함선을 찾을 수 없습니다',
+        SHIP_DEAD:'파괴된 함선은 기함이 될 수 없습니다',
+        SHIP_NOT_IN_FLEET:'이 함대 소속 함선이 아닙니다',
+        SHIP_CANNOT_BE_FLAGSHIP:'이 함선은 기함 지정이 불가능합니다'
+      };
+      showFactionToast('지정 실패: ' + (msgMap[data.error] || data.error || 'UNKNOWN'), 'error');
+      if (wasOpen && modal) modal.classList.add('active');
+      return;
+    }
     showFactionToast('기함 변경됨', 'success');
     await refreshFleetList();
-  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+    if (wasOpen && modal) modal.classList.add('active');
+  } catch(e) {
+    if (wasOpen && modal) modal.classList.add('active');
+    showFactionToast('네트워크 오류', 'error');
+  }
 }
 
 function fcEsc(str) {

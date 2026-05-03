@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Campaign editor position + fleet command vertical UX (v5.64)
+
+- **캠페인 에디터 위치 우선 적용**: 인게임 스토리 화면이 서버 에디터 레이아웃을 받은 뒤에도 localStorage의 최신 에디터 좌표를 다시 병합해, 방금 수정한 캐릭터 위치가 덮이지 않도록 수정.
+- **함대지휘 세로 프리뷰**: 함선 PNG가 위를 보는 방향에 맞춰 Fleet Command 미리보기를 세로 전장/세로 진형으로 재배치.
+- **구형 SVG 잔상 차단**: 함대지휘 미리보기에서 PNG 뒤로 예전 SVG 함선이 비쳐 보이지 않도록 fallback을 숨김.
+- **진형/기동 모달 유지**: 진형/기동 버튼 클릭 시 모달을 닫지 않고, 즉시 프리뷰가 변형되며 서버 실패 시 이전 상태로 복구.
+- **함선 선택 피드백**: 클릭한 함선이 명확히 보이도록 `SELECTED` 배지와 선택 상세 패널 추가.
+- **기함 지정 안정화**: 서버 기함 지정 로직에서 wallet 대소문자와 `fleet_id` 타입 차이로 발생할 수 있는 오류를 보정.
+
+검증:
+- `node --check server/services/fleet.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Ship market + chance upgrades + fleet FX polish (v5.63)
 
 - **함선 확률 강화**: 보유 함선 `ATK/DEF/SPD/HP` 강화가 성공 확률과 재료 소모를 가지도록 변경. 실패해도 GP와 재료는 소모되고 스탯은 유지됨.

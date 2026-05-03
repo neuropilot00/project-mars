@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v5.63 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.64 / 2026-05-03)
+
+## ✅ v5.64 Campaign editor position + fleet command vertical UX — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 캠페인 에디터 위치 반영 | ✅ | 서버 레이아웃 응답 뒤에도 localStorage 최신 좌표를 다시 병합해 에디터에서 방금 맞춘 캐릭터 위치가 인게임에 우선 적용됨. |
+| 함대지휘 세로형 프리뷰 | ✅ | Fleet Command 진형 미리보기를 함선 PNG의 위쪽 방향과 맞춘 세로 전장으로 변경. |
+| 이전 SVG 잔상 차단 | ✅ | 함대지휘 미리보기의 구형 SVG fallback을 숨겨 PNG 뒤로 옛 함선 실루엣이 비치는 문제 방지. |
+| 진형/기동 모달 유지 | ✅ | 버튼 클릭 시 모달을 유지하고 프리뷰를 즉시 변형. API 실패 시 이전 상태로 롤백. |
+| 함선 선택 식별 | ✅ | 선택 카드에 `SELECTED` 배지, 상세 패널에 최근 클릭 함선 스탯/역할 표시. |
+| 기함 지정 오류 보정 | ✅ | `owner_wallet` 대소문자 비교와 `fleet_id` 타입 비교를 안정화해 잘못된 `SHIP_NOT_IN_FLEET`/소유권 실패 가능성 완화. |
+
+검증:
+- `node --check server/services/fleet.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.63 Ship market + chance upgrades + fleet FX polish — 수정 완료
 

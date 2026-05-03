@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.63 (Ship market + chance upgrades + fleet FX polish) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.64 (Campaign editor layout source + fleet command vertical UX) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,16 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.64 최신 핸드오프 — 캠페인 에디터 위치 우선 + 함대지휘 세로 UX
+
+- 캠페인 스토리 렌더러는 서버 `/api/campaign/editor-layout` 응답을 받은 뒤에도 브라우저 localStorage의 최신 에디터 좌표를 다시 병합한다.
+- 에디터는 좌표를 즉시 localStorage에 저장하고 서버 동기화는 debounce 되므로, 인게임은 `serverLayout + localLayout` 순서로 합쳐 local editor 값이 우선한다.
+- 함대지휘 프리뷰는 함선 PNG가 위를 보는 전제에 맞춰 세로 진형으로 표시한다. 기함은 후방 중심, 쐐기/스크린/핀서/구형 진형은 위쪽 전선으로 읽히게 배치한다.
+- 함대지휘 미리보기에서는 구형 SVG fallback을 숨겨 PNG 뒤로 예전 벡터 실루엣이 비치는 현상을 차단한다.
+- 진형/기동 버튼은 클릭 즉시 미리보기를 바꾸고 모달을 유지한다. API 실패 시 이전 상태로 되돌리고 에러 토스트를 띄운다.
+- 함선 카드 선택 시 `SELECTED` 배지와 선택 상세 패널이 표시된다. 마지막으로 누른 함선이 패널에 뜬다.
+- 기함 지정은 owner wallet 대소문자 차이와 `fleet_id` 타입 차이 때문에 실패할 수 있어 서버 쿼리를 `LOWER()` 비교 + 숫자 비교로 보정했다.
 
 ### v5.63 최신 핸드오프 — 함선 확률 강화/마켓 + 전투/조선소 시각 보정
 

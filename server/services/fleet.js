@@ -457,7 +457,7 @@ async function setFlagship(walletAddress, fleetId, shipId) {
     
     // 함대 소유권
     const { rows: fleetRows } = await client.query(
-      `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND owner_wallet = $2 FOR UPDATE`,
+      `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
       [fleetId, walletAddress]
     );
     if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
@@ -468,13 +468,13 @@ async function setFlagship(walletAddress, fleetId, shipId) {
       SELECT s.id, s.fleet_id, s.is_alive, st.is_flagship_capable
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
-      WHERE s.id = $1 AND s.owner_wallet = $2
+      WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2)
       FOR UPDATE OF s
     `, [shipId, walletAddress]);
     
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     if (!shipRows[0].is_alive) throw new Error('SHIP_DEAD');
-    if (shipRows[0].fleet_id !== fleetId) throw new Error('SHIP_NOT_IN_FLEET');
+    if (Number(shipRows[0].fleet_id) !== Number(fleetId)) throw new Error('SHIP_NOT_IN_FLEET');
     if (!shipRows[0].is_flagship_capable) throw new Error('SHIP_CANNOT_BE_FLAGSHIP');
     
     // 기존 기함 해제
