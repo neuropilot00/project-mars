@@ -1465,6 +1465,14 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 
 ---
 
+## 2026-05-04 v5.70 — 캠페인 메인퀘스트 스캐폴드
+
+- `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md`를 추가해 게임 방향성 문서를 실제 개발 스프린트로 쪼갰다.
+- 캠페인 서버 응답에 `objectives`와 `nextObjective`를 추가했다.
+- 캠페인 리스트 카드에 챕터별 현재 목표를 표시해 유저가 다음 할 일을 바로 볼 수 있게 했다.
+- 캠페인 브리핑 모달에도 작전 목표를 표시한다.
+- 이번 단계는 목표 표시/동선 스캐폴드이며, 다음 단계에서 영토 확보, 함선 보유, 함대전 완료, 마켓 등록 같은 실제 DB 기반 objective 판정을 연결한다.
+
 ## 2026-05-04 v5.69 — 게임 방향성 기준 문서
 
 - `docs/GAME_DIRECTION_2026-05-04.md`를 추가해 OCCUPY MARS의 핵심 방향성을 문서화했다.

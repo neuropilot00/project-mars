@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.69 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.70 / 2026-05-04)
+
+## ✅ v5.70 Campaign main quest scaffold — 착수 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 실행 기획 문서 | ✅ | `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md` 추가. 방향성 문서를 P1~P4 개발 스프린트로 분해. |
+| 캠페인 objective 스키마 | ✅ | `server/services/campaign.js`의 `publicChapter()` 응답에 `objectives`와 `nextObjective` 추가. |
+| 캠페인 카드 목표 표시 | ✅ | 진행 가능/진행 중 캠페인 카드에 현재 작전 목표를 표시. 완료/잠김 compact 카드 UX는 유지. |
+| 브리핑 목표 표시 | ✅ | 캠페인 브리핑 모달에 챕터 목표를 함께 표시해 시작 전에 다음 행동을 알 수 있게 함. |
+| 범위 통제 | ✅ | 이번 단계는 목표 표시/동선 스캐폴드. 실제 영토/함선/전투 DB 상태 기반 objective 판정은 다음 단계로 분리. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.69 Game direction lock — 문서화 완료
 

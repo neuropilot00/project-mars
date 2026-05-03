@@ -1181,6 +1181,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-title{font-size:12px;color:var(--tx);font-weight:900;letter-spacing:.8px}
 .campaign-meta{font-size:8px;color:var(--cyan);letter-spacing:1px}
 .campaign-desc{font-size:9px;color:var(--tx3);line-height:1.5;margin:6px 0 10px}
+.campaign-objectives{display:grid;gap:5px;margin:8px 0 10px}
+.campaign-objective{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);font-size:8px;color:var(--tx2);line-height:1.35}
+.campaign-objective .co-dot{width:14px;height:14px;border-radius:5px;display:grid;place-items:center;flex:0 0 14px;font-size:8px;background:rgba(255,255,255,.06);color:var(--tx3)}
+.campaign-objective.active{border-color:rgba(79,195,247,.35);background:rgba(79,195,247,.08);color:var(--tx)}
+.campaign-objective.active .co-dot{background:rgba(79,195,247,.16);color:var(--cyan)}
+.campaign-objective.done{border-color:rgba(76,216,154,.28);background:rgba(76,216,154,.055);color:rgba(180,255,215,.9)}
+.campaign-objective.done .co-dot{background:rgba(76,216,154,.16);color:var(--gn)}
+.campaign-objective.pending{opacity:.65}
 .campaign-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
 .campaign-stat{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px;text-align:center}
 .campaign-stat b{display:block;font-size:11px;color:var(--gold)}
@@ -25017,6 +25025,7 @@ function renderCampaignList(chapters){
     card+='<div class="campaign-card'+(done?' done':'')+'">';
     card+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">'+route+' ROUTE · CH '+ch.chapterNumber+' · '+(ch.battleResolution||'SIM')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
     card+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars operation')+' · MVP 서버 시뮬레이션</div>';
+    card+=campaignObjectivesHtml(ch,3);
     if(done||active){
       var m=p.metrics||{};
       card+=campaignStatsHtml(m,p.status||'NEW');
@@ -25065,6 +25074,19 @@ function campaignStatsHtml(m,status){
     m.eclipse_kill_count!=null?{v:m.eclipse_kill_count,l:'ECLIPSE'}:
     m.helion_escapes!=null?{v:m.helion_escapes,l:'ESCAPED'}:{v:'--',l:'RESULT'};
   return '<div class="campaign-stats"><div class="campaign-stat"><b>'+escapeHtmlSafe(String(a.v))+'</b><span>'+a.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(b.v))+'</b><span>'+b.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(status).toUpperCase())+'</b><span>STATUS</span></div></div>';
+}
+function campaignObjectivesHtml(ch,limit){
+  var objectives=(ch&&Array.isArray(ch.objectives))?ch.objectives:[];
+  if(!objectives.length) return '';
+  var list=objectives.slice(0,limit||3);
+  var html='<div class="campaign-objectives">';
+  list.forEach(function(o){
+    var state=o.state||'pending';
+    var icon=state==='done'?'✓':(state==='active'?'▶':'•');
+    html+='<div class="campaign-objective '+state+'"><span class="co-dot">'+icon+'</span><span>'+escapeHtmlSafe(o.labelKo||o.label||o.id||'Objective')+'</span></div>';
+  });
+  html+='</div>';
+  return html;
 }
 function _campaignClearSimTimer(){
   if(_campaignSimTimer) clearTimeout(_campaignSimTimer);
@@ -25875,7 +25897,7 @@ function showCampaignBriefing(ch,p){
   var choices=(ch.choices||[]).map(function(c){
     return '<button class="campaign-choice" onclick="chooseCampaignOption(\''+escapeHtmlSafe(c.id)+'\')">'+escapeHtmlSafe(c.labelKo||c.id)+'</button>';
   }).join('');
-  _setCampaignModal(ch, lines+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ '+escapeHtmlSafe((ch.environment&&ch.environment.type)||'operation')+' · 서버 시뮬레이션 MVP</div>'+choices);
+  _setCampaignModal(ch, lines+campaignObjectivesHtml(ch,4)+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ '+escapeHtmlSafe((ch.environment&&ch.environment.type)||'operation')+' · 서버 시뮬레이션 MVP</div>'+choices);
 }
 
 async function chooseCampaignOption(choiceId){

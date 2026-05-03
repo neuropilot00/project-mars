@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.69 (Game direction lock) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.70 (Campaign main quest scaffold) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.70 최신 핸드오프 — 캠페인 메인퀘스트 스캐폴드
+
+- `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md`를 추가해 방향성 문서를 실제 개발 스프린트로 쪼갔다.
+- 캠페인 서버 공개 스키마에 `objectives`와 `nextObjective`를 추가했다.
+- 프론트 캠페인 카드와 브리핑 모달은 챕터별 작전 목표를 표시한다.
+- 이번 단계는 목표 표시/동선 정리 스캐폴드다. 다음 단계는 `first_claim`, `first_ship`, `first_battle`, `first_listing` 같은 objective를 실제 DB 상태와 연결하는 것이다.
+- 캠페인은 여전히 전면 신규 제작이 아니라 기존 챕터를 메인퀘스트처럼 재배선하는 방향을 유지한다.
 
 ### v5.69 최신 핸드오프 — 게임 방향성 기준 문서
 

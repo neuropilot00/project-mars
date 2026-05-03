@@ -1255,11 +1255,75 @@ Object.values(CHAPTERS).forEach(ch => {
   if (ch.scenesFile === undefined) ch.scenesFile = null;
 });
 
+const OBJECTIVE_PRESETS = {
+  prologue: [
+    { id: 'story_intro', labelKo: '카리오페호 프롤로그를 확인한다.', action: 'story' },
+    { id: 'route_unlock', labelKo: '첫 작전 루트를 개방한다.', action: 'unlock' },
+  ],
+  mcc_campaign_ch1: [
+    { id: 'briefing', labelKo: '에레부스 정제소 브리핑을 확인한다.', action: 'story' },
+    { id: 'operation_timer', labelKo: '산소 회수 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '결과를 확인하고 다음 작전 권한을 얻는다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch2: [
+    { id: 'briefing', labelKo: 'Hellas 북부 수소 채굴장 상황을 확인한다.', action: 'story' },
+    { id: 'operation_timer', labelKo: '시설 피해를 억제하며 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '결과를 확인하고 이사회 루트를 연다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch3: [
+    { id: 'briefing', labelKo: '이사회 선택지를 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'MCC 내 정치적 선택을 확정한다.', action: 'choice' },
+    { id: 'unlock_next', labelKo: '선택 결과에 따라 다음 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch1: [
+    { id: 'briefing', labelKo: 'FSP 첫 작전 브리핑을 확인한다.', action: 'story' },
+    { id: 'operation_timer', labelKo: '정착지 보호 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '결과를 확인하고 다음 FSP 작전을 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch1: [
+    { id: 'briefing', labelKo: 'CV 첫 습격 브리핑을 확인한다.', action: 'story' },
+    { id: 'operation_timer', labelKo: '습격 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '결과를 확인하고 다음 CV 작전을 연다.', action: 'claim_result' },
+  ],
+};
+
 function normalizeWallet(wallet) {
   return String(wallet || '').toLowerCase().trim();
 }
 
+function objectivePresetForChapter(chapter) {
+  if (!chapter) return [];
+  if (OBJECTIVE_PRESETS[chapter.questId]) return OBJECTIVE_PRESETS[chapter.questId];
+  if (chapter.chapterNumber === 0) return OBJECTIVE_PRESETS.prologue;
+  if (chapter.battleResolution === 'server_simulation') {
+    return [
+      { id: 'briefing', labelKo: '작전 브리핑과 선택지를 확인한다.', action: 'story' },
+      { id: 'operation_timer', labelKo: '서버 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+      { id: 'unlock_next', labelKo: '결과를 확인하고 다음 챕터를 연다.', action: 'claim_result' },
+    ];
+  }
+  return [
+    { id: 'story', labelKo: '스토리를 확인한다.', action: 'story' },
+    { id: 'result', labelKo: '결과를 확인한다.', action: 'claim_result' },
+  ];
+}
+
+function buildChapterObjectives(chapter, progress) {
+  const objectives = objectivePresetForChapter(chapter);
+  const status = progress?.status || 'new';
+  const completed = status === 'completed' || status === 'claimed';
+  const active = status === 'in_progress';
+  return objectives.map((objective, index) => {
+    let state = 'pending';
+    if (completed) state = 'done';
+    else if (active) state = index === 0 ? 'done' : (index === 1 ? 'active' : 'pending');
+    else if (index === 0) state = 'active';
+    return { ...objective, state };
+  });
+}
+
 function publicChapter(chapter, progress) {
+  const objectives = buildChapterObjectives(chapter, progress);
   return {
     questId: chapter.questId,
     campaignId: chapter.campaignId,
@@ -1274,6 +1338,8 @@ function publicChapter(chapter, progress) {
     scenes: chapter.scenesFile ? loadScenesFile(chapter.scenesFile) : null,
     briefing: chapter.briefing,
     choices: chapter.choices.map(c => ({ id: c.id, labelKo: c.labelKo })),
+    objectives,
+    nextObjective: objectives.find(o => o.state !== 'done') || objectives[objectives.length - 1] || null,
     progress: progress ? formatProgress(progress) : null,
   };
 }
