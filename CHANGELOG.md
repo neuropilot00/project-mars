@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Bug reporter submit contract + Codex inbox payload (v5.66)
+
+- **버그 제출 버튼 수정**: 프론트가 보내던 `description/context/screenshot` payload를 서버가 `title/body/category`로 정규화해 받도록 수정.
+- **프론트 payload 보강**: 버그 리포트 제출 시 제목, 본문, URL, 지갑, viewport, 언어, 최근 콘솔 에러, 열린 모달 정보를 함께 전송.
+- **Codex 인박스 보강**: 신규 리포트 JSON 미러에 `context`, `recent_errors`, `screenshot_path`, `codex_hint`를 포함해 바로 재현/수정 흐름으로 이어지게 변경.
+- **스크린샷 파일 저장**: base64 스크린샷은 DB에 넣지 않고 `server/bug-reports/screenshots`에 파일로 저장.
+- **자동 캡처 안정화**: html2canvas script id 오타와 CDN 로드 실패 시 placeholder 복구를 수정.
+
+검증:
+- `node --check server/services/bugReport.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Ship upgrade material visibility + fleet command modal stability (v5.65)
 
 - **강화 재료 보유량 표시**: 함선 강화 확인 모달에 필요 재료의 보유량/필요량과 부족 여부를 표시.

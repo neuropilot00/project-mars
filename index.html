@@ -47109,11 +47109,19 @@ window.closeTacticalLab = closeTacticalLab;
       return;
     }
     // CDN 로드 (1회)
-    if (document.getElementById('_h2cScript')) return;
+    if (document.getElementById('h2cScript')) return;
     var s = document.createElement('script');
     s.id  = 'h2cScript';
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
     s.onload = _doCapture;
+    s.onerror = function() {
+      var capMsg = document.getElementById('bugCapturingMsg');
+      var ph1    = document.getElementById('bugSsPlaceholder');
+      var ph2    = document.getElementById('bugSsPlaceholder2');
+      if (capMsg) capMsg.style.display = 'none';
+      if (ph1) ph1.style.display = '';
+      if (ph2) ph2.style.display = '';
+    };
     document.head.appendChild(s);
   }
 
@@ -47236,10 +47244,17 @@ window.closeTacticalLab = closeTacticalLab;
     status.style.display = 'none';
 
     // 게임 컨텍스트 수집
+    var wallet = (typeof getMyWallet === 'function' && getMyWallet())
+      || (window.walletState && walletState.address)
+      || window._walletAddress
+      || null;
     var ctx = {
       url:         location.href,
       hash:        location.hash,
       timestamp:   new Date().toISOString(),
+      wallet:      wallet,
+      viewport:    { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
+      recentErrors: (window.__recentErrors || []).slice(-10),
       openModals:  Array.from(document.querySelectorAll('[id$="Modal"],[id$="modal"],[id*="Modal"]'))
                      .filter(function(el) {
                        var s = getComputedStyle(el);
@@ -47249,8 +47264,16 @@ window.closeTacticalLab = closeTacticalLab;
     };
 
     var payload = {
+      category:    'other',
+      title:       desc.split('\n')[0].slice(0, 120),
+      body:        desc,
       description: desc,
       screenshot:  _ssDataUrl || null,
+      wallet:      wallet,
+      url:         location.href,
+      viewport:    ctx.viewport,
+      lang:        (document.documentElement.lang || navigator.language || '').slice(0, 16),
+      recentErrors: ctx.recentErrors,
       context:     ctx,
       userAgent:   navigator.userAgent,
     };

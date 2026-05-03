@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.65 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.66 / 2026-05-03)
+
+## ✅ v5.66 Bug reporter submit contract + Codex inbox payload — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 버그 제출 버튼 실패 | ✅ | 프론트 `description` payload와 서버 `title/body` 계약 불일치로 `empty` 실패하던 문제 수정. |
+| 구버전 payload 호환 | ✅ | 서버가 `description/context/screenshot`도 정규화해 수락하므로 캐시된 클라이언트도 제출 가능. |
+| Codex/Claude 인박스 | ✅ | 리포트 JSON에 context, recent errors, codex hint를 포함해 `server/bug-reports/inbox`에 미러링. |
+| 스크린샷 보존 | ✅ | base64 스크린샷은 파일로 분리 저장하고 JSON에 `screenshot_path` 기록. |
+| 자동 캡처 로더 | ✅ | html2canvas script id 오타와 로드 실패 시 UI 복구 처리 추가. |
+
+검증:
+- `node --check server/services/bugReport.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.65 Ship upgrade material visibility + fleet command modal stability — 수정 완료
 

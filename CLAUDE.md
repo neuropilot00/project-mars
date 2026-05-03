@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.65 (Ship upgrade material visibility + fleet command modal stability) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.66 (Bug reporter submit contract + Codex inbox payload) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.66 최신 핸드오프 — 버그 리포터 제출/코덱스 인박스
+
+- 인게임 버그 리포터 프론트와 서버 payload 계약을 맞췄다. 프론트는 이제 `title/body/category/url/wallet/viewport/lang/recentErrors/context/screenshot`을 함께 보낸다.
+- 서버 `bugReport.submitReport()`는 구버전 `description/context/screenshot` payload도 정규화해 받는다. 기존 배포 캐시가 남아 있어도 `empty`로 실패하면 안 된다.
+- 새 리포트는 DB `bug_reports`에 저장되고, Claude/Codex가 바로 읽을 수 있도록 `server/bug-reports/inbox/<id>_<category>.json`에 `context`, `recent_errors`, `codex_hint`를 포함해 미러링한다.
+- 스크린샷이 있으면 DB에 넣지 않고 `server/bug-reports/screenshots/<id>.<ext>`로 저장한 뒤 JSON에 `screenshot_path`를 기록한다.
+- html2canvas 로더의 ID 오타를 고쳐 중복 로딩을 막고, CDN 로드 실패 시에도 제출 폼은 계속 사용할 수 있게 했다.
 
 ### v5.65 최신 핸드오프 — 함선 강화 재료 표시 + 함대지휘 모달 안정화
 

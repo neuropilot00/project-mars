@@ -21,6 +21,7 @@ const { pool, getSetting } = require('../db');
 
 const ALLOWED_CATS = new Set(['ui', 'gameplay', 'payment', 'performance', 'other']);
 const ALLOWED_STATUSES = new Set(['new', 'triaged', 'in_progress', 'fixed', 'wontfix', 'duplicate']);
+const MAX_SCREENSHOT_BYTES = 6 * 1024 * 1024;
 
 function clean(val, max) {
   if (val === null || val === undefined) return null;
@@ -40,6 +41,46 @@ async function _resolveInboxDir() {
   return dir;
 }
 
+async function _resolveScreenshotDir() {
+  const dir = path.join(repoRoot(), 'server', 'bug-reports', 'screenshots');
+  try { fs.mkdirSync(dir, { recursive: true }); } catch (_) {}
+  return dir;
+}
+
+function normalizeSubmitPayload(payload) {
+  const context = payload && typeof payload.context === 'object' ? payload.context : {};
+  const rawDescription = payload.description || payload.body || '';
+  const body = clean(rawDescription, 2000) || '';
+  const titleSource = payload.title || payload.summary || body.split('\n')[0] || '';
+  return {
+    category: payload.category,
+    title: clean(titleSource, 120) || '',
+    body,
+    wallet: payload.wallet || context.wallet || null,
+    url: payload.url || context.url || null,
+    userAgent: payload.userAgent,
+    lang: payload.lang,
+    viewport: payload.viewport || context.viewport || null,
+    recentErrors: payload.recentErrors || context.recentErrors || null,
+    context,
+    screenshot: payload.screenshot || null
+  };
+}
+
+async function writeScreenshotMirror(reportId, dataUrl) {
+  if (!dataUrl || typeof dataUrl !== 'string') return null;
+  const match = dataUrl.match(/^data:image\/(png|jpeg|jpg|webp);base64,([A-Za-z0-9+/=]+)$/);
+  if (!match) return null;
+  const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+  const bytes = Buffer.from(match[2], 'base64');
+  if (!bytes.length || bytes.length > MAX_SCREENSHOT_BYTES) return null;
+  const dir = await _resolveScreenshotDir();
+  const fname = String(reportId).padStart(8, '0') + '.' + ext;
+  const fpath = path.join(dir, fname);
+  fs.writeFileSync(fpath, bytes);
+  return path.relative(repoRoot(), fpath);
+}
+
 async function _checkRateLimit(ip) {
   const limit = parseInt(await getSetting('bug_report_per_ip_per_hour', '20'), 10) || 20;
   if (!ip) return { ok: true };
@@ -54,12 +95,13 @@ async function _checkRateLimit(ip) {
 }
 
 async function submitReport(payload, ip) {
+  payload = normalizeSubmitPayload(payload || {});
   const enabled = String(await getSetting('bug_report_enabled', 'true')).toLowerCase() === 'true';
   if (!enabled) return { ok: false, error: 'disabled' };
 
   const minChars = parseInt(await getSetting('bug_report_min_body_chars', '0'), 10) || 0;
-  const title = clean(payload.title, 120) || '';
-  const body  = clean(payload.body, 2000) || '';
+  const title = payload.title || '';
+  const body  = payload.body || '';
   if ((title.length + body.length) < minChars) {
     return { ok: false, error: 'too_short' };
   }
@@ -106,6 +148,7 @@ async function submitReport(payload, ip) {
   // Failures here MUST NOT block the user — log and move on.
   try {
     const dir = await _resolveInboxDir();
+    const screenshotPath = await writeScreenshotMirror(row.id, payload.screenshot);
     const fname = String(row.id).padStart(8, '0') + '_' + category + '.json';
     const fpath = path.join(dir, fname);
     const doc = {
@@ -114,6 +157,9 @@ async function submitReport(payload, ip) {
       category, title, body, wallet, url,
       user_agent: ua, viewport, lang,
       recent_errors: recentErrors,
+      context: payload.context || null,
+      screenshot_path: screenshotPath,
+      codex_hint: 'Open this report, reproduce from body/context, implement the fix, then update status with resolved_commit.',
       ip_address: ip || null,
       status: 'new'
     };
