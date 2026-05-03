@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.72 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.73 / 2026-05-04)
+
+## ✅ v5.73 Campaign objective action routing — 착수 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| objective 클릭 액션 | ✅ | 진행 중/미완료 objective 중 지원되는 action에만 `GO`를 표시하고 클릭 가능하게 함. |
+| 영토 목표 동선 | ✅ | `territory`, `territory_art` objective는 BASE 내 영토 탭으로 이동. |
+| 함선/함대 목표 동선 | ✅ | `shipyard`는 조선소 청사진, `fleet`은 Fleet Command로 이동. |
+| 전투/마켓 목표 동선 | ✅ | `fleet_battle`은 PVP Battle Hub, `market`은 BASE Market 탭으로 이동. |
+| 안전한 범위 | ✅ | 완료 objective와 story/result/choice 계열은 읽기 전용 유지. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.72 Campaign objective expansion — 착수 완료
 

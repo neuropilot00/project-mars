@@ -1192,6 +1192,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-objective.done .co-dot{background:rgba(76,216,154,.16);color:var(--gn)}
 .campaign-objective.done .co-count{color:var(--gn)}
 .campaign-objective.pending{opacity:.65}
+.campaign-objective.actionable{cursor:pointer}
+.campaign-objective.actionable:hover{border-color:rgba(255,209,102,.45);background:rgba(255,209,102,.075);color:var(--tx)}
+.campaign-objective .co-action{margin-left:8px;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,209,102,.34);color:var(--gold);font-size:7px;white-space:nowrap;background:rgba(255,209,102,.08)}
 .campaign-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
 .campaign-stat{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px;text-align:center}
 .campaign-stat b{display:block;font-size:11px;color:var(--gold)}
@@ -25087,10 +25090,54 @@ function campaignObjectivesHtml(ch,limit){
     var state=o.state||'pending';
     var icon=state==='done'?'✓':(state==='active'?'▶':'•');
     var count=(o.current!=null&&o.target!=null)?'<span class="co-count">'+escapeHtmlSafe(String(o.current))+'/'+escapeHtmlSafe(String(o.target))+'</span>':'';
-    html+='<div class="campaign-objective '+state+'"><span class="co-dot">'+icon+'</span><span class="co-label">'+escapeHtmlSafe(o.labelKo||o.label||o.id||'Objective')+'</span>'+count+'</div>';
+    var action=campaignObjectiveActionTarget(o.action);
+    var actionable=state!=='done'&&!!action;
+    var attrs=actionable?' actionable" onclick="handleCampaignObjectiveAction(event,\''+action+'\')"':'"';
+    var actionHtml=actionable?'<span class="co-action">'+campaignObjectiveActionLabel(action)+'</span>':'';
+    html+='<div class="campaign-objective '+state+attrs+'><span class="co-dot">'+icon+'</span><span class="co-label">'+escapeHtmlSafe(o.labelKo||o.label||o.id||'Objective')+'</span>'+count+actionHtml+'</div>';
   });
   html+='</div>';
   return html;
+}
+function campaignObjectiveActionTarget(action){
+  var map={territory:'territory',territory_art:'territory',shipyard:'shipyard',fleet:'fleet',fleet_battle:'battle',market:'market'};
+  return map[action]||'';
+}
+function campaignObjectiveActionLabel(action){
+  var map={territory:'MY LAND',shipyard:'SHIPYARD',fleet:'FLEET',battle:'BATTLE',market:'MARKET'};
+  return map[action]||'GO';
+}
+function handleCampaignObjectiveAction(ev,action){
+  if(ev&&ev.stopPropagation) ev.stopPropagation();
+  if(!isLoggedIn()){showFactionToast('로그인이 필요합니다','error');return;}
+  closeCampaignModal();
+  if(action==='territory'){
+    openBaseModal();
+    setTimeout(function(){
+      var tab=document.getElementById('baseTabTerritory');
+      switchBaseTab('territory',tab);
+      showToast('내 영토에서 목표를 진행하세요','info');
+    },0);
+  }else if(action==='shipyard'){
+    openShipyard();
+    setTimeout(function(){try{switchSyTab('blueprints')}catch(_){}},0);
+  }else if(action==='fleet'){
+    openFleetCmd();
+  }else if(action==='battle'){
+    openBaseModal();
+    setTimeout(function(){
+      var tab=document.getElementById('baseTabPvp');
+      switchBaseTab('pvp',tab);
+      try{openBattleHub()}catch(_){showToast('PVP 탭에서 함대전을 시작하세요','info');}
+    },0);
+  }else if(action==='market'){
+    openBaseModal();
+    setTimeout(function(){
+      var tab=document.getElementById('baseTabMarket');
+      switchBaseTab('market',tab);
+      try{loadMarketTab()}catch(_){}
+    },0);
+  }
 }
 function _campaignClearSimTimer(){
   if(_campaignSimTimer) clearTimeout(_campaignSimTimer);

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.72 (Campaign objective expansion) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.73 (Campaign objective action routing) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,16 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.73 최신 핸드오프 — 캠페인 objective 클릭 동선
+
+- 캠페인 objective가 이제 지원되는 action에 한해 `GO` 버튼처럼 동작한다.
+- `territory`, `territory_art`는 BASE 내 영토 탭으로 보낸다.
+- `shipyard`는 조선소 청사진 탭으로, `fleet`은 Fleet Command로 보낸다.
+- `fleet_battle`은 PVP 탭을 열고 Battle Hub를 시도한다.
+- `market`은 BASE Market 탭으로 보낸다.
+- 완료된 objective와 story/result/choice 등 직접 이동할 화면이 없는 objective는 읽기 전용으로 유지한다.
+- 관련 프론트 함수: `campaignObjectivesHtml`, `campaignObjectiveActionTarget`, `handleCampaignObjectiveAction` in `index.html`.
 
 ### v5.72 최신 핸드오프 — 캠페인 objective 확장
 

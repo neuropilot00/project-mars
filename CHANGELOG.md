@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign objective action routing (v5.73)
+
+- **목표 클릭 동선 연결**: 캠페인 objective 중 영토, 조선소, 함대, 함대전, 마켓 목표에 `GO` 액션을 붙였다.
+- **실제 화면 이동**: 목표를 누르면 BASE 내 영토, 조선소 청사진, Fleet Command, PVP Battle Hub, Market 탭으로 바로 이동한다.
+- **읽기 전용 유지**: 완료된 objective와 아직 직접 이동할 화면이 없는 story/result objective는 클릭되지 않게 유지했다.
+- **캠페인 안내성 강화**: 캠페인이 단순 목록이 아니라 “다음에 뭘 해야 하는지 누르면 이동하는” 메인퀘스트 허브로 한 단계 진입했다.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign objective expansion (v5.72)
 
 - **영토 이미지 목표 연결**: 내 영토 중 `image_url`이 등록된 영토 수를 `artClaims`로 집계하고 MCC CH1 objective에 추가.

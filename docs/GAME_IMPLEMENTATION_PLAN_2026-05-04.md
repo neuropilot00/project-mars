@@ -29,6 +29,7 @@
 
 - objective 타입을 실제 시스템 데이터와 연결한다. (v5.71 시작)
 - 현재 연결됨: claim count, territory image count, owned ship count, fleet count, fleet battle count, market listing count.
+- objective action 동선 연결됨: territory, territory_art, shipyard, fleet, fleet_battle, market. (v5.73)
 - 다음 연결 후보: territory production count, ship upgrade count, campaign reward claim count.
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다.
 
@@ -137,6 +138,12 @@ v5.72 구현 메모:
 - `artClaims`, `completedFleetBattles`, `marketListings`를 추가했다.
 - MCC CH1은 영토 확보 뒤 이미지 등록까지 이어지게 했다.
 - MCC CH3은 함대전과 마켓 등록을 처음으로 요구하는 중반 진입 지점으로 잡았다.
+
+v5.73 구현 메모:
+
+- objective의 `action` 값을 프론트 동선으로 연결했다.
+- 영토/이미지 목표는 BASE 내 영토 탭, 함선 목표는 조선소, 함대 목표는 Fleet Command, 함대전 목표는 Battle Hub, 마켓 목표는 Market 탭으로 이동한다.
+- 완료 objective와 story/result/choice 계열은 클릭하지 않는다.
 
 ## 8. Third Sprint
 
