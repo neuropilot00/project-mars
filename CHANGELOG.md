@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign live objective state (v5.71)
+
+- **캠페인 목표 실제 상태 연결**: 캠페인 상태 응답에 `objectiveState`를 추가해 영토, 함선, 함대, 판매중 함선, 완료 함대전 수를 서버에서 집계.
+- **초반 objective 보유량 표시**: MCC CH1은 첫 영토, MCC CH2는 첫 함대, FSP/CV CH1은 첫 함선 보유량을 `current/target`으로 내려줌.
+- **목표 UI 보강**: 캠페인 카드와 브리핑 모달에서 objective 옆에 `현재/필요` 수량을 표시하고, 조건 충족 시 done 상태로 표시.
+- **안전한 집계 처리**: 마이그레이션 차이로 일부 테이블/컬럼이 없어도 캠페인 리스트가 internal error로 죽지 않도록 objective 집계는 실패 시 0으로 처리.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Campaign editor/in-game coordinate parity (v5.67)
 
 - **캐릭터 좌표 기준 통일**: 캠페인 에디터가 저장하는 `x/y` 중심점 좌표를 인게임 스토리 렌더러도 동일하게 `translate(-50%,-50%)`로 적용하도록 수정.

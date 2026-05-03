@@ -1262,11 +1262,13 @@ const OBJECTIVE_PRESETS = {
   ],
   mcc_campaign_ch1: [
     { id: 'briefing', labelKo: '에레부스 정제소 브리핑을 확인한다.', action: 'story' },
+    { id: 'first_claim', labelKo: '내 영토 1개를 확보한다.', action: 'territory', stat: 'ownedClaims', target: 1 },
     { id: 'operation_timer', labelKo: '산소 회수 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 작전 권한을 얻는다.', action: 'claim_result' },
   ],
   mcc_campaign_ch2: [
     { id: 'briefing', labelKo: 'Hellas 북부 수소 채굴장 상황을 확인한다.', action: 'story' },
+    { id: 'first_fleet', labelKo: '함대 1개를 구성한다.', action: 'fleet', stat: 'fleets', target: 1 },
     { id: 'operation_timer', labelKo: '시설 피해를 억제하며 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 이사회 루트를 연다.', action: 'claim_result' },
   ],
@@ -1277,11 +1279,13 @@ const OBJECTIVE_PRESETS = {
   ],
   fsp_campaign_ch1: [
     { id: 'briefing', labelKo: 'FSP 첫 작전 브리핑을 확인한다.', action: 'story' },
+    { id: 'first_ship', labelKo: '작전에 투입할 함선 1척을 보유한다.', action: 'shipyard', stat: 'ownedShips', target: 1 },
     { id: 'operation_timer', labelKo: '정착지 보호 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 FSP 작전을 연다.', action: 'claim_result' },
   ],
   cv_campaign_ch1: [
     { id: 'briefing', labelKo: 'CV 첫 습격 브리핑을 확인한다.', action: 'story' },
+    { id: 'first_ship', labelKo: '습격에 투입할 함선 1척을 보유한다.', action: 'shipyard', stat: 'ownedShips', target: 1 },
     { id: 'operation_timer', labelKo: '습격 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 CV 작전을 연다.', action: 'claim_result' },
   ],
@@ -1289,6 +1293,58 @@ const OBJECTIVE_PRESETS = {
 
 function normalizeWallet(wallet) {
   return String(wallet || '').toLowerCase().trim();
+}
+
+async function safeCampaignCount(sql, params) {
+  try {
+    const { rows } = await pool.query(sql, params);
+    return parseInt(rows[0]?.count || rows[0]?.cnt || 0, 10) || 0;
+  } catch (err) {
+    console.warn('[campaign] objective count skipped:', err && err.message ? err.message : err);
+    return 0;
+  }
+}
+
+async function getObjectiveState(wallet) {
+  const w = normalizeWallet(wallet);
+  if (!w) {
+    return {
+      ownedClaims: 0,
+      ownedShips: 0,
+      activeShips: 0,
+      fleets: 0,
+      marketListedShips: 0,
+      completedFleetBattles: 0,
+    };
+  }
+  const [
+    ownedClaims,
+    ownedShips,
+    activeShips,
+    fleets,
+    marketListedShips,
+    completedFleetBattles,
+  ] = await Promise.all([
+    safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
+    safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1`, [w]),
+    safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_alive = true`, [w]),
+    safeCampaignCount(`SELECT COUNT(*) FROM fleets WHERE LOWER(owner_wallet) = $1`, [w]),
+    safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_market_listed = true`, [w]),
+    safeCampaignCount(`
+      SELECT COUNT(DISTINCT fb.id)
+      FROM fleet_battles fb
+      JOIN fleet_battle_participants p ON p.battle_id = fb.id
+      WHERE LOWER(p.wallet_address) = $1 AND fb.status = 'ended'
+    `, [w]),
+  ]);
+  return {
+    ownedClaims,
+    ownedShips,
+    activeShips,
+    fleets,
+    marketListedShips,
+    completedFleetBattles,
+  };
 }
 
 function objectivePresetForChapter(chapter) {
@@ -1308,22 +1364,36 @@ function objectivePresetForChapter(chapter) {
   ];
 }
 
-function buildChapterObjectives(chapter, progress) {
+function applyLiveObjectiveState(objective, state) {
+  if (!objective?.stat) return objective;
+  const current = Math.max(0, parseInt(state?.[objective.stat] || 0, 10) || 0);
+  const target = Math.max(1, parseInt(objective.target || 1, 10) || 1);
+  return {
+    ...objective,
+    current,
+    target,
+    requirementMet: current >= target,
+  };
+}
+
+function buildChapterObjectives(chapter, progress, objectiveState) {
   const objectives = objectivePresetForChapter(chapter);
   const status = progress?.status || 'new';
   const completed = status === 'completed' || status === 'claimed';
   const active = status === 'in_progress';
-  return objectives.map((objective, index) => {
+  return objectives.map((rawObjective, index) => {
+    const objective = applyLiveObjectiveState(rawObjective, objectiveState);
     let state = 'pending';
     if (completed) state = 'done';
+    else if (objective.requirementMet) state = 'done';
     else if (active) state = index === 0 ? 'done' : (index === 1 ? 'active' : 'pending');
     else if (index === 0) state = 'active';
     return { ...objective, state };
   });
 }
 
-function publicChapter(chapter, progress) {
-  const objectives = buildChapterObjectives(chapter, progress);
+function publicChapter(chapter, progress, objectiveState) {
+  const objectives = buildChapterObjectives(chapter, progress, objectiveState);
   return {
     questId: chapter.questId,
     campaignId: chapter.campaignId,
@@ -3032,7 +3102,7 @@ function calculateRewards(progress, sim) {
 
 async function getStatus(wallet) {
   const w = normalizeWallet(wallet);
-  const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes] = await Promise.all([
+  const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes, objectiveState] = await Promise.all([
     pool.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
     pool.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
     pool.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
@@ -3040,6 +3110,7 @@ async function getStatus(wallet) {
     pool.query(`SELECT quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
     pool.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
     pool.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
+    getObjectiveState(w),
   ]);
   const rows = progressRes.rows;
   const progressByQuest = {};
@@ -3066,10 +3137,11 @@ async function getStatus(wallet) {
     else lockedChapters.push(ch.questId);
   }
   return {
-    chapters: Object.values(CHAPTERS).map(ch => publicChapter(ch, progressByQuest[ch.questId])),
+    chapters: Object.values(CHAPTERS).map(ch => publicChapter(ch, progressByQuest[ch.questId], objectiveState)),
     completedChapters: Array.from(completedSet),
     active: rows.find(r => r.status === 'in_progress') ? formatProgress(rows.find(r => r.status === 'in_progress')) : null,
     activeSession: sessionRes.rows[0] || null,
+    objectiveState,
     availableChapters,
     lockedChapters,
     reputation,

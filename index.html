@@ -1184,10 +1184,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-objectives{display:grid;gap:5px;margin:8px 0 10px}
 .campaign-objective{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);font-size:8px;color:var(--tx2);line-height:1.35}
 .campaign-objective .co-dot{width:14px;height:14px;border-radius:5px;display:grid;place-items:center;flex:0 0 14px;font-size:8px;background:rgba(255,255,255,.06);color:var(--tx3)}
+.campaign-objective .co-label{min-width:0;flex:1}
+.campaign-objective .co-count{margin-left:auto;color:var(--gold);font-size:7px;white-space:nowrap}
 .campaign-objective.active{border-color:rgba(79,195,247,.35);background:rgba(79,195,247,.08);color:var(--tx)}
 .campaign-objective.active .co-dot{background:rgba(79,195,247,.16);color:var(--cyan)}
 .campaign-objective.done{border-color:rgba(76,216,154,.28);background:rgba(76,216,154,.055);color:rgba(180,255,215,.9)}
 .campaign-objective.done .co-dot{background:rgba(76,216,154,.16);color:var(--gn)}
+.campaign-objective.done .co-count{color:var(--gn)}
 .campaign-objective.pending{opacity:.65}
 .campaign-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
 .campaign-stat{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px;text-align:center}
@@ -25083,7 +25086,8 @@ function campaignObjectivesHtml(ch,limit){
   list.forEach(function(o){
     var state=o.state||'pending';
     var icon=state==='done'?'✓':(state==='active'?'▶':'•');
-    html+='<div class="campaign-objective '+state+'"><span class="co-dot">'+icon+'</span><span>'+escapeHtmlSafe(o.labelKo||o.label||o.id||'Objective')+'</span></div>';
+    var count=(o.current!=null&&o.target!=null)?'<span class="co-count">'+escapeHtmlSafe(String(o.current))+'/'+escapeHtmlSafe(String(o.target))+'</span>':'';
+    html+='<div class="campaign-objective '+state+'"><span class="co-dot">'+icon+'</span><span class="co-label">'+escapeHtmlSafe(o.labelKo||o.label||o.id||'Objective')+'</span>'+count+'</div>';
   });
   html+='</div>';
   return html;

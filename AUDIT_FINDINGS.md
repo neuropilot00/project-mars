@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.70 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.71 / 2026-05-04)
+
+## ✅ v5.71 Campaign live objective state — 착수 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 서버 objective 상태 스냅샷 | ✅ | `/api/campaign/status` 계열 응답에 `objectiveState` 추가. 영토/함선/활성 함선/함대/판매중 함선/완료 전투 수를 서버에서 집계. |
+| 실제 DB 기반 objective | ✅ | MCC CH1은 첫 영토, MCC CH2는 첫 함대, FSP/CV CH1은 첫 함선 보유량을 `current/target`으로 연결. |
+| UI 수량 표시 | ✅ | 캠페인 카드/브리핑 objective에 `현재/필요` 수량을 표시. 충족된 objective는 done 상태로 표시. |
+| 배포 안전성 | ✅ | objective 집계는 safe query로 감싸 테이블/컬럼 차이가 있어도 캠페인 리스트 전체가 internal error로 죽지 않게 함. |
+| 범위 통제 | ✅ | 이번 단계는 표시/안내 판정. 완료 hard gate는 기존 유저 진행을 막지 않도록 아직 적용하지 않음. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.70 Campaign main quest scaffold — 착수 완료
 

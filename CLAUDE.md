@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.70 (Campaign main quest scaffold) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.71 (Campaign live objective state) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.71 최신 핸드오프 — 캠페인 objective 실제 상태 연결
+
+- 캠페인 상태 응답에 `objectiveState`를 추가했다. 현재는 `ownedClaims`, `ownedShips`, `activeShips`, `fleets`, `marketListedShips`, `completedFleetBattles`를 서버에서 집계한다.
+- CH1은 첫 영토 확보, CH2는 첫 함대 구성, FSP/CV CH1은 첫 함선 보유 objective를 실제 DB 보유량과 연결한다.
+- objective 항목은 `current`, `target`, `requirementMet`을 내려주며 프론트 카드/브리핑에서 `현재/필요` 수량을 표시한다.
+- 없는 테이블/컬럼이나 마이그레이션 차이가 있어도 캠페인 리스트 전체가 터지지 않도록 objective count는 safe query로 0 처리한다.
+- 이번 단계는 표시/안내 판정까지다. 캠페인 완료를 강제로 막는 hard gate는 유저 진행이 갑자기 막히지 않도록 아직 적용하지 않았다.
 
 ### v5.70 최신 핸드오프 — 캠페인 메인퀘스트 스캐폴드
 
