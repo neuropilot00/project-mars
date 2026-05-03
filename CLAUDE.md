@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.66 (Bug reporter submit contract + Codex inbox payload) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.67 (Campaign editor/in-game coordinate parity) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,14 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.66 최신 핸드오프 — 버그 리포터 제출/코덱스 인박스
+### v5.67 최신 핸드오프 — 캠페인 에디터/인게임 좌표 정합
+
+- 캠페인 에디터는 캐릭터 `x/y`를 **중심점 기준**으로 저장하고 `translate(-50%,-50%)`로 렌더한다. 인게임도 같은 기준으로 되돌려 에디터에서 맞춘 캐릭터 위치가 오른쪽/아래로 밀리지 않게 했다.
+- 레거시 top-left 좌표가 필요하면 캐릭터 layout에 `anchor: "top-left"` 또는 `origin: "top-left"`를 명시하면 된다. 기본은 에디터와 동일한 center anchor다.
+- 데스크탑 스토리 stage는 에디터와 같은 9:16 좌표계로 고정했다. 모바일은 기존처럼 전체화면을 유지하되 같은 좌표 적용 로직을 쓴다.
+- 배경 기본 크롭을 에디터와 같은 `50% 50%` 중앙 cover로 통일했다. 별도 배경 layout이 있으면 해당 값이 우선한다.
+
+### v5.66 핸드오프 — 버그 리포터 제출/코덱스 인박스
 
 - 인게임 버그 리포터 프론트와 서버 payload 계약을 맞췄다. 프론트는 이제 `title/body/category/url/wallet/viewport/lang/recentErrors/context/screenshot`을 함께 보낸다.
 - 서버 `bugReport.submitReport()`는 구버전 `description/context/screenshot` payload도 정규화해 받는다. 기존 배포 캐시가 남아 있어도 `empty`로 실패하면 안 된다.

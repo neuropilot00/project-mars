@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.66 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.67 / 2026-05-03)
+
+## ✅ v5.67 Campaign editor/in-game coordinate parity — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 캐릭터 위치 불일치 | ✅ | 에디터의 `x/y` 중심점 좌표를 인게임이 top-left처럼 해석해 캐릭터가 밀리던 문제 수정. |
+| 레거시 좌표 호환 | ✅ | 필요 시 `anchor: "top-left"` / `origin: "top-left"`가 명시된 layout은 기존 top-left 방식으로 처리. |
+| 스토리 stage 기준 | ✅ | 데스크탑 인게임 story stage를 에디터와 같은 9:16 좌표계로 맞춰 percent 좌표 오차를 줄임. |
+| 배경 크롭 기준 | ✅ | 에디터 preview와 동일한 중앙 cover(`50% 50%`)를 기본값으로 통일. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.66 Bug reporter submit contract + Codex inbox payload — 수정 완료
 

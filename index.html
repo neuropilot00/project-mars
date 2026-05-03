@@ -1204,16 +1204,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* story-overlay = 풀스크린 어두운 배경 (데스크탑) */
 .story-overlay{position:fixed;inset:0;z-index:5200;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;font-family:var(--fn);color:#fff;overflow:hidden}
 /* story-stage = 세로형 컨테이너 — 모바일/데스크탑 동일 비율·이미지 */
-.story-stage{position:relative;width:min(430px,100vw);height:min(88vh,880px);overflow:hidden;border-radius:14px;box-shadow:0 0 120px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08);background:#0a0a0f;cursor:pointer;flex-shrink:0}
+.story-stage{position:relative;width:min(430px,96vw,calc(88vh * 9 / 16));aspect-ratio:9/16;height:auto;overflow:hidden;border-radius:14px;box-shadow:0 0 120px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08);background:#0a0a0f;cursor:pointer;flex-shrink:0}
 /* 모바일(≤520px): 전체화면 */
 @media(max-width:520px){
   .story-overlay{background:#000}
-  .story-stage{width:100vw;height:100dvh;max-height:none;border-radius:0;box-shadow:none}
+  .story-stage{width:100vw;height:100dvh;aspect-ratio:auto;max-height:none;border-radius:0;box-shadow:none}
 }
-/* 배경 이미지 — 가로형 PNG를 세로 무대에 맞게: 상단 중심 크롭
-   cover + 50% 25% = 이미지 중앙 상단 25% 지점을 기준으로 채움
-   (건물·지평선은 위쪽에 있어 잘리지 않고, 하단 빈 공간은 대화창이 가림) */
-.story-background{position:absolute;inset:0;background:#0a0a0f linear-gradient(180deg,#1a0a2e,#0a0510);background-size:cover;background-position:50% 25%;transition:opacity .7s ease,filter .7s ease}
+/* 배경 이미지 — 에디터 프리뷰와 같은 중앙 cover 기준으로 채움 */
+.story-background{position:absolute;inset:0;background:#0a0a0f linear-gradient(180deg,#1a0a2e,#0a0510);background-size:cover;background-position:50% 50%;transition:opacity .7s ease,filter .7s ease}
 /* 가로형 이미지 배경 보정: 상단 그라데이션으로 캐릭터 영역 분리 */
 .story-background::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.12) 0%,rgba(0,0,0,.0) 40%,rgba(0,0,0,.55) 75%,rgba(0,0,0,.82) 100%);pointer-events:none}
 /* 캐릭터 — stage % 기준, 모바일·데스크탑 동일 비율 */
@@ -25337,7 +25335,7 @@ function _campaignResetStoryLayout(overlay){
     // Keep the current background image visible until the next one has loaded.
     // Removing the whole style here briefly exposes the default purple/blue CSS
     // background during scene changes.
-    bg.style.backgroundPosition='50% 25%';
+    bg.style.backgroundPosition='50% 50%';
     bg.style.backgroundSize='cover';
     bg.style.opacity='';
     bg.style.filter='';
@@ -25388,14 +25386,14 @@ function _campaignApplyCharacterLayout(el,box){
   if(hasCenter){
     _campaignApplyRectLayout(el,box,{transform:'translate(-50%,-50%)'});
   }else if(hasX&&hasY){
-    // Campaign editor stores character boxes as top-left percent + width.
+    // Campaign editor stores character boxes as center-point percent + width.
     // Keep the game renderer on the same coordinate model so editor previews
     // and in-game scenes match exactly for every character.
     el.style.left=_campaignLayoutUnit(_campaignLayoutPick(box,['x','left']),'50%');
     el.style.top=_campaignLayoutUnit(_campaignLayoutPick(box,['y','top']),'50%');
     el.style.right='auto';
     el.style.bottom='auto';
-    el.style.transform='none';
+    el.style.transform=(box.anchor==='top-left'||box.origin==='top-left')?'none':'translate(-50%,-50%)';
   }else if(hasX&&!hasY){
     el.style.left=_campaignLayoutUnit(_campaignLayoutPick(box,['x','left','cx','centerX']),'50%');
     el.style.right='auto';
@@ -25439,7 +25437,7 @@ function _campaignApplyBackgroundLayout(bg,layout){
   if(!bg||!box) return;
   var x=_campaignLayoutPick(box,['x','positionX','left']);
   var y=_campaignLayoutPick(box,['y','positionY','top']);
-  if(x!==null||y!==null) bg.style.backgroundPosition=_campaignLayoutUnit(x,'50%')+' '+_campaignLayoutUnit(y,'25%');
+  if(x!==null||y!==null) bg.style.backgroundPosition=_campaignLayoutUnit(x,'50%')+' '+_campaignLayoutUnit(y,'50%');
   var size=_campaignLayoutPick(box,['size','backgroundSize','fit']);
   if(size) bg.style.backgroundSize=size;
   else if(box.scale!==undefined) bg.style.backgroundSize=_campaignLayoutNumber(box.scale,100)+'% auto';

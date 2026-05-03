@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-03 — Campaign editor/in-game coordinate parity (v5.67)
+
+- **캐릭터 좌표 기준 통일**: 캠페인 에디터가 저장하는 `x/y` 중심점 좌표를 인게임 스토리 렌더러도 동일하게 `translate(-50%,-50%)`로 적용하도록 수정.
+- **레거시 top-left 호환**: 기존 top-left 방식이 필요한 layout은 `anchor: "top-left"` 또는 `origin: "top-left"`를 명시하면 그대로 동작.
+- **스토리 stage 비율 정합**: 데스크탑 인게임 스토리 컨테이너를 에디터와 같은 9:16 기준으로 맞춰 percent 좌표가 다른 비율에서 어긋나지 않게 변경.
+- **배경 기본 크롭 통일**: 에디터 preview와 인게임 story background의 기본 cover 위치를 `50% 50%` 중앙 기준으로 맞춤.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-03 — Bug reporter submit contract + Codex inbox payload (v5.66)
 
 - **버그 제출 버튼 수정**: 프론트가 보내던 `description/context/screenshot` payload를 서버가 `title/body/category`로 정규화해 받도록 수정.
