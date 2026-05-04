@@ -1388,18 +1388,47 @@ function applyLiveObjectiveState(objective, state) {
   };
 }
 
-function buildChapterObjectives(chapter, progress, objectiveState) {
+function isObjectiveDone(objective, chapter, progress, options = {}) {
+  if (objective?.stat) return objective.requirementMet === true;
+  const status = progress?.status || 'new';
+  const active = status === 'in_progress' || status === 'completed' || status === 'claimed';
+  if (objective?.action === 'story') return active;
+  if (objective?.action === 'campaign_progress') return Number(options.progressPct || 0) >= 100;
+  if (objective?.action === 'choice') {
+    const choices = Array.isArray(progress?.choices_payload) ? progress.choices_payload : [];
+    return choices.length > 0 || !Array.isArray(chapter?.choices) || chapter.choices.length === 0;
+  }
+  return false;
+}
+
+function getMissingRequiredObjectives(objectives) {
+  return (objectives || [])
+    .filter(o => o?.stat && o.requirementMet !== true)
+    .map(o => ({
+      id: o.id,
+      labelKo: o.labelKo,
+      action: o.action,
+      stat: o.stat,
+      current: o.current || 0,
+      target: o.target || 1,
+      state: o.state || 'active',
+    }));
+}
+
+function buildChapterObjectives(chapter, progress, objectiveState, options = {}) {
   const objectives = objectivePresetForChapter(chapter);
   const status = progress?.status || 'new';
   const completed = status === 'completed' || status === 'claimed';
-  const active = status === 'in_progress';
+  let firstOpenAssigned = false;
   return objectives.map((rawObjective, index) => {
     const objective = applyLiveObjectiveState(rawObjective, objectiveState);
     let state = 'pending';
     if (completed) state = 'done';
-    else if (objective.requirementMet) state = 'done';
-    else if (active) state = index === 0 ? 'done' : (index === 1 ? 'active' : 'pending');
-    else if (index === 0) state = 'active';
+    else if (isObjectiveDone(objective, chapter, progress, options)) state = 'done';
+    else if (!firstOpenAssigned && (status === 'in_progress' || index === 0)) {
+      state = 'active';
+      firstOpenAssigned = true;
+    }
     return { ...objective, state };
   });
 }
@@ -3388,7 +3417,8 @@ async function startChapter(wallet, questId) {
     );
     if (existing.rows[0] && ['completed', 'claimed'].includes(existing.rows[0].status)) {
       await client.query('COMMIT');
-      return { alreadyCompleted: true, chapter: publicChapter(chapter, existing.rows[0]), progress: formatProgress(existing.rows[0]) };
+      const objectiveState = await getObjectiveState(w);
+      return { alreadyCompleted: true, chapter: publicChapter(chapter, existing.rows[0], objectiveState), progress: formatProgress(existing.rows[0]) };
     }
 
     const sessionId = crypto.randomBytes(16).toString('hex');
@@ -3431,7 +3461,8 @@ async function startChapter(wallet, questId) {
       [sessionId, w, chapter.questId, randomSeed]
     );
     await client.query('COMMIT');
-    return { sessionId: rows[0].session_id, chapter: publicChapter(chapter, rows[0]), progress: formatProgress(rows[0]) };
+    const objectiveState = await getObjectiveState(w);
+    return { sessionId: rows[0].session_id, chapter: publicChapter(chapter, rows[0], objectiveState), progress: formatProgress(rows[0]) };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -3557,20 +3588,34 @@ async function getProgress(wallet, sessionId) {
   const runtime = getChapterRuntimeSeconds(p.quest_id);
   const elapsed = Math.min(runtime, getCampaignElapsedSeconds(p));
   const progressPct = Math.min(100, Math.round((elapsed / runtime) * 100));
+  const chapter = CHAPTERS[p.quest_id];
+  const objectiveState = await getObjectiveState(w);
+  const objectives = buildChapterObjectives(chapter, p, objectiveState, { progressPct });
+  const missingObjectives = getMissingRequiredObjectives(objectives);
   const preview = {
     elapsedSec: elapsed,
     runtimeSec: runtime,
     remainingSec: Math.max(0, runtime - elapsed),
     progressPct,
     oxygenRecoveryPct: progressPct,
-    readyToComplete: p.status === 'in_progress' && progressPct >= 100,
+    readyToComplete: p.status === 'in_progress' && progressPct >= 100 && missingObjectives.length === 0,
+    missingObjectives,
+    objectives,
   };
   await pool.query(
     `UPDATE campaign_sessions SET current_metrics = $1, updated_at = NOW()
      WHERE session_id = $2 AND wallet = $3 AND status = 'active'`,
     [JSON.stringify(preview), sessionId, w]
   );
-  return { progress: formatProgress(p), environmentalPhase: phaseForChapter(p.quest_id, elapsed), preview, environmentState: getEnvironmentState(CHAPTERS[p.quest_id]?.environment, elapsed) };
+  return {
+    progress: formatProgress(p),
+    environmentalPhase: phaseForChapter(p.quest_id, elapsed),
+    preview,
+    objectives,
+    nextObjective: objectives.find(o => o.state !== 'done') || objectives[objectives.length - 1] || null,
+    missingObjectives,
+    environmentState: getEnvironmentState(chapter?.environment, elapsed),
+  };
 }
 
 function getEnvironmentState(config, elapsedSec) {
@@ -3633,6 +3678,21 @@ async function complete(wallet, sessionId) {
         elapsedSec: elapsed,
         runtimeSec: runtime,
         remainingSec: runtime - elapsed,
+      };
+    }
+    const campaignChapter = CHAPTERS[progress.quest_id];
+    const objectiveState = await getObjectiveState(w);
+    const objectives = buildChapterObjectives(campaignChapter, progress, objectiveState, { progressPct: 100 });
+    const missingObjectives = getMissingRequiredObjectives(objectives);
+    if (missingObjectives.length > 0) {
+      await client.query('ROLLBACK');
+      return {
+        error: 'OBJECTIVE_REQUIREMENTS_NOT_MET',
+        missingObjectives,
+        objectives,
+        nextObjective: objectives.find(o => o.state !== 'done') || missingObjectives[0],
+        chapter: campaignChapter ? publicChapter(campaignChapter, progress, objectiveState) : null,
+        progress: formatProgress(progress),
       };
     }
     if (progress.quest_id === CH10_ID) {

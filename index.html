@@ -25976,7 +25976,8 @@ function showCampaignSim(ch,p){
     +'<div class="campaign-dialog">'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+' 무전: '+escapeHtmlSafe((radio&&radio.ko)||'작전 진행 상황 업데이트.')+'</div>'
     +'<div class="qc-bar" style="height:10px;margin:16px 0"><div id="campaignSimFill" class="qc-fill activity" style="width:0%"></div></div>'
     +'<div id="campaignSimStatus" style="font-size:10px;color:var(--gold);text-align:center">작전 상태 동기화 중...</div>'
-    +'<div id="campaignSimDetail" style="font-size:8px;color:var(--tx3);text-align:center;margin-top:6px">서버 진행률 기반으로 완료됩니다.</div>');
+    +'<div id="campaignSimDetail" style="font-size:8px;color:var(--tx3);text-align:center;margin-top:6px">서버 진행률 기반으로 완료됩니다.</div>'
+    +'<div id="campaignSimObjectives" style="margin-top:12px"></div>');
   pollCampaignProgress(true);
 }
 
@@ -25994,11 +25995,24 @@ async function pollCampaignProgress(immediate){
     var fill=document.getElementById('campaignSimFill');
     var status=document.getElementById('campaignSimStatus');
     var detail=document.getElementById('campaignSimDetail');
+    var objectivesEl=document.getElementById('campaignSimObjectives');
+    var objectives=Array.isArray(d.objectives)?d.objectives:(Array.isArray(preview.objectives)?preview.objectives:[]);
+    var missing=Array.isArray(d.missingObjectives)?d.missingObjectives:(Array.isArray(preview.missingObjectives)?preview.missingObjectives:[]);
     if(fill) fill.style.width=pct+'%';
     if(status) status.textContent='작전 진행률 '+Math.round(pct)+'%';
     if(detail) detail.textContent='남은 시간 '+_campaignFormatDuration(preview.remainingSec||0)+' · 경과 '+_campaignFormatDuration(preview.elapsedSec||0);
-    if(preview.readyToComplete||pct>=100){
+    if(objectivesEl&&objectives.length){
+      objectivesEl.innerHTML=(pct>=100&&missing.length?'<div style="font-size:10px;color:var(--gold);margin-bottom:6px;text-align:center">남은 목표를 완료해야 결과를 받을 수 있습니다.</div>':'')
+        +campaignObjectivesHtml({objectives:objectives},4);
+    }
+    if(preview.readyToComplete){
       completeCampaignMission();
+      return;
+    }
+    if(pct>=100&&missing.length){
+      if(status) status.textContent='작전 시간 완료 · 남은 목표 필요';
+      if(detail) detail.textContent=(missing[0]&&missing[0].labelKo)?missing[0].labelKo:'캠페인 목표를 먼저 완료하세요.';
+      _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},5000);
       return;
     }
     _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},immediate?1200:3000);
@@ -26016,6 +26030,15 @@ async function completeCampaignMission(){
     if(!r.ok){
       if(d.error==='MISSION_IN_PROGRESS'){
         showCampaignSim(a.chapter,a.progress||{});
+        return;
+      }
+      if(d.error==='OBJECTIVE_REQUIREMENTS_NOT_MET'){
+        var objectives=d.objectives||(d.chapter&&d.chapter.objectives)||d.missingObjectives||[];
+        var html='<div style="font-size:13px;color:var(--gold);margin-bottom:8px">남은 목표를 먼저 완료하세요.</div>'
+          +'<div class="campaign-dialog">작전 시간은 끝났지만 실제 플레이 조건이 아직 부족합니다.</div>'
+          +campaignObjectivesHtml({objectives:objectives},5)
+          +'<button class="campaign-btn" style="margin-top:12px" onclick="showCampaignSim(_campaignActive.chapter,_campaignActive.progress||{})">다시 확인</button>';
+        _setCampaignModal(d.chapter||a.chapter,html);
         return;
       }
       showToast(d.error||'Campaign complete failed');return;

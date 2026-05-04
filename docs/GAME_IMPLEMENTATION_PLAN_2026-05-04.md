@@ -32,8 +32,9 @@
 - objective action 동선 연결됨: territory, territory_art, shipyard, fleet, fleet_battle, market. (v5.73)
 - 캠페인 에디터와 인게임 story stage 좌표계를 9:16 기준으로 통일했다. 저장한 캐릭터/대사박스 위치는 모바일에서도 같은 좌표계로 해석한다. (v5.74)
 - 에디터 layout은 캐시가 남지 않도록 no-store/timestamp로 불러온다. (v5.74)
+- 완료 hard gate 연결됨: 서버가 필수 DB 기반 objective 미달 시 완료/보상을 막고, 프론트는 `readyToComplete`가 true일 때만 자동 완료한다. (v5.75)
 - 다음 연결 후보: territory production count, ship upgrade count, campaign reward claim count.
-- 완료 조건은 클라이언트가 아니라 서버가 판정한다.
+- 완료 조건은 클라이언트가 아니라 서버가 판정한다. (v5.75부터 적용 시작)
 
 ### 2.3 Campaign Scope Control
 
@@ -146,6 +147,13 @@ v5.73 구현 메모:
 - objective의 `action` 값을 프론트 동선으로 연결했다.
 - 영토/이미지 목표는 BASE 내 영토 탭, 함선 목표는 조선소, 함대 목표는 Fleet Command, 함대전 목표는 Battle Hub, 마켓 목표는 Market 탭으로 이동한다.
 - 완료 objective와 story/result/choice 계열은 클릭하지 않는다.
+
+v5.75 구현 메모:
+
+- `/api/campaign/progress`는 현재 진행률뿐 아니라 objective 목록, 미달 objective, 다음 objective, `readyToComplete`를 내려준다.
+- `/api/campaign/complete`는 `stat` 기반 필수 objective가 부족하면 완료/보상 처리를 막는다.
+- 프론트는 진행률 100%만으로 완료하지 않는다. 시간이 끝났지만 목표가 남아 있으면 캠페인 모달 안에 남은 목표와 GO 동선을 보여준다.
+- 현재 hard gate 대상은 실제 DB로 판정 가능한 objective다. story/choice/result 계열은 별도 UX 안정화 뒤 선별 gate한다.
 
 ## 8. Third Sprint
 

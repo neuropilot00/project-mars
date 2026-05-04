@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign objective hard gate (v5.75)
+
+- **서버 완료 판정 강화**: 캠페인 완료 API가 필수 DB 기반 objective를 확인하고, 부족하면 `OBJECTIVE_REQUIREMENTS_NOT_MET`으로 완료/보상 처리를 막는다.
+- **진행률 응답 보강**: 캠페인 progress 응답에 `objectives`, `missingObjectives`, `nextObjective`, `preview.readyToComplete`를 포함한다.
+- **자동 완료 오작동 수정**: 프론트가 진행률 100%만 보고 자동 완료하던 흐름을 중단하고, 서버가 완료 가능하다고 판단한 경우에만 완료 호출한다.
+- **남은 목표 UI**: 작전 시간이 끝났지만 영토/이미지/함대/전투/마켓 목표가 남은 경우 캠페인 모달에서 남은 목표와 GO 동선을 보여준다.
+- **시작 응답 정합**: 캠페인 start/alreadyCompleted 응답도 live objective 수량을 포함해 시작 직후 목표 상태가 비어 보이지 않게 했다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign editor parity hotfix (v5.74)
 
 - **에디터/인게임 대사박스 정합**: 에디터 좌표를 적용할 때 인게임 기본 safe-area padding이 남아 대사박스가 과하게 커지던 문제를 수정했다.

@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.74 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.75 / 2026-05-04)
+
+## ✅ v5.75 Campaign objective hard gate — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 캠페인 자동 완료 조건 | ✅ | 프론트는 `progressPct >= 100`만으로 완료하지 않고 서버의 `preview.readyToComplete`가 true일 때만 완료 호출. |
+| 서버 완료 hard gate | ✅ | `/api/campaign/complete`가 DB 기반 필수 objective 미달 시 `OBJECTIVE_REQUIREMENTS_NOT_MET`으로 보상/완료 처리를 차단. |
+| 진행률 응답 보강 | ✅ | `/api/campaign/progress`가 `objectives`, `missingObjectives`, `nextObjective`, `preview.readyToComplete`를 함께 내려줌. |
+| 남은 목표 안내 | ✅ | 작전 시간은 끝났지만 목표가 남은 경우 캠페인 모달에서 남은 목표와 GO 동선을 표시. |
+| 시작 직후 objective 수량 | ✅ | `/api/campaign/start`와 alreadyCompleted 응답도 live objective state를 포함해 수량 표시 공백을 줄임. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.74 Campaign editor parity hotfix — 수정 완료
 

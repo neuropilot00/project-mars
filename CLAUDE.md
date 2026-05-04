@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.74 (Campaign editor parity hotfix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.75 (Campaign objective hard gate) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,15 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.75 최신 핸드오프 — 캠페인 objective 완료 hard gate
+
+- 캠페인 완료는 이제 클라이언트 진행률 100%만으로 처리되지 않는다.
+- `/api/campaign/progress`는 진행률과 함께 `objectives`, `missingObjectives`, `nextObjective`, `preview.readyToComplete`를 내려준다.
+- `/api/campaign/complete`는 필수 DB 기반 objective가 부족하면 `OBJECTIVE_REQUIREMENTS_NOT_MET`을 반환하고 보상/완료 처리를 막는다.
+- 프론트 `pollCampaignProgress()`는 `preview.readyToComplete === true`일 때만 자동 완료한다. 타이머가 100%여도 목표가 남아 있으면 남은 objective와 GO 동선을 보여준다.
+- 캠페인 start/alreadyCompleted 응답도 live objective state를 포함해 시작 직후 목표 수량이 비지 않게 했다.
+- 관련 위치: `server/services/campaign.js` objective gate/progress, `index.html` campaign sim modal.
 
 ### v5.74 최신 핸드오프 — 캠페인 에디터/인게임 위치 정합 핫픽스
 
