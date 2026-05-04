@@ -1346,6 +1346,7 @@ async function getObjectiveState(wallet) {
       completedFleetBattles: 0,
       shipUpgrades: 0,
       territoryHarvests: 0,
+      campaignRewardClaims: 0,
     };
   }
   const [
@@ -1359,6 +1360,7 @@ async function getObjectiveState(wallet) {
     completedFleetBattles,
     shipUpgrades,
     territoryHarvests,
+    campaignRewardClaims,
   ] = await Promise.all([
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND COALESCE(image_url, '') <> ''`, [w]),
@@ -1375,6 +1377,7 @@ async function getObjectiveState(wallet) {
     `, [w]),
     getSuccessfulShipUpgradeCount(w),
     safeCampaignCount(`SELECT COUNT(*) FROM transactions WHERE type = 'mining' AND LOWER(from_wallet) = $1`, [w]),
+    safeCampaignCount(`SELECT COUNT(*) FROM campaign_reward_inbox WHERE LOWER(wallet) = $1 AND claimed = TRUE`, [w]),
   ]);
   const marketListings = marketListedShips + marketplaceListings;
   return {
@@ -1388,6 +1391,7 @@ async function getObjectiveState(wallet) {
     completedFleetBattles,
     shipUpgrades,
     territoryHarvests,
+    campaignRewardClaims,
   };
 }
 
@@ -3180,7 +3184,7 @@ async function getStatus(wallet) {
     pool.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
     pool.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
     pool.query(`SELECT modifier_id FROM player_branch_modifiers WHERE wallet = $1 AND consumed_at IS NULL ORDER BY set_at DESC`, [w]),
-    pool.query(`SELECT quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
+    pool.query(`SELECT id, quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
     pool.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
     pool.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
     getObjectiveState(w),
@@ -3223,6 +3227,118 @@ async function getStatus(wallet) {
     branchModifiers: branchRes.rows,
     rewardInbox: inboxRes.rows,
   };
+}
+
+async function applyClaimedInboxReward(client, wallet, reward) {
+  const qty = Math.max(1, parseInt(reward.quantity || 1, 10) || 1);
+  const payload = reward.payload && typeof reward.payload === 'object' ? reward.payload : {};
+  const type = String(reward.reward_type || payload.type || '').toLowerCase();
+  const code = String(reward.reward_code || payload.code || '').trim();
+  const label = payload.label || code;
+  const applied = [];
+
+  if (!code) return { applied, note: 'empty reward code' };
+
+  // Resource rewards are real inventory when the code exists in resources.
+  if (type === 'resource' || type === 'resource_stream') {
+    const { rows } = await client.query('SELECT id FROM resources WHERE code = $1 AND COALESCE(is_active, true) = true', [code]);
+    if (rows[0]) {
+      await client.query(
+        `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+         VALUES ($1, $2, $3, NOW())
+         ON CONFLICT (wallet_address, resource_id)
+         DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity,
+                       updated_at = NOW()`,
+        [wallet, rows[0].id, qty]
+      );
+      applied.push({ kind: 'resource', code, quantity: qty });
+      return { applied };
+    }
+  }
+
+  // Item rewards are real item inventory when the code exists in item_types.
+  const itemRes = await client.query('SELECT id FROM item_types WHERE code = $1 AND COALESCE(active, true) = true', [code]);
+  if (itemRes.rows[0]) {
+    await client.query(
+      `INSERT INTO user_items (wallet, item_type_id, quantity)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (wallet, item_type_id)
+       DO UPDATE SET quantity = user_items.quantity + EXCLUDED.quantity`,
+      [wallet, itemRes.rows[0].id, qty]
+    );
+    applied.push({ kind: 'item', code, quantity: qty });
+    return { applied };
+  }
+
+  // Narrative/entitlement rewards are still claimable so the campaign cannot dead-end while
+  // those long-term systems are being built out.
+  return { applied, note: `${type || 'campaign'} reward recorded`, label };
+}
+
+async function claimReward(wallet, rewardId) {
+  const w = normalizeWallet(wallet);
+  const id = parseInt(rewardId, 10);
+  if (!w || !id) return { error: 'INVALID_REWARD' };
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const rewardRes = await client.query(
+      `SELECT id, wallet, quest_id, reward_type, reward_code, quantity, payload, created_at
+       FROM campaign_reward_inbox
+       WHERE id = $1 AND wallet = $2 AND claimed = FALSE
+       FOR UPDATE`,
+      [id, w]
+    );
+    const reward = rewardRes.rows[0];
+    if (!reward) {
+      await client.query('ROLLBACK');
+      return { error: 'REWARD_NOT_FOUND' };
+    }
+
+    const applyResult = await applyClaimedInboxReward(client, w, reward);
+    await client.query(
+      `UPDATE campaign_reward_inbox
+       SET claimed = TRUE, claimed_at = NOW()
+       WHERE id = $1`,
+      [id]
+    );
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, usdt_amount, fee, meta)
+       VALUES ('quest', $1, 0, 0, 0, $2)`,
+      [w, JSON.stringify({
+        source: 'campaign_reward_claim',
+        rewardId: id,
+        questId: reward.quest_id,
+        type: reward.reward_type,
+        code: reward.reward_code,
+        quantity: reward.quantity,
+        applied: applyResult.applied,
+        note: applyResult.note || null,
+      })]
+    );
+
+    await client.query('COMMIT');
+    return {
+      success: true,
+      reward: {
+        id: reward.id,
+        questId: reward.quest_id,
+        type: reward.reward_type,
+        code: reward.reward_code,
+        quantity: reward.quantity,
+        payload: reward.payload,
+      },
+      applied: applyResult.applied,
+      note: applyResult.note || null,
+    };
+  } catch (e) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    console.error('[campaign] reward claim error:', e && e.stack || e && e.message || e);
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 async function validateStartConditions(client, wallet, chapter) {
@@ -4048,6 +4164,7 @@ module.exports = {
   choose,
   getProgress,
   complete,
+  claimReward,
   abandon,
   getReputation,
   applyReputationDelta,

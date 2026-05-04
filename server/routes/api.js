@@ -3608,6 +3608,21 @@ router.post('/campaign/complete', writeLimiter, async (req, res) => {
   }
 });
 
+router.post('/campaign/reward/claim', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const rewardId = parseInt(req.body.reward_id || req.body.rewardId, 10);
+    if (!wallet || wallet.length < 10 || !rewardId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.claimReward(wallet, rewardId);
+    if (result.error) return res.status(404).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] reward claim error:', e && e.stack || e && e.message || e);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 router.post('/campaign/abandon', writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });

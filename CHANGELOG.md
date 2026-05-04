@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign reward inbox claim flow (v5.80)
+
+- **캠페인 보상함 UI**: BASE/퀘스트의 캠페인 패널에서 미수령 보상을 카드로 보여주고 바로 수령할 수 있게 했다.
+- **보상 수령 API**: `/api/campaign/reward/claim`을 추가해 wallet/reward id 검증, row lock, 중복 수령 방지, 수령 완료 처리를 수행한다.
+- **실제 인벤토리 지급**: 보상 코드가 `resources`나 `item_types`에 매칭되면 자원/아이템 인벤토리에 적립된다.
+- **서사형 보상 안전 처리**: 아직 독립 시스템이 없는 함선 선택권, 계약, 자산, 데이터 보상은 캠페인이 막히지 않도록 수령 처리와 로그 기록까지 진행한다.
+- **상태 확장**: 캠페인 상태 응답의 `rewardInbox`에 `id`를 포함하고 `objectiveState.campaignRewardClaims`를 추가했다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `node --check server/routes/api.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign territory harvest objective (v5.79)
 
 - **채굴 목표 연결**: MCC CH1에 영토 PP 채굴 1회 objective를 추가해 초반 캠페인이 영토 확보, 이미지 등록, 생산 수확까지 이어지게 했다.

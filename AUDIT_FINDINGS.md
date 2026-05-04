@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v5.79 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.80 / 2026-05-04)
+
+## ✅ v5.80 Campaign reward inbox claim flow — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 보상함 렌더링 | ✅ | 캠페인 패널에 미수령 `rewardInbox` 카드와 수령 버튼을 추가. |
+| 수령 API | ✅ | `/api/campaign/reward/claim` 추가. wallet/reward id 검증 후 `FOR UPDATE`로 중복 수령 방지. |
+| 실제 지급 처리 | ✅ | `resources` 또는 `item_types`에 매칭되는 보상은 `user_resource_inventory`/`user_items`에 적립. |
+| 서사형 보상 안전 처리 | ✅ | 아직 별도 시스템이 없는 자산/권한/선택권 보상도 오류 없이 수령 처리하고 트랜잭션 로그 기록. |
+| objective state 확장 | ✅ | `objectiveState.campaignRewardClaims` 집계 추가. 향후 “보상 수령” objective에 연결 가능. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `node --check server/routes/api.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.79 Campaign territory harvest objective — 수정 완료
 

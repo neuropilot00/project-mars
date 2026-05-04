@@ -1214,6 +1214,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-rep-top{display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:4px}
 .campaign-rep-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
 .campaign-rep-fill{height:100%;width:50%;background:#4fc3f7}
+.campaign-reward-inbox{display:grid;gap:6px;margin:6px 0 10px}
+.campaign-reward-card{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 9px;border:1px solid rgba(255,209,102,.28);border-radius:7px;background:linear-gradient(135deg,rgba(255,209,102,.1),rgba(0,0,0,.2))}
+.campaign-reward-label{font-size:9px;color:var(--gold);font-weight:900;letter-spacing:.8px}
+.campaign-reward-meta{font-size:7px;color:var(--tx3);margin-top:3px;line-height:1.35}
+.campaign-reward-claim{padding:7px 10px;border-radius:7px;border:1px solid rgba(255,209,102,.34);background:rgba(255,209,102,.12);color:var(--gold);font-family:var(--fn);font-size:8px;font-weight:900;letter-spacing:1px;cursor:pointer;white-space:nowrap}
+.campaign-reward-claim:hover{background:rgba(255,209,102,.2);border-color:rgba(255,209,102,.56)}
+.campaign-reward-claim:disabled{opacity:.48;cursor:wait}
 /* 캠페인 스토리 모드: 모바일 우선 세로형 — 데스크탑은 중앙 포트레이트 모달 */
 /* story-overlay = 풀스크린 어두운 배경 (데스크탑) */
 .story-overlay{position:fixed;inset:0;z-index:5200;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;font-family:var(--fn);color:#fff;overflow:hidden}
@@ -6942,6 +6949,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
           <div class="base-section-title" style="color:#4fc3f7;margin-top:2px">⚡ CAMPAIGN</div>
           <div id="campaignReputation"></div>
+          <div id="campaignRewardInbox"></div>
           <div id="campaignList">
             <div style="font-size:9px;color:var(--tx3);padding:8px 0">Loading campaign...</div>
           </div>
@@ -24967,9 +24975,11 @@ function loadCampaignStatus(){
       .then(function(d){
         _campaignData=d;
         renderCampaignReputation(d.reputation||{},d.tierLabels||{});
+        renderCampaignRewardInbox(d.rewardInbox||[]);
         renderCampaignList(d.chapters||[]);
       })
       .catch(function(){
+        renderCampaignRewardInbox([]);
         el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
       });
   });
@@ -24988,6 +24998,68 @@ function renderCampaignReputation(rep,tiers){
   });
   html+='</div>';
   el.innerHTML=html;
+}
+
+function campaignRewardLabel(r){
+  var p=(r&&r.payload&&typeof r.payload==='object')?r.payload:{};
+  return p.label||p.labelKo||r.reward_code||'Campaign Reward';
+}
+function campaignRewardTypeLabel(type){
+  var map={
+    ship:'함선',
+    ship_fleet:'함대',
+    ship_blueprint:'설계도',
+    ship_choice:'함선 선택권',
+    resource:'자원',
+    resource_stream:'자원 계약',
+    gp_stream:'GP 계약',
+    data_artifact:'데이터',
+    asset:'자산',
+    permanent_buff:'영구 효과',
+    title_position:'칭호',
+    safe_house_access:'권한'
+  };
+  return map[type]||String(type||'보상');
+}
+function renderCampaignRewardInbox(inbox){
+  var el=document.getElementById('campaignRewardInbox');
+  if(!el) return;
+  if(!Array.isArray(inbox)||!inbox.length){el.innerHTML='';return;}
+  var html='<div class="campaign-reward-inbox">';
+  inbox.slice(0,4).forEach(function(r){
+    var id=parseInt(r.id,10)||0;
+    var qty=parseInt(r.quantity,10)||1;
+    var type=campaignRewardTypeLabel(r.reward_type);
+    var label=campaignRewardLabel(r);
+    html+='<div class="campaign-reward-card">';
+    html+='<div><div class="campaign-reward-label">🎁 '+escapeHtmlSafe(label)+(qty>1?' ×'+qty:'')+'</div><div class="campaign-reward-meta">'+escapeHtmlSafe(type)+' · '+escapeHtmlSafe(r.quest_id||'campaign')+'</div></div>';
+    html+='<button class="campaign-reward-claim" onclick="claimCampaignReward('+id+',this)">수령</button>';
+    html+='</div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+async function claimCampaignReward(id,btn){
+  if(!isLoggedIn()){showFactionToast('로그인이 필요합니다','error');return;}
+  if(!id){showToast('보상 정보가 없습니다','error');return;}
+  if(btn){btn.disabled=true;btn.textContent='수령중';}
+  try{
+    var r=await fetch('/api/campaign/reward/claim',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:walletState.address,reward_id:id})
+    });
+    var d=await r.json().catch(function(){return {};});
+    if(!r.ok||d.error) throw new Error(d.error||'claim failed');
+    showToast('캠페인 보상을 수령했습니다','success');
+    await loadCampaignStatus();
+    try{loadInventory&&loadInventory();}catch(_){}
+    try{loadResourceInventory&&loadResourceInventory();}catch(_){}
+  }catch(e){
+    showToast('보상 수령 실패: '+(e&&e.message?e.message:'오류'),'error');
+    if(btn){btn.disabled=false;btn.textContent='수령';}
+  }
 }
 
 function renderCampaignList(chapters){

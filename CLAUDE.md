@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.79 (Campaign territory harvest objective) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.80 (Campaign reward inbox claim flow) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.80 최신 핸드오프 — 캠페인 보상함 수령 플로우
+
+- 캠페인 완료 후 `campaign_reward_inbox`에 쌓이는 아이템형 보상을 BASE/퀘스트 캠페인 패널에서 확인하고 수령할 수 있게 했다.
+- `/api/campaign/reward/claim`이 추가됐다. 미수령 보상을 row lock으로 잡고, 실제 `resources`/`item_types`에 매칭되는 보상은 유저 인벤토리에 지급한 뒤 `claimed = TRUE`로 닫는다.
+- 아직 별도 시스템이 없는 서사형 보상(`asset`, `data_artifact`, `resource_stream`, `ship_choice` 등)은 오류로 막지 않고 수령 처리/트랜잭션 기록까지 진행한다. 장기 시스템화 전까지 캠페인 진행이 dead-end로 막히지 않게 하는 임시 안전장치다.
+- 캠페인 상태 응답의 `rewardInbox`는 이제 `id`를 포함하고, `objectiveState.campaignRewardClaims`도 내려준다.
+- 관련 위치: `server/services/campaign.js`, `server/routes/api.js`, `index.html` campaign panel.
 
 ### v5.79 최신 핸드오프 — 캠페인 영토 채굴 objective 연결
 
