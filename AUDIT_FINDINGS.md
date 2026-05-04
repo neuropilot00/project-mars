@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.82 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.83 / 2026-05-04)
+
+## ✅ v5.83 Campaign CH2 objective clarity + completed card guard — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 완료 캠페인 카드 접힘 방어 | ✅ | 프론트가 status helper로 완료 상태를 정규화하고 `completedAt`도 완료로 처리해 풀카드 노출 위험을 줄임. |
+| 결과 모달 상태 판정 | ✅ | 결과 화면의 완료/실패 판정도 동일 helper를 사용해 상태 문자열 차이로 흔들리지 않게 함. |
+| CH2 진행 목표 보강 | ✅ | MCC CH2에 “함대에 함선 3척 배치” objective를 추가해 함대 1개 존재만으로 끝나는 느낌을 줄임. |
+| 함대 배치 수 서버 집계 | ✅ | `objectiveState.fleetShips`가 살아 있고 판매중이 아니며 함대에 편입된 함선 수를 집계. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.82 Ship economy visibility + Fleet Command sale locks — 수정 완료
 

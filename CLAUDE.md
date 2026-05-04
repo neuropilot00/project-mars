@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.82 (Ship economy visibility + fleet command locks) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.83 (Campaign CH2 objective clarity + completed card guard) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.83 최신 핸드오프 — 캠페인 CH2 목표 보강 + 완료 카드 접힘 방어
+
+- 캠페인 카드 렌더링은 이제 `campaignProgressStatus()` / `isCampaignProgressDone()` helper로 상태를 정규화한다. `completed`/`claimed`뿐 아니라 `completedAt`이 있는 진행도도 완료 compact 카드로 처리한다.
+- 완료 결과 모달도 같은 status helper를 사용해 상태 문자열 차이로 완료/실패 판정이 흔들리는 위험을 줄였다.
+- MCC CH2에 `fleet_line` objective를 추가했다. 플레이어는 함대 1개 구성뿐 아니라 살아 있고 판매중이 아니며 함대에 편입된 함선 3척을 갖춰야 한다.
+- 서버 `objectiveState.fleetShips`는 `ships.fleet_id IS NOT NULL`, `is_alive = true`, `is_market_listed = false` 조건으로 집계한다.
+- 관련 위치: `index.html` campaign UI helpers, `server/services/campaign.js` objective presets + live objective state.
 
 ### v5.82 최신 핸드오프 — 함선 경제 가시성 + 함대지휘 판매중 잠금
 

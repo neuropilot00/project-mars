@@ -36,6 +36,7 @@
 - 다음 연결 후보: campaign reward claim count.
 - campaign reward inbox 수령 UI/API 연결됨. 상태 응답은 `rewardInbox.id`와 `objectiveState.campaignRewardClaims`를 포함한다. (v5.80)
 - campaign `ship`/`ship_fleet` 보상은 실제 `ships` 인스턴스로 지급된다. 설계도/선택권/계약은 장기 시스템 전까지 안전 수령 처리 유지. (v5.81)
+- MCC CH2는 이제 함대 1개뿐 아니라 함대 배치 함선 3척을 요구한다. `objectiveState.fleetShips`는 살아 있고 판매중이 아니며 실제 함대에 편입된 함선만 센다. 완료 카드 판정도 status helper로 방어한다. (v5.83)
 - territory production count 연결됨: MCC CH1에서 영토 PP 채굴 1회를 `transactions.type = 'mining'` 기반 objective로 요구한다. (v5.79)
 - ship upgrade count 연결됨: MCC CH3에서 함선 스탯 강화 1회를 실제 DB 로그 기반 objective로 요구한다. (v5.78)
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다. (v5.75부터 적용 시작)

@@ -25072,6 +25072,21 @@ async function claimCampaignReward(id,btn){
   }
 }
 
+function campaignProgressStatus(progress){
+  var p=progress||{};
+  return String(p.status||p.state||'').trim().toLowerCase();
+}
+function isCampaignProgressDone(progress){
+  var st=campaignProgressStatus(progress);
+  return st==='completed'||st==='claimed'||!!(progress&&progress.completedAt);
+}
+function isCampaignProgressActive(progress){
+  return campaignProgressStatus(progress)==='in_progress';
+}
+function campaignStatusLabel(progress,fallback){
+  return campaignProgressStatus(progress)||fallback||'new';
+}
+
 function renderCampaignList(chapters){
   var el=document.getElementById('campaignList');
   if(!el) return;
@@ -25094,8 +25109,8 @@ function renderCampaignList(chapters){
   visible.forEach(function(ch){
     var p=ch.progress||{};
     var locked=((_campaignData&&_campaignData.lockedChapters)||[]).indexOf(ch.questId)>=0;
-    var done=p.status==='completed'||p.status==='claimed';
-    var active=p.status==='in_progress';
+    var done=isCampaignProgressDone(p);
+    var active=isCampaignProgressActive(p);
     var title=(ch.title&&ch.title.ko)||ch.questId;
     var btn=locked?'LOCKED':(done?'RESULTS':(active?'CONTINUE':'START'));
     var route=((ch.campaignId||'').replace('_route','')||ch.faction||'').toUpperCase();
@@ -25124,7 +25139,7 @@ function renderCampaignList(chapters){
     card+=campaignObjectivesHtml(ch,3);
     if(done||active){
       var m=p.metrics||{};
-      card+=campaignStatsHtml(m,p.status||'NEW');
+      card+=campaignStatsHtml(m,campaignStatusLabel(p,'NEW'));
     }
     card+='<button class="campaign-btn" onclick="openCampaignChapter(\''+ch.questId+'\')">'+btn+'</button>';
     card+='</div>';
@@ -26023,8 +26038,8 @@ async function openCampaignChapter(questId){
   if(!ch){await loadCampaignStatus();ch=_findCampaignChapter(questId);}
   if(!ch){showToast('Campaign not loaded');return;}
   var p=ch.progress||{};
-  if(p.status==='completed'||p.status==='claimed') return showCampaignResult(ch,p);
-  if(p.status==='in_progress'&&p.sessionId){
+  if(isCampaignProgressDone(p)) return showCampaignResult(ch,p);
+  if(isCampaignProgressActive(p)&&p.sessionId){
     _campaignActive={chapter:ch,progress:p,sessionId:p.sessionId};
     if(Array.isArray(p.choices)&&p.choices.length>0) showCampaignSim(ch,p);
     else if(ch.scenes) showCampaignStory(ch);
@@ -26148,9 +26163,9 @@ async function completeCampaignMission(){
 function showCampaignResult(ch,p,result){
   var m=(result&&result.metrics)||p.metrics||{};
   var rw=(result&&result.rewards)||p.rewards||{};
-  var ok=(result&&result.success)!==false && p.status!=='failed';
+  var ok=(result&&result.success)!==false && campaignProgressStatus(p)!=='failed';
   var html='<div style="font-size:18px;color:'+(ok?'var(--gn)':'var(--mars)')+';font-weight:900;margin-bottom:10px">'+(ok?'임무 완료':'임무 실패')+'</div>';
-  html+=campaignStatsHtml(m,p.status||'RESULT').replace('campaign-stats','campaign-result-grid');
+  html+=campaignStatsHtml(m,campaignStatusLabel(p,'RESULT')).replace('campaign-stats','campaign-result-grid');
   html+='<div class="campaign-dialog"><b>'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+'</b><br>'+(ok?'작전 목표 달성. 다음 단계로 넘어간다.':'작전 실패. 결과는 기록된다.')+'</div>';
   html+='<div style="font-size:11px;color:var(--gold);line-height:1.8">보상: +'+(rw.GP||0)+' GP · +'+(rw.XP||0)+' XP'+((rw.items&&rw.items.length)?' · Blueprint queued':'')+'</div>';
   html+='<button class="campaign-btn" style="margin-top:12px" onclick="closeCampaignModal()">확인</button>';

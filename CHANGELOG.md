@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign CH2 objective clarity + completed card guard (v5.83)
+
+- **완료 카드 판정 보강**: 캠페인 카드 렌더링이 `status` 문자열만 직접 비교하지 않고 정규화 helper를 사용한다. `completedAt`이 있는 완료 진행도도 compact 완료 카드로 처리해 완료 챕터가 풀카드로 풀리는 위험을 줄였다.
+- **결과 모달 판정 보강**: 완료/실패 결과 화면도 같은 status helper를 사용해 상태 문자열 차이로 결과 라벨이 흔들리지 않게 했다.
+- **CH2 진행 목표 보강**: MCC CH2에 “작전에 투입할 함선 3척을 함대에 배치” objective를 추가했다. 단순히 함대 1개만 있으면 진행 조건이 끝나는 느낌을 줄이고, 캠페인이 함대 편성 루프로 더 명확히 이어진다.
+- **함대 배치 수 집계**: 캠페인 `objectiveState.fleetShips`를 추가해 살아 있고 판매중이 아니며 함대에 배치된 함선 수를 서버에서 내려준다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Ship economy visibility + Fleet Command sale locks (v5.82)
 
 - **제작 재료 가시성**: 조선소 청사진 카드가 조건 부족 상태여도 보유 재료까지 흐려 보이지 않게 조정했다. 재료 칩은 `보유`/`부족` 라벨과 색으로 상태를 보여준다.
