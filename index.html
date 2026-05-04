@@ -25456,13 +25456,28 @@ function _campaignStoryLayout(scene,line){
 }
 
 function _campaignComposeEditorLayout(serverLayout,localLayout){
+  var serverAt=_campaignLayoutUpdatedAt(serverLayout);
+  var localAt=_campaignLayoutUpdatedAt(localLayout);
+  var localShouldWin=!!localLayout&&localAt>0&&localAt>=serverAt;
   var merged={};
-  _campaignMergeLayout(merged,serverLayout||{});
-  // The editor stores changes locally first, then syncs to the server on a
-  // debounce. If the story opens before that sync finishes, the local editor
-  // coordinates are the freshest source and must win.
-  _campaignMergeLayout(merged,localLayout||{});
+  _campaignMergeLayout(merged,localShouldWin?{}:(serverLayout||{}));
+  // The editor syncs on a short debounce. Local layout should only override
+  // the server when it has a fresh timestamp; otherwise stale gameplay
+  // localStorage can keep resurrecting old coordinates after server saves.
+  if(localShouldWin) _campaignMergeLayout(merged,serverLayout||{});
+  _campaignMergeLayout(merged,localShouldWin?(localLayout||{}):{});
   return Object.keys(merged).length?merged:null;
+}
+
+function _campaignLayoutUpdatedAt(layout){
+  if(!layout||typeof layout!=='object') return 0;
+  var raw=layout.updatedAt||layout.updated_at||layout.savedAt||layout.saved_at||0;
+  if(typeof raw==='string'&&raw.indexOf('-')>=0){
+    var t=Date.parse(raw);
+    return isFinite(t)?t:0;
+  }
+  var n=Number(raw);
+  return isFinite(n)?n:0;
 }
 
 function _campaignLocalEditorLayout(){
@@ -25476,6 +25491,8 @@ function _campaignLocalEditorLayout(){
     if(overlays&&Object.keys(overlays).length) payload.overlays=overlays;
     if(dialog&&typeof dialog==='object') payload.dialog=dialog;
     if(isFinite(fontsize)) payload.fontsize=fontsize;
+    var updatedAt=Number(localStorage.getItem('editorLayoutUpdatedAt')||'0')||0;
+    if(updatedAt) payload.updatedAt=updatedAt;
     return Object.keys(payload).length?payload:null;
   }catch(_){return null;}
 }

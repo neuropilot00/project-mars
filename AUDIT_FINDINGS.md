@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.85 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.86 / 2026-05-04)
+
+## ✅ v5.86 Campaign editor layout freshness — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 에디터 저장 freshness | ✅ | layout payload에 `updatedAt`을 포함하고 편집 시 timestamp를 갱신. |
+| 인게임 서버 좌표 우선 | ✅ | timestamp 없는 오래된 로컬 좌표는 서버 저장 layout을 덮지 못하게 함. |
+| 즉시 편집 반영 | ✅ | 에디터 sync debounce 직후에 열리는 경우에는 timestamp가 있는 로컬 좌표가 임시 우선 적용 가능. |
+| reset 동기화 | ✅ | 에디터 reset layout이 서버에 반영되지 않는 경로 보강. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `assets/campaign-editor.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.85 Fleet Command stay-open/error UX — 수정 완료
 

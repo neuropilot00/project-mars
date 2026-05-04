@@ -461,6 +461,7 @@ let globalFontSize = parseFloat(localStorage.getItem('editorFontSize') || '1.0')
 let globalDialog = JSON.parse(localStorage.getItem('editorDialog') || 'null') || { x: 50, y: 84, w: 92 };
 let globalCharacters = JSON.parse(localStorage.getItem('editorCharacters') || '{}');
 let globalOverlays = JSON.parse(localStorage.getItem('editorOverlays') || '{}');
+let layoutUpdatedAt = Number(localStorage.getItem('editorLayoutUpdatedAt') || '0') || 0;
 
 function overlayKey() {
   const s = scene();
@@ -472,11 +473,17 @@ let dragState = null;
 let _syncTimer = null;
 function layoutPayload() {
   return {
+    updatedAt: layoutUpdatedAt,
     fontsize: globalFontSize,
     dialog: globalDialog,
     characters: globalCharacters,
     overlays: globalOverlays
   };
+}
+
+function markEditorLayoutUpdated() {
+  layoutUpdatedAt = Date.now();
+  localStorage.setItem('editorLayoutUpdatedAt', String(layoutUpdatedAt));
 }
 
 function hasLayoutPayload(payload) {
@@ -505,6 +512,10 @@ function applyLayoutPayload(payload) {
   if (payload.fontsize != null) {
     globalFontSize = Number(payload.fontsize) || 1;
     localStorage.setItem('editorFontSize', globalFontSize);
+  }
+  if (payload.updatedAt != null) {
+    layoutUpdatedAt = Number(payload.updatedAt) || 0;
+    localStorage.setItem('editorLayoutUpdatedAt', String(layoutUpdatedAt));
   }
   updateGlobalDisplays();
 }
@@ -589,12 +600,14 @@ function setLayoutPart(part, key, values) {
     if (!globalCharacters[key]) globalCharacters[key] = {};
     Object.assign(globalCharacters[key], values);
     localStorage.setItem('editorCharacters', JSON.stringify(globalCharacters));
+    markEditorLayoutUpdated();
   } else if (part === 'overlay') {
     const k = overlayKey();
     if (!k) return;
     if (!globalOverlays[k]) globalOverlays[k] = {};
     Object.assign(globalOverlays[k], values);
     localStorage.setItem('editorOverlays', JSON.stringify(globalOverlays));
+    markEditorLayoutUpdated();
   }
   syncToServer();
 }
@@ -922,6 +935,8 @@ function resetLayout() {
   if (k) {
     delete globalOverlays[k];
     localStorage.setItem('editorOverlays', JSON.stringify(globalOverlays));
+    markEditorLayoutUpdated();
+    syncToServer();
   }
   renderAll();
 }
@@ -1012,6 +1027,7 @@ function setGlobalFontSize(v) {
   globalFontSize = Math.round(clamp(v, 0.3, 4.0) * 100) / 100;
   document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
   localStorage.setItem('editorFontSize', globalFontSize);
+  markEditorLayoutUpdated();
   syncToServer();
   renderCanvas();
 }
@@ -1019,6 +1035,7 @@ function setGlobalDialog(field, v) {
   globalDialog[field] = Math.round(clamp(v, field === 'w' ? 5 : 0, 100));
   document.getElementById(`d${field}Display`).textContent = globalDialog[field];
   localStorage.setItem('editorDialog', JSON.stringify(globalDialog));
+  markEditorLayoutUpdated();
   syncToServer();
   renderCanvas();
 }

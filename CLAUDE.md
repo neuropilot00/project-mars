@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.85 (Fleet Command stay-open/error UX) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.86 (Campaign editor layout freshness) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.86 최신 핸드오프 — 캠페인 에디터 좌표 freshness 정합
+
+- 캠페인 에디터 layout payload에 `updatedAt`을 포함하고, 캐릭터/오버레이/대사박스/폰트 변경 시 localStorage timestamp를 갱신한다.
+- 인게임 스토리 렌더러는 로컬 에디터 좌표가 timestamp를 가진 최신 변경일 때만 서버 layout보다 우선한다.
+- 기존에는 게임 화면 쪽 브라우저에 남아 있던 오래된 `editorCharacters`/`editorDialog` localStorage가 서버에 저장된 최신 좌표를 덮어쓸 수 있었다. 이 경로를 차단했다.
+- 에디터 reset layout도 서버에 즉시 동기화되도록 보강했다.
+- 관련 위치: `assets/campaign-editor.html`, `index.html` `_campaignComposeEditorLayout`.
 
 ### v5.85 최신 핸드오프 — Fleet Command 모달 유지 + 실패 사유 UX
 

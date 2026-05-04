@@ -1634,6 +1634,14 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 
 ---
 
+## 2026-05-04 v5.86 — 캠페인 에디터 좌표 최신성 정합
+
+- 캠페인 에디터 layout payload에 `updatedAt`을 추가했다.
+- 캐릭터/오버레이/대사박스/폰트 위치를 바꾸면 `editorLayoutUpdatedAt` localStorage가 함께 갱신된다.
+- 인게임 스토리 렌더러는 timestamp가 있는 최신 로컬 편집만 서버 layout보다 우선하도록 바꿨다.
+- 게임 화면에 남은 오래된 localStorage 좌표가 서버 저장 좌표를 덮어쓰는 문제를 막았다.
+- 에디터의 reset layout이 서버에 동기화되지 않던 경로도 보강했다.
+
 ## 2026-05-04 v5.85 — Fleet Command 모달 유지/선택 UX
 
 - Fleet Command에서 진형/기동 변경 후 전체 목록 재조회 대신 현재 선택 함대 상태를 즉시 갱신하도록 변경했다.
