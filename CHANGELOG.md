@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Local cleanup tracked DS_Store removal (v5.84)
+
+- **로컬 찌꺼기 정리**: `.gitignore`에는 이미 등록되어 있었지만 과거에 추적된 `assets/campaign/characters/.DS_Store`를 저장소에서 제거했다.
+- **정리 범위 통제**: 미추적 `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 기획/리서치 문서일 수 있어 자동 삭제하지 않고 로컬에 남겼다.
+
+검증:
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign CH2 objective clarity + completed card guard (v5.83)
 
 - **완료 카드 판정 보강**: 캠페인 카드 렌더링이 `status` 문자열만 직접 비교하지 않고 정규화 helper를 사용한다. `completedAt`이 있는 완료 진행도도 compact 완료 카드로 처리해 완료 챕터가 풀카드로 풀리는 위험을 줄였다.

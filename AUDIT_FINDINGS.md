@@ -1,4 +1,16 @@
-# OCCUPY MARS — Codebase Audit (v5.83 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.84 / 2026-05-04)
+
+## ✅ v5.84 Local cleanup tracked DS_Store removal — 정리 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 추적된 macOS 메타파일 제거 | ✅ | `.gitignore`에 이미 있는 `assets/campaign/characters/.DS_Store`를 저장소 추적 대상에서 제거. |
+| 미추적 리서치 문서 보존 | ✅ | `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 삭제 여부가 불명확해 자동 삭제하지 않음. |
+
+검증:
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.83 Campaign CH2 objective clarity + completed card guard — 수정 완료
 

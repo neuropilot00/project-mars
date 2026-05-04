@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.83 (Campaign CH2 objective clarity + completed card guard) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.84 (Local cleanup tracked DS_Store removal) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,11 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.84 최신 핸드오프 — 로컬 찌꺼기 파일 정리
+
+- `.gitignore`에는 이미 `.DS_Store`가 등록되어 있었지만, 과거에 추적된 `assets/campaign/characters/.DS_Store`가 남아 있어 저장소에서 제거했다.
+- 미추적 `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 스타폭스/함대전 리서치 문서일 수 있어 자동 삭제하지 않았다. 필요 없으면 별도 지시로 삭제하면 된다.
 
 ### v5.83 최신 핸드오프 — 캠페인 CH2 목표 보강 + 완료 카드 접힘 방어
 
