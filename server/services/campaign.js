@@ -1264,6 +1264,7 @@ const OBJECTIVE_PRESETS = {
     { id: 'briefing', labelKo: '에레부스 정제소 브리핑을 확인한다.', action: 'story' },
     { id: 'first_claim', labelKo: '내 영토 1개를 확보한다.', action: 'territory', stat: 'ownedClaims', target: 1 },
     { id: 'first_art', labelKo: '영토에 이미지를 등록해 기지를 표시한다.', action: 'territory_art', stat: 'artClaims', target: 1 },
+    { id: 'first_harvest', labelKo: '영토에서 PP 채굴을 1회 수확한다.', action: 'territory', stat: 'territoryHarvests', target: 1 },
     { id: 'operation_timer', labelKo: '산소 회수 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 작전 권한을 얻는다.', action: 'claim_result' },
   ],
@@ -1344,6 +1345,7 @@ async function getObjectiveState(wallet) {
       marketListings: 0,
       completedFleetBattles: 0,
       shipUpgrades: 0,
+      territoryHarvests: 0,
     };
   }
   const [
@@ -1356,6 +1358,7 @@ async function getObjectiveState(wallet) {
     marketplaceListings,
     completedFleetBattles,
     shipUpgrades,
+    territoryHarvests,
   ] = await Promise.all([
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND COALESCE(image_url, '') <> ''`, [w]),
@@ -1371,6 +1374,7 @@ async function getObjectiveState(wallet) {
       WHERE LOWER(p.wallet_address) = $1 AND fb.status = 'ended'
     `, [w]),
     getSuccessfulShipUpgradeCount(w),
+    safeCampaignCount(`SELECT COUNT(*) FROM transactions WHERE type = 'mining' AND LOWER(from_wallet) = $1`, [w]),
   ]);
   const marketListings = marketListedShips + marketplaceListings;
   return {
@@ -1383,6 +1387,7 @@ async function getObjectiveState(wallet) {
     marketListings,
     completedFleetBattles,
     shipUpgrades,
+    territoryHarvests,
   };
 }
 

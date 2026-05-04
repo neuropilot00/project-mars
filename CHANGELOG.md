@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign territory harvest objective (v5.79)
+
+- **채굴 목표 연결**: MCC CH1에 영토 PP 채굴 1회 objective를 추가해 초반 캠페인이 영토 확보, 이미지 등록, 생산 수확까지 이어지게 했다.
+- **수확 횟수 집계**: 캠페인 상태 응답의 `objectiveState.territoryHarvests`가 `transactions.type = 'mining'`와 `from_wallet` 기준으로 실제 수확 횟수를 내려준다.
+- **초반 루프 강화**: 캠페인이 플레이어에게 “내 영토가 돈/PP를 만든다”는 핵심 루프를 직접 경험시키는 구조로 보강됐다.
+- **동선 재사용**: 채굴 objective는 기존 `territory` action을 사용해 BASE/내 영토 쪽으로 이동한다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign ship upgrade objective (v5.78)
 
 - **강화 목표 연결**: MCC CH3에 함선 스탯 강화 1회 objective를 추가해 함대전 뒤 조선소 강화 루프가 캠페인 진행 조건으로 들어간다.

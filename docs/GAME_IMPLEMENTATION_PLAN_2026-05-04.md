@@ -33,7 +33,8 @@
 - 캠페인 에디터와 인게임 story stage 좌표계를 9:16 기준으로 통일했다. 저장한 캐릭터/대사박스 위치는 모바일에서도 같은 좌표계로 해석한다. (v5.74)
 - 에디터 layout은 캐시가 남지 않도록 no-store/timestamp로 불러온다. (v5.74)
 - 완료 hard gate 연결됨: 서버가 필수 DB 기반 objective 미달 시 완료/보상을 막고, 프론트는 `readyToComplete`가 true일 때만 자동 완료한다. (v5.75)
-- 다음 연결 후보: territory production count, campaign reward claim count.
+- 다음 연결 후보: campaign reward claim count.
+- territory production count 연결됨: MCC CH1에서 영토 PP 채굴 1회를 `transactions.type = 'mining'` 기반 objective로 요구한다. (v5.79)
 - ship upgrade count 연결됨: MCC CH3에서 함선 스탯 강화 1회를 실제 DB 로그 기반 objective로 요구한다. (v5.78)
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다. (v5.75부터 적용 시작)
 
@@ -128,6 +129,7 @@
 
 - first_claim: 영토 1개 확보 (v5.71 연결)
 - first_art: 영토 이미지 등록 (v5.72 연결)
+- first_harvest: 영토 PP 채굴 1회 (v5.79 연결)
 - first_ship: 함선 1척 보유 (v5.71 연결)
 - first_fleet: 함대 1개 구성 (v5.71 연결)
 - first_battle: 함대전 1회 완료 (v5.72 연결)
@@ -165,6 +167,12 @@ v5.78 구현 메모:
 - `ship_stat_upgrade_log.success = true` 기준으로 성공 강화 횟수를 집계한다.
 - v210 이전 DB처럼 `success` 컬럼이 없는 경우 기존 강화 로그 전체를 카운트해 운영 DB 버전 차이로 캠페인 상태가 터지지 않게 했다.
 - MCC CH3의 흐름은 이제 `함대전 완료 -> 함선 강화 -> 마켓 등록 -> 결과 수령` 순서로 중반 경제 루프를 체험하게 한다.
+
+v5.79 구현 메모:
+
+- `territoryHarvests`를 objective state에 추가했다.
+- `/api/harvest`가 남기는 `transactions.type = 'mining'` 로그를 기준으로 수확 횟수를 집계한다.
+- MCC CH1의 흐름은 이제 `영토 확보 -> 이미지 등록 -> PP 채굴 -> 작전 완료` 순서로 초반 핵심 루프를 체험하게 한다.
 
 ## 8. Third Sprint
 

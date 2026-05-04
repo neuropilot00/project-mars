@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.78 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.79 / 2026-05-04)
+
+## ✅ v5.79 Campaign territory harvest objective — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 채굴 objective 추가 | ✅ | MCC CH1에 `first_harvest`를 추가해 영토 확보/이미지 등록 뒤 실제 PP 채굴 1회를 요구. |
+| 서버 수확 횟수 집계 | ✅ | `objectiveState.territoryHarvests`가 `transactions.type = 'mining'`와 `from_wallet` 기준으로 유저 수확 횟수를 집계. |
+| 초반 루프 연결 | ✅ | 캠페인 초반이 영토 구매, 그림 등록, 생산 수확까지 이어지는 형태로 보강됨. |
+| 목표 이동 동선 | ✅ | 기존 `territory` action routing을 사용해 BASE/내 영토 쪽으로 이동. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.78 Campaign ship upgrade objective — 수정 완료
 

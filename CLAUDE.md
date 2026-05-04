@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.78 (Campaign ship upgrade objective) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.79 (Campaign territory harvest objective) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -13,7 +13,14 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
-### v5.78 최신 핸드오프 — 캠페인 함선 강화 objective 연결
+### v5.79 최신 핸드오프 — 캠페인 영토 채굴 objective 연결
+
+- MCC CH1 objective에 `first_harvest`를 추가했다. 초반 캠페인은 이제 영토 확보/이미지 등록 후 실제 PP 채굴 1회를 요구한다.
+- `objectiveState.territoryHarvests`는 `transactions.type = 'mining'`와 `from_wallet` 기준으로 유저의 영토 수확 횟수를 집계한다.
+- 기존 `territory` action routing을 사용해 채굴 objective는 BASE/내 영토 동선으로 이동한다.
+- 관련 위치: `server/services/campaign.js` objective presets + live objective state.
+
+### v5.78 핸드오프 — 캠페인 함선 강화 objective 연결
 
 - MCC CH3 objective에 `first_upgrade`를 추가했다. 플레이어는 함대전 완료 뒤 함선 스탯 강화 1회를 진행해야 마켓 등록/결과 수령 루프로 넘어간다.
 - `objectiveState.shipUpgrades`는 `ship_stat_upgrade_log`에서 유저의 성공 강화 횟수를 집계한다.
