@@ -4,7 +4,9 @@
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
 > 2. **CLAUDE.md의 알려진 이슈 섹션** — 해소/잔여 이슈
-> 3. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
+> 3. **docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md** — 현재 게임 방향성/우선순위 기준
+> 4. **docs/CLAUDE_WORK_ORDER_2026-05-05.md** — 다음 작업 실행 지시서
+> 5. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
 
 ---
 
@@ -12,6 +14,13 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+- 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v5.87 최신 핸드오프 — Claude 남은 작업 실행 지시서
+
+- `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 추가했다.
+- 이 문서는 캠페인 진행 정리, 함대전 세로 탑뷰 안정화, Fleet Command UX, 함선 경제 UX, 영토 유틸리티 순으로 남은 작업을 실행 단위로 정리한다.
+- 클로드가 오래된 리서치/프로토타입 문서를 기준으로 엇나가지 않도록 현재 source of truth와 금지 범위를 명시했다.
 
 ### v5.86 최신 핸드오프 — 캠페인 에디터 좌표 freshness 정합
 

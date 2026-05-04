@@ -1647,6 +1647,13 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 
 ---
 
+## 2026-05-05 v5.87 — Claude 남은 작업 실행 지시서
+
+- `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 추가했다.
+- 남은 작업을 캠페인 진행 정리, 함대전 세로 탑뷰 안정화, Fleet Command UX, 함선 경제 UX, 영토 유틸리티 순서로 정리했다.
+- `CLAUDE.md`의 새 세션 읽기 순서에 기준 기획서와 작업지시서를 추가했다.
+- 스타폭스/함대전 리서치 문서는 장기 참고용이며 현재 구현 기준이 아님을 명시했다.
+
 ## 2026-05-04 v5.86 — 캠페인 에디터 좌표 최신성 정합
 
 - 캠페인 에디터 layout payload에 `updatedAt`을 추가했다.

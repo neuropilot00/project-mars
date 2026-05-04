@@ -1821,7 +1821,15 @@ cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
 - **CHANGELOG.md** ← v3.0 패치 노트 (개발자용 상세)
 - **CLAUDE.md** ← 신규 세션 핸드오프 (§13~16 보강)
 - **AUDIT_FINDINGS.md** ← 이 문서 (기능별 매트릭스)
+- **docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md** ← 현재 게임 방향성/우선순위 기준
+- **docs/CLAUDE_WORK_ORDER_2026-05-05.md** ← 남은 작업 실행 지시서
 - **index.html in-game guide** ← "What's New" 섹션 신규 추가 (4개 언어 모두)
+
+## 🟡 다음 작업 지시서 (2026-05-05)
+
+- `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 기준으로 남은 작업을 진행한다.
+- 우선순위는 캠페인 진행/보상 정리 → 함대전 세로 탑뷰 안정화 → Fleet Command UX → 함선 경제 UX → 영토 유틸리티 순서다.
+- `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
 ## 🆕 신규 진단/검증 API (이번 세션 추가)
 
