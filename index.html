@@ -3001,6 +3001,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bp-card.fsp .bp-build-btn:hover:not(:disabled) { background: rgba(129,199,132,.1); }
 .bp-card.cv  .bp-build-btn { color: #ef5350; border-color: rgba(239,83,80,.4); }
 .bp-card.cv  .bp-build-btn:hover:not(:disabled) { background: rgba(239,83,80,.1); }
+.bp-card .bp-build-btn.locked-detail {
+  color: rgba(255, 226, 128, .92);
+  border-color: rgba(255, 213, 79, .34);
+  background: rgba(255, 213, 79, .08);
+}
+.bp-card .bp-build-btn.locked-detail:hover {
+  background: rgba(255, 213, 79, .14);
+}
 .bp-build-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .queue-list { display: flex; flex-direction: column; gap: 8px; }
 .queue-item {
@@ -42189,7 +42197,8 @@ async function loadMyInventory() {
       var data = await res.json();
       shipyardState.myInventory = {};
       for (var item of (data.inventory || [])) {
-        shipyardState.myInventory[item.resource_code || item.code] = parseInt(item.quantity);
+        var invCode = String(item.resource_code || item.code || '').toLowerCase();
+        if (invCode) shipyardState.myInventory[invCode] = parseInt(item.quantity);
       }
     }
   } catch(e) {}
@@ -42518,16 +42527,21 @@ function syGpBalance() {
 }
 
 function syOwnedResourceQty(code) {
-  return parseInt((shipyardState.myInventory && shipyardState.myInventory[code]) || 0, 10) || 0;
+  var key = String(code || '').toLowerCase();
+  return parseInt((shipyardState.myInventory && shipyardState.myInventory[key]) || 0, 10) || 0;
 }
 
 function syResourceName(code) {
   return (MINERAL_ICONS[code] || '') + ' ' + (MINERAL_KO[code] || code);
 }
 
+function syRequirementStatusText(have, need) {
+  return syFmt(have) + ' 보유 / ' + syFmt(need) + ' 필요';
+}
+
 function syNeedChip(label, have, need, okClass) {
   var enough = Number(have) >= Number(need);
-  return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + (okClass ? ' ' + okClass : '') + '" title="보유 ' + syFmt(have) + ' / 필요 ' + syFmt(need) + '">' +
+  return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + (okClass ? ' ' + okClass : '') + '" title="' + syRequirementStatusText(have, need) + '">' +
     '<span>' + fcEsc(label) + '</span><b>' + syFmt(have) + '</b><span class="need">/ ' + syFmt(need) + '</span>' +
   '</span>';
 }
@@ -42536,10 +42550,10 @@ function syBuildRequirementInfo(ship) {
   var recipe = ship.recipe_minerals || {};
   var gpHave = syGpBalance();
   var gpNeed = Number(ship.build_gp_cost || 0);
-  var rows = [{ k:'💰 GP', v: syFmt(gpHave) + ' / ' + syFmt(gpNeed), insufficient: gpHave < gpNeed, ok: gpHave >= gpNeed }];
+  var rows = [{ k:'💰 GP', v: syRequirementStatusText(gpHave, gpNeed), insufficient: gpHave < gpNeed, ok: gpHave >= gpNeed }];
   Object.entries(recipe).forEach(function(e) {
     var code = e[0], need = Number(e[1] || 0), have = syOwnedResourceQty(code);
-    rows.push({ k: syResourceName(code), v: syFmt(have) + ' / ' + syFmt(need), insufficient: have < need, ok: have >= need });
+    rows.push({ k: syResourceName(code), v: syRequirementStatusText(have, need), insufficient: have < need, ok: have >= need });
   });
   return rows;
 }
@@ -42567,11 +42581,11 @@ function renderBlueprintCard(s) {
   // GP + 광물 부족 여부 (버튼 비활성화용)
   var mineralShort = Object.entries(recipe).some(function(e){
     var code = e[0], need = e[1];
-    return (shipyardState.myInventory[code] || 0) < need;
+    return syOwnedResourceQty(code) < need;
   });
   var canAfford = !gpShort && !mineralShort;
   var buildDisabled = !s.can_build || !canAfford;
-  var buildLabel = !s.can_build ? (lockMsg || '불가') : (!canAfford ? '💸 재료 부족' : '⚒ 건조 시작');
+  var buildLabel = !s.can_build ? (lockMsg || '불가') : (!canAfford ? '재료 확인' : '⚒ 건조 시작');
 
   var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.code });
   var accent = shipFactionAccent(s.faction_code);
@@ -42592,7 +42606,7 @@ function renderBlueprintCard(s) {
       (mineralCheck ? '<div class="bp-cost-line" style="margin-top:4px">' + mineralCheck + '</div>' : '') +
       '<div class="bp-build-time">⏱ 건조: ' + buildTime + '</div></div>' +
     (limitsText ? '<div class="bp-limits">' + limitsText + '</div>' : '') +
-    '<button class="bp-build-btn" ' + (buildDisabled ? 'disabled' : '') + ' onclick="buildShip(\'' + s.code + '\')">' +
+    '<button type="button" class="bp-build-btn ' + (buildDisabled ? 'locked-detail' : '') + '" onclick="buildShip(\'' + s.code + '\')">' +
       buildLabel +
     '</button></div>';
 }
@@ -42606,8 +42620,14 @@ async function buildShip(shipTypeCode) {
   var buildTimeTxt = buildMin >= 60 ? (Math.floor(buildMin/60)+'h '+(buildMin%60)+'m') : (buildMin+' min');
   // 재료 체크
   var requirementInfo = syBuildRequirementInfo(ship);
-  var blocked = requirementInfo.some(function(r){ return r.insufficient; });
+  var lockReasons = { 'NO_FACTION':'파벌 미선택', 'WRONG_FACTION':'다른 파벌', 'SERVER_LIMIT':'서버 한도 초과', 'PLAYER_LIMIT':'보유 한도 초과' };
+  var lockInfo = (ship.locks || []).map(function(lock) {
+    if (String(lock).indexOf('RANK_REQUIRED_') === 0) return { k:'잠금', v:'레벨 ' + String(lock).replace('RANK_REQUIRED_','') + ' 필요', insufficient:true };
+    return { k:'잠금', v: lockReasons[lock] || lock, insufficient:true };
+  });
+  var blocked = !ship.can_build || requirementInfo.some(function(r){ return r.insufficient; });
   var info = requirementInfo
+    .concat(lockInfo)
     .concat([
       { k:'⚙ Role',       v: shipRoleInfo(ship.role).label + ' · ' + shipRoleInfo(ship.role).desc },
       { k:'⏱ Build Time', v: buildTimeTxt },
@@ -42631,7 +42651,7 @@ async function buildShip(shipTypeCode) {
     icon: shipSizeIcon(ship.size_class),
     body: bodyHtml,
     info: info,
-    confirmText: '⚒ ' + (t && t('gov_ship_build') || 'START BUILD'),
+    confirmText: blocked ? '조건 부족' : ('⚒ ' + (t && t('gov_ship_build') || 'START BUILD')),
     disabled: blocked
   });
   if (!ok) return;
@@ -42809,7 +42829,7 @@ async function syUpgradeShipStat(shipId, stat) {
   var enoughGp = !offer || gpHave >= gpNeed;
   var enoughMaterial = !offer || haveQty >= needQty;
   var materialName = offer ? syResourceName(offer.material_code) : '-';
-  var materialText = offer ? (syFmt(haveQty) + ' / ' + syFmt(needQty)) : '-';
+  var materialText = offer ? syRequirementStatusText(haveQty, needQty) : '-';
   var blocked = !enoughGp || !enoughMaterial;
   var ok = await gameConfirm({
     title: '함선 강화', icon: '⚙️',
@@ -42817,7 +42837,7 @@ async function syUpgradeShipStat(shipId, stat) {
       + '<div style="font-size:10px;color:var(--tx3)">강화는 확률형입니다. 실패해도 GP와 재료는 소모되고, 스탯은 그대로 유지됩니다.</div>',
     info: offer ? [
       { k:'성공 확률', v: offer.chance + '%' },
-      { k:'💰 GP', v: syFmt(gpHave) + ' / ' + syFmt(gpNeed), insufficient: !enoughGp, ok: enoughGp },
+      { k:'💰 GP', v: syRequirementStatusText(gpHave, gpNeed), insufficient: !enoughGp, ok: enoughGp },
       { k: materialName, v: materialText, insufficient: !enoughMaterial, ok: enoughMaterial }
     ] : undefined,
     confirmText: blocked ? '재료 부족' : '강화하기',
@@ -43079,13 +43099,13 @@ var MINERAL_KO = {
   <div class="fleetcmd-modal" onclick="event.stopPropagation()">
     <div class="fleetcmd-header">
       <div class="fleetcmd-title">🎖 FLEET COMMAND · 함대 지휘</div>
-      <button class="shipyard-close" onclick="closeFleetCmd()">✕ 닫기</button>
+      <button type="button" class="shipyard-close" onclick="event.preventDefault();closeFleetCmd()">✕ 닫기</button>
     </div>
     <div class="fleetcmd-body">
       <div class="fleet-list">
         <div class="fleet-list-header">
           <div class="fleet-list-title">MY FLEETS (<span id="fleetCountLabel">0</span>)</div>
-          <button class="fleet-new-btn" onclick="createNewFleet()">+ 새 함대</button>
+          <button type="button" class="fleet-new-btn" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ 새 함대</button>
         </div>
         <div id="fleetListContent"></div>
       </div>
@@ -43161,7 +43181,7 @@ async function refreshFleetList() {
 function renderFleetList() {
   var container = document.getElementById('fleetListContent');
   if (fleetCmdState.fleets.length === 0) {
-    container.innerHTML = '<div class="fs-empty" style="padding:20px">함대가 없습니다<br><button class="fleet-new-btn" style="margin-top:10px" onclick="createNewFleet()">+ 첫 함대 생성</button></div>';
+    container.innerHTML = '<div class="fs-empty" style="padding:20px">함대가 없습니다<br><button type="button" class="fleet-new-btn" style="margin-top:10px" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ 첫 함대 생성</button></div>';
     return;
   }
   container.innerHTML = fleetCmdState.fleets.map(function(f) {
@@ -43170,7 +43190,7 @@ function renderFleetList() {
     var hpCls = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
     var formIcon = (f.formation_info && f.formation_info.icon) || '●';
     var moveIcon = (f.movement_info && f.movement_info.icon) || '→';
-    return '<div class="fleet-card ' + (isActive ? 'active' : '') + ' ' + (f.is_in_battle ? 'in-battle' : '') + '" onclick="selectFleet(' + f.id + ')">' +
+    return '<div class="fleet-card ' + (isActive ? 'active' : '') + ' ' + (f.is_in_battle ? 'in-battle' : '') + '" onclick="event.preventDefault();event.stopPropagation();selectFleet(' + f.id + ')">' +
       '<div class="fleet-card-name" title="' + fcEsc(f.name) + '">' + fcEsc(f.name || '이름없음') + '</div>' +
       '<div class="fleet-card-meta"><span>' + f.ships_alive + '척</span>' +
         '<span>' + formIcon + ' ' + ((f.formation_info && f.formation_info.name_ko) || '-') + '</span>' +
@@ -43208,10 +43228,10 @@ function renderFleetDetail() {
   var inBattle   = f.is_in_battle;
   var selCount   = fleetCmdState.selectedShipIds.size;
   var formBtns = formations.map(function(fm) {
-    return '<button class="tactic-btn ' + (f.formation === fm.code ? 'active' : '') + '" onclick="event.stopPropagation();setFleetTactic(\'formation\',\'' + fm.code + '\')" title="' + fcEsc(fm.desc) + '">' + fm.icon + ' ' + fm.name_ko + '</button>';
+    return '<button type="button" class="tactic-btn ' + (f.formation === fm.code ? 'active' : '') + '" onclick="event.preventDefault();event.stopPropagation();setFleetTactic(\'formation\',\'' + fm.code + '\')" title="' + fcEsc(fm.desc) + '">' + fm.icon + ' ' + fm.name_ko + '</button>';
   }).join('');
   var moveBtns = movements.map(function(mv) {
-    return '<button class="tactic-btn ' + (f.movement === mv.code ? 'active' : '') + '" onclick="event.stopPropagation();setFleetTactic(\'movement\',\'' + mv.code + '\')" title="' + fcEsc(mv.desc) + '">' + mv.icon + ' ' + mv.name_ko + '</button>';
+    return '<button type="button" class="tactic-btn ' + (f.movement === mv.code ? 'active' : '') + '" onclick="event.preventDefault();event.stopPropagation();setFleetTactic(\'movement\',\'' + mv.code + '\')" title="' + fcEsc(mv.desc) + '">' + mv.icon + ' ' + mv.name_ko + '</button>';
   }).join('');
   var shipCards = (f.ships || []).length === 0
     ? '<div class="fs-empty" style="grid-column:1/-1">이 함대에 함선이 없습니다</div>'
@@ -43220,8 +43240,8 @@ function renderFleetDetail() {
     '<div class="fleet-detail-header">' +
       '<div class="fleet-detail-name">' + fcEsc(f.name || '이름없음') + '</div>' +
       '<div class="fleet-detail-actions">' +
-        '<button class="fd-btn" onclick="renameFleet()" ' + (inBattle ? 'disabled' : '') + '>✎ 이름</button>' +
-        '<button class="fd-btn danger" onclick="deleteFleetPrompt()" ' + (inBattle ? 'disabled' : '') + '>🗑 해체</button>' +
+        '<button type="button" class="fd-btn" onclick="event.preventDefault();event.stopPropagation();renameFleet()" ' + (inBattle ? 'disabled' : '') + '>✎ 이름</button>' +
+        '<button type="button" class="fd-btn danger" onclick="event.preventDefault();event.stopPropagation();deleteFleetPrompt()" ' + (inBattle ? 'disabled' : '') + '>🗑 해체</button>' +
       '</div>' +
     '</div>' +
     (inBattle ? '<div style="color:#ef5350;font-size:10px;letter-spacing:1px;padding:6px 10px;background:rgba(239,83,80,.08);border-radius:4px">⚠ 전투 중 — 일부 기능 제한</div>' : '') +
@@ -43235,8 +43255,8 @@ function renderFleetDetail() {
       '<div class="fs-summary"><span>총 <b>' + f.ships_alive + '</b>척</span><span>HP <b>' + syFmt(f.total_hp) + ' / ' + syFmt(f.total_max_hp) + '</b></span><span>전적 <b>' + (f.battles_won || 0) + 'W / ' + (f.battles_lost || 0) + 'L</b></span></div>' +
       '<div class="fs-select-actions ' + (selCount > 0 ? 'active' : '') + '">' +
         '<span class="fs-select-count">' + selCount + '척 선택</span>' +
-        '<button class="fd-btn" onclick="event.stopPropagation();fleetCmdState.selectedShipIds.clear();fleetCmdState.focusedShipId=null;renderFleetDetail()">해제</button>' +
-        '<button class="fd-btn primary" onclick="event.stopPropagation();showMoveShipsDialog(event)" ' + (inBattle ? 'disabled' : '') + '>→ 이동</button>' +
+        '<button type="button" class="fd-btn" onclick="event.preventDefault();event.stopPropagation();fleetCmdState.selectedShipIds.clear();fleetCmdState.focusedShipId=null;renderFleetDetail()">해제</button>' +
+        '<button type="button" class="fd-btn primary" onclick="event.preventDefault();event.stopPropagation();showMoveShipsDialog(event)" ' + (inBattle ? 'disabled' : '') + '>→ 이동</button>' +
       '</div>' +
     '</div>' +
     '<div class="fleet-ships-grid">' + shipCards + '</div>';
@@ -43380,7 +43400,7 @@ function renderFcShipCard(s, fleetInBattle) {
     '<div class="fs-card-stats"><span>ATK ' + (s.base_atk || '-') + '</span><span>DEF ' + (s.base_def || '-') + '</span><span>SPD ' + (s.base_speed || '-') + '</span></div>' +
     '<div class="fs-card-hp-bar"><div class="fs-card-hp-fill ' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +
     (!s.is_flagship && s.is_flagship_capable && !fleetInBattle
-      ? '<button class="fd-btn" style="margin-top:4px;width:100%;font-size:8px" onclick="event.stopPropagation();setAsFlagship(' + s.id + ')">기함 지정</button>'
+      ? '<button type="button" class="fd-btn" style="margin-top:4px;width:100%;font-size:8px" onclick="event.preventDefault();event.stopPropagation();setAsFlagship(' + s.id + ')">기함 지정</button>'
       : '') +
   '</div>';
 }

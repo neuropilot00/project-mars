@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Shipyard requirement clarity + Fleet Command modal stickiness (v5.76)
+
+- **제작 조건 상세화**: 청사진 카드에서 GP/재료가 부족해도 버튼을 눌러 상세 모달을 볼 수 있게 변경했다. 실행 버튼만 조건 부족 시 disabled 처리된다.
+- **보유량/필요량 문구 통일**: 제작/강화 확인 모달의 GP와 재료 표시를 `보유 / 필요` 형식으로 통일하고, 충분/부족 상태를 색으로 구분했다.
+- **재료 보유량 정규화**: 인벤토리 resource code를 소문자로 저장/조회해 실제 보유 재료가 있는데 부족으로 보이는 위험을 낮췄다.
+- **함대지휘 모달 안정화**: 진형, 기동, 기함 지정, 함선 이동, 이름 변경, 해체 등 Fleet Command 내부 버튼에 `type="button"`과 이벤트 차단을 적용해 클릭 후 모달이 닫히는 흐름을 줄였다.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign objective hard gate (v5.75)
 
 - **서버 완료 판정 강화**: 캠페인 완료 API가 필수 DB 기반 objective를 확인하고, 부족하면 `OBJECTIVE_REQUIREMENTS_NOT_MET`으로 완료/보상 처리를 막는다.

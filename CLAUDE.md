@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.75 (Campaign objective hard gate) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.76 (Shipyard requirement clarity + fleet command modal stickiness) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,15 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.76 최신 핸드오프 — 조선소 조건 상세/함대지휘 모달 유지
+
+- 조선소 청사진 카드에서 GP/재료가 부족해도 버튼을 disabled로 막지 않고, `재료 확인`/잠금 상세 모달을 열어 보유량과 필요량을 확인하게 했다.
+- 제작 확인 모달은 GP/광물을 `보유 / 필요` 문구로 표시하고, 부족한 항목은 붉은색, 충분한 항목은 녹색으로 표시한다. 조건 부족 시 실행 버튼만 disabled다.
+- 강화 확인 모달도 GP와 재료를 같은 `보유 / 필요` 문구로 통일했다.
+- 인벤토리 resource code를 소문자로 정규화해 보유 재료가 있는데도 부족으로 표시되는 위험을 낮췄다.
+- Fleet Command 내부 버튼에 `type="button"`과 `preventDefault/stopPropagation`을 적용해 진형/기동/기함/이동/이름/해체 동작 후 모달이 닫히는 현상을 줄였다.
+- 관련 위치: `index.html` shipyard requirement helpers, blueprint build dialog, fleet command controls.
 
 ### v5.75 최신 핸드오프 — 캠페인 objective 완료 hard gate
 

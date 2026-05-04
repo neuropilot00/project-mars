@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.75 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.76 / 2026-05-04)
+
+## ✅ v5.76 Shipyard requirement clarity + Fleet Command modal stickiness — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 제작 재료 부족 상세 | ✅ | 청사진 카드에서 재료/GP 부족 시 버튼을 완전 비활성화하지 않고 상세 모달을 열어 보유량/필요량을 확인 가능. |
+| 제작 확인 모달 | ✅ | GP/광물을 `보유 / 필요` 문구와 ok/insufficient 색상으로 표시. 부족하면 실행 버튼만 disabled. |
+| 강화 확인 모달 | ✅ | 강화 GP/재료도 `보유 / 필요` 문구로 통일해 실제 보유량과 필요량을 바로 확인 가능. |
+| 인벤토리 코드 정규화 | ✅ | `/api/resources/my` 응답 resource code를 소문자로 저장하고 조회도 소문자로 해 재료 보유량 미표시 위험 감소. |
+| 함대지휘 모달 유지 | ✅ | Fleet Command 주요 버튼에 `type="button"` + 이벤트 차단을 적용해 진형/기동/기함/이동 후 모달 이탈 위험 감소. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.75 Campaign objective hard gate — 수정 완료
 
