@@ -3506,9 +3506,11 @@ router.post('/quests/track', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════
 router.get('/campaign/editor-layout', async (req, res) => {
   try {
+    res.set('Cache-Control', 'no-store, max-age=0');
     const r = await pool.query("SELECT value FROM settings WHERE key = 'campaign_editor_layout'");
     res.json(r.rows[0]?.value || {});
   } catch (e) {
+    res.set('Cache-Control', 'no-store, max-age=0');
     res.json({});
   }
 });

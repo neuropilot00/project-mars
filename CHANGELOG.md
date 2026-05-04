@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign editor parity hotfix (v5.74)
+
+- **에디터/인게임 대사박스 정합**: 에디터 좌표를 적용할 때 인게임 기본 safe-area padding이 남아 대사박스가 과하게 커지던 문제를 수정했다.
+- **모바일 좌표계 정합**: 모바일 스토리 화면도 에디터와 같은 9:16 stage 비율을 유지해 캐릭터/대사박스 위치가 다른 비율로 재해석되지 않게 했다.
+- **레이아웃 캐시 차단**: 에디터 layout GET/POST와 인게임 layout fetch에 `no-store`/timestamp를 적용하고 서버 응답도 `Cache-Control: no-store`로 내려준다.
+- **좌표 적용 안정화**: 에디터에서 저장한 x/y/w가 인게임에서 이전 캐시나 기본 모바일 padding에 묻히지 않도록 정리했다.
+
+검증:
+- `node --check server/routes/api.js` 통과
+- `index.html` inline script syntax check 통과
+- `campaign-editor.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign objective action routing (v5.73)
 
 - **목표 클릭 동선 연결**: 캠페인 objective 중 영토, 조선소, 함대, 함대전, 마켓 목표에 `GO` 액션을 붙였다.

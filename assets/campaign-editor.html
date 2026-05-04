@@ -510,8 +510,9 @@ function applyLayoutPayload(payload) {
 }
 
 function syncToServerNow() {
-  return fetch('/api/campaign/editor-layout', {
+  return fetch('/api/campaign/editor-layout?t=' + Date.now(), {
     method: 'POST',
+    cache: 'no-store',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(layoutPayload())
   });
@@ -854,7 +855,7 @@ async function loadInitial() {
   const [chapterResponse, assetResponse, layoutResponse] = await Promise.all([
     fetch(`${API}/chapters`),
     fetch(`${API}/assets`),
-    fetch('/api/campaign/editor-layout').catch(() => null)
+    fetch('/api/campaign/editor-layout?t=' + Date.now(), { cache: 'no-store' }).catch(() => null)
   ]);
   if (!chapterResponse.ok) throw new Error('Failed to load chapters');
   if (!assetResponse.ok) throw new Error('Failed to load assets');

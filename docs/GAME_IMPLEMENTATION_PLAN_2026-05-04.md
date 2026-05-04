@@ -30,6 +30,8 @@
 - objective 타입을 실제 시스템 데이터와 연결한다. (v5.71 시작)
 - 현재 연결됨: claim count, territory image count, owned ship count, fleet count, fleet battle count, market listing count.
 - objective action 동선 연결됨: territory, territory_art, shipyard, fleet, fleet_battle, market. (v5.73)
+- 캠페인 에디터와 인게임 story stage 좌표계를 9:16 기준으로 통일했다. 저장한 캐릭터/대사박스 위치는 모바일에서도 같은 좌표계로 해석한다. (v5.74)
+- 에디터 layout은 캐시가 남지 않도록 no-store/timestamp로 불러온다. (v5.74)
 - 다음 연결 후보: territory production count, ship upgrade count, campaign reward claim count.
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다.
 

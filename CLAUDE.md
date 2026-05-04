@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.73 (Campaign objective action routing) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.74 (Campaign editor parity hotfix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.74 최신 핸드오프 — 캠페인 에디터/인게임 위치 정합 핫픽스
+
+- 모바일 인게임 story stage가 화면 전체 비율로 늘어나 에디터의 9:16 좌표와 다르게 해석되던 문제를 수정했다.
+- 모바일도 에디터와 같은 9:16 stage 좌표계를 유지한다. 캐릭터/대사박스 `x/y/w/h`는 이제 에디터 프리뷰와 같은 기준으로 렌더된다.
+- 에디터 layout GET/POST, 인게임 layout fetch, 서버 GET 응답 모두 `no-store`/timestamp를 적용해 저장 후 이전 layout이 보이는 위험을 낮췄다.
+- 에디터 layout이 적용된 대사박스는 인게임 기본 mobile safe-area padding 대신 compact editor padding을 쓴다.
+- 관련 위치: `index.html` story CSS + `_campaignApplyDialogLayout`, `assets/campaign-editor.html` layout sync, `server/routes/api.js` `/api/campaign/editor-layout`.
 
 ### v5.73 최신 핸드오프 — 캠페인 objective 클릭 동선
 

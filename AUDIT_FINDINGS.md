@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v5.73 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.74 / 2026-05-04)
+
+## ✅ v5.74 Campaign editor parity hotfix — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 모바일 stage 좌표계 | ✅ | 인게임 모바일도 에디터와 같은 9:16 좌표계를 유지해 캐릭터 위치가 다른 비율로 해석되지 않게 함. |
+| 대사박스 크기 정합 | ✅ | 에디터 좌표 적용 시 인게임 safe-area padding을 compact editor padding으로 교체. |
+| 캐릭터 위치 불일치 | ✅ | 모바일 fullscreen 비율 때문에 에디터 x/y와 다르게 보이던 문제를 stage 비율 통일로 수정. |
+| layout 캐시 차단 | ✅ | 에디터 GET/POST, 인게임 fetch, 서버 GET 응답 모두 no-store/timestamp 처리. |
+| 저장 후 반영 지연 | ✅ | 브라우저/SW 캐시에 묶여 이전 layout이 재사용될 위험을 낮춤. |
+
+검증:
+- `node --check server/routes/api.js` 통과
+- `index.html` inline script syntax check 통과
+- `campaign-editor.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.73 Campaign objective action routing — 착수 완료
 

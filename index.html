@@ -1219,10 +1219,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-overlay{position:fixed;inset:0;z-index:5200;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;font-family:var(--fn);color:#fff;overflow:hidden}
 /* story-stage = 세로형 컨테이너 — 모바일/데스크탑 동일 비율·이미지 */
 .story-stage{position:relative;width:min(430px,96vw,calc(88vh * 9 / 16));aspect-ratio:9/16;height:auto;overflow:hidden;border-radius:14px;box-shadow:0 0 120px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08);background:#0a0a0f;cursor:pointer;flex-shrink:0}
-/* 모바일(≤520px): 전체화면 */
+/* 모바일(≤520px): 에디터와 같은 9:16 좌표계 유지 */
 @media(max-width:520px){
   .story-overlay{background:#000}
-  .story-stage{width:100vw;height:100dvh;aspect-ratio:auto;max-height:none;border-radius:0;box-shadow:none}
+  .story-stage{width:min(100vw,calc(100dvh * 9 / 16));height:min(100dvh,calc(100vw * 16 / 9));aspect-ratio:9/16;max-width:100vw;max-height:100dvh;border-radius:0;box-shadow:none}
 }
 /* 배경 이미지 — 에디터 프리뷰와 같은 중앙 cover 기준으로 채움 */
 .story-background{position:absolute;inset:0;background:#0a0a0f linear-gradient(180deg,#1a0a2e,#0a0510);background-size:cover;background-position:50% 50%;transition:opacity .7s ease,filter .7s ease}
@@ -25263,7 +25263,7 @@ function showCampaignStory(chapter){
   var localLayout=_campaignLocalEditorLayout();
   if(localLayout) _campaignEditorLayout=_campaignComposeEditorLayout(_campaignEditorLayout,localLayout);
   renderCampaignScene();
-  fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
+  fetch('/api/campaign/editor-layout?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
     if(d&&typeof d==='object'){
       var before=JSON.stringify(_campaignEditorLayout||{});
       _campaignEditorLayout=_campaignComposeEditorLayout(d,_campaignLocalEditorLayout());
@@ -25533,7 +25533,11 @@ function _campaignApplyDialogLayout(box,scene,line){
   var centerMode=cfg.x!==undefined||cfg.cx!==undefined||cfg.centerX!==undefined||cfg.y!==undefined||cfg.cy!==undefined||cfg.centerY!==undefined;
   _campaignApplyRectLayout(box,cfg,{transform:centerMode?'translate(-50%,-50%)':'none'});
   box.style.boxSizing='border-box';
-  if(cfg.padding!==undefined) box.style.padding=cfg.padding;
+  // The editor preview uses a compact content box. The in-game default has a
+  // large mobile safe-area bottom padding, so applying editor x/y/w without
+  // replacing padding makes the textbox look far taller than the editor.
+  box.style.padding=cfg.padding!==undefined?cfg.padding:'4% 5% 5%';
+  box.style.paddingBottom=cfg.paddingBottom!==undefined?_campaignLayoutUnit(cfg.paddingBottom,'5%'):'5%';
   if(cfg.background!==undefined) box.style.background=cfg.background;
   if(cfg.border!==undefined) box.style.border=cfg.border;
   if(cfg.borderTop!==undefined) box.style.borderTop=cfg.borderTop;
