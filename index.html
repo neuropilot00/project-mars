@@ -2825,7 +2825,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bp-card.mcc { border-left: 3px solid #4fc3f7; }
 .bp-card.fsp { border-left: 3px solid #81c784; }
 .bp-card.cv  { border-left: 3px solid #ef5350; }
-.bp-card.locked { opacity: 0.5; }
+.bp-card.locked { opacity: 0.88; }
+.bp-card.locked .bp-visual { filter: saturate(.86) brightness(.9); }
 /* Animated ship silhouette (battle-viz style) ------------------------- */
 .bp-visual { position: relative; overflow: hidden; }
 .bp-visual.shipyard-top-preview { height: 180px; border-radius: 6px; margin-bottom: 8px; }
@@ -2979,10 +2980,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   color: rgba(255,255,255,.7);
   font-size: 9px;
 }
-.bp-cost-item.ok { color: #a5d6a7; background: rgba(76,175,80,.1); border-color: rgba(129,199,132,.25); }
-.bp-cost-item.short { color: #ef9a9a; background: rgba(239,83,80,.1); border-color: rgba(239,83,80,.28); opacity: .72; }
+.bp-cost-item.ok { color: #a5d6a7; background: rgba(76,175,80,.14); border-color: rgba(129,199,132,.44); box-shadow: inset 0 0 0 1px rgba(129,199,132,.06); }
+.bp-cost-item.short { color: #ef9a9a; background: rgba(239,83,80,.14); border-color: rgba(239,83,80,.45); opacity: .95; }
 .bp-cost-item b { color: currentColor; font-weight: 900; }
 .bp-cost-item .need { opacity: .62; }
+.bp-cost-item .req-state {
+  font-size: 7px;
+  letter-spacing: .8px;
+  font-weight: 900;
+  opacity: .92;
+}
+.bp-cost-item.ok .req-state { color: #7ee787; }
+.bp-cost-item.short .req-state { color: #ffb3b3; }
 .bp-build-time {
   font-size: 8px; color: rgba(255,255,255,.4);
   margin-top: 4px;
@@ -3138,7 +3147,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   filter: grayscale(.5);
 }
 .ship-upgrade-btn .chance { display:block; color:#7ee787; font-size:7px; margin-top:1px; }
-.ship-upgrade-btn .mat { display:block; color:rgba(255,255,255,.55); font-size:7px; margin-top:1px; overflow:hidden; text-overflow:ellipsis; }
+.ship-upgrade-btn .mat { display:block; color:rgba(255,255,255,.72); font-size:7px; margin-top:1px; overflow:hidden; text-overflow:ellipsis; }
+.ship-upgrade-btn .mat.ok { color:#9be7a0; }
 .ship-sale-actions { display:flex; gap:4px; margin-top:6px; }
 .ship-sale-btn {
   flex:1;
@@ -3337,7 +3347,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   gap: 10px; align-items: stretch;
 }
 .fleet-board {
-  position: relative; min-height: 360px; overflow: hidden;
+  position: relative; min-height: 430px; overflow: hidden;
   border: 1px solid rgba(79,195,247,.18); border-radius: 8px;
   background:
     radial-gradient(ellipse at 50% 72%, rgba(79,195,247,.12), transparent 34%),
@@ -3360,7 +3370,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 9px; letter-spacing: 1.3px; color: rgba(255,211,122,.82);
 }
 .fleet-preview-ship {
-  position: absolute; width: 34px; height: 52px;
+  position: absolute; width: 42px; height: 64px;
   transform: translate(-50%, -50%);
   filter: drop-shadow(0 0 8px rgba(79,195,247,.22));
 }
@@ -3378,7 +3388,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   filter: brightness(1.38) contrast(1.12) saturate(1.08) drop-shadow(0 0 8px rgba(120,210,255,.24));
 }
 .fleet-preview-ship.flagship {
-  width: 48px; height: 74px; z-index: 4;
+  width: 58px; height: 88px; z-index: 4;
   filter: drop-shadow(0 0 12px rgba(255,215,0,.45));
 }
 .fleet-preview-more {
@@ -42619,8 +42629,9 @@ function syRequirementStatusText(have, need) {
 
 function syNeedChip(label, have, need, okClass) {
   var enough = Number(have) >= Number(need);
+  var state = enough ? '보유' : '부족';
   return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + (okClass ? ' ' + okClass : '') + '" title="' + syRequirementStatusText(have, need) + '">' +
-    '<span>' + fcEsc(label) + '</span><b>' + syFmt(have) + '</b><span class="need">/ ' + syFmt(need) + '</span>' +
+    '<span class="req-state">' + state + '</span><span>' + fcEsc(label) + '</span><b>' + syFmt(have) + '</b><span class="need">/ ' + syFmt(need) + '</span>' +
   '</span>';
 }
 
@@ -42887,11 +42898,11 @@ function syUpgradeBtn(ship, stat, label) {
   var matHave = offer ? syOwnedResourceQty(offer.material_code) : 0;
   var matNeed = offer ? Number(offer.material_qty || 0) : 0;
   var matShort = offer && matHave < matNeed;
-  var material = offer ? (syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
+  var material = offer ? ((matShort ? '부족 ' : '보유 ') + syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
   return '<button class="ship-upgrade-btn ' + (gpShort || matShort ? 'need' : '') + '" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
     label + ' +' +
     '<span class="cost ' + (gpShort ? 'short' : '') + '">' + cost + '</span>' +
-    (offer ? '<span class="chance">' + offer.chance + '%</span><span class="mat ' + (matShort ? 'short' : '') + '">' + material + '</span>' : '') +
+    (offer ? '<span class="chance">' + offer.chance + '% 성공</span><span class="mat ' + (matShort ? 'short' : 'ok') + '">' + material + '</span>' : '') +
   '</button>';
 }
 
@@ -43341,9 +43352,9 @@ function renderFleetDetail() {
 }
 
 function fleetPreviewPoint(i, total, formation, isFlagship) {
-  if (isFlagship) return { x: 50, y: 76 };
-  var n = Math.max(1, total - 1);
-  var idx = Math.max(0, i - 1);
+  if (isFlagship) return { x: 50, y: 80 };
+  var n = Math.max(1, total);
+  var idx = Math.max(0, i);
   if (formation === 'wedge') {
     var row = 0;
     var start = 0;
@@ -43354,33 +43365,39 @@ function fleetPreviewPoint(i, total, formation, isFlagship) {
       cap = Math.min(5, row + 1);
     }
     var slot = idx - start;
-    var spread = Math.min(36, row * 11);
+    var spread = Math.min(34, 5 + row * 8);
     return fleetClampPreviewPoint({
       x: cap === 1 ? 50 : 50 - spread + (spread * 2) * (slot / Math.max(1, cap - 1)),
-      y: 27 + row * 10
+      y: 20 + row * 9
     });
   }
   if (formation === 'screen') {
-    var col = idx % 7;
-    var rowS = Math.floor(idx / 7);
-    return fleetClampPreviewPoint({ x: 18 + col * 10.5, y: 30 + rowS * 7 });
+    var col = idx % 6;
+    var rowS = Math.floor(idx / 6);
+    return fleetClampPreviewPoint({ x: 20 + col * 12, y: 24 + rowS * 8 });
   }
   if (formation === 'pincer') {
     var sideP = idx % 2 === 0 ? -1 : 1;
     var depth = Math.floor(idx / 2);
-    return fleetClampPreviewPoint({ x: 50 + sideP * Math.min(40, 18 + depth * 5), y: Math.max(20, 68 - depth * 6) });
+    return fleetClampPreviewPoint({ x: 50 + sideP * Math.min(38, 18 + depth * 5), y: Math.max(18, 70 - depth * 6) });
   }
   var angle = (idx / n) * Math.PI * 2 - Math.PI / 2;
-  var ringX = 18 + (idx % 3) * 5;
-  var ringY = 24 + (idx % 3) * 6;
-  return fleetClampPreviewPoint({ x: 50 + Math.cos(angle) * ringX, y: 56 + Math.sin(angle) * ringY });
+  var ringX = 17 + (idx % 3) * 5;
+  var ringY = 22 + (idx % 3) * 5;
+  return fleetClampPreviewPoint({ x: 50 + Math.cos(angle) * ringX, y: 55 + Math.sin(angle) * ringY });
 }
 
 function fleetClampPreviewPoint(p) {
   return {
     x: Math.max(8, Math.min(92, p.x)),
-    y: Math.max(12, Math.min(86, p.y))
+    y: Math.max(12, Math.min(88, p.y))
   };
+}
+
+function fleetPreviewSortWeight(ship) {
+  var size = fleetNormalizeSizeClass(ship);
+  var weights = { frigate: 1, destroyer: 2, cruiser: 3, battleship: 4, titan: 5 };
+  return weights[size] || 1;
 }
 
 function fleetNormalizeSizeClass(ship) {
@@ -43419,7 +43436,12 @@ function renderSelectedShipPanel(f) {
 
 function renderFleetPreview(f) {
   var ships = (f.ships || []).filter(function(s){ return s.is_alive !== false; });
-  var visible = ships.slice(0, 28);
+  var visible = ships.slice().sort(function(a,b){
+    if (!!a.is_flagship !== !!b.is_flagship) return a.is_flagship ? 1 : -1;
+    var sw = fleetPreviewSortWeight(a) - fleetPreviewSortWeight(b);
+    if (sw !== 0) return sw;
+    return Number(a.id || 0) - Number(b.id || 0);
+  }).slice(0, 28);
   var formation = f.formation || 'sphere';
   var movementName = (f.movement_info && f.movement_info.name_ko) || f.movement || '-';
   var counts = { frigate:0, destroyer:0, cruiser:0, battleship:0, titan:0 };
@@ -43444,7 +43466,7 @@ function renderFleetPreview(f) {
     return '<span class="fleet-role-chip">' + ri.label + ' ×' + roles[role] + '</span>';
   }).join('');
   var boardShips = visible.map(function(s, i){
-    var p = fleetPreviewPoint(i, ships.length, formation, !!s.is_flagship);
+    var p = fleetPreviewPoint(i, visible.length, formation, !!s.is_flagship);
     return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
       '<div class="bp-visual no-svg-fallback">' + shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code }) + '</div>' +
     '</div>';

@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Ship economy visibility + Fleet Command sale locks (v5.82)
+
+- **제작 재료 가시성**: 조선소 청사진 카드가 조건 부족 상태여도 보유 재료까지 흐려 보이지 않게 조정했다. 재료 칩은 `보유`/`부족` 라벨과 색으로 상태를 보여준다.
+- **강화 버튼 정보 강화**: 강화 버튼 안에 성공 확률과 강화 재료 보유량/필요량을 함께 표시한다.
+- **판매중 함선 잠금 강화**: Fleet API에서 판매중 함선의 이동, 기함 지정, 자동 기함 지정 경로를 `SHIP_LISTED_FOR_SALE`로 차단한다.
+- **함대지휘 세로 진형 개선**: Fleet Command 미리보기의 쐐기/스크린/핀서/구형 배치를 세로 전장 기준으로 재정렬했다.
+- **세로 기동 표기**: 전진/후퇴 기동 아이콘과 설명을 `↑/↓` 기준으로 바꿔 함선 방향과 맞췄다.
+
+검증:
+- `node --check server/services/fleet.js` 통과
+- `node --check server/routes/fleets.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign ship reward fulfillment (v5.81)
 
 - **함선 보상 실지급**: 캠페인 보상함에서 `ship`/`ship_fleet` 타입 보상을 수령하면 실제 `ships` 레코드가 생성된다.

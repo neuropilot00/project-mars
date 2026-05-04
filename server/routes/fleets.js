@@ -46,6 +46,7 @@ const ERROR_STATUS = {
   'FLEET_IN_BATTLE':         409,
   'TARGET_FLEET_IN_BATTLE':  409,
   'SHIPS_IN_BATTLE':         409,
+  'SHIP_LISTED_FOR_SALE':    409,
   'SHIP_NOT_OWNED':          403,
   'SHIP_NOT_IN_FLEET':       409,
   'SHIP_DEAD':               409,

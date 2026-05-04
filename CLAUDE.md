@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.81 (Campaign ship reward fulfillment) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.82 (Ship economy visibility + fleet command locks) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.82 최신 핸드오프 — 함선 경제 가시성 + 함대지휘 판매중 잠금
+
+- 조선소 청사진 카드가 조건 부족 상태여도 카드 전체를 과하게 흐리지 않는다. 보유 재료는 `보유`, 부족 재료는 `부족` 라벨과 색으로 즉시 구분된다.
+- 강화 버튼도 성공 확률과 강화 재료 보유/부족 상태를 버튼 안에서 바로 읽을 수 있게 했다. 판매중 함선은 계속 강화/수리/실드/해체가 막힌다.
+- Fleet API는 판매중 함선이 함대 이동/기함 지정/자동 기함 보장 경로에 들어오면 `SHIP_LISTED_FOR_SALE`로 명확히 차단한다.
+- Fleet Command 미리보기는 함선 PNG가 위를 보는 세로 전장 기준으로 다시 정렬했다. 쐐기는 소형함 선두, 대형함/기함 후방 중심으로 읽힌다.
+- 관련 위치: `index.html` shipyard/fleet command UI, `server/services/fleet.js`, `server/routes/fleets.js`.
 
 ### v5.81 최신 핸드오프 — 캠페인 함선 보상 실제 지급
 

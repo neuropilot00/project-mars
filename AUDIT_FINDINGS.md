@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v5.81 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.82 / 2026-05-04)
+
+## ✅ v5.82 Ship economy visibility + Fleet Command sale locks — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 제작 재료 보유/부족 가시성 | ✅ | 조건 부족 카드도 전체가 과하게 흐려지지 않고, `보유`/`부족` 라벨로 재료 상태를 구분. |
+| 강화 재료/확률 표시 | ✅ | 강화 버튼 안에 성공 확률과 재료 보유/부족 상태를 함께 표시. |
+| 판매중 함선 함대 제한 | ✅ | Fleet API가 판매중 함선의 이동/기함 지정/자동 기함 보장 경로를 명확히 차단. |
+| 함대지휘 세로 진형 프리뷰 | ✅ | 쐐기/스크린/핀서/구형 배치를 함선 PNG 방향에 맞춰 세로 전장 기준으로 재정렬. |
+| 기동 방향 표기 | ✅ | 세로 전장에 맞춰 전진/후퇴 아이콘을 `↑/↓` 기준으로 변경. |
+
+검증:
+- `node --check server/services/fleet.js` 통과
+- `node --check server/routes/fleets.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.81 Campaign ship reward fulfillment — 수정 완료
 

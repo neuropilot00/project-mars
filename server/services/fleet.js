@@ -27,8 +27,8 @@ const FORMATION_INFO = {
   pincer:  { name_ko: '협공',     icon: '⊕', desc: '상하 양익 포위' },
 };
 const MOVEMENT_INFO = {
-  advance: { name_ko: '전진',     icon: '→', desc: '적 방향으로 전진 (기본)' },
-  retreat: { name_ko: '후퇴',     icon: '←', desc: '적 반대방향 이동' },
+  advance: { name_ko: '전진',     icon: '↑', desc: '적 전열 위쪽으로 압박 전진 (기본)' },
+  retreat: { name_ko: '후퇴',     icon: '↓', desc: '아군 후방 아래쪽으로 거리 벌림' },
   flank:   { name_ko: '측면 우회', icon: '↗', desc: '측면으로 돌아 접근' },
   scatter: { name_ko: '산개',     icon: '✦', desc: '흩어짐 (AOE 회피)' },
   rally:   { name_ko: '재집결',   icon: '◉', desc: '재편성 (속도↓ 방어↑)' },
@@ -105,9 +105,9 @@ async function getFleetDetail(fleetId, walletAddress) {
   // 소유권 확인
   const { rows: fleetRows } = await pool.query(`
     SELECT f.*, 
-      COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive,
-      COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive), 0) AS total_hp,
-      COALESCE(SUM(s.max_hp) FILTER (WHERE s.is_alive), 0) AS total_max_hp
+      COUNT(s.id) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false) AS ships_alive,
+      COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_hp,
+      COALESCE(SUM(s.max_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_max_hp
     FROM fleets f
     LEFT JOIN ships s ON s.fleet_id = f.id
     WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)
@@ -123,11 +123,14 @@ async function getFleetDetail(fleetId, walletAddress) {
            st.name_ko, st.class_label, st.size_class, st.role, st.tier,
            st.render_radius, st.base_atk, st.base_def, st.base_speed,
            st.is_flagship_capable,
+           COALESCE(s.is_market_listed, false) AS is_market_listed,
            f.code AS faction_code, f.color_primary AS faction_color
     FROM ships s
     JOIN ship_types st ON st.code = s.ship_type_code
     LEFT JOIN factions f ON f.code = st.faction_code
-    WHERE s.fleet_id = $1 AND s.is_alive = true
+    WHERE s.fleet_id = $1
+      AND s.is_alive = true
+      AND COALESCE(s.is_market_listed, false) = false
     ORDER BY s.is_flagship DESC, st.sort_order DESC, s.id ASC
   `, [fleetId]);
   
@@ -391,9 +394,11 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     
     // 함선 소유권 확인 + 전투중 함대에서 빼낼 수 없음
     const { rows: shipRows } = await client.query(`
-      SELECT s.id, s.fleet_id, s.is_flagship, s.is_alive, f.is_in_battle
+      SELECT s.id, s.fleet_id, s.is_flagship, s.is_alive,
+             COALESCE(s.is_market_listed, false) AS is_market_listed,
+             COALESCE(f.is_in_battle, false) AS is_in_battle
       FROM ships s
-      JOIN fleets f ON f.id = s.fleet_id
+      LEFT JOIN fleets f ON f.id = s.fleet_id
       WHERE s.id = ANY($1::bigint[]) AND LOWER(s.owner_wallet) = LOWER($2)
       FOR UPDATE OF s
     `, [shipIds, walletAddress]);
@@ -402,6 +407,11 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
       throw new Error('SHIP_NOT_OWNED');
     }
     
+    const listed = shipRows.filter(s => s.is_market_listed);
+    if (listed.length > 0) {
+      throw new Error('SHIP_LISTED_FOR_SALE');
+    }
+
     const inBattle = shipRows.filter(s => s.is_in_battle);
     if (inBattle.length > 0) {
       throw new Error('SHIPS_IN_BATTLE');
@@ -427,6 +437,7 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     
     // 원래 함대들 중 기함 없어진 것들 다시 지정
     const sourceFleetIds = [...new Set(shipRows.map(s => s.fleet_id))]
+      .filter(Boolean)
       .filter(fid => fid !== targetFleetId);
     for (const fid of sourceFleetIds) {
       await ensureFlagship(client, fid);
@@ -465,7 +476,9 @@ async function setFlagship(walletAddress, fleetId, shipId) {
     
     // 함선이 이 함대에 있고, 살아있고, 기함 가능한지
     const { rows: shipRows } = await client.query(`
-      SELECT s.id, s.fleet_id, s.is_alive, st.is_flagship_capable
+      SELECT s.id, s.fleet_id, s.is_alive,
+             COALESCE(s.is_market_listed, false) AS is_market_listed,
+             st.is_flagship_capable
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
       WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2)
@@ -473,6 +486,7 @@ async function setFlagship(walletAddress, fleetId, shipId) {
     `, [shipId, walletAddress]);
     
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
+    if (shipRows[0].is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
     if (!shipRows[0].is_alive) throw new Error('SHIP_DEAD');
     if (Number(shipRows[0].fleet_id) !== Number(fleetId)) throw new Error('SHIP_NOT_IN_FLEET');
     if (!shipRows[0].is_flagship_capable) throw new Error('SHIP_CANNOT_BE_FLAGSHIP');
@@ -504,7 +518,13 @@ async function setFlagship(walletAddress, fleetId, shipId) {
 async function ensureFlagship(client, fleetId) {
   // 이미 기함 있으면 패스
   const { rows: existingFlag } = await client.query(
-    `SELECT id FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true LIMIT 1`,
+    `SELECT id
+     FROM ships
+     WHERE fleet_id = $1
+       AND is_flagship = true
+       AND is_alive = true
+       AND COALESCE(is_market_listed, false) = false
+     LIMIT 1`,
     [fleetId]
   );
   if (existingFlag[0]) return existingFlag[0].id;
@@ -514,7 +534,10 @@ async function ensureFlagship(client, fleetId) {
     SELECT s.id
     FROM ships s
     JOIN ship_types st ON st.code = s.ship_type_code
-    WHERE s.fleet_id = $1 AND s.is_alive = true AND st.is_flagship_capable = true
+    WHERE s.fleet_id = $1
+      AND s.is_alive = true
+      AND COALESCE(s.is_market_listed, false) = false
+      AND st.is_flagship_capable = true
     ORDER BY st.sort_order DESC, s.id ASC
     LIMIT 1
   `, [fleetId]);
