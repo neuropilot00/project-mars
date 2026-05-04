@@ -1277,6 +1277,7 @@ const OBJECTIVE_PRESETS = {
     { id: 'briefing', labelKo: '이사회 선택지를 확인한다.', action: 'story' },
     { id: 'choice', labelKo: 'MCC 내 정치적 선택을 확정한다.', action: 'choice' },
     { id: 'first_battle', labelKo: '함대전을 1회 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 1 },
+    { id: 'first_upgrade', labelKo: '함선 스탯을 1회 강화한다.', action: 'shipyard', stat: 'shipUpgrades', target: 1 },
     { id: 'first_listing', labelKo: '함선 또는 자원 1개를 마켓에 등록한다.', action: 'market', stat: 'marketListings', target: 1 },
     { id: 'unlock_next', labelKo: '선택 결과에 따라 다음 루트를 연다.', action: 'claim_result' },
   ],
@@ -1308,6 +1309,28 @@ async function safeCampaignCount(sql, params) {
   }
 }
 
+async function getSuccessfulShipUpgradeCount(wallet) {
+  const hasSuccessColumn = await safeCampaignCount(`
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_name = 'ship_stat_upgrade_log'
+      AND column_name = 'success'
+  `, []);
+  if (hasSuccessColumn) {
+    return safeCampaignCount(`
+      SELECT COUNT(*)
+      FROM ship_stat_upgrade_log
+      WHERE LOWER(wallet_address) = $1
+        AND success = true
+    `, [wallet]);
+  }
+  return safeCampaignCount(`
+    SELECT COUNT(*)
+    FROM ship_stat_upgrade_log
+    WHERE LOWER(wallet_address) = $1
+  `, [wallet]);
+}
+
 async function getObjectiveState(wallet) {
   const w = normalizeWallet(wallet);
   if (!w) {
@@ -1320,6 +1343,7 @@ async function getObjectiveState(wallet) {
       marketListedShips: 0,
       marketListings: 0,
       completedFleetBattles: 0,
+      shipUpgrades: 0,
     };
   }
   const [
@@ -1331,6 +1355,7 @@ async function getObjectiveState(wallet) {
     marketListedShips,
     marketplaceListings,
     completedFleetBattles,
+    shipUpgrades,
   ] = await Promise.all([
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND COALESCE(image_url, '') <> ''`, [w]),
@@ -1345,6 +1370,7 @@ async function getObjectiveState(wallet) {
       JOIN fleet_battle_participants p ON p.battle_id = fb.id
       WHERE LOWER(p.wallet_address) = $1 AND fb.status = 'ended'
     `, [w]),
+    getSuccessfulShipUpgradeCount(w),
   ]);
   const marketListings = marketListedShips + marketplaceListings;
   return {
@@ -1356,6 +1382,7 @@ async function getObjectiveState(wallet) {
     marketListedShips,
     marketListings,
     completedFleetBattles,
+    shipUpgrades,
   };
 }
 

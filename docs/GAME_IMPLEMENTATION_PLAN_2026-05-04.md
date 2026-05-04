@@ -33,7 +33,8 @@
 - 캠페인 에디터와 인게임 story stage 좌표계를 9:16 기준으로 통일했다. 저장한 캐릭터/대사박스 위치는 모바일에서도 같은 좌표계로 해석한다. (v5.74)
 - 에디터 layout은 캐시가 남지 않도록 no-store/timestamp로 불러온다. (v5.74)
 - 완료 hard gate 연결됨: 서버가 필수 DB 기반 objective 미달 시 완료/보상을 막고, 프론트는 `readyToComplete`가 true일 때만 자동 완료한다. (v5.75)
-- 다음 연결 후보: territory production count, ship upgrade count, campaign reward claim count.
+- 다음 연결 후보: territory production count, campaign reward claim count.
+- ship upgrade count 연결됨: MCC CH3에서 함선 스탯 강화 1회를 실제 DB 로그 기반 objective로 요구한다. (v5.78)
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다. (v5.75부터 적용 시작)
 
 ### 2.3 Campaign Scope Control
@@ -130,6 +131,7 @@
 - first_ship: 함선 1척 보유 (v5.71 연결)
 - first_fleet: 함대 1개 구성 (v5.71 연결)
 - first_battle: 함대전 1회 완료 (v5.72 연결)
+- first_upgrade: 함선 스탯 강화 1회 (v5.78 연결)
 - first_listing: 함선/자원 마켓 등록 1회 (v5.72 연결)
 
 v5.71 구현 메모:
@@ -156,6 +158,13 @@ v5.75 구현 메모:
 - `/api/campaign/complete`는 `stat` 기반 필수 objective가 부족하면 완료/보상 처리를 막는다.
 - 프론트는 진행률 100%만으로 완료하지 않는다. 시간이 끝났지만 목표가 남아 있으면 캠페인 모달 안에 남은 목표와 GO 동선을 보여준다.
 - 현재 hard gate 대상은 실제 DB로 판정 가능한 objective다. story/choice/result 계열은 별도 UX 안정화 뒤 선별 gate한다.
+
+v5.78 구현 메모:
+
+- `shipUpgrades`를 objective state에 추가했다.
+- `ship_stat_upgrade_log.success = true` 기준으로 성공 강화 횟수를 집계한다.
+- v210 이전 DB처럼 `success` 컬럼이 없는 경우 기존 강화 로그 전체를 카운트해 운영 DB 버전 차이로 캠페인 상태가 터지지 않게 했다.
+- MCC CH3의 흐름은 이제 `함대전 완료 -> 함선 강화 -> 마켓 등록 -> 결과 수령` 순서로 중반 경제 루프를 체험하게 한다.
 
 ## 8. Third Sprint
 

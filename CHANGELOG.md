@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign ship upgrade objective (v5.78)
+
+- **강화 목표 연결**: MCC CH3에 함선 스탯 강화 1회 objective를 추가해 함대전 뒤 조선소 강화 루프가 캠페인 진행 조건으로 들어간다.
+- **성공 강화 횟수 집계**: 캠페인 상태 응답의 `objectiveState.shipUpgrades`가 `ship_stat_upgrade_log` 기준으로 성공 강화 횟수를 내려준다.
+- **DB 호환 처리**: `success` 컬럼이 있는 DB는 성공 로그만 세고, 이전 DB는 기존 강화 로그 전체를 카운트한다. 테이블/컬럼 차이로 캠페인 상태 전체가 터지지 않도록 safe query를 유지했다.
+- **동선 재사용**: 강화 objective는 기존 `shipyard` action을 사용해 조선소로 이동한다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign editor default parity + Bug reporter hardening (v5.77)
 
 - **캠페인 기본 좌표 정합**: 인게임 스토리 캐릭터 fallback을 에디터 기본값과 맞췄다. 저장 layout이 없는 씬도 더 이상 bottom-anchor CSS로 튀지 않고 에디터와 같은 중심 좌표 기준에서 시작한다.

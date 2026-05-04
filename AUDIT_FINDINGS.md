@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.77 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.78 / 2026-05-04)
+
+## ✅ v5.78 Campaign ship upgrade objective — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 강화 objective 추가 | ✅ | MCC CH3에 `first_upgrade`를 추가해 함대전 이후 함선 스탯 강화 1회를 실제 진행 목표로 요구. |
+| 서버 강화 횟수 집계 | ✅ | `objectiveState.shipUpgrades`가 `ship_stat_upgrade_log`를 기준으로 유저의 성공 강화 횟수를 집계. |
+| DB 버전 호환성 | ✅ | v210 이전 DB처럼 `success` 컬럼이 없으면 기존 로그 전체를 강화 성공으로 처리하고, 테이블/컬럼이 없으면 safe query로 0 처리. |
+| 목표 이동 동선 | ✅ | 기존 `shipyard` action routing을 사용해 강화 objective도 조선소로 이동. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.77 Campaign editor default parity + Bug reporter hardening — 수정 완료
 
