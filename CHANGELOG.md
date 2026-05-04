@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign ship reward fulfillment (v5.81)
+
+- **함선 보상 실지급**: 캠페인 보상함에서 `ship`/`ship_fleet` 타입 보상을 수령하면 실제 `ships` 레코드가 생성된다.
+- **보상 코드 매핑**: Shard, Longeye, Prometheus, Sequoia, Ironclad, MCC 함대 패키지 등 캠페인 보상 코드를 현재 `ship_types` 22종 코드에 연결했다.
+- **기본 함대 자동 생성**: 보상을 받을 함대가 없으면 `wedge/advance` 기본 함대를 만들고 지급 함선을 넣는다.
+- **기함 처리**: 함대에 기함이 없고 해당 함종이 기함 가능하면 첫 지급 함선을 자동 기함으로 지정한다.
+- **장기 보상 분리**: 설계도/선택권/계약/자산 보상은 아직 별도 시스템이 없으므로 보상함 안전 수령 처리에 남겨둔다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `node --check server/routes/api.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Campaign reward inbox claim flow (v5.80)
 
 - **캠페인 보상함 UI**: BASE/퀘스트의 캠페인 패널에서 미수령 보상을 카드로 보여주고 바로 수령할 수 있게 했다.

@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v5.80 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.81 / 2026-05-04)
+
+## ✅ v5.81 Campaign ship reward fulfillment — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 함선 보상 실지급 | ✅ | `ship`/`ship_fleet` 캠페인 보상 수령 시 실제 `ships` 인스턴스를 생성. |
+| 보상 코드 매핑 | ✅ | Shard/Longeye/Prometheus/Sequoia/Ironclad/MCC fleet package 등 주요 보상 코드를 현재 `ship_types` 22종으로 매핑. |
+| 기본 함대 지급 | ✅ | 유저 함대가 없으면 기본 함대를 생성하고 지급 함선을 배치. |
+| 기함 자동 지정 | ✅ | 함대에 기함이 없고 함선 타입이 가능하면 첫 지급 함선을 기함으로 지정. |
+| 장기 보상 분리 | ✅ | 설계도/선택권/자산/계약 보상은 아직 추상 보상으로 안전 수령 처리 유지. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `node --check server/routes/api.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.80 Campaign reward inbox claim flow — 수정 완료
 

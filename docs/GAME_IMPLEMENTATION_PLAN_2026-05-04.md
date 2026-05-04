@@ -35,6 +35,7 @@
 - 완료 hard gate 연결됨: 서버가 필수 DB 기반 objective 미달 시 완료/보상을 막고, 프론트는 `readyToComplete`가 true일 때만 자동 완료한다. (v5.75)
 - 다음 연결 후보: campaign reward claim count.
 - campaign reward inbox 수령 UI/API 연결됨. 상태 응답은 `rewardInbox.id`와 `objectiveState.campaignRewardClaims`를 포함한다. (v5.80)
+- campaign `ship`/`ship_fleet` 보상은 실제 `ships` 인스턴스로 지급된다. 설계도/선택권/계약은 장기 시스템 전까지 안전 수령 처리 유지. (v5.81)
 - territory production count 연결됨: MCC CH1에서 영토 PP 채굴 1회를 `transactions.type = 'mining'` 기반 objective로 요구한다. (v5.79)
 - ship upgrade count 연결됨: MCC CH3에서 함선 스탯 강화 1회를 실제 DB 로그 기반 objective로 요구한다. (v5.78)
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다. (v5.75부터 적용 시작)

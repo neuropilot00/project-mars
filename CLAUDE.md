@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.80 (Campaign reward inbox claim flow) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.81 (Campaign ship reward fulfillment) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.81 최신 핸드오프 — 캠페인 함선 보상 실제 지급
+
+- 캠페인 보상함 수령 시 `ship`/`ship_fleet` 타입은 실제 `ships` 인스턴스를 생성해 기본 함대에 지급한다.
+- `shard_frigate`, `longeye_sniper`, `captured_sequoia`, `captured_ironclad`, `prometheus_titan`, MCC 함대 패키지 등 주요 캠페인 보상 코드를 현재 22종 `ship_types` 코드로 매핑했다.
+- 유저에게 함대가 없으면 `wedge/advance` 기본 함대를 만들고, 첫 지급 함선은 기함 가능 조건에 따라 자동 기함 지정된다.
+- `ship_blueprint`, `ship_choice`, `asset`, `stream`류는 아직 별도 영구 시스템이 없으므로 v5.80의 안전 수령 처리에 남겨둔다.
+- 관련 위치: `server/services/campaign.js` `grantCampaignShips`, `campaignShipRewardPlan`.
 
 ### v5.80 최신 핸드오프 — 캠페인 보상함 수령 플로우
 

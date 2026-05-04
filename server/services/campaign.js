@@ -3239,6 +3239,13 @@ async function applyClaimedInboxReward(client, wallet, reward) {
 
   if (!code) return { applied, note: 'empty reward code' };
 
+  if (type === 'ship' || type === 'ship_fleet') {
+    const granted = await grantCampaignShips(client, wallet, code, qty);
+    if (granted.length) {
+      return { applied: granted.map(g => ({ kind: 'ship', code: g.shipTypeCode, id: g.shipId })) };
+    }
+  }
+
   // Resource rewards are real inventory when the code exists in resources.
   if (type === 'resource' || type === 'resource_stream') {
     const { rows } = await client.query('SELECT id FROM resources WHERE code = $1 AND COALESCE(is_active, true) = true', [code]);
@@ -3273,6 +3280,82 @@ async function applyClaimedInboxReward(client, wallet, reward) {
   // Narrative/entitlement rewards are still claimable so the campaign cannot dead-end while
   // those long-term systems are being built out.
   return { applied, note: `${type || 'campaign'} reward recorded`, label };
+}
+
+function campaignShipRewardPlan(code, quantity) {
+  const q = Math.max(1, parseInt(quantity || 1, 10) || 1);
+  const single = {
+    shard_frigate: ['mcc_frg'],
+    longeye_sniper: ['mcc_snp'],
+    fsp_sequoia_borrowed: ['fsp_bs'],
+    vector_destroyer_captured: ['mcc_dst'],
+    prometheus_titan: ['mcc_titan'],
+    tessellate_battleship: ['mcc_bs'],
+    captured_sequoia: ['fsp_bs'],
+    captured_ironclad: ['cv_bs'],
+    pilgrim_pa3: ['cv_crs'],
+  };
+  if (single[code]) return Array(q).fill(single[code]).flat();
+
+  if (code === 'mcc_loyal_hire_fleet') return ['mcc_frg', 'mcc_frg', 'mcc_dst', 'mcc_crs', 'mcc_snp'].slice(0, q);
+  if (code === 'mcc_executive_fleet') return ['mcc_frg', 'mcc_dst', 'mcc_crs', 'mcc_snp', 'mcc_bs', 'mcc_ewar', 'mcc_int'].slice(0, q);
+  if (code === 'pilgrim_arms_starter_fleet') {
+    const pattern = ['cv_int', 'cv_frg', 'cv_dst', 'cv_crs', 'cv_bomb'];
+    return Array.from({ length: q }, (_, i) => pattern[i % pattern.length]);
+  }
+  return [];
+}
+
+async function getOrCreateCampaignFleet(client, wallet) {
+  const { rows: existing } = await client.query(
+    `SELECT id FROM fleets WHERE owner_wallet = $1 ORDER BY id ASC LIMIT 1`,
+    [wallet]
+  );
+  if (existing[0]) return existing[0].id;
+  const { rows: nick } = await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [wallet]);
+  const name = `${nick[0]?.nickname || 'Commander'} 제1함대`;
+  const { rows } = await client.query(
+    `INSERT INTO fleets (owner_wallet, name, formation, movement)
+     VALUES ($1, $2, 'wedge', 'advance')
+     RETURNING id`,
+    [wallet, name]
+  );
+  return rows[0].id;
+}
+
+async function grantCampaignShips(client, wallet, rewardCode, quantity) {
+  const plan = campaignShipRewardPlan(rewardCode, quantity);
+  if (!plan.length) return [];
+  const fleetId = await getOrCreateCampaignFleet(client, wallet);
+  const granted = [];
+  for (const shipTypeCode of plan) {
+    const { rows: stRows } = await client.query(
+      `SELECT code, base_hp, is_flagship_capable
+       FROM ship_types
+       WHERE code = $1 AND is_active = true`,
+      [shipTypeCode]
+    );
+    const st = stRows[0];
+    if (!st) continue;
+    const { rows: flagRows } = await client.query(
+      `SELECT COUNT(*) AS c
+       FROM ships
+       WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`,
+      [fleetId]
+    );
+    const isFlagship = parseInt(flagRows[0]?.c || 0, 10) === 0 && st.is_flagship_capable;
+    const { rows: shipRows } = await client.query(
+      `INSERT INTO ships (
+         fleet_id, ship_type_code, owner_wallet,
+         current_hp, max_hp, is_flagship, is_alive,
+         built_at, built_by_wallet
+       ) VALUES ($1, $2, $3, $4, $4, $5, true, NOW(), $3)
+       RETURNING id`,
+      [fleetId, shipTypeCode, wallet, st.base_hp, isFlagship]
+    );
+    granted.push({ shipTypeCode, shipId: shipRows[0].id });
+  }
+  return granted;
 }
 
 async function claimReward(wallet, rewardId) {
