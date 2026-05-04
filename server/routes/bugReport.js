@@ -3,6 +3,7 @@
  * Bug Report routes (mounted at '/').
  * ────────────────────────────────────
  *  POST /api/bug-report                       — public submit (rate-limited)
+ *  POST /bug-report                           — compatibility submit alias
  *  GET  /admin/api/bug-reports                — admin list (X-ADMIN-SECRET)
  *  POST /admin/api/bug-reports/:id/status     — admin/Claude Code update
  *
@@ -28,7 +29,7 @@ function requireAdmin(req, res) {
   return true;
 }
 
-router.post('/api/bug-report', async (req, res) => {
+async function submitBugReport(req, res) {
   try {
     const out = await svc.submitReport(req.body || {}, getIp(req));
     if (!out.ok) {
@@ -42,7 +43,10 @@ router.post('/api/bug-report', async (req, res) => {
     console.error('[bugReport] submit error:', e.message);
     res.status(500).json({ ok: false, error: 'internal_error' });
   }
-});
+}
+
+router.post('/api/bug-report', submitBugReport);
+router.post('/bug-report', submitBugReport);
 
 router.get('/admin/api/bug-reports', async (req, res) => {
   if (!requireAdmin(req, res)) return;

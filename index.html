@@ -25415,6 +25415,11 @@ function _campaignLayoutHasValue(box){
   return !!(box&&typeof box==='object'&&Object.keys(box).some(function(k){return k!=='desktop'&&k!=='mobile';}));
 }
 
+function _campaignDefaultCharacterLayout(pos,count){
+  if(count<=1||pos==='center') return {x:50,y:55,w:60};
+  return pos==='right'?{x:72,y:55,w:50}:{x:28,y:55,w:50};
+}
+
 function _campaignResetStoryLayout(overlay){
   var bg=overlay.querySelector('.story-background');
   var left=overlay.querySelector('.story-character-left');
@@ -25564,7 +25569,7 @@ function _campaignStorySetBackground(scene,overlay,lineBg,line){
   // 에셋이 없거나 로드 실패하면 화성풍 그라디언트 폴백.
   var bg=overlay.querySelector('.story-background');
   if(!bg) return;
-  var speed=scene.transition==='fade_slow'?'1.5s':(scene.transition==='fade_medium'?'0.8s':'0s');
+  var speed=scene.transition==='fade_slow'?'0.28s':(scene.transition==='fade_medium'?'0.18s':'0s');
   bg.style.transitionDuration=speed;
   var bgChoice=lineBg||scene.background;
   if(!bgChoice){
@@ -25641,10 +25646,11 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
     _campaignPreloadImage(charSrc);
     el.src=charSrc;
     el.style.display='block';
-    var charLayout=_campaignMergeLayout({},_campaignCharacterLayout(_campaignStoryLayout(scene,line),id,pos)||{});
+    var charLayout=_campaignMergeLayout({},_campaignDefaultCharacterLayout(pos,chars.length));
+    _campaignMergeLayout(charLayout,_campaignCharacterLayout(_campaignStoryLayout(scene,line),id,pos)||{});
     if(_portraitMap[id]) _campaignMergeLayout(charLayout,_campaignCharacterLayout(_campaignStoryLayout(scene,line),_portraitMap[id],pos)||{});
     _campaignMergeLayout(charLayout,c.layout||c.editorLayout||{});
-    if(_campaignLayoutHasValue(charLayout)) _campaignApplyCharacterLayout(el,charLayout);
+    _campaignApplyCharacterLayout(el,charLayout);
   });
 }
 
@@ -47201,15 +47207,15 @@ window.closeTacticalLab = closeTacticalLab;
 </style>
 
 <!-- 플로팅 버튼 -->
-<button id="bugReportBtn" title="버그 신고 (Bug Report)" onclick="openBugReporter()">🐛</button>
+<button id="bugReportBtn" type="button" title="버그 신고 (Bug Report)" onclick="openBugReporter(event)">🐛</button>
 
 <!-- 버그 리포터 모달 -->
-<div id="bugReportModal" onclick="if(event.target===this)closeBugReporter()">
-  <div id="bugReportCard">
+<div id="bugReportModal" onclick="if(event.target===this)closeBugReporter(event)">
+  <div id="bugReportCard" onclick="event.stopPropagation()">
     <h3>
       🐛 BUG REPORT
       <span id="bugReportIdHint">Claude가 읽고 수정합니다</span>
-      <button class="br-close" onclick="closeBugReporter()">✕</button>
+      <button class="br-close" type="button" onclick="closeBugReporter(event)">✕</button>
     </h3>
     <div class="br-body">
       <div>
@@ -47218,7 +47224,7 @@ window.closeTacticalLab = closeTacticalLab;
       </div>
       <div>
         <div class="br-label">스크린샷 (선택)</div>
-        <div id="bugScreenshotZone" onclick="bugSsZoneClick()" ondragover="event.preventDefault()" ondrop="bugSsDrop(event)">
+        <div id="bugScreenshotZone" onclick="bugSsZoneClick(event)" ondragover="event.preventDefault()" ondrop="bugSsDrop(event)">
           <img id="bugSsPreview" alt="screenshot preview"/>
           <p id="bugSsPlaceholder">📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)</p>
           <em id="bugSsPlaceholder2">또는 파일을 여기에 드래그하세요</em>
@@ -47228,8 +47234,8 @@ window.closeTacticalLab = closeTacticalLab;
       </div>
     </div>
     <div class="br-actions">
-      <button id="bugSubmitBtn" onclick="submitBugReport()">제출하기</button>
-      <button id="bugClearSsBtn" onclick="bugClearSs()">스크린샷 지우기</button>
+      <button id="bugSubmitBtn" type="button" onclick="submitBugReport(event)">제출하기</button>
+      <button id="bugClearSsBtn" type="button" onclick="bugClearSs(event)">스크린샷 지우기</button>
       <span id="bugStatusMsg">✓ 전송 완료</span>
     </div>
   </div>
@@ -47247,17 +47253,28 @@ window.closeTacticalLab = closeTacticalLab;
   var _ssDataUrl = null; // 현재 스크린샷 base64
 
   // ── 열기/닫기 ─────────────────────────────────────────────
-  window.openBugReporter = function() {
+  window.openBugReporter = function(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     document.getElementById('bugReportModal').classList.add('open');
     document.getElementById('bugDescArea').focus();
     // 자동 캡처 시도 (html2canvas가 있을 때만)
     _autoCapture();
   };
 
-  window.closeBugReporter = function() {
+  window.closeBugReporter = function(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     document.getElementById('bugReportModal').classList.remove('open');
     _reset();
   };
+
+  function _restoreCapturePlaceholders() {
+    var capMsg = document.getElementById('bugCapturingMsg');
+    var ph1    = document.getElementById('bugSsPlaceholder');
+    var ph2    = document.getElementById('bugSsPlaceholder2');
+    if (capMsg) capMsg.style.display = 'none';
+    if (ph1) ph1.style.display = '';
+    if (ph2) ph2.style.display = '';
+  }
 
   // ── 자동 캡처 (html2canvas CDN 로드 시도) ────────────────
   function _autoCapture() {
@@ -47266,20 +47283,21 @@ window.closeTacticalLab = closeTacticalLab;
       return;
     }
     // CDN 로드 (1회)
-    if (document.getElementById('h2cScript')) return;
+    if (document.getElementById('h2cScript')) {
+      setTimeout(function() {
+        if (typeof html2canvas === 'undefined') _restoreCapturePlaceholders();
+      }, 1800);
+      return;
+    }
     var s = document.createElement('script');
     s.id  = 'h2cScript';
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
     s.onload = _doCapture;
-    s.onerror = function() {
-      var capMsg = document.getElementById('bugCapturingMsg');
-      var ph1    = document.getElementById('bugSsPlaceholder');
-      var ph2    = document.getElementById('bugSsPlaceholder2');
-      if (capMsg) capMsg.style.display = 'none';
-      if (ph1) ph1.style.display = '';
-      if (ph2) ph2.style.display = '';
-    };
+    s.onerror = _restoreCapturePlaceholders;
     document.head.appendChild(s);
+    setTimeout(function() {
+      if (typeof html2canvas === 'undefined') _restoreCapturePlaceholders();
+    }, 1800);
   }
 
   function _doCapture() {
@@ -47316,7 +47334,8 @@ window.closeTacticalLab = closeTacticalLab;
   }
 
   // ── 스크린샷 영역 클릭 → 파일 선택 ─────────────────────
-  window.bugSsZoneClick = function() {
+  window.bugSsZoneClick = function(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     document.getElementById('bugSsInput').click();
   };
 
@@ -47330,6 +47349,7 @@ window.closeTacticalLab = closeTacticalLab;
 
   window.bugSsDrop = function(e) {
     e.preventDefault();
+    e.stopPropagation();
     var file = e.dataTransfer.files[0];
     if (!file || !file.type.startsWith('image/')) return;
     var reader = new FileReader();
@@ -47337,7 +47357,8 @@ window.closeTacticalLab = closeTacticalLab;
     reader.readAsDataURL(file);
   };
 
-  window.bugClearSs = function() {
+  window.bugClearSs = function(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     _ssDataUrl = null;
     var prev = document.getElementById('bugSsPreview');
     var zone = document.getElementById('bugScreenshotZone');
@@ -47383,7 +47404,8 @@ window.closeTacticalLab = closeTacticalLab;
   });
 
   // ── 제출 ─────────────────────────────────────────────────
-  window.submitBugReport = function() {
+  window.submitBugReport = function(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     var desc = (document.getElementById('bugDescArea').value || '').trim();
     if (!desc) {
       document.getElementById('bugDescArea').focus();
@@ -47435,34 +47457,52 @@ window.closeTacticalLab = closeTacticalLab;
       userAgent:   navigator.userAgent,
     };
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/bug-report', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState !== 4) return;
-      btn.disabled   = false;
-      btn.textContent = '제출하기';
-      if (xhr.status === 200) {
-        try {
-          var r = JSON.parse(xhr.responseText);
-          document.getElementById('bugReportIdHint').textContent = '저장됨: ' + r.id;
-        } catch(e) {}
-        status.style.display = '';
-        status.style.color   = '#66bb6a';
-        status.textContent   = '✓ 전송 완료';
-        // 2초 후 자동 닫기
-        setTimeout(function() {
-          closeBugReporter();
-          status.style.display = 'none';
-        }, 1800);
-      } else {
+    function _sendBugReport(endpoint, allowFallback) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', endpoint, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+        if (allowFallback && (xhr.status === 404 || xhr.status === 405)) {
+          _sendBugReport('/bug-report', false);
+          return;
+        }
+        btn.disabled   = false;
+        btn.textContent = '제출하기';
+        if (xhr.status === 200) {
+          try {
+            var r = JSON.parse(xhr.responseText);
+            document.getElementById('bugReportIdHint').textContent = '저장됨: ' + r.id;
+          } catch(e) {}
+          status.style.display = '';
+          status.style.color   = '#66bb6a';
+          status.textContent   = '✓ 전송 완료';
+          // 2초 후 자동 닫기
+          setTimeout(function() {
+            closeBugReporter();
+            status.style.display = 'none';
+          }, 1800);
+        } else {
+          status.style.display = '';
+          status.style.color   = '#ef5350';
+          status.textContent   = '✗ 전송 실패 (콘솔 확인)';
+          console.error('[BugReport] 서버 응답:', xhr.status, xhr.responseText);
+        }
+      };
+      xhr.onerror = function() {
+        if (allowFallback) {
+          _sendBugReport('/bug-report', false);
+          return;
+        }
+        btn.disabled   = false;
+        btn.textContent = '제출하기';
         status.style.display = '';
         status.style.color   = '#ef5350';
-        status.textContent   = '✗ 전송 실패 (콘솔 확인)';
-        console.error('[BugReport] 서버 응답:', xhr.status, xhr.responseText);
-      }
-    };
-    xhr.send(JSON.stringify(payload));
+        status.textContent   = '✗ 네트워크 실패';
+      };
+      xhr.send(JSON.stringify(payload));
+    }
+    _sendBugReport('/api/bug-report', true);
   };
 
   // ── 리셋 ─────────────────────────────────────────────────

@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-04 — Campaign editor default parity + Bug reporter hardening (v5.77)
+
+- **캠페인 기본 좌표 정합**: 인게임 스토리 캐릭터 fallback을 에디터 기본값과 맞췄다. 저장 layout이 없는 씬도 더 이상 bottom-anchor CSS로 튀지 않고 에디터와 같은 중심 좌표 기준에서 시작한다.
+- **저장 좌표 우선 유지**: 에디터/씬/라인/캐릭터 layout은 기본 좌표 위에 계속 덮어 적용된다.
+- **전환 렉 체감 완화**: 캠페인 배경 `fade_slow`/`fade_medium` 시간을 줄여 대사/화면 전환 때 빈 화면이 오래 보이는 현상을 줄였다.
+- **버그 신고 제출 안정화**: 신고 모달 버튼에 `type="button"`과 이벤트 차단을 추가하고, html2canvas 로드 지연 시 수동 스크린샷 UI로 복구한다.
+- **버그 신고 API 호환성**: 프론트는 `/api/bug-report` 실패 시 `/bug-report`로 재시도하고, 서버도 `/bug-report` alias를 받는다.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `node --check server/routes/bugReport.js` 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Shipyard requirement clarity + Fleet Command modal stickiness (v5.76)
 
 - **제작 조건 상세화**: 청사진 카드에서 GP/재료가 부족해도 버튼을 눌러 상세 모달을 볼 수 있게 변경했다. 실행 버튼만 조건 부족 시 disabled 처리된다.

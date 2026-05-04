@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.76 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.77 / 2026-05-04)
+
+## ✅ v5.77 Campaign editor default parity + Bug reporter hardening — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 캠페인 캐릭터 기본 좌표 | ✅ | 인게임 fallback을 에디터 기본값 `{x:50,y:55,w:60}` / 2인 `{x:28/72,y:55,w:50}`로 맞춰 저장 layout이 없어도 에디터와 같은 기준으로 렌더. |
+| 저장 layout 우선순위 | ✅ | 기본 좌표 위에 서버/editor/local line/scene layout을 덮어 적용하므로 에디터 저장값은 계속 우선 적용. |
+| 캠페인 전환 렉 체감 | ✅ | `fade_slow`/`fade_medium` duration을 짧게 줄여 배경 교체 때 빈/파란 화면이 오래 보이는 현상 완화. |
+| 버그 신고 버튼 클릭 안정성 | ✅ | bug reporter 버튼/모달 버튼에 `type="button"`과 `preventDefault/stopPropagation`을 적용해 폼/모달 이벤트 간섭을 줄임. |
+| 버그 신고 캡처/전송 복구 | ✅ | html2canvas 로드 지연 시 1.8초 후 수동 UI 복구. `/api/bug-report` 실패 시 `/bug-report` alias 재시도, 서버 alias route 추가. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `node --check server/routes/bugReport.js` 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.76 Shipyard requirement clarity + Fleet Command modal stickiness — 수정 완료
 
