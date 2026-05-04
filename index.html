@@ -3425,6 +3425,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .fs-card:hover { background: rgba(255,255,255,.05); }
 .fs-card.selected { background: rgba(79,195,247,.13); border-color: rgba(79,195,247,.78); box-shadow: 0 0 0 1px rgba(79,195,247,.32), 0 0 18px rgba(79,195,247,.12); }
+.fs-card.focused { outline: 1px solid rgba(255,215,0,.72); outline-offset: 2px; }
 .fs-card.selected::before {
   content: 'SELECTED';
   position: absolute; right: 6px; top: 6px;
@@ -43318,9 +43319,58 @@ async function loadFleetDetail(fleetId) {
   try {
     var res = await fetch('/api/fleets/' + fleetId, { headers: getAuthHeaders() });
     var data = await res.json();
+    if (!res.ok || !data.fleet) {
+      showFactionToast('함대 로드 실패: ' + fleetCmdErrorMessage(data.error, data), 'error');
+      return;
+    }
     fleetCmdState.selectedFleet = data.fleet;
     renderFleetDetail();
   } catch(e) { console.error('loadFleetDetail error:', e); }
+}
+
+function fleetCmdErrorMessage(error, data) {
+  var meta = data && data.meta ? data.meta : {};
+  var msgMap = {
+    NO_WALLET: '지갑 로그인이 필요합니다',
+    INVALID_FLEET_ID: '함대 정보가 올바르지 않습니다',
+    FLEET_NOT_FOUND: '함대를 찾을 수 없습니다',
+    FLEET_IN_BATTLE: '전투 중인 함대는 이 작업을 할 수 없습니다',
+    INVALID_FORMATION: '지원하지 않는 진형입니다',
+    INVALID_MOVEMENT: '지원하지 않는 기동입니다',
+    NAME_TOO_LONG: '이름이 너무 깁니다 (60자 이하)',
+    NAME_EMPTY: '이름이 비어있습니다',
+    FLEET_LIMIT_REACHED: '함대 최대 ' + (meta.max || 5) + '개까지 생성 가능합니다',
+    LAST_FLEET: '마지막 함대는 해체할 수 없습니다',
+    SHIP_IDS_REQUIRED: '이동할 함선을 선택해야 합니다',
+    SHIP_NOT_OWNED: '소유하지 않은 함선이 포함되어 있습니다',
+    SHIPS_IN_BATTLE: '선택한 함선이 전투 중입니다',
+    SHIP_LISTED_FOR_SALE: '판매 중인 함선은 함대 조작에 사용할 수 없습니다',
+    TARGET_FLEET_IN_BATTLE: '대상 함대가 전투 중입니다',
+    SHIP_ID_REQUIRED: '기함으로 지정할 함선을 선택해야 합니다',
+    SHIP_NOT_FOUND: '함선을 찾을 수 없습니다',
+    SHIP_DEAD: '파괴된 함선은 기함이 될 수 없습니다',
+    SHIP_NOT_IN_FLEET: '이 함대 소속 함선이 아닙니다',
+    SHIP_CANNOT_BE_FLAGSHIP: '이 함선은 기함 지정이 불가능합니다'
+  };
+  return msgMap[error] || error || '알 수 없는 오류';
+}
+
+function updateFleetListSnapshotFromSelected() {
+  var f = fleetCmdState.selectedFleet;
+  if (!f) return;
+  fleetCmdState.fleets = (fleetCmdState.fleets || []).map(function(item) {
+    if (item.id !== f.id) return item;
+    return Object.assign({}, item, {
+      name: f.name,
+      formation: f.formation,
+      movement: f.movement,
+      formation_info: f.formation_info,
+      movement_info: f.movement_info,
+      ships_alive: f.ships_alive,
+      total_hp: f.total_hp,
+      total_max_hp: f.total_max_hp
+    });
+  });
 }
 
 function renderFleetDetail() {
@@ -43436,6 +43486,7 @@ function renderSelectedShipPanel(f) {
   var focused = ships.find(function(s){ return s.id === fleetCmdState.focusedShipId; }) || selected[selected.length - 1];
   var hpPct = focused.max_hp > 0 ? Math.round((focused.current_hp / focused.max_hp) * 100) : 0;
   var role = shipRoleInfo(focused.role);
+  var flagshipState = focused.is_flagship ? '기함' : (focused.is_flagship_capable ? '기함 가능' : '기함 불가');
   return '<div class="fs-selected-panel">' +
     '<div><strong>' + fcEsc(focused.name_ko || focused.ship_type_code || '선택 함선') + '</strong>' +
       '<small>' + fcEsc(focused.class_label || '') + ' · ' + role.label + (selected.length > 1 ? ' · 선택 ' + selected.length + '척' : '') + '</small></div>' +
@@ -43444,7 +43495,7 @@ function renderSelectedShipPanel(f) {
       '<span>ATK ' + (focused.base_atk || '-') + '</span>' +
       '<span>DEF ' + (focused.base_def || '-') + '</span>' +
       '<span>SPD ' + (focused.base_speed || '-') + '</span>' +
-      (focused.is_flagship ? '<span>기함</span>' : (focused.is_flagship_capable ? '<span>기함 가능</span>' : '')) +
+      '<span>' + flagshipState + '</span>' +
     '</div>' +
   '</div>';
 }
@@ -43504,10 +43555,11 @@ function renderFleetPreview(f) {
 
 function renderFcShipCard(s, fleetInBattle) {
   var isSel = fleetCmdState.selectedShipIds.has(s.id);
+  var isFocused = fleetCmdState.focusedShipId === s.id;
   var hpPct = (s.current_hp / s.max_hp) * 100;
   var hpCls = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
   var color = s.faction_color || '#fff';
-  return '<div class="fs-card ' + (isSel ? 'selected' : '') + ' ' + (s.is_flagship ? 'flagship' : '') + '" onclick="toggleShipSel(' + s.id + ',event)">' +
+  return '<div class="fs-card ' + (isSel ? 'selected' : '') + ' ' + (isFocused ? 'focused' : '') + ' ' + (s.is_flagship ? 'flagship' : '') + '" onclick="toggleShipSel(' + s.id + ',event)">' +
     (s.is_flagship ? '<span class="fs-card-flagship-badge">⚔</span>' : '') +
     '<div class="fs-card-name" style="color:' + color + '" title="' + fcEsc(s.name_ko) + '">' + fcEsc(s.name_ko) + '</div>' +
     '<div class="fs-card-class">' + fcEsc(s.class_label || '') + '</div>' +
@@ -43566,12 +43618,14 @@ async function setFleetTactic(type, value) {
     if (!res.ok) {
       if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
       renderFleetDetail();
-      showFactionToast('변경 실패: ' + (data.error || 'UNKNOWN'), 'error');
+      showFactionToast('변경 실패: ' + fleetCmdErrorMessage(data.error, data), 'error');
       if (wasOpen) keepFleetCmdOpen(scrollTop);
       return;
     }
     showFactionToast((type === 'formation' ? '진형' : '기동') + ' 변경됨', 'success');
-    await refreshFleetList();
+    updateFleetListSnapshotFromSelected();
+    renderFleetList();
+    renderFleetDetail();
     if (wasOpen) keepFleetCmdOpen(scrollTop);
   } catch(e) {
     if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
@@ -43592,8 +43646,7 @@ async function createNewFleet() {
     });
     var data = await res.json();
     if (!res.ok) {
-      var msgMap = { 'FLEET_LIMIT_REACHED': '함대 최대 ' + ((data.meta && data.meta.max) || 5) + '개까지 생성 가능', 'NAME_TOO_LONG': '이름이 너무 깁니다 (60자 이하)' };
-      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error'); return;
+      showFactionToast('오류: ' + fleetCmdErrorMessage(data.error, data), 'error'); return;
     }
     showFactionToast('\'' + data.name + '\' 생성됨', 'success');
     await refreshFleetList();
@@ -43613,7 +43666,7 @@ async function renameFleet() {
       body: JSON.stringify({ name: newName.trim() })
     });
     var data = await res.json();
-    if (!res.ok) { showFactionToast('변경 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    if (!res.ok) { showFactionToast('변경 실패: ' + fleetCmdErrorMessage(data.error, data), 'error'); return; }
     showFactionToast('이름 변경됨', 'success');
     await refreshFleetList();
   } catch(e) { showFactionToast('네트워크 오류', 'error'); }
@@ -43630,8 +43683,7 @@ async function deleteFleetPrompt() {
     var res = await fetch('/api/fleets/' + f.id, { method: 'DELETE', headers: getAuthHeaders() });
     var data = await res.json();
     if (!res.ok) {
-      var msgMap = { 'LAST_FLEET': '마지막 함대는 해체할 수 없습니다', 'FLEET_IN_BATTLE': '전투 중인 함대는 해체할 수 없습니다' };
-      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error'); return;
+      showFactionToast('오류: ' + fleetCmdErrorMessage(data.error, data), 'error'); return;
     }
     showFactionToast(data.ships_moved > 0 ? ('해체 완료 — ' + data.ships_moved + '척 이동') : '해체 완료', 'success');
     fleetCmdState.selectedFleetId = null; fleetCmdState.selectedFleet = null;
@@ -43661,8 +43713,7 @@ async function showMoveShipsDialog(event) {
     });
     var data = await res.json();
     if (!res.ok) {
-      var msgMap = { 'TARGET_FLEET_IN_BATTLE':'대상 함대가 전투 중입니다', 'SHIPS_IN_BATTLE':'선택한 함선이 전투 중입니다', 'SHIP_NOT_OWNED':'소유하지 않은 함선이 포함됨' };
-      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error'); return;
+      showFactionToast('오류: ' + fleetCmdErrorMessage(data.error, data), 'error'); return;
     }
     showFactionToast(data.moved_count + '척 이동 완료', 'success');
     fleetCmdState.selectedShipIds.clear();
@@ -43684,20 +43735,14 @@ async function setAsFlagship(shipId) {
     });
     var data = await res.json();
     if (!res.ok) {
-      var msgMap = {
-        FLEET_NOT_FOUND:'함대를 찾을 수 없습니다',
-        FLEET_IN_BATTLE:'전투 중인 함대는 기함을 바꿀 수 없습니다',
-        SHIP_NOT_FOUND:'함선을 찾을 수 없습니다',
-        SHIP_DEAD:'파괴된 함선은 기함이 될 수 없습니다',
-        SHIP_NOT_IN_FLEET:'이 함대 소속 함선이 아닙니다',
-        SHIP_CANNOT_BE_FLAGSHIP:'이 함선은 기함 지정이 불가능합니다'
-      };
-      showFactionToast('지정 실패: ' + (msgMap[data.error] || data.error || 'UNKNOWN'), 'error');
+      showFactionToast('지정 실패: ' + fleetCmdErrorMessage(data.error, data), 'error');
       if (wasOpen) keepFleetCmdOpen(scrollTop);
       return;
     }
     showFactionToast('기함 변경됨', 'success');
-    await refreshFleetList();
+    await loadFleetDetail(fleetId);
+    updateFleetListSnapshotFromSelected();
+    renderFleetList();
     if (wasOpen) keepFleetCmdOpen(scrollTop);
   } catch(e) {
     if (wasOpen) keepFleetCmdOpen(scrollTop);

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.84 (Local cleanup tracked DS_Store removal) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-04 v5.85 (Fleet Command stay-open/error UX) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.85 최신 핸드오프 — Fleet Command 모달 유지 + 실패 사유 UX
+
+- Fleet Command의 진형/기동 변경은 성공 후 전체 함대 목록을 다시 당겨오지 않고 현재 모달 상태를 제자리에서 갱신한다. 버튼 조작 후 화면이 닫히거나 튕기는 것처럼 느껴지는 재렌더를 줄였다.
+- 기함 지정은 성공 후 선택 함대 상세만 다시 로드하고 모달/스크롤을 유지한다.
+- Fleet Command 공통 오류 메시지 helper를 추가해 `SHIP_CANNOT_BE_FLAGSHIP`, `SHIP_LISTED_FOR_SALE`, `FLEET_IN_BATTLE` 같은 서버 에러를 한국어 원인으로 보여준다.
+- 함선 카드 선택 시 마지막으로 누른 함선에 focused outline을 추가하고, 선택 요약 패널에 `기함/기함 가능/기함 불가` 상태를 표시한다.
+- 관련 위치: `index.html` Fleet Command state/render/action helpers.
 
 ### v5.84 최신 핸드오프 — 로컬 찌꺼기 파일 정리
 

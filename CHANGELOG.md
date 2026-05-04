@@ -1634,6 +1634,14 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 
 ---
 
+## 2026-05-04 v5.85 — Fleet Command 모달 유지/선택 UX
+
+- Fleet Command에서 진형/기동 변경 후 전체 목록 재조회 대신 현재 선택 함대 상태를 즉시 갱신하도록 변경했다.
+- 기함 지정 성공 후에도 모달과 스크롤 위치를 유지하고, 선택 함대 상세만 다시 읽어오게 했다.
+- Fleet Command 서버 오류를 한국어 원인 메시지로 통일했다.
+- 함선 카드에 focused 상태를 추가해 마지막으로 누른 함선이 무엇인지 더 명확히 보이게 했다.
+- 선택 요약 패널에 기함 가능 여부를 표시해 기함 지정 불가 이유를 추측하지 않아도 되게 했다.
+
 ## 2026-05-04 v5.70 — 캠페인 메인퀘스트 스캐폴드
 
 - `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md`를 추가해 게임 방향성 문서를 실제 개발 스프린트로 쪼갰다.

@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.84 / 2026-05-04)
+# OCCUPY MARS — Codebase Audit (v5.85 / 2026-05-04)
+
+## ✅ v5.85 Fleet Command stay-open/error UX — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 진형/기동 모달 유지 | ✅ | 전술 변경 성공 후 전체 재조회 대신 현재 선택 함대를 로컬 갱신해 모달/스크롤 흔들림을 줄임. |
+| 기함 지정 모달 유지 | ✅ | 기함 지정 성공 후 선택 함대 상세만 재로드하고 모달을 유지. |
+| 서버 오류 메시지 | ✅ | Fleet Command 오류를 공통 한국어 메시지로 표시해 `SHIP_CANNOT_BE_FLAGSHIP` 등 원인을 바로 알 수 있게 함. |
+| 함선 선택 가시성 | ✅ | 마지막으로 누른 함선에 focused outline을 추가하고 선택 요약에 기함 가능 여부를 표시. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.84 Local cleanup tracked DS_Store removal — 정리 완료
 
