@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — CH4~CH10 objective wiring + reward note hardening (v5.87)
+
+- **MCC CH4~CH10 목표 와이어링**: `OBJECTIVE_PRESETS`에 MCC CH4~CH10 7개 챕터를 추가했다. 각 챕터에는 `completedFleetBattles`, `fleetShips`, `marketListings`, `shipUpgrades`, `campaignRewardClaims` 중 1~2개의 실-DB 집계 기반 stat 목표가 포함되며, 서버 hard gate를 통과해야 챕터를 완료할 수 있다.
+- **FSP CH2~CH10 목표 와이어링**: FSP CH2~CH10 9개 챕터를 추가했다. 서사적 선택이 있는 챕터는 `choice` + 1개 stat 목표, 전투 중심 챕터는 `completedFleetBattles`/`fleetShips` 목표를 가진다.
+- **CV CH2~CH10 목표 와이어링**: CV CH2~CH10 9개 챕터를 추가했다. 습격·확장·총력전 서사에 맞게 stat 목표를 설계했다.
+- **추상 보상 타입별 안내 메시지**: `applyClaimedInboxReward`가 `ship_blueprint`, `ship_choice`, `asset`, `resource_stream`, `contract`, `data_artifact` 각 타입에 대해 명확한 한국어 안내 메시지를 반환한다.
+- **보상 수령 토스트 개선**: `claimCampaignReward`가 서버의 `note` 필드를 우선 표시하고, 실제 지급된 경우에는 `applied` 목록(함선·자원·아이템 코드와 수량)을 토스트로 보여준다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-04 — Local cleanup tracked DS_Store removal (v5.84)
 
 - **로컬 찌꺼기 정리**: `.gitignore`에는 이미 등록되어 있었지만 과거에 추적된 `assets/campaign/characters/.DS_Store`를 저장소에서 제거했다.

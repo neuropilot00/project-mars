@@ -1295,6 +1295,172 @@ const OBJECTIVE_PRESETS = {
     { id: 'operation_timer', labelKo: '습격 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 CV 작전을 연다.', action: 'claim_result' },
   ],
+
+  // ── MCC CH4~CH10 ──────────────────────────────────────────────────────────
+  mcc_campaign_ch4: [
+    { id: 'briefing', labelKo: '해적 매수 작전 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'Kara Vex와의 협상 전략을 선택한다.', action: 'choice' },
+    { id: 'fleet_strength', labelKo: '함선 5척 이상을 함대에 배치해 위용을 갖춘다.', action: 'fleet', stat: 'fleetShips', target: 5 },
+    { id: 'combat_veteran', labelKo: '함대전을 누적 2회 이상 완료해 전투 경력을 쌓는다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 2 },
+    { id: 'unlock_next', labelKo: '협상 결과를 확인하고 Kepler 분쟁 루트를 연다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch5: [
+    { id: 'briefing', labelKo: 'Kepler 분쟁 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'Roth 데이터 취득 전략을 선택한다.', action: 'choice' },
+    { id: 'fleet_expansion', labelKo: '함선 7척 이상을 함대에 배치한다.', action: 'fleet', stat: 'fleetShips', target: 7 },
+    { id: 'combat_record', labelKo: '함대전을 누적 3회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 3 },
+    { id: 'unlock_next', labelKo: '분쟁 결과를 확인하고 내부고발자 루트를 연다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch6: [
+    { id: 'briefing', labelKo: '내부고발자 Li Fang 상황을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'Li Fang 처리 방향(루트 A/B/C)을 결정한다.', action: 'choice' },
+    { id: 'proven_commander', labelKo: '함대전을 누적 3회 이상 완료해 신뢰를 증명한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 3 },
+    { id: 'operation_timer', labelKo: '방사선 폭풍 속 작전을 완수한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '루트 선택 결과를 확인하고 시장 전쟁 루트를 연다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch7: [
+    { id: 'briefing', labelKo: '시장 전쟁 브리핑과 경쟁 세력을 확인한다.', action: 'story' },
+    { id: 'market_presence', labelKo: '마켓에 아이템 또는 함선을 2개 이상 등록한다.', action: 'market', stat: 'marketListings', target: 2 },
+    { id: 'tech_superiority', labelKo: '함선 스탯을 누적 3회 이상 강화한다.', action: 'shipyard', stat: 'shipUpgrades', target: 3 },
+    { id: 'unlock_next', labelKo: '시장 점령 결과를 확인하고 프로메테우스 루트를 연다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch8: [
+    { id: 'briefing', labelKo: 'Prometheus 시설 방어 브리핑을 확인한다.', action: 'story' },
+    { id: 'fleet_power', labelKo: '함선 10척 이상을 함대에 배치해 방어 전력을 갖춘다.', action: 'fleet', stat: 'fleetShips', target: 10 },
+    { id: 'battle_hardened', labelKo: '함대전을 누적 5회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 5 },
+    { id: 'operation_timer', labelKo: '4단계 환경 시퀀스를 견디며 Prometheus를 방어한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '방어 결과를 확인하고 깨진 동맹 루트를 연다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch9: [
+    { id: 'briefing', labelKo: '4전장 병렬 작전 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'Pilgrim Arms 공개 여부를 결정한다.', action: 'choice' },
+    { id: 'war_veteran', labelKo: '함대전을 누적 7회 이상 완료해 전쟁 경력을 증명한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 7 },
+    { id: 'unlock_next', labelKo: '동맹 해체 결과를 확인하고 최종 루트를 연다.', action: 'claim_result' },
+  ],
+  mcc_campaign_ch10: [
+    { id: 'briefing', labelKo: 'MCC 주주 총회 최종 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: '최종 엔딩 선택지를 결정한다.', action: 'choice' },
+    { id: 'reward_claim', labelKo: '작전 보상을 수령해 MCC 캠페인을 마무리한다.', action: 'shipyard', stat: 'campaignRewardClaims', target: 1 },
+    { id: 'unlock_next', labelKo: '엔딩을 확인하고 MCC 캠페인을 완결한다.', action: 'claim_result' },
+  ],
+
+  // ── FSP CH2~CH10 ──────────────────────────────────────────────────────────
+  fsp_campaign_ch2: [
+    { id: 'briefing', labelKo: '얼음 캐러밴 브리핑을 확인한다.', action: 'story' },
+    { id: 'fleet_ready', labelKo: '호송 함선 5척 이상을 함대에 배치한다.', action: 'fleet', stat: 'fleetShips', target: 5 },
+    { id: 'resource_secured', labelKo: '영토 채굴을 누적 2회 이상 수행해 자원을 확보한다.', action: 'territory', stat: 'territoryHarvests', target: 2 },
+    { id: 'operation_timer', labelKo: '얼음 호송 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '호송 결과를 확인하고 피의 광산 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch3: [
+    { id: 'briefing', labelKo: 'Verin-7 광산 해방 브리핑을 확인한다.', action: 'story' },
+    { id: 'first_battle_fsp', labelKo: '함대전을 1회 이상 완료해 전투 역량을 증명한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 1 },
+    { id: 'choice', labelKo: '60명 잔류 광부 처우를 결정한다.', action: 'choice' },
+    { id: 'unlock_next', labelKo: '해방 결과를 확인하고 외교 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch4: [
+    { id: 'briefing', labelKo: 'Cinder Grace 비밀 회담 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'CV 동맹 전략을 선택한다.', action: 'choice' },
+    { id: 'diplomatic_strength', labelKo: '함대전을 누적 2회 이상 완료해 외교적 영향력을 확보한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 2 },
+    { id: 'operation_timer', labelKo: '회담 호위 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '회담 결과를 확인하고 Kepler 공유지 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch5: [
+    { id: 'briefing', labelKo: 'Kepler 공유지 3파벌 회담 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'Roth dead drop 처리와 회담 전략을 선택한다.', action: 'choice' },
+    { id: 'fleet_strength_fsp', labelKo: '함선 5척 이상을 함대에 배치한다.', action: 'fleet', stat: 'fleetShips', target: 5 },
+    { id: 'combat_record_fsp', labelKo: '함대전을 누적 2회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 2 },
+    { id: 'unlock_next', labelKo: '공유지 협상 결과를 확인하고 두더지 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch6: [
+    { id: 'briefing', labelKo: '내부 첩자 색출 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'Kenji Tanaka 처리 방식(처형/이중첩자/추방)을 결정한다.', action: 'choice' },
+    { id: 'fleet_integrity', labelKo: '함선 5척 이상을 함대에 배치해 정착지 수비 전력을 갖춘다.', action: 'fleet', stat: 'fleetShips', target: 5 },
+    { id: 'upgrade_commitment', labelKo: '함선 스탯을 1회 이상 강화한다.', action: 'shipyard', stat: 'shipUpgrades', target: 1 },
+    { id: 'unlock_next', labelKo: '색출 결과를 확인하고 의회 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch7: [
+    { id: 'briefing', labelKo: 'FSP 의회 소집 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: '의회 의장 선출 전략을 결정한다.', action: 'choice' },
+    { id: 'market_influence', labelKo: '마켓에 함선 또는 자원을 2개 이상 등록해 경제적 영향력을 행사한다.', action: 'market', stat: 'marketListings', target: 2 },
+    { id: 'unlock_next', labelKo: '의회 결과를 확인하고 가이아 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch8: [
+    { id: 'briefing', labelKo: 'Gaia 건조 및 웨이브 방어 브리핑을 확인한다.', action: 'story' },
+    { id: 'fleet_power_fsp', labelKo: '함선 10척 이상을 함대에 배치해 Gaia 방어 전력을 갖춘다.', action: 'fleet', stat: 'fleetShips', target: 10 },
+    { id: 'battle_hardened_fsp', labelKo: '함대전을 누적 4회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 4 },
+    { id: 'operation_timer', labelKo: '웨이브 방어 작전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '방어 결과를 확인하고 세 개의 깃발 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch9: [
+    { id: 'briefing', labelKo: 'MCC·FSP·CV 정상회담 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: 'Pilgrim Arms 위기 속 보호 대상을 선택한다.', action: 'choice' },
+    { id: 'war_veteran_fsp', labelKo: '함대전을 누적 6회 이상 완료해 전쟁 경력을 증명한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 6 },
+    { id: 'unlock_next', labelKo: '정상회담 결과를 확인하고 자유의 대가 루트를 연다.', action: 'claim_result' },
+  ],
+  fsp_campaign_ch10: [
+    { id: 'briefing', labelKo: 'FSP 최종 평가 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: '최종 FSP 행동 방침을 결정한다.', action: 'choice' },
+    { id: 'reward_claim_fsp', labelKo: '작전 보상을 수령해 FSP 캠페인을 마무리한다.', action: 'shipyard', stat: 'campaignRewardClaims', target: 1 },
+    { id: 'unlock_next', labelKo: '최종 엔딩을 확인하고 FSP 캠페인을 완결한다.', action: 'claim_result' },
+  ],
+
+  // ── CV CH2~CH10 ───────────────────────────────────────────────────────────
+  cv_campaign_ch2: [
+    { id: 'briefing', labelKo: 'CV 2차 습격 브리핑을 확인한다.', action: 'story' },
+    { id: 'first_battle_cv', labelKo: '함대전을 1회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 1 },
+    { id: 'fleet_line_cv', labelKo: '습격 함선 3척 이상을 함대에 배치한다.', action: 'fleet', stat: 'fleetShips', target: 3 },
+    { id: 'unlock_next', labelKo: '습격 결과를 확인하고 다음 CV 작전을 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch3: [
+    { id: 'briefing', labelKo: 'CV 영토 확장 브리핑을 확인한다.', action: 'story' },
+    { id: 'territory_seized', labelKo: '영토 2개 이상을 확보한다.', action: 'territory', stat: 'ownedClaims', target: 2 },
+    { id: 'fleet_raid_ready', labelKo: '함선 5척 이상을 함대에 배치한다.', action: 'fleet', stat: 'fleetShips', target: 5 },
+    { id: 'unlock_next', labelKo: '확장 결과를 확인하고 다음 CV 작전을 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch4: [
+    { id: 'briefing', labelKo: 'CV 대형 작전 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: '작전 전략을 선택한다.', action: 'choice' },
+    { id: 'battle_proven_cv', labelKo: '함대전을 누적 2회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 2 },
+    { id: 'unlock_next', labelKo: '작전 결과를 확인하고 다음 CV 루트를 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch5: [
+    { id: 'briefing', labelKo: 'CV 세력 확장 브리핑을 확인한다.', action: 'story' },
+    { id: 'fleet_power_cv', labelKo: '함선 5척 이상을 함대에 배치한다.', action: 'fleet', stat: 'fleetShips', target: 5 },
+    { id: 'combat_record_cv', labelKo: '함대전을 누적 3회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 3 },
+    { id: 'unlock_next', labelKo: '확장 결과를 확인하고 다음 CV 작전을 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch6: [
+    { id: 'briefing', labelKo: 'CV 기술 획득 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: '기술 확보 전략을 선택한다.', action: 'choice' },
+    { id: 'tech_upgrade_cv', labelKo: '함선 스탯을 누적 2회 이상 강화한다.', action: 'shipyard', stat: 'shipUpgrades', target: 2 },
+    { id: 'unlock_next', labelKo: '기술 확보 결과를 확인하고 다음 CV 루트를 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch7: [
+    { id: 'briefing', labelKo: 'CV 전략 자산 브리핑을 확인한다.', action: 'story' },
+    { id: 'market_raid', labelKo: '마켓에 1개 이상 등록해 CV 경제 네트워크를 가동한다.', action: 'market', stat: 'marketListings', target: 1 },
+    { id: 'battle_elite_cv', labelKo: '함대전을 누적 4회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 4 },
+    { id: 'unlock_next', labelKo: '자산 확보 결과를 확인하고 다음 CV 작전을 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch8: [
+    { id: 'briefing', labelKo: 'CV 총력전 브리핑을 확인한다.', action: 'story' },
+    { id: 'fleet_force_cv', labelKo: '함선 8척 이상을 함대에 배치해 총력전 전력을 갖춘다.', action: 'fleet', stat: 'fleetShips', target: 8 },
+    { id: 'war_machine_cv', labelKo: '함대전을 누적 5회 이상 완료한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 5 },
+    { id: 'operation_timer', labelKo: '총력전 진행률 100%를 달성한다.', action: 'campaign_progress' },
+    { id: 'unlock_next', labelKo: '총력전 결과를 확인하고 최종 루트를 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch9: [
+    { id: 'briefing', labelKo: 'CV 최종 결전 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: '최종 작전 방향을 선택한다.', action: 'choice' },
+    { id: 'final_warrior_cv', labelKo: '함대전을 누적 7회 이상 완료해 CV 최강 전사임을 증명한다.', action: 'fleet_battle', stat: 'completedFleetBattles', target: 7 },
+    { id: 'unlock_next', labelKo: '결전 결과를 확인하고 엔딩 루트를 연다.', action: 'claim_result' },
+  ],
+  cv_campaign_ch10: [
+    { id: 'briefing', labelKo: 'CV 최종 엔딩 브리핑을 확인한다.', action: 'story' },
+    { id: 'choice', labelKo: '최종 CV 행동 방침을 결정한다.', action: 'choice' },
+    { id: 'reward_claim_cv', labelKo: '작전 보상을 수령해 CV 캠페인을 마무리한다.', action: 'shipyard', stat: 'campaignRewardClaims', target: 1 },
+    { id: 'unlock_next', labelKo: '최종 엔딩을 확인하고 CV 캠페인을 완결한다.', action: 'claim_result' },
+  ],
 };
 
 function normalizeWallet(wallet) {
@@ -3284,7 +3450,16 @@ async function applyClaimedInboxReward(client, wallet, reward) {
 
   // Narrative/entitlement rewards are still claimable so the campaign cannot dead-end while
   // those long-term systems are being built out.
-  return { applied, note: `${type || 'campaign'} reward recorded`, label };
+  const typeNotes = {
+    ship_blueprint: '설계도가 연구 데이터에 기록되었습니다. 추후 조선소 시스템 확장 시 실제 건조가 가능해집니다.',
+    ship_choice: '함선 선택권이 부여되었습니다. 함선 지급 시스템 확장 후 선택 화면이 열립니다.',
+    asset: '전략 자산이 기록되었습니다. 자산 관리 시스템에서 확인할 수 있습니다.',
+    resource_stream: '자원 공급 계약이 체결되었습니다. 정기 공급 시스템 확장 시 자원이 배송됩니다.',
+    contract: '계약이 체결되어 기록되었습니다. 계약 시스템 확장 후 효과가 활성화됩니다.',
+    data_artifact: '데이터 아티팩트가 기록되었습니다. 서사 진행에 영향을 미칠 수 있습니다.',
+  };
+  const friendlyNote = typeNotes[type] || `${label || code} 보상이 수령 처리되었습니다.`;
+  return { applied, note: friendlyNote, label, rewardType: type };
 }
 
 function campaignShipRewardPlan(code, quantity) {

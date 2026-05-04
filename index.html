@@ -25063,7 +25063,8 @@ async function claimCampaignReward(id,btn){
     });
     var d=await r.json().catch(function(){return {};});
     if(!r.ok||d.error) throw new Error(d.error||'claim failed');
-    showToast('캠페인 보상을 수령했습니다','success');
+    var noteMsg=d.note||(d.applied&&d.applied.length?d.applied.map(function(a){return(a.kind==='ship'?'함선 '+a.code:a.kind==='resource'?'자원 '+a.code+' ×'+a.quantity:a.kind==='item'?'아이템 '+a.code+' ×'+a.quantity:'보상 수령');}).join(', '):'캠페인 보상을 수령했습니다');
+    showToast(noteMsg,'success');
     await loadCampaignStatus();
     try{loadInventory&&loadInventory();}catch(_){}
     try{loadResourceInventory&&loadResourceInventory();}catch(_){}

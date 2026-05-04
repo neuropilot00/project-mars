@@ -1,3 +1,24 @@
+# OCCUPY MARS — Codebase Audit (v5.87 / 2026-05-05)
+
+## ✅ v5.87 CH4~CH10 Objective Wiring + Reward Note Hardening — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| MCC CH4~CH10 DB-backed objective presets | ✅ | `OBJECTIVE_PRESETS`에 MCC CH4~CH10 7개 챕터 추가. 각각 `completedFleetBattles`, `fleetShips`, `marketListings`, `shipUpgrades`, `campaignRewardClaims` 실-DB 집계 기반 목표 포함. |
+| FSP CH2~CH10 DB-backed objective presets | ✅ | FSP CH2~CH10 9개 챕터 추가. 각각 1~2개 stat-backed objective 포함. |
+| CV CH2~CH10 DB-backed objective presets | ✅ | CV CH2~CH10 9개 챕터 추가. 각각 1~2개 stat-backed objective 포함. |
+| 추상 보상 타입별 한국어 안내 메시지 | ✅ | `applyClaimedInboxReward`가 `ship_blueprint`, `ship_choice`, `asset`, `resource_stream`, `contract`, `data_artifact` 타입별로 정확한 안내 문구를 반환. |
+| 보상 수령 토스트 개선 | ✅ | `claimCampaignReward`가 서버가 내려준 `note` 또는 `applied` 목록을 그대로 토스트로 표시. |
+| 완료 카드 접힘 | ✅ | v5.83에서 이미 완료. `completed`/`claimed`/`completedAt` 모두 compact done 카드로 렌더. |
+| hard gate 호환성 | ✅ | CH4~CH10의 stat-backed objective는 `getMissingRequiredObjectives()`에서 자동으로 체크됨. 목표 미달 시 `complete()` 차단. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.86 / 2026-05-04)
 
 ## ✅ v5.86 Campaign editor layout freshness — 수정 완료
