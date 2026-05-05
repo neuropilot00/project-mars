@@ -5732,12 +5732,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div id="infoUpgradeBody"></div>
     </div>
     <!-- Territory Identity panel (own territory only, P6) -->
-    <div id="infoIdentityRow" style="display:none;margin:8px 0 4px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div style="font-size:8px;color:#e1bee7;font-family:var(--fn);font-weight:700;letter-spacing:1px">🏷 <span data-i18n="territory_identity_title">Territory Identity</span></div>
-        <button id="infoIdentityEditBtn" type="button" onclick="openTerritoryIdentityEdit()" style="font-size:8px;background:rgba(225,190,231,.08);border:1px solid rgba(225,190,231,.2);color:#e1bee7;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:var(--fn)" data-i18n="territory_edit_identity">✏ Edit</button>
+    <div id="infoIdentityRow" style="display:none;margin:10px 0 6px;border-radius:8px;background:rgba(225,190,231,.04);border:1px solid rgba(225,190,231,.12);padding:10px 12px;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div id="infoIdentityName" style="font-size:13px;color:#e1bee7;font-family:var(--fn);font-weight:700">🏔️ —</div>
+        <button id="infoIdentityEditBtn" type="button" onclick="openTerritoryIdentityEdit()" style="font-size:8px;background:rgba(225,190,231,.08);border:1px solid rgba(225,190,231,.2);color:#e1bee7;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:var(--fn)">✏ Edit</button>
       </div>
-      <div id="infoIdentityBody" style="font-size:9px;color:var(--tx2);line-height:1.7"></div>
+      <div id="infoIdentityMeta" style="font-size:9px;color:var(--tx3);margin-bottom:8px;line-height:1.7"></div>
+      <div id="infoIdentityBody" style="font-size:10px;color:var(--tx2);line-height:1.8"></div>
     </div>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)" data-i18n="share_btn">📤 SHARE</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
@@ -13849,41 +13850,65 @@ async function doTerritoryUpgrade(claimId, upgradeType) {
 var _frTierIcons = { newcomer:'🌱', pioneer:'⛏', settler:'🏠', fortress:'🛡', legend:'🌟' };
 
 function loadTerritoryIdentity(claimId) {
-  var body = document.getElementById('infoIdentityBody');
+  var nameEl = document.getElementById('infoIdentityName');
+  var metaEl = document.getElementById('infoIdentityMeta');
+  var body   = document.getElementById('infoIdentityBody');
   if (!body) return;
-  body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">로딩 중…</div>';
+  body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">로딩 중…</div>';
 
   fetch('/api/territory/' + claimId + '/identity')
     .then(function(r){ return r.json(); })
     .then(function(d) {
       if (!d.success || !d.identity) { body.innerHTML = ''; return; }
       var id = d.identity;
-      var tierIcon = _frTierIcons[id.fr_tier && id.fr_tier.tier] || '🌱';
-      var tierLabelKey = 'territory_fr_tier_' + (id.fr_tier && id.fr_tier.tier || 'newcomer');
-      var tierLabel = t(tierLabelKey) || (id.fr_tier && id.fr_tier.label_en) || 'Newcomer';
-      var badgesHtml = (id.badges || []).map(function(b){
-        var bkey = 'territory_badge_' + b.id;
-        return '<span style="font-size:8px;background:rgba(225,190,231,.12);border:1px solid rgba(225,190,231,.25);color:#e1bee7;padding:1px 6px;border-radius:8px;margin-right:3px">' + (t(bkey) || b.label_en) + '</span>';
-      }).join('');
 
-      var holdBonusStr = id.hold_bonus_pct > 0 ? ' <span style="color:var(--gn)">+' + id.hold_bonus_pct + '%</span>' : '';
+      // 이름
+      var displayName = id.nickname ? _esc(id.nickname) : (id.owner ? id.owner.slice(0,6)+'…'+id.owner.slice(-4) : '—');
+      var tierIcon = (_frTierIcons && _frTierIcons[id.fr_tier && id.fr_tier.tier]) || '🏔️';
+      if (nameEl) nameEl.innerHTML = tierIcon + ' ' + displayName;
 
-      body.innerHTML =
-        (id.nickname ? '<div style="font-size:11px;color:#e1bee7;font-weight:700;margin-bottom:4px">' + _esc(id.nickname) + '</div>' : '') +
-        (id.bio ? '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px;opacity:.8">' + _esc(id.bio) + '</div>' : '') +
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
-          '<div style="text-align:center">' +
-            '<div style="font-size:22px">' + tierIcon + '</div>' +
-            '<div style="font-size:8px;color:#e1bee7">' + tierLabel + '</div>' +
-          '</div>' +
-          '<div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px 8px">' +
-            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_fr') + '</span> <b style="color:#e1bee7">' + id.field_rating + '</b></div>' +
-            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_hold_days') + '</span> <b>' + id.hold_days + 'd</b></div>' +
-            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_defense_wins') + '</span> <b style="color:var(--gn)">' + id.defense_wins + '</b></div>' +
-            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_hold_bonus') + '</span> <b>' + (id.hold_bonus_pct > 0 ? '+' + id.hold_bonus_pct + '%' : '—') + '</b></div>' +
-          '</div>' +
-        '</div>' +
-        (badgesHtml ? '<div style="margin-top:4px">' + badgesHtml + '</div>' : '');
+      // 소유자 / 섹터
+      var ownerShort = id.owner ? id.owner.slice(0,6)+'…'+id.owner.slice(-4) : '—';
+      var sectorStr  = id.sector_code || '—';
+      if (metaEl) metaEl.innerHTML =
+        '소유자: ' + ownerShort + '<br>섹터: ' + sectorStr
+        + (id.bio ? '<br><span style="color:rgba(255,255,255,.45)">' + _esc(id.bio) + '</span>' : '');
+
+      // 📜 이력
+      var history = [];
+      if (id.hold_days > 0)             history.push(id.hold_days + '일 보유 중');
+      if (id.defense_wins > 0)          history.push(id.defense_wins + '회 방어 성공');
+      if (id.times_hijacked > 0)        history.push(id.times_hijacked + '회 탈환 기록 있음');
+      if (id.longest_hold_days > 0)     history.push('최대 보유 기록: ' + id.longest_hold_days + '일');
+
+      var historyHtml = '';
+      if (history.length > 0) {
+        historyHtml = '<div style="margin-bottom:7px">'
+          + '<div style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:1px;margin-bottom:4px">📜 이력</div>'
+          + history.map(function(h){
+              return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">'
+                + '<span style="color:rgba(225,190,231,.5);font-size:9px">•</span>'
+                + '<span style="font-size:9px;color:var(--tx2)">' + h + '</span>'
+                + '</div>';
+            }).join('')
+          + '</div>';
+      }
+
+      // 🏆 배지
+      var badgesHtml = '';
+      if (id.badges && id.badges.length > 0) {
+        var chips = id.badges.map(function(b){
+          var bkey = 'territory_badge_' + b.id;
+          var label = (typeof t === 'function' ? t(bkey) : '') || b.label_en || b.id;
+          return '<span style="font-size:8px;background:rgba(225,190,231,.1);border:1px solid rgba(225,190,231,.3);color:#e1bee7;padding:2px 7px;border-radius:8px;margin-right:4px;margin-bottom:3px;display:inline-block">' + label + '</span>';
+        }).join('');
+        badgesHtml = '<div style="margin-top:4px">'
+          + '<div style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:1px;margin-bottom:4px">🏆 배지</div>'
+          + '<div>' + chips + '</div>'
+          + '</div>';
+      }
+
+      body.innerHTML = historyHtml + badgesHtml;
     })
     .catch(function() { if (body) body.innerHTML = ''; });
 }
@@ -48618,6 +48643,7 @@ function showBattleResult() {
       <div class="bv-result-stat-label" style="color:#4fc3f7">ATTACKERS${atkIsMe ? _myBadge.replace('currentColor','#4fc3f7') : ''}</div>
       <div class="bv-result-stat-row"><span>${t('bv_stat_total_ships')}</span><b>${bv.battle.atk_ships_total || 0}</b></div>
       <div class="bv-result-stat-row"><span>${t('bv_stat_losses')}</span><b>${bv.battle.atk_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-row"><span>생존</span><b style="color:#66bb6a">${(bv.battle.atk_ships_total || 0) - (bv.battle.atk_ships_lost || 0)}</b></div>
       <div class="bv-result-stat-row"><span>${t('bv_stat_damage')}</span><b>${formatNum(summary.atk?.damage_dealt || 0)}</b></div>
     </div>
     <div class="bv-result-vs">VS</div>
@@ -48626,6 +48652,7 @@ function showBattleResult() {
       <div class="bv-result-stat-label" style="color:#ff7043">DEFENDERS${defIsMe ? _myBadge.replace('currentColor','#ff7043') : ''}</div>
       <div class="bv-result-stat-row"><span>${t('bv_stat_total_ships')}</span><b>${bv.battle.def_ships_total || 0}</b></div>
       <div class="bv-result-stat-row"><span>${t('bv_stat_losses')}</span><b>${bv.battle.def_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-row"><span>생존</span><b style="color:#66bb6a">${(bv.battle.def_ships_total || 0) - (bv.battle.def_ships_lost || 0)}</b></div>
       <div class="bv-result-stat-row"><span>${t('bv_stat_damage')}</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
     </div>
     <div id="bvReportSection" style="margin-top:12px;width:100%;border-top:1px solid rgba(255,255,255,.12);padding-top:10px">
@@ -48650,46 +48677,79 @@ async function _loadBattleReport(battleId, mySide) {
     const r = data.report;
     if (!r) throw new Error('no report');
 
-    const mySideData = mySide === 'atk' ? r.atk : mySide === 'def' ? r.def : null;
-    const _ratingColor = { S:'#ffd700', A:'#66bb6a', B:'#4fc3f7', C:'#ffa726', D:'#ef5350' };
+    const myData = mySide === 'atk' ? r.atk : mySide === 'def' ? r.def : null;
+    const classBD = myData ? (myData.class_breakdown || []) : [];
 
-    // 퍼포먼스 레이팅 배지
-    const atkRating = r.atk?.performance_rating || '—';
-    const defRating = r.def?.performance_rating || '—';
-    const atkCol = _ratingColor[atkRating] || '#aaa';
-    const defCol = _ratingColor[defRating] || '#aaa';
+    // 📊 클래스별 성과
+    let classHtml = '';
+    if (classBD.length > 0) {
+      const rows = classBD.map(c => {
+        const barWidth = c.survival_pct;
+        const barColor = c.survival_pct >= 80 ? '#66bb6a' : c.survival_pct >= 40 ? '#ffa726' : '#ef5350';
+        const perfColor = c.survival_pct >= 80 ? '#66bb6a' : c.survival_pct >= 40 ? '#ffd54f' : 'rgba(255,255,255,.4)';
+        return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span style="font-size:10px;color:rgba(255,255,255,.7);width:48px;flex-shrink:0">${c.class_label}</span>
+          <div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${barWidth}%;background:${barColor};border-radius:3px;transition:width .6s"></div>
+          </div>
+          <span style="font-size:9px;color:rgba(255,255,255,.5);width:36px;text-align:right;flex-shrink:0">생존 ${c.survival_pct}%</span>
+          <span style="font-size:9px;color:${perfColor};width:52px;text-align:right;flex-shrink:0">${c.perf_label}</span>
+        </div>`;
+      }).join('');
+      classHtml = `
+        <div style="margin-bottom:10px">
+          <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:4px">
+            <span>📊</span><span>클래스별 성과</span>
+          </div>
+          ${rows}
+        </div>`;
+    }
 
-    // 하이라이트
-    const hls = (r.highlights || []).slice(0, 3).map(h =>
-      `<div style="font-size:10px;color:rgba(255,255,255,.6);padding:2px 0;border-left:2px solid rgba(255,255,255,.2);padding-left:6px">${h.text}</div>`
-    ).join('');
+    // 🔍 패인 분석
+    let analysisHtml = '';
+    if (r.analysis_ko && mySide) {
+      const iLost = mySide && r.winner_side && mySide !== r.winner_side;
+      if (iLost) {
+        analysisHtml = `
+          <div style="margin-bottom:10px;padding:8px 10px;background:rgba(239,83,80,.06);border-left:3px solid rgba(239,83,80,.4);border-radius:0 4px 4px 0">
+            <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
+              <span>🔍</span><span>패인 분석</span>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.5">"${r.analysis_ko}"</div>
+          </div>`;
+      }
+    }
 
-    // MVP
-    const atkMvp = r.atk?.mvp_ship ? `MVP: ${r.atk.mvp_ship.name} (${r.atk.mvp_ship.kills} kills)` : '';
-    const defMvp = r.def?.mvp_ship ? `MVP: ${r.def.mvp_ship.name} (${r.def.mvp_ship.kills} kills)` : '';
+    // 💡 추천 개선
+    let recHtml = '';
+    if (r.recommendations_ko && r.recommendations_ko.length > 0 && mySide) {
+      const iLost = mySide && r.winner_side && mySide !== r.winner_side;
+      if (iLost) {
+        const recRows = r.recommendations_ko.map(rec =>
+          `<div style="font-size:10px;color:rgba(255,255,255,.65);padding:2px 0">→ ${rec}</div>`
+        ).join('');
+        recHtml = `
+          <div style="margin-bottom:10px">
+            <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
+              <span>💡</span><span>추천 개선</span>
+            </div>
+            ${recRows}
+          </div>`;
+      }
+    }
 
-    section.innerHTML = `
-      <div style="display:flex;justify-content:space-around;margin-bottom:8px">
-        <div style="text-align:center">
-          <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">${t('bv_rating')} (ATK)</div>
-          <div style="font-size:28px;font-weight:900;color:${atkCol};font-family:Orbitron,monospace">${atkRating}</div>
-          ${atkMvp ? `<div style="font-size:9px;color:rgba(255,255,255,.5)">${atkMvp}</div>` : ''}
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">${t('bv_rating')} (DEF)</div>
-          <div style="font-size:28px;font-weight:900;color:${defCol};font-family:Orbitron,monospace">${defRating}</div>
-          ${defMvp ? `<div style="font-size:9px;color:rgba(255,255,255,.5)">${defMvp}</div>` : ''}
-        </div>
-      </div>
-      ${hls ? `<div style="margin-top:6px"><div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:4px">${t('bv_highlights')}</div>${hls}</div>` : ''}
-      <div style="margin-top:10px;display:flex;gap:6px;justify-content:center">
-        <button onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px">${t('bv_my_stats')}</button>
-      </div>
-    `;
+    // 내 전투 기록 버튼
+    const statsBtn = `<div style="margin-top:8px;display:flex;justify-content:center">
+      <button type="button" onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;padding:5px 14px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--fn)">📈 ${t('bv_my_stats')}</button>
+    </div>`;
+
+    section.innerHTML = classHtml + analysisHtml + recHtml + statsBtn;
+
   } catch (_) {
-    if (section) section.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:11px;text-align:center">${t('bv_report_error')}</div>
+    if (section) section.innerHTML = `
+      <div style="color:rgba(255,255,255,.3);font-size:10px;text-align:center">${t('bv_report_error')}</div>
       <div style="margin-top:8px;display:flex;justify-content:center">
-        <button onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px">${t('bv_my_stats')}</button>
+        <button type="button" onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px">${t('bv_my_stats')}</button>
       </div>`;
   }
 }
