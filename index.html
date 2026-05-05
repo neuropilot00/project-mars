@@ -5692,6 +5692,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div style="font-size:8px;color:#ffab40;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px">⚙ PRODUCTION</div>
       <div id="infoProdBody" style="font-size:9px;color:var(--tx2);line-height:1.6"></div>
     </div>
+    <!-- Territory Upgrade panel (own territory only, P5-4) -->
+    <div id="infoUpgradeRow" style="display:none;margin:8px 0 4px">
+      <div style="font-size:8px;color:#bb86fc;font-family:var(--fn);font-weight:700;margin-bottom:4px;letter-spacing:1px;cursor:pointer" onclick="toggleTerritoryUpgradePanel()" id="infoUpgradeToggle">🔧 UPGRADES <span id="infoUpgradeToggleIcon">▶</span></div>
+      <div id="infoUpgradeBody" style="display:none"></div>
+    </div>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)" data-i18n="share_btn">📤 SHARE</button>
     <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)" data-i18n="rename_btn">RENAME</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
@@ -13218,6 +13223,18 @@ function showTerritoryInfo(plot){
       loadTerritoryProduction(plot.claimId,myW2);
     }
   }
+  // Upgrade panel (own territory only)
+  var upgradeRow=document.getElementById('infoUpgradeRow');
+  if(upgradeRow){
+    upgradeRow.style.display='none';
+    var upgradeBody=document.getElementById('infoUpgradeBody');
+    if(upgradeBody) upgradeBody.innerHTML='';
+    document.getElementById('infoUpgradeToggleIcon').textContent='▶';
+    upgradeBody && (upgradeBody.style.display='none');
+    if(_isMyPlot&&plot.claimId){
+      upgradeRow.style.display='';
+    }
+  }
 }
 // ── Territory Production Summary ──
 function loadTerritoryProduction(claimId,wallet){
@@ -13308,8 +13325,60 @@ function loadTerritoryProduction(claimId,wallet){
       }
       if(!html) html='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'데이터 없음':'No production data')+'</span>';
       prodBody.innerHTML=html;
+      // Append sector control info if sector is known
+      if(d.sector&&d.sector.id&&wallet){
+        _appendSectorControl(prodBody, d.sector.id, wallet, lang);
+      }
     })
     .catch(function(){prodRow.style.display='none';});
+}
+
+function _appendSectorControl(container, sectorId, wallet, lang) {
+  fetch('/api/sectors/'+sectorId+'/control?wallet='+encodeURIComponent(wallet))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error||!d.sector) return;
+      var TIER_LABELS = { governor:'총독', dominant:'지배', stakeholder:'이해관계자', presence:'존재감' };
+      var TIER_COLORS = { governor:'#ffd700', dominant:'#ff6b6b', stakeholder:'#ffc140', presence:'#64dc82' };
+      var html='<div style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07)">';
+      html+='<div style="font-size:8px;color:#bb86fc;font-weight:700;letter-spacing:.8px;margin-bottom:4px">🏛 ' + (lang==='ko'?'섹터 컨트롤':'SECTOR CONTROL') + '</div>';
+      // Top owners
+      if(d.owners&&d.owners.length){
+        html+='<div style="display:flex;flex-direction:column;gap:2px;margin-bottom:4px">';
+        d.owners.slice(0,3).forEach(function(o,i){
+          var tierColor = o.influenceTier ? (TIER_COLORS[o.influenceTier]||'var(--tx2)') : 'var(--tx3)';
+          var tierLabel = o.influenceTier ? (TIER_LABELS[o.influenceTier]||o.influenceTier) : '';
+          var isMe = o.wallet===wallet.toLowerCase();
+          var wShort = o.wallet.slice(0,6)+'…'+o.wallet.slice(-4);
+          html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+          html+='<span style="font-size:8px;color:'+(isMe?'#69f0ae':'var(--tx2)')+(isMe?';font-weight:700':'')+'">'+['🥇','🥈','🥉'][i]+' '+(isMe?'(나) ':'')+wShort+'</span>';
+          html+='<span style="font-size:8px">';
+          if(tierLabel) html+='<span style="color:'+tierColor+';margin-right:3px">'+tierLabel+'</span>';
+          html+='<span style="color:var(--tx3)">'+o.controlPct+'%</span></span>';
+          html+='</div>';
+        });
+        html+='</div>';
+      }
+      // My position if not in top 3
+      if(d.myEntry&&d.myEntry.totalScore>0){
+        var myInTop3 = d.owners&&d.owners.slice(0,3).some(function(o){return o.wallet===wallet.toLowerCase();});
+        if(!myInTop3){
+          var myTierColor = d.myEntry.influenceTier ? (TIER_COLORS[d.myEntry.influenceTier]||'var(--tx2)') : 'var(--tx3)';
+          var myTierLabel = d.myEntry.influenceTier ? (TIER_LABELS[d.myEntry.influenceTier]||d.myEntry.influenceTier) : (lang==='ko'?'영향력 없음':'no influence');
+          html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 4px;background:rgba(105,240,174,.06);border:1px solid rgba(105,240,174,.15);border-radius:4px">';
+          html+='<span style="font-size:8px;color:#69f0ae;font-weight:700">'+(lang==='ko'?'내 위치':'My position')+'</span>';
+          html+='<span style="font-size:8px;color:'+myTierColor+'">'+myTierLabel+' · '+d.myEntry.controlPct+'%</span>';
+          html+='</div>';
+        }
+      }
+      // No owners
+      if(!d.owners||!d.owners.length){
+        html+='<div style="font-size:8px;color:var(--tx3)">'+(lang==='ko'?'이 섹터는 아직 미개척입니다':'This sector is unclaimed')+'</div>';
+      }
+      html+='</div>';
+      container.innerHTML += html;
+    })
+    .catch(function(){}); // sector control is non-critical
 }
 function _timeAgo(date){
   var diff=Math.floor((Date.now()-date.getTime())/1000);
@@ -13318,6 +13387,123 @@ function _timeAgo(date){
   if(diff<86400) return Math.floor(diff/3600)+'h ago';
   return Math.floor(diff/86400)+'d ago';
 }
+
+// ── Territory Upgrade Panel (P5-4) ──────────────────────────────────
+var _territoryUpgradeState = { open: false, data: null, loading: false };
+
+function toggleTerritoryUpgradePanel() {
+  var body = document.getElementById('infoUpgradeBody');
+  var icon = document.getElementById('infoUpgradeToggleIcon');
+  if (!body) return;
+  _territoryUpgradeState.open = !_territoryUpgradeState.open;
+  body.style.display = _territoryUpgradeState.open ? '' : 'none';
+  if (icon) icon.textContent = _territoryUpgradeState.open ? '▼' : '▶';
+  if (_territoryUpgradeState.open && !_territoryUpgradeState.data && selectedPlot && selectedPlot.claimId) {
+    loadTerritoryUpgrades(selectedPlot.claimId);
+  }
+}
+
+function loadTerritoryUpgrades(claimId) {
+  var body = document.getElementById('infoUpgradeBody');
+  if (!body) return;
+  var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || '';
+  body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">로딩 중…</div>';
+  _territoryUpgradeState.loading = true;
+  fetch('/api/territory/' + claimId + '/upgrades?wallet=' + encodeURIComponent(wallet))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      _territoryUpgradeState.loading = false;
+      _territoryUpgradeState.data = d;
+      renderTerritoryUpgradeBody(d, claimId, wallet);
+    })
+    .catch(function(){
+      _territoryUpgradeState.loading = false;
+      body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">업그레이드 데이터를 불러올 수 없습니다</div>';
+    });
+}
+
+function renderTerritoryUpgradeBody(d, claimId, wallet) {
+  var body = document.getElementById('infoUpgradeBody');
+  if (!body) return;
+  var lang = (typeof LANG !== 'undefined' ? LANG : 'ko');
+  var catalog = d.catalog || [];
+  var current = d.current || {};
+  if (!catalog.length) {
+    body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">업그레이드 트랙 없음</div>';
+    return;
+  }
+  var html = '<div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">';
+  catalog.forEach(function(track) {
+    var cur = current[track.key];
+    var curLevel = cur ? cur.level : 0;
+    var maxLevel = track.levels ? track.levels.length : 5;
+    var nextLevel = track.levels && track.levels[curLevel];
+    var nextCost = nextLevel ? nextLevel.cost : null;
+    var nextBonus = nextLevel ? nextLevel.bonus : null;
+    var atMax = curLevel >= maxLevel;
+    // Level bar
+    var barHtml = '';
+    for (var i = 1; i <= maxLevel; i++) {
+      barHtml += '<span style="display:inline-block;width:8px;height:4px;border-radius:2px;margin-right:1px;background:' + (i <= curLevel ? track.color : 'rgba(255,255,255,.1)') + '"></span>';
+    }
+    html += '<div style="padding:6px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
+    html += '<span style="font-size:9px;color:' + track.color + ';font-weight:700">' + track.icon + ' ' + (lang === 'ko' ? (track.name || track.nameEn) : (track.nameEn || track.name)) + '</span>';
+    html += '<span style="font-size:8px;color:var(--tx3)">Lv ' + curLevel + '/' + maxLevel + '</span>';
+    html += '</div>';
+    html += '<div style="margin-bottom:4px">' + barHtml + '</div>';
+    html += '<div style="font-size:8px;color:var(--tx3);margin-bottom:4px">' + fcEsc(track.desc) + '</div>';
+    if (!atMax && nextCost !== null) {
+      html += '<div style="display:flex;justify-content:space-between;align-items:center">';
+      html += '<span style="font-size:8px;color:var(--tx2)">Lv' + (curLevel + 1) + ': +' + nextBonus + ' ' + track.bonusUnit + '</span>';
+      html += '<button type="button" onclick="doTerritoryUpgrade(' + claimId + ',\'' + track.key + '\')" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
+      html += '</div>';
+    } else if (atMax) {
+      html += '<div style="font-size:8px;color:#69f0ae;font-weight:700">✅ MAX</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+async function doTerritoryUpgrade(claimId, upgradeType) {
+  var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || '';
+  if (!wallet) return showFactionToast('로그인이 필요합니다', 'error');
+  var ok = await gameConfirm({
+    icon: '🔧',
+    title: '영토 업그레이드',
+    body: upgradeType.replace(/_/g,' ').toUpperCase() + ' 업그레이드를 진행하시겠습니까?',
+    confirmText: '업그레이드'
+  });
+  if (!ok) return;
+  try {
+    var res = await fetch('/api/territory/' + claimId + '/upgrade', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ wallet, upgradeType })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      showFactionToast('업그레이드 실패: ' + (data.error || '알 수 없는 오류'), 'error');
+      return;
+    }
+    showToast('🔧 ' + upgradeType.replace(/_/g,' ') + ' Lv' + data.level + ' 업그레이드 완료! (-' + data.cost + ' GP)', 'success');
+    // Reload GP balance and upgrade panel
+    if (typeof loadGPBalance === 'function') loadGPBalance();
+    _territoryUpgradeState.data = null;
+    if (_territoryUpgradeState.open && selectedPlot && selectedPlot.claimId === claimId) {
+      loadTerritoryUpgrades(claimId);
+    }
+    // Also reload production to show updated modifiers
+    if (wallet && selectedPlot && selectedPlot.claimId === claimId) {
+      loadTerritoryProduction(claimId, wallet);
+    }
+  } catch (e) {
+    showFactionToast('업그레이드 요청 실패', 'error');
+  }
+}
+
 // ── Cosmetic Panel ──
 var _cosmeticDefs={
   border:{neon_border:{label:'Neon',icon:'💠',color:'#00FFFF'},flame_border:{label:'Flame',icon:'🔥',color:'#FF6600'},ice_border:{label:'Ice',icon:'❄️',color:'#88CCFF'},gold_border:{label:'Gold',icon:'👑',color:'#FFD700'},starship_border:{label:'Starship',icon:'🚀',color:'#FF4400'}},
@@ -42537,6 +42723,7 @@ var shipyardState = {
   marketFaction: '',
   marketSize: '',
   marketSort: 'price_asc',
+  materialSectorHints: {},  // resource_code → primary sector_type (frontier/mid/core)
 };
 
 function openShipyard() {
@@ -42601,6 +42788,7 @@ async function refreshShipyard() {
     var summaryData = await summaryRes.json();
     var factionData = await factionRes.json();
     shipyardState.blueprints = bpData.ships || [];
+    shipyardState.materialSectorHints = bpData.materialSectorHints || {};
     shipyardState.queue      = jobsData.jobs || [];
     shipyardState.ships      = shipsData.ships || [];
     shipyardState.marketListings = marketData.listings || [];
@@ -42981,6 +43169,21 @@ function syNeedChip(label, have, need, okClass) {
   '</span>';
 }
 
+// 재료 섹터 힌트 뱃지: 어느 섹터 영토에서 채굴 가능한지 표시
+var _SECTOR_BADGE_STYLE = {
+  frontier: 'background:rgba(100,220,130,.15);color:#64dc82;border:1px solid rgba(100,220,130,.35)',
+  mid:      'background:rgba(255,193,64,.15);color:#ffc140;border:1px solid rgba(255,193,64,.35)',
+  core:     'background:rgba(255,107,107,.15);color:#ff6b6b;border:1px solid rgba(255,107,107,.35)',
+};
+var _SECTOR_BADGE_LABEL = { frontier:'⛏ 개척지', mid:'⛏ 중간지', core:'⛏ 핵심지' };
+function sySectorBadge(resourceCode) {
+  var hint = shipyardState.materialSectorHints[resourceCode];
+  if (!hint) return '';
+  var style = _SECTOR_BADGE_STYLE[hint] || '';
+  var label = _SECTOR_BADGE_LABEL[hint] || hint;
+  return '<span style="display:inline-block;font-size:7px;font-family:var(--fn);font-weight:700;letter-spacing:.4px;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;' + style + '">' + label + '</span>';
+}
+
 function syBuildRequirementInfo(ship) {
   var recipe = ship.recipe_minerals || {};
   var gpHave = syGpBalance();
@@ -42988,7 +43191,9 @@ function syBuildRequirementInfo(ship) {
   var rows = [{ k:'💰 GP', v: syRequirementStatusText(gpHave, gpNeed), insufficient: gpHave < gpNeed, ok: gpHave >= gpNeed }];
   Object.entries(recipe).forEach(function(e) {
     var code = e[0], need = Number(e[1] || 0), have = syOwnedResourceQty(code);
-    rows.push({ k: syResourceName(code), v: syRequirementStatusText(have, need), insufficient: have < need, ok: have >= need });
+    var hint = shipyardState.materialSectorHints[code];
+    var sectorLabel = hint ? (' ' + (_SECTOR_BADGE_LABEL[hint] || hint)) : '';
+    rows.push({ k: syResourceName(code) + sectorLabel, v: syRequirementStatusText(have, need), insufficient: have < need, ok: have >= need });
   });
   return rows;
 }
@@ -42998,7 +43203,7 @@ function renderBlueprintCard(s) {
   var mineralCheck = Object.entries(recipe).map(function(e) {
     var code = e[0], need = e[1];
     var have = syOwnedResourceQty(code);
-    return syNeedChip(syResourceName(code), have, need);
+    return syNeedChip(syResourceName(code), have, need) + sySectorBadge(code);
   }).join('');
   var gpHave = syGpBalance();
   var gpShort = s.build_gp_cost > gpHave;

@@ -4,7 +4,9 @@
   "chapterNumber": 7,
   "title": {
     "ko": "권력 공백",
-    "en": "Power Vacuum"
+    "en": "Power Vacuum",
+    "ja": "権力の空白",
+    "zh": "权力真空"
   },
   "location": {
     "id": "erebus_crater_base",
@@ -30,7 +32,9 @@
         {
           "text": {
             "ko": "Butcher가 쓰러졌다. 기지에서. 혼자였다. Cinder가 발견했다. 의수가 떨어져 있었다. 그것이 처음 보는 것이었다. Butcher가 의수 없이 있는 것. 17살 때부터 차고 있던 것. 그것이 떨어져 있었다.",
-            "en": "Butcher collapsed. In the base. Alone. Cinder found him. The prosthetic had fallen off. That was something never seen before. Butcher without the prosthetic. Worn since he was seventeen. It had fallen away."
+            "en": "Butcher collapsed. In the base. Alone. Cinder found him. The prosthetic had fallen off. That was something never seen before. Butcher without the prosthetic. Worn since he was seventeen. It had fallen away.",
+            "ja": "Butcherが倒れた。基地で。一人で。シンダーが見つけた。義手が外れていた。それは今まで見たことがなかった。義手のないButcher。十七歳から着けていたもの。それが外れた。",
+            "zh": "屠夫倒下了。在基地。独自一人。辛达发现了他。义肢脱落了。那是从未见过的事情。没有义肢的屠夫。从十七岁起就戴着的东西。脱落了。"
           },
           "overlay": "cv_ch7_last_war_l00_00_death_still"
         }
@@ -46,7 +50,9 @@
         {
           "text": {
             "ko": "의료진이 왔다. 폐 문제였다. 화성의 폐 문제. 광석 분진. 30년. 광산에서 시작한 것이 30년 후에 나타나는 것이었다. Butcher는 30년 동안 광산 밖에 있었다. 그러나 폐는 기억했다.",
-            "en": "Medical came. Lung problem. Mars lung problems. Ore dust. Thirty years. What began in the mines appeared thirty years later. Butcher had been outside the mines for thirty years. But the lungs remembered."
+            "en": "Medical came. Lung problem. Mars lung problems. Ore dust. Thirty years. What began in the mines appeared thirty years later. Butcher had been outside the mines for thirty years. But the lungs remembered.",
+            "ja": "医療が来た。肺の問題。火星の肺の問題。鉱石粉塵。三十年。鉱山で始まったものが三十年後に現れた。Butcherは三十年間鉱山の外にいた。しかし肺は覚えていた。",
+            "zh": "医疗来了。肺的问题。火星肺的问题。矿石粉尘。三十年。在矿山开始的东西三十年后出现了。屠夫在矿山外面待了三十年。但肺记住了。"
           }
         }
       ]
@@ -64,7 +70,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "의사가 6개월 말했어요.",
-            "en": "The doctor said six months."
+            "en": "The doctor said six months.",
+            "ja": "医者は六か月と言った。",
+            "zh": "医生说六个月。"
           }
         },
         {
@@ -72,7 +80,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Butcher는 들었어요. 아무 말 안 했어요. 의수를 다시 붙이고 일어났어요. CV 회의가 있다고 했어요.",
-            "en": "Butcher heard it. Said nothing. Put the prosthetic back on and stood. Said there was a CV meeting."
+            "en": "Butcher heard it. Said nothing. Put the prosthetic back on and stood. Said there was a CV meeting.",
+            "ja": "Butcherはそれを聞いた。何も言わなかった。義手をつけ直して立った。CVの会議があると言った。",
+            "zh": "屠夫听了。什么都没说。重新戴上义肢站了起来。说有CV会议。"
           }
         },
         {
@@ -80,7 +90,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그게 30년 전부터 이 사람이 살아온 방식이에요. 아무것도 없는 것처럼.",
-            "en": "That's how this person has lived since thirty years ago. As if nothing is wrong."
+            "en": "That's how this person has lived since thirty years ago. As if nothing is wrong.",
+            "ja": "この人物は三十年前からそうやって生きてきた。何も悪いことがないかのように。",
+            "zh": "这个人从三十年前就这样生活。好像什么都没有问题一样。"
           }
         }
       ]
@@ -95,7 +107,9 @@
         {
           "text": {
             "ko": "6개월. 그 말이 기지에 퍼졌다. CV 안에서 이야기가 돌았다. Butcher의 건강. 누가 다음인가. CV에는 공식 승계가 없었다. 계약서가 없었다. 코드만 있었다. 다섯 번째 코드는 각자가 만들었다. 그래서 각자가 달랐다.",
-            "en": "Six months. That word spread through the base. Talk circulated in CV. Butcher's health. Who was next. CV had no official succession. No contracts. Only the code. The fifth code was made by each person. So each was different."
+            "en": "Six months. That word spread through the base. Talk circulated in CV. Butcher's health. Who was next. CV had no official succession. No contracts. Only the code. The fifth code was made by each person. So each was different.",
+            "ja": "六か月。その言葉が基地に広まった。CV内で話が回った。Butcherの健康。次は誰か。CVには公式の継承がなかった。契約もなかった。規範だけ。五番目の規範は各人が作る。だから各人違った。",
+            "zh": "六个月。那个词在基地传开了。CV内部谈话流传。屠夫的健康。下一个是谁。CV没有官方继承。没有合同。只有规则。第五条规则由每个人制定。所以每个人不同。"
           }
         }
       ]
@@ -113,7 +127,9 @@
           "effect": "character_enter:crow:slide_right",
           "text": {
             "ko": "두 명이에요. 나랑 Reza요. 그게 실질적인 선택지예요.",
-            "en": "Two people. Me and Reza. That's the real choice."
+            "en": "Two people. Me and Reza. That's the real choice.",
+            "ja": "二人。俺とReza。それが本当の選択だ。",
+            "zh": "两个人。我和雷扎。那是真正的选择。"
           }
         },
         {
@@ -121,7 +137,9 @@
           "emotion": "flat",
           "text": {
             "ko": "나는 Cinder가 맞다고 생각해요. 그러나 Cinder는 원하지 않아요. 원하지 않는 사람이 지도자가 되면 어떻게 돼요?",
-            "en": "I think Cinder is the right one. But Cinder doesn't want it. What happens when someone who doesn't want it becomes a leader."
+            "en": "I think Cinder is the right one. But Cinder doesn't want it. What happens when someone who doesn't want it becomes a leader.",
+            "ja": "シンダーが正しいと思う。しかしシンダーは望んでいない。望まない人がリーダーになるとどうなるか。",
+            "zh": "我认为辛达是合适的人选。但辛达不想要。不想要的人成为领导者会怎样。"
           }
         },
         {
@@ -129,7 +147,9 @@
           "emotion": "serious",
           "text": {
             "ko": "화성에서 원하지 않는 것이 주어지는 것. 그게 화성의 방식이에요. 우리가 선택 안 하면 상황이 선택해요.",
-            "en": "On Mars being given what you don't want. That's Mars's way. If we don't choose the situation chooses."
+            "en": "On Mars being given what you don't want. That's Mars's way. If we don't choose the situation chooses.",
+            "ja": "火星では望まないものを与えられる。それが火星のやり方だ。俺たちが選ばなければ状況が選ぶ。",
+            "zh": "在火星上被给予你不想要的东西。那是火星的方式。如果我们不选择，情况就会选择。"
           }
         }
       ]
@@ -144,7 +164,9 @@
         {
           "text": {
             "ko": "Cinder가 공구를 만졌다. 멈췄다. 만지지 않았다. 그것이 이상했다. 이 사람이 공구를 만지다가 멈추는 것. 일이 있을 때는 항상 만졌다. 지금은 일이 있었다. 그러나 공구를 만지지 않았다. 그 의미는 알기 어려웠다.",
-            "en": "Cinder reached for her tools. Stopped. Didn't touch them. That was strange. This person reaching for tools and stopping. When there was work she always touched them. There was work now. But she didn't touch them. The meaning was hard to know."
+            "en": "Cinder reached for her tools. Stopped. Didn't touch them. That was strange. This person reaching for tools and stopping. When there was work she always touched them. There was work now. But she didn't touch them. The meaning was hard to know.",
+            "ja": "シンダーは工具に手を伸ばした。止まった。触らなかった。それは奇妙だった。この人物が工具に手を伸ばして止まること。仕事があるとき彼女はいつも触った。今仕事があった。しかし触らなかった。意味はわかりにくかった。",
+            "zh": "辛达伸手去拿工具。停下了。没有触碰。这很奇怪。这个人伸手去拿工具然后停下。有工作时她总是触碰它们。现在有工作。但她没有触碰。含义很难知道。"
           }
         }
       ]
@@ -161,7 +183,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "지도자는 못 해요. 사람들을 이끄는 게 내 방식이 아니에요.",
-            "en": "Can't be a leader. Leading people isn't my way."
+            "en": "Can't be a leader. Leading people isn't my way.",
+            "ja": "リーダーにはなれない。人を率いることは俺のやり方じゃない。",
+            "zh": "不能当领导。带领人们不是我的方式。"
           }
         },
         {
@@ -169,7 +193,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내 방식은 고치는 거예요. 부서진 것을. 공구로. 사람들을 지휘하는 게 아니에요.",
-            "en": "My way is fixing. Broken things. With tools. Not commanding people."
+            "en": "My way is fixing. Broken things. With tools. Not commanding people.",
+            "ja": "俺のやり方は直すことだ。壊れたもの。工具で。人を命令することではない。",
+            "zh": "我的方式是修理。坏掉的东西。用工具。不是指挥人们。"
           }
         },
         {
@@ -177,7 +203,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "Crow가 맞아요. 내가 하면 안 돼요.",
-            "en": "Crow is right. It shouldn't be me."
+            "en": "Crow is right. It shouldn't be me.",
+            "ja": "Crowは正しい。俺であるべきではない。",
+            "zh": "乌鸦是对的。不应该是我。"
           }
         }
       ]
@@ -192,7 +220,9 @@
         {
           "text": {
             "ko": "Butcher의 방이었다. 옥좌의 방. 광산 의자. 그가 들어왔다. 쓰러진 적 없는 것처럼 걸었다. 6개월이라는 말을 들은 것 같지 않게 걸었다. 그러나 느렸다. 전보다 느렸다. 그것만 달랐다.",
-            "en": "Butcher's room. Throne hall. Mining chair. He came in. He walked as if he had never collapsed. He walked as if he had not heard the word six months. But slow. Slower than before. That was the only difference."
+            "en": "Butcher's room. Throne hall. Mining chair. He came in. He walked as if he had never collapsed. He walked as if he had not heard the word six months. But slow. Slower than before. That was the only difference.",
+            "ja": "Butcherの部屋。スローンホール。採掘椅子。彼が入ってきた。倒れたことがないかのように歩いた。六か月という言葉を聞いていないかのように歩いた。しかし遅かった。以前より遅かった。それだけが違いだった。",
+            "zh": "屠夫的房间。王座大厅。采矿椅子。他走进来了。好像从没倒下过一样走着。好像没有听到六个月这个词一样走着。但慢了。比以前慢了。那是唯一的不同。"
           }
         }
       ]
@@ -210,7 +240,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "나는 아직 안 죽었어.",
-            "en": "I'm not dead yet."
+            "en": "I'm not dead yet.",
+            "ja": "まだ死んでいない。",
+            "zh": "我还没死。"
           }
         },
         {
@@ -218,7 +250,9 @@
           "emotion": "serious",
           "text": {
             "ko": "CV 지도자가 누군지 이야기하려면 내가 죽은 다음에 해. 아직 살아있어.",
-            "en": "If you want to talk about CV's next leader wait until I'm dead. Still alive."
+            "en": "If you want to talk about CV's next leader wait until I'm dead. Still alive.",
+            "ja": "CVの次のリーダーを話したいなら俺が死んでから。まだ生きている。",
+            "zh": "如果想谈CV的下一个领导者，等我死了再说。还活着。"
           }
         },
         {
@@ -226,7 +260,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그리고 당신들이 결정하는 게 아니야. 내가 결정해.",
-            "en": "And it's not you who decides. I decide."
+            "en": "And it's not you who decides. I decide.",
+            "ja": "そしてそれを決めるのはお前じゃない。俺が決める。",
+            "zh": "而且不是你来决定。我来决定。"
           }
         }
       ]
@@ -241,7 +277,9 @@
         {
           "text": {
             "ko": "방이 조용해졌다. Crow가 뒤로 물러났다. Cinder는 공구를 만지지 않았다. Butcher가 광산 의자에 앉았다. 천천히. 그것이 오늘 처음으로 느린 것을 보여주는 것이었다. 본 척 안 했다. 이 방에서 보면 안 되는 것이 생겼다.",
-            "en": "The room went quiet. Crow stepped back. Cinder didn't touch her tools. Butcher sat in the mining chair. Slowly. That was the first slow thing shown today. People pretended not to notice. Something had appeared in this room that shouldn't be seen."
+            "en": "The room went quiet. Crow stepped back. Cinder didn't touch her tools. Butcher sat in the mining chair. Slowly. That was the first slow thing shown today. People pretended not to notice. Something had appeared in this room that shouldn't be seen.",
+            "ja": "部屋が静かになった。Crowが後退した。シンダーは工具を触らなかった。Butcherは採掘椅子に座った。ゆっくりと。それが今日初めてゆっくりしたものだった。人々は気づかないふりをした。見てはいけないものがこの部屋に現れた。",
+            "zh": "房间安静了。乌鸦退后了。辛达没有触碰工具。屠夫慢慢地坐在采矿椅子上。那是今天第一次缓慢的动作。人们假装没注意到。这个房间里出现了不该被看见的东西。"
           }
         }
       ]
@@ -258,7 +296,9 @@
           "emotion": "serious",
           "text": {
             "ko": "CV가 분열되면 모든 게 끝이야. 30년이 끝이야. 사진 뒤에 있는 이름들이 끝이야.",
-            "en": "If CV splits it's all over. Thirty years is over. The names on the back of the photo are over."
+            "en": "If CV splits it's all over. Thirty years is over. The names on the back of the photo are over.",
+            "ja": "CVが分裂したら終わりだ。三十年が終わる。写真の裏の名前も終わる。",
+            "zh": "如果CV分裂就全完了。三十年结束了。照片背面的名字也结束了。"
           }
         },
         {
@@ -266,7 +306,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "MCC가 그걸 알아. 기다리고 있어. 우리가 분열되길.",
-            "en": "MCC knows it. They're waiting. For us to split."
+            "en": "MCC knows it. They're waiting. For us to split.",
+            "ja": "MCCはそれを知っている。待っている。俺たちが分裂するのを。",
+            "zh": "MCC知道这一点。他们在等待。等我们分裂。"
           }
         }
       ]
@@ -281,7 +323,9 @@
         {
           "text": {
             "ko": "분화구 외부에서 소리가 났다. 차량 소리. CV 사람들이 집결했다. Crow 쪽 사람들과 Reza 쪽 사람들이 따로 섰다. 보이지 않는 선이 있었다. 아직 선을 넘지는 않았다. 그러나 선이 있었다.",
-            "en": "Sounds from outside the crater. Vehicles. CV people gathered. Crow's people and Reza's people stood apart. There was an invisible line. Nobody had crossed it yet. But the line was there."
+            "en": "Sounds from outside the crater. Vehicles. CV people gathered. Crow's people and Reza's people stood apart. There was an invisible line. Nobody had crossed it yet. But the line was there.",
+            "ja": "クレーターの外から音。車両。CVの人々が集まった。CrowのグループとRezaのグループが離れて立っていた。見えない線があった。誰もまだ越えていなかった。しかし線はそこにあった。",
+            "zh": "陨石坑外面的声音。车辆。CV的人们聚集了。乌鸦的人和雷扎的人分开站立。有一条看不见的线。没有人越过它。但线在那里。"
           }
         }
       ]
@@ -298,7 +342,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Reza가 에레보스 서쪽 통로를 장악했어요. 6시간 됐어요.",
-            "en": "Reza has taken the western passage of Erebus. Six hours ago."
+            "en": "Reza has taken the western passage of Erebus. Six hours ago.",
+            "ja": "RezaがエレボスのW通路を押さえた。六時間前。",
+            "zh": "雷扎占领了厄瑞玻斯的西部通道。六小时前。"
           }
         },
         {
@@ -306,7 +352,9 @@
           "emotion": "serious",
           "text": {
             "ko": "우리가 움직이지 않으면 Reza가 보급로를 끊어요. Butcher가 살아있어도 CV가 기능을 잃어요.",
-            "en": "If we don't move Reza cuts the supply lines. Even with Butcher alive CV loses function."
+            "en": "If we don't move Reza cuts the supply lines. Even with Butcher alive CV loses function.",
+            "ja": "俺たちが動かなければRezaが補給ラインを切る。Butcherが生きていてもCVは機能を失う。",
+            "zh": "如果我们不行动雷扎就切断补给线。即使屠夫还活着CV也会失去功能。"
           }
         },
         {
@@ -314,7 +362,9 @@
           "emotion": "tense",
           "text": {
             "ko": "3시간이에요. 그 안에 결정해야 해요.",
-            "en": "Three hours. We have to decide within that."
+            "en": "Three hours. We have to decide within that.",
+            "ja": "三時間。その中で決めなければならない。",
+            "zh": "三小时。必须在那之内决定。"
           }
         }
       ]
@@ -329,7 +379,9 @@
         {
           "text": {
             "ko": "Reza였다. Reza Karimi. CV 서부 구역 대장. 10년 된 CV 사람. Crow와 같은 나이였다. 같은 협곡에서 자랐다. 그러나 다른 사람이었다. Crow는 전술이었다. Reza는 영토였다. 에레보스 서쪽 통로를 장악했다는 것. 그것이 Reza였다.",
-            "en": "Reza. Reza Karimi. CV western sector commander. Ten years in CV. Same age as Crow. Raised in the same canyon. But a different person. Crow was tactics. Reza was territory. Taking the western passage of Erebus. That was Reza."
+            "en": "Reza. Reza Karimi. CV western sector commander. Ten years in CV. Same age as Crow. Raised in the same canyon. But a different person. Crow was tactics. Reza was territory. Taking the western passage of Erebus. That was Reza.",
+            "ja": "Reza。Reza Karimi。CV西区司令官。CV歴十年。Crowと同い年。同じ峡谷で育った。しかし違う人物。Crowは戦術。Rezaは領土。エレボスの西通路を押さえること。それがRezaだった。",
+            "zh": "雷扎。雷扎·卡里米。CV西区指挥官。CV十年。与乌鸦同龄。在同一峡谷长大。但是不同的人。乌鸦是战术。雷扎是领土。占领厄瑞玻斯的西部通道。那就是雷扎。"
           }
         }
       ]
@@ -346,7 +398,9 @@
           "emotion": "serious",
           "text": {
             "ko": "서쪽 통로 말고 남쪽 우회로가 있어요. Reza가 모르는 경로예요.",
-            "en": "Besides the western passage there's a southern bypass. A route Reza doesn't know."
+            "en": "Besides the western passage there's a southern bypass. A route Reza doesn't know.",
+            "ja": "西通路の他に南バイパスがある。Rezaが知らないルート。",
+            "zh": "除了西部通道还有一条南部绕道。雷扎不知道的路线。"
           }
         },
         {
@@ -354,7 +408,9 @@
           "emotion": "calm",
           "text": {
             "ko": "내가 2년 전에 뚫었어요. 비상용으로. 혼자 알고 있었어요.",
-            "en": "I dug it two years ago. For emergencies. Only I knew about it."
+            "en": "I dug it two years ago. For emergencies. Only I knew about it.",
+            "ja": "二年前に俺が掘った。緊急時のために。俺だけが知っていた。",
+            "zh": "两年前我挖的。为了紧急情况。只有我知道。"
           }
         },
         {
@@ -362,7 +418,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "지도자는 못 해도 경로는 알아요.",
-            "en": "Can't be a leader but I know routes."
+            "en": "Can't be a leader but I know routes.",
+            "ja": "リーダーにはなれないがルートは知っている。",
+            "zh": "不能当领导但我知道路线。"
           }
         }
       ]
@@ -377,7 +435,9 @@
         {
           "text": {
             "ko": "Cinder가 공구를 들었다. 이번엔 멈추지 않았다. 들었다. 그것이 결정이었다. 이 사람의 방식으로. 공구를 드는 것. 말이 아니라 행동. CV가 살아남는다면 그것은 공구 소리 때문일 것이었다.",
-            "en": "Cinder picked up her tools. This time she didn't stop. She picked them up. That was a decision. In her way. Picking up tools. Not words but action. If CV survived it would be because of tool sounds."
+            "en": "Cinder picked up her tools. This time she didn't stop. She picked them up. That was a decision. In her way. Picking up tools. Not words but action. If CV survived it would be because of tool sounds.",
+            "ja": "シンダーは工具を持った。今回は止まらなかった。持った。それが決断だった。彼女のやり方で。工具を持つこと。言葉ではなく行動。CVが生き残るなら工具の音のためだろう。",
+            "zh": "辛达拿起了工具。这次她没有停下。她拿起来了。那是一个决定。以她的方式。拿起工具。不是话语而是行动。如果CV能活下来那是因为工具的声音。"
           }
         }
       ]
@@ -394,7 +454,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Reza에게 전달해. 혼자 통로를 장악하면 혼자 지켜야 한다고.",
-            "en": "Deliver a message to Reza. If you take the passage alone you hold it alone."
+            "en": "Deliver a message to Reza. If you take the passage alone you hold it alone.",
+            "ja": "Rezaにメッセージを届ける。通路を一人で押さえるなら一人で守れ。",
+            "zh": "给雷扎传信息。如果你独自占领通道就独自守护它。"
           }
         },
         {
@@ -402,7 +464,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "CV는 CV야. Crow 것도 Reza 것도 아니야. 내가 살아있는 동안은.",
-            "en": "CV is CV. Not Crow's. Not Reza's. While I'm alive."
+            "en": "CV is CV. Not Crow's. Not Reza's. While I'm alive.",
+            "ja": "CVはCVだ。Crowのでもない。Rezaのでもない。俺が生きている間は。",
+            "zh": "CV就是CV。不是乌鸦的。不是雷扎的。在我活着期间。"
           }
         }
       ]
@@ -417,7 +481,9 @@
         {
           "text": {
             "ko": "Reza의 사람들이 서쪽 통로에 있었다. 무장했다. Crow의 사람들이 동쪽에서 대치했다. 선이 있었다. 아직 총이 없었다. 그러나 선이 좁아지고 있었다. 3시간. Crow가 말했다. 그러나 실제로는 3시간이 아니었다. 더 적었다.",
-            "en": "Reza's people were in the western passage. Armed. Crow's people held the east in standoff. There was a line. No shots yet. But the line was narrowing. Three hours, Crow had said. But in reality it wasn't three hours. Less."
+            "en": "Reza's people were in the western passage. Armed. Crow's people held the east in standoff. There was a line. No shots yet. But the line was narrowing. Three hours, Crow had said. But in reality it wasn't three hours. Less.",
+            "ja": "Rezaのグループが西通路にいた。武装していた。CrowのグループはE側で対峙していた。線があった。まだ発砲なし。しかし線が狭まっていた。三時間とCrowは言っていた。しかし実際は三時間ではなかった。それ以下だった。",
+            "zh": "雷扎的人在西部通道。武装。乌鸦的人在东侧对峙。有一条线。还没有开枪。但线在缩短。三小时，乌鸦说过。但实际上不是三小时。更少。"
           }
         }
       ]
@@ -434,7 +500,9 @@
           "emotion": "tense",
           "text": {
             "ko": "Reza가 통신을 열었어요. 협상을 원해요.",
-            "en": "Reza opened communications. He wants to negotiate."
+            "en": "Reza opened communications. He wants to negotiate.",
+            "ja": "Rezaが通信を開いた。交渉したいとのこと。",
+            "zh": "雷扎开通了通讯。他想谈判。"
           }
         },
         {
@@ -442,7 +510,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "협상. 통로를 먼저 점령하고 협상을 원하는 거예요. 그게 Reza예요.",
-            "en": "Negotiate. He takes the passage first then wants to negotiate. That's Reza."
+            "en": "Negotiate. He takes the passage first then wants to negotiate. That's Reza.",
+            "ja": "交渉。先に通路を押さえてから交渉したいと言う。それがRezaだ。",
+            "zh": "谈判。他先占领通道然后想谈判。那就是雷扎。"
           }
         },
         {
@@ -450,7 +520,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신이 나가요. 중립으로. Butcher 이름으로.",
-            "en": "You go out. As neutral. In Butcher's name."
+            "en": "You go out. As neutral. In Butcher's name.",
+            "ja": "お前が出る。中立として。Butcherの名のもとに。",
+            "zh": "你出去。作为中立方。以屠夫的名义。"
           }
         }
       ]
@@ -465,7 +537,9 @@
         {
           "text": {
             "ko": "Butcher 이름으로. 그 이름의 무게를 알았다. 30년. 이름들을 기억하는 사람. 이름 자체가 된 사람. Butcher의 이름으로 나가는 것. 그것이 지금 이 기지에서 가장 무게 있는 것이었다.",
-            "en": "In Butcher's name. The weight of that name was known. Thirty years. A man who remembered names. A man who became a name. Going out in Butcher's name. That was the heaviest thing in this base right now."
+            "en": "In Butcher's name. The weight of that name was known. Thirty years. A man who remembered names. A man who became a name. Going out in Butcher's name. That was the heaviest thing in this base right now.",
+            "ja": "Butcherの名のもとに。その名の重さは知られていた。三十年。名前を覚える男。名前になった男。Butcherの名のもとに出ること。今この基地で最も重いことだった。",
+            "zh": "以屠夫的名义。那个名字的重量是知道的。三十年。记住名字的男人。成为名字的男人。以屠夫的名义出去。那是现在这个基地里最重的事情。"
           }
         }
       ]
@@ -482,7 +556,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "Reza가 무엇을 원하는지 들어. 쏘지 마. 아직은.",
-            "en": "Listen to what Reza wants. Don't shoot. Not yet."
+            "en": "Listen to what Reza wants. Don't shoot. Not yet.",
+            "ja": "Rezaが何を望むか聞け。撃つな。まだ。",
+            "zh": "听听雷扎想要什么。不要开枪。还不是时候。"
           }
         },
         {
@@ -490,7 +566,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "30년 동안 CV가 분열된 적 없어. 오늘도 마찬가지야.",
-            "en": "CV has never split in thirty years. Same today."
+            "en": "CV has never split in thirty years. Same today.",
+            "ja": "CVは三十年間分裂したことがない。今日も同じ。",
+            "zh": "CV三十年来从未分裂。今天也一样。"
           }
         }
       ]
@@ -505,7 +583,9 @@
         {
           "text": {
             "ko": "서쪽 통로 입구. Reza가 거기 있었다. 혼자였다. 협상이라면 혼자 나오는 것이 규칙이었다. CV의 규칙. Reza는 규칙을 알았다. 그것이 10년 된 CV 사람이었다. 규칙을 알고 어기는 것과 규칙을 알고 지키는 것은 달랐다.",
-            "en": "Western passage entrance. Reza was there. Alone. For negotiations coming out alone was the rule. CV's rule. Reza knew the rule. That was someone ten years in CV. Knowing the rules and breaking them was different from knowing them and keeping them."
+            "en": "Western passage entrance. Reza was there. Alone. For negotiations coming out alone was the rule. CV's rule. Reza knew the rule. That was someone ten years in CV. Knowing the rules and breaking them was different from knowing them and keeping them.",
+            "ja": "西通路の入口。Rezaがそこにいた。一人で。交渉のために一人で出るのがルールだった。CVのルール。Rezaはルールを知っていた。それがCV歴十年の人物だった。ルールを知って破ることとルールを知って守ることは違った。",
+            "zh": "西部通道入口。雷扎在那里。独自一人。谈判时独自出来是规则。CV的规则。雷扎知道规则。那是CV十年的人物。知道规则并打破它与知道规则并遵守它是不同的。"
           }
         }
       ]
@@ -522,7 +602,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Reza는 Butcher 이후를 원해요. 지금 Butcher가 살아있을 때 CV를 나누는 거예요. 서부는 Reza. 동부는 나. 당신은 중립.",
-            "en": "Reza wants what comes after Butcher. He wants to divide CV now while Butcher is still alive. West to Reza. East to me. You stay neutral."
+            "en": "Reza wants what comes after Butcher. He wants to divide CV now while Butcher is still alive. West to Reza. East to me. You stay neutral.",
+            "ja": "RezaはButcherの後を望んでいる。Butcherがまだ生きている今CVを分割したい。西はRezaへ。東は俺へ。お前は中立を保つ。",
+            "zh": "雷扎想要屠夫之后的位置。他想趁屠夫还活着现在分割CV。西边给雷扎。东边给我。你保持中立。"
           }
         },
         {
@@ -530,7 +612,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그게 Reza의 협상이에요. 분열을 공식화하자는 거예요.",
-            "en": "That's Reza's negotiation. He wants to make the split official."
+            "en": "That's Reza's negotiation. He wants to make the split official.",
+            "ja": "それがRezaの交渉だ。分裂を公式にしたいのだ。",
+            "zh": "那是雷扎的谈判。他想让分裂正式化。"
           }
         }
       ]
@@ -545,7 +629,9 @@
         {
           "text": {
             "ko": "Butcher가 들었다. 보고가 전달됐다. 그가 사진을 꺼냈다. 처음으로. 협상 중에. 사진을 꺼낸 것은 처음이었다. 일 중에. 뒤를 봤다. 이름들을 봤다. 30년 된 것들. 새로 추가된 것들. Zone 12. 그것들이 있었다.",
-            "en": "Butcher heard. The report was delivered. He took out the photo. For the first time. During negotiations. Taking out the photo during work was a first. He looked at the back. Looked at the names. Thirty-year-old ones. Newly added ones. Zone 12. They were there."
+            "en": "Butcher heard. The report was delivered. He took out the photo. For the first time. During negotiations. Taking out the photo during work was a first. He looked at the back. Looked at the names. Thirty-year-old ones. Newly added ones. Zone 12. They were there.",
+            "ja": "Butcherが聞いた。報告が届けられた。写真を取り出した。初めて。交渉中に。仕事中に写真を取り出すのは初めてだった。裏を見た。名前を見た。三十年前のもの。新しく追加されたもの。ゾーン12。そこにあった。",
+            "zh": "屠夫听了。报告被送达。他取出了照片。第一次。在谈判期间。在工作中取出照片是第一次。看了背面。看了名字。三十年前的。新加的。12区。在那里。"
           },
           "overlay": "cv_ch7_last_war_l23_00_death_still"
         }
@@ -563,7 +649,9 @@
           "emotion": "serious",
           "text": {
             "ko": "사진 뒤에 이름들이 있어. 분열된 적 없어. 한 번도. 이름들이 분열된 건 갱도가 무너진 거야. 그게 전부야.",
-            "en": "Names on the back of this photo. Never split. Not once. The names splitting is the tunnel collapsing. That's all."
+            "en": "Names on the back of this photo. Never split. Not once. The names splitting is the tunnel collapsing. That's all.",
+            "ja": "この写真の裏の名前。分裂したことがない。一度も。名前が分裂することはトンネルが崩落することだ。それだけだ。",
+            "zh": "这张照片背面的名字。从未分裂。一次也没有。名字分裂就是隧道塌陷。仅此而已。"
           }
         },
         {
@@ -571,7 +659,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "Reza에게 전달해. 갱도는 내가 살아있는 동안 무너지지 않아.",
-            "en": "Deliver to Reza. The tunnel doesn't collapse while I'm alive."
+            "en": "Deliver to Reza. The tunnel doesn't collapse while I'm alive.",
+            "ja": "Rezaに届けろ。俺が生きている間はトンネルは崩落しない。",
+            "zh": "传给雷扎。我活着的时候隧道不会塌陷。"
           }
         }
       ]
@@ -586,7 +676,9 @@
         {
           "text": {
             "ko": "Reza가 대답하지 않았다. 서쪽 통로에서 움직임이 있었다. Crow의 사람들이 긴장했다. Cinder가 남쪽 우회로에 있었다. 혼자. 공구를 들고. 우회로를 준비하고 있었다. 말 없이. 공구 소리만 있었다.",
-            "en": "Reza gave no answer. There was movement in the western passage. Crow's people tensed. Cinder was at the southern bypass. Alone. With her tools. Preparing the bypass. Silently. Only tool sounds."
+            "en": "Reza gave no answer. There was movement in the western passage. Crow's people tensed. Cinder was at the southern bypass. Alone. With her tools. Preparing the bypass. Silently. Only tool sounds.",
+            "ja": "Rezaは答えを返さなかった。西通路に動きがあった。Crowのグループが緊張した。シンダーは南バイパスにいた。一人で。工具と共に。バイパスを準備していた。静かに。工具の音だけ。",
+            "zh": "雷扎没有回答。西部通道有了动静。乌鸦的人紧张了。辛达在南部绕道。一个人。带着工具。准备绕道。静静地。只有工具的声音。"
           }
         }
       ]
@@ -603,7 +695,9 @@
           "emotion": "calm",
           "text": {
             "ko": "남쪽 통로 뚫었어요. 보급로 확보됐어요.",
-            "en": "Southern passage is open. Supply line secured."
+            "en": "Southern passage is open. Supply line secured.",
+            "ja": "南通路が開いた。補給ラインが確保された。",
+            "zh": "南部通道开了。补给线确保了。"
           }
         },
         {
@@ -611,7 +705,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Reza가 서쪽을 막아도 기지는 움직여요. 3일치 물자 이동했어요.",
-            "en": "Even if Reza blocks the west the base can function. Three days worth of supplies moved."
+            "en": "Even if Reza blocks the west the base can function. Three days worth of supplies moved.",
+            "ja": "Rezaが西を塞いでも基地は機能できる。三日分の物資を移動させた。",
+            "zh": "即使雷扎封锁西边基地也能运转。移动了三天的物资。"
           }
         },
         {
@@ -619,7 +715,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "지도자는 못 해도 기지는 살려요.",
-            "en": "Can't be a leader but I can keep the base alive."
+            "en": "Can't be a leader but I can keep the base alive.",
+            "ja": "リーダーにはなれないが基地を生かすことはできる。",
+            "zh": "不能当领导但我可以让基地保持活跃。"
           }
         }
       ]
@@ -634,7 +732,9 @@
         {
           "text": {
             "ko": "파벌이 생기기 시작했다. Crow 쪽. Reza 쪽. Cinder는 어느 쪽도 아니었다. 공구를 들었다. 그것이 Cinder의 답이었다. 어느 쪽도 아닌 것이 가장 어려운 것이었다. 화성에서 중립은 적을 두 개 만드는 것이었다.",
-            "en": "Factions were forming. Crow's side. Reza's side. Cinder was neither. She picked up her tools. That was Cinder's answer. Being neither was the hardest thing. On Mars neutrality meant making two enemies."
+            "en": "Factions were forming. Crow's side. Reza's side. Cinder was neither. She picked up her tools. That was Cinder's answer. Being neither was the hardest thing. On Mars neutrality meant making two enemies.",
+            "ja": "派閥が形成されていた。Crow側。Reza側。シンダーはどちらでもなかった。工具を持った。それがシンダーの答えだった。どちらでもないことが最も難しかった。火星では中立は二つの敵を作ることを意味した。",
+            "zh": "派系在形成。乌鸦一方。雷扎一方。辛达两者都不是。她拿起了工具。那是辛达的答案。两者都不是是最难的事情。在火星上中立意味着树立两个敌人。"
           }
         }
       ]
@@ -651,7 +751,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Crow. Reza. 둘 다 CV야. 둘 다 사진 뒤에 있어. 이름들이.",
-            "en": "Crow. Reza. Both are CV. Both are on the back of the photo. The names."
+            "en": "Crow. Reza. Both are CV. Both are on the back of the photo. The names.",
+            "ja": "Crow。Reza。二人ともCVだ。二人とも写真の裏にある。名前に。",
+            "zh": "乌鸦。雷扎。两个都是CV。两个都在照片背面。那些名字。"
           }
         },
         {
@@ -659,7 +761,9 @@
           "emotion": "serious",
           "text": {
             "ko": "같은 이름이 서로를 쏘는 것. 30년 전 갱도 무너진 것보다 나쁜 거야.",
-            "en": "Names shooting at each other. Worse than the tunnel collapsing thirty years ago."
+            "en": "Names shooting at each other. Worse than the tunnel collapsing thirty years ago.",
+            "ja": "名前が互いに撃ち合う。三十年前のトンネル崩落より悪い。",
+            "zh": "名字互相射击。比三十年前隧道塌陷还糟。"
           }
         }
       ]
@@ -674,7 +778,9 @@
         {
           "text": {
             "ko": "분화구 외부에서 소리가 났다. MCC 차량이었다. 외부 정보. MCC가 CV 기지 외곽에 접근하고 있었다. 파벌 싸움의 틈을 MCC가 알았다. 기다렸다. 이제 움직이고 있었다. 내부 싸움이 외부 위협을 불렀다.",
-            "en": "Sound from outside the crater. MCC vehicles. External intelligence. MCC was approaching the outskirts of the CV base. MCC had sensed the faction conflict. Waited. Now moving. Internal fighting had called an external threat."
+            "en": "Sound from outside the crater. MCC vehicles. External intelligence. MCC was approaching the outskirts of the CV base. MCC had sensed the faction conflict. Waited. Now moving. Internal fighting had called an external threat.",
+            "ja": "クレーターの外からの音。MCCの車両。外部情報。MCCがCV基地の外縁に近づいていた。MCCは派閥衝突を感知した。待っていた。今動いた。内部戦争が外部の脅威を呼んだ。",
+            "zh": "陨石坑外面的声音。MCC车辆。外部情报。MCC正在靠近CV基地外缘。MCC感受到了派系冲突。等待了。现在行动了。内部争斗召来了外部威胁。"
           }
         }
       ]
@@ -691,7 +797,9 @@
           "emotion": "tense",
           "text": {
             "ko": "MCC가 왔어요. 3개 팀. 외곽 300미터.",
-            "en": "MCC is here. Three teams. Three hundred meters out."
+            "en": "MCC is here. Three teams. Three hundred meters out.",
+            "ja": "MCCが来た。三チーム。三百メートル外。",
+            "zh": "MCC来了。三支队伍。三百米外。"
           }
         },
         {
@@ -699,7 +807,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "알았어.",
-            "en": "Knew it."
+            "en": "Knew it.",
+            "ja": "わかっていた。",
+            "zh": "就知道是这样。"
           }
         },
         {
@@ -707,7 +817,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Crow. Reza. 같이 막아. 그게 먼저야.",
-            "en": "Crow. Reza. Stop them together. That comes first."
+            "en": "Crow. Reza. Stop them together. That comes first.",
+            "ja": "Crow。Reza。二人で一緒に止めろ。それが先だ。",
+            "zh": "乌鸦。雷扎。一起阻止他们。那是优先的。"
           }
         }
       ]
@@ -722,7 +834,9 @@
         {
           "text": {
             "ko": "Butcher가 일어섰다. 광산 의자에서. 천천히. 6개월이라는 말을 들은 사람처럼. 그러나 일어섰다. 그것이 이 사람이었다. 30년 동안 그렇게 일어섰다. 그것이 여기 있는 것의 이유였다.",
-            "en": "Butcher stood. From the mining chair. Slowly. Like someone who had heard the words six months. But he stood. That was this man. He had stood like that for thirty years. That was the reason for being here."
+            "en": "Butcher stood. From the mining chair. Slowly. Like someone who had heard the words six months. But he stood. That was this man. He had stood like that for thirty years. That was the reason for being here.",
+            "ja": "Butcherが立った。採掘椅子から。ゆっくりと。六か月という言葉を聞いた人のように。しかし立った。それがこの男だった。三十年間そうやって立ってきた。ここにいる理由がそれだった。",
+            "zh": "屠夫站了起来。从采矿椅子上。慢慢地。像听到了六个月这个词的人一样。但他站起来了。那就是这个男人。三十年来就这样站着。这是在这里的原因。"
           }
         }
       ]
@@ -739,7 +853,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Reza.",
-            "en": "Reza."
+            "en": "Reza.",
+            "ja": "Reza。",
+            "zh": "雷扎。"
           }
         },
         {
@@ -747,7 +863,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "서쪽 통로. 네가 지켜. 오늘은.",
-            "en": "Western passage. You hold it. Today."
+            "en": "Western passage. You hold it. Today.",
+            "ja": "西通路。お前が守れ。今日。",
+            "zh": "西部通道。你守住它。今天。"
           }
         },
         {
@@ -755,7 +873,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "나중에 이야기해. 오늘이 지나면.",
-            "en": "We talk later. After today is over."
+            "en": "We talk later. After today is over.",
+            "ja": "後で話す。今日が終わってから。",
+            "zh": "之后再谈。今天结束后。"
           }
         }
       ]
@@ -770,7 +890,9 @@
         {
           "text": {
             "ko": "Reza가 움직였다. 서쪽으로. 그것이 대답이었다. 말이 없었다. 그러나 움직였다. Butcher의 이름이 아직 이 기지에서 통했다. 6개월이 남아있었다. 그것이 아직 충분했다.",
-            "en": "Reza moved. To the west. That was the answer. No words. But he moved. Butcher's name still worked in this base. Six months remained. That was still enough."
+            "en": "Reza moved. To the west. That was the answer. No words. But he moved. Butcher's name still worked in this base. Six months remained. That was still enough.",
+            "ja": "Rezaが動いた。西へ。それが答えだった。言葉なし。しかし動いた。Butcherの名前はまだこの基地で機能した。六か月が残っていた。それはまだ十分だった。",
+            "zh": "雷扎动了。向西。那是答案。没有话语。但他动了。屠夫的名字在这个基地里还管用。还有六个月。那还够用。"
           }
         }
       ]
@@ -782,55 +904,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Butcher는 6개월. CV는 공백 직전. Cinder는 원하지 않는다. MCC가 외부에서 기다린다. 무엇을 합니까.",
-        "en": "Butcher has six months. CV is on the edge of a vacuum. Cinder doesn't want it. MCC waits outside. What do you do."
+        "en": "Butcher has six months. CV is on the edge of a vacuum. Cinder doesn't want it. MCC waits outside. What do you do.",
+        "ja": "Butcherには六か月ある。CVは真空の縁にある。シンダーは望まない。MCCが外で待っている。何をする。",
+        "zh": "屠夫还有六个月。CV在真空边缘。辛达不想要。MCC在外面等待。你怎么做。"
       },
       "choices": [
         {
           "id": "cv_ch7_cinder",
           "text": {
             "ko": "Cinder를 설득한다.",
-            "en": "Convince Cinder."
+            "en": "Convince Cinder.",
+            "ja": "シンダーを説得する。",
+            "zh": "说服辛达。"
           },
           "tone": "conviction",
           "preview_hint": {
             "ko": "→ Cinder가 한참 후에 고개를 끄덕인다",
-            "en": "→ Cinder nods after a long time."
+            "en": "→ Cinder nods after a long time.",
+            "ja": "→ シンダーが長い後、頷く。",
+            "zh": "→ 辛达沉默良久后点头。"
           }
         },
         {
           "id": "cv_ch7_crow",
           "text": {
             "ko": "Crow를 지지한다.",
-            "en": "Support Crow."
+            "en": "Support Crow.",
+            "ja": "Crowを支持する。",
+            "zh": "支持乌鸦。"
           },
           "tone": "pragmatic",
           "preview_hint": {
             "ko": "→ Crow가 놀란다. 달라진다",
-            "en": "→ Crow is surprised. Changes."
+            "en": "→ Crow is surprised. Changes.",
+            "ja": "→ Crowが驚く。変わる。",
+            "zh": "→ 乌鸦惊讶了。改变了。"
           }
         },
         {
           "id": "cv_ch7_self",
           "text": {
             "ko": "당신이 이끈다.",
-            "en": "You lead."
+            "en": "You lead.",
+            "ja": "お前がリードする。",
+            "zh": "你来领导。"
           },
           "tone": "bold",
           "preview_hint": {
             "ko": "→ Butcher가 일어선다. 오래 당신을 본다",
-            "en": "→ Butcher stands. Looks at you for a long time."
+            "en": "→ Butcher stands. Looks at you for a long time.",
+            "ja": "→ Butcherが立つ。長い間お前を見る。",
+            "zh": "→ 屠夫站起来。长时间看着你。"
           }
         },
         {
           "id": "cv_ch7_butcher",
           "text": {
             "ko": "Butcher에게 직접 묻는다.",
-            "en": "Ask Butcher directly."
+            "en": "Ask Butcher directly.",
+            "ja": "Butcherに直接聞く。",
+            "zh": "直接问屠夫。"
           },
           "tone": "respectful",
           "preview_hint": {
             "ko": "→ Butcher가 사진을 꺼낸다",
-            "en": "→ Butcher takes out the photo."
+            "en": "→ Butcher takes out the photo.",
+            "ja": "→ Butcherが写真を取り出す。",
+            "zh": "→ 屠夫取出照片。"
           }
         }
       ]
@@ -843,11 +983,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "에레보스 내전",
-        "en": "Erebus Civil War"
+        "en": "Erebus Civil War",
+        "ja": "エレボス内戦",
+        "zh": "厄瑞玻斯内战"
       },
       "subtitle": {
         "ko": "에레보스 기지 — 공백의 대가",
-        "en": "Erebus Base — The Cost of Vacuum"
+        "en": "Erebus Base — The Cost of Vacuum",
+        "ja": "エレボス基地 — 真空のコスト",
+        "zh": "厄瑞玻斯基地 — 真空的代价"
       }
     },
     {
@@ -868,7 +1012,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "나는 아직 안 죽었어.",
-            "en": "I'm not dead yet."
+            "en": "I'm not dead yet.",
+            "ja": "まだ死んでいない。",
+            "zh": "我还没死。"
           }
         },
         {
@@ -877,7 +1023,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "CV가 살아남았어요.",
-            "en": "CV survived."
+            "en": "CV survived.",
+            "ja": "CVは生き残った。",
+            "zh": "CV活下来了。"
           }
         },
         {
@@ -885,7 +1033,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "공구를 다시 만질 수 있어요. 고칠 것들이 있어요.",
-            "en": "I can touch my tools again. There are things to repair."
+            "en": "I can touch my tools again. There are things to repair.",
+            "ja": "また工具を触れる。修理するものがある。",
+            "zh": "我又可以触碰工具了。有需要修理的东西。"
           }
         }
       ]
@@ -899,7 +1049,9 @@
         {
           "text": {
             "ko": "CV가 둘로 갈라졌다. Crow 쪽. Reza 쪽. Cinder는 어느 쪽도 아니었다. 공구 소리만 들렸다. 어딘가에서. Butcher가 의수를 내려다봤다. 30년 전에는 분열이 없었다. 아무도 남지 않았으니까.",
-            "en": "CV split in two. Crow's side. Reza's side. Cinder was neither. Only tool sounds were heard. From somewhere. Butcher looked down at the prosthetic. There had been no division thirty years ago. Because no one survived."
+            "en": "CV split in two. Crow's side. Reza's side. Cinder was neither. Only tool sounds were heard. From somewhere. Butcher looked down at the prosthetic. There had been no division thirty years ago. Because no one survived.",
+            "ja": "CVが二つに分かれた。Crow側。Reza側。シンダーはどちらでもなかった。工具の音だけが聞こえた。どこかから。Butcherは義手を見下ろした。三十年前には分裂がなかった。誰も生き残らなかったから。",
+            "zh": "CV分成了两半。乌鸦一方。雷扎一方。辛达两者都不是。只有工具的声音被听到。从某处。屠夫俯视着义肢。三十年前没有分裂。因为没有人活下来。"
           }
         }
       ]
@@ -914,7 +1066,9 @@
         {
           "text": {
             "ko": "밤이 깊었다. 에레보스 기지. 불이 탔다. 배럴 불. Butcher가 불 앞에 앉아 있었다. 사진이 주머니에 있었다. 꺼내지 않았다. Cinder가 공구를 소리 없이 만졌다. 그것이 이 기지가 오늘 밤 있는 방식이었다. 불. 사람. 공구. 충분한 것들.",
-            "en": "Night deepened. Erebus base. Fires burned. Barrel fires. Butcher sat by the fire. The photo was in his pocket. Not taken out. Cinder touched her tools without sound. That was how this base existed tonight. Fire. People. Tools. Things that were enough."
+            "en": "Night deepened. Erebus base. Fires burned. Barrel fires. Butcher sat by the fire. The photo was in his pocket. Not taken out. Cinder touched her tools without sound. That was how this base existed tonight. Fire. People. Tools. Things that were enough.",
+            "ja": "夜が深まった。エレボス基地。炎が燃えた。ドラム缶の火。Butcherは火のそばに座った。写真はポケットの中だった。取り出さなかった。シンダーは音なしで工具を触った。今夜この基地がこうして存在していた。火。人々。工具。十分なもの。",
+            "zh": "夜深了。厄瑞玻斯基地。火在燃烧。油桶篝火。屠夫坐在火旁。照片在口袋里。没有取出来。辛达无声地触碰着工具。今晚这个基地就这样存在着。火。人们。工具。足够的东西。"
           },
           "overlay": "cv_ch7_last_war_l39_00_fire_small"
         }
@@ -923,7 +1077,9 @@
         "questId": "cv_campaign_ch8",
         "teaser": {
           "ko": "다음 — 군벌의 도박",
-          "en": "Next — The Warlord's Gamble"
+          "en": "Next — The Warlord's Gamble",
+          "ja": "次 — 軍閥の賭け",
+          "zh": "接下来 — 军阀的赌注"
         }
       }
     }

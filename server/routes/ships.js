@@ -16,9 +16,38 @@
 const express = require('express');
 const router = express.Router();
 const shipService = require('../services/ship');
+const { pool } = require('../db');
 
 let dailyService;
 try { dailyService = require('../services/daily'); } catch (_e) {}
+
+// ── 섹터별 재료 힌트 캐시 (TTL 10분) ──
+let _sectorHintsCache = null;
+let _sectorHintsCacheAt = 0;
+async function getSectorHints() {
+  const now = Date.now();
+  if (_sectorHintsCache && (now - _sectorHintsCacheAt) < 10 * 60 * 1000) return _sectorHintsCache;
+  try {
+    const { rows } = await pool.query(`
+      SELECT resource_code, sector_type, base_rate
+      FROM sector_resource_rates
+      WHERE is_active = true
+      ORDER BY resource_code, base_rate DESC
+    `);
+    const hints = {};
+    for (const r of rows) {
+      if (!hints[r.resource_code]) {
+        // first row per resource_code is highest base_rate (ORDER BY base_rate DESC)
+        hints[r.resource_code] = r.sector_type;
+      }
+    }
+    _sectorHintsCache = hints;
+    _sectorHintsCacheAt = now;
+    return hints;
+  } catch (_e) {
+    return {};
+  }
+}
 
 // ── 인증 미들웨어 (inline JWT — auth.js는 requireAuth를 export하지 않음) ──
 const jwt = require('jsonwebtoken');
@@ -71,10 +100,26 @@ router.get('/blueprints', requireAuth, async (req, res) => {
       sizeClass: req.query.size,
       includeLocked: req.query.includeLocked === '1' || req.query.includeLocked === 'true',
     });
-    res.json({ ships });
+    const materialSectorHints = await getSectorHints();
+    res.json({ ships, materialSectorHints });
   } catch (err) {
     console.error('[ships] blueprints error:', err);
     if (err.message === 'USER_NOT_FOUND') return res.status(404).json({ error: err.message });
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * GET /api/ships/resource-sector-hints
+ * 재료 코드별 주요 드롭 섹터 타입 맵
+ * { iron_dust: 'frontier', plasma_crystal: 'core', ... }
+ */
+router.get('/resource-sector-hints', async (req, res) => {
+  try {
+    const hints = await getSectorHints();
+    res.json({ hints });
+  } catch (err) {
+    console.error('[ships] sector-hints error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
   }
 });

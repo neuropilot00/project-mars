@@ -4,7 +4,9 @@
   "chapterNumber": 5,
   "title": {
     "ko": "야생의 조약",
-    "en": "Wild Lands Treaty"
+    "en": "Wild Lands Treaty",
+    "ja": "荒野の条約",
+    "zh": "荒野条约"
   },
   "location": {
     "id": "kepler_crater_edge",
@@ -30,7 +32,9 @@
         {
           "text": {
             "ko": "케플러 분화구 외곽. FSP가 안에 있었다. Liang Wei가 선언하는 날이었다. CV는 밖에서 봤다. 이것이 CV의 위치였다. 안이 아닌 곳. 그것이 항상 CV의 위치였다.",
-            "en": "The outer edge of Kepler Crater. FSP was inside. The day Liang Wei declared. CV watched from outside. That was CV's position. Not inside. That had always been CV's position."
+            "en": "The outer edge of Kepler Crater. FSP was inside. The day Liang Wei declared. CV watched from outside. That was CV's position. Not inside. That had always been CV's position.",
+            "ja": "ケプラークレーターの外縁。FSPは内部にいた。リャン・ウェイが宣言した日。CVは外から見ていた。それがCVの立場だった。内部ではない。それが常にCVの立場だった。",
+            "zh": "开普勒陨石坑的外缘。FSP在里面。梁薇宣言的那天。CV从外面看着。那是CV的立场。不在内部。那一直都是CV的立场。"
           }
         }
       ]
@@ -45,7 +49,9 @@
         {
           "text": {
             "ko": "Butcher가 왔다. 드문 일이었다. Butcher가 기지 밖으로 나오는 것. 왼팔 의수. 광산용 구식. 외투가 있었다. 주머니에 손을 넣고 있었다. 그 주머니 안에 무엇이 있는지는 알고 있었다. 사진. 30년 된 것.",
-            "en": "Butcher came. That was rare. Butcher leaving the base. Left arm prosthetic. Old mining type. He had a coat. His hand was in the pocket. What was in that pocket was known. A photo. Thirty years old."
+            "en": "Butcher came. That was rare. Butcher leaving the base. Left arm prosthetic. Old mining type. He had a coat. His hand was in the pocket. What was in that pocket was known. A photo. Thirty years old.",
+            "ja": "Butcherが来た。それは珍しかった。Butcherが基地を離れること。左腕の義手。古い採掘型。コートを着ていた。手がポケットの中にあった。そのポケットに何があるかはわかっていた。写真。三十年前のもの。",
+            "zh": "屠夫来了。这很罕见。屠夫离开基地。左臂义肢。旧式采矿型。他穿着外套。手在口袋里。口袋里有什么是知道的。一张照片。三十年前的。"
           }
         }
       ]
@@ -63,7 +69,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "케플러가 누구 것도 아니라고?",
-            "en": "Kepler belongs to nobody?"
+            "en": "Kepler belongs to nobody?",
+            "ja": "ケプラーは誰のものでもない？",
+            "zh": "开普勒不属于任何人？"
           }
         },
         {
@@ -71,7 +79,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "30년 전에도 그 말이 있었어. 광산이 누구 것도 아니라고. 광부들 것이라고. 그다음에 어떻게 됐는지는 알아.",
-            "en": "Thirty years ago there were those words too. That the mines didn't belong to anyone. That they belonged to the miners. You know what happened after that."
+            "en": "Thirty years ago there were those words too. That the mines didn't belong to anyone. That they belonged to the miners. You know what happened after that.",
+            "ja": "三十年前にもその言葉があった。鉱山は誰のものでもないと。鉱夫たちのものだと。その後何が起きたか知っている。",
+            "zh": "三十年前也有这些话。矿山不属于任何人。属于矿工们。你知道之后发生了什么。"
           }
         },
         {
@@ -79,7 +89,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그래도 봐. Cinder가 말했어. 이번엔 다를 수 있다고.",
-            "en": "Watch anyway. Cinder said this time might be different."
+            "en": "Watch anyway. Cinder said this time might be different.",
+            "ja": "とにかく見ておこう。シンダーは今回は違うかもしれないと言った。",
+            "zh": "不管怎样先看看。辛达说这次可能不同。"
           }
         }
       ]
@@ -94,7 +106,9 @@
         {
           "text": {
             "ko": "분화구 안에서 소리가 들렸다. Liang Wei의 목소리. 선언. 30년 동안 혼자 기다린 사람의 목소리. Butcher가 들었다. 외투 주머니의 손이 움직이지 않았다. 그것이 Butcher가 주목하는 방식이었다. 사진을 꺼내지 않았다. 들었다.",
-            "en": "A sound came from inside the crater. Liang Wei's voice. The declaration. The voice of someone who had waited alone for thirty years. Butcher listened. The hand in the coat pocket didn't move. That was how Butcher paid attention. Didn't take out the photo. Listened."
+            "en": "A sound came from inside the crater. Liang Wei's voice. The declaration. The voice of someone who had waited alone for thirty years. Butcher listened. The hand in the coat pocket didn't move. That was how Butcher paid attention. Didn't take out the photo. Listened.",
+            "ja": "クレーターの内部から音が聞こえた。リャン・ウェイの声。宣言。三十年間一人で待った者の声。Butcherは聞いた。コートのポケットの手は動かなかった。それがButcherの注意の払い方だった。写真を取り出さなかった。聞いた。",
+            "zh": "从陨石坑内部传来了声音。梁薇的声音。宣言。独自等待了三十年的人的声音。屠夫听了。外套口袋里的手没有移动。那是屠夫注意聆听的方式。没有取出照片。听着。"
           }
         }
       ]
@@ -112,7 +126,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "FSP 쪽 Lena가 보여요.",
-            "en": "Lena from FSP side is visible."
+            "en": "Lena from FSP side is visible.",
+            "ja": "FSP側からLenaが見える。",
+            "zh": "FSP那边能看到莱娜。"
           }
         },
         {
@@ -120,7 +136,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Sandstone에서 봤던 사람이에요. 빠른 사람. 팔에 이름들이 있는.",
-            "en": "The person I saw at Sandstone. The fast one. With names on her arm."
+            "en": "The person I saw at Sandstone. The fast one. With names on her arm.",
+            "ja": "サンドストーンで見た人物。素早い人。腕に名前がある。",
+            "zh": "在砂岩见过的那个人。快的那个。手臂上有名字的。"
           }
         },
         {
@@ -128,7 +146,9 @@
           "emotion": "serious",
           "text": {
             "ko": "케플러를 같이 지킬 수 있어요. Sandstone 약속이 여기서 의미가 생겨요.",
-            "en": "We can protect Kepler together. The Sandstone Promise gets its meaning here."
+            "en": "We can protect Kepler together. The Sandstone Promise gets its meaning here.",
+            "ja": "俺たちは一緒にケプラーを守れる。サンドストーンの約束はここで意味を持つ。",
+            "zh": "我们可以一起保护开普勒。砂岩承诺在这里得到了意义。"
           }
         }
       ]
@@ -143,7 +163,9 @@
         {
           "text": {
             "ko": "MCC 드론이 상공에 있었다. 하나. 두 개가 됐다. 세 개. 분화구 안에서 선언이 진행되는 동안 드론이 늘었다. MCC는 기다리는 것이었다. 언제 개입할지. Butcher가 하늘을 봤다. 외투 주머니에서 손을 꺼냈다. 사진을 꺼내지 않았다. 손만 꺼냈다.",
-            "en": "MCC drones were in the sky above. One. Then two. Three. While the declaration proceeded inside the crater the drones multiplied. MCC was waiting. For when to intervene. Butcher looked at the sky. He took his hand from the coat pocket. Didn't take out the photo. Just the hand."
+            "en": "MCC drones were in the sky above. One. Then two. Three. While the declaration proceeded inside the crater the drones multiplied. MCC was waiting. For when to intervene. Butcher looked at the sky. He took his hand from the coat pocket. Didn't take out the photo. Just the hand.",
+            "ja": "MCC無人機が上空にあった。一機。それから二機。三機。クレーターの内部で宣言が進む中、無人機が増えた。MCCは待っていた。介入するタイミングのために。Butcherは空を見た。コートのポケットから手を出した。写真を取り出さなかった。ただ手だけ。",
+            "zh": "MCC无人机在上空。一架。然后两架。三架。陨石坑内部宣言进行时无人机增多了。MCC在等待。等待介入的时机。屠夫看了天空。从外套口袋里把手拿出来了。没有取出照片。只是手。"
           }
         }
       ]
@@ -158,7 +180,9 @@
         {
           "text": {
             "ko": "CV 정찰대가 여기 온 것은 이틀 전이었다. 헬라스 외곽에서 케플러까지. 붉은 평원. 화성 중부. 지형이 단조로웠다. 그러나 단조로운 것이 숨기기 쉬운 것이었다. 12명이 왔다. 소음 없이.",
-            "en": "The CV scouting team had come here two days ago. From outer Hellas to Kepler. Red plains. Central Mars. Monotonous terrain. But monotonous terrain was easy to hide in. Twelve came. Without sound."
+            "en": "The CV scouting team had come here two days ago. From outer Hellas to Kepler. Red plains. Central Mars. Monotonous terrain. But monotonous terrain was easy to hide in. Twelve came. Without sound.",
+            "ja": "CV偵察チームは二日前にここに来ていた。ヘラス外縁からケプラーへ。赤い平原。火星中央部。単調な地形。しかし単調な地形は隠れやすかった。十二人が来た。音なしで。",
+            "zh": "CV侦察队两天前来到了这里。从赫拉斯外围到开普勒。红色平原。火星中部。单调的地形。但单调的地形容易隐藏。十二人来了。没有声音。"
           }
         }
       ]
@@ -175,7 +199,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "평원 가로지르는 데 반나절 걸렸어요. 드론 피해서.",
-            "en": "Half a day to cross the plains. Avoiding drones."
+            "en": "Half a day to cross the plains. Avoiding drones.",
+            "ja": "平原を渡るのに半日。ドローンを避けながら。",
+            "zh": "穿越平原用了半天。躲避无人机。"
           }
         },
         {
@@ -183,7 +209,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Butcher가 왜 직접 왔는지 알아요. 여기서 30년 전 일이 있었어요.",
-            "en": "I know why Butcher came himself. There was something here thirty years ago."
+            "en": "I know why Butcher came himself. There was something here thirty years ago.",
+            "ja": "Butcherが自ら来た理由はわかる。三十年前ここに何かがあった。",
+            "zh": "我知道屠夫亲自来的原因。三十年前这里有什么。"
           }
         },
         {
@@ -191,7 +219,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "말 많다.",
-            "en": "Too many words."
+            "en": "Too many words.",
+            "ja": "言葉が多すぎる。",
+            "zh": "话太多了。"
           }
         }
       ]
@@ -206,7 +236,9 @@
         {
           "text": {
             "ko": "Butcher가 먼저 걸었다. 정찰대가 따랐다. 평원은 넓었다. 바람이 낮게 불었다. 먼지가 발목 높이로 날렸다. 케플러 분화구는 지평선에 있었다. 아직 작게 보였다. 그러나 Butcher의 걸음이 빨랐다. 이 사람은 이 방향을 알고 있었다.",
-            "en": "Butcher walked first. The scouting team followed. The plains were wide. Wind blew low. Dust flew at ankle height. Kepler Crater was on the horizon. Still small. But Butcher's steps were fast. This person knew this direction."
+            "en": "Butcher walked first. The scouting team followed. The plains were wide. Wind blew low. Dust flew at ankle height. Kepler Crater was on the horizon. Still small. But Butcher's steps were fast. This person knew this direction.",
+            "ja": "Butcherが先に歩いた。偵察チームが続いた。平原は広かった。風が低く吹いた。埃が足首の高さで飛んだ。ケプラークレーターが地平線上にあった。まだ小さかった。しかしButcherの足取りは速かった。この人物はこの方向を知っていた。",
+            "zh": "屠夫先走了。侦察队跟着。平原很宽。风低低地吹着。尘土在脚踝高度飞舞。开普勒陨石坑在地平线上。还很小。但屠夫的步伐很快。这个人知道这个方向。"
           }
         }
       ]
@@ -221,7 +253,9 @@
         {
           "text": {
             "ko": "에레부스 분화구 외곽을 지났다. CV 영토 경계. 여기서부터 중립 지대였다. 아무도 소유하지 않는 땅. 그것이 화성 중부의 특징이었다. 소유할 가치가 아직 없는 땅들. Ancient Metal 발견 전까지는.",
-            "en": "They passed the exterior of Erebus Crater. CV territory boundary. From here it was neutral ground. Land nobody owned. That was the character of central Mars. Lands not yet worth owning. Until the Ancient Metal discovery."
+            "en": "They passed the exterior of Erebus Crater. CV territory boundary. From here it was neutral ground. Land nobody owned. That was the character of central Mars. Lands not yet worth owning. Until the Ancient Metal discovery.",
+            "ja": "エレボスクレーターの外縁を通り過ぎた。CV領土境界。ここからは中立地帯。誰も所有しない土地。それが火星中央部の性格だった。まだ所有する価値がない土地。古代金属が発見されるまで。",
+            "zh": "经过了厄瑞玻斯陨石坑外缘。CV领土边界。从这里是中立地带。没人所有的土地。那是火星中部的性格。还不值得拥有的土地。直到古代金属的发现。"
           }
         }
       ]
@@ -238,7 +272,9 @@
           "emotion": "serious",
           "text": {
             "ko": "에레부스 지나면 MCC 드론 밀도가 달라져요. 여기서 장비 다시 확인해요.",
-            "en": "Past Erebus the MCC drone density changes. Equipment check here."
+            "en": "Past Erebus the MCC drone density changes. Equipment check here.",
+            "ja": "エレボスを過ぎるとMCCドローンの密度が変わる。ここで装備チェック。",
+            "zh": "过了厄瑞玻斯MCC无人机密度改变。在这里检查装备。"
           }
         },
         {
@@ -246,7 +282,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그래.",
-            "en": "Fine."
+            "en": "Fine.",
+            "ja": "問題ない。",
+            "zh": "没问题。"
           }
         },
         {
@@ -254,7 +292,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Butcher. 안 좋은 날이에요. 얼굴이 말해요.",
-            "en": "Butcher. Bad day. Your face says so."
+            "en": "Butcher. Bad day. Your face says so.",
+            "ja": "Butcher。悪い日だ。顔がそう言っている。",
+            "zh": "屠夫。糟糕的日子。你的脸这么说。"
           }
         },
         {
@@ -262,7 +302,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "어떤 날이든 가야 하는 곳은 가.",
-            "en": "Wherever you need to go, you go regardless of the day."
+            "en": "Wherever you need to go, you go regardless of the day.",
+            "ja": "どこへ行く必要があっても、その日に関係なく行く。",
+            "zh": "无论需要去哪里，无论那天如何都要去。"
           }
         }
       ]
@@ -277,7 +319,9 @@
         {
           "text": {
             "ko": "Butcher의 건강이 나빠지고 있었다. CV 내부에서는 알고 있었다. 폐. 오래된 광산 먼지. 화성 먼지와 달랐다. 지구 광산 먼지. 30년 전의 것이 몸 안에 남아 있었다. 그것이 천천히 하는 것이었다.",
-            "en": "Butcher's health was deteriorating. Inside CV it was known. Lungs. Old mine dust. Different from Martian dust. Earth mine dust. Things from thirty years ago remained inside the body. Doing their work slowly."
+            "en": "Butcher's health was deteriorating. Inside CV it was known. Lungs. Old mine dust. Different from Martian dust. Earth mine dust. Things from thirty years ago remained inside the body. Doing their work slowly.",
+            "ja": "Butcherの健康は悪化していた。CV内部では知られていた。肺。古い鉱山の粉塵。火星の粉塵とは違う。地球の鉱山粉塵。三十年前のものが体内に残っていた。ゆっくりと働いていた。",
+            "zh": "屠夫的健康在恶化。CV内部是知道的。肺。旧矿山的粉尘。与火星粉尘不同。地球矿山粉尘。三十年前的东西残留在体内。缓慢地发挥作用。"
           }
         }
       ]
@@ -292,7 +336,9 @@
         {
           "text": {
             "ko": "케플러에 도착했다. 해가 기울고 있었다. 분화구 외곽. 먼지가 낮게 있었다. 안을 볼 수 없었다. 소리만 들렸다. 사람들이 모여 있었다. 많은 사람들. 예상보다 많았다.",
-            "en": "They arrived at Kepler. The sun was tilting. Crater edge. Dust lay low. Couldn't see inside. Only sound. People gathered. Many people. More than expected."
+            "en": "They arrived at Kepler. The sun was tilting. Crater edge. Dust lay low. Couldn't see inside. Only sound. People gathered. Many people. More than expected.",
+            "ja": "ケプラーに到着した。太陽が傾いていた。クレーターの縁。埃が低く漂っていた。内部は見えなかった。音だけ。人が集まっていた。多くの人。予想より多かった。",
+            "zh": "到达了开普勒。太阳在倾斜。陨石坑边缘。尘土低低地漂浮着。看不到内部。只有声音。人们聚集了。很多人。比预想的多。"
           }
         }
       ]
@@ -309,7 +355,9 @@
           "emotion": "surprised",
           "text": {
             "ko": "저게 다 광부들이에요.",
-            "en": "Those are all miners."
+            "en": "Those are all miners.",
+            "ja": "あれらはみんな鉱夫だ。",
+            "zh": "那些都是矿工。"
           }
         },
         {
@@ -317,7 +365,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "FSP만 아니에요. 헬라스 마을들에서도 왔어요. 소식이 퍼진 거예요.",
-            "en": "Not just FSP. From Hellas villages too. Word spread."
+            "en": "Not just FSP. From Hellas villages too. Word spread.",
+            "ja": "FSPだけではない。ヘラスの村からも。噂が広まった。",
+            "zh": "不只是FSP。赫拉斯的村庄也来了。消息传开了。"
           }
         },
         {
@@ -325,7 +375,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "이게 뭐야.",
-            "en": "What is this."
+            "en": "What is this.",
+            "ja": "これは何だ。",
+            "zh": "这是什么。"
           }
         }
       ]
@@ -340,7 +392,9 @@
         {
           "text": {
             "ko": "분화구 외곽에 사람들이 있었다. 광부들. 공구 벨트들. 헬멧들. 이름 없는 사람들. 화성에서 이름 없이 사는 사람들이 모인 것이었다. Liang Wei의 선언을 들으러 온 것이었다. 그들은 말이 없었다. 기다리고 있었다.",
-            "en": "People were at the crater edge. Miners. Tool belts. Helmets. Nameless people. Those who lived nameless on Mars had gathered. Come to hear Liang Wei's declaration. They were silent. Waiting."
+            "en": "People were at the crater edge. Miners. Tool belts. Helmets. Nameless people. Those who lived nameless on Mars had gathered. Come to hear Liang Wei's declaration. They were silent. Waiting.",
+            "ja": "クレーターの縁に人々がいた。鉱夫たち。工具ベルト。ヘルメット。名無しの人々。火星で名無しで生きていた者たちが集まっていた。リャン・ウェイの宣言を聞きに来た。沈黙していた。待っていた。",
+            "zh": "陨石坑边缘有人们。矿工们。工具腰带。头盔。无名之人。在火星上无名生活的人们聚集了。来听梁薇的宣言。他们沉默着。等待着。"
           }
         }
       ]
@@ -357,7 +411,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "저 사람들을 봐요.",
-            "en": "Look at those people."
+            "en": "Look at those people.",
+            "ja": "あの人たちを見ろ。",
+            "zh": "看那些人。"
           }
         },
         {
@@ -365,7 +421,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "CV 사람들이에요. 몇 명. 우리 영토 쪽에서 온 광부들.",
-            "en": "Some are CV people. Miners from our territory side."
+            "en": "Some are CV people. Miners from our territory side.",
+            "ja": "CV側の人もいる。俺たちの領土側の鉱夫たちも。",
+            "zh": "有些是CV的人。我们领土那边的矿工们。"
           }
         },
         {
@@ -373,7 +431,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "저것도 세력이라고 부를 수 있는지 모르겠어요.",
-            "en": "Don't know if that can be called a faction."
+            "en": "Don't know if that can be called a faction.",
+            "ja": "それを派閥と呼べるかどうかわからない。",
+            "zh": "不知道那能不能被称为派系。"
           }
         }
       ]
@@ -388,7 +448,9 @@
         {
           "text": {
             "ko": "Cinder가 사람들을 봤다. 판단하는 것이었다. 이 사람은 시험하는 것이었다. 늘 그랬다. 상황으로. 사람들의 반응으로. 지금 이 사람들이 시험되고 있었다. 와서 기다리는 것으로 이미 무언가를 말하고 있었다.",
-            "en": "Cinder was watching people. Judging. This person tested. Always. By situation. By people's reactions. Right now these people were being tested. By coming and waiting they were already saying something."
+            "en": "Cinder was watching people. Judging. This person tested. Always. By situation. By people's reactions. Right now these people were being tested. By coming and waiting they were already saying something.",
+            "ja": "シンダーは人々を見ていた。判断していた。この人物はテストした。常に。状況によって。人々の反応によって。今まさにこれらの人々がテストされていた。来て待つことで彼らはすでに何かを言っていた。",
+            "zh": "辛达在看人们。判断着。这个人测试。总是。通过情况。通过人们的反应。此刻这些人正在被测试。通过来和等待他们已经在说着什么了。"
           }
         }
       ]
@@ -403,7 +465,9 @@
         {
           "text": {
             "ko": "그때 들렸다. Liang Wei의 목소리. 분화구 안에서. 증폭 없이. 맨 목소리였다. 그러나 들렸다. 분화구의 형태가 소리를 담는 것이었다. 모든 사람이 들었다.",
-            "en": "Then it was heard. Liang Wei's voice. From inside the crater. Without amplification. Bare voice. But it was heard. The shape of the crater held sound. Everyone heard it."
+            "en": "Then it was heard. Liang Wei's voice. From inside the crater. Without amplification. Bare voice. But it was heard. The shape of the crater held sound. Everyone heard it.",
+            "ja": "それが聞こえた。リャン・ウェイの声。クレーターの内部から。拡声なしで。裸の声。しかし聞こえた。クレーターの形が音を保った。全員が聞いた。",
+            "zh": "然后听到了。梁薇的声音。从陨石坑内部传来。没有扩音。裸声。但听到了。陨石坑的形状保持了声音。所有人都听到了。"
           }
         }
       ]
@@ -421,7 +485,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "케플러 분화구 아래 Ancient Metal이 있습니다. 그것은 화성의 것입니다. 어느 회사의 것도 아닙니다. 어느 파벌의 것도 아닙니다. 이 금속은 모두의 것입니다.",
-            "en": "Below Kepler Crater there is Ancient Metal. It belongs to Mars. Not to any company. Not to any faction. This metal belongs to everyone."
+            "en": "Below Kepler Crater there is Ancient Metal. It belongs to Mars. Not to any company. Not to any faction. This metal belongs to everyone.",
+            "ja": "ケプラークレーターの地下に古代金属がある。それは火星のものだ。いかなる会社のものでもない。いかなる派閥のものでもない。この金属はすべての人のものだ。",
+            "zh": "开普勒陨石坑地下有古代金属。它属于火星。不属于任何公司。不属于任何派系。这种金属属于所有人。"
           }
         },
         {
@@ -430,7 +496,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "30년 데이터가 있습니다. 이것이 화성 헌법 초안 제1조가 되어야 합니다.",
-            "en": "Thirty years of data. This must become Article 1 of the draft Mars Constitution."
+            "en": "Thirty years of data. This must become Article 1 of the draft Mars Constitution.",
+            "ja": "三十年のデータ。これは火星憲法草案の第一条にならなければならない。",
+            "zh": "三十年的数据。这必须成为火星宪法草案第一条。"
           }
         }
       ]
@@ -445,7 +513,9 @@
         {
           "text": {
             "ko": "침묵이 있었다. 그다음 소리가 났다. 광부들의 소리였다. 박수가 아니었다. 말도 아니었다. 헬멧을 두드리는 소리였다. 광산 신호였다. 동의. 그것이 저들의 방식이었다. 기계 소음 속에서 배운 것.",
-            "en": "Silence. Then sound. The sound of miners. Not applause. Not words. The sound of helmets being struck. Mine signal. Agreement. That was their way. Learned in the noise of machines."
+            "en": "Silence. Then sound. The sound of miners. Not applause. Not words. The sound of helmets being struck. Mine signal. Agreement. That was their way. Learned in the noise of machines.",
+            "ja": "沈黙。それから音。鉱夫たちの音。拍手ではなかった。言葉でもなかった。ヘルメットを打つ音。鉱山のシグナル。同意。それが彼らのやり方だった。機械の騒音の中で学んだもの。",
+            "zh": "沉默。然后是声音。矿工们的声音。不是掌声。不是话语。头盔被敲击的声音。矿山信号。同意。那是他们的方式。在机器噪音中学到的。"
           }
         }
       ]
@@ -462,7 +532,9 @@
           "emotion": "surprised",
           "text": {
             "ko": "저게 무기야.",
-            "en": "That is a weapon."
+            "en": "That is a weapon.",
+            "ja": "それは武器だ。",
+            "zh": "那是武器。"
           }
         },
         {
@@ -470,7 +542,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "응?",
-            "en": "What?"
+            "en": "What?",
+            "ja": "何だ？",
+            "zh": "什么？"
           }
         },
         {
@@ -478,7 +552,9 @@
           "emotion": "serious",
           "text": {
             "ko": "헌법 초안이라고 했어요. 아직 없는 거예요. 그러나 말했어요. 말하는 순간 생기는 것들이 있어요.",
-            "en": "She said draft constitution. It doesn't exist yet. But she said it. Some things come into being the moment they're spoken."
+            "en": "She said draft constitution. It doesn't exist yet. But she said it. Some things come into being the moment they're spoken.",
+            "ja": "彼女は憲法草案と言った。まだ存在しない。しかし彼女はそう言った。言われた瞬間に存在するものがある。",
+            "zh": "她说了宪法草案。还不存在。但她说了。有些东西在被说出的瞬间就成为了存在。"
           }
         },
         {
@@ -486,7 +562,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "저 사람들이 증인이 됐어요.",
-            "en": "Those people just became witnesses to it."
+            "en": "Those people just became witnesses to it.",
+            "ja": "あの人たちはちょうどその証人になった。",
+            "zh": "那些人刚刚成为了它的见证者。"
           }
         }
       ]
@@ -501,7 +579,9 @@
         {
           "text": {
             "ko": "Butcher가 들었다. 오래. 외투 주머니의 손이 움직였다. 사진에 닿는 것이었다. 꺼내지 않았다. 손만 닿았다. 30년 전 선언이 있었다. 그때는 달랐다. 광부들이 없었다. 증인이 없었다.",
-            "en": "Butcher listened. For a long time. The hand in the coat pocket moved. Touching the photo. Didn't take it out. Just touched. There had been a declaration thirty years ago. Back then it was different. No miners. No witnesses."
+            "en": "Butcher listened. For a long time. The hand in the coat pocket moved. Touching the photo. Didn't take it out. Just touched. There had been a declaration thirty years ago. Back then it was different. No miners. No witnesses.",
+            "ja": "Butcherは長い間聞いた。コートのポケットの手が動いた。写真を触った。取り出さなかった。ただ触った。三十年前にも宣言があった。あの頃は違った。鉱夫がいなかった。証人がいなかった。",
+            "zh": "屠夫长时间地听着。外套口袋里的手动了。触碰着照片。没有取出来。只是触碰。三十年前也有过宣言。那时是不同的。没有矿工。没有见证者。"
           },
           "overlay": "cv_ch5_kepler_king_l21_00_hand_still"
         }
@@ -519,7 +599,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "30년 전에 나도 들었어. 비슷한 말.",
-            "en": "Thirty years ago I heard it too. Similar words."
+            "en": "Thirty years ago I heard it too. Similar words.",
+            "ja": "三十年前俺もそれを聞いた。似た言葉。",
+            "zh": "三十年前我也听到过。类似的话语。"
           }
         },
         {
@@ -527,7 +609,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그때는 저런 사람들이 없었어. 저렇게 많이.",
-            "en": "Back then there weren't people like those. Not that many."
+            "en": "Back then there weren't people like those. Not that many.",
+            "ja": "あの頃はあんな人たちがいなかった。あれほど多くは。",
+            "zh": "那时候没有那样的人。没有那么多。"
           }
         },
         {
@@ -535,7 +619,9 @@
           "emotion": "calm",
           "text": {
             "ko": "그래서 이번이 달라요.",
-            "en": "That's why this time is different."
+            "en": "That's why this time is different.",
+            "ja": "だから今回は違う。",
+            "zh": "这就是为什么这次不同。"
           }
         }
       ]
@@ -550,7 +636,9 @@
         {
           "text": {
             "ko": "MCC 드론이 낮아졌다. 하나가. 관측 고도에서 접근 고도로. 그것이 신호였다. MCC가 개입하려 하는 것. 광부들이 봤다. 드론을. 소리가 줄었다. 헬멧 두드리는 소리가 멈췄다. 그러나 아무도 움직이지 않았다.",
-            "en": "An MCC drone descended. One of them. From observation altitude to approach altitude. That was a signal. MCC was going to intervene. The miners saw it. The drone. The sound diminished. The helmet-striking stopped. But nobody moved."
+            "en": "An MCC drone descended. One of them. From observation altitude to approach altitude. That was a signal. MCC was going to intervene. The miners saw it. The drone. The sound diminished. The helmet-striking stopped. But nobody moved.",
+            "ja": "MCCの無人機が下降した。一機が。観測高度から接近高度へ。それがシグナルだった。MCCが介入しようとしていた。鉱夫たちがそれを見た。無人機を。音が小さくなった。ヘルメットを打つのが止まった。しかし誰も動かなかった。",
+            "zh": "一架MCC无人机降下了。从观测高度到接近高度。那是信号。MCC要介入了。矿工们看到了它。无人机。声音小了下来。敲击头盔停止了。但没有人移动。"
           }
         }
       ]
@@ -567,7 +655,9 @@
           "emotion": "tense",
           "text": {
             "ko": "드론이 내려와요. 2분 안에 접근 거리예요.",
-            "en": "Drone coming down. Two minutes to approach range."
+            "en": "Drone coming down. Two minutes to approach range.",
+            "ja": "ドローンが下降している。接近範囲まで二分。",
+            "zh": "无人机下降中。两分钟到接近范围。"
           }
         },
         {
@@ -575,7 +665,9 @@
           "emotion": "serious",
           "text": {
             "ko": "우리 장비로 잡을 수 있어요. 세 개 중 두 개는.",
-            "en": "We can take two of three with our equipment."
+            "en": "We can take two of three with our equipment.",
+            "ja": "俺たちの装備で三機のうち二機は対処できる。",
+            "zh": "用我们的装备可以对付三架中的两架。"
           }
         },
         {
@@ -583,7 +675,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "그러면 MCC가 이것을 전쟁으로 본다.",
-            "en": "Then MCC sees this as war."
+            "en": "Then MCC sees this as war.",
+            "ja": "そうなるとMCCはこれを戦争と見る。",
+            "zh": "那样MCC就会把这视为战争。"
           }
         },
         {
@@ -591,7 +685,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이미 전쟁이에요.",
-            "en": "It already is war."
+            "en": "It already is war.",
+            "ja": "もうすでに戦争だ。",
+            "zh": "已经是战争了。"
           }
         }
       ]
@@ -606,7 +702,9 @@
         {
           "text": {
             "ko": "MCC에 팔 수도 있었다. 이 정보를. Liang Wei의 위치. 데이터의 내용. CV는 중립이었다. 아직. 그것이 가격이 될 수 있었다. Cinder가 그 생각을 알고 있는 것 같았다. 공구를 만졌다. 확인하는 것이었다.",
-            "en": "It was also possible to sell to MCC. This information. Liang Wei's location. The content of the data. CV was neutral. Still. That could have a price. Cinder seemed to know that thought. She touched her tools. Checking."
+            "en": "It was also possible to sell to MCC. This information. Liang Wei's location. The content of the data. CV was neutral. Still. That could have a price. Cinder seemed to know that thought. She touched her tools. Checking.",
+            "ja": "MCCに売ることも可能だった。この情報を。リャン・ウェイの居場所。データの内容。CVは中立だった。まだ。それには価格がつけられた。シンダーはその考えを知っているようだった。工具を触った。確認しながら。",
+            "zh": "也可以卖给MCC。这个信息。梁薇的位置。数据的内容。CV是中立的。还是。那可以有价格。辛达似乎知道那个想法。她触碰了工具。检查着。"
           }
         }
       ]
@@ -623,7 +721,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "MCC한테 팔 생각 하지 마요.",
-            "en": "Don't think about selling to MCC."
+            "en": "Don't think about selling to MCC.",
+            "ja": "MCCに売ることは考えるな。",
+            "zh": "不要想着卖给MCC。"
           }
         },
         {
@@ -631,7 +731,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Sandstone에서 약속했어요. 나는 그 약속을 기억해요.",
-            "en": "There was a promise at Sandstone. I remember that promise."
+            "en": "There was a promise at Sandstone. I remember that promise.",
+            "ja": "サンドストーンで約束があった。俺はその約束を覚えている。",
+            "zh": "在砂岩有过承诺。我记得那个承诺。"
           }
         },
         {
@@ -639,7 +741,9 @@
           "emotion": "calm",
           "text": {
             "ko": "저 사람들 봐요. 저 사람들한테 팔 수 있어요?",
-            "en": "Look at those people. Can you sell those people out?"
+            "en": "Look at those people. Can you sell those people out?",
+            "ja": "あの人たちを見ろ。あの人たちを売り飛ばせるか？",
+            "zh": "看那些人。你能出卖那些人吗？"
           }
         }
       ]
@@ -654,7 +758,9 @@
         {
           "text": {
             "ko": "Butcher가 봤다. 광부들을. 헬멧을 두드렸던 사람들. 이름 없는 사람들. 30년 전 사진 속 사람들과 달랐다. 달랐지만 같은 것이었다. 같은 이유로 같은 곳에 있는 것들이었다. 사진을 꺼냈다. 처음으로.",
-            "en": "Butcher looked. At the miners. Those who had struck their helmets. Nameless people. Different from the people in the thirty-year-old photo. Different but the same. Things at the same place for the same reason. He took out the photo. For the first time."
+            "en": "Butcher looked. At the miners. Those who had struck their helmets. Nameless people. Different from the people in the thirty-year-old photo. Different but the same. Things at the same place for the same reason. He took out the photo. For the first time.",
+            "ja": "Butcherは見た。鉱夫たちを。ヘルメットを打った者たちを。名無しの人々。三十年前の写真の人々とは違う。違うが同じ。同じ場所に同じ理由でいるもの。写真を取り出した。初めて。",
+            "zh": "屠夫看了。矿工们。那些敲击头盔的人。无名之人。与三十年前照片里的人们不同。不同但相同。在同一地方因为同一原因的事物。他取出了照片。第一次。"
           },
           "overlay": "cv_ch5_kepler_king_l27_00_death_still"
         }
@@ -672,7 +778,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이 사람들이에요.",
-            "en": "These people."
+            "en": "These people.",
+            "ja": "この人たちだ。",
+            "zh": "这些人。"
           }
         },
         {
@@ -680,7 +788,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "30년 전 사진이에요. 비슷해요. 다른 얼굴들이지만.",
-            "en": "Photo from thirty years ago. Similar. Different faces though."
+            "en": "Photo from thirty years ago. Similar. Different faces though.",
+            "ja": "三十年前の写真。似ている。顔は違うが。",
+            "zh": "三十年前的照片。相似。虽然面孔不同。"
           }
         },
         {
@@ -688,7 +798,9 @@
           "emotion": "moved",
           "text": {
             "ko": "Butcher가 사진을 꺼냈어요.",
-            "en": "Butcher took out the photo."
+            "en": "Butcher took out the photo.",
+            "ja": "Butcherが写真を取り出した。",
+            "zh": "屠夫取出了照片。"
           }
         },
         {
@@ -696,7 +808,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "봤어? 이제 결정해.",
-            "en": "You saw? Now decide."
+            "en": "You saw? Now decide.",
+            "ja": "見たか？今決めろ。",
+            "zh": "看到了吗？现在决定。"
           }
         }
       ]
@@ -708,55 +822,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "MCC 드론. Liang Wei의 선언. Butcher가 사진을 꺼냈다. 광부들이 기다리고 있다.",
-        "en": "MCC drones. Liang Wei's declaration. Butcher took out the photo. The miners are waiting."
+        "en": "MCC drones. Liang Wei's declaration. Butcher took out the photo. The miners are waiting.",
+        "ja": "MCC無人機。リャン・ウェイの宣言。Butcherが写真を取り出した。鉱夫たちが待っている。",
+        "zh": "MCC无人机。梁薇的宣言。屠夫取出了照片。矿工们在等待。"
       },
       "choices": [
         {
           "id": "cv_ch5_defend",
           "text": {
             "ko": "드론을 제거한다. 케플러를 지킨다.",
-            "en": "Take out the drones. Protect Kepler."
+            "en": "Take out the drones. Protect Kepler.",
+            "ja": "ドローンを排除する。ケプラーを守る。",
+            "zh": "干掉无人机。保护开普勒。"
           },
           "tone": "decisive",
           "preview_hint": {
             "ko": "→ MCC와 개전, Sandstone 약속 실행",
-            "en": "→ War with MCC, Sandstone Promise executed"
+            "en": "→ War with MCC, Sandstone Promise executed",
+            "ja": "→ MCCとの戦争、サンドストーンの約束が実行される",
+            "zh": "→ 与MCC开战，砂岩承诺执行"
           }
         },
         {
           "id": "cv_ch5_fsp_contact",
           "text": {
             "ko": "Lena에게 접촉한다. 공동 방어.",
-            "en": "Make contact with Lena. Joint defense."
+            "en": "Make contact with Lena. Joint defense.",
+            "ja": "Lenaに連絡する。共同防衛。",
+            "zh": "联系莱娜。联合防御。"
           },
           "tone": "alliance",
           "preview_hint": {
             "ko": "→ Lena가 즉시 반응한다",
-            "en": "→ Lena responds immediately"
+            "en": "→ Lena responds immediately",
+            "ja": "→ Lenaがすぐに応答する",
+            "zh": "→ 莱娜立即回应"
           }
         },
         {
           "id": "cv_ch5_butcher_asks",
           "text": {
             "ko": "Butcher에게 결정을 미룬다.",
-            "en": "Defer the decision to Butcher."
+            "en": "Defer the decision to Butcher.",
+            "ja": "決定をButcherに委ねる。",
+            "zh": "把决定推给屠夫。"
           },
           "tone": "deferential",
           "preview_hint": {
             "ko": "→ Butcher가 사진을 광부들에게 보여준다",
-            "en": "→ Butcher shows the photo to the miners."
+            "en": "→ Butcher shows the photo to the miners.",
+            "ja": "→ Butcherが鉱夫たちに写真を見せる。",
+            "zh": "→ 屠夫把照片给矿工们看。"
           }
         },
         {
           "id": "cv_ch5_watch",
           "text": {
             "ko": "기다린다. 선언이 끝날 때까지.",
-            "en": "Wait. Until the declaration ends."
+            "en": "Wait. Until the declaration ends.",
+            "ja": "待つ。宣言が終わるまで。",
+            "zh": "等待。直到宣言结束。"
           },
           "tone": "patient",
           "preview_hint": {
             "ko": "→ Cinder가 당신 옆에 선다. 함께 기다린다",
-            "en": "→ Cinder stands beside you. Waits together."
+            "en": "→ Cinder stands beside you. Waits together.",
+            "ja": "→ シンダーが隣に立つ。一緒に待つ。",
+            "zh": "→ 辛达站在你旁边。一起等待。"
           }
         }
       ]
@@ -771,7 +903,9 @@
         {
           "text": {
             "ko": "결정이 있었다. Cinder가 반응했다. 공구를 움직였다. Butcher는 사진을 봤다. 오래. 그다음 주머니에 넣었다. 넣은 것이 꺼낸 것과 달랐다. 30년 전에는 꺼낼 이유가 없었다. 오늘은 있었다.",
-            "en": "There was a decision. Cinder reacted. She moved her tools. Butcher looked at the photo. For a long time. Then put it back in the pocket. Putting it back was different from taking it out. Thirty years ago there had been no reason to take it out. Today there was."
+            "en": "There was a decision. Cinder reacted. She moved her tools. Butcher looked at the photo. For a long time. Then put it back in the pocket. Putting it back was different from taking it out. Thirty years ago there had been no reason to take it out. Today there was.",
+            "ja": "決定があった。シンダーが反応した。工具を動かした。Butcherは写真を見た。長い間。それからポケットに戻した。戻すことは取り出すことと違った。三十年前には取り出す理由がなかった。今日はあった。",
+            "zh": "有了决定。辛达有了反应。她移动了工具。屠夫看着照片。很长时间。然后放回了口袋。放回去与取出来是不同的。三十年前没有取出来的理由。今天有了。"
           }
         }
       ]
@@ -784,11 +918,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "야생 구역 전투",
-        "en": "Wild Lands Battle"
+        "en": "Wild Lands Battle",
+        "ja": "荒野の戦い",
+        "zh": "荒野之战"
       },
       "subtitle": {
         "ko": "케플러 외곽 — Sandstone 약속의 값",
-        "en": "Kepler Edge — The Value of the Sandstone Promise"
+        "en": "Kepler Edge — The Value of the Sandstone Promise",
+        "ja": "ケプラーの縁 — サンドストーンの約束の価値",
+        "zh": "开普勒边缘 — 砂岩承诺的价值"
       }
     },
     {
@@ -809,7 +947,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "30년 전에 못 한 걸 오늘 했어.",
-            "en": "Today we did what couldn't be done thirty years ago."
+            "en": "Today we did what couldn't be done thirty years ago.",
+            "ja": "今日俺たちは三十年前にできなかったことをした。",
+            "zh": "今天我们做了三十年前做不到的事。"
           }
         },
         {
@@ -817,7 +957,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "그때도 누군가 선언했어. 그때는 아무도 지키지 않았어.",
-            "en": "Someone made a declaration back then too. Back then nobody protected it."
+            "en": "Someone made a declaration back then too. Back then nobody protected it.",
+            "ja": "あの頃も誰かが宣言をした。あの頃は誰も守らなかった。",
+            "zh": "那时也有人做了宣言。那时没有人保护它。"
           }
         },
         {
@@ -825,7 +967,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "지금은 우리가 지켰어요.",
-            "en": "Now we protected it."
+            "en": "Now we protected it.",
+            "ja": "今日俺たちが守った。",
+            "zh": "现在我们保护了它。"
           }
         }
       ]
@@ -839,7 +983,9 @@
         {
           "text": {
             "ko": "MCC가 분화구를 봉쇄했다. Butcher가 봤다. 외투 주머니에 손이 다시 들어갔다. 사진 위에 손이 놓였다. 30년 전과 같은 것이었다. 달랐던 것은 Cinder가 옆에 있었다는 것이었다.",
-            "en": "MCC sealed the crater. Butcher watched. His hand went back in the coat pocket. Rested on the photo. Same as thirty years ago. The difference was that Cinder was beside him."
+            "en": "MCC sealed the crater. Butcher watched. His hand went back in the coat pocket. Rested on the photo. Same as thirty years ago. The difference was that Cinder was beside him.",
+            "ja": "MCCがクレーターを封鎖した。Butcherは見た。手がコートのポケットに戻った。写真の上に置いた。三十年前と同じ。違いはシンダーが隣にいたこと。",
+            "zh": "MCC封锁了陨石坑。屠夫看着。手放回了外套口袋。放在照片上。与三十年前一样。不同的是辛达在他旁边。"
           }
         }
       ]
@@ -854,7 +1000,9 @@
         {
           "text": {
             "ko": "전투가 끝났다. 드론들이 물러났다. 아니면 없었다. 그것이 오늘의 결과였다. 광부들이 아직 거기 있었다. 이름 없는 사람들. 헬멧을 들고 서 있었다. 케플러 분화구를 향해서.",
-            "en": "The battle ended. The drones retreated. Or were gone. That was today's outcome. The miners were still there. Nameless people. Standing holding helmets. Facing Kepler Crater."
+            "en": "The battle ended. The drones retreated. Or were gone. That was today's outcome. The miners were still there. Nameless people. Standing holding helmets. Facing Kepler Crater.",
+            "ja": "戦闘が終わった。無人機が後退した。またはなくなった。それが今日の結果だった。鉱夫たちはまだそこにいた。名無しの人々。ヘルメットを持って立っていた。ケプラークレーターに向かって。",
+            "zh": "战斗结束了。无人机后退了。或者消失了。那是今天的结果。矿工们还在那里。无名之人。拿着头盔站着。面对着开普勒陨石坑。"
           }
         }
       ]
@@ -871,7 +1019,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "FSP가 약해 보였어요. 처음에는.",
-            "en": "FSP looked weak. At first."
+            "en": "FSP looked weak. At first.",
+            "ja": "FSPは最初弱そうに見えた。",
+            "zh": "FSP一开始看起来很弱。"
           }
         },
         {
@@ -879,7 +1029,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그런데 저 사람들이 왔어요. 부른 게 아닌데. FSP가 부른 게 아니에요. 저 사람들이 스스로 온 거예요.",
-            "en": "But those people came. Not called. FSP didn't call them. Those people came on their own."
+            "en": "But those people came. Not called. FSP didn't call them. Those people came on their own.",
+            "ja": "しかしあの人たちが来た。呼ばれてではなく。FSPが呼んだのではない。あの人たちが自分で来た。",
+            "zh": "但那些人来了。没有被叫。FSP没有叫他们。那些人自己来的。"
           }
         },
         {
@@ -887,7 +1039,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그게 FSP의 힘이에요. 처음 알았어요.",
-            "en": "That is FSP's strength. First time I understood that."
+            "en": "That is FSP's strength. First time I understood that.",
+            "ja": "それがFSPの強さだ。今日初めてそれを理解した。",
+            "zh": "那就是FSP的力量。今天第一次理解了这一点。"
           }
         }
       ]
@@ -902,7 +1056,9 @@
         {
           "text": {
             "ko": "Butcher가 사진을 꺼냈다. 다시. 두 번째. 30년 만에 두 번 꺼냈다. 오늘. 광부들을 봤다. 사진을 봤다. 다시 광부들을 봤다. 사진 안 사람들과 바깥 사람들. 달랐다. 그러나 같은 것이었다.",
-            "en": "Butcher took out the photo. Again. Second time. Twice in thirty years. Today. Looked at the miners. Looked at the photo. Looked at the miners again. The people in the photo and the people outside. Different. But the same."
+            "en": "Butcher took out the photo. Again. Second time. Twice in thirty years. Today. Looked at the miners. Looked at the photo. Looked at the miners again. The people in the photo and the people outside. Different. But the same.",
+            "ja": "Butcherは写真を取り出した。また。二度目。三十年間で二度。今日。鉱夫たちを見た。写真を見た。鉱夫たちをまた見た。写真の人々と外の人々。違う。しかし同じ。",
+            "zh": "屠夫取出了照片。再次。第二次。三十年间两次。今天。看着矿工们。看着照片。再看矿工们。照片里的人们和外面的人们。不同。但相同。"
           },
           "overlay": "cv_ch5_kepler_king_l37_00_death_still"
         }
@@ -920,7 +1076,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Cinder.",
-            "en": "Cinder."
+            "en": "Cinder.",
+            "ja": "シンダー。",
+            "zh": "辛达。"
           }
         },
         {
@@ -928,7 +1086,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "예.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "はい。",
+            "zh": "是。"
           }
         },
         {
@@ -936,7 +1096,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Sandstone 약속. 그게 오늘 여기였어.",
-            "en": "The Sandstone Promise. That was here today."
+            "en": "The Sandstone Promise. That was here today.",
+            "ja": "サンドストーンの約束。それが今日ここにあった。",
+            "zh": "砂岩承诺。那今天在这里。"
           }
         },
         {
@@ -944,7 +1106,9 @@
           "emotion": "calm",
           "text": {
             "ko": "알아요. 나는 약속 기억한다고 했잖아요.",
-            "en": "I know. I said I remember promises."
+            "en": "I know. I said I remember promises.",
+            "ja": "知っている。俺は約束を覚えていると言った。",
+            "zh": "我知道。我说我记得承诺。"
           }
         }
       ]
@@ -959,7 +1123,9 @@
         {
           "text": {
             "ko": "해가 완전히 기울었다. 케플러가 붉었다. 사람들이 흩어지기 시작했다. 광부들. 각자의 방향으로. 오래 있지 않았다. 왔다. 봤다. 갔다. 그것으로 충분했다.",
-            "en": "The sun had completely tilted. Kepler was red. People began to scatter. Miners. Each in their own direction. Didn't stay long. Came. Watched. Left. That was enough."
+            "en": "The sun had completely tilted. Kepler was red. People began to scatter. Miners. Each in their own direction. Didn't stay long. Came. Watched. Left. That was enough.",
+            "ja": "太陽が完全に傾いた。ケプラーが赤くなった。人々が散り始めた。鉱夫たち。それぞれ自分の方向へ。長くはいなかった。来た。見た。去った。それで十分だった。",
+            "zh": "太阳完全倾斜了。开普勒变红了。人们开始散去。矿工们。各自向自己的方向。没有停留太久。来了。看了。走了。那就足够了。"
           }
         }
       ]
@@ -974,7 +1140,9 @@
         {
           "text": {
             "ko": "Cinder가 케플러를 봤다. 분화구. 깊고 어두운 것. 그 안에 Ancient Metal이 있었다. 외계 기원. 화성의 것. 그것이 이제 선언된 것이었다. 선언은 취소할 수 없었다. MCC가 뭔 짓을 해도.",
-            "en": "Cinder looked at Kepler. The crater. Deep and dark. Ancient Metal inside. Extraterrestrial origin. Belonging to Mars. That was now declared. A declaration couldn't be undone. Whatever MCC might do."
+            "en": "Cinder looked at Kepler. The crater. Deep and dark. Ancient Metal inside. Extraterrestrial origin. Belonging to Mars. That was now declared. A declaration couldn't be undone. Whatever MCC might do.",
+            "ja": "シンダーはケプラーを見た。クレーター。深くて暗い。内部に古代金属。地球外起源。火星のもの。それが今宣言された。宣言は取り消せなかった。MCCが何をしようとも。",
+            "zh": "辛达看着开普勒。陨石坑。又深又黑。内部有古代金属。地球外起源。属于火星的。这现在被宣言了。宣言无法被撤回。无论MCC做什么。"
           }
         }
       ]
@@ -991,7 +1159,9 @@
           "emotion": "serious",
           "text": {
             "ko": "보스. 우리가 오늘 뭘 한 건지 알아요?",
-            "en": "Boss. Do you know what we did today?"
+            "en": "Boss. Do you know what we did today?",
+            "ja": "ボス。俺たちが今日何をしたかわかるか？",
+            "zh": "老大。你知道我们今天做了什么吗？"
           }
         },
         {
@@ -999,7 +1169,9 @@
           "emotion": "calm",
           "text": {
             "ko": "편을 든 거예요. CV가 편을 드는 건 드문 일이에요.",
-            "en": "We took a side. CV taking sides is rare."
+            "en": "We took a side. CV taking sides is rare.",
+            "ja": "俺たちは側についた。CVが側につくのは珍しい。",
+            "zh": "我们站了队。CV站队是罕见的。"
           }
         },
         {
@@ -1007,7 +1179,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그러나 이건 맞아요. 오늘 처음으로 확신해요.",
-            "en": "But this is right. First time I'm certain of that today."
+            "en": "But this is right. First time I'm certain of that today.",
+            "ja": "しかしこれは正しい。今日初めてそれを確信した。",
+            "zh": "但这是对的。今天第一次确信这一点。"
           }
         }
       ]
@@ -1022,7 +1196,9 @@
         {
           "text": {
             "ko": "Butcher가 들었다. Cinder의 말을. 반응이 없었다. 그것이 반응이었다. 이 사람은 동의할 때 아무것도 하지 않았다. 아무것도 하지 않는 것이 동의였다. 오래된 방식이었다. 광산에서 배운 것.",
-            "en": "Butcher heard it. Cinder's words. No reaction. That was the reaction. This person did nothing when he agreed. Doing nothing was agreement. An old way. Learned in the mines."
+            "en": "Butcher heard it. Cinder's words. No reaction. That was the reaction. This person did nothing when he agreed. Doing nothing was agreement. An old way. Learned in the mines.",
+            "ja": "Butcherはそれを聞いた。シンダーの言葉。反応なし。それが反応だった。この人物は同意するとき何もしなかった。何もしないことが同意だった。古いやり方。鉱山で学んだもの。",
+            "zh": "屠夫听到了。辛达的话。没有反应。那就是反应。这个人同意时什么都不做。什么都不做就是同意。旧的方式。在矿山学到的。"
           }
         }
       ]
@@ -1037,7 +1213,9 @@
         {
           "text": {
             "ko": "MCC가 아직 멀리 있었다. 드론들이 물러났다. 그러나 없어진 것이 아니었다. 내일 올 것이었다. 더 많이. 그것은 알고 있었다. 그러나 오늘은 케플러 외곽에 CV가 있었다. Sandstone 약속이 여기서 있었다.",
-            "en": "MCC was still far. The drones had retreated. But hadn't disappeared. They would come tomorrow. More of them. That was known. But today CV was at the edge of Kepler. The Sandstone Promise had been here."
+            "en": "MCC was still far. The drones had retreated. But hadn't disappeared. They would come tomorrow. More of them. That was known. But today CV was at the edge of Kepler. The Sandstone Promise had been here.",
+            "ja": "MCCはまだ遠かった。無人機は後退した。しかし消えていなかった。明日また来るだろう。もっと多くが。それはわかっていた。しかし今日CVはケプラーの縁にいた。サンドストーンの約束がここにあった。",
+            "zh": "MCC还很远。无人机后退了。但没有消失。明天会再来。更多。这是知道的。但今天CV在开普勒边缘。砂岩承诺在这里了。"
           }
         }
       ]
@@ -1052,7 +1230,9 @@
         {
           "text": {
             "ko": "케플러가 붉게 물들었다. Butcher가 외투 주머니에서 손을 꺼냈다. 사진을 꺼내지 않았다. 손만. 그 손을 Cinder가 봤다. 의수와 맞닿지 않는 손. 오른손. 30년 전 사진 안 사람들이 아직 거기 있을 것이었다. 사진 안에서만. 그러나 오늘 케플러 외곽에도 있었다. 선언 때문이었다.\n\nCinder가 처음으로 FSP를 다르게 봤다. 그것이 오늘의 일이었다. 그것이 Sandstone 약속이 한 일이었다.",
-            "en": "Kepler turned red. Butcher took his hand from the coat pocket. Not the photo. Just the hand. Cinder watched that hand. The hand that didn't meet the prosthetic. The right hand. The people in the thirty-year-old photo would still be there. Only in the photo. But today they were also here at the edge of Kepler. Because of the declaration.\n\nCinder saw FSP differently for the first time. That was what happened today. That was what the Sandstone Promise had done."
+            "en": "Kepler turned red. Butcher took his hand from the coat pocket. Not the photo. Just the hand. Cinder watched that hand. The hand that didn't meet the prosthetic. The right hand. The people in the thirty-year-old photo would still be there. Only in the photo. But today they were also here at the edge of Kepler. Because of the declaration.\n\nCinder saw FSP differently for the first time. That was what happened today. That was what the Sandstone Promise had done.",
+            "ja": "ケプラーが赤くなった。Butcherはコートのポケットから手を出した。写真ではなく。ただの手。シンダーはその手を見た。義手と会わなかった手。右手。三十年前の写真の人々はまだそこにいるだろう。写真の中だけに。しかし今日彼らはケプラーの縁にもいた。宣言のために。\n\nシンダーは初めてFSPを違う見方で見た。それが今日起きたことだった。それがサンドストーンの約束がやったことだった。",
+            "zh": "开普勒变红了。屠夫从外套口袋里把手拿出来了。不是照片。只是手。辛达看着那只手。没有遇见义肢的那只手。右手。三十年前照片里的人们还会在那里。只在照片里。但今天他们也在开普勒边缘。因为宣言。\n\n辛达第一次以不同的眼光看待FSP。那是今天发生的事情。那是砂岩承诺所做的事情。"
           }
         }
       ],
@@ -1060,7 +1240,9 @@
         "questId": "cv_campaign_ch6",
         "teaser": {
           "ko": "다음 — Butcher의 시험",
-          "en": "Next — Butcher's Test"
+          "en": "Next — Butcher's Test",
+          "ja": "次 — Butcherのテスト",
+          "zh": "接下来 — 屠夫的考验"
         }
       }
     }

@@ -1,3 +1,46 @@
+# OCCUPY MARS — Codebase Audit (v5.97 / 2026-05-05)
+
+## ✅ v5.97 P5-3~7 Territory Full Utility Stack — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| **P5-3: Shipyard Connection** | | |
+| `materialSectorHints` 조선소 API 포함 | ✅ | `blueprints` 응답에 재료→섹터 힌트 맵 추가 |
+| `sySectorBadge()` 조선소 카드 뱃지 | ✅ | 재료 칩 옆에 ⛏ 개척지/중간지/핵심지 뱃지 |
+| `GET /api/ships/resource-sector-hints` | ✅ | 독립 엔드포인트 |
+| **P5-4: Territory Upgrades** | | |
+| Migration 211 — P5 업그레이드 설정 시드 | ✅ | 5개 트랙 × 5레벨 비용/보너스 시드 |
+| `claimUpgrades.js` P5 트랙 정의 | ✅ | extractor/refinery/shield_grid/relay_tower/art_beacon |
+| `GET /api/territory/:claimId/upgrades` | ✅ | 카탈로그 + 현재 레벨 반환 |
+| `POST /api/territory/:claimId/upgrade` | ✅ | 기존 upgradeTerritory 재사용 |
+| production 응답에 upgradeModifiers 포함 | ✅ | 업그레이드 효과가 모디파이어로 표시됨 |
+| `index.html` 🔧 UPGRADES 패널 | ✅ | 접힘/펼침 UX. 레벨 바 + 다음 레벨 비용 + 업그레이드 버튼 |
+| **P5-5: Sector Control** | | |
+| `GET /api/sectors/control` | ✅ | 전체 섹터 컨트롤 스코어 (픽셀+업그레이드+수확활동) |
+| `GET /api/sectors/:sectorId/control` | ✅ | 단일 섹터 리더보드 + 내 위치 |
+| production 패널 하단 섹터 컨트롤 표시 | ✅ | `_appendSectorControl()` — 비동기 append |
+| 영향력 티어 (presence/stakeholder/dominant/governor) | ✅ | 컨트롤 % 기반 티어 계산 |
+| **P5-6: Admin Economy** | | |
+| `GET /api/admin/territory/economy` | ✅ | 재료 발행/소각, 수확 통계, 의심 수확자, 상위 클레임 |
+| `GET /api/admin/territory/upgrades` | ✅ | 업그레이드 분포 및 GP 소각 현황 |
+| `GET /api/admin/territory/sector-control` | ✅ | 섹터별 컨트롤 요약 |
+| `POST /api/admin/territory/production-profile` | ✅ | 생산 설정 수정 (10개 허용 키) |
+| admin.html 🌍 TERRITORY 탭 | ✅ | 수확 통계 대시보드 + 재료 발행/소각 + 의심 수확자 + 프로파일 편집기 |
+| **P5-7: Campaign Integration** | | |
+| `materialHarvests` objectiveState | ✅ | 재료 드롭 있는 수확 횟수 |
+| `territoryUpgradeLevels` objectiveState | ✅ | 소유 업그레이드 레벨 합산 |
+| MCC CH1 `first_material_harvest` (optional) | ✅ | gate에서 제외 |
+| MCC CH2 `territory_upgrade_start` (optional) | ✅ | gate에서 제외 |
+| `getMissingRequiredObjectives()` optional 제외 | ✅ | optional:true 목표는 챕터 완료 block 안 함 |
+
+검증:
+- `claimUpgrades.js` / `ships.js` / `campaign.js` load OK
+- `api.js` Function() syntax check OK
+- migration 211 DB 적용 완료 (23 rows inserted)
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.96 / 2026-05-05)
 
 ## ✅ v5.96 P5-2 Material Drops on Harvest — 완료

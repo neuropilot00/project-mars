@@ -47,41 +47,105 @@ const UPGRADE_TYPES = {
     bonusUnit: '% storage',
     color: '#e8c040',
   },
+  // ── P5 Territory Utility tracks ──────────────────────────────────────────────
+  extractor: {
+    icon: '⚙️', name: '채굴기',
+    nameEn: 'Extractor',
+    desc: '재료 드롭 수량·확률 증가. 조선소 재료 수급 핵심.',
+    costKey: 'upgrade_extractor_costs',
+    bonusKey: 'upgrade_extractor_bonus',
+    matCostKey: 'upgrade_extractor_mat_costs',
+    bonusUnit: '% 재료 드롭',
+    color: '#64dc82',
+    effect: 'material_drop',  // used by production endpoint
+  },
+  refinery: {
+    icon: '🔩', name: '정제소',
+    nameEn: 'Refinery',
+    desc: '고급 재료 획득 확률 증가. 상위 등급 재료로 변환 가능.',
+    costKey: 'upgrade_refinery_costs',
+    bonusKey: 'upgrade_refinery_bonus',
+    matCostKey: 'upgrade_refinery_mat_costs',
+    bonusUnit: '% 고급 재료 확률',
+    color: '#ffc140',
+    effect: 'advanced_material',
+  },
+  shield_grid: {
+    icon: '🛡️', name: '실드 그리드',
+    nameEn: 'Shield Grid',
+    desc: '하이잭 방어력 강화. 실드 지속 시간 증가.',
+    costKey: 'upgrade_shield_grid_costs',
+    bonusKey: 'upgrade_shield_grid_bonus',
+    matCostKey: 'upgrade_shield_grid_mat_costs',
+    bonusUnit: '% 방어력',
+    color: '#5cbbff',
+    effect: 'defense',
+  },
+  relay_tower: {
+    icon: '📡', name: '중계 타워',
+    nameEn: 'Relay Tower',
+    desc: '섹터 가시성·경보·캠페인 목표 지원 범위 확장.',
+    costKey: 'upgrade_relay_tower_costs',
+    bonusKey: 'upgrade_relay_tower_bonus',
+    matCostKey: 'upgrade_relay_tower_mat_costs',
+    bonusUnit: '타일 가시 반경',
+    color: '#bb86fc',
+    effect: 'visibility',
+  },
+  art_beacon: {
+    icon: '🎨', name: '아트 비콘',
+    nameEn: 'Art Beacon',
+    desc: '이미지 노출·브랜딩 강화. 소량 PP 보너스.',
+    costKey: 'upgrade_art_beacon_costs',
+    bonusKey: 'upgrade_art_beacon_bonus',
+    matCostKey: 'upgrade_art_beacon_mat_costs',
+    bonusUnit: '% PP',
+    color: '#ff6b6b',
+    effect: 'pp_bonus',
+  },
 };
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 
 async function getSettings() {
-  const keys = [
-    'upgrade_enabled', 'upgrade_max_per_claim', 'upgrade_max_level', 'upgrade_destroy_on_hijack',
-    'upgrade_mine_booster_costs', 'upgrade_mine_booster_bonus',
-    'upgrade_fortress_costs',     'upgrade_fortress_bonus',
-    'upgrade_beacon_costs',       'upgrade_beacon_bonus',
-    'upgrade_vault_costs',        'upgrade_vault_bonus',
-  ];
-  const res = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
+  // Load all upgrade-related settings dynamically
+  const res = await pool.query(`SELECT key, value FROM settings WHERE key LIKE 'upgrade_%'`);
   const map = {};
   res.rows.forEach(r => { map[r.key] = r.value; });
 
   const parseCosts = (str, def) =>
-    (str || def).split(',').map(v => parseFloat(v.trim())).filter(n => !isNaN(n));
+    (str || def || '').split(',').map(v => parseFloat(v.trim())).filter(n => !isNaN(n));
 
   return {
     enabled:          (map.upgrade_enabled || 'true') !== 'false',
+    p5Enabled:        (map.upgrade_p5_enabled || 'true') !== 'false',
     maxPerClaim:      parseInt(map.upgrade_max_per_claim) || 4,
     maxLevel:         parseInt(map.upgrade_max_level)     || 5,
+    p5MaxLevel:       parseInt(map.upgrade_p5_max_level)  || 5,
     destroyOnHijack:  (map.upgrade_destroy_on_hijack || 'true') !== 'false',
     costs: {
       mine_booster: parseCosts(map.upgrade_mine_booster_costs, '100,250,500,1000,2500'),
       fortress:     parseCosts(map.upgrade_fortress_costs,     '150,350,750,1500,3500'),
       beacon:       parseCosts(map.upgrade_beacon_costs,       '80,200,450,900,2200'),
       vault:        parseCosts(map.upgrade_vault_costs,        '120,300,650,1300,3000'),
+      // P5 tracks
+      extractor:    parseCosts(map.upgrade_extractor_costs,    '50,150,350,800,2000'),
+      refinery:     parseCosts(map.upgrade_refinery_costs,     '80,200,500,1200,3000'),
+      shield_grid:  parseCosts(map.upgrade_shield_grid_costs,  '120,300,700,1600,4000'),
+      relay_tower:  parseCosts(map.upgrade_relay_tower_costs,  '60,160,380,900,2200'),
+      art_beacon:   parseCosts(map.upgrade_art_beacon_costs,   '40,100,250,600,1500'),
     },
     bonuses: {
       mine_booster: parseCosts(map.upgrade_mine_booster_bonus, '20,40,60,80,100'),
       fortress:     parseCosts(map.upgrade_fortress_bonus,     '15,30,50,70,90'),
       beacon:       parseCosts(map.upgrade_beacon_bonus,       '10,20,35,50,75'),
       vault:        parseCosts(map.upgrade_vault_bonus,        '25,50,75,100,150'),
+      // P5 tracks
+      extractor:    parseCosts(map.upgrade_extractor_bonus,    '15,30,50,75,100'),
+      refinery:     parseCosts(map.upgrade_refinery_bonus,     '5,12,22,35,50'),
+      shield_grid:  parseCosts(map.upgrade_shield_grid_bonus,  '10,22,38,55,75'),
+      relay_tower:  parseCosts(map.upgrade_relay_tower_bonus,  '1,2,3,4,5'),
+      art_beacon:   parseCosts(map.upgrade_art_beacon_bonus,   '3,6,10,15,20'),
     },
   };
 }
@@ -93,10 +157,13 @@ async function getUpgradeCatalog() {
   return Object.entries(UPGRADE_TYPES).map(([key, def]) => ({
     key,
     icon: def.icon,
-    name: def.name,
+    name: def.name || def.nameEn || key,
+    nameEn: def.nameEn || def.name || key,
     desc: def.desc,
     bonusUnit: def.bonusUnit,
     color: def.color,
+    effect: def.effect || null,
+    isP5: !!def.effect,  // P5 tracks have 'effect' field
     levels: (cfg.costs[key] || []).map((cost, i) => ({
       level: i + 1,
       cost,

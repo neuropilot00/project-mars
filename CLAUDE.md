@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-05 v5.96 (P5-2 Material Drops on Harvest) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-05 v5.97 (P5-3~7 Territory Full Utility Stack) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -16,6 +16,14 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v5.97 최신 핸드오프 — P5-3~7 Territory Full Utility Stack
+
+- **P5-3 Shipyard Connection**: `GET /api/ships/blueprints` 응답에 `materialSectorHints` 포함. 조선소 카드 재료 칩 옆에 ⛏ 섹터 뱃지 표시 (frontier/mid/core). `GET /api/ships/resource-sector-hints` 독립 엔드포인트 추가. `sySectorBadge(code)` 헬퍼 추가.
+- **P5-4 Territory Upgrades**: Migration 211 — P5 업그레이드 설정 시드. `claimUpgrades.js`에 `extractor/refinery/shield_grid/relay_tower/art_beacon` 5개 트랙 추가. `GET /api/territory/:claimId/upgrades` + `POST /api/territory/:claimId/upgrade` 엔드포인트. `index.html` 영토 패널에 `🔧 UPGRADES` 접힘 섹션. production 응답에 upgradeModifiers 포함.
+- **P5-5 Sector Control**: `GET /api/sectors/control` (전체 섹터별 컨트롤 스코어). `GET /api/sectors/:sectorId/control` (단일 섹터 리더보드 + 내 위치). 영향력 티어: presence(10%)/stakeholder(25%)/dominant(50%)/governor(75%). production 패널 하단에 섹터 컨트롤 리더보드 표시.
+- **P5-6 Admin Economy**: `adminEconomyRoutes.js`에 territory economy/upgrades/sector-control 엔드포인트 추가. `admin.html` 🌍 TERRITORY 탭 — 수확 통계, 재료 발행/소각, 의심 수확자, 생산 프로파일 편집기.
+- **P5-7 Campaign Integration**: `objectiveState`에 `materialHarvests` + `territoryUpgradeLevels` 추가. MCC CH1 `first_material_harvest` + MCC CH2 `territory_upgrade_start` optional 목표 추가. optional 목표는 챕터 완료 gate 미적용.
 
 ### v5.96 최신 핸드오프 — P5-2 재료 드롭 harvest 연동
 

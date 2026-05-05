@@ -314,6 +314,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('ships')" data-tab="ships" style="color:#5cbbff">⚓ SHIPS</button>
   <button class="adm-tab" onclick="switchTab('worldevents')" data-tab="worldevents" style="color:#b088e0">👾 EVENTS</button>
   <button class="adm-tab" onclick="switchTab('bugs')" data-tab="bugs" style="color:#ff8866">🐞 BUGS</button>
+  <button class="adm-tab" onclick="switchTab('territory_economy')" data-tab="territory_economy" style="color:#64dc82">🌍 TERRITORY</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -2892,6 +2893,76 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <span style="flex:1"></span>
         <button class="adm-btn primary" onclick="saveBugNotes()" style="font-size:9px;color:#ff8866;border-color:rgba(255,136,102,.5)">💾 SAVE NOTES ONLY</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       P5-6 TERRITORY ECONOMY ADMIN TAB
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section cat-territory_economy" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#64dc82">🌍 TERRITORY ECONOMY</span>
+      <div class="sec-tools">
+        <select class="adm-select" id="teconDays" onchange="loadTerritoryEconomy()" style="font-size:9px">
+          <option value="1">1 day</option>
+          <option value="7" selected>7 days</option>
+          <option value="30">30 days</option>
+        </select>
+        <button class="adm-btn primary" onclick="loadTerritoryEconomy()" style="color:#64dc82;border-color:rgba(100,220,130,.3)">REFRESH</button>
+      </div>
+    </div>
+
+    <!-- Harvest Stats -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px" id="teconHarvestStats">
+      <div style="background:rgba(100,220,130,.06);border:1px solid rgba(100,220,130,.15);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:10px;color:var(--tx3)">Total Harvests</div>
+        <div style="font-size:18px;color:#64dc82;font-weight:700" id="teconTotalHarvests">—</div>
+      </div>
+      <div style="background:rgba(100,220,130,.06);border:1px solid rgba(100,220,130,.15);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:10px;color:var(--tx3)">Unique Harvesters</div>
+        <div style="font-size:18px;color:#64dc82;font-weight:700" id="teconUniqueHarvesters">—</div>
+      </div>
+      <div style="background:rgba(255,171,64,.06);border:1px solid rgba(255,171,64,.15);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:10px;color:var(--tx3)">Total PP Issued</div>
+        <div style="font-size:18px;color:#ffab40;font-weight:700" id="teconTotalPP">—</div>
+      </div>
+      <div style="background:rgba(255,171,64,.06);border:1px solid rgba(255,171,64,.15);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:10px;color:var(--tx3)">Avg PP / Harvest</div>
+        <div style="font-size:18px;color:#ffab40;font-weight:700" id="teconAvgPP">—</div>
+      </div>
+    </div>
+
+    <!-- Material Issued vs Burned -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-size:10px;color:#64dc82;font-weight:700;margin-bottom:6px">📦 MATERIALS ISSUED</div>
+        <div id="teconMaterialsIssued" style="font-size:10px"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#ff6b6b;font-weight:700;margin-bottom:6px">🔥 MATERIALS BURNED (ship builds)</div>
+        <div id="teconMaterialsBurned" style="font-size:10px"></div>
+      </div>
+    </div>
+
+    <!-- Suspicious Harvesters -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;color:#ff8866;font-weight:700;margin-bottom:6px">⚠ HIGH-FREQUENCY HARVESTERS (>5 harvests in period)</div>
+      <div id="teconSuspicious" style="font-size:10px"></div>
+    </div>
+
+    <!-- Top Claims -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;color:#ffc140;font-weight:700;margin-bottom:6px">🏆 TOP PRODUCING CLAIMS (by pixel count)</div>
+      <div id="teconTopClaims" style="font-size:10px"></div>
+    </div>
+
+    <!-- Production Profile Editor -->
+    <div style="background:rgba(100,220,130,.04);border:1px solid rgba(100,220,130,.12);border-radius:6px;padding:10px">
+      <div style="font-size:10px;color:#64dc82;font-weight:700;margin-bottom:8px">⚙ PRODUCTION PROFILE EDITOR</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px" id="teconProfileEditor">
+        <!-- Populated by loadTerritoryEconomy() -->
+      </div>
+      <button class="adm-btn primary" onclick="saveTerritoryProductionProfile()" style="margin-top:8px;color:#64dc82;border-color:rgba(100,220,130,.4)">💾 SAVE PROFILE</button>
     </div>
   </div>
 
@@ -11005,6 +11076,7 @@ switchTab = function(tab) {
   _origSwitchTab(tab);
   if (tab === 'worldevents') setTimeout(loadWorldEventsAdmin, 100);
   if (tab === 'bugs')        setTimeout(function(){ loadBugReports(0); }, 100);
+  if (tab === 'territory_economy') setTimeout(loadTerritoryEconomy, 100);
 };
 
 // ─── BUG REPORTS ─────────────────────────────────────────────
@@ -11204,6 +11276,158 @@ function saveBugNotes() {
 
 // Auto-focus auth input
 document.getElementById('authInput').focus();
+
+// ─── P5-6 TERRITORY ECONOMY ──────────────────────────────────
+var _teconProfileInputs = {};
+
+function _adminFetch(path, options) {
+  var opts = options || {};
+  opts.headers = Object.assign({ 'x-admin-secret': adminSecret }, opts.headers || {});
+  return fetch(path, opts);
+}
+
+async function loadTerritoryEconomy() {
+  var days = document.getElementById('teconDays') ? document.getElementById('teconDays').value : 7;
+  try {
+    var res = await _adminFetch('/api/admin/territory/economy?days=' + days);
+    var d = await res.json();
+    // Harvest stats
+    var s = d.harvestStats || {};
+    document.getElementById('teconTotalHarvests').textContent = s.total_harvests || '0';
+    document.getElementById('teconUniqueHarvesters').textContent = s.unique_harvesters || '0';
+    document.getElementById('teconTotalPP').textContent = s.total_pp_issued ? parseFloat(s.total_pp_issued).toFixed(2) : '0';
+    document.getElementById('teconAvgPP').textContent = s.avg_pp_per_harvest ? parseFloat(s.avg_pp_per_harvest).toFixed(4) : '0';
+    // Materials issued
+    var mi = document.getElementById('teconMaterialsIssued');
+    if (mi) {
+      if (!d.materialIssued || !d.materialIssued.length) {
+        mi.innerHTML = '<span style="color:var(--tx3)">No material data yet (P5-2 harvest required)</span>';
+      } else {
+        mi.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
+          '<tr><th style="text-align:left;color:var(--tx3);font-size:9px;padding:2px 4px">Material</th><th style="text-align:right;color:var(--tx3);font-size:9px">Qty</th><th style="text-align:right;color:var(--tx3);font-size:9px">Harvesters</th></tr>' +
+          d.materialIssued.map(function(r) {
+            return '<tr style="border-top:1px solid rgba(255,255,255,.05)">' +
+              '<td style="padding:2px 4px;color:var(--tx2)">' + (r.resource_code||'—') + '</td>' +
+              '<td style="padding:2px 4px;text-align:right;color:#64dc82;font-weight:700">' + (r.total_quantity||0) + '</td>' +
+              '<td style="padding:2px 4px;text-align:right;color:var(--tx3)">' + (r.unique_harvesters||0) + '</td>' +
+              '</tr>';
+          }).join('') + '</table>';
+      }
+    }
+    // Materials burned
+    var mb = document.getElementById('teconMaterialsBurned');
+    if (mb) {
+      if (!d.materialBurn || !d.materialBurn.length) {
+        mb.innerHTML = '<span style="color:var(--tx3)">No ship builds in period</span>';
+      } else {
+        mb.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
+          '<tr><th style="text-align:left;color:var(--tx3);font-size:9px;padding:2px 4px">Material</th><th style="text-align:right;color:var(--tx3);font-size:9px">Used</th><th style="text-align:right;color:var(--tx3);font-size:9px">Builds</th></tr>' +
+          d.materialBurn.map(function(r) {
+            return '<tr style="border-top:1px solid rgba(255,255,255,.05)">' +
+              '<td style="padding:2px 4px;color:var(--tx2)">' + (r.resource_code||'—') + '</td>' +
+              '<td style="padding:2px 4px;text-align:right;color:#ff6b6b;font-weight:700">' + (r.total_used||0) + '</td>' +
+              '<td style="padding:2px 4px;text-align:right;color:var(--tx3)">' + (r.build_count||0) + '</td>' +
+              '</tr>';
+          }).join('') + '</table>';
+      }
+    }
+    // Suspicious harvesters
+    var susp = document.getElementById('teconSuspicious');
+    if (susp) {
+      if (!d.suspiciousHarvesters || !d.suspiciousHarvesters.length) {
+        susp.innerHTML = '<span style="color:#64dc82">✅ No suspicious activity</span>';
+      } else {
+        susp.innerHTML = d.suspiciousHarvesters.map(function(r) {
+          return '<div style="display:flex;justify-content:space-between;padding:3px 6px;margin-bottom:2px;background:rgba(255,136,102,.06);border:1px solid rgba(255,136,102,.15);border-radius:4px">' +
+            '<span style="color:#ff8866;font-size:9px">' + r.wallet.slice(0,10) + '…</span>' +
+            '<span style="color:var(--tx2);font-size:9px">' + r.harvest_count + ' harvests · ' + parseFloat(r.total_pp||0).toFixed(2) + ' PP</span>' +
+            '</div>';
+        }).join('');
+      }
+    }
+    // Top claims
+    var tc = document.getElementById('teconTopClaims');
+    if (tc) {
+      tc.innerHTML = '<table style="width:100%;border-collapse:collapse">' +
+        '<tr><th style="text-align:left;color:var(--tx3);font-size:9px;padding:2px 4px">Claim</th><th style="text-align:left;color:var(--tx3);font-size:9px">Owner</th><th style="text-align:right;color:var(--tx3);font-size:9px">Pixels</th><th style="text-align:left;color:var(--tx3);font-size:9px">Sector</th></tr>' +
+        (d.topClaims||[]).map(function(r) {
+          var tierColor = {core:'#ff6b6b',mid:'#ffc140',frontier:'#64dc82'}[r.sector_type]||'var(--tx2)';
+          return '<tr style="border-top:1px solid rgba(255,255,255,.05)">' +
+            '<td style="padding:2px 4px;color:var(--tx2)">#' + r.claim_id + (r.has_image?'🖼':'') + '</td>' +
+            '<td style="padding:2px 4px;color:var(--tx3);font-size:9px">' + r.owner.slice(0,8) + '…</td>' +
+            '<td style="padding:2px 4px;text-align:right;color:#ffc140;font-weight:700">' + r.pixel_count + '</td>' +
+            '<td style="padding:2px 4px;color:'+tierColor+';font-size:9px">' + (r.sector_type||'?') + '</td>' +
+            '</tr>';
+        }).join('') + '</table>';
+    }
+    // Production profile editor
+    _buildProfileEditor();
+  } catch(e) {
+    showToast('Territory economy load error: ' + e.message, 'error');
+  }
+}
+
+function _buildProfileEditor() {
+  var el = document.getElementById('teconProfileEditor');
+  if (!el) return;
+  var fields = [
+    { key: 'mining_reward_min', label: 'PP Reward Min', type: 'number', step: '0.001' },
+    { key: 'mining_reward_max', label: 'PP Reward Max', type: 'number', step: '0.01' },
+    { key: 'mining_core_mult',     label: 'Core Sector Mult', type: 'number', step: '0.1' },
+    { key: 'mining_mid_mult',      label: 'Mid Sector Mult', type: 'number', step: '0.1' },
+    { key: 'mining_frontier_mult', label: 'Frontier Mult', type: 'number', step: '0.1' },
+    { key: 'mining_interval_core',     label: 'Core Harvest Cooldown (h)', type: 'number', step: '1' },
+    { key: 'mining_interval_mid',      label: 'Mid Harvest Cooldown (h)', type: 'number', step: '1' },
+    { key: 'mining_interval_frontier', label: 'Frontier Harvest Cooldown (h)', type: 'number', step: '1' },
+    { key: 'resource_drop_enabled', label: 'Material Drops Enabled', type: 'text' },
+    { key: 'upgrade_p5_enabled', label: 'P5 Upgrades Enabled', type: 'text' },
+  ];
+  _teconProfileInputs = {};
+  el.innerHTML = fields.map(function(f) {
+    return '<div>' +
+      '<label style="font-size:9px;color:var(--tx3);display:block;margin-bottom:2px">' + f.label + '</label>' +
+      '<input id="tecon_' + f.key + '" type="' + (f.type||'text') + '" ' + (f.step?'step="'+f.step+'" ':'') +
+      'style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:4px 6px;color:var(--tx);font-size:10px" ' +
+      'placeholder="' + f.key + '">' +
+      '</div>';
+  }).join('');
+  // Load current values from admin settings (returns array of all settings)
+  _adminFetch('/admin/api/settings')
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      (rows||[]).forEach(function(s) {
+        var el2 = document.getElementById('tecon_' + s.key);
+        if (el2) {
+          var v = s.value;
+          if (typeof v === 'string') v = v.replace(/^"|"$/g,'');
+          else if (v !== null && v !== undefined) v = String(v);
+          el2.value = v || '';
+        }
+      });
+    }).catch(function(){});
+}
+
+async function saveTerritoryProductionProfile() {
+  var fields = ['mining_reward_min','mining_reward_max','mining_core_mult','mining_mid_mult','mining_frontier_mult',
+    'mining_interval_core','mining_interval_mid','mining_interval_frontier','resource_drop_enabled','upgrade_p5_enabled'];
+  var errors = [];
+  for (var key of fields) {
+    var el2 = document.getElementById('tecon_' + key);
+    if (!el2 || !el2.value) continue;
+    try {
+      var value = el2.value;
+      var res = await _adminFetch('/api/admin/territory/production-profile', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ key, value })
+      });
+      var d = await res.json();
+      if (!d.ok) errors.push(key + ': ' + (d.error||'failed'));
+    } catch(e) { errors.push(key + ': ' + e.message); }
+  }
+  if (errors.length) showToast('⚠ ' + errors.join('; '), 'error');
+  else showToast('✅ Production profile saved', 'success');
+}
 </script>
 </body>
 </html>

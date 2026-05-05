@@ -1275,6 +1275,7 @@ const OBJECTIVE_PRESETS = {
     { id: 'first_claim', labelKo: '내 영토 1개를 확보한다.', labelEn: 'Claim 1 territory on Mars.', action: 'territory', stat: 'ownedClaims', target: 1 },
     { id: 'first_art', labelKo: '영토에 이미지를 등록해 기지를 표시한다.', labelEn: 'Register an image on your territory to mark your base.', action: 'territory_art', stat: 'artClaims', target: 1 },
     { id: 'first_harvest', labelKo: '영토에서 PP 채굴을 1회 수확한다.', labelEn: 'Harvest PP from your territory once.', action: 'territory', stat: 'territoryHarvests', target: 1 },
+    { id: 'first_material_harvest', labelKo: '영토 수확으로 광물 1종을 획득한다.', labelEn: 'Obtain 1 material from a territory harvest.', action: 'territory', stat: 'materialHarvests', target: 1, optional: true },
     { id: 'operation_timer', labelKo: '산소 회수 작전 진행률 100%를 달성한다.', labelEn: 'Reach 100% progress in the oxygen recovery operation.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 작전 권한을 얻는다.', labelEn: 'Check results and unlock the next operation.', action: 'claim_result' },
   ],
@@ -1282,6 +1283,7 @@ const OBJECTIVE_PRESETS = {
     { id: 'briefing', labelKo: 'Hellas 북부 수소 채굴장 상황을 확인한다.', labelEn: 'Review the Hellas North hydrogen mine briefing.', action: 'story' },
     { id: 'first_fleet', labelKo: '함대 1개를 구성한다.', labelEn: 'Form 1 fleet.', action: 'fleet', stat: 'fleets', target: 1 },
     { id: 'fleet_line', labelKo: '작전에 투입할 함선 3척을 함대에 배치한다.', labelEn: 'Deploy 3 ships to your fleet for the operation.', action: 'fleet', stat: 'fleetShips', target: 3 },
+    { id: 'territory_upgrade_start', labelKo: '영토에 채굴기 또는 실드 그리드를 설치해 거점을 강화한다.', labelEn: 'Install an Extractor or Shield Grid to fortify your base.', action: 'territory', stat: 'territoryUpgradeLevels', target: 1, optional: true },
     { id: 'operation_timer', labelKo: '시설 피해를 억제하며 작전 진행률 100%를 달성한다.', labelEn: 'Reach 100% progress while containing facility damage.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 이사회 루트를 연다.', labelEn: 'Check results and unlock the boardroom route.', action: 'claim_result' },
   ],
@@ -1525,6 +1527,8 @@ async function getObjectiveState(wallet) {
       shipUpgrades: 0,
       territoryHarvests: 0,
       campaignRewardClaims: 0,
+      materialHarvests: 0,
+      territoryUpgradeLevels: 0,
     };
   }
   const [
@@ -1540,6 +1544,8 @@ async function getObjectiveState(wallet) {
     shipUpgrades,
     territoryHarvests,
     campaignRewardClaims,
+    materialHarvests,
+    territoryUpgradeLevels,
   ] = await Promise.all([
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND COALESCE(image_url, '') <> ''`, [w]),
@@ -1558,6 +1564,15 @@ async function getObjectiveState(wallet) {
     getSuccessfulShipUpgradeCount(w),
     safeCampaignCount(`SELECT COUNT(*) FROM transactions WHERE type = 'mining' AND LOWER(from_wallet) = $1`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM campaign_reward_inbox WHERE LOWER(wallet) = $1 AND claimed = TRUE`, [w]),
+    // P5: material harvests (harvests with at least one resource drop)
+    safeCampaignCount(`
+      SELECT COUNT(*) FROM transactions
+      WHERE type = 'mining' AND LOWER(from_wallet) = $1
+        AND meta->'resourceDrops' IS NOT NULL
+        AND jsonb_array_length(COALESCE(meta->'resourceDrops','[]'::jsonb)) > 0
+    `, [w]),
+    // P5: territory upgrade count (total upgrade levels owned)
+    safeCampaignCount(`SELECT COALESCE(SUM(level),0) FROM territory_upgrades WHERE LOWER(owner) = $1 AND is_active = true`, [w]),
   ]);
   const marketListings = marketListedShips + marketplaceListings;
   return {
@@ -1573,6 +1588,8 @@ async function getObjectiveState(wallet) {
     shipUpgrades,
     territoryHarvests,
     campaignRewardClaims,
+    materialHarvests,
+    territoryUpgradeLevels,
   };
 }
 
@@ -1620,7 +1637,7 @@ function isObjectiveDone(objective, chapter, progress, options = {}) {
 
 function getMissingRequiredObjectives(objectives) {
   return (objectives || [])
-    .filter(o => o?.stat && o.requirementMet !== true)
+    .filter(o => o?.stat && o.requirementMet !== true && !o.optional)  // optional objectives don't block
     .map(o => ({
       id: o.id,
       labelKo: o.labelKo,

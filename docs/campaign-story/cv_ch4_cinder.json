@@ -4,7 +4,9 @@
   "chapterNumber": 4,
   "title": {
     "ko": "Cinder의 그림자",
-    "en": "Cinder's Shadow"
+    "en": "Cinder's Shadow",
+    "ja": "シンダーの影",
+    "zh": "辛达的影子"
   },
   "location": {
     "id": "mine_shaft_12",
@@ -29,7 +31,9 @@
         {
           "text": {
             "ko": "Cinder Grace는 말이 없는 사람이었다. CV에서 말이 없는 사람은 많았다. 그러나 Cinder는 달랐다. 말하지 않는 것이 아니었다. 말할 것이 너무 많아서 말하지 않는 것이었다.",
-            "en": "Cinder Grace was a person of few words. CV had many people of few words. But Cinder was different. Not that she couldn't speak. She didn't speak because she had too much to say."
+            "en": "Cinder Grace was a person of few words. CV had many people of few words. But Cinder was different. Not that she couldn't speak. She didn't speak because she had too much to say.",
+            "ja": "シンダー・グレイスは口数の少ない人物だった。CVには口数の少ない人が多かった。しかしシンダーは違った。話せないのではなかった。言いたいことが多すぎるから話さなかった。",
+            "zh": "辛达·格蕾丝是一个寡言少语的人。CV中有很多寡言少语的人。但辛达不同。不是不能说话。是因为有太多想说的所以不说。"
           }
         }
       ]
@@ -44,7 +48,9 @@
         {
           "text": {
             "ko": "그녀는 기계를 고쳤다. 기지의 것들을. 고장 난 것들. 부서진 것들. 아무도 고칠 수 없는 것들. 그것이 Cinder가 CV에서 하는 일이었다. 고치는 일. 전투가 아니었다. 고치는 것이었다.",
-            "en": "She repaired machines. Things in the base. Broken things. Ruined things. Things no one else could fix. That was what Cinder did in CV. Repair. Not combat. Repair."
+            "en": "She repaired machines. Things in the base. Broken things. Ruined things. Things no one else could fix. That was what Cinder did in CV. Repair. Not combat. Repair.",
+            "ja": "彼女は機械を修理した。基地の中のもの。壊れたもの。ダメになったもの。他の誰も直せないもの。それがCVでシンダーがやることだった。修理。戦闘ではなく。修理。",
+            "zh": "她修理机器。基地里的东西。坏掉的东西。损坏的东西。别人修不了的东西。那是辛达在CV中做的事。修理。不是战斗。修理。"
           }
         }
       ]
@@ -59,7 +65,9 @@
         {
           "text": {
             "ko": "MCC 시절이 있었다. 6년이었다. 기계 기술자였다. 갱도 지지 시스템. 화성 광산에서 가장 중요한 것. 그것이 무너지면 사람이 죽었다. 그것을 막는 사람이었다. 6년 동안.",
-            "en": "There was a time with MCC. Six years. A mechanical engineer. Tunnel support systems. Most important thing in Martian mines. When they collapsed people died. She was the person who prevented that. For six years."
+            "en": "There was a time with MCC. Six years. A mechanical engineer. Tunnel support systems. Most important thing in Martian mines. When they collapsed people died. She was the person who prevented that. For six years.",
+            "ja": "MCCにいた時代があった。六年。機械エンジニア。トンネル支柱システム。火星鉱山で最も重要なもの。崩落すると人が死んだ。それを防ぐ人物だった。六年間。",
+            "zh": "曾经在MCC的时光。六年。机械工程师。隧道支撑系统。火星矿山最重要的东西。崩塌时人就会死。她是防止这件事的人。六年间。"
           }
         }
       ]
@@ -74,7 +82,9 @@
         {
           "text": {
             "ko": "아침에 Cinder가 당신에게 왔다. 처음으로. 먼저. 보통 Cinder가 먼저 오지 않았다. 공구 벨트를 만지고 있었다. 그것이 그녀의 신호였다. 무언가 말하려는 신호.",
-            "en": "Morning and Cinder came to you. First time. On her own. Usually Cinder didn't approach first. Touching the tool belt. That was her signal. Signal of something to say."
+            "en": "Morning and Cinder came to you. First time. On her own. Usually Cinder didn't approach first. Touching the tool belt. That was her signal. Signal of something to say.",
+            "ja": "朝にシンダーがお前のところへ来た。初めて。自分から。普段シンダーは先に近づかなかった。工具ベルトを触っていた。それが彼女のシグナルだった。何か言いたいというシグナル。",
+            "zh": "早上辛达来找你了。第一次。主动来的。通常辛达不会先靠近。触摸着工具腰带。那是她的信号。有话要说的信号。"
           }
         }
       ]
@@ -92,7 +102,9 @@
           "effect": "character_enter:cinder_grace:slide_right",
           "text": {
             "ko": "같이 가줄 수 있어?",
-            "en": "Can you come with me?"
+            "en": "Can you come with me?",
+            "ja": "一緒に来てくれますか？",
+            "zh": "你能和我一起去吗？"
           }
         },
         {
@@ -100,7 +112,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "어디.",
-            "en": "Where."
+            "en": "Where.",
+            "ja": "どこへ。",
+            "zh": "去哪里。"
           }
         },
         {
@@ -108,7 +122,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "헬라스 외곽. 12구역. 폐광이야.",
-            "en": "Hellas outer. Zone 12. Abandoned mine."
+            "en": "Hellas outer. Zone 12. Abandoned mine.",
+            "ja": "ヘラス外縁。ゾーン12。廃坑。",
+            "zh": "赫拉斯外围。12区。废弃矿山。"
           }
         },
         {
@@ -116,7 +132,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이유가 있어.",
-            "en": "Any reason."
+            "en": "Any reason.",
+            "ja": "理由は。",
+            "zh": "有什么原因吗。"
           }
         },
         {
@@ -124,7 +142,9 @@
           "emotion": "flat",
           "text": {
             "ko": "가면 말할게.",
-            "en": "I'll tell you when we get there."
+            "en": "I'll tell you when we get there.",
+            "ja": "着いたら話す。",
+            "zh": "到了再说。"
           }
         }
       ]
@@ -139,7 +159,9 @@
         {
           "text": {
             "ko": "헬라스 외곽으로 걸었다. 둘이서. Cinder가 앞에 걸었다. 빠르지 않았다. 그러나 방향이 명확했다. 이 길을 알고 있는 걸음이었다. 이전에 걸어본 걸음이었다.",
-            "en": "Walked to the Hellas outskirts. The two of you. Cinder walked ahead. Not fast. But direction was clear. The walk of someone who knew this path. Had walked it before."
+            "en": "Walked to the Hellas outskirts. The two of you. Cinder walked ahead. Not fast. But direction was clear. The walk of someone who knew this path. Had walked it before.",
+            "ja": "ヘラスの外縁まで歩いた。二人で。シンダーが前を歩いた。速くはなかった。しかし方向は明確だった。この道を知っている人の歩き方。以前歩いたことがある。",
+            "zh": "走到赫拉斯郊区。两个人。辛达走在前面。不快。但方向明确。知道这条路的人的走法。以前走过的。"
           }
         }
       ]
@@ -154,7 +176,9 @@
         {
           "text": {
             "ko": "말이 없었다. 두 시간을 걸었다. 그것이 이상하지 않았다. Cinder와 있을 때 말이 없는 것이 자연스러웠다. 공구 소리 같은 것이었다. 있는데 없는 것처럼 자연스러운 것.",
-            "en": "No words. Two hours walking. That wasn't strange. With Cinder silence was natural. Like the sound of tools. Present but natural as if absent."
+            "en": "No words. Two hours walking. That wasn't strange. With Cinder silence was natural. Like the sound of tools. Present but natural as if absent.",
+            "ja": "言葉なし。二時間歩いた。それは奇妙ではなかった。シンダーと一緒だと沈黙は自然だった。工具の音のように。あるが、ないかのように自然。",
+            "zh": "没有话语。走了两个小时。这不奇怪。和辛达在一起时沉默是自然的。像工具的声音。存在但自然得如同不存在。"
           }
         }
       ]
@@ -169,7 +193,9 @@
         {
           "text": {
             "ko": "12구역이 보였다. 폐광이었다. 입구가 있었다. 막혀 있었다. MCC 마크가 있었다. 출입 금지. 그러나 낡은 마크였다. 3년은 된 것이었다.",
-            "en": "Zone 12 visible. Abandoned mine. Entrance. Blocked. MCC marking. No entry. But an old marking. Three years old."
+            "en": "Zone 12 visible. Abandoned mine. Entrance. Blocked. MCC marking. No entry. But an old marking. Three years old.",
+            "ja": "ゾーン12が見えた。廃坑。入口。封鎖されている。MCCのマーキング。立入禁止。しかし古いマーキング。三年前のもの。",
+            "zh": "12区可见。废弃矿山。入口。封锁了。MCC标记。禁止进入。但是旧标记。三年前的。"
           }
         }
       ]
@@ -186,7 +212,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "여기야.",
-            "en": "This is it."
+            "en": "This is it.",
+            "ja": "これだ。",
+            "zh": "就是这里。"
           }
         },
         {
@@ -194,7 +222,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이전에 일했던 곳.",
-            "en": "Where you worked before."
+            "en": "Where you worked before.",
+            "ja": "以前働いていた場所。",
+            "zh": "你以前工作的地方。"
           }
         },
         {
@@ -202,7 +232,9 @@
           "emotion": "flat",
           "text": {
             "ko": "6년 동안.",
-            "en": "For six years."
+            "en": "For six years.",
+            "ja": "六年間。",
+            "zh": "六年。"
           }
         }
       ]
@@ -217,7 +249,9 @@
         {
           "text": {
             "ko": "광산 안으로 들어갔다. 어두웠다. Cinder가 헬등을 켰다. 통로가 있었다. 오래된 것이었다. 그 안에서 Cinder가 멈췄다. 벽을 봤다. 손을 벽에 대었다. 공구를 만지지 않았다. 처음으로.",
-            "en": "Into the mine. Dark. Cinder turned on a lamp. Passages. Old. Inside Cinder stopped. Looked at the wall. Put a hand on the wall. Didn't touch the tools. For the first time."
+            "en": "Into the mine. Dark. Cinder turned on a lamp. Passages. Old. Inside Cinder stopped. Looked at the wall. Put a hand on the wall. Didn't touch the tools. For the first time.",
+            "ja": "鉱山の中へ。暗い。シンダーはランプをつけた。通路。古い。中でシンダーは止まった。壁を見た。壁に手を置いた。工具を触らなかった。初めて。",
+            "zh": "进入矿山。黑暗。辛达打开了灯。通道。旧的。里面辛达停下了。看着墙壁。把手放在墙上。没有触碰工具。第一次。"
           }
         }
       ]
@@ -234,7 +268,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "여기서 11명이 죽었어.",
-            "en": "Eleven people died here."
+            "en": "Eleven people died here.",
+            "ja": "ここで十一人が死んだ。",
+            "zh": "这里死了十一个人。"
           }
         },
         {
@@ -242,7 +278,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "...",
-            "en": "..."
+            "en": "...",
+            "ja": "……",
+            "zh": "……"
           }
         },
         {
@@ -250,7 +288,9 @@
           "emotion": "flat",
           "text": {
             "ko": "3년 전이야. 갱도 붕괴. MCC 기록에는 없어. 지워졌어.",
-            "en": "Three years ago. Tunnel collapse. Not in MCC records. Erased."
+            "en": "Three years ago. Tunnel collapse. Not in MCC records. Erased.",
+            "ja": "三年前。トンネル崩落。MCC記録にない。消去された。",
+            "zh": "三年前。隧道塌陷。不在MCC记录里。被抹去了。"
           },
           "overlay": "cv_ch4_cinder_l10_02_collapse_debris"
         }
@@ -266,7 +306,9 @@
         {
           "text": {
             "ko": "Cinder가 계속 벽을 봤다. 손이 벽 위에 있었다. 움직이지 않았다. 그것이 이상했다. Cinder의 손은 항상 공구 위에 있었다. 공구를 만지는 손이었다. 지금은 벽 위에 있었다. 차가운 벽.",
-            "en": "Cinder kept looking at the wall. Hand on the wall. Not moving. That was strange. Cinder's hands were always on tools. Hands that touched tools. Now on the wall. Cold wall."
+            "en": "Cinder kept looking at the wall. Hand on the wall. Not moving. That was strange. Cinder's hands were always on tools. Hands that touched tools. Now on the wall. Cold wall.",
+            "ja": "シンダーは壁を見続けた。壁に手を置いたまま。動かなかった。それは奇妙だった。シンダーの手はいつも工具の上にあった。工具を触る手。今は壁の上に。冷たい壁。",
+            "zh": "辛达继续看着墙壁。手放在墙上。没有移动。这很奇怪。辛达的手总是在工具上。触碰工具的手。现在在墙上。冰冷的墙。"
           }
         }
       ]
@@ -283,7 +325,9 @@
           "emotion": "serious",
           "text": {
             "ko": "나는 기계 기술자였어. 갱도 지지 시스템 담당이었어. 6년 동안. 그 시스템이 제대로 되어 있으면 사람이 안 죽어.",
-            "en": "I was a mechanical engineer. In charge of tunnel support systems. For six years. If the systems were in order, people didn't die."
+            "en": "I was a mechanical engineer. In charge of tunnel support systems. For six years. If the systems were in order, people didn't die.",
+            "ja": "俺は機械エンジニアだった。トンネル支柱システムの担当。六年間。システムが整っていれば、人は死なない。",
+            "zh": "我是机械工程师。负责隧道支撑系统。六年间。如果系统正常，人就不会死。"
           }
         },
         {
@@ -291,7 +335,9 @@
           "emotion": "flat",
           "text": {
             "ko": "내가 보고서를 썼어. 지지대 결함. 즉각 수리 요망.",
-            "en": "I wrote a report. Support beam defects. Immediate repair required."
+            "en": "I wrote a report. Support beam defects. Immediate repair required.",
+            "ja": "報告書を書いた。支柱の欠陥。即時修理が必要。",
+            "zh": "我写了报告。支撑梁缺陷。需要立即修理。"
           }
         },
         {
@@ -299,7 +345,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "MCC 감독관이 돌려보냈어. 수정하라고. 나는 수정하지 않았어.",
-            "en": "The MCC supervisor returned it. Told me to revise. I didn't revise."
+            "en": "The MCC supervisor returned it. Told me to revise. I didn't revise.",
+            "ja": "MCC上司が返してきた。修正しろと言った。修正しなかった。",
+            "zh": "MCC上司把它退回来了。叫我修改。我没有修改。"
           }
         }
       ]
@@ -314,7 +362,9 @@
         {
           "text": {
             "ko": "Cinder가 통로를 따라 걸었다. 안으로. 더 깊은 곳으로. 헬등이 앞을 비췄다. 벽이 가까워졌다. 통로가 좁아졌다. 그리고 막혔다. 거기서 멈췄다. 그것이 어디인지 알 수 없었다.",
-            "en": "Cinder walked along the passage. Inside. Deeper. Lamp lit the way. Walls closer. Passage narrowing. Then blocked. Stopped there. Couldn't tell where that was."
+            "en": "Cinder walked along the passage. Inside. Deeper. Lamp lit the way. Walls closer. Passage narrowing. Then blocked. Stopped there. Couldn't tell where that was.",
+            "ja": "シンダーは通路を歩いた。中へ。さらに奥へ。ランプが道を照らした。壁が近づいた。通路が狭くなった。そして塞がれた。そこで止まった。そこがどこかわからなかった。",
+            "zh": "辛达沿着通道走。往里面。更深处。灯照亮了道路。墙壁更近了。通道变窄了。然后被封堵了。在那里停下了。不知道那是哪里。"
           }
         }
       ]
@@ -331,7 +381,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "여기야. 갱도가 무너진 곳.",
-            "en": "Here. Where the tunnel collapsed."
+            "en": "Here. Where the tunnel collapsed.",
+            "ja": "ここだ。トンネルが崩落した場所。",
+            "zh": "就是这里。隧道塌陷的地方。"
           }
         },
         {
@@ -339,7 +391,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "일주일 후였어. 내가 보고서를 낸 후 일주일 후.",
-            "en": "One week after. One week after I submitted the report."
+            "en": "One week after. One week after I submitted the report.",
+            "ja": "一週間後。俺が報告書を提出して一週間後。",
+            "zh": "一周后。我提交报告后一周。"
           }
         },
         {
@@ -347,7 +401,9 @@
           "emotion": "flat",
           "text": {
             "ko": "11명이 여기 있었어. 교대 근무 중에.",
-            "en": "Eleven people were here. During a shift."
+            "en": "Eleven people were here. During a shift.",
+            "ja": "ここに十一人いた。シフトの時間中。",
+            "zh": "这里有十一个人。轮班期间。"
           }
         }
       ]
@@ -362,7 +418,9 @@
         {
           "text": {
             "ko": "벽이 막혀 있었다. 거기 너머에 것이 있었다. 11명이 있던 곳. 거기까지 도달할 수 없었다. 3년 동안 그랬다. Cinder가 여기 왔는지 아닌지 알 수 없었다. 그러나 그 발걸음이 이전에 걸어본 것처럼 보였다.",
-            "en": "Wall blocked. Beyond it something. Where the eleven were. Couldn't reach there. Three years of that. Couldn't tell if Cinder had come here or not. But those footsteps looked like ones walked before."
+            "en": "Wall blocked. Beyond it something. Where the eleven were. Couldn't reach there. Three years of that. Couldn't tell if Cinder had come here or not. But those footsteps looked like ones walked before.",
+            "ja": "壁が塞いでいた。その向こうに何かがあった。十一人がいた場所。そこに届かなかった。三年間そうだった。シンダーがここに来たかどうかわからなかった。しかしその足跡は以前歩いたもののように見えた。",
+            "zh": "墙封住了。墙那边有什么。十一个人在的地方。无法到达那里。三年来都这样。不知道辛达是否来过这里。但那些脚步看起来像以前走过的。"
           }
         }
       ]
@@ -379,7 +437,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이름이 있어. 11명. MCC 기록에는 없어. 그러나 나한테 있어. 이 보고서에.",
-            "en": "There are names. Eleven. Not in MCC records. But I have them. In this report."
+            "en": "There are names. Eleven. Not in MCC records. But I have them. In this report.",
+            "ja": "名前がある。十一。MCC記録にはない。しかし俺が持っている。この報告書に。",
+            "zh": "有名字。十一个。不在MCC记录里。但我有它们。在这份报告里。"
           }
         },
         {
@@ -387,7 +447,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "3년 전에 썼어. 원본이야. MCC가 가져가지 못한 것.",
-            "en": "Written three years ago. The original. What MCC couldn't take."
+            "en": "Written three years ago. The original. What MCC couldn't take.",
+            "ja": "三年前に書いた。原本。MCCが奪えなかったもの。",
+            "zh": "三年前写的。原件。MCC无法夺走的东西。"
           }
         },
         {
@@ -395,7 +457,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "당신한테 왜 이걸 말하는지 모르겠어. 그냥 말하고 싶어졌어. 처음으로.",
-            "en": "I don't know why I'm telling you this. Just wanted to say it. For the first time."
+            "en": "I don't know why I'm telling you this. Just wanted to say it. For the first time.",
+            "ja": "なぜこれをお前に話しているのかわからない。ただ言いたかった。初めて。",
+            "zh": "我不知道为什么告诉你这些。只是想说。第一次。"
           }
         }
       ]
@@ -410,7 +474,9 @@
         {
           "text": {
             "ko": "Cinder가 보고서를 꺼냈다. 주머니 안에 있던 것. 작은 것이었다. 접혀 있었다. 여러 번. 자주 꺼내봤다는 것이었다. 자주 접었다는 것이었다. 이름들이 거기 있었다. 11개.",
-            "en": "Cinder took out the report. From a pocket. Small. Folded. Many times. Taken out often. Folded often. The names were there. Eleven."
+            "en": "Cinder took out the report. From a pocket. Small. Folded. Many times. Taken out often. Folded often. The names were there. Eleven.",
+            "ja": "シンダーは報告書を取り出した。ポケットから。小さい。折りたたまれていた。何度も。よく取り出した。よく折りたたんだ。名前があった。十一。",
+            "zh": "辛达取出了报告。从口袋里。小的。折叠的。很多次。经常取出。经常折叠。名字在那里。十一个。"
           },
           "overlay": "cv_ch4_cinder_l17_00_sealed_file"
         }
@@ -428,7 +494,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "MCC는 이걸 기록에서 지웠어. 사고가 없었던 것으로 됐어. 11명이 없었던 것으로 됐어.",
-            "en": "MCC erased this from records. The accident became as if it never happened. The eleven became as if they never existed."
+            "en": "MCC erased this from records. The accident became as if it never happened. The eleven became as if they never existed.",
+            "ja": "MCCはこれを記録から消した。事故はなかったことになった。十一人は存在しなかったことになった。",
+            "zh": "MCC把这从记录中抹去了。事故变成了好像从没发生过。十一个人变成了好像从没存在过。"
           }
         },
         {
@@ -436,7 +504,9 @@
           "emotion": "flat",
           "text": {
             "ko": "나는 이것 때문에 MCC에서 나왔어. 쫓겨난 게 아니야. 나온 거야.",
-            "en": "I left MCC because of this. Not expelled. Left."
+            "en": "I left MCC because of this. Not expelled. Left.",
+            "ja": "俺はこれでMCCを去った。追い出されたのではない。去った。",
+            "zh": "我因为这个离开了MCC。不是被驱逐。是自己离开的。"
           }
         },
         {
@@ -444,7 +514,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그 차이가 있어. 나한테는.",
-            "en": "That difference matters. To me."
+            "en": "That difference matters. To me.",
+            "ja": "その違いは大事だ。俺にとって。",
+            "zh": "那个区别很重要。对我来说。"
           }
         }
       ]
@@ -459,7 +531,9 @@
         {
           "text": {
             "ko": "Cinder가 공구를 만졌다. 벨트의 것을. 무기가 아닌 것을. 그것이 그녀의 방식이었다. 공구를 만지면 생각이 정리됐다. 3년 동안 그래왔다. 공구를 고치는 것이 아니라 공구를 만지는 것. 그것이 Cinder Grace의 기도였다.",
-            "en": "Cinder touched her tools. The ones on the belt. The ones that weren't weapons. That was her way. Touching tools settled thoughts. Three years of that. Not repairing tools but touching them. That was Cinder Grace's prayer."
+            "en": "Cinder touched her tools. The ones on the belt. The ones that weren't weapons. That was her way. Touching tools settled thoughts. Three years of that. Not repairing tools but touching them. That was Cinder Grace's prayer.",
+            "ja": "シンダーは工具を触った。ベルトにあるもの。武器ではないもの。それが彼女のやり方だった。工具を触ると考えが落ち着いた。三年間そうだった。工具を修理するのではなく触ること。それがシンダー・グレイスの祈りだった。",
+            "zh": "辛达触碰了工具。腰带上的那些。不是武器的那些。那是她的方式。触碰工具让思绪平静。三年来都这样。不是修理工具而是触碰它们。那是辛达·格蕾丝的祈祷。"
           }
         }
       ]
@@ -476,7 +550,9 @@
           "emotion": "serious",
           "text": {
             "ko": "CV에 온 건 돈 때문이 아니야. 갈 곳이 없어서야.",
-            "en": "I didn't come to CV for money. I came because there was nowhere else to go."
+            "en": "I didn't come to CV for money. I came because there was nowhere else to go.",
+            "ja": "金のためにCVに来たのではない。ほかに行く場所がなかったから来た。",
+            "zh": "我不是为了钱来CV的。是因为没有别的地方可去。"
           }
         },
         {
@@ -484,7 +560,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Butcher가 이 얘기를 들었어. 찾아왔어. 아무 말 안 하고. 그냥 불 앞에 앉았어. 같이. 그게 전부였어. 그게 충분했어.",
-            "en": "Butcher heard about this. He came. Without a word. Just sat by the fire. Together. That was all. That was enough."
+            "en": "Butcher heard about this. He came. Without a word. Just sat by the fire. Together. That was all. That was enough.",
+            "ja": "Butcherはこれを聞いた。彼が来た。一言もなく。ただ火のそばに座った。一緒に。それだけだった。それで十分だった。",
+            "zh": "屠夫听说了这件事。他来了。没有一句话。只是坐在火旁。一起。就这些。那就足够了。"
           }
         }
       ]
@@ -499,7 +577,9 @@
         {
           "text": {
             "ko": "Butcher가 17살 때 팔을 잃은 것이었다. MCC가 배상을 거부한 것이었다. 그것과 11명이 같은 것이었다. 이름이 없어진 사람들. 기록에서 사라진 사람들. MCC가 지운 사람들.",
-            "en": "Butcher had lost an arm at seventeen. MCC had refused compensation. That and the eleven were the same thing. People whose names disappeared. People erased from records. People MCC deleted."
+            "en": "Butcher had lost an arm at seventeen. MCC had refused compensation. That and the eleven were the same thing. People whose names disappeared. People erased from records. People MCC deleted.",
+            "ja": "Butcherは十七歳で腕を失った。MCCは補償を断った。それと十一人は同じことだった。名前が消えた人々。記録から消された人々。MCCが削除した人々。",
+            "zh": "屠夫在十七岁失去了一只手臂。MCC拒绝了赔偿。那和十一个人是同一回事。名字消失的人们。被从记录中抹去的人们。MCC删除的人们。"
           }
         }
       ]
@@ -516,7 +596,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "너한테만 말하는 게 아니야.",
-            "en": "I'm not only telling you."
+            "en": "I'm not only telling you.",
+            "ja": "お前だけに話しているのではない。",
+            "zh": "我不只是告诉你。"
           }
         },
         {
@@ -524,7 +606,9 @@
           "emotion": "serious",
           "text": {
             "ko": "화성에 있는 모든 사람이 알아야 해. 이름들. 여기서 죽은 사람들. 기록에 없는 사람들.",
-            "en": "Everyone on Mars should know. The names. People who died here. People not in the records."
+            "en": "Everyone on Mars should know. The names. People who died here. People not in the records.",
+            "ja": "火星の全員が知るべきだ。名前を。ここで死んだ人々を。記録にない人々を。",
+            "zh": "火星上的所有人都应该知道。那些名字。在这里死去的人们。不在记录里的人们。"
           }
         },
         {
@@ -532,7 +616,9 @@
           "emotion": "flat",
           "text": {
             "ko": "그러나 아직 방법을 몰라. 어떻게 알릴지.",
-            "en": "But I don't know how yet. How to tell them."
+            "en": "But I don't know how yet. How to tell them.",
+            "ja": "しかしまだ方法がわからない。どうやって伝えるか。",
+            "zh": "但我还不知道怎么做。如何告诉他们。"
           }
         }
       ]
@@ -547,7 +633,9 @@
         {
           "text": {
             "ko": "Cinder가 보고서를 다시 접었다. 여러 번. 주머니 안으로 넣었다. 공구를 다시 만졌다. 그것이 기도가 끝난 것이었다. 생각이 정리된 것이었다.",
-            "en": "Cinder folded the report again. Many times. Back into the pocket. Touched the tools again. Prayer ended. Thoughts settled."
+            "en": "Cinder folded the report again. Many times. Back into the pocket. Touched the tools again. Prayer ended. Thoughts settled.",
+            "ja": "シンダーは報告書を再び折りたたんだ。何度も。またポケットへ。工具を再び触った。祈り終了。考えが落ち着いた。",
+            "zh": "辛达再次折叠了报告。很多次。放回口袋。再次触碰了工具。祈祷结束。思绪平静了。"
           }
         }
       ]
@@ -559,55 +647,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Cinder Grace. 11명의 이름들. 이 폐광. 어떻게 반응합니까.",
-        "en": "Cinder Grace. Eleven names. This abandoned mine. How do you respond."
+        "en": "Cinder Grace. Eleven names. This abandoned mine. How do you respond.",
+        "ja": "シンダー・グレイス。十一の名前。この廃坑。どう応じる。",
+        "zh": "辛达·格蕾丝。十一个名字。这座废弃矿山。你如何回应。"
       },
       "choices": [
         {
           "id": "cv_ch4_witness",
           "text": {
             "ko": "듣는다. 이름들을 기억한다.",
-            "en": "Listen. Remember the names."
+            "en": "Listen. Remember the names.",
+            "ja": "聞く。名前を覚える。",
+            "zh": "倾听。记住那些名字。"
           },
           "tone": "witness",
           "preview_hint": {
             "ko": "→ Cinder가 처음으로 눈물 흘린다.",
-            "en": "→ Cinder sheds tears for the first time."
+            "en": "→ Cinder sheds tears for the first time.",
+            "ja": "→ シンダーが初めて涙を流す。",
+            "zh": "→ 辛达第一次流下眼泪。"
           }
         },
         {
           "id": "cv_ch4_mcc_file",
           "text": {
             "ko": "MCC 파일을 이용하자고 제안한다.",
-            "en": "Propose using the MCC file."
+            "en": "Propose using the MCC file.",
+            "ja": "MCCファイルを使うことを提案する。",
+            "zh": "提议使用MCC文件。"
           },
           "tone": "strategic",
           "preview_hint": {
             "ko": "→ Cinder가 고개를 젓는다. 그게 목적이 아니라고.",
-            "en": "→ Cinder shakes her head. That's not the point."
+            "en": "→ Cinder shakes her head. That's not the point.",
+            "ja": "→ シンダーが首を振る。それが要点ではない。",
+            "zh": "→ 辛达摇头。那不是重点。"
           }
         },
         {
           "id": "cv_ch4_share",
           "text": {
             "ko": "자신의 이야기를 말한다. 비슷한 것을.",
-            "en": "Share your own story. Something similar."
+            "en": "Share your own story. Something similar.",
+            "ja": "自分の話をする。似たようなもの。",
+            "zh": "分享自己的故事。类似的事情。"
           },
           "tone": "human",
           "preview_hint": {
             "ko": "→ Cinder가 처음으로 먼저 말을 건다.",
-            "en": "→ Cinder speaks first for the first time."
+            "en": "→ Cinder speaks first for the first time.",
+            "ja": "→ シンダーが初めて先に話す。",
+            "zh": "→ 辛达第一次先开口说话。"
           }
         },
         {
           "id": "cv_ch4_silent",
           "text": {
             "ko": "아무 말도 하지 않는다.",
-            "en": "Say nothing."
+            "en": "Say nothing.",
+            "ja": "何も言わない。",
+            "zh": "什么都不说。"
           },
           "tone": "presence",
           "preview_hint": {
             "ko": "→ Cinder가 고맙다고 한다. 말이 없는 것에 대해.",
-            "en": "→ Cinder thanks you. For the silence."
+            "en": "→ Cinder thanks you. For the silence.",
+            "ja": "→ シンダーがお前に感謝する。沈黙に対して。",
+            "zh": "→ 辛达感谢你。为了沉默。"
           }
         }
       ]
@@ -622,7 +728,9 @@
         {
           "text": {
             "ko": "선택했다. Cinder가 봤다. 그 눈이 처음이었다. Cinder가 당신을 오래 보는 것이 처음이었다. 보통 Cinder는 공구를 봤다. 기계를 봤다. 벽을 봤다. 사람을 오래 보지 않았다. 지금은 봤다.",
-            "en": "Chose. Cinder looked. Those eyes were new. First time Cinder looked at you for a long time. Usually Cinder looked at tools. Machines. Walls. Didn't look at people long. But now looked."
+            "en": "Chose. Cinder looked. Those eyes were new. First time Cinder looked at you for a long time. Usually Cinder looked at tools. Machines. Walls. Didn't look at people long. But now looked.",
+            "ja": "選んだ。シンダーが見た。その目は新しかった。初めてシンダーが長い間お前を見た。普段シンダーは工具を見た。機械を。壁を。人を長く見なかった。しかし今は見た。",
+            "zh": "选择了。辛达看着。那双眼睛是全新的。第一次辛达长时间地看着你。通常辛达看工具。机器。墙壁。不长时间看人。但现在看了。"
           }
         }
       ]
@@ -639,7 +747,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이름을 읽어줄게.",
-            "en": "I'll read the names."
+            "en": "I'll read the names.",
+            "ja": "名前を読む。",
+            "zh": "我来读名字。"
           }
         },
         {
@@ -647,7 +757,9 @@
           "emotion": "flat",
           "text": {
             "ko": "들을 수 있어?",
-            "en": "Can you listen?"
+            "en": "Can you listen?",
+            "ja": "聞いてもらえますか？",
+            "zh": "你能听吗？"
           }
         },
         {
@@ -655,7 +767,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그래.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "はい。",
+            "zh": "是的。"
           }
         }
       ]
@@ -670,7 +784,9 @@
         {
           "text": {
             "ko": "Cinder가 보고서를 다시 꺼냈다. 펼쳤다. 이름들이 있었다. 11개. 읽었다. 천천히. 하나씩. 이름만 읽었다. 설명하지 않았다. 설명이 필요 없었다. 이름이 있었다. 그것으로 충분했다.",
-            "en": "Cinder took out the report again. Unfolded it. Names. Eleven. Read them. Slowly. One by one. Only names. No explanation. No explanation needed. There were names. That was enough."
+            "en": "Cinder took out the report again. Unfolded it. Names. Eleven. Read them. Slowly. One by one. Only names. No explanation. No explanation needed. There were names. That was enough.",
+            "ja": "シンダーは再び報告書を取り出した。広げた。名前。十一。読んだ。ゆっくりと。一つずつ。名前だけ。説明なし。説明は必要なかった。名前があった。それで十分だった。",
+            "zh": "辛达再次取出了报告。展开了。名字。十一个。读了。慢慢地。一个一个。只有名字。没有解释。不需要解释。有名字。那就足够了。"
           },
           "overlay": "cv_ch4_cinder_l27_00_candle_flame"
         }
@@ -686,7 +802,9 @@
         {
           "text": {
             "ko": "11개의 이름. 들었다. 기억하려고 했다. 기억이 가능한지 몰랐다. 11개를 전부. 그러나 들었다. 그것이 Cinder가 원하는 것이었다. 듣는 사람이 있는 것.",
-            "en": "Eleven names. Listened. Tried to remember. Didn't know if all eleven were possible. But listened. That was what Cinder wanted. Someone to listen."
+            "en": "Eleven names. Listened. Tried to remember. Didn't know if all eleven were possible. But listened. That was what Cinder wanted. Someone to listen.",
+            "ja": "十一の名前。聞いた。覚えようとした。十一全部が可能かどうかわからなかった。しかし聞いた。それがシンダーが望んでいたことだった。誰かが聞くこと。",
+            "zh": "十一个名字。听了。尽力记住。不知道能否记住全部十一个。但听了。那是辛达想要的。有人聆听。"
           }
         }
       ]
@@ -701,7 +819,9 @@
         {
           "text": {
             "ko": "Cinder가 보고서를 접었다. 보고서를 보면서 눈물이 있었다. 보이지 않는 것이었다. 어두워서. 그러나 소리가 있었다. 들었다. 모른 척했다. 그것이 옳은 것이었다.",
-            "en": "Cinder folded the report. Looking at the report there were tears. Not visible. Dark. But there was sound. Heard it. Pretended not to. That was the right thing."
+            "en": "Cinder folded the report. Looking at the report there were tears. Not visible. Dark. But there was sound. Heard it. Pretended not to. That was the right thing.",
+            "ja": "シンダーは報告書を折りたたんだ。報告書を見ていたとき涙があった。見えなかった。暗かった。しかし音があった。聞こえた。聞こえないふりをした。それが正しいことだった。",
+            "zh": "辛达折叠了报告。看着报告时有眼泪。看不见。黑暗。但有声音。听到了。假装没听到。那是正确的事情。"
           }
         }
       ]
@@ -718,7 +838,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "고마워.",
-            "en": "Thank you."
+            "en": "Thank you.",
+            "ja": "ありがとう。",
+            "zh": "谢谢你。"
           }
         },
         {
@@ -726,7 +848,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "무엇이.",
-            "en": "For what."
+            "en": "For what.",
+            "ja": "何に対して。",
+            "zh": "为什么谢。"
           }
         },
         {
@@ -734,7 +858,9 @@
           "emotion": "flat",
           "text": {
             "ko": "들어줘서. 그냥 들어줘서.",
-            "en": "For listening. Just for listening."
+            "en": "For listening. Just for listening.",
+            "ja": "聞いてくれたから。ただ聞いてくれたから。",
+            "zh": "因为倾听。只是因为倾听。"
           }
         }
       ]
@@ -749,7 +875,9 @@
         {
           "text": {
             "ko": "그때 소리가 났다. 밖에서. 광산 입구 쪽. 발소리. 여러 명. MCC 경비였다. 정기 점검이 아니었다. 이 시간에 오는 것이 아니었다. 무언가 달랐다.",
-            "en": "Then sound. Outside. Toward the mine entrance. Footsteps. Multiple. MCC security. Not a regular check. Not supposed to come at this time. Something different."
+            "en": "Then sound. Outside. Toward the mine entrance. Footsteps. Multiple. MCC security. Not a regular check. Not supposed to come at this time. Something different.",
+            "ja": "そして音。外から。鉱山の入口の方向へ。足音。複数。MCC警備。定期チェックではなかった。この時間に来るはずではなかった。何か違うことがあった。",
+            "zh": "然后是声音。从外面。朝着矿山入口方向。脚步声。多个。MCC安保。不是定期检查。这个时间不应该来的。有什么不同的事情。"
           }
         }
       ]
@@ -766,7 +894,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "MCC야. 왜 지금 와.",
-            "en": "MCC. Why now."
+            "en": "MCC. Why now.",
+            "ja": "MCC。なぜ今。",
+            "zh": "MCC。为什么现在。"
           }
         },
         {
@@ -774,7 +904,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "누가 알렸어.",
-            "en": "Someone told them."
+            "en": "Someone told them.",
+            "ja": "誰かが教えた。",
+            "zh": "有人告诉了他们。"
           }
         },
         {
@@ -782,7 +914,9 @@
           "emotion": "serious",
           "text": {
             "ko": "보고서 때문이야. 보고서가 있는 걸 알고 있어. 계속 알고 있었어.",
-            "en": "Because of the report. They know the report exists. Have always known."
+            "en": "Because of the report. They know the report exists. Have always known.",
+            "ja": "報告書のせいだ。彼らは報告書が存在することを知っている。ずっと知っていた。",
+            "zh": "因为报告。他们知道报告存在。一直都知道。"
           }
         }
       ]
@@ -797,7 +931,9 @@
         {
           "text": {
             "ko": "Cinder가 보고서를 쥐었다. 주머니 안에 다시 넣었다. 공구를 만졌다. 그것이 신호였다. 준비하는 신호. 싸울 준비가 아닌 다른 것. 도망칠 준비. 또는 지킬 준비.",
-            "en": "Cinder gripped the report. Back into the pocket. Touched the tools. That was a signal. Signal of preparation. Not preparing to fight. Something else. Preparing to flee. Or to protect."
+            "en": "Cinder gripped the report. Back into the pocket. Touched the tools. That was a signal. Signal of preparation. Not preparing to fight. Something else. Preparing to flee. Or to protect.",
+            "ja": "シンダーは報告書を握った。またポケットへ。工具を触った。それがシグナルだった。準備のシグナル。戦う準備ではなかった。何か別のもの。逃げる準備。または守る準備。",
+            "zh": "辛达抓住了报告。放回口袋。触碰了工具。那是信号。准备的信号。不是准备战斗。是别的事情。准备逃跑。或者保护。"
           }
         }
       ]
@@ -814,7 +950,9 @@
           "emotion": "flat",
           "text": {
             "ko": "나가야 해. 다른 출구가 있어. 여기서 3년 동안 일했어. 알아.",
-            "en": "Need to leave. There's another exit. Worked here three years. I know."
+            "en": "Need to leave. There's another exit. Worked here three years. I know.",
+            "ja": "出なければならない。別の出口がある。三年間ここで働いた。知っている。",
+            "zh": "需要离开。有另一个出口。在这里工作了三年。我知道。"
           }
         },
         {
@@ -822,7 +960,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "보고서.",
-            "en": "The report."
+            "en": "The report.",
+            "ja": "報告書。",
+            "zh": "报告。"
           }
         },
         {
@@ -830,7 +970,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이건 가져가. 기억 안에도 있어. 그러나 종이가 더 오래 남아.",
-            "en": "Taking it. It's in memory too. But paper lasts longer."
+            "en": "Taking it. It's in memory too. But paper lasts longer.",
+            "ja": "持っていく。記憶の中にもある。しかし紙の方が長持ちする。",
+            "zh": "带着它。记忆里也有。但纸张持续更久。"
           }
         }
       ]
@@ -843,11 +985,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "12구역의 진실",
-        "en": "The Truth of Zone 12"
+        "en": "The Truth of Zone 12",
+        "ja": "ゾーン12の真実",
+        "zh": "12区的真相"
       },
       "subtitle": {
         "ko": "MCC 폐광 — 11명을 위하여",
-        "en": "MCC Abandoned Mine — For Eleven"
+        "en": "MCC Abandoned Mine — For Eleven",
+        "ja": "MCC廃坑 — 十一人のために",
+        "zh": "MCC废弃矿山 — 为了十一人"
       }
     },
     {
@@ -866,7 +1012,9 @@
         {
           "text": {
             "ko": "폐광에서 나왔다. Cinder가 보고서를 갖고 나왔다. 3년 동안 가지고 있던 것. 이름들이 거기 있었다. 11명. 화성에서 이름이 있는 사람은 계속 거기 있는 것이었다. 기록에 없어도. 폐광이 되어도.",
-            "en": "Out of the abandoned mine. Cinder came out with the report. What she'd carried for three years. The names were there. Eleven. On Mars a person with a name remained there. Even without a record. Even when abandoned."
+            "en": "Out of the abandoned mine. Cinder came out with the report. What she'd carried for three years. The names were there. Eleven. On Mars a person with a name remained there. Even without a record. Even when abandoned.",
+            "ja": "廃坑から出た。シンダーは報告書と共に出てきた。三年間持ち続けてきたもの。名前があった。十一。火星では名前を持つ人はそこに残った。記録がなくても。放棄されていても。",
+            "zh": "出了废弃矿山。辛达带着报告出来了。她携带了三年的东西。名字在那里。十一个。在火星上有名字的人就留在那里。即使没有记录。即使被遗弃。"
           }
         }
       ]
@@ -883,7 +1031,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "나왔어.",
-            "en": "We're out."
+            "en": "We're out.",
+            "ja": "出た。",
+            "zh": "我们出来了。"
           }
         },
         {
@@ -891,7 +1041,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "보고서도.",
-            "en": "The report too."
+            "en": "The report too.",
+            "ja": "報告書も。",
+            "zh": "报告也是。"
           }
         },
         {
@@ -899,7 +1051,9 @@
           "emotion": "flat",
           "text": {
             "ko": "응. 그것도.",
-            "en": "Yes. That too."
+            "en": "Yes. That too.",
+            "ja": "そうだ。それも。",
+            "zh": "是的。那也是。"
           }
         }
       ]
@@ -914,7 +1068,9 @@
         {
           "text": {
             "ko": "Cinder가 공구를 만졌다. 습관이었다. 모든 것이 있었다. 없어진 것이 없었다. 11명은 없어졌지만. 공구들은 있었다. 보고서도 있었다. 기억도 있었다.",
-            "en": "Cinder touched the tool belt. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there."
+            "en": "Cinder touched the tool belt. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there.",
+            "ja": "シンダーは工具ベルトを触った。習慣。すべてがあった。欠けているものはなかった。十一人は去った。しかし工具はあった。報告書はあった。記憶はあった。",
+            "zh": "辛达触碰了工具腰带。习惯。一切都在。没有遗漏。十一个人走了。但工具在那里。报告在那里。记忆在那里。"
           }
         }
       ]
@@ -929,7 +1085,9 @@
         {
           "text": {
             "ko": "MCC 경비가 왔다. 폐광이었지만 경비가 있었다. MCC는 폐광도 지켰다. 거기서 지울 것들이 있었다. 보고서가 없었다. 그러나 Cinder의 기억 안에 있었다. 기억은 경비가 없었다.",
-            "en": "MCC security came. Abandoned but there were guards. MCC guarded even abandoned mines. Things to erase there. No report. But it was in Cinder's memory. Memory had no security."
+            "en": "MCC security came. Abandoned but there were guards. MCC guarded even abandoned mines. Things to erase there. No report. But it was in Cinder's memory. Memory had no security.",
+            "ja": "MCC警備が来た。放棄されていたが警備がいた。MCCは廃坑でも警備をした。消すべきものがそこにあった。報告書はなかった。しかしシンダーの記憶の中にあった。記憶には警備がなかった。",
+            "zh": "MCC安保来了。废弃了但有守卫。MCC连废弃矿山也守卫。那里有需要抹去的东西。没有报告。但它在辛达的记忆中。记忆没有守卫。"
           }
         }
       ]
@@ -946,7 +1104,9 @@
           "emotion": "flat",
           "text": {
             "ko": "보고서를 잃었어.",
-            "en": "Lost the report."
+            "en": "Lost the report.",
+            "ja": "報告書を失った。",
+            "zh": "失去了报告。"
           }
         },
         {
@@ -954,7 +1114,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그러나 이름들은 여기 있어.",
-            "en": "But the names are here."
+            "en": "But the names are here.",
+            "ja": "しかし名前はここにある。",
+            "zh": "但名字在这里。"
           }
         },
         {
@@ -962,7 +1124,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "기억 안에. 당신도 들었어. 그것으로 충분해.",
-            "en": "In memory. You heard them too. That's enough."
+            "en": "In memory. You heard them too. That's enough.",
+            "ja": "記憶の中に。お前も聞いた。それで十分だ。",
+            "zh": "在记忆里。你也听到了。那就足够了。"
           }
         }
       ]
@@ -977,7 +1141,9 @@
         {
           "text": {
             "ko": "기지로 돌아왔다. Butcher가 있었다. 불 앞에. Cinder가 보고를 했다. 짧게. Butcher가 들었다. 말이 없었다. 의수를 내려다봤다. 그것이 전부였다.",
-            "en": "Back to base. Butcher was there. Before the fire. Cinder reported. Briefly. Butcher listened. No words. Looked down at the prosthetic. That was all."
+            "en": "Back to base. Butcher was there. Before the fire. Cinder reported. Briefly. Butcher listened. No words. Looked down at the prosthetic. That was all.",
+            "ja": "基地に戻った。Butcherがいた。火の前に。シンダーが報告した。簡潔に。Butcherは聞いた。言葉なし。義手を見下ろした。それだけだった。",
+            "zh": "回到基地。屠夫在那里。在火前。辛达汇报了。简短地。屠夫听了。没有话语。俯视着义肢。就这些。"
           }
         }
       ]
@@ -995,7 +1161,9 @@
           "effect": "character_enter:butcher_vasquez:slide_left",
           "text": {
             "ko": "이름들을 알아.",
-            "en": "I know the names."
+            "en": "I know the names.",
+            "ja": "俺は名前を知っている。",
+            "zh": "我知道那些名字。"
           }
         },
         {
@@ -1003,7 +1171,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "알았어?",
-            "en": "You knew?"
+            "en": "You knew?",
+            "ja": "知っていたのか？",
+            "zh": "你知道？"
           }
         },
         {
@@ -1011,7 +1181,9 @@
           "emotion": "slow",
           "text": {
             "ko": "처음부터. Cinder가 CV에 온 이유를 알았어. 그래서 여기 있는 거야.",
-            "en": "From the beginning. Knew why Cinder came to CV. That's why you're here."
+            "en": "From the beginning. Knew why Cinder came to CV. That's why you're here.",
+            "ja": "最初から。シンダーがCVに来た理由を知っていた。だからお前がここにいる。",
+            "zh": "从一开始。知道辛达来CV的原因。这就是为什么你在这里。"
           }
         }
       ]
@@ -1026,7 +1198,9 @@
         {
           "text": {
             "ko": "해가 에레부스 쪽으로 기울었다. 화성의 해. 작은 것. 먼 것. Cinder가 공구 벨트를 다시 확인했다. 습관이었다. 모든 것이 있었다. 없어진 것이 없었다. 11명은 없어졌지만. 공구들은 있었다. 보고서도 있었다. 기억도 있었다. 불이 탔다. 따뜻하지 않았다. 그러나 탔다.",
-            "en": "The sun tilted toward Erebus. Martian sun. Small thing. Distant thing. Cinder checked the tool belt again. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there. Fire burned. Not warm. But burning."
+            "en": "The sun tilted toward Erebus. Martian sun. Small thing. Distant thing. Cinder checked the tool belt again. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there. Fire burned. Not warm. But burning.",
+            "ja": "太陽がエレボスの方向に傾いた。火星の太陽。小さいもの。遠いもの。シンダーは再び工具ベルトを確認した。習慣。すべてがあった。欠けているものはなかった。十一人は去った。しかし工具はあった。報告書はあった。記憶はあった。火が燃えた。温かくはなかった。しかし燃えていた。",
+            "zh": "太阳向厄瑞玻斯方向倾斜。火星的太阳。小的东西。遥远的东西。辛达再次检查了工具腰带。习惯。一切都在。没有遗漏。十一个人走了。但工具在那里。报告在那里。记忆在那里。火在燃烧。不暖。但在燃烧。"
           }
         }
       ],
@@ -1034,7 +1208,9 @@
         "questId": "cv_campaign_ch5",
         "teaser": {
           "ko": "다음 — 야생의 조약",
-          "en": "Next — Wild Lands Treaty"
+          "en": "Next — Wild Lands Treaty",
+          "ja": "次 — 荒野の条約",
+          "zh": "接下来 — 荒野条约"
         }
       }
     }

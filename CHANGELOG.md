@@ -1,5 +1,58 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — P5-3~7 Territory Full Utility Stack (v5.97)
+
+### P5-3: Shipyard Connection
+- `GET /api/ships/blueprints` 응답에 `materialSectorHints` 포함 (`server/routes/ships.js`).
+  - `sector_resource_rates` 기반으로 재료별 주요 드롭 섹터(`frontier/mid/core`) 맵 생성 (10분 캐시).
+  - `GET /api/ships/resource-sector-hints` 독립 엔드포인트 추가.
+- `index.html` 조선소 카드에 재료 칩 옆 섹터 뱃지 추가 (`⛏ 개척지 / ⛏ 중간지 / ⛏ 핵심지`).
+  - `shipyardState.materialSectorHints` 저장.
+  - `sySectorBadge(resourceCode)` 헬퍼 추가.
+  - `syBuildRequirementInfo()` 에도 섹터 정보 포함.
+
+### P5-4: Territory Upgrades & Roles
+- `server/migrations/211_territory_upgrade_p5_tracks.sql` — P5 업그레이드 트랙 settings 시드.
+  - 5개 트랙: `extractor`, `refinery`, `shield_grid`, `relay_tower`, `art_beacon` (각 5레벨).
+- `server/services/claimUpgrades.js` — P5 트랙 정의 + 설정 로딩 확장.
+  - `effect` 필드: `material_drop / advanced_material / defense / visibility / pp_bonus`.
+  - `getSettings()` 이제 `upgrade_%` 패턴으로 모든 업그레이드 설정 동적 로드.
+  - `getUpgradeCatalog()` 에 `isP5`, `effect`, `nameEn` 포함.
+- `GET /api/territory/:claimId/upgrades?wallet=` 신규 엔드포인트.
+- `POST /api/territory/:claimId/upgrade` 신규 엔드포인트 (기존 `upgradeTerritory` 서비스 재사용).
+- `GET /api/territory/:claimId/production` — 업그레이드 보너스 모디파이어 포함.
+- `index.html` 영토 정보 패널에 `🔧 UPGRADES` 접힘 섹션 추가.
+  - `toggleTerritoryUpgradePanel()`, `loadTerritoryUpgrades()`, `renderTerritoryUpgradeBody()`, `doTerritoryUpgrade()` 함수 추가.
+
+### P5-5: Sector Control
+- `GET /api/sectors/control` — 전체 섹터별 컨트롤 스코어 (픽셀+업그레이드+수확 활동).
+  - 상위 3위 + 영향력 티어 (presence/stakeholder/dominant/governor).
+- `GET /api/sectors/:sectorId/control?wallet=` — 단일 섹터 상세 + 내 위치.
+- `index.html` 프로덕션 패널 하단에 섹터 컨트롤 리더보드 append (`_appendSectorControl()`).
+
+### P5-6: Admin Economy Tuning
+- `server/routes/adminEconomyRoutes.js` — 3개 신규 엔드포인트:
+  - `GET /api/admin/territory/economy` — 재료 발행량, 수확 통계, 의심스러운 고빈도 수확자, 상위 클레임.
+  - `GET /api/admin/territory/upgrades` — 업그레이드 분포 및 GP 소각.
+  - `GET /api/admin/territory/sector-control` — 섹터별 컨트롤 현황.
+  - `POST /api/admin/territory/production-profile` — 생산 설정 수정.
+- `admin.html` — `🌍 TERRITORY` 탭 추가 (수확 통계, 재료 발행/소각, 의심 수확자, 상위 클레임, 생산 프로파일 편집기).
+
+### P5-7: Campaign & Season Integration
+- `server/services/campaign.js` objectiveState에 2개 신규 지표:
+  - `materialHarvests` — 재료 드롭이 있는 수확 횟수.
+  - `territoryUpgradeLevels` — 소유 업그레이드 레벨 합산.
+- MCC CH1 objectives에 `first_material_harvest` (optional) 추가.
+- MCC CH2 objectives에 `territory_upgrade_start` (optional) 추가.
+- `getMissingRequiredObjectives()` — `optional: true` 목표는 챕터 완료 gate에서 제외.
+
+검증:
+- `server/services/claimUpgrades.js` load OK
+- `server/routes/ships.js` load OK
+- `server/services/campaign.js` load OK
+- `api.js` syntax check OK
+- migration 211 DB 적용 완료
+
 ## 2026-05-05 — P5-2 Material Drops on Harvest + Doc Sync (v5.96)
 
 **재료 드롭 트랜잭션 통합**

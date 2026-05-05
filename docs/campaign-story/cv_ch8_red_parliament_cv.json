@@ -4,7 +4,9 @@
   "chapterNumber": 8,
   "title": {
     "ko": "군벌의 도박",
-    "en": "The Warlord's Gamble"
+    "en": "The Warlord's Gamble",
+    "ja": "軍閥の賭け",
+    "zh": "军阀的赌注"
   },
   "location": {
     "id": "argyre_plains",
@@ -29,7 +31,9 @@
         {
           "text": {
             "ko": "아르기레 평원. 화성에서 가장 큰 분지. 거기서 CV가 집결했다. 흩어진 것들이 모였다. Crow의 쪽. Reza의 쪽. Cinder와 함께한 것들. 그리고 Butcher. 6개월이라고 했는데 아직 있었다. 화성에서 6개월은 짧은 것이었지만 길게 쓸 수 있었다.",
-            "en": "Argyre Plains. The largest basin on Mars. There CV gathered. Scattered things came together. Crow's group. Reza's group. Those with Cinder. And Butcher. They said six months but he was still there. On Mars six months was short but could be made long."
+            "en": "Argyre Plains. The largest basin on Mars. There CV gathered. Scattered things came together. Crow's group. Reza's group. Those with Cinder. And Butcher. They said six months but he was still there. On Mars six months was short but could be made long.",
+            "ja": "アルギュレ平原。火星で最も大きな盆地。そこにCVが集まった。散らばったものが集まった。Crowのグループ。Rezaのグループ。シンダーと共にいる者たち。そしてButcher。六か月と言われたが彼はまだそこにいた。火星では六か月は短いが長くできる。",
+            "zh": "阿尔吉雷平原。火星最大的盆地。CV在那里聚集了。散开的东西聚在一起了。乌鸦的群体。雷扎的群体。和辛达在一起的人。还有屠夫。说是六个月但他还在那里。在火星上六个月很短但可以延长。"
           }
         }
       ]
@@ -44,7 +48,9 @@
         {
           "text": {
             "ko": "MCC와 FSP가 올림포스 회의로 갔다. 세 파벌 중 두 파벌이 테이블에 있었다. CV가 없는 테이블이었다. CV는 항상 테이블 밖이었다. 그것이 이번에는 달라야 했다. 그렇지 않으면 테이블 위에서 결정된 것이 CV에게 내려왔다. 그것이 30년 전에 일어난 일이었다.",
-            "en": "MCC and FSP went to the Olympus meeting. Two of three factions were at the table. A table without CV. CV was always outside the table. This time had to be different. Otherwise what was decided at the table came down to CV. That was what had happened thirty years ago."
+            "en": "MCC and FSP went to the Olympus meeting. Two of three factions were at the table. A table without CV. CV was always outside the table. This time had to be different. Otherwise what was decided at the table came down to CV. That was what had happened thirty years ago.",
+            "ja": "MCCとFSPがオリンポス会議に行った。三つの派閥のうち二つがテーブルにいた。CVのないテーブル。CVはいつもテーブルの外にいた。今回は違わなければならなかった。そうでなければテーブルで決まることがCVに降りてくる。三十年前にそれが起きた。",
+            "zh": "MCC和FSP去了奥林波斯会议。三个派系中的两个在桌子旁。没有CV的桌子。CV总是在桌子外面。这次必须不同。否则桌子上决定的事情就会降临到CV。三十年前就是这样发生的。"
           }
         }
       ]
@@ -62,7 +68,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "오늘이에요.",
-            "en": "Today is the day."
+            "en": "Today is the day.",
+            "ja": "今日がその日だ。",
+            "zh": "今天是那一天。"
           }
         },
         {
@@ -70,7 +78,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "CV가 도박을 해야 해요. 올림포스 테이블에 자리를 만들어야 해요. 아니면 테이블을 뒤엎어야 해요. 둘 중 하나예요.",
-            "en": "CV has to gamble. We need to make a place at the Olympus table. Or overturn the table. One of the two."
+            "en": "CV has to gamble. We need to make a place at the Olympus table. Or overturn the table. One of the two.",
+            "ja": "CVは賭けなければならない。オリンポスのテーブルに席を作るか。またはテーブルをひっくり返すか。どちらか一つ。",
+            "zh": "CV必须赌。需要在奥林波斯的桌子上占一席之地。或者掀翻桌子。两者之一。"
           }
         },
         {
@@ -78,7 +88,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "결정은 당신이 해요. 나는 오늘 이후를 보장 못 해요. 폐가 알아요.",
-            "en": "You make the decision. I can't guarantee after today. The lungs know."
+            "en": "You make the decision. I can't guarantee after today. The lungs know.",
+            "ja": "お前が決める。今日以降は保証できない。肺が知っている。",
+            "zh": "你来做决定。今天之后我不能保证。肺知道。"
           }
         }
       ]
@@ -93,7 +105,9 @@
         {
           "text": {
             "ko": "Butcher가 외투를 입고 있었다. 주머니에 손이 있었다. 사진 위에. 그것이 전투 전에 하는 일이었다. 30년 동안. 이름들을 만지는 것이었다. 말하지 않고. 손으로. 그것이 이 사람의 준비였다.",
-            "en": "Butcher was wearing the coat. Hand in the pocket. On the photo. That was what he did before battle. For thirty years. Touching the names. Without speaking. With the hand. That was this man's preparation."
+            "en": "Butcher was wearing the coat. Hand in the pocket. On the photo. That was what he did before battle. For thirty years. Touching the names. Without speaking. With the hand. That was this man's preparation.",
+            "ja": "Butcherはコートを着ていた。手がポケットの中に。写真の上に。それが戦闘前に彼がやることだった。三十年間。名前を触ること。話さずに。手で。それがこの男の準備だった。",
+            "zh": "屠夫穿着外套。手在口袋里。在照片上。那是他战斗前做的事情。三十年来。触摸名字。不说话。用手。那是这个男人的准备。"
           },
           "overlay": "cv_ch8_red_parliament_cv_l03_00_hand_still"
         }
@@ -112,7 +126,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "MCC와 FSP가 올림포스에 있는 동안 우리가 여기서 결정하는 거예요.",
-            "en": "While MCC and FSP are on Olympus we decide here."
+            "en": "While MCC and FSP are on Olympus we decide here.",
+            "ja": "MCCとFSPがオリンポスにいる間俺たちはここで決める。",
+            "zh": "当MCC和FSP在奥林波斯时我们在这里决定。"
           }
         },
         {
@@ -120,7 +136,9 @@
           "emotion": "calm",
           "text": {
             "ko": "CV가 무엇인지. 무엇이 될 건지. 오늘 여기서요.",
-            "en": "What CV is. What it will become. Here today."
+            "en": "What CV is. What it will become. Here today.",
+            "ja": "CVとは何か。何になるか。今日ここで。",
+            "zh": "CV是什么。会变成什么。今天在这里。"
           }
         },
         {
@@ -128,7 +146,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "나는 공구를 들어요. 그게 내 대답이에요.",
-            "en": "I'll pick up my tools. That's my answer."
+            "en": "I'll pick up my tools. That's my answer.",
+            "ja": "工具を持つ。それが俺の答えだ。",
+            "zh": "我来拿起工具。那是我的答案。"
           }
         }
       ]
@@ -143,7 +163,9 @@
         {
           "text": {
             "ko": "Crow가 아르기레 평원을 봤다. 넓었다. 화성에서 가장 넓은 곳 중 하나. 협곡에서 자란 사람에게 평원은 달랐다. 넓은 곳에서 전투는 다른 것이었다. 숨을 곳이 없었다. 그것이 CV가 오늘 선택하는 것이었다. 숨지 않는 것.",
-            "en": "Crow looked at the Argyre Plains. Wide. One of the widest places on Mars. For someone raised in canyons plains were different. Battle in open ground was different. Nowhere to hide. That was what CV was choosing today. Not hiding."
+            "en": "Crow looked at the Argyre Plains. Wide. One of the widest places on Mars. For someone raised in canyons plains were different. Battle in open ground was different. Nowhere to hide. That was what CV was choosing today. Not hiding.",
+            "ja": "Crowはアルギュレ平原を見た。広い。火星で最も広い場所の一つ。峡谷で育った者には平原は違った。開けた地での戦いは違った。隠れる場所がない。それがCVが今日選んでいるものだった。隠れないこと。",
+            "zh": "乌鸦看着阿尔吉雷平原。广阔。火星最广阔的地方之一。对于在峡谷中长大的人来说平原是不同的。在开阔地的战斗是不同的。没有地方可以躲藏。那是CV今天选择的事情。不躲藏。"
           }
         }
       ]
@@ -160,7 +182,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "후계자 이야기 해야 해. 지금 해야 해.",
-            "en": "Need to talk about a successor. Need to do it now."
+            "en": "Need to talk about a successor. Need to do it now.",
+            "ja": "後継者について話さなければならない。今やらなければならない。",
+            "zh": "需要谈谈继承人。需要现在做。"
           }
         },
         {
@@ -168,7 +192,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내 결정이야. 당신들 것이 아니야. 그러나 이야기는 들을게.",
-            "en": "My decision. Not yours. But I'll hear what you say."
+            "en": "My decision. Not yours. But I'll hear what you say.",
+            "ja": "俺の決定だ。お前のではない。しかしお前の言うことを聞く。",
+            "zh": "我的决定。不是你的。但我会听你说什么。"
           }
         }
       ]
@@ -183,7 +209,9 @@
         {
           "text": {
             "ko": "후계 이야기였다. 이 방에서. 광산 의자가 있는 방에서. 처음 하는 이야기였다. 30년 동안 한 번도 하지 않은 이야기. Butcher는 항상 여기 있을 것 같았다. 6개월 전까지는 그랬다. 이제 아니었다.",
-            "en": "It was a succession conversation. In this room. In the room with the mining chair. First time for this. Thirty years without it once. Butcher had always seemed like he would be here. Until six months ago. Now it was different."
+            "en": "It was a succession conversation. In this room. In the room with the mining chair. First time for this. Thirty years without it once. Butcher had always seemed like he would be here. Until six months ago. Now it was different.",
+            "ja": "継承の会話だった。この部屋で。採掘椅子のある部屋で。これが初めてだった。三十年間一度もなかった。Butcherはずっとここにいるように見えた。六か月前まで。今は違った。",
+            "zh": "这是一场继承对话。在这个房间里。在有采矿椅子的房间里。这是第一次。三十年来从没有过。屠夫看起来总会在这里。直到六个月前。现在不同了。"
           }
         }
       ]
@@ -200,7 +228,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Crow입니다. 10년 CV. 전술은 알아요. 싸우는 법을 알아요.",
-            "en": "I'm Crow. Ten years CV. I know tactics. I know how to fight."
+            "en": "I'm Crow. Ten years CV. I know tactics. I know how to fight.",
+            "ja": "俺はCrow。CV歴十年。戦術を知っている。戦い方を知っている。",
+            "zh": "我是乌鸦。CV十年。我知道战术。我知道如何战斗。"
           }
         },
         {
@@ -208,7 +238,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그러나 솔직히 말할게요. 나는 이름들을 모르는 경우가 많아요. 사진 뒤를 본 적 없어요.",
-            "en": "But I'll be honest. I often don't know the names. I haven't seen the back of the photo."
+            "en": "But I'll be honest. I often don't know the names. I haven't seen the back of the photo.",
+            "ja": "しかし正直に言う。俺は名前を知らないことが多い。写真の裏を見たことがない。",
+            "zh": "但我会诚实说。我经常不知道名字。我没有看过照片的背面。"
           }
         },
         {
@@ -216,7 +248,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그것이 내 약점이에요. 말 안 해도 알겠지만.",
-            "en": "That's my weakness. You already know without me saying."
+            "en": "That's my weakness. You already know without me saying.",
+            "ja": "それが俺の弱点だ。俺が言わなくてもお前はすでに知っている。",
+            "zh": "那是我的弱点。不用我说你已经知道了。"
           }
         }
       ]
@@ -231,7 +265,9 @@
         {
           "text": {
             "ko": "Crow가 그것을 말했다. 자신의 약점을. 이 방에서. Butcher 앞에서. 그것이 용기였는지 전략이었는지는 알 수 없었다. 그러나 말했다. 이 방에서 거짓말은 의미가 없었다. Butcher가 아는 방이었다. 모든 것을.",
-            "en": "Crow said it. His own weakness. In this room. Before Butcher. Whether it was courage or strategy was unclear. But he said it. In this room lying was meaningless. It was Butcher's room. He knew everything."
+            "en": "Crow said it. His own weakness. In this room. Before Butcher. Whether it was courage or strategy was unclear. But he said it. In this room lying was meaningless. It was Butcher's room. He knew everything.",
+            "ja": "Crowが言った。自分の弱点を。この部屋で。Butcherの前で。それが勇気か戦略かは不明だった。しかし言った。この部屋では嘘が意味をなさなかった。Butcherの部屋だった。彼はすべてを知っていた。",
+            "zh": "乌鸦说出来了。自己的弱点。在这个房间里。在屠夫面前。那是勇气还是策略不清楚。但他说了。在这个房间里撒谎没有意义。是屠夫的房间。他知道一切。"
           }
         }
       ]
@@ -248,7 +284,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "나는 이름들을 알아요. 사진 뒤에 있는 이름들. 직접 써달라고 했어요. 전부.",
-            "en": "I know the names. The ones on the back of the photo. I asked to write them all myself."
+            "en": "I know the names. The ones on the back of the photo. I asked to write them all myself.",
+            "ja": "俺は名前を知っている。写真の裏のもの。全部自分で書かせてほしいと頼んだ。",
+            "zh": "我知道那些名字。照片背面的那些。我请求让我自己写下所有的名字。"
           }
         },
         {
@@ -256,7 +294,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그러나 사람들을 이끄는 것은 내 것이 아니에요. 공구로 고치는 것과 달라요.",
-            "en": "But leading people isn't mine. It's different from fixing with tools."
+            "en": "But leading people isn't mine. It's different from fixing with tools.",
+            "ja": "しかし人を率いることは俺のものではない。工具で修理することとは違う。",
+            "zh": "但带领人们不是我的事。与用工具修理不同。"
           }
         },
         {
@@ -264,7 +304,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "원하지 않는 자리를 받으면 이름들을 잊어버릴 것 같아요. 그게 두려워요.",
-            "en": "If I take a seat I don't want I'm afraid I'll forget the names. That's what I fear."
+            "en": "If I take a seat I don't want I'm afraid I'll forget the names. That's what I fear.",
+            "ja": "望まない席に就いたら名前を忘れてしまいそうで怖い。それが俺の恐れだ。",
+            "zh": "如果我坐上一个我不想要的位置我害怕会忘记那些名字。那是我所担心的。"
           }
         }
       ]
@@ -279,7 +321,9 @@
         {
           "text": {
             "ko": "Cinder의 두려움이었다. 이름들을 잊는 것. 그것이 이 방에서 가장 솔직한 것이었다. Butcher가 들었다. 사진 위에 손이 있었다. 주머니 안에서. 만지는 것이었다. 이름들을. 듣는 동안.",
-            "en": "Cinder's fear. Forgetting the names. That was the most honest thing in this room. Butcher heard it. Hand on the photo. Inside the pocket. Touching it. The names. While listening."
+            "en": "Cinder's fear. Forgetting the names. That was the most honest thing in this room. Butcher heard it. Hand on the photo. Inside the pocket. Touching it. The names. While listening.",
+            "ja": "シンダーの恐れ。名前を忘れること。それがこの部屋で最も正直なことだった。Butcherはそれを聞いた。写真に手を置いて。ポケットの中で。触れながら。名前に。聞きながら。",
+            "zh": "辛达的恐惧。忘记名字。那是这个房间里最诚实的事情。屠夫听到了。手放在照片上。在口袋里。触碰着。名字。听着的时候。"
           }
         }
       ]
@@ -296,7 +340,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "나는 30년 동안 이름들을 잊은 적 없어. 어떻게 했는지 알아?",
-            "en": "I haven't forgotten the names in thirty years. You know how."
+            "en": "I haven't forgotten the names in thirty years. You know how.",
+            "ja": "三十年間名前を忘れていない。どうやってかお前は知っている。",
+            "zh": "三十年来我没有忘记名字。你知道怎么做的。"
           }
         },
         {
@@ -304,7 +350,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이름들을 이유로 만들었어. 지도자인 이유. CV가 있는 이유. 그러면 잊히지 않아.",
-            "en": "I made the names the reason. The reason to be a leader. The reason CV exists. Then they can't be forgotten."
+            "en": "I made the names the reason. The reason to be a leader. The reason CV exists. Then they can't be forgotten.",
+            "ja": "名前を理由にした。リーダーである理由。CVが存在する理由。そうすれば忘れられない。",
+            "zh": "我把名字作为了原因。成为领导者的原因。CV存在的原因。那样就不会被忘记。"
           }
         }
       ]
@@ -319,7 +367,9 @@
         {
           "text": {
             "ko": "MCC에서 연락이 왔다. 갑자기. CV의 내분을 이용하겠다는 것이었다. 올림포스 회담이 진행 중이었다. CV가 없는 테이블. MCC가 CV 없이 합의를 만들려고 했다. CV 영토를 분할하는 합의. 에레보스를 포함한.",
-            "en": "Communication from MCC. Sudden. They were going to exploit CV's internal conflict. Olympus talks were ongoing. A table without CV. MCC was trying to build an agreement without CV. An agreement dividing CV territory. Including Erebus."
+            "en": "Communication from MCC. Sudden. They were going to exploit CV's internal conflict. Olympus talks were ongoing. A table without CV. MCC was trying to build an agreement without CV. An agreement dividing CV territory. Including Erebus.",
+            "ja": "MCCからの通信。突然。CVの内部対立を利用しようとしていた。オリンポス会談が進行中だった。CVのないテーブル。MCCはCVなしで合意を作ろうとしていた。CV領土を分割する合意。エレボスを含む。",
+            "zh": "来自MCC的通讯。突然。他们要利用CV的内部冲突。奥林波斯会谈正在进行中。没有CV的桌子。MCC试图在没有CV的情况下建立一个协议。分割CV领土的协议。包括厄瑞玻斯。"
           }
         }
       ]
@@ -336,7 +386,9 @@
           "emotion": "tense",
           "text": {
             "ko": "MCC가 올림포스에서 에레보스 분화구를 MCC 관할로 넣으려 해요. FSP도 동의했다고 해요.",
-            "en": "MCC is trying to put Erebus crater under MCC jurisdiction at Olympus. They say FSP agreed too."
+            "en": "MCC is trying to put Erebus crater under MCC jurisdiction at Olympus. They say FSP agreed too.",
+            "ja": "MCCはオリンポスでエレボスクレーターをMCC管轄下に置こうとしている。FSPも同意したとのこと。",
+            "zh": "MCC试图在奥林波斯将厄瑞玻斯陨石坑置于MCC管辖下。他们说FSP也同意了。"
           }
         },
         {
@@ -344,7 +396,9 @@
           "emotion": "serious",
           "text": {
             "ko": "CV가 합의에 참여하지 않으면 CV 영토는 없어요. 30년 역사가 없어요.",
-            "en": "If CV doesn't participate in the agreement there's no CV territory. Thirty years of history is nothing."
+            "en": "If CV doesn't participate in the agreement there's no CV territory. Thirty years of history is nothing.",
+            "ja": "CVが合意に参加しなければCV領土はない。三十年の歴史が無となる。",
+            "zh": "如果CV不参与协议就没有CV领土了。三十年的历史什么都不是了。"
           }
         }
       ]
@@ -359,7 +413,9 @@
         {
           "text": {
             "ko": "Butcher가 사진을 꺼냈다. 뒤집었다. 이름들을 봤다. 30년 된 것들. Zone 12. 그 사이의 것들. 테이블에 올려놓았다. 처음이었다. 테이블 위에 사진을 올려놓은 것. 두 손이 테이블을 짚었다. 의수와 오른손으로.",
-            "en": "Butcher took out the photo. Flipped it. Looked at the names. Thirty-year-old ones. Zone 12. The ones in between. He placed it on the table. First time. The photo on the table. Both hands on the table. The prosthetic and the right hand."
+            "en": "Butcher took out the photo. Flipped it. Looked at the names. Thirty-year-old ones. Zone 12. The ones in between. He placed it on the table. First time. The photo on the table. Both hands on the table. The prosthetic and the right hand.",
+            "ja": "Butcherは写真を取り出した。裏返した。名前を見た。三十年前のもの。ゾーン12。その間のもの。テーブルに置いた。初めて。写真がテーブルの上に。両手がテーブルの上に。義手と右手。",
+            "zh": "屠夫取出了照片。翻转了。看着名字。三十年前的。12区。中间的那些。放在了桌上。第一次。照片在桌上。两只手在桌上。义肢和右手。"
           },
           "overlay": "cv_ch8_red_parliament_cv_l15_00_death_still"
         }
@@ -377,7 +433,9 @@
           "emotion": "serious",
           "text": {
             "ko": "에레보스는 CV 것이야. 30년 전부터. MCC가 만든 것 아니야. 우리가 만든 거야. 이름들이 여기 있어.",
-            "en": "Erebus is CV's. Since thirty years ago. Not something MCC made. We made it. The names are here."
+            "en": "Erebus is CV's. Since thirty years ago. Not something MCC made. We made it. The names are here.",
+            "ja": "エレボスはCVのものだ。三十年前から。MCCが作ったものではない。俺たちが作った。名前がここにある。",
+            "zh": "厄瑞玻斯是CV的。从三十年前开始。不是MCC创造的。是我们创造的。名字在这里。"
           }
         },
         {
@@ -385,7 +443,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "CV가 올림포스에 가야 해. 테이블에 자리를 만들어야 해. 오늘.",
-            "en": "CV has to go to Olympus. Has to make a place at the table. Today."
+            "en": "CV has to go to Olympus. Has to make a place at the table. Today.",
+            "ja": "CVはオリンポスに行かなければならない。テーブルに席を作らなければならない。今日。",
+            "zh": "CV必须去奥林波斯。必须在桌子上占一席之地。今天。"
           }
         }
       ]
@@ -400,7 +460,9 @@
         {
           "text": {
             "ko": "CV가 집결했다. 아르기레 평원에. 분열의 위기가 있었다. 그러나 Butcher가 사진을 테이블에 올려놓은 다음에 달라졌다. Crow와 Reza가 같은 방향을 봤다. 처음이었다. 사진 때문이었다. 이름들 때문이었다.",
-            "en": "CV gathered. On the Argyre Plains. There had been a crisis of division. But after Butcher placed the photo on the table things changed. Crow and Reza looked in the same direction. First time. Because of the photo. Because of the names."
+            "en": "CV gathered. On the Argyre Plains. There had been a crisis of division. But after Butcher placed the photo on the table things changed. Crow and Reza looked in the same direction. First time. Because of the photo. Because of the names.",
+            "ja": "CVが集まった。アルギュレ平原に。分裂の危機があった。しかしButcherが写真をテーブルに置いた後、状況が変わった。CrowとRezaが同じ方向を向いた。初めて。写真のせいで。名前のせいで。",
+            "zh": "CV聚集了。在阿尔吉雷平原。有过分裂的危机。但屠夫把照片放在桌上后情况变了。乌鸦和雷扎看向了同一方向。第一次。因为照片。因为名字。"
           }
         }
       ]
@@ -417,7 +479,9 @@
           "emotion": "serious",
           "text": {
             "ko": "올림포스까지 가려면 12시간이에요. CV 전체가 움직이면 눈에 띄어요.",
-            "en": "Twelve hours to Olympus. If all of CV moves it'll be noticed."
+            "en": "Twelve hours to Olympus. If all of CV moves it'll be noticed.",
+            "ja": "オリンポスまで十二時間。CVが全員動けば気づかれる。",
+            "zh": "到奥林波斯十二小时。如果全部CV移动会被注意到。"
           }
         },
         {
@@ -425,7 +489,9 @@
           "emotion": "calm",
           "text": {
             "ko": "작게 가야 해요. 3명이면 충분해요. Cinder. 당신. 그리고 Butcher.",
-            "en": "Need to go small. Three is enough. Cinder. You. And Butcher."
+            "en": "Need to go small. Three is enough. Cinder. You. And Butcher.",
+            "ja": "少人数で行く必要がある。三人で十分。シンダー。お前。そしてButcher。",
+            "zh": "需要小规模行动。三个人就够了。辛达。你。还有屠夫。"
           }
         },
         {
@@ -433,7 +499,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Butcher가 여기서 처음으로 이름들을 테이블에 올렸어요. 그게 올림포스에서도 통해야 해요.",
-            "en": "Butcher put the names on the table here for the first time. That needs to work at Olympus too."
+            "en": "Butcher put the names on the table here for the first time. That needs to work at Olympus too.",
+            "ja": "Butcherがここで初めて名前をテーブルに置いた。オリンポスでも機能しなければならない。",
+            "zh": "屠夫在这里第一次把名字放在桌上。那在奥林波斯也必须起作用。"
           }
         }
       ]
@@ -448,7 +516,9 @@
         {
           "text": {
             "ko": "후계 결정이었다. Butcher가 미루지 않았다. 오늘이 마지막 기회일 수 있었다. 올림포스에 가기 전에 정해야 했다. 누가 CV를 이끄는가. 누가 이름들을 가지고 가는가.",
-            "en": "The succession decision. Butcher didn't delay. Today could be the last chance. Had to be decided before Olympus. Who leads CV. Who carries the names."
+            "en": "The succession decision. Butcher didn't delay. Today could be the last chance. Had to be decided before Olympus. Who leads CV. Who carries the names.",
+            "ja": "継承の決定。Butcherは遅らせなかった。今日が最後のチャンスかもしれなかった。オリンポス前に決めなければならなかった。誰がCVを率いるか。誰が名前を運ぶか。",
+            "zh": "继承决定。屠夫没有拖延。今天可能是最后的机会。必须在奥林波斯之前决定。谁来领导CV。谁来携带名字。"
           }
         }
       ]
@@ -465,7 +535,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신한테 물어볼 게 있어. 이게 마지막 시험이야.",
-            "en": "Something to ask you. This is the last test."
+            "en": "Something to ask you. This is the last test.",
+            "ja": "お前に聞くことがある。これが最後のテストだ。",
+            "zh": "有事要问你。这是最后的考验。"
           }
         },
         {
@@ -473,7 +545,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "CV 다음 지도자가 당신이면. 무엇을 가장 먼저 할 거야.",
-            "en": "If you're CV's next leader. What will you do first."
+            "en": "If you're CV's next leader. What will you do first.",
+            "ja": "お前がCVの次のリーダーなら。最初に何をするか。",
+            "zh": "如果你是CV的下一个领导者。你首先会做什么。"
           }
         }
       ]
@@ -488,7 +562,9 @@
         {
           "text": {
             "ko": "질문이었다. 마지막 시험. 이름들이 테이블 위에 있었다. 사진이. Cinder가 공구를 만졌다. Crow가 창밖을 봤다. 아르기레 평원이 창 너머로 있었다. 넓은 것이었다. 숨을 곳 없는 것이었다. 이 질문도 그랬다.",
-            "en": "A question. The last test. The names were on the table. The photo. Cinder touched her tools. Crow looked out the window. The Argyre Plains were beyond the window. Wide. Nowhere to hide. This question was the same."
+            "en": "A question. The last test. The names were on the table. The photo. Cinder touched her tools. Crow looked out the window. The Argyre Plains were beyond the window. Wide. Nowhere to hide. This question was the same.",
+            "ja": "質問。最後のテスト。名前がテーブルの上にあった。写真。シンダーは工具を触った。Crowは窓の外を見た。アルギュレ平原が窓の向こうにあった。広い。隠れる場所がない。この質問も同じだった。",
+            "zh": "问题。最后的考验。名字在桌上。照片。辛达触碰了工具。乌鸦向窗外看。阿尔吉雷平原在窗外。广阔。没有地方可以躲藏。这个问题也是一样的。"
           }
         }
       ]
@@ -505,7 +581,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "나는 알아. 당신이 무엇을 선택할지. 대략은. 그러나 당신 입으로 듣고 싶어.",
-            "en": "I know. Roughly what you'll choose. But I want to hear it from you."
+            "en": "I know. Roughly what you'll choose. But I want to hear it from you.",
+            "ja": "わかっている。大体お前が何を選ぶか。しかしお前の口から聞きたい。",
+            "zh": "我知道。大概你会选择什么。但我想从你口中听到。"
           }
         },
         {
@@ -513,7 +591,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "17살에 나는 서명하지 않았어. 그 이유가 지금 이 방에 있어.",
-            "en": "At seventeen I didn't sign. The reason for that is in this room now."
+            "en": "At seventeen I didn't sign. The reason for that is in this room now.",
+            "ja": "十七歳のとき署名しなかった。その理由が今この部屋にある。",
+            "zh": "十七岁时我没有签名。那个原因现在就在这个房间里。"
           }
         }
       ]
@@ -528,7 +608,9 @@
         {
           "text": {
             "ko": "FSP에서 연락이 왔다. 올림포스 회담에 CV 자리가 없다는 것을 확인했다. FSP는 MCC 제안을 받을 것이라고 했다. CV 영토 분할. 에레보스 포함. 시간이 없었다. 결정이 필요했다.",
-            "en": "Communication from FSP. They confirmed there was no seat for CV at the Olympus talks. FSP would accept MCC's proposal, they said. Dividing CV territory. Including Erebus. No time. A decision was needed."
+            "en": "Communication from FSP. They confirmed there was no seat for CV at the Olympus talks. FSP would accept MCC's proposal, they said. Dividing CV territory. Including Erebus. No time. A decision was needed.",
+            "ja": "FSPからの通信。オリンポス会談にCVの席がないことが確認された。FSPはMCCの提案を受け入れると言った。CV領土の分割。エレボスを含む。時間がない。決定が必要だった。",
+            "zh": "来自FSP的通讯。确认了奥林波斯会谈中没有CV的席位。FSP说会接受MCC的提案。分割CV领土。包括厄瑞玻斯。没有时间了。需要做决定。"
           }
         }
       ]
@@ -545,7 +627,9 @@
           "emotion": "tense",
           "text": {
             "ko": "시간이 없어요. FSP가 3시간 후에 서명해요.",
-            "en": "No time. FSP signs in three hours."
+            "en": "No time. FSP signs in three hours.",
+            "ja": "時間がない。FSPは三時間後に署名する。",
+            "zh": "没有时间了。FSP三小时后签署。"
           }
         },
         {
@@ -553,7 +637,9 @@
           "emotion": "calm",
           "text": {
             "ko": "올림포스까지 12시간이에요. 시간이 없어요. 다른 방법이 필요해요.",
-            "en": "Twelve hours to Olympus. No time. Need another way."
+            "en": "Twelve hours to Olympus. No time. Need another way.",
+            "ja": "オリンポスまで十二時間。時間がない。別の方法が必要だ。",
+            "zh": "到奥林波斯十二小时。没有时间了。需要另一种方式。"
           }
         },
         {
@@ -561,7 +647,9 @@
           "emotion": "serious",
           "text": {
             "ko": "회담을 막을 수 있어요. 올림포스 통신 중계소를 차단하면 돼요. 1시간이면 가요.",
-            "en": "Can stop the talks. Block Olympus's communications relay. One hour to get there."
+            "en": "Can stop the talks. Block Olympus's communications relay. One hour to get there.",
+            "ja": "会談を止めることができる。オリンポスの通信リレーを遮断する。そこに着くのに一時間。",
+            "zh": "可以停止会谈。封锁奥林波斯的通信中继站。一小时可以到达那里。"
           }
         }
       ]
@@ -576,7 +664,9 @@
         {
           "text": {
             "ko": "통신 중계소. 올림포스 남쪽 기슭. Cinder가 알고 있었다. 엔지니어였다. 공구를 가진 사람. 막을 수 있는 사람. 그러나 그것이 전쟁의 시작일 수도 있었다. MCC와의 전쟁. CV가 도박을 하는 것이었다.",
-            "en": "Communications relay. Southern foot of Olympus. Cinder knew it. She was an engineer. A person with tools. Someone who could block it. But that could be the start of war. War with MCC. CV was gambling."
+            "en": "Communications relay. Southern foot of Olympus. Cinder knew it. She was an engineer. A person with tools. Someone who could block it. But that could be the start of war. War with MCC. CV was gambling.",
+            "ja": "通信リレー。オリンポスの南麓。シンダーが知っていた。彼女はエンジニアだった。工具を持つ人物。それを遮断できる人物。しかしそれは戦争の始まりになるかもしれなかった。MCCとの戦争。CVは賭けていた。",
+            "zh": "通信中继站。奥林波斯南麓。辛达知道这一点。她是工程师。持有工具的人。能够封锁它的人。但那可能是战争的开始。与MCC的战争。CV在赌博。"
           }
         }
       ]
@@ -593,7 +683,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 후계자를 결정할게. 그 전에 도박을 해야 해.",
-            "en": "I'll decide the successor. Before that we have to gamble."
+            "en": "I'll decide the successor. Before that we have to gamble.",
+            "ja": "後継者を決める。その前に俺たちは賭けなければならない。",
+            "zh": "我来决定继承人。在那之前我们必须赌博。"
           }
         },
         {
@@ -601,7 +693,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "올림포스. CV 자리를 만들어야 해. 아니면 테이블을 없애. 그게 도박이야.",
-            "en": "Olympus. Need to make a CV seat. Or destroy the table. That's the gamble."
+            "en": "Olympus. Need to make a CV seat. Or destroy the table. That's the gamble.",
+            "ja": "オリンポス。CVの席を作るか。またはテーブルを壊すか。それが賭けだ。",
+            "zh": "奥林波斯。需要建立CV的席位。或者摧毁桌子。那是赌注。"
           }
         },
         {
@@ -609,7 +703,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "30년 전에 파업이었어. 오늘은 올림포스야. 달라진 게 없어. 그러나 우리가 달라야 해.",
-            "en": "Thirty years ago it was the strike. Today it's Olympus. Nothing's changed. But we have to be different."
+            "en": "Thirty years ago it was the strike. Today it's Olympus. Nothing's changed. But we have to be different.",
+            "ja": "三十年前はストライキだった。今日はオリンポスだ。何も変わっていない。しかし俺たちは違わなければならない。",
+            "zh": "三十年前是罢工。今天是奥林波斯。没有什么改变。但我们必须不同。"
           }
         }
       ]
@@ -624,7 +720,9 @@
         {
           "text": {
             "ko": "CV가 아르기레 평원에 있었다. 넓었다. 숨을 곳이 없었다. 화성의 가장 넓은 곳에서 CV가 결정을 내리고 있었다. 그것이 이 시간의 의미였다. 숨지 않는 것. 넓은 데서 결정하는 것.",
-            "en": "CV was on the Argyre Plains. Wide. Nowhere to hide. In the widest place on Mars CV was making a decision. That was the meaning of this moment. Not hiding. Deciding in the open."
+            "en": "CV was on the Argyre Plains. Wide. Nowhere to hide. In the widest place on Mars CV was making a decision. That was the meaning of this moment. Not hiding. Deciding in the open.",
+            "ja": "CVはアルギュレ平原にいた。広い。隠れる場所がない。火星で最も広い場所でCVは決定を下していた。それがこの瞬間の意味だった。隠れないこと。開けた場所で決める。",
+            "zh": "CV在阿尔吉雷平原上。广阔。没有地方躲藏。在火星最广阔的地方CV正在做决定。那是这一刻的意义。不躲藏。在开放的地方决定。"
           }
         }
       ]
@@ -641,7 +739,9 @@
           "emotion": "calm",
           "text": {
             "ko": "아르기레에서 올림포스를 본 사람이 있어요? 날씨가 맑으면 보여요.",
-            "en": "Anyone here seen Olympus from Argyre. On a clear day you can see it."
+            "en": "Anyone here seen Olympus from Argyre. On a clear day you can see it.",
+            "ja": "ここからアルギュレでオリンポスを見た者はいるか。晴れた日には見えるぞ。",
+            "zh": "这里有人从阿尔吉雷见过奥林波斯吗。晴天可以看到。"
           }
         },
         {
@@ -649,7 +749,9 @@
           "emotion": "flat",
           "text": {
             "ko": "협곡에서는 못 봤어요. 여기서는 보여요.",
-            "en": "Couldn't see it from the canyon. Can see it here."
+            "en": "Couldn't see it from the canyon. Can see it here.",
+            "ja": "峡谷からは見えなかった。ここからは見える。",
+            "zh": "从峡谷看不到。在这里可以看到。"
           }
         },
         {
@@ -657,7 +759,9 @@
           "emotion": "serious",
           "text": {
             "ko": "보이는 데서 결정하는 게 나아요. 그게 오늘의 방식이에요.",
-            "en": "Better to decide where you can see. That's the way of today."
+            "en": "Better to decide where you can see. That's the way of today.",
+            "ja": "見える場所で決める方がいい。それが今日のやり方だ。",
+            "zh": "在可以看见的地方决定更好。那是今天的方式。"
           }
         }
       ]
@@ -672,7 +776,9 @@
         {
           "text": {
             "ko": "외부 위협이 왔다. MCC 선발대. 아르기레 평원 북쪽. 그들이 왔다. CV 집결을 알고 왔다. 정보가 새고 있었다. 내부에서. 또 분열의 흔적이었다. Reza 쪽 어딘가에서.",
-            "en": "External threat arrived. MCC advance team. Northern Argyre Plains. They came. They knew about CV's gathering. Intelligence was leaking. From inside. Another sign of division. From somewhere in Reza's side."
+            "en": "External threat arrived. MCC advance team. Northern Argyre Plains. They came. They knew about CV's gathering. Intelligence was leaking. From inside. Another sign of division. From somewhere in Reza's side.",
+            "ja": "外部の脅威が来た。MCC先遣チーム。北アルギュレ平原。彼らが来た。CVの集まりを知っていた。情報が漏れていた。内部から。分裂のもう一つの兆候。Reza側のどこかから。",
+            "zh": "外部威胁到来了。MCC先遣队。北阿尔吉雷平原。他们来了。他们知道CV的聚集。情报在泄露。从内部。分裂的又一个迹象。从雷扎那边的某处。"
           }
         }
       ]
@@ -689,7 +795,9 @@
           "emotion": "tense",
           "text": {
             "ko": "MCC 선발대 12명이에요. 평원 북쪽. 차량 4대.",
-            "en": "MCC advance team. Twelve. Northern plain. Four vehicles."
+            "en": "MCC advance team. Twelve. Northern plain. Four vehicles.",
+            "ja": "MCC先遣チーム。十二人。北平原。四両。",
+            "zh": "MCC先遣队。十二人。北部平原。四辆车。"
           }
         },
         {
@@ -697,7 +805,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 차량을 멈출게요. 공구 있어요. 원격 차단 가능해요.",
-            "en": "I'll stop the vehicles. Have the tools. Remote shutdown is possible."
+            "en": "I'll stop the vehicles. Have the tools. Remote shutdown is possible.",
+            "ja": "車両を止める。工具がある。遠隔シャットダウンが可能だ。",
+            "zh": "我来停止车辆。有工具。远程关闭是可能的。"
           }
         },
         {
@@ -705,7 +815,9 @@
           "emotion": "serious",
           "text": {
             "ko": "나머지는 내가 맡을게요. 당신은 Butcher와 함께 있어요.",
-            "en": "I'll handle the rest. You stay with Butcher."
+            "en": "I'll handle the rest. You stay with Butcher.",
+            "ja": "残りは俺が対処する。お前はButcherと一緒にいろ。",
+            "zh": "其余的我来处理。你留在屠夫身旁。"
           }
         }
       ]
@@ -720,7 +832,9 @@
         {
           "text": {
             "ko": "Cinder가 공구를 들었다. Crow가 움직였다. 두 사람이 분열 직전에 같이 움직였다. 이름들이 그것을 가능하게 했다. 사진이 테이블 위에 있었다. 에레보스에서 여기까지 가져온 것이었다. Butcher의 주머니에서 나온 것이었다.",
-            "en": "Cinder picked up her tools. Crow moved. Two people who were on the verge of splitting moved together. The names made that possible. The photo was on the table. Carried from Erebus to here. Taken from Butcher's pocket."
+            "en": "Cinder picked up her tools. Crow moved. Two people who were on the verge of splitting moved together. The names made that possible. The photo was on the table. Carried from Erebus to here. Taken from Butcher's pocket.",
+            "ja": "シンダーが工具を持った。Crowが動いた。分裂寸前だった二人が一緒に動いた。名前がそれを可能にした。写真がテーブルの上にあった。エレボスからここまで運ばれた。Butcherのポケットから取り出された。",
+            "zh": "辛达拿起了工具。乌鸦行动了。濒临分裂的两个人一起行动了。名字让这成为可能。照片在桌上。从厄瑞玻斯带到这里。从屠夫的口袋里取出来。"
           }
         }
       ]
@@ -737,7 +851,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "아르기레 평원. 30년 전에는 여기 안 왔어. 처음이야.",
-            "en": "Argyre Plains. Didn't come here thirty years ago. First time."
+            "en": "Argyre Plains. Didn't come here thirty years ago. First time.",
+            "ja": "アルギュレ平原。三十年前には来なかった。初めて。",
+            "zh": "阿尔吉雷平原。三十年前没有来过这里。第一次。"
           }
         },
         {
@@ -745,7 +861,9 @@
           "emotion": "serious",
           "text": {
             "ko": "협곡에서 시작했어. 에레보스에서 계속했어. 여기서 끝낼 수도 있어. 그것도 괜찮아.",
-            "en": "Started in the canyon. Continued in Erebus. Could end here. That's fine too."
+            "en": "Started in the canyon. Continued in Erebus. Could end here. That's fine too.",
+            "ja": "峡谷で始まった。エレボスで続いた。ここで終わるかもしれない。それでもいい。",
+            "zh": "在峡谷开始。在厄瑞玻斯继续。可能在这里结束。那也可以。"
           }
         }
       ]
@@ -760,7 +878,9 @@
         {
           "text": {
             "ko": "Butcher가 평원을 봤다. 넓은 것이었다. 협곡보다 넓었다. 에레보스보다 넓었다. 이 사람이 좁은 데서 30년을 살았다. 협곡. 갱도. 에레보스. 처음으로 넓은 데서 있었다. 그것이 좋은지 나쁜지는 표정에서 알 수 없었다.",
-            "en": "Butcher looked at the plains. Wide. Wider than the canyon. Wider than Erebus. This man had lived thirty years in narrow places. Canyon. Tunnel. Erebus. For the first time he was in a wide place. Whether that was good or bad couldn't be read from his expression."
+            "en": "Butcher looked at the plains. Wide. Wider than the canyon. Wider than Erebus. This man had lived thirty years in narrow places. Canyon. Tunnel. Erebus. For the first time he was in a wide place. Whether that was good or bad couldn't be read from his expression.",
+            "ja": "Butcherは平原を見た。広い。峡谷より広い。エレボスより広い。この男は三十年間狭い場所で生きてきた。峡谷。トンネル。エレボス。初めて広い場所にいた。それが良いことか悪いことかは表情から読み取れなかった。",
+            "zh": "屠夫看着平原。广阔。比峡谷更广阔。比厄瑞玻斯更广阔。这个男人在狭窄的地方生活了三十年。峡谷。隧道。厄瑞玻斯。第一次在广阔的地方。那是好事还是坏事从他的表情上看不出来。"
           }
         }
       ]
@@ -772,55 +892,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "아르기레 평원. CV. 오늘의 도박. Butcher가 기다린다. 무엇을 걸겠습니까.",
-        "en": "Argyre Plains. CV. Today's gamble. Butcher waits. What will you bet."
+        "en": "Argyre Plains. CV. Today's gamble. Butcher waits. What will you bet.",
+        "ja": "アルギュレ平原。CV。今日の賭け。Butcherが待っている。何に賭けるか。",
+        "zh": "阿尔吉雷平原。CV。今天的赌注。屠夫在等待。你会赌什么。"
       },
       "choices": [
         {
           "id": "cv_ch8_table",
           "text": {
             "ko": "테이블에 자리를 만든다. 올림포스로.",
-            "en": "Make a place at the table. To Olympus."
+            "en": "Make a place at the table. To Olympus.",
+            "ja": "テーブルに席を作る。オリンポスへ。",
+            "zh": "在桌子上占一席之地。去奥林波斯。"
           },
           "tone": "diplomatic",
           "preview_hint": {
             "ko": "→ 세 개의 깃발 완성. Butcher가 살아서 본다",
-            "en": "→ Three Flags complete. Butcher sees it alive."
+            "en": "→ Three Flags complete. Butcher sees it alive.",
+            "ja": "→ 三つの旗完了。Butcherが生きて見届ける。",
+            "zh": "→ 三面旗帜完成。屠夫活着见证它。"
           }
         },
         {
           "id": "cv_ch8_overturn",
           "text": {
             "ko": "테이블을 뒤엎는다. 새 질서.",
-            "en": "Overturn the table. New order."
+            "en": "Overturn the table. New order.",
+            "ja": "テーブルをひっくり返す。新秩序。",
+            "zh": "掀翻桌子。新秩序。"
           },
           "tone": "revolutionary",
           "preview_hint": {
             "ko": "→ 화성이 흔들린다. CV가 중심이 된다",
-            "en": "→ Mars shakes. CV becomes the center."
+            "en": "→ Mars shakes. CV becomes the center.",
+            "ja": "→ 火星が揺れる。CVが中心となる。",
+            "zh": "→ 火星震动。CV成为中心。"
           }
         },
         {
           "id": "cv_ch8_withdraw",
           "text": {
             "ko": "CV는 CV의 땅으로 돌아간다.",
-            "en": "CV returns to CV's own land."
+            "en": "CV returns to CV's own land.",
+            "ja": "CVはCVの土地に戻る。",
+            "zh": "CV回到CV自己的土地。"
           },
           "tone": "independent",
           "preview_hint": {
             "ko": "→ 분리주의. 화성 남부가 CV 것이 된다",
-            "en": "→ Separatism. The southern Mars becomes CV's."
+            "en": "→ Separatism. The southern Mars becomes CV's.",
+            "ja": "→ 分離主義。南火星がCVのものになる。",
+            "zh": "→ 分离主义。火星南部成为CV的。"
           }
         },
         {
           "id": "cv_ch8_crown",
           "text": {
             "ko": "세 파벌 너머의 화성을 만든다.",
-            "en": "Make a Mars beyond three factions."
+            "en": "Make a Mars beyond three factions.",
+            "ja": "三派閥を超えた火星を作る。",
+            "zh": "创造一个超越三个派系的火星。"
           },
           "tone": "transcendent",
           "preview_hint": {
             "ko": "→ Butcher가 사진을 꺼낸다. 마지막으로",
-            "en": "→ Butcher takes out the photo. For the last time."
+            "en": "→ Butcher takes out the photo. For the last time.",
+            "ja": "→ Butcherが最後に写真を取り出す。",
+            "zh": "→ 屠夫取出照片。最后一次。"
           }
         }
       ]
@@ -833,11 +971,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "아르기레의 결전",
-        "en": "Battle of Argyre"
+        "en": "Battle of Argyre",
+        "ja": "アルギュレの戦い",
+        "zh": "阿尔吉雷之战"
       },
       "subtitle": {
         "ko": "화성 최대 분지 — CV의 최후 선택",
-        "en": "Mars's Greatest Basin — CV's Final Choice"
+        "en": "Mars's Greatest Basin — CV's Final Choice",
+        "ja": "火星最大の盆地 — CVの最終選択",
+        "zh": "火星最大盆地 — CV的最终选择"
       }
     },
     {
@@ -858,7 +1000,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "살았어.",
-            "en": "We lived."
+            "en": "We lived.",
+            "ja": "俺たちは生き残った。",
+            "zh": "我们活下来了。"
           }
         },
         {
@@ -866,7 +1010,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "오늘 하루 더 살았어. 그것으로 충분해.",
-            "en": "Lived one more day. That's enough."
+            "en": "Lived one more day. That's enough.",
+            "ja": "もう一日生きた。それで十分だ。",
+            "zh": "又多活了一天。那就足够了。"
           }
         },
         {
@@ -874,7 +1020,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신이야. 다음은. 내 결정이야. 사진이 증거야.",
-            "en": "You. The next one. My decision. The photo is the proof."
+            "en": "You. The next one. My decision. The photo is the proof.",
+            "ja": "お前。次の人。俺の決定。写真が証拠だ。",
+            "zh": "你。下一个。我的决定。照片是证明。"
           },
           "overlay": "cv_ch8_red_parliament_cv_l37_02_death_still"
         }
@@ -889,7 +1037,9 @@
         {
           "text": {
             "ko": "도박이 실패했다. 아르기레 평원에 CV가 흩어졌다. 숨을 곳 없는 평원에서. 그러나 Butcher가 아직 있었다. 외투. 주머니. 사진. 그것이 있는 한 CV는 다시 시작할 수 있었다. 30년 전에도 그랬다.",
-            "en": "The gamble failed. CV scattered on the Argyre Plains. In the plains with nowhere to hide. But Butcher was still there. Coat. Pocket. Photo. As long as those were there CV could start again. As it had thirty years ago."
+            "en": "The gamble failed. CV scattered on the Argyre Plains. In the plains with nowhere to hide. But Butcher was still there. Coat. Pocket. Photo. As long as those were there CV could start again. As it had thirty years ago.",
+            "ja": "賭けに失敗した。CVはアルギュレ平原に散らばった。隠れる場所のない平原に。しかしButcherはまだそこにいた。コート。ポケット。写真。それらがある限りCVはまた始められた。三十年前にそうしたように。",
+            "zh": "赌注失败了。CV在阿尔吉雷平原上分散了。在没有地方躲藏的平原上。但屠夫还在那里。外套。口袋。照片。只要那些还在CV就可以再次开始。就像三十年前一样。"
           }
         }
       ]
@@ -904,7 +1054,9 @@
         {
           "text": {
             "ko": "밤이었다. 평원이 어두웠다. 협곡보다 어둡지는 않았다. Crow가 말했다. 협곡이 더 어두웠어요. Cinder가 공구를 만졌다. 소리가 났다. 그것이 이 밤의 음악이었다. Butcher가 불 앞에 앉았다. 사진을 꺼내지 않았다. 주머니에 손을 넣었다. 그것으로 충분했다.",
-            "en": "Night. The plains were dark. Not darker than the canyon. Crow said it. The canyon was darker. Cinder touched her tools. Sound came. That was the music of this night. Butcher sat by the fire. Didn't take out the photo. Put his hand in the pocket. That was enough."
+            "en": "Night. The plains were dark. Not darker than the canyon. Crow said it. The canyon was darker. Cinder touched her tools. Sound came. That was the music of this night. Butcher sat by the fire. Didn't take out the photo. Put his hand in the pocket. That was enough.",
+            "ja": "夜。平原が暗かった。峡谷より暗くはなかった。Crowが言った。峡谷の方が暗かったと。シンダーは工具を触った。音が鳴った。それが今夜の音楽だった。Butcherは火のそばに座った。写真を取り出さなかった。ポケットに手を入れた。それで十分だった。",
+            "zh": "夜晚。平原是黑暗的。没有峡谷黑暗。乌鸦说了。峡谷更黑暗。辛达触碰了工具。发出了声音。那是这个夜晚的音乐。屠夫坐在火旁。没有取出照片。把手放进口袋里。那就足够了。"
           }
         }
       ],
@@ -912,7 +1064,9 @@
         "questId": "cv_campaign_ch9",
         "teaser": {
           "ko": "다음 — 세 개의 깃발",
-          "en": "Next — Three Flags"
+          "en": "Next — Three Flags",
+          "ja": "次 — 三つの旗",
+          "zh": "接下来 — 三面旗帜"
         }
       }
     }

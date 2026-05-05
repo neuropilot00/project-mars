@@ -355,4 +355,209 @@ router.get('/onboarding', requireAdmin, async (req, res) => {
   } catch (err) { handleErr(res, err, 'onboarding'); }
 });
 
+// ═══════════════════════════════════════════════════════════════
+// P5-6 TERRITORY ECONOMY ADMIN
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * GET /api/admin/territory/economy
+ * 영토 생산 경제 대시보드 (재료 발행량, 수확 빈도, 섹터별 분포)
+ */
+router.get('/territory/economy', requireAdmin, async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 7;
+
+    const [materialIssued, harvestStats, topClaims, sectorBreakdown, suspiciousHarvesters] = await Promise.all([
+      // 기간 내 재료 지급량 (meta.resourceDrops 기반)
+      pool.query(`
+        SELECT
+          drop_item->>'code' AS resource_code,
+          SUM((drop_item->>'quantity')::int) AS total_quantity,
+          COUNT(DISTINCT from_wallet) AS unique_harvesters
+        FROM transactions,
+             jsonb_array_elements(COALESCE(meta->'resourceDrops','[]'::jsonb)) AS drop_item
+        WHERE type IN ('mining','instant_harvest')
+          AND created_at > NOW() - ($1 || ' days')::INTERVAL
+        GROUP BY resource_code
+        ORDER BY total_quantity DESC
+        LIMIT 30
+      `, [days]).catch(() => ({ rows: [] })),
+
+      // 전체 수확 통계
+      pool.query(`
+        SELECT
+          COUNT(*) AS total_harvests,
+          COUNT(DISTINCT from_wallet) AS unique_harvesters,
+          SUM(pp_amount) AS total_pp_issued,
+          AVG(pp_amount) AS avg_pp_per_harvest,
+          MAX(pp_amount) AS max_pp_harvest
+        FROM transactions
+        WHERE type IN ('mining','instant_harvest')
+          AND created_at > NOW() - ($1 || ' days')::INTERVAL
+      `, [days]).catch(() => ({ rows: [{}] })),
+
+      // 상위 생산 클레임 (픽셀 수 기준 — 섹터 정보 포함)
+      pool.query(`
+        SELECT c.id AS claim_id, c.owner,
+               COUNT(p.lat) AS pixel_count,
+               COALESCE(s.tier,'frontier') AS sector_type,
+               COALESCE(s.name,'Uncharted') AS sector_name,
+               (c.image_url IS NOT NULL) AS has_image
+        FROM claims c
+        LEFT JOIN pixels p ON p.claim_id = c.id
+        LEFT JOIN sectors s ON s.id = p.sector_id
+        WHERE c.deleted_at IS NULL AND c.owner IS NOT NULL
+        GROUP BY c.id, c.owner, s.tier, s.name, c.image_url
+        ORDER BY COUNT(p.lat) DESC
+        LIMIT 20
+      `).catch(() => ({ rows: [] })),
+
+      // 섹터별 수확 활동
+      pool.query(`
+        SELECT
+          COALESCE(s.tier,'frontier') AS sector_type,
+          COALESCE(s.name,'Uncharted') AS sector_name,
+          COUNT(DISTINCT c.owner) AS active_owners,
+          COUNT(DISTINCT c.id) AS claim_count,
+          COUNT(p.lat) AS pixel_count
+        FROM pixels p
+        JOIN claims c ON c.id = p.claim_id AND c.deleted_at IS NULL
+        LEFT JOIN sectors s ON s.id = p.sector_id
+        GROUP BY s.tier, s.name
+        ORDER BY s.tier, COUNT(p.lat) DESC
+        LIMIT 40
+      `).catch(() => ({ rows: [] })),
+
+      // 의심스러운 수확 빈도 (같은 지갑이 24시간 내 5회 이상)
+      pool.query(`
+        SELECT
+          from_wallet AS wallet,
+          COUNT(*) AS harvest_count,
+          MIN(created_at) AS first_harvest,
+          MAX(created_at) AS last_harvest,
+          SUM(pp_amount) AS total_pp
+        FROM transactions
+        WHERE type IN ('mining','instant_harvest')
+          AND created_at > NOW() - ($1 || ' days')::INTERVAL
+        GROUP BY from_wallet
+        HAVING COUNT(*) > 5
+        ORDER BY harvest_count DESC
+        LIMIT 20
+      `, [days]).catch(() => ({ rows: [] })),
+    ]);
+
+    // Compute material burn (resources used in ship builds)
+    const materialBurn = await pool.query(`
+      SELECT
+        mat_key AS resource_code,
+        SUM((mat_val::text)::int) AS total_used,
+        COUNT(*) AS build_count
+      FROM ship_build_jobs,
+           jsonb_each_text(COALESCE(materials_used, '{}'::jsonb)) AS m(mat_key, mat_val)
+      WHERE created_at > NOW() - ($1 || ' days')::INTERVAL
+      GROUP BY mat_key
+      ORDER BY total_used DESC
+      LIMIT 20
+    `, [days]).catch(() => ({ rows: [] }));
+
+    res.json({
+      period: { days },
+      materialIssued: materialIssued.rows,
+      materialBurn: materialBurn.rows,
+      harvestStats: harvestStats.rows[0] || {},
+      topClaims: topClaims.rows,
+      sectorBreakdown: sectorBreakdown.rows,
+      suspiciousHarvesters: suspiciousHarvesters.rows,
+    });
+  } catch (err) { handleErr(res, err, 'territory/economy'); }
+});
+
+/**
+ * GET /api/admin/territory/upgrades
+ * 영토 업그레이드 현황 (업그레이드 분포, 총 GP 소각)
+ */
+router.get('/territory/upgrades', requireAdmin, async (req, res) => {
+  try {
+    const [upgradeStats, topUpgraded] = await Promise.all([
+      pool.query(`
+        SELECT upgrade_type, level, COUNT(*) AS count, SUM(gp_spent) AS total_gp_spent
+        FROM territory_upgrades
+        WHERE is_active = true
+        GROUP BY upgrade_type, level
+        ORDER BY upgrade_type, level
+      `).catch(() => ({ rows: [] })),
+
+      pool.query(`
+        SELECT u.owner, u.claim_id, COUNT(*) AS upgrade_slots, SUM(u.level) AS total_levels, SUM(u.gp_spent) AS total_gp
+        FROM territory_upgrades u
+        WHERE u.is_active = true
+        GROUP BY u.owner, u.claim_id
+        ORDER BY total_levels DESC
+        LIMIT 20
+      `).catch(() => ({ rows: [] })),
+    ]);
+
+    res.json({ upgradeStats: upgradeStats.rows, topUpgraded: topUpgraded.rows });
+  } catch (err) { handleErr(res, err, 'territory/upgrades'); }
+});
+
+/**
+ * GET /api/admin/territory/sector-control
+ * 섹터별 컨트롤 현황 (상위 소유자, 픽셀 분포)
+ */
+router.get('/territory/sector-control', requireAdmin, async (req, res) => {
+  try {
+    const sectorSummary = await pool.query(`
+      SELECT
+        COALESCE(s.tier,'frontier') AS sector_type,
+        COALESCE(s.name,'Uncharted') AS sector_name,
+        s.id AS sector_id,
+        COUNT(DISTINCT c.owner) AS owner_count,
+        COUNT(DISTINCT c.id) AS claim_count,
+        COUNT(p.lat) AS pixel_count,
+        (
+          SELECT c2.owner FROM claims c2
+          JOIN pixels p2 ON p2.claim_id = c2.id
+          WHERE p2.sector_id = s.id AND c2.deleted_at IS NULL
+          GROUP BY c2.owner
+          ORDER BY COUNT(*) DESC LIMIT 1
+        ) AS top_owner
+      FROM pixels p
+      JOIN claims c ON c.id = p.claim_id AND c.deleted_at IS NULL
+      LEFT JOIN sectors s ON s.id = p.sector_id
+      GROUP BY s.tier, s.name, s.id
+      ORDER BY s.tier, COUNT(p.lat) DESC
+      LIMIT 50
+    `).catch(() => ({ rows: [] }));
+
+    res.json({ sectorControl: sectorSummary.rows });
+  } catch (err) { handleErr(res, err, 'territory/sector-control'); }
+});
+
+/**
+ * POST /api/admin/territory/production-profile
+ * 영토 생산 프로파일 수정 (mining_reward_min/max, sector mults)
+ * body: { key, value } — updates settings table
+ */
+router.post('/territory/production-profile', requireAdmin, async (req, res) => {
+  const { key, value } = req.body;
+  const allowedKeys = [
+    'mining_reward_min', 'mining_reward_max',
+    'mining_core_mult', 'mining_mid_mult', 'mining_frontier_mult',
+    'mining_interval_core', 'mining_interval_mid', 'mining_interval_frontier',
+    'resource_drop_enabled', 'resource_drop_rate_mult',
+    'upgrade_p5_enabled', 'upgrade_p5_max_level',
+  ];
+  if (!key || !allowedKeys.includes(key)) {
+    return res.status(400).json({ error: 'INVALID_KEY', allowed: allowedKeys });
+  }
+  try {
+    await pool.query(
+      `UPDATE settings SET value = $1::jsonb WHERE key = $2`,
+      [JSON.stringify(value), key]
+    );
+    res.json({ ok: true, key, value });
+  } catch (err) { handleErr(res, err, 'territory/production-profile'); }
+});
+
 module.exports = router;

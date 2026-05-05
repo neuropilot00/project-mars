@@ -4,7 +4,9 @@
   "chapterNumber": 6,
   "title": {
     "ko": "Butcher의 시험",
-    "en": "Butcher's Test"
+    "en": "Butcher's Test",
+    "ja": "Butcherのテスト",
+    "zh": "屠夫的考验"
   },
   "location": {
     "id": "erebus_throne_hall",
@@ -28,7 +30,9 @@
         {
           "text": {
             "ko": "에레보스 기지 가장 깊은 곳. 옥좌의 방이라고 불렸다. Butcher가 그것을 좋아했다. 옥좌가 없었다. 의자 하나가 있었다. 낡은 것이었다. 광산 의자. MCC 광산에서 가져온 것이었다. 30년 전에. 그것이 옥좌였다.",
-            "en": "The deepest part of the Erebus base. Called the throne hall. Butcher liked that name. There was no throne. There was one chair. An old one. A mining chair. Taken from an MCC mine. Thirty years ago. That was the throne."
+            "en": "The deepest part of the Erebus base. Called the throne hall. Butcher liked that name. There was no throne. There was one chair. An old one. A mining chair. Taken from an MCC mine. Thirty years ago. That was the throne.",
+            "ja": "エレボス基地の最も深い場所。スローンホールと呼ばれていた。Butcherはその名が好きだった。王座はなかった。椅子が一つあった。古いもの。採掘椅子。三十年前にMCC鉱山から持ってきた。それが王座だった。",
+            "zh": "厄瑞玻斯基地最深处。被称为王座大厅。屠夫喜欢那个名字。没有王座。有一把椅子。旧的。采矿椅子。三十年前从MCC矿山拿来的。那就是王座。"
           }
         }
       ]
@@ -43,7 +47,9 @@
         {
           "text": {
             "ko": "Butcher가 거기 앉아 있었다. 사진을 들고 있었다. 처음 본 것이었다. 주머니 밖에서. 흑백이었다. 오래됐다. 30년. 사람들이 있었다. 여러 명. 광부들이었다. 그 중 한 명이 Butcher와 닮은 것 같았다. 젊은 것이었다. 17살쯤 되는 것 같았다.",
-            "en": "Butcher was sitting there. Holding the photo. First time seeing it. Outside the pocket. Black and white. Old. Thirty years. There were people. Several. Miners. One of them looked like Butcher. Young. Seemed about seventeen."
+            "en": "Butcher was sitting there. Holding the photo. First time seeing it. Outside the pocket. Black and white. Old. Thirty years. There were people. Several. Miners. One of them looked like Butcher. Young. Seemed about seventeen.",
+            "ja": "Butcherがそこに座っていた。写真を持っていた。初めて見た。ポケットの外に。白黒。古い。三十年。人々がいた。何人か。鉱夫たち。その中の一人がButcherに似ていた。若かった。十七歳くらいに見えた。",
+            "zh": "屠夫坐在那里。拿着照片。第一次看到。在口袋外面。黑白的。旧的。三十年。有人们。几个。矿工们。其中一个看起来像屠夫。年轻。看起来十七岁左右。"
           },
           "overlay": "cv_ch6_thirty_years_l01_00_death_still"
         }
@@ -62,7 +68,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "앉아.",
-            "en": "Sit."
+            "en": "Sit.",
+            "ja": "座れ。",
+            "zh": "坐。"
           }
         },
         {
@@ -70,7 +78,9 @@
           "emotion": "serious",
           "text": {
             "ko": "30년 전. 이 사진에 있는 사람들. MCC 광산. 헬라스 4구역이었어. 파업이 있었어.",
-            "en": "Thirty years ago. The people in this photo. MCC mine. It was Hellas Zone 4. There was a strike."
+            "en": "Thirty years ago. The people in this photo. MCC mine. It was Hellas Zone 4. There was a strike.",
+            "ja": "三十年前。この写真の人々。MCC鉱山。ヘラスゾーン4だった。ストライキがあった。",
+            "zh": "三十年前。这张照片里的人们。MCC矿山。是赫拉斯4区。有罢工。"
           }
         },
         {
@@ -78,7 +88,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "MCC가 끝냈어. 파업을. 방법은 말 안 해도 알겠지. 나는 살았어. 이 사진 안에서 살아남은 건 나 하나야.",
-            "en": "MCC ended it. The strike. How, you already know without me saying. I survived. Among the people in this photo I'm the only one who lived."
+            "en": "MCC ended it. The strike. How, you already know without me saying. I survived. Among the people in this photo I'm the only one who lived.",
+            "ja": "MCCがそれを終わらせた。ストライキを。どうやってかは、俺が言わなくてもわかる。俺は生き残った。この写真の人々の中で俺だけが生き延びた。",
+            "zh": "MCC结束了它。罢工。怎么做的，不用我说你也知道。我活下来了。这张照片里的人们中只有我活了。"
           }
         }
       ]
@@ -93,7 +105,9 @@
         {
           "text": {
             "ko": "왼팔이었다. 의수. 광산용 구식. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 이후로 30년. 의수를 만든 손과 같은 손이 지금 사진을 들고 있었다. 오른손. 떨리지 않았다. 이 사람의 손이 떨리는 것은 본 적이 없었다.",
-            "en": "The left arm. Prosthetic. Old mining type. Made by himself when MCC refused injury compensation. At seventeen. Thirty years since then. The same hand that made the prosthetic was now holding the photo. The right hand. Not trembling. No one had ever seen this man's hand tremble."
+            "en": "The left arm. Prosthetic. Old mining type. Made by himself when MCC refused injury compensation. At seventeen. Thirty years since then. The same hand that made the prosthetic was now holding the photo. The right hand. Not trembling. No one had ever seen this man's hand tremble.",
+            "ja": "左腕。義手。古い採掘型。MCCが負傷補償を断ったときに自分で作った。十七歳のときに。それから三十年。義手を作ったのと同じ手が今写真を持っていた。右手。震えていなかった。この男の手が震えているのを誰も見たことがなかった。",
+            "zh": "左臂。义肢。旧式采矿型。MCC拒绝伤残赔偿时自己做的。十七岁时。此后三十年。做义肢的那只手现在拿着照片。右手。没有颤抖。没有人见过这个男人的手颤抖。"
           }
         }
       ]
@@ -110,7 +124,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "Zone 12. 내가 거기 있었어. 사고 전날 밤. 누군가 나를 불렀어. 기지 밖으로. 이유를 말하지 않았어. 나는 갔어.",
-            "en": "Zone 12. I was there. The night before the accident. Someone called me. Outside the base. Didn't say why. I went."
+            "en": "Zone 12. I was there. The night before the accident. Someone called me. Outside the base. Didn't say why. I went.",
+            "ja": "ゾーン12。俺はそこにいた。事故の前夜。誰かが俺を呼んだ。基地の外へ。なぜかは言わなかった。俺は行った。",
+            "zh": "12区。我在那里。事故前夜。有人叫了我。去基地外面。没说为什么。我去了。"
           }
         },
         {
@@ -118,7 +134,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "다음 날 아침 돌아왔을 때 갱도가 없었어. 사람들도 없었어. 흙만 있었어.",
-            "en": "When I came back the next morning there was no tunnel. No people. Just dirt."
+            "en": "When I came back the next morning there was no tunnel. No people. Just dirt.",
+            "ja": "次の朝戻ったとき、トンネルはなかった。人もいなかった。ただ土だけ。",
+            "zh": "第二天早上回来时，没有隧道了。没有人。只有泥土。"
           }
         },
         {
@@ -126,7 +144,9 @@
           "emotion": "serious",
           "text": {
             "ko": "30년 동안 한 가지를 생각했어. 왜 나를 불렀는가.",
-            "en": "For thirty years I've thought about one thing. Why was I called."
+            "en": "For thirty years I've thought about one thing. Why was I called.",
+            "ja": "三十年間俺は一つのことを考えてきた。なぜ俺は呼ばれたのか。",
+            "zh": "三十年来我一直在想一件事。我为什么被叫出去。"
           }
         }
       ]
@@ -141,7 +161,9 @@
         {
           "text": {
             "ko": "회상. 갱도. 30년 전. 어두웠다. 화성 지하 200미터. 광석 먼지. 좁은 통로. 여러 명이 일하고 있었다. 소리가 들렸다. 금속 소리. 지반 소리. 그것이 갱도가 살아있다는 소리였다. 광부들은 그 소리를 알았다.",
-            "en": "Flashback. The tunnel. Thirty years ago. Dark. Two hundred meters underground on Mars. Ore dust. Narrow passage. Several people working. Sounds were heard. Metal sounds. Ground sounds. That was the sound of a living tunnel. Miners knew that sound."
+            "en": "Flashback. The tunnel. Thirty years ago. Dark. Two hundred meters underground on Mars. Ore dust. Narrow passage. Several people working. Sounds were heard. Metal sounds. Ground sounds. That was the sound of a living tunnel. Miners knew that sound.",
+            "ja": "フラッシュバック。トンネル。三十年前。暗い。火星地下二百メートル。鉱石粉塵。狭い通路。数人が作業していた。音が聞こえた。金属の音。地面の音。それが生きているトンネルの音だった。鉱夫たちはその音を知っていた。",
+            "zh": "闪回。隧道。三十年前。黑暗。火星地下两百米。矿石粉尘。狭窄的通道。几个人在工作。听到了声音。金属的声音。地面的声音。那是活着的隧道的声音。矿工们知道那种声音。"
           }
         }
       ]
@@ -156,7 +178,9 @@
         {
           "text": {
             "ko": "파업 3일째였다. MCC가 물을 끊었다. 산소 배급을 줄였다. 광부들은 버텼다. 17살 Butcher는 버텼다. 이름들이 있었다. 각자의 이름이 있었다. 갱도 벽에 분필로 썼다. 누가 여기 있었는지 기록하는 것이었다.",
-            "en": "Third day of the strike. MCC cut the water. Reduced oxygen rations. The miners held. Seventeen-year-old Butcher held. There were names. Each person's name. Written in chalk on the tunnel wall. Recording who had been there."
+            "en": "Third day of the strike. MCC cut the water. Reduced oxygen rations. The miners held. Seventeen-year-old Butcher held. There were names. Each person's name. Written in chalk on the tunnel wall. Recording who had been there.",
+            "ja": "ストライキの三日目。MCCが水を切った。酸素配給を減らした。鉱夫たちは持ちこたえた。十七歳のButcherも持ちこたえた。名前があった。それぞれの名前。チョークでトンネルの壁に書かれた。誰がそこにいたかを記録するために。",
+            "zh": "罢工第三天。MCC切断了水。减少了氧气供给。矿工们坚持住了。十七岁的屠夫坚持住了。有名字。每个人的名字。用粉笔写在隧道墙上。记录谁在那里。"
           }
         }
       ]
@@ -173,7 +197,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "이름들. 사진 뒤에 이름들이 있어. 본 적 있어?",
-            "en": "The names. On the back of the photo there are names. Have you seen them."
+            "en": "The names. On the back of the photo there are names. Have you seen them.",
+            "ja": "名前。写真の裏に名前がある。見たことはあるか。",
+            "zh": "名字。照片背面有名字。你见过吗。"
           }
         },
         {
@@ -181,7 +207,9 @@
           "emotion": "serious",
           "text": {
             "ko": "처음에는 여든세 명이었어. 파업 끝에는 덜했어. 갱도가 무너진 다음에는 나 혼자였어.",
-            "en": "At first there were eighty-three. By the end of the strike fewer. After the tunnel collapsed there was just me."
+            "en": "At first there were eighty-three. By the end of the strike fewer. After the tunnel collapsed there was just me.",
+            "ja": "最初は八十三人いた。ストライキの終わりには少なくなった。トンネルが崩落した後は俺だけだった。",
+            "zh": "最开始有八十三个。到罢工结束时少了。隧道塌陷后只剩我了。"
           }
         },
         {
@@ -189,7 +217,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "이름들이 사진 뒤에 있어. 그게 전부야. 이름들이 뭘 만들었는지. CV가 그거야.",
-            "en": "The names are on the back of the photo. That's all. What names built. That's CV."
+            "en": "The names are on the back of the photo. That's all. What names built. That's CV.",
+            "ja": "名前が写真の裏にある。それだけだ。名前が作ったもの。それがCVだ。",
+            "zh": "名字在照片背面。就这些。名字建造的东西。那就是CV。"
           },
           "overlay": "cv_ch6_thirty_years_l07_02_sealed_file"
         }
@@ -205,7 +235,9 @@
         {
           "text": {
             "ko": "회상. 사고 다음 날 아침. 갱도 입구. MCC 관리자들이 있었다. 서류가 있었다. 사망 처리. 빠른 서류였다. 공식 도장이 있었다. 관리자가 17살에게 도장을 보여줬다. 당신은 살아있으니 여기 서명하라고 했다. 17살은 서명하지 않았다.",
-            "en": "Flashback. The morning after the accident. Tunnel entrance. MCC managers were there. Documents. Death processing. Quick paperwork. Official stamp. A manager showed the stamp to the seventeen-year-old. You're alive so sign here, he said. The seventeen-year-old didn't sign."
+            "en": "Flashback. The morning after the accident. Tunnel entrance. MCC managers were there. Documents. Death processing. Quick paperwork. Official stamp. A manager showed the stamp to the seventeen-year-old. You're alive so sign here, he said. The seventeen-year-old didn't sign.",
+            "ja": "フラッシュバック。事故の翌朝。トンネルの入口。MCCの管理者たちがいた。書類。死亡処理。素早い事務処理。公式のスタンプ。管理者が十七歳の少年にスタンプを見せた。生きているのだからここに署名しろ、と言った。十七歳の少年は署名しなかった。",
+            "zh": "闪回。事故后的早晨。隧道入口。MCC管理者们在那里。文件。死亡处理。快速的手续。官方图章。一个管理者向十七岁的少年展示了图章。你还活着所以在这里签名，他说。十七岁的少年没有签名。"
           }
         }
       ]
@@ -222,7 +254,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "서명 안 했어. 대신 팔을 잃었어. 기계가 잡았어. 사고였다고 했어. 의수는 내가 만들었어. 재료는 갱도 잔해에서 가져왔어.",
-            "en": "Didn't sign. Instead I lost the arm. A machine grabbed it. Called it an accident. Made the prosthetic myself. Materials taken from tunnel wreckage."
+            "en": "Didn't sign. Instead I lost the arm. A machine grabbed it. Called it an accident. Made the prosthetic myself. Materials taken from tunnel wreckage.",
+            "ja": "署名しなかった。代わりに腕を失った。機械が掴んだ。事故と呼んだ。義手を自分で作った。トンネルの残骸から材料を取った。",
+            "zh": "没有签名。代替地失去了手臂。机器抓住了它。称之为事故。自己做了义肢。材料从隧道残骸中取来。"
           }
         },
         {
@@ -230,7 +264,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "17살에. 그 이후로 이 팔이 있었어. 30년.",
-            "en": "At seventeen. This arm has been with me since. Thirty years."
+            "en": "At seventeen. This arm has been with me since. Thirty years.",
+            "ja": "十七歳のときに。この腕はそれから俺と一緒だ。三十年。",
+            "zh": "十七岁时。这只手臂从那以后就和我在一起了。三十年。"
           }
         }
       ]
@@ -245,7 +281,9 @@
         {
           "text": {
             "ko": "Cinder가 뒤에 있었다. 공구 벨트. 소리가 없었다. 이 사람이 공구를 만지지 않을 때. 공구 소리가 없을 때. 그것은 무언가를 기다리는 것이었다. 이 방에서 두 사람이 기다리고 있었다. 대답을.",
-            "en": "Cinder was behind. Tool belt. No sounds. When this person didn't touch her tools. When there was no tool sound. She was waiting for something. In this room two people were waiting. For an answer."
+            "en": "Cinder was behind. Tool belt. No sounds. When this person didn't touch her tools. When there was no tool sound. She was waiting for something. In this room two people were waiting. For an answer.",
+            "ja": "シンダーが後ろにいた。工具ベルト。音なし。この人物が工具を触らないとき。工具の音がしないとき。彼女は何かを待っていた。この部屋に二人が待っていた。答えのために。",
+            "zh": "辛达在后面。工具腰带。没有声音。这个人不触碰工具时。没有工具声音时。她在等待什么。这个房间里两个人在等待。等待答案。"
           }
         }
       ]
@@ -263,7 +301,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "저는 6년 동안 MCC 사람이었어요. 엔지니어. Zone 12 보고서 썼어요. 지지대 결함. MCC가 수정하라 했어요.",
-            "en": "I was MCC for six years. Engineer. I wrote the Zone 12 report. Support beam defects. MCC told me to revise it."
+            "en": "I was MCC for six years. Engineer. I wrote the Zone 12 report. Support beam defects. MCC told me to revise it.",
+            "ja": "俺は六年間MCCだった。エンジニア。ゾーン12の報告書を書いた。支柱の欠陥。MCCは修正しろと言った。",
+            "zh": "我在MCC六年了。工程师。我写了12区报告。支撑梁缺陷。MCC叫我修改。"
           }
         },
         {
@@ -271,7 +311,9 @@
           "emotion": "serious",
           "text": {
             "ko": "수정 안 했어요. 해고됐어요. 일주일 후에 갱도가 무너졌어요. 11명이었어요.",
-            "en": "Didn't revise it. Got fired. A week later the tunnel collapsed. Eleven people."
+            "en": "Didn't revise it. Got fired. A week later the tunnel collapsed. Eleven people.",
+            "ja": "修正しなかった。解雇された。一週間後トンネルが崩落した。十一人。",
+            "zh": "没有修改。被解雇了。一周后隧道塌陷了。十一个人。"
           }
         },
         {
@@ -279,7 +321,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그래서 CV에 왔어요.",
-            "en": "That's why I came to CV."
+            "en": "That's why I came to CV.",
+            "ja": "だからCVに来た。",
+            "zh": "这就是我来CV的原因。"
           }
         }
       ]
@@ -294,7 +338,9 @@
         {
           "text": {
             "ko": "두 사람이었다. 두 개의 같은 이야기. 다른 시간에. 다른 갱도에. 같은 회사. 같은 방식. 30년의 거리가 있었다. 그러나 이야기는 같았다. 그것이 화성의 어떤 것이었다. 반복되는 것들이 있었다.",
-            "en": "Two people. Two identical stories. Different times. Different tunnels. Same company. Same method. Thirty years between them. But the stories were the same. That was something about Mars. There were things that repeated."
+            "en": "Two people. Two identical stories. Different times. Different tunnels. Same company. Same method. Thirty years between them. But the stories were the same. That was something about Mars. There were things that repeated.",
+            "ja": "二人。二つの同じ話。違う時代。違うトンネル。同じ会社。同じ方法。間に三十年。しかし話は同じだった。それが火星について何かだった。繰り返すものがあった。",
+            "zh": "两个人。两个相同的故事。不同的时代。不同的隧道。同一家公司。同样的方法。中间隔了三十年。但故事是相同的。那是火星的某种特质。有些事情会重复。"
           }
         }
       ]
@@ -311,7 +357,9 @@
           "emotion": "serious",
           "text": {
             "ko": "30년이 지났어. CV가 여전히 필요해?",
-            "en": "Thirty years have passed. Is CV still necessary."
+            "en": "Thirty years have passed. Is CV still necessary.",
+            "ja": "三十年が過ぎた。CVはまだ必要か。",
+            "zh": "三十年过去了。CV还有必要吗。"
           }
         },
         {
@@ -319,7 +367,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "사진 뒤에 이름들이 있어. 30년 전 이름들이야. 새 이름들이 계속 생겨. Zone 12. 거기도 이름들이 있어.",
-            "en": "The names are on the back of the photo. Names from thirty years ago. New names keep appearing. Zone 12. There are names there too."
+            "en": "The names are on the back of the photo. Names from thirty years ago. New names keep appearing. Zone 12. There are names there too.",
+            "ja": "名前が写真の裏にある。三十年前の名前。新しい名前が増え続ける。ゾーン12。そこにも名前がある。",
+            "zh": "名字在照片背面。三十年前的名字。新名字不断出现。12区。那里也有名字。"
           }
         },
         {
@@ -327,7 +377,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "이름들이 없어지는 날. 그날 CV도 없어지면 돼. 아직은 아니야.",
-            "en": "The day names stop appearing. That day CV can disappear too. Not yet."
+            "en": "The day names stop appearing. That day CV can disappear too. Not yet.",
+            "ja": "名前が現れなくなる日。その日CVも消えていい。まだだ。",
+            "zh": "名字停止出现的那天。那天CV也可以消失。还没到。"
           }
         }
       ]
@@ -342,7 +394,9 @@
         {
           "text": {
             "ko": "에레보스 분화구. 밤이었다. 기지 불빛이 분화구 벽에 반사됐다. 저 아래 화성이 있었다. MCC의 화성. FSP의 화성. 그리고 이름들의 화성. 세 번째가 가장 넓었다. 지도에는 없었다. 그러나 가장 넓었다.",
-            "en": "Erebus crater. Night. The base lights reflected off the crater walls. Down there was Mars. MCC's Mars. FSP's Mars. And the Mars of names. The third was widest. Not on any map. But widest."
+            "en": "Erebus crater. Night. The base lights reflected off the crater walls. Down there was Mars. MCC's Mars. FSP's Mars. And the Mars of names. The third was widest. Not on any map. But widest.",
+            "ja": "エレボスクレーター。夜。基地の光がクレーターの壁に反射した。そこにあったのは火星。MCCの火星。FSPの火星。そして名前の火星。三番目が最も広かった。どの地図にもない。しかし最も広い。",
+            "zh": "厄瑞玻斯陨石坑。夜晚。基地的灯光在陨石坑墙壁上反射。那里是火星。MCC的火星。FSP的火星。还有名字的火星。第三个最广阔。不在任何地图上。但最广阔。"
           }
         }
       ]
@@ -359,7 +413,9 @@
           "emotion": "serious",
           "text": {
             "ko": "살아남은 자에게 의무가 있어. 그 의무가 뭔지 알아.",
-            "en": "The one who survives has an obligation. You know what that obligation is."
+            "en": "The one who survives has an obligation. You know what that obligation is.",
+            "ja": "生き残った者には義務がある。その義務が何かお前は知っている。",
+            "zh": "活下来的人有义务。你知道那个义务是什么。"
           }
         },
         {
@@ -367,7 +423,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "이름들을 기억하는 것. 그것밖에 없어. MCC가 삭제해도. FSP가 무시해도. 기억하는 것. 그것이 의무야.",
-            "en": "Remembering the names. That's all there is. Even if MCC deletes them. Even if FSP ignores them. Remembering. That's the obligation."
+            "en": "Remembering the names. That's all there is. Even if MCC deletes them. Even if FSP ignores them. Remembering. That's the obligation.",
+            "ja": "名前を覚えること。それだけだ。MCCが削除しても。FSPが無視しても。覚えること。それが義務だ。",
+            "zh": "记住名字。仅此而已。即使MCC删除它们。即使FSP无视它们。记住。那是义务。"
           }
         }
       ]
@@ -382,7 +440,9 @@
         {
           "text": {
             "ko": "Cinder가 공구를 만졌다. 소리가 났다. 작은 것이었다. 그러나 들렸다. 이 방에서는 작은 소리도 들렸다. 방이 그렇게 만들어져 있었다. Butcher가 만든 방이었다. 광산 의자가 있는 방. 모든 소리가 들리는 방.",
-            "en": "Cinder touched her tools. Sound came. Small. But heard. In this room even small sounds were heard. The room was built that way. A room Butcher had built. A room with a mining chair. A room where every sound was heard."
+            "en": "Cinder touched her tools. Sound came. Small. But heard. In this room even small sounds were heard. The room was built that way. A room Butcher had built. A room with a mining chair. A room where every sound was heard.",
+            "ja": "シンダーは工具を触った。音が鳴った。小さかった。しかし聞こえた。この部屋では小さな音も聞こえた。部屋がそのように作られていた。Butcherが作った部屋。採掘椅子がある部屋。すべての音が聞こえる部屋。",
+            "zh": "辛达触碰了工具。发出了声音。小小的。但听到了。这个房间里即使小声音也能听到。房间就是这样建造的。屠夫建造的房间。有采矿椅子的房间。每种声音都能听到的房间。"
           }
         }
       ]
@@ -399,7 +459,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신한테 물어볼 게 있어. 이게 시험이야. 틀린 답은 없어. 대답 안 해도 돼.",
-            "en": "I have something to ask you. This is a test. There's no wrong answer. You don't have to answer."
+            "en": "I have something to ask you. This is a test. There's no wrong answer. You don't have to answer.",
+            "ja": "お前に聞くことがある。これはテストだ。間違った答えはない。答えなくていい。",
+            "zh": "我有事要问你。这是个测试。没有错误的答案。不必回答。"
           }
         },
         {
@@ -407,7 +469,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "당신이 여기 온 이유. 처음 이유. 그게 뭐야.",
-            "en": "The reason you came here. The first reason. What is it."
+            "en": "The reason you came here. The first reason. What is it.",
+            "ja": "お前がここに来た理由。最初の理由。何だ。",
+            "zh": "你来这里的原因。最初的原因。是什么。"
           }
         }
       ]
@@ -422,7 +486,9 @@
         {
           "text": {
             "ko": "질문이었다. 첫 번째 질문. 처음 이유. 그것을 기억하는 것. 그것이 시험이었다. Butcher의 시험. 기억. 이름들을 기억하는 것. 처음 이유를 기억하는 것. 그것들이 같은 것이었다.",
-            "en": "A question. The first question. The first reason. Remembering it. That was the test. Butcher's test. Memory. Remembering names. Remembering the first reason. Those were the same thing."
+            "en": "A question. The first question. The first reason. Remembering it. That was the test. Butcher's test. Memory. Remembering names. Remembering the first reason. Those were the same thing.",
+            "ja": "質問。最初の質問。最初の理由。それを覚えること。それがテストだった。Butcherのテスト。記憶。名前を覚えること。最初の理由を覚えること。それらは同じことだった。",
+            "zh": "问题。第一个问题。最初的原因。记住它。那就是考验。屠夫的考验。记忆。记住名字。记住最初的原因。那些是同一件事。"
           }
         }
       ]
@@ -439,7 +505,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "17살에 나는 이름들을 갱도 벽에 썼어. 분필로. 그 이름들이 없어졌어. 갱도가 무너지면서. 그래서 다시 썼어. 사진 뒤에. 종이에.",
-            "en": "At seventeen I wrote names on the tunnel wall. In chalk. Those names disappeared. When the tunnel collapsed. So I wrote them again. On the back of the photo. On paper."
+            "en": "At seventeen I wrote names on the tunnel wall. In chalk. Those names disappeared. When the tunnel collapsed. So I wrote them again. On the back of the photo. On paper.",
+            "ja": "十七歳のときトンネルの壁に名前を書いた。チョークで。それらの名前は消えた。トンネルが崩落したとき。だからまた書いた。写真の裏に。紙に。",
+            "zh": "十七岁时我把名字写在隧道墙上。用粉笔。那些名字消失了。隧道塌陷时。所以我又写了。在照片背面。在纸上。"
           }
         },
         {
@@ -447,7 +515,9 @@
           "emotion": "serious",
           "text": {
             "ko": "기억은 그렇게 하는 거야. 없어지면 다시 쓰는 거야. 그것이 내가 여기 온 이유야.",
-            "en": "That's how you remember. When they disappear you write them again. That's the reason I am here."
+            "en": "That's how you remember. When they disappear you write them again. That's the reason I am here.",
+            "ja": "それが覚える方法だ。消えたらまた書く。それが俺がここにいる理由だ。",
+            "zh": "这就是记住的方式。消失了就再写。这就是我在这里的原因。"
           }
         }
       ]
@@ -462,7 +532,9 @@
         {
           "text": {
             "ko": "Butcher가 사진을 뒤집었다. 이름들이 있었다. 작은 글씨. 많은 이름들. 30년 된 것들. 이름들 사이에 빈 곳이 있었다. 아직 쓸 공간이 있었다. 그것이 의도적인 것인지 아닌지는 알 수 없었다. 그러나 빈 곳이 있었다.",
-            "en": "Butcher flipped the photo. Names were there. Small writing. Many names. Thirty years old. Between the names there were gaps. Still space to write. Whether that was intentional was unknown. But there were gaps."
+            "en": "Butcher flipped the photo. Names were there. Small writing. Many names. Thirty years old. Between the names there were gaps. Still space to write. Whether that was intentional was unknown. But there were gaps.",
+            "ja": "Butcherは写真を裏返した。名前があった。小さな文字。多くの名前。三十年前のもの。名前の間に隙間があった。まだ書くスペースがあった。それが意図的かどうかはわからなかった。しかし隙間があった。",
+            "zh": "屠夫翻转了照片。有名字。小的字迹。很多名字。三十年前的。名字之间有空隙。还有写字的空间。那是否有意为之不得而知。但有空隙。"
           }
         }
       ]
@@ -479,7 +551,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Zone 12 이름들이 여기 있어요.",
-            "en": "The Zone 12 names are here."
+            "en": "The Zone 12 names are here.",
+            "ja": "ゾーン12の名前はここにある。",
+            "zh": "12区的名字在这里。"
           },
           "overlay": "cv_ch6_thirty_years_l21_00_zone12_record"
         },
@@ -488,7 +562,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Butcher가 써줬어요. 내가 CV에 왔을 때. 이름들을 말했어요. 들었어요. 그리고 사진 뒤에 썼어요.",
-            "en": "Butcher wrote them. When I came to CV. I said the names. He listened. Then wrote them on the back of the photo."
+            "en": "Butcher wrote them. When I came to CV. I said the names. He listened. Then wrote them on the back of the photo.",
+            "ja": "Butcherが書いた。俺がCVに来たとき。俺は名前を言った。彼は聞いた。それから写真の裏に書いた。",
+            "zh": "屠夫写的。我来CV时。我说了名字。他听了。然后写在照片背面。"
           }
         },
         {
@@ -496,7 +572,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그것이 CV에 들어오는 방식이에요. 이름 하나를 가져오는 거예요.",
-            "en": "That's how you join CV. You bring a name."
+            "en": "That's how you join CV. You bring a name.",
+            "ja": "それがCVに入る方法だ。名前を持ってくる。",
+            "zh": "这就是加入CV的方式。带来一个名字。"
           }
         }
       ]
@@ -511,7 +589,9 @@
         {
           "text": {
             "ko": "그것이었다. CV의 방식이었다. 이름을 가져오는 것. 기억하는 것. 분실된 것들을 다시 쓰는 것. 화성에서 기억은 힘이었다. 기억하는 사람이 있는 한 이름은 없어지지 않았다.",
-            "en": "That was it. CV's way. Bringing a name. Remembering. Rewriting lost things. On Mars memory was power. As long as there were people who remembered names didn't disappear."
+            "en": "That was it. CV's way. Bringing a name. Remembering. Rewriting lost things. On Mars memory was power. As long as there were people who remembered names didn't disappear.",
+            "ja": "それがそれだった。CVのやり方。名前を持ってくること。覚えること。失われたものを書き直すこと。火星では記憶が力だった。覚えている人がいる限り名前は消えなかった。",
+            "zh": "就是这样。CV的方式。带来名字。记住。重写失去的东西。在火星上记忆是力量。只要有人记住名字就不会消失。"
           }
         }
       ]
@@ -528,7 +608,9 @@
           "emotion": "serious",
           "text": {
             "ko": "오늘 밤 당신을 부른 이유가 있어. 이름 하나를 물을 거야.",
-            "en": "There's a reason I called you tonight. I'm going to ask for a name."
+            "en": "There's a reason I called you tonight. I'm going to ask for a name.",
+            "ja": "今夜お前を呼んだ理由がある。名前を求めようとしている。",
+            "zh": "今晚叫你来有原因。我要问一个名字。"
           }
         },
         {
@@ -536,7 +618,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "당신이 잃은 이름. 당신이 기억하는 이름. 그게 없으면 CV 안이 어디인지 모르는 거야.",
-            "en": "A name you've lost. A name you remember. Without that I don't know where you are inside CV."
+            "en": "A name you've lost. A name you remember. Without that I don't know where you are inside CV.",
+            "ja": "お前が失った名前。お前が覚えている名前。それがなければCVの中でお前がどこにいるかわからない。",
+            "zh": "你失去的名字。你记住的名字。没有那个我不知道你在CV里的位置。"
           }
         }
       ]
@@ -551,7 +635,9 @@
         {
           "text": {
             "ko": "이름. 그것을 물었다. 처음 이유. 기억하는 것. 화성에서 이름이 없어지는 것은 쉬웠다. MCC가 삭제하면 없어졌다. 기록에서 없어졌다. 기억에서 없어지는 것은 더 천천히였다. 기억하는 사람이 있는 한.",
-            "en": "A name. That was the question. The first reason. Remembering. On Mars names disappeared easily. MCC deleted and they were gone. Gone from the records. Disappearing from memory was slower. As long as there were people who remembered."
+            "en": "A name. That was the question. The first reason. Remembering. On Mars names disappeared easily. MCC deleted and they were gone. Gone from the records. Disappearing from memory was slower. As long as there were people who remembered.",
+            "ja": "名前。それが質問だった。最初の理由。覚えること。火星では名前は簡単に消えた。MCCが削除すれば消えた。記録から消えた。記憶から消えるのは遅かった。覚えている人がいる限り。",
+            "zh": "名字。那是问题。最初的原因。记住。在火星上名字很容易消失。MCC删除就消失了。从记录中消失。从记忆中消失更慢。只要有人记住。"
           }
         }
       ]
@@ -568,7 +654,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "나는 30년 동안 이름들을 기억했어. 매일 밤. 자기 전에. 이름들을 말했어. 소리 내서. 아무도 없는 곳에서.",
-            "en": "I remembered names for thirty years. Every night. Before sleeping. I said the names. Out loud. Where no one was."
+            "en": "I remembered names for thirty years. Every night. Before sleeping. I said the names. Out loud. Where no one was.",
+            "ja": "三十年間名前を覚えた。毎晩。眠る前に。名前を言った。声に出して。誰もいないところで。",
+            "zh": "三十年来我记住名字。每天晚上。睡前。我说出名字。大声地。在没有人的地方。"
           }
         },
         {
@@ -576,7 +664,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그게 내가 아직 여기 있는 이유야. 이름들이 있는 한 나도 있어야 해. 단순한 거야.",
-            "en": "That's why I'm still here. As long as there are names I must be here too. It's simple."
+            "en": "That's why I'm still here. As long as there are names I must be here too. It's simple.",
+            "ja": "だからまだここにいる。名前がある限り俺もここにいなければならない。シンプルだ。",
+            "zh": "这就是为什么我还在这里。只要有名字我也必须在这里。很简单。"
           }
         }
       ]
@@ -591,7 +681,9 @@
         {
           "text": {
             "ko": "분화구가 조용했다. 에레보스. 화산이었다. 오래전에 죽은 화산. 그러나 안에 기지가 있었다. 불이 탔다. 사람이 있었다. 죽은 화산이 살아있는 것들을 품고 있었다. 그것이 Butcher가 여기를 선택한 이유일 수 있었다.",
-            "en": "The crater was quiet. Erebus. A volcano. A long-dead volcano. But inside was a base. Fires burned. People were there. A dead volcano holding living things. That may be why Butcher chose this place."
+            "en": "The crater was quiet. Erebus. A volcano. A long-dead volcano. But inside was a base. Fires burned. People were there. A dead volcano holding living things. That may be why Butcher chose this place.",
+            "ja": "クレーターは静かだった。エレボス。火山。長い間死んでいる火山。しかし内部に基地があった。炎が燃えた。人々がいた。生きているものを抱える死んだ火山。それがButcherがこの場所を選んだ理由かもしれなかった。",
+            "zh": "陨石坑很安静。厄瑞玻斯。火山。一座长期死寂的火山。但内部有基地。火在燃烧。有人们。一座死火山承载着生命。这也许是屠夫选择这个地方的原因。"
           }
         }
       ]
@@ -608,7 +700,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC가 Zone 12 기록을 다시 건드리려 해. 이번에는 완전히 없애려고. 디지털 기록. 종이 기록. 전부.",
-            "en": "MCC is going to touch the Zone 12 records again. This time to erase them completely. Digital records. Paper records. All of them."
+            "en": "MCC is going to touch the Zone 12 records again. This time to erase them completely. Digital records. Paper records. All of them.",
+            "ja": "MCCがゾーン12の記録に再び手をつけようとしている。今回は完全に消すために。デジタル記録。紙の記録。すべて。",
+            "zh": "MCC又要动12区的记录了。这次是为了彻底抹去。数字记录。纸质记录。全部。"
           }
         },
         {
@@ -616,7 +710,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Cinder가 알아냈어. 시간이 없어. 오늘 밤이야.",
-            "en": "Cinder found out. No time. Tonight."
+            "en": "Cinder found out. No time. Tonight.",
+            "ja": "シンダーが知った。時間がない。今夜。",
+            "zh": "辛达发现了。没有时间了。今晚。"
           }
         },
         {
@@ -624,7 +720,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "당신이 가야 해. 기록을 가져와야 해. 이름들이 거기 있어.",
-            "en": "You have to go. You have to get the records. The names are there."
+            "en": "You have to go. You have to get the records. The names are there.",
+            "ja": "行かなければならない。記録を取らなければならない。名前がそこにある。",
+            "zh": "你必须去。你必须拿到记录。名字在那里。"
           }
         }
       ]
@@ -639,7 +737,9 @@
         {
           "text": {
             "ko": "임무였다. 이름들을 지키는 임무. MCC 기록 보관소. Zone 12 기록. Cinder가 경로를 알았다. 이전에 거기서 일했었다. 그 기억이 있었다. 기억이 경로가 됐다. 그것도 기억의 방식이었다.",
-            "en": "A mission. A mission to protect names. MCC archives. Zone 12 records. Cinder knew the route. She had worked there before. That memory remained. Memory became the path. That was also memory's way."
+            "en": "A mission. A mission to protect names. MCC archives. Zone 12 records. Cinder knew the route. She had worked there before. That memory remained. Memory became the path. That was also memory's way.",
+            "ja": "ミッション。名前を守るミッション。MCCアーカイブ。ゾーン12の記録。シンダーはルートを知っていた。以前そこで働いたことがあった。その記憶が残っていた。記憶が道になった。それも記憶のやり方だった。",
+            "zh": "任务。保护名字的任务。MCC档案馆。12区记录。辛达知道路线。她以前在那里工作过。那个记忆留下来了。记忆成为了路径。那也是记忆的方式。"
           }
         }
       ]
@@ -656,7 +756,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 안내할게요. 경로 알아요. 아카이브 지하 2층이에요. MCC 보안은 세 개 구역이에요.",
-            "en": "I'll guide you. I know the route. Archive sublevel two. MCC security is three zones."
+            "en": "I'll guide you. I know the route. Archive sublevel two. MCC security is three zones.",
+            "ja": "俺が案内する。ルートを知っている。アーカイブ地下二階。MCC警備は三ゾーン。",
+            "zh": "我来带路。我知道路线。档案地下二层。MCC安保有三个区域。"
           }
         },
         {
@@ -664,7 +766,9 @@
           "emotion": "calm",
           "text": {
             "ko": "6년 전에 자주 갔던 곳이에요. 기억해요. 기억은 꽤 오래 가요.",
-            "en": "A place I went often six years ago. I remember. Memory lasts quite a while."
+            "en": "A place I went often six years ago. I remember. Memory lasts quite a while.",
+            "ja": "六年前よく行った場所。覚えている。記憶はかなり長続きする。",
+            "zh": "六年前经常去的地方。我记得。记忆持续很长时间。"
           }
         }
       ]
@@ -679,7 +783,9 @@
         {
           "text": {
             "ko": "Butcher가 사진을 주머니에 넣었다. 천천히. 오른손으로. 의수가 아닌 손으로. 그것이 특별한 것이었다. 이 사람은 항상 의수로 사진을 집었다. 오늘은 달랐다. 이유는 알 수 없었다. 그러나 달랐다.",
-            "en": "Butcher put the photo in his pocket. Slowly. With the right hand. Not the prosthetic. That was unusual. This person always picked up the photo with the prosthetic. Today was different. The reason was unknown. But it was different."
+            "en": "Butcher put the photo in his pocket. Slowly. With the right hand. Not the prosthetic. That was unusual. This person always picked up the photo with the prosthetic. Today was different. The reason was unknown. But it was different.",
+            "ja": "Butcherは写真をポケットに入れた。ゆっくりと。右手で。義手ではなく。それは珍しかった。この人物はいつも義手で写真を持った。今日は違った。理由はわからなかった。しかし違った。",
+            "zh": "屠夫把照片放进口袋。慢慢地。用右手。不是义肢。这很不寻常。这个人总是用义肢拿照片。今天不同了。原因不知道。但不同了。"
           }
         }
       ]
@@ -696,7 +802,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신한테 물어볼 게 하나 더 있어. 이게 진짜 시험이야.",
-            "en": "One more thing to ask you. This is the real test."
+            "en": "One more thing to ask you. This is the real test.",
+            "ja": "もう一つ聞くことがある。これが本物のテストだ。",
+            "zh": "还有一件事要问你。这是真正的考验。"
           }
         },
         {
@@ -704,7 +812,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "살아남은 자에게 의무가 있어. 그 의무가 뭔지 알아. 당신은 어떻게 생각해.",
-            "en": "The one who survives has an obligation. You know what that obligation is. What do you think."
+            "en": "The one who survives has an obligation. You know what that obligation is. What do you think.",
+            "ja": "生き残った者には義務がある。その義務が何かお前は知っている。どう思う。",
+            "zh": "活下来的人有义务。你知道那个义务是什么。你怎么看。"
           }
         }
       ]
@@ -719,7 +829,9 @@
         {
           "text": {
             "ko": "이것이 시험이었다. Butcher의 30년이 여기 있었다. 이름들이 사진 뒤에 있었다. Cinder가 들었다. 이 방의 공기가 낡았다. 광산 의자 냄새가 났다. 흙 냄새. 오래된 것. 그것들이 이 질문과 함께 있었다.",
-            "en": "This was the test. Butcher's thirty years were here. The names were on the back of the photo. Cinder was listening. The air in this room was old. The smell of a mining chair. The smell of earth. Old things. They were all here with this question."
+            "en": "This was the test. Butcher's thirty years were here. The names were on the back of the photo. Cinder was listening. The air in this room was old. The smell of a mining chair. The smell of earth. Old things. They were all here with this question.",
+            "ja": "これがテストだった。Butcherの三十年がここにあった。名前が写真の裏にあった。シンダーが聞いていた。この部屋の空気は古かった。採掘椅子の匂い。土の匂い。古いもの。すべてがこの質問と共にここにあった。",
+            "zh": "这就是考验。屠夫的三十年在这里。名字在照片背面。辛达在听。这个房间的空气是旧的。采矿椅子的气味。泥土的气味。旧的东西。它们都和这个问题一起在这里。"
           }
         }
       ]
@@ -731,55 +843,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Butcher의 시험. 살아남은 자의 의무. 무엇이라고 답합니까.",
-        "en": "Butcher's test. The obligation of the one who survives. What do you answer."
+        "en": "Butcher's test. The obligation of the one who survives. What do you answer.",
+        "ja": "Butcherのテスト。生き残った者の義務。お前は何と答える。",
+        "zh": "屠夫的考验。活下来的人的义务。你怎么回答。"
       },
       "choices": [
         {
           "id": "cv_ch6_still_needed",
           "text": {
             "ko": "기억하는 것. 이름들이 없어지지 않게.",
-            "en": "To remember. So names don't disappear."
+            "en": "To remember. So names don't disappear.",
+            "ja": "覚えること。名前が消えないように。",
+            "zh": "记住。为了名字不消失。"
           },
           "tone": "conviction",
           "preview_hint": {
             "ko": "→ Butcher가 사진을 다시 꺼낸다. 이름들을 본다",
-            "en": "→ Butcher takes out the photo again. Looks at the names."
+            "en": "→ Butcher takes out the photo again. Looks at the names.",
+            "ja": "→ Butcherがまた写真を取り出す。名前を見る。",
+            "zh": "→ 屠夫再次取出照片。看着名字。"
           }
         },
         {
           "id": "cv_ch6_transform",
           "text": {
             "ko": "살아있는 것으로 대답하는 것. 계속 싸우는 것.",
-            "en": "To answer with being alive. To keep fighting."
+            "en": "To answer with being alive. To keep fighting.",
+            "ja": "生きていることで答える。戦い続けること。",
+            "zh": "用活着来回答。继续战斗。"
           },
           "tone": "action",
           "preview_hint": {
             "ko": "→ Butcher가 처음으로 의수를 만진다. 오래",
-            "en": "→ Butcher touches the prosthetic for the first time. Long."
+            "en": "→ Butcher touches the prosthetic for the first time. Long.",
+            "ja": "→ Butcherが初めて義手を長く触る。",
+            "zh": "→ 屠夫第一次长时间触摸义肢。"
           }
         },
         {
           "id": "cv_ch6_question_back",
           "text": {
             "ko": "반문한다. 당신은 30년 동안 어떻게 답했습니까.",
-            "en": "Ask back. How did you answer for thirty years."
+            "en": "Ask back. How did you answer for thirty years.",
+            "ja": "聞き返す。三十年間どう答えてきたのか。",
+            "zh": "反问。三十年来你是怎么回答的。"
           },
           "tone": "respectful",
           "preview_hint": {
             "ko": "→ Butcher가 30년 만에 처음으로 웃는다",
-            "en": "→ Butcher laughs for the first time in thirty years."
+            "en": "→ Butcher laughs for the first time in thirty years.",
+            "ja": "→ Butcherが三十年ぶりに笑う。",
+            "zh": "→ 屠夫三十年来第一次笑了。"
           }
         },
         {
           "id": "cv_ch6_no_answer",
           "text": {
             "ko": "대답하지 않는다.",
-            "en": "No answer."
+            "en": "No answer.",
+            "ja": "答えなし。",
+            "zh": "不回答。"
           },
           "tone": "silence",
           "preview_hint": {
             "ko": "→ Butcher가 당신을 가장 오래 바라본다",
-            "en": "→ Butcher looks at you longest of all."
+            "en": "→ Butcher looks at you longest of all.",
+            "ja": "→ Butcherが一番長くお前を見る。",
+            "zh": "→ 屠夫看你看得最久。"
           }
         }
       ]
@@ -794,7 +924,9 @@
         {
           "text": {
             "ko": "Cinder가 공구를 들었다. 그것이 출발 신호였다. 이 사람이 공구를 들면 일이 시작됐다. 30년 전에 이 사람이 없었다. 그러나 오늘 밤 있었다. 그것이 차이였다. 오늘 밤은 혼자가 아니었다.",
-            "en": "Cinder picked up her tools. That was the signal to move. When this person picked up tools work began. Thirty years ago this person wasn't here. But tonight she was. That was the difference. Tonight was not alone."
+            "en": "Cinder picked up her tools. That was the signal to move. When this person picked up tools work began. Thirty years ago this person wasn't here. But tonight she was. That was the difference. Tonight was not alone.",
+            "ja": "シンダーが工具を持った。それが動くシグナルだった。この人物が工具を持つと仕事が始まった。三十年前この人物はここにいなかった。しかし今夜は来た。それが違いだった。今夜は一人じゃなかった。",
+            "zh": "辛达拿起了工具。那是行动的信号。这个人拿起工具就开始工作了。三十年前这个人不在这里。但今晚她在。那是不同之处。今晚不是独自一人。"
           }
         }
       ]
@@ -811,7 +943,9 @@
           "emotion": "serious",
           "text": {
             "ko": "가져와. 이름들을.",
-            "en": "Bring them back. The names."
+            "en": "Bring them back. The names.",
+            "ja": "持ち帰れ。名前を。",
+            "zh": "把它们带回来。名字。"
           }
         },
         {
@@ -819,7 +953,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "30년 전에 나는 혼자였어. 오늘은 아니야.",
-            "en": "Thirty years ago I was alone. Today is not."
+            "en": "Thirty years ago I was alone. Today is not.",
+            "ja": "三十年前俺は一人だった。今日はそうじゃない。",
+            "zh": "三十年前我是独自一人。今天不是。"
           }
         }
       ]
@@ -832,11 +968,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "이름들을 위한 전투",
-        "en": "Battle for the Names"
+        "en": "Battle for the Names",
+        "ja": "名前のための戦い",
+        "zh": "为名字而战"
       },
       "subtitle": {
         "ko": "에레보스 분화구 — 30년의 무게",
-        "en": "Erebus Crater — The Weight of Thirty Years"
+        "en": "Erebus Crater — The Weight of Thirty Years",
+        "ja": "エレボスクレーター — 三十年の重み",
+        "zh": "厄瑞玻斯陨石坑 — 三十年的重量"
       }
     },
     {
@@ -857,7 +997,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "살아남았어.",
-            "en": "Survived."
+            "en": "Survived.",
+            "ja": "生き残った。",
+            "zh": "活下来了。"
           }
         },
         {
@@ -865,7 +1007,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이름들도 살아남았어. 그것이 중요한 거야. 우리가 살아남은 것보다.",
-            "en": "The names survived too. That's what matters. More than us surviving."
+            "en": "The names survived too. That's what matters. More than us surviving.",
+            "ja": "名前も生き残った。それが大事だ。俺たちが生き残ること以上に。",
+            "zh": "名字也活下来了。那才是重要的。比我们活下来更重要。"
           }
         },
         {
@@ -873,7 +1017,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "사진 뒤에 빈 공간 있어. 거기 당신 이름 쓸 자리야. 시험 통과했어.",
-            "en": "There's empty space on the back of the photo. That's where your name goes. Test passed."
+            "en": "There's empty space on the back of the photo. That's where your name goes. Test passed.",
+            "ja": "写真の裏に空きスペースがある。そこにお前の名前が入る。テスト合格。",
+            "zh": "照片背面有空白处。那里是你的名字的位置。考验通过了。"
           },
           "overlay": "cv_ch6_thirty_years_l38_02_candle_flame"
         }
@@ -888,7 +1034,9 @@
         {
           "text": {
             "ko": "전투가 끝났다. 기록을 가져오지 못했다. Butcher가 의자에 앉아 있었다. 광산 의자. 낡은 것. 사진을 들고 있었다. 뒤집지 않았다. 이름들은 안 보이는 쪽에 있었다. 그러나 있었다. 없어지지 않았다. 기억이 아직 있었다.",
-            "en": "The battle ended. Couldn't get the records. Butcher sat in the chair. Mining chair. Old thing. He was holding the photo. Not flipped. The names were on the side you couldn't see. But they were there. Not gone. Memory was still there."
+            "en": "The battle ended. Couldn't get the records. Butcher sat in the chair. Mining chair. Old thing. He was holding the photo. Not flipped. The names were on the side you couldn't see. But they were there. Not gone. Memory was still there.",
+            "ja": "戦闘が終わった。記録を取れなかった。Butcherは椅子に座った。採掘椅子。古いもの。写真を持っていた。裏返さずに。名前は見えない側にあった。しかしそこにあった。消えていなかった。記憶はまだそこにあった。",
+            "zh": "战斗结束了。没能拿到记录。屠夫坐在椅子上。采矿椅子。旧的东西。他拿着照片。没有翻转。名字在看不见的那面。但在那里。没有消失。记忆仍然在那里。"
           }
         }
       ]
@@ -903,7 +1051,9 @@
         {
           "text": {
             "ko": "방이 조용했다. Cinder의 공구 소리가 들렸다. 어디선가. 기지 어딘가에서. 그것이 기지가 살아있다는 증거였다. Butcher가 사진을 봤다. 오른손으로. 30년 된 것을. 이름들이 거기 있었다. 이름들이 있는 사진은 쉽게 없어지지 않았다. 그것을 알았다. 17살 때부터 알았다.",
-            "en": "The room was quiet. Cinder's tool sounds were heard. From somewhere. Somewhere in the base. That was proof the base was alive. Butcher looked at the photo. With his right hand. The thirty-year-old thing. Names were there. Photos with names didn't disappear easily. He knew that. Had known since he was seventeen."
+            "en": "The room was quiet. Cinder's tool sounds were heard. From somewhere. Somewhere in the base. That was proof the base was alive. Butcher looked at the photo. With his right hand. The thirty-year-old thing. Names were there. Photos with names didn't disappear easily. He knew that. Had known since he was seventeen.",
+            "ja": "部屋は静かだった。シンダーの工具の音が聞こえた。どこかから。基地のどこかから。それが基地が生きている証拠だった。Butcherは写真を見た。右手で。三十年前のもの。名前がそこにあった。名前のある写真は簡単には消えなかった。彼はそれを知っていた。十七歳の頃から知っていた。",
+            "zh": "房间很安静。辛达工具的声音被听到了。从某处。基地某处。那是基地活着的证明。屠夫看着照片。用右手。三十年前的东西。名字在那里。有名字的照片不容易消失。他知道这一点。从他十七岁起就知道了。"
           }
         }
       ],
@@ -911,7 +1061,9 @@
         "questId": "cv_campaign_ch7",
         "teaser": {
           "ko": "다음 — 권력 공백",
-          "en": "Next — Power Vacuum"
+          "en": "Next — Power Vacuum",
+          "ja": "次 — 権力の空白",
+          "zh": "接下来 — 权力真空"
         }
       }
     }
