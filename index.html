@@ -5701,7 +5701,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)" data-i18n="rename_btn">RENAME</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
     <button class="uf" id="infoCosmeticBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(255,100,200,.08));border-color:rgba(180,100,255,.3);color:#c088e0" onclick="openCosmeticPanel(selectedPlot)" data-i18n="customize_btn">✨ CUSTOMIZE</button>
-    <button class="uf" id="infoMergeBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(129,212,250,.12),rgba(129,212,250,.04));border-color:rgba(129,212,250,.3);color:#81d4fa" onclick="openTerritoryMergePanel()" data-i18n="merge_btn">🔗 MERGE TERRITORIES</button>
     <div id="cosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
       <div style="font-size:9px;color:#c088e0;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px;font-weight:700" data-i18n="cosmetics_title">COSMETICS</div>
       <div id="cosmeticSlots" style="display:flex;flex-direction:column;gap:6px"></div>
@@ -13202,7 +13201,6 @@ function showTerritoryInfo(plot){
   var cosBtn=document.getElementById('infoCosmeticBtn');
   var cosPanel=document.getElementById('cosmeticPanel');
   var renameBtn=document.getElementById('infoRenameBtn');
-  var mergeBtn=document.getElementById('infoMergeBtn');
   if(myW&&plot.owner===myW){
     editBtn.style.display='';
     editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
@@ -13210,13 +13208,11 @@ function showTerritoryInfo(plot){
     document.getElementById('infoLinkInput').value=plot.link||'';
     cosBtn.style.display='';
     renameBtn.style.display='';
-    if(mergeBtn) mergeBtn.style.display='';
   }else{
     editBtn.style.display='none';
     linkEdit.style.display='none';
     cosBtn.style.display='none';
     renameBtn.style.display='none';
-    if(mergeBtn) mergeBtn.style.display='none';
   }
   cosPanel.style.display='none';
   // Production summary (own territory only)
@@ -21883,31 +21879,51 @@ function loadSellView(){
   var w=(walletState&&walletState.address)||'';
   if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
-  Promise.all([
-    fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
-    fetch('/api/user/my-territories?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {territories:[]}})
-  ]).then(function(res){
-    var instances=Array.isArray(res[0])?res[0]:(res[0]||[]);
-    var territories=(res[1].territories)||[];
+
+  // ── 아이템만 API에서, 영토는 이미 로컬에 있는 _ownerGroups 사용 ──
+  fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}).then(function(instances){
+    instances=Array.isArray(instances)?instances:(instances||[]);
     var html='';
 
-    // ── TERRITORIES section ──
+    // ── TERRITORIES: _ownerGroups 기반 (BASE 내 영토 탭과 동일 로직) ──
     html+='<div style="font-size:10px;color:var(--mars);font-weight:800;letter-spacing:.5px;margin-bottom:6px">🗺️ '+(t('mkt_sellable_terr')||'MY TERRITORIES')+'</div>';
-    if(!territories.length){
+    var myGroups=_ownerGroups[w.toLowerCase()]||_ownerGroups[w]||[];
+    // fallback: _ownerGroups 비어 있으면 claims에서 직접 필터
+    var myClaims=(window.claims||[]).filter(function(c){return (c.owner||'').toLowerCase()===w.toLowerCase();});
+    var entries=[];
+    if(myGroups.length>0){
+      myGroups.forEach(function(grp){
+        var ec=grp.claimIndices.map(function(ci){return claims[ci];}).filter(Boolean);
+        if(ec.length>0) entries.push({claims:ec,group:grp});
+      });
+    } else {
+      myClaims.forEach(function(c){entries.push({claims:[c],group:null});});
+    }
+
+    if(!entries.length){
       html+='<div style="text-align:center;color:var(--tx3);padding:10px 0 14px;font-size:10px">'+(t('mkt_no_territories')||'No territories owned.')+'</div>';
     }else{
-      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px">';
-      territories.forEach(function(terr){
-        var locked=terr.marketplace_locked;
-        var px=parseInt(terr.pixel_count)||0;
-        var coordStr=parseFloat(terr.center_lat).toFixed(1)+'°, '+parseFloat(terr.center_lng).toFixed(1)+'°';
-        html+='<div style="background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,'+(locked?.25:.1)+');border-radius:8px;padding:9px;display:flex;flex-direction:column;gap:3px">';
-        html+='<div style="font-size:9px;font-weight:700;color:var(--mars)">🗺️ Territory #'+terr.id+'</div>';
-        html+='<div style="font-size:7px;color:var(--tx3)">'+coordStr+' · '+px+'px</div>';
-        if(locked){
-          html+='<div style="font-size:8px;color:#4cd89a;font-weight:700;margin-top:2px">💰 '+(t('terr_for_sale')||'FOR SALE')+'</div>';
+      html+='<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px">';
+      entries.forEach(function(entry,i){
+        var ec=entry.claims;
+        var b=entry.group?entry.group.bounds:null;
+        var centerLat=b?(b.minLat+b.maxLat)/2:ec[0].lat;
+        var centerLng=b?(b.minLng+b.maxLng)/2:ec[0].lng;
+        var totalPx=(b&&b.count)||ec.reduce(function(s,c){return s+(c._pixelCount||c.pixel_count||((c.w||c.size||10)*(c.h||c.size||10)));},0);
+        var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:8px">('+ec.length+' merged)</span>':'';
+        var anyLocked=ec.some(function(c){return _forSaleMap[c.id];});
+        var anyAuction=ec.some(function(c){var f=_forSaleMap[c.id];return f&&f.saleType==='auction';});
+        var primaryId=ec[0].id;
+        var coordStr=centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°';
+        html+='<div style="background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,'+(anyLocked?'.3':'.1')+');border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px">';
+        html+='<div style="flex:1;min-width:0">';
+        html+='<div style="font-size:10px;color:var(--tx2);font-weight:700">#'+(i+1)+' · '+coordStr+subLabel+'</div>';
+        html+='<div style="font-size:8px;color:var(--tx3);margin-top:1px">'+totalPx+'px · '+(ec.some(function(c){return c.imgUrl;})?'📷':'🏴 No image')+'</div>';
+        html+='</div>';
+        if(anyLocked){
+          html+='<div style="font-size:8px;color:#4cd89a;font-weight:700;white-space:nowrap">'+( anyAuction?'🔨 AUCTION':'💰 FOR SALE')+'</div>';
         }else{
-          html+='<button onclick="openListModal(\'claim\','+terr.id+',\'Territory #'+terr.id+'\',\'🗺️\',0)" style="font-size:8px;font-weight:700;padding:4px 8px;border-radius:4px;border:1px solid rgba(255,120,60,.4);background:rgba(255,120,60,.1);color:var(--mars);cursor:pointer;font-family:var(--fn);margin-top:2px">💰 '+(t('mkt_list_sell')||'SELL')+'</button>';
+          html+='<button type="button" onclick="openListModal(\'claim\','+primaryId+',\'Territory #'+primaryId+'\',\'🗺️\',0)" style="font-size:8px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.4);background:rgba(255,120,60,.1);color:var(--mars);cursor:pointer;font-family:var(--fn);white-space:nowrap">💰 '+(t('mkt_list_sell')||'SELL')+'</button>';
         }
         html+='</div>';
       });
@@ -21924,13 +21940,13 @@ function loadSellView(){
         var lv=inst.enhancement_level||0;
         html+='<div class="'+_enhGlowClass(lv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
           +'<div style="font-size:10px;font-weight:700;color:'+_enhLevelColor(lv)+'">'+(inst.icon||'🎨')+' '+(inst.name||'Item')+_enhBadge(lv)+'</div>'
-          +'<button onclick="openListModal(\'cosmetic\','+inst.id+',\''+(inst.name||'').replace(/'/g,"\\'")+'\','+(inst.icon?'\''+inst.icon+'\'':'null')+','+lv+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+(t('mkt_list_sell')||'SELL')+'</button>'
+          +'<button type="button" onclick="openListModal(\'cosmetic\','+inst.id+',\''+(inst.name||'').replace(/'/g,"\\'")+'\','+(inst.icon?'\''+inst.icon+'\'':'null')+','+lv+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+(t('mkt_list_sell')||'SELL')+'</button>'
           +'</div>';
       });
       html+='</div>';
     }
     el.innerHTML=html;
-  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">Failed to load</div>'});
+  });
 }
 
 function openListModal(type,idVal,name,icon,enhLv){
