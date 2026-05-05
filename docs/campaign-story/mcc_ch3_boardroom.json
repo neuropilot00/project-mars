@@ -4,7 +4,9 @@
   "chapterNumber": 3,
   "title": {
     "ko": "25도 라운지",
-    "en": "The 25-Degree Lounge"
+    "en": "The 25-Degree Lounge",
+    "ja": "25度ラウンジ",
+    "zh": "二十五度休息室"
   },
   "location": {
     "id": "chen_office_25",
@@ -27,7 +29,9 @@
         {
           "text": {
             "ko": "호출이 왔다. 발신인: Chen Weiss. 내용: 오전 10시. 25도 라운지. 짧았다. MCC에서 짧은 호출은 두 가지였다. 중요하지 않거나 매우 중요하거나. 이것은 두 번째였다.",
-            "en": "A summons arrived. Sender: Chen Weiss. Content: 10 AM. 25-Degree Lounge. Brief. In MCC brief summons meant one of two things. Unimportant or very important. This was the second."
+            "en": "A summons arrived. Sender: Chen Weiss. Content: 10 AM. 25-Degree Lounge. Brief. In MCC brief summons meant one of two things. Unimportant or very important. This was the second.",
+            "ja": "呼び出しが来た。発信者：チェン・ワイス。内容：午前十時。25度ラウンジ。短かった。MCCでの短い呼び出しは二つに一つだった。重要でないか、非常に重要か。これは後者だった。",
+            "zh": "传唤来了。发件人：陈·韦斯。内容：上午十点。二十五度休息室。很简短。在MCC，简短的传唤只有两种情况。要么不重要，要么非常重要。这是后者。"
           }
         }
       ]
@@ -42,7 +46,9 @@
         {
           "text": {
             "ko": "화성에서 25도는 유지하는 것이 돈이 들었다. 많은 돈. Chen Weiss의 사무실은 항상 25도였다. 그것이 이 방의 이름이었다. 25도 라운지. 이름이 붙은 것은 이유가 있었다.",
-            "en": "On Mars maintaining twenty-five degrees cost money. A great deal. Chen Weiss's office was always twenty-five degrees. That was the room's name. The 25-Degree Lounge. There was a reason it had a name."
+            "en": "On Mars maintaining twenty-five degrees cost money. A great deal. Chen Weiss's office was always twenty-five degrees. That was the room's name. The 25-Degree Lounge. There was a reason it had a name.",
+            "ja": "火星で二十五度を維持するには金がかかった。多くの金が。チェン・ワイスのオフィスはいつも二十五度だった。それがこの部屋の名前だった。25度ラウンジ。名前がついているのには理由があった。",
+            "zh": "在火星上，维持二十五度是需要花钱的。很多钱。陈·韦斯的办公室一直是二十五度。那是这个房间的名字。二十五度休息室。有名字是有原因的。"
           }
         }
       ]
@@ -57,7 +63,9 @@
         {
           "text": {
             "ko": "MCC 임원층. 6층이었다. 엘리베이터가 있었다. 그러나 엘리베이터 열쇠가 따로 있었다. 6층 버튼은 잠겨 있었다. 계단이 있었다. 계단도 코드가 필요했다. 코드는 바뀌었다. 매주. 그것이 6층이 6층인 이유였다.",
-            "en": "MCC executive floor. Sixth floor. There was an elevator. But the elevator required a separate key. The 6th floor button was locked. Stairs existed. The stairs also needed a code. The code changed. Weekly. That was why the sixth floor was the sixth floor."
+            "en": "MCC executive floor. Sixth floor. There was an elevator. But the elevator required a separate key. The 6th floor button was locked. Stairs existed. The stairs also needed a code. The code changed. Weekly. That was why the sixth floor was the sixth floor.",
+            "ja": "MCC役員フロア。六階だった。エレベーターがあった。しかしエレベーターには別の鍵が必要だった。六階のボタンはロックされていた。階段があった。階段もコードが必要だった。コードは変わった。毎週。それが六階が六階である理由だった。",
+            "zh": "MCC高管层。六楼。有电梯。但电梯需要单独的钥匙。六楼的按钮是锁着的。有楼梯。楼梯也需要密码。密码每周更换。这就是六楼之所以是六楼的原因。"
           }
         }
       ]
@@ -72,7 +80,9 @@
         {
           "text": {
             "ko": "Chen Weiss는 차를 들고 있었다. 잔이 가득 찼다. 그러나 마시지 않았다. 이것은 그녀의 방식이었다. 25도의 방 안에서 차는 식지 않았다. 영원히 그 상태로 있을 수 있었다.",
-            "en": "Chen Weiss was holding a cup of tea. The cup was full. But she wasn't drinking it. This was her way. In the twenty-five degree room the tea wouldn't cool. It could stay like that forever."
+            "en": "Chen Weiss was holding a cup of tea. The cup was full. But she wasn't drinking it. This was her way. In the twenty-five degree room the tea wouldn't cool. It could stay like that forever.",
+            "ja": "チェン・ワイスはお茶を持っていた。カップがいっぱいだった。しかし飲まなかった。これが彼女のやり方だった。二十五度の部屋ではお茶は冷めなかった。永遠にその状態でいられた。",
+            "zh": "陈·韦斯端着茶杯。杯子是满的。但她没有喝。这是她的方式。在二十五度的房间里，茶不会冷却。可以永远保持那个状态。"
           }
         }
       ]
@@ -87,9 +97,11 @@
         {
           "text": {
             "ko": "그녀의 부모는 광부였다. 화성 태생. 화성에서 태어난 두 번째 세대. 광산에서 일했고 광산에서 죽었다. Chen은 그것을 자주 말하지 않았다. 그러나 차를 들 때마다 어디선가 그것이 있었다.",
-            "en": "Her parents had been miners. Born on Mars. Second generation. They worked the mines and they died in them. Chen didn't talk about it often. But whenever she held the tea it was there somewhere."
-          },
-          "overlay": "mcc_ch3_boardroom_l04_00_death_still"
+            "en": "Her parents had been miners. Born on Mars. Second generation. They worked the mines and they died in them. Chen didn't talk about it often. But whenever she held the tea it was there somewhere.",
+            "ja": "彼女の両親は鉱夫だった。火星生まれ。火星で生まれた第二世代。鉱山で働き、鉱山で死んだ。チェンはそれをあまり話さなかった。しかしお茶を持つたびに、どこかにそれがあった。",
+            "zh": "她的父母是矿工。在火星出生。在火星出生的第二代。在矿山工作，也死在了矿山。陈不常提这件事。但每次端起茶杯，某个地方总有那件事的影子。",
+            "overlay": "mcc_ch3_boardroom_l04_00_death_still"
+          }
         }
       ]
     },
@@ -103,7 +115,9 @@
         {
           "text": {
             "ko": "창이 전면이었다. 헬라스 센트럴 전체가 보였다. 파노라마였다. 도시의 층들이 보였다. 위층. 중층. 아래층. 아래로 내려갈수록 먼지가 많았다. 창에서 보면 전부 작았다. 그녀의 부모가 있던 층이 가장 작았다.",
-            "en": "The window was full-wall. All of Hellas Central visible. A panorama. The city's layers visible. Upper. Middle. Lower. More dust the lower you went. From the window everything was small. The layer where her parents had been was smallest."
+            "en": "The window was full-wall. All of Hellas Central visible. A panorama. The city's layers visible. Upper. Middle. Lower. More dust the lower you went. From the window everything was small. The layer where her parents had been was smallest.",
+            "ja": "窓が全面だった。ヘラス・セントラル全体が見えた。パノラマだった。都市の層が見えた。上層。中層。下層。下に行くほど埃が多かった。窓から見るとすべてが小さかった。彼女の両親がいた層が最も小さかった。",
+            "zh": "整面都是窗户。整个赫拉斯中央都看得见。是全景。城市的各个层次都看得见。上层。中层。下层。越往下尘土越多。从窗户看，一切都显得很小。她父母所在的那一层最小。"
           }
         }
       ]
@@ -121,7 +135,9 @@
           "effect": "character_enter:chen:slide_left",
           "text": {
             "ko": "앉아요.",
-            "en": "Sit down."
+            "en": "Sit down.",
+            "ja": "座って。",
+            "zh": "坐下。"
           }
         },
         {
@@ -129,7 +145,9 @@
           "emotion": "calm",
           "text": {
             "ko": "보고서 읽었어요. 감사 결과. 당신이 쓴 거예요.",
-            "en": "I read the report. The audit results. You wrote it."
+            "en": "I read the report. The audit results. You wrote it.",
+            "ja": "報告書を読みました。監査結果。あなたが書いたのね。",
+            "zh": "我读了报告。审计结果。是你写的。"
           }
         },
         {
@@ -137,7 +155,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "차 들어요.",
-            "en": "Take some tea."
+            "en": "Take some tea.",
+            "ja": "お茶をどうぞ。",
+            "zh": "喝点茶。"
           }
         }
       ]
@@ -152,7 +172,9 @@
         {
           "text": {
             "ko": "차가 왔다. 잔을 받았다. Chen은 자신의 잔을 보았다. 마시지 않았다. 그냥 들고 있었다. 25도의 공기 속에서 차는 식지 않았다. 그것이 이 방의 권력이었다.",
-            "en": "Tea came. The cup was taken. Chen looked at her own cup. Didn't drink. Just held it. In the twenty-five degree air the tea wouldn't cool. That was this room's power."
+            "en": "Tea came. The cup was taken. Chen looked at her own cup. Didn't drink. Just held it. In the twenty-five degree air the tea wouldn't cool. That was this room's power.",
+            "ja": "お茶が来た。カップを受け取った。チェンは自分のカップを見た。飲まなかった。ただ持っていた。二十五度の空気の中でお茶は冷めなかった。それがこの部屋の権力だった。",
+            "zh": "茶来了。接过杯子。陈看着自己的杯子。没有喝。只是端着。在二十五度的空气里，茶不会冷。那是这个房间的权力。"
           }
         }
       ]
@@ -169,7 +191,9 @@
           "emotion": "serious",
           "text": {
             "ko": "7구역 사망 3건. 당신이 보고서에 적었어요. 용기 있는 일이에요. 또는 어리석은 일이에요. 둘 중 하나예요.",
-            "en": "Three deaths in Sector 7. You put it in the report. That was either courageous or foolish. One of the two."
+            "en": "Three deaths in Sector 7. You put it in the report. That was either courageous or foolish. One of the two.",
+            "ja": "7区画で死亡三件。あなたが報告書に書いた。勇気ある行為です。あるいは愚かな行為。どちらかです。",
+            "zh": "七区三起死亡。你写进了报告里。这要么是勇敢，要么是愚蠢。二选一。"
           }
         },
         {
@@ -177,7 +201,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "나는 둘 다 싫어하지 않아요. 같은 뿌리에서 나와요.",
-            "en": "I don't dislike either. They come from the same root."
+            "en": "I don't dislike either. They come from the same root.",
+            "ja": "私はどちらも嫌いではない。同じ根から来ています。",
+            "zh": "我两种都不讨厌。它们来自同一个根源。"
           }
         },
         {
@@ -185,7 +211,9 @@
           "emotion": "calm",
           "text": {
             "ko": "MCC에서 20년 됐어요. 보고서에 그것을 쓴 신입은 거의 없어요.",
-            "en": "Twenty years in MCC. New arrivals who write that in reports are rare."
+            "en": "Twenty years in MCC. New arrivals who write that in reports are rare.",
+            "ja": "MCCに二十年います。報告書にそれを書く新入りはほとんどいません。",
+            "zh": "在MCC二十年了。把那个写进报告的新人几乎没有。"
           }
         }
       ]
@@ -200,7 +228,9 @@
         {
           "text": {
             "ko": "Chen이 창 쪽을 봤다. 잠깐이었다. 다시 돌아왔다. 차를 들었다. 마시지 않았다. 이것이 반복됐다. 이 방에서 반복되는 것들이 있었다. 그것들이 이 방을 이 방으로 만들었다.",
-            "en": "Chen looked toward the window. Briefly. Came back. Held the tea. Didn't drink. This repeated. There were things that repeated in this room. Those things made this room what it was."
+            "en": "Chen looked toward the window. Briefly. Came back. Held the tea. Didn't drink. This repeated. There were things that repeated in this room. Those things made this room what it was.",
+            "ja": "チェンが窓の方を見た。一瞬だった。戻ってきた。お茶を持った。飲まなかった。これが繰り返された。この部屋で繰り返されるものがあった。それらがこの部屋をこの部屋たらしめていた。",
+            "zh": "陈向窗户那边看了一眼。只是一瞬间。又回来了。端起茶。没有喝。这件事在重复。这个房间里有一些重复的东西。那些东西让这个房间成为这个房间。"
           }
         }
       ]
@@ -217,7 +247,9 @@
           "emotion": "calm",
           "text": {
             "ko": "내 부모 얘기를 할게요. 광산에서 일했어요. 두 분 다요. 나는 12살에 혼자 남았어요.",
-            "en": "I'll tell you about my parents. They worked in the mines. Both. I was left alone at twelve."
+            "en": "I'll tell you about my parents. They worked in the mines. Both. I was left alone at twelve.",
+            "ja": "両親の話をします。鉱山で働いていました。二人とも。私は十二歳で一人になりました。",
+            "zh": "我来说说我的父母。他们在矿山工作。两个人都是。我十二岁时就一个人了。"
           }
         },
         {
@@ -225,7 +257,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "사고 보고서가 있었어요. 원인란이 비어 있었어요.",
-            "en": "There was an accident report. The cause section was blank."
+            "en": "There was an accident report. The cause section was blank.",
+            "ja": "事故報告書がありました。原因欄が空白でした。",
+            "zh": "有事故报告。原因栏是空白的。"
           }
         },
         {
@@ -233,9 +267,11 @@
           "emotion": "serious",
           "text": {
             "ko": "그래서 MCC에 들어왔어요. 그것을 채우려고.",
-            "en": "That's why I entered MCC. To fill it in."
-          },
-          "overlay": "mcc_ch3_boardroom_l10_02_sealed_file"
+            "en": "That's why I entered MCC. To fill it in.",
+            "ja": "だからMCCに入ったのです。それを埋めるために。",
+            "zh": "所以我进了MCC。为了填满那个空白。",
+            "overlay": "mcc_ch3_boardroom_l10_02_sealed_file"
+          }
         }
       ]
     },
@@ -249,7 +285,9 @@
         {
           "text": {
             "ko": "그녀가 창을 봤다. 파노라마 창. 헬라스 전체. 광산 구역이 보였다. 작았다. 그녀는 차를 들고 있었다. 마시지 않았다. 그 이야기를 하는 동안에도. 그것이 더 많은 것을 말했다. 말보다.",
-            "en": "She looked at the window. The panoramic window. All of Hellas. The mine district was visible. Small. She held her tea. Didn't drink. Even while telling that story. That said more. More than words."
+            "en": "She looked at the window. The panoramic window. All of Hellas. The mine district was visible. Small. She held her tea. Didn't drink. Even while telling that story. That said more. More than words.",
+            "ja": "彼女が窓を見た。パノラマの窓。ヘラス全体。鉱山区域が見えた。小さかった。彼女はお茶を持っていた。飲まなかった。その話をしている間も。それがより多くを語った。言葉よりも。",
+            "zh": "她看着窗户。全景窗。整个赫拉斯。矿区看得见。很小。她端着茶。没有喝。就连讲那个故事的时候也是。那比话语说得更多。"
           }
         }
       ]
@@ -266,7 +304,9 @@
           "emotion": "calm",
           "text": {
             "ko": "22년이 됐어요. 채워졌어요? 잘 모르겠어요.",
-            "en": "Twenty-two years. Was it filled? I'm not sure."
+            "en": "Twenty-two years. Was it filled? I'm not sure.",
+            "ja": "二十二年になりました。埋まりましたか？わかりません。",
+            "zh": "二十二年了。填满了吗？我不确定。"
           }
         },
         {
@@ -274,7 +314,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC 안에서 원인란을 채울 수 있어요. 어느 정도는. 규정을 바꿀 수 있어요. 체크리스트를 바꿀 수 있어요.",
-            "en": "Inside MCC you can fill in cause sections. To a degree. Rules can be changed. Checklists can be changed."
+            "en": "Inside MCC you can fill in cause sections. To a degree. Rules can be changed. Checklists can be changed.",
+            "ja": "MCC内で原因欄を埋めることができます。ある程度は。規定を変えることができます。チェックリストを変えることができます。",
+            "zh": "在MCC内部可以填写原因栏。在一定程度上。可以改变规定。可以改变清单。"
           }
         },
         {
@@ -282,7 +324,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그러나 MCC 밖에서는 아무것도 바꿀 수 없어요. 화성에서는. 그것을 배웠어요. 오래 걸렸어요.",
-            "en": "But outside MCC nothing can be changed. On Mars. That's what I learned. It took a long time."
+            "en": "But outside MCC nothing can be changed. On Mars. That's what I learned. It took a long time.",
+            "ja": "しかしMCCの外では何も変えられません。火星では。それを学びました。長い時間がかかりました。",
+            "zh": "但在MCC外面什么都改变不了。在火星上。这是我学到的。花了很长时间。"
           }
         }
       ]
@@ -297,7 +341,9 @@
         {
           "text": {
             "ko": "차가 식지 않았다. 25도의 공기였다. Chen은 차를 들고 있었다. 마시지 않았다. 대화가 이어졌다. 그러나 차를 마시지 않는 것이 더 많은 것을 말했다. 이 방에서 하지 않는 것들이 하는 것들보다 무거웠다.",
-            "en": "The tea didn't cool. Twenty-five degree air. Chen held the tea. Didn't drink. The conversation continued. But not drinking the tea said more. In this room what was not done was heavier than what was done."
+            "en": "The tea didn't cool. Twenty-five degree air. Chen held the tea. Didn't drink. The conversation continued. But not drinking the tea said more. In this room what was not done was heavier than what was done.",
+            "ja": "お茶は冷めなかった。二十五度の空気だった。チェンはお茶を持っていた。飲まなかった。会話が続いた。しかしお茶を飲まないことがより多くを語った。この部屋ではしないことがすることより重かった。",
+            "zh": "茶没有冷却。是二十五度的空气。陈端着茶。没有喝。对话继续。但不喝茶说的东西更多。在这个房间里，不做的事情比做的事情更有分量。"
           }
         }
       ]
@@ -314,7 +360,9 @@
           "emotion": "serious",
           "text": {
             "ko": "새 임무가 있어요. Kepler 분화구. 광물 조사. 그쪽에 뭔가 있어요.",
-            "en": "There's a new mission. Kepler Crater. Mineral survey. There's something out there."
+            "en": "There's a new mission. Kepler Crater. Mineral survey. There's something out there.",
+            "ja": "新しい任務があります。ケプラー・クレーター。鉱物調査。あちらに何かあります。",
+            "zh": "有新任务了。开普勒陨石坑。矿物调查。那边有什么东西。"
           }
         },
         {
@@ -322,7 +370,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "지질팀이 갔다 왔어요. 보고서가 불완전해요. 다시 가야 해요.",
-            "en": "A geology team went. The report was incomplete. It needs to be done again."
+            "en": "A geology team went. The report was incomplete. It needs to be done again.",
+            "ja": "地質チームが行って来ました。報告書が不完全です。もう一度行かなければなりません。",
+            "zh": "地质组去过了。报告不完整。需要再去一次。"
           }
         },
         {
@@ -330,7 +380,9 @@
           "emotion": "calm",
           "text": {
             "ko": "당신이 가요. 이유가 있어요. 나중에 알게 될 거예요.",
-            "en": "You're going. There's a reason. You'll understand later."
+            "en": "You're going. There's a reason. You'll understand later.",
+            "ja": "あなたが行きます。理由があります。後でわかるでしょう。",
+            "zh": "你去。有原因。以后你会明白的。"
           }
         }
       ]
@@ -345,7 +397,9 @@
         {
           "text": {
             "ko": "나중에. 그 말이 이 방에서 나오면 무게가 달랐다. 나중이 확실한 말이었다. MCC에서 나중이 확실한 사람은 많지 않았다. Chen Weiss는 그중 하나였다. 그것이 이 방의 또 다른 이름이었다. 나중이 확실한 곳.",
-            "en": "Later. When that word was said in this room it had different weight. A later that was certain. Not many people in MCC had a certain later. Chen Weiss was one. That was another name for this room. A place where later was certain."
+            "en": "Later. When that word was said in this room it had different weight. A later that was certain. Not many people in MCC had a certain later. Chen Weiss was one. That was another name for this room. A place where later was certain.",
+            "ja": "後で。その言葉がこの部屋で出ると重みが違った。確かな後のことだった。MCCで確かな後を持つ人間は多くなかった。チェン・ワイスはその一人だった。それがこの部屋のもう一つの名前だった。後が確かな場所。",
+            "zh": "以后。那句话从这个房间里说出来，分量不同。是确定无疑的以后。在MCC里，有确定的以后的人不多。陈·韦斯是其中之一。那是这个房间的另一个名字。以后确定无疑的地方。"
           }
         }
       ]
@@ -362,7 +416,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Liang Wei를 만날 거예요. 지질학자. MCC 외부 인물이에요. 독립 연구자예요.",
-            "en": "You'll meet Liang Wei. A geologist. External to MCC. Independent researcher."
+            "en": "You'll meet Liang Wei. A geologist. External to MCC. Independent researcher.",
+            "ja": "リャン・ウェイと会います。地質学者。MCC外部の人物です。独立した研究者です。",
+            "zh": "你会见到梁薇。地质学家。MCC外部人员。独立研究者。"
           }
         },
         {
@@ -370,7 +426,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "30년간 케플러를 연구했어요. 화성에서 30년을 한 곳에 쓴 사람이에요. 그 사람이 뭔가 봤어요.",
-            "en": "Thirty years studying Kepler. A person who spent thirty years in one place on Mars. That person saw something."
+            "en": "Thirty years studying Kepler. A person who spent thirty years in one place on Mars. That person saw something.",
+            "ja": "三十年間、ケプラーを研究しました。火星で三十年を一か所に費やした人です。その人が何かを見ました。",
+            "zh": "三十年来一直在研究开普勒。在火星上把三十年花在一个地方的人。那个人看到了什么。"
           }
         },
         {
@@ -378,7 +436,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그게 무엇인지 확인해요. 그 다음 나에게 보고해요. 지질팀 보고서 말고. 당신 생각을.",
-            "en": "Confirm what it is. Then report to me. Not the geology team report. Your thoughts."
+            "en": "Confirm what it is. Then report to me. Not the geology team report. Your thoughts.",
+            "ja": "それが何なのか確認してください。そして私に報告してください。地質チームの報告書ではなく。あなたの考えを。",
+            "zh": "确认那是什么。然后向我报告。不是地质组的报告。是你的想法。"
           }
         }
       ]
@@ -393,7 +453,9 @@
         {
           "text": {
             "ko": "당신 생각을. 그 말이 이상했다. MCC에서 당신 생각을 묻는 사람은 드물었다. 당신 보고서를 원하는 조직이었다. 보고서는 사실이었다. 사실은 관리될 수 있었다. 생각은 달랐다. Chen Weiss가 생각을 원하는 것은 이유가 있었다.",
-            "en": "Your thoughts. That was strange. In MCC people rarely asked for your thoughts. It was an organization that wanted your reports. Reports were facts. Facts could be managed. Thoughts were different. Chen Weiss wanting thoughts had a reason."
+            "en": "Your thoughts. That was strange. In MCC people rarely asked for your thoughts. It was an organization that wanted your reports. Reports were facts. Facts could be managed. Thoughts were different. Chen Weiss wanting thoughts had a reason.",
+            "ja": "あなたの考えを。その言葉が奇妙だった。MCCであなたの考えを聞く人は稀だった。あなたの報告書を求める組織だった。報告書は事実だった。事実は管理できた。考えは違った。チェン・ワイスが考えを求めるのには理由があった。",
+            "zh": "你的想法。那句话很奇怪。在MCC，很少有人问你的想法。这是一个要你报告的组织。报告是事实。事实可以被管理。想法不同。陈·韦斯想要想法是有原因的。"
           }
         }
       ]
@@ -410,7 +472,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이 방이 왜 25도인지 물어볼 수 있어요.",
-            "en": "You can ask why this room is twenty-five degrees."
+            "en": "You can ask why this room is twenty-five degrees.",
+            "ja": "この部屋がなぜ二十五度なのか聞いていいです。",
+            "zh": "你可以问这个房间为什么是二十五度。"
           }
         },
         {
@@ -418,7 +482,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "화성의 표준 실내 온도는 18도예요. 7도 더 비싸요. 에너지 비용이에요. 매달 납부해요.",
-            "en": "Standard indoor temperature on Mars is 18 degrees. Seven degrees more expensive. Energy cost. Paid monthly."
+            "en": "Standard indoor temperature on Mars is 18 degrees. Seven degrees more expensive. Energy cost. Paid monthly.",
+            "ja": "火星の標準室内温度は十八度です。七度高い。エネルギーコストです。毎月支払います。",
+            "zh": "火星的标准室内温度是十八度。多七度更贵。是能源费用。每月支付。"
           }
         },
         {
@@ -426,7 +492,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그 돈이 어디서 나오는지 알아요? 광부들의 작업 수당에서요. 계약 조항 32호. 기반시설 유지 부담금. 모두가 내요.",
-            "en": "Do you know where that money comes from? Miners' work allowances. Contract clause 32. Infrastructure maintenance surcharge. Everyone pays it."
+            "en": "Do you know where that money comes from? Miners' work allowances. Contract clause 32. Infrastructure maintenance surcharge. Everyone pays it.",
+            "ja": "その金がどこから来るか知っていますか？鉱夫たちの労働手当てから。契約条項第三十二号。インフラ維持負担金。全員が払います。",
+            "zh": "你知道那钱从哪里来吗？矿工的劳动津贴。合同第三十二条款。基础设施维护费。人人都要交。"
           }
         },
         {
@@ -434,7 +502,9 @@
           "emotion": "calm",
           "text": {
             "ko": "나는 그것을 알면서 25도를 유지해요. 그것이 이 방의 의미예요. 잊지 않기 위해.",
-            "en": "I maintain twenty-five degrees knowing that. That's the meaning of this room. To not forget."
+            "en": "I maintain twenty-five degrees knowing that. That's the meaning of this room. To not forget.",
+            "ja": "私はそれを知りながら二十五度を維持します。それがこの部屋の意味です。忘れないために。",
+            "zh": "我知道这件事，但依然维持二十五度。这就是这个房间的意义。为了不忘记。"
           }
         }
       ]
@@ -449,7 +519,9 @@
         {
           "text": {
             "ko": "차가 손 안에 있었다. 따뜻했다. 25도. 그 따뜻함의 비용을 광부들이 냈다. Chen은 그것을 잊지 않기 위해 이 방을 25도로 유지했다. 그것이 이해됐다. 그러나 완전히 이해됐는지는 알 수 없었다. 화성에서 완전히 이해되는 것은 없었다.",
-            "en": "Tea was in the hand. Warm. Twenty-five degrees. Miners paid for that warmth. Chen kept this room at twenty-five to not forget. That was understood. But whether fully understood was uncertain. On Mars nothing was fully understood."
+            "en": "Tea was in the hand. Warm. Twenty-five degrees. Miners paid for that warmth. Chen kept this room at twenty-five to not forget. That was understood. But whether fully understood was uncertain. On Mars nothing was fully understood.",
+            "ja": "お茶が手の中にあった。温かかった。二十五度。その温もりの費用を鉱夫たちが払った。チェンはそれを忘れないためにこの部屋を二十五度に保った。それは理解できた。しかし完全に理解できたかはわからなかった。火星では完全に理解されるものはなかった。",
+            "zh": "茶在手中。是温热的。二十五度。那份温暖的费用是矿工们支付的。陈为了不忘记而将这个房间保持在二十五度。这一点是明白了。但是否完全理解，不得而知。在火星上，没有什么是完全能理解的。"
           }
         }
       ]
@@ -466,7 +538,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC는 화성을 운영해요. 광산. 산소. 물. 정제소. 그것 없이는 사람이 살 수 없어요.",
-            "en": "MCC runs Mars. Mines. Oxygen. Water. Refineries. Without those people can't live."
+            "en": "MCC runs Mars. Mines. Oxygen. Water. Refineries. Without those people can't live.",
+            "ja": "MCCは火星を運営しています。鉱山。酸素。水。精製所。それなしでは人は生きられません。",
+            "zh": "MCC在运营火星。矿山。氧气。水。精炼厂。没有那些，人就无法生存。"
           }
         },
         {
@@ -474,7 +548,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그 권력이 어떻게 쓰이느냐가 문제예요. 누가 쥐고 있느냐가 문제예요.",
-            "en": "The issue is how that power is used. Who holds it."
+            "en": "The issue is how that power is used. Who holds it.",
+            "ja": "その権力がどのように使われるかが問題です。誰が握っているかが問題です。",
+            "zh": "问题在于那种权力如何被使用。谁掌握着它。"
           }
         },
         {
@@ -482,7 +558,9 @@
           "emotion": "calm",
           "text": {
             "ko": "나는 22년 동안 그것을 보면서 왔어요. 어떤 방향으로 가야 하는지는 알아요. 그 방향으로 갈 사람이 필요해요.",
-            "en": "I've watched that for twenty-two years. I know which direction it should go. I need someone to go that direction."
+            "en": "I've watched that for twenty-two years. I know which direction it should go. I need someone to go that direction.",
+            "ja": "私は二十二年間それを見てきました。どちらの方向に進むべきかは知っています。その方向に進む人が必要です。",
+            "zh": "我看了二十二年。我知道应该往哪个方向走。我需要一个能往那个方向走的人。"
           }
         }
       ]
@@ -497,7 +575,9 @@
         {
           "text": {
             "ko": "조용했다. 파노라마 창 너머 헬라스가 있었다. MCC가 지은 도시. 이 방에서 보면 전부 작았다. 그것이 의도된 것이었다. 작게 보여야 할 것과 작게 보이면 안 될 것을 구분하는 것. 그것이 22년이 가르친 것이었다.",
-            "en": "Quiet. Beyond the panoramic window was Hellas. The city MCC built. From this room everything was small. That was intentional. Distinguishing what should look small from what should not. That was what twenty-two years had taught."
+            "en": "Quiet. Beyond the panoramic window was Hellas. The city MCC built. From this room everything was small. That was intentional. Distinguishing what should look small from what should not. That was what twenty-two years had taught.",
+            "ja": "静かだった。パノラマの窓の向こうにヘラスがあった。MCCが建てた都市。この部屋から見るとすべてが小さかった。それは意図されたものだった。小さく見えるべきものと小さく見えてはいけないものを区別すること。それが二十二年が教えたことだった。",
+            "zh": "很安静。全景窗外是赫拉斯。MCC建造的城市。从这个房间看，一切都很小。这是有意为之的。区分什么应该看起来小，什么不应该看起来小。这是二十二年教会的东西。"
           }
         }
       ]
@@ -514,7 +594,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "케플러 임무 전에 한 가지 더 알아요.",
-            "en": "One more thing before the Kepler mission."
+            "en": "One more thing before the Kepler mission.",
+            "ja": "ケプラーの任務前にもう一つ知ってください。",
+            "zh": "开普勒任务前还有一件事要知道。"
           }
         },
         {
@@ -522,7 +604,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC 이사회는 7구역 보고서를 봤어요. 당신 이름을 알아요. 관심을 받는 것이 항상 좋은 것만은 아니에요.",
-            "en": "The MCC board saw the Sector 7 report. They know your name. Attention isn't always a good thing."
+            "en": "The MCC board saw the Sector 7 report. They know your name. Attention isn't always a good thing.",
+            "ja": "MCC理事会は7区画の報告書を見ました。あなたの名前を知っています。注目されることが常に良いこととは限りません。",
+            "zh": "MCC董事会看了七区的报告。他们知道你的名字。受到关注不一定总是好事。"
           }
         },
         {
@@ -530,7 +614,9 @@
           "emotion": "calm",
           "text": {
             "ko": "그러나 내가 여기 불렀어요. 그 말이 의미하는 것을 생각해요.",
-            "en": "But I called you here. Think about what that means."
+            "en": "But I called you here. Think about what that means.",
+            "ja": "しかし私がここに呼んだのです。それが意味することを考えてください。",
+            "zh": "但是我叫你来这里了。想想这意味着什么。"
           }
         }
       ]
@@ -545,7 +631,9 @@
         {
           "text": {
             "ko": "Chen이 창을 봤다. 오래. 차를 들고 있었다. 마시지 않았다. 헬라스가 그 창 안에 있었다. 작았다. 그러나 그것이 전부가 아니라는 것을 이 방에서 알 수 있었다. 작아 보이는 것이 실제로 작은 것이 아니었다. 화성에서 배우는 것이 그것이었다.",
-            "en": "Chen looked at the window. Long. Held the tea. Didn't drink. Hellas was in that window. Small. But from this room it was known that wasn't everything. What looked small wasn't actually small. That was what Mars taught."
+            "en": "Chen looked at the window. Long. Held the tea. Didn't drink. Hellas was in that window. Small. But from this room it was known that wasn't everything. What looked small wasn't actually small. That was what Mars taught.",
+            "ja": "チェンが窓を見た。長く。お茶を持っていた。飲まなかった。ヘラスがその窓の中にあった。小さかった。しかしこの部屋からはそれがすべてではないとわかった。小さく見えるものが実際に小さいわけではなかった。火星で学ぶのはそれだった。",
+            "zh": "陈长时间地看着窗户。端着茶。没有喝。赫拉斯在那扇窗里。很小。但从这个房间可以知道那不是全部。看起来小的东西实际上并不小。这就是火星教的东西。"
           }
         }
       ]
@@ -562,7 +650,9 @@
           "emotion": "calm",
           "text": {
             "ko": "FSP가 케플러를 알아요. CV도 알아요. 먼저 움직이는 쪽이 가져가요.",
-            "en": "FSP knows about Kepler. CV does too. Whoever moves first takes it."
+            "en": "FSP knows about Kepler. CV does too. Whoever moves first takes it.",
+            "ja": "FSPはケプラーを知っています。CVも知っています。先に動いた方が手に入れます。",
+            "zh": "FSP知道开普勒的事。CV也知道。谁先行动谁就拿到。"
           }
         },
         {
@@ -570,7 +660,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC가 먼저 움직여야 해요. 당신이 거기 있어야 해요.",
-            "en": "MCC needs to move first. You need to be there."
+            "en": "MCC needs to move first. You need to be there.",
+            "ja": "MCCが先に動かなければなりません。あなたがそこにいなければなりません。",
+            "zh": "MCC要先行动。你需要在那里。"
           }
         },
         {
@@ -578,7 +670,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Liang Wei와 협력해요. 그러나 Liang Wei의 연구가 어디로 가는지 기억해요. 케플러의 데이터는 MCC 것이에요. 계약이에요.",
-            "en": "Cooperate with Liang Wei. But remember where Liang Wei's research goes. The Kepler data belongs to MCC. It's in the contract."
+            "en": "Cooperate with Liang Wei. But remember where Liang Wei's research goes. The Kepler data belongs to MCC. It's in the contract.",
+            "ja": "リャン・ウェイと協力してください。しかしリャン・ウェイの研究がどこへ行くか覚えておいてください。ケプラーのデータはMCCのものです。契約です。",
+            "zh": "与梁薇合作。但要记住梁薇的研究会去哪里。开普勒的数据属于MCC。这是合同规定的。"
           }
         }
       ]
@@ -593,7 +687,9 @@
         {
           "text": {
             "ko": "계약. 화성의 모든 것은 계약이었다. 산소도 계약. 물도 계약. 광산도 계약. 그러나 계약 안에서 사람이 죽으면 원인란이 비었다. 그 공백이 계약에 있었다. 그 공백을 채우는 것. 그것이 Chen이 말하지 않고 말한 것이었다.",
-            "en": "Contract. Everything on Mars was contract. Oxygen was contract. Water was contract. Mines were contract. But when people died within contracts the cause section was blank. That blank was in the contract. Filling that blank. That was what Chen said without saying."
+            "en": "Contract. Everything on Mars was contract. Oxygen was contract. Water was contract. Mines were contract. But when people died within contracts the cause section was blank. That blank was in the contract. Filling that blank. That was what Chen said without saying.",
+            "ja": "契約。火星のすべては契約だった。酸素も契約。水も契約。鉱山も契約。しかし契約の中で人が死ぬと原因欄が空だった。その空白が契約にあった。その空白を埋めること。それがチェンが言わずに言ったことだった。",
+            "zh": "合同。火星上的一切都是合同。氧气也是合同。水也是合同。矿山也是合同。但当人们在合同框架内死去时，原因栏是空白的。那个空白在合同里。填满那个空白。那是陈没有说出口的话。"
           }
         }
       ]
@@ -610,7 +706,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "차는 다 마셨어요?",
-            "en": "Finished your tea?"
+            "en": "Finished your tea?",
+            "ja": "お茶は飲み終わりましたか？",
+            "zh": "茶喝完了吗？"
           }
         },
         {
@@ -618,7 +716,9 @@
           "emotion": "calm",
           "text": {
             "ko": "25도에서 차는 식지 않아요. 언제 마셔도 같은 온도예요.",
-            "en": "Tea doesn't cool at twenty-five degrees. It's the same temperature whenever you drink it."
+            "en": "Tea doesn't cool at twenty-five degrees. It's the same temperature whenever you drink it.",
+            "ja": "二十五度ではお茶は冷めません。いつ飲んでも同じ温度です。",
+            "zh": "在二十五度下，茶不会冷。什么时候喝都是一样的温度。"
           }
         },
         {
@@ -626,7 +726,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "그것이 이 방이 가르치는 것이에요. 시간이 지나도 변하지 않는 것들이 있어요. 그것이 권력이 될 수도 있고 짐이 될 수도 있어요.",
-            "en": "That's what this room teaches. Some things don't change with time. That can be power or it can be a burden."
+            "en": "That's what this room teaches. Some things don't change with time. That can be power or it can be a burden.",
+            "ja": "それがこの部屋が教えることです。時間が経っても変わらないものがあります。それは権力にもなり得るし、重荷にもなり得ます。",
+            "zh": "这就是这个房间教的东西。有些东西不随时间改变。那可以是权力，也可以是负担。"
           }
         }
       ]
@@ -641,7 +743,9 @@
         {
           "text": {
             "ko": "차를 들었다. 마셨다. 따뜻했다. Chen은 자신의 잔을 들었다. 마시지 않았다. 두 잔이 있었다. 하나는 비어가고 있었다. 하나는 가득 찬 채로 있었다. 그 차이가 이 방의 진짜 이름이었다.",
-            "en": "Held the tea. Drank. Warm. Chen held her cup. Didn't drink. Two cups. One emptying. One staying full. That difference was this room's real name."
+            "en": "Held the tea. Drank. Warm. Chen held her cup. Didn't drink. Two cups. One emptying. One staying full. That difference was this room's real name.",
+            "ja": "お茶を持った。飲んだ。温かかった。チェンは自分のカップを持った。飲まなかった。二つのカップがあった。一つは空になっていた。一つはいっぱいのままだった。その違いがこの部屋の本当の名前だった。",
+            "zh": "端起茶。喝了。是温热的。陈端起自己的杯子。没有喝。有两个杯子。一个在慢慢变空。一个一直是满的。那种差异才是这个房间的真正名字。"
           }
         }
       ]
@@ -658,7 +762,9 @@
           "emotion": "serious",
           "text": {
             "ko": "마지막으로 물어볼게요. MCC에 온 이유가 뭐예요.",
-            "en": "Last question. Why did you come to MCC."
+            "en": "Last question. Why did you come to MCC.",
+            "ja": "最後に聞きます。MCCに来た理由は何ですか。",
+            "zh": "最后问一下。你来MCC的原因是什么。"
           }
         },
         {
@@ -666,7 +772,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "답 안 해도 돼요. 기억해두면 돼요.",
-            "en": "No need to answer. Just remember it."
+            "en": "No need to answer. Just remember it.",
+            "ja": "答えなくていいです。覚えておけばいい。",
+            "zh": "不需要回答。记住就好。"
           }
         },
         {
@@ -674,7 +782,9 @@
           "emotion": "calm",
           "text": {
             "ko": "화성은 사람을 바꿔요. 이유를 잊게 만들어요. 그 이유를 잊지 않은 사람이 이 행성에서 오래가요.",
-            "en": "Mars changes people. It makes you forget the reason. People who don't forget that reason last on this planet."
+            "en": "Mars changes people. It makes you forget the reason. People who don't forget that reason last on this planet.",
+            "ja": "火星は人を変えます。理由を忘れさせます。その理由を忘れない人がこの惑星で長く続きます。",
+            "zh": "火星会改变人。它会让你忘记原因。不忘记那个原因的人在这个星球上走得更远。"
           }
         }
       ]
@@ -689,7 +799,9 @@
         {
           "text": {
             "ko": "Chen Weiss는 차를 들고 있었다. 여전히 마시지 않았다. 창문 너머로 헬라스 센트럴이 보였다. MCC가 지은 도시. 이 방에서 보면 전부 작았다. 그녀가 의도한 것이었다.",
-            "en": "Chen Weiss was holding the tea. Still not drinking it. Through the window Hellas Central was visible. The city MCC built. From this room everything looked small. She had intended that."
+            "en": "Chen Weiss was holding the tea. Still not drinking it. Through the window Hellas Central was visible. The city MCC built. From this room everything looked small. She had intended that.",
+            "ja": "チェン・ワイスはお茶を持っていた。まだ飲まなかった。窓越しにヘラス・セントラルが見えた。MCCが建てた都市。この部屋からはすべてが小さく見えた。彼女が意図したことだった。",
+            "zh": "陈·韦斯端着茶。依然没有喝。透过窗户，赫拉斯中央看得见。MCC建造的城市。从这个房间看，一切都显得很小。这是她的用意。"
           }
         }
       ]
@@ -701,55 +813,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Chen Weiss. 어떻게 반응하겠습니까.",
-        "en": "Chen Weiss. How will you respond."
+        "en": "Chen Weiss. How will you respond.",
+        "ja": "チェン・ワイス。どう反応するか。",
+        "zh": "陈·韦斯。你将如何回应。"
       },
       "choices": [
         {
           "id": "mcc_ch3_accept",
           "text": {
             "ko": "Kepler에 가겠습니다.",
-            "en": "I'll go to Kepler."
+            "en": "I'll go to Kepler.",
+            "ja": "ケプラーに行きます。",
+            "zh": "我去开普勒。"
           },
           "tone": "compliant",
           "preview_hint": {
             "ko": "→ 임무 진행",
-            "en": "→ Mission proceeds"
+            "en": "→ Mission proceeds",
+            "ja": "→ 任務進行",
+            "zh": "→ 任务推进"
           }
         },
         {
           "id": "mcc_ch3_ask_why",
           "text": {
             "ko": "무엇을 찾는 건지 말해주십시오.",
-            "en": "Tell me what we're looking for."
+            "en": "Tell me what we're looking for.",
+            "ja": "何を探しているのか教えてください。",
+            "zh": "告诉我我们在找什么。"
           },
           "tone": "direct",
           "preview_hint": {
             "ko": "→ Chen이 일부를 설명",
-            "en": "→ Chen explains some"
+            "en": "→ Chen explains some",
+            "ja": "→ チェンが一部を説明",
+            "zh": "→ 陈解释一部分"
           }
         },
         {
           "id": "mcc_ch3_audit_first",
           "text": {
             "ko": "7구역 건이 먼저 처리되어야 합니다.",
-            "en": "The Sector 7 matter needs to be resolved first."
+            "en": "The Sector 7 matter needs to be resolved first.",
+            "ja": "7区画の件を先に処理しなければなりません。",
+            "zh": "七区的事情需要先处理。"
           },
           "tone": "principled",
           "preview_hint": {
             "ko": "→ Chen이 당신을 다르게 본다",
-            "en": "→ Chen sees you differently"
+            "en": "→ Chen sees you differently",
+            "ja": "→ チェンがあなたを違う目で見る",
+            "zh": "→ 陈以不同眼光看你"
           }
         },
         {
           "id": "mcc_ch3_hold_cup",
           "text": {
             "ko": "침묵. 차를 들고만 있는다.",
-            "en": "Silence. Just hold the cup."
+            "en": "Silence. Just hold the cup.",
+            "ja": "沈黙。ただカップを持っている。",
+            "zh": "沉默。只是端着杯子。"
           },
           "tone": "watchful",
           "preview_hint": {
             "ko": "→ Chen이 말을 잇는다",
-            "en": "→ Chen continues. She sees something."
+            "en": "→ Chen continues. She sees something.",
+            "ja": "→ チェンが話し続ける。彼女は何かを見る。",
+            "zh": "→ 陈继续说。她看到了什么。"
           }
         }
       ]
@@ -764,7 +894,9 @@
         {
           "text": {
             "ko": "Chen이 반응했다. 미세했다. 잔을 조금 내렸다. 아주 조금. 22년 동안 잔을 든 사람의 손이 잔을 내리는 것. 그것이 이 방에서 가장 큰 움직임이었다.",
-            "en": "Chen reacted. Subtly. Lowered the cup slightly. Just slightly. The hand of someone who had held a cup for twenty-two years lowering it. That was the largest movement in this room."
+            "en": "Chen reacted. Subtly. Lowered the cup slightly. Just slightly. The hand of someone who had held a cup for twenty-two years lowering it. That was the largest movement in this room.",
+            "ja": "チェンが反応した。わずかだった。カップをわずかに下げた。ほんのわずかに。二十二年間カップを持ち続けた人の手がカップを下げること。それがこの部屋での最大の動きだった。",
+            "zh": "陈有了反应。非常细微。把杯子稍微放低了一点点。端了二十二年杯子的手把杯子放低。那是这个房间里最大的动作。"
           }
         }
       ]
@@ -781,7 +913,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "좋아요.",
-            "en": "Good."
+            "en": "Good.",
+            "ja": "いいでしょう。",
+            "zh": "好。"
           }
         },
         {
@@ -789,7 +923,9 @@
           "emotion": "calm",
           "text": {
             "ko": "케플러 가요. 이번 주. 장비는 기술부에서 받아요. Liang Wei 연락처는 리팡이 가지고 있어요.",
-            "en": "Go to Kepler. This week. Get equipment from the technical division. Lifang has Liang Wei's contact."
+            "en": "Go to Kepler. This week. Get equipment from the technical division. Lifang has Liang Wei's contact.",
+            "ja": "ケプラーに行ってください。今週。機材は技術部から受け取ってください。リャン・ウェイの連絡先はリー・ファンが持っています。",
+            "zh": "去开普勒。这周。从技术部拿设备。梁薇的联系方式李芳有。"
           }
         },
         {
@@ -797,7 +933,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "돌아오면 여기 와요. 이 방으로. 차 한 잔 더 마셔요.",
-            "en": "When you return come here. This room. Have another cup of tea."
+            "en": "When you return come here. This room. Have another cup of tea.",
+            "ja": "戻ったらここに来てください。この部屋に。もう一杯お茶を飲みましょう。",
+            "zh": "回来就来这里。这个房间。再喝一杯茶。"
           }
         }
       ]
@@ -812,7 +950,9 @@
         {
           "text": {
             "ko": "떠나기 전에 창을 봤다. 헬라스 전체가 보였다. 위층. 중층. 아래층. 먼지. 광산. C-7 블록. 분필 이름들이 있는 곳. 이 방에서는 보이지 않았다. 너무 작았다. 그러나 있었다. 항상 거기 있었다.",
-            "en": "Before leaving looked at the window. All of Hellas visible. Upper. Middle. Lower. Dust. Mine. Block C-7. Where chalk names were. From this room not visible. Too small. But they were there. Always there."
+            "en": "Before leaving looked at the window. All of Hellas visible. Upper. Middle. Lower. Dust. Mine. Block C-7. Where chalk names were. From this room not visible. Too small. But they were there. Always there.",
+            "ja": "떠나기 전に窓を見た。ヘラス全体が見えた。上層。中層。下層。埃。鉱山。C-7ブロック。チョークの名前がある場所。この部屋からは見えなかった。小さすぎた。しかしそこにあった。常にそこにあった。",
+            "zh": "离开前看了看窗户。整个赫拉斯都看得见。上层。中层。下层。尘土。矿山。C-7街区。有粉笔名字的地方。从这个房间看不见。太小了。但是它们在那里。一直都在那里。"
           }
         }
       ]
@@ -827,9 +967,11 @@
         {
           "text": {
             "ko": "문을 향해 걸었다. Chen은 창을 보고 있었다. 차를 들고. 마시지 않고. 뒤에서 보면 그녀의 어깨가 보였다. MCC 22년. 광산 부모. 12살의 혼자. 그것들이 그 어깨에 있었다. 보이지 않았지만 있었다. 화성의 것들은 그랬다.",
-            "en": "Walked toward the door. Chen was looking at the window. Holding her tea. Not drinking. From behind her shoulders were visible. 22 years of MCC. Miner parents. Twelve and alone. Those things were in those shoulders. Invisible but there. Things on Mars were like that."
-          },
-          "overlay": "mcc_ch3_boardroom_l34_00_alone_window"
+            "en": "Walked toward the door. Chen was looking at the window. Holding her tea. Not drinking. From behind her shoulders were visible. 22 years of MCC. Miner parents. Twelve and alone. Those things were in those shoulders. Invisible but there. Things on Mars were like that.",
+            "ja": "ドアに向かって歩いた。チェンは窓を見ていた。お茶を持って。飲まずに。後ろから見ると彼女の肩が見えた。MCC二十二年。鉱夫の両親。十二歳の一人。それらがその肩にあった。見えなかったがそこにあった。火星のものはそうだった。",
+            "zh": "向门走去。陈正在看着窗户。端着茶。没有喝。从背后看能看到她的肩膀。MCC二十二年。矿工父母。十二岁时一个人。那些东西都在那副肩膀上。看不见，但在那里。火星上的东西就是这样。",
+            "overlay": "mcc_ch3_boardroom_l34_00_alone_window"
+          }
         }
       ]
     },
@@ -841,11 +983,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "Kepler 정찰",
-        "en": "Kepler Recon"
+        "en": "Kepler Recon",
+        "ja": "ケプラー偵察",
+        "zh": "开普勒侦察"
       },
       "subtitle": {
         "ko": "케플러 분화구",
-        "en": "Kepler Crater"
+        "en": "Kepler Crater",
+        "ja": "ケプラー・クレーター",
+        "zh": "开普勒陨石坑"
       }
     },
     {
@@ -866,7 +1012,9 @@
           "effect": "character_enter:chen:slide_left",
           "text": {
             "ko": "돌아왔군요.",
-            "en": "You're back."
+            "en": "You're back.",
+            "ja": "戻りましたね。",
+            "zh": "回来了。"
           }
         },
         {
@@ -874,7 +1022,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "임무가 완료됐다. 데이터가 왔다. 25도 라운지로 보고가 갈 것이었다.",
-            "en": "Mission complete. Data arrived. The report would go to the 25-Degree Lounge."
+            "en": "Mission complete. Data arrived. The report would go to the 25-Degree Lounge.",
+            "ja": "任務完了。データが来た。報告は25度ラウンジへ行くことになる。",
+            "zh": "任务完成了。数据来了。报告会送到二十五度休息室。"
           }
         },
         {
@@ -882,7 +1032,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "차 들어요. 오늘은 이 방에서 마셔요. 둘 다.",
-            "en": "Take some tea. Today we drink in this room. Both of us."
+            "en": "Take some tea. Today we drink in this room. Both of us.",
+            "ja": "お茶をどうぞ。今日はこの部屋で飲みましょう。二人とも。",
+            "zh": "喝点茶。今天在这个房间里喝。我们两个都喝。"
           }
         }
       ]
@@ -896,7 +1048,9 @@
         {
           "text": {
             "ko": "돌아왔다. 데이터가 불완전했다. Chen은 그것을 알고 있을 것이었다. 이미. 그녀는 차를 들고 있을 것이었다. 마시지 않고. 25도에서 차는 식지 않았다. 기다릴 수 있었다. 그것도 권력의 한 형태였다.",
-            "en": "You returned. The data was incomplete. Chen would already know. She always did. She would be holding her tea. Not drinking. Tea didn't cool at twenty-five degrees. She could wait. That too was a form of power."
+            "en": "You returned. The data was incomplete. Chen would already know. She always did. She would be holding her tea. Not drinking. Tea didn't cool at twenty-five degrees. She could wait. That too was a form of power.",
+            "ja": "戻った。データが不完全だった。チェンはそれをすでに知っているだろう。彼女はお茶を持っているだろう。飲まずに。二十五度ではお茶は冷めなかった。待てた。それも権力の一形態だった。",
+            "zh": "回来了。数据不完整。陈可能已经知道了。她会端着茶。不喝。在二十五度下，茶不会冷。她可以等。那也是一种权力形式。"
           }
         }
       ]
@@ -911,7 +1065,9 @@
         {
           "text": {
             "ko": "25도. 그것은 온도였다. 그러나 그것만이 아니었다. 화성에서 따뜻함을 유지하는 것은 권력이었다. Chen Weiss는 그것을 알았다. 차를 들고 있었다. 마시지 않았다. 식지 않는 차. 그러나 그 차는 광부들의 수당으로 만들어진 것이었다. 그것도 알았다. 잊지 않기 위해 25도를 유지했다. 그것이 이 방의 진짜 이름이었다.",
-            "en": "Twenty-five degrees. It was a temperature. But it was not only that. On Mars maintaining warmth was power. Chen Weiss knew this. She held the tea. Didn't drink it. Tea that wouldn't cool. But that tea was made from miners' allowances. She knew that too. She maintained twenty-five degrees to not forget. That was this room's real name."
+            "en": "Twenty-five degrees. It was a temperature. But it was not only that. On Mars maintaining warmth was power. Chen Weiss knew this. She held the tea. Didn't drink it. Tea that wouldn't cool. But that tea was made from miners' allowances. She knew that too. She maintained twenty-five degrees to not forget. That was this room's real name.",
+            "ja": "二十五度。それは温度だった。しかしそれだけではなかった。火星で温もりを維持することは権力だった。チェン・ワイスはそれを知っていた。お茶を持っていた。飲まなかった。冷めないお茶。しかしそのお茶は鉱夫たちの手当てで作られたものだった。それも知っていた。忘れないために二十五度を維持した。それがこの部屋の本当の名前だった。",
+            "zh": "二十五度。那是一个温度。但不仅仅是那个。在火星上，维持温暖是一种权力。陈·韦斯知道这一点。她端着茶。没有喝。不会冷的茶。但那杯茶是用矿工的津贴换来的。她也知道那个。为了不忘记而维持二十五度。那才是这个房间的真正名字。"
           }
         }
       ],
@@ -919,7 +1075,9 @@
         "questId": "mcc_campaign_ch4",
         "teaser": {
           "ko": "다음 — Kepler Survey",
-          "en": "Next — Kepler Survey"
+          "en": "Next — Kepler Survey",
+          "ja": "次回 — Kepler Survey",
+          "zh": "下一章 — Kepler Survey"
         }
       }
     }

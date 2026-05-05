@@ -4,7 +4,9 @@
   "chapterNumber": 0,
   "title": {
     "ko": "프롤로그: 붉은 행성",
-    "en": "Prologue: The Red Planet"
+    "en": "Prologue: The Red Planet",
+    "ja": "プロローグ：赤い惑星",
+    "zh": "序章：红色星球"
   },
   "location": {
     "id": "earth_to_mars_transit",
@@ -27,7 +29,9 @@
         {
           "text": {
             "ko": "화성까지 남은 시간 — 14시간.\n화물선 창밖으로 검은 우주가 보였다.\n당신은 이 여정이 끝나면 돌아오지 않을 거라는 걸 알고 있었다.",
-            "en": "Time to Mars — 14 hours.\nBlack space beyond the cargo ship window.\nYou knew you wouldn't be coming back when this journey ended."
+            "en": "Time to Mars — 14 hours.\nBlack space beyond the cargo ship window.\nYou knew you wouldn't be coming back when this journey ended.",
+            "ja": "火星まで残り — 14時間。\n貨物船の窓の外に、黒い宇宙が広がっていた。\nこの旅が終わっても、帰ることはないとあなたは知っていた。",
+            "zh": "距火星还有——14小时。\n货船窗外是黑暗的宇宙。\n你知道这段旅程结束后，你不会再回头。"
           }
         }
       ]
@@ -42,7 +46,9 @@
         {
           "text": {
             "ko": "화물선 이름은 카리오페였다. 짐짝들이 가득했다. 산소 탱크. 식량 팩. 기계 부품. 그리고 사람들. 사람들도 짐처럼 실려 있었다. 자리가 부족했다. 불평하는 사람이 없었다. 이 배에 타는 사람들은 이미 선택을 마친 사람들이었다.",
-            "en": "The ship was called Kariope. Full of cargo. Oxygen tanks. Food packs. Machine parts. And people. People loaded like cargo too. Not enough seats. Nobody complained. People who boarded this ship had already made their choice."
+            "en": "The ship was called Kariope. Full of cargo. Oxygen tanks. Food packs. Machine parts. And people. People loaded like cargo too. Not enough seats. Nobody complained. People who boarded this ship had already made their choice.",
+            "ja": "船の名前はカリオペだった。荷物で溢れていた。酸素タンク。食料パック。機械部品。そして人々。人々も荷物のように積み込まれていた。席が足りなかった。文句を言う者はいなかった。この船に乗る人たちは、すでに選択を終えた人たちだった。",
+            "zh": "船叫卡里奥佩。装满了货物。氧气罐。食品包。机械零件。还有人。人也像货物一样被装载。座位不够。没有人抱怨。上这艘船的人，都已经做出了选择。"
           }
         }
       ]
@@ -57,7 +63,9 @@
         {
           "text": {
             "ko": "2087년. 화성 인구 1,200만.\n세 개의 파벌이 이 행성을 나누고 있었다.\nMCC — 화성 기업 연합. 자원을 쥔 자들.\nFSP — 자유 정착민 동맹. 땅을 일군 자들.\nCV — 크림슨 워로드. 법 없이 사는 자들.",
-            "en": "2087. Mars population: 12 million.\nThree factions divided this planet.\nMCC — Mars Corporate Consortium. Those who hold the resources.\nFSP — Free Settlers' Pact. Those who worked the land.\nCV — Crimson Warlords. Those who live without law."
+            "en": "2087. Mars population: 12 million.\nThree factions divided this planet.\nMCC — Mars Corporate Consortium. Those who hold the resources.\nFSP — Free Settlers' Pact. Those who worked the land.\nCV — Crimson Warlords. Those who live without law.",
+            "ja": "2087年。火星人口 1,200万。\n三つの勢力がこの惑星を分け合っていた。\nMCC — 火星企業連合。資源を握る者たち。\nFSP — 自由開拓民同盟。土地を耕した者たち。\nCV — クリムゾン・ウォーロード。法なしに生きる者たち。",
+            "zh": "2087年。火星人口 1200万。\n三个派系瓜分着这颗星球。\nMCC — 火星企业联合。掌握资源的人。\nFSP — 自由定居者联盟。开垦土地的人。\nCV — 猩红战主。不受法律约束的人。"
           }
         }
       ]
@@ -72,7 +80,9 @@
         {
           "text": {
             "ko": "화성은 처음에 공동의 꿈이었다. 60년이 지났다. 공동의 꿈은 지분으로 나뉘었다. 지분은 협상으로 나뉘었다. 협상은 무력으로 끝났다. 이제는 그냥 그런 곳이었다. 세상 모든 곳이 결국 그렇게 되는 것처럼.",
-            "en": "Mars was once a shared dream. Sixty years had passed. The shared dream divided into stakes. Stakes divided by negotiation. Negotiation ended with force. Now it was just like that. Like every place in the world eventually becomes."
+            "en": "Mars was once a shared dream. Sixty years had passed. The shared dream divided into stakes. Stakes divided by negotiation. Negotiation ended with force. Now it was just like that. Like every place in the world eventually becomes.",
+            "ja": "火星はかつて共同の夢だった。六十年が過ぎた。共同の夢は持ち分に分かれた。持ち分は交渉で分けられた。交渉は力で終わった。今はもうそういう場所だった。世界のどこもが結局そうなるように。",
+            "zh": "火星曾经是共同的梦想。六十年过去了。共同的梦想分裂成份额。份额被谈判瓜分。谈判以武力告终。现在就是这样的地方。就像世界上每个地方最终都会变成的那样。"
           }
         }
       ]
@@ -87,7 +97,9 @@
         {
           "text": {
             "ko": "당신은 MCC의 호출을 받았다.\n이유는 간단했다 — 당신 같은 사람이 필요했다.\n어떤 사람인지는 — 화성에 도착하면 알게 될 거였다.",
-            "en": "You received a summons from MCC.\nThe reason was simple — they needed someone like you.\nWhat kind of person that was — you'd find out when you arrived on Mars."
+            "en": "You received a summons from MCC.\nThe reason was simple — they needed someone like you.\nWhat kind of person that was — you'd find out when you arrived on Mars.",
+            "ja": "あなたはMCCの召喚を受けた。\n理由は単純だった — あなたのような人間が必要だった。\nどんな人間なのかは — 火星に到着すればわかるだろう。",
+            "zh": "你收到了MCC的召唤。\n理由很简单——他们需要像你这样的人。\n是什么样的人——到达火星就会知道。"
           }
         }
       ]
@@ -102,7 +114,9 @@
         {
           "text": {
             "ko": "화물칸에 다른 사람들이 있었다. 광부들이었다. 얼굴이 지쳐 있었다. 지쳐서 화성으로 가는 사람들. 또는 지치기 위해 화성으로 가는 사람들. 구분이 어려웠다. 화성에서는 결국 같은 말이었다.",
-            "en": "Others were in the cargo bay. Miners. Tired faces. People too tired going to Mars. Or people going to Mars to become tired. Hard to tell the difference. On Mars it amounted to the same thing."
+            "en": "Others were in the cargo bay. Miners. Tired faces. People too tired going to Mars. Or people going to Mars to become tired. Hard to tell the difference. On Mars it amounted to the same thing.",
+            "ja": "貨物室に他の人たちがいた。鉱夫たちだった。顔が疲れていた。疲れ果てて火星へ向かう人たち。あるいは疲れるために火星へ向かう人たち。区別が難しかった。火星では結局同じことだった。",
+            "zh": "货舱里还有其他人。矿工。疲惫的面孔。带着疲惫去火星的人。或者去火星变得疲惫的人。难以区分。在火星上，最终是同一回事。"
           }
         }
       ]
@@ -120,7 +134,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "깨어 있었군요. 좋아요.",
-            "en": "You're awake. Good."
+            "en": "You're awake. Good.",
+            "ja": "起きていたんですね。いいことです。",
+            "zh": "醒着呢。好。"
           }
         },
         {
@@ -128,7 +144,9 @@
           "emotion": "focused",
           "text": {
             "ko": "리팡이에요. MCC 현장 책임자. 화성에 도착하면 당신은 내 팀이에요.",
-            "en": "I'm Lifang. MCC field director. Once you reach Mars, you're on my team."
+            "en": "I'm Lifang. MCC field director. Once you reach Mars, you're on my team.",
+            "ja": "リファンです。MCC現場責任者。火星に着いたら、あなたは私のチームです。",
+            "zh": "我是李芳。MCC现场负责人。到了火星，你就是我的团队。"
           }
         },
         {
@@ -136,7 +154,9 @@
           "emotion": "cold",
           "text": {
             "ko": "간단한 규칙이 있어요. 내 말을 들어요. 질문은 나중에.",
-            "en": "Simple rules. Listen to me. Questions later."
+            "en": "Simple rules. Listen to me. Questions later.",
+            "ja": "簡単なルールがあります。私の言うことを聞いてください。質問は後で。",
+            "zh": "简单的规则。听我的。问题留到后面。"
           }
         },
         {
@@ -144,7 +164,9 @@
           "emotion": "serious",
           "text": {
             "ko": "화성은 지구랑 달라요. 여기서 실수는 죽음이에요. 사람들이 그 말을 너무 가볍게 해요. 나는 가볍게 하는 게 아니에요.",
-            "en": "Mars isn't Earth. Mistakes here mean death. People say that too lightly. I'm not saying it lightly."
+            "en": "Mars isn't Earth. Mistakes here mean death. People say that too lightly. I'm not saying it lightly.",
+            "ja": "火星は地球じゃない。ここでのミスは死を意味します。みんなその言葉を軽く言いすぎる。私は軽く言っているわけじゃない。",
+            "zh": "火星不是地球。这里的错误意味着死亡。人们说这话太轻巧。我不是在轻描淡写。"
           }
         }
       ]
@@ -159,7 +181,9 @@
         {
           "text": {
             "ko": "리팡은 말을 마치고 창밖을 봤다. 우주가 있었다. 그는 더 말하지 않았다. 그것이 그의 방식이었다. 필요한 것만 말하는 사람. 화성에서 오래 산 사람들은 그렇게 됐다. 말이 산소를 쓴다는 걸 아는 사람들.",
-            "en": "Lifang looked out the window after speaking. Space was there. He said nothing more. That was his way. A person who said only what was necessary. People who had lived long on Mars became that way. People who knew words used oxygen."
+            "en": "Lifang looked out the window after speaking. Space was there. He said nothing more. That was his way. A person who said only what was necessary. People who had lived long on Mars became that way. People who knew words used oxygen.",
+            "ja": "リファンは話し終えて窓の外を見た。宇宙があった。彼はそれ以上何も言わなかった。それが彼のやり方だった。必要なことだけ言う人。火星で長く生きた人たちはそうなった。言葉が酸素を使うことを知っている人たち。",
+            "zh": "李芳说完后看向窗外。那里是宇宙。他没有再说话。这是他的方式。只说必要之话的人。在火星上久居的人都变成了这样。知道语言消耗氧气的人。"
           }
         }
       ]
@@ -176,7 +200,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC 기본 브리핑이에요. 듣던 말일 수도 있어요. 그래도 들어요.",
-            "en": "MCC basic briefing. You may have heard this before. Listen anyway."
+            "en": "MCC basic briefing. You may have heard this before. Listen anyway.",
+            "ja": "MCCの基本ブリーフィングです。聞いたことがあるかもしれない。それでも聞いてください。",
+            "zh": "MCC基本简报。你可能听过。还是听一遍。"
           }
         },
         {
@@ -184,7 +210,9 @@
           "emotion": "focused",
           "text": {
             "ko": "헬라스 센트럴이 거점이에요. MCC 본부. 광물 정제. 행정 허브. 거기서 배정받아요.",
-            "en": "Hellas Central is base. MCC headquarters. Mineral refining. Administrative hub. Assignments come from there."
+            "en": "Hellas Central is base. MCC headquarters. Mineral refining. Administrative hub. Assignments come from there.",
+            "ja": "ヘラス・セントラルが拠点です。MCC本部。鉱物精製。行政ハブ。そこで配属を受けます。",
+            "zh": "赫拉斯中央是据点。MCC总部。矿物精炼。行政枢纽。在那里接受分配。"
           }
         },
         {
@@ -192,7 +220,9 @@
           "emotion": "serious",
           "text": {
             "ko": "화성에서 MCC 없이 살 수 있어요. 오래 살 수는 없어요. 그 차이를 아는 사람이 오래 살아요.",
-            "en": "You can live on Mars without MCC. You can't live long. People who know that difference live longest."
+            "en": "You can live on Mars without MCC. You can't live long. People who know that difference live longest.",
+            "ja": "火星でMCCなしに生きることはできる。長く生きることはできない。その違いを知っている人が一番長生きする。",
+            "zh": "在火星上没有MCC也能活。但活不长。知道这个区别的人活得最久。"
           }
         }
       ]
@@ -207,7 +237,9 @@
         {
           "text": {
             "ko": "관측 덱이 있었다. 작은 창이었다. 사람들이 거기 서 있었다. 창밖을 봤다. 아무것도 없었다. 그냥 우주였다. 그래도 봤다. 화성을 보려는 사람들이었다. 아직 보이지 않았다. 그래도 봤다. 그것이 희망의 모양이었다. 아직 보이지 않는 것을 보려는 것.",
-            "en": "There was an observation deck. A small window. People stood there. Looking out. Nothing. Just space. Still they looked. People trying to see Mars. It wasn't visible yet. Still they looked. That was the shape of hope. Looking for something not yet visible."
+            "en": "There was an observation deck. A small window. People stood there. Looking out. Nothing. Just space. Still they looked. People trying to see Mars. It wasn't visible yet. Still they looked. That was the shape of hope. Looking for something not yet visible.",
+            "ja": "観測デッキがあった。小さな窓だった。人々がそこに立っていた。窓の外を見ていた。何もなかった。ただ宇宙だった。それでも見ていた。火星を見ようとしている人たち。まだ見えなかった。それでも見ていた。それが希望の形だった。まだ見えないものを見ようとすること。",
+            "zh": "有一个观测甲板。一扇小窗。人们站在那里。向外看。什么都没有。只是宇宙。还是看着。想看到火星的人们。还看不到。还是看着。那就是希望的形状。寻找尚不可见之物。"
           }
         }
       ]
@@ -223,7 +255,9 @@
           "text": {
             "ko": "12시간이 지났다. 잠이 왔다. 잠들기 전에 창밖을 봤다. 붉은 점이 있었다. 처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다. 핏빛이었다. 아름다웠다. 두려웠다.",
             "en": "Twelve hours passed. Sleep came. Before sleeping looked out the window. A red dot was there. At first it looked like a star. As it grew closer — it became a planet. Blood-red. Beautiful. Frightening.",
-            "overlay": "mars_horizon"
+            "overlay": "mars_horizon",
+            "ja": "十二時間が過ぎた。眠気が来た。眠る前に窓の外を見た。赤い点があった。最初は星のように見えた。近づくにつれて — 惑星になった。血の色だった。美しかった。恐ろしかった。",
+            "zh": "十二小时过去了。睡意来袭。睡前看向窗外。有一个红点。起初看起来像星星。随着靠近——成了一颗行星。血红色。美丽。令人恐惧。"
           }
         }
       ]
@@ -238,7 +272,9 @@
         {
           "text": {
             "ko": "착륙 2시간 전. 안내방송이 나왔다. 마스크 착용. 안전벨트. 화성 대기권 진입. 목소리가 평온했다. 매일 하는 안내방송이었다. 그 평온함이 이상하게 느껴졌다. 대기권 진입이 매일 있어도 평온해지는 것은 이상한 일이었다.",
-            "en": "Two hours to landing. Announcement came. Masks on. Seatbelts. Entering Martian atmosphere. The voice was calm. A daily announcement. That calm felt strange. Strange that atmospheric entry could be daily and calm."
+            "en": "Two hours to landing. Announcement came. Masks on. Seatbelts. Entering Martian atmosphere. The voice was calm. A daily announcement. That calm felt strange. Strange that atmospheric entry could be daily and calm.",
+            "ja": "着陸2時間前。アナウンスが流れた。マスクを着用。シートベルト。火星大気圏突入。声は穏やかだった。毎日行われるアナウンスだった。その穏やかさが不思議に感じた。大気圏突入が毎日あっても穏やかでいられるのは奇妙なことだった。",
+            "zh": "着陆前两小时。广播响起。佩戴口罩。系好安全带。进入火星大气层。声音平静。每天都有的广播。那种平静感觉奇怪。大气层进入每天都有，却能平静，这是件奇怪的事。"
           }
         }
       ]
@@ -253,7 +289,9 @@
         {
           "text": {
             "ko": "화성이 창을 채웠다. 붉었다. 지구에서 사진으로 봤던 것과 달랐다. 사진은 납작했다. 실제로 보면 입체였다. 살아있는 것처럼 보였다. 화성은 살아있지 않았다. 그러나 그렇게 보였다. 그것이 화성의 첫 번째 거짓말이었다.",
-            "en": "Mars filled the window. Red. Different from photos seen on Earth. Photos were flat. In reality it had depth. It looked alive. Mars wasn't alive. But it looked that way. That was Mars's first lie."
+            "en": "Mars filled the window. Red. Different from photos seen on Earth. Photos were flat. In reality it had depth. It looked alive. Mars wasn't alive. But it looked that way. That was Mars's first lie.",
+            "ja": "火星が窓を埋め尽くした。赤かった。地球で写真で見ていたものとは違った。写真は平面だった。実際に見ると立体だった。生きているように見えた。火星は生きていなかった。でもそう見えた。それが火星の最初の嘘だった。",
+            "zh": "火星填满了窗口。红色。与在地球上看到的照片不同。照片是平面的。实际看是立体的。看起来像活的。火星没有生命。但看起来是那样。那是火星的第一个谎言。"
           }
         }
       ]
@@ -268,7 +306,9 @@
         {
           "text": {
             "ko": "도킹 베이였다. 사람들이 내렸다. 광부들이었다. 기술자들이었다. 관료들이었다. 전부 마스크를 쓰고 있었다. 마스크를 쓴 사람들의 얼굴은 알 수 없었다. 표정이 없었다. 화성의 첫 번째 얼굴이었다. 마스크.",
-            "en": "The docking bay. People disembarked. Miners. Engineers. Bureaucrats. Everyone wore masks. Masked faces were unreadable. No expressions. The first face of Mars. A mask."
+            "en": "The docking bay. People disembarked. Miners. Engineers. Bureaucrats. Everyone wore masks. Masked faces were unreadable. No expressions. The first face of Mars. A mask.",
+            "ja": "ドッキングベイだった。人々が降りた。鉱夫たち。技術者たち。官僚たち。全員マスクをしていた。マスクをした人々の顔はわからなかった。表情がなかった。火星の最初の顔だった。マスク。",
+            "zh": "停靠湾。人们下船。矿工。工程师。官僚。所有人都戴着口罩。戴口罩的人脸无法辨认。没有表情。火星的第一张脸。口罩。"
           }
         }
       ]
@@ -286,7 +326,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "도착했어요. 헬라스 센트럴 도킹 스테이션.",
-            "en": "We've arrived. Hellas Central docking station."
+            "en": "We've arrived. Hellas Central docking station.",
+            "ja": "到着しました。ヘラス・セントラル・ドッキングステーション。",
+            "zh": "到了。赫拉斯中央停靠站。"
           }
         },
         {
@@ -294,7 +336,9 @@
           "emotion": "focused",
           "text": {
             "ko": "마스크 항상 착용이에요. 이 구역은 부분 여압이에요. 실내는 괜찮지만 복도와 이동 구간은 마스크 없이 안 돼요.",
-            "en": "Masks always on. This zone is partial pressure. Indoors is fine but corridors and transit areas require masks."
+            "en": "Masks always on. This zone is partial pressure. Indoors is fine but corridors and transit areas require masks.",
+            "ja": "マスクは常に着用です。このゾーンは部分与圧です。室内は大丈夫ですが、廊下と移動区間はマスクなしではいけません。",
+            "zh": "口罩随时戴着。这个区域是部分加压的。室内没问题，但走廊和通道不能没有口罩。"
           }
         },
         {
@@ -302,7 +346,9 @@
           "emotion": "cold",
           "text": {
             "ko": "처음이니까 말해요. 화성에서 규칙을 어기는 이유는 두 가지예요. 멍청하거나 오래 살았거나. 두 번째는 존중해요. 첫 번째는 내 팀에 없어요.",
-            "en": "First time so I'll say it. On Mars rules are broken for two reasons. Stupidity or long experience. I respect the second. The first has no place on my team."
+            "en": "First time so I'll say it. On Mars rules are broken for two reasons. Stupidity or long experience. I respect the second. The first has no place on my team.",
+            "ja": "初めてだから言います。火星でルールを破る理由は二つある。馬鹿か、長年の経験か。二番目は尊重します。一番目は私のチームにはいらない。",
+            "zh": "第一次所以说一下。在火星上违反规则有两个原因。愚蠢，或者久经沙场。第二种我尊重。第一种不在我的团队里。"
           }
         }
       ]
@@ -317,7 +363,9 @@
         {
           "text": {
             "ko": "헬라스 센트럴. 화성에서 가장 큰 도시. 인구 80만. 대기 돔이 있었다. 돔 안은 지구와 비슷했다. 비슷한 기압. 비슷한 산소. 그러나 창밖의 화성은 달랐다. 붉은 먼지가 있었다. 사람이 살 수 없는 곳. 돔이 그 경계를 유지했다.",
-            "en": "Hellas Central. The largest city on Mars. Population 800,000. An atmospheric dome. Inside was like Earth. Similar pressure. Similar oxygen. But Mars outside the windows was different. Red dust. A place humans couldn't survive. The dome maintained that boundary."
+            "en": "Hellas Central. The largest city on Mars. Population 800,000. An atmospheric dome. Inside was like Earth. Similar pressure. Similar oxygen. But Mars outside the windows was different. Red dust. A place humans couldn't survive. The dome maintained that boundary.",
+            "ja": "ヘラス・セントラル。火星最大の都市。人口80万。大気ドームがあった。ドームの中は地球に似ていた。似た気圧。似た酸素。しかし窓の外の火星は違った。赤い塵があった。人が生きられない場所。ドームがその境界を維持していた。",
+            "zh": "赫拉斯中央。火星最大的城市。人口80万。有大气穹顶。穹顶内部与地球相似。相似的气压。相似的氧气。但窗外的火星不同。红色尘埃。人类无法生存的地方。穹顶维持着那道边界。"
           }
         }
       ]
@@ -332,7 +380,9 @@
         {
           "text": {
             "ko": "도시가 층으로 나뉘었다. 위층은 MCC 행정구. 중층은 기술자 거주구. 아래층은 노동자 지구. 화성에서 계층은 수직이었다. 아래로 내려갈수록 먼지가 많았다. 위로 올라갈수록 조용했다. 모든 계층 구조가 결국 같은 모양이었다.",
-            "en": "The city was divided into layers. Upper floors MCC administration. Middle floors engineer residences. Lower floors labor district. On Mars hierarchy was vertical. More dust the lower you went. Quieter the higher you went. Every hierarchy eventually took the same shape."
+            "en": "The city was divided into layers. Upper floors MCC administration. Middle floors engineer residences. Lower floors labor district. On Mars hierarchy was vertical. More dust the lower you went. Quieter the higher you went. Every hierarchy eventually took the same shape.",
+            "ja": "都市は層に分かれていた。上層はMCC行政区。中層は技術者居住区。下層は労働者地区。火星では階層は垂直だった。下に行くほど塵が多かった。上に行くほど静かだった。あらゆる階層構造は結局同じ形をしていた。",
+            "zh": "城市分层。上层是MCC行政区。中层是技术人员居住区。下层是劳工区。在火星上，等级是垂直的。越往下尘埃越多。越往上越安静。每一种等级结构最终都是同一个形状。"
           }
         }
       ]
@@ -349,7 +399,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "오리엔테이션 먼저예요. MCC 신입 표준 절차.",
-            "en": "Orientation first. MCC standard new-arrival procedure."
+            "en": "Orientation first. MCC standard new-arrival procedure.",
+            "ja": "まずオリエンテーションです。MCC新入り標準手続き。",
+            "zh": "先是培训。MCC新人标准程序。"
           }
         },
         {
@@ -357,7 +409,9 @@
           "emotion": "focused",
           "text": {
             "ko": "헬라스 센트럴 레이아웃. 비상 탈출 경로. 산소 공급 포인트. 그리고 누가 누군지.",
-            "en": "Hellas Central layout. Emergency exit routes. Oxygen supply points. And who is who."
+            "en": "Hellas Central layout. Emergency exit routes. Oxygen supply points. And who is who.",
+            "ja": "ヘラス・セントラルのレイアウト。緊急脱出経路。酸素供給ポイント。そして誰が誰か。",
+            "zh": "赫拉斯中央布局。紧急撤离路线。氧气供应点。还有谁是谁。"
           }
         },
         {
@@ -365,7 +419,9 @@
           "emotion": "serious",
           "text": {
             "ko": "마지막이 가장 중요해요.",
-            "en": "The last is most important."
+            "en": "The last is most important.",
+            "ja": "最後が一番重要です。",
+            "zh": "最后一项最重要。"
           }
         }
       ]
@@ -380,7 +436,9 @@
         {
           "text": {
             "ko": "브리핑 룸이었다. 다른 신입들이 있었다. 여섯 명이었다. 각자 다른 곳에서 왔다. 다른 배를 탔다. 그러나 같은 방에 있었다. MCC가 부른 사람들. 이유는 각자 달랐다. 목적지는 같았다. 그것이 MCC의 방식이었다.",
-            "en": "A briefing room. Other new arrivals. Six of them. From different places. Different ships. But in the same room. People MCC had called. Different reasons each. Same destination. That was MCC's way."
+            "en": "A briefing room. Other new arrivals. Six of them. From different places. Different ships. But in the same room. People MCC had called. Different reasons each. Same destination. That was MCC's way.",
+            "ja": "ブリーフィングルームだった。他の新入りたちがいた。六人だった。それぞれ違う場所から来ていた。違う船に乗っていた。しかし同じ部屋にいた。MCCが呼んだ人々。理由はそれぞれ違った。目的地は同じだった。それがMCCのやり方だった。",
+            "zh": "简报室。其他新人。六个人。来自不同地方。搭乘不同的船。但在同一个房间里。MCC召来的人。理由各不相同。目的地相同。那是MCC的方式。"
           }
         }
       ]
@@ -397,7 +455,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC 규정집이에요. 읽어요. 이번 주 안에.",
-            "en": "MCC regulations. Read them. Within this week."
+            "en": "MCC regulations. Read them. Within this week.",
+            "ja": "MCC規定集です。読んでください。今週中に。",
+            "zh": "MCC规程手册。读一遍。这周之内。"
           }
         },
         {
@@ -405,7 +465,9 @@
           "emotion": "focused",
           "text": {
             "ko": "산소 배급. 수질 배급. 거주 구역 배정. 전부 이 규정집에 있어요. 모르면 죽어요. 부과금을 못 내도 죽어요. 같은 말이에요.",
-            "en": "Oxygen allocation. Water allocation. Residential zone assignment. It's all in this book. Don't know it and you die. Can't pay the levy and you die. Same thing."
+            "en": "Oxygen allocation. Water allocation. Residential zone assignment. It's all in this book. Don't know it and you die. Can't pay the levy and you die. Same thing.",
+            "ja": "酸素配給。水配給。居住区配属。全部この規定集にあります。知らなければ死にます。課金を払えなくても死にます。同じことです。",
+            "zh": "氧气配给。水资源配给。居住区分配。全在这本手册里。不知道就死。交不起费用也死。一个意思。"
           }
         },
         {
@@ -413,7 +475,9 @@
           "emotion": "cold",
           "text": {
             "ko": "질문 있어요?",
-            "en": "Questions?"
+            "en": "Questions?",
+            "ja": "質問はありますか？",
+            "zh": "有问题吗？"
           }
         },
         {
@@ -421,7 +485,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "없으면 좋아요. 나중에 생기면 그때 해요.",
-            "en": "Good if not. Ask when they come up later."
+            "en": "Good if not. Ask when they come up later.",
+            "ja": "なければいいです。後で出てきたらその時に。",
+            "zh": "没有更好。有了再问。"
           }
         }
       ]
@@ -436,7 +502,9 @@
         {
           "text": {
             "ko": "규정집이 두꺼웠다. 247페이지였다. 누군가 밑줄을 그어 놓은 것이었다. 이전 사람의 것이었다. 밑줄이 굵었다. 중요한 부분이었다. 산소 부족 시 처리 절차. 의료 비상사태 보고 경로. 그것들이 굵게 밑줄 쳐져 있었다. 이전 사람이 무엇을 겪었는지 알 것 같았다.",
-            "en": "The regulations were thick. 247 pages. Someone had underlined them. A previous person's copy. The lines were thick. Important sections. Procedure for oxygen shortage. Emergency medical report channels. Those were heavily underlined. You could guess what the previous person had been through."
+            "en": "The regulations were thick. 247 pages. Someone had underlined them. A previous person's copy. The lines were thick. Important sections. Procedure for oxygen shortage. Emergency medical report channels. Those were heavily underlined. You could guess what the previous person had been through.",
+            "ja": "規定集は分厚かった。247ページだった。誰かが下線を引いていた。前の人のものだった。下線が太かった。重要な部分だった。酸素不足時の処理手順。医療緊急事態の報告経路。それらが太く下線が引かれていた。前の人が何を経験したか、わかる気がした。",
+            "zh": "规程手册很厚。247页。有人画了下划线。是前任的手册。线条很粗。重要的部分。氧气不足时的处理程序。医疗紧急情况报告渠道。那些都被重重地划了线。大概能猜到前任经历了什么。"
           }
         }
       ]
@@ -451,7 +519,9 @@
         {
           "text": {
             "ko": "첫 번째 날이 끝났다. 거주 구역이 배정됐다. 중층이었다. 창이 있었다. 창밖으로 헬라스 외곽이 보였다. 돔 너머. 붉은 먼지가 이동하고 있었다. 바람이었다. 화성의 바람은 소리가 없었다. 돔이 소리를 막았다. 보이지만 들리지 않는 바람. 화성의 것들은 대부분 그랬다.",
-            "en": "The first day ended. A residential zone was assigned. Middle level. There was a window. Through it the outer Hellas was visible. Beyond the dome. Red dust moving. Wind. The Martian wind made no sound. The dome blocked it. Wind visible but inaudible. Most things on Mars were like that."
+            "en": "The first day ended. A residential zone was assigned. Middle level. There was a window. Through it the outer Hellas was visible. Beyond the dome. Red dust moving. Wind. The Martian wind made no sound. The dome blocked it. Wind visible but inaudible. Most things on Mars were like that.",
+            "ja": "最初の日が終わった。居住区が配属された。中層だった。窓があった。窓からヘラスの外縁が見えた。ドームの向こう。赤い塵が動いていた。風だった。火星の風は音がなかった。ドームが音を遮った。見えるが聞こえない風。火星のものはたいていそうだった。",
+            "zh": "第一天结束了。居住区分配好了。中层。有一扇窗。窗外可以看到赫拉斯外围。穹顶之外。红色尘埃在移动。风。火星的风没有声音。穹顶挡住了声音。看得见却听不见的风。火星上的大多数东西都是这样。"
           }
         }
       ]
@@ -466,7 +536,9 @@
         {
           "text": {
             "ko": "밤이 됐다. 화성의 밤은 길었다. 지구보다 37분 길었다. 하루가 24시간 37분이었다. 처음 며칠은 그 37분이 이상하게 느껴졌다. 이상한 것을 이상하다고 느끼는 것이 화성 적응의 첫 단계였다. 그 다음은 이상한 것이 당연해지는 것이었다.",
-            "en": "Night came. The Martian night was long. 37 minutes longer than Earth. A day was 24 hours 37 minutes. For the first few days those 37 minutes felt strange. Feeling that strange things were strange was the first stage of adapting to Mars. The next was those strange things becoming normal."
+            "en": "Night came. The Martian night was long. 37 minutes longer than Earth. A day was 24 hours 37 minutes. For the first few days those 37 minutes felt strange. Feeling that strange things were strange was the first stage of adapting to Mars. The next was those strange things becoming normal.",
+            "ja": "夜になった。火星の夜は長かった。地球より37分長かった。一日は24時間37分だった。最初の数日、その37分が奇妙に感じた。奇妙なことを奇妙だと感じることが、火星適応の第一段階だった。次は奇妙なことが当たり前になることだった。",
+            "zh": "夜晚来临。火星的夜晚很长。比地球长37分钟。一天是24小时37分钟。最初几天，那37分钟感觉很奇怪。觉得奇怪的事情奇怪，是适应火星的第一阶段。下一阶段是奇怪的事情变得理所当然。"
           }
         }
       ]
@@ -483,7 +555,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이틀째예요. 현장 투어예요. 따라와요.",
-            "en": "Day two. Field tour. Follow me."
+            "en": "Day two. Field tour. Follow me.",
+            "ja": "二日目です。現場ツアーです。ついてきてください。",
+            "zh": "第二天。现场参观。跟我来。"
           }
         },
         {
@@ -491,7 +565,9 @@
           "emotion": "focused",
           "text": {
             "ko": "MCC 헬라스 센트럴 시설이에요. 정제소. 행정 동. 기술부. 의료 시설. 광산 운영 센터.",
-            "en": "MCC Hellas Central facilities. Refinery. Administration building. Technical division. Medical facility. Mine operations center."
+            "en": "MCC Hellas Central facilities. Refinery. Administration building. Technical division. Medical facility. Mine operations center.",
+            "ja": "MCCヘラス・セントラル施設です。精製所。管理棟。技術部。医療施設。鉱山運営センター。",
+            "zh": "MCC赫拉斯中央设施。精炼厂。行政楼。技术部。医疗设施。矿山运营中心。"
           }
         },
         {
@@ -499,7 +575,9 @@
           "emotion": "serious",
           "text": {
             "ko": "어디서 문제가 생기면 의료 시설 먼저예요. 그 다음 나에게 연락해요. 순서를 바꾸지 마요.",
-            "en": "If a problem comes up anywhere, medical facility first. Then contact me. Don't reverse that order."
+            "en": "If a problem comes up anywhere, medical facility first. Then contact me. Don't reverse that order.",
+            "ja": "どこで問題が起きても、まず医療施設です。それから私に連絡してください。順序を逆にしないでください。",
+            "zh": "无论哪里出问题，先去医疗设施。然后联系我。不要颠倒顺序。"
           }
         }
       ]
@@ -514,7 +592,9 @@
         {
           "text": {
             "ko": "광산 외부였다. 갱도 입구가 있었다. 엘리베이터가 있었다. 아래로 내려갔다. 3킬로미터. 광부들이 매일 내려가는 곳이었다. 올라오는 광부들이 있었다. 교대였다. 얼굴이 먼지투성이였다. 마스크가 더 검었다. 그들은 올라오면서 아무 말도 하지 않았다. 피곤한 사람들의 침묵이었다.",
-            "en": "Outside the mine. A tunnel entrance. An elevator. Going down. 3 kilometers. Where miners went every day. Miners were coming up. A shift change. Faces caked in dust. Masks darker. They said nothing coming up. The silence of exhausted people."
+            "en": "Outside the mine. A tunnel entrance. An elevator. Going down. 3 kilometers. Where miners went every day. Miners were coming up. A shift change. Faces caked in dust. Masks darker. They said nothing coming up. The silence of exhausted people.",
+            "ja": "鉱山の外部だった。坑道の入口があった。エレベーターがあった。下に降りる。3キロ。鉱夫たちが毎日下りる場所だった。上がってくる鉱夫たちがいた。交代だった。顔が塵だらけだった。マスクがさらに黒かった。彼らは上がりながら何も言わなかった。疲れた人々の沈黙だった。",
+            "zh": "矿山外部。有坑道入口。有电梯。往下去。3公里。矿工们每天下去的地方。有矿工上来。换班了。脸上满是尘土。口罩更黑了。他们上来时什么都没说。这是疲惫之人的沉默。"
           }
         }
       ]
@@ -529,7 +609,9 @@
         {
           "text": {
             "ko": "광부 중에 어린 사람이 있었다. 스무 살 정도였다. 마스크를 올렸다. 잠깐이었다. 얼굴이 보였다. 피곤한 얼굴이었다. 그 나이의 피곤함이었다. 그 나이는 피곤해야 할 나이가 아니었다. 그러나 화성에서는 나이와 상관이 없었다. 갱도는 공평했다.",
-            "en": "One of the miners was young. About twenty. He lifted his mask. Just briefly. His face was visible. A tired face. Tiredness of that age. That age shouldn't be tired. But on Mars it didn't matter. The mine shaft was equal."
+            "en": "One of the miners was young. About twenty. He lifted his mask. Just briefly. His face was visible. A tired face. Tiredness of that age. That age shouldn't be tired. But on Mars it didn't matter. The mine shaft was equal.",
+            "ja": "鉱夫の中に若い人がいた。二十歳ぐらいだった。マスクを上げた。一瞬だけだった。顔が見えた。疲れた顔だった。その年齢の疲れだった。その年齢は疲れるべき年齢ではなかった。しかし火星では年齢は関係なかった。坑道は公平だった。",
+            "zh": "矿工中有一个年轻人。大约二十岁。他掀起口罩。只是一瞬间。看到了脸。疲惫的脸。那个年龄的疲惫。那个年龄不该疲惫。但在火星上与年龄无关。坑道是公平的。"
           }
         }
       ]
@@ -546,7 +628,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "보고 있었군요.",
-            "en": "You were watching."
+            "en": "You were watching.",
+            "ja": "見ていたんですね。",
+            "zh": "你在看。"
           }
         },
         {
@@ -554,7 +638,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC 신입들이 광산 처음 보면 두 가지 반응이에요. 불편해하거나 아무것도 안 느끼거나. 당신은 세 번째예요.",
-            "en": "MCC new arrivals see the mine for the first time and react two ways. Uneasy, or feel nothing. You're a third thing."
+            "en": "MCC new arrivals see the mine for the first time and react two ways. Uneasy, or feel nothing. You're a third thing.",
+            "ja": "MCC新入りが鉱山を初めて見ると二つの反応があります。不快に思うか、何も感じないか。あなたは三番目です。",
+            "zh": "MCC新人第一次看到矿山有两种反应。不舒服，或者什么都感觉不到。你是第三种。"
           }
         },
         {
@@ -562,7 +648,9 @@
           "emotion": "focused",
           "text": {
             "ko": "그것이 뭔지 지금 당장 알 필요는 없어요. 화성이 알려줄 거예요. 시간이 걸려요.",
-            "en": "No need to know what that is right now. Mars will tell you. It takes time."
+            "en": "No need to know what that is right now. Mars will tell you. It takes time.",
+            "ja": "それが何かは今すぐ知る必要はありません。火星が教えてくれます。時間がかかります。",
+            "zh": "不需要现在就知道那是什么。火星会告诉你的。需要时间。"
           }
         }
       ]
@@ -577,7 +665,9 @@
         {
           "text": {
             "ko": "사흘째였다. 리팡이 서류를 줬다. 첫 번째 업무였다. 7구역 안전 감사였다. 표준 절차였다. 현장 점검. 보고서 작성. 이틀 기한이었다. 간단했다. 그렇게 시작됐다.",
-            "en": "Day three. Lifang gave documents. The first assignment. Sector 7 safety audit. Standard procedure. Field inspection. Write a report. Two-day deadline. Simple. That was how it started."
+            "en": "Day three. Lifang gave documents. The first assignment. Sector 7 safety audit. Standard procedure. Field inspection. Write a report. Two-day deadline. Simple. That was how it started.",
+            "ja": "三日目だった。リファンが書類をくれた。最初の業務だった。7区域の安全監査だった。標準手続きだった。現場点検。報告書作成。二日の期限だった。簡単だった。そうして始まった。",
+            "zh": "第三天。李芳给了文件。第一个任务。7区安全审计。标准程序。现场检查。撰写报告。两天期限。简单。就这样开始了。"
           }
         }
       ]
@@ -592,7 +682,9 @@
         {
           "text": {
             "ko": "7구역이었다. 헬라스 외곽의 소규모 광산 기지였다. 인원 30명. 주 광물은 철광석이었다. 보고서 양식이 있었다. 체크리스트였다. 안전 장비. 비상 탈출구. 산소 백업. 하나씩 확인했다.",
-            "en": "Sector 7. A small mining outpost on the outer Hellas. Staff 30. Primary mineral iron ore. A report form existed. A checklist. Safety equipment. Emergency exits. Oxygen backup. Checked one by one."
+            "en": "Sector 7. A small mining outpost on the outer Hellas. Staff 30. Primary mineral iron ore. A report form existed. A checklist. Safety equipment. Emergency exits. Oxygen backup. Checked one by one.",
+            "ja": "7区域だった。ヘラスの外縁の小規模鉱山基地だった。人員30名。主要鉱物は鉄鉱石だった。報告書様式があった。チェックリストだった。安全装備。緊急脱出口。酸素バックアップ。一つずつ確認した。",
+            "zh": "7区。赫拉斯外围的小型矿山基地。人员30名。主要矿物是铁矿石。有报告表格。是一份清单。安全设备。紧急出口。氧气备份。逐一确认。"
           }
         }
       ]
@@ -607,7 +699,9 @@
         {
           "text": {
             "ko": "문제가 있었다. 체크리스트에 없는 것이었다. 환기 시스템이 오래됐다. 부품이 없었다. 임시방편으로 수리된 흔적이 있었다. 여러 번. 표준 이하였다. 그러나 형식적으로는 통과했다. 체크리스트가 그것을 허용하는 형태로 만들어져 있었다.",
-            "en": "There was a problem. Not on the checklist. The ventilation system was old. No parts. Signs of improvised repair. Multiple times. Below standard. But formally it had passed. The checklist was designed to allow that."
+            "en": "There was a problem. Not on the checklist. The ventilation system was old. No parts. Signs of improvised repair. Multiple times. Below standard. But formally it had passed. The checklist was designed to allow that.",
+            "ja": "問題があった。チェックリストにないものだった。換気システムが古かった。部品がなかった。応急処置で修理された跡があった。何度も。標準以下だった。しかし形式的には通過していた。チェックリストがそれを許容する形で作られていた。",
+            "zh": "有问题。不在清单上的东西。通风系统很旧。没有零件。有多次临时修理的痕迹。低于标准。但形式上通过了。清单被设计成允许这样的形式。"
           }
         }
       ]
@@ -622,9 +716,11 @@
         {
           "text": {
             "ko": "더 있었다. 사고 기록이었다. 지난 2년. 세 건이었다. 사고 원인란이 비어 있었다. 세 건 모두. 이름만 있었다. 사망. 사망. 사망. 원인 없는 사망. 그것이 가능했다. 화성에서는. 원인을 쓰지 않으면 원인이 없는 것이었다.",
-            "en": "More was there. Accident records. Past two years. Three cases. The cause section was blank. All three. Only names. Death. Death. Death. Deaths without cause. That was possible on Mars. If you didn't write the cause there was no cause."
-          },
-          "overlay": "mcc_prologue_l30_00_death_still"
+            "en": "More was there. Accident records. Past two years. Three cases. The cause section was blank. All three. Only names. Death. Death. Death. Deaths without cause. That was possible on Mars. If you didn't write the cause there was no cause.",
+            "overlay": "mcc_prologue_l30_00_death_still",
+            "ja": "さらにあった。事故記録だった。過去2年間。三件だった。事故原因欄が空白だった。三件とも。名前だけがあった。死亡。死亡。死亡。原因のない死亡。それが可能だった。火星では。原因を書かなければ原因がないことだった。",
+            "zh": "还有更多。事故记录。过去两年。三起。事故原因栏是空的。三起都是。只有名字。死亡。死亡。死亡。没有原因的死亡。这在火星上是可能的。不写原因就没有原因。"
+          }
         }
       ]
     },
@@ -640,7 +736,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "보고서 어떻게 됐어요.",
-            "en": "How's the report."
+            "en": "How's the report.",
+            "ja": "報告書はどうなりましたか。",
+            "zh": "报告怎么样了。"
           }
         },
         {
@@ -648,7 +746,9 @@
           "emotion": "focused",
           "text": {
             "ko": "다 됐어요?",
-            "en": "Done?"
+            "en": "Done?",
+            "ja": "終わりましたか？",
+            "zh": "做完了吗？"
           }
         },
         {
@@ -656,7 +756,9 @@
           "emotion": "serious",
           "text": {
             "ko": "뭔가 있군요. 얼굴을 보면 알아요. 화성에서 3일 살면 얼굴로 보여요.",
-            "en": "Something's there. I can tell from your face. Three days on Mars and it shows on your face."
+            "en": "Something's there. I can tell from your face. Three days on Mars and it shows on your face.",
+            "ja": "何かあるんですね。顔を見ればわかります。火星で3日生活すると顔に出ます。",
+            "zh": "有什么事。看脸就知道。在火星上住了3天，脸上就看得出来。"
           }
         }
       ]
@@ -671,7 +773,9 @@
         {
           "text": {
             "ko": "리팡에게 말했다. 환기 시스템. 사고 기록. 원인 없는 사망 세 건. 그는 들었다. 표정이 없었다. 다 말한 후에도 표정이 없었다. 오래 표정을 숨긴 사람의 얼굴이었다. 그것도 화성이 만든 것이었다.",
-            "en": "Told Lifang. The ventilation system. Accident records. Three deaths without cause. He listened. No expression. Still no expression after everything was said. The face of someone who had hidden expressions for a long time. That too was what Mars made."
+            "en": "Told Lifang. The ventilation system. Accident records. Three deaths without cause. He listened. No expression. Still no expression after everything was said. The face of someone who had hidden expressions for a long time. That too was what Mars made.",
+            "ja": "リファンに話した。換気システム。事故記録。原因のない死亡三件。彼は聞いていた。表情がなかった。全部話した後も表情がなかった。長く表情を隠してきた人の顔だった。それも火星が作ったものだった。",
+            "zh": "告诉了李芳。通风系统。事故记录。三起无原因死亡。他听着。没有表情。说完之后也没有表情。长期隐藏表情的人的脸。那也是火星造就的。"
           }
         }
       ]
@@ -688,7 +792,9 @@
           "emotion": "serious",
           "text": {
             "ko": "알고 있었어요.",
-            "en": "I knew."
+            "en": "I knew.",
+            "ja": "知っていました。",
+            "zh": "我知道。"
           }
         },
         {
@@ -696,7 +802,9 @@
           "emotion": "cold",
           "text": {
             "ko": "MCC 안에서 모르는 게 없어요. 아는 것 중에 말하는 것과 말하지 않는 것이 있어요. 그 둘의 차이를 아는 것이 이 조직에서 사는 방법이에요.",
-            "en": "Nothing within MCC is unknown. Among what is known there are things said and things not said. Knowing the difference between those two is how you survive in this organization."
+            "en": "Nothing within MCC is unknown. Among what is known there are things said and things not said. Knowing the difference between those two is how you survive in this organization.",
+            "ja": "MCC内で知らないことはありません。知っていることの中に言うことと言わないことがあります。その二つの違いを知ることが、この組織で生きる方法です。",
+            "zh": "在MCC内部没有不知道的事。知道的事情中有说的和不说的。知道这两者之间的区别，才是在这个组织中生存的方法。"
           }
         },
         {
@@ -704,7 +812,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "보고서에 뭐라고 쓸 거예요.",
-            "en": "What will you write in the report."
+            "en": "What will you write in the report.",
+            "ja": "報告書に何と書きますか。",
+            "zh": "报告里你要写什么。"
           }
         }
       ]
@@ -719,7 +829,9 @@
         {
           "text": {
             "ko": "보고서를 썼다. 본 것을 썼다. 환기 시스템. 부품 노후. 임시 수리. 사망 원인 공란. 세 건. 이름들. 썼다. 지우지 않았다. 첫 번째 결정이었다. 화성에서의 첫 번째 결정. 화성이 그것을 기억할 것이었다.",
-            "en": "Wrote the report. Wrote what was seen. Ventilation system. Aged parts. Improvised repairs. Blank cause of death. Three cases. The names. Wrote them. Didn't erase them. The first decision. The first decision on Mars. Mars would remember it."
+            "en": "Wrote the report. Wrote what was seen. Ventilation system. Aged parts. Improvised repairs. Blank cause of death. Three cases. The names. Wrote them. Didn't erase them. The first decision. The first decision on Mars. Mars would remember it.",
+            "ja": "報告書を書いた。見たことを書いた。換気システム。部品の老朽化。応急修理。死因欄空白。三件。名前たち。書いた。消さなかった。最初の決断だった。火星での最初の決断。火星はそれを覚えているだろう。",
+            "zh": "写了报告。写下了所见。通风系统。零件老化。临时修理。死因空白。三起。名字们。写下了。没有擦去。这是第一个决定。在火星上的第一个决定。火星会记住它的。"
           }
         }
       ]
@@ -736,7 +848,9 @@
           "emotion": "serious",
           "text": {
             "ko": "보고서 제출하기 전에 한 번 더 읽어요.",
-            "en": "Read it once more before submitting."
+            "en": "Read it once more before submitting.",
+            "ja": "提出する前にもう一度読んでください。",
+            "zh": "提交前再读一遍。"
           }
         },
         {
@@ -744,7 +858,9 @@
           "emotion": "cold",
           "text": {
             "ko": "쓰고 나면 취소가 없어요. 화성에서 쓴 말은 바위에 새기는 거예요. MCC는 모든 것을 기록해요. 기억해요. 지우지 않아요.",
-            "en": "Once written there's no taking it back. Words written on Mars are carved in rock. MCC records everything. Remembers. Never erases."
+            "en": "Once written there's no taking it back. Words written on Mars are carved in rock. MCC records everything. Remembers. Never erases.",
+            "ja": "書いたら取り消せません。火星で書いた言葉は岩に刻まれるものです。MCCはすべてを記録します。覚えています。消しません。",
+            "zh": "写下去就没有撤回了。在火星上写下的话是刻在岩石上的。MCC记录一切。记住一切。从不抹去。"
           }
         },
         {
@@ -752,7 +868,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "당신이 결정해요.",
-            "en": "Your decision."
+            "en": "Your decision.",
+            "ja": "あなたが決めてください。",
+            "zh": "你来决定。"
           }
         }
       ]
@@ -767,7 +885,9 @@
         {
           "text": {
             "ko": "제출했다. 보고서를 제출했다. 본 것을 그대로. 리팡이 받았다. 읽었다. 천천히. 다 읽고 나서 잠시 있었다. 그 침묵이 길었다. 그러나 길게 느껴지지 않았다. 기다릴 만한 침묵이었다.",
-            "en": "Submitted. The report was submitted. Exactly as seen. Lifang took it. Read it. Slowly. When done he was still for a moment. That silence was long. But it didn't feel long. It was a silence worth waiting through."
+            "en": "Submitted. The report was submitted. Exactly as seen. Lifang took it. Read it. Slowly. When done he was still for a moment. That silence was long. But it didn't feel long. It was a silence worth waiting through.",
+            "ja": "提出した。報告書を提出した。見たままに。リファンが受け取った。読んだ。ゆっくりと。読み終えてしばらく静止していた。その沈黙は長かった。しかし長く感じなかった。待つ価値のある沈黙だった。",
+            "zh": "提交了。提交了报告。原原本本。李芳接过去了。读了。慢慢地。读完后沉默了片刻。那沉默很长。但感觉不长。是值得等待的沉默。"
           }
         }
       ]
@@ -784,7 +904,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "접수했어요.",
-            "en": "Received."
+            "en": "Received.",
+            "ja": "受け取りました。",
+            "zh": "收到了。"
           }
         },
         {
@@ -792,7 +914,9 @@
           "emotion": "focused",
           "text": {
             "ko": "이 보고서가 어디로 가는지 알아요?",
-            "en": "Do you know where this report goes?"
+            "en": "Do you know where this report goes?",
+            "ja": "この報告書がどこへ行くか知っていますか？",
+            "zh": "你知道这份报告会去哪里吗？"
           }
         },
         {
@@ -800,7 +924,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Chen Weiss의 책상이에요. 이 등급의 보고서는 전부 그쪽으로 가요. 당신 이름이 거기 올라가요.",
-            "en": "Chen Weiss's desk. Reports at this level all go there. Your name goes up there."
+            "en": "Chen Weiss's desk. Reports at this level all go there. Your name goes up there.",
+            "ja": "Chen Weissの机です。このレベルの報告書はすべてそこへ行きます。あなたの名前がそこに上がります。",
+            "zh": "Chen Weiss的桌子。这个级别的报告都去那里。你的名字会出现在那里。"
           }
         },
         {
@@ -808,7 +934,9 @@
           "emotion": "cold",
           "text": {
             "ko": "그 사람 이름을 기억해요. 화성에서 가장 중요한 이름이에요.",
-            "en": "Remember that name. The most important name on Mars."
+            "en": "Remember that name. The most important name on Mars.",
+            "ja": "その名前を覚えておいてください。火星で最も重要な名前です。",
+            "zh": "记住那个名字。火星上最重要的名字。"
           }
         }
       ]
@@ -823,7 +951,9 @@
         {
           "text": {
             "ko": "네 번째 날이었다. 헬라스 센트럴이 익숙해지기 시작했다. 길을 외웠다. 얼굴들을 외웠다. 마스크 때문에 얼굴을 외우기 어려웠다. 그래서 사람들은 다른 것을 외웠다. 걸음걸이. 목소리. 움직이는 방식. 화성에서 사람을 아는 것은 그런 것이었다.",
-            "en": "Day four. Hellas Central was becoming familiar. Memorized routes. Memorized faces. Masks made faces hard to memorize. So people memorized other things. Gait. Voice. The way they moved. Knowing people on Mars was like that."
+            "en": "Day four. Hellas Central was becoming familiar. Memorized routes. Memorized faces. Masks made faces hard to memorize. So people memorized other things. Gait. Voice. The way they moved. Knowing people on Mars was like that.",
+            "ja": "四日目だった。ヘラス・セントラルに慣れ始めていた。道を覚えた。顔を覚えた。マスクのせいで顔を覚えることが難しかった。それで人々は他のことを覚えた。歩き方。声。動き方。火星で人を知ることはそういうことだった。",
+            "zh": "第四天。开始熟悉赫拉斯中央了。记住了路。记住了脸。口罩让人很难记住脸。所以人们记住了其他东西。步伐。声音。移动的方式。在火星上了解人就是这样的。"
           }
         }
       ]
@@ -838,7 +968,9 @@
         {
           "text": {
             "ko": "창밖으로 붉은 점이 보이기 시작했다.\n처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다.\n핏빛이었다. 아름다웠다. 두려웠다. 이제 그 행성 안에 있었다. 안에서 보면 달랐다. 그것이 화성의 두 번째 얼굴이었다.",
-            "en": "A red dot appeared beyond the window.\nAt first it looked like a star. As it grew closer — it became a planet.\nBlood-red. Beautiful. Frightening. Now inside that planet. Seen from inside it was different. That was Mars's second face."
+            "en": "A red dot appeared beyond the window.\nAt first it looked like a star. As it grew closer — it became a planet.\nBlood-red. Beautiful. Frightening. Now inside that planet. Seen from inside it was different. That was Mars's second face.",
+            "ja": "窓の外に赤い点が見え始めた。\n最初は星のように見えた。近づくにつれて — 惑星になった。\n血の色だった。美しかった。恐ろしかった。今はその惑星の中にいた。中から見ると違った。それが火星の二番目の顔だった。",
+            "zh": "窗外开始出现一个红点。\n起初看起来像星星。随着靠近——成了一颗行星。\n血红色。美丽。令人恐惧。现在在那颗行星里面了。从里面看是不同的。那是火星的第二张脸。"
           }
         }
       ]
@@ -853,16 +985,20 @@
         {
           "text": {
             "ko": "화성이 당신을 기다리고 있었다.\n이 행성에서 당신은 무엇이 될 것인가.\nChen Weiss가 보고서를 읽고 있을 것이었다. 차를 들고. 마시지 않고.",
-            "en": "Mars was waiting for you.\nWhat would you become on this planet.\nChen Weiss would be reading the report. Holding her tea. Not drinking."
-          },
-          "overlay": "mcc_prologue_l40_00_sealed_file"
+            "en": "Mars was waiting for you.\nWhat would you become on this planet.\nChen Weiss would be reading the report. Holding her tea. Not drinking.",
+            "overlay": "mcc_prologue_l40_00_sealed_file",
+            "ja": "火星があなたを待っていた。\nこの惑星で、あなたは何になるのか。\nChen Weissが報告書を読んでいるだろう。お茶を手に持って。飲まずに。",
+            "zh": "火星在等待着你。\n在这颗星球上，你会成为什么。\nChen Weiss应该正在读那份报告。拿着茶。没有喝。"
+          }
         }
       ],
       "next_chapter_preview": {
         "questId": "mcc_campaign_ch1",
         "teaser": {
           "ko": "다음 — 산소 쟁탈",
-          "en": "Next — Oxygen Rush"
+          "en": "Next — Oxygen Rush",
+          "ja": "次 — 酸素争奪",
+          "zh": "下一章 — 氧气争夺"
         }
       }
     }

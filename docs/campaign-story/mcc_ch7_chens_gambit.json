@@ -4,7 +4,9 @@
   "chapterNumber": 7,
   "title": {
     "ko": "이사회",
-    "en": "The Board"
+    "en": "The Board",
+    "ja": "取締役会",
+    "zh": "董事会"
   },
   "location": {
     "id": "mcc_board_chamber",
@@ -27,7 +29,9 @@
         {
           "text": {
             "ko": "이사회 의사당은 완전히 밀폐된 공간이었다. 외부 공기가 들어오지 않았다. 독자적인 산소 순환 시스템이었다. MCC 본사에서 이사회 의사당만 독자적인 공기를 가졌다. 화성에서 자신만의 공기를 갖는다는 것의 의미를 이사들은 알았다.",
-            "en": "The board chamber was completely sealed. No outside air entered. Its own oxygen circulation system. In all of MCC headquarters only the board chamber had its own air. The directors understood what it meant to have your own air on Mars."
+            "en": "The board chamber was completely sealed. No outside air entered. Its own oxygen circulation system. In all of MCC headquarters only the board chamber had its own air. The directors understood what it meant to have your own air on Mars.",
+            "ja": "取締役会議事堂は完全に密封された空間だった。外部の空気が入らなかった。独自の酸素循環システムだった。MCC本社の中で取締役会議事堂だけが独自の空気を持っていた。火星で自分だけの空気を持つということの意味を取締役たちは知っていた。",
+            "zh": "董事会议事堂是一个完全密封的空间。外部空气无法进入。有独立的氧气循环系统。在MCC总部，只有董事会议事堂拥有独立的空气。董事们知道在火星上拥有自己专属空气意味着什么。"
           }
         }
       ]
@@ -42,7 +46,9 @@
         {
           "text": {
             "ko": "호출이 왔다. 짧은 메시지였다. 이사회 의사당. 오전 9시. 발신인이 있었다. MCC 이사회 사무국. 그 호출이 무엇을 의미하는지는 아직 몰랐다. 그러나 받는 것이었다. MCC에서 이사회 사무국의 호출을 거절하는 사람은 없었다.",
-            "en": "A summons arrived. Brief. Board chamber. 9 AM. There was a sender. MCC Board Secretariat. What the summons meant was still unknown. But it was to be accepted. Nobody in MCC refused a call from the Board Secretariat."
+            "en": "A summons arrived. Brief. Board chamber. 9 AM. There was a sender. MCC Board Secretariat. What the summons meant was still unknown. But it was to be accepted. Nobody in MCC refused a call from the Board Secretariat.",
+            "ja": "召喚状が来た。短いメッセージだった。取締役会議事堂。午前9時。発信人がいた。MCC取締役会事務局。その召喚が何を意味するのかはまだわからなかった。しかし受け入れるものだった。MCCで取締役会事務局の召喚を断る人はいなかった。",
+            "zh": "召唤来了。简短的消息。董事会议事堂。上午9点。有发件人。MCC董事会秘书处。那个召唤意味着什么还不知道。但是要接受的。在MCC中，没有人拒绝董事会秘书处的召唤。"
           }
         }
       ]
@@ -57,7 +63,9 @@
         {
           "text": {
             "ko": "Chen Weiss가 복도에서 기다리고 있었다. 차를 들고 있었다. 마시지 않았다. 그녀가 먼저 도착했다는 것. 그것이 메시지였다. 이 사람은 항상 먼저 도착했다. 그것이 이 조직에서 그녀가 있는 방식이었다.",
-            "en": "Chen Weiss was waiting in the corridor. Holding her tea. Not drinking it. She had arrived first. That was a message. This person always arrived first. That was how she existed in this organization."
+            "en": "Chen Weiss was waiting in the corridor. Holding her tea. Not drinking it. She had arrived first. That was a message. This person always arrived first. That was how she existed in this organization.",
+            "ja": "チェン・ワイスが廊下で待っていた。茶を持っていた。飲まなかった。彼女が先に到着していた。それがメッセージだった。この人は常に先に到着した。それがこの組織での彼女の存在の仕方だった。",
+            "zh": "陈·韦斯在走廊里等待着。手握茶杯。没有喝。她先到了。那是一个信息。这个人总是先到。那是她在这个组织中存在的方式。"
           }
         }
       ]
@@ -75,7 +83,9 @@
           "effect": "character_enter:chen:slide_left",
           "text": {
             "ko": "왔어요.",
-            "en": "You came."
+            "en": "You came.",
+            "ja": "来たのね。",
+            "zh": "来了。"
           }
         },
         {
@@ -83,7 +93,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이사회에 처음 들어가는 거예요. 몇 가지 알아야 해요.",
-            "en": "You're entering the board for the first time. There are things to know."
+            "en": "You're entering the board for the first time. There are things to know.",
+            "ja": "取締役会に初めて入るのね。知っておくべきことがあるわ。",
+            "zh": "你是第一次进入董事会。有些事情要知道。"
           }
         },
         {
@@ -91,7 +103,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이사들은 질문에 직접 대답하지 않아요. 질문이 대답이에요. 그것을 기억해요.",
-            "en": "Directors don't answer questions directly. The question is the answer. Remember that."
+            "en": "Directors don't answer questions directly. The question is the answer. Remember that.",
+            "ja": "取締役たちは質問に直接答えないわ。質問が答えなの。それを覚えておいて。",
+            "zh": "董事们不直接回答问题。问题就是答案。记住这一点。"
           }
         }
       ]
@@ -106,7 +120,9 @@
         {
           "text": {
             "ko": "이사가 일곱이었다. 테이블이 원형이었다. 상석이 없었다. 그러나 Chen Weiss가 앉은 자리가 어디인지는 누구나 알았다. 그것은 상석의 다른 형태였다. 표시 없는 권력의 형태.",
-            "en": "Seven directors. The table was circular. No head seat. But everyone knew where Chen Weiss sat. That was another form of head seat. The form power takes without marking itself."
+            "en": "Seven directors. The table was circular. No head seat. But everyone knew where Chen Weiss sat. That was another form of head seat. The form power takes without marking itself.",
+            "ja": "取締役が七人いた。テーブルは円形だった。上座がなかった。しかしチェン・ワイスが座る場所がどこかはだれでも知っていた。それは上座の別の形だった。表示のない権力の形。",
+            "zh": "有七名董事。桌子是圆形的。没有主位。但所有人都知道陈·韦斯坐在哪里。那是主位的另一种形式。不作标记的权力的形式。"
           }
         }
       ]
@@ -121,7 +137,9 @@
         {
           "text": {
             "ko": "의사당 입구에서 잠깐 멈췄다. 문 안쪽에서 목소리들이 들렸다. 낮았다. 구분이 안 됐다. 일곱 명의 이사. 화성에서 가장 중요한 사람들. 그들의 결정이 산소 값을 정했다. 물 값을 정했다. 광부들의 계약 조건을 정했다. 문 하나 안쪽이었다.",
-            "en": "Stopped briefly at the entrance. Voices from inside the door. Low. Indistinct. Seven directors. The most important people on Mars. Their decisions set oxygen prices. Set water prices. Set miners' contract conditions. One door away."
+            "en": "Stopped briefly at the entrance. Voices from inside the door. Low. Indistinct. Seven directors. The most important people on Mars. Their decisions set oxygen prices. Set water prices. Set miners' contract conditions. One door away.",
+            "ja": "議事堂の入口でしばし止まった。ドアの内側から声が聞こえた。低かった。聞き分けられなかった。七人の取締役。火星で最も重要な人々。彼らの決定が酸素の値を定めた。水の値を定めた。鉱夫たちの契約条件を定めた。ドア一枚の内側だった。",
+            "zh": "在议事堂入口短暂停了下来。门内传来声音。很低。辨别不清。七名董事。火星上最重要的人们。他们的决定设定了氧气的价格。设定了水的价格。设定了矿工的合同条件。就在一扇门之内。"
           }
         }
       ]
@@ -136,7 +154,9 @@
         {
           "text": {
             "ko": "당신이 들어왔다. 이사들이 보았다. Chen이 일어서지 않았다. 차를 들고 있었다. 마시지 않았다. 그것이 소개였다. 그것으로 충분했다. MCC 이사회에서 Chen의 침묵은 발언이었다.",
-            "en": "You entered. The directors looked. Chen didn't stand. She held her tea. Didn't drink it. That was the introduction. That was enough. In the MCC boardroom Chen's silence was a statement."
+            "en": "You entered. The directors looked. Chen didn't stand. She held her tea. Didn't drink it. That was the introduction. That was enough. In the MCC boardroom Chen's silence was a statement.",
+            "ja": "あなたが入ってきた。取締役たちが見た。チェンは立ち上がらなかった。茶を持っていた。飲まなかった。それが紹介だった。それで十分だった。MCC取締役会でのチェンの沈黙は発言だった。",
+            "zh": "你进来了。董事们看着。陈没有站起来。手握茶杯。没有喝。那就是介绍。那就够了。在MCC董事会，陈的沉默就是发言。"
           }
         }
       ]
@@ -153,7 +173,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이사회가 시작해요. 당신이 7구역 보고서를 작성했어요. 그리고 케플러 샘플을 확보했어요.",
-            "en": "The board begins. You wrote the Sector 7 report. And secured the Kepler sample."
+            "en": "The board begins. You wrote the Sector 7 report. And secured the Kepler sample.",
+            "ja": "取締役会が始まるわ。あなたが7区域報告書を作成したの。そしてケプラーサンプルを確保した。",
+            "zh": "董事会开始了。你撰写了7区域报告。还确保了开普勒样本。"
           }
         },
         {
@@ -161,7 +183,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이사들이 그 두 가지 때문에 당신을 여기 불렀어요.",
-            "en": "The directors called you here because of those two things."
+            "en": "The directors called you here because of those two things.",
+            "ja": "取締役たちがその二つのことであなたをここに呼んだの。",
+            "zh": "董事们因为这两件事召唤你到这里。"
           }
         },
         {
@@ -169,7 +193,9 @@
           "emotion": "serious",
           "text": {
             "ko": "평가예요. 당신이 이사회에 들어올 수 있는 사람인지.",
-            "en": "It's an evaluation. Whether you're someone who can enter the board."
+            "en": "It's an evaluation. Whether you're someone who can enter the board.",
+            "ja": "評価よ。あなたが取締役会に入れる人物かどうかの。",
+            "zh": "这是评估。你是否是能够进入董事会的人。"
           }
         }
       ]
@@ -184,7 +210,9 @@
         {
           "text": {
             "ko": "이사들이 들었다. 표정이 없었다. 그것이 이사회의 방식이었다. 표정을 읽으려 하면 안 됐다. 읽을 것이 없었다. 이사들이 무언가를 보여줄 때는 이미 결정이 끝난 후였다. 이 방에서 보여지는 것들은 결과였다. 과정이 아니었다.",
-            "en": "The directors listened. No expressions. That was the board's way. Trying to read expressions was pointless. There was nothing to read. When directors showed something it was because a decision had already been made. What was shown in this room was result. Not process."
+            "en": "The directors listened. No expressions. That was the board's way. Trying to read expressions was pointless. There was nothing to read. When directors showed something it was because a decision had already been made. What was shown in this room was result. Not process.",
+            "ja": "取締役たちが聞いた。表情がなかった。それが取締役会のやり方だった。表情を読もうとしてはいけなかった。読むものがなかった。取締役たちが何かを見せる時は、すでに決定が終わった後だった。この部屋で見せられるものは結果だった。過程ではなかった。",
+            "zh": "董事们在听。没有表情。那是董事会的方式。试图读取表情是没用的。没有什么可读的。董事们展示什么的时候，决定已经结束了。在这个房间里被展示的东西是结果。不是过程。"
           }
         }
       ]
@@ -201,7 +229,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Director Osei가 묻고 있어요. 7구역 보고서. 사망 3건. 진실을 어떻게 알았는지.",
-            "en": "Director Osei is asking. Sector 7 report. Three deaths. How you knew the truth."
+            "en": "Director Osei is asking. Sector 7 report. Three deaths. How you knew the truth.",
+            "ja": "オセイ取締役が聞いているわ。7区域報告書。死亡3件。真実をどうやって知ったか。",
+            "zh": "奥赛董事在问。7区域报告。三起死亡。你是怎么知道真相的。"
           }
         },
         {
@@ -209,7 +239,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이사회는 이미 알아요. 그러나 당신 입으로 듣기를 원해요.",
-            "en": "The board already knows. But wants to hear it from you."
+            "en": "The board already knows. But wants to hear it from you.",
+            "ja": "取締役会はすでに知っているわ。でもあなたの口から聞きたいの。",
+            "zh": "董事会已经知道了。但是想从你口中听到。"
           }
         }
       ]
@@ -224,7 +256,9 @@
         {
           "text": {
             "ko": "이사회는 알고 있었다. 그것을 말했다. 그러면서 당신 입으로 듣기를 원했다. 그것이 이 방의 시험이었다. 알고 있는 것을 당신이 어떻게 말하는가. 또는 말하지 않는가. 또는 다르게 말하는가. 세 가지가 달랐다.",
-            "en": "The board knew. It said so. And still wanted to hear it from you. That was this room's test. How you say what is already known. Or don't say it. Or say it differently. Three things were different."
+            "en": "The board knew. It said so. And still wanted to hear it from you. That was this room's test. How you say what is already known. Or don't say it. Or say it differently. Three things were different.",
+            "ja": "取締役会は知っていた。それを言った。それでもあなたの口から聞きたかった。それがこの部屋の試験だった。知っていることをあなたがどう言うか。または言わないか。または違う言い方をするか。三つは違った。",
+            "zh": "董事会知道。说出来了。但仍然想从你口中听到。那是这个房间的考验。你如何说出已知的事情。或者不说。或者换种说法。三种是不同的。"
           }
         }
       ]
@@ -241,7 +275,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이사회가 질문을 허가했어요.",
-            "en": "The board has permitted questions."
+            "en": "The board has permitted questions.",
+            "ja": "取締役会が質問を許可したわ。",
+            "zh": "董事会已允许提问。"
           }
         },
         {
@@ -249,7 +285,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Director Marchetti — 케플러 샘플. Ancient Metal 가능성. FSP가 이미 정보를 갖고 있다면.",
-            "en": "Director Marchetti — Kepler sample. Ancient Metal possibility. What if FSP already has the information."
+            "en": "Director Marchetti — Kepler sample. Ancient Metal possibility. What if FSP already has the information.",
+            "ja": "マルケッティ取締役 — ケプラーサンプル。エンシェント・メタルの可能性。FSPがすでに情報を持っているとしたら。",
+            "zh": "马尔凯蒂董事 — 开普勒样本。远古金属的可能性。如果FSP已经掌握了信息。"
           }
         },
         {
@@ -257,7 +295,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "당신의 답변이에요.",
-            "en": "These are yours to answer."
+            "en": "These are yours to answer.",
+            "ja": "あなたが答えるのよ。",
+            "zh": "这些是你来回答的。"
           }
         }
       ]
@@ -272,7 +312,9 @@
         {
           "text": {
             "ko": "케플러 분화구. 깊이 3킬로미터. 어두운 은색 광물. 외계 기원 가능성. 그것을 이 방에서 말하는 것이었다. 이사들 앞에서. 일곱 명. 표정 없는. 그러나 듣고 있는 사람들. 이 방의 공기가 독자적이었다. 밖과 달랐다.",
-            "en": "Kepler Crater. Three kilometers deep. Dark silver mineral. Extraterrestrial origin possibility. This was being said in this room. Before the directors. Seven of them. No expressions. But listening. The air in this room was its own. Different from outside."
+            "en": "Kepler Crater. Three kilometers deep. Dark silver mineral. Extraterrestrial origin possibility. This was being said in this room. Before the directors. Seven of them. No expressions. But listening. The air in this room was its own. Different from outside.",
+            "ja": "ケプラー・クレーター。深さ3キロ。暗い銀色の鉱物。地球外起源の可能性。それをこの部屋で言うのだった。取締役たちの前で。七人。表情のない。しかし聞いている人々。この部屋の空気は独自だった。外と違った。",
+            "zh": "开普勒陨石坑。深度3公里。暗银色矿物。地外起源的可能性。这是在这个房间里说的。在董事们面前。七个人。没有表情。但在听着。这个房间的空气是独特的。与外面不同。"
           }
         }
       ]
@@ -289,7 +331,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Director Ryu가 묻고 있어요. Liang Wei를 어떻게 처리할 것인가.",
-            "en": "Director Ryu is asking. How to handle Liang Wei."
+            "en": "Director Ryu is asking. How to handle Liang Wei.",
+            "ja": "リュウ取締役が聞いているわ。リャン・ウェイをどう処理するか。",
+            "zh": "刘董事在问。如何处置梁威。"
           }
         },
         {
@@ -297,7 +341,9 @@
           "emotion": "calm",
           "text": {
             "ko": "MCC 소속으로 전환. 독립 연구자 유지. 또는 세 번째.",
-            "en": "Convert to MCC affiliation. Maintain as independent researcher. Or the third."
+            "en": "Convert to MCC affiliation. Maintain as independent researcher. Or the third.",
+            "ja": "MCC所属に転換。独立研究者として維持。または三番目。",
+            "zh": "转为MCC所属。维持独立研究者身份。或者第三个选项。"
           }
         },
         {
@@ -305,7 +351,9 @@
           "emotion": "serious",
           "text": {
             "ko": "세 번째는 명확하게 말하지 않아요. 그러나 이사회에서 세 번째는 항상 있어요.",
-            "en": "The third isn't said clearly. But in the board the third is always there."
+            "en": "The third isn't said clearly. But in the board the third is always there.",
+            "ja": "三番目は明確に言わないわ。でも取締役会では三番目は常にあるの。",
+            "zh": "第三个不会明说。但在董事会，第三个选项总是存在的。"
           }
         }
       ]
@@ -320,7 +368,9 @@
         {
           "text": {
             "ko": "세 번째 선택지. 명확하게 말하지 않는 것. MCC에서 그것은 삭제였다. 연구 종료. 연구자 종료. 화성에서 삭제는 다양한 형태를 취했다. 계약 해지. 기록 삭제. 허가 취소. 결과는 같았다. 없는 것이 됐다.",
-            "en": "The third option. What wasn't said clearly. In MCC that was deletion. Research terminated. Researcher terminated. On Mars deletion took various forms. Contract terminated. Records deleted. Permits revoked. The result was the same. They ceased to exist."
+            "en": "The third option. What wasn't said clearly. In MCC that was deletion. Research terminated. Researcher terminated. On Mars deletion took various forms. Contract terminated. Records deleted. Permits revoked. The result was the same. They ceased to exist.",
+            "ja": "三番目の選択肢。明確に言わないもの。MCCではそれは削除だった。研究終了。研究者終了。火星で削除はさまざまな形をとった。契約解除。記録削除。許可取消。結果は同じだった。存在しないものになった。",
+            "zh": "第三个选项。不明说的那个。在MCC，那就是删除。研究终止。研究者终止。在火星上，删除采取各种形式。合同终止。记录删除。许可撤销。结果是一样的。变得不存在了。"
           }
         }
       ]
@@ -337,7 +387,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "이사들이 반응하고 있어요. 미세하게. 펜을 내려놓는 것. 시선이 이동하는 것.",
-            "en": "The directors are reacting. Subtly. Setting down pens. Shifting gazes."
+            "en": "The directors are reacting. Subtly. Setting down pens. Shifting gazes.",
+            "ja": "取締役たちが反応しているわ。微妙に。ペンを置くこと。視線が移ること。",
+            "zh": "董事们在反应。微妙地。放下笔。移动视线。"
           }
         },
         {
@@ -345,7 +397,9 @@
           "emotion": "calm",
           "text": {
             "ko": "그것들을 읽으세요. 이 방에서 하는 일이 그거예요.",
-            "en": "Read those. That's the work done in this room."
+            "en": "Read those. That's the work done in this room.",
+            "ja": "それらを読んで。この部屋でやる仕事がそれよ。",
+            "zh": "读懂这些。那就是在这个房间里做的工作。"
           }
         }
       ]
@@ -360,7 +414,9 @@
         {
           "text": {
             "ko": "이사들이 기다렸다. 원형 테이블. 표정 없는 일곱 명. Chen은 차를 들고 있었다. 마시지 않았다. 이 방에서 Chen은 항상 차를 들고 있었다. 22년간. 이 방에서 그녀가 차를 마신 것을 본 사람이 없었다. 그것이 이 방에서 그녀의 의식이었다. 차를 들고. 마시지 않고. 기다리는 것.",
-            "en": "Directors waited. Circular table. Seven expressionless people. Chen held her tea. Didn't drink. In this room Chen always held her tea. For twenty-two years. No one had seen her drink it in this room. That was her ritual in this room. Hold the tea. Don't drink. Wait."
+            "en": "Directors waited. Circular table. Seven expressionless people. Chen held her tea. Didn't drink. In this room Chen always held her tea. For twenty-two years. No one had seen her drink it in this room. That was her ritual in this room. Hold the tea. Don't drink. Wait.",
+            "ja": "取締役たちが待った。円形テーブル。表情のない七人。チェンは茶を持っていた。飲まなかった。この部屋でチェンは常に茶を持っていた。22年間。この部屋で彼女が茶を飲むのを見た人はいなかった。それがこの部屋での彼女の儀式だった。茶を持って。飲まずに。待つこと。",
+            "zh": "董事们等待着。圆形桌子。七个无表情的人。陈手握茶杯。没有喝。在这个房间里陈总是手握茶杯。22年间。没有人见过她在这个房间里喝茶。那是她在这个房间里的仪式。手握茶杯。不喝。等待。"
           }
         }
       ]
@@ -377,7 +433,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Director Osei가 재차 묻고 있어요. C-7 블록. 서버. 당신이 무엇을 했는지.",
-            "en": "Director Osei is asking again. Block C-7. Server. What you did there."
+            "en": "Director Osei is asking again. Block C-7. Server. What you did there.",
+            "ja": "オセイ取締役が再び聞いているわ。C-7ブロック。サーバー。あなたがそこで何をしたか。",
+            "zh": "奥赛董事再次在问。C-7街区。服务器。你在那里做了什么。"
           }
         },
         {
@@ -385,7 +443,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이사회는 모든 것을 알아요. 그러나 당신 입으로 듣기를 원해요.",
-            "en": "The board knows everything. But wants to hear it from you."
+            "en": "The board knows everything. But wants to hear it from you.",
+            "ja": "取締役会はすべてを知っているわ。でもあなたの口から聞きたいの。",
+            "zh": "董事会知道一切。但是想从你口中听到。"
           }
         },
         {
@@ -393,7 +453,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이 방에서 침묵은 거짓말과 같아요.",
-            "en": "In this room silence is the same as a lie."
+            "en": "In this room silence is the same as a lie.",
+            "ja": "この部屋では沈黙は嘘と同じよ。",
+            "zh": "在这个房间里，沉默与谎言相同。"
           }
         }
       ]
@@ -408,7 +470,9 @@
         {
           "text": {
             "ko": "이사회는 알고 있었다. C-7 블록. 서버. 결정. 그것들을 알면서 묻고 있었다. 당신 입으로 듣기를 원했다. 그것이 시험이었다. 이사회의 시험. 화성에서 가장 오래된 종류의 시험. 이미 알고 있는 것을 확인하는 것.",
-            "en": "The board knew everything. Block C-7. Server. Decision. They knew and were asking. They wanted to hear it from you. That was a test. The board's test. The oldest kind of test on Mars. Confirming what is already known."
+            "en": "The board knew everything. Block C-7. Server. Decision. They knew and were asking. They wanted to hear it from you. That was a test. The board's test. The oldest kind of test on Mars. Confirming what is already known.",
+            "ja": "取締役会はすべてを知っていた。C-7ブロック。サーバー。決定。それらを知りながら聞いていた。あなたの口から聞きたかった。それが試験だった。取締役会の試験。火星で最も古い種類の試験。すでに知っていることを確認すること。",
+            "zh": "董事会知道一切。C-7街区。服务器。决定。知道这些还在问。想从你口中听到。那是考验。董事会的考验。火星上最古老的考验。确认已知的事情。"
           }
         }
       ]
@@ -425,7 +489,9 @@
           "emotion": "serious",
           "text": {
             "ko": "말해요. 이사회 앞에서.",
-            "en": "Say it. Before the board."
+            "en": "Say it. Before the board.",
+            "ja": "言って。取締役会の前で。",
+            "zh": "说出来。在董事会面前。"
           }
         },
         {
@@ -433,7 +499,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그리고 진실을 말하면 — 이사회가 그것을 어떻게 처리할지는 이사회의 결정이에요.",
-            "en": "And if you tell the truth — what the board does with that is the board's decision."
+            "en": "And if you tell the truth — what the board does with that is the board's decision.",
+            "ja": "そして真実を言えば — それをどう処理するかは取締役会の決定よ。",
+            "zh": "如果你说出真相 — 董事会如何处理那是董事会的决定。"
           }
         }
       ]
@@ -448,7 +516,9 @@
         {
           "text": {
             "ko": "이사들이 기다렸다. 일곱 명. 원형 테이블. Chen이 차를 들고 있었다. 마시지 않았다. 이 방의 공기가 독자적이었다. 밀폐됐다. 이 방에서 하는 말이 어디로 가는지 알았다. MCC의 기억이었다. 영원히 기억됐다. 지워지지 않았다.",
-            "en": "Directors waited. Seven. Circular table. Chen held her tea. Didn't drink. The air in this room was its own. Sealed. Knew where words spoken in this room went. MCC's memory. Remembered forever. Never erased."
+            "en": "Directors waited. Seven. Circular table. Chen held her tea. Didn't drink. The air in this room was its own. Sealed. Knew where words spoken in this room went. MCC's memory. Remembered forever. Never erased.",
+            "ja": "取締役たちが待った。七人。円形テーブル。チェンは茶を持っていた。飲まなかった。この部屋の空気は独自だった。密封されていた。この部屋で言った言葉がどこへ行くかは知っていた。MCCの記憶だった。永遠に記憶された。消えなかった。",
+            "zh": "董事们等待着。七个人。圆形桌子。陈手握茶杯。没有喝。这个房间的空气是独特的。密封的。知道在这个房间里说的话去哪里。MCC的记忆。永远被记住。不会被抹去。"
           }
         }
       ]
@@ -465,7 +535,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Director Marchetti가 다시 말해요. FSP가 케플러 정보를 유출받은 것이 확인됐어요.",
-            "en": "Director Marchetti speaks again. It's been confirmed FSP received leaked Kepler information."
+            "en": "Director Marchetti speaks again. It's been confirmed FSP received leaked Kepler information.",
+            "ja": "マルケッティ取締役が再び言うわ。FSPがケプラー情報を流出させて受け取ったことが確認されたわ。",
+            "zh": "马尔凯蒂董事再次说话。已确认FSP收到了泄露的开普勒信息。"
           }
         },
         {
@@ -473,7 +545,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC 지질팀 내부 유출이에요. 해당 팀원은 이미 처리됐어요.",
-            "en": "It was an internal MCC geology team leak. That team member has already been handled."
+            "en": "It was an internal MCC geology team leak. That team member has already been handled.",
+            "ja": "MCC地質チームの内部流出よ。該当チームメンバーはすでに処理されたわ。",
+            "zh": "是MCC地质团队的内部泄露。该团队成员已经被处理了。"
           }
         },
         {
@@ -481,7 +555,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "FSP가 케플러로 팀을 보낸다는 정보가 있어요. 먼저 대응해야 해요.",
-            "en": "There's information that FSP is sending a team to Kepler. Need to respond first."
+            "en": "There's information that FSP is sending a team to Kepler. Need to respond first.",
+            "ja": "FSPがケプラーにチームを送るという情報があるわ。先に対応しないといけない。",
+            "zh": "有情报显示FSP正在向开普勒派遣团队。需要先行应对。"
           }
         }
       ]
@@ -496,7 +572,9 @@
         {
           "text": {
             "ko": "처리됐어요. 그 말이 이 방에서 부드럽게 들렸다. 이사회의 말들은 부드러웠다. 그러나 그 의미는 날카로웠다. 처리됐어요. 그것이 무엇인지는 묻지 않는 것이었다. 이 방에서는. 묻지 않는 것들이 이 방을 이 방으로 만들었다.",
-            "en": "Already been handled. That phrase sounded soft in this room. Board words were soft. But their meaning was sharp. Already been handled. What that meant was something you didn't ask about. In this room. The things not asked made this room what it was."
+            "en": "Already been handled. That phrase sounded soft in this room. Board words were soft. But their meaning was sharp. Already been handled. What that meant was something you didn't ask about. In this room. The things not asked made this room what it was.",
+            "ja": "処理されたわ。その言葉がこの部屋で柔らかく聞こえた。取締役会の言葉は柔らかかった。しかしその意味は鋭かった。処理されたわ。それが何を意味するかは聞かないものだった。この部屋では。聞かないことがこの部屋をこの部屋にしていた。",
+            "zh": "已经被处理了。那句话在这个房间里听起来很柔和。董事会的话很柔和。但其含义很尖锐。已经被处理了。那意味着什么是不该问的事情。在这个房间里。不问的事情使这个房间成为这个房间。"
           }
         }
       ]
@@ -513,7 +591,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "잠깐 정지가 있었어요. 기술적 이유예요. 창이 있어요.",
-            "en": "There's a brief halt. Technical reason. There's a window."
+            "en": "There's a brief halt. Technical reason. There's a window.",
+            "ja": "少し休止があったの。技術的な理由よ。窓があるわ。",
+            "zh": "有个短暂停顿。技术原因。有一扇窗。"
           }
         },
         {
@@ -521,7 +601,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "헬라스 센트럴 전체가 보여요. 파노라마예요. C-7 블록도 보여요. 작아요.",
-            "en": "All of Hellas Central visible. A panorama. Block C-7 visible. Small."
+            "en": "All of Hellas Central visible. A panorama. Block C-7 visible. Small.",
+            "ja": "ヘラス・セントラル全体が見えるわ。パノラマよ。C-7ブロックも見える。小さい。",
+            "zh": "能看到整个赫拉斯中央区。全景。也能看到C-7街区。很小。"
           }
         },
         {
@@ -529,7 +611,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "분필 이름들은 안 보여요. 너무 작아요. 그러나 있어요.",
-            "en": "Chalk names not visible. Too small. But they're there."
+            "en": "Chalk names not visible. Too small. But they're there.",
+            "ja": "チョークの名前は見えないわ。小さすぎる。でもある。",
+            "zh": "看不到粉笔名字。太小了。但它们在那里。"
           }
         }
       ]
@@ -545,6 +629,8 @@
           "text": {
             "ko": "창밖으로 헬라스가 보였다. MCC의 도시. 광산 구역이 보였다. 작았다. C-7 블록이 보였다. 더 작았다. 분필 이름들은 보이지 않았다. 너무 작았다. 그러나 있었다. 없어지지 않았다. 이 방에서 결정되는 것들이 저 아래로 내려갔다. 그것이 이 창이 말하는 것이었다.",
             "en": "Outside the window Hellas was visible. MCC's city. The mine district visible. Small. Block C-7 visible. Smaller. Chalk names not visible. Too small. But they were there. Not gone. What was decided in this room went down there. That was what this window said.",
+            "ja": "窓の外にヘラスが見えた。MCCの都市。鉱山地区が見えた。小さかった。C-7ブロックが見えた。さらに小さかった。チョークの名前は見えなかった。小さすぎた。しかしあった。消えなかった。この部屋で決定されることが下へ降りていった。それがこの窓が言うことだった。",
+            "zh": "窗外能看到赫拉斯。MCC的城市。能看到矿区。很小。能看到C-7街区。更小。看不到粉笔名字。太小了。但它们在那里。没有消失。在这个房间里决定的事情向下落去。那就是这扇窗说的话。",
             "overlay": "candle_flame"
           }
         }
@@ -562,7 +648,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Director Ryu가 최종 입장을 요청해요. MCC는 Ancient Metal을 어떻게 다룰 것인가.",
-            "en": "Director Ryu requests the final position. How will MCC handle Ancient Metal."
+            "en": "Director Ryu requests the final position. How will MCC handle Ancient Metal.",
+            "ja": "リュウ取締役が最終立場を要求しているわ。MCCはエンシェント・メタルをどう扱うか。",
+            "zh": "刘董事要求最终立场。MCC将如何处理远古金属。"
           }
         },
         {
@@ -570,7 +658,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이사회가 4가지 옵션을 제안했어요. 독점 확보. 분석 후 결정. 전면 공개. 또는 프리즈.",
-            "en": "The board has proposed four options. Exclusive control. Decide after analysis. Full announcement. Or freeze."
+            "en": "The board has proposed four options. Exclusive control. Decide after analysis. Full announcement. Or freeze.",
+            "ja": "取締役会が4つのオプションを提案したわ。独占確保。分析後決定。全面公開。またはフリーズ。",
+            "zh": "董事会提出了四个选项。独占控制。分析后决定。全面公开。或者冻结。"
           }
         },
         {
@@ -578,7 +668,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "프리즈는 화성에서 옵션이 아니에요. 그러나 이사회는 항상 그것을 포함해요.",
-            "en": "Freeze isn't an option on Mars. But the board always includes it."
+            "en": "Freeze isn't an option on Mars. But the board always includes it.",
+            "ja": "フリーズは火星ではオプションじゃないわ。でも取締役会は常にそれを含めるの。",
+            "zh": "冻结在火星上不是选项。但董事会总是将其包含在内。"
           }
         }
       ]
@@ -593,7 +685,9 @@
         {
           "text": {
             "ko": "이사들이 기다렸다. Chen이 차를 들고 있었다. 마시지 않았다. 이 방에서 22년. 한 번도 마시지 않은 것. 그 이유를 아는 사람이 없었다. 22년간. 그러나 오늘 아직 마시지 않았다. 아직은 아니었다.",
-            "en": "Directors waited. Chen held her tea. Didn't drink. Twenty-two years in this room. Never drinking it. Nobody knew the reason. For twenty-two years. But today she hadn't yet. Not yet."
+            "en": "Directors waited. Chen held her tea. Didn't drink. Twenty-two years in this room. Never drinking it. Nobody knew the reason. For twenty-two years. But today she hadn't yet. Not yet.",
+            "ja": "取締役たちが待った。チェンは茶を持っていた。飲まなかった。この部屋で22年。一度も飲まなかった。その理由を知る人はいなかった。22年間。しかし今日はまだ飲んでいなかった。まだだった。",
+            "zh": "董事们等待着。陈手握茶杯。没有喝。在这个房间里22年。从未喝过。没有人知道原因。22年间。但今天还没有喝。还没有。"
           }
         }
       ]
@@ -610,7 +704,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "잠깐이요.",
-            "en": "A moment."
+            "en": "A moment.",
+            "ja": "少しだけ。",
+            "zh": "稍等一下。"
           }
         },
         {
@@ -618,7 +714,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이사회가 당신을 어떻게 보는지 알아요? 위협이에요. 아직은 작은 위협. 그러나 위협.",
-            "en": "You know how the board sees you. A threat. A small threat still. But a threat."
+            "en": "You know how the board sees you. A threat. A small threat still. But a threat.",
+            "ja": "取締役会があなたをどう見ているか知ってる？脅威よ。まだ小さな脅威。でも脅威。",
+            "zh": "你知道董事会怎么看你吗？威胁。目前还是小威胁。但是威胁。"
           }
         },
         {
@@ -626,7 +724,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "나는 당신을 지지해요. 그게 이사회에는 위험해요. 나도 알아요.",
-            "en": "I support you. That's dangerous for the board. I know that too."
+            "en": "I support you. That's dangerous for the board. I know that too.",
+            "ja": "私はあなたを支持してるわ。それが取締役会には危険なの。私もわかってる。",
+            "zh": "我支持你。那对董事会来说是危险的。我也知道。"
           }
         }
       ]
@@ -641,7 +741,9 @@
         {
           "text": {
             "ko": "25도 라운지였다. 이사회 의사당 옆에 있는 곳. Chen이 여기 있었다. 차를 들고. 마시지 않고. 이 방도 이사회 의사당과 온도가 같았다. 항상 25도였다. 그래서 라운지 이름이 25도였다. 그것이 Chen이 있는 곳이었다.",
-            "en": "The 25-Degree Lounge. Adjacent to the board chamber. Chen was here. Holding tea. Not drinking. This room too was the same temperature as the board chamber. Always twenty-five degrees. That was why the lounge was called 25-Degree. That was where Chen was."
+            "en": "The 25-Degree Lounge. Adjacent to the board chamber. Chen was here. Holding tea. Not drinking. This room too was the same temperature as the board chamber. Always twenty-five degrees. That was why the lounge was called 25-Degree. That was where Chen was.",
+            "ja": "25度ラウンジだった。取締役会議事堂の隣にある場所。チェンがここにいた。茶を持って。飲まずに。この部屋も取締役会議事堂と同じ温度だった。常に25度だった。だからラウンジの名前が25度だった。それがチェンがいる場所だった。",
+            "zh": "25度休息室。紧邻董事会议事堂。陈在这里。手握茶杯。没有喝。这个房间也和董事会议事堂温度相同。始终25度。所以休息室叫做25度。那就是陈所在的地方。"
           }
         }
       ]
@@ -658,7 +760,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이사회가 당신을 시험하는 이유가 있어요. 당신이 어느 쪽인지 모르기 때문이에요.",
-            "en": "The reason the board is testing you. Because they don't know which side you're on."
+            "en": "The reason the board is testing you. Because they don't know which side you're on.",
+            "ja": "取締役会があなたを試している理由があるわ。あなたがどちら側かわからないから。",
+            "zh": "董事会测试你是有原因的。因为他们不知道你站在哪一边。"
           }
         },
         {
@@ -666,7 +770,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC 쪽인지. 아니면 다른 쪽인지. 이사회는 항상 그것을 먼저 알아야 해요.",
-            "en": "Whether it's MCC's side. Or another side. The board always needs to know that first."
+            "en": "Whether it's MCC's side. Or another side. The board always needs to know that first.",
+            "ja": "MCC側なのか。それとも別の側なのか。取締役会は常にそれを先に知らなければならない。",
+            "zh": "是MCC这边。还是另一边。董事会总是需要先知道那个。"
           }
         },
         {
@@ -674,7 +780,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "나도 같은 질문을 하고 있어요. 당신에 대해서.",
-            "en": "I'm asking the same question. About you."
+            "en": "I'm asking the same question. About you.",
+            "ja": "私も同じ質問をしているわ。あなたについて。",
+            "zh": "我也在问同样的问题。关于你。"
           }
         }
       ]
@@ -689,7 +797,9 @@
         {
           "text": {
             "ko": "Chen이 같은 질문을 하고 있었다. 이사회와 같은 질문을. 그러나 다른 방식으로. 이사회는 시험으로 물었다. Chen은 직접 말했다. 그 차이가 무엇을 의미하는지는 아직 알 수 없었다.",
-            "en": "Chen was asking the same question. The same as the board. But in a different way. The board asked through tests. Chen said it directly. What that difference meant was still unknown."
+            "en": "Chen was asking the same question. The same as the board. But in a different way. The board asked through tests. Chen said it directly. What that difference meant was still unknown.",
+            "ja": "チェンが同じ質問をしていた。取締役会と同じ質問を。しかし違う方法で。取締役会は試験で聞いた。チェンは直接言った。その違いが何を意味するのかはまだわからなかった。",
+            "zh": "陈在问同样的问题。与董事会相同的问题。但是用不同的方式。董事会通过考验来问。陈直接说出来了。那种差异意味着什么还不知道。"
           }
         }
       ]
@@ -706,7 +816,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이사회가 두 번째 세션으로 넘어가요.",
-            "en": "The board moves to the second session."
+            "en": "The board moves to the second session.",
+            "ja": "取締役会が第二セッションに移るわ。",
+            "zh": "董事会进入第二议程。"
           }
         },
         {
@@ -714,7 +826,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "케플러 현장 방어 작전이에요. FSP 팀이 접근하고 있어요.",
-            "en": "Kepler site defense operation. FSP team approaching."
+            "en": "Kepler site defense operation. FSP team approaching.",
+            "ja": "ケプラー現場防衛作戦よ。FSPチームが接近しているわ。",
+            "zh": "开普勒现场防御行动。FSP团队正在接近。"
           }
         },
         {
@@ -722,7 +836,9 @@
           "emotion": "calm",
           "text": {
             "ko": "당신이 가요. 이사회 승인이 났어요.",
-            "en": "You go. The board has approved it."
+            "en": "You go. The board has approved it.",
+            "ja": "あなたが行くの。取締役会が承認したわ。",
+            "zh": "你去。董事会已批准。"
           }
         }
       ]
@@ -737,7 +853,9 @@
         {
           "text": {
             "ko": "이사회 승인. 그 말의 무게를 알았다. 이 방에서 승인이 나면 화성이 달라졌다. 그 달라짐이 광산 구역으로 내려갔다. C-7 블록으로 내려갔다. 분필 이름들이 있는 곳으로. 이사회 승인은 여기서 나왔지만 결과는 저 아래에 있었다.",
-            "en": "Board approval. The weight of those words was known. When approval came from this room Mars changed. That change went down to the mine district. Down to block C-7. To where chalk names were. Board approval came from here but results were down there."
+            "en": "Board approval. The weight of those words was known. When approval came from this room Mars changed. That change went down to the mine district. Down to block C-7. To where chalk names were. Board approval came from here but results were down there.",
+            "ja": "取締役会承認。その言葉の重みは知っていた。この部屋から承認が出ると火星が変わった。その変化が鉱山地区へ降りていった。C-7ブロックへ降りていった。チョークの名前がある場所へ。取締役会承認はここから来たが結果はあの下にあった。",
+            "zh": "董事会批准。那些话的分量是知道的。当批准来自这个房间，火星就改变了。那个改变向下传到矿区。向下传到C-7街区。传到有粉笔名字的地方。董事会批准来自这里，但结果在那下面。"
           }
         }
       ]
@@ -754,7 +872,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "내가 MCC에 온 지 22년 됐어요. 이 방에서 처음으로 차를 마셨어요. 오늘.",
-            "en": "I've been in MCC for twenty-two years. Today was the first time I drank the tea in this room."
+            "en": "I've been in MCC for twenty-two years. Today was the first time I drank the tea in this room.",
+            "ja": "私がMCCに来て22年になるわ。今日初めてこの部屋で茶を飲んだの。",
+            "zh": "我加入MCC已经22年了。今天是我第一次在这个房间里喝茶。"
           }
         },
         {
@@ -762,7 +882,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이유는 말하지 않을게요. 그냥 그랬어요.",
-            "en": "I won't say why. It just was."
+            "en": "I won't say why. It just was.",
+            "ja": "理由は言わないわ。ただそうだったの。",
+            "zh": "我不会说原因。就是这样。"
           }
         }
       ]
@@ -774,55 +896,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "이사회가 기다린다. 일곱 명의 눈이 당신 위에 있다. Chen도 기다린다.",
-        "en": "The board waits. Seven pairs of eyes are on you. Chen waits too."
+        "en": "The board waits. Seven pairs of eyes are on you. Chen waits too.",
+        "ja": "取締役会が待っている。七つの目があなたの上にある。チェンも待っている。",
+        "zh": "董事会在等待。七双眼睛注视着你。陈也在等待。"
       },
       "choices": [
         {
           "id": "mcc_ch7_full_control",
           "text": {
             "ko": "MCC 독점. Liang Wei 계약. 비공개.",
-            "en": "MCC exclusive. Contract Liang Wei. Non-disclosure."
+            "en": "MCC exclusive. Contract Liang Wei. Non-disclosure.",
+            "ja": "MCC独占。リャン・ウェイと契約。非公開。",
+            "zh": "MCC独占。与梁威签约。不公开。"
           },
           "tone": "empire",
           "preview_hint": {
             "ko": "→ MCC 권력 확장. 이사회 일부 만족",
-            "en": "→ MCC power expands. Some board satisfied."
+            "en": "→ MCC power expands. Some board satisfied.",
+            "ja": "→ MCC権力拡大。一部取締役満足。",
+            "zh": "→ MCC权力扩张。部分董事满意。"
           }
         },
         {
           "id": "mcc_ch7_science_first",
           "text": {
             "ko": "분석 완료 전까지 모든 결정을 보류한다.",
-            "en": "Hold all decisions until analysis is complete."
+            "en": "Hold all decisions until analysis is complete.",
+            "ja": "分析完了まですべての決定を保留する。",
+            "zh": "在分析完成之前暂缓所有决定。"
           },
           "tone": "methodical",
           "preview_hint": {
             "ko": "→ 이사회 일부 불만. Chen 관심",
-            "en": "→ Some board dissatisfied. Chen interested."
+            "en": "→ Some board dissatisfied. Chen interested.",
+            "ja": "→ 一部取締役不満。チェン関心。",
+            "zh": "→ 部分董事不满。陈感兴趣。"
           }
         },
         {
           "id": "mcc_ch7_public",
           "text": {
             "ko": "화성 전체를 위한 발표. MCC가 주도한다.",
-            "en": "Announce it for all Mars. MCC leads."
+            "en": "Announce it for all Mars. MCC leads.",
+            "ja": "火星全体のための発表。MCCが主導する。",
+            "zh": "为整个火星宣布。MCC主导。"
           },
           "tone": "strategic",
           "preview_hint": {
             "ko": "→ 이사회 충격. 여론 MCC에 유리",
-            "en": "→ Board shocked. Public opinion shifts to MCC."
+            "en": "→ Board shocked. Public opinion shifts to MCC.",
+            "ja": "→ 取締役会衝撃。世論MCCに有利。",
+            "zh": "→ 董事会震惊。舆论向MCC倾斜。"
           }
         },
         {
           "id": "mcc_ch7_silence",
           "text": {
             "ko": "답하지 않는다. 차를 든다.",
-            "en": "No answer. Pick up the tea."
+            "en": "No answer. Pick up the tea.",
+            "ja": "答えない。茶を持つ。",
+            "zh": "不回答。端起茶杯。"
           },
           "tone": "watchful",
           "preview_hint": {
             "ko": "→ Chen이 미소 짓는다. 이사회가 얼어붙는다",
-            "en": "→ Chen smiles. The board freezes."
+            "en": "→ Chen smiles. The board freezes.",
+            "ja": "→ チェンが微笑む。取締役会が凍りつく。",
+            "zh": "→ 陈微笑。董事会僵住了。"
           }
         }
       ]
@@ -835,11 +975,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "케플러 사수",
-        "en": "Kepler Defense"
+        "en": "Kepler Defense",
+        "ja": "ケプラー防衛",
+        "zh": "开普勒防御"
       },
       "subtitle": {
         "ko": "이사회 명령 집행 — 케플러 분화구",
-        "en": "Board Order Execution — Kepler Crater"
+        "en": "Board Order Execution — Kepler Crater",
+        "ja": "取締役会命令執行 — ケプラー・クレーター",
+        "zh": "执行董事会命令 — 开普勒陨石坑"
       }
     },
     {
@@ -860,7 +1004,9 @@
           "effect": "character_enter:chen:slide_left",
           "text": {
             "ko": "이사회가 승인했어요.",
-            "en": "The board approved."
+            "en": "The board approved.",
+            "ja": "取締役会が承認したわ。",
+            "zh": "董事会批准了。"
           }
         },
         {
@@ -868,7 +1014,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이 방에서 차를 마신 것. 그것이 이유가 있었는지 나도 모르겠어요.",
-            "en": "Drinking the tea in this room. Whether that had a reason even I don't know."
+            "en": "Drinking the tea in this room. Whether that had a reason even I don't know.",
+            "ja": "この部屋で茶を飲んだこと。それに理由があったかどうか私にもわからないわ。",
+            "zh": "在这个房间里喝了茶。那是否有原因连我也不知道。"
           }
         },
         {
@@ -876,7 +1024,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그러나 오늘은 그랬어요. 그것으로 충분해요.",
-            "en": "But today it was like that. That's enough."
+            "en": "But today it was like that. That's enough.",
+            "ja": "でも今日はそうだったの。それで十分よ。",
+            "zh": "但今天就是这样。这就够了。"
           }
         }
       ]
@@ -890,7 +1040,9 @@
         {
           "text": {
             "ko": "이사회가 결정을 보류했다. 그것은 거절이었다. 이사회의 보류는 항상 거절이었다. 차가 식어 있었다. 이 방에서 차는 식지 않는다고 했다. 그것도 사실이 아닌 것 중 하나였다.",
-            "en": "The board deferred the decision. That was a rejection. Board deferrals were always rejections. The tea had cooled. They said tea never cooled in this room. That was one more thing that wasn't true."
+            "en": "The board deferred the decision. That was a rejection. Board deferrals were always rejections. The tea had cooled. They said tea never cooled in this room. That was one more thing that wasn't true.",
+            "ja": "取締役会が決定を保留した。それは拒絶だった。取締役会の保留は常に拒絶だった。茶が冷めていた。この部屋では茶は冷めないと言われていた。それも事実でないことの一つだった。",
+            "zh": "董事会推迟了决定。那是拒绝。董事会的推迟总是拒绝。茶已经凉了。据说在这个房间里茶不会凉。那也是不真实的事情之一。"
           }
         }
       ]
@@ -906,6 +1058,8 @@
           "text": {
             "ko": "Chen은 의사당을 나왔다. 차를 여전히 들고 있었다. 그러나 잔이 비어 있었다. 그것을 본 사람이 한 명 있었다. 22년 동안 비어 있는 Chen Weiss의 잔을 본 사람은 없었다. 화성에서 처음 보는 것은 드물었다. 그러나 가끔 있었다.",
             "en": "Chen left the chamber. Still holding her tea. But the cup was empty. One person saw it. In twenty-two years nobody had seen Chen Weiss's cup empty. First sightings were rare on Mars. But they happened.",
+            "ja": "チェンは議事堂を出た。まだ茶を持っていた。しかし杯は空だった。それを見た人が一人いた。22年間、チェン・ワイスの空の杯を見た人はいなかった。火星で初めて見るものは稀だった。しかし時にはあった。",
+            "zh": "陈走出了议事堂。仍然手握茶杯。但是杯子空了。有一个人看到了这一幕。22年间没有人见过陈·韦斯的杯子是空的。在火星上第一次目睹某事是罕见的。但偶尔会发生。",
             "overlay": "alone_window"
           }
         }
@@ -914,7 +1068,9 @@
         "questId": "mcc_campaign_ch8",
         "teaser": {
           "ko": "다음 — 첫 번째 만남",
-          "en": "Next — First Contact"
+          "en": "Next — First Contact",
+          "ja": "次回 — 最初の接触",
+          "zh": "下一章 — 第一次接触"
         }
       }
     }

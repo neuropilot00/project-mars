@@ -4,7 +4,9 @@
   "chapterNumber": 8,
   "title": {
     "ko": "첫 번째 만남",
-    "en": "First Contact"
+    "en": "First Contact",
+    "ja": "最初の接触",
+    "zh": "第一次接触"
   },
   "location": {
     "id": "hellas_outer_relay",
@@ -27,7 +29,9 @@
         {
           "text": {
             "ko": "헬라스 4구역. 새벽이었다. MCC 작전 구역. 정보가 왔다. CV와 FSP가 연합 기지를 운영한다는 것. 헬라스 4구역 외곽. 오래된 MCC 시설을 점령했다는 것. 확인되지 않은 정보였다. 그러나 이사회가 확인을 요청했다.",
-            "en": "Hellas Zone 4. Dawn. MCC operational area. Intelligence arrived. CV and FSP were operating a joint base. Outside Hellas Zone 4. They had occupied an old MCC facility. Unconfirmed intelligence. But the board requested confirmation."
+            "en": "Hellas Zone 4. Dawn. MCC operational area. Intelligence arrived. CV and FSP were operating a joint base. Outside Hellas Zone 4. They had occupied an old MCC facility. Unconfirmed intelligence. But the board requested confirmation.",
+            "ja": "ヘラス4区域。夜明け。MCC作戦区域。情報が来た。CVとFSPが共同基地を運営しているという。ヘラス4区域外郊。古いMCC施設を占拠したという。未確認の情報だった。しかし取締役会が確認を要求した。",
+            "zh": "赫拉斯4区。黎明。MCC作战区域。情报来了。CV和FSP正在运营一个联合基地。在赫拉斯4区外围。占领了一个旧MCC设施。未经证实的情报。但董事会要求确认。"
           }
         }
       ]
@@ -42,7 +46,9 @@
         {
           "text": {
             "ko": "정보는 짧았다. 4구역 외곽. 폐쇄된 MCC 중계소. CV 요원 다수. 그리고 무언가를 운반 중. 무엇인지 불명. 언제인지는 오늘. MCC가 많은 것을 설명하지 않았다. 이사회가 보낸 임무는 항상 그랬다.",
-            "en": "The intelligence was brief. Outside Zone 4. Closed MCC relay station. Multiple CV operatives. And something being moved. What unknown. When today. MCC left many things unexplained. Missions from the board were always like that."
+            "en": "The intelligence was brief. Outside Zone 4. Closed MCC relay station. Multiple CV operatives. And something being moved. What unknown. When today. MCC left many things unexplained. Missions from the board were always like that.",
+            "ja": "情報は短かった。4区域外郊。閉鎖されたMCC中継所。CV要員多数。そして何かを運搬中。何かは不明。いつかは今日。MCCは多くのことを説明しなかった。取締役会から来た任務は常にそうだった。",
+            "zh": "情报很简短。4区外围。关闭的MCC中继站。多名CV特工。以及某些东西正在被转移。什么东西不明。什么时候是今天。MCC没有解释很多事情。来自董事会的任务总是这样。"
           }
         }
       ]
@@ -57,7 +63,9 @@
         {
           "text": {
             "ko": "4구역 폐허였다. 30년 전에 사고가 있었던 곳이었다. Zone 12와 같은 구역이었다. 다른 갱도였다. MCC가 폐쇄했다. 3년 전. 이유는 기록에 없었다. 기록에 없는 것들이 이 행성에 많았다.",
-            "en": "Zone 4 ruins. A place where there had been an accident thirty years ago. Same zone as Zone 12. Different tunnel. MCC closed it. Three years ago. No reason in the records. There were many things on this planet with no reason in the records."
+            "en": "Zone 4 ruins. A place where there had been an accident thirty years ago. Same zone as Zone 12. Different tunnel. MCC closed it. Three years ago. No reason in the records. There were many things on this planet with no reason in the records.",
+            "ja": "4区域の廃墟だった。30年前に事故があった場所だった。ゾーン12と同じ区域だった。別の坑道だった。MCCが閉鎖した。3年前。記録に理由がなかった。この惑星には記録に理由がないものが多かった。",
+            "zh": "4区废墟。三十年前发生过事故的地方。与12区相同的区域。不同的隧道。MCC关闭了它。三年前。记录中没有原因。这个星球上有很多记录中没有原因的事情。"
           }
         }
       ]
@@ -72,7 +80,9 @@
         {
           "text": {
             "ko": "Sector 12 폐허. 헬라스 외곽. 여기서 3년 전에 사고가 있었다. MCC 보고서에는 기기 결함이라고 했다. 그러나 보고서를 쓴 사람이 누구인지는 기록이 달랐다. 여러 버전이 있었다. MCC 기록에. 그 중 어떤 것이 진실인지는 아직 모르는 일이었다.",
-            "en": "Sector 12 ruins. Outer Hellas. There had been an accident here three years ago. The MCC report said equipment failure. But records differed on who wrote the report. Multiple versions existed. In MCC records. Which was the truth was still unknown."
+            "en": "Sector 12 ruins. Outer Hellas. There had been an accident here three years ago. The MCC report said equipment failure. But records differed on who wrote the report. Multiple versions existed. In MCC records. Which was the truth was still unknown.",
+            "ja": "セクター12の廃墟。ヘラス外郊。ここで3年前に事故があった。MCC報告書には機器故障と書いてあった。しかし報告書を誰が書いたかについては記録が異なった。複数のバージョンが存在した。MCC記録に。どれが真実かはまだわからなかった。",
+            "zh": "12区废墟。赫拉斯外围。三年前这里发生了事故。MCC报告称设备故障。但记录在谁写了报告这一点上有所不同。存在多个版本。在MCC记录中。哪个是真相至今不明。"
           }
         }
       ]
@@ -87,7 +97,9 @@
         {
           "text": {
             "ko": "중계소 안이었다. 누군가 있었다. 혼자였다. 여자였다. 공구가 벨트에 걸려 있었다. 여러 개. 엔지니어의 것이었다. 손에 오일이 있었다. 작업 중이었다. 그러나 무기가 없었다. 화성 외곽에서 무기가 없는 사람은 드물었다.",
-            "en": "Inside the relay station. Someone was there. Alone. A woman. Tools hung on her belt. Several. An engineer's tools. Oil on her hands. Working. But no weapon. On the outer plains people without weapons were rare."
+            "en": "Inside the relay station. Someone was there. Alone. A woman. Tools hung on her belt. Several. An engineer's tools. Oil on her hands. Working. But no weapon. On the outer plains people without weapons were rare.",
+            "ja": "中継所の中だった。誰かがいた。一人だった。女性だった。工具がベルトに下がっていた。いくつか。エンジニアのものだった。手にオイルがあった。作業中だった。しかし武器がなかった。火星外郊で武器のない人は稀だった。",
+            "zh": "在中继站内部。有人在那里。独自一人。是个女人。工具挂在腰带上。好几个。工程师的工具。手上有油。在工作。但没有武器。在火星外围没有武器的人是罕见的。"
           }
         }
       ]
@@ -105,7 +117,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "MCC에서 왔죠.",
-            "en": "You came from MCC."
+            "en": "You came from MCC.",
+            "ja": "MCCから来たのね。",
+            "zh": "你从MCC来的。"
           }
         },
         {
@@ -113,7 +127,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "여기 오는 MCC 사람은 이유가 하나예요. 내가 뭘 옮기는지 알고 싶은 거예요. 알려줄게요. 사람이에요. 광산 사고에서 살아남은 광부. MCC 기록에는 사망으로 처리된 사람.",
-            "en": "There's only one reason an MCC person comes here. You want to know what I'm moving. I'll tell you. A person. A miner who survived a mine accident. Listed as dead in MCC records."
+            "en": "There's only one reason an MCC person comes here. You want to know what I'm moving. I'll tell you. A person. A miner who survived a mine accident. Listed as dead in MCC records.",
+            "ja": "MCC人がここに来る理由は一つよ。私が何を運んでいるか知りたいのよ。教えてあげる。人よ。鉱山事故で生き延びた鉱夫。MCC記録には死亡として処理された人。",
+            "zh": "MCC的人来这里只有一个原因。你想知道我在转移什么。我来告诉你。是一个人。一名在矿难中幸存的矿工。在MCC记录中被登记为死亡的人。"
           }
         },
         {
@@ -121,7 +137,9 @@
           "emotion": "serious",
           "text": {
             "ko": "3년 전에 나도 MCC 사람이었어요. 그래서 어떻게 처리하는지 알아요.",
-            "en": "Three years ago I was MCC too. That's how I know how they handle things."
+            "en": "Three years ago I was MCC too. That's how I know how they handle things.",
+            "ja": "3年前に私もMCCの人だったわ。だからどう処理するか知ってるの。",
+            "zh": "三年前我也是MCC的人。所以我知道他们是如何处理事情的。"
           }
         }
       ]
@@ -136,7 +154,9 @@
         {
           "text": {
             "ko": "Cinder Grace였다. 이름을 말하지 않았다. 그러나 알았다. 파일에서 봤던 눈이었다. 사진 속에서도 그 눈이 기억될 것 같다고 했다. 직접 보니 더 그랬다. 이 사람은 무언가를 지나온 사람이었다. 그것이 눈에 있었다.",
-            "en": "Cinder Grace. She hadn't said her name. But it was known. Those were the eyes from the file. Even in the photo it had seemed like eyes you'd remember. In person more so. This was someone who had been through something. It was in the eyes."
+            "en": "Cinder Grace. She hadn't said her name. But it was known. Those were the eyes from the file. Even in the photo it had seemed like eyes you'd remember. In person more so. This was someone who had been through something. It was in the eyes.",
+            "ja": "シンダー・グレースだった。名前を言わなかった。しかしわかった。ファイルで見た目だった。写真の中でもその目が記憶されるだろうと思った。直接見るとさらにそうだった。この人は何かを経てきた人だった。それが目にあった。",
+            "zh": "是辛德·格雷斯。她没有说出名字。但认出来了。那是文件里见过的眼神。即使在照片里也感觉那双眼睛会被记住。亲眼见到更是如此。这是一个经历过某些事情的人。那在眼睛里能看出来。"
           }
         }
       ]
@@ -153,7 +173,9 @@
           "emotion": "focused",
           "text": {
             "ko": "7구역 사망 3건 보고서. MCC에서 그걸 쓴 사람이 당신이에요?",
-            "en": "The Sector 7 death report. Three cases. Are you the one who wrote that in MCC."
+            "en": "The Sector 7 death report. Three cases. Are you the one who wrote that in MCC.",
+            "ja": "7区域死亡3件報告書。MCCでそれを書いた人があなた？",
+            "zh": "7区域死亡3起报告。在MCC写那份报告的人是你吗。"
           }
         },
         {
@@ -161,7 +183,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그 보고서 때문에 저 사람이 살아있어요. 그게 밖으로 나갔을 때 우리가 움직일 수 있었어요.",
-            "en": "That report is why this person is still alive. When it got out we were able to move."
+            "en": "That report is why this person is still alive. When it got out we were able to move.",
+            "ja": "その報告書のおかげであの人が生きているの。それが外に出た時、私たちが動けたのよ。",
+            "zh": "正是因为那份报告那个人还活着。它出来的时候我们才能行动。"
           }
         },
         {
@@ -169,7 +193,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그러면 오늘 여기서 무엇을 할 건지 당신이 결정해요.",
-            "en": "Then what you do here today is your decision."
+            "en": "Then what you do here today is your decision.",
+            "ja": "じゃあ今日ここで何をするかはあなたが決めて。",
+            "zh": "那么今天在这里你做什么由你决定。"
           }
         }
       ]
@@ -184,7 +210,9 @@
         {
           "text": {
             "ko": "보고서. 7구역 사망 3건. 그것을 쓴 것이 여기서 의미가 있었다. Cinder가 알고 있었다. MCC 내부에서 나온 보고서. 그것이 광부를 살렸다. MCC가 사망으로 처리한 사람을. 그것이 연결됐다. 보고서와 이 사람과 이 날과.",
-            "en": "The report. Three deaths in Sector 7. Writing it had meaning here. Cinder knew it. A report from inside MCC. It saved the miner. Someone MCC had processed as dead. It was connected. The report and this person and this day."
+            "en": "The report. Three deaths in Sector 7. Writing it had meaning here. Cinder knew it. A report from inside MCC. It saved the miner. Someone MCC had processed as dead. It was connected. The report and this person and this day.",
+            "ja": "報告書。7区域の死亡3件。それを書いたことがここで意味を持った。シンダーがそれを知っていた。MCC内部から来た報告書。それが鉱夫を救った。MCCが死亡として処理した人を。それがつながった。報告書とこの人とこの日と。",
+            "zh": "报告。7区域三起死亡。写下那份报告在这里有意义。辛德知道这一点。来自MCC内部的报告。它救了那名矿工。MCC将其处理为死亡的那个人。这些联系起来了。报告与这个人与这一天。"
           }
         }
       ]
@@ -201,7 +229,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Zone 12를 알아요?",
-            "en": "You know Zone 12."
+            "en": "You know Zone 12.",
+            "ja": "ゾーン12を知ってる？",
+            "zh": "你知道12区吗。"
           }
         },
         {
@@ -209,7 +239,9 @@
           "emotion": "serious",
           "text": {
             "ko": "나는 6년 동안 MCC 엔지니어였어요. Zone 12 보고서를 썼어요. 지지대 결함. MCC가 수정하라 했어요. 안 했어요. 일주일 후에 갱도가 무너졌어요. 11명이었어요.",
-            "en": "I was an MCC engineer for six years. I wrote the Zone 12 report. Support beam defects. MCC told me to revise. I didn't. A week later the tunnel collapsed. Eleven people."
+            "en": "I was an MCC engineer for six years. I wrote the Zone 12 report. Support beam defects. MCC told me to revise. I didn't. A week later the tunnel collapsed. Eleven people.",
+            "ja": "私は6年間MCCエンジニアだったわ。ゾーン12報告書を書いた。支柱の欠陥。MCCが修正しろと言った。しなかった。一週間後に坑道が崩落した。11人だった。",
+            "zh": "我做了六年MCC工程师。写了12区报告。支撑梁缺陷。MCC让我修改。我没有。一周后隧道崩塌了。十一个人。"
           }
         },
         {
@@ -217,7 +249,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그래서 CV에 왔어요. 그게 내 이유예요.",
-            "en": "That's why I came to CV. That's my reason."
+            "en": "That's why I came to CV. That's my reason.",
+            "ja": "だからCVに来たの。それが私の理由よ。",
+            "zh": "所以我来到了CV。那是我的原因。"
           }
         }
       ]
@@ -233,6 +267,8 @@
           "text": {
             "ko": "Zone 12. 11명. 보고서. 수정 요청. 거부. 갱도 붕괴. 그것이 Cinder Grace였다. 3년 전에 MCC에 있던 사람. 지금 CV에 있는 사람. 사이에 Zone 12가 있었다. 그것이 이 사람이 여기 있는 이유였다.",
             "en": "Zone 12. Eleven people. Report. Revision request. Refusal. Tunnel collapse. That was Cinder Grace. Someone in MCC three years ago. Someone in CV now. Zone 12 was in between. That was why this person was here.",
+            "ja": "ゾーン12。11人。報告書。修正要求。拒否。坑道崩落。それがシンダー・グレースだった。3年前にMCCにいた人。今CVにいる人。間にゾーン12があった。それがこの人がここにいる理由だった。",
+            "zh": "12区。十一个人。报告。修改要求。拒绝。隧道崩塌。那就是辛德·格雷斯。三年前在MCC的人。现在在CV的人。中间有12区。那是这个人在这里的原因。",
             "overlay": "collapse_debris"
           }
         }
@@ -250,7 +286,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신이 MCC에 있는 이유가 뭐예요?",
-            "en": "What's your reason for being in MCC."
+            "en": "What's your reason for being in MCC.",
+            "ja": "あなたがMCCにいる理由は何？",
+            "zh": "你在MCC的原因是什么。"
           }
         },
         {
@@ -258,7 +296,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "7구역 보고서. 사실을 썼어요. MCC가 원하는 방식이 아니라. 그게 이유의 일부예요?",
-            "en": "The Sector 7 report. You wrote the truth. Not the way MCC wanted. Is that part of a reason."
+            "en": "The Sector 7 report. You wrote the truth. Not the way MCC wanted. Is that part of a reason.",
+            "ja": "7区域報告書。真実を書いた。MCCが望む方法ではなく。それが理由の一部？",
+            "zh": "7区域报告。你写了真相。不是MCC想要的方式。那是原因的一部分吗。"
           }
         },
         {
@@ -266,7 +306,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이유가 있는 사람과 없는 사람은 달라요. 화성에서. 여기서.",
-            "en": "People with reasons and without are different. On Mars. Here."
+            "en": "People with reasons and without are different. On Mars. Here.",
+            "ja": "理由がある人とない人は違うの。火星で。ここで。",
+            "zh": "有原因的人和没有原因的人是不同的。在火星上。在这里。"
           }
         }
       ]
@@ -281,7 +323,9 @@
         {
           "text": {
             "ko": "먼지 폭풍이 왔다. 화성의 먼지 폭풍. 시야가 좁아졌다. 중계소 외부가 보이지 않았다. 먼지 폭풍 속에서 MCC 팀이 접근하고 있었다. 이 임무를 모르는 MCC 팀이. 표준 절차대로. CV 요원 발견 시 제압.",
-            "en": "A dust storm came. Mars's dust storm. Visibility narrowed. Outside the relay station was invisible. Through the dust storm an MCC team was approaching. An MCC team that didn't know about this mission. Standard procedure. Neutralize on CV operative detection."
+            "en": "A dust storm came. Mars's dust storm. Visibility narrowed. Outside the relay station was invisible. Through the dust storm an MCC team was approaching. An MCC team that didn't know about this mission. Standard procedure. Neutralize on CV operative detection.",
+            "ja": "砂嵐が来た。火星の砂嵐。視界が狭まった。中継所の外部が見えなくなった。砂嵐の中でMCCチームが接近していた。この任務を知らないMCCチームが。標準手順で。CV要員発見時制圧。",
+            "zh": "沙尘暴来了。火星的沙尘暴。视野变窄了。中继站外部看不见了。在沙尘暴中MCC团队正在接近。不知道这个任务的MCC团队。按标准程序。发现CV特工时制压。"
           }
         }
       ]
@@ -298,7 +342,9 @@
           "emotion": "tense",
           "text": {
             "ko": "MCC 팀이 와요. 당신이 보낸 게 아니에요?",
-            "en": "MCC team coming. You didn't send them."
+            "en": "MCC team coming. You didn't send them.",
+            "ja": "MCCチームが来るわ。あなたが送ったんじゃないの？",
+            "zh": "MCC团队来了。不是你派来的？"
           }
         },
         {
@@ -306,7 +352,9 @@
           "emotion": "serious",
           "text": {
             "ko": "광부가 여기 있어요. 기록에 없는 사람. MCC가 보면 없애요. 당신도 알겠지만.",
-            "en": "The miner is here. A person not in the records. MCC sees and eliminates. You know that."
+            "en": "The miner is here. A person not in the records. MCC sees and eliminates. You know that.",
+            "ja": "鉱夫がここにいる。記録にない人。MCCが見たら消す。あなたもわかるでしょ。",
+            "zh": "矿工在这里。不在记录中的人。MCC看到就会消灭。你也知道的。"
           }
         }
       ]
@@ -322,6 +370,8 @@
           "text": {
             "ko": "광부가 있었다. 구석에. 숨어 있었다. 노인이었다. 60대. 오일이 손에 있었다. 광부였다. 기록에는 사망이었다. 3년 전에. Cinder가 말한 것이었다. MCC 기록에 사망으로 처리된 사람. 살아있었다. 여기서.",
             "en": "The miner was there. In the corner. Hidden. Old. Sixties. Oil on the hands. A miner. Listed as dead in the records. Three years ago. What Cinder had said. Someone processed as dead in MCC records. Alive. Here.",
+            "ja": "鉱夫がいた。角に。隠れていた。老人だった。60代。手にオイルがあった。鉱夫だった。記録には死亡だった。3年前に。シンダーが言ったことだった。MCC記録に死亡として処理された人。生きていた。ここで。",
+            "zh": "矿工在那里。在角落里。躲着。老人。六十多岁。手上有油。是名矿工。记录上显示死亡。三年前。辛德说过的事。在MCC记录中被处理为死亡的人。活着。在这里。",
             "overlay": "death_still"
           }
         }
@@ -339,7 +389,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이분은 3년 동안 숨어살았어요. Zone 12 이후에. MCC가 목격자를 없애는 방식을 알아요. 그 방식이었어요.",
-            "en": "This person has been hiding for three years. After Zone 12. You know MCC's method of eliminating witnesses. It was that method."
+            "en": "This person has been hiding for three years. After Zone 12. You know MCC's method of eliminating witnesses. It was that method.",
+            "ja": "この方は3年間隠れて暮らしていたわ。ゾーン12以降に。MCCが目撃者を消す方法を知っているでしょ。その方法だったのよ。",
+            "zh": "这位老人躲藏了三年。在12区事故之后。你知道MCC消灭目击者的方式。就是那种方式。"
           }
         },
         {
@@ -347,7 +399,9 @@
           "emotion": "serious",
           "text": {
             "ko": "기록에 남길 사람이 필요해요. 이분이 본 것을. Zone 12에서. 누군가 적어야 해요.",
-            "en": "Need someone to put it in the record. What this person saw. At Zone 12. Someone must write it down."
+            "en": "Need someone to put it in the record. What this person saw. At Zone 12. Someone must write it down.",
+            "ja": "記録に残す人が必要なの。この方が見たことを。ゾーン12で。誰かが書かなければならない。",
+            "zh": "需要有人把它记录下来。这位老人看到的事情。在12区。必须有人把它写下来。"
           }
         }
       ]
@@ -362,7 +416,9 @@
         {
           "text": {
             "ko": "Zone 12 목격자였다. 3년을 숨어살았다. MCC 기록에는 사망이었다. 살아있었다. 그리고 기록이 필요했다. 본 것을. Cinder가 그것을 위해 움직이고 있었다. 공구를 들고. MCC 출신 엔지니어가. CV 사람이 되어서.",
-            "en": "A Zone 12 witness. Hidden for three years. Listed as dead in MCC records. Alive. And records were needed. Of what was seen. Cinder was moving for that. With tools. An engineer from MCC. Now a CV person."
+            "en": "A Zone 12 witness. Hidden for three years. Listed as dead in MCC records. Alive. And records were needed. Of what was seen. Cinder was moving for that. With tools. An engineer from MCC. Now a CV person.",
+            "ja": "ゾーン12の目撃者だった。3年間隠れて暮らした。MCC記録には死亡だった。生きていた。そして記録が必要だった。見たことを。シンダーがそれのために動いていた。工具を持って。MCC出身のエンジニアが。CV人になって。",
+            "zh": "是12区的目击者。躲藏了三年。MCC记录上显示死亡。活着。需要记录。关于所见之事。辛德为此在行动。手持工具。来自MCC的工程师。成为CV的人。"
           }
         }
       ]
@@ -379,7 +435,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "당신이 MCC에 있는 이유가 있다고 봐요. 7구역 보고서 때문에.",
-            "en": "I think you have a reason for being in MCC. Because of the Sector 7 report."
+            "en": "I think you have a reason for being in MCC. Because of the Sector 7 report.",
+            "ja": "あなたがMCCにいる理由があると思う。7区域報告書のために。",
+            "zh": "我认为你在MCC是有原因的。因为7区域报告。"
           }
         },
         {
@@ -387,7 +445,9 @@
           "emotion": "calm",
           "text": {
             "ko": "그게 이유라면 오늘 여기서 어떻게 할지 알 것 같아요.",
-            "en": "If that's the reason I think I know what you'll do here today."
+            "en": "If that's the reason I think I know what you'll do here today.",
+            "ja": "それが理由なら今日ここで何をするかわかる気がする。",
+            "zh": "如果那是原因，我想我知道你今天在这里会做什么。"
           }
         },
         {
@@ -395,7 +455,9 @@
           "emotion": "serious",
           "text": {
             "ko": "나를 죽이려 하지 않는 게 이상해요. 내가 CV예요. 당신이 MCC예요.",
-            "en": "It's strange that you're not trying to kill me. I'm CV. You're MCC."
+            "en": "It's strange that you're not trying to kill me. I'm CV. You're MCC.",
+            "ja": "私を殺そうとしないのが不思議よ。私はCVよ。あなたはMCC。",
+            "zh": "你不试图杀我这很奇怪。我是CV。你是MCC。"
           }
         }
       ]
@@ -410,7 +472,9 @@
         {
           "text": {
             "ko": "Cinder가 죽이려 하지 않았다. 그것이 이상한 것이었다. CV가 MCC를 만나면 전투였다. 항상 그랬다. 그러나 이 사람은 말하고 있었다. 공구를 들고. 이유를 물어보고 있었다. 그것이 무엇을 의미하는지. 아직 알 수 없었다.",
-            "en": "Cinder wasn't trying to kill. That was the strange thing. When CV met MCC it was battle. Always. But this person was talking. Holding tools. Asking about reasons. What that meant. Still unknown."
+            "en": "Cinder wasn't trying to kill. That was the strange thing. When CV met MCC it was battle. Always. But this person was talking. Holding tools. Asking about reasons. What that meant. Still unknown.",
+            "ja": "シンダーが殺そうとしなかった。それが奇妙なことだった。CVがMCCに会えば戦闘だった。常に。しかしこの人は話していた。工具を持って。理由を聞いていた。それが何を意味するのか。まだわからなかった。",
+            "zh": "辛德没有试图杀死。那是奇怪的事情。CV遇到MCC就是战斗。总是这样。但这个人在说话。手持工具。在询问原因。那意味着什么。还不知道。"
           }
         }
       ]
@@ -427,7 +491,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "MCC에서 싸우는 방법이 있어요. 보고서를 쓰는 것. 기록에 남기는 것. 그게 안에서 싸우는 방법이에요.",
-            "en": "There's a way to fight inside MCC. Writing reports. Putting things in the record. That's the way to fight from inside."
+            "en": "There's a way to fight inside MCC. Writing reports. Putting things in the record. That's the way to fight from inside.",
+            "ja": "MCC内で戦う方法があるの。報告書を書くこと。記録に残すこと。それが内側から戦う方法よ。",
+            "zh": "在MCC内部有一种战斗方式。写报告。把事情记录下来。那是从内部战斗的方式。"
           }
         },
         {
@@ -435,7 +501,9 @@
           "emotion": "serious",
           "text": {
             "ko": "나는 그 방법을 몰랐어요. 그래서 밖으로 나왔어요. CV로.",
-            "en": "I didn't know that way. So I went outside. To CV."
+            "en": "I didn't know that way. So I went outside. To CV.",
+            "ja": "私はその方法を知らなかった。だから外に出た。CVへ。",
+            "zh": "我不知道那种方式。所以我出来了。去了CV。"
           }
         },
         {
@@ -443,7 +511,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "당신은 안에 있는 방법을 알아요. 그게 더 어려운 거예요.",
-            "en": "You know the inside way. That's the harder thing."
+            "en": "You know the inside way. That's the harder thing.",
+            "ja": "あなたは内側の方法を知っている。それがより難しいことよ。",
+            "zh": "你知道内部的方式。那是更难的事情。"
           }
         }
       ]
@@ -458,7 +528,9 @@
         {
           "text": {
             "ko": "먼지 폭풍이 강해졌다. MCC 팀의 소리가 가까워졌다. 중계소 외벽에서. 분 단위였다. 결정해야 했다. Cinder와 광부. 임무. MCC 팀. 그리고 이유. 이유가 있는 사람과 없는 사람의 차이.",
-            "en": "The dust storm strengthened. MCC team sounds grew closer. At the relay station's outer wall. Minutes away. Had to decide. Cinder and the miner. The mission. MCC team. And reason. The difference between people with reasons and without."
+            "en": "The dust storm strengthened. MCC team sounds grew closer. At the relay station's outer wall. Minutes away. Had to decide. Cinder and the miner. The mission. MCC team. And reason. The difference between people with reasons and without.",
+            "ja": "砂嵐が強くなった。MCCチームの音が近づいた。中継所の外壁で。数分単位だった。決定しなければならなかった。シンダーと鉱夫。任務。MCCチーム。そして理由。理由がある人とない人の違い。",
+            "zh": "沙尘暴加强了。MCC团队的声音越来越近。在中继站外墙。分钟级别的距离。必须做决定。辛德和矿工。任务。MCC团队。还有原因。有原因的人和没有原因的人之间的差异。"
           }
         }
       ]
@@ -475,7 +547,9 @@
           "emotion": "tense",
           "text": {
             "ko": "3분 있어요. 그 안에 결정해요.",
-            "en": "Three minutes. Decide within that."
+            "en": "Three minutes. Decide within that.",
+            "ja": "3分ある。その中で決めて。",
+            "zh": "还有三分钟。在那之内决定。"
           }
         },
         {
@@ -483,7 +557,9 @@
           "emotion": "calm",
           "text": {
             "ko": "나는 이 사람과 나갈 거예요. 당신이 막으면 싸워요. 막지 않으면 싸우지 않아요.",
-            "en": "I'm leaving with this person. If you block me we fight. If not we don't."
+            "en": "I'm leaving with this person. If you block me we fight. If not we don't.",
+            "ja": "私はこの人と出るわ。あなたが阻んだら戦う。阻まなければ戦わない。",
+            "zh": "我要带这个人离开。如果你阻止我们就打。不阻止就不打。"
           }
         },
         {
@@ -491,7 +567,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신 선택이에요.",
-            "en": "It's your choice."
+            "en": "It's your choice.",
+            "ja": "あなたの選択よ。",
+            "zh": "这是你的选择。"
           }
         }
       ]
@@ -506,7 +584,9 @@
         {
           "text": {
             "ko": "Cinder가 기다렸다. 공구를 들고. 광부가 구석에 있었다. 먼지 폭풍 소리가 들렸다. 그리고 MCC 팀 소리도 들렸다. 두 가지 소리. 어느 쪽이 더 가까운지. 그것이 지금 이 순간 가장 중요한 것이었다.",
-            "en": "Cinder waited. Holding tools. The miner was in the corner. Dust storm sounds were heard. And MCC team sounds too. Two kinds of sound. Which was closer. That was what mattered most right now."
+            "en": "Cinder waited. Holding tools. The miner was in the corner. Dust storm sounds were heard. And MCC team sounds too. Two kinds of sound. Which was closer. That was what mattered most right now.",
+            "ja": "シンダーが待った。工具を持って。鉱夫が角にいた。砂嵐の音が聞こえた。そしてMCCチームの音も聞こえた。二種類の音。どちらが近いか。それが今この瞬間最も重要なことだった。",
+            "zh": "辛德等待着。手持工具。矿工在角落里。能听到沙尘暴的声音。也能听到MCC团队的声音。两种声音。哪个更近。那是此刻最重要的事情。"
           }
         }
       ]
@@ -523,7 +603,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Zone 12에서 살아남은 사람이 있어요. 말할 사람이 없었어요. 3년 동안.",
-            "en": "There's a survivor from Zone 12. There was nobody to speak to. For three years."
+            "en": "There's a survivor from Zone 12. There was nobody to speak to. For three years.",
+            "ja": "ゾーン12から生き残った人がいる。話す人がいなかった。3年間。",
+            "zh": "有一个从12区幸存下来的人。三年里没有人可以倾诉。"
           }
         },
         {
@@ -531,7 +613,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이분이 본 것을 기록으로 남기면 달라져요. MCC 이사회 앞에서도 달라져요.",
-            "en": "If what this person saw is put on record things change. Even before the MCC board things change."
+            "en": "If what this person saw is put on record things change. Even before the MCC board things change.",
+            "ja": "この方が見たことを記録に残せば変わるの。MCC取締役会の前でも変わるの。",
+            "zh": "如果这位老人看到的事情被记录下来，情况就会改变。即使在MCC董事会面前情况也会改变。"
           }
         }
       ]
@@ -546,7 +630,9 @@
         {
           "text": {
             "ko": "이사회. 원형 테이블. 일곱 명. 표정 없는 사람들. 그들이 알고 있었다. 그러나 당신 입으로 듣기를 원했다. 그 기억이 여기서 달랐다. 이 사람이 본 것. Zone 12에서. 그것을 기록으로 남기면. 이사회 앞에서도 달라질 수 있는 것이었다.",
-            "en": "The board. Circular table. Seven people. Expressionless. They knew. But they wanted to hear it from you. That memory was different here. What this person saw. At Zone 12. If it was put on record. Even before the board things could change."
+            "en": "The board. Circular table. Seven people. Expressionless. They knew. But they wanted to hear it from you. That memory was different here. What this person saw. At Zone 12. If it was put on record. Even before the board things could change.",
+            "ja": "取締役会。円形テーブル。七人。表情のない人々。彼らは知っていた。しかしあなたの口から聞きたかった。その記憶がここでは違った。この人が見たこと。ゾーン12で。それを記録に残せば。取締役会の前でも変わることができた。",
+            "zh": "董事会。圆形桌子。七个人。没有表情的人们。他们知道。但是想从你口中听到。那段记忆在这里不同。这个人看到的事情。在12区。如果把它记录下来。即使在董事会面前也可能有所改变。"
           }
         }
       ]
@@ -563,7 +649,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "당신이 어느 쪽인지 아직 모르겠어요.",
-            "en": "I still don't know which side you're on."
+            "en": "I still don't know which side you're on.",
+            "ja": "あなたがどちら側かまだわからない。",
+            "zh": "我仍然不知道你站在哪一边。"
           }
         },
         {
@@ -571,7 +659,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그게 그나마 나은 것 같기도 해요. 어느 쪽인지 모르는 사람이 가장 위험하거나. 가장 희망이 있거나.",
-            "en": "Maybe that's the better thing. Someone whose side is unknown is either the most dangerous. Or the most hopeful."
+            "en": "Maybe that's the better thing. Someone whose side is unknown is either the most dangerous. Or the most hopeful.",
+            "ja": "それがまだしもよいことかもしれない。どちら側かわからない人が最も危険か。または最も希望があるか。",
+            "zh": "也许那是更好的事情。不知道站在哪一边的人要么最危险。要么最有希望。"
           }
         }
       ]
@@ -586,7 +676,9 @@
         {
           "text": {
             "ko": "MCC 팀이 외벽에 도달했다. 먼지 폭풍 속에서. 중계소 문 앞이었다. 30초. 그것이 결정 시간이었다. 임무. 또는 이유. 어느 쪽이 이 순간 더 무게가 있는가.",
-            "en": "MCC team reached the outer wall. Through the dust storm. At the relay station door. Thirty seconds. That was the decision time. Mission. Or reason. Which carried more weight in this moment."
+            "en": "MCC team reached the outer wall. Through the dust storm. At the relay station door. Thirty seconds. That was the decision time. Mission. Or reason. Which carried more weight in this moment.",
+            "ja": "MCCチームが外壁に到達した。砂嵐の中で。中継所の扉の前だった。30秒。それが決定の時間だった。任務。または理由。どちらがこの瞬間より重みがあるか。",
+            "zh": "MCC团队到达了外墙。在沙尘暴中。在中继站门前。三十秒。那是决定的时间。任务。或者原因。哪个在这一刻更有分量。"
           }
         }
       ]
@@ -603,7 +695,9 @@
           "emotion": "serious",
           "text": {
             "ko": "시간이 없어요. 지금이에요.",
-            "en": "No time. Now."
+            "en": "No time. Now.",
+            "ja": "時間がない。今よ。",
+            "zh": "没有时间了。就是现在。"
           }
         }
       ]
@@ -618,7 +712,9 @@
         {
           "text": {
             "ko": "이 순간이었다. Cinder Grace. Zone 12. 11명. 광부 노인. 기록. MCC 팀. 임무. 그것들이 모두 이 방에 있었다. 먼지 폭풍 소리와 함께. 공구 소리와 함께.",
-            "en": "This was the moment. Cinder Grace. Zone 12. Eleven people. Old miner. Records. MCC team. Mission. All of it was in this room. With dust storm sounds. With tool sounds."
+            "en": "This was the moment. Cinder Grace. Zone 12. Eleven people. Old miner. Records. MCC team. Mission. All of it was in this room. With dust storm sounds. With tool sounds.",
+            "ja": "この瞬間だった。シンダー・グレース。ゾーン12。11人。老鉱夫。記録。MCCチーム。任務。それらすべてがこの部屋にあった。砂嵐の音とともに。工具の音とともに。",
+            "zh": "就是这一刻。辛德·格雷斯。12区。十一个人。老矿工。记录。MCC团队。任务。所有这些都在这个房间里。伴随着沙尘暴的声音。伴随着工具的声音。"
           }
         }
       ]
@@ -630,55 +726,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Cinder Grace가 기다린다. MCC가 문 앞에 있다. 이유와 임무 사이에서.",
-        "en": "Cinder Grace waits. MCC is at the door. Between reason and mission."
+        "en": "Cinder Grace waits. MCC is at the door. Between reason and mission.",
+        "ja": "シンダー・グレースが待っている。MCCが扉の前にいる。理由と任務の間で。",
+        "zh": "辛德·格雷斯在等待。MCC在门口。在原因和任务之间。"
       },
       "choices": [
         {
           "id": "mcc_ch8_arrest",
           "text": {
             "ko": "임무를 완수한다. CV 요원 제압.",
-            "en": "Complete the mission. Neutralize the CV operative."
+            "en": "Complete the mission. Neutralize the CV operative.",
+            "ja": "任務を完遂する。CV要員を制圧。",
+            "zh": "完成任务。制压CV特工。"
           },
           "tone": "loyal",
           "preview_hint": {
             "ko": "→ MCC 충성 완수. Cinder와 적대",
-            "en": "→ MCC loyalty fulfilled. Cinder becomes enemy."
+            "en": "→ MCC loyalty fulfilled. Cinder becomes enemy.",
+            "ja": "→ MCC忠誠完遂。シンダーと敵対。",
+            "zh": "→ 完成对MCC的忠诚。与辛德为敌。"
           }
         },
         {
           "id": "mcc_ch8_let_go",
           "text": {
             "ko": "보내준다. 본 것은 없다.",
-            "en": "Let her go. You saw nothing."
+            "en": "Let her go. You saw nothing.",
+            "ja": "行かせる。何も見なかった。",
+            "zh": "放她走。什么都没看见。"
           },
           "tone": "human",
           "preview_hint": {
             "ko": "→ CV 중립 유지. MCC에 보고 없음",
-            "en": "→ CV neutrality maintained. No MCC report."
+            "en": "→ CV neutrality maintained. No MCC report.",
+            "ja": "→ CV中立維持。MCCへの報告なし。",
+            "zh": "→ 维持CV中立。不向MCC报告。"
           }
         },
         {
           "id": "mcc_ch8_negotiate",
           "text": {
             "ko": "Cinder에게 Zone 12 증언을 기록할 것을 제안한다.",
-            "en": "Propose to Cinder that the Zone 12 testimony be recorded."
+            "en": "Propose to Cinder that the Zone 12 testimony be recorded.",
+            "ja": "シンダーにゾーン12の証言を記録することを提案する。",
+            "zh": "向辛德提议记录12区的证词。"
           },
           "tone": "strategic",
           "preview_hint": {
             "ko": "→ 정보 교환. 복잡한 연대 시작",
-            "en": "→ Information exchange. Complex alliance begins."
+            "en": "→ Information exchange. Complex alliance begins.",
+            "ja": "→ 情報交換。複雑な連帯が始まる。",
+            "zh": "→ 信息交换。复杂的联盟开始。"
           }
         },
         {
           "id": "mcc_ch8_join",
           "text": {
             "ko": "광부와 함께 이송한다.",
-            "en": "Help transport the miner together."
+            "en": "Help transport the miner together.",
+            "ja": "鉱夫と一緒に移送する。",
+            "zh": "一起协助转移矿工。"
           },
           "tone": "defiant",
           "preview_hint": {
             "ko": "→ MCC와 결별 시작. Cinder 신뢰 +",
-            "en": "→ Break with MCC begins. Cinder trust +."
+            "en": "→ Break with MCC begins. Cinder trust +.",
+            "ja": "→ MCCとの決別が始まる。シンダー信頼 +。",
+            "zh": "→ 与MCC决裂开始。辛德信任 +。"
           }
         }
       ]
@@ -691,11 +805,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "헬라스 4구역",
-        "en": "Hellas Zone 4"
+        "en": "Hellas Zone 4",
+        "ja": "ヘラス4区域",
+        "zh": "赫拉斯4区"
       },
       "subtitle": {
         "ko": "헬라스 외곽 — 이유와 임무",
-        "en": "Outer Hellas — Reason and Mission"
+        "en": "Outer Hellas — Reason and Mission",
+        "ja": "ヘラス外郊 — 理由と任務",
+        "zh": "赫拉斯外围 — 原因与任务"
       }
     },
     {
@@ -716,7 +834,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "당신이 어느 쪽인지 아직 모르겠어요.",
-            "en": "I still don't know which side you're on."
+            "en": "I still don't know which side you're on.",
+            "ja": "あなたがどちら側かまだわからない。",
+            "zh": "我仍然不知道你站在哪一边。"
           }
         },
         {
@@ -724,7 +844,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그게 그나마 나은 것 같기도 해요.",
-            "en": "Maybe that's the better thing."
+            "en": "Maybe that's the better thing.",
+            "ja": "それがまだしもよいことかもしれない。",
+            "zh": "也许那是更好的事情。"
           }
         },
         {
@@ -732,7 +854,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Zone 12 증언이 기록되면 연락해요. 내가 도울 수 있는 게 있어요.",
-            "en": "When the Zone 12 testimony is recorded contact me. There are things I can help with."
+            "en": "When the Zone 12 testimony is recorded contact me. There are things I can help with.",
+            "ja": "ゾーン12の証言が記録されたら連絡して。私が助けられることがあるわ。",
+            "zh": "当12区的证词被记录下来时联系我。有些事情我可以帮忙。"
           }
         }
       ]
@@ -746,7 +870,9 @@
         {
           "text": {
             "ko": "Cinder Grace는 갔다. 광부도 갔다. MCC는 그것을 알게 될 것이었다. MCC는 항상 알게 됐다. 중계소는 폐쇄된 채 남았다. 기록에는 여전히 아무것도 없었다.",
-            "en": "Cinder Grace was gone. The miner was gone. MCC would find out. MCC always found out. The relay station remained closed. There was still nothing in the records."
+            "en": "Cinder Grace was gone. The miner was gone. MCC would find out. MCC always found out. The relay station remained closed. There was still nothing in the records.",
+            "ja": "シンダー・グレースは去った。鉱夫も去った。MCCはそれを知ることになるだろう。MCCは常に知ることになった。中継所は閉鎖されたまま残った。記録にはまだ何もなかった。",
+            "zh": "辛德·格雷斯走了。矿工也走了。MCC会发现的。MCC总是会发现。中继站仍然关闭着。记录里还是什么都没有。"
           }
         }
       ]
@@ -762,6 +888,8 @@
           "text": {
             "ko": "새벽이었다. 헬라스 4구역 외곽. 먼지 폭풍이 지나갔다. 화성의 새벽은 지구와 달랐다. 더 붉었다. 해가 더 작았다. Cinder Grace가 걸어가는 방향에 그 빛이 있었다. 어디서 왔는지를 알 것 같은 사람이었다. 어디로 가는지는 아직 몰랐다.",
             "en": "Dawn. Outside Hellas Zone 4. The dust storm had passed. Mars's dawn was different from Earth's. Redder. The sun smaller. In the direction Cinder Grace walked was that light. She was someone you felt you could understand where she'd come from. Where she was going was still unknown.",
+            "ja": "夜明けだった。ヘラス4区域外郊。砂嵐が過ぎた。火星の夜明けは地球と違った。より赤かった。太陽がより小さかった。シンダー・グレースが歩いていく方向にその光があった。どこから来たかがわかりそうな人だった。どこへ行くかはまだわからなかった。",
+            "zh": "黎明。赫拉斯4区外围。沙尘暴过去了。火星的黎明与地球不同。更红。太阳更小。辛德·格雷斯走去的方向有那道光。是一个你感觉能理解她从哪里来的人。她去哪里还不知道。",
             "overlay": "mars_horizon"
           }
         }
@@ -770,7 +898,9 @@
         "questId": "mcc_campaign_ch9",
         "teaser": {
           "ko": "다음 — 세 개의 깃발",
-          "en": "Next — Three Flags"
+          "en": "Next — Three Flags",
+          "ja": "次回 — 三つの旗",
+          "zh": "下一章 — 三面旗帜"
         }
       }
     }

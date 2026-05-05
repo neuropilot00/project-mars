@@ -4,7 +4,9 @@
   "chapterNumber": 4,
   "title": {
     "ko": "Sandstone 약속",
-    "en": "The Sandstone Promise"
+    "en": "The Sandstone Promise",
+    "ja": "サンドストーンの約束",
+    "zh": "砂岩誓约"
   },
   "location": {
     "id": "sandstone_junction",
@@ -29,7 +31,9 @@
         {
           "text": {
             "ko": "샌드스톤 교차로. 화성 중부. 어느 파벌의 영토도 아닌 곳이었다. 그래서 세 파벌이 모두 거쳐가는 곳이었다. 모래가 붉었다. 모래 위에 오래된 발자국들이 있었다. 모두 다른 방향에서 왔다. 모두 다른 방향으로 갔다.",
-            "en": "Sandstone Junction. Central Mars. Not in any faction's territory. Which was why all three factions passed through it. The sand was red. Old footprints on the sand. All came from different directions. All left in different directions."
+            "en": "Sandstone Junction. Central Mars. Not in any faction's territory. Which was why all three factions passed through it. The sand was red. Old footprints on the sand. All came from different directions. All left in different directions.",
+            "ja": "サンドストーン交差点。火星中部。いかなる派閥の領土でもない場所だった。だから三つの派閥がすべて通り過ぎる場所だった。砂は赤かった。砂の上に古い足跡があった。みな異なる方向から来た。みな異なる方向へ去った。",
+            "zh": "砂岩交汇点。火星中部。不属于任何派系的领地。正因如此，三个派系都会途经此地。沙是红色的。沙上有古老的脚印。都来自不同方向。都走向不同方向。"
           }
         }
       ]
@@ -44,7 +48,9 @@
         {
           "text": {
             "ko": "샌드스톤. 모래와 돌. 이름이 붙은 이유가 있었다. 여기서 세 개 방향으로 길이 갈렸다. 헬라스. 에레부스. 올림포스. 세 방향이었다. 그 사이 어딘가에 MCC가 있었다. 보이지 않지만 있었다.",
-            "en": "Sandstone. Sand and stone. The name had a reason. Here the road split in three. Hellas. Erebus. Olympus. Three directions. Somewhere between them MCC existed. Not visible but present."
+            "en": "Sandstone. Sand and stone. The name had a reason. Here the road split in three. Hellas. Erebus. Olympus. Three directions. Somewhere between them MCC existed. Not visible but present.",
+            "ja": "サンドストーン。砂と石。名の由来がある場所だった。ここで道は三つに分かれた。ヘラス。エレバス。オリンポス。三つの方向。その間のどこかにMCCがあった。見えないが、確かにあった。",
+            "zh": "砂岩。沙与石。名字有其来由。路在此分叉为三。赫拉斯。埃雷伯斯。奥林匹斯。三个方向。MCC就在某处夹缝之间。看不见，却存在着。"
           }
         }
       ]
@@ -59,7 +65,9 @@
         {
           "text": {
             "ko": "Cinder Grace가 먼저 와 있었다. CV였다. 공구 벨트가 있었다. 손에 오일이 있었다. 이 사람은 어디서든 일하는 사람이었다. 일이 없을 때도 일하는 것처럼 보이는 사람이었다. 그것이 그녀의 방식이었다.",
-            "en": "Cinder Grace had arrived first. CV. Tool belt. Oil on her hands. This was someone who worked everywhere. Even when there was no work she looked like she was working. That was her way."
+            "en": "Cinder Grace had arrived first. CV. Tool belt. Oil on her hands. This was someone who worked everywhere. Even when there was no work she looked like she was working. That was her way.",
+            "ja": "シンダー・グレースが先に来ていた。CVだった。工具ベルトがあった。手にオイルがあった。この人物はどこでも働く人だった。仕事がないときでも仕事をしているように見える人だった。それが彼女のやり方だった。",
+            "zh": "辛德·格雷斯先到了。CV成员。工具腰带。手上沾着机油。这个人无论在哪都在劳作。就算没有活儿干，看起来也像在工作。那就是她的方式。"
           }
         }
       ]
@@ -74,7 +82,9 @@
         {
           "text": {
             "ko": "공구 벨트를 보면 알 수 있었다. 닳은 것들이었다. 많이 쓴 것들. 아무렇게나 쓴 것이 아니었다. 정밀하게 쓴 것들이었다. 공구는 쓰는 사람을 말했다. 이 사람은 고치는 사람이었다. 부수는 사람이 아니었다. 그 두 가지가 다른 것이었다.",
-            "en": "The tool belt told you. Worn things. Much used. Not used carelessly. Used precisely. Tools spoke of who used them. This person was a repairer. Not a destroyer. Those two were different."
+            "en": "The tool belt told you. Worn things. Much used. Not used carelessly. Used precisely. Tools spoke of who used them. This person was a repairer. Not a destroyer. Those two were different.",
+            "ja": "工具ベルトを見ればわかった。擦り切れたものたちだった。よく使ったもの。乱雑に使ったのではなかった。精密に使われたものだった。道具はそれを使う者を語る。この人物は修繕者だった。破壊者ではなかった。その二つは別物だった。",
+            "zh": "看工具腰带便知端倪。磨损的东西。用得很多。不是随意使用的。是精密使用的。工具诉说使用者是谁。这个人是修缮者。不是破坏者。两者截然不同。"
           }
         }
       ]
@@ -92,7 +102,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "FSP가 왔군요.",
-            "en": "FSP came."
+            "en": "FSP came.",
+            "ja": "FSPが来たんですね。",
+            "zh": "FSP来了。"
           }
         },
         {
@@ -100,7 +112,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Butcher가 이 회의를 원하지 않았어요. 내가 설득했어요. 오래 걸렸어요.",
-            "en": "Butcher didn't want this meeting. I convinced him. It took a long time."
+            "en": "Butcher didn't want this meeting. I convinced him. It took a long time.",
+            "ja": "ブッチャーはこの会談を望んでいなかった。私が説得した。時間がかかりました。",
+            "zh": "布切尔不想要这次会面。是我说服他的。花了很长时间。"
           }
         },
         {
@@ -108,7 +122,9 @@
           "emotion": "serious",
           "text": {
             "ko": "한 번만 해요. 오늘 여기서 약속하면 그것은 약속이에요. CV는 약속을 기억해요. 광산에서 배운 거예요.",
-            "en": "Once only. If a promise is made here today it is a promise. CV remembers promises. Learned that in the mines."
+            "en": "Once only. If a promise is made here today it is a promise. CV remembers promises. Learned that in the mines.",
+            "ja": "一度だけです。今日ここで約束したなら、それは約束です。CVは約束を覚えている。鉱山で学んだことです。",
+            "zh": "只有这一次。今天在这里立下的约定就是约定。CV记得承诺。是在矿山里学到的。"
           }
         }
       ]
@@ -123,7 +139,9 @@
         {
           "text": {
             "ko": "Cinder가 공구 벨트를 손으로 훑었다. 무의식적인 것이었다. 이것이 그녀에게 확인이었다. 다 있는지. 없어진 것이 없는지. 있는 것들을 확인하는 사람이었다. 없어진 것을 찾는 사람이 아니었다.",
-            "en": "Cinder ran her hand over the tool belt. Unconscious. This was her check. Whether everything was there. Nothing missing. She was a person who confirmed what was present. Not a person who searched for what was lost."
+            "en": "Cinder ran her hand over the tool belt. Unconscious. This was her check. Whether everything was there. Nothing missing. She was a person who confirmed what was present. Not a person who searched for what was lost.",
+            "ja": "シンダーは工具ベルトを手でなぞった。無意識のことだった。これが彼女の確認だった。全部あるか。なくなったものはないか。あるものを確認する人だった。なくなったものを探す人ではなかった。",
+            "zh": "辛德用手抚过工具腰带。无意识的动作。这是她的确认方式。是否一切齐备。有没有东西不见了。她是个确认所有在场之物的人。不是寻找失去之物的人。"
           }
         }
       ]
@@ -141,7 +159,9 @@
           "effect": "character_enter:lena:slide_left",
           "text": {
             "ko": "보스. 제가 말해도 돼요?",
-            "en": "Boss. Can I speak?"
+            "en": "Boss. Can I speak?",
+            "ja": "ボス。私が話してもいいですか？",
+            "zh": "老大。我能说吗？"
           }
         },
         {
@@ -149,7 +169,9 @@
           "emotion": "direct",
           "text": {
             "ko": "Cinder. FSP는 CV를 믿어요. 그게 뭔 말인지 알겠어요? 우리가 믿는 건 많지 않아요.",
-            "en": "Cinder. FSP trusts CV. Do you know what that means? There aren't many things we trust."
+            "en": "Cinder. FSP trusts CV. Do you know what that means? There aren't many things we trust.",
+            "ja": "シンダー。FSPはCVを信頼しています。それがどういう意味かわかりますか？私たちが信頼するものは多くない。",
+            "zh": "辛德。FSP信任CV。你知道那意味着什么吗？我们信任的东西不多。"
           }
         },
         {
@@ -157,7 +179,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "내 팔에 이름들이 있어요. 이름들 중에 CV 사람도 있어요.",
-            "en": "There are names on my arm. Among them are CV people too."
+            "en": "There are names on my arm. Among them are CV people too.",
+            "ja": "私の腕に名前がある。その中にはCVの人もいる。",
+            "zh": "我手臂上有名字。其中也有CV的人。"
           }
         }
       ]
@@ -172,7 +196,9 @@
         {
           "text": {
             "ko": "Cinder가 Lena의 팔을 봤다. 오래 봤다. 공구를 만지지 않았다. 그것이 이 사람의 주의였다. 공구를 만지지 않을 때 이 사람은 무언가를 생각하는 것이었다. 이름들을 읽는 것이었을지도 몰랐다.",
-            "en": "Cinder looked at Lena's arm. Looked for a long time. Didn't touch her tools. That was this person's attention. When she didn't touch her tools she was thinking something. Perhaps she was reading the names."
+            "en": "Cinder looked at Lena's arm. Looked for a long time. Didn't touch her tools. That was this person's attention. When she didn't touch her tools she was thinking something. Perhaps she was reading the names.",
+            "ja": "シンダーはレナの腕を見た。長い間見た。工具に触れなかった。それがこの人物の注意深さだった。工具に触れないとき、この人物は何かを考えていた。名前を読んでいたのかもしれなかった。",
+            "zh": "辛德看着莱娜的手臂。看了很久。没有碰工具。那是这个人专注的表现。当她不碰工具时，她在思考某事。也许是在读那些名字。"
           }
         }
       ]
@@ -187,7 +213,9 @@
         {
           "text": {
             "ko": "Cinder의 눈이 어떤 이름에서 멈췄다. 알아보는 것이었다. 그것이 무엇인지는 알 수 없었다. 그러나 멈추는 것이 있었다. 이름이 그렇게 하는 것이었다. 아는 이름은 눈을 멈추게 했다.",
-            "en": "Cinder's eyes stopped at a certain name. Recognizing. What that was couldn't be known. But there was a stopping. Names did that. A known name stopped the eyes."
+            "en": "Cinder's eyes stopped at a certain name. Recognizing. What that was couldn't be known. But there was a stopping. Names did that. A known name stopped the eyes.",
+            "ja": "シンダーの目がある名前で止まった。認識していた。それが何であるかは知ることができなかった。しかし、止まるものがあった。名前がそうさせるのだった。知っている名前は目を止めさせた。",
+            "zh": "辛德的眼睛在某个名字上停住了。是认出来了。那是什么，无从得知。但有停顿这件事本身。名字就会这样。认识的名字会让眼睛停住。"
           }
         }
       ]
@@ -204,7 +232,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Zone 12 이름이에요.",
-            "en": "That's a Zone 12 name."
+            "en": "That's a Zone 12 name.",
+            "ja": "Zone 12の名前ですね。",
+            "zh": "那是Zone 12的名字。"
           },
           "overlay": "fsp_ch4_diplomacy_l09_00_zone12_record"
         },
@@ -213,7 +243,9 @@
           "emotion": "tense",
           "text": {
             "ko": "그래요.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "そうです。",
+            "zh": "对。"
           }
         },
         {
@@ -221,7 +253,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "3년 전이에요. 내가 거기 있었어요.",
-            "en": "Three years ago. I was there."
+            "en": "Three years ago. I was there.",
+            "ja": "三年前です。私はそこにいた。",
+            "zh": "三年前。我在那里。"
           }
         }
       ]
@@ -236,7 +270,9 @@
         {
           "text": {
             "ko": "Lena가 팔을 내려다봤다. 그 이름을. Zone 12. 두 사람이 알고 있는 이름. 한 명은 팔에 새겼다. 한 명은 3년 전에 거기 있었다. 그것이 지금 샌드스톤에 있었다.",
-            "en": "Lena looked down at her arm. That name. Zone 12. A name two people knew. One had engraved it on their arm. One had been there three years ago. That was at Sandstone now."
+            "en": "Lena looked down at her arm. That name. Zone 12. A name two people knew. One had engraved it on their arm. One had been there three years ago. That was at Sandstone now.",
+            "ja": "レナは腕を見下ろした。その名前を。Zone 12。二人が知っている名前。一人は腕に刻んでいた。一人は三年前にそこにいた。それが今サンドストーンにあった。",
+            "zh": "莱娜低头看着自己的手臂。那个名字。Zone 12。两个人都知道的名字。一个人刻在了手臂上。一个人三年前在那里。那就在此刻的砂岩上。"
           }
         }
       ]
@@ -253,7 +289,9 @@
           "emotion": "serious",
           "text": {
             "ko": "약속의 내용을 말할게요. FSP는 CV 영토를 인정해요. CV는 FSP 노동자를 건드리지 않아요. MCC가 공격하면 같이 막아요.",
-            "en": "I'll state the terms of the promise. FSP recognizes CV territory. CV doesn't touch FSP workers. If MCC attacks we hold together."
+            "en": "I'll state the terms of the promise. FSP recognizes CV territory. CV doesn't touch FSP workers. If MCC attacks we hold together.",
+            "ja": "約束の内容を話しましょう。FSPはCV領土を認める。CVはFSP労働者に手を出さない。MCCが攻撃したら共に防ぐ。",
+            "zh": "我来说明约定的条款。FSP承认CV的领地。CV不动FSP的工人。MCC进攻时共同抵御。"
           }
         },
         {
@@ -261,7 +299,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그것뿐이에요. 간단해요. 간단한 것이 오래 가요.",
-            "en": "That's all. Simple. Simple things last."
+            "en": "That's all. Simple. Simple things last.",
+            "ja": "それだけです。シンプルです。シンプルなものは長続きする。",
+            "zh": "就这些。简单。简单的东西才能持久。"
           }
         }
       ]
@@ -276,7 +316,9 @@
         {
           "text": {
             "ko": "Lena가 들었다. 빠른 사람이 느려지는 순간이었다. 약속. Zone 12 이름. 공구 벨트. 그것들이 이 교차로에 있었다. 샌드스톤. 이름이 붙은 이유가 있는 곳.",
-            "en": "Lena listened. It was a moment when a fast person became slow. A promise. Zone 12 name. Tool belt. Those things were at this junction. Sandstone. A place with a name for a reason."
+            "en": "Lena listened. It was a moment when a fast person became slow. A promise. Zone 12 name. Tool belt. Those things were at this junction. Sandstone. A place with a name for a reason.",
+            "ja": "レナは聞いた。速い人間が遅くなる瞬間だった。約束。Zone 12の名前。工具ベルト。それらがこの交差点にあった。サンドストーン。名の理由がある場所。",
+            "zh": "莱娜听着。这是一个快人变慢的时刻。约定。Zone 12的名字。工具腰带。这些东西都在这个交汇点上。砂岩。一个名字有来由的地方。"
           }
         }
       ]
@@ -291,7 +333,9 @@
         {
           "text": {
             "ko": "MCC가 보이지 않았다. 그러나 없는 것이 아니었다. 드론이 아마 어딘가에 있었다. 관측하고 있었다. MCC는 항상 관측하고 있었다. 그것이 이 약속을 더 중요하게 만들었다. 보는 사람 앞에서 하는 약속은 무게가 달랐다.",
-            "en": "MCC wasn't visible. But that didn't mean absent. A drone was probably somewhere. Observing. MCC was always observing. That made this promise more important. Promises made before those who watched had different weight."
+            "en": "MCC wasn't visible. But that didn't mean absent. A drone was probably somewhere. Observing. MCC was always observing. That made this promise more important. Promises made before those who watched had different weight.",
+            "ja": "MCCは見えなかった。しかし、いないわけではなかった。ドローンがどこかにいるだろう。観測していた。MCCは常に観測していた。それがこの約束をより重要にした。見ている者の前でする約束は重みが違った。",
+            "zh": "MCC看不见。但并非不在。无人机大概在某处。监视着。MCC总是在监视。这让这个约定更加重要。在旁观者面前立下的约定分量不同。"
           }
         }
       ]
@@ -308,7 +352,9 @@
           "emotion": "calm",
           "text": {
             "ko": "MCC가 지켜보고 있어요. 드론이 동쪽에 있어요.",
-            "en": "MCC is watching. There's a drone to the east."
+            "en": "MCC is watching. There's a drone to the east.",
+            "ja": "MCCが見ています。東にドローンがあります。",
+            "zh": "MCC在监视。东边有无人机。"
           }
         },
         {
@@ -316,7 +362,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그래도 괜찮아요. 약속은 보이는 데서 해도 돼요. 보이지 않는 데서 하는 약속보다 더 단단해요.",
-            "en": "That's fine. A promise can be made where it's seen. Sturdier than promises made where they can't be seen."
+            "en": "That's fine. A promise can be made where it's seen. Sturdier than promises made where they can't be seen.",
+            "ja": "それでも構わない。約束は見えるところでしてもいい。見えないところでする約束より堅い。",
+            "zh": "没关系。约定可以在被看见的地方立下。比在看不见的地方立下的约定更坚固。"
           }
         }
       ]
@@ -331,7 +379,9 @@
         {
           "text": {
             "ko": "해가 기울었다. 샌드스톤의 모래가 더 붉어졌다. 세 개의 방향이 있었다. 헬라스. 에레부스. 올림포스. 그 사이에 두 사람이 서 있었다. FSP. CV. 그리고 한 이름. Zone 12.",
-            "en": "The sun tilted. The sand of Sandstone turned redder. Three directions. Hellas. Erebus. Olympus. Between them two people stood. FSP. CV. And one name. Zone 12."
+            "en": "The sun tilted. The sand of Sandstone turned redder. Three directions. Hellas. Erebus. Olympus. Between them two people stood. FSP. CV. And one name. Zone 12.",
+            "ja": "太陽が傾いた。サンドストーンの砂がより赤くなった。三つの方向。ヘラス。エレバス。オリンポス。その間に二人が立っていた。FSP。CV。そして一つの名前。Zone 12。",
+            "zh": "太阳西斜。砂岩的沙更红了。三个方向。赫拉斯。埃雷伯斯。奥林匹斯。两人立于其间。FSP。CV。还有一个名字。Zone 12。"
           }
         }
       ]
@@ -346,7 +396,9 @@
         {
           "text": {
             "ko": "Cinder가 말하지 않았다. 공구 벨트에서 뭔가를 꺼냈다. 작은 금속 핀이었다. 바닥에 꽂았다. 모래 속으로. 그것이 뭔지는 알 수 없었다. 설명이 없었다. 그냥 했다. 이것이 Cinder의 방식이었다. 말이 아닌 것으로 시험하는 것.",
-            "en": "Cinder said nothing. She took something from the tool belt. A small metal pin. She pushed it into the ground. Into the sand. What it was couldn't be known. No explanation. She just did it. This was Cinder's way. Testing with something other than words."
+            "en": "Cinder said nothing. She took something from the tool belt. A small metal pin. She pushed it into the ground. Into the sand. What it was couldn't be known. No explanation. She just did it. This was Cinder's way. Testing with something other than words.",
+            "ja": "シンダーは何も言わなかった。工具ベルトから何かを取り出した。小さな金属製のピンだった。地面に差し込んだ。砂の中へ。それが何なのかはわからなかった。説明はなかった。ただやった。これがシンダーのやり方だった。言葉ではないもので試すこと。",
+            "zh": "辛德没有说话。从工具腰带上取出了什么东西。是一根小小的金属销钉。插入了地面。插进沙里。那是什么，无从得知。没有解释。就那么做了。这就是辛德的方式。用语言以外的东西来试探。"
           }
         }
       ]
@@ -363,7 +415,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이게 뭔지 알아요?",
-            "en": "Do you know what this is?"
+            "en": "Do you know what this is?",
+            "ja": "これが何かわかりますか？",
+            "zh": "你知道这是什么吗？"
           }
         },
         {
@@ -371,7 +425,9 @@
           "emotion": "tense",
           "text": {
             "ko": "광산 경계 핀이에요. CV 표식.",
-            "en": "Mine boundary pin. CV marker."
+            "en": "Mine boundary pin. CV marker.",
+            "ja": "鉱山境界ピンです。CVの標識。",
+            "zh": "矿山边界销钉。CV的标记。"
           }
         },
         {
@@ -379,7 +435,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "여기에 꽂으면 CV 영토라는 뜻이에요.",
-            "en": "If I plant it here it means CV territory."
+            "en": "If I plant it here it means CV territory.",
+            "ja": "ここに刺せばCV領土という意味です。",
+            "zh": "插在这里意味着是CV的领地。"
           }
         },
         {
@@ -387,7 +445,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "꽂지 않을게요. 오늘은.",
-            "en": "I won't plant it. Not today."
+            "en": "I won't plant it. Not today.",
+            "ja": "刺しません。今日は。",
+            "zh": "我不会插的。今天不会。"
           }
         }
       ]
@@ -402,7 +462,9 @@
         {
           "text": {
             "ko": "그것이 시험이었다. 핀을 꽂지 않는 것. 샌드스톤이 어느 쪽 것도 아닌 것으로 두는 것. 그것이 이 약속이 가능한 첫째 조건이었다. Cinder는 그것을 말로 하지 않았다. 행동으로 했다. 핀을 꽂지 않는 행동으로.",
-            "en": "That was the test. Not planting the pin. Leaving Sandstone as belonging to neither side. That was the first condition for this promise to be possible. Cinder didn't say it in words. She did it with action. The action of not planting the pin."
+            "en": "That was the test. Not planting the pin. Leaving Sandstone as belonging to neither side. That was the first condition for this promise to be possible. Cinder didn't say it in words. She did it with action. The action of not planting the pin.",
+            "ja": "それが試練だった。ピンを刺さないこと。サンドストーンをどちらのものでもないままにすること。それがこの約束が可能な最初の条件だった。シンダーはそれを言葉では言わなかった。行動でした。ピンを刺さないという行動で。",
+            "zh": "那就是考验。不插销钉。让砂岩保持不属于任何一方。那是这个约定得以成立的第一个条件。辛德没有用言语说出来。用行动说了。用不插销钉的行动。"
           }
         }
       ]
@@ -419,7 +481,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "두 번째예요.",
-            "en": "Second."
+            "en": "Second.",
+            "ja": "二つ目です。",
+            "zh": "第二个。"
           }
         },
         {
@@ -427,7 +491,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 등 돌리면 어떻게 할 거예요.",
-            "en": "If I turn my back what will you do."
+            "en": "If I turn my back what will you do.",
+            "ja": "私が背を向けたら何をしますか。",
+            "zh": "如果我转身，你会怎么做。"
           }
         },
         {
@@ -435,7 +501,9 @@
           "emotion": "tense",
           "text": {
             "ko": "기다려요.",
-            "en": "Wait."
+            "en": "Wait.",
+            "ja": "待ちます。",
+            "zh": "等待。"
           }
         },
         {
@@ -443,7 +511,9 @@
           "emotion": "calm",
           "text": {
             "ko": "좋아요.",
-            "en": "Good."
+            "en": "Good.",
+            "ja": "いい。",
+            "zh": "好。"
           }
         }
       ]
@@ -458,7 +528,9 @@
         {
           "text": {
             "ko": "Cinder가 등을 돌렸다. 한 방향을 봤다. 에레부스 방향. 거기 뭔가가 있었다. 아니면 없었다. 알 수 없었다. 그러나 Cinder가 거기를 봤다. 오래. 그것이 두 번째 시험이었다. 등을 보이는 것.",
-            "en": "Cinder turned her back. Looked in one direction. Toward Erebus. Something was there. Or wasn't. Unknowable. But Cinder looked that way. For a long time. That was the second test. Showing her back."
+            "en": "Cinder turned her back. Looked in one direction. Toward Erebus. Something was there. Or wasn't. Unknowable. But Cinder looked that way. For a long time. That was the second test. Showing her back.",
+            "ja": "シンダーが背を向けた。一方向を見た。エレバスの方向。そこに何かがあった。あるいはなかった。知る術がなかった。しかしシンダーはそちらを見た。長い間。それが二番目の試練だった。背中を見せること。",
+            "zh": "辛德转过身去。朝一个方向看去。埃雷伯斯的方向。那里有什么东西。或者没有。无从得知。但辛德一直看着那个方向。很久。那是第二个考验。把背展示出来。"
           }
         }
       ]
@@ -473,7 +545,9 @@
         {
           "text": {
             "ko": "Cinder가 다시 돌아섰다. 공구 벨트에서 뭔가를 꺼냈다. 작은 칼이었다. 납작한 것. 광산용이었다. 그것으로 자신의 왼손 손바닥을 그었다. 천천히. 소리 없이. 피가 났다.",
-            "en": "Cinder turned around again. She took something from the tool belt. A small knife. Flat. For mining. She drew it across her left palm. Slowly. Without sound. Blood came."
+            "en": "Cinder turned around again. She took something from the tool belt. A small knife. Flat. For mining. She drew it across her left palm. Slowly. Without sound. Blood came.",
+            "ja": "シンダーがまた振り返った。工具ベルトから何かを取り出した。小さなナイフだった。平たいもの。採掘用だった。それで自分の左手の手のひらを引いた。ゆっくりと。音もなく。血が出た。",
+            "zh": "辛德再次转过身来。从工具腰带取出了什么东西。是一把小刀。扁平的。采矿用的。用它划过自己的左手掌心。缓缓地。无声无息。血流了出来。"
           },
           "overlay": "fsp_ch4_diplomacy_l21_00_hand_fist"
         }
@@ -491,7 +565,9 @@
           "emotion": "serious",
           "text": {
             "ko": "화성에서 계약하는 방법이에요.",
-            "en": "This is how contracts are made on Mars."
+            "en": "This is how contracts are made on Mars.",
+            "ja": "火星での契約の仕方です。",
+            "zh": "这是在火星立约的方式。"
           }
         },
         {
@@ -499,7 +575,9 @@
           "emotion": "calm",
           "text": {
             "ko": "서로의 손을 가르고 악수해요. 그것이 계약이에요.",
-            "en": "Cut each other's hands and shake. That is the contract."
+            "en": "Cut each other's hands and shake. That is the contract.",
+            "ja": "お互いの手を切って握手する。それが契約です。",
+            "zh": "互割手掌，然后握手。那就是契约。"
           }
         },
         {
@@ -507,7 +585,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이건 계약이야. 화성에서 계약은 죽어도 유효해.",
-            "en": "This is a contract. On Mars a contract is valid even in death."
+            "en": "This is a contract. On Mars a contract is valid even in death.",
+            "ja": "これは契約だ。火星では契約は死んでも有効だ。",
+            "zh": "这是契约。在火星，契约就算死了也有效。"
           }
         }
       ]
@@ -522,7 +602,9 @@
         {
           "text": {
             "ko": "칼이 건너왔다. Cinder의 손에서. 이쪽으로. Lena가 봤다. 피가 나는 Cinder의 손. 그것이 기다리고 있었다. 혼자 피 흘리는 손. 대답을 기다리는 것이었다.",
-            "en": "The knife came across. From Cinder's hand. To this side. Lena looked. Cinder's bleeding hand. It was waiting. A hand bleeding alone. Waiting for an answer."
+            "en": "The knife came across. From Cinder's hand. To this side. Lena looked. Cinder's bleeding hand. It was waiting. A hand bleeding alone. Waiting for an answer.",
+            "ja": "ナイフが渡ってきた。シンダーの手から。こちらへ。レナは見た。血の出るシンダーの手。それが待っていた。一人で血を流す手。答えを待っていた。",
+            "zh": "刀递了过来。从辛德的手。到这边。莱娜看着。辛德流血的手。它在等待。一只独自流血的手。在等待回答。"
           }
         }
       ]
@@ -539,7 +621,9 @@
           "emotion": "tense",
           "text": {
             "ko": "보스. 저도 해야 해요?",
-            "en": "Boss. Do I need to do it too?"
+            "en": "Boss. Do I need to do it too?",
+            "ja": "ボス。私もしなければなりませんか？",
+            "zh": "老大。我也要做吗？"
           }
         },
         {
@@ -547,7 +631,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "FSP에서 결정권이 있는 사람이 해야 해요.",
-            "en": "Someone with decision-making authority in FSP needs to do it."
+            "en": "Someone with decision-making authority in FSP needs to do it.",
+            "ja": "FSPで決定権を持つ人がしなければなりません。",
+            "zh": "FSP里有决策权的人需要来做。"
           }
         },
         {
@@ -555,7 +641,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "보스가 해요. 보스가 여기서 FSP예요.",
-            "en": "Boss does it. Boss is FSP here."
+            "en": "Boss does it. Boss is FSP here.",
+            "ja": "ボスがする。ボスがここでのFSPです。",
+            "zh": "老大来做。老大在这里就是FSP。"
           }
         }
       ]
@@ -567,55 +655,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Cinder의 피 흘리는 손. 칼이 건너왔다. 샌드스톤. 세 방향의 교차로.",
-        "en": "Cinder's bleeding hand. The knife came across. Sandstone. The junction of three directions."
+        "en": "Cinder's bleeding hand. The knife came across. Sandstone. The junction of three directions.",
+        "ja": "シンダーの血の滲む手。ナイフが渡ってきた。サンドストーン。三方向の交差点。",
+        "zh": "辛德流血的手。刀递了过来。砂岩。三向交汇点。"
       },
       "choices": [
         {
           "id": "fsp_ch4_sign",
           "text": {
             "ko": "서명한다. 손을 긋는다.",
-            "en": "Sign it. Cut the hand."
+            "en": "Sign it. Cut the hand.",
+            "ja": "署名する。手を切る。",
+            "zh": "签约。划破手掌。"
           },
           "tone": "decisive",
           "preview_hint": {
             "ko": "→ FSP-CV blood oath, MCC 대응 격화",
-            "en": "→ FSP-CV blood oath, MCC escalates"
+            "en": "→ FSP-CV blood oath, MCC escalates",
+            "ja": "→ FSP-CV血の誓い、MCCが対応を激化",
+            "zh": "→ FSP-CV血誓，MCC升级应对"
           }
         },
         {
           "id": "fsp_ch4_amend",
           "text": {
             "ko": "한 조항을 추가한다. Ancient Metal은 공유한다.",
-            "en": "Add one clause. Ancient Metal is shared."
+            "en": "Add one clause. Ancient Metal is shared.",
+            "ja": "一条項を追加する。古代メタルは共有する。",
+            "zh": "追加一条款。古代金属共享。"
           },
           "tone": "strategic",
           "preview_hint": {
             "ko": "→ Cinder가 생각한다. 오래",
-            "en": "→ Cinder thinks. For a long time."
+            "en": "→ Cinder thinks. For a long time.",
+            "ja": "→ シンダーが考える。長い間。",
+            "zh": "→ 辛德沉思。很久。"
           }
         },
         {
           "id": "fsp_ch4_delay",
           "text": {
             "ko": "Mikhail에게 먼저 보고한다.",
-            "en": "Report to Mikhail first."
+            "en": "Report to Mikhail first.",
+            "ja": "ミハイルに先に報告する。",
+            "zh": "先向米哈伊尔汇报。"
           },
           "tone": "procedural",
           "preview_hint": {
             "ko": "→ Mikhail이 말한다. 그것이 중요해",
-            "en": "→ Mikhail speaks. That matters."
+            "en": "→ Mikhail speaks. That matters.",
+            "ja": "→ ミハイルが言う。それが重要だと。",
+            "zh": "→ 米哈伊尔说话了。那很重要。"
           }
         },
         {
           "id": "fsp_ch4_refuse",
           "text": {
             "ko": "서명하지 않는다. 이유를 말한다.",
-            "en": "Don't sign. State the reason."
+            "en": "Don't sign. State the reason.",
+            "ja": "署名しない。理由を言う。",
+            "zh": "不签。说明理由。"
           },
           "tone": "principled",
           "preview_hint": {
             "ko": "→ Cinder가 공구를 잡는다. 그러나 멈춘다",
-            "en": "→ Cinder reaches for her tools. Then stops."
+            "en": "→ Cinder reaches for her tools. Then stops.",
+            "ja": "→ シンダーが工具に手を伸ばす。しかし止まる。",
+            "zh": "→ 辛德伸手拿工具。然后停下。"
           }
         }
       ]
@@ -630,7 +736,9 @@
         {
           "text": {
             "ko": "결정이 있었다. Cinder가 들었다. 반응이 있었다. 공구를 만졌다. 아니면 만지지 않았다. 그것에 따라 다음이 달랐다. 샌드스톤에서 결정은 그런 것이었다. 작은 것들이 큰 것을 만들었다.",
-            "en": "There was a decision. Cinder heard. There was a reaction. She touched her tools. Or she didn't. What came next differed by that. At Sandstone decisions were like that. Small things made large things."
+            "en": "There was a decision. Cinder heard. There was a reaction. She touched her tools. Or she didn't. What came next differed by that. At Sandstone decisions were like that. Small things made large things.",
+            "ja": "決断があった。シンダーが聞いた。反応があった。工具に触れた。あるいは触れなかった。それによって次が違った。サンドストーンでの決断はそういうものだった。小さなものが大きなものを作った。",
+            "zh": "有了决断。辛德听到了。有了反应。她触碰了工具。或者没有。接下来的事情因此而不同。在砂岩，决断就是这样的东西。小事造就大事。"
           }
         }
       ]
@@ -645,7 +753,9 @@
         {
           "text": {
             "ko": "피가 섞였다. 아니면 섞이지 않았다. 그것이 오늘 샌드스톤에서의 일이었다. 악수가 있었다. 아니면 없었다. 그러나 이 교차로에 두 사람이 섰다는 것은 바뀌지 않았다. Zone 12 이름이 있는 팔. 광산 칼이 있는 공구 벨트.",
-            "en": "Blood mixed. Or didn't. That was today's business at Sandstone. There was a handshake. Or there wasn't. But that two people had stood at this junction didn't change. The arm with the Zone 12 name. The tool belt with the mine knife."
+            "en": "Blood mixed. Or didn't. That was today's business at Sandstone. There was a handshake. Or there wasn't. But that two people had stood at this junction didn't change. The arm with the Zone 12 name. The tool belt with the mine knife.",
+            "ja": "血が混じった。あるいは混じらなかった。それが今日サンドストーンでのことだった。握手があった。あるいはなかった。しかし、この交差点に二人が立ったという事実は変わらなかった。Zone 12の名前がある腕。鉱山ナイフがある工具ベルト。",
+            "zh": "血混合了。或者没有。那就是今天砂岩上的事。有了握手。或者没有。但两个人站在这个交汇点上的事实没有改变。有Zone 12名字的手臂。有矿山刀的工具腰带。"
           }
         }
       ]
@@ -662,7 +772,9 @@
           "emotion": "calm",
           "text": {
             "ko": "MCC 드론이 봤어요. 아까부터.",
-            "en": "MCC drone has been watching. Since before."
+            "en": "MCC drone has been watching. Since before.",
+            "ja": "MCCドローンが見ていた。さっきから。",
+            "zh": "MCC无人机一直在看。从刚才就开始了。"
           }
         },
         {
@@ -670,7 +782,9 @@
           "emotion": "tense",
           "text": {
             "ko": "MCC가 이걸 기록했어요.",
-            "en": "MCC recorded this."
+            "en": "MCC recorded this.",
+            "ja": "MCCがこれを記録した。",
+            "zh": "MCC记录了这一切。"
           }
         },
         {
@@ -678,7 +792,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "좋아요. 기록되면 취소 못 해요.",
-            "en": "Good. If it's recorded it can't be undone."
+            "en": "Good. If it's recorded it can't be undone.",
+            "ja": "いい。記録されたなら取り消せない。",
+            "zh": "好。记录了就无法撤销。"
           }
         }
       ]
@@ -693,7 +809,9 @@
         {
           "text": {
             "ko": "Cinder가 손을 감쌌다. 천으로. 공구 벨트에서 꺼낸 것이었다. 준비한 것이었다. 이 사람은 이것을 알고 왔다. 피 흘리는 것을. 감는 것을. 준비한 것들이었다. 그것이 이 사람의 방식이었다. 계획하고 행동하는 것.",
-            "en": "Cinder wrapped her hand. With cloth. Taken from the tool belt. Something she had prepared. This person had come knowing this. The bleeding. The wrapping. Things prepared. That was this person's way. Planning and acting."
+            "en": "Cinder wrapped her hand. With cloth. Taken from the tool belt. Something she had prepared. This person had come knowing this. The bleeding. The wrapping. Things prepared. That was this person's way. Planning and acting.",
+            "ja": "シンダーは手を巻いた。布で。工具ベルトから取り出したものだった。準備していたものだった。この人物はこれを知って来た。血を流すことを。巻くことを。準備されたものだった。それがこの人物のやり方だった。計画して行動すること。",
+            "zh": "辛德包扎了手。用布。从工具腰带取出来的。是事先准备好的。这个人是知道这件事才来的。流血。包扎。都是准备好的事情。那就是这个人的方式。计划然后行动。"
           }
         }
       ]
@@ -708,7 +826,9 @@
         {
           "text": {
             "ko": "에레부스 쪽에서 먼지가 일었다. 바람이 아니었다. 움직임이었다. CV 사람들이 있었다. 기다리고 있던 것들이었다. Cinder의 신호를 기다렸던 것들. 지금 이쪽으로 오고 있지는 않았다. 기다리고 있었다. 그것이 Cinder가 한 것이었다. 혼자 왔지만 혼자 온 것이 아니었다.",
-            "en": "Dust rose from the Erebus direction. Not wind. Movement. CV people were there. Things that had been waiting. Waiting for Cinder's signal. Not coming this way now. Waiting. That was what Cinder had done. Came alone but not alone."
+            "en": "Dust rose from the Erebus direction. Not wind. Movement. CV people were there. Things that had been waiting. Waiting for Cinder's signal. Not coming this way now. Waiting. That was what Cinder had done. Came alone but not alone.",
+            "ja": "エレバスの方向から砂埃が立った。風ではなかった。動きだった。CV人たちがいた。待っていたものたちだった。シンダーの合図を待っていたもの。今こちらに来ているわけではなかった。待っていた。それがシンダーのしたことだった。一人で来たが、一人ではなかった。",
+            "zh": "埃雷伯斯方向扬起了尘土。不是风。是动静。CV的人在那里。一直在等待的人们。等着辛德信号的人们。现在不是朝这边来。在等待。那就是辛德做的事。独自来了，却不是真的独自来了。"
           }
         }
       ]
@@ -725,7 +845,9 @@
           "emotion": "serious",
           "text": {
             "ko": "에레부스 쪽에 사람들이 있어요.",
-            "en": "There are people on the Erebus side."
+            "en": "There are people on the Erebus side.",
+            "ja": "エレバス側に人がいます。",
+            "zh": "埃雷伯斯那边有人。"
           }
         },
         {
@@ -733,7 +855,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "우리 사람들이에요. Butcher가 보낸 거예요.",
-            "en": "Our people. Butcher sent them."
+            "en": "Our people. Butcher sent them.",
+            "ja": "我々の人間です。ブッチャーが送ったものです。",
+            "zh": "我们的人。是布切尔派来的。"
           }
         },
         {
@@ -741,7 +865,9 @@
           "emotion": "tense",
           "text": {
             "ko": "Butcher가 이 회의를 원하지 않았다고 했잖아요.",
-            "en": "You said Butcher didn't want this meeting."
+            "en": "You said Butcher didn't want this meeting.",
+            "ja": "ブッチャーはこの会談を望んでいなかったと言いましたよね。",
+            "zh": "你不是说布切尔不想要这次会面吗。"
           }
         },
         {
@@ -749,7 +875,9 @@
           "emotion": "calm",
           "text": {
             "ko": "원하지 않았어도 준비는 했어요. 그것이 Butcher예요.",
-            "en": "Even not wanting it, he prepared. That is Butcher."
+            "en": "Even not wanting it, he prepared. That is Butcher.",
+            "ja": "望まなくても準備はした。それがブッチャーです。",
+            "zh": "就算不想要，也做好了准备。那就是布切尔。"
           }
         }
       ]
@@ -762,11 +890,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "교차로 방어",
-        "en": "Junction Defense"
+        "en": "Junction Defense",
+        "ja": "交差点防衛",
+        "zh": "交汇点防御"
       },
       "subtitle": {
         "ko": "샌드스톤 — 약속의 가격",
-        "en": "Sandstone — The Price of a Promise"
+        "en": "Sandstone — The Price of a Promise",
+        "ja": "サンドストーン — 約束の代償",
+        "zh": "砂岩 — 约定的代价"
       }
     },
     {
@@ -787,7 +919,9 @@
           "effect": "character_enter:cinder:slide_right",
           "text": {
             "ko": "약속이에요.",
-            "en": "It's a promise."
+            "en": "It's a promise.",
+            "ja": "約束です。",
+            "zh": "这是约定。"
           }
         },
         {
@@ -795,7 +929,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "CV는 약속을 기억해요. 광산에서 배운 거라고 했죠. 광산에서는 약속 하나가 사람을 살리거든요.",
-            "en": "CV remembers promises. Said we learned it in the mines. In the mines one promise saves a life."
+            "en": "CV remembers promises. Said we learned it in the mines. In the mines one promise saves a life.",
+            "ja": "CVは約束を覚えている。鉱山で学んだと言いましたね。鉱山では約束一つが人を救う。",
+            "zh": "CV记得承诺。说是在矿山里学到的。在矿山里，一个承诺能救人一命。"
           }
         },
         {
@@ -803,7 +939,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Zone 12 이름. 팔 위의 것. 기억해요.",
-            "en": "The Zone 12 name. The one on the arm. I remember."
+            "en": "The Zone 12 name. The one on the arm. I remember.",
+            "ja": "Zone 12の名前。腕の上のもの。覚えています。",
+            "zh": "Zone 12的名字。手臂上的那个。我记得。"
           }
         }
       ]
@@ -817,7 +955,9 @@
         {
           "text": {
             "ko": "약속이 없었다. 교차로에 발자국만 남았다. 각자의 방향으로. Cinder가 어느 방향으로 갔는지는 보지 못했다. 샌드스톤은 그대로였다. 이름이 붙은 이유가 있는 곳이었다. 모래와 돌. 약속하기에 좋은 곳. 지키기에도 좋은 곳. 그러나 오늘은 아니었다.",
-            "en": "No promise. Only footprints remained at the junction. Each in their own direction. Which direction Cinder went was not seen. Sandstone remained as it was. A place with a name for a reason. Sand and stone. Good for promises. Good for keeping them too. But not today."
+            "en": "No promise. Only footprints remained at the junction. Each in their own direction. Which direction Cinder went was not seen. Sandstone remained as it was. A place with a name for a reason. Sand and stone. Good for promises. Good for keeping them too. But not today.",
+            "ja": "約束はなかった。交差点には足跡だけが残った。それぞれの方向へ。シンダーがどの方向に行ったかは見えなかった。サンドストーンはそのままだった。名の理由がある場所だった。砂と石。約束するのに良い場所。守るのにも良い場所。しかし今日は違った。",
+            "zh": "没有约定。交汇点只留下了脚印。各自朝着自己的方向。辛德去了哪个方向，没有看见。砂岩依然如故。是个名字有来由的地方。沙与石。适合立约的地方。也适合遵守的地方。但今天不是。"
           }
         }
       ]
@@ -832,7 +972,9 @@
         {
           "text": {
             "ko": "MCC 드론이 멀어졌다. 봤을 것이었다. 기록했을 것이었다. 그것이 MCC의 방식이었다. 보는 것. 기록하는 것. 그다음 결정하는 것. 지금 결정이 뭔지는 알 수 없었다.",
-            "en": "The MCC drone moved away. It had seen. It had recorded. That was MCC's way. Seeing. Recording. Then deciding. What it was deciding now couldn't be known."
+            "en": "The MCC drone moved away. It had seen. It had recorded. That was MCC's way. Seeing. Recording. Then deciding. What it was deciding now couldn't be known.",
+            "ja": "MCCドローンが遠ざかった。見ていただろう。記録しただろう。それがMCCのやり方だった。見ること。記録すること。そして決定すること。今何を決定しているかはわからなかった。",
+            "zh": "MCC无人机远去了。它一定看见了。一定记录了。那就是MCC的方式。观察。记录。然后决策。现在在决策什么，无从得知。"
           }
         }
       ]
@@ -847,7 +989,9 @@
         {
           "text": {
             "ko": "Lena가 팔을 봤다. Zone 12 이름. Cinder가 그 이름을 알았다. 거기 있었다. 그것이 오늘 여기서 생긴 일이었다. 약속과 함께. 아니면 약속 없이.",
-            "en": "Lena looked at her arm. Zone 12 name. Cinder had known that name. She had been there. That was what had happened here today. Together with a promise. Or without one."
+            "en": "Lena looked at her arm. Zone 12 name. Cinder had known that name. She had been there. That was what had happened here today. Together with a promise. Or without one.",
+            "ja": "レナは腕を見た。Zone 12の名前。シンダーはその名前を知っていた。そこにいた。それが今日ここで起きたことだった。約束と共に。あるいは約束なしに。",
+            "zh": "莱娜看着手臂。Zone 12的名字。辛德认识那个名字。她在那里过。那就是今天在这里发生的事情。伴着约定。或者没有约定。"
           }
         }
       ]
@@ -862,7 +1006,9 @@
         {
           "text": {
             "ko": "Cinder가 감싼 손을 봤다. 천이 있었다. 준비했던 것. 이 사람은 오늘 이것을 알고 왔다. 약속이 이렇게 될 것을. 아니면 이렇게 되지 않을 것을. 두 가지 모두를 준비한 것이었다. 그것이 CV의 방식이었다.",
-            "en": "Cinder looked at her wrapped hand. The cloth. Something she had prepared. This person had come today knowing this would happen. That the promise would be this way. Or not this way. Prepared for both. That was CV's way."
+            "en": "Cinder looked at her wrapped hand. The cloth. Something she had prepared. This person had come today knowing this would happen. That the promise would be this way. Or not this way. Prepared for both. That was CV's way.",
+            "ja": "シンダーは包んだ手を見た。布があった。準備していたもの。この人物は今日これを知って来た。約束がこうなることを。あるいはこうならないことを。両方に備えていた。それがCVのやり方だった。",
+            "zh": "辛德看着包扎好的手。有布。是准备好的东西。这个人今天是知道这件事才来的。约定会是这样。或者不会是这样。两种都准备好了。那就是CV的方式。"
           }
         }
       ]
@@ -879,7 +1025,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "케플러 분화구에 일이 있어요. Liang Wei가 선언할 거예요.",
-            "en": "There's business at Kepler Crater. Liang Wei will make a declaration."
+            "en": "There's business at Kepler Crater. Liang Wei will make a declaration.",
+            "ja": "ケプラークレーターに用事があります。リャン・ウェイが宣言するでしょう。",
+            "zh": "开普勒陨石坑有事情。梁伟要做一个宣言。"
           }
         },
         {
@@ -887,7 +1035,9 @@
           "emotion": "tense",
           "text": {
             "ko": "그것도 알고 있었어요?",
-            "en": "You knew that too?"
+            "en": "You knew that too?",
+            "ja": "それも知っていたんですか？",
+            "zh": "那你也知道？"
           }
         },
         {
@@ -895,7 +1045,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그래서 오늘 여기가 중요했어요. 케플러 전에.",
-            "en": "That's why today here mattered. Before Kepler."
+            "en": "That's why today here mattered. Before Kepler.",
+            "ja": "だから今日ここが重要だったんです。ケプラーの前に。",
+            "zh": "所以今天这里很重要。在开普勒之前。"
           }
         }
       ]
@@ -910,7 +1062,9 @@
         {
           "text": {
             "ko": "Sandstone 약속이 케플러를 앞두고 있었다. 순서가 있는 것이었다. 먼저 약속. 그다음 케플러. 그것이 Cinder의 계획이었다. 이 사람은 계획하고 행동했다. 행동만 하는 것이 아니었다. 그것이 Butcher와의 차이였다.",
-            "en": "The Sandstone Promise was before Kepler. There was an order. First the promise. Then Kepler. That was Cinder's plan. This person planned and acted. Not just acted. That was the difference from Butcher."
+            "en": "The Sandstone Promise was before Kepler. There was an order. First the promise. Then Kepler. That was Cinder's plan. This person planned and acted. Not just acted. That was the difference from Butcher.",
+            "ja": "サンドストーンの約束はケプラーの前にあった。順序があるものだった。まず約束。それからケプラー。それがシンダーの計画だった。この人物は計画して行動した。行動するだけではなかった。それがブッチャーとの違いだった。",
+            "zh": "砂岩誓约在开普勒之前。是有顺序的。先立约。然后开普勒。那就是辛德的计划。这个人是计划后行动的。不只是行动。那就是与布切尔的区别。"
           }
         }
       ]
@@ -927,7 +1081,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Zone 12에서 뭐가 있었어요.",
-            "en": "What happened at Zone 12."
+            "en": "What happened at Zone 12.",
+            "ja": "Zone 12で何があったんですか。",
+            "zh": "Zone 12发生了什么。"
           }
         },
         {
@@ -935,7 +1091,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "말하지 않을게요.",
-            "en": "Won't say."
+            "en": "Won't say.",
+            "ja": "言いません。",
+            "zh": "不说。"
           }
         },
         {
@@ -943,7 +1101,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그래도 돼요. 이미 팔에 있어요. 내 것이에요.",
-            "en": "That's fine. It's already on the arm. It's mine."
+            "en": "That's fine. It's already on the arm. It's mine.",
+            "ja": "それでもいい。もう腕にある。私のものです。",
+            "zh": "没关系。已经在手臂上了。是我的。"
           }
         },
         {
@@ -951,7 +1111,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그래요. 당신 것이에요.",
-            "en": "Yes. It's yours."
+            "en": "Yes. It's yours.",
+            "ja": "そうです。あなたのものです。",
+            "zh": "对。是你的。"
           }
         }
       ]
@@ -966,7 +1128,9 @@
         {
           "text": {
             "ko": "Cinder가 에레부스 방향을 봤다. 신호를 보냈다. 손으로. 그쪽 CV 사람들이 움직였다. 멀어지는 것이었다. 오늘은 여기까지였다. 교차로에서 일이 끝났다. 아니면 시작됐다.",
-            "en": "Cinder looked toward Erebus. She signaled. With her hand. The CV people that way moved. Moving away. That was it for today. Business at the junction had ended. Or begun."
+            "en": "Cinder looked toward Erebus. She signaled. With her hand. The CV people that way moved. Moving away. That was it for today. Business at the junction had ended. Or begun.",
+            "ja": "シンダーはエレバスの方向を見た。合図を送った。手で。そちらのCV人たちが動いた。遠ざかるのだった。今日はここまでだった。交差点での用事が終わった。あるいは始まった。",
+            "zh": "辛德看向埃雷伯斯方向。发出了信号。用手。那边的CV人动了起来。是在远去。今天到此为止。交汇点的事情结束了。或者开始了。"
           }
         }
       ]
@@ -981,7 +1145,9 @@
         {
           "text": {
             "ko": "교차로에 혼자였다. 해가 기울었다. 모래가 빨갛게 됐다. 발자국들이 세 방향으로 흩어졌다. 화성에서 만남이 있었다. 약속이 있었다. 그 약속이 화성의 미래를 바꿀 것이었다. 아니면 샌드스톤의 모래처럼 바람에 지워질 것이었다. 어느 쪽인지는 아직 몰랐다.\n\n그러나 Zone 12 이름이 두 팔 위에 있었다. 하나는 문신으로. 하나는 기억으로. 그것은 바람이 지우지 못했다.",
-            "en": "Alone at the junction. The sun tilted. The sand turned red. Footprints scattered in three directions. There had been a meeting on Mars. There had been a promise. That promise would change the future of Mars. Or it would be erased by wind like the sand of Sandstone. Which it would be was not yet known.\n\nBut the Zone 12 name was on two arms. One as a tattoo. One as memory. That the wind couldn't erase."
+            "en": "Alone at the junction. The sun tilted. The sand turned red. Footprints scattered in three directions. There had been a meeting on Mars. There had been a promise. That promise would change the future of Mars. Or it would be erased by wind like the sand of Sandstone. Which it would be was not yet known.\n\nBut the Zone 12 name was on two arms. One as a tattoo. One as memory. That the wind couldn't erase.",
+            "ja": "交差点に一人だった。太陽が傾いた。砂が赤くなった。足跡が三方向に散った。火星で出会いがあった。約束があった。その約束が火星の未来を変えるだろう。あるいはサンドストーンの砂のように風に消されるだろう。どちらかはまだわからなかった。\n\nしかしZone 12の名前が二つの腕の上にあった。一つはタトゥーとして。一つは記憶として。それは風が消せなかった。",
+            "zh": "独自留在交汇点。太阳西斜。沙变红了。脚印散向三个方向。在火星有过一次相遇。有过一个约定。那个约定将会改变火星的未来。或者像砂岩的沙一样被风抹去。哪种情况，还不知道。\n\n但Zone 12的名字在两条手臂上。一个作为刺青。一个作为记忆。那是风无法抹去的。"
           },
           "overlay": "fsp_ch4_diplomacy_l43_00_zone12_record"
         }
@@ -990,7 +1156,9 @@
         "questId": "fsp_campaign_ch5",
         "teaser": {
           "ko": "다음 — Kepler 공유지",
-          "en": "Next — Kepler Commons"
+          "en": "Next — Kepler Commons",
+          "ja": "次回 — ケプラー公有地",
+          "zh": "下一章 — 开普勒公地"
         }
       }
     }

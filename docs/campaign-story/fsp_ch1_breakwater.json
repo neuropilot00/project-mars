@@ -4,7 +4,9 @@
   "chapterNumber": 1,
   "title": {
     "ko": "차의 무게",
-    "en": "The Weight of Tea"
+    "en": "The Weight of Tea",
+    "ja": "茶の重さ",
+    "zh": "茶的重量"
   },
   "location": {
     "id": "hellas_fsp_hq",
@@ -29,7 +31,9 @@
         {
           "text": {
             "ko": "헬라스 분지. 자유 정착지 FSP 본부 아침. Mikhail Anders는 창문을 보지 않았다. 창문 너머에 화성이 있다는 것을 알았다. 알면 충분했다. 그는 차를 끓였다. 두 잔. 손님이 오면 두 잔이고 혼자라도 두 잔이었다. 30년 동안 그랬다.",
-            "en": "Hellas Basin. FSP headquarters. Morning. Mikhail Anders didn't look at the window. He knew Mars was on the other side. Knowing was enough. He boiled water for tea. Two cups. Two cups if a guest came and two cups if he was alone. It had been that way for thirty years."
+            "en": "Hellas Basin. FSP headquarters. Morning. Mikhail Anders didn't look at the window. He knew Mars was on the other side. Knowing was enough. He boiled water for tea. Two cups. Two cups if a guest came and two cups if he was alone. It had been that way for thirty years.",
+            "ja": "ヘラス盆地。FSP本部。朝。ミハイル・アンダースは窓を見なかった。窓の向こうに火星があることを知っていた。知っていれば十分だった。彼は茶を淹れた。二杯。客が来ても二杯、一人でも二杯だった。30年間そうだった。",
+            "zh": "赫拉斯盆地。FSP总部。早晨。米哈伊尔·安德斯没有看窗户。他知道窗外是火星。知道就够了。他煮了茶。两杯。有客人来是两杯，一个人也是两杯。三十年来都是这样。"
           }
         }
       ]
@@ -44,7 +48,9 @@
         {
           "text": {
             "ko": "찻물이 끓었다. 기다렸다. 서두르지 않았다. 차에 대해서만 그런 것은 아니었다. 그는 광부였을 때도 그랬다. 오른쪽 다리가 뻐근했다. 앉아있으면 늘 그랬다. 광산 사고. 다리는 그것을 기억했다. 다른 것들은 잊어도 다리는 기억했다.",
-            "en": "The water boiled. He waited. No hurry. This wasn't only true of tea. It had been true when he was a miner too. His right leg ached. It always did when he sat. The mine accident. The leg remembered it. He could forget other things. The leg didn't."
+            "en": "The water boiled. He waited. No hurry. This wasn't only true of tea. It had been true when he was a miner too. His right leg ached. It always did when he sat. The mine accident. The leg remembered it. He could forget other things. The leg didn't.",
+            "ja": "湯が沸いた。待った。急がなかった。それは茶だけの話ではなかった。鉱夫だったときもそうだった。右脚がうずいた。座っているといつもそうだった。炭鉱事故。脚はそれを覚えていた。他のことは忘れても、脚は忘れなかった。",
+            "zh": "水沸腾了。他等着。不急。不只是对茶如此。他当矿工的时候也是这样。右腿发酸。坐下来总是这样。矿山事故。腿记住了那件事。其他的或许会忘，腿不会忘。"
           }
         }
       ]
@@ -59,7 +65,9 @@
         {
           "text": {
             "ko": "차를 따랐다. 두 손으로. 오른손이 왼손을 받쳤다. 그것은 30년 된 방식이었다. 어떤 광부가 가르쳐주었는지는 기억하지 못했다. 그러나 두 손으로 따르는 것은 기억했다. 잔이 채워졌다. 두 잔이 채워졌다.",
-            "en": "He poured the tea. With both hands. His right hand cradled his left. It was a thirty-year habit. He couldn't remember which miner had taught him. But he remembered the two hands. The cups filled. Both cups filled."
+            "en": "He poured the tea. With both hands. His right hand cradled his left. It was a thirty-year habit. He couldn't remember which miner had taught him. But he remembered the two hands. The cups filled. Both cups filled.",
+            "ja": "茶を注いだ。両手で。右手が左手を支えた。それは30年の習慣だった。どの鉱夫が教えてくれたかは覚えていなかった。しかし両手で注ぐことは覚えていた。杯が満たされた。二つの杯が満たされた。",
+            "zh": "他倒茶。用双手。右手托着左手。这是三十年的习惯。他不记得是哪个矿工教的。但他记得用双手倒茶。杯子满了。两个杯子都满了。"
           }
         }
       ]
@@ -74,7 +82,9 @@
         {
           "text": {
             "ko": "문이 열렸다. 바람이 들어왔다. 그 뒤로 사람이 들어왔다. 가방을 들고 있었다. 작은 가방이었다. 손이 거칠었다. 광부의 손이었지만 광부는 아니었다. Amara가 추천한 사람이었다. 이 사람이 왜 화성에 왔는지는 묻지 않았다. 중요한 것은 지금 여기 있다는 것이었다.",
-            "en": "The door opened. Cold air came in. A person came in behind it. Carrying a small bag. Rough hands. Miner's hands, but not a miner. This was the one Amara had recommended. Why this person had come to Mars wasn't asked. What mattered was being here now."
+            "en": "The door opened. Cold air came in. A person came in behind it. Carrying a small bag. Rough hands. Miner's hands, but not a miner. This was the one Amara had recommended. Why this person had come to Mars wasn't asked. What mattered was being here now.",
+            "ja": "ドアが開いた。冷たい風が入ってきた。その後ろから人が入ってきた。小さな袋を持っていた。手が荒れていた。鉱夫の手だったが、鉱夫ではなかった。アマラが推薦した人物だった。この人がなぜ火星に来たかは聞かなかった。大事なのは今ここにいることだった。",
+            "zh": "门开了。冷风进来。跟着走进来一个人。拿着一个小包。手很粗糙。是矿工的手，但不是矿工。是阿玛拉推荐的人。没有问这个人为什么来火星。重要的是现在在这里。"
           }
         }
       ]
@@ -92,7 +102,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "앉아요. 차야. 지구에서 가져온 씨앗으로 키웠어. 화성에서 자란 유일한 차.",
-            "en": "Sit down. Tea. Grown from seeds brought from Earth. The only tea grown on Mars."
+            "en": "Sit down. Tea. Grown from seeds brought from Earth. The only tea grown on Mars.",
+            "ja": "座って。茶だよ。地球から持ってきた種で育てた。火星で育った唯一の茶。",
+            "zh": "坐吧。是茶。用从地球带来的种子种的。火星上种出来的唯一一种茶。"
           }
         }
       ]
@@ -107,7 +119,9 @@
         {
           "text": {
             "ko": "그 사람은 차를 받았다. 잔을 두 손으로 감쌌다. 마시지는 않았다. 들고만 있었다. Mikhail은 그것을 보았다. 아무 말도 하지 않았다. 차를 가져가고 마시지 않는 사람들이 있었다. 그것은 그들의 방식이었다. 그것도 방식이었다.",
-            "en": "The person took the tea. Held the cup in both hands. Didn't drink. Just held it. Mikhail saw this. Said nothing. There were people who took tea and didn't drink it. That was their way. That too was a way."
+            "en": "The person took the tea. Held the cup in both hands. Didn't drink. Just held it. Mikhail saw this. Said nothing. There were people who took tea and didn't drink it. That was their way. That too was a way.",
+            "ja": "その人は茶を受け取った。両手で杯を包んだ。飲まなかった。ただ持っていた。ミハイルはそれを見た。何も言わなかった。茶を受け取っても飲まない人たちがいた。それが彼らのやり方だった。それもまたやり方だった。",
+            "zh": "那个人接过茶。用双手捧着杯子。没有喝。只是端着。米哈伊尔看见了。什么也没说。有些人接了茶却不喝。那是他们的方式。那也是一种方式。"
           }
         }
       ]
@@ -122,7 +136,9 @@
         {
           "text": {
             "ko": "Mikhail이 말했다. Amara가 어제 연락했어. 헬라스 북쪽 광부 55명. 사고가 있었어. MCC가 현장을 봉쇄했어. 광부들이 안에 있는지 밖에 있는지 아무도 모르는 상태야.\n\n현장 진입. 생존자 확인. 그것뿐이야.",
-            "en": "Mikhail said. Amara contacted me yesterday. Fifty-five miners north of Hellas. There was an accident. MCC sealed the site. Nobody knows if the miners are inside or out.\n\nGet inside. Confirm survivors. That's all."
+            "en": "Mikhail said. Amara contacted me yesterday. Fifty-five miners north of Hellas. There was an accident. MCC sealed the site. Nobody knows if the miners are inside or out.\n\nGet inside. Confirm survivors. That's all.",
+            "ja": "ミハイルが言った。アマラが昨日連絡してきた。ヘラス北の鉱夫55名。事故があった。MCCが現場を封鎖した。鉱夫たちが中にいるのか外にいるのか誰も知らない状態だ。\n\n現場に入れ。生存者を確認しろ。それだけだ。",
+            "zh": "米哈伊尔说。阿玛拉昨天联系了我。赫拉斯北部五十五名矿工。发生了事故。MCC封锁了现场。没有人知道矿工是在里面还是外面。\n\n进入现场。确认生还者。就这些。"
           }
         }
       ]
@@ -137,7 +153,9 @@
         {
           "text": {
             "ko": "그 사람은 차를 마시지 않았다. 잔을 들고 있었다. Mikhail은 그 잔을 잠시 보았다. 차가 식어가고 있었다. 차가 식는 것은 언제나 빨랐다. 화성에서는 모든 것이 빨리 식었다. 온기는 지켜야 하는 것이었다.",
-            "en": "The person still hadn't drunk the tea. Still holding the cup. Mikhail looked at it for a moment. The tea was cooling. Tea always cooled fast. On Mars everything cooled fast. Warmth was something to protect."
+            "en": "The person still hadn't drunk the tea. Still holding the cup. Mikhail looked at it for a moment. The tea was cooling. Tea always cooled fast. On Mars everything cooled fast. Warmth was something to protect.",
+            "ja": "その人はまだ茶を飲んでいなかった。まだ杯を持っていた。ミハイルはそれをしばらく見た。茶が冷めていった。茶はいつも早く冷めた。火星では何もかもが早く冷めた。温もりは守らなければならないものだった。",
+            "zh": "那个人还是没喝茶。仍然端着杯子。米哈伊尔看了那个杯子一会儿。茶在变凉。茶总是凉得很快。在火星上，什么都凉得快。温度是需要守护的东西。"
           }
         }
       ]
@@ -155,7 +173,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "보스. 왔어요?",
-            "en": "Boss. You're here?"
+            "en": "Boss. You're here?",
+            "ja": "ボス。来たんですか？",
+            "zh": "老大。来了？"
           }
         },
         {
@@ -163,7 +183,9 @@
           "emotion": "curious",
           "text": {
             "ko": "Mikhail 씨, 이 분 차 안 마시네요.",
-            "en": "Mikhail-ssi, they're not drinking the tea."
+            "en": "Mikhail-ssi, they're not drinking the tea.",
+            "ja": "ミハイルさん、この人、茶を飲んでいませんね。",
+            "zh": "米哈伊尔，这位没有喝茶呢。"
           }
         },
         {
@@ -171,7 +193,9 @@
           "emotion": "gentle",
           "text": {
             "ko": "괜찮아.",
-            "en": "That's fine."
+            "en": "That's fine.",
+            "ja": "構わない。",
+            "zh": "没关系。"
           }
         },
         {
@@ -179,7 +203,9 @@
           "emotion": "grinning",
           "text": {
             "ko": "저는 마셔요. 그냥 생각한 거예요, 보스.",
-            "en": "I drink mine. Just saying, boss."
+            "en": "I drink mine. Just saying, boss.",
+            "ja": "私は飲みますよ。ただ思っただけです、ボス。",
+            "zh": "我喝。只是说一下，老大。"
           }
         }
       ]
@@ -194,7 +220,9 @@
         {
           "text": {
             "ko": "레나의 왼쪽 팔에 문신이 있었다. 이름들이었다. 가족의 이름. 그것이 팔에 있었다. Mikhail은 그 문신을 볼 때마다 같은 생각을 했다. 그 이름 중에 살아있는 사람이 몇인지. 그 생각을 입에 올린 적은 없었다.",
-            "en": "Lena had a tattoo on her left arm. Names. Family names. Mikhail saw those names every time. He always had the same thought when he did. How many of them were still alive. He had never said the thought aloud."
+            "en": "Lena had a tattoo on her left arm. Names. Family names. Mikhail saw those names every time. He always had the same thought when he did. How many of them were still alive. He had never said the thought aloud.",
+            "ja": "レナの左腕に刺青があった。名前たちだった。家族の名前。それが腕にあった。ミハイルはその刺青を見るたびに同じことを思った。その名前の中で生きている人が何人いるか。その思いを口に出したことはなかった。",
+            "zh": "列娜的左臂有纹身。是名字。家人的名字。在手臂上。米哈伊尔每次看到那纹身都会有同一个想法。那些名字里还有几个活着的人。这个想法他从来没说出口过。"
           }
         }
       ]
@@ -211,7 +239,9 @@
           "emotion": "tense",
           "text": {
             "ko": "북쪽 상황 들었어요. MCC가 봉쇄했어요. 경비가 네 명이에요. 드론 두 개.",
-            "en": "Heard about the north situation. MCC sealed it. Four guards. Two drones."
+            "en": "Heard about the north situation. MCC sealed it. Four guards. Two drones.",
+            "ja": "北の状況は聞きました。MCCが封鎖した。警備が四人。ドローンが二機。",
+            "zh": "听说了北边的情况。MCC封锁了。四名警卫。两架无人机。"
           }
         },
         {
@@ -219,7 +249,9 @@
           "emotion": "serious",
           "text": {
             "ko": "55명이에요. 야간 교대 인원이에요. 사고가 날 때 전부 안에 있었을 거예요.",
-            "en": "Fifty-five. Night shift. They were all inside when the accident happened."
+            "en": "Fifty-five. Night shift. They were all inside when the accident happened.",
+            "ja": "55人です。夜間交代の人員です。事故が起きたとき全員中にいたはずです。",
+            "zh": "五十五人。是夜班人员。事故发生时应该全部都在里面。"
           }
         },
         {
@@ -227,7 +259,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "사고 경위는 모르는 게 맞아. 들어가봐야 알아.",
-            "en": "Not knowing the accident details is right. Have to go in to know."
+            "en": "Not knowing the accident details is right. Have to go in to know.",
+            "ja": "事故の経緯がわからないのは当然だ。入ってみなければわからない。",
+            "zh": "不知道事故经过是正常的。得进去才能知道。"
           }
         }
       ]
@@ -242,7 +276,9 @@
         {
           "text": {
             "ko": "지도가 펼쳐졌다. 헬라스 북부. 광산 구역. MCC 봉쇄선이 표시됐다. 세 개의 진입로. 그 중 두 개는 MCC 경비가 막고 있었다. 세 번째는 비어 있었다. 비어 있는 이유가 있을 것이었다.",
-            "en": "A map was spread. Northern Hellas. Mine sector. MCC perimeter marked. Three entry routes. Two of them guarded. The third was clear. There would be a reason for it being clear."
+            "en": "A map was spread. Northern Hellas. Mine sector. MCC perimeter marked. Three entry routes. Two of them guarded. The third was clear. There would be a reason for it being clear.",
+            "ja": "地図が広げられた。ヘラス北部。鉱山区域。MCC封鎖線が示された。三つの進入路。そのうち二つはMCCの警備が塞いでいた。三番目は空いていた。空いている理由があるはずだった。",
+            "zh": "地图展开了。赫拉斯北部。矿山区域。标出了MCC封锁线。三条进入路线。其中两条被MCC警卫封堵。第三条是空的。空着是有原因的。"
           }
         }
       ]
@@ -257,7 +293,9 @@
         {
           "text": {
             "ko": "Mikhail이 지도를 짚었다. 두 손으로. 오른손이 왼손을 받치면서. 그 방식이 찻잔을 따를 때와 같았다. 중요한 것을 다루는 방식이 같은 사람이었다. 지도든 차든.",
-            "en": "Mikhail pointed at the map. With both hands. The right supporting the left. The same way as when pouring tea. A person whose way of handling important things was the same. Whether a map or tea."
+            "en": "Mikhail pointed at the map. With both hands. The right supporting the left. The same way as when pouring tea. A person whose way of handling important things was the same. Whether a map or tea.",
+            "ja": "ミハイルは地図を指した。両手で。右手が左手を支えながら。それは茶を注ぐときと同じやり方だった。大事なものを扱うやり方が同じ人間だった。地図でも茶でも。",
+            "zh": "米哈伊尔指着地图。用双手。右手托着左手。和倒茶时一样的方式。处理重要事物的方式是一样的人。无论是地图还是茶。"
           }
         }
       ]
@@ -274,7 +312,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC가 왜 봉쇄했는지가 중요해요. 사고를 감추려는 건지. 아니면 다른 이유가 있는 건지.",
-            "en": "Why MCC sealed it matters. Whether they're hiding the accident. Or if there's another reason."
+            "en": "Why MCC sealed it matters. Whether they're hiding the accident. Or if there's another reason.",
+            "ja": "MCCがなぜ封鎖したかが重要です。事故を隠そうとしているのか。あるいは別の理由があるのか。",
+            "zh": "MCC为什么封锁是关键。是想隐瞒事故。还是有其他原因。"
           }
         },
         {
@@ -282,7 +322,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "MCC를 25년 봤어요. 이유 없이 봉쇄하는 경우가 없었어요. 항상 이유가 있었어요. 이유가 나쁜 이유인 게 문제였지.",
-            "en": "Watched MCC for twenty-five years. Never sealed something without a reason. Always had a reason. The problem was the reason was always a bad one."
+            "en": "Watched MCC for twenty-five years. Never sealed something without a reason. Always had a reason. The problem was the reason was always a bad one.",
+            "ja": "MCCを25年見てきた。理由なしに封鎖したことはなかった。いつも理由があった。問題は、その理由がいつも悪い理由だということだった。",
+            "zh": "看了MCC二十五年。没有没理由就封锁的情况。总是有理由的。问题是理由总是坏理由。"
           }
         }
       ]
@@ -297,7 +339,9 @@
         {
           "text": {
             "ko": "FSP 기지 안에서 준비가 이루어졌다. 장비. 통신기. 의료 키트. Lena가 점검했다. 빠르게. 그것이 그녀의 방식이었다. 빠르지만 빠뜨리지 않았다. 그것이 오래 살아남은 방식이었다.",
-            "en": "Preparations were made inside the FSP base. Equipment. Communicator. Medical kit. Lena checked them. Quickly. That was her way. Fast but missing nothing. That was the way of surviving long."
+            "en": "Preparations were made inside the FSP base. Equipment. Communicator. Medical kit. Lena checked them. Quickly. That was her way. Fast but missing nothing. That was the way of surviving long.",
+            "ja": "FSP基地の中で準備が行われた。装備。通信機。医療キット。レナが点検した。素早く。それが彼女のやり方だった。速いが漏れがなかった。それが長く生き残るやり方だった。",
+            "zh": "FSP基地内做好了准备。装备。通讯器。医疗包。列娜检查了。很快。那是她的方式。快但不漏。那是长久活下来的方式。"
           }
         }
       ]
@@ -315,7 +359,9 @@
           "effect": "character_enter:amara:slide_right",
           "text": {
             "ko": "나도 갈게요.",
-            "en": "I'll go too."
+            "en": "I'll go too.",
+            "ja": "私も行きます。",
+            "zh": "我也去。"
           }
         },
         {
@@ -323,7 +369,9 @@
           "emotion": "gentle",
           "text": {
             "ko": "Amara. 이번은 아니에요.",
-            "en": "Amara. Not this time."
+            "en": "Amara. Not this time.",
+            "ja": "アマラ。今回は違います。",
+            "zh": "阿玛拉。这次不行。"
           }
         },
         {
@@ -331,7 +379,9 @@
           "emotion": "serious",
           "text": {
             "ko": "55명이에요, Mikhail. 내가 추천한 사람이 처음 가는 작전이에요. 같이 가야 해요.",
-            "en": "Fifty-five people, Mikhail. This is the first operation for the person I recommended. I need to go."
+            "en": "Fifty-five people, Mikhail. This is the first operation for the person I recommended. I need to go.",
+            "ja": "55人ですよ、ミハイル。私が推薦した人が初めて臨む作戦です。一緒に行かなければなりません。",
+            "zh": "五十五个人，米哈伊尔。这是我推荐的人第一次参与的行动。我需要一起去。"
           }
         },
         {
@@ -339,7 +389,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그래서 안 돼요. 당신이 거기 있으면 MCC가 FSP 공식 입장으로 받아들여요. 그것은 협상 카드를 버리는 거예요.",
-            "en": "That's exactly why not. If you're there MCC will take it as FSP official position. That throws away our negotiating card."
+            "en": "That's exactly why not. If you're there MCC will take it as FSP official position. That throws away our negotiating card.",
+            "ja": "だからこそ駄目なんです。あなたがそこにいたら、MCCはFSPの公式立場として受け取ります。それは交渉カードを捨てることになります。",
+            "zh": "正因为如此才不行。你在那里，MCC就会当成FSP的正式立场。那是丢掉谈判筹码。"
           }
         }
       ]
@@ -354,7 +406,9 @@
         {
           "text": {
             "ko": "Amara가 잠시 있었다. 말이 없었다. 그다음 고개를 끄덕였다. 그것이 이 사람의 방식이었다. 정치적인 사람은 반박이 타당하면 받아들였다. 더 나은 방법이 있으면 그것을 택했다. 그것이 정치였다.",
-            "en": "Amara was still for a moment. No words. Then she nodded. That was her way. A political person accepted a valid counter. If there was a better way they took it. That was politics."
+            "en": "Amara was still for a moment. No words. Then she nodded. That was her way. A political person accepted a valid counter. If there was a better way they took it. That was politics.",
+            "ja": "アマラはしばらく動かなかった。言葉がなかった。それから頷いた。それがこの人のやり方だった。政治的な人間は、反論が妥当であれば受け入れた。より良い方法があればそれを選んだ。それが政治というものだった。",
+            "zh": "阿玛拉静了一会儿。没有说话。然后点了点头。这是这个人的方式。有政治头脑的人，如果反驳有道理就接受。有更好的办法就选择那个。这就是政治。"
           }
         }
       ]
@@ -371,7 +425,9 @@
           "emotion": "direct",
           "text": {
             "ko": "보스. 출발 전에 알아야 할 게 있어요.",
-            "en": "Boss. Need to know something before we leave."
+            "en": "Boss. Need to know something before we leave.",
+            "ja": "ボス。出発前に知っておくべきことがあります。",
+            "zh": "老大。出发前有件事要说。"
           }
         },
         {
@@ -379,7 +435,9 @@
           "emotion": "tense",
           "text": {
             "ko": "55명 중에 Park Sung-jin이 있어요. 내 친구예요. 이름이에요. 내 팔에.",
-            "en": "Among the fifty-five is Park Sung-jin. My friend. A name. On my arm."
+            "en": "Among the fifty-five is Park Sung-jin. My friend. A name. On my arm.",
+            "ja": "55人の中にパク・ソンジンがいます。私の友達です。名前です。私の腕に。",
+            "zh": "五十五人中有朴成振。我的朋友。是名字。在我手臂上。"
           }
         },
         {
@@ -387,7 +445,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "나 빠를 수 있어요. 더 빠를 수 있어요. 그 이유 때문에.",
-            "en": "I can be fast. Even faster. Because of that reason."
+            "en": "I can be fast. Even faster. Because of that reason.",
+            "ja": "私は速くなれます。もっと速くなれます。その理由のために。",
+            "zh": "我可以很快。可以更快。因为那个原因。"
           }
         }
       ]
@@ -402,7 +462,9 @@
         {
           "text": {
             "ko": "북쪽으로 향했다. 화성 지표. 붉은 것. 바람이 있었다. 모래가 낮게 날았다. 앞에 MCC 봉쇄선이 보였다. 표지판. 경보등. 드론 하나가 상공에 있었다. 조용했다. 조용한 것이 더 무서운 것이었다.",
-            "en": "Heading north. Martian surface. Red. Wind. Sand flew low. Ahead the MCC perimeter was visible. Signs. Warning lights. One drone in the sky. Quiet. Quiet was the more frightening thing."
+            "en": "Heading north. Martian surface. Red. Wind. Sand flew low. Ahead the MCC perimeter was visible. Signs. Warning lights. One drone in the sky. Quiet. Quiet was the more frightening thing.",
+            "ja": "北に向かった。火星の地表。赤いもの。風があった。砂が低く飛んだ。前方にMCC封鎖線が見えた。標識。警告灯。ドローンが一機上空にいた。静かだった。静かなほうが怖いものだった。",
+            "zh": "向北走去。火星地表。红色的。有风。沙子低低地飞着。前方可以看到MCC封锁线。标示牌。警报灯。一架无人机在空中。安静。安静的更让人害怕。"
           }
         }
       ]
@@ -417,7 +479,9 @@
         {
           "text": {
             "ko": "경비가 봤다. 두 명이 앞으로 나왔다. MCC 표준 보안복. 헬멧. 통신기. 그들은 말하지 않았다. 서있었다. 그것이 말이었다. 여기 오지 말라는 말. 아니면 어디서 왔는지 말하라는 말.",
-            "en": "The guards watched. Two came forward. MCC standard security suits. Helmets. Communicators. They didn't speak. They stood. That was speech. Don't come here. Or say where you're from."
+            "en": "The guards watched. Two came forward. MCC standard security suits. Helmets. Communicators. They didn't speak. They stood. That was speech. Don't come here. Or say where you're from.",
+            "ja": "警備が見た。二人が前に出てきた。MCC標準保安服。ヘルメット。通信機。彼らは話さなかった。立っていた。それが言葉だった。ここに来るなという言葉。あるいはどこから来たか言えという言葉。",
+            "zh": "警卫看见了。两人走上前。MCC标准安保服。头盔。通讯器。他们没有说话。站着。那就是话。不要来这里的话。或者说你们从哪里来的话。"
           }
         }
       ]
@@ -432,7 +496,9 @@
         {
           "text": {
             "ko": "Lena가 앞으로 나왔다. 빠른 사람. 팔 문신이 보였다. 이름들이 흔들렸다. 그것이 전부였다. 그것으로 충분할 수 있었다.",
-            "en": "Lena stepped forward. The fast person. The arm tattoo was visible. The names swayed. That was all. That might be enough."
+            "en": "Lena stepped forward. The fast person. The arm tattoo was visible. The names swayed. That was all. That might be enough.",
+            "ja": "レナが前に出た。速い人間。腕の刺青が見えた。名前たちが揺れた。それだけだった。それで十分かもしれなかった。",
+            "zh": "列娜走上前。速度快的人。手臂上的纹身显现出来。名字们在摇动。就是这些。这或许就够了。"
           }
         }
       ]
@@ -444,55 +510,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "MCC가 봉쇄한 광산. 55명의 광부. Lena가 옆에 있다. 어떻게 접근하겠습니까?",
-        "en": "A mine sealed by MCC. Fifty-five miners. Lena is beside you. How will you approach?"
+        "en": "A mine sealed by MCC. Fifty-five miners. Lena is beside you. How will you approach?",
+        "ja": "MCCが封鎖した鉱山。55人の鉱夫。レナが隣にいる。どう接近しますか？",
+        "zh": "MCC封锁的矿山。五十五名矿工。列娜在旁边。你如何接近？"
       },
       "choices": [
         {
           "id": "fsp_ch1_accept_standard",
           "text": {
             "ko": "정면 진입. 협상 없이.",
-            "en": "Direct entry. No negotiation."
+            "en": "Direct entry. No negotiation.",
+            "ja": "正面突入。交渉なしで。",
+            "zh": "正面进入。不谈判。"
           },
           "tone": "decisive",
           "preview_hint": {
             "ko": "→ 신속하나 충돌 위험, Lena가 앞선다",
-            "en": "→ Fast but risk of conflict, Lena leads"
+            "en": "→ Fast but risk of conflict, Lena leads",
+            "ja": "→ 速いが衝突リスクあり、レナが先頭に立つ",
+            "zh": "→ 迅速但有冲突风险，列娜领头"
           }
         },
         {
           "id": "fsp_ch1_negotiate_price",
           "text": {
             "ko": "MCC와 먼저 협상한다.",
-            "en": "Negotiate with MCC first."
+            "en": "Negotiate with MCC first.",
+            "ja": "まずMCCと交渉する。",
+            "zh": "先与MCC谈判。"
           },
           "tone": "diplomatic",
           "preview_hint": {
             "ko": "→ 시간이 걸리지만 비전투",
-            "en": "→ Takes time but non-violent"
+            "en": "→ Takes time but non-violent",
+            "ja": "→ 時間はかかるが非戦闘",
+            "zh": "→ 耗时但非武力"
           }
         },
         {
           "id": "fsp_ch1_question_mcc",
           "text": {
             "ko": "봉쇄 이유를 파악한다.",
-            "en": "Find out why MCC sealed it."
+            "en": "Find out why MCC sealed it.",
+            "ja": "封鎖の理由を把握する。",
+            "zh": "查清MCC封锁的原因。"
           },
           "tone": "investigative",
           "preview_hint": {
             "ko": "→ Mikhail의 과거 MCC 경험 언급",
-            "en": "→ Reveals Mikhail's MCC history"
+            "en": "→ Reveals Mikhail's MCC history",
+            "ja": "→ ミハイルの過去のMCC経験が明かされる",
+            "zh": "→ 揭露米哈伊尔与MCC的过去"
           }
         },
         {
           "id": "fsp_ch1_prioritize_patients",
           "text": {
             "ko": "부상자부터. 다른 것은 그 다음.",
-            "en": "Injured first. Everything else after."
+            "en": "Injured first. Everything else after.",
+            "ja": "負傷者から。他のことはその後。",
+            "zh": "先救伤员。其他的之后再说。"
           },
           "tone": "humanitarian",
           "preview_hint": {
             "ko": "→ Lena 신뢰도 +, 레나가 앞장선다",
-            "en": "→ Lena trust +, she leads the way"
+            "en": "→ Lena trust +, she leads the way",
+            "ja": "→ レナ信頼度+、レナが先頭に立つ",
+            "zh": "→ 列娜信任度+，列娜带路"
           }
         }
       ]
@@ -507,7 +591,9 @@
         {
           "text": {
             "ko": "MCC 경비와의 교환이 있었다. 말이 있었고 말이 없는 것이 있었다. 그것이 합쳐진 것이 협상이었다. 화성에서 협상은 그런 것이었다. 말보다 자세. 자세보다 눈빛. 눈빛보다 다음 행동.",
-            "en": "There was exchange with MCC guards. Words and wordlessness. Together that was negotiation. On Mars negotiation was like that. More than words the posture. More than posture the eyes. More than eyes the next action."
+            "en": "There was exchange with MCC guards. Words and wordlessness. Together that was negotiation. On Mars negotiation was like that. More than words the posture. More than posture the eyes. More than eyes the next action.",
+            "ja": "MCC警備との交換があった。言葉があり、言葉がないものがあった。それが合わさったのが交渉だった。火星での交渉はそういうものだった。言葉より姿勢。姿勢より目線。目線より次の行動。",
+            "zh": "与MCC警卫有了交涉。有话语，也有无言。两者合在一起就是谈判。在火星上谈判就是这样。比话语更重要的是姿态。比姿态更重要的是眼神。比眼神更重要的是下一个行动。"
           }
         }
       ]
@@ -522,7 +608,9 @@
         {
           "text": {
             "ko": "광산 안이었다. 어두웠다. 조명이 일부만 살아있었다. 갱도가 있었다. 좁은 것. 그 끝에서 소리가 났다. 목소리. 살아있는 사람들의 목소리.",
-            "en": "Inside the mine. Dark. Only some lights alive. Tunnels. Narrow ones. From their end a sound came. Voices. Voices of living people."
+            "en": "Inside the mine. Dark. Only some lights alive. Tunnels. Narrow ones. From their end a sound came. Voices. Voices of living people.",
+            "ja": "鉱山の中だった。暗かった。照明の一部だけが生きていた。坑道があった。狭いもの。その奥から音がした。声。生きている人たちの声。",
+            "zh": "在矿山里面。黑暗。只有部分灯还亮着。有矿道。狭窄的。从那头传来了声音。声音。活着的人的声音。"
           }
         }
       ]
@@ -537,9 +625,11 @@
         {
           "text": {
             "ko": "49명이 살아있었다. 여섯이 부상이었다. 둘이 중상이었다. Lena가 먼저 들어갔다. Park Sung-jin을 찾았다. 찾았다. 그 이름을. 팔 위의 이름을. 살아있는 그 이름을.",
-            "en": "Forty-nine were alive. Six injured. Two critically. Lena went in first. Looking for Park Sung-jin. Found. That name. The name on the arm. That living name."
-          },
-          "overlay": "fsp_ch1_breakwater_l24_00_death_still"
+            "en": "Forty-nine were alive. Six injured. Two critically. Lena went in first. Looking for Park Sung-jin. Found. That name. The name on the arm. That living name.",
+            "ja": "49人が生きていた。六人が負傷していた。二人が重傷だった。レナが先に入った。パク・ソンジンを探した。見つけた。その名前を。腕の上の名前を。生きているその名前を。",
+            "zh": "四十九人还活着。六人受伤。两人重伤。列娜先进去了。在找朴成振。找到了。那个名字。手臂上的名字。活着的那个名字。",
+            "overlay": "fsp_ch1_breakwater_l24_00_death_still"
+          }
         }
       ]
     },
@@ -551,11 +641,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "봉쇄된 광산",
-        "en": "The Sealed Mine"
+        "en": "The Sealed Mine",
+        "ja": "封鎖された鉱山",
+        "zh": "被封锁的矿山"
       },
       "subtitle": {
         "ko": "헬라스 북부 — 광부 55명",
-        "en": "Northern Hellas — 55 Miners"
+        "en": "Northern Hellas — 55 Miners",
+        "ja": "ヘラス北部 — 鉱夫55名",
+        "zh": "赫拉斯北部 — 五十五名矿工"
       }
     },
     {
@@ -576,7 +670,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "살아있어요. 49명. 부상 여섯. 중상 둘. 구조 완료.",
-            "en": "Alive. Forty-nine. Six injured. Two critical. Extraction complete."
+            "en": "Alive. Forty-nine. Six injured. Two critical. Extraction complete.",
+            "ja": "生きています。49人。負傷六人。重傷二人。救出完了。",
+            "zh": "活着。四十九人。六人受伤。两人重伤。救援完毕。"
           }
         },
         {
@@ -584,7 +680,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Sung-jin도 있어요. 살아있어요.",
-            "en": "Sung-jin too. Alive."
+            "en": "Sung-jin too. Alive.",
+            "ja": "ソンジンも。生きています。",
+            "zh": "成振也在。活着。"
           }
         },
         {
@@ -593,7 +691,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "수고했어요. 정말로.",
-            "en": "Good work. Truly."
+            "en": "Good work. Truly.",
+            "ja": "お疲れ様です。本当に。",
+            "zh": "辛苦了。真的。"
           }
         }
       ]
@@ -610,7 +710,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "광부들이 아직 안에 있어요. MCC가 봉쇄를 더 강화했어. 다시 생각해야 해요.",
-            "en": "The miners are still inside. MCC tightened the seal. We need to rethink."
+            "en": "The miners are still inside. MCC tightened the seal. We need to rethink.",
+            "ja": "鉱夫たちはまだ中にいます。MCCが封鎖を強化した。考え直さなければなりません。",
+            "zh": "矿工们还在里面。MCC加强了封锁。我们需要重新考虑。"
           }
         },
         {
@@ -619,7 +721,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "보스, 다음엔 다르게 해요. Sung-jin이 안에 있어요. 아직.",
-            "en": "Boss, next time we do it differently. Sung-jin is still inside. Still."
+            "en": "Boss, next time we do it differently. Sung-jin is still inside. Still.",
+            "ja": "ボス、次は違うやり方でやりましょう。ソンジンがまだ中にいます。まだ。",
+            "zh": "老大，下次换个方式。成振还在里面。还在。"
           }
         }
       ]
@@ -634,7 +738,9 @@
         {
           "text": {
             "ko": "광부들이 밖으로 나왔다. 한 명씩. 빛을 받았다. 화성의 아침 빛. 그것이 그들에게 닿았다. 눈을 가리는 사람. 그냥 서있는 사람. 한 사람이 무릎을 꿇었다. 지표를 짚었다. 화성의 땅을. 붉은 것을.",
-            "en": "Miners came out. One by one. They received light. The morning light of Mars. It touched them. Someone shielding their eyes. Someone just standing. One person knelt. Touched the ground. The Martian earth. The red thing."
+            "en": "Miners came out. One by one. They received light. The morning light of Mars. It touched them. Someone shielding their eyes. Someone just standing. One person knelt. Touched the ground. The Martian earth. The red thing.",
+            "ja": "鉱夫たちが外に出てきた。一人ずつ。光を受けた。火星の朝の光。それが彼らに触れた。目を隠す人。ただ立っている人。一人が膝をついた。地面を触った。火星の土を。赤いものを。",
+            "zh": "矿工们走出来了。一个接一个。接受了光。火星的晨光。那光触碰了他们。有人遮住了眼睛。有人只是站着。有一个人跪了下来。触碰了地面。火星的土地。红色的东西。"
           }
         }
       ]
@@ -649,9 +755,11 @@
         {
           "text": {
             "ko": "Lena가 Park Sung-jin과 있었다. 말이 없었다. 두 사람. 팔 위의 이름. 살아있는 이름. 그것이 지금 앞에 있었다.",
-            "en": "Lena was with Park Sung-jin. No words. Two people. The name on the arm. The living name. That was here now."
-          },
-          "overlay": "fsp_ch1_breakwater_l30_00_candle_flame"
+            "en": "Lena was with Park Sung-jin. No words. Two people. The name on the arm. The living name. That was here now.",
+            "ja": "レナはパク・ソンジンといた。言葉がなかった。二人。腕の上の名前。生きている名前。それが今、目の前にあった。",
+            "zh": "列娜和朴成振在一起。没有话。两个人。手臂上的名字。活着的名字。那就在现在的眼前。",
+            "overlay": "fsp_ch1_breakwater_l30_00_candle_flame"
+          }
         }
       ]
     },
@@ -665,7 +773,9 @@
         {
           "text": {
             "ko": "MCC는 봉쇄를 거두었다. 공식 항의가 있었다. 그것은 나중 일이었다. 지금 중요한 것은 49명이 밖에 있다는 것이었다. 차가 기다리고 있었다. Mikhail의 차.",
-            "en": "MCC lifted the seal. There was a formal protest. That was for later. What mattered now was that forty-nine were outside. Tea was waiting. Mikhail's tea."
+            "en": "MCC lifted the seal. There was a formal protest. That was for later. What mattered now was that forty-nine were outside. Tea was waiting. Mikhail's tea.",
+            "ja": "MCCは封鎖を解いた。公式抗議があった。それは後のことだった。今重要なのは49人が外にいるということだった。茶が待っていた。ミハイルの茶。",
+            "zh": "MCC解除了封锁。有正式抗议。那是之后的事。现在重要的是四十九人在外面。茶在等着。米哈伊尔的茶。"
           }
         }
       ]
@@ -680,7 +790,9 @@
         {
           "text": {
             "ko": "차는 식어있었다. Mikhail은 두 잔을 내려다보았다. 한 잔은 다 마셨다. 다른 잔은 그대로였다. 그 사람은 차를 마시지 않았다. 들고만 있었다가 내려두었다.\n\nMikhail은 그것을 이상하게 생각하지 않았다. 화성에 오는 사람들은 각자의 방식으로 왔다. 중요한 것은 잔을 받았다는 것이었다. 두 손으로.\n\n그리고 49명이 밖에 있었다. 그것도 중요한 것이었다.",
-            "en": "The tea had gone cold. Mikhail looked at the two cups. One was empty. The other was untouched. The person hadn't drunk it. Had held it and set it down.\n\nMikhail didn't find this strange. People who came to Mars came in their own ways. What mattered was that the cup had been accepted. With both hands.\n\nAnd forty-nine were outside. That mattered too."
+            "en": "The tea had gone cold. Mikhail looked at the two cups. One was empty. The other was untouched. The person hadn't drunk it. Had held it and set it down.\n\nMikhail didn't find this strange. People who came to Mars came in their own ways. What mattered was that the cup had been accepted. With both hands.\n\nAnd forty-nine were outside. That mattered too.",
+            "ja": "茶は冷めていた。ミハイルは二つの杯を見下ろした。一つは飲み干されていた。もう一つはそのままだった。その人は茶を飲まなかった。持っていただけで、置いた。\n\nミハイルはそれを不思議に思わなかった。火星に来る人たちはそれぞれのやり方で来た。大事なのは杯を受け取ったということだった。両手で。\n\nそして49人が外にいた。それも大事なことだった。",
+            "zh": "茶凉了。米哈伊尔看着两个杯子。一个喝光了。另一个原封未动。那个人没有喝茶。只是端着，然后放了下来。\n\n米哈伊尔觉得这没有什么奇怪。来到火星的人各有各的方式。重要的是接受了杯子。用双手。\n\n而且四十九人在外面。这也是重要的事。"
           }
         }
       ],
@@ -688,7 +800,9 @@
         "questId": "fsp_campaign_ch2",
         "teaser": {
           "ko": "다음 — 첫 광부의 죽음",
-          "en": "Next — The First Miner's Death"
+          "en": "Next — The First Miner's Death",
+          "ja": "次回 — 最初の鉱夫の死",
+          "zh": "下回 — 第一个矿工的死亡"
         }
       }
     }

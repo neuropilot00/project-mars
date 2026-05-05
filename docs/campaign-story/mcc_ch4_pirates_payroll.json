@@ -4,7 +4,9 @@
   "chapterNumber": 4,
   "title": {
     "ko": "Kepler Survey",
-    "en": "Kepler Survey"
+    "en": "Kepler Survey",
+    "ja": "ケプラー調査",
+    "zh": "开普勒勘探"
   },
   "location": {
     "id": "kepler_crater",
@@ -28,7 +30,9 @@
         {
           "text": {
             "ko": "케플러 분화구. 깊이 3킬로미터. 분지 안에 분지가 있었다. MCC와 FSP가 광물 자원을 두고 다투는 곳이었다. 광물이 있는지 없는지는 아무도 정확히 몰랐다. 그것이 분쟁의 이유이기도 했다.",
-            "en": "Kepler Crater. Three kilometers deep. A basin within a basin. Where MCC and FSP disputed mineral rights. Whether there were minerals or not nobody knew exactly. That was also why they disputed it."
+            "en": "Kepler Crater. Three kilometers deep. A basin within a basin. Where MCC and FSP disputed mineral rights. Whether there were minerals or not nobody knew exactly. That was also why they disputed it.",
+            "ja": "ケプラー・クレーター。深さ三キロメートル。盆地の中の盆地。MCCとFSPが鉱物資源をめぐって争う場所だった。鉱物があるかどうかは誰も正確に知らなかった。それが争いの理由でもあった。",
+            "zh": "开普勒陨石坑。深三公里。盆地中的盆地。MCC和FSP为矿物资源争夺的地方。矿物是否存在，没有人确切知道。那也是争议的原因。"
           }
         }
       ]
@@ -43,7 +47,9 @@
         {
           "text": {
             "ko": "헬라스 센트럴에서 동쪽으로 400킬로미터였다. 이동 차량으로 6시간. 도로가 없었다. 화성 표면이었다. 붉은 암반. 먼지. 가끔 바람이 창을 두드렸다. 소리가 낮았다. 화성의 바람은 항상 낮은 소리를 냈다. 지구 바람과 달랐다. 지구 바람은 더 높았다.",
-            "en": "400 kilometers east of Hellas Central. Six hours by transport vehicle. No road. Martian surface. Red bedrock. Dust. Occasionally wind struck the window. Low sound. Martian wind always made low sounds. Different from Earth wind. Earth wind was higher."
+            "en": "400 kilometers east of Hellas Central. Six hours by transport vehicle. No road. Martian surface. Red bedrock. Dust. Occasionally wind struck the window. Low sound. Martian wind always made low sounds. Different from Earth wind. Earth wind was higher.",
+            "ja": "ヘラス・セントラルから東に四百キロメートル。輸送車両で六時間。道がなかった。火星の表面だった。赤い岩盤。埃。たまに風が窓を叩いた。低い音だった。火星の風はいつも低い音を立てた。地球の風と違った。地球の風はもっと高かった。",
+            "zh": "赫拉斯中央以东四百公里。运输车辆需要六小时。没有道路。是火星表面。红色岩石。尘土。偶尔风敲打着车窗。声音很低沉。火星的风总是发出低沉的声音。与地球的风不同。地球的风声调更高。"
           }
         }
       ]
@@ -60,7 +66,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "케플러야. 이전 지질팀 보고서 읽었어요?",
-            "en": "Kepler. Did you read the previous geology team report?"
+            "en": "Kepler. Did you read the previous geology team report?",
+            "ja": "ケプラーだ。前の地質チームの報告書を読みましたか？",
+            "zh": "开普勒。你读过之前地质组的报告吗？"
           }
         },
         {
@@ -68,7 +76,9 @@
           "emotion": "focused",
           "text": {
             "ko": "불완전하다고 했어요. 이유가 있어요. 지질팀이 끝까지 내려가지 않았어요. 못한 게 아니에요. 안 한 거예요.",
-            "en": "They said it was incomplete. There's a reason. The geology team didn't descend to the bottom. Not couldn't. Didn't."
+            "en": "They said it was incomplete. There's a reason. The geology team didn't descend to the bottom. Not couldn't. Didn't.",
+            "ja": "不完全だと言いました。理由があります。地質チームは最後まで下りませんでした。できなかったのではありません。しなかったのです。",
+            "zh": "说不完整。有原因。地质组没有下到底。不是不能，是没有去做。"
           }
         },
         {
@@ -76,7 +86,9 @@
           "emotion": "serious",
           "text": {
             "ko": "왜인지는 직접 보면 알 거예요.",
-            "en": "You'll understand why when you see it."
+            "en": "You'll understand why when you see it.",
+            "ja": "なぜかは直接見ればわかります。",
+            "zh": "为什么，你亲眼看了就会明白。"
           }
         }
       ]
@@ -91,7 +103,9 @@
         {
           "text": {
             "ko": "새벽이었다. 화성의 새벽은 지구와 달랐다. 하늘이 붉었다. 새벽이 되어도 붉었다. 해가 뜨면 더 붉었다. 어둠에서 빛으로 가는 것이 아니었다. 붉음에서 더 붉음으로 가는 것이었다. 케플러에서 첫 새벽이었다.",
-            "en": "Dawn. The Martian dawn was different from Earth. The sky was red. Still red at dawn. Redder when the sun rose. Not going from dark to light. Going from red to redder. The first dawn at Kepler."
+            "en": "Dawn. The Martian dawn was different from Earth. The sky was red. Still red at dawn. Redder when the sun rose. Not going from dark to light. Going from red to redder. The first dawn at Kepler.",
+            "ja": "夜明けだった。火星の夜明けは地球と違った。空が赤かった。夜明けになっても赤かった。日が昇るともっと赤かった。暗闇から光へ行くのではなかった。赤から更なる赤へ行くのだった。ケプラーでの最初の夜明けだった。",
+            "zh": "是黎明。火星的黎明与地球不同。天空是红色的。黎明时仍是红色。太阳升起时更红。不是从黑暗走向光明。是从红色走向更红。这是在开普勒的第一个黎明。"
           }
         }
       ]
@@ -106,7 +120,9 @@
         {
           "text": {
             "ko": "Liang Wei는 지질학자였다. 외부인이었다. MCC 소속도 FSP 소속도 아니었다. 그러나 케플러에 대해서는 누구보다 알았다. 30년간 케플러를 조사한 사람이었다. 30년치 데이터가 그녀의 머릿속에 있었다.",
-            "en": "Liang Wei was a geologist. An outsider. Neither MCC nor FSP. But she knew Kepler better than anyone. She had surveyed it for thirty years. Thirty years of data was in her head."
+            "en": "Liang Wei was a geologist. An outsider. Neither MCC nor FSP. But she knew Kepler better than anyone. She had surveyed it for thirty years. Thirty years of data was in her head.",
+            "ja": "リャン・ウェイは地質学者だった。外部者だった。MCCでもFSPでもなかった。しかしケプラーについては誰よりも知っていた。三十年間ケプラーを調査した人だった。三十年分のデータが彼女の頭の中にあった。",
+            "zh": "梁薇是地质学家。是外部人员。既不属于MCC也不属于FSP。但她对开普勒的了解比任何人都多。她调查开普勒已经三十年了。三十年的数据都在她脑子里。"
           }
         }
       ]
@@ -121,7 +137,9 @@
         {
           "text": {
             "ko": "그녀의 연구 기지는 분화구 가장자리에 있었다. 작은 것이었다. 컨테이너 두 개. 태양광 패널. 외부 안테나. 필요한 것만 있었다. 30년을 혼자 이곳에서 연구한 사람의 공간이었다. 불필요한 것은 30년이 지나면 없어졌다.",
-            "en": "Her research base was at the crater's edge. Small. Two containers. Solar panels. External antenna. Only what was necessary. The space of someone who had researched here alone for thirty years. Unnecessary things disappeared after thirty years."
+            "en": "Her research base was at the crater's edge. Small. Two containers. Solar panels. External antenna. Only what was necessary. The space of someone who had researched here alone for thirty years. Unnecessary things disappeared after thirty years.",
+            "ja": "彼女の研究基地はクレーターの縁にあった。小さなものだった。コンテナ二つ。太陽光パネル。外部アンテナ。必要なものだけがあった。三十年間ここで一人で研究した人の空間だった。不要なものは三十年経つとなくなっていた。",
+            "zh": "她的研究基地在陨石坑边缘。很小。两个集装箱。太阳能板。外置天线。只有必要的东西。这是一个独自在这里研究了三十年的人的空间。不必要的东西三十年后就消失了。"
           }
         }
       ]
@@ -139,7 +157,9 @@
           "effect": "character_enter:liang_wei:slide_right",
           "text": {
             "ko": "저기를 보세요. 지층이 달라요. 일반 광석이 아니에요.",
-            "en": "Look there. The stratum is different. Not ordinary ore."
+            "en": "Look there. The stratum is different. Not ordinary ore.",
+            "ja": "あそこを見てください。地層が違います。普通の鉱石ではありません。",
+            "zh": "看那里。地层不一样。不是普通矿石。"
           }
         },
         {
@@ -147,7 +167,9 @@
           "emotion": "excited",
           "text": {
             "ko": "Ancient Metal 가설이 있어요. 외계 기원 물질. 학계에서는 인정하지 않지만 나는 30년 동안 이것을 봤어요.",
-            "en": "There's an Ancient Metal hypothesis. Material of extraterrestrial origin. Academia doesn't accept it but I've been watching this for thirty years."
+            "en": "There's an Ancient Metal hypothesis. Material of extraterrestrial origin. Academia doesn't accept it but I've been watching this for thirty years.",
+            "ja": "古代金属の仮説があります。地球外起源の物質。学界は認めていませんが、私は三十年間これを見てきました。",
+            "zh": "有一个古代金属假说。地外起源物质。学界不承认，但我观察这个已经三十年了。"
           }
         },
         {
@@ -155,7 +177,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC가 알면 독점하려 할 거예요. 그 전에 무엇인지 확인해야 해요.",
-            "en": "If MCC finds out they'll try to monopolize it. We need to confirm what it is first."
+            "en": "If MCC finds out they'll try to monopolize it. We need to confirm what it is first.",
+            "ja": "MCCが知れば独占しようとするでしょう。その前に何なのか確認しなければなりません。",
+            "zh": "MCC知道了就会想垄断。在那之前必须确认它是什么。"
           }
         }
       ]
@@ -170,7 +194,9 @@
         {
           "text": {
             "ko": "Liang Wei는 MCC 사람에게 말하고 있었다. 그것을 알면서도. 30년을 혼자 연구한 사람이 처음으로 누군가에게 말하는 것이었다. 그것이 느껴졌다. 조심스러웠다. 그러나 말을 멈추지 않았다. 30년을 기다린 것이 말을 멈추지 않게 했다.",
-            "en": "Liang Wei was talking to an MCC person. Knowing that. Someone who had researched alone for thirty years speaking to someone for the first time. That was felt. Careful. But she didn't stop. Thirty years of waiting kept her from stopping."
+            "en": "Liang Wei was talking to an MCC person. Knowing that. Someone who had researched alone for thirty years speaking to someone for the first time. That was felt. Careful. But she didn't stop. Thirty years of waiting kept her from stopping.",
+            "ja": "リャン・ウェイはMCCの人間に話していた。それを知りながら。三十年間一人で研究した人が初めて誰かに話すのだった。それが感じられた。慎重だった。しかし話すのを止めなかった。三十年待ったことが話すのを止めさせなかった。",
+            "zh": "梁薇在和一个MCC的人说话。明知道这件事。一个独自研究了三十年的人，第一次向某人开口。那种感觉是能感受到的。很谨慎。但她没有停下来。等待了三十年，让她无法停下。"
           }
         }
       ]
@@ -187,7 +213,9 @@
           "emotion": "focused",
           "text": {
             "ko": "1994년에 처음 봤어요. 그때는 장비가 부족했어요. 샘플을 못 뗐어요.",
-            "en": "First noticed it in 1994. Equipment was lacking then. Couldn't get a sample."
+            "en": "First noticed it in 1994. Equipment was lacking then. Couldn't get a sample.",
+            "ja": "一九九四年に初めて見ました。その時は装備が不足していました。サンプルを採取できませんでした。",
+            "zh": "一九九四年第一次看到。当时设备不足。没办法采样。"
           }
         },
         {
@@ -195,7 +223,9 @@
           "emotion": "serious",
           "text": {
             "ko": "2015년에 다시 왔어요. 지층이 더 노출됐어요. 그때 논문을 썼어요. 학계가 거부했어요. 데이터가 부족하다고. 그래서 계속 왔어요.",
-            "en": "Came back in 2015. The stratum was more exposed. Wrote a paper then. Academia rejected it. Said insufficient data. So I kept coming."
+            "en": "Came back in 2015. The stratum was more exposed. Wrote a paper then. Academia rejected it. Said insufficient data. So I kept coming.",
+            "ja": "二〇一五年に戻ってきました。地層がより露出していました。その時に論文を書きました。学界が拒否しました。データが不足だと。だから来続けました。",
+            "zh": "二〇一五年又回来了。地层更多暴露出来了。那时候写了论文。学界拒绝了。说数据不足。所以我一直来。"
           }
         },
         {
@@ -203,7 +233,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "30년이 됐어요. 데이터가 충분해요. 그러나 이제 학계가 아니라 MCC가 문제예요.",
-            "en": "Thirty years. The data is sufficient now. But now the problem isn't academia. It's MCC."
+            "en": "Thirty years. The data is sufficient now. But now the problem isn't academia. It's MCC.",
+            "ja": "三十年になりました。データは十分です。しかし今は学界ではなくMCCが問題です。",
+            "zh": "三十年了。数据已经足够。但现在问题不是学界，而是MCC。"
           }
         }
       ]
@@ -218,7 +250,9 @@
         {
           "text": {
             "ko": "분화구로 내려갔다. 리팡이 함께였다. 리팡은 내려가면서 말이 없었다. 분화구 안은 조용했다. 화성 표면보다 더 조용했다. 바람이 위에서 돌았다. 분화구 안까지 내려오지 않았다. 깊은 곳은 조용했다. 화성에서 가장 조용한 것들은 가장 깊은 곳에 있었다.",
-            "en": "Descended into the crater. Lifang came along. Lifang was silent descending. Inside the crater was quiet. Quieter than the Martian surface. Wind circled above. Didn't come down into the crater. Deep places were quiet. The quietest things on Mars were in the deepest places."
+            "en": "Descended into the crater. Lifang came along. Lifang was silent descending. Inside the crater was quiet. Quieter than the Martian surface. Wind circled above. Didn't come down into the crater. Deep places were quiet. The quietest things on Mars were in the deepest places.",
+            "ja": "クレーターに降りた。リー・ファンが一緒だった。リー・ファンは降りながら無言だった。クレーターの中は静かだった。火星の表面より静かだった。風が上で回った。クレーターの中まで降りてこなかった。深い場所は静かだった。火星で最も静かなものは最も深い場所にあった。",
+            "zh": "下到陨石坑里。李芳一起去了。李芳下去的时候沉默不语。陨石坑里面很安静。比火星表面更安静。风在上面回旋。没有下到陨石坑里面。深处是安静的。火星上最安静的东西在最深的地方。"
           }
         }
       ]
@@ -233,7 +267,9 @@
         {
           "text": {
             "ko": "1킬로미터. 2킬로미터. 3킬로미터. 아래로 내려갔다. 지질팀이 멈춘 곳이 보였다. 표시가 있었다. 경고 표시였다. 지반 불안정. MCC 표준 표시였다. 그 아래로는 표시가 없었다. 그 아래로는 계속 내려갈 수 있었다. 내려가야 할 이유가 있었다.",
-            "en": "One kilometer. Two kilometers. Three kilometers. Descended. The place where the geology team had stopped was visible. A marker. A warning marker. Ground instability. MCC standard marking. Below it no marker. Below it you could keep descending. There was a reason to."
+            "en": "One kilometer. Two kilometers. Three kilometers. Descended. The place where the geology team had stopped was visible. A marker. A warning marker. Ground instability. MCC standard marking. Below it no marker. Below it you could keep descending. There was a reason to.",
+            "ja": "一キロメートル。二キロメートル。三キロメートル。下に降りた。地質チームが止まった場所が見えた。マーカーがあった。警告マーカーだった。地盤不安定。MCCの標準マーカーだった。その下にはマーカーがなかった。その下には降り続けられた。降りなければならない理由があった。",
+            "zh": "一公里。两公里。三公里。向下走。地质组停下的地方看到了。有标记。是警告标记。地基不稳定。MCC标准标记。那下面没有标记。那下面还可以继续往下走。有往下走的理由。"
           }
         }
       ]
@@ -250,7 +286,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "경고 표시예요. 지질팀이 여기서 멈췄어요.",
-            "en": "Warning marker. This is where the geology team stopped."
+            "en": "Warning marker. This is where the geology team stopped.",
+            "ja": "警告マーカーです。地質チームはここで止まりました。",
+            "zh": "警告标记。地质组在这里停下来了。"
           }
         },
         {
@@ -258,7 +296,9 @@
           "emotion": "serious",
           "text": {
             "ko": "아래로 내려가면 MCC 프로토콜 위반이에요. 공식적으로는.",
-            "en": "Going below is an MCC protocol violation. Officially."
+            "en": "Going below is an MCC protocol violation. Officially.",
+            "ja": "下に降りるとMCCプロトコル違反です。公式には。",
+            "zh": "往下走是违反MCC规程的。官方上来说。"
           }
         },
         {
@@ -266,7 +306,9 @@
           "emotion": "cold",
           "text": {
             "ko": "Liang Wei가 아래를 알아요. 비공식 경로가 있어요. 나는 모른 척할 수 있어요.",
-            "en": "Liang Wei knows below. There's an unofficial route. I can look the other way."
+            "en": "Liang Wei knows below. There's an unofficial route. I can look the other way.",
+            "ja": "リャン・ウェイは下を知っています。非公式のルートがあります。私は見て見ぬふりができます。",
+            "zh": "梁薇知道下面的路。有非官方路线。我可以装作没看见。"
           }
         }
       ]
@@ -281,7 +323,9 @@
         {
           "text": {
             "ko": "Liang Wei가 앞섰다. 경고 표시 아래. 그녀는 주저하지 않았다. 30년을 이 분화구에서 보낸 사람이었다. 이 경고 표시는 그녀에게 경고가 아니었다. 안내 표시였다. 더 내려갈 것을 알리는.",
-            "en": "Liang Wei went first. Below the warning marker. She didn't hesitate. Someone who had spent thirty years in this crater. This warning marker wasn't a warning to her. It was a guide. Indicating to go further down."
+            "en": "Liang Wei went first. Below the warning marker. She didn't hesitate. Someone who had spent thirty years in this crater. This warning marker wasn't a warning to her. It was a guide. Indicating to go further down.",
+            "ja": "リャン・ウェイが先に行った。警告マーカーの下。彼女はためらわなかった。三十年をこのクレーターで過ごした人だった。この警告マーカーは彼女にとって警告ではなかった。案内表示だった。もっと下に行くことを示す。",
+            "zh": "梁薇走在前面。警告标记的下方。她没有犹豫。是一个在这个陨石坑里待了三十年的人。这个警告标记对她来说不是警告。是指示标记。指示继续往下走。"
           }
         }
       ]
@@ -298,7 +342,9 @@
           "emotion": "focused",
           "text": {
             "ko": "여기 보세요. 지층 색이 달라요.",
-            "en": "Look here. The stratum color is different."
+            "en": "Look here. The stratum color is different.",
+            "ja": "ここを見てください。地層の色が違います。",
+            "zh": "看这里。地层颜色不一样。"
           }
         },
         {
@@ -306,7 +352,9 @@
           "emotion": "excited",
           "text": {
             "ko": "이 색은 화성 광물에 없어요. 어두운 은색이에요. 분석하면 알겠지만 구성이 달라요.",
-            "en": "This color doesn't exist in Martian minerals. Dark silver. Analysis would confirm but the composition is different."
+            "en": "This color doesn't exist in Martian minerals. Dark silver. Analysis would confirm but the composition is different.",
+            "ja": "この色は火星の鉱物にはありません。暗い銀色です。分析すればわかりますが、構成が違います。",
+            "zh": "这种颜色在火星矿物中没有。是暗银色。分析后能确认，但成分不同。"
           }
         },
         {
@@ -314,7 +362,9 @@
           "emotion": "serious",
           "text": {
             "ko": "30년 전에 봤던 것이에요. 이제 더 많이 노출됐어요. 지각이 움직이고 있어요. 천천히.",
-            "en": "This is what I saw thirty years ago. More exposed now. The crust is moving. Slowly."
+            "en": "This is what I saw thirty years ago. More exposed now. The crust is moving. Slowly.",
+            "ja": "三十年前に見たものです。今はもっと露出しています。地殻が動いています。ゆっくりと。",
+            "zh": "这是我三十年前看到的东西。现在暴露得更多了。地壳在移动。缓慢地。"
           }
         }
       ]
@@ -329,7 +379,9 @@
         {
           "text": {
             "ko": "지층을 봤다. Liang Wei가 말한 것이 보였다. 어두운 은색. 화성 광물과 달랐다. 화성은 붉고 황갈색이었다. 이것은 달랐다. 손으로 만지려 했다. Liang Wei가 막았다.",
-            "en": "Looked at the stratum. What Liang Wei said was visible. Dark silver. Different from Martian minerals. Mars was red and ochre. This was different. Reached to touch it. Liang Wei stopped the hand."
+            "en": "Looked at the stratum. What Liang Wei said was visible. Dark silver. Different from Martian minerals. Mars was red and ochre. This was different. Reached to touch it. Liang Wei stopped the hand.",
+            "ja": "地層を見た。リャン・ウェイが言ったものが見えた。暗い銀色。火星の鉱物と違った。火星は赤く黄土色だった。これは違った。手で触ろうとした。リャン・ウェイが止めた。",
+            "zh": "看了地层。梁薇说的东西看到了。暗银色。与火星矿物不同。火星是红色和赭石色的。这个不同。想用手触摸。梁薇阻止了。"
           }
         }
       ]
@@ -346,7 +398,9 @@
           "emotion": "serious",
           "text": {
             "ko": "맨손으로 안 돼요. 장갑이에요. 오염이 분석을 방해해요.",
-            "en": "Not bare-handed. Gloves. Contamination interferes with analysis."
+            "en": "Not bare-handed. Gloves. Contamination interferes with analysis.",
+            "ja": "素手では駄目です。手袋です。汚染が分析を妨げます。",
+            "zh": "不能徒手。要戴手套。污染会影响分析。"
           }
         },
         {
@@ -354,7 +408,9 @@
           "emotion": "focused",
           "text": {
             "ko": "샘플을 채취해야 해요. 도구가 있어요. 여기 자주 왔으니까.",
-            "en": "Need to collect a sample. I have tools. I come here often."
+            "en": "Need to collect a sample. I have tools. I come here often.",
+            "ja": "サンプルを採取しなければなりません。道具があります。ここによく来るので。",
+            "zh": "需要采样。我有工具。我经常来这里。"
           }
         },
         {
@@ -362,7 +418,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "처음 왔을 때 손으로 만졌어요. 1994년. 그 때는 몰랐어요. 지금은 알아요.",
-            "en": "The first time I came I touched it bare-handed. 1994. Didn't know then. Know now."
+            "en": "The first time I came I touched it bare-handed. 1994. Didn't know then. Know now.",
+            "ja": "初めて来た時は素手で触りました。一九九四年。その時は知りませんでした。今は知っています。",
+            "zh": "第一次来的时候徒手触摸了。一九九四年。那时候不知道。现在知道了。"
           }
         }
       ]
@@ -377,7 +435,9 @@
         {
           "text": {
             "ko": "광물 샘플이 있었다. 색이 달랐다. 화성의 일반 광물과 달랐다. 그것이 무엇인지는 분석이 필요했다. 분석하기 전에 MCC에 보고하면 MCC의 것이 될 것이었다. 그것이 계약의 내용이었다.",
-            "en": "There was a mineral sample. The color was different. Not like ordinary Martian minerals. Analysis was needed to know what it was. Report to MCC before analysis and it would become MCC's. That was what the contract said."
+            "en": "There was a mineral sample. The color was different. Not like ordinary Martian minerals. Analysis was needed to know what it was. Report to MCC before analysis and it would become MCC's. That was what the contract said.",
+            "ja": "鉱物のサンプルがあった。色が違った。火星の一般的な鉱物と違った。それが何なのかは分析が必要だった。分析前にMCCに報告するとMCCのものになるだろう。それが契約の内容だった。",
+            "zh": "有矿物样本。颜色不同。与火星普通矿物不同。要知道它是什么，需要分析。在分析前向MCC报告的话，就会变成MCC的了。这是合同的内容。"
           }
         }
       ]
@@ -392,9 +452,11 @@
         {
           "text": {
             "ko": "Liang Wei는 샘플을 보고 있었다. 30년간 이것을 기다렸을 것이었다. 그 얼굴에 무엇이 있는지는 보기 어려웠다. 그러나 손이 떨렸다. 조금. 30년간 기다린 사람의 손이었다.",
-            "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years."
-          },
-          "overlay": "mcc_ch4_pirates_payroll_l17_00_ore_sample"
+            "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years.",
+            "ja": "リャン・ウェイがサンプルを見ていた。三十年間これを待っていたのだろう。その顔に何があるかは読みにくかった。しかし手が震えた。少し。三十年間待った人の手だった。",
+            "zh": "梁薇在看着样本。她等待这个已经三十年了。那张脸上有什么，很难看出来。但是手在颤抖。微微地。那是等待了三十年的人的手。",
+            "overlay": "mcc_ch4_pirates_payroll_l17_00_ore_sample"
+          }
         }
       ]
     },
@@ -410,7 +472,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "외계 기원이에요. 확신해요. 분석이 증명해줄 거예요.",
-            "en": "Extraterrestrial origin. I'm certain. Analysis will prove it."
+            "en": "Extraterrestrial origin. I'm certain. Analysis will prove it.",
+            "ja": "地球外起源です。確信しています。分析が証明してくれるでしょう。",
+            "zh": "是地外起源。我确信。分析会证明的。"
           }
         },
         {
@@ -418,7 +482,9 @@
           "emotion": "focused",
           "text": {
             "ko": "이것이 있으면 화성 지각 형성 이론이 바뀌어요. 화성이 어떻게 생겼는지를 다시 써야 해요.",
-            "en": "If this is confirmed the theory of Martian crust formation changes. How Mars came to be needs to be rewritten."
+            "en": "If this is confirmed the theory of Martian crust formation changes. How Mars came to be needs to be rewritten.",
+            "ja": "これが確認されると火星地殻形成理論が変わります。火星がどのようにできたかを書き直さなければなりません。",
+            "zh": "如果这得到确认，火星地壳形成理论就会改变。关于火星如何形成的内容需要重新写。"
           }
         },
         {
@@ -426,7 +492,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그러나 MCC가 독점하면 연구는 없어요. 광물 추출만 있어요.",
-            "en": "But if MCC monopolizes it there's no research. Only mineral extraction."
+            "en": "But if MCC monopolizes it there's no research. Only mineral extraction.",
+            "ja": "しかしMCCが独占すれば研究はなくなります。鉱物採取だけになります。",
+            "zh": "但如果MCC垄断，就没有研究了。只有矿物开采。"
           }
         }
       ]
@@ -441,7 +509,9 @@
         {
           "text": {
             "ko": "리팡이 옆에 있었다. 아무 말도 하지 않았다. 그것이 리팡의 방식이었다. 필요한 것만 말하는 사람. 그러나 지금 그의 침묵은 달랐다. 무엇인가를 기다리는 침묵이었다. 결정을 기다리는 침묵이었다.",
-            "en": "Lifang was beside. Said nothing. That was Lifang's way. A person who said only what was necessary. But his silence now was different. A silence waiting for something. A silence waiting for a decision."
+            "en": "Lifang was beside. Said nothing. That was Lifang's way. A person who said only what was necessary. But his silence now was different. A silence waiting for something. A silence waiting for a decision.",
+            "ja": "リー・ファンが隣にいた。何も言わなかった。それがリー・ファンのやり方だった。必要なことだけ言う人。しかし今の彼の沈黙は違った。何かを待つ沈黙だった。決断を待つ沈黙だった。",
+            "zh": "李芳在旁边。什么都没说。那是李芳的方式。一个只说必要的话的人。但现在他的沉默不一样。是等待某事的沉默。是等待决定的沉默。"
           }
         }
       ]
@@ -458,7 +528,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC 계약 조항 7호예요. 현장 발견물은 즉시 보고.",
-            "en": "MCC contract clause 7. Field discoveries must be reported immediately."
+            "en": "MCC contract clause 7. Field discoveries must be reported immediately.",
+            "ja": "MCC契約条項第七号です。現場での発見物は即時報告。",
+            "zh": "MCC合同第七条款。现场发现物须立即上报。"
           }
         },
         {
@@ -466,7 +538,9 @@
           "emotion": "serious",
           "text": {
             "ko": "나는 그것을 알아요. 당신도 알아요. Liang Wei도 알아요.",
-            "en": "I know that. You know that. Liang Wei knows that."
+            "en": "I know that. You know that. Liang Wei knows that.",
+            "ja": "私はそれを知っています。あなたも知っています。リャン・ウェイも知っています。",
+            "zh": "我知道这件事。你也知道。梁薇也知道。"
           }
         },
         {
@@ -474,7 +548,9 @@
           "emotion": "cold",
           "text": {
             "ko": "그래서 어떻게 할 건지는 당신이 결정해요.",
-            "en": "So what you do is your decision."
+            "en": "So what you do is your decision.",
+            "ja": "だからどうするかはあなたが決めます。",
+            "zh": "所以怎么做是你的决定。"
           }
         }
       ]
@@ -489,7 +565,9 @@
         {
           "text": {
             "ko": "분화구 위로 화성의 하늘이 보였다. 붉었다. 태양이 기울었다. 어두운 은색 샘플이 손 안에 있었다. 작았다. 그러나 무거웠다. 30년의 무게가 있었다. MCC 계약의 무게도 있었다. 두 가지 무게가 같은 손 안에 있었다.",
-            "en": "Above the crater the Martian sky was visible. Red. The sun tilted. The dark silver sample was in the hand. Small. But heavy. The weight of thirty years. The weight of the MCC contract too. Two weights in the same hand."
+            "en": "Above the crater the Martian sky was visible. Red. The sun tilted. The dark silver sample was in the hand. Small. But heavy. The weight of thirty years. The weight of the MCC contract too. Two weights in the same hand.",
+            "ja": "クレーターの上に火星の空が見えた。赤かった。太陽が傾いた。暗い銀色のサンプルが手の中にあった。小さかった。しかし重かった。三十年の重さがあった。MCC契約の重さもあった。二つの重さが同じ手の中にあった。",
+            "zh": "陨石坑上方看得见火星的天空。是红色的。太阳倾斜了。暗银色的样本在手中。很小。但是很重。有三十年的重量。也有MCC合同的重量。两种重量在同一只手里。"
           }
         }
       ]
@@ -506,7 +584,9 @@
           "emotion": "serious",
           "text": {
             "ko": "알고 있어요. MCC 사람이에요. 계약이 있어요.",
-            "en": "I know. You're MCC. There's a contract."
+            "en": "I know. You're MCC. There's a contract.",
+            "ja": "知っています。MCCの人です。契約があります。",
+            "zh": "我知道。你是MCC的人。有合同。"
           }
         },
         {
@@ -514,7 +594,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "30년을 기다렸어요. 누구 것이 될지 생각하지 않았어요. 있는지 없는지만 생각했어요.",
-            "en": "I waited thirty years. I didn't think about who it would belong to. Only whether it existed."
+            "en": "I waited thirty years. I didn't think about who it would belong to. Only whether it existed.",
+            "ja": "三十年待ちました。誰のものになるか考えませんでした。あるかないかだけを考えました。",
+            "zh": "我等了三十年。没有想过会是谁的。只想过它存不存在。"
           }
         },
         {
@@ -522,7 +604,9 @@
           "emotion": "focused",
           "text": {
             "ko": "그러나 이제 있어요. 그리고 당신이 여기 있어요. 이제 그 질문이 생겼어요.",
-            "en": "But now it exists. And you're here. Now that question exists."
+            "en": "But now it exists. And you're here. Now that question exists.",
+            "ja": "しかし今はあります。そしてあなたがここにいます。今その質問が生まれました。",
+            "zh": "但是现在它存在了。而你在这里。现在那个问题产生了。"
           }
         }
       ]
@@ -537,9 +621,11 @@
         {
           "text": {
             "ko": "석양이었다. 케플러 분화구 가장자리. 태양이 지평선 아래로 내려가고 있었다. 화성의 일몰은 지구와 달랐다. 파랗게 변했다. 붉은 하늘이 해질 무렵 파랗게 됐다. 그 순간이 짧았다. 그러나 있었다. 케플러에서 처음 보는 것이었다.",
-            "en": "Sunset. Edge of Kepler crater. The sun was going below the horizon. Martian sunsets were different from Earth. They turned blue. The red sky turned blue at dusk. That moment was brief. But it was there. The first time seeing it at Kepler."
-          },
-          "overlay": "mcc_ch4_pirates_payroll_l23_00_mars_horizon"
+            "en": "Sunset. Edge of Kepler crater. The sun was going below the horizon. Martian sunsets were different from Earth. They turned blue. The red sky turned blue at dusk. That moment was brief. But it was there. The first time seeing it at Kepler.",
+            "ja": "夕暮れだった。ケプラー・クレーターの縁。太陽が地平線の下へと降りていた。火星の日没は地球と違った。青く変わった。赤い空が夕暮れ時に青くなった。その瞬間は短かった。しかしあった。ケプラーで初めて見るものだった。",
+            "zh": "是傍晚。开普勒陨石坑边缘。太阳在向地平线以下落去。火星的日落与地球不同。变成了蓝色。红色的天空在黄昏时变成了蓝色。那个瞬间很短暂。但是存在。这是在开普勒第一次看到的东西。",
+            "overlay": "mcc_ch4_pirates_payroll_l23_00_mars_horizon"
+          }
         }
       ]
     },
@@ -555,7 +641,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "파란 일몰이에요. 화성에서만 볼 수 있어요.",
-            "en": "Blue sunset. Only visible on Mars."
+            "en": "Blue sunset. Only visible on Mars.",
+            "ja": "青い日没です。火星でしか見られません。",
+            "zh": "蓝色日落。只有在火星上才能看到。"
           }
         },
         {
@@ -563,7 +651,9 @@
           "emotion": "focused",
           "text": {
             "ko": "30년 동안 여기서 봤어요. 매년. 이 분화구에서만 이렇게 파래요. 다른 곳은 달라요.",
-            "en": "Watched it for thirty years here. Every year. This blue only happens in this crater. Other places are different."
+            "en": "Watched it for thirty years here. Every year. This blue only happens in this crater. Other places are different.",
+            "ja": "三十年間ここで見ました。毎年。このクレーターだけでこんなに青くなります。他の場所は違います。",
+            "zh": "我在这里看了三十年。每年。只有在这个陨石坑里才这么蓝。其他地方不一样。"
           }
         },
         {
@@ -571,7 +661,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Ancient Metal이 영향을 주는 것 같아요. 광물이 빛을 굴절시켜요. 그것도 증거예요.",
-            "en": "I think the Ancient Metal has an effect. The mineral refracts light. That's also evidence."
+            "en": "I think the Ancient Metal has an effect. The mineral refracts light. That's also evidence.",
+            "ja": "古代金属が影響を与えているようです。鉱物が光を屈折させます。それも証拠です。",
+            "zh": "古代金属好像有影响。矿物折射光线。那也是证据。"
           }
         }
       ]
@@ -586,7 +678,9 @@
         {
           "text": {
             "ko": "파란 일몰 안에 케플러 분화구가 있었다. 3킬로미터 깊이의 분지. 그 안에 어두운 은색이 있었다. 30년의 연구. MCC 계약. 학계의 거부. 그것들이 전부 이 석양 안에 있었다. 파란 빛 안에 있었다. 이 행성에서만 볼 수 있는 빛.",
-            "en": "In the blue sunset was Kepler Crater. A basin 3 kilometers deep. Dark silver inside. Thirty years of research. MCC contract. Academic rejection. All of that was in this sunset. In the blue light. Light only visible on this planet."
+            "en": "In the blue sunset was Kepler Crater. A basin 3 kilometers deep. Dark silver inside. Thirty years of research. MCC contract. Academic rejection. All of that was in this sunset. In the blue light. Light only visible on this planet.",
+            "ja": "青い夕暮れの中にケプラー・クレーターがあった。三キロメートル深さの盆地。その中に暗い銀色があった。三十年の研究。MCC契約。学界の拒否。それらが全部この夕暮れの中にあった。青い光の中にあった。この惑星でしか見られない光。",
+            "zh": "在蓝色的日落里是开普勒陨石坑。三公里深的盆地。里面有暗银色。三十年的研究。MCC合同。学界的拒绝。那些全都在这个日落里。在蓝色的光里。只在这颗星球上才能看到的光。"
           }
         }
       ]
@@ -603,7 +697,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "리포트 마감이 내일 오후예요.",
-            "en": "Report deadline is tomorrow afternoon."
+            "en": "Report deadline is tomorrow afternoon.",
+            "ja": "レポートの締め切りは明日の午後です。",
+            "zh": "报告截止日期是明天下午。"
           }
         },
         {
@@ -611,7 +707,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Chen Weiss가 기다리고 있어요.",
-            "en": "Chen Weiss is waiting."
+            "en": "Chen Weiss is waiting.",
+            "ja": "チェン・ワイスが待っています。",
+            "zh": "陈·韦斯在等着。"
           }
         },
         {
@@ -619,7 +717,9 @@
           "emotion": "cold",
           "text": {
             "ko": "오늘 밤 결정해요.",
-            "en": "Decide tonight."
+            "en": "Decide tonight.",
+            "ja": "今夜決めてください。",
+            "zh": "今晚做决定。"
           }
         }
       ]
@@ -634,7 +734,9 @@
         {
           "text": {
             "ko": "밤이 됐다. 케플러의 밤이었다. 분화구 아래에서 바람이 없었다. 가장자리 위에서는 있었다. 분화구 안과 밖이 달랐다. 이 경계에 서 있었다. 안과 밖. 결정 전과 결정 후. 그 경계에.",
-            "en": "Night came. Kepler's night. No wind below in the crater. Wind above on the rim. Inside the crater and outside were different. Standing on this boundary. Inside and outside. Before decision and after decision. On that boundary."
+            "en": "Night came. Kepler's night. No wind below in the crater. Wind above on the rim. Inside the crater and outside were different. Standing on this boundary. Inside and outside. Before decision and after decision. On that boundary.",
+            "ja": "夜になった。ケプラーの夜だった。クレーターの下には風がなかった。縁の上には風があった。クレーターの内と外は違った。この境界に立っていた。内と外。決断の前と後。その境界に。",
+            "zh": "夜晚来了。是开普勒的夜晚。陨石坑下面没有风。边缘上面有风。陨石坑内外是不同的。站在这个边界上。内与外。决定前与决定后。在那个边界上。"
           }
         }
       ]
@@ -651,7 +753,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "잠을 못 자겠죠.",
-            "en": "You won't be able to sleep."
+            "en": "You won't be able to sleep.",
+            "ja": "眠れないでしょう。",
+            "zh": "肯定睡不着。"
           }
         },
         {
@@ -659,7 +763,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "나도 처음에 그랬어요. 30년 전. 처음 이것을 봤을 때. 잠을 못 잤어요.",
-            "en": "Same for me at first. Thirty years ago. When I first saw this. Couldn't sleep."
+            "en": "Same for me at first. Thirty years ago. When I first saw this. Couldn't sleep.",
+            "ja": "私も最初はそうでした。三十年前。これを初めて見た時。眠れませんでした。",
+            "zh": "我最开始也是这样。三十年前。第一次看到这个的时候。睡不着。"
           }
         },
         {
@@ -667,7 +773,9 @@
           "emotion": "serious",
           "text": {
             "ko": "지금도 못 자요. 그것이 달라진 게 없어요.",
-            "en": "Still can't now. That hasn't changed."
+            "en": "Still can't now. That hasn't changed.",
+            "ja": "今も眠れません。それは変わっていません。",
+            "zh": "现在也还是睡不着。那件事没有变。"
           }
         }
       ]
@@ -682,7 +790,9 @@
         {
           "text": {
             "ko": "다음 날 새벽이었다. 케플러에서 두 번째 새벽. 다시 붉었다. 붉음에서 더 붉음으로. 샘플이 주머니 안에 있었다. 밤새 거기 있었다. 결정은 아직 안 됐다. 그러나 새벽이 왔다. 결정의 시간이 왔다.",
-            "en": "Next day's dawn. Second dawn at Kepler. Red again. From red to redder. The sample was in a pocket. Had been there all night. Decision not yet made. But dawn came. Time for decision came."
+            "en": "Next day's dawn. Second dawn at Kepler. Red again. From red to redder. The sample was in a pocket. Had been there all night. Decision not yet made. But dawn came. Time for decision came.",
+            "ja": "翌日の夜明けだった。ケプラーでの二回目の夜明け。また赤かった。赤からさらなる赤へ。サンプルがポケットの中にあった。一晩中そこにあった。決断はまだされていなかった。しかし夜明けが来た。決断の時が来た。",
+            "zh": "第二天的黎明。在开普勒的第二个黎明。又是红色的。从红色到更红。样本在口袋里。整夜都在那里。决定还没做出。但是黎明来了。做决定的时候到了。"
           }
         }
       ]
@@ -694,55 +804,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Ancient Metal 샘플. 어떻게 처리하겠습니까.",
-        "en": "The Ancient Metal sample. What will you do with it."
+        "en": "The Ancient Metal sample. What will you do with it.",
+        "ja": "古代金属サンプル。どう処理するか。",
+        "zh": "古代金属样本。你要如何处置它。"
       },
       "choices": [
         {
           "id": "mcc_ch4_report_mcc",
           "text": {
             "ko": "즉시 MCC에 보고한다.",
-            "en": "Report to MCC immediately."
+            "en": "Report to MCC immediately.",
+            "ja": "直ちにMCCに報告する。",
+            "zh": "立即向MCC报告。"
           },
           "tone": "loyal",
           "preview_hint": {
             "ko": "→ MCC 독점 시작, Liang Wei 실망",
-            "en": "→ MCC monopoly begins, Liang Wei disappointed"
+            "en": "→ MCC monopoly begins, Liang Wei disappointed",
+            "ja": "→ MCC独占開始、リャン・ウェイ失望",
+            "zh": "→ MCC垄断开始，梁薇失望"
           }
         },
         {
           "id": "mcc_ch4_analyze_first",
           "text": {
             "ko": "분석 먼저. 보고는 그 다음.",
-            "en": "Analyze first. Report after."
+            "en": "Analyze first. Report after.",
+            "ja": "分析を先に。報告はその後。",
+            "zh": "先分析。然后再报告。"
           },
           "tone": "methodical",
           "preview_hint": {
             "ko": "→ 더 많은 정보 획득",
-            "en": "→ More information gained"
+            "en": "→ More information gained",
+            "ja": "→ より多くの情報獲得",
+            "zh": "→ 获得更多信息"
           }
         },
         {
           "id": "mcc_ch4_share_info",
           "text": {
             "ko": "Liang Wei에게 공유 제안.",
-            "en": "Propose sharing with Liang Wei."
+            "en": "Propose sharing with Liang Wei.",
+            "ja": "リャン・ウェイに共有を提案する。",
+            "zh": "向梁薇提议共享。"
           },
           "tone": "collaborative",
           "preview_hint": {
             "ko": "→ Liang Wei 신뢰 +, MCC 경로 복잡화",
-            "en": "→ Liang Wei trust +, MCC route complicates"
+            "en": "→ Liang Wei trust +, MCC route complicates",
+            "ja": "→ リャン・ウェイ信頼 +、MCCルート複雑化",
+            "zh": "→ 梁薇信任 +，MCC路线复杂化"
           }
         },
         {
           "id": "mcc_ch4_secure_site",
           "text": {
             "ko": "현장을 먼저 확보한다.",
-            "en": "Secure the site first."
+            "en": "Secure the site first.",
+            "ja": "現場を先に確保する。",
+            "zh": "先控制现场。"
           },
           "tone": "tactical",
           "preview_hint": {
             "ko": "→ FSP/CV 접근 방지",
-            "en": "→ Prevent FSP/CV access"
+            "en": "→ Prevent FSP/CV access",
+            "ja": "→ FSP/CVのアクセス防止",
+            "zh": "→ 阻止FSP/CV进入"
           }
         }
       ]
@@ -757,7 +885,9 @@
         {
           "text": {
             "ko": "결정이 됐다. 그 결정이 무엇이든 — 케플러 분화구는 그대로 있었다. 3킬로미터 깊이. 분지 안에 분지. 어두운 은색이 안에 있었다. 결정이 그것을 바꾸지는 않았다. 그러나 그 결정 이후의 것들을 바꾸었다.",
-            "en": "A decision was made. Whatever that decision — Kepler Crater was unchanged. Three kilometers deep. Basin within basin. Dark silver inside. The decision didn't change that. But it changed what came after."
+            "en": "A decision was made. Whatever that decision — Kepler Crater was unchanged. Three kilometers deep. Basin within basin. Dark silver inside. The decision didn't change that. But it changed what came after.",
+            "ja": "決断がされた。その決断が何であれ——ケプラー・クレーターは変わらずそこにあった。三キロメートルの深さ。盆地の中の盆地。暗い銀色が中にあった。決断がそれを変えなかった。しかしその決断以降のものを変えた。",
+            "zh": "决定做出了。不管那个决定是什么——开普勒陨石坑还是那个样子。三公里深。盆地中的盆地。里面有暗银色。决定没有改变那个。但改变了决定之后的事情。"
           }
         }
       ]
@@ -774,7 +904,9 @@
           "emotion": "serious",
           "text": {
             "ko": "FSP가 접근하고 있어요. 어제 저녁부터 신호가 있었어요.",
-            "en": "FSP is approaching. There's been a signal since yesterday evening."
+            "en": "FSP is approaching. There's been a signal since yesterday evening.",
+            "ja": "FSPが接近しています。昨夜から信号がありました。",
+            "zh": "FSP在靠近。从昨晚起就有信号了。"
           }
         },
         {
@@ -782,7 +914,9 @@
           "emotion": "focused",
           "text": {
             "ko": "그들도 알아요. 정보가 새는 곳이 있어요.",
-            "en": "They know too. There's a leak somewhere."
+            "en": "They know too. There's a leak somewhere.",
+            "ja": "彼らも知っています。情報が漏れているところがあります。",
+            "zh": "他们也知道了。有地方在泄露信息。"
           }
         },
         {
@@ -790,7 +924,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC 지질팀 보고서가 불완전했던 이유예요. 그들이 팔았어요.",
-            "en": "That's why the MCC geology team report was incomplete. They sold it."
+            "en": "That's why the MCC geology team report was incomplete. They sold it.",
+            "ja": "MCC地質チームの報告書が不完全だった理由です。彼らが売ったんです。",
+            "zh": "这就是MCC地质组报告不完整的原因。他们出卖了。"
           }
         }
       ]
@@ -805,7 +941,9 @@
         {
           "text": {
             "ko": "먼지 폭풍이었다. 갑자기 왔다. 화성의 먼지 폭풍은 갑자기 왔다. 시야가 줄었다. 50미터. 20미터. 10미터. FSP 차량 신호가 가까워지고 있었다. 먼지 안에서. 보이지 않지만 있었다. 화성의 것들은 그랬다.",
-            "en": "A dust storm. Came suddenly. Martian dust storms came suddenly. Visibility decreased. 50 meters. 20 meters. 10 meters. FSP vehicle signal was approaching. In the dust. Not visible but there. Things on Mars were like that."
+            "en": "A dust storm. Came suddenly. Martian dust storms came suddenly. Visibility decreased. 50 meters. 20 meters. 10 meters. FSP vehicle signal was approaching. In the dust. Not visible but there. Things on Mars were like that.",
+            "ja": "砂嵐だった。突然来た。火星の砂嵐は突然来た。視界が狭まった。五十メートル。二十メートル。十メートル。FSP車両の信号が近づいていた。砂の中で。見えないがそこにあった。火星のものはそうだった。",
+            "zh": "是沙尘暴。突然来了。火星的沙尘暴就是突然来。能见度降低。五十米。二十米。十米。FSP车辆信号在靠近。在尘土中。看不见但在那里。火星上的东西就是这样。"
           }
         }
       ]
@@ -822,7 +960,9 @@
           "emotion": "serious",
           "text": {
             "ko": "FSP가 세 팀이에요. 북쪽. 동쪽. 남쪽. 우리를 에워싸고 있어요.",
-            "en": "FSP is three teams. North. East. South. Surrounding us."
+            "en": "FSP is three teams. North. East. South. Surrounding us.",
+            "ja": "FSPが三チームです。北。東。南。我々を囲んでいます。",
+            "zh": "FSP是三支队伍。北面。东面。南面。包围我们了。"
           }
         },
         {
@@ -830,7 +970,9 @@
           "emotion": "fearful",
           "text": {
             "ko": "샘플 때문이에요. 그들도 Ancient Metal을 알아요.",
-            "en": "It's because of the sample. They know about Ancient Metal too."
+            "en": "It's because of the sample. They know about Ancient Metal too.",
+            "ja": "サンプルのせいです。彼らも古代金属を知っています。",
+            "zh": "是因为样本。他们也知道古代金属。"
           }
         },
         {
@@ -838,7 +980,9 @@
           "emotion": "cold",
           "text": {
             "ko": "지금 결정이 필요해요. 현장 통제가 없으면 샘플도 없어요.",
-            "en": "Need a decision now. Without site control there's no sample."
+            "en": "Need a decision now. Without site control there's no sample.",
+            "ja": "今決断が必要です。現場制御がなければサンプルもありません。",
+            "zh": "现在需要决定。没有控制现场，就没有样本。"
           }
         }
       ]
@@ -851,11 +995,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "케플러 확보",
-        "en": "Kepler Secured"
+        "en": "Kepler Secured",
+        "ja": "ケプラー確保",
+        "zh": "占领开普勒"
       },
       "subtitle": {
         "ko": "분쟁 지역 — 광물 현장 통제",
-        "en": "Contested Zone — Mineral Site Control"
+        "en": "Contested Zone — Mineral Site Control",
+        "ja": "紛争地域 — 鉱物現場制御",
+        "zh": "争议地区 — 矿物现场控制"
       }
     },
     {
@@ -876,7 +1024,9 @@
           "effect": "character_enter:liang_wei:slide_right",
           "text": {
             "ko": "현장 확보됐어요. 샘플도 있어요. 이제 무엇을 할 건지는 당신의 결정이에요.",
-            "en": "Site secured. Sample intact. What happens now is your decision."
+            "en": "Site secured. Sample intact. What happens now is your decision.",
+            "ja": "現場確保。サンプルもあります。これから何をするかはあなたの決断です。",
+            "zh": "现场已控制。样本还在。接下来怎么做是你的决定。"
           }
         },
         {
@@ -884,7 +1034,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "30년 동안 이것이 누구 것이 될지 생각 안 했어요. 있는지 없는지만 생각했어요.",
-            "en": "For thirty years I didn't think about who this would belong to. Only whether it existed."
+            "en": "For thirty years I didn't think about who this would belong to. Only whether it existed.",
+            "ja": "三十年間、これが誰のものになるか考えませんでした。あるかないかだけを考えました。",
+            "zh": "三十年里我没有想过这是谁的。只想过它是否存在。"
           }
         },
         {
@@ -892,7 +1044,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이제 있어요. 누구 것이 될지는 헬라스로 돌아가면 결정돼요.",
-            "en": "Now it exists. Whose it becomes gets decided when we return to Hellas."
+            "en": "Now it exists. Whose it becomes gets decided when we return to Hellas.",
+            "ja": "今はあります。誰のものになるかはヘラスに戻れば決まります。",
+            "zh": "现在它存在了。会是谁的，回到赫拉斯就会决定。"
           }
         }
       ]
@@ -906,7 +1060,9 @@
         {
           "text": {
             "ko": "현장을 놓쳤다. FSP가 먼저 들어왔다. 또는 CV가. 어느 쪽이든 샘플은 없었다. Liang Wei는 아무 말도 하지 않았다. 그것이 더 무거웠다. 30년을 기다린 사람의 침묵이었다.",
-            "en": "The site was lost. FSP got there first. Or CV. Either way the sample was gone. Liang Wei said nothing. That was heavier. The silence of someone who had waited thirty years."
+            "en": "The site was lost. FSP got there first. Or CV. Either way the sample was gone. Liang Wei said nothing. That was heavier. The silence of someone who had waited thirty years.",
+            "ja": "現場を失った。FSPが先に入った。またはCVが。どちらにしてもサンプルはなかった。リャン・ウェイは何も言わなかった。それがより重かった。三十年待った人の沈黙だった。",
+            "zh": "失去了现场。FSP先进来了。或者是CV。无论哪个，样本没有了。梁薇什么都没说。那更沉重。是一个等待了三十年的人的沉默。"
           }
         }
       ]
@@ -921,16 +1077,20 @@
         {
           "text": {
             "ko": "케플러 분화구는 여전히 있었다. 깊고 검었다. 분지 안에 분지가 있었다. 무엇이 있는지는 이제 알았다. 어두운 은색. 30년의 기다림. 파란 일몰. 그것들이 거기 있었다. 그것이 누구 것인지는 아직 결정되지 않았다.",
-            "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Dark silver. Thirty years of waiting. Blue sunset. Those things were there. Whose it was had not yet been decided."
-          },
-          "overlay": "mcc_ch4_pirates_payroll_l39_00_ore_sample"
+            "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Dark silver. Thirty years of waiting. Blue sunset. Those things were there. Whose it was had not yet been decided.",
+            "ja": "ケプラー・クレーターはまだそこにあった。深く暗かった。盆地の中の盆地があった。何があるかは今や知っていた。暗い銀色。三十年の待ち。青い日没。それらがそこにあった。それが誰のものかはまだ決まっていなかった。",
+            "zh": "开普勒陨石坑还在那里。深沉而幽暗。盆地里有盆地。里面有什么，现在知道了。暗银色。三十年的等待。蓝色日落。那些东西在那里。它会是谁的，还没有决定。",
+            "overlay": "mcc_ch4_pirates_payroll_l39_00_ore_sample"
+          }
         }
       ],
       "next_chapter_preview": {
         "questId": "mcc_campaign_ch5",
         "teaser": {
           "ko": "다음 — Whistleblower",
-          "en": "Next — Whistleblower"
+          "en": "Next — Whistleblower",
+          "ja": "次回 — 内部告発者",
+          "zh": "下一章 — 告密者"
         }
       }
     }
