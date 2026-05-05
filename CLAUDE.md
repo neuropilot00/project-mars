@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-04 v5.86 (Campaign editor layout freshness) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-05 v5.95 (P5-1 Territory Production Visibility) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -16,6 +16,16 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v5.95 최신 핸드오프 — P5-1 영토 생산 요약
+
+- `GET /api/territory/:claimId/production?wallet=...` 신규 엔드포인트 추가 (`server/routes/api.js`).
+- 클레임 픽셀 수, 섹터 유형, 드롭 재료 목록(base_rate 기준), 예상 PP 범위, 수확 이력을 한 번에 반환.
+- 프론트 영토 정보 패널에 `⚙ PRODUCTION` 섹션 추가 (`infoProdRow`/`infoProdBody`).
+  - 내 영토 클릭 시 자동 로드. 예상 PP / 섹터 / 모디파이어 칩 / 광물 칩 / 수확 정보 표시.
+  - 남의 영토에는 production 섹션 노출하지 않음.
+- 관련 함수: `loadTerritoryProduction(claimId, wallet)`, `_timeAgo(date)` in `index.html`.
+- P5-2(재료 드롭 harvest 연동), P5-3(조선소 연결)은 P5-1 안정화 후 진행.
 
 ### v5.87 최신 핸드오프 — Claude 남은 작업 실행 지시서
 

@@ -1,3 +1,27 @@
+# OCCUPY MARS — Codebase Audit (v5.95 / 2026-05-05)
+
+## ✅ v5.95 P5-1 Territory Production Visibility — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `GET /api/territory/:claimId/production` 신규 엔드포인트 | ✅ | claim 조회, 픽셀 집계, 섹터 유형 판별, 재료 드롭율 반환 |
+| 소유 여부 확인 | ✅ | wallet 파라미터로 owned 플래그 계산. 남의 영토에는 수확 정보 노출 안 함 |
+| 예상 PP 범위 계산 | ✅ | 기존 harvest 공식(rewardMin/Max × pixelFactor × sectorMult) 재사용 |
+| 섹터별 드롭 재료 목록 | ✅ | `sector_resource_rates` + `resources` JOIN. 테이블 없으면 빈 배열 safe fallback |
+| 모디파이어 (섹터/이미지/인접) | ✅ | core +50%, mid +20%, image_url 있으면 +5%, adjacency_bonus 표시 |
+| 최근 수확 이력 + 다음 수확 시각 | ✅ | `transactions.type='mining'` + `user_mining.last_harvest_at` 기반 |
+| 프론트 `⚙ PRODUCTION` 패널 | ✅ | 내 영토 클릭 시 자동 로드. 예상 PP / 섹터 / 모디파이어 칩 / 광물 칩 / 수확 정보 |
+| KO/EN 다국어 레이블 | ✅ | lang 변수 기반 `ko`/`en` 분기. 별도 i18n 키 등록 없음 (인라인 문자열) |
+| safe fallback | ✅ | sector/resource 테이블 없어도 500 에러 없음. 남의 영토 production 미노출 |
+
+검증:
+- `node --check server/routes/api.js` 통과
+- JS inline syntax check 통과 (10 script blocks)
+- `git diff --check` 통과
+- DB smoke test: claimId=307 claim 쿼리 OK, frontier 10종 rates OK
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.93 / 2026-05-05)
 
 ## ✅ v5.93 Campaign 대사/objective 전면 다국어화 — 완료

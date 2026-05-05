@@ -1,5 +1,34 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — P5-1 Territory Production Visibility (v5.95)
+
+**서버 신규 엔드포인트**
+- `GET /api/territory/:claimId/production?wallet=...` 추가.
+  - claim 소유 여부 확인, 픽셀 수 + 섹터 유형(frontier/mid/core) 집계.
+  - `sector_resource_rates` + `resources` JOIN으로 해당 섹터 드롭 재료 목록 반환.
+  - 예상 PP 범위(`ppMin`/`ppMax`) — 기존 harvest 공식(`rewardMin × pixelFactor × sectorMult`) 그대로 사용.
+  - 모디파이어: 섹터 유형 보너스, 이미지 등록 여부, adjacency_bonus.
+  - 소유자일 때만 최근 수확 이력(`lastHarvest`) + 다음 수확 가능 시각(`nextHarvestAt`) 포함.
+  - missing sector/resource 테이블 safe fallback — 500 에러 없음.
+
+**프론트 territory info 패널**
+- 내 영토 상세 패널에 `⚙ PRODUCTION` 섹션 추가 (`infoProdRow`/`infoProdBody`).
+  - 예상 PP 범위, 섹터 유형, 모디파이어 칩, 드롭 광물 칩(% 표시), 최근/다음 수확 정보.
+  - KO/EN 다국어 대응 (lang 기반 레이블 선택).
+  - 남의 영토에는 production 섹션 노출하지 않음.
+- `loadTerritoryProduction(claimId, wallet)` JS 함수 추가.
+- `_timeAgo(date)` 헬퍼 추가.
+
+**범위 밖 (아직 미구현)**
+- 섹터 컨트롤, 영토 역할, 영토 업그레이드, 생산 배율 경제 영향.
+- P5-2 (재료 드롭 harvest 연동), P5-3 (조선소 연결) — P5-1 안정화 후 진행.
+
+검증:
+- `node --check server/routes/api.js` 통과
+- JS inline syntax check 통과
+- `git diff --check` 통과
+- DB 쿼리 smoke test 통과 (claimId=307, frontier 10종 rates)
+
 ## 2026-05-05 — Campaign dialogue & objective full i18n (v5.93)
 
 **스토리 렌더러 다국어화**

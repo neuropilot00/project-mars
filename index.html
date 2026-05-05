@@ -5687,6 +5687,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <!-- Plant banner (own territory only) -->
     <button class="uf" id="infoBannerBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(239,154,154,.12),rgba(239,154,154,.06));border-color:rgba(239,154,154,.3);color:#ef9a9a" onclick="openBannerModal()" data-i18n="banner_btn">🚩 PLANT BANNER</button>
+    <!-- Production summary (own territory only) -->
+    <div id="infoProdRow" style="display:none;margin:8px 0 4px;padding:8px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.15);border-radius:8px">
+      <div style="font-size:8px;color:#ffab40;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px">⚙ PRODUCTION</div>
+      <div id="infoProdBody" style="font-size:9px;color:var(--tx2);line-height:1.6"></div>
+    </div>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)" data-i18n="share_btn">📤 SHARE</button>
     <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)" data-i18n="rename_btn">RENAME</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
@@ -13205,6 +13210,105 @@ function showTerritoryInfo(plot){
     renameBtn.style.display='none';
   }
   cosPanel.style.display='none';
+  // Production summary (own territory only)
+  var prodRow=document.getElementById('infoProdRow');
+  if(prodRow){
+    prodRow.style.display='none';
+    if(_isMyPlot&&plot.claimId){
+      loadTerritoryProduction(plot.claimId,myW2);
+    }
+  }
+}
+// ── Territory Production Summary ──
+function loadTerritoryProduction(claimId,wallet){
+  var prodRow=document.getElementById('infoProdRow');
+  var prodBody=document.getElementById('infoProdBody');
+  if(!prodRow||!prodBody) return;
+  prodBody.textContent='Loading…';
+  prodRow.style.display='';
+  fetch('/api/territory/'+claimId+'/production?wallet='+encodeURIComponent(wallet))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error){prodBody.textContent='—';return;}
+      var lang=(typeof LANG!=='undefined'?LANG:'ko');
+      var html='';
+      // PP estimate
+      var ppMin=d.production&&d.production.ppMin||0;
+      var ppMax=d.production&&d.production.ppMax||0;
+      if(ppMin>0||ppMax>0){
+        html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'예상 PP 수확':'PP Estimate')+'</span>';
+        html+='<span style="color:#ffab40;font-weight:700">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+' PP</span>';
+        html+='</div>';
+      }
+      // Sector
+      if(d.sector&&d.sector.type){
+        var sectorLabel={'core':'코어 섹터','mid':'미드 섹터','frontier':'프론티어 섹터'};
+        html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'섹터':'Sector')+'</span>';
+        html+='<span style="color:var(--tx2)">'+(lang==='ko'?(sectorLabel[d.sector.type]||d.sector.type):d.sector.type.charAt(0).toUpperCase()+d.sector.type.slice(1))+'</span>';
+        html+='</div>';
+      }
+      // Modifiers
+      if(d.production&&d.production.modifiers&&d.production.modifiers.length){
+        html+='<div style="margin-top:4px;font-size:8px;color:var(--tx3)">'+(lang==='ko'?'모디파이어:':'Modifiers:')+'</div>';
+        html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px">';
+        d.production.modifiers.forEach(function(m){
+          var lbl=lang==='ko'?(m.labelKo||m.label):m.label;
+          html+='<span style="font-size:8px;padding:1px 5px;background:rgba(255,171,64,.1);border:1px solid rgba(255,171,64,.2);border-radius:10px;color:#ffab40">'+lbl+' '+m.value+'</span>';
+        });
+        html+='</div>';
+      }
+      // Materials
+      if(d.materials&&d.materials.length){
+        html+='<div style="margin-top:5px;font-size:8px;color:var(--tx3)">'+(lang==='ko'?'드롭 광물:':'Drop materials:')+'</div>';
+        html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px">';
+        d.materials.forEach(function(m){
+          var pct=Math.round(m.chance*100);
+          var rarityColor={'common':'var(--tx2)','rare':'#64b5f6','special':'#ffb74d','legendary':'#ce93d8'}[m.rarity]||'var(--tx2)';
+          var name=lang==='ko'?(m.nameKo||m.nameEn):m.nameEn;
+          html+='<span title="'+pct+'% chance" style="font-size:8px;padding:1px 5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:'+rarityColor+'">';
+          html+=m.icon+' '+name+' <span style="opacity:.6">'+pct+'%</span></span>';
+        });
+        html+='</div>';
+      }
+      // Last harvest
+      if(d.lastHarvest&&d.lastHarvest.at){
+        var ago=_timeAgo(new Date(d.lastHarvest.at));
+        html+='<div style="margin-top:5px;display:flex;justify-content:space-between;padding:2px 0">';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'최근 수확':'Last harvest')+'</span>';
+        html+='<span style="color:var(--tx2)">'+d.lastHarvest.pp.toFixed(4)+' PP · '+ago+'</span>';
+        html+='</div>';
+      }
+      // Next harvest
+      if(d.production&&d.production.nextHarvestAt){
+        var nxt=new Date(d.production.nextHarvestAt);
+        var nowMs=Date.now();
+        var diffMs=nxt-nowMs;
+        var nextLabel='';
+        if(diffMs>0){
+          var hrs=Math.floor(diffMs/3600000);
+          var mins=Math.floor((diffMs%3600000)/60000);
+          nextLabel=(hrs>0?hrs+'h ':'')+mins+'m';
+        }else{
+          nextLabel=lang==='ko'?'지금 가능':'Available now';
+        }
+        html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'다음 수확':'Next harvest')+'</span>';
+        html+='<span style="color:'+(diffMs>0?'var(--tx3)':'#69f0ae')+'">';
+        html+=nextLabel+'</span></div>';
+      }
+      if(!html) html='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'데이터 없음':'No production data')+'</span>';
+      prodBody.innerHTML=html;
+    })
+    .catch(function(){prodRow.style.display='none';});
+}
+function _timeAgo(date){
+  var diff=Math.floor((Date.now()-date.getTime())/1000);
+  if(diff<60) return diff+'s ago';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
 }
 // ── Cosmetic Panel ──
 var _cosmeticDefs={

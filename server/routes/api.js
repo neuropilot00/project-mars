@@ -4983,6 +4983,130 @@ router.post('/claims/:id/rename', writeLimiter, async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+// GET /api/territory/:claimId/production?wallet=...
+// 영토 생산 요약 — 소유 여부, 섹터 유형, 예상 PP, 드롭 재료 목록, 모디파이어, 마지막 수확
+// ══════════════════════════════════════════════════
+router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
+  const claimId = parseInt(req.params.claimId);
+  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  if (!claimId) return res.status(400).json({ error: 'claimId required' });
+
+  try {
+    // 1. Claim + pixel count + sector
+    const claimRes = await pool.query(`
+      SELECT c.id, c.owner, c.image_url, c.adjacency_bonus,
+             COUNT(p.lat) AS pixel_count,
+             COALESCE(s.tier, 'frontier') AS sector_type,
+             COALESCE(s.name, 'Uncharted') AS sector_name,
+             s.id AS sector_id
+      FROM claims c
+      LEFT JOIN pixels p ON p.claim_id = c.id
+      LEFT JOIN sectors s ON s.id = p.sector_id
+      WHERE c.id = $1 AND c.deleted_at IS NULL
+      GROUP BY c.id, c.owner, c.image_url, c.adjacency_bonus, s.tier, s.name, s.id
+    `, [claimId]);
+
+    if (!claimRes.rows.length) return res.status(404).json({ error: 'Claim not found' });
+    const claim = claimRes.rows[0];
+    const owned = wallet ? claim.owner.toLowerCase() === wallet : false;
+    const pixelCount = parseInt(claim.pixel_count) || 0;
+    const sectorType = claim.sector_type;
+
+    // 2. Resource drop rates for this sector type
+    let materials = [];
+    try {
+      const ratesRes = await pool.query(`
+        SELECT srr.resource_code AS code, srr.base_rate AS chance,
+               r.name_en, r.name_ko, r.rarity, r.icon_emoji
+        FROM sector_resource_rates srr
+        JOIN resources r ON r.code = srr.resource_code
+        WHERE srr.sector_type = $1 AND srr.is_active = TRUE AND r.is_active = TRUE
+        ORDER BY srr.base_rate DESC
+      `, [sectorType]);
+      materials = ratesRes.rows.map(r => ({
+        code: r.code,
+        nameEn: r.name_en || r.code,
+        nameKo: r.name_ko || r.code,
+        rarity: r.rarity,
+        icon: r.icon_emoji || '🔹',
+        chance: parseFloat(r.chance)
+      }));
+    } catch (_) { /* resource table unavailable — safe fallback */ }
+
+    // 3. PP estimate (same formula as harvest)
+    const s = await cfg();
+    const rewardMin = parseFloat(s.mining_reward_min) || 0.01;
+    const rewardMax = parseFloat(s.mining_reward_max) || 0.5;
+    const pixelFactor = pixelCount > 0 ? Math.min(Math.sqrt(pixelCount) / 10, 3.0) : 0;
+    const miningBonusMap = { core: parseFloat(s.mining_core_mult) || 1.5, mid: parseFloat(s.mining_mid_mult) || 1.2, frontier: parseFloat(s.mining_frontier_mult) || 1.0 };
+    const sectorMult = miningBonusMap[sectorType] || 1.0;
+    const ppMin = Math.round(rewardMin * pixelFactor * sectorMult * 10000) / 10000;
+    const ppMax = Math.round(rewardMax * pixelFactor * sectorMult * 10000) / 10000;
+
+    // 4. Modifiers
+    const modifiers = [];
+    if (sectorType === 'core') modifiers.push({ label: 'Core sector', labelKo: '코어 섹터', value: '+50%' });
+    else if (sectorType === 'mid') modifiers.push({ label: 'Mid sector', labelKo: '미드 섹터', value: '+20%' });
+    if (claim.image_url) modifiers.push({ label: 'Image active', labelKo: '이미지 등록됨', value: '+5%' });
+    if (parseFloat(claim.adjacency_bonus) > 0) modifiers.push({ label: 'Adjacency bonus', labelKo: '인접 보너스', value: '+' + Math.round(parseFloat(claim.adjacency_bonus) * 100) + '%' });
+
+    // 5. Last harvest (from transactions for this wallet — claim-level not tracked, use global)
+    let lastHarvest = null;
+    let nextHarvestAt = null;
+    if (owned && wallet) {
+      try {
+        const harvestRes = await pool.query(`
+          SELECT pp_amount, meta, created_at
+          FROM transactions
+          WHERE (type = 'mining' OR type = 'instant_harvest')
+            AND from_wallet = $1
+          ORDER BY created_at DESC LIMIT 1
+        `, [wallet]);
+        if (harvestRes.rows.length) {
+          const row = harvestRes.rows[0];
+          const miningRow = await pool.query('SELECT last_harvest_at FROM user_mining WHERE wallet_address = $1', [wallet]);
+          const intervalCore = parseInt(s.mining_interval_core) || 24;
+          const intervalMid = parseInt(s.mining_interval_mid) || 48;
+          const intervalFrontier = parseInt(s.mining_interval_frontier) || 72;
+          const interval = sectorType === 'core' ? intervalCore : sectorType === 'mid' ? intervalMid : intervalFrontier;
+          const lastAt = miningRow.rows[0]?.last_harvest_at || row.created_at;
+          const elapsed = (Date.now() - new Date(lastAt).getTime()) / (1000 * 60 * 60);
+          if (elapsed < interval) {
+            nextHarvestAt = new Date(new Date(lastAt).getTime() + interval * 3600000);
+          }
+          lastHarvest = {
+            pp: parseFloat(row.pp_amount),
+            at: row.created_at
+          };
+        }
+      } catch (_) { /* no harvest data */ }
+    }
+
+    res.json({
+      claimId,
+      owned,
+      sector: {
+        type: sectorType,
+        name: claim.sector_name,
+        id: claim.sector_id
+      },
+      production: {
+        pixelCount,
+        ppMin,
+        ppMax,
+        modifiers,
+        nextHarvestAt
+      },
+      materials,
+      lastHarvest
+    });
+  } catch (e) {
+    console.error('[TERRITORY] production error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 // POST /api/exploration/hint — get approximate direction to nearest undiscovered POI (0.2 PP)
 router.post('/exploration/hint', writeLimiter, async (req, res) => {
   const { wallet, lat, lng } = req.body;
