@@ -5186,6 +5186,150 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+// POST /api/territory/merge
+// 여러 영토 클레임을 하나로 병합
+// body: { wallet, claimIds: [id1, id2, ...] }
+// ══════════════════════════════════════════════════
+router.post('/territory/merge', writeLimiter, async (req, res) => {
+  const wallet = ((req.body && req.body.wallet) || (req.headers && req.headers['x-wallet']) || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+
+  const rawIds = (req.body && req.body.claimIds) || [];
+  const claimIds = rawIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id) && id > 0);
+  if (claimIds.length < 2) return res.status(400).json({ error: 'merge_min_2', message: 'Select at least 2 territories to merge' });
+  if (claimIds.length > 50) return res.status(400).json({ error: 'merge_max_50', message: 'Cannot merge more than 50 territories at once' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Verify all claims exist, are owned by wallet, not deleted
+    const claimsRes = await client.query(
+      `SELECT id, owner, custom_name, total_paid, sector_code, image_url, marketplace_locked
+       FROM claims WHERE id = ANY($1) AND deleted_at IS NULL`,
+      [claimIds]
+    );
+    if (claimsRes.rows.length !== claimIds.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'claim_not_found', message: 'One or more territories not found' });
+    }
+    const notOwned = claimsRes.rows.find(c => c.owner.toLowerCase() !== wallet);
+    if (notOwned) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'not_owner', message: 'You do not own all selected territories' });
+    }
+    const locked = claimsRes.rows.find(c => c.marketplace_locked);
+    if (locked) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'claim_locked', message: 'One or more territories are marketplace-locked' });
+    }
+
+    // 2. Check for active rentals
+    const rentalCheck = await client.query(
+      `SELECT id FROM territory_rentals WHERE claim_id = ANY($1) AND status IN ('listed','rented') LIMIT 1`,
+      [claimIds]
+    ).catch(() => ({ rows: [] }));
+    if (rentalCheck.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'claim_rented', message: 'Cancel active rental listings before merging' });
+    }
+
+    // 3. Check for active battles/hijacks
+    const battleCheck = await client.query(
+      `SELECT id FROM fleet_battles WHERE claim_id = ANY($1) AND status NOT IN ('ended','cancelled') LIMIT 1`,
+      [claimIds]
+    ).catch(() => ({ rows: [] }));
+    if (battleCheck.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'claim_in_battle', message: 'Cannot merge territories currently in battle' });
+    }
+
+    // 4. Calculate bounding box from all pixels
+    const pixelRes = await client.query(
+      `SELECT MIN(lat) as min_lat, MAX(lat) as max_lat,
+              MIN(lng) as min_lng, MAX(lng) as max_lng,
+              COUNT(*) as total_pixels,
+              COUNT(DISTINCT lat) as height_count,
+              COUNT(DISTINCT lng) as width_count
+       FROM pixels WHERE claim_id = ANY($1)`,
+      [claimIds]
+    );
+    const bbox = pixelRes.rows[0];
+    if (!bbox || !parseInt(bbox.total_pixels)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'no_pixels', message: 'Selected territories have no pixels' });
+    }
+
+    const centerLat  = (parseFloat(bbox.min_lat) + parseFloat(bbox.max_lat)) / 2;
+    const centerLng  = (parseFloat(bbox.min_lng) + parseFloat(bbox.max_lng)) / 2;
+    const width      = parseInt(bbox.width_count) || 1;
+    const height     = parseInt(bbox.height_count) || 1;
+    const totalPaid  = claimsRes.rows.reduce((s, c) => s + parseFloat(c.total_paid || 0), 0);
+
+    // Use longest-named custom name, or first claim's name
+    const baseName = claimsRes.rows
+      .filter(c => c.custom_name)
+      .sort((a, b) => b.custom_name.length - a.custom_name.length)[0]?.custom_name || null;
+
+    // Use first claim's sector_code (for material purposes)
+    const sectorCode = claimsRes.rows.find(c => c.sector_code)?.sector_code || null;
+
+    // 5. Insert merged claim
+    const insertRes = await client.query(
+      `INSERT INTO claims (owner, center_lat, center_lng, width, height, total_paid, sector_code, custom_name, cluster_size)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id`,
+      [wallet, centerLat.toFixed(2), centerLng.toFixed(2), width, height, totalPaid.toFixed(6), sectorCode, baseName, parseInt(bbox.total_pixels)]
+    );
+    const mergedClaimId = insertRes.rows[0].id;
+
+    // 6. Reassign all pixels to merged claim
+    await client.query(
+      `UPDATE pixels SET claim_id = $1, owner = $2 WHERE claim_id = ANY($3)`,
+      [mergedClaimId, wallet, claimIds]
+    );
+
+    // 7. Transfer territory upgrades to merged claim (copy highest levels)
+    try {
+      await client.query(
+        `INSERT INTO territory_upgrades (claim_id, upgrade_type, level, is_active, last_upgraded_at)
+         SELECT $1, upgrade_type, MAX(level), bool_or(is_active), MAX(last_upgraded_at)
+         FROM territory_upgrades WHERE claim_id = ANY($2)
+         GROUP BY upgrade_type
+         ON CONFLICT (claim_id, upgrade_type) DO UPDATE
+           SET level = GREATEST(territory_upgrades.level, EXCLUDED.level),
+               is_active = EXCLUDED.is_active`,
+        [mergedClaimId, claimIds]
+      );
+    } catch (_) {}
+
+    // 8. Soft-delete old claims
+    await client.query(
+      `UPDATE claims SET deleted_at = NOW() WHERE id = ANY($1)`,
+      [claimIds]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      mergedClaimId,
+      pixelCount: parseInt(bbox.total_pixels),
+      width,
+      height,
+      mergedFrom: claimIds.length,
+      message: `${claimIds.length}개 영토가 ID #${mergedClaimId}로 병합됐습니다`
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('[TERRITORY] merge error:', err.message);
+    res.status(500).json({ error: 'internal_error', message: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+// ══════════════════════════════════════════════════
 // GET /api/territory/:claimId/upgrades?wallet=...
 // 영토 업그레이드 현황 + 카탈로그 (소유자 전용 업그레이드 버튼)
 // ══════════════════════════════════════════════════

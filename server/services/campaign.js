@@ -1874,10 +1874,10 @@ function simulateCh2(progress) {
   const facilityHp = Math.round(clampNumber(baseSuccess * 100 - roll * 15 + (warned ? 2 : 0), 0, 100));
   const civilianCasualties = warned ? 0 : (roll < 0.10 ? 1 + Math.floor(roll * 20) : 0);
   const elapsed = Math.round(1450 * timeFactor * (0.88 + roll * 0.26));
-  const militiaDestroyed = facilityHp >= 80 && elapsed <= 2100 && civilianCasualties === 0 ? 4 : Math.max(1, Math.floor(roll * 4));
+  const militiaDestroyed = facilityHp >= 65 && elapsed <= 2100 && civilianCasualties === 0 ? 4 : Math.max(1, Math.floor(roll * 4));
   let failure = null;
   if (civilianCasualties > 0) failure = 'fail_civilian_massacre';
-  else if (facilityHp < 80) failure = 'fail_facility_destroyed';
+  else if (facilityHp < 65) failure = 'fail_facility_destroyed';
   else if (elapsed > 2100) failure = 'fail_timeout';
 
   const success = !failure;

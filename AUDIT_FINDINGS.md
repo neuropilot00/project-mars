@@ -1,3 +1,30 @@
+# OCCUPY MARS — Codebase Audit (v5.99 / 2026-05-05)
+
+## ✅ v5.99 영토 병합 + 임대 버그 + CH2 밸런스 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| **영토 병합 신기능** | | |
+| `POST /api/territory/merge` 서버 엔드포인트 | ✅ | 2~50개 클레임 병합. 소유권·임대·전투·lock 검증 |
+| 픽셀 재할당 + 기존 클레임 soft-delete | ✅ | `UPDATE pixels SET claim_id=merged` + `UPDATE claims SET deleted_at=NOW()` |
+| territory_upgrades 최고 레벨 기준 병합 | ✅ | ON CONFLICT DO UPDATE GREATEST(level) |
+| 바운딩 박스 기반 center/width/height 자동 계산 | ✅ | MIN/MAX lat/lng → 중심점 + COUNT(DISTINCT) |
+| `index.html` 🔗 MERGE TERRITORIES 버튼 | ✅ | 내 영토 정보 패널, 소유자 전용 |
+| 체크박스 병합 선택 모달 | ✅ | 현재 영토 기본 선택. 실시간 선택 수/px 카운트 |
+| 4개 언어 i18n (merge_btn) | ✅ | EN/KO/JA/ZH |
+| **영토 임대 버튼 미동작 수정** | | |
+| `openListForRentModal()` 응답 래퍼 오인 수정 | ✅ 수정 | `territories.length` → `data.territories.length` (항상 "없음" 표시 버그) |
+| 영토 이름 custom_name 우선 표시 | ✅ | |
+| **캠페인 CH2 실패 임계값 완화** | | |
+| `simulateCh2()` facilityHp 실패 임계값 80 → 65 | ✅ 수정 | `ch2_request_support` 최적 선택 항상 통과 보장 |
+| militiaDestroyed 성공 판정 동기화 | ✅ | `>= 80` → `>= 65` |
+
+검증:
+- `node --check server/routes/api.js server/services/campaign.js` 통과
+- 서버 정상 기동 확인 (migrate no-op)
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.98 / 2026-05-05)
 
 ## ✅ v5.98 버그 수정 패치 — 완료

@@ -5701,6 +5701,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)" data-i18n="rename_btn">RENAME</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
     <button class="uf" id="infoCosmeticBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(255,100,200,.08));border-color:rgba(180,100,255,.3);color:#c088e0" onclick="openCosmeticPanel(selectedPlot)" data-i18n="customize_btn">✨ CUSTOMIZE</button>
+    <button class="uf" id="infoMergeBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(129,212,250,.12),rgba(129,212,250,.04));border-color:rgba(129,212,250,.3);color:#81d4fa" onclick="openTerritoryMergePanel()" data-i18n="merge_btn">🔗 MERGE TERRITORIES</button>
     <div id="cosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
       <div style="font-size:9px;color:#c088e0;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px;font-weight:700" data-i18n="cosmetics_title">COSMETICS</div>
       <div id="cosmeticSlots" style="display:flex;flex-direction:column;gap:6px"></div>
@@ -13201,6 +13202,7 @@ function showTerritoryInfo(plot){
   var cosBtn=document.getElementById('infoCosmeticBtn');
   var cosPanel=document.getElementById('cosmeticPanel');
   var renameBtn=document.getElementById('infoRenameBtn');
+  var mergeBtn=document.getElementById('infoMergeBtn');
   if(myW&&plot.owner===myW){
     editBtn.style.display='';
     editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
@@ -13208,11 +13210,13 @@ function showTerritoryInfo(plot){
     document.getElementById('infoLinkInput').value=plot.link||'';
     cosBtn.style.display='';
     renameBtn.style.display='';
+    if(mergeBtn) mergeBtn.style.display='';
   }else{
     editBtn.style.display='none';
     linkEdit.style.display='none';
     cosBtn.style.display='none';
     renameBtn.style.display='none';
+    if(mergeBtn) mergeBtn.style.display='none';
   }
   cosPanel.style.display='none';
   // Production summary (own territory only)
@@ -13239,6 +13243,149 @@ function showTerritoryInfo(plot){
     }
   }
 }
+
+// ── Territory Merge ──────────────────────────────────────────────────────────
+async function openTerritoryMergePanel() {
+  var w = (walletState && walletState.address) || '';
+  if (!w) { gameAlert(t('connect_wallet_first') || 'Connect wallet first'); return; }
+  var lang = (typeof LANG !== 'undefined' ? LANG : 'ko');
+
+  // Get all my territories
+  var myClaims = (window.claims || []).filter(function(c) {
+    return (c.owner || '').toLowerCase() === w.toLowerCase();
+  });
+
+  if (!myClaims || myClaims.length < 2) {
+    // Try fetching from API
+    try {
+      var data = await fetch('/api/user/my-territories?wallet=' + encodeURIComponent(w)).then(function(r){return r.json();});
+      myClaims = (data && data.territories) ? data.territories : (Array.isArray(data) ? data : []);
+    } catch(_) {}
+  }
+
+  if (!myClaims || myClaims.length < 2) {
+    gameAlert(lang === 'ko' ? '병합하려면 영토가 2개 이상 필요합니다' : 'You need at least 2 territories to merge');
+    return;
+  }
+
+  // Build territory list for selection
+  var selectedIds = new Set();
+  var currentClaimId = selectedPlot && selectedPlot.claimId;
+  if (currentClaimId) selectedIds.add(String(currentClaimId));
+
+  var renderList = function() {
+    var html = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px;line-height:1.5">'
+      + (lang === 'ko'
+        ? '병합할 영토를 선택하세요. 선택한 영토들이 하나로 합쳐집니다.<br><span style="color:var(--mars)">⚠ 병합 후 원복 불가</span>'
+        : 'Select territories to merge into one. <span style="color:var(--mars)">⚠ Cannot be undone</span>')
+      + '</div>';
+    html += '<div style="max-height:200px;overflow-y:auto;margin-bottom:10px">';
+    myClaims.forEach(function(c) {
+      var cid = String(c.claimId || c.id);
+      var checked = selectedIds.has(cid);
+      var name = c.customName || c.custom_name || ('Territory #' + cid);
+      var px = c._pixelCount || c.pixel_count || ((c.w || c.width || 1) * (c.h || c.height || 1));
+      html += '<label style="display:flex;align-items:center;gap:8px;padding:5px 4px;border-radius:4px;cursor:pointer;'
+        + (checked ? 'background:rgba(129,212,250,.08);border:1px solid rgba(129,212,250,.25)' : 'background:transparent;border:1px solid transparent')
+        + '">'
+        + '<input type="checkbox" data-id="' + cid + '" ' + (checked ? 'checked' : '') + ' style="accent-color:#81d4fa;width:14px;height:14px">'
+        + '<span style="flex:1;font-size:9px;color:var(--tx)">' + name + '</span>'
+        + '<span style="font-size:8px;color:var(--tx3)">' + px + ' px</span>'
+        + '</label>';
+    });
+    html += '</div>';
+    var sel = Array.from(selectedIds);
+    var totalPx = myClaims.filter(function(c){ return selectedIds.has(String(c.claimId || c.id)); })
+                          .reduce(function(s,c){ return s + (c._pixelCount || c.pixel_count || ((c.w||c.width||1)*(c.h||c.height||1))); }, 0);
+    html += '<div style="font-size:9px;color:#81d4fa;margin-bottom:6px">'
+      + (lang === 'ko' ? '선택: ' : 'Selected: ') + sel.length
+      + (lang === 'ko' ? '개 / 총 ' : ' / ') + totalPx + ' px</div>';
+    return html;
+  };
+
+  // Open modal
+  var modal = document.createElement('div');
+  modal.id = 'mergeTerritoryModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9990;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = '<div style="background:var(--bg2);border:1px solid rgba(129,212,250,.25);border-radius:12px;padding:16px;width:100%;max-width:360px;max-height:90vh;overflow-y:auto">'
+    + '<div style="font-size:11px;font-weight:800;color:#81d4fa;font-family:var(--fn);letter-spacing:1px;margin-bottom:10px">🔗 '
+    + (lang === 'ko' ? '영토 병합' : 'MERGE TERRITORIES') + '</div>'
+    + '<div id="mergeTerritoryBody">' + renderList() + '</div>'
+    + '<div style="display:flex;gap:8px;margin-top:8px">'
+    + '<button type="button" onclick="document.getElementById(\'mergeTerritoryModal\').remove()" style="flex:1;padding:8px;font-size:9px;font-family:var(--fn);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer">'
+    + (lang === 'ko' ? '취소' : 'CANCEL') + '</button>'
+    + '<button type="button" id="mergeTerritoryConfirmBtn" onclick="doTerritoryMerge()" style="flex:2;padding:8px;font-size:9px;font-family:var(--fn);font-weight:800;background:rgba(129,212,250,.15);border:1px solid rgba(129,212,250,.35);color:#81d4fa;border-radius:6px;cursor:pointer">'
+    + (lang === 'ko' ? '🔗 병합 실행' : '🔗 MERGE') + '</button>'
+    + '</div></div>';
+  document.body.appendChild(modal);
+
+  // Listen for checkbox changes
+  modal.addEventListener('change', function(e) {
+    if (e.target.type === 'checkbox') {
+      var cid = e.target.dataset.id;
+      if (e.target.checked) selectedIds.add(cid);
+      else selectedIds.delete(cid);
+      document.getElementById('mergeTerritoryBody').innerHTML = renderList();
+      // Re-attach listeners after re-render
+    }
+  });
+
+  // Store selected for confirm
+  window._mergeSelectedIds = selectedIds;
+}
+
+async function doTerritoryMerge() {
+  var w = (walletState && walletState.address) || '';
+  var lang = (typeof LANG !== 'undefined' ? LANG : 'ko');
+  var selectedIds = window._mergeSelectedIds;
+  if (!selectedIds || selectedIds.size < 2) {
+    showToast(lang === 'ko' ? '영토를 2개 이상 선택하세요' : 'Select at least 2 territories', 'error');
+    return;
+  }
+  var ids = Array.from(selectedIds).map(Number);
+  var ok = await gameConfirm({
+    icon: '🔗',
+    title: lang === 'ko' ? '영토 병합 확인' : 'CONFIRM MERGE',
+    body: (lang === 'ko'
+      ? ids.length + '개 영토를 하나로 병합합니다.<br><span style="color:var(--mars)">병합 후 되돌릴 수 없습니다.</span>'
+      : 'Merge ' + ids.length + ' territories into one.<br><span style="color:var(--mars)">This cannot be undone.</span>'),
+    confirmText: lang === 'ko' ? '병합' : 'MERGE'
+  });
+  if (!ok) return;
+
+  var btn = document.getElementById('mergeTerritoryConfirmBtn');
+  if (btn) { btn.disabled = true; btn.textContent = lang === 'ko' ? '병합 중…' : 'Merging…'; }
+
+  try {
+    var d = await fetch('/api/territory/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, claimIds: ids })
+    }).then(function(r){return r.json();});
+
+    if (d.error) {
+      showToast(d.message || d.error, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = lang === 'ko' ? '🔗 병합 실행' : '🔗 MERGE'; }
+      return;
+    }
+
+    // Success — close modal, reload claims
+    var modal = document.getElementById('mergeTerritoryModal');
+    if (modal) modal.remove();
+    showToast((lang === 'ko'
+      ? '✅ ' + ids.length + '개 영토가 병합됐습니다! (클레임 #' + d.mergedClaimId + ', ' + d.pixelCount + ' px)'
+      : '✅ Merged into Claim #' + d.mergedClaimId + ' (' + d.pixelCount + ' px)'), 'success');
+
+    // Reload territory data
+    if (typeof loadClaims === 'function') loadClaims();
+    else if (typeof refreshClaims === 'function') refreshClaims();
+    window._mergeSelectedIds = null;
+  } catch(e) {
+    showToast(e.message || 'Error', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = lang === 'ko' ? '🔗 병합 실행' : '🔗 MERGE'; }
+  }
+}
+
 // ── Territory Production Summary ──
 function loadTerritoryProduction(claimId,wallet){
   var prodRow=document.getElementById('infoProdRow');
@@ -16113,7 +16260,7 @@ var I18N = {
     claim_add_img: 'Claim land first, add image later',
     my_territories: 'MY TERRITORIES', no_territories: 'No territories yet',
     info_guild: 'GUILD', info_link: 'LINK', info_name: 'NAME',
-    share_btn: '📤 SHARE', rename_btn: 'RENAME', edit_image: 'EDIT IMAGE', customize_btn: '✨ CUSTOMIZE',
+    share_btn: '📤 SHARE', rename_btn: 'RENAME', edit_image: 'EDIT IMAGE', customize_btn: '✨ CUSTOMIZE', merge_btn: '🔗 MERGE TERRITORIES',
     cosmetics_title: 'COSMETICS', promo_link: 'PROMO LINK', save_btn: 'SAVE',
     // ── Claim Modal ──
     hijack_warn_title: '⚠ HIJACK TERRITORY',
@@ -16808,7 +16955,7 @@ var I18N = {
     claim_add_img: '먼저 영토를 점령하고 이미지는 나중에 추가',
     my_territories: '내 영토', no_territories: '영토가 없습니다',
     info_guild: '길드', info_link: '링크', info_name: '이름',
-    share_btn: '📤 공유', rename_btn: '이름 변경', edit_image: '이미지 수정', customize_btn: '✨ 꾸미기',
+    share_btn: '📤 공유', rename_btn: '이름 변경', edit_image: '이미지 수정', customize_btn: '✨ 꾸미기', merge_btn: '🔗 영토 병합',
     cosmetics_title: '코스메틱', promo_link: '프로모 링크', save_btn: '저장',
     // ── Claim Modal ──
     hijack_warn_title: '⚠ 영토 탈취',
@@ -17513,7 +17660,7 @@ var I18N = {
     claim_add_img: '先に領土を獲得、画像は後から追加',
     my_territories: 'マイ領土', no_territories: '領土がありません',
     info_guild: 'ギルド', info_link: 'リンク', info_name: '名前',
-    share_btn: '📤 共有', rename_btn: 'リネーム', edit_image: '画像編集', customize_btn: '✨ カスタマイズ',
+    share_btn: '📤 共有', rename_btn: 'リネーム', edit_image: '画像編集', customize_btn: '✨ カスタマイズ', merge_btn: '🔗 領土マージ',
     cosmetics_title: 'コスメティック', promo_link: 'プロモリンク', save_btn: '保存',
     hijack_warn_title: '⚠ 領土乗っ取り',
     hijack_btn_short: '⚔ 領土をHIJACK',
@@ -18203,7 +18350,7 @@ var I18N = {
     claim_add_img: '先占领领土，之后再添加图片',
     my_territories: '我的领土', no_territories: '暂无领土',
     info_guild: '公会', info_link: '链接', info_name: '名称',
-    share_btn: '📤 分享', rename_btn: '重命名', edit_image: '编辑图片', customize_btn: '✨ 自定义',
+    share_btn: '📤 分享', rename_btn: '重命名', edit_image: '编辑图片', customize_btn: '✨ 自定义', merge_btn: '🔗 合并领地',
     cosmetics_title: '装饰品', promo_link: '推广链接', save_btn: '保存',
     hijack_warn_title: '⚠ 劫持领土',
     hijack_btn_short: '⚔ 劫持领地',
@@ -33944,14 +34091,17 @@ function openListForRentModal() {
   if (!w) { gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
   // Reuse territory picker pattern
   fetch('/api/user/my-territories?wallet='+encodeURIComponent(w))
-    .then(function(r){return r.json();}).then(function(territories){
+    .then(function(r){return r.json();}).then(function(data){
+      // API returns { territories: [...] } wrapper
+      var territories = (data && data.territories) ? data.territories : (Array.isArray(data) ? data : []);
       if (!territories || !territories.length) {
         gameAlert(t('rental_no_territories')||'You have no territories to list'); return;
       }
       gamePicker({
         title: '🏘️ Select territory to list',
         items: territories.map(function(c){
-          return { label: 'Claim #'+c.id+' ('+c.pixel_count+' px)', value: c.id };
+          var label = (c.custom_name || ('Territory ' + c.id)) + ' (' + (c.pixel_count || 1) + ' px)';
+          return { label: label, value: c.id };
         })
       }).then(function(claimId){
         if (!claimId) return;

@@ -1,5 +1,32 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 영토 병합 + 임대 버그 + 캠페인 CH2 밸런스 (v5.99)
+
+### 신기능: 영토 병합 (Territory Merge)
+- `POST /api/territory/merge` — 여러 영토 클레임을 하나로 병합하는 서버 엔드포인트 추가 (`server/routes/api.js`)
+  - body: `{ wallet, claimIds: [id1, id2, ...] }` (2~50개)
+  - 검증: 소유권, soft-delete 여부, 활성 임대, 활성 전투, marketplace_locked 체크
+  - 모든 픽셀의 `claim_id` → 신규 병합 클레임으로 재할당
+  - `territory_upgrades`도 최고 레벨 기준으로 병합 클레임에 복사
+  - 기존 클레임 soft-delete (`deleted_at = NOW()`)
+  - 바운딩 박스 기반 `center_lat/lng`, `width/height` 자동 계산
+- `index.html` 내 영토 정보 패널에 `🔗 MERGE TERRITORIES` / `🔗 영토 병합` 버튼 추가
+  - 소유자 전용 표시 (`infoMergeBtn`)
+  - `openTerritoryMergePanel()` — 내 영토 체크박스 목록 모달. 현재 영토 기본 선택
+  - `doTerritoryMerge()` — 병합 실행 + 완료 후 클레임 재로드
+- 4개 언어 i18n (`merge_btn`) 추가: EN/KO/JA/ZH
+
+### 버그 수정: 영토 임대 버튼 미동작
+- `openListForRentModal()` — `/api/user/my-territories` 응답이 `{ territories: [...] }` 래퍼로 오는데 `.length` 직접 체크해 항상 "영토 없음" 알림이 뜨던 버그 수정
+  - `data.territories || data || []` 로 배열 추출
+  - 영토 이름 표시도 `custom_name` 우선으로 개선
+
+### 버그 수정: 캠페인 CH2 실패 임계값 완화
+- `server/services/campaign.js` — `simulateCh2()` 시설 HP 실패 임계값 80 → 65
+  - 최적 선택(`ch2_request_support`)으로 항상 통과 가능하도록 조정 (기존: 40% 확률 실패)
+  - 시드 기반 RNG로 특정 wallet이 항상 실패하는 문제 해소
+  - `ch2_intel_query`: ~7% 실패율, `ch2_warn_civilians`: ~27% 실패율로 조정
+
 ## 2026-05-05 — P5 버그 수정 + 캠페인 보상 실물화 (v5.98)
 
 ### 버그 수정: Extractor 수확 보너스 미반영 (재무 무결성)
