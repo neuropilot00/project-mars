@@ -13823,6 +13823,30 @@ function loadTerritoryIdentity(claimId) {
         '소유자: ' + ownerShort + '<br>섹터: ' + sectorStr
         + (id.bio ? '<br><span style="color:rgba(255,255,255,.45)">' + _esc(id.bio) + '</span>' : '');
 
+      // 🏅 Field Rating 배지
+      var frHtml = '';
+      if (id.field_rating !== undefined) {
+        var fr = id.field_rating || 0;
+        var frTierData = id.fr_tier || {};
+        var frLabel = frTierData.label_ko || frTierData.label_en || '신규';
+        var frIcon  = frTierData.icon || '🌱';
+        // 보너스 PP%: tier에 따른 매핑
+        var frBonusMap = { newcomer: 0, pioneer: 5, settler: 12, fortress: 20, legend: 25 };
+        var frBonus = frBonusMap[frTierData.tier] || 0;
+        var frColor = fr >= 100 ? '#ffd700' : fr >= 60 ? '#e1bee7' : fr >= 30 ? '#4fc3f7' : fr >= 10 ? '#66bb6a' : 'rgba(255,255,255,.4)';
+        frHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px">'
+          + '<div style="font-size:18px;line-height:1">' + frIcon + '</div>'
+          + '<div style="flex:1">'
+          + '<div style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.5px;margin-bottom:1px">FIELD RATING</div>'
+          + '<div style="display:flex;align-items:baseline;gap:5px">'
+          + '<span style="font-size:16px;font-weight:900;font-family:var(--fn);color:' + frColor + '">' + fr + '</span>'
+          + '<span style="font-size:9px;color:' + frColor + ';font-weight:700">' + frLabel + '</span>'
+          + '</div>'
+          + '</div>'
+          + (frBonus > 0 ? '<span style="font-size:9px;color:#66bb6a;font-weight:700;background:rgba(76,216,154,.1);border:1px solid rgba(76,216,154,.25);padding:2px 6px;border-radius:4px">+' + frBonus + '% PP</span>' : '')
+          + '</div>';
+      }
+
       // 📜 이력
       var history = [];
       if (id.hold_days > 0)             history.push(id.hold_days + '일 보유 중');
@@ -13857,7 +13881,7 @@ function loadTerritoryIdentity(claimId) {
           + '</div>';
       }
 
-      body.innerHTML = historyHtml + badgesHtml;
+      body.innerHTML = frHtml + historyHtml + badgesHtml;
     })
     .catch(function() { if (body) body.innerHTML = ''; });
 }

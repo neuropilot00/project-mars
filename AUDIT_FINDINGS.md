@@ -1,4 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v6.08 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.09 / 2026-05-05)
+
+## ✅ v6.09 기획서 스펙 UI 정합 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 전투 결과 리포트 타이틀 | ✅ | 'ATTACKERS WIN' → '⚔ 전투 결과 리포트' (항상 고정) |
+| 전투 결과 부제목 | ✅ | 함대명 VS 함대명 + 승리/패배 배지 (기획서 wireframe 일치) |
+| ATK/DEF 스탯 라벨 | ✅ | 총함선→투입함선, 손실→격침, 데미지→총데미지 |
+| ATK/DEF 패널 WIN/LOSS 배지 | ✅ | 패널 내부 '나' 배지 + WIN/LOSS 인라인 표시 |
+| 제목 폰트 한국어 최적화 | ✅ | 20px/letter-spacing 2px (기존 32px/8px) |
+| Territory Identity FR 배지 | ✅ | Field Rating 숫자 + 티어 레이블 + PP 보너스% 표시 |
+
+---
 
 ## ✅ v6.08 게임 개선 4대 기능 — 완료
 

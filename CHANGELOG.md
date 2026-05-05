@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 기획서 스펙 UI 정합 (전투 결과 리포트 + Territory FR)
+
+### `index.html` — 전투 결과 리포트 UI
+- `showBattleResult()` 타이틀: `'⚔ ATTACKERS WIN'` → `'⚔ 전투 결과 리포트'` (항상 고정)
+- 부제목: 승리/패배 텍스트 → 함대명 `ATK함대 VS DEF함대` + 배지
+- ATK/DEF 스탯 라벨: `총 함선→투입 함선`, `손실→격침`, `데미지→총 데미지`
+- ATK/DEF 패널에 `나` 배지 + `WIN`/`LOSS` 배지 인라인 표시
+- 타이틀 폰트: 32px/8px letter-spacing → 20px/2px (한국어 최적화)
+
+### `index.html` — Territory Identity Field Rating 배지
+- `loadTerritoryIdentity()`: FR 숫자 + 티어 레이블 + PP 보너스% 배지 추가
+- 신규/개척자/정착민/요새/전설 티어별 색상 + 아이콘 + 보너스% 표시
+
+---
+
 ## 2026-05-05 — PvP 매치메이킹 FLEET BATTLE HUB (spec 4-2)
 
 ### `server/services/battleReport.js`
