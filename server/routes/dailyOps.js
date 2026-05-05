@@ -18,11 +18,11 @@ function getWallet(req) {
 
 // ── 오늘의 미션 타입 정의 ──────────────────────────────────────
 const DAILY_MISSION_TYPES = [
-  { type: 'harvest_pp',       label_en: 'Harvest your territory (×1)',  label_ko: '영토 채굴 1회',      target: 1, reward_key: 'mission_harvest_gp',       default_gp: 50  },
-  { type: 'battle_participate', label_en: 'Participate in a battle (×1)', label_ko: '전투 참여 1회',    target: 1, reward_key: 'mission_battle_gp',        default_gp: 100 },
-  { type: 'upgrade_ship',     label_en: 'Upgrade a ship stat (×1)',     label_ko: '함선 강화 1회',      target: 1, reward_key: 'mission_upgrade_gp',       default_gp: 75  },
-  { type: 'craft_resource',   label_en: 'Craft a resource (×1)',        label_ko: '재료 제작 1회',      target: 1, reward_key: 'mission_craft_gp',         default_gp: 60  },
-  { type: 'territory_art',    label_en: 'Register territory art (×1)',  label_ko: '영토 이미지 등록',   target: 1, reward_key: 'mission_territory_art_gp', default_gp: 80  },
+  { type: 'harvest_pp',         label_en: 'Harvest your territory (×1)',  label_ko: '영토 채굴 1회',    target: 1, reward_key: 'mission_harvest_gp',       default_gp: 50,  dest_ko: '영토 → 채굴',        dest_en: 'Territory → Harvest' },
+  { type: 'battle_participate', label_en: 'Participate in a battle (×1)', label_ko: '전투 참여 1회',    target: 1, reward_key: 'mission_battle_gp',        default_gp: 100, dest_ko: 'PvP 전투',           dest_en: 'PvP Battle'          },
+  { type: 'upgrade_ship',       label_en: 'Upgrade a ship stat (×1)',     label_ko: '함선 강화 1회',    target: 1, reward_key: 'mission_upgrade_gp',       default_gp: 75,  dest_ko: '조선소',             dest_en: 'Shipyard'            },
+  { type: 'craft_resource',     label_en: 'Craft a resource (×1)',        label_ko: '재료 제작 1회',    target: 1, reward_key: 'mission_craft_gp',         default_gp: 60,  dest_ko: '경제 → 제작',        dest_en: 'Economy → Craft'     },
+  { type: 'territory_art',      label_en: 'Register territory art (×1)',  label_ko: '영토 이미지 등록', target: 1, reward_key: 'mission_territory_art_gp', default_gp: 80,  dest_ko: '영토 → 이미지 등록', dest_en: 'Territory → Art'     },
 ];
 
 // 매일 3가지 미션 — 요일별 고정 조합
@@ -85,6 +85,8 @@ router.get('/:wallet', async (req, res) => {
         type: r.mission_type,
         label_en: def.label_en || r.mission_type,
         label_ko: def.label_ko || r.mission_type,
+        dest_ko: def.dest_ko || '',
+        dest_en: def.dest_en || '',
         target: r.target_count,
         current: r.current_count,
         progress_pct: Math.min(100, Math.round((r.current_count / r.target_count) * 100)),
@@ -102,6 +104,56 @@ router.get('/:wallet', async (req, res) => {
     // 오늘의 이벤트
     const weeklyEvent = getTodayWeeklyEvent();
 
+    // 주간 완료 일수 (UTC 월요일 기준)
+    let weeklyDone = 0;
+    try {
+      const { rows: weekRows } = await pool.query(
+        `SELECT COUNT(DISTINCT ops_date)::int AS cnt FROM daily_ops
+         WHERE wallet_address = $1
+           AND ops_date >= date_trunc('week', CURRENT_DATE AT TIME ZONE 'UTC')::date
+           AND reward_claimed = TRUE`,
+        [wallet]
+      );
+      weeklyDone = weekRows[0]?.cnt || 0;
+    } catch (_) {}
+
+    // 주간 보상 레이블
+    let weeklyRewardLabel = '';
+    try { weeklyRewardLabel = await getSetting('weekly_ops_reward_label', '주간 OPS 보상 팩'); } catch (_) {}
+
+    // 긴급 이벤트: 활성 공성전 중 내 영토 섹터
+    let urgentEvents = [];
+    try {
+      const { rows: siegeRows } = await pool.query(
+        `SELECT sb.sector_code,
+           GREATEST(0, EXTRACT(EPOCH FROM (sb.updated_at + INTERVAL '24 hours' - NOW()))::int) AS time_remaining_sec
+         FROM siege_battles sb
+         JOIN claims c ON LOWER(c.sector_code) = LOWER(sb.sector_code) AND LOWER(c.owner) = $1
+         WHERE sb.status = 'active'
+         LIMIT 2`,
+        [wallet]
+      );
+      urgentEvents = siegeRows.map(r => ({
+        label_ko: r.sector_code + ' 섹터 공성전 진행 중!',
+        label_en: r.sector_code + ' Sector siege active!',
+        time_remaining_sec: r.time_remaining_sec,
+        action: "openSiege && openSiege('" + r.sector_code + "')"
+      }));
+    } catch (_) {}
+
+    // 예상 PP: 유저 영토 총 픽셀 × pp_harvest_rate_per_pixel
+    let expectedPP = 0;
+    try {
+      const ppRate = parseFloat(await getSetting('pp_harvest_rate_per_pixel', '0.1')) || 0.1;
+      const { rows: pxRows } = await pool.query(
+        `SELECT COALESCE(SUM(width * height), 0)::int AS total_pixels
+         FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`,
+        [wallet]
+      );
+      const totalPixels = pxRows[0]?.total_pixels || 0;
+      expectedPP = Math.round(totalPixels * ppRate);
+    } catch (_) {}
+
     res.json({
       success: true,
       date: today,
@@ -114,7 +166,12 @@ router.get('/:wallet', async (req, res) => {
         claimed_gp: claimedReward,
         available_gp: missions.filter(m => m.completed && !m.reward_claimed).reduce((s, m) => s + m.reward_gp, 0)
       },
-      weekly_event: weeklyEvent
+      weekly_event: weeklyEvent,
+      weekly_done: weeklyDone,
+      weekly_total: 7,
+      weekly_reward_label: weeklyRewardLabel,
+      urgent_events: urgentEvents,
+      expected_pp: expectedPP
     });
   } catch (err) {
     console.error('[dailyOps] GET error:', err.message);

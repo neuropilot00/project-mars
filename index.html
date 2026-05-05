@@ -6288,6 +6288,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane active" id="basePane_territory">
         <div class="base-banner" id="bannerTerritory"><img src="/assets/base/territory.png" alt=""></div>
 
+        <!-- ─ OPS COMMAND BOARD ─────────────────────────────────── -->
+        <div id="opsCommandBoard" style="margin-bottom:14px;border-radius:8px;background:rgba(10,15,25,.85);border:1px solid rgba(91,184,232,.2);padding:0;overflow:hidden">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(91,184,232,.06);border-bottom:1px solid rgba(91,184,232,.15)">
+            <span style="font-size:11px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:.5px">📋 오늘의 작전 보드</span>
+            <span id="opsBoardCountdown" style="font-size:10px;color:var(--gold);font-family:var(--fn)">리셋까지 --:--:--</span>
+          </div>
+          <!-- Legend -->
+          <div style="padding:5px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px;color:var(--tx3);display:flex;gap:14px">
+            <span>🟢 완료</span><span>⚪ 미완료</span><span>🔴 긴급</span>
+          </div>
+          <!-- Mission list -->
+          <div id="opsBoardContent" style="padding:6px 12px">
+            <span style="font-size:10px;color:var(--tx3)">로딩 중…</span>
+          </div>
+          <!-- Weekly progress -->
+          <div id="opsBoardWeekly" style="padding:7px 12px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.15)"></div>
+        </div>
+
         <!-- Commander's Message (global broadcast) -->
         <div id="baseCmdAnnounceBox" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(232,72,85,.10),rgba(232,72,85,.02));border:1px solid rgba(232,72,85,.3)">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
@@ -21433,6 +21452,7 @@ function openBaseModal(){
   loadBaseData();
   try{ _updateBaseTerritoryGroupList(); }catch(_){}
   setTimeout(loadNotifCount, 500);
+  setTimeout(function(){ try{ loadOpsCommandBoard(); }catch(_){} }, 200);
 }
 function closeBaseModal(){
   document.getElementById('baseModal').classList.remove('open');
@@ -24708,15 +24728,43 @@ function cancelOpsMission(id){
 
 // ══ DAILY OPS BOARD ═══════════════════════════════════════════
 
-async function loadDailyOpsBoard() {
-  var wallet = walletState.address;
-  if (!wallet) return;
-  var el = document.getElementById('dailyOpsMissions');
-  var claimAllBtn = document.getElementById('dailyOpsClaimAll');
-  var weeklyEl = document.getElementById('dailyOpsWeeklyEvent');
-  if (!el) return;
+// ─ OPS COMMAND BOARD ─────────────────────────────────────────
+var _opsBoardCountdownTimer = null;
 
-  el.innerHTML = '<span style="color:var(--tx3);font-size:10px">' + t('daily_ops_loading') + '</span>';
+function _startOpsBoardCountdown() {
+  if (_opsBoardCountdownTimer) clearInterval(_opsBoardCountdownTimer);
+  function _tick() {
+    var now = new Date();
+    var msUntilReset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)) - now;
+    var s = Math.floor(msUntilReset / 1000);
+    var h = Math.floor(s / 3600); s -= h * 3600;
+    var m = Math.floor(s / 60); s -= m * 60;
+    var str = '리셋까지 ' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    var el = document.getElementById('opsBoardCountdown');
+    if (el) el.textContent = str;
+    var el2 = document.getElementById('opsBoardCountdown2');
+    if (el2) el2.textContent = str;
+  }
+  _tick();
+  _opsBoardCountdownTimer = setInterval(_tick, 1000);
+}
+
+function _fmtDuration(sec) {
+  if (sec <= 0) return '만료';
+  var h = Math.floor(sec / 3600); var m = Math.floor((sec % 3600) / 60);
+  if (h > 0) return h + '시간 ' + m + '분';
+  return m + '분';
+}
+
+async function loadOpsCommandBoard() {
+  var wallet = walletState.address;
+  _startOpsBoardCountdown();
+  var el = document.getElementById('opsBoardContent');
+  var weeklyEl = document.getElementById('opsBoardWeekly');
+  if (!wallet || !el) return;
+
+  el.innerHTML = '<span style="font-size:10px;color:var(--tx3)">로딩 중…</span>';
+
   try {
     var res = await fetch('/api/daily-ops/' + encodeURIComponent(wallet));
     var data = await res.json();
@@ -24724,55 +24772,185 @@ async function loadDailyOpsBoard() {
 
     var missions = data.missions || [];
     var we = data.weekly_event;
+    var weeklyDone = data.weekly_done || 0;
+    var weeklyTotal = data.weekly_total || 7;
+    var weeklyReward = data.weekly_reward_label || '';
+    var urgentEvents = data.urgent_events || [];
+    var expectedPP = data.expected_pp || 0;
 
-    // 주간 이벤트 표시
-    if (we && weeklyEl) {
-      weeklyEl.innerHTML = '<span style="font-size:14px">' + (we.icon||'') + '</span> <span style="color:var(--gold)">' + (LANG==='ko' ? we.label_ko : we.label_en) + '</span>';
-    }
+    // 미션 타입별 이동 액션
+    var missionNav = {
+      harvest_pp:          { action: function(){ try{ switchBaseCat('territory', document.querySelector('.bcat[data-cat=territory]')); }catch(_){} try{ switchBaseTab('territory', document.getElementById('baseTabTerritory')); }catch(_){} } },
+      upgrade_ship:        { action: function(){ try{ openShipyard(); }catch(_){ try{ switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]')); }catch(_e){} } } },
+      craft_resource:      { action: function(){ try{ switchBaseCat('economy', document.querySelector('.bcat[data-cat=economy]')); }catch(_){} try{ switchBaseTab('market', document.getElementById('baseTabMarket')); }catch(_){} } },
+      battle_participate:  { action: function(){ try{ switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]')); }catch(_){} try{ switchBaseTab('pvp', document.getElementById('baseTabPvp')); }catch(_){} } },
+      territory_art:       { action: function(){ try{ switchBaseCat('territory', document.querySelector('.bcat[data-cat=territory]')); }catch(_){} try{ switchBaseTab('territory', document.getElementById('baseTabTerritory')); }catch(_){} } },
+    };
 
-    if (missions.length === 0) {
-      el.innerHTML = '<div style="color:var(--tx3);font-size:10px">' + t('daily_ops_no_missions') + '</div>';
-      return;
-    }
+    var html = '';
 
-    var hasClaimable = missions.some(function(m){ return m.completed && !m.reward_claimed; });
-    var allClaimed = missions.every(function(m){ return m.reward_claimed; });
-
-    if (allClaimed) {
-      el.innerHTML = '<div style="color:var(--gn);font-size:10px;text-align:center;padding:8px">' + t('daily_ops_all_claimed') + '</div>';
-      if (claimAllBtn) claimAllBtn.style.display = 'none';
-      return;
-    }
-
-    el.innerHTML = missions.map(function(m) {
-      var label = LANG==='ko' ? m.label_ko : m.label_en;
-      var pct = m.progress_pct;
-      var barCol = m.completed ? 'var(--gn)' : 'var(--cyan)';
-      var statusLabel = m.reward_claimed
-        ? '<span style="color:var(--tx3);font-size:9px">' + t('daily_ops_claimed') + '</span>'
-        : m.completed
-          ? '<button onclick="claimDailyOps(' + m.id + ')" style="padding:3px 10px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.4);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn)">' + t('daily_ops_claim') + ' +' + m.reward_gp + ' GP</button>'
-          : '<span style="color:var(--gold);font-size:9px">+' + m.reward_gp + ' GP</span>';
-      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+    // 🔴 긴급 이벤트 먼저
+    urgentEvents.forEach(function(ev, idx) {
+      html += '<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,82,82,.12)">'
+        + '<span style="font-size:11px;line-height:1.4;flex-shrink:0">🔴</span>'
         + '<div style="flex:1">'
-        + '<div style="font-size:10px;color:' + (m.completed ? 'var(--gn)' : 'var(--tx)') + ';margin-bottom:3px">'
-        + (m.completed ? '✓ ' : '') + label + '</div>'
-        + '<div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden">'
-        + '<div style="height:100%;width:' + pct + '%;background:' + barCol + ';transition:width .4s;border-radius:2px"></div>'
+        + '<div style="font-size:10px;color:#ff5252;font-weight:700">' + (LANG==='ko' ? ev.label_ko : ev.label_en) + '</div>'
+        + '<div style="font-size:9px;color:var(--tx3)">(' + _fmtDuration(ev.time_remaining_sec) + ' 남음)</div>'
         + '</div>'
-        + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">' + m.current + '/' + m.target + '</div>'
-        + '</div>'
-        + '<div style="flex:0 0 auto">' + statusLabel + '</div>'
+        + '<button type="button" id="opsUrgentBtn' + idx + '" style="flex-shrink:0;font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.4);color:#ff5252;cursor:pointer;font-family:var(--fn);font-weight:700">지금 참여 →</button>'
         + '</div>';
-    }).join('');
+    });
 
-    if (claimAllBtn) claimAllBtn.style.display = hasClaimable ? '' : 'none';
+    // ⚪/🟢 미션 행
+    missions.forEach(function(m, idx) {
+      var label = LANG==='ko' ? m.label_ko : m.label_en;
+      var dest = LANG==='ko' ? (m.dest_ko || '') : (m.dest_en || '');
+      var dot = m.reward_claimed ? '🟢' : '⚪';
+      var labelColor = m.reward_claimed ? 'var(--gn)' : (m.completed ? 'var(--gold)' : 'var(--tx)');
 
-    // OPS 탭 dot 설정
+      var rewardStr;
+      if (m.type === 'harvest_pp' && expectedPP > 0) {
+        rewardStr = '→ +' + expectedPP + ' PP 예상';
+      } else if (dest) {
+        rewardStr = '→ ' + dest;
+      } else {
+        rewardStr = '+' + m.reward_gp + ' GP';
+      }
+
+      var rightBtn;
+      if (m.reward_claimed) {
+        rightBtn = '<span style="font-size:9px;color:var(--gn)">✓ 수령완료</span>';
+      } else if (m.completed) {
+        rightBtn = '<button type="button" id="opsMissionClaimBtn' + idx + '" data-mid="' + m.id + '" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.45);color:var(--gn);cursor:pointer;font-family:var(--fn)">+' + m.reward_gp + ' GP 수령</button>';
+      } else {
+        rightBtn = '<button type="button" id="opsMissionGoBtn' + idx + '" data-mtype="' + m.type + '" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx2);cursor:pointer;font-family:var(--fn)">GO →</button>';
+      }
+
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+        + '<span style="font-size:11px;flex-shrink:0">' + dot + '</span>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:10px;color:' + labelColor + ';font-weight:600">' + label + '</div>'
+        + '<div style="font-size:9px;color:var(--tx3)">' + rewardStr + '</div>'
+        + '</div>'
+        + '<div style="flex-shrink:0">' + rightBtn + '</div>'
+        + '</div>';
+    });
+
+    if (!html) {
+      html = '<div style="font-size:10px;color:var(--tx3);padding:8px 0">미션 없음</div>';
+    }
+
+    el.innerHTML = html;
+
+    // 버튼 이벤트 등록
+    urgentEvents.forEach(function(ev, idx) {
+      var btn = document.getElementById('opsUrgentBtn' + idx);
+      if (btn) btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        try { eval(ev.action); } catch(_) {}
+      });
+    });
+    missions.forEach(function(m, idx) {
+      var claimBtn = document.getElementById('opsMissionClaimBtn' + idx);
+      if (claimBtn) claimBtn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        claimDailyOps(parseInt(this.dataset.mid));
+      });
+      var goBtn = document.getElementById('opsMissionGoBtn' + idx);
+      if (goBtn) goBtn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var nav = missionNav[this.dataset.mtype];
+        if (nav) nav.action();
+      });
+    });
+
+    // 주간 이벤트 + 주간 진척도
+    var weeklyHtml = '';
+    if (we) {
+      weeklyHtml += '<div style="font-size:9px;color:var(--gold);margin-bottom:6px">'
+        + (we.icon || '') + ' 오늘의 이벤트: ' + (LANG==='ko' ? we.label_ko : we.label_en) + '</div>';
+    }
+    var blocks = '';
+    for (var i = 0; i < weeklyTotal; i++) {
+      var pct = Math.floor(100 / weeklyTotal) - 1;
+      blocks += '<span style="display:inline-block;width:' + pct + '%;height:7px;border-radius:2px;margin-right:1px;background:' + (i < weeklyDone ? 'var(--cyan)' : 'rgba(255,255,255,.1)') + '"></span>';
+    }
+    weeklyHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">'
+      + '<span style="font-size:9px;color:var(--tx3)">주간 진척도</span>'
+      + '<span style="font-size:9px;color:var(--cyan);font-weight:700">' + weeklyDone + ' / ' + weeklyTotal + '</span>'
+      + '</div>'
+      + '<div style="width:100%">' + blocks + '</div>'
+      + (weeklyReward ? '<div style="font-size:9px;color:var(--gold);margin-top:4px">이번 주 보상: ' + weeklyReward + '</div>' : '');
+
+    if (weeklyEl) weeklyEl.innerHTML = weeklyHtml;
+
+    // 수령 가능한 미션 있으면 OPS 탭 dot
+    var hasClaimable = missions.some(function(m){ return m.completed && !m.reward_claimed; });
     if (hasClaimable) { try { setBaseTabDot('ops', true); } catch(_){} }
+
+    // OPS 탭 기존 보드도 갱신
+    try { _refreshOpsTabBoard(data); } catch(_) {}
+
   } catch(err) {
-    if (el) el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Daily OPS unavailable</div>';
+    if (el) el.innerHTML = '<div style="font-size:10px;color:var(--tx3)">OPS Board 로딩 실패</div>';
   }
+}
+
+function _refreshOpsTabBoard(data) {
+  // OPS 탭의 기존 dailyOpsBoard도 같은 데이터로 갱신
+  var el = document.getElementById('dailyOpsMissions');
+  var claimAllBtn = document.getElementById('dailyOpsClaimAll');
+  var weeklyEl = document.getElementById('dailyOpsWeeklyEvent');
+  if (!el) return;
+
+  var missions = data.missions || [];
+  var we = data.weekly_event;
+
+  if (we && weeklyEl) {
+    weeklyEl.innerHTML = '<span style="font-size:14px">' + (we.icon||'') + '</span> <span style="color:var(--gold)">' + (LANG==='ko' ? we.label_ko : we.label_en) + '</span>';
+  }
+
+  if (missions.length === 0) {
+    el.innerHTML = '<div style="color:var(--tx3);font-size:10px">' + t('daily_ops_no_missions') + '</div>';
+    return;
+  }
+
+  var hasClaimable = missions.some(function(m){ return m.completed && !m.reward_claimed; });
+  var allClaimed = missions.every(function(m){ return m.reward_claimed; });
+
+  if (allClaimed) {
+    el.innerHTML = '<div style="color:var(--gn);font-size:10px;text-align:center;padding:8px">' + t('daily_ops_all_claimed') + '</div>';
+    if (claimAllBtn) claimAllBtn.style.display = 'none';
+    return;
+  }
+
+  el.innerHTML = missions.map(function(m) {
+    var label = LANG==='ko' ? m.label_ko : m.label_en;
+    var pct = m.progress_pct;
+    var barCol = m.completed ? 'var(--gn)' : 'var(--cyan)';
+    var statusLabel = m.reward_claimed
+      ? '<span style="color:var(--tx3);font-size:9px">' + t('daily_ops_claimed') + '</span>'
+      : m.completed
+        ? '<button onclick="claimDailyOps(' + m.id + ')" style="padding:3px 10px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.4);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn)">' + t('daily_ops_claim') + ' +' + m.reward_gp + ' GP</button>'
+        : '<span style="color:var(--gold);font-size:9px">+' + m.reward_gp + ' GP</span>';
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      + '<div style="flex:1">'
+      + '<div style="font-size:10px;color:' + (m.completed ? 'var(--gn)' : 'var(--tx)') + ';margin-bottom:3px">'
+      + (m.completed ? '✓ ' : '') + label + '</div>'
+      + '<div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden">'
+      + '<div style="height:100%;width:' + pct + '%;background:' + barCol + ';transition:width .4s;border-radius:2px"></div>'
+      + '</div>'
+      + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">' + m.current + '/' + m.target + '</div>'
+      + '</div>'
+      + '<div style="flex:0 0 auto">' + statusLabel + '</div>'
+      + '</div>';
+  }).join('');
+
+  if (claimAllBtn) claimAllBtn.style.display = hasClaimable ? '' : 'none';
+}
+
+async function loadDailyOpsBoard() {
+  return loadOpsCommandBoard();
 }
 
 async function claimDailyOps(missionId) {
