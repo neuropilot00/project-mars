@@ -16027,7 +16027,18 @@ var I18N = {
     war_declaring_btn: 'DECLARING...',
     war_treasury_low: 'Insufficient treasury GP ({need} needed, have {have})',
     codex_subtitle: 'Official game guidebook',
-    loading: 'Loading…'
+    loading: 'Loading…',
+    // Campaign
+    campaign_btn_start: 'START', campaign_btn_continue: 'CONTINUE',
+    campaign_btn_results: 'RESULTS', campaign_btn_locked: 'LOCKED',
+    campaign_label_completed: 'COMPLETED', campaign_label_prologue: 'PROLOGUE',
+    campaign_label_route: 'ROUTE', campaign_label_ch: 'CH',
+    campaign_no_chapters: 'No campaign chapters available.',
+    campaign_no_faction: 'Select a faction to unlock the campaign.<br>Tap the faction badge → MCC / FSP / CV.',
+    campaign_show_locked: 'SHOW LOCKED', campaign_hide_locked: 'HIDE LOCKED',
+    campaign_meta_sim: 'Server simulation',
+    campaign_reward_claimed: 'Reward claimed',
+    campaign_objective_go: 'GO',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -16701,7 +16712,18 @@ var I18N = {
     war_declaring_btn: '선포 중...',
     war_treasury_low: '재무 GP 부족 ({need} 필요, 보유 {have})',
     codex_subtitle: '공식 게임 가이드북',
-    loading: '불러오는 중…'
+    loading: '불러오는 중…',
+    // 캠페인
+    campaign_btn_start: '시작', campaign_btn_continue: '계속',
+    campaign_btn_results: '결과', campaign_btn_locked: '잠김',
+    campaign_label_completed: '완료', campaign_label_prologue: '프롤로그',
+    campaign_label_route: '루트', campaign_label_ch: 'CH',
+    campaign_no_chapters: '이용 가능한 캠페인 챕터가 없습니다.',
+    campaign_no_faction: '파벌을 먼저 선택하면 캠페인이 열립니다.<br>파벌 배지를 눌러 MCC / FSP / CV 중 하나를 선택하세요.',
+    campaign_show_locked: '잠긴 챕터 보기', campaign_hide_locked: '잠긴 챕터 숨기기',
+    campaign_meta_sim: '서버 시뮬레이션',
+    campaign_reward_claimed: '보상 수령 완료',
+    campaign_objective_go: '이동',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -17359,7 +17381,17 @@ var I18N = {
     war_declaring_btn: '宣戦中...',
     war_treasury_low: '金庫GP不足 ({need}必要、保有{have})',
     codex_subtitle: '公式ゲームガイドブック',
-    loading: '読み込み中…'
+    loading: '読み込み中…',
+    campaign_btn_start: 'スタート', campaign_btn_continue: '続ける',
+    campaign_btn_results: '結果', campaign_btn_locked: 'ロック済',
+    campaign_label_completed: '完了', campaign_label_prologue: 'プロローグ',
+    campaign_label_route: 'ルート', campaign_label_ch: 'CH',
+    campaign_no_chapters: '利用可能なキャンペーンがありません。',
+    campaign_no_faction: '派閥を選択するとキャンペーンが解放されます。',
+    campaign_show_locked: 'ロック済を表示', campaign_hide_locked: 'ロック済を隠す',
+    campaign_meta_sim: 'サーバーシミュレーション',
+    campaign_reward_claimed: '報酬受取完了',
+    campaign_objective_go: '移動',
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -18017,7 +18049,17 @@ var I18N = {
     war_declaring_btn: '宣战中...',
     war_treasury_low: '金库GP不足（需要{need}，拥有{have}）',
     codex_subtitle: '官方游戏指南',
-    loading: '加载中…'
+    loading: '加载中…',
+    campaign_btn_start: '开始', campaign_btn_continue: '继续',
+    campaign_btn_results: '结果', campaign_btn_locked: '锁定',
+    campaign_label_completed: '已完成', campaign_label_prologue: '序章',
+    campaign_label_route: '路线', campaign_label_ch: 'CH',
+    campaign_no_chapters: '暂无可用章节。',
+    campaign_no_faction: '请先选择派系以解锁战役。',
+    campaign_show_locked: '显示锁定', campaign_hide_locked: '隐藏锁定',
+    campaign_meta_sim: '服务器模拟',
+    campaign_reward_claimed: '奖励已领取',
+    campaign_objective_go: '前往',
   }
 };
 
@@ -25109,7 +25151,7 @@ function renderCampaignList(chapters){
   // 파벌 미선택 상태에서는 안내 카드만 보여 다른 루트가 노출되지 않도록 한다.
   var myFaction=(typeof factionState!=='undefined'&&factionState&&factionState.current&&factionState.current.code)?factionState.current.code:null;
   if(!myFaction){
-    el.innerHTML='<div style="font-size:10px;color:var(--gold);padding:14px;border:1px dashed rgba(255,209,102,.35);border-radius:8px;line-height:1.7">파벌을 먼저 선택하면 캠페인이 열립니다.<br>좌측 파벌 배지를 눌러 MCC / FSP / CV 중 하나를 선택하세요.</div>';
+    el.innerHTML='<div style="font-size:10px;color:var(--gold);padding:14px;border:1px dashed rgba(255,209,102,.35);border-radius:8px;line-height:1.7">'+t('campaign_no_faction')+'</div>';
     return;
   }
   var visible=chapters.filter(function(c){
@@ -25117,7 +25159,7 @@ function renderCampaignList(chapters){
     if(c.faction==='hidden') return false; // 히든 루트는 별도 조건으로만 공개
     return c.faction===myFaction;
   });
-  if(!visible.length){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">No campaign chapters available.</div>';return;}
+  if(!visible.length){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">'+t('campaign_no_chapters')+'</div>';return;}
   var html='';
   var lockedHtml='';
   var lockedCount=0;
@@ -25127,30 +25169,30 @@ function renderCampaignList(chapters){
     var done=isCampaignProgressDone(p);
     var active=isCampaignProgressActive(p);
     var title=(ch.title&&ch.title.ko)||ch.questId;
-    var btn=locked?'LOCKED':(done?'RESULTS':(active?'CONTINUE':'START'));
+    var btn=locked?t('campaign_btn_locked'):(done?t('campaign_btn_results'):(active?t('campaign_btn_continue'):t('campaign_btn_start')));
     var route=((ch.campaignId||'').replace('_route','')||ch.faction||'').toUpperCase();
     var card='';
     if(locked){
       lockedCount++;
       card+='<div class="campaign-card compact">';
-      card+='<div class="campaign-icon">⚡</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' · CH '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+      card+='<div class="campaign-icon">⚡</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' · '+t('campaign_label_ch')+' '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
       card+='<button class="campaign-btn secondary" disabled style="opacity:.55;cursor:not-allowed">'+btn+'</button>';
       card+='</div>';
       lockedHtml+=card;
       return;
     }
     if(done){
-      var doneChapterLabel=Number(ch.chapterNumber)===0?'PROLOGUE':'CH '+ch.chapterNumber;
+      var doneChapterLabel=Number(ch.chapterNumber)===0?t('campaign_label_prologue'):t('campaign_label_ch')+' '+ch.chapterNumber;
       card+='<div class="campaign-card compact done">';
-      card+='<div class="campaign-icon">✓</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' ROUTE · '+doneChapterLabel+' · COMPLETED</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
-      card+='<button class="campaign-btn secondary" onclick="openCampaignChapter(\''+ch.questId+'\')">RESULTS</button>';
+      card+='<div class="campaign-icon">✓</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' '+t('campaign_label_route')+' · '+doneChapterLabel+' · '+t('campaign_label_completed')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+      card+='<button class="campaign-btn secondary" onclick="openCampaignChapter(\''+ch.questId+'\')">'+t('campaign_btn_results')+'</button>';
       card+='</div>';
       html+=card;
       return;
     }
     card+='<div class="campaign-card'+(done?' done':'')+'">';
-    card+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">'+route+' ROUTE · CH '+ch.chapterNumber+' · '+(ch.battleResolution||'SIM')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
-    card+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars operation')+' · MVP 서버 시뮬레이션</div>';
+    card+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">'+route+' '+t('campaign_label_route')+' · '+t('campaign_label_ch')+' '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+    card+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars')+'</div>';
     card+=campaignObjectivesHtml(ch,3);
     if(done||active){
       var m=p.metrics||{};
@@ -25161,7 +25203,7 @@ function renderCampaignList(chapters){
     html+=card;
   });
   if(lockedCount){
-    html+='<button class="campaign-locked-toggle" onclick="toggleCampaignLockedList()">'+(_campaignShowLocked?'HIDE LOCKED':'SHOW LOCKED')+' · '+lockedCount+'</button>';
+    html+='<button class="campaign-locked-toggle" onclick="toggleCampaignLockedList()">'+(_campaignShowLocked?t('campaign_hide_locked'):t('campaign_show_locked'))+' · '+lockedCount+'</button>';
     if(_campaignShowLocked) html+=lockedHtml;
   }
   el.innerHTML=html;
@@ -25224,8 +25266,13 @@ function campaignObjectiveActionTarget(action){
   return map[action]||'';
 }
 function campaignObjectiveActionLabel(action){
-  var map={territory:'MY LAND',shipyard:'SHIPYARD',fleet:'FLEET',battle:'BATTLE',market:'MARKET'};
-  return map[action]||'GO';
+  var isKo=(typeof LANG!=='undefined'&&LANG==='ko')||(typeof window._lang!=='undefined'&&window._lang==='ko');
+  if(isKo){
+    var mapKo={territory:'내 영토',territory_art:'내 영토',shipyard:'조선소',fleet:'함대',fleet_battle:'전투',market:'마켓'};
+    return mapKo[action]||t('campaign_objective_go');
+  }
+  var map={territory:'MY LAND',territory_art:'MY LAND',shipyard:'SHIPYARD',fleet:'FLEET',fleet_battle:'BATTLE',market:'MARKET'};
+  return map[action]||t('campaign_objective_go');
 }
 function handleCampaignObjectiveAction(ev,action){
   if(ev&&ev.stopPropagation) ev.stopPropagation();

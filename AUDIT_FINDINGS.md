@@ -1,3 +1,23 @@
+# OCCUPY MARS — Codebase Audit (v5.91 / 2026-05-05)
+
+## ✅ v5.91 Campaign i18n Localization — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 캠페인 버튼 라벨 i18n | ✅ | START/CONTINUE/RESULTS/LOCKED → `t('campaign_btn_*')`. EN/KO/JA/ZH 4개 언어 키 추가. |
+| 캠페인 메타 라벨 i18n | ✅ | COMPLETED/PROLOGUE/ROUTE/CH → `t('campaign_label_*')`. 언어별 번역 등록. |
+| 파벌 없음 / 챕터 없음 안내 i18n | ✅ | 하드코딩 한국어 → `t('campaign_no_faction')` / `t('campaign_no_chapters')`. |
+| SHOW/HIDE LOCKED 버튼 i18n | ✅ | `t('campaign_show_locked')` / `t('campaign_hide_locked')`. |
+| 챕터 카드 `MVP 서버 시뮬레이션` 텍스트 정리 | ✅ | `t('campaign_meta_sim')` 로 교체. 위치 정보만 남기고 'MVP' 접두어 제거. |
+| objective GO/이동 버튼 i18n | ✅ | `campaignObjectiveActionLabel()` 이 언어별로 한국어 라벨(내 영토/조선소/함대/전투/마켓) 또는 영문 라벨 반환. |
+| I18N 키 EN/KO/JA/ZH 동기화 | ✅ | 신규 campaign_* 키 13개를 4개 언어 섹션에 모두 추가. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.90 / 2026-05-05)
 
 ## ✅ v5.90 Static QA Pass — CV 시뮬레이터 버그 수정 + 마켓 필터 검증
