@@ -2929,6 +2929,30 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch (_te) { /* tiers service unavailable */ }
 
+    // ✅ [P5-4 FIX] Territory upgrade extractor bonus — 영토 업그레이드 채굴기 레벨을 실수확에 반영.
+    // 유저 소유 전 클레임 중 MAX extractor 레벨 적용.
+    // Lv1=+15%, Lv2=+30%, Lv3=+50%, Lv4=+75%, Lv5=+100%
+    try {
+      const extRes = await client.query(
+        `SELECT MAX(u.level) AS max_level
+         FROM territory_upgrades u
+         JOIN claims c ON c.id = u.claim_id
+         WHERE LOWER(c.owner) = $1
+           AND u.upgrade_type = 'extractor'
+           AND u.is_active = true
+           AND c.deleted_at IS NULL`,
+        [w]
+      );
+      const extractorLevel = parseInt(extRes.rows[0]?.max_level || 0);
+      if (extractorLevel > 0) {
+        const bonusMap = { 1: 0.15, 2: 0.30, 3: 0.50, 4: 0.75, 5: 1.00 };
+        const bonus = bonusMap[extractorLevel] || 0;
+        if (bonus > 0) {
+          harvestedPP = Math.round(harvestedPP * (1 + bonus) * 10000) / 10000;
+        }
+      }
+    } catch (_ext) { /* territory upgrade unavailable */ }
+
     // (P1-1) cap 은 위에서 base 에 이미 적용됨 — 여기선 multipliers 누적 후 추가 cap 적용 안 함.
 
     // Apply daily cap (0=unlimited)

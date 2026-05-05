@@ -2662,7 +2662,7 @@ function calculateCh1Rewards(progress, sim) {
     GP: gp,
     XP: 500,
     reputationDelta: rep,
-    items: [{ type: 'ship_blueprint', code: 'prism_interceptor', label: 'Prism Interceptor Blueprint' }],
+    items: [{ type: 'ship', code: 'mcc_int', label: 'Prism Interceptor', quantity: 1 }],
     titles: secondary.length === 2 ? ['efficient_operator'] : [],
     masteries: secondary.includes('obj_finish_before_storm') ? ['dust_storm_combat'] : [],
     tags: secondary.length === 2 ? ['efficient_operator'] : [],
@@ -2695,13 +2695,13 @@ function calculateCh2Rewards(progress, sim) {
   let rep = { mcc: 20, fsp: -15 };
   const tags = [];
   const loreFlags = ['hellas_facility_acquired'];
-  const items = [{ type: 'ship', code: 'shard_frigate', label: 'Shard Frigate', quantity: 2 }, { type: 'resource_stream', code: 'hellas_h2o_monthly', label: 'Hellas H2O Monthly Contract', quantity: 2000 }];
+  const items = [{ type: 'ship', code: 'shard_frigate', label: 'Shard Frigate', quantity: 2 }, { type: 'resource', code: 'ice_crystal', label: 'Ice Crystal', quantity: 15 }];
   if (choiceId === 'ch2_request_support') gp -= 2000;
   if (choiceId === 'ch2_warn_civilians') loreFlags.push('warned_civilians_ch2');
   if (choiceId === 'ch2_intel_query') loreFlags.push('requested_intel_ch2');
   if (secondary.includes('obj_facility_pristine')) gp += 5000;
   if (secondary.includes('obj_clean_operation')) { gp += 3000; tags.push('clean_operator'); rep = mergeRep(rep, { mcc: 5 }); }
-  if (secondary.includes('obj_finish_under_30min')) items.push({ type: 'ship_blueprint', code: 'shard_frigate_blueprint', label: 'Shard Frigate Blueprint' });
+  if (secondary.includes('obj_finish_under_30min')) items.push({ type: 'ship', code: 'mcc_frg', label: 'Shard Frigate (Bonus)', quantity: 1 });
   return { GP: gp, XP: 800, reputationDelta: rep, items, tags, loreFlags, unlocks: [CH3_ID], branchModifiers: [] };
 }
 
@@ -2717,12 +2717,12 @@ function calculateCh3Rewards(progress, sim) {
   const masteries = [];
   const branchModifiers = [];
   if (branch === 'helion') {
-    items.push({ type: 'resource_stream', code: 'o2_supply_stream', label: 'O2 Supply Stream', quantity: 500 }, { type: 'asset', code: 'refinery_ownership', label: 'Refinery Ownership', quantity: 12 });
+    items.push({ type: 'resource', code: 'plasma_crystal', label: 'Plasma Crystal', quantity: 10 }, { type: 'resource', code: 'titanium_alloy', label: 'Titanium Alloy', quantity: 8 });
     branchModifiers.push({ targetChapter: 'mcc_campaign_ch6', key: 'ch6_chen_invitation', value: { ch6_briefing_variant: 'secret_meeting_invited', additional_choice: 'ch6_attend_secret_meeting' } });
   } else if (branch === 'verin') {
-    items.push({ type: 'ship_blueprint', code: 'longeye_sniper', label: 'Longeye Sniper Blueprint' });
+    items.push({ type: 'ship', code: 'mcc_snp', label: 'Longeye Sniper', quantity: 1 });
   } else {
-    items.push({ type: 'resource_stream', code: 'parts_supply_stream', label: 'Parts Supply Stream', quantity: 500 });
+    items.push({ type: 'resource', code: 'carbon_fiber', label: 'Carbon Fiber', quantity: 12 }, { type: 'resource', code: 'silicon_chip', label: 'Silicon Chip', quantity: 8 });
     branchModifiers.push({ targetChapter: 'mcc_campaign_ch7', key: 'ch7_chen_distrust', value: { chen_dialog_variant: 'distrustful', chen_surveillance_active: true, ch7_difficulty_modifier: 1.15 } });
   }
   if (secondary.includes('obj_no_player_ship_lost')) gp += 5000;
@@ -2771,16 +2771,16 @@ function calculateCh5Rewards(progress, sim) {
   let gp = 60000, xp = 1500, rep = { mcc: 30, fsp: -15 }, items = [{ type: 'ship', code: 'longeye_sniper', label: 'Longeye Sniper', quantity: 1 }], loreFlags = commonLore.slice();
   if (choiceId === 'ch5_escort_supply') {
     gp = 80000; xp = 1800; rep = { mcc: 35 };
-    items = [{ type: 'ship', code: 'lifeline_supply_ship', label: 'Lifeline Supply Ship', quantity: 1 }, { type: 'resource_stream', code: 'o2_supply_stream_kepler', label: 'O2 Supply Stream', quantity: 200 }];
+    items = [{ type: 'ship', code: 'fsp_logi', label: 'FSP Logistics Frigate', quantity: 1 }, { type: 'resource', code: 'ice_crystal', label: 'Ice Crystal', quantity: 20 }];
     loreFlags.push('ch5_chose_escort', 'kepler_data_server_secured');
   } else if (choiceId === 'ch5_solo_data') {
     gp = 120000; xp = 2500; rep = { mcc: 40 };
-    items = [{ type: 'data_artifact', code: 'roth_data_copy', label: 'Roth Data Copy', quantity: 1 }];
+    items = [{ type: 'resource', code: 'meteorite_fragment', label: 'Meteorite Fragment', quantity: 3 }, { type: 'resource', code: 'plasma_crystal', label: 'Plasma Crystal', quantity: 5 }];
     loreFlags.push('ch5_chose_solo_data', 'kepler_data_server_player_solo', 'insubordination_attempt');
     branchModifiers.push({ targetChapter: 'mcc_campaign_ch10', key: 'ending_2_executive_eligible', value: { ch10_ending_options_add: ['ending_2_executive'] } });
   } else if (choiceId === 'ch5_strike_cv') {
     gp = 100000; xp = 2000; rep = { mcc: 40, cv: -25 };
-    items = [{ type: 'weapon_system', code: 'plague_burner', label: 'Plague Burner', quantity: 1 }];
+    items = [{ type: 'resource', code: 'plasma_dust', label: 'Plasma Dust', quantity: 5 }, { type: 'resource', code: 'ancient_metal', label: 'Ancient Metal', quantity: 3 }];
     loreFlags.push('ch5_chose_cv_strike', 'cv_plague_ship_destroyed');
   } else {
     loreFlags.push('ch5_chose_block_fsp', 'kepler_data_server_secured');
@@ -2801,14 +2801,14 @@ function calculateCh6Rewards(progress, sim) {
     let gp = 50000; let rep = { mcc: -50, fsp: 30 };
     if (secondary.includes('obj_minimize_armor_damage')) gp += 10000;
     if (secondary.includes('obj_lifang_shuttle_full_hp')) rep = mergeRep(rep, { fsp: 10 });
-    return { GP: gp, XP: 2500, reputationDelta: rep, items: [{ type: 'safe_house_access', code: 'new_athens', label: 'New Athens Safe House' }], tags: ['whistleblower'], loreFlags: ['ch6_chose_help_lifang'], unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_a_active', value: { ch7_route: 'branch_a', ch8_route: 'branch_a', ch9_route: 'branch_a', ch10_endings_available: ['ending_3_whistleblower'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_3_locked_in', value: { ending: 'ending_3_whistleblower' } }] };
+    return { GP: gp, XP: 2500, reputationDelta: rep, items: [{ type: 'resource', code: 'titanium_alloy', label: 'Titanium Alloy', quantity: 5 }, { type: 'resource', code: 'plasma_crystal', label: 'Plasma Crystal', quantity: 3 }], tags: ['whistleblower'], loreFlags: ['ch6_chose_help_lifang'], unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_a_active', value: { ch7_route: 'branch_a', ch8_route: 'branch_a', ch9_route: 'branch_a', ch10_endings_available: ['ending_3_whistleblower'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_3_locked_in', value: { ending: 'ending_3_whistleblower' } }] };
   }
   if (branch === 'branch_c') {
     const lore = ['ch6_chose_copy_silent'];
     if (secondary.includes('obj_stealth_perfect')) lore.push('chen_no_suspicion');
-    return { GP: secondary.includes('obj_stealth_perfect') ? 15000 : 0, XP: 1500, reputationDelta: {}, items: [{ type: 'data_artifact', code: 'lifang_blackmail_data', label: 'Lifang Blackmail Data' }], tags: ['secret_keeper'], loreFlags: lore, unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_c_active', value: { ch7_route: 'branch_c', ch10_endings_available: ['ending_1_loyal_hire', 'ending_2_executive', 'ending_4_traitor'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_4_unlocked', value: { ending: 'ending_4_traitor' } }] };
+    return { GP: secondary.includes('obj_stealth_perfect') ? 15000 : 0, XP: 1500, reputationDelta: {}, items: [{ type: 'resource', code: 'ancient_metal', label: 'Ancient Metal', quantity: 2 }], tags: ['secret_keeper'], loreFlags: lore, unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_c_active', value: { ch7_route: 'branch_c', ch10_endings_available: ['ending_1_loyal_hire', 'ending_2_executive', 'ending_4_traitor'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_4_unlocked', value: { ending: 'ending_4_traitor' } }] };
   }
-  return { GP: 100000, XP: 2000, reputationDelta: { mcc: 40, fsp: -10 }, items: [{ type: 'office_assets', code: 'lifang_office_assets', label: 'Li Fang Office Assets', quantity: 50000 }], tags: [], loreFlags: ['ch6_chose_report_chen', 'lifang_arrested'], unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_b_active', value: { ch7_route: 'branch_b', ch10_endings_available: ['ending_1_loyal_hire', 'ending_2_executive'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_1_eligible', value: { ending: 'ending_1_loyal_hire' } }] };
+  return { GP: 100000, XP: 2000, reputationDelta: { mcc: 40, fsp: -10 }, items: [{ type: 'resource', code: 'hull_plate', label: 'Hull Plate', quantity: 3 }, { type: 'resource', code: 'alloy_frame', label: 'Alloy Frame', quantity: 2 }], tags: [], loreFlags: ['ch6_chose_report_chen', 'lifang_arrested'], unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_b_active', value: { ch7_route: 'branch_b', ch10_endings_available: ['ending_1_loyal_hire', 'ending_2_executive'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_1_eligible', value: { ending: 'ending_1_loyal_hire' } }] };
 }
 
 function calculateCh7Rewards(progress, sim) {
@@ -2832,7 +2832,7 @@ function calculateCh7Rewards(progress, sim) {
     lore.push(choiceId === 'ch7c_redirect' ? 'chen_loyalty_test_failed' : 'chen_loyalty_test_passed');
     if (choiceId === 'ch7c_redirect') branchModifiers.push({ targetChapter: 'mcc_campaign_ch8', key: 'ch8_chen_surveillance', value: { surveillance_intensity: 'high', ch8_difficulty_modifier: 1.2 } });
   }
-  return { GP: gp, XP: 1800, reputationDelta: { mcc: branch === 'branch_c' ? 15 : 25 }, items: [{ type: 'asset', code: 'helion_subsidiary_acquired', label: 'Helion Subsidiary Acquired', quantity: 1 }, { type: 'resource_stream', code: 'helion_o2_monthly', label: 'Helion O2 Monthly Stream', quantity: 500 }, { type: 'gp_stream', code: 'helion_monthly_gp', label: 'Helion Monthly GP Income', quantity: 5000 }], tags: [], loreFlags: lore, unlocks: ['mcc_campaign_ch8'], branchModifiers };
+  return { GP: gp, XP: 1800, reputationDelta: { mcc: branch === 'branch_c' ? 15 : 25 }, items: [{ type: 'resource', code: 'exotic_alloy', label: 'Exotic Alloy', quantity: 5 }, { type: 'resource', code: 'plasma_coil', label: 'Plasma Coil', quantity: 3 }, { type: 'resource', code: 'alloy_frame', label: 'Alloy Frame', quantity: 4 }], tags: [], loreFlags: lore, unlocks: ['mcc_campaign_ch8'], branchModifiers };
 }
 
 function calculateCh8Rewards(progress, sim) {
@@ -2844,7 +2844,7 @@ function calculateCh8Rewards(progress, sim) {
       GP: 300000,
       XP: 5500,
       reputationDelta: { mcc: -100, fsp: 50, cv: 10 },
-      items: [{ type: 'title_position', code: 'federal_foreign_advisor', label: 'Federal Foreign Advisor' }],
+      items: [{ type: 'resource', code: 'quantum_core', label: 'Quantum Core', quantity: 3 }, { type: 'resource', code: 'exotic_alloy', label: 'Exotic Alloy', quantity: 2 }],
       tags: ['whistleblower'],
       loreFlags: ['chen_killed_in_prometheus', 'prometheus_destroyed_by_player', 'chose_ending_3', 'mcc_route_completed'],
       unlocks: [CH10_ID],
@@ -2868,7 +2868,7 @@ function calculateCh8Rewards(progress, sim) {
       GP: gp,
       XP: 3000,
       reputationDelta: rep,
-      items: [{ type: 'ship_choice', code: 'sequoia_or_mauler_choice', label: 'Sequoia or Mauler Choice' }],
+      items: [{ type: 'ship', code: 'captured_sequoia', label: 'Captured Sequoia', quantity: 1 }, { type: 'resource', code: 'exotic_alloy', label: 'Exotic Alloy', quantity: 3 }],
       tags: ['titan_killer'],
       loreFlags: ['prometheus_destroyed', 'prometheus_destroyed_by_player'],
       unlocks: [CH9_ID],
@@ -2885,7 +2885,7 @@ function calculateCh8Rewards(progress, sim) {
     GP: gp,
     XP: 3500,
     reputationDelta: { mcc: branch === 'branch_c' ? 30 : 40 },
-    items: [{ type: 'ship', code: 'prometheus_titan', label: 'Prometheus Titan', quantity: 1 }, { type: 'permanent_buff', code: 'mcc_fleet_atk_modifier', label: 'MCC Fleet ATK +5%', quantity: 5 }],
+    items: [{ type: 'ship', code: 'prometheus_titan', label: 'Prometheus Titan', quantity: 1 }, { type: 'resource', code: 'exotic_alloy', label: 'Exotic Alloy', quantity: 5 }, { type: 'resource', code: 'quantum_core', label: 'Quantum Core', quantity: 2 }],
     tags: [],
     loreFlags: ['prometheus_completed'],
     unlocks: [CH9_ID],
@@ -2915,7 +2915,7 @@ function calculateCh9Rewards(progress, sim) {
   if (battlefield === 'hellas') items.push({ type: 'ship', code: 'captured_sequoia', label: 'Captured Sequoia' });
   if (battlefield === 'valles') items.push({ type: 'ship', code: 'captured_ironclad', label: 'Captured Ironclad' });
   if (battlefield === 'kepler') {
-    items.push({ type: 'ship_choice', code: 'tessellate_sequoia_mauler_choice', label: 'Capital Ship Choice' });
+    items.push({ type: 'ship', code: 'mcc_bs', label: 'Tessellate Battleship', quantity: 1 });
     loreFlags.push('roth_data_permanent_secure');
   }
   if (choiceId.includes('kill_amara')) {
@@ -2946,16 +2946,16 @@ function calculateCh9Rewards(progress, sim) {
 function calculateCh10Rewards(progress, sim) {
   const ending = sim.branchChoice || selectedChoiceId(progress, 'bad_ending_dismissed');
   if (ending === 'ending_1_loyal_hire') {
-    return { GP: 500000, XP: 5000, reputationDelta: { mcc: 50 }, items: [{ type: 'ship_fleet', code: 'mcc_loyal_hire_fleet', label: 'MCC Fleet Package', quantity: 5 }, { type: 'residence', code: 'olympus_residence', label: 'Olympus 4th Ridge Residence' }, { type: 'permanent_buff', code: 'annual_income_100k', label: 'Annual Income 100000 GP' }], tags: ['shareholder'], loreFlags: ['mcc_route_completed', 'chose_ending_1'], unlocks: [], branchModifiers: [] };
+    return { GP: 700000, XP: 5000, reputationDelta: { mcc: 50 }, items: [{ type: 'ship_fleet', code: 'mcc_loyal_hire_fleet', label: 'MCC Fleet Package', quantity: 5 }, { type: 'resource', code: 'exotic_alloy', label: 'Exotic Alloy', quantity: 5 }, { type: 'resource', code: 'hull_plate', label: 'Hull Plate', quantity: 5 }], tags: ['shareholder'], loreFlags: ['mcc_route_completed', 'chose_ending_1'], unlocks: [], branchModifiers: [] };
   }
   if (ending === 'ending_2_executive') {
-    return { GP: 800000, XP: 6000, reputationDelta: { mcc: 70 }, items: [{ type: 'ship_fleet', code: 'mcc_executive_fleet', label: 'Executive Fleet', quantity: 7 }, { type: 'corporate_asset', code: 'mcc_equity_8pct', label: 'MCC Equity 8%' }, { type: 'permanent_buff', code: 'mcc_equity_dividend_25k', label: 'Monthly MCC Dividend 25000 GP' }], tags: ['future_chairman'], loreFlags: ['mcc_route_completed', 'chose_ending_2'], unlocks: [], branchModifiers: [] };
+    return { GP: 1200000, XP: 6000, reputationDelta: { mcc: 70 }, items: [{ type: 'ship_fleet', code: 'mcc_executive_fleet', label: 'Executive Fleet', quantity: 7 }, { type: 'resource', code: 'exotic_alloy', label: 'Exotic Alloy', quantity: 10 }, { type: 'resource', code: 'quantum_core', label: 'Quantum Core', quantity: 5 }, { type: 'resource', code: 'dark_matter', label: 'Dark Matter', quantity: 3 }], tags: ['future_chairman'], loreFlags: ['mcc_route_completed', 'chose_ending_2'], unlocks: [], branchModifiers: [] };
   }
   if (ending === 'ending_3_whistleblower') {
-    return { GP: 300000, XP: 5500, reputationDelta: { mcc: -100, fsp: 50, cv: 10 }, items: [{ type: 'title_position', code: 'federal_foreign_advisor', label: 'Federal Foreign Advisor' }, { type: 'permanent_buff', code: 'federal_safe_haven', label: 'Federal Safe Haven' }], tags: ['whistleblower'], loreFlags: ['mcc_route_completed', 'chose_ending_3'], unlocks: [], branchModifiers: [{ targetChapter: 'any_route', key: 'cross_route_chen_dead', value: { chen_npc_unavailable: true, mcc_post_chen_state: true } }, { targetChapter: 'any_route_ng_plus', key: 'cross_route_lifang_alive', value: { lifang_in_federal_government: true } }] };
+    return { GP: 500000, XP: 5500, reputationDelta: { mcc: -100, fsp: 50, cv: 10 }, items: [{ type: 'resource', code: 'xenomatter', label: 'Xenomatter', quantity: 1 }, { type: 'resource', code: 'quantum_core', label: 'Quantum Core', quantity: 3 }], tags: ['whistleblower'], loreFlags: ['mcc_route_completed', 'chose_ending_3'], unlocks: [], branchModifiers: [{ targetChapter: 'any_route', key: 'cross_route_chen_dead', value: { chen_npc_unavailable: true, mcc_post_chen_state: true } }, { targetChapter: 'any_route_ng_plus', key: 'cross_route_lifang_alive', value: { lifang_in_federal_government: true } }] };
   }
   if (ending === 'ending_4_traitor') {
-    return { GP: 1000000, XP: 7000, reputationDelta: { mcc: -25, fsp: -25, cv: -25, pilgrim_arms: -25 }, items: [{ type: 'ship_fleet', code: 'pilgrim_arms_starter_fleet', label: 'Pilgrim Arms Starter Fleet', quantity: 30 }, { type: 'territory', code: 'kepler_territory', label: 'Kepler Crater Territory' }, { type: 'corporation_ownership', code: 'pilgrim_arms', label: 'Pilgrim Arms Ownership' }], tags: ['the_fourth_faction', 'the_traitor'], loreFlags: ['mcc_route_completed', 'chose_ending_4'], unlocks: [], branchModifiers: [{ targetChapter: 'any_route_ng_plus', key: 'cross_route_pilgrim_arms_exists', value: { pilgrim_arms_npc_faction_active: true } }] };
+    return { GP: 1000000, XP: 7000, reputationDelta: { mcc: -25, fsp: -25, cv: -25, pilgrim_arms: -25 }, items: [{ type: 'ship_fleet', code: 'pilgrim_arms_starter_fleet', label: 'Pilgrim Arms Starter Fleet', quantity: 30 }, { type: 'resource', code: 'exotic_alloy', label: 'Exotic Alloy', quantity: 10 }, { type: 'resource', code: 'quantum_core', label: 'Quantum Core', quantity: 5 }, { type: 'resource', code: 'xenomatter', label: 'Xenomatter', quantity: 2 }], tags: ['the_fourth_faction', 'the_traitor'], loreFlags: ['mcc_route_completed', 'chose_ending_4'], unlocks: [], branchModifiers: [{ targetChapter: 'any_route_ng_plus', key: 'cross_route_pilgrim_arms_exists', value: { pilgrim_arms_npc_faction_active: true } }] };
   }
   return { GP: 50000, XP: 1000, reputationDelta: {}, items: [], tags: ['forgotten_freelancer'], loreFlags: ['mcc_route_completed', 'chose_bad_ending'], unlocks: [], branchModifiers: [] };
 }
@@ -2977,7 +2977,7 @@ function calculateFspCh1Rewards(progress, sim) {
   const tags = [];
   const loreFlags = [];
   const items = [
-    { type: 'ship_blueprint', code: 'sprite_frigate_blueprint', label: 'Sprite Frigate Blueprint' },
+    { type: 'ship', code: 'fsp_frg', label: 'Sprite Frigate', quantity: 1 },
     { type: 'resource', code: 'grain_canisters', label: 'Grain Canisters', quantity: secondary.includes('obj_cargo_full_hp') ? 60 : 30 },
     { type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 3 },
   ];
@@ -3078,7 +3078,7 @@ function calculateFspCh4Rewards(progress, sim) {
   if (secondary.includes('obj_finish_under_15min')) {
     gp += 3000;
     masteries.push('covert_diplomacy');
-    items.push({ type: 'ship_blueprint', code: 'shadow_frigate_blueprint', label: 'Shadow Frigate Blueprint' });
+    items.push({ type: 'ship', code: 'cv_frg', label: 'Shadow Frigate', quantity: 1 });
   }
   if (secondary.includes('obj_no_combat_at_all')) { gp += 2000; tags.push('pacifist_envoy'); }
   if (secondary.includes('obj_use_eclipse_escape')) { gp += 1500; loreFlags.push('phobos_navigator'); masteries.push('phobos_navigator_mastery'); }
@@ -3129,7 +3129,7 @@ function calculateFspCh5Rewards(progress, sim) {
     gp += 5000; rep = mergeRep(rep, { mcc: -5, cv: 5 });
     tags.push('commons_architect');
     loreFlags.push('ch5_commons_proposed', 'liang_wei_legitimized', 'kepler_commons_treaty');
-    items.push({ type: 'ship_blueprint', code: 'scholar_corvette_blueprint', label: 'Scholar Corvette Blueprint' }, { type: 'rare_resource', code: 'ancient_metal', label: 'Ancient Metal', quantity: 200 });
+    items.push({ type: 'ship', code: 'fsp_crs', label: 'Scholar Corvette', quantity: 1 }, { type: 'resource', code: 'ancient_metal', label: 'Ancient Metal', quantity: 5 });
     branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'commons_legitimacy_diplomatic', value: { reputation_buffer: 15 } });
   } else if (choiceId === 'fsp_ch5_propose_fsp_arbitration') {
     gp += 3000; rep = mergeRep(rep, { fsp: 5, mcc: 10, cv: 10 });
@@ -3168,7 +3168,7 @@ function calculateFspCh6Rewards(progress, sim) {
   }
   let gp = 6500;
   let rep = { fsp: 25 };
-  const items = [{ type: 'ship_blueprint', code: 'investigator_corvette_blueprint', label: 'Investigator Corvette Blueprint' }, { type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 6 }];
+  const items = [{ type: 'ship', code: 'fsp_crs', label: 'Investigator Corvette', quantity: 1 }, { type: 'resource', code: 'carbon_fiber', label: 'Carbon Fiber', quantity: 6 }];
   const tags = [];
   const loreFlags = [];
   const branchModifiers = [];
@@ -3258,7 +3258,7 @@ function calculateFspCh8Rewards(progress, sim) {
   }
   let gp = 8500;
   let rep = { fsp: 35 };
-  const items = [{ type: 'ship_blueprint', code: 'gaia_explorer_corvette', label: 'Gaia Explorer Corvette Blueprint' }];
+  const items = [{ type: 'ship', code: 'fsp_crs', label: 'Gaia Explorer Corvette', quantity: 1 }];
   const tags = [];
   const loreFlags = ['ch8_gaia_completed', 'gaia_full_specs'];
   const masteries = [];
@@ -3659,6 +3659,8 @@ function campaignShipRewardPlan(code, quantity) {
     cv_bomber: ['cv_bomb'],
     cv_titan: ['cv_titan'],
     fsp_ironclad: ['fsp_bs'],
+    fsp_logi: ['fsp_logi'],
+    fsp_logi_crs: ['fsp_logi_crs'],
   };
   if (single[code]) return Array(q).fill(single[code]).flat();
 
