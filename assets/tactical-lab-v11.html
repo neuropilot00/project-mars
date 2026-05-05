@@ -774,12 +774,20 @@ function centeredPos(n, side) {
 function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];battleOver=false;
   _wsPrevShips = new Map();
-  camScale=1;camCx=W/2;camCy=H/2;_camTargetScale=1;_camTargetCx=W/2;_camTargetCy=H/2;
   beamCharge=0;missileCharge=20;
   const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
   const defPos = centeredPos(DEF_FLEETS.length, 'def');
   ATK_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'atk',atkPos[i].cx,atkPos[i].cy)));
   DEF_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'def',defPos[i].cx,defPos[i].cy)));
+  // 카메라를 초기 전장 중심으로 즉시 맞춤 (lerp 지연으로 첫 프레임에 함대 잘림 방지)
+  const _allCx=[...atkPos,...defPos].map(p=>p.cx);
+  const _allCy=[...atkPos,...defPos].map(p=>p.cy);
+  const _initCx=(_allCx.reduce((a,v)=>a+v,0)/_allCx.length)||W/2;
+  const _initCy=(_allCy.reduce((a,v)=>a+v,0)/_allCy.length)||H/2;
+  const _initMass=Math.min(1,(Math.max(ATK_FLEETS.length,DEF_FLEETS.length,1)-1)/4);
+  const _initScale=Math.max(0.48,0.82-_initMass*0.2);
+  camScale=_initScale;camCx=_initCx;camCy=_initCy;
+  _camTargetScale=_initScale;_camTargetCx=_initCx;_camTargetCy=_initCy;
   atkMaxHP=fleets.filter(f=>f.side==='atk').reduce((a,f)=>a+f.maxHp,0);
   defMaxHP=fleets.filter(f=>f.side==='def').reduce((a,f)=>a+f.maxHp,0);
   atkHP=atkMaxHP;defHP=defMaxHP;
@@ -918,8 +926,9 @@ function updateFleets(dt){
     const fMaxSpd=f.maxSpd||0.44;
     if(spd>fMaxSpd){f.vcx=f.vcx/spd*fMaxSpd;f.vcy=f.vcy/spd*fMaxSpd;}
     f.cx+=f.vcx;f.cy+=f.vcy;
-    f.cx=Math.max(f.radius+8,Math.min(W-f.radius-8,f.cx));
-    f.cy=Math.max(f.radius+8,Math.min(H-f.radius-8,f.cy));
+    f.cx=Math.max(f.radius+12,Math.min(W-f.radius-12,f.cx));
+    // Y 여유값: 레이블이 fleet center 위로 radius+16 그려지므로 상단 32px 확보
+    f.cy=Math.max(f.radius+32,Math.min(H-f.radius-32,f.cy));
     f.facingAngle=Math.atan2(target.cy-f.cy,target.cx-f.cx);
 
     f.ships.forEach(sh=>{
@@ -1649,7 +1658,7 @@ function loop(ts){
   } else {
     _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
   }
-  const _lp=0.025;
+  const _lp=0.06;
   camScale+=(_camTargetScale-camScale)*_lp;
   camCx+=(_camTargetCx-camCx)*_lp;
   camCy+=(_camTargetCy-camCy)*_lp;
