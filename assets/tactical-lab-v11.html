@@ -1610,7 +1610,7 @@ function drawFleets(){
     const bw=58;
     const hpY=f.cy+labelDir*(f.radius+2);
     CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,hpY,bw,3);
-    CX.fillStyle=hpR>.5?'#4caf50':hpR>.25?'#ff9800':'#f44336';
+    CX.fillStyle=hpR>.5?'#4caf50':hpR>.2?'#ff9800':'#f44336';
     CX.fillRect(f.cx-bw/2,hpY,bw*hpR,3);
     CX.font='5px Share Tech Mono';
     CX.fillStyle='rgba(255,255,255,.28)';
@@ -1650,12 +1650,12 @@ function drawShips2(){
       const barY = sh.y - t.r - (sh.isFlagship ? 7 : 4);
       const hr = Math.max(0, sh.hp/sh.maxHp);
       CX.fillStyle='rgba(0,0,0,.55)';CX.fillRect(sh.x-barW/2,barY,barW,barH);
-      CX.fillStyle=hr>.5?'#4caf50':hr>.25?'#ff9800':'#f44336';
+      CX.fillStyle=hr>.5?'#4caf50':hr>.2?'#ff9800':'#f44336';
       CX.fillRect(sh.x-barW/2,barY,barW*hr,barH);
       // 기함: HP 퍼센트 텍스트도 표시
       if(sh.isFlagship && hr < 0.5){
         CX.globalAlpha=.8;CX.font=`bold 7px Orbitron,monospace`;CX.textAlign='center';
-        CX.fillStyle=hr<.25?'#f44336':'#ff9800';
+        CX.fillStyle=hr<.2?'#f44336':'#ff9800';
         CX.fillText(Math.ceil(hr*100)+'%',sh.x,barY-2);
         CX.globalAlpha=1;
       }
@@ -1796,6 +1796,7 @@ function drawRepairBeams(){
    ═══════════════════════════════════════════════════════════ */
 let lt=0,turnT=0,panelT=0,battleOver=false;
 let simSpeed=1; // 기본 1x — WS 없는 로컬 시뮬 전용
+let _slowmoActive=false,_slowmoTimer=0; // 마지막 함선 폭발 슬로우모션
 function setSimSpeed(s){
   simSpeed=s;
   const speedCycle=document.getElementById('speedCycle');
@@ -1867,8 +1868,14 @@ function loop(ts){
     _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
     const proximity=1-Math.min(1,Math.max(0,(pair.dist-cfg.nearDist)/cfg.zoomRange));
     const fitAllScale=Math.min(W/(mxX-mnX),H/(mxY-mnY))*cfg.fitPad;
-    const desiredScale=.48+proximity*(cfg.maxZoom-.48);
-    _camTargetScale=Math.max(.34,Math.min(cfg.maxZoom,fitAllScale,desiredScale));
+    // 전투 중 동적 줌: 생존 함선 수 감소 → maxZoom 점진 증가 (최대 cfg.maxZoom*2.2)
+    const aliveCnt=aliveShips.length;
+    const initCnt=Math.max(ships.length,1);
+    const survivorRatio=aliveCnt/initCnt; // 1→0 으로 감소
+    const dynMaxZoom=cfg.maxZoom*(1+(1-survivorRatio)*1.2); // 생존자 적을수록 줌 크게
+    const hardMax=_slowmoActive?dynMaxZoom*1.4:dynMaxZoom; // 슬로우모션 중엔 더 줌인
+    const desiredScale=.48+proximity*(hardMax-.48);
+    _camTargetScale=Math.max(.34,Math.min(hardMax,fitAllScale,desiredScale));
   } else if(_aliveF.length===1){
     _camTargetCx=_aliveF[0].cx;_camTargetCy=_aliveF[0].cy;_camTargetScale=2.2;
   } else {
@@ -1917,12 +1924,41 @@ function loop(ts){
 
   if(!battleOver&&(af===0||df===0)&&btMs>3000){
     battleOver=true;
-    addLog('wn',`🏆 ${af>0?'ATK':'DEF'} COALITION 승리 — ${mm}:${String(ss).padStart(2,'0')}`);
-    battleCallout(`${af>0?'ATK':'DEF'} COALITION 승리! 전장 통제 완료!`,'order','top',3200);
-    // ws 연결 시 자동 재시작 비활성화 — 실제 hijack 결과는 영구
-    if (!_wsBattle || _wsBattle.readyState !== 1) {
-      setTimeout(()=>{initBattle();battleOver=false;},4000);
-    }
+    const winner=af>0?'ATK':'DEF';
+    addLog('wn',`🏆 ${winner} COALITION 승리 — ${mm}:${String(ss).padStart(2,'0')}`);
+    battleCallout(`${winner} COALITION 승리! 전장 통제 완료!`,'order','top',3200);
+
+    // ── 마지막 전함 폭발 슬로우모션 ──────────────────────────
+    // 1) 슬로우모션 시작 (0.15x), 마지막 폭발 연출
+    _slowmoActive=true;
+    const _prevSpeed=simSpeed;
+    setSimSpeed(0.15);
+
+    // 2) 사망한 측 마지막 위치에 대형 폭발+충격파
+    const deadFleets=fleets.filter(f=>(winner==='ATK'?f.side==='def':f.side==='atk'));
+    deadFleets.forEach(f=>{
+      mkShockwave(f.cx,f.cy,f.radius*3.5);
+      for(let i=0;i<4;i++){
+        const dx=(Math.random()-.5)*f.radius*1.5,dy=(Math.random()-.5)*f.radius*1.5;
+        setTimeout(()=>mkExp(f.cx+dx,f.cy+dy,3.5+Math.random()*2),i*180);
+      }
+    });
+    battleCallout('마지막 함선 격침!','panic','top',2000);
+
+    // 3) 1.8초 슬로우모션 후 정상속도 복귀, 결과 화면 알림
+    setTimeout(()=>{
+      setSimSpeed(_prevSpeed);
+      _slowmoActive=false;
+      // ws 결과 화면 트리거 (부모 프레임에 알림)
+      const bid2=new URLSearchParams(location.search).get('bid');
+      if(bid2&&window.parent&&window.parent!==window){
+        window.parent.postMessage({source:'tactical-lab',battleId:parseInt(bid2),cmd:'battle_final_done',payload:{winner_side:winner==='ATK'?'atk':'def'}}, '*');
+      }
+      // ws 없는 데모 모드: 자동 재시작
+      if(!_wsBattle||_wsBattle.readyState!==1){
+        setTimeout(()=>{initBattle();battleOver=false;},3000);
+      }
+    },1800);
   }
   maybeAmbientCallout();
   requestAnimationFrame(loop);

@@ -47929,8 +47929,9 @@ window.addEventListener('message', function(ev) {
     return;
   }
 
-  // ws_end: 서버가 실시간 broadcast 종료 알림 → 결과 카드 즉시 표시 (Phase 2-B)
-  if (d.cmd === 'ws_end') {
+  // ws_end / battle_final_done: 전투 종료 → 결과 카드 표시
+  // battle_final_done: tactical-lab 슬로우모션 연출 완료 후 전송 (1.8s 딜레이)
+  if (d.cmd === 'ws_end' || d.cmd === 'battle_final_done') {
     try {
       // bv.battle 갱신 후 showBattleResult
       if (typeof bv !== 'undefined') {
