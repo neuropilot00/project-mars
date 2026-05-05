@@ -4,7 +4,9 @@
   "chapterNumber": 5,
   "title": {
     "ko": "마지막 관찰",
-    "en": "Last Observation"
+    "en": "Last Observation",
+    "ja": "最後の観察",
+    "zh": "最后的观察"
   },
   "location": {
     "id": "olympus_exterior_vast",
@@ -26,7 +28,9 @@
         {
           "text": {
             "ko": "올라가는 중이었다. 올림포스 몬스. 태양계에서 가장 높은 곳. 관찰자가 오르고 있었다. 이유가 있었다. 전체를 보기 위해. 화성 전체를. 이것이 관찰자가 마지막으로 할 것이었다. 올라가는 것.",
-            "en": "Was ascending. Olympus Mons. The highest place in the solar system. The observer was climbing. There was a reason. To see the whole. All of Mars. This would be the last thing the observer did. Ascending."
+            "en": "Was ascending. Olympus Mons. The highest place in the solar system. The observer was climbing. There was a reason. To see the whole. All of Mars. This would be the last thing the observer did. Ascending.",
+            "ja": "上昇中だった。オリンポス・モンス。太陽系で最も高い場所。観察者が登っていた。理由があった。全体を見るために。火星全体を。これが観察者が最後にすることだった。登ること。",
+            "zh": "正在攀登。奥林帕斯山。太阳系最高的地方。观察者在攀登。有理由。为了看见全貌。火星的全貌。这将是观察者最后要做的事。攀登。"
           }
         }
       ]
@@ -41,7 +45,9 @@
         {
           "text": {
             "ko": "오르는 길이 길었다. 화성에서 가장 긴 길. 올림포스는 경사가 완만했다. 태양계에서 가장 높지만 경사가 완만했다. 그것이 화성의 역설이었다. 가장 높은 것이 가장 완만했다. 오르는 데 오래 걸렸다. 관찰자가 걸었다.",
-            "en": "The ascent was long. The longest path on Mars. Olympus had a gentle slope. The highest in the solar system but with a gentle slope. That was Mars's paradox. The highest thing had the gentlest slope. It took a long time to ascend. The observer walked."
+            "en": "The ascent was long. The longest path on Mars. Olympus had a gentle slope. The highest in the solar system but with a gentle slope. That was Mars's paradox. The highest thing had the gentlest slope. It took a long time to ascend. The observer walked.",
+            "ja": "登る道は長かった。火星で最も長い道。オリンポスは傾斜が緩やかだった。太陽系で最も高いが傾斜が緩やかだった。それが火星の逆説だった。最も高いものが最も緩やかだった。登るのに時間がかかった。観察者が歩いた。",
+            "zh": "登山的路很长。火星上最长的路。奥林帕斯山坡度平缓。太阳系最高，但坡度平缓。那是火星的悖论。最高的东西坡度最缓。登顶需要很长时间。观察者走着。"
           }
         }
       ]
@@ -56,7 +62,9 @@
         {
           "text": {
             "ko": "오르면서 화성이 달라 보였다. 낮을 때와 높을 때가 달랐다. 낮을 때는 개별 것들이 보였다. 높을 때는 전체가 보였다. 관찰자가 오르고 싶었던 이유가 거기 있었다. 전체를 보는 것. 낮에서 보지 못한 것들을.",
-            "en": "While ascending Mars looked different. Low and high were different. At low altitude individual things were seen. At high altitude the whole was visible. The reason the observer had wanted to ascend was there. Seeing the whole. Things not seen from low altitude."
+            "en": "While ascending Mars looked different. Low and high were different. At low altitude individual things were seen. At high altitude the whole was visible. The reason the observer had wanted to ascend was there. Seeing the whole. Things not seen from low altitude.",
+            "ja": "登りながら火星が違って見えた。低いときと高いときが違った。低いときは個別のものが見えた。高いときは全体が見えた。観察者が登りたかった理由はそこにあった。全体を見ること。低いところから見えなかったものを。",
+            "zh": "攀登的过程中火星看起来不同了。低处和高处不一样。低处能看到个别的东西。高处能看到整体。观察者想要攀登的理由就在那里。看见整体。低处看不到的东西。"
           }
         }
       ]
@@ -71,7 +79,9 @@
         {
           "text": {
             "ko": "오르는 중에 새벽이 왔다. 올림포스의 새벽. 빛이 아래서 왔다. 빛이 위에서 오지 않았다. 아래서 왔다. 그것이 높은 곳의 특성이었다. 아래서 올라오는 빛. 관찰자가 그 빛을 받았다. 오르면서.",
-            "en": "While ascending dawn came. Dawn at Olympus. Light came from below. Light did not come from above. Came from below. That was the nature of high places. Light rising from below. The observer received that light. While ascending."
+            "en": "While ascending dawn came. Dawn at Olympus. Light came from below. Light did not come from above. Came from below. That was the nature of high places. Light rising from below. The observer received that light. While ascending.",
+            "ja": "登る途中に夜明けが来た。オリンポスの夜明け。光が下から来た。光は上から来なかった。下から来た。それが高い場所の特性だった。下から上がってくる光。観察者がその光を受けた。登りながら。",
+            "zh": "攀登途中黎明来临。奥林帕斯的黎明。光从下方来。光不是从上方来的。从下方来。那是高处的特性。从下方升起的光。观察者接受了那光。攀登着。"
           }
         }
       ]
@@ -86,7 +96,9 @@
         {
           "text": {
             "ko": "아래가 보이기 시작했다. 화성. 붉은 것. 관찰자가 왔던 곳들이 보였다. 헬라스 센트럴. 광산들. 4구역. 에레보스. 샌드스톤. 케플러. 그것들이 아래에 있었다. 관찰자가 위에서 봤다. 처음으로. 전체를.",
-            "en": "Below began to be visible. Mars. Red. The places the observer had come from were visible. Hellas Central. Mines. Zone 4. Erebus. Sandstone. Kepler. Those were below. The observer watched from above. For the first time. The whole."
+            "en": "Below began to be visible. Mars. Red. The places the observer had come from were visible. Hellas Central. Mines. Zone 4. Erebus. Sandstone. Kepler. Those were below. The observer watched from above. For the first time. The whole.",
+            "ja": "下が見え始めた。火星。赤いもの。観察者が来た場所が見えた。ヘラス・セントラル。鉱山たち。Zone 4。エレボス。サンドストーン。ケプラー。それらが下にあった。観察者が上から見た。初めて。全体を。",
+            "zh": "下方开始可见。火星。红色的东西。观察者来过的地方看得见了。赫拉斯中央。矿山。Zone 4。厄瑞玻斯。砂岩。开普勒。那些东西在下方。观察者从上方看着。第一次。看整体。"
           }
         }
       ]
@@ -101,7 +113,9 @@
         {
           "text": {
             "ko": "MCC 루트의 결과가 보였다. 저 아래. 도시들이 있었다. 큰 도시들. MCC가 세운 것들. 그러나 관찰자가 본 것들이 거기 있었다. 줄을 선 사람들. 비어가는 마을들. 광산 외부의 먼지 쌓인 장비들. MCC가 이긴 루트에서도 그것들이 있었다.",
-            "en": "The result of the MCC route was visible. Down there. There were cities. Large cities. Things MCC had built. But what the observer had seen was there. People in lines. Villages emptying. Dust-accumulated equipment outside mines. Even in the route where MCC won those things were there."
+            "en": "The result of the MCC route was visible. Down there. There were cities. Large cities. Things MCC had built. But what the observer had seen was there. People in lines. Villages emptying. Dust-accumulated equipment outside mines. Even in the route where MCC won those things were there.",
+            "ja": "MCCルートの結果が見えた。あの下に。都市があった。大きな都市。MCCが建てたもの。しかし観察者が見たものがそこにあった。列に並ぶ人々。空になっていく村たち。鉱山外部の埃が積もった機器たち。MCCが勝ったルートでもそれらがあった。",
+            "zh": "MCC路线的结果看得见了。就在那下面。有城市。大城市。MCC建立的东西。但观察者看见过的东西也在那里。排队的人们。日渐空空的村庄。矿山外面积了灰尘的设备。即使在MCC获胜的路线里，那些东西也在。"
           }
         }
       ]
@@ -116,7 +130,9 @@
         {
           "text": {
             "ko": "FSP 루트의 결과가 보였다. 다른 방향에. 마을들이 있었다. 작은 것들. FSP가 세운 것들. 그러나 거기도 있었다. 광부들이 여전히 일했다. 여전히 위험했다. 여전히 이름들이 분필로 쓰였다. FSP가 이긴 루트에서도 그것들이 있었다.",
-            "en": "The result of the FSP route was visible. In another direction. There were villages. Small ones. Things FSP had built. But there too. Miners still worked. Still dangerous. Still names were written in chalk. Even in the route where FSP won those things were there."
+            "en": "The result of the FSP route was visible. In another direction. There were villages. Small ones. Things FSP had built. But there too. Miners still worked. Still dangerous. Still names were written in chalk. Even in the route where FSP won those things were there.",
+            "ja": "FSPルートの結果が見えた。別の方向に。村たちがあった。小さなもの。FSPが建てたもの。しかしそこにもあった。鉱夫たちがまだ働いていた。まだ危険だった。まだ名前たちが白墨で書かれていた。FSPが勝ったルートでもそれらがあった。",
+            "zh": "FSP路线的结果看得见了。在另一个方向。有村庄。小的东西。FSP建立的东西。但那里也有。矿工们还在工作。还是危险。还是有名字用粉笔写着。即使在FSP获胜的路线里，那些东西也在。"
           }
         }
       ]
@@ -131,7 +147,9 @@
         {
           "text": {
             "ko": "CV 루트의 결과가 보였다. 또 다른 방향에. 기지들이 있었다. CV의 기지들. 그러나 거기도 있었다. 아직 해결되지 않은 것들. 30년 전의 이야기가 여전히 이야기였다. 끝나지 않았다. CV가 이긴 루트에서도.",
-            "en": "The result of the CV route was visible. In yet another direction. There were bases. CV's bases. But there too. Things not yet resolved. The story from thirty years ago was still a story. Not ended. Even in the route where CV won."
+            "en": "The result of the CV route was visible. In yet another direction. There were bases. CV's bases. But there too. Things not yet resolved. The story from thirty years ago was still a story. Not ended. Even in the route where CV won.",
+            "ja": "CVルートの結果が見えた。また別の方向に。基地たちがあった。CVの基地たち。しかしそこにもあった。まだ解決されていないもの。30年前の話がまだ話だった。終わっていなかった。CVが勝ったルートでも。",
+            "zh": "CV路线的结果看得见了。在又一个方向。有基地。CV的基地。但那里也有。还未解决的东西。三十年前的故事仍然是个故事。没有结束。即使在CV获胜的路线里。"
           }
         }
       ]
@@ -146,7 +164,9 @@
         {
           "text": {
             "ko": "세 루트. 세 가지 결과. 그 어느 것도 완전한 승리가 아니었다. 관찰자가 위에서 봤다. 아래에서는 보이지 않던 것들이 위에서 보였다. 세 루트가 다 비슷했다. 다른 깃발. 다른 이름. 그러나 비슷한 것들이 남았다. 이름들. 흔적들. 해결되지 않은 것들.",
-            "en": "Three routes. Three results. None of them a complete victory. The observer watched from above. Things not visible from below were visible from above. All three routes were similar. Different flags. Different names. But similar things remained. Names. Traces. Unresolved things."
+            "en": "Three routes. Three results. None of them a complete victory. The observer watched from above. Things not visible from below were visible from above. All three routes were similar. Different flags. Different names. But similar things remained. Names. Traces. Unresolved things.",
+            "ja": "三つのルート。三つの結果。そのどれも完全な勝利ではなかった。観察者が上から見た。下からは見えなかったものが上から見えた。三つのルートがどれも似ていた。違う旗。違う名前。しかし似たものが残った。名前たち。痕跡たち。解決されないもの。",
+            "zh": "三条路线。三种结果。没有一个是完全的胜利。观察者从上方看着。从下方看不见的东西在上方看得见了。三条路线都相似。不同的旗帜。不同的名字。但相似的东西留了下来。名字。痕迹。未解决的东西。"
           }
         }
       ]
@@ -161,7 +181,9 @@
         {
           "text": {
             "ko": "화성이 있었다. 세 루트 아래에. 화성은 세 루트보다 오래됐다. 모든 파벌보다 오래됐다. 모든 사람들보다 오래됐다. 화성이 거기 있었다. 핏빛 하늘 아래. 세 루트가 그 위에 있었다. 화성은 그것들을 봤다. 말하지 않았다.",
-            "en": "Mars was there. Below the three routes. Mars was older than the three routes. Older than all factions. Older than all people. Mars was there. Under the blood-red sky. The three routes were on top of it. Mars had seen them. Didn't speak."
+            "en": "Mars was there. Below the three routes. Mars was older than the three routes. Older than all factions. Older than all people. Mars was there. Under the blood-red sky. The three routes were on top of it. Mars had seen them. Didn't speak.",
+            "ja": "火星があった。三つのルートの下に。火星は三つのルートより古かった。すべての派閥より古かった。すべての人々より古かった。火星がそこにあった。血の色の空の下に。三つのルートがその上にあった。火星はそれらを見ていた。語らなかった。",
+            "zh": "火星在那里。在三条路线下方。火星比三条路线更古老。比所有派系更古老。比所有人更古老。火星在那里。在血色天空下。三条路线在它上面。火星看着它们。没有说话。"
           }
         }
       ]
@@ -176,7 +198,9 @@
         {
           "text": {
             "ko": "정상 근처에 도달했다. 관찰자가. 더 올라갈 수 있었다. 그러나 멈췄다. 여기서 보이는 것이 충분했다. 전체가 보였다. 화성 전체가. 세 루트 전체가. 그것들 아래의 것들이. 이름들이. 흔적들이. 사람들이.",
-            "en": "Reached near the summit. The observer. Could have gone higher. But stopped. What was visible from here was enough. The whole was visible. All of Mars. All three routes. Things beneath those. Names. Traces. People."
+            "en": "Reached near the summit. The observer. Could have gone higher. But stopped. What was visible from here was enough. The whole was visible. All of Mars. All three routes. Things beneath those. Names. Traces. People.",
+            "ja": "頂上近くに到達した。観察者が。もっと上に登れた。しかし止まった。ここから見えるもので十分だった。全体が見えた。火星全体が。三つのルート全体が。それらの下のものが。名前たちが。痕跡たちが。人々が。",
+            "zh": "到达了接近山顶的地方。观察者。可以继续往上登。但停下来了。从这里看到的已经足够了。整体看得见了。整个火星。三条路线的全部。它们下方的东西。名字。痕迹。人们。"
           }
         }
       ]
@@ -191,7 +215,9 @@
         {
           "text": {
             "ko": "해가 지고 있었다. 화성의 해. 지구와 달랐다. 더 작았다. 더 차가워 보였다. 그러나 해였다. 같은 해. 지구와 화성이 같은 해를 받았다. 다른 거리에서. 그것이 같은 것이었다. 서로 모르는 것들이 같은 것을 받았다.",
-            "en": "The sun was setting. Mars's sun. Different from Earth. Smaller. Looked colder. But it was the sun. The same sun. Earth and Mars received the same sun. From different distances. That was the same thing. Things that didn't know each other received the same thing."
+            "en": "The sun was setting. Mars's sun. Different from Earth. Smaller. Looked colder. But it was the sun. The same sun. Earth and Mars received the same sun. From different distances. That was the same thing. Things that didn't know each other received the same thing.",
+            "ja": "日が沈んでいた。火星の日。地球と違った。もっと小さかった。もっと冷たく見えた。しかし日だった。同じ日。地球と火星が同じ日を受けた。違う距離から。それが同じことだった。お互いを知らないものが同じものを受けた。",
+            "zh": "太阳正在落下。火星的太阳。与地球不同。更小。看起来更冷。但那是太阳。同一个太阳。地球和火星接受着同一个太阳。从不同的距离。那是同样的东西。互不相识的东西接受了同样的东西。"
           }
         }
       ]
@@ -206,7 +232,9 @@
         {
           "text": {
             "ko": "핏빛 하늘이었다. 화성의 하늘. 관찰자가 봤다. 자주 봤다. 처음 도착했을 때부터. 그러나 여기서 보는 것이 달랐다. 가장 높은 곳에서 보는 핏빛 하늘. 하늘이 아래에서 보이는 것보다 더 가까웠다. 또는 더 넓었다. 또는 둘 다였다.",
-            "en": "A blood-red sky. The Martian sky. The observer had watched. Watched often. From when first arriving. But seeing it from here was different. The blood-red sky seen from the highest place. The sky was closer than seen from below. Or wider. Or both."
+            "en": "A blood-red sky. The Martian sky. The observer had watched. Watched often. From when first arriving. But seeing it from here was different. The blood-red sky seen from the highest place. The sky was closer than seen from below. Or wider. Or both.",
+            "ja": "血の色の空だった。火星の空。観察者が見た。よく見た。最初に到着したときから。しかしここから見るのが違った。最も高い場所から見る血の色の空。空が下から見えるより近かった。または広かった。または両方だった。",
+            "zh": "是血色天空。火星的天空。观察者看着。经常看。从第一次到达的时候起。但从这里看不同。从最高处看到的血色天空。天空比从下面看到的更近。或者更宽广。或者两者都是。"
           }
         }
       ]
@@ -221,7 +249,9 @@
         {
           "text": {
             "ko": "화성이 여전히 거기 있었다. 핏빛 하늘 아래. 세 루트의 결과가 있었다. MCC. FSP. CV. 그 어느 것도 완전하지 않았다. 그러나 화성은 있었다. 여전히. 붉었다. 언제나 붉었다. 그것이 변하지 않았다. 화성의 색이.",
-            "en": "Mars was still there. Under the blood-red sky. The results of three routes were there. MCC. FSP. CV. None of them complete. But Mars was there. Still. Red. Always red. That hadn't changed. The color of Mars."
+            "en": "Mars was still there. Under the blood-red sky. The results of three routes were there. MCC. FSP. CV. None of them complete. But Mars was there. Still. Red. Always red. That hadn't changed. The color of Mars.",
+            "ja": "火星がまだそこにあった。血の色の空の下に。三つのルートの結果があった。MCC。FSP。CV。そのどれも完全ではなかった。しかし火星はあった。まだ。赤かった。常に赤かった。それが変わらなかった。火星の色が。",
+            "zh": "火星仍然在那里。在血色天空下。三条路线的结果在那里。MCC。FSP。CV。没有一个是完整的。但火星在那里。还是。红色的。一直是红色的。那没有改变。火星的颜色。"
           }
         }
       ]
@@ -236,7 +266,9 @@
         {
           "text": {
             "ko": "관찰자가 앉았다. 정상 근처. 화성을 봤다. 오래 봤다. 처음 도착했을 때부터 본 것들이 있었다. 손자국. 이름들. 재. 발자국들. 비석. 컵. 사진들. 핏자국. 흰 깃발 조각. 광물. Butcher의 손. 그것들이 모두 있었다. 아래에.",
-            "en": "The observer sat. Near the summit. Watched Mars. Watched for a long time. There were things seen from when first arriving. Handprints. Names. Ash. Footprints. A marker. A cup. Photos. Bloodstain. A white flag piece. A mineral. Butcher's hand. All of those were there. Below."
+            "en": "The observer sat. Near the summit. Watched Mars. Watched for a long time. There were things seen from when first arriving. Handprints. Names. Ash. Footprints. A marker. A cup. Photos. Bloodstain. A white flag piece. A mineral. Butcher's hand. All of those were there. Below.",
+            "ja": "観察者が座った。頂上近くに。火星を見た。長く見た。最初に到着したときから見たものがあった。手の跡。名前たち。灰。足跡たち。碑石。カップ。写真たち。血の跡。白い旗の切れ端。鉱物。Butcherの手。それらがすべてあった。下に。",
+            "zh": "观察者坐下来了。接近山顶的地方。看着火星。看了很久。有从第一次到达起就看见的东西。手印。名字。灰烬。脚印。碑石。杯子。照片。血迹。白旗碎片。矿物。Butcher的手。那些全都在。在下面。"
           }
         }
       ]
@@ -251,7 +283,9 @@
         {
           "text": {
             "ko": "그것들이 연결됐는가. 관찰자가 생각했다. 처음에는 연결하지 않았다. 그것이 관찰자의 방식이었다. 흔적만 본다. 연결하지 않는다. 그러나 지금은 달랐다. 연결이 보였다. 선이 보였다. 흔적들 사이에. 그것들이 하나의 이야기를 말했다.",
-            "en": "Were those connected. The observer thought. At first didn't connect. That was the observer's way. Only see traces. Don't connect. But now was different. Connections were visible. Lines were visible. Between traces. Those spoke of one story."
+            "en": "Were those connected. The observer thought. At first didn't connect. That was the observer's way. Only see traces. Don't connect. But now was different. Connections were visible. Lines were visible. Between traces. Those spoke of one story.",
+            "ja": "それらは繋がっていたか。観察者が考えた。最初は繋げなかった。それが観察者のやり方だった。痕跡だけを見る。繋げない。しかし今は違った。繋がりが見えた。線が見えた。痕跡たちの間に。それらが一つの話を語った。",
+            "zh": "那些是否相连。观察者想着。起初没有连接。那是观察者的方式。只看痕迹。不连接。但现在不同了。联系看得见了。线条看得见了。在痕迹之间。那些讲述着一个故事。"
           }
         }
       ]
@@ -266,7 +300,9 @@
         {
           "text": {
             "ko": "이야기가 있었다. 30년 전에 시작된 것. 광물이 발견됐다. 사람들이 죽었다. 이름들이 남았다. 30년이 지났다. 이름들이 다시 쓰였다. 사람들이 다시 죽었다. 파벌들이 싸웠다. 회담이 있었다. 피가 있었다. 흰 깃발이 있었다. 그것이 이야기였다. 하나의.",
-            "en": "There was a story. Something that started thirty years ago. A mineral was discovered. People died. Names remained. Thirty years passed. Names were written again. People died again. Factions fought. A conference happened. There was blood. There was a white flag. That was the story. One story."
+            "en": "There was a story. Something that started thirty years ago. A mineral was discovered. People died. Names remained. Thirty years passed. Names were written again. People died again. Factions fought. A conference happened. There was blood. There was a white flag. That was the story. One story.",
+            "ja": "話があった。30年前に始まったもの。鉱物が発見された。人々が死んだ。名前たちが残った。30年が過ぎた。名前たちがまた書かれた。人々がまた死んだ。派閥たちが戦った。会談があった。血があった。白い旗があった。それが話だった。一つの。",
+            "zh": "有一个故事。三十年前开始的东西。发现了矿物。人死了。名字留了下来。三十年过去了。名字又被写下。人又死了。派系们战斗。有过会谈。有血。有白旗。那就是故事。一个。"
           }
         }
       ]
@@ -281,7 +317,9 @@
         {
           "text": {
             "ko": "그 이야기가 끝났는가. 몰랐다. 세 루트를 봤다. 세 루트 어느 것에서도 끝나지 않았다. 그 이야기가. 다른 방식으로 계속됐다. MCC 루트에서. FSP 루트에서. CV 루트에서. 이야기는 계속됐다. 깃발이 달라도. 이야기는 같았다.",
-            "en": "Had that story ended. Didn't know. Had seen three routes. In none of the three routes had it ended. That story. Continued in different ways. In the MCC route. In the FSP route. In the CV route. The story continued. Even if flags were different. The story was the same."
+            "en": "Had that story ended. Didn't know. Had seen three routes. In none of the three routes had it ended. That story. Continued in different ways. In the MCC route. In the FSP route. In the CV route. The story continued. Even if flags were different. The story was the same.",
+            "ja": "その話が終わったか。知らなかった。三つのルートを見た。三つのルートのどれでも終わらなかった。その話が。違う方式で続いた。MCCルートで。FSPルートで。CVルートで。話は続いた。旗が違っても。話は同じだった。",
+            "zh": "那个故事结束了吗。不知道。看了三条路线。在三条路线的任何一条里都没有结束。那个故事。以不同的方式继续着。在MCC路线里。在FSP路线里。在CV路线里。故事继续着。即使旗帜不同。故事是一样的。"
           }
         }
       ]
@@ -296,7 +334,9 @@
         {
           "text": {
             "ko": "관찰자가 처음으로 슬펐다. 아니었다. 슬픔이 아니었다. 그것이 무엇인지 몰랐다. 그러나 무언가 있었다. 아래의 것들을 보면서. 세 루트의 것들을. 이름들을. 흔적들을. 무언가 있었다. 관찰자가 이름을 몰랐다. 그 감각의.",
-            "en": "For the first time the observer was sad. No. Not sadness. Didn't know what it was. But there was something. While watching the things below. The things of three routes. Names. Traces. There was something. The observer didn't know the name. Of that sensation."
+            "en": "For the first time the observer was sad. No. Not sadness. Didn't know what it was. But there was something. While watching the things below. The things of three routes. Names. Traces. There was something. The observer didn't know the name. Of that sensation.",
+            "ja": "観察者が初めて悲しかった。いや。悲しみではなかった。それが何か知らなかった。しかし何かがあった。下のものを見ながら。三つのルートのものを。名前たちを。痕跡たちを。何かがあった。観察者がその名前を知らなかった。その感覚の。",
+            "zh": "观察者第一次悲伤了。不对。不是悲伤。不知道那是什么。但有什么东西。在看着下面的东西的时候。三条路线的东西。名字。痕迹。有什么东西。观察者不知道那个名字。那种感觉的。"
           }
         }
       ]
@@ -311,7 +351,9 @@
         {
           "text": {
             "ko": "화성의 해가 더 내려갔다. 하늘이 더 붉어졌다. 핏빛이 더 짙어졌다. 관찰자가 봤다. 하늘을. 화성을. 아래를. 세 루트를. 이름들을. 흔적들을. 모든 것을 봤다. 그것이 관찰자가 온 이유였다. 보는 것. 보는 것이 전부였다.",
-            "en": "The Martian sun descended further. The sky grew redder. The blood color deepened. The observer watched. The sky. Mars. Below. Three routes. Names. Traces. Watched everything. That was why the observer had come. Watching. Watching was everything."
+            "en": "The Martian sun descended further. The sky grew redder. The blood color deepened. The observer watched. The sky. Mars. Below. Three routes. Names. Traces. Watched everything. That was why the observer had come. Watching. Watching was everything.",
+            "ja": "火星の日がさらに下がった。空がさらに赤くなった。血の色がさらに濃くなった。観察者が見た。空を。火星を。下を。三つのルートを。名前たちを。痕跡たちを。すべてを見た。それが観察者が来た理由だった。見ること。見ることがすべてだった。",
+            "zh": "火星的太阳更低了。天空更红了。血色更深了。观察者看着。天空。火星。下方。三条路线。名字。痕迹。看着一切。那就是观察者来的原因。看。看就是一切。"
           }
         }
       ]
@@ -326,7 +368,9 @@
         {
           "text": {
             "ko": "해가 졌다. 완전히. 화성의 첫 번째 밤이 생각났다. 헬라스 센트럴에서 본 첫 번째 밤. 불빛들. MCC. 노동자 지구. 광산. 그 불빛들이 지금도 있었다. 세 루트에서도. 불빛들은 있었다. 그것이 사람들이 거기 있다는 것이었다.",
-            "en": "The sun set. Completely. Remembered the first night. The first night seen from Hellas Central. Lights. MCC. Labor district. Mine. Those lights were still there now. In three routes too. There were lights. That meant people were there."
+            "en": "The sun set. Completely. Remembered the first night. The first night seen from Hellas Central. Lights. MCC. Labor district. Mine. Those lights were still there now. In three routes too. There were lights. That meant people were there.",
+            "ja": "日が沈んだ。完全に。火星の最初の夜が思い出された。ヘラス・セントラルから見た最初の夜。光たち。MCC。労働者地区。鉱山。その光たちが今もあった。三つのルートでも。光たちはあった。それが人々がそこにいるということだった。",
+            "zh": "太阳落下了。完全落下了。想起了第一个夜晚。在赫拉斯中央看见的第一个夜晚。灯光。MCC。劳动者区。矿山。那些灯光现在还在。在三条路线里也是。有灯光。那意味着人们在那里。"
           }
         }
       ]
@@ -341,7 +385,9 @@
         {
           "text": {
             "ko": "사람들이 있었다. 화성에. 세 루트 모두에서. MCC 루트에서도. FSP 루트에서도. CV 루트에서도. 이름들이 있는 사람들. 흔적들을 남기는 사람들. 불을 피우는 사람들. 분필로 쓰는 사람들. 그들이 있었다. 화성에.",
-            "en": "There were people. On Mars. In all three routes. In the MCC route too. In the FSP route too. In the CV route too. People with names. People who left traces. People who burned fires. People who wrote in chalk. They were there. On Mars."
+            "en": "There were people. On Mars. In all three routes. In the MCC route too. In the FSP route too. In the CV route too. People with names. People who left traces. People who burned fires. People who wrote in chalk. They were there. On Mars.",
+            "ja": "人々がいた。火星に。三つのルートすべてに。MCCルートでも。FSPルートでも。CVルートでも。名前のある人々。痕跡を残す人々。火を燃やす人々。白墨で書く人々。彼らがいた。火星に。",
+            "zh": "有人。在火星上。在三条路线的全部里。在MCC路线里也是。在FSP路线里也是。在CV路线里也是。有名字的人们。留下痕迹的人们。生火的人们。用粉笔写字的人们。他们在那里。在火星上。"
           }
         }
       ]
@@ -356,7 +402,9 @@
         {
           "text": {
             "ko": "관찰자가 기록했다. 처음으로. 기록하는 것. 관찰자가 가지고 있던 것에. 종이가 아니었다. 전자 기기였다. 관찰자가 처음으로 기록했다. 이름들을. 흔적들을. 본 것들을. 그것이 처음이었다. 기록이.",
-            "en": "The observer recorded. For the first time. Recording. On what the observer had. Not paper. An electronic device. The observer recorded for the first time. Names. Traces. Things seen. That was the first. The recording."
+            "en": "The observer recorded. For the first time. Recording. On what the observer had. Not paper. An electronic device. The observer recorded for the first time. Names. Traces. Things seen. That was the first. The recording.",
+            "ja": "観察者が記録した。初めて。記録すること。観察者が持っていたものに。紙ではなかった。電子機器だった。観察者が初めて記録した。名前たちを。痕跡たちを。見たものを。それが初めてだった。記録が。",
+            "zh": "观察者记录了。第一次。记录这件事。记录在观察者拥有的东西上。不是纸。是电子设备。观察者第一次记录了。名字。痕迹。看见的东西。那是第一次。记录。"
           }
         }
       ]
@@ -371,7 +419,9 @@
         {
           "text": {
             "ko": "Kim Yong-jin. 이름을 적었다. Zone 12. 적었다. 샌드스톤 교차로. 적었다. 에레보스 분화구. 적었다. Butcher의 손. 흰 깃발. 4구역 광물. 이름들. 흔적들. 모두 적었다. 그것이 기록이었다. 관찰자의 기록.",
-            "en": "Kim Yong-jin. Wrote the name. Zone 12. Wrote. Sandstone Junction. Wrote. Erebus Crater. Wrote. Butcher's hand. White flag. Zone 4 mineral. Names. Traces. Wrote all of it. That was a record. The observer's record."
+            "en": "Kim Yong-jin. Wrote the name. Zone 12. Wrote. Sandstone Junction. Wrote. Erebus Crater. Wrote. Butcher's hand. White flag. Zone 4 mineral. Names. Traces. Wrote all of it. That was a record. The observer's record.",
+            "ja": "Kim Yong-jin。名前を書いた。Zone 12。書いた。サンドストーン交差点。書いた。エレボス分火口。書いた。Butcherの手。白い旗。Zone 4の鉱物。名前たち。痕跡たち。すべて書いた。それが記録だった。観察者の記録。",
+            "zh": "Kim Yong-jin。写下了名字。Zone 12。写下了。砂岩路口。写下了。厄瑞玻斯火山口。写下了。Butcher的手。白旗。Zone 4矿物。名字。痕迹。全都写下了。那就是记录。观察者的记录。"
           },
           "overlay": "hidden_ch5_last_observation_l23_00_zone12_record"
         }
@@ -387,7 +437,9 @@
         {
           "text": {
             "ko": "기록하는 것이 관찰자의 방식에 맞는지 생각했다. 관찰은 기록을 포함하는가. 몰랐다. 그러나 기록했다. 흔적을 집지 않았다. 흔적을 옮기지 않았다. 그러나 기록했다. 그것이 맞는지 그렇지 않은지. 알 수 없었다.",
-            "en": "Thought about whether recording fit the observer's way. Did observation include recording. Unknown. But recorded. Didn't pick up traces. Didn't move traces. But recorded. Whether that was right or not. Unknown."
+            "en": "Thought about whether recording fit the observer's way. Did observation include recording. Unknown. But recorded. Didn't pick up traces. Didn't move traces. But recorded. Whether that was right or not. Unknown.",
+            "ja": "記録することが観察者のやり方に合うか考えた。観察は記録を含むか。知らなかった。しかし記録した。痕跡を拾わなかった。痕跡を移さなかった。しかし記録した。それが合っているかどうか。分からなかった。",
+            "zh": "想着记录是否符合观察者的方式。观察包括记录吗。不知道。但记录了。没有捡起痕迹。没有移动痕迹。但记录了。那是对还是不对。无法知道。"
           }
         }
       ]
@@ -402,7 +454,9 @@
         {
           "text": {
             "ko": "밤이 지났다. 정상 근처에서. 관찰자가 밤을 보냈다. 세 번째. 첫 번째가 올림포스 산자락. 두 번째가 4구역. 세 번째가 정상 근처. 올라가면서 밤을 보냈다. 그것이 패턴이었다. 올라갈수록 더 보였다.",
-            "en": "Night passed. Near the summit. The observer had spent the night. The third time. First time was the Olympus foothills. Second was Zone 4. Third was near the summit. Spent night while ascending. That was a pattern. The higher, the more was visible."
+            "en": "Night passed. Near the summit. The observer had spent the night. The third time. First time was the Olympus foothills. Second was Zone 4. Third was near the summit. Spent night while ascending. That was a pattern. The higher, the more was visible.",
+            "ja": "夜が過ぎた。頂上近くで。観察者が夜を過ごした。三度目。一度目がオリンポスの山麓。二度目がZone 4。三度目が頂上近く。登りながら夜を過ごした。それがパターンだった。登るほどより多く見えた。",
+            "zh": "夜晚过去了。在接近山顶的地方。观察者过了一夜。第三次。第一次是奥林帕斯山脚。第二次是Zone 4。第三次是接近山顶的地方。攀登着过了夜。那是一个规律。越高看见越多。"
           }
         }
       ]
@@ -417,7 +471,9 @@
         {
           "text": {
             "ko": "새벽이 왔다. 올림포스 정상 근처의 새벽. 빛이 아래서 왔다. 화성에서 올라오는 빛. 관찰자가 그 빛을 받았다. 기록한 것들이 있었다. 전자 기기에. 그것들이 기록으로 있었다. 관찰자의 기록. 네 번째 기록.",
-            "en": "Dawn came. Dawn near the Olympus summit. Light came from below. Light rising from Mars. The observer received that light. There were recorded things. On the electronic device. Those existed as records. The observer's record. The fourth record."
+            "en": "Dawn came. Dawn near the Olympus summit. Light came from below. Light rising from Mars. The observer received that light. There were recorded things. On the electronic device. Those existed as records. The observer's record. The fourth record.",
+            "ja": "夜明けが来た。オリンポス頂上近くの夜明け。光が下から来た。火星から上がってくる光。観察者がその光を受けた。記録したものがあった。電子機器に。それらが記録として存在した。観察者の記録。四番目の記録。",
+            "zh": "黎明来临。奥林帕斯山顶附近的黎明。光从下方来。从火星升起的光。观察者接受了那光。有记录的东西。在电子设备里。那些作为记录存在着。观察者的记录。第四份记录。"
           }
         }
       ]
@@ -432,7 +488,9 @@
         {
           "text": {
             "ko": "세 루트에 공식 기록이 있었다. MCC 기록. FSP 기록. CV 기록. 그것들이 공식이었다. 관찰자의 기록은 공식이 아니었다. 비공식. 그러나 있었다. 네 번째 기록이 있었다. 세 파벌의 기록이 아닌 것. 이름들의 기록.",
-            "en": "In three routes there were official records. MCC records. FSP records. CV records. Those were official. The observer's record was not official. Unofficial. But it existed. There was a fourth record. Not the record of three factions. The record of names."
+            "en": "In three routes there were official records. MCC records. FSP records. CV records. Those were official. The observer's record was not official. Unofficial. But it existed. There was a fourth record. Not the record of three factions. The record of names.",
+            "ja": "三つのルートに公式記録があった。MCC記録。FSP記録。CV記録。それらが公式だった。観察者の記録は公式ではなかった。非公式。しかしあった。四番目の記録があった。三つの派閥の記録ではないもの。名前たちの記録。",
+            "zh": "三条路线里有官方记录。MCC记录。FSP记录。CV记录。那些是官方的。观察者的记录不是官方的。非官方。但它存在。有第四份记录。不是三个派系的记录。是名字的记录。"
           }
         }
       ]
@@ -447,7 +505,9 @@
         {
           "text": {
             "ko": "관찰자가 기록을 봤다. 적은 것들을. 이름들. 장소들. 날짜들. 흔적들. 그것들이 있었다. 그 기록이 무엇을 해야 하는지 몰랐다. 누구에게 줘야 하는지. 어디에 두어야 하는지. 몰랐다. 그러나 있었다. 기록이.",
-            "en": "The observer looked at the record. Things written. Names. Places. Dates. Traces. Those were there. Didn't know what to do with that record. Who to give it to. Where to put it. Unknown. But it existed. The record."
+            "en": "The observer looked at the record. Things written. Names. Places. Dates. Traces. Those were there. Didn't know what to do with that record. Who to give it to. Where to put it. Unknown. But it existed. The record.",
+            "ja": "観察者が記録を見た。書いたものを。名前たち。場所たち。日付たち。痕跡たち。それらがあった。その記録が何をすべきか知らなかった。誰に渡すべきか。どこに置くべきか。知らなかった。しかしあった。記録が。",
+            "zh": "观察者看着记录。写下的东西。名字。地方。日期。痕迹。那些在那里。不知道那份记录该做什么。该给谁。该放在哪里。不知道。但它存在。记录。"
           }
         }
       ]
@@ -462,7 +522,9 @@
         {
           "text": {
             "ko": "화성이 아래에 있었다. 관찰자가 위에 있었다. 그 차이가 있었다. 위아래. 높이. 그러나 화성은 화성이었다. 위에서 봐도 아래에서 봐도. 붉었다. 언제나 붉었다. 그것이 변하지 않았다.",
-            "en": "Mars was below. The observer was above. That difference was there. Above and below. Height. But Mars was Mars. Seen from above or below. Red. Always red. That hadn't changed."
+            "en": "Mars was below. The observer was above. That difference was there. Above and below. Height. But Mars was Mars. Seen from above or below. Red. Always red. That hadn't changed.",
+            "ja": "火星が下にあった。観察者が上にいた。その差があった。上下。高さ。しかし火星は火星だった。上から見ても下から見ても。赤かった。常に赤かった。それが変わらなかった。",
+            "zh": "火星在下面。观察者在上面。有那个差别。上下。高度。但火星就是火星。从上面看或从下面看。红色的。一直是红色的。那没有改变。"
           }
         }
       ]
@@ -477,7 +539,9 @@
         {
           "text": {
             "ko": "MCC가 이겼다. 어느 루트에서. 그러나 완전한 승리가 아니었다. 이름들이 남았다. FSP가 이겼다. 어느 루트에서. 그러나 완전한 승리가 아니었다. 이름들이 남았다. CV가 이겼다. 어느 루트에서. 그러나 완전한 승리가 아니었다. 이름들이 남았다.",
-            "en": "MCC won. In one route. But it was not a complete victory. Names remained. FSP won. In one route. But it was not a complete victory. Names remained. CV won. In one route. But it was not a complete victory. Names remained."
+            "en": "MCC won. In one route. But it was not a complete victory. Names remained. FSP won. In one route. But it was not a complete victory. Names remained. CV won. In one route. But it was not a complete victory. Names remained.",
+            "ja": "MCCが勝った。あるルートで。しかし完全な勝利ではなかった。名前たちが残った。FSPが勝った。あるルートで。しかし完全な勝利ではなかった。名前たちが残った。CVが勝った。あるルートで。しかし完全な勝利ではなかった。名前たちが残った。",
+            "zh": "MCC赢了。在某条路线里。但不是完全的胜利。名字留了下来。FSP赢了。在某条路线里。但不是完全的胜利。名字留了下来。CV赢了。在某条路线里。但不是完全的胜利。名字留了下来。"
           }
         }
       ]
@@ -492,7 +556,9 @@
         {
           "text": {
             "ko": "이름들이 남았다. 그것이 공통이었다. 세 루트 모두에서. 누가 이겨도 이름들이 남았다. Kim Yong-jin. Zone 12 사람들. 파업한 사람들. 30년 전 사람들. 그들의 이름이 남았다. 벽에. 분필로. 긁힌 것으로. 비석으로.",
-            "en": "Names remained. That was common. In all three routes. Whoever won names remained. Kim Yong-jin. The Zone 12 people. Those who struck. The people from thirty years ago. Their names remained. On walls. In chalk. In scratches. As markers."
+            "en": "Names remained. That was common. In all three routes. Whoever won names remained. Kim Yong-jin. The Zone 12 people. Those who struck. The people from thirty years ago. Their names remained. On walls. In chalk. In scratches. As markers.",
+            "ja": "名前たちが残った。それが共通だった。三つのルートすべてに。誰が勝っても名前たちが残った。Kim Yong-jin。Zone 12の人々。パープした人々。30年前の人々。彼らの名前が残った。壁に。白墨で。引っかき傷で。碑石として。",
+            "zh": "名字留了下来。那是共同的。在三条路线的全部里。无论谁赢了名字都留了下来。Kim Yong-jin。Zone 12的人们。罢工的人们。三十年前的人们。他们的名字留了下来。在墙上。用粉笔。用刮痕。作为碑石。"
           }
         }
       ]
@@ -507,7 +573,9 @@
         {
           "text": {
             "ko": "그것이 화성이었다. 관찰자가 알았다. 깃발이 아니었다. 파벌이 아니었다. 이름들이었다. 남는 것이 이름들이었다. 화성에서. 이름들이 화성이었다. 분필 이름. 긁힌 이름. 비석의 이름. 이름들이 화성이었다.",
-            "en": "That was Mars. The observer understood. Not flags. Not factions. Names. What remained were names. On Mars. Names were Mars. Chalk names. Scratched names. Names on markers. Names were Mars."
+            "en": "That was Mars. The observer understood. Not flags. Not factions. Names. What remained were names. On Mars. Names were Mars. Chalk names. Scratched names. Names on markers. Names were Mars.",
+            "ja": "それが火星だった。観察者が分かった。旗ではなかった。派閥ではなかった。名前たちだった。残るのが名前たちだった。火星で。名前たちが火星だった。白墨の名前。引っかかれた名前。碑石の名前。名前たちが火星だった。",
+            "zh": "那就是火星。观察者明白了。不是旗帜。不是派系。是名字。留下来的是名字。在火星上。名字就是火星。粉笔的名字。刮痕的名字。碑石上的名字。名字就是火星。"
           },
           "overlay": "hidden_ch5_last_observation_l32_00_candle_flame"
         }
@@ -523,7 +591,9 @@
         {
           "text": {
             "ko": "두 번째 해가 지고 있었다. 정상 근처에서 보는 두 번째 해. 관찰자가 봤다. 화성이 아래에 있었다. 붉었다. 핏빛 하늘이 더 붉어졌다. 하늘과 화성이 같은 색이었다. 그것이 화성의 저녁이었다. 경계가 없는 저녁. 하늘과 땅이 같은 색인 저녁.",
-            "en": "A second sun was setting. The second sun seen near the summit. The observer watched. Mars was below. Red. The blood-red sky grew redder. Sky and Mars were the same color. That was Mars evening. An evening without boundaries. An evening where sky and ground were the same color."
+            "en": "A second sun was setting. The second sun seen near the summit. The observer watched. Mars was below. Red. The blood-red sky grew redder. Sky and Mars were the same color. That was Mars evening. An evening without boundaries. An evening where sky and ground were the same color.",
+            "ja": "二番目の日が沈んでいた。頂上近くから見る二番目の日。観察者が見た。火星が下にあった。赤かった。血の色の空がさらに赤くなった。空と火星が同じ色だった。それが火星の夕方だった。境界のない夕方。空と地が同じ色の夕方。",
+            "zh": "第二个太阳正在落下。在接近山顶的地方看见的第二个太阳。观察者看着。火星在下面。红色的。血色天空更红了。天空和火星是同一种颜色。那就是火星的傍晚。没有边界的傍晚。天空和大地同一颜色的傍晚。"
           }
         }
       ]
@@ -538,7 +608,9 @@
         {
           "text": {
             "ko": "관찰자가 기록에 마지막 것을 적었다. 날짜. 장소. 올림포스 몬스 정상 근처. 그리고 본 것. 화성 전체. 세 루트. 이름들. 핏빛 하늘. 그것이 마지막 기록이었다. 관찰자의 마지막 기록. 화성에서.",
-            "en": "The observer wrote the last thing in the record. Date. Location. Near the summit of Olympus Mons. And what was seen. All of Mars. Three routes. Names. Blood-red sky. That was the last record. The observer's last record. On Mars."
+            "en": "The observer wrote the last thing in the record. Date. Location. Near the summit of Olympus Mons. And what was seen. All of Mars. Three routes. Names. Blood-red sky. That was the last record. The observer's last record. On Mars.",
+            "ja": "観察者が記録に最後のものを書いた。日付。場所。オリンポス・モンス頂上近く。そして見たもの。火星全体。三つのルート。名前たち。血の色の空。それが最後の記録だった。観察者の最後の記録。火星での。",
+            "zh": "观察者在记录里写下了最后的东西。日期。地点。奥林帕斯山顶附近。还有看见的东西。整个火星。三条路线。名字。血色天空。那是最后的记录。观察者的最后记录。在火星上。"
           }
         }
       ]
@@ -553,7 +625,9 @@
         {
           "text": {
             "ko": "기록을 닫았다. 관찰자가. 그것이 있었다. 기록이. 이름들이. 흔적들이. 30년이. 세 루트가. 그것들이 기록에 있었다. 관찰자 안에 있었다. 화성이 관찰자 안에 있었다. 처음으로. 그것이 달라진 것이었다. 화성이 관찰자 안에 들어온 것이.",
-            "en": "Closed the record. The observer. It existed. The record. Names. Traces. Thirty years. Three routes. Those were in the record. Were inside the observer. Mars was inside the observer. For the first time. That was what had changed. Mars had entered inside the observer."
+            "en": "Closed the record. The observer. It existed. The record. Names. Traces. Thirty years. Three routes. Those were in the record. Were inside the observer. Mars was inside the observer. For the first time. That was what had changed. Mars had entered inside the observer.",
+            "ja": "記録を閉じた。観察者が。それがあった。記録が。名前たちが。痕跡たちが。30年が。三つのルートが。それらが記録にあった。観察者の中にあった。火星が観察者の中にあった。初めて。それが変わったことだった。火星が観察者の中に入ったことが。",
+            "zh": "关闭了记录。观察者。它存在了。记录。名字。痕迹。三十年。三条路线。那些在记录里。在观察者内部。火星在观察者内部。第一次。那是改变的东西。火星进入了观察者内部。"
           }
         }
       ]
@@ -568,7 +642,9 @@
         {
           "text": {
             "ko": "내려갈 것인가. 관찰자가 생각했다. 내려가면 어디로 갈 것인가. 헬라스 센트럴로. 또는 4구역으로. 또는 에레보스로. 또는 올림포스를 계속 오를 것인가. 답이 없었다. 그것이 이 사람의 조건이었다. 방향이 없는 것. 모든 곳을 볼 수 있는 것. 아무 곳도 목적지가 아닌 것.",
-            "en": "Would descend. The observer thought. If descending where would go. To Hellas Central. Or Zone 4. Or Erebus. Or would continue ascending Olympus. No answer. That was this person's condition. Having no direction. Being able to see everywhere. No place being a destination."
+            "en": "Would descend. The observer thought. If descending where would go. To Hellas Central. Or Zone 4. Or Erebus. Or would continue ascending Olympus. No answer. That was this person's condition. Having no direction. Being able to see everywhere. No place being a destination.",
+            "ja": "下りるだろうか。観察者が考えた。下りたらどこへ行くか。ヘラス・セントラルへ。またはZone 4へ。またはエレボスへ。またはオリンポスを登り続けるか。答えがなかった。それがこの人の条件だった。方向がないこと。どこでも見られること。どこも目的地でないこと。",
+            "zh": "要下山吗。观察者想着。如果下山要去哪里。去赫拉斯中央。或者Zone 4。或者厄瑞玻斯。或者继续攀登奥林帕斯。没有答案。那是这个人的条件。没有方向。能看见任何地方。没有任何地方是目的地。"
           }
         }
       ]
@@ -583,7 +659,9 @@
         {
           "text": {
             "ko": "화성이 아래에 있었다. 핏빛 하늘 아래. 세 루트의 결과가 있었다. 어느 것도 완전하지 않았다. 이름들이 있었다. 흔적들이 있었다. 30년이 있었다. 그것들이 화성이었다. 파벌이 아니라. 깃발이 아니라. 이름들. 흔적들. 기억들.",
-            "en": "Mars was below. Under the blood-red sky. The results of three routes were there. None complete. There were names. There were traces. There were thirty years. Those were Mars. Not factions. Not flags. Names. Traces. Memories."
+            "en": "Mars was below. Under the blood-red sky. The results of three routes were there. None complete. There were names. There were traces. There were thirty years. Those were Mars. Not factions. Not flags. Names. Traces. Memories.",
+            "ja": "火星が下にあった。血の色の空の下に。三つのルートの結果があった。どれも完全ではなかった。名前たちがあった。痕跡たちがあった。30年があった。それらが火星だった。派閥ではなく。旗ではなく。名前たち。痕跡たち。記憶たち。",
+            "zh": "火星在下面。在血色天空下。三条路线的结果在那里。没有一个是完整的。有名字。有痕迹。有三十年。那些就是火星。不是派系。不是旗帜。名字。痕迹。记忆。"
           }
         }
       ]
@@ -598,7 +676,9 @@
         {
           "text": {
             "ko": "관찰자가 일어섰다. 기록을 가지고. 이름들을 가지고. 흔적들을 가지고. 그것들이 관찰자 안에 있었다. 화성이 관찰자 안에 있었다. 관찰자가 그것들을 가지고 어디로 갈 것인지. 몰랐다. 그러나 가지고 있었다. 그것이 처음이었다. 무언가를 가지고 있는 것이.",
-            "en": "The observer stood. With the record. With names. With traces. Those were inside the observer. Mars was inside the observer. Where the observer would go with those. Unknown. But had them. That was a first. Having something."
+            "en": "The observer stood. With the record. With names. With traces. Those were inside the observer. Mars was inside the observer. Where the observer would go with those. Unknown. But had them. That was a first. Having something.",
+            "ja": "観察者が立ち上がった。記録を持って。名前たちを持って。痕跡たちを持って。それらが観察者の中にあった。火星が観察者の中にあった。観察者がそれらを持ってどこへ行くか。知らなかった。しかし持っていた。それが初めてだった。何かを持っていることが。",
+            "zh": "观察者站起来了。带着记录。带着名字。带着痕迹。那些在观察者内部。火星在观察者内部。观察者带着那些要去哪里。不知道。但拥有着。那是第一次。拥有某样东西。"
           }
         }
       ]
@@ -613,7 +693,9 @@
         {
           "text": {
             "ko": "화성을 마지막으로 봤다. 관찰자가. 올림포스 정상 근처에서. 전체를. 화성 전체를. 핏빛 하늘 아래. 세 루트의 흔적들 위에. 이름들 위에. 30년 위에. 화성이 있었다. 여전히. 붉었다. 언제나 붉었다.",
-            "en": "Looked at Mars one last time. The observer. From near the Olympus summit. The whole. All of Mars. Under the blood-red sky. On top of three routes' traces. On top of names. On top of thirty years. Mars was there. Still. Red. Always red."
+            "en": "Looked at Mars one last time. The observer. From near the Olympus summit. The whole. All of Mars. Under the blood-red sky. On top of three routes' traces. On top of names. On top of thirty years. Mars was there. Still. Red. Always red.",
+            "ja": "火星を最後に見た。観察者が。オリンポス頂上近くから。全体を。火星全体を。血の色の空の下に。三つのルートの痕跡たちの上に。名前たちの上に。30年の上に。火星があった。まだ。赤かった。常に赤かった。",
+            "zh": "最后一次看着火星。观察者。从奥林帕斯山顶附近。整体。整个火星。在血色天空下。在三条路线痕迹的上面。在名字的上面。在三十年的上面。火星在那里。还是。红色的。一直是红色的。"
           }
         }
       ]
@@ -628,7 +710,9 @@
         {
           "text": {
             "ko": "그것이 전부였다. 관찰자가 알았다. 화성이 전부였다. 이름들이 전부였다. 흔적들이 전부였다. 세 루트가 전부였다. 아무것도 전부가 아니었다. 모든 것이 전부였다. 그것이 화성이었다. 그것이 관찰자가 마지막으로 안 것이었다.",
-            "en": "That was everything. The observer understood. Mars was everything. Names were everything. Traces were everything. Three routes were everything. Nothing was everything. Everything was everything. That was Mars. That was the last thing the observer had understood."
+            "en": "That was everything. The observer understood. Mars was everything. Names were everything. Traces were everything. Three routes were everything. Nothing was everything. Everything was everything. That was Mars. That was the last thing the observer had understood.",
+            "ja": "それがすべてだった。観察者が分かった。火星がすべてだった。名前たちがすべてだった。痕跡たちがすべてだった。三つのルートがすべてだった。何もすべてではなかった。すべてがすべてだった。それが火星だった。それが観察者が最後に分かったことだった。",
+            "zh": "那就是一切。观察者明白了。火星是一切。名字是一切。痕迹是一切。三条路线是一切。什么都不是一切。一切都是一切。那就是火星。那是观察者最后明白的东西。"
           }
         }
       ]
@@ -643,7 +727,9 @@
         {
           "text": {
             "ko": "관찰자는 내려가지 않았다.",
-            "en": "The observer did not descend."
+            "en": "The observer did not descend.",
+            "ja": "観察者は下りなかった。",
+            "zh": "观察者没有下山。"
           }
         }
       ]
@@ -658,7 +744,9 @@
         {
           "text": {
             "ko": "내려가지 않았다는 것이 무엇을 의미하는지. 관찰자는 몰랐다. 몰라도 됐다. 화성이 아래에 있었다. 이름들이 아래에 있었다. 관찰자가 위에 있었다. 그것으로 충분했다. 관찰자가 이름들을 봤다. 이름들이 관찰자를 기다리지 않았다. 그러나 있었다. 그것이 화성이었다.",
-            "en": "What it meant that the observer did not descend. The observer didn't know. Didn't need to know. Mars was below. Names were below. The observer was above. That was enough. The observer had seen the names. The names hadn't waited for the observer. But were there. That was Mars."
+            "en": "What it meant that the observer did not descend. The observer didn't know. Didn't need to know. Mars was below. Names were below. The observer was above. That was enough. The observer had seen the names. The names hadn't waited for the observer. But were there. That was Mars.",
+            "ja": "下りなかったということが何を意味するか。観察者は知らなかった。知らなくてもよかった。火星が下にあった。名前たちが下にあった。観察者が上にいた。それで十分だった。観察者が名前たちを見た。名前たちが観察者を待っていなかった。しかしあった。それが火星だった。",
+            "zh": "没有下山意味着什么。观察者不知道。不需要知道。火星在下面。名字在下面。观察者在上面。那就够了。观察者看见了名字。名字没有等待观察者。但在那里。那就是火星。"
           }
         }
       ]
@@ -673,7 +761,9 @@
         {
           "text": {
             "ko": "화성이 거기 있었다. 핏빛 하늘 아래. 관찰자가 위에 있었다. 그것이 마지막 관찰이었다. 위에서 보는 화성. 핏빛 하늘. 이름들. 흔적들. 세 루트. 30년. 그것들이 함께 있었다. 그것이 전부였다.",
-            "en": "Mars was there. Under the blood-red sky. The observer was above. That was the last observation. Mars seen from above. Blood-red sky. Names. Traces. Three routes. Thirty years. Those were together. That was everything."
+            "en": "Mars was there. Under the blood-red sky. The observer was above. That was the last observation. Mars seen from above. Blood-red sky. Names. Traces. Three routes. Thirty years. Those were together. That was everything.",
+            "ja": "火星がそこにあった。血の色の空の下に。観察者が上にいた。それが最後の観察だった。上から見る火星。血の色の空。名前たち。痕跡たち。三つのルート。30年。それらが共にあった。それがすべてだった。",
+            "zh": "火星在那里。在血色天空下。观察者在上面。那是最后的观察。从上方看到的火星。血色天空。名字。痕迹。三条路线。三十年。那些在一起。那就是一切。"
           }
         }
       ]
@@ -688,7 +778,9 @@
         {
           "text": {
             "ko": "관찰자는 내려가지 않았다. 화성이 아래에 있었다. 핏빛 하늘이 위에 있었다. 관찰자가 그 사이에 있었다. 이름들이 아래에 있었다. 기록이 관찰자 안에 있었다. 그것으로 충분했다. 화성이 거기 있었다. 언제나 거기 있었다. 관찰자가 오기 전에도. 관찰자가 떠난 후에도. 화성은 거기 있었다. 붉었다. 언제나 붉었다. 그것이 전부였다.",
-            "en": "The observer did not descend. Mars was below. The blood-red sky was above. The observer was between them. Names were below. The record was inside the observer. That was enough. Mars was there. Had always been there. Before the observer came. After the observer left. Mars was there. Red. Always red. That was everything."
+            "en": "The observer did not descend. Mars was below. The blood-red sky was above. The observer was between them. Names were below. The record was inside the observer. That was enough. Mars was there. Had always been there. Before the observer came. After the observer left. Mars was there. Red. Always red. That was everything.",
+            "ja": "観察者は下りなかった。火星が下にあった。血の色の空が上にあった。観察者がその間にいた。名前たちが下にあった。記録が観察者の中にあった。それで十分だった。火星がそこにあった。常にそこにあった。観察者が来る前も。観察者が去った後も。火星はそこにあった。赤かった。常に赤かった。それがすべてだった。",
+            "zh": "观察者没有下山。火星在下面。血色天空在上面。观察者在它们之间。名字在下面。记录在观察者内部。那就够了。火星在那里。一直在那里。在观察者到来之前。在观察者离开之后。火星在那里。红色的。一直是红色的。那就是一切。"
           },
           "overlay": "hidden_ch5_last_observation_l44_00_mars_horizon"
         }
