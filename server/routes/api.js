@@ -7149,7 +7149,7 @@ router.get('/user/my-territories', readLimiter, async (req, res) => {
       `SELECT c.id, c.center_lat, c.center_lng, c.width, c.height,
               c.image_url, c.link_url, c.marketplace_locked,
               c.total_paid,
-              COUNT(p.id) AS pixel_count,
+              COUNT(p.lat) AS pixel_count,
               u.nickname AS owner_nick
          FROM claims c
          LEFT JOIN pixels p ON p.claim_id = c.id

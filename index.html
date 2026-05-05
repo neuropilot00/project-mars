@@ -11630,7 +11630,7 @@ function _updateMyTerritories(){
     var b=entry.group?entry.group.bounds:null;
     var centerLat=b?(b.minLat+b.maxLat)/2:ec[0].lat;
     var centerLng=b?(b.minLng+b.maxLng)/2:ec[0].lng;
-    var totalPx=entry.group?entry.group.count:(ec[0].w||ec[0].size||10)*(ec[0].h||ec[0].size||10);
+    var totalPx=(entry.group&&entry.group.bounds&&entry.group.bounds.count)||ec.reduce(function(s,c){return s+(c._pixelCount||c.pixel_count||((c.w||c.size||10)*(c.h||c.size||10)));},0)||((ec[0].w||ec[0].size||10)*(ec[0].h||ec[0].size||10));
     var left=document.createElement('div');
     var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:9px">('+ec.length+' merged)</span>':'';
     left.innerHTML='<div style="font-size:10px;color:var(--tx2)">#'+(i+1)+' · '+centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'+subLabel+'</div><div style="font-size:9px;color:var(--tx3)">'+totalPx+'px · '+(entry.hasImg?'📷':'🏴 No image')+'</div>';
