@@ -48804,7 +48804,10 @@ function showBattleResult() {
     : winner
     ? `<span style="background:#ffd700;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">≋ 무승부</span>`
     : '';
-  subtitle.innerHTML = `<span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(atkName)}</span> <span style="color:rgba(255,255,255,.3);margin:0 4px">VS</span> <span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(defName)}</span>${resultBadge}`;
+  // resultBadge를 내 함대 이름 옆에 붙임 (내가 ATK → atk 이름 뒤, 내가 DEF → def 이름 뒤, 관전 → 승자 이름 뒤)
+  const atkFinalBadge = mySide === 'atk' ? resultBadge : (!mySide && winner === 'atk' ? resultBadge : '');
+  const defFinalBadge = mySide === 'def' ? resultBadge : (!mySide && winner === 'def' ? resultBadge : '');
+  subtitle.innerHTML = `<span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(atkName)}</span>${atkFinalBadge} <span style="color:rgba(255,255,255,.3);margin:0 4px">VS</span> <span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(defName)}</span>${defFinalBadge}`;
   subtitle.style.color = '';
   subtitle.style.fontWeight = '';
   subtitle.style.letterSpacing = '0';
