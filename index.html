@@ -7812,13 +7812,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
 
           <!-- 수송 시스템 설명 툴팁 -->
-          <div style="background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.2);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.7">
-            <b style="color:#FFB347;font-size:10px">🚚 GP 화물 수송이란?</b><br>
-            섹터 A → 섹터 B로 GP를 "화물"처럼 수송하는 PvP 수익 시스템입니다.<br>
-            <span style="color:var(--tx2)">✓ <b style="color:#FFB347">상인(Merchant) 직업</b>은 수송 완료 시 <b>추가 GP 보너스</b>를 획득</span><br>
-            <span style="color:var(--tx2)">⚔ 다른 플레이어가 중간에 <b style="color:#FF6B6B">화물을 약탈</b>할 수 있어 위험/보상 PvP 요소</span><br>
-            <span style="color:var(--tx2)">🏴 RAID TARGETS 탭에서 다른 유저 수송 화물을 약탈 가능</span><br>
-            <span style="color:rgba(255,255,255,.3);font-size:8px">💡 아이템 거래소(마켓플레이스)와 별개입니다 — 마켓은 MARKET 탭에서</span>
+          <div id="transportInfoBox" style="background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.2);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.7">
+            <b style="color:#FFB347;font-size:10px" data-i18n="transport_info_title">🚚 What is GP Cargo Transport?</b><br>
+            <span data-i18n="transport_info_desc">Ship GP as "cargo" from sector A → B in a PvP profit system.</span><br>
+            <span style="color:var(--tx2)" data-i18n="transport_info_merchant">✓ <b style="color:#FFB347">Merchant job</b> earns bonus GP on delivery</span><br>
+            <span style="color:var(--tx2)" data-i18n="transport_info_raid">⚔ Other players can intercept and <b style="color:#FF6B6B">steal your cargo</b> mid-transit</span><br>
+            <span style="color:var(--tx2)" data-i18n="transport_info_targets">🏴 Check RAID TARGETS tab to raid other shipments</span><br>
+            <span style="color:rgba(255,255,255,.3);font-size:8px" data-i18n="transport_info_note">💡 Separate from the item marketplace — use the MARKET tab for that</span>
           </div>
 
           <!-- Sub-tabs -->
@@ -16016,6 +16016,12 @@ var I18N = {
     transport_title: 'INTER-SECTOR TRANSPORT',
     transport_desc: 'Ship GP cargo between sectors. Merchants earn bonuses. Raiders can steal mid-transit.',
     transport_sub_launch: 'LAUNCH', transport_sub_my: 'MY SHIPMENTS', transport_sub_raid: '🏴 RAID TARGETS',
+    transport_info_title: '🚚 What is GP Cargo Transport?',
+    transport_info_desc: 'Ship GP as "cargo" from sector A → B in a PvP profit system.',
+    transport_info_merchant: '✓ <b style="color:#FFB347">Merchant job</b> earns bonus GP on delivery',
+    transport_info_raid: '⚔ Other players can intercept and <b style="color:#FF6B6B">steal your cargo</b> mid-transit',
+    transport_info_targets: '🏴 Check RAID TARGETS tab to raid other shipments',
+    transport_info_note: '💡 Separate from the item marketplace — use the MARKET tab for that',
     transport_launch_new: 'NEW SHIPMENT',
     transport_origin: 'ORIGIN SECTOR', transport_dest: 'DEST SECTOR', transport_cargo: 'CARGO GP',
     transport_launch_btn: '🚚 LAUNCH SHIPMENT ▶',
@@ -17283,6 +17289,12 @@ var I18N = {
     transport_title: '섹터 간 운송',
     transport_desc: 'GP 화물을 섹터 간에 운송합니다. 상인은 보너스, 해적은 중간에 약탈할 수 있습니다.',
     transport_sub_launch: '운송 시작', transport_sub_my: '내 운송', transport_sub_raid: '🏴 약탈 대상',
+    transport_info_title: '🚚 GP 화물 수송이란?',
+    transport_info_desc: '섹터 A → 섹터 B로 GP를 "화물"처럼 수송하는 PvP 수익 시스템입니다.',
+    transport_info_merchant: '✓ <b style="color:#FFB347">상인(Merchant) 직업</b>은 수송 완료 시 <b>추가 GP 보너스</b>를 획득',
+    transport_info_raid: '⚔ 다른 플레이어가 중간에 <b style="color:#FF6B6B">화물을 약탈</b>할 수 있어 위험/보상 PvP 요소',
+    transport_info_targets: '🏴 RAID TARGETS 탭에서 다른 유저 수송 화물을 약탈 가능',
+    transport_info_note: '💡 아이템 거래소(마켓플레이스)와 별개입니다 — 마켓은 MARKET 탭에서',
     transport_launch_new: '새 운송',
     transport_origin: '출발 섹터', transport_dest: '도착 섹터', transport_cargo: '화물 GP',
     transport_launch_btn: '🚚 운송 시작 ▶',
@@ -17984,6 +17996,12 @@ var I18N = {
     transport_title: 'セクター間輸送',
     transport_desc: 'GPカーゴをセクター間で輸送。商人はボーナス、海賊は途中で略奪可能。',
     transport_sub_launch: '出発', transport_sub_my: 'マイ輸送', transport_sub_raid: '🏴 略奪対象',
+    transport_info_title: '🚚 GP貨物輸送とは？',
+    transport_info_desc: 'セクターA → Bへ GPを「貨物」として輸送するPvP収益システム。',
+    transport_info_merchant: '✓ <b style="color:#FFB347">商人(Merchant)職業</b>は配達完了時に<b>ボーナスGP</b>を獲得',
+    transport_info_raid: '⚔ 他プレイヤーが途中で <b style="color:#FF6B6B">貨物を略奪</b>できるリスク/報酬PvP要素',
+    transport_info_targets: '🏴 RAID TARGETSタブで他ユーザーの貨物を略奪可能',
+    transport_info_note: '💡 アイテム市場とは別 — マーケットはMARKETタブから',
     transport_launch_new: '新規輸送',
     transport_origin: '出発セクター', transport_dest: '到着セクター', transport_cargo: 'カーゴGP',
     transport_launch_btn: '🚚 輸送開始 ▶',
@@ -18684,6 +18702,12 @@ var I18N = {
     transport_title: '跨扇区运输',
     transport_desc: '在扇区间运送GP货物。商人获得奖励，海盗可在途中劫掠。',
     transport_sub_launch: '发起', transport_sub_my: '我的运输', transport_sub_raid: '🏴 劫掠目标',
+    transport_info_title: '🚚 什么是GP货物运输？',
+    transport_info_desc: '将GP作为"货物"从扇区A运输到B的PvP收益系统。',
+    transport_info_merchant: '✓ <b style="color:#FFB347">商人(Merchant)职业</b>完成运输时获得<b>额外GP奖励</b>',
+    transport_info_raid: '⚔ 其他玩家可以在途中 <b style="color:#FF6B6B">拦截货物</b>，具有风险/收益的PvP要素',
+    transport_info_targets: '🏴 在RAID TARGETS标签中可以劫掠其他用户的货物',
+    transport_info_note: '💡 与物品交易所（市场）分开 — 市场在MARKET标签',
     transport_launch_new: '新运输',
     transport_origin: '起始扇区', transport_dest: '目的扇区', transport_cargo: '货物GP',
     transport_launch_btn: '🚚 开始运输 ▶',
@@ -19230,7 +19254,7 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(function(el){
     var key=el.getAttribute('data-i18n');
     var val=t(key);
-    if(val.indexOf('<br>')>=0) el.innerHTML=val; else el.textContent=val;
+    if(val.indexOf('<')>=0) el.innerHTML=val; else el.textContent=val;
   });
   // Placeholders
   document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
@@ -21579,7 +21603,7 @@ function loadTransportTab() {
     if (!_tspSectors.length) {
       var origin = document.getElementById('tspOriginSector');
       var dest = document.getElementById('tspDestSector');
-      var errHTML = '<option value="">섹터 로딩 실패 · 새로고침</option>';
+      var errHTML = '<option value="">'+(LANG==='ko'?'섹터 로딩 실패 · 새로고침':'Failed to load sectors · Refresh')+'</option>';
       if (origin) origin.innerHTML = errHTML;
       if (dest) dest.innerHTML = errHTML;
       return;
@@ -21644,13 +21668,13 @@ function updateTransportPreview() {
 
 function submitTransportLaunch() {
   var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
-  if (!w) { showFactionToast('지갑 연결이 필요합니다', 'error'); return; }
+  if (!w) { showFactionToast(t('err_connect_wallet')||'Connect wallet first', 'error'); return; }
   var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
   var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
   var cargo = parseInt((document.getElementById('tspCargoGp')||{}).value || '0');
-  if (!origin || !dest) { showFactionToast('출발/도착 섹터를 선택하세요', 'error'); return; }
-  if (origin === dest) { showFactionToast('출발지와 도착지는 달라야 합니다', 'error'); return; }
-  if (!cargo) { showFactionToast('화물 GP를 입력하세요', 'error'); return; }
+  if (!origin || !dest) { showFactionToast(LANG==='ko'?'출발/도착 섹터를 선택하세요':'Select origin and destination sectors', 'error'); return; }
+  if (origin === dest) { showFactionToast(LANG==='ko'?'출발지와 도착지는 달라야 합니다':'Origin and destination must differ', 'error'); return; }
+  if (!cargo) { showFactionToast(LANG==='ko'?'화물 GP를 입력하세요':'Enter cargo GP amount', 'error'); return; }
   var doSubmit = function() {
     fetch('/api/transport/start', {
       method: 'POST',
@@ -21757,7 +21781,7 @@ function loadRaidTargets() {
 
 function submitRaidAttempt(tid, cargo) {
   var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
-  if (!w) { showFactionToast('지갑 연결이 필요합니다', 'error'); return; }
+  if (!w) { showFactionToast(t('err_connect_wallet')||'Connect wallet first', 'error'); return; }
   var doIt = function() {
     fetch('/api/transport/raid', {
       method: 'POST',
@@ -26286,7 +26310,7 @@ function _setCampaignModal(ch, html){
   // 라우트 표시는 챕터의 실제 파벌(MCC/FSP/CV) 기반으로 동적으로 만든다 — 프롤로그/CV 챕터에서도 정확한 라우트가 보이도록 한다.
   var route=((ch.campaignId||'').replace('_route','')||ch.faction||'mcc').toUpperCase();
   document.getElementById('campaignModalMeta').textContent=route+' ROUTE · CHAPTER '+ch.chapterNumber;
-  var _locName=ch.location&&(_campaignStoryText(ch.location.displayName)||ch.location.displayNameKo||ch.location.displayNameEn||'Mars');
+  var _locName=ch.location&&(_campaignStoryText(ch.location.displayName)||(LANG==='ko'?ch.location.displayNameKo:ch.location.displayNameEn||ch.location.displayNameKo)||'Mars');
   document.getElementById('campaignModalSub').textContent=(_locName||'Mars')+' · '+((ch.environment&&ch.environment.type)||'simulation');
   document.getElementById('campaignModalBody').innerHTML=html;
   document.getElementById('campaignModal').style.display='flex';
@@ -27171,10 +27195,13 @@ async function pollCampaignProgress(immediate){
     var objectives=Array.isArray(d.objectives)?d.objectives:(Array.isArray(preview.objectives)?preview.objectives:[]);
     var missing=Array.isArray(d.missingObjectives)?d.missingObjectives:(Array.isArray(preview.missingObjectives)?preview.missingObjectives:[]);
     if(fill) fill.style.width=pct+'%';
-    if(status) status.textContent='작전 진행률 '+Math.round(pct)+'%';
-    if(detail) detail.textContent='남은 시간 '+_campaignFormatDuration(preview.remainingSec||0)+' · 경과 '+_campaignFormatDuration(preview.elapsedSec||0);
+    if(status) status.textContent=(LANG==='ko'?'작전 진행률 ':LANG==='ja'?'作戦進行率 ':LANG==='zh'?'作战进度 ':'Operation progress ')+Math.round(pct)+'%';
+    var _remLbl=LANG==='ko'?'남은 시간':LANG==='ja'?'残り時間':LANG==='zh'?'剩余时间':'Time left';
+    var _elLbl=LANG==='ko'?'경과':LANG==='ja'?'経過':LANG==='zh'?'已经过':'Elapsed';
+    if(detail) detail.textContent=_remLbl+' '+_campaignFormatDuration(preview.remainingSec||0)+' · '+_elLbl+' '+_campaignFormatDuration(preview.elapsedSec||0);
+    var _objWarnMsg=LANG==='ko'?'남은 목표를 완료해야 결과를 받을 수 있습니다.':LANG==='ja'?'残りの目標を完了してください。':LANG==='zh'?'请先完成剩余目标。':'Complete remaining objectives first.';
     if(objectivesEl&&objectives.length){
-      objectivesEl.innerHTML=(pct>=100&&missing.length?'<div style="font-size:10px;color:var(--gold);margin-bottom:6px;text-align:center">남은 목표를 완료해야 결과를 받을 수 있습니다.</div>':'')
+      objectivesEl.innerHTML=(pct>=100&&missing.length?'<div style="font-size:10px;color:var(--gold);margin-bottom:6px;text-align:center">'+_objWarnMsg+'</div>':'')
         +campaignObjectivesHtml({objectives:objectives},4);
     }
     if(preview.readyToComplete){
