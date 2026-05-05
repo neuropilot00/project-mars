@@ -8234,7 +8234,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
           ✨ 꾸미기
         </button>
-        <button type="button" id="mtSellBtn" onclick="closeMobTerritoryModal();openListModal('claim',selectedPlot&&selectedPlot.claimId,'Territory','🗺️',0)"
+        <button type="button" id="mtSellBtn" onclick="closeMobTerritoryModal();openListModal('claim',selectedPlot&&(selectedPlot.claimId||selectedPlot.id),'Territory','🗺️',0)"
           style="padding:14px 8px;border-radius:10px;background:rgba(160,100,220,.12);
           border:1px solid rgba(160,100,220,.35);color:#a064dc;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
           💰 판매
