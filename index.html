@@ -6275,7 +6275,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span>🛒 <span data-i18n="base_tab_shop">SHOP</span></span><span class="tab-dot" id="shopDot"></span></div>
       <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
       <!-- 임무 (작전/퀘스트/수송/시즌 — OPS 첫 번째로 자동선택) -->
-      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();loadDailyOpsBoard();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
@@ -6337,40 +6336,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- FLEET COMMAND CARD — moved above Player Level (priority entry point for Shipyard/Fleets/Void Raider) -->
-        <div id="terrFleetCommand" style="margin-bottom:12px;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(79,195,247,.12),rgba(79,195,247,.03));border:1px solid rgba(79,195,247,.3);box-shadow:0 0 14px rgba(79,195,247,.08)">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
-            <div>
-              <div style="font-size:11px;font-weight:800;color:#5cbbff;letter-spacing:.5px" data-i18n="fcmd_title">⚓ FLEET COMMAND</div>
-              <div style="font-size:8px;color:var(--tx3);margin-top:2px" data-i18n="fcmd_sub">함대 · 조선소 · Void Raider</div>
-            </div>
-            <div style="font-size:8px;color:var(--tx3);text-align:right" id="fcmdSummary">—</div>
-          </div>
-          <!-- Quick actions -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-            <button onclick="(typeof openShipyard==='function')&&openShipyard()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(79,195,247,.18),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_open_shipyard">🔨 SHIPYARD</button>
-            <button onclick="(typeof openFleetCmd==='function')&&openFleetCmd()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(167,139,250,.04));border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_my_fleets">⚔ MY FLEETS</button>
-          </div>
-          <!-- v11.1 Tactical Lab entry (full-width to highlight the new simulator) -->
-          <div style="margin-bottom:10px">
-            <button onclick="(typeof openTacticalLab==='function')&&openTacticalLab()" style="width:100%;padding:9px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(206,147,216,.22),rgba(206,147,216,.04));border:1px solid rgba(206,147,216,.45);color:#ce93d8;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px" data-i18n="fcmd_tactical_lab">🧪 TACTICAL LAB — FORMATION v11.2</button>
-          </div>
-          <!-- World Events (Void Raider) — Phase B -->
-          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-              <div style="font-size:9px;font-weight:800;color:var(--mars);letter-spacing:.4px" data-i18n="we_active_title">⚠ ACTIVE WORLD EVENTS</div>
-              <button onclick="loadFleetCommandCard()" style="font-size:8px;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="refresh_short">↻</button>
-            </div>
-            <div id="fcmdWorldEventsList" style="display:flex;flex-direction:column;gap:5px">
-              <div style="text-align:center;color:var(--tx3);font-size:9px;padding:6px" data-i18n="we_none_active">활성 이벤트가 없습니다</div>
-            </div>
-          </div>
-        </div>
 
         <!-- Player Level Card -->
         <div id="profileLevelCard" style="margin-bottom:12px;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(255,120,60,.06),rgba(255,120,60,.02));border:1px solid rgba(255,120,60,.2)">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--mars),#FF8800);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#000;font-family:var(--fn)" id="profileLevelBadge">1</div>
+            <div style="width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,var(--mars),#FF8800);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#000;font-family:var(--fn)" id="profileLevelBadge">1</div>
             <div style="flex:1">
               <div style="font-size:12px;font-weight:700;color:var(--tx);font-family:var(--fn)" id="profileNickname">Explorer</div>
               <div style="font-size:9px;color:var(--mars);font-family:var(--fn)" id="profileRankName">Dust Walker</div>
@@ -7784,8 +7754,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
 
-      <!-- TAB: OPS — Daily OPS Board + single-player invasion + exploration missions -->
-      <div class="base-pane" id="basePane_ops">
+      <!-- TAB: OPS — Daily OPS Board + single-player invasion + exploration missions (탭 제거됨, 영토탭으로 통합) -->
+      <div class="base-pane" id="basePane_ops" style="display:none">
         <div style="padding:8px 2px 12px">
 
           <!-- ─ DAILY OPS BOARD ─────────────────────────────── -->
@@ -8062,7 +8032,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <!-- Current profile display -->
           <div id="myProfileCard" style="margin-bottom:12px;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(244,143,177,.08),rgba(244,143,177,.02));border:1px solid rgba(244,143,177,.2)">
             <div style="display:flex;align-items:center;gap:10px">
-              <div id="profileAvatarCircle" style="width:40px;height:40px;border-radius:50%;background:#FF7840;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>
+              <div id="profileAvatarCircle" style="width:40px;height:40px;border-radius:8px;background:#FF7840;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>
               <div style="flex:1">
                 <div style="font-size:12px;color:var(--tx);font-weight:700" id="profileNicknameDisplay">—</div>
                 <div style="font-size:9px;color:var(--tx3);margin-top:2px" id="profileMottoDisplay">No motto set</div>
@@ -8140,7 +8110,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <!-- Rank card -->
           <div id="myPrestigeCard" style="margin-bottom:12px;padding:14px;border-radius:8px;background:linear-gradient(135deg,rgba(255,213,79,.08),rgba(255,213,79,.02));border:1px solid rgba(255,213,79,.25)">
             <div style="display:flex;align-items:center;gap:12px">
-              <div id="prestigeIconCircle" style="width:44px;height:44px;border-radius:50%;background:rgba(255,213,79,.15);border:2px solid rgba(255,213,79,.4);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🪨</div>
+              <div id="prestigeIconCircle" style="width:44px;height:44px;border-radius:8px;background:rgba(255,213,79,.15);border:2px solid rgba(255,213,79,.4);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🪨</div>
               <div style="flex:1">
                 <div id="prestigeRankName" style="font-size:13px;color:#ffd54f;font-weight:700">Colonist</div>
                 <div id="prestigePointsLabel" style="font-size:9px;color:var(--tx3);margin-top:2px">0 pts — next rank: 10 pts needed</div>
@@ -17028,7 +16998,7 @@ var I18N = {
     base_tab_mining: '채굴', base_tab_quests: '퀘스트', base_tab_ops: '작전',
     base_tab_shop: '상점', base_tab_market: '마켓', base_tab_guild: '길드', base_tab_govern: '거버넌스',
     base_tab_transport: '수송', base_tab_quests_full: '캠페인/퀘스트',
-    bcat_territory: '영토', bcat_fleet: '함대', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
+    bcat_territory: '영토', bcat_fleet: '함대 지휘부', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
     fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_tactical_lab: '전술랩',
     fleet_status_label: '내 함대 현황', fleet_world_events: '활성 월드 이벤트', btn_refresh: '↻ 새로고침',
     hijack_no_fleet_auto_win: '상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)',
