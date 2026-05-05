@@ -519,6 +519,7 @@ function assignFormationSlots(fleet){
    전투 엔진
    ═══════════════════════════════════════════════════════════ */
 const CVs=document.getElementById('c'),CX=CVs.getContext('2d');
+CX.imageSmoothingEnabled=true;CX.imageSmoothingQuality='high';
 const W=CVs.width,H=CVs.height;
 const PERF_MODE=window.matchMedia&&window.matchMedia('(max-width: 900px)').matches;
 const SHIP_SPRITE_CODES=[
@@ -1519,6 +1520,7 @@ function drawShipSprite(ctx,s){
   const h=long;
   const w=h*ratio;
   ctx.save();
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   ctx.rotate(Math.PI/2);
   ctx.drawImage(img,-w/2,-h/2,w,h);
   ctx.restore();
@@ -1618,74 +1620,70 @@ function hexRGB(h){
 }
 
 function drawFleets(){
-  // 집중공격 대상 타겟 링 (깜빡이는 빨간 테두리)
+  // 집중공격 대상: 함선 크기에 맞춘 작은 브라켓 (zoom 보정)
   if(focusFleet&&!focusFleet.ships.every(s=>s.dead)){
-    const pulse=0.55+0.45*Math.sin(performance.now()*.006);
-    CX.save();
-    CX.strokeStyle=`rgba(255,80,80,${pulse})`;
-    CX.lineWidth=2.5;
-    CX.setLineDash([6,4]);
-    CX.beginPath();CX.arc(focusFleet.cx,focusFleet.cy,focusFleet.radius+10,0,Math.PI*2);CX.stroke();
-    CX.setLineDash([]);
-    // 코너 타겟 브라켓
-    const br=focusFleet.radius+14,blen=br*.22;
-    [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sy])=>{
-      CX.beginPath();
-      CX.moveTo(focusFleet.cx+sx*br,focusFleet.cy+sy*(br-blen));
-      CX.lineTo(focusFleet.cx+sx*br,focusFleet.cy+sy*br);
-      CX.lineTo(focusFleet.cx+sx*(br-blen),focusFleet.cy+sy*br);
-      CX.stroke();
-    });
-    CX.globalAlpha=.85;
-    CX.font='bold 7px Orbitron,monospace';
-    CX.fillStyle='#ff5050';
-    CX.textAlign='center';
-    CX.fillText('🎯 TARGET',focusFleet.cx,focusFleet.cy-focusFleet.radius-18);
-    CX.globalAlpha=1;
-    CX.restore();
+    const aliveShips=focusFleet.ships.filter(s=>!s.dead);
+    if(aliveShips.length>0){
+      // 기함 우선, 없으면 HP 가장 높은 함선
+      const tgt=aliveShips.find(s=>s.isFlagship)||aliveShips.reduce((a,b)=>a.hp>b.hp?a:b);
+      const t=tgt.type;
+      const cs={frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[t.size]||1.2;
+      // 브라켓 크기: 함선 실제 렌더 반경 + 화면 4px 여백 (zoom 나눠서 world 단위 변환)
+      const br=t.r*cs+4/camScale;
+      const blen=br*.45;
+      const pulse=0.6+0.4*Math.sin(performance.now()*.009);
+      CX.save();
+      CX.strokeStyle=`rgba(255,60,60,${pulse})`;
+      CX.lineWidth=1.8/camScale;
+      [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sy])=>{
+        CX.beginPath();
+        CX.moveTo(tgt.x+sx*br,tgt.y+sy*(br-blen));
+        CX.lineTo(tgt.x+sx*br,tgt.y+sy*br);
+        CX.lineTo(tgt.x+sx*(br-blen),tgt.y+sy*br);
+        CX.stroke();
+      });
+      CX.restore();
+    }
   }
   fleets.forEach(f=>{
     if(f.dead)return;
     const fc=f.flagship?FACTIONS[f.flagship.type.faction].color:'#4fc3f7';
     const rgb=hexRGB(fc);
+    // 함대 영역 그라디언트 (희미하게 유지, 장판 효과 최소화)
     const ag=CX.createRadialGradient(f.cx,f.cy,0,f.cx,f.cy,f.radius);
-    const alpha=f.maneuver==='scatter'?.04:f.maneuver==='retreat'?.07:.15;
+    const alpha=f.maneuver==='scatter'?.03:f.maneuver==='retreat'?.05:.08;
     ag.addColorStop(0,`rgba(${rgb},${alpha})`);
     ag.addColorStop(1,'transparent');
     CX.fillStyle=ag;CX.beginPath();CX.arc(f.cx,f.cy,f.radius,0,Math.PI*2);CX.fill();
-
-    CX.strokeStyle=`rgba(${rgb},.22)`;
-    CX.lineWidth=.8;
-    if(f.maneuver==='scatter')CX.setLineDash([2,8]);
-    else if(f.maneuver==='retreat')CX.setLineDash([4,4]);
-    else CX.setLineDash([4,7]);
-    CX.beginPath();CX.arc(f.cx,f.cy,f.radius*.88,0,Math.PI*2);CX.stroke();
-    CX.setLineDash([]);CX.lineWidth=1;
+    // 외곽 점선 제거 (장판 느낌 원인)
 
     const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     const labelDir=f.side==='atk'?1:-1;
-    const labelBase=f.cy+labelDir*(f.radius+16);
+    // 텍스트 크기: 화면상 항상 일정 크기 (zoom 나눠서 world 단위로)
+    const sz=Math.max(3,8/camScale);
+    const szSm=Math.max(2,6/camScale);
+    const labelBase=f.cy+labelDir*(f.radius+sz*2);
     CX.globalAlpha=.85;
     CX.textAlign='center';
-    CX.font='bold 8px Orbitron,monospace';
+    CX.font=`bold ${sz}px Orbitron,monospace`;
     CX.fillStyle=fc;
     CX.fillText(`[${f.tag}] ${f.userId}`,f.cx,labelBase);
-    CX.font='6px Share Tech Mono';
+    CX.font=`${szSm}px Share Tech Mono`;
     CX.fillStyle=fm.color;
-    CX.fillText(`${fm.icon} ${fm.name}`,f.cx-22,labelBase+10);
+    CX.fillText(`${fm.icon} ${fm.name}`,f.cx-sz*2.5,labelBase+szSm*1.7);
     CX.fillStyle=f.maneuver==='retreat'?'#ff8a65':f.maneuver==='scatter'?'#ff5252':f.maneuver==='flank'?'#66bb6a':'rgba(255,255,255,.4)';
-    CX.fillText(`${mv.icon} ${mv.name}`,f.cx+22,labelBase+10);
+    CX.fillText(`${mv.icon} ${mv.name}`,f.cx+sz*2.5,labelBase+szSm*1.7);
 
     const alive=f.ships.filter(s=>!s.dead).length;
     const hpR=f.hp/f.maxHp;
-    const bw=58;
-    const hpY=f.cy+labelDir*(f.radius+2);
-    CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,hpY,bw,3);
+    const bw=50/camScale;
+    const hpY=f.cy+labelDir*(f.radius+sz*.4);
+    CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,hpY,bw,2/camScale);
     CX.fillStyle=hpR>.5?'#4caf50':hpR>.2?'#ff9800':'#f44336';
-    CX.fillRect(f.cx-bw/2,hpY,bw*hpR,3);
-    CX.font='5px Share Tech Mono';
+    CX.fillRect(f.cx-bw/2,hpY,bw*hpR,2/camScale);
+    CX.font=`${Math.max(2,5/camScale)}px Share Tech Mono`;
     CX.fillStyle='rgba(255,255,255,.28)';
-    CX.fillText(`${alive}척`,f.cx,labelBase-8*labelDir);
+    CX.fillText(`${alive}척`,f.cx,labelBase-sz*labelDir);
     CX.globalAlpha=1;CX.textAlign='left';
   });
 }
@@ -1742,16 +1740,11 @@ function drawShips2(){
       CX.fillStyle='rgba(0,0,0,.55)';CX.fillRect(sh.x-barW/2,barY,barW,barH);
       CX.fillStyle=hr>.5?'#4caf50':hr>.2?'#ff9800':'#f44336';
       CX.fillRect(sh.x-barW/2,barY,barW*hr,barH);
-      // 기함 기호 (★ for atk, ◆ for def) + HP% 텍스트
-      if(sh.isFlagship){
-        CX.globalAlpha=.9;CX.font=`bold 7px Orbitron,monospace`;CX.textAlign='center';
-        CX.fillStyle=teamCol;
-        const fsIcon=sh.side==='atk'?'★':'◆';
-        CX.fillText(fsIcon,sh.x-(barW/2)-6,barY+barH);
-        if(hr < 0.5){
-          CX.fillStyle=hr<.2?'#f44336':'#ff9800';
-          CX.fillText(Math.ceil(hr*100)+'%',sh.x,barY-2);
-        }
+      // 기함 HP% 경고 (HP 낮을 때만 표시, 아이콘 제거)
+      if(sh.isFlagship && hr < 0.5){
+        CX.globalAlpha=.85;CX.font=`bold ${Math.max(2,6/camScale)}px Orbitron,monospace`;CX.textAlign='center';
+        CX.fillStyle=hr<.2?'#f44336':'#ff9800';
+        CX.fillText(Math.ceil(hr*100)+'%',sh.x,barY-2/camScale);
         CX.globalAlpha=1;
       }
     }
