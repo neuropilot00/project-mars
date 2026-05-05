@@ -1056,12 +1056,41 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .base-header-title{font-size:13px;color:var(--mars);letter-spacing:2px;font-family:var(--fn)}
 .base-close{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;
   padding:4px 8px;min-width:36px;min-height:36px}
-.base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15);flex-shrink:0;overflow-x:auto}
-.base-tab{flex:1;padding:10px 8px;text-align:center;font-size:10px;font-family:var(--fn);
-  color:var(--tx3);cursor:pointer;letter-spacing:1px;border-bottom:2px solid transparent;
-  transition:all .2s;white-space:nowrap}
+/* ── BASE 카테고리 바 ── */
+.base-cat-row{display:flex;gap:4px;padding:8px 14px 0;background:rgba(0,0,0,.2);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.base-cat-row::-webkit-scrollbar{display:none}
+.bcat{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:10px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;transition:all .2s;white-space:nowrap}
+.bcat:hover{color:var(--tx2);border-color:rgba(255,255,255,.2)}
+.bcat.active{color:#fff;background:rgba(255,120,60,.2);border-color:rgba(255,120,60,.5)}
+/* 카테고리별 활성 색상 */
+.bcat.active[data-cat="fleet"]{background:rgba(79,195,247,.2);border-color:rgba(79,195,247,.5);color:#5cbbff}
+.bcat.active[data-cat="economy"]{background:rgba(160,100,220,.2);border-color:rgba(160,100,220,.5);color:#a78bfa}
+.bcat.active[data-cat="command"]{background:rgba(76,216,154,.18);border-color:rgba(76,216,154,.45);color:#4cd89a}
+.bcat.active[data-cat="mission"]{background:rgba(255,213,79,.18);border-color:rgba(255,213,79,.4);color:#ffd54f}
+.bcat.active[data-cat="community"]{background:rgba(255,120,60,.2);border-color:rgba(255,120,60,.5);color:var(--mars)}
+
+.base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15);flex-shrink:0;overflow-x:auto;scrollbar-width:none;padding:0 4px}
+.base-tabs::-webkit-scrollbar{display:none}
+.base-tab{flex-shrink:0;padding:9px 12px;text-align:center;font-size:10px;font-family:var(--fn);
+  color:var(--tx3);cursor:pointer;letter-spacing:.5px;border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap;display:none}
+.base-tab.cat-show{display:inline-flex;align-items:center;gap:4px}
 .base-tab:hover{color:var(--tx2);background:rgba(255,120,60,.04)}
 .base-tab.active{color:var(--mars);border-bottom-color:var(--mars);background:rgba(255,120,60,.06)}
+
+/* 빠른 접근 퀵바 (지도 위 플로팅) */
+.map-quickbar{position:fixed;bottom:max(90px,calc(env(safe-area-inset-bottom)+82px));left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:119;pointer-events:none}
+.map-quickbar button{pointer-events:all;padding:8px 16px;border-radius:20px;font-size:11px;font-family:var(--fn);
+  font-weight:800;letter-spacing:.4px;cursor:pointer;white-space:nowrap;backdrop-filter:blur(8px);
+  transition:all .18s;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.map-quickbar .mqb-ship{background:rgba(79,195,247,.22);border:1px solid rgba(79,195,247,.55);color:#5cbbff}
+.map-quickbar .mqb-fleet{background:rgba(167,139,250,.22);border:1px solid rgba(167,139,250,.5);color:#a78bfa}
+.map-quickbar .mqb-market{background:rgba(160,100,220,.18);border:1px solid rgba(160,100,220,.45);color:#c084fc}
+.map-quickbar button:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.map-quickbar button:active{filter:brightness(.85);transform:translateY(0)}
+@media(min-width:769px){.map-quickbar{bottom:max(80px,calc(env(safe-area-inset-bottom)+64px))}}
 .base-body{flex:1;overflow-y:auto;padding:16px 18px}
 .base-body::-webkit-scrollbar{width:3px}
 .base-body::-webkit-scrollbar-thumb{background:rgba(255,120,60,.2);border-radius:2px}
@@ -6213,19 +6242,34 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
     </div>
 
-    <div class="base-tabs">
-      <div class="base-tab active" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
-      <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')"><span data-i18n="base_tab_mining">MINING</span><span class="tab-dot" id="miningDot"></span></div>
-      <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests">QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
-      <div class="base-tab" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" data-i18n="base_tab_shop" style="color:#ffd54f"><span>🛒 SHOP</span><span class="tab-dot" id="shopDot"></span></div>
-      <div class="base-tab" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
-      <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
-      <div class="base-tab" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
-      <div class="base-tab" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
-      <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
-      <div class="base-tab" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
-      <div class="base-tab" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span>⚔ PVP</span><span class="tab-dot" id="pvpDot"></span></div>
-      <div class="base-tab" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
+    <!-- 대카테고리 바 -->
+    <div class="base-cat-row" id="baseCatRow">
+      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)">🗺️ 영토</button>
+      <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)">⚓ 함대</button>
+      <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)">💰 경제</button>
+      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)">📋 임무</button>
+      <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)">🏛️ 커뮤니티</button>
+    </div>
+    <!-- 서브탭 (카테고리별로 보임/숨김) -->
+    <div class="base-tabs" id="baseTabsRow">
+      <!-- 영토 -->
+      <div class="base-tab cat-show active" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span>내 영토</span><span class="tab-dot" id="territoryDot"></span></div>
+      <div class="base-tab" data-cat="territory" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')"><span>채굴</span><span class="tab-dot" id="miningDot"></span></div>
+      <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span>섹터</span><span class="tab-dot" id="sectorsDot"></span></div>
+      <!-- 함대 -->
+      <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this)" style="color:#5cbbff"><span>⚓ 함대</span></div>
+      <div class="base-tab" data-cat="fleet" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span>⚔ PVP</span><span class="tab-dot" id="pvpDot"></span></div>
+      <!-- 경제 -->
+      <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span>🛒 상점</span><span class="tab-dot" id="shopDot"></span></div>
+      <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span>마켓</span><span class="tab-dot" id="marketDot"></span></div>
+      <!-- 임무 (퀘스트/작전/수송/시즌 — 직접 행동·진행 계열) -->
+      <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span>캠페인/퀘스트</span><span class="tab-dot" id="questsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span>작전</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span>수송</span><span class="tab-dot" id="transportDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span>시즌</span><span class="tab-dot" id="rankDot"></span></div>
+      <!-- 커뮤니티 (길드·거버넌스) -->
+      <div class="base-tab" data-cat="community" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span>길드</span><span class="tab-dot" id="guildDot"></span></div>
+      <div class="base-tab" data-cat="community" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span>거버넌스</span><span class="tab-dot" id="governDot"></span></div>
     </div>
     <div class="base-body">
 
@@ -6408,6 +6452,35 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="tdescCurrentWrap" style="display:none"><div id="tdescCurrentText"></div></div>
           <textarea id="tdescTextInput" maxlength="200" rows="3" oninput="document.getElementById('tdescCharCount').textContent=this.value.length+'/200'"></textarea>
           <div id="tdescCharCount">0/200</div><div id="tdescCostHint"></div><div id="myTdescList"></div>
+        </div>
+      </div>
+
+      <!-- TAB: FLEET COMMAND (⚓ 함대 카테고리 전용 허브) -->
+      <div class="base-pane" id="basePane_fleet">
+        <div style="margin-bottom:14px;padding:14px;border-radius:10px;background:linear-gradient(135deg,rgba(79,195,247,.1),rgba(79,195,247,.02));border:1px solid rgba(79,195,247,.3)">
+          <div style="font-size:12px;font-weight:800;color:#5cbbff;letter-spacing:1px;margin-bottom:12px">⚓ 함대 사령부</div>
+          <!-- 주요 액션 4버튼 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <button type="button" onclick="openShipyard()" style="padding:16px 10px;border-radius:10px;background:linear-gradient(135deg,rgba(79,195,247,.2),rgba(79,195,247,.05));border:1px solid rgba(79,195,247,.45);color:#5cbbff;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.4px;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <span style="font-size:22px">🔨</span>조선소
+            </button>
+            <button type="button" onclick="openFleetCmd()" style="padding:16px 10px;border-radius:10px;background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(167,139,250,.05));border:1px solid rgba(167,139,250,.45);color:#a78bfa;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.4px;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <span style="font-size:22px">⚔</span>내 함대
+            </button>
+            <button type="button" onclick="openTacticalLab()" style="padding:16px 10px;border-radius:10px;background:linear-gradient(135deg,rgba(206,147,216,.2),rgba(206,147,216,.05));border:1px solid rgba(206,147,216,.45);color:#ce93d8;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.4px;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <span style="font-size:22px">🧪</span>전술랩
+            </button>
+            <button type="button" onclick="switchBaseCat('fleet',document.querySelector('.bcat[data-cat=fleet]'));switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="padding:16px 10px;border-radius:10px;background:linear-gradient(135deg,rgba(255,138,128,.2),rgba(255,138,128,.05));border:1px solid rgba(255,138,128,.45);color:#ff8a80;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.4px;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <span style="font-size:22px">🔴</span>PVP 전투
+            </button>
+          </div>
+        </div>
+        <!-- 함대 현황 요약 -->
+        <div id="fleetTabSummary" style="margin-bottom:12px;font-size:10px;color:var(--tx3);text-align:center;padding:8px">로그인하면 함대 현황이 표시됩니다</div>
+        <!-- 월드 이벤트 -->
+        <div style="border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--mars);font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:8px">⚠ 활성 월드 이벤트</div>
+          <div id="fleetTabWorldEvents" style="display:flex;flex-direction:column;gap:5px;font-size:9px;color:var(--tx3)">Loading…</div>
         </div>
       </div>
 
@@ -8172,6 +8245,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <button onclick="cancelLandSelect();_showMobSizeControls(false)" style="padding:8px 0;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--tx3);font-family:var(--fn);font-size:11px;cursor:pointer;width:100%" data-i18n="cancel_btn">CANCEL</button>
     </div>
   </div>
+</div>
+
+<!-- 맵 퀵 접근 바 (조선소 / 함대 / 마켓) -->
+<div class="map-quickbar" id="mapQuickbar">
+  <button class="mqb-ship" type="button" onclick="openShipyard()" title="조선소">🔨 조선소</button>
+  <button class="mqb-fleet" type="button" onclick="openFleetCmd()" title="내 함대">⚓ 함대</button>
+  <button class="mqb-market" type="button" onclick="openBaseModal();switchBaseCat('economy',document.querySelector('.bcat[data-cat=economy]'));setTimeout(function(){switchBaseTab('market',document.getElementById('baseTabMarket'));},80)" title="마켓">💰 마켓</button>
 </div>
 
 <nav class="mob-bottom-nav" id="mobBottomNav">
@@ -20521,18 +20601,19 @@ var _baseUserData=null;
 function openBaseModal(){
   document.getElementById('baseModal').classList.add('open');
   try{trackQuestAction('visit_base',1)}catch(e){}
-  // Always start on MY TERRITORY tab
+  // 초기 카테고리: 영토
   try{
-    var territoryTab = document.getElementById('baseTabTerritory');
-    if(territoryTab){
-      switchBaseTab('territory', territoryTab);
-      if(typeof clearBaseTabDot==='function') clearBaseTabDot('territory');
-    }
-  }catch(_){}
+    var cat=window._lastBaseCat||'territory';
+    var catBtn=document.querySelector('.bcat[data-cat="'+cat+'"]');
+    switchBaseCat(cat, catBtn);
+  }catch(_){
+    try{
+      var territoryTab = document.getElementById('baseTabTerritory');
+      if(territoryTab){ switchBaseTab('territory', territoryTab); clearBaseTabDot('territory'); }
+    }catch(_e){}
+  }
   loadBaseData();
-  // 이미 claims 로드됐으면 BASE 영토 목록 즉시 업데이트
   try{ _updateBaseTerritoryGroupList(); }catch(_){}
-  // Load notification count on open
   setTimeout(loadNotifCount, 500);
 }
 function closeBaseModal(){
@@ -21817,31 +21898,64 @@ function loadSellView(){
 function openListModal(type,idVal,name,icon,enhLv){
   var w=(walletState&&walletState.address)||'';
   gameConfirm({
-    title:(t('mkt_list_title')||'List for Sale'), icon:icon||'💰',
-    body:'<div style="margin-bottom:8px;font-size:10px;color:#a064dc;font-weight:700">'+(icon||'')+(name||'Item')+(enhLv>0?' +'+enhLv:'')+'</div>'
-      +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'
-      +'<label style="font-size:9px;color:var(--tx3);min-width:40px">'+(t('mkt_price')||'Price')+'</label>'
-      +'<input id="mktListPrice" type="number" min="1" placeholder="100" style="flex:1;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:4px;font-family:var(--fn)">'
-      +'<select id="mktListCurrency" style="font-size:10px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:4px;font-family:var(--fn)"><option value="GP">GP</option><option value="PP">PP</option></select>'
+    title:(t('mkt_list_title')||'판매 등록'), icon:icon||'💰',
+    body:'<div style="margin-bottom:10px;font-size:11px;color:#a064dc;font-weight:800">'+(icon||'')+(name||'Item')+(enhLv>0?' +'+enhLv:'')+'</div>'
+      // 판매 방식 선택
+      +'<div style="display:flex;gap:6px;margin-bottom:10px">'
+      +'<button type="button" id="listModeFixed" onclick="document.getElementById(\'listModeFixed\').style.background=\'rgba(160,100,220,.3)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(160,100,220,.7)\';document.getElementById(\'listModeAuction\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'none\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(160,100,220,.3);border:1px solid rgba(160,100,220,.7);color:#a064dc;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">💰 고정가</button>'
+      +'<button type="button" id="listModeAuction" onclick="document.getElementById(\'listModeAuction\').style.background=\'rgba(255,213,79,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,213,79,.6)\';document.getElementById(\'listModeFixed\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'block\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">🔨 경매</button>'
       +'</div>'
-      +'<div style="font-size:8px;color:var(--tx3)">'+(t('mkt_fee_note')||'Listing fee: 2 GP · Sale fee: 5%')+'</div>',
-    info:[], confirmText:t('mkt_list_confirm')||'LIST FOR SALE'
+      // 가격
+      +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">시작가</label>'
+      +'<input id="mktListPrice" type="number" min="1" placeholder="100" style="flex:1;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
+      +'<select id="mktListCurrency" style="font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="GP">GP</option><option value="PP">PP</option></select>'
+      +'</div>'
+      // 경매 전용 필드
+      +'<div id="listAuctionFields" style="display:none;border-top:1px solid rgba(255,213,79,.15);padding-top:8px;margin-bottom:8px">'
+      +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">즉구가</label>'
+      +'<input id="mktAuctionBuyout" type="number" min="1" placeholder="즉시구매 (선택)" style="flex:1;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)">'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;align-items:center">'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">기간</label>'
+      +'<select id="mktAuctionDur" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="1">1시간</option><option value="6">6시간</option><option value="12">12시간</option><option value="24" selected>24시간</option><option value="48">48시간</option><option value="72">72시간</option></select>'
+      +'</div>'
+      +'</div>'
+      +'<div style="font-size:8px;color:var(--tx3)">수수료: 등록 2GP · 낙찰 5%</div>',
+    info:[], confirmText:'등록하기'
   }).then(function(ok){
     if(!ok) return;
     var priceVal=parseFloat(document.getElementById('mktListPrice').value);
     var curr=document.getElementById('mktListCurrency').value;
-    if(!priceVal||priceVal<=0){showToast('Enter a valid price','error');return;}
-    var body={wallet:w,type:type,price:priceVal,currency:curr};
-    if(type==='claim') body.claimId=idVal; else body.instanceId=idVal;
-    fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-    .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
-      showToast('✅ '+(type==='claim'?(t('mkt_listed_territory')||'Territory listed on marketplace!'):(t('mkt_listed')||'Item listed on marketplace!')));
-      refreshBalance();
-      loadSellView();
-      // Refresh FOR SALE map overlay + territory list if claim was listed
-      if(type==='claim'){ try{loadForSaleOverlay();}catch(_){} try{_updateMyTerritories();}catch(_){} }
-    }).catch(function(){showToast('Listing failed','error')});
+    if(!priceVal||priceVal<=0){showToast('가격을 입력하세요','error');return;}
+    var isAuction=document.getElementById('listModeAuction').style.borderColor.indexOf('255,213')>=0;
+    if(isAuction){
+      // 경매 등록
+      var buyout=parseFloat(document.getElementById('mktAuctionBuyout').value)||null;
+      var dur=parseInt(document.getElementById('mktAuctionDur').value)||24;
+      var aBody={wallet:w,listingType:type,startPrice:priceVal,currency:curr,durationHours:dur};
+      if(buyout&&buyout>priceVal) aBody.buyoutPrice=buyout;
+      if(type==='claim') aBody.claimId=idVal; else aBody.itemInstanceId=idVal;
+      fetch('/api/auction/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(aBody)})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d.error||!d.success){showToast(d.error||'경매 등록 실패','error');return;}
+        showToast('🔨 경매 등록 완료! '+dur+'시간 진행');
+        refreshBalance(); loadSellView();
+        if(type==='claim'){try{loadForSaleOverlay();}catch(_){}try{_updateMyTerritories();}catch(_){}}
+      }).catch(function(){showToast('경매 등록 실패','error');});
+    } else {
+      // 고정가 등록
+      var body={wallet:w,type:type,price:priceVal,currency:curr};
+      if(type==='claim') body.claimId=idVal; else body.instanceId=idVal;
+      fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){return r.json()}).then(function(d){
+        if(d.error){showToast(d.error,'error');return;}
+        showToast('✅ '+(type==='claim'?'영토를 마켓에 등록했습니다!':'아이템을 마켓에 등록했습니다!'));
+        refreshBalance(); loadSellView();
+        if(type==='claim'){try{loadForSaleOverlay();}catch(_){}try{_updateMyTerritories();}catch(_){}}
+      }).catch(function(){showToast('등록 실패','error');});
+    }
   });
 }
 
@@ -22167,12 +22281,79 @@ function attemptEnhance(instanceId){
 // Load enhancement data on init
 setTimeout(function(){ loadEnhancementData(); },3000);
 
+// ── 함대 탭 요약 로드 ──────────────────────────────────────────────
+function _loadFleetTabSummary(){
+  var w=(walletState&&walletState.address)||'';
+  var sumEl=document.getElementById('fleetTabSummary');
+  var evEl=document.getElementById('fleetTabWorldEvents');
+  if(!w){if(sumEl)sumEl.textContent='로그인하면 함대 현황이 표시됩니다';return;}
+  if(sumEl){
+    fetch('/api/fleets?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}).then(function(d){
+      var fleets=d.fleets||[];
+      if(!fleets.length){sumEl.textContent='보유 함대 없음 — 조선소에서 함선을 건조하세요';return;}
+      var html='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      fleets.forEach(function(f){
+        html+='<div style="padding:6px 10px;border-radius:6px;background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);font-size:9px;color:#5cbbff">'
+          +'<div style="font-weight:700">⚓ '+(f.name||'Fleet')+'</div>'
+          +'<div style="color:var(--tx3);margin-top:2px">'+(f.ship_count||0)+'척</div>'
+          +'</div>';
+      });
+      html+='</div>';
+      sumEl.innerHTML=html;
+    }).catch(function(){sumEl.textContent='함대 정보 로드 실패';});
+  }
+  // 월드이벤트는 기존 카드 내용 재활용
+  if(evEl){
+    try{
+      var srcEl=document.getElementById('fcmdWorldEventsList');
+      if(srcEl)evEl.innerHTML=srcEl.innerHTML;
+    }catch(_){}
+  }
+}
+
+// ── 대카테고리 전환 ──────────────────────────────────────────────────
+function switchBaseCat(cat, el) {
+  window._lastBaseCat = cat;
+  // 카테고리 버튼 활성
+  document.querySelectorAll('.bcat').forEach(function(b){ b.classList.remove('active'); });
+  if(el) el.classList.add('active');
+  else {
+    var btn=document.querySelector('.bcat[data-cat="'+cat+'"]');
+    if(btn) btn.classList.add('active');
+  }
+  // 서브탭 보임/숨김
+  document.querySelectorAll('.base-tab').forEach(function(t){
+    if(t.dataset.cat===cat){ t.classList.add('cat-show'); }
+    else { t.classList.remove('cat-show'); }
+  });
+  // 해당 카테고리의 첫 번째 탭 자동 선택
+  var first=document.querySelector('.base-tab[data-cat="'+cat+'"]');
+  if(first) first.click();
+}
+
 function switchBaseTab(tab,el){
   document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
   document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
   // el can be null when called programmatically — find tab button by id fallback
   if(!el) el = document.getElementById('baseTab'+tab.charAt(0).toUpperCase()+tab.slice(1));
-  if(el) el.classList.add('active');
+  if(el) {
+    el.classList.add('active');
+    // 해당 탭의 카테고리도 활성화
+    var cat = el.dataset && el.dataset.cat;
+    if(cat) {
+      var activeCat = document.querySelector('.bcat.active');
+      if(!activeCat || activeCat.dataset.cat !== cat) {
+        // 카테고리 버튼만 업데이트 (재귀 방지를 위해 switchBaseCat 호출 안 함)
+        document.querySelectorAll('.bcat').forEach(function(b){ b.classList.remove('active'); });
+        var catBtn = document.querySelector('.bcat[data-cat="'+cat+'"]');
+        if(catBtn) catBtn.classList.add('active');
+        document.querySelectorAll('.base-tab').forEach(function(t){
+          if(t.dataset.cat===cat) t.classList.add('cat-show');
+          else t.classList.remove('cat-show');
+        });
+      }
+    }
+  }
   var pane = document.getElementById('basePane_'+tab);
   if(pane) pane.classList.add('active');
   // Stop polls when leaving tabs
@@ -22184,6 +22365,7 @@ function switchBaseTab(tab,el){
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} }
+  if(tab==='fleet') { try{_loadFleetTabSummary();}catch(_e){} }
   try{ clearBaseTabDot(tab); }catch(_e){}
 }
 
