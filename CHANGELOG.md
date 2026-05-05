@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — Static QA: CV campaign simulator bug fix (v5.90)
+
+- **[버그 수정] CV 챕터 시뮬레이터 없음**: CV CH1~CH10 전체가 `simulateChapter()`에서 MCC CH1(`simulateCh1`)으로 폴백되는 버그를 수정했다. `simulateCvChapter(progress)` (CH1~9 공통)와 `simulateCvCh10(progress)` (엔딩)를 추가하고 `simulateChapter()` 분기에 등록했다.
+- **[버그 수정] CV 보상 계산기 없음**: `calculateRewards()`도 CV 챕터에서 MCC CH1 보상으로 폴백되는 버그를 수정했다. `calculateCvChapterRewards(progress, sim)` (CH1~9)와 `calculateCvCh10Rewards(progress, sim)` (엔딩 A/B/C/D 분기)를 추가했다.
+- **[버그 수정] CV_CH*_ID 상수 미정의**: `CV_CH1_ID` ~ `CV_CH10_ID` 상수 10개를 파일 상단에 추가했다. FSP와 동일한 패턴.
+- **[버그 수정] CV CH10 ending choice 미검증**: `complete()`의 ending choice 요구 조건이 MCC CH10만 확인했다. `FSP_CH10_ID`, `CV_CH10_ID`를 포함하는 조건으로 확장했다. CV CH10은 `validateChapterChoice` 함수가 처리하지 않으므로 choice 요구만 적용하고 라우트 검증은 skip.
+- **[버그 수정] cv_raider / cv_bomber 함선 코드 미매핑**: `campaignShipRewardPlan`에 `cv_raider→cv_int`, `cv_bomber→cv_bomb`, `cv_titan→cv_titan`, `fsp_ironclad→fsp_bs` 매핑을 추가했다. 미매핑 상태로는 inbox 함선 보상 수령 시 빈 함선이 지급되는 대신 추상 보상 안내만 나왔다.
+- **정적 QA 통과 항목**: 마켓 필터 `size_class` 불일치 없음, objective stat 키 전체 정합, battleEngine bonus_* null 가드, cmdFocus sort null 가드, campaign_reward_inbox 컬럼명 일치 확인.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `git diff --check` 통과
+
 ## 2026-05-05 — Ship market filter/sort UI (v5.89)
 
 - **파벌 필터 칩 추가**: SHIP MARKET 탭 상단에 ALL / MCC / FSP / CV 파벌 필터 칩을 추가했다. 선택한 파벌 코드와 일치하는 함선만 표시된다.

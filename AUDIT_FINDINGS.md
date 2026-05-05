@@ -1,3 +1,26 @@
+# OCCUPY MARS — Codebase Audit (v5.90 / 2026-05-05)
+
+## ✅ v5.90 Static QA Pass — CV 시뮬레이터 버그 수정 + 마켓 필터 검증
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| **[버그]** CV CH1~10 `simulateChapter()` 폴백 | ✅ 수정 | CV 챕터 전체가 MCC CH1 시뮬레이터로 폴백되던 버그. `simulateCvChapter()` / `simulateCvCh10()` 추가 및 `simulateChapter()` 분기 등록. |
+| **[버그]** CV CH1~10 `calculateRewards()` 폴백 | ✅ 수정 | `calculateCvChapterRewards()` / `calculateCvCh10Rewards()` 추가 및 `calculateRewards()` 분기 등록. |
+| **[버그]** CV_CH*_ID 상수 없음 | ✅ 수정 | `CV_CH1_ID` ~ `CV_CH10_ID` 상수 10개 추가. |
+| **[버그]** CV CH10 ending choice 미검증 | ✅ 수정 | `complete()`의 ending choice 요구 분기를 `CH10_ID || FSP_CH10_ID || CV_CH10_ID`로 확장. |
+| **[버그]** `cv_raider`, `cv_bomber`, `cv_titan` 함선 코드 매핑 없음 | ✅ 수정 | `campaignShipRewardPlan`에 `cv_raider→cv_int`, `cv_bomber→cv_bomb`, `cv_titan→cv_titan` 추가. |
+| 마켓 필터 `size_class` 필드명 불일치 | ✅ 확인 | API는 `size_class` 반환, 클라이언트도 `s.size_class||s.size` 로 먼저 체크. 불일치 없음. |
+| 모든 objective stat 키가 `getObjectiveState()`에 존재 | ✅ 확인 | OBJECTIVE_PRESETS에서 사용하는 10개 stat 키가 모두 반환됨. |
+| battleEngine bonus_* null 처리 | ✅ 확인 | `|| 0` 가드 있음. |
+| `cmdFocus` sort null 가드 | ✅ 확인 | `(b.flagship?.type.r||0)` 가드 확인. |
+| `campaign_reward_inbox.wallet` 컬럼 일치 | ✅ 확인 | 스키마는 `wallet`, 쿼리도 `LOWER(wallet)` 사용. 일치. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.89 / 2026-05-05)
 
 ## ✅ v5.89 Ship Market Filter/Sort UI — 완료

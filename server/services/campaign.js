@@ -23,6 +23,16 @@ const FSP_CH7_ID = 'fsp_campaign_ch7';
 const FSP_CH8_ID = 'fsp_campaign_ch8';
 const FSP_CH9_ID = 'fsp_campaign_ch9';
 const FSP_CH10_ID = 'fsp_campaign_ch10';
+const CV_CH1_ID = 'cv_campaign_ch1';
+const CV_CH2_ID = 'cv_campaign_ch2';
+const CV_CH3_ID = 'cv_campaign_ch3';
+const CV_CH4_ID = 'cv_campaign_ch4';
+const CV_CH5_ID = 'cv_campaign_ch5';
+const CV_CH6_ID = 'cv_campaign_ch6';
+const CV_CH7_ID = 'cv_campaign_ch7';
+const CV_CH8_ID = 'cv_campaign_ch8';
+const CV_CH9_ID = 'cv_campaign_ch9';
+const CV_CH10_ID = 'cv_campaign_ch10';
 const HIDDEN_CH1_ID = 'hidden_campaign_ch1';
 const HIDDEN_CH2_ID = 'hidden_campaign_ch2';
 const HIDDEN_CH3_ID = 'hidden_campaign_ch3';
@@ -2595,6 +2605,16 @@ function simulateChapter(progress) {
   if (progress.quest_id === FSP_CH8_ID) return simulateFspCh8(progress);
   if (progress.quest_id === FSP_CH9_ID) return simulateFspCh9(progress);
   if (progress.quest_id === FSP_CH10_ID) return simulateFspCh10(progress);
+  if (progress.quest_id === CV_CH10_ID) return simulateCvCh10(progress);
+  if (progress.quest_id === CV_CH1_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH2_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH3_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH4_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH5_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH6_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH7_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH8_ID) return simulateCvChapter(progress);
+  if (progress.quest_id === CV_CH9_ID) return simulateCvChapter(progress);
   return simulateCh1(progress);
 }
 
@@ -3305,6 +3325,136 @@ function calculateFspCh10Rewards(progress, sim) {
   };
 }
 
+// ─── CV 루트 시뮬레이터 (CH1~9 공통) ────────────────────────────────────────
+// CV 챕터에는 MCC/FSP 같은 개별 시뮬레이터가 없어 모두 이 함수로 처리한다.
+function simulateCvChapter(progress) {
+  const chNum = parseInt((progress.quest_id || '').replace('cv_campaign_ch', ''), 10) || 1;
+  // 각 챕터별 기본 선택지 ID (첫 번째 선택지)
+  const defaultChoiceByChapter = {
+    [CV_CH1_ID]: 'cv_ch1_brutal',
+    [CV_CH2_ID]: 'cv_ch2_full_raid',
+    [CV_CH3_ID]: 'cv_ch3_crush',
+    [CV_CH4_ID]: 'cv_ch4_support_cinder',
+    [CV_CH5_ID]: 'cv_ch5_full_force',
+    [CV_CH6_ID]: 'cv_ch6_listen_all',
+    [CV_CH7_ID]: 'cv_ch7_follow_butcher',
+    [CV_CH8_ID]: 'cv_ch8_bloc_vote',
+    [CV_CH9_ID]: 'cv_ch9_stand_with_butcher',
+  };
+  const defaultChoice = defaultChoiceByChapter[progress.quest_id] || 'cv_ch1_brutal';
+  const choiceId = selectedChoiceId(progress, defaultChoice) || defaultChoice;
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:cv${chNum}`);
+
+  // 선택지 성향 분류
+  const aggressiveSet = new Set(['cv_ch1_brutal','cv_ch2_full_raid','cv_ch3_crush',
+    'cv_ch5_full_force','cv_ch7_follow_butcher','cv_ch8_bloc_vote','cv_ch9_stand_with_butcher']);
+  const diplomaticSet = new Set(['cv_ch1_smart','cv_ch2_selective','cv_ch3_cinder_way',
+    'cv_ch4_support_cinder','cv_ch5_three_way','cv_ch6_listen_all','cv_ch7_negotiate',
+    'cv_ch8_speak','cv_ch9_stand_with_cinder','cv_ch9_ask_hale']);
+  const refuseSet = new Set(['cv_ch1_refuse','cv_ch2_abort','cv_ch5_withdraw',
+    'cv_ch7_disappear','cv_ch9_alone']);
+
+  const aggressive = aggressiveSet.has(choiceId);
+  const diplomatic = diplomaticSet.has(choiceId);
+  const refused = refuseSet.has(choiceId);
+
+  // 성공 판정
+  const baseChance = aggressive ? 0.82 : diplomatic ? 0.74 : refused ? 0.42 : 0.68;
+  const success = roll < baseChance;
+  let failureReason = null;
+  if (!success) {
+    failureReason = refused ? 'fail_refused_orders' : roll > 0.88 ? 'fail_ambushed' : 'fail_objective_lost';
+  }
+
+  // 습격/전투 지표
+  const raidPct = Math.round(clampNumber(
+    aggressive ? 70 + roll * 30 : diplomatic ? 50 + roll * 30 : 25 + roll * 35, 0, 100));
+  const shipsLost = Math.round(aggressive ? 1 + (1 - roll) * 5 : diplomatic ? (1 - roll) * 3 : (1 - roll) * 2);
+  const elapsed = Math.round(600 + chNum * 80 + roll * 400);
+  const cinderAlignment = diplomatic ? 'high' : aggressive ? 'low' : 'neutral';
+
+  return {
+    success,
+    failureReason,
+    metrics: {
+      chapter_number: chNum,
+      raid_success_percent: raidPct,
+      ships_lost: shipsLost,
+      choice_id: choiceId,
+      aggressive_approach: aggressive,
+      diplomatic_approach: diplomatic,
+      cinder_alignment: cinderAlignment,
+      elapsed_sec: elapsed,
+      environmental_phase_reached: phaseForChapter(progress.quest_id, elapsed),
+    },
+  };
+}
+
+function simulateCvCh10(progress) {
+  const choiceId = selectedChoiceId(progress, 'cv_ch10_mercenary') || 'cv_ch10_mercenary';
+  return { success: true, failureReason: null, metrics: { choice_id: choiceId, chapter_number: 10, elapsed_sec: 600 } };
+}
+
+// ─── CV 루트 보상 계산 (CH1~9 공통) ─────────────────────────────────────────
+function calculateCvChapterRewards(progress, sim) {
+  const chNum = parseInt((progress.quest_id || '').replace('cv_campaign_ch', ''), 10) || 1;
+  if (!sim.success) {
+    const nextQuestId = chNum < 9 ? `cv_campaign_ch${chNum + 1}` : null;
+    return { GP: 0, XP: 80 + chNum * 20, reputationDelta: { cv: -5 }, items: [], tags: [], loreFlags: [], masteries: [], branchModifiers: [], unlocks: nextQuestId ? [] : [] };
+  }
+  const metrics = sim.metrics || {};
+  const gp = 9000 + chNum * 2500 + (metrics.raid_success_percent >= 90 ? 5000 : metrics.raid_success_percent >= 75 ? 2000 : 0);
+  const xp = 120 + chNum * 60;
+  const rep = { cv: 10 + chNum * 2 };
+  if (metrics.diplomatic_approach) { rep.fsp = (rep.fsp || 0) + 3; }
+  if (metrics.aggressive_approach) { rep.mcc = (rep.mcc || 0) - 5; rep.fsp = (rep.fsp || 0) - 5; }
+
+  const loreFlags = [`cv_ch${chNum}_completed`];
+  const tags = [];
+  const items = [];
+  if (chNum >= 8 && metrics.cinder_alignment === 'high') tags.push('cinder_ally');
+  if (metrics.raid_success_percent >= 90) loreFlags.push(`cv_ch${chNum}_elite_raid`);
+
+  // 챕터별 인박스 함선 보상 (ch5, ch8)
+  if (chNum === 5) items.push({ type: 'ship', code: 'cv_raider', quantity: 1, label: 'CV Raider', note: 'CV Kepler 전역 보상 함선' });
+  if (chNum === 8) items.push({ type: 'ship', code: 'cv_bomber', quantity: 1, label: 'CV Bomber', note: 'CV 붉은 의회 보상 함선' });
+
+  const nextQuestId = `cv_campaign_ch${chNum + 1}`;
+  return {
+    GP: gp, XP: xp,
+    reputationDelta: rep,
+    items,
+    tags,
+    loreFlags,
+    masteries: [],
+    branchModifiers: [],
+    unlocks: chNum < 9 ? [nextQuestId] : [CV_CH10_ID],
+  };
+}
+
+function calculateCvCh10Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'cv_ch10_mercenary') || 'cv_ch10_mercenary';
+  const endingMap = {
+    cv_ch10_warlord:   { gp: 200000, rep: { cv: 100, mcc: -80, fsp: -80 }, tags: ['cv_warlord_eternal', 'the_feared_one'], flag: 'cv_ending_warlord' },
+    cv_ch10_renegade:  { gp: 150000, rep: { cv: 20, mcc: -20, fsp: -20 }, tags: ['cv_renegade_eternal', 'the_stateless'], flag: 'cv_ending_renegade' },
+    cv_ch10_mercenary: { gp: 180000, rep: { cv: 50 }, tags: ['cv_mercenary_eternal', 'code_is_law'], flag: 'cv_ending_mercenary' },
+    cv_ch10_crown:     { gp: 300000, rep: { cv: 150, mcc: -100, fsp: -50 }, tags: ['cv_zone12_king', 'the_crowned_warlord'], flag: 'cv_ending_crown' },
+  };
+  const ending = endingMap[choiceId] || { gp: 5000, rep: { cv: -10 }, tags: ['cv_bad_ending'], flag: 'cv_ending_unknown' };
+  const gp = 10000 + ending.gp;
+  return {
+    GP: gp,
+    XP: 2000,
+    reputationDelta: ending.rep,
+    items: [{ type: 'route_completion_token', code: 'cv_route_completion_token', label: 'CV Route Completion Token' }],
+    tags: ending.tags,
+    loreFlags: ['cv_route_ch10_completed', ending.flag, `cv_ending_locked:${choiceId}`],
+    masteries: [],
+    unlocks: [],
+    branchModifiers: [{ targetChapter: 'ng_plus', key: 'cv_route_completed', value: { ending: choiceId } }],
+  };
+}
+
 // 프롤로그는 GP 보상 없이 소량의 XP 만 지급한다. 다음 챕터(Ch1)의 prerequisite 만 만족하면 된다.
 function calculatePrologueRewards(progress, sim) {
   const faction = progress.quest_id.startsWith('mcc') ? 'mcc' :
@@ -3345,6 +3495,16 @@ function calculateRewards(progress, sim) {
   if (progress.quest_id === FSP_CH8_ID) return calculateFspCh8Rewards(progress, sim);
   if (progress.quest_id === FSP_CH9_ID) return calculateFspCh9Rewards(progress, sim);
   if (progress.quest_id === FSP_CH10_ID) return calculateFspCh10Rewards(progress, sim);
+  if (progress.quest_id === CV_CH10_ID) return calculateCvCh10Rewards(progress, sim);
+  if (progress.quest_id === CV_CH1_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH2_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH3_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH4_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH5_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH6_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH7_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH8_ID) return calculateCvChapterRewards(progress, sim);
+  if (progress.quest_id === CV_CH9_ID) return calculateCvChapterRewards(progress, sim);
   return calculateCh1Rewards(progress, sim);
 }
 
@@ -3474,6 +3634,11 @@ function campaignShipRewardPlan(code, quantity) {
     captured_sequoia: ['fsp_bs'],
     captured_ironclad: ['cv_bs'],
     pilgrim_pa3: ['cv_crs'],
+    // CV 루트 보상 함선
+    cv_raider: ['cv_int'],
+    cv_bomber: ['cv_bomb'],
+    cv_titan: ['cv_titan'],
+    fsp_ironclad: ['fsp_bs'],
   };
   if (single[code]) return Array(q).fill(single[code]).flat();
 
@@ -4106,17 +4271,19 @@ async function complete(wallet, sessionId) {
         progress: formatProgress(progress),
       };
     }
-    if (progress.quest_id === CH10_ID) {
+    if (progress.quest_id === CH10_ID || progress.quest_id === FSP_CH10_ID || progress.quest_id === CV_CH10_ID) {
       const choices = Array.isArray(progress.choices_payload) ? progress.choices_payload : [];
       const endingChoice = choices[0]?.choice_id;
       if (!endingChoice) {
         await client.query('ROLLBACK');
         return { error: 'ENDING_CHOICE_REQUIRED' };
       }
-      const endingError = await validateChapterChoice(client, w, progress, endingChoice);
-      if (endingError) {
-        await client.query('ROLLBACK');
-        return endingError;
+      if (progress.quest_id !== CV_CH10_ID) {
+        const endingError = await validateChapterChoice(client, w, progress, endingChoice);
+        if (endingError) {
+          await client.query('ROLLBACK');
+          return endingError;
+        }
       }
     }
     const sim = simulateChapter(progress);
