@@ -2588,6 +2588,28 @@ async function boot(){
   requestAnimationFrame(loop);
   // ws 연결 — battle 페이지인 경우만 (iframe 안에서 호출됨)
   connectBattleWs();
+
+  // ✅ [리플레이 하이라이트] startTick 파라미터로 자동 패스트포워드
+  const _startTick = parseInt(new URLSearchParams(location.search).get('startTick') || '0');
+  if (_startTick > 0) {
+    // 서버 tick × 200ms/tick ÷ 8 배속 = 패스트포워드 필요 시간(ms)
+    const _ffDuration = Math.min(_startTick * 200 / 8, 12000);
+    setSimSpeed(8);
+    // 오버레이 표시
+    const _ffOverlay = document.createElement('div');
+    _ffOverlay.id = 'ffOverlay';
+    _ffOverlay.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);border:1px solid rgba(91,184,232,.5);border-radius:8px;padding:12px 20px;color:#4fc3f7;font-family:Orbitron,monospace;font-size:12px;z-index:9999;pointer-events:none;text-align:center';
+    _ffOverlay.innerHTML = '⏩ 하이라이트 장면으로 이동 중...';
+    document.body.appendChild(_ffOverlay);
+    setTimeout(function(){
+      setSimSpeed(1);
+      if (_ffOverlay && _ffOverlay.parentNode) {
+        _ffOverlay.innerHTML = '🎬 하이라이트 장면';
+        _ffOverlay.style.color = '#ffd700';
+        setTimeout(function(){ if (_ffOverlay.parentNode) _ffOverlay.parentNode.removeChild(_ffOverlay); }, 2000);
+      }
+    }, _ffDuration);
+  }
 }
 boot();
 </script>

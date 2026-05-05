@@ -1484,6 +1484,41 @@ async function start() {
       console.log('[BOUNTY] Expiry cleanup scheduler started (1h interval)');
     } catch(e) { console.warn('[BOUNTY] Could not init expiry scheduler:', e.message); }
 
+    // ── 비활성 유저 복귀 훅: 7일 이상 미접속 유저에게 알림 (매일 UTC 09:00 체크) ──
+    try {
+      const { notifyPlayer } = require('./db');
+      setInterval(async () => {
+        try {
+          const now = new Date();
+          // UTC 09:00 근처에만 실행 (1시간 윈도우)
+          if (now.getUTCHours() !== 9) return;
+          const { rows } = await pool.query(`
+            SELECT wallet_address FROM users
+            WHERE last_login_at IS NOT NULL
+              AND last_login_at < NOW() - INTERVAL '7 days'
+              AND last_login_at > NOW() - INTERVAL '30 days'
+              AND NOT EXISTS (
+                SELECT 1 FROM player_notifications
+                WHERE wallet_address = LOWER(users.wallet_address)
+                  AND type = 'return_reminder'
+                  AND created_at > NOW() - INTERVAL '7 days'
+              )
+            LIMIT 200
+          `);
+          for (const row of rows) {
+            notifyPlayer(
+              row.wallet_address.toLowerCase(),
+              'return_reminder',
+              '화성이 당신을 기다립니다! 오래 비운 사이 영토 수확을 챙기고 함대를 정비하세요.',
+              { days_absent: 7 }
+            ).catch(() => {});
+          }
+          if (rows.length > 0) console.log(`[RETURN-HOOK] Sent return reminder to ${rows.length} inactive users`);
+        } catch(e) { console.warn('[RETURN-HOOK] error:', e.message); }
+      }, 60 * 60 * 1000); // 매 1시간마다 UTC 체크
+      console.log('[RETURN-HOOK] Inactive user reminder scheduler started (1h check)');
+    } catch(e) { console.warn('[RETURN-HOOK] Could not init scheduler:', e.message); }
+
     // Start HTTP server
     const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);

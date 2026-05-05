@@ -376,6 +376,26 @@ router.get('/:id/report', async (req, res) => {
 });
 
 /**
+ * GET /api/battles/:id/highlights
+ * 전투 하이라이트 3장면 (리플레이 점프용 tick 반환)
+ */
+router.get('/:id/highlights', async (req, res) => {
+  try {
+    const battleId = parseInt(req.params.id);
+    if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
+
+    const report = await battleReport.generateBattleReport(battleId, '');
+    if (!report) return res.status(404).json({ error: 'BATTLE_NOT_FOUND' });
+
+    const highlights = report.highlights || [];
+    res.json({ success: true, highlights });
+  } catch (err) {
+    console.error('[battle] highlights error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
  * GET /api/battles/my-stats/:wallet
  * 플레이어 전투 통계 집계 (승률, KD, 연승, 파벌별 승률)
  */

@@ -1,4 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v6.10 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.11 / 2026-05-06)
+
+## ✅ v6.11 약점 개선 기획서 5대 기능 구현 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 장기 보유 보상 (hold_bonus_pct harvest) | ✅ | api.js extractor 블록 뒤에 추가. claims.hold_bonus_pct 적용 |
+| 영토 위협 알림 (hijack 선언 시 푸시) | ✅ | 침공 선언 성공 직후 notifyPlayer → territory_threatened |
+| 비활성 복귀 훅 | ✅ | server/index.js 스케줄러 — 7일+ 미접속 유저 daily UTC 09:00 체크, return_reminder |
+| 갤럭시 캘린더 7일 UI | ✅ | Daily OPS Board 상단에 7일 스트립 (오늘 강조, 이벤트 레이블) |
+| 리플레이 하이라이트 3장면 | ✅ | GET /api/battles/:id/highlights 신규. _loadBattleReport에 버튼 UI. openBattleViewerAt() + startTick 파라미터 + 자동 패스트포워드 오버레이 |
+| 장기 보유 보너스 생산 패널 표시 | ✅ | production 응답에 holdBonusPct/holdDays 추가. 프론트 PRODUCTION 섹션에 배지+% 표시 |
+
+---
 
 ## ✅ v6.10 전투 기함 cascade 제거 / OPS 30종 확장 — 완료
 

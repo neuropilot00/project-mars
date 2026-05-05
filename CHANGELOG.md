@@ -1,5 +1,28 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 약점 개선 기획서 5대 기능 전면 구현
+
+### `server/routes/api.js`
+- `harvest`: extractor 업그레이드 보너스 뒤에 `hold_bonus_pct` 장기 보유 보너스 적용
+- `hijack/declare-with-pp` 성공 시 수비 소유자에게 `territory_threatened` 알림
+- `/api/territory/:claimId/production` 응답에 `holdBonusPct`, `holdDays`, 장기 보유 modifier 추가
+
+### `server/routes/fleetBattles.js`
+- `GET /api/battles/:id/highlights` 신규 — 하이라이트 3장면 (first_kill/flagship_threatened/turning_point)
+
+### `server/index.js`
+- 비활성 복귀 훅: UTC 09:00 매일, 7~30일 미접속 유저 `return_reminder` 알림 (7일 중복 방지)
+
+### `index.html`
+- Daily OPS: 7일 갤럭시 캘린더 스트립 (`#dailyOpsWeekCalendar`), 오늘 강조
+- 전투 결과 리포트: 🎬 하이라이트 장면 버튼 3개, `openBattleViewerAt(battleId, tick)`
+- 영토 PRODUCTION: 장기 보유 보너스 배지(정착민/토지주/개척자) + % 표시
+
+### `assets/tactical-lab-v11.html`
+- `?startTick=N` 파라미터: x8 패스트포워드 후 x1 복귀, 이동 오버레이 표시
+
+---
+
 ## 2026-05-05 — 전투 기함 cascade 제거 / Daily OPS 30종 확장
 
 ### `server/services/battleEngine.js` — 전투 종료 조건 수정

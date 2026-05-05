@@ -1853,6 +1853,23 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
       }
     } catch (_) {}
 
+    // ✅ [영토 위협 알림] 공격 대상 영토 소유자에게 hijack 선언 알림
+    if (primaryDefWallet) {
+      try {
+        notifyPlayer(
+          primaryDefWallet.toLowerCase(),
+          'territory_threatened',
+          `영토가 공격받고 있습니다! ${walletLower.slice(0, 8)}…이 침공을 선언했습니다.`,
+          {
+            attacker: walletLower,
+            claim_id: primaryDefClaimId,
+            battle_id: result.phase1_battle_id || null,
+            lat: parsedLat, lng: parsedLng,
+          }
+        ).catch(() => {});
+      } catch (_nt) {}
+    }
+
     return res.json(result);
   } catch (err) {
     const errMap = {
@@ -2952,6 +2969,20 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
         }
       }
     } catch (_ext) { /* territory upgrade unavailable */ }
+
+    // ✅ [장기 보유 보상] hold_bonus_pct — 해당 클레임 장기 보유 시 채굴 보너스
+    // 7일 보유 → +3%, 30일 → +7%, 90일 → +12% (updateFieldRatings()가 매일 갱신)
+    try {
+      const holdRes = await client.query(
+        `SELECT hold_bonus_pct FROM claims
+         WHERE id = $1 AND LOWER(owner) = $2 AND deleted_at IS NULL`,
+        [claimId, w]
+      );
+      const holdBonus = parseFloat(holdRes.rows[0]?.hold_bonus_pct || 0);
+      if (holdBonus > 0) {
+        harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
+      }
+    } catch (_hb) { /* hold bonus unavailable */ }
 
     // (P1-1) cap 은 위에서 base 에 이미 적용됨 — 여기선 multipliers 누적 후 추가 cap 적용 안 함.
 
@@ -5223,6 +5254,8 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
     // 1. Claim + pixel count + sector
     const claimRes = await pool.query(`
       SELECT c.id, c.owner, c.image_url, c.adjacency_bonus,
+             COALESCE(c.hold_bonus_pct, 0) AS hold_bonus_pct,
+             COALESCE(c.longest_hold_days, 0) AS longest_hold_days,
              COUNT(p.lat) AS pixel_count,
              COALESCE(s.tier, 'frontier') AS sector_type,
              COALESCE(s.name, 'Uncharted') AS sector_name,
@@ -5231,7 +5264,7 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
       LEFT JOIN pixels p ON p.claim_id = c.id
       LEFT JOIN sectors s ON s.id = p.sector_id
       WHERE c.id = $1 AND c.deleted_at IS NULL
-      GROUP BY c.id, c.owner, c.image_url, c.adjacency_bonus, s.tier, s.name, s.id
+      GROUP BY c.id, c.owner, c.image_url, c.adjacency_bonus, c.hold_bonus_pct, c.longest_hold_days, s.tier, s.name, s.id
     `, [claimId]);
 
     if (!claimRes.rows.length) return res.status(404).json({ error: 'Claim not found' });
@@ -5323,6 +5356,9 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
     else if (sectorType === 'mid') modifiers.push({ label: 'Mid sector', labelKo: '미드 섹터', value: '+20%' });
     if (claim.image_url) modifiers.push({ label: 'Image active', labelKo: '이미지 등록됨', value: '+5%' });
     if (parseFloat(claim.adjacency_bonus) > 0) modifiers.push({ label: 'Adjacency bonus', labelKo: '인접 보너스', value: '+' + Math.round(parseFloat(claim.adjacency_bonus) * 100) + '%' });
+    // Hold bonus
+    const holdBonusPct = parseFloat(claim.hold_bonus_pct) || 0;
+    if (holdBonusPct > 0) modifiers.push({ label: 'Long hold bonus', labelKo: '장기 보유 보너스', value: '+' + holdBonusPct + '%' });
     // Include upgrade modifiers
     for (const um of upgradeModifiers) modifiers.push({ label: um.label, labelKo: um.label, value: um.value });
 
@@ -5374,7 +5410,9 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
         ppMin,
         ppMax,
         modifiers,
-        nextHarvestAt
+        nextHarvestAt,
+        holdBonusPct: holdBonusPct || 0,
+        holdDays: parseInt(claim.longest_hold_days) || 0,
       },
       upgrades: claimUpgrades,
       upgradeModifiers,
