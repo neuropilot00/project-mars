@@ -6547,11 +6547,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: FLEET COMMAND (⚓ 함대 카테고리 전용 허브) -->
       <div class="base-pane" id="basePane_fleet">
-        <!-- 빠른 액션 버튼 (작게) -->
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-          <button type="button" onclick="openShipyard()" style="padding:6px 14px;border-radius:16px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">🔨 <span data-i18n="fcmd_open_shipyard_short">Shipyard</span></button>
-          <button type="button" onclick="openFleetCmd()" style="padding:6px 14px;border-radius:16px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">⚔ <span data-i18n="fcmd_my_fleets_short">My Fleets</span></button>
-          <button type="button" onclick="openTacticalLab()" style="padding:6px 14px;border-radius:16px;background:rgba(206,147,216,.07);border:1px solid rgba(206,147,216,.25);color:rgba(206,147,216,.6);font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;margin-left:auto">🧪 <span data-i18n="fcmd_tactical_lab">Tactical Lab</span></button>
+        <!-- 빠른 액션 버튼 (크고 사각형) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+          <button type="button" onclick="openShipyard()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
+            <span style="font-size:22px;line-height:1">🔨</span>
+            <span data-i18n="fcmd_open_shipyard_short">Shipyard</span>
+          </button>
+          <button type="button" onclick="openFleetCmd()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(255,152,0,.12);border:1px solid rgba(255,152,0,.45);color:#ffaa33;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
+            <span style="font-size:22px;line-height:1">⚔</span>
+            <span data-i18n="fcmd_my_fleets_short">My Fleets</span>
+          </button>
+          <button type="button" onclick="openTacticalLab()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.4);color:#ce93d8;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
+            <span style="font-size:22px;line-height:1">🧪</span>
+            <span data-i18n="fcmd_tactical_lab_short">Tactical Lab</span>
+          </button>
         </div>
         <!-- 함대 현황 요약 -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -16200,7 +16209,7 @@ var I18N = {
     base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN',
     base_tab_transport: 'TRANSPORT', base_tab_quests_full: 'CAMPAIGN/QUESTS',
     bcat_territory: 'Territory', bcat_fleet: 'Fleet', bcat_economy: 'Economy', bcat_mission: 'Mission', bcat_community: 'Community',
-    fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_tactical_lab: 'Tactical Lab',
+    fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_tactical_lab: 'Tactical Lab', fcmd_tactical_lab_short: 'Tactical Lab',
     fleet_status_label: 'Fleet Status', fleet_world_events: 'Active World Events', btn_refresh: '↻ Refresh',
     hijack_no_fleet_auto_win: 'No enemy fleet — Auto Win (instant territory transfer)',
     hijack_no_fleet_label: 'No Fleet — Hijack Unavailable',
@@ -17040,7 +17049,7 @@ var I18N = {
     base_tab_shop: '상점', base_tab_market: '마켓', base_tab_guild: '길드', base_tab_govern: '거버넌스',
     base_tab_transport: '수송', base_tab_quests_full: '캠페인/퀘스트',
     bcat_territory: '영토', bcat_fleet: '함대 지휘부', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
-    fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_tactical_lab: '전술랩',
+    fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_tactical_lab: '전술랩', fcmd_tactical_lab_short: '전술 실험실',
     fleet_status_label: '내 함대 현황', fleet_world_events: '활성 월드 이벤트', btn_refresh: '↻ 새로고침',
     hijack_no_fleet_auto_win: '상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)',
     hijack_no_fleet_label: '함대 없음 — 하이젝 불가',
@@ -17877,7 +17886,7 @@ var I18N = {
     base_tab_shop: 'ショップ', base_tab_market: 'マーケット', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
     base_tab_transport: '輸送', base_tab_quests_full: 'キャンペーン/クエスト',
     bcat_territory: '領土', bcat_fleet: '艦隊', bcat_economy: '経済', bcat_mission: 'ミッション', bcat_community: 'コミュニティ',
-    fcmd_open_shipyard_short: '造船所', fcmd_my_fleets_short: '艦隊管理', fcmd_tactical_lab: '戦術ラボ',
+    fcmd_open_shipyard_short: '造船所', fcmd_my_fleets_short: '艦隊管理', fcmd_tactical_lab: '戦術ラボ', fcmd_tactical_lab_short: '戦術ラボ',
     fleet_status_label: '艦隊状況', fleet_world_events: 'アクティブイベント', btn_refresh: '↻ 更新',
     hijack_no_fleet_auto_win: '敵艦隊なし — 自動勝利（即時領土移転）',
     hijack_fleet_info_fail: '敵艦隊情報の読み込み失敗',
@@ -18679,7 +18688,7 @@ var I18N = {
     base_tab_shop: '商店', base_tab_market: '市场', base_tab_guild: '公会', base_tab_govern: '治理',
     base_tab_transport: '运输', base_tab_quests_full: '战役/任务',
     bcat_territory: '领土', bcat_fleet: '舰队', bcat_economy: '经济', bcat_mission: '任务', bcat_community: '社区',
-    fcmd_open_shipyard_short: '造船厂', fcmd_my_fleets_short: '我的舰队', fcmd_tactical_lab: '战术实验室',
+    fcmd_open_shipyard_short: '造船厂', fcmd_my_fleets_short: '我的舰队', fcmd_tactical_lab: '战术实验室', fcmd_tactical_lab_short: '战术实验室',
     fleet_status_label: '舰队状态', fleet_world_events: '活跃世界事件', btn_refresh: '↻ 刷新',
     hijack_no_fleet_auto_win: '无敌方舰队 — 自动胜利（即时领土转移）',
     hijack_fleet_info_fail: '加载敌方舰队信息失败',
