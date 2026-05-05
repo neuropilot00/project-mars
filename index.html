@@ -48644,53 +48644,71 @@ function showBattleResult() {
   const myWallet = (walletState?.address || '').toLowerCase();
   const participants = bv.battle?.participants || [];
   let mySide = null;
+  let atkParticipant = null, defParticipant = null;
   for (const p of participants) {
-    if ((p.wallet || '').toLowerCase() === myWallet) { mySide = p.side; break; }
+    if (p.side === 'atk') atkParticipant = p;
+    if (p.side === 'def') defParticipant = p;
+    if ((p.wallet || '').toLowerCase() === myWallet) mySide = p.side;
   }
   const iWon = mySide && mySide === winner;
   const iLost = mySide && winner && mySide !== winner;
 
+  // 스펙 wireframe: 헤더는 항상 "전투 결과 리포트"
   card.className = 'bv-result-card';
-  if (winner === 'atk') {
-    card.classList.add('atk-won');
-    title.style.color = '#4fc3f7';
-    title.textContent = '⚔ ATTACKERS WIN';
-  } else if (winner === 'def') {
-    card.classList.add('def-won');
-    title.style.color = '#ff7043';
-    title.textContent = '🛡 DEFENDERS HOLD';
-  } else {
-    card.classList.add('draw');
-    title.style.color = '#ffd700';
-    title.textContent = '≋ DRAW';
-  }
-  // 내 결과 강조
-  if (iWon) { subtitle.textContent = t('bv_my_victory'); subtitle.style.color='#66bb6a'; subtitle.style.fontWeight='bold'; }
-  else if (iLost) { subtitle.textContent = t('bv_my_defeat'); subtitle.style.color='#ef5350'; subtitle.style.fontWeight='bold'; }
-  else { subtitle.textContent = winner==='atk'?t('bv_atk_won'):winner==='def'?t('bv_def_won'):t('bv_draw_result'); subtitle.style.color=''; subtitle.style.fontWeight=''; }
+  if (winner === 'atk') card.classList.add('atk-won');
+  else if (winner === 'def') card.classList.add('def-won');
+  else card.classList.add('draw');
+
+  title.style.color = winner === 'atk' ? '#4fc3f7' : winner === 'def' ? '#ff7043' : '#ffd700';
+  title.style.fontSize = '20px';
+  title.style.letterSpacing = '2px';
+  title.innerHTML = '⚔&nbsp; 전투 결과 리포트';
+
+  // 부제목: 함대명 VS 함대명 + 내 승리/패배 배지
+  const atkName = (atkParticipant?.fleet_name || atkParticipant?.nickname || 'ATK');
+  const defName = (defParticipant?.fleet_name || defParticipant?.nickname || 'DEF');
+  const resultBadge = iWon
+    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">🏆 승리</span>`
+    : iLost
+    ? `<span style="background:#ef5350;color:#fff;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">💀 패배</span>`
+    : winner
+    ? `<span style="background:#ffd700;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">≋ 무승부</span>`
+    : '';
+  subtitle.innerHTML = `<span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(atkName)}</span> <span style="color:rgba(255,255,255,.3);margin:0 4px">VS</span> <span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(defName)}</span>${resultBadge}`;
+  subtitle.style.color = '';
+  subtitle.style.fontWeight = '';
+  subtitle.style.letterSpacing = '0';
 
   const atkWon = winner === 'atk';
   const defWon = winner === 'def';
   const atkIsMe = mySide === 'atk';
   const defIsMe = mySide === 'def';
-  const _myBadge = `<span style="background:currentColor;color:#000;font-size:10px;padding:1px 6px;border-radius:3px;vertical-align:middle;margin-left:4px;display:inline-block">${t('bv_my_badge')}</span>`;
+
+  // ATK/DEF 패널 내부에 "나" 배지 + 승리/패배 표시
+  const _meBadge = `<span style="background:#4fc3f7;color:#000;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:700">나</span>`;
+  const _winBadge = `<span style="background:#66bb6a;color:#000;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:700">WIN</span>`;
+  const _lossBadge = `<span style="background:rgba(239,83,80,.4);color:#ffb3b3;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:700">LOSS</span>`;
+
+  const atkResultBadge = atkWon ? _winBadge : (!atkWon && defWon) ? _lossBadge : '';
+  const defResultBadge = defWon ? _winBadge : (!defWon && atkWon) ? _lossBadge : '';
+
   stats.innerHTML = `
     <div class="bv-result-stat-group atk ${atkWon ? 'winner' : ''}${atkIsMe ? ' my-side' : ''}">
       <div class="bv-result-emblem atk">⚔</div>
-      <div class="bv-result-stat-label" style="color:#4fc3f7">ATTACKERS${atkIsMe ? _myBadge.replace('currentColor','#4fc3f7') : ''}</div>
-      <div class="bv-result-stat-row"><span>${t('bv_stat_total_ships')}</span><b>${bv.battle.atk_ships_total || 0}</b></div>
-      <div class="bv-result-stat-row"><span>${t('bv_stat_losses')}</span><b>${bv.battle.atk_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-label" style="color:#4fc3f7">ATK${atkIsMe ? _meBadge : ''}${atkResultBadge}</div>
+      <div class="bv-result-stat-row"><span>투입 함선</span><b>${bv.battle.atk_ships_total || 0}</b></div>
+      <div class="bv-result-stat-row"><span>격침</span><b style="color:#ef5350">${bv.battle.atk_ships_lost || 0}</b></div>
       <div class="bv-result-stat-row"><span>생존</span><b style="color:#66bb6a">${(bv.battle.atk_ships_total || 0) - (bv.battle.atk_ships_lost || 0)}</b></div>
-      <div class="bv-result-stat-row"><span>${t('bv_stat_damage')}</span><b>${formatNum(summary.atk?.damage_dealt || 0)}</b></div>
+      <div class="bv-result-stat-row"><span>총 데미지</span><b>${formatNum(summary.atk?.damage_dealt || 0)}</b></div>
     </div>
     <div class="bv-result-vs">VS</div>
     <div class="bv-result-stat-group def ${defWon ? 'winner' : ''}${defIsMe ? ' my-side' : ''}">
       <div class="bv-result-emblem def">🛡</div>
-      <div class="bv-result-stat-label" style="color:#ff7043">DEFENDERS${defIsMe ? _myBadge.replace('currentColor','#ff7043') : ''}</div>
-      <div class="bv-result-stat-row"><span>${t('bv_stat_total_ships')}</span><b>${bv.battle.def_ships_total || 0}</b></div>
-      <div class="bv-result-stat-row"><span>${t('bv_stat_losses')}</span><b>${bv.battle.def_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-label" style="color:#ff7043">DEF${defIsMe ? _meBadge.replace('#4fc3f7','#ff7043') : ''}${defResultBadge}</div>
+      <div class="bv-result-stat-row"><span>투입 함선</span><b>${bv.battle.def_ships_total || 0}</b></div>
+      <div class="bv-result-stat-row"><span>격침</span><b style="color:#ef5350">${bv.battle.def_ships_lost || 0}</b></div>
       <div class="bv-result-stat-row"><span>생존</span><b style="color:#66bb6a">${(bv.battle.def_ships_total || 0) - (bv.battle.def_ships_lost || 0)}</b></div>
-      <div class="bv-result-stat-row"><span>${t('bv_stat_damage')}</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
+      <div class="bv-result-stat-row"><span>총 데미지</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
     </div>
     <div id="bvReportSection" style="margin-top:12px;width:100%;border-top:1px solid rgba(255,255,255,.12);padding-top:10px">
       <div id="bvReportContent" style="color:rgba(255,255,255,.4);font-size:11px;text-align:center">${t('bv_report_loading')}</div>
