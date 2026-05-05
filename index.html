@@ -11593,28 +11593,11 @@ function _updateMyTerritories(){
     listEl.innerHTML='<div style="font-size:10px;color:var(--tx3);padding:4px 0">No territories yet</div>';
     return;
   }
-  // Group claims by _ownerGroups (merged territories = 1 entry)
-  var groups=_ownerGroups[myAddr]||[];
-  var usedIndices={};
-  var entries=[]; // [{claims:[], group, bounds, totalPP, hasImg}]
-  groups.forEach(function(grp){
-    var grpClaims=[];
-    var totalPP=0, hasImg=false;
-    grp.claimIndices.forEach(function(ci){
-      usedIndices[ci]=true;
-      var c=claims[ci];
-      if(c){
-        grpClaims.push(c);
-        totalPP+=(c.price||0);
-        if(c.imgUrl) hasImg=true;
-      }
-    });
-    if(grpClaims.length>0) entries.push({claims:grpClaims,group:grp,totalPP:totalPP,hasImg:hasImg});
-  });
-  // Add ungrouped claims (shouldn't happen normally, but safety)
-  mine.forEach(function(c){
-    var ci=claims.indexOf(c);
-    if(!usedIndices[ci]) entries.push({claims:[c],group:null,totalPP:c.price||0,hasImg:!!c.imgUrl});
+  // _myTerritoryGroups 헬퍼로 그룹 목록 가져오기 (BASE 내 영토 탭 공통 로직)
+  var grpList=_myTerritoryGroups(myAddr);
+  var entries=grpList.map(function(g){
+    var totalPP=g.claims.reduce(function(s,c){return s+(c.price||0);},0);
+    return {claims:g.claims,group:_ownerGroups[myAddr]?_ownerGroups[myAddr].find(function(og){return og.claimIndices[0]!==undefined&&claims[og.claimIndices[0]]&&claims[og.claimIndices[0]].id===g.primaryId;})||null:null,totalPP:totalPP,hasImg:g.hasImg,_grp:g};
   });
   if(countEl) countEl.textContent=entries.length;
   entries.forEach(function(entry,i){
@@ -11626,10 +11609,10 @@ function _updateMyTerritories(){
     mainRow.onmouseenter=function(){d.style.background='rgba(255,120,60,.15)'};
     mainRow.onmouseleave=function(){d.style.background='rgba(255,120,60,.06)'};
     var ec=entry.claims;
-    var b=entry.group?entry.group.bounds:null;
-    var centerLat=b?(b.minLat+b.maxLat)/2:ec[0].lat;
-    var centerLng=b?(b.minLng+b.maxLng)/2:ec[0].lng;
-    var totalPx=(entry.group&&entry.group.bounds&&entry.group.bounds.count)||ec.reduce(function(s,c){return s+(c._pixelCount||c.pixel_count||((c.w||c.size||10)*(c.h||c.size||10)));},0)||((ec[0].w||ec[0].size||10)*(ec[0].h||ec[0].size||10));
+    var g=entry._grp;
+    var centerLat=g?g.centerLat:ec[0].lat;
+    var centerLng=g?g.centerLng:ec[0].lng;
+    var totalPx=g?g.totalPx:ec.reduce(function(s,c){return s+((c.w||c.width||1)*(c.h||c.height||1));},0);
     var left=document.createElement('div');
     var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:9px">('+ec.length+' merged)</span>':'';
     left.innerHTML='<div style="font-size:10px;color:var(--tx2)">#'+(i+1)+' · '+centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'+subLabel+'</div><div style="font-size:9px;color:var(--tx3)">'+totalPx+'px · '+(entry.hasImg?'📷':'🏴 No image')+'</div>';
@@ -11739,6 +11722,37 @@ var GRID_SIZE=0.22;        // 0.22° per pixel-cell (must match server)
 // Price: $0.1/px → 1×1=$0.1, 10×10=$10, 100×100=$1000
 
 var claims=[];
+
+// ── 내 영토 그룹 목록 (BASE 내 영토 탭과 동일 로직) ─────────────────────────
+// 반환: [{claims:[...], centerLat, centerLng, totalPx, label, primaryId, hasImg}]
+function _myTerritoryGroups(wallet){
+  wallet=(wallet||'').toLowerCase();
+  var myGroups=_ownerGroups[wallet]||[];
+  var result=[];
+  if(myGroups.length>0){
+    myGroups.forEach(function(grp,i){
+      var ec=grp.claimIndices.map(function(ci){return claims[ci];}).filter(Boolean);
+      if(!ec.length) return;
+      var b=grp.bounds;
+      var centerLat=b&&b.minLat!==Infinity?(b.minLat+b.maxLat)/2:ec[0].lat;
+      var centerLng=b&&b.minLng!==Infinity?(b.minLng+b.maxLng)/2:ec[0].lng;
+      var totalPx=(b&&b.count>0)?b.count:ec.reduce(function(s,c){return s+((c.w||c.width||1)*(c.h||c.height||1));},0);
+      var mergedSuffix=ec.length>1?' ('+ec.length+'개)':'';
+      var name=ec.map(function(c){return c.customName||c.custom_name;}).filter(Boolean)[0]||null;
+      var label=(name||(centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'))+mergedSuffix+' · '+totalPx+'px';
+      var hasImg=ec.some(function(c){return c.imgUrl||c.image_url;});
+      result.push({claims:ec,centerLat:centerLat,centerLng:centerLng,totalPx:totalPx,label:label,primaryId:ec[0].id,hasImg:hasImg});
+    });
+  } else {
+    var myClaims=(window.claims||[]).filter(function(c){return (c.owner||'').toLowerCase()===wallet;});
+    myClaims.forEach(function(c){
+      var px=(c.w||c.width||1)*(c.h||c.height||1);
+      var label=(c.customName||c.custom_name||(c.lat.toFixed(1)+'°, '+c.lng.toFixed(1)+'°'))+' · '+px+'px';
+      result.push({claims:[c],centerLat:c.lat,centerLng:c.lng,totalPx:px,label:label,primaryId:c.id,hasImg:!!(c.imgUrl||c.image_url)});
+    });
+  }
+  return result;
+}
 
 // Image cache for instant recomposite
 var imgCache={};
@@ -33804,11 +33818,11 @@ function renderShieldPanel(catalog, shields) {
 function openShieldModal() {
   if (!walletState.address) { showToast('Connect wallet first', 'error'); return; }
   if (!_shieldCatalog || !_shieldCatalog.enabled) { showToast('Shield system is disabled', 'error'); return; }
-  var myClaims = (window.claims||[]).filter(function(c){ return (c.owner||'').toLowerCase() === walletState.address.toLowerCase(); });
-  if (!myClaims.length) { showToast('You have no territories to shield', 'error'); return; }
+  var grps = _myTerritoryGroups(walletState.address);
+  if (!grps.length) { showToast('You have no territories to shield', 'error'); return; }
 
-  gamePicker({ title: 'SELECT TERRITORY TO SHIELD', items: myClaims.map(function(c) {
-    return { value: c.id, label: (c.custom_name || 'Territory ' + c.id) + ' (' + (c.width||1) + '×' + (c.height||1) + ')' };
+  gamePicker({ title: 'SELECT TERRITORY TO SHIELD', items: grps.map(function(g) {
+    return { value: g.primaryId, label: g.label };
   }) }).then(function(claimId) {
     if (!claimId) return;
     var items = (_shieldCatalog.options || []).map(function(opt) {
@@ -34389,32 +34403,16 @@ function loadBrandingPanel() {
     _brandingCfg = cfg;
     _updateBrandCostLabels();
   }).catch(function(){});
-  // Populate territory selector
+  // Populate territory selector — _myTerritoryGroups 기반으로 그룹 표시
   var sel = document.getElementById('brandClaimSelect');
   if (!sel) return;
   if (!w) { sel.innerHTML = '<option value="">— connect wallet —</option>'; return; }
-  // Use window.claims (already loaded) filtered by wallet — avoids x1/y1/x2/y2 undefined issue
-  var myClaims = (window.claims || []).filter(function(c){ return (c.owner||'').toLowerCase() === w.toLowerCase(); });
-  if (myClaims.length) {
+  var grps = _myTerritoryGroups(w);
+  if (grps.length) {
     sel.innerHTML = '<option value="">— select territory —</option>'
-      + myClaims.map(function(c){
-          var px = (c.width||1) * (c.height||1);
-          var label = (c.custom_name || ('Territory ' + c.id)) + ' (' + (c.width||1) + '×' + (c.height||1) + ')';
-          return '<option value="'+c.id+'">'+label+'</option>';
-        }).join('');
+      + grps.map(function(g){ return '<option value="'+g.primaryId+'">'+g.label+'</option>'; }).join('');
   } else {
-    // Fallback: fetch from server if window.claims not loaded yet
-    fetch('/api/claims/my?wallet=' + encodeURIComponent(w))
-      .then(function(r){return r.json();})
-      .then(function(arr){
-        arr = Array.isArray(arr) ? arr : [];
-        if (!arr.length) { sel.innerHTML = '<option value="">— no territories —</option>'; return; }
-        sel.innerHTML = '<option value="">— select territory —</option>'
-          + arr.map(function(c){
-              var label = (c.name || ('Territory ' + c.id)) + ' (' + (c.width||1) + '×' + (c.height||1) + ')';
-              return '<option value="'+c.id+'">'+label+'</option>';
-            }).join('');
-      }).catch(function(){});
+    sel.innerHTML = '<option value="">— no territories —</option>';
   }
   // Load existing branding for display
   fetch('/api/branding/my?wallet=' + encodeURIComponent(w))
@@ -37351,19 +37349,14 @@ var _upgradeSelectedClaim = null;
 
 function openUpgradeModal() {
   if (!walletState.address) { showToast('Connect wallet first', 'error'); return; }
-  var myClaims = (window.claims||[]).filter(function(c){ return (c.owner||'').toLowerCase() === walletState.address.toLowerCase(); });
-  if (!myClaims.length) { showToast('You have no territories to upgrade', 'error'); return; }
-
-  // Build modal HTML on-the-fly using gameConfirm-style approach
-  // We'll use a simple inline approach: show claim picker then type picker
-  _showClaimPickerForUpgrade(myClaims);
+  var grps = _myTerritoryGroups(walletState.address);
+  if (!grps.length) { showToast('You have no territories to upgrade', 'error'); return; }
+  _showClaimPickerForUpgrade(grps);
 }
 
-function _showClaimPickerForUpgrade(claims) {
-  var items = claims.map(function(c) {
-    var name = c.custom_name || ('Territory ' + c.id);
-    var size = (c.width||1) + '×' + (c.height||1);
-    return { value: c.id, label: name + ' (' + size + ')' };
+function _showClaimPickerForUpgrade(grps) {
+  var items = grps.map(function(g) {
+    return { value: g.primaryId, label: g.label };
   });
   gamePicker({ title: 'SELECT TERRITORY TO UPGRADE', items: items }).then(function(claimId) {
     if (!claimId) return;
@@ -37530,14 +37523,13 @@ function openMonumentModal() {
   // Populate territory picker
   var sel = document.getElementById('monumentClaimSelect');
   if (!sel) return;
-  var myClaims = (window.claims||[]).filter(function(c){ return (c.owner||'').toLowerCase() === walletState.address.toLowerCase(); });
-  _monumentClaims = myClaims;
+  var grps = _myTerritoryGroups(walletState.address);
+  _monumentClaims = grps.map(function(g){return g.claims[0];}); // 기존 코드 호환용
   sel.innerHTML = '<option value="">-- Select territory --</option>';
-  myClaims.forEach(function(c, i) {
-    var label = (c.custom_name || ('Territory ' + (c.id||i+1))) + ' (' + (c.width||1) + '×' + (c.height||1) + ')';
+  grps.forEach(function(g) {
     var opt = document.createElement('option');
-    opt.value = c.id || i;
-    opt.textContent = label;
+    opt.value = g.primaryId;
+    opt.textContent = g.label;
     sel.appendChild(opt);
   });
 
