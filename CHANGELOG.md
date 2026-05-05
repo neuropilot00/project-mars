@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — PvP 매치메이킹 FLEET BATTLE HUB (spec 4-2)
+
+### `server/services/battleReport.js`
+- `getRecommendedOpponents`: `sector_code` / `last_battle_at` / `is_online` (1시간 기준) 반환 추가
+
+### `index.html` — PVP 탭 FLEET BATTLE HUB 위젯
+- NAVAL BATTLES + RECOMMENDED OPPONENTS + BOUNTY BOARD 3개 섹션 → 단일 `⚔ FLEET BATTLE HUB` 위젯으로 통합
+- 3탭: [🎯 추천 상대] — CPI 기반 추천 / [💰 현상금] — 현상금 등록+목록 / [🔥 섹터 분쟁] — conflict-map 기반 Heat 순위
+- 추천 상대 카드: 함대명 + 파벌 배지 + `●온라인/●오프라인` + CPI + 섹터 · 전투 시간 + `도전장 보내기` 버튼
+- 헤더: `🔴 LIVE` (Battle Hub 모달) + `⚔ 전투 선언` 버튼
+- pvp 탭 진입 시 자동 로드, `pvpHubSwitchTab('rec')` API
+- 퀵 액션 그리드(FLEET CMD / AI Practice / TOURNAMENT / SHIPYARD) 하단 유지
+
+---
+
 ## 2026-05-05 — 게임 개선 4대 기능 구현 (v6.08)
 
 ### 기획서: `docs/GAME_IMPROVEMENT_PLAN_2026-05-05.md`

@@ -22,8 +22,10 @@
 | 프론트: _showMyBattleStats() 모달 | ✅ | 승률/KD/연승/파벌별 승률 |
 | 프론트: Daily OPS Board (OPS 탭 상단) | ✅ | 미션 목록+진행바+CLAIM |
 | 프론트: Territory Identity (영토 패널) | ✅ | FR/배지/닉네임/바이오 편집 |
-| 프론트: 추천 상대 (PVP 탭) | ✅ | CPI 기반 toggleRecommendedSection |
-| 프론트: 현상금 게시판 (PVP 탭) | ✅ | 등록/목록/취소 |
+| 프론트: 추천 상대 (PVP 탭) | ✅ | spec 4-2 FLEET BATTLE HUB 위젯 — 3탭 (추천/현상금/분쟁), 카드형 카드 |
+| 프론트: 현상금 게시판 (PVP 탭) | ✅ | Hub 현상금 탭 안에 인라인 이동 |
+| 프론트: 섹터 분쟁 탭 (PVP 탭) | ✅ | /api/sectors/conflict-map Heat 순 목록 |
+| 서버: getRecommendedOpponents 필드 보강 | ✅ | sector_code / last_battle_ago / is_online 추가 |
 | i18n 60+ 신규 키 (EN/KO) | ✅ | battle_report/daily_ops/territory_identity/bounty/pvp_rec |
 | 모듈 로드 오류 없음 | ✅ | node 문법 검증 통과 |
 | 서버 기동 오류 없음 | ✅ | `node server/index.js` 부팅 확인 |
