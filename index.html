@@ -47448,6 +47448,11 @@ function showRewardToast(reward) {
 
 function closeRewardToast() {
   document.getElementById('rewardToast').classList.remove('show');
+  // Bug5: 결과 카드 → 뷰어까지 같이 닫기 (확인 버튼 클릭 시 전체 종료)
+  const resultOverlay = document.getElementById('bvResultOverlay');
+  if (resultOverlay && resultOverlay.classList.contains('active')) {
+    closeBattleViewer();
+  }
 }
 
 function getMyWallet() {
@@ -47537,7 +47542,7 @@ async function challengeAi(aiFleetId, aiName) {
     closeAiFight();
     if (data2.battle_id) {
       setTimeout(() => openBattleViewer(data2.battle_id), 3000);
-      setTimeout(() => showRewardIfAny(data2.battle_id), 8000);
+      // Bug4: showRewardIfAny 별도 토스트 제거 — 결과 카드에 보상 인라인 표시
     } else console.warn('[ai] battle_id missing in response:', data2);
   } catch (err) {
     console.error('challengeAi:', err);
@@ -48692,10 +48697,55 @@ function showBattleResult() {
     </div>
   `;
 
-  setTimeout(() => overlay.classList.add('active'), 500);
+  // 시각 시뮬이 충분히 재생되도록 2초 후 결과 카드 표시 (Bug2: HP 감소 전 승리 방지)
+  setTimeout(() => {
+    overlay.classList.add('active');
+    // 결과 카드 표시 시 보상 토스트 숨김 (Bug4: 창 중복 방지)
+    document.getElementById('rewardToast')?.classList.remove('show');
+  }, 2000);
 
-  // 비동기로 상세 리포트 로드
+  // 비동기로 상세 리포트 + 보상 정보 로드
   if (bv.battle?.id) _loadBattleReport(bv.battle.id, mySide);
+  if (bv.battle?.id) _injectRewardIntoResult(bv.battle.id);
+}
+
+// Bug4: 전투 결과 카드에 보상 인라인 표시 (별도 토스트 대체)
+async function _injectRewardIntoResult(battleId) {
+  try {
+    const myWallet = getMyWallet();
+    if (!myWallet) return;
+    const res = await fetch(`/api/battles/${battleId}/rewards`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const myReward = (data.rewards || []).find(r =>
+      r.wallet_address.toLowerCase() === myWallet.toLowerCase()
+    );
+    if (!myReward) return;
+
+    // 보상 행 HTML
+    let html = '';
+    if (myReward.gp_awarded > 0) {
+      html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>💰 Galactic Points</span><b style="color:#ffd54f">+${myReward.gp_awarded}</b></div>`;
+    }
+    for (const [code, qty] of Object.entries(myReward.minerals_awarded || {})) {
+      if (!qty) continue;
+      const icon = (typeof MINERAL_ICONS !== 'undefined' && MINERAL_ICONS[code]) || '🟫';
+      const name = (typeof MINERAL_KO !== 'undefined' && MINERAL_KO[code]) || code;
+      html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>${icon} ${name}</span><b style="color:#81c784">+${qty}</b></div>`;
+    }
+    if (!html) return;
+
+    // 결과 카드 actions 앞에 보상 섹션 삽입
+    const stats = document.getElementById('bvResultStats');
+    if (!stats) return;
+    const existing = stats.querySelector('#bvInlineReward');
+    if (existing) return; // 중복 방지
+    const div = document.createElement('div');
+    div.id = 'bvInlineReward';
+    div.style.cssText = 'margin-top:12px;width:100%;border-top:1px solid rgba(255,215,0,.2);padding-top:10px';
+    div.innerHTML = `<div style="font-size:10px;font-weight:700;color:#ffd54f;letter-spacing:.8px;margin-bottom:6px">🏆 ${myReward.is_winner ? '승리 보상' : '참가 보상'}</div>${html}`;
+    stats.appendChild(div);
+  } catch (_) {}
 }
 
 // 전투 리포트 카드 비동기 로드
