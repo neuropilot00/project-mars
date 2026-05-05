@@ -5883,9 +5883,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="hijackFleetInfo" style="font-size:9px;color:rgba(255,255,255,.45);margin-top:3px"></div>
       </div>
       <!-- 함대 없음 경고 -->
-      <div id="hijackNoFleetWarn" style="display:none;margin-top:8px;padding:5px 8px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:5px;font-size:10px;color:#ff8a80;text-align:center">🚫 함대 없음 — 하이젝 불가<br><span style="font-size:9px;color:rgba(255,255,255,.4)">BASE → FLEET 탭에서 함대를 먼저 생성하세요</span></div>
+      <div id="hijackNoFleetWarn" style="display:none;margin-top:8px;padding:5px 8px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:5px;font-size:10px;color:#ff8a80;text-align:center">🚫 <span data-i18n="hijack_no_fleet_label">No Fleet — Hijack Unavailable</span><br><span style="font-size:9px;color:rgba(255,255,255,.4)" data-i18n="hijack_no_fleet_hint">Go to BASE → FLEET tab to create a fleet first</span></div>
       <!-- 로딩 표시 -->
-      <div id="hijackFleetLoading" style="display:none;margin-top:8px;text-align:center;font-size:10px;color:rgba(255,255,255,.4)">⏳ 함대 정보 로딩 중...</div>
+      <div id="hijackFleetLoading" style="display:none;margin-top:8px;text-align:center;font-size:10px;color:rgba(255,255,255,.4)">⏳ <span data-i18n="hijack_fleet_loading">Loading fleet info...</span></div>
     </div>
     <!-- 정보 그리드 -->
     <div class="claim-info-grid">
@@ -6401,11 +6401,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- ─── 내 영토 목록 ─────────────────────────────── -->
         <div class="base-section-title" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>🗺️ 내 영토</span>
+          <span>🗺️ <span data-i18n="my_territory_title">My Territory</span></span>
           <span id="baseTerritoryCountBadge" style="background:var(--mars);color:#fff;font-size:9px;padding:1px 7px;border-radius:8px;font-weight:800">0</span>
         </div>
         <div id="baseTerritoryGroupList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
-          <div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">로그인하면 영토가 표시됩니다</div>
+          <div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px" data-i18n="login_to_view_territory">Login to view your territory</div>
         </div>
 
         <div class="base-section-title" onclick="toggleMySectors()" style="cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:space-between">
@@ -7402,12 +7402,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- SECTOR SIEGE section (expanded by default in PVP tab) -->
         <div class="base-section-title" style="color:var(--red);cursor:pointer;margin-top:4px" onclick="toggleSiegeSection()"><span data-i18n="gov_siege_title">⚔️ SECTOR SIEGE</span> <span id="siegeToggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
         <div id="govSiegeSection" style="margin-bottom:12px">
-          <div style="background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.15);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.6">
-            <b style="color:var(--red);font-size:10px">⚔️ 섹터 공성전이란?</b><br>
-            섹터 내 최대 점유자(거버너)의 자리를 빼앗는 전쟁입니다.<br>
-            <b style="color:var(--tx2)">① 섹터 선택</b> → <b style="color:var(--tx2)">② 공성전 선언 (GP 소모)</b> → <b style="color:var(--tx2)">③ 경고 기간 (거버너 방어 준비)</b> → <b style="color:var(--tx2)">④ 전투 기간 (픽셀 점령 경쟁)</b><br>
-            전투 종료 시 점유율이 높은 쪽이 섹터 거버너로 등극합니다.
-            <br><span style="color:var(--gold)">💡 진입 조건: 해당 섹터에 최소 영토 보유 필요</span>
+          <div style="background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.15);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.6" data-i18n="siege_info_block">
+            <b style="color:var(--red);font-size:10px">⚔️ What is Sector Siege?</b><br>
+            Wage war to usurp the largest territory holder (Governor) in a sector.<br>
+            <b style="color:var(--tx2)">① Select Sector</b> → <b style="color:var(--tx2)">② Declare Siege (GP cost)</b> → <b style="color:var(--tx2)">③ Warning Period (Governor prepares)</b> → <b style="color:var(--tx2)">④ Battle Period (pixel contest)</b><br>
+            The side with the highest occupation rate at battle end becomes the new Governor.
+            <br><span style="color:var(--gold)">💡 Entry Requirement: Must own territory in the target sector</span>
           </div>
           <div style="margin-bottom:8px">
             <button id="siegeSectorPickerBtn" type="button" onclick="openSiegeSectorPicker()" style="width:100%;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center"><span id="siegeSectorLabel" data-i18n="gov_select_sector_siege">Select sector...</span><span style="color:var(--tx3)">▾</span></button>
@@ -7418,17 +7418,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- FLEET BATTLES section (expanded by default in PVP tab) -->
         <div class="base-section-title" style="color:#5cbbff;cursor:pointer;margin-top:4px" onclick="toggleBattleSection()"><span data-i18n="gov_battle_title">⚔️ NAVAL BATTLES</span> <span id="battleToggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
         <div id="govBattleSection" style="margin-bottom:12px">
-          <div style="background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:9px;color:var(--tx3);line-height:1.6">
-            <b style="color:var(--cyan);font-size:10px">⚓ 함대 전투란?</b><br>
-            내 함대를 이끌고 다른 플레이어에게 전투를 선언하는 PvP 전투입니다.<br>
-            <b style="color:var(--tx2)">① 조선소에서 함선 건조</b> → <b style="color:var(--tx2)">② 함대 편성</b> → <b style="color:var(--tx2)">③ 전투 허브에서 선포</b> → <b style="color:var(--tx2)">④ 결과 확인</b>
+          <div style="background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:9px;color:var(--tx3);line-height:1.6" data-i18n="fleet_battle_info_block">
+            <b style="color:var(--cyan);font-size:10px">⚓ What is Fleet Battle?</b><br>
+            Lead your fleet and declare PvP battle against other players.<br>
+            <b style="color:var(--tx2)">① Build ships in Shipyard</b> → <b style="color:var(--tx2)">② Form fleet</b> → <b style="color:var(--tx2)">③ Declare in Battle Hub</b> → <b style="color:var(--tx2)">④ Check results</b>
           </div>
-          <button onclick="openBattleHub()" style="width:100%;padding:11px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.2),rgba(232,72,85,.07));border:1px solid rgba(232,72,85,.45);color:#ff8a80;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:8px">⚔️ FLEET BATTLE HUB 열기</button>
+          <button onclick="openBattleHub()" style="width:100%;padding:11px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.2),rgba(232,72,85,.07));border:1px solid rgba(232,72,85,.45);color:#ff8a80;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:8px">⚔️ <span data-i18n="fleet_battle_hub_btn">OPEN FLEET BATTLE HUB</span></button>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
             <button onclick="openFleetCmd()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(92,187,255,.13),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🎖 FLEET COMMAND</button>
-            <button onclick="openAiFight()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(129,199,132,.13),rgba(129,199,132,.04));border:1px solid rgba(129,199,132,.35);color:#81c784;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🤖 AI 연습전</button>
-            <button onclick="openTournaments()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🏆 토너먼트</button>
-            <button onclick="openShipyard()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.13),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.35);color:#4fc3f7;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">⚓ 조선소</button>
+            <button onclick="openAiFight()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(129,199,132,.13),rgba(129,199,132,.04));border:1px solid rgba(129,199,132,.35);color:#81c784;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🤖 <span data-i18n="pvp_ai_practice">AI Practice</span></button>
+            <button onclick="openTournaments()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🏆 <span data-i18n="pvp_tournament">TOURNAMENT</span></button>
+            <button onclick="openShipyard()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.13),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.35);color:#4fc3f7;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">⚓ <span data-i18n="pvp_shipyard">SHIPYARD</span></button>
           </div>
           <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
         </div>
@@ -7905,12 +7905,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="baseInvWrap" style="display:none">
           <!-- 카테고리 탭 -->
           <div id="baseInvCatRow" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
-            <button class="base-inv-cat active" data-cat="all" onclick="filterBaseInv('all',this)">전체</button>
-            <button class="base-inv-cat" data-cat="defense" onclick="filterBaseInv('defense',this)">🛡 방어</button>
-            <button class="base-inv-cat" data-cat="attack" onclick="filterBaseInv('attack',this)">⚔ 공격</button>
-            <button class="base-inv-cat" data-cat="utility" onclick="filterBaseInv('utility',this)">🔧 유틸</button>
-            <button class="base-inv-cat" data-cat="boost" onclick="filterBaseInv('boost',this)">⚡ 부스트</button>
-            <button class="base-inv-cat" data-cat="cosmetic" onclick="filterBaseInv('cosmetic',this)">🎨 코스메틱</button>
+            <button class="base-inv-cat active" data-cat="all" onclick="filterBaseInv('all',this)" data-i18n="inv_cat_all">All</button>
+            <button class="base-inv-cat" data-cat="defense" onclick="filterBaseInv('defense',this)">🛡 <span data-i18n="inv_cat_defense">Defense</span></button>
+            <button class="base-inv-cat" data-cat="attack" onclick="filterBaseInv('attack',this)">⚔ <span data-i18n="inv_cat_attack">Attack</span></button>
+            <button class="base-inv-cat" data-cat="utility" onclick="filterBaseInv('utility',this)">🔧 <span data-i18n="inv_cat_utility">Utility</span></button>
+            <button class="base-inv-cat" data-cat="boost" onclick="filterBaseInv('boost',this)">⚡ <span data-i18n="inv_cat_boost">Boost</span></button>
+            <button class="base-inv-cat" data-cat="cosmetic" onclick="filterBaseInv('cosmetic',this)">🎨 <span data-i18n="inv_cat_cosmetic">Cosmetic</span></button>
           </div>
           <div id="baseInvGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
             <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading inventory...</div>
@@ -8826,15 +8826,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="lo-planet">🪐</div>
     <div class="lo-logo">OCCUPY MARS</div>
     <div class="lo-badge">BETA · 2067</div>
-    <div class="lo-tagline">화성 영토를 클레임하고<br>제국을 건설하세요</div>
+    <div class="lo-tagline" data-i18n="lo_tagline">Claim Mars territory and<br>build your empire</div>
     <div class="lo-features">
-      <div class="lo-feat"><span class="lo-feat-icon">🗺️</span> 화성 지도에서 실시간 픽셀 영토 클레임</div>
-      <div class="lo-feat"><span class="lo-feat-icon">⚔️</span> 함대전 · 공성전 · 1:1 GP 결투</div>
-      <div class="lo-feat"><span class="lo-feat-icon">🛡️</span> 파벌과 길드로 동맹 구축</div>
-      <div class="lo-feat"><span class="lo-feat-icon">💰</span> 채굴 · 강화 · 마켓플레이스</div>
+      <div class="lo-feat"><span class="lo-feat-icon">🗺️</span> <span data-i18n="lo_feat1">Real-time pixel territory claims on the Mars map</span></div>
+      <div class="lo-feat"><span class="lo-feat-icon">⚔️</span> <span data-i18n="lo_feat2">Fleet Battles · Sieges · 1:1 GP Duels</span></div>
+      <div class="lo-feat"><span class="lo-feat-icon">🛡️</span> <span data-i18n="lo_feat3">Build alliances through factions and guilds</span></div>
+      <div class="lo-feat"><span class="lo-feat-icon">💰</span> <span data-i18n="lo_feat4">Mine · Upgrade · Marketplace</span></div>
     </div>
-    <button class="lo-btn-start" onclick="startFromLanding()">🚀 지금 시작하기</button>
-    <button class="lo-btn-browse" onclick="browseLanding()">지구본 먼저 둘러볼게요</button>
+    <button class="lo-btn-start" onclick="startFromLanding()" data-i18n="lo_btn_start">🚀 Get Started</button>
+    <button class="lo-btn-browse" onclick="browseLanding()" data-i18n="lo_btn_browse">Explore the globe first</button>
   </div>
 </div>
 
@@ -8847,12 +8847,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div class="wb-modal">
     <div class="wb-header">
       <div class="wb-title">🎯 WAR BETTING · 전쟁 베팅</div>
-      <button class="shipyard-close" onclick="closeWarBetting()">✕ 닫기</button>
+      <button class="shipyard-close" onclick="closeWarBetting()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="wb-tabs">
-      <button class="wb-tab active" data-tab="active" onclick="wbSwitchTab('active')">🔥 활성 이벤트</button>
-      <button class="wb-tab" data-tab="recent" onclick="wbSwitchTab('recent')">📜 최근 결과</button>
-      <button class="wb-tab" data-tab="mine" onclick="wbSwitchTab('mine')">🏆 내 베팅</button>
+      <button class="wb-tab active" data-tab="active" onclick="wbSwitchTab('active')" data-i18n="wb_tab_active">🔥 Active Events</button>
+      <button class="wb-tab" data-tab="recent" onclick="wbSwitchTab('recent')" data-i18n="wb_tab_recent">📜 Recent Results</button>
+      <button class="wb-tab" data-tab="mine" onclick="wbSwitchTab('mine')" data-i18n="wb_tab_mine">🏆 My Bets</button>
     </div>
     <div class="wb-body" id="wbBody"></div>
   </div>
@@ -16011,6 +16011,16 @@ var I18N = {
     fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_tactical_lab: 'Tactical Lab',
     fleet_status_label: 'Fleet Status', fleet_world_events: 'Active World Events', btn_refresh: '↻ Refresh',
     hijack_no_fleet_auto_win: 'No enemy fleet — Auto Win (instant territory transfer)',
+    hijack_no_fleet_label: 'No Fleet — Hijack Unavailable',
+    hijack_no_fleet_hint: 'Go to BASE → FLEET tab to create a fleet first',
+    hijack_fleet_loading: 'Loading fleet info...',
+    siege_info_block: '<b style="color:var(--red);font-size:10px">⚔️ What is Sector Siege?</b><br>Wage war to usurp the largest territory holder (Governor) in a sector.<br><b style="color:var(--tx2)">① Select Sector</b> → <b style="color:var(--tx2)">② Declare Siege (GP cost)</b> → <b style="color:var(--tx2)">③ Warning Period</b> → <b style="color:var(--tx2)">④ Battle Period</b><br>The side with the highest occupation rate becomes Governor.<br><span style="color:var(--gold)">💡 Entry Requirement: Must own territory in the target sector</span>',
+    fleet_battle_info_block: '<b style="color:var(--cyan);font-size:10px">⚓ What is Fleet Battle?</b><br>Lead your fleet and declare PvP battle against other players.<br><b style="color:var(--tx2)">① Build ships in Shipyard</b> → <b style="color:var(--tx2)">② Form fleet</b> → <b style="color:var(--tx2)">③ Declare in Battle Hub</b> → <b style="color:var(--tx2)">④ Check results</b>',
+    fleet_battle_hub_btn: 'OPEN FLEET BATTLE HUB',
+    pvp_ai_practice: 'AI Practice', pvp_tournament: 'TOURNAMENT', pvp_shipyard: 'SHIPYARD',
+    inv_cat_all: 'All', inv_cat_defense: 'Defense', inv_cat_attack: 'Attack',
+    inv_cat_utility: 'Utility', inv_cat_boost: 'Boost', inv_cat_cosmetic: 'Cosmetic',
+    my_territory_title: 'My Territory', login_to_view_territory: 'Login to view your territory',
     hijack_fleet_info_fail: 'Failed to load enemy fleet info',
     // ── Transport (M-158 Phase C) ──
     transport_title: 'INTER-SECTOR TRANSPORT',
@@ -16636,6 +16646,74 @@ var I18N = {
     story_tap_hint: 'Tap to continue',
     story_abandon_confirm_title: 'EXIT SCENARIO',
     story_abandon_confirm_body: 'Abandon the chapter and exit. Choices already made are kept.',
+    btn_close: '✕ Close',
+    lo_tagline: 'Claim Mars territory and<br>build your empire',
+    lo_feat1: 'Real-time pixel territory claims on the Mars map',
+    lo_feat2: 'Fleet Battles · Sieges · 1:1 GP Duels',
+    lo_feat3: 'Build alliances through factions and guilds',
+    lo_feat4: 'Mine · Upgrade · Marketplace',
+    lo_btn_start: '🚀 Get Started',
+    lo_btn_browse: 'Explore the globe first',
+    wb_tab_active: '🔥 Active Events', wb_tab_recent: '📜 Recent Results', wb_tab_mine: '🏆 My Bets',
+    sy_sort_price_asc: 'Price: Low to High', sy_sort_price_desc: 'Price: High to Low',
+    sy_sort_power_desc: 'Upgrade: Highest', sy_sort_newest_listed: 'Newest Listed',
+    bv_share: 'Share',
+    bv_my_victory: '🏆 VICTORY!', bv_my_defeat: '💀 DEFEATED',
+    bv_atk_won: 'Attackers Won', bv_def_won: 'Defenders Won', bv_draw_result: 'Draw',
+    bv_stat_total_ships: 'Total Ships', bv_stat_losses: 'Losses', bv_stat_damage: 'Damage',
+    bv_my_badge: 'YOU',
+    fleet_no_fleet_hint: 'No fleets — build ships in the Shipyard',
+    fleet_no_ships_hint: 'No ships<br>Build in the Shipyard',
+    fleet_no_combat_fleet: 'No combat-ready fleet. Build ships in the Shipyard!',
+    fleet_both_no_fleet: 'Neither side has a combat-ready fleet.',
+    fleet_enemy_no_fleet: 'The enemy guild has no combat-ready fleet.',
+    bc_waiting: 'Waiting', bc_atk_win: 'ATK WIN', bc_def_win: 'DEF WIN',
+    bc_in_progress: 'In Progress', bc_scheduled: 'Scheduled',
+    bc_type_duel: 'PvP Duel', bc_type_siege: 'Siege', bc_type_hijack: 'Hijack',
+    bc_type_raid: 'Raid', bc_type_event: 'Event',
+    gw_auto_win_title: 'Auto Victory',
+    gw_auto_win_body: 'The enemy guild has no combat-ready fleet.',
+    gw_auto_win_pts: 'Win auto-victory and earn guild war points (+10 pts)',
+    gw_auto_win_limit: '1 use per 24 hours',
+    gw_auto_win_btn: '🏆 Claim Auto Victory',
+    gw_auto_win_toast: '🏆 Auto Victory! +{pts} pts earned',
+    gw_auto_win_cooldown: 'Auto victory already used within 24 hours',
+    gw_enemy_has_fleets: 'Enemy now has fleets — fight directly',
+    ob_line1: '"2067. Earth\'s resources have run out."',
+    ob_line2: '"Mars is the last hope."',
+    ob_line3: '"Today you take your first steps as a pioneer."',
+    ob_btn_land: '🚀 Land on Mars', ob_btn_skip: 'Skip',
+    ob_step1_title: 'Choose Your Destiny',
+    ob_step1_sub: 'What kind of pioneer will you be on Mars?',
+    ob_job_change_note: 'Can be changed later (1 free change / week)',
+    ob_step1_choose: 'Choose a job',
+    ob_step2_title: 'Choose Your Faction',
+    ob_step2_sub: 'Join one of the three powers of Mars',
+    ob_step2_free_note: 'First choice free · 500 GP to change later',
+    ob_step2_already: 'Faction already selected.',
+    ob_step2_continue: 'Continue →',
+    ob_step2_loading: 'Loading...',
+    ob_step2_load_fail: 'Load failed — click Select Later',
+    ob_step2_choose: 'Choose a faction', ob_step2_skip: 'Select Later',
+    ob_confirm: 'Confirm Selection', ob_processing: 'Processing...',
+    ob_faction_error: 'Faction selection failed: ',
+    ob_faction_success: '🛡 Faction selected!',
+    ob_step3_title: 'Claim Your First Territory',
+    ob_step3_sub: 'Click any empty area on the map to claim it',
+    ob_step3_free: '✨ First territory is free',
+    ob_step3_tip1: 'Close this panel to see the globe',
+    ob_step3_tip2: 'Click an empty area on Mars to open the claim panel',
+    ob_step3_tip3: 'Press CONFIRM to claim the territory',
+    ob_step3_got_it: '🗺️ Got it, let\'s start!',
+    ob_step3_next: 'Next',
+    ob_step4_title: 'Ready!', ob_step4_sub: 'Welcome to Mars, Pioneer',
+    ob_step4_mission_label: 'First Mission Today',
+    ob_step4_mission_reward: 'Reward on completion: +{gp} GP',
+    ob_step4_start: '🚀 Start Exploring Mars!',
+    ob_reward_pioneer: '🏅 Pioneer',
+    ob_reward_gp: '+{n} GP earned!', ob_reward_pp: '+{n} PP earned!',
+    ob_reward_item: '{code} acquired!', ob_reward_title: 'Title "{name}" earned!',
+    ob_starter_ship: '🚀 Starter ship granted! {name} × 1',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -16736,6 +16814,16 @@ var I18N = {
     fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_tactical_lab: '전술랩',
     fleet_status_label: '내 함대 현황', fleet_world_events: '활성 월드 이벤트', btn_refresh: '↻ 새로고침',
     hijack_no_fleet_auto_win: '상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)',
+    hijack_no_fleet_label: '함대 없음 — 하이젝 불가',
+    hijack_no_fleet_hint: 'BASE → FLEET 탭에서 함대를 먼저 생성하세요',
+    hijack_fleet_loading: '함대 정보 로딩 중...',
+    siege_info_block: '<b style="color:var(--red);font-size:10px">⚔️ 섹터 공성전이란?</b><br>섹터 내 최대 점유자(거버너)의 자리를 빼앗는 전쟁입니다.<br><b style="color:var(--tx2)">① 섹터 선택</b> → <b style="color:var(--tx2)">② 공성전 선언 (GP 소모)</b> → <b style="color:var(--tx2)">③ 경고 기간</b> → <b style="color:var(--tx2)">④ 전투 기간</b><br>점유율이 높은 쪽이 거버너로 등극합니다.<br><span style="color:var(--gold)">💡 진입 조건: 해당 섹터에 최소 영토 보유 필요</span>',
+    fleet_battle_info_block: '<b style="color:var(--cyan);font-size:10px">⚓ 함대 전투란?</b><br>내 함대를 이끌고 다른 플레이어에게 전투를 선언하는 PvP 전투입니다.<br><b style="color:var(--tx2)">① 조선소에서 함선 건조</b> → <b style="color:var(--tx2)">② 함대 편성</b> → <b style="color:var(--tx2)">③ 전투 허브에서 선포</b> → <b style="color:var(--tx2)">④ 결과 확인</b>',
+    fleet_battle_hub_btn: 'FLEET BATTLE HUB 열기',
+    pvp_ai_practice: 'AI 연습전', pvp_tournament: '토너먼트', pvp_shipyard: '조선소',
+    inv_cat_all: '전체', inv_cat_defense: '방어', inv_cat_attack: '공격',
+    inv_cat_utility: '유틸', inv_cat_boost: '부스트', inv_cat_cosmetic: '코스메틱',
+    my_territory_title: '내 영토', login_to_view_territory: '로그인하면 영토가 표시됩니다',
     hijack_fleet_info_fail: '상대 함대 정보 확인 실패',
     // ── 직업 시스템 ──
     job_label: '직업', job_none: '운명을 선택하세요', job_locked: 'Lv.{n} 달성 후 해금',
@@ -17359,6 +17447,74 @@ var I18N = {
     story_tap_hint: '탭하여 계속',
     story_abandon_confirm_title: '시나리오 종료',
     story_abandon_confirm_body: '진행 중인 챕터를 포기하고 시나리오를 종료합니다. 이미 만든 선택은 유지됩니다.',
+    btn_close: '✕ 닫기',
+    lo_tagline: '화성 영토를 클레임하고<br>제국을 건설하세요',
+    lo_feat1: '화성 지도에서 실시간 픽셀 영토 클레임',
+    lo_feat2: '함대전 · 공성전 · 1:1 GP 결투',
+    lo_feat3: '파벌과 길드로 동맹 구축',
+    lo_feat4: '채굴 · 강화 · 마켓플레이스',
+    lo_btn_start: '🚀 지금 시작하기',
+    lo_btn_browse: '지구본 먼저 둘러볼게요',
+    wb_tab_active: '🔥 활성 이벤트', wb_tab_recent: '📜 최근 결과', wb_tab_mine: '🏆 내 베팅',
+    sy_sort_price_asc: '가격 낮은순', sy_sort_price_desc: '가격 높은순',
+    sy_sort_power_desc: '강화 높은순', sy_sort_newest_listed: '최신 등록순',
+    bv_share: '공유하기',
+    bv_my_victory: '🏆 승리!', bv_my_defeat: '💀 패배',
+    bv_atk_won: '공격군 승리', bv_def_won: '수비군 승리', bv_draw_result: '무승부',
+    bv_stat_total_ships: '총 함선', bv_stat_losses: '손실', bv_stat_damage: '데미지',
+    bv_my_badge: '나',
+    fleet_no_fleet_hint: '보유 함대 없음 — 조선소에서 함선을 건조하세요',
+    fleet_no_ships_hint: '보유 함선 없음<br>조선소에서 함선을 건조하세요',
+    fleet_no_combat_fleet: '전투 가능한 함대가 없습니다. 함선을 건조하세요!',
+    fleet_both_no_fleet: '양측 모두 전투 가능한 함대가 없습니다.',
+    fleet_enemy_no_fleet: '적 길드에 전투 가능한 함대가 없습니다.',
+    bc_waiting: '대기중', bc_atk_win: '공격 승', bc_def_win: '수비 승',
+    bc_in_progress: '진행 중', bc_scheduled: '예정',
+    bc_type_duel: 'PvP 결투', bc_type_siege: '공성전', bc_type_hijack: '하이재킹',
+    bc_type_raid: '레이드', bc_type_event: '이벤트',
+    gw_auto_win_title: '자동 승리',
+    gw_auto_win_body: '적 길드에 전투 가능한 함대가 없습니다.',
+    gw_auto_win_pts: '자동 승리 처리 후 길드전 포인트를 획득합니다 (+10 pts)',
+    gw_auto_win_limit: '24시간에 1회 가능',
+    gw_auto_win_btn: '🏆 자동 승리 획득',
+    gw_auto_win_toast: '🏆 자동 승리! +{pts} pts 획득',
+    gw_auto_win_cooldown: '24시간 내 이미 자동 승리를 사용했습니다',
+    gw_enemy_has_fleets: '적에게 함대가 생겼습니다 — 직접 전투하세요',
+    ob_line1: '"2067년. 지구의 자원이 고갈됐다."',
+    ob_line2: '"화성이 마지막 희망이다."',
+    ob_line3: '"당신은 오늘 첫 발을 내딛는 개척자다."',
+    ob_btn_land: '🚀 화성에 착륙하기', ob_btn_skip: '건너뛰기',
+    ob_step1_title: '운명을 선택하세요',
+    ob_step1_sub: '어떤 방식으로 화성에서 살아남을 것인가',
+    ob_job_change_note: '나중에 변경 가능 (주 1회 무료)',
+    ob_step1_choose: '직업을 선택하세요',
+    ob_step2_title: '파벌을 선택하세요',
+    ob_step2_sub: '화성의 세 세력 중 하나에 합류하세요',
+    ob_step2_free_note: '첫 선택 무료 · 이후 변경 시 500 GP',
+    ob_step2_already: '파벌이 이미 선택되어 있습니다.',
+    ob_step2_continue: '계속 →',
+    ob_step2_loading: '로딩 중...',
+    ob_step2_load_fail: '로드 실패 — 나중에 선택하기를 눌러주세요',
+    ob_step2_choose: '파벌을 선택하세요', ob_step2_skip: '나중에 선택하기',
+    ob_confirm: '선택 확정', ob_processing: '처리 중...',
+    ob_faction_error: '파벌 선택 실패: ',
+    ob_faction_success: '🛡 파벌 선택 완료!',
+    ob_step3_title: '첫 영토를 점령하세요',
+    ob_step3_sub: '지도에서 빈 영역을 클릭하면 클레임할 수 있습니다',
+    ob_step3_free: '✨ 첫 번째 영토 비용 면제',
+    ob_step3_tip1: '이 창을 닫으면 지구본이 보입니다',
+    ob_step3_tip2: '화성 위 빈 영역을 클릭하면 클레임 창이 열립니다',
+    ob_step3_tip3: 'CONFIRM을 누르면 영토가 생깁니다',
+    ob_step3_got_it: '🗺️ 이해했어요, 시작합니다!',
+    ob_step3_next: '다음으로',
+    ob_step4_title: '준비 완료!', ob_step4_sub: '화성에 오신 것을 환영합니다, 개척자여',
+    ob_step4_mission_label: '오늘의 첫 미션',
+    ob_step4_mission_reward: '완료 시 +{gp} GP',
+    ob_step4_start: '🚀 화성 탐험 시작!',
+    ob_reward_pioneer: '🏅 개척자',
+    ob_reward_gp: '+{n} GP 획득!', ob_reward_pp: '+{n} PP 획득!',
+    ob_reward_item: '{code} 획득!', ob_reward_title: '칭호 "{name}" 획득!',
+    ob_starter_ship: '🚀 스타터 함선 지급! {name} × 1',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -18065,6 +18221,62 @@ var I18N = {
     story_tap_hint: 'タップして続ける',
     story_abandon_confirm_title: 'シナリオ終了',
     story_abandon_confirm_body: '進行中のチャプターを放棄してシナリオを終了します。すでにした選択は維持されます。',
+    btn_close: '✕ 閉じる',
+    lo_tagline: '火星の領土をクレームして<br>帝国を築け',
+    lo_feat1: '火星マップでリアルタイムピクセル領土クレーム',
+    lo_feat2: '艦隊戦 · 攻城戦 · 1:1 GP決闘',
+    lo_feat3: 'ファクションとギルドで同盟を構築',
+    lo_feat4: '採掘 · 強化 · マーケットプレイス',
+    lo_btn_start: '🚀 今すぐ始める',
+    lo_btn_browse: 'まず地球儀を見る',
+    wb_tab_active: '🔥 アクティブイベント', wb_tab_recent: '📜 最近の結果', wb_tab_mine: '🏆 マイベット',
+    sy_sort_price_asc: '価格：低い順', sy_sort_price_desc: '価格：高い順',
+    sy_sort_power_desc: '強化：高い順', sy_sort_newest_listed: '最新登録順',
+    bv_share: '共有する',
+    bv_my_victory: '🏆 勝利！', bv_my_defeat: '💀 敗北',
+    bv_atk_won: '攻撃軍の勝利', bv_def_won: '防衛軍の勝利', bv_draw_result: '引き分け',
+    bv_stat_total_ships: '総艦数', bv_stat_losses: '損失', bv_stat_damage: 'ダメージ',
+    bv_my_badge: '自分',
+    fleet_no_fleet_hint: '艦隊なし — 造船所で艦船を建造してください',
+    fleet_no_ships_hint: '艦船なし<br>造船所で建造してください',
+    fleet_no_combat_fleet: '戦闘可能な艦隊がありません。造船所で艦船を建造してください！',
+    fleet_both_no_fleet: '双方とも戦闘可能な艦隊がありません。',
+    fleet_enemy_no_fleet: '敵ギルドに戦闘可能な艦隊がありません。',
+    ob_line1: '「2067年。地球の資源が枯渇した。」',
+    ob_line2: '「火星が最後の希望だ。」',
+    ob_line3: '「あなたは今日、最初の一歩を踏み出す開拓者だ。」',
+    ob_btn_land: '🚀 火星に着陸', ob_btn_skip: 'スキップ',
+    ob_step1_title: '運命を選べ',
+    ob_step1_sub: '火星でどんな開拓者になるか',
+    ob_job_change_note: '後で変更可能（週1回無料）',
+    ob_step1_choose: '職業を選んでください',
+    ob_step2_title: 'ファクションを選べ',
+    ob_step2_sub: '火星の三勢力のひとつに加入',
+    ob_step2_free_note: '初回選択無料 · 変更は500 GP',
+    ob_step2_already: 'ファクションは既に選択されています。',
+    ob_step2_continue: '続ける →',
+    ob_step2_loading: '読み込み中...',
+    ob_step2_load_fail: '読み込み失敗 — 後で選択を押してください',
+    ob_step2_choose: 'ファクションを選んでください', ob_step2_skip: '後で選択',
+    ob_confirm: '選択確定', ob_processing: '処理中...',
+    ob_faction_error: 'ファクション選択失敗: ',
+    ob_faction_success: '🛡 ファクション選択完了！',
+    ob_step3_title: '最初の領土を占領せよ',
+    ob_step3_sub: '地図の空白エリアをクリックしてクレームできます',
+    ob_step3_free: '✨ 最初の領土は無料',
+    ob_step3_tip1: 'このパネルを閉じると地球儀が表示されます',
+    ob_step3_tip2: '火星の空白エリアをクリックするとクレームパネルが開きます',
+    ob_step3_tip3: 'CONFIRMを押すと領土が確定します',
+    ob_step3_got_it: '🗺️ わかった、始めよう！',
+    ob_step3_next: '次へ',
+    ob_step4_title: '準備完了！', ob_step4_sub: '火星へようこそ、開拓者よ',
+    ob_step4_mission_label: '本日の最初のミッション',
+    ob_step4_mission_reward: '完了で +{gp} GP',
+    ob_step4_start: '🚀 火星探検開始！',
+    ob_reward_pioneer: '🏅 パイオニア',
+    ob_reward_gp: '+{n} GP 獲得！', ob_reward_pp: '+{n} PP 獲得！',
+    ob_reward_item: '{code} 獲得！', ob_reward_title: '称号「{name}」獲得！',
+    ob_starter_ship: '🚀 スターター艦船支給！{name} × 1',
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -18771,6 +18983,62 @@ var I18N = {
     story_tap_hint: '点击继续',
     story_abandon_confirm_title: '退出剧情',
     story_abandon_confirm_body: '放弃进行中的章节并退出剧情。已做的选择将被保留。',
+    btn_close: '✕ 关闭',
+    lo_tagline: '占领火星领土<br>建立你的帝国',
+    lo_feat1: '在火星地图上实时像素领土占领',
+    lo_feat2: '舰队战 · 攻城战 · 1:1 GP决斗',
+    lo_feat3: '通过派系和公会建立联盟',
+    lo_feat4: '采矿 · 升级 · 市场',
+    lo_btn_start: '🚀 立即开始',
+    lo_btn_browse: '先浏览地球仪',
+    wb_tab_active: '🔥 活跃事件', wb_tab_recent: '📜 最近结果', wb_tab_mine: '🏆 我的投注',
+    sy_sort_price_asc: '价格由低到高', sy_sort_price_desc: '价格由高到低',
+    sy_sort_power_desc: '升级最高', sy_sort_newest_listed: '最新上架',
+    bv_share: '分享',
+    bv_my_victory: '🏆 胜利！', bv_my_defeat: '💀 失败',
+    bv_atk_won: '进攻方胜利', bv_def_won: '防守方胜利', bv_draw_result: '平局',
+    bv_stat_total_ships: '总舰船', bv_stat_losses: '损失', bv_stat_damage: '伤害',
+    bv_my_badge: '我',
+    fleet_no_fleet_hint: '无舰队 — 在造船厂建造舰船',
+    fleet_no_ships_hint: '无舰船<br>在造船厂建造',
+    fleet_no_combat_fleet: '没有可战斗的舰队。请在造船厂建造舰船！',
+    fleet_both_no_fleet: '双方都没有可战斗的舰队。',
+    fleet_enemy_no_fleet: '敌方公会没有可战斗的舰队。',
+    ob_line1: '"2067年。地球资源耗尽了。"',
+    ob_line2: '"火星是最后的希望。"',
+    ob_line3: '"今天你迈出了开拓者的第一步。"',
+    ob_btn_land: '🚀 登陆火星', ob_btn_skip: '跳过',
+    ob_step1_title: '选择你的命运',
+    ob_step1_sub: '你会以何种方式在火星生存？',
+    ob_job_change_note: '之后可以更改（每周1次免费）',
+    ob_step1_choose: '请选择职业',
+    ob_step2_title: '选择派系',
+    ob_step2_sub: '加入火星三大势力之一',
+    ob_step2_free_note: '首次选择免费 · 之后更改需500 GP',
+    ob_step2_already: '已选择派系。',
+    ob_step2_continue: '继续 →',
+    ob_step2_loading: '加载中...',
+    ob_step2_load_fail: '加载失败 — 请点击稍后选择',
+    ob_step2_choose: '请选择派系', ob_step2_skip: '稍后选择',
+    ob_confirm: '确认选择', ob_processing: '处理中...',
+    ob_faction_error: '派系选择失败：',
+    ob_faction_success: '🛡 派系选择完成！',
+    ob_step3_title: '占领你的第一块领土',
+    ob_step3_sub: '点击地图上的空白区域即可占领',
+    ob_step3_free: '✨ 首块领土免费',
+    ob_step3_tip1: '关闭此面板后可看到地球仪',
+    ob_step3_tip2: '点击火星上的空白区域打开占领面板',
+    ob_step3_tip3: '按下CONFIRM即可确认领土',
+    ob_step3_got_it: '🗺️ 明白了，开始！',
+    ob_step3_next: '下一步',
+    ob_step4_title: '准备就绪！', ob_step4_sub: '欢迎来到火星，开拓者',
+    ob_step4_mission_label: '今日首个任务',
+    ob_step4_mission_reward: '完成奖励：+{gp} GP',
+    ob_step4_start: '🚀 开始探索火星！',
+    ob_reward_pioneer: '🏅 开拓者',
+    ob_reward_gp: '+{n} GP 获得！', ob_reward_pp: '+{n} PP 获得！',
+    ob_reward_item: '{code} 获得！', ob_reward_title: '称号"{name}"获得！',
+    ob_starter_ship: '🚀 初始舰船发放！{name} × 1',
   }
 };
 
@@ -22601,7 +22869,7 @@ function _loadFleetTabSummary(){
 
     // ── 함대 목록 ──
     if(!fleets.length){
-      html+='<div style="text-align:center;color:var(--tx3);font-size:9px;padding:16px">보유 함대 없음 — 조선소에서 함선을 건조하세요</div>';
+      html+='<div style="text-align:center;color:var(--tx3);font-size:9px;padding:16px">'+t('fleet_no_fleet_hint')+'</div>';
     } else {
       fleets.forEach(function(f){
         var fShips=byFleet[f.id]||[];
@@ -23628,22 +23896,22 @@ async function openGuildWarFight(warId, guildId){
 
     // 둘 다 함대 없음
     if(myFleets.length===0 && enemiesWithFleet.length===0){
-      showToast('양측 모두 전투 가능한 함대가 없습니다','error'); return;
+      showToast(t('fleet_both_no_fleet'),'error'); return;
     }
     // 내 함대 없음
     if(myFleets.length===0){
-      showToast('전투 가능한 함대가 없습니다. 함선을 건조하세요!','error'); return;
+      showToast(t('fleet_no_combat_fleet'),'error'); return;
     }
     // 적 함대 없음 → 자동 승리
     if(enemiesWithFleet.length===0){
       var ok = await gameConfirm({
-        title:'자동 승리',icon:'🏆',
+        title:t('gw_auto_win_title'),icon:'🏆',
         body:'<div style="text-align:center;padding:8px 0">'
-          +'<div style="font-size:13px;color:var(--tx);margin-bottom:8px">적 길드에 전투 가능한 함대가 없습니다</div>'
-          +'<div style="font-size:11px;color:var(--gold)">자동 승리 처리 후 길드전 포인트를 획득합니다 (+10 pts)</div>'
-          +'<div style="font-size:10px;color:var(--tx3);margin-top:4px">24시간에 1회 가능</div>'
+          +'<div style="font-size:13px;color:var(--tx);margin-bottom:8px">'+t('gw_auto_win_body')+'</div>'
+          +'<div style="font-size:11px;color:var(--gold)">'+t('gw_auto_win_pts')+'</div>'
+          +'<div style="font-size:10px;color:var(--tx3);margin-top:4px">'+t('gw_auto_win_limit')+'</div>'
           +'</div>',
-        confirmText:'🏆 자동 승리 획득'
+        confirmText:t('gw_auto_win_btn')
       });
       if(!ok) return;
       var r = await fetch('/api/guild/war/auto-win',{
@@ -23653,10 +23921,10 @@ async function openGuildWarFight(warId, guildId){
       });
       var rd = await r.json();
       if(!r.ok){
-        var errMap={'AUTO_WIN_COOLDOWN':'24시간 내 이미 자동 승리를 사용했습니다','ENEMY_HAS_FLEETS':'적에게 함대가 생겼습니다 — 직접 전투하세요'};
-        showToast(errMap[rd.error]||('오류: '+rd.error),'error'); return;
+        var errMap={'AUTO_WIN_COOLDOWN':t('gw_auto_win_cooldown'),'ENEMY_HAS_FLEETS':t('gw_enemy_has_fleets')};
+        showToast(errMap[rd.error]||('Error: '+rd.error),'error'); return;
       }
-      showToast('🏆 자동 승리! +'+rd.points+' pts 획득','success');
+      showToast(t('gw_auto_win_toast').replace('{pts}',rd.points),'success');
       try{ renderGuildWars(guildId); }catch(_){}
       return;
     }
@@ -29333,7 +29601,7 @@ function openShipRegistry(){
         body += '<div style="text-align:center;color:var(--tx3);font-size:9px;margin-bottom:10px">총 '+(summary.total_ships||ships.length||0)+'척'+(summary.alive!=null?' · 가용 '+summary.alive+'척':'')+'</div>';
       }
       if(!ships.length){
-        body += '<div style="text-align:center;color:var(--tx3);padding:14px">보유 함선 없음<br><span style="font-size:9px">조선소에서 함선을 건조하세요</span></div>';
+        body += '<div style="text-align:center;color:var(--tx3);padding:14px">'+t('fleet_no_ships_hint')+'</div>';
       } else {
         body += '<div style="display:grid;grid-template-columns:1fr auto auto;gap:5px 10px;font-size:9px">';
         body += '<div style="color:var(--tx3);font-weight:700">SHIP</div><div style="color:var(--tx3);font-weight:700;text-align:center">HP</div><div style="color:var(--tx3);font-weight:700;text-align:right">STATUS</div>';
@@ -43180,7 +43448,7 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
   <div class="shipyard-modal">
     <div class="shipyard-header">
       <div class="shipyard-title">⚒ SHIPYARD · 조선소</div>
-      <button class="shipyard-close" onclick="closeShipyard()">✕ 닫기</button>
+      <button class="shipyard-close" onclick="closeShipyard()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="shipyard-tabs">
       <button class="sy-tab active" data-tab="blueprints" onclick="switchSyTab('blueprints')">
@@ -43231,10 +43499,10 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
           <button class="sy-filter-chip" data-msize="battleship" onclick="filterMarketSize('battleship')">BS</button>
           <button class="sy-filter-chip" data-msize="titan" onclick="filterMarketSize('titan')">TTN</button>
           <select class="sy-market-sort" onchange="filterMarketSort(this.value)" id="syMarketSortSelect">
-            <option value="price_asc">가격 낮은순</option>
-            <option value="price_desc">가격 높은순</option>
-            <option value="power_desc">강화 높은순</option>
-            <option value="newest">최신 등록순</option>
+            <option value="price_asc" data-i18n="sy_sort_price_asc">Price: Low to High</option>
+            <option value="price_desc" data-i18n="sy_sort_price_desc">Price: High to Low</option>
+            <option value="power_desc" data-i18n="sy_sort_power_desc">Upgrade: Highest</option>
+            <option value="newest" data-i18n="sy_sort_newest_listed">Newest Listed</option>
           </select>
         </div>
         <div class="ship-market-list" id="shipMarketList"></div>
@@ -44585,7 +44853,7 @@ var MINERAL_EN = {
   <div class="fleetcmd-modal" onclick="event.stopPropagation()">
     <div class="fleetcmd-header">
       <div class="fleetcmd-title">🎖 FLEET COMMAND · 함대 지휘</div>
-      <button type="button" class="shipyard-close" onclick="event.preventDefault();closeFleetCmd()">✕ 닫기</button>
+      <button type="button" class="shipyard-close" onclick="event.preventDefault();closeFleetCmd()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="fleetcmd-body">
       <div class="fleet-list">
@@ -45312,7 +45580,7 @@ function fcEsc(str) {
   <div class="ai-modal">
     <div class="bh-header">
       <div class="bh-title">🤖 AI 연습전</div>
-      <button class="shipyard-close" onclick="closeAiFight()">✕ 닫기</button>
+      <button class="shipyard-close" onclick="closeAiFight()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div style="padding:10px 20px;font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">
       난이도별 AI 함대와 연습 전투. 보상은 일반 전투의 50%.
@@ -45326,7 +45594,7 @@ function fcEsc(str) {
   <div class="tn-modal">
     <div class="bh-header">
       <div class="bh-title">🏆 TOURNAMENTS</div>
-      <button class="shipyard-close" onclick="closeTournaments()">✕ 닫기</button>
+      <button class="shipyard-close" onclick="closeTournaments()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="tn-tabs">
       <button class="tn-tab active" data-tab="open" onclick="tnSwitchTab('open')">📢 모집중</button>
@@ -45347,7 +45615,7 @@ function fcEsc(str) {
   <div class="tn-modal">
     <div class="bh-header">
       <div class="bh-title" id="bracketTitle">🏆 BRACKET</div>
-      <button class="shipyard-close" onclick="closeBracket()">✕ 닫기</button>
+      <button class="shipyard-close" onclick="closeBracket()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="bracket-container" id="bracketContent"></div>
   </div>
@@ -45549,10 +45817,10 @@ function fcEsc(str) {
       byTier[t].push(r);
     });
     const titles = {
-      0: 'TIER 0 — 기본 광물 (모든 섹터)',
-      1: 'TIER 1 — 희귀 광물 (Mid/Frontier)',
-      2: 'TIER 2 — 특수 소재 (Frontier·이벤트)',
-      3: 'TIER 3 — 중간 부품 (유저 제작)',
+      0: LANG==='ko' ? 'TIER 0 — 기본 광물 (모든 섹터)' : 'TIER 0 — Basic Minerals (All Sectors)',
+      1: LANG==='ko' ? 'TIER 1 — 희귀 광물 (Mid/Frontier)' : 'TIER 1 — Rare Minerals (Mid/Frontier)',
+      2: LANG==='ko' ? 'TIER 2 — 특수 소재 (Frontier·이벤트)' : 'TIER 2 — Special Materials (Frontier·Events)',
+      3: LANG==='ko' ? 'TIER 3 — 중간 부품 (유저 제작)' : 'TIER 3 — Crafted Components (Player-made)',
     };
     body.innerHTML = [0,1,2,3].map(t => {
       const list = byTier[t] || [];
@@ -45562,15 +45830,17 @@ function fcEsc(str) {
         if (m.is_craftable && m.craft_recipe) {
           const parts = Object.entries(m.craft_recipe).map(([c,q]) => c + '×' + q);
           src = '<div class="min-card-recipe">🔧 ' + escapeHtml(parts.join(' + ')) + '</div>';
-        } else if (m.description_ko) {
-          src = '<div class="min-card-src">' + escapeHtml(m.description_ko) + '</div>';
+        } else if (m.description_ko || m.description_en) {
+          var _desc = LANG==='ko' ? (m.description_ko||m.description_en||'') : (m.description_en||m.description_ko||'');
+          src = '<div class="min-card-src">' + escapeHtml(_desc) + '</div>';
         }
+        var _mname = LANG==='ko' ? (m.name_ko||m.code) : (m.name_en||m.code);
         return `
           <div class="min-card">
             <div class="min-card-icon" style="color:${m.color_hex||'#fff'}">${m.icon_emoji || '●'}</div>
             <div class="min-card-info">
-              <div class="min-card-name" style="color:${m.color_hex||'#fff'}">${escapeHtml(m.name_ko || m.code)}</div>
-              <div class="min-card-en">${escapeHtml(m.name_en || '')}</div>
+              <div class="min-card-name" style="color:${m.color_hex||'#fff'}">${escapeHtml(_mname)}</div>
+              <div class="min-card-en">${escapeHtml(LANG==='ko' ? (m.name_en||'') : '')}</div>
               ${src}
             </div>
           </div>
@@ -45626,7 +45896,7 @@ function fcEsc(str) {
   <div class="al-modal">
     <div class="bh-header">
       <div class="bh-title">🤝 ALLIANCES</div>
-      <button class="shipyard-close" onclick="closeAlliance()">✕ 닫기</button>
+      <button class="shipyard-close" onclick="closeAlliance()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div id="allianceContent" style="flex:1;overflow-y:auto"></div>
   </div>
@@ -45637,7 +45907,7 @@ function fcEsc(str) {
   <div class="rp-modal">
     <div class="bh-header">
       <div class="bh-title">📼 REPLAYS</div>
-      <button class="shipyard-close" onclick="closeReplays()">✕ 닫기</button>
+      <button class="shipyard-close" onclick="closeReplays()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="bh-tabs">
       <button class="bh-tab active" data-tab="featured" onclick="rpSwitchTab('featured')">⭐ 추천</button>
@@ -45688,8 +45958,8 @@ function fcEsc(str) {
         <div class="bv-result-subtitle" id="bvResultSubtitle"></div>
         <div class="bv-result-stats" id="bvResultStats"></div>
         <div class="bv-result-actions">
-          <button class="primary" onclick="shareCurrentBattle()">📼 공유하기</button>
-          <button onclick="closeBattleViewer()">닫기</button>
+          <button class="primary" onclick="shareCurrentBattle()">📼 <span data-i18n="bv_share">Share</span></button>
+          <button onclick="closeBattleViewer()" data-i18n="btn_close">✕ Close</button>
         </div>
       </div>
     </div>
@@ -45785,26 +46055,26 @@ function renderBattleCard(b, tab) {
   const isLive = b.status === 'active';
   const isPreparing = b.status === 'preparing';
   const statusCls = isLive ? 'active' : isPreparing ? 'preparing' : 'ended';
-  const statusLabel = isLive ? '● LIVE' : isPreparing ? '대기중' : 
-                      (b.winner_side === 'atk' ? '공격 승' : b.winner_side === 'def' ? '수비 승' : '무승부');
-  
+  const statusLabel = isLive ? '● LIVE' : isPreparing ? (t('bc_waiting')||'Waiting') :
+                      (b.winner_side === 'atk' ? (t('bc_atk_win')||'ATK WIN') : b.winner_side === 'def' ? (t('bc_def_win')||'DEF WIN') : (t('bv_draw_result')||'Draw'));
+
   const battleTypeMap = {
-    'pvp_duel': 'PvP 결투',
-    'siege': '공성전',
-    'hijack': '하이재킹',
-    'raid': '레이드',
-    'event': '이벤트',
+    'pvp_duel': t('bc_type_duel')||'PvP Duel',
+    'siege': t('bc_type_siege')||'Siege',
+    'hijack': t('bc_type_hijack')||'Hijacking',
+    'raid': t('bc_type_raid')||'Raid',
+    'event': t('bc_type_event')||'Event',
   };
-  
+
   let resultClass = '';
   let resultLabel = '';
   if (tab === 'history' && b.my_result) {
     resultClass = 'result-' + b.my_result;
-    resultLabel = b.my_result === 'win' ? '승리' : b.my_result === 'loss' ? '패배' : '무승부';
+    resultLabel = b.my_result === 'win' ? (t('bv_my_victory')||'Victory') : b.my_result === 'loss' ? (t('bv_my_defeat')||'Defeat') : (t('bv_draw_result')||'Draw');
   }
-  
-  const timeInfo = isLive ? '진행 중' : 
-                   isPreparing ? `예정: ${formatShortTime(b.scheduled_start_at)}` :
+
+  const timeInfo = isLive ? (t('bc_in_progress')||'In Progress') :
+                   isPreparing ? `${t('bc_scheduled')||'Scheduled'}: ${formatShortTime(b.scheduled_start_at)}` :
                    formatShortTime(b.ended_at);
   
   return `
@@ -45883,7 +46153,7 @@ async function openDeclareBattle() {
   } catch { declareState.myFleets = []; }
 
   if (declareState.myFleets.length === 0) {
-    showFactionToast('전투 가능한 함대가 없습니다', 'error');
+    showFactionToast(t('fleet_no_combat_fleet')||'No combat fleet', 'error');
     return;
   }
 
@@ -46426,7 +46696,7 @@ async function challengeAi(aiFleetId, aiName) {
     const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
 
     if (myFleets.length === 0) {
-      showFactionToast('전투 가능한 함대가 없습니다', 'error');
+      showFactionToast(t('fleet_no_combat_fleet')||'No combat fleet', 'error');
       return;
     }
 
@@ -46548,7 +46818,7 @@ async function registerTournament(tournamentId) {
     const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
 
     if (myFleets.length === 0) {
-      showFactionToast('전투 가능한 함대가 없습니다', 'error');
+      showFactionToast(t('fleet_no_combat_fleet')||'No combat fleet', 'error');
       return;
     }
 
@@ -47577,29 +47847,30 @@ function showBattleResult() {
     title.textContent = '≋ DRAW';
   }
   // 내 결과 강조
-  if (iWon) { subtitle.textContent = '🏆 승리!'; subtitle.style.color='#66bb6a'; subtitle.style.fontWeight='bold'; }
-  else if (iLost) { subtitle.textContent = '💀 패배'; subtitle.style.color='#ef5350'; subtitle.style.fontWeight='bold'; }
-  else { subtitle.textContent = winner==='atk'?'공격군 승리':winner==='def'?'수비군 승리':'무승부'; subtitle.style.color=''; subtitle.style.fontWeight=''; }
+  if (iWon) { subtitle.textContent = t('bv_my_victory'); subtitle.style.color='#66bb6a'; subtitle.style.fontWeight='bold'; }
+  else if (iLost) { subtitle.textContent = t('bv_my_defeat'); subtitle.style.color='#ef5350'; subtitle.style.fontWeight='bold'; }
+  else { subtitle.textContent = winner==='atk'?t('bv_atk_won'):winner==='def'?t('bv_def_won'):t('bv_draw_result'); subtitle.style.color=''; subtitle.style.fontWeight=''; }
 
   const atkWon = winner === 'atk';
   const defWon = winner === 'def';
   const atkIsMe = mySide === 'atk';
   const defIsMe = mySide === 'def';
+  const _myBadge = `<span style="background:currentColor;color:#000;font-size:10px;padding:1px 6px;border-radius:3px;vertical-align:middle;margin-left:4px;display:inline-block">${t('bv_my_badge')}</span>`;
   stats.innerHTML = `
     <div class="bv-result-stat-group atk ${atkWon ? 'winner' : ''}${atkIsMe ? ' my-side' : ''}">
       <div class="bv-result-emblem atk">⚔</div>
-      <div class="bv-result-stat-label" style="color:#4fc3f7">ATTACKERS${atkIsMe ? ' <span style="background:#4fc3f7;color:#000;font-size:10px;padding:1px 6px;border-radius:3px;vertical-align:middle">나</span>' : ''}</div>
-      <div class="bv-result-stat-row"><span>총 함선</span><b>${bv.battle.atk_ships_total || 0}</b></div>
-      <div class="bv-result-stat-row"><span>손실</span><b>${bv.battle.atk_ships_lost || 0}</b></div>
-      <div class="bv-result-stat-row"><span>데미지</span><b>${formatNum(summary.atk?.damage_dealt || 0)}</b></div>
+      <div class="bv-result-stat-label" style="color:#4fc3f7">ATTACKERS${atkIsMe ? _myBadge.replace('currentColor','#4fc3f7') : ''}</div>
+      <div class="bv-result-stat-row"><span>${t('bv_stat_total_ships')}</span><b>${bv.battle.atk_ships_total || 0}</b></div>
+      <div class="bv-result-stat-row"><span>${t('bv_stat_losses')}</span><b>${bv.battle.atk_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-row"><span>${t('bv_stat_damage')}</span><b>${formatNum(summary.atk?.damage_dealt || 0)}</b></div>
     </div>
     <div class="bv-result-vs">VS</div>
     <div class="bv-result-stat-group def ${defWon ? 'winner' : ''}${defIsMe ? ' my-side' : ''}">
       <div class="bv-result-emblem def">🛡</div>
-      <div class="bv-result-stat-label" style="color:#ff7043">DEFENDERS${defIsMe ? ' <span style="background:#ff7043;color:#000;font-size:10px;padding:1px 6px;border-radius:3px;vertical-align:middle">나</span>' : ''}</div>
-      <div class="bv-result-stat-row"><span>총 함선</span><b>${bv.battle.def_ships_total || 0}</b></div>
-      <div class="bv-result-stat-row"><span>손실</span><b>${bv.battle.def_ships_lost || 0}</b></div>
-      <div class="bv-result-stat-row"><span>데미지</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
+      <div class="bv-result-stat-label" style="color:#ff7043">DEFENDERS${defIsMe ? _myBadge.replace('currentColor','#ff7043') : ''}</div>
+      <div class="bv-result-stat-row"><span>${t('bv_stat_total_ships')}</span><b>${bv.battle.def_ships_total || 0}</b></div>
+      <div class="bv-result-stat-row"><span>${t('bv_stat_losses')}</span><b>${bv.battle.def_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-row"><span>${t('bv_stat_damage')}</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
     </div>
   `;
 
@@ -48108,46 +48379,50 @@ function renderObStep0(el) {
     <div class="ob-intro-text">
       <div style="font-size:56px;margin-bottom:16px;animation:ob-bounce .8s ease">🪐</div>
       <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;letter-spacing:6px;color:#fff;margin-bottom:20px;text-shadow:0 0 30px rgba(255,100,50,.5)">OCCUPY MARS</div>
-      <p class="ob-intro-line" style="animation-delay:0s">"2067년. 지구의 자원이 고갈됐다."</p>
-      <p class="ob-intro-line" style="animation-delay:.8s">"화성이 마지막 희망이다."</p>
-      <p class="ob-intro-line" style="animation-delay:1.6s">"당신은 오늘 첫 발을 내딛는 개척자다."</p>
+      <p class="ob-intro-line" style="animation-delay:0s">${t('ob_line1')}</p>
+      <p class="ob-intro-line" style="animation-delay:.8s">${t('ob_line2')}</p>
+      <p class="ob-intro-line" style="animation-delay:1.6s">${t('ob_line3')}</p>
     </div>
     <button class="ob-btn-primary" onclick="advanceStep(0)" style="margin-top:16px;background:linear-gradient(135deg,#8b1a1a,#e74c3c);border-color:rgba(231,76,60,.7)">
-      🚀 화성에 착륙하기
+      ${t('ob_btn_land')}
     </button>
-    <button class="ob-btn-skip" onclick="skipOnboarding()">건너뛰기</button>
+    <button class="ob-btn-skip" onclick="skipOnboarding()">${t('ob_btn_skip')}</button>
   `;
 }
 
 // STEP 1: 직업 선택
 function renderObStep1(el) {
-  const jobs = [
-    { code:'miner',    icon:'⛏️', name:'광부',   desc:'채굴로 부를 쌓는다',    buff:'채굴 +50%',   weak:'전투 -30%' },
-    { code:'warrior',  icon:'⚔️', name:'전사',   desc:'영토를 빼앗고 지킨다',  buff:'공격력 +20%', weak:'채굴 -20%' },
-    { code:'crafter',  icon:'🔨', name:'제작자', desc:'아이템을 만들고 강화',   buff:'강화 +30%',   weak:'전투 -20%' },
-    { code:'merchant', icon:'💼', name:'상인',   desc:'거래로 이익을 극대화',   buff:'수수료 -35%', weak:'전투 -20%' },
-  ];
+  var _jobData = {
+    miner:    { icon:'⛏️', name_en:'Miner',    name_ko:'광부',   desc_en:'Accumulate wealth through mining', desc_ko:'채굴로 부를 쌓는다', buff_en:'Mining +50%', buff_ko:'채굴 +50%', weak_en:'Battle -30%', weak_ko:'전투 -30%' },
+    warrior:  { icon:'⚔️', name_en:'Warrior',  name_ko:'전사',   desc_en:'Seize and defend territory',       desc_ko:'영토를 빼앗고 지킨다', buff_en:'ATK +20%', buff_ko:'공격력 +20%', weak_en:'Mining -20%', weak_ko:'채굴 -20%' },
+    crafter:  { icon:'🔨', name_en:'Crafter',  name_ko:'제작자', desc_en:'Craft and enhance items',          desc_ko:'아이템을 만들고 강화', buff_en:'Enhance +30%', buff_ko:'강화 +30%', weak_en:'Battle -20%', weak_ko:'전투 -20%' },
+    merchant: { icon:'💼', name_en:'Merchant', name_ko:'상인',   desc_en:'Maximize profits through trade',   desc_ko:'거래로 이익을 극대화', buff_en:'Fee -35%', buff_ko:'수수료 -35%', weak_en:'Battle -20%', weak_ko:'전투 -20%' },
+  };
+  var _isKo = LANG==='ko';
   el.innerHTML = `
-    <div class="ob-title" style="font-size:15px">운명을 선택하세요</div>
-    <div class="ob-subtitle">어떤 방식으로 화성에서 살아남을 것인가</div>
+    <div class="ob-title" style="font-size:15px">${t('ob_step1_title')}</div>
+    <div class="ob-subtitle">${t('ob_step1_sub')}</div>
     <div class="ob-job-grid">
-      ${jobs.map(j=>`
-        <div class="ob-job-card ${j.code} ${ob.selectedJob===j.code?'selected':''}" onclick="obSelectJob('${j.code}')">
+      ${Object.keys(_jobData).map(function(code){var j=_jobData[code]; return `
+        <div class="ob-job-card ${code} ${ob.selectedJob===code?'selected':''}" onclick="obSelectJob('${code}')">
           <div class="ob-job-icon">${j.icon}</div>
-          <div class="ob-job-name ${j.code}">${j.name}</div>
-          <div class="ob-job-desc">${j.desc}</div>
-          <div class="ob-job-buff">✓ ${j.buff}</div>
-          <div class="ob-job-weak">✗ ${j.weak}</div>
-        </div>`).join('')}
+          <div class="ob-job-name ${code}">${_isKo?j.name_ko:j.name_en}</div>
+          <div class="ob-job-desc">${_isKo?j.desc_ko:j.desc_en}</div>
+          <div class="ob-job-buff">✓ ${_isKo?j.buff_ko:j.buff_en}</div>
+          <div class="ob-job-weak">✗ ${_isKo?j.weak_ko:j.weak_en}</div>
+        </div>`}).join('')}
     </div>
-    <div style="font-size:9px;color:rgba(255,255,255,.25);text-align:center;margin-bottom:8px">나중에 변경 가능 (주 1회 무료)</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.25);text-align:center;margin-bottom:8px">${t('ob_job_change_note')}</div>
     <button class="ob-btn-primary" id="obJobConfirmBtn" onclick="advanceStep(1)" ${ob.selectedJob?'':'disabled'}>
-      ${ob.selectedJob ? obGetJobName(ob.selectedJob)+' 선택 확정' : '직업을 선택하세요'}
+      ${ob.selectedJob ? (obGetJobName(ob.selectedJob)+' — '+t('ob_confirm')) : t('ob_step1_choose')}
     </button>
   `;
 }
 function obSelectJob(code) { ob.selectedJob = code; renderStep(1); }
-function obGetJobName(code) { return {miner:'광부',warrior:'전사',crafter:'제작자',merchant:'상인'}[code]||code; }
+function obGetJobName(code) {
+  var _n={miner:{en:'Miner',ko:'광부'},warrior:{en:'Warrior',ko:'전사'},crafter:{en:'Crafter',ko:'제작자'},merchant:{en:'Merchant',ko:'상인'}};
+  return (_n[code]&&(LANG==='ko'?_n[code].ko:_n[code].en))||code;
+}
 
 // STEP 2: 파벌 선택 (inline)
 async function renderObStep2(el) {
@@ -48156,21 +48431,21 @@ async function renderObStep2(el) {
     el.innerHTML = `
       <div class="ob-complete-center" style="padding:20px 0">
         <div style="font-size:42px;margin-bottom:12px">${factionState.current.icon_emoji||'🛡️'}</div>
-        <div class="ob-title" style="font-size:14px">${factionState.current.name_ko||factionState.current.code}</div>
-        <div class="ob-subtitle">파벌이 이미 선택되어 있습니다.</div>
+        <div class="ob-title" style="font-size:14px">${LANG==='ko'?(factionState.current.name_ko||factionState.current.code):(factionState.current.name_en||factionState.current.code)}</div>
+        <div class="ob-subtitle">${t('ob_step2_already')}</div>
       </div>
-      <button class="ob-btn-primary" onclick="advanceStep(2)">계속 →</button>`;
+      <button class="ob-btn-primary" onclick="advanceStep(2)">${t('ob_step2_continue')}</button>`;
     return;
   }
   el.innerHTML = `
-    <div class="ob-title" style="font-size:15px">파벌을 선택하세요</div>
-    <div class="ob-subtitle">화성의 세 세력 중 하나에 합류하세요<br>
-      <span style="color:rgba(255,255,255,.3);font-size:10px">첫 선택 무료 · 이후 변경 시 500 GP</span></div>
+    <div class="ob-title" style="font-size:15px">${t('ob_step2_title')}</div>
+    <div class="ob-subtitle">${t('ob_step2_sub')}<br>
+      <span style="color:rgba(255,255,255,.3);font-size:10px">${t('ob_step2_free_note')}</span></div>
     <div class="ob-faction-grid" id="obFactionGrid">
-      <div style="text-align:center;padding:20px;color:rgba(255,255,255,.3);font-size:10px;grid-column:1/-1">로딩 중...</div>
+      <div style="text-align:center;padding:20px;color:rgba(255,255,255,.3);font-size:10px;grid-column:1/-1">${t('ob_step2_loading')}</div>
     </div>
-    <button class="ob-btn-primary" id="obFactionConfirmBtn" onclick="obConfirmFaction()" disabled>파벌을 선택하세요</button>
-    <button class="ob-btn-skip" onclick="advanceStep(2)">나중에 선택하기</button>
+    <button class="ob-btn-primary" id="obFactionConfirmBtn" onclick="obConfirmFaction()" disabled>${t('ob_step2_choose')}</button>
+    <button class="ob-btn-skip" onclick="advanceStep(2)">${t('ob_step2_skip')}</button>
   `;
   try {
     var factions = (typeof factionState!=='undefined' && factionState.list && factionState.list.length)
@@ -48181,21 +48456,24 @@ async function renderObStep2(el) {
     var gridEl = document.getElementById('obFactionGrid');
     if (!gridEl) return;
     var colorMap = {mcc:'#ef5350', fsp:'#4fc3f7', cv:'#81c784'};
+    var _isKo2 = LANG==='ko';
     gridEl.innerHTML = factions.map(function(f){
       var c = colorMap[f.code]||'#fff';
+      var _fname = _isKo2 ? (f.name_ko||f.code) : (f.name_en||f.code);
+      var _fdesc = _isKo2 ? (f.description_ko||'') : (f.description_en||f.description_ko||'');
       return '<div class="ob-faction-card '+f.code+'" id="obFCard_'+f.code+'" onclick="obSelectFaction(\''+f.code+'\')">'
         +'<div style="font-size:28px;margin-bottom:8px">'+(f.icon_emoji||'⬢')+'</div>'
-        +'<div style="font-family:\'Orbitron\',monospace;font-size:10px;font-weight:900;letter-spacing:2px;color:'+c+';margin-bottom:6px">'+(f.name_ko||f.code)+'</div>'
-        +'<div style="font-size:9px;color:rgba(255,255,255,.4);line-height:1.5;margin-bottom:8px">'+(f.description_ko||'')+'</div>'
+        +'<div style="font-family:\'Orbitron\',monospace;font-size:10px;font-weight:900;letter-spacing:2px;color:'+c+';margin-bottom:6px">'+_fname+'</div>'
+        +'<div style="font-size:9px;color:rgba(255,255,255,.4);line-height:1.5;margin-bottom:8px">'+_fdesc+'</div>'
         +'<div style="font-size:9px;color:rgba(255,255,255,.45);line-height:1.7">'
-        +'<div>⚔ 공격 ×'+f.atk_multiplier+'</div>'
-        +'<div>🛡 방어 ×'+f.def_multiplier+'</div>'
-        +'<div>💨 속도 ×'+f.spd_multiplier+'</div>'
+        +'<div>⚔ ATK ×'+f.atk_multiplier+'</div>'
+        +'<div>🛡 DEF ×'+f.def_multiplier+'</div>'
+        +'<div>💨 SPD ×'+f.spd_multiplier+'</div>'
         +'</div></div>';
     }).join('');
   } catch(e) {
     var gridEl = document.getElementById('obFactionGrid');
-    if (gridEl) gridEl.innerHTML = '<div style="color:rgba(255,255,255,.3);font-size:10px;text-align:center;grid-column:1/-1;padding:16px">로드 실패 — 나중에 선택하기를 눌러주세요</div>';
+    if (gridEl) gridEl.innerHTML = '<div style="color:rgba(255,255,255,.3);font-size:10px;text-align:center;grid-column:1/-1;padding:16px">'+t('ob_step2_load_fail')+'</div>';
   }
 }
 function obSelectFaction(code) {
@@ -48204,12 +48482,12 @@ function obSelectFaction(code) {
     el.classList.toggle('selected', el.id === 'obFCard_'+code);
   });
   var btn = document.getElementById('obFactionConfirmBtn');
-  if (btn) { btn.disabled = false; btn.textContent = '선택 확정'; }
+  if (btn) { btn.disabled = false; btn.textContent = t('ob_confirm'); }
 }
 async function obConfirmFaction() {
   if (!ob._selectedFaction) return;
   var btn = document.getElementById('obFactionConfirmBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
+  if (btn) { btn.disabled = true; btn.textContent = t('ob_processing'); }
   try {
     var res = await fetch('/api/factions/choose', {
       method: 'POST',
@@ -48218,35 +48496,39 @@ async function obConfirmFaction() {
     });
     var data = await res.json();
     if (!res.ok) {
-      showFactionToast('파벌 선택 실패: '+(data.error||'오류'), 'error');
-      if (btn) { btn.disabled = false; btn.textContent = '선택 확정'; }
+      showFactionToast(t('ob_faction_error')+(data.error||'error'), 'error');
+      if (btn) { btn.disabled = false; btn.textContent = t('ob_confirm'); }
       return;
     }
-    showFactionToast('🛡 파벌 선택 완료!', 'success');
+    showFactionToast(t('ob_faction_success'), 'success');
     if (data.starter_ship) {
+      var _sname = LANG==='ko'?(data.starter_ship.name_ko||'프리깃'):(data.starter_ship.name_en||data.starter_ship.name_ko||'Frigate');
       setTimeout(function() {
-        showToast('🚀 스타터 함선 지급! ' + (data.starter_ship.name_ko || '프리깃') + ' × 1', 'success');
+        showToast(t('ob_starter_ship').replace('{name}',_sname), 'success');
       }, 800);
     }
     try { await loadFactions(); } catch(_) {}
     advanceStep(2);
   } catch(e) {
-    showFactionToast('네트워크 오류', 'error');
-    if (btn) { btn.disabled = false; btn.textContent = '선택 확정'; }
+    showFactionToast(t('err_network')||'Network error', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = t('ob_confirm'); }
   }
 }
 
 // STEP 3: 첫 영토 안내
 async function renderObStep3(el) {
-  var sectorName = 'Arcadia Ridge', sectorReason = '자원이 풍부하고 방어가 쉬운 지역입니다';
+  var sectorName = 'Arcadia Ridge', sectorReason = LANG==='ko'?'자원이 풍부하고 방어가 쉬운 지역입니다':'Resource-rich and easy to defend';
   try {
     var res = await fetch('/api/onboarding/sector?job_code='+(ob.selectedJob||'miner'));
     var d = await res.json();
-    if (d.sector) { sectorName = d.sector.name||d.sector.code||sectorName; sectorReason = d.sector.reason_ko||sectorReason; }
+    if (d.sector) {
+      sectorName = d.sector.name||d.sector.code||sectorName;
+      sectorReason = LANG==='ko'?(d.sector.reason_ko||sectorReason):(d.sector.reason_en||d.sector.reason_ko||sectorReason);
+    }
   } catch(_) {}
   el.innerHTML = `
-    <div class="ob-title" style="font-size:15px">첫 영토를 점령하세요</div>
-    <div class="ob-subtitle">지도에서 빈 영역을 클릭하면 클레임할 수 있습니다</div>
+    <div class="ob-title" style="font-size:15px">${t('ob_step3_title')}</div>
+    <div class="ob-subtitle">${t('ob_step3_sub')}</div>
     <div class="ob-sector-card">
       <div class="ob-sector-icon">🗺️</div>
       <div class="ob-sector-info">
@@ -48254,43 +48536,44 @@ async function renderObStep3(el) {
         <div class="ob-sector-reason">${sectorReason}</div>
       </div>
     </div>
-    <div class="ob-free-badge">✨ 첫 번째 영토 비용 면제</div>
+    <div class="ob-free-badge">${t('ob_step3_free')}</div>
     <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:10px;color:rgba(255,255,255,.5);line-height:1.9">
-      <b style="color:#4fc3f7">① 이 창을 닫으면</b> 지구본이 보입니다<br>
-      <b style="color:#4fc3f7">② 화성 위 빈 영역을 클릭</b>하면 클레임 창이 열립니다<br>
-      <b style="color:#4fc3f7">③ CONFIRM</b>을 누르면 영토가 생깁니다
+      <b style="color:#4fc3f7">①</b> ${t('ob_step3_tip1')}<br>
+      <b style="color:#4fc3f7">②</b> ${t('ob_step3_tip2')}<br>
+      <b style="color:#4fc3f7">③</b> ${t('ob_step3_tip3')}
     </div>
-    <button class="ob-btn-primary" onclick="advanceStep(3)">🗺️ 이해했어요, 시작합니다!</button>
-    <button class="ob-btn-skip" onclick="advanceStep(3)">다음으로</button>
+    <button class="ob-btn-primary" onclick="advanceStep(3)">${t('ob_step3_got_it')}</button>
+    <button class="ob-btn-skip" onclick="advanceStep(3)">${t('ob_step3_next')}</button>
   `;
 }
 
 // STEP 4: 완료 + 보상
 async function renderObStep4(el) {
-  var mission = { desc_ko:'첫 영토를 클레임하세요', gp_reward:50 };
+  var mission = { desc_ko:'첫 영토를 클레임하세요', desc_en:'Claim your first territory', gp_reward:50 };
   try {
     var res = await fetch('/api/onboarding/mission?job_code='+(ob.selectedJob||'miner'));
     var d = await res.json();
     if (d.mission) mission = d.mission;
   } catch(_) {}
+  var _missionDesc = LANG==='ko'?(mission.desc_ko||mission.desc_en):(mission.desc_en||mission.desc_ko);
   el.innerHTML = `
     <div class="ob-complete-center">
       <div class="ob-complete-emoji">🎉</div>
-      <div class="ob-title" style="font-size:16px">준비 완료!</div>
-      <div class="ob-subtitle">화성에 오신 것을 환영합니다, 개척자여</div>
+      <div class="ob-title" style="font-size:16px">${t('ob_step4_title')}</div>
+      <div class="ob-subtitle">${t('ob_step4_sub')}</div>
       <div class="ob-rewards-grid">
         <div class="ob-reward-chip gp">💰 +200 GP</div>
         <div class="ob-reward-chip pp">🔵 +100 PP</div>
-        <div class="ob-reward-chip title">🏅 개척자</div>
+        <div class="ob-reward-chip title">${t('ob_reward_pioneer')}</div>
       </div>
       <div style="background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.15);border-radius:8px;padding:12px 16px;margin:12px 0;text-align:left">
-        <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:4px">오늘의 첫 미션</div>
-        <div style="font-size:12px;color:#4fc3f7">${mission.desc_ko}</div>
-        <div style="font-size:10px;color:#ffd700;margin-top:4px">완료 시 +${mission.gp_reward} GP</div>
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:4px">${t('ob_step4_mission_label')}</div>
+        <div style="font-size:12px;color:#4fc3f7">${_missionDesc}</div>
+        <div style="font-size:10px;color:#ffd700;margin-top:4px">${t('ob_step4_mission_reward').replace('{gp}',mission.gp_reward)}</div>
       </div>
     </div>
     <button class="ob-btn-primary" onclick="finishOnboarding()" style="background:linear-gradient(135deg,#1a5c1a,#4caf50);border-color:rgba(76,175,80,.6)">
-      🚀 화성 탐험 시작!
+      ${t('ob_step4_start')}
     </button>
   `;
 }
@@ -48308,10 +48591,13 @@ async function advanceStep(currentStep) {
     var data = await res.json();
     if (data.rewards && data.rewards.length) {
       data.rewards.forEach(function(r) {
-        if (r.type==='gp')    showFactionToast('+'+r.amount+' GP 획득!', 'success');
-        if (r.type==='pp')    showFactionToast('+'+r.amount+' PP 획득!', 'success');
-        if (r.type==='item')  showFactionToast(r.code+' 획득!', 'success');
-        if (r.type==='title') showFactionToast('칭호 "'+r.name_ko+'" 획득!', 'success');
+        if (r.type==='gp')    showFactionToast(t('ob_reward_gp').replace('{n}',r.amount), 'success');
+        if (r.type==='pp')    showFactionToast(t('ob_reward_pp').replace('{n}',r.amount), 'success');
+        if (r.type==='item')  showFactionToast(t('ob_reward_item').replace('{code}',r.code), 'success');
+        if (r.type==='title') {
+          var _tname = LANG==='ko'?(r.name_ko||r.name_en||r.code):(r.name_en||r.name_ko||r.code);
+          showFactionToast(t('ob_reward_title').replace('{name}',_tname), 'success');
+        }
       });
     }
     renderStep(data.completed ? 4 : Math.min(currentStep + 1, 4));
