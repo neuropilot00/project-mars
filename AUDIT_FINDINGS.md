@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.87 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v5.88 / 2026-05-05)
+
+## ✅ v5.88 Fleet Battle Readability Polish — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 레이저/빔 가시 시간 연장 | ✅ | 일반 레이저 TTL을 함선 크기별로 연장 (타이탄 ~2s / 전함 1.67s / 순양함 1.3s / 나머지 0.8s). 기존 10프레임(167ms)에서 개선. |
+| 대형함 함대 이동 속도 제한 | ✅ | `mkFleet`이 기함 함선 크기 기반 `maxSpd`를 산출해 타이탄 함대(0.22) ~ 프리깃 함대(0.44)로 차별화. |
+| EMP 시각 효과 | ✅ | EMP 발사 시 DEF 함대별 이중 충격파 shockwave 추가. |
+| 집중공격 시각 효과 | ✅ | 집중공격 대상 함대에 shockwave 타겟팅 표시. |
+| 기존 빔포/미사일 가시성 | ✅ | 빔포 ttl:160(2.67s), 미사일 ttl:150 유지. |
+
+검증:
+- `tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.87 CH4~CH10 Objective Wiring + Reward Note Hardening — 완료
 

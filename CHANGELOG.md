@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — Fleet battle readability polish (v5.88)
+
+- **레이저 가시 시간 연장**: 일반 레이저 fireType의 TTL을 함선 크기별로 차등화했다. 타이탄은 120프레임(~2s), 전함 100프레임(1.67s), 순양함 78프레임(1.3s), 그 외 48프레임(0.8s). 기존 10프레임(167ms)에서 전투 가독성이 대폭 향상된다.
+- **대형함 함대 이동 속도 제한**: `mkFleet`이 기함 함선 크기 기반 `maxSpd`를 계산한다. 타이탄 기함 함대는 0.22, 전함 0.28, 순양함 0.36, 구축함 0.42, 프리깃 0.44. 대형함 중심 함대가 소형함 함대보다 눈에 띄게 느리게 이동한다.
+- **EMP 시각 효과 추가**: EMP 발사 시 DEF 함대 위치에 이중 충격파 shockwave를 표시해 EMP가 뭔가 했다는 시각적 피드백을 제공한다.
+- **집중공격 시각 효과 추가**: 집중공격 대상 함대에 타겟팅 shockwave를 표시한다.
+- **mixed 레이저 TTL 개선**: mixed fireType의 레이저 보조 빔도 7프레임→40프레임으로 연장.
+
+검증:
+- `tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-05 — CH4~CH10 objective wiring + reward note hardening (v5.87)
 
 - **MCC CH4~CH10 목표 와이어링**: `OBJECTIVE_PRESETS`에 MCC CH4~CH10 7개 챕터를 추가했다. 각 챕터에는 `completedFleetBattles`, `fleetShips`, `marketListings`, `shipUpgrades`, `campaignRewardClaims` 중 1~2개의 실-DB 집계 기반 stat 목표가 포함되며, 서버 hard gate를 통과해야 챕터를 완료할 수 있다.

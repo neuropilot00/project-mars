@@ -793,8 +793,12 @@ function initBattle(){
 function mkFleet(def,side,cx,cy){
   const total=Object.values(def.escort).reduce((a,b)=>a+b,0);
   const radius=Math.max(38,Math.sqrt(total)*3.0+24);
+  // Fleet top speed is limited by flagship size — titans/battleships are slower
+  const flagshipSize=(SHIPS[def.flagship]||{}).size||'frigate';
+  const maxSpdBySize={titan:0.22,battleship:0.28,cruiser:0.36,destroyer:0.42,frigate:0.44};
+  const maxSpd=maxSpdBySize[flagshipSize]||0.44;
   const f={userId:def.id,tag:def.tag,side,cx,cy,vcx:0,vcy:0,
-    flagship:null,ships:[],hp:0,maxHp:0,dead:false,radius,
+    flagship:null,ships:[],hp:0,maxHp:0,dead:false,radius,maxSpd,
     facingAngle:side==='atk'?-Math.PI/2:Math.PI/2,
     formation:side==='atk'?'wedge':'screen',maneuver:'advance',
     driftSeed:Math.random()*Math.PI*2,orbitDir:Math.random()<.5?-1:1,
@@ -911,7 +915,8 @@ function updateFleets(dt){
 
     f.vcx*=.91;f.vcy*=.91;
     const spd=Math.hypot(f.vcx,f.vcy);
-    if(spd>.44){f.vcx=f.vcx/spd*.44;f.vcy=f.vcy/spd*.44;}
+    const fMaxSpd=f.maxSpd||0.44;
+    if(spd>fMaxSpd){f.vcx=f.vcx/spd*fMaxSpd;f.vcy=f.vcy/spd*fMaxSpd;}
     f.cx+=f.vcx;f.cy+=f.vcy;
     f.cx=Math.max(f.radius+8,Math.min(W-f.radius-8,f.cx));
     f.cy=Math.max(f.radius+8,Math.min(H-f.radius-8,f.cy));
@@ -991,15 +996,18 @@ function fire(sh,wsMode){
   if(t.fireType==='laser'){
     const ts=tf.flagship&&!tf.flagship.dead?tf.flagship:tf.ships.find(s=>!s.dead);
     if(!ts)return;
+    // TTL in frames at 60fps: titan/battleship ≈ 2s, cruiser ≈ 1.3s, others ≈ 0.8s
+    const laserTTL=t.size==='titan'?120:t.size==='battleship'?100:t.size==='cruiser'?78:48;
+    const laserW=t.size==='titan'?3.2:t.size==='battleship'?2.4:2;
     lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
       color:FACTIONS[sh.type.faction].color,
-      width:sh.type.size==='titan'?3:sh.type.size==='battleship'?2.2:2,
-      alpha:1,ttl:10,age:0,dmg:t.atk*4*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
+      width:laserW,
+      alpha:1,ttl:laserTTL,age:0,dmg:t.atk*4*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
     playLaserSound();
   } else if(t.fireType==='mixed'){
     const ts=tf.ships.filter(s=>!s.dead)[0|Math.random()*4];
     if(ts)lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
-      color:FACTIONS[sh.type.faction].color,width:1.2,alpha:.5,ttl:7,age:0,
+      color:FACTIONS[sh.type.faction].color,width:1.4,alpha:.65,ttl:40,age:0,
       dmg:t.atk*2*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
     if(ts)playLaserSound();
     spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult,wsMode);
@@ -1720,15 +1728,22 @@ function _bridgeToParent(cmd, payload) {
 function cmdFocus(){
   const ef=fleets.filter(f=>f.side==='def'&&!f.dead);
   if(!ef.length)return;
-  const tf=ef.sort((a,b)=>b.flagship?.type.r-a.flagship?.type.r)[0];
+  const tf=ef.sort((a,b)=>(b.flagship?.type.r||0)-(a.flagship?.type.r||0))[0];
   focusFleet=tf;
   addLog('wn',`⚡ 집중공격 — [${tf.userId}]`);
   battleCallout(`[${tf.userId}]에 집중포화! 전 포문 개방!`,'order','top',2500);
+  // Visual: shockwave at the targeted fleet
+  mkShockwave(tf.cx,tf.cy,tf.radius*1.6);
   _bridgeToParent('focus', { target: tf.userId });
 }
 function cmdEMP(){
   empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');
   battleCallout('EMP 투하! 적 사격 통제를 끊어!','order','top',2400);
+  // Visual: shockwave from each DEF fleet center
+  fleets.filter(f=>f.side==='def'&&!f.dead).forEach(f=>{
+    mkShockwave(f.cx,f.cy,f.radius*2.8);
+    mkShockwave(f.cx,f.cy,f.radius*1.4);
+  });
   _bridgeToParent('emp', { duration_ms: 6000 });
 }
 function cmdBeamCannon(){
