@@ -1,3 +1,34 @@
+# OCCUPY MARS — Codebase Audit (v5.98 / 2026-05-05)
+
+## ✅ v5.98 버그 수정 패치 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| **Extractor 수확 보너스 재무 무결성** | | |
+| `territory_upgrades` extractor 레벨 → harvest PP 반영 | ✅ 수정 | P5-4에서 UI만 표시, 실제 계산 미반영이었음 |
+| PP = USDT 1:1 스왑 화폐 → 재무 무결성 이슈로 우선 수정 | ✅ | Lv1=+15%~Lv5=+100% PP 보너스 |
+| **캠페인 보상 실물화** | | |
+| `ship_blueprint` 등 placeholder 타입 → 실물 재료 교체 | ✅ 수정 | 33개 챕터 전반 검토 완료 |
+| `lifeline_supply_ship` → `fsp_logi` (유효 코드) | ✅ 수정 | 존재하지 않는 함선 코드였음 |
+| CH10 엔딩 GP 증액 (ending_2: 1.2M) | ✅ | 최종 엔딩 보상 강화 |
+| `campaignShipRewardPlan` single 맵 fsp_logi 추가 | ✅ | |
+| **다국어 로컬라이징** | | |
+| `_campaignStoryText()` ko→en fallback 수정 | ✅ 수정 | 일어/중국어 선택 시 한글 노출 차단 |
+| 33개 챕터 ja/zh 제목 번역 | ✅ | |
+| campaignObjectiveActionLabel ja/zh 맵 | ✅ | |
+| location displayNameEn 추가 (34개 위치) | ✅ | |
+| **P5 API 경로/컬럼 오타** | | |
+| `require('./db')` → `require('../db')` (api.js:5219) | ✅ 수정 | GP 로그 silent 실패였음 |
+| `materials_used` → `minerals_used` (adminEconomyRoutes.js:456) | ✅ 수정 | admin 재료 소각 통계 |
+| `_territoryUpgradeState` undefined 참조 방어 | ✅ 수정 | |
+
+검증:
+- `node --check server/routes/api.js server/services/campaign.js` 통과
+- ship_types 22종 코드 전수 확인 (fsp_logi DB 존재 확인)
+- git push main 완료
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.97 / 2026-05-05)
 
 ## ✅ v5.97 P5-3~7 Territory Full Utility Stack — 완료

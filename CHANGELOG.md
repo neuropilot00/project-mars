@@ -1,5 +1,30 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — P5 버그 수정 + 캠페인 보상 실물화 (v5.98)
+
+### 버그 수정: Extractor 수확 보너스 미반영 (재무 무결성)
+- `POST /api/harvest` — `territory_upgrades` 테이블의 extractor 업그레이드 레벨을 실제 PP 수확량에 반영하지 않던 버그 수정 (`server/routes/api.js`)
+  - PP는 USDT 1:1 스왑 가능한 실물 화폐이므로 수확 정확도는 재무 무결성 이슈
+  - MAX(extractor level) 쿼리 → bonusMap (Lv1=+15%~Lv5=+100%) 적용 후 `harvestedPP` 재계산
+
+### 버그 수정: 캠페인 보상 placeholder → 실물 지급
+- `server/services/campaign.js` — 미지급 placeholder 보상 전종을 실제 DB 재료(+GP)로 교체
+  - `ship_blueprint/data_artifact/safe_house_access/permanent_buff/residence/corporate_asset/gp_stream/weapon_system/title_position` 등 → exotic_alloy/quantum_core/xenomatter/plasma_crystal 등 실물 재료
+  - CH10 엔딩 보상 GP 증액 (ending_2: 800k→1.2M)
+  - `lifeline_supply_ship`(존재하지 않는 코드) → `fsp_logi` (유효 함선 코드)
+  - `campaignShipRewardPlan` single 맵에 `fsp_logi`, `fsp_logi_crs` 추가
+
+### 버그 수정: 다국어 로컬라이징
+- `index.html` `_campaignStoryText()` — 비한국어 유저의 fallback 우선순위를 `ko` → `en`으로 수정 (일어/중국어 선택 시 한글 노출 차단)
+- 캠페인 챕터 목록 location 표시도 언어별 분기 (`displayNameEn` / `displayNameKo`)
+- `campaignObjectiveActionLabel()` 일어/중국어 번역 맵 추가
+- 33개 챕터 제목에 `ja`/`zh` 번역 추가
+
+### 버그 수정: P5 API 경로 오류
+- `server/routes/api.js:5219` `require('./db')` → `require('../db')` (영토 업그레이드 GP 로그 silent 실패 수정)
+- `server/routes/adminEconomyRoutes.js:456` `materials_used` → `minerals_used` (admin 재료 소각 통계 컬럼명 오타)
+- `index.html` `_territoryUpgradeState` reset 시 undefined 참조 방어 코드 추가
+
 ## 2026-05-05 — P5-3~7 Territory Full Utility Stack (v5.97)
 
 ### P5-3: Shipyard Connection
