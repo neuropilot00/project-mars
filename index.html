@@ -34223,19 +34223,29 @@ function loadBrandingPanel() {
   var sel = document.getElementById('brandClaimSelect');
   if (!sel) return;
   if (!w) { sel.innerHTML = '<option value="">— connect wallet —</option>'; return; }
-  fetch('/api/claims?wallet=' + encodeURIComponent(w))
-    .then(function(r){return r.json();})
-    .then(function(claims){
-      var arr = claims.claims || claims || [];
-      if (!arr.length) { sel.innerHTML = '<option value="">— no territories —</option>'; return; }
-      sel.innerHTML = '<option value="">— select territory —</option>'
-        + arr.map(function(c){
-            return '<option value="'+c.id+'">'
-              + '('+c.x1+','+c.y1+') '+((c.x2-c.x1+1)*(c.y2-c.y1+1))+' px'
-              + (c.territory_name ? ' · '+_escHtml(c.territory_name) : '')
-              + '</option>';
-          }).join('');
-    }).catch(function(){});
+  // Use window.claims (already loaded) filtered by wallet — avoids x1/y1/x2/y2 undefined issue
+  var myClaims = (window.claims || []).filter(function(c){ return (c.owner||'').toLowerCase() === w.toLowerCase(); });
+  if (myClaims.length) {
+    sel.innerHTML = '<option value="">— select territory —</option>'
+      + myClaims.map(function(c){
+          var px = (c.width||1) * (c.height||1);
+          var label = (c.custom_name || ('Territory ' + c.id)) + ' (' + (c.width||1) + '×' + (c.height||1) + ')';
+          return '<option value="'+c.id+'">'+label+'</option>';
+        }).join('');
+  } else {
+    // Fallback: fetch from server if window.claims not loaded yet
+    fetch('/api/claims/my?wallet=' + encodeURIComponent(w))
+      .then(function(r){return r.json();})
+      .then(function(arr){
+        arr = Array.isArray(arr) ? arr : [];
+        if (!arr.length) { sel.innerHTML = '<option value="">— no territories —</option>'; return; }
+        sel.innerHTML = '<option value="">— select territory —</option>'
+          + arr.map(function(c){
+              var label = (c.name || ('Territory ' + c.id)) + ' (' + (c.width||1) + '×' + (c.height||1) + ')';
+              return '<option value="'+c.id+'">'+label+'</option>';
+            }).join('');
+      }).catch(function(){});
+  }
   // Load existing branding for display
   fetch('/api/branding/my?wallet=' + encodeURIComponent(w))
     .then(function(r){return r.json();}).then(function(){}).catch(function(){});
@@ -36062,7 +36072,8 @@ function loadTdescCfg() {
     _tdescCfg = d;
     if (hint) {
       if (d.firstGP === 0) {
-        hint.textContent = t('tdesc_free_hint') || 'First description is free. Updates cost '+d.changeGP+' GP.';
+        var rawHint = t('tdesc_free_hint') || 'First description is free. Updates cost {cost} GP.';
+        hint.textContent = rawHint.replace('{cost}', d.changeGP || 0);
       } else {
         hint.textContent = 'First: '+d.firstGP+' GP · Updates: '+d.changeGP+' GP';
       }
