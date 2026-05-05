@@ -1,3 +1,41 @@
+# OCCUPY MARS — Codebase Audit (v6.00 / 2026-05-05)
+
+## ✅ v6.00 전술랩 미사일/EMP/사운드 개선 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| **미사일** | | |
+| 속도 감속 (1.55-2.0 → 0.85-1.05 px/frame) | ✅ | 착탄 2~3초 체감 |
+| TTL 150 → 240 프레임 | ✅ | 화면 밖 소멸 전 충분한 비행시간 |
+| 유도 homing (age>8 이후 타겟 조향 0.045) | ✅ | 곡선 탄도 구현 |
+| 부채꼴 fan barrage ±0.35rad | ✅ | `cmdMissileBarrage` spawnB 호출 시 적용 |
+| 충전 속도 55% 감소 | ✅ | `0.0021+n×0.00007` |
+| 미사일 비주얼 (주황꼬리+탄두 발광) | ✅ | `drawBullets` 내 missile 분기 |
+| **EMP 재설계** | | |
+| EWAR(재머) 함선 없으면 버튼 disabled | ✅ | `ewars.length===0` → disabled + "재머없음" |
+| 충전 게이지 `empCharge` 추가 | ✅ | EWAR 수에 비례 충전, 100% 도달 후 발동 |
+| 발동 시 초기화 + 재머 함선 플로팅 텍스트 | ✅ | |
+| initBattle empCharge=0 리셋 | ✅ | |
+| **오디오** | | |
+| 빔/레이저 건담 스타일 사운드 | ✅ | 충전→방전→노이즈 꼬리 3레이어 |
+| 빔포 중무장 사운드 | ✅ | 와인+저음+심저음 레이어 |
+| BGM 138bpm 루프 | ✅ | WebAudio 생성음 |
+| visibilitychange/pagehide 자동 정지 | ✅ | 탭 이탈 시 AudioContext suspend/close |
+| **플로팅 텍스트** | | |
+| `_floatTexts` 월드좌표 시스템 | ✅ | 카메라 줌/패닝 추종 |
+| 함선 위치 이벤트 텍스트 연동 | ✅ | 기함 격침, EMP, 패닉 등 |
+| **카메라/레이아웃** | | |
+| bottom callout → top div 라우팅 | ✅ | 컨트롤패드 겹침 해소 |
+| lerp 0.025 → 0.06 | ✅ | 응답 빠름 |
+| initBattle 즉시 중심 설정 | ✅ | 첫 프레임 jitter 제거 |
+| Y clamp margin +32px | ✅ | 5v5+ 레이블 화면 이탈 방지 |
+
+검증:
+- `grep -n "empCharge" assets/tactical-lab-v11.html` → 선언/초기화/충전/발동/리셋 전 위치 확인
+- git push main da13e41 완료
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.99 / 2026-05-05)
 
 ## ✅ v5.99 영토 병합 + 임대 버그 + CH2 밸런스 — 완료
