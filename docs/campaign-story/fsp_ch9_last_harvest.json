@@ -4,7 +4,9 @@
   "chapterNumber": 9,
   "title": {
     "ko": "세 개의 깃발 — FSP",
-    "en": "Three Flags — FSP"
+    "en": "Three Flags — FSP",
+    "ja": "三つの旗 — FSP",
+    "zh": "三面旗帜 — FSP"
   },
   "location": {
     "id": "olympus_summit_station",
@@ -34,31 +36,41 @@
         {
           "text": {
             "ko": "Rev. Elias Hale은 올라오면서 기도했다.",
-            "en": "Rev. Elias Hale prayed while ascending."
+            "en": "Rev. Elias Hale prayed while ascending.",
+            "ja": "Rev. エライアス・ヘイルは登りながら祈った。",
+            "zh": "Rev. 伊莱亚斯·黑尔一边攀登一边祈祷。"
           }
         },
         {
           "text": {
             "ko": "기도는 말이 아니었다. 숨이었다.",
-            "en": "Prayer was not words. It was breath."
+            "en": "Prayer was not words. It was breath.",
+            "ja": "祈りは言葉ではなかった。呼吸だった。",
+            "zh": "祈祷不是言语。是呼吸。"
           }
         },
         {
           "text": {
             "ko": "올림포스를 오르는 숨. 마스크 안에서.",
-            "en": "The breath of climbing Olympus. Inside the mask."
+            "en": "The breath of climbing Olympus. Inside the mask.",
+            "ja": "オリンポスを登る呼吸。マスクの中で。",
+            "zh": "攀登奥林波斯的呼吸。在面罩里。"
           }
         },
         {
           "text": {
             "ko": "각 호흡이 기도였다. 화성에서 하는 기도는 그런 것이었다.",
-            "en": "Each breath a prayer. Prayer on Mars was like that."
+            "en": "Each breath a prayer. Prayer on Mars was like that.",
+            "ja": "それぞれの呼吸が祈りだった。火星での祈りとはそういうものだった。",
+            "zh": "每一次呼吸都是祈祷。在火星上祈祷就是这样。"
           }
         },
         {
           "text": {
             "ko": "숨을 쉬는 것 자체가 선택이어야 했다.",
-            "en": "The act of breathing itself had to be a choice."
+            "en": "The act of breathing itself had to be a choice.",
+            "ja": "呼吸すること自体が選択でなければならなかった。",
+            "zh": "呼吸本身必须是一种选择。"
           }
         }
       ]
@@ -73,37 +85,49 @@
         {
           "text": {
             "ko": "올림포스. 태양계에서 가장 높은 산.",
-            "en": "Olympus. The tallest mountain in the solar system."
+            "en": "Olympus. The tallest mountain in the solar system.",
+            "ja": "オリンポス。太陽系で最も高い山。",
+            "zh": "奥林波斯。太阳系最高的山峰。"
           }
         },
         {
           "text": {
             "ko": "화성 적도 서쪽. 높이 21킬로미터. 지구의 에베레스트가 세 배.",
-            "en": "West of the Martian equator. 21 kilometers high. Three times Everest."
+            "en": "West of the Martian equator. 21 kilometers high. Three times Everest.",
+            "ja": "火星赤道の西。高さ21キロ。エベレストの三倍。",
+            "zh": "火星赤道西部。高度21公里。珠穆朗玛峰的三倍。"
           }
         },
         {
           "text": {
             "ko": "꼭대기는 화성 대기층 위였다. 거의.",
-            "en": "The summit sat above most of the Martian atmosphere. Almost."
+            "en": "The summit sat above most of the Martian atmosphere. Almost.",
+            "ja": "頂上は火星大気層のほぼ上にあった。ほぼ。",
+            "zh": "山顶几乎位于火星大气层之上。几乎。"
           }
         },
         {
           "text": {
             "ko": "이곳까지 오는 데 사흘이 걸렸다.",
-            "en": "It had taken three days to reach here."
+            "en": "It had taken three days to reach here.",
+            "ja": "ここまで来るのに三日かかった。",
+            "zh": "到达这里花了三天时间。"
           }
         },
         {
           "text": {
             "ko": "MCC 에스코트. FSP 대표단. CV 사절단.",
-            "en": "MCC escort. FSP delegation. CV envoy."
+            "en": "MCC escort. FSP delegation. CV envoy.",
+            "ja": "MCCの護衛。FSPの代表団。CVの使節団。",
+            "zh": "MCC护送。FSP代表团。CV使节团。"
           }
         },
         {
           "text": {
             "ko": "세 파벌이 처음으로 같은 길을 걸었다.",
-            "en": "Three factions walked the same road for the first time."
+            "en": "Three factions walked the same road for the first time.",
+            "ja": "三派が初めて同じ道を歩んだ。",
+            "zh": "三个派系第一次走上了同一条路。"
           }
         }
       ]
@@ -118,37 +142,49 @@
         {
           "text": {
             "ko": "정상 기지는 작았다. 돔 하나. 방 셋.",
-            "en": "The summit station was small. One dome. Three rooms."
+            "en": "The summit station was small. One dome. Three rooms.",
+            "ja": "頂上基地は小さかった。ドーム一つ。部屋三つ。",
+            "zh": "山顶基地很小。一个穹顶。三个房间。"
           }
         },
         {
           "text": {
             "ko": "십 년 전 과학 탐사 기지였다. 지금은 아무도 살지 않았다.",
-            "en": "It had been a science outpost ten years ago. Now nobody lived there."
+            "en": "It had been a science outpost ten years ago. Now nobody lived there.",
+            "ja": "十年前は科学探査基地だった。今は誰も住んでいなかった。",
+            "zh": "十年前曾是科学探测站。现在无人居住。"
           }
         },
         {
           "text": {
             "ko": "누군가 테이블과 의자를 가져다 놓았다.",
-            "en": "Someone had brought a table and chairs."
+            "en": "Someone had brought a table and chairs.",
+            "ja": "誰かがテーブルと椅子を持ってきていた。",
+            "zh": "有人搬来了桌子和椅子。"
           }
         },
         {
           "text": {
             "ko": "Mikhail이 직접 올라와서 세팅했다고 했다. 그 말이 맞았다.",
-            "en": "Mikhail had come up himself to set it up, they said. That sounded right."
+            "en": "Mikhail had come up himself to set it up, they said. That sounded right.",
+            "ja": "ミハイルが自ら上がってセットしたと言われた。それは正しそうだった。",
+            "zh": "据说米哈伊尔亲自上来布置的。这话听起来像真的。"
           }
         },
         {
           "text": {
             "ko": "테이블 위에 종이 한 장과 펜 하나가 있었다.",
-            "en": "On the table was one sheet of paper and one pen."
+            "en": "On the table was one sheet of paper and one pen.",
+            "ja": "テーブルの上には紙一枚とペン一本があった。",
+            "zh": "桌上有一张纸和一支笔。"
           }
         },
         {
           "text": {
             "ko": "서명을 위한 것인지. 메모를 위한 것인지. 알 수 없었다.",
-            "en": "Whether for signing or for notes. Unknown."
+            "en": "Whether for signing or for notes. Unknown.",
+            "ja": "署名のためか。メモのためか。わからなかった。",
+            "zh": "是用来签名还是记录。不得而知。"
           }
         }
       ]
@@ -163,37 +199,49 @@
         {
           "text": {
             "ko": "Rev. Hale은 자신이 여기 있는 이유를 알았다.",
-            "en": "Rev. Hale knew why he was here."
+            "en": "Rev. Hale knew why he was here.",
+            "ja": "Rev. ヘイルはなぜここにいるのかを知っていた。",
+            "zh": "Rev. 黑尔知道自己为何在此。"
           }
         },
         {
           "text": {
             "ko": "협상가가 아니었다. 목사였다.",
-            "en": "Not a negotiator. A minister."
+            "en": "Not a negotiator. A minister.",
+            "ja": "交渉者ではなかった。牧師だった。",
+            "zh": "不是谈判者。是牧师。"
           }
         },
         {
           "text": {
             "ko": "그의 회중은 광부들이었다. 갱도 입구에서 예배를 드렸다.",
-            "en": "His congregation was miners. He held service at the tunnel entrance."
+            "en": "His congregation was miners. He held service at the tunnel entrance.",
+            "ja": "彼の会衆は鉱夫たちだった。坑道の入口で礼拝を行った。",
+            "zh": "他的会众是矿工。他在坑道入口主持礼拜。"
           }
         },
         {
           "text": {
             "ko": "그들이 죽을 때 그가 이름을 불렀다.",
-            "en": "When they died he called their names."
+            "en": "When they died he called their names.",
+            "ja": "彼らが死ぬとき、彼は名前を呼んだ。",
+            "zh": "当他们死去时，他呼唤他们的名字。"
           }
         },
         {
           "text": {
             "ko": "화성에서 장례를 치를 수 있는 사람이 많지 않았다.",
-            "en": "Not many could conduct a funeral on Mars."
+            "en": "Not many could conduct a funeral on Mars.",
+            "ja": "火星で葬儀を執り行える人は多くなかった。",
+            "zh": "能在火星上主持葬礼的人不多。"
           }
         },
         {
           "text": {
             "ko": "그래서 그가 왔다. 그것이 전부였다.",
-            "en": "So he had come. That was all."
+            "en": "So he had come. That was all.",
+            "ja": "だから彼が来た。それだけだった。",
+            "zh": "所以他来了。仅此而已。"
           }
         }
       ]
@@ -211,7 +259,9 @@
           "effect": "character_enter:rev_hale:slide_left",
           "text": {
             "ko": "처음 뵙겠습니다. Rev. Elias Hale입니다.",
-            "en": "A pleasure to meet you. Rev. Elias Hale."
+            "en": "A pleasure to meet you. Rev. Elias Hale.",
+            "ja": "はじめまして。Rev. エライアス・ヘイルです。",
+            "zh": "幸会。Rev. 伊莱亚斯·黑尔。"
           }
         },
         {
@@ -220,7 +270,9 @@
           "effect": "character_enter:chen_weiss:slide_right",
           "text": {
             "ko": "Chen Weiss. MCC 남반구 총독.",
-            "en": "Chen Weiss. MCC Southern Hemisphere Governor."
+            "en": "Chen Weiss. MCC Southern Hemisphere Governor.",
+            "ja": "チェン・ワイス。MCC南半球総督。",
+            "zh": "陈·韦斯。MCC南半球总督。"
           }
         },
         {
@@ -229,7 +281,9 @@
           "effect": "character_enter:cinder_grace:fade_in",
           "text": {
             "ko": "Cinder Grace. CV 대표.",
-            "en": "Cinder Grace. CV representative."
+            "en": "Cinder Grace. CV representative.",
+            "ja": "シンダー・グレイス。CV代表。",
+            "zh": "辛达·格蕾丝。CV代表。"
           }
         },
         {
@@ -237,7 +291,9 @@
           "emotion": "measured",
           "text": {
             "ko": "목사입니다. 대표가 아니에요.",
-            "en": "A minister. Not a representative."
+            "en": "A minister. Not a representative.",
+            "ja": "牧師です。代表ではありません。",
+            "zh": "牧师。不是代表。"
           }
         },
         {
@@ -245,7 +301,9 @@
           "emotion": "curious",
           "text": {
             "ko": "그럼 여기 왜 온 거요.",
-            "en": "Then why are you here."
+            "en": "Then why are you here.",
+            "ja": "では、なぜここに来たのですか。",
+            "zh": "那你来这里做什么。"
           }
         },
         {
@@ -253,7 +311,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "증인으로요.",
-            "en": "As a witness."
+            "en": "As a witness.",
+            "ja": "証人として。",
+            "zh": "作为见证人。"
           }
         }
       ]
@@ -268,37 +328,49 @@
         {
           "text": {
             "ko": "Lena가 옆에 있었다. 플레이어가 있었다. Amara가 있었다.",
-            "en": "Lena was beside him. The player was there. Amara was there."
+            "en": "Lena was beside him. The player was there. Amara was there.",
+            "ja": "レナが隣にいた。プレイヤーがいた。アマラがいた。",
+            "zh": "莱娜在他身旁。玩家在那里。阿玛拉也在。"
           }
         },
         {
           "text": {
             "ko": "FSP 대표단. 다섯 명.",
-            "en": "FSP delegation. Five people."
+            "en": "FSP delegation. Five people.",
+            "ja": "FSP代表団。五人。",
+            "zh": "FSP代表团。五人。"
           }
         },
         {
           "text": {
             "ko": "그 밖에도 사람들이 있었다. 경호원들. 보좌관들.",
-            "en": "There were others too. Bodyguards. Aides."
+            "en": "There were others too. Bodyguards. Aides.",
+            "ja": "他にも人がいた。護衛たち。補佐たち。",
+            "zh": "还有其他人。保镖。助手。"
           }
         },
         {
           "text": {
             "ko": "기지 안에 열다섯 명이 있었다.",
-            "en": "Fifteen people inside the station."
+            "en": "Fifteen people inside the station.",
+            "ja": "基地の中に十五人がいた。",
+            "zh": "基地内共十五人。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale은 그들을 한 명씩 보았다.",
-            "en": "Rev. Hale looked at them one by one."
+            "en": "Rev. Hale looked at them one by one.",
+            "ja": "Rev. ヘイルは彼らを一人ずつ見た。",
+            "zh": "Rev. 黑尔逐一看了看他们。"
           }
         },
         {
           "text": {
             "ko": "이름을 알고 싶었다. 그것이 그의 버릇이었다.",
-            "en": "He wanted to know their names. That was his habit."
+            "en": "He wanted to know their names. That was his habit.",
+            "ja": "名前を知りたかった。それが彼の習慣だった。",
+            "zh": "他想知道他们的名字。这是他的习惯。"
           }
         }
       ]
@@ -315,7 +387,9 @@
           "emotion": "direct",
           "text": {
             "ko": "협상 시작하죠. 시간 없어요.",
-            "en": "Let's start negotiating. No time."
+            "en": "Let's start negotiating. No time.",
+            "ja": "交渉を始めましょう。時間がありません。",
+            "zh": "开始谈判吧。没有时间了。"
           }
         },
         {
@@ -323,7 +397,9 @@
           "emotion": "controlled",
           "text": {
             "ko": "MCC의 입장은 명확합니다. 화성 통일 행정부. 세 파벌이 통합되는 것.",
-            "en": "MCC's position is clear. Unified Mars administration. All three factions integrated."
+            "en": "MCC's position is clear. Unified Mars administration. All three factions integrated.",
+            "ja": "MCCの立場は明確です。火星統一行政府。三派が統合されること。",
+            "zh": "MCC的立场很明确。火星统一行政机构。三个派系整合。"
           }
         },
         {
@@ -331,7 +407,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "통합은 흡수를 뜻하죠. CV는 흡수 안 됩니다.",
-            "en": "Integration means absorption. CV won't be absorbed."
+            "en": "Integration means absorption. CV won't be absorbed.",
+            "ja": "統合は吸収を意味する。CVは吸収されません。",
+            "zh": "整合意味着吸收。CV不会被吸收。"
           }
         },
         {
@@ -339,7 +417,9 @@
           "emotion": "patient",
           "text": {
             "ko": "통합은 협력입니다. 용어를 명확히 해야겠군요.",
-            "en": "Integration is cooperation. We should clarify the terminology."
+            "en": "Integration is cooperation. We should clarify the terminology.",
+            "ja": "統合は協力です。用語を明確にする必要があります。",
+            "zh": "整合是合作。我们需要厘清术语。"
           }
         },
         {
@@ -347,7 +427,9 @@
           "emotion": "measured",
           "text": {
             "ko": "시작하기 전에요.",
-            "en": "Before we begin."
+            "en": "Before we begin.",
+            "ja": "始める前に。",
+            "zh": "开始之前。"
           }
         },
         {
@@ -355,7 +437,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이름들이 있어요. 말해야 해요.",
-            "en": "There are names. We must say them."
+            "en": "There are names. We must say them.",
+            "ja": "名前があります。言わなければなりません。",
+            "zh": "有名字。我们必须说出来。"
           }
         }
       ]
@@ -370,37 +454,49 @@
         {
           "text": {
             "ko": "방이 조용해졌다.",
-            "en": "The room went quiet."
+            "en": "The room went quiet.",
+            "ja": "部屋が静まり返った。",
+            "zh": "房间安静了下来。"
           }
         },
         {
           "text": {
             "ko": "Chen Weiss가 Rev. Hale을 보았다.",
-            "en": "Chen Weiss looked at Rev. Hale."
+            "en": "Chen Weiss looked at Rev. Hale.",
+            "ja": "チェン・ワイスがRev. ヘイルを見た。",
+            "zh": "陈·韦斯看向Rev. 黑尔。"
           }
         },
         {
           "text": {
             "ko": "Cinder Grace가 공구 벨트에 손을 올렸다. 잡지 않았다. 얹었다.",
-            "en": "Cinder Grace placed her hand on the tool belt. Didn't grip it. Just placed it."
+            "en": "Cinder Grace placed her hand on the tool belt. Didn't grip it. Just placed it.",
+            "ja": "シンダー・グレイスが工具ベルトに手を置いた。握ってはいなかった。ただ置いただけだった。",
+            "zh": "辛达·格蕾丝把手放在工具腰带上。没有握住。只是放着。"
           }
         },
         {
           "text": {
             "ko": "Lena가 팔짱을 풀었다.",
-            "en": "Lena uncrossed her arms."
+            "en": "Lena uncrossed her arms.",
+            "ja": "レナが腕を解いた。",
+            "zh": "莱娜放下了交叉的双臂。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale은 종이를 꺼냈다. 접힌 것.",
-            "en": "Rev. Hale took out paper. Folded."
+            "en": "Rev. Hale took out paper. Folded.",
+            "ja": "Rev. ヘイルが紙を取り出した。折り畳まれた紙。",
+            "zh": "Rev. 黑尔掏出一张纸。折叠的纸。"
           }
         },
         {
           "text": {
             "ko": "오래된 종이였다. 여러 번 접혀서 손때가 탔다.",
-            "en": "Old paper. Folded many times. Worn with handling."
+            "en": "Old paper. Folded many times. Worn with handling.",
+            "ja": "古い紙だった。何度も折り畳まれ、手垢が染みていた。",
+            "zh": "旧纸。折叠多次。手迹斑斑。"
           }
         }
       ]
@@ -417,7 +513,9 @@
           "emotion": "solemn",
           "text": {
             "ko": "Kim Yong-jin.",
-            "en": "Kim Yong-jin."
+            "en": "Kim Yong-jin.",
+            "ja": "キム・ヨンジン。",
+            "zh": "金勇珍。"
           }
         },
         {
@@ -425,7 +523,9 @@
           "emotion": "solemn",
           "text": {
             "ko": "Mariam Adeyemi.",
-            "en": "Mariam Adeyemi."
+            "en": "Mariam Adeyemi.",
+            "ja": "マリアム・アデエミ。",
+            "zh": "玛利亚姆·阿德耶米。"
           }
         },
         {
@@ -433,7 +533,9 @@
           "emotion": "solemn",
           "text": {
             "ko": "Sector 7의 셋. 이름이 없어요. 등록되지 않았어요.",
-            "en": "The three of Sector 7. No names. Unregistered."
+            "en": "The three of Sector 7. No names. Unregistered.",
+            "ja": "セクター7の三人。名前がない。未登録だった。",
+            "zh": "第7区的三人。没有名字。未登记。"
           }
         },
         {
@@ -441,7 +543,9 @@
           "emotion": "solemn",
           "text": {
             "ko": "Zone C의 스물. 이름이 없어요.",
-            "en": "The twenty of Zone C. No names."
+            "en": "The twenty of Zone C. No names.",
+            "ja": "ゾーンCの二十人。名前がない。",
+            "zh": "C区的二十人。没有名字。"
           }
         },
         {
@@ -449,7 +553,9 @@
           "emotion": "solemn",
           "text": {
             "ko": "헬라스 분지 광부들. 내가 아는 것만 사십이 명. 내가 모르는 것도 있어요.",
-            "en": "Hellas Basin miners. Forty-two that I know of. There are more I don't know."
+            "en": "Hellas Basin miners. Forty-two that I know of. There are more I don't know.",
+            "ja": "ヘラス盆地の鉱夫たち。私が知る限り四十二人。知らない人もいます。",
+            "zh": "赫拉斯盆地的矿工。我所知道的四十二人。还有我不知道的。"
           }
         },
         {
@@ -457,7 +563,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이 이름들이 먼저예요.",
-            "en": "These names come first."
+            "en": "These names come first.",
+            "ja": "これらの名前が先です。",
+            "zh": "这些名字优先。"
           },
           "overlay": "fsp_ch9_last_harvest_l08_05_death_still"
         }
@@ -473,25 +581,33 @@
         {
           "text": {
             "ko": "Chen Weiss가 차를 내려놓았다. 처음이었다.",
-            "en": "Chen Weiss set down her tea. First time."
+            "en": "Chen Weiss set down her tea. First time.",
+            "ja": "チェン・ワイスがお茶を置いた。初めてだった。",
+            "zh": "陈·韦斯放下了茶杯。这是第一次。"
           }
         },
         {
           "text": {
             "ko": "마시지 않았지만 내려놓은 것이었다.",
-            "en": "She hadn't drunk it. But she had set it down."
+            "en": "She hadn't drunk it. But she had set it down.",
+            "ja": "飲んでいなかったが、置いたのだった。",
+            "zh": "她没有喝。但她放下了。"
           }
         },
         {
           "text": {
             "ko": "그것이 무언가를 뜻했다.",
-            "en": "That meant something."
+            "en": "That meant something.",
+            "ja": "それは何かを意味した。",
+            "zh": "这意味着什么。"
           }
         },
         {
           "text": {
             "ko": "Cinder Grace가 말했다.",
-            "en": "Cinder Grace spoke."
+            "en": "Cinder Grace spoke.",
+            "ja": "シンダー・グレイスが口を開いた。",
+            "zh": "辛达·格蕾丝开口了。"
           }
         }
       ]
@@ -508,7 +624,9 @@
           "emotion": "low",
           "text": {
             "ko": "Zone 12도 있어요.",
-            "en": "There's Zone 12 too."
+            "en": "There's Zone 12 too.",
+            "ja": "ゾーン12もあります。",
+            "zh": "还有12区。"
           },
           "overlay": "fsp_ch9_last_harvest_l10_00_zone12_record"
         },
@@ -517,7 +635,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "MCC가 봉쇄한 거. 우리가 거기서 사람을 잃었어요.",
-            "en": "The one MCC sealed off. We lost people there."
+            "en": "The one MCC sealed off. We lost people there.",
+            "ja": "MCCが封鎖したところ。私たちはそこで人を失いました。",
+            "zh": "MCC封锁的那个地方。我们在那里失去了人。"
           }
         },
         {
@@ -525,7 +645,9 @@
           "emotion": "tense",
           "text": {
             "ko": "Zone 12는 안전 문제로 봉쇄된 겁니다.",
-            "en": "Zone 12 was sealed for safety reasons."
+            "en": "Zone 12 was sealed for safety reasons.",
+            "ja": "ゾーン12は安全上の理由で封鎖されました。",
+            "zh": "12区是出于安全原因封锁的。"
           }
         },
         {
@@ -533,7 +655,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "이름을 아세요? 거기서 죽은 사람들.",
-            "en": "Do you know the names. The ones who died there."
+            "en": "Do you know the names. The ones who died there.",
+            "ja": "名前を知っていますか。そこで死んだ人たちの。",
+            "zh": "你知道他们的名字吗。在那里死去的人。"
           }
         },
         {
@@ -541,7 +665,9 @@
           "emotion": "silent",
           "text": {
             "ko": "...",
-            "en": "..."
+            "en": "...",
+            "ja": "...",
+            "zh": "..."
           }
         },
         {
@@ -549,7 +675,9 @@
           "emotion": "measured",
           "text": {
             "ko": "그 대답이 이미 대답이에요.",
-            "en": "That answer is already an answer."
+            "en": "That answer is already an answer.",
+            "ja": "その答えがすでに答えです。",
+            "zh": "那个回答本身就是答案。"
           }
         }
       ]
@@ -564,25 +692,33 @@
         {
           "text": {
             "ko": "밖에서 소리가 들렸다.",
-            "en": "A sound from outside."
+            "en": "A sound from outside.",
+            "ja": "外から音がした。",
+            "zh": "外面传来声响。"
           }
         },
         {
           "text": {
             "ko": "바람이 아니었다. 올림포스 정상은 바람이 없었다. 대기가 너무 얇아서.",
-            "en": "Not wind. The summit of Olympus had no wind. Too thin an atmosphere."
+            "en": "Not wind. The summit of Olympus had no wind. Too thin an atmosphere.",
+            "ja": "風ではなかった。オリンポスの頂上には風がなかった。大気が薄すぎて。",
+            "zh": "不是风。奥林波斯山顶没有风。大气层太稀薄了。"
           }
         },
         {
           "text": {
             "ko": "발소리였다.",
-            "en": "Footsteps."
+            "en": "Footsteps.",
+            "ja": "足音だった。",
+            "zh": "脚步声。"
           }
         },
         {
           "text": {
             "ko": "경호원 하나가 달려 들어왔다.",
-            "en": "One bodyguard ran in."
+            "en": "One bodyguard ran in.",
+            "ja": "護衛が一人走り込んできた。",
+            "zh": "一名保镖跑了进来。"
           }
         }
       ]
@@ -600,7 +736,9 @@
           "effect": "character_enter:guard:slide_right",
           "text": {
             "ko": "Pilgrim Arms. 외부 접근 감지됐습니다.",
-            "en": "Pilgrim Arms. External approach detected."
+            "en": "Pilgrim Arms. External approach detected.",
+            "ja": "Pilgrim Arms。外部からの接近が検知されました。",
+            "zh": "朝圣者武装。检测到外部接近。"
           }
         },
         {
@@ -608,7 +746,9 @@
           "emotion": "alert",
           "text": {
             "ko": "네 명. 서쪽 사면. 무장 상태.",
-            "en": "Four of them. Western slope. Armed."
+            "en": "Four of them. Western slope. Armed.",
+            "ja": "四人。西の斜面。武装しています。",
+            "zh": "四人。西坡。武装状态。"
           }
         },
         {
@@ -616,7 +756,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "어디서 왔어요.",
-            "en": "Where did they come from."
+            "en": "Where did they come from.",
+            "ja": "どこから来たんですか。",
+            "zh": "他们从哪里来的。"
           }
         },
         {
@@ -624,7 +766,9 @@
           "emotion": "tense",
           "text": {
             "ko": "모르겠습니다. 추적 기록이 없어요.",
-            "en": "Unknown. No tracking record."
+            "en": "Unknown. No tracking record.",
+            "ja": "不明です。追跡記録がありません。",
+            "zh": "不明。没有追踪记录。"
           }
         },
         {
@@ -632,7 +776,9 @@
           "emotion": "grim",
           "text": {
             "ko": "올라온 게 아니야. 처음부터 여기 있었던 거야.",
-            "en": "They didn't climb up. They were already here."
+            "en": "They didn't climb up. They were already here.",
+            "ja": "登ってきたのではない。最初からここにいたんだ。",
+            "zh": "他们不是爬上来的。一开始就在这里了。"
           }
         },
         {
@@ -640,7 +786,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "우리 중 누가 데려온 거예요.",
-            "en": "One of us brought them."
+            "en": "One of us brought them.",
+            "ja": "私たちの中の誰かが連れてきたんです。",
+            "zh": "是我们中的某个人带来的。"
           }
         }
       ]
@@ -655,37 +803,49 @@
         {
           "text": {
             "ko": "방이 얼었다.",
-            "en": "The room froze."
+            "en": "The room froze.",
+            "ja": "部屋が凍りついた。",
+            "zh": "房间凝固了。"
           }
         },
         {
           "text": {
             "ko": "Chen Weiss와 Cinder Grace가 서로를 봤다.",
-            "en": "Chen Weiss and Cinder Grace looked at each other."
+            "en": "Chen Weiss and Cinder Grace looked at each other.",
+            "ja": "チェン・ワイスとシンダー・グレイスが顔を見合わせた。",
+            "zh": "陈·韦斯和辛达·格蕾丝互相对视。"
           }
         },
         {
           "text": {
             "ko": "Lena가 플레이어를 봤다.",
-            "en": "Lena looked at the player."
+            "en": "Lena looked at the player.",
+            "ja": "レナがプレイヤーを見た。",
+            "zh": "莱娜看向玩家。"
           }
         },
         {
           "text": {
             "ko": "Amara가 문 쪽에 섰다.",
-            "en": "Amara moved to stand by the door."
+            "en": "Amara moved to stand by the door.",
+            "ja": "アマラがドアのそばに立った。",
+            "zh": "阿玛拉站到了门旁。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale은 종이를 접었다. 조용히.",
-            "en": "Rev. Hale folded the paper. Quietly."
+            "en": "Rev. Hale folded the paper. Quietly.",
+            "ja": "Rev. ヘイルが静かに紙を折りたたんだ。",
+            "zh": "Rev. 黑尔静静地折起了纸。"
           }
         },
         {
           "text": {
             "ko": "기도가 필요한 순간이 있었다. 이런 순간이었다.",
-            "en": "There were moments that required prayer. This was one."
+            "en": "There were moments that required prayer. This was one.",
+            "ja": "祈りが必要な瞬間があった。このような瞬間だった。",
+            "zh": "有些时刻需要祈祷。就是这样的时刻。"
           }
         }
       ]
@@ -702,7 +862,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "Pilgrim Arms는 누구의 고용이에요.",
-            "en": "Who does Pilgrim Arms work for."
+            "en": "Who does Pilgrim Arms work for.",
+            "ja": "Pilgrim Armsは誰の雇い主ですか。",
+            "zh": "朝圣者武装为谁工作。"
           }
         },
         {
@@ -710,7 +872,9 @@
           "emotion": "hard",
           "text": {
             "ko": "화성 최고의 암살 조직. 누구든 살 수 있어요.",
-            "en": "The best assassination outfit on Mars. Anyone can hire them."
+            "en": "The best assassination outfit on Mars. Anyone can hire them.",
+            "ja": "火星最高の暗殺組織。誰でも雇えます。",
+            "zh": "火星最优秀的暗杀组织。任何人都可以雇佣他们。"
           }
         },
         {
@@ -718,7 +882,9 @@
           "emotion": "controlled",
           "text": {
             "ko": "MCC가 고용한 거 아닙니다. 명확히 해두겠습니다.",
-            "en": "MCC did not hire them. I want to be clear on that."
+            "en": "MCC did not hire them. I want to be clear on that.",
+            "ja": "MCCは雇っていません。これは明確にしておきたい。",
+            "zh": "MCC没有雇用他们。我想把这一点说清楚。"
           }
         },
         {
@@ -726,7 +892,9 @@
           "emotion": "cold",
           "text": {
             "ko": "그 말이 신뢰가 되려면 당신이 먼저 나가서 그들을 막아야 해요.",
-            "en": "For that to be credible you'd need to go out first and stop them."
+            "en": "For that to be credible you'd need to go out first and stop them.",
+            "ja": "それが信頼できるものとなるためには、あなたが先に出て彼らを止める必要があります。",
+            "zh": "要让这话可信，你得先出去拦住他们。"
           }
         },
         {
@@ -734,7 +902,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "...",
-            "en": "..."
+            "en": "...",
+            "ja": "...",
+            "zh": "..."
           }
         },
         {
@@ -742,7 +912,9 @@
           "emotion": "calm",
           "text": {
             "ko": "지금 책임 문제보다 더 급한 게 있어요. 여기 있는 사람들.",
-            "en": "There's something more urgent than accountability right now. The people here."
+            "en": "There's something more urgent than accountability right now. The people here.",
+            "ja": "今は責任の問題より急いだことがあります。ここにいる人たちです。",
+            "zh": "现在有比追责更紧迫的事。这里的人们。"
           }
         }
       ]
@@ -757,37 +929,49 @@
         {
           "text": {
             "ko": "Pilgrim Arms는 표적이 있었다.",
-            "en": "Pilgrim Arms had a target."
+            "en": "Pilgrim Arms had a target.",
+            "ja": "Pilgrim Armsには標的があった。",
+            "zh": "朝圣者武装有目标。"
           }
         },
         {
           "text": {
             "ko": "하나가 아니었다.",
-            "en": "Not just one."
+            "en": "Not just one.",
+            "ja": "一人だけではなかった。",
+            "zh": "不止一个。"
           }
         },
         {
           "text": {
             "ko": "정상 기지에 있는 다섯 명. 회담의 핵심 인물들.",
-            "en": "Five people in the summit station. The key figures of the summit."
+            "en": "Five people in the summit station. The key figures of the summit.",
+            "ja": "頂上基地にいる五人。会談の中心人物たち。",
+            "zh": "山顶基地里的五个人。会谈的核心人物。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale. Chen Weiss. Cinder Grace. Lena. 플레이어.",
-            "en": "Rev. Hale. Chen Weiss. Cinder Grace. Lena. The player."
+            "en": "Rev. Hale. Chen Weiss. Cinder Grace. Lena. The player.",
+            "ja": "Rev. ヘイル。チェン・ワイス。シンダー・グレイス。レナ。プレイヤー。",
+            "zh": "Rev. 黑尔。陈·韦斯。辛达·格蕾丝。莱娜。玩家。"
           }
         },
         {
           "text": {
             "ko": "보호할 경호원은 셋이었다. 네 명의 암살자였다.",
-            "en": "Three guards to protect them. Four assassins."
+            "en": "Three guards to protect them. Four assassins.",
+            "ja": "護衛三人。暗殺者四人。",
+            "zh": "三名护卫保护他们。四名刺客。"
           }
         },
         {
           "text": {
             "ko": "누군가는 희생될 수 있었다. 그것이 계산이었다.",
-            "en": "Someone could be sacrificed. That was the calculation."
+            "en": "Someone could be sacrificed. That was the calculation.",
+            "ja": "誰かが犠牲になるかもしれなかった。それが計算だった。",
+            "zh": "可能会有人牺牲。这就是算计。"
           }
         }
       ]
@@ -804,7 +988,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "빠른 결정이 필요해요. 누가 안에 남고 누가 밖에 나가요.",
-            "en": "Quick decisions needed. Who stays inside and who goes out."
+            "en": "Quick decisions needed. Who stays inside and who goes out.",
+            "ja": "素早い決断が必要です。誰が中に残り、誰が外に出るか。",
+            "zh": "需要快速决断。谁留在里面，谁出去。"
           }
         },
         {
@@ -812,7 +998,9 @@
           "emotion": "grim",
           "text": {
             "ko": "나는 밖에서 싸워요. 내 사람들이 왔어요.",
-            "en": "I fight outside. My people are there."
+            "en": "I fight outside. My people are there.",
+            "ja": "私は外で戦います。私の仲間がいます。",
+            "zh": "我在外面战斗。我的人在那里。"
           }
         },
         {
@@ -820,7 +1008,9 @@
           "emotion": "tense",
           "text": {
             "ko": "당신 사람들이 온 거라면 당신이 표적이 아니라는 거죠.",
-            "en": "If your people came then you're not the target."
+            "en": "If your people came then you're not the target.",
+            "ja": "あなたの仲間が来たなら、あなたは標的ではない。",
+            "zh": "如果是你的人来了，那你就不是目标。"
           }
         },
         {
@@ -828,7 +1018,9 @@
           "emotion": "dark",
           "text": {
             "ko": "내 사람들이 아니에요. 나도 표적일 수 있어요.",
-            "en": "They're not my people. I could be a target too."
+            "en": "They're not my people. I could be a target too.",
+            "ja": "私の仲間ではありません。私も標的になりうる。",
+            "zh": "不是我的人。我也可能是目标。"
           }
         },
         {
@@ -836,7 +1028,9 @@
           "emotion": "calm",
           "text": {
             "ko": "싸울 수 있는 사람. 지금 나오세요.",
-            "en": "Those who can fight. Come now."
+            "en": "Those who can fight. Come now.",
+            "ja": "戦える人。今すぐ来てください。",
+            "zh": "能战斗的人。现在出来。"
           }
         },
         {
@@ -844,7 +1038,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "나는 싸울 수 없어요. 그러나 이동할 수 있어요.",
-            "en": "I cannot fight. But I can move."
+            "en": "I cannot fight. But I can move.",
+            "ja": "私は戦えません。しかし動けます。",
+            "zh": "我不能战斗。但我能移动。"
           }
         }
       ]
@@ -859,37 +1055,49 @@
         {
           "text": {
             "ko": "기지 밖. 올림포스 정상의 암석 지대.",
-            "en": "Outside the station. The rocky terrain of Olympus summit."
+            "en": "Outside the station. The rocky terrain of Olympus summit.",
+            "ja": "基地の外。オリンポス頂上の岩場。",
+            "zh": "基地外面。奥林波斯山顶的岩石地带。"
           }
         },
         {
           "text": {
             "ko": "공기가 없다시피 했다. 마스크 없이는 삼십 초였다.",
-            "en": "Almost no air. Thirty seconds without a mask."
+            "en": "Almost no air. Thirty seconds without a mask.",
+            "ja": "空気はほぼなかった。マスクなしでは三十秒。",
+            "zh": "几乎没有空气。没有面罩只能撑三十秒。"
           }
         },
         {
           "text": {
             "ko": "Pilgrim Arms 암살자 넷이 서쪽에서 왔다.",
-            "en": "Four Pilgrim Arms assassins came from the west."
+            "en": "Four Pilgrim Arms assassins came from the west.",
+            "ja": "Pilgrim Armsの暗殺者四人が西から来た。",
+            "zh": "四名朝圣者武装刺客从西面来袭。"
           }
         },
         {
           "text": {
             "ko": "장비가 완벽했다. 저중력 전투 훈련을 받은 자들이었다.",
-            "en": "Their equipment was perfect. Trained for low-gravity combat."
+            "en": "Their equipment was perfect. Trained for low-gravity combat.",
+            "ja": "装備は完璧だった。低重力戦闘の訓練を受けた者たちだった。",
+            "zh": "装备精良。受过低重力战斗训练。"
           }
         },
         {
           "text": {
             "ko": "그러나 올림포스를 먼저 오른 것은 Amara와 플레이어였다.",
-            "en": "But Amara and the player had ascended Olympus first."
+            "en": "But Amara and the player had ascended Olympus first.",
+            "ja": "しかしアマラとプレイヤーが先にオリンポスを登っていた。",
+            "zh": "但阿玛拉和玩家先登上了奥林波斯。"
           }
         },
         {
           "text": {
             "ko": "지형을 알았다.",
-            "en": "They knew the terrain."
+            "en": "They knew the terrain.",
+            "ja": "地形を知っていた。",
+            "zh": "他们熟悉地形。"
           }
         }
       ]
@@ -906,7 +1114,9 @@
           "emotion": "cold",
           "text": {
             "ko": "계약은 다섯. 지금 셋이 나왔어. 좋아.",
-            "en": "Contract is five. Three came out. Good."
+            "en": "Contract is five. Three came out. Good.",
+            "ja": "契約は五人。三人が出てきた。いい。",
+            "zh": "合同是五个。来了三个。很好。"
           }
         },
         {
@@ -914,7 +1124,9 @@
           "emotion": "alert",
           "text": {
             "ko": "남은 하나가 어디 있는지 알고 있어요.",
-            "en": "I know where the remaining one is."
+            "en": "I know where the remaining one is.",
+            "ja": "残りの一人がどこにいるか知っています。",
+            "zh": "我知道剩下那个人在哪里。"
           }
         },
         {
@@ -922,7 +1134,9 @@
           "emotion": "amused",
           "text": {
             "ko": "FSP 아가씨. 총은 있어요?",
-            "en": "FSP girl. Do you have a gun?"
+            "en": "FSP girl. Do you have a gun?",
+            "ja": "FSPの嬢ちゃん。銃は持ってますか？",
+            "zh": "FSP的姑娘。你有枪吗？"
           }
         },
         {
@@ -930,7 +1144,9 @@
           "emotion": "steady",
           "text": {
             "ko": "없어요. 그래도 충분해요.",
-            "en": "No. Still enough."
+            "en": "No. Still enough.",
+            "ja": "ありません。それでも十分です。",
+            "zh": "没有。还是够了。"
           }
         }
       ]
@@ -945,37 +1161,49 @@
         {
           "text": {
             "ko": "올림포스 정상의 전투는 소리가 없었다.",
-            "en": "The battle at Olympus summit had no sound."
+            "en": "The battle at Olympus summit had no sound.",
+            "ja": "オリンポス頂上の戦いは音がなかった。",
+            "zh": "奥林波斯山顶的战斗没有声音。"
           }
         },
         {
           "text": {
             "ko": "대기가 너무 얇아서 총성이 전달되지 않았다.",
-            "en": "The atmosphere too thin to carry gunshots."
+            "en": "The atmosphere too thin to carry gunshots.",
+            "ja": "大気が薄すぎて銃声が伝わらなかった。",
+            "zh": "大气层太稀薄，传不了枪声。"
           }
         },
         {
           "text": {
             "ko": "무성의 전투였다. 그림자들이 움직이는 것 같았다.",
-            "en": "A silent battle. It looked like shadows moving."
+            "en": "A silent battle. It looked like shadows moving.",
+            "ja": "無音の戦い。影が動いているように見えた。",
+            "zh": "无声的战斗。像影子在移动。"
           }
         },
         {
           "text": {
             "ko": "기지 안에서 Rev. Hale이 그것을 창문으로 보았다.",
-            "en": "Inside the station Rev. Hale watched it through the window."
+            "en": "Inside the station Rev. Hale watched it through the window.",
+            "ja": "基地の中でRev. ヘイルが窓からそれを見ていた。",
+            "zh": "基地内，Rev. 黑尔透过窗子看着。"
           }
         },
         {
           "text": {
             "ko": "기도했다. 이름 없이 기도했다. 이름을 모르는 암살자들도 있었다.",
-            "en": "He prayed. Without names. There were assassins whose names he didn't know."
+            "en": "He prayed. Without names. There were assassins whose names he didn't know.",
+            "ja": "祈った。名前なしに。名前を知らない暗殺者たちがいた。",
+            "zh": "他祈祷。没有名字地祈祷。有些刺客的名字他不知道。"
           }
         },
         {
           "text": {
             "ko": "그들도 누군가의 이름이었다.",
-            "en": "They too were someone's names."
+            "en": "They too were someone's names.",
+            "ja": "彼らも誰かの名前だった。",
+            "zh": "他们也是某人的名字。"
           }
         }
       ]
@@ -992,7 +1220,9 @@
           "emotion": "calculating",
           "text": {
             "ko": "이 회담 자체가 표적이에요. 누군가 이 회담을 원하지 않는 거야.",
-            "en": "This summit itself is the target. Someone doesn't want this summit."
+            "en": "This summit itself is the target. Someone doesn't want this summit.",
+            "ja": "この会談自体が標的です。誰かがこの会談を望んでいない。",
+            "zh": "这次会谈本身就是目标。有人不希望这次会谈发生。"
           }
         },
         {
@@ -1000,7 +1230,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "세 파벌 외부에요. 네 번째가 있어요.",
-            "en": "Outside the three factions. There is a fourth."
+            "en": "Outside the three factions. There is a fourth.",
+            "ja": "三派の外に。四番目がいます。",
+            "zh": "在三个派系之外。有第四个。"
           }
         },
         {
@@ -1008,7 +1240,9 @@
           "emotion": "tense",
           "text": {
             "ko": "그게 누구죠.",
-            "en": "Who is that."
+            "en": "Who is that.",
+            "ja": "それは誰ですか。",
+            "zh": "那是谁。"
           }
         },
         {
@@ -1016,7 +1250,9 @@
           "emotion": "measured",
           "text": {
             "ko": "화성이 통합되면 이득을 잃는 자들이에요. 중간에서 이득을 보는 자들.",
-            "en": "Those who lose when Mars unites. Those who profit from the middle."
+            "en": "Those who lose when Mars unites. Those who profit from the middle.",
+            "ja": "火星が統合されると損をする者たちです。中間で利益を得る者たち。",
+            "zh": "火星统一后会失去利益的人。从中渔利的人。"
           }
         },
         {
@@ -1024,7 +1260,9 @@
           "emotion": "grim",
           "text": {
             "ko": "지구 측 자본. 화성 분열이 그들에게 이익이야.",
-            "en": "Earth-side capital. Martian division benefits them."
+            "en": "Earth-side capital. Martian division benefits them.",
+            "ja": "地球側の資本。火星の分裂が彼らに有利なんだ。",
+            "zh": "地球方面的资本。火星分裂对他们有利。"
           }
         },
         {
@@ -1032,7 +1270,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이름을 알고 싶어요. 언제나 그래요.",
-            "en": "I want to know the names. As always."
+            "en": "I want to know the names. As always.",
+            "ja": "名前を知りたいです。いつもそうです。",
+            "zh": "我想知道名字。一如既往。"
           }
         }
       ]
@@ -1047,37 +1287,49 @@
         {
           "text": {
             "ko": "창문 밖에서 소리가 났다.",
-            "en": "Sound from outside the window."
+            "en": "Sound from outside the window.",
+            "ja": "窓の外から音がした。",
+            "zh": "窗外传来声音。"
           }
         },
         {
           "text": {
             "ko": "무성의 전투가 아니었다. 무언가가 부서지는 소리였다.",
-            "en": "Not the silent battle. The sound of something breaking."
+            "en": "Not the silent battle. The sound of something breaking.",
+            "ja": "無音の戦いではなかった。何かが壊れる音だった。",
+            "zh": "不是无声的战斗。是什么东西破碎的声音。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale이 창문으로 보았다.",
-            "en": "Rev. Hale looked through the window."
+            "en": "Rev. Hale looked through the window.",
+            "ja": "Rev. ヘイルが窓から見た。",
+            "zh": "Rev. 黑尔望向窗外。"
           }
         },
         {
           "text": {
             "ko": "Amara가 쓰러져 있었다.",
-            "en": "Amara was down."
+            "en": "Amara was down.",
+            "ja": "アマラが倒れていた。",
+            "zh": "阿玛拉倒下了。"
           }
         },
         {
           "text": {
             "ko": "일어서고 있었다. 다치지 않았다.",
-            "en": "Getting up. Not injured."
+            "en": "Getting up. Not injured.",
+            "ja": "起き上がっていた。怪我はなかった。",
+            "zh": "正在起身。没有受伤。"
           }
         },
         {
           "text": {
             "ko": "암살자 둘이 쓰러져 있었다. 일어서지 않았다.",
-            "en": "Two assassins were down. Not getting up."
+            "en": "Two assassins were down. Not getting up.",
+            "ja": "暗殺者が二人倒れていた。起き上がらなかった。",
+            "zh": "两名刺客倒下了。没有起身。"
           }
         }
       ]
@@ -1094,7 +1346,9 @@
           "emotion": "watching",
           "text": {
             "ko": "당신 FSP 사람들 강하군요.",
-            "en": "Your FSP people are strong."
+            "en": "Your FSP people are strong.",
+            "ja": "あなたのFSPの人たちは強いですね。",
+            "zh": "你们FSP的人很强。"
           }
         },
         {
@@ -1102,7 +1356,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "광부들이에요. 화성에서 태어난 사람들.",
-            "en": "Miners. People born on Mars."
+            "en": "Miners. People born on Mars.",
+            "ja": "鉱夫たち。火星で生まれた人たち。",
+            "zh": "矿工。在火星出生的人。"
           }
         },
         {
@@ -1110,7 +1366,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "화성에서 태어난 사람들.",
-            "en": "People born on Mars."
+            "en": "People born on Mars.",
+            "ja": "火星で生まれた人たち。",
+            "zh": "在火星出生的人。"
           }
         },
         {
@@ -1118,7 +1376,9 @@
           "emotion": "measured",
           "text": {
             "ko": "이 행성의 첫 세대예요. Yuna 같은 사람들. 당신들이 키운 세대에요.",
-            "en": "The first generation of this planet. People like Yuna. The generation you raised."
+            "en": "The first generation of this planet. People like Yuna. The generation you raised.",
+            "ja": "この惑星の第一世代。ユナのような人たち。あなたたちが育てた世代。",
+            "zh": "这颗星球的第一代。像尤娜这样的人。你们培育的一代。"
           }
         },
         {
@@ -1126,7 +1386,9 @@
           "emotion": "silent",
           "text": {
             "ko": "...",
-            "en": "..."
+            "en": "...",
+            "ja": "...",
+            "zh": "..."
           }
         }
       ]
@@ -1141,37 +1403,49 @@
         {
           "text": {
             "ko": "전투가 끝났다.",
-            "en": "The battle ended."
+            "en": "The battle ended.",
+            "ja": "戦いが終わった。",
+            "zh": "战斗结束了。"
           }
         },
         {
           "text": {
             "ko": "암살자 넷 중 셋이 제압됐다. 하나가 도망쳤다.",
-            "en": "Three of four assassins subdued. One escaped."
+            "en": "Three of four assassins subdued. One escaped.",
+            "ja": "四人中三人が制圧された。一人が逃げた。",
+            "zh": "四人中三人被制服。一人逃跑了。"
           }
         },
         {
           "text": {
             "ko": "플레이어와 Cinder Grace가 기지로 돌아왔다.",
-            "en": "The player and Cinder Grace returned to the station."
+            "en": "The player and Cinder Grace returned to the station.",
+            "ja": "プレイヤーとシンダー・グレイスが基地に戻った。",
+            "zh": "玩家和辛达·格蕾丝返回了基地。"
           }
         },
         {
           "text": {
             "ko": "Amara의 왼쪽 팔에 상처가 있었다. 깊지 않았다.",
-            "en": "Amara had a wound on her left arm. Not deep."
+            "en": "Amara had a wound on her left arm. Not deep.",
+            "ja": "アマラの左腕に傷があった。深くはなかった。",
+            "zh": "阿玛拉左臂有伤。不深。"
           }
         },
         {
           "text": {
             "ko": "Lena가 그것을 보고 아무 말 하지 않았다.",
-            "en": "Lena saw it and said nothing."
+            "en": "Lena saw it and said nothing.",
+            "ja": "レナはそれを見て何も言わなかった。",
+            "zh": "莱娜看到了，什么都没说。"
           }
         },
         {
           "text": {
             "ko": "그것이 Lena의 방식이었다. 상처를 보면 침묵.",
-            "en": "That was Lena's way. Silence when she saw a wound."
+            "en": "That was Lena's way. Silence when she saw a wound.",
+            "ja": "それがレナのやり方だった。傷を見ると黙る。",
+            "zh": "这是莱娜的方式。看到伤口就沉默。"
           }
         }
       ]
@@ -1188,7 +1462,9 @@
           "emotion": "grim",
           "text": {
             "ko": "제압된 놈들 심문하면 의뢰인 나올 수도 있어요.",
-            "en": "Interrogate the subdued ones and the client might come out."
+            "en": "Interrogate the subdued ones and the client might come out.",
+            "ja": "制圧した者たちを尋問すれば依頼人が出てくるかもしれません。",
+            "zh": "审问被制服的人，也许能找出委托人。"
           }
         },
         {
@@ -1196,7 +1472,9 @@
           "emotion": "controlled",
           "text": {
             "ko": "Pilgrim Arms는 의뢰인을 말하지 않아요. 그것이 그들의 원칙이에요.",
-            "en": "Pilgrim Arms don't name clients. That is their principle."
+            "en": "Pilgrim Arms don't name clients. That is their principle.",
+            "ja": "Pilgrim Armsは依頼人を言いません。それが彼らの原則です。",
+            "zh": "朝圣者武装不透露委托人。这是他们的原则。"
           }
         },
         {
@@ -1204,7 +1482,9 @@
           "emotion": "dry",
           "text": {
             "ko": "원칙에도 예외가 있죠.",
-            "en": "Principles have exceptions."
+            "en": "Principles have exceptions.",
+            "ja": "原則にも例外はあります。",
+            "zh": "原则也有例外。"
           }
         },
         {
@@ -1212,7 +1492,9 @@
           "emotion": "firm",
           "text": {
             "ko": "지금 그 문제 아니에요. 회담 계속해요.",
-            "en": "That's not the issue now. Continue the summit."
+            "en": "That's not the issue now. Continue the summit.",
+            "ja": "今はその問題ではありません。会談を続けましょう。",
+            "zh": "现在不是讨论这个的时候。继续会谈。"
           }
         },
         {
@@ -1220,7 +1502,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Amara를 먼저요.",
-            "en": "Amara first."
+            "en": "Amara first.",
+            "ja": "アマラを先に。",
+            "zh": "先处理阿玛拉。"
           }
         },
         {
@@ -1228,7 +1512,9 @@
           "emotion": "dismissive",
           "text": {
             "ko": "괜찮아요. 앉을 수 있어요.",
-            "en": "I'm fine. I can sit."
+            "en": "I'm fine. I can sit.",
+            "ja": "大丈夫です。座れます。",
+            "zh": "没事。我能坐。"
           }
         }
       ]
@@ -1243,37 +1529,49 @@
         {
           "text": {
             "ko": "다섯 명이 다시 테이블에 앉았다.",
-            "en": "Five people sat at the table again."
+            "en": "Five people sat at the table again.",
+            "ja": "五人が再びテーブルに座った。",
+            "zh": "五个人再次坐到桌边。"
           }
         },
         {
           "text": {
             "ko": "방금 전까지 암살자와 싸우고 있었던 사람들이었다.",
-            "en": "They had just been fighting assassins."
+            "en": "They had just been fighting assassins.",
+            "ja": "たった今まで暗殺者と戦っていた人たちだった。",
+            "zh": "他们刚刚还在和刺客战斗。"
           }
         },
         {
           "text": {
             "ko": "그러나 테이블에 앉으면 협상자였다.",
-            "en": "But at the table they were negotiators."
+            "en": "But at the table they were negotiators.",
+            "ja": "しかしテーブルに着けば交渉者だった。",
+            "zh": "但坐到桌前，他们是谈判者。"
           }
         },
         {
           "text": {
             "ko": "화성의 방식이었다. 살아있는 한 계속하는 것.",
-            "en": "The Martian way. Continue as long as you're alive."
+            "en": "The Martian way. Continue as long as you're alive.",
+            "ja": "火星の流儀。生きている限り続ける。",
+            "zh": "火星的方式。活着就继续。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale이 종이를 다시 펼쳤다.",
-            "en": "Rev. Hale unfolded the paper again."
+            "en": "Rev. Hale unfolded the paper again.",
+            "ja": "Rev. ヘイルが再び紙を広げた。",
+            "zh": "Rev. 黑尔再次展开了纸。"
           }
         },
         {
           "text": {
             "ko": "이름들이 있었다.",
-            "en": "There were names."
+            "en": "There were names.",
+            "ja": "名前があった。",
+            "zh": "有名字。"
           }
         }
       ]
@@ -1290,7 +1588,9 @@
           "emotion": "resolute",
           "text": {
             "ko": "FSP의 요구는 하나예요.",
-            "en": "FSP's demand is one."
+            "en": "FSP's demand is one.",
+            "ja": "FSPの要求は一つです。",
+            "zh": "FSP的要求只有一个。"
           }
         },
         {
@@ -1298,7 +1598,9 @@
           "emotion": "serious",
           "text": {
             "ko": "광부의 이름이 기록되는 것. 사고가 공개되는 것.",
-            "en": "That miners' names be recorded. That accidents be made public."
+            "en": "That miners' names be recorded. That accidents be made public.",
+            "ja": "鉱夫の名前が記録されること。事故が公開されること。",
+            "zh": "矿工的名字要被记录。事故要公开。"
           }
         },
         {
@@ -1306,7 +1608,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "제국이 필요 없어요. 영토가 필요 없어요.",
-            "en": "No empire. No territory."
+            "en": "No empire. No territory.",
+            "ja": "帝国は必要ありません。領土も必要ありません。",
+            "zh": "不需要帝国。不需要领土。"
           }
         },
         {
@@ -1314,7 +1618,9 @@
           "emotion": "steady",
           "text": {
             "ko": "이름이 있는 사람은 죽어도 존재해요.",
-            "en": "A person with a name exists even after death."
+            "en": "A person with a name exists even after death.",
+            "ja": "名前のある人は死んでも存在します。",
+            "zh": "有名字的人死后也存在。"
           }
         },
         {
@@ -1322,7 +1628,9 @@
           "emotion": "firm",
           "text": {
             "ko": "그리고 노동 조건 개선. 의료 접근권. 수자원 공정 배분.",
-            "en": "And improved labor conditions. Medical access. Fair water distribution."
+            "en": "And improved labor conditions. Medical access. Fair water distribution.",
+            "ja": "そして労働条件の改善。医療へのアクセス。公平な水の分配。",
+            "zh": "以及改善劳动条件。医疗访问权。公平的水资源分配。"
           }
         },
         {
@@ -1330,7 +1638,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그것들은 이름이 기록되면 따라와요. 이름이 없으면 아무것도 없어요.",
-            "en": "Those follow when names are recorded. Without names there is nothing."
+            "en": "Those follow when names are recorded. Without names there is nothing.",
+            "ja": "それらは名前が記録されれば後からついてきます。名前がなければ何もありません。",
+            "zh": "名字被记录后，这些自然会随之而来。没有名字，什么都没有。"
           }
         }
       ]
@@ -1347,7 +1657,9 @@
           "emotion": "considering",
           "text": {
             "ko": "MCC의 입장은 통합이에요. 행정 효율. 자원 관리.",
-            "en": "MCC's position is integration. Administrative efficiency. Resource management."
+            "en": "MCC's position is integration. Administrative efficiency. Resource management.",
+            "ja": "MCCの立場は統合です。行政効率。資源管理。",
+            "zh": "MCC的立场是整合。行政效率。资源管理。"
           }
         },
         {
@@ -1355,7 +1667,9 @@
           "emotion": "measured",
           "text": {
             "ko": "노동자 등록은... 고려할 수 있어요.",
-            "en": "Worker registration is... something we can consider."
+            "en": "Worker registration is... something we can consider.",
+            "ja": "労働者登録は……検討できます。",
+            "zh": "劳工登记是……可以考虑的事情。"
           }
         },
         {
@@ -1363,7 +1677,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "고려? 그걸 고려라고 부르는 거요?",
-            "en": "Consider. You call that consideration?"
+            "en": "Consider. You call that consideration?",
+            "ja": "検討？それを検討と呼ぶんですか？",
+            "zh": "考虑？你把那叫做考虑？"
           }
         },
         {
@@ -1371,7 +1687,9 @@
           "emotion": "firm",
           "text": {
             "ko": "화성 전체 행정 구조를 바꾸는 게 하루 이틀이 아닙니다.",
-            "en": "Changing the entire Mars administrative structure is not a one or two day matter."
+            "en": "Changing the entire Mars administrative structure is not a one or two day matter.",
+            "ja": "火星全体の行政構造を変えるのは一日二日のことではありません。",
+            "zh": "改变整个火星行政结构不是一两天的事。"
           }
         },
         {
@@ -1379,7 +1697,9 @@
           "emotion": "grim",
           "text": {
             "ko": "그 구조 때문에 사람들이 죽었어요. 그것도 고려해요?",
-            "en": "People died because of that structure. Do you consider that too?"
+            "en": "People died because of that structure. Do you consider that too?",
+            "ja": "その構造のせいで人が死んだんです。それも考慮しますか？",
+            "zh": "就是那个结构让人死去的。这个你也考虑吗？"
           }
         },
         {
@@ -1387,7 +1707,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이름들이 먼저예요. 시작은 거기서 해요.",
-            "en": "Names first. Start there."
+            "en": "Names first. Start there.",
+            "ja": "名前が先です。そこから始めましょう。",
+            "zh": "名字优先。从那里开始。"
           }
         }
       ]
@@ -1402,37 +1724,49 @@
         {
           "text": {
             "ko": "Rev. Hale은 협상가가 아니었다.",
-            "en": "Rev. Hale was not a negotiator."
+            "en": "Rev. Hale was not a negotiator.",
+            "ja": "Rev. ヘイルは交渉者ではなかった。",
+            "zh": "Rev. 黑尔不是谈判者。"
           }
         },
         {
           "text": {
             "ko": "그러나 그는 사람들이 어떻게 마음을 여는지 알았다.",
-            "en": "But he knew how people opened their hearts."
+            "en": "But he knew how people opened their hearts.",
+            "ja": "しかし彼は人々がどのように心を開くか知っていた。",
+            "zh": "但他知道人们如何打开心扉。"
           }
         },
         {
           "text": {
             "ko": "장례식에서. 임종에서. 아이가 태어날 때.",
-            "en": "At funerals. At deathbeds. When children were born."
+            "en": "At funerals. At deathbeds. When children were born.",
+            "ja": "葬儀で。臨終で。子が生まれるとき。",
+            "zh": "在葬礼上。在临终时。当孩子出生时。"
           }
         },
         {
           "text": {
             "ko": "공통점이 있었다. 이름.",
-            "en": "There was a common thread. Names."
+            "en": "There was a common thread. Names.",
+            "ja": "共通点があった。名前。",
+            "zh": "有一条共同的线索。名字。"
           }
         },
         {
           "text": {
             "ko": "이름을 불러주면 사람들이 달라졌다.",
-            "en": "When you called someone's name people changed."
+            "en": "When you called someone's name people changed.",
+            "ja": "名前を呼ぶと人々が変わった。",
+            "zh": "当你叫出某人的名字，人们就会改变。"
           }
         },
         {
           "text": {
             "ko": "Chen Weiss도 이름이 있었다. Cinder Grace도. 그것부터 시작해야 했다.",
-            "en": "Chen Weiss had a name. Cinder Grace too. That was where to start."
+            "en": "Chen Weiss had a name. Cinder Grace too. That was where to start.",
+            "ja": "チェン・ワイスにも名前があった。シンダー・グレイスにも。そこから始めるべきだった。",
+            "zh": "陈·韦斯有名字。辛达·格蕾丝也有。从那里开始才对。"
           }
         }
       ]
@@ -1449,7 +1783,9 @@
           "emotion": "gentle",
           "text": {
             "ko": "Chen Weiss. 당신이 처음 화성에 온 날이 언제예요.",
-            "en": "Chen Weiss. When was the day you first came to Mars."
+            "en": "Chen Weiss. When was the day you first came to Mars.",
+            "ja": "チェン・ワイス。初めて火星に来た日はいつですか。",
+            "zh": "陈·韦斯。你第一次来火星是什么时候。"
           }
         },
         {
@@ -1457,7 +1793,9 @@
           "emotion": "surprised",
           "text": {
             "ko": "그게 지금 무슨 상관이죠.",
-            "en": "What does that have to do with anything."
+            "en": "What does that have to do with anything.",
+            "ja": "それが今何の関係があるんですか。",
+            "zh": "那和现在有什么关系。"
           }
         },
         {
@@ -1465,7 +1803,9 @@
           "emotion": "patient",
           "text": {
             "ko": "알고 싶어요. 사람은 처음을 기억해요.",
-            "en": "I want to know. People remember their first time."
+            "en": "I want to know. People remember their first time.",
+            "ja": "知りたいです。人は最初を覚えているものです。",
+            "zh": "我想知道。人们记得第一次。"
           }
         },
         {
@@ -1473,7 +1813,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "... 열일곱 살이었어요. 아버지 따라서. 아버지는 엔지니어였어요.",
-            "en": "... I was seventeen. Following my father. He was an engineer."
+            "en": "... I was seventeen. Following my father. He was an engineer.",
+            "ja": "……十七歳でした。父に連れられて。父はエンジニアでした。",
+            "zh": "……我十七岁。跟着父亲。他是工程师。"
           }
         },
         {
@@ -1481,7 +1823,9 @@
           "emotion": "gentle",
           "text": {
             "ko": "그때 화성이 어떻게 보였어요.",
-            "en": "What did Mars look like then."
+            "en": "What did Mars look like then.",
+            "ja": "そのとき火星はどう見えましたか。",
+            "zh": "那时火星看起来是什么样子。"
           }
         },
         {
@@ -1489,7 +1833,9 @@
           "emotion": "distant",
           "text": {
             "ko": "... 붉었어요. 그리고 비어 있었어요. 그때는.",
-            "en": "... Red. And empty. Back then."
+            "en": "... Red. And empty. Back then.",
+            "ja": "……赤かった。そして空だった。あのころは。",
+            "zh": "……红色的。还有空旷的。那时候。"
           }
         }
       ]
@@ -1506,7 +1852,9 @@
           "emotion": "patient",
           "text": {
             "ko": "Cinder Grace. 당신은.",
-            "en": "Cinder Grace. And you."
+            "en": "Cinder Grace. And you.",
+            "ja": "シンダー・グレイス。あなたは。",
+            "zh": "辛达·格蕾丝。你呢。"
           }
         },
         {
@@ -1514,7 +1862,9 @@
           "emotion": "guarded",
           "text": {
             "ko": "내 이야기는 안 해요.",
-            "en": "I don't tell my story."
+            "en": "I don't tell my story.",
+            "ja": "私の話はしません。",
+            "zh": "我不讲自己的故事。"
           }
         },
         {
@@ -1522,7 +1872,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Zone 12 말해줬잖아요. 그것도 이야기예요.",
-            "en": "You told me about Zone 12. That too is a story."
+            "en": "You told me about Zone 12. That too is a story.",
+            "ja": "ゾーン12について話してくれましたよね。それも話ですよ。",
+            "zh": "你告诉过我12区的事。那也是个故事。"
           }
         },
         {
@@ -1530,7 +1882,9 @@
           "emotion": "tense",
           "text": {
             "ko": "...",
-            "en": "..."
+            "en": "...",
+            "ja": "...",
+            "zh": "..."
           }
         },
         {
@@ -1538,7 +1892,9 @@
           "emotion": "low",
           "text": {
             "ko": "나는 거기서 태어났어요. Zone 12에서. 그래서 아는 거예요.",
-            "en": "I was born there. In Zone 12. That's why I know."
+            "en": "I was born there. In Zone 12. That's why I know.",
+            "ja": "私はそこで生まれました。ゾーン12で。だから知っているんです。",
+            "zh": "我在那里出生。在12区。所以我知道。"
           }
         },
         {
@@ -1546,7 +1902,9 @@
           "emotion": "soft",
           "text": {
             "ko": "그 이름도 기록돼야 해요. Cinder Grace. Zone 12 출신.",
-            "en": "That name should be recorded too. Cinder Grace. From Zone 12."
+            "en": "That name should be recorded too. Cinder Grace. From Zone 12.",
+            "ja": "その名前も記録されるべきです。シンダー・グレイス。ゾーン12出身。",
+            "zh": "那个名字也应该被记录。辛达·格蕾丝。来自12区。"
           }
         }
       ]
@@ -1561,31 +1919,41 @@
         {
           "text": {
             "ko": "Cinder Grace가 Rev. Hale을 봤다.",
-            "en": "Cinder Grace looked at Rev. Hale."
+            "en": "Cinder Grace looked at Rev. Hale.",
+            "ja": "シンダー・グレイスがRev. ヘイルを見た。",
+            "zh": "辛达·格蕾丝看向Rev. 黑尔。"
           }
         },
         {
           "text": {
             "ko": "오래 봤다.",
-            "en": "For a long time."
+            "en": "For a long time.",
+            "ja": "長い間。",
+            "zh": "看了很久。"
           }
         },
         {
           "text": {
             "ko": "그러다가 공구 벨트에서 손을 내렸다.",
-            "en": "Then she lowered her hand from the tool belt."
+            "en": "Then she lowered her hand from the tool belt.",
+            "ja": "それから彼女が工具ベルトから手を下ろした。",
+            "zh": "然后她从工具腰带上放下手。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale은 그것을 봤다.",
-            "en": "Rev. Hale saw that."
+            "en": "Rev. Hale saw that.",
+            "ja": "Rev. ヘイルはそれを見た。",
+            "zh": "Rev. 黑尔看到了。"
           }
         },
         {
           "text": {
             "ko": "작은 것이었다. 그러나 작은 것들이 테이블을 만들었다.",
-            "en": "A small thing. But small things made tables."
+            "en": "A small thing. But small things made tables.",
+            "ja": "小さなことだった。しかし小さなことがテーブルを作った。",
+            "zh": "小事一桩。但小事能造就谈判桌。"
           }
         }
       ]
@@ -1602,7 +1970,9 @@
           "emotion": "direct",
           "text": {
             "ko": "구체적인 합의로 가죠. 시간이 없어요.",
-            "en": "Let's move to specific agreements. No time."
+            "en": "Let's move to specific agreements. No time.",
+            "ja": "具体的な合意に移りましょう。時間がありません。",
+            "zh": "进入具体协议阶段。没时间了。"
           }
         },
         {
@@ -1610,7 +1980,9 @@
           "emotion": "controlled",
           "text": {
             "ko": "화성 노동자 통합 등록 시스템. MCC가 인프라를 제공할 수 있어요.",
-            "en": "Mars integrated worker registration system. MCC can provide the infrastructure."
+            "en": "Mars integrated worker registration system. MCC can provide the infrastructure.",
+            "ja": "火星統合労働者登録システム。MCCがインフラを提供できます。",
+            "zh": "火星综合劳工登记系统。MCC可以提供基础设施。"
           }
         },
         {
@@ -1618,7 +1990,9 @@
           "emotion": "cautious",
           "text": {
             "ko": "MCC가 관리하면 MCC가 지울 수도 있어요.",
-            "en": "If MCC manages it MCC can also delete it."
+            "en": "If MCC manages it MCC can also delete it.",
+            "ja": "MCCが管理すればMCCが削除もできます。",
+            "zh": "如果MCC管理，MCC也可以删除。"
           }
         },
         {
@@ -1626,7 +2000,9 @@
           "emotion": "measured",
           "text": {
             "ko": "독립 기관으로 만들어요. 세 파벌이 감시.",
-            "en": "Make it an independent body. All three factions oversee."
+            "en": "Make it an independent body. All three factions oversee.",
+            "ja": "独立機関にしましょう。三派が監視する。",
+            "zh": "设为独立机构。三个派系共同监督。"
           }
         },
         {
@@ -1634,7 +2010,9 @@
           "emotion": "interested",
           "text": {
             "ko": "그리고 목사들이요. 종교 공동체가. 기록을 증인으로 보존하는 거예요.",
-            "en": "And ministers. Religious communities. Preserving the records as witnesses."
+            "en": "And ministers. Religious communities. Preserving the records as witnesses.",
+            "ja": "そして牧師たち。宗教共同体。記録を証人として保存する。",
+            "zh": "还有牧师们。宗教社区。作为见证人保存记录。"
           }
         },
         {
@@ -1642,7 +2020,9 @@
           "emotion": "thinking",
           "text": {
             "ko": "... 그것도 하나의 방법이네요.",
-            "en": "... That is also a method."
+            "en": "... That is also a method.",
+            "ja": "……それも一つの方法ですね。",
+            "zh": "……那也是一个方法。"
           }
         }
       ]
@@ -1657,37 +2037,49 @@
         {
           "text": {
             "ko": "협상이 됐다. 처음으로.",
-            "en": "Negotiations proceeded. For the first time."
+            "en": "Negotiations proceeded. For the first time.",
+            "ja": "交渉が進んだ。初めて。",
+            "zh": "谈判进行了。史上第一次。"
           }
         },
         {
           "text": {
             "ko": "세 파벌이 같은 방향을 봤다.",
-            "en": "Three factions looked in the same direction."
+            "en": "Three factions looked in the same direction.",
+            "ja": "三派が同じ方向を向いた。",
+            "zh": "三个派系看向了同一个方向。"
           }
         },
         {
           "text": {
             "ko": "완전히는 아니었다. 그러나 처음이었다.",
-            "en": "Not completely. But it was a first."
+            "en": "Not completely. But it was a first.",
+            "ja": "完全にではなかった。しかし初めてだった。",
+            "zh": "不完全。但这是第一次。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale은 테이블 위 종이를 봤다.",
-            "en": "Rev. Hale looked at the paper on the table."
+            "en": "Rev. Hale looked at the paper on the table.",
+            "ja": "Rev. ヘイルがテーブルの上の紙を見た。",
+            "zh": "Rev. 黑尔看着桌上的纸。"
           }
         },
         {
           "text": {
             "ko": "펜이 옆에 있었다.",
-            "en": "A pen was beside it."
+            "en": "A pen was beside it.",
+            "ja": "ペンが横にあった。",
+            "zh": "旁边有一支笔。"
           }
         },
         {
           "text": {
             "ko": "이름들을 쓸 수 있었다.",
-            "en": "Names could be written."
+            "en": "Names could be written.",
+            "ja": "名前を書けた。",
+            "zh": "可以写下名字了。"
           }
         }
       ]
@@ -1699,55 +2091,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "합의문에 무엇을 먼저 써야 합니까.",
-        "en": "What should be written first on the agreement."
+        "en": "What should be written first on the agreement.",
+        "ja": "合意文書に最初に何を書くべきか。",
+        "zh": "协议上第一句应该写什么。"
       },
       "choices": [
         {
           "id": "fsp_ch9_write_names",
           "text": {
             "ko": "이름들의 목록을 먼저 쓴다. Kim Yong-jin. Mariam. 그들부터.",
-            "en": "Write the list of names first. Kim Yong-jin. Mariam. Starting with them."
+            "en": "Write the list of names first. Kim Yong-jin. Mariam. Starting with them.",
+            "ja": "名前の一覧を先に書く。キム・ヨンジン。マリアム。彼らから。",
+            "zh": "先写名单。金勇珍。玛利亚姆。从他们开始。"
           },
           "tone": "memorial",
           "preview_hint": {
             "ko": "→ Rev. Hale이 눈을 감는다",
-            "en": "→ Rev. Hale closes his eyes"
+            "en": "→ Rev. Hale closes his eyes",
+            "ja": "→ Rev. ヘイルが目を閉じる",
+            "zh": "→ Rev. 黑尔闭上眼睛"
           }
         },
         {
           "id": "fsp_ch9_principles",
           "text": {
             "ko": "원칙을 먼저 쓴다. 모든 화성 노동자는 이름으로 기록된다.",
-            "en": "Write the principle first. Every Mars worker is recorded by name."
+            "en": "Write the principle first. Every Mars worker is recorded by name.",
+            "ja": "原則を先に書く。すべての火星労働者は名前で記録される。",
+            "zh": "先写原则。所有火星劳工以名字记录。"
           },
           "tone": "institutional",
           "preview_hint": {
             "ko": "→ 화성 역사상 처음으로 원칙이 생긴다",
-            "en": "→ Mars gains its first principle"
+            "en": "→ Mars gains its first principle",
+            "ja": "→ 火星が初めての原則を得る",
+            "zh": "→ 火星获得第一条原则"
           }
         },
         {
           "id": "fsp_ch9_all_three",
           "text": {
             "ko": "세 파벌 대표가 먼저 서명한다. 이름들은 그 다음.",
-            "en": "All three representatives sign first. Names come after."
+            "en": "All three representatives sign first. Names come after.",
+            "ja": "三派の代表が先に署名する。名前はその後。",
+            "zh": "三个派系代表先签名。名字之后再写。"
           },
           "tone": "political",
           "preview_hint": {
             "ko": "→ Cinder Grace가 멈칫한다",
-            "en": "→ Cinder Grace hesitates"
+            "en": "→ Cinder Grace hesitates",
+            "ja": "→ シンダー・グレイスが躊躇する",
+            "zh": "→ 辛达·格蕾丝犹豫了"
           }
         },
         {
           "id": "fsp_ch9_witness",
           "text": {
             "ko": "Rev. Hale이 증인으로 서명한다. 혼자.",
-            "en": "Rev. Hale signs as sole witness."
+            "en": "Rev. Hale signs as sole witness.",
+            "ja": "Rev. ヘイルが唯一の証人として署名する。",
+            "zh": "Rev. 黑尔作为唯一见证人签名。"
           },
           "tone": "sacred",
           "preview_hint": {
             "ko": "→ 목사가 화성의 기억을 짊어진다",
-            "en": "→ A minister carries Mars's memory"
+            "en": "→ A minister carries Mars's memory",
+            "ja": "→ 牧師が火星の記憶を背負う",
+            "zh": "→ 牧师承担起火星的记忆"
           }
         }
       ]
@@ -1762,31 +2172,41 @@
         {
           "text": {
             "ko": "문이 열렸다.",
-            "en": "The door opened."
+            "en": "The door opened.",
+            "ja": "ドアが開いた。",
+            "zh": "门开了。"
           }
         },
         {
           "text": {
             "ko": "제압된 Pilgrim Arms 암살자 하나가 끌려 들어왔다.",
-            "en": "One subdued Pilgrim Arms assassin was dragged in."
+            "en": "One subdued Pilgrim Arms assassin was dragged in.",
+            "ja": "制圧されたPilgrim Armsの暗殺者が一人引きずり込まれてきた。",
+            "zh": "一名被制服的朝圣者武装刺客被拖了进来。"
           }
         },
         {
           "text": {
             "ko": "Amara가 팔을 잡고 있었다. 상처 난 팔로.",
-            "en": "Amara was holding the arm. With her injured arm."
+            "en": "Amara was holding the arm. With her injured arm.",
+            "ja": "アマラが腕を掴んでいた。傷を負った腕で。",
+            "zh": "阿玛拉握着他的手臂。用受伤的那只手臂。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale이 일어섰다.",
-            "en": "Rev. Hale stood."
+            "en": "Rev. Hale stood.",
+            "ja": "Rev. ヘイルが立ち上がった。",
+            "zh": "Rev. 黑尔站了起来。"
           }
         },
         {
           "text": {
             "ko": "그가 먼저 암살자 앞으로 걸어갔다.",
-            "en": "He walked first toward the assassin."
+            "en": "He walked first toward the assassin.",
+            "ja": "彼が先に暗殺者のそばへ歩いていった。",
+            "zh": "他先走向了刺客。"
           }
         }
       ]
@@ -1803,7 +2223,9 @@
           "emotion": "calm",
           "text": {
             "ko": "이름이 뭐예요.",
-            "en": "What is your name."
+            "en": "What is your name.",
+            "ja": "名前はなんですか。",
+            "zh": "你叫什么名字。"
           }
         },
         {
@@ -1811,7 +2233,9 @@
           "emotion": "defiant",
           "text": {
             "ko": "...",
-            "en": "..."
+            "en": "...",
+            "ja": "...",
+            "zh": "..."
           }
         },
         {
@@ -1819,7 +2243,9 @@
           "emotion": "patient",
           "text": {
             "ko": "누가 보냈는지 묻는 게 아니에요. 이름이요.",
-            "en": "I'm not asking who sent you. Your name."
+            "en": "I'm not asking who sent you. Your name.",
+            "ja": "誰が送ったかを聞いているのではありません。名前です。",
+            "zh": "我不是问谁派你来的。是你的名字。"
           }
         },
         {
@@ -1827,7 +2253,9 @@
           "emotion": "confused",
           "text": {
             "ko": "... 왜요.",
-            "en": "... Why."
+            "en": "... Why.",
+            "ja": "……なぜですか。",
+            "zh": "……为什么。"
           }
         },
         {
@@ -1835,7 +2263,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "기록하고 싶어서요. 오늘 이 자리에 있었던 사람들.",
-            "en": "I want to record it. The people who were at this place today."
+            "en": "I want to record it. The people who were at this place today.",
+            "ja": "記録したいのです。今日ここにいた人たちを。",
+            "zh": "我想记录下来。今天在这里的人们。"
           }
         },
         {
@@ -1843,7 +2273,9 @@
           "emotion": "still",
           "text": {
             "ko": "... Ramos.",
-            "en": "... Ramos."
+            "en": "... Ramos.",
+            "ja": "……ラモス。",
+            "zh": "……拉莫斯。"
           }
         }
       ]
@@ -1858,37 +2290,49 @@
         {
           "text": {
             "ko": "Cinder Grace가 그것을 봤다.",
-            "en": "Cinder Grace watched that."
+            "en": "Cinder Grace watched that.",
+            "ja": "シンダー・グレイスがそれを見た。",
+            "zh": "辛达·格蕾丝看到了这一切。"
           }
         },
         {
           "text": {
             "ko": "Chen Weiss가 그것을 봤다.",
-            "en": "Chen Weiss watched that."
+            "en": "Chen Weiss watched that.",
+            "ja": "チェン・ワイスがそれを見た。",
+            "zh": "陈·韦斯看到了这一切。"
           }
         },
         {
           "text": {
             "ko": "Lena가 그것을 봤다.",
-            "en": "Lena watched that."
+            "en": "Lena watched that.",
+            "ja": "レナがそれを見た。",
+            "zh": "莱娜看到了这一切。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale이 종이에 Ramos라고 썼다.",
-            "en": "Rev. Hale wrote Ramos on the paper."
+            "en": "Rev. Hale wrote Ramos on the paper.",
+            "ja": "Rev. ヘイルが紙にラモスと書いた。",
+            "zh": "Rev. 黑尔在纸上写下了拉莫斯。"
           }
         },
         {
           "text": {
             "ko": "암살자의 이름과 협상가들의 이름이 같은 종이에 있었다.",
-            "en": "An assassin's name and negotiators' names on the same paper."
+            "en": "An assassin's name and negotiators' names on the same paper.",
+            "ja": "暗殺者の名前と交渉者の名前が同じ紙にあった。",
+            "zh": "刺客的名字和谈判者的名字在同一张纸上。"
           }
         },
         {
           "text": {
             "ko": "화성에서 처음 있는 일이었다.",
-            "en": "A first on Mars."
+            "en": "A first on Mars.",
+            "ja": "火星では初めてのことだった。",
+            "zh": "火星上的第一次。"
           }
         }
       ]
@@ -1905,7 +2349,9 @@
           "emotion": "low",
           "text": {
             "ko": "의뢰인을 말해줘요. 말하면 우리가 보호해요.",
-            "en": "Tell us the client. Tell us and we'll protect you."
+            "en": "Tell us the client. Tell us and we'll protect you.",
+            "ja": "依頼人を教えてください。言えば守ります。",
+            "zh": "告诉我们委托人。说出来我们保护你。"
           }
         },
         {
@@ -1913,7 +2359,9 @@
           "emotion": "weighing",
           "text": {
             "ko": "Pilgrim Arms의 원칙은...",
-            "en": "Pilgrim Arms' principle is..."
+            "en": "Pilgrim Arms' principle is...",
+            "ja": "Pilgrim Armsの原則は……",
+            "zh": "朝圣者武装的原则是……"
           }
         },
         {
@@ -1921,7 +2369,9 @@
           "emotion": "direct",
           "text": {
             "ko": "원칙이 당신을 여기 가뒀어요. 지금 원칙이 당신 편이에요?",
-            "en": "Principle put you here. Is principle on your side now?"
+            "en": "Principle put you here. Is principle on your side now?",
+            "ja": "原則があなたをここに置いた。今その原則はあなたの味方ですか？",
+            "zh": "是原则把你带到这里的。现在原则站在你这边吗？"
           }
         },
         {
@@ -1929,7 +2379,9 @@
           "emotion": "breaking",
           "text": {
             "ko": "... 지구요. 직접은 아니야. 중간 브로커가 있어요. Talon Group.",
-            "en": "... Earth. Not directly. There's a middleman broker. Talon Group."
+            "en": "... Earth. Not directly. There's a middleman broker. Talon Group.",
+            "ja": "……地球です。直接ではない。中間のブローカーがいます。タロン・グループ。",
+            "zh": "……地球。不是直接的。有中间掮客。塔隆集团。"
           }
         },
         {
@@ -1937,7 +2389,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "Talon. 화성 분쟁 중재 자문사. 그들이.",
-            "en": "Talon. Mars conflict mediation consultants. Them."
+            "en": "Talon. Mars conflict mediation consultants. Them.",
+            "ja": "タロン。火星紛争調停コンサルタント。彼らが。",
+            "zh": "塔隆。火星冲突调解顾问公司。是他们。"
           }
         },
         {
@@ -1945,7 +2399,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "평화가 그들의 적이에요.",
-            "en": "Peace is their enemy."
+            "en": "Peace is their enemy.",
+            "ja": "平和が彼らの敵です。",
+            "zh": "和平是他们的敌人。"
           }
         }
       ]
@@ -1960,37 +2416,49 @@
         {
           "text": {
             "ko": "Talon Group. 이름이 나왔다.",
-            "en": "Talon Group. A name emerged."
+            "en": "Talon Group. A name emerged.",
+            "ja": "タロン・グループ。名前が出た。",
+            "zh": "塔隆集团。一个名字浮出水面。"
           }
         },
         {
           "text": {
             "ko": "이름이 있으면 존재가 있었다.",
-            "en": "Where there was a name there was existence."
+            "en": "Where there was a name there was existence.",
+            "ja": "名前があるところに存在があった。",
+            "zh": "有名字就有存在。"
           }
         },
         {
           "text": {
             "ko": "존재하는 것은 책임질 수 있었다.",
-            "en": "What existed could be held accountable."
+            "en": "What existed could be held accountable.",
+            "ja": "存在するものは責任を負えた。",
+            "zh": "存在的就可以被追责。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale은 그 이름도 썼다.",
-            "en": "Rev. Hale wrote that name too."
+            "en": "Rev. Hale wrote that name too.",
+            "ja": "Rev. ヘイルはその名前も書いた。",
+            "zh": "Rev. 黑尔也写下了那个名字。"
           }
         },
         {
           "text": {
             "ko": "종이 위에 이름들이 쌓였다.",
-            "en": "Names accumulated on the paper."
+            "en": "Names accumulated on the paper.",
+            "ja": "名前が紙の上に積み重なっていった。",
+            "zh": "名字在纸上积累起来。"
           }
         },
         {
           "text": {
             "ko": "죽은 자들. 산 자들. 이름이 없었던 자들. 지금 이름을 말하는 자들.",
-            "en": "The dead. The living. Those who had no names. Those now speaking their names."
+            "en": "The dead. The living. Those who had no names. Those now speaking their names.",
+            "ja": "死者たち。生者たち。名前がなかった者たち。今名前を言う者たち。",
+            "zh": "死者。生者。曾经没有名字的人。现在正在说出名字的人。"
           }
         }
       ]
@@ -2007,7 +2475,9 @@
           "emotion": "firm",
           "text": {
             "ko": "합의문 초안을 만들어요. 지금이에요.",
-            "en": "Let's draft the agreement. Now."
+            "en": "Let's draft the agreement. Now.",
+            "ja": "合意書の草案を作りましょう。今です。",
+            "zh": "起草协议。现在。"
           }
         },
         {
@@ -2015,7 +2485,9 @@
           "emotion": "resolute",
           "text": {
             "ko": "MCC는 화성 노동자 통합 등록 시스템 인프라 제공에 동의해요.",
-            "en": "MCC agrees to provide infrastructure for the Mars Integrated Worker Registration System."
+            "en": "MCC agrees to provide infrastructure for the Mars Integrated Worker Registration System.",
+            "ja": "MCCは火星統合労働者登録システムのインフラ提供に同意します。",
+            "zh": "MCC同意为火星综合劳工登记系统提供基础设施。"
           }
         },
         {
@@ -2023,7 +2495,9 @@
           "emotion": "considered",
           "text": {
             "ko": "CV는 Zone 12를 포함한 비공식 거주 지역의 이름 기록을 지원해요.",
-            "en": "CV supports recording of names in unofficial residential areas including Zone 12."
+            "en": "CV supports recording of names in unofficial residential areas including Zone 12.",
+            "ja": "CVはゾーン12を含む非公式居住地域の名前の記録を支援します。",
+            "zh": "CV支持包括12区在内的非正式居住区的名字记录。"
           }
         },
         {
@@ -2031,7 +2505,9 @@
           "emotion": "steady",
           "text": {
             "ko": "FSP는 종교 공동체를 통한 독립 증인 네트워크를 구성해요. 기록이 지워지지 않도록.",
-            "en": "FSP will establish an independent witness network through religious communities. So records cannot be erased."
+            "en": "FSP will establish an independent witness network through religious communities. So records cannot be erased.",
+            "ja": "FSPは宗教共同体を通じた独立した証人ネットワークを構成します。記録が消えないように。",
+            "zh": "FSP将通过宗教社区建立独立见证人网络。确保记录不被抹去。"
           }
         },
         {
@@ -2039,7 +2515,9 @@
           "emotion": "calculating",
           "text": {
             "ko": "그리고 수자원. 의료권. 노동 시간.",
-            "en": "And water rights. Medical rights. Work hours."
+            "en": "And water rights. Medical rights. Work hours.",
+            "ja": "そして水利権。医療権。労働時間。",
+            "zh": "还有水权。医疗权。工作时间。"
           }
         },
         {
@@ -2047,7 +2525,9 @@
           "emotion": "nodding",
           "text": {
             "ko": "이름 기록이 먼저예요. Rev. Hale이 맞아요. 그게 기반이에요.",
-            "en": "Name recording comes first. Rev. Hale is right. That is the foundation."
+            "en": "Name recording comes first. Rev. Hale is right. That is the foundation.",
+            "ja": "名前の記録が先です。Rev. ヘイルが正しい。それが基盤です。",
+            "zh": "名字记录优先。Rev. 黑尔说得对。这是基础。"
           }
         }
       ]
@@ -2062,37 +2542,49 @@
         {
           "text": {
             "ko": "합의가 형태를 잡았다.",
-            "en": "The agreement took shape."
+            "en": "The agreement took shape.",
+            "ja": "合意が形を成した。",
+            "zh": "协议有了雏形。"
           }
         },
         {
           "text": {
             "ko": "세 파벌이 각자 원하는 것을 가져가지 않았다.",
-            "en": "Each of the three factions didn't get everything they wanted."
+            "en": "Each of the three factions didn't get everything they wanted.",
+            "ja": "三派それぞれが望むものすべてを得たわけではなかった。",
+            "zh": "三个派系各自并没有得到他们想要的一切。"
           }
         },
         {
           "text": {
             "ko": "그러나 함께 원하는 것을 하나 만들었다.",
-            "en": "But together they made one thing they all wanted."
+            "en": "But together they made one thing they all wanted.",
+            "ja": "しかし共に、皆が望む一つのものを作った。",
+            "zh": "但他们一起创造了一件所有人都想要的东西。"
           }
         },
         {
           "text": {
             "ko": "화성 역사상 처음이었다.",
-            "en": "A first in Mars history."
+            "en": "A first in Mars history.",
+            "ja": "火星史上初めてだった。",
+            "zh": "火星历史上的第一次。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale은 창문을 봤다. 올림포스 정상의 하늘.",
-            "en": "Rev. Hale looked at the window. The sky above Olympus summit."
+            "en": "Rev. Hale looked at the window. The sky above Olympus summit.",
+            "ja": "Rev. ヘイルが窓を見た。オリンポス頂上の空。",
+            "zh": "Rev. 黑尔看向窗外。奥林波斯山顶的天空。"
           }
         },
         {
           "text": {
             "ko": "붉었다. 항상 그랬다.",
-            "en": "Red. As always."
+            "en": "Red. As always.",
+            "ja": "赤かった。いつも通り。",
+            "zh": "红色的。一如既往。"
           }
         }
       ]
@@ -2109,7 +2601,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Hale 목사님.",
-            "en": "Reverend Hale."
+            "en": "Reverend Hale.",
+            "ja": "ヘイル牧師。",
+            "zh": "黑尔牧师。"
           }
         },
         {
@@ -2117,7 +2611,9 @@
           "emotion": "attentive",
           "text": {
             "ko": "예.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "はい。",
+            "zh": "是的。"
           }
         },
         {
@@ -2125,7 +2621,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "이름들이 기록되면... 그다음은 뭐예요.",
-            "en": "When the names are recorded... what comes next."
+            "en": "When the names are recorded... what comes next.",
+            "ja": "名前が記録されたら……次は何ですか。",
+            "zh": "当名字被记录后……接下来是什么。"
           }
         },
         {
@@ -2133,7 +2631,9 @@
           "emotion": "gentle",
           "text": {
             "ko": "그다음은 그 이름들이 결정해요.",
-            "en": "The names themselves decide what comes next."
+            "en": "The names themselves decide what comes next.",
+            "ja": "次に何が来るかはその名前たちが決めます。",
+            "zh": "接下来是什么由那些名字来决定。"
           }
         },
         {
@@ -2141,7 +2641,9 @@
           "emotion": "wondering",
           "text": {
             "ko": "이름이 어떻게 결정해요.",
-            "en": "How do names decide."
+            "en": "How do names decide.",
+            "ja": "名前がどうやって決めるんですか。",
+            "zh": "名字怎么决定。"
           }
         },
         {
@@ -2149,7 +2651,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "기록된 이름은 잊혀지지 않아요. 잊혀지지 않은 것은 요구해요.",
-            "en": "Recorded names are not forgotten. What is not forgotten makes demands."
+            "en": "Recorded names are not forgotten. What is not forgotten makes demands.",
+            "ja": "記録された名前は忘れられません。忘れられないものは要求します。",
+            "zh": "被记录的名字不会被遗忘。不被遗忘的东西会提出要求。"
           }
         }
       ]
@@ -2164,25 +2668,33 @@
         {
           "text": {
             "ko": "Mikhail이 연락을 해왔다. 라디오로.",
-            "en": "Mikhail contacted them. By radio."
+            "en": "Mikhail contacted them. By radio.",
+            "ja": "ミハイルが連絡を取ってきた。ラジオで。",
+            "zh": "米哈伊尔联系了他们。用无线电。"
           }
         },
         {
           "text": {
             "ko": "기지 아래에 있었다. 삼십 킬로미터.",
-            "en": "He was below the station. Thirty kilometers."
+            "en": "He was below the station. Thirty kilometers.",
+            "ja": "彼は基地の下にいた。三十キロ。",
+            "zh": "他在基地下方。三十公里处。"
           }
         },
         {
           "text": {
             "ko": "차를 마시고 있을 것이었다.",
-            "en": "He would be drinking tea."
+            "en": "He would be drinking tea.",
+            "ja": "お茶を飲んでいるだろう。",
+            "zh": "他应该在喝茶。"
           }
         },
         {
           "text": {
             "ko": "두 잔. 오른손이 왼손을 받치고.",
-            "en": "Two cups. Right hand supporting the left."
+            "en": "Two cups. Right hand supporting the left.",
+            "ja": "二杯。右手が左手を支えて。",
+            "zh": "两杯。右手托着左手。"
           }
         }
       ]
@@ -2200,7 +2712,9 @@
           "effect": "radio_static",
           "text": {
             "ko": "어떻게 됐어요.",
-            "en": "How did it go."
+            "en": "How did it go.",
+            "ja": "どうでしたか。",
+            "zh": "进展如何。"
           }
         },
         {
@@ -2208,7 +2722,9 @@
           "emotion": "exhausted",
           "text": {
             "ko": "됐어요. 초안이 있어요.",
-            "en": "It worked. We have a draft."
+            "en": "It worked. We have a draft.",
+            "ja": "できました。草案があります。",
+            "zh": "成了。我们有草稿了。"
           }
         },
         {
@@ -2216,7 +2732,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이름들 얘기가 나왔어요?",
-            "en": "Did the names come up."
+            "en": "Did the names come up.",
+            "ja": "名前の話は出ましたか。",
+            "zh": "提到名字了吗。"
           }
         },
         {
@@ -2224,7 +2742,9 @@
           "emotion": "warm",
           "text": {
             "ko": "제일 먼저요.",
-            "en": "First of all."
+            "en": "First of all.",
+            "ja": "まず最初に。",
+            "zh": "第一件事就是。"
           }
         },
         {
@@ -2232,7 +2752,9 @@
           "emotion": "relieved",
           "text": {
             "ko": "... 좋아요. 그럼 됐어요. 차 마시러 내려오세요.",
-            "en": "... Good. Then it's done. Come down for tea."
+            "en": "... Good. Then it's done. Come down for tea.",
+            "ja": "……よかった。それなら大丈夫です。お茶を飲みに降りてきてください。",
+            "zh": "……很好。那就行了。下来喝茶吧。"
           }
         },
         {
@@ -2240,7 +2762,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "곧 가요. Mikhail.",
-            "en": "We'll be down soon. Mikhail."
+            "en": "We'll be down soon. Mikhail.",
+            "ja": "すぐ行きます。ミハイル。",
+            "zh": "我们马上下来。米哈伊尔。"
           }
         }
       ]
@@ -2255,37 +2779,49 @@
         {
           "text": {
             "ko": "그러나 아직 끝나지 않은 것이 있었다.",
-            "en": "But there was still something unfinished."
+            "en": "But there was still something unfinished.",
+            "ja": "しかしまだ終わっていないことがあった。",
+            "zh": "但还有一件事没有完成。"
           }
         },
         {
           "text": {
             "ko": "도망친 암살자 하나.",
-            "en": "One escaped assassin."
+            "en": "One escaped assassin.",
+            "ja": "逃げた暗殺者一人。",
+            "zh": "一名逃跑的刺客。"
           }
         },
         {
           "text": {
             "ko": "Talon Group.",
-            "en": "Talon Group."
+            "en": "Talon Group.",
+            "ja": "タロン・グループ。",
+            "zh": "塔隆集团。"
           }
         },
         {
           "text": {
             "ko": "그리고 내부의 배신자.",
-            "en": "And an internal traitor."
+            "en": "And an internal traitor.",
+            "ja": "そして内部の裏切り者。",
+            "zh": "还有内部叛徒。"
           }
         },
         {
           "text": {
             "ko": "누가 Pilgrim Arms를 불렀는가.",
-            "en": "Who had called Pilgrim Arms."
+            "en": "Who had called Pilgrim Arms.",
+            "ja": "誰がPilgrim Armsを呼んだのか。",
+            "zh": "是谁召来了朝圣者武装。"
           }
         },
         {
           "text": {
             "ko": "세 파벌 중 하나에서 나온 것이었다.",
-            "en": "It had come from within one of the three factions."
+            "en": "It had come from within one of the three factions.",
+            "ja": "三派のうちの一つから出たことだった。",
+            "zh": "是从三个派系之一内部发出的。"
           }
         }
       ]
@@ -2302,7 +2838,9 @@
           "emotion": "suspicious",
           "text": {
             "ko": "내부에서 나온 거예요. Talon이 우리 위치를 알았어요.",
-            "en": "It came from inside. Talon knew our location."
+            "en": "It came from inside. Talon knew our location.",
+            "ja": "内部から出たんです。タロンが私たちの位置を知っていた。",
+            "zh": "是从内部来的。塔隆知道我们的位置。"
           }
         },
         {
@@ -2310,7 +2848,9 @@
           "emotion": "tense",
           "text": {
             "ko": "회담 위치는 극소수만 알았어요.",
-            "en": "Only a very small number knew the summit location."
+            "en": "Only a very small number knew the summit location.",
+            "ja": "会談の場所を知っていたのはごく少数でした。",
+            "zh": "知道会谈地点的人极少。"
           }
         },
         {
@@ -2318,7 +2858,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "FSP 내부는 아니에요.",
-            "en": "It's not from inside FSP."
+            "en": "It's not from inside FSP.",
+            "ja": "FSP内部ではありません。",
+            "zh": "不是来自FSP内部。"
           }
         },
         {
@@ -2326,7 +2868,9 @@
           "emotion": "hard",
           "text": {
             "ko": "그건 MCC도, CV도 같이 하는 말이에요.",
-            "en": "That's what MCC and CV would say too."
+            "en": "That's what MCC and CV would say too.",
+            "ja": "MCCもCVも同じことを言うでしょう。",
+            "zh": "MCC和CV也会这么说。"
           }
         },
         {
@@ -2334,7 +2878,9 @@
           "emotion": "measured",
           "text": {
             "ko": "지금은 그 문제가 합의를 막아선 안 돼요.",
-            "en": "That problem must not block the agreement now."
+            "en": "That problem must not block the agreement now.",
+            "ja": "今その問題が合意を妨げてはなりません。",
+            "zh": "那个问题不能阻碍现在的协议。"
           }
         },
         {
@@ -2342,7 +2888,9 @@
           "emotion": "serious",
           "text": {
             "ko": "먼저 합의. 배신자는 그다음이에요. 순서가 있어요.",
-            "en": "Agreement first. The traitor comes after. There is an order."
+            "en": "Agreement first. The traitor comes after. There is an order.",
+            "ja": "まず合意。裏切り者はその後。順序があります。",
+            "zh": "先达成协议。叛徒之后再说。有先后顺序。"
           }
         }
       ]
@@ -2355,11 +2903,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "올림포스 — 이름들의 산",
-        "en": "Olympus — Mountain of Names"
+        "en": "Olympus — Mountain of Names",
+        "ja": "オリンポス — 名前の山",
+        "zh": "奥林波斯 — 名字之山"
       },
       "subtitle": {
         "ko": "올림포스 정상 — 존엄을 위하여",
-        "en": "Olympus Summit — For Dignity"
+        "en": "Olympus Summit — For Dignity",
+        "ja": "オリンポス頂上 — 尊厳のために",
+        "zh": "奥林波斯山顶 — 为了尊严"
       }
     },
     {
@@ -2378,50 +2930,66 @@
         {
           "text": {
             "ko": "합의문이 서명됐다.",
-            "en": "The agreement was signed."
+            "en": "The agreement was signed.",
+            "ja": "合意文書に署名がなされた。",
+            "zh": "协议签署了。"
           }
         },
         {
           "text": {
             "ko": "세 줄이었다. Rev. Hale이 원했던 대로.",
-            "en": "Three lines. As Rev. Hale had wanted."
+            "en": "Three lines. As Rev. Hale had wanted.",
+            "ja": "三行だった。Rev. ヘイルが望んだ通り。",
+            "zh": "三行。正如Rev. 黑尔所希望的。"
           }
         },
         {
           "text": {
             "ko": "첫 번째: 모든 화성 노동자는 이름으로 기록된다.",
-            "en": "First: Every Mars worker is recorded by name."
+            "en": "First: Every Mars worker is recorded by name.",
+            "ja": "第一：すべての火星労働者は名前で記録される。",
+            "zh": "第一：所有火星劳工以名字记录。"
           }
         },
         {
           "text": {
             "ko": "두 번째: 노동 사고는 공개된다.",
-            "en": "Second: Labor accidents are made public."
+            "en": "Second: Labor accidents are made public.",
+            "ja": "第二：労働事故は公開される。",
+            "zh": "第二：劳动事故公开。"
           }
         },
         {
           "text": {
             "ko": "세 번째: 이름들은 지워질 수 없다.",
-            "en": "Third: Names cannot be erased."
+            "en": "Third: Names cannot be erased.",
+            "ja": "第三：名前は消えることができない。",
+            "zh": "第三：名字不可抹去。"
           }
         },
         {
           "text": {
             "ko": "서명은 Chen Weiss. Cinder Grace. Lena. 플레이어. Rev. Hale.",
-            "en": "Signed by Chen Weiss. Cinder Grace. Lena. The player. Rev. Hale."
+            "en": "Signed by Chen Weiss. Cinder Grace. Lena. The player. Rev. Hale.",
+            "ja": "署名：チェン・ワイス。シンダー・グレイス。レナ。プレイヤー。Rev. ヘイル。",
+            "zh": "签署：陈·韦斯。辛达·格蕾丝。莱娜。玩家。Rev. 黑尔。"
           }
         },
         {
           "text": {
             "ko": "그리고 Ramos. 암살자의 서명도 있었다.",
-            "en": "And Ramos. The assassin's signature was there too."
+            "en": "And Ramos. The assassin's signature was there too.",
+            "ja": "そしてラモス。暗殺者の署名もあった。",
+            "zh": "还有拉莫斯。刺客的签名也在那里。"
           },
           "overlay": "fsp_ch9_last_harvest_l49_06_contract_sign"
         },
         {
           "text": {
             "ko": "그것이 Rev. Hale의 고집이었다.",
-            "en": "That was Rev. Hale's insistence."
+            "en": "That was Rev. Hale's insistence.",
+            "ja": "それがRev. ヘイルの主張だった。",
+            "zh": "这是Rev. 黑尔的坚持。"
           }
         }
       ]
@@ -2436,37 +3004,49 @@
         {
           "text": {
             "ko": "Rev. Hale이 기도했다.",
-            "en": "Rev. Hale prayed."
+            "en": "Rev. Hale prayed.",
+            "ja": "Rev. ヘイルが祈った。",
+            "zh": "Rev. 黑尔祈祷了。"
           }
         },
         {
           "text": {
             "ko": "마스크를 벗지 않았다.",
-            "en": "He didn't remove the mask."
+            "en": "He didn't remove the mask.",
+            "ja": "マスクを外さなかった。",
+            "zh": "他没有摘下面罩。"
           }
         },
         {
           "text": {
             "ko": "마스크 안에서 기도했다. 숨으로.",
-            "en": "He prayed inside the mask. With breath."
+            "en": "He prayed inside the mask. With breath.",
+            "ja": "マスクの中で祈った。呼吸で。",
+            "zh": "他在面罩里祈祷。用呼吸。"
           }
         },
         {
           "text": {
             "ko": "Kim Yong-jin. Mariam Adeyemi. Sector 7의 셋.",
-            "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7."
+            "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7.",
+            "ja": "キム・ヨンジン。マリアム・アデエミ。セクター7の三人。",
+            "zh": "金勇珍。玛利亚姆·阿德耶米。第7区的三人。"
           }
         },
         {
           "text": {
             "ko": "Zone C의 스물. 헬라스의 사십이. Zone 12의 이름 없는 자들.",
-            "en": "The twenty of Zone C. The forty-two of Hellas. The nameless ones of Zone 12."
+            "en": "The twenty of Zone C. The forty-two of Hellas. The nameless ones of Zone 12.",
+            "ja": "ゾーンCの二十人。ヘラスの四十二人。ゾーン12の名なき者たち。",
+            "zh": "C区的二十人。赫拉斯的四十二人。12区无名者。"
           }
         },
         {
           "text": {
             "ko": "이제 기록될 것이었다.",
-            "en": "Now they would be recorded."
+            "en": "Now they would be recorded.",
+            "ja": "今、彼らは記録されるだろう。",
+            "zh": "现在他们将被记录。"
           }
         }
       ]
@@ -2481,43 +3061,57 @@
         {
           "text": {
             "ko": "합의가 무너졌다.",
-            "en": "The agreement collapsed."
+            "en": "The agreement collapsed.",
+            "ja": "合意が崩れた。",
+            "zh": "协议崩溃了。"
           }
         },
         {
           "text": {
             "ko": "암살 시도 이후 불신이 남았다.",
-            "en": "After the assassination attempt distrust remained."
+            "en": "After the assassination attempt distrust remained.",
+            "ja": "暗殺未遂の後、不信が残った。",
+            "zh": "暗杀未遂之后，不信任感留了下来。"
           }
         },
         {
           "text": {
             "ko": "세 파벌이 서로를 봤다. 의심으로.",
-            "en": "Three factions looked at each other. With suspicion."
+            "en": "Three factions looked at each other. With suspicion.",
+            "ja": "三派が互いを見た。疑惑の目で。",
+            "zh": "三个派系互相看着对方。带着猜疑。"
           }
         },
         {
           "text": {
             "ko": "Rev. Hale이 내려왔다.",
-            "en": "Rev. Hale descended."
+            "en": "Rev. Hale descended.",
+            "ja": "Rev. ヘイルが降りた。",
+            "zh": "Rev. 黑尔下山了。"
           }
         },
         {
           "text": {
             "ko": "기도하면서. 올라갈 때와 같이.",
-            "en": "Praying. As when he had climbed."
+            "en": "Praying. As when he had climbed.",
+            "ja": "祈りながら。登ったときと同じように。",
+            "zh": "祈祷着。和攀登时一样。"
           }
         },
         {
           "text": {
             "ko": "이름들은 여전히 기록되지 않았다. 그러나 기도는 계속됐다.",
-            "en": "The names still unrecorded. But the prayer continued."
+            "en": "The names still unrecorded. But the prayer continued.",
+            "ja": "名前はまだ記録されていなかった。しかし祈りは続いた。",
+            "zh": "名字仍未被记录。但祈祷继续。"
           }
         },
         {
           "text": {
             "ko": "기도가 멈추면 그것이 진짜 끝이었다.",
-            "en": "If prayer stopped that would be the real end."
+            "en": "If prayer stopped that would be the real end.",
+            "ja": "祈りが止まればそれが本当の終わりだった。",
+            "zh": "如果祈祷停止，那才是真正的终结。"
           }
         }
       ]
@@ -2532,43 +3126,57 @@
         {
           "text": {
             "ko": "올림포스에서 내려오면서 Rev. Hale은 이름들을 불렀다.",
-            "en": "Descending from Olympus Rev. Hale called the names."
+            "en": "Descending from Olympus Rev. Hale called the names.",
+            "ja": "オリンポスを降りながら、Rev. ヘイルは名前を呼んだ。",
+            "zh": "下山途中，Rev. 黑尔呼唤着名字。"
           }
         },
         {
           "text": {
             "ko": "혼자. 마스크 안에서.",
-            "en": "Alone. Inside the mask."
+            "en": "Alone. Inside the mask.",
+            "ja": "一人で。マスクの中で。",
+            "zh": "独自一人。在面罩里。"
           }
         },
         {
           "text": {
             "ko": "Kim Yong-jin. Mariam Adeyemi. Sector 7의 셋.",
-            "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7."
+            "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7.",
+            "ja": "キム・ヨンジン。マリアム・アデエミ。セクター7の三人。",
+            "zh": "金勇珍。玛利亚姆·阿德耶米。第7区的三人。"
           }
         },
         {
           "text": {
             "ko": "그 아래 이름들. 아직 쓰이지 않은 이름들.",
-            "en": "The names below. The names not yet written."
+            "en": "The names below. The names not yet written.",
+            "ja": "その下の名前たち。まだ書かれていない名前たち。",
+            "zh": "其下的名字们。尚未写下的名字们。"
           }
         },
         {
           "text": {
             "ko": "화성의 하늘이 붉었다. 항상 그랬다.",
-            "en": "The Martian sky was red. It always was."
+            "en": "The Martian sky was red. It always was.",
+            "ja": "火星の空は赤かった。いつもそうだった。",
+            "zh": "火星的天空是红色的。一直如此。"
           }
         },
         {
           "text": {
             "ko": "그러나 이름을 부르면서 내려올 때 붉은 하늘이 다르게 보였다.",
-            "en": "But descending while calling names the red sky looked different."
+            "en": "But descending while calling names the red sky looked different.",
+            "ja": "しかし名前を呼びながら降りるとき、赤い空が違って見えた。",
+            "zh": "但一边呼唤名字一边下山时，那片红天看起来不同了。"
           }
         },
         {
           "text": {
             "ko": "그것은 기도의 효과였다.",
-            "en": "That was the effect of prayer."
+            "en": "That was the effect of prayer.",
+            "ja": "それが祈りの効果だった。",
+            "zh": "这就是祈祷的效果。"
           }
         }
       ],
@@ -2576,7 +3184,9 @@
         "questId": "fsp_campaign_ch10",
         "teaser": {
           "ko": "다음 — 자유의 대가",
-          "en": "Next — The Price of Freedom"
+          "en": "Next — The Price of Freedom",
+          "ja": "次回 — 自由の代価",
+          "zh": "下一章 — 自由的代价"
         }
       }
     }

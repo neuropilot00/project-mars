@@ -4,7 +4,9 @@
   "chapterNumber": 10,
   "title": {
     "ko": "가시 면류관",
-    "en": "The Thorn Crown"
+    "en": "The Thorn Crown",
+    "ja": "荊の冠",
+    "zh": "荆棘王冠"
   },
   "location": {
     "id": "erebus_crater_base",
@@ -29,7 +31,9 @@
         {
           "text": {
             "ko": "에레보스 기지. 불이 탔다. 배럴 불. 여러 개. Butcher가 옥좌의 방에 있었다. 혼자였다. 사진을 꺼내 놓고 있었다. 테이블 위에. 처음이었다. 주머니 밖으로. 테이블 위에. 11시간이 됐다고 했다. 폐가 말했다. 그러나 사진 앞에 앉아 있었다.",
-            "en": "Erebus base. Fires burning. Barrel fires. Several. Butcher was in the throne hall. Alone. He had taken out the photo. On the table. First time. Outside the pocket. On the table. The lungs had said eleven hours. But he sat before the photo."
+            "en": "Erebus base. Fires burning. Barrel fires. Several. Butcher was in the throne hall. Alone. He had taken out the photo. On the table. First time. Outside the pocket. On the table. The lungs had said eleven hours. But he sat before the photo.",
+            "ja": "エレボス基地。炎が燃えていた。ドラム缶の火。いくつもの。ButcherはThroneホールにいた。一人で。写真を取り出していた。テーブルの上に。初めて。ポケットの外に。テーブルの上に。肺は十一時間と言った。しかし彼は写真の前に座っていた。",
+            "zh": "厄瑞玻斯基地。火在燃烧。油桶篝火。好几堆。屠夫在王座大厅里。独自一人。他取出了照片。放在桌上。第一次。从口袋里拿出来。放在桌上。肺说还有十一个小时。但他坐在照片前。"
           },
           "overlay": "cv_ch10_from_flames_l00_00_fire_small"
         }
@@ -45,7 +49,9 @@
         {
           "text": {
             "ko": "올림포스에서 돌아온 지 사흘이었다. Zone 12 기록을 가져왔다. 이름들이 공식 문서에 올랐다. Cinder가 사진 뒤에 새 이름들을 추가했다. 그것이 올림포스에서 온 것이었다. 새 이름들. 그것이 살아있는 것들의 기록이었다.",
-            "en": "Three days since returning from Olympus. The Zone 12 records were brought back. The names appeared in official documents. Cinder added new names to the back of the photo. That was what came from Olympus. New names. The record of living things."
+            "en": "Three days since returning from Olympus. The Zone 12 records were brought back. The names appeared in official documents. Cinder added new names to the back of the photo. That was what came from Olympus. New names. The record of living things.",
+            "ja": "オリンポスから戻って三日。ゾーン12の記録が持ち帰られた。名前が公式文書に現れた。シンダーは写真の裏に新しい名前を追加した。それがオリンポスからもたらされたものだった。新しい名前。生きたものの記録。",
+            "zh": "从奥林波斯回来已经三天了。12区的记录被带了回来。名字出现在官方文件中。辛达在照片背面添加了新名字。那是从奥林波斯带来的东西。新的名字。活着的事物的记录。"
           }
         }
       ]
@@ -63,7 +69,9 @@
           "effect": "character_enter:butcher:slide_left",
           "text": {
             "ko": "왔어.",
-            "en": "You came."
+            "en": "You came.",
+            "ja": "来たか。",
+            "zh": "你来了。"
           }
         },
         {
@@ -71,7 +79,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "사진 보이지. 이름들 알아. 30년 됐어. 이름들이 더 젊어 보여. 나는 더 늙어 보이고.",
-            "en": "You see the photo. You know the names. Thirty years. The names look younger. I look older."
+            "en": "You see the photo. You know the names. Thirty years. The names look younger. I look older.",
+            "ja": "写真が見える。名前を知っている。三十年。名前は若く見える。俺は老けた。",
+            "zh": "你看到照片了。你知道那些名字。三十年了。名字看起来更年轻。我看起来更老了。"
           }
         },
         {
@@ -79,7 +89,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "CV 다음이 당신이에요. 내 결정이에요. 마지막 결정이에요.",
-            "en": "The next CV is you. My decision. My last decision."
+            "en": "The next CV is you. My decision. My last decision.",
+            "ja": "次のCVはお前だ。俺の決定。俺の最後の決定。",
+            "zh": "下一个CV是你。我的决定。我最后的决定。"
           }
         }
       ]
@@ -94,7 +106,9 @@
         {
           "text": {
             "ko": "Cinder가 들어왔다. 공구 소리. 그녀가 들었다. 공구를 만지지 않았다. 그것이 무거운 것이었다. Crow가 뒤에 있었다. 협곡에서 자란 사람. 어두운 데서 자란 사람. 그러나 지금 이 방이 더 어두웠다.",
-            "en": "Cinder came in. Tool sounds. She heard it. Didn't touch her tools. That was something heavy. Crow was behind. Raised in the canyon. Raised in darkness. But this room now was darker."
+            "en": "Cinder came in. Tool sounds. She heard it. Didn't touch her tools. That was something heavy. Crow was behind. Raised in the canyon. Raised in darkness. But this room now was darker.",
+            "ja": "シンダーが入ってきた。工具の音。彼女はそれを聞いた。工具を触らなかった。それは重いことだった。Crowが後ろにいた。峡谷で育った。暗闇の中で育った。しかしこの部屋は今の方が暗かった。",
+            "zh": "辛达走进来了。工具的声音。她听到了。没有触碰工具。那是沉重的事情。乌鸦在后面。在峡谷里长大的。在黑暗中成长的。但这个房间现在更黑暗。"
           }
         }
       ]
@@ -109,7 +123,9 @@
         {
           "text": {
             "ko": "사진이 테이블 위에 있었다. 흑백. 17살의 Butcher. 그 옆 사람들. 이름들. 광부들. 파업. MCC. 30년. 그것이 이 방에 있었다. CV가 왜 있는지. 그것이 사진 위에 있었다.",
-            "en": "The photo was on the table. Black and white. Butcher at seventeen. The people beside him. Names. Miners. The strike. MCC. Thirty years. All of that was in this room. Why CV existed. It was on the photo."
+            "en": "The photo was on the table. Black and white. Butcher at seventeen. The people beside him. Names. Miners. The strike. MCC. Thirty years. All of that was in this room. Why CV existed. It was on the photo.",
+            "ja": "写真がテーブルの上にあった。白黒。十七歳のButcher。その隣の人々。名前。鉱夫たち。ストライキ。MCC。三十年。そのすべてがこの部屋にあった。CVが存在する理由。写真にあった。",
+            "zh": "照片在桌上。黑白的。十七岁的屠夫。他旁边的人们。名字。矿工们。罢工。MCC。三十年。这一切都在这个房间里。CV存在的原因。在照片里。"
           }
         }
       ]
@@ -126,7 +142,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신한테 말할 게 있어. 마지막으로.",
-            "en": "Something to tell you. For the last time."
+            "en": "Something to tell you. For the last time.",
+            "ja": "伝えることがある。最後に。",
+            "zh": "有话要告诉你。最后一次。"
           }
         },
         {
@@ -134,7 +152,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Zone 12 전날 밤. 나를 부른 사람. 30년 동안 몰랐어. 이제 알아.",
-            "en": "The night before Zone 12. The person who called me. Didn't know for thirty years. Now I know."
+            "en": "The night before Zone 12. The person who called me. Didn't know for thirty years. Now I know.",
+            "ja": "ゾーン12の前夜。俺を呼んだ人物。三十年間わからなかった。今わかった。",
+            "zh": "12区前夜。呼叫我的那个人。三十年都不知道。现在知道了。"
           }
         },
         {
@@ -142,7 +162,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "MCC 내부 사람이었어. 나를 살려준 거야. 왜인지는 몰라. 그러나 살려준 거야.",
-            "en": "It was someone inside MCC. They saved my life. Don't know why. But they saved it."
+            "en": "It was someone inside MCC. They saved my life. Don't know why. But they saved it.",
+            "ja": "MCC内部の誰かだった。俺の命を救った。なぜかはわからない。しかし救ってくれた。",
+            "zh": "是MCC内部的某个人。他们救了我的命。不知道为什么。但他们救了。"
           }
         }
       ]
@@ -157,7 +179,9 @@
         {
           "text": {
             "ko": "30년의 질문이 풀렸다. 왜 살아남았는가. 누군가 불렀다. MCC 내부에서. 그 사람이 누구인지는 말하지 않았다. 또는 몰랐다. 그러나 알았다. 이제. 30년 후에. 그것이 어떤 기분인지는 얼굴에서 읽을 수 없었다.",
-            "en": "Thirty years of questioning resolved. Why did he survive. Someone called him. From inside MCC. Who that person was he didn't say. Or didn't know. But he knew. Now. Thirty years later. What that felt like couldn't be read from his face."
+            "en": "Thirty years of questioning resolved. Why did he survive. Someone called him. From inside MCC. Who that person was he didn't say. Or didn't know. But he knew. Now. Thirty years later. What that felt like couldn't be read from his face.",
+            "ja": "三十年の疑問が解けた。なぜ彼は生き残ったのか。誰かが彼を呼んだ。MCC内部から。その人物が誰かは言わなかった。または知らなかった。しかし彼は知った。今。三十年後に。それがどんな気持ちか彼の顔からは読み取れなかった。",
+            "zh": "三十年的疑问解开了。他为什么活下来。有人叫了他。从MCC内部。那个人是谁他没说。或者不知道。但他知道了。现在。三十年后。那是什么感觉从他脸上读不出来。"
           }
         }
       ]
@@ -174,7 +198,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Chen Weiss예요. 22년 전에 MCC에 들어온 이유. 광산에서 부모가 죽은 이유.",
-            "en": "It's Chen Weiss. The reason she entered MCC twenty-two years ago. The reason her parents died in the mines."
+            "en": "It's Chen Weiss. The reason she entered MCC twenty-two years ago. The reason her parents died in the mines.",
+            "ja": "チェン・ワイスだ。彼女が二十二年前にMCCに入った理由。彼女の両親が鉱山で死んだ理由。",
+            "zh": "是陈·韦斯。她二十二年前进入MCC的原因。她父母死在矿山的原因。"
           }
         },
         {
@@ -182,7 +208,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Zone 12 기록을 열어준 이유예요. 올림포스에서.",
-            "en": "That's why she unlocked the Zone 12 records. At Olympus."
+            "en": "That's why she unlocked the Zone 12 records. At Olympus.",
+            "ja": "だから彼女はゾーン12の記録を解除した。オリンポスで。",
+            "zh": "这就是她在奥林波斯解锁12区记录的原因。"
           }
         }
       ]
@@ -197,7 +225,9 @@
         {
           "text": {
             "ko": "Chen Weiss. 22년 전. MCC 내부. Zone 12. 부모가 거기서 죽었다. 그것이 이유였다. Chen의 어머니. 30년 전에 17살 Butcher를 갱도 밖으로 불렀던 사람. 그것이 이 방에 도달했다. 올림포스를 통해서. 공구 소리를 통해서. 이름들을 통해서. 화성은 좁았다. 30년이어도 좁았다.",
-            "en": "Chen Weiss. Twenty-two years ago. Inside MCC. Zone 12. Her parents died there. That was the reason. Chen's mother. The person who called seventeen-year-old Butcher out of the tunnel thirty years ago. That reached this room. Through Olympus. Through tool sounds. Through names. Mars was small. Even thirty years couldn't make it wider."
+            "en": "Chen Weiss. Twenty-two years ago. Inside MCC. Zone 12. Her parents died there. That was the reason. Chen's mother. The person who called seventeen-year-old Butcher out of the tunnel thirty years ago. That reached this room. Through Olympus. Through tool sounds. Through names. Mars was small. Even thirty years couldn't make it wider.",
+            "ja": "チェン・ワイス。二十二年前。MCC内部。ゾーン12。彼女の両親はそこで死んだ。それが理由だった。チェンの母親。三十年前に十七歳のButcherをトンネルから呼び出した人物。それがこの部屋に届いた。オリンポスを通して。工具の音を通して。名前を通して。火星は小さかった。三十年経っても広くはなれなかった。",
+            "zh": "陈·韦斯。二十二年前。MCC内部。12区。她的父母死在那里。这就是原因。陈的母亲。三十年前把十七岁的屠夫从隧道里叫出来的那个人。那件事到达了这个房间。通过奥林波斯。通过工具的声音。通过名字。火星很小。即使三十年也无法让它更宽广。"
           }
         }
       ]
@@ -214,7 +244,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "Chen 어머니가 30년 전에 나를 살렸어. Chen이 22년 동안 MCC 안에서 버텼어. 같은 이유로. 그래서 CV가 있어.",
-            "en": "Chen's mother saved me thirty years ago. Chen stayed inside MCC for twenty-two years. For the same reason. That's why CV exists."
+            "en": "Chen's mother saved me thirty years ago. Chen stayed inside MCC for twenty-two years. For the same reason. That's why CV exists.",
+            "ja": "チェンの母親が三十年前に俺を救った。チェンは二十二年間MCC内部にいた。同じ理由で。それがCVが存在する理由だ。",
+            "zh": "陈的母亲三十年前救了我。陈在MCC内部待了二十二年。为了同一个原因。这就是CV存在的原因。"
           }
         },
         {
@@ -222,7 +254,9 @@
           "emotion": "serious",
           "text": {
             "ko": "우리가 다른 문을 선택했어. 같은 이유로. 그게 화성이야.",
-            "en": "We chose different doors. For the same reason. That's Mars."
+            "en": "We chose different doors. For the same reason. That's Mars.",
+            "ja": "俺たちは違うドアを選んだ。同じ理由で。それが火星だ。",
+            "zh": "我们选择了不同的门。为了同一个原因。这就是火星。"
           }
         }
       ]
@@ -237,7 +271,9 @@
         {
           "text": {
             "ko": "Crow가 말했다. 밖에서 소리가 났다고. 에레보스 분화구 외부에서. 차량 소리. 많은 것이었다. MCC와 FSP 양쪽에서. 올림포스 합의 이후 움직이는 것이었다. CV 기지를 향해서. 합의가 있었지만 힘이 있어야 합의가 지켜졌다.",
-            "en": "Crow said there were sounds outside. From outside Erebus crater. Vehicle sounds. Many of them. From both MCC and FSP sides. Moving after the Olympus agreement. Toward the CV base. There was an agreement but force was needed for it to be kept."
+            "en": "Crow said there were sounds outside. From outside Erebus crater. Vehicle sounds. Many of them. From both MCC and FSP sides. Moving after the Olympus agreement. Toward the CV base. There was an agreement but force was needed for it to be kept.",
+            "ja": "Crowが外に音があると言った。エレボスクレーターの外から。車両の音。多くの。MCC側とFSP側の両方から。オリンポス合意後に動いていた。CV基地に向かって。合意はあるが、それを守るには力が必要だった。",
+            "zh": "乌鸦说外面有声音。从厄瑞玻斯陨石坑外。车辆的声音。很多。来自MCC和FSP两方。在奥林波斯协议后移动着。向着CV基地。有协议，但维持它需要武力。"
           }
         }
       ]
@@ -254,7 +290,9 @@
           "emotion": "tense",
           "text": {
             "ko": "에레보스 외부에 MCC 3개 팀. FSP 1개 팀이에요. 합의 집행이래요.",
-            "en": "Three MCC teams outside Erebus. One FSP team. They call it agreement enforcement."
+            "en": "Three MCC teams outside Erebus. One FSP team. They call it agreement enforcement.",
+            "ja": "エレボスの外にMCCチームが三つ。FSPチームが一つ。彼らはそれを合意執行と呼んでいる。",
+            "zh": "厄瑞玻斯外面有三支MCC部队。一支FSP部队。他们称之为协议执行。"
           }
         },
         {
@@ -262,7 +300,9 @@
           "emotion": "serious",
           "text": {
             "ko": "올림포스 합의에 CV 영토 조항이 있었어요. CV 기지 외곽 5킬로미터는 비무장 지대래요.",
-            "en": "The Olympus agreement had a CV territory clause. Five kilometers outside the CV base is a demilitarized zone."
+            "en": "The Olympus agreement had a CV territory clause. Five kilometers outside the CV base is a demilitarized zone.",
+            "ja": "オリンポス合意にはCV領土条項があった。CV基地から五キロ外側は非武装地帯。",
+            "zh": "奥林波斯协议有一个CV领土条款。CV基地外五公里为非军事区。"
           }
         },
         {
@@ -270,7 +310,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그 조항이 어디서 나온 건지 CV는 서명 안 했어요.",
-            "en": "CV didn't sign that clause. Don't know where it came from."
+            "en": "CV didn't sign that clause. Don't know where it came from.",
+            "ja": "CVはその条項に署名しなかった。どこから来たのかわからない。",
+            "zh": "CV没有签署那个条款。不知道从哪里来的。"
           }
         }
       ]
@@ -285,7 +327,9 @@
         {
           "text": {
             "ko": "에레보스 외부. 차량들이 있었다. 분화구 가장자리. 멈춰 있었다. 기다리는 것이었다. CV의 결정을. CV가 무엇을 선택하는지. 어떤 형태의 CV가 될 것인지. 그것이 이 최후의 전투가 결정하는 것이었다.",
-            "en": "Outside Erebus. Vehicles. At the crater's edge. Stopped. Waiting. For CV's decision. What CV would choose. What form CV would take. That was what this final battle would determine."
+            "en": "Outside Erebus. Vehicles. At the crater's edge. Stopped. Waiting. For CV's decision. What CV would choose. What form CV would take. That was what this final battle would determine.",
+            "ja": "エレボスの外。車両。クレーターの縁で。停止。待っていた。CVの決定のために。CVが何を選ぶか。CVがどんな形をとるか。それがこの最終戦闘が決めることだった。",
+            "zh": "厄瑞玻斯外面。车辆。在陨石坑边缘。停止。等待。等待CV的决定。CV会选择什么。CV会采取什么形式。那是这场最终战斗要决定的事。"
           }
         }
       ]
@@ -302,7 +346,9 @@
           "emotion": "serious",
           "text": {
             "ko": "사진을 당신에게 줄게. 이름들이 있어.",
-            "en": "I'll give you the photo. The names are in it."
+            "en": "I'll give you the photo. The names are in it.",
+            "ja": "写真をやる。名前が入っている。",
+            "zh": "把照片给你。里面有名字。"
           }
         },
         {
@@ -310,7 +356,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "의수도 줄게. 17살에 만든 거야. 30년 됐어. 아직 멀쩡해. Cinder가 수리해줬어.",
-            "en": "I'll give you the prosthetic too. Made at seventeen. Thirty years old. Still works. Cinder repaired it."
+            "en": "I'll give you the prosthetic too. Made at seventeen. Thirty years old. Still works. Cinder repaired it.",
+            "ja": "義手もやる。十七歳のときに作った。三十年もの。まだ動く。シンダーが修理した。",
+            "zh": "义肢也给你。十七岁时做的。三十年了。还能用。辛达修理了它。"
           }
         },
         {
@@ -318,7 +366,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그것들이 CV야. 나머지는 당신이 만드는 거야.",
-            "en": "Those are CV. The rest you make."
+            "en": "Those are CV. The rest you make.",
+            "ja": "それがCVだ。残りはお前が作る。",
+            "zh": "那就是CV。其余的你来创造。"
           }
         }
       ]
@@ -333,7 +383,9 @@
         {
           "text": {
             "ko": "의수였다. 17살에 만든 것. 30년 된 것. Cinder가 수리해서 아직 작동했다. 그것을 준다는 것이었다. 왼팔에 차는 것. Butcher가 30년 동안 찬 것. 그것이 후계의 방식이었다. CV의 방식. 문서도 없었다. 도장도 없었다. 의수 하나.",
-            "en": "The prosthetic. Made at seventeen. Thirty years old. Cinder had repaired it and it still worked. He was giving it. Something worn on the left arm. What Butcher had worn for thirty years. That was the way of succession. CV's way. No document. No stamp. One prosthetic."
+            "en": "The prosthetic. Made at seventeen. Thirty years old. Cinder had repaired it and it still worked. He was giving it. Something worn on the left arm. What Butcher had worn for thirty years. That was the way of succession. CV's way. No document. No stamp. One prosthetic.",
+            "ja": "義手。十七歳のときに作った。三十年もの。シンダーが修理してまだ動いた。彼はそれを渡した。左腕につけるもの。Butcherが三十年間つけてきたもの。それが継承の方法だった。CVのやり方。書類もなく。印章もなく。一つの義手。",
+            "zh": "义肢。十七岁时做的。三十年了。辛达修理了它还能用。他在给它。戴在左臂上的东西。屠夫戴了三十年的东西。那是传承的方式。CV的方式。没有文件。没有印章。一只义肢。"
           },
           "overlay": "cv_ch10_from_flames_l14_00_hand_still"
         }
@@ -351,7 +403,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "수리하면서 뭔가 새겨놨어요. 이름들이에요. Zone 12. 그리고 30년 전 이름들. 의수 안쪽에. 보이지 않는 곳에.",
-            "en": "While repairing I engraved something. Names. Zone 12. And the names from thirty years ago. Inside the prosthetic. Where it can't be seen."
+            "en": "While repairing I engraved something. Names. Zone 12. And the names from thirty years ago. Inside the prosthetic. Where it can't be seen.",
+            "ja": "修理しながら何かを刻んだ。名前。ゾーン12。そして三十年前の名前を。義手の内側に。見えないところに。",
+            "zh": "修理时我刻了一些东西。名字。12区。还有三十年前的名字。在义肢内侧。在看不见的地方。"
           }
         },
         {
@@ -359,7 +413,9 @@
           "emotion": "serious",
           "text": {
             "ko": "차고 있으면 느껴요. 이름들이.",
-            "en": "You feel them when you wear it. The names."
+            "en": "You feel them when you wear it. The names.",
+            "ja": "着けたとき感じる。名前を。",
+            "zh": "戴上时能感觉到。那些名字。"
           }
         }
       ]
@@ -374,7 +430,9 @@
         {
           "text": {
             "ko": "의수 안쪽에 이름들이 새겨져 있었다. 보이지 않는 곳에. 차고 있으면 느끼는 것. 그것이 기억의 방식이었다. 사진 뒤에 쓰는 것과 달리. 몸에 새기는 것. 느끼는 것. 그것이 Cinder가 추가한 것이었다.",
-            "en": "Names were engraved inside the prosthetic. Where they couldn't be seen. Something felt when worn. That was memory's way. Different from writing on the back of a photo. Engraving on the body. Feeling them. That was what Cinder had added."
+            "en": "Names were engraved inside the prosthetic. Where they couldn't be seen. Something felt when worn. That was memory's way. Different from writing on the back of a photo. Engraving on the body. Feeling them. That was what Cinder had added.",
+            "ja": "名前が義手の内側に刻まれていた。見えないところに。着けると感じるもの。それが記憶のやり方だった。写真の裏に書くこととは違う。体に刻む。感じること。それがシンダーが加えたものだった。",
+            "zh": "名字刻在义肢内侧。在看不见的地方。戴上时能感觉到的东西。那是记忆的方式。与写在照片背面不同。刻在身体上。感受它们。那是辛达添加的东西。"
           }
         }
       ]
@@ -391,7 +449,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "30년 동안 이름들을 만졌어. 사진 뒤에서. 그게 이제 안쪽에 있어.",
-            "en": "For thirty years I touched the names. On the back of the photo. Now they're on the inside."
+            "en": "For thirty years I touched the names. On the back of the photo. Now they're on the inside.",
+            "ja": "三十年間俺は名前を触った。写真の裏に。今はそれが内側にある。",
+            "zh": "三十年来我触碰那些名字。在照片的背面。现在它们在内侧了。"
           }
         },
         {
@@ -399,7 +459,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Cinder가 더 잘 알아. 기억하는 방법을.",
-            "en": "Cinder knows better. How to remember."
+            "en": "Cinder knows better. How to remember.",
+            "ja": "シンダーの方がよく知っている。どうやって記憶するかを。",
+            "zh": "辛达更懂得。如何铭记。"
           }
         }
       ]
@@ -414,7 +476,9 @@
         {
           "text": {
             "ko": "에레보스 외부에서 소리가 커졌다. 차량들이 움직이기 시작했다. 분화구 가장자리. 기다림이 끝나가고 있었다. CV가 결정해야 했다. 어떤 CV가 될 것인지. 에레보스를 어떻게 지킬 것인지. 또는 지키지 않을 것인지.",
-            "en": "Sounds outside Erebus grew louder. Vehicles began to move. At the crater's edge. The waiting was ending. CV had to decide. What kind of CV to become. How to protect Erebus. Or whether not to protect it."
+            "en": "Sounds outside Erebus grew louder. Vehicles began to move. At the crater's edge. The waiting was ending. CV had to decide. What kind of CV to become. How to protect Erebus. Or whether not to protect it.",
+            "ja": "エレボスの外の音が大きくなった。車両が動き始めた。クレーターの縁で。待機が終わりつつあった。CVは決めなければならなかった。どんなCVになるかを。エレボスをどう守るかを。または守らないかを。",
+            "zh": "厄瑞玻斯外的声音越来越大。车辆开始移动了。在陨石坑边缘。等待即将结束。CV必须决定。成为什么样的CV。如何保护厄瑞玻斯。或者是否不保护它。"
           }
         }
       ]
@@ -431,7 +495,9 @@
           "emotion": "tense",
           "text": {
             "ko": "시간이 없어요. 결정해야 해요.",
-            "en": "No time. Need to decide."
+            "en": "No time. Need to decide.",
+            "ja": "時間がない。決めなければ。",
+            "zh": "没有时间了。需要决定。"
           }
         },
         {
@@ -439,7 +505,9 @@
           "emotion": "calm",
           "text": {
             "ko": "공구 들었어요. 기다려요.",
-            "en": "Tools are ready. Waiting."
+            "en": "Tools are ready. Waiting.",
+            "ja": "工具は準備できている。待っている。",
+            "zh": "工具已经准备好了。在等待。"
           }
         },
         {
@@ -447,7 +515,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신이 결정해. 이제 당신 것이야.",
-            "en": "You decide. It's yours now."
+            "en": "You decide. It's yours now.",
+            "ja": "お前が決める。もうお前のものだ。",
+            "zh": "你来决定。现在是你的了。"
           }
         }
       ]
@@ -462,7 +532,9 @@
         {
           "text": {
             "ko": "Butcher가 사진을 내밀었다. 오른손으로. 의수가 아닌 손으로. 30년 동안 주머니에 있던 것. 테이블에 올려놓은 것. 그것을 내미는 것이었다. 다른 사람에게. 처음으로. 30년 만에 처음으로.",
-            "en": "Butcher held out the photo. With the right hand. Not the prosthetic. Something in his pocket for thirty years. Something placed on the table. Being offered to another person. First time. First time in thirty years."
+            "en": "Butcher held out the photo. With the right hand. Not the prosthetic. Something in his pocket for thirty years. Something placed on the table. Being offered to another person. First time. First time in thirty years.",
+            "ja": "Butcherは写真を差し出した。右手で。義手ではなく。三十年間ポケットに入っていたもの。テーブルに置かれたもの。別の人に差し出された。初めて。三十年間で初めて。",
+            "zh": "屠夫伸出了照片。用右手。不是义肢。三十年来装在口袋里的东西。放在桌上的东西。被递给另一个人。第一次。三十年来第一次。"
           },
           "overlay": "cv_ch10_from_flames_l20_00_death_still"
         }
@@ -480,7 +552,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "이름들이 있어. 뒤에. 기억해.",
-            "en": "Names in it. On the back. Remember them."
+            "en": "Names in it. On the back. Remember them.",
+            "ja": "名前が入っている。裏に。覚えておけ。",
+            "zh": "里面有名字。在背面。记住它们。"
           }
         },
         {
@@ -488,7 +562,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "없어지면 다시 써. 그게 전부야.",
-            "en": "When they're gone write them again. That's all."
+            "en": "When they're gone write them again. That's all.",
+            "ja": "消えたらまた書く。それだけだ。",
+            "zh": "当它们消失时再写。就这些。"
           }
         }
       ]
@@ -503,7 +579,9 @@
         {
           "text": {
             "ko": "협곡. 밤. Crow가 말했다. 여기서 자랐다고. 이름들을 몰랐던 때. CV를 몰랐던 때. 그러나 협곡은 알았다. 좁고 어두운 것. 그것이 시작이었다. 그리고 지금 여기까지 왔다.",
-            "en": "The canyon. Night. Crow said it. Grew up here, he said. A time before knowing names. Before knowing CV. But the canyon was known. The narrow dark thing. That was the beginning. And now here."
+            "en": "The canyon. Night. Crow said it. Grew up here, he said. A time before knowing names. Before knowing CV. But the canyon was known. The narrow dark thing. That was the beginning. And now here.",
+            "ja": "峡谷。夜。Crowがそれを言った。ここで育ったと言った。名前を知る前の時代。CVを知る前の。しかし峡谷は知っていた。細くて暗いもの。それが始まりだった。そして今ここにいる。",
+            "zh": "峡谷。夜晚。乌鸦说了。他说在这里长大的。不知道名字的时候。不知道CV之前。但认识峡谷。细窄黑暗的东西。那是开始。而现在在这里。"
           }
         }
       ]
@@ -520,7 +598,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "협곡에서 평원으로. 평원에서 올림포스로. 올림포스에서 에레보스로. 그게 CV예요.",
-            "en": "From canyon to plains. From plains to Olympus. From Olympus to Erebus. That's CV."
+            "en": "From canyon to plains. From plains to Olympus. From Olympus to Erebus. That's CV.",
+            "ja": "峡谷から平原へ。平原からオリンポスへ。オリンポスからエレボスへ。それがCVだ。",
+            "zh": "从峡谷到平原。从平原到奥林波斯。从奥林波斯到厄瑞玻斯。这就是CV。"
           }
         },
         {
@@ -528,7 +608,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "공구도 그렇게 이동해요. 한 곳에 있으면 녹슬어요.",
-            "en": "Tools move the same way. Stay in one place and they rust."
+            "en": "Tools move the same way. Stay in one place and they rust.",
+            "ja": "工具も同じように動く。一か所にいると錆びる。",
+            "zh": "工具也是同样的方式移动。待在一个地方就会生锈。"
           }
         }
       ]
@@ -543,7 +625,9 @@
         {
           "text": {
             "ko": "샌드스톤 교차로. 화성 남부. CV 영토 가장자리. 여기서 갈라졌다. 에레보스로 가는 길. 아르기레로 가는 길. 올림포스로 가는 길. 세 방향. CV는 항상 여기를 지나갔다. 갈라지는 곳. 그러나 각자의 방향이 있었다.",
-            "en": "Sandstone Junction. Southern Mars. Edge of CV territory. It split here. The road to Erebus. The road to Argyre. The road to Olympus. Three directions. CV always passed through here. The place of divergence. But each had their direction."
+            "en": "Sandstone Junction. Southern Mars. Edge of CV territory. It split here. The road to Erebus. The road to Argyre. The road to Olympus. Three directions. CV always passed through here. The place of divergence. But each had their direction.",
+            "ja": "サンドストーン・ジャンクション。南火星。CV領土の端。ここで分かれた。エレボスへの道。アルギュレへの道。オリンポスへの道。三方向。CVはいつもここを通った。分岐の場所。しかしそれぞれに方向があった。",
+            "zh": "砂岩十字路。火星南部。CV领土边缘。在这里分叉。通往厄瑞玻斯的路。通往阿尔吉雷的路。通往奥林波斯的路。三个方向。CV总是经过这里。分歧之地。但每个人都有自己的方向。"
           }
         }
       ]
@@ -560,7 +644,9 @@
           "emotion": "serious",
           "text": {
             "ko": "샌드스톤에서 내가 CV를 만났어요. 3년 전. Butcher가 여기 있었어요.",
-            "en": "I met CV at Sandstone. Three years ago. Butcher was here."
+            "en": "I met CV at Sandstone. Three years ago. Butcher was here.",
+            "ja": "俺はサンドストーンでCVと出会った。三年前。Butcherはここにいた。",
+            "zh": "我在砂岩遇到了CV。三年前。屠夫在这里。"
           }
         },
         {
@@ -568,7 +654,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이름을 말했어요. Zone 12. 11명. Butcher가 들었어요. 그리고 사진을 꺼냈어요.",
-            "en": "I said a name. Zone 12. Eleven people. Butcher listened. Then took out the photo."
+            "en": "I said a name. Zone 12. Eleven people. Butcher listened. Then took out the photo.",
+            "ja": "俺は名前を言った。ゾーン12。十一人。Butcherは聞いた。それから写真を取り出した。",
+            "zh": "我说了一个名字。12区。十一个人。屠夫听了。然后取出了照片。"
           }
         },
         {
@@ -576,7 +664,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그게 CV에 오는 방식이에요. 이름 하나를 갖고 오는 거예요.",
-            "en": "That's how you come to CV. You bring a name."
+            "en": "That's how you come to CV. You bring a name.",
+            "ja": "それがCVへの入り方だ。名前を持ってくる。",
+            "zh": "这就是加入CV的方式。带来一个名字。"
           }
         }
       ]
@@ -591,7 +681,9 @@
         {
           "text": {
             "ko": "에레보스로 돌아왔다. 분화구 외부에 차량들이 있었다. 기다리는 것이었다. CV의 선택을. Butcher가 옥좌의 방에 있었다. 광산 의자에. 의수와 사진이 테이블 위에 있었다. 두 개. 그것이 CV였다.",
-            "en": "Back at Erebus. Vehicles were outside the crater. Waiting. For CV's choice. Butcher was in the throne hall. In the mining chair. The prosthetic and the photo were on the table. Two things. That was CV."
+            "en": "Back at Erebus. Vehicles were outside the crater. Waiting. For CV's choice. Butcher was in the throne hall. In the mining chair. The prosthetic and the photo were on the table. Two things. That was CV.",
+            "ja": "エレボスに戻った。車両がクレーターの外にあった。待っていた。CVの選択のために。Butcherはスローンホールにいた。採掘椅子に。義手と写真がテーブルの上にあった。二つのもの。それがCVだった。",
+            "zh": "回到厄瑞玻斯。车辆在陨石坑外面。等待。等待CV的选择。屠夫在王座大厅里。在采矿椅子上。义肢和照片在桌上。两件东西。那就是CV。"
           }
         }
       ]
@@ -608,7 +700,9 @@
           "emotion": "serious",
           "text": {
             "ko": "마지막으로 물어볼게. 당신이 CV면 어떤 CV야.",
-            "en": "Last question. If you're CV what kind of CV."
+            "en": "Last question. If you're CV what kind of CV.",
+            "ja": "最後の質問。お前がCVなら、どんなCV。",
+            "zh": "最后一个问题。如果你是CV，是什么样的CV。"
           }
         },
         {
@@ -616,7 +710,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "30년 전에 나는 17살에 결정했어. 서명 안 하는 것. 그게 시작이었어.",
-            "en": "Thirty years ago I decided at seventeen. Not to sign. That was the beginning."
+            "en": "Thirty years ago I decided at seventeen. Not to sign. That was the beginning.",
+            "ja": "三十年前、十七歳のとき俺は決めた。署名しないと。それが始まりだった。",
+            "zh": "三十年前我在十七岁时决定了。不签名。那是开始。"
           }
         },
         {
@@ -624,7 +720,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "당신의 결정은 뭐야.",
-            "en": "What's your decision."
+            "en": "What's your decision.",
+            "ja": "お前の決定は何だ。",
+            "zh": "你的决定是什么。"
           }
         }
       ]
@@ -639,25 +737,33 @@
         {
           "text": {
             "ko": "사진이 있었다. 의수가 있었다.",
-            "en": "The photo was there. The prosthetic was there."
+            "en": "The photo was there. The prosthetic was there.",
+            "ja": "写真があった。義手があった。",
+            "zh": "照片在那里。义肢在那里。"
           }
         },
         {
           "text": {
             "ko": "이름들이 있었다. 에레보스 외부에 차량들이 있었다.",
-            "en": "The names were there. Vehicles were outside Erebus."
+            "en": "The names were there. Vehicles were outside Erebus.",
+            "ja": "名前があった。車両がエレボスの外にいた。",
+            "zh": "名字在那里。车辆在厄瑞玻斯外面。"
           }
         },
         {
           "text": {
             "ko": "Butcher가 기다렸다. Cinder가 기다렸다.",
-            "en": "Butcher waited. Cinder waited."
+            "en": "Butcher waited. Cinder waited.",
+            "ja": "Butcherは待った。シンダーは待った。",
+            "zh": "屠夫在等。辛达在等。"
           }
         },
         {
           "text": {
             "ko": "Crow가 기다렸다. 화성이 기다렸다.",
-            "en": "Crow waited. Mars waited."
+            "en": "Crow waited. Mars waited.",
+            "ja": "Crowは待った。火星は待った。",
+            "zh": "乌鸦在等。火星在等。"
           }
         }
       ]
@@ -674,7 +780,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그들이 기다리는 이유가 있어요.",
-            "en": "There's a reason they're waiting."
+            "en": "There's a reason they're waiting.",
+            "ja": "彼らが待っている理由がある。",
+            "zh": "他们等待是有原因的。"
           }
         },
         {
@@ -682,7 +790,9 @@
           "emotion": "flat",
           "text": {
             "ko": "올림포스 합의에 CV 관련 조항이 있어요. 우리가 서명 안 했지만.",
-            "en": "The Olympus agreement has a clause about CV. Even though we didn't sign."
+            "en": "The Olympus agreement has a clause about CV. Even though we didn't sign.",
+            "ja": "オリンポス合意にはCVについての条項がある。俺たちが署名しなかったにもかかわらず。",
+            "zh": "奥林波斯协议有一个关于CV的条款。即使我们没有签署。"
           }
         },
         {
@@ -690,7 +800,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "우리가 합의를 인정하면 그 조항도 인정해야 해요.",
-            "en": "If we recognize the agreement we must also recognize that clause."
+            "en": "If we recognize the agreement we must also recognize that clause.",
+            "ja": "俺たちが合意を認めるなら、その条項も認めなければならない。",
+            "zh": "如果我们承认协议，也必须承认那个条款。"
           }
         },
         {
@@ -698,7 +810,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "비무장 지대 조항.",
-            "en": "The demilitarized zone clause."
+            "en": "The demilitarized zone clause.",
+            "ja": "非武装地帯条項。",
+            "zh": "非军事区条款。"
           }
         },
         {
@@ -706,7 +820,9 @@
           "emotion": "nod",
           "text": {
             "ko": "에레보스 외곽 5킬로미터.",
-            "en": "Five kilometers outside Erebus."
+            "en": "Five kilometers outside Erebus.",
+            "ja": "エレボスから五キロ外側。",
+            "zh": "厄瑞玻斯外五公里。"
           }
         },
         {
@@ -714,7 +830,9 @@
           "emotion": "thinking",
           "text": {
             "ko": "5킬로미터는 우리 훈련 구역이에요.",
-            "en": "Five kilometers is our training area."
+            "en": "Five kilometers is our training area.",
+            "ja": "五キロが俺たちの訓練区域だ。",
+            "zh": "五公里是我们的训练区域。"
           }
         }
       ]
@@ -729,31 +847,41 @@
         {
           "text": {
             "ko": "비무장 지대 조항. CV가 서명하지 않은 조항.",
-            "en": "The demilitarized zone clause. A clause CV didn't sign."
+            "en": "The demilitarized zone clause. A clause CV didn't sign.",
+            "ja": "非武装地帯条項。CVが署名しなかった条項。",
+            "zh": "非军事区条款。CV没有签署的条款。"
           }
         },
         {
           "text": {
             "ko": "그러나 합의에 있었다. MCC와 FSP가 집어넣었다.",
-            "en": "But it was in the agreement. MCC and FSP put it there."
+            "en": "But it was in the agreement. MCC and FSP put it there.",
+            "ja": "しかし合意に入っていた。MCCとFSPがそこに入れた。",
+            "zh": "但它在协议里。MCC和FSP把它放在那里。"
           }
         },
         {
           "text": {
             "ko": "CV가 합의를 인정하면 그것도 인정해야 했다.",
-            "en": "If CV recognized the agreement it had to recognize that too."
+            "en": "If CV recognized the agreement it had to recognize that too.",
+            "ja": "CVが合意を認めるなら、それも認めなければならなかった。",
+            "zh": "如果CV承认协议，也必须承认那个。"
           }
         },
         {
           "text": {
             "ko": "인정하지 않으면 합의 밖에 있는 것이었다.",
-            "en": "If not it would be outside the agreement."
+            "en": "If not it would be outside the agreement.",
+            "ja": "そうでなければ合意の外になる。",
+            "zh": "否则就在协议之外。"
           }
         },
         {
           "text": {
             "ko": "그것이 선택이었다.",
-            "en": "That was the choice."
+            "en": "That was the choice.",
+            "ja": "それが選択だった。",
+            "zh": "这就是选择。"
           }
         }
       ]
@@ -770,7 +898,9 @@
           "emotion": "slow",
           "text": {
             "ko": "나한테 물어봐. 직접.",
-            "en": "Ask me directly."
+            "en": "Ask me directly.",
+            "ja": "直接聞いてくれ。",
+            "zh": "直接问我。"
           }
         },
         {
@@ -778,7 +908,9 @@
           "emotion": "direct",
           "text": {
             "ko": "CV가 합의를 인정해야 합니까.",
-            "en": "Should CV recognize the agreement."
+            "en": "Should CV recognize the agreement.",
+            "ja": "CVは合意を認めるべきか。",
+            "zh": "CV应该承认协议吗。"
           }
         },
         {
@@ -786,7 +918,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Zone 12 이름들이 합의에 있어. Cinder가 Zone 12 생존자로 서명했어.",
-            "en": "Zone 12 names are in the agreement. Cinder signed as Zone 12 survivor."
+            "en": "Zone 12 names are in the agreement. Cinder signed as Zone 12 survivor.",
+            "ja": "ゾーン12の名前が合意にある。シンダーはゾーン12の生存者として署名した。",
+            "zh": "12区的名字在协议里。辛达以12区幸存者身份签署了。"
           }
         },
         {
@@ -794,7 +928,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그것이 30년 동안 원한 거야. 이름들이 공식 문서에 있는 것.",
-            "en": "That's what thirty years wanted. The names in an official document."
+            "en": "That's what thirty years wanted. The names in an official document.",
+            "ja": "それが三十年間が求めていたものだ。公式文書の中の名前。",
+            "zh": "这是三十年所追求的。官方文件中的名字。"
           }
         },
         {
@@ -802,7 +938,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "비무장 지대 5킬로미터가 그 값이면. 싼 거야.",
-            "en": "If a five-kilometer demilitarized zone is the price for that. It's cheap."
+            "en": "If a five-kilometer demilitarized zone is the price for that. It's cheap.",
+            "ja": "それに対して五キロ非武装地帯が代価なら。安いものだ。",
+            "zh": "如果五公里非军事区是代价。便宜的。"
           }
         }
       ]
@@ -817,38 +955,50 @@
         {
           "text": {
             "ko": "Butcher가 사진을 들었다.",
-            "en": "Butcher lifted the photo."
+            "en": "Butcher lifted the photo.",
+            "ja": "Butcherは写真を持ち上げた。",
+            "zh": "屠夫举起了照片。"
           }
         },
         {
           "text": {
             "ko": "뒤집었다. 이름들을 봤다.",
-            "en": "Flipped it. Looked at the names."
+            "en": "Flipped it. Looked at the names.",
+            "ja": "裏返した。名前を見た。",
+            "zh": "翻过来。看着那些名字。"
           }
         },
         {
           "text": {
             "ko": "사진 뒤에 새로운 이름들이 있었다.",
-            "en": "New names were on the back of the photo."
+            "en": "New names were on the back of the photo.",
+            "ja": "写真の裏に新しい名前があった。",
+            "zh": "照片背面有新的名字。"
           }
         },
         {
           "text": {
             "ko": "Cinder가 추가한 것. 올림포스에서 돌아온 후.",
-            "en": "Added by Cinder. After returning from Olympus."
+            "en": "Added by Cinder. After returning from Olympus.",
+            "ja": "シンダーが加えた。オリンポスから戻った後に。",
+            "zh": "辛达添加的。从奥林波斯回来后。"
           }
         },
         {
           "text": {
             "ko": "Zone 12 이름들. 공식 문서에 올라간 이름들.",
-            "en": "Zone 12 names. Names now in official documents."
+            "en": "Zone 12 names. Names now in official documents.",
+            "ja": "ゾーン12の名前。今は公式文書に入っている名前。",
+            "zh": "12区的名字。现在在官方文件中的名字。"
           },
           "overlay": "cv_ch10_from_flames_l32_04_zone12_record"
         },
         {
           "text": {
             "ko": "그 이름들이 사진 뒤에도 있었다.",
-            "en": "Those names were on the back of the photo too."
+            "en": "Those names were on the back of the photo too.",
+            "ja": "それらの名前も写真の裏にあった。",
+            "zh": "那些名字也在照片背面。"
           }
         }
       ]
@@ -865,7 +1015,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Butcher. 한 가지를 더 말해야 해요.",
-            "en": "Butcher. One more thing to say."
+            "en": "Butcher. One more thing to say.",
+            "ja": "Butcher。もう一つ言いたいことがある。",
+            "zh": "屠夫。还有一件事要说。"
           }
         },
         {
@@ -873,7 +1025,9 @@
           "emotion": "attentive",
           "text": {
             "ko": "말해.",
-            "en": "Say it."
+            "en": "Say it.",
+            "ja": "言え。",
+            "zh": "说吧。"
           }
         },
         {
@@ -881,7 +1035,9 @@
           "emotion": "serious",
           "text": {
             "ko": "의수 안쪽에 새긴 이름들이에요. 누군가 계속 새겨야 해요.",
-            "en": "The names engraved inside the prosthetic. Someone must keep engraving them."
+            "en": "The names engraved inside the prosthetic. Someone must keep engraving them.",
+            "ja": "義手の内側に刻まれた名前。誰かが刻み続けなければならない。",
+            "zh": "义肢内侧刻的名字。必须有人继续刻下去。"
           }
         },
         {
@@ -889,7 +1045,9 @@
           "emotion": "steady",
           "text": {
             "ko": "이름들이 공식 문서에 오르는 것과. 몸에 새기는 것은 달라요.",
-            "en": "Names entering official documents and engraving them on the body are different."
+            "en": "Names entering official documents and engraving them on the body are different.",
+            "ja": "名前が公式文書に入ることと体に刻むことは違う。",
+            "zh": "名字进入官方文件和刻在身体上是不同的。"
           }
         },
         {
@@ -897,7 +1055,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "알아.",
-            "en": "I know."
+            "en": "I know.",
+            "ja": "知っている。",
+            "zh": "我知道。"
           }
         },
         {
@@ -905,7 +1065,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "그래서 의수를 줘야 해. 다음 사람에게.",
-            "en": "That's why the prosthetic must be given. To the next person."
+            "en": "That's why the prosthetic must be given. To the next person.",
+            "ja": "だから義手を渡さなければならない。次の人に。",
+            "zh": "这就是为什么义肢必须传下去。给下一个人。"
           }
         }
       ]
@@ -920,31 +1082,41 @@
         {
           "text": {
             "ko": "에레보스 기지가 조용했다.",
-            "en": "The Erebus base was quiet."
+            "en": "The Erebus base was quiet.",
+            "ja": "エレボス基地は静かだった。",
+            "zh": "厄瑞玻斯基地很安静。"
           }
         },
         {
           "text": {
             "ko": "불이 탔다. 배럴 불.",
-            "en": "Fires burned. Barrel fires."
+            "en": "Fires burned. Barrel fires.",
+            "ja": "炎が燃えていた。ドラム缶の火。",
+            "zh": "火在燃烧。油桶篝火。"
           }
         },
         {
           "text": {
             "ko": "30년 동안 꺼지지 않은 불.",
-            "en": "Fires that hadn't gone out in thirty years."
+            "en": "Fires that hadn't gone out in thirty years.",
+            "ja": "三十年間消えなかった炎。",
+            "zh": "三十年没有熄灭的火。"
           }
         },
         {
           "text": {
             "ko": "따뜻하지 않았다. 그러나 탔다.",
-            "en": "Not warm. But burning."
+            "en": "Not warm. But burning.",
+            "ja": "温かくはない。しかし燃えている。",
+            "zh": "不暖。但在燃烧。"
           }
         },
         {
           "text": {
             "ko": "그것이 CV였다. 그것이 항상 CV였다.",
-            "en": "That was CV. That had always been CV."
+            "en": "That was CV. That had always been CV.",
+            "ja": "それがCVだった。それが常にCVだった。",
+            "zh": "那就是CV。那一直都是CV。"
           }
         }
       ]
@@ -961,7 +1133,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "밖에 그들이 있어요. 아직 기다려요.",
-            "en": "They're outside. Still waiting."
+            "en": "They're outside. Still waiting.",
+            "ja": "彼らは外にいる。まだ待っている。",
+            "zh": "他们在外面。还在等待。"
           }
         },
         {
@@ -969,7 +1143,9 @@
           "emotion": "calm",
           "text": {
             "ko": "공구 들었어요.",
-            "en": "Tools are ready."
+            "en": "Tools are ready.",
+            "ja": "工具は準備できている。",
+            "zh": "工具已经准备好了。"
           }
         },
         {
@@ -977,7 +1153,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "화성에서 기다리는 사람들은 언제나 있었어.",
-            "en": "On Mars there were always people waiting."
+            "en": "On Mars there were always people waiting.",
+            "ja": "火星にはいつも待っている人がいた。",
+            "zh": "火星上总是有人在等待。"
           }
         },
         {
@@ -985,7 +1163,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "30년 동안 나도 기다렸어. 이 이름들이 기록되는 날을.",
-            "en": "For thirty years I waited too. For the day these names would be recorded."
+            "en": "For thirty years I waited too. For the day these names would be recorded.",
+            "ja": "三十年間俺も待った。この名前が記録される日のために。",
+            "zh": "三十年来我也在等。等待这些名字被记录下来的那一天。"
           }
         },
         {
@@ -993,7 +1173,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "됐어. 그 기다림은 됐어.",
-            "en": "Done. That waiting is done."
+            "en": "Done. That waiting is done.",
+            "ja": "終わった。その待機は終わった。",
+            "zh": "结束了。那段等待结束了。"
           }
         },
         {
@@ -1001,7 +1183,9 @@
           "emotion": "resolute",
           "text": {
             "ko": "이제 그들을 기다리게 해.",
-            "en": "Now make them wait."
+            "en": "Now make them wait.",
+            "ja": "今度は彼らを待たせろ。",
+            "zh": "现在让他们等。"
           }
         }
       ]
@@ -1013,55 +1197,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Butcher의 마지막 결정. 사진. 의수. CV. 당신의 선택.",
-        "en": "Butcher's last decision. The photo. The prosthetic. CV. Your choice."
+        "en": "Butcher's last decision. The photo. The prosthetic. CV. Your choice.",
+        "ja": "Butcherの最後の決定。写真。義手。CV。お前の選択。",
+        "zh": "屠夫最后的决定。照片。义肢。CV。你的选择。"
       },
       "choices": [
         {
           "id": "cv_ch10_warlord",
           "text": {
             "ko": "군벌이 된다. CV의 힘으로 화성을 지배한다.",
-            "en": "Become a warlord. Rule Mars with CV's strength."
+            "en": "Become a warlord. Rule Mars with CV's strength.",
+            "ja": "軍閥になれ。CVの力で火星を支配する。",
+            "zh": "成为军阀。用CV的力量统治火星。"
           },
           "tone": "warlord",
           "preview_hint": {
             "ko": "→ 엔딩: 군벌 — 화성이 두려워하는 자",
-            "en": "→ Ending: Warlord — the one Mars fears"
+            "en": "→ Ending: Warlord — the one Mars fears",
+            "ja": "→ エンディング：軍閥 — 火星が恐れる者",
+            "zh": "→ 结局：军阀 — 火星所畏惧之人"
           }
         },
         {
           "id": "cv_ch10_renegade",
           "text": {
             "ko": "반역자가 된다. Cinder와 함께 새로운 길.",
-            "en": "Become a renegade. A new path with Cinder."
+            "en": "Become a renegade. A new path with Cinder.",
+            "ja": "反逆者になれ。シンダーと共に新しい道を。",
+            "zh": "成为叛逆者。与辛达一起走新的道路。"
           },
           "tone": "renegade",
           "preview_hint": {
             "ko": "→ 엔딩: 반역자 — 기존 CV를 해체하는 자",
-            "en": "→ Ending: Renegade — one who dismantles the old CV"
+            "en": "→ Ending: Renegade — one who dismantles the old CV",
+            "ja": "→ エンディング：反逆者 — 旧CVを解体する者",
+            "zh": "→ 结局：叛逆者 — 拆解旧CV之人"
           }
         },
         {
           "id": "cv_ch10_mercenary",
           "text": {
             "ko": "용병으로 남는다. 어느 파벌도 아님.",
-            "en": "Remain a mercenary. Belonging to no faction."
+            "en": "Remain a mercenary. Belonging to no faction.",
+            "ja": "傭兵のままでいる。どの派閥にも属さない。",
+            "zh": "继续做雇佣兵。不属于任何派系。"
           },
           "tone": "mercenary",
           "preview_hint": {
             "ko": "→ 엔딩: 용병 — 코드가 법인 자",
-            "en": "→ Ending: Mercenary — one for whom code is law"
+            "en": "→ Ending: Mercenary — one for whom code is law",
+            "ja": "→ エンディング：傭兵 — 規範が法である者",
+            "zh": "→ 结局：雇佣兵 — 以规则为法之人"
           }
         },
         {
           "id": "cv_ch10_crown",
           "text": {
             "ko": "Pilgrim Arms를 장악한다. 사진의 이름들을 위해.",
-            "en": "Take control of Pilgrim Arms. For the names in the photo."
+            "en": "Take control of Pilgrim Arms. For the names in the photo.",
+            "ja": "ピルグリム・アームズを掌握する。写真の中の名前のために。",
+            "zh": "掌控朝圣者武装。为了照片中的名字。"
           },
           "tone": "transcendent",
           "preview_hint": {
             "ko": "→ 엔딩: 왕관 — 깃발 너머의 자",
-            "en": "→ Ending: Crown — one who is beyond the flags"
+            "en": "→ Ending: Crown — one who is beyond the flags",
+            "ja": "→ エンディング：王冠 — 旗の彼方にある者",
+            "zh": "→ 结局：王冠 — 超越旗帜之人"
           }
         }
       ]
@@ -1074,11 +1276,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "에레보스 최후의 전투",
-        "en": "The Last Battle of Erebus"
+        "en": "The Last Battle of Erebus",
+        "ja": "エレボスの最終戦",
+        "zh": "厄瑞玻斯最后一战"
       },
       "subtitle": {
         "ko": "에레보스 분화구 — 30년의 대가",
-        "en": "Erebus Crater — The Price of Thirty Years"
+        "en": "Erebus Crater — The Price of Thirty Years",
+        "ja": "エレボスクレーター — 三十年の代価",
+        "zh": "厄瑞玻斯陨石坑 — 三十年的代价"
       }
     },
     {
@@ -1096,7 +1302,9 @@
         {
           "text": {
             "ko": "전투가 끝났다. 에레보스가 살아있었다. Butcher가 사진을 주머니에 넣었다. 천천히. 양손으로. 의수와 오른손으로. 그것이 마지막이었다. 그러나 CV는 있었다. 불이 탔다. Cinder의 공구 소리가 들렸다. Crow가 외부를 감시했다. CV가 있었다.",
-            "en": "The battle ended. Erebus was alive. Butcher put the photo in his pocket. Slowly. With both hands. The prosthetic and the right hand. That was the last time. But CV was there. Fires burned. Cinder's tool sounds were heard. Crow watched the exterior. CV existed."
+            "en": "The battle ended. Erebus was alive. Butcher put the photo in his pocket. Slowly. With both hands. The prosthetic and the right hand. That was the last time. But CV was there. Fires burned. Cinder's tool sounds were heard. Crow watched the exterior. CV existed.",
+            "ja": "戦闘が終わった。エレボスは生きていた。Butcherは写真をポケットに入れた。ゆっくりと。両手で。義手と右手で。それが最後だった。しかしCVはそこにいた。炎が燃えた。シンダーの工具の音が聞こえた。Crowが外を見ていた。CVは存在した。",
+            "zh": "战斗结束了。厄瑞玻斯还活着。屠夫把照片放进口袋。慢慢地。用双手。义肢和右手。那是最后一次。但CV在那里。火在燃烧。听到了辛达工具的声音。乌鸦在外面看守。CV存在着。"
           },
           "overlay": "cv_ch10_from_flames_l39_00_candle_flame"
         }
@@ -1111,7 +1319,9 @@
         {
           "text": {
             "ko": "에레보스가 흔들렸다. 그러나 무너지지 않았다. CV는 그런 것이었다. 무너지지 않는 것. 17살에 의수를 만든 사람이 만든 조직. 무너지지 않는 것을 만드는 것이 그 사람의 방식이었다. 에레보스는 무너지지 않았다.",
-            "en": "Erebus shook. But didn't collapse. CV was like that. The thing that didn't collapse. An organization made by a man who made a prosthetic at seventeen. Making things that don't collapse was that man's way. Erebus didn't collapse."
+            "en": "Erebus shook. But didn't collapse. CV was like that. The thing that didn't collapse. An organization made by a man who made a prosthetic at seventeen. Making things that don't collapse was that man's way. Erebus didn't collapse.",
+            "ja": "エレボスは揺れた。しかし崩れなかった。CVはそういうものだった。崩れないもの。十七歳で義手を作った男が作った組織。崩れないものを作ることがその男のやり方だった。エレボスは崩れなかった。",
+            "zh": "厄瑞玻斯震动了。但没有崩塌。CV就是这样的。不倒塌的东西。由一个十七岁时制作义肢的男人创建的组织。制造不倒塌的东西是那个男人的方式。厄瑞玻斯没有崩塌。"
           }
         }
       ]
@@ -1127,7 +1337,9 @@
         {
           "text": {
             "ko": "에레보스에서 화성이 보였다. CV의 것이었다. 의수를 찼다. 왼팔에. 이름들이 안쪽에 새겨진 것. 느껴졌다. 30년 된 이름들. Zone 12. 그리고 이제 새로운 것들. 군벌의 면류관이 있었다. 찌르는 것이었다. 그러나 면류관이었다.",
-            "en": "From Erebus Mars was visible. CV's. The prosthetic was worn. On the left arm. Names engraved on the inside. They were felt. Thirty-year-old names. Zone 12. And now new ones. The warlord's crown was there. It was thorns. But it was a crown."
+            "en": "From Erebus Mars was visible. CV's. The prosthetic was worn. On the left arm. Names engraved on the inside. They were felt. Thirty-year-old names. Zone 12. And now new ones. The warlord's crown was there. It was thorns. But it was a crown.",
+            "ja": "エレボスから火星が見えた。CVの。義手をつけていた。左腕に。内側に名前が刻まれていた。感じることができた。三十年前の名前。ゾーン12。そして今は新しいもの。軍閥の冠があった。茨だった。しかし冠だった。",
+            "zh": "从厄瑞玻斯可以看到火星。CV的。戴着义肢。在左臂上。内侧刻着名字。能感觉到它们。三十年前的名字。12区。还有现在新的。军阀的王冠在那里。是荆棘。但是是王冠。"
           }
         }
       ]
@@ -1143,7 +1355,9 @@
         {
           "text": {
             "ko": "뉴 아테네 조선소. 밤. Cinder가 공구를 들었다. 새 것이었다. 30년 된 것이 아니었다. 그러나 같은 소리가 났다. 공구는 공구였다. CV도 아니었다. 새 것이었다. 이름은 없었다. 이름들만 있었다. 사진 뒤에. 안쪽에 새겨진 것에.",
-            "en": "New Athens Shipyard. Night. Cinder picked up her tools. New ones. Not the thirty-year-old things. But they made the same sound. Tools were tools. Not CV either. New. No name. Only names. On the back of the photo. In what was engraved inside."
+            "en": "New Athens Shipyard. Night. Cinder picked up her tools. New ones. Not the thirty-year-old things. But they made the same sound. Tools were tools. Not CV either. New. No name. Only names. On the back of the photo. In what was engraved inside.",
+            "ja": "ニューアテネ造船所。夜。シンダーは工具を手に取った。新しいもの。三十年前のものではない。しかし同じ音を出した。工具は工具だった。CVでもない。新しい。名前なし。名前だけ。写真の裏に。内側に刻まれたものに。",
+            "zh": "新雅典造船厂。夜晚。辛达拿起了工具。新的工具。不是三十年前的东西。但发出同样的声音。工具就是工具。也不是CV了。新的。没有名字。只有名字。在照片背面。在内侧刻的东西中。"
           }
         }
       ]
@@ -1159,7 +1373,9 @@
         {
           "text": {
             "ko": "샌드스톤 교차로. 세 방향. 어느 것도 아니었다. 코드가 있었다. 다섯 개. 다섯 번째는 각자의 것이었다. 당신의 다섯 번째가 있었다. 그것이 법이었다. 화성의 어떤 법보다 오래 가는 것이었다. 의수를 찼다. 이름들이 느껴졌다.",
-            "en": "Sandstone Junction. Three directions. None of them. There was a code. Five things. The fifth was each person's own. You had a fifth. That was law. More lasting than any law on Mars. The prosthetic was worn. The names were felt."
+            "en": "Sandstone Junction. Three directions. None of them. There was a code. Five things. The fifth was each person's own. You had a fifth. That was law. More lasting than any law on Mars. The prosthetic was worn. The names were felt.",
+            "ja": "サンドストーン・ジャンクション。三方向。そのどれでもなく。規範があった。五つのこと。五番目は各人自身のもの。お前には五番目があった。それが法だった。火星のどんな法より長続きする。義手をつけていた。名前が感じられた。",
+            "zh": "砂岩十字路。三个方向。都不是。有一个规则。五件事。第五件是每个人自己的。你有第五件。那就是法。比火星任何法律都更持久。戴着义肢。感受到了名字。"
           }
         }
       ]
@@ -1175,7 +1391,9 @@
         {
           "text": {
             "ko": "아르기레 협곡. 밤. Pilgrim Arms의 것이었다. 그리고 이제 다른 것의 것이었다. 이름들이 지배하는 곳. 깃발이 없는 곳. 사진이 있었다. 의수가 있었다. 이름들이 있었다. 가시 면류관. 찌르는 것이었지만 면류관이었다. 항상 그랬다.",
-            "en": "Argyre Canyon. Night. It had been Pilgrim Arms'. Now it was something else's. A place governed by names. A place without flags. The photo was there. The prosthetic was there. The names were there. The thorn crown. It was thorns but it was a crown. Always had been."
+            "en": "Argyre Canyon. Night. It had been Pilgrim Arms'. Now it was something else's. A place governed by names. A place without flags. The photo was there. The prosthetic was there. The names were there. The thorn crown. It was thorns but it was a crown. Always had been.",
+            "ja": "アルギュレ峡谷。夜。かつてはピルグリム・アームズのものだった。今は何か別のものだった。名前に支配される場所。旗のない場所。写真があった。義手があった。名前があった。荊の冠。茨だったが冠だった。常にそうだった。",
+            "zh": "阿尔吉雷峡谷。夜晚。曾经是朝圣者武装的。现在是别的东西的了。被名字统治的地方。没有旗帜的地方。照片在那里。义肢在那里。名字在那里。荆棘王冠。是荆棘但是是王冠。一直都是。"
           }
         }
       ]

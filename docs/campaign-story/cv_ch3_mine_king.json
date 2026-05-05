@@ -4,7 +4,9 @@
   "chapterNumber": 3,
   "title": {
     "ko": "용병 코드",
-    "en": "The Mercenary Code"
+    "en": "The Mercenary Code",
+    "ja": "傭兵の規範",
+    "zh": "雇佣兵规则"
   },
   "location": {
     "id": "erebus_crater_base",
@@ -30,7 +32,9 @@
         {
           "text": {
             "ko": "에레부스 기지. 분화구 안. 화성 남반구에서 가장 차가운 곳들 중 하나. 기지 안은 달랐다. 불이 있었다. 배럴 불이었다. 여러 개. CV는 불을 좋아했다. 불은 규칙이 없었다. 그것이 CV와 닮은 것이었다.",
-            "en": "Erebus base. Inside the crater. One of the coldest places in the southern hemisphere. Inside the base was different. Fires. Barrel fires. Several. CV liked fire. Fire had no rules. That was what fire had in common with CV."
+            "en": "Erebus base. Inside the crater. One of the coldest places in the southern hemisphere. Inside the base was different. Fires. Barrel fires. Several. CV liked fire. Fire had no rules. That was what fire had in common with CV.",
+            "ja": "エレボス基地。クレーターの内側。南半球で最も寒い場所の一つ。基地の内側は違った。炎。ドラム缶の火。いくつもの。CVは火が好きだった。火には規則がなかった。それが火とCVの共通点だった。",
+            "zh": "厄瑞玻斯基地。陨石坑内部。南半球最寒冷的地方之一。基地内部不同。火。油桶篝火。好几堆。CV喜欢火。火没有规则。这是火和CV的共同点。"
           }
         }
       ]
@@ -45,7 +49,9 @@
         {
           "text": {
             "ko": "작전 다음 날. Butcher가 모든 사람을 불렀다. 그런 일이 드물었다. Butcher가 모든 사람을 부르는 것. 그것이 중요한 일이 생겼다는 신호였다.",
-            "en": "Day after the operation. Butcher called everyone. That was rare. Butcher calling everyone. That was a signal something important had happened."
+            "en": "Day after the operation. Butcher called everyone. That was rare. Butcher calling everyone. That was a signal something important had happened.",
+            "ja": "作戦の翌日。Butcherが全員を呼んだ。それは珍しかった。Butcherが全員を呼ぶこと。それは何か重要なことが起きたというシグナルだった。",
+            "zh": "行动后的第二天。屠夫召集了所有人。这很罕见。屠夫召集所有人。那是有重要事情发生的信号。"
           }
         }
       ]
@@ -63,7 +69,9 @@
           "effect": "character_enter:butcher_vasquez:slide_left",
           "text": {
             "ko": "충성 시험이야.",
-            "en": "Loyalty test."
+            "en": "Loyalty test.",
+            "ja": "忠誠テスト。",
+            "zh": "忠诚测试。"
           }
         },
         {
@@ -71,7 +79,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "CV는 코드로 살아. 코드를 지키는 사람만 여기 있을 수 있어. 그것을 확인할 때가 됐어.",
-            "en": "CV lives by the code. Only those who keep the code can be here. It's time to confirm that."
+            "en": "CV lives by the code. Only those who keep the code can be here. It's time to confirm that.",
+            "ja": "CVは規範に従って生きる。規範を守る者だけがここにいられる。それを確認する時が来た。",
+            "zh": "CV靠规则生存。只有遵守规则的人才能在这里。是确认这一点的时候了。"
           }
         },
         {
@@ -80,7 +90,9 @@
           "effect": "character_enter:crow_reyes:slide_right",
           "text": {
             "ko": "시험이에요. 네 개 중 하나예요. 결과가 CV에서의 위치를 결정해요.",
-            "en": "A test. One of four. The result determines your position in CV."
+            "en": "A test. One of four. The result determines your position in CV.",
+            "ja": "テスト。四つのうちの一つ。結果はCV内でのお前の立場を決める。",
+            "zh": "测试。四个中的一个。结果决定你在CV中的位置。"
           }
         }
       ]
@@ -95,7 +107,9 @@
         {
           "text": {
             "ko": "네 개의 분기가 있었다. Butcher가 말했다. 각자가 다른 길을 간다. 그것이 충성 시험이었다. 선택이 충성을 보여주는 방식이었다. 어떤 것을 선택하는지가 어떤 사람인지를 보여주는 것이었다.",
-            "en": "Four paths. Butcher said. Each takes a different road. That was the loyalty test. Choice was how loyalty showed. What you chose showed who you were."
+            "en": "Four paths. Butcher said. Each takes a different road. That was the loyalty test. Choice was how loyalty showed. What you chose showed who you were.",
+            "ja": "四つの道。Butcherが言った。それぞれが違う道をとる。それが忠誠テストだった。選択が忠誠を示す方法だった。何を選ぶかがお前が誰であるかを示した。",
+            "zh": "四条道路。屠夫说。每个人走不同的路。那就是忠诚测试。选择是忠诚表现的方式。你选择什么显示了你是谁。"
           }
         }
       ]
@@ -107,55 +121,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Butcher가 선택을 기다린다. 어느 시험을 선택하겠습니까.",
-        "en": "Butcher is waiting. Which test do you choose."
+        "en": "Butcher is waiting. Which test do you choose.",
+        "ja": "Butcherが待っている。どのテストを選ぶ。",
+        "zh": "屠夫在等待。你选择哪个测试。"
       },
       "choices": [
         {
           "id": "cv_ch3_reza_revenge",
           "text": {
             "ko": "Reza — 복수냐 용서냐.",
-            "en": "Reza — revenge or forgiveness."
+            "en": "Reza — revenge or forgiveness.",
+            "ja": "Reza — 復讐か赦しか。",
+            "zh": "雷扎 — 复仇还是宽恕。"
           },
           "tone": "personal",
           "preview_hint": {
             "ko": "→ s06 분기로",
-            "en": "→ branch s06"
+            "en": "→ branch s06",
+            "ja": "→ 分岐 s06",
+            "zh": "→ 分支 s06"
           }
         },
         {
           "id": "cv_ch3_reza_intel",
           "text": {
             "ko": "Reza — 정보를 얻는다.",
-            "en": "Reza — extract intelligence."
+            "en": "Reza — extract intelligence.",
+            "ja": "Reza — 情報を引き出す。",
+            "zh": "雷扎 — 提取情报。"
           },
           "tone": "strategic",
           "preview_hint": {
             "ko": "→ s16 분기로",
-            "en": "→ branch s16"
+            "en": "→ branch s16",
+            "ja": "→ 分岐 s16",
+            "zh": "→ 分支 s16"
           }
         },
         {
           "id": "cv_ch3_marko_alliance",
           "text": {
             "ko": "Marko 분기 — 외부 세력과 협상.",
-            "en": "Marko branch — negotiate with outside faction."
+            "en": "Marko branch — negotiate with outside faction.",
+            "ja": "Markoルート — 外部派閥と交渉する。",
+            "zh": "马尔科支线 — 与外部派系谈判。"
           },
           "tone": "diplomatic",
           "preview_hint": {
             "ko": "→ s26 분기로",
-            "en": "→ branch s26"
+            "en": "→ branch s26",
+            "ja": "→ 分岐 s26",
+            "zh": "→ 分支 s26"
           }
         },
         {
           "id": "cv_ch3_standard",
           "text": {
             "ko": "표준 임무 — 광산 지역 점령.",
-            "en": "Standard mission — occupy the mine district."
+            "en": "Standard mission — occupy the mine district.",
+            "ja": "標準ミッション — 鉱山地区を占拠する。",
+            "zh": "标准任务 — 占领矿区。"
           },
           "tone": "straightforward",
           "preview_hint": {
             "ko": "→ s36 분기로",
-            "en": "→ branch s36"
+            "en": "→ branch s36",
+            "ja": "→ 分岐 s36",
+            "zh": "→ 分支 s36"
           }
         }
       ]
@@ -170,7 +202,9 @@
         {
           "text": {
             "ko": "Reza 분기 A. 복수냐 용서냐. Reza는 아직 기지에 있었다. 포로 신분이 아니었다. Butcher의 결정 이후 애매한 상태였다. 기지 안에 있지만 CV 대원이 아닌 상태.",
-            "en": "Reza branch A. Revenge or forgiveness. Reza was still at the base. No longer prisoner status. Ambiguous after Butcher's decision. In the base but not a CV member."
+            "en": "Reza branch A. Revenge or forgiveness. Reza was still at the base. No longer prisoner status. Ambiguous after Butcher's decision. In the base but not a CV member.",
+            "ja": "RezaルートA。復讐か赦しか。Rezaはまだ基地にいた。もはや囚人ステータスではなかった。Butcherの決定後は曖昧な立場。基地にいるがCVメンバーではない。",
+            "zh": "雷扎A支线。复仇还是宽恕。雷扎还在基地。不再是囚犯身份。屠夫决定后立场模糊。在基地但不是CV成员。"
           }
         }
       ]
@@ -187,7 +221,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Reza는 CV에 피해를 줬어. 작지 않은 피해야. 코드는 배신을 용서하지 않아.",
-            "en": "Reza caused harm to CV. Not small harm. The code doesn't forgive betrayal."
+            "en": "Reza caused harm to CV. Not small harm. The code doesn't forgive betrayal.",
+            "ja": "RezaはCVに害を与えた。小さな害ではなかった。規範は裏切りを許さない。",
+            "zh": "雷扎对CV造成了伤害。不是小的伤害。规则不原谅背叛。"
           }
         },
         {
@@ -195,7 +231,9 @@
           "emotion": "slow",
           "text": {
             "ko": "그러나 — 당신이 그 이름을 말했어. Aisha. 그래서 여기 있어. 당신의 선택이 있었어.",
-            "en": "But — you said that name. Aisha. That's why Reza is here. Your choice existed."
+            "en": "But — you said that name. Aisha. That's why Reza is here. Your choice existed.",
+            "ja": "しかし — お前がその名前を言った。Aisha。だからRezaはここにいる。お前の選択があった。",
+            "zh": "但是 — 你说了那个名字。艾莎。这就是雷扎在这里的原因。你的选择存在。"
           }
         },
         {
@@ -203,7 +241,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "이제 당신이 처리해. 어떻게 할지.",
-            "en": "Now you handle it. What to do."
+            "en": "Now you handle it. What to do.",
+            "ja": "今お前が処理する。どうするか。",
+            "zh": "现在你来处理。怎么办。"
           }
         }
       ]
@@ -218,7 +258,9 @@
         {
           "text": {
             "ko": "Reza가 있었다. 구석에. 손이 묶이지 않은 상태. 그러나 갈 수 없는 상태. CV 기지에서 나갈 수 없는 상태. 당신을 봤다. 그 눈이 기억났다. Aisha. 이름.",
-            "en": "Reza was there. In the corner. Hands unbound. But unable to leave. Unable to exit the CV base. Looked at you. Those eyes remembered. Aisha. Name."
+            "en": "Reza was there. In the corner. Hands unbound. But unable to leave. Unable to exit the CV base. Looked at you. Those eyes remembered. Aisha. Name.",
+            "ja": "Rezaがそこにいた。隅に。手は縛られていなかった。しかし出られなかった。CV基地を出ることができなかった。お前を見た。その目が覚えていた。Aisha。名前。",
+            "zh": "雷扎在那里。在角落里。手没有被绑。但无法离开。无法离开CV基地。看着你。那双眼睛记住了。艾莎。名字。"
           }
         }
       ]
@@ -235,7 +277,9 @@
           "emotion": "exhausted",
           "text": {
             "ko": "당신이 내 이름을 말했어. Butcher에게.",
-            "en": "You said her name. To Butcher."
+            "en": "You said her name. To Butcher.",
+            "ja": "お前が彼女の名前を言った。Butcherに。",
+            "zh": "你说了她的名字。对屠夫。"
           }
         },
         {
@@ -243,7 +287,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Aisha.",
-            "en": "Aisha."
+            "en": "Aisha.",
+            "ja": "Aisha。",
+            "zh": "艾莎。"
           }
         },
         {
@@ -251,7 +297,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그래서 여기 있어. 죽지 않고.",
-            "en": "That's why I'm here. Not dead."
+            "en": "That's why I'm here. Not dead.",
+            "ja": "だから俺はここにいる。死んでいない。",
+            "zh": "这就是我在这里的原因。还没死。"
           }
         },
         {
@@ -259,7 +307,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "나는 첩자가 아니야. 진짜로. 그러나 증명할 방법이 없어.",
-            "en": "I'm not an informant. Really. But I have no way to prove it."
+            "en": "I'm not an informant. Really. But I have no way to prove it.",
+            "ja": "俺はスパイじゃない。本当に。しかし証明する方法がない。",
+            "zh": "我不是线人。真的。但我没有办法证明。"
           }
         }
       ]
@@ -274,7 +324,9 @@
         {
           "text": {
             "ko": "Reza의 말이 사실인지 아닌지 알 수 없었다. 증거가 있었다. CV에 있는 증거. 그러나 증거를 만드는 것도 가능했다. MCC가 만들었을 수도 있었다. 알 수 없었다.",
-            "en": "Couldn't tell if Reza's words were true. Evidence existed. Evidence in CV. But evidence could be manufactured. MCC might have made it. Unknown."
+            "en": "Couldn't tell if Reza's words were true. Evidence existed. Evidence in CV. But evidence could be manufactured. MCC might have made it. Unknown.",
+            "ja": "Rezaの言葉が本当かどうかわからなかった。証拠があった。CVの証拠。しかし証拠は作れた。MCCが作ったかもしれない。不明だった。",
+            "zh": "不知道雷扎的话是否属实。有证据。CV的证据。但证据可以被伪造。MCC可能制造了它。不得而知。"
           }
         }
       ]
@@ -291,7 +343,9 @@
           "emotion": "cold",
           "text": {
             "ko": "Butcher가 당신에게 맡겼어요. 코드대로 하면 돼요.",
-            "en": "Butcher left it to you. Just follow the code."
+            "en": "Butcher left it to you. Just follow the code.",
+            "ja": "Butcherはお前に任せた。ただ規範に従え。",
+            "zh": "屠夫把它交给你了。只要遵守规则。"
           }
         },
         {
@@ -299,7 +353,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "코드가 뭐야. 이 상황에서.",
-            "en": "What's the code. In this situation."
+            "en": "What's the code. In this situation.",
+            "ja": "規範とは何か。この状況で。",
+            "zh": "规则是什么。在这种情况下。"
           }
         },
         {
@@ -307,7 +363,9 @@
           "emotion": "flat",
           "text": {
             "ko": "배신은 용서 안 해요. 그게 코드예요. 그러나 당신의 다섯 번째 코드는 달라요. 당신이 만든 거니까.",
-            "en": "Betrayal isn't forgiven. That's the code. But your fifth code is different. Because you made it."
+            "en": "Betrayal isn't forgiven. That's the code. But your fifth code is different. Because you made it.",
+            "ja": "裏切りは許されない。それが規範だ。しかしお前の五番目の規範は違う。お前が作ったから。",
+            "zh": "背叛不被原谅。那是规则。但你的第五条规则不同。因为你制定的。"
           }
         }
       ]
@@ -322,7 +380,9 @@
         {
           "text": {
             "ko": "다섯 번째 코드. 각자가 만드는 것. Butcher가 말했던 것. 처음 들었을 때는 몰랐다. 이제 알았다. 그것이 이 순간을 위한 것이었다. 이 선택을 위한 것이었다.",
-            "en": "The fifth code. Each person makes their own. What Butcher had said. Didn't understand when first heard. Now understood. It was for this moment. For this choice."
+            "en": "The fifth code. Each person makes their own. What Butcher had said. Didn't understand when first heard. Now understood. It was for this moment. For this choice.",
+            "ja": "五番目の規範。各人が自分で作る。Butcherが言ったこと。最初に聞いたとき理解できなかった。今は理解した。この瞬間のためだった。この選択のために。",
+            "zh": "第五条规则。每个人自己制定。屠夫说的话。第一次听时不明白。现在明白了。是为了这一刻。为了这个选择。"
           }
         }
       ]
@@ -339,7 +399,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Reza. 한 가지 물어볼게.",
-            "en": "Reza. One question."
+            "en": "Reza. One question.",
+            "ja": "Reza。一つ質問がある。",
+            "zh": "雷扎。一个问题。"
           }
         },
         {
@@ -347,7 +409,9 @@
           "emotion": "exhausted",
           "text": {
             "ko": "뭐야.",
-            "en": "What."
+            "en": "What.",
+            "ja": "何だ。",
+            "zh": "什么。"
           }
         },
         {
@@ -355,7 +419,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Aisha는 어디 있어.",
-            "en": "Where is Aisha."
+            "en": "Where is Aisha.",
+            "ja": "Aishaはどこだ。",
+            "zh": "艾莎在哪里。"
           }
         },
         {
@@ -363,7 +429,9 @@
           "emotion": "alert",
           "text": {
             "ko": "왜.",
-            "en": "Why."
+            "en": "Why.",
+            "ja": "なぜ。",
+            "zh": "为什么。"
           }
         },
         {
@@ -371,7 +439,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이름이 있는 사람은 그 이름을 알아야 할 사람이 있어야 해.",
-            "en": "A person with a name needs someone who knows that name."
+            "en": "A person with a name needs someone who knows that name.",
+            "ja": "名前を持つ人には、その名前を知っている人が必要だ。",
+            "zh": "有名字的人需要知道那个名字的人。"
           }
         }
       ]
@@ -386,7 +456,9 @@
         {
           "text": {
             "ko": "Reza가 대답했다. 위치를 말했다. 헬라스 센트럴. 작은 구역. 이름. 연락 방법. 그것이 Reza가 줄 수 있는 전부였다. 그것을 받았다. 그것으로 충분했다.",
-            "en": "Reza answered. Gave a location. Hellas Central. Small district. Name. Contact method. That was all Reza could give. Received it. That was enough."
+            "en": "Reza answered. Gave a location. Hellas Central. Small district. Name. Contact method. That was all Reza could give. Received it. That was enough.",
+            "ja": "Rezaが答えた。場所を教えた。ヘラス中央。小さな地区。名前。連絡方法。それがRezaが与えられるすべてだった。受け取った。それで十分だった。",
+            "zh": "雷扎回答了。给了一个位置。赫拉斯中央。小地区。名字。联系方式。那是雷扎能给的全部。接受了。那就足够了。"
           }
         }
       ]
@@ -401,7 +473,9 @@
         {
           "text": {
             "ko": "Butcher에게 보고했다. Reza 분기의 결과. Butcher가 들었다. 말이 없었다. 의수가 움직였다. 그것이 전부였다. 그것이 인정이었다.",
-            "en": "Reported to Butcher. Result of the Reza branch. Butcher listened. No words. The prosthetic moved. That was all. That was acknowledgment."
+            "en": "Reported to Butcher. Result of the Reza branch. Butcher listened. No words. The prosthetic moved. That was all. That was acknowledgment.",
+            "ja": "Butcherに報告した。Rezaルートの結果。Butcherは聞いた。言葉なし。義手が動いた。それだけだった。それが認めることだった。",
+            "zh": "向屠夫汇报了。雷扎支线的结果。屠夫听了。没有话语。义肢动了。就这些。那是认可。"
           }
         }
       ]
@@ -416,7 +490,9 @@
         {
           "text": {
             "ko": "Reza 분기 B. 정보를 얻는다. Reza가 MCC에 대해 아는 것이 있었다. CV가 필요한 정보였다. Crow가 그것을 알았다. 그러나 Reza는 말하지 않았다. 이유가 있었다.",
-            "en": "Reza branch B. Extract intelligence. Reza knew things about MCC. Information CV needed. Crow knew that. But Reza hadn't spoken. There was a reason."
+            "en": "Reza branch B. Extract intelligence. Reza knew things about MCC. Information CV needed. Crow knew that. But Reza hadn't spoken. There was a reason.",
+            "ja": "RezaルートB。情報を引き出す。RezaはMCCのことを知っていた。CVが必要な情報。Crowはそれを知っていた。しかしRezaは話していなかった。理由があった。",
+            "zh": "雷扎B支线。提取情报。雷扎知道MCC的事情。CV需要的信息。乌鸦知道这一点。但雷扎没有说话。有原因。"
           }
         }
       ]
@@ -433,7 +509,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Reza가 MCC C-구역 이동 루트를 알아요. 우리가 필요한 거예요.",
-            "en": "Reza knows MCC C-zone movement routes. What we need."
+            "en": "Reza knows MCC C-zone movement routes. What we need.",
+            "ja": "RezaはMCC C地区の移動ルートを知っている。俺たちが必要なもの。",
+            "zh": "雷扎知道MCC C区的移动路线。我们需要的东西。"
           }
         },
         {
@@ -441,7 +519,9 @@
           "emotion": "cold",
           "text": {
             "ko": "말을 안 해요. 당신이 해봐요.",
-            "en": "Won't talk. You try."
+            "en": "Won't talk. You try.",
+            "ja": "話そうとしない。お前が試せ。",
+            "zh": "不肯说话。你去试试。"
           }
         },
         {
@@ -449,7 +529,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "왜 나야.",
-            "en": "Why me."
+            "en": "Why me.",
+            "ja": "なぜ俺なんだ。",
+            "zh": "为什么是我。"
           }
         },
         {
@@ -457,7 +539,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "당신이 Aisha 이름을 말했잖아요. 그것이 신뢰가 됐어요. 아마.",
-            "en": "You said Aisha's name. That became trust. Maybe."
+            "en": "You said Aisha's name. That became trust. Maybe.",
+            "ja": "お前がAishaの名前を言った。それが信頼になった。多分。",
+            "zh": "你说了艾莎的名字。那成了信任。也许。"
           }
         }
       ]
@@ -472,7 +556,9 @@
         {
           "text": {
             "ko": "Reza에게 갔다. 구석에. Crow가 보고 있었다. 그러나 말하지 않았다. Crow가 말하지 않을 때는 신뢰하는 것이었다. 또는 기다리는 것이었다. 구분이 어려웠다.",
-            "en": "Went to Reza. Corner. Crow watching. But no words. When Crow was wordless it meant trust. Or waiting. Hard to distinguish."
+            "en": "Went to Reza. Corner. Crow watching. But no words. When Crow was wordless it meant trust. Or waiting. Hard to distinguish.",
+            "ja": "Rezaのところへ行った。隅。Crowが見ていた。しかし言葉なし。Crowが無言の時、それは信頼を意味した。または待機。区別しがたかった。",
+            "zh": "去了雷扎那里。角落。乌鸦在看。但没有话语。乌鸦无言时意味着信任。或者等待。难以区分。"
           }
         }
       ]
@@ -489,7 +575,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Reza. MCC C-구역 루트. 알아.",
-            "en": "Reza. MCC C-zone routes. You know them."
+            "en": "Reza. MCC C-zone routes. You know them.",
+            "ja": "Reza。MCC C地区のルート。お前は知っている。",
+            "zh": "雷扎。MCC C区路线。你知道它们。"
           }
         },
         {
@@ -497,7 +585,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "알아.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "そうだ。",
+            "zh": "是的。"
           }
         },
         {
@@ -505,7 +595,9 @@
           "emotion": "flat",
           "text": {
             "ko": "말해주면 여기서 나갈 수 있어. Butcher에게 말할게.",
-            "en": "Tell me and you can leave here. I'll tell Butcher."
+            "en": "Tell me and you can leave here. I'll tell Butcher.",
+            "ja": "話してくれれば、お前はここを出られる。Butcherに伝える。",
+            "zh": "告诉我你就可以离开这里。我去告诉屠夫。"
           }
         },
         {
@@ -513,7 +605,9 @@
           "emotion": "exhausted",
           "text": {
             "ko": "거짓말이야?",
-            "en": "Is that a lie?"
+            "en": "Is that a lie?",
+            "ja": "それは嘘か？",
+            "zh": "那是谎话吗？"
           }
         },
         {
@@ -521,7 +615,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "아니야.",
-            "en": "No."
+            "en": "No.",
+            "ja": "違う。",
+            "zh": "不是。"
           }
         }
       ]
@@ -536,7 +632,9 @@
         {
           "text": {
             "ko": "Reza가 생각했다. 오래. 눈을 감았다. 손이 묶이지 않았다. 그 손이 무릎 위에 있었다. 떨리지 않았다. 그것이 이 사람이 강한 방식이었다. 결정하는 방식.",
-            "en": "Reza thought. For a long time. Eyes closed. Hands unbound. Those hands on the knees. Not trembling. That was how this person was strong. The way of deciding."
+            "en": "Reza thought. For a long time. Eyes closed. Hands unbound. Those hands on the knees. Not trembling. That was how this person was strong. The way of deciding.",
+            "ja": "Rezaは考えた。長い間。目を閉じて。手は縛られていなかった。膝の上にある手。震えていなかった。それがこの人物が強い方法だった。決める方法。",
+            "zh": "雷扎思考了。很长时间。闭上眼睛。手没有被绑。膝盖上的手。没有颤抖。那是这个人坚强的方式。做决定的方式。"
           },
           "overlay": "cv_ch3_mine_king_l19_00_hand_still"
         }
@@ -554,7 +652,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "C-구역 서쪽 루트가 있어. MCC가 공식적으로 쓰지 않아. 그러나 경비가 없어. 빈 통로야. 오래된 광산 배수로야.",
-            "en": "There's a west route in C-zone. MCC doesn't officially use it. But no guards. Empty passage. Old mine drainage."
+            "en": "There's a west route in C-zone. MCC doesn't officially use it. But no guards. Empty passage. Old mine drainage.",
+            "ja": "C地区に西ルートがある。MCCは公式には使っていない。しかし警備がない。空の通路。古い鉱山排水路。",
+            "zh": "C区有一条西部路线。MCC官方不使用。但没有守卫。空的通道。旧矿山排水道。"
           }
         },
         {
@@ -562,7 +662,9 @@
           "emotion": "flat",
           "text": {
             "ko": "교대 간격. 삼십 분. 공식 경비는 동쪽에 있어. 서쪽은 없어.",
-            "en": "Rotation interval. Thirty minutes. Official guards are east. None west."
+            "en": "Rotation interval. Thirty minutes. Official guards are east. None west.",
+            "ja": "交代間隔。三十分。公式の警備は東側。西側はゼロ。",
+            "zh": "轮换间隔。三十分钟。官方警卫在东边。西边没有。"
           }
         },
         {
@@ -570,7 +672,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "이게 전부야. 이제 나갈 수 있어?",
-            "en": "That's all. Can I leave now?"
+            "en": "That's all. Can I leave now?",
+            "ja": "それだけだ。もう出られるか？",
+            "zh": "就这些。现在我可以离开了吗？"
           }
         }
       ]
@@ -585,7 +689,9 @@
         {
           "text": {
             "ko": "Butcher에게 갔다. 정보를 전달했다. Butcher가 들었다. Crow가 확인했다. 말이 없었다. 그러나 눈빛이 달라졌다. 정보가 맞는 것이었다. 그것을 알 수 있었다.",
-            "en": "Went to Butcher. Passed the information. Butcher listened. Crow confirmed. No words. But the look in their eyes changed. The information was correct. Could tell that."
+            "en": "Went to Butcher. Passed the information. Butcher listened. Crow confirmed. No words. But the look in their eyes changed. The information was correct. Could tell that.",
+            "ja": "Butcherのところへ行った。情報を渡した。Butcherは聞いた。Crowが確認した。言葉なし。しかし目の表情が変わった。情報は正しかった。それがわかった。",
+            "zh": "去了屠夫那里。传递了信息。屠夫听了。乌鸦确认了。没有话语。但眼神改变了。信息是正确的。能感受到这一点。"
           }
         }
       ]
@@ -602,7 +708,9 @@
           "emotion": "slow",
           "text": {
             "ko": "Reza를 놓아줘.",
-            "en": "Release Reza."
+            "en": "Release Reza.",
+            "ja": "Rezaを解放しろ。",
+            "zh": "释放雷扎。"
           }
         },
         {
@@ -610,7 +718,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "Butcher.",
-            "en": "Butcher."
+            "en": "Butcher.",
+            "ja": "Butcher。",
+            "zh": "屠夫。"
           }
         },
         {
@@ -618,7 +728,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "코드야. 약속을 했어. 지켜.",
-            "en": "It's the code. A promise was made. Keep it."
+            "en": "It's the code. A promise was made. Keep it.",
+            "ja": "これが規範だ。約束をした。守れ。",
+            "zh": "这是规则。做了承诺。遵守它。"
           }
         }
       ]
@@ -633,7 +745,9 @@
         {
           "text": {
             "ko": "Reza가 기지를 떠났다. 뒤를 보지 않았다. 걸음이 빠르지 않았다. 그것이 이상했다. 빠르게 걸을 것이라고 생각했다. 그러나 느리게 걸었다. 무언가 생각하는 걸음이었다.",
-            "en": "Reza left the base. Didn't look back. Walk wasn't fast. That was strange. Expected fast. But walked slowly. Steps of someone thinking."
+            "en": "Reza left the base. Didn't look back. Walk wasn't fast. That was strange. Expected fast. But walked slowly. Steps of someone thinking.",
+            "ja": "Rezaは基地を出た。振り返らなかった。歩きは速くなかった。それは奇妙だった。速いと思っていた。しかしゆっくり歩いた。考えている人の歩み。",
+            "zh": "雷扎离开了基地。没有回头。走得不快。这很奇怪。以为会快。但走得很慢。思考中的人的步伐。"
           }
         }
       ]
@@ -648,7 +762,9 @@
         {
           "text": {
             "ko": "Butcher가 봤다. Reza가 사라질 때까지. 그것이 전부였다. 그것이 Butcher의 방식이었다. 보는 것. 오래 보는 것. 그리고 말하지 않는 것.",
-            "en": "Butcher watched. Until Reza disappeared. That was all. That was Butcher's way. Watching. Watching for a long time. And saying nothing."
+            "en": "Butcher watched. Until Reza disappeared. That was all. That was Butcher's way. Watching. Watching for a long time. And saying nothing.",
+            "ja": "Butcherは見ていた。Rezaが消えるまで。それだけだった。それがButcherのやり方だった。見ること。長い間見ること。そして何も言わないこと。",
+            "zh": "屠夫看着。直到雷扎消失。就这些。那是屠夫的方式。看。长时间看。什么都不说。"
           }
         }
       ]
@@ -663,7 +779,9 @@
         {
           "text": {
             "ko": "Marko 분기. 외부 세력과 협상. 샌드스톤 교차로. 화성 중간 지점. MCC도 CV도 아닌 곳. 중립 지대. 거기서 만남이 있었다. Marko Diel. 독립 용병 그룹 대표.",
-            "en": "Marko branch. Negotiate with outside faction. Sandstone Junction. Middle of Mars. Neither MCC nor CV. Neutral ground. A meeting there. Marko Diel. Independent mercenary group leader."
+            "en": "Marko branch. Negotiate with outside faction. Sandstone Junction. Middle of Mars. Neither MCC nor CV. Neutral ground. A meeting there. Marko Diel. Independent mercenary group leader.",
+            "ja": "Markoルート。外部派閥と交渉する。サンドストーン・ジャンクション。火星の中心。MCCでもCVでもない。中立地帯。そこでの会合。Marko Diel。独立傭兵グループのリーダー。",
+            "zh": "马尔科支线。与外部派系谈判。砂岩十字路。火星中部。既不是MCC也不是CV。中立地带。在那里会面。马尔科·迪尔。独立雇佣兵团队领袖。"
           }
         }
       ]
@@ -680,7 +798,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Marko는 MCC와 CV 사이에서 살아왔어요. 그것이 장점이에요. 정보가 있어요.",
-            "en": "Marko has lived between MCC and CV. That's the advantage. Has information."
+            "en": "Marko has lived between MCC and CV. That's the advantage. Has information.",
+            "ja": "MarkoはMCCとCVの間で生きてきた。それが利点だ。情報を持っている。",
+            "zh": "马尔科在MCC和CV之间生活。那是优势。有信息。"
           }
         },
         {
@@ -688,7 +808,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "당신이 협상해요. 나는 지켜봐요.",
-            "en": "You negotiate. I watch."
+            "en": "You negotiate. I watch.",
+            "ja": "お前が交渉する。俺は見る。",
+            "zh": "你去谈判。我看着。"
           }
         },
         {
@@ -696,7 +818,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "조건이 뭐야.",
-            "en": "What are the conditions."
+            "en": "What are the conditions.",
+            "ja": "条件は何か。",
+            "zh": "条件是什么。"
           }
         },
         {
@@ -704,7 +828,9 @@
           "emotion": "cold",
           "text": {
             "ko": "그게 협상이에요. 당신이 만드는 거예요.",
-            "en": "That's the negotiation. You make them."
+            "en": "That's the negotiation. You make them.",
+            "ja": "それが交渉だ。お前が作る。",
+            "zh": "那就是谈判。你来制定。"
           }
         }
       ]
@@ -719,7 +845,9 @@
         {
           "text": {
             "ko": "Marko가 왔다. 혼자가 아니었다. 두 명이 뒤에 있었다. 무장했다. 그것이 중립 지대에서의 방식이었다. 무장하고 만나는 것. 신뢰가 없는 상태에서의 신뢰.",
-            "en": "Marko arrived. Not alone. Two behind. Armed. That was the way in neutral ground. Meet armed. Trust without trust."
+            "en": "Marko arrived. Not alone. Two behind. Armed. That was the way in neutral ground. Meet armed. Trust without trust.",
+            "ja": "Markoが来た。一人ではなかった。後ろに二人。武装していた。それが中立地帯のやり方だった。武装して会う。信頼なき信頼。",
+            "zh": "马尔科来了。不是独自一人。后面有两个人。武装。那是中立地带的方式。武装相见。没有信任的信任。"
           }
         }
       ]
@@ -736,7 +864,9 @@
           "emotion": "cautious",
           "text": {
             "ko": "CV가 협상을 원한다고 들었어. 처음이야.",
-            "en": "Heard CV wants to negotiate. First time."
+            "en": "Heard CV wants to negotiate. First time.",
+            "ja": "CVが交渉を求めると聞いた。初めてだ。",
+            "zh": "听说CV想谈判。第一次。"
           }
         },
         {
@@ -744,7 +874,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "처음이 아니야.",
-            "en": "Not the first time."
+            "en": "Not the first time.",
+            "ja": "初めてじゃない。",
+            "zh": "不是第一次。"
           }
         },
         {
@@ -752,7 +884,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Butcher가 직접 안 온 건 처음이야.",
-            "en": "Butcher not coming in person is a first."
+            "en": "Butcher not coming in person is a first.",
+            "ja": "Butcherが直接来ないのは初めてだ。",
+            "zh": "屠夫不亲自来是第一次。"
           }
         },
         {
@@ -760,7 +894,9 @@
           "emotion": "flat",
           "text": {
             "ko": "내가 왔어. 그것으로 충분해.",
-            "en": "I came. That's enough."
+            "en": "I came. That's enough.",
+            "ja": "俺が来た。それで十分だ。",
+            "zh": "我来了。这就足够了。"
           }
         }
       ]
@@ -775,7 +911,9 @@
         {
           "text": {
             "ko": "Marko가 당신을 봤다. 오래 봤다. CV 대원이지만 새로운 얼굴이었다. 새로운 얼굴이 협상을 한다는 것이 이상했다. 그러나 그것이 Butcher의 방식이었다. 새로운 사람을 시험하는 방식.",
-            "en": "Marko looked at you. For a long time. CV but a new face. A new face negotiating was strange. But that was Butcher's way. The way of testing new people."
+            "en": "Marko looked at you. For a long time. CV but a new face. A new face negotiating was strange. But that was Butcher's way. The way of testing new people.",
+            "ja": "Markoはお前を見た。長い間。CVだが新しい顔。新しい顔が交渉するのは奇妙だった。しかしそれがButcherのやり方だった。新しい人を試す方法。",
+            "zh": "马尔科看着你。很长时间。是CV但是新面孔。新面孔谈判很奇怪。但那是屠夫的方式。测试新人的方式。"
           }
         }
       ]
@@ -792,7 +930,9 @@
           "emotion": "calculating",
           "text": {
             "ko": "조건이 뭐야.",
-            "en": "What are the conditions."
+            "en": "What are the conditions.",
+            "ja": "条件は何か。",
+            "zh": "条件是什么。"
           }
         },
         {
@@ -800,7 +940,9 @@
           "emotion": "flat",
           "text": {
             "ko": "MCC D-구역 정보. CV는 샌드스톤 교차로에서 손을 뗀다. 일 년 동안.",
-            "en": "MCC D-zone intelligence. CV withdraws from Sandstone Junction. For one year."
+            "en": "MCC D-zone intelligence. CV withdraws from Sandstone Junction. For one year.",
+            "ja": "MCC D地区の情報。CVはサンドストーン・ジャンクションから撤退する。一年間。",
+            "zh": "MCC D区情报。CV从砂岩十字路撤退。一年。"
           }
         },
         {
@@ -808,7 +950,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "일 년이 길어.",
-            "en": "One year is long."
+            "en": "One year is long.",
+            "ja": "一年は長い。",
+            "zh": "一年太长了。"
           }
         },
         {
@@ -816,7 +960,9 @@
           "emotion": "flat",
           "text": {
             "ko": "짧은 것보다 나아.",
-            "en": "Better than short."
+            "en": "Better than short.",
+            "ja": "短いよりはいい。",
+            "zh": "比短好。"
           }
         }
       ]
@@ -831,7 +977,9 @@
         {
           "text": {
             "ko": "Marko가 생각했다. Crow가 뒤에서 봤다. 조용했다. 말하지 않았다. 협상에서 말이 없는 것이 Crow의 방식이었다. 협상은 말을 줄이는 것이었다. 말이 적은 사람이 이기는 것이었다.",
-            "en": "Marko thought. Crow watched from behind. Quiet. No words. Crow's way in negotiations was silence. Negotiation was reducing words. The person with fewer words won."
+            "en": "Marko thought. Crow watched from behind. Quiet. No words. Crow's way in negotiations was silence. Negotiation was reducing words. The person with fewer words won.",
+            "ja": "Markoは考えた。Crowが後ろから見ていた。静かに。言葉なし。交渉におけるCrowのやり方は沈黙だった。交渉とは言葉を減らすことだった。言葉が少ない方が勝つ。",
+            "zh": "马尔科思考了。乌鸦从后面看着。安静。没有话语。乌鸦在谈判中的方式是沉默。谈判是减少话语。话语少的人赢了。"
           }
         }
       ]
@@ -848,7 +996,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "D-구역 정보는 있어. 그러나 일 년은 안 돼. 여섯 달.",
-            "en": "Have D-zone intel. But not one year. Six months."
+            "en": "Have D-zone intel. But not one year. Six months.",
+            "ja": "D地区の情報はある。しかし一年は無理。六か月。",
+            "zh": "有D区情报。但不是一年。六个月。"
           }
         },
         {
@@ -856,7 +1006,9 @@
           "emotion": "flat",
           "text": {
             "ko": "여덟 달.",
-            "en": "Eight months."
+            "en": "Eight months.",
+            "ja": "八か月。",
+            "zh": "八个月。"
           }
         },
         {
@@ -864,7 +1016,9 @@
           "emotion": "accepting",
           "text": {
             "ko": "됐어.",
-            "en": "Done."
+            "en": "Done.",
+            "ja": "決まった。",
+            "zh": "成交。"
           }
         }
       ]
@@ -879,7 +1033,9 @@
         {
           "text": {
             "ko": "협상이 끝났다. Marko가 갔다. Crow가 다가왔다. 표정이 없었다. 그러나 말했다. 처음으로 말했다. 그것이 이상했다. Crow가 협상 후에 말하는 것이.",
-            "en": "Negotiation ended. Marko left. Crow approached. No expression. But spoke. Spoke for the first time. That was strange. Crow speaking after a negotiation."
+            "en": "Negotiation ended. Marko left. Crow approached. No expression. But spoke. Spoke for the first time. That was strange. Crow speaking after a negotiation.",
+            "ja": "交渉が終わった。Markoが去った。Crowが近づいた。表情なし。しかし話した。初めて話した。それは奇妙だった。交渉後にCrowが話すこと。",
+            "zh": "谈判结束了。马尔科走了。乌鸦走近了。没有表情。但说话了。第一次说话。这很奇怪。谈判后乌鸦说话了。"
           }
         }
       ]
@@ -896,7 +1052,9 @@
           "emotion": "flat",
           "text": {
             "ko": "여덟 달이에요. 나쁘지 않아요.",
-            "en": "Eight months. Not bad."
+            "en": "Eight months. Not bad.",
+            "ja": "八か月。悪くない。",
+            "zh": "八个月。不错。"
           }
         },
         {
@@ -904,7 +1062,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "Butcher가 기뻐할 거예요. 기뻐하는 걸 안 보여주겠지만.",
-            "en": "Butcher will be pleased. Won't show it, though."
+            "en": "Butcher will be pleased. Won't show it, though.",
+            "ja": "Butcherは喜ぶだろう。見せないだろうが。",
+            "zh": "屠夫会高兴的。虽然不会表现出来。"
           }
         }
       ]
@@ -919,7 +1079,9 @@
         {
           "text": {
             "ko": "표준 임무. 광산 지역 점령. 헬라스 외곽 광산. MCC가 버린 곳. 그러나 쓸 수 있는 것이 있었다. 장비. 통로. CV가 필요한 것들.",
-            "en": "Standard mission. Occupy mine district. Hellas outer mine. Abandoned by MCC. But things that could be used. Equipment. Passages. Things CV needed."
+            "en": "Standard mission. Occupy mine district. Hellas outer mine. Abandoned by MCC. But things that could be used. Equipment. Passages. Things CV needed.",
+            "ja": "標準ミッション。鉱山地区を占拠する。ヘラス外縁鉱山。MCCが放棄した。しかし使えるものがあった。設備。通路。CVが必要なもの。",
+            "zh": "标准任务。占领矿区。赫拉斯外围矿山。被MCC放弃。但有可以使用的东西。设备。通道。CV需要的东西。"
           }
         }
       ]
@@ -936,7 +1098,9 @@
           "emotion": "flat",
           "text": {
             "ko": "버려진 광산이에요. 그러나 MCC가 간헐적으로 와요. 이유가 있어요.",
-            "en": "Abandoned mine. But MCC comes intermittently. There's a reason."
+            "en": "Abandoned mine. But MCC comes intermittently. There's a reason.",
+            "ja": "放棄された鉱山。しかしMCCが断続的に来る。理由がある。",
+            "zh": "废弃矿山。但MCC断断续续地来。有原因。"
           }
         },
         {
@@ -944,7 +1108,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "뭘 숨겨놨어요. 거기. 우리가 가져오는 거예요.",
-            "en": "Something hidden there. We bring it back."
+            "en": "Something hidden there. We bring it back.",
+            "ja": "そこに何かが隠されている。俺たちが持ち帰る。",
+            "zh": "那里藏着什么。我们把它带回来。"
           }
         },
         {
@@ -952,7 +1118,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "뭘 숨겼어.",
-            "en": "What's hidden."
+            "en": "What's hidden.",
+            "ja": "何が隠されているんだ。",
+            "zh": "藏着什么。"
           }
         },
         {
@@ -960,7 +1128,9 @@
           "emotion": "cold",
           "text": {
             "ko": "가면 알아요.",
-            "en": "You'll know when we get there."
+            "en": "You'll know when we get there.",
+            "ja": "着いたらわかる。",
+            "zh": "到了就知道了。"
           }
         }
       ]
@@ -975,7 +1145,9 @@
         {
           "text": {
             "ko": "광산 안으로 들어갔다. 어두웠다. 헬등을 켰다. 통로가 있었다. 오래된 것이었다. 30년 된 것. CV가 세워지기 전부터 있던 것. 광부들이 판 것. 이제 아무도 없었다.",
-            "en": "Into the mine. Dark. Light on. Passages. Old ones. Thirty years old. Before CV existed. Dug by miners. Now empty."
+            "en": "Into the mine. Dark. Light on. Passages. Old ones. Thirty years old. Before CV existed. Dug by miners. Now empty.",
+            "ja": "鉱山の中へ。暗い。ライトをつける。通路。古いもの。三十年前のもの。CVが存在する前。鉱夫たちが掘った。今は空。",
+            "zh": "进入矿山。黑暗。开灯。通道。旧的。三十年前的。CV存在之前。矿工们挖的。现在空了。"
           }
         }
       ]
@@ -990,7 +1162,9 @@
         {
           "text": {
             "ko": "안쪽에 것이 있었다. 상자들이었다. MCC 마크가 있었다. 그러나 공식 기록에 없는 물건이었다. Crow가 봤다. 표정이 없었다. 그러나 눈빛이 달라졌다. 예상한 것이었다.",
-            "en": "Something deeper in. Crates. MCC markings. But goods not in official records. Crow saw them. No expression. But the look changed. It was as expected."
+            "en": "Something deeper in. Crates. MCC markings. But goods not in official records. Crow saw them. No expression. But the look changed. It was as expected.",
+            "ja": "さらに奥に何かがあった。木箱。MCCのマーキング。しかし公式記録にない物品。Crowがそれを見た。表情なし。しかし表情が変わった。予想通りだった。",
+            "zh": "更深处有东西。板条箱。MCC标记。但货物不在官方记录中。乌鸦看到了它们。没有表情。但神情改变了。正如预期。"
           }
         }
       ]
@@ -1007,7 +1181,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "이거야. 무기 부품이에요. MCC가 비공식으로 비축하고 있었어요.",
-            "en": "This is it. Weapon components. MCC was stockpiling them unofficially."
+            "en": "This is it. Weapon components. MCC was stockpiling them unofficially.",
+            "ja": "これだ。武器部品。MCCは非公式に備蓄していた。",
+            "zh": "就是这个。武器零件。MCC在非正式储存它们。"
           }
         },
         {
@@ -1015,7 +1191,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "왜 이걸 여기 숨겨놨어.",
-            "en": "Why hide this here."
+            "en": "Why hide this here.",
+            "ja": "なぜここに隠すんだ。",
+            "zh": "为什么藏在这里。"
           }
         },
         {
@@ -1023,7 +1201,9 @@
           "emotion": "flat",
           "text": {
             "ko": "공식 기록에 없는 무기는 공식 책임도 없어요. 그것이 MCC 방식이에요.",
-            "en": "Weapons not in official records have no official accountability. That's MCC's way."
+            "en": "Weapons not in official records have no official accountability. That's MCC's way.",
+            "ja": "公式記録にない武器には公式の説明責任がない。それがMCCのやり方だ。",
+            "zh": "不在官方记录中的武器没有官方问责。那是MCC的方式。"
           }
         }
       ]
@@ -1038,7 +1218,9 @@
         {
           "text": {
             "ko": "상자들을 확인했다. 무기 부품이었다. 많은 양이었다. CV가 쓸 수 있는 것들이었다. 가져가야 했다. 그러나 무거웠다. 빠르게 가져가기 어려웠다.",
-            "en": "Checked the crates. Weapon components. Large quantity. Things CV could use. Had to take them. But heavy. Hard to move fast."
+            "en": "Checked the crates. Weapon components. Large quantity. Things CV could use. Had to take them. But heavy. Hard to move fast.",
+            "ja": "木箱を確認した。武器部品。大量。CVが使えるもの。持っていかなければならなかった。しかし重かった。速く動くのが難しかった。",
+            "zh": "检查了板条箱。武器零件。大量。CV可以使用的东西。必须拿走。但很重。难以快速移动。"
           }
         }
       ]
@@ -1055,7 +1237,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "MCC가 오고 있어요. 정기 점검이에요. 이십 분이에요.",
-            "en": "MCC is coming. Regular check. Twenty minutes."
+            "en": "MCC is coming. Regular check. Twenty minutes.",
+            "ja": "MCCが来る。定期チェック。二十分。",
+            "zh": "MCC来了。定期检查。二十分钟。"
           }
         },
         {
@@ -1063,7 +1247,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "얼마나 가져갈 수 있어.",
-            "en": "How much can we take."
+            "en": "How much can we take.",
+            "ja": "どれだけ持っていけるか。",
+            "zh": "我们能带走多少。"
           }
         },
         {
@@ -1071,7 +1257,9 @@
           "emotion": "cold",
           "text": {
             "ko": "두 상자. 그게 전부예요. 이십 분 안에.",
-            "en": "Two crates. That's all. In twenty minutes."
+            "en": "Two crates. That's all. In twenty minutes.",
+            "ja": "二箱。それだけ。二十分で。",
+            "zh": "两个箱子。就这些。二十分钟内。"
           }
         }
       ]
@@ -1084,11 +1272,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "충성 시험",
-        "en": "Loyalty Test"
+        "en": "Loyalty Test",
+        "ja": "忠誠テスト",
+        "zh": "忠诚测试"
       },
       "subtitle": {
         "ko": "에레부스 — 코드를 증명하라",
-        "en": "Erebus — Prove the Code"
+        "en": "Erebus — Prove the Code",
+        "ja": "エレボス — 規範を証明する",
+        "zh": "厄瑞玻斯 — 证明规则"
       }
     },
     {
@@ -1110,7 +1302,9 @@
           "effect": "character_enter:butcher_vasquez:slide_left",
           "text": {
             "ko": "코드를 지켰어.",
-            "en": "You kept the code."
+            "en": "You kept the code.",
+            "ja": "お前は規範を守った。",
+            "zh": "你遵守了规则。"
           }
         },
         {
@@ -1118,7 +1312,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "CV에 있는 사람 중에 코드를 만드는 사람이 드물어. 대부분 코드가 뭔지도 몰라. 그래서 오래 못 있어.",
-            "en": "Few people in CV make their own code. Most don't even know what the code is. That's why they don't last."
+            "en": "Few people in CV make their own code. Most don't even know what the code is. That's why they don't last.",
+            "ja": "CVで自分の規範を作る人は少ない。ほとんどは規範が何かさえ知らない。だから長続きしない。",
+            "zh": "CV中很少有人制定自己的规则。大多数甚至不知道规则是什么。这就是为什么他们不持久。"
           }
         }
       ]
@@ -1133,7 +1329,9 @@
         {
           "text": {
             "ko": "Butcher가 인정했다. 말이 짧았다. 그것이 그의 방식이었다. 말이 짧을수록 의미가 컸다. 코드를 지켰다는 것. 그것이 이 기지에서 있을 수 있다는 것이었다.",
-            "en": "Butcher acknowledged. Words brief. That was his way. Fewer words meant more meaning. You kept the code. That meant you could be here, in this base."
+            "en": "Butcher acknowledged. Words brief. That was his way. Fewer words meant more meaning. You kept the code. That meant you could be here, in this base.",
+            "ja": "Butcherが認めた。言葉は短かった。それが彼のやり方だった。言葉が少ないほど意味が多かった。お前は規範を守った。それはお前がここ、この基地にいられることを意味した。",
+            "zh": "屠夫认可了。话语简短。那是他的方式。话语越少意义越多。你遵守了规则。这意味着你可以在这里，在这个基地。"
           }
         }
       ]
@@ -1148,7 +1346,9 @@
         {
           "text": {
             "ko": "코드가 시험됐다. 어느 코드인지는 몰랐다. 화성에서 코드는 상황이 시험했다. 상황이 가르쳤다. 불이 배럴에서 탔다. 기지는 살아있었다.",
-            "en": "The code was tested. Which code wasn't clear. On Mars the code was tested by situation. Situations taught it. Fire burned in barrels. The base was alive."
+            "en": "The code was tested. Which code wasn't clear. On Mars the code was tested by situation. Situations taught it. Fire burned in barrels. The base was alive.",
+            "ja": "規範がテストされた。どの規範かは明確ではなかった。火星では規範は状況によってテストされた。状況がそれを教えた。ドラム缶の火が燃えた。基地は生きていた。",
+            "zh": "规则被测试了。哪条规则不明确。在火星上规则通过情况被测试。情况教导了它。油桶里火在燃烧。基地是活的。"
           }
         }
       ]
@@ -1163,7 +1363,9 @@
         {
           "text": {
             "ko": "Butcher가 말했다. 당신을 추방하거나 인정하거나. 그 사이의 것이 없었다. CV는 그런 곳이었다. 중간이 없는 곳. 그러나 중간이 없다는 것이 오히려 명확했다. 그것이 이 기지의 방식이었다.",
-            "en": "Butcher spoke. Expel you or acknowledge you. Nothing in between. CV was that kind of place. No middle ground. But having no middle was actually clear. That was this base's way."
+            "en": "Butcher spoke. Expel you or acknowledge you. Nothing in between. CV was that kind of place. No middle ground. But having no middle was actually clear. That was this base's way.",
+            "ja": "Butcherが話した。お前を追い出すか認めるか。中間はない。CVはそういう場所だった。中間地帯がない。しかし中間がないことは実は明確だった。それがこの基地のやり方だった。",
+            "zh": "屠夫说话了。驱逐你还是认可你。中间没有。CV就是那种地方。没有中间地带。但没有中间实际上很清晰。那是这个基地的方式。"
           }
         }
       ]
@@ -1178,7 +1380,9 @@
         {
           "text": {
             "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다.",
-            "en": "Fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working."
+            "en": "Fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working.",
+            "ja": "火が燃えた。夜が深まった。シンダーが仕事を終えた。何かが修理されていた。それが何かは言わなかった。Butcherは火のそばに座った。義手を見下ろした。十七歳のときに作った。三十年もの。まだ動いていた。",
+            "zh": "火在燃烧。夜深了。辛达完成了工作。有什么被修理了。是什么她没说。屠夫坐在火旁。俯视着义肢。十七岁时做的。三十年了。还在工作。"
           },
           "overlay": "cv_ch3_mine_king_l48_00_fire_small"
         }
@@ -1194,7 +1398,9 @@
         {
           "text": {
             "ko": "좋은 것은 그런 것이었다. 오래됐어도 작동하는 것. 코드가 그런 것이었다. 30년 된 것. 그러나 아직 작동하는 것. 그것이 CV였다. 불이 따뜻하지 않았다. 그러나 탔다.",
-            "en": "Good things were like that. Old but still working. The code was like that. Thirty years old. But still working. That was CV. The fire wasn't warm. But it burned."
+            "en": "Good things were like that. Old but still working. The code was like that. Thirty years old. But still working. That was CV. The fire wasn't warm. But it burned.",
+            "ja": "良いものはそういうものだった。古くても動いている。規範もそうだった。三十年前のもの。しかし動いている。それがCVだった。火は温かくなかった。しかし燃えていた。",
+            "zh": "好的东西就是这样。旧但还在工作。规则也是这样。三十年了。但还在工作。那就是CV。火不暖。但在燃烧。"
           }
         }
       ],
@@ -1202,7 +1408,9 @@
         "questId": "cv_campaign_ch4",
         "teaser": {
           "ko": "다음 — Cinder의 그림자",
-          "en": "Next — Cinder's Shadow"
+          "en": "Next — Cinder's Shadow",
+          "ja": "次 — シンダーの影",
+          "zh": "接下来 — 辛达的影子"
         }
       }
     }
