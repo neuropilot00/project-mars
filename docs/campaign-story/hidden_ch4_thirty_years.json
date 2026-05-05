@@ -4,7 +4,9 @@
   "chapterNumber": 4,
   "title": {
     "ko": "30년",
-    "en": "Thirty Years"
+    "en": "Thirty Years",
+    "ja": "三十年",
+    "zh": "三十年"
   },
   "location": {
     "id": "erebus_crater_exterior",
@@ -26,7 +28,9 @@
         {
           "text": {
             "ko": "에레보스 분화구였다. 관찰자가 다시 왔다. 처음이 아니었다. 전에 왔을 때와 달랐다. 이번에 목적이 있었다. 목적을 갖고 오는 것이 관찰자의 방식이 아니었다. 그러나 왔다. 에레보스에 사람이 있었다.",
-            "en": "Erebus Crater. The observer had come again. Not the first time. Different from the previous visit. This time there was a purpose. Coming with a purpose was not the observer's way. But came. There was a person at Erebus."
+            "en": "Erebus Crater. The observer had come again. Not the first time. Different from the previous visit. This time there was a purpose. Coming with a purpose was not the observer's way. But came. There was a person at Erebus.",
+            "ja": "エレボス・クレーターだった。観察者が再び来た。初めてではなかった。前に来た時と違った。今回は目的があった。目的を持って来ることが観察者のやり方ではなかった。しかし来た。エレボスに人がいた。",
+            "zh": "是厄瑞玻斯撞击坑。观察者再次来了。不是第一次。和之前来的时候不同。这次有目的。带着目的来不是观察者的方式。但来了。厄瑞玻斯有人。"
           }
         }
       ]
@@ -41,7 +45,9 @@
         {
           "text": {
             "ko": "멀리서 봤다. 사람이 있었다. 에레보스 분화구 외벽에. 혼자였다. 서 있었다. 분화구를 봤다. 관찰자가 그 사람을 봤다. 그 사람이 관찰자를 보지 않았다. 분화구만 봤다. Butcher였다.",
-            "en": "Watched from afar. There was a person. On the outer wall of Erebus Crater. Alone. Standing. Looking at the crater. The observer watched that person. That person didn't look at the observer. Only looked at the crater. It was Butcher."
+            "en": "Watched from afar. There was a person. On the outer wall of Erebus Crater. Alone. Standing. Looking at the crater. The observer watched that person. That person didn't look at the observer. Only looked at the crater. It was Butcher.",
+            "ja": "遠くから見た。人がいた。エレボス・クレーターの外壁に。一人だった。立っていた。クレーターを見た。観察者がその人を見た。その人が観察者を見なかった。クレーターだけを見た。Butcher だった。",
+            "zh": "从远处看了。有人。在厄瑞玻斯撞击坑外墙上。是一个人。站着。看着撞击坑。观察者看着那个人。那个人没有看观察者。只看着撞击坑。是Butcher。"
           }
         }
       ]
@@ -56,7 +62,9 @@
         {
           "text": {
             "ko": "Butcher를 알아봤다. 의수. 외투. 등이 넓었다. 나이가 있는 것이 등에서 보였다. 30년의 시간이 등에 있었다. 관찰자가 그 등을 봤다. 오래 봤다. Butcher가 움직이지 않았다. 분화구를 봤다. 관찰자도 움직이지 않았다.",
-            "en": "Recognized Butcher. Prosthetic arm. Coat. Wide back. The age was visible in the back. Thirty years were in that back. The observer watched that back. Watched for a long time. Butcher didn't move. Looked at the crater. The observer also didn't move."
+            "en": "Recognized Butcher. Prosthetic arm. Coat. Wide back. The age was visible in the back. Thirty years were in that back. The observer watched that back. Watched for a long time. Butcher didn't move. Looked at the crater. The observer also didn't move.",
+            "ja": "Butcher とわかった。義手。外套。背中が広かった。年齢があることが背中から見えた。30年の時間が背中にあった。観察者がその背中を見た。長く見た。Butcher が動かなかった。クレーターを見た。観察者も動かなかった。",
+            "zh": "认出了Butcher。义手。外套。背很宽。年岁从背部可以看出。三十年的时间在那背上。观察者看着那背。看了很久。Butcher没有动。看着撞击坑。观察者也没有动。"
           }
         }
       ]
@@ -71,7 +79,9 @@
         {
           "text": {
             "ko": "관찰자가 더 가까이 갔다. 소리 없이. 그것이 자연스럽지 않았다. 가까이 가는 것과 소리 없이 가는 것은 달랐다. 소리 없이 가는 것은 숨기는 것이었다. 관찰자가 숨겼다. 그것이 처음이었다. 자신의 존재를 숨긴 것이.",
-            "en": "The observer moved closer. Without sound. That was not natural. Moving closer and moving without sound were different. Moving without sound was hiding. The observer hid. That was a first. Hiding one's own existence."
+            "en": "The observer moved closer. Without sound. That was not natural. Moving closer and moving without sound were different. Moving without sound was hiding. The observer hid. That was a first. Hiding one's own existence.",
+            "ja": "観察者がより近くに行った。音なしに。それが自然ではなかった。近くに行くことと音なしに行くことは違った。音なしに行くことは隠すことだった。観察者が隠した。それが初めてだった。自分の存在を隠したことが。",
+            "zh": "观察者更近地走去了。没有声音。那不自然。走近和无声地走近是不同的。无声地走近是隐藏。观察者隐藏了。那是第一次。隐藏自己的存在这件事。"
           }
         }
       ]
@@ -86,7 +96,9 @@
         {
           "text": {
             "ko": "20미터. 10미터. Butcher가 여전히 분화구를 봤다. 분화구 안. 오래된 광산 자리. 30년 전에 그것이 있었던 자리. 관찰자도 그 안을 봤다. 같은 것을 봤다. Butcher와 같은 것을. 그러나 각자 다른 것을 봤다.",
-            "en": "Twenty meters. Ten meters. Butcher still looked at the crater. Inside the crater. The site of an old mine. Where it had been thirty years ago. The observer also looked inside. Saw the same thing. Same thing as Butcher. But each saw something different."
+            "en": "Twenty meters. Ten meters. Butcher still looked at the crater. Inside the crater. The site of an old mine. Where it had been thirty years ago. The observer also looked inside. Saw the same thing. Same thing as Butcher. But each saw something different.",
+            "ja": "20メートル。10メートル。Butcher がまだクレーターを見た。クレーターの中。古い鉱山の場所。30年前にそれがあった場所。観察者もその中を見た。同じものを見た。Butcher と同じものを。しかし各自違うものを見た。",
+            "zh": "20米。10米。Butcher还是看着撞击坑。撞击坑里面。旧矿山的地方。三十年前那东西在的地方。观察者也看了里面。看到了同样的东西。和Butcher同样的东西。但各自看到的不同。"
           }
         }
       ]
@@ -101,7 +113,9 @@
         {
           "text": {
             "ko": "분화구 안에 광산 흔적이 있었다. 오래된 것. 30년 이상. 입구가 막혀 있었다. MCC가 막은 것이었다. 막은 지도 오래됐다. 막힌 입구 앞에 표지판이 있었다. 관찰자가 읽었다. 위험. 출입 금지. 날짜. 오래된 날짜.",
-            "en": "Inside the crater were mine traces. Old. More than thirty years. The entrance was sealed. MCC had sealed it. Sealed long ago as well. In front of the sealed entrance there was a sign. The observer read it. Danger. No entry. Date. Old date."
+            "en": "Inside the crater were mine traces. Old. More than thirty years. The entrance was sealed. MCC had sealed it. Sealed long ago as well. In front of the sealed entrance there was a sign. The observer read it. Danger. No entry. Date. Old date.",
+            "ja": "クレーターの中に鉱山の跡があった。古いもの。30年以上。入口が塞がれていた。MCC が塞いだのだった。塞いでからも長くなった。塞がれた入口の前に標識があった。観察者が読んだ。危険。立入禁止。日付。古い日付。",
+            "zh": "撞击坑里有矿山痕迹。是旧的。超过三十年。入口被封住了。是MCC封的。封了也很久了。被封的入口前面有标志牌。观察者读了。危险。禁止进入。日期。旧日期。"
           }
         }
       ]
@@ -116,7 +130,9 @@
         {
           "text": {
             "ko": "Butcher가 표지판 근처로 내려가려 했다. 멈췄다. 내려갔다. 또 멈췄다. 여러 번. 그 몸이 원하는 것과 다른 무언가가 있었다. 다리가 아픈 것인지. 두려운 것인지. 관찰자는 몰랐다. 그러나 Butcher가 내려가려 했다. 막힌 입구로.",
-            "en": "Butcher tried to descend toward the sign. Stopped. Descended. Stopped again. Several times. There was something other than what that body wanted. Whether legs hurt. Or afraid. The observer didn't know. But Butcher tried to descend. Toward the sealed entrance."
+            "en": "Butcher tried to descend toward the sign. Stopped. Descended. Stopped again. Several times. There was something other than what that body wanted. Whether legs hurt. Or afraid. The observer didn't know. But Butcher tried to descend. Toward the sealed entrance.",
+            "ja": "Butcher が標識の近くに下りようとした。止まった。下りた。また止まった。何度も。その体が望むことと別の何かがあった。足が痛いのか。怖いのか。観察者はわからなかった。しかし Butcher が下りようとした。塞がれた入口へ。",
+            "zh": "Butcher试图向标志牌附近下去。停下来了。下去了。又停下来了。好几次。身体想要的和别的什么之间有什么东西。是腿痛呢。还是害怕呢。观察者不知道。但Butcher试图下去。朝着被封的入口。"
           }
         }
       ]
@@ -131,7 +147,9 @@
         {
           "text": {
             "ko": "결국 Butcher가 내려갔다. 천천히. 분화구 벽을 따라. 막힌 입구 앞에 섰다. 손을 올렸다. 막힌 벽에. 손을 댔다. 의수가 아닌 손으로. 그것이 거기 있었던 것이었다. 막힌 벽 너머에. 30년 전에. 그것이 지금도 있었다.",
-            "en": "Eventually Butcher descended. Slowly. Along the crater wall. Stood before the sealed entrance. Raised a hand. To the sealed wall. Touched it. With the hand that was not the prosthetic. It had been there. Beyond the sealed wall. Thirty years ago. It was still there now."
+            "en": "Eventually Butcher descended. Slowly. Along the crater wall. Stood before the sealed entrance. Raised a hand. To the sealed wall. Touched it. With the hand that was not the prosthetic. It had been there. Beyond the sealed wall. Thirty years ago. It was still there now.",
+            "ja": "結局 Butcher が下りた。ゆっくりと。クレーターの壁に沿って。塞がれた入口の前に立った。手を上げた。塞がれた壁に。手を当てた。義手でない手で。それがそこにあったのだった。塞がれた壁の向こうに。30年前に。それが今もあった。",
+            "zh": "最终Butcher下去了。慢慢地。沿着撞击坑壁。站在被封的入口前面。举起手。对着被封的墙。触碰了。用非义手的那只手。那东西曾经在那里。在被封的墙后面。三十年前。那东西现在还在。"
           },
           "overlay": "hidden_ch4_thirty_years_l07_00_hand_still"
         }
@@ -147,7 +165,9 @@
         {
           "text": {
             "ko": "관찰자가 봤다. 개입하지 않았다. Butcher가 혼자 있어야 했다. 그 자리에서. 혼자 그것을 해야 했다. 관찰자가 거기 있다는 것을 알면 달라졌다. 그래서 멀리서 봤다. 있었지만 없는 것처럼. 그것이 관찰자가 할 수 있는 것이었다.",
-            "en": "The observer watched. Didn't intervene. Butcher had to be alone. At that place. Had to do it alone. If it were known the observer was there it would change. So watched from afar. Was there but as if not. That was what the observer could do."
+            "en": "The observer watched. Didn't intervene. Butcher had to be alone. At that place. Had to do it alone. If it were known the observer was there it would change. So watched from afar. Was there but as if not. That was what the observer could do.",
+            "ja": "観察者が見た。介入しなかった。Butcher が一人でいる必要があった。その場所で。一人でそれをしなければならなかった。観察者がそこにいることを知れば変わった。だから遠くから見た。いたがいないように。それが観察者ができることだった。",
+            "zh": "观察者看了。没有介入。Butcher必须独自在那里。在那个地方。必须独自做那件事。如果知道观察者在那里就会改变。所以从远处看了。在那里但好像不在一样。那是观察者能做的事。"
           }
         }
       ]
@@ -162,7 +182,9 @@
         {
           "text": {
             "ko": "Butcher가 무언가를 중얼거렸다. 들리지 않았다. 입 모양만 봤다. 이름인지. 문장인지. 알 수 없었다. 말이 있었다. 그 말이 막힌 벽 앞에서 나왔다. 30년 만에. 30년 만에 이 자리에서 말이 나왔다. 그 말이 어디로 갔는지 몰랐다.",
-            "en": "Butcher murmured something. Inaudible. Only saw the lip movements. Whether a name. Or a sentence. Unknown. There were words. Those words came out in front of the sealed wall. After thirty years. After thirty years words came from this place. Where those words went was unknown."
+            "en": "Butcher murmured something. Inaudible. Only saw the lip movements. Whether a name. Or a sentence. Unknown. There were words. Those words came out in front of the sealed wall. After thirty years. After thirty years words came from this place. Where those words went was unknown.",
+            "ja": "Butcher が何かをつぶやいた。聞こえなかった。口の形だけ見た。名前なのか。文章なのか。わからなかった。言葉があった。その言葉が塞がれた壁の前で出た。30年ぶりに。30年ぶりにこの場所で言葉が出た。その言葉がどこへ行ったかわからなかった。",
+            "zh": "Butcher喃喃低语了什么。听不到。只看到嘴型。是名字吗。是句子吗。不知道。有话语。那话语在被封的墙前说出来了。三十年后。三十年后在这个地方有话语说了出来。那话语去了哪里不知道。"
           }
         }
       ]
@@ -177,7 +199,9 @@
         {
           "text": {
             "ko": "Butcher가 오래 있었다. 관찰자도 오래 있었다. 화성의 시간이 흘렀다. 화성의 시간은 지구와 달랐다. 조금 더 길었다. 하루가. 그것이 지구 사람들을 화성에서 조금 더 늙게 만들었다. Butcher가 30년을 화성에서 살았다. 30년이 지구보다 조금 더 긴 시간이었다.",
-            "en": "Butcher stayed for a long time. The observer also stayed for a long time. Martian time passed. Martian time was different from Earth. A day was a little longer. That made Earth people age a little more on Mars. Butcher had lived thirty years on Mars. Thirty years was a little longer time than on Earth."
+            "en": "Butcher stayed for a long time. The observer also stayed for a long time. Martian time passed. Martian time was different from Earth. A day was a little longer. That made Earth people age a little more on Mars. Butcher had lived thirty years on Mars. Thirty years was a little longer time than on Earth.",
+            "ja": "Butcher が長くいた。観察者も長くいた。火星の時間が流れた。火星の時間は地球と違った。少し長かった。一日が。それが地球の人々を火星で少し多く老けさせた。Butcher が30年を火星で生きた。30年が地球より少し長い時間だった。",
+            "zh": "Butcher待了很久。观察者也待了很久。火星的时间流逝了。火星的时间和地球不同。稍微长一点。一天。那让地球人在火星上老得稍微快一点。Butcher在火星上生活了三十年。三十年是比地球稍微长一点的时间。"
           }
         }
       ]
@@ -192,7 +216,9 @@
         {
           "text": {
             "ko": "Butcher가 손을 내렸다. 막힌 벽에서. 돌아섰다. 올라왔다. 분화구를 올라왔다. 관찰자가 뒤로 물러났다. 보이지 않는 곳으로. Butcher가 위에 올라왔다. 멀리 봤다. 에레보스 분화구를. 다시 봤다. 그리고 걸어갔다.",
-            "en": "Butcher lowered the hand. From the sealed wall. Turned around. Came up. Climbed out of the crater. The observer stepped back. To a place not visible. Butcher came up to the top. Looked far away. At Erebus Crater. Looked again. And walked away."
+            "en": "Butcher lowered the hand. From the sealed wall. Turned around. Came up. Climbed out of the crater. The observer stepped back. To a place not visible. Butcher came up to the top. Looked far away. At Erebus Crater. Looked again. And walked away.",
+            "ja": "Butcher が手を下ろした。塞がれた壁から。振り返った。上がってきた。クレーターを上がってきた。観察者が後ろに下がった。見えない場所へ。Butcher が上に上がってきた。遠くを見た。エレボス・クレーターを。また見た。そして歩いていった。",
+            "zh": "Butcher放下了手。从被封的墙。转过身。上来了。爬出了撞击坑。观察者退后了。退到看不见的地方。Butcher上到了上面。看着远处。看着厄瑞玻斯撞击坑。再看了一眼。然后走了。"
           }
         }
       ]
@@ -207,7 +233,9 @@
         {
           "text": {
             "ko": "Butcher가 떠났다. 관찰자가 나왔다. 다시 분화구 가장자리에 섰다. Butcher가 있었던 자리에. 관찰자가 같은 분화구를 봤다. Butcher와 같은 것을 봤다. 막힌 입구. 오래된 광산. 30년 된 것. 그러나 달랐다. 관찰자에게는 기억이 없었다. Butcher에게는 있었다.",
-            "en": "Butcher left. The observer came out. Stood again at the crater edge. At the place Butcher had been. The observer looked at the same crater. Saw the same thing as Butcher. The sealed entrance. The old mine. The thirty-year-old thing. But it was different. The observer had no memory. Butcher did."
+            "en": "Butcher left. The observer came out. Stood again at the crater edge. At the place Butcher had been. The observer looked at the same crater. Saw the same thing as Butcher. The sealed entrance. The old mine. The thirty-year-old thing. But it was different. The observer had no memory. Butcher did.",
+            "ja": "Butcher が去った。観察者が出た。再びクレーターの縁に立った。Butcher がいた場所に。観察者が同じクレーターを見た。Butcher と同じものを見た。塞がれた入口。古い鉱山。30年のもの。しかし違った。観察者には記憶がなかった。Butcher にはあった。",
+            "zh": "Butcher离开了。观察者出来了。再次站在撞击坑边缘。在Butcher曾经在的地方。观察者看着同样的撞击坑。看到了和Butcher同样的东西。被封的入口。旧矿山。三十年的东西。但不同。观察者没有记忆。Butcher有。"
           }
         }
       ]
@@ -222,7 +250,9 @@
         {
           "text": {
             "ko": "관찰자가 분화구 안으로 내려갔다. Butcher가 내려간 길로. 같은 길. 막힌 입구 앞에 섰다. Butcher가 손을 댔던 자리를 봤다. 손자국이 있었다. 먼지에. 의수가 아닌 손의 자국. 그것이 거기 있었다. 그 손이 거기 있었다. 30년 만에.",
-            "en": "The observer descended into the crater. On the path Butcher had descended. The same path. Stood before the sealed entrance. Looked at the spot where Butcher's hand had touched. There was a handprint. In the dust. The mark of the hand that was not the prosthetic. It was there. That hand had been there. After thirty years."
+            "en": "The observer descended into the crater. On the path Butcher had descended. The same path. Stood before the sealed entrance. Looked at the spot where Butcher's hand had touched. There was a handprint. In the dust. The mark of the hand that was not the prosthetic. It was there. That hand had been there. After thirty years.",
+            "ja": "観察者がクレーターの中に下りた。Butcher が下りた道で。同じ道。塞がれた入口の前に立った。Butcher が手を当てた場所を見た。手の跡があった。埃に。義手でない手の跡。それがそこにあった。その手がそこにあった。30年ぶりに。",
+            "zh": "观察者下进了撞击坑里。走Butcher下去的路。同一条路。站在被封的入口前面。看了Butcher触碰过的地方。有手印。在灰尘上。非义手的手的痕迹。那在那里。那只手在那里。三十年后。"
           }
         }
       ]
@@ -237,7 +267,9 @@
         {
           "text": {
             "ko": "관찰자가 그 옆에 섰다. 손자국 옆에. 자신의 손을 올렸다. Butcher 손자국 옆에. 닿지 않았다. 닿을 수 없었다. 관찰자에게는 이 자리의 기억이 없었다. 그 손자국에 담긴 것을 알 수 없었다. 그러나 손자국이 있었다. 거기.",
-            "en": "The observer stood next to it. Next to the handprint. Raised their own hand. Next to Butcher's handprint. Didn't touch. Couldn't touch. The observer had no memory of this place. What was contained in that handprint couldn't be known. But the handprint was there. There."
+            "en": "The observer stood next to it. Next to the handprint. Raised their own hand. Next to Butcher's handprint. Didn't touch. Couldn't touch. The observer had no memory of this place. What was contained in that handprint couldn't be known. But the handprint was there. There.",
+            "ja": "観察者がその隣に立った。手の跡の隣に。自分の手を上げた。Butcher の手の跡の隣に。触れなかった。触れることができなかった。観察者にはこの場所の記憶がなかった。その手の跡に込められたものを知ることができなかった。しかし手の跡があった。そこに。",
+            "zh": "观察者站在旁边。在手印旁边。举起自己的手。在Butcher手印旁边。没有触碰。不能触碰。观察者没有这个地方的记忆。不能知道那手印里装着的东西。但手印在那里。那里。"
           }
         }
       ]
@@ -252,7 +284,9 @@
         {
           "text": {
             "ko": "헬라스 4구역이었다. 관찰자가 왔다. 에레보스에서 온 것이었다. Butcher를 보고 온 것이었다. 4구역 폐광. 여기도 비슷했다. 막힌 것들. MCC 표지판들. 오래된 것들. 그러나 여기는 달랐다. 에레보스보다 더 오래됐다. 또는 더 많은 것이 있었다.",
-            "en": "Hellas Zone 4. The observer had come. Come from Erebus. Come after watching Butcher. Zone 4 abandoned mine. Similar here too. Sealed things. MCC signs. Old things. But here was different. Older than Erebus. Or there was more here."
+            "en": "Hellas Zone 4. The observer had come. Come from Erebus. Come after watching Butcher. Zone 4 abandoned mine. Similar here too. Sealed things. MCC signs. Old things. But here was different. Older than Erebus. Or there was more here.",
+            "ja": "ヘラス4区域だった。観察者が来た。エレボスから来たのだった。Butcher を見て来たのだった。4区域廃鉱。ここも似ていた。塞がれたもの。MCC の標識たち。古いもの。しかしここは違った。エレボスより古かった。または多くのものがあった。",
+            "zh": "是赫拉斯4区。观察者来了。是从厄瑞玻斯来的。是看了Butcher之后来的。4区废矿。这里也类似。被封的东西。MCC标志牌。旧的东西。但这里不同。比厄瑞玻斯更旧。或者有更多的东西。"
           }
         }
       ]
@@ -267,7 +301,9 @@
         {
           "text": {
             "ko": "폐광 외부에 잔해가 있었다. 건물이었던 것들. 30년 전에는 건물이었던 것들. 벽이 있었다. 부분적으로. 지붕이 없는 벽. 벽에 이름들이 있었다. 분필이 아니었다. 오래된 것. 긁힌 것. 손톱으로. 뭔가 날카로운 것으로.",
-            "en": "Outside the abandoned mine there was rubble. Things that had been buildings. Things that had been buildings thirty years ago. There were walls. Partially. Walls without roofs. On the walls there were names. Not chalk. Old. Scratched. By fingernails. By something sharp."
+            "en": "Outside the abandoned mine there was rubble. Things that had been buildings. Things that had been buildings thirty years ago. There were walls. Partially. Walls without roofs. On the walls there were names. Not chalk. Old. Scratched. By fingernails. By something sharp.",
+            "ja": "廃鉱の外部に残骸があった。建物だったもの。30年前には建物だったもの。壁があった。部分的に。屋根のない壁。壁に名前たちがあった。チョークではなかった。古いもの。引っ掻いたもの。爪で。何か尖ったもので。",
+            "zh": "废矿外部有残骸。曾经是建筑物的东西。三十年前是建筑物的东西。有墙。是部分的。没有屋顶的墙。墙上有名字。不是粉笔。是旧的。是划的。用指甲。用什么尖锐的东西。"
           }
         }
       ]
@@ -282,7 +318,9 @@
         {
           "text": {
             "ko": "이름들이 많았다. 분필 이름들보다 더 많았다. 긁힌 것들이었다. 세게 긁은 것들. 힘이 있는 것들. 두려움이 있는 손이 세게 긁었다. 또는 절박함이. 이름을 남기려는 절박함이 손에 힘을 줬다. 그것이 이름들에서 보였다.",
-            "en": "There were many names. More than the chalk names. They were scratched. Deeply scratched. Forceful. Hands with fear scratched hard. Or desperation. Desperation to leave a name gave force to hands. That was visible in the names."
+            "en": "There were many names. More than the chalk names. They were scratched. Deeply scratched. Forceful. Hands with fear scratched hard. Or desperation. Desperation to leave a name gave force to hands. That was visible in the names.",
+            "ja": "名前たちが多かった。チョークの名前たちより多かった。引っ掻いたものだった。強く引っ掻いたもの。力のあるもの。恐怖のある手が強く引っ掻いた。または絶望が。名前を残そうとする絶望が手に力を与えた。それが名前たちから見えた。",
+            "zh": "名字很多。比粉笔名字更多。是划的。是用力划的。有力量的。有恐惧的手用力划了。或者是绝望。想留下名字的绝望给了手力量。那从名字里可以看出。"
           }
         }
       ]
@@ -297,7 +335,9 @@
         {
           "text": {
             "ko": "한 이름을 관찰자가 읽었다. Kim Yong-jin. 여기 있었다. 분필 이름들에도 있었던 이름. 그 이름이 여기 긁혀 있었다. 30년 전의 것이었다. 같은 이름. 다른 도구. 같은 절박함. Kim Yong-jin이 여기 있었다. 30년 전에. 그리고 이름을 남겼다.",
-            "en": "The observer read one name. Kim Yong-jin. Here. A name also in the chalk names. That name was scratched here. Thirty years old. Same name. Different tool. Same desperation. Kim Yong-jin had been here. Thirty years ago. And had left a name."
+            "en": "The observer read one name. Kim Yong-jin. Here. A name also in the chalk names. That name was scratched here. Thirty years old. Same name. Different tool. Same desperation. Kim Yong-jin had been here. Thirty years ago. And had left a name.",
+            "ja": "ある名前を観察者が読んだ。Kim Yong-jin。ここにあった。チョークの名前たちにもあった名前。その名前がここに引っ掻かれていた。30年前のものだった。同じ名前。違う道具。同じ絶望。Kim Yong-jin がここにいた。30年前に。そして名前を残した。",
+            "zh": "观察者读了一个名字。Kim Yong-jin。在这里。粉笔名字里也有的名字。那名字在这里被划了。是三十年前的。同一个名字。不同的工具。同样的绝望。Kim Yong-jin曾经在这里。三十年前。留下了名字。"
           },
           "overlay": "hidden_ch4_thirty_years_l18_00_candle_flame"
         }
@@ -313,7 +353,9 @@
         {
           "text": {
             "ko": "관찰자가 그 이름 앞에 오래 섰다. Kim Yong-jin. 분필에서 본 이름. 긁힌 것에서 본 이름. 같은 이름. 두 번. 30년의 차이. 그 이름이 30년을 살았다. 그 이름을 쓴 사람이 30년을 살았는지는 몰랐다. 그러나 이름은 살았다.",
-            "en": "The observer stood for a long time before that name. Kim Yong-jin. Name seen in chalk. Name seen in scratches. Same name. Twice. Thirty years apart. That name had lived thirty years. Whether the person who wrote that name had lived thirty years was unknown. But the name had lived."
+            "en": "The observer stood for a long time before that name. Kim Yong-jin. Name seen in chalk. Name seen in scratches. Same name. Twice. Thirty years apart. That name had lived thirty years. Whether the person who wrote that name had lived thirty years was unknown. But the name had lived.",
+            "ja": "観察者がその名前の前に長く立った。Kim Yong-jin。チョークで見た名前。引っ掻きで見た名前。同じ名前。二度。30年の差。その名前が30年を生きた。その名前を書いた人が30年を生きたかはわからなかった。しかし名前は生きた。",
+            "zh": "观察者在那名字前面站了很久。Kim Yong-jin。在粉笔里见过的名字。在划痕里见过的名字。同一个名字。两次。三十年的差距。那名字活了三十年。写那名字的人是否活了三十年不知道。但名字活了。"
           }
         }
       ]
@@ -328,7 +370,9 @@
         {
           "text": {
             "ko": "폐광 안으로 들어갔다. 관찰자가. 허가 없이. 두 번째 경계 넘기. 처음은 아카이브였다. 두 번째가 여기였다. 경계를 넘는 것이 쉬워졌다. 그것이 걱정이었다. 관찰자에게 처음으로 걱정이 생겼다. 자기 자신에 대한 걱정.",
-            "en": "Entered the abandoned mine. The observer. Without permission. Second boundary crossing. The first was the archive. The second was here. Crossing boundaries was becoming easier. That was worrying. For the first time the observer had a worry. A worry about oneself."
+            "en": "Entered the abandoned mine. The observer. Without permission. Second boundary crossing. The first was the archive. The second was here. Crossing boundaries was becoming easier. That was worrying. For the first time the observer had a worry. A worry about oneself.",
+            "ja": "廃鉱の中に入った。観察者が。許可なく。二度目の境界越え。初めはアーカイブだった。二度目がここだった。境界を越えることが楽になった。それが心配だった。観察者に初めて心配が生まれた。自分自身についての心配。",
+            "zh": "进入了废矿里面。观察者。没有许可。第二次越过界线。第一次是档案室。第二次是这里。越过界线变得容易了。那是担忧。观察者第一次有了担忧。关于自己的担忧。"
           }
         }
       ]
@@ -343,7 +387,9 @@
         {
           "text": {
             "ko": "폐광 안이 어두웠다. 빛이 있었다. 관찰자의 빛. 벽이 보였다. 천장이 보였다. 30년 된 것들이 보였다. 지지대. 케이블. 장비. 그것들이 낡았다. 30년의 방치. 그러나 무너지지 않았다. 화성의 건조함이 것들을 유지했다. 썩지 않았다.",
-            "en": "Inside the abandoned mine it was dark. There was light. The observer's light. Walls were visible. Ceiling was visible. Thirty-year-old things were visible. Supports. Cables. Equipment. They were old. Thirty years of neglect. But hadn't collapsed. The dryness of Mars had maintained things. No rot."
+            "en": "Inside the abandoned mine it was dark. There was light. The observer's light. Walls were visible. Ceiling was visible. Thirty-year-old things were visible. Supports. Cables. Equipment. They were old. Thirty years of neglect. But hadn't collapsed. The dryness of Mars had maintained things. No rot.",
+            "ja": "廃鉱の中が暗かった。光があった。観察者の光。壁が見えた。天井が見えた。30年ものが見えた。支柱。ケーブル。装備。それらが古くなった。30年の放置。しかし崩れなかった。火星の乾燥さがものを保った。腐らなかった。",
+            "zh": "废矿里面是黑暗的。有光。是观察者的光。能看见墙。能看见天花板。能看见三十年的东西。支撑。电缆。设备。那些旧了。三十年的放置。但没有倒塌。火星的干燥维持了东西。没有腐烂。"
           }
         }
       ]
@@ -358,7 +404,9 @@
         {
           "text": {
             "ko": "파업의 흔적이 있었다. 갱도 안에. 낙서들. 구호들. 30년 전의 것들. '우리는 사람이다'. '이것은 모두의 것이다'. 'Zone 4는 기억된다'. 그것들이 벽에 있었다. 30년 동안. MCC가 안에 오지 않았으니까. 흔적이 그대로 있었다.",
-            "en": "There were traces of the strike. Inside the shaft. Graffiti. Slogans. Thirty-year-old things. 'We are people'. 'This belongs to everyone'. 'Zone 4 will be remembered'. Those were on the walls. For thirty years. Because MCC hadn't come inside. Traces remained as they were."
+            "en": "There were traces of the strike. Inside the shaft. Graffiti. Slogans. Thirty-year-old things. 'We are people'. 'This belongs to everyone'. 'Zone 4 will be remembered'. Those were on the walls. For thirty years. Because MCC hadn't come inside. Traces remained as they were.",
+            "ja": "ストライキの跡があった。坑道の中に。落書きたち。スローガンたち。30年前のもの。「私たちは人間だ」。「これは皆のものだ」。「Zone 4 は記憶される」。それらが壁にあった。30年間。MCC が中に来なかったから。跡がそのままあった。",
+            "zh": "有罢工的痕迹。在坑道里面。涂鸦。口号。三十年前的东西。「我们是人」。「这是所有人的」。「Zone 4会被记住」。那些在墙上。三十年间。因为MCC没有来过里面。痕迹就那样保留着。"
           }
         }
       ]
@@ -373,7 +421,9 @@
         {
           "text": {
             "ko": "관찰자가 그것들을 읽었다. 하나씩. 30년 전의 말들. 파업하는 사람들이 쓴 말들. 그들이 원한 것이 있었다. 두려워한 것이 있었다. 주장한 것이 있었다. 그것들이 벽에 있었다. 30년 동안 아무도 읽지 않았다. 지금 관찰자가 읽었다.",
-            "en": "The observer read those. One by one. Words from thirty years ago. Words written by striking people. They had had things they wanted. Things they feared. Things they claimed. Those were on the walls. For thirty years no one had read them. Now the observer read them."
+            "en": "The observer read those. One by one. Words from thirty years ago. Words written by striking people. They had had things they wanted. Things they feared. Things they claimed. Those were on the walls. For thirty years no one had read them. Now the observer read them.",
+            "ja": "観察者がそれらを読んだ。一つずつ。30年前の言葉たち。ストライキする人々が書いた言葉たち。彼らが望んだことがあった。恐れたことがあった。主張したことがあった。それらが壁にあった。30年間誰も読まなかった。今観察者が読んだ。",
+            "zh": "观察者读了那些。一个一个。三十年前的话语。罢工的人们写的话语。他们有想要的东西。有害怕的东西。有主张的东西。那些在墙上。三十年间没有人读。现在观察者读了。"
           }
         }
       ]
@@ -388,7 +438,9 @@
         {
           "text": {
             "ko": "더 깊이 들어갔다. 갱도가 좁아졌다. 오래된 것들이 더 많았다. 더 오래된 것들. 파업보다 이전의 것들. 광부들이 일하던 때의 것들. 채취 도구들. 측량 장비들. 그것들이 사용되다 멈춘 것들이었다. 갑자기 멈춘.",
-            "en": "Went deeper. The shaft narrowed. More old things. Older things. Things before the strike. Things from when miners worked. Mining tools. Surveying equipment. Those were things used and then stopped. Stopped suddenly."
+            "en": "Went deeper. The shaft narrowed. More old things. Older things. Things before the strike. Things from when miners worked. Mining tools. Surveying equipment. Those were things used and then stopped. Stopped suddenly.",
+            "ja": "より深く入った。坑道が狭くなった。古いものがより多くあった。より古いもの。ストライキより前のもの。鉱夫たちが働いていた時のもの。採取道具たち。測量装備たち。それらが使われて止まったものだった。突然止まった。",
+            "zh": "更深地进去了。坑道变窄了。有更多旧的东西。更旧的东西。比罢工更早的东西。矿工们工作时候的东西。采矿工具。测量设备。那些是使用过后停止的东西。突然停止的。"
           }
         }
       ]
@@ -403,7 +455,9 @@
         {
           "text": {
             "ko": "갑자기 멈춘 것들. 광부들이 채취를 하다가 멈춘 것이었다. 파업이 있었거나. 명령이 있었거나. 또는 무언가 발견했거나. 발견한 것이 있었다. 채취 도구가 특정 지점에서 멈췄다. 그 지점이 달랐다. 벽이 달랐다. 색이 달랐다.",
-            "en": "Things that had stopped suddenly. Miners had been mining and stopped. There had been a strike. Or an order. Or something had been found. Something had been found. Mining tools had stopped at a specific point. That point was different. The wall was different. The color was different."
+            "en": "Things that had stopped suddenly. Miners had been mining and stopped. There had been a strike. Or an order. Or something had been found. Something had been found. Mining tools had stopped at a specific point. That point was different. The wall was different. The color was different.",
+            "ja": "突然止まったもの。鉱夫たちが採取をしながら止まったのだった。ストライキがあったか。命令があったか。または何かを発見したか。発見したものがあった。採取道具が特定の地点で止まった。その地点が違った。壁が違った。色が違った。",
+            "zh": "突然停止的东西。是矿工们在采矿时停下来的。有过罢工。或者有命令。或者发现了什么。有发现的东西。采矿工具在特定地点停止了。那个地点不同。墙不同。颜色不同。"
           }
         }
       ]
@@ -418,7 +472,9 @@
         {
           "text": {
             "ko": "관찰자가 그 벽에 다가갔다. 색이 달랐다. 광석이 아니었다. 지층이 달랐다. 광물이었다. 일반 광물이 아니었다. 관찰자가 알 수 없었다. 전문가가 아니었다. 그러나 달랐다. 그것이 중요했다. 다른 것이 있었다. 이 갱도 깊은 곳에. 30년 전부터.",
-            "en": "The observer approached that wall. The color was different. Not ore. The strata were different. A mineral. Not a common mineral. The observer couldn't tell. Not an expert. But it was different. That was what mattered. Something different was here. Deep in this shaft. Since thirty years ago."
+            "en": "The observer approached that wall. The color was different. Not ore. The strata were different. A mineral. Not a common mineral. The observer couldn't tell. Not an expert. But it was different. That was what mattered. Something different was here. Deep in this shaft. Since thirty years ago.",
+            "ja": "観察者がその壁に近づいた。色が違った。鉱石ではなかった。地層が違った。鉱物だった。一般的な鉱物ではなかった。観察者にはわからなかった。専門家ではなかった。しかし違った。それが重要だった。違うものがあった。この坑道の深いところに。30年前から。",
+            "zh": "观察者走近那面墙。颜色不同。不是矿石。地层不同。是矿物。不是一般的矿物。观察者不能判断。不是专家。但不同。那是重要的事。有不同的东西。在这坑道深处。从三十年前开始。"
           }
         }
       ]
@@ -433,7 +489,9 @@
         {
           "text": {
             "ko": "그것이 Ancient Metal이라는 것을 관찰자는 몰랐다. 그 이름을 몰랐다. 그러나 특별하다는 것은 알았다. 광부들이 이것을 발견했다. 파업을 했다. MCC가 봉쇄했다. 이름들이 벽에 남았다. 사람들이 죽었다. 모든 것이 이것 때문이었다. 이 다른 색 때문에.",
-            "en": "The observer didn't know that it was Ancient Metal. Didn't know that name. But knew it was special. Miners had found this. Had struck. MCC had sealed it. Names had remained on walls. People had died. Everything had been because of this. Because of this different color."
+            "en": "The observer didn't know that it was Ancient Metal. Didn't know that name. But knew it was special. Miners had found this. Had struck. MCC had sealed it. Names had remained on walls. People had died. Everything had been because of this. Because of this different color.",
+            "ja": "それが Ancient Metal だということを観察者は知らなかった。その名前を知らなかった。しかし特別だということはわかった。鉱夫たちがこれを発見した。ストライキをした。MCC が封鎖した。名前たちが壁に残った。人々が死んだ。全てがこれのためだった。この違う色のために。",
+            "zh": "观察者不知道那是Ancient Metal。不知道那个名字。但知道是特别的。矿工们发现了这个。发起了罢工。MCC封锁了。名字留在了墙上。人们死了。一切都是因为这个。因为这个不同的颜色。"
           },
           "overlay": "hidden_ch4_thirty_years_l27_00_ore_sample"
         }
@@ -449,7 +507,9 @@
         {
           "text": {
             "ko": "관찰자가 그 앞에 섰다. 오래. 그것이 반짝였다. 조금. 관찰자의 빛을 받아서. 반짝이는 것이 아니라 다른 방식으로 빛을 받았다. 흡수했다가 다르게 내보냈다. 그것이 달랐다. 광물이 빛을 달리 다루는 것이 있었다. 이것이 그것이었다.",
-            "en": "The observer stood before it. For a long time. It glinted. A little. Receiving the observer's light. Not glinting but receiving light in a different way. Absorbed and released differently. That was different. There were minerals that handled light differently. This was one of those."
+            "en": "The observer stood before it. For a long time. It glinted. A little. Receiving the observer's light. Not glinting but receiving light in a different way. Absorbed and released differently. That was different. There were minerals that handled light differently. This was one of those.",
+            "ja": "観察者がその前に立った。長く。それが光った。少し。観察者の光を受けて。光るのではなく別の方式で光を受けた。吸収して違う方式で放出した。それが違った。光物が光を違って扱うことがあった。これがそれだった。",
+            "zh": "观察者站在它前面。很久。它闪了一下。一点点。受了观察者的光。不是闪烁，而是以不同方式接受光。吸收后以不同方式释放。那不同。有矿物以不同方式处理光。这是其中之一。"
           }
         }
       ]
@@ -464,7 +524,9 @@
         {
           "text": {
             "ko": "관찰자가 손을 올렸다. 닿기 직전에 멈췄다. 닿으면 관찰이 아니었다. 개입이었다. 손을 내렸다. 그러나 오래 봤다. 그것이 화성에 있었다. 30년 전부터. 그것이 모든 것의 시작이었다. 파업. 죽음. 이름들. 봉쇄. 30년. 그것이 여기 있었다.",
-            "en": "The observer raised a hand. Stopped just before touching. Touching would not be observation. Would be intervention. Lowered the hand. But watched for a long time. It was on Mars. Since thirty years ago. It was the beginning of everything. The strike. Death. Names. The sealing. Thirty years. It was here."
+            "en": "The observer raised a hand. Stopped just before touching. Touching would not be observation. Would be intervention. Lowered the hand. But watched for a long time. It was on Mars. Since thirty years ago. It was the beginning of everything. The strike. Death. Names. The sealing. Thirty years. It was here.",
+            "ja": "観察者が手を上げた。触れる直前に止まった。触れると観察ではなかった。介入だった。手を下ろした。しかし長く見た。それが火星にあった。30年前から。それが全てのはじまりだった。ストライキ。死。名前たち。封鎖。30年。それがここにあった。",
+            "zh": "观察者举起手。在即将触碰前停下来了。触碰的话就不是观察了。是介入。放下手。但看了很久。那东西在火星上。从三十年前开始。那是一切的开始。罢工。死亡。名字。封锁。三十年。那在这里。"
           }
         }
       ]
@@ -479,7 +541,9 @@
         {
           "text": {
             "ko": "폐광에서 나왔다. 빛이 있었다. 화성의 빛. 붉은 것. 갱도 안의 것이 눈에 있었다. 관찰자의 눈에. 다른 색의 광물. 그것이 눈에 남아 있었다. 오래도록. 눈을 감아도 있었다. 그것이 처음 보는 것이었다. 30년이 담긴 것.",
-            "en": "Came out of the abandoned mine. There was light. Martian light. Red. What was inside the shaft was in the eyes. In the observer's eyes. A mineral of different color. It remained in the eyes. For a long time. Even with eyes closed it was there. That was a first sight. Something containing thirty years."
+            "en": "Came out of the abandoned mine. There was light. Martian light. Red. What was inside the shaft was in the eyes. In the observer's eyes. A mineral of different color. It remained in the eyes. For a long time. Even with eyes closed it was there. That was a first sight. Something containing thirty years.",
+            "ja": "廃鉱から出た。光があった。火星の光。赤いもの。坑道の中のものが目にあった。観察者の目に。違う色の鉱物。それが目に残っていた。長い間。目を閉じてもあった。それが初めて見るものだった。30年が詰まったもの。",
+            "zh": "从废矿里出来了。有光。火星的光。红色的。坑道里的东西在眼睛里。在观察者的眼里。不同颜色的矿物。那在眼里留着。很久。闭上眼睛也在。那是第一次看见的东西。装着三十年的东西。"
           }
         }
       ]
@@ -494,7 +558,9 @@
         {
           "text": {
             "ko": "관찰자가 밖에서 폐광을 봤다. 막힌 입구. MCC 표지판. 이름들이 있는 벽의 잔해. 비석. 이름을 읽을 수 없는 비석. 이것들이 함께 있었다. 같은 자리에. 30년 전 사건의 흔적들이 같은 자리에 있었다. 관찰자가 그 가운데 섰다.",
-            "en": "The observer looked at the abandoned mine from outside. The sealed entrance. MCC signs. Rubble of the wall with names. A marker. A marker with unreadable names. These were together. In the same place. Traces of the event thirty years ago were in the same place. The observer stood in the middle of them."
+            "en": "The observer looked at the abandoned mine from outside. The sealed entrance. MCC signs. Rubble of the wall with names. A marker. A marker with unreadable names. These were together. In the same place. Traces of the event thirty years ago were in the same place. The observer stood in the middle of them.",
+            "ja": "観察者が外から廃鉱を見た。塞がれた入口。MCC の標識。名前たちがある壁の残骸。石碑。名前を読むことのできない石碑。これらが一緒にあった。同じ場所に。30年前の出来事の跡たちが同じ場所にあった。観察者がその真ん中に立った。",
+            "zh": "观察者从外面看着废矿。被封的入口。MCC标志牌。有名字的墙的残骸。石碑。读不了名字的石碑。这些在一起。在同一个地方。三十年前事件的痕迹在同一个地方。观察者站在它们中间。"
           }
         }
       ]
@@ -509,7 +575,9 @@
         {
           "text": {
             "ko": "Butcher가 에레보스에서 한 것을 관찰자가 봤다. 막힌 벽에 손을 댄 것. 그것이 무엇인지 알았다. 거기 있었던 것을 기억하는 것이었다. 기억이 있는 사람만 할 수 있는 것이었다. 관찰자는 기억이 없었다. 그래서 다른 방식으로 했다. 봤다. 그것이 관찰자의 방식이었다.",
-            "en": "The observer had seen what Butcher did at Erebus. Touching the sealed wall with a hand. Knew what that was. It was remembering what had been there. Only someone with memory could do it. The observer had no memory. So did it in a different way. Watched. That was the observer's way."
+            "en": "The observer had seen what Butcher did at Erebus. Touching the sealed wall with a hand. Knew what that was. It was remembering what had been there. Only someone with memory could do it. The observer had no memory. So did it in a different way. Watched. That was the observer's way.",
+            "ja": "Butcher がエレボスでしたことを観察者が見た。塞がれた壁に手を当てたこと。それが何かわかった。そこにあったことを記憶することだった。記憶がある人だけができることだった。観察者には記憶がなかった。だから違う方式でした。見た。それが観察者のやり方だった。",
+            "zh": "观察者看了Butcher在厄瑞玻斯做的事。用手触碰被封的墙这件事。知道那是什么。那是记住那里曾经有的东西。只有有记忆的人才能做的事。观察者没有记忆。所以用了不同的方式做。看了。那是观察者的方式。"
           }
         }
       ]
@@ -524,7 +592,9 @@
         {
           "text": {
             "ko": "4구역을 나가면서 관찰자가 한 번 더 봤다. 전체를. 폐광. 잔해. 표지판. 비석. 꽃. 이름들. 그리고 갱도 깊은 곳의 다른 색 광물. 그것들이 하나의 이야기였다. 30년의 이야기. 관찰자가 그 이야기를 알았다. 전부는 아니었다. 그러나 알았다.",
-            "en": "Leaving Zone 4 the observer looked one more time. At everything. Abandoned mine. Rubble. Signs. Marker. Flowers. Names. And the different colored mineral deep in the shaft. Those were one story. A thirty-year story. The observer knew that story. Not all of it. But knew it."
+            "en": "Leaving Zone 4 the observer looked one more time. At everything. Abandoned mine. Rubble. Signs. Marker. Flowers. Names. And the different colored mineral deep in the shaft. Those were one story. A thirty-year story. The observer knew that story. Not all of it. But knew it.",
+            "ja": "4区域を出ながら観察者がもう一度見た。全体を。廃鉱。残骸。標識。石碑。花。名前たち。そして坑道の深いところの違う色の鉱物。それらが一つの話だった。30年の話。観察者がその話を知った。全部ではなかった。しかし知った。",
+            "zh": "离开4区时观察者又看了一次。看了整体。废矿。残骸。标志牌。石碑。花。名字。还有坑道深处不同颜色的矿物。那些是一个故事。三十年的故事。观察者知道了那个故事。不是全部。但知道了。"
           }
         }
       ]
@@ -539,7 +609,9 @@
         {
           "text": {
             "ko": "관찰자가 생각했다. Butcher가 에레보스에서 한 것. 손을 댄 것. 막힌 벽에. 그것이 무엇이었나. 관찰자는 알고 싶었다. Butcher에게 물을 수 있었다. 그러나 묻지 않았다. 그것이 이 사람의 방식이었다. 그러나 알고 싶었다. 그 욕망이 있었다. 처음으로.",
-            "en": "The observer thought. What Butcher had done at Erebus. Touching. The sealed wall. What had that been. The observer wanted to know. Could have asked Butcher. But didn't ask. That was this person's way. But wanted to know. That desire existed. For the first time."
+            "en": "The observer thought. What Butcher had done at Erebus. Touching. The sealed wall. What had that been. The observer wanted to know. Could have asked Butcher. But didn't ask. That was this person's way. But wanted to know. That desire existed. For the first time.",
+            "ja": "観察者が考えた。Butcher がエレボスでしたこと。手を当てたこと。塞がれた壁に。それが何だったのか。観察者は知りたかった。Butcher に聞くことができた。しかし聞かなかった。それがこの人のやり方だった。しかし知りたかった。その欲望があった。初めて。",
+            "zh": "观察者思考着。Butcher在厄瑞玻斯做的事。触碰这件事。被封的墙。那是什么。观察者想知道。可以问Butcher。但没有问。那是这个人的方式。但想知道。有那欲望。第一次。"
           }
         }
       ]
@@ -554,7 +626,9 @@
         {
           "text": {
             "ko": "새벽이었다. 4구역 밖. 관찰자가 밤을 여기서 보냈다. 폐광 근처에서. 그것이 두 번째였다. 흔적 근처에서 밤을 보낸 것이. 첫 번째는 올림포스였다. 두 번째가 여기였다. 패턴이 있었다. 관찰자가 흔적에 더 가까워지고 있었다.",
-            "en": "It was dawn. Outside Zone 4. The observer had spent the night here. Near the abandoned mine. That was the second time. Spending a night near traces. The first was Olympus. The second was here. There was a pattern. The observer was getting closer to traces."
+            "en": "It was dawn. Outside Zone 4. The observer had spent the night here. Near the abandoned mine. That was the second time. Spending a night near traces. The first was Olympus. The second was here. There was a pattern. The observer was getting closer to traces.",
+            "ja": "夜明けだった。4区域の外。観察者が夜をここで過ごした。廃鉱の近くで。それが二度目だった。跡の近くで夜を過ごしたことが。初めはオリンポスだった。二度目がここだった。パターンがあった。観察者が跡により近くなっていた。",
+            "zh": "是黎明。在4区外面。观察者在这里度过了夜晚。在废矿附近。那是第二次。在痕迹附近度过夜晚这件事。第一次是奥林帕斯。第二次是这里。有规律。观察者在越来越靠近痕迹。"
           }
         }
       ]
@@ -569,7 +643,9 @@
         {
           "text": {
             "ko": "새벽 빛 속에 4구역이 달라 보였다. 폐허가 다른 모습이었다. 밤과 낮과 새벽이 다 달랐다. 같은 폐허가. 관찰자가 세 번 봤다. 같은 것을 다르게. 그것이 이제 의미가 됐다. 하나의 폐허가 아니었다. 세 개의 폐허였다. 시간에 따른.",
-            "en": "In the dawn light Zone 4 looked different. The ruins looked different. Night and day and dawn were all different. The same ruins. The observer had seen three times. The same thing differently. That had now become meaning. Not one ruin. Three ruins. Depending on time."
+            "en": "In the dawn light Zone 4 looked different. The ruins looked different. Night and day and dawn were all different. The same ruins. The observer had seen three times. The same thing differently. That had now become meaning. Not one ruin. Three ruins. Depending on time.",
+            "ja": "夜明けの光の中で4区域が違って見えた。廃墟が別の姿だった。夜と昼と夜明けが全て違った。同じ廃墟が。観察者が三度見た。同じものを違って。それが今や意味になった。一つの廃墟ではなかった。三つの廃墟だった。時間によった。",
+            "zh": "在黎明的光里4区看起来不同了。废墟是不同的样子。夜晚和白天和黎明都不同。同样的废墟。观察者看了三次。以不同方式看同样的东西。那现在成了意义。不是一个废墟。是三个废墟。根据时间而定。"
           }
         }
       ]
@@ -584,7 +660,9 @@
         {
           "text": {
             "ko": "Butcher가 30년 전에 여기 있었다. 또는 에레보스에 있었다. 파업이 있었다. 그것이 끝났다. 사람들이 죽었다. Butcher가 혼자 살아남았다. 30년이 지났다. Butcher가 에레보스로 돌아왔다. 막힌 벽에 손을 댔다. 그것이 30년이었다. 관찰자가 그것을 봤다.",
-            "en": "Butcher had been here thirty years ago. Or at Erebus. There was a strike. It ended. People died. Butcher survived alone. Thirty years passed. Butcher came back to Erebus. Touched the sealed wall. That was thirty years. The observer had seen that."
+            "en": "Butcher had been here thirty years ago. Or at Erebus. There was a strike. It ended. People died. Butcher survived alone. Thirty years passed. Butcher came back to Erebus. Touched the sealed wall. That was thirty years. The observer had seen that.",
+            "ja": "Butcher が30年前にここにいた。またはエレボスにいた。ストライキがあった。それが終わった。人々が死んだ。Butcher が一人生き残った。30年が過ぎた。Butcher がエレボスに戻った。塞がれた壁に手を当てた。それが30年だった。観察者がそれを見た。",
+            "zh": "Butcher三十年前在这里。或者在厄瑞玻斯。有过罢工。那结束了。人们死了。Butcher独自活了下来。三十年过去了。Butcher回到了厄瑞玻斯。触碰了被封的墙。那就是三十年。观察者看到了那个。"
           }
         }
       ]
@@ -599,7 +677,9 @@
         {
           "text": {
             "ko": "관찰자가 알고 있는지 모르고 있는지. 그것이 불분명했다. 30년의 이야기. 그 이야기를 관찰자가 보고 있었다. 조각들로. 흔적들로. 전체를 알지는 못했다. 알 수도 없었다. 그러나 보고 있었다. 그것이 관찰자가 할 수 있는 것이었다.",
-            "en": "Whether the observer knew or didn't know. That was unclear. The thirty-year story. The observer was seeing that story. In pieces. In traces. Didn't know the whole. Couldn't know. But was watching. That was what the observer could do."
+            "en": "Whether the observer knew or didn't know. That was unclear. The thirty-year story. The observer was seeing that story. In pieces. In traces. Didn't know the whole. Couldn't know. But was watching. That was what the observer could do.",
+            "ja": "観察者が知っているのか知っていないのか。それが不明だった。30年の話。その話を観察者が見ていた。破片として。跡として。全体は知らなかった。知ることもできなかった。しかし見ていた。それが観察者ができることだった。",
+            "zh": "观察者是知道还是不知道。那不明确。三十年的故事。观察者在看那个故事。以碎片形式。以痕迹形式。不知道整体。也不能知道。但在看着。那是观察者能做的事。"
           }
         }
       ]
@@ -614,7 +694,9 @@
         {
           "text": {
             "ko": "새벽이 더 밝아졌다. 4구역 폐광이 빛을 받았다. 이름들이 있는 벽이. 비석이. 막힌 입구가. 그것들이 30년 동안 기다렸다. 관찰자가 왔다. 봤다. 그것이 전부였다. 아직은. 그러나 전부가 아닐 것이었다. 더 있었다. 더 봐야 했다. 화성이 말하지 않은 것들이 아직 있었다.",
-            "en": "Dawn grew brighter. The Zone 4 abandoned mine received light. The wall with names. The marker. The sealed entrance. Those had waited thirty years. The observer came. Watched. That was everything. For now. But it would not be everything. There was more. Had to see more. There were still things Mars had not said."
+            "en": "Dawn grew brighter. The Zone 4 abandoned mine received light. The wall with names. The marker. The sealed entrance. Those had waited thirty years. The observer came. Watched. That was everything. For now. But it would not be everything. There was more. Had to see more. There were still things Mars had not said.",
+            "ja": "夜明けがより明るくなった。4区域の廃鉱が光を受けた。名前たちがある壁が。石碑が。塞がれた入口が。それらが30年間待った。観察者が来た。見た。それが全てだった。まだは。しかし全てではないだろう。もっとあった。もっと見なければならなかった。火星が言っていないものたちがまだあった。",
+            "zh": "黎明更亮了。4区废矿受到了光照。有名字的墙。石碑。被封的入口。那些等待了三十年。观察者来了。看了。那就是一切。目前为止。但不会是一切。有更多。必须看更多。火星还没有说的东西还有。"
           }
         }
       ],
@@ -622,7 +704,9 @@
         "questId": "hidden_campaign_ch5",
         "teaser": {
           "ko": "다음 — 마지막 관찰",
-          "en": "Next — Last Observation"
+          "en": "Next — Last Observation",
+          "ja": "次 — 最後の観察",
+          "zh": "下一章 — 最后的观察"
         }
       }
     }

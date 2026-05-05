@@ -4,7 +4,9 @@
   "chapterNumber": 3,
   "title": {
     "ko": "네 번째 깃발",
-    "en": "The Fourth Flag"
+    "en": "The Fourth Flag",
+    "ja": "四番目の旗",
+    "zh": "第四面旗"
   },
   "location": {
     "id": "olympus_exterior_vast",
@@ -27,7 +29,9 @@
         {
           "text": {
             "ko": "올림포스 산자락이었다. 관찰자가 왔다. Three Flags 회담이 있었던 후였다. 얼마나 후인지는 몰랐다. 그것이 중요하지 않았다. 중요한 것은 회담이 있었다는 것이었다. 그리고 지금 관찰자가 그 자리에 있다는 것이었다.",
-            "en": "The foothills of Olympus Mons. The observer had come. After the Three Flags conference. How long after was unknown. That didn't matter. What mattered was that a conference had been. And that the observer was now at that place."
+            "en": "The foothills of Olympus Mons. The observer had come. After the Three Flags conference. How long after was unknown. That didn't matter. What mattered was that a conference had been. And that the observer was now at that place.",
+            "ja": "オリンポス山の山麓だった。観察者が来た。Three Flags 会談の後だった。どれくらい後かはわからなかった。それが重要ではなかった。重要なのは会談があったということだった。そして今観察者がその場所にいるということだった。",
+            "zh": "是奥林帕斯山麓。观察者来了。是三旗会谈之后。多久之后不知道。那不重要。重要的是会谈曾经存在。还有现在观察者在那个地方这件事。"
           }
         }
       ]
@@ -42,7 +46,9 @@
         {
           "text": {
             "ko": "올림포스는 컸다. 화성에서 가장 큰 것. 태양계에서 가장 큰 화산. 관찰자가 올려봤다. 정상이 보이지 않았다. 구름이 있었다. 또는 거리가 있었다. 그 아래 산자락에 회담 자리의 흔적이 있었다.",
-            "en": "Olympus was vast. The largest thing on Mars. The largest volcano in the solar system. The observer looked up. The summit wasn't visible. There were clouds. Or there was distance. Below on the foothills were traces of the conference site."
+            "en": "Olympus was vast. The largest thing on Mars. The largest volcano in the solar system. The observer looked up. The summit wasn't visible. There were clouds. Or there was distance. Below on the foothills were traces of the conference site.",
+            "ja": "オリンポスは大きかった。火星で最も大きいもの。太陽系で最も大きい火山。観察者が見上げた。頂上が見えなかった。雲があった。または距離があった。その下の山麓に会談の場所の跡があった。",
+            "zh": "奥林帕斯很大。火星上最大的东西。太阳系中最大的火山。观察者抬头看了。看不到山顶。有云。或者有距离。那下面山麓上有会谈场所的痕迹。"
           }
         }
       ]
@@ -57,7 +63,9 @@
         {
           "text": {
             "ko": "회담 자리가 있었다. 임시 구조물의 흔적. 기둥이 있었던 자리. 천막이 있었던 자리. 바닥에 무언가 놓였던 자국들. 사람들이 서 있었던 자국들. 세 그룹이 왔다는 것을 알 수 있었다. 각 그룹이 서로 다른 방향에서 왔다. 발자국이 그것을 말했다.",
-            "en": "There was a conference site. Traces of temporary structures. Where pillars had been. Where tents had been. Marks on the ground of things placed. Marks of people who had stood. It could be known that three groups had come. Each group had come from different directions. Footprints said that."
+            "en": "There was a conference site. Traces of temporary structures. Where pillars had been. Where tents had been. Marks on the ground of things placed. Marks of people who had stood. It could be known that three groups had come. Each group had come from different directions. Footprints said that.",
+            "ja": "会談の場所があった。仮設構造物の跡。柱があった場所。テントがあった場所。地面に何かが置かれた跡。人々が立っていた跡。三つのグループが来たことがわかった。各グループが互いに違う方向から来た。足跡がそれを言った。",
+            "zh": "有会谈场所。是临时构造物的痕迹。柱子曾经在的地方。帐篷曾经在的地方。地面上放过东西的痕迹。人们站过的痕迹。可以知道三个团体来过。各个团体从不同方向来的。脚印说了这件事。"
           }
         }
       ]
@@ -72,7 +80,9 @@
         {
           "text": {
             "ko": "깃발이 있었던 자리. 세 개. 구멍들. 샌드스톤에서 본 것과 같은 종류의 구멍들. 그러나 더 컸다. 여기 더 큰 깃발이 있었다. 더 큰 의미가 있었다. 세 개의 구멍이 삼각형을 이뤘다. 삼각형의 중심이 비어 있었다.",
-            "en": "Where flags had been. Three. Holes. The same kind of holes as seen at Sandstone. But larger. Larger flags had been here. More significant. Three holes formed a triangle. The center of the triangle was empty."
+            "en": "Where flags had been. Three. Holes. The same kind of holes as seen at Sandstone. But larger. Larger flags had been here. More significant. Three holes formed a triangle. The center of the triangle was empty.",
+            "ja": "旗があった場所。三つ。穴たち。サンドストーンで見たものと同じ種類の穴たち。しかしより大きかった。ここにより大きな旗があった。より大きな意味があった。三つの穴が三角形を成した。三角形の中心が空だった。",
+            "zh": "旗帜曾经在的地方。三个。洞。和在砂岩看到的同一类型的洞。但更大。这里有更大的旗帜。有更大的意义。三个洞形成了三角形。三角形的中心是空的。"
           },
           "overlay": "hidden_ch3_fourth_flag_l03_00_three_flags"
         }
@@ -88,7 +98,9 @@
         {
           "text": {
             "ko": "삼각형의 중심. 관찰자가 거기 섰다. 세 구멍이 주위에 있었다. MCC. FSP. CV. 세 방향. 관찰자가 가운데 있었다. 네 번째 자리. 깃발이 없는 자리. 그러나 누군가 거기 설 수 있었다. 관찰자가 지금 거기 서 있었다. 아무 깃발도 없이.",
-            "en": "The center of the triangle. The observer stood there. Three holes were around. MCC. FSP. CV. Three directions. The observer was in the middle. The fourth position. The place without a flag. But someone could stand there. The observer was standing there now. Without any flag."
+            "en": "The center of the triangle. The observer stood there. Three holes were around. MCC. FSP. CV. Three directions. The observer was in the middle. The fourth position. The place without a flag. But someone could stand there. The observer was standing there now. Without any flag.",
+            "ja": "三角形の中心。観察者がそこに立った。三つの穴が周りにあった。MCC。FSP。CV。三方向。観察者が真ん中にいた。四番目の場所。旗のない場所。しかし誰かがそこに立てた。観察者が今そこに立っていた。どの旗もなく。",
+            "zh": "三角形的中心。观察者站在那里。三个洞在周围。MCC。FSP。CV。三个方向。观察者在中间。第四个位置。没有旗帜的地方。但有人可以站在那里。观察者现在站在那里。没有任何旗帜。"
           }
         }
       ]
@@ -103,7 +115,9 @@
         {
           "text": {
             "ko": "그 자리에 무언가 있었다. 관찰자가 발 아래를 봤다. 핏빛이었다. 핏자국. 오래된 것이었다. 화성의 붉은 표면이 피를 숨겼다. 그러나 색이 달랐다. 조금 더 짙었다. 피가 있었다. 누군가 여기서 죽었다.",
-            "en": "There was something there. The observer looked down at their feet. It was blood-colored. A bloodstain. Old. The red surface of Mars hid blood. But the color was different. A little darker. There was blood. Someone had died here."
+            "en": "There was something there. The observer looked down at their feet. It was blood-colored. A bloodstain. Old. The red surface of Mars hid blood. But the color was different. A little darker. There was blood. Someone had died here.",
+            "ja": "その場所に何かがあった。観察者が足元を見た。血の色だった。血の跡。古いものだった。火星の赤い表面が血を隠した。しかし色が違った。少し濃かった。血があった。誰かがここで死んだ。",
+            "zh": "那个地方有什么东西。观察者低头看脚下。是血色。是血迹。是旧的。火星红色的表面掩盖了血迹。但颜色不同。稍微深一点。有血。有人在这里死了。"
           },
           "overlay": "hidden_ch3_fourth_flag_l05_00_death_still"
         }
@@ -119,7 +133,9 @@
         {
           "text": {
             "ko": "관찰자가 쪼그렸다. 핏자국을 봤다. 양이 적지 않았다. 즉사는 아니었을 것이었다. 또는 즉사였을 것이었다. 양으로 알 수 없었다. 알 수 있는 것은 누군가 여기서 피를 흘렸다는 것이었다. 회담 자리에서. 삼각형 중심에서.",
-            "en": "The observer crouched. Looked at the bloodstain. Not a small amount. May not have been instant death. Or it may have been. The amount didn't tell. What could be known was that someone had bled here. At the conference site. At the center of the triangle."
+            "en": "The observer crouched. Looked at the bloodstain. Not a small amount. May not have been instant death. Or it may have been. The amount didn't tell. What could be known was that someone had bled here. At the conference site. At the center of the triangle.",
+            "ja": "観察者がしゃがんだ。血の跡を見た。量が少なくなかった。即死ではなかっただろう。または即死だっただろう。量ではわからなかった。わかることは誰かがここで血を流したということだった。会談の場所で。三角形の中心で。",
+            "zh": "观察者蹲下来。看着血迹。量不少。应该不是即死。或者是即死。从量上不能判断。能知道的是有人在这里流血了。在会谈场所。在三角形中心。"
           }
         }
       ]
@@ -134,7 +150,9 @@
         {
           "text": {
             "ko": "주위에 다른 것들이 있었다. 유리 파편. 금속 파편. 무언가 부서진 것들. 회담이 평화롭지 않았다는 것. 아니면 회담이 끝난 후에 다른 일이 있었다는 것. 세 파벌이 이 자리를 떠났다. 그 전에 무언가가 있었다.",
-            "en": "There were other things around. Glass fragments. Metal fragments. Things that had broken. The conference had not been peaceful. Or something had happened after the conference ended. Three factions had left this place. Before that something had occurred."
+            "en": "There were other things around. Glass fragments. Metal fragments. Things that had broken. The conference had not been peaceful. Or something had happened after the conference ended. Three factions had left this place. Before that something had occurred.",
+            "ja": "周りに他のものがあった。ガラスの破片。金属の破片。何かが壊れたもの。会談が平和でなかったということ。または会談が終わった後に別のことがあったということ。三つの派閥がこの場所を去った。その前に何かがあった。",
+            "zh": "周围有其他东西。玻璃碎片。金属碎片。破碎的东西。会谈不是和平的。或者会谈结束后发生了别的事情。三个派系离开了这个地方。在那之前有什么事发生了。"
           }
         }
       ]
@@ -149,7 +167,9 @@
         {
           "text": {
             "ko": "발자국들이 달라졌다. 회담 전과 후가 달랐다. 들어온 발자국들은 천천히 왔다. 나간 발자국들은 빨랐다. 어떤 것들은 흐트러졌다. 뛰었거나 싸웠거나. 방향이 달랐다. 모두 같은 방향으로 나가지 않았다. 흩어졌다.",
-            "en": "The footprints had changed. Before and after the conference were different. The incoming footprints had come slowly. The outgoing footprints were fast. Some were disordered. Had run or fought. Directions were different. Not all had gone the same way. They had scattered."
+            "en": "The footprints had changed. Before and after the conference were different. The incoming footprints had come slowly. The outgoing footprints were fast. Some were disordered. Had run or fought. Directions were different. Not all had gone the same way. They had scattered.",
+            "ja": "足跡たちが変わった。会談の前と後が違った。入ってきた足跡たちはゆっくり来た。出ていった足跡たちは速かった。あるものは乱れていた。走ったか戦ったか。方向が違った。皆が同じ方向に出ていかなかった。散らばった。",
+            "zh": "脚印变了。会谈前后不同。进来的脚印走得慢。出去的脚印很快。有些是混乱的。跑了或者打了。方向不同。不是都往同一个方向出去的。散开了。"
           }
         }
       ]
@@ -164,7 +184,9 @@
         {
           "text": {
             "ko": "관찰자가 회담 자리에서 뒤로 물러섰다. 전체를 보려고. 더 넓게. 회담 자리 가장자리에 무언가가 있었다. 작은 것. 관찰자가 다가갔다. 깃발 조각이었다. 색이 있는 천 조각. 세 파벌 중 어느 것인지 알 수 없었다. 조각이 너무 작았다.",
-            "en": "The observer stepped back from the conference site. To see the whole. Wider. At the edge of the conference site there was something. Small. The observer approached. It was a fragment of a flag. A piece of colored cloth. Which of the three factions it belonged to couldn't be determined. The piece was too small."
+            "en": "The observer stepped back from the conference site. To see the whole. Wider. At the edge of the conference site there was something. Small. The observer approached. It was a fragment of a flag. A piece of colored cloth. Which of the three factions it belonged to couldn't be determined. The piece was too small.",
+            "ja": "観察者が会談の場所から後ろに下がった。全体を見ようとして。より広く。会談の場所の端に何かがあった。小さなもの。観察者が近づいた。旗の切れ端だった。色のある布の切れ端。三つの派閥のどれかはわからなかった。切れ端が小さすぎた。",
+            "zh": "观察者从会谈场所后退。为了看整体。更广地。会谈场所边缘有什么东西。是小的。观察者走近了。是旗帜碎片。是有颜色的布碎片。是三个派系中的哪个不知道。碎片太小了。"
           }
         }
       ]
@@ -179,7 +201,9 @@
         {
           "text": {
             "ko": "조각 옆에 다른 조각이 있었다. 다른 색. 또 다른 조각. 또 다른 색. 세 개의 조각들. 세 파벌의 깃발 조각들. 그것들이 같은 자리에 있었다. 찢겼다. 분노가 있었다. 또는 사고가 있었다. 또는 의도가 있었다. 알 수 없었다.",
-            "en": "Next to the piece there was another piece. A different color. Another piece. Another color. Three pieces. Flag pieces of the three factions. Those were in the same place. Torn. There had been anger. Or an accident. Or intent. Unknown."
+            "en": "Next to the piece there was another piece. A different color. Another piece. Another color. Three pieces. Flag pieces of the three factions. Those were in the same place. Torn. There had been anger. Or an accident. Or intent. Unknown.",
+            "ja": "切れ端の隣に別の切れ端があった。別の色。またさらに別の切れ端。またさらに別の色。三つの切れ端たち。三つの派閥の旗の切れ端たち。それらが同じ場所にあった。破れていた。怒りがあった。または事故があった。または意図があった。わからなかった。",
+            "zh": "碎片旁边有另一块碎片。不同颜色。又另一块碎片。又另一种颜色。三块碎片。三个派系的旗帜碎片。那些在同一个地方。是撕破的。有愤怒。或者有事故。或者有意图。不知道。"
           }
         }
       ]
@@ -194,7 +218,9 @@
         {
           "text": {
             "ko": "그러나 네 번째 조각이 있었다. 관찰자가 찾았다. 세 개가 있는 곳에서 조금 떨어진 자리에. 색이 달랐다. 세 파벌의 색이 아니었다. 어떤 색인지 명확하지 않았다. 오래돼서. 화성 먼지를 맞아서. 그러나 달랐다. 네 번째 색이었다.",
-            "en": "But there was a fourth piece. The observer found it. A little away from where the three were. A different color. Not the color of the three factions. What color exactly wasn't clear. Old. Hit by Martian dust. But it was different. A fourth color."
+            "en": "But there was a fourth piece. The observer found it. A little away from where the three were. A different color. Not the color of the three factions. What color exactly wasn't clear. Old. Hit by Martian dust. But it was different. A fourth color.",
+            "ja": "しかし四番目の切れ端があった。観察者が見つけた。三つがある場所から少し離れた場所に。色が違った。三つの派閥の色ではなかった。どんな色かは明確でなかった。古くて。火星の埃を受けて。しかし違った。四番目の色だった。",
+            "zh": "但有第四块碎片。观察者找到了。在三块所在地方稍远的地方。颜色不同。不是三个派系的颜色。是什么颜色不清楚。因为旧了。因为受了火星灰尘。但不同。是第四种颜色。"
           },
           "overlay": "hidden_ch3_fourth_flag_l11_00_sealed_file"
         }
@@ -210,7 +236,9 @@
         {
           "text": {
             "ko": "관찰자가 네 번째 조각을 봤다. 집지 않았다. 봤다. 누가 이것을 가져왔는가. 세 파벌이 아닌 누군가가 여기 왔다. 네 번째 깃발을 가져온 사람이 있었다. 또는 가져오려고 했던 사람이. 그 사람이 삼각형 중심에서 피를 흘렸다. 또는 아니었다. 알 수 없었다.",
-            "en": "The observer looked at the fourth piece. Didn't pick it up. Looked. Who had brought this. Someone who was not among the three factions had come here. There had been a person who brought a fourth flag. Or someone who had tried to bring one. That person had bled at the center of the triangle. Or not. Unknown."
+            "en": "The observer looked at the fourth piece. Didn't pick it up. Looked. Who had brought this. Someone who was not among the three factions had come here. There had been a person who brought a fourth flag. Or someone who had tried to bring one. That person had bled at the center of the triangle. Or not. Unknown.",
+            "ja": "観察者が四番目の切れ端を見た。拾わなかった。見た。誰がこれを持ってきたか。三つの派閥でない誰かがここに来た。四番目の旗を持ってきた人がいた。または持ってこようとした人が。その人が三角形の中心で血を流した。またはそうでなかった。わからなかった。",
+            "zh": "观察者看着第四块碎片。没有拿起来。看了。谁带来了这个。有不是三个派系的人来这里了。有带来第四面旗帜的人。或者是试图带来的人。那个人在三角形中心流血了。或者不是。不知道。"
           }
         }
       ]
@@ -225,7 +253,9 @@
         {
           "text": {
             "ko": "관찰자가 일어섰다. 올림포스를 올려봤다. 정상이 여전히 보이지 않았다. 이 산이 회담을 봤다. 그 아래. 산은 오래됐다. 화성보다 오래됐다. 지질학적으로는. 회담이 있었다. 피가 있었다. 네 번째 조각이 있었다. 산은 그것들을 봤다. 말하지 않았다.",
-            "en": "The observer stood. Looked up at Olympus. The summit was still not visible. This mountain had watched the conference. Below it. The mountain was old. Older than Mars. Geologically. There had been a conference. There had been blood. There had been a fourth piece. The mountain had seen them. Didn't speak."
+            "en": "The observer stood. Looked up at Olympus. The summit was still not visible. This mountain had watched the conference. Below it. The mountain was old. Older than Mars. Geologically. There had been a conference. There had been blood. There had been a fourth piece. The mountain had seen them. Didn't speak.",
+            "ja": "観察者が立った。オリンポスを見上げた。頂上がまだ見えなかった。この山が会談を見た。その下で。山は古かった。火星より古かった。地質学的には。会談があった。血があった。四番目の切れ端があった。山はそれらを見た。話さなかった。",
+            "zh": "观察者站起来了。抬头看奥林帕斯。山顶仍然看不到。这座山看着会谈。在它下面。山是旧的。比火星更旧。从地质学上说。有过会谈。有过血。有过第四块碎片。山看到了那些。没有说话。"
           }
         }
       ]
@@ -240,7 +270,9 @@
         {
           "text": {
             "ko": "해가 지고 있었다. 올림포스 산자락의 저녁. 그림자가 길어졌다. 회담 자리의 그림자도 길어졌다. 핏자국. 깃발 자국. 네 번째 조각. 그것들의 그림자가 길어졌다. 해가 지면 흔적의 그림자가 길어졌다. 그것이 화성의 저녁이었다.",
-            "en": "The sun was setting. Evening at the foothills of Olympus. Shadows grew long. The shadow of the conference site also grew long. Bloodstain. Flag marks. The fourth piece. The shadows of those grew long. As the sun set the shadows of traces grew long. That was Mars evening."
+            "en": "The sun was setting. Evening at the foothills of Olympus. Shadows grew long. The shadow of the conference site also grew long. Bloodstain. Flag marks. The fourth piece. The shadows of those grew long. As the sun set the shadows of traces grew long. That was Mars evening.",
+            "ja": "日が沈んでいた。オリンポス山麓の夕方。影が長くなった。会談の場所の影も長くなった。血の跡。旗の跡。四番目の切れ端。それらの影が長くなった。日が沈むと跡の影が長くなった。それが火星の夕方だった。",
+            "zh": "太阳正在落下。奥林帕斯山麓的傍晚。影子变长了。会谈场所的影子也变长了。血迹。旗帜痕迹。第四块碎片。那些的影子变长了。太阳落下时痕迹的影子变长了。那是火星的傍晚。"
           }
         }
       ]
@@ -255,7 +287,9 @@
         {
           "text": {
             "ko": "관찰자가 앉았다. 오래 앉았다. 회담 자리를 봤다. 세 개의 구멍. 중심의 핏자국. 흩어진 발자국들. 찢긴 깃발 조각들. 네 번째 조각. 이것들이 무엇을 말하는지 알 수 없었다. 아직. 그러나 이것들이 있었다. 그것을 알았다.",
-            "en": "The observer sat. Sat for a long time. Looked at the conference site. Three holes. Bloodstain at the center. Scattered footprints. Torn flag pieces. The fourth piece. What these were saying couldn't be known. Yet. But these things existed. That was known."
+            "en": "The observer sat. Sat for a long time. Looked at the conference site. Three holes. Bloodstain at the center. Scattered footprints. Torn flag pieces. The fourth piece. What these were saying couldn't be known. Yet. But these things existed. That was known.",
+            "ja": "観察者が座った。長く座った。会談の場所を見た。三つの穴。中心の血の跡。散らばった足跡たち。破れた旗の切れ端たち。四番目の切れ端。これらが何を言っているかわからなかった。まだ。しかしこれらがあった。それがわかった。",
+            "zh": "观察者坐下了。坐了很久。看着会谈场所。三个洞。中心的血迹。散开的脚印。撕破的旗帜碎片。第四块碎片。这些在说什么不知道。还不知道。但这些存在。知道了这件事。"
           }
         }
       ]
@@ -270,7 +304,9 @@
         {
           "text": {
             "ko": "저녁 빛 속에 회담 자리가 달라 보였다. 낮과 달랐다. 그림자들이 흔적들을 더 명확하게 만들었다. 또는 더 모호하게 만들었다. 같은 것이 빛에 따라 달라 보였다. 관찰자가 그것을 알았다. 흔적은 보는 시간에 따라 달랐다. 그것이 흔적의 특성이었다.",
-            "en": "In the evening light the conference site looked different. Different from daytime. Shadows made the traces clearer. Or made them more ambiguous. The same thing looked different depending on the light. The observer knew that. Traces were different depending on when they were seen. That was the nature of traces."
+            "en": "In the evening light the conference site looked different. Different from daytime. Shadows made the traces clearer. Or made them more ambiguous. The same thing looked different depending on the light. The observer knew that. Traces were different depending on when they were seen. That was the nature of traces.",
+            "ja": "夕方の光の中で会談の場所が違って見えた。昼と違った。影たちが跡をより明確にした。またはより曖昧にした。同じものが光によって違って見えた。観察者はそれを知った。跡は見る時間によって違った。それが跡の特性だった。",
+            "zh": "在傍晚的光线里会谈场所看起来不同。和白天不同。影子让痕迹更清晰。或者更模糊。同一件事在不同光线下看起来不同。观察者知道了这件事。痕迹根据看的时间不同而不同。那是痕迹的特性。"
           }
         }
       ]
@@ -285,7 +321,9 @@
         {
           "text": {
             "ko": "회담에 대해 관찰자가 아는 것이 있었다. 세 파벌이 왔다. 합의를 시도했다. 합의가 됐는지 안 됐는지. 알 수 없었다. 그러나 흔적들은 합의 이후에 다른 것이 있었다고 말했다. 핏자국이 그것을 말했다. 합의는 평화가 아니었다. 화성에서 합의는 결코 평화가 아니었다.",
-            "en": "There were things the observer knew about the conference. Three factions had come. Had tried to reach agreement. Whether agreement was reached or not. Unknown. But traces said something had happened after the agreement. The bloodstain said that. Agreement was not peace. On Mars agreement was never peace."
+            "en": "There were things the observer knew about the conference. Three factions had come. Had tried to reach agreement. Whether agreement was reached or not. Unknown. But traces said something had happened after the agreement. The bloodstain said that. Agreement was not peace. On Mars agreement was never peace.",
+            "ja": "会談について観察者が知ることがあった。三つの派閥が来た。合意を試みた。合意できたかどうか。わからなかった。しかし跡たちは合意の後に別のことがあったと言った。血の跡がそれを言った。合意は平和ではなかった。火星で合意は決して平和ではなかった。",
+            "zh": "关于会谈，观察者有些知道的事。三个派系来了。尝试达成协议。是否达成协议。不知道。但痕迹说协议之后发生了别的事情。血迹说了这件事。协议不是和平。在火星上协议从来不是和平。"
           }
         }
       ]
@@ -300,7 +338,9 @@
         {
           "text": {
             "ko": "관찰자가 다시 걸었다. 회담 자리 주변을 걸었다. 천천히. 큰 원을 그리며. 더 멀리 있는 것들이 보이는지 보려고. 회담 자리에서 벗어난 곳에 흔적이 있는지. 관찰자가 찾았다. 있었다.",
-            "en": "The observer walked again. Walked around the conference site. Slowly. Drawing a large circle. To see if things further away were visible. Whether there were traces away from the conference site. The observer searched. There were."
+            "en": "The observer walked again. Walked around the conference site. Slowly. Drawing a large circle. To see if things further away were visible. Whether there were traces away from the conference site. The observer searched. There were.",
+            "ja": "観察者が再び歩いた。会談の場所の周りを歩いた。ゆっくりと。大きな円を描きながら。より遠くにあるものが見えるか見ようとして。会談の場所から離れた場所に跡があるか。観察者が探した。あった。",
+            "zh": "观察者再次走了起来。在会谈场所周围走。慢慢地。画着大圆。为了看更远的东西能否看见。会谈场所之外是否有痕迹。观察者找了。有。"
           }
         }
       ]
@@ -315,7 +355,9 @@
         {
           "text": {
             "ko": "10미터 밖에 혼자 온 발자국이 있었다. 세 그룹의 발자국들과 달리 혼자 온 것이었다. 크기가 있었다. 성인. 빠르지도 느리지도 않았다. 이 발자국의 사람이 회담에 합류했는지 아닌지 알 수 없었다. 발자국이 회담 자리 방향으로 향했다. 그러나 도착했는지는 몰랐다.",
-            "en": "Ten meters away were lone footprints. Unlike the three groups' footprints they had come alone. Had a size. Adult. Neither fast nor slow. Whether the person of these footprints had joined the conference was unknown. The footprints headed toward the conference site. But whether they had arrived was unknown."
+            "en": "Ten meters away were lone footprints. Unlike the three groups' footprints they had come alone. Had a size. Adult. Neither fast nor slow. Whether the person of these footprints had joined the conference was unknown. The footprints headed toward the conference site. But whether they had arrived was unknown.",
+            "ja": "10メートル外に一人で来た足跡があった。三つのグループの足跡と違い一人で来たものだった。大きさがあった。成人。速くも遅くもなかった。この足跡の人が会談に加わったかどうかわからなかった。足跡が会談の場所の方向へ向かっていた。しかし到着したかはわからなかった。",
+            "zh": "10米外有一个人来的脚印。和三个团体的脚印不同，是独自来的。有大小。成人。不快也不慢。这个脚印的人是否参加了会谈不知道。脚印朝着会谈场所方向走去。但是否到达了不知道。"
           }
         }
       ]
@@ -330,7 +372,9 @@
         {
           "text": {
             "ko": "발자국이 멈췄다. 중간에. 회담 자리로 가는 도중에. 멈춘 자리에 무릎 자국이 있었다. 쓰러진 것이었다. 또는 앉은 것이었다. 그리고 다른 방향으로 갔다. 발자국이 달라졌다. 무거워졌다. 끌렸다. 다쳤거나. 피로했거나. 도착하지 않기로 했거나.",
-            "en": "The footprints stopped. In the middle. On the way to the conference site. Where they stopped there were knee marks. Had fallen. Or had sat. And then went in a different direction. The footprints changed. Became heavier. Were dragged. Had been injured. Or tired. Or decided not to arrive."
+            "en": "The footprints stopped. In the middle. On the way to the conference site. Where they stopped there were knee marks. Had fallen. Or had sat. And then went in a different direction. The footprints changed. Became heavier. Were dragged. Had been injured. Or tired. Or decided not to arrive.",
+            "ja": "足跡が止まった。途中で。会談の場所に行く途中で。止まった場所に膝の跡があった。倒れたのだった。または座ったのだった。そして別の方向に行った。足跡が変わった。重くなった。引きずられた。怪我をしたか。疲れたか。到着しないと決めたか。",
+            "zh": "脚印停下来了。在途中。在去会谈场所的路上。停下来的地方有膝盖痕迹。是倒下了。或者是坐下来了。然后往不同方向去了。脚印变了。变重了。被拖拽了。是受伤了。或者是疲惫了。或者是决定不到达了。"
           }
         }
       ]
@@ -345,7 +389,9 @@
         {
           "text": {
             "ko": "관찰자가 그 발자국을 따라가려 했다. 멈췄다. 관찰자의 방식이 아니었다. 흔적을 보는 것. 흔적을 따라가는 것. 두 가지는 달랐다. 따라가면 그 끝을 찾게 됐다. 끝을 찾으면 개입하게 됐다. 관찰자는 개입하지 않았다. 그것이 이 사람의 조건이었다.",
-            "en": "The observer tried to follow those footprints. Stopped. Not the observer's way. Seeing traces. Following traces. Those two were different. Following would lead to finding the end. Finding the end would lead to intervention. The observer didn't intervene. That was this person's condition."
+            "en": "The observer tried to follow those footprints. Stopped. Not the observer's way. Seeing traces. Following traces. Those two were different. Following would lead to finding the end. Finding the end would lead to intervention. The observer didn't intervene. That was this person's condition.",
+            "ja": "観察者がその足跡を追おうとした。止まった。観察者のやり方ではなかった。跡を見ること。跡を追うこと。二つは違った。追えばその終わりを見つけることになった。終わりを見つければ介入することになった。観察者は介入しなかった。それがこの人の条件だった。",
+            "zh": "观察者试图追随那脚印。停下来了。不是观察者的方式。看痕迹。追随痕迹。两件事不同。追随就会找到终点。找到终点就会介入。观察者不介入。那是这个人的条件。"
           }
         }
       ]
@@ -360,7 +406,9 @@
         {
           "text": {
             "ko": "그러나 그 발자국의 사람이 네 번째 깃발을 가져온 사람인지 관찰자는 생각했다. 생각하지 않으려 했다. 그러나 생각이 왔다. 이 사람이 네 번째 깃발을 가지고 왔다. 중간에 멈췄다. 다른 방향으로 갔다. 네 번째 깃발은 가져가지 못했다. 그 조각이 여기 남아 있었다.",
-            "en": "But the observer thought about whether the person of those footprints was the one who had brought the fourth flag. Tried not to think. But thought came. This person had come with the fourth flag. Stopped in the middle. Went another direction. Couldn't take the fourth flag. That piece remained here."
+            "en": "But the observer thought about whether the person of those footprints was the one who had brought the fourth flag. Tried not to think. But thought came. This person had come with the fourth flag. Stopped in the middle. Went another direction. Couldn't take the fourth flag. That piece remained here.",
+            "ja": "しかしその足跡の人が四番目の旗を持ってきた人かどうか観察者は考えた。考えないようにした。しかし考えが来た。この人が四番目の旗を持ってきた。途中で止まった。別の方向に行った。四番目の旗は持っていけなかった。その切れ端がここに残っていた。",
+            "zh": "但观察者思考着那脚印的人是否是带来第四面旗帜的人。试图不去想。但思绪来了。这个人带着第四面旗帜来了。在途中停下来了。往不同方向去了。没能带走第四面旗帜。那块碎片留在了这里。"
           }
         }
       ]
@@ -375,7 +423,9 @@
         {
           "text": {
             "ko": "관찰자가 다시 삼각형 중심으로 왔다. 핏자국. 네 번째 조각. 두 개가 같은 사람의 것인지 다른 사람의 것인지 몰랐다. 알 수 없었다. 알려면 따라가야 했다. 따라가는 것은 관찰자의 방식이 아니었다. 그래서 몰랐다. 그것이 관찰자의 방식의 대가였다.",
-            "en": "The observer came back to the center of the triangle. Bloodstain. The fourth piece. Whether two things were the same person's or different people's was unknown. Couldn't be known. To know would require following. Following was not the observer's way. So it was unknown. That was the price of the observer's way."
+            "en": "The observer came back to the center of the triangle. Bloodstain. The fourth piece. Whether two things were the same person's or different people's was unknown. Couldn't be known. To know would require following. Following was not the observer's way. So it was unknown. That was the price of the observer's way.",
+            "ja": "観察者が再び三角形の中心に来た。血の跡。四番目の切れ端。二つが同じ人のものか別の人のものかわからなかった。わかることができなかった。知るには追わなければならなかった。追うことは観察者のやり方ではなかった。だからわからなかった。それが観察者のやり方の代価だった。",
+            "zh": "观察者再次来到三角形中心。血迹。第四块碎片。两件事是同一个人的还是不同的人的不知道。不能知道。要知道的话必须追随。追随不是观察者的方式。所以不知道。那是观察者的方式的代价。"
           }
         }
       ]
@@ -390,7 +440,9 @@
         {
           "text": {
             "ko": "네 번째 깃발이 왜 필요했는가. 관찰자가 생각했다. 세 개의 깃발이 있었다. 그것으로 화성을 나눌 수 있었다. 세 파벌이 화성을 나눌 수 있었다. 그러나 누군가 네 번째를 가져오려 했다. 세 파벌이 아닌 다른 것. 무엇이었는가.",
-            "en": "Why had a fourth flag been needed. The observer thought. There were three flags. Mars could be divided with those. Three factions could divide Mars. But someone had tried to bring a fourth. Something other than the three factions. What was it."
+            "en": "Why had a fourth flag been needed. The observer thought. There were three flags. Mars could be divided with those. Three factions could divide Mars. But someone had tried to bring a fourth. Something other than the three factions. What was it.",
+            "ja": "四番目の旗がなぜ必要だったのか。観察者が考えた。三つの旗があった。それで火星を分けることができた。三つの派閥が火星を分けることができた。しかし誰かが四番目を持ってこようとした。三つの派閥でない別のもの。何だったのか。",
+            "zh": "为什么需要第四面旗帜。观察者思考着。有三面旗帜。可以用那些分割火星。三个派系可以分割火星。但有人试图带来第四个。是三个派系以外的其他东西。那是什么。"
           }
         }
       ]
@@ -405,7 +457,9 @@
         {
           "text": {
             "ko": "답을 몰랐다. 그것이 관찰자의 방식이었다. 답을 모르는 것. 흔적을 보는 것. 흔적이 답을 줄 때까지 기다리는 것. 또는 답이 없어도 흔적을 보는 것. 그것이 관찰자가 할 수 있는 것이었다. 그것만이 할 수 있는 것이었다.",
-            "en": "The answer was unknown. That was the observer's way. Not knowing the answer. Seeing traces. Waiting until traces give an answer. Or seeing traces even without an answer. That was what the observer could do. That was all that could be done."
+            "en": "The answer was unknown. That was the observer's way. Not knowing the answer. Seeing traces. Waiting until traces give an answer. Or seeing traces even without an answer. That was what the observer could do. That was all that could be done.",
+            "ja": "答えがわからなかった。それが観察者のやり方だった。答えがわからないこと。跡を見ること。跡が答えをくれるまで待つこと。または答えがなくても跡を見ること。それが観察者ができることだった。それだけができることだった。",
+            "zh": "不知道答案。那是观察者的方式。不知道答案。看痕迹。等到痕迹给出答案。或者即使没有答案也看痕迹。那是观察者能做的事。那是唯一能做的事。"
           }
         }
       ]
@@ -420,7 +474,9 @@
         {
           "text": {
             "ko": "밤이 지났다. 관찰자가 밤을 여기서 보냈다. 회담 자리 근처에서. 그것이 처음이었다. 흔적 근처에서 밤을 보낸 것이. 흔적이 밤에 달라 보이는지 보고 싶었다. 달랐다. 밤에 흔적은 조용했다. 낮에 흔적은 말이 많았다. 밤에 흔적은 있기만 했다.",
-            "en": "Night passed. The observer had spent the night here. Near the conference site. That was a first. Spending the night near traces. Wanted to see if traces looked different at night. They did. At night traces were quiet. In the day traces talked a lot. At night traces only existed."
+            "en": "Night passed. The observer had spent the night here. Near the conference site. That was a first. Spending the night near traces. Wanted to see if traces looked different at night. They did. At night traces were quiet. In the day traces talked a lot. At night traces only existed.",
+            "ja": "夜が過ぎた。観察者が夜をここで過ごした。会談の場所の近くで。それが初めてだった。跡の近くで夜を過ごすことが。跡が夜に違って見えるか見たかった。違った。夜に跡は静かだった。昼に跡は多くを語った。夜に跡はあるだけだった。",
+            "zh": "夜晚过去了。观察者在这里度过了夜晚。在会谈场所附近。那是第一次。在痕迹附近度过夜晚这件事。想看痕迹在夜晚看起来是否不同。不同。夜晚痕迹是安静的。白天痕迹话多。夜晚痕迹只是存在。"
           }
         }
       ]
@@ -435,7 +491,9 @@
         {
           "text": {
             "ko": "새벽 빛이 왔다. 올림포스 산자락의 새벽. 붉은 빛이 먼저 왔다. 그리고 다른 빛들이 왔다. 회담 자리가 다시 보였다. 새벽 빛 속에. 달라 보였다. 저녁과도 낮과도 달랐다. 같은 흔적이 세 번 달랐다. 그것이 흔적의 본성이었다.",
-            "en": "Dawn light came. Dawn at the foothills of Olympus. Red light came first. Then other lights came. The conference site became visible again. In the dawn light. Looked different. Different from evening and from day. The same traces were different three times. That was the nature of traces."
+            "en": "Dawn light came. Dawn at the foothills of Olympus. Red light came first. Then other lights came. The conference site became visible again. In the dawn light. Looked different. Different from evening and from day. The same traces were different three times. That was the nature of traces.",
+            "ja": "夜明けの光が来た。オリンポス山麓の夜明け。赤い光が先に来た。そして他の光たちが来た。会談の場所が再び見えた。夜明けの光の中で。違って見えた。夕方とも昼とも違った。同じ跡が三回違った。それが跡の本性だった。",
+            "zh": "黎明的光来了。奥林帕斯山麓的黎明。红色的光先来了。然后其他的光来了。会谈场所再次可以看见了。在黎明的光里。看起来不同。和傍晚不同，和白天也不同。同样的痕迹三次不同。那是痕迹的本性。"
           }
         }
       ]
@@ -450,7 +508,9 @@
         {
           "text": {
             "ko": "새벽 빛 속에 네 번째 조각이 달리 보였다. 색이 달리 보였다. 어제 알 수 없었던 색. 새벽 빛이 그것을 말해줬다. 흰 색이었다. 그것이 흰 깃발이었다. 네 번째 깃발이 흰 것이었다. 흰 깃발이 무엇을 의미하는지는 몰랐다. 그러나 흰 것이었다.",
-            "en": "In the dawn light the fourth piece looked different. The color looked different. The color that couldn't be determined yesterday. The dawn light told it. It was white. It had been a white flag. The fourth flag was white. What a white flag meant was unknown. But it was white."
+            "en": "In the dawn light the fourth piece looked different. The color looked different. The color that couldn't be determined yesterday. The dawn light told it. It was white. It had been a white flag. The fourth flag was white. What a white flag meant was unknown. But it was white.",
+            "ja": "夜明けの光の中で四番目の切れ端が違って見えた。色が違って見えた。昨日わからなかった色。夜明けの光がそれを教えてくれた。白い色だった。それが白い旗だった。四番目の旗が白いものだった。白い旗が何を意味するかはわからなかった。しかし白いものだった。",
+            "zh": "在黎明的光里第四块碎片看起来不同了。颜色看起来不同了。昨天不知道的颜色。黎明的光告诉了这件事。是白色。那是白旗。第四面旗帜是白色的。白旗意味着什么不知道。但是是白色的。"
           },
           "overlay": "hidden_ch3_fourth_flag_l28_00_mars_horizon"
         }
@@ -466,7 +526,9 @@
         {
           "text": {
             "ko": "흰 깃발. 항복인가. 평화인가. 무언가 다른 것인가. 관찰자가 몰랐다. 화성에서 흰 것은 드물었다. 눈이 없었다. 꽃이 없었다. 흰 것은 가져온 것이었다. 누군가 여기 흰 깃발을 가져왔다. 그것이 무엇을 말하는지 알기 위해 더 많이 봐야 했다.",
-            "en": "A white flag. Surrender? Peace? Something else? The observer didn't know. White things were rare on Mars. No snow. No flowers. White things were brought. Someone had brought a white flag here. To know what that said more needed to be seen."
+            "en": "A white flag. Surrender? Peace? Something else? The observer didn't know. White things were rare on Mars. No snow. No flowers. White things were brought. Someone had brought a white flag here. To know what that said more needed to be seen.",
+            "ja": "白い旗。降伏か。平和か。何か別のことか。観察者はわからなかった。火星で白いものは珍しかった。雪がなかった。花がなかった。白いものは持ってきたものだった。誰かがここに白い旗を持ってきた。それが何を言っているかを知るためにもっと多く見なければならなかった。",
+            "zh": "白旗。是投降吗。是和平吗。是其他什么吗。观察者不知道。火星上白色的东西少见。没有雪。没有花。白色的东西是带来的东西。有人把白旗带到了这里。为了知道那说明了什么，需要看更多。"
           }
         }
       ]
@@ -481,7 +543,9 @@
         {
           "text": {
             "ko": "관찰자가 일어섰다. 회담 자리를 떠날 준비를 했다. 마지막으로 봤다. 세 구멍. 중심의 핏자국. 흰 깃발 조각. 발자국들. 그것들이 여기 있었다. 관찰자가 떠나도 여기 있을 것이었다. 화성에서 흔적은 오래갔다. 비가 없으니까. 바람이 약하니까.",
-            "en": "The observer stood. Prepared to leave the conference site. Looked one last time. Three holes. Bloodstain at center. White flag piece. Footprints. Those were here. Would be here even after the observer left. On Mars traces lasted long. No rain. Wind was weak."
+            "en": "The observer stood. Prepared to leave the conference site. Looked one last time. Three holes. Bloodstain at center. White flag piece. Footprints. Those were here. Would be here even after the observer left. On Mars traces lasted long. No rain. Wind was weak.",
+            "ja": "観察者が立った。会談の場所を去る準備をした。最後に見た。三つの穴。中心の血の跡。白い旗の切れ端。足跡たち。それらがここにあった。観察者が去ってもここにあるだろう。火星で跡は長く続いた。雨がないから。風が弱いから。",
+            "zh": "观察者站起来了。准备离开会谈场所。最后看了一眼。三个洞。中心的血迹。白旗碎片。脚印。那些在这里。即使观察者离开也会在这里。在火星上痕迹持续很久。因为没有雨。因为风弱。"
           }
         }
       ]
@@ -496,7 +560,9 @@
         {
           "text": {
             "ko": "관찰자가 마지막으로 하나 더 봤다. 세 구멍 옆에 작은 돌이 있었다. 표시가 없는 돌. 자연의 것인지 누가 놓은 것인지 알 수 없었다. 그러나 세 구멍 삼각형 안에 있었다. 중심 근처에. 이것이 무엇인지. 누가 놓은 것인지. 알 수 없었다. 그것이 전부였다.",
-            "en": "The observer saw one more thing last. Next to the three holes there was a small stone. A stone without a mark. Whether natural or placed by someone was unknown. But it was inside the triangle of three holes. Near the center. What this was. Who had placed it. Unknown. That was everything."
+            "en": "The observer saw one more thing last. Next to the three holes there was a small stone. A stone without a mark. Whether natural or placed by someone was unknown. But it was inside the triangle of three holes. Near the center. What this was. Who had placed it. Unknown. That was everything.",
+            "ja": "観察者が最後にもう一つ見た。三つの穴の隣に小さな石があった。印のない石。自然のものか誰かが置いたものかわからなかった。しかし三つの穴の三角形の中にあった。中心の近くに。これが何か。誰が置いたものか。わからなかった。それが全てだった。",
+            "zh": "观察者最后又看了一样东西。三个洞旁边有一块小石头。没有标记的石头。是自然的还是有人放的不知道。但在三个洞的三角形里面。在中心附近。这是什么。谁放的。不知道。那就是一切。"
           }
         }
       ]
@@ -511,7 +577,9 @@
         {
           "text": {
             "ko": "관찰자가 돌을 보고 오래 있었다. 그 돌이 무언가를 말하는 것 같았다. 그러나 말을 들을 수 없었다. 돌은 말하지 않았다. 흔적이 말하는 것이 있었다. 흔적이 말하지 않는 것이 있었다. 이 돌은 말하지 않는 것 중 하나였다. 그러나 거기 있었다.",
-            "en": "The observer stayed looking at the stone for a long time. The stone seemed to be saying something. But the words couldn't be heard. The stone didn't speak. Traces had things they said. Traces had things they didn't say. This stone was one of the things that didn't speak. But it was there."
+            "en": "The observer stayed looking at the stone for a long time. The stone seemed to be saying something. But the words couldn't be heard. The stone didn't speak. Traces had things they said. Traces had things they didn't say. This stone was one of the things that didn't speak. But it was there.",
+            "ja": "観察者が石を見て長くいた。その石が何かを言っているようだった。しかし言葉を聞くことができなかった。石は話さなかった。跡が言うことがあった。跡が言わないことがあった。この石は言わないことのうちの一つだった。しかしそこにあった。",
+            "zh": "观察者看着石头待了很久。那块石头好像在说些什么。但听不到话语。石头没有说话。痕迹有它们说的东西。痕迹有它们不说的东西。这块石头是不说话的东西之一。但它在那里。"
           }
         }
       ]
@@ -526,7 +594,9 @@
         {
           "text": {
             "ko": "결국 관찰자가 돌을 들었다. 처음이었다. 흔적을 집은 것이. 그것이 관찰자의 방식에 반했다. 그러나 들었다. 돌 아래에 무언가 있었다. 작은 것. 금속 조각. 이름이 새겨져 있었다. 읽었다. 이름이었다. 관찰자가 모르는 이름이었다. 그러나 이름이 있었다.",
-            "en": "Eventually the observer picked up the stone. The first time. The first time a trace had been picked up. That went against the observer's way. But picked it up. Under the stone there was something. A small thing. A metal piece. A name was carved in it. Read it. It was a name. A name the observer didn't know. But a name was there."
+            "en": "Eventually the observer picked up the stone. The first time. The first time a trace had been picked up. That went against the observer's way. But picked it up. Under the stone there was something. A small thing. A metal piece. A name was carved in it. Read it. It was a name. A name the observer didn't know. But a name was there.",
+            "ja": "結局観察者が石を持ち上げた。初めてだった。跡を拾ったのが。それが観察者のやり方に反した。しかし持ち上げた。石の下に何かがあった。小さなもの。金属の破片。名前が刻まれていた。読んだ。名前だった。観察者が知らない名前だった。しかし名前があった。",
+            "zh": "最终观察者拿起了石头。是第一次。第一次拿起痕迹。那违背了观察者的方式。但拿起来了。石头下面有什么东西。是小的。是金属碎片。刻着名字。读了。是名字。是观察者不认识的名字。但有名字。"
           }
         }
       ]
@@ -541,7 +611,9 @@
         {
           "text": {
             "ko": "관찰자가 금속 조각을 다시 돌 아래 놓았다. 돌을 원래대로 덮었다. 흔적을 원래대로 돌려놓았다. 그러나 이름을 알았다. 그것이 달라진 것이었다. 관찰자가 이름을 알았다. 그 이름이 무엇을 의미하는지는 몰랐다. 그러나 이름이 있었다. 그 이름이 여기 있었다.",
-            "en": "The observer placed the metal piece back under the stone. Covered it with the stone as before. Returned the trace to its original state. But the name was known. That was what had changed. The observer knew a name. What that name meant was unknown. But a name was there. That name was here."
+            "en": "The observer placed the metal piece back under the stone. Covered it with the stone as before. Returned the trace to its original state. But the name was known. That was what had changed. The observer knew a name. What that name meant was unknown. But a name was there. That name was here.",
+            "ja": "観察者が金属の破片を再び石の下に置いた。石をもとのように覆った。跡をもとの状態に戻した。しかし名前を知った。それが変わったことだった。観察者が名前を知った。その名前が何を意味するかはわからなかった。しかし名前があった。その名前がここにあった。",
+            "zh": "观察者把金属碎片放回石头下面。用石头像原来一样盖上。把痕迹恢复原状了。但知道了名字。那是改变的事情。观察者知道了一个名字。那个名字意味着什么不知道。但有名字。那个名字在这里。"
           }
         }
       ]
@@ -556,7 +628,9 @@
         {
           "text": {
             "ko": "관찰자가 올림포스 산자락을 내려가기 시작했다. 천천히. 뒤를 돌아보면서. 회담 자리가 멀어졌다. 흔적들이 작아졌다. 그러나 없어지지 않았다. 화성에서 흔적은 없어지지 않았다. 멀어졌다. 작아졌다. 그러나 있었다.",
-            "en": "The observer began descending the foothills of Olympus. Slowly. Looking back. The conference site grew distant. Traces became smaller. But didn't disappear. On Mars traces didn't disappear. Grew distant. Became smaller. But were there."
+            "en": "The observer began descending the foothills of Olympus. Slowly. Looking back. The conference site grew distant. Traces became smaller. But didn't disappear. On Mars traces didn't disappear. Grew distant. Became smaller. But were there.",
+            "ja": "観察者がオリンポス山麓を下り始めた。ゆっくりと。後ろを振り返りながら。会談の場所が遠くなった。跡たちが小さくなった。しかし消えなかった。火星で跡は消えなかった。遠くなった。小さくなった。しかしあった。",
+            "zh": "观察者开始下奥林帕斯山麓。慢慢地。回头看着。会谈场所变远了。痕迹变小了。但没有消失。在火星上痕迹不会消失。变远了。变小了。但在那里。"
           }
         }
       ]
@@ -571,7 +645,9 @@
         {
           "text": {
             "ko": "내려가면서 관찰자는 생각했다. 네 번째 깃발을 가져온 사람. 흰 깃발. 이름이 새겨진 금속 조각. 핏자국. 이것들이 연결되는지. 같은 사람의 것인지. 다른 것들인지. 몰랐다. 그러나 생각이 있었다. 관찰자에게 처음으로 생각이 있었다. 연결에 대한 생각이.",
-            "en": "Descending the observer thought. The person who brought the fourth flag. A white flag. A metal piece with a name carved. A bloodstain. Whether these were connected. Whether from the same person. Or different things. Unknown. But there were thoughts. For the first time the observer had thoughts. Thoughts about connection."
+            "en": "Descending the observer thought. The person who brought the fourth flag. A white flag. A metal piece with a name carved. A bloodstain. Whether these were connected. Whether from the same person. Or different things. Unknown. But there were thoughts. For the first time the observer had thoughts. Thoughts about connection.",
+            "ja": "下りながら観察者は考えた。四番目の旗を持ってきた人。白い旗。名前が刻まれた金属の破片。血の跡。これらが繋がるか。同じ人のものか。別のものたちか。わからなかった。しかし考えがあった。観察者に初めて考えがあった。繋がりについての考えが。",
+            "zh": "下山时观察者思考着。带来第四面旗帜的人。白旗。刻着名字的金属碎片。血迹。这些是否有关联。是同一个人的吗。还是不同的东西。不知道。但有思考。观察者第一次有了思考。关于关联的思考。"
           }
         }
       ]
@@ -586,7 +662,9 @@
         {
           "text": {
             "ko": "그것이 위험했다. 관찰자는 알았다. 연결하기 시작하면 개입하게 됐다. 개입하면 관찰자가 아니었다. 그러나 생각이 있었다. 막을 수 없었다. 올림포스가 뒤에서 관찰자를 봤다. 산이 봤다. 회담도 봤다. 핏자국도 봤다. 흰 깃발도 봤다. 그리고 생각하는 관찰자를 봤다.",
-            "en": "That was dangerous. The observer knew. When beginning to connect, intervention would follow. With intervention, not an observer. But there were thoughts. Couldn't stop them. Olympus watched the observer from behind. The mountain watched. Had watched the conference. Had watched the bloodstain. Had watched the white flag. And watched the observer thinking."
+            "en": "That was dangerous. The observer knew. When beginning to connect, intervention would follow. With intervention, not an observer. But there were thoughts. Couldn't stop them. Olympus watched the observer from behind. The mountain watched. Had watched the conference. Had watched the bloodstain. Had watched the white flag. And watched the observer thinking.",
+            "ja": "それが危険だった。観察者はわかった。繋げ始めると介入することになった。介入すれば観察者ではなかった。しかし考えがあった。止めることができなかった。オリンポスが後ろから観察者を見た。山が見た。会談も見た。血の跡も見た。白い旗も見た。そして考えている観察者を見た。",
+            "zh": "那是危险的。观察者知道。开始关联的话就会介入。介入的话就不是观察者了。但有思考。不能阻止。奥林帕斯从后面看着观察者。山看着。也看了会谈。也看了血迹。也看了白旗。还看了思考中的观察者。"
           }
         }
       ]
@@ -601,7 +679,9 @@
         {
           "text": {
             "ko": "관찰자가 멈췄다. 생각을 멈추려 했다. 할 수 없었다. 흔적을 보면 이야기가 됐다. 이야기가 되면 생각이 됐다. 생각이 되면 연결이 됐다. 그것이 관찰의 위험이었다. 관찰자가 처음으로 그 위험을 알았다. 화성에서.",
-            "en": "The observer stopped. Tried to stop thinking. Couldn't. When traces were seen they became a story. When they became a story they became thoughts. When they became thoughts they became connections. That was the danger of observation. For the first time the observer understood that danger. On Mars."
+            "en": "The observer stopped. Tried to stop thinking. Couldn't. When traces were seen they became a story. When they became a story they became thoughts. When they became thoughts they became connections. That was the danger of observation. For the first time the observer understood that danger. On Mars.",
+            "ja": "観察者が止まった。考えを止めようとした。できなかった。跡を見ると話になった。話になると考えになった。考えになると繋がりになった。それが観察の危険だった。観察者が初めてその危険を知った。火星で。",
+            "zh": "观察者停下来了。试图停止思考。不能。看到痕迹就变成了故事。变成故事就变成了思考。变成思考就变成了关联。那是观察的危险。观察者第一次知道了那个危险。在火星上。"
           }
         }
       ]
@@ -616,7 +696,9 @@
         {
           "text": {
             "ko": "올림포스 산자락을 내려갔다. 회담 자리가 보이지 않게 됐다. 그러나 거기 있었다. 세 구멍. 핏자국. 흰 깃발 조각. 이름이 있는 금속. 네 번째 깃발이 있었는가. 관찰자는 답을 몰랐다. 그것이 관찰자의 방식이었다. 답을 모르는 것. 그러나 이번에는 달랐다. 답을 알고 싶었다. 처음으로.",
-            "en": "Descended the foothills of Olympus. The conference site became invisible. But it was there. Three holes. A bloodstain. A white flag piece. Metal with a name. Had there been a fourth flag. The observer didn't know the answer. That was the observer's way. Not knowing the answer. But this time was different. Wanted to know the answer. For the first time."
+            "en": "Descended the foothills of Olympus. The conference site became invisible. But it was there. Three holes. A bloodstain. A white flag piece. Metal with a name. Had there been a fourth flag. The observer didn't know the answer. That was the observer's way. Not knowing the answer. But this time was different. Wanted to know the answer. For the first time.",
+            "ja": "オリンポス山麓を下りた。会談の場所が見えなくなった。しかしそこにあった。三つの穴。血の跡。白い旗の切れ端。名前のある金属。四番目の旗があったのか。観察者は答えがわからなかった。それが観察者のやり方だった。答えがわからないこと。しかし今回は違った。答えを知りたかった。初めて。",
+            "zh": "下了奥林帕斯山麓。会谈场所看不见了。但在那里。三个洞。血迹。白旗碎片。有名字的金属。有第四面旗帜吗。观察者不知道答案。那是观察者的方式。不知道答案。但这次不同。想知道答案。第一次。"
           }
         }
       ],
@@ -624,7 +706,9 @@
         "questId": "hidden_campaign_ch4",
         "teaser": {
           "ko": "다음 — 30년",
-          "en": "Next — Thirty Years"
+          "en": "Next — Thirty Years",
+          "ja": "次 — 三十年",
+          "zh": "下一章 — 三十年"
         }
       }
     }

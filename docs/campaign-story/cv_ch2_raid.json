@@ -4,7 +4,9 @@
   "chapterNumber": 2,
   "title": {
     "ko": "첫 피",
-    "en": "First Blood"
+    "en": "First Blood",
+    "ja": "初血",
+    "zh": "初血"
   },
   "location": {
     "id": "argyre_canyon",
@@ -28,7 +30,9 @@
         {
           "text": {
             "ko": "아르기레 협곡. 화성 남반구. 깊이 5킬로미터. 어둠이 두꺼웠다. 화성의 어둠은 지구와 달랐다. 공기가 얇아서 빛이 덜 산란됐다. 그래서 더 어두웠다.",
-            "en": "Argyre Canyon. Southern hemisphere. Five kilometers deep. Darkness was thick. Mars darkness was different from Earth. Thin air scattered less light. So it was darker."
+            "en": "Argyre Canyon. Southern hemisphere. Five kilometers deep. Darkness was thick. Mars darkness was different from Earth. Thin air scattered less light. So it was darker.",
+            "ja": "アルギレ峡谷。南半球。深さ5キロメートル。闇が濃かった。火星の闇は地球と違った。空気が薄く光の散乱が少なかった。だからより暗かった。",
+            "zh": "阿尔吉雷峡谷。南半球。深度5公里。黑暗很浓厚。火星的黑暗和地球不同。空气稀薄，光的散射更少。所以更暗。"
           }
         }
       ]
@@ -43,7 +47,9 @@
         {
           "text": {
             "ko": "Vasco Reyes. 콜 사인 Crow. CV 4년차. 화성 출신. 어릴 때부터 협곡에서 자란 사람이었다. 어두운 데서 자란 사람은 눈이 달랐다. 어두운 것이 자연스러운 사람이었다.",
-            "en": "Vasco Reyes. Call sign Crow. Four years in CV. Mars-born. Raised in the canyon since childhood. People raised in the dark had different eyes. He was someone for whom darkness was natural."
+            "en": "Vasco Reyes. Call sign Crow. Four years in CV. Mars-born. Raised in the canyon since childhood. People raised in the dark had different eyes. He was someone for whom darkness was natural.",
+            "ja": "バスコ・レイエス。コールサイン、クロウ。CV4年目。火星出身。幼い頃から峡谷で育った人だった。暗いところで育った人は目が違った。暗さが自然な人だった。",
+            "zh": "瓦斯科·雷耶斯。呼号：克罗。CV第四年。火星出身。从小在峡谷里长大的人。在黑暗中长大的人眼神不同。黑暗对他来说是自然的。"
           }
         }
       ]
@@ -58,7 +64,9 @@
         {
           "text": {
             "ko": "세례가 끝났다. 시험이 끝났다. 그다음은 일이었다. CV에서 일이라는 것은 작전이었다. 첫 작전이 배정됐다. Crow가 브리핑했다. 말이 짧았다.",
-            "en": "Baptism done. Tests done. What followed was work. In CV work meant operations. First operation assigned. Crow briefed. Short words."
+            "en": "Baptism done. Tests done. What followed was work. In CV work meant operations. First operation assigned. Crow briefed. Short words.",
+            "ja": "洗礼が終わった。試験が終わった。次は仕事だった。CVで仕事というのは作戦だった。最初の作戦が割り当てられた。クロウがブリーフィングした。言葉が短かった。",
+            "zh": "洗礼结束了。考验结束了。接下来是工作。在CV里，工作就是任务。第一个任务被分配了。克罗做了简报。话很简短。"
           }
         }
       ]
@@ -76,7 +84,9 @@
           "effect": "character_enter:crow_reyes:slide_right",
           "text": {
             "ko": "첫 작전이죠. 겁나요?",
-            "en": "First operation. You scared?"
+            "en": "First operation. You scared?",
+            "ja": "最初の作戦ですね。怖いですか？",
+            "zh": "第一个任务。害怕吗？"
           }
         },
         {
@@ -84,7 +94,9 @@
           "emotion": "flat",
           "text": {
             "ko": "겁나면 정상이에요. 겁 안 나면 바보거나 이미 죽은 것 중 하나예요.",
-            "en": "Scared is normal. Not scared means you're either an idiot or already dead."
+            "en": "Scared is normal. Not scared means you're either an idiot or already dead.",
+            "ja": "怖いのが普通です。怖くないのはバカか、もう死んでるかのどちらかです。",
+            "zh": "害怕是正常的。不害怕意味着你要么是傻瓜，要么已经死了。"
           }
         },
         {
@@ -92,7 +104,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "목표가 뭐야.",
-            "en": "What's the target."
+            "en": "What's the target.",
+            "ja": "目標は何。",
+            "zh": "目标是什么。"
           }
         },
         {
@@ -100,7 +114,9 @@
           "emotion": "serious",
           "text": {
             "ko": "목표는 MCC 보급 창고예요. C-14 구역. 광석 처리 장비. 우리 거예요. MCC가 가져간 거예요. 돌려받는 거예요.",
-            "en": "MCC supply depot. Zone C-14. Ore processing equipment. Ours. MCC took it. We're taking it back."
+            "en": "MCC supply depot. Zone C-14. Ore processing equipment. Ours. MCC took it. We're taking it back.",
+            "ja": "目標はMCC補給倉庫です。C-14区域。鉱石処理装置。俺たちのものです。MCCが持っていったものです。取り返します。",
+            "zh": "目标是MCC补给仓库。C-14区域。矿石处理设备。是我们的。MCC拿走的。把它拿回来。"
           }
         }
       ]
@@ -115,7 +131,9 @@
         {
           "text": {
             "ko": "팀은 다섯이었다. Player. Crow. 나머지 셋. 이름을 알았다. Marco. Jin. Hestia. 말이 없는 사람들이었다. 일할 때는 말이 없는 것이 좋다고 했다. 동의했다.",
-            "en": "Team of five. You. Crow. Three others. You knew their names. Marco. Jin. Hestia. People of few words. They said few words when working was good. You agreed."
+            "en": "Team of five. You. Crow. Three others. You knew their names. Marco. Jin. Hestia. People of few words. They said few words when working was good. You agreed.",
+            "ja": "チームは五人だった。プレイヤー。クロウ。残りの三人。名前は知っていた。マルコ。ジン。ヘスティア。口数の少ない人々だった。仕事中は口数が少ないのが良いと言っていた。同意した。",
+            "zh": "小队共五人。你。克罗。另外三人。知道他们的名字。马可。金。赫斯蒂亚。话少的人们。他们说工作时话少比较好。同意了。"
           }
         }
       ]
@@ -132,7 +150,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "침투 루트 두 개예요. 동쪽 절벽 또는 서쪽 배수로.",
-            "en": "Two infiltration routes. East cliff or west drainage."
+            "en": "Two infiltration routes. East cliff or west drainage.",
+            "ja": "侵入ルートは二つです。東の崖か西の排水路。",
+            "zh": "两条渗透路线。东边悬崖或者西边排水沟。"
           }
         },
         {
@@ -140,7 +160,9 @@
           "emotion": "flat",
           "text": {
             "ko": "동쪽은 빠르고 경비에게 보여요. 서쪽은 느리고 안 보여요.",
-            "en": "East is fast and visible to guards. West is slow and hidden."
+            "en": "East is fast and visible to guards. West is slow and hidden.",
+            "ja": "東は速いが警備に見えます。西は遅いが見えません。",
+            "zh": "东边快但会被警卫看见。西边慢但不会被看见。"
           }
         },
         {
@@ -148,7 +170,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "경비가 몇 명이야.",
-            "en": "How many guards."
+            "en": "How many guards.",
+            "ja": "警備は何人。",
+            "zh": "警卫有几个。"
           }
         },
         {
@@ -156,7 +180,9 @@
           "emotion": "flat",
           "text": {
             "ko": "넷. 교대 간격 이십 분. 그 사이에 들어가고 나와요.",
-            "en": "Four. Twenty minute rotation. In and out between that."
+            "en": "Four. Twenty minute rotation. In and out between that.",
+            "ja": "四人。交代間隔二十分。その間に入って出ます。",
+            "zh": "四个。换班间隔二十分钟。在这期间进出。"
           }
         }
       ]
@@ -171,7 +197,9 @@
         {
           "text": {
             "ko": "서쪽 배수로를 선택했다. 느렸다. 좁았다. 물이 있었다. 화성의 물. 차가웠다. 그러나 보이지 않았다. 그것이 더 중요했다. 보이지 않는 것이.",
-            "en": "Chose west drainage. Slow. Narrow. Water present. Martian water. Cold. But invisible. That mattered more. Being invisible."
+            "en": "Chose west drainage. Slow. Narrow. Water present. Martian water. Cold. But invisible. That mattered more. Being invisible.",
+            "ja": "西の排水路を選んだ。遅かった。狭かった。水があった。火星の水。冷たかった。しかし見えなかった。それの方が重要だった。見えないことが。",
+            "zh": "选择了西边排水沟。慢。窄。有水。火星的水。冷。但看不见。那更重要。看不见这件事。"
           }
         }
       ]
@@ -186,7 +214,9 @@
         {
           "text": {
             "ko": "Marco가 앞에 있었다. Jin이 뒤에 있었다. Hestia가 옆을 지켰다. Crow가 중간에 있었다. 다섯이 움직였다. 소리가 없었다. 그것이 훈련된 사람들의 움직임이었다.",
-            "en": "Marco up front. Jin behind. Hestia covering the side. Crow in the middle. Five moving. No sound. That was the movement of trained people."
+            "en": "Marco up front. Jin behind. Hestia covering the side. Crow in the middle. Five moving. No sound. That was the movement of trained people.",
+            "ja": "マルコが前にいた。ジンが後ろにいた。ヘスティアが横を守った。クロウが中間にいた。五人が動いた。音がなかった。それが訓練された人々の動きだった。",
+            "zh": "马可在前面。金在后面。赫斯蒂亚守着侧面。克罗在中间。五人行动。没有声音。那是训练有素的人的行动方式。"
           }
         }
       ]
@@ -203,7 +233,9 @@
           "emotion": "tense",
           "text": {
             "ko": "이상해요.",
-            "en": "Something's off."
+            "en": "Something's off.",
+            "ja": "おかしいです。",
+            "zh": "不对劲。"
           }
         },
         {
@@ -211,7 +243,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "경비 두 개 분대가 아니에요. 세 개예요.",
-            "en": "Not two guard teams. Three."
+            "en": "Not two guard teams. Three.",
+            "ja": "警備は二分隊じゃない。三分隊です。",
+            "zh": "警卫不是两个分队。是三个。"
           }
         },
         {
@@ -219,7 +253,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "정보가 달랐어.",
-            "en": "The intel was different."
+            "en": "The intel was different.",
+            "ja": "情報が違った。",
+            "zh": "情报不一样。"
           }
         },
         {
@@ -227,7 +263,9 @@
           "emotion": "flat",
           "text": {
             "ko": "MCC가 바꿨어요. 최근에. 화성에서 정보는 이틀이면 바뀌어요.",
-            "en": "MCC changed it. Recently. On Mars intel changes in two days."
+            "en": "MCC changed it. Recently. On Mars intel changes in two days.",
+            "ja": "MCCが変えた。最近。火星では情報は二日で変わります。",
+            "zh": "MCC改了。最近改的。在火星上，情报两天就会变。"
           }
         }
       ]
@@ -242,7 +280,9 @@
         {
           "text": {
             "ko": "창고가 보였다. 불이 켜져 있었다. 경비가 있었다. 그러나 다른 것도 있었다. 작업자들이었다. 야간 교대였다. MCC 광산 작업자들. 무기가 없었다. 보급 임무였다.",
-            "en": "The depot visible. Lights on. Guards there. But something else too. Workers. Night shift. MCC mine workers. No weapons. Supply duty."
+            "en": "The depot visible. Lights on. Guards there. But something else too. Workers. Night shift. MCC mine workers. No weapons. Supply duty.",
+            "ja": "倉庫が見えた。灯りがついていた。警備がいた。しかし他にもあった。作業員たちだった。夜間交代だった。MCC鉱山作業員たち。武器がなかった。補給任務だった。",
+            "zh": "仓库看得见了。灯亮着。有警卫。但还有别的东西。工人们。夜班。MCC矿山工人们。没有武器。是补给任务。"
           }
         }
       ]
@@ -257,7 +297,9 @@
         {
           "text": {
             "ko": "CV 기준으로 비전투원이었다. CV 코드가 있었다. 비전투원은 건드리지 않는다. 그것이 두 번째 코드였다. 그러나 작업자들이 있는 한 작전은 조용히 진행될 수 없었다.",
-            "en": "By CV standards, non-combatants. CV had a code. Don't touch non-combatants. That was the second code. But with workers present the operation couldn't proceed quietly."
+            "en": "By CV standards, non-combatants. CV had a code. Don't touch non-combatants. That was the second code. But with workers present the operation couldn't proceed quietly.",
+            "ja": "CV基準で非戦闘員だった。CVのコードがあった。非戦闘員には手を出さない。それが二番目のコードだった。しかし作業員がいる限り作戦は静かに進められなかった。",
+            "zh": "按CV标准是非战斗人员。CV有守则。不触碰非战斗人员。那是第二条守则。但只要工人们在场，任务就无法悄无声息地进行。"
           }
         }
       ]
@@ -274,7 +316,9 @@
           "emotion": "tense",
           "text": {
             "ko": "작업자가 있어요. 야간 교대예요. Butcher한테 보고 안 했어요. 내가 모른 거예요.",
-            "en": "Workers are there. Night shift. Didn't report this to Butcher. I didn't know."
+            "en": "Workers are there. Night shift. Didn't report this to Butcher. I didn't know.",
+            "ja": "作業員がいます。夜間交代です。ブッチャーに報告していなかった。俺が知らなかったんです。",
+            "zh": "有工人。夜班。没有向布彻报告。我不知道。"
           }
         },
         {
@@ -282,7 +326,9 @@
           "emotion": "flat",
           "text": {
             "ko": "CV 코드는 명확해요. 비전투원은 건드리지 않아요. 하지만 장비 회수 임무는 유효해요.",
-            "en": "CV code is clear. Don't touch non-combatants. But the equipment recovery mission is still valid."
+            "en": "CV code is clear. Don't touch non-combatants. But the equipment recovery mission is still valid.",
+            "ja": "CVのコードは明確です。非戦闘員には手を出さない。しかし装備回収任務は有効です。",
+            "zh": "CV守则很明确。不触碰非战斗人员。但设备回收任务依然有效。"
           }
         },
         {
@@ -290,7 +336,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "첫 작전에서 이런 일 생기는 거 봤어요. 화성에서 깔끔한 작전은 없어요.",
-            "en": "First operation and this happens. There's no clean operation on Mars."
+            "en": "First operation and this happens. There's no clean operation on Mars.",
+            "ja": "最初の作戦でこんなことが起きるのを見た。火星にきれいな作戦はない。",
+            "zh": "第一个任务就发生这种事。火星上没有干净利落的任务。"
           }
         }
       ]
@@ -305,7 +353,9 @@
         {
           "text": {
             "ko": "작업자 중 한 명이 봤다. 그 사람은 멈췄다. 뛰지 않았다. 소리치지 않았다. 그냥 봤다. CV 용병을 보는 것인지. 아니면 자기와 같은 것을 보는 것인지. 알 수 없었다.",
-            "en": "One of the workers saw. That person stopped. Didn't run. Didn't shout. Just looked. Whether they saw a CV mercenary. Or something like themselves. Unknown."
+            "en": "One of the workers saw. That person stopped. Didn't run. Didn't shout. Just looked. Whether they saw a CV mercenary. Or something like themselves. Unknown.",
+            "ja": "作業員の一人が見た。その人は止まった。走らなかった。叫ばなかった。ただ見た。CV傭兵を見ているのか。あるいは自分と同じものを見ているのか。わからなかった。",
+            "zh": "工人中有一个人看见了。那个人停下来了。没有跑。没有喊叫。只是看着。是在看CV雇佣兵。还是在看和自己相似的东西。不知道。"
           }
         }
       ]
@@ -320,7 +370,9 @@
         {
           "text": {
             "ko": "그 눈이 익숙했다. 어디선가 본 눈이었다. 헬라스 센트럴의 광부들. 이름 없이 일하는 사람들. MCC 기준에서 숫자인 사람들. 그러나 눈이 있는 사람들. 살아있는 눈이 있는 사람들.",
-            "en": "Those eyes were familiar. Eyes seen somewhere before. Hellas Central miners. People working without names. Numbers by MCC standards. But people with eyes. People with living eyes."
+            "en": "Those eyes were familiar. Eyes seen somewhere before. Hellas Central miners. People working without names. Numbers by MCC standards. But people with eyes. People with living eyes.",
+            "ja": "その目が見覚えがあった。どこかで見た目だった。ヘラス・セントラルの鉱夫たち。名前なしで働く人々。MCC基準では数字である人々。しかし目のある人々。生きた目のある人々。",
+            "zh": "那双眼睛很熟悉。在哪里见过的眼神。赫拉斯中央的矿工们。没有名字地工作的人们。按MCC标准只是数字的人们。但是有眼睛的人们。有活着的眼神的人们。"
           }
         }
       ]
@@ -337,7 +389,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "결정해요. 빠르게.",
-            "en": "Decide. Fast."
+            "en": "Decide. Fast.",
+            "ja": "決めて。素早く。",
+            "zh": "决定。快。"
           }
         },
         {
@@ -345,7 +399,9 @@
           "emotion": "flat",
           "text": {
             "ko": "이십 분이에요. 교대 간격.",
-            "en": "Twenty minutes. Rotation interval."
+            "en": "Twenty minutes. Rotation interval.",
+            "ja": "二十分です。交代間隔。",
+            "zh": "二十分钟。换班间隔。"
           }
         },
         {
@@ -353,7 +409,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "저 사람한테 가야 해.",
-            "en": "I need to go to that person."
+            "en": "I need to go to that person.",
+            "ja": "あの人のところへ行かなきゃ。",
+            "zh": "我需要去找那个人。"
           }
         },
         {
@@ -361,7 +419,9 @@
           "emotion": "tense",
           "text": {
             "ko": "그건 계획에 없어요.",
-            "en": "That's not in the plan."
+            "en": "That's not in the plan.",
+            "ja": "それは計画にありません。",
+            "zh": "那不在计划里。"
           }
         }
       ]
@@ -373,55 +433,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "작업자가 보고 있다. 장비가 창고 안에 있다. 이십 분이 남았다.",
-        "en": "The worker is watching. Equipment inside. Twenty minutes left."
+        "en": "The worker is watching. Equipment inside. Twenty minutes left.",
+        "ja": "作業員が見ている。装備は倉庫の中。二十分が残っている。",
+        "zh": "工人在看着。设备在仓库里面。还剩二十分钟。"
       },
       "choices": [
         {
           "id": "cv_ch2_proceed",
           "text": {
             "ko": "임무 속행. 작업자는 건드리지 않는다.",
-            "en": "Proceed. Don't touch the workers."
+            "en": "Proceed. Don't touch the workers.",
+            "ja": "任務続行。作業員には手を出さない。",
+            "zh": "继续任务。不触碰工人们。"
           },
           "tone": "decisive",
           "preview_hint": {
             "ko": "→ 장비 회수. 작업자 목격자 문제 남음.",
-            "en": "→ Equipment recovered. Worker witness issue remains."
+            "en": "→ Equipment recovered. Worker witness issue remains.",
+            "ja": "→ 装備回収。作業員の目撃者問題が残る。",
+            "zh": "→ 设备回收。工人目击者问题留下。"
           }
         },
         {
           "id": "cv_ch2_abort",
           "text": {
             "ko": "임무 중단. Butcher에게 보고한다.",
-            "en": "Abort mission. Report to Butcher."
+            "en": "Abort mission. Report to Butcher.",
+            "ja": "任務中止。ブッチャーに報告する。",
+            "zh": "中止任务。向布彻报告。"
           },
           "tone": "cautious",
           "preview_hint": {
             "ko": "→ Crow가 무표정이다. Butcher의 반응이 중요하다.",
-            "en": "→ Crow is expressionless. Butcher's reaction matters."
+            "en": "→ Crow is expressionless. Butcher's reaction matters.",
+            "ja": "→ クロウが無表情。ブッチャーの反応が重要。",
+            "zh": "→ 克罗面无表情。布彻的反应很重要。"
           }
         },
         {
           "id": "cv_ch2_negotiate",
           "text": {
             "ko": "작업자와 말한다. 조용히 가라고.",
-            "en": "Talk to the worker. Ask them to leave quietly."
+            "en": "Talk to the worker. Ask them to leave quietly.",
+            "ja": "作業員と話す。静かに立ち去るように。",
+            "zh": "和工人说话。让他们悄悄离开。"
           },
           "tone": "human",
           "preview_hint": {
             "ko": "→ Crow가 놀란다. 작업자가 MCC 데이터를 준다.",
-            "en": "→ Crow is surprised. Worker gives MCC data."
+            "en": "→ Crow is surprised. Worker gives MCC data.",
+            "ja": "→ クロウが驚く。作業員がMCCのデータをくれる。",
+            "zh": "→ 克罗很惊讶。工人给出MCC数据。"
           }
         },
         {
           "id": "cv_ch2_bluff",
           "text": {
             "ko": "MCC 경비인 척한다. 작업자를 대피시킨다.",
-            "en": "Pretend to be MCC security. Evacuate the workers."
+            "en": "Pretend to be MCC security. Evacuate the workers.",
+            "ja": "MCC警備員のふりをする。作業員を避難させる。",
+            "zh": "假装是MCC警卫。让工人们撤离。"
           },
           "tone": "cunning",
           "preview_hint": {
             "ko": "→ Crow가 감탄한다. 추후 위험 요소 남음.",
-            "en": "→ Crow is impressed. Future risk remains."
+            "en": "→ Crow is impressed. Future risk remains.",
+            "ja": "→ クロウが感心する。後の危険要素が残る。",
+            "zh": "→ 克罗很佩服。之后的风险因素留下。"
           }
         }
       ]
@@ -436,7 +514,9 @@
         {
           "text": {
             "ko": "결정했다. 움직였다. Crow가 따라왔다. 말이 없었다. 그것이 Crow의 방식이었다. 동의하지 않아도 따라오는 것. 작전 중에는 다음이 없었다.",
-            "en": "Decided. Moved. Crow followed. No words. That was Crow's way. Following even without agreement. In an operation there was no next."
+            "en": "Decided. Moved. Crow followed. No words. That was Crow's way. Following even without agreement. In an operation there was no next.",
+            "ja": "決めた。動いた。クロウが続いた。言葉がなかった。それがクロウのやり方だった。同意しなくても続くこと。作戦中には次はなかった。",
+            "zh": "决定了。行动了。克罗跟了上来。没有话。那就是克罗的方式。即使不同意也跟着走。任务进行中没有下一次。"
           }
         }
       ]
@@ -451,7 +531,9 @@
         {
           "text": {
             "ko": "창고 안으로 들어갔다. 장비가 있었다. 광석 처리 장비. 무거웠다. 다섯이 움직여야 했다. 빠르게 움직였다. 경비가 없는 방향으로. 그러나 작업자들이 있었다.",
-            "en": "Into the depot. Equipment there. Ore processing equipment. Heavy. Five needed to move it. Moved fast. In the direction without guards. But workers were there."
+            "en": "Into the depot. Equipment there. Ore processing equipment. Heavy. Five needed to move it. Moved fast. In the direction without guards. But workers were there.",
+            "ja": "倉庫の中へ入った。装備があった。鉱石処理装置。重かった。五人が動かす必要があった。素早く動いた。警備のいない方向へ。しかし作業員がいた。",
+            "zh": "进了仓库。有设备。矿石处理设备。很重。五个人才能搬动。快速行动。朝没有警卫的方向。但工人们在那里。"
           }
         }
       ]
@@ -468,7 +550,9 @@
           "emotion": "frightened",
           "text": {
             "ko": "CV야?",
-            "en": "CV?"
+            "en": "CV?",
+            "ja": "CVか？",
+            "zh": "CV吗？"
           }
         },
         {
@@ -476,7 +560,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "소리치지 마.",
-            "en": "Don't shout."
+            "en": "Don't shout.",
+            "ja": "叫ぶな。",
+            "zh": "别喊。"
           }
         },
         {
@@ -484,7 +570,9 @@
           "emotion": "frightened",
           "text": {
             "ko": "우리한테 왜.",
-            "en": "Why us."
+            "en": "Why us.",
+            "ja": "なんで俺たちに。",
+            "zh": "为什么找我们。"
           }
         },
         {
@@ -492,7 +580,9 @@
           "emotion": "flat",
           "text": {
             "ko": "장비만 가져가. 당신들은 건드리지 않아.",
-            "en": "Just taking equipment. Not touching you."
+            "en": "Just taking equipment. Not touching you.",
+            "ja": "装備だけもらっていく。あんたたちは触らない。",
+            "zh": "只拿设备。不碰你们。"
           }
         }
       ]
@@ -507,7 +597,9 @@
         {
           "text": {
             "ko": "작업자가 멈췄다. 움직이지 않았다. 소리치지 않았다. 경보를 누르지 않았다. 이유를 알 수 없었다. 두려워서인지. 아니면 다른 것인지. 알 수 없었다.",
-            "en": "The worker stopped. Didn't move. Didn't shout. Didn't trigger the alarm. Couldn't tell why. Fear. Or something else. Unknown."
+            "en": "The worker stopped. Didn't move. Didn't shout. Didn't trigger the alarm. Couldn't tell why. Fear. Or something else. Unknown.",
+            "ja": "作業員が止まった。動かなかった。叫ばなかった。警報を押さなかった。理由はわからなかった。恐怖からか。あるいは別のものか。わからなかった。",
+            "zh": "工人停下来了。没有动。没有喊叫。没有触动警报。不知道为什么。是因为恐惧。还是别的什么。不知道。"
           }
         }
       ]
@@ -522,7 +614,9 @@
         {
           "text": {
             "ko": "장비를 옮겼다. 빠르게. Marco와 Jin이 무거운 것을 들었다. Hestia가 외부를 지켰다. Crow가 시간을 쟀다. 십오 분이 지났다. 다섯 분이 남았다.",
-            "en": "Moved equipment. Fast. Marco and Jin took the heavy pieces. Hestia covered outside. Crow timed it. Fifteen minutes passed. Five left."
+            "en": "Moved equipment. Fast. Marco and Jin took the heavy pieces. Hestia covered outside. Crow timed it. Fifteen minutes passed. Five left.",
+            "ja": "装備を運んだ。素早く。マルコとジンが重いものを持った。ヘスティアが外部を守った。クロウが時間を計った。十五分が過ぎた。五分が残った。",
+            "zh": "搬运设备。快速。马可和金拿了重的东西。赫斯蒂亚守着外面。克罗计时。十五分钟过去了。还剩五分钟。"
           }
         }
       ]
@@ -539,7 +633,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "다섯 분이에요. 나가요.",
-            "en": "Five minutes. Out."
+            "en": "Five minutes. Out.",
+            "ja": "五分です。出ます。",
+            "zh": "五分钟。出去。"
           }
         },
         {
@@ -547,7 +643,9 @@
           "emotion": "tense",
           "text": {
             "ko": "서쪽에 경비 한 명 더 있어. 이동 중.",
-            "en": "One more guard west. Moving."
+            "en": "One more guard west. Moving.",
+            "ja": "西にもう一人警備が。移動中。",
+            "zh": "西边还有一个警卫。正在移动。"
           }
         },
         {
@@ -555,7 +653,9 @@
           "emotion": "flat",
           "text": {
             "ko": "알아요. 동쪽으로 빠져요.",
-            "en": "I know. Exit east."
+            "en": "I know. Exit east.",
+            "ja": "わかった。東へ抜けます。",
+            "zh": "知道了。从东边撤。"
           }
         }
       ]
@@ -570,7 +670,9 @@
         {
           "text": {
             "ko": "동쪽으로 나왔다. 빠르게. 경비와 마주칠 뻔 했다. 그러나 어둠이 있었다. 화성의 어둠. 두꺼운 것. 그 안에 숨었다. 경비가 지나갔다. 그것이 전부였다.",
-            "en": "Out east. Fast. Almost ran into the guard. But there was darkness. Martian darkness. Thick. Hid inside it. Guard passed. That was all."
+            "en": "Out east. Fast. Almost ran into the guard. But there was darkness. Martian darkness. Thick. Hid inside it. Guard passed. That was all.",
+            "ja": "東へ出た。素早く。警備とぶつかりそうだった。しかし闇があった。火星の闇。濃いもの。その中に隠れた。警備が通り過ぎた。それだけだった。",
+            "zh": "从东边出来了。快速。差点和警卫碰面。但有黑暗。火星的黑暗。浓厚的黑暗。藏进去了。警卫走过去了。就这样。"
           }
         }
       ]
@@ -585,7 +687,9 @@
         {
           "text": {
             "ko": "협곡 바닥으로 내려갔다. 장비를 들고. 무거웠다. 다리가 아팠다. 그러나 멈추지 않았다. 멈추면 경비가 쫓아오는 것이었다. 멈추지 않으면 쫓아오지 않는 것이었다. 간단했다.",
-            "en": "Down to the canyon floor. With equipment. Heavy. Legs aching. Didn't stop. Stopping meant the guards would follow. Not stopping meant they wouldn't. Simple."
+            "en": "Down to the canyon floor. With equipment. Heavy. Legs aching. Didn't stop. Stopping meant the guards would follow. Not stopping meant they wouldn't. Simple.",
+            "ja": "峡谷の底へ下りた。装備を持って。重かった。足が痛かった。しかし止まらなかった。止まると警備が追ってくるのだった。止まらなければ追ってこないのだった。簡単だった。",
+            "zh": "往峡谷底部走去。拿着设备。很重。腿很酸。但没有停下来。停下来警卫就会追来。不停下来就不会追来。很简单。"
           }
         }
       ]
@@ -600,7 +704,9 @@
         {
           "text": {
             "ko": "폭풍이 오고 있었다. 바람이 달라졌다. 협곡 바닥에서 느껴졌다. 방향이 바뀌었다. 먼지 폭풍이었다. 화성에서 먼지 폭풍은 예고 없이 왔다. 아니면 오고 있었는데 모른 것이었다.",
-            "en": "Storm coming. Wind changed. Felt it at the canyon floor. Direction shifted. Dust storm. On Mars dust storms came without warning. Or they had been coming and you hadn't noticed."
+            "en": "Storm coming. Wind changed. Felt it at the canyon floor. Direction shifted. Dust storm. On Mars dust storms came without warning. Or they had been coming and you hadn't noticed.",
+            "ja": "嵐が来ていた。風が変わった。峡谷の底で感じた。方向が変わった。砂嵐だった。火星で砂嵐は予告なしに来た。あるいは来ていたのに気づかなかったのだった。",
+            "zh": "风暴要来了。风变了。在峡谷底部感觉到了。方向变了。是沙尘暴。在火星上，沙尘暴来了不打招呼。或者是已经来了但没注意到。"
           }
         }
       ]
@@ -617,7 +723,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "폭풍이에요. 빠르게 움직여요.",
-            "en": "Storm. Move fast."
+            "en": "Storm. Move fast.",
+            "ja": "嵐です。素早く動いて。",
+            "zh": "风暴。快速行动。"
           }
         },
         {
@@ -625,7 +733,9 @@
           "emotion": "tense",
           "text": {
             "ko": "장비 다 들고 가기 어려워.",
-            "en": "Hard to carry all the equipment."
+            "en": "Hard to carry all the equipment.",
+            "ja": "装備全部持っていくの難しい。",
+            "zh": "全部设备都带走很难。"
           }
         },
         {
@@ -633,7 +743,9 @@
           "emotion": "flat",
           "text": {
             "ko": "두고 가면 MCC가 다시 가져가요. 들고 가요.",
-            "en": "Leave it and MCC takes it back. Carry it."
+            "en": "Leave it and MCC takes it back. Carry it.",
+            "ja": "置いていけばMCCがまた持っていく。持って行く。",
+            "zh": "留下来MCC会再拿走。带走。"
           }
         }
       ]
@@ -648,7 +760,9 @@
         {
           "text": {
             "ko": "폭풍이 왔다. 시야가 없었다. 소리가 없었다. 바람만 있었다. 먼지만 있었다. 그 안에서 다섯이 움직였다. 서로의 손을 잡고. 그것이 유일한 방법이었다.",
-            "en": "Storm hit. No visibility. No sound. Only wind. Only dust. Five moving inside it. Holding each other's hands. That was the only way."
+            "en": "Storm hit. No visibility. No sound. Only wind. Only dust. Five moving inside it. Holding each other's hands. That was the only way.",
+            "ja": "嵐が来た。視界がなかった。音がなかった。風だけがあった。砂埃だけがあった。その中で五人が動いた。互いの手を握って。それが唯一の方法だった。",
+            "zh": "风暴来了。没有视野。没有声音。只有风。只有沙尘。五人在其中移动。握着彼此的手。那是唯一的方法。"
           },
           "overlay": "cv_ch2_raid_l26_00_dust_storm"
         }
@@ -664,7 +778,9 @@
         {
           "text": {
             "ko": "방향을 잃었다. 어디가 협곡이고 어디가 평원인지 알 수 없었다. Crow가 방향을 알았다. 폭풍에서 자란 사람이었다. 협곡에서 자란 사람이었다. 어두운 것이 자연스러운 사람이었다.",
-            "en": "Lost direction. Couldn't tell canyon from plains. Crow knew direction. Someone raised in storms. Raised in the canyon. Someone for whom darkness was natural."
+            "en": "Lost direction. Couldn't tell canyon from plains. Crow knew direction. Someone raised in storms. Raised in the canyon. Someone for whom darkness was natural.",
+            "ja": "方向を失った。どこが峡谷でどこが平原かわからなかった。クロウが方向を知っていた。嵐の中で育った人だった。峡谷で育った人だった。暗さが自然な人だった。",
+            "zh": "迷失了方向。不知道哪里是峡谷哪里是平原。克罗知道方向。在风暴中长大的人。在峡谷里长大的人。黑暗对他来说是自然的人。"
           }
         }
       ]
@@ -681,7 +797,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "이쪽이에요. 내 목소리만 따라와요.",
-            "en": "This way. Follow only my voice."
+            "en": "This way. Follow only my voice.",
+            "ja": "こっちです。俺の声だけ追って来て。",
+            "zh": "这边。只跟着我的声音走。"
           }
         },
         {
@@ -689,7 +807,9 @@
           "emotion": "flat",
           "text": {
             "ko": "화성 폭풍에서 길을 잃으면 안 돼요. 기지까지 삼 킬로미터예요.",
-            "en": "Don't get lost in a Martian storm. Three kilometers to base."
+            "en": "Don't get lost in a Martian storm. Three kilometers to base.",
+            "ja": "火星の嵐で迷子になってはいけない。基地まで三キロです。",
+            "zh": "不能在火星风暴中迷路。到基地还有三公里。"
           }
         },
         {
@@ -697,7 +817,9 @@
           "emotion": "tense",
           "text": {
             "ko": "장비 무거워. 팔이.",
-            "en": "Equipment heavy. Arms."
+            "en": "Equipment heavy. Arms.",
+            "ja": "装備重い。腕が。",
+            "zh": "设备很重。手臂。"
           }
         },
         {
@@ -705,7 +827,9 @@
           "emotion": "cold",
           "text": {
             "ko": "내려놓으면 그냥 가요. 계속 들어요.",
-            "en": "Put it down and we just go. Keep holding it."
+            "en": "Put it down and we just go. Keep holding it.",
+            "ja": "置いたら置いていく。持ち続けて。",
+            "zh": "放下来就算了。继续拿着。"
           }
         }
       ]
@@ -720,7 +844,9 @@
         {
           "text": {
             "ko": "폭풍이 지나갔다. 천천히. 화성 폭풍은 왔다가 갔다. 그것이 끝이 있는 것들이었다. 시야가 돌아왔다. 별이 있었다. 협곡이 보였다. 방향을 알 수 있었다.",
-            "en": "Storm passed. Slowly. Martian storms came and went. They were things with endings. Visibility returned. Stars. Canyon visible. Direction knowable."
+            "en": "Storm passed. Slowly. Martian storms came and went. They were things with endings. Visibility returned. Stars. Canyon visible. Direction knowable.",
+            "ja": "嵐が過ぎ去った。ゆっくりと。火星の嵐は来ては去った。それは終わりのあるものだった。視界が戻った。星があった。峡谷が見えた。方向がわかった。",
+            "zh": "风暴过去了。慢慢地。火星的风暴来了又走了。那是有终点的东西。视野回来了。有星星。峡谷看得见了。可以知道方向了。"
           }
         }
       ]
@@ -737,7 +863,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "됐어요. 장비 확보.",
-            "en": "Done. Equipment secured."
+            "en": "Done. Equipment secured.",
+            "ja": "よし。装備確保。",
+            "zh": "行了。设备到手。"
           }
         },
         {
@@ -745,7 +873,9 @@
           "emotion": "flat",
           "text": {
             "ko": "첫 작전이에요. 피가 없었어요. 기록해둬요. 화성에서 드문 일이에요.",
-            "en": "First operation. No blood. Write that down. Rare thing on Mars."
+            "en": "First operation. No blood. Write that down. Rare thing on Mars.",
+            "ja": "最初の作戦です。血が出なかった。記録しておいて。火星では珍しいことです。",
+            "zh": "第一个任务。没有流血。记下来。在火星上这是罕见的事。"
           }
         },
         {
@@ -753,7 +883,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "작업자가 경보 안 눌렀어.",
-            "en": "The worker didn't trigger the alarm."
+            "en": "The worker didn't trigger the alarm.",
+            "ja": "作業員が警報を押さなかった。",
+            "zh": "工人没有触动警报。"
           }
         },
         {
@@ -761,7 +893,9 @@
           "emotion": "flat",
           "text": {
             "ko": "알아요. 그것도 기록해둬요.",
-            "en": "I know. Write that down too."
+            "en": "I know. Write that down too.",
+            "ja": "わかってる。それも記録して。",
+            "zh": "知道。那个也记下来。"
           }
         }
       ]
@@ -776,7 +910,9 @@
         {
           "text": {
             "ko": "작업자의 눈이 기억났다. 경보를 안 누른 사람. 이유를 몰랐다. 두려워서인지 다른 것인지. 그러나 그 선택이 있었다. 그 선택이 오늘 밤을 만든 것이었다.",
-            "en": "Remembered the worker's eyes. The person who didn't press the alarm. Didn't know why. Fear or something else. But that choice existed. That choice had made tonight."
+            "en": "Remembered the worker's eyes. The person who didn't press the alarm. Didn't know why. Fear or something else. But that choice existed. That choice had made tonight.",
+            "ja": "作業員の目が思い出された。警報を押さなかった人。理由はわからなかった。恐怖からか別のものか。しかしその選択があった。その選択が今夜を作ったのだった。",
+            "zh": "想起了工人的眼神。没有按警报的那个人。不知道为什么。是恐惧还是别的什么。但那个选择存在着。那个选择造就了今晚。"
           }
         }
       ]
@@ -791,7 +927,9 @@
         {
           "text": {
             "ko": "협곡 바닥. Butcher가 기다리고 있었다. 의수. 왼팔. 광산용 구식 의수. 그가 직접 만든 것. 17살 때. 그가 임무 보고를 들었다. 말이 없었다. 그러나 의수가 움직였다.",
-            "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining-grade. He had made it himself. At seventeen. He heard the report. No words. But the prosthetic moved."
+            "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining-grade. He had made it himself. At seventeen. He heard the report. No words. But the prosthetic moved.",
+            "ja": "峡谷の底。ブッチャーが待っていた。義手。左腕。採掘用の古い義手。自分で作ったもの。17歳のとき。任務報告を聞いた。言葉がなかった。しかし義手が動いた。",
+            "zh": "峡谷底部。布彻在等待。义肢。左臂。矿用旧式义肢。他自己做的。17岁时。他听了任务汇报。没有话。但义肢动了。"
           },
           "overlay": "cv_ch2_raid_l32_00_hand_fist"
         }
@@ -810,7 +948,9 @@
           "effect": "character_enter:butcher_vasquez:slide_left",
           "text": {
             "ko": "피가 없었어.",
-            "en": "No blood."
+            "en": "No blood.",
+            "ja": "血が出なかった。",
+            "zh": "没有流血。"
           }
         },
         {
@@ -818,7 +958,9 @@
           "emotion": "slow",
           "text": {
             "ko": "작업자들이 경보를 안 눌렀어. 왜.",
-            "en": "The workers didn't trigger the alarm. Why."
+            "en": "The workers didn't trigger the alarm. Why.",
+            "ja": "作業員たちが警報を押さなかった。なぜ。",
+            "zh": "工人们没有触动警报。为什么。"
           }
         },
         {
@@ -826,7 +968,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "말했어. CV 코드를. 비전투원은 건드리지 않는다고.",
-            "en": "I told them. CV code. Non-combatants untouched."
+            "en": "I told them. CV code. Non-combatants untouched.",
+            "ja": "言った。CVのコードを。非戦闘員には手を出さないと。",
+            "zh": "说了。CV守则。不触碰非战斗人员。"
           }
         },
         {
@@ -834,7 +978,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "그래.",
-            "en": "I see."
+            "en": "I see.",
+            "ja": "そうか。",
+            "zh": "这样。"
           }
         }
       ]
@@ -849,7 +995,9 @@
         {
           "text": {
             "ko": "Butcher가 더 말하지 않았다. 그것이 전부였다. 인정인지 아닌지 알 수 없었다. 그러나 의수가 다시 움직였다. 그것이 말 없이 말하는 방식이었다.",
-            "en": "Butcher said no more. That was all. Couldn't tell if it was acknowledgment or not. But the prosthetic moved again. That was how he spoke without speaking."
+            "en": "Butcher said no more. That was all. Couldn't tell if it was acknowledgment or not. But the prosthetic moved again. That was how he spoke without speaking.",
+            "ja": "ブッチャーはこれ以上話さなかった。それだけだった。認めているかどうかわからなかった。しかし義手がまた動いた。それが言葉なしに語る方法だった。",
+            "zh": "布彻没有再说什么。就这些了。不知道是不是认可。但义肢又动了。那就是他不说话时说话的方式。"
           }
         }
       ]
@@ -862,11 +1010,15 @@
       "transition": "cut",
       "title": {
         "ko": "협곡 강탈",
-        "en": "Canyon Raid"
+        "en": "Canyon Raid",
+        "ja": "峡谷強奪",
+        "zh": "峡谷劫夺"
       },
       "subtitle": {
         "ko": "아르기레 협곡 — 첫 피의 값",
-        "en": "Argyre Canyon — The Price of First Blood"
+        "en": "Argyre Canyon — The Price of First Blood",
+        "ja": "アルギレ峡谷 — 初血の代償",
+        "zh": "阿尔吉雷峡谷 — 初血的代价"
       }
     },
     {
@@ -888,7 +1040,9 @@
           "effect": "character_enter:crow_reyes:slide_right",
           "text": {
             "ko": "됐어요. 장비 확보. 피 없음.",
-            "en": "Done. Equipment secured. No blood."
+            "en": "Done. Equipment secured. No blood.",
+            "ja": "よし。装備確保。血なし。",
+            "zh": "行了。设备到手。没有流血。"
           }
         },
         {
@@ -896,7 +1050,9 @@
           "emotion": "flat",
           "text": {
             "ko": "다음 작전은 더 어려울 거예요. 알아두세요.",
-            "en": "Next operation will be harder. Keep that in mind."
+            "en": "Next operation will be harder. Keep that in mind.",
+            "ja": "次の作戦はもっと難しくなります。覚えておいて。",
+            "zh": "下一个任务会更难。记住这一点。"
           }
         }
       ]
@@ -911,7 +1067,9 @@
         {
           "text": {
             "ko": "장비를 기지로 옮겼다. 무거웠다. 팔이 아팠다. 그러나 없어지지 않았다. 있는 것이었다. CV의 것이 된 것이었다. 그것이 오늘의 결과였다.",
-            "en": "Equipment moved to base. Heavy. Arms aching. But not gone. There it was. Now CV's. That was today's result."
+            "en": "Equipment moved to base. Heavy. Arms aching. But not gone. There it was. Now CV's. That was today's result.",
+            "ja": "装備を基地へ運んだ。重かった。腕が痛かった。しかし消えなかった。あるものだった。CVのものになったものだった。それが今日の結果だった。",
+            "zh": "把设备搬到了基地。很重。手臂很酸。但没有消失。在那里。成为了CV的东西。那就是今天的结果。"
           }
         }
       ]
@@ -926,7 +1084,9 @@
         {
           "text": {
             "ko": "장비가 없었다. MCC가 먼저 옮겼거나 경비가 강했다. Crow가 말하지 않았다. 협곡 바닥으로 돌아오는 길. 어둠이 두꺼웠다. 화성의 어둠은 지구와 달랐다. 그것을 다시 느꼈다.",
-            "en": "No equipment. MCC had moved it first or guards were strong. Crow said nothing. On the way back to the canyon floor. Darkness thick. Mars darkness different from Earth. Felt that again."
+            "en": "No equipment. MCC had moved it first or guards were strong. Crow said nothing. On the way back to the canyon floor. Darkness thick. Mars darkness different from Earth. Felt that again.",
+            "ja": "装備がなかった。MCCが先に運んだか警備が強かった。クロウが話さなかった。峡谷の底へ戻る道。闇が濃かった。火星の闇は地球と違った。それをまた感じた。",
+            "zh": "没有设备了。MCC先搬走了或者警卫太强。克罗没有说话。回峡谷底部的路上。黑暗很浓厚。火星的黑暗和地球不同。再次感受到了这点。"
           }
         }
       ]
@@ -941,7 +1101,9 @@
         {
           "text": {
             "ko": "Crow가 걸었다. 말이 없었다. 실패했을 때 말이 없는 것이 Crow의 방식이었다. 말이 없다는 것이 말이었다. 화성에서 그것을 배우는 것이 중요했다.",
-            "en": "Crow walked. No words. Silence on failure was Crow's way. Silence was the words. On Mars learning that was important."
+            "en": "Crow walked. No words. Silence on failure was Crow's way. Silence was the words. On Mars learning that was important.",
+            "ja": "クロウが歩いた。言葉がなかった。失敗したときに黙っているのがクロウのやり方だった。黙っていることが言葉だった。火星でそれを学ぶことが重要だった。",
+            "zh": "克罗走着。没有话。失败时沉默是克罗的方式。沉默就是话语。在火星上学会这一点很重要。"
           }
         }
       ]
@@ -958,7 +1120,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "화성에서 첫 작전은 다 그래.",
-            "en": "On Mars first operations are all like that."
+            "en": "On Mars first operations are all like that.",
+            "ja": "火星での最初の作戦はみんなそうだ。",
+            "zh": "在火星上，第一个任务都是这样的。"
           }
         },
         {
@@ -966,7 +1130,9 @@
           "emotion": "slow",
           "text": {
             "ko": "장비는 다시 가져올 수 있어. 사람은 아니야.",
-            "en": "Equipment can be retrieved. People can't."
+            "en": "Equipment can be retrieved. People can't.",
+            "ja": "装備はまた取り戻せる。人はそうじゃない。",
+            "zh": "设备可以再拿回来。人不行。"
           }
         },
         {
@@ -974,7 +1140,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "돌아왔어. 그걸로 충분해. 오늘은.",
-            "en": "You came back. That's enough. For today."
+            "en": "You came back. That's enough. For today.",
+            "ja": "戻ってきた。それで十分だ。今日は。",
+            "zh": "回来了。那就够了。今天来说。"
           }
         }
       ]
@@ -989,7 +1157,9 @@
         {
           "text": {
             "ko": "Butcher의 말이 걸렸다. 장비는 다시 가져올 수 있어. 사람은 아니야. 17살의 팔을 잃었던 사람. 사람은 돌아오지 않는다는 것을 아는 사람. 그 말이었다.",
-            "en": "Butcher's words stayed. Equipment can be retrieved. People can't. A person who had lost an arm at seventeen. A person who knew people don't come back. Those were those words."
+            "en": "Butcher's words stayed. Equipment can be retrieved. People can't. A person who had lost an arm at seventeen. A person who knew people don't come back. Those were those words.",
+            "ja": "ブッチャーの言葉が引っかかった。装備はまた取り戻せる。人はそうじゃない。17歳で腕を失った人。人は戻らないことを知っている人。その言葉だった。",
+            "zh": "布彻的话萦绕不去。设备可以再拿回来。人不行。17岁时失去了手臂的人。知道人回不来的人。就是那句话。"
           }
         }
       ]
@@ -1004,7 +1174,9 @@
         {
           "text": {
             "ko": "Crow가 뒤에서 걸었다. 말이 없었다. 그것이 Crow였다. 실패해도 따라오는 사람. 아무 말 없이. 그것이 CV 코드였다. 동료는 버리지 않는다. 네 번째 코드.",
-            "en": "Crow walked behind. No words. That was Crow. Someone who followed even in failure. Without a word. That was CV code. Don't abandon a comrade. Fourth code."
+            "en": "Crow walked behind. No words. That was Crow. Someone who followed even in failure. Without a word. That was CV code. Don't abandon a comrade. Fourth code.",
+            "ja": "クロウが後ろを歩いた。言葉がなかった。それがクロウだった。失敗しても続く人。何も言わずに。それがCVのコードだった。仲間は捨てない。四番目のコード。",
+            "zh": "克罗在后面走着。没有话。那就是克罗。失败了也跟着走的人。一言不发地。那就是CV守则。不抛弃同伴。第四条守则。"
           }
         }
       ]
@@ -1019,7 +1191,9 @@
         {
           "text": {
             "ko": "협곡 바닥. Butcher가 기다리고 있었다. 의수. 왼팔. 광산용 구식 의수. 임무 보고를 들었다. 말이 없었다. 그러나 의수가 움직였다. 그것이 말 없이 말하는 방식이었다.",
-            "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining-grade. Heard the report. No words. But the prosthetic moved. That was how he spoke without speaking."
+            "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining-grade. Heard the report. No words. But the prosthetic moved. That was how he spoke without speaking.",
+            "ja": "峡谷の底。ブッチャーが待っていた。義手。左腕。採掘用の古い義手。任務報告を聞いた。言葉がなかった。しかし義手が動いた。それが言葉なしに語る方法だった。",
+            "zh": "峡谷底部。布彻在等待。义肢。左臂。矿用旧式义肢。听了任务汇报。没有话。但义肢动了。那就是他不说话时说话的方式。"
           }
         }
       ],
@@ -1027,7 +1201,9 @@
         "questId": "cv_campaign_ch3",
         "teaser": {
           "ko": "다음 — 용병 코드",
-          "en": "Next — The Mercenary Code"
+          "en": "Next — The Mercenary Code",
+          "ja": "次回 — 傭兵のコード",
+          "zh": "下一章 — 雇佣兵守则"
         }
       }
     }

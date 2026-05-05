@@ -4,7 +4,9 @@
   "chapterNumber": 1,
   "title": {
     "ko": "세례",
-    "en": "Baptism"
+    "en": "Baptism",
+    "ja": "洗礼",
+    "zh": "洗礼"
   },
   "location": {
     "id": "erebus_crater",
@@ -29,7 +31,9 @@
         {
           "text": {
             "ko": "에레부스 분화구. 지표 아래 5킬로미터. 거기서는 하늘이 보이지 않았다. 분화구 벽이 하늘이었다. 분화구 바닥에 불이 있었다. 영하 백 도에서 불이 탔다. 150명이 공유하는 불이었다. 30년 동안 꺼진 날이 없었다.",
-            "en": "Erebus Crater. Five kilometers below the surface. No sky visible from there. The crater walls were the sky. Fire at the crater floor. Burning at minus one hundred. One hundred and fifty people shared it. Not gone out in thirty years."
+            "en": "Erebus Crater. Five kilometers below the surface. No sky visible from there. The crater walls were the sky. Fire at the crater floor. Burning at minus one hundred. One hundred and fifty people shared it. Not gone out in thirty years.",
+            "ja": "エレバス・クレーター。地表から5キロ下。そこからは空が見えなかった。クレーターの壁が空だった。クレーターの底に火があった。マイナス百度の中で火が燃えた。150人が共有する火だった。30年間、消えたことがなかった。",
+            "zh": "厄瑞玻斯陨石坑。地表以下5公里。在那里看不到天空。陨石坑的壁就是天空。陨石坑底部有火。在零下一百度中，火在燃烧。是150个人共用的火。三十年来从未熄灭。"
           }
         }
       ]
@@ -44,7 +48,9 @@
         {
           "text": {
             "ko": "불이 타는데 따뜻하지 않았다. 이것이 CV의 메타포였다. 불이 있었다. 그러나 화성은 차가웠다. 불이 그 차가움을 이기지 못했다. 그러나 30년 동안 불은 꺼지지 않았다. 그것이 의미하는 것이 있었다.",
-            "en": "Fire burning but not warm. This was CV's metaphor. Fire existed. But Mars was cold. The fire couldn't overcome the cold. But thirty years and the fire never went out. There was meaning in that."
+            "en": "Fire burning but not warm. This was CV's metaphor. Fire existed. But Mars was cold. The fire couldn't overcome the cold. But thirty years and the fire never went out. There was meaning in that.",
+            "ja": "火が燃えているのに温かくなかった。これがCVのメタファーだった。火はあった。しかし火星は冷たかった。火はその冷たさに勝てなかった。しかし30年間、火は消えなかった。そこに意味があった。",
+            "zh": "火在燃烧，却不暖和。这就是CV的隐喻。火存在着。但火星是冷的。火战胜不了那种寒冷。然而三十年来，火从未熄灭。那有着某种意义。"
           }
         }
       ]
@@ -59,7 +65,9 @@
         {
           "text": {
             "ko": "Butcher Vasquez는 불 앞에 앉았다. 왼쪽 팔이 불빛을 받았다. 의수였다. 광산용 구식 의수. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 후로 같은 팔이었다.",
-            "en": "Butcher Vasquez sat before the fire. Firelight on the left arm. A prosthetic. Old mining-grade. He had built it himself when MCC refused to cover the accident. Seventeen years old. The same arm ever since."
+            "en": "Butcher Vasquez sat before the fire. Firelight on the left arm. A prosthetic. Old mining-grade. He had built it himself when MCC refused to cover the accident. Seventeen years old. The same arm ever since.",
+            "ja": "ブッチャー・バスケスは火の前に座った。左腕に炎の光が当たった。義手だった。採掘用の古い義手。MCCが事故補償を拒否したとき、彼が自分で作ったものだ。17歳のときのことだった。以来ずっと同じ腕だった。",
+            "zh": "布彻·巴斯克斯坐在火前。火光照在左臂上。是义肢。矿用的旧式义肢。MCC拒绝赔偿那次事故时，他自己做的。那时他17岁。从那以后一直是这条手臂。"
           },
           "overlay": "cv_ch1_baptism_l02_00_fire_small"
         }
@@ -75,7 +83,9 @@
         {
           "text": {
             "ko": "곁에 곡괭이가 있었다. 세워두었다. 무기가 아니었다. 그러나 무기가 아닌 것도 아니었다. Butcher에게 그것은 그런 것이었다. 도구이고 신호이고 30년이었다.",
-            "en": "A pickaxe leaned beside him. Not a weapon. But not not a weapon. For Butcher it was both. A tool, a signal, and thirty years."
+            "en": "A pickaxe leaned beside him. Not a weapon. But not not a weapon. For Butcher it was both. A tool, a signal, and thirty years.",
+            "ja": "傍らにつるはしが立てかけてあった。武器ではなかった。しかし武器でないわけでもなかった。ブッチャーにとってそれはそういうものだった。道具であり、信号であり、30年だった。",
+            "zh": "旁边立着一把镐。武器。但也不是不是武器。对布彻来说那就是那样的东西。是工具，是信号，是三十年。"
           }
         }
       ]
@@ -90,7 +100,9 @@
         {
           "text": {
             "ko": "분화구 아래로 사람이 내려오는 것이 보였다. 당신이었다. 가방을 들고 있었다. 작은 가방이었다. 손이 가방 위에 있었다. 거기까지 오는 것만으로도 시험이었다. 대부분은 중간에 돌아갔다.",
-            "en": "Someone descending into the crater. You. Carrying a small bag. Hand resting on it. Just making it this far was a test. Most turned back halfway."
+            "en": "Someone descending into the crater. You. Carrying a small bag. Hand resting on it. Just making it this far was a test. Most turned back halfway.",
+            "ja": "クレーターへ降りてくる人が見えた。あなただった。小さな鞄を持っていた。手が鞄の上にあった。そこまで来ることだけでも試練だった。大半は途中で引き返した。",
+            "zh": "看到有人向陨石坑下走来。是你。拿着一个小包。手放在包上。光是走到这里就已经是考验了。大多数人会中途折返。"
           }
         }
       ]
@@ -108,7 +120,9 @@
           "effect": "character_enter:butcher_vasquez:slide_left",
           "text": {
             "ko": "살아있네.",
-            "en": "Still alive."
+            "en": "Still alive.",
+            "ja": "生きてるな。",
+            "zh": "还活着。"
           }
         },
         {
@@ -116,7 +130,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "잃을 게 없어 보여.",
-            "en": "Looks like you've got nothing to lose."
+            "en": "Looks like you've got nothing to lose.",
+            "ja": "失うものが何もなさそうだな。",
+            "zh": "看起来没什么可失去的。"
           }
         },
         {
@@ -124,7 +140,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "...",
-            "en": "..."
+            "en": "...",
+            "ja": "……",
+            "zh": "……"
           }
         },
         {
@@ -132,7 +150,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "말 안 해도 돼. 다들 그래.",
-            "en": "Don't need to talk. They all do."
+            "en": "Don't need to talk. They all do.",
+            "ja": "話さなくていい。みんなそうだ。",
+            "zh": "不用说话。大家都这样。"
           }
         }
       ]
@@ -147,7 +167,9 @@
         {
           "text": {
             "ko": "Butcher가 처음으로 당신을 봤다. 불빛이 얼굴에 닿았다. 왼쪽 얼굴에 흉터가 있었다. 얼마나 된 것인지는 알 수 없었다. Butcher는 그 흉터를 오래 보았다. 무언가 생각하는 것이었다. 말하지 않았다.",
-            "en": "Butcher looked at you for the first time. Firelight reached your face. A scar on the left side. Couldn't tell how old. Butcher looked at that scar for a long time. Thinking something. Didn't say it."
+            "en": "Butcher looked at you for the first time. Firelight reached your face. A scar on the left side. Couldn't tell how old. Butcher looked at that scar for a long time. Thinking something. Didn't say it.",
+            "ja": "ブッチャーは初めてあなたを見た。炎の光が顔に届いた。左顔に傷跡があった。どのくらい古いものかはわからなかった。ブッチャーはその傷跡を長い間見ていた。何か考えているのだった。口にしなかった。",
+            "zh": "布彻第一次看了你。火光触及了脸。左边脸上有道疤痕。不知道是多久之前的。布彻盯着那道疤痕看了很久。在想着什么。没有说出来。"
           }
         }
       ]
@@ -164,7 +186,9 @@
           "emotion": "slow",
           "text": {
             "ko": "화성에서 살아남는 방법은 세 가지야.",
-            "en": "There are three ways to survive on Mars."
+            "en": "There are three ways to survive on Mars.",
+            "ja": "火星で生き残る方法は三つある。",
+            "zh": "在火星上活下去有三种方法。"
           }
         },
         {
@@ -172,7 +196,9 @@
           "emotion": "slow",
           "text": {
             "ko": "강해지거나.",
-            "en": "Be strong."
+            "en": "Be strong.",
+            "ja": "強くなるか。",
+            "zh": "变强。"
           }
         },
         {
@@ -180,7 +206,9 @@
           "emotion": "slow",
           "text": {
             "ko": "쓸모 있거나.",
-            "en": "Be useful."
+            "en": "Be useful.",
+            "ja": "役に立つか。",
+            "zh": "有用。"
           }
         },
         {
@@ -188,7 +216,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "사라지거나.",
-            "en": "Disappear."
+            "en": "Disappear.",
+            "ja": "消えるか。",
+            "zh": "消失。"
           }
         }
       ]
@@ -203,7 +233,9 @@
         {
           "text": {
             "ko": "침묵이 있었다. 불이 탔다. Butcher는 의수를 내려다봤다. 그것이 대화 중에 그가 하는 것이었다. 의수를 보는 것. 17살의 것을 보는 것. 30년 전의 것을 보는 것.",
-            "en": "Silence. Fire burned. Butcher looked down at the prosthetic. That was what he did during conversations. Looking at the prosthetic. Looking at the seventeen-year-old thing. Looking at the thirty-year-old thing."
+            "en": "Silence. Fire burned. Butcher looked down at the prosthetic. That was what he did during conversations. Looking at the prosthetic. Looking at the seventeen-year-old thing. Looking at the thirty-year-old thing.",
+            "ja": "沈黙があった。火が燃えた。ブッチャーは義手を見下ろした。会話中に彼がすることだった。義手を見ること。17歳の頃のものを見ること。30年前のものを見ること。",
+            "zh": "沉默。火在燃烧。布彻低头看了看义肢。那是他在对话中会做的事。看义肢。看那个17岁时的东西。看那个三十年前的东西。"
           }
         }
       ]
@@ -221,7 +253,9 @@
           "effect": "character_enter:crow_reyes:slide_right",
           "text": {
             "ko": "CV는 시험이 있어요. 세 개.",
-            "en": "CV has tests. Three of them."
+            "en": "CV has tests. Three of them.",
+            "ja": "CVには試験がある。三つ。",
+            "zh": "CV有考验。三个。"
           }
         },
         {
@@ -229,7 +263,9 @@
           "emotion": "flat",
           "text": {
             "ko": "무력. 의리. 생존. 어느 것인지는 직접 선택해요.",
-            "en": "Strength. Loyalty. Survival. You choose which."
+            "en": "Strength. Loyalty. Survival. You choose which.",
+            "ja": "武力。義理。生存。どれかは自分で選ぶ。",
+            "zh": "武力。忠义。生存。哪一个由你自己选。"
           }
         },
         {
@@ -237,7 +273,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "선택하는 것도 시험이에요. 이건 말 안 해도 됐는데.",
-            "en": "Choosing is also the test. Didn't need to say that."
+            "en": "Choosing is also the test. Didn't need to say that.",
+            "ja": "選ぶこと自体も試験です。これは言わなくてよかったけど。",
+            "zh": "选择本身也是考验。这个倒不用说的。"
           }
         }
       ]
@@ -252,7 +290,9 @@
         {
           "text": {
             "ko": "Crow Reyes였다. CV 전술대장. 말이 빠른 사람이었다. 잔혹했다. 그러나 전문적이었다. 그 두 가지가 CV에서 오래 살게 하는 것이었다.",
-            "en": "Crow Reyes. CV tactical commander. Someone who spoke fast. Ruthless. But professional. Those two things were what kept you alive in CV for a long time."
+            "en": "Crow Reyes. CV tactical commander. Someone who spoke fast. Ruthless. But professional. Those two things were what kept you alive in CV for a long time.",
+            "ja": "クロウ・レイエスだった。CV戦術司令官。話が速い人だった。残忍だった。しかし専門的だった。その二つがCVで長く生き続けさせるものだった。",
+            "zh": "是克罗·雷耶斯。CV战术指挥官。说话快的人。残酷。但专业。这两点让人在CV里活得久。"
           }
         }
       ]
@@ -267,7 +307,9 @@
         {
           "text": {
             "ko": "기지 안으로 들어갔다. 사람들이 있었다. 각자의 일을 하는 사람들. 당신을 보았다. 눈을 떼었다. 그것이 이 기지에서 낯선 사람을 대하는 방식이었다. 보지만 오래 보지 않는 것.",
-            "en": "Into the base. People there. Each doing their work. They looked at you. Looked away. That was how this base dealt with a stranger. See but not stare."
+            "en": "Into the base. People there. Each doing their work. They looked at you. Looked away. That was how this base dealt with a stranger. See but not stare.",
+            "ja": "基地の中に入った。人々がいた。それぞれの仕事をしている人々。あなたを見た。目を逸らした。それがこの基地で見知らぬ人を扱う方法だった。見るが、じっと見ない。",
+            "zh": "走进基地。里面有人。各自做着自己事情的人们。他们看了你一眼。然后移开目光。那就是这个基地对待陌生人的方式。看，但不盯着看。"
           }
         }
       ]
@@ -282,7 +324,9 @@
         {
           "text": {
             "ko": "구석에 묶인 남자가 있었다. 손이 뒤로 묶여 있었다. 앉아 있었다. 눈이 감겨 있었다. 죽지 않았다. 숨을 쉬었다. 그러나 조용했다. 포로였다.",
-            "en": "A man was bound in the corner. Hands behind his back. Seated. Eyes closed. Not dead. Breathing. But quiet. A prisoner."
+            "en": "A man was bound in the corner. Hands behind his back. Seated. Eyes closed. Not dead. Breathing. But quiet. A prisoner.",
+            "ja": "隅に縛られた男がいた。両手が後ろに縛られていた。座っていた。目が閉じていた。死んでいなかった。息をしていた。しかし静かだった。捕虜だった。",
+            "zh": "角落里有个被捆绑的男人。双手绑在背后。坐着。眼睛闭着。没有死。在呼吸。但很安静。是个俘虏。"
           }
         }
       ]
@@ -299,7 +343,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Reza예요. MCC 첩자. 3일 됐어요.",
-            "en": "Reza. MCC informant. Three days."
+            "en": "Reza. MCC informant. Three days.",
+            "ja": "レザです。MCCの密偵。3日になります。",
+            "zh": "雷扎。MCC线人。三天了。"
           }
         },
         {
@@ -307,7 +353,9 @@
           "emotion": "cold",
           "text": {
             "ko": "Butcher가 결정을 안 내렸어요. 그 사람이 결정하면 끝나요.",
-            "en": "Butcher hasn't decided. When he decides, it's done."
+            "en": "Butcher hasn't decided. When he decides, it's done.",
+            "ja": "ブッチャーがまだ決定を下していません。あの人が決めたら終わりです。",
+            "zh": "布彻还没做决定。那个人一做决定就结束了。"
           }
         },
         {
@@ -315,7 +363,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "어떤 결정.",
-            "en": "What kind of decision."
+            "en": "What kind of decision.",
+            "ja": "どんな決定。",
+            "zh": "什么样的决定。"
           }
         },
         {
@@ -323,7 +373,9 @@
           "emotion": "flat",
           "text": {
             "ko": "두 가지밖에 없어요. CV에서는.",
-            "en": "Only two kinds. In CV."
+            "en": "Only two kinds. In CV.",
+            "ja": "二つしかありません。CVでは。",
+            "zh": "只有两种。在CV里。"
           }
         }
       ]
@@ -338,7 +390,9 @@
         {
           "text": {
             "ko": "Reza가 눈을 떴다. 발소리를 들은 것이었다. 당신을 봤다. 새로운 얼굴이었다. 무언가 기대하는 눈이 아니었다. 그냥 보는 눈이었다. 살아있는 사람의 눈이었다.",
-            "en": "Reza opened his eyes. Heard footsteps. Looked at you. A new face. Not eyes expecting anything. Just looking eyes. The eyes of someone alive."
+            "en": "Reza opened his eyes. Heard footsteps. Looked at you. A new face. Not eyes expecting anything. Just looking eyes. The eyes of someone alive.",
+            "ja": "レザが目を開けた。足音を聞いたのだった。あなたを見た。新しい顔だった。何かを期待する目ではなかった。ただ見る目だった。生きている人の目だった。",
+            "zh": "雷扎睁开了眼睛。听到了脚步声。看着你。一张新面孔。不是期待着什么的眼神。只是在看的眼神。一个活着的人的眼神。"
           }
         }
       ]
@@ -355,7 +409,9 @@
           "emotion": "exhausted",
           "text": {
             "ko": "새로 온 거야?",
-            "en": "New here?"
+            "en": "New here?",
+            "ja": "新しく来たの？",
+            "zh": "新来的？"
           }
         },
         {
@@ -363,7 +419,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그래.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "そうだ。",
+            "zh": "是的。"
           }
         },
         {
@@ -371,7 +429,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "여기 오래 있지 마. 여기는 사람이 사라지는 곳이야.",
-            "en": "Don't stay long. This is a place where people disappear."
+            "en": "Don't stay long. This is a place where people disappear.",
+            "ja": "ここに長くいるな。ここは人が消える場所だ。",
+            "zh": "别在这里待太久。这里是人会消失的地方。"
           }
         },
         {
@@ -379,7 +439,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "나처럼.",
-            "en": "Like me."
+            "en": "Like me.",
+            "ja": "俺みたいに。",
+            "zh": "就像我一样。"
           }
         }
       ]
@@ -394,7 +456,9 @@
         {
           "text": {
             "ko": "Crow가 당신을 끌어당겼다. 멀리서 말했다. 포로와 말하는 것이 시험이냐고 묻지 않았다. 그것이 시험인지 아닌지 몰랐다. 화성에서는 모든 것이 시험이었다. 또는 아무것도 시험이 아니었다.",
-            "en": "Crow pulled you away. Spoke from a distance. Didn't ask if talking to the prisoner was a test. Didn't know if it was a test or not. On Mars everything was a test. Or nothing was."
+            "en": "Crow pulled you away. Spoke from a distance. Didn't ask if talking to the prisoner was a test. Didn't know if it was a test or not. On Mars everything was a test. Or nothing was.",
+            "ja": "クロウがあなたを引き離した。離れたところから話した。捕虜と話すことが試験かどうか聞かなかった。試験かどうかわからなかった。火星ではすべてが試験だった。あるいは何も試験ではなかった。",
+            "zh": "克罗把你拉走了。从远处说话。没有问与俘虏说话是不是考验。不知道那是不是考验。在火星上，一切都是考验。或者什么都不是考验。"
           }
         }
       ]
@@ -409,7 +473,9 @@
         {
           "text": {
             "ko": "시험 하나. 무력. Butcher가 사람을 골랐다. 덩치가 큰 사람이었다. 이름은 몰랐다. 규칙이 없었다. 쓰러뜨리거나 쓰러지거나였다. 분화구 바닥에서. 불 옆에서. 150명이 보는 데서.",
-            "en": "Test one. Strength. Butcher chose a person. Large build. Name unknown. No rules. Knock down or be knocked down. On the crater floor. Beside the fire. In front of a hundred and fifty people."
+            "en": "Test one. Strength. Butcher chose a person. Large build. Name unknown. No rules. Knock down or be knocked down. On the crater floor. Beside the fire. In front of a hundred and fifty people.",
+            "ja": "試験その一。武力。ブッチャーが人を選んだ。体格のいい人だった。名前は知らなかった。ルールがなかった。倒すか倒されるかだった。クレーターの底で。火の傍で。150人が見ている前で。",
+            "zh": "第一项考验。武力。布彻挑了个人。体格高大的人。不知道名字。没有规则。不是打倒对方就是被打倒。在陨石坑底部。在火旁边。在150个人面前。"
           }
         }
       ]
@@ -426,7 +492,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "이기면 통과야. 지면 내일 다시 해.",
-            "en": "Win and you pass. Lose and try again tomorrow."
+            "en": "Win and you pass. Lose and try again tomorrow.",
+            "ja": "勝てば通過だ。負けたら明日また。",
+            "zh": "赢了就过。输了明天再来。"
           }
         },
         {
@@ -434,7 +502,9 @@
           "emotion": "slow",
           "text": {
             "ko": "죽이지 마. 쓰러뜨려.",
-            "en": "Don't kill. Just put them down."
+            "en": "Don't kill. Just put them down.",
+            "ja": "殺すな。倒せ。",
+            "zh": "别杀。打倒就行。"
           }
         },
         {
@@ -442,7 +512,9 @@
           "emotion": "flat",
           "text": {
             "ko": "죽이면 실격이에요. CV 코드.",
-            "en": "Kill and you're out. CV code."
+            "en": "Kill and you're out. CV code.",
+            "ja": "殺したら失格です。CVのコード。",
+            "zh": "杀了就失格。CV守则。"
           }
         }
       ]
@@ -457,7 +529,9 @@
         {
           "text": {
             "ko": "싸웠다. 짧았다. 길지 않았다. 화성에서 싸움은 짧았다. 공기가 얇아서 빨리 지쳤다. 오래 싸우는 것이 바보였다. 빨리 끝내는 것이 기술이었다. 그 기술이 있는지 없는지가 시험이었다.",
-            "en": "Fought. Short. Not long. On Mars fights were short. Thin air made you tire fast. Fighting long was foolish. Ending it fast was skill. Whether you had that skill was the test."
+            "en": "Fought. Short. Not long. On Mars fights were short. Thin air made you tire fast. Fighting long was foolish. Ending it fast was skill. Whether you had that skill was the test.",
+            "ja": "戦った。短かった。長くなかった。火星での戦いは短かった。空気が薄くて早く疲れた。長く戦うのは愚かだった。早く終わらせることが技術だった。その技術があるかどうかが試験だった。",
+            "zh": "打起来了。很短。没有多久。在火星上，打架都是短暂的。空气稀薄，很快就精疲力竭。打得久是愚蠢的。快速结束才是技巧。有没有这种技巧就是考验。"
           }
         }
       ]
@@ -472,7 +546,9 @@
         {
           "text": {
             "ko": "Butcher는 지켜봤다. 아무 표정이 없었다. Crow는 메모를 했다. 작은 메모였다. 무엇을 적는지 알 수 없었다. 사람들이 봤다. 그것이 첫 번째 시험이었다.",
-            "en": "Butcher watched. No expression. Crow took notes. Small notes. Couldn't tell what was written. People watched. That was the first test."
+            "en": "Butcher watched. No expression. Crow took notes. Small notes. Couldn't tell what was written. People watched. That was the first test.",
+            "ja": "ブッチャーは見守った。表情がなかった。クロウはメモを取った。小さなメモだった。何を書いているかわからなかった。人々が見た。それが一つ目の試験だった。",
+            "zh": "布彻在旁观。没有任何表情。克罗在做记录。是小小的记录。不知道写的什么。人们都在看。那就是第一项考验。"
           }
         }
       ]
@@ -487,7 +563,9 @@
         {
           "text": {
             "ko": "시험 둘. 의리. Crow가 당신에게 봉투를 건넸다. 사진이 있었다. 한 사람의 얼굴. CV 대원이었다. 이름이 있었다. 거기까지 보고 멈췄다.",
-            "en": "Test two. Loyalty. Crow handed you an envelope. A photograph inside. One face. A CV member. A name. You read that far and stopped."
+            "en": "Test two. Loyalty. Crow handed you an envelope. A photograph inside. One face. A CV member. A name. You read that far and stopped.",
+            "ja": "試験その二。義理。クロウがあなたに封筒を渡した。写真があった。一人の顔。CVの隊員だった。名前があった。そこまで見て止まった。",
+            "zh": "第二项考验。忠义。克罗递给你一个信封。里面有张照片。一个人的脸。是CV成员。有名字。看到那里就停下来了。"
           }
         }
       ]
@@ -504,7 +582,9 @@
           "emotion": "flat",
           "text": {
             "ko": "이 사람이 MCC 정보를 팔았어요. 증거가 있어요.",
-            "en": "This person sold intelligence to MCC. There's evidence."
+            "en": "This person sold intelligence to MCC. There's evidence.",
+            "ja": "この人がMCCに情報を売った。証拠があります。",
+            "zh": "这个人把情报卖给了MCC。有证据。"
           }
         },
         {
@@ -512,7 +592,9 @@
           "emotion": "cold",
           "text": {
             "ko": "이름을 확인하고. 위치를 확인하고. 보고하면 돼요. 간단해요.",
-            "en": "Confirm the name. Confirm the location. Report back. Simple."
+            "en": "Confirm the name. Confirm the location. Report back. Simple.",
+            "ja": "名前を確認して。位置を確認して。報告すればいい。簡単です。",
+            "zh": "确认名字。确认位置。报告就行。很简单。"
           }
         },
         {
@@ -520,7 +602,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "보고하면 어떻게 돼.",
-            "en": "What happens after I report."
+            "en": "What happens after I report.",
+            "ja": "報告したらどうなる。",
+            "zh": "报告了之后会怎样。"
           }
         },
         {
@@ -528,7 +612,9 @@
           "emotion": "flat",
           "text": {
             "ko": "CV에서 결정해요. 당신이 아니에요.",
-            "en": "CV decides. Not you."
+            "en": "CV decides. Not you.",
+            "ja": "CVが決める。あなたじゃない。",
+            "zh": "CV来决定。不是你。"
           }
         }
       ]
@@ -543,7 +629,9 @@
         {
           "text": {
             "ko": "사진 안의 사람을 봤다. 기지 안에 있는 사람이었다. 어제 밥을 먹는 것을 봤다. 살아있는 사람이었다. 당신이 보고하면 살아있지 않을 수 있는 사람이었다.",
-            "en": "Looked at the face in the photograph. Someone in the base. You had seen them eating yesterday. A living person. A person who might not be living if you reported."
+            "en": "Looked at the face in the photograph. Someone in the base. You had seen them eating yesterday. A living person. A person who might not be living if you reported.",
+            "ja": "写真の中の人を見た。基地にいる人だった。昨日食事をしているのを見た。生きている人だった。あなたが報告すれば生きていないかもしれない人だった。",
+            "zh": "看着照片里的人。是基地里的人。昨天看到他在吃饭。是个活着的人。如果你报告了，可能就不会再活着的人。"
           }
         }
       ]
@@ -560,7 +648,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "시간이 있어요. 생각할 시간이요.",
-            "en": "You have time. Time to think."
+            "en": "You have time. Time to think.",
+            "ja": "時間があります。考える時間が。",
+            "zh": "你有时间。想一想的时间。"
           }
         },
         {
@@ -568,7 +658,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이게 시험이야?",
-            "en": "Is this a test?"
+            "en": "Is this a test?",
+            "ja": "これが試験？",
+            "zh": "这是考验吗？"
           }
         },
         {
@@ -576,7 +668,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "여기서는 모든 게 시험이에요. 아니면 아무것도 시험이 아니에요.",
-            "en": "Everything here is a test. Or nothing is."
+            "en": "Everything here is a test. Or nothing is.",
+            "ja": "ここではすべてが試験です。あるいは何も試験じゃない。",
+            "zh": "这里一切都是考验。或者什么都不是。"
           }
         }
       ]
@@ -591,7 +685,9 @@
         {
           "text": {
             "ko": "봉투를 돌려줬다. 아무 말도 하지 않았다. Crow가 봉투를 받았다. 표정이 없었다. 봉투를 다시 열지 않았다. 그것으로 끝이었다. 통과였는지 실패였는지 알 수 없었다.",
-            "en": "Returned the envelope. Said nothing. Crow took it. No expression. Didn't reopen it. That was it. Didn't know if it was a pass or a fail."
+            "en": "Returned the envelope. Said nothing. Crow took it. No expression. Didn't reopen it. That was it. Didn't know if it was a pass or a fail.",
+            "ja": "封筒を返した。何も言わなかった。クロウが受け取った。表情がなかった。封筒を再び開けなかった。それで終わりだった。合格か不合格かわからなかった。",
+            "zh": "把信封还了回去。什么也没说。克罗接了过去。没有表情。没有重新打开信封。就这样结束了。不知道是通过了还是失败了。"
           }
         }
       ]
@@ -606,7 +702,9 @@
         {
           "text": {
             "ko": "시험 셋. 생존. Butcher가 말했다. 밖에서 하룻밤. 분화구 외벽. 온도가 가장 낮은 곳. 장비는 담요 하나. 시간은 해 뜰 때까지. 그것이 전부였다.",
-            "en": "Test three. Survival. Butcher said. Outside overnight. Crater outer wall. Where temperature was lowest. One blanket as equipment. Until sunrise. That was all."
+            "en": "Test three. Survival. Butcher said. Outside overnight. Crater outer wall. Where temperature was lowest. One blanket as equipment. Until sunrise. That was all.",
+            "ja": "試験その三。生存。ブッチャーが言った。外で一晩。クレーター外壁。温度が最も低い場所。装備は毛布一枚。時間は日の出まで。それがすべてだった。",
+            "zh": "第三项考验。生存。布彻说。在外面待一夜。陨石坑外壁。温度最低的地方。装备是一条毛毯。时间到日出为止。就这些。"
           }
         }
       ]
@@ -623,7 +721,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "영하 백 도야. 아는 거지?",
-            "en": "Minus one hundred. You know that."
+            "en": "Minus one hundred. You know that.",
+            "ja": "マイナス百度だ。わかってるな？",
+            "zh": "零下一百度。知道吧？"
           }
         },
         {
@@ -631,7 +731,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "알아.",
-            "en": "I know."
+            "en": "I know.",
+            "ja": "わかってる。",
+            "zh": "知道。"
           }
         },
         {
@@ -639,7 +741,9 @@
           "emotion": "slow",
           "text": {
             "ko": "아는 것과 겪는 것은 달라.",
-            "en": "Knowing and experiencing are different."
+            "en": "Knowing and experiencing are different.",
+            "ja": "知ることと経験することは違う。",
+            "zh": "知道和经历是两回事。"
           }
         }
       ]
@@ -654,7 +758,9 @@
         {
           "text": {
             "ko": "밖으로 나갔다. 분화구 외벽이었다. 바람이 있었다. 분화구 안과 달랐다. 벽이 없었다. 바람이 그대로 닿았다. 담요 하나로 그것을 막았다. 막히지 않았다.",
-            "en": "Outside. Crater outer wall. There was wind. Different from inside the crater. No walls. Wind hit directly. One blanket against it. It wasn't enough."
+            "en": "Outside. Crater outer wall. There was wind. Different from inside the crater. No walls. Wind hit directly. One blanket against it. It wasn't enough.",
+            "ja": "外へ出た。クレーター外壁だった。風があった。クレーターの内部と違った。壁がなかった。風がそのまま当たった。毛布一枚でそれを防いだ。防ぎきれなかった。",
+            "zh": "走到外面。是陨石坑外壁。有风。和陨石坑里面不同。没有墙壁。风直接扑来。用一条毛毯挡着。挡不住。"
           }
         }
       ]
@@ -669,7 +775,9 @@
         {
           "text": {
             "ko": "별이 있었다. 화성의 별. 맑았다. 공기가 얇아서 별이 잘 보였다. 그러나 별이 따뜻하지는 않았다. 별은 빛이었다. 빛은 따뜻하지 않았다. 이 온도에서는.",
-            "en": "Stars. Martian stars. Clear. Thin air made stars visible. But stars weren't warm. Stars were light. Light wasn't warm. Not at this temperature."
+            "en": "Stars. Martian stars. Clear. Thin air made stars visible. But stars weren't warm. Stars were light. Light wasn't warm. Not at this temperature.",
+            "ja": "星があった。火星の星。澄んでいた。空気が薄いので星がよく見えた。しかし星は温かくなかった。星は光だった。光は温かくなかった。この温度では。",
+            "zh": "有星星。火星的星星。晴朗。空气稀薄，星星看得很清楚。但星星不暖和。星星是光。光不暖和。在这个温度下。"
           },
           "overlay": "cv_ch1_baptism_l29_00_mars_horizon"
         }
@@ -685,7 +793,9 @@
         {
           "text": {
             "ko": "몸이 떨렸다. 멈출 수 없었다. 그것이 몸의 방식이었다. 따뜻해지려는 것이었다. 그러나 효과가 없었다. 화성의 밤에는 몸이 이길 수 없었다. 그러나 죽지 않았다. 그것이 중요했다.",
-            "en": "Body shaking. Couldn't stop. That was the body's way. Trying to get warm. But ineffective. The body couldn't win against a Martian night. But didn't die. That was what mattered."
+            "en": "Body shaking. Couldn't stop. That was the body's way. Trying to get warm. But ineffective. The body couldn't win against a Martian night. But didn't die. That was what mattered.",
+            "ja": "体が震えた。止められなかった。それが体のやり方だった。温まろうとするものだった。しかし効果がなかった。火星の夜には体が勝てなかった。しかし死ななかった。それが重要だった。",
+            "zh": "身体颤抖。停不下来。那是身体的方式。想要暖和起来。但没有效果。对上火星的夜晚，身体赢不了。但没有死。那才是重要的。"
           }
         }
       ]
@@ -700,7 +810,9 @@
         {
           "text": {
             "ko": "해가 떴다. 화성의 해. 작은 것. 먼 것. 그러나 빛이었다. 빛이 왔을 때 알 수 있었다. 살아있다는 것. 그것이 시험의 답이었다.",
-            "en": "The sun rose. Martian sun. Small thing. Distant thing. But light. When the light came you knew. Alive. That was the answer to the test."
+            "en": "The sun rose. Martian sun. Small thing. Distant thing. But light. When the light came you knew. Alive. That was the answer to the test.",
+            "ja": "太陽が昇った。火星の太陽。小さなもの。遠いもの。しかし光だった。光が来たときにわかった。生きているということ。それが試験の答えだった。",
+            "zh": "太阳升起来了。火星的太阳。小小的东西。遥远的东西。但是光。光来临时才能明白。还活着这件事。那就是考验的答案。"
           }
         }
       ]
@@ -717,7 +829,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "들어와.",
-            "en": "Come in."
+            "en": "Come in.",
+            "ja": "入れ。",
+            "zh": "进来吧。"
           }
         },
         {
@@ -725,7 +839,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "밤새 죽은 사람도 있었어. 거기서. 그러나 넌 아니야.",
-            "en": "People have died there through the night. But not you."
+            "en": "People have died there through the night. But not you.",
+            "ja": "夜通しそこで死んだ者もいた。しかしお前はそうじゃない。",
+            "zh": "曾有人在那里一夜没撑过去。但你不是。"
           }
         }
       ]
@@ -740,7 +856,9 @@
         {
           "text": {
             "ko": "Reza가 있었다. 구석에. 손이 묶인 채. 눈이 떠 있었다. 당신을 봤다. 오래 봤다. 그 눈이 무엇을 말하는지 알 수 없었다. 그러나 살아있는 눈이었다. 그것이 Reza였다.",
-            "en": "Reza was there. In the corner. Hands still bound. Eyes open. Looked at you. For a long time. Couldn't tell what those eyes were saying. But alive eyes. That was Reza."
+            "en": "Reza was there. In the corner. Hands still bound. Eyes open. Looked at you. For a long time. Couldn't tell what those eyes were saying. But alive eyes. That was Reza.",
+            "ja": "レザがいた。隅に。手が縛られたまま。目が開いていた。あなたを見た。長い間。その目が何を言っているかわからなかった。しかし生きている目だった。それがレザだった。",
+            "zh": "雷扎在那里。在角落里。双手还是绑着。眼睛睁着。看着你。看了很久。不知道那双眼睛在说什么。但是活着的眼神。那就是雷扎。"
           }
         }
       ]
@@ -757,7 +875,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "살아있어. 밤을 버텼어.",
-            "en": "Alive. Survived the night."
+            "en": "Alive. Survived the night.",
+            "ja": "生きてる。夜を越えた。",
+            "zh": "还活着。撑过了一夜。"
           }
         },
         {
@@ -765,7 +885,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그래.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "そうだ。",
+            "zh": "是的。"
           }
         },
         {
@@ -773,7 +895,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "나는 버티는 방법을 알아. 그래서 아직 여기 있어. 그러나 오래는 안 돼.",
-            "en": "I know how to endure. That's why I'm still here. But not much longer."
+            "en": "I know how to endure. That's why I'm still here. But not much longer.",
+            "ja": "俺は耐える方法を知っている。だからまだここにいる。しかし長くはない。",
+            "zh": "我知道怎么撑下去。所以我还在这里。但撑不了多久了。"
           }
         }
       ]
@@ -790,7 +914,9 @@
           "emotion": "flat",
           "text": {
             "ko": "Butcher가 오늘 결정할 거야.",
-            "en": "Butcher will decide today."
+            "en": "Butcher will decide today.",
+            "ja": "ブッチャーが今日決める。",
+            "zh": "布彻今天会做决定。"
           }
         },
         {
@@ -798,7 +924,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "알아.",
-            "en": "I know."
+            "en": "I know.",
+            "ja": "わかってる。",
+            "zh": "知道。"
           }
         },
         {
@@ -806,7 +934,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "내 여동생 이름이 Aisha야. 그것만 알아줘. 이름이 있다는 것.",
-            "en": "My sister's name is Aisha. Just know that. That there's a name."
+            "en": "My sister's name is Aisha. Just know that. That there's a name.",
+            "ja": "俺の妹の名前はアイシャだ。それだけ知っておいてくれ。名前があるということを。",
+            "zh": "我妹妹的名字叫艾莎。只要知道这一点。知道有这个名字。"
           }
         }
       ]
@@ -821,7 +951,9 @@
         {
           "text": {
             "ko": "Butcher가 왕좌 홀에 있었다. Crow가 옆에 있었다. 불이 탔다. 사람들이 있었다. 모두 있었다. Reza가 끌려왔다. 손이 묶인 채. 불 앞에 세워졌다.",
-            "en": "Butcher was in the throne hall. Crow beside him. Fire burned. Everyone was there. All of them. Reza was dragged in. Hands still bound. Stood before the fire."
+            "en": "Butcher was in the throne hall. Crow beside him. Fire burned. Everyone was there. All of them. Reza was dragged in. Hands still bound. Stood before the fire.",
+            "ja": "ブッチャーが玉座の間にいた。クロウが傍らにいた。火が燃えた。人々がいた。全員いた。レザが引きずられてきた。手が縛られたまま。火の前に立たされた。",
+            "zh": "布彻在王座大厅里。克罗在旁边。火在燃烧。所有人都在。全都在。雷扎被拖了进来。双手还是绑着。被立在火前。"
           }
         }
       ]
@@ -838,7 +970,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Reza. MCC 첩자. 3일 동안 조사했어. 결론이 나왔어.",
-            "en": "Reza. MCC informant. Three days of investigation. A conclusion."
+            "en": "Reza. MCC informant. Three days of investigation. A conclusion.",
+            "ja": "レザ。MCCの密偵。3日間調査した。結論が出た。",
+            "zh": "雷扎。MCC线人。调查了三天。有了结论。"
           }
         },
         {
@@ -846,7 +980,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "CV는 배신을 용서하지 않아. 규칙이 없는 곳에서 하나 있는 것이 그거야.",
-            "en": "CV doesn't forgive betrayal. In a place with no rules that's the one thing that exists."
+            "en": "CV doesn't forgive betrayal. In a place with no rules that's the one thing that exists.",
+            "ja": "CVは裏切りを許さない。ルールがない場所で一つあるのがそれだ。",
+            "zh": "CV不原谅背叛。在一个没有规则的地方，唯一存在的规则就是这个。"
           }
         },
         {
@@ -854,7 +990,9 @@
           "emotion": "exhausted",
           "text": {
             "ko": "나는 첩자가 아니야. 들어봐.",
-            "en": "I'm not an informant. Listen."
+            "en": "I'm not an informant. Listen.",
+            "ja": "俺は密偵じゃない。聞いてくれ。",
+            "zh": "我不是线人。听我说。"
           }
         },
         {
@@ -862,7 +1000,9 @@
           "emotion": "stoic",
           "text": {
             "ko": "증거가 있어.",
-            "en": "There's evidence."
+            "en": "There's evidence.",
+            "ja": "証拠がある。",
+            "zh": "有证据。"
           }
         }
       ]
@@ -877,7 +1017,9 @@
         {
           "text": {
             "ko": "Butcher가 당신을 봤다. 처음으로 무언가 묻는 눈이었다. 말이 없었다. 그러나 질문이 있었다. 어떻게 할 것인지. 새로 온 사람. 시험을 통과한 사람. 이 상황에서 어떻게 할 것인지.",
-            "en": "Butcher looked at you. For the first time his eyes held a question. No words. But a question. What will you do. New arrival. Someone who passed the tests. What will you do in this situation."
+            "en": "Butcher looked at you. For the first time his eyes held a question. No words. But a question. What will you do. New arrival. Someone who passed the tests. What will you do in this situation.",
+            "ja": "ブッチャーがあなたを見た。初めて何かを問う目だった。言葉がなかった。しかし問いがあった。どうするのか。新しく来た者。試験を通過した者。この状況でどうするのか。",
+            "zh": "布彻看着你。第一次是带着问题的眼神。没有话语。但有疑问。你会怎么做。新来的人。通过了考验的人。在这种情况下你会怎么做。"
           }
         }
       ]
@@ -890,55 +1032,73 @@
       "transition": "cut",
       "prompt": {
         "ko": "Butcher가 기다린다. Reza가 불 앞에 있다. 무엇을 하겠습니까.",
-        "en": "Butcher is waiting. Reza stands before the fire. What do you do."
+        "en": "Butcher is waiting. Reza stands before the fire. What do you do.",
+        "ja": "ブッチャーが待っている。レザが火の前に立っている。何をするか。",
+        "zh": "布彻在等待。雷扎站在火前。你会怎么做。"
       },
       "choices": [
         {
           "id": "cv_ch1_defend",
           "text": {
             "ko": "Reza를 변호한다. 증거를 다시 보자.",
-            "en": "Defend Reza. Look at the evidence again."
+            "en": "Defend Reza. Look at the evidence again.",
+            "ja": "レザを弁護する。証拠をもう一度見よう。",
+            "zh": "为雷扎辩护。重新看看证据。"
           },
           "tone": "principled",
           "preview_hint": {
             "ko": "→ Butcher가 멈춘다. Crow가 경고한다.",
-            "en": "→ Butcher pauses. Crow warns."
+            "en": "→ Butcher pauses. Crow warns.",
+            "ja": "→ ブッチャーが止まる。クロウが警告する。",
+            "zh": "→ 布彻停下来。克罗发出警告。"
           }
         },
         {
           "id": "cv_ch1_silent",
           "text": {
             "ko": "말하지 않는다. Butcher의 결정을 따른다.",
-            "en": "Say nothing. Follow Butcher's decision."
+            "en": "Say nothing. Follow Butcher's decision.",
+            "ja": "何も言わない。ブッチャーの決定に従う。",
+            "zh": "什么都不说。遵从布彻的决定。"
           },
           "tone": "pragmatic",
           "preview_hint": {
             "ko": "→ CV 신뢰 +. Reza와의 관계 소멸.",
-            "en": "→ CV trust +. Reza relationship ends."
+            "en": "→ CV trust +. Reza relationship ends.",
+            "ja": "→ CV信頼+。レザとの関係消滅。",
+            "zh": "→ CV信任+。与雷扎的关系消失。"
           }
         },
         {
           "id": "cv_ch1_trade",
           "text": {
             "ko": "Reza의 정보를 먼저 얻자고 제안한다.",
-            "en": "Propose getting Reza's intel first."
+            "en": "Propose getting Reza's intel first.",
+            "ja": "レザの情報を先に得ようと提案する。",
+            "zh": "提议先获取雷扎的情报。"
           },
           "tone": "strategic",
           "preview_hint": {
             "ko": "→ Crow가 동의한다. Butcher가 생각한다.",
-            "en": "→ Crow agrees. Butcher considers."
+            "en": "→ Crow agrees. Butcher considers.",
+            "ja": "→ クロウが同意する。ブッチャーが考える。",
+            "zh": "→ 克罗同意了。布彻在考虑。"
           }
         },
         {
           "id": "cv_ch1_aisha",
           "text": {
             "ko": "Reza의 여동생 이름을 말한다. Aisha.",
-            "en": "Say Reza's sister's name. Aisha."
+            "en": "Say Reza's sister's name. Aisha.",
+            "ja": "レザの妹の名前を言う。アイシャ。",
+            "zh": "说出雷扎妹妹的名字。艾莎。"
           },
           "tone": "human",
           "preview_hint": {
             "ko": "→ Butcher가 의수를 본다. 오래.",
-            "en": "→ Butcher looks at the prosthetic. Long."
+            "en": "→ Butcher looks at the prosthetic. Long.",
+            "ja": "→ ブッチャーが義手を見る。長い間。",
+            "zh": "→ 布彻看着义肢。很久。"
           }
         }
       ]
@@ -953,7 +1113,9 @@
         {
           "text": {
             "ko": "Butcher가 결정했다. 말했다. 말이 짧았다. 그것이 결정이었다. 불이 탔다. 따뜻하지 않았다. 사람들이 봤다. 아무도 말하지 않았다.",
-            "en": "Butcher decided. Spoke. Words brief. That was the decision. Fire burned. Not warm. People watched. No one spoke."
+            "en": "Butcher decided. Spoke. Words brief. That was the decision. Fire burned. Not warm. People watched. No one spoke.",
+            "ja": "ブッチャーが決めた。言った。言葉が短かった。それが決定だった。火が燃えた。温かくなかった。人々が見た。誰も話さなかった。",
+            "zh": "布彻做了决定。说话了。话很简短。那就是决定。火在燃烧。不暖和。人们都在看。没有人说话。"
           }
         }
       ]
@@ -968,7 +1130,9 @@
         {
           "text": {
             "ko": "Reza를 봤다. 그의 눈이 무언가를 말했다. Aisha. 그것이었다. 이름 하나였다. 거기서 살아있는 것이었다. 여동생 이름. Aisha.",
-            "en": "Looked at Reza. His eyes said something. Aisha. That was it. One name. What was alive there. Sister's name. Aisha."
+            "en": "Looked at Reza. His eyes said something. Aisha. That was it. One name. What was alive there. Sister's name. Aisha.",
+            "ja": "レザを見た。彼の目が何かを言った。アイシャ。それだった。一つの名前だった。そこで生きているものだった。妹の名前。アイシャ。",
+            "zh": "看着雷扎。他的眼睛说了什么。艾莎。就是那个。一个名字。那里活着的东西。妹妹的名字。艾莎。"
           },
           "overlay": "cv_ch1_baptism_l41_00_candle_flame"
         }
@@ -982,11 +1146,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "세례",
-        "en": "Baptism"
+        "en": "Baptism",
+        "ja": "洗礼",
+        "zh": "洗礼"
       },
       "subtitle": {
         "ko": "에레부스 분화구 — 첫 번째 선택",
-        "en": "Erebus Crater — The First Choice"
+        "en": "Erebus Crater — The First Choice",
+        "ja": "エレバス・クレーター — 最初の選択",
+        "zh": "厄瑞玻斯陨石坑 — 第一次抉择"
       }
     },
     {
@@ -1005,7 +1173,9 @@
         {
           "text": {
             "ko": "됐어. Butcher가 말했다. 불을 보면서. 당신을 보지 않고. 그것이 그의 방식이었다. 인정하는 방식. 말이 짧은 방식.",
-            "en": "That'll do. Butcher said. Looking at the fire. Not at you. That was his way. The way of acknowledging. The way of few words."
+            "en": "That'll do. Butcher said. Looking at the fire. Not at you. That was his way. The way of acknowledging. The way of few words.",
+            "ja": "それでいい。ブッチャーが言った。火を見ながら。あなたを見ずに。それが彼のやり方だった。認める方式。言葉が短いやり方。",
+            "zh": "行了。布彻说。看着火。没有看你。那就是他的方式。认可的方式。话少的方式。"
           }
         }
       ]
@@ -1022,7 +1192,9 @@
           "emotion": "flat",
           "text": {
             "ko": "세례 완료예요.",
-            "en": "Baptism complete."
+            "en": "Baptism complete.",
+            "ja": "洗礼完了です。",
+            "zh": "洗礼完成。"
           }
         },
         {
@@ -1030,7 +1202,9 @@
           "emotion": "sardonic",
           "text": {
             "ko": "앞으로 더 어려워요. 이건 쉬운 부분이에요.",
-            "en": "It gets harder from here. This was the easy part."
+            "en": "It gets harder from here. This was the easy part.",
+            "ja": "これから先はもっと難しくなります。これは簡単な部分でした。",
+            "zh": "从这里开始会更难。这只是简单的部分。"
           }
         }
       ]
@@ -1047,7 +1221,9 @@
           "emotion": "cold",
           "text": {
             "ko": "아직 살아있어. 두 번은 없어. 다시.",
-            "en": "Still alive. No second chances. Again."
+            "en": "Still alive. No second chances. Again.",
+            "ja": "まだ生きてる。二度はない。もう一度。",
+            "zh": "还活着。没有第二次机会。重来。"
           }
         },
         {
@@ -1055,7 +1231,9 @@
           "emotion": "flat",
           "text": {
             "ko": "살아있으면 아직 기회야.",
-            "en": "Alive means there's still a chance."
+            "en": "Alive means there's still a chance.",
+            "ja": "生きているなら、まだチャンスがある。",
+            "zh": "还活着就还有机会。"
           }
         }
       ]
@@ -1070,7 +1248,9 @@
         {
           "text": {
             "ko": "불은 탔다. Butcher는 일어서지 않았다. 분화구 안으로 걸어 들어갔다. 가방을 들고. 손을 가방 위에 얹고. 다른 사람들이 보았다. 아무도 말하지 않았다.",
-            "en": "Fire burned. Butcher didn't stand. Walked into the crater. Carrying the bag. Hand resting on it. The others watched. No one said anything."
+            "en": "Fire burned. Butcher didn't stand. Walked into the crater. Carrying the bag. Hand resting on it. The others watched. No one said anything.",
+            "ja": "火が燃えた。ブッチャーは立ち上がらなかった。クレーターの中へ歩いて入った。鞄を持ち。手を鞄の上に乗せて。他の者たちが見た。誰も何も言わなかった。",
+            "zh": "火在燃烧。布彻没有站起来。走进了陨石坑。拿着包。手放在包上。其他人看着。没有人说话。"
           }
         }
       ]
@@ -1085,7 +1265,9 @@
         {
           "text": {
             "ko": "Reza의 눈이 기억났다. Aisha. 이름이 있는 사람이었다. 화성에서 이름이 있는 사람은 계속 거기 있는 것이었다. 기억 안에서. 그것이 여기서의 방식이었다.",
-            "en": "Remembered Reza's eyes. Aisha. A person with a name. On Mars a person with a name remained. In memory. That was the way here."
+            "en": "Remembered Reza's eyes. Aisha. A person with a name. On Mars a person with a name remained. In memory. That was the way here.",
+            "ja": "レザの目が思い出された。アイシャ。名前のある人だった。火星で名前のある人は、ずっとそこにいるのだった。記憶の中で。それがここでのやり方だった。",
+            "zh": "想起了雷扎的眼神。艾莎。一个有名字的人。在火星上，有名字的人会一直在那里。在记忆里。那就是这里的方式。"
           }
         }
       ]
@@ -1100,7 +1282,9 @@
         {
           "text": {
             "ko": "영하 백 도였다. 불만 탔다. 30년 동안 그랬다. 당신이 그 불 앞에 앉았다. 따뜻하지 않았다. 그러나 앉았다. 이것이 세례였다.",
-            "en": "Minus one hundred degrees. Only the fire burned. Thirty years of that. You sat before that fire. Not warm. But sitting. This was the baptism."
+            "en": "Minus one hundred degrees. Only the fire burned. Thirty years of that. You sat before that fire. Not warm. But sitting. This was the baptism.",
+            "ja": "マイナス百度だった。火だけが燃えた。30年間そうだった。あなたはその火の前に座った。温かくなかった。しかし座った。これが洗礼だった。",
+            "zh": "零下一百度。只有火在燃烧。三十年来都是如此。你坐在那火前。不暖和。但你坐了下来。这就是洗礼。"
           }
         }
       ],
@@ -1108,7 +1292,9 @@
         "questId": "cv_campaign_ch2",
         "teaser": {
           "ko": "다음 — 첫 피",
-          "en": "Next — First Blood"
+          "en": "Next — First Blood",
+          "ja": "次回 — 初血",
+          "zh": "下一章 — 初血"
         }
       }
     }

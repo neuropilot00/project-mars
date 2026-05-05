@@ -4,7 +4,9 @@
   "chapterNumber": 8,
   "title": {
     "ko": "가이아",
-    "en": "Gaia"
+    "en": "Gaia",
+    "ja": "ガイア",
+    "zh": "盖亚"
   },
   "location": {
     "id": "new_athens_shipyard",
@@ -28,7 +30,9 @@
         {
           "text": {
             "ko": "뉴 아테네 조선소. 화성 남반구. 바람이 강한 곳이었다. 바람이 강한 곳에서 배를 만들었다. 화성에서 배는 우주선이었다. 우주로 나가는 것이었다. 화성 사람들이 우주선을 만드는 것은 드문 일이었다. 대부분은 회사 것을 탔다. 이곳은 달랐다.",
-            "en": "New Athens Shipyard. Southern hemisphere of Mars. A place of strong winds. Ships were built where the wind was strong. On Mars ships were spacecraft. Things that went to space. Mars people building spacecraft was rare. Most rode company vessels. This place was different."
+            "en": "New Athens Shipyard. Southern hemisphere of Mars. A place of strong winds. Ships were built where the wind was strong. On Mars ships were spacecraft. Things that went to space. Mars people building spacecraft was rare. Most rode company vessels. This place was different.",
+            "ja": "ニュー・アテネ造船所。火星南半球。強い風の吹く場所だった。風の強い場所で船を造った。火星で船とは宇宙船のことだった。宇宙へ出るものだった。火星の人々が宇宙船を造ることは稀だった。ほとんどは企業のものに乗った。ここは違った。",
+            "zh": "新雅典造船厂。火星南半球。一个风大的地方。他们在风大的地方造船。在火星上，船就是宇宙飞船。是飞向宇宙的东西。火星人自己造宇宙飞船是罕见的事。大多数人乘坐公司的船。这里不同。"
           }
         }
       ]
@@ -43,7 +47,9 @@
         {
           "text": {
             "ko": "Hagar Volkov. 조선소 수석 기술자. 화성 1세대. 지구를 기억하는 마지막 세대. 크고 조용한 사람이었다. 말보다 손이 빠른 사람이었다. 손에 흉터가 있었다. 오래된 것들이었다. 화성의 오래된 흉터는 각자의 이야기가 있었다.",
-            "en": "Hagar Volkov. Chief engineer of the shipyard. First generation on Mars. The last generation to remember Earth. A large and quiet person. Hands faster than words. Scars on the hands. Old ones. Old scars on Mars each had their own story."
+            "en": "Hagar Volkov. Chief engineer of the shipyard. First generation on Mars. The last generation to remember Earth. A large and quiet person. Hands faster than words. Scars on the hands. Old ones. Old scars on Mars each had their own story.",
+            "ja": "ハガル・ヴォルコフ。造船所の主任技師。火星第一世代。地球を記憶する最後の世代。大きく寡黙な人物だった。言葉より手が速い人だった。手には傷跡があった。古いものだった。火星の古い傷跡にはそれぞれの物語があった。",
+            "zh": "哈格尔·沃尔科夫。造船厂首席工程师。火星第一代移民。记得地球的最后一代人。一个高大沉默的人。手比话快。手上有疤痕。都是旧伤。火星上的旧疤痕各有各的故事。"
           }
         }
       ]
@@ -58,7 +64,9 @@
         {
           "text": {
             "ko": "조선소 안에 배가 있었다. 가이아였다. 크지 않았다. 군함이 아니었다. 화물선에 가까웠다. 그러나 뭔가 달랐다. 설계도를 보지 않아도 알 수 있었다. 이 배는 먼 곳을 가기 위한 것이었다. 화성 외부. 화성 너머.",
-            "en": "Inside the shipyard was a ship. Gaia. Not large. Not a warship. Closer to a freighter. But something was different. Even without seeing the blueprints it was knowable. This ship was for going far. Outside Mars. Beyond Mars."
+            "en": "Inside the shipyard was a ship. Gaia. Not large. Not a warship. Closer to a freighter. But something was different. Even without seeing the blueprints it was knowable. This ship was for going far. Outside Mars. Beyond Mars.",
+            "ja": "造船所の中に船があった。ガイアだった。大きくはなかった。軍艦ではなかった。貨物船に近かった。しかし何かが違った。設計図を見なくてもわかった。この船は遠くへ行くためのものだった。火星の外へ。火星の彼方へ。",
+            "zh": "造船厂里有一艘船。那就是盖亚。不大。不是军舰。更像货船。但有些地方不同。不用看设计图也能感觉到。这艘船是为了去远方而造的。火星之外。火星之外更远的地方。"
           }
         }
       ]
@@ -76,7 +84,9 @@
           "effect": "character_enter:hagar:slide_left",
           "text": {
             "ko": "FSP가 왔군. 좋아. 일손이 필요해.",
-            "en": "FSP came. Good. Need hands."
+            "en": "FSP came. Good. Need hands.",
+            "ja": "FSPが来たか。いい。人手が要る。",
+            "zh": "FSP来了。好。需要人手。"
           }
         },
         {
@@ -84,7 +94,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "이 배 이름이 가이아야. 지구 뜻이야. 내가 붙인 거야. 이유 묻지 마. 대답하기 싫어.",
-            "en": "This ship is called Gaia. Means Earth. I named it. Don't ask why. Don't want to answer."
+            "en": "This ship is called Gaia. Means Earth. I named it. Don't ask why. Don't want to answer.",
+            "ja": "この船の名はガイアだ。地球という意味だ。俺が付けた。理由は聞くな。答えたくない。",
+            "zh": "这艘船叫盖亚。是地球的意思。我起的名字。别问为什么。不想回答。"
           }
         },
         {
@@ -92,7 +104,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC가 이 조선소를 노려. 가이아를 완성하기 전에 막으려는 거야. 그게 문제야.",
-            "en": "MCC has its eye on this shipyard. They're trying to stop us before Gaia is complete. That's the problem."
+            "en": "MCC has its eye on this shipyard. They're trying to stop us before Gaia is complete. That's the problem.",
+            "ja": "MCCがこの造船所を狙っている。ガイアが完成する前に阻もうとしている。それが問題だ。",
+            "zh": "MCC盯上了这座造船厂。想在盖亚完工之前阻止我们。这就是问题所在。"
           }
         }
       ]
@@ -107,7 +121,9 @@
         {
           "text": {
             "ko": "Hagar가 손을 들었다. 배를 향해. 흉터 있는 손으로. 그것이 저 배를 만든 손이었다. 1세대. 화성에서 17년. 지구를 기억하면서 화성을 만든 사람들. 이 배가 그 17년의 결과였다.",
-            "en": "Hagar raised his hand. Toward the ship. The scarred hand. That was the hand that had built that ship. First generation. Seventeen years on Mars. People who remembered Earth while building Mars. This ship was the result of those seventeen years."
+            "en": "Hagar raised his hand. Toward the ship. The scarred hand. That was the hand that had built that ship. First generation. Seventeen years on Mars. People who remembered Earth while building Mars. This ship was the result of those seventeen years.",
+            "ja": "ハガルが手を上げた。船に向けて。傷跡のある手で。それがあの船を造った手だった。第一世代。火星で17年。地球を記憶しながら火星を築いた人々。この船はその17年の結実だった。",
+            "zh": "哈格尔抬起手。朝向那艘船。带着疤痕的手。那是造出那艘船的手。第一代移民。在火星17年。一边记着地球一边建设火星的人们。这艘船就是那17年的成果。"
           }
         }
       ]
@@ -124,7 +140,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Olu랑 Mariam이 이 배를 설계했어. 둘이서. 1년 걸렸어.",
-            "en": "Olu and Mariam designed this ship. Both of them. Took a year."
+            "en": "Olu and Mariam designed this ship. Both of them. Took a year.",
+            "ja": "オルとマリアムがこの船を設計した。二人で。1年かかった。",
+            "zh": "奥卢和玛丽亚姆设计了这艘船。两个人一起。花了一年。"
           }
         },
         {
@@ -132,7 +150,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "지금 Olu가 편지를 쓰고 있어. Mariam한테. 가이아가 완성되면 같이 타려고 했는데. Mariam이 6개월 전에 광산 사고로.",
-            "en": "Olu is writing a letter now. To Mariam. They planned to ride Gaia together when it was done. Mariam six months ago. Mine accident."
+            "en": "Olu is writing a letter now. To Mariam. They planned to ride Gaia together when it was done. Mariam six months ago. Mine accident.",
+            "ja": "今オルが手紙を書いている。マリアムへ。ガイアが完成したら二人で乗るつもりだったのに。マリアムは6か月前に、鉱山事故で。",
+            "zh": "现在奥卢在写信。给玛丽亚姆。本来打算盖亚完工后一起搭乘的。玛丽亚姆在六个月前，矿难。"
           }
         },
         {
@@ -140,7 +160,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "편지는 보낼 곳이 없어. 그래도 써. 매일.",
-            "en": "The letter has nowhere to go. But he writes. Every day."
+            "en": "The letter has nowhere to go. But he writes. Every day.",
+            "ja": "手紙には送る場所がない。それでも書く。毎日。",
+            "zh": "信没有地方可寄。但他还是写。每天都写。"
           }
         }
       ]
@@ -155,7 +177,9 @@
         {
           "text": {
             "ko": "Olu Adeyemi가 있었다. 40대. 배 설계자. 구석에서 글을 쓰고 있었다. 손으로. 종이에. 화성에서 손으로 종이에 쓰는 것은 드문 일이었다. 디지털이 더 쉬웠다. 그러나 이 사람은 손으로 쓰고 있었다. 그것이 이유가 있는 것이었다.",
-            "en": "Olu Adeyemi was there. Forties. Ship designer. Writing in a corner. By hand. On paper. Writing by hand on paper on Mars was rare. Digital was easier. But this person was writing by hand. That had a reason."
+            "en": "Olu Adeyemi was there. Forties. Ship designer. Writing in a corner. By hand. On paper. Writing by hand on paper on Mars was rare. Digital was easier. But this person was writing by hand. That had a reason.",
+            "ja": "オル・アデイェミがいた。40代。船の設計者。隅で字を書いていた。手で。紙に。火星で手書きで紙に書くのは稀なことだった。デジタルの方が楽だった。しかしこの人は手で書いていた。それには理由があった。",
+            "zh": "奥卢·阿德耶米在那里。四十多岁。船舶设计师。在角落里写字。用手。在纸上。在火星上用手在纸上写字是罕见的事。数字方式更便捷。但这个人在用手写。那是有原因的。"
           },
           "overlay": "fsp_ch8_water_war_l06_00_death_still"
         }
@@ -171,7 +195,9 @@
         {
           "text": {
             "ko": "Olu와 Mariam. 두 사람이 가이아를 설계했다. 1년. 그것이 두 사람의 결혼 자금이었다. Hagar가 나중에 말했다. 둘이 결혼하려고 모은 돈으로 가이아를 만들었다고. 그것을 모두가 알고 있었는지는 몰랐다. Olu와 Mariam은 알고 있었다.",
-            "en": "Olu and Mariam. Two people who designed Gaia. One year. That had been their wedding fund. Hagar said later. They had built Gaia with the money they had saved to get married. Whether everyone knew that wasn't certain. Olu and Mariam had known."
+            "en": "Olu and Mariam. Two people who designed Gaia. One year. That had been their wedding fund. Hagar said later. They had built Gaia with the money they had saved to get married. Whether everyone knew that wasn't certain. Olu and Mariam had known.",
+            "ja": "オルとマリアム。ガイアを設計した二人。1年。それが二人の結婚資金だった。ハガルは後に言った。結婚しようと貯めたお金でガイアを造ったと。それを全員が知っていたかどうかはわからなかった。オルとマリアムは知っていた。",
+            "zh": "奥卢和玛丽亚姆。设计盖亚的两个人。一年。那是他们的结婚基金。哈格尔后来说。他们用攒下来准备结婚的钱造了盖亚。所有人是否都知道这件事，不得而知。奥卢和玛丽亚姆知道。"
           }
         }
       ]
@@ -189,7 +215,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "보스. 알아요? Olu랑 Mariam이 결혼 자금을 이 배에 넣었어요.",
-            "en": "Boss. Do you know? Olu and Mariam put their wedding fund into this ship."
+            "en": "Boss. Do you know? Olu and Mariam put their wedding fund into this ship.",
+            "ja": "ボス。知ってます？オルとマリアムが結婚資金をこの船に入れたんですよ。",
+            "zh": "头儿。你知道吗？奥卢和玛丽亚姆把他们的结婚基金投进了这艘船。"
           }
         },
         {
@@ -197,7 +225,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Mariam은 몰랐어요. 몰랐는데도 동의했어요. Olu가 설명했을 때.",
-            "en": "Mariam didn't know. Even not knowing she agreed. When Olu explained."
+            "en": "Mariam didn't know. Even not knowing she agreed. When Olu explained.",
+            "ja": "マリアムは知らなかったんです。知らなかったのに同意したんです。オルが説明したとき。",
+            "zh": "玛丽亚姆不知道。不知道还是同意了。当奥卢解释的时候。"
           }
         },
         {
@@ -205,7 +235,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "그게 사랑인지 어리석음인지 모르겠어요. 둘 다인 것 같기도 해요.",
-            "en": "Don't know if that's love or foolishness. Maybe both."
+            "en": "Don't know if that's love or foolishness. Maybe both.",
+            "ja": "それが愛なのか愚かさなのかわかりません。両方な気もするけど。",
+            "zh": "不知道那是爱还是愚蠢。也许两者都是。"
           }
         }
       ]
@@ -220,7 +252,9 @@
         {
           "text": {
             "ko": "Olu가 편지를 쓰고 있었다. Mariam에게. 보낼 수 없는 편지였다. 그러나 쓰고 있었다. 손이 종이 위를 움직였다. 그것이 멈추지 않았다. 멈추는 것이 없는 사람이었다. 그것이 이 배를 만든 사람이었다.",
-            "en": "Olu was writing the letter. To Mariam. A letter that couldn't be sent. But he was writing. His hand moved over the paper. It didn't stop. He was someone without stopping. That was the person who had built this ship."
+            "en": "Olu was writing the letter. To Mariam. A letter that couldn't be sent. But he was writing. His hand moved over the paper. It didn't stop. He was someone without stopping. That was the person who had built this ship.",
+            "ja": "オルは手紙を書いていた。マリアムへ。送ることのできない手紙だった。それでも書いていた。手が紙の上を動いた。止まらなかった。止まることのない人だった。それがこの船を造った人だった。",
+            "zh": "奥卢在写信。给玛丽亚姆。一封寄不出去的信。但他还在写。手在纸上移动着。没有停下来。他是个停不下来的人。那就是造出这艘船的人。"
           }
         }
       ]
@@ -237,7 +271,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Olu가 뭘 쓰는지 물어봤어. 한 번.",
-            "en": "I asked Olu what he was writing. Once."
+            "en": "I asked Olu what he was writing. Once.",
+            "ja": "オルが何を書いているのか聞いてみた。一度だけ。",
+            "zh": "我问过奥卢在写什么。就一次。"
           }
         },
         {
@@ -245,7 +281,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "가이아가 가는 곳을 쓴다고 했어. 어디로 갈지. 무엇을 볼지. Mariam이 보고 싶어 했던 것들을.",
-            "en": "He said he was writing where Gaia would go. Where it would travel. What it would see. The things Mariam had wanted to see."
+            "en": "He said he was writing where Gaia would go. Where it would travel. What it would see. The things Mariam had wanted to see.",
+            "ja": "ガイアが行く場所を書いていると言った。どこへ向かうか。何を見るか。マリアムが見たかったものを。",
+            "zh": "他说他在写盖亚会去哪里。会去何方。会看到什么。玛丽亚姆想看的那些东西。"
           }
         },
         {
@@ -253,7 +291,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "Mariam은 화성 밖을 보고 싶어 했어. 한 번도 못 봤어.",
-            "en": "Mariam had wanted to see outside Mars. Never got to."
+            "en": "Mariam had wanted to see outside Mars. Never got to.",
+            "ja": "マリアムは火星の外を見たかった。一度も見られなかった。",
+            "zh": "玛丽亚姆想看看火星之外的世界。从未如愿。"
           }
         }
       ]
@@ -268,7 +308,9 @@
         {
           "text": {
             "ko": "MCC 호위선이 조선소 근처에 있었다. 두 척이었다. 합법적인 거리를 유지했다. 그러나 합법적인 거리에서 보이는 것이 있었다. MCC는 항상 합법적인 방식으로 압박했다. 그것이 가장 무서운 종류의 압박이었다.",
-            "en": "MCC escort vessels were near the shipyard. Two of them. Maintaining a legal distance. But there was something visible at legal distance. MCC always pressured through legal means. That was the most frightening kind of pressure."
+            "en": "MCC escort vessels were near the shipyard. Two of them. Maintaining a legal distance. But there was something visible at legal distance. MCC always pressured through legal means. That was the most frightening kind of pressure.",
+            "ja": "MCC護衛艦が造船所の近くにあった。二隻だった。合法的な距離を保っていた。しかし合法的な距離でも見えるものがあった。MCCは常に合法的な方法で圧力をかけた。それが最も恐ろしい種類の圧力だった。",
+            "zh": "MCC护卫舰就在造船厂附近。两艘。保持着合法距离。但在合法距离之内，有些东西是看得见的。MCC总是用合法手段施压。那是最可怕的一种压力。"
           }
         }
       ]
@@ -283,7 +325,9 @@
         {
           "text": {
             "ko": "가이아의 완성율이 87%였다. Hagar가 말했다. 2주가 더 필요했다. MCC가 2주를 기다릴 것이었다. 아니면 기다리지 않을 것이었다. 그것이 지금 알 수 없는 것이었다.",
-            "en": "Gaia's completion rate was 87%. Hagar said. Two more weeks were needed. MCC would wait two weeks. Or wouldn't. That was what was unknowable now."
+            "en": "Gaia's completion rate was 87%. Hagar said. Two more weeks were needed. MCC would wait two weeks. Or wouldn't. That was what was unknowable now.",
+            "ja": "ガイアの完成率は87%だった。ハガルは言った。あと2週間必要だった。MCCは2週間待つだろう。あるいは待たないだろう。それが今のところわからないことだった。",
+            "zh": "盖亚的完工率是87%。哈格尔说。还需要两周。MCC会等两周。也许不会等。那是现在还不知道的事。"
           }
         }
       ]
@@ -300,7 +344,9 @@
           "emotion": "serious",
           "text": {
             "ko": "36분이야.",
-            "en": "Thirty-six minutes."
+            "en": "Thirty-six minutes.",
+            "ja": "36分だ。",
+            "zh": "三十六分钟。"
           }
         },
         {
@@ -308,7 +354,9 @@
           "emotion": "tense",
           "text": {
             "ko": "36분요?",
-            "en": "Thirty-six minutes?"
+            "en": "Thirty-six minutes?",
+            "ja": "36分ですか？",
+            "zh": "三十六分钟？"
           }
         },
         {
@@ -316,7 +364,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "MCC 호위선이 접근하면 우리가 방어할 수 있는 시간. 36분. 그 안에 결정하고 움직여야 해.",
-            "en": "If MCC escorts approach the time we can defend. Thirty-six minutes. Need to decide and move within that."
+            "en": "If MCC escorts approach the time we can defend. Thirty-six minutes. Need to decide and move within that.",
+            "ja": "MCC護衛艦が接近した場合に我々が守れる時間。36分。その中で決めて動かなければならない。",
+            "zh": "如果MCC护卫舰靠近，我们能防守的时间。三十六分钟。必须在这段时间内做出决定并行动。"
           }
         }
       ]
@@ -333,7 +383,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "조선소 방어 시스템이 36분을 버텨요. 그 이상은 못 해.",
-            "en": "The shipyard defense system holds for thirty-six minutes. No more."
+            "en": "The shipyard defense system holds for thirty-six minutes. No more.",
+            "ja": "造船所の防衛システムは36分持ちこたえる。それ以上は無理だ。",
+            "zh": "造船厂的防御系统能撑三十六分钟。撑不了更久。"
           }
         },
         {
@@ -341,7 +393,9 @@
           "emotion": "serious",
           "text": {
             "ko": "36분 안에 Gaia가 출항 준비가 되면 우리가 이기는 거야.",
-            "en": "If Gaia is ready to launch within thirty-six minutes we win."
+            "en": "If Gaia is ready to launch within thirty-six minutes we win.",
+            "ja": "36分以内にガイアが出航準備できれば俺たちの勝ちだ。",
+            "zh": "如果盖亚在三十六分钟内准备好出航，我们就赢了。"
           }
         },
         {
@@ -349,7 +403,9 @@
           "emotion": "tense",
           "text": {
             "ko": "87%에서 출항 준비까지 36분이요?",
-            "en": "From 87% to launch ready in thirty-six minutes?"
+            "en": "From 87% to launch ready in thirty-six minutes?",
+            "ja": "87%から出航準備まで36分ですか？",
+            "zh": "从87%到准备出航要三十六分钟？"
           }
         },
         {
@@ -357,7 +413,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "나는 1세대야. 나는 할 수 있어.",
-            "en": "I'm first generation. I can do it."
+            "en": "I'm first generation. I can do it.",
+            "ja": "俺は第一世代だ。俺ならできる。",
+            "zh": "我是第一代移民。我能做到。"
           }
         }
       ]
@@ -372,7 +430,9 @@
         {
           "text": {
             "ko": "Lena가 조선소 안으로 들어갔다. 빠른 사람이 더 빨라졌다. 뭔가를 확인하는 것이었다. 배. 연결부. 시스템. 그것이 Lena의 방식이었다. 빠르게 보는 것. 빠르게 결정하는 것.",
-            "en": "Lena went inside the shipyard. The fast person got faster. Checking something. The ship. Connections. Systems. That was Lena's way. Seeing fast. Deciding fast."
+            "en": "Lena went inside the shipyard. The fast person got faster. Checking something. The ship. Connections. Systems. That was Lena's way. Seeing fast. Deciding fast.",
+            "ja": "レナが造船所の中に入った。速い人がさらに速くなった。何かを確認しているのだった。船。接続部。システム。それがレナのやり方だった。速く見ること。速く決めること。",
+            "zh": "莱娜走进了造船厂内部。本就快的人变得更快了。在检查什么。船。连接处。系统。那就是莱娜的方式。快速看清。快速决断。"
           }
         }
       ]
@@ -389,7 +449,9 @@
           "emotion": "direct",
           "text": {
             "ko": "Hagar. 주 엔진 상태 어때요.",
-            "en": "Hagar. Status of the main engine."
+            "en": "Hagar. Status of the main engine.",
+            "ja": "ハガル。主エンジンの状態は。",
+            "zh": "哈格尔。主引擎状态怎么样。"
           }
         },
         {
@@ -397,7 +459,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "93%. 부 시스템이 문제야. 냉각 계통.",
-            "en": "93%. Secondary systems are the issue. Cooling circuits."
+            "en": "93%. Secondary systems are the issue. Cooling circuits.",
+            "ja": "93%。サブシステムが問題だ。冷却回路。",
+            "zh": "93%。辅助系统有问题。冷却回路。"
           }
         },
         {
@@ -405,7 +469,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 할게요. 냉각 계통은 광산 시스템이랑 비슷해요.",
-            "en": "I'll do it. Cooling circuits are similar to mine systems."
+            "en": "I'll do it. Cooling circuits are similar to mine systems.",
+            "ja": "私がやります。冷却回路は鉱山システムに似ています。",
+            "zh": "我来。冷却回路跟矿山系统差不多。"
           }
         },
         {
@@ -413,7 +479,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그래. 해봐.",
-            "en": "Fine. Try it."
+            "en": "Fine. Try it.",
+            "ja": "ああ。やってみろ。",
+            "zh": "好。试试吧。"
           }
         }
       ]
@@ -428,7 +496,9 @@
         {
           "text": {
             "ko": "Olu가 편지를 쓰고 있었다. 구석에서. 손으로. 종이에. MCC 호위선이 있었다. 두 척. 36분. 그것이 지금 이 조선소에 있었다. 편지. 배. 시간. 그것들이 같이 있었다.",
-            "en": "Olu was writing the letter. In the corner. By hand. On paper. MCC escorts were there. Two ships. Thirty-six minutes. That was in this shipyard now. The letter. The ship. Time. They were together."
+            "en": "Olu was writing the letter. In the corner. By hand. On paper. MCC escorts were there. Two ships. Thirty-six minutes. That was in this shipyard now. The letter. The ship. Time. They were together.",
+            "ja": "オルは手紙を書いていた。隅で。手で。紙に。MCC護衛艦があった。二隻。36分。それが今この造船所にあった。手紙。船。時間。それらが一緒にあった。",
+            "zh": "奥卢在写信。在角落里。用手。在纸上。MCC护卫舰在那里。两艘。三十六分钟。那些此刻都在这座造船厂里。信。船。时间。它们在一起。"
           }
         }
       ]
@@ -443,7 +513,9 @@
         {
           "text": {
             "ko": "Olu가 편지를 접었다. 일어섰다. 하가르를 봤다. 그 눈빛이 말했다. 준비됐다. Olu는 배 설계자였다. 전투원이 아니었다. 그러나 이 배가 그의 것이었다. Mariam의 것이기도 했다. 그것이 그를 일어서게 했다.",
-            "en": "Olu folded the letter. Stood. Looked at Hagar. Those eyes said. Ready. Olu was a ship designer. Not a fighter. But this ship was his. Mariam's too. That had made him stand."
+            "en": "Olu folded the letter. Stood. Looked at Hagar. Those eyes said. Ready. Olu was a ship designer. Not a fighter. But this ship was his. Mariam's too. That had made him stand.",
+            "ja": "オルは手紙を折り畳んだ。立ち上がった。ハガルを見た。その眼差しが言った。準備はできた。オルは船の設計者だった。戦闘員ではなかった。しかしこの船は彼のものだった。マリアムのものでもあった。それが彼を立ち上がらせた。",
+            "zh": "奥卢把信折好。站了起来。看向哈格尔。那双眼睛说：准备好了。奥卢是船舶设计师。不是战士。但这艘船是他的。也是玛丽亚姆的。那让他站了起来。"
           }
         }
       ]
@@ -460,7 +532,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Olu. 안전한 데 있어.",
-            "en": "Olu. Stay somewhere safe."
+            "en": "Olu. Stay somewhere safe.",
+            "ja": "オル。安全なところにいろ。",
+            "zh": "奥卢。待在安全的地方。"
           }
         },
         {
@@ -469,7 +543,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "이 배 설계자예요. 어디가 안전한지 알아요.",
-            "en": "I'm this ship's designer. I know where is safe."
+            "en": "I'm this ship's designer. I know where is safe.",
+            "ja": "この船の設計者ですよ。どこが安全か知っています。",
+            "zh": "我是这艘船的设计师。我知道哪里安全。"
           }
         },
         {
@@ -478,7 +554,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "Mariam이 한 말이에요. 결혼 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고. 이 배는 한 번이에요.",
-            "en": "Something Mariam said. Marriage can happen twice. A spacecraft gets made once. This ship is once."
+            "en": "Something Mariam said. Marriage can happen twice. A spacecraft gets made once. This ship is once.",
+            "ja": "マリアムが言ったことです。結婚は二度できると。宇宙船は一度しか造れないと。この船は一度きりです。",
+            "zh": "玛丽亚姆说过的话。结婚可以有两次。宇宙飞船只能造一次。这艘船是唯一的一次。"
           }
         }
       ]
@@ -493,7 +571,9 @@
         {
           "text": {
             "ko": "Olu의 편지가 접혀 있었다. 주머니 안에. 가이아가 가는 곳들을 쓴 것. Mariam이 보고 싶어 했던 것들을 쓴 것. 그것이 가이아와 같이 있었다. 편지가 배와 같이 있었다. 그것이 오늘 이 조선소의 전부였다.",
-            "en": "Olu's letter was folded. In his pocket. Written with the places Gaia would go. Written with the things Mariam had wanted to see. That was together with Gaia. The letter was with the ship. That was everything in this shipyard today."
+            "en": "Olu's letter was folded. In his pocket. Written with the places Gaia would go. Written with the things Mariam had wanted to see. That was together with Gaia. The letter was with the ship. That was everything in this shipyard today.",
+            "ja": "オルの手紙は折り畳まれていた。ポケットの中に。ガイアが行く場所を書いたもの。マリアムが見たかったものを書いたもの。それがガイアと一緒にあった。手紙が船と一緒にあった。それが今日この造船所の全てだった。",
+            "zh": "奥卢的信折叠着。在口袋里。写着盖亚会去的地方。写着玛丽亚姆想看到的东西。那与盖亚在一起。信与船在一起。那就是今天这座造船厂的全部。"
           }
         }
       ]
@@ -505,55 +585,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "가이아. Olu의 편지. MCC 호위선. 36분. 어떻게 합니까.",
-        "en": "Gaia. Olu's letter. MCC escort vessels. Thirty-six minutes. What do you do."
+        "en": "Gaia. Olu's letter. MCC escort vessels. Thirty-six minutes. What do you do.",
+        "ja": "ガイア。オルの手紙。MCC護衛艦。36分。どうするか。",
+        "zh": "盖亚。奥卢的信。MCC护卫舰。三十六分钟。你怎么做。"
       },
       "choices": [
         {
           "id": "fsp_ch8_defend",
           "text": {
             "ko": "조선소를 방어한다. 가이아를 완성한다.",
-            "en": "Defend the shipyard. Complete Gaia."
+            "en": "Defend the shipyard. Complete Gaia.",
+            "ja": "造船所を守る。ガイアを完成させる。",
+            "zh": "保卫造船厂。完成盖亚。"
           },
           "tone": "decisive",
           "preview_hint": {
             "ko": "→ MCC와 해상 충돌, 가이아 진수 가능성",
-            "en": "→ Maritime clash with MCC, Gaia launch possible"
+            "en": "→ Maritime clash with MCC, Gaia launch possible",
+            "ja": "→ MCCと艦隊衝突、ガイア進水の可能性",
+            "zh": "→ 与MCC舰队冲突，盖亚有望下水"
           }
         },
         {
           "id": "fsp_ch8_cv_support",
           "text": {
             "ko": "CV에 지원을 요청한다. Sandstone 약속.",
-            "en": "Request CV support. The Sandstone Promise."
+            "en": "Request CV support. The Sandstone Promise.",
+            "ja": "CVに支援を要請する。サンドストーンの約束。",
+            "zh": "向CV请求支援。砂岩誓约。"
           },
           "tone": "alliance",
           "preview_hint": {
             "ko": "→ Cinder Grace 등장, 동맹 시험",
-            "en": "→ Cinder Grace appears, alliance tested"
+            "en": "→ Cinder Grace appears, alliance tested",
+            "ja": "→ シンダー・グレース登場、同盟の試練",
+            "zh": "→ 辛德·格雷斯现身，同盟受到考验"
           }
         },
         {
           "id": "fsp_ch8_negotiate_mcc",
           "text": {
             "ko": "MCC와 협상한다. 가이아 건조 목적을 공개한다.",
-            "en": "Negotiate with MCC. Reveal Gaia's purpose."
+            "en": "Negotiate with MCC. Reveal Gaia's purpose.",
+            "ja": "MCCと交渉する。ガイア建造の目的を公開する。",
+            "zh": "与MCC谈判。公开盖亚的建造目的。"
           },
           "tone": "transparent",
           "preview_hint": {
             "ko": "→ MCC가 듣는다. 예상 밖으로",
-            "en": "→ MCC listens. Unexpectedly."
+            "en": "→ MCC listens. Unexpectedly.",
+            "ja": "→ MCCが耳を傾ける。意外にも。",
+            "zh": "→ MCC倾听了。出乎意料地。"
           }
         },
         {
           "id": "fsp_ch8_launch_now",
           "text": {
             "ko": "미완성이어도 지금 당장 진수한다.",
-            "en": "Launch now even if incomplete."
+            "en": "Launch now even if incomplete.",
+            "ja": "未完成でも今すぐ進水させる。",
+            "zh": "即使未完工，现在就下水。"
           },
           "tone": "desperate",
           "preview_hint": {
             "ko": "→ Hagar가 동의한다. 눈이 빛난다",
-            "en": "→ Hagar agrees. Eyes light up."
+            "en": "→ Hagar agrees. Eyes light up.",
+            "ja": "→ ハガルが同意する。目が輝く。",
+            "zh": "→ 哈格尔同意了。眼睛亮了。"
           }
         }
       ]
@@ -568,7 +666,9 @@
         {
           "text": {
             "ko": "36분이 시작됐다. 조선소가 움직였다. Hagar의 손. 흉터 있는 손. 그것이 지시했다. 사람들이 따랐다. 조선소는 이미 연습한 것처럼 움직였다. 이 사람들은 이것을 기다리고 있었다. 오래.",
-            "en": "Thirty-six minutes began. The shipyard moved. Hagar's hands. Scarred hands. They directed. People followed. The shipyard moved as if already rehearsed. These people had been waiting for this. For a long time."
+            "en": "Thirty-six minutes began. The shipyard moved. Hagar's hands. Scarred hands. They directed. People followed. The shipyard moved as if already rehearsed. These people had been waiting for this. For a long time.",
+            "ja": "36分が始まった。造船所が動いた。ハガルの手。傷跡のある手。それが指示した。人々が従った。造船所はすでに練習したかのように動いた。この人々はこれを待っていた。長い間。",
+            "zh": "三十六分钟开始了。造船厂动起来了。哈格尔的手。带着疤痕的手。那双手在指挥。人们跟着行动。造船厂的运作仿佛早已演练过。这些人一直在等待这一刻。等了很久了。"
           }
         }
       ]
@@ -583,7 +683,9 @@
         {
           "text": {
             "ko": "Lena가 냉각 계통을 작업했다. 빠른 손들. 광산에서 배운 것들. 시스템은 달라도 원리는 같았다. 압력. 흐름. 온도. 그것이 같았다. 화성에서 배운 것들은 화성 어디서든 쓸 수 있었다.",
-            "en": "Lena worked on the cooling circuits. Fast hands. Things learned in the mines. The systems were different but the principles were the same. Pressure. Flow. Temperature. Those were the same. Things learned on Mars could be used anywhere on Mars."
+            "en": "Lena worked on the cooling circuits. Fast hands. Things learned in the mines. The systems were different but the principles were the same. Pressure. Flow. Temperature. Those were the same. Things learned on Mars could be used anywhere on Mars.",
+            "ja": "レナは冷却回路に取り組んだ。速い手。鉱山で学んだこと。システムは違っても原理は同じだった。圧力。流れ。温度。それが同じだった。火星で学んだことは火星のどこでも使えた。",
+            "zh": "莱娜在处理冷却回路。快速的双手。在矿山学到的东西。系统不同但原理相同。压力。流量。温度。那些是相同的。在火星上学到的东西，在火星任何地方都能用上。"
           }
         }
       ]
@@ -600,7 +702,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC 호위선이 움직이기 시작해. 접근 고도야.",
-            "en": "MCC escort vessels are starting to move. Approach altitude."
+            "en": "MCC escort vessels are starting to move. Approach altitude.",
+            "ja": "MCC護衛艦が動き始めた。接近高度だ。",
+            "zh": "MCC护卫舰开始移动了。接近高度。"
           }
         },
         {
@@ -608,7 +712,9 @@
           "emotion": "gruff",
           "text": {
             "ko": "방어 포인트 세 곳. 북쪽 게이트. 동쪽 도크. 지붕 포탑.",
-            "en": "Three defense points. North gate. East dock. Roof turret."
+            "en": "Three defense points. North gate. East dock. Roof turret.",
+            "ja": "防衛ポイントは三か所。北ゲート。東ドック。屋上砲塔。",
+            "zh": "三个防御点。北门。东码头。屋顶炮塔。"
           }
         },
         {
@@ -616,7 +722,9 @@
           "emotion": "tense",
           "text": {
             "ko": "인원이 부족해요.",
-            "en": "Not enough people."
+            "en": "Not enough people.",
+            "ja": "人が足りません。",
+            "zh": "人手不够。"
           }
         },
         {
@@ -624,7 +732,9 @@
           "emotion": "calm",
           "text": {
             "ko": "항상 부족해. 그래도 36분은 버텨.",
-            "en": "Always short. But hold for thirty-six minutes anyway."
+            "en": "Always short. But hold for thirty-six minutes anyway.",
+            "ja": "いつも足りない。それでも36分は持ちこたえろ。",
+            "zh": "总是不够。但还是要撑三十六分钟。"
           }
         }
       ]
@@ -639,7 +749,9 @@
         {
           "text": {
             "ko": "Olu가 설계도를 폈다. 가이아의 약점들을 알고 있었다. 설계자였다. 그가 약점을 지키러 갔다. 편지는 주머니 안에 있었다. 그것이 오늘 이 사람의 전부였다.",
-            "en": "Olu unfolded the blueprints. He knew Gaia's weak points. He was the designer. He went to guard the weak points. The letter was in his pocket. That was everything for this person today."
+            "en": "Olu unfolded the blueprints. He knew Gaia's weak points. He was the designer. He went to guard the weak points. The letter was in his pocket. That was everything for this person today.",
+            "ja": "オルは設計図を広げた。ガイアの弱点を知っていた。設計者だった。彼は弱点を守りに行った。手紙はポケットの中にあった。それが今日このの人の全てだった。",
+            "zh": "奥卢打开了设计图。他知道盖亚的弱点在哪里。他是设计师。他去守护那些弱点。信在口袋里。那就是今天这个人的全部。"
           }
         }
       ]
@@ -652,11 +764,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "가이아 수호",
-        "en": "Gaia's Defense"
+        "en": "Gaia's Defense",
+        "ja": "ガイアの守護",
+        "zh": "守护盖亚"
       },
       "subtitle": {
         "ko": "뉴 아테네 조선소 — 화성의 꿈",
-        "en": "New Athens Shipyard — The Dream of Mars"
+        "en": "New Athens Shipyard — The Dream of Mars",
+        "ja": "ニュー・アテネ造船所 — 火星の夢",
+        "zh": "新雅典造船厂 — 火星之梦"
       }
     },
     {
@@ -677,7 +793,9 @@
           "effect": "character_enter:hagar:slide_left",
           "text": {
             "ko": "가이아가 살아남았어.",
-            "en": "Gaia survived."
+            "en": "Gaia survived.",
+            "ja": "ガイアは生き残った。",
+            "zh": "盖亚活下来了。"
           }
         },
         {
@@ -685,7 +803,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Olu가 편지를 마쳤어. 가이아에 넣을 거래. 배가 가는 곳에 편지도 같이 간다고.",
-            "en": "Olu finished the letter. He says he'll put it on Gaia. The letter goes wherever the ship goes."
+            "en": "Olu finished the letter. He says he'll put it on Gaia. The letter goes wherever the ship goes.",
+            "ja": "オルが手紙を書き終えた。ガイアに入れるそうだ。船が行く場所に手紙も一緒に行くと。",
+            "zh": "奥卢写完了信。他说要把信放进盖亚里。船去哪里，信就去哪里。"
           }
         }
       ]
@@ -699,7 +819,9 @@
         {
           "text": {
             "ko": "조선소가 MCC에 넘어갔다. 가이아가 있었다. MCC 것이 될 것이었다. Olu의 편지는 어디 있는지 알 수 없었다. Hagar는 아무 말이 없었다. 조용한 사람이 말이 없을 때는 더 조용했다.",
-            "en": "The shipyard passed to MCC. Gaia was there. It would become MCC's. Where Olu's letter was could not be known. Hagar said nothing. When a quiet person said nothing it was quieter still."
+            "en": "The shipyard passed to MCC. Gaia was there. It would become MCC's. Where Olu's letter was could not be known. Hagar said nothing. When a quiet person said nothing it was quieter still.",
+            "ja": "造船所はMCCの手に渡った。ガイアがあった。MCCのものになるだろう。オルの手紙がどこにあるかはわからなかった。ハガルは何も言わなかった。寡黙な人が黙っているとき、さらに静かだった。",
+            "zh": "造船厂落入了MCC之手。盖亚还在那里。将会变成MCC的东西。奥卢的信在哪里，无从知晓。哈格尔一言不发。沉默的人沉默时，会更加沉默。"
           }
         }
       ]
@@ -714,7 +836,9 @@
         {
           "text": {
             "ko": "가이아가 거기 있었다. 87%. 아니면 더. 또는 완성. 그것에 따라 달랐다. 그러나 가이아는 거기 있었다. Olu와 Mariam의 결혼 자금으로 만들어진 것. 그것이 어느 쪽이든 거기 있었다.",
-            "en": "Gaia was there. 87%. Or more. Or complete. Depending. But Gaia was there. Built with Olu and Mariam's wedding fund. It was there regardless of which way."
+            "en": "Gaia was there. 87%. Or more. Or complete. Depending. But Gaia was there. Built with Olu and Mariam's wedding fund. It was there regardless of which way.",
+            "ja": "ガイアはそこにあった。87%。あるいはそれ以上。あるいは完成。それによって違った。しかしガイアはそこにあった。オルとマリアムの結婚資金で造られたもの。どちらであってもそこにあった。",
+            "zh": "盖亚在那里。87%。或者更多。或者完工了。取决于结果。但盖亚在那里。用奥卢和玛丽亚姆结婚基金造成的东西。无论如何，它都在那里。"
           }
         }
       ]
@@ -731,7 +855,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Olu한테 물었어. 결혼 자금을 이 배에 넣은 이유를.",
-            "en": "Asked Olu. Why he put the wedding fund into this ship."
+            "en": "Asked Olu. Why he put the wedding fund into this ship.",
+            "ja": "オルに聞いた。結婚資金をこの船に入れた理由を。",
+            "zh": "我问过奥卢。为什么把结婚基金投进这艘船。"
           }
         },
         {
@@ -739,7 +865,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "Mariam이 말했대. 결혼은 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고.",
-            "en": "He said Mariam told him. Marriage can happen twice. A spacecraft gets made once."
+            "en": "He said Mariam told him. Marriage can happen twice. A spacecraft gets made once.",
+            "ja": "マリアムが言ったそうだ。結婚は二度できると。宇宙船は一度しか造れないと。",
+            "zh": "他说是玛丽亚姆说的。结婚可以有两次。宇宙飞船只能造一次。"
           }
         }
       ]
@@ -754,7 +882,9 @@
         {
           "text": {
             "ko": "Mariam은 6개월 전에 없어졌다. 광산 사고. 결혼은 두 번 할 수 있다는 것. 그러나 결혼을 못 했다. 우주선이 완성됐다. 그것이 지금 거기 있었다. 가이아. 지구 뜻. Hagar가 붙인 이름.",
-            "en": "Mariam had been gone for six months. Mining accident. That marriage could happen twice. But there was no marriage. The spacecraft was complete. That was there now. Gaia. Meaning Earth. The name Hagar gave."
+            "en": "Mariam had been gone for six months. Mining accident. That marriage could happen twice. But there was no marriage. The spacecraft was complete. That was there now. Gaia. Meaning Earth. The name Hagar gave.",
+            "ja": "マリアムは6か月前にいなくなった。鉱山事故。結婚は二度できるということ。しかし結婚はできなかった。宇宙船は完成した。それが今そこにあった。ガイア。地球という意味。ハガルが付けた名前。",
+            "zh": "玛丽亚姆六个月前已经不在了。矿难。结婚可以有两次这件事。但婚没有结成。宇宙飞船完工了。那就在那里。盖亚。地球的意思。哈格尔起的名字。"
           }
         }
       ]
@@ -771,7 +901,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Olu가 편지를 넣었어. 가이아 안에.",
-            "en": "Olu put the letter inside. Inside Gaia."
+            "en": "Olu put the letter inside. Inside Gaia.",
+            "ja": "オルが手紙を入れた。ガイアの中に。",
+            "zh": "奥卢把信放进去了。放进了盖亚里面。"
           }
         },
         {
@@ -779,7 +911,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "어디에요?",
-            "en": "Where?"
+            "en": "Where?",
+            "ja": "どこに？",
+            "zh": "放在哪里？"
           }
         },
         {
@@ -787,7 +921,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "항법 컴퓨터 옆이야. Mariam이 좋아했을 자리야. Olu가 그랬어.",
-            "en": "Beside the navigation computer. A spot Mariam would have liked. Olu said so."
+            "en": "Beside the navigation computer. A spot Mariam would have liked. Olu said so.",
+            "ja": "航法コンピューターの隣だ。マリアムが気に入ったであろう場所だ。オルがそう言った。",
+            "zh": "在导航计算机旁边。玛丽亚姆会喜欢的位置。奥卢这么说的。"
           }
         }
       ]
@@ -802,7 +938,9 @@
         {
           "text": {
             "ko": "편지가 가이아 안에 있었다. 항법 컴퓨터 옆. 가이아가 가는 곳들을 적은 것. Mariam이 보고 싶어 했던 것들. 화성 밖. 먼 곳. 이름 없는 것들. 편지가 그것들을 갔다. 가이아와 함께.",
-            "en": "The letter was inside Gaia. Beside the navigation computer. Written with the places Gaia would go. The things Mariam had wanted to see. Outside Mars. Far places. Things without names. The letter would go there. Together with Gaia."
+            "en": "The letter was inside Gaia. Beside the navigation computer. Written with the places Gaia would go. The things Mariam had wanted to see. Outside Mars. Far places. Things without names. The letter would go there. Together with Gaia.",
+            "ja": "手紙はガイアの中にあった。航法コンピューターの隣。ガイアが行く場所を書いたもの。マリアムが見たかったもの。火星の外。遠い場所。名前のないもの。手紙はそこへ行くだろう。ガイアと共に。",
+            "zh": "信在盖亚里面。在导航计算机旁边。写着盖亚会去的那些地方。玛丽亚姆想看到的东西。火星之外。遥远的地方。没有名字的东西。信会去到那些地方。与盖亚一起。"
           }
         }
       ]
@@ -817,7 +955,9 @@
         {
           "text": {
             "ko": "새벽이 왔다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름. 화성에서 지구를 기억하는 사람은 줄어들고 있었다. 그러나 이름은 남았다. 이름은 기억하는 사람보다 오래 살았다.",
-            "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth. On Mars those who remembered Earth were diminishing. But the name remained. Names outlived those who remembered."
+            "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth. On Mars those who remembered Earth were diminishing. But the name remained. Names outlived those who remembered.",
+            "ja": "夜明けが来た。造船所に光が来た。ガイアの側面に光が触れた。地球という意味。ハガルが付けた名前。地球を記憶する最後の世代が付けた名前。火星で地球を記憶する人は減り続けていた。しかし名前は残った。名前は記憶する人よりも長く生きた。",
+            "zh": "黎明到来。光来到了造船厂。光触及了盖亚的侧面。地球的意思。哈格尔起的名字。记得地球的最后一代人起的名字。在火星上，记得地球的人越来越少。但名字留下来了。名字比记得它的人活得更久。"
           },
           "overlay": "fsp_ch8_water_war_l35_00_mars_horizon"
         }
@@ -835,7 +975,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "새벽이야.",
-            "en": "Dawn."
+            "en": "Dawn.",
+            "ja": "夜明けだ。",
+            "zh": "黎明了。"
           }
         },
         {
@@ -843,7 +985,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "화성 새벽은 지구 새벽이랑 달라. 더 붉어. 태양이 작아. 그래도 새벽은 새벽이야.",
-            "en": "The Martian dawn is different from Earth's dawn. Redder. The sun is smaller. But dawn is still dawn."
+            "en": "The Martian dawn is different from Earth's dawn. Redder. The sun is smaller. But dawn is still dawn.",
+            "ja": "火星の夜明けは地球の夜明けと違う。もっと赤い。太陽が小さい。それでも夜明けは夜明けだ。",
+            "zh": "火星的黎明和地球的不同。更红。太阳更小。但黎明终究是黎明。"
           }
         },
         {
@@ -851,7 +995,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Hagar. 지구 기억해요?",
-            "en": "Hagar. Do you remember Earth?"
+            "en": "Hagar. Do you remember Earth?",
+            "ja": "ハガル。地球を覚えてますか？",
+            "zh": "哈格尔。你还记得地球吗？"
           }
         },
         {
@@ -859,7 +1005,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "기억해. 매일 조금씩 없어져. 그래서 이름을 붙인 거야. 가이아라고.",
-            "en": "I remember. Fades a little each day. That's why I gave it the name. Gaia."
+            "en": "I remember. Fades a little each day. That's why I gave it the name. Gaia.",
+            "ja": "覚えている。毎日少しずつ消えていく。だから名前を付けたんだ。ガイアと。",
+            "zh": "记得。每天都在一点点消失。所以我起了这个名字。盖亚。"
           }
         }
       ]
@@ -874,7 +1022,9 @@
         {
           "text": {
             "ko": "1세대가 기억하는 것을 2세대는 기억하지 못했다. 그것이 세대였다. Hagar가 기억하는 지구를. Yuna나 Lena는 기억하지 못했다. 그러나 가이아가 있었다. 이름이 있었다. 기억이 이름으로 남는 것이었다.",
-            "en": "What the first generation remembered the second didn't. That was generation. The Earth that Hagar remembered. Yuna and Lena didn't remember it. But Gaia was there. The name was there. Memory remained as a name."
+            "en": "What the first generation remembered the second didn't. That was generation. The Earth that Hagar remembered. Yuna and Lena didn't remember it. But Gaia was there. The name was there. Memory remained as a name.",
+            "ja": "第一世代が記憶するものを第二世代は覚えていなかった。それが世代というものだった。ハガルが記憶する地球を。ユナやレナは覚えていなかった。しかしガイアがあった。名前があった。記憶が名前として残るということだった。",
+            "zh": "第一代记得的东西，第二代不记得了。那就是代际。哈格尔记忆中的地球。金宥娜和莱娜不记得。但盖亚在那里。名字在那里。记忆以名字的形式留存。"
           }
         }
       ]
@@ -891,7 +1041,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Olu가 저기 있어.",
-            "en": "Olu is there."
+            "en": "Olu is there.",
+            "ja": "オルがあそこにいる。",
+            "zh": "奥卢在那里。"
           }
         },
         {
@@ -899,7 +1051,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "가이아 앞에. 서 있어. 아침부터.",
-            "en": "In front of Gaia. Standing. Since morning."
+            "en": "In front of Gaia. Standing. Since morning.",
+            "ja": "ガイアの前に。立っている。朝から。",
+            "zh": "在盖亚前面。站着。从早上就这样。"
           }
         },
         {
@@ -907,7 +1061,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "편지 생각하는 거겠죠.",
-            "en": "Probably thinking about the letter."
+            "en": "Probably thinking about the letter.",
+            "ja": "手紙のことを考えているんでしょうね。",
+            "zh": "大概是在想那封信吧。"
           }
         },
         {
@@ -915,7 +1071,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "아니면 Mariam 생각하는 거야. 둘 다 같은 거야 지금.",
-            "en": "Or thinking about Mariam. They're the same thing now."
+            "en": "Or thinking about Mariam. They're the same thing now.",
+            "ja": "あるいはマリアムのことを思っているのかもしれない。今は両方が同じことだ。",
+            "zh": "或者是在想玛丽亚姆。现在两者是一回事了。"
           }
         }
       ]
@@ -930,7 +1088,9 @@
         {
           "text": {
             "ko": "새벽이었다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름.\n\nOlu의 편지가 가이아 안에 있었다. 아니면 없었다. 그것이 오늘의 결과에 달렸다. 그러나 편지는 쓰여졌다. 종이 위에. 손으로. 화성에서 가장 드문 방식으로.\n\nMariam이 거기 있었다. 편지 안에. 배 안에. 이름으로.",
-            "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth.\n\nOlu's letter was inside Gaia. Or wasn't. That depended on today's outcome. But the letter had been written. On paper. By hand. In the rarest way on Mars.\n\nMariam was there. In the letter. In the ship. As a name."
+            "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth.\n\nOlu's letter was inside Gaia. Or wasn't. That depended on today's outcome. But the letter had been written. On paper. By hand. In the rarest way on Mars.\n\nMariam was there. In the letter. In the ship. As a name.",
+            "ja": "夜明けだった。造船所に光が来た。ガイアの側面に光が触れた。地球という意味。ハガルが付けた名前。地球を記憶する最後の世代が付けた名前。\n\nオルの手紙がガイアの中にあった。あるいはなかった。それが今日の結果にかかっていた。しかし手紙は書かれた。紙の上に。手で。火星で最も稀な方法で。\n\nマリアムがそこにいた。手紙の中に。船の中に。名前として。",
+            "zh": "黎明。光来到了造船厂。光触及了盖亚的侧面。地球的意思。哈格尔起的名字。记得地球的最后一代人起的名字。\n\n奥卢的信在盖亚里面。或者不在。那取决于今天的结果。但信已经写好了。在纸上。用手。以火星上最罕见的方式。\n\n玛丽亚姆在那里。在信里。在船里。以名字的形式。"
           },
           "overlay": "fsp_ch8_water_war_l39_00_candle_flame"
         }
@@ -939,7 +1099,9 @@
         "questId": "fsp_campaign_ch9",
         "teaser": {
           "ko": "다음 — 세 개의 깃발",
-          "en": "Next — Three Flags"
+          "en": "Next — Three Flags",
+          "ja": "次回 — 三つの旗",
+          "zh": "下一章 — 三面旗帜"
         }
       }
     }
