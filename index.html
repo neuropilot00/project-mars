@@ -2806,6 +2806,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .sy-filter-chip:hover { background: rgba(255,255,255,.07); }
 .sy-filter-chip.active { background: rgba(79,195,247,.15); color: #4fc3f7; border-color: rgba(79,195,247,.4); }
+.sy-market-sort {
+  margin-left: auto; padding: 3px 8px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.7); border-radius: 8px; font-size: 9px; cursor: pointer;
+  letter-spacing: 1px; outline: none;
+}
+.sy-market-sort option { background: #1a1f2e; }
+.sy-market-filter-row {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  padding: 8px 20px; border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 10px;
+}
+.sy-market-filter-sep { width: 1px; height: 14px; background: rgba(255,255,255,.1); margin: 0 4px; }
 .shipyard-body {
   flex: 1; overflow-y: auto;
   padding: 14px 20px;
@@ -42201,6 +42214,27 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
         <div class="ship-list" id="shipList"></div>
       </div>
       <div id="syMarketTab" style="display:none">
+        <div class="sy-market-filter-row" id="syMarketFilters">
+          <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px">파벌:</span>
+          <button class="sy-filter-chip active" data-mfaction="" onclick="filterMarketFaction('')">ALL</button>
+          <button class="sy-filter-chip" data-mfaction="mcc" onclick="filterMarketFaction('mcc')">MCC</button>
+          <button class="sy-filter-chip" data-mfaction="fsp" onclick="filterMarketFaction('fsp')">FSP</button>
+          <button class="sy-filter-chip" data-mfaction="cv" onclick="filterMarketFaction('cv')">CV</button>
+          <div class="sy-market-filter-sep"></div>
+          <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px">크기:</span>
+          <button class="sy-filter-chip active" data-msize="" onclick="filterMarketSize('')">ALL</button>
+          <button class="sy-filter-chip" data-msize="frigate" onclick="filterMarketSize('frigate')">FRG</button>
+          <button class="sy-filter-chip" data-msize="destroyer" onclick="filterMarketSize('destroyer')">DES</button>
+          <button class="sy-filter-chip" data-msize="cruiser" onclick="filterMarketSize('cruiser')">CRU</button>
+          <button class="sy-filter-chip" data-msize="battleship" onclick="filterMarketSize('battleship')">BS</button>
+          <button class="sy-filter-chip" data-msize="titan" onclick="filterMarketSize('titan')">TTN</button>
+          <select class="sy-market-sort" onchange="filterMarketSort(this.value)" id="syMarketSortSelect">
+            <option value="price_asc">가격 낮은순</option>
+            <option value="price_desc">가격 높은순</option>
+            <option value="power_desc">강화 높은순</option>
+            <option value="newest">최신 등록순</option>
+          </select>
+        </div>
         <div class="ship-market-list" id="shipMarketList"></div>
       </div>
     </div>
@@ -42225,6 +42259,9 @@ var shipyardState = {
   myFaction: null,
   myInventory: {},
   queueTimer: null,
+  marketFaction: '',
+  marketSize: '',
+  marketSort: 'price_asc',
 };
 
 function openShipyard() {
@@ -43070,15 +43107,60 @@ async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
   } catch(e) { showFactionToast('실드 충전 요청 실패', 'error'); }
 }
 
+function filterMarketFaction(faction) {
+  shipyardState.marketFaction = faction;
+  document.querySelectorAll('[data-mfaction]').forEach(function(c) {
+    c.classList.toggle('active', c.dataset.mfaction === faction);
+  });
+  renderShipMarket();
+}
+
+function filterMarketSize(size) {
+  shipyardState.marketSize = size;
+  document.querySelectorAll('[data-msize]').forEach(function(c) {
+    c.classList.toggle('active', c.dataset.msize === size);
+  });
+  renderShipMarket();
+}
+
+function filterMarketSort(sort) {
+  shipyardState.marketSort = sort;
+  renderShipMarket();
+}
+
 function renderShipMarket() {
   var list = document.getElementById('shipMarketList');
-  var listings = shipyardState.marketListings || [];
   if (!list) return;
+  var listings = (shipyardState.marketListings || []).slice();
+  // apply faction filter
+  var mf = shipyardState.marketFaction;
+  if (mf) listings = listings.filter(function(s){ return (s.faction_code||'').toLowerCase() === mf; });
+  // apply size filter
+  var ms = shipyardState.marketSize;
+  if (ms) listings = listings.filter(function(s){ return (s.size_class||s.size||'').toLowerCase() === ms; });
+  // apply sort
+  var msort = shipyardState.marketSort || 'price_asc';
+  listings.sort(function(a,b){
+    if (msort === 'price_asc')   return parseFloat(a.price_gp||0) - parseFloat(b.price_gp||0);
+    if (msort === 'price_desc')  return parseFloat(b.price_gp||0) - parseFloat(a.price_gp||0);
+    if (msort === 'power_desc') {
+      var pa = (parseFloat(a.bonus_atk||0)+parseFloat(a.bonus_def||0)+parseFloat(a.bonus_hp||0)+parseFloat(a.bonus_speed||0));
+      var pb = (parseFloat(b.bonus_atk||0)+parseFloat(b.bonus_def||0)+parseFloat(b.bonus_hp||0)+parseFloat(b.bonus_speed||0));
+      return pb - pa;
+    }
+    if (msort === 'newest') return (b.listing_id||0) - (a.listing_id||0);
+    return 0;
+  });
+  // show count label
+  var allCount = (shipyardState.marketListings || []).length;
+  var countLabel = listings.length < allCount
+    ? '<div style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;padding:6px 0 2px">' + listings.length + ' / ' + allCount + ' 항목</div>'
+    : '';
   if (!listings.length) {
-    list.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">판매 중인 함선이 없습니다<br><span style="font-size:9px;opacity:.6">강화한 함선을 MY FLEET에서 판매 등록할 수 있습니다</span></div>';
+    list.innerHTML = countLabel + '<div class="sy-empty" style="grid-column:1/-1">' + (allCount ? '조건에 맞는 함선이 없습니다' : '판매 중인 함선이 없습니다') + '<br><span style="font-size:9px;opacity:.6">강화한 함선을 MY FLEET에서 판매 등록할 수 있습니다</span></div>';
     return;
   }
-  list.innerHTML = listings.map(function(s) {
+  list.innerHTML = countLabel + listings.map(function(s) {
     var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
     var hpPct = Math.max(0, Math.min(100, (s.current_hp / effectiveMaxHp) * 100));
     var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code });

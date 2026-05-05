@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — Ship market filter/sort UI (v5.89)
+
+- **파벌 필터 칩 추가**: SHIP MARKET 탭 상단에 ALL / MCC / FSP / CV 파벌 필터 칩을 추가했다. 선택한 파벌 코드와 일치하는 함선만 표시된다.
+- **크기 필터 칩 추가**: ALL / FRG / DES / CRU / BS / TTN 크기 필터 칩을 추가했다. `size_class` 기준으로 클라이언트 side 필터링.
+- **정렬 드롭다운 추가**: 가격 낮은순 / 높은순 / 강화 높은순(bonus_atk+def+hp+speed 합산) / 최신 등록순 정렬을 선택할 수 있다.
+- **결과 카운트 표시**: 필터 조건 적용 시 "N / 전체" 형식으로 표시 항목 수를 보여준다. 조건에 맞는 항목이 없을 때는 별도 안내 메시지.
+- **기존 blueprints SIZE 필터와 충돌 없음**: blueprints용 `syFilters` 바는 blueprints 탭에만 표시되고, market 필터는 `syMarketTab` 내부에 독립 삽입돼 탭별 필터가 상호 간섭하지 않는다.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-05 — Fleet battle readability polish (v5.88)
 
 - **레이저 가시 시간 연장**: 일반 레이저 fireType의 TTL을 함선 크기별로 차등화했다. 타이탄은 120프레임(~2s), 전함 100프레임(1.67s), 순양함 78프레임(1.3s), 그 외 48프레임(0.8s). 기존 10프레임(167ms)에서 전투 가독성이 대폭 향상된다.

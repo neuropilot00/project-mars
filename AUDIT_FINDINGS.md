@@ -1,3 +1,22 @@
+# OCCUPY MARS — Codebase Audit (v5.89 / 2026-05-05)
+
+## ✅ v5.89 Ship Market Filter/Sort UI — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 파벌 필터 (ALL / MCC / FSP / CV) | ✅ | `data-mfaction` 칩으로 클라이언트 side 필터. `filterMarketFaction()` |
+| 크기 필터 (ALL / FRG / DES / CRU / BS / TTN) | ✅ | `data-msize` 칩으로 클라이언트 side 필터. `filterMarketSize()` |
+| 정렬 드롭다운 (가격 낮은/높은순, 강화 높은순, 최신 등록순) | ✅ | `<select>` → `filterMarketSort()`. 강화 파워는 bonus_atk+def+hp+speed 합산. |
+| 결과 카운트 표시 | ✅ | 전체 대비 필터 결과 수 표시. 조건에 맞는 항목 없을 때 별도 안내. |
+| 조선소 blueprints 기존 SIZE 필터 유지 | ✅ | 기존 `syFilters` div는 blueprints 탭에만 표시. market 필터는 `syMarketTab` 내부에 삽입해 독립 동작. |
+| CSS 스타일 | ✅ | `.sy-market-sort`, `.sy-market-filter-row`, `.sy-market-filter-sep` 추가. 기존 `.sy-filter-chip` 재사용. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.88 / 2026-05-05)
 
 ## ✅ v5.88 Fleet Battle Readability Polish — 완료
