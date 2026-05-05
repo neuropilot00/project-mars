@@ -16048,6 +16048,18 @@ var I18N = {
     campaign_result_recheck: 'RECHECK',
     campaign_objectives_gate: 'Complete remaining objectives first.',
     campaign_objectives_gate_sub: 'Timer expired but play conditions not yet met.',
+    campaign_sim_in_progress: 'Operation in progress...',
+    campaign_sim_radio_prefix: 'Radio:',
+    campaign_sim_radio_default: 'Operation status update.',
+    campaign_sim_syncing: 'Syncing operation status...',
+    campaign_sim_detail: 'Completes based on server progress.',
+    story_skip: 'SKIP',
+    story_skip_title: 'Skip to next scene',
+    story_abandon: 'EXIT',
+    story_abandon_title: 'Exit scenario and abandon chapter progress',
+    story_tap_hint: 'Tap to continue',
+    story_abandon_confirm_title: 'EXIT SCENARIO',
+    story_abandon_confirm_body: 'Abandon the chapter and exit. Choices already made are kept.',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -16743,6 +16755,18 @@ var I18N = {
     campaign_result_recheck: '다시 확인',
     campaign_objectives_gate: '남은 목표를 먼저 완료하세요.',
     campaign_objectives_gate_sub: '작전 시간은 끝났지만 실제 플레이 조건이 아직 부족합니다.',
+    campaign_sim_in_progress: '작전 진행 중...',
+    campaign_sim_radio_prefix: '무전:',
+    campaign_sim_radio_default: '작전 진행 상황 업데이트.',
+    campaign_sim_syncing: '작전 상태 동기화 중...',
+    campaign_sim_detail: '서버 진행률 기반으로 완료됩니다.',
+    story_skip: '건너뛰기',
+    story_skip_title: '다음 장면으로',
+    story_abandon: '나가기',
+    story_abandon_title: '시나리오를 종료하고 챕터 진행을 포기합니다',
+    story_tap_hint: '탭하여 계속',
+    story_abandon_confirm_title: '시나리오 종료',
+    story_abandon_confirm_body: '진행 중인 챕터를 포기하고 시나리오를 종료합니다. 이미 만든 선택은 유지됩니다.',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -17421,6 +17445,18 @@ var I18N = {
     campaign_result_recheck: '再確認',
     campaign_objectives_gate: '残りの目標を先に完了してください。',
     campaign_objectives_gate_sub: 'タイマーは終了しましたが、プレイ条件がまだ不足しています。',
+    campaign_sim_in_progress: '作戦進行中...',
+    campaign_sim_radio_prefix: '無線:',
+    campaign_sim_radio_default: '作戦状況アップデート。',
+    campaign_sim_syncing: '作戦状態を同期中...',
+    campaign_sim_detail: 'サーバー進捗に基づいて完了します。',
+    story_skip: 'スキップ',
+    story_skip_title: '次のシーンへ',
+    story_abandon: '終了',
+    story_abandon_title: 'シナリオを終了してチャプター進行を放棄します',
+    story_tap_hint: 'タップして続ける',
+    story_abandon_confirm_title: 'シナリオ終了',
+    story_abandon_confirm_body: '進行中のチャプターを放棄してシナリオを終了します。すでにした選択は維持されます。',
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -18099,6 +18135,18 @@ var I18N = {
     campaign_result_recheck: '重新确认',
     campaign_objectives_gate: '请先完成剩余目标。',
     campaign_objectives_gate_sub: '计时器已结束，但游戏条件尚未满足。',
+    campaign_sim_in_progress: '作战进行中...',
+    campaign_sim_radio_prefix: '无线电:',
+    campaign_sim_radio_default: '作战状态更新。',
+    campaign_sim_syncing: '同步作战状态中...',
+    campaign_sim_detail: '将根据服务器进度完成。',
+    story_skip: '跳过',
+    story_skip_title: '跳至下一幕',
+    story_abandon: '退出',
+    story_abandon_title: '退出剧情并放弃当前章节进度',
+    story_tap_hint: '点击继续',
+    story_abandon_confirm_title: '退出剧情',
+    story_abandon_confirm_body: '放弃进行中的章节并退出剧情。已做的选择将被保留。',
   }
 };
 
@@ -25207,7 +25255,7 @@ function renderCampaignList(chapters){
     var locked=((_campaignData&&_campaignData.lockedChapters)||[]).indexOf(ch.questId)>=0;
     var done=isCampaignProgressDone(p);
     var active=isCampaignProgressActive(p);
-    var title=(ch.title&&ch.title.ko)||ch.questId;
+    var title=_campaignStoryText(ch.title)||ch.questId;
     var btn=locked?t('campaign_btn_locked'):(done?t('campaign_btn_results'):(active?t('campaign_btn_continue'):t('campaign_btn_start')));
     var route=((ch.campaignId||'').replace('_route','')||ch.faction||'').toUpperCase();
     var card='';
@@ -25295,7 +25343,8 @@ function campaignObjectivesHtml(ch,limit){
     var actionable=state!=='done'&&!!action;
     var attrs=actionable?' actionable" onclick="handleCampaignObjectiveAction(event,\''+action+'\')"':'"';
     var actionHtml=actionable?'<span class="co-action">'+campaignObjectiveActionLabel(action)+'</span>':'';
-    html+='<div class="campaign-objective '+state+attrs+'><span class="co-dot">'+icon+'</span><span class="co-label">'+escapeHtmlSafe(o.labelKo||o.label||o.id||'Objective')+'</span>'+count+actionHtml+'</div>';
+    var _oLabel=_campaignStoryText(o.label)||o.labelKo||o.label||o.id||'Objective';
+    html+='<div class="campaign-objective '+state+attrs+'><span class="co-dot">'+icon+'</span><span class="co-label">'+escapeHtmlSafe(_oLabel)+'</span>'+count+actionHtml+'</div>';
   });
   html+='</div>';
   return html;
@@ -25352,25 +25401,33 @@ function _campaignClearSimTimer(){
 function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';_campaignClearSimTimer();}
 function _setCampaignModal(ch, html){
   _campaignClearSimTimer();
-  document.getElementById('campaignModalTitle').textContent=(ch.title&&ch.title.ko)||ch.questId;
+  document.getElementById('campaignModalTitle').textContent=_campaignStoryText(ch.title)||ch.questId;
   // 라우트 표시는 챕터의 실제 파벌(MCC/FSP/CV) 기반으로 동적으로 만든다 — 프롤로그/CV 챕터에서도 정확한 라우트가 보이도록 한다.
   var route=((ch.campaignId||'').replace('_route','')||ch.faction||'mcc').toUpperCase();
   document.getElementById('campaignModalMeta').textContent=route+' ROUTE · CHAPTER '+ch.chapterNumber;
-  document.getElementById('campaignModalSub').textContent=(ch.location&&ch.location.displayNameKo||'Mars')+' · '+((ch.environment&&ch.environment.type)||'simulation');
+  var _locName=ch.location&&(_campaignStoryText(ch.location.displayName)||ch.location.displayNameKo||ch.location.displayNameEn||'Mars');
+  document.getElementById('campaignModalSub').textContent=(_locName||'Mars')+' · '+((ch.environment&&ch.environment.type)||'simulation');
   document.getElementById('campaignModalBody').innerHTML=html;
   document.getElementById('campaignModal').style.display='flex';
 }
 
 function _campaignStoryText(value){
-  // 스토리 JSON 다국어 필드에서 현재 클라이언트 기본값인 한국어를 우선 사용한다.
+  // 스토리 JSON 다국어 필드에서 현재 LANG에 맞는 텍스트를 반환한다.
   if(value==null) return '';
   if(typeof value==='string') return value;
-  return value.ko||value.en||value.ja||value.zh||'';
+  var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  return value[lang]||value.ko||value.en||value.ja||value.zh||'';
 }
 
 function _campaignStorySpeakerName(id){
   // 캐릭터 ID를 에셋 파일명과 분리하지 않도록 표시명만 로컬에서 보정한다.
-  var names={player:'당신',lifang:'리팡',chen:'천 회장',mikhail:'미하일',butcher:'정육점',hale:'헤일 신부',lena:'레나',kara_vex:'Kara Vex',cinder:'신더',amara:'아마라',liang:'량 웨이',samuel:'사무엘',hagar:'하가르',mcc_operator:'MCC 오퍼레이터',helion_captain:'헬리온 선장',miner_elder:'광부 어르신'};
+  var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  var namesKo={player:'당신',lifang:'리팡',chen:'천 회장',mikhail:'미하일',butcher:'정육점',hale:'헤일 신부',lena:'레나',kara_vex:'Kara Vex',cinder:'신더',amara:'아마라',liang:'량 웨이',samuel:'사무엘',hagar:'하가르',mcc_operator:'MCC 오퍼레이터',helion_captain:'헬리온 선장',miner_elder:'광부 어르신',crow:'크로우',roth:'로스',sal_cruz:'살 크루즈',kenji:'켄지',wei:'웨이',grace:'그레이스',pilgrim:'필그림'};
+  var namesEn={player:'You',lifang:'Li Fang',chen:'Chairman Chen',mikhail:'Mikhail',butcher:'The Butcher',hale:'Father Hale',lena:'Lena',kara_vex:'Kara Vex',cinder:'Cinder Grace',amara:'Amara',liang:'Liang Wei',samuel:'Samuel',hagar:'Hagar',mcc_operator:'MCC Operator',helion_captain:'Helion Captain',miner_elder:'Elder Miner',crow:'Crow',roth:'Roth',sal_cruz:'Sal Cruz',kenji:'Kenji',wei:'Wei',grace:'Grace',pilgrim:'Pilgrim'};
+  var namesJa={player:'あなた',lifang:'リー・ファン',chen:'チェン会長',mikhail:'ミハイル',butcher:'ブッチャー',hale:'ヘイル神父',lena:'レナ',kara_vex:'カラ・ヴェックス',cinder:'シンダー',amara:'アマラ',liang:'リャン・ウェイ',samuel:'サミュエル',hagar:'ハガー',mcc_operator:'MCCオペレーター',helion_captain:'ヘリオン艦長',miner_elder:'鉱夫の長老',crow:'クロウ',roth:'ロス',sal_cruz:'サル・クルス',kenji:'ケンジ',wei:'ウェイ',grace:'グレース',pilgrim:'ピルグリム'};
+  var namesZh={player:'你',lifang:'李芳',chen:'陈主席',mikhail:'米哈伊尔',butcher:'屠夫',hale:'黑尔神父',lena:'列娜',kara_vex:'卡拉·维克斯',cinder:'辛德',amara:'阿玛拉',liang:'梁伟',samuel:'塞缪尔',hagar:'哈加尔',mcc_operator:'MCC操作员',helion_captain:'赫利昂舰长',miner_elder:'矿工长老',crow:'克劳',roth:'罗斯',sal_cruz:'萨尔·克鲁兹',kenji:'健二',wei:'伟',grace:'格雷斯',pilgrim:'朝圣者'};
+  var maps={ko:namesKo,en:namesEn,ja:namesJa,zh:namesZh};
+  var names=maps[lang]||namesKo;
   return names[id]||String(id||'Narrator').replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
 }
 
@@ -25423,11 +25480,11 @@ function showCampaignStory(chapter){
     +'<img class="story-character-right" alt="">'
     +'<img class="story-detail-overlay" alt="">'
     +'<div class="story-controls">'
-      +'<button type="button" class="story-ctrl-btn" id="storySkipBtn" title="다음 장면으로">▶ SKIP</button>'
-      +'<button type="button" class="story-ctrl-btn danger" id="storyAbandonBtn" title="시나리오를 종료하고 챕터 진행을 포기합니다">✕ 나가기</button>'
+      +'<button type="button" class="story-ctrl-btn" id="storySkipBtn" title="'+t('story_skip_title')+'">▶ '+t('story_skip')+'</button>'
+      +'<button type="button" class="story-ctrl-btn danger" id="storyAbandonBtn" title="'+t('story_abandon_title')+'">✕ '+t('story_abandon')+'</button>'
     +'</div>'
     +'<div class="story-dialog-box"></div>'
-    +'<div class="story-tap-hint">▶ 탭하여 계속</div>'
+    +'<div class="story-tap-hint">▶ '+t('story_tap_hint')+'</div>'
     +'</div>';
   overlay.addEventListener('click',function(ev){
     // stage 밖(어두운 배경) 클릭은 무시 — 컨테이너 안만 반응
@@ -25484,9 +25541,9 @@ function showCampaignStory(chapter){
 async function abandonCampaignFromStory(){
   var ok=await gameConfirm({
     icon:'⚠',
-    title:'시나리오 종료',
-    body:'진행 중인 챕터를 포기하고 시나리오를 종료합니다. 이미 만든 선택은 유지됩니다.',
-    confirmText:'나가기'
+    title:t('story_abandon_confirm_title'),
+    body:t('story_abandon_confirm_body'),
+    confirmText:t('story_abandon')
   });
   if(!ok) return;
   var w=walletState.address, a=_campaignActive;
@@ -26177,11 +26234,11 @@ async function openCampaignChapter(questId){
 
 function showCampaignBriefing(ch,p){
   var npc=(ch.briefing&&ch.briefing.npcName)||'Mission Control';
-  var lines=((ch.briefing||{}).lines||[]).map(function(l){return '<div class="campaign-dialog"><b>'+escapeHtmlSafe(npc)+'</b><br>'+escapeHtmlSafe(l.ko||'')+'</div>';}).join('');
+  var lines=((ch.briefing||{}).lines||[]).map(function(l){return '<div class="campaign-dialog"><b>'+escapeHtmlSafe(npc)+'</b><br>'+escapeHtmlSafe(_campaignStoryText(l)||l.ko||'')+'</div>';}).join('');
   var choices=(ch.choices||[]).map(function(c){
-    return '<button class="campaign-choice" onclick="chooseCampaignOption(\''+escapeHtmlSafe(c.id)+'\')">'+escapeHtmlSafe(c.labelKo||c.id)+'</button>';
+    return '<button class="campaign-choice" onclick="chooseCampaignOption(\''+escapeHtmlSafe(c.id)+'\')">'+escapeHtmlSafe(_campaignStoryText(c.label)||c.labelKo||c.id)+'</button>';
   }).join('');
-  _setCampaignModal(ch, lines+campaignObjectivesHtml(ch,4)+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ '+escapeHtmlSafe((ch.environment&&ch.environment.type)||'operation')+' · 서버 시뮬레이션 MVP</div>'+choices);
+  _setCampaignModal(ch, lines+campaignObjectivesHtml(ch,4)+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ '+escapeHtmlSafe((ch.environment&&ch.environment.type)||'operation')+' · '+t('campaign_meta_sim')+'</div>'+choices);
 }
 
 async function chooseCampaignOption(choiceId){
@@ -26200,12 +26257,14 @@ async function chooseCampaignOption(choiceId){
 function showCampaignSim(ch,p){
   _campaignClearSimTimer();
   var radio=((ch.briefing||{}).radio||[])[0];
+  var _radioText=_campaignStoryText(radio)||(radio&&radio.ko)||t('campaign_sim_radio_default');
+  var _npcName=escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control');
   _setCampaignModal(ch,
-    '<div style="font-size:13px;color:var(--tx);margin-bottom:10px">작전 진행 중...</div>'
-    +'<div class="campaign-dialog">'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+' 무전: '+escapeHtmlSafe((radio&&radio.ko)||'작전 진행 상황 업데이트.')+'</div>'
+    '<div style="font-size:13px;color:var(--tx);margin-bottom:10px">'+t('campaign_sim_in_progress')+'</div>'
+    +'<div class="campaign-dialog">'+_npcName+' '+t('campaign_sim_radio_prefix')+' '+escapeHtmlSafe(_radioText)+'</div>'
     +'<div class="qc-bar" style="height:10px;margin:16px 0"><div id="campaignSimFill" class="qc-fill activity" style="width:0%"></div></div>'
-    +'<div id="campaignSimStatus" style="font-size:10px;color:var(--gold);text-align:center">작전 상태 동기화 중...</div>'
-    +'<div id="campaignSimDetail" style="font-size:8px;color:var(--tx3);text-align:center;margin-top:6px">서버 진행률 기반으로 완료됩니다.</div>'
+    +'<div id="campaignSimStatus" style="font-size:10px;color:var(--gold);text-align:center">'+t('campaign_sim_syncing')+'</div>'
+    +'<div id="campaignSimDetail" style="font-size:8px;color:var(--tx3);text-align:center;margin-top:6px">'+t('campaign_sim_detail')+'</div>'
     +'<div id="campaignSimObjectives" style="margin-top:12px"></div>');
   pollCampaignProgress(true);
 }
@@ -26240,7 +26299,7 @@ async function pollCampaignProgress(immediate){
     }
     if(pct>=100&&missing.length){
       if(status) status.textContent=t('campaign_objectives_gate');
-      if(detail) detail.textContent=(missing[0]&&missing[0].labelKo)?missing[0].labelKo:t('campaign_objectives_gate_sub');
+      if(detail) detail.textContent=missing[0]?(_campaignStoryText(missing[0].label)||missing[0].labelKo||t('campaign_objectives_gate_sub')):t('campaign_objectives_gate_sub');
       _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},5000);
       return;
     }
