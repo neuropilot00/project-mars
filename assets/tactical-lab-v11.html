@@ -1956,10 +1956,14 @@ function loop(ts){
     _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
     const proximity=1-Math.min(1,Math.max(0,(pair.dist-cfg.nearDist)/cfg.zoomRange));
     const fitAllScale=Math.min(W/(mxX-mnX),H/(mxY-mnY))*cfg.fitPad;
-    // 자동 줌인 제거 — cfg.maxZoom 고정 상한 사용 (수동 속도 배율만 유지)
-    const maxZ=cfg.maxZoom;
-    const desiredScale=.48+proximity*(maxZ-.48);
-    _camTargetScale=Math.max(.34,Math.min(maxZ,fitAllScale,desiredScale));
+    // 동적 줌: 생존 함선 감소 → 점점 줌인 (텍스트/마커는 camScale로 고정 크기 유지)
+    const aliveCnt=ships.filter(s=>!s.dead).length;
+    const initCnt=Math.max(ships.length,1);
+    const survivorRatio=aliveCnt/initCnt;
+    const dynMaxZoom=cfg.maxZoom*(1+(1-survivorRatio)*1.2);
+    const hardMax=_slowmoActive?dynMaxZoom*1.4:dynMaxZoom;
+    const desiredScale=.48+proximity*(hardMax-.48);
+    _camTargetScale=Math.max(.34,Math.min(hardMax,fitAllScale,desiredScale));
   } else if(_aliveF.length===1){
     _camTargetCx=_aliveF[0].cx;_camTargetCy=_aliveF[0].cy;_camTargetScale=2.2;
   } else {
