@@ -4077,12 +4077,33 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
     // Deduct balance
     await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [totalCost, w]);
 
-    // Add item to inventory (upsert)
-    await client.query(
-      `INSERT INTO user_items (wallet, item_type_id, quantity) VALUES ($1, $2, $3)
-       ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
-      [w, item.id, qty]
-    );
+    // material 카테고리: user_resource_inventory에 지급
+    if (item.category === 'material') {
+      // code 패턴: mat_{resource_code}  e.g. mat_iron_ore → iron_ore
+      // effect_value = 지급 수량 per purchase
+      const resourceCode = item.code.replace(/^mat_/, '');
+      const grantQty = (parseInt(item.effect_value) || 1) * qty;
+      // resources 테이블에서 resource_id 조회
+      const rRes = await client.query('SELECT id FROM resources WHERE code = $1', [resourceCode]);
+      if (rRes.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `Unknown resource: ${resourceCode}` });
+      }
+      const resourceId = rRes.rows[0].id;
+      await client.query(
+        `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (wallet_address, resource_id) DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
+        [w, resourceId, grantQty]
+      );
+    } else {
+      // 일반 아이템: user_items에 추가
+      await client.query(
+        `INSERT INTO user_items (wallet, item_type_id, quantity) VALUES ($1, $2, $3)
+         ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
+        [w, item.id, qty]
+      );
+    }
 
     // Log transaction
     await client.query(

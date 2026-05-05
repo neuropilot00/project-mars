@@ -6292,6 +6292,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <!-- 경제 -->
       <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span>🛒 <span data-i18n="base_tab_shop">SHOP</span></span><span class="tab-dot" id="shopDot"></span></div>
       <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
+      <div class="base-tab" data-cat="economy" id="baseTabItems" onclick="switchBaseTab('items',this);loadBaseInventory();clearBaseTabDot('items')" style="color:#ce93d8"><span>📦 <span data-i18n="base_tab_items">내 아이템</span></span><span class="tab-dot" id="itemsDot"></span></div>
       <!-- 임무 (작전/퀘스트/수송/시즌 — OPS 첫 번째로 자동선택) -->
       <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
@@ -7926,7 +7927,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;padding:4px 2px 8px;font-size:10px;font-family:var(--fn);border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:8px">
           <div style="display:flex;gap:4px">
             <button class="base-shop-view active" onclick="switchBaseShopView('shop',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.15);color:var(--gold);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_shop_btn">🛒 SHOP</button>
-            <button class="base-shop-view" onclick="switchBaseShopView('inventory',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_inv_btn">🎒 MY ITEMS</button>
             <button class="base-shop-view" onclick="switchBaseShopView('crafting',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_craft_btn">⚗️ CRAFT</button>
             <button class="base-shop-view" onclick="switchBaseShopView('lucky',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_lucky_btn">📦 CRATES</button>
             <button class="base-shop-view" onclick="switchBaseShopView('vip',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_vip_btn">💫 VIP</button>
@@ -7948,6 +7948,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <button class="base-shop-cat" onclick="filterBaseShop('utility',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="shop_cat_utility">UTILITY</button>
           <button class="base-shop-cat" onclick="filterBaseShop('boost',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="shop_cat_boost">BOOST</button>
           <button class="base-shop-cat" onclick="filterBaseShop('cosmetic',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="shop_cat_cosmetic">COSMETIC</button>
+          <button class="base-shop-cat" onclick="filterBaseShop('material',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(129,199,132,.3);background:rgba(129,199,132,.08);color:#81c784;cursor:pointer;font-family:var(--fn)" data-i18n="shop_cat_material">⛏ MATERIALS</button>
         </div>
         <div id="baseShopGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading items...</div>
@@ -8158,6 +8159,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
+      </div>
+
+      <!-- TAB: 내 아이템 -->
+      <div class="base-pane" id="basePane_items">
+        <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:8px">📦 <span data-i18n="base_tab_items">내 아이템</span></div>
+        <!-- 카테고리 탭 -->
+        <div id="baseItemsCatRow" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="base-inv-cat active" data-cat="all" onclick="filterBaseInv('all',this)" data-i18n="inv_cat_all">All</button>
+          <button class="base-inv-cat" data-cat="defense" onclick="filterBaseInv('defense',this)">🛡 <span data-i18n="inv_cat_defense">Defense</span></button>
+          <button class="base-inv-cat" data-cat="attack" onclick="filterBaseInv('attack',this)">⚔ <span data-i18n="inv_cat_attack">Attack</span></button>
+          <button class="base-inv-cat" data-cat="utility" onclick="filterBaseInv('utility',this)">🔧 <span data-i18n="inv_cat_utility">Utility</span></button>
+          <button class="base-inv-cat" data-cat="boost" onclick="filterBaseInv('boost',this)">⚡ <span data-i18n="inv_cat_boost">Boost</span></button>
+          <button class="base-inv-cat" data-cat="cosmetic" onclick="filterBaseInv('cosmetic',this)">🎨 <span data-i18n="inv_cat_cosmetic">Cosmetic</span></button>
+        </div>
+        <div id="baseInvGrid2" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading inventory...</div>
+        </div>
       </div>
 
       <!-- TAB: MARKET -->
@@ -16206,7 +16224,7 @@ var I18N = {
     // ── BASE tab labels ──
     base_tab_territory: 'MY TERRITORY', base_tab_sectors: 'SECTORS', base_tab_season: 'SEASON',
     base_tab_mining: 'MINING', base_tab_quests: 'QUESTS', base_tab_ops: 'OPS',
-    base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN',
+    base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_items: 'MY ITEMS', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN', shop_cat_material: '⛏ MATERIALS',
     base_tab_transport: 'TRANSPORT', base_tab_quests_full: 'CAMPAIGN/QUESTS',
     bcat_territory: 'Territory', bcat_fleet: 'Fleet', bcat_economy: 'Economy', bcat_mission: 'Mission', bcat_community: 'Community',
     fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_tactical_lab: 'Tactical Lab', fcmd_tactical_lab_short: 'Tactical Lab',
@@ -17046,7 +17064,7 @@ var I18N = {
     // ── BASE tab labels ──
     base_tab_territory: '내 영토', base_tab_sectors: '섹터', base_tab_season: '시즌',
     base_tab_mining: '채굴', base_tab_quests: '퀘스트', base_tab_ops: '작전',
-    base_tab_shop: '상점', base_tab_market: '마켓', base_tab_guild: '길드', base_tab_govern: '거버넌스',
+    base_tab_shop: '상점', base_tab_market: '마켓', base_tab_items: '내 아이템', base_tab_guild: '길드', base_tab_govern: '거버넌스', shop_cat_material: '⛏ 재료',
     base_tab_transport: '수송', base_tab_quests_full: '캠페인/퀘스트',
     bcat_territory: '영토', bcat_fleet: '함대 지휘부', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
     fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_tactical_lab: '전술랩', fcmd_tactical_lab_short: '전술 실험실',
@@ -22008,8 +22026,16 @@ function filterBaseInv(cat,el){
 function loadBaseInventory(){
   var w=(walletState&&walletState.address)||'';
   var grid=document.getElementById('baseInvGrid');
-  if(!w){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Connect wallet first</div>';return;}
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading...</div>';
+  var grid2=document.getElementById('baseInvGrid2');
+  var loadMsg='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading...</div>';
+  if(!w){
+    var noWalletMsg='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Connect wallet first</div>';
+    if(grid)grid.innerHTML=noWalletMsg;
+    if(grid2)grid2.innerHTML=noWalletMsg;
+    return;
+  }
+  if(grid)grid.innerHTML=loadMsg;
+  if(grid2)grid2.innerHTML=loadMsg;
   // Load inventory + active effects + instances + resources in parallel
   Promise.all([
     fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}),
@@ -22029,6 +22055,7 @@ function loadBaseInventory(){
 
 function renderBaseInventory(){
   var grid=document.getElementById('baseInvGrid');
+  var grid2=document.getElementById('baseInvGrid2');
   var parts=[];
   // Active effects bar
   if(_activeEffects&&_activeEffects.length>0){
@@ -22161,7 +22188,9 @@ function renderBaseInventory(){
     parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:12px 0;font-size:9px">'+(t('res_empty')||'No resources yet. Harvest your territory to find minerals!')+'</div>');
   }
 
-  grid.innerHTML=parts.join('');
+  var html=parts.join('');
+  if(grid)grid.innerHTML=html;
+  if(grid2)grid2.innerHTML=html;
 }
 
 // ══════════════════════════════════════
