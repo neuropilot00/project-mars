@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v5.96 / 2026-05-05)
+
+## ✅ v5.96 P5-2 Material Drops on Harvest — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 재료 드롭을 COMMIT 전 트랜잭션 안으로 이동 | ✅ | addResourcesToInventory(client, ...) — pool 대신 트랜잭션 client 사용 |
+| `transactions.meta.resourceDrops` 기록 | ✅ | 이전: meta에 drops 없음. 이후: 드롭 결과 포함 |
+| 수확 알림 PP + 재료 드롭 통합 표시 | ✅ | showNotification + showToast, 22종 아이콘/이름 매핑 |
+| 자원 아이콘/이름 매핑 22종으로 확장 | ✅ | 이전: 9종. iron_dust/basalt_chip 등 누락 코드 추가 |
+| `LANG` 변수 기반 KO/EN 분기 | ✅ | 이전: window.currentLang (미정의 위험) → typeof LANG 체크 |
+| production 패널 lastHarvest 재료 칩 | ✅ | meta.resourceDrops 기반, P5-2 이후 수확분부터 표시 |
+| 문서 동기화 (P5-4~7 추가) | ✅ | TERRITORY_UTILITY_PLAN / CLAUDE_P5 ORDER / GAME_IMPL_PLAN |
+| 캠페인 씬 39개 ja/zh 완료 (v5.94) | ✅ | 모든 파일 ko=ja=zh 동수, JSON valid |
+
+검증:
+- `node --check server/routes/api.js` 통과
+- JS inline syntax check 통과
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.95 / 2026-05-05)
 
 ## ✅ v5.95 P5-1 Territory Production Visibility — 완료

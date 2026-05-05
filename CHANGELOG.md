@@ -1,5 +1,29 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — P5-2 Material Drops on Harvest + Doc Sync (v5.96)
+
+**재료 드롭 트랜잭션 통합**
+- 수확 시 재료 드롭을 COMMIT 전 트랜잭션 안에서 처리하도록 변경 (`server/routes/api.js`).
+  - `rollResourceDrop()` 는 SELECT만 하므로 COMMIT 전 호출 안전.
+  - `addResourcesToInventory(client, ...)` — pool 대신 트랜잭션 client 전달.
+  - `transactions.meta.resourceDrops` 에 드롭 결과 포함 (이전에는 meta에 없었음).
+
+**프론트 수확 알림 개선**
+- 수확 결과 알림이 PP + 재료 드롭을 통합 표시 (`showNotification` + `showToast`).
+- 아이콘/이름 매핑을 22종 전체로 확장 (이전: 9종). KO/EN `LANG` 변수 분기.
+- `loadTerritoryProduction()` lastHarvest 패널에 재료 드롭 칩 추가.
+
+**문서 동기화**
+- `docs/TERRITORY_UTILITY_PLAN`, `CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER`, `GAME_IMPLEMENTATION_PLAN` — P5-4~7 포함 풀 플랜으로 동기화.
+
+**캠페인 씬 i18n (v5.94 완료)**
+- 39개 씬 JSON 파일 전체 `ja`/`zh` 번역 완료. KO=JA=ZH 동수 검증.
+
+검증:
+- `node --check server/routes/api.js` 통과
+- JS inline syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-05 — P5-1 Territory Production Visibility (v5.95)
 
 **서버 신규 엔드포인트**

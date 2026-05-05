@@ -13279,6 +13279,14 @@ function loadTerritoryProduction(claimId,wallet){
         html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'최근 수확':'Last harvest')+'</span>';
         html+='<span style="color:var(--tx2)">'+d.lastHarvest.pp.toFixed(4)+' PP · '+ago+'</span>';
         html+='</div>';
+        if(d.lastHarvest.materials&&d.lastHarvest.materials.length){
+          var _RICONS2={iron_dust:'🟤',red_sand:'🔴',basalt_chip:'⬛',ice_crystal:'🔵',regolith_ore:'🟠',volcanic_shard:'🌋',ancient_metal:'⭐',carbon_fiber:'🧵',iron_ore:'🪨',silicon_chip:'💠',xenomatter:'💠',nano_polymer:'🧬',plasma_crystal:'🔮',titanium_alloy:'⚙️',meteorite_fragment:'☄️',plasma_dust:'💜',dark_matter:'🌑',exotic_alloy:'✨',quantum_core:'⚡',alloy_frame:'⬢',hull_plate:'▣',plasma_coil:'⚡'};
+          html+='<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">';
+          d.lastHarvest.materials.forEach(function(m){
+            html+='<span style="font-size:8px;padding:1px 4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--tx2)">'+(_RICONS2[m.code]||'💠')+' +'+m.quantity+'</span>';
+          });
+          html+='</div>';
+        }
       }
       // Next harvest
       if(d.production&&d.production.nextHarvestAt){
@@ -27122,19 +27130,37 @@ async function harvestMining(){
     var resp=await fetch('/api/harvest',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
     var d=await resp.json();
     if(!resp.ok){showToast(d.error||'Harvest failed');try{_sfx.error()}catch(e){}return}
-    showNotification('mining','HARVEST COMPLETE','+'+d.harvestedPP.toFixed(4)+' PP collected from your territory');
-    // ✅ [Resource System] 자원 드롭 알림 (Phase 2)
+    // ✅ [P5-2] 수확 결과 알림 — PP + 재료 드롭 통합 표시
+    var _RICONS={
+      iron_dust:'🟤',red_sand:'🔴',basalt_chip:'⬛',ice_crystal:'🔵',
+      regolith_ore:'🟠',volcanic_shard:'🌋',ancient_metal:'⭐',
+      carbon_fiber:'🧵',iron_ore:'🪨',silicon_chip:'💠',xenomatter:'💠',
+      nano_polymer:'🧬',plasma_crystal:'🔮',titanium_alloy:'⚙️',
+      meteorite_fragment:'☄️',plasma_dust:'💜',
+      dark_matter:'🌑',exotic_alloy:'✨',quantum_core:'⚡',
+      alloy_frame:'⬢',hull_plate:'▣',plasma_coil:'⚡'
+    };
+    var _RNAMES_KO={
+      iron_dust:'철분',red_sand:'붉은 모래',basalt_chip:'현무암 조각',ice_crystal:'얼음 결정',
+      regolith_ore:'레골리스 광석',volcanic_shard:'화산 파편',ancient_metal:'고대 금속',
+      carbon_fiber:'탄소섬유',iron_ore:'철광석',silicon_chip:'실리콘 칩',xenomatter:'외계 물질',
+      nano_polymer:'나노 폴리머',plasma_crystal:'플라즈마 결정',titanium_alloy:'티타늄 합금',
+      meteorite_fragment:'운석 파편',plasma_dust:'플라즈마 먼지',
+      dark_matter:'암흑물질',exotic_alloy:'이그조틱 합금',quantum_core:'퀀텀 코어',
+      alloy_frame:'합금 프레임',hull_plate:'장갑판',plasma_coil:'플라즈마 코일'
+    };
+    var _lang=(typeof LANG!=='undefined'?LANG:'ko');
+    var _resLine='';
     if(d.resources&&d.resources.length>0){
-      var _RICONS={iron_ore:'🪨',carbon_fiber:'🖤',silicon_chip:'💎',titanium_alloy:'⚙️',plasma_crystal:'🔷',nano_polymer:'🧬',dark_matter:'🌑',quantum_core:'⚡',exotic_alloy:'🌟'};
-      var _RNAMES_KO={iron_ore:'철광석',carbon_fiber:'탄소섬유',silicon_chip:'실리콘칩',titanium_alloy:'티타늄합금',plasma_crystal:'플라즈마크리스탈',nano_polymer:'나노폴리머',dark_matter:'암흑물질',quantum_core:'양자코어',exotic_alloy:'이국합금'};
-      var _lang=(window.currentLang||'en').toLowerCase();
-      var resMsg=d.resources.map(function(r){
+      _resLine=d.resources.map(function(r){
         var icon=_RICONS[r.code]||'💠';
-        var name=_lang==='ko'?(_RNAMES_KO[r.code]||r.code):r.code.replace(/_/g,' ');
+        var name=_lang==='ko'?(_RNAMES_KO[r.code]||r.code.replace(/_/g,' ')):r.code.replace(/_/g,' ');
         return icon+' +'+r.quantity+' '+name;
-      }).join('  ');
-      showToast('⛏ '+resMsg,'success');
+      }).join(' · ');
     }
+    var _ppLine='+'+d.harvestedPP.toFixed(4)+' PP';
+    showNotification('mining','HARVEST COMPLETE',_ppLine+(_resLine?' · '+_resLine:''));
+    if(_resLine) showToast('⛏ '+_resLine,'success');
     try{_sfx.harvest()}catch(e){}
     try{trackQuestAction('harvest',1)}catch(e){}
     // Update UI

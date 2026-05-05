@@ -3005,26 +3005,10 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch (_gce) { /* non-critical */ }
 
-    // Transaction log
-    await client.query(
-      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
-       VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100, guildContrib })]
-    );
-
-    // Award XP for harvesting (5 XP per harvest)
-    const harvestRankUp = await awardXP(client, w, 5);
-
-    // Referral commission — uplines get small PP cut from each harvest
-    try {
-      await creditReferralCommission(client, w, 'harvest', harvestedPP, 'pp');
-    } catch (_e) { /* non-critical */ }
-
-    await client.query('COMMIT');
-
-    // ✅ [Resource System] 자원 드롭 — 유저가 보유한 모든 tier 별로 roll (Phase 2)
-    // 이전: bestTier 만 roll → mid+frontier 보유 시 frontier 드롭이 누락됨.
-    // 변경: tierCounts 가 0 보다 큰 모든 tier 에 대해 독립적으로 roll, 결과 합산.
+    // ✅ [P5-2] 자원 드롭 — COMMIT 전에 roll하고 트랜잭션 안에서 인벤토리에 추가.
+    // 이전: COMMIT 후 별도 pool로 처리 → 트랜잭션 메타에 drops 포함 불가.
+    // 변경: rollResourceDrop은 SELECT만 하므로 COMMIT 전 호출 안전.
+    //       addResourcesToInventory에 client 전달 → 같은 트랜잭션으로 처리.
     let resourceDrops = [];
     try {
       if (resourceService) {
@@ -3038,10 +3022,27 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
         }
         resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
         if (resourceDrops.length > 0) {
-          await resourceService.addResourcesToInventory(null, w, resourceDrops);
+          await resourceService.addResourcesToInventory(client, w, resourceDrops);
         }
       }
-    } catch (_re) { /* resource system unavailable */ }
+    } catch (_re) { /* resource system unavailable — non-critical */ }
+
+    // Transaction log (includes resource drops in meta)
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+       VALUES ('mining', $1, $2, 0, $3)`,
+      [w, harvestedPP, JSON.stringify({ totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100, guildContrib, resourceDrops })]
+    );
+
+    // Award XP for harvesting (5 XP per harvest)
+    const harvestRankUp = await awardXP(client, w, 5);
+
+    // Referral commission — uplines get small PP cut from each harvest
+    try {
+      await creditReferralCommission(client, w, 'harvest', harvestedPP, 'pp');
+    } catch (_e) { /* non-critical */ }
+
+    await client.query('COMMIT');
 
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
     res.json({
@@ -5075,9 +5076,12 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
           if (elapsed < interval) {
             nextHarvestAt = new Date(new Date(lastAt).getTime() + interval * 3600000);
           }
+          // Extract material drops from transaction meta (P5-2 이후 저장됨)
+          const metaMaterials = (row.meta && row.meta.resourceDrops) ? row.meta.resourceDrops : [];
           lastHarvest = {
             pp: parseFloat(row.pp_amount),
-            at: row.created_at
+            at: row.created_at,
+            materials: metaMaterials
           };
         }
       } catch (_) { /* no harvest data */ }
