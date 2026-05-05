@@ -1,7 +1,7 @@
 # Claude Implementation Order - P5 Territory Utility
 
 > Date: 2026-05-05
-> Primary plan: `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md`
+> Primary full plan: `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md`
 > Existing roadmap: `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md`
 
 ## 0. Read Order
@@ -15,15 +15,25 @@
 
 ## 1. Immediate Goal
 
-Implement P5-1 first: territory production visibility.
+Implement the full P5 system in phases. Start with P5-1 because later phases depend on server-side production truth.
 
-Do not start sector control, guild dominance, territory roles, or a full war system yet.
+Do not skip ahead to sector control, guild dominance, territory roles, or a full war system before production preview and material harvest exist.
+
+Important: this is an implementation order, not a reduced scope. The final target is the full territory economy described in `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md`.
 
 The first user-facing goal:
 
 - A player opens owned territory.
 - They can see what the territory produces.
 - They can understand why that land matters for PP/material/ship economy.
+
+The full end goal:
+
+- Territory produces PP and materials.
+- Territory upgrades and roles create specialization.
+- Materials feed ship crafting, upgrades, repair, and market.
+- Valuable land creates defense/hijack/fleet reasons.
+- Sector control creates late-game strategic goals.
 
 ## 2. Sprint P5-1 - Production Preview Only
 
@@ -126,7 +136,53 @@ Expected behavior:
 - Shipyard cards make it clear which required materials come from territory production.
 - Resource market listing/selling remains compatible.
 
-## 5. Hard Stops
+## 5. Sprint P5-4 - Territory Upgrades and Roles
+
+Start only after P5-1 to P5-3 are stable.
+
+Expected behavior:
+
+- Add extractor/refinery/shield/relay/art upgrade tracks.
+- Show owned/required costs.
+- Upgrade effects change production preview and harvest result.
+- Roles are optional specialization, not mandatory.
+- Role tradeoffs must be visible before selection.
+
+## 6. Sprint P5-5 - Sector Control
+
+Start only after production and upgrade loops are stable.
+
+Expected behavior:
+
+- Compute control score by territory area, production power, defense/fleet presence, activity, and guild share if available.
+- Show top owners/guilds per sector.
+- Add small threshold bonuses at presence/stakeholder/dominant/governor tiers.
+- Add decay/upkeep so control is not permanent.
+- Add campaign objectives only for late-game routes.
+
+## 7. Sprint P5-6 - Admin and Economy Tuning
+
+Expected behavior:
+
+- Admin can inspect material issuance/burn.
+- Admin can tune production profiles.
+- Admin can detect suspicious harvest frequency.
+- Admin can see top producing claims and sectors.
+- Economy warnings exist before material supply gets out of control.
+
+## 8. Sprint P5-7 - Campaign and Season Integration
+
+Start only after production, harvest, and upgrade data are stable.
+
+Expected behavior:
+
+- Early campaign objectives use deterministic territory actions, not rare RNG.
+- Mid campaign objectives can require production score, owned materials, or upgrade levels.
+- Late campaign objectives can reference sector presence/control.
+- Season events can temporarily adjust territory production profiles through admin settings.
+- Campaign reward text explains why territory production matters for fleet and market progress.
+
+## 9. Hard Stops
 
 Do not implement these before P5-1/P5-2 are working:
 
@@ -137,7 +193,7 @@ Do not implement these before P5-1/P5-2 are working:
 - production multipliers that affect the economy heavily
 - new resource catalog duplicating existing resources
 
-## 6. Verification Checklist
+## 10. Verification Checklist
 
 Before commit:
 
@@ -150,4 +206,3 @@ Before commit:
 - `git diff --check` passes.
 
 If frontend changes touch `index.html`, run inline script syntax validation.
-

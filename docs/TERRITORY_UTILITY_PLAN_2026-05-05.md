@@ -1,7 +1,7 @@
 # OCCUPY MARS - Territory Utility Plan
 
 > Date: 2026-05-05
-> Status: P5 planning complete, ready for phased implementation
+> Status: P5 full planning complete, ready for full phased implementation
 > Depends on: campaign objectives, shipyard materials, ship market, harvest transactions
 
 ## 1. Core Decision
@@ -60,11 +60,56 @@ Small players need something valuable to sell.
 - Crafters and combat players buy those materials.
 - Upgraded ships become end products in the market.
 
-## 3. MVP Scope
+## 3. Full Target System
+
+P5 is complete only when territory is the foundation under the ship economy and war economy.
+
+Final player loop:
+
+```text
+Claim territory
+  -> upload image / name / decorate
+  -> harvest PP + materials
+  -> upgrade territory production or defense
+  -> craft / upgrade / repair ships
+  -> sell surplus materials or upgraded ships
+  -> defend valuable land with shields/fleets
+  -> fight for sector influence
+  -> unlock campaign objectives and narrative consequences
+```
+
+### 3.1 Final Feature Set
+
+| Layer | Feature | Purpose |
+|---|---|---|
+| Territory identity | name, image, owner, sector, production role | make land feel personal |
+| Production | PP yield, material drop, last harvest, next harvest | make land economically useful |
+| Specialization | sector profiles, territory roles, upgrades | make each territory different |
+| Defense | shield, fleet anchor, warning, defense score | make valuable land worth protecting |
+| Market | materials, upgraded ships, territory value hints | let small and large players trade |
+| Sector control | influence score, rankings, bonuses | create long-term war goals |
+| Campaign | objectives and rewards tied to production/control | make territory part of story progression |
+| Admin/balance | tunable rates, drop tables, sink ratios | prevent economy flood |
+
+### 3.2 Full Completion Criteria
+
+P5 is fully done when:
+
+- A player can tell which territory is valuable and why.
+- Owned territories produce PP and useful ship materials.
+- Territory output visibly feeds ship crafting/upgrades/market.
+- Upgrading a territory changes production/defense in a readable way.
+- Sector type and sector control create strategic placement decisions.
+- Campaign chapters can ask for territory production/control without relying on pure luck.
+- Admin can tune drop rates, upgrade costs, sector bonuses, and economy pressure.
+
+## 4. Phase 1 - Production Foundation
+
+This is the first implementation phase, not the whole plan.
 
 The first implementation should be conservative and low-risk.
 
-### 3.1 Territory Production Summary
+### 4.1 Territory Production Summary
 
 Add a visible production block to owned territory panels:
 
@@ -85,7 +130,7 @@ Modifiers: Frontier +20% rare materials, image bonus active
 Last harvest: +0.18 PP, Iron Dust x2
 ```
 
-### 3.2 Material Drops on Harvest
+### 4.2 Material Drops on Harvest
 
 Keep existing PP harvest intact. Add material drops on top.
 
@@ -112,7 +157,7 @@ Initial material pool should reuse current shipyard resources:
 
 Use actual existing resource codes from DB/code. Do not invent parallel resources if equivalents already exist.
 
-### 3.3 Sector Profiles
+### 4.3 Sector Profiles
 
 Use sector type first. Do not require full 24-sector control in MVP.
 
@@ -125,7 +170,7 @@ Use sector type first. Do not require full 24-sector control in MVP.
 
 MVP can infer sector type from existing `sector_code`, `sector_id`, `sectors`, or `sector_definitions` data.
 
-### 3.4 Territory Production Score
+### 4.4 Territory Production Score
 
 Each owned claim gets a readable score:
 
@@ -140,7 +185,7 @@ Production Power = base pixel count
 
 Keep this as a server-side calculation. UI should display the result, not recalculate truth.
 
-### 3.5 Campaign Hooks
+### 4.5 Campaign Hooks
 
 Add campaign objective candidates after MVP is stable:
 
@@ -152,9 +197,9 @@ Add campaign objective candidates after MVP is stable:
 
 Do not block campaign on rare random drops until pity/guarantee exists.
 
-## 4. Phase 2 Scope
+## 5. Phase 2 - Territory Upgrades and Roles
 
-### 4.1 Territory Upgrades
+### 5.1 Territory Upgrades
 
 Add upgrades that improve production and defense.
 
@@ -175,7 +220,7 @@ Upgrade UI should show:
 - cost owned/required
 - whether the territory is listed/locked/in conflict
 
-### 4.2 Territory Roles
+### 5.2 Territory Roles
 
 Each territory can optionally choose one role:
 
@@ -189,7 +234,20 @@ Each territory can optionally choose one role:
 
 MVP should not include roles. Add after production is stable.
 
-### 4.3 Market Integration
+### 5.3 Upgrade Cost Philosophy
+
+Upgrade costs should create long-term sinks without making early players feel locked out.
+
+| Upgrade Tier | Target Player | Cost Pattern |
+|---|---|---|
+| Lv 1-3 | early user | GP + common material |
+| Lv 4-6 | active user | GP + common + uncommon |
+| Lv 7-9 | invested user | GP + rare material |
+| Lv 10+ | whale/guild/endgame | GP + rare + special + upkeep pressure |
+
+Do not use only GP. Territory upgrades should consume the materials that territory produces.
+
+### 5.4 Market Integration
 
 Materials from territory should support:
 
@@ -205,11 +263,11 @@ Market should eventually show:
 - common crafting demand
 - quick sell/list from inventory
 
-## 5. Phase 3 Scope - Sector Control
+## 6. Phase 3 - Sector Control and War Economy
 
 Sector control is long-term and should come after territory production works.
 
-### 5.1 Control Score
+### 6.1 Control Score
 
 Sector control is not just land count.
 
@@ -223,7 +281,7 @@ Control Score =
   - abandoned/inactive land penalty
 ```
 
-### 5.2 Control Effects
+### 6.2 Control Effects
 
 Control should create visible benefits:
 
@@ -234,7 +292,7 @@ Control should create visible benefits:
 - campaign unlock/objective
 - war declaration target
 
-### 5.3 Conflict Rules
+### 6.3 Conflict Rules
 
 Avoid all-or-nothing control at first.
 
@@ -243,11 +301,279 @@ Avoid all-or-nothing control at first.
 - Add decay so inactive owners lose influence.
 - Do not let one whale permanently lock a sector without upkeep pressure.
 
-## 6. Data Model Proposal
+### 6.4 Sector Influence States
+
+| State | Threshold | Effect |
+|---|---:|---|
+| Presence | 10% control score | sector appears in owner influence list |
+| Stakeholder | 25% | small production bonus, sector badge |
+| Dominant | 50% | stronger production/defense bonus, public sector banner |
+| Governor | 75% | highest bonus, campaign/chronicle event, target for rivals |
+
+Bonuses should be useful but not unbeatable. Control must create conflict, not end it.
+
+### 6.5 Decay and Upkeep
+
+Control must decay when players stop playing.
+
+- inactive claims lose influence contribution after configurable days
+- shielded/defended/harvested claims retain more influence
+- high control tiers require upkeep or recent activity
+- hijack/defense events affect sector score
+
+## 7. Full Sector and Resource Design
+
+### 7.1 Sector Archetypes
+
+Use existing sector names where available. If the DB has only coarse sector data, implement by sector type first and map names later.
+
+| Archetype | Example Identity | Good For | Weakness |
+|---|---|---|---|
+| Industrial Core | forge/vault/citadel zones | upgrades, refining, defense | expensive, lower raw output |
+| Trade Midline | station/crossing/fields zones | stable PP, market, logistics | average rare drops |
+| War Frontier | abyss/scars/wastes zones | rare material, high yield | hijack risk |
+| Research/POI | ruins/caves/anomalies | special materials, campaign hooks | inconsistent output |
+| Safe Frontier | beginner-friendly zones | onboarding, stable common output | lower high-tier ceiling |
+
+### 7.2 Resource Families
+
+Use existing shipyard resource codes. Group them by gameplay role:
+
+| Family | Example Codes | Main Use |
+|---|---|---|
+| Structural | iron-like, titanium-like, carbon-like | hulls, destroyers, battleships |
+| Electronics | silicon-like, nano-like | EW, sniper, relay, targeting |
+| Thermal/Shield | ice-like, plasma-like | shield, coolant, beam weapons |
+| Ancient/Special | ancient metal, plasma dust, meteorite-like | titan, rare upgrades, event crafting |
+
+### 7.3 Resource Distribution Target
+
+| Sector Type | Common | Uncommon | Rare | Special | Identity |
+|---|---:|---:|---:|---:|---|
+| Core | medium | high | low | very low | refined industry |
+| Mid | high | medium | low-medium | very low | stable economy |
+| Frontier | medium | medium | high | low | risky extraction |
+| POI/Event | low | medium | high | medium | special reward |
+
+### 7.4 Claim Size Scaling
+
+Large land should matter, but not break economy.
+
+Recommended formula style:
+
+```text
+productionScore =
+  baseFromPixels
+  x sectorMultiplier
+  x artMultiplier
+  x adjacencyMultiplier
+  x upgradeMultiplier
+  x weatherMultiplier
+
+baseFromPixels = 1 + log10(pixelCount + 1) * 0.55
+```
+
+Avoid linear output by pixel count.
+
+## 8. Full Economy Connections
+
+### 8.1 Shipyard
+
+Territory materials should directly support:
+
+- ship construction
+- stat upgrades
+- repair
+- shield recovery
+- later: beam cannon charge/ammunition or war consumables
+
+### 8.2 Market
+
+Market should eventually support:
+
+- resource selling
+- resource bulk listing
+- filter by resource family
+- price history
+- "needed for ships" hint
+- territory origin label for rare materials
+
+Example listing card:
+
+```text
+Ice Crystal x12
+Origin: Phlegra Deep / Frontier
+Used For: shield upgrades, cruiser coolant
+7d avg: 7.8 PP
+```
+
+### 8.3 Fleet War
+
+Territory should matter to fleet war through:
+
+- defending valuable claims
+- sector control conflicts
+- campaign battle objectives tied to territory control
+- future forward base or deployment bonus
+
+Do not make fleet battle require territory for basic play. Territory should add strategic depth, not block combat.
+
+## 9. Campaign Integration - Full Plan
+
+Campaign should introduce P5 in layers.
+
+| Campaign Stage | Territory Lesson |
+|---|---|
+| Prologue/CH1 | claim land, upload image, harvest PP |
+| Early CH2-CH3 | harvest material, craft/upgrade ship |
+| Mid CH4-CH6 | specialize territory, use production to support fleet |
+| Late CH7-CH10 | defend valuable territory, participate in sector influence |
+| FSP/CV routes | alternate sector/resource philosophies |
+
+Objective candidates:
+
+| Objective | Use When |
+|---|---|
+| `territory_material_harvests` | after material harvest exists |
+| `territory_common_material_qty` | reliable crafting tutorial |
+| `territory_production_score` | teaches territory value |
+| `territory_upgrade_level` | teaches upgrade sink |
+| `territory_role_assigned` | teaches specialization |
+| `sector_presence` | teaches sector map |
+| `sector_control_score` | late-game only |
+| `territory_defense_success` | late-game/war route |
+
+Do not gate early campaign on rare drops or PvP outcomes.
+
+## 10. UX Full Plan
+
+### 10.1 Territory Detail Panel
+
+Final panel sections:
+
+1. Owner/status
+2. Image/art preview
+3. Production summary
+4. Harvest button/result
+5. Upgrade/role section
+6. Defense section
+7. Market/transfer status
+8. Sector influence
+
+Keep mobile compact. Use collapsible sections.
+
+### 10.2 My Land Page
+
+Needed filters/sorts:
+
+- highest production
+- ready to harvest
+- rare material chance
+- under threat
+- sector
+- role
+- shield status
+
+### 10.3 Map Overlay
+
+Optional overlays:
+
+- ownership
+- production heat
+- sector control
+- conflict/risk
+- harvest-ready
+
+Default map should stay clean and playable.
+
+### 10.4 Harvest Result
+
+Harvest should feel rewarding:
+
+```text
+Harvest Complete
++0.18 PP
+Iron Dust x3
+Carbon Fiber x1
+Rare roll missed: Ice Crystal 8%
+```
+
+Show misses only in detailed view, not as spam.
+
+## 11. Admin and Tuning Plan
+
+Admin needs controls before this affects economy heavily.
+
+Required admin settings:
+
+- material drop enabled
+- sector profile rates
+- claim size multiplier cap
+- rare drop cap
+- harvest cooldown
+- upgrade cost multiplier
+- sector control decay
+- max sector bonus
+
+Admin audit views:
+
+- materials issued per day
+- materials burned per day
+- top producing claims
+- top producing sectors
+- market prices by resource
+- suspicious harvest frequency
+
+## 12. Risk Controls
+
+### 12.1 Economy Flood
+
+Risk: material drops flood shipyard/market.
+
+Controls:
+
+- conservative starting rates
+- daily issuance dashboard
+- material sinks through upgrades/repair
+- logarithmic claim size scaling
+
+### 12.2 Whale Domination
+
+Risk: large landowners dominate sectors permanently.
+
+Controls:
+
+- influence decay
+- upkeep pressure
+- threshold bonuses instead of winner-take-all
+- defensive but not invincible shields
+
+### 12.3 Campaign RNG Frustration
+
+Risk: user cannot progress because rare material did not drop.
+
+Controls:
+
+- early objectives use common materials or production score
+- pity counters for rare objectives
+- rare objectives optional or late-game
+
+### 12.4 UI Overload
+
+Risk: territory panel becomes unreadable.
+
+Controls:
+
+- compact default
+- detail expanders
+- mobile-first card layout
+- map overlays off by default
+
+## 13. Data Model Proposal
 
 Use existing tables where possible.
 
-### 6.1 New or Confirmed Tables
+### 13.1 New or Confirmed Tables
 
 ```sql
 territory_production_profiles
@@ -280,11 +606,29 @@ territory_roles
 - claim_id
 - role_key
 - assigned_at
+
+sector_control_snapshots
+- id
+- sector_code
+- wallet
+- guild_id
+- control_score
+- control_pct
+- rank
+- snapshot_at
+
+territory_production_events
+- id
+- claim_id
+- wallet
+- event_type
+- payload_json
+- created_at
 ```
 
 Only add `territory_roles` in Phase 2.
 
-### 6.2 Existing Tables to Reuse
+### 13.2 Existing Tables to Reuse
 
 - `claims`
 - `transactions`
@@ -296,9 +640,9 @@ Only add `territory_roles` in Phase 2.
 - `mars_weather`
 - market listing tables
 
-## 7. API Proposal
+## 14. API Proposal
 
-### 7.1 MVP APIs
+### 14.1 Phase 1 APIs
 
 ```text
 GET /api/territory/:claimId/production
@@ -327,47 +671,18 @@ Extend existing response:
 - updated inventory
 - campaign objective progress hint when relevant
 
-### 7.2 Phase 2 APIs
+### 14.2 Phase 2+ APIs
 
 ```text
 POST /api/territory/:claimId/upgrade
 POST /api/territory/:claimId/role
 GET /api/sectors/:sectorCode/control
+GET /api/territory/production/summary?wallet=...
+GET /api/admin/territory/economy
+POST /admin/api/territory/production-profile
 ```
 
-## 8. UI Proposal
-
-### 8.1 Territory Panel
-
-Add compact production UI:
-
-- `생산` row in the territory detail panel
-- material chips with owned/estimated drop
-- `수확` result toast with PP and material icons
-- `생산 상세` button for full breakdown
-
-### 8.2 My Land List
-
-Each land card should show:
-
-- production score
-- sector type
-- next harvest
-- last material drop
-- shield/defense state
-
-### 8.3 Map Overlay
-
-Add optional simple filter:
-
-- ownership
-- production
-- risk
-- sector type
-
-Do not make default map visually noisy.
-
-## 9. Balance Starting Point
+## 15. Balance Starting Point
 
 MVP should be modest.
 
@@ -394,7 +709,7 @@ Example:
 sizeBonus = 1 + min(1.5, log10(pixelCount + 1) * 0.25)
 ```
 
-## 10. Anti-Exploit Rules
+## 16. Anti-Exploit Rules
 
 - Material drops must be server-side only.
 - Harvest cooldown must be enforced server-side.
@@ -403,14 +718,15 @@ sizeBonus = 1 + min(1.5, log10(pixelCount + 1) * 0.25)
 - Do not let users harvest deleted/abandoned claims.
 - Log all material drops.
 
-## 11. Implementation Order
+## 17. Implementation Order
 
 ### Sprint P5-1: Production Visibility
 
 1. Identify current resource inventory tables and resource codes.
 2. Add server production preview helper.
 3. Add territory panel production summary.
-4. No material payout yet if risk is high.
+4. Add admin-safe settings defaults.
+5. No material payout yet if risk is high.
 
 ### Sprint P5-2: Material Harvest
 
@@ -431,16 +747,31 @@ sizeBonus = 1 + min(1.5, log10(pixelCount + 1) * 0.25)
 2. Add upgrade modal.
 3. Connect upgrade effects to production preview and harvest.
 
-### Sprint P5-5: Sector Control
+### Sprint P5-5: Territory Roles and Defense
+
+1. Add territory role assignment.
+2. Add role tradeoff preview.
+3. Add defense score/shield/relay summary.
+4. Connect valuable territory to hijack warning and fleet defense hooks.
+
+### Sprint P5-6: Sector Control
 
 1. Add sector control score view.
 2. Add owner/guild ranking by sector.
 3. Add small threshold bonuses.
 4. Add campaign objectives for sector presence/control.
 
-## 12. Definition of Done
+### Sprint P5-7: Admin, Economy Tuning, and Seasons
 
-P5 MVP is done when:
+1. Add material issuance/burn dashboard.
+2. Add sector profile editor.
+3. Add suspicious harvest diagnostics.
+4. Add economy sink/faucet warnings.
+5. Add seasonal production modifiers after admin tuning exists.
+
+## 18. Definition of Done
+
+P5 Phase 1 is done when:
 
 - A player can open a territory and understand what it produces.
 - Harvest can show PP plus material results.
@@ -448,3 +779,10 @@ P5 MVP is done when:
 - Campaign can ask for a non-random material/production objective.
 - No internal errors occur when the user has no sector, no image, or no resource drops.
 
+P5 full system is done when:
+
+- territory production, upgrades, roles, market material flow, and sector control all work together.
+- players have a reason to own more than one territory.
+- weaker players can sell materials into the economy.
+- stronger players need materials to craft, upgrade, and wage war.
+- sector ownership creates long-term strategic goals without making new players irrelevant.

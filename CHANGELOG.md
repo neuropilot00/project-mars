@@ -1760,14 +1760,14 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 
 ---
 
-## 2026-05-05 v5.90 — P5 영토 유틸리티 기획
+## 2026-05-05 v5.91 — P5 영토 유틸리티 풀기획
 
 - `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md`를 추가했다.
 - `docs/CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER_2026-05-05.md`를 추가했다.
 - 영토를 개인 캔버스, 생산 노드, 전쟁/경제 앵커로 정의했다.
-- P5 구현 순서를 생산 가시성, 재료 harvest, 조선소 연결, 영토 업그레이드, 섹터 컨트롤로 나눴다.
-- 클로드가 섹터 컨트롤부터 건드리지 않고 P5-1 생산 가시성부터 착수하도록 구현 지시서를 분리했다.
-- `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md`의 P5 항목에 상세 기획 문서와 범위 통제 기준을 연결했다.
+- P5 풀기획을 생산 가시성, 재료 harvest, 조선소 연결, 영토 업그레이드/역할, 섹터 컨트롤, 어드민 경제 튜닝까지 확장했다.
+- 클로드가 풀 시스템을 개발하되 P5-1 생산 가시성부터 순차 착수하도록 구현 지시서를 분리했다.
+- `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md`의 P5 항목을 MVP 기준이 아니라 최종 풀 시스템 기준으로 갱신했다.
 
 ## 2026-05-05 v5.87 — Claude 남은 작업 실행 지시서
 
