@@ -16466,6 +16466,10 @@ var I18N = {
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
     gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
     gov_ship_upgrade: 'UPGRADE', gov_ship_upgraded: 'upgraded!', gov_ship_upgrade_cost: 'Upgrade Cost',
+    sy_tab_blueprints: 'BLUEPRINTS', sy_tab_queue: 'BUILD QUEUE', sy_tab_fleet: 'MY FLEET', sy_tab_market: 'SHIP MARKET',
+    sy_filter_size: 'SIZE:', sy_size_all: 'ALL', sy_size_frigate: 'Frigate', sy_size_destroyer: 'Destroyer', sy_size_cruiser: 'Cruiser', sy_size_battleship: 'Battleship', sy_size_titan: 'Titan',
+    sy_filter_faction: 'FACTION:', sy_filter_size2: 'SIZE:',
+    sy_mineral_label: 'Minerals Owned', sy_ships_label: 'Ships',
     gov_battle_title: '⚔️ NAVAL BATTLES', gov_battle_hint: 'Connect wallet to view battles.',
     gov_battle_active: 'ACTIVE BATTLES', gov_battle_declare: 'DECLARE ATTACK',
     gov_battle_declared: 'Battle declared! Awaiting defender response.',
@@ -17161,6 +17165,10 @@ var I18N = {
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
     gov_ship_upgrade: '강화', gov_ship_upgraded: '강화 완료!', gov_ship_upgrade_cost: '강화 비용',
+    sy_tab_blueprints: '청사진', sy_tab_queue: '건조 대기열', sy_tab_fleet: '내 함선', sy_tab_market: '함선 마켓',
+    sy_filter_size: '함급:', sy_size_all: '전체', sy_size_frigate: '프리깃', sy_size_destroyer: '구축함', sy_size_cruiser: '순양함', sy_size_battleship: '전함', sy_size_titan: '타이탄',
+    sy_filter_faction: '파벌:', sy_filter_size2: '크기:',
+    sy_mineral_label: '광물 보유', sy_ships_label: '함선',
     gov_battle_title: '⚔️ 해상 전투', gov_battle_hint: '지갑을 연결하여 전투를 확인하세요.',
     gov_battle_active: '진행 중인 전투', gov_battle_declare: '전투 선포',
     gov_battle_declared: '전투 선포 완료! 수비자의 응답을 기다리는 중.',
@@ -17859,6 +17867,10 @@ var I18N = {
     gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
     gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
     gov_ship_upgrade: 'アップグレード', gov_ship_upgraded: 'アップグレード完了！', gov_ship_upgrade_cost: 'アップグレード費用',
+    sy_tab_blueprints: '設計図', sy_tab_queue: '建造待機', sy_tab_fleet: '自艦隊', sy_tab_market: '艦船市場',
+    sy_filter_size: '艦級:', sy_size_all: '全て', sy_size_frigate: 'フリゲート', sy_size_destroyer: '駆逐艦', sy_size_cruiser: '巡洋艦', sy_size_battleship: '戦艦', sy_size_titan: 'タイタン',
+    sy_filter_faction: '勢力:', sy_filter_size2: 'サイズ:',
+    sy_mineral_label: '鉱物所有', sy_ships_label: '艦船',
     gov_battle_title: '⚔️ 海戦', gov_battle_hint: 'ウォレットを接続して海戦を確認。',
     gov_battle_active: '進行中の戦闘', gov_battle_declare: '戦闘宣言',
     gov_battle_declared: '戦闘宣言！防衛者の応答待ち。',
@@ -18549,6 +18561,10 @@ var I18N = {
     gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
     gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
     gov_ship_upgrade: '升级', gov_ship_upgraded: '升级完成！', gov_ship_upgrade_cost: '升级费用',
+    sy_tab_blueprints: '蓝图', sy_tab_queue: '建造队列', sy_tab_fleet: '我的舰队', sy_tab_market: '舰船市场',
+    sy_filter_size: '舰级:', sy_size_all: '全部', sy_size_frigate: '护卫舰', sy_size_destroyer: '驱逐舰', sy_size_cruiser: '巡洋舰', sy_size_battleship: '战列舰', sy_size_titan: '泰坦',
+    sy_filter_faction: '势力:', sy_filter_size2: '大小:',
+    sy_mineral_label: '矿石持有', sy_ships_label: '舰船',
     gov_battle_title: '⚔️ 海战', gov_battle_hint: '连接钱包以查看海战。',
     gov_battle_active: '进行中的战斗', gov_battle_declare: '宣战',
     gov_battle_declared: '已宣战！等待防守方响应。',
@@ -19160,6 +19176,8 @@ function setLang(lang){
   try{ if(typeof _sectorsData!=='undefined' && _sectorsData && typeof renderSectorList==='function') renderSectorList(_sectorsData); }catch(_e){}
   try{ if(typeof renderOpsPadList==='function' && window._opsPads) renderOpsPadList(); }catch(_e){}
   try{ if(typeof renderOpsMissionList==='function' && typeof _opsMissions!=='undefined') renderOpsMissionList(); }catch(_e){}
+  // Re-render shipyard if open
+  try{ if(typeof renderBlueprintsGrid==='function' && document.getElementById('shipyardModal') && document.getElementById('shipyardModal').classList.contains('active')) { renderBlueprintsGrid(); renderShipList(); renderQueue(); } }catch(_e){}
 }
 // Highlight the active language button in the profile menu
 function _syncProfileLangBtns(){
@@ -43115,26 +43133,26 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
     </div>
     <div class="shipyard-tabs">
       <button class="sy-tab active" data-tab="blueprints" onclick="switchSyTab('blueprints')">
-        📋 BLUEPRINTS
+        📋 <span data-i18n="sy_tab_blueprints">BLUEPRINTS</span>
       </button>
       <button class="sy-tab" data-tab="queue" onclick="switchSyTab('queue')">
-        🔨 BUILD QUEUE <span class="badge" id="syQueueBadge" style="display:none"></span>
+        🔨 <span data-i18n="sy_tab_queue">BUILD QUEUE</span> <span class="badge" id="syQueueBadge" style="display:none"></span>
       </button>
       <button class="sy-tab" data-tab="fleet" onclick="switchSyTab('fleet')">
-        🚀 MY FLEET
+        🚀 <span data-i18n="sy_tab_fleet">MY FLEET</span>
       </button>
       <button class="sy-tab" data-tab="market" onclick="switchSyTab('market')">
-        🏷 SHIP MARKET
+        🏷 <span data-i18n="sy_tab_market">SHIP MARKET</span>
       </button>
     </div>
     <div class="shipyard-filters" id="syFilters">
-      <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px">SIZE:</span>
-      <button class="sy-filter-chip active" data-size="" onclick="filterBySize('')">ALL</button>
-      <button class="sy-filter-chip" data-size="frigate" onclick="filterBySize('frigate')">Frigate</button>
-      <button class="sy-filter-chip" data-size="destroyer" onclick="filterBySize('destroyer')">Destroyer</button>
-      <button class="sy-filter-chip" data-size="cruiser" onclick="filterBySize('cruiser')">Cruiser</button>
-      <button class="sy-filter-chip" data-size="battleship" onclick="filterBySize('battleship')">Battleship</button>
-      <button class="sy-filter-chip" data-size="titan" onclick="filterBySize('titan')">Titan</button>
+      <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px" data-i18n="sy_filter_size">SIZE:</span>
+      <button class="sy-filter-chip active" data-size="" onclick="filterBySize('')" data-i18n="sy_size_all">ALL</button>
+      <button class="sy-filter-chip" data-size="frigate" onclick="filterBySize('frigate')" data-i18n="sy_size_frigate">Frigate</button>
+      <button class="sy-filter-chip" data-size="destroyer" onclick="filterBySize('destroyer')" data-i18n="sy_size_destroyer">Destroyer</button>
+      <button class="sy-filter-chip" data-size="cruiser" onclick="filterBySize('cruiser')" data-i18n="sy_size_cruiser">Cruiser</button>
+      <button class="sy-filter-chip" data-size="battleship" onclick="filterBySize('battleship')" data-i18n="sy_size_battleship">Battleship</button>
+      <button class="sy-filter-chip" data-size="titan" onclick="filterBySize('titan')" data-i18n="sy_size_titan">Titan</button>
     </div>
     <div class="shipyard-body">
       <div id="syBlueprintsTab">
@@ -43148,13 +43166,13 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
       </div>
       <div id="syMarketTab" style="display:none">
         <div class="sy-market-filter-row" id="syMarketFilters">
-          <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px">파벌:</span>
+          <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px" data-i18n="sy_filter_faction">FACTION:</span>
           <button class="sy-filter-chip active" data-mfaction="" onclick="filterMarketFaction('')">ALL</button>
           <button class="sy-filter-chip" data-mfaction="mcc" onclick="filterMarketFaction('mcc')">MCC</button>
           <button class="sy-filter-chip" data-mfaction="fsp" onclick="filterMarketFaction('fsp')">FSP</button>
           <button class="sy-filter-chip" data-mfaction="cv" onclick="filterMarketFaction('cv')">CV</button>
           <div class="sy-market-filter-sep"></div>
-          <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px">크기:</span>
+          <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px" data-i18n="sy_filter_size2">SIZE:</span>
           <button class="sy-filter-chip active" data-msize="" onclick="filterMarketSize('')">ALL</button>
           <button class="sy-filter-chip" data-msize="frigate" onclick="filterMarketSize('frigate')">FRG</button>
           <button class="sy-filter-chip" data-msize="destroyer" onclick="filterMarketSize('destroyer')">DES</button>
@@ -43173,8 +43191,8 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
     </div>
     <div class="shipyard-footer" id="syFooter">
       <div class="sy-balance"><span>GP</span> <b id="syGpBalance">-</b></div>
-      <div class="sy-balance minerals"><span>광물 보유</span> <b id="syMineralSummary">-</b></div>
-      <div class="sy-balance" style="margin-left:auto"><span>함선</span> <b id="syShipCount">0 / 200</b></div>
+      <div class="sy-balance minerals"><span data-i18n="sy_mineral_label">Minerals Owned</span> <b id="syMineralSummary">-</b></div>
+      <div class="sy-balance" style="margin-left:auto"><span data-i18n="sy_ships_label">Ships</span> <b id="syShipCount">0 / 200</b></div>
     </div>
   </div>
 </div>
@@ -43603,17 +43621,101 @@ function shipVisual(sizeClass, factionCode, opts) {
     +   'onerror="this.remove()">';
 }
 
-var SHIP_ROLE_INFO = {
-  dps:    { label:'DPS',    desc:'주력 화력 · 적 함선을 빠르게 줄임' },
-  tackle: { label:'TACKLE', desc:'고속 선봉 · 기함 추격과 초반 교전 담당' },
-  ewar:   { label:'EW',     desc:'전자전 · 적 사격 지연과 화력 저하 중첩' },
-  logi:   { label:'LOGI',   desc:'수리 지원 · 장기전에서 아군 생존력 증가' },
-  tank:   { label:'TANK',   desc:'방어 핵심 · 전열 유지와 대형함 보호' },
-  sniper: { label:'SNIPER', desc:'장거리 저격 · 대형함과 탱커를 찢음' },
-  bomb:   { label:'BOMB',   desc:'폭격 · 전함/타이탄 킬러, 소형 스크린에 약함' }
+var _SHIP_ROLE_INFO_I18N = {
+  en: {
+    dps:    { label:'DPS',    desc:'Main firepower · Melts enemy ships fast' },
+    tackle: { label:'Tackle', desc:'Fast vanguard · Flagship hunting & early skirmish' },
+    ewar:   { label:'EW',     desc:'Electronic warfare · Disrupts enemy targeting' },
+    logi:   { label:'Logi',   desc:'Repair support · Boosts fleet survivability' },
+    tank:   { label:'Tank',   desc:'Front-line shield · Protects heavy ships' },
+    sniper: { label:'Sniper', desc:'Long-range precision · Destroys capital ships' },
+    bomb:   { label:'Bomber', desc:'Bomb · Battleship/Titan killer, weak vs screens' }
+  },
+  ko: {
+    dps:    { label:'DPS',    desc:'주력 화력 · 적 함선을 빠르게 줄임' },
+    tackle: { label:'태클',   desc:'고속 선봉 · 기함 추격과 초반 교전 담당' },
+    ewar:   { label:'전자전', desc:'전자전 · 적 사격 지연과 화력 저하 중첩' },
+    logi:   { label:'로지',   desc:'수리 지원 · 장기전에서 아군 생존력 증가' },
+    tank:   { label:'탱크',   desc:'방어 핵심 · 전열 유지와 대형함 보호' },
+    sniper: { label:'저격',   desc:'장거리 저격 · 대형함과 탱커를 찢음' },
+    bomb:   { label:'폭격',   desc:'폭격 · 전함/타이탄 킬러, 소형 스크린에 약함' }
+  },
+  ja: {
+    dps:    { label:'DPS',      desc:'主力火力 · 敵艦を素早く撃破' },
+    tackle: { label:'タックル', desc:'高速前衛 · 旗艦追撃と初動交戦担当' },
+    ewar:   { label:'電子戦',   desc:'電子戦 · 敵の射撃を妨害・弱体化' },
+    logi:   { label:'ロジ',     desc:'修理支援 · 長期戦での艦隊生存力向上' },
+    tank:   { label:'タンク',   desc:'防衛要' },
+    sniper: { label:'スナイパー', desc:'長距離精密 · 大型艦を破壊' },
+    bomb:   { label:'爆撃',     desc:'爆撃 · 戦艦/タイタンキラー' }
+  },
+  zh: {
+    dps:    { label:'DPS',   desc:'主力火力 · 快速消灭敌舰' },
+    tackle: { label:'牵制',  desc:'高速先锋 · 追击旗舰和初期交战' },
+    ewar:   { label:'电战',  desc:'电子战 · 干扰敌方射击' },
+    logi:   { label:'后勤',  desc:'修理支援 · 提升舰队生存力' },
+    tank:   { label:'坦克',  desc:'防御核心 · 保护大型舰船' },
+    sniper: { label:'狙击',  desc:'远程精确 · 摧毁主力舰' },
+    bomb:   { label:'轰炸',  desc:'轰炸 · 战列舰/泰坦克星' }
+  }
 };
 function shipRoleInfo(role) {
-  return SHIP_ROLE_INFO[(role || 'dps').toLowerCase()] || SHIP_ROLE_INFO.dps;
+  var lang = (typeof LANG !== 'undefined' && _SHIP_ROLE_INFO_I18N[LANG]) ? LANG : 'en';
+  var map = _SHIP_ROLE_INFO_I18N[lang];
+  return map[(role || 'dps').toLowerCase()] || map.dps;
+}
+
+// class_label 다국어 변환 (DB는 영어로 저장)
+var _CLASS_LABEL_MAP = {
+  ko: {
+    'Frigate':'프리깃','Destroyer':'구축함','Cruiser':'순양함',
+    'Battleship':'전함','Titan':'타이탄',
+    'Interceptor':'인터셉터','EW Frigate':'전자전 프리깃','Sniper Cruiser':'저격 순양함',
+    'Missile Cruiser':'미사일 순양함','Assault Destroyer':'강습 구축함',
+    'Fast Attack':'고속 공격함','Stealth Bomber':'스텔스 폭격기',
+    'Drone Cruiser':'드론 순양함','Light Frigate':'경량 프리깃',
+    'Armored Destroyer':'장갑 구축함','Logi Frigate':'로지 프리깃',
+    'Logi Cruiser':'로지 순양함','SERVER MAX 3':'서버 최대 3'
+  },
+  ja: {
+    'Frigate':'フリゲート','Destroyer':'駆逐艦','Cruiser':'巡洋艦',
+    'Battleship':'戦艦','Titan':'タイタン',
+    'Interceptor':'迎撃艦','EW Frigate':'電子戦フリゲート','Sniper Cruiser':'狙撃巡洋艦',
+    'Missile Cruiser':'ミサイル巡洋艦','Assault Destroyer':'強襲駆逐艦',
+    'Fast Attack':'高速攻撃艦','Stealth Bomber':'ステルス爆撃機',
+    'Drone Cruiser':'ドローン巡洋艦','Light Frigate':'軽フリゲート',
+    'Armored Destroyer':'装甲駆逐艦','Logi Frigate':'ロジフリゲート',
+    'Logi Cruiser':'ロジ巡洋艦','SERVER MAX 3':'サーバー最大3'
+  },
+  zh: {
+    'Frigate':'护卫舰','Destroyer':'驱逐舰','Cruiser':'巡洋舰',
+    'Battleship':'战列舰','Titan':'泰坦',
+    'Interceptor':'截击舰','EW Frigate':'电子战护卫舰','Sniper Cruiser':'狙击巡洋舰',
+    'Missile Cruiser':'导弹巡洋舰','Assault Destroyer':'突击驱逐舰',
+    'Fast Attack':'快速攻击舰','Stealth Bomber':'隐形轰炸机',
+    'Drone Cruiser':'无人机巡洋舰','Light Frigate':'轻型护卫舰',
+    'Armored Destroyer':'装甲驱逐舰','Logi Frigate':'后勤护卫舰',
+    'Logi Cruiser':'后勤巡洋舰','SERVER MAX 3':'服务器上限3'
+  }
+};
+function syClassLabel(label) {
+  if (!label) return '';
+  var map = _CLASS_LABEL_MAP[LANG];
+  if (!map) return label;
+  // "Interceptor · T1" → localized · T1
+  return label.replace(/([A-Za-z][A-Za-z ]+?)(\s*[·\-]\s*|$)/g, function(m, word, sep) {
+    var trimmed = word.trim();
+    return (map[trimmed] || trimmed) + (sep || '');
+  });
+}
+// legacy alias
+function syClassLabelKo(label) { return syClassLabel(label); }
+
+// Ship name helper — uses name_en for non-KO, falls back to name_ko
+function syShipName(s) {
+  if (!s) return '';
+  if (LANG === 'ko') return s.name_ko || s.name_en || s.ship_type_code || '';
+  return s.name_en || s.name_ko || s.ship_type_code || '';
 }
 
 function syGpBalance() {
@@ -43705,9 +43807,9 @@ function renderBlueprintCard(s) {
   var roleKey = (s.role || 'dps').toLowerCase();
   return '<div class="bp-card ' + s.faction_code + ' ' + (buildDisabled ? 'locked' : '') + '">' +
     '<div class="bp-visual shipyard-top-preview" style="position:relative;background:' + accent + ';display:flex;align-items:center;justify-content:center;overflow:hidden"><div class="bp-starfield"></div>' + silhouette + '</div>' +
-    '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
-    '<div class="bp-class">' + (s.class_label || '') + '</div>' +
-    '<div class="bp-role ' + roleKey + '"><span class="bp-role-badge">' + roleInfo.label + '</span><span class="bp-role-text">' + fcEsc(s.description_ko || roleInfo.desc) + '</span></div>' +
+    '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + (LANG==='ko' ? s.name_ko : (s.name_en||s.name_ko)) + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
+    '<div class="bp-class">' + syClassLabel(s.class_label || '') + '</div>' +
+    '<div class="bp-role ' + roleKey + '"><span class="bp-role-badge">' + roleInfo.label + '</span><span class="bp-role-text">' + fcEsc((LANG==='ko' ? s.description_ko : null) || roleInfo.desc) + '</span></div>' +
     '<div class="bp-stats">' +
       '<div class="bp-stat"><div class="bp-stat-label">HP</div><div class="bp-stat-value">' + syFmt(s.base_hp) + '</div></div>' +
       '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + s.base_atk + '</div></div>' +
@@ -43743,14 +43845,14 @@ async function buildShip(shipTypeCode) {
     .concat([
       { k:'⚙ Role',       v: shipRoleInfo(ship.role).label + ' · ' + shipRoleInfo(ship.role).desc },
       { k:'⏱ Build Time', v: buildTimeTxt },
-      { k:'🎯 Class',      v: (ship.class_label||ship.size_class||'—') + ' · T'+ship.tier }
+      { k:'🎯 Class',      v: syClassLabel(ship.class_label||ship.size_class||'—') + ' · T'+ship.tier }
     ]);
   var bodyHtml =
     '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:'+accent+';margin-bottom:8px">'
     + '<div class="bp-visual" style="position:relative;width:84px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.35);overflow:hidden"><div class="bp-starfield"></div>'+silhouette+'</div>'
     + '<div style="flex:1;min-width:0">'
-    +   '<div style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.04em">'+ship.name_ko+'</div>'
-    +   '<div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-top:2px">'+ship.faction_code+' · '+(ship.class_label||ship.size_class)+'</div>'
+    +   '<div style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.04em">'+(LANG==='ko'?ship.name_ko:(ship.name_en||ship.name_ko))+'</div>'
+    +   '<div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-top:2px">'+ship.faction_code+' · '+syClassLabel(ship.class_label||ship.size_class||'')+'</div>'
     + '</div></div>'
     + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px">'
     +   '<div style="text-align:center;background:rgba(255,255,255,.05);border-radius:4px;padding:4px"><div style="font-size:8px;color:#888">HP</div><div style="font-size:12px;color:#6cf;font-weight:700">'+ship.base_hp+'</div></div>'
@@ -43806,11 +43908,11 @@ function renderQueue() {
     var timeText = isReady ? '✓ 완료됨' : syFmtTime(j.seconds_remaining);
     return '<div class="queue-item" data-job-id="' + j.id + '">' +
       '<div class="queue-item-header">' +
-        '<div class="queue-name" style="color:' + (j.faction_color || '#fff') + '">' + j.name_ko + '</div>' +
+        '<div class="queue-name" style="color:' + (j.faction_color || '#fff') + '">' + syShipName(j) + '</div>' +
         '<div class="queue-time ' + (isReady ? 'ready' : '') + '">' + timeText + '</div>' +
       '</div>' +
       '<div class="queue-bar-bg"><div class="queue-bar-fill ' + (isReady ? 'ready' : '') + '" style="width:' + Math.min(100, j.progress_pct) + '%"></div></div>' +
-      '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:2px">' + (j.class_label || '') + ' · ' + syFmt(j.gp_cost) + ' GP</div>' +
+      '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:2px">' + syClassLabel(j.class_label || '') + ' · ' + syFmt(j.gp_cost) + ' GP</div>' +
       '<div class="queue-actions">' +
         (isReady ? '<button class="queue-btn primary" onclick="claimJob(' + j.id + ')">🎁 수령하기</button>'
                  : '<button class="queue-btn danger" onclick="cancelJob(' + j.id + ')">✕ 취소 (50% 환불)</button>') +
@@ -43874,8 +43976,8 @@ function renderShips() {
       : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? '판매중' : '✅ 최대HP') + '</button>';
     return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + '">' +
       listedSticker +
-      '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + s.name_ko + '</div>' +
-      '<div class="ship-class">' + s.class_label + '</div>' +
+      '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + syShipName(s) + '</div>' +
+      '<div class="ship-class">' + syClassLabel(s.class_label || '') + '</div>' +
       '<div class="ship-hp-bar"><div class="ship-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div></div>' +
       '<div class="ship-hp-text">HP ' + syFmt(s.current_hp) + ' / ' + syStatValue(s.max_hp, s.bonus_hp) + '</div>' +
       shieldBar +
@@ -44042,7 +44144,7 @@ async function syUpgradeShipStat(shipId, stat) {
   glowBg.style.background = '';
   hammer.style.transform = 'rotate(0deg)';
   titleEl.textContent = '🔨 강화 중...';
-  statLabel.textContent = (ship ? (ship.name_ko || '') + '  ' : '') + (labelMap[stat]||stat).toUpperCase() + ' · MOD ' + curLv + '  →  ' + materialName + ' × ' + needQty;
+  statLabel.textContent = (ship ? (syShipName(ship) || '') + '  ' : '') + (labelMap[stat]||stat).toUpperCase() + ' · MOD ' + curLv + '  →  ' + materialName + ' × ' + needQty;
   modal.style.display = 'flex';
 
   // gauge fills over ~2.4s with hammer swings
@@ -44280,8 +44382,8 @@ function renderShipMarket() {
     return '<div class="ship-market-card">' +
       '<span class="ship-sale-sticker">판매중</span>' +
       '<div class="bp-visual">' + silhouette + '</div>' +
-      '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + fcEsc(s.name_ko || '') + '</div>' +
-      '<div class="ship-class">' + fcEsc(s.class_label || '') + ' · MOD ' + syFmt(s.upgrade_level || 0) + '</div>' +
+      '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + fcEsc(syShipName(s)) + '</div>' +
+      '<div class="ship-class">' + fcEsc(syClassLabel(s.class_label || '')) + ' · MOD ' + syFmt(s.upgrade_level || 0) + '</div>' +
       '<div class="bp-stats" style="margin:7px 0 0">' +
         '<div class="bp-stat"><div class="bp-stat-label">HP</div><div class="bp-stat-value">' + syStatValue(s.max_hp, s.bonus_hp) + '</div></div>' +
         '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + syStatValue(s.base_atk, s.bonus_atk) + '</div></div>' +
@@ -44302,7 +44404,7 @@ function renderShipMarket() {
 
 async function syListShipForSale(shipId) {
   var ship = (shipyardState.ships || []).find(function(s){ return s.id === shipId; });
-  var name = ship ? (ship.name_ko || ship.name || '함선') : '함선';
+  var name = ship ? (syShipName(ship) || ship.name || (LANG==='ko'?'함선':'Ship')) : (LANG==='ko'?'함선':'Ship');
   var priceText = await gameInput({
     title:'함선 판매 등록',
     label:name + ' 판매가 (GP)',
@@ -44343,7 +44445,7 @@ async function syCancelShipListing(listingId) {
 
 async function syBuyShipListing(listingId) {
   var listing = (shipyardState.marketListings || []).find(function(s){ return s.listing_id === listingId; }) || {};
-  var name = listing.name_ko || '함선';
+  var name = syShipName(listing) || (LANG==='ko'?'함선':'Ship');
   var price = Number(listing.price_gp || 0);
   var ok = await gameConfirm({
     title:'함선 구매',
@@ -44700,8 +44802,8 @@ function renderSelectedShipPanel(f) {
   var role = shipRoleInfo(focused.role);
   var flagshipState = focused.is_flagship ? '기함' : (focused.is_flagship_capable ? '기함 가능' : '기함 불가');
   return '<div class="fs-selected-panel">' +
-    '<div><strong>' + fcEsc(focused.name_ko || focused.ship_type_code || '선택 함선') + '</strong>' +
-      '<small>' + fcEsc(focused.class_label || '') + ' · ' + role.label + (selected.length > 1 ? ' · 선택 ' + selected.length + '척' : '') + '</small></div>' +
+    '<div><strong>' + fcEsc(syShipName(focused) || focused.ship_type_code || (LANG==='ko'?'선택 함선':'Selected Ship')) + '</strong>' +
+      '<small>' + fcEsc(syClassLabel(focused.class_label || '')) + ' · ' + role.label + (selected.length > 1 ? ' · ' + selected.length + (LANG==='ko'?'척':'ships') : '') + '</small></div>' +
     '<div class="fs-selected-stats">' +
       '<span>HP ' + hpPct + '%</span>' +
       '<span>ATK ' + (focused.base_atk || '-') + '</span>' +
