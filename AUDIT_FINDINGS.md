@@ -1,3 +1,21 @@
+# OCCUPY MARS — Codebase Audit (v5.92 / 2026-05-05)
+
+## ✅ v5.92 Campaign result/objective-gate i18n — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `showCampaignResult()` 결과 문자열 i18n | ✅ | '임무 완료'/'임무 실패'/'작전 목표 달성' 등 → `t('campaign_result_*')` |
+| `completeCampaignMission()` objective gate 메시지 i18n | ✅ | '남은 목표를 먼저 완료하세요' → `t('campaign_objectives_gate')` |
+| `pollCampaignProgress()` status/detail 하드코딩 제거 | ✅ | 한국어 status 텍스트 → `t()` 사용 |
+| `gov_fleet_empty` KO/JA/ZH 추가 | ✅ | EN에만 있던 키를 3개 언어에 추가. 전 언어 1345 키 동수. |
+| I18N 4개 언어 키 parity | ✅ | EN/KO/JA/ZH 모두 1345 키. `missing` 0개 확인. |
+
+검증:
+- I18N key parity node 스크립트 통과 (`missing: NONE ✓`)
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.91 / 2026-05-05)
 
 ## ✅ v5.91 Campaign i18n Localization — 완료

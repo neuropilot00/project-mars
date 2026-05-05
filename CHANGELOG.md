@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — Campaign result/objective-gate i18n (v5.92)
+
+- `showCampaignResult()` 내 '임무 완료'/'임무 실패'/'작전 목표 달성' 등 하드코딩 한국어를 `t()` 호출로 교체.
+- `completeCampaignMission()` OBJECTIVE_REQUIREMENTS_NOT_MET 게이트 메시지도 `t()` 사용.
+- `pollCampaignProgress()` status/detail 텍스트 한국어 하드코딩 제거.
+- `gov_fleet_empty` 키를 KO/JA/ZH에 추가해 전 언어 1345 키 동수 달성.
+- 신규 키 13종: `campaign_result_success/failure`, `campaign_result_npc_success/failure`, `campaign_result_reward/confirm/recheck`, `campaign_objectives_gate/gate_sub` — EN/KO/JA/ZH 전부.
+
+검증:
+- I18N 전 언어 key parity 1345 ✓
+- `git diff --check` 통과
+
+## 2026-05-05 — Campaign UI i18n localization (v5.91)
+
+- `renderCampaignList()` 내 버튼 텍스트/메타 라벨/잠금 토글 문자열을 `t()` 호출로 교체.
+- `campaignObjectiveActionLabel()` 언어별 맵으로 한국어(내 영토/조선소/함대/전투/마켓)와 영어(MY LAND/SHIPYARD/FLEET/BATTLE/MARKET)를 분리.
+- 신규 i18n 키 15종: `campaign_btn_start/continue/results/locked`, `campaign_label_completed/prologue/route/ch`, `campaign_no_chapters/no_faction`, `campaign_show_locked/hide_locked`, `campaign_meta_sim`, `campaign_reward_claimed`, `campaign_objective_go` — EN/KO/JA/ZH 전부.
+
+검증:
+- `git diff --check` 통과
+
 ## 2026-05-05 — Static QA: CV campaign simulator bug fix (v5.90)
 
 - **[버그 수정] CV 챕터 시뮬레이터 없음**: CV CH1~CH10 전체가 `simulateChapter()`에서 MCC CH1(`simulateCh1`)으로 폴백되는 버그를 수정했다. `simulateCvChapter(progress)` (CH1~9 공통)와 `simulateCvCh10(progress)` (엔딩)를 추가하고 `simulateChapter()` 분기에 등록했다.
