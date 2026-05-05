@@ -7443,55 +7443,34 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="siegeInfoPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_select_siege_hint">Select a sector to view siege status.</div>
         </div>
 
-        <!-- FLEET BATTLES section (expanded by default in PVP tab) -->
-        <div class="base-section-title" style="color:#5cbbff;cursor:pointer;margin-top:4px" onclick="toggleBattleSection()"><span data-i18n="gov_battle_title">⚔️ NAVAL BATTLES</span> <span id="battleToggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
-        <div id="govBattleSection" style="margin-bottom:12px">
-          <div style="background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:9px;color:var(--tx3);line-height:1.6" data-i18n="fleet_battle_info_block">
-            <b style="color:var(--cyan);font-size:10px">⚓ What is Fleet Battle?</b><br>
-            Lead your fleet and declare PvP battle against other players.<br>
-            <b style="color:var(--tx2)">① Build ships in Shipyard</b> → <b style="color:var(--tx2)">② Form fleet</b> → <b style="color:var(--tx2)">③ Declare in Battle Hub</b> → <b style="color:var(--tx2)">④ Check results</b>
-          </div>
-          <button onclick="openBattleHub()" style="width:100%;padding:11px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.2),rgba(232,72,85,.07));border:1px solid rgba(232,72,85,.45);color:#ff8a80;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:8px">⚔️ <span data-i18n="fleet_battle_hub_btn">OPEN FLEET BATTLE HUB</span></button>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-            <button onclick="openFleetCmd()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(92,187,255,.13),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🎖 FLEET COMMAND</button>
-            <button onclick="openAiFight()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(129,199,132,.13),rgba(129,199,132,.04));border:1px solid rgba(129,199,132,.35);color:#81c784;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🤖 <span data-i18n="pvp_ai_practice">AI Practice</span></button>
-            <button onclick="openTournaments()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🏆 <span data-i18n="pvp_tournament">TOURNAMENT</span></button>
-            <button onclick="openShipyard()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.13),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.35);color:#4fc3f7;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">⚓ <span data-i18n="pvp_shipyard">SHIPYARD</span></button>
-          </div>
-          <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
-        </div>
-
-        <!-- RECOMMENDED OPPONENTS section -->
-        <div class="base-section-title" style="color:#ffd700;cursor:pointer;margin-top:4px" onclick="toggleRecommendedSection()"><span data-i18n="pvp_rec_title">🎯 RECOMMENDED OPPONENTS</span> <span id="recToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
-        <div id="recOpponentsSection" style="margin-bottom:12px;display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <div style="font-size:9px;color:var(--tx3)" data-i18n="pvp_rec_loading">Searching for opponents…</div>
-            <button onclick="loadRecommendedOpponents()" style="font-size:9px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);color:#ffd700;padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
-          </div>
-          <div id="recOpponentsList"></div>
-        </div>
-
-        <!-- BOUNTY BOARD section -->
-        <div class="base-section-title" style="color:#ffab40;cursor:pointer;margin-top:4px" onclick="toggleBountySection()"><span data-i18n="bounty_title">💰 BOUNTY BOARD</span> <span id="bountyToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
-        <div id="bountyBoardSection" style="margin-bottom:12px;display:none">
-          <!-- Post bounty form -->
-          <div id="bountyPostForm" style="padding:10px;border-radius:8px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.2);margin-bottom:10px">
-            <div style="font-size:9px;color:#ffab40;font-weight:700;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px" data-i18n="bounty_post">Post Bounty</div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <input type="text" id="bountyTargetWallet" placeholder="0x..." style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)" data-i18n-placeholder="bounty_post_target">
-              <input type="number" id="bountyRewardGP" min="100" step="100" placeholder="GP amount (min 100)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)" data-i18n-placeholder="bounty_post_amount">
-              <input type="text" id="bountyReason" placeholder="Reason (optional)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)" data-i18n-placeholder="bounty_post_reason">
-              <button onclick="postBounty()" style="padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(255,171,64,.25),rgba(255,171,64,.1));border:1px solid rgba(255,171,64,.4);color:#ffab40;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer" data-i18n="bounty_post_submit">Post Bounty</button>
+        <!-- ⚔ FLEET BATTLE HUB inline widget — spec 4-2 -->
+        <div style="margin-bottom:14px;border-radius:8px;background:rgba(232,72,85,.04);border:1px solid rgba(232,72,85,.18);overflow:hidden">
+          <!-- header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(232,72,85,.12)">
+            <div style="font-size:11px;font-weight:700;color:#ff8a80;font-family:var(--fn);letter-spacing:.8px">⚔ FLEET BATTLE HUB</div>
+            <div style="display:flex;gap:6px">
+              <button type="button" onclick="openBattleHub()" style="font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">🔴 LIVE</button>
+              <button type="button" onclick="openDeclareBattle()" style="font-size:9px;background:rgba(232,72,85,.25);border:1px solid rgba(232,72,85,.55);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">⚔ 전투 선언</button>
             </div>
           </div>
-          <!-- Bounty list tabs -->
-          <div style="display:flex;gap:4px;margin-bottom:6px">
-            <button id="btyTabAll" onclick="switchBountyTab('all')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,171,64,.18);border:1px solid rgba(255,171,64,.4);color:#ffab40;cursor:pointer;font-weight:700" data-i18n="inv_cat_all">All</button>
-            <button id="btyTabMe"  onclick="switchBountyTab('on-me')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="bounty_on_me">On Me</button>
-            <button id="btyTabMine" onclick="switchBountyTab('mine')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="pvp_my_stats">Mine</button>
+          <!-- 3-tab bar -->
+          <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.06)">
+            <button type="button" id="pvpHubTab_rec" onclick="pvpHubSwitchTab('rec')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(255,215,0,.08);border:none;border-bottom:2px solid #ffd700;color:#ffd700;cursor:pointer;letter-spacing:.4px">🎯 추천 상대</button>
+            <button type="button" id="pvpHubTab_bounty" onclick="pvpHubSwitchTab('bounty')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);cursor:pointer;letter-spacing:.4px">💰 현상금</button>
+            <button type="button" id="pvpHubTab_conflict" onclick="pvpHubSwitchTab('conflict')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);cursor:pointer;letter-spacing:.4px">🔥 섹터 분쟁</button>
           </div>
-          <div id="bountyList" style="font-size:10px;color:var(--tx3)"><span data-i18n="bounty_no_bounties">No active bounties</span></div>
+          <!-- tab content -->
+          <div id="pvpHubContent" style="padding:10px 12px;min-height:60px"></div>
         </div>
+
+        <!-- Quick action grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
+          <button onclick="openFleetCmd()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(92,187,255,.13),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🎖 FLEET COMMAND</button>
+          <button onclick="openAiFight()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(129,199,132,.13),rgba(129,199,132,.04));border:1px solid rgba(129,199,132,.35);color:#81c784;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🤖 <span data-i18n="pvp_ai_practice">AI Practice</span></button>
+          <button onclick="openTournaments()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🏆 <span data-i18n="pvp_tournament">TOURNAMENT</span></button>
+          <button onclick="openShipyard()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.13),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.35);color:#4fc3f7;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">⚓ <span data-i18n="pvp_shipyard">SHIPYARD</span></button>
+        </div>
+        <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
       </div>
 
       <!-- TAB: GOVERN -->
@@ -23368,7 +23347,7 @@ function switchBaseTab(tab,el){
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
-  if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} }
+  if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} }
   if(tab==='fleet') { try{_loadFleetTabSummary();}catch(_e){} }
   try{ clearBaseTabDot(tab); }catch(_e){}
 }
@@ -33398,19 +33377,7 @@ window.addEventListener('resize', _debounce(function(){
   // ──────────────────────────────────────────────────────
   // NAVAL BATTLES (legacy — 함대전은 fleet_battles + Hijack로 통합)
   // ──────────────────────────────────────────────────────
-  window.toggleBattleSection = function() {
-    var el = document.getElementById('govBattleSection');
-    var tog = document.getElementById('battleToggle');
-    if (!el) return;
-    if (el.style.display === 'none') {
-      el.style.display = '';
-      if (tog) tog.textContent = '▲';
-      loadBattlePanel();
-    } else {
-      el.style.display = 'none';
-      if (tog) tog.textContent = '▼';
-    }
-  };
+  window.toggleBattleSection = function() { /* replaced by pvpHubSwitchTab */ };
 
   // Legacy battle panel — replaced by Fleet Combat system (see fleet_battles).
   // Old /api/battle/* endpoints removed in cleanup commit (services/battle.js was
@@ -33470,57 +33437,157 @@ window.addEventListener('resize', _debounce(function(){
     }).catch(function(){ list.innerHTML = '<div style="padding:4px 0;color:var(--red)">Failed to load history.</div>'; });
   }
 
-  // ══ RECOMMENDED OPPONENTS ══════════════════════════════════════
+  // ══ PVP HUB — spec 4-2 ════════════════════════════════════════
 
-  window.toggleRecommendedSection = function() {
-    var el = document.getElementById('recOpponentsSection');
-    var tog = document.getElementById('recToggle');
-    if (!el) return;
-    if (el.style.display === 'none') {
-      el.style.display = '';
-      if (tog) tog.textContent = '▲';
-      loadRecommendedOpponents();
-    } else {
-      el.style.display = 'none';
-      if (tog) tog.textContent = '▼';
-    }
+  var _pvpHubTab = 'rec'; // current active tab
+
+  window.pvpHubSwitchTab = function(tab) {
+    _pvpHubTab = tab;
+    var tabCfg = {
+      rec:      { bg: 'rgba(255,215,0,.08)',  bdr: '#ffd700', col: '#ffd700' },
+      bounty:   { bg: 'rgba(255,171,64,.08)', bdr: '#ffab40', col: '#ffab40' },
+      conflict: { bg: 'rgba(232,72,85,.08)',  bdr: '#ff8a80', col: '#ff8a80' }
+    };
+    ['rec','bounty','conflict'].forEach(function(k) {
+      var btn = document.getElementById('pvpHubTab_' + k);
+      if (!btn) return;
+      if (k === tab) {
+        btn.style.background = tabCfg[k].bg;
+        btn.style.borderBottomColor = tabCfg[k].bdr;
+        btn.style.color = tabCfg[k].col;
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.borderBottomColor = 'transparent';
+        btn.style.color = 'var(--tx3)';
+      }
+    });
+    _renderPvpHubTab(tab);
   };
 
-  window.loadRecommendedOpponents = async function() {
+  async function _renderPvpHubTab(tab) {
+    var content = document.getElementById('pvpHubContent');
+    if (!content) return;
+    if (tab === 'rec') {
+      content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:10px">탐색 중…</div>';
+      await _loadPvpRecTab();
+    } else if (tab === 'bounty') {
+      content.innerHTML = _pvpHubBountyHtml();
+      switchBountyTab('all');
+    } else if (tab === 'conflict') {
+      content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:10px">로딩 중…</div>';
+      await _loadPvpConflictTab();
+    }
+  }
+
+  async function _loadPvpRecTab() {
+    var content = document.getElementById('pvpHubContent');
     var wallet = walletState && walletState.address;
-    if (!wallet) return;
-    var list = document.getElementById('recOpponentsList');
-    if (!list) return;
-    list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">' + t('pvp_rec_loading') + '</div>';
+    if (!wallet) {
+      if (content && _pvpHubTab === 'rec') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">지갑을 연결하세요</div>';
+      return;
+    }
     try {
       var res = await fetch('/api/battles/recommended-opponents/' + encodeURIComponent(wallet));
       var data = await res.json();
       var opponents = data.opponents || [];
+      if (!content || _pvpHubTab !== 'rec') return;
       if (opponents.length === 0) {
-        list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">' + t('pvp_rec_no_opponents') + '</div>';
+        content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">' + t('pvp_rec_no_opponents') + '</div>';
         return;
       }
-      list.innerHTML = opponents.map(function(o) {
-        var factionColors = { mcc: '#4fc3f7', fsp: '#66bb6a', cv: '#ff7043' };
-        var col = factionColors[o.faction_code] || '#aaa';
-        var diff = o.cpi_diff > 0 ? ('+' + o.cpi_diff.toFixed(0)) : o.cpi_diff.toFixed(0);
-        var diffCol = Math.abs(o.cpi_diff) < 50 ? 'var(--gn)' : Math.abs(o.cpi_diff) < 200 ? 'var(--gold)' : 'var(--red)';
-        return '<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:6px;margin-bottom:4px">'
-          + '<div style="flex:1">'
-          + '<div style="font-size:10px;color:var(--tx)">' + (o.wallet.slice(0,6) + '…' + o.wallet.slice(-4)) + ' <span style="font-size:8px;color:' + col + ';background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">' + (o.faction_code||'').toUpperCase() + '</span></div>'
-          + '<div style="font-size:9px;color:var(--tx3)">' + t('pvp_rec_cpi') + ': <b style="color:#ffd700">' + (o.cpi||0).toFixed(0) + '</b> &nbsp; ' + t('pvp_rec_cpi_diff') + ': <b style="color:' + diffCol + '">' + diff + '</b> &nbsp; ' + t('pvp_rec_ships') + ': ' + o.ship_count + '</div>'
-          + '</div>'
-          + '<button onclick="openBattleHubWithFleet(\'' + o.fleet_id + '\',\'' + o.wallet + '\')" style="font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">' + t('pvp_rec_challenge') + '</button>'
-          + '</div>';
-      }).join('');
+      var factionColors = { mcc: '#4fc3f7', fsp: '#66bb6a', cv: '#ff7043' };
+      var factionNames  = { mcc: 'MCC',     fsp: 'FSP',     cv: 'CV' };
+      content.innerHTML = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px">추천 상대 (내 CPI 기준 ±20%)</div>'
+        + opponents.map(function(o) {
+          var col   = factionColors[o.faction_code] || '#aaa';
+          var fName = factionNames[o.faction_code]  || (o.faction_code||'').toUpperCase();
+          var onlineDot = o.is_online
+            ? '<span style="color:#66bb6a;font-size:8px">●온라인</span>'
+            : '<span style="color:var(--tx3);font-size:8px">●오프라인</span>';
+          var sectorStr = o.sector_code ? (o.sector_code.split('-')[0] + ' 섹터') : '';
+          var agoStr = o.last_battle_ago || (o.wins > 0 ? '오늘 활동' : '');
+          var sub = [sectorStr, agoStr].filter(Boolean).join(' · ');
+          var displayName = o.fleet_name || (o.wallet.slice(0,6) + '…' + o.wallet.slice(-4));
+          return '<div style="padding:9px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px;margin-bottom:6px">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+            + '<div style="flex:1;min-width:0">'
+            + '<div style="font-size:10px;color:var(--tx);font-weight:700;font-family:var(--fn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+            + displayName
+            + ' <span style="font-size:8px;color:' + col + ';background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;font-weight:400">' + fName + '</span>'
+            + '\u00a0' + onlineDot
+            + '</div>'
+            + '<div style="font-size:9px;color:var(--tx3);margin-top:2px">CPI <b style="color:#ffd700">' + Math.round(o.cpi||0) + '</b>'
+            + (sub ? '\u00a0\u00a0' + sub : '')
+            + '</div>'
+            + '</div>'
+            + '<button type="button" onclick="openBattleHubWithFleet(\'' + o.fleet_id + '\',\'' + o.wallet + '\')" style="flex-shrink:0;font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn);white-space:nowrap">도전장 보내기</button>'
+            + '</div>'
+            + '</div>';
+        }).join('');
     } catch(err) {
-      list.innerHTML = '<div style="color:var(--tx3);font-size:10px">' + t('pvp_rec_no_opponents') + '</div>';
+      if (content && _pvpHubTab === 'rec') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">' + t('pvp_rec_no_opponents') + '</div>';
     }
-  };
+  }
 
+  async function _loadPvpConflictTab() {
+    var content = document.getElementById('pvpHubContent');
+    if (!content) return;
+    try {
+      var res = await fetch('/api/sectors/conflict-map');
+      var data = await res.json();
+      var sectors = (data.sectors || []).filter(function(s){ return s.heat > 0; })
+        .sort(function(a,b){ return b.heat - a.heat; }).slice(0,8);
+      if (!content || _pvpHubTab !== 'conflict') return;
+      if (sectors.length === 0) {
+        content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">활성 분쟁 없음</div>';
+        return;
+      }
+      content.innerHTML = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px">섹터별 분쟁 현황 (Heat 기준)</div>'
+        + sectors.map(function(s) {
+          var heat = Math.min(100, s.heat);
+          var heatCol = heat >= 70 ? '#ff5252' : heat >= 40 ? '#ffd700' : '#66bb6a';
+          return '<div style="padding:7px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px;margin-bottom:5px">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'
+            + '<div style="font-size:10px;color:var(--tx);font-weight:700;font-family:var(--fn)">' + s.sector_code + '</div>'
+            + '<div style="font-size:9px;color:' + heatCol + ';font-weight:700">🔥 Heat ' + heat + '</div>'
+            + '</div>'
+            + '<div style="display:flex;gap:10px;font-size:9px;color:var(--tx3)">'
+            + (s.active_battles  ? '<span style="color:#ff8a80">⚔ 전투 '  + s.active_battles  + '</span>' : '')
+            + (s.active_bounties ? '<span style="color:#ffab40">💰 현상금 ' + s.active_bounties + '</span>' : '')
+            + '<span>클레임 ' + s.claim_count + '</span>'
+            + '</div>'
+            + '</div>';
+        }).join('');
+    } catch(err) {
+      if (content && _pvpHubTab === 'conflict') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">로딩 실패</div>';
+    }
+  }
+
+  function _pvpHubBountyHtml() {
+    return '<div style="padding:8px;border-radius:6px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.15);margin-bottom:8px">'
+      + '<div style="font-size:9px;color:#ffab40;font-weight:700;font-family:var(--fn);letter-spacing:1px;margin-bottom:6px">💰 현상금 등록</div>'
+      + '<div style="display:flex;flex-direction:column;gap:5px">'
+      + '<input type="text" id="bountyTargetWallet" placeholder="0x..." style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
+      + '<div style="display:flex;gap:5px">'
+      + '<input type="number" id="bountyRewardGP" min="100" step="100" placeholder="GP (최소 100)" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
+      + '<input type="text" id="bountyReason" placeholder="사유" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
+      + '</div>'
+      + '<button type="button" onclick="postBounty()" style="padding:6px;border-radius:5px;background:rgba(255,171,64,.2);border:1px solid rgba(255,171,64,.4);color:#ffab40;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">등록</button>'
+      + '</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:4px;margin-bottom:6px">'
+      + '<button id="btyTabAll" type="button" onclick="switchBountyTab('all')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,171,64,.18);border:1px solid rgba(255,171,64,.4);color:#ffab40;cursor:pointer;font-weight:700">전체</button>'
+      + '<button id="btyTabMe" type="button" onclick="switchBountyTab('on-me')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">내 현상금</button>'
+      + '<button id="btyTabMine" type="button" onclick="switchBountyTab('mine')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">내가 등록</button>'
+      + '</div>'
+      + '<div id="bountyList" style="font-size:10px;color:var(--tx3)">로딩 중…</div>';
+  }
+
+  // legacy compat
+  window.toggleRecommendedSection = function() { pvpHubSwitchTab('rec'); };
+  window.loadRecommendedOpponents = function() { _pvpHubTab = 'rec'; _loadPvpRecTab(); };
   window.openBattleHubWithFleet = function(targetFleetId, targetWallet) {
     openBattleHub();
-    // Pre-fill target fleet in battle hub modal if possible
     setTimeout(function() {
       var el = document.getElementById('bhTargetFleetId') || document.getElementById('bh-target-fleet');
       if (el) el.value = targetFleetId;
@@ -33530,17 +33597,12 @@ window.addEventListener('resize', _debounce(function(){
   // ══ BOUNTY BOARD ═══════════════════════════════════════════════
 
   window.toggleBountySection = function() {
+    // bountyBoardSection may be inside pvpHubContent now — just switch the hub tab
+    if (typeof pvpHubSwitchTab === 'function') { pvpHubSwitchTab('bounty'); return; }
     var el = document.getElementById('bountyBoardSection');
-    var tog = document.getElementById('bountyToggle');
     if (!el) return;
-    if (el.style.display === 'none') {
-      el.style.display = '';
-      if (tog) tog.textContent = '▲';
-      loadBountyList('all');
-    } else {
-      el.style.display = 'none';
-      if (tog) tog.textContent = '▼';
-    }
+    el.style.display = el.style.display === 'none' ? '' : 'none';
+    if (el.style.display !== 'none') loadBountyList('all');
   };
 
   var _currentBountyTab = 'all';

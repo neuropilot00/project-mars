@@ -448,7 +448,14 @@ async function getRecommendedOpponents(wallet, limit = 10) {
          (SELECT COUNT(*) FROM fleet_battle_participants fbp2
           JOIN fleet_battles fb2 ON fb2.id = fbp2.battle_id
           WHERE LOWER(fbp2.wallet_address) = LOWER(f.owner_wallet)
-            AND fb2.winner_side = fbp2.side AND fb2.status = 'ended') AS wins
+            AND fb2.winner_side = fbp2.side AND fb2.status = 'ended') AS wins,
+         (SELECT sector_code FROM claims
+          WHERE LOWER(owner) = LOWER(f.owner_wallet)
+          ORDER BY (width*height) DESC LIMIT 1) AS sector_code,
+         (SELECT MAX(fb3.ended_at) FROM fleet_battles fb3
+          JOIN fleet_battle_participants fbp3 ON fbp3.battle_id = fb3.id
+          WHERE LOWER(fbp3.wallet_address) = LOWER(f.owner_wallet)
+            AND fb3.status = 'ended') AS last_battle_at
        FROM fleets f
        JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
        LEFT JOIN ships s ON s.fleet_id = f.id
@@ -461,17 +468,35 @@ async function getRecommendedOpponents(wallet, limit = 10) {
       [w, myCPI, limit]
     );
 
-    return rows.map(r => ({
-      fleet_id: r.fleet_id,
-      fleet_name: r.fleet_name,
-      wallet: r.wallet,
-      faction_code: r.faction_code,
-      cpi: parseFloat(r.cpi) || 0,
-      my_cpi: parseFloat(myCPI) || 0,
-      cpi_diff: parseFloat(r.cpi_diff) || 0,
-      ship_count: parseInt(r.ship_count) || 0,
-      wins: parseInt(r.wins) || 0
-    }));
+    const now = Date.now();
+    function fmtAgo(ts) {
+      if (!ts) return null;
+      const ms = now - new Date(ts).getTime();
+      const min = Math.floor(ms / 60000);
+      if (min < 60) return min + '분 전 전투';
+      const hr = Math.floor(min / 60);
+      if (hr < 24) return hr + '시간 전 전투';
+      return Math.floor(hr / 24) + '일 전 전투';
+    }
+
+    return rows.map(r => {
+      const lastBattleAt = r.last_battle_at ? new Date(r.last_battle_at) : null;
+      const isOnline = lastBattleAt ? (now - lastBattleAt.getTime()) < 3600000 : false;
+      return {
+        fleet_id: r.fleet_id,
+        fleet_name: r.fleet_name,
+        wallet: r.wallet,
+        faction_code: r.faction_code,
+        cpi: parseFloat(r.cpi) || 0,
+        my_cpi: parseFloat(myCPI) || 0,
+        cpi_diff: parseFloat(r.cpi_diff) || 0,
+        ship_count: parseInt(r.ship_count) || 0,
+        wins: parseInt(r.wins) || 0,
+        sector_code: r.sector_code || null,
+        last_battle_ago: fmtAgo(r.last_battle_at),
+        is_online: isOnline
+      };
+    });
   } catch (err) {
     console.error('[battleReport] getRecommendedOpponents error:', err.message);
     return [];
