@@ -1,4 +1,15 @@
-# OCCUPY MARS — Codebase Audit (v6.03 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.04 / 2026-05-05)
+
+## ✅ v6.04 서브탭 폰트/터치 영역 개선 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `.base-tab` 13px / 44px min-height | ✅ | 10px → 13px |
+| `.bcat` 13px / 36px min-height | ✅ | 10px → 13px |
+| `.base-inv-cat` CSS 클래스 통합 | ✅ | 인라인 스타일 제거 |
+| `filterBaseInv` 인라인 제거 | ✅ | `b.style.cssText=''` |
+
+---
 
 ## ✅ v6.03 강화 모달 버그 수정 + Forge 애니메이션 — 완료
 

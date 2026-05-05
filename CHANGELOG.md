@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 서브탭 폰트/패딩 개선 (v6.04)
+
+### UI: BASE 탭 가독성/터치 영역 개선
+- `.base-tab` 폰트 10px → 13px, 패딩 `9px 12px` → `11px 16px`, min-height 44px
+- `.bcat` (상단 카테고리 필) 폰트 10px → 13px, 패딩 `6px 14px` → `8px 18px`, min-height 36px
+- `.base-inv-cat` (내 아이템 카테고리 탭) 인라인 스타일 → CSS 클래스로 통합, 폰트 9px → 12px, 패딩 `4px 10px` → `7px 14px`
+- `filterBaseInv()` 인라인 스타일 강제 제거 → CSS 클래스 `.active` 위임
+
 ## 2026-05-05 — 강화 확인 모달 정보 표시 버그 수정 + Forge 애니메이션 (v6.03)
 
 ### 버그 수정: 강화 확인 모달 성공률/재료 미표시

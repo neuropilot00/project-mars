@@ -1057,9 +1057,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .base-close{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;
   padding:4px 8px;min-width:36px;min-height:36px}
 /* ── BASE 카테고리 바 ── */
-.base-cat-row{display:flex;gap:4px;padding:8px 14px 0;background:rgba(0,0,0,.2);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.base-cat-row{display:flex;gap:6px;padding:10px 14px 0;background:rgba(0,0,0,.2);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
 .base-cat-row::-webkit-scrollbar{display:none}
-.bcat{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:10px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;
+.bcat{flex-shrink:0;padding:8px 18px;border-radius:20px;font-size:13px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;min-height:36px;
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;transition:all .2s;white-space:nowrap}
 .bcat:hover{color:var(--tx2);border-color:rgba(255,255,255,.2)}
 .bcat.active{color:#fff;background:rgba(255,120,60,.2);border-color:rgba(255,120,60,.5)}
@@ -1070,14 +1070,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bcat.active[data-cat="mission"]{background:rgba(255,213,79,.18);border-color:rgba(255,213,79,.4);color:#ffd54f}
 .bcat.active[data-cat="community"]{background:rgba(255,120,60,.2);border-color:rgba(255,120,60,.5);color:var(--mars)}
 
-.base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15);flex-shrink:0;overflow-x:auto;scrollbar-width:none;padding:0 4px}
+.base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15);flex-shrink:0;overflow-x:auto;scrollbar-width:none;padding:0 6px}
 .base-tabs::-webkit-scrollbar{display:none}
-.base-tab{flex-shrink:0;padding:9px 12px;text-align:center;font-size:10px;font-family:var(--fn);
+.base-tab{flex-shrink:0;padding:11px 16px;text-align:center;font-size:13px;font-family:var(--fn);
   color:var(--tx3);cursor:pointer;letter-spacing:.5px;border-bottom:2px solid transparent;
-  transition:all .2s;white-space:nowrap;display:none}
-.base-tab.cat-show{display:inline-flex;align-items:center;gap:4px}
+  transition:all .2s;white-space:nowrap;display:none;min-height:44px;line-height:1}
+.base-tab.cat-show{display:inline-flex;align-items:center;gap:5px}
 .base-tab:hover{color:var(--tx2);background:rgba(255,120,60,.04)}
 .base-tab.active{color:var(--mars);border-bottom-color:var(--mars);background:rgba(255,120,60,.06)}
+.base-inv-cat{flex-shrink:0;padding:7px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-size:12px;font-weight:700;letter-spacing:.4px;white-space:nowrap;min-height:36px;transition:all .18s}
+.base-inv-cat:hover{color:var(--tx2);border-color:rgba(255,255,255,.2)}
+.base-inv-cat.active{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.12);color:var(--gold)}
 
 /* 빠른 접근 퀵바 (지도 위 플로팅) */
 .map-quickbar{position:fixed;bottom:max(90px,calc(env(safe-area-inset-bottom)+82px));left:50%;transform:translateX(-50%);
@@ -7946,12 +7949,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="baseInvWrap" style="display:none">
           <!-- 카테고리 탭 -->
           <div id="baseInvCatRow" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
-            <button class="base-inv-cat active" data-cat="all" onclick="filterBaseInv('all',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)">전체</button>
-            <button class="base-inv-cat" data-cat="defense" onclick="filterBaseInv('defense',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">🛡 방어</button>
-            <button class="base-inv-cat" data-cat="attack" onclick="filterBaseInv('attack',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">⚔ 공격</button>
-            <button class="base-inv-cat" data-cat="utility" onclick="filterBaseInv('utility',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">🔧 유틸</button>
-            <button class="base-inv-cat" data-cat="boost" onclick="filterBaseInv('boost',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">⚡ 부스트</button>
-            <button class="base-inv-cat" data-cat="cosmetic" onclick="filterBaseInv('cosmetic',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">🎨 코스메틱</button>
+            <button class="base-inv-cat active" data-cat="all" onclick="filterBaseInv('all',this)">전체</button>
+            <button class="base-inv-cat" data-cat="defense" onclick="filterBaseInv('defense',this)">🛡 방어</button>
+            <button class="base-inv-cat" data-cat="attack" onclick="filterBaseInv('attack',this)">⚔ 공격</button>
+            <button class="base-inv-cat" data-cat="utility" onclick="filterBaseInv('utility',this)">🔧 유틸</button>
+            <button class="base-inv-cat" data-cat="boost" onclick="filterBaseInv('boost',this)">⚡ 부스트</button>
+            <button class="base-inv-cat" data-cat="cosmetic" onclick="filterBaseInv('cosmetic',this)">🎨 코스메틱</button>
           </div>
           <div id="baseInvGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
             <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading inventory...</div>
@@ -21161,16 +21164,9 @@ function filterBaseInv(cat,el){
   _baseInvCat=cat;
   document.querySelectorAll('.base-inv-cat').forEach(function(b){
     b.classList.remove('active');
-    b.style.borderColor='rgba(255,255,255,.1)';
-    b.style.background='rgba(255,255,255,.03)';
-    b.style.color='var(--tx3)';
+    b.style.cssText=''; // CSS 클래스에 위임, 인라인 제거
   });
-  if(el){
-    el.classList.add('active');
-    el.style.borderColor='rgba(255,209,102,.3)';
-    el.style.background='rgba(255,209,102,.12)';
-    el.style.color='var(--gold)';
-  }
+  if(el){ el.classList.add('active'); }
   renderBaseInventory();
 }
 function loadBaseInventory(){
