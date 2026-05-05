@@ -6539,6 +6539,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <button type="button" onclick="switchBaseCat('fleet',document.querySelector('.bcat[data-cat=fleet]'));switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="padding:6px 14px;border-radius:16px;background:rgba(255,138,128,.12);border:1px solid rgba(255,138,128,.4);color:#ff8a80;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">⚡ PVP</button>
         </div>
         <!-- 함대 현황 요약 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px">⚓ 내 함대 현황</div>
+          <button type="button" onclick="_loadFleetTabSummary()" style="font-size:8px;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;font-family:var(--fn)">↻ 새로고침</button>
+        </div>
         <div id="fleetTabSummary" style="margin-bottom:12px"></div>
         <!-- 월드 이벤트 -->
         <div style="border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px">
@@ -22477,29 +22481,148 @@ function _loadFleetTabSummary(){
   var w=(walletState&&walletState.address)||'';
   var sumEl=document.getElementById('fleetTabSummary');
   var evEl=document.getElementById('fleetTabWorldEvents');
-  if(!w){if(sumEl)sumEl.textContent='로그인하면 함대 현황이 표시됩니다';return;}
-  if(sumEl){
-    fetch('/api/fleets',{headers:getAuthHeaders()}).then(function(r){return r.json();}).then(function(d){
-      var fleets=d.fleets||[];
-      if(!fleets.length){sumEl.textContent='보유 함대 없음 — 조선소에서 함선을 건조하세요';return;}
-      var html='<div style="display:flex;gap:8px;flex-wrap:wrap">';
-      fleets.forEach(function(f){
-        html+='<div style="padding:6px 10px;border-radius:6px;background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);font-size:9px;color:#5cbbff">'
-          +'<div style="font-weight:700">⚓ '+(f.name||'Fleet')+'</div>'
-          +'<div style="color:var(--tx3);margin-top:2px">'+(f.ship_count||0)+'척</div>'
-          +'</div>';
+  if(!w){if(sumEl)sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">로그인하면 함대 현황이 표시됩니다</div>';return;}
+  if(!sumEl) return;
+  sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">Loading...</div>';
+
+  // 월드이벤트 복사 (기존)
+  if(evEl){try{var srcEl=document.getElementById('fcmdWorldEventsList');if(srcEl)evEl.innerHTML=srcEl.innerHTML;}catch(_){}}
+
+  // 병렬로 함대 + 함선 + 건조큐 로드
+  Promise.all([
+    fetch('/api/fleets',{headers:getAuthHeaders()}).then(function(r){return r.json();}),
+    fetch('/api/ships/my',{headers:getAuthHeaders()}).then(function(r){return r.json();}),
+    fetch('/api/ships/build-jobs',{headers:getAuthHeaders()}).then(function(r){return r.json();})
+  ]).then(function(results){
+    var fleets=(results[0]&&results[0].fleets)||[];
+    var ships=(results[1]&&results[1].ships)||[];
+    var jobs=(results[2]&&results[2].jobs)||[];
+
+    // 함선을 함대별로 그룹화
+    var byFleet={};
+    ships.forEach(function(s){
+      if(!s.is_alive) return;
+      var fid=s.fleet_id||'none';
+      if(!byFleet[fid]) byFleet[fid]=[];
+      byFleet[fid].push(s);
+    });
+
+    var html='';
+
+    // ── 건조 중 큐 ──
+    if(jobs.length>0){
+      html+='<div style="margin-bottom:10px;padding:10px 10px 6px;border-radius:8px;background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.18)">';
+      html+='<div style="font-size:9px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px">🔨 건조 중 ('+jobs.length+')</div>';
+      jobs.forEach(function(j){
+        var pct=Math.min(100,j.progress_pct||0);
+        var sec=Math.max(0,j.seconds_remaining||0);
+        var tStr=sec>3600?Math.floor(sec/3600)+'h '+Math.floor((sec%3600)/60)+'m'
+                :sec>60?Math.floor(sec/60)+'m '+Math.floor(sec%60)+'s'
+                :Math.floor(sec)+'s';
+        var fc=j.faction_color||'#5cbbff';
+        html+='<div style="margin-bottom:7px">';
+        html+='<div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:3px">';
+        html+='<span style="color:'+fc+'">'+(j.name_ko||j.ship_type_code)+'</span>';
+        html+='<span style="color:var(--tx3)">'+(j.class_label||j.size_class)+'</span>';
+        html+='<span style="color:var(--gold)">'+tStr+'</span>';
+        html+='</div>';
+        html+='<div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden">';
+        html+='<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--gold),#ff8c00);border-radius:2px"></div>';
+        html+='</div></div>';
       });
       html+='</div>';
-      sumEl.innerHTML=html;
-    }).catch(function(){sumEl.textContent='함대 정보 로드 실패';});
-  }
-  // 월드이벤트는 기존 카드 내용 재활용
-  if(evEl){
-    try{
-      var srcEl=document.getElementById('fcmdWorldEventsList');
-      if(srcEl)evEl.innerHTML=srcEl.innerHTML;
-    }catch(_){}
-  }
+    }
+
+    // ── 함대 목록 ──
+    if(!fleets.length){
+      html+='<div style="text-align:center;color:var(--tx3);font-size:9px;padding:16px">보유 함대 없음 — 조선소에서 함선을 건조하세요</div>';
+    } else {
+      fleets.forEach(function(f){
+        var fShips=byFleet[f.id]||[];
+        var hpPct=f.total_max_hp>0?Math.round(f.total_hp/f.total_max_hp*100):0;
+        var hpC=hpPct>60?'#4cd89a':hpPct>30?'#ffd166':'#e84855';
+        var aliveCount=f.ships_alive||0;
+
+        html+='<div style="margin-bottom:8px;border:1px solid rgba(79,195,247,.18);border-radius:8px;overflow:hidden">';
+
+        // 헤더
+        html+='<div style="padding:8px 10px;background:rgba(79,195,247,.05);display:flex;align-items:center;gap:8px">';
+        html+='<div style="flex:1;min-width:0">';
+        html+='<div style="font-size:10px;font-weight:700;color:#5cbbff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">⚓ '+(f.name||'함대')+'</div>';
+        // 함급 구성 칩
+        html+='<div style="margin-top:3px;font-size:8px;display:flex;gap:5px;flex-wrap:wrap">';
+        if(f.titan_count>0) html+='<span style="color:#ba68c8">타이탄×'+f.titan_count+'</span>';
+        if(f.battleship_count>0) html+='<span style="color:#ef5350">전함×'+f.battleship_count+'</span>';
+        if(f.cruiser_count>0) html+='<span style="color:#ffd166">순양×'+f.cruiser_count+'</span>';
+        if(f.destroyer_count>0) html+='<span style="color:#81c784">구축×'+f.destroyer_count+'</span>';
+        if(f.frigate_count>0) html+='<span style="color:#4fc3f7">프리깃×'+f.frigate_count+'</span>';
+        if(aliveCount===0) html+='<span style="color:var(--red)">함선 없음</span>';
+        html+='</div>';
+        // 진형/기동
+        if(f.formation||f.movement){
+          html+='<div style="margin-top:2px;font-size:7px;color:var(--tx3)">';
+          if(f.formation) html+=(f.formation_info&&f.formation_info.name_ko)||f.formation;
+          if(f.formation&&f.movement) html+=' · ';
+          if(f.movement) html+=(f.movement_info&&f.movement_info.name_ko)||f.movement;
+          html+='</div>';
+        }
+        html+='</div>';
+
+        // HP 요약 + 편집 버튼
+        html+='<div style="text-align:right;flex-shrink:0">';
+        if(f.total_max_hp>0){
+          html+='<div style="font-size:10px;font-weight:700;color:'+hpC+'">'+hpPct+'%</div>';
+          html+='<div style="font-size:7px;color:var(--tx3)">'+f.total_hp+'/'+f.total_max_hp+' HP</div>';
+        }
+        html+='<button type="button" onclick="openFleetCmd()" style="margin-top:4px;font-size:8px;padding:2px 8px;border-radius:4px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:#5cbbff;cursor:pointer;font-family:var(--fn)">편집</button>';
+        html+='</div>';
+        html+='</div>'; // header end
+
+        // 함대 전체 HP바
+        if(f.total_max_hp>0){
+          html+='<div style="height:3px;background:rgba(255,255,255,.06)">';
+          html+='<div style="height:100%;width:'+hpPct+'%;background:'+hpC+';transition:width .5s"></div>';
+          html+='</div>';
+        }
+
+        // 함선 목록
+        if(fShips.length>0){
+          html+='<div style="padding:6px 10px 8px;display:flex;flex-direction:column;gap:5px">';
+          var shown=fShips.slice(0,12);
+          shown.forEach(function(s){
+            var hp=s.max_hp>0?Math.round(s.current_hp/s.max_hp*100):0;
+            var hc=hp>60?'#4cd89a':hp>30?'#ffd166':'#e84855';
+            var fc2=s.faction_color||'#5cbbff';
+            html+='<div style="display:flex;align-items:center;gap:6px">';
+            // 파벌 도트
+            html+='<div style="width:5px;height:5px;border-radius:50%;background:'+fc2+';flex-shrink:0"></div>';
+            html+='<div style="flex:1;min-width:0">';
+            html+='<div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;margin-bottom:2px">';
+            html+='<span style="color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">'+(s.is_flagship?'★ ':'')+(s.name_ko||s.ship_type_code)+'</span>';
+            html+='<span style="color:'+hc+';flex-shrink:0;font-size:8px">'+s.current_hp+'/'+s.max_hp+'</span>';
+            html+='</div>';
+            html+='<div style="height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden">';
+            html+='<div style="height:100%;width:'+hp+'%;background:'+hc+';border-radius:2px"></div>';
+            html+='</div>';
+            html+='</div></div>';
+          });
+          if(fShips.length>12){
+            html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding-top:2px">+'+
+              (fShips.length-12)+'척 더 (함대 관리에서 전체 보기)</div>';
+          }
+          html+='</div>';
+        } else if(aliveCount>0){
+          html+='<div style="padding:6px 10px;font-size:8px;color:var(--tx3);text-align:center">'+aliveCount+'척 배치됨</div>';
+        }
+
+        html+='</div>'; // fleet card end
+      });
+    }
+
+    sumEl.innerHTML=html;
+  }).catch(function(e){
+    sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">함대 정보 로드 실패</div>';
+  });
 }
 
 // ── 대카테고리 전환 ──────────────────────────────────────────────────
