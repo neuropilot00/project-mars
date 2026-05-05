@@ -6270,7 +6270,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
       <!-- 함대 -->
       <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this)" style="color:#5cbbff"><span>⚓ <span data-i18n="bcat_fleet">Fleet</span></span></div>
-      <div class="base-tab" data-cat="fleet" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80;display:none"><span>⚔ PVP</span><span class="tab-dot" id="pvpDot"></span></div>
+      <div class="base-tab" data-cat="fleet" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span>⚔ PVP</span><span class="tab-dot" id="pvpDot"></span></div>
       <!-- 경제 -->
       <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span>🛒 <span data-i18n="base_tab_shop">SHOP</span></span><span class="tab-dot" id="shopDot"></span></div>
       <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
@@ -6533,7 +6533,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
           <button type="button" onclick="openShipyard()" style="padding:6px 14px;border-radius:16px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">🔨 <span data-i18n="fcmd_open_shipyard_short">Shipyard</span></button>
           <button type="button" onclick="openFleetCmd()" style="padding:6px 14px;border-radius:16px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">⚔ <span data-i18n="fcmd_my_fleets_short">My Fleets</span></button>
-          <button type="button" onclick="switchBaseCat('fleet',document.querySelector('.bcat[data-cat=fleet]'));switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="padding:6px 14px;border-radius:16px;background:rgba(255,138,128,.12);border:1px solid rgba(255,138,128,.4);color:#ff8a80;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">⚡ PVP</button>
           <button type="button" onclick="openTacticalLab()" style="padding:6px 14px;border-radius:16px;background:rgba(206,147,216,.07);border:1px solid rgba(206,147,216,.25);color:rgba(206,147,216,.6);font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;margin-left:auto">🧪 <span data-i18n="fcmd_tactical_lab">Tactical Lab</span></button>
         </div>
         <!-- 함대 현황 요약 -->
