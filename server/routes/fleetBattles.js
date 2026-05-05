@@ -364,7 +364,8 @@ router.get('/:id/report', async (req, res) => {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
 
-    const report = await battleReport.generateBattleReport(battleId);
+    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    const report = await battleReport.generateBattleReport(battleId, wallet);
     if (!report) return res.status(404).json({ error: 'BATTLE_NOT_FOUND' });
 
     res.json({ success: true, report });

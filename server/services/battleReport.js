@@ -89,29 +89,35 @@ function generateHighlights(events, winner) {
 
 // ── 함선 클래스 판별 ──────────────────────────────────────────
 function getShipClass(ship) {
-  const code = (ship.type_code || ship.ship_type_code || ship.code || '').toLowerCase();
-  if (code.includes('titan'))                              return '타이탄';
-  if (code.includes('battleship') || code.includes('_bs')) return '배틀십';
-  if (code.includes('cruiser'))                            return '순양함';
-  if (code.includes('destroyer'))                          return '구축함';
-  if (code.includes('frigate'))                            return '프리깃';
-  return ship.class_label || ship.size_class || '기타';
+  const size = String(ship.size_class || '').toLowerCase();
+  const code = String(ship.type_code || ship.ship_type_code || ship.code || '').toLowerCase();
+  for (const cls of ['frigate', 'destroyer', 'cruiser', 'battleship', 'titan']) {
+    if (size === cls || code.includes(cls)) return cls;
+  }
+  if (code.includes('_ff') || code.includes('-ff')) return 'frigate';
+  if (code.includes('_dd') || code.includes('-dd')) return 'destroyer';
+  if (code.includes('_ca') || code.includes('-ca')) return 'cruiser';
+  if (code.includes('_bs') || code.includes('-bs')) return 'battleship';
+  return size || (code.split('_')[1] || code.split('-')[1]) || 'unknown';
 }
 
 // ── 클래스별 성과 집계 ────────────────────────────────────────
-function buildClassBreakdown(ships, shipsLost) {
+function buildClassBreakdown(ships, shipsLost, damageByClass = {}) {
   if (!ships || ships.length === 0) return [];
   const classMap = {};
   ships.forEach(s => {
     const cls = getShipClass(s);
-    if (!classMap[cls]) classMap[cls] = { class_label: cls, total: 0 };
-    classMap[cls].total++;
+    if (!classMap[cls]) classMap[cls] = { class: cls, class_label: cls, deployed: 0, survived: 0, damage: 0 };
+    classMap[cls].deployed++;
+    if (s.is_alive !== false) classMap[cls].survived++;
   });
-  const classes = Object.values(classMap).sort((a, b) => b.total - a.total);
+  const classes = Object.values(classMap).sort((a, b) => b.deployed - a.deployed);
   const survivalRate = ships.length > 0 ? Math.max(0, (ships.length - (shipsLost || 0)) / ships.length) : 0;
   classes.forEach(c => {
-    c.survived      = Math.round(c.total * survivalRate);
-    c.survival_pct  = c.total > 0 ? Math.round((c.survived / c.total) * 100) : 0;
+    if (shipsLost && c.survived === c.deployed) c.survived = Math.round(c.deployed * survivalRate);
+    c.damage        = Math.round(damageByClass[c.class] || 0);
+    c.total         = c.deployed;
+    c.survival_pct  = c.deployed > 0 ? Math.round((c.survived / c.deployed) * 100) : 0;
     c.perf_label    = c.survival_pct >= 80 ? '핵심 기여'
                     : c.survival_pct >= 40 ? '데미지 높음'
                     : '데미지 낮음';
@@ -120,130 +126,201 @@ function buildClassBreakdown(ships, shipsLost) {
 }
 
 // ── 전투 리포트 생성 ──────────────────────────────────────────
-async function generateBattleReport(battleId) {
+function normalizeWallet(wallet) {
+  return String(wallet || '').toLowerCase().trim();
+}
+
+function toInt(value, fallback = 0) {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function safeJson(value) {
+  if (!value) return {};
+  if (typeof value === 'object') return value;
+  try { return JSON.parse(value); } catch (_) { return {}; }
+}
+
+function resultFromWinner(winnerSide) {
+  if (winnerSide === 'atk') return 'attacker_win';
+  if (winnerSide === 'def') return 'defender_win';
+  return 'draw';
+}
+
+function getSideByFleetId(participants, fleetId) {
+  const p = participants.find(x => String(x.fleet_id) === String(fleetId));
+  return p ? p.side : null;
+}
+
+function buildHints(atk, def, result) {
+  const hints = [];
+  const add = (type, severity, messageKey, fallbackText) => {
+    hints.push({ type, severity, messageKey, fallbackText });
+  };
+
+  const maxDeployed = Math.max(atk.shipsDeployed, def.shipsDeployed);
+  const minDeployed = Math.min(atk.shipsDeployed, def.shipsDeployed);
+  if (minDeployed > 0 && maxDeployed > minDeployed * 2) {
+    add('power', 'info', 'significant_power_gap', 'One side deployed more than twice as many ships.');
+  }
+
+  const loser = result === 'attacker_win' ? def : result === 'defender_win' ? atk : null;
+  const winner = result === 'attacker_win' ? atk : result === 'defender_win' ? def : null;
+  if (loser && winner && loser.class_breakdown.length < winner.class_breakdown.length) {
+    add('composition', 'warning', 'flanked', 'The losing fleet fielded fewer ship classes and was easier to counter.');
+  }
+
+  const atkSurvival = atk.shipsDeployed > 0 ? atk.shipsSurvived / atk.shipsDeployed : 0;
+  const defSurvival = def.shipsDeployed > 0 ? def.shipsSurvived / def.shipsDeployed : 0;
+  if (Math.abs(atkSurvival - defSurvival) < 0.1) {
+    add('outcome', 'info', 'close_battle', 'Survival rates were within 10%, making this a close battle.');
+  }
+
+  const severityRank = { critical: 0, warning: 1, info: 2 };
+  return hints
+    .sort((a, b) => (severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9))
+    .slice(0, 3);
+}
+
+async function generateBattleReport(battleId, wallet) {
   try {
-    // 1. 전투 기본 정보
+    const id = toInt(battleId);
+    if (!id) return null;
+
     const { rows: battles } = await pool.query(
-      `SELECT fb.*,
-        atk_p.wallet_address AS atk_wallet, atk_fl.name AS atk_fleet_name,
-        def_p.wallet_address AS def_wallet, def_fl.name AS def_fleet_name
-       FROM fleet_battles fb
-       LEFT JOIN fleet_battle_participants atk_p ON atk_p.battle_id = fb.id AND atk_p.side = 'atk'
-       LEFT JOIN fleets atk_fl ON atk_fl.id = atk_p.fleet_id
-       LEFT JOIN fleet_battle_participants def_p ON def_p.battle_id = fb.id AND def_p.side = 'def'
-       LEFT JOIN fleets def_fl ON def_fl.id = def_p.fleet_id
-       WHERE fb.id = $1`,
-      [battleId]
+      `SELECT id, status, winner_side, battle_type, ended_at,
+              atk_ships_total, def_ships_total, atk_ships_lost, def_ships_lost,
+              duration_seconds, battle_summary
+         FROM fleet_battles
+        WHERE id = $1`,
+      [id]
     );
     if (!battles[0]) return null;
     const battle = battles[0];
 
-    // 2. 전투 이벤트
+    const { rows: participants } = await pool.query(
+      `SELECT fbp.side, fbp.fleet_id, fbp.wallet_address,
+              fbp.ships_at_start, fbp.ships_alive, fbp.ships_lost, fbp.damage_dealt,
+              f.name AS fleet_name, f.owner_wallet,
+              COALESCE(u.faction_code, 'unknown') AS faction
+         FROM fleet_battle_participants fbp
+         LEFT JOIN fleets f ON f.id = fbp.fleet_id
+         LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(COALESCE(fbp.wallet_address, f.owner_wallet))
+        WHERE fbp.battle_id = $1
+        ORDER BY CASE WHEN fbp.side = 'atk' THEN 0 ELSE 1 END, fbp.fleet_id`,
+      [id]
+    );
+
+    const shipsBySide = { atk: [], def: [] };
+    for (const p of participants) {
+      try {
+        const { rows: shipRows } = await pool.query(
+          `SELECT s.id, s.fleet_id, s.ship_type_code, s.is_alive, s.is_flagship,
+                  s.current_hp, s.max_hp, s.bonus_atk, s.bonus_def, s.bonus_hp,
+                  st.size_class, st.class_label, st.faction_code AS ship_faction
+             FROM ships s
+             LEFT JOIN ship_types st ON st.code = s.ship_type_code
+            WHERE s.fleet_id = $1`,
+          [p.fleet_id]
+        );
+        shipsBySide[p.side] = shipsBySide[p.side].concat(shipRows);
+      } catch (_) {}
+    }
+
     let events = [];
     try {
       const { rows } = await pool.query(
-        `SELECT tick, event_type, data FROM fleet_battle_events
-         WHERE battle_id = $1 ORDER BY tick ASC, id ASC`,
-        [battleId]
+        `SELECT id, tick, event_type, fleet_id, ship_id, payload
+           FROM fleet_battle_events
+          WHERE battle_id = $1
+          ORDER BY tick ASC NULLS LAST, id ASC`,
+        [id]
       );
-      events = rows;
-    } catch (_) {}
-
-    // 3. 참여 함선 정보 (ships 테이블에서 fleet 기준으로 조회)
-    let atkShips = [], defShips = [];
-    try {
-      const { rows: participants } = await pool.query(
-        `SELECT fbp.side, fbp.fleet_id
-         FROM fleet_battle_participants fbp
-         WHERE fbp.battle_id = $1`,
-        [battleId]
-      );
-      for (const p of participants) {
-        try {
-          const { rows: shipRows } = await pool.query(
-            `SELECT s.id, s.name, st.code AS type_code, st.size_class, st.class_label,
-                    s.atk, s.def, s.max_hp, s.speed,
-                    s.bonus_atk, s.bonus_def, s.bonus_hp, s.bonus_speed,
-                    s.is_flagship
-             FROM ships s
-             JOIN ship_types st ON st.id = s.ship_type_id
-             WHERE s.fleet_id = $1`,
-            [p.fleet_id]
-          );
-          if (p.side === 'atk') atkShips = shipRows;
-          else defShips = shipRows;
-        } catch (_) {}
-      }
-    } catch (_) {}
-
-    // 4. 데미지 집계 (이벤트에서)
-    let atkDmg = 0, defDmg = 0;
-    for (const ev of events) {
-      if (ev.event_type === 'damage' || ev.event_type === 'attack') {
-        const d = ev.data || {};
-        if (d.attacker_side === 'atk') atkDmg += d.damage || 0;
-        else if (d.attacker_side === 'def') defDmg += d.damage || 0;
-      }
+      events = rows.map(ev => ({ ...ev, payload: safeJson(ev.payload), data: safeJson(ev.payload) }));
+    } catch (_) {
+      events = [];
     }
-    // DB에 저장된 값 우선 사용
-    atkDmg = battle.atk_damage_dealt || atkDmg;
-    defDmg = battle.def_damage_dealt || defDmg;
 
-    // 5. MVP 함선 (kills 기준)
-    let atkMvp = null, defMvp = null;
-    const killMap = {};
+    const participantBySide = {
+      atk: participants.find(p => p.side === 'atk') || {},
+      def: participants.find(p => p.side === 'def') || {}
+    };
+    const shipById = {};
+    for (const ship of shipsBySide.atk.concat(shipsBySide.def)) shipById[String(ship.id)] = ship;
+
+    const damage = { atk: 0, def: 0 };
+    const damageByClass = { atk: {}, def: {} };
     for (const ev of events) {
-      if (ev.event_type === 'ship_destroyed') {
-        const d = ev.data || {};
-        if (d.killer_id) {
-          killMap[d.killer_id] = (killMap[d.killer_id] || 0) + 1;
+      const p = ev.payload || {};
+      if (ev.event_type === 'damage' || ev.event_type === 'attack') {
+        const amount = toInt(p.damage || p.amount || p.damage_dealt);
+        const side = p.attacker_side || p.actor_side || getSideByFleetId(participants, p.attacker_fleet_id || p.killer_fleet_id);
+        if (side === 'atk' || side === 'def') {
+          damage[side] += amount;
+          const cls = getShipClass({ size_class: p.attacker_size_class, ship_type_code: p.attacker_ship_type });
+          damageByClass[side][cls] = (damageByClass[side][cls] || 0) + amount;
+        }
+      } else if (ev.event_type === 'ship_destroyed' || ev.event_type === 'flagship_destroyed') {
+        const targetSide = getSideByFleetId(participants, ev.fleet_id || p.target_fleet_id);
+        const attackerSide = p.attacker_side || p.killer_side || getSideByFleetId(participants, p.killer_fleet_id);
+        const side = attackerSide || (targetSide === 'atk' ? 'def' : targetSide === 'def' ? 'atk' : null);
+        const targetShip = shipById[String(ev.ship_id)] || {};
+        const amount = toInt(p.damage || p.final_damage || targetShip.max_hp, 0);
+        if (side === 'atk' || side === 'def') {
+          damage[side] += amount;
+          const cls = getShipClass({ size_class: p.killer_size_class, ship_type_code: p.killer_ship_type });
+          damageByClass[side][cls] = (damageByClass[side][cls] || 0) + amount;
         }
       }
     }
-    const topKiller = Object.entries(killMap).sort((a,b) => b[1]-a[1])[0];
-    if (topKiller) {
-      const [killerId, kills] = topKiller;
-      // atk MVP
-      const atkKillerShip = atkShips.find(s => String(s.id) === String(killerId));
-      if (atkKillerShip) atkMvp = { name: atkKillerShip.name || atkKillerShip.type_code || 'Unknown', kills };
-      // def MVP
-      const defKillerShip = defShips.find(s => String(s.id) === String(killerId));
-      if (defKillerShip) defMvp = { name: defKillerShip.name || defKillerShip.type_code || 'Unknown', kills };
-    }
 
-    // 6. 기함 생존 여부
-    const atkFlagship = atkShips.find(s => s.is_flagship);
-    const defFlagship = defShips.find(s => s.is_flagship);
+    const estimateDamageToShips = ships => ships.reduce((sum, s) => {
+      const maxHp = toInt(s.max_hp) + toInt(s.bonus_hp);
+      return sum + Math.max(0, maxHp - toInt(s.current_hp));
+    }, 0);
+    if (damage.atk <= 0) damage.atk = toInt(participantBySide.atk.damage_dealt) || estimateDamageToShips(shipsBySide.def);
+    if (damage.def <= 0) damage.def = toInt(participantBySide.def.damage_dealt) || estimateDamageToShips(shipsBySide.atk);
 
-    // 7. 퍼포먼스 레이팅
-    const atkWon = battle.winner_side === 'atk';
-    const defWon = battle.winner_side === 'def';
+    const buildSide = (side) => {
+      const p = participantBySide[side] || {};
+      const ships = shipsBySide[side] || [];
+      const deployed = toInt(p.ships_at_start) || toInt(battle[`${side}_ships_total`]) || ships.length;
+      const destroyed = toInt(p.ships_lost) || toInt(battle[`${side}_ships_lost`]) || ships.filter(s => s.is_alive === false).length;
+      const survived = Math.max(0, toInt(p.ships_alive) || (deployed - destroyed));
+      const breakdown = buildClassBreakdown(ships, destroyed, damageByClass[side]);
+      const shipFaction = ships.find(s => s.ship_faction)?.ship_faction;
+      return {
+        wallet: p.wallet_address || p.owner_wallet || null,
+        fleetName: p.fleet_name || (side === 'atk' ? 'ATK Fleet' : 'DEF Fleet'),
+        fleet_name: p.fleet_name || (side === 'atk' ? 'ATK Fleet' : 'DEF Fleet'),
+        faction: p.faction === 'unknown' && shipFaction ? shipFaction : (p.faction || shipFaction || 'unknown'),
+        shipsDeployed: deployed,
+        shipsDestroyed: Math.min(deployed, destroyed),
+        shipsSurvived: survived,
+        totalDamage: Math.round(damage[side] || 0),
+        total_ships: deployed,
+        ships_lost: Math.min(deployed, destroyed),
+        ships_survived: survived,
+        total_damage_dealt: Math.round(damage[side] || 0),
+        class_breakdown: breakdown
+      };
+    };
 
-    const atkRating = calcPerformanceRating(atkDmg, battle.atk_ships_lost || 0, atkShips.length, atkWon);
-    const defRating = calcPerformanceRating(defDmg, battle.def_ships_lost || 0, defShips.length, defWon);
+    const atk = buildSide('atk');
+    const def = buildSide('def');
+    const result = resultFromWinner(battle.winner_side);
+    const w = normalizeWallet(wallet);
+    const perspective = w && w === normalizeWallet(atk.wallet) ? 'attacker'
+      : w && w === normalizeWallet(def.wallet) ? 'defender'
+      : 'observer';
 
-    // 8. efficiency score (0~100)
-    const atkEff = Math.min(100, Math.round(
-      (atkDmg / ((battle.atk_ships_lost || 0) + 1) / 100) + (atkWon ? 30 : 0)
-    ));
-    const defEff = Math.min(100, Math.round(
-      (defDmg / ((battle.def_ships_lost || 0) + 1) / 100) + (defWon ? 30 : 0)
-    ));
-
-    // 9. 하이라이트
-    const highlights = generateHighlights(events, battle.winner_side);
-
-    // 10. 패인 분석 & 추천 (패배 측 기준)
     let analysis_ko = '';
     const recommendations_ko = [];
-    if (battle.winner_side && battle.winner_side !== 'draw') {
-      const loserDmg    = battle.winner_side === 'atk' ? defDmg  : atkDmg;
-      const winnerDmgV  = battle.winner_side === 'atk' ? atkDmg  : defDmg;
-      const loserLostN  = battle.winner_side === 'atk' ? (battle.def_ships_lost || 0) : (battle.atk_ships_lost || 0);
-      const loserTotalN = battle.winner_side === 'atk' ? defShips.length : atkShips.length;
-      const dmgRatio    = winnerDmgV > 0 ? loserDmg / winnerDmgV : 1;
-      const lossRate    = loserTotalN > 0 ? loserLostN / loserTotalN : 0;
-
+    const loser = battle.winner_side === 'atk' ? def : battle.winner_side === 'def' ? atk : null;
+    const winner = battle.winner_side === 'atk' ? atk : battle.winner_side === 'def' ? def : null;
+    if (loser && winner) {
+      const dmgRatio = winner.totalDamage > 0 ? loser.totalDamage / winner.totalDamage : 1;
+      const lossRate = loser.shipsDeployed > 0 ? loser.shipsDestroyed / loser.shipsDeployed : 0;
       if (dmgRatio < 0.5) {
         analysis_ko = '화력 차이가 결정적이었습니다. 상대 함대가 2배 이상의 데미지를 입혔습니다. 공격력 강화가 우선입니다.';
         recommendations_ko.push('공격형 함선 또는 상위 등급 함선 추가');
@@ -258,51 +335,26 @@ async function generateBattleReport(battleId) {
         recommendations_ko.push('기동 방식 (Advance/Retreat/Hold) 재검토');
       }
     }
-
-    // 11. 클래스별 성과
-    const atkClassBreakdown = buildClassBreakdown(atkShips, battle.atk_ships_lost || 0);
-    const defClassBreakdown = buildClassBreakdown(defShips, battle.def_ships_lost || 0);
+    const highlights = generateHighlights(events, battle.winner_side);
 
     return {
-      battle_id: battle.id,
+      battleId: toInt(battle.id),
+      perspective,
+      result,
+      atk,
+      def,
+      hints: buildHints(atk, def, result),
+      battle_id: toInt(battle.id),
       battle_type: battle.battle_type || 'pvp_duel',
       winner_side: battle.winner_side,
       ended_at: battle.ended_at,
-      duration_ticks: battle.duration_ticks || events.length,
+      duration_ticks: battle.duration_seconds || events.length,
       analysis_ko,
       recommendations_ko,
-      atk: {
-        wallet: battle.atk_wallet,
-        fleet_name: battle.atk_fleet_name || 'ATK Fleet',
-        total_ships: atkShips.length,
-        ships_lost: battle.atk_ships_lost || 0,
-        ships_survived: atkShips.length - (battle.atk_ships_lost || 0),
-        total_damage_dealt: atkDmg,
-        total_damage_taken: defDmg,
-        flagship_survived: battle.atk_flagship_survived,
-        mvp_ship: atkMvp,
-        performance_rating: battle.performance_rating_atk || atkRating,
-        efficiency_score: atkEff,
-        class_breakdown: atkClassBreakdown
-      },
-      def: {
-        wallet: battle.def_wallet,
-        fleet_name: battle.def_fleet_name || 'DEF Fleet',
-        total_ships: defShips.length,
-        ships_lost: battle.def_ships_lost || 0,
-        ships_survived: defShips.length - (battle.def_ships_lost || 0),
-        total_damage_dealt: defDmg,
-        total_damage_taken: atkDmg,
-        flagship_survived: battle.def_flagship_survived,
-        mvp_ship: defMvp,
-        performance_rating: battle.performance_rating_def || defRating,
-        efficiency_score: defEff,
-        class_breakdown: defClassBreakdown
-      },
       highlights,
       summary: {
-        total_ticks: battle.duration_ticks || events.length,
-        total_ships_destroyed: (battle.atk_ships_lost || 0) + (battle.def_ships_lost || 0),
+        total_ticks: battle.duration_seconds || events.length,
+        total_ships_destroyed: atk.shipsDestroyed + def.shipsDestroyed,
         was_decisive: battle.winner_side !== 'draw' && battle.winner_side !== null
       }
     };
