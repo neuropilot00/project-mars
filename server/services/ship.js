@@ -1069,6 +1069,28 @@ function makeShipSnapshot(ship) {
   };
 }
 
+// ── 강화 재료 티어 테이블 ──────────────────────────────────────
+// upgrade_level 0-4  (강화 1~5회)  → T1 광물
+// upgrade_level 5-9  (강화 6~10회) → T2 광물
+// upgrade_level 10+  (강화 11회~)  → T3 광물
+// 함선 가치는 높은 레벨일수록 희귀 재료가 누적됨
+const UPGRADE_MATERIAL_TIERS = {
+  atk:   ['carbon_fiber',    'plasma_crystal',      'exotic_alloy'],
+  def:   ['iron_ore',        'titanium_alloy',       'hull_plate'],
+  hp:    ['silicon_chip',    'meteorite_fragment',   'alloy_frame'],
+  speed: ['basalt_chip',     'nano_polymer',         'dark_matter'],
+};
+// 각 티어의 기본 소모량 (강화 레벨이 높을수록 tier 내에서도 증가)
+const UPGRADE_MATERIAL_BASE_QTY  = [2, 2, 1];   // T1, T2, T3 기본
+const UPGRADE_MATERIAL_GROWTH    = [1, 1, 1];   // 5회 강화마다 +N
+
+function getUpgradeMaterialTier(upgradeLevel) {
+  const lv = Math.max(0, parseInt(upgradeLevel) || 0);
+  if (lv < 5)  return 0;  // T1
+  if (lv < 10) return 1;  // T2
+  return 2;               // T3
+}
+
 async function calcShipUpgradeOffer(client, ship, stat) {
   const economy = await getShipUpgradeEconomy(client);
   const totalPoints = upgradePoints(ship, economy.steps);
@@ -1076,20 +1098,26 @@ async function calcShipUpgradeOffer(client, ship, stat) {
   const decay = await getSettingNumber(client, 'ship_upgrade_success_decay_pct', 1.8);
   const floor = await getSettingNumber(client, 'ship_upgrade_success_floor_pct', 35);
   const chance = Math.max(floor, Math.min(99, +(baseChance - totalPoints * decay).toFixed(2)));
-  const materialCode = await getSettingText(client, `ship_upgrade_${stat}_material`, {
-    atk: 'carbon_fiber',
-    def: 'iron_ore',
-    hp: 'silicon_chip',
-    speed: 'basalt_chip',
-  }[stat] || 'carbon_fiber');
-  const baseQty = await getSettingNumber(client, 'ship_upgrade_material_base_qty', 2);
-  const growthPer5 = await getSettingNumber(client, 'ship_upgrade_material_growth_per_5', 1);
-  const materialQty = Math.max(1, Math.ceil(baseQty + Math.floor(totalPoints / 5) * growthPer5));
+
+  // 티어 계산 — upgrade_level 기준
+  const tierIdx = getUpgradeMaterialTier(ship.upgrade_level);
+  const tierMaterials = UPGRADE_MATERIAL_TIERS[stat] || UPGRADE_MATERIAL_TIERS.atk;
+  const materialCode = tierMaterials[tierIdx];
+
+  // 수량: 기본 + (티어 내 5회마다 +1)
+  const baseQty    = UPGRADE_MATERIAL_BASE_QTY[tierIdx];
+  const growthUnit = UPGRADE_MATERIAL_GROWTH[tierIdx];
+  const lv = Math.max(0, parseInt(ship.upgrade_level) || 0);
+  const tierOffset = tierIdx === 0 ? lv : tierIdx === 1 ? lv - 5 : lv - 10;
+  const materialQty = Math.max(1, baseQty + Math.floor(Math.max(0, tierOffset) / 5) * growthUnit);
+
   return {
     cost: calcShipUpgradeCost(ship, stat, economy),
     chance,
     material_code: materialCode,
     material_qty: materialQty,
+    material_tier: tierIdx + 1,  // 1/2/3 — UI 표시용
+    upgrade_level: lv,
     economy,
   };
 }

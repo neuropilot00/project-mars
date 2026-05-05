@@ -43687,6 +43687,12 @@ function syStatValue(base, bonus, decimals) {
   return baseText + '<span class="stat-bonus">(+' + bonusText + ')</span>';
 }
 
+function syUpgradeTierBadge(tier) {
+  var t = parseInt(tier) || 1;
+  var colors = { 1:'#8bc34a', 2:'#42a5f5', 3:'#ce93d8' };
+  var labels = { 1:'T1', 2:'T2', 3:'T3' };
+  return '<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:' + (colors[t]||'#8bc34a') + '22;border:1px solid ' + (colors[t]||'#8bc34a') + '55;color:' + (colors[t]||'#8bc34a') + ';margin-right:2px">' + (labels[t]||'T1') + '</span>';
+}
 function syUpgradeBtn(ship, stat, label) {
   var offer = ship.upgrade_offers && ship.upgrade_offers[stat];
   var cost = offer ? syFmt(offer.cost) + ' GP' : (ship.upgrade_costs && ship.upgrade_costs[stat] ? syFmt(ship.upgrade_costs[stat]) + ' GP' : 'GP');
@@ -43694,7 +43700,8 @@ function syUpgradeBtn(ship, stat, label) {
   var matHave = offer ? syOwnedResourceQty(offer.material_code) : 0;
   var matNeed = offer ? Number(offer.material_qty || 0) : 0;
   var matShort = offer && matHave < matNeed;
-  var material = offer ? ((matShort ? '부족 ' : '보유 ') + syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
+  var tierBadge = offer ? syUpgradeTierBadge(offer.material_tier || 1) : '';
+  var material = offer ? (tierBadge + (matShort ? '부족 ' : '보유 ') + syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
   return '<button class="ship-upgrade-btn ' + (gpShort || matShort ? 'need' : '') + '" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
     label + ' +' +
     '<span class="cost ' + (gpShort ? 'short' : '') + '">' + cost + '</span>' +
@@ -43716,14 +43723,27 @@ async function syUpgradeShipStat(shipId, stat) {
   var materialName = offer ? syResourceName(offer.material_code) : '-';
   var materialText = offer ? syRequirementStatusText(haveQty, needQty) : '-';
   var blocked = !enoughGp || !enoughMaterial;
+  var tierIdx = offer ? (parseInt(offer.material_tier) || 1) : 1;
+  var tierColors = ['','#8bc34a','#42a5f5','#ce93d8'];
+  var tierNames  = ['','T1 기본','T2 희귀','T3 전설'];
+  var tierNextMsg = '';
+  var curLv = offer ? (parseInt(offer.upgrade_level) || 0) : 0;
+  if (offer) {
+    if (tierIdx === 1 && curLv >= 3) tierNextMsg = '다음 강화 5회 후 T2 재료 필요';
+    else if (tierIdx === 1) tierNextMsg = (5 - curLv) + '회 후 T2 희귀 재료 필요';
+    else if (tierIdx === 2) tierNextMsg = (10 - curLv) + '회 후 T3 전설 재료 필요';
+    else tierNextMsg = '최고 등급 재료 — 함선 가치 ↑';
+  }
   var ok = await gameConfirm({
     title: '함선 강화', icon: '⚙️',
     body: '<div style="font-size:11px;color:#9be7a0;font-weight:700;margin-bottom:5px">' + (labelMap[stat] || stat) + '을 영구 강화합니다.</div>'
-      + '<div style="font-size:10px;color:var(--tx3)">강화는 확률형입니다. 실패해도 GP와 재료는 소모되고, 스탯은 그대로 유지됩니다.</div>',
+      + '<div style="font-size:10px;color:var(--tx3)">강화는 확률형입니다. 실패해도 GP와 재료는 소모되고, 스탯은 그대로 유지됩니다.</div>'
+      + (offer ? '<div style="margin-top:6px;font-size:10px;color:' + (tierColors[tierIdx]||'#8bc34a') + '">'
+          + '● ' + (tierNames[tierIdx]||'T1') + ' 재료 단계 · ' + tierNextMsg + '</div>' : ''),
     info: offer ? [
       { k:'성공 확률', v: offer.chance + '%' },
       { k:'💰 GP', v: syRequirementStatusText(gpHave, gpNeed), insufficient: !enoughGp, ok: enoughGp },
-      { k: materialName, v: materialText, insufficient: !enoughMaterial, ok: enoughMaterial }
+      { k: materialName + ' (MOD ' + curLv + ')', v: materialText, insufficient: !enoughMaterial, ok: enoughMaterial }
     ] : undefined,
     confirmText: blocked ? '재료 부족' : '강화하기',
     disabled: blocked

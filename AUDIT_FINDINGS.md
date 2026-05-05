@@ -1,5 +1,19 @@
 # OCCUPY MARS — Codebase Audit (v6.01 / 2026-05-05)
 
+## ✅ v6.02 함선 강화 티어 재료 시스템 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `UPGRADE_MATERIAL_TIERS` 상수 정의 | ✅ | atk/def/hp/speed × T1/T2/T3 매핑 |
+| `getUpgradeMaterialTier(upgradeLevel)` | ✅ | lv<5=T1, lv<10=T2, lv≥10=T3 |
+| `calcShipUpgradeOffer` 티어 기반 재료/수량 계산 | ✅ | `material_tier` 응답에 포함 |
+| 프론트 `syUpgradeTierBadge()` | ✅ | T1=초록 / T2=파랑 / T3=보라 배지 |
+| 강화 버튼 티어 배지 표시 | ✅ | `syUpgradeBtn` 내 tierbadge 삽입 |
+| 강화 확인 모달 티어 + 예고 텍스트 | ✅ | "X회 후 T2 재료 필요" 동적 계산 |
+| `node --check ship.js` | ✅ | 구문 오류 없음 |
+
+---
+
 ## ✅ v6.01 함선 강화 재료 버그 수정 — 완료
 
 | 항목 | 상태 | 비고 |
