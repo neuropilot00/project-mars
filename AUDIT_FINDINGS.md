@@ -1,3 +1,29 @@
+# OCCUPY MARS — Codebase Audit (v5.93 / 2026-05-05)
+
+## ✅ v5.93 Campaign 대사/objective 전면 다국어화 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `_campaignStoryText()` LANG 기반 언어 선택 | ✅ | 이전: `.ko` 고정. 이후: `value[LANG]||.ko||.en` 우선순위 체인. |
+| `_campaignStorySpeakerName()` 4개 언어 이름 맵 | ✅ | KO/EN/JA/ZH 각 23개 캐릭터 ID 이름 매핑. |
+| `ch.title`, `ch.location` `.ko` 하드코딩 제거 | ✅ | `_campaignStoryText()` 사용으로 교체. |
+| 브리핑/선택지 라벨 다국어화 | ✅ | `_campaignStoryText(l)` / `_campaignStoryText(c.label)` 사용. |
+| 시뮬레이션 모달 문자열 i18n | ✅ | 무전/진행상태/상세 → `t()` 키 사용. |
+| 스토리 컨트롤 버튼 i18n | ✅ | SKIP/나가기/탭 힌트 → `t('story_*')` 키. |
+| objective 표시 다국어화 | ✅ | `campaignObjectivesHtml()` → `_campaignStoryText(o.label)`. |
+| `OBJECTIVE_PRESETS` `labelEn` 추가 | ✅ | 75개+ 모든 preset에 영어 라벨 추가. |
+| `buildChapterObjectives()` `label:{ko,en}` 포함 | ✅ | API 응답에 다국어 label 객체 포함. |
+| `publicChapter()` choices `label:{ko,en}` 포함 | ✅ | 클라이언트 `_campaignStoryText(c.label)` 연결 완성. |
+| 씬 JSON 39개 EN 텍스트 확인 | ✅ | 모든 파일 KO=EN 동수. 렌더러가 이제 언어별 텍스트 사용. |
+| 신규 i18n 키 12종 (EN/KO/JA/ZH) | ✅ | campaign_sim_* 5종 + story_* 7종. 4개 언어 1357 키 동수. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- I18N key parity 1357 (EN=KO=JA=ZH) ✓
+- `git diff --check` 통과
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.92 / 2026-05-05)
 
 ## ✅ v5.92 Campaign result/objective-gate i18n — 완료

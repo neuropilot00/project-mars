@@ -1,5 +1,31 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — Campaign dialogue & objective full i18n (v5.93)
+
+**스토리 렌더러 다국어화**
+- `_campaignStoryText(value)`: LANG 변수 기반으로 `value[lang]||value.ko||value.en` 우선순위 체인으로 텍스트를 반환한다. 이전에는 항상 `.ko` 고정이었다.
+- `_campaignStorySpeakerName(id)`: KO/EN/JA/ZH 4개 언어 이름 맵 추가. 23개 캐릭터 ID (리팡, 천 회장, 미하일 등) 를 언어별로 적합한 이름으로 반환한다.
+- `ch.title`, `ch.location.displayName` — `.ko` 하드코딩 제거, `_campaignStoryText()` 사용.
+- `showCampaignBriefing()`: briefing 라인과 선택지 라벨이 `_campaignStoryText(l)` / `_campaignStoryText(c.label)` 로 다국어화.
+- `showCampaignSim()`: 무전/진행상태/상세 문자열을 `t()` i18n 키로 교체.
+- 스토리 컨트롤 버튼(SKIP/나가기/탭하여 계속)과 abandon 확인 다이얼로그를 `t()` 키 사용.
+- `campaignObjectivesHtml()`: `o.label` 다국어 객체를 `_campaignStoryText()` 로 읽어 표시.
+
+**campaign.js 서버 사이드**
+- `OBJECTIVE_PRESETS` 75개 이상 objective 항목 전체에 `labelEn` 추가 (프롤로그 + MCC/FSP/CV CH1-10).
+- `buildChapterObjectives()`: `label: {ko, en}` 객체를 `labelKo`와 함께 API 응답에 포함.
+- `publicChapter()`: `choices`도 `label: {ko, en}` 포함.
+- `getMissingRequiredObjectives()`: missing objectives에도 `label: {ko, en}` 포함.
+
+**신규 i18n 키 (EN/KO/JA/ZH)**: `campaign_sim_in_progress`, `campaign_sim_radio_prefix`, `campaign_sim_radio_default`, `campaign_sim_syncing`, `campaign_sim_detail`, `story_skip`, `story_skip_title`, `story_abandon`, `story_abandon_title`, `story_tap_hint`, `story_abandon_confirm_title`, `story_abandon_confirm_body`.
+
+**씬 JSON**: 39개 파일 전체 KO+EN 동수 텍스트 확인 — 렌더러가 이제 EN 언어 설정 시 영어 대사를 표시한다.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- I18N 4개 언어 key parity 1357 ✓
+- `git diff --check` 통과
+
 ## 2026-05-05 — Campaign result/objective-gate i18n (v5.92)
 
 - `showCampaignResult()` 내 '임무 완료'/'임무 실패'/'작전 목표 달성' 등 하드코딩 한국어를 `t()` 호출로 교체.
