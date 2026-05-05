@@ -81,17 +81,17 @@ async function simulateBattle(battleId) {
     
     // 전술 AI 평가
     for (const fleet of state.fleets) {
-      if (!fleet.dead) tacticsAI.evaluate(fleet, state, events);
+      if (fleet.ships.some(s => s.isAlive)) tacticsAI.evaluate(fleet, state, events);
     }
-    
+
     // 함대 이동
     for (const fleet of state.fleets) {
-      if (!fleet.dead) updateFleetPosition(fleet, state);
+      if (fleet.ships.some(s => s.isAlive)) updateFleetPosition(fleet, state);
     }
-    
+
     // 함선 위치 갱신 (진형 적용)
     for (const fleet of state.fleets) {
-      if (!fleet.dead) updateShipPositions(fleet);
+      if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet);
     }
     
     // 전투 처리 (발사 + 데미지)
@@ -102,9 +102,9 @@ async function simulateBattle(battleId) {
       timeline.frames.push(captureFrame(state, tick));
     }
     
-    // 승패 체크
-    const atkAlive = state.fleets.filter(f => f.side === 'atk' && !f.dead).length;
-    const defAlive = state.fleets.filter(f => f.side === 'def' && !f.dead).length;
+    // 승패 체크 — 함선이 1척도 남지 않은 사이드를 패배로 판정
+    const atkAlive = state.fleets.filter(f => f.side === 'atk' && f.ships.some(s => s.isAlive)).length;
+    const defAlive = state.fleets.filter(f => f.side === 'def' && f.ships.some(s => s.isAlive)).length;
     if (atkAlive === 0 || defAlive === 0) {
       winnerSide = atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
       events.push({
@@ -616,7 +616,7 @@ function processCombat(state, events) {
   }
 
   for (const fleet of state.fleets) {
-    if (fleet.dead) continue;
+    if (!fleet.ships.some(s => s.isAlive)) continue;
 
     // EMP 영향: targetSide 의 함선은 발사주기 × mult (더 느려짐)
     const empMult = (state.empActive && state.empActive.targetSide === fleet.side)
@@ -640,7 +640,7 @@ function processCombat(state, events) {
       }
 
       // 공격 대상 찾기 (가장 가까운 적 함대의 랜덤 함선)
-      const enemies = state.fleets.filter(e => e.side !== fleet.side && !e.dead);
+      const enemies = state.fleets.filter(e => e.side !== fleet.side && e.ships.some(s => s.isAlive));
       if (!enemies.length) continue;
 
       // ── Commander Action: focus_fire 대상 강제 ──
@@ -832,21 +832,19 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
       });
     }
     
-    // 기함 격침 → 함대 괴멸
+    // 기함 격침 → 기함만 사망 처리 (나머지 함선은 계속 전투)
+    // 전투는 HP(함선 전멸) 또는 항복으로만 끝남
     if (target.isFlagship) {
-      targetFleet.dead = true;
+      targetFleet.flagshipDead = true; // 상태 표시용 (dead cascade 제거)
       events.push({
         tick: state.tick, type: 'flagship_destroyed',
         fleet_id: targetFleet.id,
-        payload: { 
+        payload: {
           fleet_name: targetFleet.name,
           killer_fleet_id: attackerFleet.id,
         }
       });
-      // 함대 내 모든 함선 죽음 처리 (기함 잃으면 함대 해체)
-      for (const s of targetFleet.ships) {
-        if (s.isAlive) s.isAlive = false;
-      }
+      // 기함이 죽어도 나머지 함선은 계속 싸움 — 전멸할 때까지 전투 지속
     }
   }
 }

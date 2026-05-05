@@ -24753,6 +24753,54 @@ function _fmtDuration(sec) {
   return m + '분';
 }
 
+// GO 버튼 네비게이션 헬퍼 (onclick 직접 호출용 — 이벤트리스너 대신)
+window.opsMissionGo = function(type) {
+  try {
+    // ─ 영토 계열 ─
+    if (['harvest_pp','harvest_3','harvest_5','territory_art','territory_upgrade','territory_upgrade_3','territory_claim'].includes(type)) {
+      switchBaseCat('territory', document.querySelector('.bcat[data-cat=territory]'));
+      switchBaseTab('territory', document.getElementById('baseTabTerritory'));
+    // ─ 전투 계열 ─
+    } else if (['battle_participate','battle_win','battle_participate_3','battle_win_3','battle_forfeit'].includes(type)) {
+      switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
+      switchBaseTab('pvp', document.getElementById('baseTabPvp'));
+    } else if (['ai_battle','ai_battle_3'].includes(type)) {
+      switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
+      switchBaseTab('pvp', document.getElementById('baseTabPvp'));
+      try { setTimeout(function(){ openAiFight(); }, 400); } catch(_) {}
+    // ─ 함선/함대 계열 ─
+    } else if (['upgrade_ship','upgrade_ship_3','upgrade_ship_5','build_ship','repair_ship','repair_ship_3'].includes(type)) {
+      try { openShipyard(); } catch(_) {
+        switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
+      }
+    } else if (type === 'fleet_formation') {
+      try { openFleetCmd(); } catch(_) {
+        switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
+      }
+    // ─ 경제 계열 ─
+    } else if (['craft_resource','craft_resource_3','craft_resource_5','market_list','market_buy','market_activity'].includes(type)) {
+      switchBaseCat('economy', document.querySelector('.bcat[data-cat=economy]'));
+      try { switchBaseTab('market', document.getElementById('baseTabMarket')); } catch(_) {}
+    // ─ 캠페인 계열 ─
+    } else if (['campaign_progress','campaign_complete'].includes(type)) {
+      switchBaseCat('quests', document.querySelector('.bcat[data-cat=quests]'));
+      try { switchBaseTab('quests', document.getElementById('baseTabQuests')); } catch(_) {}
+    // ─ 자동 완료 (로그인 확인 등) ─
+    } else if (type === 'daily_login') {
+      showToast('오늘 로그인 확인! 자동 완료됩니다.', 'success');
+      // 서버 progress 트리거
+      try {
+        var w = walletState.address;
+        if (w) fetch('/api/daily-ops/progress', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({wallet:w, mission_type:'daily_login'})
+        }).then(function(){ loadOpsCommandBoard(); }).catch(function(){});
+      } catch(_) {}
+    }
+  } catch(_) {}
+};
+
 async function loadOpsCommandBoard() {
   var wallet = walletState.address;
   _startOpsBoardCountdown();
@@ -24818,9 +24866,9 @@ async function loadOpsCommandBoard() {
       if (m.reward_claimed) {
         rightBtn = '<span style="font-size:9px;color:var(--gn)">✓ 수령완료</span>';
       } else if (m.completed) {
-        rightBtn = '<button type="button" id="opsMissionClaimBtn' + idx + '" data-mid="' + m.id + '" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.45);color:var(--gn);cursor:pointer;font-family:var(--fn)">+' + m.reward_gp + ' GP 수령</button>';
+        rightBtn = '<button type="button" onclick="claimDailyOps(' + m.id + ')" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.45);color:var(--gn);cursor:pointer;font-family:var(--fn)">+' + m.reward_gp + ' GP 수령</button>';
       } else {
-        rightBtn = '<button type="button" id="opsMissionGoBtn' + idx + '" data-mtype="' + m.type + '" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx2);cursor:pointer;font-family:var(--fn)">GO →</button>';
+        rightBtn = '<button type="button" onclick="opsMissionGo(\'' + m.type + '\')" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx2);cursor:pointer;font-family:var(--fn)">GO →</button>';
       }
 
       html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
@@ -24839,25 +24887,12 @@ async function loadOpsCommandBoard() {
 
     el.innerHTML = html;
 
-    // 버튼 이벤트 등록
+    // 긴급 이벤트 버튼만 이벤트 등록 (GO/CLAIM은 onclick 직접 사용)
     urgentEvents.forEach(function(ev, idx) {
       var btn = document.getElementById('opsUrgentBtn' + idx);
       if (btn) btn.addEventListener('click', function(e) {
         e.preventDefault(); e.stopPropagation();
         try { eval(ev.action); } catch(_) {}
-      });
-    });
-    missions.forEach(function(m, idx) {
-      var claimBtn = document.getElementById('opsMissionClaimBtn' + idx);
-      if (claimBtn) claimBtn.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        claimDailyOps(parseInt(this.dataset.mid));
-      });
-      var goBtn = document.getElementById('opsMissionGoBtn' + idx);
-      if (goBtn) goBtn.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        var nav = missionNav[this.dataset.mtype];
-        if (nav) nav.action();
       });
     });
 
@@ -24867,17 +24902,28 @@ async function loadOpsCommandBoard() {
       weeklyHtml += '<div style="font-size:9px;color:var(--gold);margin-bottom:6px">'
         + (we.icon || '') + ' 오늘의 이벤트: ' + (LANG==='ko' ? we.label_ko : we.label_en) + '</div>';
     }
-    var blocks = '';
+    // 주간 진척도 — 요일 라벨 포함 7칸 표시
+    var dayLabels = ['일','월','화','수','목','금','토'];
+    var todayDow = new Date().getUTCDay();
+    var blocks = '<div style="display:flex;gap:2px;width:100%">';
     for (var i = 0; i < weeklyTotal; i++) {
-      var pct = Math.floor(100 / weeklyTotal) - 1;
-      blocks += '<span style="display:inline-block;width:' + pct + '%;height:7px;border-radius:2px;margin-right:1px;background:' + (i < weeklyDone ? 'var(--cyan)' : 'rgba(255,255,255,.1)') + '"></span>';
+      var dayIdx = (1 + i) % 7; // 월요일부터 시작 (0=Mon...6=Sun)
+      var isToday = dayIdx === todayDow;
+      var isDone = i < weeklyDone;
+      var bg = isDone ? 'var(--cyan)' : 'rgba(255,255,255,.15)';
+      var border = isToday ? '1px solid rgba(255,215,0,.6)' : '1px solid transparent';
+      blocks += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'
+        + '<div style="width:100%;height:8px;border-radius:2px;background:' + bg + ';border:' + border + '"></div>'
+        + '<span style="font-size:8px;color:' + (isDone ? 'var(--cyan)' : isToday ? 'var(--gold)' : 'rgba(255,255,255,.25)') + '">' + dayLabels[dayIdx] + '</span>'
+        + '</div>';
     }
-    weeklyHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">'
-      + '<span style="font-size:9px;color:var(--tx3)">주간 진척도</span>'
-      + '<span style="font-size:9px;color:var(--cyan);font-weight:700">' + weeklyDone + ' / ' + weeklyTotal + '</span>'
+    blocks += '</div>';
+    weeklyHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      + '<span style="font-size:9px;color:var(--tx3)">이번 주 완료일</span>'
+      + '<span style="font-size:9px;color:var(--cyan);font-weight:700">' + weeklyDone + ' / ' + weeklyTotal + '일</span>'
       + '</div>'
-      + '<div style="width:100%">' + blocks + '</div>'
-      + (weeklyReward ? '<div style="font-size:9px;color:var(--gold);margin-top:4px">이번 주 보상: ' + weeklyReward + '</div>' : '');
+      + blocks
+      + (weeklyReward ? '<div style="font-size:9px;color:var(--gold);margin-top:5px">🎁 이번 주 보상: ' + weeklyReward + '</div>' : '');
 
     if (weeklyEl) weeklyEl.innerHTML = weeklyHtml;
 
@@ -48748,6 +48794,17 @@ function showBattleResult() {
   // 비동기로 상세 리포트 + 보상 정보 로드
   if (bv.battle?.id) _loadBattleReport(bv.battle.id, mySide);
   if (bv.battle?.id) _injectRewardIntoResult(bv.battle.id);
+
+  // 내 전투 기록 갱신 (배틀허브 열려 있으면 history 탭도 새로고침)
+  setTimeout(function() {
+    try {
+      if (document.getElementById('battleHubModal')?.classList.contains('active')) {
+        battleHubState.currentTab = 'history';
+        document.querySelectorAll('.bh-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'history'));
+        bhLoad();
+      }
+    } catch(_) {}
+  }, 3000);
 }
 
 // Bug4: 전투 결과 카드에 보상 인라인 표시 (별도 토스트 대체)

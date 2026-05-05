@@ -16,28 +16,59 @@ function getWallet(req) {
   return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
 }
 
-// ── 오늘의 미션 타입 정의 ──────────────────────────────────────
-const DAILY_MISSION_TYPES = [
-  { type: 'harvest_pp',         label_en: 'Harvest your territory (×1)',  label_ko: '영토 채굴 1회',    target: 1, reward_key: 'mission_harvest_gp',       default_gp: 50,  dest_ko: '영토 → 채굴',        dest_en: 'Territory → Harvest' },
-  { type: 'battle_participate', label_en: 'Participate in a battle (×1)', label_ko: '전투 참여 1회',    target: 1, reward_key: 'mission_battle_gp',        default_gp: 100, dest_ko: 'PvP 전투',           dest_en: 'PvP Battle'          },
-  { type: 'upgrade_ship',       label_en: 'Upgrade a ship stat (×1)',     label_ko: '함선 강화 1회',    target: 1, reward_key: 'mission_upgrade_gp',       default_gp: 75,  dest_ko: '조선소',             dest_en: 'Shipyard'            },
-  { type: 'craft_resource',     label_en: 'Craft a resource (×1)',        label_ko: '재료 제작 1회',    target: 1, reward_key: 'mission_craft_gp',         default_gp: 60,  dest_ko: '경제 → 제작',        dest_en: 'Economy → Craft'     },
-  { type: 'territory_art',      label_en: 'Register territory art (×1)',  label_ko: '영토 이미지 등록', target: 1, reward_key: 'mission_territory_art_gp', default_gp: 80,  dest_ko: '영토 → 이미지 등록', dest_en: 'Territory → Art'     },
+// ── 오늘의 미션 타입 정의 (전체 목록 — 30종) ────────────────
+const ALL_MISSION_TYPES = [
+  // ─ 영토 (0~6) ─
+  { type: 'harvest_pp',           label_ko: '영토 채굴 1회',            label_en: 'Harvest territory ×1',         target: 1,  default_gp: 50,  dest_ko: '내 영토 → 채굴',         dest_en: 'Territory → Harvest'   },
+  { type: 'harvest_3',            label_ko: '영토 채굴 3회',             label_en: 'Harvest territory ×3',         target: 3,  default_gp: 120, dest_ko: '내 영토 → 채굴',         dest_en: 'Territory → Harvest'   },
+  { type: 'harvest_5',            label_ko: '영토 채굴 5회',             label_en: 'Harvest territory ×5',         target: 5,  default_gp: 180, dest_ko: '내 영토 → 채굴',         dest_en: 'Territory → Harvest'   },
+  { type: 'territory_art',        label_ko: '영토 이미지 등록',          label_en: 'Register territory art',       target: 1,  default_gp: 80,  dest_ko: '내 영토 → 이미지 등록',  dest_en: 'Territory → Art'       },
+  { type: 'territory_upgrade',    label_ko: '영토 업그레이드 1회',       label_en: 'Upgrade territory ×1',         target: 1,  default_gp: 100, dest_ko: '내 영토 → 업그레이드',   dest_en: 'Territory → Upgrade'   },
+  { type: 'territory_upgrade_3',  label_ko: '영토 업그레이드 3회',       label_en: 'Upgrade territory ×3',         target: 3,  default_gp: 220, dest_ko: '내 영토 → 업그레이드',   dest_en: 'Territory → Upgrade'   },
+  { type: 'territory_claim',      label_ko: '영토 클레임 1회',           label_en: 'Claim territory ×1',           target: 1,  default_gp: 70,  dest_ko: '화성 지도 → 클레임',     dest_en: 'Mars Map → Claim'      },
+  // ─ 전투 (7~13) ─
+  { type: 'battle_participate',   label_ko: '전투 참여 1회',             label_en: 'Participate in battle ×1',     target: 1,  default_gp: 100, dest_ko: 'PvP 전투',               dest_en: 'PvP Battle'            },
+  { type: 'battle_win',           label_ko: '전투 승리 1회',             label_en: 'Win a battle ×1',              target: 1,  default_gp: 150, dest_ko: 'PvP 전투',               dest_en: 'PvP Battle'            },
+  { type: 'battle_participate_3', label_ko: '전투 3회 참여',             label_en: 'Participate in battle ×3',     target: 3,  default_gp: 250, dest_ko: 'PvP 전투',               dest_en: 'PvP Battle'            },
+  { type: 'battle_win_3',         label_ko: '전투 3회 승리',             label_en: 'Win 3 battles',                target: 3,  default_gp: 350, dest_ko: 'PvP 전투',               dest_en: 'PvP Battle'            },
+  { type: 'ai_battle',            label_ko: 'AI 연습전 참여 1회',        label_en: 'AI practice battle ×1',        target: 1,  default_gp: 60,  dest_ko: 'PvP → AI 연습전',        dest_en: 'PvP → AI Practice'     },
+  { type: 'ai_battle_3',          label_ko: 'AI 연습전 3회',             label_en: 'AI practice battle ×3',        target: 3,  default_gp: 150, dest_ko: 'PvP → AI 연습전',        dest_en: 'PvP → AI Practice'     },
+  { type: 'battle_forfeit',       label_ko: '전투 항복 1회 (전술 후퇴)', label_en: 'Tactical retreat ×1',          target: 1,  default_gp: 30,  dest_ko: 'PvP 전투',               dest_en: 'PvP Battle'            },
+  // ─ 함대/함선 (14~20) ─
+  { type: 'upgrade_ship',         label_ko: '함선 강화 1회',             label_en: 'Upgrade a ship ×1',            target: 1,  default_gp: 75,  dest_ko: '조선소',                 dest_en: 'Shipyard'              },
+  { type: 'upgrade_ship_3',       label_ko: '함선 강화 3회',             label_en: 'Upgrade a ship ×3',            target: 3,  default_gp: 180, dest_ko: '조선소',                 dest_en: 'Shipyard'              },
+  { type: 'upgrade_ship_5',       label_ko: '함선 강화 5회',             label_en: 'Upgrade a ship ×5',            target: 5,  default_gp: 280, dest_ko: '조선소',                 dest_en: 'Shipyard'              },
+  { type: 'build_ship',           label_ko: '함선 건조 시작 1회',        label_en: 'Start ship build ×1',          target: 1,  default_gp: 90,  dest_ko: '조선소 → 건조',          dest_en: 'Shipyard → Build'      },
+  { type: 'repair_ship',          label_ko: '함선 수리 1회',             label_en: 'Repair a ship ×1',             target: 1,  default_gp: 50,  dest_ko: '조선소 → 수리',          dest_en: 'Shipyard → Repair'     },
+  { type: 'repair_ship_3',        label_ko: '함선 수리 3회',             label_en: 'Repair a ship ×3',             target: 3,  default_gp: 110, dest_ko: '조선소 → 수리',          dest_en: 'Shipyard → Repair'     },
+  { type: 'fleet_formation',      label_ko: '함대 진형 변경 1회',        label_en: 'Change fleet formation ×1',    target: 1,  default_gp: 40,  dest_ko: '함대 지휘',              dest_en: 'Fleet Command'         },
+  // ─ 경제 (21~26) ─
+  { type: 'craft_resource',       label_ko: '재료 제작 1회',             label_en: 'Craft a resource ×1',          target: 1,  default_gp: 60,  dest_ko: '경제 → 재료 제작',       dest_en: 'Economy → Craft'       },
+  { type: 'craft_resource_3',     label_ko: '재료 제작 3회',             label_en: 'Craft a resource ×3',          target: 3,  default_gp: 150, dest_ko: '경제 → 재료 제작',       dest_en: 'Economy → Craft'       },
+  { type: 'craft_resource_5',     label_ko: '재료 제작 5회',             label_en: 'Craft a resource ×5',          target: 5,  default_gp: 230, dest_ko: '경제 → 재료 제작',       dest_en: 'Economy → Craft'       },
+  { type: 'market_list',          label_ko: '마켓에 함선 등록 1회',      label_en: 'List ship on market ×1',       target: 1,  default_gp: 70,  dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
+  { type: 'market_buy',           label_ko: '마켓 함선 구매 1회',        label_en: 'Buy ship on market ×1',        target: 1,  default_gp: 90,  dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
+  { type: 'market_activity',      label_ko: '마켓 거래 3회',             label_en: 'Market transactions ×3',       target: 3,  default_gp: 200, dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
+  // ─ 캠페인/퀘스트 (27~29) ─
+  { type: 'campaign_progress',    label_ko: '캠페인 챕터 진행 1회',      label_en: 'Progress campaign ×1',         target: 1,  default_gp: 80,  dest_ko: '임무 → 캠페인',          dest_en: 'Mission → Campaign'    },
+  { type: 'campaign_complete',    label_ko: '캠페인 챕터 완료 1회',      label_en: 'Complete a campaign chapter',  target: 1,  default_gp: 200, dest_ko: '임무 → 캠페인',          dest_en: 'Mission → Campaign'    },
+  { type: 'daily_login',          label_ko: '오늘 로그인 확인',          label_en: 'Daily login check-in',         target: 1,  default_gp: 30,  dest_ko: '자동 완료',              dest_en: 'Auto-complete'         },
 ];
 
-// 매일 3가지 미션 — 요일별 고정 조합
+// 요일별 미션 조합 (하루 8~9개)
 function getTodayMissions(date) {
   const dow = date.getUTCDay(); // 0=Sun ... 6=Sat
-  const combos = [
-    [0, 1, 2], // Sun
-    [0, 1, 3], // Mon
-    [0, 1, 4], // Tue
-    [0, 1, 2], // Wed
-    [0, 2, 3], // Thu
-    [1, 2, 4], // Fri
-    [0, 3, 4], // Sat
-  ];
-  return combos[dow].map(i => DAILY_MISSION_TYPES[i]);
+  // 각 요일: 영토2 + 전투2 + 함선2 + 경제2 + 공통1(로그인)
+  const combos = {
+    0: [0, 3, 7, 10, 14, 21, 23, 27, 29],   // Sun:  채굴, 이미지, 참여, AI전, 강화, 제작, 마켓, 캠페인, 로그인
+    1: [0, 4, 8, 11, 15, 21, 24, 27, 29],   // Mon:  채굴, 업그레이드, 승리, AI3, 강화3, 제작, 구매, 캠페인, 로그인
+    2: [1, 3, 7, 12, 14, 22, 23, 28, 29],   // Tue:  채굴3, 이미지, 참여, AI3, 강화, 제작3, 마켓, 완료, 로그인
+    3: [0, 5, 9, 10, 16, 21, 25, 27, 29],   // Wed:  채굴, 업3, 참여3, AI, 강화5, 제작, 마켓거래, 캠페인, 로그인
+    4: [0, 6, 8, 11, 14, 22, 23, 27, 29],   // Thu:  채굴, 클레임, 승리, AI3, 강화, 제작3, 마켓, 캠페인, 로그인
+    5: [2, 3, 7, 10, 17, 21, 24, 28, 29],   // Fri:  채굴5, 이미지, 참여, AI, 건조, 제작, 구매, 완료, 로그인
+    6: [1, 4, 9, 12, 15, 22, 25, 27, 29],   // Sat:  채굴3, 업그레이드, 승리3, AI3, 강화3, 제작3, 거래3, 캠페인, 로그인
+  };
+  return (combos[dow] || combos[0]).map(i => ALL_MISSION_TYPES[i]);
 }
 
 // ── 미션 초기화 (없으면 생성) ────────────────────────────────
@@ -141,17 +172,27 @@ router.get('/:wallet', async (req, res) => {
       }));
     } catch (_) {}
 
-    // 예상 PP: 유저 영토 총 픽셀 × pp_harvest_rate_per_pixel
+    // 예상 PP: 실제 mining_base_rate + 섹터 보너스 기반 계산
     let expectedPP = 0;
     try {
-      const ppRate = parseFloat(await getSetting('pp_harvest_rate_per_pixel', '0.1')) || 0.1;
-      const { rows: pxRows } = await pool.query(
-        `SELECT COALESCE(SUM(width * height), 0)::int AS total_pixels
-         FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`,
+      const baseRate  = parseFloat(await getSetting('mining_base_rate', '0.001')) || 0.001;
+      const bonusCore = parseFloat(await getSetting('mining_bonus_core', '1.5'))  || 1.5;
+      const bonusMid  = parseFloat(await getSetting('mining_bonus_mid',  '1.2'))  || 1.2;
+      const bonusFrt  = parseFloat(await getSetting('mining_bonus_frontier', '1.0')) || 1.0;
+      const { rows: claimRows } = await pool.query(
+        `SELECT (c.width * c.height) AS pixels,
+                COALESCE(s.sector_type, 'frontier') AS sector_type
+         FROM claims c
+         LEFT JOIN sectors s ON LOWER(s.code) = LOWER(c.sector_code)
+         WHERE LOWER(c.owner) = $1 AND (c.deleted_at IS NULL OR c.deleted_at > NOW())`,
         [wallet]
       );
-      const totalPixels = pxRows[0]?.total_pixels || 0;
-      expectedPP = Math.round(totalPixels * ppRate);
+      expectedPP = claimRows.reduce((sum, row) => {
+        const bonus = row.sector_type === 'core' ? bonusCore :
+                      row.sector_type === 'mid'  ? bonusMid  : bonusFrt;
+        return sum + (row.pixels * baseRate * bonus);
+      }, 0);
+      expectedPP = Math.round(expectedPP * 10) / 10; // 소수점 1자리
     } catch (_) {}
 
     res.json({
