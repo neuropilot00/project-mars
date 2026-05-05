@@ -101,15 +101,19 @@ router.get('/:wallet', async (req, res) => {
     // 미션이 없으면 생성
     await ensureDailyMissions(wallet);
 
+    // 오늘의 4개 미션 타입만 표시 (과거에 삽입된 9개 레거시 행 제외)
+    const missionDefs = getTodayMissions(new Date());
+    const validTypes = missionDefs.map(m => m.type);
+
     const { rows } = await pool.query(
       `SELECT id, ops_date, mission_type, target_count, current_count,
               reward_gp, completed, completed_at, reward_claimed, claimed_at
        FROM daily_ops WHERE wallet_address = $1 AND ops_date = $2
+         AND mission_type = ANY($3)
        ORDER BY mission_type`,
-      [wallet, today]
+      [wallet, today, validTypes]
     );
 
-    const missionDefs = getTodayMissions(new Date());
     const missions = rows.map(r => {
       const def = missionDefs.find(m => m.type === r.mission_type) || {};
       return {
