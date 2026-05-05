@@ -40,6 +40,8 @@
 - territory production count 연결됨: MCC CH1에서 영토 PP 채굴 1회를 `transactions.type = 'mining'` 기반 objective로 요구한다. (v5.79)
 - ship upgrade count 연결됨: MCC CH3에서 함선 스탯 강화 1회를 실제 DB 로그 기반 objective로 요구한다. (v5.78)
 - 완료 조건은 클라이언트가 아니라 서버가 판정한다. (v5.75부터 적용 시작)
+- MCC CH4~CH10, FSP CH2~CH10, CV CH2~CH10 — 25개 챕터 objective preset이 추가됐다. 각 챕터는 1~2개의 실-DB stat objective를 가지며 hard gate를 통과해야 완료된다. (v5.87)
+- 추상 보상 타입(`ship_blueprint`, `ship_choice`, `asset`, `resource_stream`, `contract`, `data_artifact`)은 캠페인 진행을 막지 않고 한국어 안내 메시지를 반환한다. 장기 시스템화 전까지 안전 수령 처리. (v5.87)
 
 ### 2.3 Campaign Scope Control
 
@@ -89,6 +91,7 @@
 - 강화된 함선 판매가 핵심 재미다.
 - 판매중 함선은 강화/해체/전투 편입 제한이 명확해야 한다.
 - 판매중 함선은 Fleet API 이동/기함 지정 경로에서도 차단한다. UI 스티커만으로 끝내지 않는다. (v5.82)
+- SHIP MARKET 탭에 파벌(MCC/FSP/CV)/크기(FRG~TTN) 필터 칩과 가격/강화도/등록순 정렬 드롭다운을 추가했다. 클라이언트 side 즉시 필터. (v5.89)
 
 ### 4.3 Fleet Command Asset UX
 
