@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v6.09 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.10 / 2026-05-05)
+
+## ✅ v6.10 전투 기함 cascade 제거 / OPS 30종 확장 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 기함 격침 cascade 제거 | ✅ | 기함 파괴 → 나머지 함선 전투 지속. 전체 함선 HP=0 또는 forfeit만 종료 |
+| 전투 종료 조건 | ✅ | fleet.dead → f.ships.some(s=>s.isAlive) 기반 변경 |
+| AI 연습전 조기 종료 | ✅ | 위 cascade 제거로 자연 해소 |
+| Daily OPS 미션 30종 | ✅ | 영토7+전투7+함선7+경제6+캠페인/로그인3, 하루 9개 표시 |
+| OPS GO 버튼 30종 분기 | ✅ | opsMissionGo() 모든 타입 처리 |
+| 주간 진척도 요일 라벨 | ✅ | 월~일 라벨 + 오늘 강조 + 완료일 밝은 표시 |
+| 전투 기록 자동 갱신 | ✅ | 전투 결과 카드 후 내 기록 탭 자동 refresh |
+
+---
 
 ## ✅ v6.09 기획서 스펙 UI 정합 — 완료
 

@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 전투 기함 cascade 제거 / Daily OPS 30종 확장
+
+### `server/services/battleEngine.js` — 전투 종료 조건 수정
+- 기함 격침 시 전체 함대 즉시 괴멸(`fleet.dead = true`) cascade 제거
+- 전투는 사이드의 **모든 함선 HP=0** 또는 항복(`forfeit`)으로만 종료
+- `fleet.dead` 체크 → `f.ships.some(s => s.isAlive)` 기반으로 전환
+- 기함 파괴 이벤트(`flagship_destroyed`) 로깅은 유지, 나머지 함선 전투 지속
+
+### `server/routes/dailyOps.js` — 미션 30종으로 확장
+- 13종 → 30종 (영토7 + 전투7 + 함선7 + 경제6 + 캠페인/로그인3)
+- 하루 표시 미션: 5개 → 9개
+- 요일별 다양한 조합 순환
+
+### `index.html` — OPS Board + 전투 기록
+- `opsMissionGo()`: 30종 미션 타입 GO 분기 전부 처리
+- 주간 진척도 UI: 요일 라벨(월~일) + 오늘 강조 + 완료일 밝은 표시
+- 전투 결과 카드 표시 후 `내 기록(history)` 탭 자동 갱신
+
+---
+
 ## 2026-05-05 — 기획서 스펙 UI 정합 (전투 결과 리포트 + Territory FR)
 
 ### `index.html` — 전투 결과 리포트 UI
