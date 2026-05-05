@@ -1659,10 +1659,10 @@ function drawFleets(){
 
     const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     const labelDir=f.side==='atk'?1:-1;
-    // 텍스트 크기: 화면상 항상 일정 크기 (zoom 나눠서 world 단위로)
-    const sz=Math.max(3,8/camScale);
-    const szSm=Math.max(2,6/camScale);
-    const labelBase=f.cy+labelDir*(f.radius+sz*2);
+    // 텍스트/UI 요소: zoom 무관하게 화면상 고정 크기 (항상 sz*camScale = 9 screen px)
+    const sz=9/camScale;
+    const szSm=7/camScale;
+    const labelBase=f.cy+labelDir*(f.radius+sz*2.2);
     CX.globalAlpha=.85;
     CX.textAlign='center';
     CX.font=`bold ${sz}px Orbitron,monospace`;
@@ -1676,12 +1676,12 @@ function drawFleets(){
 
     const alive=f.ships.filter(s=>!s.dead).length;
     const hpR=f.hp/f.maxHp;
-    const bw=50/camScale;
-    const hpY=f.cy+labelDir*(f.radius+sz*.4);
+    const bw=50/camScale;   // 함대 HP바도 고정 너비
+    const hpY=f.cy+labelDir*(f.radius+sz*.5);
     CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,hpY,bw,2/camScale);
     CX.fillStyle=hpR>.5?'#4caf50':hpR>.2?'#ff9800':'#f44336';
     CX.fillRect(f.cx-bw/2,hpY,bw*hpR,2/camScale);
-    CX.font=`${Math.max(2,5/camScale)}px Share Tech Mono`;
+    CX.font=`${6/camScale}px Share Tech Mono`;
     CX.fillStyle='rgba(255,255,255,.28)';
     CX.fillText(`${alive}척`,f.cx,labelBase-sz*labelDir);
     CX.globalAlpha=1;CX.textAlign='left';
@@ -1740,9 +1740,9 @@ function drawShips2(){
       CX.fillStyle='rgba(0,0,0,.55)';CX.fillRect(sh.x-barW/2,barY,barW,barH);
       CX.fillStyle=hr>.5?'#4caf50':hr>.2?'#ff9800':'#f44336';
       CX.fillRect(sh.x-barW/2,barY,barW*hr,barH);
-      // 기함 HP% 경고 (HP 낮을 때만 표시, 아이콘 제거)
+      // 기함 HP% 경고 (HP 낮을 때만, 화면상 고정 크기)
       if(sh.isFlagship && hr < 0.5){
-        CX.globalAlpha=.85;CX.font=`bold ${Math.max(2,6/camScale)}px Orbitron,monospace`;CX.textAlign='center';
+        CX.globalAlpha=.85;CX.font=`bold ${7/camScale}px Orbitron,monospace`;CX.textAlign='center';
         CX.fillStyle=hr<.2?'#f44336':'#ff9800';
         CX.fillText(Math.ceil(hr*100)+'%',sh.x,barY-2/camScale);
         CX.globalAlpha=1;
