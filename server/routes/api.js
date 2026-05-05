@@ -3114,6 +3114,187 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════════════
+//  POST /api/territory/:claimId/harvest — 영토별 개별 수확
+//  각 claim 에 독립 cooldown (claims.last_harvest_at)
+// ══════════════════════════════════════════════════════════
+router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
+  const claimId = parseInt(req.params.claimId);
+  const w = (req.body.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+  if (!w || w.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  if (!claimId || isNaN(claimId)) return res.status(400).json({ error: 'invalid_claim_id' });
+
+  const client = await pool.connect();
+  try {
+    const s = await cfg();
+    if (s.mining_enabled === false) return res.status(403).json({ error: 'Mining is disabled' });
+
+    await client.query('BEGIN');
+
+    // 소유권 확인 + last_harvest_at 가져오기
+    const claimRes = await client.query(
+      `SELECT c.id, c.owner, c.sector_id, c.last_harvest_at,
+              sec.tier AS sector_tier,
+              (SELECT COUNT(*) FROM pixels p WHERE p.claim_id = c.id) AS pixel_cnt
+       FROM claims c
+       LEFT JOIN sectors sec ON sec.id = c.sector_id
+       WHERE c.id = $1 AND c.deleted_at IS NULL`,
+      [claimId]
+    );
+    if (!claimRes.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'claim_not_found' });
+    }
+    const claim = claimRes.rows[0];
+    if ((claim.owner || '').toLowerCase() !== w) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'not_your_territory' });
+    }
+
+    const totalPixels = parseInt(claim.pixel_cnt) || 0;
+    if (totalPixels === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'no_pixels' });
+    }
+
+    // 섹터 tier 기반 쿨다운
+    const tierCounts = { core: 0, mid: 0, frontier: 0 };
+    const tier = (claim.sector_tier || 'frontier').toLowerCase();
+    tierCounts[tier] = totalPixels;
+
+    const intervalCore = parseInt(s.mining_interval_core) || 24;
+    const intervalMid  = parseInt(s.mining_interval_mid)  || 48;
+    const intervalFrontier = parseInt(s.mining_interval_frontier) || 72;
+    let intervalHours = tier === 'core' ? intervalCore : tier === 'mid' ? intervalMid : intervalFrontier;
+    try { if (jobService) { const cd = await jobService.getJobBuff(w, 'miner_harvest_cooldown', 1.0); intervalHours = Math.max(1, intervalHours * cd); } } catch (_) {}
+
+    // 쿨다운 체크
+    const now = new Date();
+    if (claim.last_harvest_at) {
+      const elapsed = (now - new Date(claim.last_harvest_at)) / 3600000;
+      if (elapsed < intervalHours) {
+        await client.query('ROLLBACK');
+        const nextAt = new Date(new Date(claim.last_harvest_at).getTime() + intervalHours * 3600000);
+        return res.status(429).json({ error: 'harvest_on_cooldown', nextHarvestAt: nextAt, intervalHours });
+      }
+    }
+
+    // PP 계산 (기존 harvest 동일 공식)
+    const rewardMin = parseFloat(s.mining_reward_min) || 0.01;
+    const rewardMax = parseFloat(s.mining_reward_max) || 0.5;
+    const harvestCap = parseFloat(s.mining_reward_cap_per_harvest) || 1.0;
+
+    const pixelFactor = Math.min(Math.sqrt(totalPixels) / 10, 3.0);
+    const baseRandom = rewardMin + Math.random() * (rewardMax - rewardMin);
+    let harvestedPP = Math.round(baseRandom * pixelFactor * 10000) / 10000;
+    if (harvestCap > 0) harvestedPP = Math.min(harvestedPP, harvestCap);
+
+    // Governor bonus
+    try {
+      const govRes = await client.query('SELECT COUNT(*) AS cnt FROM sectors WHERE governor_wallet = $1', [w]);
+      if (parseInt(govRes.rows[0].cnt) > 0) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
+    } catch (_) {}
+
+    // Sector mining buff
+    try {
+      if (claim.sector_id) {
+        const buffs = await getActiveSectorBuffs(claim.sector_id);
+        if (buffs.some(b => b.buff_type === 'mining_boost')) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
+      }
+      const isDoubleMining = await hasActiveEvent('double_mining');
+      if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
+    } catch (_) {}
+
+    // Weather
+    try {
+      if (weatherService && claim.sector_id) {
+        const wMods = await weatherService.getWeatherModifiers(claim.sector_id);
+        if (wMods.miningMod > 0) harvestedPP = Math.round(harvestedPP * (1 + wMods.miningMod / 100) * 10000) / 10000;
+      }
+    } catch (_) {}
+
+    // VIP / Prestige / Territory tier / Extractor upgrade
+    try { const v = require('../services/vip'); const vb = await v.getMiningBoost(w); if (vb > 1) harvestedPP = Math.round(harvestedPP * vb * 10000) / 10000; } catch (_) {}
+    try { const p = require('../services/prestige'); const pb = await p.getMiningBonus(w); if (pb > 1) harvestedPP = Math.round(harvestedPP * pb * 10000) / 10000; } catch (_) {}
+    try {
+      const t = require('../services/tiers'); const tc = await t.getCfg();
+      if (tc && tc.enabled) {
+        const tRes = await client.query(`SELECT MAX(tt.tier) AS max_tier FROM territory_tiers tt JOIN claims c2 ON c2.id = tt.claim_id WHERE LOWER(tt.wallet) = $1 AND c2.deleted_at IS NULL`, [w]);
+        const maxTier = parseInt(tRes.rows[0]?.max_tier || 0);
+        if (maxTier > 0) { const td = (tc.tiers||[])[maxTier-1]; const bp = parseFloat(td?.miningBonusPct||0); if (bp>0) harvestedPP = Math.round(harvestedPP*(1+bp/100)*10000)/10000; }
+      }
+    } catch (_) {}
+    try {
+      const extRes = await client.query(`SELECT MAX(u.level) AS max_level FROM territory_upgrades u WHERE u.claim_id = $1 AND u.upgrade_type = 'extractor' AND u.is_active = true`, [claimId]);
+      const lvl = parseInt(extRes.rows[0]?.max_level || 0);
+      if (lvl > 0) { const bmap = {1:0.15,2:0.30,3:0.50,4:0.75,5:1.00}; const b = bmap[lvl]||0; if (b>0) harvestedPP = Math.round(harvestedPP*(1+b)*10000)/10000; }
+    } catch (_) {}
+
+    // Reward pool 차감
+    const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
+    const poolBalance = parseFloat(poolRes.rows[0].balance);
+    if (poolBalance <= 0) { await client.query('ROLLBACK'); return res.status(429).json({ error: 'pool_depleted' }); }
+    harvestedPP = Math.min(harvestedPP, poolBalance);
+    harvestedPP = Math.round(harvestedPP * 10000) / 10000;
+    if (harvestedPP <= 0) { await client.query('ROLLBACK'); return res.status(429).json({ error: 'no_rewards' }); }
+
+    await client.query('UPDATE quest_reward_pool SET balance=balance-$1, total_paid=total_paid+$1, today_paid=today_paid+$1, updated_at=NOW() WHERE id=1', [harvestedPP]);
+
+    // claims.last_harvest_at 갱신
+    await client.query('UPDATE claims SET last_harvest_at = NOW() WHERE id = $1', [claimId]);
+
+    // user_mining stats 갱신 (기존 채굴 통계와 호환)
+    const todayDate = now.toISOString().slice(0, 10);
+    await client.query(`
+      INSERT INTO user_mining (wallet_address, last_harvest_at, total_mined_pp, today_mined_pp, today_date)
+      VALUES ($1, NOW(), $2, $2, $3)
+      ON CONFLICT (wallet_address) DO UPDATE SET
+        total_mined_pp = user_mining.total_mined_pp + $2,
+        today_mined_pp = CASE WHEN user_mining.today_date = $3 THEN user_mining.today_mined_pp + $2 ELSE $2 END,
+        today_date = $3
+    `, [w, harvestedPP, todayDate]);
+
+    // PP 지급
+    await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [harvestedPP, w]);
+
+    // 자원 드롭
+    let resourceDrops = [];
+    try {
+      if (resourceService) {
+        const drops = await resourceService.rollResourceDrop(w, tier);
+        const merged = {};
+        for (const d of drops) merged[d.code] = (merged[d.code] || 0) + d.quantity;
+        resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
+        if (resourceDrops.length > 0) await resourceService.addResourcesToInventory(client, w, resourceDrops);
+      }
+    } catch (_) {}
+
+    // 트랜잭션 로그
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('mining', $1, $2, 0, $3)`,
+      [w, harvestedPP, JSON.stringify({ claimId, totalPixels, tier, pixelFactor: Math.round(pixelFactor*100)/100, resourceDrops })]
+    );
+
+    await awardXP(client, w, 5).catch(() => {});
+    try { await creditReferralCommission(client, w, 'harvest', harvestedPP, 'pp'); } catch (_) {}
+
+    await client.query('COMMIT');
+
+    const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
+    res.json({ success: true, harvestedPP, totalPixels, tier, intervalHours, nextHarvestAt, resources: resourceDrops });
+
+    // Non-blocking hooks
+    try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
+    try { if (seasonService) { seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {}); if (harvestedPP > 0) seasonService.addSeasonScore(w, 'pp_earn', 1).catch(() => {}); } } catch (_) {}
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[API] territory harvest error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  } finally {
+    client.release();
+  }
+});
+
 // ══════════════════════════════════════
 //  QUEST SYSTEM — Random Generation
 // ══════════════════════════════════════

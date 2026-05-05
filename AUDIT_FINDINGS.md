@@ -1,4 +1,25 @@
-# OCCUPY MARS — Codebase Audit (v6.05 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.06 / 2026-05-05)
+
+## ✅ v6.06 영토별 개별 수확 + 채굴 탭 제거 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| Migration 214 — `claims.last_harvest_at` | ✅ | 적용 완료 |
+| `POST /api/territory/:claimId/harvest` | ✅ | server/routes/api.js 추가 |
+| 소유권 검증 + 쿨다운 체크 | ✅ | `claims.last_harvest_at` 기준 |
+| 보너스 적용 (거버너/버프/날씨/VIP/티어/업그레이드) | ✅ | 기존 harvest와 동일 체계 |
+| 자원 드롭 포함 | ✅ | sector tier 기반 roll |
+| `user_mining` stats 호환 누적 | ✅ | total/today_mined_pp 갱신 |
+| 프론트 `_baseTerritoryHarvest` 신규 API 연결 | ✅ | 쿨다운 시 남은 시간 표시 |
+| `baseTabMining` 탭 버튼 제거 | ✅ | |
+| `basePane_mining` 채굴 전용 콘텐츠 제거 | ✅ | 배너/수확버튼/채굴률/드롭테이블 |
+| GP Activity / SEND GP / LOTTERY / STAKING → 영토 탭 이동 | ✅ | 내 영토 탭 하단 |
+| 채굴 통계 요소 숨김 유지 (JS 호환) | ✅ | `display:none` |
+| 가이드 채굴 섹션 업데이트 | ✅ | 한/영 광물 드롭 테이블 + 수확 방법 안내 |
+
+---
+
+## ✅ v6.05 영토 목록 아코디언 + 패널 UX 개선 — 완료
 
 ## ✅ v6.05 영토 목록 아코디언 + 패널 UX 개선 — 완료
 

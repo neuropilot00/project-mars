@@ -6256,7 +6256,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="base-tabs" id="baseTabsRow">
       <!-- 영토 -->
       <div class="base-tab cat-show active" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span>내 영토</span><span class="tab-dot" id="territoryDot"></span></div>
-      <div class="base-tab" data-cat="territory" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')"><span>채굴</span><span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span>섹터</span><span class="tab-dot" id="sectorsDot"></span></div>
       <!-- 함대 -->
       <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this)" style="color:#5cbbff"><span>⚓ 함대</span></div>
@@ -6455,7 +6454,78 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <textarea id="tdescTextInput" maxlength="200" rows="3" oninput="document.getElementById('tdescCharCount').textContent=this.value.length+'/200'"></textarea>
           <div id="tdescCharCount">0/200</div><div id="tdescCostHint"></div><div id="myTdescList"></div>
         </div>
-      </div>
+
+        <!-- ── GP 활동 / 송금 / 복권 / 스테이킹 (채굴탭 제거 후 영토탭 하단 이동) ── -->
+        <!-- GP Activity Log (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
+             onclick="toggleGpActivityLog()">
+          <span data-i18n="gp_activity_title">GP ACTIVITY</span>
+          <span id="gpActivityToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="gpActivityPanel" style="display:none">
+          <div id="gpActivityList" style="font-size:10px;color:var(--tx2);line-height:1.8">
+            <div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
+
+        <!-- SEND GP (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
+             onclick="toggleSendGP()">
+          <span data-i18n="gp_send_title">💸 SEND GP</span>
+          <span id="sendGPToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="sendGPPanel" style="display:none;padding:8px 0">
+          <div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.1);border-radius:8px;padding:10px;margin-bottom:8px">
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:6px" data-i18n="gp_send_subtitle">Send GP to another player</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <input id="sendGPRecipient" type="text" placeholder="Wallet address or nickname"
+                style="font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.25);color:#fff;border-radius:4px;font-family:var(--fn);width:100%;box-sizing:border-box">
+              <div style="display:flex;gap:6px">
+                <input id="sendGPAmount" type="number" min="1" placeholder="Amount"
+                  style="flex:1;font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.25);color:#fff;border-radius:4px;font-family:var(--fn)">
+                <span style="font-size:10px;color:#5cbbff;padding:6px 4px;white-space:nowrap">GP</span>
+              </div>
+              <input id="sendGPNote" type="text" placeholder="Note (optional)"
+                style="font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.15);color:#fff;border-radius:4px;font-family:var(--fn);width:100%;box-sizing:border-box">
+              <button onclick="sendGP()" style="font-size:10px;font-weight:700;padding:7px 0;border-radius:4px;border:1px solid rgba(92,187,255,.45);background:rgba(92,187,252,.12);color:#5cbbff;cursor:pointer;font-family:var(--fn);letter-spacing:.5px" data-i18n="gp_send_btn">💸 SEND</button>
+            </div>
+          </div>
+          <div id="gpTransferList" style="font-size:9px;color:var(--tx2)">
+            <div style="text-align:center;color:var(--tx3);padding:8px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
+
+        <!-- LOTTERY -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center" onclick="toggleLottery()">
+          <span>🎰 <span data-i18n="lottery_title">GP LOTTERY</span></span>
+          <span id="lotteryToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="lotteryPanel" style="display:none;padding:0 0 8px">
+          <div id="lotteryContent" style="padding:8px 0"><div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div></div>
+        </div>
+
+        <!-- STAKING -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center" onclick="toggleStaking()">
+          <span>💎 <span data-i18n="staking_title">GP STAKING</span></span>
+          <span id="stakingToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="stakingPanel" style="display:none;padding:0 0 8px">
+          <div id="stakingContent" style="padding:8px 0"><div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div></div>
+        </div>
+
+        <!-- GP BURN deprecated/hidden -->
+        <div id="burnPanel" style="display:none"><div id="burnContent"></div></div>
+
+        <!-- 채굴 통계 숨김 유지 (JS 참조용) -->
+        <div style="display:none">
+          <span id="baseMineAvail"></span><span id="baseMineTotalMined"></span>
+          <div id="baseMineRates"></div><div id="baseMineralDrops"></div>
+          <div id="baseMineTimer"></div>
+          <button id="baseHarvestBtn" style="display:none"></button>
+          <button id="baseInstantHarvestBtn" style="display:none"></button>
+        </div>
+
+      </div><!-- /basePane_territory -->
 
       <!-- TAB: FLEET COMMAND (⚓ 함대 카테고리 전용 허브) -->
       <div class="base-pane" id="basePane_fleet">
@@ -6644,125 +6714,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="bsGovLeaderboardList" style="font-size:9px;color:var(--tx3)" data-i18n="loading_dots">Loading...</div>
         </div>
 
-      </div>
-
-      <!-- TAB: MINING -->
-      <div class="base-pane" id="basePane_mining">
-        <div class="base-banner" id="bannerMining"><img src="/assets/base/mining.png" alt=""></div>
-
-        <!-- Harvest yields preview: PP + Minerals -->
-        <div style="background:rgba(76,216,154,.05);border:1px solid rgba(76,216,154,.18);border-radius:8px;padding:10px 12px;margin-bottom:8px">
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:6px">⛏ 채굴 시 획득</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <div style="flex:1;min-width:80px;text-align:center;padding:6px 4px;background:rgba(76,216,154,.07);border-radius:6px;border:1px solid rgba(76,216,154,.15)">
-              <div style="font-size:16px;margin-bottom:2px">🪙</div>
-              <div style="font-size:11px;font-weight:700;color:var(--gn)" id="baseMineAvail">0.00</div>
-              <div style="font-size:8px;color:var(--tx3);margin-top:1px">PP</div>
-            </div>
-            <div style="flex:1;min-width:80px;text-align:center;padding:6px 4px;background:rgba(255,180,60,.07);border-radius:6px;border:1px solid rgba(255,180,60,.15)">
-              <div style="font-size:16px;margin-bottom:2px">🪨</div>
-              <div style="font-size:11px;font-weight:700;color:var(--gold)">확률 드롭</div>
-              <div style="font-size:8px;color:var(--tx3);margin-top:1px">광물</div>
-            </div>
-            <div style="flex:1;min-width:80px;text-align:center;padding:6px 4px;background:rgba(92,187,255,.07);border-radius:6px;border:1px solid rgba(92,187,255,.15)">
-              <div style="font-size:11px;font-weight:700;color:var(--cyan)" id="baseMineTotalMined">0.00</div>
-              <div style="font-size:8px;color:var(--tx3);margin-top:2px">총 채굴 PP</div>
-            </div>
-          </div>
-        </div>
-
-        <button class="action-btn" id="baseHarvestBtn" onclick="harvestMining()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(76,216,154,.14),rgba(76,216,154,.04));border-color:rgba(76,216,154,.4);color:var(--gn);font-size:13px;padding:12px">
-          ⛏ <span data-i18n="mine_btn">채굴하기</span>
-        </button>
-        <button class="action-btn" id="baseInstantHarvestBtn" onclick="instantHarvest()" style="display:none;margin-top:6px;font-size:10px;padding:8px 12px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold)">
-          ⚡ <span data-i18n="harvest_now">즉시 채굴 (0.5 PP)</span>
-        </button>
-        <div style="font-size:9px;color:var(--tx3);text-align:center;margin-top:8px" id="baseMineTimer"></div>
-
-        <div class="base-section-title" data-i18n="mining_rates">채굴 수익률</div>
-        <div style="font-size:10px;color:var(--tx2);line-height:2.2" id="baseMineRates">
-          <div class="stat-row"><span class="stat-label">Base Rate</span><span class="stat-val" style="font-size:10px">-- PP/pixel/4h</span></div>
-          <div class="stat-row"><span class="stat-label">Core Bonus</span><span class="stat-val" style="font-size:10px;color:var(--red)">×--</span></div>
-          <div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gold)">×--</span></div>
-          <div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gn)">×--</span></div>
-        </div>
-
-        <!-- Mineral Drops Info -->
-        <div class="base-section-title" style="margin-top:10px">🪨 광물 드롭 테이블</div>
-        <div style="font-size:8px;color:var(--tx3);margin-bottom:6px;line-height:1.6">채굴 시 PP와 함께 구역에 따라 광물이 확률적으로 획득됩니다. 광물은 함선 건조 재료 및 마켓 거래에 사용됩니다.</div>
-        <div id="baseMineralDrops" style="font-size:10px;color:var(--tx2);line-height:1.9">
-          <div style="color:var(--tx3);font-size:9px;padding:4px 0">영토를 클레임하면 드롭 테이블이 표시됩니다.</div>
-        </div>
-
-        <!-- GP Activity Log (collapsible) -->
-        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
-             onclick="toggleGpActivityLog()">
-          <span data-i18n="gp_activity_title">GP ACTIVITY</span>
-          <span id="gpActivityToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="gpActivityPanel" style="display:none">
-          <div id="gpActivityList" style="font-size:10px;color:var(--tx2);line-height:1.8">
-            <div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
-        </div>
-
-        <!-- SEND GP (collapsible) -->
-        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
-             onclick="toggleSendGP()">
-          <span data-i18n="gp_send_title">💸 SEND GP</span>
-          <span id="sendGPToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="sendGPPanel" style="display:none;padding:8px 0">
-          <!-- Send form -->
-          <div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.1);border-radius:8px;padding:10px;margin-bottom:8px">
-            <div style="font-size:9px;color:var(--tx3);margin-bottom:6px" data-i18n="gp_send_subtitle">Send GP to another player</div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <input id="sendGPRecipient" type="text" placeholder="Wallet address or nickname"
-                style="font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.25);color:#fff;border-radius:4px;font-family:var(--fn);width:100%;box-sizing:border-box">
-              <div style="display:flex;gap:6px">
-                <input id="sendGPAmount" type="number" min="1" placeholder="Amount"
-                  style="flex:1;font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.25);color:#fff;border-radius:4px;font-family:var(--fn)">
-                <span style="font-size:10px;color:#5cbbff;padding:6px 4px;white-space:nowrap">GP</span>
-              </div>
-              <input id="sendGPNote" type="text" placeholder="Note (optional)"
-                style="font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.15);color:#fff;border-radius:4px;font-family:var(--fn);width:100%;box-sizing:border-box">
-              <button onclick="sendGP()" style="font-size:10px;font-weight:700;padding:7px 0;border-radius:4px;border:1px solid rgba(92,187,255,.45);background:rgba(92,187,255,.12);color:#5cbbff;cursor:pointer;font-family:var(--fn);letter-spacing:.5px" data-i18n="gp_send_btn">💸 SEND</button>
-            </div>
-          </div>
-          <!-- Transfer history -->
-          <div id="gpTransferList" style="font-size:9px;color:var(--tx2)">
-            <div style="text-align:center;color:var(--tx3);padding:8px" data-i18n="loading_dots">Loading...</div>
-          </div>
-        </div>
-
-        <!-- LOTTERY Section (collapsible) -->
-        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
-             onclick="toggleLottery()">
-          <span>🎰 <span data-i18n="lottery_title">GP LOTTERY</span></span>
-          <span id="lotteryToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="lotteryPanel" style="display:none;padding:0 0 8px">
-          <div id="lotteryContent" style="padding:8px 0">
-            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
-        </div>
-
-        <!-- STAKING Section (collapsible) -->
-        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
-             onclick="toggleStaking()">
-          <span>💎 <span data-i18n="staking_title">GP STAKING</span></span>
-          <span id="stakingToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="stakingPanel" style="display:none;padding:0 0 8px">
-          <div id="stakingContent" style="padding:8px 0">
-            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
-        </div>
-
-        <!-- GP BURN Section — DEPRECATED (gpBurn service removed). Hidden to avoid /api/burn 404. -->
-        <div id="burnPanel" style="display:none">
-          <div id="burnContent"></div>
-        </div>
       </div>
 
       <!-- TAB: QUESTS -->
@@ -11716,9 +11667,61 @@ function _bterrLoadProd(idx,g){
 }
 
 // 내 영토 목록에서 빠른 액션
-function _baseTerritoryHarvest(idx){
-  // harvestMining()은 전체 영토 수확 (wallet 기반)
-  harvestMining();
+async function _baseTerritoryHarvest(idx){
+  var grpList=window._baseTerritoryGroups||[];
+  var g=grpList[idx];
+  if(!g||!g.claims||!g.claims.length) return;
+  var claim=g.claims[0];
+  var wallet=(walletState&&walletState.address)||'';
+  if(!wallet){showToast('로그인이 필요합니다','warn');return;}
+  var btn=document.querySelector('#bterrBody'+idx+' button');
+  // 버튼 비활성화
+  var btns=document.querySelectorAll('#bterrBody'+idx+' button');
+  btns.forEach(function(b){b.disabled=true;});
+  try{_sfx&&_sfx.click&&_sfx.click();}catch(_){}
+  var prodEl=document.getElementById('bterrProd'+idx);
+  if(prodEl) prodEl.textContent='수확 중…';
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth&&emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var resp=await fetch('/api/territory/'+claim.id+'/harvest',{
+      method:'POST',headers:headers,
+      body:JSON.stringify({wallet:wallet})
+    });
+    var d=await resp.json();
+    if(!resp.ok){
+      if(resp.status===429&&d.nextHarvestAt){
+        var nxt=new Date(d.nextHarvestAt);
+        var diffMs=nxt-Date.now();
+        var hrs=Math.floor(diffMs/3600000);
+        var mins=Math.floor((diffMs%3600000)/60000);
+        var timeStr=(hrs>0?hrs+'h ':'')+mins+'m';
+        showToast('쿨다운 중 — '+timeStr+' 후 가능','warn');
+        if(prodEl) prodEl.innerHTML='<span style="color:var(--tx3)">다음 수확: '+timeStr+'</span>';
+      } else {
+        showToast(d.error||'수확 실패','error');
+        if(prodEl) prodEl.textContent='수확 실패';
+      }
+      return;
+    }
+    try{_sfx&&_sfx.success&&_sfx.success();}catch(_){}
+    var pp=d.harvestedPP||0;
+    var resStr='';
+    if(d.resources&&d.resources.length){
+      var _RICONS={iron_dust:'🟤',red_sand:'🔴',basalt_chip:'⬛',ice_crystal:'🔵',regolith_ore:'🟠',volcanic_shard:'🌋',ancient_metal:'⭐',carbon_fiber:'🧵',iron_ore:'🪨',silicon_chip:'💠',xenomatter:'💠',nano_polymer:'🧬',plasma_crystal:'🔮',titanium_alloy:'⚙️',meteorite_fragment:'☄️',plasma_dust:'💜',dark_matter:'🌑',exotic_alloy:'✨',quantum_core:'⚡',alloy_frame:'⬢',hull_plate:'▣',plasma_coil:'⚡'};
+      resStr=' + '+d.resources.map(function(r){return (_RICONS[r.code]||'💠')+r.quantity;}).join(' ');
+    }
+    showToast('⛏ +'+pp.toFixed(4)+' PP'+resStr,'success');
+    // 수확 후 생산 정보 새로고침
+    _bterrLoadProd(idx,g);
+    // PP 잔액 갱신
+    try{if(typeof refreshPP==='function') refreshPP();}catch(_){}
+  } catch(e){
+    showToast('네트워크 오류','error');
+    if(prodEl) _bterrLoadProd(idx,g);
+  } finally {
+    btns.forEach(function(b){b.disabled=false;});
+  }
 }
 function _baseTerritoryShield(idx){
   var grpList=window._baseTerritoryGroups||[];
@@ -38844,8 +38847,11 @@ var CODEX_CONTENT = {
             'Commission income (DYNASTY)'
           ]},
 
+          { type:'h2', text:'0. How to Harvest' },
+          { type:'p', text:'Go to BASE → **내 영토** tab. Tap any territory row to expand it, then press `⛏ 수확` to harvest **that territory individually**. Each territory has its own cooldown (CORE=24h, MID=48h, FRONTIER=72h).' },
+
           { type:'h2', text:'1. Passive Mining Formula' },
-          { type:'p', text:'As long as you hold territory, **PP accumulates automatically** each cycle. Collect it in bulk with the BASE → MINE tab\'s `HARVEST ALL` button.' },
+          { type:'p', text:'As long as you hold territory, **PP accumulates automatically** each cycle. Collect it via the territory list — each territory has its own harvest button and cooldown timer.' },
           { type:'formula', label:'HARVEST YIELD PER CYCLE',
             eq:'Yield = rand(~0.01~, ~0.5~) × min( ~√pixels~ ÷ 10, ~3.0~ )   →   max ~1.0 PP~ / harvest',
             note:'Key: **square-root scaling + 3× cap + 1 PP ceiling per harvest**. Buying 10,000× more pixels only triples your income. Anti-whale design.' },
@@ -39906,17 +39912,24 @@ var CODEX_CONTENT = {
         blocks: [
           { type:'p', text:'화성에서 PP(Potato Points)를 버는 방법은 5가지야. **패시브 채굴**은 안정적인 기본 수입이지만 **수익률은 크지 않아**. 큰 돈은 POI·로켓·일퀘·커미션(DYNASTY)에서 나와.' },
           { type:'toc', label:'이 섹션 내용', items:[
+            '영토별 수확 방법',
             '패시브 채굴 공식 (실제 수치)',
             '보유 픽셀별 수확량',
             '티어별 수확 주기',
+            '광물 드롭 테이블',
             'POI (자원 지점)',
             '로켓 이벤트',
             '일일 퀘스트',
             '커미션 수익 (DYNASTY)'
           ]},
 
+          { type:'h2', text:'0. 영토별 수확 방법' },
+          { type:'p', text:'BASE → **내 영토** 탭에서 내 영토 목록을 확인할 수 있어. 각 영토 행을 탭하면 아코디언이 열리고, `⛏ 수확` 버튼으로 **해당 영토만 개별 수확**해. 영토마다 쿨다운이 따로 있으니 각각 관리해야 해.' },
+          { type:'callout', variant:'tip', title:'영토마다 수확 타이밍이 다를 수 있어',
+            text:'코어 영토는 24h 주기, 미드는 48h, 프론티어는 72h. 아코디언에서 "다음 수확: Xh Ym"을 확인하고 타이밍 맞춰 수확하는 게 효율적이야.' },
+
           { type:'h2', text:'1. 패시브 채굴 공식' },
-          { type:'p', text:'영토를 보유하고 있는 한, 매 수확 주기마다 **자동으로** PP가 쌓여. BASE → MINE 탭에서 `HARVEST ALL` 버튼으로 한 번에 수령해.' },
+          { type:'p', text:'영토를 보유하고 있는 한, 매 수확 주기마다 **자동으로** PP가 쌓여. BASE → 내 영토 탭의 각 영토 아코디언에서 `⛏ 수확` 버튼으로 개별 수령해.' },
           { type:'formula', label:'HARVEST YIELD PER CYCLE',
             eq:'Yield = rand(~0.01~, ~0.5~) × min( ~√pixels~ ÷ 10, ~3.0~ )   →   max ~1.0 PP~ / harvest',
             note:'핵심: **제곱근 스케일 + 3배 캡 + 하베스트당 1 PP 상한**. 픽셀을 10,000배 더 사도 수익은 3배 밖에 안 올라. 고래 방지 설계야.' },
@@ -39951,7 +39964,19 @@ var CODEX_CONTENT = {
           { type:'callout', variant:'tip', title:'동일 면적 3배 효율',
             text:'CORE 1픽셀 + FRONTIER 999픽셀 > FRONTIER 1000픽셀. 주기가 24h로 짧아져서 **같은 면적으로 3배 더 자주** 수확해. 가장 싼 CORE 부동산 한 칸을 앵커로 꽂는 게 국룰.' },
 
-          { type:'h2', text:'3. POI — 자원 지점' },
+          { type:'h2', text:'3-1. 광물 드롭 테이블' },
+          { type:'p', text:'채굴 시 PP와 함께 섹터 티어에 따라 **광물이 확률적으로 드롭**돼. 광물은 함선 건조·강화 재료 및 마켓 거래에 사용돼. 아코디언에서 해당 영토의 드롭 가능 광물을 미리 확인할 수 있어.' },
+          { type:'table',
+            headers:['티어','드롭 광물 (예시)','용도'],
+            rows:[
+              [{v:'⚪ FRONTIER',cls:'mars'}, '🟤 철분 / 🔴 붉은 모래 / ⬛ 현무암 조각 / 🔵 얼음 결정 / 🟠 레골리스', 'T1 — 기본 함선 건조'],
+              [{v:'🟡 MID',cls:'mars'},      '🧵 탄소섬유 / 🪨 철광석 / 💠 실리콘칩 / ☄️ 운석파편 / ⬢ 합금프레임', 'T2 — 고급 건조·강화'],
+              [{v:'🔴 CORE',cls:'mars'},     '🔮 플라즈마 결정 / ⚙️ 티타늄합금 / 🧬 나노폴리머 / ✨ 이국합금 / ⚡ 양자코어', 'T3 — 전함급 건조·Lv10+ 강화']
+            ]},
+          { type:'callout', variant:'info', title:'강화 티어와 드롭 연결',
+            text:'함선 강화는 강화 횟수(레벨)에 따라 요구 재료 등급이 올라가. Lv1~5 = T1, Lv6~10 = T2, Lv11+ = T3. 높은 레벨로 강화된 함선은 **T3 코어 섹터 광물**을 소모했다는 의미라서 마켓에서 가치가 있어.' },
+
+          { type:'h2', text:'4. POI — 자원 지점' },
           { type:'p', text:'화성 표면에 랜덤으로 **자원 포인트**가 생성돼. `EXPLORE` 탭에서 지도를 열고 찾아가서 `🔍 DISCOVER` 버튼 누르면 보상 수령. **영토 없어도 누구나 수확 가능** — 선착순이야.' },
           { type:'table',
             headers:['항목','값','출처'],

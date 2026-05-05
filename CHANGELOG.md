@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 영토별 개별 수확 + 채굴 탭 제거 (v6.06)
+
+### 신기능: 영토별 개별 수확 API (`POST /api/territory/:claimId/harvest`)
+- `claims.last_harvest_at` 컬럼 추가 (Migration 214)
+- 각 클레임별 독립 쿨다운 (CORE=24h / MID=48h / FRONTIER=72h)
+- 기존 `user_mining` stats와 호환 유지 (일일/전체 채굴 통계 누적)
+- 모든 보너스 적용 (거버너·섹터 버프·날씨·VIP·위상·티어·업그레이드)
+- 자원 드롭 포함 (sector tier 기반)
+- `_baseTerritoryHarvest(idx)` → 신규 API 호출, 쿨다운 시 남은 시간 표시
+
+### 채굴 탭 제거 + GP 섹션 영토 탭 하단 이동
+- `baseTabMining` + `basePane_mining` 제거
+- GP Activity Log / SEND GP / GP LOTTERY / GP STAKING → 영토 탭 하단으로 이동
+- 채굴 통계 요소(`baseMineAvail` 등) 숨김 유지로 JS 참조 호환
+
+### 가이드(GUIDEBOOK) 업데이트
+- 채굴 섹션: "BASE → MINE 탭" 언급 제거
+- 영토 탭 아코디언에서 개별 수확하는 방법 안내 추가 (한/영)
+- 광물 드롭 테이블 섹션 추가: FRONTIER(T1) / MID(T2) / CORE(T3) × 용도
+- 강화 티어와 드롭 연결 callout 추가
+
 ## 2026-05-05 — 영토 목록 아코디언 + 패널 UX 개선 (v6.05)
 
 ### 신기능: BASE 내 영토 목록 인라인 아코디언
