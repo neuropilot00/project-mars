@@ -665,6 +665,47 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('pagehide',()=>{stopBattleMusic();if(audioCtx)audioCtx.close();audioCtx=null;});
 
+// ── 캔버스 탭/클릭 → 적 함선 집중공격 대상 지정 ──────────────────
+function _canvasToWorld(clientX,clientY){
+  const rect=CVs.getBoundingClientRect();
+  const scaleX=W/rect.width,scaleY=H/rect.height;
+  const sx=(clientX-rect.left)*scaleX;
+  const sy=(clientY-rect.top)*scaleY;
+  // 역변환: canvas (sx,sy) → world (wx,wy)
+  const wx=(sx-W/2)/camScale+camCx;
+  const wy=(sy-H/2)/camScale+camCy;
+  return {wx,wy};
+}
+function _onCanvasTap(clientX,clientY){
+  if(!ships||!ships.length)return;
+  const {wx,wy}=_canvasToWorld(clientX,clientY);
+  // 클릭 반경: 화면상 30px 기준 → 월드 거리
+  const tapR=30/camScale;
+  // 적 함선 중 가장 가까운 것 탐색 (atk 관점: def가 적)
+  let best=null,bestDist=tapR;
+  const enemySide=fleets.some(f=>f.side==='atk')&&fleets.some(f=>f.side==='def')?'def':'atk';
+  ships.forEach(sh=>{
+    if(sh.dead||sh.side!==enemySide)return;
+    const d=Math.hypot(sh.x-wx,sh.y-wy);
+    if(d<bestDist){bestDist=d;best=sh;}
+  });
+  if(!best)return;
+  // 해당 함선의 함대를 집중공격 대상으로 설정
+  const tf=best.fleet;
+  if(!tf||tf.ships.every(s=>s.dead))return;
+  focusFleet=tf;
+  mkShockwave(tf.cx,tf.cy,tf.radius*1.6);
+  addFloatText(best.x,best.y-18,'🎯 집중!','order',1800);
+  addLog('wn',`🎯 집중공격 지정 — [${tf.userId}]`);
+  battleCallout(`[${tf.userId}]에 집중포화!`,'order','top',2000);
+  _bridgeToParent('focus',{target:tf.userId});
+}
+CVs.addEventListener('click',e=>{e.preventDefault();_onCanvasTap(e.clientX,e.clientY);});
+CVs.addEventListener('touchend',e=>{
+  e.preventDefault();
+  if(e.changedTouches.length){const t=e.changedTouches[0];_onCanvasTap(t.clientX,t.clientY);}
+},{passive:false});
+
 function tone(freq,dur,gain,type='sine',when=0,freqEnd=0){
   if(!audioOn)return;
   const ac=ensureAudio(); if(!ac)return;
@@ -1577,6 +1618,32 @@ function hexRGB(h){
 }
 
 function drawFleets(){
+  // 집중공격 대상 타겟 링 (깜빡이는 빨간 테두리)
+  if(focusFleet&&!focusFleet.ships.every(s=>s.dead)){
+    const pulse=0.55+0.45*Math.sin(performance.now()*.006);
+    CX.save();
+    CX.strokeStyle=`rgba(255,80,80,${pulse})`;
+    CX.lineWidth=2.5;
+    CX.setLineDash([6,4]);
+    CX.beginPath();CX.arc(focusFleet.cx,focusFleet.cy,focusFleet.radius+10,0,Math.PI*2);CX.stroke();
+    CX.setLineDash([]);
+    // 코너 타겟 브라켓
+    const br=focusFleet.radius+14,blen=br*.22;
+    [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sy])=>{
+      CX.beginPath();
+      CX.moveTo(focusFleet.cx+sx*br,focusFleet.cy+sy*(br-blen));
+      CX.lineTo(focusFleet.cx+sx*br,focusFleet.cy+sy*br);
+      CX.lineTo(focusFleet.cx+sx*(br-blen),focusFleet.cy+sy*br);
+      CX.stroke();
+    });
+    CX.globalAlpha=.85;
+    CX.font='bold 7px Orbitron,monospace';
+    CX.fillStyle='#ff5050';
+    CX.textAlign='center';
+    CX.fillText('🎯 TARGET',focusFleet.cx,focusFleet.cy-focusFleet.radius-18);
+    CX.globalAlpha=1;
+    CX.restore();
+  }
   fleets.forEach(f=>{
     if(f.dead)return;
     const fc=f.flagship?FACTIONS[f.flagship.type.faction].color:'#4fc3f7';
