@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 함선 강화 재료 T1 광물로 수정 (v6.01)
+
+### 버그 수정: 함선 강화 항상 실패 (`INSUFFICIENT_MATERIALS`)
+- **원인**: `ship_upgrade_*_material` 설정값이 T2/T3 재료(`plasma_crystal`, `titanium_alloy`, `alloy_frame`, `nano_polymer`)로 되어 있었는데, 초반 플레이어는 T1 광물만 보유 → 항상 재료 부족 실패
+- Migration 213: 강화 재료를 T1 광물로 변경
+  - `atk` 공격력: `plasma_crystal` → `carbon_fiber` (탄소섬유, T1)
+  - `def` 방어력: `titanium_alloy` → `iron_ore` (철광석, T1)
+  - `hp` 체력: `alloy_frame` → `silicon_chip` (실리콘 칩, T1)
+  - `speed` 속도: `nano_polymer` → `basalt_chip` (현무암 조각, T1)
+- `server/services/ship.js` `calcShipUpgradeOffer` fallback 값도 동일하게 수정
+
 ## 2026-05-05 — 전술랩 미사일/EMP/사운드/플로팅텍스트 대폭 개선 (v6.00)
 
 ### 전술랩 미사일 개선 (`assets/tactical-lab-v11.html`)

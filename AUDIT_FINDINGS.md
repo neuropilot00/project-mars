@@ -1,3 +1,19 @@
+# OCCUPY MARS — Codebase Audit (v6.01 / 2026-05-05)
+
+## ✅ v6.01 함선 강화 재료 버그 수정 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| **함선 강화 항상 실패 원인 파악** | ✅ | T2/T3 재료 요구인데 플레이어는 T1만 보유 |
+| Migration 213 — 강화 재료 T1 변경 | ✅ | atk→carbon_fiber / def→iron_ore / hp→silicon_chip / speed→basalt_chip |
+| `ship.js` fallback 값 동기화 | ✅ | `calcShipUpgradeOffer` 기본값도 T1으로 수정 |
+| DB 적용 확인 | ✅ | `node server/migrate.js` → Applied 213 |
+
+검증:
+- `SELECT key, value FROM settings WHERE key LIKE 'ship_upgrade_%material%'` → T1 코드 확인
+
+---
+
 # OCCUPY MARS — Codebase Audit (v6.00 / 2026-05-05)
 
 ## ✅ v6.00 전술랩 미사일/EMP/사운드 개선 — 완료

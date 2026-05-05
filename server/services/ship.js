@@ -1077,11 +1077,11 @@ async function calcShipUpgradeOffer(client, ship, stat) {
   const floor = await getSettingNumber(client, 'ship_upgrade_success_floor_pct', 35);
   const chance = Math.max(floor, Math.min(99, +(baseChance - totalPoints * decay).toFixed(2)));
   const materialCode = await getSettingText(client, `ship_upgrade_${stat}_material`, {
-    atk: 'plasma_crystal',
-    def: 'titanium_alloy',
-    hp: 'alloy_frame',
-    speed: 'nano_polymer',
-  }[stat] || 'plasma_crystal');
+    atk: 'carbon_fiber',
+    def: 'iron_ore',
+    hp: 'silicon_chip',
+    speed: 'basalt_chip',
+  }[stat] || 'carbon_fiber');
   const baseQty = await getSettingNumber(client, 'ship_upgrade_material_base_qty', 2);
   const growthPer5 = await getSettingNumber(client, 'ship_upgrade_material_growth_per_5', 1);
   const materialQty = Math.max(1, Math.ceil(baseQty + Math.floor(totalPoints / 5) * growthPer5));
