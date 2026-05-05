@@ -25700,11 +25700,15 @@ function renderCampaignList(chapters){
   var lockedCount=0;
   visible.forEach(function(ch){
     var p=ch.progress||{};
+    var pSt=campaignProgressStatus(p);
+    var failed=pSt==='failed';
     var locked=((_campaignData&&_campaignData.lockedChapters)||[]).indexOf(ch.questId)>=0;
     var done=isCampaignProgressDone(p);
     var active=isCampaignProgressActive(p);
     var title=_campaignStoryText(ch.title)||ch.questId;
-    var btn=locked?t('campaign_btn_locked'):(done?t('campaign_btn_results'):(active?t('campaign_btn_continue'):t('campaign_btn_start')));
+    var _lang=(typeof LANG!=='undefined'?LANG:'ko');
+    var retryLabel=_lang==='ko'?'🔄 재도전':(_lang==='ja'?'🔄 再挑戦':(_lang==='zh'?'🔄 重试':'🔄 RETRY'));
+    var btn=locked?t('campaign_btn_locked'):(done?t('campaign_btn_results'):(active?t('campaign_btn_continue'):(failed?retryLabel:t('campaign_btn_start'))));
     var route=((ch.campaignId||'').replace('_route','')||ch.faction||'').toUpperCase();
     var card='';
     if(locked){
@@ -25725,17 +25729,17 @@ function renderCampaignList(chapters){
       html+=card;
       return;
     }
-    card+='<div class="campaign-card'+(done?' done':'')+'">';
-    card+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">'+route+' '+t('campaign_label_route')+' · '+t('campaign_label_ch')+' '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+    card+='<div class="campaign-card'+(failed?' failed':'')+'">';
+    card+='<div class="campaign-top"><div class="campaign-icon">'+(failed?'✗':'⚡')+'</div><div style="flex:1"><div class="campaign-meta">'+route+' '+t('campaign_label_route')+' · '+t('campaign_label_ch')+' '+ch.chapterNumber+(failed?' · <span style="color:var(--mars);font-weight:800">'+(_lang==='ko'?'임무 실패':'FAILED')+'</span>':'')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
     var _locLang=(typeof LANG!=='undefined'?LANG:'ko');
     var _locDisplay=ch.location&&(_campaignStoryText(ch.location.displayName)||((_locLang!=='ko'&&ch.location.displayNameEn)||ch.location.displayNameKo));
     card+='<div class="campaign-desc">'+escapeHtmlSafe(_locDisplay||'Mars')+'</div>';
     card+=campaignObjectivesHtml(ch,3);
-    if(done||active){
+    if(done||active||failed){
       var m=p.metrics||{};
       card+=campaignStatsHtml(m,campaignStatusLabel(p,'NEW'));
     }
-    card+='<button class="campaign-btn" onclick="openCampaignChapter(\''+ch.questId+'\')">'+btn+'</button>';
+    card+='<button class="campaign-btn'+(failed?' secondary':'')+'" style="'+(failed?'background:rgba(255,80,30,.15);border-color:rgba(255,80,30,.4);color:var(--mars)':'')+'" onclick="openCampaignChapter(\''+ch.questId+'\')">'+btn+'</button>';
     card+='</div>';
     html+=card;
   });

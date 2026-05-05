@@ -3548,6 +3548,8 @@ async function getStatus(wallet) {
   for (const faction of FACTIONS) if (reputation[faction] == null) reputation[faction] = 0;
   const completedSet = new Set(rows.filter(r => r.status === 'completed' || r.status === 'claimed').map(r => r.quest_id));
   const activeSet = new Set(rows.filter(r => r.status === 'in_progress').map(r => r.quest_id));
+  // Failed chapters are always retryable — never lock them regardless of prereq state
+  const failedSet = new Set(rows.filter(r => r.status === 'failed').map(r => r.quest_id));
   const tagSet = new Set(tagRes.rows.map(r => r.tag_id));
   const branchSet = new Set([
     ...branchRes.rows.map(r => r.modifier_key),
@@ -3557,6 +3559,8 @@ async function getStatus(wallet) {
   const lockedChapters = [];
   for (const ch of Object.values(CHAPTERS)) {
     if (completedSet.has(ch.questId) || activeSet.has(ch.questId)) continue;
+    // Always allow retry of previously failed chapters — they must never appear locked
+    if (failedSet.has(ch.questId)) { availableChapters.push(ch.questId); continue; }
     const prereqOk = !ch.prerequisiteChapter || completedSet.has(ch.prerequisiteChapter) || (ch.questId === CH3_ID && branchSet.has('mcc_route_termination_offered'));
     const repOk = Object.entries(ch.requiredReputation || {}).every(([f, v]) => (reputation[f] || 0) >= v);
     const tagOk = !(ch.blockingTags || []).some(t => tagSet.has(t));
