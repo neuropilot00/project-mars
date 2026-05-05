@@ -3467,24 +3467,40 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 9px; line-height: 1.45; color: rgba(223,244,255,.78);
 }
 .fs-card {
-  background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06);
-  border-radius: 4px; padding: 7px 9px; cursor: pointer; position: relative; transition: all .1s;
+  background: rgba(255,255,255,.02); border: 2px solid rgba(255,255,255,.06);
+  border-radius: 6px; padding: 7px 9px; cursor: pointer; position: relative; transition: background .1s, border-color .1s, box-shadow .1s;
 }
-.fs-card:hover { background: rgba(255,255,255,.05); }
-.fs-card.selected { background: rgba(79,195,247,.13); border-color: rgba(79,195,247,.78); box-shadow: 0 0 0 1px rgba(79,195,247,.32), 0 0 18px rgba(79,195,247,.12); }
-.fs-card.focused { outline: 1px solid rgba(255,215,0,.72); outline-offset: 2px; }
+.fs-card:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); }
+.fs-card.selected {
+  background: rgba(79,195,247,.18);
+  border: 2px solid #4fc3f7;
+  box-shadow: 0 0 0 2px rgba(79,195,247,.45), inset 0 0 20px rgba(79,195,247,.08);
+}
+.fs-card.focused { box-shadow: 0 0 0 2px #4fc3f7, 0 0 0 4px rgba(255,215,0,.55); }
+/* 선택된 카드: 좌상단 체크 뱃지 */
 .fs-card.selected::before {
-  content: 'SELECTED';
-  position: absolute; right: 6px; top: 6px;
-  font-size: 7px; letter-spacing: 1px; color: #071018;
-  background: #4fc3f7; border-radius: 999px; padding: 2px 6px;
-  font-weight: 900;
+  content: '✓';
+  position: absolute; left: -1px; top: -1px;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: #071018;
+  background: #4fc3f7;
+  border-radius: 6px 0 6px 0;
+  line-height: 22px; text-align: center;
+}
+/* 선택된 카드: 우상단 선택 번호 (몇번째 선택인지) */
+.fs-card.selected::after {
+  content: '●';
+  position: absolute; right: 5px; top: 4px;
+  font-size: 8px; color: #4fc3f7;
 }
 .fs-card.flagship { border-color: rgba(255,215,0,.5); background: rgba(255,215,0,.04); }
+.fs-card.flagship.selected { border-color: #4fc3f7; } /* 기함이어도 선택 시 cyan 테두리 우선 */
 .fs-card-name {
   font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px;
-  margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 2px;
 }
+.fs-card.selected .fs-card-name { padding-left: 20px; } /* ✓ 뱃지 공간 확보 */
 .fs-card-class { font-size: 8px; color: rgba(255,255,255,.56); margin-bottom: 4px; }
 .fs-card-stats { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; font-size: 8px; color: rgba(255,255,255,.58); }
 .fs-role {
@@ -3495,7 +3511,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .fs-card-hp-fill { height: 100%; background: #66bb6a; transition: width .3s; }
 .fs-card-hp-fill.low { background: #ff9800; }
 .fs-card-hp-fill.crit { background: #ef5350; }
-.fs-card-flagship-badge { position: absolute; top: 4px; right: 4px; font-size: 9px; color: #ffd700; }
+.fs-card-flagship-badge { position: absolute; top: 4px; right: 4px; font-size: 10px; color: #ffd700; }
+/* 선택+기함 겹침 방지: 기함 뱃지를 오른쪽 상단으로, selected ● 은 왼쪽 아래로 안 겹침 */
+.fs-card.selected .fs-card-flagship-badge { top: 3px; right: 3px; }
 .fs-empty { text-align: center; padding: 40px; color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 2px; }
 .fs-selected-panel {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
