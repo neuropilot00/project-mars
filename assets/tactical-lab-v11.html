@@ -853,15 +853,19 @@ function combatModifier(attackerType,targetType){
 function battleScaleConfig(){
   const sideMax=Math.max(ATK_FLEETS.length,DEF_FLEETS.length,1);
   const fleetMass=Math.min(1,(sideMax-1)/4);
+  // 함선 총수 기반 소규모 보정: 10척 미만이면 더 가깝게, 더 크게
+  const totalShips=ships?ships.length:0;
+  const smallBattle=totalShips>0&&totalShips<=10;
+  const tinyBattle =totalShips>0&&totalShips<=4;
   return {
     mass:fleetMass,
-    startGap:118+fleetMass*198,
-    minPad:72+fleetMass*118,
-    idealPad:110+fleetMass*175,
-    nearDist:185+fleetMass*145,
+    startGap: tinyBattle?55 : smallBattle?75  : 118+fleetMass*198,
+    minPad:   tinyBattle?30 : smallBattle?45  : 72+fleetMass*118,
+    idealPad: tinyBattle?55 : smallBattle?72  : 110+fleetMass*175,
+    nearDist: tinyBattle?90 : smallBattle?130 : 185+fleetMass*145,
     zoomRange:290+fleetMass*330,
-    maxZoom:1.72-fleetMass*.47,
-    fitPad:.82-fleetMass*.08
+    maxZoom:  tinyBattle?3.8: smallBattle?2.8 : 1.72-fleetMass*.47,
+    fitPad:   tinyBattle?.92: smallBattle?.88 : .82-fleetMass*.08
   };
 }
 
@@ -982,7 +986,7 @@ function updateFleets(dt){
   fleets.forEach(f=>{
     if(f.dead)return;
     autoTactics(f,dt);
-    const enemies=fleets.filter(e=>e.side!==f.side&&!e.dead);
+    const enemies=fleets.filter(e=>e.side!==f.side&&e.ships.some(s=>!s.dead));
     if(!enemies.length)return;
     const target=focusFleet&&focusFleet.side!==f.side&&!focusFleet.dead?focusFleet
       :enemies.reduce((b,e)=>Math.hypot(e.cx-f.cx,e.cy-f.cy)<Math.hypot(b.cx-f.cx,b.cy-f.cy)?e:b,enemies[0]);
@@ -1075,7 +1079,7 @@ function updateFleets(dt){
         sh.aimTTL-=dt;
         tf=Math.atan2(sh.aimY-sh.y,sh.aimX-sh.x);
       }
-      const ef=fleets.filter(e=>e.side!==sh.side&&!e.dead);
+      const ef=fleets.filter(e=>e.side!==sh.side&&e.ships.some(s=>!s.dead));
       if(sh.aimTTL<=0&&ef.length){
         const near=ef.reduce((b,e)=>Math.hypot(e.cx-sh.x,e.cy-sh.y)<Math.hypot(b.cx-sh.x,b.cy-sh.y)?e:b,ef[0]);
         tf=Math.atan2(near.cy-sh.y,near.cx-sh.x);
@@ -1089,7 +1093,7 @@ function updateFleets(dt){
 }
 
 function fire(sh,wsMode){
-  if(sh.dead||sh.fleet.dead)return;
+  if(sh.dead)return;
   if(empMs>0&&sh.side==='def')return;
   const t=sh.type;
   if(PERF_MODE&&isSmall(sh)&&Math.random()<.55)return;
@@ -1105,7 +1109,7 @@ function fire(sh,wsMode){
     }
     return;
   }
-  const ef=fleets.filter(f=>f.side!==sh.side&&!f.dead);
+  const ef=fleets.filter(f=>f.side!==sh.side&&f.ships.some(s=>!s.dead));
   if(!ef.length)return;
   const tf=focusFleet&&focusFleet.side!==sh.side&&!focusFleet.dead?focusFleet
     :ef.reduce((b,e)=>Math.hypot(e.cx-sh.x,e.cy-sh.y)<Math.hypot(b.cx-sh.x,b.cy-sh.y)?e:b,ef[0]);
@@ -1157,7 +1161,7 @@ function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget){
 }
 
 function checkHit(b){
-  const ef=fleets.filter(f=>f.side!==b.side&&!f.dead);
+  const ef=fleets.filter(f=>f.side!==b.side&&f.ships.some(s=>!s.dead));
   for(const f of ef){
     if(Math.hypot(b.x-f.cx,b.y-f.cy)>f.radius+5)continue;
     for(const s of f.ships){
@@ -1185,20 +1189,30 @@ function applyDmg(sh,dmg,isLaser,attackerType){
       panicCallout(sh);
     }
     if(sh.isFlagship){
-      sh.fleet.dead=true;
+      // 기함 격침 — 나머지 함선은 계속 전투 (cascade 제거)
+      sh.fleet.flagshipDown=true;
       mkShockwave(sh.fleet.cx,sh.fleet.cy,sh.fleet.radius*2);
-      addLog('kl',`💥 [${sh.fleet.userId}] 기함 격침 — 함대 괴멸!`);
-      battleCallout(`[${sh.fleet.userId}] 기함 침몰! 지휘망 붕괴!`,'panic','top',3000);
+      addLog('kl',`💥 [${sh.fleet.userId}] 기함 격침 — 지휘 붕괴!`);
+      battleCallout(`[${sh.fleet.userId}] 기함 침몰! 잔존 함선 계속 교전!`,'panic','top',3000);
       addFloatText(sh.x,sh.y-18,'💥 기함 격침!','heavy',3000);
+      // 해당 함대 모든 함선이 죽었는지 확인 후 fleet.dead 설정
+      if(sh.fleet.ships.every(s=>s.dead)){
+        sh.fleet.dead=true;
+      }
+    } else {
+      // 일반 함선 사망 — 함대 내 살아있는 함선 없으면 fleet.dead
+      if(sh.fleet.ships.every(s=>s.dead)){
+        sh.fleet.dead=true;
+      }
     }
   }
 }
 
 function aliveAtkShips(){
-  return ships.filter(s=>s.side==='atk'&&!s.dead&&!s.fleet.dead);
+  return ships.filter(s=>s.side==='atk'&&!s.dead);
 }
 function aliveDefShips(){
-  return ships.filter(s=>s.side==='def'&&!s.dead&&!s.fleet.dead);
+  return ships.filter(s=>s.side==='def'&&!s.dead);
 }
 function isCapitalShip(sh){
   return sh&&['battleship','titan'].includes(sh.type.size);
@@ -1608,7 +1622,7 @@ function drawFleets(){
 function drawShips2(){
   const sorted=[...ships].sort((a,b)=>b.type.r-a.type.r);
   sorted.forEach((sh,idx)=>{
-    if(sh.dead||sh.fleet.dead)return;
+    if(sh.dead)return;
     const t=sh.type;
     if(PERF_MODE&&isSmall(sh)&&!sh.isFlagship&&idx%2===1)return;
     const F=FACTIONS[t.faction];
@@ -1627,11 +1641,24 @@ function drawShips2(){
       const ef=.6+.4*Math.sin(sh.engF*.18);
       drawEngineFlame(CX,sh.x,sh.y,sh.facing,t,ef);
     }
-    if(drawn&&(t.size==='cruiser'||t.size==='battleship'||t.size==='titan')){
-      const bw=t.r*2.2*classScale,hr=sh.hp/sh.maxHp;
-      CX.fillStyle='rgba(0,0,0,.4)';CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw,2);
+    // HP바: 대형함 항상 표시 + 기함 항상 표시 + 소규모 전투(≤12척)에서 전체 표시
+    const showHpBar = t.size==='cruiser'||t.size==='battleship'||t.size==='titan'
+      || sh.isFlagship || ships.length<=12;
+    if(drawn && showHpBar){
+      const barW = sh.isFlagship ? t.r*3.2*classScale : t.r*2.2*classScale;
+      const barH = sh.isFlagship ? 3 : 2;
+      const barY = sh.y - t.r - (sh.isFlagship ? 7 : 4);
+      const hr = Math.max(0, sh.hp/sh.maxHp);
+      CX.fillStyle='rgba(0,0,0,.55)';CX.fillRect(sh.x-barW/2,barY,barW,barH);
       CX.fillStyle=hr>.5?'#4caf50':hr>.25?'#ff9800':'#f44336';
-      CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw*hr,2);
+      CX.fillRect(sh.x-barW/2,barY,barW*hr,barH);
+      // 기함: HP 퍼센트 텍스트도 표시
+      if(sh.isFlagship && hr < 0.5){
+        CX.globalAlpha=.8;CX.font=`bold 7px Orbitron,monospace`;CX.textAlign='center';
+        CX.fillStyle=hr<.25?'#f44336':'#ff9800';
+        CX.fillText(Math.ceil(hr*100)+'%',sh.x,barY-2);
+        CX.globalAlpha=1;
+      }
     }
   });
 }
@@ -1804,14 +1831,14 @@ function loop(ts){
   const _wsActive = _wsBattle && _wsBattle.readyState === 1;
   let fireBudget=PERF_MODE?72:9999;
   ships.forEach(sh=>{
-    if(sh.dead||sh.fleet.dead)return;
+    if(sh.dead)return;
     sh.shootT+=dt;
     const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
     if(sh.shootT>fi*5&&fireBudget>0){sh.shootT=0;fireBudget--;fire(sh,_wsActive);}
   });
 
   // 자동 카메라: 붙으면 줌인, 멀어지면 줌아웃. 단, 전체 생존 함대는 항상 화면 안에 둔다.
-  const _aliveF=fleets.filter(f=>!f.dead);
+  const _aliveF=fleets.filter(f=>f.ships.some(s=>!s.dead));
   const _atkF=_aliveF.filter(f=>f.side==='atk');
   const _defF=_aliveF.filter(f=>f.side==='def');
   if(_atkF.length&&_defF.length){
@@ -1821,7 +1848,7 @@ function loop(ts){
       const dist=Math.hypot(a.cx-d.cx,a.cy-d.cy);
       if(dist<pair.dist)pair={a,d,dist};
     }));
-    const aliveShips=ships.filter(s=>!s.dead&&!s.fleet.dead);
+    const aliveShips=ships.filter(s=>!s.dead);
     const xs=aliveShips.flatMap(s=>{
       const r=shipScreenRadius(s);
       return [s.x-r,s.x+r];
@@ -1872,14 +1899,14 @@ function loop(ts){
   tickFloatTexts(dt);
   drawFloatTexts();
 
-  atkHP=fleets.filter(f=>f.side==='atk'&&!f.dead).reduce((a,f)=>a+f.hp,0);
-  defHP=fleets.filter(f=>f.side==='def'&&!f.dead).reduce((a,f)=>a+f.hp,0);
+  atkHP=fleets.filter(f=>f.side==='atk'&&f.ships.some(s=>!s.dead)).reduce((a,f)=>a+f.hp,0);
+  defHP=fleets.filter(f=>f.side==='def'&&f.ships.some(s=>!s.dead)).reduce((a,f)=>a+f.hp,0);
   document.getElementById('ah').style.width=Math.max(0,atkHP/atkMaxHP*100)+'%';
   document.getElementById('dh').style.width=Math.max(0,defHP/defMaxHP*100)+'%';
   const ac=ships.filter(s=>s.side==='atk'&&!s.dead).length;
   const dc=ships.filter(s=>s.side==='def'&&!s.dead).length;
-  const af=fleets.filter(f=>f.side==='atk'&&!f.dead).length;
-  const df=fleets.filter(f=>f.side==='def'&&!f.dead).length;
+  const af=fleets.filter(f=>f.side==='atk'&&f.ships.some(s=>!s.dead)).length;
+  const df=fleets.filter(f=>f.side==='def'&&f.ships.some(s=>!s.dead)).length;
   document.getElementById('ai').textContent=`${ac}척 · ${af}함대`;
   document.getElementById('di').textContent=`${df}함대 · ${dc}척`;
 
@@ -1905,7 +1932,7 @@ function loop(ts){
    커맨드 (v10 + v11.1)
    ═══════════════════════════════════════════════════════════ */
 function reinforce(tid,n){
-  const f=fleets.find(f=>f.side==='atk'&&!f.dead);
+  const f=fleets.find(f=>f.side==='atk'&&f.ships.some(s=>!s.dead));
   if(!f)return;
   for(let i=0;i<n;i++){
     const a=Math.random()*Math.PI*2,d=15+Math.random()*f.radius*.7;
@@ -1927,7 +1954,7 @@ function _bridgeToParent(cmd, payload) {
   } catch (_) {}
 }
 function cmdFocus(){
-  const ef=fleets.filter(f=>f.side==='def'&&!f.dead);
+  const ef=fleets.filter(f=>f.side==='def'&&f.ships.some(s=>!s.dead));
   if(!ef.length)return;
   const tf=ef.sort((a,b)=>(b.flagship?.type.r||0)-(a.flagship?.type.r||0))[0];
   focusFleet=tf;
@@ -1947,7 +1974,7 @@ function cmdEMP(){
   // EMP flash on each ewar ship
   ewars.forEach(s=>addFloatText(s.x,s.y-14,'⚡ EMP','order',2000));
   // Visual: shockwave from each DEF fleet center
-  fleets.filter(f=>f.side==='def'&&!f.dead).forEach(f=>{
+  fleets.filter(f=>f.side==='def'&&f.ships.some(s=>!s.dead)).forEach(f=>{
     mkShockwave(f.cx,f.cy,f.radius*2.8);
     mkShockwave(f.cx,f.cy,f.radius*1.4);
   });
@@ -2027,7 +2054,7 @@ async function confirmForfeit(){
   } catch(e){ addLog('kl','⚠ 후퇴 요청 실패: '+e.message); }
 }
 function cmdFormation(form){
-  fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{
+  fleets.filter(f=>f.side==='atk'&&f.ships.some(s=>!s.dead)).forEach(f=>{
     f.formation=form;
     assignFormationSlots(f);
   });
@@ -2036,7 +2063,7 @@ function cmdFormation(form){
   _bridgeToParent('formation', { formation: form });
 }
 function cmdManeuver(mv){
-  fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{f.maneuver=mv;});
+  fleets.filter(f=>f.side==='atk'&&f.ships.some(s=>!s.dead)).forEach(f=>{f.maneuver=mv;});
   addLog('tc',`${MANEUVERS[mv].icon} 전 ATK 함대 기동: ${MANEUVERS[mv].name}`);
   const lines={
     advance:'전 함대 전진 공격하라!',
@@ -2373,11 +2400,14 @@ function connectBattleWs() {
               if (typeof wsF.cy === 'number') f.cy = wsF.cy;
               if (typeof wsF.hp === 'number') f.hp = Math.max(0, wsF.hp);
               if (typeof wsF.maxHp === 'number') f.maxHp = wsF.maxHp;
-              if (wsF.dead && !f.dead) {
+              // wsF.dead=true 는 서버에서 더 이상 보내지 않음 (cascade 제거)
+              // 혹시 수신돼도 cascade kill 대신 함선 단위로 처리
+              if (wsF.dead && f.ships.some(s=>!s.dead)) {
+                f.ships.forEach(s => {
+                  if(!s.dead){ s.dead=true; s.hp=0; mkExp(s.x,s.y,s.type?.r||1.2); }
+                });
                 f.dead = true;
-                f.ships.forEach(s => { s.dead = true; s.hp = 0; });
-                mkShockwave(f.cx, f.cy, f.radius * 2);
-                addLog('kl', `💥 [${f.userId}] 함대 괴멸!`);
+                addLog('kl', `💥 [${f.userId}] 함대 전멸`);
               }
               if (wsF.formation && FORMATIONS[wsF.formation]) f.formation = wsF.formation;
               if (wsF.movement  && MANEUVERS[wsF.movement])  f.maneuver  = wsF.movement;
