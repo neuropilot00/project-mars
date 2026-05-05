@@ -103,7 +103,7 @@ router.post('/ai/fight', requireAuth, async (req, res) => {
 
     const { rows: battleRows } = await pool.query(`
       INSERT INTO fleet_battles (battle_type, status, phase, prepare_started_at, scheduled_start_at)
-      VALUES ('pvp_duel', 'preparing', 'main', NOW(), NOW())
+      VALUES ('ai_duel', 'preparing', 'main', NOW(), NOW())
       RETURNING id
     `);
     const battleId = battleRows[0].id;

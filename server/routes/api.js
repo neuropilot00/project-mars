@@ -2989,15 +2989,16 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch (_ext) { /* territory upgrade unavailable */ }
 
-    // ✅ [장기 보유 보상] hold_bonus_pct — 해당 클레임 장기 보유 시 채굴 보너스
+    // ✅ [장기 보유 보상] hold_bonus_pct — 유저 보유 클레임 중 최대값 적용
     // 7일 보유 → +3%, 30일 → +7%, 90일 → +12% (updateFieldRatings()가 매일 갱신)
     try {
       const holdRes = await client.query(
-        `SELECT hold_bonus_pct FROM claims
-         WHERE id = $1 AND LOWER(owner) = $2 AND deleted_at IS NULL`,
-        [claimId, w]
+        `SELECT MAX(COALESCE(hold_bonus_pct, 0)) AS max_bonus
+         FROM claims
+         WHERE LOWER(owner) = $1 AND deleted_at IS NULL`,
+        [w]
       );
-      const holdBonus = parseFloat(holdRes.rows[0]?.hold_bonus_pct || 0);
+      const holdBonus = parseFloat(holdRes.rows[0]?.max_bonus || 0);
       if (holdBonus > 0) {
         harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
       }
