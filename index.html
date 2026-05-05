@@ -6352,312 +6352,63 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </table>
         </div>
 
-        <div class="base-section-title" onclick="toggleMySectors()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+        <!-- ─── 내 영토 목록 ─────────────────────────────── -->
+        <div class="base-section-title" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>🗺️ 내 영토</span>
+          <span id="baseTerritoryCountBadge" style="background:var(--mars);color:#fff;font-size:9px;padding:1px 7px;border-radius:8px;font-weight:800">0</span>
+        </div>
+        <div id="baseTerritoryGroupList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+          <div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">로그인하면 영토가 표시됩니다</div>
+        </div>
+
+        <div class="base-section-title" onclick="toggleMySectors()" style="cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:space-between">
           <span data-i18n="my_sectors">MY SECTORS</span>
           <span id="mySectorsToggle" style="font-size:8px;color:var(--tx3)" data-i18n="show_label">▼ SHOW</span>
         </div>
         <div id="baseMySectors" style="display:none;font-size:10px;color:var(--tx3)" data-i18n="login_to_view">Login to view your territories.</div>
 
-        <!-- 🛡️ TERRITORY SHIELD (collapsible) -->
-        <div class="base-section-title" onclick="toggleShield()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>🛡️ <span data-i18n="shield_title">TERRITORY SHIELD</span></span>
-          <span id="shieldToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        <!-- hidden panels kept for JS refs — not rendered -->
+        <div id="shieldPanel" style="display:none"><div id="shieldContent"></div></div>
+        <div id="upgradesPanel" style="display:none"><div id="upgradesContent"></div></div>
+        <div id="monumentsPanel" style="display:none"><div id="monumentsContent"></div></div>
+        <div id="rentalPanel" style="display:none"><div id="rentalContent"></div></div>
+        <div id="expeditionPanel" style="display:none">
+          <div id="expeditionActive" style="display:none"><span id="expActiveIcon"></span><div id="expActiveLabel"></div><div id="expActiveReturns"></div></div>
+          <div id="expeditionLauncher" style="display:none">
+            <select id="expClaimSelect"></select>
+            <div id="expTypeButtons"></div><div id="expDurationButtons"></div>
+            <span id="expCostPreview"></span>
+          </div>
+          <div id="expeditionHistoryPanel" style="display:none"></div>
         </div>
-        <div id="shieldPanel" style="display:none;padding:4px 0 8px">
-          <div id="shieldContent">
-            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
+        <div id="brandingPanel" style="display:none">
+          <select id="brandClaimSelect"></select>
+          <div id="brandingPreview" style="display:none"><div id="brandColorDot"></div><div id="brandNameDisplay"></div><div id="brandTaglineDisplay"></div></div>
+          <input id="brandNameInput" type="text"><span id="brandNameCostLabel"></span>
+          <input id="brandTagInput" type="text"><span id="brandTagCostLabel"></span>
+          <input id="brandColorInput" type="color" value="#80cbc4"><span id="brandColorHex">#80cbc4</span><span id="brandColorCostLabel"></span>
         </div>
-
-        <!-- ⬆️ MY TERRITORY UPGRADES (collapsible) -->
-        <div class="base-section-title" onclick="toggleTerritoryUpgrades()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>⬆️ <span data-i18n="upgrades_title">TERRITORY UPGRADES</span></span>
-          <span id="upgradesToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        <div id="spellsPanel" style="display:none">
+          <input id="spellClaimInput" type="number">
+          <div id="spellsActiveOnTarget" style="display:none"><div id="spellsActiveList"></div></div>
+          <div id="spellsGrid"></div><div id="spellsHistoryPanel" style="display:none"></div>
         </div>
-        <div id="upgradesPanel" style="display:none;padding:4px 0 8px">
-          <div id="upgradesContent">
-            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
+        <div id="tiersPanel" style="display:none"><div id="myTiersPanel"></div><div id="tiersBenefitsTable"></div></div>
+        <div id="tevtPanel" style="display:none">
+          <input id="tevtClaimInput" type="number">
+          <div id="tevtEventCards"></div><div id="tevtActivePanel"></div>
         </div>
-
-        <!-- 🗿 MY MONUMENTS (collapsible) -->
-        <div class="base-section-title" onclick="toggleMonuments()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>🗿 <span data-i18n="monuments_title">MY MONUMENTS</span></span>
-          <span id="monumentsToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        <div id="beaconPanel" style="display:none">
+          <div id="beaconIconRow"></div>
+          <input id="beaconMsgInput"><input id="beaconXInput" type="number"><input id="beaconYInput" type="number">
+          <div id="beaconCostHint"></div><div id="activeBeaconsPanel"></div>
         </div>
-        <div id="monumentsPanel" style="display:none;padding:4px 0 8px">
-          <div id="monumentsContent">
-            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
+        <div id="tdescPanel" style="display:none">
+          <input id="tdescClaimInput" type="number">
+          <div id="tdescCurrentWrap" style="display:none"><div id="tdescCurrentText"></div></div>
+          <textarea id="tdescTextInput" maxlength="200" rows="3" oninput="document.getElementById('tdescCharCount').textContent=this.value.length+'/200'"></textarea>
+          <div id="tdescCharCount">0/200</div><div id="tdescCostHint"></div><div id="myTdescList"></div>
         </div>
-
-        <!-- 🏘️ TERRITORY RENTAL (collapsible) -->
-        <div class="base-section-title" onclick="toggleRentalPanel()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>🏘️ <span data-i18n="rental_title">TERRITORY RENTAL</span></span>
-          <span id="rentalToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="rentalPanel" style="display:none;padding:4px 0 8px">
-          <div id="rentalContent">
-            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
-        </div>
-
-        <!-- 🚀 EXPEDITIONS (collapsible) -->
-        <div class="base-section-title" onclick="toggleExpeditionPanel()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>🚀 <span data-i18n="expedition_title">EXPEDITIONS</span></span>
-          <span id="expeditionToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="expeditionPanel" style="display:none;padding:4px 0 8px">
-          <!-- Active expedition status -->
-          <div id="expeditionActive" style="display:none;padding:8px;border-radius:6px;background:rgba(128,222,234,.06);border:1px solid rgba(128,222,234,.2);margin-bottom:8px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span id="expActiveIcon" style="font-size:20px">🚀</span>
-              <div style="flex:1;min-width:0">
-                <div style="font-size:10px;color:var(--tx);font-weight:700" id="expActiveLabel"></div>
-                <div style="font-size:9px;color:var(--tx3)"><span data-i18n="expedition_returns">Returns</span>: <span id="expActiveReturns"></span></div>
-              </div>
-              <button onclick="cancelActiveExpedition()" style="font-size:8px;padding:3px 7px;border-radius:4px;background:rgba(232,72,85,.1);border:1px solid rgba(232,72,85,.25);color:var(--red);cursor:pointer" data-i18n="expedition_cancel_btn">CANCEL</button>
-            </div>
-          </div>
-          <!-- Launch new expedition -->
-          <div id="expeditionLauncher">
-            <div style="font-size:9px;color:var(--tx3);margin-bottom:6px" data-i18n="expedition_select_claim">SELECT TERRITORY & TYPE</div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <select id="expClaimSelect" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
-                <option value="">Loading territories…</option>
-              </select>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="expTypeButtons"></div>
-              <div style="display:flex;gap:4px;flex-wrap:wrap" id="expDurationButtons"></div>
-              <div style="font-size:9px;color:var(--tx3);padding:4px 0">Cost: <span id="expCostPreview" style="color:#80deea;font-weight:700">—</span></div>
-              <button onclick="launchExpeditionAction()" id="expLaunchBtn" style="padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(128,222,234,.3),rgba(128,222,234,.1));border:1px solid rgba(128,222,234,.4);color:#80deea;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="expedition_launch_btn">🚀 LAUNCH EXPEDITION</button>
-            </div>
-          </div>
-          <!-- History -->
-          <div style="margin-top:8px">
-            <button onclick="toggleExpeditionHistory()" style="font-size:9px;padding:3px 10px;border-radius:10px;border:1px solid rgba(128,222,234,.2);background:rgba(128,222,234,.06);color:#80deea;cursor:pointer;font-family:var(--fn)" data-i18n="expedition_history_btn">📜 EXPEDITION LOG</button>
-            <div id="expeditionHistoryPanel" style="display:none;margin-top:8px"></div>
-          </div>
-        </div>
-
-        <!-- 🏷️ TERRITORY BRANDING (collapsible) -->
-        <div class="base-section-title" onclick="toggleBrandingPanel()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>🏷️ <span data-i18n="branding_title">TERRITORY BRANDING</span></span>
-          <span id="brandingToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="brandingPanel" style="display:none;padding:4px 0 8px">
-          <!-- Territory selector -->
-          <div style="margin-bottom:8px">
-            <div style="font-size:9px;color:var(--tx3);margin-bottom:4px" data-i18n="branding_select_territory">Select a territory to brand:</div>
-            <select id="brandClaimSelect" onchange="onBrandClaimSelect(this.value)" style="width:100%;background:rgba(165,214,167,.06);border:1px solid rgba(165,214,167,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-              <option value="">— loading territories —</option>
-            </select>
-          </div>
-          <!-- Current branding preview -->
-          <div id="brandingPreview" style="display:none;padding:8px;border-radius:6px;background:rgba(165,214,167,.04);border:1px solid rgba(165,214,167,.15);margin-bottom:8px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-              <div id="brandColorDot" style="width:16px;height:16px;border-radius:50%;background:#a5d6a7;flex-shrink:0"></div>
-              <div>
-                <div id="brandNameDisplay" style="font-size:11px;color:var(--tx);font-family:var(--fn);font-weight:700"></div>
-                <div id="brandTaglineDisplay" style="font-size:9px;color:var(--tx3);font-style:italic"></div>
-              </div>
-            </div>
-          </div>
-          <!-- Name field -->
-          <div style="margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <span style="font-size:9px;color:var(--tx3)" data-i18n="branding_name_label">TERRITORY NAME</span>
-              <span id="brandNameCostLabel" style="font-size:9px;color:var(--gold)"></span>
-            </div>
-            <div style="display:flex;gap:6px">
-              <input id="brandNameInput" type="text" maxlength="24" placeholder="e.g. Fort Olympus" style="flex:1;background:rgba(165,214,167,.06);border:1px solid rgba(165,214,167,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-              <button onclick="setBrandingName()" style="padding:6px 10px;border-radius:6px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.35);color:#a5d6a7;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700" data-i18n="branding_set_btn">SET</button>
-            </div>
-          </div>
-          <!-- Tagline field -->
-          <div style="margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <span style="font-size:9px;color:var(--tx3)" data-i18n="branding_tagline_label">TAGLINE</span>
-              <span id="brandTagCostLabel" style="font-size:9px;color:var(--gold)"></span>
-            </div>
-            <div style="display:flex;gap:6px">
-              <input id="brandTagInput" type="text" maxlength="60" placeholder="e.g. The red frontier awaits" style="flex:1;background:rgba(165,214,167,.06);border:1px solid rgba(165,214,167,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-              <button onclick="setBrandingTagline()" style="padding:6px 10px;border-radius:6px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.35);color:#a5d6a7;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700" data-i18n="branding_set_btn">SET</button>
-            </div>
-          </div>
-          <!-- Color field -->
-          <div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <span style="font-size:9px;color:var(--tx3)" data-i18n="branding_color_label">THEME COLOR</span>
-              <span id="brandColorCostLabel" style="font-size:9px;color:var(--gold)"></span>
-            </div>
-            <div style="display:flex;gap:6px;align-items:center">
-              <input id="brandColorInput" type="color" value="#80cbc4" style="width:48px;height:32px;background:none;border:1px solid rgba(165,214,167,.3);border-radius:6px;cursor:pointer;padding:2px">
-              <span id="brandColorHex" style="font-size:10px;color:var(--tx3)">#80cbc4</span>
-              <button onclick="setBrandingColor()" style="margin-left:auto;padding:6px 10px;border-radius:6px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.35);color:#a5d6a7;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700" data-i18n="branding_set_btn">SET</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ✨ TERRITORY SPELLS (collapsible) -->
-        <div class="base-section-title" onclick="toggleSpellsPanel()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>✨ <span data-i18n="spells_title">TERRITORY SPELLS</span></span>
-          <span id="spellsToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="spellsPanel" style="display:none;padding:4px 0 8px">
-          <!-- Spell target selector -->
-          <div style="margin-bottom:8px">
-            <div style="font-size:9px;color:var(--tx3);margin-bottom:4px" data-i18n="spells_select_target">Target territory (enter claim # or select yours):</div>
-            <div style="display:flex;gap:6px">
-              <input id="spellClaimInput" type="number" min="1" placeholder="Claim #" style="width:100px;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-              <button onclick="loadSpellsOnClaim()" style="padding:6px 10px;border-radius:6px;background:rgba(244,143,177,.12);border:1px solid rgba(244,143,177,.3);color:#f48fb1;font-family:var(--fn);font-size:9px;cursor:pointer">🔍</button>
-            </div>
-          </div>
-          <!-- Active spells on target -->
-          <div id="spellsActiveOnTarget" style="display:none;padding:6px;border-radius:6px;background:rgba(244,143,177,.04);border:1px solid rgba(244,143,177,.12);margin-bottom:8px;font-size:9px">
-            <div style="color:var(--tx3);margin-bottom:4px" data-i18n="spells_active_label">ACTIVE SPELLS:</div>
-            <div id="spellsActiveList"></div>
-          </div>
-          <!-- Spell buttons grid -->
-          <div id="spellsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
-          <!-- My spell history -->
-          <div style="margin-top:8px">
-            <button onclick="toggleMySpellsHistory()" style="font-size:9px;padding:3px 10px;border-radius:10px;border:1px solid rgba(244,143,177,.2);background:rgba(244,143,177,.06);color:#f48fb1;cursor:pointer;font-family:var(--fn)" data-i18n="spells_history_btn">📜 SPELL HISTORY</button>
-            <div id="spellsHistoryPanel" style="display:none;margin-top:8px"></div>
-          </div>
-        </div>
-
-      <!-- 💎 TERRITORY TIERS (collapsible) -->
-      <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
-        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0" onclick="toggleTiersPanel()">
-          <span style="font-size:9px;color:#80deea;letter-spacing:2px;font-family:var(--fn);font-weight:700">💎 <span data-i18n="tiers_title">TERRITORY TIERS</span></span>
-          <span id="tiersPanelArrow" style="color:#80deea;font-size:10px">▼</span>
-        </div>
-        <div id="tiersPanel" style="display:none;margin-top:8px">
-          <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="tiers_desc">Upgrade your territories for permanent mining and pixel capacity bonuses.</div>
-          <!-- My tiered territories -->
-          <div style="font-size:9px;color:#80deea;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:6px" data-i18n="tiers_my_label">MY TERRITORIES</div>
-          <div id="myTiersPanel" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
-            <div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading…</div>
-          </div>
-          <!-- Tier table -->
-          <div style="font-size:9px;color:#80deea;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:6px" data-i18n="tiers_table_label">TIER BENEFITS</div>
-          <div id="tiersBenefitsTable" style="display:flex;flex-direction:column;gap:3px;margin-bottom:8px">
-            <div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading…</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ⚡ TERRITORY EVENTS (collapsible) -->
-      <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
-        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0" onclick="toggleTevtPanel()">
-          <span style="font-size:9px;color:#80cbc4;letter-spacing:2px;font-family:var(--fn);font-weight:700">⚡ <span data-i18n="tevt_title">TERRITORY EVENTS</span></span>
-          <span id="tevtPanelArrow" style="color:#80cbc4;font-size:10px">▼</span>
-        </div>
-        <div id="tevtPanel" style="display:none;margin-top:8px">
-          <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="tevt_desc">Activate temporary special events on your territory for GP.</div>
-          <!-- Select territory -->
-          <div style="margin-bottom:8px">
-            <label style="font-size:9px;color:#80cbc4;font-family:var(--fn);font-weight:700;display:block;margin-bottom:4px" data-i18n="tevt_select_label">SELECT TERRITORY (Claim #)</label>
-            <div style="display:flex;gap:6px">
-              <input id="tevtClaimInput" type="number" min="1" placeholder="#" style="width:70px;background:rgba(128,203,196,.06);border:1px solid rgba(128,203,196,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-              <button onclick="loadTevtForClaim()" style="padding:6px 10px;background:rgba(128,203,196,.12);border:1px solid rgba(128,203,196,.25);color:#80cbc4;border-radius:6px;cursor:pointer;font-size:9px;font-family:var(--fn)" data-i18n="tevt_load_btn">LOAD</button>
-            </div>
-          </div>
-          <!-- Event cards -->
-          <div id="tevtEventCards" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px"></div>
-          <!-- Active events on claim -->
-          <div>
-            <div style="font-size:9px;color:#80cbc4;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:4px" data-i18n="tevt_active_label">ACTIVE EVENTS</div>
-            <div id="tevtActivePanel" style="display:flex;flex-direction:column;gap:3px">
-              <div style="color:var(--tx3);font-size:9px;text-align:center;padding:4px">Load a territory to see active events</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 📡 MAP BEACONS (collapsible) -->
-      <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
-        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0" onclick="toggleBeaconPanel()">
-          <span style="font-size:9px;color:#81d4fa;letter-spacing:2px;font-family:var(--fn);font-weight:700">📡 <span data-i18n="beacon_title">MAP BEACONS</span></span>
-          <span id="beaconPanelArrow" style="color:#81d4fa;font-size:10px">▼</span>
-        </div>
-        <div id="beaconPanel" style="display:none;margin-top:8px">
-          <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="beacon_desc">Place a visible beacon on the map for other players to see.</div>
-          <!-- Icon selector -->
-          <div style="margin-bottom:8px">
-            <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_icon_label">ICON</div>
-            <div id="beaconIconRow" style="display:flex;flex-wrap:wrap;gap:4px"></div>
-          </div>
-          <!-- Message -->
-          <div style="margin-bottom:8px">
-            <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_msg_label">MESSAGE (optional)</div>
-            <input id="beaconMsgInput" maxlength="60" placeholder="e.g. Trade here! 🏪" style="width:100%;background:rgba(129,212,250,.06);border:1px solid rgba(129,212,250,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box">
-          </div>
-          <!-- Coords (auto from selected plot or manual) -->
-          <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
-            <div style="flex:1">
-              <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_x_label">X</div>
-              <input id="beaconXInput" type="number" style="width:100%;background:rgba(129,212,250,.06);border:1px solid rgba(129,212,250,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box" placeholder="0">
-            </div>
-            <div style="flex:1">
-              <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_y_label">Y</div>
-              <input id="beaconYInput" type="number" style="width:100%;background:rgba(129,212,250,.06);border:1px solid rgba(129,212,250,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box" placeholder="0">
-            </div>
-            <div style="padding-top:18px">
-              <button onclick="useCurrentPlotForBeacon()" style="padding:7px 10px;background:rgba(129,212,250,.1);border:1px solid rgba(129,212,250,.2);color:#81d4fa;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px" data-i18n="beacon_use_plot">📍 PLOT</button>
-            </div>
-          </div>
-          <div style="font-size:8px;color:var(--tx3);margin-bottom:8px" id="beaconCostHint"></div>
-          <button onclick="placeBeacon()" style="width:100%;padding:9px;background:rgba(129,212,250,.15);border:1px solid rgba(129,212,250,.35);color:#81d4fa;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="beacon_place_btn">📡 PLACE BEACON</button>
-          <!-- Active beacons list -->
-          <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
-            <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:6px" data-i18n="beacon_active_label">ACTIVE BEACONS</div>
-            <div id="activeBeaconsPanel" style="font-size:9px;color:var(--tx3)">Loading…</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 📝 TERRITORY DESCRIPTION (Migration 137, collapsible) -->
-      <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
-        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0" onclick="toggleTdescPanel()">
-          <span style="font-size:9px;color:#ffab91;letter-spacing:2px;font-family:var(--fn);font-weight:700">📝 <span data-i18n="tdesc_title">TERRITORY DESCRIPTION</span></span>
-          <span id="tdescPanelArrow" style="color:#ffab91;font-size:10px">▼</span>
-        </div>
-        <div id="tdescPanel" style="display:none;margin-top:8px">
-          <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="tdesc_desc">Add a custom description to your territory. Visible to all players.</div>
-          <!-- Claim selector -->
-          <div style="margin-bottom:8px">
-            <div style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="tdesc_claim_label">CLAIM #</div>
-            <div style="display:flex;gap:6px;align-items:center">
-              <input id="tdescClaimInput" type="number" min="1" placeholder="e.g. 42"
-                style="flex:1;background:rgba(255,171,145,.06);border:1px solid rgba(255,171,145,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box"
-                oninput="loadClaimDescriptionPreview()">
-              <button onclick="useMyClaim()" style="padding:7px 10px;background:rgba(255,171,145,.1);border:1px solid rgba(255,171,145,.2);color:#ffab91;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px" data-i18n="tdesc_use_claim">📍 MINE</button>
-            </div>
-          </div>
-          <!-- Current description preview -->
-          <div id="tdescCurrentWrap" style="display:none;margin-bottom:8px;padding:6px 8px;background:rgba(255,171,145,.04);border:1px solid rgba(255,171,145,.1);border-radius:6px">
-            <div style="font-size:8px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:3px" data-i18n="tdesc_current_label">CURRENT</div>
-            <div id="tdescCurrentText" style="font-size:9px;color:var(--tx2);line-height:1.5"></div>
-          </div>
-          <!-- Description textarea -->
-          <div style="margin-bottom:8px">
-            <div style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="tdesc_text_label">DESCRIPTION</div>
-            <textarea id="tdescTextInput" maxlength="200" rows="3" placeholder="e.g. Trade hub — all resources available!"
-              style="width:100%;background:rgba(255,171,145,.06);border:1px solid rgba(255,171,145,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box;resize:vertical"
-              oninput="document.getElementById('tdescCharCount').textContent=this.value.length+'/200'"></textarea>
-            <div style="font-size:8px;color:var(--tx3);text-align:right;margin-top:2px" id="tdescCharCount">0/200</div>
-          </div>
-          <div style="font-size:8px;color:var(--tx3);margin-bottom:8px" id="tdescCostHint"></div>
-          <button onclick="saveTdescDescription()" style="width:100%;padding:9px;background:rgba(255,171,145,.15);border:1px solid rgba(255,171,145,.35);color:#ffab91;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="tdesc_save_btn">📝 SAVE DESCRIPTION</button>
-          <!-- My descriptions list -->
-          <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
-            <div style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:6px" data-i18n="tdesc_my_label">MY DESCRIPTIONS</div>
-            <div id="myTdescList" style="font-size:9px;color:var(--tx3)">Loading…</div>
-          </div>
-        </div>
-
-      </div>
       </div>
 
       <!-- TAB: SECTORS -->
@@ -11729,6 +11480,55 @@ function _updateMyTerritories(){
     }
     listEl.appendChild(d);
   });
+  // ── BASE 탭 territory 목록도 업데이트 ──
+  _updateBaseTerritoryGroupList(grpList);
+}
+
+function _updateBaseTerritoryGroupList(grpList){
+  var baseList=document.getElementById('baseTerritoryGroupList');
+  var badgeEl=document.getElementById('baseTerritoryCountBadge');
+  if(!baseList) return;
+  var myAddr=(walletState&&walletState.address)||'';
+  if(!grpList) grpList=_myTerritoryGroups(myAddr);
+  if(badgeEl) badgeEl.textContent=grpList.length;
+  if(grpList.length===0){
+    baseList.innerHTML='<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">영토가 없습니다. 지도에서 영토를 구매하세요.</div>';
+    return;
+  }
+  var html='';
+  grpList.forEach(function(g,i){
+    var anyForSale=g.claims.some(function(c){return _forSaleMap&&_forSaleMap[c.id];});
+    var saleStyle=anyForSale?'border-color:rgba(76,216,154,.4);':'';
+    var saleBadge=anyForSale?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.3);color:#4cd89a;font-weight:700;margin-left:4px">판매중</span>':'';
+    var imgBadge=g.hasImg?'<span style="font-size:12px">📷</span>':'<span style="font-size:12px;opacity:.4">🏴</span>';
+    var merged=g.claims.length>1?'<span style="font-size:9px;color:var(--gold);margin-left:3px">('+g.claims.length+'개)</span>':'';
+    var name=g.claims.map(function(c){return c.customName||c.custom_name;}).filter(Boolean)[0]||null;
+    var displayName=name?('<span style="font-weight:700;color:var(--tx)">'+name+'</span>'):('<span style="color:var(--tx2)">'+g.centerLat.toFixed(1)+'°, '+g.centerLng.toFixed(1)+'°</span>');
+    html+='<div onclick="_baseTerritoryTap('+i+')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:8px;background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.15);cursor:pointer;transition:background .15s;'+saleStyle+'" onmouseenter="this.style.background=\'rgba(255,120,60,.14)\'" onmouseleave="this.style.background=\'rgba(255,120,60,.06)\'">';
+    html+='<span style="font-size:22px;min-width:28px;text-align:center">'+imgBadge+'</span>';
+    html+='<div style="flex:1;min-width:0">';
+    html+='<div style="font-size:12px;margin-bottom:2px">'+displayName+merged+saleBadge+'</div>';
+    html+='<div style="font-size:10px;color:var(--tx3)">'+g.totalPx+'px</div>';
+    html+='</div>';
+    html+='<div style="font-size:9px;color:var(--tx3);text-align:right">▶</div>';
+    html+='</div>';
+  });
+  baseList.innerHTML=html;
+  // 탭 상태 저장해서 tap 핸들러에서 접근
+  window._baseTerritoryGroups=grpList;
+}
+
+function _baseTerritoryTap(idx){
+  var grpList=window._baseTerritoryGroups||[];
+  var g=grpList[idx];
+  if(!g||!g.claims||!g.claims.length) return;
+  var ec=g.claims;
+  var b=_ownerGroups[(walletState&&walletState.address)||'']?_ownerGroups[(walletState&&walletState.address)||''].find(function(og){return og.claimIndices.some(function(ci){return claims[ci]&&claims[ci].id===ec[0].id;});}):{bounds:null};
+  var zoomW=b&&b.bounds?(b.bounds.maxLng-b.bounds.minLng):((ec[0].w||10)*0.22);
+  var zoomH=b&&b.bounds?(b.bounds.maxLat-b.bounds.minLat):((ec[0].h||10)*0.22);
+  if(globe) globe.pointOfView({lat:g.centerLat,lng:g.centerLng,altitude:Math.max(0.4,Math.max(zoomW,zoomH)*0.03)},600);
+  selectedPlot=ec[0];
+  showTerritoryInfo(ec[0]);
 }
 
 function loadNasa8k(){
@@ -20730,6 +20530,8 @@ function openBaseModal(){
     }
   }catch(_){}
   loadBaseData();
+  // 이미 claims 로드됐으면 BASE 영토 목록 즉시 업데이트
+  try{ _updateBaseTerritoryGroupList(); }catch(_){}
   // Load notification count on open
   setTimeout(loadNotifCount, 500);
 }
