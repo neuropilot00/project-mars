@@ -5216,7 +5216,7 @@ router.post('/territory/:claimId/upgrade', writeLimiter, async (req, res) => {
     const result = await upgradeSvc.upgradeTerritory(client, wallet, claimId, upgradeType);
     await client.query('COMMIT');
     // Side effects (fire-and-forget)
-    try { const { logGPActivity } = require('./db'); logGPActivity(wallet, -result.cost, 'territory_upgrade', { claimId, upgradeType, level: result.level }).catch(() => {}); } catch (_) {}
+    try { const { logGPActivity } = require('../db'); logGPActivity(wallet, -result.cost, 'territory_upgrade', { claimId, upgradeType, level: result.level }).catch(() => {}); } catch (_) {}
     res.json({ ok: true, ...result });
   } catch (err) {
     await client.query('ROLLBACK');

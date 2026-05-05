@@ -453,7 +453,7 @@ router.get('/territory/economy', requireAdmin, async (req, res) => {
         SUM((mat_val::text)::int) AS total_used,
         COUNT(*) AS build_count
       FROM ship_build_jobs,
-           jsonb_each_text(COALESCE(materials_used, '{}'::jsonb)) AS m(mat_key, mat_val)
+           jsonb_each_text(COALESCE(minerals_used, '{}'::jsonb)) AS m(mat_key, mat_val)
       WHERE created_at > NOW() - ($1 || ' days')::INTERVAL
       GROUP BY mat_key
       ORDER BY total_used DESC

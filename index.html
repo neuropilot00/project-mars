@@ -13223,14 +13223,17 @@ function showTerritoryInfo(plot){
       loadTerritoryProduction(plot.claimId,myW2);
     }
   }
-  // Upgrade panel (own territory only)
+  // Upgrade panel (own territory only) — reset state when switching territories
+  _territoryUpgradeState.open = false;
+  _territoryUpgradeState.data = null;
   var upgradeRow=document.getElementById('infoUpgradeRow');
   if(upgradeRow){
     upgradeRow.style.display='none';
     var upgradeBody=document.getElementById('infoUpgradeBody');
     if(upgradeBody) upgradeBody.innerHTML='';
-    document.getElementById('infoUpgradeToggleIcon').textContent='▶';
-    upgradeBody && (upgradeBody.style.display='none');
+    var upgradeToggleIcon=document.getElementById('infoUpgradeToggleIcon');
+    if(upgradeToggleIcon) upgradeToggleIcon.textContent='▶';
+    if(upgradeBody) upgradeBody.style.display='none';
     if(_isMyPlot&&plot.claimId){
       upgradeRow.style.display='';
     }
@@ -25577,7 +25580,9 @@ function renderCampaignList(chapters){
     }
     card+='<div class="campaign-card'+(done?' done':'')+'">';
     card+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">'+route+' '+t('campaign_label_route')+' · '+t('campaign_label_ch')+' '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
-    card+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars')+'</div>';
+    var _locLang=(typeof LANG!=='undefined'?LANG:'ko');
+    var _locDisplay=ch.location&&(_campaignStoryText(ch.location.displayName)||((_locLang!=='ko'&&ch.location.displayNameEn)||ch.location.displayNameKo));
+    card+='<div class="campaign-desc">'+escapeHtmlSafe(_locDisplay||'Mars')+'</div>';
     card+=campaignObjectivesHtml(ch,3);
     if(done||active){
       var m=p.metrics||{};
@@ -25652,10 +25657,18 @@ function campaignObjectiveActionTarget(action){
   return map[action]||'';
 }
 function campaignObjectiveActionLabel(action){
-  var isKo=(typeof LANG!=='undefined'&&LANG==='ko')||(typeof window._lang!=='undefined'&&window._lang==='ko');
-  if(isKo){
+  var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  if(lang==='ko'){
     var mapKo={territory:'내 영토',territory_art:'내 영토',shipyard:'조선소',fleet:'함대',fleet_battle:'전투',market:'마켓'};
     return mapKo[action]||t('campaign_objective_go');
+  }
+  if(lang==='ja'){
+    var mapJa={territory:'領地',territory_art:'領地',shipyard:'造船所',fleet:'艦隊',fleet_battle:'戦闘',market:'マーケット'};
+    return mapJa[action]||t('campaign_objective_go');
+  }
+  if(lang==='zh'){
+    var mapZh={territory:'我的领地',territory_art:'我的领地',shipyard:'造船厂',fleet:'舰队',fleet_battle:'战斗',market:'市场'};
+    return mapZh[action]||t('campaign_objective_go');
   }
   var map={territory:'MY LAND',territory_art:'MY LAND',shipyard:'SHIPYARD',fleet:'FLEET',fleet_battle:'BATTLE',market:'MARKET'};
   return map[action]||t('campaign_objective_go');
@@ -25714,7 +25727,10 @@ function _campaignStoryText(value){
   if(value==null) return '';
   if(typeof value==='string') return value;
   var lang=(typeof LANG!=='undefined'?LANG:'ko');
-  return value[lang]||value.ko||value.en||value.ja||value.zh||'';
+  // 한국어 사용자: ko → en → ja → zh 순 폴백
+  // 비한국어 사용자: lang → en → ko → ja → zh 순 폴백 (영어가 ko보다 우선)
+  if(lang==='ko') return value.ko||value.en||value.ja||value.zh||'';
+  return value[lang]||value.en||value.ko||value.ja||value.zh||'';
 }
 
 function _campaignStorySpeakerName(id){
