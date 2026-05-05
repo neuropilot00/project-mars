@@ -41,7 +41,8 @@ router.get('/:claimId/identity', async (req, res) => {
     if (!claimId) return res.status(400).json({ error: 'INVALID_CLAIM_ID' });
 
     const { rows } = await pool.query(
-      `SELECT c.id, c.owner, c.sector_code, c.pixel_count,
+      `SELECT c.id, c.owner, c.sector_code,
+              (c.width * c.height) AS pixel_count,
               c.image_url, c.nickname, c.bio,
               c.defense_wins, c.times_hijacked, c.battle_wins,
               c.field_rating, c.longest_hold_days,
@@ -49,7 +50,7 @@ router.get('/:claimId/identity', async (req, res) => {
               c.hold_bonus_pct, c.claimed_at,
               COALESCE(SUM(cu.level), 0) AS total_upgrade_level
        FROM claims c
-       LEFT JOIN claim_upgrades cu ON cu.claim_id = c.id
+       LEFT JOIN territory_upgrades cu ON cu.claim_id = c.id AND cu.is_active = true
        WHERE c.id = $1
        GROUP BY c.id`,
       [claimId]
@@ -243,7 +244,7 @@ module.exports.updateFieldRatings = async function() {
               c.defense_wins, c.badge_pioneer, c.badge_settler, c.badge_veteran,
               COALESCE(SUM(cu.level), 0) AS total_upgrade_level
        FROM claims c
-       LEFT JOIN claim_upgrades cu ON cu.claim_id = c.id
+       LEFT JOIN territory_upgrades cu ON cu.claim_id = c.id AND cu.is_active = true
        GROUP BY c.id`
     );
 
