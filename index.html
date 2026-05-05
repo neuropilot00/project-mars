@@ -8461,38 +8461,78 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="mt-img" id="mtImgWrap" style="display:none">
       <img id="mtImgPreview" src="" onclick="expandMtImg()">
     </div>
-    <div id="mtEditBtnWrap" style="display:none;padding:10px 0 4px">
-      <button id="mtEditImgBtn" onclick="closeMobTerritoryModal();openImageEditor(selectedPlot)"
-        style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));
-        border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
-        <span data-i18n="claim_add_img">ADD IMAGE</span>
-      </button>
-    </div>
-    <div id="mtCosmeticBtnWrap" style="display:none;padding:4px 0">
-      <button onclick="toggleMobCosmeticPanel()"
-        style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
-        border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
-        ✨ <span data-i18n="customize_btn">CUSTOMIZE</span>
-      </button>
-      <div id="mtCosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
+    <!-- 내 영토 액션 버튼 그리드 -->
+    <div id="mtOwnActions" style="display:none;padding:10px 0 4px">
+      <!-- 이미지 + 이름변경 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <button id="mtEditImgBtn" type="button" onclick="closeMobTerritoryModal();openImageEditor(selectedPlot)"
+          style="padding:14px 8px;border-radius:10px;background:linear-gradient(135deg,var(--mars),var(--red));
+          border:none;color:#fff;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          📷 <span id="mtEditImgLabel">ADD IMAGE</span>
+        </button>
+        <button type="button" onclick="closeMobTerritoryModal();renameTerritory(selectedPlot)"
+          style="padding:14px 8px;border-radius:10px;background:rgba(255,209,102,.12);
+          border:1px solid rgba(255,209,102,.3);color:var(--gold);font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          ✏️ 이름변경
+        </button>
+      </div>
+      <!-- 커스터마이즈 + 판매 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <button type="button" onclick="toggleMobCosmeticPanel()"
+          style="padding:14px 8px;border-radius:10px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
+          border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          ✨ 꾸미기
+        </button>
+        <button type="button" id="mtSellBtn" onclick="closeMobTerritoryModal();openListModal('claim',selectedPlot&&selectedPlot.claimId,'Territory','🗺️',0)"
+          style="padding:14px 8px;border-radius:10px;background:rgba(160,100,220,.12);
+          border:1px solid rgba(160,100,220,.35);color:#a064dc;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          💰 판매
+        </button>
+      </div>
+      <!-- 보호막 + 업그레이드 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <button type="button" onclick="closeMobTerritoryModal();openShieldModal()"
+          style="padding:14px 8px;border-radius:10px;background:rgba(92,187,255,.1);
+          border:1px solid rgba(92,187,255,.3);color:#5cbbff;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          🛡️ 보호막
+        </button>
+        <button type="button" onclick="closeMobTerritoryModal();openUpgradeModal()"
+          style="padding:14px 8px;border-radius:10px;background:rgba(129,212,250,.1);
+          border:1px solid rgba(129,212,250,.3);color:#81d4fa;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          🔧 업그레이드
+        </button>
+      </div>
+      <!-- 프로모 링크 -->
+      <div id="mtLinkEditWrap" style="padding:4px 0 8px">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:4px" data-i18n="promo_link">PROMO LINK</div>
+        <div style="display:flex;gap:6px">
+          <input type="url" id="mtLinkInput" placeholder="https://..." style="flex:1;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px;border-radius:6px">
+          <button type="button" onclick="savePromoLink()" style="padding:8px 14px;border-radius:6px;background:var(--mars);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="save_btn">SAVE</button>
+        </div>
+      </div>
+      <!-- 커스터마이즈 패널 -->
+      <div id="mtCosmeticPanel" style="display:none;margin:4px 0 8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
         <div style="font-size:9px;color:#c088e0;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px;font-weight:700" data-i18n="cosmetics_title">COSMETICS</div>
         <div id="mtCosmeticSlots" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
     </div>
-    <div id="mtLinkEditWrap" style="display:none;padding:4px 0 8px">
-      <div style="font-size:10px;color:var(--tx3);margin-bottom:4px" data-i18n="promo_link">PROMO LINK</div>
-      <div style="display:flex;gap:6px">
-        <input type="url" id="mtLinkInput" placeholder="https://..." style="flex:1;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px;border-radius:6px">
-        <button onclick="savePromoLink()" style="padding:8px 14px;border-radius:6px;background:var(--mars);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="save_btn">SAVE</button>
-      </div>
+    <!-- 남의 영토 액션 -->
+    <div id="mtOtherActions" style="display:none;padding:8px 0 4px">
+      <button type="button" class="mt-hijack" id="mtHijackBtn" onclick="closeMobTerritoryModal();hijackFromTerritoryInfo()">
+        ⚔ HIJACK 영토
+      </button>
     </div>
+    <!-- 공유 (항상) -->
     <div style="padding:4px 0">
-      <button onclick="shareTerritory(selectedPlot)"
-        style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));
-        border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
+      <button type="button" onclick="shareTerritory(selectedPlot)"
+        style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));
+        border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-family:var(--fn);font-size:11px;cursor:pointer;letter-spacing:1px;font-weight:700">
         📤 <span data-i18n="share_btn">SHARE</span>
       </button>
     </div>
+    <!-- 구버전 mtCosmeticBtnWrap — 더 이상 사용 안 함(숨김) -->
+    <div id="mtCosmeticBtnWrap" style="display:none"></div>
+    <div id="mtEditBtnWrap" style="display:none"></div>
   </div>
 </div>
 
@@ -14395,22 +14435,31 @@ function openMobTerritoryModal(){
     imgWrap.style.display='none';
   }
   selectedPlot=plot;
-  // Show edit image + promo link for own territories
-  var isMine=walletState&&walletState.address&&plot.owner===walletState.address;
-  var editWrap=document.getElementById('mtEditBtnWrap');
-  var editBtn=document.getElementById('mtEditImgBtn');
-  var linkEditWrap=document.getElementById('mtLinkEditWrap');
-  var mtCosBtn=document.getElementById('mtCosmeticBtnWrap');
+  // 내 영토 vs 남의 영토 액션 구분
+  var isMine=walletState&&walletState.address&&(plot.owner||'').toLowerCase()===(walletState.address||'').toLowerCase();
+  var ownActions=document.getElementById('mtOwnActions');
+  var otherActions=document.getElementById('mtOtherActions');
+  var imgLabel=document.getElementById('mtEditImgLabel');
+  var hijackBtn=document.getElementById('mtHijackBtn');
   if(isMine){
-    editWrap.style.display='';
-    editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
-    linkEditWrap.style.display='';
-    document.getElementById('mtLinkInput').value=plot.link||'';
-    mtCosBtn.style.display='';
+    if(ownActions) ownActions.style.display='';
+    if(otherActions) otherActions.style.display='none';
+    if(imgLabel) imgLabel.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
+    var li=document.getElementById('mtLinkInput'); if(li) li.value=plot.link||'';
+    // 판매중 표시
+    var sellBtn=document.getElementById('mtSellBtn');
+    if(sellBtn){
+      var fs=_forSaleMap&&_forSaleMap[plot.claimId||plot.id];
+      sellBtn.textContent=fs?'💰 판매중':'💰 판매';
+      sellBtn.style.color=fs?'#4cd89a':'#a064dc';
+      sellBtn.style.borderColor=fs?'rgba(76,216,154,.4)':'rgba(160,100,220,.35)';
+    }
   }else{
-    editWrap.style.display='none';
-    linkEditWrap.style.display='none';
-    mtCosBtn.style.display='none';
+    if(ownActions) ownActions.style.display='none';
+    if(otherActions) otherActions.style.display='';
+    // 하이젝 버튼: 방어 함대 있는 경우만
+    var canHijack=plot.owner&&plot.owner!=='__dead__'&&walletState.address;
+    if(hijackBtn) hijackBtn.style.display=canHijack?'':'none';
   }
   document.getElementById('mobTerritoryModal').classList.add('open');
 }
