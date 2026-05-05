@@ -2,13 +2,16 @@
 // ═══════════════════════════════════════════════════════════════
 // Fleet Battle API Routes
 //
-// POST   /api/battles/declare-pvp  — 유저간 즉시 전투 선언 (테스트용)
-// GET    /api/battles/:id          — 전투 상세 정보
-// GET    /api/battles/:id/timeline — 타임라인 JSON (재생용)
-// GET    /api/battles/list/active  — 진행 중 전투 목록
-// GET    /api/battles/list/recent  — 최근 종료된 전투
-// GET    /api/battles/list/history — 내 전투 기록
-// POST   /api/battles/:id/run      — 즉시 실행 (관리자/테스트)
+// POST   /api/battles/declare-pvp               — 유저간 즉시 전투 선언
+// GET    /api/battles/:id                       — 전투 상세 정보
+// GET    /api/battles/:id/timeline              — 타임라인 JSON (재생용)
+// GET    /api/battles/:id/report                — 전투 결과 리포트 카드
+// GET    /api/battles/list/active               — 진행 중 전투 목록
+// GET    /api/battles/list/recent               — 최근 종료된 전투
+// GET    /api/battles/list/history              — 내 전투 기록
+// GET    /api/battles/my-stats/:wallet          — 플레이어 전투 통계
+// GET    /api/battles/recommended-opponents/:wallet — 추천 상대 목록
+// POST   /api/battles/:id/run                   — 즉시 실행 (관리자/테스트)
 // ═══════════════════════════════════════════════════════════════
 
 const express = require('express');
@@ -18,6 +21,7 @@ const { pool } = require('../db');
 const battleEngine = require('../services/battleEngine');
 const battleScheduler = require('../services/battleScheduler');
 const battleTimeline = require('../services/battleTimeline');
+const battleReport = require('../services/battleReport');
 
 // ── 인증 (inline JWT) ──
 const requireAuth = (req, res, next) => {
@@ -346,6 +350,61 @@ router.post('/:id/forfeit', requireAuth, async (req, res) => {
     res.json({ success: true, result: 'already_resolved', status });
   } catch (err) {
     console.error('[battle] forfeit error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+/**
+ * GET /api/battles/:id/report
+ * 전투 결과 리포트 카드 (상세 통계, 하이라이트, 퍼포먼스 레이팅)
+ */
+router.get('/:id/report', async (req, res) => {
+  try {
+    const battleId = parseInt(req.params.id);
+    if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
+
+    const report = await battleReport.generateBattleReport(battleId);
+    if (!report) return res.status(404).json({ error: 'BATTLE_NOT_FOUND' });
+
+    res.json({ success: true, report });
+  } catch (err) {
+    console.error('[battle] report error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * GET /api/battles/my-stats/:wallet
+ * 플레이어 전투 통계 집계 (승률, KD, 연승, 파벌별 승률)
+ */
+router.get('/my-stats/:wallet', async (req, res) => {
+  try {
+    const wallet = req.params.wallet.toLowerCase().trim();
+    if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
+
+    const stats = await battleReport.getPlayerBattleStats(wallet);
+    res.json({ success: true, stats });
+  } catch (err) {
+    console.error('[battle] my-stats error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * GET /api/battles/recommended-opponents/:wallet
+ * CPI 기준 추천 상대 목록 (매칭 시스템)
+ */
+router.get('/recommended-opponents/:wallet', async (req, res) => {
+  try {
+    const wallet = req.params.wallet.toLowerCase().trim();
+    if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
+
+    const limit = Math.min(parseInt(req.query.limit) || 10, 20);
+    const opponents = await battleReport.getRecommendedOpponents(wallet, limit);
+    res.json({ success: true, opponents });
+  } catch (err) {
+    console.error('[battle] recommended-opponents error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
   }
 });

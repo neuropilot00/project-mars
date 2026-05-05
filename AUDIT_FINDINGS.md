@@ -1,4 +1,36 @@
-# OCCUPY MARS — Codebase Audit (v6.07 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.08 / 2026-05-05)
+
+## ✅ v6.08 게임 개선 4대 기능 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| **Migration 215** fleet_battles 통계 컬럼 + CPI | ✅ | DB 적용 완료 |
+| **Migration 216** claims 영토 정체성 컬럼 | ✅ | DB 적용 완료 |
+| **Migration 217** daily_ops 테이블 | ✅ | DB 적용 완료 |
+| **Migration 218** bounty_listings 테이블 | ✅ | DB 적용 완료 |
+| `server/services/battleReport.js` 생성 | ✅ | generateBattleReport/getPlayerBattleStats/getRecommendedOpponents |
+| `GET /api/battles/:id/report` | ✅ | fleetBattles.js에 추가 |
+| `GET /api/battles/my-stats/:wallet` | ✅ | fleetBattles.js에 추가 |
+| `GET /api/battles/recommended-opponents/:wallet` | ✅ | fleetBattles.js에 추가 |
+| `server/routes/dailyOps.js` 생성 | ✅ | GET/progress/claim/weekly-events |
+| `server/routes/bounty.js` 생성 | ✅ | list/my-bounties/on-me/post/claim/cancel |
+| `server/routes/territoryIdentity.js` 생성 | ✅ | identity CRUD + conflict-map |
+| 라우트 등록 (server/index.js) | ✅ | /api/bounty /api/daily-ops /api/territory /api/sectors |
+| Territory FR/Badge 스케줄러 | ✅ | 매 5분 체크, UTC 00:00 실행 |
+| Bounty 만료 스케줄러 | ✅ | 매 1시간 환불 처리 |
+| 프론트: 전투 리포트 카드 (showBattleResult + _loadBattleReport) | ✅ | S/A/B/C/D 레이팅, 하이라이트, MVP |
+| 프론트: _showMyBattleStats() 모달 | ✅ | 승률/KD/연승/파벌별 승률 |
+| 프론트: Daily OPS Board (OPS 탭 상단) | ✅ | 미션 목록+진행바+CLAIM |
+| 프론트: Territory Identity (영토 패널) | ✅ | FR/배지/닉네임/바이오 편집 |
+| 프론트: 추천 상대 (PVP 탭) | ✅ | CPI 기반 toggleRecommendedSection |
+| 프론트: 현상금 게시판 (PVP 탭) | ✅ | 등록/목록/취소 |
+| i18n 60+ 신규 키 (EN/KO) | ✅ | battle_report/daily_ops/territory_identity/bounty/pvp_rec |
+| 모듈 로드 오류 없음 | ✅ | node 문법 검증 통과 |
+| 서버 기동 오류 없음 | ✅ | `node server/index.js` 부팅 확인 |
+
+설계 문서: `docs/GAME_IMPROVEMENT_PLAN_2026-05-05.md`
+
+---
 
 ## ✅ v6.07 종합 로컬라이제이션 패스 — 완료
 

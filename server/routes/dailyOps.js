@@ -1,0 +1,284 @@
+// server/routes/dailyOps.js
+// ═══════════════════════════════════════════════════════════════
+// Daily OPS 미션 시스템 라우트
+//
+// GET  /api/daily-ops/:wallet          — 오늘 미션 목록 + 진행도
+// POST /api/daily-ops/progress         — 미션 진행도 업데이트 (내부 호출용)
+// POST /api/daily-ops/claim            — 완료 미션 보상 수령
+// GET  /api/daily-ops/weekly-events    — 이번주 이벤트 캘린더
+// ═══════════════════════════════════════════════════════════════
+
+const express = require('express');
+const router = express.Router();
+const { pool, getSetting } = require('../db');
+
+function getWallet(req) {
+  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+}
+
+// ── 오늘의 미션 타입 정의 ──────────────────────────────────────
+const DAILY_MISSION_TYPES = [
+  { type: 'harvest_pp',       label_en: 'Harvest your territory (×1)',  label_ko: '영토 채굴 1회',      target: 1, reward_key: 'mission_harvest_gp',       default_gp: 50  },
+  { type: 'battle_participate', label_en: 'Participate in a battle (×1)', label_ko: '전투 참여 1회',    target: 1, reward_key: 'mission_battle_gp',        default_gp: 100 },
+  { type: 'upgrade_ship',     label_en: 'Upgrade a ship stat (×1)',     label_ko: '함선 강화 1회',      target: 1, reward_key: 'mission_upgrade_gp',       default_gp: 75  },
+  { type: 'craft_resource',   label_en: 'Craft a resource (×1)',        label_ko: '재료 제작 1회',      target: 1, reward_key: 'mission_craft_gp',         default_gp: 60  },
+  { type: 'territory_art',    label_en: 'Register territory art (×1)',  label_ko: '영토 이미지 등록',   target: 1, reward_key: 'mission_territory_art_gp', default_gp: 80  },
+];
+
+// 매일 3가지 미션 — 요일별 고정 조합
+function getTodayMissions(date) {
+  const dow = date.getUTCDay(); // 0=Sun ... 6=Sat
+  const combos = [
+    [0, 1, 2], // Sun
+    [0, 1, 3], // Mon
+    [0, 1, 4], // Tue
+    [0, 1, 2], // Wed
+    [0, 2, 3], // Thu
+    [1, 2, 4], // Fri
+    [0, 3, 4], // Sat
+  ];
+  return combos[dow].map(i => DAILY_MISSION_TYPES[i]);
+}
+
+// ── 미션 초기화 (없으면 생성) ────────────────────────────────
+async function ensureDailyMissions(wallet) {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+  const missions = getTodayMissions(new Date());
+
+  for (const m of missions) {
+    const gp = parseInt(await getSetting(m.reward_key, String(m.default_gp))) || m.default_gp;
+    await pool.query(
+      `INSERT INTO daily_ops (wallet_address, ops_date, mission_type, target_count, reward_gp)
+       VALUES ($1, $2, $3, $4, $5) ON CONFLICT (wallet_address, ops_date, mission_type) DO NOTHING`,
+      [wallet, today, m.type, m.target, gp]
+    );
+  }
+}
+
+// ── GET /api/daily-ops/:wallet ────────────────────────────────
+router.get('/:wallet', async (req, res) => {
+  try {
+    const wallet = req.params.wallet.toLowerCase().trim();
+    if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
+
+    const enabled = await getSetting('enabled', 'true'); // daily_ops.enabled
+    // (category match는 getSetting이 key 기반이므로 'daily_ops.enabled' 아니라 직접 key)
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    // 미션이 없으면 생성
+    await ensureDailyMissions(wallet);
+
+    const { rows } = await pool.query(
+      `SELECT id, ops_date, mission_type, target_count, current_count,
+              reward_gp, completed, completed_at, reward_claimed, claimed_at
+       FROM daily_ops WHERE wallet_address = $1 AND ops_date = $2
+       ORDER BY mission_type`,
+      [wallet, today]
+    );
+
+    const missionDefs = getTodayMissions(new Date());
+    const missions = rows.map(r => {
+      const def = missionDefs.find(m => m.type === r.mission_type) || {};
+      return {
+        id: r.id,
+        type: r.mission_type,
+        label_en: def.label_en || r.mission_type,
+        label_ko: def.label_ko || r.mission_type,
+        target: r.target_count,
+        current: r.current_count,
+        progress_pct: Math.min(100, Math.round((r.current_count / r.target_count) * 100)),
+        reward_gp: r.reward_gp,
+        completed: r.completed,
+        completed_at: r.completed_at,
+        reward_claimed: r.reward_claimed,
+        claimed_at: r.claimed_at
+      };
+    });
+
+    const totalReward = missions.reduce((s, m) => s + m.reward_gp, 0);
+    const claimedReward = missions.filter(m => m.reward_claimed).reduce((s, m) => s + m.reward_gp, 0);
+
+    // 오늘의 이벤트
+    const weeklyEvent = getTodayWeeklyEvent();
+
+    res.json({
+      success: true,
+      date: today,
+      missions,
+      summary: {
+        total: missions.length,
+        completed: missions.filter(m => m.completed).length,
+        claimed: missions.filter(m => m.reward_claimed).length,
+        total_reward_gp: totalReward,
+        claimed_gp: claimedReward,
+        available_gp: missions.filter(m => m.completed && !m.reward_claimed).reduce((s, m) => s + m.reward_gp, 0)
+      },
+      weekly_event: weeklyEvent
+    });
+  } catch (err) {
+    console.error('[dailyOps] GET error:', err.message);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+// ── POST /api/daily-ops/progress (내부 호출) ──────────────────
+// 각 행동(채굴/전투/강화/제작)이 완료될 때 서버 내부에서 호출
+router.post('/progress', async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    const { mission_type } = req.body || {};
+    if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
+    if (!mission_type) return res.status(400).json({ error: 'MISSION_TYPE_REQUIRED' });
+
+    await ensureDailyMissions(wallet);
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    const { rows } = await pool.query(
+      `UPDATE daily_ops
+       SET current_count = LEAST(target_count, current_count + 1),
+           completed = CASE WHEN LEAST(target_count, current_count + 1) >= target_count THEN TRUE ELSE completed END,
+           completed_at = CASE WHEN LEAST(target_count, current_count + 1) >= target_count AND completed = FALSE THEN NOW() ELSE completed_at END
+       WHERE wallet_address = $1 AND ops_date = $2 AND mission_type = $3 AND completed = FALSE
+       RETURNING id, mission_type, current_count, target_count, completed, reward_gp`,
+      [wallet, today, mission_type]
+    );
+
+    const updated = rows[0];
+    if (!updated) return res.json({ success: true, updated: false, reason: 'already_completed_or_not_found' });
+
+    res.json({
+      success: true,
+      updated: true,
+      mission: {
+        type: updated.mission_type,
+        current: updated.current_count,
+        target: updated.target_count,
+        completed: updated.completed,
+        reward_gp: updated.reward_gp
+      }
+    });
+  } catch (err) {
+    console.error('[dailyOps] progress error:', err.message);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+// ── POST /api/daily-ops/claim ─────────────────────────────────
+router.post('/claim', async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    const { mission_id } = req.body || {};
+    if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // 특정 미션 또는 전체 완료 미션 수령
+      let query, params;
+      if (mission_id) {
+        query = `SELECT id, reward_gp FROM daily_ops
+                 WHERE id = $1 AND wallet_address = $2 AND ops_date = $3
+                   AND completed = TRUE AND reward_claimed = FALSE
+                 FOR UPDATE`;
+        params = [mission_id, wallet, today];
+      } else {
+        query = `SELECT id, reward_gp FROM daily_ops
+                 WHERE wallet_address = $1 AND ops_date = $2
+                   AND completed = TRUE AND reward_claimed = FALSE
+                 FOR UPDATE`;
+        params = [wallet, today];
+      }
+
+      const { rows: claimable } = await client.query(query, params);
+      if (claimable.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'NO_CLAIMABLE_MISSIONS' });
+      }
+
+      const totalGP = claimable.reduce((s, r) => s + r.reward_gp, 0);
+      const ids = claimable.map(r => r.id);
+
+      // 미션 수령 처리
+      await client.query(
+        `UPDATE daily_ops SET reward_claimed = TRUE, claimed_at = NOW()
+         WHERE id = ANY($1)`,
+        [ids]
+      );
+
+      // GP 지급
+      await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+        [totalGP, wallet]
+      );
+
+      await client.query('COMMIT');
+
+      // GP 활동 로그 (fire-and-forget)
+      try {
+        const { logGPActivity } = require('../db');
+        logGPActivity(wallet, totalGP, 'daily_ops_reward', `Daily OPS 보상 ${ids.length}개 수령`).catch(() => {});
+      } catch (_) {}
+
+      res.json({ success: true, claimed_count: ids.length, total_gp: totalGP });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('[dailyOps] claim error:', err.message);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+// ── 주간 이벤트 헬퍼 ─────────────────────────────────────────
+function getTodayWeeklyEvent() {
+  const dow = new Date().getUTCDay();
+  const events = {
+    1: { type: 'mining_bonus',    multiplier: 1.5, label_en: 'Mining Bonus +50%', label_ko: '채굴 보너스 +50%', icon: '⛏' },
+    3: { type: 'battle_gp_boost', multiplier: 1.3, label_en: 'Battle GP +30%',    label_ko: '전투 GP +30%',    icon: '⚔' },
+    5: { type: 'upgrade_discount',multiplier: 0.8, label_en: 'Upgrade Cost -20%', label_ko: '강화 비용 -20%',  icon: '🔧' },
+    6: { type: 'double_bounty',   multiplier: 2.0, label_en: 'Double Bounty',     label_ko: '현상금 2배',      icon: '💰' },
+  };
+  return events[dow] || null;
+}
+
+// ── GET /api/daily-ops/weekly-events ─────────────────────────
+router.get('/weekly-events', async (req, res) => {
+  try {
+    const week = [
+      { day: 0, name: 'SUN', label_en: 'No Event',         label_ko: '이벤트 없음',     icon: '—', type: null, multiplier: 1 },
+      { day: 1, name: 'MON', label_en: 'Mining Bonus +50%', label_ko: '채굴 보너스 +50%', icon: '⛏', type: 'mining_bonus',    multiplier: 1.5 },
+      { day: 2, name: 'TUE', label_en: 'No Event',         label_ko: '이벤트 없음',     icon: '—', type: null, multiplier: 1 },
+      { day: 3, name: 'WED', label_en: 'Battle GP +30%',   label_ko: '전투 GP +30%',    icon: '⚔', type: 'battle_gp_boost',  multiplier: 1.3 },
+      { day: 4, name: 'THU', label_en: 'No Event',         label_ko: '이벤트 없음',     icon: '—', type: null, multiplier: 1 },
+      { day: 5, name: 'FRI', label_en: 'Upgrade -20%',     label_ko: '강화 비용 -20%',  icon: '🔧', type: 'upgrade_discount', multiplier: 0.8 },
+      { day: 6, name: 'SAT', label_en: 'Double Bounty',    label_ko: '현상금 2배',      icon: '💰', type: 'double_bounty',    multiplier: 2.0 },
+    ];
+    const todayDow = new Date().getUTCDay();
+    res.json({ success: true, week, today_dow: todayDow });
+  } catch (err) {
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+module.exports = router;
+module.exports.notifyMissionProgress = async function(wallet, missionType) {
+  if (!wallet || !missionType) return;
+  try {
+    await pool.query(
+      `UPDATE daily_ops
+       SET current_count = LEAST(target_count, current_count + 1),
+           completed = CASE WHEN LEAST(target_count, current_count + 1) >= target_count THEN TRUE ELSE completed END,
+           completed_at = CASE WHEN LEAST(target_count, current_count + 1) >= target_count AND completed = FALSE THEN NOW() ELSE completed_at END
+       WHERE wallet_address = $1 AND ops_date = CURRENT_DATE AND mission_type = $2 AND completed = FALSE`,
+      [wallet.toLowerCase(), missionType]
+    );
+  } catch (_) {}
+};

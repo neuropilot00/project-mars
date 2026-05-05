@@ -5731,6 +5731,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div style="font-size:8px;color:#bb86fc;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px">🔧 UPGRADES</div>
       <div id="infoUpgradeBody"></div>
     </div>
+    <!-- Territory Identity panel (own territory only, P6) -->
+    <div id="infoIdentityRow" style="display:none;margin:8px 0 4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:8px;color:#e1bee7;font-family:var(--fn);font-weight:700;letter-spacing:1px">🏷 <span data-i18n="territory_identity_title">Territory Identity</span></div>
+        <button id="infoIdentityEditBtn" type="button" onclick="openTerritoryIdentityEdit()" style="font-size:8px;background:rgba(225,190,231,.08);border:1px solid rgba(225,190,231,.2);color:#e1bee7;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:var(--fn)" data-i18n="territory_edit_identity">✏ Edit</button>
+      </div>
+      <div id="infoIdentityBody" style="font-size:9px;color:var(--tx2);line-height:1.7"></div>
+    </div>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)" data-i18n="share_btn">📤 SHARE</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
     <button class="uf" id="infoCosmeticBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(255,100,200,.08));border-color:rgba(180,100,255,.3);color:#c088e0" onclick="openCosmeticPanel(selectedPlot)" data-i18n="customize_btn">✨ CUSTOMIZE</button>
@@ -6267,7 +6275,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
       <!-- 임무 (퀘스트/작전/수송/시즌 — 직접 행동·진행 계열) -->
       <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();loadDailyOpsBoard();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
       <!-- 커뮤니티 (길드·거버넌스) -->
@@ -7432,6 +7440,38 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
           <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
         </div>
+
+        <!-- RECOMMENDED OPPONENTS section -->
+        <div class="base-section-title" style="color:#ffd700;cursor:pointer;margin-top:4px" onclick="toggleRecommendedSection()"><span data-i18n="pvp_rec_title">🎯 RECOMMENDED OPPONENTS</span> <span id="recToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="recOpponentsSection" style="margin-bottom:12px;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div style="font-size:9px;color:var(--tx3)" data-i18n="pvp_rec_loading">Searching for opponents…</div>
+            <button onclick="loadRecommendedOpponents()" style="font-size:9px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);color:#ffd700;padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+          </div>
+          <div id="recOpponentsList"></div>
+        </div>
+
+        <!-- BOUNTY BOARD section -->
+        <div class="base-section-title" style="color:#ffab40;cursor:pointer;margin-top:4px" onclick="toggleBountySection()"><span data-i18n="bounty_title">💰 BOUNTY BOARD</span> <span id="bountyToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="bountyBoardSection" style="margin-bottom:12px;display:none">
+          <!-- Post bounty form -->
+          <div id="bountyPostForm" style="padding:10px;border-radius:8px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.2);margin-bottom:10px">
+            <div style="font-size:9px;color:#ffab40;font-weight:700;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px" data-i18n="bounty_post">Post Bounty</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <input type="text" id="bountyTargetWallet" placeholder="0x..." style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)" data-i18n-placeholder="bounty_post_target">
+              <input type="number" id="bountyRewardGP" min="100" step="100" placeholder="GP amount (min 100)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)" data-i18n-placeholder="bounty_post_amount">
+              <input type="text" id="bountyReason" placeholder="Reason (optional)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)" data-i18n-placeholder="bounty_post_reason">
+              <button onclick="postBounty()" style="padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(255,171,64,.25),rgba(255,171,64,.1));border:1px solid rgba(255,171,64,.4);color:#ffab40;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer" data-i18n="bounty_post_submit">Post Bounty</button>
+            </div>
+          </div>
+          <!-- Bounty list tabs -->
+          <div style="display:flex;gap:4px;margin-bottom:6px">
+            <button id="btyTabAll" onclick="switchBountyTab('all')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,171,64,.18);border:1px solid rgba(255,171,64,.4);color:#ffab40;cursor:pointer;font-weight:700" data-i18n="inv_cat_all">All</button>
+            <button id="btyTabMe"  onclick="switchBountyTab('on-me')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="bounty_on_me">On Me</button>
+            <button id="btyTabMine" onclick="switchBountyTab('mine')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="pvp_my_stats">Mine</button>
+          </div>
+          <div id="bountyList" style="font-size:10px;color:var(--tx3)"><span data-i18n="bounty_no_bounties">No active bounties</span></div>
+        </div>
       </div>
 
       <!-- TAB: GOVERN -->
@@ -7745,9 +7785,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
 
-      <!-- TAB: OPS — single-player invasion + exploration missions -->
+      <!-- TAB: OPS — Daily OPS Board + single-player invasion + exploration missions -->
       <div class="base-pane" id="basePane_ops">
         <div style="padding:8px 2px 12px">
+
+          <!-- ─ DAILY OPS BOARD ─────────────────────────────── -->
+          <div id="dailyOpsBoard" style="margin-bottom:16px;border-radius:10px;background:linear-gradient(135deg,rgba(91,184,232,.06),rgba(91,184,232,.02));border:1px solid rgba(91,184,232,.25);padding:12px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <div>
+                <div style="font-size:12px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:1px" data-i18n="daily_ops_title">⚡ DAILY OPS</div>
+                <div style="font-size:9px;color:var(--tx3);font-family:var(--fn)" data-i18n="daily_ops_subtitle">Reset: UTC 00:00</div>
+              </div>
+              <div id="dailyOpsWeeklyEvent" style="font-size:9px;text-align:right"></div>
+            </div>
+            <div id="dailyOpsMissions" style="font-size:10px;color:var(--tx3)"><span data-i18n="daily_ops_loading">Loading missions…</span></div>
+            <div id="dailyOpsClaimAll" style="display:none;margin-top:8px">
+              <button onclick="claimAllDailyOps()" style="width:100%;padding:8px;border-radius:6px;background:linear-gradient(135deg,var(--cyan),#3B8BCC);border:none;color:#001;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:900;letter-spacing:1px">⚡ CLAIM ALL GP</button>
+            </div>
+          </div>
+
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
             <div style="font-size:22px">🛰️</div>
             <div style="flex:1">
@@ -13333,6 +13389,18 @@ function showTerritoryInfo(plot){
       if(upgradeBody) upgradeBody.innerHTML='';
     }
   }
+  // Identity panel (own territory only)
+  var identityRow=document.getElementById('infoIdentityRow');
+  if(identityRow){
+    if(_isMyPlot&&plot.claimId){
+      identityRow.style.display='';
+      loadTerritoryIdentity(plot.claimId);
+    } else {
+      identityRow.style.display='none';
+      var identityBody=document.getElementById('infoIdentityBody');
+      if(identityBody) identityBody.innerHTML='';
+    }
+  }
 }
 
 // ── Territory Merge ──────────────────────────────────────────────────────────
@@ -13755,6 +13823,96 @@ async function doTerritoryUpgrade(claimId, upgradeType) {
   } catch (e) {
     showFactionToast('업그레이드 요청 실패', 'error');
   }
+}
+
+// ══ TERRITORY IDENTITY ════════════════════════════════════════
+
+var _frTierIcons = { newcomer:'🌱', pioneer:'⛏', settler:'🏠', fortress:'🛡', legend:'🌟' };
+
+function loadTerritoryIdentity(claimId) {
+  var body = document.getElementById('infoIdentityBody');
+  if (!body) return;
+  body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">로딩 중…</div>';
+
+  fetch('/api/territory/' + claimId + '/identity')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d.success || !d.identity) { body.innerHTML = ''; return; }
+      var id = d.identity;
+      var tierIcon = _frTierIcons[id.fr_tier && id.fr_tier.tier] || '🌱';
+      var tierLabelKey = 'territory_fr_tier_' + (id.fr_tier && id.fr_tier.tier || 'newcomer');
+      var tierLabel = t(tierLabelKey) || (id.fr_tier && id.fr_tier.label_en) || 'Newcomer';
+      var badgesHtml = (id.badges || []).map(function(b){
+        var bkey = 'territory_badge_' + b.id;
+        return '<span style="font-size:8px;background:rgba(225,190,231,.12);border:1px solid rgba(225,190,231,.25);color:#e1bee7;padding:1px 6px;border-radius:8px;margin-right:3px">' + (t(bkey) || b.label_en) + '</span>';
+      }).join('');
+
+      var holdBonusStr = id.hold_bonus_pct > 0 ? ' <span style="color:var(--gn)">+' + id.hold_bonus_pct + '%</span>' : '';
+
+      body.innerHTML =
+        (id.nickname ? '<div style="font-size:11px;color:#e1bee7;font-weight:700;margin-bottom:4px">' + _esc(id.nickname) + '</div>' : '') +
+        (id.bio ? '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px;opacity:.8">' + _esc(id.bio) + '</div>' : '') +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
+          '<div style="text-align:center">' +
+            '<div style="font-size:22px">' + tierIcon + '</div>' +
+            '<div style="font-size:8px;color:#e1bee7">' + tierLabel + '</div>' +
+          '</div>' +
+          '<div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px 8px">' +
+            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_fr') + '</span> <b style="color:#e1bee7">' + id.field_rating + '</b></div>' +
+            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_hold_days') + '</span> <b>' + id.hold_days + 'd</b></div>' +
+            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_defense_wins') + '</span> <b style="color:var(--gn)">' + id.defense_wins + '</b></div>' +
+            '<div><span style="color:var(--tx3);font-size:8px">' + t('territory_hold_bonus') + '</span> <b>' + (id.hold_bonus_pct > 0 ? '+' + id.hold_bonus_pct + '%' : '—') + '</b></div>' +
+          '</div>' +
+        '</div>' +
+        (badgesHtml ? '<div style="margin-top:4px">' + badgesHtml + '</div>' : '');
+    })
+    .catch(function() { if (body) body.innerHTML = ''; });
+}
+
+function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function openTerritoryIdentityEdit() {
+  var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || walletState?.address || '';
+  var claimId = selectedPlot && selectedPlot.claimId;
+  if (!wallet || !claimId) return;
+
+  // Fetch current
+  var current = {};
+  try {
+    var r = await fetch('/api/territory/' + claimId + '/identity');
+    var d = await r.json();
+    if (d.success) current = d.identity || {};
+  } catch(_) {}
+
+  var nickname = await gameInput({
+    title: t('territory_identity_title'),
+    label: t('territory_nickname'),
+    placeholder: 'eg. Red Dust Base',
+    defaultValue: current.nickname || '',
+    maxLength: 40
+  });
+  if (nickname === null || nickname === undefined) return;
+
+  var bio = await gameInput({
+    title: t('territory_identity_title'),
+    label: t('territory_bio'),
+    placeholder: 'eg. Our forward base in sector F9',
+    defaultValue: current.bio || '',
+    maxLength: 200
+  });
+  if (bio === null || bio === undefined) return;
+
+  try {
+    var res = await fetch('/api/territory/' + claimId + '/identity', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-wallet': wallet },
+      body: JSON.stringify({ wallet: wallet, nickname: nickname.trim(), bio: bio.trim() })
+    });
+    var resp = await res.json();
+    if (!resp.success) { showToast(resp.error || 'Update failed', 'error'); return; }
+    showToast('✓ ' + t('territory_save_identity'), 'success');
+    loadTerritoryIdentity(claimId);
+  } catch(e) { showToast('Update failed', 'error'); }
 }
 
 // ── Cosmetic Panel ──
@@ -16662,6 +16820,43 @@ var I18N = {
     bv_atk_won: 'Attackers Won', bv_def_won: 'Defenders Won', bv_draw_result: 'Draw',
     bv_stat_total_ships: 'Total Ships', bv_stat_losses: 'Losses', bv_stat_damage: 'Damage',
     bv_my_badge: 'YOU',
+    bv_performance: 'Performance', bv_rating: 'Rating', bv_efficiency: 'Efficiency',
+    bv_highlights: 'Battle Highlights', bv_view_report: '📊 Full Report', bv_my_stats: '📈 My Stats',
+    bv_mvp: 'MVP', bv_flagship_ok: 'Flagship Survived', bv_flagship_lost: 'Flagship Destroyed',
+    bv_report_loading: 'Loading report…', bv_report_error: 'Report unavailable',
+    bv_stat_survived: 'Survived', bv_stat_efficiency: 'Efficiency',
+    bvstat_w: 'W', bvstat_l: 'L', bvstat_d: 'D',
+    bvstat_kd: 'K/D', bvstat_winrate: 'Win Rate', bvstat_streak: 'Best Streak',
+    bvstat_best: 'Best Rating', bvstat_title: 'My Battle Stats',
+    bvstat_total: 'Total Battles', bvstat_close: 'Close',
+    daily_ops_title: '⚡ DAILY OPS', daily_ops_subtitle: 'Reset: UTC 00:00',
+    daily_ops_no_missions: 'Complete your daily missions for GP rewards',
+    daily_ops_claim: 'Claim', daily_ops_claimed: 'Claimed', daily_ops_completed: 'Done',
+    daily_ops_event_today: "Today's Event",
+    daily_ops_loading: 'Loading missions…',
+    daily_ops_all_claimed: 'All missions claimed! Come back tomorrow.',
+    territory_identity_title: 'Territory Identity', territory_fr: 'Field Rating',
+    territory_nickname: 'Name', territory_bio: 'Description',
+    territory_edit_identity: '✏ Edit Name/Bio', territory_save_identity: 'Save',
+    territory_badge_pioneer: '⛏ Pioneer (7d)', territory_badge_settler: '🏠 Settler (30d)',
+    territory_badge_veteran: '🎖 Veteran (90d)', territory_badge_fortress: '🛡 Fortress',
+    territory_defense_wins: 'Defense Wins', territory_times_hijacked: 'Times Hijacked',
+    territory_hold_days: 'Hold Days', territory_hold_bonus: 'Harvest Bonus',
+    territory_fr_tier_newcomer: 'Newcomer', territory_fr_tier_pioneer: 'Pioneer',
+    territory_fr_tier_settler: 'Settler', territory_fr_tier_fortress: 'Fortress',
+    territory_fr_tier_legend: 'Legend',
+    bounty_title: '💰 BOUNTY BOARD', bounty_post: 'Post Bounty',
+    bounty_post_target: 'Target Wallet', bounty_post_amount: 'Reward GP',
+    bounty_post_reason: 'Reason (optional)', bounty_post_submit: 'Post Bounty',
+    bounty_no_bounties: 'No active bounties',
+    bounty_reward: 'Reward', bounty_expires: 'Expires',
+    bounty_on_me: 'On Me', bounty_claim_hint: 'Win a battle against the target to claim',
+    bounty_cancel: 'Cancel & Refund',
+    pvp_rec_title: '🎯 RECOMMENDED OPPONENTS',
+    pvp_rec_cpi: 'CPI', pvp_rec_ships: 'Ships', pvp_rec_wins: 'Wins',
+    pvp_rec_challenge: 'Challenge', pvp_rec_loading: 'Searching for opponents…',
+    pvp_rec_no_opponents: 'No suitable opponents found',
+    pvp_rec_cpi_diff: 'Power Diff',
     fleet_no_fleet_hint: 'No fleets — build ships in the Shipyard',
     fleet_no_ships_hint: 'No ships<br>Build in the Shipyard',
     fleet_no_combat_fleet: 'No combat-ready fleet. Build ships in the Shipyard!',
@@ -17463,6 +17658,42 @@ var I18N = {
     bv_atk_won: '공격군 승리', bv_def_won: '수비군 승리', bv_draw_result: '무승부',
     bv_stat_total_ships: '총 함선', bv_stat_losses: '손실', bv_stat_damage: '데미지',
     bv_my_badge: '나',
+    bv_performance: '퍼포먼스', bv_rating: '레이팅', bv_efficiency: '효율',
+    bv_highlights: '전투 하이라이트', bv_view_report: '📊 상세 리포트', bv_my_stats: '📈 내 전투 기록',
+    bv_mvp: 'MVP', bv_flagship_ok: '기함 생존', bv_flagship_lost: '기함 격침',
+    bv_report_loading: '리포트 로딩 중…', bv_report_error: '리포트 불러오기 실패',
+    bv_stat_survived: '생존', bv_stat_efficiency: '효율',
+    bvstat_w: '승', bvstat_l: '패', bvstat_d: '무',
+    bvstat_kd: 'K/D', bvstat_winrate: '승률', bvstat_streak: '최장 연승',
+    bvstat_best: '최고 레이팅', bvstat_title: '내 전투 기록',
+    bvstat_total: '총 전투', bvstat_close: '닫기',
+    daily_ops_title: '⚡ DAILY OPS', daily_ops_subtitle: '리셋: UTC 00:00',
+    daily_ops_no_missions: '데일리 미션을 완료하고 GP 보상을 받으세요',
+    daily_ops_claim: '수령', daily_ops_claimed: '수령완료', daily_ops_completed: '완료',
+    daily_ops_event_today: '오늘의 이벤트',
+    daily_ops_loading: '미션 로딩 중…',
+    daily_ops_all_claimed: '오늘 미션 모두 수령! 내일 다시 오세요.',
+    territory_identity_title: '영토 정체성', territory_fr: '필드 레이팅',
+    territory_nickname: '이름', territory_bio: '설명',
+    territory_edit_identity: '✏ 이름/설명 편집', territory_save_identity: '저장',
+    territory_badge_pioneer: '⛏ 개척자 (7일)', territory_badge_settler: '🏠 정착민 (30일)',
+    territory_badge_veteran: '🎖 베테랑 (90일)', territory_badge_fortress: '🛡 요새',
+    territory_defense_wins: '방어 승리', territory_times_hijacked: '피격 횟수',
+    territory_hold_days: '보유 기간', territory_hold_bonus: '채굴 보너스',
+    territory_fr_tier_newcomer: '신규', territory_fr_tier_pioneer: '개척자',
+    territory_fr_tier_settler: '정착민', territory_fr_tier_fortress: '요새',
+    territory_fr_tier_legend: '전설',
+    bounty_title: '💰 현상금 게시판', bounty_post: '현상금 등록',
+    bounty_post_target: '대상 지갑', bounty_post_amount: '보상 GP',
+    bounty_post_reason: '사유 (선택)', bounty_post_submit: '현상금 등록',
+    bounty_no_bounties: '활성 현상금 없음',
+    bounty_reward: '보상', bounty_expires: '만료',
+    bounty_on_me: '나에게 걸린', bounty_claim_hint: '대상과의 전투에서 이기면 수령 가능',
+    bounty_cancel: '취소 & 환불',
+    pvp_rec_title: '🎯 추천 상대', pvp_rec_cpi: 'CPI', pvp_rec_ships: '함선',
+    pvp_rec_wins: '승리', pvp_rec_challenge: '도전',
+    pvp_rec_loading: '상대 탐색 중…', pvp_rec_no_opponents: '적합한 상대를 찾을 수 없습니다',
+    pvp_rec_cpi_diff: '전력 차이',
     fleet_no_fleet_hint: '보유 함대 없음 — 조선소에서 함선을 건조하세요',
     fleet_no_ships_hint: '보유 함선 없음<br>조선소에서 함선을 건조하세요',
     fleet_no_combat_fleet: '전투 가능한 함대가 없습니다. 함선을 건조하세요!',
@@ -24393,6 +24624,98 @@ function cancelOpsMission(id){
       loadOpsTab();
     }).catch(function(e){ showToast('Cancel failed: '+e.message,'error'); });
   });
+}
+
+// ══ DAILY OPS BOARD ═══════════════════════════════════════════
+
+async function loadDailyOpsBoard() {
+  var wallet = walletState.address;
+  if (!wallet) return;
+  var el = document.getElementById('dailyOpsMissions');
+  var claimAllBtn = document.getElementById('dailyOpsClaimAll');
+  var weeklyEl = document.getElementById('dailyOpsWeeklyEvent');
+  if (!el) return;
+
+  el.innerHTML = '<span style="color:var(--tx3);font-size:10px">' + t('daily_ops_loading') + '</span>';
+  try {
+    var res = await fetch('/api/daily-ops/' + encodeURIComponent(wallet));
+    var data = await res.json();
+    if (!data.success) throw new Error('failed');
+
+    var missions = data.missions || [];
+    var we = data.weekly_event;
+
+    // 주간 이벤트 표시
+    if (we && weeklyEl) {
+      weeklyEl.innerHTML = '<span style="font-size:14px">' + (we.icon||'') + '</span> <span style="color:var(--gold)">' + (LANG==='ko' ? we.label_ko : we.label_en) + '</span>';
+    }
+
+    if (missions.length === 0) {
+      el.innerHTML = '<div style="color:var(--tx3);font-size:10px">' + t('daily_ops_no_missions') + '</div>';
+      return;
+    }
+
+    var hasClaimable = missions.some(function(m){ return m.completed && !m.reward_claimed; });
+    var allClaimed = missions.every(function(m){ return m.reward_claimed; });
+
+    if (allClaimed) {
+      el.innerHTML = '<div style="color:var(--gn);font-size:10px;text-align:center;padding:8px">' + t('daily_ops_all_claimed') + '</div>';
+      if (claimAllBtn) claimAllBtn.style.display = 'none';
+      return;
+    }
+
+    el.innerHTML = missions.map(function(m) {
+      var label = LANG==='ko' ? m.label_ko : m.label_en;
+      var pct = m.progress_pct;
+      var barCol = m.completed ? 'var(--gn)' : 'var(--cyan)';
+      var statusLabel = m.reward_claimed
+        ? '<span style="color:var(--tx3);font-size:9px">' + t('daily_ops_claimed') + '</span>'
+        : m.completed
+          ? '<button onclick="claimDailyOps(' + m.id + ')" style="padding:3px 10px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.4);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn)">' + t('daily_ops_claim') + ' +' + m.reward_gp + ' GP</button>'
+          : '<span style="color:var(--gold);font-size:9px">+' + m.reward_gp + ' GP</span>';
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        + '<div style="flex:1">'
+        + '<div style="font-size:10px;color:' + (m.completed ? 'var(--gn)' : 'var(--tx)') + ';margin-bottom:3px">'
+        + (m.completed ? '✓ ' : '') + label + '</div>'
+        + '<div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden">'
+        + '<div style="height:100%;width:' + pct + '%;background:' + barCol + ';transition:width .4s;border-radius:2px"></div>'
+        + '</div>'
+        + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">' + m.current + '/' + m.target + '</div>'
+        + '</div>'
+        + '<div style="flex:0 0 auto">' + statusLabel + '</div>'
+        + '</div>';
+    }).join('');
+
+    if (claimAllBtn) claimAllBtn.style.display = hasClaimable ? '' : 'none';
+
+    // OPS 탭 dot 설정
+    if (hasClaimable) { try { setBaseTabDot('ops', true); } catch(_){} }
+  } catch(err) {
+    if (el) el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Daily OPS unavailable</div>';
+  }
+}
+
+async function claimDailyOps(missionId) {
+  var wallet = walletState.address;
+  if (!wallet) return;
+  try {
+    var body = { wallet: wallet };
+    if (missionId) body.mission_id = missionId;
+    var res = await fetch('/api/daily-ops/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!data.success) { showToast(data.error || 'Claim failed', 'error'); return; }
+    showToast('+' + data.total_gp + ' GP', 'success');
+    loadDailyOpsBoard();
+    if (typeof loadUserData === 'function') loadUserData();
+  } catch(e) { showToast('Claim failed', 'error'); }
+}
+
+async function claimAllDailyOps() {
+  await claimDailyOps(null);
 }
 
 function renderGuildInvites(invites){
@@ -32863,6 +33186,181 @@ window.addEventListener('resize', _debounce(function(){
       }).join('');
     }).catch(function(){ list.innerHTML = '<div style="padding:4px 0;color:var(--red)">Failed to load history.</div>'; });
   }
+
+  // ══ RECOMMENDED OPPONENTS ══════════════════════════════════════
+
+  window.toggleRecommendedSection = function() {
+    var el = document.getElementById('recOpponentsSection');
+    var tog = document.getElementById('recToggle');
+    if (!el) return;
+    if (el.style.display === 'none') {
+      el.style.display = '';
+      if (tog) tog.textContent = '▲';
+      loadRecommendedOpponents();
+    } else {
+      el.style.display = 'none';
+      if (tog) tog.textContent = '▼';
+    }
+  };
+
+  window.loadRecommendedOpponents = async function() {
+    var wallet = walletState && walletState.address;
+    if (!wallet) return;
+    var list = document.getElementById('recOpponentsList');
+    if (!list) return;
+    list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">' + t('pvp_rec_loading') + '</div>';
+    try {
+      var res = await fetch('/api/battles/recommended-opponents/' + encodeURIComponent(wallet));
+      var data = await res.json();
+      var opponents = data.opponents || [];
+      if (opponents.length === 0) {
+        list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">' + t('pvp_rec_no_opponents') + '</div>';
+        return;
+      }
+      list.innerHTML = opponents.map(function(o) {
+        var factionColors = { mcc: '#4fc3f7', fsp: '#66bb6a', cv: '#ff7043' };
+        var col = factionColors[o.faction_code] || '#aaa';
+        var diff = o.cpi_diff > 0 ? ('+' + o.cpi_diff.toFixed(0)) : o.cpi_diff.toFixed(0);
+        var diffCol = Math.abs(o.cpi_diff) < 50 ? 'var(--gn)' : Math.abs(o.cpi_diff) < 200 ? 'var(--gold)' : 'var(--red)';
+        return '<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:6px;margin-bottom:4px">'
+          + '<div style="flex:1">'
+          + '<div style="font-size:10px;color:var(--tx)">' + (o.wallet.slice(0,6) + '…' + o.wallet.slice(-4)) + ' <span style="font-size:8px;color:' + col + ';background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">' + (o.faction_code||'').toUpperCase() + '</span></div>'
+          + '<div style="font-size:9px;color:var(--tx3)">' + t('pvp_rec_cpi') + ': <b style="color:#ffd700">' + (o.cpi||0).toFixed(0) + '</b> &nbsp; ' + t('pvp_rec_cpi_diff') + ': <b style="color:' + diffCol + '">' + diff + '</b> &nbsp; ' + t('pvp_rec_ships') + ': ' + o.ship_count + '</div>'
+          + '</div>'
+          + '<button onclick="openBattleHubWithFleet(\'' + o.fleet_id + '\',\'' + o.wallet + '\')" style="font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">' + t('pvp_rec_challenge') + '</button>'
+          + '</div>';
+      }).join('');
+    } catch(err) {
+      list.innerHTML = '<div style="color:var(--tx3);font-size:10px">' + t('pvp_rec_no_opponents') + '</div>';
+    }
+  };
+
+  window.openBattleHubWithFleet = function(targetFleetId, targetWallet) {
+    openBattleHub();
+    // Pre-fill target fleet in battle hub modal if possible
+    setTimeout(function() {
+      var el = document.getElementById('bhTargetFleetId') || document.getElementById('bh-target-fleet');
+      if (el) el.value = targetFleetId;
+    }, 500);
+  };
+
+  // ══ BOUNTY BOARD ═══════════════════════════════════════════════
+
+  window.toggleBountySection = function() {
+    var el = document.getElementById('bountyBoardSection');
+    var tog = document.getElementById('bountyToggle');
+    if (!el) return;
+    if (el.style.display === 'none') {
+      el.style.display = '';
+      if (tog) tog.textContent = '▲';
+      loadBountyList('all');
+    } else {
+      el.style.display = 'none';
+      if (tog) tog.textContent = '▼';
+    }
+  };
+
+  var _currentBountyTab = 'all';
+
+  window.switchBountyTab = function(tab) {
+    _currentBountyTab = tab;
+    ['all','on-me','mine'].forEach(function(t2) {
+      var btn = document.getElementById('btyTab' + (t2==='all'?'All':t2==='on-me'?'Me':'Mine'));
+      if (btn) {
+        btn.style.background = t2===tab ? 'rgba(255,171,64,.18)' : 'rgba(255,255,255,.05)';
+        btn.style.borderColor = t2===tab ? 'rgba(255,171,64,.4)' : 'rgba(255,255,255,.1)';
+        btn.style.color = t2===tab ? '#ffab40' : 'var(--tx3)';
+        btn.style.fontWeight = t2===tab ? '700' : '';
+      }
+    });
+    loadBountyList(tab);
+  };
+
+  window.loadBountyList = async function(tab) {
+    var wallet = walletState && walletState.address;
+    var list = document.getElementById('bountyList');
+    if (!list) return;
+    list.innerHTML = '<span style="color:var(--tx3);font-size:10px">Loading…</span>';
+    try {
+      var url = tab === 'on-me' ? '/api/bounty/on-me?wallet=' + encodeURIComponent(wallet||'')
+              : tab === 'mine' ? '/api/bounty/my-bounties?wallet=' + encodeURIComponent(wallet||'')
+              : '/api/bounty/list';
+      var res = await fetch(url);
+      var data = await res.json();
+      var bounties = data.bounties || [];
+      if (bounties.length === 0) { list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">' + t('bounty_no_bounties') + '</div>'; return; }
+
+      list.innerHTML = bounties.map(function(b) {
+        var expDate = b.expires_at ? new Date(b.expires_at).toLocaleDateString() : '';
+        var isMine = tab === 'mine';
+        return '<div style="padding:8px;background:rgba(255,171,64,.04);border:1px solid rgba(255,171,64,.15);border-radius:6px;margin-bottom:4px">'
+          + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
+          + '<div>'
+          + '<div style="font-size:10px;color:var(--tx)">🎯 ' + (b.target_wallet || '').slice(0,8) + '…</div>'
+          + (b.reason ? '<div style="font-size:9px;color:var(--tx3)">' + _esc(b.reason) + '</div>' : '')
+          + '</div>'
+          + '<div style="text-align:right"><div style="font-size:12px;color:#ffab40;font-weight:700">+' + (b.reward_gp||0).toLocaleString() + ' GP</div>'
+          + (expDate ? '<div style="font-size:8px;color:var(--tx3)">' + t('bounty_expires') + ': ' + expDate + '</div>' : '')
+          + '</div></div>'
+          + (isMine && b.status==='active' ? '<button onclick="cancelBounty(' + b.id + ')" style="font-size:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);padding:2px 8px;border-radius:4px;cursor:pointer">' + t('bounty_cancel') + '</button>' : '')
+          + '</div>';
+      }).join('');
+
+      // On Me — show total
+      if (tab === 'on-me' && data.total_on_me > 0) {
+        list.innerHTML = '<div style="padding:6px 8px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);border-radius:6px;margin-bottom:8px;font-size:10px;color:#ff8a80">' + t('bounty_on_me') + ': <b>' + data.total_on_me.toLocaleString() + ' GP</b></div>' + list.innerHTML;
+      }
+    } catch(err) { list.innerHTML = '<div style="color:var(--tx3);font-size:10px">Failed to load bounties</div>'; }
+  };
+
+  window.postBounty = async function() {
+    var wallet = walletState && walletState.address;
+    if (!wallet) { showToast(t('connect_wallet_first')||'Connect wallet', 'error'); return; }
+    var target = (document.getElementById('bountyTargetWallet') || {}).value || '';
+    var gp = parseInt((document.getElementById('bountyRewardGP') || {}).value) || 0;
+    var reason = (document.getElementById('bountyReason') || {}).value || '';
+    if (!target) { showToast('Enter target wallet', 'error'); return; }
+    if (gp < 100) { showToast('Minimum 100 GP', 'error'); return; }
+
+    var ok = await gameConfirm({ icon:'💰', title:t('bounty_post'),
+      body: '🎯 Target: ' + target.slice(0,10) + '…<br>💰 Reward: <b>' + gp + ' GP</b>',
+      confirmText: t('bounty_post_submit') });
+    if (!ok) return;
+
+    try {
+      var res = await fetch('/api/bounty/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: wallet, target_wallet: target, reward_gp: gp, reason: reason })
+      });
+      var data = await res.json();
+      if (!data.success) { showToast(data.error || 'Failed', 'error'); return; }
+      showToast('💰 Bounty posted!', 'success');
+      document.getElementById('bountyTargetWallet').value = '';
+      document.getElementById('bountyRewardGP').value = '';
+      document.getElementById('bountyReason').value = '';
+      loadBountyList('all');
+      if (typeof loadUserData === 'function') loadUserData();
+    } catch(e) { showToast('Failed', 'error'); }
+  };
+
+  window.cancelBounty = async function(id) {
+    var wallet = walletState && walletState.address;
+    if (!wallet) return;
+    var ok = await gameConfirm({ icon:'💰', title:t('bounty_cancel'), confirmText:'Cancel & Refund' });
+    if (!ok) return;
+    try {
+      var res = await fetch('/api/bounty/cancel/' + id, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: wallet })
+      });
+      var data = await res.json();
+      if (!data.success) { showToast(data.error || 'Failed', 'error'); return; }
+      showToast('+' + data.refunded_gp + ' GP refunded', 'success');
+      loadBountyList('mine');
+      if (typeof loadUserData === 'function') loadUserData();
+    } catch(e) { showToast('Failed', 'error'); }
+  };
 
   // Governance UI state
   var _govState = null;
@@ -47872,9 +48370,99 @@ function showBattleResult() {
       <div class="bv-result-stat-row"><span>${t('bv_stat_losses')}</span><b>${bv.battle.def_ships_lost || 0}</b></div>
       <div class="bv-result-stat-row"><span>${t('bv_stat_damage')}</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
     </div>
+    <div id="bvReportSection" style="margin-top:12px;width:100%;border-top:1px solid rgba(255,255,255,.12);padding-top:10px">
+      <div id="bvReportContent" style="color:rgba(255,255,255,.4);font-size:11px;text-align:center">${t('bv_report_loading')}</div>
+    </div>
   `;
 
   setTimeout(() => overlay.classList.add('active'), 500);
+
+  // 비동기로 상세 리포트 로드
+  if (bv.battle?.id) _loadBattleReport(bv.battle.id, mySide);
+}
+
+// 전투 리포트 카드 비동기 로드
+async function _loadBattleReport(battleId, mySide) {
+  const section = document.getElementById('bvReportContent');
+  if (!section) return;
+  try {
+    const res = await fetch(`/api/battles/${battleId}/report`);
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    const r = data.report;
+    if (!r) throw new Error('no report');
+
+    const mySideData = mySide === 'atk' ? r.atk : mySide === 'def' ? r.def : null;
+    const _ratingColor = { S:'#ffd700', A:'#66bb6a', B:'#4fc3f7', C:'#ffa726', D:'#ef5350' };
+
+    // 퍼포먼스 레이팅 배지
+    const atkRating = r.atk?.performance_rating || '—';
+    const defRating = r.def?.performance_rating || '—';
+    const atkCol = _ratingColor[atkRating] || '#aaa';
+    const defCol = _ratingColor[defRating] || '#aaa';
+
+    // 하이라이트
+    const hls = (r.highlights || []).slice(0, 3).map(h =>
+      `<div style="font-size:10px;color:rgba(255,255,255,.6);padding:2px 0;border-left:2px solid rgba(255,255,255,.2);padding-left:6px">${h.text}</div>`
+    ).join('');
+
+    // MVP
+    const atkMvp = r.atk?.mvp_ship ? `MVP: ${r.atk.mvp_ship.name} (${r.atk.mvp_ship.kills} kills)` : '';
+    const defMvp = r.def?.mvp_ship ? `MVP: ${r.def.mvp_ship.name} (${r.def.mvp_ship.kills} kills)` : '';
+
+    section.innerHTML = `
+      <div style="display:flex;justify-content:space-around;margin-bottom:8px">
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">${t('bv_rating')} (ATK)</div>
+          <div style="font-size:28px;font-weight:900;color:${atkCol};font-family:Orbitron,monospace">${atkRating}</div>
+          ${atkMvp ? `<div style="font-size:9px;color:rgba(255,255,255,.5)">${atkMvp}</div>` : ''}
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">${t('bv_rating')} (DEF)</div>
+          <div style="font-size:28px;font-weight:900;color:${defCol};font-family:Orbitron,monospace">${defRating}</div>
+          ${defMvp ? `<div style="font-size:9px;color:rgba(255,255,255,.5)">${defMvp}</div>` : ''}
+        </div>
+      </div>
+      ${hls ? `<div style="margin-top:6px"><div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:4px">${t('bv_highlights')}</div>${hls}</div>` : ''}
+      <div style="margin-top:10px;display:flex;gap:6px;justify-content:center">
+        <button onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px">${t('bv_my_stats')}</button>
+      </div>
+    `;
+  } catch (_) {
+    if (section) section.innerHTML = `<div style="color:rgba(255,255,255,.3);font-size:11px;text-align:center">${t('bv_report_error')}</div>
+      <div style="margin-top:8px;display:flex;justify-content:center">
+        <button onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px">${t('bv_my_stats')}</button>
+      </div>`;
+  }
+}
+
+// 내 전투 기록 모달
+async function _showMyBattleStats() {
+  const wallet = walletState?.address;
+  if (!wallet) return;
+  try {
+    const res = await fetch(`/api/battles/my-stats/${wallet}`);
+    const data = await res.json();
+    const s = data.stats || {};
+    const _ratingColor = { S:'#ffd700', A:'#66bb6a', B:'#4fc3f7', C:'#ffa726', D:'#ef5350' };
+    const bestCol = _ratingColor[s.best_rating] || '#aaa';
+    await gameConfirm({
+      icon: '📊',
+      title: t('bvstat_title'),
+      body: `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:8px 0">
+          <div><span style="color:rgba(255,255,255,.5);font-size:11px">${t('bvstat_total')}</span><br><b>${s.total_battles||0}</b></div>
+          <div><span style="color:rgba(255,255,255,.5);font-size:11px">${t('bvstat_winrate')}</span><br><b>${s.win_rate||0}%</b></div>
+          <div><span style="color:rgba(255,255,255,.5);font-size:11px">${t('bvstat_w')}/${t('bvstat_l')}/${t('bvstat_d')}</span><br><b>${s.wins||0} / ${s.losses||0} / ${s.draws||0}</b></div>
+          <div><span style="color:rgba(255,255,255,.5);font-size:11px">${t('bvstat_kd')}</span><br><b>${s.kill_death_ratio||0}</b></div>
+          <div><span style="color:rgba(255,255,255,.5);font-size:11px">${t('bvstat_streak')}</span><br><b>${s.longest_win_streak||0}</b></div>
+          <div><span style="color:rgba(255,255,255,.5);font-size:11px">${t('bvstat_best')}</span><br><b style="color:${bestCol};font-size:20px;font-weight:900">${s.best_rating||'—'}</b></div>
+        </div>
+      `,
+      confirmText: t('bvstat_close'),
+      disabled: false
+    });
+  } catch (_) { showToast('Stats unavailable', 'error'); }
 }
 </script>
 

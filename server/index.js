@@ -134,7 +134,9 @@ const stakingRoutes  = require('./routes/staking');
 const dividendRoutes    = require('./routes/dividends');
 const monumentRoutes    = require('./routes/monuments');
 const upgradeRoutes     = require('./routes/claimUpgrades');
-// Removed: bounty (phantom tables, 0 fetch refs in index.html — separate from /api/governance/commander/bounty)
+const bountyRoutes         = require('./routes/bounty');           // Bounty Board
+const dailyOpsRoutes       = require('./routes/dailyOps');          // Daily OPS 미션
+const territoryIdentityRoutes = require('./routes/territoryIdentity'); // 영토 정체성 + 섹터 갈등맵
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
 const duelRoutes        = require('./routes/duel');
@@ -319,7 +321,10 @@ app.use('/api', stakingRoutes);
 app.use('/api', dividendRoutes);
 app.use('/api', monumentRoutes);
 app.use('/api', upgradeRoutes);
-// Removed: bountyRoutes (phantom tables, 0 UI refs)
+app.use('/api/bounty', bountyRoutes);                         // Bounty Board
+app.use('/api/daily-ops', dailyOpsRoutes);                    // Daily OPS 미션
+app.use('/api/territory', territoryIdentityRoutes);           // 영토 정체성 (identity/FR)
+app.use('/api/sectors',   territoryIdentityRoutes);           // 섹터 갈등맵 (/api/sectors/conflict-map)
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
@@ -1439,6 +1444,45 @@ async function start() {
       }, 30 * 60 * 1000); // 30분마다
       console.log('[SHIELD] Decay scheduler started (30min interval)');
     } catch(e) { console.warn('[SHIELD] Could not init decay scheduler:', e.message); }
+
+    // ── Territory Field Rating + Badge Update (매일 00:00 UTC) ──
+    try {
+      const { updateFieldRatings } = require('./routes/territoryIdentity');
+      setInterval(async () => {
+        try {
+          const now = new Date();
+          if (now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
+            await updateFieldRatings();
+            console.log('[TERRITORY] Field ratings + badges updated');
+          }
+        } catch(e) { console.warn('[TERRITORY] field rating update error:', e.message); }
+      }, 5 * 60 * 1000); // 5분마다 체크
+      console.log('[TERRITORY] Field rating scheduler started (5min check)');
+    } catch(e) { console.warn('[TERRITORY] Could not init field rating scheduler:', e.message); }
+
+    // ── Bounty Board: 만료 현상금 정리 (매 1시간) ──
+    try {
+      setInterval(async () => {
+        try {
+          const { rows } = await pool.query(
+            `UPDATE bounty_listings SET status = 'expired'
+             WHERE status = 'active' AND expires_at <= NOW()
+             RETURNING id, poster_wallet, reward_gp`
+          );
+          if (rows.length > 0) {
+            // 만료 환불
+            for (const b of rows) {
+              await pool.query(
+                `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+                [b.reward_gp, b.poster_wallet]
+              );
+            }
+            console.log(`[BOUNTY] Expired ${rows.length} bounties, refunded GP`);
+          }
+        } catch(e) { console.warn('[BOUNTY] expiry cleanup error:', e.message); }
+      }, 60 * 60 * 1000); // 1시간마다
+      console.log('[BOUNTY] Expiry cleanup scheduler started (1h interval)');
+    } catch(e) { console.warn('[BOUNTY] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

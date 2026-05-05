@@ -1,5 +1,57 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 게임 개선 4대 기능 구현 (v6.08)
+
+### 기획서: `docs/GAME_IMPROVEMENT_PLAN_2026-05-05.md`
+
+### Migration 215: fleet_battles 전투 통계 컬럼 + CPI
+- `fleet_battles`: `atk/def_damage_dealt`, `atk/def_flagship_survived`, `duration_ticks`, `performance_rating_atk/def`
+- `fleets.cpi`: Combat Power Index 컬럼
+- `ships.total_kills`: 누적 킬 카운터
+
+### Migration 216: claims 영토 정체성 컬럼
+- `nickname`, `bio`, `defense_wins`, `times_hijacked`, `battle_wins`, `field_rating`
+- `badge_pioneer/settler/veteran/fortress`, `hold_bonus_pct`, `claimed_at`
+- FR 공식 설정값 시드 (7/30/90일 보유 보너스)
+
+### Migration 217: daily_ops 테이블 (Daily OPS 미션)
+- `daily_ops`: 매일 UTC 00:00 리셋, wallet×date×mission_type UNIQUE
+- 5종 미션 타입 + 보상 GP 설정값
+- 주간 이벤트 캘린더 설정값 (월/수/금/토)
+
+### Migration 218: bounty_listings 테이블 (현상금 게시판)
+- `bounty_listings`: poster/target/reward_gp/reason/status/expires_at
+- 만료 자동 환불, 수수료 5%, 최대 3개 동시 게재
+
+### 서버: `server/services/battleReport.js`
+- `generateBattleReport(battleId)` — 전투 리포트 카드 (S/A/B/C/D 레이팅, 하이라이트, MVP)
+- `getPlayerBattleStats(wallet)` — 전투 통계 집계 (승률/KD/연승/파벌별 승률)
+- `calcFleetCPI(ships)` / `updateFleetCPI(fleetId)` — CPI 계산/업데이트
+- `getRecommendedOpponents(wallet)` — CPI 기반 추천 상대
+
+### 서버: 신규 라우트
+- `GET /api/battles/:id/report` — 전투 리포트 카드
+- `GET /api/battles/my-stats/:wallet` — 플레이어 전투 통계
+- `GET /api/battles/recommended-opponents/:wallet` — 추천 상대
+- `GET /api/daily-ops/:wallet`, `POST /api/daily-ops/progress`, `POST /api/daily-ops/claim` — Daily OPS
+- `GET /api/daily-ops/weekly-events` — 주간 이벤트 캘린더
+- `GET /api/bounty/list|my-bounties|on-me`, `POST /api/bounty/post|claim|cancel/:id` — 현상금 게시판
+- `GET /api/territory/:claimId/identity`, `PATCH /api/territory/:claimId/identity` — 영토 정체성
+- `GET /api/sectors/conflict-map` — 섹터 갈등 지도
+
+### 서버: 스케줄러 추가
+- Territory Field Rating + Badge (매 5분 체크, UTC 00:00 실행)
+- Bounty 만료 처리 + GP 환불 (매 1시간)
+
+### 프론트: `index.html`
+- **전투 결과 리포트 카드**: `showBattleResult()` → 비동기 리포트 로드, S/A/B/C/D 레이팅 표시, 하이라이트, MVP
+- **내 전투 기록 모달**: `_showMyBattleStats()` — 승률/KD/연승/최고 레이팅
+- **Daily OPS Board**: OPS 탭 상단에 미션 목록 + 진행바 + CLAIM 버튼
+- **Territory Identity**: 영토 정보 패널에 FR/배지/보유 기간/방어 승리 표시, 닉네임/바이오 편집
+- **추천 상대 (PVP 탭)**: CPI 기반 추천 상대 목록 + 도전 버튼
+- **현상금 게시판 (PVP 탭)**: 등록/목록/취소 UI
+- i18n: 60+ 신규 키 (EN/KO)
+
 ## 2026-05-05 — 종합 로컬라이제이션 패스 (v6.07)
 
 ### 영문/일문/중문 사용자에게 보이던 한국어 텍스트 전면 수정 (cc2c6df)
