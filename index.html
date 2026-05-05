@@ -27848,97 +27848,6 @@ function doBurnGP(burnType, cost) {
   showToast('GP Burn is currently unavailable', 'warn');
 }
 
-async function harvestMining(){
-  try{_sfx.click()}catch(e){}
-  var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return}
-  var btn=document.getElementById('baseHarvestBtn');
-  btn.disabled=true;btn.textContent='HARVESTING...';
-  try{
-    var headers={'Content-Type':'application/json'};
-    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
-    var resp=await fetch('/api/harvest',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
-    var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Harvest failed');try{_sfx.error()}catch(e){}return}
-    // ✅ [P5-2] 수확 결과 알림 — PP + 재료 드롭 통합 표시
-    var _RICONS={
-      iron_dust:'🟤',red_sand:'🔴',basalt_chip:'⬛',ice_crystal:'🔵',
-      regolith_ore:'🟠',volcanic_shard:'🌋',ancient_metal:'⭐',
-      carbon_fiber:'🧵',iron_ore:'🪨',silicon_chip:'💠',xenomatter:'💠',
-      nano_polymer:'🧬',plasma_crystal:'🔮',titanium_alloy:'⚙️',
-      meteorite_fragment:'☄️',plasma_dust:'💜',
-      dark_matter:'🌑',exotic_alloy:'✨',quantum_core:'⚡',
-      alloy_frame:'⬢',hull_plate:'▣',plasma_coil:'⚡'
-    };
-    var _RNAMES_KO={
-      iron_dust:'철분',red_sand:'붉은 모래',basalt_chip:'현무암 조각',ice_crystal:'얼음 결정',
-      regolith_ore:'레골리스 광석',volcanic_shard:'화산 파편',ancient_metal:'고대 금속',
-      carbon_fiber:'탄소섬유',iron_ore:'철광석',silicon_chip:'실리콘 칩',xenomatter:'외계 물질',
-      nano_polymer:'나노 폴리머',plasma_crystal:'플라즈마 결정',titanium_alloy:'티타늄 합금',
-      meteorite_fragment:'운석 파편',plasma_dust:'플라즈마 먼지',
-      dark_matter:'암흑물질',exotic_alloy:'이그조틱 합금',quantum_core:'퀀텀 코어',
-      alloy_frame:'합금 프레임',hull_plate:'장갑판',plasma_coil:'플라즈마 코일'
-    };
-    var _lang=(typeof LANG!=='undefined'?LANG:'ko');
-    var _resLine='';
-    if(d.resources&&d.resources.length>0){
-      _resLine=d.resources.map(function(r){
-        var icon=_RICONS[r.code]||'💠';
-        var name=_lang==='ko'?(_RNAMES_KO[r.code]||r.code.replace(/_/g,' ')):r.code.replace(/_/g,' ');
-        return icon+' +'+r.quantity+' '+name;
-      }).join(' · ');
-    }
-    var _ppLine='+'+d.harvestedPP.toFixed(4)+' PP';
-    showNotification('mining','HARVEST COMPLETE',_ppLine+(_resLine?' · '+_resLine:''));
-    if(_resLine) showToast('⛏ '+_resLine,'success');
-    try{_sfx.harvest()}catch(e){}
-    try{trackQuestAction('harvest',1)}catch(e){}
-    // Update UI
-    document.getElementById('baseMineAvail').textContent='0.00';
-    var totalEl=document.getElementById('baseMineTotalMined');
-    var prev=parseFloat(totalEl.textContent)||0;
-    totalEl.textContent=(prev+d.harvestedPP).toFixed(2);
-    // Update timer & hide mining dot
-    if(d.nextHarvestAt) startMineTimer(new Date(d.nextHarvestAt));
-    var md=document.getElementById('miningDot');if(md)md.style.display='none';
-    // Refresh balances
-    try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Network error')}
-  finally{
-    btn.disabled=false;
-    var rng='';if(window._miningEstMin>0) rng=' ('+window._miningEstMin.toFixed(2)+'~'+window._miningEstMax.toFixed(2)+' PP + 🪨)';
-    btn.innerHTML='<span>'+t('harvest_pp')+rng+'</span>';
-  }
-}
-
-// ── Instant Harvest (skip cooldown micro-transaction) ──
-async function instantHarvest(){
-  try{_sfx.click()}catch(e){}
-  var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return}
-  var ihCost=window._instantHarvestCost||0.5;
-  var ok=await shopConfirm('','Skip Cooldown',
-    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">INSTANT HARVEST</div>'
-    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Skip the harvest cooldown and harvest immediately.</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+ihCost+' PP</div>','SKIP COOLDOWN');
-  if(!ok)return;
-  var btn=document.getElementById('baseInstantHarvestBtn');
-  btn.disabled=true;btn.textContent='PROCESSING...';
-  try{
-    var headers={'Content-Type':'application/json'};
-    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
-    var resp=await fetch('/api/harvest-instant',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
-    var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Failed','error');return}
-    showToast('Cooldown skipped! Harvest now.','success');
-    btn.style.display='none';
-    document.getElementById('baseMineTimer').textContent='Harvest available now!';
-    if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
-    try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Network error','error')}
-  finally{btn.disabled=false;var ic=window._instantHarvestCost||0.5;btn.innerHTML='<span>HARVEST NOW ('+ic+' PP)</span>'}
-}
-
 // ── Territory Rename (micro-transaction) ──
 async function renameTerritory(plot){
   if(!plot||!plot.id)return;
@@ -38709,13 +38618,15 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: "What's New",
         blocks: [
-          { type:'p', text:'**v3.0 — 2026-04-25 Stability Pass.** A massive batch of bug fixes, content expansion, and code cleanup.' },
-          { type:'h2', text:'🐛 Bug Fixes' },
-          { type:'p', text:'• Daily check-in "Daily login failed" toast → fixed (settings array parse).\n• Admin Jobs panel showing zeros → fixed (response shape).\n• Admin Events tab blank → fixed (missing tab category).\n• Profile API "column avatar_color does not exist" → fixed (migration 184).\n• Resources / branding / spells column mismatches → all fixed.\n• 15+ services with `u.wallet` typo in JOIN → fixed to `u.wallet_address`.' },
-          { type:'h2', text:'🎯 Content Expansion' },
-          { type:'p', text:'• **29 achievements** with auto-trigger on claim/battle/marketplace/ship/guild/signup events.\n• **907 admin-tunable settings** (No Hardcoding policy enforced).\n• Fleet Combat panel rewired to new `/api/fleets` system.\n• PVP unified: Fleet Battles + Hijack (legacy ship-battle removed).' },
-          { type:'h2', text:'🧹 Cleanup' },
-          { type:'p', text:'• Dead services removed: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• Dead routes removed: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 unified.\n• 39 phantom tables created (migrations 176~184).' },
+          { type:'p', text:'**v6.07 — 2026-05-05 Per-territory harvest + Fleet Dashboard.** Latest stable build.' },
+          { type:'h2', text:'⛏ v6.07 Per-territory Harvest' },
+          { type:'p', text:'• **MINE tab removed** — harvest is now per-territory inside the BASE → Territory accordion.\n• Each territory has its own cooldown (CORE 24h / MID 48h / FRONTIER 72h).\n• Mineral drops shown alongside PP on each harvest.\n• Fleet tab shows full fleet dashboard: ship list, HP bars, build queue.' },
+          { type:'h2', text:'🚢 v6.0 Real-time Fleet Battles (WebSocket)' },
+          { type:'p', text:'• Live battle viewer over WebSocket — fleet positions, HP, formations update in real time.\n• Tactical Lab v11 integrated as the official battle viewer.\n• Ship PNG sprites (22 types, top-down view) replace legacy vector silhouettes.\n• Manual skills: Beam Cannon ☢, Missile Barrage ☄, EMP, Focus Fire.' },
+          { type:'h2', text:'🏭 v5.9x Territory Utility Stack (P5)' },
+          { type:'p', text:'• **Production panel**: expected PP range, sector tier, mineral drop list per territory.\n• **Material harvest**: mineral drops bundled into each territory harvest cycle.\n• **Territory upgrades**: 5 upgrade tracks (extractor / refinery / shield grid / relay tower / art beacon).\n• **Sector Control**: influence tiers (presence 10% → governor 75%), live leaderboard per sector.\n• **Shipyard hints**: blueprint cards show which sector tier drops each required mineral.' },
+          { type:'h2', text:'⚔ v5.8x Campaign + Ship Economy' },
+          { type:'p', text:'• Campaign chapters MCC/FSP Ch1~10 fully wired with live DB objectives (territory claim, fleet build, battle, listing).\n• Campaign rewards grant real ship instances into your default fleet.\n• Ship stat upgrades with probability, material cost, success/fail log.\n• Ship market: list → buy → cancel flow with `is_market_listed` lock.\n• Fleet Command: formation preview, flagship assignment, move ships between fleets.' },
           { type:'callout', variant:'tip', title:'For developers',
             text:'See `CHANGELOG.md` and `AUDIT_FINDINGS.md` in repo root for the full technical breakdown.' }
         ]
@@ -40827,13 +40738,13 @@ CODEX_CONTENT.ja = {
   sections: [
     { id: 'whatsnew', icon: '🆕', title: '最新アップデート',
       blocks: [
-        { type:'p', text:'**v3.0 — 2026-04-25 安定化パッチ。** 大規模なバグ修正、コンテンツ拡張、コードクリーンアップ。' },
-        { type:'h2', text:'🐛 バグ修正' },
-        { type:'p', text:'• デイリーチェックイン "Daily login failed" → 修正 (settings array 解析).\n• Admin JOBS 統計が 0 のまま → 修正 (応答形式).\n• Admin EVENTS タブ空白 → 修正 (タブカテゴリ漏れ).\n• Profile API "avatar_color 列なし" → 修正 (migration 184).\n• Resources/branding/spells のカラム不一致 → 全て修正.\n• 15+ サービスの `u.wallet` JOIN 誤り → `u.wallet_address` に一括修正.' },
-        { type:'h2', text:'🎯 コンテンツ拡張' },
-        { type:'p', text:'• **アチーブメント 29 種** + 自動トリガー (claim/battle/marketplace/ship/guild/signup 6 イベント).\n• **907 個の admin 調整可能設定** (No Hardcoding 原則 100%).\n• Fleet Combat パネルを新 `/api/fleets` に再配線.\n• PVP 統合: Fleet Battles + Hijack (legacy ship-battle 削除).' },
-        { type:'h2', text:'🧹 整理' },
-        { type:'p', text:'• 死んでいたサービス削除: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• 死んでいたルート削除: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 統合.\n• phantom テーブル 39 個一括作成 (migration 176~184).' },
+        { type:'p', text:'**v6.07 — 2026-05-05 領土別収穫 + 艦隊ダッシュボード。** 最新の安定ビルド。' },
+        { type:'h2', text:'⛏ v6.07 領土別収穫' },
+        { type:'p', text:'• **MINE タブ廃止** — 収穫は BASE → My Territory アコーディオン内で領土ごとに行う。\n• 各領土の収穫クールダウンはそれぞれ独立 (CORE 24h / MID 48h / FRONTIER 72h)。\n• 収穫時に PP と一緒に鉱物ドロップを表示。\n• 艦隊タブにフルダッシュボード追加: 艦船リスト、HP バー、建造キュー。' },
+        { type:'h2', text:'🚢 v6.0 リアルタイム艦隊戦 (WebSocket)' },
+        { type:'p', text:'• WebSocket でライブ戦闘ビューア — 艦隊位置・HP・陣形がリアルタイム更新。\n• Tactical Lab v11 を公式戦闘ビューアとして統合。\n• 22 種の艦船 PNG スプライト (トップダウン表示)。\n• 手動スキル: ビーム砲 ☢、ミサイル斉射 ☄、EMP、集中攻撃。' },
+        { type:'h2', text:'🏭 v5.9x 領土ユーティリティ (P5)' },
+        { type:'p', text:'• 生産パネル: 領土ごとに期待 PP 範囲・セクタータイア・鉱物ドロップリスト表示。\n• 5 つのアップグレードトラック (採掘機 / 精製所 / シールドグリッド / 中継塔 / 芸術ビーコン)。\n• セクターコントロール: 影響力ティア (presence 10% → governor 75%)。\n• 造船所ヒント: 設計図カードに必要鉱物のセクタータイアを表示。' },
         { type:'callout', variant:'tip', title:'開発者向け',
           text:'技術的詳細はリポジトリルートの `CHANGELOG.md` と `AUDIT_FINDINGS.md` を参照。' }
       ]
@@ -41091,7 +41002,7 @@ CODEX_CONTENT.ja = {
         ]},
 
         { type:'h2', text:'1. パッシブ採掘の公式' },
-        { type:'p', text:'領土を保持している限り、ハーベスト周期ごとに **自動的に** PP が蓄積される。BASE → MINE タブの `HARVEST ALL` ボタンで一括受取。' },
+        { type:'p', text:'領土を保持している限り、収穫周期ごとに **自動的に** PP と鉱物が蓄積される。BASE → **My Territory** タブの各領土カードにある ⛏ ボタンで個別収穫。MINE タブは廃止済み。' },
         { type:'formula', label:'HARVEST YIELD PER CYCLE',
           eq:'Yield = rand(~0.01~, ~0.5~) × min( ~√pixels~ ÷ 10, ~3.0~ )   →   max ~1.0 PP~ / harvest',
           note:'キモ: **平方根スケール + 3 倍キャップ + ハーベスト 1 PP 上限**。ピクセルを 10,000 倍買っても収益は 3 倍しか伸びない。クジラ対策設計だ。' },
@@ -41847,13 +41758,13 @@ CODEX_CONTENT.zh = {
   sections: [
     { id: 'whatsnew', icon: '🆕', title: '最新更新',
       blocks: [
-        { type:'p', text:'**v3.0 — 2026-04-25 稳定性补丁。** 大规模 bug 修复、内容扩展、代码清理。' },
-        { type:'h2', text:'🐛 Bug 修复' },
-        { type:'p', text:'• 每日签到 "Daily login failed" → 已修复 (settings 数组解析).\n• Admin JOBS 统计显示为 0 → 已修复 (响应格式).\n• Admin EVENTS 标签空白 → 已修复 (标签类别遗漏).\n• Profile API "avatar_color 列不存在" → 已修复 (migration 184).\n• Resources/branding/spells 列不匹配 → 全部修复.\n• 15+ 服务的 `u.wallet` JOIN 错误 → 一并修正为 `u.wallet_address`.' },
-        { type:'h2', text:'🎯 内容扩展' },
-        { type:'p', text:'• **成就 29 个** + 自动触发 (claim/battle/marketplace/ship/guild/signup 6 个事件).\n• **907 个 admin 可调设置** (零硬编码原则).\n• Fleet Combat 面板重新连接到新 `/api/fleets` 系统.\n• PVP 统一: Fleet Battles + Hijack (移除遗留 ship-battle).' },
-        { type:'h2', text:'🧹 清理' },
-        { type:'p', text:'• 移除已死服务: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• 移除已死路由: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 统一.\n• phantom 表格 39 个一并创建 (migration 176~184).' },
+        { type:'p', text:'**v6.07 — 2026-05-05 逐地块收获 + 舰队仪表盘。** 最新稳定版本。' },
+        { type:'h2', text:'⛏ v6.07 逐地块收获' },
+        { type:'p', text:'• **MINE 标签已移除** — 收获改为在 BASE → My Territory 手风琴中逐块进行。\n• 每块领地的收获冷却时间独立 (CORE 24h / MID 48h / FRONTIER 72h)。\n• 收获时同时显示 PP 和矿物掉落。\n• 舰队标签新增完整仪表盘: 舰船列表、HP 条、建造队列。' },
+        { type:'h2', text:'🚢 v6.0 实时舰队战 (WebSocket)' },
+        { type:'p', text:'• WebSocket 实时战斗查看器 — 舰队位置、HP、阵型实时更新。\n• Tactical Lab v11 集成为官方战斗查看器。\n• 22 种舰船 PNG 精灵图 (俯视角)。\n• 手动技能: 粒子炮 ☢、导弹齐射 ☄、EMP、集中火力。' },
+        { type:'h2', text:'🏭 v5.9x 领地实用工具栈 (P5)' },
+        { type:'p', text:'• 生产面板: 每块领地显示预期 PP 范围、区域等级、矿物掉落列表。\n• 5 条升级路径 (采矿机 / 精炼厂 / 护盾网格 / 中继塔 / 艺术信标)。\n• 区域控制: 影响力等级 (presence 10% → governor 75%)。\n• 船坞提示: 蓝图卡显示所需矿物的区域等级。' },
         { type:'callout', variant:'tip', title:'面向开发者',
           text:'完整技术细节请查看仓库根目录的 `CHANGELOG.md` 和 `AUDIT_FINDINGS.md`。' }
       ]
@@ -42111,7 +42022,7 @@ CODEX_CONTENT.zh = {
         ]},
 
         { type:'h2', text:'1. 被动采矿公式' },
-        { type:'p', text:'只要持有领土,每个收获周期就会 **自动** 累积 PP。在 BASE → MINE 标签里用 `HARVEST ALL` 按钮一次性收取。' },
+        { type:'p', text:'只要持有领地,每个收获周期就会 **自动** 累积 PP 和矿物。在 BASE → **My Territory** 标签中,点击每块领地的 ⛏ 按钮单独收取。MINE 标签已废弃。' },
         { type:'formula', label:'HARVEST YIELD PER CYCLE',
           eq:'Yield = rand(~0.01~, ~0.5~) × min( ~√pixels~ ÷ 10, ~3.0~ )   →   max ~1.0 PP~ / harvest',
           note:'要点:**平方根缩放 + 3 倍封顶 + 每次收获 1 PP 上限**。多买 10,000 倍像素,收益也只翻 3 倍。反巨鲸设计。' },
