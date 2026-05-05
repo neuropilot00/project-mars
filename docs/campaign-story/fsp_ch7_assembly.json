@@ -4,7 +4,9 @@
   "chapterNumber": 7,
   "title": {
     "ko": "의원회",
-    "en": "The Assembly"
+    "en": "The Assembly",
+    "ja": "議会",
+    "zh": "议会"
   },
   "location": {
     "id": "fsp_assembly_hall",
@@ -30,7 +32,9 @@
         {
           "text": {
             "ko": "FSP 의원회 의사당. MCC 이사회와 달랐다. 밀폐되지 않았다. 창문이 있었다. 밖이 보였다. 광산이 보였다. 그것이 의도된 것이었다. FSP는 바깥을 잊지 않으려 했다. 창문이 그것이었다.",
-            "en": "The FSP Assembly Hall. Different from the MCC boardroom. Not sealed. There were windows. The outside was visible. The mines were visible. That was intentional. FSP tried not to forget the outside. That was what the windows were."
+            "en": "The FSP Assembly Hall. Different from the MCC boardroom. Not sealed. There were windows. The outside was visible. The mines were visible. That was intentional. FSP tried not to forget the outside. That was what the windows were.",
+            "ja": "FSP議員会議事堂。MCC取締役会とは違った。密閉されていなかった。窓があった。外が見えた。鉱山が見えた。それは意図されたものだった。FSPは外を忘れないようにしようとした。窓がそれだった。",
+            "zh": "FSP议会大厅。与MCC董事会不同。没有密封。有窗户。能看到外面。能看到矿山。那是有意为之的。FSP试图不忘记外面。窗户就是那个。"
           }
         }
       ]
@@ -45,7 +49,9 @@
         {
           "text": {
             "ko": "창문을 Mikhail이 만들었다. 28년 전에 의사당을 지을 때. 처음에는 반대가 있었다. 보안 문제. 그러나 Mikhail이 고집했다. 이유는 간단하다고 했다. 바깥을 잊으면 안 된다. 그것뿐이었다. 그래서 창문이 있었다.",
-            "en": "Mikhail had made the windows. When the hall was built twenty-eight years ago. There had been opposition at first. Security concerns. But Mikhail had insisted. He said the reason was simple. We must not forget the outside. That was all. So there were windows."
+            "en": "Mikhail had made the windows. When the hall was built twenty-eight years ago. There had been opposition at first. Security concerns. But Mikhail had insisted. He said the reason was simple. We must not forget the outside. That was all. So there were windows.",
+            "ja": "窓をミハイルが作った。28年前に議事堂を建てたとき。最初は反対があった。安全の問題。しかしミハイルが譲らなかった。理由は簡単だと言った。外を忘れてはいけない。それだけだった。だから窓があった。",
+            "zh": "窗户是米哈伊尔做的。二十八年前建造议事堂的时候。起初有反对声音。安全问题。但米哈伊尔坚持。说理由很简单。不能忘记外面。就这些。所以有了窗户。"
           }
         }
       ]
@@ -60,7 +66,9 @@
         {
           "text": {
             "ko": "Mikhail이 거기 있었다. 오른쪽 다리가 안 좋았다. 그것은 예전부터였다. 광산 사고. 다리는 그것을 기억했다. 오늘은 더 안 좋아 보였다. 그는 앉아 있었다. 의원회에서 Mikhail이 앉으면 안 좋은 날이었다.",
-            "en": "Mikhail was there. His right leg was troubled. That was old. Mine accident. The leg remembered it. Today it looked worse. He was sitting. When Mikhail sat in the assembly it was a bad day."
+            "en": "Mikhail was there. His right leg was troubled. That was old. Mine accident. The leg remembered it. Today it looked worse. He was sitting. When Mikhail sat in the assembly it was a bad day.",
+            "ja": "ミハイルがそこにいた。右脚が良くなかった。それは昔からのことだった。鉱山事故。脚がそれを覚えていた。今日はさらに悪そうだった。彼は座っていた。議員会でミハイルが座ると悪い日だった。",
+            "zh": "米哈伊尔在那里。右腿不太好。那是从以前就有的事。矿山事故。腿记得那件事。今天看起来更糟了。他坐着。在议会上米哈伊尔坐着的日子是糟糕的日子。"
           }
         }
       ]
@@ -78,7 +86,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "오늘 의원회에 안건이 있어요.",
-            "en": "The assembly has business today."
+            "en": "The assembly has business today.",
+            "ja": "今日の議員会に議題があります。",
+            "zh": "今天的议会有议题。"
           }
         },
         {
@@ -86,7 +96,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "내가 오래됐어요. FSP를 만든 지 28년. 화성에서 28년은 긴 것이에요. 내 다리도 알아요.",
-            "en": "I've been here a long time. Twenty-eight years since I made FSP. On Mars twenty-eight years is long. My leg knows."
+            "en": "I've been here a long time. Twenty-eight years since I made FSP. On Mars twenty-eight years is long. My leg knows.",
+            "ja": "私は長くいます。FSPを作って28年。火星で28年は長い。私の脚も知っている。",
+            "zh": "我已经很久了。创立FSP二十八年了。在火星二十八年是很长的。我的腿也知道。"
           }
         },
         {
@@ -94,7 +106,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "다음 의장 후보가 다섯이에요. 당신도 봐야 해요.",
-            "en": "There are five candidates for the next chair. You should watch too."
+            "en": "There are five candidates for the next chair. You should watch too.",
+            "ja": "次の議長候補が五人います。あなたも見なければならない。",
+            "zh": "下任议长候选人有五个。你也需要看。"
           }
         }
       ]
@@ -109,7 +123,9 @@
         {
           "text": {
             "ko": "다섯 명이었다. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. 다섯 명이 테이블 앞에 앉았다. 창문 너머로 광산이 보였다. 다섯 명 모두 그 광산과 관련이 있었다. 그것이 FSP였다.",
-            "en": "Five people. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. Five sat before the table. Through the window the mines were visible. All five had connections to those mines. That was FSP."
+            "en": "Five people. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. Five sat before the table. Through the window the mines were visible. All five had connections to those mines. That was FSP.",
+            "ja": "五人だった。アマラ・オカフォー。ユナ・キム。パク・スンホ。レナタ・ヴィエイラ博士。トーマス・アルダー。五人がテーブルの前に座った。窓の向こうに鉱山が見えた。五人全員がその鉱山と関連があった。それがFSPだった。",
+            "zh": "是五个人。阿玛拉·奥卡福。金宥娜。朴成浩。蕾娜塔·维埃拉博士。托马斯·阿尔德。五人坐在桌子前。窗外看得见矿山。五人都与那个矿山有关联。那就是FSP。"
           }
         }
       ]
@@ -127,7 +143,9 @@
           "effect": "character_enter:amara:slide_right",
           "text": {
             "ko": "Amara Okafor입니다. 남부 헬라스 출신. 의원 11년.",
-            "en": "Amara Okafor. From southern Hellas. Eleven years as a representative."
+            "en": "Amara Okafor. From southern Hellas. Eleven years as a representative.",
+            "ja": "アマラ・オカフォーです。南ヘラス出身。議員11年。",
+            "zh": "我是阿玛拉·奥卡福。来自南赫拉斯。议员十一年。"
           }
         },
         {
@@ -135,7 +153,9 @@
           "emotion": "serious",
           "text": {
             "ko": "FSP의 다음은 협상이에요. MCC와도. CV와도. 싸우면서 협상해요. 그것이 화성에서 살아남는 방법이에요.",
-            "en": "FSP's next step is negotiation. With MCC too. With CV too. Negotiate while fighting. That is how to survive on Mars."
+            "en": "FSP's next step is negotiation. With MCC too. With CV too. Negotiate while fighting. That is how to survive on Mars.",
+            "ja": "FSPの次は交渉です。MCCとも。CVとも。戦いながら交渉する。それが火星で生き残る方法です。",
+            "zh": "FSP的下一步是谈判。跟MCC。也跟CV。边打边谈。那是在火星生存的方式。"
           }
         },
         {
@@ -143,7 +163,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Mikhail이 만든 것을 내가 이어받아요. 그러나 다른 방식으로.",
-            "en": "What Mikhail built I will carry forward. But in a different way."
+            "en": "What Mikhail built I will carry forward. But in a different way.",
+            "ja": "ミハイルが作ったものを私が受け継ぎます。しかし別の方法で。",
+            "zh": "米哈伊尔建立的东西我来继承。但以不同的方式。"
           }
         }
       ]
@@ -158,7 +180,9 @@
         {
           "text": {
             "ko": "Mikhail이 들었다. 차를 들지 않았다. 오늘은 차가 없었다. 그것이 달랐다. 이 사람이 차 없이 있는 날은 많지 않았다. 그의 손이 테이블 위에 있었다. 두 손. 가만히 있었다. 두 손이 가만히 있을 때 이 사람은 결정하는 것이었다.",
-            "en": "Mikhail listened. He wasn't holding tea. Today there was no tea. That was different. There weren't many days this man was without tea. His hands were on the table. Both hands. Still. When both hands were still this man was deciding something."
+            "en": "Mikhail listened. He wasn't holding tea. Today there was no tea. That was different. There weren't many days this man was without tea. His hands were on the table. Both hands. Still. When both hands were still this man was deciding something.",
+            "ja": "ミハイルは聞いた。お茶を持っていなかった。今日はお茶がなかった。それが違った。この人物がお茶なしでいる日は多くなかった。彼の手がテーブルの上にあった。両手。静止していた。両手が静止しているとき、この人物は何かを決めていた。",
+            "zh": "米哈伊尔听着。没有拿茶。今天没有茶。那是不同的。这个人没有茶的日子不多。他的手放在桌子上。两只手。静止着。两只手静止的时候，这个人是在做决定。"
           }
         }
       ]
@@ -176,7 +200,9 @@
           "effect": "character_enter:yuna:slide_right",
           "text": {
             "ko": "Yuna Kim입니다. 헬라스 광부 마을 출신. 화성 태생이에요.",
-            "en": "Yuna Kim. From Hellas mining village. Born on Mars."
+            "en": "Yuna Kim. From Hellas mining village. Born on Mars.",
+            "ja": "ユナ・キムです。ヘラス鉱夫村出身。火星生まれです。",
+            "zh": "我是金宥娜。来自赫拉斯矿工村。火星出生。"
           }
         },
         {
@@ -184,7 +210,9 @@
           "emotion": "passionate",
           "text": {
             "ko": "FSP의 다음은 화성 태생들이에요. 이 행성에서 태어난 사람들이 이 행성을 이끌어야 해요.",
-            "en": "FSP's next step is the Mars-born. People born on this planet must lead this planet."
+            "en": "FSP's next step is the Mars-born. People born on this planet must lead this planet.",
+            "ja": "FSPの次は火星生まれの人々です。この惑星で生まれた人々がこの惑星を率いなければなりません。",
+            "zh": "FSP的下一步是火星出生的人们。在这颗星球出生的人必须领导这颗星球。"
           }
         },
         {
@@ -192,7 +220,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "아버지가 광산 사고로 돌아가셨어요. 그게 이유예요.",
-            "en": "My father died in a mining accident. That's the reason."
+            "en": "My father died in a mining accident. That's the reason.",
+            "ja": "父が鉱山事故で亡くなりました。それが理由です。",
+            "zh": "父亲在矿山事故中去世了。那就是原因。"
           }
         }
       ]
@@ -207,7 +237,9 @@
         {
           "text": {
             "ko": "Lena가 Yuna를 봤다. 팔 위의 이름들이 보였다. Yuna의 아버지 이름도 거기 있었다. 헬라스 광부 마을 묘지. 금속판. 오래된 것. 그것이 지금 이 방에 있었다. 이름들이 있는 방이었다.",
-            "en": "Lena looked at Yuna. The names on the arm were visible. Yuna's father's name was there too. Hellas mining village cemetery. Metal plate. Old thing. That was in this room now. A room with names."
+            "en": "Lena looked at Yuna. The names on the arm were visible. Yuna's father's name was there too. Hellas mining village cemetery. Metal plate. Old thing. That was in this room now. A room with names.",
+            "ja": "レナがユナを見た。腕の上の名前たちが見えた。ユナの父親の名前もそこにあった。ヘラス鉱夫村の墓地。金属板。古いもの。それが今この部屋にあった。名前のある部屋だった。",
+            "zh": "莱娜看着金宥娜。手臂上的名字们看得见。金宥娜父亲的名字也在那里。赫拉斯矿工村墓地。金属板。古老的东西。那现在在这个房间里。是有名字的房间。"
           }
         }
       ]
@@ -225,7 +257,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "세 번째 후보 Pak Seung-ho가 섰다.",
-            "en": "Third candidate Pak Seung-ho stood."
+            "en": "Third candidate Pak Seung-ho stood.",
+            "ja": "三番目の候補パク・スンホが立った。",
+            "zh": "第三位候选人朴成浩站了起来。"
           }
         },
         {
@@ -234,7 +268,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "Pak Seung-ho입니다. FSP 경제 위원 15년. 실용주의자예요.",
-            "en": "Pak Seung-ho. FSP economics committee fifteen years. I am a pragmatist."
+            "en": "Pak Seung-ho. FSP economics committee fifteen years. I am a pragmatist.",
+            "ja": "パク・スンホです。FSP経済委員15年。実用主義者です。",
+            "zh": "我是朴成浩。FSP经济委员十五年。我是实用主义者。"
           }
         },
         {
@@ -243,7 +279,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "이상보다 실행이에요. 광부들이 오늘 먹어야 해요. 내일 꿈보다 오늘 밥이에요.",
-            "en": "Execution over ideals. Miners need to eat today. Today's meal over tomorrow's dream."
+            "en": "Execution over ideals. Miners need to eat today. Today's meal over tomorrow's dream.",
+            "ja": "理想より実行です。鉱夫たちは今日食べなければならない。明日の夢より今日の食事です。",
+            "zh": "执行胜于理想。矿工们今天要吃饭。今天的饭比明天的梦重要。"
           }
         }
       ]
@@ -261,7 +299,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "Dr. Renata Vieira입니다. FSP 의료 지원 팀장 8년.",
-            "en": "Dr. Renata Vieira. FSP medical support team leader eight years."
+            "en": "Dr. Renata Vieira. FSP medical support team leader eight years.",
+            "ja": "レナタ・ヴィエイラ博士です。FSP医療支援チームリーダー8年。",
+            "zh": "我是蕾娜塔·维埃拉博士。FSP医疗支援队队长八年。"
           }
         },
         {
@@ -270,7 +310,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "화성에서 가장 중요한 것은 사람이 살아남는 것이에요. 광산 안전. 의료 접근. 그것이 먼저예요.",
-            "en": "The most important thing on Mars is people surviving. Mine safety. Medical access. Those come first."
+            "en": "The most important thing on Mars is people surviving. Mine safety. Medical access. Those come first.",
+            "ja": "火星で最も重要なことは人が生き残ることです。鉱山の安全。医療へのアクセス。それが先です。",
+            "zh": "在火星最重要的是人能活下去。矿山安全。医疗获取。那是优先的。"
           }
         }
       ]
@@ -288,7 +330,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "Thomas Alder입니다. MCC 출신이에요. FSP 의원이 된 지 3년.",
-            "en": "Thomas Alder. Former MCC. Three years as FSP representative."
+            "en": "Thomas Alder. Former MCC. Three years as FSP representative.",
+            "ja": "トーマス・アルダーです。MCC出身です。FSP議員になって3年。",
+            "zh": "我是托马斯·阿尔德。前MCC成员。成为FSP议员三年了。"
           }
         },
         {
@@ -297,7 +341,9 @@
           "effect": "character_narration",
           "text": {
             "ko": "MCC 안에서 FSP가 옳다는 것을 알았어요. 그래서 왔어요. 내부를 아는 사람이 협상에 필요해요.",
-            "en": "Inside MCC I understood FSP was right. So I came. Someone who knows the inside is needed for negotiation."
+            "en": "Inside MCC I understood FSP was right. So I came. Someone who knows the inside is needed for negotiation.",
+            "ja": "MCC内部でFSPが正しいことを知った。だから来ました。内部を知る人が交渉に必要です。",
+            "zh": "在MCC内部知道了FSP是对的。所以来了。知道内部的人对谈判是必要的。"
           }
         },
         {
@@ -306,7 +352,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "보스. Alder예요. MCC 출신이에요.",
-            "en": "Boss. Alder. From MCC."
+            "en": "Boss. Alder. From MCC.",
+            "ja": "ボス。アルダーです。MCC出身です。",
+            "zh": "老大。是阿尔德。MCC出身。"
           }
         }
       ]
@@ -321,7 +369,9 @@
         {
           "text": {
             "ko": "Thomas Alder. Kenji가 말한 것이 있었다. FSP 내부자. 통신 패턴. 의원회 전후. 패턴이 의원을 가리켰다. Alder가 의원이었다. 3년. MCC 출신. 그것이 지금 이 방에 있었다.",
-            "en": "Thomas Alder. There was what Kenji had said. The FSP mole. Communication patterns. Before and after assembly meetings. The pattern pointed to an assembly member. Alder was an assembly member. Three years. From MCC. That was in this room now."
+            "en": "Thomas Alder. There was what Kenji had said. The FSP mole. Communication patterns. Before and after assembly meetings. The pattern pointed to an assembly member. Alder was an assembly member. Three years. From MCC. That was in this room now.",
+            "ja": "トーマス・アルダー。ケンジが言ったことがあった。FSPの内部者。通信パターン。議員会の前後。パターンが議員を指していた。アルダーが議員だった。3年。MCC出身。それが今この部屋にあった。",
+            "zh": "托马斯·阿尔德。有健二说过的事情。FSP内鬼。通讯模式。议会前后。模式指向了议员。阿尔德是议员。三年。MCC出身。那现在在这个房间里。"
           }
         }
       ]
@@ -336,7 +386,9 @@
         {
           "text": {
             "ko": "세 후보가 더 있었다. Pak Seung-ho는 실용주의자였다. Dr. Renata Vieira는 의료 전문가였다. Thomas Alder는 MCC 출신이었다. 그것이 논란이었다. MCC 출신이 FSP 의장이 될 수 있는가. 그것이 오늘 의원회의 다른 안건이었다.",
-            "en": "Three more candidates. Pak Seung-ho was a pragmatist. Dr. Renata Vieira was a medical specialist. Thomas Alder had come from MCC. That was controversial. Could an MCC person become FSP chair. That was another item on today's assembly."
+            "en": "Three more candidates. Pak Seung-ho was a pragmatist. Dr. Renata Vieira was a medical specialist. Thomas Alder had come from MCC. That was controversial. Could an MCC person become FSP chair. That was another item on today's assembly.",
+            "ja": "三人の候補がさらにいた。パク・スンホは実用主義者だった。レナタ・ヴィエイラ博士は医療専門家だった。トーマス・アルダーはMCC出身だった。それが論争だった。MCC出身者がFSP議長になれるのか。それが今日の議員会の別の議題だった。",
+            "zh": "还有三位候选人。朴成浩是实用主义者。蕾娜塔·维埃拉博士是医疗专家。托马斯·阿尔德来自MCC。那是争议所在。MCC出身的人能成为FSP议长吗。那是今天议会的另一个议题。"
           }
         }
       ]
@@ -353,7 +405,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Mikhail. FSP가 MCC와 협상 테이블에 앉을 수 있어요. 내가 의장이 되면.",
-            "en": "Mikhail. FSP can sit at the negotiating table with MCC. If I become chair."
+            "en": "Mikhail. FSP can sit at the negotiating table with MCC. If I become chair.",
+            "ja": "ミハイル。FSPがMCCと交渉テーブルに座れます。私が議長になれば。",
+            "zh": "米哈伊尔。FSP能与MCC坐上谈判桌。如果我成为议长的话。"
           }
         },
         {
@@ -361,7 +415,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "협상 테이블에서 뭘 원해요.",
-            "en": "What do you want from the negotiating table."
+            "en": "What do you want from the negotiating table.",
+            "ja": "交渉テーブルで何が欲しいですか。",
+            "zh": "在谈判桌上你想要什么。"
           }
         },
         {
@@ -369,7 +425,9 @@
           "emotion": "calm",
           "text": {
             "ko": "광부들의 안전이요. 법적 보호요. 그것이 없으면 아무것도 없어요.",
-            "en": "The safety of miners. Legal protection. Without those there's nothing."
+            "en": "The safety of miners. Legal protection. Without those there's nothing.",
+            "ja": "鉱夫たちの安全です。法的保護です。それがなければ何もない。",
+            "zh": "矿工们的安全。法律保护。没有那些什么都没有。"
           }
         },
         {
@@ -377,7 +435,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "그것을 위해 MCC와 앉는 거예요. 아니면 MCC가 그것을 줄 거라서 앉는 거예요.",
-            "en": "Are you sitting with MCC to get those. Or because MCC will give those."
+            "en": "Are you sitting with MCC to get those. Or because MCC will give those.",
+            "ja": "それのためにMCCと座るのですか。それともMCCがそれをくれるから座るのですか。",
+            "zh": "是为了那些才与MCC坐下来。还是因为MCC会给那些才坐下来。"
           }
         }
       ]
@@ -392,7 +452,9 @@
         {
           "text": {
             "ko": "Mikhail과 Amara의 차이였다. Mikhail은 의심했다. Amara는 가능성을 봤다. 그것이 28년과 11년의 차이였다. 더 오래 본 사람은 더 많이 의심했다. 그것이 좋은 것인지 나쁜 것인지는 알 수 없었다.",
-            "en": "The difference between Mikhail and Amara. Mikhail doubted. Amara saw possibility. That was the difference between twenty-eight years and eleven years. Those who had seen longer doubted more. Whether that was good or bad was unknowable."
+            "en": "The difference between Mikhail and Amara. Mikhail doubted. Amara saw possibility. That was the difference between twenty-eight years and eleven years. Those who had seen longer doubted more. Whether that was good or bad was unknowable.",
+            "ja": "ミハイルとアマラの違いだった。ミハイルは疑った。アマラは可能性を見た。それが28年と11年の違いだった。より長く見た人は、より多く疑った。それが良いことか悪いことかはわからなかった。",
+            "zh": "米哈伊尔和阿玛拉的区别。米哈伊尔怀疑。阿玛拉看到了可能性。那就是二十八年和十一年的区别。看得更久的人怀疑得更多。那是好事还是坏事，无从得知。"
           }
         }
       ]
@@ -407,7 +469,9 @@
         {
           "text": {
             "ko": "환경 경보가 울렸다. 의사당 시스템. 헬라스 외곽 지역 먼지 폭풍 경보. 규모 4. 화성 기준으로 큰 것이었다. 창문 너머로 지평선이 변하고 있었다. 붉은 것이 더 붉어지고 있었다.",
-            "en": "An environmental alarm sounded. Assembly hall system. Dust storm warning for outer Hellas region. Scale 4. Large by Martian standards. Through the window the horizon was changing. The red was getting redder."
+            "en": "An environmental alarm sounded. Assembly hall system. Dust storm warning for outer Hellas region. Scale 4. Large by Martian standards. Through the window the horizon was changing. The red was getting redder.",
+            "ja": "環境警報が鳴った。議事堂システム。ヘラス外縁地域の砂塵嵐警報。規模4。火星基準では大きなものだった。窓の向こうで地平線が変化していた。赤いものがより赤くなっていた。",
+            "zh": "环境警报响了。议事堂系统。赫拉斯外围地区沙尘暴警报。规模四。按火星标准是很大的。窗外地平线在变化。红色的东西变得更红了。"
           }
         }
       ]
@@ -425,7 +489,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "규모 4예요. 광산 마을들이 위험해요. 특히 헬라스 외곽.",
-            "en": "Scale 4. Mining villages are at risk. Especially outer Hellas."
+            "en": "Scale 4. Mining villages are at risk. Especially outer Hellas.",
+            "ja": "規模4です。鉱山の村々が危険です。特にヘラス外縁。",
+            "zh": "规模四。矿工村庄有危险。尤其是赫拉斯外围。"
           }
         },
         {
@@ -433,7 +499,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "의원회를 멈출 수 없어요. 의장 선거는 정해진 날 해야 해요. 그것이 절차예요.",
-            "en": "Can't stop the assembly. The chair election must happen on the scheduled day. That's procedure."
+            "en": "Can't stop the assembly. The chair election must happen on the scheduled day. That's procedure.",
+            "ja": "議員会を止めることはできない。議長選挙は決められた日にしなければならない。それが手順です。",
+            "zh": "不能停止议会。议长选举必须在规定的日期进行。那是程序。"
           }
         },
         {
@@ -441,7 +509,9 @@
           "emotion": "direct",
           "text": {
             "ko": "그러나 광산 마을들이.",
-            "en": "But the mining villages."
+            "en": "But the mining villages.",
+            "ja": "しかし鉱山の村々が。",
+            "zh": "但是矿工村庄。"
           }
         }
       ]
@@ -458,7 +528,9 @@
           "emotion": "serious",
           "text": {
             "ko": "선거를 미뤄야 해요. 위기가 먼저예요.",
-            "en": "Must postpone the election. Crisis comes first."
+            "en": "Must postpone the election. Crisis comes first.",
+            "ja": "選挙を延期しなければなりません。危機が先です。",
+            "zh": "必须推迟选举。危机优先。"
           }
         },
         {
@@ -466,7 +538,9 @@
           "emotion": "passionate",
           "text": {
             "ko": "미룰 수 없어요. 이게 MCC가 원하는 거예요. 우리를 분열시키는 거예요.",
-            "en": "Can't postpone. This is what MCC wants. To divide us."
+            "en": "Can't postpone. This is what MCC wants. To divide us.",
+            "ja": "延期できない。これがMCCの望むことです。私たちを分裂させること。",
+            "zh": "不能推迟。这是MCC想要的。分裂我们。"
           }
         },
         {
@@ -474,7 +548,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "둘 다 맞아요.",
-            "en": "Both are right."
+            "en": "Both are right.",
+            "ja": "どちらも正しい。",
+            "zh": "两者都对。"
           }
         }
       ]
@@ -489,7 +565,9 @@
         {
           "text": {
             "ko": "두 가지가 동시에 있었다. 의장 선거. 환경 위기. 화성에서 두 가지가 동시에 오는 것은 보통 일이었다. 그러나 이 두 가지가 같은 날 온 것은 우연이 아닐 수 있었다. MCC가 알고 있었다면.",
-            "en": "Two things at once. The chair election. Environmental crisis. Two things coming at once on Mars was normal. But these two coming the same day might not be coincidence. If MCC had known."
+            "en": "Two things at once. The chair election. Environmental crisis. Two things coming at once on Mars was normal. But these two coming the same day might not be coincidence. If MCC had known.",
+            "ja": "二つのことが同時にあった。議長選挙。環境危機。火星で二つのことが同時に来ることは普通のことだった。しかしこの二つが同じ日に来たことは偶然ではないかもしれなかった。MCCが知っていたなら。",
+            "zh": "两件事同时来了。议长选举。环境危机。在火星上两件事同时来是寻常的事。但这两件事在同一天来或许不是巧合。如果MCC知道的话。"
           }
         }
       ]
@@ -504,7 +582,9 @@
         {
           "text": {
             "ko": "FSP 내부자. Kenji가 말한 것. 고위직. 통신 패턴. 그것이 지금 이 방에 있었다. 다섯 후보 중 한 명이 그것일 수 있었다. 아니면 의원 중 한 명. 아니면 Mikhail 주변 사람. 알 수 없었다.",
-            "en": "The FSP mole. What Kenji had said. Someone senior. Communication patterns. That was in this room now. One of the five candidates might be it. Or one of the representatives. Or someone around Mikhail. Unknowable."
+            "en": "The FSP mole. What Kenji had said. Someone senior. Communication patterns. That was in this room now. One of the five candidates might be it. Or one of the representatives. Or someone around Mikhail. Unknowable.",
+            "ja": "FSPの内部者。ケンジが言ったこと。高位職。通信パターン。それが今この部屋にあった。五人の候補者の一人がそれかもしれなかった。あるいは議員の一人。あるいはミハイルの周りの人。知ることができなかった。",
+            "zh": "FSP内鬼。健二说过的事情。高层。通讯模式。那现在在这个房间里。五位候选人中的一个可能就是那个。或者议员中的一个。或者米哈伊尔周围的人。无法得知。"
           }
         }
       ]
@@ -519,7 +599,9 @@
         {
           "text": {
             "ko": "창문에 먼지가 치기 시작했다. 규모 4 폭풍. 의사당 안의 불빛이 흔들렸다. 비상 전원으로 바뀌는 것이었다. 그러나 창문은 거기 있었다. 먼지가 쳐도 거기 있었다.",
-            "en": "Dust began hitting the windows. Scale 4 storm. The lights in the assembly hall flickered. Switching to emergency power. But the windows were there. They were there even as the dust hit."
+            "en": "Dust began hitting the windows. Scale 4 storm. The lights in the assembly hall flickered. Switching to emergency power. But the windows were there. They were there even as the dust hit.",
+            "ja": "窓に砂塵が当たり始めた。規模4の嵐。議事堂内の照明が揺らいだ。非常電源に切り替わるのだった。しかし窓はそこにあった。砂塵が当たってもそこにあった。",
+            "zh": "沙尘开始打在窗户上。规模四的风暴。议事堂内的灯光摇曳。切换到紧急电源了。但窗户还在那里。沙尘打来时也在那里。"
           },
           "overlay": "fsp_ch7_assembly_l21_00_dust_storm"
         }
@@ -537,7 +619,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "창문을 봐요.",
-            "en": "Look at the windows."
+            "en": "Look at the windows.",
+            "ja": "窓を見て。",
+            "zh": "看窗户。"
           }
         },
         {
@@ -545,7 +629,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "저 바깥에 사람들이 있어요. 먼지 속에서도. 광산 마을들. 대피 중일 거예요.",
-            "en": "There are people outside there. Even in the dust. The mining villages. They'll be evacuating."
+            "en": "There are people outside there. Even in the dust. The mining villages. They'll be evacuating.",
+            "ja": "あの外に人々がいます。砂塵の中でも。鉱山の村々。避難中でしょう。",
+            "zh": "那外面有人。就算在沙尘里。矿工村庄。应该在疏散了。"
           }
         },
         {
@@ -553,7 +639,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "선거를 합니다. 그리고 동시에 대피 지원을 보냅니다. 두 가지 다.",
-            "en": "We hold the election. And simultaneously send evacuation support. Both."
+            "en": "We hold the election. And simultaneously send evacuation support. Both.",
+            "ja": "選挙をします。そして同時に避難支援を送ります。両方とも。",
+            "zh": "进行选举。同时发送疏散支援。两件都做。"
           }
         }
       ]
@@ -565,55 +653,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "다섯 후보. 환경 위기. FSP 내부자. Mikhail이 당신 의견을 묻는다.",
-        "en": "Five candidates. Environmental crisis. FSP mole. Mikhail asks your opinion."
+        "en": "Five candidates. Environmental crisis. FSP mole. Mikhail asks your opinion.",
+        "ja": "五人の候補。環境危機。FSPの内部者。ミハイルがあなたの意見を聞く。",
+        "zh": "五位候选人。环境危机。FSP内鬼。米哈伊尔问你的意见。"
       },
       "choices": [
         {
           "id": "fsp_ch7_amara",
           "text": {
             "ko": "Amara Okafor. 협상과 지속.",
-            "en": "Amara Okafor. Negotiation and continuity."
+            "en": "Amara Okafor. Negotiation and continuity.",
+            "ja": "アマラ・オカフォー。交渉と継続。",
+            "zh": "阿玛拉·奥卡福。谈判与延续。"
           },
           "tone": "diplomatic",
           "preview_hint": {
             "ko": "→ FSP 안정적 전환, 타협 노선",
-            "en": "→ FSP stable transition, compromise path"
+            "en": "→ FSP stable transition, compromise path",
+            "ja": "→ FSP安定的転換、妥協路線",
+            "zh": "→ FSP稳定过渡，妥协路线"
           }
         },
         {
           "id": "fsp_ch7_yuna",
           "text": {
             "ko": "Yuna Kim. 60명 마을의 아이.",
-            "en": "Yuna Kim. The child of the sixty-person village."
+            "en": "Yuna Kim. The child of the sixty-person village.",
+            "ja": "ユナ・キム。60人の村の子。",
+            "zh": "金宥娜。六十人村庄的孩子。"
           },
           "tone": "idealistic",
           "preview_hint": {
             "ko": "→ FSP 급진화, MCC 강경 대응",
-            "en": "→ FSP radicalizes, MCC responds forcefully"
+            "en": "→ FSP radicalizes, MCC responds forcefully",
+            "ja": "→ FSP急進化、MCC強硬対応",
+            "zh": "→ FSP激进化，MCC强硬回应"
           }
         },
         {
           "id": "fsp_ch7_mikhail",
           "text": {
             "ko": "Mikhail이 계속해야 한다고 말한다.",
-            "en": "Say that Mikhail must continue."
+            "en": "Say that Mikhail must continue.",
+            "ja": "ミハイルが続けなければならないと言う。",
+            "zh": "说米哈伊尔必须继续。"
           },
           "tone": "loyal",
           "preview_hint": {
             "ko": "→ Mikhail이 고개를 젓는다. 오래",
-            "en": "→ Mikhail shakes his head. Slowly."
+            "en": "→ Mikhail shakes his head. Slowly.",
+            "ja": "→ ミハイルが首を振る。ゆっくりと。",
+            "zh": "→ 米哈伊尔摇摇头。缓缓地。"
           }
         },
         {
           "id": "fsp_ch7_abstain",
           "text": {
             "ko": "의견을 말하지 않는다. FSP의 결정이다.",
-            "en": "Give no opinion. This is FSP's decision."
+            "en": "Give no opinion. This is FSP's decision.",
+            "ja": "意見を言わない。FSPの決定だ。",
+            "zh": "不说意见。这是FSP的决定。"
           },
           "tone": "respectful",
           "preview_hint": {
             "ko": "→ Mikhail이 고맙다고 한다. 진심으로",
-            "en": "→ Mikhail thanks you. Sincerely."
+            "en": "→ Mikhail thanks you. Sincerely.",
+            "ja": "→ ミハイルが感謝する。心から。",
+            "zh": "→ 米哈伊尔道谢。真心实意。"
           }
         }
       ]
@@ -628,7 +734,9 @@
         {
           "text": {
             "ko": "투표가 있었다. 의원들이 일어섰다. 이름을 불렀다. 화성에서 의결은 이름으로 했다. 기계가 아니라 목소리로. 그것이 FSP의 방식이었다. 이름이 있는 존재가 이름으로 결정하는 것.",
-            "en": "There was a vote. Representatives stood. Called names. On Mars decisions were made with names. Not machines but voices. That was FSP's way. Beings with names deciding with names."
+            "en": "There was a vote. Representatives stood. Called names. On Mars decisions were made with names. Not machines but voices. That was FSP's way. Beings with names deciding with names.",
+            "ja": "投票があった。議員たちが立った。名前を呼んだ。火星での議決は名前でした。機械ではなく声で。それがFSPのやり方だった。名前を持つ存在が名前で決定すること。",
+            "zh": "有了投票。议员们站了起来。呼唤名字。在火星上的决议是用名字来做的。不是机器而是声音。那就是FSP的方式。有名字的存在用名字来决定。"
           }
         }
       ]
@@ -643,7 +751,9 @@
         {
           "text": {
             "ko": "먼지 폭풍이 창문을 쳤다. 불빛이 흔들렸다. 그러나 목소리들이 있었다. 이름을 부르는 것들. 그것이 멈추지 않았다. 화성에서 목소리들은 멈추지 않았다. 먼지가 와도.",
-            "en": "The dust storm hit the windows. The lights flickered. But the voices were there. Those calling names. They didn't stop. On Mars voices didn't stop. Even when the dust came."
+            "en": "The dust storm hit the windows. The lights flickered. But the voices were there. Those calling names. They didn't stop. On Mars voices didn't stop. Even when the dust came.",
+            "ja": "砂塵嵐が窓を打った。照明が揺らいだ。しかし声たちがあった。名前を呼ぶもの。それが止まらなかった。火星で声たちは止まらなかった。砂塵が来ても。",
+            "zh": "沙尘暴打在窗户上。灯光摇曳。但声音在那里。呼唤名字的东西。那没有停止。在火星，声音不会停止。就算沙尘来了。"
           }
         }
       ]
@@ -660,7 +770,9 @@
           "emotion": "tense",
           "text": {
             "ko": "보스. Alder 투표 패턴 봐요. 이상해요.",
-            "en": "Boss. Look at Alder's voting pattern. Strange."
+            "en": "Boss. Look at Alder's voting pattern. Strange.",
+            "ja": "ボス。アルダーの投票パターンを見て。おかしい。",
+            "zh": "老大。看阿尔德的投票模式。很奇怪。"
           }
         },
         {
@@ -668,7 +780,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Kenji 데이터의 패턴이랑 같아요.",
-            "en": "It matches the pattern in Kenji's data."
+            "en": "It matches the pattern in Kenji's data.",
+            "ja": "ケンジのデータのパターンと同じです。",
+            "zh": "跟健二数据里的模式一样。"
           }
         },
         {
@@ -676,7 +790,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "알고 있어요.",
-            "en": "I know."
+            "en": "I know.",
+            "ja": "知っています。",
+            "zh": "知道。"
           }
         }
       ]
@@ -691,7 +807,9 @@
         {
           "text": {
             "ko": "Mikhail이 알고 있었다. 그것이 이 사람의 것이었다. 모든 것을 알면서 말하지 않는 것. 차를 끓이면서 기다리는 것. 28년의 방식이었다.",
-            "en": "Mikhail knew. That was this person's thing. Knowing everything while not speaking. Making tea and waiting. The way of twenty-eight years."
+            "en": "Mikhail knew. That was this person's thing. Knowing everything while not speaking. Making tea and waiting. The way of twenty-eight years.",
+            "ja": "ミハイルは知っていた。それがこの人物の特質だった。すべてを知りながら言わないこと。お茶を淹れながら待つこと。28年のやり方だった。",
+            "zh": "米哈伊尔知道。那是这个人的特质。知道所有事情却不说话。泡着茶等待。二十八年的方式。"
           }
         }
       ]
@@ -704,11 +822,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "의원회 수호",
-        "en": "Assembly Guard"
+        "en": "Assembly Guard",
+        "ja": "議会防衛",
+        "zh": "议会守护"
       },
       "subtitle": {
         "ko": "FSP 의사당 — 민주주의의 무게",
-        "en": "FSP Assembly — The Weight of Democracy"
+        "en": "FSP Assembly — The Weight of Democracy",
+        "ja": "FSP議事堂 — 民主主義の重み",
+        "zh": "FSP议事堂 — 民主的重量"
       }
     },
     {
@@ -729,7 +851,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "의원회가 끝났어요.",
-            "en": "The assembly has concluded."
+            "en": "The assembly has concluded.",
+            "ja": "議員会が終わりました。",
+            "zh": "议会结束了。"
           }
         },
         {
@@ -737,7 +861,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "28년 전에 여기서 시작했어요. 창문이 없었어요 그때는. 내가 만들었어요. 이유는 간단해요. 바깥을 잊으면 안 되니까.",
-            "en": "Twenty-eight years ago it started here. There were no windows then. I made them. The reason is simple. We must not forget the outside."
+            "en": "Twenty-eight years ago it started here. There were no windows then. I made them. The reason is simple. We must not forget the outside.",
+            "ja": "28年前にここで始まった。その頃は窓がなかった。私が作った。理由は簡単です。外を忘れてはいけないから。",
+            "zh": "二十八年前在这里开始的。那时候没有窗户。是我做的。理由很简单。不能忘记外面。"
           }
         }
       ]
@@ -751,7 +877,9 @@
         {
           "text": {
             "ko": "의원회가 결론에 이르지 못했다. 다섯 명. 다섯 개의 방향. 화성에서 방향이 많으면 아무 곳으로도 가지 못했다. Mikhail이 일어섰다. 다리가 좋지 않았다. 그러나 일어섰다. 그것이 이 사람의 방식이었다.",
-            "en": "The assembly reached no conclusion. Five people. Five directions. On Mars too many directions meant going nowhere. Mikhail stood. His leg was troubled. But he stood. That was this man's way."
+            "en": "The assembly reached no conclusion. Five people. Five directions. On Mars too many directions meant going nowhere. Mikhail stood. His leg was troubled. But he stood. That was this man's way.",
+            "ja": "議員会は結論に至らなかった。五人。五つの方向。火星で方向が多いとどこにも行けなかった。ミハイルが立った。脚が良くなかった。しかし立った。それがこの人物のやり方だった。",
+            "zh": "议会没有达成结论。五个人。五个方向。在火星上方向多了就哪里也去不了。米哈伊尔站了起来。腿不太好。但站了起来。那就是这个人的方式。"
           }
         }
       ]
@@ -766,7 +894,9 @@
         {
           "text": {
             "ko": "먼지 폭풍 경보가 계속됐다. 그러나 의원회가 끝났다. FSP의 결정이 있었다. 그것이 좋은지 나쁜지는 시간이 말할 것이었다. 지금은 결정이 있었다. 그것이 중요한 것이었다.",
-            "en": "The dust storm warning continued. But the assembly ended. FSP's decision had been made. Whether it was good or bad time would tell. For now there was a decision. That was what mattered."
+            "en": "The dust storm warning continued. But the assembly ended. FSP's decision had been made. Whether it was good or bad time would tell. For now there was a decision. That was what mattered.",
+            "ja": "砂塵嵐警報が続いた。しかし議員会が終わった。FSPの決定があった。それが良いか悪いかは時間が言うだろう。今は決定があった。それが重要なことだった。",
+            "zh": "沙尘暴警报继续。但议会结束了。FSP的决定做出了。那是好是坏，时间会说明。现在有了决定。那是重要的事情。"
           }
         }
       ]
@@ -781,7 +911,9 @@
         {
           "text": {
             "ko": "광산 마을들로 연락이 갔다. 대피 준비. 먼지 폭풍 대비. 그것이 FSP가 하는 것이었다. 의원회가 끝나도 일은 계속됐다. 화성에서 일은 항상 계속됐다.",
-            "en": "Contact went to the mining villages. Evacuation preparation. Dust storm readiness. That was what FSP did. Even after the assembly ended the work continued. On Mars work always continued."
+            "en": "Contact went to the mining villages. Evacuation preparation. Dust storm readiness. That was what FSP did. Even after the assembly ended the work continued. On Mars work always continued.",
+            "ja": "鉱山の村々に連絡が行った。避難準備。砂塵嵐への備え。それがFSPがすることだった。議員会が終わっても仕事は続いた。火星では仕事は常に続いた。",
+            "zh": "联系发到了矿工村庄。疏散准备。沙尘暴应对。那就是FSP所做的事情。就算议会结束了，工作也继续。在火星，工作总是继续的。"
           }
         }
       ]
@@ -798,7 +930,9 @@
           "emotion": "serious",
           "text": {
             "ko": "보스. FSP 내부자 파악해야 해요. 의원회 안에 있을 수 있어요.",
-            "en": "Boss. Need to find the FSP mole. Could be inside the assembly."
+            "en": "Boss. Need to find the FSP mole. Could be inside the assembly.",
+            "ja": "ボス。FSPの内部者を把握しなければ。議員会の中にいる可能性があります。",
+            "zh": "老大。必须查明FSP内鬼。可能在议会内部。"
           }
         },
         {
@@ -806,7 +940,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "오늘 투표 패턴이 이상했어요. 특히 Thomas Alder.",
-            "en": "Today's voting pattern was strange. Thomas Alder especially."
+            "en": "Today's voting pattern was strange. Thomas Alder especially.",
+            "ja": "今日の投票パターンがおかしかった。特にトーマス・アルダー。",
+            "zh": "今天的投票模式很奇怪。尤其是托马斯·阿尔德。"
           }
         }
       ]
@@ -821,7 +957,9 @@
         {
           "text": {
             "ko": "Thomas Alder. MCC 출신. FSP 의원이 된 것. 가능한 일이었다. 화성에서는 많은 것이 바뀌었다. 사람도. 소속도. 그러나 바뀌지 않는 것도 있었다. 과거의 것들. 몸이 기억하는 것들.",
-            "en": "Thomas Alder. From MCC. Became an FSP representative. That was possible. On Mars many things changed. People too. Affiliations too. But some things didn't change. Things of the past. Things the body remembered."
+            "en": "Thomas Alder. From MCC. Became an FSP representative. That was possible. On Mars many things changed. People too. Affiliations too. But some things didn't change. Things of the past. Things the body remembered.",
+            "ja": "トーマス・アルダー。MCC出身。FSP議員になったこと。可能なことだった。火星では多くのことが変わった。人も。所属も。しかし変わらないものもあった。過去のもの。体が覚えているもの。",
+            "zh": "托马斯·阿尔德。MCC出身。成为了FSP议员。那是可能的事情。在火星很多事情都改变了。人也是。所属也是。但也有不改变的东西。过去的事情。身体记得的事情。"
           }
         }
       ]
@@ -836,7 +974,9 @@
         {
           "text": {
             "ko": "의원회 의사당이 조용했다. 창문에 먼지가 날렸다. 폭풍이 오고 있었다. Mikhail이 창문 앞에 섰다. 광산이 보였다. 먼지 속에서도 보였다. 그것이 창문을 만든 이유였다.",
-            "en": "The assembly hall was quiet. Dust hit the windows. The storm was coming. Mikhail stood before the window. The mines were visible. Visible even through the dust. That was why the windows had been made."
+            "en": "The assembly hall was quiet. Dust hit the windows. The storm was coming. Mikhail stood before the window. The mines were visible. Visible even through the dust. That was why the windows had been made.",
+            "ja": "議員会議事堂が静かだった。窓に砂塵が飛んだ。嵐が来ていた。ミハイルが窓の前に立った。鉱山が見えた。砂塵の中でも見えた。それが窓を作った理由だった。",
+            "zh": "议会大厅很安静。窗户上尘土飞舞。风暴来临。米哈伊尔站在窗前。看得见矿山。在沙尘中也看得见。那就是做窗户的原因。"
           },
           "overlay": "fsp_ch7_assembly_l36_00_alone_window"
         }
@@ -854,7 +994,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "보스. 잠깐 있어요.",
-            "en": "Boss. Stay a moment."
+            "en": "Boss. Stay a moment.",
+            "ja": "ボス。少しいて。",
+            "zh": "老大。留一会儿。"
           }
         },
         {
@@ -862,7 +1004,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Alder 얘기. 나도 알고 있었어요.",
-            "en": "About Alder. I knew too."
+            "en": "About Alder. I knew too.",
+            "ja": "アルダーのこと。私も知っていた。",
+            "zh": "关于阿尔德的事。我也知道了。"
           }
         },
         {
@@ -870,7 +1014,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "그러나 증거가 필요해요. 의심만으로는 안 돼요. FSP가 그래서 FSP인 거예요.",
-            "en": "But evidence is needed. Suspicion alone isn't enough. That's why FSP is FSP."
+            "en": "But evidence is needed. Suspicion alone isn't enough. That's why FSP is FSP.",
+            "ja": "しかし証拠が必要です。疑いだけではいけない。FSPがそれゆえFSPなのです。",
+            "zh": "但是需要证据。光靠怀疑不行。FSP就是因为这样才是FSP。"
           }
         }
       ]
@@ -885,7 +1031,9 @@
         {
           "text": {
             "ko": "그것이 Mikhail의 방식이었다. 의심해도 증거를 기다렸다. 28년 동안 그렇게 했다. 그것이 FSP를 지금까지 오게 한 것이었다. 빠른 것보다 맞는 것.",
-            "en": "That was Mikhail's way. Even with suspicion, he waited for evidence. That's how it had been for twenty-eight years. That was what had brought FSP to now. Being right over being fast."
+            "en": "That was Mikhail's way. Even with suspicion, he waited for evidence. That's how it had been for twenty-eight years. That was what had brought FSP to now. Being right over being fast.",
+            "ja": "それがミハイルのやり方だった。疑いがあっても証拠を待った。28年間そうしてきた。それがFSPを今まで来させたものだった。速いことより正しいこと。",
+            "zh": "那就是米哈伊尔的方式。就算怀疑也等证据。二十八年来一直如此。那就是让FSP走到今天的东西。正确胜于迅速。"
           }
         }
       ]
@@ -902,7 +1050,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "새 의장이 선출됐어요. 이제 내 손을 떠났어요.",
-            "en": "A new chair has been elected. Now it leaves my hands."
+            "en": "A new chair has been elected. Now it leaves my hands.",
+            "ja": "新しい議長が選出された。もう私の手を離れた。",
+            "zh": "新议长选出来了。现在离开我的手了。"
           }
         },
         {
@@ -910,7 +1060,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "FSP는 사람이 만드는 게 아니에요. 이름들이 만드는 거예요.",
-            "en": "FSP isn't made by a person. It's made by names."
+            "en": "FSP isn't made by a person. It's made by names.",
+            "ja": "FSPは人が作るのではない。名前たちが作るのです。",
+            "zh": "FSP不是人做的。是名字们做的。"
           }
         },
         {
@@ -918,7 +1070,9 @@
           "emotion": "calm",
           "text": {
             "ko": "Lena 팔 위의 이름들. 그것이 FSP예요.",
-            "en": "The names on Lena's arm. Those are FSP."
+            "en": "The names on Lena's arm. Those are FSP.",
+            "ja": "レナの腕の上の名前たち。それがFSPです。",
+            "zh": "莱娜手臂上的名字们。那就是FSP。"
           }
         }
       ]
@@ -933,7 +1087,9 @@
         {
           "text": {
             "ko": "의원회가 끝났다. Mikhail이 혼자 남았다. 창문 앞에 섰다. 광산이 보였다. 저 광산에서 일하는 사람들. 그 사람들의 이름이 이 조직을 만들었다. 이름들이 조직보다 오래 살아남는 것이었다. 그것을 알았다. 창문을 만든 이유가 그것이었다.\n\n먼지 폭풍이 오고 있었다. 그러나 창문은 거기 있었다. 먼지가 와도 거기 있을 것이었다.",
-            "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows.\n\nA dust storm was coming. But the windows were there. They would be there even when the dust came."
+            "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows.\n\nA dust storm was coming. But the windows were there. They would be there even when the dust came.",
+            "ja": "議員会が終わった。ミハイルが一人残った。窓の前に立った。鉱山が見えた。あの鉱山で働く人々。その人々の名前がこの組織を作った。名前は組織より長く生き残るものだった。それを知っていた。窓を作った理由がそれだった。\n\n砂塵嵐が来ていた。しかし窓はそこにあった。砂塵が来てもそこにあるだろう。",
+            "zh": "议会结束了。米哈伊尔独自留下来了。站在窗前。看得见矿山。在那个矿山工作的人们。那些人的名字创造了这个组织。名字比组织活得更久。知道这件事。做窗户的理由就是那个。\n\n沙尘暴来了。但窗户在那里。就算沙尘来了也会在那里。"
           },
           "overlay": "fsp_ch7_assembly_l40_00_candle_flame"
         }
@@ -942,7 +1098,9 @@
         "questId": "fsp_campaign_ch8",
         "teaser": {
           "ko": "다음 — 가이아",
-          "en": "Next — Gaia"
+          "en": "Next — Gaia",
+          "ja": "次回 — ガイア",
+          "zh": "下一章 — 盖亚"
         }
       }
     }

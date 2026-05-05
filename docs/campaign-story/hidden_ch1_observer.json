@@ -4,7 +4,9 @@
   "chapterNumber": 1,
   "title": {
     "ko": "관찰자",
-    "en": "The Observer"
+    "en": "The Observer",
+    "ja": "観察者",
+    "zh": "观察者"
   },
   "location": {
     "id": "hellas_central_exterior",
@@ -27,7 +29,9 @@
         {
           "text": {
             "ko": "화성이었다. 붉었다. 언제나 붉었다. 관찰자가 처음 보는 것이 아니었다. 그러나 처음이었다. 발이 땅에 닿았다. 화성의 표면. 압력 마스크. 산소. 숫자들. 관찰자는 숫자를 보지 않았다. 다른 것들을 봤다.",
-            "en": "Mars. Red. Always red. Not the observer's first sight. But the first time. Feet touching ground. The surface of Mars. Pressure mask. Oxygen. Numbers. The observer didn't look at numbers. Looked at other things."
+            "en": "Mars. Red. Always red. Not the observer's first sight. But the first time. Feet touching ground. The surface of Mars. Pressure mask. Oxygen. Numbers. The observer didn't look at numbers. Looked at other things.",
+            "ja": "火星だった。赤かった。いつも赤かった。観察者が初めて見るものではなかった。しかし初めてだった。足が地面に触れた。火星の表面。圧力マスク。酸素。数字たち。観察者は数字を見なかった。別のものを見た。",
+            "zh": "是火星。红色。永远是红色。对观察者来说不是第一次看见。但又是第一次。脚踩上地面。火星的表面。压力面罩。氧气。数字。观察者没有看数字。看的是别的东西。"
           }
         }
       ]
@@ -42,7 +46,9 @@
         {
           "text": {
             "ko": "헬라스 센트럴. 사람들이 있었다. 들어가는 사람들. 나오는 사람들. 서 있는 사람들. 움직이는 사람들. 관찰자는 멈췄다. 멈춘 사람은 관찰자뿐이었다. 그것이 이 사람의 특성이었다. 멈추는 것.",
-            "en": "Hellas Central. There were people. People going in. People coming out. People standing. People moving. The observer stopped. Only the observer had stopped. That was this person's nature. Stopping."
+            "en": "Hellas Central. There were people. People going in. People coming out. People standing. People moving. The observer stopped. Only the observer had stopped. That was this person's nature. Stopping.",
+            "ja": "ヘラス・セントラル。人々がいた。入っていく人々。出てくる人々。立っている人々。動いている人々。観察者は止まった。止まったのは観察者だけだった。それがこの人の特性だった。止まること。",
+            "zh": "赫拉斯中央。有人。进去的人。出来的人。站着的人。走动的人。观察者停下来了。停下来的只有观察者。那是这个人的特质。停下来。"
           }
         }
       ]
@@ -57,7 +63,9 @@
         {
           "text": {
             "ko": "MCC 건물이 있었다. 예전과 달랐다. 관찰자는 사진을 본 적이 있었다. 화성 도착 전에. 사진과 지금이 달랐다. 건물이 높아졌는지 낮아졌는지는 몰랐다. 그러나 달랐다. 사람들이 달랐다. 사람들의 얼굴이 달랐다.",
-            "en": "The MCC building was there. Different from before. The observer had seen photos. Before arriving on Mars. Photos and now were different. Whether the building had grown taller or shorter was unknown. But it was different. The people were different. The faces of the people were different."
+            "en": "The MCC building was there. Different from before. The observer had seen photos. Before arriving on Mars. Photos and now were different. Whether the building had grown taller or shorter was unknown. But it was different. The people were different. The faces of the people were different.",
+            "ja": "MCC の建物があった。以前と違った。観察者は写真を見たことがあった。火星到着前に。写真と今が違った。建物が高くなったのか低くなったのかはわからなかった。しかし違った。人々が違った。人々の顔が違った。",
+            "zh": "有MCC的建筑。和以前不同。观察者曾经看过照片。在抵达火星之前。照片和现在不同。建筑是变高了还是变矮了，不知道。但是不同了。人们不同了。人们的脸不同了。"
           }
         }
       ]
@@ -72,7 +80,9 @@
         {
           "text": {
             "ko": "얼굴들이 피로했다. 또는 경계했다. 또는 둘 다였다. 피로와 경계는 같은 표정을 만들었다. 눈이 좁아졌다. 입이 닫혔다. 어깨가 낮아졌다. 그것이 화성 사람들의 표정이었다. 아니면 이 시기 화성 사람들의 표정이었다.",
-            "en": "The faces were tired. Or vigilant. Or both. Tiredness and vigilance made the same expression. Eyes narrowed. Mouths closed. Shoulders lowered. That was the expression of Mars people. Or the expression of Mars people in this time."
+            "en": "The faces were tired. Or vigilant. Or both. Tiredness and vigilance made the same expression. Eyes narrowed. Mouths closed. Shoulders lowered. That was the expression of Mars people. Or the expression of Mars people in this time.",
+            "ja": "顔々が疲れていた。または警戒していた。または両方だった。疲れと警戒は同じ表情を作った。目が細くなった。口が閉じた。肩が下がった。それが火星の人々の表情だった。またはこの時期の火星の人々の表情だった。",
+            "zh": "那些脸疲惫。或者警惕。或者两者都有。疲惫与警惕造就了同一种表情。眼睛变窄。嘴巴紧闭。肩膀下沉。那是火星人的表情。或者是这个时期火星人的表情。"
           }
         }
       ]
@@ -87,7 +97,9 @@
         {
           "text": {
             "ko": "누군가 관찰자를 봤다. 지나가면서. 이 사람들은 멈추지 않았다. 화성에서 멈추는 것은 사치였다. 관찰자가 멈춰 있다는 것을 그 눈빛이 말했다. 이방인이라고. 화성을 모르는 사람이라고. 관찰자는 그 눈빛을 봤다. 그것도 기록이었다.",
-            "en": "Someone looked at the observer. While passing. These people didn't stop. Stopping on Mars was a luxury. That gaze said the observer had stopped. A stranger. Someone who didn't know Mars. The observer saw that gaze. That too was a record."
+            "en": "Someone looked at the observer. While passing. These people didn't stop. Stopping on Mars was a luxury. That gaze said the observer had stopped. A stranger. Someone who didn't know Mars. The observer saw that gaze. That too was a record.",
+            "ja": "誰かが観察者を見た。通り過ぎながら。この人々は止まらなかった。火星で止まることは贅沢だった。観察者が止まっていることをその眼差しが言った。異邦人だと。火星を知らない人だと。観察者はその眼差しを見た。それも記録だった。",
+            "zh": "有人看了观察者一眼。路过时。这些人不会停下来。在火星上停下来是一种奢侈。那目光说，观察者停了下来。是异乡人。是不了解火星的人。观察者看到了那目光。那也是记录。"
           }
         }
       ]
@@ -102,7 +114,9 @@
         {
           "text": {
             "ko": "MCC 건물 옆에 다른 건물이 있었다. 낡은 것이었다. MCC 건물보다 오래된 것. 그 건물 앞에 사람들이 줄을 섰다. 무언가를 기다렸다. 배급이거나 허가이거나 소식이었다. 관찰자는 그 줄을 봤다. 줄이 긴 것이었다.",
-            "en": "Next to the MCC building was another building. An old one. Older than the MCC building. In front of it people stood in a line. Waiting for something. Rations or permits or news. The observer looked at that line. It was a long line."
+            "en": "Next to the MCC building was another building. An old one. Older than the MCC building. In front of it people stood in a line. Waiting for something. Rations or permits or news. The observer looked at that line. It was a long line.",
+            "ja": "MCC の建物の隣に別の建物があった。古いものだった。MCC の建物より古いもの。その建物の前に人々が列を作った。何かを待っていた。配給か許可か知らせだった。観察者はその列を見た。長い列だった。",
+            "zh": "MCC建筑旁边有另一栋建筑。是旧的。比MCC建筑更旧。那栋建筑前面，人们排起了队。在等待什么。是配给，或者许可，或者消息。观察者看着那条队伍。是一条长队。"
           }
         }
       ]
@@ -117,7 +131,9 @@
         {
           "text": {
             "ko": "줄 안에 어린이가 있었다. 어른 옆에. 화성에 어린이가 있었다. 그것이 처음 보는 것이었다. 사진에는 없었다. 어린이가 화성의 흙을 봤다. 어른은 앞을 봤다. 어린이와 어른이 같은 것을 다르게 봤다. 그것도 화성이었다.",
-            "en": "In the line there was a child. Next to an adult. There were children on Mars. That was a first sight. Not in the photos. The child looked at the Martian soil. The adult looked forward. The child and adult saw the same thing differently. That too was Mars."
+            "en": "In the line there was a child. Next to an adult. There were children on Mars. That was a first sight. Not in the photos. The child looked at the Martian soil. The adult looked forward. The child and adult saw the same thing differently. That too was Mars.",
+            "ja": "列の中に子どもがいた。大人の隣に。火星に子どもがいた。それが初めて見るものだった。写真にはなかった。子どもが火星の土を見た。大人は前を見た。子どもと大人が同じものを違って見た。それも火星だった。",
+            "zh": "队伍里有个孩子。在大人旁边。火星上有孩子。那是第一次看见的东西。照片里没有。孩子看着火星的土。大人看着前方。孩子和大人以不同的方式看着同一件事。那也是火星。"
           }
         }
       ]
@@ -132,7 +148,9 @@
         {
           "text": {
             "ko": "헬라스 센트럴 외벽에 무언가가 있었다. 잘 보이지 않았다. 관찰자가 가까이 갔다. 손자국이었다. 오래된 것. 붉은 흙이 묻어 있었다. 누군가 이 벽을 짚었다. 이유는 몰랐다. 그러나 손이 있었다. 손의 크기가 있었다. 작은 손이었다.",
-            "en": "On the outer wall of Hellas Central there was something. Not clearly visible. The observer moved closer. A handprint. Old. Red soil embedded. Someone had leaned on this wall. The reason was unknown. But a hand had been there. The size of the hand. It was a small hand."
+            "en": "On the outer wall of Hellas Central there was something. Not clearly visible. The observer moved closer. A handprint. Old. Red soil embedded. Someone had leaned on this wall. The reason was unknown. But a hand had been there. The size of the hand. It was a small hand.",
+            "ja": "ヘラス・セントラルの外壁に何かがあった。よく見えなかった。観察者が近づいた。手の跡だった。古いもの。赤い土が付いていた。誰かがこの壁を支えた。理由はわからなかった。しかし手があった。手の大きさがあった。小さな手だった。",
+            "zh": "赫拉斯中央的外墙上有什么东西。看不清楚。观察者走近了。是手印。很旧了。沾着红色的土。有人曾撑过这面墙。原因不知道。但手曾经在那里。手的大小。是小手。"
           },
           "overlay": "hidden_ch1_observer_l07_00_hand_still"
         }
@@ -148,7 +166,9 @@
         {
           "text": {
             "ko": "관찰자는 손자국 옆에 섰다. 자신의 손을 올려봤다. 맞지 않았다. 다른 사람의 것이었다. 오래전에 이 손이 이 벽에 있었다. 그 사람이 지금 어디 있는지는 몰랐다. 벽만 남았다. 손자국만 남았다.",
-            "en": "The observer stood next to the handprint. Raised their own hand. Didn't match. Someone else's. Long ago this hand had been on this wall. Where that person was now was unknown. Only the wall remained. Only the handprint remained."
+            "en": "The observer stood next to the handprint. Raised their own hand. Didn't match. Someone else's. Long ago this hand had been on this wall. Where that person was now was unknown. Only the wall remained. Only the handprint remained.",
+            "ja": "観察者は手の跡の隣に立った。自分の手を上げてみた。合わなかった。別の人のものだった。ずっと前にこの手がこの壁にあった。その人が今どこにいるかはわからなかった。壁だけが残った。手の跡だけが残った。",
+            "zh": "观察者站在手印旁边。举起自己的手看了看。不吻合。是别人的。很久以前，这只手曾在这面墙上。那个人现在在哪里不知道。只剩下墙。只剩下手印。"
           }
         }
       ]
@@ -163,7 +183,9 @@
         {
           "text": {
             "ko": "광산 외부가 보였다. 헬라스 센트럴에서. 멀리. 굴뚝이 있었다. 연기가 없었다. 연기가 없는 굴뚝은 다른 것이었다. 가동 중인 굴뚝과 달랐다. 무언가 달라진 것이었다. 또는 달라지는 중인 것이었다. 관찰자는 그쪽을 봤다.",
-            "en": "The mine exterior was visible. From Hellas Central. Far away. There were smokestacks. No smoke. Smokestacks without smoke were different. Different from operating ones. Something had changed. Or was changing. The observer looked in that direction."
+            "en": "The mine exterior was visible. From Hellas Central. Far away. There were smokestacks. No smoke. Smokestacks without smoke were different. Different from operating ones. Something had changed. Or was changing. The observer looked in that direction.",
+            "ja": "鉱山の外部が見えた。ヘラス・セントラルから。遠くに。煙突があった。煙がなかった。煙のない煙突は違うものだった。稼働中の煙突と違った。何かが変わったものだった。または変わりつつあるものだった。観察者はそちらを見た。",
+            "zh": "可以看到矿山外部。从赫拉斯中央。很远。有烟囱。没有烟。没有烟的烟囱是不同的东西。和运转中的烟囱不同。有什么东西改变了。或者正在改变中。观察者看向那个方向。"
           }
         }
       ]
@@ -178,7 +200,9 @@
         {
           "text": {
             "ko": "광산 외부. 장비가 있었다. 사용하지 않는 것들. 세워진 것들. 그것들이 먼지를 맞았다. 화성의 먼지. 붉은 것. 장비는 녹슬지 않았다. 공기가 없으니까. 그러나 먼지는 쌓였다. 사용하지 않으면 먼지가 쌓였다. 그것이 이 장비들의 시간이었다.",
-            "en": "The mine exterior. Equipment. Things not in use. Things parked. They received the dust. Martian dust. Red. The equipment didn't rust. No air. But dust accumulated. If not used dust accumulated. That was the time of this equipment."
+            "en": "The mine exterior. Equipment. Things not in use. Things parked. They received the dust. Martian dust. Red. The equipment didn't rust. No air. But dust accumulated. If not used dust accumulated. That was the time of this equipment.",
+            "ja": "鉱山の外部。装備があった。使っていないもの。停められたもの。それらが埃を受けた。火星の埃。赤いもの。装備は錆びなかった。空気がないから。しかし埃は積もった。使わなければ埃が積もった。それがこの装備たちの時間だった。",
+            "zh": "矿山外部。有设备。没有使用的东西。停放着的东西。它们蒙上了灰尘。火星的灰尘。红色的。设备没有生锈。因为没有空气。但是灰尘积累了。不使用的话灰尘就会积累。那是这些设备的时间。"
           }
         }
       ]
@@ -193,7 +217,9 @@
         {
           "text": {
             "ko": "광부들이 있었다. 광산 입구에. 들어가지 않는 광부들이었다. 앉아 있었다. 서 있었다. 말을 하는 사람도 있었다. 말을 하지 않는 사람도 있었다. 그들의 눈이 입구를 향했다. 그러나 들어가지 않았다. 뭔가 이유가 있었다.",
-            "en": "There were miners. At the mine entrance. Miners not going inside. Sitting. Standing. Some were talking. Some were not talking. Their eyes faced the entrance. But they didn't enter. There was some reason."
+            "en": "There were miners. At the mine entrance. Miners not going inside. Sitting. Standing. Some were talking. Some were not talking. Their eyes faced the entrance. But they didn't enter. There was some reason.",
+            "ja": "鉱夫たちがいた。鉱山の入口に。中に入らない鉱夫たちだった。座っていた。立っていた。話している人もいた。話していない人もいた。彼らの目が入口を向いた。しかし入らなかった。何か理由があった。",
+            "zh": "有矿工。在矿山入口。是不进去的矿工。有人坐着。有人站着。有人在说话。也有人不说话。他们的眼睛面向入口。但是没有进去。有什么原因。"
           }
         }
       ]
@@ -208,7 +234,9 @@
         {
           "text": {
             "ko": "두 광부가 낮은 목소리로 말했다. 관찰자가 들었다. 전부는 아니었다. 조각들이었다. 사고. 보상. 숫자. 이름. 이름이 들렸다. 관찰자가 몰랐다. 그러나 이름이었다. 화성에는 이름이 많았다. 기억되는 것들도. 잊히는 것들도.",
-            "en": "Two miners spoke in low voices. The observer heard. Not all of it. Fragments. Accident. Compensation. Numbers. A name. A name was audible. The observer didn't know it. But it was a name. On Mars there were many names. Some remembered. Some forgotten."
+            "en": "Two miners spoke in low voices. The observer heard. Not all of it. Fragments. Accident. Compensation. Numbers. A name. A name was audible. The observer didn't know it. But it was a name. On Mars there were many names. Some remembered. Some forgotten.",
+            "ja": "二人の鉱夫が低い声で話した。観察者が聞いた。全部ではなかった。断片だった。事故。補償。数字。名前。名前が聞こえた。観察者は知らなかった。しかし名前だった。火星には名前が多かった。覚えられているものも。忘れられているものも。",
+            "zh": "两个矿工低声说话。观察者听到了。不是全部。是碎片。事故。补偿。数字。名字。听到了名字。观察者不知道。但那是一个名字。火星上有很多名字。被记住的。也有被遗忘的。"
           }
         }
       ]
@@ -223,7 +251,9 @@
         {
           "text": {
             "ko": "광산 입구 옆에 판자가 있었다. 공지 같은 것. 관찰자가 읽었다. MCC 로고. 날짜. 숫자들. 법률 용어들. 그 아래 누군가 손으로 썼다. 펜이었다. 작은 글씨로. 관찰자가 몸을 굽혔다. 글씨가 지워질 것 같았다. 그러나 아직 있었다.",
-            "en": "Next to the mine entrance there was a board. A notice of some kind. The observer read it. MCC logo. Date. Numbers. Legal terms. Below that someone had written by hand. A pen. In small writing. The observer bent down. The writing looked like it might be erased. But it was still there."
+            "en": "Next to the mine entrance there was a board. A notice of some kind. The observer read it. MCC logo. Date. Numbers. Legal terms. Below that someone had written by hand. A pen. In small writing. The observer bent down. The writing looked like it might be erased. But it was still there.",
+            "ja": "鉱山の入口の隣に板があった。公示のようなもの。観察者が読んだ。MCC のロゴ。日付。数字たち。法律用語たち。その下に誰かが手で書いていた。ペンだった。小さな字で。観察者が身をかがめた。字が消えそうだった。しかしまだあった。",
+            "zh": "矿山入口旁边有一块板。像是通知。观察者读了。MCC徽标。日期。数字。法律术语。那下面有人手写了东西。是笔。小字。观察者弯下腰。字迹像是要消失了。但还在。"
           }
         }
       ]
@@ -238,7 +268,9 @@
         {
           "text": {
             "ko": "글씨는 이름들이었다. 세 개. 네 개. 다섯 개. 그것이 전부인지 몰랐다. 공지 아래 공간이 작았다. 이름들이 MCC 법률 용어 아래 있었다. 법률 용어는 컸다. 이름들은 작았다. 그러나 이름들이 있었다. 그것이 있다는 것이 중요했다.",
-            "en": "The writing was names. Three. Four. Five. Whether that was all was unknown. The space below the notice was small. The names were beneath MCC legal terms. The legal terms were large. The names were small. But the names were there. That they existed was what mattered."
+            "en": "The writing was names. Three. Four. Five. Whether that was all was unknown. The space below the notice was small. The names were beneath MCC legal terms. The legal terms were large. The names were small. But the names were there. That they existed was what mattered.",
+            "ja": "字は名前たちだった。三つ。四つ。五つ。それが全部かはわからなかった。公示の下のスペースが小さかった。名前たちが MCC の法律用語の下にあった。法律用語は大きかった。名前たちは小さかった。しかし名前たちがあった。それがあるということが重要だった。",
+            "zh": "字迹是名字。三个。四个。五个。是否就这些不知道。通知下面的空间很小。名字们在MCC法律术语下面。法律术语很大。名字很小。但名字在那里。它们存在这件事很重要。"
           },
           "overlay": "hidden_ch1_observer_l14_00_candle_flame"
         }
@@ -254,7 +286,9 @@
         {
           "text": {
             "ko": "관찰자가 일어섰다. 광부들이 아직 입구 앞에 있었다. 들어가지 않았다. 관찰자가 그 이유를 물어볼 수 있었다. 그러나 묻지 않았다. 물음은 개입이었다. 개입은 관찰자의 일이 아니었다. 그것이 이 사람의 방식이었다.",
-            "en": "The observer stood. The miners were still in front of the entrance. Not going in. The observer could have asked the reason. But didn't ask. Asking was intervention. Intervention was not the observer's work. That was this person's way."
+            "en": "The observer stood. The miners were still in front of the entrance. Not going in. The observer could have asked the reason. But didn't ask. Asking was intervention. Intervention was not the observer's work. That was this person's way.",
+            "ja": "観察者が立った。鉱夫たちがまだ入口の前にいた。入らなかった。観察者がその理由を尋ねることができた。しかし尋ねなかった。問うことは介入だった。介入は観察者の仕事ではなかった。それがこの人のやり方だった。",
+            "zh": "观察者站起来了。矿工们还在入口前面。没有进去。观察者可以问原因。但没有问。问就是干涉。干涉不是观察者的工作。那是这个人的方式。"
           }
         }
       ]
@@ -269,7 +303,9 @@
         {
           "text": {
             "ko": "광부 마을이었다. 비어 있었다. 전부는 아니었다. 그러나 많은 집이 비어 있었다. 문이 열려 있었다. 아무것도 없는 문들. 관찰자가 걸었다. 골목을 걸었다. 발소리가 났다. 다른 발소리가 없었다. 이 마을이 한때 사람들로 가득했다는 것을 아는 방법이 없었다. 그러나 알 수 있었다. 비어 있는 방식이 달랐다.",
-            "en": "A mining village. Empty. Not entirely. But many houses were empty. Doors were open. Doors with nothing inside. The observer walked. Walked through alleys. Footsteps sounded. No other footsteps. There was no way to know that this village had once been full of people. But it could be known. The way of being empty was different."
+            "en": "A mining village. Empty. Not entirely. But many houses were empty. Doors were open. Doors with nothing inside. The observer walked. Walked through alleys. Footsteps sounded. No other footsteps. There was no way to know that this village had once been full of people. But it could be known. The way of being empty was different.",
+            "ja": "鉱夫の村だった。空だった。全部ではなかった。しかし多くの家が空だった。扉が開いていた。何もない扉たち。観察者が歩いた。路地を歩いた。足音がした。他の足音がなかった。この村がかつて人々でいっぱいだったことを知る方法がなかった。しかし知ることができた。空の仕方が違った。",
+            "zh": "是矿工村。空着。不是全部。但很多房子是空的。门是开着的。什么都没有的门。观察者走着。走过小巷。有脚步声。没有其他脚步声。没有办法知道这个村子曾经住满了人。但是可以知道。空着的方式不同。"
           }
         }
       ]
@@ -284,7 +320,9 @@
         {
           "text": {
             "ko": "집 안에 물건이 있었다. 어떤 집에. 떠난 사람들이 두고 간 것들. 컵이었다. 신발이었다. 사진이었다. 사진이 있었다. 관찰자가 안으로 들어가지 않았다. 문가에서만 봤다. 그 사진이 무엇인지는 알 수 없었다. 그러나 누군가의 것이었다.",
-            "en": "Inside a house there were objects. Some houses. Things left behind by those who left. A cup. A shoe. A photograph. There was a photograph. The observer didn't go inside. Only looked from the doorway. What that photograph showed couldn't be known. But it had been someone's."
+            "en": "Inside a house there were objects. Some houses. Things left behind by those who left. A cup. A shoe. A photograph. There was a photograph. The observer didn't go inside. Only looked from the doorway. What that photograph showed couldn't be known. But it had been someone's.",
+            "ja": "家の中に物があった。ある家に。去った人々が残したもの。コップだった。靴だった。写真だった。写真があった。観察者は中に入らなかった。入口からだけ見た。その写真が何なのかはわからなかった。しかし誰かのものだった。",
+            "zh": "屋里有东西。某些房子里。离开的人留下的东西。是杯子。是鞋。是照片。有照片。观察者没有进去。只在门口看。那张照片是什么不知道。但那是某人的东西。"
           }
         }
       ]
@@ -299,7 +337,9 @@
         {
           "text": {
             "ko": "마을 중앙에 공간이 있었다. 모임 장소 같은 것. 테이블이 있었다. 부서진 것. 의자도. 한쪽 구석에 불 피운 흔적이 있었다. 재. 최근의 것과 오래된 것이 섞였다. 사람들이 최근에도 여기 왔다. 빈 마을에. 불을 피우러 왔다.",
-            "en": "In the center of the village was an open space. Something like a gathering place. There was a table. A broken one. Chairs too. In one corner there were traces of a fire. Ash. Recent and old mixed. People had come here recently too. To an empty village. To burn fires."
+            "en": "In the center of the village was an open space. Something like a gathering place. There was a table. A broken one. Chairs too. In one corner there were traces of a fire. Ash. Recent and old mixed. People had come here recently too. To an empty village. To burn fires.",
+            "ja": "村の中央にスペースがあった。集まり場所のようなもの。テーブルがあった。壊れたもの。椅子も。片隅に火を焚いた跡があった。灰。最近のものと古いものが混じった。人々は最近もここに来た。空の村に。火を焚きに来た。",
+            "zh": "村子中央有一片空间。像是聚集场所。有桌子。是破碎的。也有椅子。一个角落里有生火的痕迹。灰烬。最近的和旧的混在一起。人们最近也来过这里。来到空荡荡的村子里。来生火。"
           }
         }
       ]
@@ -314,7 +354,9 @@
         {
           "text": {
             "ko": "관찰자가 그 재 앞에 쪼그렸다. 손가락으로 건드리지 않았다. 보기만 했다. 재는 회색이었다. 화성의 붉은 흙 위에 회색 재가 있었다. 색이 달랐다. 불이 있었다는 것을 색이 말했다. 그것으로 충분했다.",
-            "en": "The observer crouched in front of that ash. Didn't touch it with fingers. Only looked. The ash was gray. Gray ash on red Martian soil. The colors were different. That fire had been there the color said. That was enough."
+            "en": "The observer crouched in front of that ash. Didn't touch it with fingers. Only looked. The ash was gray. Gray ash on red Martian soil. The colors were different. That fire had been there the color said. That was enough.",
+            "ja": "観察者がその灰の前にしゃがんだ。指で触れなかった。見るだけだった。灰は灰色だった。火星の赤い土の上に灰色の灰があった。色が違った。火があったことを色が言った。それで十分だった。",
+            "zh": "观察者蹲在那灰烬前面。没有用手指触碰。只是看。灰烬是灰色的。火星红色的土上有灰色的灰烬。颜色不同。颜色说明曾经有火。那就够了。"
           }
         }
       ]
@@ -329,7 +371,9 @@
         {
           "text": {
             "ko": "마을 끝에 폭발 흔적이 있었다. 오래된 것이었다. 벽이 검게 타 있었다. 관찰자가 그쪽으로 걸었다. 폭발이 어디서 온 것인지. 안에서인지 밖에서인지. 알 수 없었다. 그러나 있었다. 흔적이 있었다. 아직 청소되지 않은 것들이 있었다.",
-            "en": "At the end of the village there were traces of an explosion. An old one. The wall was charred black. The observer walked in that direction. Where the explosion had come from. Whether from inside or outside. Unknown. But it was there. There were traces. Things not yet cleaned up."
+            "en": "At the end of the village there were traces of an explosion. An old one. The wall was charred black. The observer walked in that direction. Where the explosion had come from. Whether from inside or outside. Unknown. But it was there. There were traces. Things not yet cleaned up.",
+            "ja": "村の端に爆発の跡があった。古いものだった。壁が黒く焦げていた。観察者はそちらへ歩いた。爆発がどこから来たのか。内側からか外側からか。わからなかった。しかしあった。跡があった。まだ片付けられていないものがあった。",
+            "zh": "村子尽头有爆炸痕迹。是旧的。墙壁被烧得发黑。观察者走向那边。爆炸从哪里来的。是从里面还是外面。不知道。但那里有。有痕迹。有还没有被清理的东西。"
           }
         }
       ]
@@ -344,7 +388,9 @@
         {
           "text": {
             "ko": "검게 탄 벽에 손자국이 있었다. 손자국들이었다. 여러 개. 탈출한 사람들의 것이었다. 벽을 짚고 나온 것이었다. 그 손자국들이 같은 방향을 향했다. 출구 방향. 모두 살아나가려 했다. 살아나갔는지는 몰랐다.",
-            "en": "On the charred wall there were handprints. Multiple handprints. Those of people who had escaped. They had leaned on the wall to get out. Those handprints all faced the same direction. The exit direction. All had tried to get out alive. Whether they got out alive was unknown."
+            "en": "On the charred wall there were handprints. Multiple handprints. Those of people who had escaped. They had leaned on the wall to get out. Those handprints all faced the same direction. The exit direction. All had tried to get out alive. Whether they got out alive was unknown.",
+            "ja": "焦げた壁に手の跡があった。手の跡たちだった。複数の。脱出した人々のものだった。壁を支えて出てきたのだった。その手の跡たちが同じ方向を向いた。出口の方向。皆が生きて出ようとした。生きて出たかはわからなかった。",
+            "zh": "被烧黑的墙上有手印。是多个手印。是逃出去的人们的。他们撑着墙出来的。那些手印都朝着同一个方向。出口的方向。都试图活着出去。有没有活着出去不知道。"
           },
           "overlay": "hidden_ch1_observer_l21_00_collapse_debris"
         }
@@ -360,7 +406,9 @@
         {
           "text": {
             "ko": "청소하는 사람이 있었다. 한 명. 노인이었다. 관찰자를 봤다. 말하지 않았다. 관찰자도 말하지 않았다. 노인이 빗자루로 재를 쓸었다. 오래된 재였다. 언제부터 쓸고 있었는지 몰랐다. 언제까지 쓸 것인지도 몰랐다.",
-            "en": "There was a person cleaning. One person. An old person. Looked at the observer. Didn't speak. The observer didn't speak either. The old person swept ash with a broom. Old ash. How long they had been sweeping was unknown. How long they would sweep was also unknown."
+            "en": "There was a person cleaning. One person. An old person. Looked at the observer. Didn't speak. The observer didn't speak either. The old person swept ash with a broom. Old ash. How long they had been sweeping was unknown. How long they would sweep was also unknown.",
+            "ja": "掃除している人がいた。一人。老人だった。観察者を見た。話さなかった。観察者も話さなかった。老人がほうきで灰を掃いた。古い灰だった。いつから掃いているかわからなかった。いつまで掃くのかもわからなかった。",
+            "zh": "有一个人在打扫。一个人。是老人。看了观察者一眼。没有说话。观察者也没有说话。老人用扫帚扫灰。是旧灰。从什么时候开始扫的不知道。要扫到什么时候也不知道。"
           }
         }
       ]
@@ -375,7 +423,9 @@
         {
           "text": {
             "ko": "4구역 외곽이었다. 폐쇄된 구역. 표지판이 있었다. MCC 로고. 출입 금지. 관찰자가 멈췄다. 표지판을 봤다. 표지판 뒤에 무언가 있었다. 건물의 잔해. 또는 건물이었던 것. 구역 전체가 막혀 있었다.",
-            "en": "The outskirts of Zone 4. A closed zone. There was a sign. MCC logo. No entry. The observer stopped. Looked at the sign. Behind the sign there was something. Building rubble. Or what had been a building. The entire zone was blocked."
+            "en": "The outskirts of Zone 4. A closed zone. There was a sign. MCC logo. No entry. The observer stopped. Looked at the sign. Behind the sign there was something. Building rubble. Or what had been a building. The entire zone was blocked.",
+            "ja": "4区域の外郭だった。閉鎖された区域。標識があった。MCC のロゴ。立入禁止。観察者が止まった。標識を見た。標識の後ろに何かがあった。建物の残骸。または建物だったもの。区域全体が塞がれていた。",
+            "zh": "是4区外围。是封闭区域。有标志牌。MCC徽标。禁止进入。观察者停下来了。看着标志牌。标志牌后面有什么东西。建筑的残骸。或者曾经是建筑的东西。整个区域都被封锁了。"
           }
         }
       ]
@@ -390,7 +440,9 @@
         {
           "text": {
             "ko": "표지판 옆에 비석이 있었다. 작은 것이었다. MCC가 세운 것이 아니었다. 누군가 세운 것이었다. 돌에 이름들이 새겨져 있었다. 관찰자가 가까이 갔다. 이름들을 읽으려 했다. 읽을 수 없었다. 글씨가 지워져 있었다. 일부러 지운 것인지. 세월에 지워진 것인지. 알 수 없었다.",
-            "en": "Next to the sign there was a small stone marker. Not erected by MCC. Erected by someone. Names were carved in the stone. The observer approached. Tried to read the names. Couldn't read them. The writing had been erased. Whether deliberately erased. Or erased by time. Unknown."
+            "en": "Next to the sign there was a small stone marker. Not erected by MCC. Erected by someone. Names were carved in the stone. The observer approached. Tried to read the names. Couldn't read them. The writing had been erased. Whether deliberately erased. Or erased by time. Unknown.",
+            "ja": "標識の隣に石碑があった。小さなものだった。MCC が建てたものではなかった。誰かが建てたものだった。石に名前たちが刻まれていた。観察者が近づいた。名前たちを読もうとした。読めなかった。字が消えていた。わざと消したのか。歳月に消されたのか。わからなかった。",
+            "zh": "标志牌旁边有一块石碑。是小的。不是MCC立的。是有人立的。石头上刻着名字。观察者走近了。试图读那些名字。读不了。字迹被消除了。是故意消除的还是被岁月消除的。不知道。"
           },
           "overlay": "hidden_ch1_observer_l24_00_sealed_file"
         }
@@ -406,7 +458,9 @@
         {
           "text": {
             "ko": "비석의 이름을 읽을 수 없었다. 그러나 비석이 있었다. 누군가 세운 것이었다. 이름을 기억하려는 사람이 있었다. 이름을 지우려는 사람도 있었다. 비석이 그 사이에 있었다. 기억과 망각 사이에. 비석이 이겼다. 아직은.",
-            "en": "The names on the marker couldn't be read. But the marker was there. Someone had erected it. There was someone who wanted to remember names. There was also someone who wanted to erase names. The marker was between them. Between memory and oblivion. The marker was winning. For now."
+            "en": "The names on the marker couldn't be read. But the marker was there. Someone had erected it. There was someone who wanted to remember names. There was also someone who wanted to erase names. The marker was between them. Between memory and oblivion. The marker was winning. For now.",
+            "ja": "石碑の名前を読むことができなかった。しかし石碑があった。誰かが建てたものだった。名前を覚えようとする人がいた。名前を消そうとする人もいた。石碑がその間にあった。記憶と忘却の間に。石碑が勝った。今のところは。",
+            "zh": "石碑上的名字读不了。但石碑在那里。是有人立的。有人想记住那些名字。也有人想消除那些名字。石碑在它们之间。在记忆与遗忘之间。石碑胜了。目前为止。"
           }
         }
       ]
@@ -421,7 +475,9 @@
         {
           "text": {
             "ko": "비석 옆에 꽃이 있었다. 화성에 꽃은 없었다. 가져온 것이었다. 누군가 지구에서 가져왔거나. 또는 화성에서 키운 것이었다. 건조했다. 죽어 있었다. 그러나 가져온 것이었다. 이 이름들에게. 이름을 읽을 수 없는 이름들에게.",
-            "en": "Next to the marker there were flowers. No flowers on Mars. They had been brought. Someone had brought them from Earth. Or grown them on Mars. They were dried. Dead. But they had been brought. For these names. For names that couldn't be read."
+            "en": "Next to the marker there were flowers. No flowers on Mars. They had been brought. Someone had brought them from Earth. Or grown them on Mars. They were dried. Dead. But they had been brought. For these names. For names that couldn't be read.",
+            "ja": "石碑の隣に花があった。火星に花はなかった。持ってきたものだった。誰かが地球から持ってきたか。または火星で育てたものだった。乾いていた。死んでいた。しかし持ってきたものだった。この名前たちに。名前を読むことのできない名前たちに。",
+            "zh": "石碑旁边有花。火星上没有花。是带来的。有人从地球带来的。或者是在火星上种的。是干的。是死的。但是带来的。给这些名字。给那些读不了的名字。"
           }
         }
       ]
@@ -436,7 +492,9 @@
         {
           "text": {
             "ko": "폭발 흔적이 멀리 보였다. 오래된 것. 30년은 됐거나 그 이상이었다. 화성의 폭발 흔적은 사라지지 않았다. 공기가 없으니까. 비가 없으니까. 흔적이 그대로 있었다. 지구에서 30년이 지나면 흔적은 지워졌다. 화성에서는 아니었다. 화성에서 흔적은 오래갔다.",
-            "en": "The trace of an explosion was visible in the distance. An old one. Thirty years at least or more. Explosion traces on Mars didn't disappear. No air. No rain. Traces remained as they were. On Earth traces were erased after thirty years. Not on Mars. On Mars traces lasted long."
+            "en": "The trace of an explosion was visible in the distance. An old one. Thirty years at least or more. Explosion traces on Mars didn't disappear. No air. No rain. Traces remained as they were. On Earth traces were erased after thirty years. Not on Mars. On Mars traces lasted long.",
+            "ja": "爆発の跡が遠くに見えた。古いもの。30年はたっているか、それ以上だった。火星の爆発の跡は消えなかった。空気がないから。雨がないから。跡がそのままあった。地球では30年が経てば跡は消えた。火星ではそうではなかった。火星では跡は長く続いた。",
+            "zh": "远处可以看到爆炸痕迹。是旧的。至少三十年了，或者更久。火星上的爆炸痕迹不会消失。因为没有空气。因为没有雨。痕迹就那样保留着。在地球上，三十年后痕迹就消失了。在火星上不是。在火星上痕迹持续很久。"
           }
         }
       ]
@@ -451,7 +509,9 @@
         {
           "text": {
             "ko": "관찰자가 그 방향을 봤다. 오래 봤다. 무엇이 있었는지를 모르는 사람이 봐도 무언가 있었다는 것을 알 수 있었다. 그것이 화성 흔적의 특성이었다. 사라지지 않는다. 그래서 화성은 기억이 많은 곳이었다. 기억하는 사람이 없어도 기억이 있는 곳.",
-            "en": "The observer looked in that direction. Looked for a long time. Even someone who didn't know what had been there could know that something had been there. That was the nature of Mars traces. They didn't disappear. So Mars was a place with many memories. A place with memories even when no one remembered."
+            "en": "The observer looked in that direction. Looked for a long time. Even someone who didn't know what had been there could know that something had been there. That was the nature of Mars traces. They didn't disappear. So Mars was a place with many memories. A place with memories even when no one remembered.",
+            "ja": "観察者がその方向を見た。長く見た。何があったかを知らない人が見ても、何かがあったことを知ることができた。それが火星の跡の特性だった。消えない。だから火星は記憶が多い場所だった。覚えている人がいなくても記憶がある場所。",
+            "zh": "观察者看向那个方向。看了很久。即使不知道那里曾经有什么的人来看，也能知道曾经有什么在那里。那是火星痕迹的特性。不会消失。所以火星是一个有很多记忆的地方。即使没有人记住也有记忆的地方。"
           }
         }
       ]
@@ -466,7 +526,9 @@
         {
           "text": {
             "ko": "밤이었다. 노동자 지구. 불빛이 있었다. 창문들. 작은 불빛들. 사람들이 거기 있었다. 창문 안에. 관찰자가 밖에서 봤다. 창문 안에 사람들. 창문 밖에 관찰자. 유리 하나가 차이였다. 그러나 유리는 있었다.",
-            "en": "Night. The labor district. There were lights. Windows. Small lights. People were there. Inside the windows. The observer watched from outside. People inside windows. The observer outside windows. One pane of glass was the difference. But the glass was there."
+            "en": "Night. The labor district. There were lights. Windows. Small lights. People were there. Inside the windows. The observer watched from outside. People inside windows. The observer outside windows. One pane of glass was the difference. But the glass was there.",
+            "ja": "夜だった。労働者地区。明かりがあった。窓たち。小さな明かりたち。人々がそこにいた。窓の中に。観察者が外から見た。窓の中に人々。窓の外に観察者。ガラス一枚が違いだった。しかしガラスはあった。",
+            "zh": "是夜晚。劳工区。有灯光。窗户。小灯光。人们在那里。在窗户里面。观察者从外面看。窗户里面是人们。窗户外面是观察者。一块玻璃是区别。但玻璃在那里。"
           }
         }
       ]
@@ -481,7 +543,9 @@
         {
           "text": {
             "ko": "어느 창문에 그림자가 있었다. 두 사람. 이야기를 나눴다. 소리는 들리지 않았다. 그림자만 보였다. 그림자가 움직였다. 한 사람이 손을 들었다. 내렸다. 다른 사람이 그것을 봤다. 그것이 대화였다. 내용은 몰랐다. 대화가 있었다는 것만 알았다.",
-            "en": "In one window there were shadows. Two people. They were talking. No sound was audible. Only shadows were visible. The shadows moved. One person raised a hand. Lowered it. The other watched. That was conversation. The content was unknown. Only that conversation existed was known."
+            "en": "In one window there were shadows. Two people. They were talking. No sound was audible. Only shadows were visible. The shadows moved. One person raised a hand. Lowered it. The other watched. That was conversation. The content was unknown. Only that conversation existed was known.",
+            "ja": "ある窓に影があった。二人。話をした。音は聞こえなかった。影だけが見えた。影が動いた。一人が手を上げた。下げた。もう一人がそれを見た。それが会話だった。内容はわからなかった。会話があったことだけがわかった。",
+            "zh": "某个窗户里有影子。两个人。在交谈。听不到声音。只能看到影子。影子在动。一个人举起手。放下来。另一个人看着。那是对话。内容不知道。只知道有对话存在。"
           }
         }
       ]
@@ -496,7 +560,9 @@
         {
           "text": {
             "ko": "골목에 사람이 혼자 앉아 있었다. 벽에 기대어. 무릎을 세우고. 아무것도 하지 않았다. 관찰자가 옆을 지나갔다. 그 사람이 올려봤다. 내려봤다. 관찰자가 지나갔다. 잠깐이었다. 그러나 그 눈이 있었다. 눈을 봤다. 눈이 무엇을 말하는지는 몰랐다. 눈이 뭔가를 말했다.",
-            "en": "In the alley a person sat alone. Leaning against a wall. Knees raised. Doing nothing. The observer passed by. That person looked up. Looked down. The observer passed. It was brief. But those eyes were there. The eyes were seen. What the eyes were saying was unknown. But the eyes were saying something."
+            "en": "In the alley a person sat alone. Leaning against a wall. Knees raised. Doing nothing. The observer passed by. That person looked up. Looked down. The observer passed. It was brief. But those eyes were there. The eyes were seen. What the eyes were saying was unknown. But the eyes were saying something.",
+            "ja": "路地に一人座っている人がいた。壁に寄りかかって。膝を立てて。何もしなかった。観察者が横を通り過ぎた。その人が見上げた。見下ろした。観察者が通り過ぎた。一瞬だった。しかしその目があった。目を見た。目が何を言っているかはわからなかった。目が何かを言った。",
+            "zh": "小巷里有个人独自坐着。靠着墙。膝盖立着。什么都不做。观察者从旁边走过。那个人抬头看了看。低头看了看。观察者走过去了。是一瞬间的事。但那双眼睛在那里。看到了眼睛。眼睛在说什么不知道。但眼睛在说些什么。"
           }
         }
       ]
@@ -511,7 +577,9 @@
         {
           "text": {
             "ko": "노동자 지구 중앙에 게시판이 있었다. 전단지들이 붙어 있었다. MCC 공지. 그 위에 다른 것들. 손으로 쓴 것들. 작은 것들. 관찰자가 읽었다. 일자리. 실종. 이름. 모임. 그것들이 섞여 있었다. 각자의 필요가 거기 붙어 있었다.",
-            "en": "In the center of the labor district there was a bulletin board. Flyers were posted. MCC notices. On top of them other things. Handwritten things. Small things. The observer read. Jobs. Missing persons. Names. Meetings. They were mixed. Each person's need was posted there."
+            "en": "In the center of the labor district there was a bulletin board. Flyers were posted. MCC notices. On top of them other things. Handwritten things. Small things. The observer read. Jobs. Missing persons. Names. Meetings. They were mixed. Each person's need was posted there.",
+            "ja": "労働者地区の中央に掲示板があった。チラシが貼られていた。MCC の公示。その上に他のもの。手書きのもの。小さなもの。観察者が読んだ。仕事。行方不明。名前。集まり。それらが混じっていた。それぞれの必要がそこに貼られていた。",
+            "zh": "劳工区中央有一块公告板。贴着传单。MCC公告。上面有其他东西。手写的东西。小东西。观察者读了。工作。失踪。名字。聚会。它们混在一起。每个人的需要都贴在那里。"
           }
         }
       ]
@@ -526,7 +594,9 @@
         {
           "text": {
             "ko": "실종 전단지 하나. 사진이 있었다. 사람. 이름. 날짜. 연락처. 관찰자가 그것을 봤다. 이 사람이 어디 있는지 몰랐다. 알 방법이 없었다. 그러나 누군가 이 사람을 찾고 있었다. 찾는 사람이 있었다. 그것이 있었다.",
-            "en": "One missing person flyer. There was a photo. A person. A name. A date. Contact information. The observer looked at it. Didn't know where this person was. No way to know. But someone was looking for this person. Someone was searching. That existed."
+            "en": "One missing person flyer. There was a photo. A person. A name. A date. Contact information. The observer looked at it. Didn't know where this person was. No way to know. But someone was looking for this person. Someone was searching. That existed.",
+            "ja": "行方不明チラシが一枚。写真があった。人。名前。日付。連絡先。観察者がそれを見た。この人がどこにいるかわからなかった。知る方法がなかった。しかし誰かがこの人を探していた。探している人がいた。それがあった。",
+            "zh": "一张寻人传单。有照片。一个人。名字。日期。联系方式。观察者看着它。不知道这个人在哪里。没有办法知道。但有人在找这个人。有人在寻找。那件事存在。"
           }
         }
       ]
@@ -541,7 +611,9 @@
         {
           "text": {
             "ko": "헬라스 센트럴 높은 곳에서. 관찰자가 올라왔다. 아래가 보였다. 전체가. MCC 건물. 광부 마을. 노동자 지구. 광산. 4구역. 그것들이 같은 곳에 있었다. 같은 붉은 표면 위에. 다른 것들이 같은 표면 위에 있었다.",
-            "en": "From high up in Hellas Central. The observer had ascended. Below was visible. All of it. MCC building. Mining village. Labor district. Mine. Zone 4. They were all in the same place. On the same red surface. Different things on the same surface."
+            "en": "From high up in Hellas Central. The observer had ascended. Below was visible. All of it. MCC building. Mining village. Labor district. Mine. Zone 4. They were all in the same place. On the same red surface. Different things on the same surface.",
+            "ja": "ヘラス・セントラルの高いところから。観察者が登ってきた。下が見えた。全体が。MCC の建物。鉱夫の村。労働者地区。鉱山。4区域。それらが同じ場所にあった。同じ赤い表面の上に。違うものたちが同じ表面の上にあった。",
+            "zh": "从赫拉斯中央的高处。观察者登上来了。下面可以看见。全部。MCC建筑。矿工村。劳工区。矿山。4区。它们都在同一个地方。在同样的红色表面上。不同的东西在同一个表面上。"
           }
         }
       ]
@@ -556,7 +628,9 @@
         {
           "text": {
             "ko": "다른 루트들이 여기 있었다. 흔적으로. 어느 루트에서 MCC가 이겼다. 어느 루트에서 FSP가 이겼다. 어느 루트에서 CV가 이겼다. 그러나 여기는 달랐다. 여기서는 이긴 것이 없었다. 모든 것이 남아 있었다. 흔적으로.",
-            "en": "Other routes were here. As traces. In one route MCC had won. In one route FSP had won. In one route CV had won. But here was different. Here nothing had won. Everything remained. As traces."
+            "en": "Other routes were here. As traces. In one route MCC had won. In one route FSP had won. In one route CV had won. But here was different. Here nothing had won. Everything remained. As traces.",
+            "ja": "他のルートがここにあった。跡として。あるルートでは MCC が勝った。あるルートでは FSP が勝った。あるルートでは CV が勝った。しかしここは違った。ここでは勝ったものがなかった。全てが残っていた。跡として。",
+            "zh": "其他路线在这里。作为痕迹。某条路线MCC赢了。某条路线FSP赢了。某条路线CV赢了。但这里不同。这里没有什么赢了。一切都留存着。作为痕迹。"
           }
         }
       ]
@@ -571,7 +645,9 @@
         {
           "text": {
             "ko": "화성의 첫 밤. 관찰자가 헬라스 센트럴 외벽 앞에 섰다. 손자국이 있던 자리. 작은 손자국. 이름을 읽을 수 없는 비석. 청소하는 노인. 실종 전단지. 그것들이 하루에 있었다. 첫날에. 그것이 화성이었다.",
-            "en": "First night on Mars. The observer stood in front of the outer wall of Hellas Central. Where the handprint had been. A small handprint. A marker with unreadable names. An old person cleaning. A missing person flyer. All of those were in one day. The first day. That was Mars."
+            "en": "First night on Mars. The observer stood in front of the outer wall of Hellas Central. Where the handprint had been. A small handprint. A marker with unreadable names. An old person cleaning. A missing person flyer. All of those were in one day. The first day. That was Mars.",
+            "ja": "火星の最初の夜。観察者がヘラス・セントラルの外壁の前に立った。手の跡があった場所。小さな手の跡。名前を読むことのできない石碑。掃除をしている老人。行方不明チラシ。それらが一日にあった。初日に。それが火星だった。",
+            "zh": "火星的第一个夜晚。观察者站在赫拉斯中央外墙前面。曾经有手印的地方。小手印。读不了名字的石碑。打扫的老人。寻人传单。那些都在一天里。第一天。那就是火星。"
           }
         }
       ]
@@ -586,7 +662,9 @@
         {
           "text": {
             "ko": "관찰자가 봤다. 그것이 이 사람이 여기 온 이유였다. 보는 것. 첫날에 본 것들이 있었다. 손자국. 이름들. 재. 폭발 흔적. 눈빛들. 그것들이 흔적이었다. 다른 루트들의 흔적. 이 화성이 어디서 왔는지의 흔적. 관찰자는 더 봐야 했다. 화성이 거기 있었다. 그것이 전부였다.",
-            "en": "The observer watched. That was why this person had come here. Watching. There were things seen on the first day. A handprint. Names. Ash. Explosion traces. Gazes. Those were traces. Traces of other routes. Traces of where this Mars had come from. The observer had to see more. Mars was there. That was everything."
+            "en": "The observer watched. That was why this person had come here. Watching. There were things seen on the first day. A handprint. Names. Ash. Explosion traces. Gazes. Those were traces. Traces of other routes. Traces of where this Mars had come from. The observer had to see more. Mars was there. That was everything.",
+            "ja": "観察者が見た。それがこの人がここに来た理由だった。見ること。初日に見たものがあった。手の跡。名前たち。灰。爆発の跡。眼差したち。それらが跡だった。他のルートの跡。この火星がどこから来たかの跡。観察者はもっと見なければならなかった。火星がそこにあった。それが全てだった。",
+            "zh": "观察者看了。那是这个人来这里的原因。看。第一天看到的东西。手印。名字。灰烬。爆炸痕迹。目光们。那些是痕迹。其他路线的痕迹。这个火星从哪里来的痕迹。观察者必须看更多。火星在那里。那就是一切。"
           }
         }
       ],
@@ -594,7 +672,9 @@
         "questId": "hidden_campaign_ch2",
         "teaser": {
           "ko": "다음 — 흔적들",
-          "en": "Next — Traces"
+          "en": "Next — Traces",
+          "ja": "次 — 痕跡たち",
+          "zh": "下一章 — 痕迹"
         }
       }
     }

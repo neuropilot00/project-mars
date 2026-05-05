@@ -4,7 +4,9 @@
   "chapterNumber": 2,
   "title": {
     "ko": "첫 광부의 죽음",
-    "en": "The First Miner's Death"
+    "en": "The First Miner's Death",
+    "ja": "最初の鉱夫の死",
+    "zh": "第一个矿工的死亡"
   },
   "location": {
     "id": "hellas_outer_mine",
@@ -28,7 +30,9 @@
         {
           "text": {
             "ko": "Lena Torres는 빠른 사람이었다. 걸음이 빠르고 말이 빠르고 판단이 빨랐다. 왼쪽 팔에 문신이 있었다. 이름들이었다. 가족의 이름. 팔목부터 어깨까지. 빠르게 움직이면 그 이름들이 흔들렸다.",
-            "en": "Lena Torres was a fast person. Fast walk, fast talk, fast judgment. A tattoo on her left arm. Names. Family names. Wrist to shoulder. When she moved fast those names moved with her."
+            "en": "Lena Torres was a fast person. Fast walk, fast talk, fast judgment. A tattoo on her left arm. Names. Family names. Wrist to shoulder. When she moved fast those names moved with her.",
+            "ja": "レナ・トーレスは速い人間だった。歩みが速く、言葉が速く、判断が速かった。左腕に刺青があった。名前たちだった。家族の名前。手首から肩まで。速く動くと、その名前たちが揺れた。",
+            "zh": "列娜·托雷斯是个行动迅速的人。走路快，说话快，判断快。左臂上有纹身。是名字。家人的名字。从手腕到肩膀。她快速移动时，那些名字也跟着摇动。"
           }
         }
       ]
@@ -43,7 +47,9 @@
         {
           "text": {
             "ko": "그 이름들이 생긴 것이 언제인지는 몰랐다. 하나씩 생겼을 것이었다. 이름이 생기는 것은 사람이 생기는 것이 아니었다. 사람이 없어지는 것이었다. 그래서 문신이 된 것이었다. 없어진 것들을 몸에 새기는 것.",
-            "en": "When those names had come to be wasn't known. They must have come one by one. A name being added wasn't someone being born. It was someone disappearing. That was why they became tattoos. Engraving lost things on the body."
+            "en": "When those names had come to be wasn't known. They must have come one by one. A name being added wasn't someone being born. It was someone disappearing. That was why they became tattoos. Engraving lost things on the body.",
+            "ja": "それらの名前がいつできたのかはわからなかった。一つずつできたはずだった。名前ができることは人が生まれることではなかった。人が消えることだった。だから刺青になったのだった。消えたものを体に刻むこと。",
+            "zh": "那些名字是什么时候出现的，没有人知道。应该是一个一个出现的。名字的出现不是人的诞生。是人的消失。所以才成了纹身。把消失的东西刻在身上。"
           }
         }
       ]
@@ -58,9 +64,11 @@
         {
           "text": {
             "ko": "광부가 죽었다. 헬라스 외곽 7번 광산. 갱도 붕괴. MCC 구역이었다. MCC는 사고를 봉쇄했다. 가족에게 연락이 없었다. 연락이 오지 않는 것이 연락이었다. 화성에서 그런 연락은 자주 있었다.",
-            "en": "A miner had died. Mine 7 on the outer Hellas belt. Tunnel collapse. MCC territory. MCC sealed the accident. No notice to the family. No notice was the notice. On Mars that kind of notice came often."
-          },
-          "overlay": "fsp_ch2_ice_caravan_l02_00_death_still"
+            "en": "A miner had died. Mine 7 on the outer Hellas belt. Tunnel collapse. MCC territory. MCC sealed the accident. No notice to the family. No notice was the notice. On Mars that kind of notice came often.",
+            "ja": "鉱夫が死んだ。ヘラス外郭の7番鉱山。坑道崩落。MCCの区域だった。MCCは事故を封鎖した。家族への連絡はなかった。連絡が来ないことが連絡だった。火星でそういう連絡はよくあった。",
+            "zh": "一名矿工死了。赫拉斯外围7号矿山。矿道崩塌。MCC区域。MCC封锁了事故现场。没有通知家属。没有通知就是通知。在火星上，这种通知很常见。",
+            "overlay": "fsp_ch2_ice_caravan_l02_00_death_still"
+          }
         }
       ]
     },
@@ -74,7 +82,9 @@
         {
           "text": {
             "ko": "이름이 Park Sung-jin이었다. 34살이었다. 딸이 둘이었다. 헬라스 광부 마을 출신이었다. 7번 광산 교대 3년차였다. 사흘 전에 시신을 찾았다. MCC는 꺼내지 않았다. 사고 조사 중이라고 했다. 사흘이 지났다.",
-            "en": "The name was Park Sung-jin. Thirty-four. Two daughters. From Hellas mining village. Three years on the rotation at Mine 7. Three days ago the body was found. MCC didn't extract it. Said accident investigation in progress. Three days had passed."
+            "en": "The name was Park Sung-jin. Thirty-four. Two daughters. From Hellas mining village. Three years on the rotation at Mine 7. Three days ago the body was found. MCC didn't extract it. Said accident investigation in progress. Three days had passed.",
+            "ja": "名前はパク・ソンジンだった。34歳だった。娘が二人いた。ヘラスの鉱山村出身だった。7番鉱山の交代3年目だった。三日前に遺体が発見された。MCCは取り出さなかった。事故調査中だと言った。三日が過ぎた。",
+            "zh": "名字是朴成振。三十四岁。有两个女儿。来自赫拉斯矿工村。在7号矿山轮班三年了。三天前找到了遗体。MCC没有取出来。说是事故调查中。三天过去了。"
           }
         }
       ]
@@ -92,7 +102,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "보스. 왔어요.",
-            "en": "Boss. You're here."
+            "en": "Boss. You're here.",
+            "ja": "ボス。来ましたよ。",
+            "zh": "老大。来了。"
           }
         },
         {
@@ -100,7 +112,9 @@
           "emotion": "grim",
           "text": {
             "ko": "MCC가 지역을 막았어요. 시신도 못 꺼냈어요. 가족이 밖에서 기다리고 있어요. 사흘째.",
-            "en": "MCC blocked the area. Couldn't recover the body. Family's been waiting outside. Three days now."
+            "en": "MCC blocked the area. Couldn't recover the body. Family's been waiting outside. Three days now.",
+            "ja": "MCCが地域を封鎖した。遺体も取り出せなかった。家族が外で待っています。三日目です。",
+            "zh": "MCC封锁了区域。遗体也没取出来。家属在外面等着。三天了。"
           }
         },
         {
@@ -108,7 +122,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "이름이 Park Sung-jin이에요. 34살. 딸이 둘이에요. 큰 딸이 일곱. 작은 딸이 네 살.",
-            "en": "His name is Park Sung-jin. Thirty-four. Two daughters. Older one is seven. Younger is four."
+            "en": "His name is Park Sung-jin. Thirty-four. Two daughters. Older one is seven. Younger is four.",
+            "ja": "名前はパク・ソンジンです。34歳。娘が二人います。上が七歳。下が四歳。",
+            "zh": "名字是朴成振。三十四岁。两个女儿。大女儿七岁。小女儿四岁。"
           }
         }
       ]
@@ -123,7 +139,9 @@
         {
           "text": {
             "ko": "레나의 왼팔이 보였다. 문신. 이름들. 그 이름 중 몇이 이런 식으로 생겼는지는 물을 수 없었다. 그녀가 말하지 않았으니까. 빠른 사람들은 자주 말하지 않는 것들이 있었다.",
-            "en": "Lena's left arm was visible. The tattoo. The names. How many of those names had come this way was not something to ask. She hadn't said. Fast people often had things they didn't say."
+            "en": "Lena's left arm was visible. The tattoo. The names. How many of those names had come this way was not something to ask. She hadn't said. Fast people often had things they didn't say.",
+            "ja": "レナの左腕が見えた。刺青。名前たち。その名前のうち何人分がこういう形でできたかは聞けなかった。彼女が言っていなかったから。速い人たちにはよく言わないことがあった。",
+            "zh": "列娜的左臂看得见。纹身。名字们。那些名字里有几个是这样来的，问不出口。因为她没有说。行动迅速的人往往有些话不说。"
           }
         }
       ]
@@ -138,7 +156,9 @@
         {
           "text": {
             "ko": "가족이 있었다. 봉쇄선 밖에. 두 아이와 여자가 있었다. 큰 아이가 작은 아이의 손을 잡고 있었다. 여자는 서 있었다. 아무것도 하지 않았다. 기다리는 것만 했다. 화성에서 기다리는 것은 일이었다.",
-            "en": "The family was there. Outside the perimeter. A woman with two children. The older child held the younger one's hand. The woman stood. Did nothing. Only waited. On Mars waiting was work."
+            "en": "The family was there. Outside the perimeter. A woman with two children. The older child held the younger one's hand. The woman stood. Did nothing. Only waited. On Mars waiting was work.",
+            "ja": "家族がいた。封鎖線の外に。二人の子供と女性がいた。上の子が下の子の手を握っていた。女性は立っていた。何もしなかった。ただ待つだけだった。火星で待つことは仕事だった。",
+            "zh": "家属在那里。在封锁线外面。两个孩子和一个女人。大孩子拉着小孩子的手。女人站着。什么都没做。只是等待。在火星上等待是一种劳作。"
           }
         }
       ]
@@ -155,7 +175,9 @@
           "emotion": "tense",
           "text": {
             "ko": "MCC 봉쇄선이에요. 표지판 두 개. 경비 둘. 뒤에 드론 하나.",
-            "en": "MCC perimeter. Two signs. Two guards. One drone behind."
+            "en": "MCC perimeter. Two signs. Two guards. One drone behind.",
+            "ja": "MCC封鎖線です。標識が二つ。警備が二人。後ろにドローンが一機。",
+            "zh": "MCC封锁线。两个标示牌。两名警卫。后面一架无人机。"
           }
         },
         {
@@ -163,7 +185,9 @@
           "emotion": "direct",
           "text": {
             "ko": "조사 완료까지 출입 금지라고 해요. 언제 완료될 건지는 말 안 해요.",
-            "en": "They say no entry until investigation complete. They won't say when that will be."
+            "en": "They say no entry until investigation complete. They won't say when that will be.",
+            "ja": "調査完了まで立入禁止だと言っています。いつ完了するかは言いません。",
+            "zh": "说是调查完成之前禁止进入。什么时候完成，不说。"
           }
         }
       ]
@@ -178,7 +202,9 @@
         {
           "text": {
             "ko": "MCC 봉쇄선이 있었다. 표지판. 경비가 둘이었다. 갱도 안에는 시신이 있었다. 가족이 기다렸다. 모래가 바람을 탔다. 화성은 기다리는 사람들을 좋아하지 않았다.",
-            "en": "There was an MCC perimeter line. Signs. Two guards. Inside the tunnel was a body. The family waited. Sand rode the wind. Mars was not kind to those who waited."
+            "en": "There was an MCC perimeter line. Signs. Two guards. Inside the tunnel was a body. The family waited. Sand rode the wind. Mars was not kind to those who waited.",
+            "ja": "MCC封鎖線があった。標識。警備が二人だった。坑道の中には遺体があった。家族が待った。砂が風に乗った。火星は待つ人たちには優しくなかった。",
+            "zh": "有MCC封锁线。标示牌。两名警卫。矿道里面有遗体。家属等待着。沙子乘着风飞。火星对等待的人不友好。"
           }
         }
       ]
@@ -193,7 +219,9 @@
         {
           "text": {
             "ko": "경비 중 한 명이 움직였다. 가족 쪽으로 걸어갔다. 무언가 말했다. 여자가 반응하지 않았다. 경비가 돌아왔다. 작은 아이가 울었다. 큰 아이가 달랬다. 일곱 살이 네 살을 달렸다.",
-            "en": "One of the guards moved. Walked toward the family. Said something. The woman didn't respond. The guard returned. The small child cried. The older one comforted. A seven-year-old comforting a four-year-old."
+            "en": "One of the guards moved. Walked toward the family. Said something. The woman didn't respond. The guard returned. The small child cried. The older one comforted. A seven-year-old comforting a four-year-old.",
+            "ja": "警備の一人が動いた。家族の方に歩いていった。何か言った。女性は反応しなかった。警備が戻った。小さい子が泣いた。上の子がなだめた。七歳が四歳をなだめた。",
+            "zh": "一名警卫动了。向家属那边走去。说了什么。女人没有反应。警卫回来了。小孩哭了。大孩安慰。七岁的安慰四岁的。"
           }
         }
       ]
@@ -210,7 +238,9 @@
           "emotion": "angry",
           "text": {
             "ko": "보스. 저 경비 뭐라고 했는지 들었어요.",
-            "en": "Boss. Heard what that guard said."
+            "en": "Boss. Heard what that guard said.",
+            "ja": "ボス。あの警備が何と言ったか聞こえました。",
+            "zh": "老大。听见那个警卫说什么了。"
           }
         },
         {
@@ -218,7 +248,9 @@
           "emotion": "controlled",
           "text": {
             "ko": "집에 가라고 했어요. 내일 다시 오라고. 시신이 나오면 연락 준다고. 연락이 없으면 연락이 없는 거라고.",
-            "en": "Told them to go home. Come back tomorrow. Said they'd contact when the body comes out. Said if there's no contact there's no contact."
+            "en": "Told them to go home. Come back tomorrow. Said they'd contact when the body comes out. Said if there's no contact there's no contact.",
+            "ja": "家に帰れと言ったんです。明日また来いと。遺体が出たら連絡すると。連絡がなければ連絡がないということだと。",
+            "zh": "叫他们回家。明天再来。说遗体出来了会联系。说没联系就是没联系。"
           }
         }
       ]
@@ -233,7 +265,9 @@
         {
           "text": {
             "ko": "Lena의 팔이 보였다. 주먹이 쥐어졌다. 문신 이름들이 뭉쳐졌다. 그것이 Lena가 화를 참는 방식이었다. 주먹을 쥐는 것. 그 안에 이름들을 쥐는 것. 이름들이 참아주는 것.",
-            "en": "Lena's arm was visible. Her fist was clenched. The tattoo names bunched together. That was how Lena held back anger. Clenching a fist. Clenching names inside it. The names holding her."
+            "en": "Lena's arm was visible. Her fist was clenched. The tattoo names bunched together. That was how Lena held back anger. Clenching a fist. Clenching names inside it. The names holding her.",
+            "ja": "レナの腕が見えた。拳が握られた。刺青の名前たちが固まった。それがレナが怒りを抑えるやり方だった。拳を握ること。その中に名前たちを握ること。名前たちが我慢させてくれること。",
+            "zh": "列娜的手臂看得见。拳头握紧了。纹身上的名字们挤在一起。那是列娜压抑愤怒的方式。握拳。把名字们握在里面。名字们帮她忍住。"
           }
         }
       ]
@@ -245,55 +279,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "MCC 봉쇄선. Park Sung-jin의 가족이 기다리고 있다. 어떻게 하겠습니까.",
-        "en": "MCC perimeter. Park Sung-jin's family is waiting. What will you do."
+        "en": "MCC perimeter. Park Sung-jin's family is waiting. What will you do.",
+        "ja": "MCC封鎖線。パク・ソンジンの家族が待っている。どうしますか。",
+        "zh": "MCC封锁线。朴成振的家属在等待。你怎么做。"
       },
       "choices": [
         {
           "id": "fsp_ch2_force_entry",
           "text": {
             "ko": "봉쇄선을 통과한다.",
-            "en": "Cross the perimeter."
+            "en": "Cross the perimeter.",
+            "ja": "封鎖線を突破する。",
+            "zh": "穿越封锁线。"
           },
           "tone": "decisive",
           "preview_hint": {
             "ko": "→ 충돌 불가피, 시신 회수",
-            "en": "→ Conflict, body recovered"
+            "en": "→ Conflict, body recovered",
+            "ja": "→ 衝突不可避、遺体回収",
+            "zh": "→ 冲突不可避免，遗体取回"
           }
         },
         {
           "id": "fsp_ch2_negotiate",
           "text": {
             "ko": "MCC 경비와 협상한다.",
-            "en": "Negotiate with MCC guards."
+            "en": "Negotiate with MCC guards.",
+            "ja": "MCC警備と交渉する。",
+            "zh": "与MCC警卫谈判。"
           },
           "tone": "diplomatic",
           "preview_hint": {
             "ko": "→ 시간 소모, 가능성 있음",
-            "en": "→ Time-consuming, possible"
+            "en": "→ Time-consuming, possible",
+            "ja": "→ 時間がかかるが可能性あり",
+            "zh": "→ 耗时，有可能"
           }
         },
         {
           "id": "fsp_ch2_contact_mikhail",
           "text": {
             "ko": "Mikhail에게 연락. FSP 공식 채널.",
-            "en": "Contact Mikhail. FSP official channel."
+            "en": "Contact Mikhail. FSP official channel.",
+            "ja": "ミハイルに連絡。FSP公式チャンネル。",
+            "zh": "联系米哈伊尔。FSP官方渠道。"
           },
           "tone": "procedural",
           "preview_hint": {
             "ko": "→ Mikhail이 옵션 설명",
-            "en": "→ Mikhail explains options"
+            "en": "→ Mikhail explains options",
+            "ja": "→ ミハイルが選択肢を説明する",
+            "zh": "→ 米哈伊尔说明选项"
           }
         },
         {
           "id": "fsp_ch2_document_first",
           "text": {
             "ko": "현장 기록 먼저. 증거.",
-            "en": "Document the scene first. Evidence."
+            "en": "Document the scene first. Evidence.",
+            "ja": "現場の記録から。証拠。",
+            "zh": "先记录现场。证据。"
           },
           "tone": "methodical",
           "preview_hint": {
             "ko": "→ 레나가 함께 한다, 데이터 확보",
-            "en": "→ Lena joins, data secured"
+            "en": "→ Lena joins, data secured",
+            "ja": "→ レナが加わり、データ確保",
+            "zh": "→ 列娜加入，数据确保"
           }
         }
       ]
@@ -308,7 +360,9 @@
         {
           "text": {
             "ko": "행동이 있었다. MCC는 반응했다. 그것이 협상이든 충돌이든 기록이든 간에. 무언가가 움직였다. 화성에서 움직이는 것은 살아있는 것이었다.",
-            "en": "Action was taken. MCC responded. Whether it was negotiation or confrontation or documentation. Something moved. On Mars what moved was what was alive."
+            "en": "Action was taken. MCC responded. Whether it was negotiation or confrontation or documentation. Something moved. On Mars what moved was what was alive.",
+            "ja": "行動があった。MCCは反応した。それが交渉であれ衝突であれ記録であれ。何かが動いた。火星で動くものは生きているものだった。",
+            "zh": "采取了行动。MCC做出了反应。无论是谈判、对抗还是记录。有什么东西动了。在火星上，动的东西是活着的东西。"
           }
         }
       ]
@@ -321,11 +375,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "Park Sung-jin의 귀환",
-        "en": "Return of Park Sung-jin"
+        "en": "Return of Park Sung-jin",
+        "ja": "パク・ソンジンの帰還",
+        "zh": "朴成振的归来"
       },
       "subtitle": {
         "ko": "헬라스 외곽 — 시신 회수",
-        "en": "Outer Hellas — Body Recovery"
+        "en": "Outer Hellas — Body Recovery",
+        "ja": "ヘラス外郭 — 遺体回収",
+        "zh": "赫拉斯外围 — 遗体取回"
       }
     },
     {
@@ -346,7 +404,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "됐어요. 가족들이 데려갔어요.",
-            "en": "Done. The family took him."
+            "en": "Done. The family took him.",
+            "ja": "できました。家族が連れていきました。",
+            "zh": "成了。家属带走了。"
           }
         },
         {
@@ -354,7 +414,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "큰 딸이 고맙다고 했어요. 일곱 살이. 화성 언어로.",
-            "en": "The older daughter said thank you. The seven-year-old. In Mars language."
+            "en": "The older daughter said thank you. The seven-year-old. In Mars language.",
+            "ja": "上の娘が礼を言いました。七歳が。火星の言葉で。",
+            "zh": "大女儿道了谢。七岁的。用火星语。"
           }
         },
         {
@@ -362,7 +424,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "보스. 오늘 잘했어요. 진짜로.",
-            "en": "Boss. You did well today. Really."
+            "en": "Boss. You did well today. Really.",
+            "ja": "ボス。今日はよくやりました。本当に。",
+            "zh": "老大。今天做得好。真的。"
           }
         }
       ]
@@ -379,7 +443,9 @@
           "effect": "character_enter:lena:slide_right",
           "text": {
             "ko": "못 꺼냈어요. 가족은 여전히 밖에 있어요.",
-            "en": "Couldn't get him out. The family is still outside."
+            "en": "Couldn't get him out. The family is still outside.",
+            "ja": "取り出せなかった。家族はまだ外にいます。",
+            "zh": "没取出来。家属还在外面。"
           }
         },
         {
@@ -387,7 +453,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "다음에 다시 해요. Park Sung-jin은 기억해요. 이름이 팔에 있어요.",
-            "en": "We try again. We remember Park Sung-jin. The name is on the arm."
+            "en": "We try again. We remember Park Sung-jin. The name is on the arm.",
+            "ja": "次にまたやります。パク・ソンジンは忘れません。名前が腕にあります。",
+            "zh": "下次再试。记住朴成振。名字在手臂上。"
           }
         }
       ]
@@ -402,7 +470,9 @@
         {
           "text": {
             "ko": "MCC가 공식 사과를 하지 않았다. 보상도 없었다. 사고 보고서도 나오지 않았다. 그것은 나중 이야기였다. 지금은 가족이 시신을 데려갔다. 그것이 오늘의 것이었다.",
-            "en": "MCC didn't issue a formal apology. No compensation. No accident report came out. That was for later. For now the family had taken the body. That was today's thing."
+            "en": "MCC didn't issue a formal apology. No compensation. No accident report came out. That was for later. For now the family had taken the body. That was today's thing.",
+            "ja": "MCCは公式謝罪をしなかった。補償もなかった。事故報告書も出なかった。それは後の話だった。今は家族が遺体を連れていった。それが今日のことだった。",
+            "zh": "MCC没有发表正式道歉。没有赔偿。事故报告也没有出来。那是之后的事。现在家属带走了遗体。这是今天的事。"
           }
         }
       ]
@@ -417,7 +487,9 @@
         {
           "text": {
             "ko": "두 아이가 갔다. 여자가 갔다. 뒤를 보지 않았다. 광산이 거기 있었다. 7번 광산. MCC 봉쇄선이 여전히 있었다. 표지판. 경비. 드론. 그리고 안에는 아무것도 없었다. 이제는.",
-            "en": "Two children went. The woman went. Didn't look back. The mine was there. Mine 7. MCC perimeter still there. Signs. Guards. Drone. And inside there was nothing. Now."
+            "en": "Two children went. The woman went. Didn't look back. The mine was there. Mine 7. MCC perimeter still there. Signs. Guards. Drone. And inside there was nothing. Now.",
+            "ja": "二人の子が去った。女性が去った。振り返らなかった。鉱山はそこにあった。7番鉱山。MCC封鎖線はまだあった。標識。警備。ドローン。そして中には何もなかった。今は。",
+            "zh": "两个孩子走了。女人走了。没有回头。矿山就在那里。7号矿山。MCC封锁线还在。标示牌。警卫。无人机。里面什么都没有了。现在。"
           }
         }
       ]
@@ -435,7 +507,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "보고 들었어요.",
-            "en": "Heard the report."
+            "en": "Heard the report.",
+            "ja": "報告を聞きました。",
+            "zh": "听说了。"
           }
         },
         {
@@ -443,7 +517,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "MCC가 사고 경위를 감추려 했을 거예요. 갱도 지지대 문제였을 가능성이 높아요. 비용 때문에 수리를 미룬 거죠.",
-            "en": "MCC was probably trying to hide the accident details. Likely a tunnel support problem. They delayed the repair because of cost."
+            "en": "MCC was probably trying to hide the accident details. Likely a tunnel support problem. They delayed the repair because of cost.",
+            "ja": "MCCは事故の経緯を隠そうとしたのでしょう。坑道の支柱の問題だった可能性が高い。費用のために修理を先延ばしにしたんです。",
+            "zh": "MCC可能是想隐瞒事故经过。很可能是矿道支撑柱的问题。因为费用问题推迟了维修。"
           }
         },
         {
@@ -451,7 +527,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Sung-jin은 34살이었어요. 17년 광산 일을 했어요. 내가 FSP를 만들기 전에 광산에 들어간 거예요.",
-            "en": "Sung-jin was thirty-four. Seventeen years in the mines. He entered the mines before I made FSP."
+            "en": "Sung-jin was thirty-four. Seventeen years in the mines. He entered the mines before I made FSP.",
+            "ja": "ソンジンは34歳だった。17年間鉱山で働いた。私がFSPを作る前に鉱山に入ったんです。",
+            "zh": "成振三十四岁。在矿山工作了十七年。是我建立FSP之前就进矿山的。"
           }
         }
       ]
@@ -466,7 +544,9 @@
         {
           "text": {
             "ko": "Mikhail이 차를 끓였다. 오른손이 왼손을 받쳤다. 그것이 같은 방식이었다. 항상 같은 방식이었다. 사고 소식을 들어도. 죽음 소식을 들어도. 그 방식은 변하지 않았다. 변하지 않는 것이 있는 것이 중요했다.",
-            "en": "Mikhail made tea. The right hand supported the left. The same way. Always the same way. Even after hearing accident news. Even after hearing news of death. That way didn't change. Having something that didn't change was important."
+            "en": "Mikhail made tea. The right hand supported the left. The same way. Always the same way. Even after hearing accident news. Even after hearing news of death. That way didn't change. Having something that didn't change was important.",
+            "ja": "ミハイルが茶を淹れた。右手が左手を支えた。同じやり方だった。いつも同じやり方だった。事故の知らせを聞いても。死の知らせを聞いても。そのやり方は変わらなかった。変わらないものがあることが大事だった。",
+            "zh": "米哈伊尔煮了茶。右手托着左手。同样的方式。总是同样的方式。即使听到事故的消息。即使听到死亡的消息。那个方式没有改变。有不变的东西很重要。"
           }
         }
       ]
@@ -481,7 +561,9 @@
         {
           "text": {
             "ko": "Lena가 왔다. 팔을 봤다. 이름들을. 새 이름을 쓰지 않았다. 아직. 그것은 나중이었다. 지금은 들고 있었다. 그것도 방식이었다.",
-            "en": "Lena came. Looked at her arm. The names. Didn't write a new name. Not yet. That was for later. For now she was holding it. That too was a way."
+            "en": "Lena came. Looked at her arm. The names. Didn't write a new name. Not yet. That was for later. For now she was holding it. That too was a way.",
+            "ja": "レナが来た。腕を見た。名前たちを。新しい名前を書かなかった。まだ。それは後のことだった。今は抱えていた。それもやり方だった。",
+            "zh": "列娜来了。看着手臂。名字们。没有写新名字。还没有。那是以后的事。现在只是拿着。那也是一种方式。"
           }
         }
       ]
@@ -498,7 +580,9 @@
           "emotion": "serious",
           "text": {
             "ko": "보스. 이게 첫 번째예요.",
-            "en": "Boss. This is the first."
+            "en": "Boss. This is the first.",
+            "ja": "ボス。これが最初です。",
+            "zh": "老大。这是第一次。"
           }
         },
         {
@@ -506,7 +590,9 @@
           "emotion": "direct",
           "text": {
             "ko": "화성에서 죽은 광부. 가족이 기다리는 것. MCC가 막는 것. 이게 계속 있을 거예요. 오늘이 마지막이 아니에요.",
-            "en": "A miner dead on Mars. Family waiting. MCC blocking. This will keep happening. Today is not the last."
+            "en": "A miner dead on Mars. Family waiting. MCC blocking. This will keep happening. Today is not the last.",
+            "ja": "火星で死んだ鉱夫。家族が待つこと。MCCが阻むこと。これはこれからも続くでしょう。今日が最後じゃない。",
+            "zh": "死在火星的矿工。家属等待。MCC封锁。这还会继续发生。今天不是最后一次。"
           }
         },
         {
@@ -514,7 +600,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "그래도 오늘은 됐어요. 가족이 Sung-jin을 데려갔어요.",
-            "en": "But today it worked. The family took Sung-jin."
+            "en": "But today it worked. The family took Sung-jin.",
+            "ja": "でも今日はできた。家族がソンジンを連れていきました。",
+            "zh": "但今天成了。家属带走了成振。"
           }
         }
       ]
@@ -529,7 +617,9 @@
         {
           "text": {
             "ko": "밤이었다. FSP 기지. 불이 몇 개 있었다. 사람들이 있었다. 오늘의 소식을 아는 사람들이었다. 그러나 말하지 않았다. 말하지 않는 것이 존중이었다. 화성에서 조용한 것이 때로는 그런 것이었다.",
-            "en": "Night. FSP base. A few lights. People. People who knew today's news. But they didn't speak. Not speaking was respect. On Mars silence was sometimes like that."
+            "en": "Night. FSP base. A few lights. People. People who knew today's news. But they didn't speak. Not speaking was respect. On Mars silence was sometimes like that.",
+            "ja": "夜だった。FSP基地。灯りがいくつかあった。人々がいた。今日のニュースを知っている人たちだった。しかし話さなかった。話さないことが敬意だった。火星で静かであることは時にそういうことだった。",
+            "zh": "是夜晚。FSP基地。有几盏灯。有人。知道今天消息的人。但没有说话。不说话是尊重。在火星上，安静有时就是这样。"
           }
         }
       ]
@@ -544,7 +634,9 @@
         {
           "text": {
             "ko": "증거가 있었다. 현장 기록이 있었다. MCC 감독관 통신 기록 일부도 있었다. 지지대 수리 요청이 세 번 있었다. 세 번 다 거부됐다. 비용 때문에. 그것이 기록에 있었다.",
-            "en": "There was evidence. Site documentation. Some MCC supervisor communication records. Support repair requests had been made three times. Three times refused. Because of cost. That was in the record."
+            "en": "There was evidence. Site documentation. Some MCC supervisor communication records. Support repair requests had been made three times. Three times refused. Because of cost. That was in the record.",
+            "ja": "証拠があった。現場記録があった。MCC監督官の通信記録の一部もあった。支柱の修理要請が三回あった。三回とも拒否された。費用のために。それが記録にあった。",
+            "zh": "有证据。有现场记录。也有部分MCC监督员的通讯记录。维修支撑柱的申请有三次。三次都被拒绝了。因为费用。那在记录里。"
           }
         }
       ]
@@ -561,7 +653,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이 기록이 있어요. 세 번의 거부. 그것이 MCC의 과실이에요.",
-            "en": "We have this record. Three refusals. That's MCC's negligence."
+            "en": "We have this record. Three refusals. That's MCC's negligence.",
+            "ja": "この記録があります。三回の拒否。それがMCCの過失です。",
+            "zh": "我们有这份记录。三次拒绝。那就是MCC的过失。"
           }
         },
         {
@@ -569,7 +663,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "그러나 증거가 되려면 공식 채널이 필요해요. FSP가 제출할 수 있어요. 의원회를 통해서.",
-            "en": "But to become evidence it needs official channels. FSP can submit it. Through the assembly."
+            "en": "But to become evidence it needs official channels. FSP can submit it. Through the assembly.",
+            "ja": "しかし証拠になるには公式チャンネルが必要です。FSPが提出できます。議会を通じて。",
+            "zh": "但要成为证据，需要官方渠道。FSP可以提交。通过议会。"
           }
         },
         {
@@ -577,7 +673,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "오래 걸려요. MCC가 막을 거예요. 그래도 해야 해요.",
-            "en": "It takes time. MCC will block it. But it has to be done."
+            "en": "It takes time. MCC will block it. But it has to be done.",
+            "ja": "時間がかかります。MCCが阻むでしょう。それでもやらなければなりません。",
+            "zh": "需要很长时间。MCC会阻拦。即便如此也要做。"
           }
         }
       ]
@@ -592,9 +690,11 @@
         {
           "text": {
             "ko": "Lena가 팔을 봤다. 어두운 데서. 문신이 보였다. 이름들이. 하나씩. 어떤 이름 아래에 날짜가 있었다. 그것이 언제 없어진 날이었다. 없어진 날이 새겨진 것이었다.",
-            "en": "Lena looked at her arm. In the dark. The tattoo was visible. The names. One by one. Under some names there was a date. The day they disappeared. The day of disappearing was engraved."
-          },
-          "overlay": "fsp_ch2_ice_caravan_l27_00_candle_flame"
+            "en": "Lena looked at her arm. In the dark. The tattoo was visible. The names. One by one. Under some names there was a date. The day they disappeared. The day of disappearing was engraved.",
+            "ja": "レナは暗がりで腕を見た。刺青が見えた。名前たちが。一つずつ。いくつかの名前の下に日付があった。それがいつ消えた日だった。消えた日が刻まれていたのだった。",
+            "zh": "列娜在黑暗中看着手臂。纹身看得见。名字们。一个个。有些名字下面有日期。那是消失的那一天。消失的那天被刻进去了。",
+            "overlay": "fsp_ch2_ice_caravan_l27_00_candle_flame"
+          }
         }
       ]
     },
@@ -608,7 +708,9 @@
         {
           "text": {
             "ko": "다음 날 7번 광산을 다시 봤다. 봉쇄선이 있었다. 표지판. 경비. 그러나 달랐다. MCC 경비 중 한 명이 봤다. 눈이 마주쳤다. 그 사람이 먼저 눈을 뗐다. 그것이 무언가를 말하는 것이었다.",
-            "en": "The next day Mine 7 was seen again. Perimeter. Signs. Guards. But different. One of the MCC guards watched. Eyes met. That person looked away first. That was saying something."
+            "en": "The next day Mine 7 was seen again. Perimeter. Signs. Guards. But different. One of the MCC guards watched. Eyes met. That person looked away first. That was saying something.",
+            "ja": "翌日、7番鉱山をまた見た。封鎖線があった。標識。警備。しかし違った。MCC警備の一人が見た。目が合った。その人が先に目を逸らした。それが何かを言っていた。",
+            "zh": "第二天再次看7号矿山。封锁线还在。标示牌。警卫。但不同了。MCC一名警卫看了过来。目光对上了。那个人先别开了眼睛。那是在说什么。"
           }
         }
       ]
@@ -623,7 +725,9 @@
         {
           "text": {
             "ko": "7번 광산이 거기 있었다. 안에 아무것도 없었다. 아직도 조사 중이라는 표지판이 있었다. 그것은 언제 내려질지 알 수 없었다. 그러나 기록이 있었다. 세 번의 거부. 그것은 내려지지 않았다.",
-            "en": "Mine 7 was there. Nothing inside. Still a sign saying investigation in progress. When that would come down wasn't known. But there was a record. Three refusals. That wouldn't come down."
+            "en": "Mine 7 was there. Nothing inside. Still a sign saying investigation in progress. When that would come down wasn't known. But there was a record. Three refusals. That wouldn't come down.",
+            "ja": "7番鉱山はそこにあった。中には何もなかった。まだ調査中という標識があった。それがいつ外されるかはわからなかった。しかし記録があった。三回の拒否。それは外されなかった。",
+            "zh": "7号矿山就在那里。里面什么都没有。还有一块写着调查中的标示牌。什么时候会撤下来不知道。但有记录。三次拒绝。那不会被撤下来。"
           }
         }
       ]
@@ -638,7 +742,9 @@
         {
           "text": {
             "ko": "Mikhail은 차를 끓였다. 두 잔. 두 손으로 따랐다. Lena가 들어왔다. 차를 마셨다. 이번엔 그 사람도 마셨다. 광부 하나가 죽었다. 그것은 바뀌지 않았다. 그러나 차는 따뜻했다.\n\n증거가 있었다. 세 번의 거부. 그것도 바뀌지 않았다. 바뀌지 않는 것들이 두 종류 있었다. 죽음과 기록. 그 두 가지가 오늘 다 있었다.",
-            "en": "Mikhail made tea. Two cups. Poured with both hands. Lena came in. She drank hers. This time the other person drank too. One miner was dead. That didn't change. But the tea was warm.\n\nThere was evidence. Three refusals. That didn't change either. There were two kinds of things that didn't change. Death and records. Both were here today."
+            "en": "Mikhail made tea. Two cups. Poured with both hands. Lena came in. She drank hers. This time the other person drank too. One miner was dead. That didn't change. But the tea was warm.\n\nThere was evidence. Three refusals. That didn't change either. There were two kinds of things that didn't change. Death and records. Both were here today.",
+            "ja": "ミハイルは茶を淹れた。二杯。両手で注いだ。レナが入ってきた。茶を飲んだ。今回はその人も飲んだ。鉱夫が一人死んだ。それは変わらなかった。しかし茶は温かかった。\n\n証拠があった。三回の拒否。それも変わらなかった。変わらないものが二種類あった。死と記録。その二つが今日共にあった。",
+            "zh": "米哈伊尔煮了茶。两杯。用双手倒。列娜进来了。喝了茶。这次那个人也喝了。一名矿工死了。那没有改变。但茶是温的。\n\n有证据。三次拒绝。那也没有改变。有两种不会改变的东西。死亡和记录。这两样今天都在。"
           }
         }
       ],
@@ -646,7 +752,9 @@
         "questId": "fsp_campaign_ch3",
         "teaser": {
           "ko": "다음 — 60 Stayers",
-          "en": "Next — 60 Stayers"
+          "en": "Next — 60 Stayers",
+          "ja": "次回 — 60人の残留者",
+          "zh": "下回 — 60名留守者"
         }
       }
     }

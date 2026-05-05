@@ -4,7 +4,9 @@
   "chapterNumber": 3,
   "title": {
     "ko": "60명",
-    "en": "60 Stayers"
+    "en": "60 Stayers",
+    "ja": "60人",
+    "zh": "六十人"
   },
   "location": {
     "id": "hellas_mining_village",
@@ -29,7 +31,9 @@
         {
           "text": {
             "ko": "마을이 있었다. MCC 광산 바깥에. 정식 정착지가 아니었다. 임시 거주 구역이었다. 화성에서 임시는 오래 가는 것이었다. 20년된 임시 마을이었다. 사람들은 거기서 태어나고 거기서 일했다. 일부는 거기서 죽었다.",
-            "en": "A village. Outside the MCC mine. Not an official settlement. A temporary residential zone. On Mars temporary meant lasting. A twenty-year temporary village. People were born there and worked there. Some died there."
+            "en": "A village. Outside the MCC mine. Not an official settlement. A temporary residential zone. On Mars temporary meant lasting. A twenty-year temporary village. People were born there and worked there. Some died there.",
+            "ja": "村があった。MCC鉱山の外に。正式な入植地ではなかった。仮設居住区域だった。火星で仮設は長続きするものだった。20年の仮設村だった。人々はそこで生まれ、そこで働いた。一部はそこで死んだ。",
+            "zh": "有一个村子。在MCC矿山外面。不是正式定居点。是临时居住区。在火星上，临时的都能持续很久。是一个有二十年历史的临时村子。人们在那里出生，在那里工作。有些人在那里死去。"
           }
         }
       ]
@@ -44,7 +48,9 @@
         {
           "text": {
             "ko": "MCC가 명령을 내렸다. 구역 퇴거. 2주 안에. 이유는 설명되지 않았다. 이유가 없는 명령이 화성에서 제일 무서운 것이었다. 이유가 있으면 반박이 가능했다. 이유가 없으면 반박할 곳이 없었다.",
-            "en": "MCC issued an order. Zone evacuation. Two weeks. No reason given. Orders without reason were the most frightening thing on Mars. If there was a reason there was room to argue. Without a reason there was nowhere to argue."
+            "en": "MCC issued an order. Zone evacuation. Two weeks. No reason given. Orders without reason were the most frightening thing on Mars. If there was a reason there was room to argue. Without a reason there was nowhere to argue.",
+            "ja": "MCCが命令を出した。区域退去。2週間以内に。理由は説明されなかった。理由のない命令が火星で一番怖いものだった。理由があれば反論が可能だった。理由がなければ反論する場所がなかった。",
+            "zh": "MCC下达了命令。区域撤离。两周内。没有说明原因。没有理由的命令是火星上最可怕的东西。有理由就能反驳。没有理由就无处反驳。"
           }
         }
       ]
@@ -59,9 +65,11 @@
         {
           "text": {
             "ko": "마을에 묘지가 있었다. 광부들의 묘. 이름들이 있었다. 분필로 쓴 것도 있었다. 금속판에 새긴 것도 있었다. 오래된 것. 새것. 섞여 있었다. 그 묘지를 어떻게 할 것인지도 명령에 없었다.",
-            "en": "The village had a cemetery. Miners' graves. Names were there. Some written in chalk. Some engraved on metal plates. Old. New. Mixed. What to do with that cemetery was also not in the order."
-          },
-          "overlay": "fsp_ch3_blood_mine_l02_00_candle_flame"
+            "en": "The village had a cemetery. Miners' graves. Names were there. Some written in chalk. Some engraved on metal plates. Old. New. Mixed. What to do with that cemetery was also not in the order.",
+            "ja": "村には墓地があった。鉱夫たちの墓。名前たちがあった。チョークで書かれたものもあった。金属板に刻まれたものもあった。古いもの。新しいもの。混じっていた。その墓地をどうするかも命令にはなかった。",
+            "zh": "村子里有个墓地。矿工的墓。有名字。有用粉笔写的。有刻在金属板上的。旧的。新的。混在一起。怎么处置那个墓地，命令里也没有写。",
+            "overlay": "fsp_ch3_blood_mine_l02_00_candle_flame"
+          }
         }
       ]
     },
@@ -78,7 +86,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "여기 사람이 60명이에요.",
-            "en": "There are sixty people here."
+            "en": "There are sixty people here.",
+            "ja": "ここには60人がいます。",
+            "zh": "这里有六十个人。"
           }
         },
         {
@@ -86,7 +96,9 @@
           "emotion": "heavy",
           "text": {
             "ko": "절반은 가요. 절반은 남겠다고 해요. 남으면 어떻게 되는지 알면서도 남겠다는 사람들이에요.",
-            "en": "Half are leaving. Half say they'll stay. People who know what happens if they stay and still say they'll stay."
+            "en": "Half are leaving. Half say they'll stay. People who know what happens if they stay and still say they'll stay.",
+            "ja": "半分は去る。半分は残ると言っています。残ればどうなるか知っていてなお残るという人たちです。",
+            "zh": "一半要走。一半说要留下。是知道留下会怎样但还是说要留下的人。"
           }
         },
         {
@@ -94,7 +106,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Yuna가 마을 사람들을 설득하려 해요. 스물한 살이에요. 여기서 태어났어요.",
-            "en": "Yuna is trying to convince the villagers. She's twenty-one. Born here."
+            "en": "Yuna is trying to convince the villagers. She's twenty-one. Born here.",
+            "ja": "ユナが村人たちを説得しようとしています。二十一歳です。ここで生まれた。",
+            "zh": "尤娜想说服村民们。二十一岁。在这里出生的。"
           }
         }
       ]
@@ -109,7 +123,9 @@
         {
           "text": {
             "ko": "Yuna Kim이었다. 화성 태생. 이 마을에서 자란 것. 아버지가 묘지에 있었다. 그 이름이 거기 있었다. 금속판에. 오래된 것이었다. 그러나 새것처럼 닦여 있었다.",
-            "en": "Yuna Kim. Born on Mars. Raised in this village. Her father was in the cemetery. That name was there. On a metal plate. An old one. But polished like new."
+            "en": "Yuna Kim. Born on Mars. Raised in this village. Her father was in the cemetery. That name was there. On a metal plate. An old one. But polished like new.",
+            "ja": "ユナ・キムだった。火星生まれ。この村で育ったもの。父親が墓地にいた。その名前がそこにあった。金属板に。古いものだった。しかし新品のように磨かれていた。",
+            "zh": "是金尤娜。火星出生。在这个村子里长大。父亲在墓地里。那个名字在那里。在金属板上。是旧的。但是擦得像新的一样。"
           }
         }
       ]
@@ -124,7 +140,9 @@
         {
           "text": {
             "ko": "모닥불이 있었다. 화성에서 바깥 불은 위험했다. 그러나 이 사람들은 피웠다. 20년간 피웠을 것이었다. Mikhail이 차를 끓였다. 오른손이 왼손을 받쳤다. 그것이 여기서도 똑같았다. Lena는 왼팔을 불빛에 내놓았다. 문신이 보였다. 이름들이 흔들렸다.",
-            "en": "There was a fire. Outside fire was dangerous on Mars. But these people had one. They must have for twenty years. Mikhail made tea. The right hand supported the left. It was the same here. Lena held her left arm in the firelight. The tattoo was visible. The names swayed."
+            "en": "There was a fire. Outside fire was dangerous on Mars. But these people had one. They must have for twenty years. Mikhail made tea. The right hand supported the left. It was the same here. Lena held her left arm in the firelight. The tattoo was visible. The names swayed.",
+            "ja": "焚き火があった。火星では外の火は危険だった。しかしこの人たちは焚いていた。20年間焚いてきたはずだった。ミハイルが茶を淹れた。右手が左手を支えた。ここでも同じだった。レナは左腕を灯りに向けた。刺青が見えた。名前たちが揺れた。",
+            "zh": "有篝火。在火星上户外点火是危险的。但这些人点了。二十年来一直点着。米哈伊尔煮了茶。右手托着左手。在这里也是一样。列娜把左臂伸向火光。纹身看得见了。名字们在摇动。"
           }
         }
       ]
@@ -142,7 +160,9 @@
           "effect": "character_enter:yuna:slide_right",
           "text": {
             "ko": "보스. 60명이 남으면 MCC가 강제 집행을 못 해요. 화성 거주권 조항이 있어요.",
-            "en": "Boss. If sixty people stay MCC can't force removal. There's a Mars residency clause."
+            "en": "Boss. If sixty people stay MCC can't force removal. There's a Mars residency clause.",
+            "ja": "ボス。60人が残ればMCCは強制執行できません。火星居住権条項があります。",
+            "zh": "老大。如果六十个人留下，MCC就不能强制执行。有火星居住权条款。"
           }
         },
         {
@@ -150,7 +170,9 @@
           "emotion": "urgent",
           "text": {
             "ko": "지금 30명이에요. 30명이 더 필요해요. 이웃 마을에서 올 수 있어요. FSP가 지원하면.",
-            "en": "Right now there are thirty. We need thirty more. The neighboring village can come. If FSP supports it."
+            "en": "Right now there are thirty. We need thirty more. The neighboring village can come. If FSP supports it.",
+            "ja": "今は30人です。あと30人必要です。隣の村から来られます。FSPが支援すれば。",
+            "zh": "现在三十人。还需要三十人。邻村可以来。如果FSP支持的话。"
           }
         },
         {
@@ -158,7 +180,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "여기 묘지도 있어요. 내 아버지도 거기 있어요. 이름이 있어요.",
-            "en": "There's a cemetery here too. My father is there too. There's a name."
+            "en": "There's a cemetery here too. My father is there too. There's a name.",
+            "ja": "ここに墓地もあります。私の父もそこにいます。名前があります。",
+            "zh": "这里也有墓地。我父亲也在那里。有名字。"
           }
         }
       ]
@@ -173,7 +197,9 @@
         {
           "text": {
             "ko": "불이 탔다. Mikhail의 차가 식어갔다. 그는 마셨다. 두 손으로 잔을 들고. 이 사람은 원래 광부였다. FSP를 만들기 전에. 화성 1세대. 그것이 저 두 손에 있었다. 이 마을 사람들의 두 손도 같았다. 같은 분진. 같은 굳은살.",
-            "en": "The fire burned. Mikhail's tea cooled. He drank it. Holding the cup with both hands. This man had been a miner. Before he made FSP. First generation on Mars. That was in those two hands. The hands of this village's people were the same. Same dust. Same calluses."
+            "en": "The fire burned. Mikhail's tea cooled. He drank it. Holding the cup with both hands. This man had been a miner. Before he made FSP. First generation on Mars. That was in those two hands. The hands of this village's people were the same. Same dust. Same calluses.",
+            "ja": "火が燃えた。ミハイルの茶が冷めていった。彼は飲んだ。両手で杯を持って。この人はもともと鉱夫だった。FSPを作る前に。火星第一世代。それがあの二つの手にあった。この村の人たちの二つの手も同じだった。同じ粉塵。同じタコ。",
+            "zh": "火在燃烧。米哈伊尔的茶在变凉。他喝了。用双手端着杯子。这个人本来是矿工。在建立FSP之前。火星第一代。那在那双手上。这个村子的人们的双手也一样。同样的粉尘。同样的老茧。"
           }
         }
       ]
@@ -188,7 +214,9 @@
         {
           "text": {
             "ko": "이웃 마을이 있었다. 헬라스 외곽 C구역. 20명이 살고 있었다. 거기서도 MCC 구역이었다. 거기서도 퇴거 명령이 있었다. 두 마을이 합치면 50명이었다. 거주권 조항에는 10명이 부족했다. 다른 곳이 있었다. 더 먼 곳이었다.",
-            "en": "There was a neighboring village. Hellas outer Zone C. Twenty people lived there. Also MCC territory. Also had an evacuation order. If the two villages combined that was fifty. Ten short for the residency clause. There was another place. Farther away."
+            "en": "There was a neighboring village. Hellas outer Zone C. Twenty people lived there. Also MCC territory. Also had an evacuation order. If the two villages combined that was fifty. Ten short for the residency clause. There was another place. Farther away.",
+            "ja": "隣の村があった。ヘラス外郭C区域。20人が暮らしていた。そこもMCC区域だった。そこでも退去命令があった。二つの村が合わされば50人だった。居住権条項には10人足りなかった。別のところがあった。もっと遠いところだった。",
+            "zh": "有邻村。赫拉斯外围C区域。住着二十人。那里也是MCC区域。那里也有撤离命令。两个村子合在一起是五十人。居住权条款还差十人。还有另一个地方。更远的地方。"
           }
         }
       ]
@@ -205,7 +233,9 @@
           "emotion": "direct",
           "text": {
             "ko": "보스. Yuna 말이 맞아요. 60명이 맞아요. 법적으로.",
-            "en": "Boss. Yuna is right. Sixty is the number. Legally."
+            "en": "Boss. Yuna is right. Sixty is the number. Legally.",
+            "ja": "ボス。ユナの言う通りです。60人が正しいです。法的に。",
+            "zh": "老大。尤娜说得对。六十人没错。法律上。"
           }
         },
         {
@@ -213,7 +243,9 @@
           "emotion": "tense",
           "text": {
             "ko": "그런데 문제가 있어요. 이웃 마을 사람들이 오면 MCC가 그 마을도 봉쇄해요. 두 마을이 같이 묶이는 거예요.",
-            "en": "But there's a problem. If the neighboring village people come MCC seals that village too. Both villages get tied together."
+            "en": "But there's a problem. If the neighboring village people come MCC seals that village too. Both villages get tied together.",
+            "ja": "でも問題があります。隣の村の人が来ればMCCはその村も封鎖します。二つの村が一緒に縛られるんです。",
+            "zh": "但有个问题。邻村的人来了，MCC也会封锁那个村。两个村就被捆在一起了。"
           }
         },
         {
@@ -221,7 +253,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그게 좋은 건지 나쁜 건지 모르겠어요.",
-            "en": "Don't know if that's good or bad."
+            "en": "Don't know if that's good or bad.",
+            "ja": "それが良いのか悪いのかわかりません。",
+            "zh": "不知道这是好事还是坏事。"
           }
         }
       ]
@@ -236,9 +270,11 @@
         {
           "text": {
             "ko": "Yuna가 묘지 쪽을 봤다. 어두운 데서. 금속판들이 불빛에 반짝였다. 이름들. 그것들이 지금 이 논의를 듣고 있는 것 같았다. 이름들이 있는 곳을 지키는 것과 이름들이 있는 사람들을 지키는 것. 그것이 같은 것인지 달랐다.",
-            "en": "Yuna looked toward the cemetery. In the dark. Metal plates glinted in the firelight. Names. Those seemed to be listening to this discussion now. Protecting where names were and protecting people who had names. Whether those were the same thing or different."
-          },
-          "overlay": "fsp_ch3_blood_mine_l10_00_death_still"
+            "en": "Yuna looked toward the cemetery. In the dark. Metal plates glinted in the firelight. Names. Those seemed to be listening to this discussion now. Protecting where names were and protecting people who had names. Whether those were the same thing or different.",
+            "ja": "ユナが墓地の方を見た。暗がりで。金属板たちが灯りに光った。名前たち。それらが今この議論を聞いているようだった。名前たちがある場所を守ることと、名前たちがある人を守ること。それが同じことなのか違うのか。",
+            "zh": "尤娜看向墓地。在黑暗中。金属板在火光中闪着光。名字们。那些仿佛在听现在的讨论。守护有名字的地方，和守护有名字的人。那是不是同一件事。",
+            "overlay": "fsp_ch3_blood_mine_l10_00_death_still"
+          }
         }
       ]
     },
@@ -254,7 +290,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "아버지가 여기서 돌아가셨어요. 광산 사고였어요. 내가 여덟 살 때. 어머니가 못 떠나겠다고 했어요. 아버지 이름이 여기 있어서.",
-            "en": "Father died here. Mining accident. When I was eight. Mother said she couldn't leave. Because father's name is here."
+            "en": "Father died here. Mining accident. When I was eight. Mother said she couldn't leave. Because father's name is here.",
+            "ja": "父がここで亡くなりました。炭鉱事故でした。私が八歳の時。母が離れられないと言いました。父の名前がここにあるからと。",
+            "zh": "父亲在这里去世了。是矿山事故。我八岁的时候。妈妈说她不能离开。因为父亲的名字在这里。"
           }
         },
         {
@@ -262,7 +300,9 @@
           "emotion": "sincere",
           "text": {
             "ko": "저도 같은 마음이에요. 그러나 사는 사람들이 더 중요해요. 아버지도 그렇게 생각했을 거예요.",
-            "en": "I feel the same. But the living matter more. Father would have thought so too."
+            "en": "I feel the same. But the living matter more. Father would have thought so too.",
+            "ja": "私も同じ気持ちです。でも生きている人の方が大事です。父もそう思っていたはずです。",
+            "zh": "我也有同样的心情。但活着的人更重要。父亲也会这样想的。"
           }
         }
       ]
@@ -277,7 +317,9 @@
         {
           "text": {
             "ko": "불이 탔다. 마을이 조용했다. 사람들이 모여있었다. 각자의 생각이 있었다. 남는 것의 무게. 가는 것의 무게. 화성에서 두 가지 중 하나를 고를 때 둘 다 무거운 것이었다. 좋은 선택이 없을 때가 있었다.",
-            "en": "The fire burned. The village was quiet. People were gathered. Each with their own thoughts. The weight of staying. The weight of leaving. On Mars when choosing between two things both were heavy. Sometimes there was no good choice."
+            "en": "The fire burned. The village was quiet. People were gathered. Each with their own thoughts. The weight of staying. The weight of leaving. On Mars when choosing between two things both were heavy. Sometimes there was no good choice.",
+            "ja": "火が燃えた。村は静かだった。人々が集まっていた。それぞれの考えがあった。残ることの重さ。去ることの重さ。火星で二つのうち一つを選ぶとき、どちらも重かった。良い選択がない時があった。",
+            "zh": "火在燃烧。村子很安静。人们聚在一起。各自有各自的想法。留下的重量。离开的重量。在火星上从两者中选一个时，两个都是沉的。有时候没有好的选择。"
           }
         }
       ]
@@ -292,7 +334,9 @@
         {
           "text": {
             "ko": "MCC 명령서가 있었다. 2주. 이유 없음. 그것이 이 마을 위에 있었다. 이름들 위에. 아이들 위에. 모닥불 위에. 그것을 무효로 만들 방법이 있었다. 60명. 거주권. 그러나 그것이 해결이 아닐 수 있었다.",
-            "en": "There was an MCC order. Two weeks. No reason. It was over this village. Over the names. Over the children. Over the fire. There was a way to make it void. Sixty people. Residency rights. But that might not be a resolution."
+            "en": "There was an MCC order. Two weeks. No reason. It was over this village. Over the names. Over the children. Over the fire. There was a way to make it void. Sixty people. Residency rights. But that might not be a resolution.",
+            "ja": "MCC命令書があった。2週間。理由なし。それがこの村の上にあった。名前たちの上に。子供たちの上に。焚き火の上に。それを無効にする方法があった。60人。居住権。しかしそれが解決ではないかもしれなかった。",
+            "zh": "有MCC命令书。两周。没有理由。它压在这个村子上。压在名字们上。压在孩子们上。压在篝火上。有一个让它失效的方法。六十人。居住权。但那也许不是解决办法。"
           }
         }
       ]
@@ -304,55 +348,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "60명. 이 마을. 이 불. 묘지. 어떻게 하겠습니까.",
-        "en": "Sixty people. This village. This fire. The cemetery. What will you do."
+        "en": "Sixty people. This village. This fire. The cemetery. What will you do.",
+        "ja": "60人。この村。この火。墓地。どうしますか。",
+        "zh": "六十人。这个村子。这堆火。墓地。你怎么做。"
       },
       "choices": [
         {
           "id": "fsp_ch3_mobilize",
           "text": {
             "ko": "이웃 마을 30명을 데려온다. 거주권 확보.",
-            "en": "Bring thirty from the neighboring village. Secure residency rights."
+            "en": "Bring thirty from the neighboring village. Secure residency rights.",
+            "ja": "隣の村から30人を連れてくる。居住権確保。",
+            "zh": "从邻村带来三十人。确保居住权。"
           },
           "tone": "decisive",
           "preview_hint": {
             "ko": "→ MCC와 법적 충돌, 마을 유지",
-            "en": "→ Legal conflict with MCC, village preserved"
+            "en": "→ Legal conflict with MCC, village preserved",
+            "ja": "→ MCCと法的衝突、村を維持",
+            "zh": "→ 与MCC法律冲突，村子保留"
           }
         },
         {
           "id": "fsp_ch3_negotiate_mcc",
           "text": {
             "ko": "MCC와 협상한다. 이유를 요구한다.",
-            "en": "Negotiate with MCC. Demand the reason."
+            "en": "Negotiate with MCC. Demand the reason.",
+            "ja": "MCCと交渉する。理由を要求する。",
+            "zh": "与MCC谈判。要求说明理由。"
           },
           "tone": "diplomatic",
           "preview_hint": {
             "ko": "→ 이유가 밝혀진다. 그것이 더 나쁠 수 있다",
-            "en": "→ The reason is revealed. It may be worse."
+            "en": "→ The reason is revealed. It may be worse.",
+            "ja": "→ 理由が明かされる。それがより悪いかもしれない。",
+            "zh": "→ 理由被揭露。那可能更糟。"
           }
         },
         {
           "id": "fsp_ch3_evacuate",
           "text": {
             "ko": "안전하게 이주시킨다. 새 정착지를 찾는다.",
-            "en": "Relocate them safely. Find a new settlement."
+            "en": "Relocate them safely. Find a new settlement.",
+            "ja": "安全に移住させる。新しい入植地を探す。",
+            "zh": "安全地迁移。寻找新的定居点。"
           },
           "tone": "protective",
           "preview_hint": {
             "ko": "→ 마을은 없어진다. 사람들은 산다",
-            "en": "→ Village disappears. People survive."
+            "en": "→ Village disappears. People survive.",
+            "ja": "→ 村は消える。人々は生き残る。",
+            "zh": "→ 村子消失。人们活下来。"
           }
         },
         {
           "id": "fsp_ch3_yuna_leads",
           "text": {
             "ko": "Yuna가 이끌게 한다. FSP는 지원만.",
-            "en": "Let Yuna lead. FSP only supports."
+            "en": "Let Yuna lead. FSP only supports.",
+            "ja": "ユナに率いさせる。FSPは支援だけ。",
+            "zh": "让尤娜来领导。FSP只是支持。"
           },
           "tone": "empowering",
           "preview_hint": {
             "ko": "→ Yuna가 성장한다. FSP 미래가 보인다",
-            "en": "→ Yuna grows. The FSP future becomes visible."
+            "en": "→ Yuna grows. The FSP future becomes visible.",
+            "ja": "→ ユナが成長する。FSPの未来が見える。",
+            "zh": "→ 尤娜成长。FSP的未来变得可见。"
           }
         }
       ]
@@ -367,7 +429,9 @@
         {
           "text": {
             "ko": "결정이 있었다. 그것이 움직임이 됐다. 사람들이 움직였다. 화성에서 사람들이 움직이는 것은 무언가 결정된 것이었다. 결정되지 않으면 움직이지 않았다. 결정되면 빠르게 움직였다.",
-            "en": "There was a decision. It became movement. People moved. On Mars people moving meant something was decided. Without a decision there was no movement. With a decision movement was fast."
+            "en": "There was a decision. It became movement. People moved. On Mars people moving meant something was decided. Without a decision there was no movement. With a decision movement was fast.",
+            "ja": "決定があった。それが動きになった。人々が動いた。火星で人々が動くことは何かが決定されたことだった。決定されなければ動かなかった。決定されれば速く動いた。",
+            "zh": "有了决定。它变成了行动。人们动了起来。在火星上人们行动意味着某事被决定了。没有决定就不行动。有了决定就迅速行动。"
           }
         }
       ]
@@ -382,7 +446,9 @@
         {
           "text": {
             "ko": "MCC가 왔다. 당연했다. 움직임이 있으면 MCC가 왔다. 경비. 드론. 공식 서류. 그것이 MCC의 방식이었다. 공식적으로 오는 것. 그것이 가장 무서운 것이었다.",
-            "en": "MCC came. Of course. When there was movement MCC came. Guards. Drones. Official documents. That was MCC's way. Coming officially. That was the most frightening thing."
+            "en": "MCC came. Of course. When there was movement MCC came. Guards. Drones. Official documents. That was MCC's way. Coming officially. That was the most frightening thing.",
+            "ja": "MCCが来た。当然だった。動きがあればMCCが来た。警備。ドローン。公式書類。それがMCCのやり方だった。公式に来ること。それが一番怖いものだった。",
+            "zh": "MCC来了。理所当然。有行动MCC就来了。警卫。无人机。官方文件。那是MCC的方式。官方地来。那是最可怕的东西。"
           }
         }
       ]
@@ -399,7 +465,9 @@
           "emotion": "resolved",
           "text": {
             "ko": "우리는 여기 있을 권리가 있어요. 거주권 조항.",
-            "en": "We have the right to be here. The residency clause."
+            "en": "We have the right to be here. The residency clause.",
+            "ja": "私たちにはここにいる権利があります。居住権条項。",
+            "zh": "我们有权待在这里。居住权条款。"
           }
         },
         {
@@ -407,7 +475,9 @@
           "emotion": "firm",
           "text": {
             "ko": "60명이 여기 있어요. 세어보세요. 60명이에요.",
-            "en": "There are sixty people here. Count them. Sixty."
+            "en": "There are sixty people here. Count them. Sixty.",
+            "ja": "60人がここにいます。数えてみてください。60人です。",
+            "zh": "这里有六十个人。数一数。六十人。"
           }
         }
       ]
@@ -422,7 +492,9 @@
         {
           "text": {
             "ko": "MCC가 세었다. 실제로. 한 명씩. 그것이 관료적인 것의 방식이었다. 세고. 기록하고. 다시 세고. Yuna가 기다렸다. 움직이지 않았다. 60명이 움직이지 않았다.",
-            "en": "MCC counted. Actually. One by one. That was how the bureaucratic thing worked. Count. Record. Count again. Yuna waited. Didn't move. Sixty people didn't move."
+            "en": "MCC counted. Actually. One by one. That was how the bureaucratic thing worked. Count. Record. Count again. Yuna waited. Didn't move. Sixty people didn't move.",
+            "ja": "MCCが数えた。実際に。一人ずつ。それが官僚的なものの方式だった。数えて。記録して。また数えて。ユナが待った。動かなかった。60人が動かなかった。",
+            "zh": "MCC数了。真的数了。一个一个数。那是官僚主义的方式。数。记录。再数。尤娜等待着。没有动。六十个人没有动。"
           }
         }
       ]
@@ -435,11 +507,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "마을 사수",
-        "en": "Village Defense"
+        "en": "Village Defense",
+        "ja": "村の死守",
+        "zh": "守村之战"
       },
       "subtitle": {
         "ko": "헬라스 광부 마을 — 60명을 위하여",
-        "en": "Hellas Mining Village — For Sixty"
+        "en": "Hellas Mining Village — For Sixty",
+        "ja": "ヘラス鉱山村 — 60人のために",
+        "zh": "赫拉斯矿工村 — 为了六十人"
       }
     },
     {
@@ -460,7 +536,9 @@
           "effect": "character_enter:yuna:slide_right",
           "text": {
             "ko": "남았어요. 60명이 남았어요.",
-            "en": "They stayed. Sixty stayed."
+            "en": "They stayed. Sixty stayed.",
+            "ja": "残りました。60人が残りました。",
+            "zh": "留下来了。六十人留下来了。"
           }
         },
         {
@@ -468,7 +546,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "MCC가 돌아갔어요. 공식적으로는 서류 검토 중이에요.",
-            "en": "MCC left. Officially they're reviewing the documents."
+            "en": "MCC left. Officially they're reviewing the documents.",
+            "ja": "MCCが帰りました。公式には書類を検討中です。",
+            "zh": "MCC走了。官方说是在审查文件中。"
           }
         },
         {
@@ -477,7 +557,9 @@
           "effect": "character_enter:mikhail:slide_left",
           "text": {
             "ko": "오늘 새벽에 Yuna 아버지 묘에 갔어요. 이름이 있었어요. 지워지지 않은.",
-            "en": "I went to Yuna's father's grave this morning. There was a name. Not erased."
+            "en": "I went to Yuna's father's grave this morning. There was a name. Not erased.",
+            "ja": "今朝、ユナの父親の墓に行きました。名前がありました。消えていない。",
+            "zh": "今天早上去了尤娜父亲的墓。有名字。没有被抹去。"
           }
         }
       ]
@@ -491,7 +573,9 @@
         {
           "text": {
             "ko": "마을이 비었다. 불이 꺼졌다. 묘지가 남았다. 이름들이 남았다. 이름을 가진 묘지를 MCC가 어떻게 처리할지는 알 수 없었다. 알고 싶지 않았다.",
-            "en": "The village emptied. The fire went out. The cemetery remained. The names remained. What MCC would do with a cemetery that had names was unknown. It was not a thing to want to know."
+            "en": "The village emptied. The fire went out. The cemetery remained. The names remained. What MCC would do with a cemetery that had names was unknown. It was not a thing to want to know.",
+            "ja": "村が空になった。火が消えた。墓地が残った。名前たちが残った。名前のある墓地をMCCがどう処理するかはわからなかった。知りたくなかった。",
+            "zh": "村子空了。火灭了。墓地留了下来。名字们留了下来。MCC会怎么处理有名字的墓地，不知道。也不想知道。"
           }
         }
       ]
@@ -506,7 +590,9 @@
         {
           "text": {
             "ko": "동이 텄다. 마을에 빛이 왔다. 60명이 있었다. 아이들이 나왔다. 그 아이들이 마을을 뛰어다녔다. 어른들이 봤다. 일부는 웃었다. 일부는 그냥 봤다. 둘 다 맞는 것이었다.",
-            "en": "Dawn broke. Light came to the village. Sixty people. Children came out. Those children ran through the village. Adults watched. Some smiled. Some just watched. Both were right."
+            "en": "Dawn broke. Light came to the village. Sixty people. Children came out. Those children ran through the village. Adults watched. Some smiled. Some just watched. Both were right.",
+            "ja": "夜明けが来た。村に光が差した。60人がいた。子供たちが出てきた。その子供たちが村を走り回った。大人たちが見た。一部は笑った。一部はただ見た。どちらも正しかった。",
+            "zh": "天亮了。光来到了村子。六十个人。孩子们出来了。那些孩子在村子里跑来跑去。大人们看着。有些人笑了。有些人只是看着。两种都是对的。"
           }
         }
       ]
@@ -521,7 +607,9 @@
         {
           "text": {
             "ko": "묘지에 빛이 닿았다. 이름들이 빛을 받았다. 금속판. 분필 이름. 오래된 것. 새것. 섞인 것. 빛이 그것들을 골고루 받았다. 화성의 아침 빛이 그런 것이었다. 구별하지 않았다.",
-            "en": "Light reached the cemetery. Names received the light. Metal plates. Chalk names. Old. New. Mixed. The light touched them evenly. That was what Martian morning light was like. It didn't distinguish."
+            "en": "Light reached the cemetery. Names received the light. Metal plates. Chalk names. Old. New. Mixed. The light touched them evenly. That was what Martian morning light was like. It didn't distinguish.",
+            "ja": "墓地に光が届いた。名前たちが光を受けた。金属板。チョークの名前。古いもの。新しいもの。混じったもの。光がそれらを均等に受けた。火星の朝の光はそういうものだった。区別しなかった。",
+            "zh": "光照到了墓地。名字们接受了光。金属板。粉笔写的名字。旧的。新的。混在一起的。光均匀地照着它们。火星的晨光就是这样。不加区别。"
           }
         }
       ]
@@ -538,7 +626,9 @@
           "emotion": "calm",
           "text": {
             "ko": "보스. 고마워요.",
-            "en": "Boss. Thank you."
+            "en": "Boss. Thank you.",
+            "ja": "ボス。ありがとうございます。",
+            "zh": "老大。谢谢。"
           }
         },
         {
@@ -546,7 +636,9 @@
           "emotion": "sincere",
           "text": {
             "ko": "아버지가 여기 있어요. 그게 중요한 게 아닐 수 있어요. 그러나 나한테는 중요해요.",
-            "en": "Father is here. Maybe that's not what matters. But it matters to me."
+            "en": "Father is here. Maybe that's not what matters. But it matters to me.",
+            "ja": "父がここにいます。それが大事なことではないかもしれない。でも私には大事です。",
+            "zh": "父亲在这里。也许那不是重要的。但对我来说很重要。"
           }
         }
       ]
@@ -561,7 +653,9 @@
         {
           "text": {
             "ko": "Lena가 묘지 앞에 섰다. 왼팔을 봤다. 팔 위의 이름들. 그중에 여기 있는 것들이 있는지는 알 수 없었다. 화성은 넓었다. 이름들은 흩어졌다. 그러나 새겨진 것은 새겨진 것이었다.",
-            "en": "Lena stood before the cemetery. Looked at her left arm. The names on the arm. Whether any of them were among those here couldn't be known. Mars was wide. Names were scattered. But what was engraved was engraved."
+            "en": "Lena stood before the cemetery. Looked at her left arm. The names on the arm. Whether any of them were among those here couldn't be known. Mars was wide. Names were scattered. But what was engraved was engraved.",
+            "ja": "レナが墓地の前に立った。左腕を見た。腕の上の名前たち。その中にここにいるものがいるかどうかはわからなかった。火星は広かった。名前たちは散らばった。しかし刻まれたものは刻まれたものだった。",
+            "zh": "列娜站在墓地前。看着左臂。手臂上的名字们。其中有没有在这里的，不知道。火星很宽广。名字们散落各处。但刻下的就是刻下的。"
           }
         }
       ]
@@ -576,7 +670,9 @@
         {
           "text": {
             "ko": "MCC 서류가 아직 처리 중이었다. 그것은 오래 걸릴 것이었다. MCC의 서류는 항상 오래 걸렸다. 그것도 방식이었다. 시간으로 압박하는 것. 그러나 지금 60명이 있었다. 60명이 있는 한 서류는 기다려야 했다.",
-            "en": "MCC documents were still being processed. That would take a long time. MCC documents always took a long time. That too was a method. Pressuring with time. But right now there were sixty people. As long as sixty were here the documents had to wait."
+            "en": "MCC documents were still being processed. That would take a long time. MCC documents always took a long time. That too was a method. Pressuring with time. But right now there were sixty people. As long as sixty were here the documents had to wait.",
+            "ja": "MCCの書類はまだ処理中だった。それは長くかかるだろう。MCCの書類はいつも長くかかった。それも方式だった。時間で圧力をかけること。しかし今60人がいた。60人がいる限り書類は待たなければならなかった。",
+            "zh": "MCC文件还在处理中。那会花很长时间。MCC的文件总是花很长时间。那也是一种方式。用时间施压。但现在有六十个人。只要六十个人在，文件就得等待。"
           }
         }
       ]
@@ -591,7 +687,9 @@
         {
           "text": {
             "ko": "Yuna가 묘지를 향해 고개를 숙였다. 그것뿐이었다. 말이 없었다. 그것이 이 사람의 방식이었다. 조용한 용기가 있었다. 크게 말하지 않는 용기. 그것이 그녀가 60명을 이끈 방식이었다.",
-            "en": "Yuna bowed toward the cemetery. That was all. No words. That was her way. There was quiet courage. Courage that didn't speak loudly. That was how she had led sixty people."
+            "en": "Yuna bowed toward the cemetery. That was all. No words. That was her way. There was quiet courage. Courage that didn't speak loudly. That was how she had led sixty people.",
+            "ja": "ユナが墓地に向かって頭を下げた。それだけだった。言葉がなかった。それがこの人のやり方だった。静かな勇気があった。大きく語らない勇気。それが彼女が60人を率いた方式だった。",
+            "zh": "尤娜向墓地鞠了一躬。就这些。没有话。那是这个人的方式。有一种安静的勇气。不大声说话的勇气。那就是她领导六十人的方式。"
           }
         }
       ]
@@ -606,7 +704,9 @@
         {
           "text": {
             "ko": "동이 텄다. Mikhail이 새 차를 끓였다. 여러 잔이었다. 오른손이 왼손을 받쳤다. Yuna가 차를 받았다. 두 손으로. 그것은 배운 것이었다. 오늘 밤 배운 것이었다. 이 마을에서 배운 것이었다. 차는 따뜻했다.\n\n60명이 남았다. 묘지가 남았다. 이름들이 남았다. 화성의 임시 마을. 20년 된 것. 오늘 하루 더 살아남은 것.",
-            "en": "Dawn broke. Mikhail made new tea. Several cups. The right supported the left. Yuna received tea. With both hands. That was learned. Learned tonight. Learned in this village. The tea was warm.\n\nSixty stayed. The cemetery stayed. The names stayed. The temporary village on Mars. Twenty years old. Surviving one more day."
+            "en": "Dawn broke. Mikhail made new tea. Several cups. The right supported the left. Yuna received tea. With both hands. That was learned. Learned tonight. Learned in this village. The tea was warm.\n\nSixty stayed. The cemetery stayed. The names stayed. The temporary village on Mars. Twenty years old. Surviving one more day.",
+            "ja": "夜明けが来た。ミハイルが新しい茶を淹れた。何杯もだった。右手が左手を支えた。ユナが茶を受け取った。両手で。それは学んだことだった。今夜学んだことだった。この村で学んだことだった。茶は温かかった。\n\n60人が残った。墓地が残った。名前たちが残った。火星の仮設村。20年たったもの。今日も一日生き残ったもの。",
+            "zh": "天亮了。米哈伊尔煮了新茶。好几杯。右手托着左手。尤娜接过了茶。用双手。那是学来的。今晚学来的。从这个村子里学来的。茶是温的。\n\n六十人留了下来。墓地留了下来。名字们留了下来。火星上的临时村子。二十年的东西。今天又多活了一天。"
           }
         }
       ],
@@ -614,7 +714,9 @@
         "questId": "fsp_campaign_ch4",
         "teaser": {
           "ko": "다음 — Sandstone 약속",
-          "en": "Next — The Sandstone Promise"
+          "en": "Next — The Sandstone Promise",
+          "ja": "次回 — サンドストーンの約束",
+          "zh": "下回 — 砂岩的承诺"
         }
       }
     }
