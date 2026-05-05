@@ -2989,30 +2989,7 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch (_ext) { /* territory upgrade unavailable */ }
 
-    // ✅ [장기 보유 보상] hold_bonus_pct — 유저 보유 클레임 중 최대값 적용
-    // 7일 보유 → +3%, 30일 → +7%, 90일 → +12% (updateFieldRatings()가 매일 갱신)
-    try {
-      const holdRes = await client.query(
-        `SELECT MAX(COALESCE(hold_bonus_pct, 0)) AS max_bonus
-         FROM claims
-         WHERE LOWER(owner) = $1 AND deleted_at IS NULL`,
-        [w]
-      );
-      const holdBonus = parseFloat(holdRes.rows[0]?.max_bonus || 0);
-      if (holdBonus > 0) {
-        harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
-      }
-    } catch (_hb) { /* hold bonus unavailable */ }
-
-    // ✅ [주간 이벤트] 요일별 채굴 보너스 적용
-    try {
-      const todayDow = new Date().getUTCDay();
-      // 1=MON: mining_bonus +50%
-      if (todayDow === 1) {
-        harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
-      }
-      // 4=THU: 광물 드롭률 상승은 rollResourceDrop에서 이미 base_rate 기반 — 별도 처리 없음
-    } catch (_we) {}
+    // (구버전 전역 harvest — 채굴 탭 제거 후 미사용. 보너스는 /territory/:id/harvest에만 적용)
 
     // (P1-1) cap 은 위에서 base 에 이미 적용됨 — 여기선 multipliers 누적 후 추가 cap 적용 안 함.
 
@@ -3289,6 +3266,21 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
       const extRes = await client.query(`SELECT MAX(u.level) AS max_level FROM territory_upgrades u WHERE u.claim_id = $1 AND u.upgrade_type = 'extractor' AND u.is_active = true`, [claimId]);
       const lvl = parseInt(extRes.rows[0]?.max_level || 0);
       if (lvl > 0) { const bmap = {1:0.15,2:0.30,3:0.50,4:0.75,5:1.00}; const b = bmap[lvl]||0; if (b>0) harvestedPP = Math.round(harvestedPP*(1+b)*10000)/10000; }
+    } catch (_) {}
+
+    // ✅ [장기 보유 보상] hold_bonus_pct — 이 클레임의 장기 보유 보너스 적용
+    try {
+      const holdRes = await client.query(
+        `SELECT COALESCE(hold_bonus_pct, 0) AS bonus FROM claims WHERE id = $1 AND deleted_at IS NULL`,
+        [claimId]
+      );
+      const holdBonus = parseFloat(holdRes.rows[0]?.bonus || 0);
+      if (holdBonus > 0) harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
+    } catch (_) {}
+
+    // ✅ [주간 이벤트] 월요일 채굴 +50%
+    try {
+      if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
     } catch (_) {}
 
     // Reward pool 차감
