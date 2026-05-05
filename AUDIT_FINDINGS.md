@@ -1945,6 +1945,8 @@ cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
 - **AUDIT_FINDINGS.md** ← 이 문서 (기능별 매트릭스)
 - **docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md** ← 현재 게임 방향성/우선순위 기준
 - **docs/CLAUDE_WORK_ORDER_2026-05-05.md** ← 남은 작업 실행 지시서
+- **docs/TERRITORY_UTILITY_PLAN_2026-05-05.md** ← P5 영토 생산/재료/섹터 유틸리티 기획
+- **docs/CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER_2026-05-05.md** ← P5-1 구현 착수 지시서
 - **index.html in-game guide** ← "What's New" 섹션 신규 추가 (4개 언어 모두)
 
 ## 🟡 다음 작업 지시서 (2026-05-05)
@@ -1952,6 +1954,8 @@ cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
 - `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 기준으로 남은 작업을 진행한다.
 - 우선순위는 캠페인 진행/보상 정리 → 함대전 세로 탑뷰 안정화 → Fleet Command UX → 함선 경제 UX → 영토 유틸리티 순서다.
 - `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+- P5 영토 유틸리티는 `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md` 기준으로, 생산 가시성 → 재료 harvest → 조선소 연결 → 영토 업그레이드 → 섹터 컨트롤 순서로 진행한다.
+- 클로드 구현 착수는 `docs/CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER_2026-05-05.md`의 P5-1 생산 가시성부터 시작한다.
 
 ## 🆕 신규 진단/검증 API (이번 세션 추가)
 

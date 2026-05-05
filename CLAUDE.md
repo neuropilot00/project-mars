@@ -6,7 +6,8 @@
 > 2. **CLAUDE.md의 알려진 이슈 섹션** — 해소/잔여 이슈
 > 3. **docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md** — 현재 게임 방향성/우선순위 기준
 > 4. **docs/CLAUDE_WORK_ORDER_2026-05-05.md** — 다음 작업 실행 지시서
-> 5. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
+> 5. **docs/CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER_2026-05-05.md** — P5 영토 유틸리티 구현 지시서
+> 6. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
 
 ---
 
@@ -21,6 +22,14 @@
 - `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 추가했다.
 - 이 문서는 캠페인 진행 정리, 함대전 세로 탑뷰 안정화, Fleet Command UX, 함선 경제 UX, 영토 유틸리티 순으로 남은 작업을 실행 단위로 정리한다.
 - 클로드가 오래된 리서치/프로토타입 문서를 기준으로 엇나가지 않도록 현재 source of truth와 금지 범위를 명시했다.
+
+### v5.90 최신 핸드오프 — P5 영토 유틸리티 기획
+
+- `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md`를 추가했다.
+- `docs/CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER_2026-05-05.md`를 추가해 클로드가 P5-1 생산 가시성부터 구현하도록 지시했다.
+- 영토는 개인 캔버스, 생산 노드, 전쟁/경제 앵커라는 세 역할을 동시에 가져야 한다.
+- 첫 개발은 섹터 장악 전체가 아니라 생산 가시성, 재료 harvest, 조선소 연결 순서로 제한한다.
+- 섹터 컨트롤, 영토 역할, 영토 업그레이드는 생산 루프가 안정된 뒤 단계적으로 붙인다.
 
 ### v5.86 최신 핸드오프 — 캠페인 에디터 좌표 freshness 정합
 
