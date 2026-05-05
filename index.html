@@ -11812,20 +11812,17 @@ function _baseTerritoryUpgrade(idx){
   var g=grpList[idx];
   if(!g||!g.claims||!g.claims.length) return;
   var claim=g.claims[0];
-  var wallet=(walletState&&walletState.address)||'';
   selectedPlot=claim;
-  // BASE 내 영토 탭에서 해당 클레임 업그레이드 패널로 스크롤
-  if(claim.id){
-    loadTerritoryUpgrades(claim.id);
+  // BASE 모달 닫고 영토 정보 패널 열기 → upgrade 섹션은 showTerritoryInfo 안에서 자동 로드
+  closeBaseModal();
+  showTerritoryInfo(claim);
+  // 업그레이드 섹션으로 스크롤 (렌더 후)
+  setTimeout(function(){
     var upgradeRow=document.getElementById('infoUpgradeRow');
     if(upgradeRow&&upgradeRow.style.display!=='none'){
-      upgradeRow.scrollIntoView({behavior:'smooth',block:'start'});
-    } else {
-      // 영토 정보 패널을 열어서 업그레이드 섹션 표시
-      closeBaseModal();
-      showTerritoryInfo(claim);
+      upgradeRow.scrollIntoView({behavior:'smooth',block:'nearest'});
     }
-  }
+  }, 400);
 }
 function _baseTerritoryGlobe(idx){
   var grpList=window._baseTerritoryGroups||[];
@@ -13710,13 +13707,20 @@ function _timeAgo(date){
   return Math.floor(diff/86400)+'d ago';
 }
 
-// 모바일 업그레이드 버튼 → 현재 선택 영토 업그레이드 패널로 스크롤
+// 모바일 업그레이드 버튼 → 현재 선택 영토 업그레이드 패널로 직접 이동
 function scrollToTerritoryUpgrade() {
-  var row = document.getElementById('infoUpgradeRow');
-  if (row && row.style.display !== 'none') {
-    row.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  var claim = selectedPlot;
+  if (claim && (claim.claimId || claim.id)) {
+    // 영토 정보 패널 열기 → upgrade 섹션 자동 로드
+    showTerritoryInfo(claim);
+    setTimeout(function(){
+      var row = document.getElementById('infoUpgradeRow');
+      if (row && row.style.display !== 'none') {
+        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 400);
   } else {
-    // BASE 내 영토 탭으로 이동
+    // 선택된 영토 없으면 BASE 내 영토 탭으로 이동
     var tab = document.getElementById('baseTabTerritory');
     if (tab) { openBaseModal(); switchBaseTab('territory', tab); }
   }
@@ -38814,10 +38818,10 @@ function toggleTerritoryUpgrades() {
   var open = panel.style.display !== 'none';
   panel.style.display = open ? 'none' : '';
   if (tog) tog.textContent = open ? '▼' : '▲';
-  if (!open) loadTerritoryUpgrades();
+  if (!open) _loadBaseUpgradesPanel();
 }
 
-function loadTerritoryUpgrades() {
+function _loadBaseUpgradesPanel() {
   var el = document.getElementById('upgradesContent');
   if (!el) return;
   if (!walletState.address) {
@@ -38831,13 +38835,13 @@ function loadTerritoryUpgrades() {
   ]).then(function(results) {
     _upgradeCatalog = results[0].catalog || [];
     _upgradeMyList  = results[1].upgrades || [];
-    renderTerritoryUpgrades();
+    renderBaseUpgradesPanel();
   }).catch(function() {
     el.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:12px">Failed to load</div>';
   });
 }
 
-function renderTerritoryUpgrades() {
+function renderBaseUpgradesPanel() {
   var el = document.getElementById('upgradesContent');
   if (!el) return;
   var active = _upgradeMyList.filter(function(u){ return u.is_active; });
