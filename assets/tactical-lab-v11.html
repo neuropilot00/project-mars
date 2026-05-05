@@ -66,6 +66,7 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 .cb.charge{position:relative;overflow:hidden;}
 .cb.charge.ready{background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.62);color:#ffe082;box-shadow:0 0 14px rgba(255,193,7,.18);}
 .cb.charge:not(.ready){opacity:.55;}
+.cb.charge:disabled{opacity:.28;cursor:not-allowed;filter:grayscale(.7);}
 .sep{width:1px;height:20px;background:rgba(255,255,255,.06);}
 @media(max-width:600px){
   .cb{font-size:11px;padding:10px 16px;min-height:42px;}
@@ -291,7 +292,7 @@ body{padding:0;background:#03040b;}
 <div class="ctrl">
   <span class="clbl">CMD</span>
   <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
-  <button class="cb y" onclick="cmdEMP()">💥 EMP</button>
+  <button class="cb y charge" id="cmdEMP" onclick="cmdEMP()">💥 EMP 0%</button>
   <button class="cb y charge" id="cmdMissile" onclick="cmdMissileBarrage()">☄ 미사일 0%</button>
   <button class="cb y charge" id="cmdBeam" onclick="cmdBeamCannon()">☢ 빔포 0%</button>
   <div class="sep"></div>
@@ -568,35 +569,75 @@ function trimShipSprite(img){
 let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[];
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
-let beamCharge=0,missileCharge=0;
+let beamCharge=0,missileCharge=0,empCharge=0;
 let lastPanicCallout=0,lastAmbientCallout=0;
 let audioCtx=null,audioOn=false,musicTimer=null,lastLaserSound=0,lastBulletSound=0,lastExplosionSound=0;
+// 플로팅 텍스트 (함선 위에 격침/피격 메시지)
+let _floatTexts=[];
 // ws 함선 추적: 이전 프레임 생존 함선 맵 (id → {x,y,code})
 let _wsPrevShips = new Map();
 // 카메라 (자동 줌/팬)
 let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
 
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+// ── 함선 위 플로팅 텍스트 (월드좌표 기반 캔버스 렌더) ──
+function addFloatText(wx,wy,text,type,ttl=1800){
+  _floatTexts.push({wx,wy,text,type,ttl,maxTtl:ttl,vy:-0.6-Math.random()*0.4});
+}
+function tickFloatTexts(dt){
+  for(let i=_floatTexts.length-1;i>=0;i--){
+    const ft=_floatTexts[i];
+    ft.wy+=ft.vy*(dt/16);
+    ft.ttl-=dt;
+    if(ft.ttl<=0)_floatTexts.splice(i,1);
+  }
+}
+function drawFloatTexts(){
+  if(!_floatTexts.length)return;
+  // 화면 좌표로 변환 후 CX.restore() 밖에서 렌더 (오버레이)
+  _floatTexts.forEach(ft=>{
+    const sx=(ft.wx-camCx)*camScale+W/2;
+    const sy=(ft.wy-camCy)*camScale+H/2;
+    if(sx<-20||sx>W+20||sy<-20||sy>H+20)return;
+    const alpha=Math.min(1,ft.ttl/ft.maxTtl*2);
+    CX.globalAlpha=alpha;
+    CX.textAlign='center';
+    const col=ft.type==='kill'?'#ff6b6b':ft.type==='panic'?'#ffcc02':ft.type==='heavy'?'#ff5722':'rgba(255,255,255,.9)';
+    CX.font=`bold ${ft.type==='heavy'?9:8}px Orbitron,monospace`;
+    CX.fillStyle='rgba(0,0,0,.55)';
+    CX.fillText(ft.text,sx+1,sy+1);
+    CX.fillStyle=col;
+    CX.fillText(ft.text,sx,sy);
+    CX.globalAlpha=1;
+  });
+}
+
 function battleCallout(msg,type='order',slot='top',ttl=2400){
-  const host=document.getElementById(slot==='bottom'?'battleCommsBottom':'battleCommsTop');
+  // 하단 슬롯은 컨트롤 패드와 겹치므로 상단으로 올림
+  const host=document.getElementById('battleCommsTop');
   if(!host)return;
   const el=document.createElement('div');
   el.className=`comm-line ${type}`;
   el.textContent=msg;
   el.style.animationDuration=`${Math.max(1200,ttl)}ms`;
   host.appendChild(el);
-  while(host.children.length>2)host.removeChild(host.firstElementChild);
+  while(host.children.length>3)host.removeChild(host.firstElementChild);
   setTimeout(()=>el.remove(),ttl+120);
 }
 function panicCallout(sh){
-  if(btMs-lastPanicCallout<850)return;
+  if(btMs-lastPanicCallout<600)return;
   lastPanicCallout=btMs;
   const side=sh.side==='atk'?'atk':'def';
   const heavy=['cruiser','battleship','titan'].includes(sh.type.size);
   const lines=heavy
-    ? [`${sh.type.name} 격침! 잔해 회피!`,'선체 붕괴! 탈출 포드 사출!','기함에서 폭발 확인! 전열 이탈!']
-    : ['으아아아악!', '피격! 엔진이 나갔다!', '어머니!!', '탈출한다! 뒤를 부탁한다!'];
-  battleCallout(pick(lines),heavy?'panic':side,'bottom',heavy?2600:2100);
+    ? [`${sh.type.name} 격침!`,'선체 붕괴!','기함 폭발!']
+    : ['격침!','탈출!','엔진 손상!','전열 이탈!'];
+  const msg=pick(lines);
+  // 함선 위 플로팅 텍스트 (월드 좌표)
+  addFloatText(sh.x,sh.y-12,msg,heavy?'heavy':side,heavy?2200:1600);
+  // 무거운 함선만 상단 콜아웃도 표시
+  if(heavy) battleCallout(`[${sh.fleet.userId}] ${msg}`,'panic','top',2600);
 }
 function maybeAmbientCallout(){
   if(battleOver||btMs-lastAmbientCallout<9000||Math.random()>.018)return;
@@ -617,43 +658,72 @@ function ensureAudio(){
   audioCtx=new AC();
   return audioCtx;
 }
-function tone(freq,dur,gain,type='sine',when=0){
+// 페이지 이탈/숨김 시 오디오 자동 정지
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&audioOn){stopBattleMusic();if(audioCtx)audioCtx.suspend();}
+  else if(!document.hidden&&audioOn&&audioCtx&&audioCtx.state==='suspended'){audioCtx.resume();startBattleMusic();}
+});
+window.addEventListener('pagehide',()=>{stopBattleMusic();if(audioCtx)audioCtx.close();audioCtx=null;});
+
+function tone(freq,dur,gain,type='sine',when=0,freqEnd=0){
   if(!audioOn)return;
   const ac=ensureAudio(); if(!ac)return;
   const t=ac.currentTime+when;
   const o=ac.createOscillator(),g=ac.createGain();
-  o.type=type;o.frequency.setValueAtTime(freq,t);
+  o.type=type;
+  o.frequency.setValueAtTime(freq,t);
+  if(freqEnd>0)o.frequency.exponentialRampToValueAtTime(freqEnd,t+dur*.85);
   g.gain.setValueAtTime(0,t);
-  g.gain.linearRampToValueAtTime(gain,t+.012);
+  g.gain.linearRampToValueAtTime(gain,t+.008);
   g.gain.exponentialRampToValueAtTime(.0001,t+dur);
   o.connect(g).connect(ac.destination);
-  o.start(t);o.stop(t+dur+.03);
+  o.start(t);o.stop(t+dur+.02);
 }
-function noiseHit(dur,gain,lowpass=900){
+function noiseHit(dur,gain,lowpass=900,highpass=0,when=0){
   if(!audioOn)return;
   const ac=ensureAudio(); if(!ac)return;
+  const t=ac.currentTime+when;
   const len=Math.max(1,Math.floor(ac.sampleRate*dur));
   const buf=ac.createBuffer(1,len,ac.sampleRate);
   const data=buf.getChannelData(0);
   for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
-  const src=ac.createBufferSource(),filter=ac.createBiquadFilter(),g=ac.createGain();
-  filter.type='lowpass';filter.frequency.value=lowpass;
-  g.gain.setValueAtTime(gain,ac.currentTime);
-  g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);
-  src.buffer=buf;src.connect(filter).connect(g).connect(ac.destination);
-  src.start();src.stop(ac.currentTime+dur+.02);
+  const src=ac.createBufferSource(),g=ac.createGain();
+  let node=src.connect(g);
+  if(lowpass<20000){const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=lowpass;src.connect(lp);node=lp.connect(g);}
+  if(highpass>0){const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=highpass;src.connect(hp);hp.connect(g);}
+  g.gain.setValueAtTime(gain,t);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  g.connect(ac.destination);
+  src.buffer=buf;src.start(t);src.stop(t+dur+.02);
 }
+
+// ── BGM: 전투 드럼+베이스 루프 ──
 function startBattleMusic(){
   if(musicTimer)return;
   let step=0;
+  // 4/4박자 @ 140bpm ≒ 428ms per beat, 16 steps = 1 bar
+  const bpm=138,stepMs=60000/bpm/4;
+  const bassNotes=[41.2,41.2,41.2,36.7, 41.2,41.2,43.6,41.2,
+                   41.2,41.2,36.7,36.7, 43.6,43.6,41.2,36.7];
+  const kickPat= [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0];
+  const snarePat=[0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0];
+  const hihatPat=[1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0];
   musicTimer=setInterval(()=>{
     if(!audioOn)return;
-    const bass=[55,55,65.4,49][step%4];
-    tone(bass,.22,.035,'sawtooth');
-    if(step%2===0)tone(bass*2,.16,.018,'triangle',.05);
-    if(step%4===3)noiseHit(.08,.02,1600);
+    const s=step%16;
+    // bass サイン+锯齿
+    tone(bassNotes[s],.18,.04,'sawtooth');
+    tone(bassNotes[s]*2,.10,.015,'sine',.02);
+    // kick — 저주파 boom
+    if(kickPat[s]){tone(70,.18,.07,'sine',0,28);noiseHit(.06,.018,200);}
+    // snare — 노이즈 + 중음 톤
+    if(snarePat[s]){noiseHit(.12,.04,5000,800);tone(220,.08,.012,'triangle');}
+    // hihat — 고음 노이즈
+    if(hihatPat[s])noiseHit(.03,.008,12000,6000);
+    // 8스텝마다 짧은 신스 리드
+    if(s===0||s===8){tone(bassNotes[s]*4,.08,.018,'square',0.01);}
     step++;
-  },520);
+  },stepMs);
 }
 function stopBattleMusic(){
   if(musicTimer){clearInterval(musicTimer);musicTimer=null;}
@@ -666,37 +736,77 @@ async function toggleBattleAudio(){
   audioOn=!audioOn;
   btn.classList.toggle('on',audioOn);
   btn.textContent=audioOn?'SOUND ON':'SOUND';
-  if(audioOn){startBattleMusic();tone(220,.12,.03,'triangle');}
+  if(audioOn){startBattleMusic();}
   else stopBattleMusic();
 }
+
+// ── SFX (건담 스타일) ──
+// 빔 라이플: 짧은 큐우웅 차지 → 퓨웅 발사
 function playLaserSound(){
-  if(!audioOn||btMs-lastLaserSound<95)return;
+  if(!audioOn||btMs-lastLaserSound<75)return;
   lastLaserSound=btMs;
-  tone(760,.09,.022,'sawtooth');
-  tone(310,.08,.012,'square',.03);
+  const ac=ensureAudio(); if(!ac)return;
+  const t=ac.currentTime;
+  // 차지: 저→고 sweep (큐우웅)
+  const o1=ac.createOscillator(),g1=ac.createGain();
+  o1.type='sine'; o1.frequency.setValueAtTime(180,t); o1.frequency.exponentialRampToValueAtTime(2200,t+.055);
+  g1.gain.setValueAtTime(0,t); g1.gain.linearRampToValueAtTime(.028,t+.008); g1.gain.exponentialRampToValueAtTime(.0001,t+.055);
+  o1.connect(g1).connect(ac.destination); o1.start(t); o1.stop(t+.06);
+  // 발사: 고→저 급강하 (퓨웅!)
+  const o2=ac.createOscillator(),g2=ac.createGain();
+  o2.type='sawtooth'; o2.frequency.setValueAtTime(2800,t+.05); o2.frequency.exponentialRampToValueAtTime(90,t+.22);
+  g2.gain.setValueAtTime(0,t+.05); g2.gain.linearRampToValueAtTime(.035,t+.062); g2.gain.exponentialRampToValueAtTime(.0001,t+.22);
+  o2.connect(g2).connect(ac.destination); o2.start(t+.05); o2.stop(t+.25);
+  // 얇은 노이즈 꼬리 (슈웅)
+  noiseHit(.08,.012,4000,800,.06);
 }
+// 실탄: 탄착 "탕!" — 짧은 임팩트 + 저음 반향
 function playBulletSound(){
-  if(!audioOn||btMs-lastBulletSound<130)return;
+  if(!audioOn||btMs-lastBulletSound<100)return;
   lastBulletSound=btMs;
-  noiseHit(.045,.018,2600);
+  noiseHit(.025,.03,2200,400);       // 임팩트
+  tone(120,.08,.016,'square',0,55); // 반향
 }
+// 폭발: "쾅!" 저주파 붐 + 파편 노이즈
 function playExplosionSound(){
-  if(!audioOn||btMs-lastExplosionSound<180)return;
+  if(!audioOn||btMs-lastExplosionSound<140)return;
   lastExplosionSound=btMs;
-  noiseHit(.22,.045,620);
-  tone(58,.24,.025,'sawtooth');
+  tone(48,.38,.065,'sawtooth',0,22);   // 쾅 베이스
+  tone(95,.25,.03,'sine',.02,35);
+  noiseHit(.32,.055,700);              // 폭발 바디
+  noiseHit(.10,.03,4500,1000,.04);     // 파편 파삭
 }
+// 빔포 (메가빔): 큐우웅 충전 → 쾅+두우웅 (건담 메가빔 스타일)
 function playBeamCannonSound(){
   if(!audioOn)return;
-  tone(90,.42,.045,'sawtooth');
-  tone(180,.34,.035,'square',.03);
-  tone(540,.18,.022,'triangle',.08);
-  noiseHit(.18,.026,1400);
+  const ac=ensureAudio(); if(!ac)return;
+  const t=ac.currentTime;
+  // 충전 whine: 저→고 (0.2s)
+  const oc=ac.createOscillator(),gc=ac.createGain();
+  oc.type='sine'; oc.frequency.setValueAtTime(120,t); oc.frequency.exponentialRampToValueAtTime(1600,t+.2);
+  gc.gain.setValueAtTime(0,t); gc.gain.linearRampToValueAtTime(.04,t+.01); gc.gain.exponentialRampToValueAtTime(.0001,t+.2);
+  oc.connect(gc).connect(ac.destination); oc.start(t); oc.stop(t+.22);
+  // 발사 순간 "콰아앙" 고음 폭발
+  const oh=ac.createOscillator(),gh=ac.createGain();
+  oh.type='sawtooth'; oh.frequency.setValueAtTime(3200,t+.19); oh.frequency.exponentialRampToValueAtTime(60,t+.55);
+  gh.gain.setValueAtTime(0,t+.19); gh.gain.linearRampToValueAtTime(.07,t+.2); gh.gain.exponentialRampToValueAtTime(.0001,t+.55);
+  oh.connect(gh).connect(ac.destination); oh.start(t+.19); oh.stop(t+.58);
+  // 저주파 "두우웅" 여운
+  const ob=ac.createOscillator(),gb=ac.createGain();
+  ob.type='sine'; ob.frequency.setValueAtTime(55,t+.22); ob.frequency.exponentialRampToValueAtTime(28,t+.65);
+  gb.gain.setValueAtTime(0,t+.22); gb.gain.linearRampToValueAtTime(.06,t+.24); gb.gain.exponentialRampToValueAtTime(.0001,t+.65);
+  ob.connect(gb).connect(ac.destination); ob.start(t+.22); ob.stop(t+.68);
+  noiseHit(.35,.06,900,0,.19);
 }
+// 미사일 연사: 연속 소형 발사음 (피융피융)
 function playMissileBarrageSound(){
   if(!audioOn)return;
-  for(let i=0;i<5;i++)setTimeout(()=>noiseHit(.055,.02,2200),i*55);
-  tone(130,.2,.025,'sawtooth');
+  for(let i=0;i<6;i++){
+    const d=i*.05;
+    // 각 미사일 고→저 퓨웅
+    tone(1200+Math.random()*400,.12,.022,'sawtooth',d,80+Math.random()*40);
+    noiseHit(.04,.018,3000,600,d+.01);
+  }
 }
 
 function combatModifier(attackerType,targetType){
@@ -774,7 +884,7 @@ function centeredPos(n, side) {
 function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];battleOver=false;
   _wsPrevShips = new Map();
-  beamCharge=0;missileCharge=20;
+  beamCharge=0;missileCharge=20;empCharge=0;
   const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
   const defPos = centeredPos(DEF_FLEETS.length, 'def');
   ATK_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'atk',atkPos[i].cx,atkPos[i].cy)));
@@ -791,7 +901,9 @@ function initBattle(){
   atkMaxHP=fleets.filter(f=>f.side==='atk').reduce((a,f)=>a+f.maxHp,0);
   defMaxHP=fleets.filter(f=>f.side==='def').reduce((a,f)=>a+f.maxHp,0);
   atkHP=atkMaxHP;defHP=defMaxHP;
-  btMs=0;turn=0;empMs=0;focusFleet=null;
+  btMs=0;turn=0;empMs=0;empCharge=0;focusFleet=null;
+  const _empBtnInit=document.getElementById('cmdEMP');
+  if(_empBtnInit){_empBtnInit.disabled=false;_empBtnInit.textContent='💥 EMP 0%';_empBtnInit.classList.remove('ready');}
   fleets.forEach(f=>assignFormationSlots(f));
   const ac=ships.filter(s=>s.side==='atk').length;
   const dc=ships.filter(s=>s.side==='def').length;
@@ -1028,13 +1140,20 @@ function fire(sh,wsMode){
   }
 }
 
-function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind){
+function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget){
   if(PERF_MODE&&bullets.length>120)return;
-  const spd=1.55+Math.random()*.45;
+  const isMissile=kind==='missile';
+  // 미사일은 느리게 (2~3초 비행), 일반탄은 빠르게
+  const spd=isMissile?(0.85+Math.random()*.2):(1.55+Math.random()*.45);
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
-    r:kind==='missile'?Math.min(t.r*.38+.6,2.8):Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
-    dmg:t.atk*dmgMult*2,attackerType:t,side,ttl:kind==='missile'?150:190,age:0,visual:!!visual,kind});
-  playBulletSound();
+    r:isMissile?Math.min(t.r*.38+.6,2.8):Math.min(t.r*.3+.3,1.6),
+    col:FACTIONS[t.faction].color,
+    dmg:t.atk*dmgMult*2,attackerType:t,side,
+    ttl:isMissile?240:190,  // 미사일 TTL 늘림 (더 긴 비행)
+    age:0,visual:!!visual,kind,
+    homing:isMissile?homingTarget:null  // 유도 타깃
+  });
+  if(!isMissile) playBulletSound();
 }
 
 function checkHit(b){
@@ -1070,6 +1189,7 @@ function applyDmg(sh,dmg,isLaser,attackerType){
       mkShockwave(sh.fleet.cx,sh.fleet.cy,sh.fleet.radius*2);
       addLog('kl',`💥 [${sh.fleet.userId}] 기함 격침 — 함대 괴멸!`);
       battleCallout(`[${sh.fleet.userId}] 기함 침몰! 지휘망 붕괴!`,'panic','top',3000);
+      addFloatText(sh.x,sh.y-18,'💥 기함 격침!','heavy',3000);
     }
   }
 }
@@ -1097,10 +1217,17 @@ function updateSpecialCharge(dt){
   const atk=aliveAtkShips();
   const caps=atk.filter(isCapitalShip);
   const smalls=atk.filter(s=>['frigate','destroyer','cruiser'].includes(s.type.size));
+  const ewars=atk.filter(s=>s.type.role==='ewar');
   beamCharge=Math.min(100,beamCharge+dt*(caps.length?0.0032+caps.length*0.00045:0.00045));
-  missileCharge=Math.min(100,missileCharge+dt*(smalls.length?0.0048+smalls.length*0.00016:0.00035));
+  // Missile: ~55% slower than before (was 0.0048+n*0.00016 base)
+  missileCharge=Math.min(100,missileCharge+dt*(smalls.length?0.0021+smalls.length*0.00007:0.00016));
+  // EMP: only charges if ewar ships are alive
+  if(ewars.length>0){
+    empCharge=Math.min(100,empCharge+dt*(0.0018+ewars.length*0.0006));
+  }
   const beamBtn=document.getElementById('cmdBeam');
   const missileBtn=document.getElementById('cmdMissile');
+  const empBtn=document.getElementById('cmdEMP');
   if(beamBtn){
     beamBtn.textContent=`☢ 빔포 ${Math.floor(beamCharge)}%`;
     beamBtn.classList.toggle('ready',beamCharge>=100);
@@ -1108,6 +1235,17 @@ function updateSpecialCharge(dt){
   if(missileBtn){
     missileBtn.textContent=`☄ 미사일 ${Math.floor(missileCharge)}%`;
     missileBtn.classList.toggle('ready',missileCharge>=100);
+  }
+  if(empBtn){
+    if(ewars.length===0){
+      empBtn.textContent=`💥 EMP (재머없음)`;
+      empBtn.classList.remove('ready');
+      empBtn.disabled=true;
+    } else {
+      empBtn.disabled=false;
+      empBtn.textContent=`💥 EMP ${Math.floor(empCharge)}%`;
+      empBtn.classList.toggle('ready',empCharge>=100);
+    }
   }
 }
 
@@ -1500,18 +1638,69 @@ function drawShips2(){
 
 function drawBullets(_wsActive){
   bullets=bullets.filter(b=>{
+    // 호밍 미사일: 타깃 방향으로 서서히 조향
+    if(b.homing&&!b.homing.dead&&b.age>8){
+      const hdx=b.homing.x-b.x,hdy=b.homing.y-b.y;
+      const hd=Math.hypot(hdx,hdy)||1;
+      const spd=Math.hypot(b.vx,b.vy)||1;
+      const tx=hdx/hd*spd,ty=hdy/hd*spd;
+      const steer=0.045; // 조향 강도 (낮을수록 완만한 곡선)
+      b.vx+=(tx-b.vx)*steer;
+      b.vy+=(ty-b.vy)*steer;
+    }
     b.x+=b.vx;b.y+=b.vy;b.age++;
     if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return false;
-    const al=Math.max(0,(1-b.age/b.ttl)*(b.kind==='missile'?.72:.42));
-    CX.globalAlpha=al;
-    const ang=Math.atan2(b.vy,b.vx),len=b.kind==='missile'?Math.max(9,Math.hypot(b.vx,b.vy)*5.5):Math.max(2,Math.abs(b.vx)*2.5);
+    const lifePct=1-b.age/b.ttl;
+    const spd=Math.hypot(b.vx,b.vy);
+    const ang=Math.atan2(b.vy,b.vx);
     CX.save();CX.translate(b.x,b.y);CX.rotate(ang);
+
     if(b.kind==='missile'){
-      CX.shadowColor=b.col;CX.shadowBlur=PERF_MODE?2:8;
-      CX.fillStyle='rgba(255,210,110,.55)';CX.fillRect(-len*.85,-b.r*.28,len*.75,b.r*.56);
+      // ── 미사일: 엔진 불꽃 + 몸통 + 선두 ──
+      const al=Math.max(0,lifePct*.85);
+      // 엔진 불꽃 (후미 오렌지→투명 그라데이션)
+      const trailLen=Math.max(14,spd*8)*lifePct;
+      if(!PERF_MODE){
+        const tg=CX.createLinearGradient(0,0,-trailLen,0);
+        tg.addColorStop(0,'rgba(255,160,30,.72)');
+        tg.addColorStop(0.35,'rgba(255,80,10,.45)');
+        tg.addColorStop(1,'rgba(255,60,0,0)');
+        CX.fillStyle=tg;
+        CX.globalAlpha=al;
+        CX.fillRect(-trailLen,-b.r*.55,trailLen,b.r*1.1);
+        // 내부 밝은 코어
+        const cg=CX.createLinearGradient(0,0,-trailLen*.4,0);
+        cg.addColorStop(0,'rgba(255,255,180,.9)');
+        cg.addColorStop(1,'rgba(255,200,80,0)');
+        CX.fillStyle=cg;
+        CX.fillRect(-trailLen*.4,-b.r*.25,trailLen*.4,b.r*.5);
+      } else {
+        CX.globalAlpha=al*.6;
+        CX.fillStyle='rgba(255,120,20,.5)';
+        CX.fillRect(-trailLen,-b.r*.4,trailLen,b.r*.8);
+      }
+      // 몸통 (파벌 색)
+      CX.globalAlpha=al;
+      CX.shadowColor=b.col;CX.shadowBlur=PERF_MODE?0:10;
+      CX.fillStyle=b.col;
+      CX.fillRect(-b.r*.3,-b.r*.55,b.r*2.4,b.r*1.1);
+      // 선두 흰 점광
+      CX.fillStyle='rgba(255,255,255,.92)';
+      CX.beginPath();CX.arc(b.r*2,0,b.r*.55,0,Math.PI*2);CX.fill();
+      // 글로우 테두리
+      if(!PERF_MODE){
+        CX.strokeStyle='rgba(255,255,255,.35)';CX.lineWidth=.7;
+        CX.strokeRect(-b.r*.3,-b.r*.55,b.r*2.4,b.r*1.1);
+      }
+      CX.shadowBlur=0;
+    } else {
+      // ── 일반 탄 ──
+      const al=Math.max(0,lifePct*.45);
+      const len=Math.max(2,spd*2.2);
+      CX.globalAlpha=al;
+      CX.fillStyle=b.col;CX.fillRect(-len*.1,-b.r/2,len,b.r);
+      CX.fillStyle='rgba(255,255,255,.65)';CX.fillRect(len*.5,-b.r/3,len*.18,b.r*.55);
     }
-    CX.fillStyle=b.col;CX.fillRect(-len*.1,-b.r/2,len,b.r);
-    CX.fillStyle='rgba(255,255,255,.7)';CX.fillRect(len*.5,-b.r/3,len*.22,b.r*.55);
     CX.restore();CX.globalAlpha=1;
     if(!b.visual&&!_wsActive){const hit=checkHit(b);if(hit){applyDmg(hit,b.dmg,false,b.attackerType);return false;}}
     return true;
@@ -1679,6 +1868,9 @@ function loop(ts){
   drawShips2();
   drawBullets(_wsActive);
   CX.restore();
+  // 플로팅 텍스트 (카메라 transform 밖에서 스크린 좌표로 렌더)
+  tickFloatTexts(dt);
+  drawFloatTexts();
 
   atkHP=fleets.filter(f=>f.side==='atk'&&!f.dead).reduce((a,f)=>a+f.hp,0);
   defHP=fleets.filter(f=>f.side==='def'&&!f.dead).reduce((a,f)=>a+f.hp,0);
@@ -1746,8 +1938,14 @@ function cmdFocus(){
   _bridgeToParent('focus', { target: tf.userId });
 }
 function cmdEMP(){
-  empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');
+  const ewars=aliveAtkShips().filter(s=>s.type.role==='ewar');
+  if(ewars.length===0){addLog('wn','💥 EMP: 재머 함선 없음');return;}
+  if(empCharge<100){addLog('wn',`💥 EMP 충전 중 ${Math.floor(empCharge)}%`);return;}
+  empCharge=0;
+  empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 투하 — 적 6초 사격 마비!');
   battleCallout('EMP 투하! 적 사격 통제를 끊어!','order','top',2400);
+  // EMP flash on each ewar ship
+  ewars.forEach(s=>addFloatText(s.x,s.y-14,'⚡ EMP','order',2000));
   // Visual: shockwave from each DEF fleet center
   fleets.filter(f=>f.side==='def'&&!f.dead).forEach(f=>{
     mkShockwave(f.cx,f.cy,f.radius*2.8);
@@ -1789,8 +1987,11 @@ function cmdMissileBarrage(){
     const tgt=targets[(i*7)%targets.length];
     const dx=tgt.x-sh.x,dy=tgt.y-sh.y,len=Math.hypot(dx,dy)||1;
     sh.aimX=tgt.x;sh.aimY=tgt.y;sh.aimTTL=1000;
-    const vx=dx/len+(Math.random()-.5)*.12,vy=dy/len+(Math.random()-.5)*.12;
-    spawnB(sh.x,sh.y,vx,vy,sh.type,sh.side,1.35, false, 'missile');
+    // 초기 발사 방향에 약간의 편차 (부채꼴 탄막)
+    const spread=(Math.random()-.5)*.35;
+    const ang=Math.atan2(dy,dx)+spread;
+    const vx=Math.cos(ang),vy=Math.sin(ang);
+    spawnB(sh.x,sh.y,vx,vy,sh.type,sh.side,1.35,false,'missile',tgt);
     lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
       color:FACTIONS[sh.type.faction].color,width:1.4,alpha:.7,ttl:130,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,missileTrail:true});
   });
