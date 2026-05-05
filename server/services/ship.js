@@ -150,6 +150,8 @@ async function getMyShips(walletAddress, options = {}) {
         chance: offer.chance,
         material_code: offer.material_code,
         material_qty: offer.material_qty,
+        material_tier: offer.material_tier,
+        upgrade_level: offer.upgrade_level,
       };
     }
     ships.push({

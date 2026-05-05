@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v6.01 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.03 / 2026-05-05)
+
+## ✅ v6.03 강화 모달 버그 수정 + Forge 애니메이션 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `s.id === shipId` 타입 불일치 수정 | ✅ | `String()` 비교로 변경 |
+| `material_tier` + `upgrade_level` 응답 추가 | ✅ | `upgradeOffers[stat]` 필드 확장 |
+| `#forgeModal` HTML 추가 | ✅ | hammer/gauge/sparks/result 구조 |
+| `_forgeSparkBurst()` Canvas 파티클 | ✅ | 타격 시 18개 스파크 발사 |
+| `_forgeHammerSwing()` (내부 참고용, 실제는 inline) | ✅ | |
+| `Promise.all` API + 애니메이션 병렬 처리 | ✅ | 2.4초 게이지 + API 동시 진행 |
+| 성공/실패/오류 결과 UI | ✅ | 색상/글로우/텍스트 분기 |
+| `node --check ship.js` | ✅ | 통과 |
+
+---
 
 ## ✅ v6.02 함선 강화 티어 재료 시스템 — 완료
 

@@ -8917,6 +8917,35 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
+<!-- ═══ FORGE UPGRADE ANIMATION MODAL ═══ -->
+<div id="forgeModal" style="display:none;position:fixed;inset:0;z-index:9200;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;flex-direction:column">
+  <div id="forgeCard" style="width:min(340px,92vw);background:linear-gradient(160deg,#1a1a2e,#12121e);border:1px solid rgba(255,200,80,.25);border-radius:16px;padding:28px 24px;text-align:center;position:relative;overflow:hidden">
+    <!-- glow bg -->
+    <div id="forgeGlowBg" style="position:absolute;inset:0;border-radius:16px;opacity:0;transition:opacity .4s;pointer-events:none"></div>
+    <!-- title -->
+    <div id="forgeTitleText" style="font-family:var(--fn);font-size:13px;font-weight:900;letter-spacing:2px;color:#ffd166;margin-bottom:16px">🔨 강화 중...</div>
+    <!-- hammer scene -->
+    <div style="position:relative;height:88px;margin-bottom:14px;display:flex;align-items:flex-end;justify-content:center;gap:0">
+      <div id="forgeHammerWrap" style="position:relative;width:64px;height:88px;display:flex;align-items:flex-end;justify-content:center">
+        <div id="forgeHammer" style="font-size:40px;transform-origin:50% 100%;display:block;filter:drop-shadow(0 0 8px #ffd16688)">🔨</div>
+      </div>
+      <div id="forgeAnvil" style="font-size:36px;margin-bottom:2px;filter:drop-shadow(0 2px 6px #0008)">⚙️</div>
+    </div>
+    <!-- sparks canvas -->
+    <canvas id="forgeSparks" width="300" height="60" style="position:absolute;top:60px;left:50%;transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity .2s"></canvas>
+    <!-- gauge -->
+    <div style="background:rgba(255,255,255,.06);border-radius:8px;height:8px;overflow:hidden;margin-bottom:10px">
+      <div id="forgeGauge" style="height:100%;width:0%;background:linear-gradient(90deg,#ffd166,#ff9800);border-radius:8px;transition:width .12s linear"></div>
+    </div>
+    <!-- stat labels -->
+    <div id="forgeStatLabel" style="font-family:var(--fn);font-size:10px;color:rgba(255,255,255,.45);margin-bottom:4px"></div>
+    <!-- result -->
+    <div id="forgeResult" style="display:none;font-family:var(--fn);font-size:18px;font-weight:900;letter-spacing:2px;margin:10px 0 4px"></div>
+    <div id="forgeResultSub" style="display:none;font-family:var(--fn);font-size:10px;color:rgba(255,255,255,.55);margin-bottom:12px"></div>
+    <button id="forgeCloseBtn" type="button" style="display:none;width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-family:var(--fn);font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer" onclick="closeForgeModal()">확인</button>
+  </div>
+</div>
+
 <div id="campaignModal" class="campaign-modal" style="display:none" onclick="if(event.target===this)closeCampaignModal()">
   <div class="campaign-modal-card">
     <div class="campaign-hero">
@@ -43709,9 +43738,53 @@ function syUpgradeBtn(ship, stat, label) {
   '</button>';
 }
 
+// ── Forge Animation Modal ──────────────────────────────────────
+var _forgeAnimFrame = null;
+function closeForgeModal() {
+  var m = document.getElementById('forgeModal');
+  if (m) m.style.display = 'none';
+  if (_forgeAnimFrame) { cancelAnimationFrame(_forgeAnimFrame); _forgeAnimFrame = null; }
+}
+function _forgeSparkBurst(canvas, color) {
+  if (!canvas) return;
+  canvas.style.opacity = '1';
+  var ctx = canvas.getContext('2d');
+  var sparks = Array.from({length:18}, function() {
+    var a = Math.random() * Math.PI * 2;
+    var sp = 1.5 + Math.random() * 3.5;
+    return { x:150, y:30, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 2.5, al:1, c:color||'#ffd166' };
+  });
+  function frame() {
+    ctx.clearRect(0,0,300,60);
+    var alive = false;
+    sparks.forEach(function(s) {
+      s.x += s.vx; s.y += s.vy; s.vy += 0.18; s.al -= 0.045;
+      if (s.al > 0) { alive = true; ctx.save(); ctx.globalAlpha = s.al; ctx.fillStyle = s.c; ctx.beginPath(); ctx.arc(s.x,s.y,2.2,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    });
+    if (alive) _forgeAnimFrame = requestAnimationFrame(frame);
+    else { ctx.clearRect(0,0,300,60); canvas.style.opacity='0'; }
+  }
+  _forgeAnimFrame = requestAnimationFrame(frame);
+}
+function _forgeHammerSwing(hammer, onHit) {
+  var swings = 0, maxSwings = 5, swingMs = 320;
+  function doSwing() {
+    if (swings >= maxSwings) { if(onHit) onHit(); return; }
+    hammer.style.transition = 'transform ' + (swingMs*0.35) + 'ms cubic-bezier(.2,1,.4,1)';
+    hammer.style.transform = 'rotate(-55deg) translateY(-10px)';
+    setTimeout(function() {
+      hammer.style.transition = 'transform ' + (swingMs*0.45) + 'ms cubic-bezier(.5,0,1,.7)';
+      hammer.style.transform = 'rotate(12deg) translateY(4px)';
+      setTimeout(function() { swings++; doSwing(); }, swingMs * 0.55);
+    }, swingMs * 0.45);
+  }
+  doSwing();
+}
+
 async function syUpgradeShipStat(shipId, stat) {
   var labelMap = { atk: '공격력', def: '방어력', hp: '체력', speed: '속도' };
-  var ship = (shipyardState.ships || []).find(function(s){ return s.id === shipId; });
+  // Fix: id strict-equality — server returns string, onclick passes number
+  var ship = (shipyardState.ships || []).find(function(s){ return String(s.id) === String(shipId); });
   var offer = ship && ship.upgrade_offers && ship.upgrade_offers[stat];
   if (ship && ship.is_market_listed) { showFactionToast('판매중인 함선은 강화할 수 없습니다', 'error'); return; }
   var haveQty = offer ? syOwnedResourceQty(offer.material_code) : 0;
@@ -43721,49 +43794,145 @@ async function syUpgradeShipStat(shipId, stat) {
   var enoughGp = !offer || gpHave >= gpNeed;
   var enoughMaterial = !offer || haveQty >= needQty;
   var materialName = offer ? syResourceName(offer.material_code) : '-';
-  var materialText = offer ? syRequirementStatusText(haveQty, needQty) : '-';
   var blocked = !enoughGp || !enoughMaterial;
   var tierIdx = offer ? (parseInt(offer.material_tier) || 1) : 1;
   var tierColors = ['','#8bc34a','#42a5f5','#ce93d8'];
   var tierNames  = ['','T1 기본','T2 희귀','T3 전설'];
-  var tierNextMsg = '';
   var curLv = offer ? (parseInt(offer.upgrade_level) || 0) : 0;
+  var tierNextMsg = '';
   if (offer) {
-    if (tierIdx === 1 && curLv >= 3) tierNextMsg = '다음 강화 5회 후 T2 재료 필요';
+    if (tierIdx === 1 && curLv >= 4) tierNextMsg = '다음 강화 5회 후 T2 재료 필요';
     else if (tierIdx === 1) tierNextMsg = (5 - curLv) + '회 후 T2 희귀 재료 필요';
     else if (tierIdx === 2) tierNextMsg = (10 - curLv) + '회 후 T3 전설 재료 필요';
     else tierNextMsg = '최고 등급 재료 — 함선 가치 ↑';
   }
   var ok = await gameConfirm({
     title: '함선 강화', icon: '⚙️',
-    body: '<div style="font-size:11px;color:#9be7a0;font-weight:700;margin-bottom:5px">' + (labelMap[stat] || stat) + '을 영구 강화합니다.</div>'
-      + '<div style="font-size:10px;color:var(--tx3)">강화는 확률형입니다. 실패해도 GP와 재료는 소모되고, 스탯은 그대로 유지됩니다.</div>'
-      + (offer ? '<div style="margin-top:6px;font-size:10px;color:' + (tierColors[tierIdx]||'#8bc34a') + '">'
-          + '● ' + (tierNames[tierIdx]||'T1') + ' 재료 단계 · ' + tierNextMsg + '</div>' : ''),
+    body: '<div style="font-size:11px;color:#9be7a0;font-weight:700;margin-bottom:5px">'
+        + (labelMap[stat]||stat) + ' 영구 강화</div>'
+        + '<div style="font-size:10px;color:var(--tx3)">실패해도 GP와 재료가 소모됩니다.</div>'
+        + (offer ? '<div style="margin-top:6px;font-size:10px;color:' + (tierColors[tierIdx]||'#8bc34a') + '">'
+            + '● ' + (tierNames[tierIdx]||'T1') + ' · ' + tierNextMsg + '</div>' : ''),
     info: offer ? [
-      { k:'성공 확률', v: offer.chance + '%' },
-      { k:'💰 GP', v: syRequirementStatusText(gpHave, gpNeed), insufficient: !enoughGp, ok: enoughGp },
-      { k: materialName + ' (MOD ' + curLv + ')', v: materialText, insufficient: !enoughMaterial, ok: enoughMaterial }
+      { k: '성공 확률', v: offer.chance + '%', ok: offer.chance >= 70 },
+      { k: '💰 GP 비용', v: syFmt(gpNeed) + ' (보유 ' + syFmt(gpHave) + ')', insufficient: !enoughGp, ok: enoughGp },
+      { k: materialName, v: '필요 ' + needQty + '개  ·  보유 ' + haveQty + '개', insufficient: !enoughMaterial, ok: enoughMaterial }
     ] : undefined,
-    confirmText: blocked ? '재료 부족' : '강화하기',
+    confirmText: blocked ? '재료 부족' : '🔨 강화 시작',
     disabled: blocked
   });
   if (!ok) return;
-  try {
-    var r = await fetch('/api/ships/' + shipId + '/upgrade-stat', {
-      method: 'POST',
-      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
-      body: JSON.stringify({ stat: stat })
-    });
-    var d = await r.json();
-    if (!r.ok || d.error) { showFactionToast('강화 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast(d.upgraded
-      ? ('강화 성공: ' + (labelMap[stat] || stat) + ' +' + d.delta + ' (-' + d.gp_cost + ' GP)')
-      : ('강화 실패: 확률 ' + d.chance + '% / 굴림 ' + d.roll),
-      d.upgraded ? 'success' : 'error');
-    refreshBalance();
-    await refreshShipyard();
-  } catch(e) { showFactionToast('강화 요청 실패', 'error'); }
+
+  // ── Forge Animation ──────────────────────
+  var modal = document.getElementById('forgeModal');
+  var hammer = document.getElementById('forgeHammer');
+  var gauge = document.getElementById('forgeGauge');
+  var canvas = document.getElementById('forgeSparks');
+  var titleEl = document.getElementById('forgeTitleText');
+  var statLabel = document.getElementById('forgeStatLabel');
+  var resultEl = document.getElementById('forgeResult');
+  var resultSub = document.getElementById('forgeResultSub');
+  var closeBtn = document.getElementById('forgeCloseBtn');
+  var glowBg = document.getElementById('forgeGlowBg');
+  // reset
+  gauge.style.width = '0%';
+  gauge.style.background = 'linear-gradient(90deg,#ffd166,#ff9800)';
+  resultEl.style.display = 'none';
+  resultSub.style.display = 'none';
+  closeBtn.style.display = 'none';
+  glowBg.style.opacity = '0';
+  glowBg.style.background = '';
+  hammer.style.transform = 'rotate(0deg)';
+  titleEl.textContent = '🔨 강화 중...';
+  statLabel.textContent = (ship ? (ship.name_ko || '') + '  ' : '') + (labelMap[stat]||stat).toUpperCase() + ' · MOD ' + curLv + '  →  ' + materialName + ' × ' + needQty;
+  modal.style.display = 'flex';
+
+  // gauge fills over ~2.4s with hammer swings
+  var gaugeStart = Date.now(), gaugeDur = 2400;
+  var apiPromise = fetch('/api/ships/' + shipId + '/upgrade-stat', {
+    method: 'POST',
+    headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+    body: JSON.stringify({ stat: stat })
+  }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); });
+
+  function tickGauge() {
+    var pct = Math.min(100, ((Date.now() - gaugeStart) / gaugeDur) * 100);
+    gauge.style.width = pct + '%';
+    if (pct < 100) { _forgeAnimFrame = requestAnimationFrame(tickGauge); }
+  }
+  _forgeAnimFrame = requestAnimationFrame(tickGauge);
+
+  // hammer swings during loading — spark on each hit
+  var swingCount = 0;
+  function doHammerSwing() {
+    if (!document.getElementById('forgeModal') || modal.style.display==='none') return;
+    hammer.style.transition = 'transform 135ms cubic-bezier(.2,1,.4,1)';
+    hammer.style.transform = 'rotate(-58deg) translateY(-12px)';
+    setTimeout(function(){
+      hammer.style.transition = 'transform 155ms cubic-bezier(.5,0,1,.7)';
+      hammer.style.transform = 'rotate(10deg) translateY(4px)';
+      swingCount++;
+      _forgeSparkBurst(canvas, swingCount % 2 === 0 ? '#ffd166' : '#ff9800');
+      if (swingCount < 6) setTimeout(doHammerSwing, 340);
+    }, 140);
+  }
+  doHammerSwing();
+
+  // wait for both animation + API
+  var results = await Promise.all([
+    new Promise(function(res){ setTimeout(res, gaugeDur); }),
+    apiPromise
+  ]);
+  gauge.style.width = '100%';
+  cancelAnimationFrame(_forgeAnimFrame);
+
+  var apiRes = results[1];
+  if (!apiRes || !apiRes.ok || apiRes.d.error) {
+    // error
+    glowBg.style.background = 'radial-gradient(circle, rgba(239,83,80,.18) 0%, transparent 70%)';
+    glowBg.style.opacity = '1';
+    gauge.style.background = '#ef5350';
+    hammer.style.transition = 'transform .15s';
+    hammer.style.transform = 'rotate(0deg)';
+    titleEl.textContent = '⚠ 강화 오류';
+    resultEl.style.display = 'block';
+    resultEl.style.color = '#ef9a9a';
+    resultEl.textContent = '오류: ' + (apiRes.d && apiRes.d.error ? apiRes.d.error : 'UNKNOWN');
+    resultSub.style.display = 'block';
+    resultSub.textContent = '재료/GP가 차감됐을 수 있습니다. 새로고침 확인 바랍니다.';
+  } else {
+    var d = apiRes.d;
+    if (d.upgraded) {
+      glowBg.style.background = 'radial-gradient(circle, rgba(102,187,106,.22) 0%, transparent 70%)';
+      glowBg.style.opacity = '1';
+      gauge.style.background = 'linear-gradient(90deg,#66bb6a,#a5d6a7)';
+      _forgeSparkBurst(canvas, '#a5d6a7');
+      setTimeout(function(){ _forgeSparkBurst(canvas, '#ffd166'); }, 200);
+      hammer.style.transition = 'transform .2s cubic-bezier(.3,1.6,.5,1)';
+      hammer.style.transform = 'rotate(-30deg) translateY(-6px) scale(1.15)';
+      titleEl.textContent = '✅ 강화 성공!';
+      resultEl.style.display = 'block';
+      resultEl.style.color = '#9be7a0';
+      resultEl.textContent = (labelMap[stat]||stat) + ' +' + d.delta + '  (MOD ' + (curLv+1) + ')';
+      resultSub.style.display = 'block';
+      resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  확률 ' + d.chance + '%  ·  굴림 ' + d.roll;
+    } else {
+      glowBg.style.background = 'radial-gradient(circle, rgba(255,152,0,.15) 0%, transparent 70%)';
+      glowBg.style.opacity = '1';
+      gauge.style.background = 'linear-gradient(90deg,#ff9800,#f44336)';
+      hammer.style.transition = 'transform .15s';
+      hammer.style.transform = 'rotate(0deg)';
+      titleEl.textContent = '💔 강화 실패';
+      resultEl.style.display = 'block';
+      resultEl.style.color = '#ffb3b3';
+      resultEl.textContent = '재료와 GP는 소모되었습니다';
+      resultSub.style.display = 'block';
+      resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  확률 ' + d.chance + '%  ·  굴림 ' + d.roll;
+    }
+  }
+  closeBtn.style.display = 'block';
+  refreshBalance();
+  refreshShipyard();
 }
 
 async function syRepairShip(shipId, name, currentHp, maxHp) {

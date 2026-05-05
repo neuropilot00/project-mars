@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-05 — 강화 확인 모달 정보 표시 버그 수정 + Forge 애니메이션 (v6.03)
+
+### 버그 수정: 강화 확인 모달 성공률/재료 미표시
+- **원인**: `s.id === shipId` 엄격 일치 실패 (서버는 string `'208'`, onclick은 number `208`) → `ship` 조회 undefined → `offer` undefined → info 테이블 숨겨짐
+- **수정**: `String(s.id) === String(shipId)` 비교로 변경
+
+### 신기능: Forge 강화 애니메이션 모달 (`index.html`)
+- 강화 확인 후 망치 뚝딱 애니메이션 + 게이지 바 표시 (2.4초)
+- 망치 6회 스윙 + 타격 시 스파크 파티클 (Canvas 기반)
+- API 호출과 애니메이션 병렬 진행 (`Promise.all`)
+- 결과 표시:
+  - ✅ 성공: 초록 글로우 + 스파크 버스트 + `+N스탯 (MOD X)`
+  - 💔 실패: 주황/붉은 게이지 + GP 소모 확인
+  - ⚠ 오류: 빨간 글로우 + 에러 코드
+- 결과 서브텍스트: `-GP  ·  확률%  ·  굴림값`
+
+### 강화 확인 모달 정보 개선
+- 성공 확률, GP 비용(보유량 포함), 재료명+보유/필요 수량 info 테이블 표시
+- `material_tier`, `upgrade_level` 서버 응답에 추가 (`ship.js` upgradeOffers)
+
 ## 2026-05-05 — 함선 강화 티어 재료 시스템 (v6.02)
 
 ### 함선 강화 재료 티어 시스템 (`server/services/ship.js`, `index.html`)
