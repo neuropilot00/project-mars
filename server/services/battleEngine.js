@@ -746,7 +746,7 @@ function computeDamage(attacker, target) {
   let typeMult = 1.0;
   if (attacker.fireType === 'laser') typeMult = 1.2;
   else if (attacker.fireType === 'missile') typeMult = 1.1;
-  else if (attacker.fireType === 'stealth_bomb') typeMult = 2.5; // 폭격 큰 데미지
+  else if (attacker.fireType === 'stealth_bomb') typeMult = 1.5; // 폭격 (ATK 너프로 2.5→1.5)
   else if (attacker.fireType === 'ew') typeMult = 0.3; // EW는 낮은 딜
 
   return Math.max(1, Math.floor(raw * variance * typeMult * getShipMatchupMult(attacker, target)));

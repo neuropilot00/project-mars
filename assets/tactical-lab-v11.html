@@ -403,28 +403,28 @@ let FACTIONS = {
    함선 — 폴백(참조 20종). boot()에서 DB ship_types(22종)로 덮어씀
    ═══════════════════════════════════════════════════════════ */
 let SHIPS = {
-  mcc_int:{faction:'mcc',size:'frigate',role:'tackle',tier:1,name:'Prism',cls:'Interceptor · T1',r:1.8,hp:3000,atk:6,def:3,spd:2.4,fireInt:110,fireType:'bullet',shots:1,desc:'고속 정찰·태클',recipe:{iron_dust:30,silicate:10,plasma_coil:1},buildTime:'10분'},
-  mcc_frg:{faction:'mcc',size:'frigate',role:'dps',tier:1,name:'Shard',cls:'Frigate · T1',r:2.5,hp:6000,atk:14,def:7,spd:1.8,fireInt:130,fireType:'bullet',shots:2,desc:'범용 DPS',recipe:{iron_dust:50,red_sand:20,plasma_coil:2},buildTime:'25분'},
-  mcc_ewar:{faction:'mcc',size:'frigate',role:'ewar',tier:2,name:'Jammer',cls:'EW Frigate · T2',r:2.4,hp:4500,atk:5,def:6,spd:1.7,fireInt:180,fireType:'ew',shots:1,desc:'적 사격 방해',recipe:{iron_dust:80,ice_crystal:10,plasma_coil:3,alloy_frame:1},buildTime:'1시간'},
-  mcc_dst:{faction:'mcc',size:'destroyer',role:'dps',tier:1,name:'Vector',cls:'Destroyer · T1',r:3.6,hp:14000,atk:32,def:15,spd:1.2,fireInt:145,fireType:'bullet',shots:3,desc:'프리깃 사냥',recipe:{iron_dust:140,silicate:50,hull_plate:3,plasma_coil:4},buildTime:'2시간'},
-  mcc_crs:{faction:'mcc',size:'cruiser',role:'dps',tier:1,name:'Obelisk',cls:'Cruiser · T1',r:5.0,hp:28000,atk:65,def:38,spd:0.8,fireInt:180,fireType:'mixed',shots:2,desc:'중거리 레일건',recipe:{iron_dust:400,silicate:150,hull_plate:8,plasma_coil:12,alloy_frame:4},buildTime:'6시간'},
-  mcc_snp:{faction:'mcc',size:'cruiser',role:'dps',tier:2,name:'Longeye',cls:'Sniper · T2',r:4.8,hp:24000,atk:105,def:30,spd:0.7,fireInt:260,fireType:'laser',shots:1,desc:'장거리 저격',recipe:{iron_dust:600,rare_metal:20,hull_plate:10,plasma_coil:18,alloy_frame:8,volcanic_shard:15},buildTime:'18시간'},
-  mcc_bs:{faction:'mcc',size:'battleship',role:'dps',tier:1,name:'Tessellate',cls:'Battleship · T1',r:8.5,hp:170000,atk:290,def:200,spd:0.3,fireInt:300,fireType:'laser',shots:1,desc:'주력 포격 전함',recipe:{iron_dust:3000,silicate:1200,hull_plate:50,plasma_coil:80,alloy_frame:40,rare_metal:30,ancient_metal:5},buildTime:'48시간'},
-  mcc_titan:{faction:'mcc',size:'titan',role:'dps',tier:2,name:'Prometheus',cls:'Titan · ⚠ MAX 3',r:13.0,hp:1000000,atk:700,def:500,spd:0.15,fireInt:450,fireType:'laser',shots:1,desc:'MCC 사령함',recipe:{iron_dust:20000,rare_metal:500,hull_plate:350,plasma_coil:700,alloy_frame:250,ancient_metal:120,meteorite_frag:35,xenomatter:6},buildTime:'72시간'},
-  fsp_int:{faction:'fsp',size:'frigate',role:'dps',tier:1,name:'Sprite',cls:'Light Frigate · T1',r:2.0,hp:4000,atk:9,def:4,spd:2.2,fireInt:115,fireType:'bullet',shots:2,desc:'드론 발사대 경량',recipe:{iron_dust:40,silicate:15,plasma_coil:2},buildTime:'20분'},
-  fsp_logi:{faction:'fsp',size:'frigate',role:'logi',tier:2,name:'Verdant',cls:'Logi Frigate · T2',r:2.5,hp:5000,atk:2,def:10,spd:1.6,fireInt:160,fireType:'repair',shots:1,desc:'아군 HP 회복',recipe:{iron_dust:60,ice_crystal:15,plasma_coil:2,alloy_frame:2},buildTime:'1시간'},
-  fsp_dst:{faction:'fsp',size:'destroyer',role:'tank',tier:1,name:'Bulwark',cls:'Armored Dst · T1',r:3.8,hp:22000,atk:26,def:30,spd:1.0,fireInt:160,fireType:'bullet',shots:2,desc:'중장갑 구축함',recipe:{iron_dust:180,red_sand:80,hull_plate:5,plasma_coil:3},buildTime:'3시간'},
-  fsp_crs:{faction:'fsp',size:'cruiser',role:'dps',tier:1,name:'Grove',cls:'Drone Cruiser · T1',r:5.0,hp:26000,atk:55,def:45,spd:0.7,fireInt:200,fireType:'mixed',shots:1,desc:'드론 운용',recipe:{iron_dust:500,silicate:200,hull_plate:10,plasma_coil:8,alloy_frame:6},buildTime:'6시간'},
-  fsp_logi_crs:{faction:'fsp',size:'cruiser',role:'logi',tier:2,name:'Nova',cls:'Logi Cruiser · T2',r:4.8,hp:22000,atk:5,def:60,spd:0.7,fireInt:140,fireType:'repair',shots:1,desc:'범위 회복',recipe:{iron_dust:700,ice_crystal:40,hull_plate:14,plasma_coil:6,alloy_frame:10,rare_metal:25},buildTime:'20시간'},
-  fsp_bs:{faction:'fsp',size:'battleship',role:'tank',tier:1,name:'Sequoia',cls:'Battleship · T1',r:8.8,hp:210000,atk:230,def:280,spd:0.25,fireInt:340,fireType:'mixed',shots:2,desc:'초중장갑 전함',recipe:{iron_dust:3500,red_sand:1500,hull_plate:65,plasma_coil:60,alloy_frame:55,ice_crystal:80,ancient_metal:4},buildTime:'52시간'},
-  fsp_titan:{faction:'fsp',size:'titan',role:'tank',tier:2,name:'Gaia',cls:'Titan · ⚠ MAX 3',r:13.5,hp:1150000,atk:550,def:700,spd:0.14,fireInt:480,fireType:'laser',shots:1,desc:'FSP 요새 타이탄',recipe:{iron_dust:22000,ice_crystal:600,hull_plate:400,plasma_coil:600,alloy_frame:280,ancient_metal:130,meteorite_frag:30,xenomatter:7},buildTime:'78시간'},
-  cv_int:{faction:'cv',size:'frigate',role:'tackle',tier:1,name:'Slasher',cls:'Fast Attack · T1',r:1.7,hp:2500,atk:11,def:2,spd:2.8,fireInt:90,fireType:'bullet',shots:2,desc:'최속 탄막 프리깃',recipe:{iron_dust:25,red_sand:10,plasma_coil:1},buildTime:'12분'},
-  cv_frg:{faction:'cv',size:'frigate',role:'dps',tier:1,name:'Jagged',cls:'Frigate · T1',r:2.4,hp:5000,atk:18,def:5,spd:1.9,fireInt:110,fireType:'bullet',shots:3,desc:'근접전 특화',recipe:{iron_dust:45,red_sand:25,plasma_coil:2},buildTime:'22분'},
-  cv_bomb:{faction:'cv',size:'frigate',role:'dps',tier:2,name:'Reaper',cls:'Stealth Bomber · T2',r:2.1,hp:3500,atk:160,def:3,spd:1.7,fireInt:550,fireType:'bullet',shots:1,desc:'은신 폭격기',recipe:{iron_dust:100,volcanic_shard:20,plasma_coil:4,alloy_frame:2,rare_metal:8},buildTime:'2시간'},
-  cv_dst:{faction:'cv',size:'destroyer',role:'dps',tier:1,name:'Butcher',cls:'Assault Dst · T1',r:3.5,hp:11000,atk:45,def:12,spd:1.3,fireInt:125,fireType:'bullet',shots:4,desc:'고DPS 돌격',recipe:{iron_dust:160,volcanic_shard:25,hull_plate:4,plasma_coil:5},buildTime:'2.5시간'},
-  cv_crs:{faction:'cv',size:'cruiser',role:'dps',tier:1,name:'Mauler',cls:'Missile Crs · T1',r:4.7,hp:24000,atk:80,def:35,spd:0.8,fireInt:220,fireType:'bullet',shots:1,desc:'중거리 미사일',recipe:{iron_dust:450,volcanic_shard:60,hull_plate:8,plasma_coil:14,alloy_frame:5},buildTime:'5시간'},
-  cv_bs:{faction:'cv',size:'battleship',role:'dps',tier:1,name:'Ironclad',cls:'Battleship · T1',r:8.5,hp:155000,atk:350,def:180,spd:0.35,fireInt:280,fireType:'laser',shots:1,desc:'고화력 중거리',recipe:{iron_dust:2800,volcanic_shard:400,hull_plate:55,plasma_coil:95,alloy_frame:38,rare_metal:25,meteorite_frag:3},buildTime:'44시간'},
-  cv_titan:{faction:'cv',size:'titan',role:'dps',tier:2,name:'Carnage',cls:'Titan · ⚠ MAX 3',r:13.0,hp:1100000,atk:800,def:480,spd:0.16,fireInt:440,fireType:'laser',shots:1,desc:'서버 최강 타이탄',recipe:{iron_dust:25000,volcanic_shard:3000,hull_plate:400,plasma_coil:800,alloy_frame:300,ancient_metal:150,meteorite_frag:40,xenomatter:8},buildTime:'72시간'},
+  mcc_int:{faction:'mcc',size:'frigate',role:'tackle',tier:1,name:'Prism',cls:'Interceptor · T1',r:1.8,hp:18000,atk:7,def:3,spd:2.4,fireInt:110,fireType:'bullet',shots:1,desc:'고속 정찰·태클',recipe:{iron_dust:30,silicate:10,plasma_coil:1},buildTime:'10분'},
+  mcc_frg:{faction:'mcc',size:'frigate',role:'dps',tier:1,name:'Shard',cls:'Frigate · T1',r:2.5,hp:32000,atk:14,def:7,spd:1.8,fireInt:130,fireType:'bullet',shots:2,desc:'범용 DPS',recipe:{iron_dust:50,red_sand:20,plasma_coil:2},buildTime:'25분'},
+  mcc_ewar:{faction:'mcc',size:'frigate',role:'ewar',tier:2,name:'Jammer',cls:'EW Frigate · T2',r:2.4,hp:24000,atk:5,def:6,spd:1.7,fireInt:180,fireType:'ew',shots:1,desc:'적 사격 방해',recipe:{iron_dust:80,ice_crystal:10,plasma_coil:3,alloy_frame:1},buildTime:'1시간'},
+  mcc_dst:{faction:'mcc',size:'destroyer',role:'dps',tier:1,name:'Vector',cls:'Destroyer · T1',r:3.6,hp:60000,atk:34,def:15,spd:1.2,fireInt:145,fireType:'bullet',shots:3,desc:'프리깃 사냥',recipe:{iron_dust:140,silicate:50,hull_plate:3,plasma_coil:4},buildTime:'2시간'},
+  mcc_crs:{faction:'mcc',size:'cruiser',role:'dps',tier:1,name:'Obelisk',cls:'Cruiser · T1',r:5.0,hp:100000,atk:66,def:38,spd:0.8,fireInt:180,fireType:'mixed',shots:2,desc:'중거리 레일건',recipe:{iron_dust:400,silicate:150,hull_plate:8,plasma_coil:12,alloy_frame:4},buildTime:'6시간'},
+  mcc_snp:{faction:'mcc',size:'cruiser',role:'dps',tier:2,name:'Longeye',cls:'Sniper · T2',r:4.8,hp:82000,atk:118,def:26,spd:0.7,fireInt:315,fireType:'laser',shots:1,desc:'장거리 저격',recipe:{iron_dust:600,rare_metal:20,hull_plate:10,plasma_coil:18,alloy_frame:8,volcanic_shard:15},buildTime:'18시간'},
+  mcc_bs:{faction:'mcc',size:'battleship',role:'dps',tier:1,name:'Tessellate',cls:'Battleship · T1',r:8.5,hp:340000,atk:310,def:185,spd:0.3,fireInt:310,fireType:'laser',shots:1,desc:'주력 포격 전함',recipe:{iron_dust:3000,silicate:1200,hull_plate:50,plasma_coil:80,alloy_frame:40,rare_metal:30,ancient_metal:5},buildTime:'48시간'},
+  mcc_titan:{faction:'mcc',size:'titan',role:'dps',tier:2,name:'Prometheus',cls:'Titan · ⚠ MAX 3',r:13.0,hp:1480000,atk:735,def:480,spd:0.15,fireInt:455,fireType:'laser',shots:1,desc:'MCC 사령함',recipe:{iron_dust:20000,rare_metal:500,hull_plate:350,plasma_coil:700,alloy_frame:250,ancient_metal:120,meteorite_frag:35,xenomatter:6},buildTime:'72시간'},
+  fsp_int:{faction:'fsp',size:'frigate',role:'dps',tier:1,name:'Sprite',cls:'Light Frigate · T1',r:2.0,hp:24000,atk:9,def:5,spd:2.2,fireInt:118,fireType:'bullet',shots:2,desc:'드론 발사대 경량',recipe:{iron_dust:40,silicate:15,plasma_coil:2},buildTime:'20분'},
+  fsp_logi:{faction:'fsp',size:'frigate',role:'logi',tier:2,name:'Verdant',cls:'Logi Frigate · T2',r:2.5,hp:28000,atk:3,def:12,spd:1.6,fireInt:150,fireType:'repair',shots:1,desc:'아군 HP 회복',recipe:{iron_dust:60,ice_crystal:15,plasma_coil:2,alloy_frame:2},buildTime:'1시간'},
+  fsp_dst:{faction:'fsp',size:'destroyer',role:'tank',tier:1,name:'Bulwark',cls:'Armored Dst · T1',r:3.8,hp:90000,atk:24,def:38,spd:1.0,fireInt:170,fireType:'bullet',shots:2,desc:'중장갑 구축함',recipe:{iron_dust:180,red_sand:80,hull_plate:5,plasma_coil:3},buildTime:'3시간'},
+  fsp_crs:{faction:'fsp',size:'cruiser',role:'dps',tier:1,name:'Grove',cls:'Drone Cruiser · T1',r:5.0,hp:95000,atk:54,def:48,spd:0.7,fireInt:205,fireType:'mixed',shots:1,desc:'드론 운용',recipe:{iron_dust:500,silicate:200,hull_plate:10,plasma_coil:8,alloy_frame:6},buildTime:'6시간'},
+  fsp_logi_crs:{faction:'fsp',size:'cruiser',role:'logi',tier:2,name:'Nova',cls:'Logi Cruiser · T2',r:4.8,hp:80000,atk:6,def:70,spd:0.7,fireInt:135,fireType:'repair',shots:1,desc:'범위 회복',recipe:{iron_dust:700,ice_crystal:40,hull_plate:14,plasma_coil:6,alloy_frame:10,rare_metal:25},buildTime:'20시간'},
+  fsp_bs:{faction:'fsp',size:'battleship',role:'tank',tier:1,name:'Sequoia',cls:'Battleship · T1',r:8.8,hp:420000,atk:210,def:325,spd:0.25,fireInt:350,fireType:'mixed',shots:2,desc:'초중장갑 전함',recipe:{iron_dust:3500,red_sand:1500,hull_plate:65,plasma_coil:60,alloy_frame:55,ice_crystal:80,ancient_metal:4},buildTime:'52시간'},
+  fsp_titan:{faction:'fsp',size:'titan',role:'tank',tier:2,name:'Gaia',cls:'Titan · ⚠ MAX 3',r:13.5,hp:1750000,atk:530,def:730,spd:0.14,fireInt:500,fireType:'laser',shots:1,desc:'FSP 요새 타이탄',recipe:{iron_dust:22000,ice_crystal:600,hull_plate:400,plasma_coil:600,alloy_frame:280,ancient_metal:130,meteorite_frag:30,xenomatter:7},buildTime:'78시간'},
+  cv_int:{faction:'cv',size:'frigate',role:'tackle',tier:1,name:'Slasher',cls:'Fast Attack · T1',r:1.7,hp:15000,atk:12,def:2,spd:2.8,fireInt:88,fireType:'bullet',shots:2,desc:'최속 탄막 프리깃',recipe:{iron_dust:25,red_sand:10,plasma_coil:1},buildTime:'12분'},
+  cv_frg:{faction:'cv',size:'frigate',role:'dps',tier:1,name:'Jagged',cls:'Frigate · T1',r:2.4,hp:28000,atk:20,def:5,spd:1.9,fireInt:112,fireType:'bullet',shots:3,desc:'근접전 특화',recipe:{iron_dust:45,red_sand:25,plasma_coil:2},buildTime:'22분'},
+  cv_bomb:{faction:'cv',size:'frigate',role:'bomb',tier:2,name:'Reaper',cls:'Stealth Bomber · T2',r:2.1,hp:12000,atk:55,def:3,spd:1.7,fireInt:620,fireType:'stealth_bomb',shots:1,desc:'은신 폭격기',recipe:{iron_dust:100,volcanic_shard:20,plasma_coil:4,alloy_frame:2,rare_metal:8},buildTime:'2시간'},
+  cv_dst:{faction:'cv',size:'destroyer',role:'dps',tier:1,name:'Butcher',cls:'Assault Dst · T1',r:3.5,hp:48000,atk:48,def:11,spd:1.3,fireInt:128,fireType:'bullet',shots:4,desc:'고DPS 돌격',recipe:{iron_dust:160,volcanic_shard:25,hull_plate:4,plasma_coil:5},buildTime:'2.5시간'},
+  cv_crs:{faction:'cv',size:'cruiser',role:'dps',tier:1,name:'Mauler',cls:'Missile Crs · T1',r:4.7,hp:85000,atk:86,def:32,spd:0.8,fireInt:225,fireType:'bullet',shots:1,desc:'중거리 미사일',recipe:{iron_dust:450,volcanic_shard:60,hull_plate:8,plasma_coil:14,alloy_frame:5},buildTime:'5시간'},
+  cv_bs:{faction:'cv',size:'battleship',role:'dps',tier:1,name:'Ironclad',cls:'Battleship · T1',r:8.5,hp:280000,atk:385,def:155,spd:0.35,fireInt:295,fireType:'laser',shots:1,desc:'고화력 중거리',recipe:{iron_dust:2800,volcanic_shard:400,hull_plate:55,plasma_coil:95,alloy_frame:38,rare_metal:25,meteorite_frag:3},buildTime:'44시간'},
+  cv_titan:{faction:'cv',size:'titan',role:'dps',tier:2,name:'Carnage',cls:'Titan · ⚠ MAX 3',r:13.0,hp:1550000,atk:840,def:455,spd:0.16,fireInt:455,fireType:'laser',shots:1,desc:'서버 최강 타이탄',recipe:{iron_dust:25000,volcanic_shard:3000,hull_plate:400,plasma_coil:800,alloy_frame:300,ancient_metal:150,meteorite_frag:40,xenomatter:8},buildTime:'72시간'},
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -1136,6 +1136,10 @@ function fire(sh,wsMode){
       dmg:t.atk*2*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
     if(ts)playLaserSound();
     spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult,wsMode);
+  } else if(t.fireType==='stealth_bomb'){
+    // 폭격기: 호밍 미사일 1발, 강한 데미지
+    const ts=tf.flagship&&!tf.flagship.dead?tf.flagship:tf.ships.filter(s=>!s.dead)[0];
+    if(ts)spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,atkMult*1.5,wsMode,'missile',ts);
   } else {
     for(let k=0;k<t.shots;k++){
       const sp=(Math.random()-.5)*.18;
@@ -1619,6 +1623,9 @@ function drawFleets(){
   });
 }
 
+// 팀 색상: ATK=파란계열, DEF=주황계열 (HP 바 배경색과 통일)
+const TEAM_COLOR={atk:'#29b6f6',def:'#ef5350'};
+
 function drawShips2(){
   const sorted=[...ships].sort((a,b)=>b.type.r-a.type.r);
   sorted.forEach((sh,idx)=>{
@@ -1626,6 +1633,21 @@ function drawShips2(){
     const t=sh.type;
     if(PERF_MODE&&isSmall(sh)&&!sh.isFlagship&&idx%2===1)return;
     const F=FACTIONS[t.faction];
+    const teamCol=TEAM_COLOR[sh.side]||'#ffffff';
+
+    // ── 팀 식별 링: 함선 아래 희미한 팀색 원 ──────────────
+    if(!PERF_MODE||sh.isFlagship){
+      const classScale={frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[t.size]||1.2;
+      const ringR=t.r*classScale*1.35;
+      CX.beginPath();
+      CX.arc(sh.x,sh.y,ringR,0,Math.PI*2);
+      CX.strokeStyle=teamCol;
+      CX.globalAlpha=sh.isFlagship?0.55:0.28;
+      CX.lineWidth=sh.isFlagship?2.2:1.2;
+      CX.stroke();
+      CX.globalAlpha=1;
+    }
+
     CX.shadowColor=F.color;
     CX.shadowBlur=PERF_MODE?(sh.isFlagship?8:0):(sh.isFlagship?t.r*5:t.r*2.2);
     CX.save();
@@ -1645,18 +1667,24 @@ function drawShips2(){
     const showHpBar = t.size==='cruiser'||t.size==='battleship'||t.size==='titan'
       || sh.isFlagship || ships.length<=12;
     if(drawn && showHpBar){
-      const barW = sh.isFlagship ? t.r*3.2*classScale : t.r*2.2*classScale;
+      const classScaleBar={frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[t.size]||1.2;
+      const barW = sh.isFlagship ? t.r*3.2*classScaleBar : t.r*2.2*classScaleBar;
       const barH = sh.isFlagship ? 3 : 2;
       const barY = sh.y - t.r - (sh.isFlagship ? 7 : 4);
       const hr = Math.max(0, sh.hp/sh.maxHp);
       CX.fillStyle='rgba(0,0,0,.55)';CX.fillRect(sh.x-barW/2,barY,barW,barH);
       CX.fillStyle=hr>.5?'#4caf50':hr>.2?'#ff9800':'#f44336';
       CX.fillRect(sh.x-barW/2,barY,barW*hr,barH);
-      // 기함: HP 퍼센트 텍스트도 표시
-      if(sh.isFlagship && hr < 0.5){
-        CX.globalAlpha=.8;CX.font=`bold 7px Orbitron,monospace`;CX.textAlign='center';
-        CX.fillStyle=hr<.2?'#f44336':'#ff9800';
-        CX.fillText(Math.ceil(hr*100)+'%',sh.x,barY-2);
+      // 기함 기호 (★ for atk, ◆ for def) + HP% 텍스트
+      if(sh.isFlagship){
+        CX.globalAlpha=.9;CX.font=`bold 7px Orbitron,monospace`;CX.textAlign='center';
+        CX.fillStyle=teamCol;
+        const fsIcon=sh.side==='atk'?'★':'◆';
+        CX.fillText(fsIcon,sh.x-(barW/2)-6,barY+barH);
+        if(hr < 0.5){
+          CX.fillStyle=hr<.2?'#f44336':'#ff9800';
+          CX.fillText(Math.ceil(hr*100)+'%',sh.x,barY-2);
+        }
         CX.globalAlpha=1;
       }
     }
