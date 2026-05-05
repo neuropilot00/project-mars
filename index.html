@@ -5726,11 +5726,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <!-- Territory Upgrade panel (own territory only, P5-4) -->
     <div id="infoUpgradeRow" style="display:none;margin:8px 0 4px">
-      <div style="font-size:8px;color:#bb86fc;font-family:var(--fn);font-weight:700;margin-bottom:4px;letter-spacing:1px;cursor:pointer" onclick="toggleTerritoryUpgradePanel()" id="infoUpgradeToggle">🔧 UPGRADES <span id="infoUpgradeToggleIcon">▶</span></div>
-      <div id="infoUpgradeBody" style="display:none"></div>
+      <div style="font-size:8px;color:#bb86fc;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px">🔧 UPGRADES</div>
+      <div id="infoUpgradeBody"></div>
     </div>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)" data-i18n="share_btn">📤 SHARE</button>
-    <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)" data-i18n="rename_btn">RENAME</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
     <button class="uf" id="infoCosmeticBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(255,100,200,.08));border-color:rgba(180,100,255,.3);color:#c088e0" onclick="openCosmeticPanel(selectedPlot)" data-i18n="customize_btn">✨ CUSTOMIZE</button>
     <div id="cosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
@@ -8324,7 +8323,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           border:1px solid rgba(92,187,255,.3);color:#5cbbff;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
           🛡️ 보호막
         </button>
-        <button type="button" onclick="closeMobTerritoryModal();openUpgradeModal()"
+        <button type="button" onclick="closeMobTerritoryModal();scrollToTerritoryUpgrade()"
           style="padding:14px 8px;border-radius:10px;background:rgba(129,212,250,.1);
           border:1px solid rgba(129,212,250,.3);color:#81d4fa;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
           🔧 업그레이드
@@ -11601,6 +11600,8 @@ function _updateBaseTerritoryGroupList(grpList){
     baseList.innerHTML='<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">영토가 없습니다. 지도에서 영토를 구매하세요.</div>';
     return;
   }
+  // 기존 확장 상태 유지 (새로고침 시 닫힘)
+  if(!window._baseTerritoryExpanded) window._baseTerritoryExpanded={};
   var html='';
   grpList.forEach(function(g,i){
     var anyForSale=g.claims.some(function(c){return _forSaleMap&&_forSaleMap[c.id];});
@@ -11610,21 +11611,145 @@ function _updateBaseTerritoryGroupList(grpList){
     var merged=g.claims.length>1?'<span style="font-size:9px;color:var(--gold);margin-left:3px">('+g.claims.length+'개)</span>':'';
     var name=g.claims.map(function(c){return c.customName||c.custom_name;}).filter(Boolean)[0]||null;
     var displayName=name?('<span style="font-weight:700;color:var(--tx)">'+name+'</span>'):('<span style="color:var(--tx2)">'+g.centerLat.toFixed(1)+'°, '+g.centerLng.toFixed(1)+'°</span>');
-    html+='<div onclick="_baseTerritoryTap('+i+')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:8px;background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.15);cursor:pointer;transition:background .15s;'+saleStyle+'" onmouseenter="this.style.background=\'rgba(255,120,60,.14)\'" onmouseleave="this.style.background=\'rgba(255,120,60,.06)\'">';
-    html+='<span style="font-size:22px;min-width:28px;text-align:center">'+imgBadge+'</span>';
+    var isOpen=!!window._baseTerritoryExpanded[i];
+    var toggleIcon=isOpen?'▼':'▶';
+    html+='<div style="border-radius:8px;border:1px solid rgba(255,120,60,.15);overflow:hidden;'+saleStyle+'">';
+    // 헤더 행 (클릭 → 아코디언 토글)
+    html+='<div onclick="_baseTerritoryAccordion('+i+')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,120,60,.06);cursor:pointer;transition:background .15s" onmouseenter="this.style.background=\'rgba(255,120,60,.14)\'" onmouseleave="this.style.background=\'rgba(255,120,60,.06)\'">';
+    html+='<span style="font-size:20px;min-width:26px;text-align:center">'+imgBadge+'</span>';
     html+='<div style="flex:1;min-width:0">';
     html+='<div style="font-size:12px;margin-bottom:2px">'+displayName+merged+saleBadge+'</div>';
-    html+='<div style="font-size:10px;color:var(--tx3)">'+g.totalPx+'px</div>';
+    html+='<div style="font-size:10px;color:var(--tx3)">'+g.totalPx+' px</div>';
     html+='</div>';
-    html+='<div style="font-size:9px;color:var(--tx3);text-align:right">▶</div>';
+    html+='<span id="bterrToggle'+i+'" style="font-size:10px;color:var(--mars);min-width:14px;text-align:center">'+toggleIcon+'</span>';
+    html+='</div>';
+    // 아코디언 본문
+    html+='<div id="bterrBody'+i+'" style="display:'+(isOpen?'block':'none')+';background:rgba(0,0,0,.18);padding:10px 14px 12px">';
+    html+='<div id="bterrProd'+i+'" style="font-size:9px;color:var(--tx2);line-height:1.7">로딩 중…</div>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">';
+    var claimId=g.claims[0]&&g.claims[0].id;
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryHarvest('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(255,171,64,.12);border:1px solid rgba(255,171,64,.3);color:#ffab40;cursor:pointer">⛏ 수확</button>';
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryShield('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--cyan,#5bb8e8);cursor:pointer">🛡 보호막</button>';
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryUpgrade('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(187,134,252,.08);border:1px solid rgba(187,134,252,.25);color:#bb86fc;cursor:pointer">🔧 업그레이드</button>';
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryGlobe('+i+')" style="font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">🌐 지도</button>';
+    html+='</div>';
+    html+='</div>';
     html+='</div>';
   });
   baseList.innerHTML=html;
-  // 탭 상태 저장해서 tap 핸들러에서 접근
   window._baseTerritoryGroups=grpList;
+  // 이미 열린 항목이 있으면 production 로드
+  grpList.forEach(function(g,i){
+    if(window._baseTerritoryExpanded[i]) _bterrLoadProd(i,g);
+  });
 }
 
-function _baseTerritoryTap(idx){
+function _baseTerritoryAccordion(idx){
+  var grpList=window._baseTerritoryGroups||[];
+  var g=grpList[idx];
+  if(!g) return;
+  if(!window._baseTerritoryExpanded) window._baseTerritoryExpanded={};
+  var isOpen=!!window._baseTerritoryExpanded[idx];
+  var body=document.getElementById('bterrBody'+idx);
+  var toggle=document.getElementById('bterrToggle'+idx);
+  if(isOpen){
+    window._baseTerritoryExpanded[idx]=false;
+    if(body) body.style.display='none';
+    if(toggle) toggle.textContent='▶';
+  } else {
+    window._baseTerritoryExpanded[idx]=true;
+    if(body) body.style.display='block';
+    if(toggle) toggle.textContent='▼';
+    _bterrLoadProd(idx,g);
+  }
+}
+
+function _bterrLoadProd(idx,g){
+  var prodEl=document.getElementById('bterrProd'+idx);
+  if(!prodEl) return;
+  var wallet=(walletState&&walletState.address)||'';
+  var claimId=g.claims[0]&&g.claims[0].id;
+  if(!claimId||!wallet){prodEl.textContent='—';return;}
+  prodEl.textContent='로딩 중…';
+  fetch('/api/territory/'+claimId+'/production?wallet='+encodeURIComponent(wallet))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!document.getElementById('bterrProd'+idx)) return; // 이미 닫힘
+      if(d.error){prodEl.textContent='생산 정보 없음';return;}
+      var html='';
+      var ppMin=d.production&&d.production.ppMin||0;
+      var ppMax=d.production&&d.production.ppMax||0;
+      if(ppMin>0||ppMax>0){
+        html+='<div style="display:flex;justify-content:space-between">';
+        html+='<span style="color:var(--tx3)">예상 PP 수확</span>';
+        html+='<span style="color:#ffab40;font-weight:700">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+'</span>';
+        html+='</div>';
+      }
+      if(d.sector&&d.sector.type){
+        var sLabel={core:'코어',mid:'미드',frontier:'프론티어'};
+        html+='<div style="display:flex;justify-content:space-between">';
+        html+='<span style="color:var(--tx3)">섹터</span>';
+        html+='<span style="color:var(--tx2)">'+(sLabel[d.sector.type]||d.sector.type)+'</span>';
+        html+='</div>';
+      }
+      if(d.lastHarvest&&d.lastHarvest.at){
+        var ago=_timeAgo(new Date(d.lastHarvest.at));
+        html+='<div style="display:flex;justify-content:space-between">';
+        html+='<span style="color:var(--tx3)">최근 수확</span>';
+        html+='<span style="color:var(--tx2)">'+d.lastHarvest.pp.toFixed(4)+' PP · '+ago+'</span>';
+        html+='</div>';
+      } else {
+        html+='<div style="color:var(--tx3)">아직 수확 없음</div>';
+      }
+      if(d.materials&&d.materials.length){
+        html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">';
+        d.materials.forEach(function(m){
+          var rarityColor={'common':'var(--tx2)','rare':'#64b5f6','special':'#ffb74d','legendary':'#ce93d8'}[m.rarity]||'var(--tx2)';
+          var name=m.nameKo||m.nameEn;
+          html+='<span style="font-size:8px;padding:1px 5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:'+rarityColor+'">'+m.icon+' '+name+'</span>';
+        });
+        html+='</div>';
+      }
+      prodEl.innerHTML=html||'<span style="color:var(--tx3)">생산 정보 없음</span>';
+    })
+    .catch(function(){if(document.getElementById('bterrProd'+idx)) document.getElementById('bterrProd'+idx).textContent='오류';});
+}
+
+// 내 영토 목록에서 빠른 액션
+function _baseTerritoryHarvest(idx){
+  // harvestMining()은 전체 영토 수확 (wallet 기반)
+  harvestMining();
+}
+function _baseTerritoryShield(idx){
+  var grpList=window._baseTerritoryGroups||[];
+  var g=grpList[idx];
+  if(!g||!g.claims||!g.claims.length) return;
+  selectedPlot=g.claims[0];
+  closeBaseModal();
+  showTerritoryInfo(g.claims[0]);
+  setTimeout(function(){ openShieldModal(); },350);
+}
+function _baseTerritoryUpgrade(idx){
+  var grpList=window._baseTerritoryGroups||[];
+  var g=grpList[idx];
+  if(!g||!g.claims||!g.claims.length) return;
+  var claim=g.claims[0];
+  var wallet=(walletState&&walletState.address)||'';
+  selectedPlot=claim;
+  // BASE 내 영토 탭에서 해당 클레임 업그레이드 패널로 스크롤
+  if(claim.id){
+    loadTerritoryUpgrades(claim.id);
+    var upgradeRow=document.getElementById('infoUpgradeRow');
+    if(upgradeRow&&upgradeRow.style.display!=='none'){
+      upgradeRow.scrollIntoView({behavior:'smooth',block:'start'});
+    } else {
+      // 영토 정보 패널을 열어서 업그레이드 섹션 표시
+      closeBaseModal();
+      showTerritoryInfo(claim);
+    }
+  }
+}
+function _baseTerritoryGlobe(idx){
   var grpList=window._baseTerritoryGroups||[];
   var g=grpList[idx];
   if(!g||!g.claims||!g.claims.length) return;
@@ -11632,9 +11757,14 @@ function _baseTerritoryTap(idx){
   var b=_ownerGroups[(walletState&&walletState.address)||'']?_ownerGroups[(walletState&&walletState.address)||''].find(function(og){return og.claimIndices.some(function(ci){return claims[ci]&&claims[ci].id===ec[0].id;});}):{bounds:null};
   var zoomW=b&&b.bounds?(b.bounds.maxLng-b.bounds.minLng):((ec[0].w||10)*0.22);
   var zoomH=b&&b.bounds?(b.bounds.maxLat-b.bounds.minLat):((ec[0].h||10)*0.22);
+  closeBaseModal();
   if(globe) globe.pointOfView({lat:g.centerLat,lng:g.centerLng,altitude:Math.max(0.4,Math.max(zoomW,zoomH)*0.03)},600);
   selectedPlot=ec[0];
   showTerritoryInfo(ec[0]);
+}
+
+function _baseTerritoryTap(idx){
+  _baseTerritoryAccordion(idx);
 }
 
 function loadNasa8k(){
@@ -13160,19 +13290,16 @@ function showTerritoryInfo(plot){
   var myW=walletState.address||'';
   var cosBtn=document.getElementById('infoCosmeticBtn');
   var cosPanel=document.getElementById('cosmeticPanel');
-  var renameBtn=document.getElementById('infoRenameBtn');
   if(myW&&plot.owner===myW){
     editBtn.style.display='';
     editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
     linkEdit.style.display='';
     document.getElementById('infoLinkInput').value=plot.link||'';
     cosBtn.style.display='';
-    renameBtn.style.display='';
   }else{
     editBtn.style.display='none';
     linkEdit.style.display='none';
     cosBtn.style.display='none';
-    renameBtn.style.display='none';
   }
   cosPanel.style.display='none';
   // Production summary (own territory only)
@@ -13183,19 +13310,18 @@ function showTerritoryInfo(plot){
       loadTerritoryProduction(plot.claimId,myW2);
     }
   }
-  // Upgrade panel (own territory only) — reset state when switching territories
-  _territoryUpgradeState.open = false;
+  // Upgrade panel (own territory only) — always expanded, auto-load
+  _territoryUpgradeState.open = true;
   _territoryUpgradeState.data = null;
   var upgradeRow=document.getElementById('infoUpgradeRow');
   if(upgradeRow){
-    upgradeRow.style.display='none';
-    var upgradeBody=document.getElementById('infoUpgradeBody');
-    if(upgradeBody) upgradeBody.innerHTML='';
-    var upgradeToggleIcon=document.getElementById('infoUpgradeToggleIcon');
-    if(upgradeToggleIcon) upgradeToggleIcon.textContent='▶';
-    if(upgradeBody) upgradeBody.style.display='none';
     if(_isMyPlot&&plot.claimId){
       upgradeRow.style.display='';
+      loadTerritoryUpgrades(plot.claimId);
+    } else {
+      upgradeRow.style.display='none';
+      var upgradeBody=document.getElementById('infoUpgradeBody');
+      if(upgradeBody) upgradeBody.innerHTML='';
     }
   }
 }
@@ -13494,8 +13620,20 @@ function _timeAgo(date){
   return Math.floor(diff/86400)+'d ago';
 }
 
+// 모바일 업그레이드 버튼 → 현재 선택 영토 업그레이드 패널로 스크롤
+function scrollToTerritoryUpgrade() {
+  var row = document.getElementById('infoUpgradeRow');
+  if (row && row.style.display !== 'none') {
+    row.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    // BASE 내 영토 탭으로 이동
+    var tab = document.getElementById('baseTabTerritory');
+    if (tab) { openBaseModal(); switchBaseTab('territory', tab); }
+  }
+}
+
 // ── Territory Upgrade Panel (P5-4) ──────────────────────────────────
-var _territoryUpgradeState = { open: false, data: null, loading: false };
+var _territoryUpgradeState = { open: true, data: null, loading: false };
 
 function toggleTerritoryUpgradePanel() {
   var body = document.getElementById('infoUpgradeBody');
@@ -33913,9 +34051,12 @@ function openShieldModal() {
       if (!hours) return;
       var opt = (_shieldCatalog.options || []).find(function(o){ return o.hours == hours; });
       var claimName = (myClaims.find(function(c){ return c.id == claimId; }) || {}).custom_name || 'Territory ' + claimId;
-      gameConfirm('🛡️', 'ACTIVATE SHIELD',
-        'Protect "' + escHtml(claimName) + '" for ' + (opt ? opt.label : hours + 'h') + '? Costs ' + (opt ? opt.cost : '?') + ' GP.')
-        .then(function(confirmed) {
+      gameConfirm({
+        icon: '🛡️', title: 'ACTIVATE SHIELD',
+        body: '"' + escHtml(claimName) + '" 을 ' + (opt ? opt.label : hours + 'h') + ' 동안 보호합니다.',
+        info: [{ k: '💰 GP 비용', v: (opt ? opt.cost : '?') + ' GP', ok: true }],
+        confirmText: '보호막 활성화'
+      }).then(function(confirmed) {
           if (!confirmed) return;
           return fetch('/api/shield/activate', {
             method: 'POST',

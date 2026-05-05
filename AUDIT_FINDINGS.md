@@ -1,4 +1,23 @@
-# OCCUPY MARS — Codebase Audit (v6.04 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.05 / 2026-05-05)
+
+## ✅ v6.05 영토 목록 아코디언 + 패널 UX 개선 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `_updateBaseTerritoryGroupList` 아코디언 재설계 | ✅ | ▶ 클릭 → 인라인 확장 (지구본 이동 제거) |
+| `_baseTerritoryAccordion(idx)` 신규 | ✅ | 확장/축소 토글, prod 자동 로드 |
+| `_bterrLoadProd(idx,g)` 신규 | ✅ | `/api/territory/:id/production` 인라인 표시 |
+| 빠른 액션 버튼 4종 | ✅ | 수확/보호막/업그레이드/지도 |
+| `_baseTerritoryHarvest/Shield/Upgrade/Globe` | ✅ | 각 액션 핸들러 |
+| 확장 상태 `_baseTerritoryExpanded{}` 유지 | ✅ | 탭 전환 시 재렌더 복구 |
+| **RENAME 버튼 제거** | ✅ | `infoRenameBtn` HTML + JS 참조 삭제 |
+| **보호막 버튼 gameConfirm 수정** | ✅ | 구 3-arg → 신 object signature |
+| **업그레이드 패널 자동 확장** | ✅ | 내 영토 선택 시 즉시 로드, 토글 제거 |
+| `scrollToTerritoryUpgrade()` 신규 | ✅ | 모바일 업그레이드 버튼 연결 |
+
+---
+
+## ✅ v6.04 서브탭 폰트/터치 영역 개선 — 완료
 
 ## ✅ v6.04 서브탭 폰트/터치 영역 개선 — 완료
 
