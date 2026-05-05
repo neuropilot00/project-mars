@@ -141,6 +141,13 @@ async function runBattle(battleId) {
     
     // 4. DB 반영
     await battleEngine.applyBattleResults(battleId, result);
+
+    // 4.5 CPI / Daily OPS 후속 처리
+    try {
+      await _postBattleHooks(battleId, result);
+    } catch (hookErr) {
+      console.error(`[battleScheduler] post battle hooks failed:`, hookErr);
+    }
     
     // 5. 보상 분배 (Phase B)
     try {
@@ -198,6 +205,56 @@ async function runBattle(battleId) {
   } finally {
     currentlyRunning--;
   }
+}
+
+// ─── 전투 종료 후 후속 Hook ───────────────────────────────────
+async function _postBattleHooks(battleId, result) {
+  const { rows: parts } = await pool.query(
+    `SELECT p.wallet_address, p.side, p.fleet_id,
+            fb.battle_type, fb.battle_summary
+       FROM fleet_battle_participants p
+       JOIN fleet_battles fb ON fb.id = p.battle_id
+      WHERE p.battle_id = $1`,
+    [battleId]
+  );
+  const atkPart = parts.find(p => p.side === 'atk');
+  const defPart = parts.find(p => p.side === 'def');
+  const atkFleetId = atkPart?.fleet_id;
+  const defFleetId = defPart?.fleet_id;
+  const atkWallet = atkPart?.wallet_address;
+  const defWallet = defPart?.wallet_address;
+  const winner = result?.winner_side;
+
+  // ✅ [CPI] 전투 종료 후 양 함대 CPI 재계산 (fire-and-forget)
+  try {
+    const battleReport = require('./battleReport');
+    if (typeof battleReport.updateFleetCPI === 'function') {
+      if (atkFleetId) battleReport.updateFleetCPI(atkFleetId).catch(() => {});
+      if (defFleetId) battleReport.updateFleetCPI(defFleetId).catch(() => {});
+    }
+  } catch (_cpi) {}
+
+  // ✅ [Daily OPS] 전투 참여/승리 미션 트래킹 (fire-and-forget)
+  try {
+    const dailyOps = require('../routes/dailyOps');
+    if (typeof dailyOps.notifyMissionProgress === 'function') {
+      if (atkWallet) dailyOps.notifyMissionProgress(atkWallet, 'battle_participate').catch(() => {});
+      if (defWallet) dailyOps.notifyMissionProgress(defWallet, 'battle_participate').catch(() => {});
+
+      const winnerWallet = winner === 'atk' ? atkWallet : winner === 'def' ? defWallet : null;
+      if (winnerWallet) dailyOps.notifyMissionProgress(winnerWallet, 'battle_win').catch(() => {});
+
+      const battleMeta = parts[0] || {};
+      const summary = battleMeta.battle_summary || {};
+      const isAiBattle = summary.is_ai_battle === true
+        || summary.is_ai_battle === 'true'
+        || String(battleMeta.battle_type || '').toLowerCase().includes('ai');
+      if (isAiBattle) {
+        if (atkWallet) dailyOps.notifyMissionProgress(atkWallet, 'ai_battle').catch(() => {});
+        if (defWallet) dailyOps.notifyMissionProgress(defWallet, 'ai_battle').catch(() => {});
+      }
+    }
+  } catch (_do) {}
 }
 
 // ─── 길드전 Hook ───────────────────────────────────────────────

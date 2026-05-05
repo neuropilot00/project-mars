@@ -1824,6 +1824,25 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
     const safeOriginalImageUrl = sanitizeUrl(originalImageUrl, true) || null;
     const safeLinkUrl = sanitizeUrl(linkUrl, false);
 
+    // ✅ [Field Rating → 하이젝 GP 가중] 수비 영토 FR 구간에 따라 공격 비용 상향
+    // FR 0~9: ×1.0 / FR 10~29: ×1.1 / FR 30~59: ×1.25 / FR 60+: ×1.5
+    let fieldRatingMult = 1.0;
+    if (primaryDefClaimId) {
+      try {
+        const frRes = await pool.query(
+          `SELECT COALESCE(field_rating, 0) AS fr FROM claims WHERE id = $1 LIMIT 1`,
+          [primaryDefClaimId]
+        );
+        const fr = parseInt(frRes.rows[0]?.fr || 0);
+        if (fr >= 60) fieldRatingMult = 1.5;
+        else if (fr >= 30) fieldRatingMult = 1.25;
+        else if (fr >= 10) fieldRatingMult = 1.1;
+      } catch (_fr) {}
+    }
+    if (fieldRatingMult !== 1.0) {
+      attackCost = Math.round(attackCost * fieldRatingMult * 10000) / 10000;
+    }
+
     // hijack 서비스 (lazy require)
     const hijackSvc = require('../services/hijack');
     const result = await hijackSvc.declareHijackWithPP({
@@ -2983,6 +3002,16 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
         harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
       }
     } catch (_hb) { /* hold bonus unavailable */ }
+
+    // ✅ [주간 이벤트] 요일별 채굴 보너스 적용
+    try {
+      const todayDow = new Date().getUTCDay();
+      // 1=MON: mining_bonus +50%
+      if (todayDow === 1) {
+        harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
+      }
+      // 4=THU: 광물 드롭률 상승은 rollResourceDrop에서 이미 base_rate 기반 — 별도 처리 없음
+    } catch (_we) {}
 
     // (P1-1) cap 은 위에서 base 에 이미 적용됨 — 여기선 multipliers 누적 후 추가 cap 적용 안 함.
 

@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 주간 이벤트/CPI/OPS 연동 + Field Rating 하이젝 가중 (Codex 협업)
+
+### `server/routes/api.js`
+- `harvest`: MON(월요일) +50% PP 보너스 적용 (UTC getDay===1)
+- `hijack/declare-with-pp`: 수비 영토 Field Rating 구간별 attackCost 가중 (FR 0~9: ×1.0 / FR 10~29: ×1.1 / FR 30~59: ×1.25 / FR 60+: ×1.5)
+
+### `server/services/ship.js`
+- `upgradeShipStat`: FRI(금요일) 강화 GP 비용 -20% (UTC getDay===5), finalGpCost 기반으로 차감/로그/반환값 일관화
+
+### `server/services/battleRewards.js`
+- `computeReward` + `distributeMinimalRewards`: WED(수요일) 전투 GP 수령 +30% (UTC getDay===3), breakdown에 weekly_event 키 추가
+
+### `server/services/battleScheduler.js`
+- `_postBattleHooks()` 신규: 전투 종료 후 CPI 재계산 + Daily OPS 미션 트래킹 (battle_participate/battle_win/ai_battle) 자동 연동
+
+### `server/services/battleReport.js`
+- 전투 리포트 생성 시 atk/def performance_rating 계산 후 `fleet_battles.performance_rating_atk/def` DB UPDATE
+
+---
+
 ## 2026-05-06 — 약점 개선 기획서 5대 기능 전면 구현
 
 ### `server/routes/api.js`

@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v6.11 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.12 / 2026-05-06)
+
+## ✅ v6.12 주간 이벤트/CPI/OPS 연동 + Field Rating 하이젝 가중 — 완료 (Codex 협업)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| MON +50% 채굴 보너스 (api.js harvest) | ✅ | UTC getDay===1 체크, harvestedPP ×1.5 |
+| WED +30% 전투 GP (battleRewards.js) | ✅ | computeReward + distributeMinimalRewards 양쪽 적용 |
+| FRI -20% 강화 비용 (ship.js) | ✅ | finalGpCost = cost×0.8, 차감/로그/반환 일관화 |
+| CPI 전투 후 자동 재계산 (battleScheduler.js) | ✅ | _postBattleHooks → updateFleetCPI(atkFleetId/defFleetId) |
+| Daily OPS battle_participate/win/ai_battle 트래킹 | ✅ | _postBattleHooks → notifyMissionProgress |
+| performance_rating DB 저장 (battleReport.js) | ✅ | generateBattleReport에서 atk/def rating UPDATE fleet_battles |
+| Field Rating → hijack attackCost 가중 (api.js) | ✅ | FR<10: ×1.0 / FR<30: ×1.1 / FR<60: ×1.25 / FR≥60: ×1.5 |
+
+---
 
 ## ✅ v6.11 약점 개선 기획서 5대 기능 구현 — 완료
 

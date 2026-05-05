@@ -195,6 +195,14 @@ async function computeReward(participant, battle, settings, isWinner) {
       }
     }
   }
+
+  // ✅ [주간 이벤트] 수요일 전투 GP +30%
+  try {
+    if (new Date().getUTCDay() === 3) { // WED
+      totalGp = Math.floor(totalGp * 1.3);
+      breakdown.weekly_event = 'battle_gp_boost';
+    }
+  } catch (_) {}
   
   return {
     gp_awarded: totalGp,
@@ -221,7 +229,16 @@ async function distributeMinimalRewards(battleId) {
     
     for (const p of participants) {
       // 참가만으로 약간의 GP
-      const gp = Math.floor(settings.reward_loser_consolation * 0.5);
+      let gp = Math.floor(settings.reward_loser_consolation * 0.5);
+      const breakdown = { draw: true };
+
+      // ✅ [주간 이벤트] 수요일 전투 GP +30%
+      try {
+        if (new Date().getUTCDay() === 3) { // WED
+          gp = Math.floor(gp * 1.3);
+          breakdown.weekly_event = 'battle_gp_boost';
+        }
+      } catch (_) {}
       
       if (gp > 0) {
         await client.query(
@@ -234,7 +251,7 @@ async function distributeMinimalRewards(battleId) {
         INSERT INTO fleet_battle_rewards (
           battle_id, wallet_address, side, is_winner, gp_awarded, minerals_awarded, breakdown
         ) VALUES ($1, $2, $3, false, $4, '{}'::jsonb, $5)
-      `, [battleId, p.wallet_address, p.side, gp, JSON.stringify({ draw: true })]);
+      `, [battleId, p.wallet_address, p.side, gp, JSON.stringify(breakdown)]);
       
       results.push({
         wallet_address: p.wallet_address,

@@ -336,6 +336,28 @@ async function generateBattleReport(battleId, wallet) {
       }
     }
     const highlights = generateHighlights(events, battle.winner_side);
+    atk.rating = calcPerformanceRating(
+      atk.totalDamage,
+      atk.shipsDestroyed,
+      atk.shipsDeployed,
+      battle.winner_side === 'atk'
+    );
+    def.rating = calcPerformanceRating(
+      def.totalDamage,
+      def.shipsDestroyed,
+      def.shipsDeployed,
+      battle.winner_side === 'def'
+    );
+
+    // ✅ [퍼포먼스 레이팅] DB 저장
+    try {
+      await pool.query(
+        `UPDATE fleet_battles
+         SET performance_rating_atk = $1, performance_rating_def = $2
+         WHERE id = $3`,
+        [atk.rating || null, def.rating || null, id]
+      );
+    } catch (_pr) {}
 
     return {
       battleId: toInt(battle.id),
@@ -352,6 +374,10 @@ async function generateBattleReport(battleId, wallet) {
       analysis_ko,
       recommendations_ko,
       highlights,
+      performance_rating: {
+        atk: atk.rating || null,
+        def: def.rating || null
+      },
       summary: {
         total_ticks: battle.duration_seconds || events.length,
         total_ships_destroyed: atk.shipsDestroyed + def.shipsDestroyed,

@@ -1199,9 +1199,18 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     const economy = offer.economy;
     const delta = economy.steps[stat] || cfg.fallback;
     const cost = offer.cost;
-    if (parseInt(userRows[0].gp_balance) < cost) {
+
+    // ✅ [주간 이벤트] 금요일 강화 비용 -20%
+    let finalGpCost = cost;
+    try {
+      if (new Date().getUTCDay() === 5) { // FRI
+        finalGpCost = Math.floor(cost * 0.8);
+      }
+    } catch (_) {}
+
+    if (parseInt(userRows[0].gp_balance) < finalGpCost) {
       const err = new Error('INSUFFICIENT_GP');
-      err.meta = { required: cost, balance: userRows[0].gp_balance };
+      err.meta = { required: finalGpCost, balance: userRows[0].gp_balance };
       throw err;
     }
 
@@ -1212,7 +1221,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
 
     await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
-      [cost, walletAddress]
+      [finalGpCost, walletAddress]
     );
 
     const roll = +(Math.random() * 100).toFixed(2);
@@ -1242,7 +1251,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
       stat,
       fromBonus,
       success ? toBonus : fromBonus,
-      cost,
+      finalGpCost,
       success,
       offer.chance,
       roll,
@@ -1253,10 +1262,10 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
 
     try {
       const { logGPActivity } = require('../db');
-      logGPActivity(walletAddress, -cost, 'ship_stat_upgrade',
+      logGPActivity(walletAddress, -finalGpCost, 'ship_stat_upgrade',
         `함선 ${cfg.label} 강화 (ID:${shipId}) +${delta}`).catch(() => {});
     } catch (_) {}
-    logFleetGpActivity(walletAddress, 'ship_stat_upgrade', -cost, {
+    logFleetGpActivity(walletAddress, 'ship_stat_upgrade', -finalGpCost, {
       ship_id: shipId,
       stat,
       from_bonus: fromBonus,
@@ -1273,7 +1282,8 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
       ship_id: shipId,
       stat,
       delta: success ? delta : 0,
-      gp_cost: cost,
+      gp_cost: finalGpCost,
+      base_gp_cost: cost,
       chance: offer.chance,
       roll,
       materials_used: materialsUsed,
