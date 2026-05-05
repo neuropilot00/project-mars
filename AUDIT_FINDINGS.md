@@ -1,4 +1,30 @@
-# OCCUPY MARS — Codebase Audit (v6.06 / 2026-05-05)
+# OCCUPY MARS — Codebase Audit (v6.07 / 2026-05-05)
+
+## ✅ v6.07 종합 로컬라이제이션 패스 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 착륙 오버레이 한국어 텍스트 | ✅ | data-i18n EN/KO/JA/ZH |
+| 온보딩 Step 0~4 전체 | ✅ | t() 적용, 직업명/파벌명 언어별 분기 |
+| 모달 닫기 버튼 "✕ 닫기" (7개 모달) | ✅ | data-i18n="btn_close" |
+| 전쟁 베팅 탭 | ✅ | wb_tab_* keys |
+| 조선소 마켓 정렬 | ✅ | sy_sort_* keys |
+| 배틀뷰어 결과 (승리/패배/통계) | ✅ | bv_my_* keys via t() |
+| 배틀 목록 카드 상태/유형 레이블 | ✅ | bc_* keys via t() |
+| PVP 탭 설명/버튼 | ✅ | data-i18n siege/fleet_battle_* |
+| 함대 빈 상태 메시지 | ✅ | fleet_no_*_hint keys |
+| 함대 전투 오류 토스트 | ✅ | t() 적용 |
+| 길드전 자동승리 다이얼로그 | ✅ | gw_auto_win_* keys |
+| 인벤토리 필터 버튼 | ✅ | inv_cat_* keys |
+| 영토 탭 제목·로그인 힌트 | ✅ | data-i18n |
+| 하이젝 함대없음/로딩 | ✅ | data-i18n |
+| 함선 레지스트리 광물 카탈로그 | ✅ | LANG 분기 |
+| EN/KO 키 수 | ✅ | 1499키 (이전 1440) |
+| I18N.en/ko 동수 확인 | ✅ | node eval 통과 |
+
+검증: `node -e I18N eval` 통과, EN/KO 1499 동수, 모든 신규 키 존재 확인
+
+---
 
 ## ✅ v6.06 영토별 개별 수확 + 채굴 탭 제거 — 완료
 
