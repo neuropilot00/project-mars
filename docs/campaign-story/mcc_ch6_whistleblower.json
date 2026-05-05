@@ -4,7 +4,9 @@
   "chapterNumber": 6,
   "title": {
     "ko": "복수",
-    "en": "Vendetta"
+    "en": "Vendetta",
+    "ja": "報復",
+    "zh": "复仇"
   },
   "location": {
     "id": "hellas_labor_district",
@@ -28,7 +30,9 @@
         {
           "text": {
             "ko": "Chen Weiss가 보고서를 읽었다. 차를 들고. 마시지 않고. 창밖에 헬라스 노동자 지구가 보였다. MCC가 지은 구역이었다. MCC를 위해 사는 사람들의 구역이었다. 창은 두꺼웠다. 소리가 들어오지 않았다. 그것이 의도된 것이었다.",
-            "en": "Chen Weiss read the report. Holding her tea. Not drinking it. Outside the window was the Hellas labor district. A sector MCC built. A sector of people who lived for MCC. The window was thick. No sound came through. That was intentional."
+            "en": "Chen Weiss read the report. Holding her tea. Not drinking it. Outside the window was the Hellas labor district. A sector MCC built. A sector of people who lived for MCC. The window was thick. No sound came through. That was intentional.",
+            "ja": "チェン・ワイスは報告書を読んでいた。茶を持ったまま。飲まずに。窓の外にヘラス労働者地区が見えた。MCCが建てた区域だった。MCCのために生きる人々の区域だった。窓は厚かった。音が入ってこなかった。それは意図されたものだった。",
+            "zh": "陈·韦斯读着报告。手握茶杯。没有喝。窗外是赫拉斯劳工区。那是MCC建造的区域。那里住着为MCC而活的人。窗户很厚。声音传不进来。这是刻意为之的。"
           }
         }
       ]
@@ -43,7 +47,9 @@
         {
           "text": {
             "ko": "정보가 새어나갔다. MCC는 그것을 알았다. 어디서 나왔는지도 알았다. 누가 도왔는지도. MCC는 오래 기억했다. 화성에서 오래 기억하는 조직은 하나뿐이었다. 그것이 MCC의 실질적인 권력이었다.",
-            "en": "Information had leaked. MCC knew it. They knew where it came from. And who helped. MCC had a long memory. On Mars there was only one organization with a long memory. That was MCC's real power."
+            "en": "Information had leaked. MCC knew it. They knew where it came from. And who helped. MCC had a long memory. On Mars there was only one organization with a long memory. That was MCC's real power.",
+            "ja": "情報が漏れた。MCCはそれを知っていた。どこから出たかも知っていた。誰が協力したかも。MCCは長い記憶を持っていた。火星で長い記憶を持つ組織は一つだけだった。それがMCCの実質的な権力だった。",
+            "zh": "情报泄露了。MCC知道。知道从哪里泄露的。也知道谁帮了忙。MCC的记忆很长。在火星上，只有一个组织拥有如此长的记忆。那就是MCC真正的权力。"
           }
         }
       ]
@@ -58,7 +64,9 @@
         {
           "text": {
             "ko": "보복. 화성에서 그 단어는 다른 모양을 했다. 폭력이 아니었다. MCC는 폭력을 사용하지 않았다. 폭력은 흔적을 남겼다. 대신 허가를 정지했다. 계약을 취소했다. 산소 배급을 조정했다. 그것이 폭력보다 깨끗했다. 그리고 더 완전했다.",
-            "en": "Vendetta. On Mars that word took a different shape. Not violence. MCC didn't use violence. Violence left traces. Instead they suspended permits. Cancelled contracts. Adjusted oxygen allocations. That was cleaner than violence. And more complete."
+            "en": "Vendetta. On Mars that word took a different shape. Not violence. MCC didn't use violence. Violence left traces. Instead they suspended permits. Cancelled contracts. Adjusted oxygen allocations. That was cleaner than violence. And more complete.",
+            "ja": "報復。火星でその言葉は違う形をとった。暴力ではなかった。MCCは暴力を使わなかった。暴力は痕跡を残した。代わりに許可を停止した。契約を取り消した。酸素配給を調整した。それは暴力より清潔だった。そしてより完全だった。",
+            "zh": "复仇。在火星上，这个词呈现出不同的形态。不是暴力。MCC不使用暴力。暴力留下痕迹。他们改为暂停许可。取消合同。调整氧气配给。那比暴力更干净。也更彻底。"
           }
         }
       ]
@@ -76,7 +84,9 @@
           "effect": "character_enter:chen:slide_left",
           "text": {
             "ko": "노동자 지구 C-7 블록이에요. FSP 연락망이 그곳에 있어요.",
-            "en": "Labor district block C-7. The FSP contact network operates from there."
+            "en": "Labor district block C-7. The FSP contact network operates from there.",
+            "ja": "労働者地区C-7ブロックよ。FSPの連絡網がそこにあるわ。",
+            "zh": "劳工区C-7街区。FSP的联络网就在那里。"
           }
         },
         {
@@ -84,7 +94,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC는 그것을 알고 있었어요. 오래전부터. 오늘 밤 그 블록의 운영 허가가 정지돼요.",
-            "en": "MCC has known that. For a long time. Tonight that block's operating permit is suspended."
+            "en": "MCC has known that. For a long time. Tonight that block's operating permit is suspended.",
+            "ja": "MCCはそれを知っていたわ。ずっと前から。今夜そのブロックの運営許可が停止されるの。",
+            "zh": "MCC早就知道了。今晚那个街区的运营许可将被暂停。"
           }
         },
         {
@@ -92,7 +104,9 @@
           "emotion": "serious",
           "text": {
             "ko": "당신에게 할 일이 있어요. 구역 내 광부 데이터베이스를 확보하세요. 그 전에 FSP가 빼내지 못하게.",
-            "en": "There's work for you. Secure the miner database in that sector. Before FSP extracts it."
+            "en": "There's work for you. Secure the miner database in that sector. Before FSP extracts it.",
+            "ja": "あなたにやることがあるわ。その区域の鉱夫データベースを確保して。FSPが持ち出す前に。",
+            "zh": "你有任务。在FSP取走之前，确保该区域的矿工数据库安全。"
           }
         }
       ]
@@ -107,7 +121,9 @@
         {
           "text": {
             "ko": "Chen은 차를 들고 있었다. 마시지 않았다. 이 명령을 내리면서도. 화성의 명령은 이런 식이었다. 조용한 목소리로. 차를 들고. 직접적으로 위협하지 않고. 그러나 모든 말에 위협이 있었다. Chen Weiss의 방식이었다.",
-            "en": "Chen held her tea. Didn't drink. Even giving this order. Orders on Mars came like this. In a quiet voice. Holding tea. Without directly threatening. But every word contained a threat. Chen Weiss's way."
+            "en": "Chen held her tea. Didn't drink. Even giving this order. Orders on Mars came like this. In a quiet voice. Holding tea. Without directly threatening. But every word contained a threat. Chen Weiss's way.",
+            "ja": "チェンは茶を持っていた。飲まなかった。この命令を下しながらも。火星の命令はこういうものだった。静かな声で。茶を持って。直接脅さずに。しかしすべての言葉に脅しがあった。チェン・ワイスのやり方だった。",
+            "zh": "陈手握茶杯。没有喝。即使在下达这道命令时。火星上的命令就是这样来的。用平静的声音。手握茶杯。不直接威胁。但每句话里都含着威胁。这就是陈·韦斯的方式。"
           }
         }
       ]
@@ -124,7 +140,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "C-7 블록에 광부들이 있어요. 가족들도 있어요.",
-            "en": "There are miners in block C-7. Families too."
+            "en": "There are miners in block C-7. Families too.",
+            "ja": "C-7ブロックには鉱夫たちがいるわ。家族たちも。",
+            "zh": "C-7街区有矿工。也有他们的家属。"
           }
         },
         {
@@ -132,7 +150,9 @@
           "emotion": "calm",
           "text": {
             "ko": "데이터베이스를 확보하면 그들의 계약 갱신이 진행돼요. 그렇지 않으면 갱신이 보류돼요.",
-            "en": "If the database is secured their contract renewals proceed. Otherwise renewals are put on hold."
+            "en": "If the database is secured their contract renewals proceed. Otherwise renewals are put on hold.",
+            "ja": "データベースを確保すれば彼らの契約更新が進むわ。そうでなければ更新は保留になるの。",
+            "zh": "如果数据库得到保全，他们的合同续签就会进行。否则续签将被搁置。"
           }
         },
         {
@@ -140,7 +160,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그것이 MCC의 방식이에요. 이해했어요?",
-            "en": "That is MCC's way. Understood?"
+            "en": "That is MCC's way. Understood?",
+            "ja": "それがMCCのやり方よ。わかった？",
+            "zh": "这就是MCC的方式。明白了吗？"
           }
         }
       ]
@@ -155,7 +177,9 @@
         {
           "text": {
             "ko": "이해했다. 그러나 이해가 모든 것을 정당화하지는 않았다. 이해와 동의는 달랐다. 화성에서 그 차이는 컸다. 그러나 명령은 명령이었다. 명령을 거부하면 그 다음이 있었다. 그 다음도 MCC의 방식이었다.",
-            "en": "Understood. But understanding didn't justify everything. Understanding and agreement were different. On Mars that difference was large. But an order was an order. Refuse an order and there was a next. The next was also MCC's way."
+            "en": "Understood. But understanding didn't justify everything. Understanding and agreement were different. On Mars that difference was large. But an order was an order. Refuse an order and there was a next. The next was also MCC's way.",
+            "ja": "理解した。しかし理解がすべてを正当化するわけではなかった。理解と同意は違った。火星でその差は大きかった。しかし命令は命令だった。命令を拒否すれば次があった。次もMCCのやり方だった。",
+            "zh": "明白了。但理解并不意味着一切都正当。理解和同意是不同的。在火星上，这种差异很大。但命令就是命令。拒绝命令就会有后果。后果也是MCC的方式。"
           }
         }
       ]
@@ -170,7 +194,9 @@
         {
           "text": {
             "ko": "C-7 블록이었다. 밤이었다. 화성의 밤은 길었다. 골목에 사람들이 있었다. 아이들이었다. 광부의 아이들이었다. 마스크를 쓰고 있었다. 골목에서 마스크를 쓰는 아이들. 그것이 화성의 아이들이었다.",
-            "en": "Block C-7. Night. The Martian night was long. People were in the alleys. Children. Miners' children. Wearing masks. Children wearing masks in alleys. That was what children on Mars were."
+            "en": "Block C-7. Night. The Martian night was long. People were in the alleys. Children. Miners' children. Wearing masks. Children wearing masks in alleys. That was what children on Mars were.",
+            "ja": "C-7ブロックだった。夜だった。火星の夜は長かった。路地に人がいた。子供たちだった。鉱夫の子供たちだった。マスクをつけていた。路地でマスクをつける子供たち。それが火星の子供たちだった。",
+            "zh": "C-7街区。夜晚。火星的夜晚很长。小巷里有人。是孩子们。矿工的孩子们。戴着面罩。在小巷里戴面罩的孩子们。那就是火星上的孩子们。"
           }
         }
       ]
@@ -185,9 +211,11 @@
         {
           "text": {
             "ko": "벽에 이름이 적혀 있었다. 분필이었다. Kim Yong-jin. 그 아래 다른 이름들. 여러 개였다. FSP 노동자 지구에서 죽은 사람들의 이름이 아니었다. MCC 광산에서 죽은 사람들의 이름이었다. 골목 아이들이 적은 것이었다.",
-            "en": "Names were written on the wall. Chalk. Kim Yong-jin. More names below. Several. Not the names of people who died in FSP labor districts. The names of people who died in MCC mines. Written by the alley children."
-          },
-          "overlay": "mcc_ch6_whistleblower_l08_00_candle_flame"
+            "en": "Names were written on the wall. Chalk. Kim Yong-jin. More names below. Several. Not the names of people who died in FSP labor districts. The names of people who died in MCC mines. Written by the alley children.",
+            "ja": "壁に名前が書いてあった。チョークで。キム・ヨンジン。その下に他の名前たち。いくつもあった。FSP労働者地区で亡くなった人たちの名前ではなかった。MCC鉱山で亡くなった人たちの名前だった。路地の子供たちが書いたものだった。",
+            "zh": "墙上写着名字。粉笔写的。金永珍。下面还有更多名字。好几个。不是在FSP劳工区死去的人的名字。是在MCC矿场死去的人的名字。是小巷里的孩子们写的。",
+            "overlay": "mcc_ch6_whistleblower_l08_00_candle_flame"
+          }
         }
       ]
     },
@@ -201,7 +229,9 @@
         {
           "text": {
             "ko": "아이들이 봤다. 낯선 사람이 있었다. MCC 완장이 없었다. 그러나 MCC 사람인 것을 알았다. 화성 아이들은 그것을 빨리 배웠다. 누가 MCC 사람인지. 걸음걸이로. 시선으로. 그들이 어떻게 골목을 보는지로.",
-            "en": "The children looked. There was a stranger. No MCC armband. But they knew. Martian children learned that quickly. Who was MCC. By gait. By gaze. By how they looked at the alley."
+            "en": "The children looked. There was a stranger. No MCC armband. But they knew. Martian children learned that quickly. Who was MCC. By gait. By gaze. By how they looked at the alley.",
+            "ja": "子供たちが見た。見知らぬ人がいた。MCC腕章がなかった。しかしMCCの人だとわかった。火星の子供たちはそれを早く学んでいた。誰がMCCの人かを。歩き方で。視線で。彼らが路地をどう見るかで。",
+            "zh": "孩子们看着。有个陌生人。没有MCC臂章。但他们知道。火星的孩子们很快就学会了。谁是MCC的人。从走路的姿态。从眼神。从他们看待小巷的方式。"
           }
         }
       ]
@@ -216,7 +246,9 @@
         {
           "text": {
             "ko": "C-7 블록 서버실이 있었다. 지하 1층이었다. 이 블록은 MCC가 지었다. MCC는 모든 블록의 구조를 알았다. 어디에 서버가 있는지. 어디에 비상구가 있는지. 어디에 사람들이 모이는지. MCC는 항상 알았다.",
-            "en": "The block C-7 server room was there. First sublevel. MCC built this block. MCC knew the structure of every block. Where servers were. Where emergency exits were. Where people gathered. MCC always knew."
+            "en": "The block C-7 server room was there. First sublevel. MCC built this block. MCC knew the structure of every block. Where servers were. Where emergency exits were. Where people gathered. MCC always knew.",
+            "ja": "C-7ブロックのサーバー室があった。地下1階だった。このブロックはMCCが建てた。MCCはすべてのブロックの構造を知っていた。サーバーがどこにあるか。非常口がどこにあるか。人々がどこに集まるか。MCCは常に知っていた。",
+            "zh": "C-7街区的服务器室就在那里。地下一层。这个街区是MCC建造的。MCC了解每个街区的结构。服务器在哪里。紧急出口在哪里。人们在哪里聚集。MCC始终知道。"
           }
         }
       ]
@@ -233,7 +265,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "서버가 지하 1층이에요. 경비가 둘이에요.",
-            "en": "Server is first sublevel. Two guards."
+            "en": "Server is first sublevel. Two guards.",
+            "ja": "サーバーは地下1階よ。警備が二人いる。",
+            "zh": "服务器在地下一层。两名警卫。"
           }
         },
         {
@@ -241,7 +275,9 @@
           "emotion": "serious",
           "text": {
             "ko": "FSP 연락망이 거기 있어요. 빼내기 전에 확보해야 해요. 시간이 없어요.",
-            "en": "The FSP contact network is there. Need to secure before they extract it. No time."
+            "en": "The FSP contact network is there. Need to secure before they extract it. No time.",
+            "ja": "FSPの連絡網がそこにある。持ち出される前に確保しないといけない。時間がない。",
+            "zh": "FSP的联络网就在那里。必须在他们取走之前确保。没有时间了。"
           }
         },
         {
@@ -249,7 +285,9 @@
           "emotion": "cold",
           "text": {
             "ko": "골목 아이들이 보고 있어요. 상관없어요. 임무 집중해요.",
-            "en": "The alley children are watching. Doesn't matter. Focus on the mission."
+            "en": "The alley children are watching. Doesn't matter. Focus on the mission.",
+            "ja": "路地の子供たちが見ている。関係ない。任務に集中して。",
+            "zh": "小巷里的孩子们在看着。没关系。专注于任务。"
           }
         }
       ]
@@ -264,7 +302,9 @@
         {
           "text": {
             "ko": "FSP 연락망. 광부들의 연락처. 안전 정보를 공유하는 네트워크. 광산 사고 정보. 위험 구역 정보. 그것들이 이 서버에 있었다. MCC가 원하는 것이 그것이었다. 그것이 없으면 FSP는 광부들에게 닿을 수 없었다.",
-            "en": "FSP contact network. Miners' contacts. A network for sharing safety information. Mine accident information. Danger zone information. Those were in this server. That was what MCC wanted. Without it FSP couldn't reach the miners."
+            "en": "FSP contact network. Miners' contacts. A network for sharing safety information. Mine accident information. Danger zone information. Those were in this server. That was what MCC wanted. Without it FSP couldn't reach the miners.",
+            "ja": "FSPの連絡網。鉱夫たちの連絡先。安全情報を共有するネットワーク。鉱山事故情報。危険区域情報。それらがこのサーバーにあった。MCCが望んでいたものがそれだった。それがなければFSPは鉱夫たちに届けなかった。",
+            "zh": "FSP联络网。矿工们的联系方式。共享安全信息的网络。矿山事故信息。危险区域信息。这些都在这台服务器里。这就是MCC想要的。没有它，FSP就无法联系到矿工们。"
           }
         }
       ]
@@ -279,7 +319,9 @@
         {
           "text": {
             "ko": "낡은 MCC 서류에서 이름을 봤다. Cinder Grace. 전직 MCC 기계 기술자. 3년 전 계약 해지. 사유: 직무 위반. 현 소속: 불명. 사진이 있었다. 눈이 지금도 기억될 것 같은 사람이었다. 화성에서 그런 눈을 가진 사람은 어딘가 다른 곳으로 갔다.",
-            "en": "A name appeared in an old MCC document. Cinder Grace. Former MCC mechanical engineer. Contract terminated three years ago. Reason: conduct violation. Current affiliation: unknown. There was a photo. The kind of person whose eyes you'd still remember. People on Mars with eyes like that had gone somewhere else."
+            "en": "A name appeared in an old MCC document. Cinder Grace. Former MCC mechanical engineer. Contract terminated three years ago. Reason: conduct violation. Current affiliation: unknown. There was a photo. The kind of person whose eyes you'd still remember. People on Mars with eyes like that had gone somewhere else.",
+            "ja": "古いMCC書類に名前を見た。シンダー・グレース。元MCC機械技師。3年前に契約解除。理由：職務違反。現在の所属：不明。写真があった。目が今でも記憶されるだろう人だった。火星でそんな目を持つ人はどこか別の場所へ行っていた。",
+            "zh": "在一份旧MCC文件中看到了一个名字。辛德·格雷斯。前MCC机械工程师。三年前合同终止。原因：行为违规。现所属：不明。有一张照片。那是一个你至今仍会记住其眼神的人。在火星上有这样眼神的人都去了别的地方。"
           }
         }
       ]
@@ -294,7 +336,9 @@
         {
           "text": {
             "ko": "Cinder Grace. 이름이 기억됐다. 5장 전 서류에서 봤다. 직무 위반. 이유가 없었다. MCC 서류에서 이유 없는 해고. 그것이 무엇을 의미하는지는 이제 알았다. 안전 보고서를 유출한 것이었다. FSP에. 3년 전에.",
-            "en": "Cinder Grace. The name was remembered. Seen in documents five sections back. Conduct violation. No reason. In MCC documents termination without reason. What that meant was now known. Had leaked safety reports. To FSP. Three years ago."
+            "en": "Cinder Grace. The name was remembered. Seen in documents five sections back. Conduct violation. No reason. In MCC documents termination without reason. What that meant was now known. Had leaked safety reports. To FSP. Three years ago.",
+            "ja": "シンダー・グレース。名前が記憶された。5ページ前の書類で見た。職務違反。理由がなかった。MCC書類での理由なき解雇。それが何を意味するのかは今ではわかった。安全報告書を流出させたのだ。FSPへ。3年前に。",
+            "zh": "辛德·格雷斯。这个名字被记住了。在五页前的文件里见过。行为违规。没有原因。MCC文件中无故解雇。现在明白那意味着什么了。泄露了安全报告。给FSP。三年前。"
           }
         }
       ]
@@ -311,7 +355,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Cinder Grace 알아요?",
-            "en": "You know Cinder Grace?"
+            "en": "You know Cinder Grace?",
+            "ja": "シンダー・グレースを知ってる？",
+            "zh": "你了解辛德·格雷斯？"
           }
         },
         {
@@ -319,7 +365,9 @@
           "emotion": "serious",
           "text": {
             "ko": "MCC에서 3년 됐어요. 기계 기술자였어요. 좋은 사람이었어요. 일을 잘 했어요.",
-            "en": "Three years since MCC. Was a mechanical engineer. Was a good person. Did good work."
+            "en": "Three years since MCC. Was a mechanical engineer. Was a good person. Did good work.",
+            "ja": "MCCを離れて3年になる。機械技師だった。いい人だった。仕事ができた。",
+            "zh": "离开MCC已经三年了。曾是机械工程师。是个好人。工作做得很好。"
           }
         },
         {
@@ -327,7 +375,9 @@
           "emotion": "cold",
           "text": {
             "ko": "그래서 위험했어요. 일을 잘 하는 사람이 MCC의 방식을 알면 위험해져요.",
-            "en": "That's why she was dangerous. A person who does good work and knows MCC's way becomes dangerous."
+            "en": "That's why she was dangerous. A person who does good work and knows MCC's way becomes dangerous.",
+            "ja": "だから危険だったの。仕事ができる人がMCCのやり方を知ると危険になるのよ。",
+            "zh": "所以她很危险。一个做好工作并了解MCC方式的人会变得危险。"
           }
         }
       ]
@@ -342,7 +392,9 @@
         {
           "text": {
             "ko": "리팡이 더 말하지 않았다. 그것으로 충분했다. Cinder Grace는 MCC 방식을 알게 된 사람이었다. 그리고 그것을 외부에 알린 사람이었다. MCC는 그것을 용납하지 않았다. 보복이 왔다. 계약 해지. 기록에서 삭제. 화성에서 삭제되면 존재하지 않는 것이었다.",
-            "en": "Lifang said no more. That was enough. Cinder Grace was someone who had learned MCC's way. And someone who had told the outside. MCC didn't tolerate that. Vendetta came. Contract terminated. Deleted from records. On Mars deletion meant non-existence."
+            "en": "Lifang said no more. That was enough. Cinder Grace was someone who had learned MCC's way. And someone who had told the outside. MCC didn't tolerate that. Vendetta came. Contract terminated. Deleted from records. On Mars deletion meant non-existence.",
+            "ja": "リーファンはそれ以上言わなかった。それで十分だった。シンダー・グレースはMCCのやり方を知ってしまった人だった。そしてそれを外部に知らせた人だった。MCCはそれを許さなかった。報復が来た。契約解除。記録から削除。火星で削除されれば存在しないのと同じだった。",
+            "zh": "李芳没有再说。这就够了。辛德·格雷斯是一个了解了MCC方式的人。也是一个将此告知外界的人。MCC不容许这样的事。报复来了。合同终止。从记录中删除。在火星上被删除就等于不存在。"
           }
         }
       ]
@@ -357,7 +409,9 @@
         {
           "text": {
             "ko": "아이들이 골목에서 보고 있었다. 서버실 방향을 봤다. 아이들이 어른들보다 빨리 알았다. 무슨 일이 일어나는지를. 화성의 아이들은 그렇게 자랐다. 무슨 일이 일어나는지를 빨리 아는 아이들로.",
-            "en": "Children were watching from the alley. Looking toward the server room direction. Children understood faster than adults. What was happening. Martian children grew up that way. As children who quickly understood what was happening."
+            "en": "Children were watching from the alley. Looking toward the server room direction. Children understood faster than adults. What was happening. Martian children grew up that way. As children who quickly understood what was happening.",
+            "ja": "子供たちが路地から見ていた。サーバー室の方向を見た。子供たちは大人より早く知った。何が起きているかを。火星の子供たちはそうやって育った。何が起きているかを早く知る子供たちとして。",
+            "zh": "孩子们从小巷里看着。看向服务器室的方向。孩子们比大人更快地明白。发生了什么。火星的孩子们就是这样长大的。作为能迅速理解发生了什么的孩子们。"
           }
         }
       ]
@@ -372,7 +426,9 @@
         {
           "text": {
             "ko": "서버실 앞이었다. 광부 데이터베이스. FSP 연락망. MCC가 원하는 것. 그러나 이 데이터베이스에 이름들이 있었다. 광부들의 이름. 그 가족들의 이름. 그들의 연락처. 그것이 MCC 손에 들어가면 무엇이 될지는 알았다. 그것이 협상 카드가 될 것이었다.",
-            "en": "In front of the server room. Miner database. FSP contact network. What MCC wanted. But in this database were names. Miners' names. Their families' names. Contact information. What that would become in MCC hands was known. It would become a negotiating card."
+            "en": "In front of the server room. Miner database. FSP contact network. What MCC wanted. But in this database were names. Miners' names. Their families' names. Contact information. What that would become in MCC hands was known. It would become a negotiating card.",
+            "ja": "サーバー室の前だった。鉱夫データベース。FSPの連絡網。MCCが望むもの。しかしこのデータベースには名前があった。鉱夫たちの名前。その家族の名前。連絡先。それがMCCの手に入ったら何になるかはわかっていた。それは交渉カードになるだろう。",
+            "zh": "在服务器室前。矿工数据库。FSP联络网。MCC想要的东西。但这个数据库里有名字。矿工们的名字。他们家属的名字。联系方式。那落入MCC手中会变成什么是知道的。那将成为谈判筹码。"
           }
         }
       ]
@@ -389,7 +445,9 @@
           "emotion": "serious",
           "text": {
             "ko": "FSP 팀이 2분 후에 도착해요. 감지됐어요.",
-            "en": "FSP team arriving in two minutes. Detected."
+            "en": "FSP team arriving in two minutes. Detected.",
+            "ja": "FSPチームが2分後に到着する。感知された。",
+            "zh": "FSP小队两分钟后到达。已被探测到。"
           }
         },
         {
@@ -397,7 +455,9 @@
           "emotion": "focused",
           "text": {
             "ko": "서버 확보하거나 지워요. 두 가지만 있어요.",
-            "en": "Secure the server or wipe it. Only two options."
+            "en": "Secure the server or wipe it. Only two options.",
+            "ja": "サーバーを確保するか消去するか。二つしかない。",
+            "zh": "确保服务器或清除它。只有两个选项。"
           }
         },
         {
@@ -405,7 +465,9 @@
           "emotion": "cold",
           "text": {
             "ko": "MCC 명령은 확보예요. 그러나 당신이 결정해요.",
-            "en": "MCC order is to secure. But you decide."
+            "en": "MCC order is to secure. But you decide.",
+            "ja": "MCCの命令は確保よ。でも決めるのはあなた。",
+            "zh": "MCC的命令是确保。但你来决定。"
           }
         }
       ]
@@ -420,7 +482,9 @@
         {
           "text": {
             "ko": "리팡이 결정을 당신에게 줬다. 그것이 이상했다. 리팡은 명령을 따르는 사람이었다. 그러나 지금 명령을 주지 않았다. 결정을 줬다. 그 차이가 이 골목에서 컸다. 아이들이 보고 있었다. 분필 이름들이 있었다. 서버실이 있었다. 1분이 남았다.",
-            "en": "Lifang gave the decision to you. That was strange. Lifang was someone who followed orders. But now he didn't give an order. He gave a decision. That difference was large in this alley. Children were watching. Chalk names were there. Server room was there. One minute left."
+            "en": "Lifang gave the decision to you. That was strange. Lifang was someone who followed orders. But now he didn't give an order. He gave a decision. That difference was large in this alley. Children were watching. Chalk names were there. Server room was there. One minute left.",
+            "ja": "リーファンが決定をあなたに渡した。それは奇妙だった。リーファンは命令に従う人だった。しかし今は命令を与えなかった。決定を与えた。その違いがこの路地では大きかった。子供たちが見ていた。チョークの名前があった。サーバー室があった。1分が残った。",
+            "zh": "李芳把决定交给了你。这很奇怪。李芳是一个服从命令的人。但现在他没有给命令。他给了决定。那种差异在这条小巷里很大。孩子们在看着。有粉笔写的名字。有服务器室。还剩一分钟。"
           }
         }
       ]
@@ -432,55 +496,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "데이터베이스 서버가 앞에 있다. C-7 블록의 아이들이 골목에서 보고 있다.",
-        "en": "The database server is in front of you. The children of block C-7 are watching from the alley."
+        "en": "The database server is in front of you. The children of block C-7 are watching from the alley.",
+        "ja": "データベースサーバーが目の前にある。C-7ブロックの子供たちが路地から見ている。",
+        "zh": "数据库服务器就在你面前。C-7街区的孩子们从小巷里看着。"
       },
       "choices": [
         {
           "id": "mcc_ch6_execute",
           "text": {
             "ko": "서버를 확보한다. 임무 완수.",
-            "en": "Secure the server. Mission complete."
+            "en": "Secure the server. Mission complete.",
+            "ja": "サーバーを確保する。任務完了。",
+            "zh": "确保服务器。任务完成。"
           },
           "tone": "compliant",
           "preview_hint": {
             "ko": "→ Chen 신뢰 +, 블록 주민 피해",
-            "en": "→ Chen trust +, block residents suffer"
+            "en": "→ Chen trust +, block residents suffer",
+            "ja": "→ チェン信頼 +、ブロック住民に被害",
+            "zh": "→ 陈信任 +，街区居民受损"
           }
         },
         {
           "id": "mcc_ch6_delay",
           "text": {
             "ko": "데이터를 지운다. 양쪽 모두 갖지 못하게.",
-            "en": "Wipe the data. Nobody gets it."
+            "en": "Wipe the data. Nobody gets it.",
+            "ja": "データを消去する。どちらも持てないように。",
+            "zh": "清除数据。谁也得不到。"
           },
           "tone": "neutral",
           "preview_hint": {
             "ko": "→ MCC 불만, FSP도 없음, 광부 보호",
-            "en": "→ MCC dissatisfied, FSP blocked, miners protected"
+            "en": "→ MCC dissatisfied, FSP blocked, miners protected",
+            "ja": "→ MCC不満、FSPも阻止、鉱夫保護",
+            "zh": "→ MCC不满，FSP受阻，矿工受保护"
           }
         },
         {
           "id": "mcc_ch6_warn",
           "text": {
             "ko": "FSP 쪽에 먼저 경고한다.",
-            "en": "Warn the FSP side first."
+            "en": "Warn the FSP side first.",
+            "ja": "FSP側に先に警告する。",
+            "zh": "先警告FSP一方。"
           },
           "tone": "subversive",
           "preview_hint": {
             "ko": "→ FSP 신뢰 +, MCC에게 위험",
-            "en": "→ FSP trust +, dangerous to MCC standing"
+            "en": "→ FSP trust +, dangerous to MCC standing",
+            "ja": "→ FSP信頼 +、MCCにとって危険",
+            "zh": "→ FSP信任 +，对MCC地位危险"
           }
         },
         {
           "id": "mcc_ch6_report_chen",
           "text": {
             "ko": "Cinder Grace 파일을 Chen에게 보고한다.",
-            "en": "Report the Cinder Grace file to Chen."
+            "en": "Report the Cinder Grace file to Chen.",
+            "ja": "シンダー・グレースのファイルをチェンに報告する。",
+            "zh": "向陈报告辛德·格雷斯的档案。"
           },
           "tone": "calculating",
           "preview_hint": {
             "ko": "→ Chen이 즉시 반응한다",
-            "en": "→ Chen responds immediately"
+            "en": "→ Chen responds immediately",
+            "ja": "→ チェンが即座に反応する",
+            "zh": "→ 陈立即作出反应"
           }
         }
       ]
@@ -495,7 +577,9 @@
         {
           "text": {
             "ko": "결정이 됐다. FSP 팀이 도착했다. 골목 안으로. 아이들이 양쪽으로 피했다. 아이들은 이런 상황을 알았다. 피해야 할 때를 알았다. 화성의 아이들이었다. 빨리 배웠다.",
-            "en": "Decision made. The FSP team arrived. Into the alley. Children moved to both sides. The children knew situations like this. Knew when to get out of the way. They were Martian children. Fast learners."
+            "en": "Decision made. The FSP team arrived. Into the alley. Children moved to both sides. The children knew situations like this. Knew when to get out of the way. They were Martian children. Fast learners.",
+            "ja": "決定がなされた。FSPチームが到着した。路地の中へ。子供たちが両側に避けた。子供たちはこういう状況を知っていた。避けるべき時を知っていた。火星の子供たちだった。早く学んでいた。",
+            "zh": "决定已定。FSP小队到达了。进入小巷。孩子们向两侧躲避。孩子们了解这种情况。知道该躲开的时候。他们是火星的孩子们。学得很快。"
           }
         }
       ]
@@ -510,7 +594,9 @@
         {
           "text": {
             "ko": "FSP 팀이 멈췄다. 상황을 봤다. 그들도 결정을 해야 했다. 이 골목에서 두 개의 결정이 있었다. MCC의 것. FSP의 것. 아이들이 벽에 붙어 있었다. 분필 이름들 옆에. 그것이 이 장면이었다.",
-            "en": "The FSP team stopped. Assessed the situation. They also had to decide. In this alley there were two decisions. MCC's. FSP's. Children were against the wall. Beside the chalk names. That was this scene."
+            "en": "The FSP team stopped. Assessed the situation. They also had to decide. In this alley there were two decisions. MCC's. FSP's. Children were against the wall. Beside the chalk names. That was this scene.",
+            "ja": "FSPチームが止まった。状況を見た。彼らも決定しなければならなかった。この路地で二つの決定があった。MCCのもの。FSPのもの。子供たちが壁に張り付いていた。チョークの名前の横に。それがこの場面だった。",
+            "zh": "FSP小队停下来了。评估了情况。他们也必须做决定。这条小巷里有两个决定。MCC的。FSP的。孩子们紧贴着墙。在粉笔名字的旁边。那就是这个场面。"
           }
         }
       ]
@@ -523,11 +609,15 @@
       "transition": "cut",
       "title": {
         "ko": "C-7 블록",
-        "en": "Block C-7"
+        "en": "Block C-7",
+        "ja": "C-7ブロック",
+        "zh": "C-7街区"
       },
       "subtitle": {
         "ko": "헬라스 노동자 지구 — 데이터 통제",
-        "en": "Hellas Labor District — Data Control"
+        "en": "Hellas Labor District — Data Control",
+        "ja": "ヘラス労働者地区 — データ管理",
+        "zh": "赫拉斯劳工区 — 数据管控"
       }
     },
     {
@@ -548,7 +638,9 @@
           "effect": "character_enter:chen:slide_left",
           "text": {
             "ko": "보고서 받았어요.",
-            "en": "Received the report."
+            "en": "Received the report.",
+            "ja": "報告書を受け取ったわ。",
+            "zh": "收到了报告。"
           }
         },
         {
@@ -556,7 +648,9 @@
           "emotion": "calm",
           "text": {
             "ko": "창밖 C-7 블록의 불이 꺼진 것을 보았다. MCC의 밤이었다. 25도 라운지에서 보면 모든 것이 작았다.",
-            "en": "The lights of block C-7 had gone dark outside the window. It was MCC's night. From the 25-Degree Lounge everything looked small."
+            "en": "The lights of block C-7 had gone dark outside the window. It was MCC's night. From the 25-Degree Lounge everything looked small.",
+            "ja": "窓の外でC-7ブロックの明かりが消えるのを見た。MCCの夜だった。25度ラウンジから見るとすべてが小さく見えた。",
+            "zh": "看到窗外C-7街区的灯光熄灭了。这是MCC的夜晚。从25度休息室看，一切都显得很小。"
           }
         },
         {
@@ -564,7 +658,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "작은 것들이 꺼지는 것은 더 작아 보였다. 그러나 작지 않아요. 그것을 잊으면 안 돼요.",
-            "en": "Small things going dark looked even smaller. But they're not small. That must not be forgotten."
+            "en": "Small things going dark looked even smaller. But they're not small. That must not be forgotten.",
+            "ja": "小さなものが消えるのはさらに小さく見えた。でも小さくないの。それを忘れてはいけないわ。",
+            "zh": "小东西熄灭看起来更小。但它们并不小。这一点不能忘记。"
           }
         }
       ]
@@ -578,7 +674,9 @@
         {
           "text": {
             "ko": "서버가 없었다. FSP가 먼저였다. 골목에서 아이들이 봤다. 그들은 어느 쪽이 졌는지 알았다. 화성의 아이들은 그런 것을 빨리 배웠다.",
-            "en": "No server. FSP was first. The children watched from the alley. They knew which side had lost. Children on Mars learned such things quickly."
+            "en": "No server. FSP was first. The children watched from the alley. They knew which side had lost. Children on Mars learned such things quickly.",
+            "ja": "サーバーはなかった。FSPが先だった。路地から子供たちが見ていた。彼らはどちらが負けたか知っていた。火星の子供たちはそういうことを早く学んだ。",
+            "zh": "没有服务器了。FSP先到了。孩子们从小巷里看着。他们知道哪一方输了。火星的孩子们很快就学会了这样的事。"
           }
         }
       ]
@@ -593,7 +691,9 @@
         {
           "text": {
             "ko": "돌아오는 길. 분필 이름들이 있었다. 김용진. 그 아래 이름들. 골목 아이들이 적은 것이었다. 아이들은 어느 방향으로 갔는지 몰랐다. 집으로 갔을 것이었다. 광부의 아이들이 사는 집. MCC가 지은 집.",
-            "en": "On the way back. Chalk names. Kim Yong-jin. Names below. Written by the alley children. Where the children went was unknown. Home probably. The homes where miners' children lived. Homes MCC built."
+            "en": "On the way back. Chalk names. Kim Yong-jin. Names below. Written by the alley children. Where the children went was unknown. Home probably. The homes where miners' children lived. Homes MCC built.",
+            "ja": "帰り道。チョークの名前があった。キム・ヨンジン。その下の名前たち。路地の子供たちが書いたものだった。子供たちがどの方向へ行ったかはわからなかった。家に帰ったのだろう。鉱夫の子供たちが住む家。MCCが建てた家。",
+            "zh": "回去的路上。粉笔写的名字。金永珍。下面的名字们。是小巷里的孩子们写的。孩子们去了哪个方向不知道。大概回家了吧。矿工孩子们住的家。MCC建造的家。"
           }
         }
       ]
@@ -610,7 +710,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Cinder Grace 얘기 했잖아요.",
-            "en": "You asked about Cinder Grace."
+            "en": "You asked about Cinder Grace.",
+            "ja": "シンダー・グレースの話をしたわね。",
+            "zh": "你问到了辛德·格雷斯。"
           }
         },
         {
@@ -618,7 +720,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그녀가 안전 보고서를 유출한 이유가 있어요. 7구역처럼. 환기 시스템. MCC가 승인 안 한 것들.",
-            "en": "There's a reason she leaked safety reports. Like Sector 7. Ventilation systems. Things MCC didn't approve."
+            "en": "There's a reason she leaked safety reports. Like Sector 7. Ventilation systems. Things MCC didn't approve.",
+            "ja": "彼女が安全報告書を流出させた理由がある。7区域みたいに。換気システム。MCCが承認しなかったもの。",
+            "zh": "她泄露安全报告是有原因的。就像7区一样。通风系统。MCC没有批准的那些东西。"
           }
         },
         {
@@ -626,7 +730,9 @@
           "emotion": "cold",
           "text": {
             "ko": "그 보고서가 나갔을 때 광부 한 명이 살았어요. 그녀는 그것을 알았어요. MCC도 알았어요. 그래서 해고했어요.",
-            "en": "When that report got out one miner survived. She knew that. MCC knew it too. That's why they fired her."
+            "en": "When that report got out one miner survived. She knew that. MCC knew it too. That's why they fired her.",
+            "ja": "その報告書が出た時、鉱夫一人が生き延びた。彼女はそれを知っていた。MCCも知っていた。だから解雇したの。",
+            "zh": "那份报告出来时，有一名矿工活了下来。她知道这件事。MCC也知道。所以解雇了她。"
           }
         }
       ]
@@ -641,7 +747,9 @@
         {
           "text": {
             "ko": "광부 한 명이 살았다. Cinder Grace 때문에. 그것이 직무 위반이었다. MCC의 논리였다. 그 논리가 25도 라운지에서 차를 들고 있는 사람과 같은 조직에서 나왔다. 화성이 그랬다. 같은 조직 안에서 다른 논리들이 있었다. 그 사이에서 사람들이 살았다.",
-            "en": "One miner survived. Because of Cinder Grace. That was the conduct violation. MCC's logic. That logic came from the same organization as the person holding tea in the 25-Degree Lounge. Mars was like that. Different logics within the same organization. People lived between them."
+            "en": "One miner survived. Because of Cinder Grace. That was the conduct violation. MCC's logic. That logic came from the same organization as the person holding tea in the 25-Degree Lounge. Mars was like that. Different logics within the same organization. People lived between them.",
+            "ja": "鉱夫一人が生き延びた。シンダー・グレースのおかげで。それが職務違反だった。MCCの論理だった。その論理は25度ラウンジで茶を持っている人と同じ組織から来た。火星はそういうものだった。同じ組織の中に違う論理があった。その間で人々が生きていた。",
+            "zh": "一名矿工活了下来。因为辛德·格雷斯。那就是行为违规。MCC的逻辑。那种逻辑来自与在25度休息室手握茶杯的人同一个组织。火星就是这样。同一个组织内有不同的逻辑。人们在其中生活。"
           }
         }
       ]
@@ -656,7 +764,9 @@
         {
           "text": {
             "ko": "에레부스 분화구 외부였다. 정보가 왔다. Cinder Grace의 흔적이 여기 있었다. CV 영역이었다. MCC가 닿지 않는 곳. 또는 닿으려 하지 않는 곳. CV는 다른 종류의 위험이었다. MCC는 계약으로 위협했다. CV는 다른 방법으로 위협했다.",
-            "en": "Outside Erebus Crater. Information arrived. Cinder Grace's trace was here. CV territory. A place MCC didn't reach. Or chose not to reach. CV was a different kind of danger. MCC threatened with contracts. CV threatened differently."
+            "en": "Outside Erebus Crater. Information arrived. Cinder Grace's trace was here. CV territory. A place MCC didn't reach. Or chose not to reach. CV was a different kind of danger. MCC threatened with contracts. CV threatened differently.",
+            "ja": "エレボス・クレーターの外部だった。情報が来た。シンダー・グレースの痕跡がここにあった。CV領域だった。MCCが届かない場所。または届こうとしない場所。CVは違う種類の危険だった。MCCは契約で脅した。CVは違う方法で脅した。",
+            "zh": "厄瑞玻斯陨石坑外部。情报来了。辛德·格雷斯的踪迹在这里。CV领地。MCC触及不到的地方。或者选择不触及的地方。CV是一种不同类型的危险。MCC用合同威胁。CV用不同的方式威胁。"
           }
         }
       ]
@@ -671,7 +781,9 @@
         {
           "text": {
             "ko": "에레부스. 그 이름이 붙은 이유가 있었다. 에레부스는 그리스 신화에서 지하 세계의 어둠이었다. 화성에서 이름은 대부분 지구의 것이었다. 지구에서 가져온 이름들. 그러나 화성의 풍경이 그 이름들에 맞았다. 에레부스 분화구. 어둠의 분화구.",
-            "en": "Erebus. There was a reason for that name. In Greek myth Erebus was the darkness of the underworld. On Mars names were mostly from Earth. Names brought from Earth. But Martian landscapes fit those names. Erebus Crater. Crater of darkness."
+            "en": "Erebus. There was a reason for that name. In Greek myth Erebus was the darkness of the underworld. On Mars names were mostly from Earth. Names brought from Earth. But Martian landscapes fit those names. Erebus Crater. Crater of darkness.",
+            "ja": "エレボス。その名前がついた理由があった。ギリシャ神話でエレボスは冥界の暗闇だった。火星では名前のほとんどが地球のものだった。地球から持ってきた名前たち。しかし火星の風景がその名前たちに合っていた。エレボス・クレーター。闇のクレーター。",
+            "zh": "厄瑞玻斯。这个名字有其来源。在希腊神话中，厄瑞玻斯是冥界的黑暗。在火星上，名字大多来自地球。从地球带来的名字。但火星的风景与这些名字相符。厄瑞玻斯陨石坑。黑暗之坑。"
           }
         }
       ]
@@ -688,7 +800,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "여기까지는 MCC 명령이 없어요.",
-            "en": "No MCC orders reaching here."
+            "en": "No MCC orders reaching here.",
+            "ja": "ここまでMCCの命令はないわ。",
+            "zh": "到这里MCC没有命令。"
           }
         },
         {
@@ -696,7 +810,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 여기까지 따라온 것은 개인적인 이유예요.",
-            "en": "My following you here is a personal reason."
+            "en": "My following you here is a personal reason.",
+            "ja": "私がここまでついてきたのは個人的な理由よ。",
+            "zh": "我跟到这里来是出于个人原因。"
           }
         },
         {
@@ -704,7 +820,9 @@
           "emotion": "cold",
           "text": {
             "ko": "Cinder Grace를 만나려면 혼자 가요. 내가 있으면 MCC 냄새가 나요.",
-            "en": "If you want to meet Cinder Grace go alone. If I'm there it smells of MCC."
+            "en": "If you want to meet Cinder Grace go alone. If I'm there it smells of MCC.",
+            "ja": "シンダー・グレースに会いたいなら一人で行って。私がいるとMCCの匂いがするから。",
+            "zh": "如果你想见辛德·格雷斯就独自去。我在场的话就有MCC的气息。"
           }
         }
       ]
@@ -719,7 +837,9 @@
         {
           "text": {
             "ko": "리팡이 멈췄다. 여기서 기다릴 것이었다. 그것이 화성에서 리팡의 마지막 선이었다. MCC 명령이 없는 곳. 그는 거기서 멈추는 사람이었다. 그것이 그의 방식이었다. 오래 그렇게 살아온 사람의 방식.",
-            "en": "Lifang stopped. Would wait here. That was Lifang's final line on Mars. A place with no MCC order. He was someone who stopped there. That was his way. The way of someone who had lived like that for a long time."
+            "en": "Lifang stopped. Would wait here. That was Lifang's final line on Mars. A place with no MCC order. He was someone who stopped there. That was his way. The way of someone who had lived like that for a long time.",
+            "ja": "リーファンが止まった。ここで待つつもりだった。それが火星でのリーファンの最後の一線だった。MCCの命令がない場所。彼はそこで止まる人だった。それが彼のやり方だった。長くそうやって生きてきた人のやり方。",
+            "zh": "李芳停下来了。会在这里等待。那是李芳在火星上的最后一条线。没有MCC命令的地方。他是在那里停步的人。那是他的方式。长期如此生活的人的方式。"
           }
         }
       ]
@@ -734,16 +854,20 @@
         {
           "text": {
             "ko": "C-7 블록의 분필 이름들은 아침 바람에도 지워지지 않을 것이었다. 분필은 약했다. 그러나 화성의 바람이 아무리 강해도 이미 기억된 이름은 지울 수 없었다. Kim Yong-jin. 그 아래 이름들. 그 아래 아직 쓰이지 않은 이름들.",
-            "en": "The chalk names of block C-7 would not be erased by the morning wind. Chalk was weak. But no matter how strong the Martian wind, it could not erase names that had already been remembered. Kim Yong-jin. The names below. The names below that, not yet written."
-          },
-          "overlay": "mcc_ch6_whistleblower_l35_00_candle_flame"
+            "en": "The chalk names of block C-7 would not be erased by the morning wind. Chalk was weak. But no matter how strong the Martian wind, it could not erase names that had already been remembered. Kim Yong-jin. The names below. The names below that, not yet written.",
+            "ja": "C-7ブロックのチョークの名前たちは朝の風にも消されないだろう。チョークは弱かった。しかし火星の風がどれほど強くても、すでに記憶された名前は消せなかった。キム・ヨンジン。その下の名前たち。さらにその下の、まだ書かれていない名前たち。",
+            "zh": "C-7街区的粉笔名字不会被清晨的风抹去。粉笔是脆弱的。但无论火星的风多么强劲，都无法抹去已经被铭记的名字。金永珍。下面的名字们。再下面那些尚未写下的名字们。",
+            "overlay": "mcc_ch6_whistleblower_l35_00_candle_flame"
+          }
         }
       ],
       "next_chapter_preview": {
         "questId": "mcc_campaign_ch7",
         "teaser": {
           "ko": "다음 — 이사회",
-          "en": "Next — The Board"
+          "en": "Next — The Board",
+          "ja": "次回 — 取締役会",
+          "zh": "下一章 — 董事会"
         }
       }
     }

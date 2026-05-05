@@ -4,7 +4,9 @@
   "chapterNumber": 10,
   "title": {
     "ko": "선택",
-    "en": "The Choice"
+    "en": "The Choice",
+    "ja": "選択",
+    "zh": "抉择"
   },
   "location": {
     "id": "hellas_central_mcc",
@@ -32,19 +34,25 @@
         {
           "text": {
             "ko": "올림포스에서 사흘이 지났다.",
-            "en": "Three days had passed since Olympus."
+            "en": "Three days had passed since Olympus.",
+            "ja": "オリンポスから三日が過ぎていた。",
+            "zh": "奥林匹斯事件已过去三天。"
           }
         },
         {
           "text": {
             "ko": "MCC 본부에 불이 켜져 있었다. 밤이었다. 화성의 밤은 길었다.",
-            "en": "The lights of MCC headquarters were on. It was night. The Martian night was long."
+            "en": "The lights of MCC headquarters were on. It was night. The Martian night was long.",
+            "ja": "MCC本部の明かりはついていた。夜だった。火星の夜は長かった。",
+            "zh": "MCC总部灯火通明。是夜晚。火星的夜晚漫长。"
           }
         },
         {
           "text": {
             "ko": "25도 라운지도 켜져 있었다. Chen Weiss가 거기 있었다.",
-            "en": "The 25-Degree Lounge was lit too. Chen Weiss was there."
+            "en": "The 25-Degree Lounge was lit too. Chen Weiss was there.",
+            "ja": "25度ラウンジにも明かりがついていた。Chen Weissがそこにいた。",
+            "zh": "25度休息室也亮着灯。陈·韦斯在那里。"
           }
         }
       ]
@@ -59,19 +67,25 @@
         {
           "text": {
             "ko": "Zone 12 기록이 공개됐다. 세 개 파벌이 전부 받았다.",
-            "en": "The Zone 12 records had been released. All three factions received them."
+            "en": "The Zone 12 records had been released. All three factions received them.",
+            "ja": "Zone 12の記録が公開された。三つの派閥すべてがそれを受け取った。",
+            "zh": "12区档案已公开。三个派系全都收到了。"
           }
         },
         {
           "text": {
             "ko": "MCC 이사회가 반응했다. 72시간이었다. 72시간 안에 Chen Weiss에게 해명을 요구했다.",
-            "en": "The MCC board reacted. Seventy-two hours. Within seventy-two hours they demanded an explanation from Chen Weiss."
+            "en": "The MCC board reacted. Seventy-two hours. Within seventy-two hours they demanded an explanation from Chen Weiss.",
+            "ja": "MCC理事会が反応した。七十二時間。七十二時間以内にChen Weissへの説明を求めた。",
+            "zh": "MCC董事会做出回应。七十二小时。七十二小时内要求陈·韦斯给出解释。"
           }
         },
         {
           "text": {
             "ko": "그리고 당신에게도.",
-            "en": "And from you too."
+            "en": "And from you too.",
+            "ja": "そしてあなたにも。",
+            "zh": "也要求你给出解释。"
           }
         }
       ]
@@ -86,13 +100,17 @@
         {
           "text": {
             "ko": "리팡이 복도에서 기다리고 있었다.",
-            "en": "Lifang was waiting in the corridor."
+            "en": "Lifang was waiting in the corridor.",
+            "ja": "リファンが廊下で待っていた。",
+            "zh": "李芳在走廊等候。"
           }
         },
         {
           "text": {
             "ko": "12년. 처음 봤을 때부터 그는 복도에 있었다. 문 안쪽보다 바깥쪽에 더 많이 있는 사람이었다.",
-            "en": "Twelve years. From the first time, he had been in the corridor. A person more often outside the door than inside."
+            "en": "Twelve years. From the first time, he had been in the corridor. A person more often outside the door than inside.",
+            "ja": "十二年。最初に会ったときから彼は廊下にいた。ドアの内側よりも外側にいることの多い人間だった。",
+            "zh": "十二年。从第一次见面起，他就在走廊里。比起门里，他更多时候在门外。"
           }
         }
       ]
@@ -110,7 +128,9 @@
           "effect": "character_enter:lifang:slide_right",
           "text": {
             "ko": "이사회가 오전 10시에 소집됩니다.",
-            "en": "The board convenes at ten in the morning."
+            "en": "The board convenes at ten in the morning.",
+            "ja": "理事会は午前十時に招集されます。",
+            "zh": "董事会将于上午十点召开。"
           }
         },
         {
@@ -118,7 +138,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Chen이 당신을 데리고 들어갑니다. 이사들이 동의했습니다.",
-            "en": "Chen is bringing you in. The directors agreed."
+            "en": "Chen is bringing you in. The directors agreed.",
+            "ja": "Chenがあなたを連れて入ります。理事たちが同意しました。",
+            "zh": "陈会带你进去。董事们已同意。"
           }
         },
         {
@@ -126,7 +148,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Osei가 반대했습니다. Ryu가 중립했습니다. Marchetti가 동의했습니다.",
-            "en": "Osei objected. Ryu was neutral. Marchetti agreed."
+            "en": "Osei objected. Ryu was neutral. Marchetti agreed.",
+            "ja": "Oseiが反対しました。Ryuは中立でした。Marchettiが同意しました。",
+            "zh": "奥塞反对。柳中立。马尔凯蒂同意。"
           }
         }
       ]
@@ -141,13 +165,17 @@
         {
           "text": {
             "ko": "Osei. Marchetti. Ryu. 그 세 이름을 들은 적이 있었다. 이사회 회의실에서. 케플러 발표 때. C-7 블록 심문 때.",
-            "en": "Osei. Marchetti. Ryu. Those three names had been heard before. In the board chamber. During the Kepler presentation. During the C-7 block interrogation."
+            "en": "Osei. Marchetti. Ryu. Those three names had been heard before. In the board chamber. During the Kepler presentation. During the C-7 block interrogation.",
+            "ja": "Osei。Marchetti。Ryu。その三つの名前を聞いたことがあった。理事会の会議室で。ケプラー発表のとき。C-7ブロックの尋問のとき。",
+            "zh": "奥塞。马尔凯蒂。柳。曾听过这三个名字。在董事会会议室里。开普勒发布会时。C-7区审讯时。"
           }
         },
         {
           "text": {
             "ko": "그것이 전부 이어졌다. 오전 10시로.",
-            "en": "All of that connected. To ten in the morning."
+            "en": "All of that connected. To ten in the morning.",
+            "ja": "それがすべてつながっていた。午前十時へと。",
+            "zh": "一切都联结在一起。指向上午十点。"
           }
         }
       ]
@@ -165,7 +193,9 @@
           "effect": "character_enter:chen:slide_left",
           "text": {
             "ko": "앉아요.",
-            "en": "Sit."
+            "en": "Sit.",
+            "ja": "座って。",
+            "zh": "坐。"
           }
         },
         {
@@ -173,7 +203,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "오늘 이사회에 들어가기 전에 알아야 할 것들이 있어요.",
-            "en": "There are things you need to know before entering the board today."
+            "en": "There are things you need to know before entering the board today.",
+            "ja": "今日の理事会に入る前に知っておくべきことがあります。",
+            "zh": "今天进入董事会之前，有些事你需要了解。"
           }
         },
         {
@@ -181,7 +213,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 말하는 것들은 전부 사실이에요. 22년 동안 사실이었던 것들이에요.",
-            "en": "Everything I'm going to say is true. Things that have been true for twenty-two years."
+            "en": "Everything I'm going to say is true. Things that have been true for twenty-two years.",
+            "ja": "私が話すことはすべて事実です。二十二年間、事実であり続けたことです。",
+            "zh": "我要说的一切都是真相。二十二年来一直是真相的事情。"
           }
         }
       ]
@@ -198,7 +232,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "나는 화성에서 태어났어요. 두 번째 세대. 부모가 광산에서 일했어요.",
-            "en": "I was born on Mars. Second generation. My parents worked in the mines."
+            "en": "I was born on Mars. Second generation. My parents worked in the mines.",
+            "ja": "私は火星で生まれました。第二世代。両親は鉱山で働いていました。",
+            "zh": "我在火星出生。第二代。父母在矿山工作。"
           }
         },
         {
@@ -206,7 +242,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "Zone 12 사고가 났을 때 나는 MCC에 들어온 지 2년이었어요. 사내 감사팀에 있었어요.",
-            "en": "When the Zone 12 accident happened I had been at MCC for two years. I was on the internal audit team."
+            "en": "When the Zone 12 accident happened I had been at MCC for two years. I was on the internal audit team.",
+            "ja": "Zone 12の事故が起きたとき、私はMCCに入って二年でした。社内監査チームにいました。",
+            "zh": "12区事故发生时，我进入MCC才两年。我在内部审计团队。"
           }
         },
         {
@@ -214,7 +252,9 @@
           "emotion": "serious",
           "text": {
             "ko": "기록을 처음 본 것이 그때예요.",
-            "en": "That was the first time I saw the records."
+            "en": "That was the first time I saw the records.",
+            "ja": "その記録を初めて見たのはそのときです。",
+            "zh": "那是我第一次看到档案。"
           }
         }
       ]
@@ -229,19 +269,25 @@
         {
           "text": {
             "ko": "기록을 처음 봤다. 그 말이 천천히 왔다.",
-            "en": "The first time she saw the records. Those words came slowly."
+            "en": "The first time she saw the records. Those words came slowly.",
+            "ja": "記録を初めて見た。その言葉がゆっくりと届いた。",
+            "zh": "第一次看到档案。那句话缓缓传来。"
           }
         },
         {
           "text": {
             "ko": "Chen이 Zone 12 기록을 2년차에 봤다. MCC 내부 감사. 그러나 기록은 잠겼다. 22년 동안.",
-            "en": "Chen saw the Zone 12 records in her second year. Internal MCC audit. But the records were locked. For twenty-two years."
+            "en": "Chen saw the Zone 12 records in her second year. Internal MCC audit. But the records were locked. For twenty-two years.",
+            "ja": "ChenはZone 12の記録を二年目に見た。MCC内部監査。しかし記録は封じられた。二十二年間。",
+            "zh": "陈在第二年看到了12区档案。MCC内部审计。但档案被封锁了。长达二十二年。"
           }
         },
         {
           "text": {
             "ko": "잠근 것이 이사회였다. 그리고 그 이사회 안에 Chen이 있었다.",
-            "en": "It was the board that locked them. And Chen was in that board."
+            "en": "It was the board that locked them. And Chen was in that board.",
+            "ja": "封じたのは理事会だった。そしてその理事会の中にChenがいた。",
+            "zh": "是董事会将其封锁的。而陈就在那个董事会里。"
           }
         }
       ]
@@ -258,7 +304,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "기록이 잠긴 것은 내가 한 것이 아니에요.",
-            "en": "The locking of the records wasn't my doing."
+            "en": "The locking of the records wasn't my doing.",
+            "ja": "記録を封じたのは私ではありません。",
+            "zh": "封锁档案不是我做的。"
           }
         },
         {
@@ -266,7 +314,9 @@
           "emotion": "serious",
           "text": {
             "ko": "내가 한 것은 — 그 기록이 완전히 사라지지 않도록. 아카이브 지하에 남겨두는 것이었어요.",
-            "en": "What I did was — ensure that record didn't completely disappear. Leaving it in the archive sublevel."
+            "en": "What I did was — ensure that record didn't completely disappear. Leaving it in the archive sublevel.",
+            "ja": "私がしたのは――その記録が完全に消えないようにすることでした。アーカイブの地下に残しておくことを。",
+            "zh": "我做的是——确保那份档案不会彻底消失。将它留在档案库地下层。"
           }
         },
         {
@@ -274,7 +324,9 @@
           "emotion": "calm",
           "text": {
             "ko": "당신이 그것을 찾을 때까지 거기 있었어요. 22년 동안.",
-            "en": "It was there until you found it. For twenty-two years."
+            "en": "It was there until you found it. For twenty-two years.",
+            "ja": "あなたが見つけるまで、そこにありました。二十二年間。",
+            "zh": "在你找到它之前，它一直在那里。二十二年。"
           }
         }
       ]
@@ -289,19 +341,25 @@
         {
           "text": {
             "ko": "아카이브 지하. 그 칩. 먼지가 쌓인 선반.",
-            "en": "The archive sublevel. That chip. A shelf with dust on it."
+            "en": "The archive sublevel. That chip. A shelf with dust on it.",
+            "ja": "アーカイブの地下。あのチップ。埃の積もった棚。",
+            "zh": "档案库地下层。那枚芯片。布满灰尘的架子。"
           }
         },
         {
           "text": {
             "ko": "22년 동안 거기 있었다. 아무도 찾지 않은 것이 아니었다. Chen이 있도록 한 것이었다.",
-            "en": "It had been there for twenty-two years. Not that no one had looked. Chen had made sure it stayed."
+            "en": "It had been there for twenty-two years. Not that no one had looked. Chen had made sure it stayed.",
+            "ja": "二十二年間そこにあった。誰も探さなかったのではない。Chenが残し続けたのだ。",
+            "zh": "在那里待了二十二年。不是没人找过。是陈确保它留在那里的。"
           }
         },
         {
           "text": {
             "ko": "그것이 처음부터 계획이었다는 뜻이었다. 아카이브를 내려간 순간부터. 그 이전부터.",
-            "en": "That meant this had been a plan from the beginning. From the moment of going down to the archive. Before that even."
+            "en": "That meant this had been a plan from the beginning. From the moment of going down to the archive. Before that even.",
+            "ja": "それはこれが最初から計画だったことを意味していた。アーカイブに降りた瞬間から。それ以前から。",
+            "zh": "这意味着这从一开始就是计划。从走进档案库那一刻起。甚至在那之前。"
           }
         }
       ]
@@ -318,7 +376,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "30년 전. Zone 12 사고 전날. 내 어머니가 Butcher에게 연락했어요.",
-            "en": "Thirty years ago. The day before the Zone 12 accident. My mother contacted Butcher."
+            "en": "Thirty years ago. The day before the Zone 12 accident. My mother contacted Butcher.",
+            "ja": "三十年前。Zone 12の事故の前日。私の母がButcherに連絡しました。",
+            "zh": "三十年前。12区事故前一天。我母亲联系了布切尔。"
           }
         },
         {
@@ -326,7 +386,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "어머니도 Zone 12 광부였어요. MCC 통신 주파수를 알고 있었어요. 갱도 교신 주파수에 접속했어요.",
-            "en": "My mother was also a Zone 12 miner. She knew the MCC communication frequencies. She accessed the tunnel communication frequency."
+            "en": "My mother was also a Zone 12 miner. She knew the MCC communication frequencies. She accessed the tunnel communication frequency.",
+            "ja": "母もZone 12の鉱夫でした。MCCの通信周波数を知っていました。坑道の交信周波数にアクセスしました。",
+            "zh": "母亲也是12区的矿工。她知道MCC的通信频率。她接入了坑道通信频率。"
           }
         },
         {
@@ -334,7 +396,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "지금 나가라고 했어요. 이유를 말하지 않았어요. 그냥 나가라고 했어요. 어머니가 죽기 8년 전이었어요.",
-            "en": "She told him to leave now. Didn't say why. Just told him to leave. It was eight years before my mother died."
+            "en": "She told him to leave now. Didn't say why. Just told him to leave. It was eight years before my mother died.",
+            "ja": "今すぐ出るように言いました。理由は言いませんでした。ただ出るようにと言いました。母が死ぬ八年前でした。",
+            "zh": "叫他立刻离开。没有说理由。就是叫他离开。那是母亲去世前八年。"
           }
         }
       ]
@@ -349,19 +413,25 @@
         {
           "text": {
             "ko": "30년 전. Zone 12 광부. 갱도 교신 주파수.",
-            "en": "Thirty years ago. A Zone 12 miner. The tunnel communication frequency."
+            "en": "Thirty years ago. A Zone 12 miner. The tunnel communication frequency.",
+            "ja": "三十年前。Zone 12の鉱夫。坑道の交信周波数。",
+            "zh": "三十年前。12区矿工。坑道通信频率。"
           }
         },
         {
           "text": {
             "ko": "Butcher는 그 목소리를 기억했다. cv_ch10에서 그 기억이 나왔다. 목소리 하나가 그를 살렸다.",
-            "en": "Butcher had remembered that voice. In cv_ch10 that memory surfaced. One voice had saved him."
+            "en": "Butcher had remembered that voice. In cv_ch10 that memory surfaced. One voice had saved him.",
+            "ja": "Butcherはその声を覚えていた。cv_ch10でその記憶が浮かび上がった。一つの声が彼を救った。",
+            "zh": "布切尔记得那个声音。在cv_ch10中，那段记忆浮现。一个声音救了他。"
           }
         },
         {
           "text": {
             "ko": "그 목소리가 Chen의 어머니였다. 8년 후에 Zone 12에서 죽은 사람이었다.",
-            "en": "That voice was Chen's mother. The person who died at Zone 12 eight years later."
+            "en": "That voice was Chen's mother. The person who died at Zone 12 eight years later.",
+            "ja": "その声はChenの母親だった。八年後にZone 12で亡くなった人だった。",
+            "zh": "那个声音是陈的母亲。八年后在12区去世的人。"
           }
         }
       ]
@@ -378,7 +448,9 @@
           "emotion": "serious",
           "text": {
             "ko": "어머니에게서 들었어요. 죽기 전에. MCC가 알고도 넘어갔다는 것을. 비용이 이유였다고.",
-            "en": "I heard it from my mother. Before she died. That MCC knew and let it go. That cost was the reason."
+            "en": "I heard it from my mother. Before she died. That MCC knew and let it go. That cost was the reason.",
+            "ja": "母から聞きました。死ぬ前に。MCCは知っていて見逃したということを。コストが理由だったと。",
+            "zh": "我从母亲那里听说的。在她去世前。MCC明知故犯。理由是成本。"
           }
         },
         {
@@ -386,7 +458,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "어머니가 할 수 있는 것이 그것뿐이었어요. 한 사람이라도. 갱도에서 나오도록.",
-            "en": "That was all my mother could do. Even one person. Getting them out of the tunnel."
+            "en": "That was all my mother could do. Even one person. Getting them out of the tunnel.",
+            "ja": "母にできることはそれだけでした。一人でもいいから。坑道から出るように。",
+            "zh": "那是母亲唯一能做的。哪怕只有一个人。让他从坑道里出来。"
           }
         },
         {
@@ -394,7 +468,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "내가 MCC에 들어온 것은 그 다음이었어요. 어머니가 죽고. 22년 전에. 그것이 이유였어요.",
-            "en": "I entered MCC after that. After my mother died. Twenty-two years ago. That was the reason."
+            "en": "I entered MCC after that. After my mother died. Twenty-two years ago. That was the reason.",
+            "ja": "私がMCCに入ったのはその後でした。母が死んでから。二十二年前に。それが理由でした。",
+            "zh": "我进入MCC是在那之后。母亲去世之后。二十二年前。那就是原因。"
           }
         }
       ]
@@ -409,20 +485,26 @@
         {
           "text": {
             "ko": "한 사람이라도. 그 말이 무거웠다.",
-            "en": "Even one person. Those words were heavy."
+            "en": "Even one person. Those words were heavy.",
+            "ja": "一人でもいいから。その言葉は重かった。",
+            "zh": "哪怕只有一个人。那句话很沉重。"
           }
         },
         {
           "text": {
             "ko": "11명이 죽었다. 보고서는 그것을 알고 있었다. MCC 이사회는 그것을 알고 있었다. 그리고 한 사람이 나왔다.",
-            "en": "Eleven died. The report knew it. The MCC board knew it. And one person came out."
-          },
-          "overlay": "mcc_ch10_the_choice_l13_01_death_still"
+            "en": "Eleven died. The report knew it. The MCC board knew it. And one person came out.",
+            "ja": "十一人が死んだ。報告書はそれを知っていた。MCC理事会はそれを知っていた。そして一人が生き出た。",
+            "zh": "十一人死亡。报告知道这件事。MCC董事会知道这件事。而有一个人走了出来。",
+            "overlay": "mcc_ch10_the_choice_l13_01_death_still"
+          }
         },
         {
           "text": {
             "ko": "그 한 사람이 30년 후에 CV를 만들었다. CV가 올림포스에 왔다. Zone 12 기록이 공개됐다.",
-            "en": "That one person built CV thirty years later. CV came to Olympus. The Zone 12 records were released."
+            "en": "That one person built CV thirty years later. CV came to Olympus. The Zone 12 records were released.",
+            "ja": "その一人が三十年後にCVを作った。CVがオリンポスに来た。Zone 12の記録が公開された。",
+            "zh": "那个人三十年后建立了CV。CV来到了奥林匹斯。12区档案被公开了。"
           }
         }
       ]
@@ -439,7 +521,9 @@
           "emotion": "calm",
           "text": {
             "ko": "창밖을 봐요.",
-            "en": "Look out the window."
+            "en": "Look out the window.",
+            "ja": "窓の外を見て。",
+            "zh": "看窗外。"
           }
         },
         {
@@ -447,7 +531,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "헬라스 센트럴. MCC가 지은 도시. 내 부모가 일한 곳. 지금 C-7 블록 아이들이 분필로 이름을 적는 곳.",
-            "en": "Hellas Central. The city MCC built. Where my parents worked. Where C-7 block children now write names in chalk."
+            "en": "Hellas Central. The city MCC built. Where my parents worked. Where C-7 block children now write names in chalk.",
+            "ja": "ヘラス・セントラル。MCCが建てた都市。私の両親が働いた場所。今C-7ブロックの子供たちがチョークで名前を書いている場所。",
+            "zh": "赫拉斯中央。MCC建造的城市。我父母工作的地方。如今C-7区的孩子们用粉笔写名字的地方。"
           }
         },
         {
@@ -455,7 +541,9 @@
           "emotion": "serious",
           "text": {
             "ko": "22년 동안 이것이 목표였어요. 이 창에서 보이는 것들이 달라지는 것. 어머니의 30년까지 합치면 더 오래됐어요.",
-            "en": "For twenty-two years this was the goal. The things visible from this window changing. Add my mother's thirty years and it goes back further."
+            "en": "For twenty-two years this was the goal. The things visible from this window changing. Add my mother's thirty years and it goes back further.",
+            "ja": "二十二年間、これが目標でした。この窓から見えるものが変わること。母の三十年を加えれば、もっと遡ります。",
+            "zh": "二十二年来，这一直是目标。让这扇窗外看到的一切发生改变。加上母亲的三十年，那就更久了。"
           }
         }
       ]
@@ -470,19 +558,25 @@
         {
           "text": {
             "ko": "헬라스 센트럴의 밤이었다. 불빛들이 있었다.",
-            "en": "It was the night of Hellas Central. There were lights."
+            "en": "It was the night of Hellas Central. There were lights.",
+            "ja": "ヘラス・セントラルの夜だった。明かりがあった。",
+            "zh": "赫拉斯中央的夜晚。灯光点点。"
           }
         },
         {
           "text": {
             "ko": "위층. 행정. 중층. 기술자들. 아래층. 노동자들. 광산. 광산 엘리베이터가 내려가고 있었다. 밤에도.",
-            "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. The mine elevator was descending. Even at night."
+            "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. The mine elevator was descending. Even at night.",
+            "ja": "上層。行政。中層。技術者たち。下層。労働者たち。鉱山。鉱山のエレベーターが下降していた。夜でも。",
+            "zh": "上层。行政。中层。工程师们。下层。工人们。矿山。矿井电梯正在下降。即使在夜晚。"
           }
         },
         {
           "text": {
             "ko": "22년. 그 창에서 22년을 봤다는 뜻이었다.",
-            "en": "Twenty-two years. That meant twenty-two years of watching from that window."
+            "en": "Twenty-two years. That meant twenty-two years of watching from that window.",
+            "ja": "二十二年。その窓から二十二年を見てきたということだった。",
+            "zh": "二十二年。意味着在那扇窗前注视了二十二年。"
           }
         }
       ]
@@ -499,7 +593,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "리팡.",
-            "en": "Lifang."
+            "en": "Lifang.",
+            "ja": "リファン。",
+            "zh": "李芳。"
           }
         },
         {
@@ -507,7 +603,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "네.",
-            "en": "Yes."
+            "en": "Yes.",
+            "ja": "はい。",
+            "zh": "是。"
           }
         },
         {
@@ -515,7 +613,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Pilgrim Arms 팀이 올림포스에서 어떻게 됐는지 보고해요.",
-            "en": "Report what happened to the Pilgrim Arms team at Olympus."
+            "en": "Report what happened to the Pilgrim Arms team at Olympus.",
+            "ja": "Pilgrim Armsのチームがオリンポスでどうなったか報告して。",
+            "zh": "报告先驱武装团队在奥林匹斯发生了什么。"
           }
         }
       ]
@@ -532,7 +632,9 @@
           "emotion": "serious",
           "text": {
             "ko": "4명이었습니다. 진입 시도가 있었습니다. 당신들이 회의 중에.",
-            "en": "Four of them. There was an entry attempt. While you were in the meeting."
+            "en": "Four of them. There was an entry attempt. While you were in the meeting.",
+            "ja": "四名でした。侵入の試みがありました。あなた方が会議中に。",
+            "zh": "四人。有过进入尝试。你们开会期间。"
           }
         },
         {
@@ -540,7 +642,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "CV측 경호가 막았습니다. Cinder Grace가 진입 전에 파악했습니다.",
-            "en": "CV's security blocked them. Cinder Grace identified them before entry."
+            "en": "CV's security blocked them. Cinder Grace identified them before entry.",
+            "ja": "CV側の警護が阻止しました。Cinder Graceが侵入前に把握していました。",
+            "zh": "CV的保安阻止了他们。辛德·格雷斯在进入前就发现了他们。"
           }
         },
         {
@@ -548,7 +652,9 @@
           "emotion": "cold",
           "text": {
             "ko": "의뢰인이 누구인지 파악됐습니다. MCC 이사회 Osei 이사입니다.",
-            "en": "The client has been identified. It's MCC board director Osei."
+            "en": "The client has been identified. It's MCC board director Osei.",
+            "ja": "依頼人が特定されました。MCC理事会のOsei理事です。",
+            "zh": "委托人已被确认。是MCC董事会的奥塞董事。"
           }
         }
       ]
@@ -563,19 +669,25 @@
         {
           "text": {
             "ko": "Osei.",
-            "en": "Osei."
+            "en": "Osei.",
+            "ja": "Osei。",
+            "zh": "奥塞。"
           }
         },
         {
           "text": {
             "ko": "케플러 발표 때 첫 번째 질문을 한 이사. C-7 블록 심문 때 가장 날카로웠던 이사.",
-            "en": "The director who asked the first question during the Kepler presentation. The sharpest director during the C-7 block interrogation."
+            "en": "The director who asked the first question during the Kepler presentation. The sharpest director during the C-7 block interrogation.",
+            "ja": "ケプラー発表のときに最初の質問をした理事。C-7ブロックの尋問のときに最も鋭かった理事。",
+            "zh": "开普勒发布会时第一个提问的董事。C-7区审讯时最犀利的董事。"
           }
         },
         {
           "text": {
             "ko": "그가 Pilgrim Arms에 의뢰했다. Chen을 없애려고. Zone 12 기록이 나오기 전에.",
-            "en": "He had commissioned Pilgrim Arms. To eliminate Chen. Before the Zone 12 records came out."
+            "en": "He had commissioned Pilgrim Arms. To eliminate Chen. Before the Zone 12 records came out.",
+            "ja": "彼がPilgrim Armsに依頼した。Chenを消すために。Zone 12の記録が出る前に。",
+            "zh": "他委托了先驱武装。为了除掉陈。在12区档案公开之前。"
           }
         }
       ]
@@ -592,7 +704,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "알고 있었어요.",
-            "en": "I knew."
+            "en": "I knew.",
+            "ja": "知っていました。",
+            "zh": "我知道。"
           }
         },
         {
@@ -600,7 +714,9 @@
           "emotion": "calm",
           "text": {
             "ko": "그래서 Pilgrim Arms에 대한 정보를 먼저 확보했어요. 올림포스 이전에.",
-            "en": "That's why I secured information on Pilgrim Arms first. Before Olympus."
+            "en": "That's why I secured information on Pilgrim Arms first. Before Olympus.",
+            "ja": "だからPilgrim Armsに関する情報を先に確保しました。オリンポスの前に。",
+            "zh": "所以我提前掌握了关于先驱武装的信息。在奥林匹斯之前。"
           }
         },
         {
@@ -608,7 +724,9 @@
           "emotion": "serious",
           "text": {
             "ko": "지금은 그 정보가 증거예요. 오전 10시 이사회에서 쓸 증거.",
-            "en": "Now that information is evidence. Evidence to be used at the ten o'clock board meeting."
+            "en": "Now that information is evidence. Evidence to be used at the ten o'clock board meeting.",
+            "ja": "今やその情報は証拠です。午前十時の理事会で使う証拠。",
+            "zh": "现在那些信息就是证据。用于上午十点董事会的证据。"
           }
         }
       ]
@@ -623,13 +741,17 @@
         {
           "text": {
             "ko": "Chen은 알고 있었다. 처음부터. Osei가 Pilgrim Arms를 쓴다는 것을.",
-            "en": "Chen had known. From the beginning. That Osei was using Pilgrim Arms."
+            "en": "Chen had known. From the beginning. That Osei was using Pilgrim Arms.",
+            "ja": "Chenは知っていた。最初から。OseiがPilgrim Armsを使っているということを。",
+            "zh": "陈一直知道。从一开始。奥塞在使用先驱武装这件事。"
           }
         },
         {
           "text": {
             "ko": "그래서 Cinder Grace가 올림포스에서 먼저 움직인 것이었다. 안이 아닌 밖의 방식으로 싸우는 사람이 안에서 싸우는 사람을 지켰다.",
-            "en": "That's why Cinder Grace had moved first at Olympus. A person who fought by outside means protecting a person who fought from within."
+            "en": "That's why Cinder Grace had moved first at Olympus. A person who fought by outside means protecting a person who fought from within.",
+            "ja": "だからCinder Graceがオリンポスで先に動いたのだ。外の方法で戦う人間が、内側で戦う人間を守った。",
+            "zh": "这就是辛德·格雷斯在奥林匹斯率先行动的原因。用外部方式战斗的人保护了从内部战斗的人。"
           }
         }
       ]
@@ -646,7 +768,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이사회에서 Osei는 나를 해임하려 할 거예요.",
-            "en": "At the board meeting Osei will try to dismiss me."
+            "en": "At the board meeting Osei will try to dismiss me.",
+            "ja": "理事会でOseiは私を解任しようとするでしょう。",
+            "zh": "在董事会上，奥塞会试图解雇我。"
           }
         },
         {
@@ -654,7 +778,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Zone 12 기록 공개를 MCC 기밀 유출로 몰 거예요. Marchetti는 흔들릴 거예요. Ryu는 중립이에요.",
-            "en": "He'll frame the Zone 12 record release as an MCC confidential leak. Marchetti will waver. Ryu stays neutral."
+            "en": "He'll frame the Zone 12 record release as an MCC confidential leak. Marchetti will waver. Ryu stays neutral.",
+            "ja": "Zone 12記録の公開をMCCの機密漏洩として仕立て上げるでしょう。Marchettiは揺れるでしょう。Ryuは中立です。",
+            "zh": "他会把12区档案公开定性为MCC机密泄露。马尔凯蒂会动摇。柳保持中立。"
           }
         },
         {
@@ -662,7 +788,9 @@
           "emotion": "calm",
           "text": {
             "ko": "그때 당신이 필요해요.",
-            "en": "That's when I need you."
+            "en": "That's when I need you.",
+            "ja": "そのときにあなたが必要です。",
+            "zh": "那时候我需要你。"
           }
         }
       ]
@@ -679,7 +807,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Chen이 증거를 제출합니다. Osei-Pilgrim Arms 연결 문서입니다.",
-            "en": "Chen will present evidence. Documents connecting Osei to Pilgrim Arms."
+            "en": "Chen will present evidence. Documents connecting Osei to Pilgrim Arms.",
+            "ja": "Chenが証拠を提出します。Osei-Pilgrim Armsの接続文書です。",
+            "zh": "陈将提交证据。将奥塞与先驱武装联系起来的文件。"
           }
         },
         {
@@ -687,7 +817,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그 시점에 Marchetti가 입장을 바꿀 가능성이 있습니다.",
-            "en": "At that point there's a chance Marchetti will change position."
+            "en": "At that point there's a chance Marchetti will change position.",
+            "ja": "その時点でMarchettiが立場を変える可能性があります。",
+            "zh": "在那个时刻，马尔凯蒂有可能改变立场。"
           }
         },
         {
@@ -695,7 +827,9 @@
           "emotion": "cold",
           "text": {
             "ko": "Ryu가 중립을 유지하면 Chen과 Osei가 1:1이 됩니다. 그 순간 당신의 발언이 필요합니다.",
-            "en": "If Ryu maintains neutrality, Chen and Osei will be one to one. At that moment your statement is needed."
+            "en": "If Ryu maintains neutrality, Chen and Osei will be one to one. At that moment your statement is needed.",
+            "ja": "Ryuが中立を維持すれば、ChenとOseiが一対一になります。その瞬間、あなたの発言が必要です。",
+            "zh": "如果柳保持中立，陈和奥塞将势均力敌。那一刻需要你发言。"
           }
         }
       ]
@@ -710,13 +844,17 @@
         {
           "text": {
             "ko": "이사회가 기다리고 있었다. 오전 10시. 그것이 화성에서 오늘 결정할 것이었다.",
-            "en": "The board was waiting. Ten in the morning. That was what would be decided on Mars today."
+            "en": "The board was waiting. Ten in the morning. That was what would be decided on Mars today.",
+            "ja": "理事会が待っていた。午前十時。それが今日、火星で決まることだった。",
+            "zh": "董事会在等待。上午十点。那是今天在火星上要决定的事。"
           }
         },
         {
           "text": {
             "ko": "Osei. Marchetti. Ryu. Chen. 그리고 당신.",
-            "en": "Osei. Marchetti. Ryu. Chen. And you."
+            "en": "Osei. Marchetti. Ryu. Chen. And you.",
+            "ja": "Osei。Marchetti。Ryu。Chen。そしてあなた。",
+            "zh": "奥塞。马尔凯蒂。柳。陈。还有你。"
           }
         }
       ]
@@ -734,7 +872,9 @@
           "effect": "character_enter:osei:slide_left",
           "text": {
             "ko": "Chen 이사. 올림포스에서의 행동에 대해 설명하시오.",
-            "en": "Director Chen. Explain your actions at Olympus."
+            "en": "Director Chen. Explain your actions at Olympus.",
+            "ja": "Chen理事。オリンポスでの行動を説明されたい。",
+            "zh": "陈董事。请解释你在奥林匹斯的行为。"
           }
         },
         {
@@ -742,7 +882,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Zone 12 기록은 MCC 내부 기밀이오. 그것을 세 파벌에 공개한 것은 명백한 배임이오.",
-            "en": "The Zone 12 records are MCC internal confidential material. Releasing them to all three factions is clear breach of trust."
+            "en": "The Zone 12 records are MCC internal confidential material. Releasing them to all three factions is clear breach of trust.",
+            "ja": "Zone 12の記録はMCC内部機密だ。それを三派閥に公開したことは明白な背任だ。",
+            "zh": "12区档案是MCC内部机密。将其公开给三个派系是明显的背信弃义。"
           }
         },
         {
@@ -750,7 +892,9 @@
           "emotion": "cold",
           "text": {
             "ko": "해임 동의가 필요하오.",
-            "en": "I move for dismissal."
+            "en": "I move for dismissal.",
+            "ja": "解任の動議を提出する。",
+            "zh": "我提议解雇。"
           }
         }
       ]
@@ -767,7 +911,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "공개의 방식에 대해 이의가 있소. 그러나 해임 동의에 지금 바로 찬성하기는—",
-            "en": "I have reservations about the method of release. But agreeing to the dismissal motion right now—"
+            "en": "I have reservations about the method of release. But agreeing to the dismissal motion right now—",
+            "ja": "公開の方法については異議があります。しかし解任動議に今すぐ賛成するのは——",
+            "zh": "我对公开方式有异议。但立即同意解雇动议——"
           }
         },
         {
@@ -775,7 +921,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "Marchetti. 배임은 배임이오.",
-            "en": "Marchetti. Breach of trust is breach of trust."
+            "en": "Marchetti. Breach of trust is breach of trust.",
+            "ja": "Marchetti。背任は背任だ。",
+            "zh": "马尔凯蒂。背信弃义就是背信弃义。"
           }
         },
         {
@@ -783,7 +931,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "진행하시오.",
-            "en": "Proceed."
+            "en": "Proceed.",
+            "ja": "続けなさい。",
+            "zh": "继续。"
           }
         }
       ]
@@ -801,7 +951,9 @@
           "effect": "character_enter:chen:slide_right",
           "text": {
             "ko": "배임이라고 하셨소.",
-            "en": "You said breach of trust."
+            "en": "You said breach of trust.",
+            "ja": "背任とおっしゃった。",
+            "zh": "你说背信弃义。"
           }
         },
         {
@@ -809,16 +961,20 @@
           "emotion": "serious",
           "text": {
             "ko": "그렇다면 Osei 이사. Zone 12 안전 결함 보고서를 2004년에 묵살한 것은 무엇이오.",
-            "en": "Then Director Osei. What was suppressing the Zone 12 safety defect report in 2004?"
-          },
-          "overlay": "mcc_ch10_the_choice_l26_01_sealed_file"
+            "en": "Then Director Osei. What was suppressing the Zone 12 safety defect report in 2004?",
+            "ja": "ならばOsei理事。2004年にZone 12の安全欠陥報告書を握りつぶしたのは何というのですか。",
+            "zh": "那么奥塞董事。2004年压制12区安全缺陷报告算什么？",
+            "overlay": "mcc_ch10_the_choice_l26_01_sealed_file"
+          }
         },
         {
           "speaker": "chen",
           "emotion": "neutral",
           "text": {
             "ko": "그 결정으로 11명이 죽었소. 그 결정에 서명한 이사가 지금 이 자리에 있소.",
-            "en": "Eleven people died from that decision. The director who signed that decision is here in this room."
+            "en": "Eleven people died from that decision. The director who signed that decision is here in this room.",
+            "ja": "その決定で十一人が死んだ。その決定に署名した理事が今この場にいる。",
+            "zh": "那个决定造成了十一人死亡。在那个决定上签字的董事就在这个房间里。"
           }
         }
       ]
@@ -833,13 +989,17 @@
         {
           "text": {
             "ko": "이사회 회의실이 조용해졌다.",
-            "en": "The board chamber went quiet."
+            "en": "The board chamber went quiet.",
+            "ja": "理事会の会議室が静まり返った。",
+            "zh": "董事会会议室安静下来。"
           }
         },
         {
           "text": {
             "ko": "Osei가 멈췄다. Marchetti가 의자에서 자세를 바꿨다. Ryu가 테이블을 봤다.",
-            "en": "Osei stopped. Marchetti shifted in his chair. Ryu looked at the table."
+            "en": "Osei stopped. Marchetti shifted in his chair. Ryu looked at the table.",
+            "ja": "Oseiが止まった。Marchettiが椅子の上で姿勢を変えた。Ryuがテーブルを見た。",
+            "zh": "奥塞停顿了。马尔凯蒂在椅子上移动了身体。柳盯着桌子。"
           }
         }
       ]
@@ -856,7 +1016,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그리고 하나 더. Osei 이사가 Pilgrim Arms에 올림포스 작전을 의뢰한 문서가 여기 있소.",
-            "en": "And one more thing. Here is the document showing Director Osei commissioned Pilgrim Arms for the Olympus operation."
+            "en": "And one more thing. Here is the document showing Director Osei commissioned Pilgrim Arms for the Olympus operation.",
+            "ja": "そしてもう一つ。Osei理事がPilgrim ArmsにオリンポスD作戦を依頼した文書がここにある。",
+            "zh": "还有一件事。这里有奥塞董事委托先驱武装执行奥林匹斯行动的文件。"
           }
         },
         {
@@ -864,7 +1026,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "상대가 누구였는지도 여기 있소. 나였소.",
-            "en": "The target is also noted here. It was me."
+            "en": "The target is also noted here. It was me.",
+            "ja": "相手が誰だったかもここにある。私だった。",
+            "zh": "目标是谁也在这里。是我。"
           }
         },
         {
@@ -872,7 +1036,9 @@
           "emotion": "cold",
           "text": {
             "ko": "그것은 위조요.",
-            "en": "That is a forgery."
+            "en": "That is a forgery.",
+            "ja": "それは偽造だ。",
+            "zh": "那是伪造的。"
           }
         }
       ]
@@ -889,7 +1055,9 @@
           "emotion": "uncertain",
           "text": {
             "ko": "Osei. 이것은—",
-            "en": "Osei. This is—"
+            "en": "Osei. This is—",
+            "ja": "Osei。これは——",
+            "zh": "奥塞。这——"
           }
         },
         {
@@ -897,7 +1065,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "검증이 필요하오.",
-            "en": "Verification is needed."
+            "en": "Verification is needed.",
+            "ja": "検証が必要です。",
+            "zh": "需要核实。"
           }
         },
         {
@@ -905,7 +1075,9 @@
           "emotion": "sharp",
           "text": {
             "ko": "Chen이 자작한 것이오. 이 자리를 지키기 위해. 저 외부인과 함께.",
-            "en": "Chen fabricated it. To keep her position. Together with that outsider."
+            "en": "Chen fabricated it. To keep her position. Together with that outsider.",
+            "ja": "Chenが自作したものだ。この地位を守るために。あの部外者と共謀して。",
+            "zh": "陈伪造的。为了保住她的位置。和那个外人一起。"
           }
         }
       ]
@@ -920,19 +1092,25 @@
         {
           "text": {
             "ko": "외부인. 그 말이 당신에게 왔다.",
-            "en": "Outsider. That word came at you."
+            "en": "Outsider. That word came at you.",
+            "ja": "部外者。その言葉があなたに向かって来た。",
+            "zh": "外人。那个词朝你而来。"
           }
         },
         {
           "text": {
             "ko": "Osei가 당신을 봤다. Chen이 당신을 봤다. 이사회 전체가 당신을 봤다.",
-            "en": "Osei looked at you. Chen looked at you. The entire board looked at you."
+            "en": "Osei looked at you. Chen looked at you. The entire board looked at you.",
+            "ja": "Oseiがあなたを見た。Chenがあなたを見た。理事会全体があなたを見た。",
+            "zh": "奥塞看着你。陈看着你。整个董事会都看着你。"
           }
         },
         {
           "text": {
             "ko": "이 순간이었다. 리팡이 말했던 순간. 당신의 발언이 필요한 순간.",
-            "en": "This was the moment. The moment Lifang had spoken of. The moment your statement was needed."
+            "en": "This was the moment. The moment Lifang had spoken of. The moment your statement was needed.",
+            "ja": "この瞬間だった。リファンが語っていた瞬間。あなたの発言が必要な瞬間。",
+            "zh": "就是这一刻。李芳说过的那一刻。需要你发言的那一刻。"
           }
         }
       ]
@@ -949,7 +1127,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Zone 12 기록을 아카이브 지하에서 찾았습니다. 제가 직접. 칩이 있었습니다.",
-            "en": "I found the Zone 12 records in the archive sublevel. Directly. There was a chip."
+            "en": "I found the Zone 12 records in the archive sublevel. Directly. There was a chip.",
+            "ja": "Zone 12の記録をアーカイブの地下で見つけました。私が直接。チップがありました。",
+            "zh": "我在档案库地下层找到了12区档案。亲自找到的。有一枚芯片。"
           }
         },
         {
@@ -957,7 +1137,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그 기록에는 안전 결함 보고서가 있었습니다. 날짜가 있었습니다. 서명이 있었습니다.",
-            "en": "In those records was a safety defect report. There was a date. There was a signature."
+            "en": "In those records was a safety defect report. There was a date. There was a signature.",
+            "ja": "その記録には安全欠陥報告書がありました。日付がありました。署名がありました。",
+            "zh": "那份档案里有安全缺陷报告。有日期。有签名。"
           }
         },
         {
@@ -965,7 +1147,9 @@
           "emotion": "calm",
           "text": {
             "ko": "위조가 아닙니다. 그것이 30년 전 MCC가 한 결정이었습니다.",
-            "en": "It's not a forgery. That was the decision MCC made thirty years ago."
+            "en": "It's not a forgery. That was the decision MCC made thirty years ago.",
+            "ja": "偽造ではありません。それが三十年前にMCCが下した決定でした。",
+            "zh": "不是伪造。那是三十年前MCC做出的决定。"
           }
         }
       ]
@@ -982,7 +1166,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Osei. 서명이 확인된다면—",
-            "en": "Osei. If the signature is verified—"
+            "en": "Osei. If the signature is verified—",
+            "ja": "Osei。署名が確認されれば——",
+            "zh": "奥塞。如果签名得到证实——"
           }
         },
         {
@@ -990,7 +1176,9 @@
           "emotion": "cold",
           "text": {
             "ko": "Marchetti. 당신도 MCC 이사요.",
-            "en": "Marchetti. You're also an MCC director."
+            "en": "Marchetti. You're also an MCC director.",
+            "ja": "Marchetti。あなたもMCCの理事だ。",
+            "zh": "马尔凯蒂。你也是MCC的董事。"
           }
         },
         {
@@ -998,7 +1186,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그렇소. 그래서 이것을 덮어서는 안 된다고 생각하오.",
-            "en": "That's right. That's why I think this cannot be covered up."
+            "en": "That's right. That's why I think this cannot be covered up.",
+            "ja": "そうだ。だからこそ、これを隠蔽してはならないと思う。",
+            "zh": "没错。正因如此，我认为这件事不能掩盖。"
           }
         }
       ]
@@ -1013,19 +1203,25 @@
         {
           "text": {
             "ko": "Marchetti가 입장을 바꿨다. 리팡의 예측이 맞았다.",
-            "en": "Marchetti had changed position. Lifang's prediction was right."
+            "en": "Marchetti had changed position. Lifang's prediction was right.",
+            "ja": "Marchettiが立場を変えた。リファンの予測が当たった。",
+            "zh": "马尔凯蒂改变了立场。李芳的预测是对的。"
           }
         },
         {
           "text": {
             "ko": "Ryu가 테이블을 계속 봤다. 중립이었다.",
-            "en": "Ryu kept looking at the table. He was neutral."
+            "en": "Ryu kept looking at the table. He was neutral.",
+            "ja": "Ryuはテーブルを見続けた。中立だった。",
+            "zh": "柳继续盯着桌子。他保持中立。"
           }
         },
         {
           "text": {
             "ko": "Osei와 Chen. Marchetti와 Ryu. 균형이 무너지고 있었다.",
-            "en": "Osei and Chen. Marchetti and Ryu. The balance was breaking."
+            "en": "Osei and Chen. Marchetti and Ryu. The balance was breaking.",
+            "ja": "OseiとChen。MarchettiとRyu。均衡が崩れていた。",
+            "zh": "奥塞与陈。马尔凯蒂与柳。平衡正在打破。"
           }
         }
       ]
@@ -1042,7 +1238,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "한 가지만 묻겠소.",
-            "en": "I have one question."
+            "en": "I have one question.",
+            "ja": "一つだけ聞かせてください。",
+            "zh": "我只问一件事。"
           }
         },
         {
@@ -1050,7 +1248,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Chen 이사. 이것을 지금 공개한 이유가 뭐요. 30년을 기다린 이유도.",
-            "en": "Director Chen. What is the reason you're releasing this now. The reason you waited thirty years also."
+            "en": "Director Chen. What is the reason you're releasing this now. The reason you waited thirty years also.",
+            "ja": "Chen理事。これを今公開した理由は何ですか。三十年待った理由も。",
+            "zh": "陈董事。你现在公开这件事的原因是什么。等待三十年的原因也是。"
           }
         },
         {
@@ -1058,7 +1258,9 @@
           "emotion": "calm",
           "text": {
             "ko": "적절한 시점이 필요했소. 기록이 증거가 될 수 있는 시점.",
-            "en": "A suitable moment was needed. A moment when records could become evidence."
+            "en": "A suitable moment was needed. A moment when records could become evidence.",
+            "ja": "適切な時機が必要でした。記録が証拠になり得る時機。",
+            "zh": "需要一个合适的时机。档案能够成为证据的时机。"
           }
         }
       ]
@@ -1075,7 +1277,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그리고 그것을 가져올 사람이 필요했소.",
-            "en": "And someone was needed to bring it."
+            "en": "And someone was needed to bring it.",
+            "ja": "そしてそれを持ってくる人間が必要でした。",
+            "zh": "还需要一个能带来它的人。"
           }
         },
         {
@@ -1083,7 +1287,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그 사람이 지금 이 자리에 있소.",
-            "en": "That person is here now."
+            "en": "That person is here now.",
+            "ja": "その人間が今ここにいます。",
+            "zh": "那个人现在就在这里。"
           }
         },
         {
@@ -1091,7 +1297,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "알겠소. 중립을 유지하오.",
-            "en": "Understood. I maintain neutrality."
+            "en": "Understood. I maintain neutrality.",
+            "ja": "わかりました。中立を維持します。",
+            "zh": "明白了。我保持中立。"
           }
         }
       ]
@@ -1106,19 +1314,25 @@
         {
           "text": {
             "ko": "Osei가 자리에서 일어섰다.",
-            "en": "Osei rose from his seat."
+            "en": "Osei rose from his seat.",
+            "ja": "Oseiが席から立ち上がった。",
+            "zh": "奥塞从座位上站起来。"
           }
         },
         {
           "text": {
             "ko": "아무 말도 하지 않았다. 나갔다.",
-            "en": "Said nothing. Left."
+            "en": "Said nothing. Left.",
+            "ja": "何も言わなかった。出て行った。",
+            "zh": "什么都没说。离开了。"
           }
         },
         {
           "text": {
             "ko": "이사회 회의실에 Marchetti와 Ryu와 Chen이 남았다. 그리고 당신이 남았다.",
-            "en": "In the board chamber remained Marchetti and Ryu and Chen. And you remained."
+            "en": "In the board chamber remained Marchetti and Ryu and Chen. And you remained.",
+            "ja": "理事会の会議室にはMarchettiとRyuとChenが残った。そしてあなたが残った。",
+            "zh": "董事会会议室里留下了马尔凯蒂、柳和陈。还有你留了下来。"
           }
         }
       ]
@@ -1135,7 +1349,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Osei는 오늘 오후 사임할 것이오.",
-            "en": "Osei will resign this afternoon."
+            "en": "Osei will resign this afternoon.",
+            "ja": "Oseiは今日の午後に辞任するでしょう。",
+            "zh": "奥塞今天下午会辞职。"
           }
         },
         {
@@ -1143,7 +1359,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "공식 이유는 개인 사정이 될 것이오. 그것이 MCC 방식이오.",
-            "en": "The official reason will be personal matters. That is the MCC way."
+            "en": "The official reason will be personal matters. That is the MCC way.",
+            "ja": "公式の理由は個人的な事情になるでしょう。それがMCCのやり方です。",
+            "zh": "官方理由将是个人事务。那是MCC的方式。"
           }
         },
         {
@@ -1151,7 +1369,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Zone 12 기록 대응은 별도 위원회를 구성하겠소.",
-            "en": "A separate committee will be formed for the Zone 12 records response."
+            "en": "A separate committee will be formed for the Zone 12 records response.",
+            "ja": "Zone 12記録への対応は別途委員会を設けます。",
+            "zh": "关于12区档案的应对，将成立单独委员会。"
           }
         }
       ]
@@ -1166,13 +1386,17 @@
         {
           "text": {
             "ko": "MCC 방식이었다. 사임. 위원회. 그것이 이 조직의 방식이었다.",
-            "en": "The MCC way. Resignation. Committee. That was this organization's way."
+            "en": "The MCC way. Resignation. Committee. That was this organization's way.",
+            "ja": "MCCのやり方だった。辞任。委員会。それがこの組織のやり方だった。",
+            "zh": "MCC的方式。辞职。委员会。那是这个组织的方式。"
           }
         },
         {
           "text": {
             "ko": "Chen이 이 안에서 22년을 그것과 함께했다. 그 방식을 이용하면서. 그 방식에 맞서면서. 어머니가 시작한 것이었다.",
-            "en": "Chen had been with that for twenty-two years inside. Using that way. Fighting against that way. Her mother had started it."
+            "en": "Chen had been with that for twenty-two years inside. Using that way. Fighting against that way. Her mother had started it.",
+            "ja": "Chenはその中で二十二年間それとともにあった。そのやり方を利用しながら。そのやり方に抗いながら。母が始めたことだった。",
+            "zh": "陈在其中与那种方式共存了二十二年。利用那种方式。对抗那种方式。这是她母亲开始的事。"
           }
         }
       ]
@@ -1189,7 +1413,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "이사회에서 살아남았어요. 오늘은.",
-            "en": "We survived the board. Today."
+            "en": "We survived the board. Today.",
+            "ja": "理事会を生き延びました。今日は。",
+            "zh": "我们在董事会中活下来了。今天。"
           }
         },
         {
@@ -1197,7 +1423,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "내일도 이사회가 있어요. 다음 달도. 화성에서는 계속돼요.",
-            "en": "There's board tomorrow. Next month too. It continues on Mars."
+            "en": "There's board tomorrow. Next month too. It continues on Mars.",
+            "ja": "明日も理事会があります。来月も。火星では続きます。",
+            "zh": "明天还有董事会。下个月也有。在火星上这是持续的。"
           }
         },
         {
@@ -1205,7 +1433,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그래서 결정이 필요해요. 이 안에서 계속할 것인지.",
-            "en": "That's why a decision is needed. Whether to continue inside this."
+            "en": "That's why a decision is needed. Whether to continue inside this.",
+            "ja": "だから決断が必要です。この中で続けるかどうか。",
+            "zh": "所以需要一个决定。是否在这个体系内继续。"
           }
         }
       ]
@@ -1220,19 +1450,25 @@
         {
           "text": {
             "ko": "이 안에서. 그 조건이 다시 왔다.",
-            "en": "Inside this. That condition came again."
+            "en": "Inside this. That condition came again.",
+            "ja": "この中で。その条件が再び来た。",
+            "zh": "在这个体系内。那个条件再次来临。"
           }
         },
         {
           "text": {
             "ko": "MCC 안에서 결정해야 한다고 Chen이 말했다. MCC 밖은 내가 도울 수 없다고.",
-            "en": "Must decide within MCC, Chen had said. Outside MCC I can't help."
+            "en": "Must decide within MCC, Chen had said. Outside MCC I can't help.",
+            "ja": "MCC内で決断しなければならないとChenは言った。MCC外では私は助けられないと。",
+            "zh": "陈说过必须在MCC内部做决定。MCC之外我帮不上忙。"
           }
         },
         {
           "text": {
             "ko": "그러나 화성에는 MCC 밖도 있었다. CV가 있었다. FSP가 있었다. Pilgrim Arms가 있었다. 그것들도 화성이었다.",
-            "en": "But on Mars there was also outside MCC. CV was there. FSP was there. Pilgrim Arms was there. Those too were Mars."
+            "en": "But on Mars there was also outside MCC. CV was there. FSP was there. Pilgrim Arms was there. Those too were Mars.",
+            "ja": "しかし火星にはMCC外もあった。CVがあった。FSPがあった。Pilgrim Armsがあった。それらも火星だった。",
+            "zh": "但在火星上，MCC之外也有世界。有CV。有FSP。有先驱武装。那些也是火星。"
           }
         }
       ]
@@ -1249,7 +1485,9 @@
           "emotion": "calm",
           "text": {
             "ko": "MCC를 운영하는 것은 권력이에요. 그러나 권력은 방향이 있어요.",
-            "en": "Running MCC is power. But power has a direction."
+            "en": "Running MCC is power. But power has a direction.",
+            "ja": "MCCを運営することは権力です。しかし権力には方向性があります。",
+            "zh": "运营MCC是权力。但权力有方向。"
           }
         },
         {
@@ -1257,7 +1495,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "내 방향이 있었어요. 22년간. 그 방향을 이을 사람이 필요해요.",
-            "en": "I had a direction. For twenty-two years. Someone is needed to continue that direction."
+            "en": "I had a direction. For twenty-two years. Someone is needed to continue that direction.",
+            "ja": "私には方向性がありました。二十二年間。その方向を引き継ぐ人間が必要です。",
+            "zh": "我有我的方向。二十二年来。需要一个人来延续那个方向。"
           }
         },
         {
@@ -1265,7 +1505,9 @@
           "emotion": "serious",
           "text": {
             "ko": "그것이 당신일 수 있어요. 또는 아닐 수 있어요. 결정은 당신이에요.",
-            "en": "That could be you. Or it might not be. The decision is yours."
+            "en": "That could be you. Or it might not be. The decision is yours.",
+            "ja": "それはあなたかもしれません。あるいはそうでないかもしれません。決断はあなたのものです。",
+            "zh": "那可能是你。也可能不是。决定权在你。"
           }
         }
       ]
@@ -1282,7 +1524,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "창밖을 봐요. 헬라스 전체가 보여요.",
-            "en": "Look out the window. All of Hellas is visible."
+            "en": "Look out the window. All of Hellas is visible.",
+            "ja": "窓の外を見て。ヘラス全体が見えます。",
+            "zh": "看窗外。整个赫拉斯尽收眼底。"
           }
         },
         {
@@ -1290,7 +1534,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "위층. 행정. 중층. 기술자들. 아래층. 노동자들. 광산. 그것들이 전부 MCC예요.",
-            "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. All of that is MCC."
+            "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. All of that is MCC.",
+            "ja": "上層。行政。中層。技術者たち。下層。労働者たち。鉱山。それらすべてがMCCです。",
+            "zh": "上层。行政。中层。工程师们。下层。工人们。矿山。这一切都是MCC。"
           }
         },
         {
@@ -1298,7 +1544,9 @@
           "emotion": "serious",
           "text": {
             "ko": "이것을 어떻게 할 것인지가 선택이에요. 이어받는 것도. 제국으로 완성하는 것도. 나가는 것도. 넘어서는 것도.",
-            "en": "What to do with this is the choice. Inheriting it. Completing it as an empire. Leaving. Transcending. All of those."
+            "en": "What to do with this is the choice. Inheriting it. Completing it as an empire. Leaving. Transcending. All of those.",
+            "ja": "これをどうするかが選択です。受け継ぐこと。帝国として完成させること。去ること。超越すること。それらすべて。",
+            "zh": "如何处置这一切就是选择。继承它。将其完成为帝国。离开。超越。都是选项。"
           }
         }
       ]
@@ -1313,19 +1561,25 @@
         {
           "text": {
             "ko": "헬라스가 보였다. 창 안에 도시 전체가 있었다.",
-            "en": "Hellas was visible. In the window the entire city."
+            "en": "Hellas was visible. In the window the entire city.",
+            "ja": "ヘラスが見えた。窓の中に都市全体があった。",
+            "zh": "赫拉斯映入眼帘。整座城市都在窗中。"
           }
         },
         {
           "text": {
             "ko": "그 안에 사람들이 있었다. 광부들. 기술자들. C-7 블록 아이들. 분필 이름들.",
-            "en": "People inside it. Miners. Engineers. C-7 block children. Chalk names."
+            "en": "People inside it. Miners. Engineers. C-7 block children. Chalk names.",
+            "ja": "その中に人々がいた。鉱夫たち。技術者たち。C-7ブロックの子供たち。チョークの名前たち。",
+            "zh": "其中有人们。矿工们。工程师们。C-7区的孩子们。粉笔写下的名字。"
           }
         },
         {
           "text": {
             "ko": "광산 엘리베이터가 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다. 결정 후에도.",
-            "en": "The mine elevator was descending. Ascending. Mars didn't stop. Even after a decision."
+            "en": "The mine elevator was descending. Ascending. Mars didn't stop. Even after a decision.",
+            "ja": "鉱山のエレベーターが下降していた。上昇していた。火星は止まらなかった。決断の後でも。",
+            "zh": "矿井电梯在下降。在上升。火星没有停止。即使在做出决定之后。"
           }
         }
       ]
@@ -1342,7 +1596,9 @@
           "emotion": "reflective",
           "text": {
             "ko": "내 부모가 광산에서 죽었을 때 원인란이 비어 있었어요.",
-            "en": "When my parents died in the mines the cause section was blank."
+            "en": "When my parents died in the mines the cause section was blank.",
+            "ja": "両親が鉱山で亡くなったとき、原因欄が空白でした。",
+            "zh": "我父母在矿山去世时，原因一栏是空白的。"
           }
         },
         {
@@ -1350,7 +1606,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "22년이 지났어요. 얼마나 채워졌는지는 모르겠어요.",
-            "en": "Twenty-two years have passed. I don't know how much has been filled."
+            "en": "Twenty-two years have passed. I don't know how much has been filled.",
+            "ja": "二十二年が経ちました。どれだけ埋まったかはわかりません。",
+            "zh": "二十二年过去了。不知道填了多少。"
           }
         },
         {
@@ -1358,7 +1616,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "그러나 오늘 이 차는 마셨어요. 그것만 알아요.",
-            "en": "But today I drank this tea. That's all I know."
+            "en": "But today I drank this tea. That's all I know.",
+            "ja": "でも今日このお茶は飲みました。それだけわかります。",
+            "zh": "但今天我喝了这杯茶。这是我唯一知道的。"
           }
         }
       ]
@@ -1373,21 +1633,27 @@
         {
           "text": {
             "ko": "Chen Weiss가 차를 마셨다. 두 번째 잔도 마셨다.",
-            "en": "Chen Weiss drank her tea. Drank the second cup too."
+            "en": "Chen Weiss drank her tea. Drank the second cup too.",
+            "ja": "Chen Weissがお茶を飲んだ。二杯目も飲んだ。",
+            "zh": "陈·韦斯喝了茶。也喝了第二杯。"
           }
         },
         {
           "text": {
             "ko": "22년 동안 마시지 않던 사람이 오늘 마셨다. 이사회를 통과하고. 증거를 내놓고. 30년을 말하고.",
-            "en": "Someone who hadn't drunk for twenty-two years drank today. After passing through the board. After presenting evidence. After speaking of thirty years."
+            "en": "Someone who hadn't drunk for twenty-two years drank today. After passing through the board. After presenting evidence. After speaking of thirty years.",
+            "ja": "二十二年間飲まなかった人が今日飲んだ。理事会を通過して。証拠を提出して。三十年を語って。",
+            "zh": "二十二年没喝的人今天喝了。通过董事会之后。提交证据之后。讲述三十年之后。"
           }
         },
         {
           "text": {
             "ko": "차가 식지 않았다. 25도였다. 그것이 변하지 않았다.",
-            "en": "The tea didn't cool. Twenty-five degrees. That hadn't changed."
-          },
-          "overlay": "mcc_ch10_the_choice_l45_02_alone_window"
+            "en": "The tea didn't cool. Twenty-five degrees. That hadn't changed.",
+            "ja": "お茶は冷めなかった。二十五度だった。それは変わらなかった。",
+            "zh": "茶没有凉。二十五度。那没有改变。",
+            "overlay": "mcc_ch10_the_choice_l45_02_alone_window"
+          }
         }
       ]
     },
@@ -1398,55 +1664,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Chen Weiss. 그녀가 기다린다. 화성이 기다린다.",
-        "en": "Chen Weiss. She waits. Mars waits."
+        "en": "Chen Weiss. She waits. Mars waits.",
+        "ja": "Chen Weiss。彼女が待つ。火星が待つ。",
+        "zh": "陈·韦斯。她在等待。火星在等待。"
       },
       "choices": [
         {
           "id": "mcc_ch10_heir",
           "text": {
             "ko": "MCC의 후계자가 된다. 당신의 방식으로.",
-            "en": "Become MCC's successor. In your own way."
+            "en": "Become MCC's successor. In your own way.",
+            "ja": "MCCの後継者となる。あなた自身のやり方で。",
+            "zh": "成为MCC的继承者。用你自己的方式。"
           },
           "tone": "heir",
           "preview_hint": {
             "ko": "→ 엔딩: 후계자 — MCC를 바꾸려는 자",
-            "en": "→ Ending: Heir — one who would change MCC"
+            "en": "→ Ending: Heir — one who would change MCC",
+            "ja": "→ エンディング：後継者 — MCCを変えようとする者",
+            "zh": "→ 结局：继承者 — 试图改变MCC的人"
           }
         },
         {
           "id": "mcc_ch10_empire",
           "text": {
             "ko": "MCC를 제국으로 완성한다.",
-            "en": "Complete MCC as an empire."
+            "en": "Complete MCC as an empire.",
+            "ja": "MCCを帝国として完成させる。",
+            "zh": "将MCC建成帝国。"
           },
           "tone": "empire",
           "preview_hint": {
             "ko": "→ 엔딩: 제국 — 화성을 하나로 통제하는 자",
-            "en": "→ Ending: Empire — one who controls Mars as one"
+            "en": "→ Ending: Empire — one who controls Mars as one",
+            "ja": "→ エンディング：帝国 — 火星を一つとして支配する者",
+            "zh": "→ 结局：帝国 — 将火星统一控制的人"
           }
         },
         {
           "id": "mcc_ch10_leave",
           "text": {
             "ko": "MCC를 떠난다.",
-            "en": "Leave MCC."
+            "en": "Leave MCC.",
+            "ja": "MCCを去る。",
+            "zh": "离开MCC。"
           },
           "tone": "departure",
           "preview_hint": {
             "ko": "→ 엔딩: 희생자 — 시스템이 당신을 기억한다",
-            "en": "→ Ending: Casualty — the system remembers you"
+            "en": "→ Ending: Casualty — the system remembers you",
+            "ja": "→ エンディング：犠牲者 — システムがあなたを覚えている",
+            "zh": "→ 结局：牺牲者 — 系统记住了你"
           }
         },
         {
           "id": "mcc_ch10_crown",
           "text": {
             "ko": "MCC도 FSP도 CV도 아닌 것을 만든다.",
-            "en": "Build something that is neither MCC nor FSP nor CV."
+            "en": "Build something that is neither MCC nor FSP nor CV.",
+            "ja": "MCCでもFSPでもCVでもないものを作る。",
+            "zh": "建造一个既非MCC、也非FSP、也非CV的东西。"
           },
           "tone": "transcendent",
           "preview_hint": {
             "ko": "→ 엔딩: 왕관 — 세 파벌을 넘어서는 자",
-            "en": "→ Ending: Crown — one who transcends all three factions"
+            "en": "→ Ending: Crown — one who transcends all three factions",
+            "ja": "→ エンディング：王冠 — 三派閥を超越する者",
+            "zh": "→ 结局：王冠 — 超越三个派系的人"
           }
         }
       ]
@@ -1461,19 +1745,25 @@
         {
           "text": {
             "ko": "결정이 됐다. Chen이 들었다. 리팡이 문 앞에서 들었다.",
-            "en": "A decision was made. Chen heard it. Lifang heard it at the door."
+            "en": "A decision was made. Chen heard it. Lifang heard it at the door.",
+            "ja": "決断がなされた。Chenが聞いた。リファンがドアの前で聞いた。",
+            "zh": "做出了决定。陈听见了。李芳在门口听见了。"
           }
         },
         {
           "text": {
             "ko": "25도 라운지가 조용했다. 차가 식지 않았다.",
-            "en": "The 25-Degree Lounge was quiet. Tea didn't cool."
+            "en": "The 25-Degree Lounge was quiet. Tea didn't cool.",
+            "ja": "25度ラウンジは静かだった。お茶は冷めなかった。",
+            "zh": "25度休息室很安静。茶没有凉。"
           }
         },
         {
           "text": {
             "ko": "그러나 헬라스 밖에서 움직임이 있었다. Osei가 사임하지 않았다. 대신 Pilgrim Arms가 다시 왔다.",
-            "en": "But outside Hellas there was movement. Osei hadn't resigned. Instead Pilgrim Arms came again."
+            "en": "But outside Hellas there was movement. Osei hadn't resigned. Instead Pilgrim Arms came again.",
+            "ja": "しかしヘラスの外で動きがあった。Oseiは辞任しなかった。代わりにPilgrim Armsが再び来た。",
+            "zh": "但赫拉斯外有动静。奥塞没有辞职。先驱武装又来了。"
           }
         }
       ]
@@ -1486,11 +1776,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "최후의 결전",
-        "en": "The Final Battle"
+        "en": "The Final Battle",
+        "ja": "最後の決戦",
+        "zh": "最终决战"
       },
       "subtitle": {
         "ko": "헬라스 센트럴 — Osei의 마지막 패",
-        "en": "Hellas Central — Osei's Last Card"
+        "en": "Hellas Central — Osei's Last Card",
+        "ja": "ヘラス・セントラル — Oseiの最後の切り札",
+        "zh": "赫拉斯中央 — 奥塞的最后一张牌"
       }
     },
     {
@@ -1509,19 +1803,25 @@
         {
           "text": {
             "ko": "헬라스 센트럴의 불빛이 있었다. 아래에는 C-7 블록이 있었다.",
-            "en": "There were lights in Hellas Central. Below was block C-7."
+            "en": "There were lights in Hellas Central. Below was block C-7.",
+            "ja": "ヘラス・セントラルに明かりがあった。下にはC-7ブロックがあった。",
+            "zh": "赫拉斯中央灯火点点。下面是C-7区。"
           }
         },
         {
           "text": {
             "ko": "분필 이름들. Kim Yong-jin. 그 아래 이름들. Zone 12 열한 명.",
-            "en": "Chalk names. Kim Yong-jin. The names below. The eleven from Zone 12."
+            "en": "Chalk names. Kim Yong-jin. The names below. The eleven from Zone 12.",
+            "ja": "チョークの名前たち。金永振。その下の名前たち。Zone 12の十一人。",
+            "zh": "粉笔写下的名字。金勇珍。下面的名字。12区的十一人。"
           }
         },
         {
           "text": {
             "ko": "광산 엘리베이터가 여전히 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다.",
-            "en": "The mine elevator was still descending. Still ascending. Mars didn't stop."
+            "en": "The mine elevator was still descending. Still ascending. Mars didn't stop.",
+            "ja": "鉱山のエレベーターはまだ下降していた。まだ上昇していた。火星は止まらなかった。",
+            "zh": "矿井电梯仍在下降。仍在上升。火星没有停止。"
           }
         }
       ]
@@ -1536,13 +1836,17 @@
         {
           "text": {
             "ko": "끝나지 않았다. 화성에서 끝나는 것은 드물었다.",
-            "en": "It wasn't over. Things rarely ended on Mars."
+            "en": "It wasn't over. Things rarely ended on Mars.",
+            "ja": "終わっていなかった。火星では物事がめったに終わらなかった。",
+            "zh": "还没结束。在火星上，事情很少有结束的时候。"
           }
         },
         {
           "text": {
             "ko": "다시 시작하는 것이 화성의 방식이었다. 광부들은 매일 아침 갱도로 내려갔다. 그것이 화성이었다.",
-            "en": "Starting again was Mars's way. Miners descended into tunnels every morning. That was Mars."
+            "en": "Starting again was Mars's way. Miners descended into tunnels every morning. That was Mars.",
+            "ja": "再び始めることが火星のやり方だった。鉱夫たちは毎朝坑道に下りた。それが火星だった。",
+            "zh": "重新开始是火星的方式。矿工们每天早晨走进坑道。那就是火星。"
           }
         }
       ]
@@ -1558,43 +1862,57 @@
         {
           "text": {
             "ko": "25도 라운지.",
-            "en": "The 25-Degree Lounge."
+            "en": "The 25-Degree Lounge.",
+            "ja": "25度ラウンジ。",
+            "zh": "25度休息室。"
           }
         },
         {
           "text": {
             "ko": "당신이 앉았다. 차를 들었다. 마시지 않았다.",
-            "en": "You sat. Held the tea. Didn't drink it."
+            "en": "You sat. Held the tea. Didn't drink it.",
+            "ja": "あなたが座った。お茶を手にした。飲まなかった。",
+            "zh": "你坐下了。端起了茶。没有喝。"
           }
         },
         {
           "text": {
             "ko": "창밖에 헬라스가 있었다. MCC가 지은 도시. 이제 당신이 이어받는 도시.",
-            "en": "Outside the window was Hellas. The city MCC built. Now the city you would inherit."
+            "en": "Outside the window was Hellas. The city MCC built. Now the city you would inherit.",
+            "ja": "窓の外にヘラスがあった。MCCが建てた都市。今はあなたが受け継ぐ都市。",
+            "zh": "窗外是赫拉斯。MCC建造的城市。现在是你将要继承的城市。"
           }
         },
         {
           "text": {
             "ko": "Chen이 뒷모습을 보였다. 나가지 않았다. 그냥 창을 봤다.",
-            "en": "Chen turned her back. Didn't leave. Just looked out the window."
+            "en": "Chen turned her back. Didn't leave. Just looked out the window.",
+            "ja": "Chenが背中を見せた。去らなかった。ただ窓を見ていた。",
+            "zh": "陈转过身去。没有离开。只是看着窗外。"
           }
         },
         {
           "text": {
             "ko": "두 사람이 창을 봤다. 25도였다. 차가 식지 않았다.",
-            "en": "Two people looking at the window. Twenty-five degrees. Tea didn't cool."
+            "en": "Two people looking at the window. Twenty-five degrees. Tea didn't cool.",
+            "ja": "二人が窓を見ていた。二十五度だった。お茶は冷めなかった。",
+            "zh": "两个人看着窗外。二十五度。茶没有凉。"
           }
         },
         {
           "text": {
             "ko": "기억해야 할 것들이 식지 않았다.",
-            "en": "Things to be remembered didn't cool."
+            "en": "Things to be remembered didn't cool.",
+            "ja": "覚えておくべきことは冷めなかった。",
+            "zh": "需要铭记的事物没有冷却。"
           }
         },
         {
           "text": {
             "ko": "[ 엔딩: 후계자 — MCC를 바꾸려는 자 ]",
-            "en": "[ Ending: Heir — One Who Would Change MCC ]"
+            "en": "[ Ending: Heir — One Who Would Change MCC ]",
+            "ja": "[ エンディング：後継者 — MCCを変えようとする者 ]",
+            "zh": "[ 结局：继承者 — 试图改变MCC的人 ]"
           }
         }
       ]
@@ -1610,43 +1928,57 @@
         {
           "text": {
             "ko": "화성에서 가장 큰 건물.",
-            "en": "The largest building on Mars."
+            "en": "The largest building on Mars.",
+            "ja": "火星で最も大きな建物。",
+            "zh": "火星上最大的建筑。"
           }
         },
         {
           "text": {
             "ko": "60년 전 지어진 것. 그 후 계속 커진 것. 이제 당신 것이었다.",
-            "en": "Built sixty years ago. Kept growing since. Now it was yours."
+            "en": "Built sixty years ago. Kept growing since. Now it was yours.",
+            "ja": "六十年前に建てられたもの。それ以来ずっと大きくなり続けたもの。今やあなたのものだった。",
+            "zh": "六十年前建造的。此后不断扩大。现在是你的了。"
           }
         },
         {
           "text": {
             "ko": "그것만이 아니었다. 화성의 광산들. 정제소들. 산소 공급망. 물 배분 시스템.",
-            "en": "Not only that. The mines of Mars. The refineries. Oxygen supply network. Water distribution system."
+            "en": "Not only that. The mines of Mars. The refineries. Oxygen supply network. Water distribution system.",
+            "ja": "それだけではなかった。火星の鉱山たち。精製所たち。酸素供給網。水配分システム。",
+            "zh": "不只是这些。火星的矿山。炼油厂。氧气供应网络。水分配系统。"
           }
         },
         {
           "text": {
             "ko": "전부 당신 것이었다. 제국이 있었다. 화성에.",
-            "en": "All yours. There was an empire. On Mars."
+            "en": "All yours. There was an empire. On Mars.",
+            "ja": "すべてあなたのものだった。帝国があった。火星に。",
+            "zh": "全都是你的。有一个帝国。在火星上。"
           }
         },
         {
           "text": {
             "ko": "창밖에 헬라스가 보였다. 작았다. 제국에서 보면 전부 작았다.",
-            "en": "Outside the window Hellas was visible. Small. From an empire everything was small."
+            "en": "Outside the window Hellas was visible. Small. From an empire everything was small.",
+            "ja": "窓の外にヘラスが見えた。小さかった。帝国から見れば全てが小さかった。",
+            "zh": "窗外可以看到赫拉斯。很小。从帝国角度看，一切都很小。"
           }
         },
         {
           "text": {
             "ko": "그러나 C-7 블록에 분필이 있었다. 작은 것들이 계속됐다.",
-            "en": "But in C-7 block there was chalk. Small things continued."
+            "en": "But in C-7 block there was chalk. Small things continued.",
+            "ja": "しかしC-7ブロックにチョークがあった。小さなものが続いていた。",
+            "zh": "但C-7区还有粉笔。小事物在继续。"
           }
         },
         {
           "text": {
             "ko": "[ 엔딩: 제국 — 화성을 하나로 통제하는 자 ]",
-            "en": "[ Ending: Empire — One Who Controls Mars as One ]"
+            "en": "[ Ending: Empire — One Who Controls Mars as One ]",
+            "ja": "[ エンディング：帝国 — 火星を一つとして支配する者 ]",
+            "zh": "[ 结局：帝国 — 将火星统一控制的人 ]"
           }
         }
       ]
@@ -1662,43 +1994,57 @@
         {
           "text": {
             "ko": "헬라스 외곽이었다.",
-            "en": "The outer Hellas."
+            "en": "The outer Hellas.",
+            "ja": "ヘラスの外縁だった。",
+            "zh": "赫拉斯外围。"
           }
         },
         {
           "text": {
             "ko": "중계소가 있었다. 폐쇄된 것이었다. 이름이 기록에서 삭제됐다.",
-            "en": "A relay station. Closed. The name had been deleted from the records."
+            "en": "A relay station. Closed. The name had been deleted from the records.",
+            "ja": "中継所があった。閉鎖されたもの。名前が記録から削除されていた。",
+            "zh": "有一个中继站。已关闭。名字已从档案中删除。"
           }
         },
         {
           "text": {
             "ko": "MCC는 오래 기억했다. 그러나 삭제도 잘 했다.",
-            "en": "MCC had a long memory. But it also deleted well."
+            "en": "MCC had a long memory. But it also deleted well.",
+            "ja": "MCCは長く記憶した。しかし削除も巧みだった。",
+            "zh": "MCC的记忆很长。但它也善于删除。"
           }
         },
         {
           "text": {
             "ko": "광부 노인의 말이 기억됐다. 기록에 남길 사람이 필요하다고.",
-            "en": "The old miner's words came back. Someone to put it in the record, he had said."
+            "en": "The old miner's words came back. Someone to put it in the record, he had said.",
+            "ja": "老鉱夫の言葉が思い出された。記録に残す人間が必要だと言っていた。",
+            "zh": "老矿工的话浮现了。他说过需要有人将它记录下来。"
           }
         },
         {
           "text": {
             "ko": "기록에 남기지 못한 이름이 하나 더 생겼다.",
-            "en": "One more name that didn't make it into the record."
+            "en": "One more name that didn't make it into the record.",
+            "ja": "記録に残せなかった名前がまた一つ増えた。",
+            "zh": "又多了一个没能记入档案的名字。"
           }
         },
         {
           "text": {
             "ko": "그러나 분필이 있었다. 골목 아이들이 적을 것이었다.",
-            "en": "But there was chalk. The alley children would write it."
+            "en": "But there was chalk. The alley children would write it.",
+            "ja": "しかしチョークがあった。路地の子供たちが書くだろう。",
+            "zh": "但还有粉笔。巷子里的孩子们会写下它。"
           }
         },
         {
           "text": {
             "ko": "[ 엔딩: 희생자 — 시스템이 기억하지 않는 자 ]",
-            "en": "[ Ending: Casualty — One the System Doesn't Remember ]"
+            "en": "[ Ending: Casualty — One the System Doesn't Remember ]",
+            "ja": "[ エンディング：犠牲者 — システムが覚えていない者 ]",
+            "zh": "[ 结局：牺牲者 — 系统不会记住的人 ]"
           }
         }
       ]
@@ -1714,56 +2060,74 @@
         {
           "text": {
             "ko": "올림포스에서 동이 텄다.",
-            "en": "Dawn broke on Olympus."
+            "en": "Dawn broke on Olympus.",
+            "ja": "オリンポスで夜明けが来た。",
+            "zh": "奥林匹斯迎来了黎明。"
           }
         },
         {
           "text": {
             "ko": "태양계에서 가장 높은 곳. 화성에서 가장 먼저 빛이 오는 곳.",
-            "en": "The highest point in the solar system. Where light came first on Mars."
+            "en": "The highest point in the solar system. Where light came first on Mars.",
+            "ja": "太陽系で最も高い場所。火星で最初に光が届く場所。",
+            "zh": "太阳系中最高的地方。火星上光最先到达的地方。"
           }
         },
         {
           "text": {
             "ko": "MCC도 없었다. FSP도 없었다. CV도 없었다.",
-            "en": "No MCC. No FSP. No CV."
+            "en": "No MCC. No FSP. No CV.",
+            "ja": "MCCもなかった。FSPもなかった。CVもなかった。",
+            "zh": "没有MCC。没有FSP。没有CV。"
           }
         },
         {
           "text": {
             "ko": "세 개의 깃발이 없는 것이 처음이었다.",
-            "en": "For the first time there were no three flags."
+            "en": "For the first time there were no three flags.",
+            "ja": "三つの旗がないのは初めてだった。",
+            "zh": "这是第一次没有三面旗帜。"
           }
         },
         {
           "text": {
             "ko": "그러나 화성은 있었다. 사람들이 있었다.",
-            "en": "But Mars was there. People were there."
+            "en": "But Mars was there. People were there.",
+            "ja": "しかし火星はあった。人々がいた。",
+            "zh": "但火星在那里。人们在那里。"
           }
         },
         {
           "text": {
             "ko": "광산에서 일하는 사람들. 아이들. 분필 이름들.",
-            "en": "People working in mines. Children. Chalk names."
+            "en": "People working in mines. Children. Chalk names.",
+            "ja": "鉱山で働く人々。子供たち。チョークの名前たち。",
+            "zh": "在矿山工作的人们。孩子们。粉笔写下的名字。"
           }
         },
         {
           "text": {
             "ko": "그것이 남았다. 깃발보다 오래 남는 것들이었다.",
-            "en": "Those remained. Things that outlasted flags."
+            "en": "Those remained. Things that outlasted flags.",
+            "ja": "それが残った。旗よりも長く残るものたちだった。",
+            "zh": "那些留了下来。比旗帜存在更久的事物。"
           }
         },
         {
           "text": {
             "ko": "차 한 잔보다 오래. 25도보다 오래. 그것들이 화성이었다.",
-            "en": "Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars."
-          },
-          "overlay": "mcc_ch10_the_choice_l55_07_mars_horizon"
+            "en": "Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars.",
+            "ja": "一杯のお茶よりも長く。二十五度よりも長く。それらが火星だった。",
+            "zh": "比一杯茶更久。比二十五度更久。那些东西就是火星。",
+            "overlay": "mcc_ch10_the_choice_l55_07_mars_horizon"
+          }
         },
         {
           "text": {
             "ko": "[ 엔딩: 왕관 — 세 파벌을 넘어서는 자 ]",
-            "en": "[ Ending: Crown — One Who Transcends All Three Factions ]"
+            "en": "[ Ending: Crown — One Who Transcends All Three Factions ]",
+            "ja": "[ エンディング：王冠 — 三派閥を超越する者 ]",
+            "zh": "[ 结局：王冠 — 超越三个派系的人 ]"
           }
         }
       ]

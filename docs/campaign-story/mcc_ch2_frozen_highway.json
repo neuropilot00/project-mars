@@ -4,7 +4,9 @@
   "chapterNumber": 2,
   "title": {
     "ko": "First Audit",
-    "en": "First Audit"
+    "en": "First Audit",
+    "ja": "最初の監査",
+    "zh": "首次审计"
   },
   "location": {
     "id": "hellas_north_mine",
@@ -28,7 +30,9 @@
         {
           "text": {
             "ko": "다음 임무는 감사였다. Li Fang이 파일을 밀었다. 두꺼운 파일이었다. 안에 무엇이 있는지 물어볼 필요가 없었다. 광산 감사 보고서였다. 화성의 모든 MCC 광산은 분기마다 감사를 받았다. 형식이었다.",
-            "en": "The next mission was an audit. Li Fang pushed a file across. A thick file. No need to ask what was inside. Mine audit report. All MCC mines on Mars were audited quarterly. It was a formality."
+            "en": "The next mission was an audit. Li Fang pushed a file across. A thick file. No need to ask what was inside. Mine audit report. All MCC mines on Mars were audited quarterly. It was a formality.",
+            "ja": "次の任務は監査だった。リー・ファンがファイルを押し出した。分厚いファイルだった。中に何があるか聞く必要はなかった。鉱山監査報告書だった。火星のすべてのMCC鉱山は四半期ごとに監査を受けた。形式だった。",
+            "zh": "下一个任务是审计。李芳推过来一份文件。厚厚的文件。不需要问里面是什么。矿山审计报告。火星所有MCC矿山每季度都要接受审计。这只是走形式。"
           }
         }
       ]
@@ -46,7 +50,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "헬라스 북부 7구역. 3개월 전에 지주 붕괴 사고가 있었어.",
-            "en": "Northern Hellas Sector 7. There was a support collapse three months ago."
+            "en": "Northern Hellas Sector 7. There was a support collapse three months ago.",
+            "ja": "ヘラス北部7区。三ヶ月前に支柱崩壊事故があった。",
+            "zh": "赫拉斯北部七区。三个月前发生了支柱坍塌事故。"
           }
         },
         {
@@ -54,7 +60,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "기록에 없어. 기록에 없는 건 우리가 모르는 거야. 우리가 모르면 우리 책임이 아니야.",
-            "en": "Not in the records. What's not in records we don't know. What we don't know isn't our responsibility."
+            "en": "Not in the records. What's not in records we don't know. What we don't know isn't our responsibility.",
+            "ja": "記録にない。記録にないことは我々は知らない。我々が知らなければ我々の責任ではない。",
+            "zh": "记录里没有。记录里没有的，我们不知道。我们不知道的，就不是我们的责任。"
           }
         },
         {
@@ -62,7 +70,9 @@
           "emotion": "cold",
           "text": {
             "ko": "가서 확인해. 기록에 없는 것이 진짜 없는지.",
-            "en": "Go check. Whether what's not in records truly doesn't exist."
+            "en": "Go check. Whether what's not in records truly doesn't exist.",
+            "ja": "行って確認しろ。記録にないことが本当にないのかどうか。",
+            "zh": "去查一查。记录里没有的，是不是真的不存在。"
           }
         }
       ]
@@ -77,7 +87,9 @@
         {
           "text": {
             "ko": "Li Fang이 일어났다. 파일을 다시 가져갔다. 감사 항목 체크리스트 한 장을 남겼다. 항목 37개. 안전 장비 현황. 지주 상태. 통풍 시스템. 비상구 위치. 사고 기록. 항목 37번이 마지막이었다. 사고 기록.",
-            "en": "Li Fang stood up. He took the file back. Left one sheet. Audit checklist. Thirty-seven items. Safety equipment status. Support conditions. Ventilation system. Emergency exit locations. Accident records. Item thirty-seven was last. Accident records."
+            "en": "Li Fang stood up. He took the file back. Left one sheet. Audit checklist. Thirty-seven items. Safety equipment status. Support conditions. Ventilation system. Emergency exit locations. Accident records. Item thirty-seven was last. Accident records.",
+            "ja": "リー・ファンが立ち上がった。ファイルを持ち戻った。一枚だけ残した。監査項目チェックリスト。三十七項目。安全装備の状況。支柱の状態。換気システム。非常口の位置。事故記録。三十七番目の項目が最後だった。事故記録。",
+            "zh": "李芳站了起来。把文件拿了回去。留下了一张表。审计项目清单。三十七项。安全设备状况。支柱状态。通风系统。紧急出口位置。事故记录。第三十七项是最后一项。事故记录。"
           }
         }
       ]
@@ -92,7 +104,9 @@
         {
           "text": {
             "ko": "헬라스 북부 수송로. 광산 시설까지 3시간. 차창 밖으로 광야가 펼쳐졌다. 아무것도 없었다. 화성 북부에는 아무것도 없었다. 그것이 거기서 광산을 파는 이유였다. 아무것도 없는 곳에 있는 것이 있었다.",
-            "en": "Northern Hellas transport corridor. Three hours to the mine facility. Wilderness outside the window. Nothing. The northern Hellas had nothing. That was why they mined there. In a place with nothing, there was something."
+            "en": "Northern Hellas transport corridor. Three hours to the mine facility. Wilderness outside the window. Nothing. The northern Hellas had nothing. That was why they mined there. In a place with nothing, there was something.",
+            "ja": "ヘラス北部輸送路。鉱山施設まで三時間。車窓の外に荒野が広がった。何もなかった。火星北部には何もなかった。それがそこで鉱山を掘る理由だった。何もない場所に何かがあった。",
+            "zh": "赫拉斯北部运输通道。到矿山设施还有三小时。车窗外是荒野。什么都没有。火星北部什么都没有。这就是在那里开矿的原因。什么都没有的地方，有东西。"
           }
         }
       ]
@@ -107,7 +121,9 @@
         {
           "text": {
             "ko": "광야에 간간이 보이는 구조물들. 배기 파이프. 낡은 신호탑. 전력선 지지대. 다 MCC의 것이었다. MCC의 것이 아닌 것이 없었다. 화성 북반구에서는. 소유권에 대해 아무도 묻지 않았다. 물었던 사람들이 없어졌다.",
-            "en": "Occasional structures in the wilderness. Exhaust pipes. Old signal towers. Power line supports. All MCC's. There was nothing that wasn't MCC's. In the northern hemisphere of Mars. Nobody asked about ownership. Those who had asked were gone."
+            "en": "Occasional structures in the wilderness. Exhaust pipes. Old signal towers. Power line supports. All MCC's. There was nothing that wasn't MCC's. In the northern hemisphere of Mars. Nobody asked about ownership. Those who had asked were gone.",
+            "ja": "荒野に時折見える構造物。排気パイプ。古い信号塔。電線支柱。全部MCCのものだった。MCCのものでないものがなかった。火星北半球では。所有権について誰も聞かなかった。聞いた人たちはいなくなっていた。",
+            "zh": "荒野中偶尔可见的构造物。排气管。老旧的信号塔。电线杆。全都是MCC的。火星北半球没有不属于MCC的东西。没有人问所有权的事。问过的人都消失了。"
           }
         }
       ]
@@ -122,7 +138,9 @@
         {
           "text": {
             "ko": "광산 입구. 철문이 있었다. 경비원이 있었다. 경비원이 ID를 확인했다. MCC 감사팀이라고 했다. 경비원이 무선으로 무언가를 전달했다. 잠시 기다렸다. 문이 열렸다.",
-            "en": "Mine entrance. Iron gate. A guard. The guard checked the ID. MCC audit team, it was said. The guard relayed something on the radio. A short wait. The gate opened."
+            "en": "Mine entrance. Iron gate. A guard. The guard checked the ID. MCC audit team, it was said. The guard relayed something on the radio. A short wait. The gate opened.",
+            "ja": "鉱山入口。鉄扉があった。警備員がいた。警備員がIDを確認した。MCC監査チームだと言った。警備員が無線で何かを伝えた。少し待った。扉が開いた。",
+            "zh": "矿山入口。有铁门。有警卫。警卫确认了身份证件。说是MCC审计组。警卫通过无线电传达了什么。等了片刻。门开了。"
           }
         }
       ]
@@ -137,7 +155,9 @@
         {
           "text": {
             "ko": "광산 시설 관리인이 나왔다. 빠른 걸음이었다. 준비된 표정이었다. 감사팀이 온다는 것을 알고 있었다. 알면 준비한다. 준비하면 숨긴다. 그것이 감사의 전제였다.",
-            "en": "The mine facility manager came out. Quick steps. A prepared expression. He knew the audit team was coming. Knowing means preparing. Preparing means hiding. That was the premise of an audit."
+            "en": "The mine facility manager came out. Quick steps. A prepared expression. He knew the audit team was coming. Knowing means preparing. Preparing means hiding. That was the premise of an audit.",
+            "ja": "鉱山施設の管理人が出てきた。速い足取りだった。準備された表情だった。監査チームが来ることを知っていた。知れば準備する。準備すれば隠す。それが監査の前提だった。",
+            "zh": "矿山设施管理员出来了。步伐很快。神情早有准备。他知道审计组会来。知道了就会准备。准备了就会隐瞒。这是审计的前提。"
           }
         }
       ]
@@ -155,7 +175,9 @@
           "effect": "character_enter:miner_elder:slide_right",
           "text": {
             "ko": "감사관님. 환영합니다. 모든 것이 준비되어 있습니다.",
-            "en": "Inspector. Welcome. Everything is prepared."
+            "en": "Inspector. Welcome. Everything is prepared.",
+            "ja": "監査官。ようこそ。すべて準備されております。",
+            "zh": "审计官。欢迎。一切都已准备好。"
           }
         },
         {
@@ -163,7 +185,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "A구역부터 안내해 드릴까요. 최근 업그레이드한 구역입니다. 안전 기준이 새로 적용됐습니다.",
-            "en": "Shall I show you Sector A first. The recently upgraded sector. New safety standards have been applied."
+            "en": "Shall I show you Sector A first. The recently upgraded sector. New safety standards have been applied.",
+            "ja": "A区画からご案内しましょうか。最近アップグレードした区画です。新しい安全基準が適用されました。",
+            "zh": "先带您参观A区吗。这是最近升级的区域。已经应用了新的安全标准。"
           }
         },
         {
@@ -171,7 +195,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "7구역은 현재 작업 중이라 접근이 어렵습니다. 내일 오시면.",
-            "en": "Sector 7 is currently under work so access is difficult. If you come tomorrow."
+            "en": "Sector 7 is currently under work so access is difficult. If you come tomorrow.",
+            "ja": "7区画は現在作業中でアクセスが難しい状況です。明日お越しいただければ。",
+            "zh": "七区目前正在施工，难以进入。如果明天来的话。"
           }
         }
       ]
@@ -186,7 +212,9 @@
         {
           "text": {
             "ko": "7구역. 체크리스트에 별표를 했다. 관리인이 그것을 봤다. 관리인의 표정이 바뀌지 않았다. 준비된 사람이었다. 준비된 표정이 가장 무서운 표정이었다.",
-            "en": "Sector 7. An asterisk was made on the checklist. The manager saw it. His expression didn't change. A prepared person. A prepared expression was the most frightening expression."
+            "en": "Sector 7. An asterisk was made on the checklist. The manager saw it. His expression didn't change. A prepared person. A prepared expression was the most frightening expression.",
+            "ja": "7区画。チェックリストにアスタリスクをつけた。管理人がそれを見た。管理人の表情は変わらなかった。準備された人間だった。準備された表情が最も怖い表情だった。",
+            "zh": "七区。在清单上打了星号。管理员看到了。管理员的表情没有变化。是个有准备的人。有准备的表情是最可怕的表情。"
           }
         }
       ]
@@ -201,7 +229,9 @@
         {
           "text": {
             "ko": "A구역부터 시작했다. 체크리스트. 안전 장비 현황. 있었다. 통풍 시스템. 작동했다. 비상구. 표시되어 있었다. 모든 것이 양호했다. 준비된 것들이었다.",
-            "en": "Started with Sector A. Checklist. Safety equipment status. Present. Ventilation system. Operating. Emergency exits. Marked. Everything satisfactory. Prepared things."
+            "en": "Started with Sector A. Checklist. Safety equipment status. Present. Ventilation system. Operating. Emergency exits. Marked. Everything satisfactory. Prepared things.",
+            "ja": "A区画から始めた。チェックリスト。安全装備の状況。あった。換気システム。動作していた。非常口。表示されていた。すべて良好だった。準備されたものだった。",
+            "zh": "从A区开始。清单。安全设备状况。有。通风系统。运转正常。紧急出口。有标识。一切良好。都是事先准备好的。"
           }
         }
       ]
@@ -216,7 +246,9 @@
         {
           "text": {
             "ko": "광산 엘리베이터는 지표에서 2킬로미터를 내려갔다. 내려가면서 기온이 올랐다. 화성 지표는 영하였지만 지하는 달랐다. 광부들은 그 차이를 알았다. 아는 것이 좋은 일인지는 몰랐다.",
-            "en": "The mine elevator descended two kilometers below the surface. As it went down the temperature rose. The surface was below zero but underground was different. Miners knew this difference. Whether knowing it was a good thing was unclear."
+            "en": "The mine elevator descended two kilometers below the surface. As it went down the temperature rose. The surface was below zero but underground was different. Miners knew this difference. Whether knowing it was a good thing was unclear.",
+            "ja": "鉱山エレベーターは地表から二キロメートル下降した。下りながら気温が上がった。火星の地表は氷点下だったが地下は違った。鉱夫たちはその違いを知っていた。知ることが良いことかどうかはわからなかった。",
+            "zh": "矿山电梯从地表下降了两公里。下降过程中气温升高。火星地表是零下，但地下不同。矿工们知道这种差异。知道这件事是否是好事，不得而知。"
           }
         }
       ]
@@ -231,7 +263,9 @@
         {
           "text": {
             "ko": "B구역. C구역. D구역. 체크. 체크. 체크. 관리인이 앞에서 걸었다. 설명을 했다. 숫자들을 말했다. 생산량. 효율. 출퇴근 시스템. 숫자들이 좋았다. 숫자들은 항상 좋았다.",
-            "en": "Sector B. Sector C. Sector D. Check. Check. Check. The manager walked ahead. Gave explanations. Stated numbers. Production output. Efficiency. Shift system. The numbers were good. Numbers were always good."
+            "en": "Sector B. Sector C. Sector D. Check. Check. Check. The manager walked ahead. Gave explanations. Stated numbers. Production output. Efficiency. Shift system. The numbers were good. Numbers were always good.",
+            "ja": "B区画。C区画。D区画。チェック。チェック。チェック。管理人が前を歩いた。説明をした。数字を言った。生産量。効率。シフトシステム。数字は良かった。数字はいつも良かった。",
+            "zh": "B区。C区。D区。打勾。打勾。打勾。管理员走在前面。进行说明。报出数字。产量。效率。轮班制度。数字很好看。数字总是好看的。"
           }
         }
       ]
@@ -246,7 +280,9 @@
         {
           "text": {
             "ko": "광부들이 작업 중이었다. 안전 장비가 없는 사람이 있었다. 마스크가 없었다. 손이 검었다. 광석 분진. 얼마나 들이마셨는지는 보이지 않았다. 보이지 않는다고 없는 것이 아니었다.",
-            "en": "Miners were working. Some had no safety equipment. No masks. Hands black with ore dust. How much they'd inhaled wasn't visible. Not visible didn't mean not there."
+            "en": "Miners were working. Some had no safety equipment. No masks. Hands black with ore dust. How much they'd inhaled wasn't visible. Not visible didn't mean not there.",
+            "ja": "鉱夫たちが作業中だった。安全装備がない者がいた。マスクがなかった。手が黒かった。鉱石粉塵。どれだけ吸い込んだかは見えなかった。見えないからといってないわけではなかった。",
+            "zh": "矿工们在作业。有人没有安全设备。没有口罩。手是黑的。矿石粉尘。吸入了多少看不出来。看不见不代表没有。"
           }
         }
       ]
@@ -261,7 +297,9 @@
         {
           "text": {
             "ko": "체크리스트에 적었다. 안전 장비 미착용 인원 다수. 관리인이 봤다. 표정이 바뀌지 않았다. 그가 말했다. 오늘만 그렇다고. 보통은 다 착용한다고. 오늘 점검 중에 몇 명이 잊어버렸다고. 기억하는 것이 가능한 설명이었다.",
-            "en": "Written on the checklist. Multiple workers not wearing safety equipment. The manager saw it. His expression didn't change. He said it. Only today. Usually everyone wears them. A few forgot during today's inspection. A plausible explanation."
+            "en": "Written on the checklist. Multiple workers not wearing safety equipment. The manager saw it. His expression didn't change. He said it. Only today. Usually everyone wears them. A few forgot during today's inspection. A plausible explanation.",
+            "ja": "チェックリストに記入した。安全装備未着用者多数。管理人が見た。表情は変わらなかった。彼が言った。今日だけそうなのだと。普段は全員着用するのだと。今日の点検中に何人かが忘れたのだと。ありうる説明だった。",
+            "zh": "写在清单上了。多名工人未穿戴安全设备。管理员看到了。表情没有变化。他说，只有今天这样。通常大家都戴。今天检查时有几个人忘了。这是一个说得通的解释。"
           }
         }
       ]
@@ -276,7 +314,9 @@
         {
           "text": {
             "ko": "E구역. 지나쳤다. F구역. 지나쳤다. 7구역. 관리인이 멈췄다. 다음이라고 했다. 8구역으로 가자고 했다. 7구역은 현재 작업 중이라 들어갈 수 없다고 다시 말했다. 체크리스트의 별표를 다시 봤다.",
-            "en": "Sector E. Passed. Sector F. Passed. Sector 7. The manager stopped. He said next. Said to go to Sector 8. Said again that Sector 7 was under work and couldn't be entered. The asterisk on the checklist was looked at again."
+            "en": "Sector E. Passed. Sector F. Passed. Sector 7. The manager stopped. He said next. Said to go to Sector 8. Said again that Sector 7 was under work and couldn't be entered. The asterisk on the checklist was looked at again.",
+            "ja": "E区画。通り過ぎた。F区画。通り過ぎた。7区画。管理人が止まった。次だと言った。8区画へ行こうと言った。7区画は現在作業中で入れないともう一度言った。チェックリストのアスタリスクをもう一度見た。",
+            "zh": "E区。经过了。F区。经过了。七区。管理员停下来了。说下一个。说去八区。再次说七区目前在施工，不能进入。又看了看清单上的星号。"
           }
         }
       ]
@@ -293,7 +333,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "7구역은 현재 새 지주 교체 작업 중입니다. 안전을 위해 입장을 제한하고 있습니다.",
-            "en": "Sector 7 is currently undergoing new support installation. Entry is restricted for safety."
+            "en": "Sector 7 is currently undergoing new support installation. Entry is restricted for safety.",
+            "ja": "7区画は現在、新しい支柱の交換作業中です。安全のため入場を制限しています。",
+            "zh": "七区目前正在进行新支柱更换作业。出于安全考虑，限制进入。"
           }
         },
         {
@@ -301,7 +343,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "내일 오시면 완전히 업그레이드된 구역을 보실 수 있습니다.",
-            "en": "If you come tomorrow you can see the fully upgraded sector."
+            "en": "If you come tomorrow you can see the fully upgraded sector.",
+            "ja": "明日お越しいただければ、完全にアップグレードされた区画をご覧いただけます。",
+            "zh": "如果明天来，您可以看到完全升级后的区域。"
           }
         },
         {
@@ -309,7 +353,9 @@
           "emotion": "careful",
           "text": {
             "ko": "오늘은 8구역과 9구역이 준비되어 있습니다. 거기도 볼 것이 많습니다.",
-            "en": "Today Sectors 8 and 9 are prepared. There is much to see there too."
+            "en": "Today Sectors 8 and 9 are prepared. There is much to see there too.",
+            "ja": "今日は8区画と9区画が準備されています。そちらも見どころが多いです。",
+            "zh": "今天八区和九区已经准备好了。那里也有很多值得看的东西。"
           }
         }
       ]
@@ -324,7 +370,9 @@
         {
           "text": {
             "ko": "7구역으로 갔다. 관리인이 따라왔다. 막을 수 없었다. 막으면 더 의심스러웠다. 7구역 입구. 차단 테이프가 있었다. 작업 중이라는 표지판이 있었다. 소리가 없었다. 작업 중이면 소리가 나야 했다.",
-            "en": "Went to Sector 7. The manager followed. He couldn't stop you. Stopping would be more suspicious. Sector 7 entrance. Yellow tape. A sign saying under work. No sound. Under work should have sound."
+            "en": "Went to Sector 7. The manager followed. He couldn't stop you. Stopping would be more suspicious. Sector 7 entrance. Yellow tape. A sign saying under work. No sound. Under work should have sound.",
+            "ja": "7区画に向かった。管理人がついてきた。止められなかった。止めればもっと怪しかった。7区画入口。通行禁止テープがあった。作業中という標識があった。音がなかった。作業中なら音がするはずだった。",
+            "zh": "去了七区。管理员跟了过来。他没法阻止。阻止的话更可疑。七区入口。有警戒线。有施工中的牌子。没有声音。施工中应该有声音。"
           }
         }
       ]
@@ -339,7 +387,9 @@
         {
           "text": {
             "ko": "7구역. 지주가 무너진 자리였다. 지주는 수리되어 있었다. 그러나 무너진 날짜가 기록에 없었다. 기록이 없으면 사고가 없는 것이었다. MCC의 기록 방식이었다.",
-            "en": "Sector 7. Where a support had collapsed. The support had been repaired. But the date of collapse wasn't in the records. No record meant no accident. That was MCC's record-keeping."
+            "en": "Sector 7. Where a support had collapsed. The support had been repaired. But the date of collapse wasn't in the records. No record meant no accident. That was MCC's record-keeping.",
+            "ja": "7区画。支柱が崩れた場所だった。支柱は修理されていた。しかし崩れた日付が記録になかった。記録がなければ事故がないことだった。MCCの記録方式だった。",
+            "zh": "七区。支柱曾经倒塌的地方。支柱已经修复了。但坍塌的日期在记录中没有。没有记录就是没有事故。这是MCC的记录方式。"
           }
         }
       ]
@@ -354,7 +404,9 @@
         {
           "text": {
             "ko": "새 지주와 헌 지주가 섞여 있었다. 새 지주가 세워진 자리에 흔적이 있었다. 새 시멘트. 그 주변에 묵은 시멘트. 시멘트의 색이 달랐다. 날짜가 달랐다.",
-            "en": "New supports and old supports were mixed. Where the new support had been installed there was evidence. Fresh cement. Around it older cement. The cement colors were different. Different dates."
+            "en": "New supports and old supports were mixed. Where the new support had been installed there was evidence. Fresh cement. Around it older cement. The cement colors were different. Different dates.",
+            "ja": "新しい支柱と古い支柱が混在していた。新しい支柱が立てられた場所に痕跡があった。新しいセメント。その周囲に古いセメント。セメントの色が違った。日付が違った。",
+            "zh": "新旧支柱混杂在一起。新支柱安装的地方有痕迹。新水泥。周围是旧水泥。水泥的颜色不同。日期不同。"
           }
         }
       ]
@@ -369,7 +421,9 @@
         {
           "text": {
             "ko": "지반에 자국이 있었다. 긁힌 자국. 뭔가 무거운 것이 끌린 자국. 의료용 들것의 자국이었다. 들것이 화성의 광산에서 끌리는 이유는 하나였다.",
-            "en": "Marks on the ground. Scrape marks. Marks from something heavy being dragged. The marks of a stretcher. There was one reason a stretcher would be dragged in a Martian mine."
+            "en": "Marks on the ground. Scrape marks. Marks from something heavy being dragged. The marks of a stretcher. There was one reason a stretcher would be dragged in a Martian mine.",
+            "ja": "地盤に跡があった。擦り傷。何か重いものが引きずられた跡。医療用担架の跡だった。火星の鉱山で担架が引きずられる理由は一つだった。",
+            "zh": "地面上有痕迹。刮擦痕迹。有什么沉重的东西被拖过的痕迹。是医疗担架的痕迹。在火星矿山里拖担架只有一个原因。"
           }
         }
       ]
@@ -387,7 +441,9 @@
           "effect": "character_enter:miner_elder:slide_right",
           "text": {
             "ko": "감사관. 석 달 전에 사람이 셋 죽었어요.",
-            "en": "Inspector. Three people died three months ago."
+            "en": "Inspector. Three people died three months ago.",
+            "ja": "監査官。三ヶ月前に三人死にました。",
+            "zh": "审计官。三个月前有三个人死了。"
           }
         },
         {
@@ -395,7 +451,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "지주가 무너졌어요. 오전 7시 반. 교대 시작 30분 후. 새 교대 팀이 아직 자리 잡기 전에.",
-            "en": "The support collapsed. Seven thirty in the morning. Thirty minutes after shift start. Before the new shift team had settled in."
+            "en": "The support collapsed. Seven thirty in the morning. Thirty minutes after shift start. Before the new shift team had settled in.",
+            "ja": "支柱が崩れました。午前七時半。交代開始三十分後。新しい交代チームがまだ落ち着く前に。",
+            "zh": "支柱倒了。早上七点半。换班开始三十分钟后。新班组还没安顿好的时候。"
           }
         },
         {
@@ -403,9 +461,11 @@
           "emotion": "tired",
           "text": {
             "ko": "세 명이요. 30대였어요. 한 명은 이달에 결혼할 예정이었어요.",
-            "en": "Three people. In their thirties. One was supposed to get married this month."
-          },
-          "overlay": "mcc_ch2_frozen_highway_l20_02_death_still"
+            "en": "Three people. In their thirties. One was supposed to get married this month.",
+            "ja": "三人です。三十代でした。一人はこの月に結婚する予定でした。",
+            "zh": "三个人。都是三十多岁。有一个原本这个月要结婚的。",
+            "overlay": "mcc_ch2_frozen_highway_l20_02_death_still"
+          }
         }
       ]
     },
@@ -421,7 +481,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "기록엔 없겠죠. 본부에 올라가면 없어지는 게 있어요. 여기선 다 알아요.",
-            "en": "Won't be in the records. Some things disappear before they reach headquarters. Down here everyone knows."
+            "en": "Won't be in the records. Some things disappear before they reach headquarters. Down here everyone knows.",
+            "ja": "記録にはないでしょう。本部に上がると消えるものがある。ここでは皆が知っています。",
+            "zh": "记录里不会有的。有些事情在送到总部之前就消失了。这里人人都知道。"
           }
         },
         {
@@ -429,7 +491,9 @@
           "emotion": "tired",
           "text": {
             "ko": "다들 알면서 아무도 말 못해요. 광산이 없어지면 일자리가 없어지니까요.",
-            "en": "Everyone knows but nobody can say anything. Because if the mine closes there's no work."
+            "en": "Everyone knows but nobody can say anything. Because if the mine closes there's no work.",
+            "ja": "皆が知っているが誰も言えない。鉱山がなくなれば仕事がなくなるから。",
+            "zh": "大家都知道但谁也不能说。因为矿山没了就没有工作了。"
           }
         },
         {
@@ -437,7 +501,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "기록에 남길 사람이 필요해서요. 관리인한테 말했더니 침묵하더라고요. 침묵이 답이었겠죠.",
-            "en": "I need someone who will put it in the record. I told the manager and he went silent. Silence was the answer I suppose."
+            "en": "I need someone who will put it in the record. I told the manager and he went silent. Silence was the answer I suppose.",
+            "ja": "記録に残してくれる人が必要なんです。管理人に話したら沈黙しました。沈黙が答えだったんでしょう。",
+            "zh": "需要有人把这件事记录下来。跟管理员说了，他沉默了。沉默就是答案吧。"
           }
         }
       ]
@@ -452,7 +518,9 @@
         {
           "text": {
             "ko": "광부 노인은 돌아갔다. 뒷모습이 작았다. 거기서 오래 일한 사람의 모습이었다. 클립보드의 사람이 무언가를 적었다. 적는 것을 보지 않았다.",
-            "en": "The old miner turned away. His back was small. It was the look of someone who had worked there a long time. The clipboard person wrote something. You didn't look at what they wrote."
+            "en": "The old miner turned away. His back was small. It was the look of someone who had worked there a long time. The clipboard person wrote something. You didn't look at what they wrote.",
+            "ja": "老鉱夫が背を向けた。後ろ姿が小さかった。そこで長く働いた人の姿だった。クリップボードを持った者が何かを書いた。書いているのを見なかった。",
+            "zh": "老矿工走回去了。背影很小。那是在这里工作了很久的人的样子。拿着写字板的人写了些什么。没有看他在写什么。"
           }
         }
       ]
@@ -467,7 +535,9 @@
         {
           "text": {
             "ko": "관리인이 가까이 왔다. 표정이 여전히 없었다. 그가 말했다. 노인이 예전부터 불만이 많았다고. 정확한 기록을 유지하는 것이 MCC 방침이라고. 사고가 있었다면 기록됐을 것이라고. 그의 말은 맞는 말 같기도 하고 아닌 것 같기도 했다.",
-            "en": "The manager came close. His expression still unchanged. He said the old man had always had complaints. Maintaining accurate records was MCC policy. If there had been an accident it would have been recorded. His words sounded right and not right at the same time."
+            "en": "The manager came close. His expression still unchanged. He said the old man had always had complaints. Maintaining accurate records was MCC policy. If there had been an accident it would have been recorded. His words sounded right and not right at the same time.",
+            "ja": "管理人が近づいた。表情は依然として変わらなかった。彼が言った。老人は昔から不満が多かったと。正確な記録を維持するのがMCCの方針だと。事故があれば記録されていたはずだと。彼の言葉は正しいようでもあり正しくないようでもあった。",
+            "zh": "管理员走近了。表情依然没有变化。他说，老头子从来就多抱怨。保持准确记录是MCC的方针。如果有过事故，早就记录下来了。他的话听起来既像是真的，又像是不对。"
           }
         }
       ]
@@ -482,7 +552,9 @@
         {
           "text": {
             "ko": "무전기를 켰다. Li Fang에게 연락했다. 7구역 상황을 전했다. 들것 자국. 새 시멘트. 노인의 증언. Li Fang이 잠시 침묵했다. 침묵의 길이가 있었다. 짧은 침묵과 긴 침묵은 달랐다.",
-            "en": "The radio was turned on. Li Fang was contacted. The situation in Sector 7 was relayed. Stretcher marks. Fresh cement. The old man's testimony. Li Fang was silent for a moment. There was a length to the silence. Short silence and long silence were different."
+            "en": "The radio was turned on. Li Fang was contacted. The situation in Sector 7 was relayed. Stretcher marks. Fresh cement. The old man's testimony. Li Fang was silent for a moment. There was a length to the silence. Short silence and long silence were different.",
+            "ja": "無線機をつけた。リー・ファンに連絡した。7区画の状況を伝えた。担架の痕。新しいセメント。老人の証言。リー・ファンがしばらく沈黙した。沈黙に長さがあった。短い沈黙と長い沈黙は違った。",
+            "zh": "打开了无线电。联系了李芳。汇报了七区的情况。担架痕迹。新水泥。老人的证词。李芳沉默了片刻。沉默是有长度的。短暂的沉默和长久的沉默不同。"
           }
         }
       ]
@@ -500,7 +572,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "증거가 있어. 없어.",
-            "en": "Is there evidence. Or not."
+            "en": "Is there evidence. Or not.",
+            "ja": "証拠はあるか。ないか。",
+            "zh": "有证据吗。还是没有。"
           }
         },
         {
@@ -508,7 +582,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "증언은 증거가 아니야. 노인이 말하는 게 증거가 아니야. 기록에 없으면 기록이 없는 거야.",
-            "en": "Testimony isn't evidence. The old man's words aren't evidence. If it's not in the records there are no records."
+            "en": "Testimony isn't evidence. The old man's words aren't evidence. If it's not in the records there are no records.",
+            "ja": "証言は証拠ではない。老人の言葉は証拠ではない。記録になければ記録がないということだ。",
+            "zh": "证词不是证据。老人说的话不是证据。记录里没有就是没有记录。"
           }
         },
         {
@@ -516,7 +592,9 @@
           "emotion": "serious",
           "text": {
             "ko": "네가 결정해야 해. 감사 보고서는 네 이름으로 올라가. 내 이름으로 올라가는 게 아니야.",
-            "en": "You have to decide. The audit report goes up under your name. Not mine."
+            "en": "You have to decide. The audit report goes up under your name. Not mine.",
+            "ja": "お前が決めなければならない。監査報告書はお前の名前で上がる。私の名前ではない。",
+            "zh": "你得自己决定。审计报告是以你的名义上报的。不是我的名义。"
           }
         }
       ]
@@ -531,7 +609,9 @@
         {
           "text": {
             "ko": "Li Fang이 무전을 끊었다. 무전기가 조용해졌다. 광산은 조용하지 않았다. 기계 소리. 먼 곳의 작업 소리. 그 소리들 사이에서 노인이 일하고 있었다. 보이지 않았다. 소리도 들리지 않았다. 그래도 거기 있었다.",
-            "en": "Li Fang cut the radio. The radio went quiet. The mine wasn't quiet. Machine sounds. Distant work sounds. Among those sounds the old man was working. Couldn't be seen. His sound couldn't be heard. But he was there."
+            "en": "Li Fang cut the radio. The radio went quiet. The mine wasn't quiet. Machine sounds. Distant work sounds. Among those sounds the old man was working. Couldn't be seen. His sound couldn't be heard. But he was there.",
+            "ja": "リー・ファンが無線を切った。無線機が静かになった。鉱山は静かではなかった。機械の音。遠くの作業音。その音の間で老人が働いていた。見えなかった。音も聞こえなかった。それでもそこにいた。",
+            "zh": "李芳切断了无线电。无线电静了下来。矿山并不安静。机器声。远处的作业声。在那些声音之间，老人在工作。看不见。也听不到他的声音。但他在那里。"
           }
         }
       ]
@@ -546,9 +626,11 @@
         {
           "text": {
             "ko": "체크리스트가 손 안에 있었다. 항목 37개. 36개가 체크됐다. 마지막 항목. 사고 기록. 체크되지 않았다. 체크할 것이 없었다. 아니면 체크할 것이 너무 많았다.",
-            "en": "The checklist was in hand. Thirty-seven items. Thirty-six checked. Last item. Accident records. Not checked. There was nothing to check. Or there was too much to check."
-          },
-          "overlay": "mcc_ch2_frozen_highway_l27_00_sealed_file"
+            "en": "The checklist was in hand. Thirty-seven items. Thirty-six checked. Last item. Accident records. Not checked. There was nothing to check. Or there was too much to check.",
+            "ja": "チェックリストが手の中にあった。三十七項目。三十六がチェックされた。最後の項目。事故記録。チェックされていなかった。チェックするものがなかった。あるいはチェックするものが多すぎた。",
+            "zh": "清单在手中。三十七项。三十六项打了勾。最后一项。事故记录。没有打勾。没有可以打勾的东西。或者说，要打勾的东西太多了。",
+            "overlay": "mcc_ch2_frozen_highway_l27_00_sealed_file"
+          }
         }
       ]
     },
@@ -559,55 +641,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "감사 보고서. 무엇을 적겠습니까.",
-        "en": "The audit report. What will you write."
+        "en": "The audit report. What will you write.",
+        "ja": "監査報告書。何を書くか。",
+        "zh": "审计报告。你要写什么。"
       },
       "choices": [
         {
           "id": "mcc_ch2_report_truth",
           "text": {
             "ko": "사망 3건. 장비 미비. 사실대로.",
-            "en": "Three deaths. Equipment failure. The truth."
+            "en": "Three deaths. Equipment failure. The truth.",
+            "ja": "死亡三件。設備不備。事実通り。",
+            "zh": "三起死亡。设备不足。照实写。"
           },
           "tone": "honest",
           "preview_hint": {
             "ko": "→ MCC -10, 광부 신뢰 +",
-            "en": "→ MCC -10, miner trust +"
+            "en": "→ MCC -10, miner trust +",
+            "ja": "→ MCC -10, 鉱夫信頼 +",
+            "zh": "→ MCC -10, 矿工信任 +"
           }
         },
         {
           "id": "mcc_ch2_bury",
           "text": {
             "ko": "모든 것 양호. 기록 유지.",
-            "en": "Everything satisfactory. Maintain the record."
+            "en": "Everything satisfactory. Maintain the record.",
+            "ja": "すべて良好。記録維持。",
+            "zh": "一切良好。保持记录。"
           },
           "tone": "corporate",
           "preview_hint": {
             "ko": "→ MCC +8, 이후 리스크",
-            "en": "→ MCC +8, risk later"
+            "en": "→ MCC +8, risk later",
+            "ja": "→ MCC +8, 後のリスク",
+            "zh": "→ MCC +8, 后续风险"
           }
         },
         {
           "id": "mcc_ch2_investigate",
           "text": {
             "ko": "더 조사한다. 다른 구역도.",
-            "en": "Investigate further. Other sectors too."
+            "en": "Investigate further. Other sectors too.",
+            "ja": "さらに調査する。他の区画も。",
+            "zh": "进一步调查。其他区域也查。"
           },
           "tone": "thorough",
           "preview_hint": {
             "ko": "→ 더 많은 것을 발견",
-            "en": "→ Find more"
+            "en": "→ Find more",
+            "ja": "→ さらに多くを発見",
+            "zh": "→ 发现更多"
           }
         },
         {
           "id": "mcc_ch2_ask_lifang",
           "text": {
             "ko": "Li Fang에게 다시 묻는다.",
-            "en": "Ask Li Fang again."
+            "en": "Ask Li Fang again.",
+            "ja": "リー・ファンにもう一度聞く。",
+            "zh": "再去问李芳。"
           },
           "tone": "deferential",
           "preview_hint": {
             "ko": "→ Li Fang의 현실 설명",
-            "en": "→ Li Fang explains reality"
+            "en": "→ Li Fang explains reality",
+            "ja": "→ リー・ファンが現実を説明",
+            "zh": "→ 李芳解释现实"
           }
         }
       ]
@@ -620,11 +720,15 @@
       "transition": "fade_slow",
       "title": {
         "ko": "갱도 확인",
-        "en": "Mine Clearance"
+        "en": "Mine Clearance",
+        "ja": "坑道確認",
+        "zh": "矿道排查"
       },
       "subtitle": {
         "ko": "헬라스 북부 — 구역 7",
-        "en": "Northern Hellas — Sector 7"
+        "en": "Northern Hellas — Sector 7",
+        "ja": "ヘラス北部 — 区画7",
+        "zh": "赫拉斯北部 — 七区"
       }
     },
     {
@@ -646,7 +750,9 @@
           "effect": "character_enter:miner_elder:slide_right",
           "text": {
             "ko": "보고서에 넣었습니까.",
-            "en": "Did you put it in the report."
+            "en": "Did you put it in the report.",
+            "ja": "報告書に入れましたか。",
+            "zh": "写进报告里了吗。"
           }
         },
         {
@@ -654,7 +760,9 @@
           "emotion": "hollow",
           "text": {
             "ko": "넣었군요.",
-            "en": "You did."
+            "en": "You did.",
+            "ja": "入れたんですね。",
+            "zh": "写进去了。"
           }
         },
         {
@@ -662,7 +770,9 @@
           "emotion": "quiet",
           "text": {
             "ko": "죽은 사람들 이름이 있어요. 세 명. 셋 다 가족이 있었어요.",
-            "en": "The dead have names. Three of them. All three had families."
+            "en": "The dead have names. Three of them. All three had families.",
+            "ja": "死んだ人たちの名前があります。三人。三人とも家族がいました。",
+            "zh": "死去的人是有名字的。三个人。三个人都有家庭。"
           }
         },
         {
@@ -670,7 +780,9 @@
           "emotion": "tired",
           "text": {
             "ko": "기록에 남아서 다행이에요. 이름이 어딘가에 있다는 거니까요.",
-            "en": "Good that it's in the record. At least their names are somewhere."
+            "en": "Good that it's in the record. At least their names are somewhere.",
+            "ja": "記録に残って良かったです。名前がどこかにあるということですから。",
+            "zh": "写进记录里真是太好了。至少名字在某个地方留着。"
           }
         }
       ]
@@ -685,7 +797,9 @@
         {
           "text": {
             "ko": "광부 노인이 돌아갔다. 뒷모습이 여전히 작았다. 그러나 전보다 조금 달랐다. 무엇이 달라졌는지 정확히 알 수 없었다. 아주 조금 달랐다. 화성에서 아주 조금 달라지는 것들이 있었다.",
-            "en": "The old miner went back. His back still small. But slightly different from before. Exactly what was different was unclear. Just a little different. On Mars some things changed just a little."
+            "en": "The old miner went back. His back still small. But slightly different from before. Exactly what was different was unclear. Just a little different. On Mars some things changed just a little.",
+            "ja": "老鉱夫が戻った。後ろ姿は相変わらず小さかった。しかし以前とは少し違った。何が違うのか正確にはわからなかった。ほんのわずかに違った。火星ではほんのわずかに変わるものがあった。",
+            "zh": "老矿工回去了。背影依然很小。但和之前稍微有些不同。说不清楚到底哪里不同。只是一点点不同。在火星上，有些东西会有一点点改变。"
           }
         }
       ]
@@ -700,7 +814,9 @@
         {
           "text": {
             "ko": "구역은 여전히 불안전했다. 광부들은 다시 들어가야 했다. 다른 선택이 없었다. 노인이 무전기를 봤다. 아무 말도 하지 않았다. 그것도 화성의 말 방식이었다.",
-            "en": "The sector was still unsafe. The miners had to go back in. They had no other choice. The old man looked at the radio. Said nothing. That too was how Mars spoke."
+            "en": "The sector was still unsafe. The miners had to go back in. They had no other choice. The old man looked at the radio. Said nothing. That too was how Mars spoke.",
+            "ja": "区画はまだ安全ではなかった。鉱夫たちは再び入らなければならなかった。他の選択がなかった。老人が無線機を見た。何も言わなかった。それも火星の語り方だった。",
+            "zh": "区域依然不安全。矿工们还是得进去。没有别的选择。老人看着无线电。什么都没说。那也是火星说话的方式。"
           }
         }
       ]
@@ -715,9 +831,11 @@
         {
           "text": {
             "ko": "엘리베이터가 올라갔다. 지표의 빛이 돌아왔다. 핏빛이었다. 광산은 아래에 남았다. 광부들도 아래에 남았다. 노인도 아래에 남았다. 보고서는 손에 있었다. 손이 떨리지 않았다.",
-            "en": "The elevator ascended. Surface light returned. Blood-red. The mine stayed below. The miners stayed below. The old man stayed below. The report was in hand. The hands didn't tremble."
-          },
-          "overlay": "mcc_ch2_frozen_highway_l34_00_mars_horizon"
+            "en": "The elevator ascended. Surface light returned. Blood-red. The mine stayed below. The miners stayed below. The old man stayed below. The report was in hand. The hands didn't tremble.",
+            "ja": "エレベーターが上がった。地表の光が戻った。血の色だった。鉱山は下に残った。鉱夫たちも下に残った。老人も下に残った。報告書は手の中にあった。手は震えなかった。",
+            "zh": "电梯上升了。地面的光回来了。是血红色的。矿山留在了下面。矿工们留在了下面。老人留在了下面。报告在手中。手没有颤抖。",
+            "overlay": "mcc_ch2_frozen_highway_l34_00_mars_horizon"
+          }
         }
       ]
     },
@@ -734,7 +852,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "보고서 받았어.",
-            "en": "Got the report."
+            "en": "Got the report.",
+            "ja": "報告書を受け取った。",
+            "zh": "收到报告了。"
           }
         },
         {
@@ -742,7 +862,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "7구역 사망 3건. 기록됨. 그렇게 적었군.",
-            "en": "Sector 7 three deaths. Recorded. That's how you wrote it."
+            "en": "Sector 7 three deaths. Recorded. That's how you wrote it.",
+            "ja": "7区画死亡三件。記録済み。そう書いたんだな。",
+            "zh": "七区三起死亡。已记录。你就这么写的。"
           }
         },
         {
@@ -750,7 +872,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "MCC 법무팀이 연락 올 거야. 절차가 있어. 어떻게 될지는 나도 몰라.",
-            "en": "MCC legal will be in touch. There are procedures. I don't know how it will go either."
+            "en": "MCC legal will be in touch. There are procedures. I don't know how it will go either.",
+            "ja": "MCC法務チームから連絡が来るだろう。手続きがある。どうなるかは私にもわからない。",
+            "zh": "MCC法务团队会联系你的。有程序要走。结果会怎样，我也不知道。"
           }
         },
         {
@@ -758,7 +882,9 @@
           "emotion": "serious",
           "text": {
             "ko": "화성에서 기록한다는 것이 무엇을 의미하는지 알았으면 해.",
-            "en": "I want you to know what it means to record things on Mars."
+            "en": "I want you to know what it means to record things on Mars.",
+            "ja": "火星で記録するということがどういう意味か、わかってほしい。",
+            "zh": "我希望你明白，在火星上记录意味着什么。"
           }
         }
       ]
@@ -773,7 +899,9 @@
         {
           "text": {
             "ko": "밤이었다. 광산은 멈추지 않았다. 밤에도 광산은 돌아갔다. 교대 시스템이었다. 광부들은 교대했다. 광산은 교대하지 않았다. 기계도 교대하지 않았다. 멈추지 않는 것들이 있었다.\n\n보고서가 서버에 올라갔다. 돌이킬 수 없는 것이 됐다.",
-            "en": "It was night. The mine didn't stop. The mine ran at night too. Shift system. Miners shifted. The mine didn't shift. The machines didn't shift. Some things didn't stop.\n\nThe report was uploaded to the server. It became something that couldn't be undone."
+            "en": "It was night. The mine didn't stop. The mine ran at night too. Shift system. Miners shifted. The mine didn't shift. The machines didn't shift. Some things didn't stop.\n\nThe report was uploaded to the server. It became something that couldn't be undone.",
+            "ja": "夜だった。鉱山は止まらなかった。夜も鉱山は動いた。シフト制だった。鉱夫たちは交代した。鉱山は交代しなかった。機械も交代しなかった。止まらないものがあった。\n\n報告書がサーバーにアップロードされた。取り消せないものになった。",
+            "zh": "是夜晚。矿山没有停。夜里矿山也在运转。是轮班制度。矿工们轮班。矿山不轮班。机器也不轮班。有些东西不会停。\n\n报告被上传到了服务器。变成了无法撤销的东西。"
           }
         }
       ],
@@ -781,7 +909,9 @@
         "questId": "mcc_campaign_ch3",
         "teaser": {
           "ko": "다음 — 25도 라운지",
-          "en": "Next — The 25-Degree Lounge"
+          "en": "Next — The 25-Degree Lounge",
+          "ja": "次回 — 25度ラウンジ",
+          "zh": "下一章 — 二十五度休息室"
         }
       }
     }

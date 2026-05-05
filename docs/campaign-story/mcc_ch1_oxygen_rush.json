@@ -4,7 +4,9 @@
   "chapterNumber": 1,
   "title": {
     "ko": "도착",
-    "en": "Arrival"
+    "en": "Arrival",
+    "ja": "到着",
+    "zh": "抵达"
   },
   "location": {
     "id": "hellas_central_mcc",
@@ -27,7 +29,9 @@
         {
           "text": {
             "ko": "헬라스 센트럴. MCC 본부. 건물은 거대했다. 화성에서 이만한 건물은 여기밖에 없었다. 60년 전 지어진 것이었다. 그 후로 계속 커졌다. 건물은 멈추지 않았다.",
-            "en": "Hellas Central. MCC headquarters. The building was enormous. Nothing on Mars was this large. It had been built sixty years ago. It had kept growing since. It never stopped."
+            "en": "Hellas Central. MCC headquarters. The building was enormous. Nothing on Mars was this large. It had been built sixty years ago. It had kept growing since. It never stopped.",
+            "ja": "ヘラス・セントラル。MCC本部。建物は巨大だった。火星にこれほどの建物はここだけだった。六十年前に建てられたものだった。それ以来、ずっと大きくなり続けた。建物は止まらなかった。",
+            "zh": "赫拉斯中央。MCC总部。这栋建筑极为庞大。火星上没有比这更大的建筑了。它建于六十年前，此后不断扩张。它从未停止过。"
           }
         }
       ]
@@ -42,7 +46,9 @@
         {
           "text": {
             "ko": "MCC. Mars Colonial Corporation. 화성 식민 회사. 이름만큼 솔직한 기업은 없었다. 화성을 식민지라고 부르는 것을 부끄러워하지 않았다. 부끄러워하면 돈을 못 번다는 것을 알았다.",
-            "en": "MCC. Mars Colonial Corporation. No company was as honest as its name. It was unashamed of calling Mars a colony. It knew that shame didn't make money."
+            "en": "MCC. Mars Colonial Corporation. No company was as honest as its name. It was unashamed of calling Mars a colony. It knew that shame didn't make money.",
+            "ja": "MCC。マーズ・コロニアル・コーポレーション。火星植民会社。名前ほど正直な企業はなかった。火星を植民地と呼ぶことを恥じなかった。恥じれば金にならないと知っていた。",
+            "zh": "MCC。火星殖民公司。没有哪家企业比它更坦诚。它毫不羞于将火星称为殖民地。它深知羞耻不能换来利润。"
           }
         }
       ]
@@ -57,7 +63,9 @@
         {
           "text": {
             "ko": "검문소에 줄이 있었다. 광부들이었다. 기술자들이었다. 용병들이었다. 그들은 번호표를 받았다. 번호가 불리면 들어갔다. 불리지 않으면 기다렸다. 화성에서 줄을 서지 않아도 되는 사람은 많지 않았다.",
-            "en": "There was a line at the checkpoint. Miners. Technicians. Mercenaries. They were given numbers. When a number was called they entered. If not called they waited. Not many people on Mars didn't have to wait in line."
+            "en": "There was a line at the checkpoint. Miners. Technicians. Mercenaries. They were given numbers. When a number was called they entered. If not called they waited. Not many people on Mars didn't have to wait in line.",
+            "ja": "検問所に列があった。鉱夫たちだった。技術者たちだった。傭兵たちだった。彼らは番号札を受け取った。番号が呼ばれると入った。呼ばれなければ待った。火星で並ばなくていい人間は多くなかった。",
+            "zh": "检查站前排着队。有矿工，有技术员，有雇佣兵。他们领了号码牌。叫到号才能进去。叫不到就等着。在火星上，不用排队的人寥寥无几。"
           }
         }
       ]
@@ -71,8 +79,10 @@
       "lines": [
         {
           "text": {
-            "ko": "검문소 직원이 ID 카드를 받았다. 스캔했다. 돌려줬다. 그것이 전부였다. 얼굴을 보지 않았다. 사람보다 카드를 먼저 봤다. 화성에서는 그랬다. 카드가 사람보다 먼저였다.",
-            "en": "The checkpoint officer took the ID card. Scanned it. Returned it. That was all. No eye contact. They looked at the card before the person. That was how Mars worked. Cards came before people."
+            "ko": "검문소 직원이 ID 카드를 받았다. 스캔했다. 돌려줐다. 그것이 전부였다. 얼굴을 보지 않았다. 사람보다 카드를 먼저 봤다. 화성에서는 그랬다. 카드가 사람보다 먼저였다.",
+            "en": "The checkpoint officer took the ID card. Scanned it. Returned it. That was all. No eye contact. They looked at the card before the person. That was how Mars worked. Cards came before people.",
+            "ja": "検問所の職員がIDカードを受け取った。スキャンした。返した。それだけだった。目を合わせなかった。人より先にカードを見た。火星ではそうだった。カードが人より先だった。",
+            "zh": "检查站的工作人员接过身份证。扫描。归还。仅此而已。没有眼神交流。他们先看卡，再看人。火星就是这样运作的。卡比人更重要。"
           }
         }
       ]
@@ -87,7 +97,9 @@
         {
           "text": {
             "ko": "MCC 본관 로비. 높이 30미터. 화성석 바닥. 로비 중앙에 화성 지도가 있었다. 실시간으로 업데이트되는 지도였다. 어디에서 무엇이 채굴되는지. 어디에서 산소가 생산되는지. 어디에 MCC 시설이 있는지. 다 보였다. 보여주고 싶다는 의지가 있었다.",
-            "en": "MCC main lobby. Thirty meters high. Martian stone floor. At the center of the lobby was a map of Mars. A map that updated in real time. Where what was being mined. Where oxygen was being produced. Where MCC facilities were. All visible. There was a will to show it."
+            "en": "MCC main lobby. Thirty meters high. Martian stone floor. At the center of the lobby was a map of Mars. A map that updated in real time. Where what was being mined. Where oxygen was being produced. Where MCC facilities were. All visible. There was a will to show it.",
+            "ja": "MCC本館ロビー。高さ三十メートル。火星石の床。ロビーの中央に火星の地図があった。リアルタイムで更新される地図だった。どこで何が採掘されているか。どこで酸素が生産されているか。どこにMCC施設があるか。全部見えた。見せたいという意志があった。",
+            "zh": "MCC主楼大厅。高三十米。火星石地板。大厅中央有一张火星地图，实时更新。哪里在开采什么，哪里在生产氧气，哪里有MCC设施，一目了然。这里有一种想要展示的意志。"
           }
         }
       ]
@@ -102,7 +114,9 @@
         {
           "text": {
             "ko": "직원들이 지나다녔다. 다들 바빴다. 바쁘지 않아 보이는 사람이 없었다. 바쁜 척하는 것인지 정말 바쁜 것인지는 알 수 없었다. MCC에서 그 차이는 중요하지 않았다.",
-            "en": "Employees passed by. Everyone was busy. No one looked unbusy. Whether they were pretending or genuinely busy was impossible to tell. In MCC that distinction didn't matter."
+            "en": "Employees passed by. Everyone was busy. No one looked unbusy. Whether they were pretending or genuinely busy was impossible to tell. In MCC that distinction didn't matter.",
+            "ja": "従業員たちが行き交った。みな忙しかった。忙しくなさそうな人間がいなかった。忙しいふりなのか本当に忙しいのかはわからなかった。MCCではその違いは重要ではなかった。",
+            "zh": "员工们来来往往。每个人看起来都很忙。没有一个人看起来是闲着的。是在假装忙还是真的忙，根本无从判断。在MCC，这种区别并不重要。"
           }
         }
       ]
@@ -117,7 +131,9 @@
         {
           "text": {
             "ko": "3번 게이트. 브리핑 룸. 형광등 하나가 깜빡였다. 테이블 위에 지도가 있었다. 지도 위에 아무도 없었다. 잠시 후 누군가 들어왔다.",
-            "en": "Gate 3. Briefing room. One fluorescent light flickered. A map on the table. Nobody by the map. A moment later someone came in."
+            "en": "Gate 3. Briefing room. One fluorescent light flickered. A map on the table. Nobody by the map. A moment later someone came in.",
+            "ja": "ゲート3。ブリーフィングルーム。蛍光灯がひとつ点滅していた。テーブルの上に地図があった。地図のそばに誰もいなかった。しばらくして誰かが入ってきた。",
+            "zh": "三号门。简报室。一盏荧光灯在闪烁。桌上放着地图。地图旁边没有人。片刻后，有人走了进来。"
           }
         }
       ]
@@ -132,7 +148,9 @@
         {
           "text": {
             "ko": "Li Fang. 헬라스 지역 운영 총괄. 나이는 알 수 없었다. 화성에서 오래 일한 사람의 얼굴이었다. 화성은 사람을 늙히는 것이 아니라 단단하게 만들었다. Li Fang은 단단했다.",
-            "en": "Li Fang. Director of Operations for the Hellas region. Age was unclear. A face of someone who had worked on Mars a long time. Mars didn't age people, it hardened them. Li Fang was hardened."
+            "en": "Li Fang. Director of Operations for the Hellas region. Age was unclear. A face of someone who had worked on Mars a long time. Mars didn't age people, it hardened them. Li Fang was hardened.",
+            "ja": "リー・ファン。ヘラス地域運営統括。年齢は不明だった。火星で長く働いた人間の顔だった。火星は人を老けさせるのではなく、鍛える。リー・ファンは鍛えられていた。",
+            "zh": "李芳。赫拉斯地区运营总监。年龄不详。那是一张在火星工作多年的人的脸。火星不会让人衰老，它让人变得坚硬。李芳就是坚硬的。"
           }
         }
       ]
@@ -150,7 +168,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "도착이 늦었네.",
-            "en": "You're late."
+            "en": "You're late.",
+            "ja": "到着が遅かったな。",
+            "zh": "来晚了。"
           }
         },
         {
@@ -158,7 +178,9 @@
           "emotion": "smirk",
           "text": {
             "ko": "화성에선 늘 그래. 도착은 늘 늦고 출발은 늘 빨라.",
-            "en": "That's Mars. Arrivals are always late. Departures always early."
+            "en": "That's Mars. Arrivals are always late. Departures always early.",
+            "ja": "火星ではそういうものだ。到着はいつも遅く、出発はいつも早い。",
+            "zh": "火星就是这样。到达总是迟，出发总是早。"
           }
         },
         {
@@ -166,7 +188,9 @@
           "emotion": "serious",
           "text": {
             "ko": "프로필 봤어. 화성 경력 없지. 좋아.",
-            "en": "Read your file. No Mars experience. Good."
+            "en": "Read your file. No Mars experience. Good.",
+            "ja": "プロファイルを読んだ。火星での経験なし。いい。",
+            "zh": "看了你的档案。没有火星经验。很好。"
           }
         },
         {
@@ -174,7 +198,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "경력 없는 사람이 두 가지야. 겁이 없거나. 겁이 많거나. 어느 쪽인지 오늘 알겠지.",
-            "en": "No experience people are two kinds. No fear. Or too much fear. I'll find out which today."
+            "en": "No experience people are two kinds. No fear. Or too much fear. I'll find out which today.",
+            "ja": "経験なしの人間は二種類だ。恐れを知らないか。恐れすぎるか。どちらか、今日わかる。",
+            "zh": "没有经验的人分两种。要么无所畏惧。要么胆小如鼠。今天就能看出来是哪种。"
           }
         }
       ]
@@ -189,7 +215,9 @@
         {
           "text": {
             "ko": "Li Fang이 의자를 당기지 않았다. 앉으라고 하지 않았다. 그는 서서 지도를 보고 있었다. 테이블이 넓었다. 지도가 테이블을 덮었다. 헬라스 북부였다.",
-            "en": "Li Fang didn't pull out a chair. Didn't say to sit. He stood looking at the map. The table was wide. The map covered the table. Northern Hellas."
+            "en": "Li Fang didn't pull out a chair. Didn't say to sit. He stood looking at the map. The table was wide. The map covered the table. Northern Hellas.",
+            "ja": "リー・ファンは椅子を引かなかった。座れとも言わなかった。彼は立ったまま地図を見ていた。テーブルは広かった。地図がテーブルを覆っていた。ヘラス北部だった。",
+            "zh": "李芳没有拉椅子，也没有叫人坐下。他站着看地图。桌子很宽，地图铺满了整张桌子。是赫拉斯北部。"
           }
         }
       ]
@@ -206,7 +234,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "MCC에 대해 뭘 알아.",
-            "en": "What do you know about MCC."
+            "en": "What do you know about MCC.",
+            "ja": "MCCについて何を知っている。",
+            "zh": "你对MCC了解多少。"
           }
         },
         {
@@ -214,7 +244,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "말해봐.",
-            "en": "Tell me."
+            "en": "Tell me.",
+            "ja": "言ってみろ。",
+            "zh": "说说看。"
           }
         },
         {
@@ -222,7 +254,9 @@
           "emotion": "smirk",
           "text": {
             "ko": "아니, 됐어. 아는 게 없는 게 낫거든. 아는 게 많으면 틀린 것도 많아.",
-            "en": "Actually forget it. Better to know nothing. The more you know the more you're wrong."
+            "en": "Actually forget it. Better to know nothing. The more you know the more you're wrong.",
+            "ja": "いや、いい。何も知らない方がいい。知っていることが多ければ、間違いも多い。",
+            "zh": "算了。什么都不知道反而更好。知道得越多，错得越多。"
           }
         }
       ]
@@ -237,7 +271,9 @@
         {
           "text": {
             "ko": "Li Fang이 지도 앞에 섰다. 헬라스 북부 구역. 산소 정제소 표시들. 기지 일곱 개. 숫자가 쓰여 있었다. 숫자가 무엇을 의미하는지 물을 수 없었다. 아직 물을 자리가 아니었다.",
-            "en": "Li Fang stood before the map. Northern Hellas sector. Oxygen refinery markers. Seven bases. Numbers written. What the numbers meant couldn't be asked. It wasn't yet the time to ask."
+            "en": "Li Fang stood before the map. Northern Hellas sector. Oxygen refinery markers. Seven bases. Numbers written. What the numbers meant couldn't be asked. It wasn't yet the time to ask.",
+            "ja": "リー・ファンが地図の前に立った。ヘラス北部地区。酸素精製所のマーカー。基地が七つ。数字が書かれていた。数字が何を意味するか聞けなかった。まだ聞く場面ではなかった。",
+            "zh": "李芳站到地图前。赫拉斯北部区域。氧气精炼厂的标记。七个基地。写着数字。无法问那些数字意味着什么。还不是问的时候。"
           }
         }
       ]
@@ -254,7 +290,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Helion Dynamics 알아.",
-            "en": "Know Helion Dynamics."
+            "en": "Know Helion Dynamics.",
+            "ja": "ヘリオン・ダイナミクスを知っているか。",
+            "zh": "知道赫利昂动力公司吗。"
           }
         },
         {
@@ -262,7 +300,9 @@
           "emotion": "serious",
           "text": {
             "ko": "화성 북반구 산소 정제 점유율 38퍼센트. 7개 시설. 어제까지는 MCC 협력사였어.",
-            "en": "Thirty-eight percent of northern hemisphere oxygen refining. Seven facilities. Until yesterday they were an MCC partner."
+            "en": "Thirty-eight percent of northern hemisphere oxygen refining. Seven facilities. Until yesterday they were an MCC partner.",
+            "ja": "火星北半球の酸素精製シェア三十八パーセント。七施設。昨日まではMCCのパートナーだった。",
+            "zh": "北半球氧气精炼市占率百分之三十八。七个设施。昨天之前还是MCC的合作伙伴。"
           }
         },
         {
@@ -270,7 +310,9 @@
           "emotion": "angry",
           "text": {
             "ko": "오늘부터 아니야. 전부 매각해. 내일. 그 전에 산소 850킬로톤을 본사로 빼돌리고 있어.",
-            "en": "Not anymore. Selling everything. Tomorrow. Before the sale they're siphoning 850 kilotons to headquarters."
+            "en": "Not anymore. Selling everything. Tomorrow. Before the sale they're siphoning 850 kilotons to headquarters.",
+            "ja": "今日からは違う。全部売却する。明日。その前に酸素八百五十キロトンを本社に横流ししている。",
+            "zh": "从今天起不再是了。明天全部出售。在出售之前，他们正在把八百五十千吨氧气转移到总部。"
           }
         }
       ]
@@ -287,7 +329,9 @@
           "emotion": "angry",
           "text": {
             "ko": "850킬로톤이 뭔지 알아.",
-            "en": "Know what 850 kilotons is."
+            "en": "Know what 850 kilotons is.",
+            "ja": "八百五十キロトンが何かわかるか。",
+            "zh": "你知道八百五十千吨是什么概念吗。"
           }
         },
         {
@@ -295,7 +339,9 @@
           "emotion": "cold",
           "text": {
             "ko": "화성 북반구 1200만 명이 일주일치 산소야. 일주일.",
-            "en": "A week's oxygen for twelve million in the northern hemisphere. One week."
+            "en": "A week's oxygen for twelve million in the northern hemisphere. One week.",
+            "ja": "火星北半球の一千二百万人が一週間分の酸素だ。一週間。",
+            "zh": "北半球一千两百万人一周的用氧量。整整一周。"
           }
         },
         {
@@ -303,9 +349,11 @@
           "emotion": "serious",
           "text": {
             "ko": "숫자가 크니까 실감이 안 나지. 한 명을 생각해봐. 한 명이 일주일간 산소가 없으면 어떻게 돼.",
-            "en": "The number is too big to feel real. Think about one person. What happens to one person without oxygen for a week."
-          },
-          "overlay": "mcc_ch1_oxygen_rush_l13_02_death_still"
+            "en": "The number is too big to feel real. Think about one person. What happens to one person without oxygen for a week.",
+            "ja": "数が大きすぎて実感がわかない。一人を想像してみろ。一人が一週間、酸素なしでどうなるか。",
+            "zh": "数字太大，感受不到真实。想想一个人。一个人一周没有氧气会怎样。",
+            "overlay": "mcc_ch1_oxygen_rush_l13_02_death_still"
+          }
         }
       ]
     },
@@ -319,7 +367,9 @@
         {
           "text": {
             "ko": "Li Fang이 지도의 한 점을 짚었다. 북부 수송로. 호송 편대가 그곳을 지나가고 있었다. 이미 출발했다는 말이었다. 아직 도착하지 않은 것이었다. 그 사이에 뭔가를 할 수 있었다.",
-            "en": "Li Fang pointed to a spot on the map. Northern transport corridor. A convoy was passing through there. Already departed, it meant. Not yet arrived. Something could be done in between."
+            "en": "Li Fang pointed to a spot on the map. Northern transport corridor. A convoy was passing through there. Already departed, it meant. Not yet arrived. Something could be done in between.",
+            "ja": "リー・ファンが地図の一点を指した。北部輸送路。護送車団がそこを通過していた。すでに出発したということだった。まだ到着していなかった。その間に何かできた。",
+            "zh": "李芳在地图上指了一个点。北部运输通道。一支车队正在经过那里。意思是已经出发了。还没有到达。在这期间可以做些什么。"
           }
         }
       ]
@@ -336,7 +386,9 @@
           "emotion": "serious",
           "text": {
             "ko": "호송 편대가 이미 출발했어. 탱크 36개. 트럭 8대. 경호원 14명.",
-            "en": "The convoy has already departed. Thirty-six tanks. Eight trucks. Fourteen guards."
+            "en": "The convoy has already departed. Thirty-six tanks. Eight trucks. Fourteen guards.",
+            "ja": "護送車団はすでに出発した。タンク三十六個。トラック八台。警護員十四名。",
+            "zh": "车队已经出发了。三十六个罐体。八辆卡车。十四名警卫。"
           }
         },
         {
@@ -344,7 +396,9 @@
           "emotion": "serious",
           "text": {
             "ko": "Dust Storm이 6시간 후에 와. 등급 4. 헬라스 북부 전역. 폭풍이 오면 산소 탱크는 사라져. 찾을 수가 없어.",
-            "en": "Dust Storm coming in six hours. Grade 4. All of northern Hellas. When the storm comes the oxygen tanks disappear. Can't be found."
+            "en": "Dust Storm coming in six hours. Grade 4. All of northern Hellas. When the storm comes the oxygen tanks disappear. Can't be found.",
+            "ja": "ダストストームが六時間後に来る。等級4。ヘラス北部全域。嵐が来れば酸素タンクは消える。見つけられない。",
+            "zh": "六小时后沙尘暴来袭。四级。赫拉斯北部全境。风暴来临，氧气罐就消失了。找不到的。"
           }
         },
         {
@@ -352,7 +406,9 @@
           "emotion": "cold",
           "text": {
             "ko": "6시간 안에 회수해. 탱크 손상 없이. 그게 오늘 네 임무야.",
-            "en": "Recover them in six hours. No tank damage. That's your mission today."
+            "en": "Recover them in six hours. No tank damage. That's your mission today.",
+            "ja": "六時間以内に回収しろ。タンクを傷つけるな。それが今日の任務だ。",
+            "zh": "六小时内回收。不能损坏罐体。这就是你今天的任务。"
           }
         }
       ]
@@ -367,7 +423,9 @@
         {
           "text": {
             "ko": "형광등이 다시 깜빡였다. 형광등은 수리되지 않았다. MCC 본부 브리핑 룸의 형광등이 깜빡이는 것을 아무도 신경 쓰지 않았다. 다른 것들이 더 중요했다.",
-            "en": "The fluorescent light flickered again. It hadn't been repaired. No one cared about the flickering fluorescent light in MCC headquarters' briefing room. Other things were more important."
+            "en": "The fluorescent light flickered again. It hadn't been repaired. No one cared about the flickering fluorescent light in MCC headquarters' briefing room. Other things were more important.",
+            "ja": "蛍光灯がまた点滅した。修理されていなかった。MCC本部のブリーフィングルームの蛍光灯が点滅しても誰も気にしなかった。他のことの方が重要だった。",
+            "zh": "荧光灯又闪烁了。它还没被修。没有人在乎MCC总部简报室里那盏闪烁的荧光灯。还有更重要的事。"
           }
         }
       ]
@@ -384,7 +442,9 @@
           "emotion": "serious",
           "text": {
             "ko": "팀이 있어. 셋이야. 너 포함하면 넷. 차량 두 대. 무기는 비치되어 있어.",
-            "en": "There's a team. Three people. Four including you. Two vehicles. Weapons are stocked."
+            "en": "There's a team. Three people. Four including you. Two vehicles. Weapons are stocked.",
+            "ja": "チームがある。三人だ。お前を含めると四人。車両二台。武器は備えてある。",
+            "zh": "有个小队。三个人。加上你是四个。两辆车。武器已备好。"
           }
         },
         {
@@ -392,7 +452,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "Helion 경호원들은 막는다. 당연히. 우리 것을 가져가는 거니까. 막으면 막아.",
-            "en": "Helion guards will block you. Obviously. You're taking what's ours. If they block you, block them."
+            "en": "Helion guards will block you. Obviously. You're taking what's ours. If they block you, block them.",
+            "ja": "ヘリオンの警護員は阻もうとする。当然だ。我々のものを取り返すのだから。阻まれたら阻め。",
+            "zh": "赫利昂的警卫会阻拦你。当然。你是在拿回我们的东西。他们阻拦，你就阻拦他们。"
           }
         },
         {
@@ -400,7 +462,9 @@
           "emotion": "serious",
           "text": {
             "ko": "다만 탱크는 건드리지 마. 탱크에 구멍 나면 850킬로톤이 대기 중으로 흩어져. 그럼 전부 소용없어.",
-            "en": "But don't touch the tanks. If a tank is punctured 850 kilotons disperses into the atmosphere. Then all of it is meaningless."
+            "en": "But don't touch the tanks. If a tank is punctured 850 kilotons disperses into the atmosphere. Then all of it is meaningless.",
+            "ja": "ただしタンクには触るな。タンクに穴が開けば八百五十キロトンが大気中に散る。そうなれば全部無駄だ。",
+            "zh": "但不能动罐体。罐体一旦破损，八百五十千吨就会散入大气。那就全白费了。"
           }
         }
       ]
@@ -415,7 +479,9 @@
         {
           "text": {
             "ko": "850킬로톤. 그것을 회수하면 MCC가 정제소를 인수한다. 그것을 회수하지 못하면 폭풍 속에서 사라진다. Li Fang이 당신을 바라봤다. 브리핑 룸의 형광등이 다시 깜빡였다.",
-            "en": "850 kilotons. Recover it and MCC acquires the refineries. Fail and it vanishes in the storm. Li Fang looked at you. The briefing room light flickered again."
+            "en": "850 kilotons. Recover it and MCC acquires the refineries. Fail and it vanishes in the storm. Li Fang looked at you. The briefing room light flickered again.",
+            "ja": "八百五十キロトン。回収すればMCCが精製所を接収する。回収できなければ嵐の中で消える。リー・ファンがあなたを見た。ブリーフィングルームの蛍光灯がまた点滅した。",
+            "zh": "八百五十千吨。回收成功，MCC接管精炼厂。失败，就消失在风暴里。李芳看着你。简报室的荧光灯又闪了。"
           }
         }
       ]
@@ -432,7 +498,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "질문 있어.",
-            "en": "Any questions."
+            "en": "Any questions.",
+            "ja": "質問はあるか。",
+            "zh": "有问题吗。"
           }
         },
         {
@@ -440,7 +508,9 @@
           "emotion": "smirk",
           "text": {
             "ko": "아니면 없거나. 없으면 나가.",
-            "en": "Or none. If none, go."
+            "en": "Or none. If none, go.",
+            "ja": "なければそれでいい。なければ出ろ。",
+            "zh": "或者没有。没有就出去。"
           }
         },
         {
@@ -448,7 +518,9 @@
           "emotion": "serious",
           "text": {
             "ko": "한 가지만. Helion이 폭풍 정보를 알면 속도를 높일 거야. 그 전에 도착해야 해.",
-            "en": "One thing. If Helion knows about the storm they'll accelerate. You need to get there before that."
+            "en": "One thing. If Helion knows about the storm they'll accelerate. You need to get there before that.",
+            "ja": "一つだけ。ヘリオンが嵐の情報を知れば速度を上げる。その前に到着しなければならない。",
+            "zh": "一件事。如果赫利昂得知风暴消息，他们会加速。你要在那之前赶到。"
           }
         }
       ]
@@ -463,7 +535,9 @@
         {
           "text": {
             "ko": "지도를 마지막으로 봤다. 북부 수송로. 호송 편대 위치. 폭풍 예측 경로. 6시간. 거리와 시간을 계산했다. 계산이 맞을 수도 있고 틀릴 수도 있었다. 화성에서는 계산이 자주 틀렸다.",
-            "en": "A last look at the map. Northern transport corridor. Convoy position. Predicted storm path. Six hours. Calculated distance and time. The calculation might be right or wrong. On Mars calculations were often wrong."
+            "en": "A last look at the map. Northern transport corridor. Convoy position. Predicted storm path. Six hours. Calculated distance and time. The calculation might be right or wrong. On Mars calculations were often wrong.",
+            "ja": "地図を最後に見た。北部輸送路。護送車団の位置。嵐の予測経路。六時間。距離と時間を計算した。計算は正しいかもしれないし間違いかもしれなかった。火星では計算はよく外れた。",
+            "zh": "最后看了一眼地图。北部运输通道。车队位置。风暴预测路径。六小时。计算了距离和时间。计算可能对，也可能错。在火星上，计算经常出错。"
           }
         }
       ]
@@ -475,55 +549,73 @@
       "bgm": "choice_tension",
       "prompt": {
         "ko": "첫 임무. 어떻게 응답하겠습니까.",
-        "en": "First mission. How will you respond."
+        "en": "First mission. How will you respond.",
+        "ja": "最初の任務。どう応えるか。",
+        "zh": "第一个任务。你将如何回应。"
       },
       "choices": [
         {
           "id": "ch1_accept",
           "text": {
             "ko": "시간 안에 끝내겠습니다.",
-            "en": "I'll finish within the time."
+            "en": "I'll finish within the time.",
+            "ja": "時間内に終わらせます。",
+            "zh": "我会在时限内完成。"
           },
           "tone": "professional",
           "preview_hint": {
             "ko": "→ MCC 신뢰 유지",
-            "en": "→ MCC trust maintained"
+            "en": "→ MCC trust maintained",
+            "ja": "→ MCC信頼維持",
+            "zh": "→ MCC信任维持"
           }
         },
         {
           "id": "ch1_moral_concern",
           "text": {
             "ko": "탱크 손상 시 정착지 피해는.",
-            "en": "What about settlements if tanks are damaged."
+            "en": "What about settlements if tanks are damaged.",
+            "ja": "タンクが損傷した場合の入植地への被害は。",
+            "zh": "罐体损坏的话，定居点的损失怎么算。"
           },
           "tone": "careful",
           "preview_hint": {
             "ko": "→ Li Fang이 기억한다",
-            "en": "→ Li Fang remembers"
+            "en": "→ Li Fang remembers",
+            "ja": "→ リー・ファンが覚えている",
+            "zh": "→ 李芳会记住"
           }
         },
         {
           "id": "ch1_tactical",
           "text": {
             "ko": "Helion이 폭풍 예보를 알면 가속합니다.",
-            "en": "Helion will accelerate if they know about the storm."
+            "en": "Helion will accelerate if they know about the storm.",
+            "ja": "ヘリオンが嵐の予報を知れば加速します。",
+            "zh": "赫利昂一旦得知风暴预报就会加速。"
           },
           "tone": "analytical",
           "preview_hint": {
             "ko": "→ MCC 전술가 태그",
-            "en": "→ MCC tactician tag"
+            "en": "→ MCC tactician tag",
+            "ja": "→ MCC戦術家タグ",
+            "zh": "→ MCC战术家标签"
           }
         },
         {
           "id": "ch1_negotiate",
           "text": {
             "ko": "보수부터 정합시다.",
-            "en": "Let's settle pay first."
+            "en": "Let's settle pay first.",
+            "ja": "報酬から決めましょう。",
+            "zh": "先谈报酬。"
           },
           "tone": "mercenary",
           "preview_hint": {
             "ko": "→ 보수 +8000 GP, MCC -2",
-            "en": "→ +8000 GP, MCC -2"
+            "en": "→ +8000 GP, MCC -2",
+            "ja": "→ 報酬 +8000 GP, MCC -2",
+            "zh": "→ 报酬 +8000 GP, MCC -2"
           }
         }
       ]
@@ -538,7 +630,9 @@
         {
           "text": {
             "ko": "본부 밖. 차량 두 대. 팀원 세 명이 기다리고 있었다. 다들 표정이 없었다. 화성에서 표정 있는 사람을 보기 어려웠다. 표정은 사치였다.",
-            "en": "Outside headquarters. Two vehicles. Three team members waiting. All expressionless. Hard to find someone with an expression on Mars. Expressions were a luxury."
+            "en": "Outside headquarters. Two vehicles. Three team members waiting. All expressionless. Hard to find someone with an expression on Mars. Expressions were a luxury.",
+            "ja": "本部の外。車両二台。チームメンバー三人が待っていた。みな無表情だった。火星では表情のある人間を見るのが難しかった。表情は贅沢だった。",
+            "zh": "总部外面。两辆车。三名队员在等待。全都面无表情。在火星上很难见到有表情的人。表情是一种奢侈。"
           }
         }
       ]
@@ -553,9 +647,11 @@
         {
           "text": {
             "ko": "북쪽 하늘이 달랐다. 붉은 것이 아니었다. 어두웠다. 폭풍이 오는 방향이었다. 6시간이 맞는지 알 수 없었다. 화성 폭풍은 예측 시간보다 일찍 오는 경우가 있었다.",
-            "en": "The northern sky was different. Not red. Dark. The direction the storm was coming from. Whether six hours was accurate was uncertain. Martian storms sometimes came before the predicted time."
-          },
-          "overlay": "mcc_ch1_oxygen_rush_l23_00_dust_storm"
+            "en": "The northern sky was different. Not red. Dark. The direction the storm was coming from. Whether six hours was accurate was uncertain. Martian storms sometimes came before the predicted time.",
+            "ja": "北の空が違った。赤くはなかった。暗かった。嵐が来る方向だった。六時間が正確かはわからなかった。火星の嵐は予測より早く来ることがあった。",
+            "zh": "北边的天空不一样了。不是红色。是暗色。那是风暴来袭的方向。六小时是否准确，无从得知。火星风暴有时比预测提前到来。",
+            "overlay": "mcc_ch1_oxygen_rush_l23_00_dust_storm"
+          }
         }
       ]
     },
@@ -569,7 +665,9 @@
         {
           "text": {
             "ko": "헬라스 북부 수송로. 포장이 안 된 길이었다. 차량이 달렸다. 먼지가 올랐다. 먼지는 좋은 색이 아니었다. 화성의 먼지는 항상 그랬다. 좋지 않았다.",
-            "en": "Northern Hellas transport corridor. Unpaved road. The vehicle ran. Dust rose. The dust wasn't a good color. Martian dust was always like that. Not good."
+            "en": "Northern Hellas transport corridor. Unpaved road. The vehicle ran. Dust rose. The dust wasn't a good color. Martian dust was always like that. Not good.",
+            "ja": "ヘラス北部輸送路。舗装されていない道だった。車両が走った。埃が舞い上がった。埃はいい色ではなかった。火星の埃はいつもそうだった。よくなかった。",
+            "zh": "赫拉斯北部运输通道。未铺设的路。车辆飞驰而过。尘土飞扬。尘土的颜色不好看。火星的尘土一向如此。不好看。"
           }
         }
       ]
@@ -584,7 +682,9 @@
         {
           "text": {
             "ko": "무전기가 잡음을 냈다. 팀원 중 하나가 채널을 조정했다. 조정해도 잡음이 남았다. 화성에서 무전은 늘 잡음이 있었다. 잡음 속에서 들어야 했다.",
-            "en": "The radio crackled. One team member adjusted the channel. Noise remained after adjustment. Radio on Mars always had noise. You had to listen through the noise."
+            "en": "The radio crackled. One team member adjusted the channel. Noise remained after adjustment. Radio on Mars always had noise. You had to listen through the noise.",
+            "ja": "無線機がノイズを発した。チームメンバーの一人がチャンネルを調整した。調整してもノイズが残った。火星では無線にはいつもノイズがあった。ノイズの中で聞かなければならなかった。",
+            "zh": "无线电发出杂音。一名队员调整了频道。调整后杂音依然存在。火星上的无线电总有杂音。只能在杂音中听。"
           }
         }
       ]
@@ -599,7 +699,9 @@
         {
           "text": {
             "ko": "2시간이 지났다. 수송로 중간 지점. 호송 편대 흔적이 있었다. 바퀴 자국. 기름 자국. 최근의 것이었다. 앞에 있었다.",
-            "en": "Two hours passed. Midway along the transport corridor. Traces of the convoy. Tire tracks. Oil marks. Recent ones. Ahead."
+            "en": "Two hours passed. Midway along the transport corridor. Traces of the convoy. Tire tracks. Oil marks. Recent ones. Ahead.",
+            "ja": "二時間が過ぎた。輸送路の中間地点。護送車団の痕跡があった。タイヤ痕。油痕。最近のものだった。前方にあった。",
+            "zh": "过了两个小时。运输通道中间位置。有车队的痕迹。轮胎印。油迹。是最近留下的。在前方。"
           }
         }
       ]
@@ -614,7 +716,9 @@
         {
           "text": {
             "ko": "북쪽 하늘이 더 어두워졌다. 폭풍이 가속하고 있었다. 예측보다 빨랐다. 화성에서 예측보다 빠른 것들이 있었다. 폭풍이 그중 하나였다.",
-            "en": "The northern sky got darker. The storm was accelerating. Faster than predicted. On Mars some things were faster than predicted. The storm was one of them."
+            "en": "The northern sky got darker. The storm was accelerating. Faster than predicted. On Mars some things were faster than predicted. The storm was one of them.",
+            "ja": "北の空がさらに暗くなった。嵐が加速していた。予測より速かった。火星には予測より速いものがあった。嵐はそのひとつだった。",
+            "zh": "北边的天空更暗了。风暴在加速。比预测更快。在火星上，有些东西比预测更快。风暴就是其中之一。"
           }
         }
       ]
@@ -629,7 +733,9 @@
         {
           "text": {
             "ko": "호송 편대가 보였다. 탱크 트럭들. 36개의 탱크. 느리게 움직이고 있었다. 무거웠다. 850킬로톤은 무거웠다. 경호원 차량이 양옆에 있었다.",
-            "en": "The convoy was visible. Tank trucks. Thirty-six tanks. Moving slowly. Heavy. 850 kilotons was heavy. Guard vehicles on both sides."
+            "en": "The convoy was visible. Tank trucks. Thirty-six tanks. Moving slowly. Heavy. 850 kilotons was heavy. Guard vehicles on both sides.",
+            "ja": "護送車団が見えた。タンクトラック。三十六個のタンク。ゆっくり動いていた。重かった。八百五十キロトンは重かった。警護車両が両脇にいた。",
+            "zh": "车队出现了。罐车。三十六个罐体。缓慢移动。很重。八百五十千吨就是这么重。两侧有警卫车辆。"
           }
         }
       ]
@@ -644,7 +750,9 @@
         {
           "text": {
             "ko": "Helion 경호원들이 MCC 차량을 봤다. 속도를 높였다. Li Fang이 말한 대로였다. 막을 것이었다. 막는 것이 그들의 일이었다. 막히면 안 됐다. 6시간이 4시간이 됐다. 폭풍이 빠르게 오고 있었다.",
-            "en": "Helion guards spotted the MCC vehicles. They accelerated. Just as Li Fang said. They would block. Blocking was their job. Being blocked wasn't allowed. Six hours had become four hours. The storm was coming fast."
+            "en": "Helion guards spotted the MCC vehicles. They accelerated. Just as Li Fang said. They would block. Blocking was their job. Being blocked wasn't allowed. Six hours had become four hours. The storm was coming fast.",
+            "ja": "ヘリオンの警護員がMCC車両を見つけた。速度を上げた。リー・ファンが言った通りだった。阻もうとするだろう。阻むのが彼らの仕事だった。阻まれてはならなかった。六時間が四時間になった。嵐が急接近していた。",
+            "zh": "赫利昂警卫发现了MCC车辆。他们加速了。正如李芳所说。他们会阻拦。阻拦是他们的工作。不能被阻拦。六小时变成了四小时。风暴正在快速逼近。"
           }
         }
       ]
@@ -657,11 +765,15 @@
       "transition": "flash_white",
       "title": {
         "ko": "산소 회수 작전",
-        "en": "Oxygen Recovery"
+        "en": "Oxygen Recovery",
+        "ja": "酸素回収作戦",
+        "zh": "氧气回收行动"
       },
       "subtitle": {
         "ko": "헬라스 북부 — Dust Storm까지 4시간",
-        "en": "Northern Hellas — 4h to Storm"
+        "en": "Northern Hellas — 4h to Storm",
+        "ja": "ヘラス北部 — ダストストームまで4時間",
+        "zh": "赫拉斯北部 — 距沙尘暴4小时"
       }
     },
     {
@@ -683,7 +795,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "산소 전량 회수.",
-            "en": "Full recovery."
+            "en": "Full recovery.",
+            "ja": "酸素全量回収。",
+            "zh": "氧气全数回收。"
           }
         },
         {
@@ -691,7 +805,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "탱크 손상 없음. 폭풍 도달 전 완료. 기록에 남아.",
-            "en": "No tank damage. Completed before storm arrival. It goes in the record."
+            "en": "No tank damage. Completed before storm arrival. It goes in the record.",
+            "ja": "タンク損傷なし。嵐の到達前に完了。記録に残る。",
+            "zh": "罐体无损。风暴到来前完成。记入档案。"
           }
         },
         {
@@ -699,7 +815,9 @@
           "emotion": "thoughtful",
           "text": {
             "ko": "나쁘지 않았어. 화성 경력 없는 사람치고.",
-            "en": "Not bad. For someone with no Mars experience."
+            "en": "Not bad. For someone with no Mars experience.",
+            "ja": "悪くなかった。火星の経験がない人間にしては。",
+            "zh": "不错。对于一个没有火星经验的人来说。"
           }
         },
         {
@@ -707,7 +825,9 @@
           "emotion": "neutral",
           "text": {
             "ko": "다음엔 더 어려워질 거야. 화성에선 늘 그래.",
-            "en": "Next time will be harder. That's Mars."
+            "en": "Next time will be harder. That's Mars.",
+            "ja": "次はもっと難しくなる。火星ではそういうものだ。",
+            "zh": "下次会更难。火星就是这样。"
           }
         }
       ]
@@ -722,7 +842,9 @@
         {
           "text": {
             "ko": "브리핑 룸 형광등이 깜빡였다. Li Fang은 지도를 정리했다. 지도 위의 호송 편대 표시가 사라졌다. 임무가 끝나면 표시는 사라졌다. 다음 표시가 생길 것이었다. 화성에서 표시는 늘 생겼다.",
-            "en": "The briefing room light flickered. Li Fang cleared the map. The convoy marker disappeared. When missions ended markers disappeared. New markers would appear. On Mars markers always appeared."
+            "en": "The briefing room light flickered. Li Fang cleared the map. The convoy marker disappeared. When missions ended markers disappeared. New markers would appear. On Mars markers always appeared.",
+            "ja": "ブリーフィングルームの蛍光灯が点滅した。リー・ファンが地図を片付けた。地図上の護送車団マーカーが消えた。任務が終わればマーカーは消えた。次のマーカーが現れるだろう。火星ではマーカーは必ず現れた。",
+            "zh": "简报室的荧光灯闪烁了。李芳收起了地图。地图上的车队标记消失了。任务结束，标记就消失。接下来会有新的标记出现。在火星上，标记总是出现。"
           }
         }
       ]
@@ -740,7 +862,9 @@
           "effect": "character_enter:lifang:slide_left",
           "text": {
             "ko": "산소가 폭풍 속에서 사라졌어.",
-            "en": "The oxygen vanished in the storm."
+            "en": "The oxygen vanished in the storm.",
+            "ja": "酸素が嵐の中で消えた。",
+            "zh": "氧气消失在风暴里了。"
           }
         },
         {
@@ -748,7 +872,9 @@
           "emotion": "cold",
           "text": {
             "ko": "1200만 명이 일주일간 부족해. 그 숫자 기억해.",
-            "en": "Twelve million short for a week. Remember that number."
+            "en": "Twelve million short for a week. Remember that number.",
+            "ja": "一千二百万人が一週間分不足する。その数字を覚えておけ。",
+            "zh": "一千两百万人短缺一周。记住这个数字。"
           }
         },
         {
@@ -756,7 +882,9 @@
           "emotion": "serious",
           "text": {
             "ko": "회사는 다음 기회를 만들 거야. 화성은 실수를 기억해. 그것도 알아둬.",
-            "en": "The company will create another chance. Mars remembers mistakes. Know that too."
+            "en": "The company will create another chance. Mars remembers mistakes. Know that too.",
+            "ja": "会社は次のチャンスを作るだろう。火星は失敗を覚えている。それも覚えておけ。",
+            "zh": "公司会创造下一次机会。火星会记住失误。这也要知道。"
           }
         },
         {
@@ -764,7 +892,9 @@
           "emotion": "cold",
           "text": {
             "ko": "다음엔 실수하지 마.",
-            "en": "Don't make mistakes next time."
+            "en": "Don't make mistakes next time.",
+            "ja": "次は失敗するな。",
+            "zh": "下次不要再犯错。"
           }
         }
       ]
@@ -779,7 +909,9 @@
         {
           "text": {
             "ko": "헬라스 센트럴의 불빛이 켜졌다. 밤이었다. 화성의 밤은 길었다. 건물 안에서 MCC는 계속 돌아갔다. 멈추는 법이 없었다. 당신도 그 안에 있었다.",
-            "en": "The lights of Hellas Central came on. It was night. The Martian night was long. Inside the building MCC kept running. It never stopped. You were inside it now."
+            "en": "The lights of Hellas Central came on. It was night. The Martian night was long. Inside the building MCC kept running. It never stopped. You were inside it now.",
+            "ja": "ヘラス・セントラルの灯りが点いた。夜だった。火星の夜は長かった。建物の中でMCCは動き続けた。止まることはなかった。あなたもその中にいた。",
+            "zh": "赫拉斯中央的灯亮了。是夜晚。火星的夜晚很漫长。建筑内部，MCC依然在运转。它从不停歇。你也在其中了。"
           }
         }
       ]
@@ -794,7 +926,9 @@
         {
           "text": {
             "ko": "북쪽에서 폭풍이 지나갔다. 헬라스 센트럴 창문이 흔들렸다. 잠깐이었다. 건물이 흔들렸지만 무너지지 않았다. 60년 된 건물이었다. 60년 동안 폭풍을 버텼다. 내일도 버틸 것이었다.",
-            "en": "The storm passed in the north. Hellas Central windows shook. Briefly. The building shook but didn't fall. A sixty-year-old building. It had weathered storms for sixty years. It would weather tomorrow's too."
+            "en": "The storm passed in the north. Hellas Central windows shook. Briefly. The building shook but didn't fall. A sixty-year-old building. It had weathered storms for sixty years. It would weather tomorrow's too.",
+            "ja": "北で嵐が過ぎた。ヘラス・セントラルの窓が揺れた。一瞬だった。建物は揺れたが崩れなかった。六十年の建物だった。六十年間、嵐に耐えてきた。明日も耐えるだろう。",
+            "zh": "北边的风暴过去了。赫拉斯中央的窗户颤抖了。只是片刻。建筑摇晃了，但没有倒塌。一栋六十年的建筑。它已经经历了六十年的风暴。明天也还会坚持。"
           }
         }
       ]
@@ -809,16 +943,20 @@
         {
           "text": {
             "ko": "Li Fang은 창문 앞에 서서 북쪽 하늘을 보았다. 폭풍이 지나가는 방향이었다. 그가 무슨 생각을 하는지 알 수 없었다. 화성에서 그런 것을 알려는 사람은 없었다. 다들 자기 생각이 바빴다.\n\n첫날이었다.",
-            "en": "Li Fang stood at the window looking at the northern sky. The direction the storm was passing. What he was thinking was unknowable. On Mars nobody tried to know that. Everyone was busy with their own thoughts.\n\nIt was the first day."
-          },
-          "overlay": "mcc_ch1_oxygen_rush_l37_00_alone_window"
+            "en": "Li Fang stood at the window looking at the northern sky. The direction the storm was passing. What he was thinking was unknowable. On Mars nobody tried to know that. Everyone was busy with their own thoughts.\n\nIt was the first day.",
+            "ja": "リー・ファンは窓の前に立ち、北の空を見ていた。嵐が過ぎていく方向だった。彼が何を考えているかはわからなかった。火星でそれを知ろうとする人間はいなかった。みな自分の考えで頭がいっぱいだった。\n\n最初の日だった。",
+            "zh": "李芳站在窗前望着北边的天空。那是风暴经过的方向。他在想什么，无从得知。在火星上，没有人会去探究那种事。大家都忙着想自己的事。\n\n这是第一天。",
+            "overlay": "mcc_ch1_oxygen_rush_l37_00_alone_window"
+          }
         }
       ],
       "next_chapter_preview": {
         "questId": "mcc_campaign_ch2",
         "teaser": {
           "ko": "다음 — First Audit",
-          "en": "Next — First Audit"
+          "en": "Next — First Audit",
+          "ja": "次回 — First Audit",
+          "zh": "下一章 — First Audit"
         }
       }
     }
