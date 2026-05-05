@@ -6248,31 +6248,31 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
     <!-- 대카테고리 바 -->
     <div class="base-cat-row" id="baseCatRow">
-      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)">🗺️ 영토</button>
-      <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)">⚓ 함대</button>
-      <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)">💰 경제</button>
-      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)">📋 임무</button>
-      <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)">🏛️ 커뮤니티</button>
+      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)">🗺️ <span data-i18n="bcat_territory">Territory</span></button>
+      <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)">⚓ <span data-i18n="bcat_fleet">Fleet</span></button>
+      <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)">💰 <span data-i18n="bcat_economy">Economy</span></button>
+      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)">📋 <span data-i18n="bcat_mission">Mission</span></button>
+      <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)">🏛️ <span data-i18n="bcat_community">Community</span></button>
     </div>
     <!-- 서브탭 (카테고리별로 보임/숨김) -->
     <div class="base-tabs" id="baseTabsRow">
       <!-- 영토 -->
-      <div class="base-tab cat-show active" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span>내 영토</span><span class="tab-dot" id="territoryDot"></span></div>
-      <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span>섹터</span><span class="tab-dot" id="sectorsDot"></span></div>
+      <div class="base-tab cat-show active" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
+      <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
       <!-- 함대 -->
-      <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this)" style="color:#5cbbff"><span>⚓ 함대</span></div>
+      <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this)" style="color:#5cbbff"><span>⚓ <span data-i18n="bcat_fleet">Fleet</span></span></div>
       <div class="base-tab" data-cat="fleet" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span>⚔ PVP</span><span class="tab-dot" id="pvpDot"></span></div>
       <!-- 경제 -->
-      <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span>🛒 상점</span><span class="tab-dot" id="shopDot"></span></div>
-      <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span>마켓</span><span class="tab-dot" id="marketDot"></span></div>
+      <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span>🛒 <span data-i18n="base_tab_shop">SHOP</span></span><span class="tab-dot" id="shopDot"></span></div>
+      <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
       <!-- 임무 (퀘스트/작전/수송/시즌 — 직접 행동·진행 계열) -->
-      <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span>캠페인/퀘스트</span><span class="tab-dot" id="questsDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span>작전</span><span class="tab-dot" id="opsDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span>수송</span><span class="tab-dot" id="transportDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span>시즌</span><span class="tab-dot" id="rankDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
       <!-- 커뮤니티 (길드·거버넌스) -->
-      <div class="base-tab" data-cat="community" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span>길드</span><span class="tab-dot" id="guildDot"></span></div>
-      <div class="base-tab" data-cat="community" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span>거버넌스</span><span class="tab-dot" id="governDot"></span></div>
+      <div class="base-tab" data-cat="community" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
+      <div class="base-tab" data-cat="community" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
     </div>
     <div class="base-body">
 
@@ -6533,20 +6533,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane" id="basePane_fleet">
         <!-- 빠른 액션 버튼 (작게) -->
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-          <button type="button" onclick="openShipyard()" style="padding:6px 14px;border-radius:16px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">🔨 조선소</button>
-          <button type="button" onclick="openFleetCmd()" style="padding:6px 14px;border-radius:16px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">⚔ 내 함대</button>
+          <button type="button" onclick="openShipyard()" style="padding:6px 14px;border-radius:16px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">🔨 <span data-i18n="fcmd_open_shipyard_short">Shipyard</span></button>
+          <button type="button" onclick="openFleetCmd()" style="padding:6px 14px;border-radius:16px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">⚔ <span data-i18n="fcmd_my_fleets_short">My Fleets</span></button>
           <button type="button" onclick="switchBaseCat('fleet',document.querySelector('.bcat[data-cat=fleet]'));switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="padding:6px 14px;border-radius:16px;background:rgba(255,138,128,.12);border:1px solid rgba(255,138,128,.4);color:#ff8a80;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer">⚡ PVP</button>
-          <button type="button" onclick="openTacticalLab()" style="padding:6px 14px;border-radius:16px;background:rgba(206,147,216,.07);border:1px solid rgba(206,147,216,.25);color:rgba(206,147,216,.6);font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;margin-left:auto">🧪 전술랩</button>
+          <button type="button" onclick="openTacticalLab()" style="padding:6px 14px;border-radius:16px;background:rgba(206,147,216,.07);border:1px solid rgba(206,147,216,.25);color:rgba(206,147,216,.6);font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;margin-left:auto">🧪 <span data-i18n="fcmd_tactical_lab">Tactical Lab</span></button>
         </div>
         <!-- 함대 현황 요약 -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px">⚓ 내 함대 현황</div>
-          <button type="button" onclick="_loadFleetTabSummary()" style="font-size:8px;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;font-family:var(--fn)">↻ 새로고침</button>
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px">⚓ <span data-i18n="fleet_status_label">Fleet Status</span></div>
+          <button type="button" onclick="_loadFleetTabSummary()" style="font-size:8px;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="btn_refresh">↻ Refresh</button>
         </div>
         <div id="fleetTabSummary" style="margin-bottom:12px"></div>
         <!-- 월드 이벤트 -->
         <div style="border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px">
-          <div style="font-size:9px;color:var(--mars);font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:8px">⚠ 활성 월드 이벤트</div>
+          <div style="font-size:9px;color:var(--mars);font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:8px">⚠ <span data-i18n="fleet_world_events">Active World Events</span></div>
           <div id="fleetTabWorldEvents" style="display:flex;flex-direction:column;gap:5px;font-size:9px;color:var(--tx3)">Loading…</div>
         </div>
       </div>
@@ -14618,17 +14618,17 @@ function openClaimModal(){
             _di.style.border='1px solid rgba(255,153,68,.4)';
             _di.style.color='#FFD0A0';
             if(_dic) _dic.textContent='⚠';
-            _dt.textContent='상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)';
+            _dt.textContent=t('hijack_no_fleet_auto_win')||'상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)';
           }else{
             _di.style.background='rgba(232,72,85,.1)';
             _di.style.border='1px solid rgba(232,72,85,.4)';
             _di.style.color='#ffb4b4';
             if(_dic) _dic.textContent='⚔';
-            _dt.textContent='상대 함대 '+fleets+'개 · 함선 '+ships+'척 → 함대전 발생';
+            _dt.textContent=LANG==='ko'?('상대 함대 '+fleets+'개 · 함선 '+ships+'척 → 함대전 발생'):(fleets+' fleet(s) · '+ships+' ship(s) → Fleet Battle');
           }
         })
         .catch(function(){
-          _dt.textContent='상대 함대 정보 확인 실패';
+          _dt.textContent=t('hijack_fleet_info_fail')||'상대 함대 정보 확인 실패';
           _di.style.background='rgba(255,255,255,.04)';
           _di.style.border='1px solid rgba(255,255,255,.15)';
           _di.style.color='var(--tx3)';
@@ -14680,7 +14680,7 @@ function openClaimModal(){
   var _blockedSec=_getBlockedSector(selectedPlot.lat, selectedPlot.lng);
   if(_blockedSec){
     var _myLv2=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
-    if(_lvWarn){_lvWarn.style.display='';_lvWarn.textContent='🔒 이 섹터는 Lv '+_blockedSec.entryMinLevel+' 이상만 구매 가능 (현재 Lv '+_myLv2+')';}
+    if(_lvWarn){_lvWarn.style.display='';_lvWarn.textContent=LANG==='ko'?('🔒 이 섹터는 Lv '+_blockedSec.entryMinLevel+' 이상만 구매 가능 (현재 Lv '+_myLv2+')'):'🔒 This sector requires Lv '+_blockedSec.entryMinLevel+' (current Lv '+_myLv2+')';}
     if(_cfmBtn){_cfmBtn.disabled=true;_cfmBtn.style.opacity='0.4';_cfmBtn.style.cursor='not-allowed';}
   }else{
     if(_lvWarn) _lvWarn.style.display='none';
@@ -16006,7 +16006,12 @@ var I18N = {
     base_tab_territory: 'MY TERRITORY', base_tab_sectors: 'SECTORS', base_tab_season: 'SEASON',
     base_tab_mining: 'MINING', base_tab_quests: 'QUESTS', base_tab_ops: 'OPS',
     base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN',
-    base_tab_transport: 'TRANSPORT',
+    base_tab_transport: 'TRANSPORT', base_tab_quests_full: 'CAMPAIGN/QUESTS',
+    bcat_territory: 'Territory', bcat_fleet: 'Fleet', bcat_economy: 'Economy', bcat_mission: 'Mission', bcat_community: 'Community',
+    fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_tactical_lab: 'Tactical Lab',
+    fleet_status_label: 'Fleet Status', fleet_world_events: 'Active World Events', btn_refresh: '↻ Refresh',
+    hijack_no_fleet_auto_win: 'No enemy fleet — Auto Win (instant territory transfer)',
+    hijack_fleet_info_fail: 'Failed to load enemy fleet info',
     // ── Transport (M-158 Phase C) ──
     transport_title: 'INTER-SECTOR TRANSPORT',
     transport_desc: 'Ship GP cargo between sectors. Merchants earn bonuses. Raiders can steal mid-transit.',
@@ -16470,6 +16475,7 @@ var I18N = {
     sy_filter_size: 'SIZE:', sy_size_all: 'ALL', sy_size_frigate: 'Frigate', sy_size_destroyer: 'Destroyer', sy_size_cruiser: 'Cruiser', sy_size_battleship: 'Battleship', sy_size_titan: 'Titan',
     sy_filter_faction: 'FACTION:', sy_filter_size2: 'SIZE:',
     sy_mineral_label: 'Minerals Owned', sy_ships_label: 'Ships',
+    ship_mkt_buy: 'Buy', ship_mkt_cancel: 'Cancel Listing',
     gov_battle_title: '⚔️ NAVAL BATTLES', gov_battle_hint: 'Connect wallet to view battles.',
     gov_battle_active: 'ACTIVE BATTLES', gov_battle_declare: 'DECLARE ATTACK',
     gov_battle_declared: 'Battle declared! Awaiting defender response.',
@@ -16719,7 +16725,12 @@ var I18N = {
     base_tab_territory: '내 영토', base_tab_sectors: '섹터', base_tab_season: '시즌',
     base_tab_mining: '채굴', base_tab_quests: '퀘스트', base_tab_ops: '작전',
     base_tab_shop: '상점', base_tab_market: '마켓', base_tab_guild: '길드', base_tab_govern: '거버넌스',
-    base_tab_transport: '수송',
+    base_tab_transport: '수송', base_tab_quests_full: '캠페인/퀘스트',
+    bcat_territory: '영토', bcat_fleet: '함대', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
+    fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_tactical_lab: '전술랩',
+    fleet_status_label: '내 함대 현황', fleet_world_events: '활성 월드 이벤트', btn_refresh: '↻ 새로고침',
+    hijack_no_fleet_auto_win: '상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)',
+    hijack_fleet_info_fail: '상대 함대 정보 확인 실패',
     // ── 직업 시스템 ──
     job_label: '직업', job_none: '운명을 선택하세요', job_locked: 'Lv.{n} 달성 후 해금',
     job_choose_btn: '선택 ▶', job_change_btn: '직업 변경',
@@ -17169,6 +17180,7 @@ var I18N = {
     sy_filter_size: '함급:', sy_size_all: '전체', sy_size_frigate: '프리깃', sy_size_destroyer: '구축함', sy_size_cruiser: '순양함', sy_size_battleship: '전함', sy_size_titan: '타이탄',
     sy_filter_faction: '파벌:', sy_filter_size2: '크기:',
     sy_mineral_label: '광물 보유', sy_ships_label: '함선',
+    ship_mkt_buy: '구매', ship_mkt_cancel: '판매 취소',
     gov_battle_title: '⚔️ 해상 전투', gov_battle_hint: '지갑을 연결하여 전투를 확인하세요.',
     gov_battle_active: '진행 중인 전투', gov_battle_declare: '전투 선포',
     gov_battle_declared: '전투 선포 완료! 수비자의 응답을 기다리는 중.',
@@ -17430,7 +17442,12 @@ var I18N = {
     base_tab_territory: 'マイ領土', base_tab_sectors: 'セクター', base_tab_season: 'シーズン',
     base_tab_mining: 'マイニング', base_tab_quests: 'クエスト', base_tab_ops: '作戦',
     base_tab_shop: 'ショップ', base_tab_market: 'マーケット', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
-    base_tab_transport: '輸送',
+    base_tab_transport: '輸送', base_tab_quests_full: 'キャンペーン/クエスト',
+    bcat_territory: '領土', bcat_fleet: '艦隊', bcat_economy: '経済', bcat_mission: 'ミッション', bcat_community: 'コミュニティ',
+    fcmd_open_shipyard_short: '造船所', fcmd_my_fleets_short: '艦隊管理', fcmd_tactical_lab: '戦術ラボ',
+    fleet_status_label: '艦隊状況', fleet_world_events: 'アクティブイベント', btn_refresh: '↻ 更新',
+    hijack_no_fleet_auto_win: '敵艦隊なし — 自動勝利（即時領土移転）',
+    hijack_fleet_info_fail: '敵艦隊情報の読み込み失敗',
     // ── ジョブシステム ──
     job_label: 'ジョブ', job_none: '運命を選んでください', job_locked: 'Lv.{n}で解放',
     job_choose_btn: '選択 ▶', job_change_btn: 'ジョブ変更',
@@ -17871,6 +17888,7 @@ var I18N = {
     sy_filter_size: '艦級:', sy_size_all: '全て', sy_size_frigate: 'フリゲート', sy_size_destroyer: '駆逐艦', sy_size_cruiser: '巡洋艦', sy_size_battleship: '戦艦', sy_size_titan: 'タイタン',
     sy_filter_faction: '勢力:', sy_filter_size2: 'サイズ:',
     sy_mineral_label: '鉱物所有', sy_ships_label: '艦船',
+    ship_mkt_buy: '購入', ship_mkt_cancel: '出品取消',
     gov_battle_title: '⚔️ 海戦', gov_battle_hint: 'ウォレットを接続して海戦を確認。',
     gov_battle_active: '進行中の戦闘', gov_battle_declare: '戦闘宣言',
     gov_battle_declared: '戦闘宣言！防衛者の応答待ち。',
@@ -18124,7 +18142,12 @@ var I18N = {
     base_tab_territory: '我的领土', base_tab_sectors: '区域', base_tab_season: '赛季',
     base_tab_mining: '采矿', base_tab_quests: '任务', base_tab_ops: '作战',
     base_tab_shop: '商店', base_tab_market: '市场', base_tab_guild: '公会', base_tab_govern: '治理',
-    base_tab_transport: '运输',
+    base_tab_transport: '运输', base_tab_quests_full: '战役/任务',
+    bcat_territory: '领土', bcat_fleet: '舰队', bcat_economy: '经济', bcat_mission: '任务', bcat_community: '社区',
+    fcmd_open_shipyard_short: '造船厂', fcmd_my_fleets_short: '我的舰队', fcmd_tactical_lab: '战术实验室',
+    fleet_status_label: '舰队状态', fleet_world_events: '活跃世界事件', btn_refresh: '↻ 刷新',
+    hijack_no_fleet_auto_win: '无敌方舰队 — 自动胜利（即时领土转移）',
+    hijack_fleet_info_fail: '加载敌方舰队信息失败',
     // ── 职业系统 ──
     job_label: '职业', job_none: '选择你的命运', job_locked: '达到Lv.{n}后解锁',
     job_choose_btn: '选择 ▶', job_change_btn: '更换职业',
@@ -18565,6 +18588,7 @@ var I18N = {
     sy_filter_size: '舰级:', sy_size_all: '全部', sy_size_frigate: '护卫舰', sy_size_destroyer: '驱逐舰', sy_size_cruiser: '巡洋舰', sy_size_battleship: '战列舰', sy_size_titan: '泰坦',
     sy_filter_faction: '势力:', sy_filter_size2: '大小:',
     sy_mineral_label: '矿石持有', sy_ships_label: '舰船',
+    ship_mkt_buy: '购买', ship_mkt_cancel: '取消上架',
     gov_battle_title: '⚔️ 海战', gov_battle_hint: '连接钱包以查看海战。',
     gov_battle_active: '进行中的战斗', gov_battle_declare: '宣战',
     gov_battle_declared: '已宣战！等待防守方响应。',
@@ -43728,16 +43752,20 @@ function syOwnedResourceQty(code) {
 }
 
 function syResourceName(code) {
-  return (MINERAL_ICONS[code] || '') + ' ' + (MINERAL_KO[code] || code);
+  var nameMap = LANG === 'ko' ? MINERAL_KO : MINERAL_EN;
+  return (MINERAL_ICONS[code] || '') + ' ' + (nameMap[code] || MINERAL_EN[code] || code);
 }
 
 function syRequirementStatusText(have, need) {
-  return syFmt(have) + ' 보유 / ' + syFmt(need) + ' 필요';
+  if (LANG==='ko') return syFmt(have) + ' 보유 / ' + syFmt(need) + ' 필요';
+  if (LANG==='ja') return syFmt(have) + ' 所持 / ' + syFmt(need) + ' 必要';
+  if (LANG==='zh') return '持有 ' + syFmt(have) + ' / 需要 ' + syFmt(need);
+  return syFmt(have) + ' owned / ' + syFmt(need) + ' needed';
 }
 
 function syNeedChip(label, have, need, okClass) {
   var enough = Number(have) >= Number(need);
-  var state = enough ? '보유' : '부족';
+  var state = enough ? (LANG==='ko'?'보유':LANG==='ja'?'所持':LANG==='zh'?'足够':'OK') : (LANG==='ko'?'부족':LANG==='ja'?'不足':LANG==='zh'?'不足':'Low');
   return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + (okClass ? ' ' + okClass : '') + '" title="' + syRequirementStatusText(have, need) + '">' +
     '<span class="req-state">' + state + '</span><span>' + fcEsc(label) + '</span><b>' + syFmt(have) + '</b><span class="need">/ ' + syFmt(need) + '</span>' +
   '</span>';
@@ -44030,11 +44058,15 @@ function syUpgradeBtn(ship, stat, label) {
   var matNeed = offer ? Number(offer.material_qty || 0) : 0;
   var matShort = offer && matHave < matNeed;
   var tierBadge = offer ? syUpgradeTierBadge(offer.material_tier || 1) : '';
-  var material = offer ? (tierBadge + (matShort ? '부족 ' : '보유 ') + syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
-  return '<button class="ship-upgrade-btn ' + (gpShort || matShort ? 'need' : '') + '" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + label + ' 영구 강화">' +
+  var _matOkLbl = LANG==='ko'?'보유':LANG==='ja'?'所持':LANG==='zh'?'足够':'OK';
+  var _matShortLbl = LANG==='ko'?'부족':LANG==='ja'?'不足':LANG==='zh'?'不足':'Low';
+  var _successLbl = LANG==='ko'?'% 성공':LANG==='ja'?'% 成功':LANG==='zh'?'% 成功':'% success';
+  var _upgradeTip = LANG==='ko'?label+' 영구 강화':label+' permanent upgrade';
+  var material = offer ? (tierBadge + (matShort ? _matShortLbl+' ' : _matOkLbl+' ') + syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
+  return '<button class="ship-upgrade-btn ' + (gpShort || matShort ? 'need' : '') + '" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + _upgradeTip + '">' +
     label + ' +' +
     '<span class="cost ' + (gpShort ? 'short' : '') + '">' + cost + '</span>' +
-    (offer ? '<span class="chance">' + offer.chance + '% 성공</span><span class="mat ' + (matShort ? 'short' : 'ok') + '">' + material + '</span>' : '') +
+    (offer ? '<span class="chance">' + offer.chance + _successLbl + '</span><span class="mat ' + (matShort ? 'short' : 'ok') + '">' + material + '</span>' : '') +
   '</button>';
 }
 
@@ -44395,8 +44427,8 @@ function renderShipMarket() {
       '<div class="ship-market-meta"><span>SELLER</span><span>' + fcEsc(seller) + '</span></div>' +
       '<div class="ship-sale-actions">' +
         (s.is_mine
-          ? '<button class="ship-sale-btn cancel" onclick="syCancelShipListing(' + s.listing_id + ')">판매 취소</button>'
-          : '<button class="ship-sale-btn" onclick="syBuyShipListing(' + s.listing_id + ')">구매</button>') +
+          ? '<button class="ship-sale-btn cancel" onclick="syCancelShipListing(' + s.listing_id + ')" data-i18n="ship_mkt_cancel">Cancel Listing</button>'
+          : '<button class="ship-sale-btn" onclick="syBuyShipListing(' + s.listing_id + ')" data-i18n="ship_mkt_buy">Buy</button>') +
       '</div>' +
     '</div>';
   }).join('');
@@ -44510,6 +44542,14 @@ var MINERAL_KO = {
   iron_ore:'철광석', carbon_fiber:'탄소섬유', silicon_chip:'실리콘칩',
   titanium_alloy:'티타늄합금', plasma_crystal:'플라즈마결정', nano_polymer:'나노폴리머',
   dark_matter:'암흑물질', quantum_core:'퀀텀코어', exotic_alloy:'이그조틱합금'
+};
+var MINERAL_EN = {
+  iron_dust:'Iron Dust', red_sand:'Red Sand', regolith_ore:'Regolith Ore', basalt_chip:'Basalt Chip',
+  ice_crystal:'Ice Crystal', volcanic_shard:'Volcanic Shard', plasma_dust:'Plasma Dust', ancient_metal:'Ancient Metal',
+  meteorite_fragment:'Meteorite', xenomatter:'Xenomatter', hull_plate:'Hull Plate', plasma_coil:'Plasma Coil', alloy_frame:'Alloy Frame',
+  iron_ore:'Iron Ore', carbon_fiber:'Carbon Fiber', silicon_chip:'Silicon Chip',
+  titanium_alloy:'Titanium Alloy', plasma_crystal:'Plasma Crystal', nano_polymer:'Nano Polymer',
+  dark_matter:'Dark Matter', quantum_core:'Quantum Core', exotic_alloy:'Exotic Alloy'
 };
 </script>
 
