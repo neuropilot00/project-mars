@@ -352,7 +352,7 @@ async function getActiveRaidTargets(excludeWallet, limit = 30) {
     if (cfg.raidGuildExempt && excludeWallet) {
       const client = await pool.connect();
       try {
-        if (await sameGuild(client, excludeWallet, r.carrier_wallet)) { client.release(); continue; }
+        if (await sameGuild(client, excludeWallet, r.carrier_wallet)) { continue; }
       } finally { client.release(); }
     }
     raidables.push(r);

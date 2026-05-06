@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.81 — DB 커넥션 더블 릴리즈 전수 스캔 및 추가 수정
+
+### server/routes/api.js (3곳)
+- 픽셀 클레임 라우트 내 for-loop 픽셀 검증 로직 3곳에서 `client.release()` 제거.
+  - Peace Treaty 차단 경로, Marketplace lock 차단 경로, Shield 차단 경로
+  - `finally { client.release() }` 가 항상 실행되므로 이중 릴리즈 발생했던 버그 수정.
+
+### server/services/transport.js (1곳)
+- `getRaidables()` 함수의 guild 면제 검사 for-loop 내 `client.release(); continue` → `continue`만 남김.
+  - `finally { client.release() }` 와 이중 릴리즈 발생했던 버그 수정.
+
+### 전수 스캔 결과
+- Python 스크립트로 `server/**/*.js` 전체 파일 자동 스캔 — 위 2건 외 추가 더블 릴리즈 없음.
+- `arena.js` 3곳: try/catch without finally 패턴 — 각 경로 단일 release로 안전.
+
+---
+
 ## 2026-05-07 v6.80 — 스케줄러 DB 커넥션 더블 릴리즈 수정
 
 ### server/index.js (4곳)

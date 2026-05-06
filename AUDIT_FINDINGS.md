@@ -1,5 +1,23 @@
 # OCCUPY MARS — Codebase Audit (v6.80 / 2026-05-07)
 
+## 🔴→✅ v6.81 — DB 커넥션 더블 릴리즈 전수 스캔·수정 (2026-05-07)
+
+**스캔 방법**: Python으로 전체 `server/**/*.js` 파일에서 `client.release()` 호출을 파싱, 이전 줄이 `finally` 가 아닌 패턴을 추출.
+
+**발견 및 수정**:
+
+| 파일 | 위치 | 패턴 | 수정 |
+|------|------|------|------|
+| `server/routes/api.js` | 픽셀 클레임 for-loop (L984, L993, L1004) | `ROLLBACK; client.release(); return` inside try/finally | `client.release()` 3곳 제거 |
+| `server/services/transport.js` | `getRaidables()` for-loop (L355) | `client.release(); continue` inside try/finally | `client.release()` 제거 |
+
+**검증 클린**:
+- `server/index.js` — 이전 수정(v6.80) 이후 클린
+- `server/routes/arena.js` — try/catch without finally 패턴 (각 경로 단일 release, 더블 릴리즈 없음)
+- 나머지 모든 서비스/라우트 — `finally { client.release() }` 단일 경로 확인
+
+---
+
 ## 🔴→✅ v6.80 — 스케줄러 더블 릴리즈 버그 수정 (2026-05-07)
 
 **버그**: `server/index.js` AUTO-RENEW 스케줄러의 for-loop 안에서 `try` 블록 내부 early `continue` 경로 4곳에 `client.release()`가 있었으나, 동일 블록에 `finally { client.release() }`가 항상 실행되어 **더블 릴리즈** 발생.

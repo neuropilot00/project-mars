@@ -983,7 +983,6 @@ router.post('/claim', writeLimiter, async (req, res) => {
           // Peace treaty blocks all hijacks
           if (_isPeaceTreaty) {
             await client.query('ROLLBACK');
-            client.release();
             return res.status(400).json({ error: 'Peace Treaty active — hijacking is temporarily disabled' });
           }
           // Marketplace lock blocks hijacks on listed territory
@@ -991,7 +990,6 @@ router.post('/claim', writeLimiter, async (req, res) => {
             const mlRes = await client.query('SELECT marketplace_locked FROM claims WHERE id = $1', [existing.claim_id]);
             if (mlRes.rows.length && mlRes.rows[0].marketplace_locked) {
               await client.query('ROLLBACK');
-              client.release();
               return res.status(400).json({ error: 'This territory is listed on the marketplace and cannot be hijacked' });
             }
           }
@@ -1002,7 +1000,6 @@ router.post('/claim', writeLimiter, async (req, res) => {
               if (shield) {
                 const minutesLeft = Math.ceil((new Date(shield.expires_at) - Date.now()) / 60000);
                 await client.query('ROLLBACK');
-                client.release();
                 return res.status(400).json({
                   error: `Territory is shielded for ${minutesLeft} more minute(s)`,
                   shielded: true, shieldExpiresAt: shield.expires_at
