@@ -42,6 +42,38 @@ function handleErr(res, err, context) {
   res.status(500).json({ error: 'SERVER_ERROR' });
 }
 
+async function getHallOfFameBoard({ category = null, seasonId = null, allTime = false, limit = 20 } = {}) {
+  const { pool } = require('../db');
+  const where = [];
+  const params = [];
+
+  if (category) {
+    params.push(category);
+    where.push(`h.category = $${params.length}`);
+  }
+  if (seasonId) {
+    params.push(seasonId);
+    where.push(`h.season_id = $${params.length}`);
+  }
+  if (allTime) {
+    where.push('h.is_all_time = true');
+  }
+
+  params.push(limit);
+  const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const { rows } = await pool.query(`
+    SELECT h.*, u.nickname, u.wallet_address, g.name AS guild_name
+    FROM hall_of_fame h
+    LEFT JOIN users u ON u.wallet_address = h.user_wallet
+    LEFT JOIN guilds g ON g.id = h.guild_id
+    ${whereSql}
+    ORDER BY h.is_featured DESC, h.achieved_at DESC
+    LIMIT $${params.length}
+  `, params);
+
+  return rows;
+}
+
 // ═══════════════════════════════════════════════════════════════
 
 /**
@@ -103,7 +135,7 @@ router.get('/', async (req, res) => {
       limit = 20,
     } = req.query;
 
-    const board = await titleExt.getHallOfFameBoard({
+    const board = await getHallOfFameBoard({
       category: category || null,
       seasonId: seasonId ? parseInt(seasonId) : null,
       allTime: allTime === 'true',
@@ -120,7 +152,7 @@ router.get('/', async (req, res) => {
  */
 router.get('/:category', async (req, res) => {
   try {
-    const board = await titleExt.getHallOfFameBoard({
+    const board = await getHallOfFameBoard({
       category: req.params.category,
       limit: 10,
     });
