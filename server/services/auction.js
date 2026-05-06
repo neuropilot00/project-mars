@@ -568,9 +568,9 @@ async function getUserAuctions(wallet) {
      FROM auctions a
      LEFT JOIN item_instances ii ON ii.id = a.item_instance_id
      LEFT JOIN item_types it ON it.id = ii.item_type_id
-     WHERE a.seller_wallet = $1
-        OR a.current_bidder_wallet = $1
-        OR EXISTS (SELECT 1 FROM bids b WHERE b.auction_id = a.id AND b.bidder_wallet = $1)
+     WHERE LOWER(a.seller_wallet) = $1
+        OR LOWER(a.winner_wallet) = $1
+        OR EXISTS (SELECT 1 FROM bids b WHERE b.auction_id = a.id AND LOWER(b.bidder_wallet) = $1)
      ORDER BY a.created_at DESC LIMIT 50`,
     [w]
   );
