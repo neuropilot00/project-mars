@@ -11904,7 +11904,7 @@ function _updateBaseTerritoryGroupList(grpList){
   if(!grpList) grpList=_myTerritoryGroups(myAddr);
   if(badgeEl) badgeEl.textContent=grpList.length;
   if(grpList.length===0){
-    baseList.innerHTML='<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">영토가 없습니다. 지도에서 영토를 구매하세요.</div>';
+    baseList.innerHTML='<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">'+(LANG==='ko'?'영토가 없습니다. 지도에서 영토를 구매하세요.':LANG==='ja'?'領土がありません。地図で領土を購入してください。':LANG==='zh'?'没有领地。请在地图上购买领地。':'No territory. Buy territory on the map.')+'</div>';
     return;
   }
   // 기존 확장 상태 유지 (새로고침 시 닫힘)
@@ -13520,7 +13520,7 @@ function showTerritoryInfo(plot){
     _myBadgeEl.style.cssText='display:none;text-align:center;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--mars);padding:4px 0 6px;font-family:var(--fn)';
     info.insertBefore(_myBadgeEl,info.firstChild);
   }
-  _myBadgeEl.textContent='✦ 내 영토 ✦';
+  _myBadgeEl.textContent=LANG==='ko'?'✦ 내 영토 ✦':LANG==='ja'?'✦ 自分の領土 ✦':LANG==='zh'?'✦ 我的领地 ✦':'✦ MY TERRITORY ✦';
   _myBadgeEl.style.display=_isMyPlot?'':'none';
   document.getElementById('infoCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
   var _ownerName=plot.nickname||plot.label||shortAddr(plot.owner);
@@ -14042,7 +14042,7 @@ function loadTerritoryUpgrades(claimId) {
   var body = document.getElementById('infoUpgradeBody');
   if (!body) return;
   var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || '';
-  body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">로딩 중…</div>';
+  body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
   _territoryUpgradeState.loading = true;
   fetch('/api/territory/' + claimId + '/upgrades?wallet=' + encodeURIComponent(wallet))
     .then(function(r){ return r.json(); })
@@ -14053,7 +14053,7 @@ function loadTerritoryUpgrades(claimId) {
     })
     .catch(function(){
       _territoryUpgradeState.loading = false;
-      body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">업그레이드 데이터를 불러올 수 없습니다</div>';
+      body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">'+(LANG==='ko'?'업그레이드 데이터를 불러올 수 없습니다':LANG==='ja'?'アップグレードデータを読み込めません':LANG==='zh'?'无法加载升级数据':'Failed to load upgrade data')+'</div>';
     });
 }
 
@@ -14064,7 +14064,7 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
   var catalog = d.catalog || [];
   var current = d.current || {};
   if (!catalog.length) {
-    body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">업그레이드 트랙 없음</div>';
+    body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">'+(LANG==='ko'?'업그레이드 트랙 없음':LANG==='ja'?'アップグレードトラックなし':LANG==='zh'?'无升级轨道':'No upgrade tracks')+'</div>';
     return;
   }
   var html = '<div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">';
@@ -14146,7 +14146,7 @@ function loadTerritoryIdentity(claimId) {
   var metaEl = document.getElementById('infoIdentityMeta');
   var body   = document.getElementById('infoIdentityBody');
   if (!body) return;
-  body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">로딩 중…</div>';
+  body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
 
   fetch('/api/territory/' + claimId + '/identity')
     .then(function(r){ return r.json(); })
@@ -15021,7 +15021,7 @@ function openMobTerritoryModal(){
     var sellBtn=document.getElementById('mtSellBtn');
     if(sellBtn){
       var fs=_forSaleMap&&_forSaleMap[plot.claimId||plot.id];
-      sellBtn.textContent=fs?'💰 판매중':'💰 판매';
+      sellBtn.textContent=fs?(LANG==='ko'?'💰 판매중':LANG==='ja'?'💰 販売中':LANG==='zh'?'💰 出售中':'💰 Listed'):(LANG==='ko'?'💰 판매':LANG==='ja'?'💰 販売':LANG==='zh'?'💰 出售':'💰 Sell');
       sellBtn.style.color=fs?'#4cd89a':'#a064dc';
       sellBtn.style.borderColor=fs?'rgba(76,216,154,.4)':'rgba(160,100,220,.35)';
     }
@@ -15539,14 +15539,14 @@ async function confirmClaim(){
     if(hasOverlap){
       // 함대 선택 확인
       if(!_hijackSelectedFleetId){
-        showToast('⚠ 먼저 함대를 선택하세요');
+        showToast(LANG==='ko'?'⚠ 먼저 함대를 선택하세요':LANG==='ja'?'⚠ まず艦隊を選択してください':LANG==='zh'?'⚠ 请先选择舰队':'⚠ Select a fleet first');
         if(btn){btn.disabled=false;btn.textContent='⚔ DECLARE HIJACK';}
         return;
       }
       // 슬로대 스타일 — 하이잭 진입 전 파벌 캐릭터 대사
       try{ await showFactionFlavor('hijack_start'); }catch(_){ }
       // 로딩 표시
-      if(btn) btn.textContent='⚔ 함대전 선언 중...';
+      if(btn) btn.textContent=LANG==='ko'?'⚔ 함대전 선언 중...':LANG==='ja'?'⚔ 艦隊戦宣言中...':LANG==='zh'?'⚔ 宣布舰队战...':'⚔ Declaring battle...';
       var hjHeaders={'Content-Type':'application/json'};
       if(emailAuth&&emailAuth.token) hjHeaders['Authorization']='Bearer '+emailAuth.token;
       var hjResp=await fetch('/api/hijack/declare-with-pp',{
@@ -21067,9 +21067,9 @@ function exportAccountData(){
   showToast('Account data exported');
 }
 async function requestDeleteAccount(){
-  var ok1=await gameConfirm({icon:'⚠',title:'DELETE ACCOUNT',body:'계정을 삭제하면 모든 영토와 PP가 사라지며 되돌릴 수 없습니다.',confirmText:'계속'});
+  var ok1=await gameConfirm({icon:'⚠',title:'DELETE ACCOUNT',body:LANG==='ko'?'계정을 삭제하면 모든 영토와 PP가 사라지며 되돌릴 수 없습니다.':LANG==='ja'?'アカウントを削除すると、すべての領土とPPが失われ、元に戻せません。':LANG==='zh'?'删除账户将永久失去所有领地和PP，无法撤销。':'Deleting your account will erase all territory and PP. This cannot be undone.',confirmText:LANG==='ko'?'계속':LANG==='ja'?'続ける':LANG==='zh'?'继续':'Continue'});
   if(!ok1)return;
-  var ok2=await gameConfirm({icon:'💀',title:'FINAL WARNING',body:'<b style="color:var(--red)">영구 삭제</b> — 지갑, 영토, 모든 게임 데이터가 삭제됩니다.',confirmText:'영구 삭제'});
+  var ok2=await gameConfirm({icon:'💀',title:'FINAL WARNING',body:'<b style="color:var(--red)">'+(LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'PERMANENT DELETE')+'</b> — '+(LANG==='ko'?'지갑, 영토, 모든 게임 데이터가 삭제됩니다.':LANG==='ja'?'ウォレット、領土、すべてのゲームデータが削除されます。':LANG==='zh'?'钱包、领地和所有游戏数据将被删除。':'Your wallet, territory, and all game data will be deleted.'),confirmText:LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'Delete Forever'});
   if(!ok2)return;
   fetch(API+'/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
     .then(function(r){return r.json()})
@@ -22778,7 +22778,7 @@ function cancelMyTransport(tid) {
       } else showFactionToast((LANG==='ko'?'취소 실패: ':LANG==='ja'?'キャンセル失敗: ':LANG==='zh'?'取消失败: ':'Cancel failed: ')+(d.error||'unknown'), 'error');
     });
   };
-  gameConfirm({icon:'🚚',title:'수송 #'+tid+' 취소',body:'화물은 환불되지만 완료 보상은 잃습니다.',confirmText:'취소 확인'}).then(function(ok){if(ok)doIt();});
+  gameConfirm({icon:'🚚',title:(LANG==='ko'?'수송 #':LANG==='ja'?'輸送 #':LANG==='zh'?'运输 #':'Transport #')+tid+(LANG==='ko'?' 취소':LANG==='ja'?' キャンセル':LANG==='zh'?' 取消':' Cancel'),body:LANG==='ko'?'화물은 환불되지만 완료 보상은 잃습니다.':LANG==='ja'?'貨物は返金されますが完了報酬は失われます。':LANG==='zh'?'货物将退款但完成奖励将丢失。':'Cargo will be refunded but completion reward will be lost.',confirmText:LANG==='ko'?'취소 확인':LANG==='ja'?'キャンセル確認':LANG==='zh'?'确认取消':'Confirm Cancel'}).then(function(ok){if(ok)doIt();});
 }
 
 function loadRaidTargets() {
@@ -22829,7 +22829,7 @@ function submitRaidAttempt(tid, cargo) {
       }
     }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
   };
-  gameConfirm({icon:'🏴',title:'수송 #'+tid+' 약탈',body:'화물: <b>'+cargo+' GP</b>. 수송당 1회 시도. 쿨다운 적용.',confirmText:'약탈'}).then(function(ok){if(ok)doIt();});
+  gameConfirm({icon:'🏴',title:(LANG==='ko'?'수송 #':LANG==='ja'?'輸送 #':LANG==='zh'?'运输 #':'Transport #')+tid+(LANG==='ko'?' 약탈':LANG==='ja'?' 略奪':LANG==='zh'?' 掠夺':' Raid'),body:(LANG==='ko'?'화물: ':LANG==='ja'?'貨物: ':LANG==='zh'?'货物: ':'Cargo: ')+'<b>'+cargo+' GP</b>. '+(LANG==='ko'?'수송당 1회 시도. 쿨다운 적용.':LANG==='ja'?'輸送ごとに1回試行。クールダウンあり。':LANG==='zh'?'每次运输仅限1次尝试，有冷却。':'One attempt per transport. Cooldown applies.'),confirmText:LANG==='ko'?'약탈':LANG==='ja'?'略奪':LANG==='zh'?'掠夺':'Raid'}).then(function(ok){if(ok)doIt();});
 }
 
 // ── FLEET COMMAND card loader (M-154 / MY TERRITORY 탭에 통합) ──
@@ -22914,12 +22914,12 @@ window.openWorldEventDetail = async function(eventId) {
     document.getElementById('weEventMeta').textContent = (ev.sector_name || '?') + ' · ' + (ev.sector_tier || '') + ' · ' + (meta.ship_count || '?') + '× ' + (meta.ship_name_ko || meta.ship_type_code || '?');
   } catch(e) {
     document.getElementById('weEventCode').textContent = '⚠ EVENT #' + eventId;
-    document.getElementById('weEventMeta').textContent = '정보를 불러올 수 없습니다';
+    document.getElementById('weEventMeta').textContent = LANG==='ko'?'정보를 불러올 수 없습니다':LANG==='ja'?'情報を読み込めません':LANG==='zh'?'无法加载信息':'Failed to load info';
   }
 
   // 내 함대 목록 로드
   var sel = document.getElementById('weFleetSelect');
-  sel.innerHTML = '<option value="">함대 선택...</option>';
+  sel.innerHTML = '<option value="">'+(LANG==='ko'?'함대 선택...':LANG==='ja'?'艦隊を選択...':LANG==='zh'?'选择舰队...':'Select fleet...')+'</option>';
   try {
     var w = typeof getWalletAddress === 'function' ? getWalletAddress() : (window._wallet || '');
     if (w) {
@@ -22931,12 +22931,12 @@ window.openWorldEventDetail = async function(eventId) {
           if (ships < 1) return; // 함선 없는 함대 제외
           var opt = document.createElement('option');
           opt.value = f.id;
-          opt.textContent = (f.name || '함대 #' + f.id) + ' · ' + ships + '척';
+          opt.textContent = (f.name || (LANG==='ko'?'함대 #':LANG==='ja'?'艦隊 #':LANG==='zh'?'舰队 #':'Fleet #') + f.id) + ' · ' + ships + (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships');
           sel.appendChild(opt);
         });
         document.getElementById('weFleetNote').textContent = sel.options.length <= 1
-          ? '출전 가능한 함대가 없습니다 (함선 1척 이상 필요)'
-          : '선택한 함대를 Void Raider에 출전시킵니다';
+          ? (LANG==='ko'?'출전 가능한 함대가 없습니다 (함선 1척 이상 필요)':LANG==='ja'?'出撃可能な艦隊がありません（艦船1隻以上必要）':LANG==='zh'?'没有可出击的舰队（需要至少1艘舰船）':'No deployable fleet (need at least 1 ship)')
+          : (LANG==='ko'?'선택한 함대를 Void Raider에 출전시킵니다':LANG==='ja'?'選択した艦隊をVoid Raiderに出撃させます':LANG==='zh'?'将选定舰队出击至Void Raider':'Deploy selected fleet against the Void Raider');
       }
     }
   } catch(e) {}
@@ -22958,7 +22958,7 @@ async function confirmWeEngage() {
 
   var btn = document.getElementById('weEngageBtn');
   btn.disabled = true;
-  btn.textContent = '출전 중...';
+  btn.textContent = LANG==='ko'?'출전 중...':LANG==='ja'?'出撃中...':LANG==='zh'?'出击中...':'Deploying...';
 
   try {
     var tok = localStorage.getItem('pw_token');
@@ -22972,26 +22972,47 @@ async function confirmWeEngage() {
     });
     var d = await r.json();
     if (!r.ok || d.error) {
-      var errMap = {
-        'FLEET_BUSY': '함대가 이미 전투 중입니다',
-        'INSUFFICIENT_SHIPS': '함선이 부족합니다 (최소 1척)',
-        'ENGAGE_COOLDOWN': '쿨다운 중 — ' + (d.meta && d.meta.remaining_minutes ? d.meta.remaining_minutes + '분 후 가능' : '잠시 후 시도'),
-        'EVENT_NOT_ENGAGEABLE': '이미 종료된 이벤트입니다',
-        'EVENT_EXPIRED': '이벤트가 만료됐습니다',
-        'FLEET_NOT_FOUND': '함대를 찾을 수 없습니다',
+      var errMap = LANG==='ja'?{
+        'FLEET_BUSY':'艦隊はすでに戦闘中です',
+        'INSUFFICIENT_SHIPS':'艦船が不足しています（最低1隻）',
+        'ENGAGE_COOLDOWN':'クールダウン中 — '+(d.meta&&d.meta.remaining_minutes?d.meta.remaining_minutes+'分後に可能':'しばらくお待ちください'),
+        'EVENT_NOT_ENGAGEABLE':'すでに終了したイベントです',
+        'EVENT_EXPIRED':'イベントが期限切れです',
+        'FLEET_NOT_FOUND':'艦隊が見つかりません',
+      }:LANG==='zh'?{
+        'FLEET_BUSY':'舰队已在战斗中',
+        'INSUFFICIENT_SHIPS':'舰船不足（至少1艘）',
+        'ENGAGE_COOLDOWN':'冷却中 — '+(d.meta&&d.meta.remaining_minutes?d.meta.remaining_minutes+'分钟后可用':'请稍后再试'),
+        'EVENT_NOT_ENGAGEABLE':'事件已结束',
+        'EVENT_EXPIRED':'事件已过期',
+        'FLEET_NOT_FOUND':'找不到舰队',
+      }:LANG==='en'?{
+        'FLEET_BUSY':'Fleet is already in battle',
+        'INSUFFICIENT_SHIPS':'Insufficient ships (min 1)',
+        'ENGAGE_COOLDOWN':'On cooldown — '+(d.meta&&d.meta.remaining_minutes?'available in '+d.meta.remaining_minutes+' min':'try again later'),
+        'EVENT_NOT_ENGAGEABLE':'Event already ended',
+        'EVENT_EXPIRED':'Event has expired',
+        'FLEET_NOT_FOUND':'Fleet not found',
+      }:{
+        'FLEET_BUSY':'함대가 이미 전투 중입니다',
+        'INSUFFICIENT_SHIPS':'함선이 부족합니다 (최소 1척)',
+        'ENGAGE_COOLDOWN':'쿨다운 중 — '+(d.meta&&d.meta.remaining_minutes?d.meta.remaining_minutes+'분 후 가능':'잠시 후 시도'),
+        'EVENT_NOT_ENGAGEABLE':'이미 종료된 이벤트입니다',
+        'EVENT_EXPIRED':'이벤트가 만료됐습니다',
+        'FLEET_NOT_FOUND':'함대를 찾을 수 없습니다',
       };
-      throw new Error(errMap[d.error] || d.error || '교전 실패');
+      throw new Error(errMap[d.error] || d.error || (LANG==='ko'?'교전 실패':LANG==='ja'?'交戦失敗':LANG==='zh'?'交战失败':'Engage failed'));
     }
 
     closeWeModal();
-    var result = '전투 완료! 데미지 ' + (d.damage_dealt || 0).toLocaleString();
-    if (d.status === 'defeated') result = '🎉 Void Raider 격퇴 성공! 보상이 지급됩니다';
-    else result += ' · HP ' + (d.hp_pct || 0) + '% 잔여';
+    var result;
+    if (d.status === 'defeated') result = LANG==='ko'?'🎉 Void Raider 격퇴 성공! 보상이 지급됩니다':LANG==='ja'?'🎉 Void Raider撃退成功！報酬が支給されます':LANG==='zh'?'🎉 Void Raider击败成功！奖励已发放':'🎉 Void Raider defeated! Rewards issued';
+    else result = (LANG==='ko'?'전투 완료! 데미지 ':LANG==='ja'?'戦闘完了！ダメージ ':LANG==='zh'?'战斗完成！伤害 ':'Combat complete! Damage ')+(d.damage_dealt||0).toLocaleString()+(LANG==='ko'?' · HP '+(d.hp_pct||0)+'% 잔여':LANG==='ja'?' · HP '+(d.hp_pct||0)+'% 残存':LANG==='zh'?' · HP '+(d.hp_pct||0)+'% 剩余':' · HP '+(d.hp_pct||0)+'% remaining');
     showToast(result, d.status === 'defeated' ? 'success' : 'info');
     // 함대 지휘부 카드 갱신
     if (typeof loadFleetCommandCard === 'function') setTimeout(loadFleetCommandCard, 800);
   } catch(e) {
-    showToast(e.message || '교전 실패', 'error');
+    showToast(e.message || (LANG==='ko'?'교전 실패':LANG==='ja'?'交戦失敗':LANG==='zh'?'交战失败':'Engage failed'), 'error');
   } finally {
     btn.disabled = false;
     btn.textContent = '⚔ ENGAGE';
@@ -23342,7 +23363,7 @@ function openListModal(type,idVal,name,icon,enhLv){
         showToast('✅ '+_mktListedMsg);
         refreshBalance(); loadSellView();
         if(type==='claim'){try{loadForSaleOverlay();}catch(_){}try{_updateMyTerritories();}catch(_){}}
-      }).catch(function(){showToast('등록 실패','error');});
+      }).catch(function(){showToast(LANG==='ko'?'등록 실패':LANG==='ja'?'登録失敗':LANG==='zh'?'登记失败':'Registration failed','error');});
     }
   });
 }
@@ -23674,7 +23695,7 @@ function _loadFleetTabSummary(){
   var w=(walletState&&walletState.address)||'';
   var sumEl=document.getElementById('fleetTabSummary');
   var evEl=document.getElementById('fleetTabWorldEvents');
-  if(!w){if(sumEl)sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">로그인하면 함대 현황이 표시됩니다</div>';return;}
+  if(!w){if(sumEl)sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">'+(LANG==='ko'?'로그인하면 함대 현황이 표시됩니다':LANG==='ja'?'ログインすると艦隊状況が表示されます':LANG==='zh'?'登录后将显示舰队状况':'Login to see fleet status')+'</div>';return;}
   if(!sumEl) return;
   sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">Loading...</div>';
 
@@ -23814,7 +23835,7 @@ function _loadFleetTabSummary(){
 
     sumEl.innerHTML=html;
   }).catch(function(e){
-    sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">함대 정보 로드 실패</div>';
+    sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">'+(LANG==='ko'?'함대 정보 로드 실패':LANG==='ja'?'艦隊情報の読み込み失敗':LANG==='zh'?'舰队信息加载失败':'Failed to load fleet data')+'</div>';
   });
 }
 
@@ -24496,7 +24517,7 @@ function renderGuildUpgrades(guild, myRole){
   // Show my GP balance in donate section
   var donateGPEl = document.getElementById('guildDonateMyGP');
   var myGP = walletState.gameGP || (_dailyState&&_dailyState.gpBalance) || 0;
-  if(donateGPEl) donateGPEl.textContent = '내 GP: '+Math.floor(myGP);
+  if(donateGPEl) donateGPEl.textContent = (LANG==='ko'?'내 GP: ':LANG==='ja'?'自分のGP: ':LANG==='zh'?'我的GP: ':'My GP: ')+Math.floor(myGP);
   // Research grid — slot-locked based on guild level
   var flags = guild.researchFlags || guild.research_flags || {};
   var canSpend = (myRole==='leader'||myRole==='officer');
@@ -24684,7 +24705,7 @@ function selectWarTarget(id){
   if(!g) return;
   document.getElementById('warTargetEmblem').textContent = g.emblem||g.emblem_emoji||'🔴';
   document.getElementById('warTargetName').textContent = '['+g.tag+'] '+g.name;
-  document.getElementById('warTargetInfo').textContent = 'Lv.'+(g.level||1)+' · '+(g.memberCount||g.member_count||0)+'명 · '+(g.totalPixels||g.total_pixels||0)+' PX';
+  document.getElementById('warTargetInfo').textContent = 'Lv.'+(g.level||1)+' · '+(g.memberCount||g.member_count||0)+(LANG==='ko'?'명':LANG==='ja'?'人':LANG==='zh'?'人':'p')+' · '+(g.totalPixels||g.total_pixels||0)+' PX';
   document.getElementById('warConfirmSection').style.display = 'block';
   // Highlight selected
   var items = document.querySelectorAll('#warTargetList > div[data-gid]');
@@ -24866,7 +24887,7 @@ async function openGuildWarFight(warId, guildId){
     _openDeclareBattleVsWallet(window._gwfTarget);
   }catch(e){
     console.error('openGuildWarFight:',e);
-    showToast('네트워크 오류','error');
+    showToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -25349,7 +25370,7 @@ window.opsMissionGo = function(type) {
       try { switchBaseTab('quests', document.getElementById('baseTabQuests')); } catch(_) {}
     // ─ 자동 완료 (로그인 확인 등) ─
     } else if (type === 'daily_login') {
-      showToast('오늘 로그인 확인! 자동 완료됩니다.', 'success');
+      showToast(LANG==='ko'?'오늘 로그인 확인! 자동 완료됩니다.':LANG==='ja'?'今日のログイン確認！自動完了します。':LANG==='zh'?'今日登录确认！自动完成。':'Daily login confirmed! Auto-completing.', 'success');
       // 서버 progress 트리거
       try {
         var w = walletState.address;
@@ -25496,7 +25517,7 @@ async function loadOpsCommandBoard() {
     try { _refreshOpsTabBoard(data); } catch(_) {}
 
   } catch(err) {
-    if (el) el.innerHTML = '<div style="font-size:10px;color:var(--tx3)">OPS Board 로딩 실패</div>';
+    if (el) el.innerHTML = '<div style="font-size:10px;color:var(--tx3)">'+(LANG==='ko'?'OPS Board 로딩 실패':LANG==='ja'?'OPS Boardの読み込み失敗':LANG==='zh'?'OPS Board加载失败':'OPS Board failed to load')+'</div>';
   }
 }
 
@@ -27010,7 +27031,7 @@ async function obNextStep(currentStep) {
       var d = await r.json();
       if (d.ok) {
         document.getElementById('obOverlay').style.display = 'none';
-        showToast('🎉 ' + (d.rewards.pp || 0) + ' PP + ' + (d.rewards.gp || 0) + ' GP 보상 지급!');
+        showToast('🎉 ' + (d.rewards.pp || 0) + ' PP + ' + (d.rewards.gp || 0) + ' GP '+(LANG==='ko'?'보상 지급!':LANG==='ja'?'報酬付与！':LANG==='zh'?'奖励发放！':'reward granted!'));
         try { refreshEmailBalances(); } catch(e) {}
         return;
       }
@@ -27035,7 +27056,7 @@ async function obNextStep(currentStep) {
   // Step 1 → hide overlay so user can interact with map
   if (currentStep === 1) {
     document.getElementById('obOverlay').style.display = 'none';
-    showToast('👆 영토를 탭해서 첫 클레임을 시작하세요!');
+    showToast(LANG==='ko'?'👆 영토를 탭해서 첫 클레임을 시작하세요!':LANG==='ja'?'👆 領土をタップして最初のクレームを開始してください！':LANG==='zh'?'👆 点击领地开始您的第一次占领！':'👆 Tap territory to start your first claim!');
     return;
   }
 
@@ -27554,7 +27575,7 @@ function renderCampaignRewardInbox(inbox){
     var label=campaignRewardLabel(r);
     html+='<div class="campaign-reward-card">';
     html+='<div><div class="campaign-reward-label">🎁 '+escapeHtmlSafe(label)+(qty>1?' ×'+qty:'')+'</div><div class="campaign-reward-meta">'+escapeHtmlSafe(type)+' · '+escapeHtmlSafe(r.quest_id||'campaign')+'</div></div>';
-    html+='<button class="campaign-reward-claim" onclick="claimCampaignReward('+id+',this)">수령</button>';
+    html+='<button class="campaign-reward-claim" onclick="claimCampaignReward('+id+',this)">'+(LANG==='ko'?'수령':LANG==='ja'?'受取':LANG==='zh'?'领取':'Claim')+'</button>';
     html+='</div>';
   });
   html+='</div>';
@@ -27562,9 +27583,9 @@ function renderCampaignRewardInbox(inbox){
 }
 
 async function claimCampaignReward(id,btn){
-  if(!isLoggedIn()){showFactionToast('로그인이 필요합니다','error');return;}
-  if(!id){showToast('보상 정보가 없습니다','error');return;}
-  if(btn){btn.disabled=true;btn.textContent='수령중';}
+  if(!isLoggedIn()){showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error');return;}
+  if(!id){showToast(LANG==='ko'?'보상 정보가 없습니다':LANG==='ja'?'報酬情報がありません':LANG==='zh'?'没有奖励信息':'No reward info','error');return;}
+  if(btn){btn.disabled=true;btn.textContent=LANG==='ko'?'수령중':LANG==='ja'?'受取中':LANG==='zh'?'领取中':'Claiming';}
   try{
     var r=await fetch('/api/campaign/reward/claim',{
       method:'POST',
@@ -27573,14 +27594,15 @@ async function claimCampaignReward(id,btn){
     });
     var d=await r.json().catch(function(){return {};});
     if(!r.ok||d.error) throw new Error(d.error||'claim failed');
-    var noteMsg=d.note||(d.applied&&d.applied.length?d.applied.map(function(a){return(a.kind==='ship'?'함선 '+a.code:a.kind==='resource'?'자원 '+a.code+' ×'+a.quantity:a.kind==='item'?'아이템 '+a.code+' ×'+a.quantity:'보상 수령');}).join(', '):'캠페인 보상을 수령했습니다');
+    var _aLabels={ship:LANG==='ko'?'함선 ':LANG==='ja'?'艦船 ':LANG==='zh'?'舰船 ':'Ship ',resource:LANG==='ko'?'자원 ':LANG==='ja'?'資源 ':LANG==='zh'?'资源 ':'Resource ',item:LANG==='ko'?'아이템 ':LANG==='ja'?'アイテム ':LANG==='zh'?'道具 ':'Item '};
+    var noteMsg=d.note||(d.applied&&d.applied.length?d.applied.map(function(a){return((_aLabels[a.kind]||'')+a.code+(a.quantity&&a.quantity>1?' ×'+a.quantity:''));}).join(', '):(LANG==='ko'?'캠페인 보상을 수령했습니다':LANG==='ja'?'キャンペーン報酬を受け取りました':LANG==='zh'?'已领取活动奖励':'Campaign reward claimed'));
     showToast(noteMsg,'success');
     await loadCampaignStatus();
     try{loadInventory&&loadInventory();}catch(_){}
     try{loadResourceInventory&&loadResourceInventory();}catch(_){}
   }catch(e){
-    showToast('보상 수령 실패: '+(e&&e.message?e.message:'오류'),'error');
-    if(btn){btn.disabled=false;btn.textContent='수령';}
+    showToast((LANG==='ko'?'보상 수령 실패: ':LANG==='ja'?'報酬受取失敗: ':LANG==='zh'?'领取奖励失败: ':'Claim failed: ')+(e&&e.message?e.message:(LANG==='ko'?'오류':LANG==='ja'?'エラー':LANG==='zh'?'错误':'error')),'error');
+    if(btn){btn.disabled=false;btn.textContent=LANG==='ko'?'수령':LANG==='ja'?'受取':LANG==='zh'?'领取':'Claim';}
   }
 }
 
@@ -27753,7 +27775,7 @@ function handleCampaignObjectiveAction(ev,action){
     setTimeout(function(){
       var tab=document.getElementById('baseTabTerritory');
       switchBaseTab('territory',tab);
-      showToast('내 영토에서 목표를 진행하세요','info');
+      showToast(LANG==='ko'?'내 영토에서 목표를 진행하세요':LANG==='ja'?'自分の領土で目標を進めてください':LANG==='zh'?'请在自己的领地推进目标':'Complete objectives in your territory','info');
     },0);
   }else if(action==='shipyard'){
     openShipyard();
@@ -27765,7 +27787,7 @@ function handleCampaignObjectiveAction(ev,action){
     setTimeout(function(){
       var tab=document.getElementById('baseTabPvp');
       switchBaseTab('pvp',tab);
-      try{openBattleHub()}catch(_){showToast('PVP 탭에서 함대전을 시작하세요','info');}
+      try{openBattleHub()}catch(_){showToast(LANG==='ko'?'PVP 탭에서 함대전을 시작하세요':LANG==='ja'?'PVPタブで艦隊戦を開始してください':LANG==='zh'?'请在PVP标签开始舰队战':'Start fleet battle in the PVP tab','info');}
     },0);
   }else if(action==='market'){
     openBaseModal();
@@ -34064,13 +34086,13 @@ window.addEventListener('resize', _debounce(function(){
     var content = document.getElementById('pvpHubContent');
     if (!content) return;
     if (tab === 'rec') {
-      content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:10px">탐색 중…</div>';
+      content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:10px">'+(LANG==='ko'?'탐색 중…':LANG==='ja'?'探索中…':LANG==='zh'?'搜索中…':'Searching…')+'</div>';
       await _loadPvpRecTab();
     } else if (tab === 'bounty') {
       content.innerHTML = _pvpHubBountyHtml();
       switchBountyTab('all');
     } else if (tab === 'conflict') {
-      content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:10px">로딩 중…</div>';
+      content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:10px">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
       await _loadPvpConflictTab();
     }
   }
@@ -34093,7 +34115,7 @@ window.addEventListener('resize', _debounce(function(){
       }
       var factionColors = { mcc: '#4fc3f7', fsp: '#66bb6a', cv: '#ff7043' };
       var factionNames  = { mcc: 'MCC',     fsp: 'FSP',     cv: 'CV' };
-      content.innerHTML = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px">추천 상대 (내 CPI 기준 ±20%)</div>'
+      content.innerHTML = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px">'+(LANG==='ko'?'추천 상대 (내 CPI 기준 ±20%)':LANG==='ja'?'推奨対戦相手（自分のCPI ±20%）':LANG==='zh'?'推荐对手（我的CPI ±20%）':'Recommended opponents (±20% of your CPI)')+'</div>'
         + opponents.map(function(o) {
           var col   = factionColors[o.faction_code] || '#aaa';
           var fName = factionNames[o.faction_code]  || (o.faction_code||'').toUpperCase();
@@ -34135,10 +34157,10 @@ window.addEventListener('resize', _debounce(function(){
         .sort(function(a,b){ return b.heat - a.heat; }).slice(0,8);
       if (!content || _pvpHubTab !== 'conflict') return;
       if (sectors.length === 0) {
-        content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">활성 분쟁 없음</div>';
+        content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">'+(LANG==='ko'?'활성 분쟁 없음':LANG==='ja'?'活動中の紛争なし':LANG==='zh'?'无活跃争端':'No active conflicts')+'</div>';
         return;
       }
-      content.innerHTML = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px">섹터별 분쟁 현황 (Heat 기준)</div>'
+      content.innerHTML = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px">'+(LANG==='ko'?'섹터별 분쟁 현황 (Heat 기준)':LANG==='ja'?'セクター別紛争状況（Heat順）':LANG==='zh'?'各区争端状况（按Heat排序）':'Conflict by sector (by Heat)')+'</div>'
         + sectors.map(function(s) {
           var heat = Math.min(100, s.heat);
           var heatCol = heat >= 70 ? '#ff5252' : heat >= 40 ? '#ffd700' : '#66bb6a';
@@ -44748,7 +44770,7 @@ async function loadFactions() {
 }
 
 function openFactionModal() {
-  if (!_factionIsLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  if (!_factionIsLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   var modal = document.getElementById('factionModal');
   var cardsEl = document.getElementById('factionCards');
   var subtitle = document.getElementById('factionModalSubtitle');
@@ -44757,7 +44779,7 @@ function openFactionModal() {
   if (factionState.current && factionState.current.is_locked) {
     var hoursLeft = Math.ceil((new Date(factionState.current.can_change_at) - new Date()) / 3600000);
     warning.style.display = 'block';
-    warning.innerHTML = '⏱ 파벌 변경 쿨다운 중<br>' + hoursLeft + '시간 후 변경 가능';
+    warning.innerHTML = '⏱ ' + (LANG==='ko'?'파벌 변경 쿨다운 중':LANG==='ja'?'派閥変更クールダウン中':LANG==='zh'?'派系变更冷却中':'Faction change cooldown') + '<br>' + hoursLeft + (LANG==='ko'?'시간 후 변경 가능':LANG==='ja'?'時間後に変更可能':LANG==='zh'?'小时后可变更':' hrs until available');
   } else if (factionState.current) {
     warning.style.display = 'block';
     warning.innerHTML = '⚠ 파벌 변경 시 <b>500 GP</b>가 소모됩니다.<br>변경 후 7일간 재변경이 불가능합니다.';
@@ -44786,7 +44808,7 @@ function closeFactionModal() {
 
 function selectFaction(code) {
   if (factionState.current && factionState.current.code === code) return;
-  if (factionState.current && factionState.current.is_locked) { showFactionToast('쿨다운 중입니다', 'error'); return; }
+  if (factionState.current && factionState.current.is_locked) { showFactionToast(LANG==='ko'?'쿨다운 중입니다':LANG==='ja'?'クールダウン中です':LANG==='zh'?'冷却时间中':'Cooldown active','error'); return; }
   factionState.selected = code;
   document.querySelectorAll('.faction-card').forEach(function(el) {
     el.classList.remove('selected');
@@ -44798,7 +44820,7 @@ function selectFaction(code) {
 async function confirmFaction() {
   if (!factionState.selected) return;
   var btn = document.getElementById('factionConfirmBtn');
-  btn.disabled = true; btn.textContent = '처리 중...';
+  btn.disabled = true; btn.textContent = LANG==='ko'?'처리 중...':LANG==='ja'?'処理中...':LANG==='zh'?'处理中...':'Processing...';
   try {
     var res = await fetch('/api/factions/choose', {
       method: 'POST',
@@ -44808,18 +44830,18 @@ async function confirmFaction() {
     var data = await res.json();
     if (!res.ok) {
       if (data.error === 'FACTION_CHANGE_COOLDOWN') {
-        showFactionToast('쿨다운: ' + Math.ceil((new Date(data.meta.can_change_at)-new Date())/3600000) + '시간 남음', 'error');
+        showFactionToast((LANG==='ko'?'쿨다운: ':LANG==='ja'?'クールダウン: ':LANG==='zh'?'冷却: ':'Cooldown: ') + Math.ceil((new Date(data.meta.can_change_at)-new Date())/3600000) + (LANG==='ko'?'시간 남음':LANG==='ja'?'時間後':LANG==='zh'?'小时后':' hrs left'), 'error');
       } else if (data.error === 'INSUFFICIENT_GP') {
         showFactionToast('GP 부족: ' + data.meta.required + ' GP 필요', 'error');
       } else if (data.error === 'SAME_FACTION') {
-        showFactionToast('이미 같은 파벌입니다', 'error');
+        showFactionToast(LANG==='ko'?'이미 같은 파벌입니다':LANG==='ja'?'すでに同じ派閥です':LANG==='zh'?'已在同一派系':'Already in same faction','error');
       } else {
-        showFactionToast('선택 실패: ' + (data.error||'UNKNOWN'), 'error');
+        showFactionToast((LANG==='ko'?'선택 실패: ':LANG==='ja'?'選択失敗: ':LANG==='zh'?'选择失败: ':'Selection failed: ') + (data.error||'UNKNOWN'), 'error');
       }
-      btn.disabled = false; btn.textContent = '선택';
+      btn.disabled = false; btn.textContent = LANG==='ko'?'선택':LANG==='ja'?'選択':LANG==='zh'?'选择':'Select';
       return;
     }
-    showFactionToast(data.is_first_choice ? '파벌 선택 완료' : '파벌 변경 완료 (-' + data.fee_paid + ' GP)', 'success');
+    showFactionToast(data.is_first_choice ? (LANG==='ko'?'파벌 선택 완료':LANG==='ja'?'派閥選択完了':LANG==='zh'?'派系选择完成':'Faction selected') : (LANG==='ko'?'파벌 변경 완료 (-':LANG==='ja'?'派閥変更完了 (-':LANG==='zh'?'派系变更完成 (-':'Faction changed (-') + data.fee_paid + ' GP)', 'success');
     closeFactionModal();
     await loadFactions();
     // If user came from shipyard "파벌 선택하기" fallback, auto-reopen shipyard
@@ -44829,8 +44851,8 @@ async function confirmFaction() {
     }
   } catch(err) {
     console.error('[Faction] confirmFaction error:', err);
-    showFactionToast('네트워크 오류', 'error');
-    btn.disabled = false; btn.textContent = '선택';
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    btn.disabled = false; btn.textContent = LANG==='ko'?'선택':LANG==='ja'?'選択':LANG==='zh'?'选择':'Select';
   }
 }
 
@@ -44842,7 +44864,7 @@ function _updateFactionBadge() {
     badge.style.color = factionState.current.color;
     badge.style.display = 'inline-block';
   } else {
-    badge.textContent = '파벌 미선택';
+    badge.textContent = LANG==='ko'?'파벌 미선택':LANG==='ja'?'派閥未選択':LANG==='zh'?'未选择派系':'No faction';
     badge.style.color = 'rgba(255,255,255,0.4)';
     badge.style.display = 'inline-block';
   }
@@ -44976,7 +44998,7 @@ var shipyardState = {
 
 function openShipyard() {
   if (!isLoggedIn()) {
-    showFactionToast('로그인이 필요합니다', 'error');
+    showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error');
     return;
   }
   document.getElementById('shipyardModal').classList.add('active');
@@ -45642,22 +45664,24 @@ async function buildShip(shipTypeCode) {
     var data = await res.json();
     if (!res.ok) {
       var msgMap = {
-        'NO_FACTION':'파벌을 먼저 선택하세요','WRONG_FACTION':'다른 파벌의 함선입니다',
-        'RANK_REQUIRED':'레벨 ' + ((data.meta && data.meta.required) || '?') + ' 필요',
-        'SERVER_LIMIT_REACHED':'서버 한도에 도달했습니다','PLAYER_LIMIT_REACHED':'보유 한도에 도달했습니다',
-        'PLAYER_FLEET_FULL':'함대가 가득 찼습니다 (최대 200척)',
-        'INSUFFICIENT_GP':'GP 부족: ' + ((data.meta && data.meta.required) || '?') + ' 필요',
-        'INSUFFICIENT_MINERALS':'광물 부족: ' + ((data.meta && data.meta.missing) || []).map(function(m){ return m.code + ' ' + m.have + '/' + m.need; }).join(', '),
+        'NO_FACTION': LANG==='ko'?'파벌을 먼저 선택하세요':LANG==='ja'?'先に派閥を選択してください':LANG==='zh'?'请先选择派系':'Select a faction first',
+        'WRONG_FACTION': LANG==='ko'?'다른 파벌의 함선입니다':LANG==='ja'?'他の派閥の艦船です':LANG==='zh'?'这是其他派系的舰船':'Ship belongs to another faction',
+        'RANK_REQUIRED': (LANG==='ko'?'레벨 ':LANG==='ja'?'レベル ':LANG==='zh'?'等级 ':'Level ') + ((data.meta && data.meta.required) || '?') + (LANG==='ko'?' 필요':LANG==='ja'?' が必要':LANG==='zh'?' 需要':' required'),
+        'SERVER_LIMIT_REACHED': LANG==='ko'?'서버 한도에 도달했습니다':LANG==='ja'?'サーバー上限に達しました':LANG==='zh'?'已达到服务器上限':'Server limit reached',
+        'PLAYER_LIMIT_REACHED': LANG==='ko'?'보유 한도에 도달했습니다':LANG==='ja'?'保有上限に達しました':LANG==='zh'?'已达到持有上限':'Player limit reached',
+        'PLAYER_FLEET_FULL': LANG==='ko'?'함대가 가득 찼습니다 (최대 200척)':LANG==='ja'?'艦隊が満杯です（最大200隻）':LANG==='zh'?'舰队已满（最多200艘）':'Fleet is full (max 200 ships)',
+        'INSUFFICIENT_GP': (LANG==='ko'?'GP 부족: ':LANG==='ja'?'GP不足: ':LANG==='zh'?'GP不足: ':'Insufficient GP: ') + ((data.meta && data.meta.required) || '?') + (LANG==='ko'?' 필요':LANG==='ja'?' 必要':LANG==='zh'?' 需要':' needed'),
+        'INSUFFICIENT_MINERALS': (LANG==='ko'?'광물 부족: ':LANG==='ja'?'鉱物不足: ':LANG==='zh'?'矿物不足: ':'Insufficient materials: ') + ((data.meta && data.meta.missing) || []).map(function(m){ return m.code + ' ' + m.have + '/' + m.need; }).join(', '),
       };
-      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error');
+      showFactionToast(msgMap[data.error] || ((LANG==='ko'?'오류: ':LANG==='ja'?'エラー: ':LANG==='zh'?'错误: ':'Error: ') + data.error), 'error');
       return;
     }
-    showFactionToast(ship.name_ko + ' 건조 시작!', 'success');
+    showFactionToast(ship.name_ko + ' ' + (LANG==='ko'?'건조 시작!':LANG==='ja'?'建造開始!':LANG==='zh'?'建造开始!':'build started!'), 'success');
     // Stay on blueprints so players can queue multiple builds in a row.
     await refreshShipyard();
   } catch(err) {
     console.error('buildShip error:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -45700,7 +45724,7 @@ async function claimJob(jobId) {
     if (!res.ok) { showFactionToast('수령 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
     showFactionToast(data.is_flagship ? '🚀 함선 수령! (기함 지정됨)' : '🚀 함선 수령 완료', 'success');
     await refreshShipyard();
-  } catch(err) { showFactionToast('네트워크 오류', 'error'); }
+  } catch(err) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
 }
 
 async function cancelJob(jobId) {
@@ -45712,7 +45736,7 @@ async function cancelJob(jobId) {
     if (!res.ok) { showFactionToast('취소 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
     showFactionToast('환불 완료: +' + data.refunded_gp + ' GP', 'success');
     await refreshShipyard();
-  } catch(err) { showFactionToast('네트워크 오류', 'error'); }
+  } catch(err) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
 }
 
 function renderShips() {
@@ -45854,7 +45878,7 @@ async function syUpgradeShipStat(shipId, stat) {
   // Fix: id strict-equality — server returns string, onclick passes number
   var ship = (shipyardState.ships || []).find(function(s){ return String(s.id) === String(shipId); });
   var offer = ship && ship.upgrade_offers && ship.upgrade_offers[stat];
-  if (ship && ship.is_market_listed) { showFactionToast('판매중인 함선은 강화할 수 없습니다', 'error'); return; }
+  if (ship && ship.is_market_listed) { showFactionToast(LANG==='ko'?'판매중인 함선은 강화할 수 없습니다':LANG==='ja'?'販売中の艦船は強化できません':LANG==='zh'?'上架中的舰船无法强化':'Cannot upgrade a listed ship','error'); return; }
   var haveQty = offer ? syOwnedResourceQty(offer.material_code) : 0;
   var needQty = offer ? parseInt(offer.material_qty || 0, 10) : 0;
   var gpHave = syGpBalance();
@@ -45965,9 +45989,9 @@ async function syUpgradeShipStat(shipId, stat) {
     titleEl.textContent = '⚠ 강화 오류';
     resultEl.style.display = 'block';
     resultEl.style.color = '#ef9a9a';
-    resultEl.textContent = '오류: ' + (apiRes.d && apiRes.d.error ? apiRes.d.error : 'UNKNOWN');
+    resultEl.textContent = (LANG==='ko'?'오류: ':LANG==='ja'?'エラー: ':LANG==='zh'?'错误: ':'Error: ') + (apiRes.d && apiRes.d.error ? apiRes.d.error : 'UNKNOWN');
     resultSub.style.display = 'block';
-    resultSub.textContent = '재료/GP가 차감됐을 수 있습니다. 새로고침 확인 바랍니다.';
+    resultSub.textContent = LANG==='ko'?'재료/GP가 차감됐을 수 있습니다. 새로고침 확인 바랍니다.':LANG==='ja'?'素材/GPが消費された可能性があります。更新して確認してください。':LANG==='zh'?'素材/GP可能已被扣除，请刷新确认。':'Materials/GP may have been deducted. Please refresh to verify.';
   } else {
     var d = apiRes.d;
     if (d.upgraded) {
@@ -45993,7 +46017,7 @@ async function syUpgradeShipStat(shipId, stat) {
       titleEl.textContent = '💔 강화 실패';
       resultEl.style.display = 'block';
       resultEl.style.color = '#ffb3b3';
-      resultEl.textContent = '재료와 GP는 소모되었습니다';
+      resultEl.textContent = LANG==='ko'?'재료와 GP는 소모되었습니다':LANG==='ja'?'素材とGPが消費されました':LANG==='zh'?'素材和GP已消耗':'Materials and GP were consumed';
       resultSub.style.display = 'block';
       resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  확률 ' + d.chance + '%  ·  굴림 ' + d.roll;
     }
@@ -46025,11 +46049,11 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
       body: JSON.stringify({ target_hp_pct: 100 })
     });
     var d = await r.json();
-    if (d.error) { showFactionToast('수리 실패: ' + d.error, 'error'); return; }
+    if (d.error) { showFactionToast((LANG==='ko'?'수리 실패: ':LANG==='ja'?'修理失敗: ':LANG==='zh'?'修复失败: ':'Repair failed: ') + d.error, 'error'); return; }
     showFactionToast('🔧 수리 완료! +' + syFmt(d.healed) + ' HP (-' + d.gp_cost + ' GP)', 'success');
     refreshBalance();
     await refreshShipyard();
-  } catch(e) { showFactionToast('수리 요청 실패', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'수리 요청 실패':LANG==='ja'?'修理リクエスト失敗':LANG==='zh'?'修复请求失败':'Repair request failed','error'); }
 }
 
 async function syScrapShip(shipId, name) {
@@ -46047,16 +46071,16 @@ async function syScrapShip(shipId, name) {
       headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders())
     });
     var d = await r.json();
-    if (d.error) { showFactionToast('해체 실패: ' + d.error, 'error'); return; }
+    if (d.error) { showFactionToast((LANG==='ko'?'해체 실패: ':LANG==='ja'?'解体失敗: ':LANG==='zh'?'解体失败: ':'Scrap failed: ') + d.error, 'error'); return; }
     var refundedParts = [];
     if (d.gpRefunded) refundedParts.push('+' + d.gpRefunded + ' GP');
     if (d.mineralsRefunded) {
       for (var k in d.mineralsRefunded) refundedParts.push('+' + d.mineralsRefunded[k] + ' ' + k);
     }
-    showFactionToast('🔥 해체 완료 — 환불: ' + (refundedParts.join(', ') || '없음'), 'success');
+    showFactionToast('🔥 ' + (LANG==='ko'?'해체 완료 — 환불: ':LANG==='ja'?'解体完了 — 返金: ':LANG==='zh'?'解体完成 — 返还: ':'Scrapped — Refund: ') + (refundedParts.join(', ') || (LANG==='ko'?'없음':LANG==='ja'?'なし':LANG==='zh'?'无':'none')), 'success');
     refreshBalance();
     await refreshShipyard();
-  } catch(e) { showFactionToast('해체 요청 실패', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'해체 요청 실패':LANG==='ja'?'解体リクエスト失敗':LANG==='zh'?'解体请求失败':'Scrap request failed','error'); }
 }
 
 async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
@@ -46082,11 +46106,11 @@ async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
       body: JSON.stringify({ units: units })
     });
     var d = await r.json();
-    if (d.error) { showFactionToast('충전 실패: ' + d.error, 'error'); return; }
+    if (d.error) { showFactionToast((LANG==='ko'?'충전 실패: ':LANG==='ja'?'充電失敗: ':LANG==='zh'?'充电失败: ':'Charge failed: ') + d.error, 'error'); return; }
     showFactionToast('🛡 실드 충전 완료! +' + syFmt(d.shield_added) + ' (-' + d.gp_cost + ' GP)', 'success');
     refreshBalance();
     await refreshShipyard();
-  } catch(e) { showFactionToast('실드 충전 요청 실패', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'실드 충전 요청 실패':LANG==='ja'?'シールド充電リクエスト失敗':LANG==='zh'?'护盾充电请求失败':'Shield charge request failed','error'); }
 }
 
 function filterMarketFaction(faction) {
@@ -46139,7 +46163,7 @@ function renderShipMarket() {
     ? '<div style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;padding:6px 0 2px">' + listings.length + ' / ' + allCount + ' 항목</div>'
     : '';
   if (!listings.length) {
-    list.innerHTML = countLabel + '<div class="sy-empty" style="grid-column:1/-1">' + (allCount ? '조건에 맞는 함선이 없습니다' : '판매 중인 함선이 없습니다') + '<br><span style="font-size:9px;opacity:.6">강화한 함선을 MY FLEET에서 판매 등록할 수 있습니다</span></div>';
+    list.innerHTML = countLabel + '<div class="sy-empty" style="grid-column:1/-1">' + (allCount ? (LANG==='ko'?'조건에 맞는 함선이 없습니다':LANG==='ja'?'条件に合う艦船がありません':LANG==='zh'?'没有符合条件的舰船':'No ships match the filter') : (LANG==='ko'?'판매 중인 함선이 없습니다':LANG==='ja'?'販売中の艦船がありません':LANG==='zh'?'没有在售舰船':'No ships for sale')) + '<br><span style="font-size:9px;opacity:.6">'+( LANG==='ko'?'강화한 함선을 MY FLEET에서 판매 등록할 수 있습니다':LANG==='ja'?'強化した艦船をMY FLEETで売りに出せます':LANG==='zh'?'可以在MY FLEET中上架强化后的舰船':'You can list upgraded ships from MY FLEET')+'</span></div>';
     return;
   }
   list.innerHTML = countLabel + listings.map(function(s) {
@@ -46182,7 +46206,7 @@ async function syListShipForSale(shipId) {
   });
   if (priceText === null) return;
   var price = Number(String(priceText).replace(/,/g, '').trim());
-  if (!Number.isFinite(price) || price <= 0) { showFactionToast('판매가가 올바르지 않습니다', 'error'); return; }
+  if (!Number.isFinite(price) || price <= 0) { showFactionToast(LANG==='ko'?'판매가가 올바르지 않습니다':LANG==='ja'?'販売価格が正しくありません':LANG==='zh'?'售价无效':'Invalid listing price','error'); return; }
   try {
     var r = await fetch('/api/ships/' + shipId + '/list', {
       method:'POST',
@@ -46190,10 +46214,10 @@ async function syListShipForSale(shipId) {
       body:JSON.stringify({ price_gp: price })
     });
     var d = await r.json();
-    if (!r.ok || d.error) { showFactionToast('판매 등록 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast('판매 등록 완료: ' + syFmt(d.price_gp) + ' GP', 'success');
+    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'판매 등록 실패: ':LANG==='ja'?'出品失敗: ':LANG==='zh'?'上架失败: ':'Listing failed: ') + (d.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast((LANG==='ko'?'판매 등록 완료: ':LANG==='ja'?'出品完了: ':LANG==='zh'?'上架完成: ':'Listed: ') + syFmt(d.price_gp) + ' GP', 'success');
     await refreshShipyard();
-  } catch(e) { showFactionToast('판매 등록 요청 실패', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'판매 등록 요청 실패':LANG==='ja'?'出品リクエスト失敗':LANG==='zh'?'上架请求失败':'Listing request failed','error'); }
 }
 
 async function syCancelShipListing(listingId) {
@@ -46206,10 +46230,10 @@ async function syCancelShipListing(listingId) {
       headers:getAuthHeaders()
     });
     var d = await r.json();
-    if (!r.ok || d.error) { showFactionToast('판매 취소 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast('판매 취소 완료', 'success');
+    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'판매 취소 실패: ':LANG==='ja'?'出品キャンセル失敗: ':LANG==='zh'?'取消上架失败: ':'Cancel listing failed: ') + (d.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast(LANG==='ko'?'판매 취소 완료':LANG==='ja'?'出品キャンセル完了':LANG==='zh'?'取消上架完成':'Listing cancelled','success');
     await refreshShipyard();
-  } catch(e) { showFactionToast('판매 취소 요청 실패', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'판매 취소 요청 실패':LANG==='ja'?'キャンセルリクエスト失敗':LANG==='zh'?'取消请求失败':'Cancel request failed','error'); }
 }
 
 async function syBuyShipListing(listingId) {
@@ -46230,11 +46254,11 @@ async function syBuyShipListing(listingId) {
       headers:getAuthHeaders()
     });
     var d = await r.json();
-    if (!r.ok || d.error) { showFactionToast('구매 실패: ' + (d.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast('구매 완료: 내 함대에 배치됨', 'success');
+    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'구매 실패: ':LANG==='ja'?'購入失敗: ':LANG==='zh'?'购买失败: ':'Purchase failed: ') + (d.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast(LANG==='ko'?'구매 완료: 내 함대에 배치됨':LANG==='ja'?'購入完了: 艦隊に配備されました':LANG==='zh'?'购买完成：已加入我的舰队':'Purchase complete: added to fleet','success');
     refreshBalance();
     await refreshShipyard();
-  } catch(e) { showFactionToast('구매 요청 실패', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'구매 요청 실패':LANG==='ja'?'購入リクエスト失敗':LANG==='zh'?'购买请求失败':'Purchase request failed','error'); }
 }
 
 function updateFooter() {
@@ -46325,7 +46349,7 @@ var fleetCmdState = {
 };
 
 function openFleetCmd() {
-  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   document.getElementById('fleetCmdModal').classList.add('active');
   loadFleetOptions().then(function(){ refreshFleetList(); });
 }
@@ -46411,7 +46435,7 @@ async function loadFleetDetail(fleetId) {
     var res = await fetch('/api/fleets/' + fleetId, { headers: getAuthHeaders() });
     var data = await res.json();
     if (!res.ok || !data.fleet) {
-      showFactionToast('함대 로드 실패: ' + fleetCmdErrorMessage(data.error, data), 'error');
+      showFactionToast((LANG==='ko'?'함대 로드 실패: ':LANG==='ja'?'艦隊ロード失敗: ':LANG==='zh'?'舰队加载失败: ':'Fleet load failed: ') + fleetCmdErrorMessage(data.error, data), 'error');
       return;
     }
     fleetCmdState.selectedFleet = data.fleet;
@@ -46712,11 +46736,11 @@ async function setFleetTactic(type, value) {
     if (!res.ok) {
       if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
       renderFleetDetail();
-      showFactionToast('변경 실패: ' + fleetCmdErrorMessage(data.error, data), 'error');
+      showFactionToast((LANG==='ko'?'변경 실패: ':LANG==='ja'?'変更失敗: ':LANG==='zh'?'更改失败: ':'Change failed: ') + fleetCmdErrorMessage(data.error, data), 'error');
       if (wasOpen) keepFleetCmdOpen(scrollTop);
       return;
     }
-    showFactionToast((type === 'formation' ? '진형' : '기동') + ' 변경됨', 'success');
+    showFactionToast((type === 'formation' ? (LANG==='ko'?'진형':LANG==='ja'?'陣形':LANG==='zh'?'阵型':'Formation') : (LANG==='ko'?'기동':LANG==='ja'?'機動':LANG==='zh'?'机动':'Maneuver')) + (LANG==='ko'?' 변경됨':LANG==='ja'?' 変更済み':LANG==='zh'?' 已变更':' changed'), 'success');
     updateFleetListSnapshotFromSelected();
     renderFleetList();
     renderFleetDetail();
@@ -46725,7 +46749,7 @@ async function setFleetTactic(type, value) {
     if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
     renderFleetDetail();
     if (wasOpen) keepFleetCmdOpen(scrollTop);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -46740,19 +46764,19 @@ async function createNewFleet() {
     });
     var data = await res.json();
     if (!res.ok) {
-      showFactionToast('오류: ' + fleetCmdErrorMessage(data.error, data), 'error'); return;
+      showFactionToast((LANG==='ko'?'오류: ':LANG==='ja'?'エラー: ':LANG==='zh'?'错误: ':'Error: ') + fleetCmdErrorMessage(data.error, data), 'error'); return;
     }
-    showFactionToast('\'' + data.name + '\' 생성됨', 'success');
+    showFactionToast('\'' + data.name + '\' ' + (LANG==='ko'?'생성됨':LANG==='ja'?'作成しました':LANG==='zh'?'已创建':'created'), 'success');
     await refreshFleetList();
     await selectFleet(data.id);
-  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
 }
 
 async function renameFleet() {
   var f = fleetCmdState.selectedFleet; if (!f) return;
   var newName = await gameInput({ title:'함대 이름 변경', label:'새 이름', placeholder:f.name, defaultValue:f.name, maxLength:60 });
   if (newName === null || newName.trim() === f.name) return;
-  if (!newName.trim()) { showFactionToast('이름이 비어있습니다', 'error'); return; }
+  if (!newName.trim()) { showFactionToast(LANG==='ko'?'이름이 비어있습니다':LANG==='ja'?'名前が空です':LANG==='zh'?'名称为空':'Name is empty','error'); return; }
   try {
     var res = await fetch('/api/fleets/' + f.id, {
       method: 'PUT',
@@ -46760,10 +46784,10 @@ async function renameFleet() {
       body: JSON.stringify({ name: newName.trim() })
     });
     var data = await res.json();
-    if (!res.ok) { showFactionToast('변경 실패: ' + fleetCmdErrorMessage(data.error, data), 'error'); return; }
-    showFactionToast('이름 변경됨', 'success');
+    if (!res.ok) { showFactionToast((LANG==='ko'?'변경 실패: ':LANG==='ja'?'変更失敗: ':LANG==='zh'?'更改失败: ':'Change failed: ') + fleetCmdErrorMessage(data.error, data), 'error'); return; }
+    showFactionToast(LANG==='ko'?'이름 변경됨':LANG==='ja'?'名前変更しました':LANG==='zh'?'名称已更改':'Name changed','success');
     await refreshFleetList();
-  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
 }
 
 async function deleteFleetPrompt() {
@@ -46777,12 +46801,12 @@ async function deleteFleetPrompt() {
     var res = await fetch('/api/fleets/' + f.id, { method: 'DELETE', headers: getAuthHeaders() });
     var data = await res.json();
     if (!res.ok) {
-      showFactionToast('오류: ' + fleetCmdErrorMessage(data.error, data), 'error'); return;
+      showFactionToast((LANG==='ko'?'오류: ':LANG==='ja'?'エラー: ':LANG==='zh'?'错误: ':'Error: ') + fleetCmdErrorMessage(data.error, data), 'error'); return;
     }
-    showFactionToast(data.ships_moved > 0 ? ('해체 완료 — ' + data.ships_moved + '척 이동') : '해체 완료', 'success');
+    showFactionToast(data.ships_moved > 0 ? ((LANG==='ko'?'해체 완료 — ':LANG==='ja'?'解散完了 — ':LANG==='zh'?'解散完成 — ':'Disbanded — ') + data.ships_moved + (LANG==='ko'?'척 이동':LANG==='ja'?'隻移動':LANG==='zh'?'艘已移动':' ships moved')) : (LANG==='ko'?'해체 완료':LANG==='ja'?'解散完了':LANG==='zh'?'解散完成':'Disbanded'), 'success');
     fleetCmdState.selectedFleetId = null; fleetCmdState.selectedFleet = null;
     await refreshFleetList();
-  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
 }
 
 async function showMoveShipsDialog(event) {
@@ -46791,14 +46815,14 @@ async function showMoveShipsDialog(event) {
   var shipIds = Array.from(fleetCmdState.selectedShipIds);
   if (!shipIds.length) return;
   var otherFleets = fleetCmdState.fleets.filter(function(f){ return f.id !== fleetCmdState.selectedFleetId && !f.is_in_battle; });
-  if (!otherFleets.length) { showFactionToast('이동할 함대가 없습니다. 새 함대를 만드세요.', 'error'); return; }
+  if (!otherFleets.length) { showFactionToast(LANG==='ko'?'이동할 함대가 없습니다. 새 함대를 만드세요.':LANG==='ja'?'移動先の艦隊がありません。新しい艦隊を作成してください。':LANG==='zh'?'没有可移动的舰队，请创建新舰队。':'No other fleets to move to. Create a new fleet.','error'); return; }
   var targetId = await gamePicker({
     title: shipIds.length + '척 함선 이동',
     items: otherFleets.map(function(f){ return { value: String(f.id), label: f.name + ' (' + f.ships_alive + '척)', icon: '🚢' }; })
   });
   if (!targetId) return;
   var target = otherFleets.find(function(f){ return String(f.id) === targetId; });
-  if (!target) { showFactionToast('잘못된 선택', 'error'); return; }
+  if (!target) { showFactionToast(LANG==='ko'?'잘못된 선택':LANG==='ja'?'無効な選択':LANG==='zh'?'无效选择':'Invalid selection','error'); return; }
   try {
     var res = await fetch('/api/fleets/' + target.id + '/move-ships', {
       method: 'POST',
@@ -46807,13 +46831,13 @@ async function showMoveShipsDialog(event) {
     });
     var data = await res.json();
     if (!res.ok) {
-      showFactionToast('오류: ' + fleetCmdErrorMessage(data.error, data), 'error'); return;
+      showFactionToast((LANG==='ko'?'오류: ':LANG==='ja'?'エラー: ':LANG==='zh'?'错误: ':'Error: ') + fleetCmdErrorMessage(data.error, data), 'error'); return;
     }
-    showFactionToast(data.moved_count + '척 이동 완료', 'success');
+    showFactionToast(data.moved_count + (LANG==='ko'?'척 이동 완료':LANG==='ja'?'隻移動完了':LANG==='zh'?'艘移动完成':' ships moved'), 'success');
     fleetCmdState.selectedShipIds.clear();
     await refreshFleetList();
     keepFleetCmdOpen(scrollTop);
-  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
 }
 
 async function setAsFlagship(shipId) {
@@ -46840,7 +46864,7 @@ async function setAsFlagship(shipId) {
     if (wasOpen) keepFleetCmdOpen(scrollTop);
   } catch(e) {
     if (wasOpen) keepFleetCmdOpen(scrollTop);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -47442,7 +47466,7 @@ let battleHubState = {
 };
 
 async function openBattleHub() {
-  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   document.getElementById('battleHubModal').classList.add('active');
   await bhLoad();
   // 5초마다 active 탭 polling
@@ -47468,7 +47492,7 @@ function bhSwitchTab(tab) {
 async function bhLoad() {
   const tab = battleHubState.currentTab;
   const container = document.getElementById('battleListContent');
-  container.innerHTML = '<div class="bh-empty">로딩 중...</div>';
+  container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
   
   try {
     let url = '';
@@ -47482,9 +47506,9 @@ async function bhLoad() {
     
     if (battles.length === 0) {
       container.innerHTML = `<div class="bh-empty">
-        ${tab === 'active' ? '진행 중인 전투가 없습니다' : 
-          tab === 'recent' ? '최근 전투가 없습니다' : 
-          '전투 기록이 없습니다'}
+        ${tab === 'active' ? (LANG==='ko'?'진행 중인 전투가 없습니다':LANG==='ja'?'進行中の戦闘がありません':LANG==='zh'?'没有进行中的战斗':'No active battles') : 
+          tab === 'recent' ? (LANG==='ko'?'최근 전투가 없습니다':LANG==='ja'?'最近の戦闘がありません':LANG==='zh'?'没有最近的战斗':'No recent battles') : 
+          (LANG==='ko'?'전투 기록이 없습니다':LANG==='ja'?'戦闘記録がありません':LANG==='zh'?'没有战斗记录':'No battle history')}
       </div>`;
       return;
     }
@@ -47492,7 +47516,7 @@ async function bhLoad() {
     container.innerHTML = battles.map(b => renderBattleCard(b, tab)).join('');
   } catch (err) {
     console.error('bhLoad error:', err);
-    container.innerHTML = '<div class="bh-empty">로딩 실패</div>';
+    container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
   }
 }
 
@@ -47559,7 +47583,7 @@ async function bhRunBattle(battleId) {
     showFactionToast('전투 시작됨', 'success');
     setTimeout(bhLoad, 1500);
   } catch (err) {
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -47632,7 +47656,7 @@ async function loadRecommendedOpponents() {
     if (!chips) return;
 
     if (!data.results || data.results.length === 0) {
-      chips.innerHTML = '<span style="color:rgba(255,255,255,.3);font-size:9px">추천 상대 없음</span>';
+      chips.innerHTML = '<span style="color:rgba(255,255,255,.3);font-size:9px">'+(LANG==='ko'?'추천 상대 없음':LANG==='ja'?'推奨対戦相手なし':LANG==='zh'?'无推荐对手':'No recommended opponents')+'</span>';
       return;
     }
 
@@ -47722,11 +47746,11 @@ async function confirmDeclareBattle() {
   const targetFleetId = declareState.selectedTargetFleetId;
 
   if (!myFleetId || !targetFleetId) {
-    showFactionToast('함대 선택을 확인해주세요', 'error');
+    showFactionToast(LANG==='ko'?'함대 선택을 확인해주세요':LANG==='ja'?'艦隊の選択を確認してください':LANG==='zh'?'请确认舰队选择':'Please check fleet selection','error');
     return;
   }
   if (myFleetId === targetFleetId) {
-    showFactionToast('자기 자신은 공격할 수 없습니다', 'error');
+    showFactionToast(LANG==='ko'?'자기 자신은 공격할 수 없습니다':LANG==='ja'?'自分を攻撃することはできません':LANG==='zh'?'无法攻击自己':'Cannot attack yourself','error');
     return;
   }
 
@@ -47747,15 +47771,15 @@ async function confirmDeclareBattle() {
 
     if (!res.ok) {
       const msgMap = {
-        'MY_FLEET_NOT_FOUND': '내 함대를 찾을 수 없음',
-        'MY_FLEET_IN_BATTLE': '내 함대가 전투 중',
-        'MY_FLEET_EMPTY': '내 함대에 함선이 없음',
-        'TARGET_FLEET_NOT_FOUND': '대상 함대를 찾을 수 없음',
-        'TARGET_IN_BATTLE': '대상이 이미 전투 중',
-        'TARGET_EMPTY': '대상 함대가 비어있음',
-        'CANNOT_ATTACK_OWN_FLEET': '자기 함대는 공격 불가',
+        'MY_FLEET_NOT_FOUND': LANG==='ko'?'내 함대를 찾을 수 없음':LANG==='ja'?'自分の艦隊が見つかりません':LANG==='zh'?'找不到我的舰队':'My fleet not found',
+        'MY_FLEET_IN_BATTLE': LANG==='ko'?'내 함대가 전투 중':LANG==='ja'?'自分の艦隊が戦闘中':LANG==='zh'?'我的舰队正在战斗中':'My fleet is in battle',
+        'MY_FLEET_EMPTY': LANG==='ko'?'내 함대에 함선이 없음':LANG==='ja'?'自分の艦隊に艦船がありません':LANG==='zh'?'我的舰队没有舰船':'My fleet is empty',
+        'TARGET_FLEET_NOT_FOUND': LANG==='ko'?'대상 함대를 찾을 수 없음':LANG==='ja'?'対象艦隊が見つかりません':LANG==='zh'?'找不到目标舰队':'Target fleet not found',
+        'TARGET_IN_BATTLE': LANG==='ko'?'대상이 이미 전투 중':LANG==='ja'?'対象がすでに戦闘中':LANG==='zh'?'目标已在战斗中':'Target is already in battle',
+        'TARGET_EMPTY': LANG==='ko'?'대상 함대가 비어있음':LANG==='ja'?'対象艦隊が空です':LANG==='zh'?'目标舰队为空':'Target fleet is empty',
+        'CANNOT_ATTACK_OWN_FLEET': LANG==='ko'?'자기 함대는 공격 불가':LANG==='ja'?'自分の艦隊は攻撃不可':LANG==='zh'?'无法攻击自己的舰队':'Cannot attack own fleet',
       };
-      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      showFactionToast(msgMap[data.error] || (LANG==='ko'?`오류: ${data.error}`:LANG==='ja'?`エラー: ${data.error}`:LANG==='zh'?`错误: ${data.error}`:`Error: ${data.error}`), 'error');
       return;
     }
 
@@ -47764,7 +47788,7 @@ async function confirmDeclareBattle() {
     openCmdActionsModal(battleId, targetFleetId);
   } catch (err) {
     console.error('confirmDeclareBattle error:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -47951,7 +47975,7 @@ async function caApplyAndFight(){
   if (caState.selected.size === 0) { return caSkipAndFight(); }
 
   const btn = document.getElementById('caApplyBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '적용 중...'; }
+  if (btn) { btn.disabled = true; btn.textContent = LANG==='ko'?'적용 중...':LANG==='ja'?'適用中...':LANG==='zh'?'应用中...':'Applying...'; }
 
   try {
     const battleId = caState.battleId;
@@ -47967,8 +47991,8 @@ async function caApplyAndFight(){
       } else if (type === 'reinforce') {
         const code = (document.getElementById('caReinforceShip').value || '').trim();
         const cnt = parseInt(document.getElementById('caReinforceCount').value);
-        if (!code) { showFactionToast('증원 함선을 선택하세요', 'error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
-        if (!cnt || cnt < 1 || cnt > 20) { showFactionToast('함선 수 1~20', 'error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
+        if (!code) { showFactionToast(LANG==='ko'?'증원 함선을 선택하세요':LANG==='ja'?'増援艦船を選択してください':LANG==='zh'?'请选择增援舰船':'Select a reinforcement ship','error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
+        if (!cnt || cnt < 1 || cnt > 20) { showFactionToast(LANG==='ko'?'함선 수 1~20':LANG==='ja'?'艦船数 1~20':LANG==='zh'?'舰船数量 1~20':'Ship count 1~20','error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
         params.shipTypeCode = code;
         params.count = cnt;
       }
@@ -47985,26 +48009,26 @@ async function caApplyAndFight(){
       const j = await r.json().catch(()=>({}));
       if (!r.ok) {
         const msgMap = {
-          INSUFFICIENT_GP: 'GP 부족',
-          ACTION_QUOTA_EXCEEDED: '지시 개수 초과',
-          ACTION_ALREADY_DECLARED: '이미 선언된 지시',
-          COMMANDER_ACTIONS_DISABLED: '현재 비활성',
-          TARGET_FLEET_ALLY: '대상이 아군',
-          SHIP_TYPE_NOT_FOUND: '함선 코드 없음',
-          BATTLE_NOT_ACCEPTING_ACTIONS: '전투가 이미 진행 중',
+          INSUFFICIENT_GP: LANG==='ko'?'GP 부족':LANG==='ja'?'GP不足':LANG==='zh'?'GP不足':'Insufficient GP',
+          ACTION_QUOTA_EXCEEDED: LANG==='ko'?'지시 개수 초과':LANG==='ja'?'指示数超過':LANG==='zh'?'指令数量超限':'Action quota exceeded',
+          ACTION_ALREADY_DECLARED: LANG==='ko'?'이미 선언된 지시':LANG==='ja'?'すでに宣言された指示':LANG==='zh'?'已声明的指令':'Action already declared',
+          COMMANDER_ACTIONS_DISABLED: LANG==='ko'?'현재 비활성':LANG==='ja'?'現在無効':LANG==='zh'?'当前已禁用':'Currently disabled',
+          TARGET_FLEET_ALLY: LANG==='ko'?'대상이 아군':LANG==='ja'?'対象が味方':LANG==='zh'?'目标是友军':'Target is ally',
+          SHIP_TYPE_NOT_FOUND: LANG==='ko'?'함선 코드 없음':LANG==='ja'?'艦船コードなし':LANG==='zh'?'找不到舰船代码':'Ship type not found',
+          BATTLE_NOT_ACCEPTING_ACTIONS: LANG==='ko'?'전투가 이미 진행 중':LANG==='ja'?'戦闘はすでに進行中':LANG==='zh'?'战斗已经开始':'Battle already in progress',
         };
-        showFactionToast(`${a.action_type}: ${msgMap[j.error] || j.error || '실패'}`, 'error');
+        showFactionToast(`${a.action_type}: ${msgMap[j.error] || j.error || (LANG==='ko'?'실패':LANG==='ja'?'失敗':LANG==='zh'?'失败':'Failed')}`, 'error');
         if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';}
         return;
       }
     }
 
     closeCmdActionsModal();
-    showFactionToast(`${actions.length}개 지시 적용 · 시뮬레이션 중...`, 'success');
+    showFactionToast(`${actions.length}` + (LANG==='ko'?'개 지시 적용 · 시뮬레이션 중...':LANG==='ja'?'個の指示適用中 · シミュレーション中...':LANG==='zh'?'个指令已应用 · 模拟中...':' actions applied · Simulating...'), 'success');
     await caStartBattle(battleId);
   } catch (err) {
     console.error('caApplyAndFight error:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
     if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';}
   }
 }
@@ -48016,15 +48040,15 @@ async function caStartBattle(battleId){
     });
     const j = await r.json().catch(()=>({}));
     if (!r.ok) {
-      showFactionToast('전투 시작 실패: ' + (j.error || 'UNKNOWN'), 'error');
+      showFactionToast((LANG==='ko'?'전투 시작 실패: ':LANG==='ja'?'戦闘開始失敗: ':LANG==='zh'?'战斗开始失败: ':'Battle start failed: ') + (j.error || 'UNKNOWN'), 'error');
       return;
     }
-    showFactionToast('전투 시작 · 잠시 후 관전 창이 열립니다', 'success');
+    showFactionToast(LANG==='ko'?'전투 시작 · 잠시 후 관전 창이 열립니다':LANG==='ja'?'戦闘開始 · まもなく観戦画面が開きます':LANG==='zh'?'战斗开始 · 稍后将打开观战窗口':'Battle started · Spectator view will open shortly','success');
     setTimeout(() => openBattleViewer(battleId), 3000);
     setTimeout(() => showRewardIfAny(battleId), 8000);
   } catch (err) {
     console.error('caStartBattle error:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -48101,7 +48125,7 @@ function getMyWallet() {
 // ═════════════════════════════════════════════════════════════════
 
 async function openAiFight() {
-  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   document.getElementById('aiFightModal').classList.add('active');
   await loadAiFleets();
 }
@@ -48112,7 +48136,7 @@ function closeAiFight() {
 
 async function loadAiFleets() {
   const grid = document.getElementById('aiFightGrid');
-  grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 중...</div>';
+  grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
 
   try {
     const res = await fetch('/api/ai/fleets', { headers: getAuthHeaders() });
@@ -48120,7 +48144,7 @@ async function loadAiFleets() {
     const fleets = data.fleets || [];
 
     if (fleets.length === 0) {
-      grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">사용 가능한 AI 함대 없음<br>서버가 AI 함대 생성 중일 수 있습니다</div>';
+      grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'사용 가능한 AI 함대 없음<br>서버가 AI 함대 생성 중일 수 있습니다':LANG==='ja'?'使用可能なAI艦隊なし<br>サーバーがAI艦隊を生成中かもしれません':LANG==='zh'?'没有可用的AI舰队<br>服务器可能正在创建AI舰队':'No AI fleets available<br>Server may be generating AI fleets') + '</div>';
       return;
     }
 
@@ -48135,7 +48159,7 @@ async function loadAiFleets() {
     `).join('');
   } catch (err) {
     console.error('loadAiFleets:', err);
-    grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 실패</div>';
+    grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
   }
 }
 
@@ -48156,7 +48180,7 @@ async function challengeAi(aiFleetId, aiName) {
     });
     if (!fleetId) return;
     const chosenFleet = myFleets.find(f => String(f.id) === fleetId);
-    if (!chosenFleet) { showFactionToast('잘못된 선택', 'error'); return; }
+    if (!chosenFleet) { showFactionToast(LANG==='ko'?'잘못된 선택':LANG==='ja'?'無効な選択':LANG==='zh'?'无效选择':'Invalid selection','error'); return; }
 
     const res2 = await fetch('/api/ai/fight', {
       method: 'POST',
@@ -48166,7 +48190,7 @@ async function challengeAi(aiFleetId, aiName) {
     const data2 = await res2.json();
 
     if (!res2.ok) {
-      showFactionToast(`오류: ${data2.error}`, 'error');
+      showFactionToast((LANG==='ko'?`오류: `:LANG==='ja'?`エラー: `:LANG==='zh'?`错误: `:`Error: `) + data2.error, 'error');
       return;
     }
 
@@ -48178,7 +48202,7 @@ async function challengeAi(aiFleetId, aiName) {
     } else console.warn('[ai] battle_id missing in response:', data2);
   } catch (err) {
     console.error('challengeAi:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -48189,7 +48213,7 @@ async function challengeAi(aiFleetId, aiName) {
 var tnState = { currentTab: 'open' };
 
 async function openTournaments() {
-  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   document.getElementById('tournamentModal').classList.add('active');
   await tnLoad();
 }
@@ -48209,7 +48233,7 @@ function tnSwitchTab(tab) {
 async function tnLoad() {
   const tab = tnState.currentTab;
   const container = document.getElementById('tnListContent');
-  container.innerHTML = '<div class="bh-empty">로딩 중...</div>';
+  container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
 
   try {
     let statusParam = '';
@@ -48222,23 +48246,23 @@ async function tnLoad() {
     const list = data.tournaments || [];
 
     if (list.length === 0) {
-      container.innerHTML = `<div class="bh-empty">${tab === 'open' ? '모집 중인 토너먼트 없음' : tab === 'running' ? '진행 중인 토너먼트 없음' : '완료된 토너먼트 없음'}</div>`;
+      container.innerHTML = `<div class="bh-empty">${tab === 'open' ? (LANG==='ko'?'모집 중인 토너먼트 없음':LANG==='ja'?'募集中のトーナメントなし':LANG==='zh'?'没有招募中的锦标赛':'No open tournaments') : tab === 'running' ? (LANG==='ko'?'진행 중인 토너먼트 없음':LANG==='ja'?'進行中のトーナメントなし':LANG==='zh'?'没有进行中的锦标赛':'No running tournaments') : (LANG==='ko'?'완료된 토너먼트 없음':LANG==='ja'?'完了したトーナメントなし':LANG==='zh'?'没有已完成的锦标赛':'No completed tournaments')}</div>`;
       return;
     }
 
     container.innerHTML = list.map(t => renderTournamentCard(t)).join('');
   } catch (err) {
     console.error('tnLoad:', err);
-    container.innerHTML = '<div class="bh-empty">로딩 실패</div>';
+    container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
   }
 }
 
 function renderTournamentCard(t) {
   const statusLabel = {
-    'registering': `모집 중 ${t.current_participants}/${t.max_participants}`,
-    'ready': '시작 대기',
-    'running': `진행 중 · R${t.current_round}/${t.total_rounds}`,
-    'completed': '완료', 'cancelled': '취소',
+    'registering': `${LANG==='ko'?'모집 중':LANG==='ja'?'募集中':LANG==='zh'?'招募中':'Open'} ${t.current_participants}/${t.max_participants}`,
+    'ready': LANG==='ko'?'시작 대기':LANG==='ja'?'開始待ち':LANG==='zh'?'等待开始':'Ready to start',
+    'running': `${LANG==='ko'?'진행 중':LANG==='ja'?'進行中':LANG==='zh'?'进行中':'Running'} · R${t.current_round}/${t.total_rounds}`,
+    'completed': LANG==='ko'?'완료':LANG==='ja'?'完了':LANG==='zh'?'已完成':'Completed', 'cancelled': LANG==='ko'?'취소':LANG==='ja'?'キャンセル':LANG==='zh'?'已取消':'Cancelled',
   }[t.status] || t.status;
 
   return `
@@ -48247,15 +48271,15 @@ function renderTournamentCard(t) {
         <div class="tn-card-title">🏆 ${escapeHtml(t.name)}</div>
         <div class="tn-card-meta">
           <span>${statusLabel}</span>
-          <span>참가비 <b>${t.entry_fee_gp || 0}</b> GP</span>
-          <span>상금 <b>${t.prize_pool_gp || 0}</b> GP</span>
+          <span>${LANG==='ko'?'참가비':LANG==='ja'?'参加費':LANG==='zh'?'参赛费':'Entry'} <b>${t.entry_fee_gp || 0}</b> GP</span>
+          <span>${LANG==='ko'?'상금':LANG==='ja'?'賞金':LANG==='zh'?'奖金':'Prize'} <b>${t.prize_pool_gp || 0}</b> GP</span>
           <span>${t.max_participants}강</span>
         </div>
       </div>
       <div style="display:flex;gap:4px">
         ${t.status === 'registering'
-          ? `<button class="bc-btn primary" onclick="registerTournament(${t.id})">참가</button>` : ''}
-        <button class="bc-btn" onclick="openBracket(${t.id})">브래킷</button>
+          ? `<button class="bc-btn primary" onclick="registerTournament(${t.id})">${LANG==='ko'?'참가':LANG==='ja'?'参加':LANG==='zh'?'参加':'Join'}</button>` : ''}
+        <button class="bc-btn" onclick="openBracket(${t.id})">${LANG==='ko'?'브래킷':LANG==='ja'?'ブラケット':LANG==='zh'?'对阵表':'Bracket'}</button>
       </div>
     </div>
   `;
@@ -48289,19 +48313,19 @@ async function registerTournament(tournamentId) {
 
     if (!res2.ok) {
       const msgMap = {
-        'TOURNAMENT_FULL': '정원 초과', 'ALREADY_REGISTERED': '이미 참가 중',
-        'INSUFFICIENT_GP': `GP 부족 (필요: ${data2.meta?.required})`,
-        'FLEET_IN_BATTLE': '함대가 전투 중', 'DEADLINE_PASSED': '모집 마감됨',
+        'TOURNAMENT_FULL': LANG==='ko'?'정원 초과':LANG==='ja'?'定員超過':LANG==='zh'?'名额已满':'Tournament full', 'ALREADY_REGISTERED': LANG==='ko'?'이미 참가 중':LANG==='ja'?'すでに参加中':LANG==='zh'?'已参赛':'Already registered',
+        'INSUFFICIENT_GP': `${LANG==='ko'?'GP 부족 (필요: ':LANG==='ja'?'GP不足 (必要: ':LANG==='zh'?'GP不足（需要: ':'Insufficient GP (need: '}${data2.meta?.required})`,
+        'FLEET_IN_BATTLE': LANG==='ko'?'함대가 전투 중':LANG==='ja'?'艦隊が戦闘中':LANG==='zh'?'舰队正在战斗中':'Fleet in battle', 'DEADLINE_PASSED': LANG==='ko'?'모집 마감됨':LANG==='ja'?'募集締め切り':LANG==='zh'?'招募已截止':'Deadline passed',
       };
-      showFactionToast(msgMap[data2.error] || `오류: ${data2.error}`, 'error');
+      showFactionToast(msgMap[data2.error] || (LANG==='ko'?`오류: ${data2.error}`:LANG==='ja'?`エラー: ${data2.error}`:LANG==='zh'?`错误: ${data2.error}`:`Error: ${data2.error}`), 'error');
       return;
     }
 
-    showFactionToast('🏆 참가 완료', 'success');
+    showFactionToast('🏆 ' + (LANG==='ko'?'참가 완료':LANG==='ja'?'参加完了':LANG==='zh'?'参赛完成':'Registered'), 'success');
     tnLoad();
   } catch (err) {
     console.error('registerTournament:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -48315,7 +48339,7 @@ async function openCreateTournament() {
     selected: '8'
   });
   const size = parseInt(sizeStr);
-  if (![4, 8, 16].includes(size)) { showFactionToast('취소됨', 'error'); return; }
+  if (![4, 8, 16].includes(size)) { showFactionToast(LANG==='ko'?'취소됨':LANG==='ja'?'キャンセル':LANG==='zh'?'已取消':'Cancelled','error'); return; }
 
   const feeStr = await gameInput({ title:'참가비', label:'참가비 GP (0=무료)', placeholder:'100', defaultValue:'100', maxLength:8 });
   const fee = parseInt(feeStr) || 0;
@@ -48332,11 +48356,11 @@ async function openCreateTournament() {
     });
     const data = await res.json();
 
-    if (!res.ok) { showFactionToast(`오류: ${data.error}`, 'error'); return; }
-    showFactionToast('🏆 토너먼트 개최됨', 'success');
+    if (!res.ok) { showFactionToast((LANG==='ko'?`오류: `:LANG==='ja'?`エラー: `:LANG==='zh'?`错误: `:`Error: `) + data.error, 'error'); return; }
+    showFactionToast('🏆 ' + (LANG==='ko'?'토너먼트 개최됨':LANG==='ja'?'トーナメント開催されました':LANG==='zh'?'锦标赛已创建':'Tournament created'), 'success');
     tnLoad();
   } catch (err) {
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -48415,7 +48439,7 @@ function hijackFromTerritoryInfo(){
   const defWallet = btn.dataset.defWallet;
   const plot = selectedPlot;
   if (!claimId || !defWallet || !plot) {
-    showFactionToast('영토 정보가 부족합니다', 'error');
+    showFactionToast(LANG==='ko'?'영토 정보가 부족합니다':LANG==='ja'?'領土情報が不足しています':LANG==='zh'?'领地信息不足':'Territory info missing','error');
     return;
   }
   // Territory hijack must use the claim modal path: it calculates PP cost,
@@ -48628,7 +48652,7 @@ async function openBattleViewer(battleId, startTick) {
   // 가드: battleId 가 falsy/invalid 면 즉시 안내 — `/api/battles/undefined` 폴링 방지
   battleId = parseInt(battleId);
   if (!battleId || battleId <= 0) {
-    showFactionToast('전투 ID 누락 — 잠시 후 다시 시도해주세요', 'error');
+    showFactionToast(LANG==='ko'?'전투 ID 누락 — 잠시 후 다시 시도해주세요':LANG==='ja'?'戦闘IDが見つかりません — しばらくしてから再試行してください':LANG==='zh'?'战斗ID缺失 — 请稍后再试':'Battle ID missing — please try again shortly','error');
     console.error('[battle] openBattleViewer called with invalid battleId:', battleId);
     return;
   }
@@ -48694,7 +48718,7 @@ async function openBattleViewer(battleId, startTick) {
   if (!loaded) {
     if (battleDone) {
       // 전투 종료됐는데 타임라인 없음 — 에러 표시하되 viewer 유지
-      showFactionToast('전투 데이터 로딩 실패' + (lastErr ? ' (' + lastErr + ')' : ''), 'error');
+      showFactionToast((LANG==='ko'?'전투 데이터 로딩 실패':LANG==='ja'?'戦闘データ読み込み失敗':LANG==='zh'?'战斗数据加载失败':'Battle data load failed') + (lastErr ? ' (' + lastErr + ')' : ''), 'error');
       console.error('[battle] openBattleViewer timeline missing for ended battle', battleId, ':', lastErr);
     } else {
       // 전투 진행 중 — iframe WS가 처리 중, 조용히 대기
@@ -49419,7 +49443,7 @@ async function _injectRewardIntoResult(battleId) {
     const div = document.createElement('div');
     div.id = 'bvInlineReward';
     div.style.cssText = 'margin-top:12px;width:100%;border-top:1px solid rgba(255,215,0,.2);padding-top:10px';
-    div.innerHTML = `<div style="font-size:10px;font-weight:700;color:#ffd54f;letter-spacing:.8px;margin-bottom:6px">🏆 ${myReward.is_winner ? '승리 보상' : '참가 보상'}</div>${html}`;
+    div.innerHTML = `<div style="font-size:10px;font-weight:700;color:#ffd54f;letter-spacing:.8px;margin-bottom:6px">🏆 ${myReward.is_winner ? (LANG==='ko'?'승리 보상':LANG==='ja'?'勝利報酬':LANG==='zh'?'胜利奖励':'Victory Reward') : (LANG==='ko'?'참가 보상':LANG==='ja'?'参加報酬':LANG==='zh'?'参与奖励':'Participation Reward')}</div>${html}`;
     stats.appendChild(div);
   } catch (_) {}
 }
@@ -49617,7 +49641,7 @@ if ('serviceWorker' in navigator) {
 // ═════════════════════════════════════════════════════════════════
 
 async function openAlliance() {
-  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   document.getElementById('allianceModal').classList.add('active');
   await loadAlliance();
 }
@@ -49752,14 +49776,14 @@ async function openCreateAlliance() {
         'INSUFFICIENT_GP': 'GP 부족 (5000 필요)',
         'ALREADY_IN_ALLIANCE': '이미 다른 동맹 소속',
       };
-      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      showFactionToast(msgMap[data.error] || (LANG==='ko'?`오류: ${data.error}`:LANG==='ja'?`エラー: ${data.error}`:LANG==='zh'?`错误: ${data.error}`:`Error: ${data.error}`), 'error');
       return;
     }
     
     showFactionToast(`🤝 동맹 "${data.name}" 창설됨`, 'success');
     await loadAlliance();
   } catch (err) {
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -49778,14 +49802,14 @@ async function joinAllianceConfirm(allianceId, name) {
         'ALLIANCE_FULL': '정원 초과',
         'ALREADY_IN_ALLIANCE': '이미 다른 동맹 소속',
       };
-      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      showFactionToast(msgMap[data.error] || (LANG==='ko'?`오류: ${data.error}`:LANG==='ja'?`エラー: ${data.error}`:LANG==='zh'?`错误: ${data.error}`:`Error: ${data.error}`), 'error');
       return;
     }
     
     showFactionToast('🤝 가입 완료', 'success');
     await loadAlliance();
   } catch (err) {
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -49801,17 +49825,17 @@ async function leaveMyAlliance() {
     
     if (!res.ok) {
       if (data.error === 'LEADER_MUST_TRANSFER') {
-        showFactionToast('리더는 먼저 다른 멤버에게 이양해야 합니다', 'error');
+        showFactionToast(LANG==='ko'?'리더는 먼저 다른 멤버에게 이양해야 합니다':LANG==='ja'?'リーダーは先に他のメンバーに引き継がなければなりません':LANG==='zh'?'领袖必须先将职位移交给其他成员':'Leader must transfer to another member first','error');
       } else {
-        showFactionToast(`오류: ${data.error}`, 'error');
+        showFactionToast((LANG==='ko'?`오류: `:LANG==='ja'?`エラー: `:LANG==='zh'?`错误: `:`Error: `) + data.error, 'error');
       }
       return;
     }
-    
-    showFactionToast('동맹에서 탈퇴했습니다', 'success');
+
+    showFactionToast(LANG==='ko'?'동맹에서 탈퇴했습니다':LANG==='ja'?'同盟から脱退しました':LANG==='zh'?'已退出联盟':'Left alliance','success');
     await loadAlliance();
   } catch (err) {
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -49840,7 +49864,7 @@ function rpSwitchTab(tab) {
 
 async function rpLoad() {
   const grid = document.getElementById('replayGrid');
-  grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 중...</div>';
+  grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
   
   try {
     const url = rpState.currentTab === 'mine' ? '/api/replays/mine' : '/api/replays/featured';
@@ -49857,7 +49881,7 @@ async function rpLoad() {
     
     grid.innerHTML = replays.map(r => renderReplayCard(r)).join('');
   } catch (err) {
-    grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 실패</div>';
+    grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
   }
 }
 
@@ -49890,14 +49914,14 @@ async function viewReplay(shareToken, battleId) {
     const res = await fetch(`/api/replays/t/${shareToken}`);
     const data = await res.json();
     if (!res.ok) {
-      showFactionToast('리플레이를 찾을 수 없음', 'error');
+      showFactionToast(LANG==='ko'?'리플레이를 찾을 수 없음':LANG==='ja'?'リプレイが見つかりません':LANG==='zh'?'找不到回放':'Replay not found','error');
       return;
     }
     
     closeReplays();
     openBattleViewer(data.replay.battle_id);
   } catch (err) {
-    showFactionToast('로딩 실패', 'error');
+    showFactionToast(LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed','error');
   }
 }
 
@@ -49905,7 +49929,7 @@ async function viewReplay(shareToken, battleId) {
  * 배틀 뷰어에서 "공유하기" 버튼으로 호출
  */
 async function shareCurrentBattle() {
-  if (!bv.battle) { showFactionToast('공유할 전투 없음', 'error'); return; }
+  if (!bv.battle) { showFactionToast(LANG==='ko'?'공유할 전투 없음':LANG==='ja'?'共有する戦闘がありません':LANG==='zh'?'没有可分享的战斗':'No battle to share','error'); return; }
   
   const battleId = bv.battle.id;
   const title = await gameInput({ title:'📼 리플레이 공유', label:'제목 (선택)', placeholder:'나의 함대 대전', maxLength:60 });
@@ -49929,7 +49953,7 @@ async function shareCurrentBattle() {
         'BATTLE_NOT_ENDED': '전투가 아직 끝나지 않음',
         'REPLAY_LIMIT_REACHED': '공유 한도 초과 (최대 50개)',
       };
-      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      showFactionToast(msgMap[data.error] || (LANG==='ko'?`오류: ${data.error}`:LANG==='ja'?`エラー: ${data.error}`:LANG==='zh'?`错误: ${data.error}`:`Error: ${data.error}`), 'error');
       return;
     }
 
@@ -49940,7 +49964,7 @@ async function shareCurrentBattle() {
     showFactionToast('📼 공유 링크 생성 완료', 'success');
   } catch (err) {
     console.error('shareCurrentBattle:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -50361,7 +50385,7 @@ const wb = {
 };
 
 async function openWarBetting() {
-  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   document.getElementById('warBettingModal').classList.add('active');
   await wbLoad();
 }
@@ -50529,8 +50553,8 @@ async function wbPlaceBet(eventId) {
     document.getElementById(`wbAmount${eventId}`)?.value
   ) || 0;
 
-  if (!option) { showFactionToast('옵션을 선택하세요', 'error'); return; }
-  if (amount < 10) { showFactionToast('최소 10 GP 이상 베팅', 'error'); return; }
+  if (!option) { showFactionToast(LANG==='ko'?'옵션을 선택하세요':LANG==='ja'?'オプションを選択してください':LANG==='zh'?'请选择选项':'Select an option','error'); return; }
+  if (amount < 10) { showFactionToast(LANG==='ko'?'최소 10 GP 이상 베팅':LANG==='ja'?'最低10GPベット':LANG==='zh'?'最低下注10GP':'Minimum bet 10 GP','error'); return; }
 
   try {
     const res = await fetch('/api/betting/bet', {
@@ -50542,13 +50566,13 @@ async function wbPlaceBet(eventId) {
 
     if (!res.ok) {
       const msgMap = {
-        'BETTING_CLOSED':   '베팅이 마감됐습니다',
-        'ALREADY_BET':      '이미 베팅했습니다',
-        'INSUFFICIENT_GP':  `GP 부족: ${data.meta?.required} GP 필요`,
-        'BET_TOO_SMALL':    `최소 ${data.meta?.min} GP`,
-        'BET_TOO_LARGE':    `최대 ${data.meta?.max} GP`,
+        'BETTING_CLOSED': LANG==='ko'?'베팅이 마감됐습니다':LANG==='ja'?'ベット受付終了':LANG==='zh'?'投注已截止':'Betting closed',
+        'ALREADY_BET': LANG==='ko'?'이미 베팅했습니다':LANG==='ja'?'すでにベット済み':LANG==='zh'?'已下注':'Already bet',
+        'INSUFFICIENT_GP': `${LANG==='ko'?'GP 부족: ':LANG==='ja'?'GP不足: ':LANG==='zh'?'GP不足: ':'Insufficient GP: '}${data.meta?.required} GP`,
+        'BET_TOO_SMALL': `${LANG==='ko'?'최소':LANG==='ja'?'最小':LANG==='zh'?'最小':'Min'} ${data.meta?.min} GP`,
+        'BET_TOO_LARGE': `${LANG==='ko'?'최대':LANG==='ja'?'最大':LANG==='zh'?'最大':'Max'} ${data.meta?.max} GP`,
       };
-      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      showFactionToast(msgMap[data.error] || (LANG==='ko'?`오류: ${data.error}`:LANG==='ja'?`エラー: ${data.error}`:LANG==='zh'?`错误: ${data.error}`:`Error: ${data.error}`), 'error');
       return;
     }
 
@@ -50558,7 +50582,7 @@ async function wbPlaceBet(eventId) {
     await wbLoad();
   } catch (err) {
     console.error('[warBetting] placeBet error:', err);
-    showFactionToast('네트워크 오류', 'error');
+    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
   }
 }
 
@@ -50943,7 +50967,7 @@ window.closeTacticalLab = closeTacticalLab;
     var btn    = document.getElementById('bugSubmitBtn');
     var status = document.getElementById('bugStatusMsg');
     btn.disabled  = true;
-    btn.textContent = '전송 중...';
+    btn.textContent = LANG==='ko'?'전송 중...':LANG==='ja'?'送信中...':LANG==='zh'?'发送中...':'Sending...';
     status.style.display = 'none';
 
     // 게임 컨텍스트 수집
@@ -50992,15 +51016,15 @@ window.closeTacticalLab = closeTacticalLab;
           return;
         }
         btn.disabled   = false;
-        btn.textContent = '제출하기';
+        btn.textContent = LANG==='ko'?'제출하기':LANG==='ja'?'送信する':LANG==='zh'?'提交':'Submit';
         if (xhr.status === 200) {
           try {
             var r = JSON.parse(xhr.responseText);
-            document.getElementById('bugReportIdHint').textContent = '저장됨: ' + r.id;
+            document.getElementById('bugReportIdHint').textContent = (LANG==='ko'?'저장됨: ':LANG==='ja'?'保存済み: ':LANG==='zh'?'已保存: ':'Saved: ') + r.id;
           } catch(e) {}
           status.style.display = '';
           status.style.color   = '#66bb6a';
-          status.textContent   = '✓ 전송 완료';
+          status.textContent = '✓ ' + (LANG==='ko'?'전송 완료':LANG==='ja'?'送信完了':LANG==='zh'?'发送完成':'Sent');
           // 2초 후 자동 닫기
           setTimeout(function() {
             closeBugReporter();
@@ -51009,7 +51033,7 @@ window.closeTacticalLab = closeTacticalLab;
         } else {
           status.style.display = '';
           status.style.color   = '#ef5350';
-          status.textContent   = '✗ 전송 실패 (콘솔 확인)';
+          status.textContent = '✗ ' + (LANG==='ko'?'전송 실패 (콘솔 확인)':LANG==='ja'?'送信失敗 (コンソール確認)':LANG==='zh'?'发送失败（检查控制台）':'Send failed (check console)');
           console.error('[BugReport] 서버 응답:', xhr.status, xhr.responseText);
         }
       };
@@ -51019,10 +51043,10 @@ window.closeTacticalLab = closeTacticalLab;
           return;
         }
         btn.disabled   = false;
-        btn.textContent = '제출하기';
+        btn.textContent = LANG==='ko'?'제출하기':LANG==='ja'?'送信する':LANG==='zh'?'提交':'Submit';
         status.style.display = '';
         status.style.color   = '#ef5350';
-        status.textContent   = '✗ 네트워크 실패';
+        status.textContent = '✗ ' + (LANG==='ko'?'네트워크 실패':LANG==='ja'?'ネットワーク失敗':LANG==='zh'?'网络失败':'Network error');
       };
       xhr.send(JSON.stringify(payload));
     }
@@ -51032,12 +51056,12 @@ window.closeTacticalLab = closeTacticalLab;
   // ── 리셋 ─────────────────────────────────────────────────
   function _reset() {
     document.getElementById('bugDescArea').value   = '';
-    document.getElementById('bugReportIdHint').textContent = 'Claude가 읽고 수정합니다';
+    document.getElementById('bugReportIdHint').textContent = LANG==='ko'?'Claude가 읽고 수정합니다':LANG==='ja'?'Claudeが読んで修正します':LANG==='zh'?'Claude会阅读并修复':'Claude will read and fix this';
     document.getElementById('bugStatusMsg').style.display  = 'none';
     bugClearSs();
     var btn = document.getElementById('bugSubmitBtn');
     btn.disabled    = false;
-    btn.textContent = '제출하기';
+    btn.textContent = LANG==='ko'?'제출하기':LANG==='ja'?'送信する':LANG==='zh'?'提交':'Submit';
   }
 
 })();
