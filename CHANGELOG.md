@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: daily OPS mission notifications + forfeit exploit patch
+
+### server/routes/ships.js
+- **버그**: `POST /:id/list`, `POST /market/listings/:id/buy`, `POST /:id/repair` 에 `notifyMissionProgress` 호출 없음 → market_list/market_buy/repair_ship/repair_ship_3 미션 미적립
+- **수정**: 각 핸들러에 성공 시 fire-and-forget notify 추가
+- **버그**: `build_ship` — `res.json(result)` 전에 notify 호출, success 체크 없음
+- **수정**: 성공(`result.success || result.job`) 확인 후 notify, res.json을 notify 이후로 이동
+
+### server/routes/resourceCraft.js
+- **버그**: `POST /start` — craft_resource 미션 알림 없음
+- **수정**: craft_resource/craft_resource_3/craft_resource_5 notify 추가
+
+### server/routes/crafting.js
+- **버그**: `POST /crafting/craft` — craft_resource 미션 알림 없음
+- **수정**: 동일 3종 notify 추가
+
+### server/routes/fleetBattles.js
+- **버그**: `POST /:id/forfeit` — already_resolved 분기에서도 `battle_forfeit` 미션 적립 → 반복 호출로 무한 적립 가능
+- **수정**: `preparing` 상태에서만 알림 발화, already_resolved에서는 notify 제거
+
 ## 2026-05-06 — bugfix: onboarding PP reward parseInt→parseFloat + exchange_max fallback
 
 ### server/services/onboarding.js

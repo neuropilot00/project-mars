@@ -408,7 +408,7 @@ router.post('/:id/forfeit', requireAuth, async (req, res) => {
     }
 
     // 이미 ended/in_progress — 결과 그대로 (HP는 이미 적용됨)
-    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(wallet, 'battle_forfeit').catch(()=>{}); } catch(_) {}
+    // NOTE: do NOT fire mission notification for already-resolved battles (prevents repeated-call exploit)
     res.json({ success: true, result: 'already_resolved', status });
   } catch (err) {
     console.error('[battle] forfeit error:', err);

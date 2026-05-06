@@ -1,5 +1,17 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.39 버그수정 — daily OPS 미션 알림 누락 + forfeit 반복 exploit
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| ships.js market_list/market_buy/repair_ship 알림 누락 | ✅ 수정 | notifyMissionProgress 추가 |
+| resourceCraft.js craft_resource/×3/×5 알림 누락 | ✅ 수정 | POST /start 핸들러에 추가 |
+| crafting.js craft_resource/×3/×5 알림 누락 | ✅ 수정 | POST /crafting/craft 핸들러에 추가 |
+| ships.js build_ship — res.json 전에 알림 발화 안 됨 | ✅ 수정 | success 체크 후 알림, res.json 이후로 이동 |
+| fleetBattles.js forfeit already_resolved 시 battle_forfeit 적립 exploit | ✅ 수정 | preparing 상태에서만 알림 발화 |
+
+
+
 ## ✅ v6.37 버그수정 — onboarding PP parseInt 버그 + exchange_max fallback
 
 | 항목 | 상태 | 비고 |
