@@ -3176,11 +3176,11 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
 
     // 소유권 확인 + last_harvest_at 가져오기
     const claimRes = await client.query(
-      `SELECT c.id, c.owner, c.sector_id, c.last_harvest_at,
-              sec.tier AS sector_tier,
+      `SELECT c.id, c.owner, c.sector_code, c.last_harvest_at,
+              COALESCE(sd.sector_type, 'frontier') AS sector_tier,
               (SELECT COUNT(*) FROM pixels p WHERE p.claim_id = c.id) AS pixel_cnt
        FROM claims c
-       LEFT JOIN sectors sec ON sec.id = c.sector_id
+       LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
        WHERE c.id = $1 AND c.deleted_at IS NULL`,
       [claimId]
     );

@@ -13508,6 +13508,7 @@ function showTerritoryInfo(plot){
   if(!plot||!plot.owner) return;
   var info=document.getElementById('territoryInfo');
   info.style.display='';
+  var myW=walletState.address||'';
   var myW2=(walletState&&walletState.address||'').toLowerCase();
   var _isMyPlot=!!(myW2&&(plot.owner||'').toLowerCase()===myW2);
   // 내 영토 배지 — 상단 border + 배지 표시
@@ -13643,7 +13644,6 @@ function showTerritoryInfo(plot){
   // Show EDIT IMAGE + PROMO LINK + RENAME only for own territories
   var editBtn=document.getElementById('infoEditImgBtn');
   var linkEdit=document.getElementById('infoLinkEdit');
-  var myW=walletState.address||'';
   var cosBtn=document.getElementById('infoCosmeticBtn');
   var cosPanel=document.getElementById('cosmeticPanel');
   if(myW&&plot.owner===myW){

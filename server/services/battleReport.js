@@ -486,9 +486,12 @@ async function getPlayerBattleStats(wallet) {
 async function updateFleetCPI(fleetId) {
   try {
     const { rows: ships } = await pool.query(
-      `SELECT atk, def, max_hp, speed,
-              bonus_atk, bonus_def, bonus_hp, bonus_speed
-       FROM ships WHERE fleet_id = $1 AND is_alive = TRUE`,
+      `SELECT st.base_atk AS atk, st.base_def AS def,
+              s.max_hp, st.base_speed AS speed,
+              s.bonus_atk, s.bonus_def, s.bonus_hp, s.bonus_speed
+       FROM ships s
+       JOIN ship_types st ON st.code = s.ship_type_code
+       WHERE s.fleet_id = $1 AND s.is_alive = TRUE`,
       [fleetId]
     );
     const cpi = calcFleetCPI(ships.map(s => ({
