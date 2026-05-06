@@ -30776,7 +30776,7 @@ function _openInfoModal(title, bodyHtml, accentColor){
   modal.innerHTML = '<div style="background:linear-gradient(180deg,#181820,#0e0e16);border:1px solid '+color+';border-radius:12px;padding:18px;max-width:420px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 8px 50px '+color+'66">'
     + '<div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;text-align:center;letter-spacing:1px">'+escapeHtmlSafe(title)+'</div>'
     + '<div style="font-size:10px;color:var(--tx2);line-height:1.6">'+bodyHtml+'</div>'
-    + '<button onclick="document.getElementById(\'infoDetailModal\').remove()" style="width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer">닫기</button>'
+    + '<button onclick="document.getElementById(\'infoDetailModal\').remove()" style="width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer">'+(LANG==='ko'?'닫기':LANG==='ja'?'閉じる':LANG==='zh'?'关闭':'Close')+'</button>'
     + '</div>';
   document.body.appendChild(modal);
 }
@@ -30792,7 +30792,7 @@ function openMineralsPanel(){
       if(!Array.isArray(items)) items = items.resources || [];
       var body = '';
       if(!items.length){
-        body = '<div style="text-align:center;color:var(--tx3);padding:14px">보유 광물 없음</div>';
+        body = '<div style="text-align:center;color:var(--tx3);padding:14px">'+(LANG==='ko'?'보유 광물 없음':LANG==='ja'?'保有鉱物なし':LANG==='zh'?'无持有矿石':'No minerals held')+'</div>';
       } else {
         body = '<div style="display:grid;grid-template-columns:1fr auto;gap:6px 12px">';
         items.forEach(function(it){
@@ -30808,7 +30808,7 @@ function openMineralsPanel(){
     })
     .catch(function(){
       var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--mars)">로드 실패</div>', '#81c784');
+      _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--mars)">'+(LANG==='ko'?'로드 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>', '#81c784');
     });
 }
 
@@ -30823,7 +30823,7 @@ function openShipRegistry(){
       var summary = (d && d.summary) || null;
       var body = '';
       if(summary){
-        body += '<div style="text-align:center;color:var(--tx3);font-size:9px;margin-bottom:10px">총 '+(summary.total_ships||ships.length||0)+'척'+(summary.alive!=null?' · 가용 '+summary.alive+'척':'')+'</div>';
+        body += '<div style="text-align:center;color:var(--tx3);font-size:9px;margin-bottom:10px">'+(LANG==='ko'?'총 ':LANG==='ja'?'計 ':LANG==='zh'?'共 ':'Total ')+(summary.total_ships||ships.length||0)+(LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships')+(summary.alive!=null?(LANG==='ko'?' · 가용 ':LANG==='ja'?' · 可 ':LANG==='zh'?' · 可用 ':' · Available ')+summary.alive+(LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships'):'')+'</div>';
       }
       if(!ships.length){
         body += '<div style="text-align:center;color:var(--tx3);padding:14px">'+t('fleet_no_ships_hint')+'</div>';
@@ -30843,7 +30843,7 @@ function openShipRegistry(){
     })
     .catch(function(){
       var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--mars)">로드 실패</div>', '#5cbbff');
+      _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--mars)">'+(LANG==='ko'?'로드 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>', '#5cbbff');
     });
 }
 
@@ -34095,7 +34095,7 @@ window.addEventListener('resize', _debounce(function(){
     var content = document.getElementById('pvpHubContent');
     var wallet = walletState && walletState.address;
     if (!wallet) {
-      if (content && _pvpHubTab === 'rec') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">지갑을 연결하세요</div>';
+      if (content && _pvpHubTab === 'rec') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">'+(LANG==='ko'?'지갑을 연결하세요':LANG==='ja'?'ウォレットを接続してください':LANG==='zh'?'请连接钱包':'Connect your wallet')+'</div>';
       return;
     }
     try {
@@ -34114,10 +34114,10 @@ window.addEventListener('resize', _debounce(function(){
           var col   = factionColors[o.faction_code] || '#aaa';
           var fName = factionNames[o.faction_code]  || (o.faction_code||'').toUpperCase();
           var onlineDot = o.is_online
-            ? '<span style="color:#66bb6a;font-size:8px">●온라인</span>'
-            : '<span style="color:var(--tx3);font-size:8px">●오프라인</span>';
-          var sectorStr = o.sector_code ? (o.sector_code.split('-')[0] + ' 섹터') : '';
-          var agoStr = o.last_battle_ago || (o.wins > 0 ? '오늘 활동' : '');
+            ? '<span style="color:#66bb6a;font-size:8px">●'+(LANG==='ko'?'온라인':LANG==='ja'?'オンライン':LANG==='zh'?'在线':'Online')+'</span>'
+            : '<span style="color:var(--tx3);font-size:8px">●'+(LANG==='ko'?'오프라인':LANG==='ja'?'オフライン':LANG==='zh'?'离线':'Offline')+'</span>';
+          var sectorStr = o.sector_code ? (o.sector_code.split('-')[0] + (LANG==='ko'?' 섹터':LANG==='ja'?' セクター':LANG==='zh'?' 区':' Sector')) : '';
+          var agoStr = o.last_battle_ago || (o.wins > 0 ? (LANG==='ko'?'오늘 활동':LANG==='ja'?'本日活動':LANG==='zh'?'今日活动':'Active today') : '');
           var sub = [sectorStr, agoStr].filter(Boolean).join(' · ');
           var displayName = o.fleet_name || (o.wallet.slice(0,6) + '…' + o.wallet.slice(-4));
           return '<div style="padding:9px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px;margin-bottom:6px">'
@@ -34132,7 +34132,7 @@ window.addEventListener('resize', _debounce(function(){
             + (sub ? '\u00a0\u00a0' + sub : '')
             + '</div>'
             + '</div>'
-            + '<button type="button" onclick="openBattleHubWithFleet(\'' + o.fleet_id + '\',\'' + o.wallet + '\')" style="flex-shrink:0;font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn);white-space:nowrap">도전장 보내기</button>'
+            + '<button type="button" onclick="openBattleHubWithFleet(\'' + o.fleet_id + '\',\'' + o.wallet + '\')" style="flex-shrink:0;font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn);white-space:nowrap">'+(LANG==='ko'?'도전장 보내기':LANG==='ja'?'対戦申込':LANG==='zh'?'发出挑战':'Challenge')+'</button>'
             + '</div>'
             + '</div>';
         }).join('');
@@ -34164,35 +34164,35 @@ window.addEventListener('resize', _debounce(function(){
             + '<div style="font-size:9px;color:' + heatCol + ';font-weight:700">🔥 Heat ' + heat + '</div>'
             + '</div>'
             + '<div style="display:flex;gap:10px;font-size:9px;color:var(--tx3)">'
-            + (s.active_battles  ? '<span style="color:#ff8a80">⚔ 전투 '  + s.active_battles  + '</span>' : '')
-            + (s.active_bounties ? '<span style="color:#ffab40">💰 현상금 ' + s.active_bounties + '</span>' : '')
-            + '<span>클레임 ' + s.claim_count + '</span>'
+            + (s.active_battles  ? '<span style="color:#ff8a80">⚔ '+(LANG==='ko'?'전투 ':LANG==='ja'?'戦闘 ':LANG==='zh'?'战斗 ':'Battles ')  + s.active_battles  + '</span>' : '')
+            + (s.active_bounties ? '<span style="color:#ffab40">💰 '+(LANG==='ko'?'현상금 ':LANG==='ja'?'賞金 ':LANG==='zh'?'悬赏 ':'Bounties ') + s.active_bounties + '</span>' : '')
+            + '<span>'+(LANG==='ko'?'클레임 ':LANG==='ja'?'クレーム ':LANG==='zh'?'领地 ':'Claims ') + s.claim_count + '</span>'
             + '</div>'
             + '</div>';
         }).join('');
     } catch(err) {
-      if (content && _pvpHubTab === 'conflict') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">로딩 실패</div>';
+      if (content && _pvpHubTab === 'conflict') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">'+(LANG==='ko'?'로딩 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>';
     }
   }
 
   function _pvpHubBountyHtml() {
     return '<div style="padding:8px;border-radius:6px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.15);margin-bottom:8px">'
-      + '<div style="font-size:9px;color:#ffab40;font-weight:700;font-family:var(--fn);letter-spacing:1px;margin-bottom:6px">💰 현상금 등록</div>'
+      + '<div style="font-size:9px;color:#ffab40;font-weight:700;font-family:var(--fn);letter-spacing:1px;margin-bottom:6px">💰 '+(LANG==='ko'?'현상금 등록':LANG==='ja'?'賞金登録':LANG==='zh'?'悬赏登记':'Bounty Board')+'</div>'
       + '<div style="display:flex;flex-direction:column;gap:5px">'
       + '<input type="text" id="bountyTargetWallet" placeholder="0x..." style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
       + '<div style="display:flex;gap:5px">'
-      + '<input type="number" id="bountyRewardGP" min="100" step="100" placeholder="GP (최소 100)" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
-      + '<input type="text" id="bountyReason" placeholder="사유" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
+      + '<input type="number" id="bountyRewardGP" min="100" step="100" placeholder="'+(LANG==='ko'?'GP (최소 100)':LANG==='ja'?'GP (最低100)':LANG==='zh'?'GP（最少100）':'GP (min 100)')+'" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
+      + '<input type="text" id="bountyReason" placeholder="'+(LANG==='ko'?'사유':LANG==='ja'?'理由':LANG==='zh'?'原因':'Reason')+'" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px;border-radius:5px;font-family:var(--fn)">'
       + '</div>'
-      + '<button type="button" onclick="postBounty()" style="padding:6px;border-radius:5px;background:rgba(255,171,64,.2);border:1px solid rgba(255,171,64,.4);color:#ffab40;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">등록</button>'
+      + '<button type="button" onclick="postBounty()" style="padding:6px;border-radius:5px;background:rgba(255,171,64,.2);border:1px solid rgba(255,171,64,.4);color:#ffab40;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+(LANG==='ko'?'등록':LANG==='ja'?'登録':LANG==='zh'?'登记':'Register')+'</button>'
       + '</div>'
       + '</div>'
       + '<div style="display:flex;gap:4px;margin-bottom:6px">'
-      + '<button id="btyTabAll" type="button" onclick="switchBountyTab(\'all\')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,171,64,.18);border:1px solid rgba(255,171,64,.4);color:#ffab40;cursor:pointer;font-weight:700">전체</button>'
-      + '<button id="btyTabMe" type="button" onclick="switchBountyTab(\'on-me\')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">내 현상금</button>'
-      + '<button id="btyTabMine" type="button" onclick="switchBountyTab(\'mine\')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">내가 등록</button>'
+      + '<button id="btyTabAll" type="button" onclick="switchBountyTab(\'all\')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,171,64,.18);border:1px solid rgba(255,171,64,.4);color:#ffab40;cursor:pointer;font-weight:700">'+(LANG==='ko'?'전체':LANG==='ja'?'全体':LANG==='zh'?'全部':'All')+'</button>'
+      + '<button id="btyTabMe" type="button" onclick="switchBountyTab(\'on-me\')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">'+(LANG==='ko'?'내 현상금':LANG==='ja'?'懸賞対象':LANG==='zh'?'针对我':'On Me')+'</button>'
+      + '<button id="btyTabMine" type="button" onclick="switchBountyTab(\'mine\')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">'+(LANG==='ko'?'내가 등록':LANG==='ja'?'私の登録':LANG==='zh'?'我的悬赏':'Mine')+'</button>'
       + '</div>'
-      + '<div id="bountyList" style="font-size:10px;color:var(--tx3)">로딩 중…</div>';
+      + '<div id="bountyList" style="font-size:10px;color:var(--tx3)">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
   }
 
   // legacy compat
@@ -35882,9 +35882,9 @@ function openShieldModal() {
       var claimName = (myClaims.find(function(c){ return c.id == claimId; }) || {}).custom_name || 'Territory ' + claimId;
       gameConfirm({
         icon: '🛡️', title: 'ACTIVATE SHIELD',
-        body: '"' + escHtml(claimName) + '" 을 ' + (opt ? opt.label : hours + 'h') + ' 동안 보호합니다.',
-        info: [{ k: '💰 GP 비용', v: (opt ? opt.cost : '?') + ' GP', ok: true }],
-        confirmText: '보호막 활성화'
+        body: LANG==='ko'? '"' + escHtml(claimName) + '" 을 ' + (opt ? opt.label : hours + 'h') + ' 동안 보호합니다.' : LANG==='ja'? '"' + escHtml(claimName) + '" を ' + (opt ? opt.label : hours + 'h') + ' 間保護します。' : LANG==='zh'? '"' + escHtml(claimName) + '" 将被保护 ' + (opt ? opt.label : hours + 'h') + '。' : '"' + escHtml(claimName) + '" will be shielded for ' + (opt ? opt.label : hours + 'h') + '.',
+        info: [{ k: '💰 '+(LANG==='ko'?'GP 비용':LANG==='ja'?'GPコスト':LANG==='zh'?'GP费用':'GP Cost'), v: (opt ? opt.cost : '?') + ' GP', ok: true }],
+        confirmText: LANG==='ko'?'보호막 활성화':LANG==='ja'?'シールド起動':LANG==='zh'?'激活护盾':'Activate Shield'
       }).then(function(confirmed) {
           if (!confirmed) return;
           return fetch('/api/shield/activate', {
@@ -36001,12 +36001,12 @@ async function openContestSubmitModal(contestId, entryFeeGp) {
   var w = walletState && walletState.address;
   if (!w) { gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
   var feeMsg = Number(entryFeeGp) > 0 ? ' · Entry fee: '+entryFeeGp+' GP' : '';
-  var title = await gameInput({title:'작품 제출',label:t('contest_title_prompt')||'작품 제목',placeholder:'My Artwork',maxLength:80});
+  var title = await gameInput({title:LANG==='ko'?'작품 제출':LANG==='ja'?'作品提出':LANG==='zh'?'提交作品':'Submit Entry',label:t('contest_title_prompt')||(LANG==='ko'?'작품 제목':LANG==='ja'?'作品タイトル':LANG==='zh'?'作品标题':'Title'),placeholder:'My Artwork',maxLength:80});
   if (!title || !title.trim()) return;
-  var imageUrl = await gameInput({title:'이미지 URL',label:t('contest_image_prompt')||'이미지 URL (선택)',placeholder:'https://',maxLength:300});
-  var desc = await gameInput({title:'설명',label:t('contest_desc_prompt')||'간단한 설명 (선택)',placeholder:'',maxLength:200});
+  var imageUrl = await gameInput({title:'IMAGE URL',label:t('contest_image_prompt')||(LANG==='ko'?'이미지 URL (선택)':LANG==='ja'?'画像URL（任意）':LANG==='zh'?'图片URL（可选）':'Image URL (optional)'),placeholder:'https://',maxLength:300});
+  var desc = await gameInput({title:LANG==='ko'?'설명':LANG==='ja'?'説明':LANG==='zh'?'描述':'Description',label:t('contest_desc_prompt')||(LANG==='ko'?'간단한 설명 (선택)':LANG==='ja'?'簡単な説明（任意）':LANG==='zh'?'简短描述（可选）':'Brief description (optional)'),placeholder:'',maxLength:200});
 
-  var ok = await gameConfirm({icon:'🎨',title:'작품 제출',body:'제목: <b>'+escapeHTML(title.trim())+'</b>'+feeMsg,confirmText:'제출'});
+  var ok = await gameConfirm({icon:'🎨',title:LANG==='ko'?'작품 제출':LANG==='ja'?'作品提出':LANG==='zh'?'提交作品':'Submit Entry',body:(LANG==='ko'?'제목: ':LANG==='ja'?'タイトル: ':LANG==='zh'?'标题: ':'Title: ')+'<b>'+escapeHTML(title.trim())+'</b>'+feeMsg,confirmText:LANG==='ko'?'제출':LANG==='ja'?'提出':LANG==='zh'?'提交':'Submit'});
   Promise.resolve(ok).then(function(ok) {
       if (!ok) return;
       return fetch('/api/contests/submit', {
@@ -36195,7 +36195,7 @@ function openListForRentModal() {
           items: [{label:'6 hours',value:6},{label:'12 hours',value:12},{label:'24 hours',value:24},{label:'48 hours',value:48},{label:'72 hours',value:72}]
         }).then(function(periodHours){
           if (!periodHours) return;
-          return gameInput({title:'렌탈 요금',label:t('rental_gp_prompt')||'GP / '+periodHours+'h 기간 (예: 50)',placeholder:'50',maxLength:10}).then(function(gpStr){
+          return gameInput({title:LANG==='ko'?'렌탈 요금':LANG==='ja'?'レンタル料金':LANG==='zh'?'租赁费用':'Rental Fee',label:t('rental_gp_prompt')||(LANG==='ko'?'GP / '+periodHours+'h 기간 (예: 50)':LANG==='ja'?'GP / '+periodHours+'h 期間 (例: 50)':LANG==='zh'?'GP / '+periodHours+'h 周期（例：50）':'GP / '+periodHours+'h period (e.g. 50)'),placeholder:'50',maxLength:10}).then(function(gpStr){
           if (!gpStr) return;
           return Promise.resolve().then(function(){
             var gp = parseFloat(gpStr);
@@ -39266,7 +39266,7 @@ function createAllianceAction() {
 async function openAllianceDepositModal() {
   var w = walletState && walletState.address;
   if (!w) return;
-  var amt = await gameInput({title:'금고 입금',label:t('alliance_deposit_prompt')||'입금할 GP 금액',placeholder:'50',defaultValue:'50',maxLength:10});
+  var amt = await gameInput({title:LANG==='ko'?'금고 입금':LANG==='ja'?'金庫入金':LANG==='zh'?'金库存入':'Treasury Deposit',label:t('alliance_deposit_prompt')||(LANG==='ko'?'입금할 GP 금액':LANG==='ja'?'入金GP額':LANG==='zh'?'存入GP数量':'GP amount to deposit'),placeholder:'50',defaultValue:'50',maxLength:10});
   if (!amt) return;
   amt = parseFloat(amt);
   if (isNaN(amt) || amt <= 0) { showToast('Invalid amount','error'); return; }
@@ -39286,11 +39286,11 @@ async function openAllianceWithdrawModal() {
   if (!w) return;
   var min = (_allianceSettings && _allianceSettings.withdrawMin) || 10;
   var fee = (_allianceSettings && _allianceSettings.withdrawFeePct) || 5;
-  var amt = await gameInput({title:'금고 출금',label:t('alliance_withdraw_prompt')||'출금 GP (최소 '+min+', 수수료 '+fee+'%)',placeholder:String(min),defaultValue:String(min),maxLength:10});
+  var amt = await gameInput({title:LANG==='ko'?'금고 출금':LANG==='ja'?'金庫出金':LANG==='zh'?'金库提取':'Treasury Withdraw',label:t('alliance_withdraw_prompt')||(LANG==='ko'?'출금 GP (최소 '+min+', 수수료 '+fee+'%)':'GP to withdraw (min '+min+', fee '+fee+'%)'),placeholder:String(min),defaultValue:String(min),maxLength:10});
   if (!amt) return;
   amt = parseFloat(amt);
-  if (isNaN(amt) || amt < min) { showToast('최소 출금액: '+min+' GP','error'); return; }
-  var note = await gameInput({title:'출금 메모',label:t('alliance_withdraw_note_prompt')||'메모 (선택)',placeholder:'',maxLength:100});
+  if (isNaN(amt) || amt < min) { showToast((LANG==='ko'?'최소 출금액: ':LANG==='ja'?'最低出金額: ':LANG==='zh'?'最低提取额: ':'Min withdrawal: ')+min+' GP','error'); return; }
+  var note = await gameInput({title:LANG==='ko'?'출금 메모':LANG==='ja'?'出金メモ':LANG==='zh'?'提取备注':'Withdraw Note',label:t('alliance_withdraw_note_prompt')||(LANG==='ko'?'메모 (선택)':LANG==='ja'?'メモ（任意）':LANG==='zh'?'备注（可选）':'Note (optional)'),placeholder:'',maxLength:100});
   fetch('/api/alliances/withdraw', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -39808,7 +39808,69 @@ function _achConditionLabel(condType, condValue) {
     governance_vote: v + ' governance votes',
     season_top:     'Season top placement',
   };
-  var dict = (lang === 'ko') ? KO : EN;
+  var JA = {
+    claim_count:    v + '回 領土クレーム',
+    pixel_count:    v + ' ピクセル保有',
+    battle_wins:    v + '回 戦闘勝利',
+    battle_count:   v + '回 戦闘参加',
+    fleet_battles:  v + '回 艦隊戦参加',
+    fleet_wins:     v + '回 艦隊戦勝利',
+    hijack_wins:    v + '回 ハイジャック成功',
+    ship_built:     v + '隻 艦船建造',
+    gp_spent:       v + ' GP 累計使用',
+    gp_earned:      v + ' GP 累計獲得',
+    pp_earned:      v + ' PP 累計獲得',
+    sectors_owned:  v + '個 セクター所有',
+    guild_join:     'ギルド加入',
+    guild_leader:   'ギルドリーダー',
+    referrals:      v + '名 紹介加入',
+    daily_streak:   v + '日 連続デイリー',
+    market_buy:     v + '回 マーケット購入',
+    market_sell:    v + '回 マーケット販売',
+    items_used:     v + '回 アイテム使用',
+    capsule_made:   v + '回 タイムカプセル作成',
+    sponsor_count:  v + '回 領土スポンサー',
+    siege_wins:     v + '回 攻城勝利',
+    rocket_drops:   v + '回 ロケットドロップ参加',
+    enhance_count:  v + '回 強化成功',
+    auction_wins:   v + '回 競売落札',
+    duel_wins:      v + '回 決闘勝利',
+    crafting_done:  v + '回 製作完了',
+    governance_vote: v + '回 ガバナンス投票',
+    season_top:     'シーズン上位',
+  };
+  var ZH = {
+    claim_count:    '领地索取 ' + v + ' 次',
+    pixel_count:    '持有 ' + v + ' 像素',
+    battle_wins:    '战斗胜利 ' + v + ' 次',
+    battle_count:   '参与战斗 ' + v + ' 次',
+    fleet_battles:  '参与舰队战 ' + v + ' 次',
+    fleet_wins:     '舰队战胜利 ' + v + ' 次',
+    hijack_wins:    '劫持成功 ' + v + ' 次',
+    ship_built:     '建造舰船 ' + v + ' 艘',
+    gp_spent:       '累计使用 ' + v + ' GP',
+    gp_earned:      '累计获得 ' + v + ' GP',
+    pp_earned:      '累计获得 ' + v + ' PP',
+    sectors_owned:  '拥有 ' + v + ' 个扇区',
+    guild_join:     '加入公会',
+    guild_leader:   '公会领袖',
+    referrals:      '推荐 ' + v + ' 名玩家',
+    daily_streak:   '连续 ' + v + ' 天每日任务',
+    market_buy:     '市场购买 ' + v + ' 次',
+    market_sell:    '市场出售 ' + v + ' 次',
+    items_used:     '使用物品 ' + v + ' 次',
+    capsule_made:   '创建时间胶囊 ' + v + ' 次',
+    sponsor_count:  '领地赞助 ' + v + ' 次',
+    siege_wins:     '攻城胜利 ' + v + ' 次',
+    rocket_drops:   '参与火箭投放 ' + v + ' 次',
+    enhance_count:  '强化成功 ' + v + ' 次',
+    auction_wins:   '拍卖成交 ' + v + ' 次',
+    duel_wins:      '决斗胜利 ' + v + ' 次',
+    crafting_done:  '制作完成 ' + v + ' 次',
+    governance_vote: '治理投票 ' + v + ' 次',
+    season_top:     '赛季排名靠前',
+  };
+  var dict = lang === 'ko' ? KO : lang === 'ja' ? JA : lang === 'zh' ? ZH : EN;
   return dict[condType] || (condType + ' >= ' + v);
 }
 
@@ -39824,6 +39886,10 @@ function showAchievementDetail(key) {
   var condition = _achConditionLabel(a.condition_type, a.condition_value);
   var labels = lang === 'ko'
     ? { criteria:'달성 조건', reward:'보상', status:'상태', unlocked:'달성됨', locked:'미달성', closeBtn:'닫기', date:'달성일' }
+    : lang === 'ja'
+    ? { criteria:'達成条件', reward:'報酬', status:'ステータス', unlocked:'達成済', locked:'未達成', closeBtn:'閉じる', date:'達成日' }
+    : lang === 'zh'
+    ? { criteria:'达成条件', reward:'奖励', status:'状态', unlocked:'已达成', locked:'未达成', closeBtn:'关闭', date:'达成日' }
     : { criteria:'Criteria', reward:'Reward', status:'Status', unlocked:'Unlocked', locked:'Locked', closeBtn:'Close', date:'Date' };
 
   // 기존 모달 있으면 먼저 정리
@@ -40563,25 +40629,25 @@ var CODEX_CONTENT = {
               '<defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ff783c"/></marker></defs>'+
               '<rect x="30"  y="30" width="110" height="50" rx="6" fill="rgba(91,184,232,.1)" stroke="#5bb8e8" stroke-width="1.5"/>'+
               '<text x="85"  y="55" text-anchor="middle" font-size="12" fill="#5bb8e8" font-weight="700">USDT</text>'+
-              '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">실제 화폐</text>'+
+              '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"実通貨":typeof LANG!=="undefined"&&LANG==="zh"?"真实货币":typeof LANG!=="undefined"&&LANG==="ko"?"실제 화폐":"Real Money")+'</text>'+
               '<rect x="195" y="30" width="110" height="50" rx="6" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/>'+
               '<text x="250" y="55" text-anchor="middle" font-size="12" fill="#ff783c" font-weight="700">PP</text>'+
-              '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">인게임 통화</text>'+
+              '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"ゲーム内通貨":typeof LANG!=="undefined"&&LANG==="zh"?"游戏内货币":typeof LANG!=="undefined"&&LANG==="ko"?"인게임 통화":"In-Game Currency")+'</text>'+
               '<rect x="360" y="30" width="110" height="50" rx="6" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="1.5"/>'+
               '<text x="415" y="55" text-anchor="middle" font-size="12" fill="#ffd166" font-weight="700">GP</text>'+
-              '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">정치 권력</text>'+
+              '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"政治力":typeof LANG!=="undefined"&&LANG==="zh"?"政治权力":typeof LANG!=="undefined"&&LANG==="ko"?"정치 권력":"Political Power")+'</text>'+
               '<line x1="140" y1="55" x2="190" y2="55" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
               '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">SWAP</text>'+
               '<line x1="190" y1="60" x2="140" y2="60" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)" stroke-dasharray="3,3"/>'+
               '<line x1="305" y1="55" x2="355" y2="55" stroke="#ff783c" stroke-width="1.5" stroke-dasharray="3,3"/>'+
-              '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#9aa3b0">환전 ✕</text>'+
-              '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">채굴·퀘스트·커미션 ↓</text>'+
+              '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"換金 ✕":typeof LANG!=="undefined"&&LANG==="zh"?"兑换 ✕":typeof LANG!=="undefined"&&LANG==="ko"?"환전 ✕":"No Swap ✕")+'</text>'+
+              '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"採掘・クエスト・委託 ↓":typeof LANG!=="undefined"&&LANG==="zh"?"采矿·任务·佣金 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"채굴·퀘스트·커미션 ↓":"Mining·Quest·Commission ↓")+'</text>'+
               '<line x1="250" y1="125" x2="250" y2="80" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">영토 보유 ↓</text>'+
+              '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"領土保有 ↓":typeof LANG!=="undefined"&&LANG==="zh"?"领地持有 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"영토 보유 ↓":"Territory Holding ↓")+'</text>'+
               '<line x1="415" y1="125" x2="415" y2="80" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">입금 ↓</text>'+
+              '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"入金 ↓":typeof LANG!=="undefined"&&LANG==="zh"?"入款 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"입금 ↓":"Deposit ↓")+'</text>'+
               '<line x1="85"  y1="125" x2="85"  y2="80" stroke="#5bb8e8" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP (PG는 단방향 축적)</text>'+
+              '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP ('+( typeof LANG!=="undefined"&&LANG==="ja"?"GPは一方向蓄積":typeof LANG!=="undefined"&&LANG==="zh"?"GP单向累积":typeof LANG!=="undefined"&&LANG==="ko"?"GP는 단방향 축적":"GP is one-way accumulation")+')</text>'+
             '</svg>',
             caption:'USDT ⇄ PP bidirectional swap / GP is one-way accumulation (no swap)' }
         ]
