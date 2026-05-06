@@ -30,14 +30,14 @@ async function getEntries(contestId, wallet) {
        up.nickname AS submitter_nick,
        $2 IS NOT NULL AND EXISTS(
          SELECT 1 FROM art_votes v
-         WHERE v.entry_id=e.id AND v.voter=$2
+         WHERE v.entry_id=e.id AND LOWER(v.voter)=LOWER($2)
        ) AS i_voted_this,
        $2 IS NOT NULL AND EXISTS(
          SELECT 1 FROM art_votes v2
-         WHERE v2.contest_id=e.contest_id AND v2.voter=$2
+         WHERE v2.contest_id=e.contest_id AND LOWER(v2.voter)=LOWER($2)
        ) AS i_voted_in_contest
      FROM art_entries e
-     LEFT JOIN users up ON up.wallet_address = e.wallet
+     LEFT JOIN users up ON LOWER(up.wallet_address) = LOWER(e.wallet)
      WHERE e.contest_id=$1 AND e.is_disqualified=false
      ORDER BY e.vote_count DESC, e.created_at ASC`,
     [contestId, wallet ? wallet.toLowerCase() : null]
@@ -68,18 +68,18 @@ async function submitEntry(wallet, contestId, title, description, imageUrl, clai
 
     // Already submitted?
     const { rows: existRows } = await client.query(
-      `SELECT id FROM art_entries WHERE contest_id=$1 AND wallet=$2`, [contestId, wLower]);
+      `SELECT id FROM art_entries WHERE contest_id=$1 AND LOWER(wallet)=LOWER($2)`, [contestId, wLower]);
     if (existRows.length) throw new Error('You already have an entry in this contest');
 
     // GP fee
     const fee = Number(contest.entry_fee_gp);
     if (fee > 0) {
       const { rows: balRows } = await client.query(
-        'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wLower]);
+        'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wLower]);
       const bal = balRows.length ? Number(balRows[0].balance) : 0;
       if (bal < fee) throw new Error(`Insufficient GP (need ${fee}, have ${bal.toFixed(2)})`);
       await client.query(
-        'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [fee, wLower]);
+        'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2)', [fee, wLower]);
       // Add to prize pool
       await client.query(
         'UPDATE art_contests SET prize_pool_gp = prize_pool_gp + $1 WHERE id=$2',
@@ -120,12 +120,12 @@ async function voteForEntry(voter, entryId) {
     const entry = entryRows[0];
     if (entry.contest_status !== 'voting') throw new Error('Contest is not in voting phase');
     if (entry.is_disqualified) throw new Error('Entry is disqualified');
-    if (entry.wallet === vLower) throw new Error('Cannot vote for your own entry');
+    if (entry.wallet.toLowerCase() === vLower) throw new Error('Cannot vote for your own entry');
     if (new Date(entry.voting_end) < new Date()) throw new Error('Voting has ended');
 
     // One vote per contest
     const { rows: dupRows } = await client.query(
-      `SELECT id FROM art_votes WHERE contest_id=$1 AND voter=$2`,
+      `SELECT id FROM art_votes WHERE contest_id=$1 AND LOWER(voter)=LOWER($2)`,
       [entry.contest_id, vLower]);
     if (dupRows.length) throw new Error('You have already voted in this contest');
 
@@ -133,11 +133,11 @@ async function voteForEntry(voter, entryId) {
     const fee = Number(entry.vote_fee_gp);
     if (fee > 0) {
       const { rows: balRows } = await client.query(
-        'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [vLower]);
+        'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [vLower]);
       const bal = balRows.length ? Number(balRows[0].balance) : 0;
       if (bal < fee) throw new Error(`Insufficient GP (need ${fee} to vote)`);
       await client.query(
-        'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [fee, vLower]);
+        'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2)', [fee, vLower]);
       await client.query(
         'UPDATE art_contests SET prize_pool_gp = prize_pool_gp + $1 WHERE id=$2',
         [fee, entry.contest_id]);
@@ -189,7 +189,7 @@ async function finalizeContest(contestId) {
       const prize = parseFloat((pool_gp * pcts[i] / 100).toFixed(6));
       if (prize > 0) {
         await client.query(
-          `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+          `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
           [entry.wallet, prize]
         );
         await client.query(

@@ -100,14 +100,14 @@ async function placeBet(walletAddress, eventId, option, amountGp) {
 
     // 중복 베팅 방지
     const { rows: dupRows } = await client.query(
-      `SELECT id FROM war_bets WHERE event_id = $1 AND user_wallet = $2`,
+      `SELECT id FROM war_bets WHERE event_id = $1 AND LOWER(user_wallet) = LOWER($2)`,
       [eventId, walletAddress]
     );
     if (dupRows[0]) throw new Error('ALREADY_BET');
 
     // GP 차감
     const { rows: userRows } = await client.query(
-      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -119,7 +119,7 @@ async function placeBet(walletAddress, eventId, option, amountGp) {
     }
 
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [amountGp, walletAddress]
     );
 
@@ -199,7 +199,7 @@ async function resolveEvent(eventId, winnerOption) {
         totalPaidOut += payout;
 
         await client.query(
-          `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+          `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
           [payout, bet.user_wallet]
         );
         await client.query(
@@ -291,7 +291,7 @@ async function getMyBets(walletAddress, limit = 30) {
            END AS option_label
     FROM war_bets wb
     JOIN war_bet_events e ON e.id = wb.event_id
-    WHERE wb.user_wallet = $1
+    WHERE LOWER(wb.user_wallet) = LOWER($1)
     ORDER BY wb.created_at DESC
     LIMIT $2
   `, [walletAddress, limit]);

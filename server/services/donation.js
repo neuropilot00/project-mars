@@ -27,7 +27,7 @@ async function getWall() {
     `SELECT d.id, d.wallet, COALESCE(u.nickname, d.wallet) AS nickname,
             d.amount_gp, d.message, d.created_at
      FROM donation_wall d
-     LEFT JOIN users u ON u.wallet_address = d.wallet
+     LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(d.wallet)
      ORDER BY d.created_at DESC LIMIT $1`,
     [cfg.wallSize]
   );
@@ -35,7 +35,7 @@ async function getWall() {
     `SELECT d.wallet, COALESCE(u.nickname, d.wallet) AS nickname,
             SUM(d.amount_gp)::int AS total_gp
      FROM donation_wall d
-     LEFT JOIN users u ON u.wallet_address = d.wallet
+     LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(d.wallet)
      GROUP BY d.wallet, u.nickname
      ORDER BY total_gp DESC LIMIT $1`,
     [cfg.topDonors]
@@ -50,6 +50,7 @@ async function getWall() {
 }
 
 async function donate(wallet, amountGP, message) {
+  wallet = wallet.toLowerCase();
   const cfg = await getCfg();
   if (!cfg.enabled) throw new Error('Donation wall disabled');
   amountGP = parseInt(amountGP, 10);
@@ -61,11 +62,11 @@ async function donate(wallet, amountGP, message) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const balRow = await client.query('SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wallet]);
+    const balRow = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
     if (!balRow.rows.length) throw new Error('User not found');
     if (balRow.rows[0].gp_balance < amountGP) throw new Error(`Need ${amountGP} GP`);
 
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [amountGP, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2)', [amountGP, wallet]);
 
     const { rows: [entry] } = await client.query(
       `INSERT INTO donation_wall(wallet, amount_gp, message) VALUES($1,$2,$3) RETURNING id`,
@@ -88,14 +89,15 @@ async function donate(wallet, amountGP, message) {
 }
 
 async function getMyDonations(wallet) {
+  wallet = wallet.toLowerCase();
   const { rows } = await pool.query(
-    `SELECT id, amount_gp, message, created_at FROM donation_wall WHERE wallet=$1
+    `SELECT id, amount_gp, message, created_at FROM donation_wall WHERE LOWER(wallet)=LOWER($1)
      ORDER BY created_at DESC LIMIT 20`, [wallet]
   );
   const { rows: [totals] } = await pool.query(
     `SELECT COALESCE(SUM(amount_gp),0)::int AS total_donated,
             COUNT(*)::int AS donation_count
-     FROM donation_wall WHERE wallet=$1`, [wallet]
+     FROM donation_wall WHERE LOWER(wallet)=LOWER($1)`, [wallet]
   );
   return { donations: rows, totals };
 }
@@ -109,7 +111,7 @@ async function getAdminStats() {
   );
   const { rows: top } = await pool.query(
     `SELECT d.wallet, COALESCE(u.nickname,d.wallet) AS nickname, SUM(d.amount_gp)::int AS total_gp
-     FROM donation_wall d LEFT JOIN users u ON u.wallet_address = d.wallet
+     FROM donation_wall d LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(d.wallet)
      GROUP BY d.wallet, u.nickname ORDER BY total_gp DESC LIMIT 10`
   );
   return { stats, top };

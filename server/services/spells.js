@@ -77,7 +77,7 @@ async function castSpell(wallet, claimId, spellType) {
 
     // Check if same spell type already active on this target from this caster
     const active = await client.query(
-      "SELECT id FROM territory_spells WHERE target_claim_id=$1 AND caster_wallet=$2 AND spell_type=$3 AND is_active=true AND expires_at>NOW()",
+      "SELECT id FROM territory_spells WHERE target_claim_id=$1 AND LOWER(caster_wallet)=LOWER($2) AND spell_type=$3 AND is_active=true AND expires_at>NOW()",
       [claimId, wallet, spellType]
     );
     if (active.rows.length) throw new Error(`You already have an active ${SPELLS[spellType].label} on this territory`);
@@ -85,12 +85,12 @@ async function castSpell(wallet, claimId, spellType) {
     const gpCost = cfg.costs[spellType];
 
     // Check balance
-    const bal = await client.query('SELECT gp_balance AS balance FROM users WHERE wallet_address=$1', [wallet]);
+    const bal = await client.query('SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1)', [wallet]);
     const balance = bal.rows.length ? parseInt(bal.rows[0].balance, 10) : 0;
     if (balance < gpCost) throw new Error(`Insufficient GP. Need ${gpCost}, have ${balance}`);
 
     // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [gpCost, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2)', [gpCost, wallet]);
     await client.query(
       "INSERT INTO gp_transactions(wallet,amount,type,note) VALUES($1,$2,'spell_cast',$3)",
       [wallet, -gpCost, `${SPELLS[spellType].icon} ${SPELLS[spellType].label} on claim #${claimId}`]
@@ -142,7 +142,7 @@ async function getClaimSpells(claimId) {
 // GET my spell cast history
 async function getMySpells(wallet, limit = 30) {
   const r = await pool.query(
-    "SELECT id, target_claim_id, spell_type, gp_cost, expires_at, is_active, created_at FROM territory_spells WHERE caster_wallet=$1 ORDER BY created_at DESC LIMIT $2",
+    "SELECT id, target_claim_id, spell_type, gp_cost, expires_at, is_active, created_at FROM territory_spells WHERE LOWER(caster_wallet)=LOWER($1) ORDER BY created_at DESC LIMIT $2",
     [wallet.toLowerCase(), Math.min(limit, 50)]
   );
   return r.rows.map(row => ({

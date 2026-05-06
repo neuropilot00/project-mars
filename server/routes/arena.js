@@ -123,7 +123,7 @@ router.post('/crash/bet', betLimiter, async (req, res) => {
     // Check balance
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
     const userRes = await client.query(
-      `SELECT ${balCol} as bal FROM users WHERE wallet_address = $1 FOR UPDATE`, [w]
+      `SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]
     );
     if (userRes.rows.length === 0) {
       await client.query('ROLLBACK');
@@ -146,7 +146,7 @@ router.post('/crash/bet', betLimiter, async (req, res) => {
 
     // Check not already bet
     const existBet = await client.query(
-      'SELECT id FROM crash_bets WHERE round_id = $1 AND wallet = $2', [roundId, w]
+      'SELECT id FROM crash_bets WHERE round_id = $1 AND LOWER(wallet) = LOWER($2)', [roundId, w]
     );
     if (existBet.rows.length > 0) {
       await client.query('ROLLBACK');
@@ -155,7 +155,7 @@ router.post('/crash/bet', betLimiter, async (req, res) => {
 
     // Deduct balance
     await client.query(
-      `UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]
+      `UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]
     );
 
     // Place bet
@@ -227,7 +227,7 @@ router.post('/crash/cashout', betLimiter, async (req, res) => {
 
     // Find active bet
     const betRes = await client.query(
-      "SELECT * FROM crash_bets WHERE round_id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
+      "SELECT * FROM crash_bets WHERE round_id = $1 AND LOWER(wallet) = LOWER($2) AND status = 'active' FOR UPDATE",
       [round.id, w]
     );
     if (betRes.rows.length === 0) {
@@ -247,7 +247,7 @@ router.post('/crash/cashout', betLimiter, async (req, res) => {
 
     // Credit winnings
     await client.query(
-      `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]
+      `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [payout, w]
     );
 
     // Transaction log
@@ -465,8 +465,8 @@ router.post('/mines/start', betLimiter, async (req, res) => {
     // Check no active game + balance in parallel
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
     const [activeGame, userRes] = await Promise.all([
-      client.query("SELECT id FROM mines_games WHERE wallet = $1 AND status = 'active'", [w]),
-      client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1 FOR UPDATE`, [w])
+      client.query("SELECT id FROM mines_games WHERE LOWER(wallet) = LOWER($1) AND status = 'active'", [w]),
+      client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w])
     ]);
 
     if (activeGame.rows.length > 0) {
@@ -481,7 +481,7 @@ router.post('/mines/start', betLimiter, async (req, res) => {
     // Deduct + Create game in parallel
     const grid = generateMinesGrid(mineCount);
     const [, gameRes] = await Promise.all([
-      client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]),
+      client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]),
       client.query(
         `INSERT INTO mines_games (wallet, bet_amount, currency, mine_count, grid, current_multiplier)
          VALUES ($1,$2,$3,$4,$5,1.0) RETURNING id`,
@@ -540,7 +540,7 @@ router.post('/mines/reveal', betLimiter, async (req, res) => {
     await client.query('BEGIN');
 
     const gameRes = await client.query(
-      "SELECT id, grid, revealed, mine_count, bet_amount FROM mines_games WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
+      "SELECT id, grid, revealed, mine_count, bet_amount FROM mines_games WHERE id = $1 AND LOWER(wallet) = LOWER($2) AND status = 'active' FOR UPDATE",
       [gameId, w]
     );
     if (gameRes.rows.length === 0) {
@@ -607,7 +607,7 @@ router.post('/mines/cashout', betLimiter, async (req, res) => {
     await client.query('BEGIN');
 
     const gameRes = await client.query(
-      "SELECT id, bet_amount, currency, current_multiplier, revealed, grid FROM mines_games WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
+      "SELECT id, bet_amount, currency, current_multiplier, revealed, grid FROM mines_games WHERE id = $1 AND LOWER(wallet) = LOWER($2) AND status = 'active' FOR UPDATE",
       [gameId, w]
     );
     if (gameRes.rows.length === 0) {
@@ -627,7 +627,7 @@ router.post('/mines/cashout', betLimiter, async (req, res) => {
 
     // Credit + Update game + Transaction log in parallel
     await Promise.all([
-      client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]),
+      client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [payout, w]),
       client.query("UPDATE mines_games SET status = 'cashed', payout = $1, ended_at = NOW() WHERE id = $2", [payout, gameId]),
       client.query(
         `INSERT INTO transactions (type, from_wallet, ${game.currency === 'USDT' ? 'usdt_amount' : 'pp_amount'}, fee, meta)
@@ -660,7 +660,7 @@ router.get('/mines/active', async (req, res) => {
     if (!w) return res.status(400).json({ error: 'Wallet required' });
 
     const r = await pool.query(
-      "SELECT id, bet_amount, currency, mine_count, revealed, current_multiplier FROM mines_games WHERE wallet = $1 AND status = 'active' LIMIT 1",
+      "SELECT id, bet_amount, currency, mine_count, revealed, current_multiplier FROM mines_games WHERE LOWER(wallet) = LOWER($1) AND status = 'active' LIMIT 1",
       [w]
     );
     if (r.rows.length === 0) return res.json({ active: false });
@@ -712,16 +712,16 @@ router.post('/coinflip/play', betLimiter, async (req, res) => {
   try {
     await client.query('BEGIN');
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
-    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
     if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
     // Deduct bet
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]);
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]);
 
     // Credit winnings
     if (won) {
-      await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]);
+      await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [payout, w]);
       await awardXP(client, w, Math.max(1, Math.floor(bet)));
     }
 
@@ -736,7 +736,7 @@ router.post('/coinflip/play', betLimiter, async (req, res) => {
       try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
     }
 
-    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
     await client.query('COMMIT');
 
     res.json({ result, won, choice: pick, payout, balance: parseFloat(balRes.rows[0].bal), hash: hash.slice(0, 16), seed });
@@ -759,7 +759,7 @@ router.get('/coinflip/history', async (req, res) => {
     const w = (req.query.wallet || '').toLowerCase().trim();
     if (!w) return res.json([]);
     const r = await pool.query(
-      'SELECT id, choice, result, bet_amount, currency, payout, created_at FROM coinflip_games WHERE wallet = $1 ORDER BY id DESC LIMIT 20', [w]
+      'SELECT id, choice, result, bet_amount, currency, payout, created_at FROM coinflip_games WHERE LOWER(wallet) = LOWER($1) ORDER BY id DESC LIMIT 20', [w]
     );
     res.json(r.rows.map(g => ({
       id: g.id, choice: g.choice, result: g.result,
@@ -803,13 +803,13 @@ router.post('/dice/play', betLimiter, async (req, res) => {
   try {
     await client.query('BEGIN');
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
-    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
     if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]);
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]);
     if (won) {
-      await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]);
+      await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [payout, w]);
       await awardXP(client, w, Math.max(1, Math.floor(bet)));
     }
 
@@ -823,7 +823,7 @@ router.post('/dice/play', betLimiter, async (req, res) => {
       try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
     }
 
-    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
     await client.query('COMMIT');
 
     res.json({ roll, target: tgt, direction: dir, won, multiplier, payout, balance: parseFloat(balRes.rows[0].bal) });
@@ -875,7 +875,7 @@ router.post('/hilo/start', betLimiter, async (req, res) => {
 
     // Check no active game
     const active = await client.query(
-      "SELECT id FROM hilo_games WHERE wallet = $1 AND status = 'active'", [w]
+      "SELECT id FROM hilo_games WHERE LOWER(wallet) = LOWER($1) AND status = 'active'", [w]
     );
     if (active.rows.length) {
       await client.query('ROLLBACK');
@@ -883,11 +883,11 @@ router.post('/hilo/start', betLimiter, async (req, res) => {
     }
 
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
-    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
     if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]);
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]);
 
     const firstCard = drawCard();
     const gameRes = await client.query(
@@ -1015,13 +1015,13 @@ router.post('/hilo/cashout', betLimiter, async (req, res) => {
     const payout = Math.round(parseFloat(g.bet_amount) * parseFloat(g.current_multiplier) * 1000000) / 1000000;
     const balCol = g.currency === 'USDT' ? 'usdt_balance' : 'pp_balance';
 
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, g.wallet]);
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [payout, g.wallet]);
     await client.query(
       `UPDATE hilo_games SET status = 'cashed_out', payout = $1 WHERE id = $2`, [payout, gameId]
     );
     await awardXP(client, g.wallet, Math.max(1, Math.floor(parseFloat(g.bet_amount))));
 
-    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [g.wallet]);
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [g.wallet]);
     await client.query('COMMIT');
 
     res.json({
@@ -1043,7 +1043,7 @@ router.get('/hilo/active', async (req, res) => {
     const w = (req.query.wallet || '').toLowerCase().trim();
     if (!w) return res.json({ active: false });
     const r = await pool.query(
-      "SELECT * FROM hilo_games WHERE wallet = $1 AND status = 'active' ORDER BY id DESC LIMIT 1", [w]
+      "SELECT * FROM hilo_games WHERE LOWER(wallet) = LOWER($1) AND status = 'active' ORDER BY id DESC LIMIT 1", [w]
     );
     if (!r.rows.length) return res.json({ active: false });
     const g = r.rows[0];
