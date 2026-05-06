@@ -1,4 +1,38 @@
-# OCCUPY MARS — Codebase Audit (v6.78 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.79 / 2026-05-07)
+
+## ✅ v6.79 확장 감사 완료 — 전 시스템 클린 (2026-05-07)
+
+이번 루프 세션에서 v6.78에 이어 미감사 영역을 전면 추가 검토. 신규 버그 없음:
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| Alliance/Invasion 함수 (`addGuildToAlliance`, `leaveAllianceAsGuild`, `confirmBetrayAlliance`, `joinAllianceAction`, `createAllianceAction`, `openAllianceDepositModal`, `leaveAllianceConfirm`) | ✅ 클린 |
+| Auction 함수 (`govPlaceAuctionBid`, `govAuctionBuyout`, `govCancelAuction`, `openListModal`, `buyMarketListing`, `cancelMarketListing`, `openResourceMarketListing`) | ✅ 클린 |
+| Expedition 함수 (`launchExpeditionAction`, `cancelActiveExpedition`) | ✅ 클린 |
+| Territory Rental 함수 (`openRentModal`, `openListForRentModal`, `cancelRentalListing`) | ✅ 클린 |
+| GP Transfer 함수 (`sendGP`) | ✅ 클린 |
+| Lottery 함수 (`quickBuyTickets`) | ✅ 클린 |
+| Staking 함수 (`doStake`, `doWithdraw`) — async/await + `getAuthHeaders()` | ✅ 클린 |
+| Raffle 함수 (`submitBuyTickets`) | ✅ 클린 |
+| Broadcast 함수 (`submitBroadcast`) | ✅ 클린 |
+| Banner/Highlight/Graffiti/Tribute submit 함수 (`window._walletAddress` 패턴 — dead code, 기능은 정상) | ✅ 클린 |
+| Siege 함수 (`govDeclareSiege`) | ✅ 클린 |
+| Governance 함수 (`govTriggerEvent`, `govTriggerRocket`, `govBuyBuff`) | ✅ 클린 |
+| Bounty/Duel 함수 (`submitPostBounty`, `cancelBounty`, `respondDuel`) | ✅ 클린 |
+| Shield activate 함수 | ✅ 클린 |
+| Territory Branding (`setBrandingName`, `setBrandingTagline`) | ✅ 클린 |
+| Territory Tier Upgrade (`upgradeTierAction`) | ✅ 클린 |
+| Guild LevelUp/Research (`guildLevelUp`, `guildUnlockResearch`) | ✅ 클린 |
+| Claim purchase flow (`confirmClaim`) — async/await | ✅ 클린 |
+| Guild war scoreboard `gameConfirm` — info-only modal, Promise intentionally ignored | ✅ 의도적 (결과 없음) |
+| native dialog 잔존 검사 — `alert()` 1건 `showHijackEntryHint()` | ✅ 무해 (도달 불가 dead code — `showFactionToast`가 먼저 처리) |
+| P5-1 `/api/territory/:claimId/production` 엔드포인트 실동 확인 | ✅ 응답 정상 |
+| P5-3 `/api/ships/resource-sector-hints` 엔드포인트 실동 확인 | ✅ 응답 정상 |
+| P5-4 `/api/territory/:claimId/upgrades` 엔드포인트 실동 확인 | ✅ 응답 정상 |
+| P5-5 `/api/sectors/control`, `/api/sectors/:sectorId/control` 실동 확인 | ✅ 응답 정상 |
+| P5-6 Admin Territory 엔드포인트 — `requireAdmin` 보호 전수 확인 | ✅ 클린 |
+| P5-7 Campaign objectiveState `materialHarvests`/`territoryUpgradeLevels` 필드 확인 | ✅ 응답 포함 |
+| 서버 라우트 마운트 순서 — `/api/sectors` vs `apiRoutes` 충돌 검사 | ✅ 정상 (territoryIdentityRoutes 무일치 → fall-through → apiRoutes 처리) |
 
 ## ✅ v6.78 전체 코드베이스 심층 감사 — 신규 버그 없음 (2026-05-07)
 

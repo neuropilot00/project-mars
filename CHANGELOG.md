@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.79 — 확장 감사 완료 (전 시스템 클린 확인)
+
+### 감사 범위 (v6.78 이후 추가)
+- Alliance/Invasion, Auction, Expedition, Rental, GP Transfer, Lottery, Staking, Raffle, Broadcast, Banner/Highlight/Graffiti/Tribute, Siege, Governance, Bounty, Duel, Shield, Branding, Tier Upgrade, Guild, Claim Purchase — 모든 `gameConfirm` 패턴 정상
+- P5-1~7 엔드포인트 실동 확인: territory production, resource-sector-hints, territory upgrades, sectors control 전부 응답 정상
+- Campaign objectiveState에 `materialHarvests`/`territoryUpgradeLevels` 필드 정상 포함 확인
+- 서버 라우트 마운트 순서 충돌 없음 확인 (`/api/sectors` → fall-through → apiRoutes 정상 처리)
+- native dialog 잔존 1건 (`showHijackEntryHint` 내 `alert`) — `showFactionToast` 우선 처리로 도달 불가 dead code, 무해
+- **신규 버그 발견 없음**
+
+---
+
 ## 2026-05-07 v6.78 — 전체 코드베이스 심층 감사 완료 (신규 버그 없음)
 
 ### 감사 범위
