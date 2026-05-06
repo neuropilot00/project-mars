@@ -1,5 +1,16 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.40 버그수정 — 히든 챕터 MCC 보상 잘못 지급 (M3/M4)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| hidden_campaign_ch1~5 → simulateCh1() 폴백 | ✅ 수정 | simulateHiddenChapter() 추가 |
+| hidden_campaign_ch1~5 → calculateCh1Rewards() 폴백 (mcc_int 함선 잘못 지급) | ✅ 수정 | calculateHiddenChapterRewards() 추가 |
+| calculateRewards() 알 수 없는 챕터 폴백 → MCC 보상 | ✅ 수정 | 안전 minimal 보상으로 교체 (items 없음) |
+| simulateChapter() 알 수 없는 챕터 폴백 | ✅ 수정 | 중립 success 시뮬로 교체 |
+
+
+
 ## ✅ v6.39 버그수정 — daily OPS 미션 알림 누락 + forfeit 반복 exploit
 
 | 항목 | 상태 | 비고 |

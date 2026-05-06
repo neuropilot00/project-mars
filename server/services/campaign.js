@@ -2604,6 +2604,35 @@ function getCampaignElapsedSeconds(progress) {
   return Math.max(0, raw);
 }
 
+function simulateHiddenChapter(progress) {
+  const chNum = parseInt((progress.quest_id || '').replace('hidden_campaign_ch', ''), 10) || 1;
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:hidden${chNum}`);
+  // 히든 루트는 관찰 중심 — 거의 항상 성공, 실패는 선택 없이 넘기는 경우
+  return {
+    success: true,
+    failureReason: null,
+    metrics: { chapter_number: chNum, observation_depth: Math.round(60 + roll * 40), elapsed_sec: Math.round(400 + chNum * 60 + roll * 200) },
+  };
+}
+
+function calculateHiddenChapterRewards(progress, sim) {
+  const chNum = parseInt((progress.quest_id || '').replace('hidden_campaign_ch', ''), 10) || 1;
+  const choices = Array.isArray(progress.choices_payload) ? progress.choices_payload : [];
+  const watchedAll = choices.some(c => c.choice_id === 'hidden_ch1_watch_all');
+  const gp = 5000 + chNum * 1500 + (watchedAll ? 3000 : 0);
+  const nextQuestId = chNum < 5 ? `hidden_campaign_ch${chNum + 1}` : null;
+  return {
+    GP: gp, XP: 100 + chNum * 30,
+    reputationDelta: {},
+    items: [],
+    tags: chNum === 5 ? ['the_observer'] : [],
+    loreFlags: [`hidden_ch${chNum}_completed`],
+    masteries: [],
+    branchModifiers: [],
+    unlocks: nextQuestId ? [nextQuestId] : [],
+  };
+}
+
 function simulateChapter(progress) {
   if (isPrologueQuest(progress.quest_id)) return simulatePrologue(progress);
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
@@ -2635,7 +2664,13 @@ function simulateChapter(progress) {
   if (progress.quest_id === CV_CH7_ID) return simulateCvChapter(progress);
   if (progress.quest_id === CV_CH8_ID) return simulateCvChapter(progress);
   if (progress.quest_id === CV_CH9_ID) return simulateCvChapter(progress);
-  return simulateCh1(progress);
+  if (progress.quest_id === HIDDEN_CH1_ID) return simulateHiddenChapter(progress);
+  if (progress.quest_id === HIDDEN_CH2_ID) return simulateHiddenChapter(progress);
+  if (progress.quest_id === HIDDEN_CH3_ID) return simulateHiddenChapter(progress);
+  if (progress.quest_id === HIDDEN_CH4_ID) return simulateHiddenChapter(progress);
+  if (progress.quest_id === HIDDEN_CH5_ID) return simulateHiddenChapter(progress);
+  // Fallback for unknown chapters — neutral sim, no items
+  return { success: true, failureReason: null, metrics: { chapter_number: 0, elapsed_sec: 300 } };
 }
 
 function calculateCh1Rewards(progress, sim) {
@@ -3525,7 +3560,13 @@ function calculateRewards(progress, sim) {
   if (progress.quest_id === CV_CH7_ID) return calculateCvChapterRewards(progress, sim);
   if (progress.quest_id === CV_CH8_ID) return calculateCvChapterRewards(progress, sim);
   if (progress.quest_id === CV_CH9_ID) return calculateCvChapterRewards(progress, sim);
-  return calculateCh1Rewards(progress, sim);
+  if (progress.quest_id === HIDDEN_CH1_ID) return calculateHiddenChapterRewards(progress, sim);
+  if (progress.quest_id === HIDDEN_CH2_ID) return calculateHiddenChapterRewards(progress, sim);
+  if (progress.quest_id === HIDDEN_CH3_ID) return calculateHiddenChapterRewards(progress, sim);
+  if (progress.quest_id === HIDDEN_CH4_ID) return calculateHiddenChapterRewards(progress, sim);
+  if (progress.quest_id === HIDDEN_CH5_ID) return calculateHiddenChapterRewards(progress, sim);
+  // Unknown chapter fallback — minimal safe reward, no items/ships
+  return { GP: 0, XP: 50, reputationDelta: {}, items: [], tags: [], loreFlags: [], masteries: [], branchModifiers: [], unlocks: [] };
 }
 
 async function getStatus(wallet) {

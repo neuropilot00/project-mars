@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: hidden campaign chapter wrong rewards (M3/M4)
+
+### server/services/campaign.js
+- **버그 M3**: `hidden_campaign_ch1~5` 완료 시 `simulateCh1()` 폴백 실행 — MCC 산소전쟁 시뮬레이션 결과로 처리
+- **버그 M4**: `calculateRewards()` 히든 챕터 → `calculateCh1Rewards()` 폴백 — Prism Interceptor (`mcc_int`) 함선 잘못 지급
+- **수정**: `simulateHiddenChapter()` 추가 — 관찰 중심 성공 시뮬레이션, 히든 루트 GP 보상 반환
+- **수정**: `calculateHiddenChapterRewards()` 추가 — 소량 GP/XP, `the_observer` 태그(ch5), 히든 고유 loreFlag
+- **수정**: `simulateChapter()`, `calculateRewards()` 양쪽 HIDDEN_CH1~5 분기 추가
+- **수정**: 알 수 없는 챕터 폴백을 중립 시뮬/빈 보상으로 교체 (MCC 아이템 잘못 지급 방지)
+
 ## 2026-05-06 — bugfix: daily OPS mission notifications + forfeit exploit patch
 
 ### server/routes/ships.js
