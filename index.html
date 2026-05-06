@@ -23467,7 +23467,7 @@ function openListModal(type,idVal,name,icon,enhLv){
       var aBody={wallet:w,listingType:type,startPrice:priceVal,currency:curr,durationHours:dur};
       if(buyout&&buyout>priceVal) aBody.buyoutPrice=buyout;
       if(type==='claim') aBody.claimId=idVal; else aBody.itemInstanceId=idVal;
-      fetch('/api/auction/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(aBody)})
+      fetch('/api/auction/create',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(aBody)})
       .then(function(r){return r.json();}).then(function(d){
         if(d.error||!d.success){showToast(d.error||(LANG==='ko'?'경매 등록 실패':LANG==='ja'?'オークション登録失敗':LANG==='zh'?'拍卖登记失败':'Auction listing failed'),'error');return;}
         showToast('🔨 '+(LANG==='ko'?'경매 등록 완료! ':LANG==='ja'?'オークション登録完了! ':LANG==='zh'?'拍卖登记完成! ':'Auction listed! ')+dur+(LANG==='ko'?'시간 진행':LANG==='ja'?'時間':LANG==='zh'?'小时':'h'));
@@ -23641,7 +23641,7 @@ window.govPlaceAuctionBid=function(auctionId,minBid,currency){
     if(!ok) return;
     var amt=parseInt(document.getElementById('aucBidAmt').value);
     if(!amt||amt<minBid){showToast((t('auc_too_low')||'Bid must be at least ')+minBid,'error');return;}
-    fetch('/api/auction/'+auctionId+'/bid',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,amount:amt})})
+    fetch('/api/auction/'+auctionId+'/bid',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,amount:amt})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('🔨 '+(t('auc_bid_placed')||'Bid placed!'));
@@ -23659,7 +23659,7 @@ window.govAuctionBuyout=function(auctionId,currency){
     info:[],confirmText:t('auc_confirm_buyout')||'BUY NOW'
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/auction/'+auctionId+'/buyout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
+    fetch('/api/auction/'+auctionId+'/buyout',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('⚡ '+(t('auc_bought')||'Item purchased!'));
@@ -23677,7 +23677,7 @@ window.govCancelAuction=function(auctionId){
     info:[],confirmText:t('auc_confirm_cancel')||'CANCEL AUCTION'
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/auction/'+auctionId+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
+    fetch('/api/auction/'+auctionId+'/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('✅ '+(t('auc_cancelled')||'Auction cancelled'));
@@ -40237,6 +40237,16 @@ function updateGPDisplay(){
 }
 // Legacy alias — 일부 코드 경로가 refreshGP() 호출 (정의 안 됨 → ReferenceError)
 window.refreshGP = function(){ try { updateGPDisplay(); } catch(_){} };
+// ── Missing function aliases (v6.56) — 정의 없이 호출되어 ReferenceError 발생 방지 ──
+// loadWalletData: 스테이킹/복권 등 GP 소비 후 잔액 갱신용 — 7곳 직접 호출 (typeof 가드 없음)
+window.loadWalletData = function(){ try { refreshEmailBalances(); } catch(_){ try { updateGPDisplay(); } catch(__){} } };
+// refreshWalletInfo: 영토 이벤트/티어업그레이드 등 이후 잔액 갱신 — 21곳 typeof 가드 호출
+window.refreshWalletInfo = window.loadWalletData;
+// updateBalanceDisplays: GP/PP 표시 갱신 — 6곳 typeof 가드 호출
+window.updateBalanceDisplays = function(){ try { updateGPDisplay(); } catch(_){} };
+// loadUserData / loadBaseStats: 유저 데이터 재로드 — typeof 가드만 있어 조용히 실패
+window.loadUserData = window.loadWalletData;
+window.loadBaseStats = window.loadWalletData;
 
 // ── Daily Reset Timer ──
 var _dailyTimerInterval = null;

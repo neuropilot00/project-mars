@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.56-v6.57 — 미정의 함수 aliases + 경매 시스템 auth 수정
+
+### index.html (12곳)
+- **v6.56** `loadWalletData` 미정의 함수: 복권/스테이킹 등 GP 소비 후 7곳에서 직접 호출 → ReferenceError → catch가 오류 토스트 표시. `window.loadWalletData = refreshEmailBalances` 알리아스로 수정.
+- **v6.56** `refreshWalletInfo` (21곳 typeof 가드), `updateBalanceDisplays` (6곳), `loadUserData`/`loadBaseStats` (각 5곳): 모두 정의 없어 silent no-op. window 알리아스 추가.
+- **v6.57** `POST /api/auction/create|bid|buyout|cancel`: auctionRoutes.js requireAuth 경로인데 Authorization 헤더 없이 요청 → 경매 등록/입찰/낙찰/취소 전부 401. `getAuthHeaders()` 추가.
+
 ## 2026-05-06 v6.55 — getWalletAddress 미정의 함수 수정 (8곳)
 
 ### index.html (8곳)

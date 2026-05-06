@@ -1,5 +1,24 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.57 버그수정 — 경매 시스템 auth 누락 (auction create/bid/buyout/cancel)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `POST /api/auction/create`, `POST /api/auction/:id/bid`, `POST /api/auction/:id/buyout`, `POST /api/auction/:id/cancel` 모두 requireAuth 적용된 auctionRoutes.js를 호출하지만 프론트 fetch에 Authorization 헤더 없음 → 경매 등록/입찰/낙찰/취소 전부 401 | ✅ 수정 | 각 fetch headers에 `Object.assign({'Content-Type':...}, getAuthHeaders())` 적용 |
+
+
+
+## ✅ v6.56 버그수정 — 미정의 함수 aliases 추가 (loadWalletData 직접 호출 7곳 ReferenceError)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `loadWalletData` — 복권/스테이킹 등 GP 소비 후 잔액 갱신 호출. 함수 정의 없음 → `.then()` 내 ReferenceError → `.catch()`가 "Error: loadWalletData is not defined" 토스트 표시. 7곳 직접 호출 (typeof 가드 없음) | ✅ 수정 | `window.loadWalletData = refreshEmailBalances` 알리아스 추가 |
+| `refreshWalletInfo` — 영토 이벤트/티어업그레이드 후 잔액 갱신. 21곳 typeof 가드 — 정의 없어 항상 silent no-op | ✅ 수정 | `window.refreshWalletInfo = loadWalletData` 알리아스 추가 |
+| `updateBalanceDisplays` — GP/PP 표시 갱신. 6곳 typeof 가드 — 정의 없어 항상 silent no-op | ✅ 수정 | `window.updateBalanceDisplays = updateGPDisplay` 알리아스 추가 |
+| `loadUserData`, `loadBaseStats` — 유저 데이터 재로드. 5곳씩 typeof 가드 — 정의 없음 | ✅ 수정 | `window.loadUserData = window.loadBaseStats = loadWalletData` 알리아스 추가 |
+
+
+
 ## ✅ v6.55 버그수정 — getWalletAddress 미정의 함수 → walletState.address
 
 | 항목 | 상태 | 비고 |
