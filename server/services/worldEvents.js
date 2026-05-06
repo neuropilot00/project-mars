@@ -51,6 +51,25 @@ async function getSetB(key, fallback) {
   return Boolean(v);
 }
 
+function getVoidRaiderBossLoadout(shipTypeCode, shipCount) {
+  const count = parseInt(shipCount, 10) || 0;
+  let bossTier = 'raider';
+
+  if (['cv_titan','fsp_titan','mcc_titan'].includes(shipTypeCode) || count >= 20) bossTier = 'leviathan';
+  else if (['cv_bs','fsp_bs','mcc_bs'].includes(shipTypeCode) || count >= 12) bossTier = 'fleet';
+  else if (['cv_crs','fsp_crs','mcc_crs','cv_dst','fsp_dst','mcc_dst'].includes(shipTypeCode) || count >= 6) bossTier = 'raider';
+  else bossTier = 'scout';
+
+  const tierSprites = {
+    scout:     ['cv_frg', 'cv_int', 'cv_dst'],
+    raider:    ['cv_dst', 'cv_crs', 'cv_frg', 'cv_dst'],
+    fleet:     ['cv_bs',  'cv_crs', 'cv_dst', 'cv_crs', 'cv_frg'],
+    leviathan: ['cv_titan','cv_bs', 'cv_crs', 'cv_dst', 'cv_bs']
+  };
+
+  return { bossTier, shipSprites: tierSprites[bossTier] };
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // 1) 스폰 — Void Raider
 // ═══════════════════════════════════════════════════════════════════
@@ -106,6 +125,7 @@ async function spawnVoidRaider(opts = {}) {
   const st = stRows[0];
 
   const totalHp = st.base_hp * shipCount;
+  const bossLoadout = getVoidRaiderBossLoadout(shipTypeCode, shipCount);
 
   // 3) 트랜잭션 — NPC fleet + ships + world_event 생성
   const client = await pool.connect();
@@ -145,7 +165,13 @@ async function spawnVoidRaider(opts = {}) {
                $6::jsonb, $7)
        RETURNING *`,
       [code, sectorId, fleet.id, totalHp, duration,
-        JSON.stringify({ ship_type_code: shipTypeCode, ship_count: shipCount, ship_name_ko: st.name_ko }),
+        JSON.stringify({
+          ship_type_code: shipTypeCode,
+          ship_count: shipCount,
+          ship_name_ko: st.name_ko,
+          boss_tier: bossLoadout.bossTier,
+          ship_sprites: bossLoadout.shipSprites
+        }),
         createdBy]
     );
     event = evRows[0];
@@ -167,7 +193,26 @@ async function spawnVoidRaider(opts = {}) {
 // 2) 활성 이벤트 목록
 // ═══════════════════════════════════════════════════════════════════
 async function listActiveEvents() {
-  const { rows } = await pool.query(`SELECT * FROM v_active_world_events ORDER BY ends_at ASC`);
+  const { rows } = await pool.query(
+    `SELECT
+        we.*,
+        we.hp_current AS current_hp,
+        we.hp_max AS max_hp,
+        ROUND((we.hp_current::numeric / NULLIF(we.hp_max, 0) * 100), 1) AS hp_pct,
+        EXTRACT(EPOCH FROM (we.ends_at - NOW()))::INT AS seconds_remaining,
+        s.name AS sector_name,
+        s.tier AS sector_tier,
+        s.center_lat AS lat,
+        s.center_lng AS lng,
+        we.meta->>'boss_tier' AS boss_tier,
+        COALESCE(we.meta->'ship_sprites', '[]'::jsonb) AS ship_sprites,
+        (SELECT COUNT(*) FROM world_event_participants wep WHERE wep.event_id = we.id) AS participant_count,
+        (SELECT COALESCE(SUM(damage_dealt), 0) FROM world_event_participants wep WHERE wep.event_id = we.id) AS total_damage
+       FROM world_events we
+       LEFT JOIN sectors s ON s.id = we.sector_id
+      WHERE we.status IN ('active', 'engaged')
+      ORDER BY we.ends_at ASC`
+  );
   return rows;
 }
 

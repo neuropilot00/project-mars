@@ -72,6 +72,20 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 #globe-wrap{position:fixed;inset:0;z-index:1}
 #globe-wrap canvas{display:block}
 
+/* Void Raider Globe Layer */
+.vr-boss-cluster{position:relative;cursor:pointer;animation:vr-float 4s ease-in-out infinite}
+@keyframes vr-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.vr-ship-img{position:absolute;width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 4px var(--vr-glow,#f80));animation:vr-drift var(--vr-dur,6s) ease-in-out infinite var(--vr-delay,0s)}
+@keyframes vr-drift{0%,100%{transform:translate(0,0) rotate(var(--vr-rot,0deg))}50%{transform:translate(var(--vr-dx,4px),var(--vr-dy,-4px)) rotate(var(--vr-rot,0deg))}}
+.vr-warn-ring{position:absolute;top:50%;left:50%;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;border:2px solid var(--vr-glow,#f80);animation:vr-pulse 2s ease-out infinite;pointer-events:none}
+@keyframes vr-pulse{0%{opacity:.9;transform:scale(.8)}100%{opacity:0;transform:scale(1.6)}}
+.vr-hp-bar{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:60px;height:4px;background:#333;border-radius:2px}
+.vr-hp-fill{height:100%;border-radius:2px;background:var(--vr-glow,#f80);width:var(--vr-hp,100%)}
+.vr-tier-scout{--vr-glow:#f80}
+.vr-tier-raider{--vr-glow:#f22}
+.vr-tier-fleet{--vr-glow:#c00}
+.vr-tier-leviathan{--vr-glow:#90f}
+
 /* Vignette + scanlines */
 .vig{position:fixed;inset:0;z-index:2;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 55%,rgba(6,4,12,0.5) 100%)}
@@ -11251,6 +11265,87 @@ var currentTexMode='nasa';
 var nasa8kLoaded=false;
 var globe, scene;
 
+// ---- Void Raider Globe Layer ----
+let _vrEvents = [];
+let _vrPollTimer = null;
+
+async function _initVoidRaiderLayer() {
+  await _vrRefresh();
+  if (_vrPollTimer) clearInterval(_vrPollTimer);
+  _vrPollTimer = setInterval(_vrRefresh, 30000);
+}
+
+async function _vrRefresh() {
+  try {
+    const r = await fetch('/api/world-events');
+    if (!r.ok) return;
+    const data = await r.json();
+    const events = Array.isArray(data) ? data : (data.events || []);
+    _vrEvents = events.filter(e => e.lat != null && e.lng != null);
+    _vrRenderLayer();
+  } catch(err) { console.warn('[VR] poll error', err); }
+}
+
+function _vrMakeClusterEl(ev) {
+  const tier = (ev.boss_tier || ev.meta?.boss_tier || 'raider');
+  const rawSprites = ev.ship_sprites || ev.meta?.ship_sprites;
+  const sprites = (Array.isArray(rawSprites) && rawSprites.length) ? rawSprites : ['cv_crs','cv_frg','cv_dst'];
+  const currentHp = ev.current_hp != null ? ev.current_hp : ev.hp_current;
+  const maxHp = ev.max_hp != null ? ev.max_hp : ev.hp_max;
+  const hp = currentHp != null && maxHp ? Math.round(currentHp / maxHp * 100) : 100;
+
+  const wrap = document.createElement('div');
+  wrap.className = `vr-boss-cluster vr-tier-${tier}`;
+  wrap.style.width = '90px';
+  wrap.style.height = '90px';
+  wrap.title = ev.name || ev.event_code || 'Void Raider';
+  wrap.onclick = () => openWorldEventDetail(ev.id);
+
+  const ring = document.createElement('div');
+  ring.className = 'vr-warn-ring';
+  wrap.appendChild(ring);
+
+  const positions = [
+    {top:'10px',left:'27px'}, {top:'35px',left:'5px'}, {top:'35px',left:'50px'},
+    {top:'55px',left:'20px'}, {top:'55px',left:'45px'}
+  ];
+  sprites.slice(0,5).forEach((code, i) => {
+    const img = document.createElement('img');
+    img.className = 'vr-ship-img';
+    img.src = `/assets/ships/top/${code}.png`;
+    img.onerror = () => { img.style.display='none'; };
+    const pos = positions[i] || positions[0];
+    img.style.top = pos.top;
+    img.style.left = pos.left;
+    img.style.setProperty('--vr-dur', (5+i*1.3)+'s');
+    img.style.setProperty('--vr-delay', (i*0.7)+'s');
+    img.style.setProperty('--vr-dx', ((i%2===0)?4:-4)+'px');
+    img.style.setProperty('--vr-dy', ((i<2)?-4:4)+'px');
+    img.style.setProperty('--vr-rot', (i*15-30)+'deg');
+    wrap.appendChild(img);
+  });
+
+  const bar = document.createElement('div');
+  bar.className = 'vr-hp-bar';
+  const fill = document.createElement('div');
+  fill.className = 'vr-hp-fill';
+  fill.style.setProperty('--vr-hp', Math.max(0, Math.min(100, hp))+'%');
+  bar.appendChild(fill);
+  wrap.appendChild(bar);
+
+  return wrap;
+}
+
+function _vrRenderLayer() {
+  const g = window.globe || globe;
+  if (!g || typeof g.htmlElementsData !== 'function') return;
+  g.htmlElementsData(_vrEvents)
+    .htmlLat(d => d.lat)
+    .htmlLng(d => d.lng)
+    .htmlAltitude(0.015)
+    .htmlElement(d => _vrMakeClusterEl(d));
+}
+
 function _initStep1(){
   setLoadProgress(20,'Generating bump map...');
   requestAnimationFrame(function(){
@@ -11337,6 +11432,8 @@ function _initStep3(){
       })
       (document.getElementById('globe-wrap'));
 
+    window.globe=globe;
+    _initVoidRaiderLayer();
     scene=globe.scene();
     setLoadProgress(90,'Rendering globe...');
 
