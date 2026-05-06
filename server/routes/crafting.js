@@ -75,6 +75,15 @@ router.post('/crafting/craft', async (req, res) => {
     const result = await craftingSvc.craftItem(client, wallet, parseInt(recipeId, 10));
     await client.query('COMMIT');
 
+    // Daily OPS mission progress (fire-and-forget)
+    try {
+      const _dOps = require('./dailyOps');
+      const _w = wallet.toLowerCase();
+      _dOps.notifyMissionProgress(_w, 'craft_resource').catch(() => {});
+      _dOps.notifyMissionProgress(_w, 'craft_resource_3').catch(() => {});
+      _dOps.notifyMissionProgress(_w, 'craft_resource_5').catch(() => {});
+    } catch (_) {}
+
     // Side effects (fire-and-forget)
     const gpBurned = result.gpCost - result.gpRefunded;
     if (gpBurned > 0) {

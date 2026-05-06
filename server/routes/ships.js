@@ -189,6 +189,13 @@ router.post('/:id/list', requireAuth, async (req, res) => {
     const shipId = parseInt(req.params.id);
     if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
     const result = await shipService.listShipForSale(wallet, shipId, req.body.price_gp);
+    // Daily OPS mission progress (fire-and-forget)
+    if (result.success) {
+      try {
+        const _dOps = require('./dailyOps');
+        _dOps.notifyMissionProgress(wallet, 'market_list').catch(() => {});
+      } catch (_) {}
+    }
     res.json(result);
   } catch (err) {
     const status = shipErrorStatus(err.message);
@@ -208,6 +215,13 @@ router.post('/market/listings/:id/buy', requireAuth, async (req, res) => {
     const listingId = parseInt(req.params.id);
     if (!listingId) return res.status(400).json({ error: 'INVALID_LISTING_ID' });
     const result = await shipService.buyShipListing(wallet, listingId);
+    // Daily OPS mission progress (fire-and-forget)
+    if (result.success) {
+      try {
+        const _dOps = require('./dailyOps');
+        _dOps.notifyMissionProgress(wallet, 'market_buy').catch(() => {});
+      } catch (_) {}
+    }
     res.json(result);
   } catch (err) {
     const status = shipErrorStatus(err.message);
@@ -286,11 +300,17 @@ router.post('/build', requireAuth, async (req, res) => {
     }
 
     const result = await shipService.startBuild(wallet, ship_type_code, fleet_id || null);
-    res.json(result);
     // Daily mission: build_ship (fire-and-forget)
-    if (dailyService) {
-      try { dailyService.updateMissionProgress(wallet, 'build_ship', 1).catch(() => {}); } catch (_de) {}
+    if (result.success || result.job) {
+      if (dailyService) {
+        try { dailyService.updateMissionProgress(wallet, 'build_ship', 1).catch(() => {}); } catch (_de) {}
+      }
+      try {
+        const _dOps = require('./dailyOps');
+        _dOps.notifyMissionProgress(wallet, 'build_ship').catch(() => {});
+      } catch (_) {}
     }
+    res.json(result);
   } catch (err) {
     // 비즈니스 에러별 응답
     const errorMap = {
@@ -402,6 +422,15 @@ router.post('/:id/upgrade-stat', requireAuth, async (req, res) => {
 
     const stat = String(req.body.stat || '').toLowerCase();
     const result = await shipService.upgradeShipStat(wallet, shipId, stat);
+    // Daily OPS mission progress (fire-and-forget)
+    if (result.success) {
+      try {
+        const _dOps = require('./dailyOps');
+        _dOps.notifyMissionProgress(wallet, 'upgrade_ship').catch(() => {});
+        _dOps.notifyMissionProgress(wallet, 'upgrade_ship_3').catch(() => {});
+        _dOps.notifyMissionProgress(wallet, 'upgrade_ship_5').catch(() => {});
+      } catch (_) {}
+    }
     res.json(result);
   } catch (err) {
     const errorMap = {
@@ -442,6 +471,14 @@ router.post('/:id/repair', requireAuth, async (req, res) => {
     }
 
     const result = await shipService.repairShip(wallet, shipId, targetHpPct);
+    // Daily OPS mission progress (fire-and-forget)
+    if (result.success) {
+      try {
+        const _dOps = require('./dailyOps');
+        _dOps.notifyMissionProgress(wallet, 'repair_ship').catch(() => {});
+        _dOps.notifyMissionProgress(wallet, 'repair_ship_3').catch(() => {});
+      } catch (_) {}
+    }
     res.json(result);
   } catch (err) {
     const errorMap = {
