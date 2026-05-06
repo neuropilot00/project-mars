@@ -1,4 +1,12 @@
-# OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.63 / 2026-05-07)
+
+## ✅ v6.63 버그수정 — Fleet Command 모달 텍스트 깨짐 (정적 HTML에 JS 표현식)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| Fleet Command `.fleetcmd-title` 부제목 — `'+(LANG==='ko'?'함대 지휘':...)+'` 가 정적 HTML에 삽입돼 리터럴 텍스트로 렌더링 | ✅ 수정 | `<span id="fleetCmdSubtitle">` + `openFleetCmd()` 진입 시 LANG 주입 |
+| "새 함대" 버튼 텍스트 — 동일한 JS 표현식 리터럴 렌더 | ✅ 수정 | `<span id="fleetCmdNewBtn">` + 진입 시 LANG 주입 |
+| "함대를 선택하세요" 플레이스홀더 — 동일한 JS 표현식 리터럴 렌더 | ✅ 수정 | `<span id="fleetCmdSelectHint">` + 진입 시 LANG 주입 |
 
 ## ✅ v6.62 버그수정 — 서비스 파일 잘못된 require (notifications + betting)
 

@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.63 — Fleet Command 모달 텍스트 깨짐 수정
+
+### index.html (3곳)
+- Fleet Command 모달 정적 HTML에 JS 삼항 표현식(`'+(LANG==='ko'?...)+'`)이 그대로 삽입돼 브라우저가 리터럴 텍스트로 렌더링하는 버그 수정.
+  - `.fleetcmd-title` 부제목: `<span id="fleetCmdSubtitle">` 교체 + `openFleetCmd()` 진입 시 LANG 기반 텍스트 설정.
+  - "새 함대" 버튼 내부 텍스트: `<span id="fleetCmdNewBtn">` 교체.
+  - "함대를 선택하세요" 플레이스홀더: `<span id="fleetCmdSelectHint">` 교체.
+- `openFleetCmd()` 시작 시 3개 span에 `LANG` 기반 텍스트 즉시 주입.
+
 ## 2026-05-06 v6.62 — 서비스 파일 잘못된 require 수정 (notifications + betting)
 
 ### server/services/ (7개 파일)

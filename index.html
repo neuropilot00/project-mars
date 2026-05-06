@@ -46540,19 +46540,19 @@ var MINERAL_EN = {
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
   <div class="fleetcmd-modal" onclick="event.stopPropagation()">
     <div class="fleetcmd-header">
-      <div class="fleetcmd-title">🎖 FLEET COMMAND · '+(LANG==='ko'?'함대 지휘':LANG==='ja'?'艦隊指揮':LANG==='zh'?'舰队指挥':'Command')+'</div>
+      <div class="fleetcmd-title">🎖 FLEET COMMAND · <span id="fleetCmdSubtitle">함대 지휘</span></div>
       <button type="button" class="shipyard-close" onclick="event.preventDefault();closeFleetCmd()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="fleetcmd-body">
       <div class="fleet-list">
         <div class="fleet-list-header">
           <div class="fleet-list-title">MY FLEETS (<span id="fleetCountLabel">0</span>)</div>
-          <button type="button" class="fleet-new-btn" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ '+(LANG==='ko'?'새 함대':LANG==='ja'?'新艦隊':LANG==='zh'?'新建舰队':'New Fleet')+'</button>
+          <button type="button" class="fleet-new-btn" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ <span id="fleetCmdNewBtn">새 함대</span></button>
         </div>
         <div id="fleetListContent"></div>
       </div>
       <div class="fleet-detail" id="fleetDetailContent">
-        <div class="fs-empty">'+(LANG==='ko'?'함대를 선택하세요':LANG==='ja'?'艦隊を選択してください':LANG==='zh'?'请选择舰队':'Select a fleet')+'</div>
+        <div class="fs-empty" id="fleetCmdSelectHint">함대를 선택하세요</div>
       </div>
     </div>
   </div>
@@ -46572,6 +46572,13 @@ var fleetCmdState = {
 
 function openFleetCmd() {
   if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  // Update i18n text for static HTML spans
+  var subtitle = document.getElementById('fleetCmdSubtitle');
+  if (subtitle) subtitle.textContent = LANG==='ko'?'함대 지휘':LANG==='ja'?'艦隊指揮':LANG==='zh'?'舰队指挥':'Command';
+  var newBtn = document.getElementById('fleetCmdNewBtn');
+  if (newBtn) newBtn.textContent = LANG==='ko'?'새 함대':LANG==='ja'?'新艦隊':LANG==='zh'?'新建舰队':'New Fleet';
+  var hint = document.getElementById('fleetCmdSelectHint');
+  if (hint) hint.textContent = LANG==='ko'?'함대를 선택하세요':LANG==='ja'?'艦隊を選択してください':LANG==='zh'?'请选择舰队':'Select a fleet';
   document.getElementById('fleetCmdModal').classList.add('active');
   loadFleetOptions().then(function(){ refreshFleetList(); });
 }
