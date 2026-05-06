@@ -26705,19 +26705,19 @@ function renderBaseUser(data){
     // 구역별 광물 드롭 테이블 (migration 164 기준)
     var DROPS={
       frontier:[
-        {code:'iron_ore',   icon:'🪨', name:{en:'Iron Ore',    ko:'철광석'},   rate:30},
-        {code:'carbon_fiber',icon:'🖤',name:{en:'Carbon Fiber',ko:'탄소섬유'}, rate:20},
-        {code:'silicon_chip',icon:'💎',name:{en:'Silicon Chip',ko:'실리콘칩'}, rate:10},
+        {code:'iron_ore',   icon:'🪨', name:{en:'Iron Ore',    ko:'철광석',    ja:'鉄鉱石',   zh:'铁矿石'},   rate:30},
+        {code:'carbon_fiber',icon:'🖤',name:{en:'Carbon Fiber',ko:'탄소섬유', ja:'炭素繊維',  zh:'碳纤维'},   rate:20},
+        {code:'silicon_chip',icon:'💎',name:{en:'Silicon Chip',ko:'실리콘칩', ja:'シリコンチップ',zh:'硅芯片'}, rate:10},
       ],
       mid:[
-        {code:'titanium_alloy', icon:'⚙️', name:{en:'Titanium Alloy',  ko:'티타늄합금'},  rate:20},
-        {code:'plasma_crystal', icon:'🔷', name:{en:'Plasma Crystal',  ko:'플라즈마크리스탈'}, rate:15},
-        {code:'nano_polymer',   icon:'🧬', name:{en:'Nano Polymer',    ko:'나노폴리머'},  rate:15},
+        {code:'titanium_alloy', icon:'⚙️', name:{en:'Titanium Alloy',  ko:'티타늄합금',  ja:'チタン合金',    zh:'钛合金'},    rate:20},
+        {code:'plasma_crystal', icon:'🔷', name:{en:'Plasma Crystal',  ko:'플라즈마크리스탈', ja:'プラズマクリスタル',zh:'等离子晶体'}, rate:15},
+        {code:'nano_polymer',   icon:'🧬', name:{en:'Nano Polymer',    ko:'나노폴리머',  ja:'ナノポリマー',   zh:'纳米聚合物'}, rate:15},
       ],
       core:[
-        {code:'dark_matter',  icon:'🌑', name:{en:'Dark Matter',   ko:'암흑물질'},   rate:15},
-        {code:'quantum_core', icon:'⚡', name:{en:'Quantum Core',  ko:'양자코어'},   rate:12},
-        {code:'exotic_alloy', icon:'🌟', name:{en:'Exotic Alloy',  ko:'이국합금'},   rate:10},
+        {code:'dark_matter',  icon:'🌑', name:{en:'Dark Matter',   ko:'암흑물질',   ja:'暗黒物質',    zh:'暗物质'},    rate:15},
+        {code:'quantum_core', icon:'⚡', name:{en:'Quantum Core',  ko:'양자코어',   ja:'量子コア',    zh:'量子核心'},  rate:12},
+        {code:'exotic_alloy', icon:'🌟', name:{en:'Exotic Alloy',  ko:'이국합금',   ja:'異国合金',    zh:'异星合金'},  rate:10},
       ]
     };
     var lang=(window.currentLang||'en').toLowerCase();
@@ -26730,7 +26730,7 @@ function renderBaseUser(data){
       html+='<div style="margin-top:6px;opacity:'+opacity+'">';
       html+='<div style="font-size:9px;font-weight:700;color:'+zoneColor+';letter-spacing:1px;margin-bottom:2px">'+zoneLabel+noLand+'</div>';
       drops.forEach(function(d){
-        var name=lang==='ko'?d.name.ko:d.name.en;
+        var name=d.name[lang]||d.name.en;
         html+='<div class="stat-row" style="padding:1px 0">';
         html+='<span class="stat-label" style="display:flex;align-items:center;gap:4px">'+d.icon+' '+name+'</span>';
         html+='<span class="stat-val" style="font-size:10px;color:var(--tx2)">'+d.rate+'%</span>';
@@ -26743,7 +26743,7 @@ function renderBaseUser(data){
     renderZoneDrops('mid',     'MID ZONE','var(--gold)',hasMid);
     renderZoneDrops('core',    'CORE',    'var(--red)', hasCore);
 
-    html+='<div style="font-size:8px;color:var(--tx3);margin-top:8px;line-height:1.7;padding:6px 0;border-top:1px solid var(--bdr)">⛏ 채굴 시 PP와 함께 광물이 확률적으로 드롭됩니다.<br>광물은 함선 건조와 마켓에 사용됩니다.</div>';
+    html+='<div style="font-size:8px;color:var(--tx3);margin-top:8px;line-height:1.7;padding:6px 0;border-top:1px solid var(--bdr)">⛏ '+(lang==='ko'?'채굴 시 PP와 함께 광물이 확률적으로 드롭됩니다.<br>광물은 함선 건조와 마켓에 사용됩니다.':lang==='ja'?'採掘時にPPとともに鉱物がランダムでドロップされます。<br>鉱物は艦船建造とマーケットで使用されます。':lang==='zh'?'采矿时PP和矿物会随机掉落。<br>矿物用于舰船建造和市场交易。':'Mining yields PP and random mineral drops.<br>Minerals are used in ship construction and the marketplace.')+'</div>';
     dropEl.innerHTML=html;
   })();
 
@@ -27547,21 +27547,15 @@ function campaignRewardLabel(r){
   return p.label||p.labelKo||r.reward_code||'Campaign Reward';
 }
 function campaignRewardTypeLabel(type){
-  var map={
-    ship:'함선',
-    ship_fleet:'함대',
-    ship_blueprint:'설계도',
-    ship_choice:'함선 선택권',
-    resource:'자원',
-    resource_stream:'자원 계약',
-    gp_stream:'GP 계약',
-    data_artifact:'데이터',
-    asset:'자산',
-    permanent_buff:'영구 효과',
-    title_position:'칭호',
-    safe_house_access:'권한'
+  var maps={
+    ko:{ship:'함선',ship_fleet:'함대',ship_blueprint:'설계도',ship_choice:'함선 선택권',resource:'자원',resource_stream:'자원 계약',gp_stream:'GP 계약',data_artifact:'데이터',asset:'자산',permanent_buff:'영구 효과',title_position:'칭호',safe_house_access:'권한'},
+    ja:{ship:'艦船',ship_fleet:'艦隊',ship_blueprint:'設計図',ship_choice:'艦船選択',resource:'資源',resource_stream:'資源契約',gp_stream:'GP契約',data_artifact:'データ',asset:'資産',permanent_buff:'永久効果',title_position:'称号',safe_house_access:'アクセス権'},
+    zh:{ship:'舰船',ship_fleet:'舰队',ship_blueprint:'设计图',ship_choice:'舰船选择权',resource:'资源',resource_stream:'资源合约',gp_stream:'GP合约',data_artifact:'数据',asset:'资产',permanent_buff:'永久效果',title_position:'称号',safe_house_access:'访问权限'},
+    en:{ship:'Ship',ship_fleet:'Fleet',ship_blueprint:'Blueprint',ship_choice:'Ship Choice',resource:'Resource',resource_stream:'Resource Contract',gp_stream:'GP Contract',data_artifact:'Data Artifact',asset:'Asset',permanent_buff:'Permanent Buff',title_position:'Title',safe_house_access:'Access'}
   };
-  return map[type]||String(type||'보상');
+  var lang=(typeof LANG!=='undefined'?LANG:'en');
+  var map=maps[lang]||maps.en;
+  return map[type]||String(type||(lang==='ko'?'보상':lang==='ja'?'報酬':lang==='zh'?'奖励':'Reward'));
 }
 function renderCampaignRewardInbox(inbox){
   var el=document.getElementById('campaignRewardInbox');
@@ -30642,80 +30636,80 @@ function showToast(msg){var el=document.getElementById('toast');if(!el)return;el
 var FACTION_FLAVOR = {
   // ── 새 영토 클레임 (빈 땅) ─────────────────────────────────────────
   claim_new: [
-    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚪', line:'이 구역은 아직 등록되지 않았다. 절차대로 진행한다.' },
-    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚪', line:'좌표 확인 완료. MCC 표준 절차 개시.' },
-    { faction:'mcc', speaker:'Li Fang',     emoji:'⚪', line:'미등록 영역. 회사가 가장 먼저 깃발 꽂으면 그게 회사 자산이다.' },
-    { faction:'mcc', speaker:'Director Osei', emoji:'⚪', line:'이사회 승인 떨어졌다. 등록 진행하라.' },
-    { faction:'fsp', speaker:'Mikhail',     emoji:'🟢', line:'이 땅은 아직 아무도 깃발 꽂지 않은 거 같군. 우리 차례다.' },
-    { faction:'fsp', speaker:'Mikhail',     emoji:'🟢', line:'사람이 살 수 있는 곳이라면 어디든 우리 땅이 될 수 있어.' },
-    { faction:'fsp', speaker:'Lena',        emoji:'🟢', line:'아직 이름 없는 땅. 누군가 이 자리에 새겨질 거다.' },
-    { faction:'fsp', speaker:'Hagar',       emoji:'🟢', line:'젊은이, 이 땅을 잘 봐둬라. 곧 너희 집이 될 거다.' },
-    { faction:'fsp', speaker:'Olu Adeyemi', emoji:'🟢', line:'설계도 다시 그릴 시간이군. 새 정착지가 또 하나.' },
-    { faction:'cv',  speaker:'Butcher',     emoji:'🔴', line:'주인 없는 땅이야. 그럼 우리 거지.' },
-    { faction:'cv',  speaker:'Butcher',     emoji:'🔴', line:'무주공산. 의외로 화성에는 흔하지.' },
-    { faction:'cv',  speaker:'Cinder Grace',emoji:'🔴', line:'이 자리에 시추공 박으면 뭐가 나올까. 일단 등록부터.' },
-    { faction:'cv',  speaker:'Aisha',       emoji:'🔴', line:'먼저 발 디딘 놈이 임자다. 그게 화성의 룰이야.' },
-    { faction:null,  speaker:'Mission Control', emoji:'📡', line:'좌표 확인. 빈 영역. 깃발 박을 준비.' },
-    { faction:null,  speaker:'AI Scout',    emoji:'🛰', line:'스캔 완료 — 미등록 좌표. 점유 가능.' },
-    { faction:null,  speaker:'Surveyor',    emoji:'📐', line:'이 영역 측량 끝났다. 등록 신청 가능 상태.' },
+    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚪', line:'이 구역은 아직 등록되지 않았다. 절차대로 진행한다.', line_en:'Sector unregistered. Proceeding by the book.' },
+    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚪', line:'좌표 확인 완료. MCC 표준 절차 개시.', line_en:'Coordinates confirmed. Initiating MCC standard procedure.' },
+    { faction:'mcc', speaker:'Li Fang',     emoji:'⚪', line:'미등록 영역. 회사가 가장 먼저 깃발 꽂으면 그게 회사 자산이다.', line_en:'Unregistered zone. First flag planted is company property.' },
+    { faction:'mcc', speaker:'Director Osei', emoji:'⚪', line:'이사회 승인 떨어졌다. 등록 진행하라.', line_en:'Board approved. Proceed with registration.' },
+    { faction:'fsp', speaker:'Mikhail',     emoji:'🟢', line:'이 땅은 아직 아무도 깃발 꽂지 않은 거 같군. 우리 차례다.', line_en:'Looks like no one's planted a flag here yet. Our turn.' },
+    { faction:'fsp', speaker:'Mikhail',     emoji:'🟢', line:'사람이 살 수 있는 곳이라면 어디든 우리 땅이 될 수 있어.', line_en:'Anywhere people can live, we can call home.' },
+    { faction:'fsp', speaker:'Lena',        emoji:'🟢', line:'아직 이름 없는 땅. 누군가 이 자리에 새겨질 거다.', line_en:'Unnamed land. Someone will be written into this place.' },
+    { faction:'fsp', speaker:'Hagar',       emoji:'🟢', line:'젊은이, 이 땅을 잘 봐둬라. 곧 너희 집이 될 거다.', line_en:'Look at this land, youngster. It'll be your home soon.' },
+    { faction:'fsp', speaker:'Olu Adeyemi', emoji:'🟢', line:'설계도 다시 그릴 시간이군. 새 정착지가 또 하나.', line_en:'Time to redraw the blueprints. Another new settlement.' },
+    { faction:'cv',  speaker:'Butcher',     emoji:'🔴', line:'주인 없는 땅이야. 그럼 우리 거지.', line_en:'Unclaimed land. That makes it ours.' },
+    { faction:'cv',  speaker:'Butcher',     emoji:'🔴', line:'무주공산. 의외로 화성에는 흔하지.', line_en:'No man's land. Surprisingly common on Mars.' },
+    { faction:'cv',  speaker:'Cinder Grace',emoji:'🔴', line:'이 자리에 시추공 박으면 뭐가 나올까. 일단 등록부터.', line_en:'What would we find if we drilled here. Register first, ask later.' },
+    { faction:'cv',  speaker:'Aisha',       emoji:'🔴', line:'먼저 발 디딘 놈이 임자다. 그게 화성의 룰이야.', line_en:'First one to plant their feet owns it. That's the Mars rule.' },
+    { faction:null,  speaker:'Mission Control', emoji:'📡', line:'좌표 확인. 빈 영역. 깃발 박을 준비.', line_en:'Coordinates confirmed. Empty sector. Ready to plant the flag.' },
+    { faction:null,  speaker:'AI Scout',    emoji:'🛰', line:'스캔 완료 — 미등록 좌표. 점유 가능.', line_en:'Scan complete — unregistered coordinates. Occupation possible.' },
+    { faction:null,  speaker:'Surveyor',    emoji:'📐', line:'이 영역 측량 끝났다. 등록 신청 가능 상태.', line_en:'Survey of this sector complete. Registration can proceed.' },
   ],
   // ── 클레임 작전 시작 (등록 진행 중) ────────────────────────────────
   claim_executing: [
-    { faction:'mcc', speaker:'Li Fang',     emoji:'⚪', line:'사령부, 깃발 박는다. 등록 절차 시작.' },
-    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚪', line:'서류 정리. 영수증 보관. 회사 자산 추가.' },
-    { faction:'mcc', speaker:'Director Osei', emoji:'⚪', line:'좋아. 이사회에 보고할 자산 한 줄 추가됐다.' },
-    { faction:'mcc', speaker:'Li Fang',     emoji:'⚪', line:'시간 맞춰 등록 완료. 다음 임무로 이동.' },
-    { faction:'fsp', speaker:'Lena',        emoji:'🟢', line:'이름 하나 더 새기자. 우리가 여기 있었다고.' },
-    { faction:'fsp', speaker:'Mikhail',     emoji:'🟢', line:'한 평이라도 더. 사람들 살 자리.' },
-    { faction:'fsp', speaker:'Hagar',       emoji:'🟢', line:'땅이 늘었다. 차 한 잔 더 끓일 만한 자리.' },
-    { faction:'fsp', speaker:'Olu Adeyemi', emoji:'🟢', line:'이 땅에 무엇을 지을지부터 정해라. 설계가 먼저다.' },
-    { faction:'fsp', speaker:'Yuna',        emoji:'🟢', line:'벽에 분필로 좌표 적어둘게. 다음 세대도 알 수 있게.' },
-    { faction:'cv',  speaker:'Aisha',       emoji:'🔴', line:'이 땅은 이제 우리 거다. 누구도 못 뺏는다.' },
-    { faction:'cv',  speaker:'Butcher',     emoji:'🔴', line:'표시 박았다. 누가 뭐라 하면 의수로 답할 거다.' },
-    { faction:'cv',  speaker:'Cinder Grace',emoji:'🔴', line:'경계선 그어둘게. 넘으면 그쪽 책임이야.' },
-    { faction:'cv',  speaker:'Crow',        emoji:'🔴', line:'이 자리 경비 배치. 다음 작전 거점으로 쓴다.' },
-    { faction:null,  speaker:'Mission Control', emoji:'📡', line:'영토 등록 송신 중... 잠시 기다리세요.' },
-    { faction:null,  speaker:'AI Scout',    emoji:'🛰', line:'좌표 잠그는 중. 곧 영구 기록됨.' },
+    { faction:'mcc', speaker:'Li Fang',     emoji:'⚪', line:'사령부, 깃발 박는다. 등록 절차 시작.', line_en:'Command, planting the flag. Starting registration.' },
+    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚪', line:'서류 정리. 영수증 보관. 회사 자산 추가.', line_en:'Paperwork done. Receipt filed. Company assets updated.' },
+    { faction:'mcc', speaker:'Director Osei', emoji:'⚪', line:'좋아. 이사회에 보고할 자산 한 줄 추가됐다.', line_en:'Good. One more line added to the board report.' },
+    { faction:'mcc', speaker:'Li Fang',     emoji:'⚪', line:'시간 맞춰 등록 완료. 다음 임무로 이동.', line_en:'Registration complete on schedule. Moving to next objective.' },
+    { faction:'fsp', speaker:'Lena',        emoji:'🟢', line:'이름 하나 더 새기자. 우리가 여기 있었다고.', line_en:'Let's carve one more name. We were here.' },
+    { faction:'fsp', speaker:'Mikhail',     emoji:'🟢', line:'한 평이라도 더. 사람들 살 자리.', line_en:'One more patch of land. Space for people to live.' },
+    { faction:'fsp', speaker:'Hagar',       emoji:'🟢', line:'땅이 늘었다. 차 한 잔 더 끓일 만한 자리.', line_en:'Land expanded. Enough room for another cup of tea.' },
+    { faction:'fsp', speaker:'Olu Adeyemi', emoji:'🟢', line:'이 땅에 무엇을 지을지부터 정해라. 설계가 먼저다.', line_en:'Decide what to build on this land first. Design before everything.' },
+    { faction:'fsp', speaker:'Yuna',        emoji:'🟢', line:'벽에 분필로 좌표 적어둘게. 다음 세대도 알 수 있게.', line_en:'I'll write the coordinates in chalk. So future generations know.' },
+    { faction:'cv',  speaker:'Aisha',       emoji:'🔴', line:'이 땅은 이제 우리 거다. 누구도 못 뺏는다.', line_en:'This land is ours now. No one takes it back.' },
+    { faction:'cv',  speaker:'Butcher',     emoji:'🔴', line:'표시 박았다. 누가 뭐라 하면 의수로 답할 거다.', line_en:'Marked it. Anyone argues, my arm has the answer.' },
+    { faction:'cv',  speaker:'Cinder Grace',emoji:'🔴', line:'경계선 그어둘게. 넘으면 그쪽 책임이야.', line_en:'Drawing the boundary. Cross it, that's on you.' },
+    { faction:'cv',  speaker:'Crow',        emoji:'🔴', line:'이 자리 경비 배치. 다음 작전 거점으로 쓴다.', line_en:'Security deployed here. Next operation base.' },
+    { faction:null,  speaker:'Mission Control', emoji:'📡', line:'영토 등록 송신 중... 잠시 기다리세요.', line_en:'Transmitting territory registration... please wait.' },
+    { faction:null,  speaker:'AI Scout',    emoji:'🛰', line:'좌표 잠그는 중. 곧 영구 기록됨.', line_en:'Locking coordinates. Permanent record incoming.' },
   ],
   // ── 하이잭 선언 직전 (전투 진입) ───────────────────────────────────
   hijack_start: [
-    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚔', line:'적성 영토 확인. 자, 다들 꽉 잡으라고. 전투 들어간다.' },
-    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚔', line:'분쟁 영역. 회사 자산 확보를 위해 무력 사용 승인.' },
-    { faction:'mcc', speaker:'Li Fang',     emoji:'⚔', line:'적 함대 좌표 잡혔다. 교전 규칙 1단계 발동.' },
-    { faction:'mcc', speaker:'Director Osei', emoji:'⚔', line:'이건 비즈니스다. 감정 빼고 처리해.' },
-    { faction:'mcc', speaker:'MCC 사령부',  emoji:'⚔', line:'전 함대 사격 통제. 표적 락온 후 발사.' },
-    { faction:'fsp', speaker:'Mikhail',     emoji:'⚔', line:'이번엔 봐주지 마라. 우리 사람들 위한 싸움이다.' },
-    { faction:'fsp', speaker:'Mikhail',     emoji:'⚔', line:'적이 먼저 시작했다. 우리는 끝낼 뿐이다.' },
-    { faction:'fsp', speaker:'Lena',        emoji:'⚔', line:'팔에 새겨진 이름들이 보고 있다. 살아 돌아온다.' },
-    { faction:'fsp', speaker:'Hagar',       emoji:'⚔', line:'늙은이가 마지막으로 한 마디 — 살아 돌아와라.' },
-    { faction:'fsp', speaker:'Yuna',        emoji:'⚔', line:'우리가 지키는 건 깃발이 아니라 이름들이다. 가자.' },
-    { faction:'cv',  speaker:'Butcher',     emoji:'⚔', line:'전투 개시. 의수 풀어라. 일하러 간다.' },
-    { faction:'cv',  speaker:'Butcher',     emoji:'⚔', line:'30년 전이나 지금이나, 광부의 답은 하나다 — 전투.' },
-    { faction:'cv',  speaker:'Aisha',       emoji:'⚔', line:'코드 활성. CV 전 인원 전투 모드.' },
-    { faction:'cv',  speaker:'Cinder Grace',emoji:'⚔', line:'장비 점검 끝났다. 가자. 살아 돌아와라.' },
-    { faction:'cv',  speaker:'Crow',        emoji:'⚔', line:'마스크 내려라. 본격적으로 시작이다.' },
-    { faction:null,  speaker:'Fleet Command', emoji:'⚔', line:'전 함대 전투 배치. 카운트다운 — 5... 4... 3...' },
-    { faction:null,  speaker:'Tactical AI', emoji:'⚔', line:'표적 락온. 사격 통제 권한 위임. 행운을 빈다.' },
-    { faction:null,  speaker:'Mission Control', emoji:'⚔', line:'교전 규칙 발동. 전 채널 전투 주파수 전환.' },
+    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚔', line:'적성 영토 확인. 자, 다들 꽉 잡으라고. 전투 들어간다.', line_en:'Hostile territory confirmed. Hold on tight. Entering combat.' },
+    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚔', line:'분쟁 영역. 회사 자산 확보를 위해 무력 사용 승인.', line_en:'Disputed zone. Force authorized to secure company assets.' },
+    { faction:'mcc', speaker:'Li Fang',     emoji:'⚔', line:'적 함대 좌표 잡혔다. 교전 규칙 1단계 발동.', line_en:'Enemy fleet coordinates locked. Rules of engagement Level 1 activated.' },
+    { faction:'mcc', speaker:'Director Osei', emoji:'⚔', line:'이건 비즈니스다. 감정 빼고 처리해.', line_en:'This is business. Process it without emotion.' },
+    { faction:'mcc', speaker:'MCC 사령부',  emoji:'⚔', line:'전 함대 사격 통제. 표적 락온 후 발사.', line_en:'All fleet weapons hot. Lock targets then fire.' },
+    { faction:'fsp', speaker:'Mikhail',     emoji:'⚔', line:'이번엔 봐주지 마라. 우리 사람들 위한 싸움이다.', line_en:'No mercy this time. We're fighting for our people.' },
+    { faction:'fsp', speaker:'Mikhail',     emoji:'⚔', line:'적이 먼저 시작했다. 우리는 끝낼 뿐이다.', line_en:'They started this. We just finish it.' },
+    { faction:'fsp', speaker:'Lena',        emoji:'⚔', line:'팔에 새겨진 이름들이 보고 있다. 살아 돌아온다.', line_en:'The names on my arm are watching. I'm coming back alive.' },
+    { faction:'fsp', speaker:'Hagar',       emoji:'⚔', line:'늙은이가 마지막으로 한 마디 — 살아 돌아와라.', line_en:'One last word from an old man — come back alive.' },
+    { faction:'fsp', speaker:'Yuna',        emoji:'⚔', line:'우리가 지키는 건 깃발이 아니라 이름들이다. 가자.', line_en:'What we protect isn't flags — it's names. Let's go.' },
+    { faction:'cv',  speaker:'Butcher',     emoji:'⚔', line:'전투 개시. 의수 풀어라. 일하러 간다.', line_en:'Engaging. Arm's off. Going to work.' },
+    { faction:'cv',  speaker:'Butcher',     emoji:'⚔', line:'30년 전이나 지금이나, 광부의 답은 하나다 — 전투.', line_en:'Thirty years ago or today — a miner's answer is the same. Fight.' },
+    { faction:'cv',  speaker:'Aisha',       emoji:'⚔', line:'코드 활성. CV 전 인원 전투 모드.', line_en:'Code active. CV all hands, combat mode.' },
+    { faction:'cv',  speaker:'Cinder Grace',emoji:'⚔', line:'장비 점검 끝났다. 가자. 살아 돌아와라.', line_en:'Equipment check done. Go. Come back alive.' },
+    { faction:'cv',  speaker:'Crow',        emoji:'⚔', line:'마스크 내려라. 본격적으로 시작이다.', line_en:'Mask down. This is where it gets real.' },
+    { faction:null,  speaker:'Fleet Command', emoji:'⚔', line:'전 함대 전투 배치. 카운트다운 — 5... 4... 3...', line_en:'All fleet combat positions. Countdown — 5... 4... 3...' },
+    { faction:null,  speaker:'Tactical AI', emoji:'⚔', line:'표적 락온. 사격 통제 권한 위임. 행운을 빈다.', line_en:'Target locked. Weapons authority delegated. Good luck.' },
+    { faction:null,  speaker:'Mission Control', emoji:'⚔', line:'교전 규칙 발동. 전 채널 전투 주파수 전환.', line_en:'ROE activated. All channels switching to combat frequency.' },
   ],
   // ── 함대전 진입 (배틀 뷰어 오픈 직전) ──────────────────────────────
   fleet_battle_engage: [
-    { faction:'mcc', speaker:'Chen Weiss',  emoji:'🚀', line:'전 함선 라일거 충전. 미사일 록온 완료. 발사 대기.' },
-    { faction:'mcc', speaker:'Li Fang',     emoji:'🚀', line:'적 함대 진형 확인. 좌측 약점, 우측 보강. 패턴 분석 중.' },
-    { faction:'mcc', speaker:'MCC 사령부',  emoji:'🚀', line:'전 함대, 표준 교전 규약. 손해는 최소, 자산은 최대.' },
-    { faction:'mcc', speaker:'함장',        emoji:'🚀', line:'주포 발사 — 풀 살보! 보고 좀 받자고.' },
-    { faction:'fsp', speaker:'Lena',        emoji:'🚀', line:'팀, 우리 모두 무사히 돌아간다. 그게 1순위다.' },
-    { faction:'fsp', speaker:'Mikhail',     emoji:'🚀', line:'적도 사람이 타고 있다. 그래도 — 우리 사람이 먼저다.' },
-    { faction:'fsp', speaker:'Hagar',       emoji:'🚀', line:'어떤 적이든 결국 사람이지. 그 사실은 잊지 마라.' },
-    { faction:'fsp', speaker:'Olu Adeyemi', emoji:'🚀', line:'함선 설계 한계 안에서 싸워라. 무리하면 깨진다.' },
-    { faction:'cv',  speaker:'Butcher',     emoji:'🚀', line:'좋아. 첫 살보 시작. 내가 신호 줄 때까지 다들 위치 사수.' },
-    { faction:'cv',  speaker:'Aisha',       emoji:'🚀', line:'코드 발동 — 누구도 뒤에 안 남는다. 가자.' },
-    { faction:'cv',  speaker:'Crow',        emoji:'🚀', line:'시야 확보. 사격 자유. 알아서 살아남아라.' },
-    { faction:'cv',  speaker:'Cinder Grace',emoji:'🚀', line:'엔진 점검 끝. 무기 풀로드. 행운 빈다.' },
-    { faction:null,  speaker:'Tactical AI', emoji:'🎯', line:'함대전 시뮬레이션 시작. 실시간 결과 추적 중.' },
-    { faction:null,  speaker:'Fleet Command', emoji:'🎯', line:'주포 충전 100%. 살보 1발사. 살보 2 대기.' },
-    { faction:null,  speaker:'Battle Bridge', emoji:'🎯', line:'적 진형 분석 중... 아군 손실 예측 모델 가동.' },
-    { faction:null,  speaker:'AI Tactical', emoji:'🎯', line:'EMP 회피 기동 권장. 자동 회피 ON.' },
+    { faction:'mcc', speaker:'Chen Weiss',  emoji:'🚀', line:'전 함선 라일거 충전. 미사일 록온 완료. 발사 대기.', line_en:'All ships railgun charged. Missiles locked. Ready to fire.' },
+    { faction:'mcc', speaker:'Li Fang',     emoji:'🚀', line:'적 함대 진형 확인. 좌측 약점, 우측 보강. 패턴 분석 중.', line_en:'Enemy fleet formation confirmed. Left flank weak, right reinforced. Pattern analysis running.' },
+    { faction:'mcc', speaker:'MCC 사령부',  emoji:'🚀', line:'전 함대, 표준 교전 규약. 손해는 최소, 자산은 최대.', line_en:'All fleet, standard engagement doctrine. Minimize losses, maximize assets.' },
+    { faction:'mcc', speaker:'함장',        emoji:'🚀', line:'주포 발사 — 풀 살보! 보고 좀 받자고.', line_en:'Main guns fire — full salvo! Give me a readout.' },
+    { faction:'fsp', speaker:'Lena',        emoji:'🚀', line:'팀, 우리 모두 무사히 돌아간다. 그게 1순위다.', line_en:'Team, we all go home. That is priority one.' },
+    { faction:'fsp', speaker:'Mikhail',     emoji:'🚀', line:'적도 사람이 타고 있다. 그래도 — 우리 사람이 먼저다.', line_en:'There are people on those ships too. Still — our people come first.' },
+    { faction:'fsp', speaker:'Hagar',       emoji:'🚀', line:'어떤 적이든 결국 사람이지. 그 사실은 잊지 마라.', line_en:'Any enemy is still human. Never forget that.' },
+    { faction:'fsp', speaker:'Olu Adeyemi', emoji:'🚀', line:'함선 설계 한계 안에서 싸워라. 무리하면 깨진다.', line_en:'Fight within the ship's limits. Push too hard and you break.' },
+    { faction:'cv',  speaker:'Butcher',     emoji:'🚀', line:'좋아. 첫 살보 시작. 내가 신호 줄 때까지 다들 위치 사수.', line_en:'Alright. First salvo initiated. Everyone hold positions until my signal.' },
+    { faction:'cv',  speaker:'Aisha',       emoji:'🚀', line:'코드 발동 — 누구도 뒤에 안 남는다. 가자.', line_en:'Code activated — no one gets left behind. Move.' },
+    { faction:'cv',  speaker:'Crow',        emoji:'🚀', line:'시야 확보. 사격 자유. 알아서 살아남아라.', line_en:'Clear field of vision. Weapons free. Survive on your own.' },
+    { faction:'cv',  speaker:'Cinder Grace',emoji:'🚀', line:'엔진 점검 끝. 무기 풀로드. 행운 빈다.', line_en:'Engine check done. Weapons fully loaded. Good luck.' },
+    { faction:null,  speaker:'Tactical AI', emoji:'🎯', line:'함대전 시뮬레이션 시작. 실시간 결과 추적 중.', line_en:'Fleet battle simulation starting. Tracking results in real time.' },
+    { faction:null,  speaker:'Fleet Command', emoji:'🎯', line:'주포 충전 100%. 살보 1발사. 살보 2 대기.', line_en:'Main guns at 100%. Salvo 1 fired. Salvo 2 on standby.' },
+    { faction:null,  speaker:'Battle Bridge', emoji:'🎯', line:'적 진형 분석 중... 아군 손실 예측 모델 가동.', line_en:'Analyzing enemy formation... Running casualty prediction model.' },
+    { faction:null,  speaker:'AI Tactical', emoji:'🎯', line:'EMP 회피 기동 권장. 자동 회피 ON.', line_en:'EMP evasion maneuver recommended. Auto-evade ON.' },
   ],
 };
 
@@ -30752,7 +30746,7 @@ function showFactionFlavor(situation, opts){
     box.innerHTML = '<div style="font-size:9px;color:'+color+';font-weight:800;letter-spacing:1.5px;margin-bottom:5px">'
       + (pick.emoji||'') + ' ' + escapeHtmlSafe(pick.speaker)
       + '</div>'
-      + '<div style="font-size:11px;color:#f0f0f0;line-height:1.55">' + escapeHtmlSafe(pick.line) + '</div>';
+      + '<div style="font-size:11px;color:#f0f0f0;line-height:1.55">' + escapeHtmlSafe((LANG!=='ko'&&pick.line_en)||pick.line) + '</div>';
     document.body.appendChild(box);
     requestAnimationFrame(function(){
       box.style.opacity = '1';
