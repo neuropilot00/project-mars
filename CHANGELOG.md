@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.72 — battleTimeline / battleRewards 지갑 대소문자 비교 수정
+
+### server/services/battleTimeline.js (1곳)
+- `getUserBattleHistory()`: `WHERE p.wallet_address = $1` → `LOWER(p.wallet_address) = LOWER($1)`. 전투 기록이 빈 목록으로 반환되는 케이스 수정.
+
+### server/services/battleRewards.js (3곳)
+- `getRewardHistory()`: `WHERE r.wallet_address = $1` → `LOWER(r.wallet_address) = LOWER($1)`.
+- GP 지급 UPDATE: `WHERE wallet_address = $2` → `WHERE LOWER(wallet_address) = LOWER($2)` (2곳). 케이스 불일치 시 GP 미지급 버그 수정.
+
 ## 2026-05-07 v6.71 — 영토 업그레이드/아이덴티티/캠페인 보상 지갑 컨텍스트 수정
 
 ### index.html (4곳)

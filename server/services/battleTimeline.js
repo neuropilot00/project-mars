@@ -129,7 +129,7 @@ async function getUserBattleHistory(walletAddress, limit = 20) {
     FROM fleet_battle_participants p
     JOIN fleet_battles fb ON fb.id = p.battle_id
     LEFT JOIN fleets f ON f.id = p.fleet_id
-    WHERE p.wallet_address = $1 AND fb.status = 'ended'
+    WHERE LOWER(p.wallet_address) = LOWER($1) AND fb.status = 'ended'
     ORDER BY fb.ended_at DESC NULLS LAST
     LIMIT $2
   `, [walletAddress, limit]);

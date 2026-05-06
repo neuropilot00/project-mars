@@ -1,5 +1,13 @@
 # OCCUPY MARS — Codebase Audit (v6.71 / 2026-05-07)
 
+## ✅ v6.72 버그수정 — battleTimeline / battleRewards 지갑 케이스 오류 (4곳)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `battleTimeline.getUserBattleHistory()` — `WHERE p.wallet_address = $1` 직접 비교. JWT 소문자 wallet ≠ DB 대소문자 시 전투 기록이 빈 배열로 반환 | ✅ 수정 | `LOWER(p.wallet_address) = LOWER($1)` 적용 |
+| `battleRewards.getRewardHistory()` — `WHERE r.wallet_address = $1` 직접 비교. 전투 보상 이력이 빈 배열로 반환 | ✅ 수정 | `LOWER(r.wallet_address) = LOWER($1)` 적용 |
+| `battleRewards` GP 지급 UPDATE — `WHERE wallet_address = $2` 직접 비교 (2곳). 케이스 불일치 시 GP 지급 쿼리가 0행 업데이트 → GP 미지급 | ✅ 수정 | `LOWER(wallet_address) = LOWER($2)` 적용 |
+
 ## ✅ v6.71 버그수정 — myW2 스코프 오류 + 캠페인 보상 지갑 undefined (4곳)
 
 | 항목 | 상태 | 비고 |
