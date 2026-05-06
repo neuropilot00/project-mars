@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.74 — gameConfirm 콜백 패턴 전면 수정 + GP 비용 표시
+
+### index.html (9개 함수)
+- `doStake()` / `doWithdraw()`: `onConfirm: function(){}` + `confirmLabel:` (Promise 무시, fetch 미실행) → async/await + `confirmText:` + `getAuthHeaders()`. GP 스테이킹/인출 확인 시 실제 fetch가 실행되지 않던 치명 버그 수정.
+- `saveTdescDescription()` / `submitSponsor()`: 동일한 `onConfirm:` 콜백 패턴 → async/await 변환. 지갑 주소도 `window._walletAddress` → `((walletState&&walletState.address)||getMyWallet()||'').toLowerCase()` 통일. 영토 설명 저장 / 스폰서 배치가 확인 클릭 후 실제 실행되지 않던 버그 수정.
+- `submitBanner()` / `submitRating()` / `submitHighlight()` / `submitGraffiti()` / `submitTribute()`: `cost: value` (인식 불가 필드, UI 표시 안 됨) → `info: [{k:'Cost', v: value}]`. GP 비용이 확인 다이얼로그에 표시되지 않던 UX 버그 수정. 아이콘 추가.
+
+---
+
 ## 2026-05-07 v6.73 — 레거시 영토 업그레이드 패널 지갑/재로드 버그 수정
 
 ### index.html (2곳)

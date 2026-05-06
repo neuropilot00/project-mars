@@ -29445,7 +29445,7 @@ function updateStakePreview() {
   previewEl.textContent = '+' + yld + ' GP';
 }
 
-function doStake() {
+async function doStake() {
   if (!walletState.address) return showToast('Connect wallet first', 'error');
   var amt = parseFloat(document.getElementById('stakeAmountInput')?.value);
   if (!amt || amt <= 0) return showToast('Enter an amount', 'error');
@@ -29454,52 +29454,48 @@ function doStake() {
   if (amt > (info.max_amount || 10000)) return showToast('Maximum ' + (info.max_amount||10000) + ' GP per stake', 'error');
 
   var yld = document.getElementById('stakeYieldPreview')?.textContent || '';
-  gameConfirm({
+  var ok = await gameConfirm({
     icon: '💎',
     title: (window.i18n?.staking_confirm_title) || 'STAKE GP',
     body: 'Lock <b>' + Math.round(amt) + ' GP</b> for <b>' + _selectedLockDays + ' days</b><br>Expected yield: <b style="color:var(--gn)">' + yld + '</b>',
-    confirmLabel: (window.i18n?.staking_confirm_btn) || 'STAKE',
-    onConfirm: function() {
-      fetch('/api/staking/stake', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ wallet: walletState.address, amount: amt, lockDays: _selectedLockDays })
-      })
-        .then(function(r){ return r.json(); })
-        .then(function(d) {
-          if (d.error) return showToast(d.error, 'error');
-          showToast('💎 Staked ' + Math.round(amt) + ' GP for ' + _selectedLockDays + 'd!', 'success');
-          loadStakingPanel();
-          loadWalletData();
-        })
-        .catch(function() { showToast('Stake failed', 'error'); });
-    }
+    confirmText: (window.i18n?.staking_confirm_btn) || 'STAKE',
   });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/staking/stake', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ wallet: walletState.address, amount: amt, lockDays: _selectedLockDays })
+    });
+    var d = await r.json();
+    if (d.error) return showToast(d.error, 'error');
+    showToast('💎 Staked ' + Math.round(amt) + ' GP for ' + _selectedLockDays + 'd!', 'success');
+    loadStakingPanel();
+    loadWalletData();
+  } catch(e) { showToast('Stake failed', 'error'); }
 }
 
-function doWithdraw(stakeId) {
+async function doWithdraw(stakeId) {
   if (!walletState.address) return showToast('Connect wallet first', 'error');
-  gameConfirm({
+  var ok = await gameConfirm({
     icon: '✅',
     title: (window.i18n?.staking_withdraw_title) || 'WITHDRAW STAKE',
     body: 'Withdraw your matured stake and collect principal + yield?',
-    confirmLabel: (window.i18n?.staking_withdraw_btn) || 'WITHDRAW',
-    onConfirm: function() {
-      fetch('/api/staking/withdraw', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ wallet: walletState.address, stakeId: stakeId })
-      })
-        .then(function(r){ return r.json(); })
-        .then(function(d) {
-          if (d.error) return showToast(d.error, 'error');
-          showToast('✅ Received ' + d.totalReturn.toFixed(2) + ' GP!', 'success');
-          loadStakingPanel();
-          loadWalletData();
-        })
-        .catch(function() { showToast('Withdrawal failed', 'error'); });
-    }
+    confirmText: (window.i18n?.staking_withdraw_btn) || 'WITHDRAW',
   });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/staking/withdraw', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ wallet: walletState.address, stakeId: stakeId })
+    });
+    var d = await r.json();
+    if (d.error) return showToast(d.error, 'error');
+    showToast('✅ Received ' + d.totalReturn.toFixed(2) + ' GP!', 'success');
+    loadStakingPanel();
+    loadWalletData();
+  } catch(e) { showToast('Withdrawal failed', 'error'); }
 }
 
 // ── GP BURN (Migration 108) ──────────────────────────────────────────────────
@@ -38510,8 +38506,8 @@ function prefillTdescEdit(claimId, text) {
   document.getElementById('tdescPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function saveTdescDescription() {
-  var wallet  = window._walletAddress;
+async function saveTdescDescription() {
+  var wallet  = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   var claimId = parseInt((document.getElementById('tdescClaimInput')||{}).value, 10);
   var text    = ((document.getElementById('tdescTextInput')||{}).value || '').trim();
   if (!wallet) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
@@ -38519,24 +38515,27 @@ function saveTdescDescription() {
   if (!text) { showToast(t('tdesc_required')||'Enter a description','error'); return; }
   var cfg = _tdescCfg || {};
   var cost = cfg.firstGP != null ? cfg.firstGP : 0; // assume first for confirmation (actual check server-side)
-  gameConfirm({
+  var costLabel = cost > 0 ? cost+' GP' : (t('tdesc_free')||'Free');
+  var ok = await gameConfirm({
     title: t('tdesc_save_confirm') || 'Save Territory Description?',
-    body:  text,
-    cost:  cost > 0 ? cost+' GP' : (t('tdesc_free')||'Free'),
-    onConfirm: function() {
-      fetch('/api/tdesc/set', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet, claimId, text })
-      }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { showToast(d.error,'error'); return; }
-        showToast(t('tdesc_saved')||'✅ Description saved!');
-        loadMyTdescs();
-        loadClaimDescriptionPreview();
-        if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
-      }).catch(function(e){ showToast(e.message,'error'); });
-    }
+    body:  '<div style="margin-bottom:6px;color:#ccc;font-size:11px">' + text + '</div>',
+    info:  [{ k: t('cost')||'Cost', v: costLabel }],
+    confirmText: t('save')||'SAVE',
   });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/tdesc/set', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ wallet, claimId, text })
+    });
+    var d = await r.json();
+    if (d.error) { showToast(d.error,'error'); return; }
+    showToast(t('tdesc_saved')||'✅ Description saved!');
+    loadMyTdescs();
+    loadClaimDescriptionPreview();
+    if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+  } catch(e) { showToast(e.message||'Save failed','error'); }
 }
 
 // Load description into territory info panel when clicking a claim
@@ -38602,31 +38601,34 @@ function closeSponsorModal() {
   if (modal) modal.style.display = 'none';
 }
 
-function submitSponsor() {
-  var wallet  = window._walletAddress;
+async function submitSponsor() {
+  var wallet  = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   var claimId = _sponsorClaimId;
   var message = ((document.getElementById('sponsorMsgInput')||{}).value||'').trim();
   if (!wallet) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
   if (!claimId) return;
   var cost = _sponsorCfg ? _sponsorCfg.costGP : '?';
-  gameConfirm({
+  var ok = await gameConfirm({
+    icon: '🎗️',
     title: t('sponsor_confirm')||'Sponsor Territory?',
-    body:  '#'+claimId+(message?' — "'+message+'"':''),
-    cost:  cost+' GP',
-    onConfirm: function() {
-      fetch('/api/sponsor/place', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet, claimId, message })
-      }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { showToast(d.error,'error'); return; }
-        closeSponsorModal();
-        showToast(t('sponsor_placed')||'🎗️ Sponsored!');
-        loadSponsorsForInfo(claimId);
-        if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
-      }).catch(function(e){ showToast(e.message,'error'); });
-    }
+    body: 'Territory <b>#'+claimId+'</b>'+(message?' — "'+message+'"':''),
+    info: [{ k: t('cost')||'Cost', v: cost+' GP' }],
+    confirmText: t('sponsor_btn')||'SPONSOR',
   });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/sponsor/place', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ wallet, claimId, message })
+    });
+    var d = await r.json();
+    if (d.error) { showToast(d.error,'error'); return; }
+    closeSponsorModal();
+    showToast(t('sponsor_placed')||'🎗️ Sponsored!');
+    loadSponsorsForInfo(claimId);
+    if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+  } catch(e) { showToast(e.message||'Sponsor failed','error'); }
 }
 
 // ── GP Victory Banner (Migration 145) ────────────────────────────────────────
@@ -38702,9 +38704,10 @@ function submitBanner() {
   var message = ((document.getElementById('bannerMsgInput')||{}).value||'').trim();
   var cost = _bannerCfg ? _bannerCfg.costGP : 30;
   gameConfirm({
+    icon: '🚩',
     title: t('banner_confirm')||'Plant Victory Banner?',
     body:  _bannerSelectedEmoji+' on territory #'+claimId+(message?' — "'+message+'"':''),
-    cost:  cost+' GP'
+    info:  [{ k: t('cost')||'Cost', v: cost+' GP' }]
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/banner/plant', {
@@ -38937,9 +38940,10 @@ function submitRating(claimId, rating) {
   if (!wallet) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
   var cost = _ratingCfg ? _ratingCfg.costGP : 5;
   gameConfirm({
+    icon: '⭐',
     title: t('rating_confirm')||'Rate Territory?',
     body:  rating+'★ for territory #'+claimId,
-    cost:  cost+' GP'
+    info:  [{ k: t('cost')||'Cost', v: cost+' GP' }]
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/rating/rate', {
@@ -39023,9 +39027,10 @@ function submitHighlight() {
   if (!claimId) return;
   var cost = _highlightCfg ? _highlightCfg.costGP : 40;
   gameConfirm({
+    icon: '✨',
     title: t('highlight_confirm')||'Highlight Territory?',
     body:  'Territory #'+claimId+' will glow <span style="color:'+_highlightSelectedColor+'">■</span>',
-    cost:  cost+' GP'
+    info:  [{ k: t('cost')||'Cost', v: cost+' GP' }]
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/highlight/set', {
@@ -39096,9 +39101,10 @@ function submitGraffiti() {
   if (!text) { showToast(t('graffiti_text_required')||'Enter graffiti text','error'); return; }
   var cost = _graffitiCfg ? _graffitiCfg.costGP : 20;
   gameConfirm({
+    icon: '✍️',
     title: t('graffiti_confirm')||'Spray Graffiti?',
     body:  '"'+text+'" on territory #'+claimId,
-    cost:  cost+' GP'
+    info:  [{ k: t('cost')||'Cost', v: cost+' GP' }]
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/graffiti/place', {
@@ -39176,9 +39182,10 @@ function submitTribute() {
     showToast((t('tribute_amount_required')||'Enter a valid GP amount'),'error'); return;
   }
   gameConfirm({
+    icon: '🪙',
     title: t('tribute_confirm')||'Send GP Tribute?',
     body:  '#'+claimId+(message?' — "'+message+'"':''),
-    cost:  amountGP+' GP'
+    info:  [{ k: t('cost')||'Cost', v: amountGP+' GP' }]
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/tribute/send', {

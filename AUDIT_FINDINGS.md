@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v6.73 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.74 / 2026-05-07)
+
+## ✅ v6.74 버그수정 — gameConfirm 콜백 패턴 전면 수정 + GP 비용 표시 (9개 함수)
+
+| 함수 | 버그 | 상태 | 수정 내용 |
+|------|------|------|-----------|
+| `doStake()` | `onConfirm:` 콜백 패턴 — Promise 반환값 무시, fetch 미실행. 스테이킹 확인 클릭 후 아무것도 안 됨 | ✅ 수정 | async/await + `confirmText:` + `getAuthHeaders()` |
+| `doWithdraw()` | 동일한 `onConfirm:` 패턴 — 인출 확인 후 미실행 | ✅ 수정 | async/await 변환 |
+| `saveTdescDescription()` | `onConfirm:` 패턴 + `window._walletAddress` 스코프 불안정 | ✅ 수정 | async/await + 통일된 지갑 패턴 |
+| `submitSponsor()` | `onConfirm:` 패턴 + `window._walletAddress` | ✅ 수정 | async/await + 통일된 지갑 패턴 |
+| `submitBanner()` | `cost: value` — 인식 불가 필드, GP 비용 UI 미표시 | ✅ 수정 | `info: [{k:'Cost', v:...}]` + 아이콘 |
+| `submitRating()` | `cost: value` — 동일 | ✅ 수정 | `info:` 변환 + 아이콘 |
+| `submitHighlight()` | `cost: value` — 동일 | ✅ 수정 | `info:` 변환 + 아이콘 |
+| `submitGraffiti()` | `cost: value` — 동일 | ✅ 수정 | `info:` 변환 + 아이콘 |
+| `submitTribute()` | `cost: value` — 동일 | ✅ 수정 | `info:` 변환 + 아이콘 |
+
+**패턴 요약**: `gameConfirm()` 는 Promise를 반환함. `onConfirm: function(){}` 는 지원하지 않는 필드로, 클릭 후 아무런 동작이 없었음. `cost:` 역시 지원하지 않는 필드로, GP 비용이 다이얼로그에 표시되지 않았음. 전체 코드베이스에서 이 패턴을 전면 수정 완료.
 
 ## ✅ v6.73 버그수정 — 레거시 영토 업그레이드 패널 지갑/재로드 오류 (2곳)
 
