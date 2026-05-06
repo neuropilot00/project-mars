@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 로컬라이징 18차 — 전투/토너먼트/리플레이 정적 HTML (루프 18차)
+
+### 정적 HTML data-i18n 속성 + I18N 4개 언어 키 추가 (index.html) — 배치 18 (11개 항목)
+- 전투 취소 버튼 → `data-i18n="btn_cancel"` + 4개 언어 키
+- 공격 시작 span → `data-i18n="battle_attack_start"` + 4개 언어 키
+- 보상 토스트 타이틀/닫기 → `data-i18n="reward_battle_title"` / `"btn_confirm"` + 4개 언어 키
+- AI 연습전 타이틀 → `data-i18n="ai_practice_title"` + 4개 언어 키
+- 토너먼트 탭 (모집중/진행중/완료) → `data-i18n` 3종 + 4개 언어 키
+- 리플레이 탭 (추천/내 공유) → `data-i18n` 2종 + 4개 언어 키
+- 전투 검색 힌트 → `data-i18n="bd_search_hint"` + 4개 언어 키
+
 ## 2026-05-06 — 로컬라이징 15~17차 — 인벤/마켓/조선소/함대지휘/전쟁모달 (루프 15-17차)
 
 ### 동적 JS + 정적 HTML 4개 언어 확장 (index.html) — 배치 15~17 (70+ 항목)

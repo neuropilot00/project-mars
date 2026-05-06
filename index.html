@@ -17155,6 +17155,10 @@ var I18N = {
     war_stake_label: '⚡ STAKE (OPTIONAL): bet GP from treasury — winner takes pot',
     war_declare_cost_label: 'Declaration Cost', war_treasury_label: 'Guild Treasury',
     war_search_placeholder: '🔍 Filter: guild name or tag', war_search_hint: 'Enter 2+ characters to search',
+    bd_search_hint: 'Enter 2+ characters to search', battle_attack_start: 'Attack!',
+    reward_battle_title: '🏆 Battle Reward', btn_confirm: 'Confirm', btn_cancel: 'Cancel',
+    tn_tab_open: 'Open', tn_tab_running: 'Running', tn_tab_completed: 'Completed',
+    rp_tab_featured: 'Featured', rp_tab_mine: 'My Shares',
     war_duration_label: '⏱ DURATION (h): default 72h',
     war_declare_btn: '⚔️ DECLARE WAR',
     war_declaring_btn: 'DECLARING...',
@@ -17997,6 +18001,10 @@ var I18N = {
     war_stake_label: '⚡ 판돈 (선택): 금고에서 GP 투자 — 승자 독식',
     war_declare_cost_label: '선포 비용', war_treasury_label: '길드 재무',
     war_search_placeholder: '🔍 필터: 길드 이름 또는 태그', war_search_hint: '2글자 이상 입력하세요',
+    bd_search_hint: '2자 이상 입력하면 검색됩니다', battle_attack_start: '공격 시작',
+    reward_battle_title: '🏆 전투 보상', btn_confirm: '확인', btn_cancel: '취소',
+    tn_tab_open: '모집중', tn_tab_running: '진행중', tn_tab_completed: '완료',
+    rp_tab_featured: '추천', rp_tab_mine: '내 공유',
     war_duration_label: '⏱ 지속시간 (시): 기본 72시간',
     war_declare_btn: '⚔️ 전쟁 선포',
     war_declaring_btn: '선포 중...',
@@ -18812,6 +18820,10 @@ var I18N = {
     war_stake_label: '⚡ 掛け金（任意）: 金庫からGPを賭ける — 勝者総取り',
     war_declare_cost_label: '宣戦費用', war_treasury_label: 'ギルド財庫',
     war_search_placeholder: '🔍 フィルター: ギルド名またはタグ', war_search_hint: '2文字以上入力してください',
+    bd_search_hint: '2文字以上入力してください', battle_attack_start: '攻撃開始',
+    reward_battle_title: '🏆 戦闘報酬', btn_confirm: '確認', btn_cancel: 'キャンセル',
+    tn_tab_open: '募集中', tn_tab_running: '進行中', tn_tab_completed: '完了',
+    rp_tab_featured: 'おすすめ', rp_tab_mine: 'マイ共有',
     war_duration_label: '⏱ 期間 (時): デフォルト72時間',
     war_declare_btn: '⚔️ 宣戦布告',
     war_declaring_btn: '宣戦中...',
@@ -19640,6 +19652,10 @@ var I18N = {
     war_stake_label: '⚡ 赌注（可选）: 从金库投入GP — 胜者通吃',
     war_declare_cost_label: '宣战费用', war_treasury_label: '公会财库',
     war_search_placeholder: '🔍 筛选: 公会名或标签', war_search_hint: '请输入2个以上字符',
+    bd_search_hint: '请输入2个以上字符', battle_attack_start: '开始攻击',
+    reward_battle_title: '🏆 战斗奖励', btn_confirm: '确认', btn_cancel: '取消',
+    tn_tab_open: '招募中', tn_tab_running: '进行中', tn_tab_completed: '已完成',
+    rp_tab_featured: '推荐', rp_tab_mine: '我的分享',
     war_duration_label: '⏱ 持续（时）: 默认72小时',
     war_declare_btn: '⚔️ 宣战',
     war_declaring_btn: '宣战中...',
@@ -46997,16 +47013,16 @@ function fcEsc(str) {
              placeholder="닉네임 또는 함대명 (2자 이상)..."
              oninput="searchTargets()">
       <div class="bd-target-fleets" id="declareTargetList">
-        <div class="bd-search-hint">2자 이상 입력하면 검색됩니다</div>
+        <div class="bd-search-hint" data-i18n="bd_search_hint">2자 이상 입력하면 검색됩니다</div>
       </div>
     </div>
 
     <div class="bd-actions">
-      <button class="fd-btn" onclick="closeDeclareBattle()">취소</button>
+      <button class="fd-btn" onclick="closeDeclareBattle()" data-i18n="btn_cancel">취소</button>
       <button class="bh-declare-btn" id="declareConfirmBtn"
               style="font-size:10px;padding:8px 16px"
               disabled onclick="confirmDeclareBattle()">
-        ⚔ 공격 시작
+        ⚔ <span data-i18n="battle_attack_start">공격 시작</span>
       </button>
     </div>
   </div>
@@ -47118,16 +47134,16 @@ function fcEsc(str) {
 
 <!-- 보상 토스트 (Phase B) -->
 <div class="reward-toast" id="rewardToast">
-  <div class="reward-title" id="rewardToastTitle">🏆 전투 보상</div>
+  <div class="reward-title" id="rewardToastTitle" data-i18n="reward_battle_title">🏆 전투 보상</div>
   <div class="reward-items" id="rewardToastItems"></div>
-  <button class="reward-close" onclick="closeRewardToast()">확인</button>
+  <button class="reward-close" onclick="closeRewardToast()" data-i18n="btn_confirm">확인</button>
 </div>
 
 <!-- Phase C: AI 연습전 -->
 <div class="ai-modal-backdrop" id="aiFightModal">
   <div class="ai-modal">
     <div class="bh-header">
-      <div class="bh-title">🤖 AI 연습전</div>
+      <div class="bh-title">🤖 <span data-i18n="pvp_ai_practice">AI 연습전</span></div>
       <button class="shipyard-close" onclick="closeAiFight()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div style="padding:10px 20px;font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">
@@ -47145,9 +47161,9 @@ function fcEsc(str) {
       <button class="shipyard-close" onclick="closeTournaments()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="tn-tabs">
-      <button class="tn-tab active" data-tab="open" onclick="tnSwitchTab('open')">📢 모집중</button>
-      <button class="tn-tab" data-tab="running" onclick="tnSwitchTab('running')">▶ 진행중</button>
-      <button class="tn-tab" data-tab="completed" onclick="tnSwitchTab('completed')">✓ 완료</button>
+      <button class="tn-tab active" data-tab="open" onclick="tnSwitchTab('open')">📢 <span data-i18n="tn_tab_open">모집중</span></button>
+      <button class="tn-tab" data-tab="running" onclick="tnSwitchTab('running')">▶ <span data-i18n="tn_tab_running">진행중</span></button>
+      <button class="tn-tab" data-tab="completed" onclick="tnSwitchTab('completed')">✓ <span data-i18n="tn_tab_completed">완료</span></button>
     </div>
     <div class="tn-list" id="tnListContent"></div>
     <div class="bh-declare-area">
@@ -47458,8 +47474,8 @@ function fcEsc(str) {
       <button class="shipyard-close" onclick="closeReplays()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="bh-tabs">
-      <button class="bh-tab active" data-tab="featured" onclick="rpSwitchTab('featured')">⭐ 추천</button>
-      <button class="bh-tab" data-tab="mine" onclick="rpSwitchTab('mine')">📁 내 공유</button>
+      <button class="bh-tab active" data-tab="featured" onclick="rpSwitchTab('featured')">⭐ <span data-i18n="rp_tab_featured">추천</span></button>
+      <button class="bh-tab" data-tab="mine" onclick="rpSwitchTab('mine')">📁 <span data-i18n="rp_tab_mine">내 공유</span></button>
     </div>
     <div class="rp-grid" id="replayGrid"></div>
   </div>
