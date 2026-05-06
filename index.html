@@ -50296,7 +50296,7 @@ async function advanceStep(currentStep) {
         if (r.type==='pp')    showFactionToast(t('ob_reward_pp').replace('{n}',r.amount), 'success');
         if (r.type==='item')  showFactionToast(t('ob_reward_item').replace('{code}',r.code), 'success');
         if (r.type==='title') {
-          var _tname = LANG==='ko'?(r.name_ko||r.name_en||r.code):(r.name_en||r.name_ko||r.code);
+          var _tname = LANG==='ko'?(r.name_ko||r.name_en||r.code):LANG==='ja'?(r.name_ja||r.name_en||r.name_ko||r.code):LANG==='zh'?(r.name_zh||r.name_en||r.name_ko||r.code):(r.name_en||r.name_ko||r.code);
           showFactionToast(t('ob_reward_title').replace('{name}',_tname), 'success');
         }
       });
