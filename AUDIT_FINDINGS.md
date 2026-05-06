@@ -1,5 +1,14 @@
 # OCCUPY MARS — Codebase Audit (v6.74 / 2026-05-07)
 
+## ✅ v6.76 버그수정 — Daily OPS 미션 카운터 누락 (harvest/battle/market 복합 미션)
+
+| 버그 | 영향 | 상태 |
+|------|------|------|
+| `harvest_3`/`harvest_5` 알림 누락 — 영토 수확 시 `harvest_pp`(1회)만 알리고, 3회/5회 미션 카운터 미증가 | 3회/5회 수확 미션 영원히 미완료 | ✅ 수정 |
+| `battle_participate_3`/`battle_win_3` 알림 누락 — 전투 종료 후 단일 참여/승리만 카운트 | 3회 전투 미션 영원히 미완료 | ✅ 수정 |
+| `ai_battle_3` 알림 누락 — AI 연습전 단일 참여만 카운트 | AI 3회 미션 영원히 미완료 | ✅ 수정 |
+| `market_activity` 알림 누락 — 마켓 등록/구매 시 개별 미션만 알리고 3회 거래 미션 미카운트 | 마켓 거래 3회 미션 영원히 미완료 | ✅ 수정 |
+
 ## ✅ v6.75 버그수정 — window._walletAddress 항상 undefined (2곳)
 
 | 함수 | 버그 | 상태 | 수정 내용 |

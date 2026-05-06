@@ -3352,7 +3352,7 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
 
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
-    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(w, 'harvest_pp').catch(()=>{}); } catch(_) {}
+    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(w, 'harvest_pp').catch(()=>{}); _dOps.notifyMissionProgress(w, 'harvest_3').catch(()=>{}); _dOps.notifyMissionProgress(w, 'harvest_5').catch(()=>{}); } catch(_) {}
     try { if (seasonService) { seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {}); if (harvestedPP > 0) seasonService.addSeasonScore(w, 'pp_earn', 1).catch(() => {}); } } catch (_) {}
   } catch (e) {
     await client.query('ROLLBACK');

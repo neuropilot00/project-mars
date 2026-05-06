@@ -266,11 +266,11 @@ async function _postBattleHooks(battleId, result) {
   try {
     const dailyOps = require('../routes/dailyOps');
     if (typeof dailyOps.notifyMissionProgress === 'function') {
-      if (atkWallet) dailyOps.notifyMissionProgress(atkWallet, 'battle_participate').catch(() => {});
-      if (defWallet) dailyOps.notifyMissionProgress(defWallet, 'battle_participate').catch(() => {});
+      if (atkWallet) { dailyOps.notifyMissionProgress(atkWallet, 'battle_participate').catch(() => {}); dailyOps.notifyMissionProgress(atkWallet, 'battle_participate_3').catch(() => {}); }
+      if (defWallet) { dailyOps.notifyMissionProgress(defWallet, 'battle_participate').catch(() => {}); dailyOps.notifyMissionProgress(defWallet, 'battle_participate_3').catch(() => {}); }
 
       const winnerWallet = winner === 'atk' ? atkWallet : winner === 'def' ? defWallet : null;
-      if (winnerWallet) dailyOps.notifyMissionProgress(winnerWallet, 'battle_win').catch(() => {});
+      if (winnerWallet) { dailyOps.notifyMissionProgress(winnerWallet, 'battle_win').catch(() => {}); dailyOps.notifyMissionProgress(winnerWallet, 'battle_win_3').catch(() => {}); }
 
       const battleMeta = parts[0] || {};
       const summary = battleMeta.battle_summary || {};
@@ -278,8 +278,8 @@ async function _postBattleHooks(battleId, result) {
         || summary.is_ai_battle === 'true'
         || String(battleMeta.battle_type || '').toLowerCase().includes('ai');
       if (isAiBattle) {
-        if (atkWallet) dailyOps.notifyMissionProgress(atkWallet, 'ai_battle').catch(() => {});
-        if (defWallet) dailyOps.notifyMissionProgress(defWallet, 'ai_battle').catch(() => {});
+        if (atkWallet) { dailyOps.notifyMissionProgress(atkWallet, 'ai_battle').catch(() => {}); dailyOps.notifyMissionProgress(atkWallet, 'ai_battle_3').catch(() => {}); }
+        if (defWallet) { dailyOps.notifyMissionProgress(defWallet, 'ai_battle').catch(() => {}); dailyOps.notifyMissionProgress(defWallet, 'ai_battle_3').catch(() => {}); }
       }
     }
   } catch (_do) {}

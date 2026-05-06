@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.76 — Daily OPS 미션 카운터 누락 수정 (harvest_3/5, battle_3, market_activity)
+
+### server/routes/api.js (1곳)
+- 영토 harvest 완료 후 `harvest_pp` 외 `harvest_3`, `harvest_5` 미션 진행도 알림 추가. 기존에는 3회/5회 수확 미션이 실제 수확을 해도 영원히 0으로 남았음.
+
+### server/services/battleScheduler.js (1곳)
+- 전투 참여/승리 후 `battle_participate_3`, `battle_win_3`, `ai_battle_3` 미션 진행도 알림 추가. 기존에는 단일 참여/승리 미션만 카운트되고 3회 미션은 영원히 미완료.
+
+### server/routes/ships.js (2곳)
+- 함선 마켓 등록/구매 후 `market_activity` (3회 거래 미션) 진행도 알림 추가. 기존에는 market_list/market_buy만 카운트되어 market_activity 미션은 영원히 0.
+
+---
+
 ## 2026-05-07 v6.75 — window._walletAddress 항상 undefined 버그 수정 (2곳)
 
 ### index.html (2곳)

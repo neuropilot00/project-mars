@@ -194,6 +194,7 @@ router.post('/:id/list', requireAuth, async (req, res) => {
       try {
         const _dOps = require('./dailyOps');
         _dOps.notifyMissionProgress(wallet, 'market_list').catch(() => {});
+        _dOps.notifyMissionProgress(wallet, 'market_activity').catch(() => {});
       } catch (_) {}
     }
     res.json(result);
@@ -220,6 +221,7 @@ router.post('/market/listings/:id/buy', requireAuth, async (req, res) => {
       try {
         const _dOps = require('./dailyOps');
         _dOps.notifyMissionProgress(wallet, 'market_buy').catch(() => {});
+        _dOps.notifyMissionProgress(wallet, 'market_activity').catch(() => {});
       } catch (_) {}
     }
     res.json(result);
