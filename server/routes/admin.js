@@ -2740,7 +2740,7 @@ router.post('/duels/cancel/:id', adminAuth, async (req, res) => {
 
     // Refund challenger (wager was escrowed)
     await pool.query(
-      'UPDATE gp_balances SET balance = balance + $1 WHERE wallet=$2',
+      'UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
       [d.wager_gp, d.challenger]
     );
     await pool.query(
@@ -2798,9 +2798,8 @@ router.post('/alliances/:id/dissolve', adminAuth, async (req, res) => {
     if (Number(a.treasury_gp) > 0) {
       const refund = parseFloat((Number(a.treasury_gp) * 0.5).toFixed(6));
       await client.query(
-        `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
-         ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
-        [a.leader, refund]);
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+        [refund, a.leader]);
     }
     await client.query(`DELETE FROM alliances WHERE id=$1`, [id]);
     await client.query('COMMIT');
@@ -2968,9 +2967,8 @@ router.post('/expeditions/:id/cancel', adminAuth, async (req, res) => {
     await pool.query(`UPDATE expeditions SET status='cancelled' WHERE id=$1`, [id]);
     // Full refund on admin cancel
     await pool.query(
-      `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
-       ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
-      [exp.wallet, exp.gp_spent]);
+      `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+      [exp.gp_spent, exp.wallet]);
     await auditLog(req, 'expedition_admin_cancel', `expedition:${id}`, { wallet: exp.wallet });
     res.json({ ok: true, refunded: exp.gp_spent });
   } catch (e) { res.status(500).json({ error: e.message }); }
