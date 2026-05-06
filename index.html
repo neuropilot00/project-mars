@@ -13808,7 +13808,7 @@ async function doTerritoryMerge() {
   if (!ok) return;
 
   var btn = document.getElementById('mergeTerritoryConfirmBtn');
-  if (btn) { btn.disabled = true; btn.textContent = lang === 'ko' ? '병합 중…' : lang === 'ja' ? '統合中…' : lang === 'zh' ? '合并中…' : 'Merging…'; }
+  if (btn) { btn.disabled = true; btn.textContent = ({ko:'병합 중…',ja:'結合中…',zh:'合并中…'})[lang]||'Merging…'; }
 
   try {
     var d = await fetch('/api/territory/merge', {
@@ -15567,14 +15567,41 @@ async function confirmClaim(){
       closeClaimModal();
       if(!hjResp.ok){
         var hjErrMap={
-          'ATK_FLEET_NOT_FOUND':'공격 함대를 찾을 수 없습니다',
-          'ATK_FLEET_IN_BATTLE':'공격 함대가 이미 전투 중입니다',
-          'NO_PHASE1_SHIPS':'프리깃/구축함이 없습니다',
-          'TOO_MANY_PHASE1_SHIPS':'Phase 1 함선 수 초과',
-          'INSUFFICIENT_PP':'PP 잔액 부족 (필요: '+(hjData.required||0).toFixed(2)+')',
-          'Peace Treaty active — hijacking is temporarily disabled':'평화 협정 발동 중 — 하이젝 불가',
+          ko:{
+            'ATK_FLEET_NOT_FOUND':'공격 함대를 찾을 수 없습니다',
+            'ATK_FLEET_IN_BATTLE':'공격 함대가 이미 전투 중입니다',
+            'NO_PHASE1_SHIPS':'프리깃/구축함이 없습니다',
+            'TOO_MANY_PHASE1_SHIPS':'Phase 1 함선 수 초과',
+            'INSUFFICIENT_PP':'PP 잔액 부족 (필요: '+(hjData.required||0).toFixed(2)+')',
+            'Peace Treaty active — hijacking is temporarily disabled':'평화 협정 발동 중 — 하이젝 불가',
+          },
+          ja:{
+            'ATK_FLEET_NOT_FOUND':'攻撃艦隊が見つかりません',
+            'ATK_FLEET_IN_BATTLE':'攻撃艦隊はすでに戦闘中です',
+            'NO_PHASE1_SHIPS':'フリゲート/駆逐艦がありません',
+            'TOO_MANY_PHASE1_SHIPS':'Phase 1 艦船数の上限を超えています',
+            'INSUFFICIENT_PP':'PP 残高不足 (必要: '+(hjData.required||0).toFixed(2)+')',
+            'Peace Treaty active — hijacking is temporarily disabled':'平和条約発動中 — ハイジャック不可',
+          },
+          zh:{
+            'ATK_FLEET_NOT_FOUND':'找不到攻击舰队',
+            'ATK_FLEET_IN_BATTLE':'攻击舰队已在战斗中',
+            'NO_PHASE1_SHIPS':'没有护卫舰/驱逐舰',
+            'TOO_MANY_PHASE1_SHIPS':'Phase 1 舰船数量超出上限',
+            'INSUFFICIENT_PP':'PP 余额不足 (需要: '+(hjData.required||0).toFixed(2)+')',
+            'Peace Treaty active — hijacking is temporarily disabled':'和平条约生效中 — 暂时无法劫持',
+          },
+          en:{
+            'ATK_FLEET_NOT_FOUND':'Attack fleet not found',
+            'ATK_FLEET_IN_BATTLE':'Attack fleet is already in battle',
+            'NO_PHASE1_SHIPS':'No frigates/destroyers available',
+            'TOO_MANY_PHASE1_SHIPS':'Too many Phase 1 ships',
+            'INSUFFICIENT_PP':'Insufficient PP balance (required: '+(hjData.required||0).toFixed(2)+')',
+            'Peace Treaty active — hijacking is temporarily disabled':'Peace Treaty active — hijacking is temporarily disabled',
+          }
         };
-        showToast(hjErrMap[hjData.error]||('하이젝 실패: '+hjData.error));
+        const _hjFailPrefix={ko:'하이젝 실패: ',ja:'ハイジャック失敗: ',zh:'劫持失败: ',en:'Hijack failed: '};
+        showToast((hjErrMap[LANG]||hjErrMap.en)[hjData.error]||((_hjFailPrefix[LANG]||_hjFailPrefix.en)+hjData.error));
         try{_sfx.error()}catch(e){}
         return;
       }
@@ -50068,12 +50095,12 @@ function renderObStep0(el) {
 // STEP 1: 직업 선택
 function renderObStep1(el) {
   var _jobData = {
-    miner:    { icon:'⛏️', name_en:'Miner',    name_ko:'광부',   desc_en:'Accumulate wealth through mining', desc_ko:'채굴로 부를 쌓는다', buff_en:'Mining +50%', buff_ko:'채굴 +50%', weak_en:'Battle -30%', weak_ko:'전투 -30%' },
-    warrior:  { icon:'⚔️', name_en:'Warrior',  name_ko:'전사',   desc_en:'Seize and defend territory',       desc_ko:'영토를 빼앗고 지킨다', buff_en:'ATK +20%', buff_ko:'공격력 +20%', weak_en:'Mining -20%', weak_ko:'채굴 -20%' },
-    crafter:  { icon:'🔨', name_en:'Crafter',  name_ko:'제작자', desc_en:'Craft and enhance items',          desc_ko:'아이템을 만들고 강화', buff_en:'Enhance +30%', buff_ko:'강화 +30%', weak_en:'Battle -20%', weak_ko:'전투 -20%' },
-    merchant: { icon:'💼', name_en:'Merchant', name_ko:'상인',   desc_en:'Maximize profits through trade',   desc_ko:'거래로 이익을 극대화', buff_en:'Fee -35%', buff_ko:'수수료 -35%', weak_en:'Battle -20%', weak_ko:'전투 -20%' },
+    miner:    { icon:'⛏️', name_en:'Miner',    name_ko:'광부',   name_ja:'採掘者',   name_zh:'矿工',   desc_en:'Accumulate wealth through mining', desc_ko:'채굴로 부를 쌓는다', desc_ja:'採掘で富を積む', desc_zh:'通过采矿积累财富', buff_en:'Mining +50%', buff_ko:'채굴 +50%', buff_ja:'採掘 +50%', buff_zh:'采矿 +50%', weak_en:'Battle -30%', weak_ko:'전투 -30%', weak_ja:'戦闘 -30%', weak_zh:'战斗 -30%' },
+    warrior:  { icon:'⚔️', name_en:'Warrior',  name_ko:'전사',   name_ja:'戦士',     name_zh:'战士',   desc_en:'Seize and defend territory',       desc_ko:'영토를 빼앗고 지킨다', desc_ja:'領土を奪い守る', desc_zh:'夺取并守卫领地', buff_en:'ATK +20%', buff_ko:'공격력 +20%', buff_ja:'攻撃力 +20%', buff_zh:'攻击力 +20%', weak_en:'Mining -20%', weak_ko:'채굴 -20%', weak_ja:'採掘 -20%', weak_zh:'采矿 -20%' },
+    crafter:  { icon:'🔨', name_en:'Crafter',  name_ko:'제작자', name_ja:'クラフター', name_zh:'工匠',  desc_en:'Craft and enhance items',          desc_ko:'아이템을 만들고 강화', desc_ja:'アイテムを作り強化', desc_zh:'制作并强化物品', buff_en:'Enhance +30%', buff_ko:'강화 +30%', buff_ja:'強化 +30%', buff_zh:'强化 +30%', weak_en:'Battle -20%', weak_ko:'전투 -20%', weak_ja:'戦闘 -20%', weak_zh:'战斗 -20%' },
+    merchant: { icon:'💼', name_en:'Merchant', name_ko:'상인',   name_ja:'商人',     name_zh:'商人',   desc_en:'Maximize profits through trade',   desc_ko:'거래로 이익을 극대화', desc_ja:'取引で利益を最大化', desc_zh:'通过交易最大化利润', buff_en:'Fee -35%', buff_ko:'수수료 -35%', buff_ja:'手数料 -35%', buff_zh:'手续费 -35%', weak_en:'Battle -20%', weak_ko:'전투 -20%', weak_ja:'戦闘 -20%', weak_zh:'战斗 -20%' },
   };
-  var _isKo = LANG==='ko';
+  var _jobLng = function(j,k){ return LANG==='ko'?j[k+'_ko']:LANG==='ja'?j[k+'_ja']:LANG==='zh'?j[k+'_zh']:j[k+'_en']; };
   el.innerHTML = `
     <div class="ob-title" style="font-size:15px">${t('ob_step1_title')}</div>
     <div class="ob-subtitle">${t('ob_step1_sub')}</div>
@@ -50081,10 +50108,10 @@ function renderObStep1(el) {
       ${Object.keys(_jobData).map(function(code){var j=_jobData[code]; return `
         <div class="ob-job-card ${code} ${ob.selectedJob===code?'selected':''}" onclick="obSelectJob('${code}')">
           <div class="ob-job-icon">${j.icon}</div>
-          <div class="ob-job-name ${code}">${_isKo?j.name_ko:j.name_en}</div>
-          <div class="ob-job-desc">${_isKo?j.desc_ko:j.desc_en}</div>
-          <div class="ob-job-buff">✓ ${_isKo?j.buff_ko:j.buff_en}</div>
-          <div class="ob-job-weak">✗ ${_isKo?j.weak_ko:j.weak_en}</div>
+          <div class="ob-job-name ${code}">${_jobLng(j,'name')}</div>
+          <div class="ob-job-desc">${_jobLng(j,'desc')}</div>
+          <div class="ob-job-buff">✓ ${_jobLng(j,'buff')}</div>
+          <div class="ob-job-weak">✗ ${_jobLng(j,'weak')}</div>
         </div>`}).join('')}
     </div>
     <div style="font-size:9px;color:rgba(255,255,255,.25);text-align:center;margin-bottom:8px">${t('ob_job_change_note')}</div>
@@ -50095,8 +50122,8 @@ function renderObStep1(el) {
 }
 function obSelectJob(code) { ob.selectedJob = code; renderStep(1); }
 function obGetJobName(code) {
-  var _n={miner:{en:'Miner',ko:'광부'},warrior:{en:'Warrior',ko:'전사'},crafter:{en:'Crafter',ko:'제작자'},merchant:{en:'Merchant',ko:'상인'}};
-  return (_n[code]&&(LANG==='ko'?_n[code].ko:_n[code].en))||code;
+  var _n={miner:{en:'Miner',ko:'광부',ja:'採掘者',zh:'矿工'},warrior:{en:'Warrior',ko:'전사',ja:'戦士',zh:'战士'},crafter:{en:'Crafter',ko:'제작자',ja:'クラフター',zh:'工匠'},merchant:{en:'Merchant',ko:'상인',ja:'商人',zh:'商人'}};
+  return (_n[code]&&(_n[code][LANG]||_n[code].en))||code;
 }
 
 // STEP 2: 파벌 선택 (inline)
@@ -50106,7 +50133,7 @@ async function renderObStep2(el) {
     el.innerHTML = `
       <div class="ob-complete-center" style="padding:20px 0">
         <div style="font-size:42px;margin-bottom:12px">${factionState.current.icon_emoji||'🛡️'}</div>
-        <div class="ob-title" style="font-size:14px">${LANG==='ko'?(factionState.current.name_ko||factionState.current.code):(factionState.current.name_en||factionState.current.code)}</div>
+        <div class="ob-title" style="font-size:14px">${LANG==='ko'?(factionState.current.name_ko||factionState.current.code):LANG==='ja'?(factionState.current.name_ja||factionState.current.name_en||factionState.current.code):LANG==='zh'?(factionState.current.name_zh||factionState.current.name_en||factionState.current.code):(factionState.current.name_en||factionState.current.code)}</div>
         <div class="ob-subtitle">${t('ob_step2_already')}</div>
       </div>
       <button class="ob-btn-primary" onclick="advanceStep(2)">${t('ob_step2_continue')}</button>`;
@@ -50131,11 +50158,10 @@ async function renderObStep2(el) {
     var gridEl = document.getElementById('obFactionGrid');
     if (!gridEl) return;
     var colorMap = {mcc:'#ef5350', fsp:'#4fc3f7', cv:'#81c784'};
-    var _isKo2 = LANG==='ko';
     gridEl.innerHTML = factions.map(function(f){
       var c = colorMap[f.code]||'#fff';
-      var _fname = _isKo2 ? (f.name_ko||f.code) : (f.name_en||f.code);
-      var _fdesc = _isKo2 ? (f.description_ko||'') : (f.description_en||f.description_ko||'');
+      var _fname = LANG==='ko'?(f.name_ko||f.code):LANG==='ja'?(f.name_ja||f.name_en||f.code):LANG==='zh'?(f.name_zh||f.name_en||f.code):(f.name_en||f.code);
+      var _fdesc = LANG==='ko'?(f.description_ko||''):LANG==='ja'?(f.description_ja||f.description_en||f.description_ko||''):LANG==='zh'?(f.description_zh||f.description_en||f.description_ko||''):(f.description_en||f.description_ko||'');
       return '<div class="ob-faction-card '+f.code+'" id="obFCard_'+f.code+'" onclick="obSelectFaction(\''+f.code+'\')">'
         +'<div style="font-size:28px;margin-bottom:8px">'+(f.icon_emoji||'⬢')+'</div>'
         +'<div style="font-family:\'Orbitron\',monospace;font-size:10px;font-weight:900;letter-spacing:2px;color:'+c+';margin-bottom:6px">'+_fname+'</div>'
@@ -50177,7 +50203,7 @@ async function obConfirmFaction() {
     }
     showFactionToast(t('ob_faction_success'), 'success');
     if (data.starter_ship) {
-      var _sname = LANG==='ko'?(data.starter_ship.name_ko||'프리깃'):(data.starter_ship.name_en||data.starter_ship.name_ko||'Frigate');
+      var _sname = syShipName(data.starter_ship)||(LANG==='ko'?'프리깃':LANG==='ja'?'フリゲート':LANG==='zh'?'护卫舰':'Frigate');
       setTimeout(function() {
         showToast(t('ob_starter_ship').replace('{name}',_sname), 'success');
       }, 800);
@@ -50192,13 +50218,13 @@ async function obConfirmFaction() {
 
 // STEP 3: 첫 영토 안내
 async function renderObStep3(el) {
-  var sectorName = 'Arcadia Ridge', sectorReason = LANG==='ko'?'자원이 풍부하고 방어가 쉬운 지역입니다':'Resource-rich and easy to defend';
+  var sectorName = 'Arcadia Ridge', sectorReason = LANG==='ko'?'자원이 풍부하고 방어가 쉬운 지역입니다':LANG==='ja'?'資源が豊富で守りやすい地域です':LANG==='zh'?'资源丰富且易于防守的地区':'Resource-rich and easy to defend';
   try {
     var res = await fetch('/api/onboarding/sector?job_code='+(ob.selectedJob||'miner'));
     var d = await res.json();
     if (d.sector) {
       sectorName = d.sector.name||d.sector.code||sectorName;
-      sectorReason = LANG==='ko'?(d.sector.reason_ko||sectorReason):(d.sector.reason_en||d.sector.reason_ko||sectorReason);
+      sectorReason = LANG==='ko'?(d.sector.reason_ko||sectorReason):LANG==='ja'?(d.sector.reason_ja||d.sector.reason_en||d.sector.reason_ko||sectorReason):LANG==='zh'?(d.sector.reason_zh||d.sector.reason_en||d.sector.reason_ko||sectorReason):(d.sector.reason_en||d.sector.reason_ko||sectorReason);
     }
   } catch(_) {}
   el.innerHTML = `
@@ -50230,7 +50256,7 @@ async function renderObStep4(el) {
     var d = await res.json();
     if (d.mission) mission = d.mission;
   } catch(_) {}
-  var _missionDesc = LANG==='ko'?(mission.desc_ko||mission.desc_en):(mission.desc_en||mission.desc_ko);
+  var _missionDesc = LANG==='ko'?(mission.desc_ko||mission.desc_en):LANG==='ja'?(mission.desc_ja||mission.desc_en||mission.desc_ko):LANG==='zh'?(mission.desc_zh||mission.desc_en||mission.desc_ko):(mission.desc_en||mission.desc_ko);
   el.innerHTML = `
     <div class="ob-complete-center">
       <div class="ob-complete-emoji">🎉</div>

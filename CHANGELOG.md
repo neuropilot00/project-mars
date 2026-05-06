@@ -2393,3 +2393,4 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 - resource + resources (admin + user)
 - auction + auctionRoutes (ops + listing)
 - tournament + tournaments (fleet + simple)
+- fix: 하이젝 에러맵 + 병합 버튼 JA/ZH 로컬라이징
