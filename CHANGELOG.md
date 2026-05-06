@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: phaseD alliance shadow-match + leave 401
+
+### server/routes/phaseD.js
+- **버그**: `GET /alliances/:id` (phaseD, line 90) 이 `GET /alliances/my`, `GET /alliances/settings` (alliance.js) shadow-match
+  - phaseD는 line 306 마운트 (alliance.js는 line 334) → phaseD가 먼저 처리
+  - `id='settings'` → `parseInt('settings')=NaN → INVALID_ID 400` 반환
+- **수정**: `staticSubs = ['my','settings','create','betray']` `next()` guard 추가
+
+### index.html
+- **버그**: `leaveAllianceConfirm()` — `POST /api/alliances/leave` JWT 없이 body wallet만 전송
+  - phaseD `requireAuth` 가 먼저 처리 → 401 UNAUTHORIZED
+- **수정**: `pw_token` 있으면 Authorization 헤더 추가
+
 ## 2026-05-06 — bugfix: Express route shadow-match + legacy gameConfirm callback patterns
 
 ### server/routes/tournaments.js

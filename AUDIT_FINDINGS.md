@@ -1,5 +1,14 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.44 버그수정 — phaseD 동맹 shadow-match + alliance leave 401
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `phaseD.js GET /alliances/:id` — 'my'/'settings' shadow-match (alliance.js 정적 경로 차단) | ✅ 수정 | `staticSubs` `next()` guard 추가 |
+| `leaveAllianceConfirm()` — `POST /api/alliances/leave` JWT 미포함 → phaseD requireAuth → 401 | ✅ 수정 | `pw_token` Authorization 헤더 추가 |
+
+
+
 ## ✅ v6.43 버그수정 — Express 라우트 shadow-match + gameConfirm 구버전 호출 일괄 수정
 
 | 항목 | 상태 | 비고 |

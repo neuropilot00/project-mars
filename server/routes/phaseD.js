@@ -87,7 +87,10 @@ router.get('/alliances/mine', requireAuth, async (req, res) => {
   } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'mine'); }
 });
 
-router.get('/alliances/:id', async (req, res) => {
+router.get('/alliances/:id', async (req, res, next) => {
+  // Pass static sub-paths to alliance.js (mounted later) to avoid shadow-match
+  const staticSubs = ['my', 'settings', 'create', 'betray'];
+  if (staticSubs.includes(req.params.id)) return next();
   try {
     const id = parseInt(req.params.id);
     if (!id) return res.status(400).json({ error: 'INVALID_ID' });

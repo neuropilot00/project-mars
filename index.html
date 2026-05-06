@@ -39430,9 +39430,11 @@ function leaveAllianceConfirm() {
   if (!w) return;
   gameConfirm({ title: t('alliance_leave_title')||'Leave Alliance?', body: t('alliance_leave_confirm')||'You will be removed from the alliance. The leader must transfer leadership or dissolve before leaving.' }).then(function(ok){
     if (!ok) return;
+    var headers = {'Content-Type':'application/json'};
+    var tok = localStorage.getItem('pw_token'); if (tok) headers['Authorization'] = 'Bearer '+tok;
     fetch('/api/alliances/leave', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: headers,
       body: JSON.stringify({ wallet: w })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
