@@ -1,5 +1,18 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.46 버그수정 — 온보딩 API URL 불일치 + POST /reward 엔드포인트 누락
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `initOnboarding()` — fetch URL `/api/user/onboarding` → 서버 마운트 `/api/onboarding` | ✅ 수정 | URL 수정 + JWT 인증 헤더 추가 |
+| `obNextStep()` step 5 — fetch URL `/api/user/onboarding/reward` → `/api/onboarding/reward` | ✅ 수정 | URL 수정 + JWT 인증 헤더 추가 |
+| `obNextStep()` step 1~4 — fetch URL `/api/user/onboarding/step` → `/api/onboarding/step` | ✅ 수정 | URL 수정 + JWT 인증 헤더 추가 |
+| `obSkip()` — fetch URL `/api/user/onboarding/skip` → `/api/onboarding/skip` | ✅ 수정 | URL 수정 + JWT 인증 헤더 추가 |
+| `onTutorialClaimSuccess()` — fetch URL `/api/user/onboarding/step` → `/api/onboarding/step` | ✅ 수정 | URL 수정 + JWT 인증 헤더 추가 |
+| `POST /api/onboarding/reward` 엔드포인트 미존재 → 404 → 온보딩 step 5 보상 수령 불가 | ✅ 추가 | `onboardingRoutes.js`에 `/reward` 핸들러 추가. `completeStep(wallet,5,{})` 호출 후 `{ok, rewards:{gp,pp}}` 포맷으로 반환 |
+
+
+
 ## ✅ v6.45 버그수정 — FACTION_FLAVOR 문자열 JS syntax error (미사용 아포스트로피)
 
 | 항목 | 상태 | 비고 |

@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: onboarding API URL mismatch + missing /reward endpoint
+
+### index.html (5개 fetch 수정)
+- **버그**: 온보딩 관련 모든 fetch URL이 `/api/user/onboarding/*` 을 사용했으나, 서버는 `/api/onboarding`에 마운트 → 전체 온보딩 API 404
+- **버그**: `requireAuth` 미들웨어가 JWT를 요구하지만 Authorization 헤더 미포함 → 401
+- **수정**: URL 5곳 모두 `/api/onboarding/*` 로 변경 + `pw_token` JWT 헤더 추가
+  - `initOnboarding()`, `obNextStep()` (step advance + reward), `obSkip()`, `onTutorialClaimSuccess()`
+
+### server/routes/onboardingRoutes.js
+- **버그**: `POST /api/onboarding/reward` 엔드포인트 미존재 → step 5 보상 수령 버튼 항상 404 → 온보딩 완료 불가
+- **수정**: `/reward` POST 핸들러 추가
+  - `onboardingService.completeStep(wallet, 5, {})` 호출
+  - 프론트 기대 포맷 `{ ok: true, rewards: { gp, pp } }` 로 변환
+  - `ALREADY_DONE` → `{ error: 'already_claimed' }` 매핑
+
 ## 2026-05-06 — bugfix: FACTION_FLAVOR JS syntax error — unescaped apostrophes
 
 ### index.html

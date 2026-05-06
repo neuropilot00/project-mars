@@ -27022,7 +27022,9 @@ var _obState = null; // cached onboarding state from server
 async function initOnboarding(wallet) {
   if (!wallet) return;
   try {
-    var r = await fetch('/api/user/onboarding?wallet=' + wallet);
+    var _obTok = localStorage.getItem('pw_token');
+    var _obHdrs = _obTok ? {'Authorization':'Bearer '+_obTok} : {};
+    var r = await fetch('/api/onboarding', {headers: _obHdrs});
     if (!r.ok) return;
     var state = await r.json();
     _obState = state;
@@ -27142,9 +27144,10 @@ async function obNextStep(currentStep) {
   // Step 5 = final step → claim reward
   if (currentStep === 5) {
     try {
-      var r = await fetch('/api/user/onboarding/reward', {
+      var _obTok2 = localStorage.getItem('pw_token');
+      var r = await fetch('/api/onboarding/reward', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({'Content-Type':'application/json'}, _obTok2 ? {'Authorization':'Bearer '+_obTok2} : {}),
         body: JSON.stringify({ wallet: wallet })
       });
       var d = await r.json();
@@ -27165,9 +27168,10 @@ async function obNextStep(currentStep) {
   // Steps 1~4 → mark complete + advance
   var next = currentStep + 1;
   try {
-    await fetch('/api/user/onboarding/step', {
+    var _obTok3 = localStorage.getItem('pw_token');
+    await fetch('/api/onboarding/step', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({'Content-Type':'application/json'}, _obTok3 ? {'Authorization':'Bearer '+_obTok3} : {}),
       body: JSON.stringify({ wallet: wallet, step: currentStep })
     });
   } catch(e) {}
@@ -27188,9 +27192,10 @@ async function obSkip() {
   var wallet = walletState && walletState.address;
   if (!wallet) return;
   try {
-    await fetch('/api/user/onboarding/skip', {
+    var _obTok4 = localStorage.getItem('pw_token');
+    await fetch('/api/onboarding/skip', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({'Content-Type':'application/json'}, _obTok4 ? {'Authorization':'Bearer '+_obTok4} : {}),
       body: JSON.stringify({ wallet: wallet })
     });
   } catch(e) {}
@@ -27201,11 +27206,14 @@ async function obSkip() {
 // Called from claim success handler when tutorialFreeClaim = true
 function onTutorialClaimSuccess() {
   // Mark step 1 done (backend already did it), show step 2
-  try { fetch('/api/user/onboarding/step', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ wallet: walletState.address, step: 1 })
-  }); } catch(e) {}
+  try {
+    var _obTok5 = localStorage.getItem('pw_token');
+    fetch('/api/onboarding/step', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, _obTok5 ? {'Authorization':'Bearer '+_obTok5} : {}),
+      body: JSON.stringify({ wallet: walletState.address, step: 1 })
+    });
+  } catch(e) {}
   if (_obState) _obState.currentStep = 1;
   setTimeout(function() { showOnboardingStep(2); }, 400);
 }

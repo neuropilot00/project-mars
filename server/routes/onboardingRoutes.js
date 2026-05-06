@@ -96,6 +96,40 @@ router.post('/skip', requireAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/onboarding/reward
+ * Step 5 최종 보상 수령 — completeStep(5) 래퍼
+ * 프론트 응답 포맷: { ok, rewards: { gp, pp } }
+ */
+router.post('/reward', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const result = await onboardingService.completeStep(wallet, 5, {});
+
+    if (!result.success) {
+      // ALREADY_DONE or already_done both map to already_claimed
+      return res.json({ error: 'already_claimed' });
+    }
+    if (result.already_done) {
+      return res.json({ error: 'already_claimed' });
+    }
+
+    // Flatten rewards array → { gp, pp } map for frontend
+    const rewardMap = { gp: 0, pp: 0 };
+    (result.rewards || []).forEach(r => {
+      if (r.type === 'gp') rewardMap.gp = r.amount;
+      if (r.type === 'pp') rewardMap.pp = r.amount;
+    });
+
+    res.json({ ok: true, rewards: rewardMap });
+  } catch (err) {
+    if (err.message === 'ALREADY_DONE') return res.json({ error: 'already_claimed' });
+    handleErr(res, err, 'reward');
+  }
+});
+
+/**
  * GET /api/onboarding/guilds
  * 추천 길드 목록 (STEP 4용)
  */
