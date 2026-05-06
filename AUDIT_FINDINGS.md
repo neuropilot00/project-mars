@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v6.63 / 2026-05-07)
 
+## ✅ v6.65 버그수정 — Void Raider 교전 모달 로그인 가드 누락
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `openWorldEventDetail()` — `isLoggedIn()` 체크 없이 모달 바로 오픈. 비로그인 유저가 교전 시도 시 서버에서 `wallet_required` 반환하는 혼란스러운 UX | ✅ 수정 | JWT + walletState 둘 다 없을 때만 차단. 에러 토스트 표시 후 모달 미오픈 |
+
 ## ✅ v6.64 버그수정 — Void Raider ENGAGE 지갑 인증 누락
 
 | 항목 | 상태 | 비고 |

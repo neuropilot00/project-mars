@@ -1,5 +1,10 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.65 — Void Raider 교전 모달 로그인 가드 추가
+
+### index.html (1곳)
+- `openWorldEventDetail()`: 비로그인 유저가 Void Raider ENGAGE 버튼을 눌러도 모달이 열리던 문제 수정. `isLoggedIn()` + 지갑 연결 여부 확인 후 미로그인 시 에러 토스트 표시.
+
 ## 2026-05-07 v6.64 — Void Raider ENGAGE 지갑 인증 누락 수정
 
 ### index.html (1곳)

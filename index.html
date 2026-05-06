@@ -23015,6 +23015,10 @@ window.loadShipyardTabPane = loadFleetCommandCard;
 var _weCurrentEventId = null;
 
 window.openWorldEventDetail = async function(eventId) {
+  if (!isLoggedIn() && !(walletState && walletState.address)) {
+    showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required to engage','error');
+    return;
+  }
   _weCurrentEventId = eventId;
   var modal = document.getElementById('weEngageModal');
   if (!modal) return;
