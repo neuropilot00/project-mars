@@ -1,5 +1,15 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.37 버그수정 — onboarding PP parseInt 버그 + exchange_max fallback
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `onboarding_pp_reward` getSettingInt→parseFloat → 0.5가 0으로 처리 | ✅ 수정 | getSettingFloat() 헬퍼 추가 |
+| `pp_to_gp_exchange_max` 코드 fallback '10'→'5' 불일치 | ✅ 수정 | migration 220과 정렬 |
+| territory identity 컬럼 orphaned (audit error) | ✅ 정상 | territoryIdentity.js가 처리 중 |
+
+
+
 ## ✅ v6.36 버그수정 — frontend wallet null guard + dead DOM ref
 
 | 항목 | 상태 | 비고 |

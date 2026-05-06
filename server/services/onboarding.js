@@ -118,7 +118,7 @@ async function completeStep(walletAddress, step, data = {}) {
 
       // PP 보상 지급
       if (!onboarding.pp_rewarded) {
-        const ppReward = await getSettingInt(client, 'onboarding_pp_reward', 100);
+        const ppReward = await getSettingFloat(client, 'onboarding_pp_reward', 0.5);
         await client.query(
           `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
           [ppReward, walletAddress]
@@ -330,6 +330,18 @@ async function getSettingInt(client, key, fallback) {
     const { rows } = await q;
     if (!rows[0]) return fallback;
     const n = parseInt(String(rows[0].value).replace(/"/g, ''), 10);
+    return isNaN(n) ? fallback : n;
+  } catch { return fallback; }
+}
+
+async function getSettingFloat(client, key, fallback) {
+  try {
+    const q = client
+      ? client.query(`SELECT value FROM settings WHERE key = $1`, [key])
+      : pool.query(`SELECT value FROM settings WHERE key = $1`, [key]);
+    const { rows } = await q;
+    if (!rows[0]) return fallback;
+    const n = parseFloat(String(rows[0].value).replace(/"/g, ''));
     return isNaN(n) ? fallback : n;
   } catch { return fallback; }
 }

@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: onboarding PP reward parseInt→parseFloat + exchange_max fallback
+
+### server/services/onboarding.js
+- **버그**: `onboarding_pp_reward` 설정값 0.5를 `getSettingInt()`로 읽어 `parseInt('0.5')=0` 처리 → PP 보상 0 지급
+- **수정**: `getSettingFloat()` 헬퍼 추가 + ppReward 조회를 parseFloat 기반으로 변경
+- 기본값(fallback)도 `100`→`0.5`로 경제 밸런스 정렬
+
+### server/routes/api.js
+- **수정**: `pp_to_gp_exchange_max` 코드 fallback 값 `'10'`→`'5'` (migration 220 설정값과 일치)
+
 ## 2026-05-06 — bugfix: frontend wallet null guards + dead el ref cleanup
 
 ### index.html

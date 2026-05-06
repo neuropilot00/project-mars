@@ -7048,7 +7048,7 @@ router.post('/exchange/pp-to-gp', writeLimiter, async (req, res) => {
     if (enabledVal !== true && enabledVal !== 'true' && enabledVal != null) return res.status(400).json({ error: 'PP→GP exchange is currently disabled' });
 
     const minPP = parseFloat(await getSetting('pp_to_gp_exchange_min') || '0.1');
-    const maxPP = parseFloat(await getSetting('pp_to_gp_exchange_max') || '10');
+    const maxPP = parseFloat(await getSetting('pp_to_gp_exchange_max') || '5');
     const rate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '4');
     const feePct = parseFloat(await getSetting('pp_to_gp_exchange_fee_pct') || '5');
     const dailyLimit = parseFloat(await getSetting('pp_to_gp_exchange_daily_limit') || '50');
@@ -7118,7 +7118,7 @@ router.get('/exchange/pp-to-gp/info', readLimiter, async (req, res) => {
   try {
     const rate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '4');
     const min = parseFloat(await getSetting('pp_to_gp_exchange_min') || '0.1');
-    const max = parseFloat(await getSetting('pp_to_gp_exchange_max') || '10');
+    const max = parseFloat(await getSetting('pp_to_gp_exchange_max') || '5');
     const fee = parseFloat(await getSetting('pp_to_gp_exchange_fee_pct') || '5');
     const daily = parseFloat(await getSetting('pp_to_gp_exchange_daily_limit') || '50');
     const enabledVal = await getSetting('pp_to_gp_exchange_enabled');
