@@ -1,5 +1,29 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.53 버그수정 — _phaseDAuthHeaders 잘못된 localStorage 키
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `_phaseDAuthHeaders()` — `localStorage.getItem('jwt_token') \|\| localStorage.getItem('jwt')` 키는 앱에서 사용하지 않음. 앱 표준은 `pw_token`. 결과적으로 Authorization 헤더 없이 요청 전송 → 동맹 guild add/remove/betray 모두 401 | ✅ 수정 | `localStorage.getItem('pw_token')` 로 통일 |
+
+
+
+## ✅ v6.52 버그수정 — openMineralsPanel GET /api/resources/my?wallet= JWT 무시
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `openMineralsPanel()` — `GET /api/resources/my?wallet=…` 쿼리 파라미터. resources.js requireAuth JWT 인증이 먼저 실행되어 401 | ✅ 수정 | `fetch('/api/resources/my', { headers: getAuthHeaders() })` 로 교체 (line ~30916). MY MINERALS 패널 완전 비표시 버그 수정 |
+
+
+
+## ✅ v6.51 버그수정 — govPlaceBet POST /api/betting/bet x-wallet 헤더 → JWT 401
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `govPlaceBet()` 거버넌스 패널 베팅 — `POST /api/betting/bet` 에 `x-wallet` 헤더 전송. warBettingRoutes `requireAuth` (JWT 전용) → 401 | ✅ 수정 | `Object.assign({'Content-Type':'application/json'}, getAuthHeaders())` 로 교체 (line ~33828). 거버넌스 공성전 베팅 완전 불가 버그 수정 |
+
+
+
 ## ✅ v6.50 버그수정 — GET /api/ships/my?wallet= 쿼리 파라미터 무시 → 401
 
 | 항목 | 상태 | 비고 |

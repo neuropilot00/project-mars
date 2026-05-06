@@ -24410,7 +24410,7 @@ function _esc(s){ return (typeof escapeHTML==='function')?escapeHTML(s):String(s
 function _phaseDAuthHeaders(){
   var h = {'Content-Type':'application/json'};
   try {
-    var tok = localStorage.getItem('jwt_token') || localStorage.getItem('jwt') || (window.walletState && window.walletState.token);
+    var tok = localStorage.getItem('pw_token');
     if(tok) h['Authorization'] = 'Bearer '+tok;
   } catch(_){}
   return h;
@@ -30913,7 +30913,7 @@ function openMineralsPanel(){
   var w = walletState.address;
   if(!w){ showToast('LOGIN FIRST'); return; }
   _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#81c784');
-  fetch('/api/resources/my?wallet='+encodeURIComponent(w))
+  fetch('/api/resources/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       var items = d.resources || d.inventory || d || [];
@@ -33827,7 +33827,7 @@ window.addEventListener('resize', _debounce(function(){
 
     fetch('/api/betting/bet', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-wallet': w },
+      headers: Object.assign({'Content-Type': 'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ eventId: betEventId, option: opt, amount: amt })
     }).then(function(r){return r.json()}).then(function(d) {
       if (!d.success) {

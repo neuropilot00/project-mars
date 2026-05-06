@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.51-v6.53 — auth 버그 3건 수정
+
+### index.html (3곳)
+- `govPlaceBet()`: `POST /api/betting/bet` — `x-wallet` 헤더 → `getAuthHeaders()` JWT 헤더. warBettingRoutes requireAuth는 JWT 전용으로 공성전 베팅이 항상 401 반환되던 버그 수정.
+- `openMineralsPanel()`: `GET /api/resources/my?wallet=…` → `fetch('/api/resources/my', { headers: getAuthHeaders() })`. resources.js requireAuth 통과 불가로 MY MINERALS 패널 항상 비어 있던 버그 수정.
+- `_phaseDAuthHeaders()`: `localStorage.getItem('jwt_token') || localStorage.getItem('jwt')` → `localStorage.getItem('pw_token')`. 앱 표준 키가 `pw_token`인데 잘못된 키를 조회해 동맹 guild add/remove/betray 모두 401 반환되던 버그 수정.
+
 ## 2026-05-06 — bugfix: GET /api/ships/my?wallet= → JWT auth (v6.50)
 
 ### index.html (1곳)
