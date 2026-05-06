@@ -126,11 +126,11 @@ async function spawnVoidRaider(opts = {}) {
     const insertVals = [];
     const insertPlaceholders = [];
     for (let i = 0; i < shipCount; i++) {
-      insertPlaceholders.push(`($${insertVals.length+1}, $${insertVals.length+2}, $${insertVals.length+3}, $${insertVals.length+4}, NOW())`);
-      insertVals.push(fleet.id, shipTypeCode, st.base_hp, st.base_hp);
+      insertPlaceholders.push(`($${insertVals.length+1}, $${insertVals.length+2}, $${insertVals.length+3}, $${insertVals.length+4}, $${insertVals.length+5})`);
+      insertVals.push(fleet.id, shipTypeCode, NPC_WALLET, st.base_hp, st.base_hp);
     }
     await client.query(
-      `INSERT INTO ships (fleet_id, ship_type_code, current_hp, max_hp, created_at)
+      `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp)
        VALUES ${insertPlaceholders.join(', ')}`,
       insertVals
     );
