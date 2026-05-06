@@ -3251,6 +3251,15 @@ function apiJson(path) {
   });
 }
 
+// ── Stat box helper (v6.59) — admin 패널 통계 카드 렌더 ──
+function mkStatBox(label, value, color) {
+  var c = color || '#5cbbff';
+  return '<div style="display:inline-block;text-align:center;padding:10px 18px;background:rgba(0,0,0,.25);border:1px solid '+c+'44;border-radius:8px;margin:4px 4px 4px 0;min-width:80px">'
+    + '<div style="font-size:18px;font-weight:700;color:'+c+'">'+value+'</div>'
+    + '<div style="font-size:9px;color:#888;margin-top:2px">'+label+'</div>'
+    + '</div>';
+}
+
 function doAuth() {
   adminSecret = document.getElementById('authInput').value;
   fetch('/admin/api/stats', { headers: { 'x-admin-secret': adminSecret } })
