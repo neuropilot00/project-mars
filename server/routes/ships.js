@@ -60,9 +60,21 @@ const requireAuth = (req, res, next) => {
   } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
 };
 
+const optionalAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return next();
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ error: 'INVALID_TOKEN' });
+  }
+};
+
 // ── 유저 지갑 헬퍼 ──
 function getWallet(req) {
-  return req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  return req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress ||
+    req.query.wallet || req.headers['x-wallet'];
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -90,10 +102,10 @@ function shipErrorStatus(code) {
  * 건조 가능 함선 목록
  * Query: ?faction=mcc&size=frigate&includeLocked=1
  */
-router.get('/blueprints', requireAuth, async (req, res) => {
+router.get('/blueprints', optionalAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
-    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    const wallet = (getWallet(req) || '').toLowerCase().trim();
+    if (!wallet) return res.status(400).json({ error: 'WALLET_REQUIRED' });
 
     const ships = await shipService.getBlueprints(wallet, {
       factionCode: req.query.faction,

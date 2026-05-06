@@ -215,6 +215,66 @@ router.get('/list/history', requireAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/battles/active
+ * Legacy smoke/API alias for 진행 중 전투 목록.
+ * Query: ?wallet=0x... filters to battles where the wallet participates.
+ */
+router.get('/active', async (req, res) => {
+  try {
+    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    const params = [];
+    let participantWhere = '';
+    if (wallet) {
+      params.push(wallet);
+      participantWhere = `AND EXISTS (
+        SELECT 1 FROM fleet_battle_participants fp
+        WHERE fp.battle_id = fb.id AND LOWER(fp.wallet_address) = LOWER($${params.length})
+      )`;
+    }
+
+    const { rows } = await pool.query(`
+      SELECT fb.id, fb.battle_type, fb.status, fb.phase,
+             fb.sector_id, fb.claim_id,
+             fb.atk_ships_total, fb.def_ships_total,
+             fb.battle_started_at, fb.scheduled_start_at,
+             (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='atk') AS atk_fleets,
+             (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='def') AS def_fleets
+      FROM fleet_battles fb
+      WHERE fb.status IN ('preparing','active')
+      ${participantWhere}
+      ORDER BY
+        CASE fb.status WHEN 'active' THEN 1 ELSE 2 END,
+        fb.battle_started_at DESC NULLS LAST,
+        fb.scheduled_start_at ASC
+      LIMIT 50
+    `, params);
+    res.json({ battles: rows });
+  } catch (err) {
+    console.error('[battle] active alias error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * GET /api/battles/history
+ * Legacy smoke/API alias for 내 전투 기록.
+ * Query: ?wallet=0x...
+ */
+router.get('/history', async (req, res) => {
+  try {
+    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    if (!wallet) return res.status(400).json({ error: 'WALLET_REQUIRED' });
+
+    const limit = Math.min(50, parseInt(req.query.limit) || 20);
+    const history = await battleTimeline.getUserBattleHistory(wallet, limit);
+    res.json({ battles: history });
+  } catch (err) {
+    console.error('[battle] history alias error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
  * GET /api/battles/:id
  * 전투 상세 정보 (타임라인 제외)
  */

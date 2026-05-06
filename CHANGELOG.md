@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 서버 smoke 감사 후 legacy read endpoint 보강 (Codex)
+
+### 수정
+- `server/routes/fleetBattles.js`
+  - `GET /api/battles/history?wallet=...` legacy alias 추가
+  - `GET /api/battles/active?wallet=...` legacy alias 추가
+  - 기존 `/api/battles/list/history`, `/api/battles/list/active`는 유지
+- `server/routes/ships.js`
+  - `GET /api/ships/blueprints`를 선택 인증으로 변경
+  - JWT가 없을 때도 `?wallet=` 또는 `x-wallet`으로 읽기 smoke 가능
+  - wallet 누락은 401 대신 400 `WALLET_REQUIRED`로 분류
+
+### 검증 메모
+- `node --check server/routes/ships.js`: 통과
+- `node --check server/routes/fleetBattles.js`: 통과
+- `server/routes/*.js` 77개 vs `server/index.js` route require 참조 77개: 누락 없음
+- sandbox 제한으로 `localhost:3000` curl 및 `localhost:5432`/socket psql 직접 접속은 `Operation not permitted`/connect fail
+- `server/tools/smoke_capital_recipes.js`는 테스트 지갑 데이터 UPDATE/INSERT가 포함되어 있어 “기존 데이터 수정 금지” 제약상 실행하지 않음
+- `git push` 없음
+
 ## 2026-05-06 — 전수 500 에러 제거 완료 (Claude + Codex 협업)
 
 ### 수정된 파일 및 내용

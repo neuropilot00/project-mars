@@ -1,5 +1,18 @@
 # OCCUPY MARS — Codebase Audit (v6.16 / 2026-05-06)
 
+## v6.17 서버 smoke 감사 — legacy read endpoint 보강
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| API curl smoke | ⚠️ | sandbox에서 `localhost:3000` TCP 접속 실패. `lsof` 기준 node PID가 `*:3000` LISTEN 중임은 확인. |
+| DB settings 검사 | ⚠️ | `psql pixelwar` 및 `postgresql://jongho@localhost:5432/pixelwar` 모두 sandbox 정책으로 `Operation not permitted`. 데이터 수정 없음. |
+| Route mount 검사 | ✅ | `server/routes/*.js` 77개, `server/index.js` route require 참조 77개, 누락 없음. |
+| Capital recipe smoke | ⏸ | `server/tools/smoke_capital_recipes.js` 존재 확인. 테스트 지갑의 inventory/GP/build/craft rows를 UPDATE/INSERT하므로 “기존 데이터 수정 금지” 제약상 실행하지 않음. |
+| `/api/battles/history?wallet=...` | ✅ | legacy alias 추가. 기존에는 `/api/battles/:id`에 `history`가 매칭되어 400 처리될 수 있었음. |
+| `/api/battles/active?wallet=...` | ✅ | legacy alias 추가. wallet이 있으면 참여 전투만, 없으면 전체 active/preparing 목록. |
+| `/api/ships/blueprints` | ✅ | 선택 인증으로 변경. JWT 없이 `?wallet=`/`x-wallet` smoke 가능, wallet 누락은 400 `WALLET_REQUIRED`. |
+| 문법 검증 | ✅ | `node --check server/routes/ships.js`, `node --check server/routes/fleetBattles.js` 통과. |
+
 ## ✅ v6.16 전수 500 에러 제거 완료 — 서버 전체 엔드포인트 클린
 
 | 항목 | 상태 | 비고 |
