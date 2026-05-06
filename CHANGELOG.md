@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.73 — 레거시 영토 업그레이드 패널 지갑/재로드 버그 수정
+
+### index.html (2곳)
+- `_confirmAndUpgrade()`: `wallet: walletState.address` → `((walletState&&walletState.address)||getMyWallet()||'').toLowerCase()`. JWT-only 유저가 레거시 업그레이드 확인 시 `wallet: undefined` 전송 → 400 오류 수정.
+- `_confirmAndUpgrade()`: 성공 후 `loadTerritoryUpgrades()` (args 없음, 항상 400) → `_loadBaseUpgradesPanel()` 호출로 교정. 기존 BASE 탭 업그레이드 패널 재로드 정상화.
+
+---
+
 ## 2026-05-07 v6.72 — battleTimeline / battleRewards 지갑 대소문자 비교 수정
 
 ### server/services/battleTimeline.js (1곳)

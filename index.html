@@ -39622,14 +39622,14 @@ function _confirmAndUpgrade(claimId, upgradeType) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        wallet: walletState.address,
+        wallet: ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase(),
         claimId: claimId,
         upgradeType: upgradeType
       })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.error) { showToast(d.error, 'error'); return; }
       showToast(cat.icon + ' ' + cat.name + ' upgraded to Lv.' + d.level + '! (' + d.cost + ' GP)', 'success');
-      loadTerritoryUpgrades();
+      _loadBaseUpgradesPanel();
       loadWalletData();
     });
   }).catch(function(e) { showToast(e.message || 'Upgrade failed', 'error'); });

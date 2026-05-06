@@ -1,4 +1,11 @@
-# OCCUPY MARS — Codebase Audit (v6.71 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.73 / 2026-05-07)
+
+## ✅ v6.73 버그수정 — 레거시 영토 업그레이드 패널 지갑/재로드 오류 (2곳)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `_confirmAndUpgrade()` — `wallet: walletState.address` 가 JWT-only 유저에게 `undefined`. 서버 `/api/upgrades/upgrade` 400 오류 | ✅ 수정 | `(walletState&&walletState.address)\|\|getMyWallet()\|\|''` 통일 패턴 적용 |
+| `_confirmAndUpgrade()` — 성공 후 `loadTerritoryUpgrades()` 인수 없이 호출 → `claimId=NaN` → 서버 400. BASE 탭 업그레이드 패널 재로드 실패 | ✅ 수정 | `_loadBaseUpgradesPanel()` 올바른 패널 리로드 함수로 교체 |
 
 ## ✅ v6.72 버그수정 — battleTimeline / battleRewards 지갑 케이스 오류 (4곳)
 
