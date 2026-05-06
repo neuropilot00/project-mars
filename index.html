@@ -22962,7 +22962,7 @@ async function loadFleetCommandCard(){
   try {
     var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
     if (w) {
-      var r = await fetch('/api/fleets', { headers: { 'x-wallet': w } });
+      var r = await fetch('/api/fleets', { headers: getAuthHeaders() });
       if (r.ok) {
         var d = await r.json();
         var summary = document.getElementById('fcmdSummary');
@@ -23045,7 +23045,7 @@ window.openWorldEventDetail = async function(eventId) {
   try {
     var w = typeof getWalletAddress === 'function' ? getWalletAddress() : (window._wallet || '');
     if (w) {
-      var fr = await fetch('/api/fleets', { headers: { 'x-wallet': w } });
+      var fr = await fetch('/api/fleets', { headers: getAuthHeaders() });
       if (fr.ok) {
         var fd = await fr.json();
         (fd.fleets || []).forEach(function(f) {
@@ -34063,7 +34063,7 @@ window.addEventListener('resize', _debounce(function(){
     // 새 fleet 시스템 (/api/fleets) 사용 — 기존 /api/ships 직접 ship 목록 호출 제거.
     // 함선 관리는 SHIPYARD 모달, 함대 관리는 FLEET COMMAND 모달에서 진행.
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
-    fetch('/api/fleets', { headers: { 'x-wallet': w } })
+    fetch('/api/fleets', { headers: getAuthHeaders() })
       .then(function(r){ return r.json() })
       .catch(function(){ return { fleets: [] } })
       .then(function(data) {

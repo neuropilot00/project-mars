@@ -1,5 +1,15 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.49 버그수정 — GET /api/fleets x-wallet 헤더 → JWT 401
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `loadFleetCommandCard()` — `GET /api/fleets` x-wallet 헤더만 전송 → fleets.js requireAuth → 401 | ✅ 수정 | `getAuthHeaders()` (JWT) 로 교체. Fleet Command 카드 함대 요약 비표시 버그 수정 |
+| 전쟁/전투 함대 선택 (`weFleetSelect`) — 동일 패턴 | ✅ 수정 | `getAuthHeaders()` 로 교체 |
+| 거버넌스 패널 함대 표시 (line ~34066) — 동일 패턴 | ✅ 수정 | `getAuthHeaders()` 로 교체 |
+
+
+
 ## ✅ v6.48 버그수정 — phaseC 토너먼트 shadow-match (GET /tournaments/my)
 
 | 항목 | 상태 | 비고 |

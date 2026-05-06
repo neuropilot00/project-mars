@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: GET /api/fleets x-wallet → JWT auth (v6.49)
+
+### index.html (3곳)
+- **버그**: `loadFleetCommandCard()`, 전쟁 함대 선택, 거버넌스 패널 — `GET /api/fleets` 호출 시 `x-wallet` 헤더만 사용
+  - `fleets.js` 라우터는 `requireAuth` (JWT-only) → 401 UNAUTHORIZED → 함대 데이터 미표시
+- **수정**: 3곳 모두 `{ 'x-wallet': w }` → `getAuthHeaders()` (JWT Bearer 토큰) 으로 교체
+
 ## 2026-05-06 — bugfix: phaseC tournament shadow-match (v6.48)
 
 ### server/routes/phaseC.js
