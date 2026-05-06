@@ -1,5 +1,32 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — OPS 미션 전체 와이어링 + 캘린더 요일 제거 + BASE 탭 이모지 제거
+
+### `server/routes/dailyOps.js`
+- `today_dow` UTC → 로컬 시간 기준으로 변경 (UTC 고정 시 한국 기준 하루 밀림)
+
+### `index.html`
+- 7일 캘린더 스트립: 요일 이름(SUN/MON/TUE…) 제거 — 국가별 혼동 방지, 이벤트 아이콘+보너스만 표시
+- BASE 메인 탭 이모지 전부 제거 (⚓ Fleet → Fleet, ⚔ PVP → PVP, 🛒 SHOP → SHOP, 📦 내 아이템 → 내 아이템)
+
+### OPS 미션 notifyMissionProgress 전체 와이어링 (Codex 협업)
+- `harvest_pp` — `/api/territory/:claimId/harvest` 성공 후
+- `territory_art` — `/api/claim/:id/image` 성공 후
+- `territory_upgrade`, `territory_upgrade_3` — `/api/territory/:claimId/upgrade` 성공 후
+- `territory_claim` — 신규 claim 성공 후
+- `daily_login` — 일일 로그인 후
+- `upgrade_ship`, `upgrade_ship_3`, `upgrade_ship_5` — `ship.js upgradeShipStat()` 후
+- `build_ship` — `ship.js startBuild()` 후
+- `repair_ship`, `repair_ship_3` — `ship.js repairShip()` 후
+- `market_list` — `ship.js listShipForSale()` 후
+- `market_buy` — `ship.js buyShip()` 후
+- `fleet_formation` — `fleets.js` formation 변경 후
+- `craft_resource`, `craft_resource_3`, `craft_resource_5` — `resourceCraft.js` 후
+- `battle_forfeit` — `fleetBattles.js` 항복 후
+- `campaign_progress`, `campaign_complete` — `campaign.js` 후
+
+---
+
 ## 2026-05-06 — Codex 감사 버그 수정 3건
 
 ### `server/routes/api.js`

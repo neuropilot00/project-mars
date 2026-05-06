@@ -1,4 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v6.13 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.14 / 2026-05-06)
+
+## ✅ v6.14 OPS 미션 전체 와이어링 + UI 수정 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| OPS 미션 15종 notifyMissionProgress 와이어링 | ✅ | 전투 3종 기존 + 12종 신규 연결 (harvest/art/upgrade/claim/login/ship/fleet/craft/market/campaign) |
+| 캘린더 요일 이름 제거 | ✅ | SUN/MON/TUE… 표시 제거, 이벤트 아이콘+보너스만 표시 |
+| today_dow UTC→로컬 변경 | ✅ | UTC 고정 시 한국(UTC+9) 기준 하루 밀리던 문제 수정 |
+| BASE 탭 이모지 제거 | ✅ | ⚓⚔🛒📦 → 텍스트만 |
+
+---
+
+## ✅ v6.13 Codex 감사 버그 수정 3건 — 완료
 
 ## ✅ v6.13 Codex 감사 버그 수정 3건 — 완료
 

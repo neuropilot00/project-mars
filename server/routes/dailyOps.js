@@ -364,7 +364,8 @@ router.get('/weekly-events', async (req, res) => {
       { day: 5, name: 'FRI', label_en: 'Upgrade -20%',     label_ko: '강화 비용 -20%',  icon: '🔧', type: 'upgrade_discount', multiplier: 0.8 },
       { day: 6, name: 'SAT', label_en: 'Double Bounty',    label_ko: '현상금 2배',      icon: '💰', type: 'double_bounty',    multiplier: 2.0 },
     ];
-    const todayDow = new Date().getUTCDay();
+    // today_dow: 서버 로컬 시간 기준 (UTC 고정 시 timezone 오차 발생)
+    const todayDow = new Date().getDay();
     res.json({ success: true, week, today_dow: todayDow });
   } catch (err) {
     res.status(500).json({ error: 'SERVER_ERROR' });

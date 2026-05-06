@@ -404,6 +404,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
         logGPActivity(walletAddress, -gpCost, 'ship_build', `함선 건조: ${shipTypeCode}`).catch(()=>{});
       } catch (_) {}
     }
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(walletAddress, 'build_ship').catch(()=>{}); } catch(_) {}
     try {
       const seasonSvc = require('./season');
       if (gpCost > 0) seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(()=>{});
@@ -852,6 +853,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       logGPActivity(walletAddress, -gpCost, 'ship_repair',
         `함선 수리 (ID:${shipId}) +${healAmount}HP`).catch(() => {});
     } catch (_) {}
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(walletAddress, 'repair_ship').catch(()=>{}); _dOps.notifyMissionProgress(walletAddress, 'repair_ship_3').catch(()=>{}); } catch(_) {}
 
     return {
       success:  true,
@@ -1265,6 +1267,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
       logGPActivity(walletAddress, -finalGpCost, 'ship_stat_upgrade',
         `함선 ${cfg.label} 강화 (ID:${shipId}) +${delta}`).catch(() => {});
     } catch (_) {}
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(walletAddress, 'upgrade_ship').catch(()=>{}); _dOps.notifyMissionProgress(walletAddress, 'upgrade_ship_3').catch(()=>{}); _dOps.notifyMissionProgress(walletAddress, 'upgrade_ship_5').catch(()=>{}); } catch(_) {}
     logFleetGpActivity(walletAddress, 'ship_stat_upgrade', -finalGpCost, {
       ship_id: shipId,
       stat,
@@ -1436,6 +1439,7 @@ async function listShipForSale(walletAddress, shipId, priceGp) {
     `, [shipId, wallet, price, JSON.stringify(snapshot)]);
     await ensureFleetHasFlagship(client, ship.fleet_id);
     await client.query('COMMIT');
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(wallet, 'market_list').catch(()=>{}); } catch(_) {}
     return { success: true, listing_id: rows[0].id, ship_id: shipId, price_gp: Number(rows[0].price_gp), listed_at: rows[0].listed_at };
   } catch (err) {
     try { await client.query('ROLLBACK'); } catch (_) {}
@@ -1540,6 +1544,7 @@ async function buyShipListing(walletAddress, listingId) {
     await client.query('COMMIT');
 
     logFleetGpActivity(buyer, 'ship_market_buy', -price, { listing_id: listingId, ship_id: listing.ship_id });
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(buyer, 'market_buy').catch(()=>{}); } catch(_) {}
     logFleetGpActivity(seller, 'ship_market_sell', sellerReceive, { listing_id: listingId, ship_id: listing.ship_id, fee_gp: fee });
     return { success: true, listing_id: listingId, ship_id: listing.ship_id, price_gp: price, fee_gp: fee };
   } catch (err) {

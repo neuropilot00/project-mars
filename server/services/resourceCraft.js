@@ -163,6 +163,7 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
     await client.query('COMMIT');
 
     // 시즌 점수 (fire-and-forget)
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(walletAddress, 'craft_resource').catch(()=>{}); _dOps.notifyMissionProgress(walletAddress, 'craft_resource_3').catch(()=>{}); _dOps.notifyMissionProgress(walletAddress, 'craft_resource_5').catch(()=>{}); } catch(_) {}
     try {
       const seasonSvc = require('./season');
       seasonSvc.addSeasonScore(walletAddress, 'crafting', quantity).catch(() => {});

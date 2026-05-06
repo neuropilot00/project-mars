@@ -4209,6 +4209,9 @@ async function getProgress(wallet, sessionId) {
      WHERE session_id = $2 AND wallet = $3 AND status = 'active'`,
     [JSON.stringify(preview), sessionId, w]
   );
+  if (p.status === 'in_progress' && progressPct < 100) {
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(w, 'campaign_progress').catch(()=>{}); } catch(_) {}
+  }
   return {
     progress: formatProgress(p),
     environmentalPhase: phaseForChapter(p.quest_id, elapsed),
@@ -4434,6 +4437,9 @@ async function complete(wallet, sessionId) {
       [sim.success ? 'completed' : 'expired', JSON.stringify(sim.metrics), sessionId]
     );
     await client.query('COMMIT');
+    if (sim.success) {
+      try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(w, 'campaign_complete').catch(()=>{}); } catch(_) {}
+    }
     const chapter = CHAPTERS[progress.quest_id] || {};
     const title = chapter.title?.ko || progress.quest_id;
     notifyPlayer(w, 'campaign_result', sim.success ? `⚡ 캠페인 완료: ${title}` : `⚠ 캠페인 실패: ${title}`, { questId: progress.quest_id }).catch(() => {});

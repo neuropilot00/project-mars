@@ -343,10 +343,12 @@ router.post('/:id/forfeit', requireAuth, async (req, res) => {
         WHERE id = $1
       `, [battleId]);
       console.log(`[battle] ${battleId} forfeited by atk ${wallet} (was preparing)`);
+      try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(wallet, 'battle_forfeit').catch(()=>{}); } catch(_) {}
       return res.json({ success: true, result: 'cancelled', winner_side: 'def' });
     }
 
     // 이미 ended/in_progress — 결과 그대로 (HP는 이미 적용됨)
+    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(wallet, 'battle_forfeit').catch(()=>{}); } catch(_) {}
     res.json({ success: true, result: 'already_resolved', status });
   } catch (err) {
     console.error('[battle] forfeit error:', err);

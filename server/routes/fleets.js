@@ -164,6 +164,9 @@ router.put('/:id', requireAuth, async (req, res) => {
     if (!fleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
 
     const result = await fleetService.updateFleet(fleetId, wallet, req.body || {});
+    if ((req.body || {}).formation !== undefined) {
+      try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(wallet, 'fleet_formation').catch(()=>{}); } catch(_) {}
+    }
     res.json(result);
   } catch (err) {
     handleError(res, err, 'update');

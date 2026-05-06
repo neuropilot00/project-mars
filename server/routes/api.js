@@ -1603,6 +1603,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
     if (dailyService) {
       try {
         if (newCount > 0) await dailyService.updateMissionProgress(walletLower, 'claim_pixels', newCount);
+        if (newCount > 0) try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(walletLower, 'territory_claim').catch(()=>{}); } catch(_) {}
         if (attackWon > 0) await dailyService.updateMissionProgress(walletLower, 'hijack', attackWon);
       } catch (_de) { /* daily mission tracking non-critical */ }
     }
@@ -1953,6 +1954,8 @@ router.put('/claim/:id/image', writeLimiter, async (req, res) => {
        claimId,
        safeLinkUrl !== undefined ? safeLinkUrl : null]
     );
+
+    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(wallet.toLowerCase(), 'territory_art').catch(()=>{}); } catch(_) {}
 
     res.json({ success: true, claimId });
   } catch (e) {
@@ -3338,6 +3341,7 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
 
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
+    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(w, 'harvest_pp').catch(()=>{}); } catch(_) {}
     try { if (seasonService) { seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {}); if (harvestedPP > 0) seasonService.addSeasonScore(w, 'pp_earn', 1).catch(() => {}); } } catch (_) {}
   } catch (e) {
     await client.query('ROLLBACK');
@@ -5071,6 +5075,9 @@ router.post('/daily/login', writeLimiter, async (req, res) => {
     const { wallet } = req.body;
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
     const result = await dailyService.recordDailyLogin(wallet);
+    if (!result.alreadyClaimed) {
+      try { const w = wallet.toLowerCase(); const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(w, 'daily_login').catch(()=>{}); } catch(_) {}
+    }
     res.json(result);
     // Season tracking: daily login + streak (non-blocking)
     if (seasonService && !result.alreadyClaimed) {
@@ -5647,6 +5654,7 @@ router.post('/territory/:claimId/upgrade', writeLimiter, async (req, res) => {
     await client.query('COMMIT');
     // Side effects (fire-and-forget)
     try { const { logGPActivity } = require('../db'); logGPActivity(wallet, -result.cost, 'territory_upgrade', { claimId, upgradeType, level: result.level }).catch(() => {}); } catch (_) {}
+    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(wallet, 'territory_upgrade').catch(()=>{}); _dOps.notifyMissionProgress(wallet, 'territory_upgrade_3').catch(()=>{}); } catch(_) {}
     res.json({ ok: true, ...result });
   } catch (err) {
     await client.query('ROLLBACK');
