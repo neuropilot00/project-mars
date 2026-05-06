@@ -23726,7 +23726,7 @@ function _loadFleetTabSummary(){
     // ── 건조 중 큐 ──
     if(jobs.length>0){
       html+='<div style="margin-bottom:10px;padding:10px 10px 6px;border-radius:8px;background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.18)">';
-      html+='<div style="font-size:9px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px">🔨 건조 중 ('+jobs.length+')</div>';
+      html+='<div style="font-size:9px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px">🔨 '+(LANG==='ko'?'건조 중':LANG==='ja'?'建造中':LANG==='zh'?'建造中':'Building')+' ('+jobs.length+')</div>';
       jobs.forEach(function(j){
         var pct=Math.min(100,j.progress_pct||0);
         var sec=Math.max(0,j.seconds_remaining||0);
@@ -23762,15 +23762,15 @@ function _loadFleetTabSummary(){
         // 헤더
         html+='<div style="padding:8px 10px;background:rgba(79,195,247,.05);display:flex;align-items:center;gap:8px">';
         html+='<div style="flex:1;min-width:0">';
-        html+='<div style="font-size:10px;font-weight:700;color:#5cbbff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">⚓ '+(f.name||'함대')+'</div>';
+        html+='<div style="font-size:10px;font-weight:700;color:#5cbbff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">⚓ '+(f.name||(LANG==='ko'?'함대':LANG==='ja'?'艦隊':LANG==='zh'?'舰队':'Fleet'))+'</div>';
         // 함급 구성 칩
         html+='<div style="margin-top:3px;font-size:8px;display:flex;gap:5px;flex-wrap:wrap">';
-        if(f.titan_count>0) html+='<span style="color:#ba68c8">타이탄×'+f.titan_count+'</span>';
-        if(f.battleship_count>0) html+='<span style="color:#ef5350">전함×'+f.battleship_count+'</span>';
-        if(f.cruiser_count>0) html+='<span style="color:#ffd166">순양×'+f.cruiser_count+'</span>';
-        if(f.destroyer_count>0) html+='<span style="color:#81c784">구축×'+f.destroyer_count+'</span>';
-        if(f.frigate_count>0) html+='<span style="color:#4fc3f7">프리깃×'+f.frigate_count+'</span>';
-        if(aliveCount===0) html+='<span style="color:var(--red)">함선 없음</span>';
+        if(f.titan_count>0) html+='<span style="color:#ba68c8">'+(LANG==='ko'?'타이탄':LANG==='ja'?'タイタン':LANG==='zh'?'泰坦':'Titan')+'×'+f.titan_count+'</span>';
+        if(f.battleship_count>0) html+='<span style="color:#ef5350">'+(LANG==='ko'?'전함':LANG==='ja'?'戦艦':LANG==='zh'?'战舰':'BS')+'×'+f.battleship_count+'</span>';
+        if(f.cruiser_count>0) html+='<span style="color:#ffd166">'+(LANG==='ko'?'순양':LANG==='ja'?'巡洋':LANG==='zh'?'巡洋':'CA')+'×'+f.cruiser_count+'</span>';
+        if(f.destroyer_count>0) html+='<span style="color:#81c784">'+(LANG==='ko'?'구축':LANG==='ja'?'駆逐':LANG==='zh'?'驱逐':'DD')+'×'+f.destroyer_count+'</span>';
+        if(f.frigate_count>0) html+='<span style="color:#4fc3f7">'+(LANG==='ko'?'프리깃':LANG==='ja'?'フリゲート':LANG==='zh'?'护卫':'FF')+'×'+f.frigate_count+'</span>';
+        if(aliveCount===0) html+='<span style="color:var(--red)">'+(LANG==='ko'?'함선 없음':LANG==='ja'?'艦船なし':LANG==='zh'?'无舰船':'No ships')+'</span>';
         html+='</div>';
         // 진형/기동
         if(f.formation||f.movement){
@@ -23788,7 +23788,7 @@ function _loadFleetTabSummary(){
           html+='<div style="font-size:10px;font-weight:700;color:'+hpC+'">'+hpPct+'%</div>';
           html+='<div style="font-size:7px;color:var(--tx3)">'+f.total_hp+'/'+f.total_max_hp+' HP</div>';
         }
-        html+='<button type="button" onclick="openFleetCmd()" style="margin-top:4px;font-size:8px;padding:2px 8px;border-radius:4px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:#5cbbff;cursor:pointer;font-family:var(--fn)">편집</button>';
+        html+='<button type="button" onclick="openFleetCmd()" style="margin-top:4px;font-size:8px;padding:2px 8px;border-radius:4px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:#5cbbff;cursor:pointer;font-family:var(--fn)">'+( LANG==='ko'?'편집':LANG==='ja'?'編集':LANG==='zh'?'编辑':'Edit')+'</button>';
         html+='</div>';
         html+='</div>'; // header end
 
@@ -23822,11 +23822,11 @@ function _loadFleetTabSummary(){
           });
           if(fShips.length>12){
             html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding-top:2px">+'+
-              (fShips.length-12)+'척 더 (함대 관리에서 전체 보기)</div>';
+              (fShips.length-12)+(LANG==='ko'?'척 더 (함대 관리에서 전체 보기)':LANG==='ja'?'隻以上 (艦隊管理で全表示)':LANG==='zh'?'艘以上 (在舰队管理中查看全部)':' more (view all in Fleet Cmd)')+'</div>';
           }
           html+='</div>';
         } else if(aliveCount>0){
-          html+='<div style="padding:6px 10px;font-size:8px;color:var(--tx3);text-align:center">'+aliveCount+'척 배치됨</div>';
+          html+='<div style="padding:6px 10px;font-size:8px;color:var(--tx3);text-align:center">'+aliveCount+(LANG==='ko'?'척 배치됨':LANG==='ja'?'隻配備済':LANG==='zh'?'艘部署中':' deployed')+'</div>';
         }
 
         html+='</div>'; // fleet card end
@@ -24219,8 +24219,8 @@ function renderGuildState(guild, wallet){
       buffEl.style.display='';
       buffEl.innerHTML='<div style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.3);border-radius:6px;padding:6px 10px">'
         +'<span style="font-size:14px">🏆</span>'
-        +'<div style="flex:1"><div style="font-size:10px;font-weight:700;color:var(--gold)">전쟁 승리 버프 활성!</div>'
-        +'<div style="font-size:9px;color:var(--tx3)">GP 수익 +'+guild.war_buff_pct+'% · 남은 시간: '+buffLabel+'</div></div>'
+        +'<div style="flex:1"><div style="font-size:10px;font-weight:700;color:var(--gold)">'+(LANG==='ko'?'전쟁 승리 버프 활성!':LANG==='ja'?'戦争勝利バフ発動中!':LANG==='zh'?'战争胜利增益激活!':'War Victory Buff Active!')+'</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">GP +'+(LANG==='ko'?'수익':LANG==='ja'?'収益':LANG==='zh'?'收益':'income')+' +'+guild.war_buff_pct+'% · '+(LANG==='ko'?'남은 시간: ':LANG==='ja'?'残り時間: ':LANG==='zh'?'剩余时间: ':'Time left: ')+buffLabel+'</div></div>'
         +'</div>';
     }else{
       buffEl.style.display='none';
@@ -24324,7 +24324,7 @@ function renderGuildAlliance(guild, myRole){
     if(!a){
       // Not in any alliance
       var html = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:6px">'+
-        (window._lang==='ko' ? '동맹 미가입' : 'Not in any alliance')+
+        (LANG==='ko'?'동맹 미가입':LANG==='ja'?'同盟未加入':LANG==='zh'?'未加入联盟':'Not in any alliance')+
       '</div>';
       if(isLeader){
         html += '<div style="display:flex;gap:4px;margin-top:6px">'+
@@ -24350,7 +24350,7 @@ function renderGuildAlliance(guild, myRole){
           '<span style="font-size:13px">'+_esc(emblem)+'</span>'+
           '<div style="flex:1;min-width:0">'+
             '<div style="font-size:10px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_esc(name)+'</div>'+
-            '<div style="font-size:8px;color:var(--tx3)">Lv.'+(mg.level||1)+' · '+(mg.member_count||0)+'명 · '+_esc(leaderName)+'</div>'+
+            '<div style="font-size:8px;color:var(--tx3)">Lv.'+(mg.level||1)+' · '+(mg.member_count||0)+(LANG==='ko'?'명':LANG==='ja'?'人':LANG==='zh'?'人':'p')+' · '+_esc(leaderName)+'</div>'+
           '</div>'+
           marker+
         '</div>';
@@ -24427,7 +24427,7 @@ function _doInviteGuildToAlliance(allianceId){
 }
 
 async function leaveAllianceAsGuild(allianceId, guildId){
-  var ok=await gameConfirm({icon:'🤝',title:'동맹 탈퇴',body:'탈퇴 후 쿨다운 기간 동안 재가입이 제한됩니다.',confirmText:'탈퇴'});
+  var ok=await gameConfirm({icon:'🤝',title:LANG==='ko'?'동맹 탈퇴':LANG==='ja'?'同盟脱退':LANG==='zh'?'退出联盟':'Leave Alliance',body:LANG==='ko'?'탈퇴 후 쿨다운 기간 동안 재가입이 제한됩니다.':LANG==='ja'?'脱退後のクールダウン期間中は再加入が制限されます。':LANG==='zh'?'退出后冷却期间内将限制重新加入。':'A cooldown period will restrict rejoining after leaving.',confirmText:LANG==='ko'?'탈퇴':LANG==='ja'?'脱退':LANG==='zh'?'退出':'Leave'});
   if(!ok) return;
   fetch('/api/alliances/'+allianceId+'/guilds/remove',{
     method:'POST', headers:_phaseDAuthHeaders(),
@@ -24471,13 +24471,13 @@ function confirmBetrayAlliance(guildId, fromAllianceId, toAllianceId){
 // ── Guild upgrade panel ──
 var _guildLevelCosts = {2:200, 3:500, 4:1500, 5:5000, 6:15000};
 var _guildResearchCatalog = [
-  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:500,  desc:'채굴 PP +3%', icon:'⛏️'},
-  {key:'shield_disc',   labelKey:'research_shield_disc',   cost:500,  desc:'침공 방어 +15%', icon:'🛡️'},
-  {key:'diplomatic',    labelKey:'research_diplomatic',    cost:500,  desc:'침공 성공률 -10%', icon:'🕊️'},
-  {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:2000, desc:'탐험 보상 +15%', icon:'🔭'},
-  {key:'rapid_deploy',  labelKey:'research_rapid_deploy',  cost:2000, desc:'미션 시간 -20%', icon:'⚡'},
-  {key:'logistics',     labelKey:'research_logistics',     cost:2000, desc:'비용 -10%', icon:'📦'},
-  {key:'mars_dominion', labelKey:'research_mars_dominion', cost:5000,  desc:'전체 +5% 중첩', icon:'👑'}
+  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:500,  desc:{ko:'채굴 PP +3%',ja:'採掘 PP +3%',zh:'采矿 PP +3%',en:'Mining PP +3%'}, icon:'⛏️'},
+  {key:'shield_disc',   labelKey:'research_shield_disc',   cost:500,  desc:{ko:'침공 방어 +15%',ja:'侵攻防御 +15%',zh:'入侵防御 +15%',en:'Invasion Defense +15%'}, icon:'🛡️'},
+  {key:'diplomatic',    labelKey:'research_diplomatic',    cost:500,  desc:{ko:'침공 성공률 -10%',ja:'侵攻成功率 -10%',zh:'入侵成功率 -10%',en:'Invasion Success Rate -10%'}, icon:'🕊️'},
+  {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:2000, desc:{ko:'탐험 보상 +15%',ja:'探索報酬 +15%',zh:'探索奖励 +15%',en:'Exploration Reward +15%'}, icon:'🔭'},
+  {key:'rapid_deploy',  labelKey:'research_rapid_deploy',  cost:2000, desc:{ko:'미션 시간 -20%',ja:'ミッション時間 -20%',zh:'任务时间 -20%',en:'Mission Time -20%'}, icon:'⚡'},
+  {key:'logistics',     labelKey:'research_logistics',     cost:2000, desc:{ko:'비용 -10%',ja:'コスト -10%',zh:'费用 -10%',en:'Cost -10%'}, icon:'📦'},
+  {key:'mars_dominion', labelKey:'research_mars_dominion', cost:5000,  desc:{ko:'전체 +5% 중첩',ja:'全体 +5% スタック',zh:'全体 +5% 叠加',en:'All +5% stack'}, icon:'👑'}
 ];
 function renderGuildUpgrades(guild, myRole){
   var lvl = parseInt(guild.level||1);
@@ -24498,7 +24498,7 @@ function renderGuildUpgrades(guild, myRole){
     var memberDefaults = {2:5,3:5,4:10,5:10,6:10};
     var nextMembers = maxMembers + (memberDefaults[lvl+1]||0);
     costEl.innerHTML = t('guild_next_prefix')+' '+nextCost+' GP (→ Lv.'+(lvl+1)+')'+
-      '<br><span style="color:var(--gn);font-size:7px">🔬 연구 '+nextSlots+'슬롯 · 👥 최대 '+nextMembers+'명</span>';
+      '<br><span style="color:var(--gn);font-size:7px">🔬 '+(LANG==='ko'?'연구 '+nextSlots+'슬롯':LANG==='ja'?'研究 '+nextSlots+'スロット':LANG==='zh'?'研究 '+nextSlots+'槽':'Research '+nextSlots+' slots')+' · 👥 '+(LANG==='ko'?'최대 '+nextMembers+'명':LANG==='ja'?'最大 '+nextMembers+'人':LANG==='zh'?'最多 '+nextMembers+'人':'Max '+nextMembers)+'</span>';
     btn.style.display = '';
     btn.disabled = treasury < nextCost;
     btn.style.opacity = (treasury < nextCost) ? 0.5 : 1;
@@ -24531,8 +24531,8 @@ function renderGuildUpgrades(guild, myRole){
       var neededLvl = Math.max(2, idx); // approximate level needed
       return '<div style="padding:5px 6px;border-radius:6px;background:rgba(255,255,255,.01);border:1px solid rgba(255,255,255,.06);cursor:default;min-height:0;opacity:.4">'+
         '<div style="color:var(--tx3);font-weight:700;font-size:11px">🔒 '+t(r.labelKey)+'</div>'+
-        '<div style="color:var(--tx3);font-size:8px;margin-top:1px">'+r.desc+'</div>'+
-        '<div style="color:var(--tx3);font-size:8px;margin-top:2px">Lv.'+(idx)+' 필요</div>'+
+        '<div style="color:var(--tx3);font-size:8px;margin-top:1px">'+(typeof r.desc==='object'?r.desc[LANG]||r.desc.en:r.desc)+'</div>'+
+        '<div style="color:var(--tx3);font-size:8px;margin-top:2px">Lv.'+(idx)+(LANG==='ko'?' 필요':LANG==='ja'?' 必要':LANG==='zh'?' 需要':' req.')+'</div>'+
       '</div>';
     }
     var bg = unlocked ? 'rgba(76,216,154,.1)' : 'rgba(255,255,255,.03)';
@@ -24542,7 +24542,7 @@ function renderGuildUpgrades(guild, myRole){
     var click = (unlocked||!canSpend||!affordable) ? '' : ' onclick="guildUnlockResearch(\''+r.key+'\')"';
     return '<div'+click+' style="padding:5px 6px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';cursor:'+(click?'pointer':'default')+';min-height:0">'+
       '<div style="color:'+col+';font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+t(r.labelKey)+'</div>'+
-      '<div style="color:var(--tx3);font-size:8px;margin-top:1px">'+r.desc+'</div>'+
+      '<div style="color:var(--tx3);font-size:8px;margin-top:1px">'+(typeof r.desc==='object'?r.desc[LANG]||r.desc.en:r.desc)+'</div>'+
       '<div style="color:'+(unlocked?'var(--gn)':'var(--tx3)')+';font-size:9px;margin-top:2px;font-weight:600">'+status+'</div>'+
     '</div>';
   }).join('');
@@ -24561,7 +24561,7 @@ function guildDonateGP(){
     document.getElementById('guildDonateAmt').value = '';
     showToast('💰 '+amt+' GP '+(LANG==='ko'?'기부 완료!':LANG==='ja'?'寄付完了!':LANG==='zh'?'捐赠完成!':'donated!'),'success');
     loadGuildTab();
-  }).catch(function(e){ showToast('기부 실패: '+e.message,'error'); });
+  }).catch(function(e){ showToast((LANG==='ko'?'기부 실패: ':LANG==='ja'?'寄付失敗: ':LANG==='zh'?'捐赠失败: ':'Donate failed: ')+e.message,'error'); });
 }
 function guildLevelUp(){
   if(!_myGuildData) return;
@@ -24602,8 +24602,8 @@ function renderGuildWars(guildId){
     var wars = d.wars||[];
     if(!wars.length){
       warBox.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+
-        '⚔️ 전쟁 없음'+
-        '<br><button onclick="showDeclareWarModal()" style="margin-top:8px;padding:6px 16px;border-radius:6px;background:linear-gradient(135deg,#E84855,#C62828);border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer">⚔️ 전쟁 선포</button>'+
+        (LANG==='ko'?'⚔️ 전쟁 없음':LANG==='ja'?'⚔️ 戦争なし':LANG==='zh'?'⚔️ 暂无战争':'⚔️ No active wars')+
+        '<br><button onclick="showDeclareWarModal()" style="margin-top:8px;padding:6px 16px;border-radius:6px;background:linear-gradient(135deg,#E84855,#C62828);border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer">⚔️ '+(LANG==='ko'?'전쟁 선포':LANG==='ja'?'宣戦布告':LANG==='zh'?'宣战':'Declare War')+'</button>'+
       '</div>';
       return;
     }
@@ -24630,14 +24630,14 @@ function renderGuildWars(guildId){
           '</div>'+
           '<span style="font-size:12px;font-weight:700;color:var(--red)">'+theirScore+'</span>'+
         '</div>'+
-        '<div style="font-size:8px;color:var(--tx3);margin:4px 0 5px;line-height:1.5">⚔️ 적 길드 멤버에게 <b style="color:#ff8a80">함대전</b>을 선포하여 길드전 포인트를 획득하세요! (승리 시 <b style="color:var(--gold)">+10 pts</b>)</div>'+
+        '<div style="font-size:8px;color:var(--tx3);margin:4px 0 5px;line-height:1.5">'+(LANG==='ko'?'⚔️ 적 길드 멤버에게 <b style="color:#ff8a80">함대전</b>을 선포하여 길드전 포인트를 획득하세요! (승리 시 <b style="color:var(--gold)">+10 pts</b>)':LANG==='ja'?'⚔️ 敵ギルドメンバーに<b style="color:#ff8a80">艦隊戦</b>を宣戦してギルド戦ポイントを獲得！(勝利で<b style="color:var(--gold)">+10 pts</b>)':LANG==='zh'?'⚔️ 向敌方公会成员宣战<b style="color:#ff8a80">舰队战</b>获取公会战积分！(胜利<b style="color:var(--gold)">+10 pts</b>)':'⚔️ Declare fleet battle vs enemy guild members to earn points! (Win: <b style="color:var(--gold)">+10 pts</b>)')+'</div>'+
         '<div style="display:flex;gap:4px;margin-top:2px">'+
-          '<button onclick="openGuildWarFight('+w.id+','+guildId+')" style="flex:2;padding:6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.28),rgba(200,40,40,.12));border:1px solid rgba(232,72,85,.5);color:#ff8a80;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚔️ 함대전 선포</button>'+
+          '<button onclick="openGuildWarFight('+w.id+','+guildId+')" style="flex:2;padding:6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.28),rgba(200,40,40,.12));border:1px solid rgba(232,72,85,.5);color:#ff8a80;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚔️ '+(LANG==='ko'?'함대전 선포':LANG==='ja'?'艦隊戦宣戦':LANG==='zh'?'宣战舰队战':'Declare Battle')+'</button>'+
           '<button onclick="viewWarScoreboard('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--gn);font-size:9px;cursor:pointer">📊 SCORES</button>'+
         '</div>'+
       '</div>';
     }).join('')+
-    '<button onclick="showDeclareWarModal()" style="margin-top:6px;width:100%;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:9px;cursor:pointer">+ 전쟁 선포</button>';
+    '<button onclick="showDeclareWarModal()" style="margin-top:6px;width:100%;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:9px;cursor:pointer">+ '+(LANG==='ko'?'전쟁 선포':LANG==='ja'?'宣戦布告':LANG==='zh'?'宣战':'Declare War')+'</button>';
   }).catch(function(){ warBox.innerHTML=''; });
 }
 
@@ -24654,7 +24654,7 @@ function showDeclareWarModal(){
   var declareCost = costLabel ? (parseInt(costLabel.textContent) || 200) : 200;
   balEl.style.color = treasury < declareCost ? 'var(--red)' : 'var(--gn)';
   document.getElementById('warConfirmSection').style.display = 'none';
-  document.getElementById('warTargetList').innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">로딩중...</div>';
+  document.getElementById('warTargetList').innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">'+(LANG==='ko'?'로딩중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...')+'</div>';
   var inp = document.getElementById('warSearchInput');
   if(inp) inp.value = '';
   document.getElementById('declareWarModal').style.display='flex';
@@ -24662,7 +24662,7 @@ function showDeclareWarModal(){
   fetch('/api/guild/leaderboard?limit=50').then(function(r){return r.json()}).then(function(d){
     _warAllGuilds = (d.guilds||[]).filter(function(g){return g.id!==_myGuildData.id});
     _renderWarGuildList(_warAllGuilds);
-  }).catch(function(){ document.getElementById('warTargetList').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">길드 목록을 불러올 수 없습니다</div>'; });
+  }).catch(function(){ document.getElementById('warTargetList').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">'+(LANG==='ko'?'길드 목록을 불러올 수 없습니다':LANG==='ja'?'ギルドリストを読み込めません':LANG==='zh'?'无法加载公会列表':'Failed to load guild list')+'</div>'; });
 }
 function closeDeclareWarModal(){
   document.getElementById('declareWarModal').style.display='none';
@@ -24680,7 +24680,7 @@ function searchWarTargetModal(q){
 function _renderWarGuildList(guilds){
   var box=document.getElementById('warTargetList');
   if(!box) return;
-  if(!guilds.length){ box.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">선포 가능한 길드가 없습니다</div>'; return; }
+  if(!guilds.length){ box.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">'+(LANG==='ko'?'선포 가능한 길드가 없습니다':LANG==='ja'?'宣戦可能なギルドがありません':LANG==='zh'?'没有可宣战的公会':'No guilds available to declare war')+'</div>'; return; }
   box.innerHTML=guilds.map(function(g){
     var emblem = g.emblem||g.emblem_emoji||'🔴';
     var name = g.name||'';
@@ -24694,7 +24694,7 @@ function _renderWarGuildList(guilds){
       'data-gid="'+g.id+'">'+
       '<span style="font-size:22px">'+emblem+'</span>'+
       '<div style="flex:1"><div style="font-size:12px;color:var(--tx);font-weight:700">['+tag+'] '+name+'</div>'+
-      '<div style="font-size:9px;color:var(--tx3);margin-top:2px">Lv.'+lvl+' · '+cnt+'명 · '+px+' PX</div></div>'+
+      '<div style="font-size:9px;color:var(--tx3);margin-top:2px">Lv.'+lvl+' · '+cnt+(LANG==='ko'?'명':LANG==='ja'?'人':LANG==='zh'?'人':'p')+' · '+px+' PX</div></div>'+
       '<span style="font-size:16px;color:var(--red)">⚔️</span>'+
     '</div>';
   }).join('');
@@ -24740,7 +24740,7 @@ function confirmDeclareWar(){
     btn.disabled=false; btn.textContent=t('war_declare_btn');
     if(d.error){ showToast(d.error,'error'); return; }
     closeDeclareWarModal();
-    var msg = '⚔️ 전쟁 선포 완료!';
+    var msg = '⚔️ '+(LANG==='ko'?'전쟁 선포 완료!':LANG==='ja'?'宣戦布告完了!':LANG==='zh'?'宣战完成!':'War declared!');
     if (stake > 0) msg += ' (+'+stake+' GP stake)';
     showToast(msg,'success');
     loadGuildTab();
@@ -24783,7 +24783,7 @@ async function viewWarScoreboard(warId){
         +'</div>'
         +topHtml
       +'</div>',
-      confirmText:'닫기'
+      confirmText:LANG==='ko'?'닫기':LANG==='ja'?'閉じる':LANG==='zh'?'关闭':'Close'
     });
   }catch(e){ showToast('Failed to load scoreboard','error'); }
 }
@@ -24860,7 +24860,7 @@ async function openGuildWarFight(warId, guildId){
           +'background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25)">'
           +'<div><div style="font-size:11px;font-weight:700;color:var(--tx)">'+nick+'</div>'
           +'<div style="font-size:9px;color:var(--tx3)">Lv '+lv+'</div></div>'
-          +'<div style="font-size:10px;color:var(--cyan)">⚔ '+e.ready_fleets+'함대</div>'
+          +'<div style="font-size:10px;color:var(--cyan)">⚔ '+e.ready_fleets+(LANG==='ko'?'함대':LANG==='ja'?'艦隊':LANG==='zh'?'舰队':' fleet(s)')+'</div>'
           +'</div>';
       }else{
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;'
@@ -24868,18 +24868,18 @@ async function openGuildWarFight(warId, guildId){
           +'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">'
           +'<div><div style="font-size:11px;color:var(--tx2)">'+nick+'</div>'
           +'<div style="font-size:9px;color:var(--tx3)">Lv '+lv+'</div></div>'
-          +'<div style="font-size:10px;color:var(--tx3)">함대 없음</div>'
+          +'<div style="font-size:10px;color:var(--tx3)">'+(LANG==='ko'?'함대 없음':LANG==='ja'?'艦隊なし':LANG==='zh'?'无舰队':'No fleet')+'</div>'
           +'</div>';
       }
     }).join('');
 
     var ok2 = await gameConfirm({
-      title:'함대전 선포',icon:'⚔️',
+      title:LANG==='ko'?'함대전 선포':LANG==='ja'?'艦隊戦宣戦':LANG==='zh'?'宣战舰队战':'Declare Fleet Battle',icon:'⚔️',
       body:'<div style="font-family:var(--fn)">'
-        +'<div style="font-size:10px;color:var(--tx3);margin-bottom:8px">공격할 적 길드원을 선택하세요 — 이기면 <b style="color:var(--gold)">+10 pts</b></div>'
+        +'<div style="font-size:10px;color:var(--tx3);margin-bottom:8px">'+(LANG==='ko'?'공격할 적 길드원을 선택하세요 — 이기면 <b style="color:var(--gold)">+10 pts</b>':LANG==='ja'?'攻撃する敵ギルドメンバーを選択 — 勝利で <b style="color:var(--gold)">+10 pts</b>':LANG==='zh'?'选择要攻击的敌方公会成员 — 胜利可获得 <b style="color:var(--gold)">+10 pts</b>':'Select enemy member to attack — Win: <b style="color:var(--gold)">+10 pts</b>')+'</div>'
         +rowsHtml
         +'</div>',
-      confirmText:'선포하기',
+      confirmText:LANG==='ko'?'선포하기':LANG==='ja'?'宣戦する':LANG==='zh'?'宣战':'Declare',
       disabled:true
     });
     if(!ok2||!window._gwfTarget) return;
@@ -25319,7 +25319,7 @@ function _startOpsBoardCountdown() {
     var s = Math.floor(msUntilReset / 1000);
     var h = Math.floor(s / 3600); s -= h * 3600;
     var m = Math.floor(s / 60); s -= m * 60;
-    var str = '리셋까지 ' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    var str = (LANG==='ko'?'리셋까지 ':LANG==='ja'?'リセットまで ':LANG==='zh'?'重置倒计时 ':'Reset in ') + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     var el = document.getElementById('opsBoardCountdown');
     if (el) el.textContent = str;
     var el2 = document.getElementById('opsBoardCountdown2');
@@ -25330,10 +25330,10 @@ function _startOpsBoardCountdown() {
 }
 
 function _fmtDuration(sec) {
-  if (sec <= 0) return '만료';
+  if (sec <= 0) return (LANG==='ko'?'만료':LANG==='ja'?'期限切れ':LANG==='zh'?'已过期':'Expired');
   var h = Math.floor(sec / 3600); var m = Math.floor((sec % 3600) / 60);
-  if (h > 0) return h + '시간 ' + m + '분';
-  return m + '분';
+  if (h > 0) return h + (LANG==='ko'?'시간 ':LANG==='ja'?'時間 ':LANG==='zh'?'小时 ':' hr ') + m + (LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'m');
+  return m + (LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'m');
 }
 
 // GO 버튼 네비게이션 헬퍼 (onclick 직접 호출용 — 이벤트리스너 대신)
@@ -25391,7 +25391,7 @@ async function loadOpsCommandBoard() {
   var weeklyEl = document.getElementById('opsBoardWeekly');
   if (!wallet || !el) return;
 
-  el.innerHTML = '<span style="font-size:10px;color:var(--tx3)">로딩 중…</span>';
+  el.innerHTML = '<span style="font-size:10px;color:var(--tx3)">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読み込み中…':LANG==='zh'?'加载中…':'Loading…')+'</span>';
 
   try {
     var res = await fetch('/api/daily-ops/' + encodeURIComponent(wallet));
@@ -25423,9 +25423,9 @@ async function loadOpsCommandBoard() {
         + '<span style="font-size:11px;line-height:1.4;flex-shrink:0">🔴</span>'
         + '<div style="flex:1">'
         + '<div style="font-size:10px;color:#ff5252;font-weight:700">' + (LANG==='ko' ? ev.label_ko : ev.label_en) + '</div>'
-        + '<div style="font-size:9px;color:var(--tx3)">(' + _fmtDuration(ev.time_remaining_sec) + ' 남음)</div>'
+        + '<div style="font-size:9px;color:var(--tx3)">(' + _fmtDuration(ev.time_remaining_sec) + ' '+(LANG==='ko'?'남음':LANG==='ja'?'残り':LANG==='zh'?'剩余':'left')+')</div>'
         + '</div>'
-        + '<button type="button" id="opsUrgentBtn' + idx + '" style="flex-shrink:0;font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.4);color:#ff5252;cursor:pointer;font-family:var(--fn);font-weight:700">지금 참여 →</button>'
+        + '<button type="button" id="opsUrgentBtn' + idx + '" style="flex-shrink:0;font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.4);color:#ff5252;cursor:pointer;font-family:var(--fn);font-weight:700">'+(LANG==='ko'?'지금 참여 →':LANG==='ja'?'今すぐ参加 →':LANG==='zh'?'立即参与 →':'Join Now →')+'</button>'
         + '</div>';
     });
 
@@ -25438,7 +25438,7 @@ async function loadOpsCommandBoard() {
 
       var rewardStr;
       if (m.type === 'harvest_pp' && expectedPP > 0) {
-        rewardStr = '→ +' + expectedPP + ' PP 예상';
+        rewardStr = '→ +' + expectedPP + ' PP '+(LANG==='ko'?'예상':LANG==='ja'?'予想':LANG==='zh'?'预计':'est.');
       } else if (dest) {
         rewardStr = '→ ' + dest;
       } else {
@@ -25447,9 +25447,9 @@ async function loadOpsCommandBoard() {
 
       var rightBtn;
       if (m.reward_claimed) {
-        rightBtn = '<span style="font-size:9px;color:var(--gn)">✓ 수령완료</span>';
+        rightBtn = '<span style="font-size:9px;color:var(--gn)">✓ '+(LANG==='ko'?'수령완료':LANG==='ja'?'受取済':LANG==='zh'?'已领取':'Claimed')+'</span>';
       } else if (m.completed) {
-        rightBtn = '<button type="button" onclick="claimDailyOps(' + m.id + ')" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.45);color:var(--gn);cursor:pointer;font-family:var(--fn)">+' + m.reward_gp + ' GP 수령</button>';
+        rightBtn = '<button type="button" onclick="claimDailyOps(' + m.id + ')" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.45);color:var(--gn);cursor:pointer;font-family:var(--fn)">+' + m.reward_gp + ' GP '+(LANG==='ko'?'수령':LANG==='ja'?'受取':LANG==='zh'?'领取':'Claim')+'</button>';
       } else {
         rightBtn = '<button type="button" onclick="opsMissionGo(\'' + m.type + '\')" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx2);cursor:pointer;font-family:var(--fn)">GO →</button>';
       }
@@ -25465,7 +25465,7 @@ async function loadOpsCommandBoard() {
     });
 
     if (!html) {
-      html = '<div style="font-size:10px;color:var(--tx3);padding:8px 0">미션 없음</div>';
+      html = '<div style="font-size:10px;color:var(--tx3);padding:8px 0">'+(LANG==='ko'?'미션 없음':LANG==='ja'?'ミッションなし':LANG==='zh'?'没有任务':'No missions')+'</div>';
     }
 
     el.innerHTML = html;
@@ -25486,7 +25486,7 @@ async function loadOpsCommandBoard() {
         + (we.icon || '') + ' ' + (LANG==='ko'?'오늘의 이벤트':LANG==='ja'?'今日のイベント':LANG==='zh'?'今日活动':'Today\'s Event') + ': ' + (LANG==='ko' ? we.label_ko : we.label_en) + '</div>';
     }
     // 주간 진척도 — 요일 라벨 포함 7칸 표시
-    var dayLabels = ['일','월','화','수','목','금','토'];
+    var dayLabels = LANG==='ja'?['日','月','火','水','木','金','土']:LANG==='zh'?['日','一','二','三','四','五','六']:LANG==='ko'?['일','월','화','수','목','금','토']:['S','M','T','W','T','F','S'];
     var todayDow = new Date().getUTCDay();
     var blocks = '<div style="display:flex;gap:2px;width:100%">';
     for (var i = 0; i < weeklyTotal; i++) {
@@ -25501,11 +25501,11 @@ async function loadOpsCommandBoard() {
     }
     blocks += '</div>';
     weeklyHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-      + '<span style="font-size:9px;color:var(--tx3)">이번 주 완료일</span>'
-      + '<span style="font-size:9px;color:var(--cyan);font-weight:700">' + weeklyDone + ' / ' + weeklyTotal + '일</span>'
+      + '<span style="font-size:9px;color:var(--tx3)">'+(LANG==='ko'?'이번 주 완료일':LANG==='ja'?'今週の完了日':LANG==='zh'?'本周完成天数':'Days completed')+'</span>'
+      + '<span style="font-size:9px;color:var(--cyan);font-weight:700">' + weeklyDone + ' / ' + weeklyTotal + (LANG==='ko'?'일':LANG==='ja'?'日':LANG==='zh'?'天':' day(s)')+'</span>'
       + '</div>'
       + blocks
-      + (weeklyReward ? '<div style="font-size:9px;color:var(--gold);margin-top:5px">🎁 이번 주 보상: ' + weeklyReward + '</div>' : '');
+      + (weeklyReward ? '<div style="font-size:9px;color:var(--gold);margin-top:5px">🎁 '+(LANG==='ko'?'이번 주 보상: ':LANG==='ja'?'今週の報酬: ':LANG==='zh'?'本周奖励: ':'Weekly reward: ') + weeklyReward + '</div>' : '');
 
     if (weeklyEl) weeklyEl.innerHTML = weeklyHtml;
 
@@ -25902,7 +25902,7 @@ function rejectGuildRequest(inviteId){
 async function requestJoinGuild(guildId, guildName){
   var w=walletState.address;
   if(!w){showToast(t('guild_toast_sign_in_first'),'error');return;}
-  var ok=await gameConfirm({icon:'🏰',title:'길드 가입 신청',body:'<b>'+escapeHTML(guildName)+'</b>에 가입 신청을 보냅니다.',confirmText:'신청'});
+  var ok=await gameConfirm({icon:'🏰',title:LANG==='ko'?'길드 가입 신청':LANG==='ja'?'ギルド加入申請':LANG==='zh'?'申请加入公会':'Guild Join Request',body:'<b>'+escapeHTML(guildName)+'</b>'+(LANG==='ko'?'에 가입 신청을 보냅니다.':LANG==='ja'?'に加入申請を送ります。':LANG==='zh'?'发送加入申请。':' — Send a join request?'),confirmText:LANG==='ko'?'신청':LANG==='ja'?'申請':LANG==='zh'?'申请':'Request'});
   if(!ok) return;
   fetch('/api/guild/join-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:guildId})})
     .then(function(r){return r.json()})
@@ -25914,7 +25914,7 @@ async function requestJoinGuild(guildId, guildName){
 }
 
 async function guildLeave(){
-  var ok=await gameConfirm({icon:'🏰',title:'길드 탈퇴',body:'길드에서 탈퇴합니다. 쿨다운 기간 동안 재가입이 제한됩니다.',confirmText:'탈퇴'});
+  var ok=await gameConfirm({icon:'🏰',title:LANG==='ko'?'길드 탈퇴':LANG==='ja'?'ギルド脱退':LANG==='zh'?'退出公会':'Leave Guild',body:LANG==='ko'?'길드에서 탈퇴합니다. 쿨다운 기간 동안 재가입이 제한됩니다.':LANG==='ja'?'ギルドを脱退します。クールダウン期間中は再加入が制限されます。':LANG==='zh'?'退出公会。冷却期间内限制重新加入。':'Leave this guild. Rejoining will be restricted during the cooldown.',confirmText:LANG==='ko'?'탈퇴':LANG==='ja'?'脱退':LANG==='zh'?'退出':'Leave'});
   if(!ok) return;
   var w=walletState.address;
   fetch('/api/guild/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
@@ -25927,7 +25927,7 @@ async function guildLeave(){
 }
 
 async function guildKick(targetWallet){
-  var ok=await gameConfirm({icon:'⚔',title:'멤버 추방',body:'해당 멤버를 길드에서 추방합니다.',confirmText:'추방'});
+  var ok=await gameConfirm({icon:'⚔',title:LANG==='ko'?'멤버 추방':LANG==='ja'?'メンバー追放':LANG==='zh'?'踢出成员':'Kick Member',body:LANG==='ko'?'해당 멤버를 길드에서 추방합니다.':LANG==='ja'?'このメンバーをギルドから追放します。':LANG==='zh'?'将该成员踢出公会。':'Remove this member from the guild.',confirmText:LANG==='ko'?'추방':LANG==='ja'?'追放':LANG==='zh'?'踢出':'Kick'});
   if(!ok) return;
   var w=walletState.address;
   fetch('/api/guild/kick',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
@@ -25959,7 +25959,7 @@ function guildDemote(targetWallet){
 }
 
 async function guildTransfer(targetWallet){
-  var ok=await gameConfirm({icon:'👑',title:'길드장 양도',body:'길드장 권한을 해당 멤버에게 영구 양도합니다.',confirmText:'양도'});
+  var ok=await gameConfirm({icon:'👑',title:LANG==='ko'?'길드장 양도':LANG==='ja'?'ギルドマスター移譲':LANG==='zh'?'转让会长':'Transfer Leadership',body:LANG==='ko'?'길드장 권한을 해당 멤버에게 영구 양도합니다.':LANG==='ja'?'ギルドマスター権限を該当メンバーに永久移譲します。':LANG==='zh'?'将会长权限永久转让给该成员。':'Permanently transfer guild leadership to this member.',confirmText:LANG==='ko'?'양도':LANG==='ja'?'移譲':LANG==='zh'?'转让':'Transfer'});
   if(!ok) return;
   var w=walletState.address;
   fetch('/api/guild/transfer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
@@ -26113,9 +26113,9 @@ function saveGuildEdit(){
 async function guildDisband(){
   if(!_myGuildData || !_myGuildData.name){ showToast(t('guild_toast_no_guild_data'),'error'); return; }
   var name=_myGuildData.name;
-  var ok=await gameConfirm({icon:'💀',title:'길드 해산',body:'<b>'+escapeHTML(name)+'</b> 길드를 영구 해산합니다. 되돌릴 수 없습니다.',confirmText:'해산'});
+  var ok=await gameConfirm({icon:'💀',title:LANG==='ko'?'길드 해산':LANG==='ja'?'ギルド解散':LANG==='zh'?'解散公会':'Disband Guild',body:'<b>'+escapeHTML(name)+'</b> '+(LANG==='ko'?'길드를 영구 해산합니다. 되돌릴 수 없습니다.':LANG==='ja'?'ギルドを永久解散します。元に戻せません。':LANG==='zh'?'公会将被永久解散，不可撤销。':'will be permanently disbanded. This cannot be undone.'),confirmText:LANG==='ko'?'해산':LANG==='ja'?'解散':LANG==='zh'?'解散':'Disband'});
   if(!ok) return;
-  var typed=await gameInput({title:'길드 해산 확인',label:'길드 이름을 정확히 입력하세요',placeholder:name,maxLength:60});
+  var typed=await gameInput({title:LANG==='ko'?'길드 해산 확인':LANG==='ja'?'ギルド解散確認':LANG==='zh'?'确认解散公会':'Confirm Disband',label:LANG==='ko'?'길드 이름을 정확히 입력하세요':LANG==='ja'?'ギルド名を正確に入力してください':LANG==='zh'?'请准确输入公会名称':'Type the guild name exactly to confirm',placeholder:name,maxLength:60});
   if(typed===null||typed===undefined) return;
   if(typed.trim()!==name){
     showToast(t('guild_toast_disband_mismatch'),'error');
