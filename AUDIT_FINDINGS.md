@@ -1,4 +1,26 @@
-# OCCUPY MARS — Codebase Audit (v6.80 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.82 / 2026-05-07)
+
+## ✅ v6.82 — 서버/클라이언트 심층 감사 추가 완료 (2026-05-07)
+
+이번 루프 세션에서 아래 추가 영역을 전면 검토. **신규 버그 없음**:
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| `expedition.js` resolveExpeditions() 스케줄러 트랜잭션 패턴 | ✅ 클린 (`finally { client.release() }`) |
+| `missions.js` launch/tick/claim 트랜잭션 패턴 | ✅ 클린 — early return에도 finally 실행 |
+| `capsule.js`, `beacon.js` 트랜잭션 패턴 | ✅ 클린 |
+| `lottery.js` drawRound() 트랜잭션 패턴 | ✅ 클린 (`finally { client.release() }`) |
+| `arena.js` crash-round try/catch without finally 패턴 | ✅ 안전 — 각 경로 단일 release |
+| `profile.js`, `tprestige.js`, `duel.js`, `onboarding.js`, `job.js`, `rating.js`, `tevt.js`, `exploration.js`, `chain.js`, `contest.js`, `maintenance.js` | ✅ 모두 `finally` 단일 릴리즈 |
+| `auth.js` 5개 release 지점 — 모두 `finally` 확인 | ✅ 클린 |
+| `api.js` JSON.parse 2곳 — try/catch 내부 확인 | ✅ 클린 |
+| `enhancement.js` JSON.parse — try/catch 폴백 확인 | ✅ 클린 |
+| `ship.js` upgrade-stat stat 화이트리스트 검증 | ✅ `STAT_CONFIGS[stat]` 조회 → 미등록 stat=INVALID_STAT 에러 |
+| War Betting `/api/betting/bet` — `getAuthHeaders()` 정상 전송 | ✅ 클린 |
+| `admin.html` native dialog 0건 검증 | ✅ 0건 |
+| Campaign reward inbox `FOR UPDATE` 동시성 보호 | ✅ 클린 |
+
+---
 
 ## 🔴→✅ v6.81 — DB 커넥션 더블 릴리즈 전수 스캔·수정 (2026-05-07)
 

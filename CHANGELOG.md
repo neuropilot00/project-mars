@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.82 — 서버/클라이언트 심층 감사 (신규 버그 없음)
+
+### 추가 감사 완료
+- expedition, missions, capsule, beacon, lottery, arena, 11개 서비스 트랜잭션 패턴 전수 확인 — 모두 클린
+- auth.js 5개 / api.js JSON.parse / enhancement.js 폴백 — 모두 클린
+- ship upgrade-stat stat 화이트리스트 보호 확인
+- War Betting 인증 헤더 정상 전송 확인
+- admin.html native dialog 0건 확인
+- Campaign reward inbox FOR UPDATE 동시성 보호 확인
+- **신규 버그 없음**
+
+---
+
 ## 2026-05-07 v6.81 — DB 커넥션 더블 릴리즈 전수 스캔 및 추가 수정
 
 ### server/routes/api.js (3곳)
