@@ -12055,7 +12055,7 @@ async function _baseTerritoryHarvest(idx){
         showToast(LANG==='ko'?('쿨다운 중 — '+timeStr+' 후 가능'):LANG==='ja'?('クールダウン中 — '+timeStr+'後に可能'):LANG==='zh'?('冷却中 — '+timeStr+'后可用'):('Cooldown — available in '+timeStr),'warn');
         if(prodEl) prodEl.innerHTML='<span style="color:var(--tx3)">'+(LANG==='ko'?'다음 수확: ':LANG==='ja'?'次の収穫: ':LANG==='zh'?'下次收获: ':'Next harvest: ')+timeStr+'</span>';
       } else {
-        showToast(d.error||'수확 실패','error');
+        showToast(d.error||(LANG==='ko'?'수확 실패':LANG==='ja'?'収穫失敗':LANG==='zh'?'收获失败':'Harvest failed'),'error');
         if(prodEl) prodEl.textContent=LANG==='ko'?'수확 실패':LANG==='ja'?'収穫失敗':LANG==='zh'?'收获失败':'Harvest failed';
       }
       return;
@@ -12073,7 +12073,7 @@ async function _baseTerritoryHarvest(idx){
     // PP 잔액 갱신
     try{if(typeof refreshPP==='function') refreshPP();}catch(_){}
   } catch(e){
-    showToast('네트워크 오류','error');
+    showToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
     if(prodEl) _bterrLoadProd(idx,g);
   } finally {
     btns.forEach(function(b){b.disabled=false;});
@@ -14098,13 +14098,11 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
 
 async function doTerritoryUpgrade(claimId, upgradeType) {
   var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || '';
-  if (!wallet) return showFactionToast('로그인이 필요합니다', 'error');
-  var ok = await gameConfirm({
-    icon: '🔧',
-    title: '영토 업그레이드',
-    body: upgradeType.replace(/_/g,' ').toUpperCase() + ' 업그레이드를 진행하시겠습니까?',
-    confirmText: '업그레이드'
-  });
+  if (!wallet) return showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required', 'error');
+  var _upgrTitle=LANG==='ko'?'영토 업그레이드':LANG==='ja'?'領土アップグレード':LANG==='zh'?'领地升级':'Territory Upgrade';
+  var _upgrConfirm=LANG==='ko'?'업그레이드':LANG==='ja'?'アップグレード':LANG==='zh'?'升级':'Upgrade';
+  var _upgrBody=upgradeType.replace(/_/g,' ').toUpperCase()+' '+(LANG==='ko'?'업그레이드를 진행하시겠습니까?':LANG==='ja'?'をアップグレードしますか?':LANG==='zh'?'升级确认？':'upgrade?');
+  var ok = await gameConfirm({icon:'🔧',title:_upgrTitle,body:_upgrBody,confirmText:_upgrConfirm});
   if (!ok) return;
   try {
     var res = await fetch('/api/territory/' + claimId + '/upgrade', {
@@ -14114,10 +14112,10 @@ async function doTerritoryUpgrade(claimId, upgradeType) {
     });
     var data = await res.json();
     if (!res.ok) {
-      showFactionToast('업그레이드 실패: ' + (data.error || '알 수 없는 오류'), 'error');
+      showFactionToast((LANG==='ko'?'업그레이드 실패: ':LANG==='ja'?'アップグレード失敗: ':LANG==='zh'?'升级失败: ':'Upgrade failed: ')+(data.error||(LANG==='ko'?'알 수 없는 오류':LANG==='ja'?'不明なエラー':LANG==='zh'?'未知错误':'Unknown error')), 'error');
       return;
     }
-    showToast('🔧 ' + upgradeType.replace(/_/g,' ') + ' Lv' + data.level + ' 업그레이드 완료! (-' + data.cost + ' GP)', 'success');
+    showToast('🔧 ' + upgradeType.replace(/_/g,' ') + ' Lv' + data.level + ' '+(LANG==='ko'?'업그레이드 완료! (-':LANG==='ja'?'アップグレード完了! (-':LANG==='zh'?'升级完成! (-':'upgrade done! (-')+data.cost+' GP)', 'success');
     // Reload GP balance and upgrade panel
     if (typeof loadGPBalance === 'function') loadGPBalance();
     _territoryUpgradeState.data = null;
@@ -14129,7 +14127,7 @@ async function doTerritoryUpgrade(claimId, upgradeType) {
       loadTerritoryProduction(claimId, wallet);
     }
   } catch (e) {
-    showFactionToast('업그레이드 요청 실패', 'error');
+    showFactionToast(LANG==='ko'?'업그레이드 요청 실패':LANG==='ja'?'アップグレード要求失敗':LANG==='zh'?'升级请求失败':'Upgrade request failed', 'error');
   }
 }
 
@@ -22673,15 +22671,19 @@ function submitTransportLaunch() {
       body: JSON.stringify({ originSectorId: origin, destSectorId: dest, cargoGp: cargo })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
-        showFactionToast('🚚 수송 출발! ETA '+d.transport.durationMin+'분 · 보상 +'+d.transport.rewardGp+' GP', 'success');
+        var _etaUnit = LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分钟':'min';
+        showFactionToast('🚚 '+(LANG==='ko'?'수송 출발! ETA ':LANG==='ja'?'出発! ETA ':LANG==='zh'?'发车! ETA ':'Launched! ETA ')+d.transport.durationMin+_etaUnit+' · +'+d.transport.rewardGp+' GP', 'success');
         switchTransportSub('my');
         if (typeof refreshGP === 'function') refreshGP();
       } else {
-        showFactionToast('출발 실패: '+(d.error||'unknown'), 'error');
+        showFactionToast((LANG==='ko'?'출발 실패: ':LANG==='ja'?'発車失敗: ':LANG==='zh'?'发车失败: ':'Launch failed: ')+(d.error||'unknown'), 'error');
       }
-    }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
+    }).catch(function(e){ showFactionToast((LANG==='ko'?'네트워크 오류: ':LANG==='ja'?'ネットワークエラー: ':LANG==='zh'?'网络错误: ':'Network error: ')+e.message, 'error'); });
   };
-  gameConfirm({icon:'🚚',title:'수송 출발',body:'화물 <b>'+cargo+' GP</b> — 섹터 #'+origin+' → #'+dest,confirmText:'출발'}).then(function(ok){if(ok)doSubmit();});
+  var _tspTitle=LANG==='ko'?'수송 출발':LANG==='ja'?'輸送出発':LANG==='zh'?'发车':'Launch Transport';
+  var _tspConfirm=LANG==='ko'?'출발':LANG==='ja'?'出発':LANG==='zh'?'出发':'Launch';
+  var _tspBody=(LANG==='ko'?'화물 ':LANG==='ja'?'貨物 ':LANG==='zh'?'货物 ':'Cargo ')+'<b>'+cargo+' GP</b> — '+(LANG==='ko'?'섹터':LANG==='ja'?'セクター':LANG==='zh'?'扇区':'Sector')+' #'+origin+' → #'+dest;
+  gameConfirm({icon:'🚚',title:_tspTitle,body:_tspBody,confirmText:_tspConfirm}).then(function(ok){if(ok)doSubmit();});
 }
 
 function loadMyTransports() {
@@ -22735,10 +22737,10 @@ function cancelMyTransport(tid) {
       body: JSON.stringify({ transportId: tid })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
-        showFactionToast('✓ 취소됨 — '+d.refundedGp+' GP 환불', 'success');
+        showFactionToast('✓ '+(LANG==='ko'?'취소됨 — ':LANG==='ja'?'キャンセル — ':LANG==='zh'?'已取消 — ':'Cancelled — ')+d.refundedGp+' GP '+(LANG==='ko'?'환불':LANG==='ja'?'払戻':LANG==='zh'?'退款':'refunded'), 'success');
         loadMyTransports();
         if (typeof refreshGP === 'function') refreshGP();
-      } else showFactionToast('취소 실패: '+(d.error||'unknown'), 'error');
+      } else showFactionToast((LANG==='ko'?'취소 실패: ':LANG==='ja'?'キャンセル失敗: ':LANG==='zh'?'取消失败: ':'Cancel failed: ')+(d.error||'unknown'), 'error');
     });
   };
   gameConfirm({icon:'🚚',title:'수송 #'+tid+' 취소',body:'화물은 환불되지만 완료 보상은 잃습니다.',confirmText:'취소 확인'}).then(function(ok){if(ok)doIt();});
@@ -22781,14 +22783,14 @@ function submitRaidAttempt(tid, cargo) {
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
         if (d.result === 'success') {
-          showFactionToast('🏴 약탈 성공! +'+d.lootGp+' GP (roll '+d.roll+'/'+d.threshold+')', 'success');
+          showFactionToast('🏴 '+(LANG==='ko'?'약탈 성공! +':LANG==='ja'?'略奪成功! +':LANG==='zh'?'掠夺成功! +':'Raid success! +')+d.lootGp+' GP (roll '+d.roll+'/'+d.threshold+')', 'success');
           if (typeof refreshGP === 'function') refreshGP();
         } else {
-          showFactionToast('✗ 약탈 실패 (roll '+d.roll+'/'+d.threshold+') — 쿨다운 시작', 'error');
+          showFactionToast('✗ '+(LANG==='ko'?'약탈 실패':LANG==='ja'?'略奪失敗':LANG==='zh'?'掠夺失败':'Raid failed')+' (roll '+d.roll+'/'+d.threshold+') — '+(LANG==='ko'?'쿨다운 시작':LANG==='ja'?'CD開始':LANG==='zh'?'冷却开始':'Cooldown started'), 'error');
         }
         loadRaidTargets();
       } else {
-        showFactionToast('약탈 실패: '+(d.error||'unknown'), 'error');
+        showFactionToast((LANG==='ko'?'약탈 실패: ':LANG==='ja'?'略奪失敗: ':LANG==='zh'?'掠夺失败: ':'Raid failed: ')+(d.error||'unknown'), 'error');
       }
     }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
   };
@@ -22917,7 +22919,7 @@ async function confirmWeEngage() {
   var eventId = _weCurrentEventId;
   var fleetId = document.getElementById('weFleetSelect').value;
   if (!eventId) return;
-  if (!fleetId) { showToast('함대를 선택하세요', 'warn'); return; }
+  if (!fleetId) { showToast(LANG==='ko'?'함대를 선택하세요':LANG==='ja'?'艦隊を選択してください':LANG==='zh'?'请选择舰队':'Select a fleet', 'warn'); return; }
 
   var btn = document.getElementById('weEngageBtn');
   btn.disabled = true;
