@@ -1,5 +1,13 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.54 버그수정 — build-jobs dot 지시자 undefined 토큰
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 베이스 탭 dot 업데이트 — `GET /api/ships/build-jobs` 에 `Authorization: Bearer + (window._authToken \|\| '')` 전송. `_authToken`은 앱 어디서도 설정되지 않아 항상 빈 문자열 → requireAuth 401 → 건조 완료 dot 표시 안됨 | ✅ 수정 | `getAuthHeaders()` 로 교체 (line ~24224) |
+
+
+
 ## ✅ v6.53 버그수정 — _phaseDAuthHeaders 잘못된 localStorage 키
 
 | 항목 | 상태 | 비고 |

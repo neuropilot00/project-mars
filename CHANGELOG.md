@@ -1,5 +1,10 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.54 — build-jobs dot 지시자 JWT 수정
+
+### index.html (1곳)
+- 베이스 탭 FLEET dot 업데이트 코드: `GET /api/ships/build-jobs` 호출에 `window._authToken` (미정의 변수) → `getAuthHeaders()`. 건조 완료 dot이 항상 보이지 않던 버그 수정.
+
 ## 2026-05-06 v6.51-v6.53 — auth 버그 3건 수정
 
 ### index.html (3곳)

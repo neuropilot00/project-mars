@@ -24221,7 +24221,7 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // FLEET: 건조 완료된 함선 있으면 dot
-  fetch('/api/ships/build-jobs', {headers:{'Authorization':'Bearer '+(window._authToken||'')}}).then(function(r){return r.json()}).then(function(d){
+  fetch('/api/ships/build-jobs', {headers:getAuthHeaders()}).then(function(r){return r.json()}).then(function(d){
     try{
       var jobs = Array.isArray(d) ? d : (d.jobs||d.build_jobs||[]);
       var done = jobs.filter(function(j){ return j.status==='completed'||j.status==='ready'; }).length;
