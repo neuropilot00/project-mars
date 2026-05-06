@@ -1,4 +1,10 @@
-# OCCUPY MARS — Codebase Audit (v6.69 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.70 / 2026-05-07)
+
+## ✅ v6.70 버그수정 — getMyWallet() 지갑 연결 전용 유저 null 반환
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `getMyWallet()` — JWT 없이 지갑만 연결된 유저가 배틀 보상 토스트(`showRewardIfAny`)를 못 받음 | ✅ 수정 | JWT 실패 시 `walletState.address` 폴백 추가 |
 
 ## ✅ v6.69 버그수정 — commanderActions.js 지갑 대소문자 비교 오류 (4곳)
 

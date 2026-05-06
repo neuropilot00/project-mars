@@ -1,5 +1,10 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.70 — getMyWallet 지갑 연결 전용 유저 누락 수정 + 보상 토스트 개선
+
+### index.html (1곳)
+- `getMyWallet()`: JWT pw_token이 없는 지갑 연결 전용 유저는 null 반환 → 배틀 보상 토스트 미표시. `walletState.address` 폴백 추가.
+
 ## 2026-05-07 v6.69 — commanderActions.js 지갑 대소문자 비교 버그 수정
 
 ### server/services/commanderActions.js (4곳)
