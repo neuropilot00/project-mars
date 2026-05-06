@@ -1,4 +1,29 @@
-# OCCUPY MARS — Codebase Audit (v6.74 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.78 / 2026-05-07)
+
+## ✅ v6.78 전체 코드베이스 심층 감사 — 신규 버그 없음 (2026-05-07)
+
+이번 루프 세션에서 아래 영역을 전면 재검토. 새로운 버그 발견 없음:
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| 모든 `gameConfirm` 콜 (60+) — `.then()`/`await` 패턴 검증 | ✅ 클린 |
+| `walletState.*` 전역 필드 접근 전수 조사 | ✅ 클린 (address/connected/chain/gameGP/gamePP/gameUsdt/usdtBalance/nickname만 사용) |
+| Fleet Command 6개 함수 (`setFleetTactic`, `deleteFleetPrompt`, `showMoveShipsDialog`, `setAsFlagship`, `createNewFleet`, `renameFleet`) — auth/에러처리 | ✅ 클린 |
+| Shipyard 3개 함수 (`syRepairShip`, `syScrapShip`, `syChargeShield`) | ✅ 클린 |
+| Ship Market 3개 함수 (`syListShipForSale`, `syCancelShipListing`, `syBuyShipListing`) | ✅ 클린 |
+| Territory Upgrade (`doTerritoryUpgrade`, `loadTerritoryUpgrades`) | ✅ 클린 |
+| Campaign reward/progress/complete 흐름 | ✅ 클린 |
+| Battle declaration (`confirmDeclareBattle`) | ✅ 클린 |
+| Hijack declare-with-pp 흐름 | ✅ 클린 |
+| Fleet routes (fleets.js) — auth middleware, error mapping | ✅ 클린 |
+| Daily OPS `notifyMissionProgress` 로직 | ✅ 클린 |
+| 서버 routes 5개 로드 테스트 (fleets, ships, api, dailyOps, marketplace) | ✅ 로드 OK |
+| `getAuthHeaders()` 함수 검증 | ✅ 클린 |
+| Branding/Banner/Sponsor/Rating/Highlight/Graffiti/Tribute — v6.74 수정 검증 | ✅ 확인 |
+| `govDeclareSiege` — v6.77 수정 검증 | ✅ 확인 |
+| Harvest endpoint — v6.76 수정 검증 | ✅ 확인 |
+
+
 
 ## ✅ v6.77 버그수정 — walletState 잘못된 필드명 (2곳)
 

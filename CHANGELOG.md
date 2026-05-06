@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.78 — 전체 코드베이스 심층 감사 완료 (신규 버그 없음)
+
+### 감사 범위
+- `gameConfirm` 60+ 콜 전수 검토 — `.then()`/`await` 패턴 모두 정상
+- `walletState.*` 전역 필드 접근 전수 조사 — 유효 필드만 사용 확인
+- Fleet Command / Shipyard / Ship Market / Campaign / Battle / Hijack / Territory 전 주요 흐름 점검
+- 서버 라우트 5개 로드 테스트 통과
+- v6.74~v6.77 수정 사항 전면 검증 완료
+- **신규 버그 발견 없음**
+
+---
+
 ## 2026-05-07 v6.77 — walletState 잘못된 필드명 수정 (gpBalance, pp → gameGP, gamePP)
 
 ### index.html (2곳)
