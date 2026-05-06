@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express');
 const router  = express.Router();
-const pool    = require('../db');
+const { pool } = require('../db');
 const craftingSvc = require('../services/crafting');
 
 // Try to load optional services for GP logging / season tracking

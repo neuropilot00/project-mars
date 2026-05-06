@@ -189,7 +189,6 @@ router.get('/history', readLimiter, async (req, res) => {
 // GET /api/marketplace/price-stats — sparkline + summary stats (Migration 103)
 // Query params: itemTypeId (+ enhLevel) OR claimId
 router.get('/price-stats', readLimiter, async (req, res) => {
-  const pool = require('../db');
   const itemTypeId = parseInt(req.query.itemTypeId) || null;
   const claimId    = parseInt(req.query.claimId)    || null;
   const enhLevel   = parseInt(req.query.enhLevel)   || 0;
