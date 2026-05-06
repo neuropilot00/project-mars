@@ -1,4 +1,15 @@
-# OCCUPY MARS — Codebase Audit (v6.63 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.67 / 2026-05-07)
+
+## ✅ v6.67 버그수정 — i18n 누락 키 10개 (4개 언어 블록)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `connect_wallet` / `connect_wallet_first` / `err_connect_wallet` — 20/8/11곳에서 `t()` 호출되지만 I18N 미정의. `||` 폴백 영어 사용 중 | ✅ 수정 | EN/KO/JA/ZH 4개 언어 블록에 추가 |
+| `err_network` — 네트워크 오류 핸들러에서 사용되지만 미정의 | ✅ 수정 | 4개 언어 블록 추가 |
+| `vip_confirm` — VIP 구매 확인 버튼 미정의 | ✅ 수정 | 4개 언어 블록 추가 |
+| `use_shipyard` / `use_fleet_cmd` — 함선/함대 안내 문구 미정의 | ✅ 수정 | 4개 언어 블록 추가 |
+| `gov_battle_use_fleet` / `gov_battle_use_fleet_hint` — 거버넌스 전투 안내 미정의 | ✅ 수정 | 4개 언어 블록 추가 |
+| `duel_declined_msg` — 결투 거절 토스트 메시지 미정의 | ✅ 수정 | 4개 언어 블록 추가 |
 
 ## ✅ v6.66 버그수정 — escHtml 미정의 함수 (21 + 8곳)
 
