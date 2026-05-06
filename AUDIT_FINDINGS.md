@@ -1,5 +1,13 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.48 버그수정 — phaseC 토너먼트 shadow-match (GET /tournaments/my)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `phaseC.js GET /tournaments/:id` (line 305 mount) → `GET /tournaments/my` shadow-match | ✅ 수정 | `staticSubs = ['my','join']` `next()` guard 추가. 내 토너먼트 목록이 항상 404 반환되던 버그 수정 |
+
+
+
 ## ✅ v6.47 버그수정 — gameConfirm 구버전 호출 잔여 2건
 
 | 항목 | 상태 | 비고 |

@@ -182,7 +182,10 @@ router.get('/tournaments', async (req, res) => {
   }
 });
 
-router.get('/tournaments/:id', async (req, res) => {
+router.get('/tournaments/:id', async (req, res, next) => {
+  // Pass static sub-paths to tournaments.js (mounted later)
+  const staticSubs = ['my', 'join'];
+  if (staticSubs.includes(req.params.id)) return next();
   try {
     const id = parseInt(req.params.id);
     if (!id) return res.status(400).json({ error: 'INVALID_ID' });

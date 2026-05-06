@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: phaseC tournament shadow-match (v6.48)
+
+### server/routes/phaseC.js
+- **버그**: `GET /tournaments/:id` (phaseC, line 305 mount) 이 `GET /tournaments/my` (tournaments.js, line 340 mount) shadow-match
+  - `id='my'` → `parseInt('my')=NaN` → `INVALID_ID 400` 반환 → 내 토너먼트 목록 완전 비동작
+- **수정**: `staticSubs = ['my','join']` `next()` guard 추가
+
 ## 2026-05-06 — bugfix: gameConfirm legacy calls — crafting + VIP (v6.47)
 
 ### index.html
