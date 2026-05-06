@@ -1,5 +1,15 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.35 버그수정 — battleScheduler 프로세스 재시작 시 stale battle 정리
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 서버 재시작 후 active 상태 stuck 전투 정리 부재 | ✅ 수정 | cleanupStaleBattles() 추가 |
+| 30분+ 경과 active 전투 → cancelled + fleet 락 해제 | ✅ | start() 호출 시 자동 실행 |
+| battleScheduler.js syntax check | ✅ | node --check pass |
+
+
+
 ## ✅ v6.34 버그수정 — dailyOps weekly-events 라우트 순서 수정
 
 | 항목 | 상태 | 비고 |

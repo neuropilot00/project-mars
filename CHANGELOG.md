@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: battleScheduler stale battle cleanup on startup
+
+### server/services/battleScheduler.js
+- **버그**: 서버 재시작 시 `'active'` 상태로 남은 전투가 영구적으로 스케줄러 슬롯을 점유
+- **수정**: `cleanupStaleBattles()` 함수 추가 — 시작 시 30분 이상 경과된 `'active'` 전투를 `'cancelled'`로 처리하고 함대 락 해제
+- `start()` 호출 시 `cleanupStaleBattles()` 비동기 실행 추가
+
 ## 2026-05-06 — bugfix: dailyOps weekly-events 라우트 shadow match 수정
 
 ### server/routes/dailyOps.js

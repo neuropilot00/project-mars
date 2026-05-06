@@ -18,9 +18,37 @@ const CHECK_INTERVAL_MS = 30 * 1000;
 const MAX_CONCURRENT = 2;
 let currentlyRunning = 0;
 
+async function cleanupStaleBattles() {
+  // On startup: any battle still 'active' after 30+ minutes is stuck (process crash).
+  // Mark them cancelled and free the fleet locks.
+  try {
+    const { rows } = await pool.query(`
+      UPDATE fleet_battles
+      SET status = 'cancelled', ended_at = NOW(),
+          battle_summary = COALESCE(battle_summary,'{}')::jsonb
+            || '{"error":"scheduler_restart_cleanup"}'::jsonb
+      WHERE status = 'active'
+        AND battle_started_at < NOW() - INTERVAL '30 minutes'
+      RETURNING id
+    `);
+    for (const r of rows) {
+      await pool.query(
+        `UPDATE fleets SET is_in_battle=false, current_battle_id=NULL WHERE current_battle_id=$1`,
+        [r.id]
+      ).catch(() => {});
+      console.log(`[battleScheduler] cleaned up stale battle ${r.id}`);
+    }
+    if (rows.length > 0) console.log(`[battleScheduler] cleaned ${rows.length} stale battles on startup`);
+  } catch (err) {
+    console.warn('[battleScheduler] cleanupStaleBattles error:', err.message);
+  }
+}
+
 function start() {
   if (intervalHandle) return;
   console.log(`[battleScheduler] starting (every ${CHECK_INTERVAL_MS/1000}s, max concurrent ${MAX_CONCURRENT})`);
+  // Clean up any battles that were left active from a previous process run
+  cleanupStaleBattles().catch(() => {});
   intervalHandle = setInterval(runOnce, CHECK_INTERVAL_MS);
 }
 
