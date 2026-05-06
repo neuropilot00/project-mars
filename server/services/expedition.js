@@ -51,13 +51,13 @@ async function launchExpedition(wallet, claimId, expeditionType, durationH) {
 
     // Check GP balance
     const { rows: balRows } = await client.query(
-      'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wLower]);
+      'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wLower]);
     const bal = balRows.length ? Number(balRows[0].balance) : 0;
     if (bal < cost) throw new Error(`Insufficient GP (need ${cost.toFixed(2)}, have ${bal.toFixed(2)})`);
 
     // Deduct GP
     await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [cost, wLower]);
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2)', [cost, wLower]);
 
     // Create expedition
     const returnsAt = new Date(Date.now() + dur * 3600000);
@@ -91,7 +91,7 @@ async function resolveExpeditions() {
   const { rows: ready } = await pool.query(
     `SELECT e.*, up.nickname
      FROM expeditions e
-     LEFT JOIN users up ON up.wallet_address = e.wallet
+     LEFT JOIN users up ON LOWER(up.wallet_address) = LOWER(e.wallet)
      WHERE e.status='active' AND e.returns_at <= NOW()
      LIMIT 50`);
 
@@ -116,7 +116,7 @@ async function resolveExpeditions() {
         const { rows: vipRows } = await client.query(
           `SELECT vt.gp_earn_bonus_pct FROM vip_passes vp
            JOIN vip_tiers vt ON vt.id = vp.tier_id
-           WHERE vp.wallet=$1 AND vp.is_active=true AND vp.expires_at > NOW()`,
+           WHERE LOWER(vp.wallet)=LOWER($1) AND vp.is_active=true AND vp.expires_at > NOW()`,
           [exp.wallet]);
         if (vipRows.length) vipBonus = parseInt(vipRows[0].gp_earn_bonus_pct, 10) || 0;
       } catch (_) {}
@@ -144,7 +144,7 @@ async function resolveExpeditions() {
 
         // Pay reward
         await client.query(
-          `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+          `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
           [exp.wallet, rewardAmount]);
       }
 
@@ -182,7 +182,7 @@ async function resolveExpeditions() {
 async function cancelExpedition(wallet, expeditionId) {
   const wLower = wallet.toLowerCase();
   const { rows } = await pool.query(
-    `SELECT * FROM expeditions WHERE id=$1 AND wallet=$2 AND status='active'`,
+    `SELECT * FROM expeditions WHERE id=$1 AND LOWER(wallet)=LOWER($2) AND status='active'`,
     [expeditionId, wLower]);
   if (!rows.length) throw new Error('Expedition not found or already completed');
   const exp = rows[0];
@@ -195,7 +195,7 @@ async function cancelExpedition(wallet, expeditionId) {
   await pool.query(`UPDATE expeditions SET status='cancelled' WHERE id=$1`, [expeditionId]);
   if (refund > 0) {
     await pool.query(
-      `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+      `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
       [wLower, refund]);
   }
   return { ok: true, refund };
@@ -204,10 +204,10 @@ async function cancelExpedition(wallet, expeditionId) {
 // ── Get my expeditions ────────────────────────────────────────────────────────
 async function getMyExpeditions(wallet) {
   const { rows } = await pool.query(
-    `SELECT e.*, c.name AS claim_name
+    `SELECT e.*, c.custom_name AS claim_name
      FROM expeditions e
      LEFT JOIN claims c ON c.id = e.claim_id
-     WHERE e.wallet=$1
+     WHERE LOWER(e.wallet)=LOWER($1)
      ORDER BY e.launched_at DESC LIMIT 30`,
     [wallet.toLowerCase()]);
   return rows;
@@ -242,9 +242,9 @@ async function getAdminStats() {
               COUNT(DISTINCT wallet) AS unique_players
        FROM expeditions`),
     pool.query(
-      `SELECT e.*, up.nickname, c.name AS claim_name
+      `SELECT e.*, up.nickname, c.custom_name AS claim_name
        FROM expeditions e
-       LEFT JOIN users up ON up.wallet_address = e.wallet
+       LEFT JOIN users up ON LOWER(up.wallet_address) = LOWER(e.wallet)
        LEFT JOIN claims c ON c.id = e.claim_id
        ORDER BY e.launched_at DESC LIMIT 30`),
     pool.query(`SELECT key, value FROM game_settings WHERE category='expedition' ORDER BY key`)

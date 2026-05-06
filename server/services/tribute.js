@@ -33,7 +33,7 @@ async function getClaimTributes(claimId, limit = 10) {
 
 async function getMyTributes(wallet) {
   const { rows } = await pool.query(`
-    SELECT t.id, t.claim_id, c.name AS claim_name,
+    SELECT t.id, t.claim_id, c.custom_name AS claim_name,
            t.to_wallet, u2.nickname AS to_nickname,
            t.amount_gp, t.message, t.created_at
     FROM territory_tributes t

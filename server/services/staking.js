@@ -85,7 +85,7 @@ async function createStake(client, wallet, amount, lockDays) {
 
   // Check max active stakes
   const activeRes = await client.query(
-    `SELECT COUNT(*) AS n FROM gp_stakes WHERE wallet = $1 AND status IN ('active', 'ready')`,
+    `SELECT COUNT(*) AS n FROM gp_stakes WHERE LOWER(wallet) = LOWER($1) AND status IN ('active', 'ready')`,
     [w]
   );
   const activeCount = parseInt(activeRes.rows[0]?.n) || 0;
@@ -95,7 +95,7 @@ async function createStake(client, wallet, amount, lockDays) {
 
   // Check GP balance
   const userRes = await client.query(
-    `SELECT gp_balance FROM users WHERE wallet_address = $1`, [w]
+    `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]
   );
   if (!userRes.rows.length) throw new Error('User not found');
   const balance = parseFloat(userRes.rows[0].gp_balance) || 0;
@@ -105,7 +105,7 @@ async function createStake(client, wallet, amount, lockDays) {
 
   // Deduct GP
   await client.query(
-    `UPDATE users SET gp_balance = gp_balance - $2 WHERE wallet_address = $1`,
+    `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1)`,
     [w, amount]
   );
 
@@ -156,7 +156,7 @@ async function withdrawStake(client, wallet, stakeId) {
 
   // Lock the stake row
   const stakeRes = await client.query(
-    `SELECT * FROM gp_stakes WHERE id = $1 AND wallet = $2 FOR UPDATE`,
+    `SELECT * FROM gp_stakes WHERE id = $1 AND LOWER(wallet) = LOWER($2) FOR UPDATE`,
     [stakeId, w]
   );
   if (!stakeRes.rows.length) throw new Error('Stake not found');
@@ -174,7 +174,7 @@ async function withdrawStake(client, wallet, stakeId) {
 
   // Return principal + yield
   await client.query(
-    `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+    `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
     [w, totalReturn]
   );
 
@@ -194,7 +194,7 @@ async function getMyStakes(wallet) {
 
   // Mark expired active stakes as ready first
   await pool.query(
-    `UPDATE gp_stakes SET status = 'ready' WHERE wallet = $1 AND status = 'active' AND unlocks_at <= NOW()`,
+    `UPDATE gp_stakes SET status = 'ready' WHERE LOWER(wallet) = LOWER($1) AND status = 'active' AND unlocks_at <= NOW()`,
     [w]
   );
 
@@ -202,8 +202,8 @@ async function getMyStakes(wallet) {
     `SELECT *,
             EXTRACT(EPOCH FROM (unlocks_at - NOW())) AS seconds_remaining
        FROM gp_stakes
-      WHERE wallet = $1
-      ORDER BY staked_at DESC
+      WHERE LOWER(wallet) = LOWER($1)
+      ORDER BY created_at DESC
       LIMIT 50`,
     [w]
   );
@@ -236,7 +236,7 @@ async function getStakingInfo(wallet) {
   let activeStakes = 0;
   if (wallet) {
     const res = await pool.query(
-      `SELECT COUNT(*) AS n FROM gp_stakes WHERE wallet = $1 AND status IN ('active','ready')`,
+      `SELECT COUNT(*) AS n FROM gp_stakes WHERE LOWER(wallet) = LOWER($1) AND status IN ('active','ready')`,
       [wallet.toLowerCase()]
     );
     activeStakes = parseInt(res.rows[0]?.n) || 0;
@@ -274,7 +274,7 @@ async function getAdminStats() {
              COUNT(*) AS stake_count,
              SUM(s.yield_earned) AS total_yield
         FROM gp_stakes s
-        LEFT JOIN users u ON u.wallet_address = s.wallet
+        LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(s.wallet)
        WHERE s.status IN ('active','ready')
        GROUP BY s.wallet, u.nickname
        ORDER BY total_amount DESC

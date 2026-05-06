@@ -119,7 +119,7 @@ async function setDescription(wallet, claimId, text) {
 async function getMyDescriptions(wallet) {
   const { rows } = await pool.query(
     `SELECT td.claim_id, td.description, td.gp_paid, td.updated_at,
-            c.name AS claim_name, c.x, c.y
+            c.custom_name AS claim_name, c.center_lng AS x, c.center_lat AS y
      FROM territory_descriptions td
      LEFT JOIN claims c ON c.id = td.claim_id
      WHERE td.wallet = $1

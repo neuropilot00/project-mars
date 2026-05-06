@@ -219,7 +219,7 @@ async function getMonument(claimId) {
 async function getMyMonuments(wallet) {
   const w = wallet.toLowerCase();
   const res = await pool.query(
-    `SELECT m.*, c.sector_x, c.sector_y, c.width, c.height,
+    `SELECT m.*, c.center_lng AS sector_x, c.center_lat AS sector_y, c.width, c.height,
             (c.deleted_at IS NOT NULL) AS territory_lost
        FROM territory_monuments m
        LEFT JOIN claims c ON c.id = m.claim_id
@@ -232,7 +232,7 @@ async function getMyMonuments(wallet) {
 
 async function getRecentMonuments(limit = 20) {
   const res = await pool.query(
-    `SELECT m.*, u.nickname AS owner_nick, c.sector_x, c.sector_y
+    `SELECT m.*, u.nickname AS owner_nick, c.center_lng AS sector_x, c.center_lat AS sector_y
        FROM territory_monuments m
        LEFT JOIN users u ON u.wallet_address = m.owner
        LEFT JOIN claims c ON c.id = m.claim_id

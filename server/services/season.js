@@ -211,10 +211,10 @@ async function getCareerStats(wallet) {
     pool.query('SELECT nickname, created_at, xp FROM users WHERE wallet_address = $1', [w]),
     pool.query(`
       SELECT
-        COUNT(*) FILTER (WHERE winner_wallet = $1) AS wins,
-        COUNT(*) FILTER (WHERE (attacker_wallet = $1 OR defender_wallet = $1) AND winner_wallet != $1) AS losses,
-        COALESCE(SUM(gp_stake) FILTER (WHERE winner_wallet = $1), 0) AS gp_won
-      FROM battles WHERE (attacker_wallet = $1 OR defender_wallet = $1) AND status = 'completed'`, [w]),
+        COUNT(*) FILTER (WHERE attacker = $1 AND success = true) AS wins,
+        COUNT(*) FILTER (WHERE (attacker = $1 OR defender = $1) AND NOT (attacker = $1 AND success = true)) AS losses,
+        COALESCE(SUM(attack_cost) FILTER (WHERE attacker = $1 AND success = true), 0) AS gp_won
+      FROM battles WHERE attacker = $1 OR defender = $1`, [w]),
     pool.query(`
       SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE success = true) AS successes,
              COALESCE(SUM(gp_cost), 0) AS total_gp

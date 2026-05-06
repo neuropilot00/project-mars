@@ -181,7 +181,7 @@ async function expireShields() {
 async function getMyShields(wallet) {
   const w = wallet.toLowerCase();
   const res = await pool.query(
-    `SELECT s.*, c.sector_x, c.sector_y, c.width, c.height, c.custom_name
+    `SELECT s.*, c.center_lng AS sector_x, c.center_lat AS sector_y, c.width, c.height, c.custom_name
        FROM territory_shields s
        LEFT JOIN claims c ON c.id = s.claim_id
       WHERE s.owner = $1

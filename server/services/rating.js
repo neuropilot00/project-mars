@@ -130,11 +130,11 @@ async function getAdminStats() {
       (SELECT COUNT(*)              FROM territory_ratings WHERE created_at>NOW()-INTERVAL '24h') AS ratings_24h
   `);
   const topRated = await pool.query(`
-    SELECT r.claim_id, c.name AS claim_name,
+    SELECT r.claim_id, c.custom_name AS claim_name,
            COUNT(r.id)::INT AS votes, AVG(r.rating)::FLOAT AS avg_rating
     FROM territory_ratings r
     LEFT JOIN claims c ON c.id = r.claim_id
-    GROUP BY r.claim_id, c.name
+    GROUP BY r.claim_id, c.custom_name
     HAVING COUNT(r.id) >= 1
     ORDER BY avg_rating DESC, votes DESC
     LIMIT 10

@@ -45,7 +45,7 @@ async function getActiveSponsors(claimId) {
 async function getMySponsorships(wallet) {
   const { rows } = await pool.query(
     `SELECT ts.id, ts.claim_id, ts.message, ts.gp_paid, ts.expires_at, ts.is_active,
-            c.name AS claim_name
+            c.custom_name AS claim_name
      FROM territory_sponsors ts
      LEFT JOIN claims c ON c.id = ts.claim_id
      WHERE ts.sponsor_wallet=$1

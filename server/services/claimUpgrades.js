@@ -188,7 +188,7 @@ async function getClaimUpgrades(claimId) {
 async function getMyUpgrades(wallet) {
   const w = wallet.toLowerCase();
   const res = await pool.query(
-    `SELECT u.*, c.sector_x, c.sector_y, c.width, c.height, c.custom_name,
+    `SELECT u.*, c.center_lng AS sector_x, c.center_lat AS sector_y, c.width, c.height, c.custom_name,
             (c.deleted_at IS NOT NULL) AS territory_lost
        FROM territory_upgrades u
        LEFT JOIN claims c ON c.id = u.claim_id
