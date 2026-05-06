@@ -6275,11 +6275,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
     <!-- 대카테고리 바 -->
     <div class="base-cat-row" id="baseCatRow">
-      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)">🗺️ <span data-i18n="bcat_territory">Territory</span></button>
-      <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)">⚓ <span data-i18n="bcat_fleet">Fleet</span></button>
-      <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)">💰 <span data-i18n="bcat_economy">Economy</span></button>
-      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)">📋 <span data-i18n="bcat_mission">Mission</span></button>
-      <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)">🏛️ <span data-i18n="bcat_community">Community</span></button>
+      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)"><span data-i18n="bcat_territory">Territory</span></button>
+      <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)"><span data-i18n="bcat_fleet">Fleet</span></button>
+      <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)"><span data-i18n="bcat_economy">Economy</span></button>
+      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)"><span data-i18n="bcat_mission">Mission</span></button>
+      <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)"><span data-i18n="bcat_community">Community</span></button>
     </div>
     <!-- 서브탭 (카테고리별로 보임/숨김) -->
     <div class="base-tabs" id="baseTabsRow">
@@ -24984,9 +24984,8 @@ async function loadOpsCommandBoard() {
       var isDone = i < weeklyDone;
       var bg = isDone ? 'var(--cyan)' : 'rgba(255,255,255,.15)';
       var border = isToday ? '1px solid rgba(255,215,0,.6)' : '1px solid transparent';
-      blocks += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'
+      blocks += '<div style="flex:1">'
         + '<div style="width:100%;height:8px;border-radius:2px;background:' + bg + ';border:' + border + '"></div>'
-        + '<span style="font-size:8px;color:' + (isDone ? 'var(--cyan)' : isToday ? 'var(--gold)' : 'rgba(255,255,255,.25)') + '">' + dayLabels[dayIdx] + '</span>'
         + '</div>';
     }
     blocks += '</div>';
