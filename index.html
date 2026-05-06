@@ -47515,9 +47515,9 @@ function fcEsc(str) {
     <!-- 좌측 사이드 패널 (데스크탑 전용) — 내 함대 / 자원 -->
     <div id="bvSideLeft" class="bv-side bv-side-left" style="width:240px;flex-shrink:0;background:#05060e;border-right:1px solid rgba(60,100,255,.12);padding:14px 12px;overflow-y:auto;display:none">
       <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#4fc3f7;margin-bottom:10px">⚔ MY FLEET</div>
-      <div id="bvSideMyFleet" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+      <div id="bvSideMyFleet" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7" data-i18n="loading_dots">로딩 중...</div>
       <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#81c784;margin:18px 0 10px">💎 RESOURCES</div>
-      <div id="bvSideResources" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+      <div id="bvSideResources" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7" data-i18n="loading_dots">로딩 중...</div>
     </div>
 
     <!-- 가운데: tactical-lab iframe -->
@@ -47526,9 +47526,9 @@ function fcEsc(str) {
     <!-- 우측 사이드 패널 (데스크탑 전용) — 전투 통계 / 진행도 -->
     <div id="bvSideRight" class="bv-side bv-side-right" style="width:240px;flex-shrink:0;background:#05060e;border-left:1px solid rgba(60,100,255,.12);padding:14px 12px;overflow-y:auto;display:none">
       <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#ff7043;margin-bottom:10px">🛡 ENEMY FLEET</div>
-      <div id="bvSideEnemyFleet" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+      <div id="bvSideEnemyFleet" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7" data-i18n="loading_dots">로딩 중...</div>
       <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#ffd166;margin:18px 0 10px">📊 BATTLE STATS</div>
-      <div id="bvSideBattleStats" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+      <div id="bvSideBattleStats" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7" data-i18n="loading_dots">로딩 중...</div>
     </div>
 
     <button class="bv-close" onclick="closeBattleViewer()" style="position:absolute;top:10px;right:10px;z-index:30;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.3);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
@@ -47678,16 +47678,16 @@ function renderBattleCard(b, tab) {
           ${tab === 'history' && b.my_fleet_name ? ` · <span style="color:#4fc3f7">${escapeHtml(b.my_fleet_name)}</span>` : ''}
         </div>
         <div class="bc-info-meta">
-          <span>⚔ <b>${b.atk_ships_total || b.atk_fleets || 0}</b>척</span>
-          <span>vs <b>${b.def_ships_total || b.def_fleets || 0}</b>척</span>
-          ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}분</b></span>` : ''}
+          <span>⚔ <b>${b.atk_ships_total || b.atk_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
+          <span>vs <b>${b.def_ships_total || b.def_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
+          ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}</b>${LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'min'}</span>` : ''}
           <span>${timeInfo}</span>
         </div>
       </div>
       <div class="bc-actions">
         ${(b.status === 'ended' || b.status === 'active') 
-          ? `<button class="bc-btn primary" onclick="openBattleViewer(${b.id})">${isLive ? '관전' : '리플레이'}</button>`
-          : `<button class="bc-btn" onclick="bhRunBattle(${b.id})">즉시 시작</button>`
+          ? `<button class="bc-btn primary" onclick="openBattleViewer(${b.id})">${isLive ? (LANG==='ko'?'관전':LANG==='ja'?'観戦':LANG==='zh'?'观战':'Watch') : (LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay')}</button>`
+          : `<button class="bc-btn" onclick="bhRunBattle(${b.id})">${LANG==='ko'?'즉시 시작':LANG==='ja'?'即時開始':LANG==='zh'?'立即开始':'Start Now'}</button>`
         }
       </div>
     </div>
@@ -47695,15 +47695,15 @@ function renderBattleCard(b, tab) {
 }
 
 async function bhRunBattle(battleId) {
-  var ok=await gameConfirm({icon:'⚔',title:'전투 즉시 시작',body:'전투 #'+battleId+'을 지금 바로 시작합니다.',confirmText:'시작'});
+  var ok=await gameConfirm({icon:'⚔',title:LANG==='ko'?'전투 즉시 시작':LANG==='ja'?'戦闘即時開始':LANG==='zh'?'立即开始战斗':'Start Battle Now',body:(LANG==='ko'?'전투 #':LANG==='ja'?'戦闘 #':LANG==='zh'?'战斗 #':'Battle #')+battleId+(LANG==='ko'?'을 지금 바로 시작합니다.':LANG==='ja'?'を今すぐ開始します。':LANG==='zh'?'将立即开始。':' will start immediately.'),confirmText:LANG==='ko'?'시작':LANG==='ja'?'開始':LANG==='zh'?'开始':'Start'});
   if(!ok) return;
   try {
     const res = await fetch(`/api/battles/${battleId}/run`, {
       method: 'POST', headers: getAuthHeaders()
     });
     const data = await res.json();
-    if (!res.ok) { showFactionToast('실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast('전투 시작됨', 'success');
+    if (!res.ok) { showFactionToast((LANG==='ko'?'실패: ':LANG==='ja'?'失敗: ':LANG==='zh'?'失败: ':'Failed: ') + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast(LANG==='ko'?'전투 시작됨':LANG==='ja'?'戦闘開始':LANG==='zh'?'战斗已开始':'Battle started', 'success');
     setTimeout(bhLoad, 1500);
   } catch (err) {
     showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
@@ -47715,11 +47715,11 @@ function formatShortTime(isoStr) {
   const d = new Date(isoStr);
   const now = new Date();
   const diffMin = Math.floor((now - d) / 60000);
-  if (diffMin < 0) return `${Math.abs(diffMin)}분 후`;
-  if (diffMin < 1) return '방금';
-  if (diffMin < 60) return `${diffMin}분 전`;
-  if (diffMin < 1440) return `${Math.floor(diffMin/60)}시간 전`;
-  return `${Math.floor(diffMin/1440)}일 전`;
+  if (diffMin < 0) return `${Math.abs(diffMin)}${LANG==='ko'?'분 후':LANG==='ja'?'分後':LANG==='zh'?'分后':' min later'}`;
+  if (diffMin < 1) return LANG==='ko'?'방금':LANG==='ja'?'たった今':LANG==='zh'?'刚刚':'Just now';
+  if (diffMin < 60) return `${diffMin}${LANG==='ko'?'분 전':LANG==='ja'?'分前':LANG==='zh'?'分前':' min ago'}`;
+  if (diffMin < 1440) return `${Math.floor(diffMin/60)}${LANG==='ko'?'시간 전':LANG==='ja'?'時間前':LANG==='zh'?'小时前':' hr ago'}`;
+  return `${Math.floor(diffMin/1440)}${LANG==='ko'?'일 전':LANG==='ja'?'日前':LANG==='zh'?'天前':' days ago'}`;
 }
 
 // ═════════════════════════════════════════════════════════════════
@@ -47751,12 +47751,12 @@ async function openDeclareBattle() {
 
   const sel = document.getElementById('declareMyFleet');
   sel.innerHTML = declareState.myFleets.map(f =>
-    `<option value="${f.id}">${escapeHtml(f.name)} (${f.ships_alive}척)</option>`
+    `<option value="${f.id}">${escapeHtml(f.name)} (${f.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'})</option>`
   ).join('');
 
   document.getElementById('declareTargetSearch').value = '';
   document.getElementById('declareTargetList').innerHTML =
-    '<div class="bd-search-hint">2자 이상 입력하면 검색됩니다</div>';
+    `<div class="bd-search-hint">${LANG==='ko'?'2자 이상 입력하면 검색됩니다':LANG==='ja'?'2文字以上入力すると検索されます':LANG==='zh'?'输入2字以上开始搜索':'Enter 2+ chars to search'}</div>`;
   declareState.selectedTargetFleetId = null;
   document.getElementById('declareConfirmBtn').disabled = true;
 
@@ -47805,11 +47805,11 @@ async function doSearchTargets() {
   const listEl = document.getElementById('declareTargetList');
 
   if (q.length < 2) {
-    listEl.innerHTML = '<div class="bd-search-hint">2자 이상 입력</div>';
+    listEl.innerHTML = `<div class="bd-search-hint">${LANG==='ko'?'2자 이상 입력':LANG==='ja'?'2文字以上入力':LANG==='zh'?'请输入2字以上':'Type 2+ chars'}</div>`;
     return;
   }
 
-  listEl.innerHTML = '<div class="bd-search-hint">검색 중...</div>';
+  listEl.innerHTML = `<div class="bd-search-hint">${LANG==='ko'?'검색 중...':LANG==='ja'?'検索中...':LANG==='zh'?'搜索中...':'Searching...'}</div>`;
 
   try {
     const res = await fetch(`/api/fleets/search?q=${encodeURIComponent(q)}`, {
@@ -47818,19 +47818,19 @@ async function doSearchTargets() {
     const data = await res.json();
 
     if (!res.ok) {
-      listEl.innerHTML = `<div class="bd-search-hint">검색 실패: ${data.error || ''}</div>`;
+      listEl.innerHTML = `<div class="bd-search-hint">${LANG==='ko'?'검색 실패':LANG==='ja'?'検索失敗':LANG==='zh'?'搜索失败':'Search failed'}: ${data.error || ''}</div>`;
       return;
     }
 
     if (!data.results || data.results.length === 0) {
-      listEl.innerHTML = '<div class="bd-search-hint">검색 결과 없음</div>';
+      listEl.innerHTML = `<div class="bd-search-hint">${LANG==='ko'?'검색 결과 없음':LANG==='ja'?'検索結果なし':LANG==='zh'?'无搜索结果':'No results found'}</div>`;
       return;
     }
 
     listEl.innerHTML = data.results.map(r => renderSearchResult(r)).join('');
   } catch (err) {
     console.error('doSearchTargets:', err);
-    listEl.innerHTML = '<div class="bd-search-hint">네트워크 오류</div>';
+    listEl.innerHTML = `<div class="bd-search-hint">${LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error'}</div>`;
   }
 }
 
@@ -47846,12 +47846,12 @@ function renderSearchResult(r) {
       <div class="bd-search-info">
         <div class="bd-search-nick">${escapeHtml(r.nickname || 'Unknown')}</div>
         <div class="bd-search-meta">
-          ${escapeHtml(r.fleet_name || '함대')} · 전적 ${r.battles_won || 0}W ${r.battles_lost || 0}L
+          ${escapeHtml(r.fleet_name || (LANG==='ko'?'함대':LANG==='ja'?'艦隊':LANG==='zh'?'舰队':'Fleet'))} · ${LANG==='ko'?'전적':LANG==='ja'?'戦績':LANG==='zh'?'战绩':'Record'} ${r.battles_won || 0}W ${r.battles_lost || 0}L
         </div>
       </div>
       <div>
-        <div class="bd-search-ships">${r.ships_alive}척</div>
-        ${r.is_in_battle ? '<div class="bd-search-battle-tag">전투중</div>' : ''}
+        <div class="bd-search-ships">${r.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>
+        ${r.is_in_battle ? `<div class="bd-search-battle-tag">${LANG==='ko'?'전투중':LANG==='ja'?'戦闘中':LANG==='zh'?'战斗中':'In Battle'}</div>` : ''}
       </div>
     </div>
   `;
@@ -47861,7 +47861,7 @@ function selectTargetFleet(fleetId, nickname, shipsAlive) {
   declareState.selectedTargetFleetId = fleetId;
   document.getElementById('declareConfirmBtn').disabled = false;
   document.querySelectorAll('.bd-search-card').forEach(c => c.classList.remove('selected'));
-  showFactionToast(`${nickname} (${shipsAlive}척) 선택됨`, 'success');
+  showFactionToast(`${nickname} (${shipsAlive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}) ${LANG==='ko'?'선택됨':LANG==='ja'?'選択されました':LANG==='zh'?'已选择':'selected'}`, 'success');
 }
 
 async function confirmDeclareBattle() {
@@ -47949,7 +47949,7 @@ async function openCmdActionsModal(battleId, targetFleetId){
 
   // focus_fire 대상 라벨
   const lbl = document.getElementById('caFocusTargetLabel');
-  if (lbl) lbl.textContent = `적 함대 #${targetFleetId} 가 자동 지정됩니다`;
+  if (lbl) lbl.textContent = (LANG==='ko'?`적 함대 #${targetFleetId} 가 자동 지정됩니다`:LANG==='ja'?`敵艦隊 #${targetFleetId} が自動指定されます`:LANG==='zh'?`敌方舰队 #${targetFleetId} 自动指定`:`Enemy fleet #${targetFleetId} auto-assigned`);
 
   // reinforce 함선 셀렉트 로드 (blueprints)
   const sel = document.getElementById('caReinforceShip');
@@ -47961,7 +47961,7 @@ async function openCmdActionsModal(battleId, targetFleetId){
     } catch(_) { caState.shipTypes = []; }
   }
   if (sel) {
-    sel.innerHTML = '<option value="">-- 함선 선택 --</option>' +
+    sel.innerHTML = `<option value="">${LANG==='ko'?'-- 함선 선택 --':LANG==='ja'?'-- 艦船を選択 --':LANG==='zh'?'-- 选择舰船 --':'-- Select Ship --'}</option>` +
       (caState.shipTypes || []).filter(s => !s.locked)
         .map(s => `<option value="${s.code}">${s.code} (${s.size_class || ''})</option>`).join('');
   }
@@ -47983,7 +47983,7 @@ function caToggle(actionType){
     if (panel) panel.classList.remove('active');
   } else {
     if (caState.selected.size >= caState.max) {
-      showFactionToast(`최대 ${caState.max}개까지 선택`, 'error');
+      showFactionToast(`${LANG==='ko'?'최대':LANG==='ja'?'最大':LANG==='zh'?'最多':'Max'} ${caState.max}${LANG==='ko'?'개까지 선택':LANG==='ja'?'個まで選択':LANG==='zh'?'项可选':'items max'}`, 'error');
       return;
     }
     caState.selected.add(actionType);
@@ -48007,37 +48007,37 @@ const CA_DOCTRINES = {
     name: 'Alpha Strike',
     actions: ['focus_fire', 'wedge'],
     params: {},
-    desc: '집중 타격 + 돌격 전술',
+    desc: LANG==='ko'?'집중 타격 + 돌격 전술':LANG==='ja'?'集中攻撃 + 突撃戦術':LANG==='zh'?'集中打击 + 突击战术':'Focus fire + charge tactics',
   },
   emp_ambush: {
     name: 'EMP Ambush',
     actions: ['emp', 'focus_fire'],
     params: { empTick: 800 },
-    desc: 'EMP 무력화 후 집중 공격',
+    desc: LANG==='ko'?'EMP 무력화 후 집중 공격':LANG==='ja'?'EMP無力化後集中攻撃':LANG==='zh'?'EMP瘫痪后集中攻击':'EMP then focus fire',
   },
   drone_swarm: {
     name: 'Drone Swarm',
     actions: ['reinforce'],
     params: { reinforceSize: 'frigate', reinforceCount: 20 },
-    desc: '소형함 20척 대량 투입',
+    desc: LANG==='ko'?'소형함 20척 대량 투입':LANG==='ja'?'小型艦20隻大量投入':LANG==='zh'?'大量投入20艘小型舰':'Deploy 20 small ships en masse',
   },
   shield_wall: {
     name: 'Shield Wall',
     actions: ['reinforce'],
     params: { reinforceSize: 'cruiser', reinforceCount: 10 },
-    desc: '중형함 10척 방벽 구축',
+    desc: LANG==='ko'?'중형함 10척 방벽 구축':LANG==='ja'?'中型艦10隻防壁構築':LANG==='zh'?'10艘中型舰构筑防线':'Build a wall with 10 cruisers',
   },
   blitzkrieg: {
     name: 'Blitzkrieg',
     actions: ['wedge', 'emp'],
     params: { empTick: 600 },
-    desc: '초반 돌격 + 조기 EMP',
+    desc: LANG==='ko'?'초반 돌격 + 조기 EMP':LANG==='ja'?'序盤突撃 + 早期EMP':LANG==='zh'?'初期突击 + 早期EMP':'Early charge + early EMP',
   },
   sniper: {
     name: 'Sniper',
     actions: ['focus_fire'],
     params: {},
-    desc: '단일 표적 저격 (GP 절약)',
+    desc: LANG==='ko'?'단일 표적 저격 (GP 절약)':LANG==='ja'?'単一目標狙撃 (GP節約)':LANG==='zh'?'单目标狙击 (节省GP)':'Single-target snipe (saves GP)',
   },
 };
 
@@ -48114,8 +48114,8 @@ async function caApplyAndFight(){
       } else if (type === 'reinforce') {
         const code = (document.getElementById('caReinforceShip').value || '').trim();
         const cnt = parseInt(document.getElementById('caReinforceCount').value);
-        if (!code) { showFactionToast(LANG==='ko'?'증원 함선을 선택하세요':LANG==='ja'?'増援艦船を選択してください':LANG==='zh'?'请选择增援舰船':'Select a reinforcement ship','error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
-        if (!cnt || cnt < 1 || cnt > 20) { showFactionToast(LANG==='ko'?'함선 수 1~20':LANG==='ja'?'艦船数 1~20':LANG==='zh'?'舰船数量 1~20':'Ship count 1~20','error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
+        if (!code) { showFactionToast(LANG==='ko'?'증원 함선을 선택하세요':LANG==='ja'?'増援艦船を選択してください':LANG==='zh'?'请选择增援舰船':'Select a reinforcement ship','error'); if (btn){btn.disabled=false;btn.textContent=(LANG==='ko'?'⚡ 지시 적용 & 전투':LANG==='ja'?'⚡ 指示適用 & 戦闘':LANG==='zh'?'⚡ 应用指令 & 战斗':'⚡ Apply & Fight');} return; }
+        if (!cnt || cnt < 1 || cnt > 20) { showFactionToast(LANG==='ko'?'함선 수 1~20':LANG==='ja'?'艦船数 1~20':LANG==='zh'?'舰船数量 1~20':'Ship count 1~20','error'); if (btn){btn.disabled=false;btn.textContent=(LANG==='ko'?'⚡ 지시 적용 & 전투':LANG==='ja'?'⚡ 指示適用 & 戦闘':LANG==='zh'?'⚡ 应用指令 & 战斗':'⚡ Apply & Fight');} return; }
         params.shipTypeCode = code;
         params.count = cnt;
       }
@@ -48141,7 +48141,7 @@ async function caApplyAndFight(){
           BATTLE_NOT_ACCEPTING_ACTIONS: LANG==='ko'?'전투가 이미 진행 중':LANG==='ja'?'戦闘はすでに進行中':LANG==='zh'?'战斗已经开始':'Battle already in progress',
         };
         showFactionToast(`${a.action_type}: ${msgMap[j.error] || j.error || (LANG==='ko'?'실패':LANG==='ja'?'失敗':LANG==='zh'?'失败':'Failed')}`, 'error');
-        if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';}
+        if (btn){btn.disabled=false;btn.textContent=(LANG==='ko'?'⚡ 지시 적용 & 전투':LANG==='ja'?'⚡ 指示適用 & 戦闘':LANG==='zh'?'⚡ 应用指令 & 战斗':'⚡ Apply & Fight');}
         return;
       }
     }
@@ -48152,7 +48152,7 @@ async function caApplyAndFight(){
   } catch (err) {
     console.error('caApplyAndFight error:', err);
     showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
-    if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';}
+    if (btn){btn.disabled=false;btn.textContent=(LANG==='ko'?'⚡ 지시 적용 & 전투':LANG==='ja'?'⚡ 指示適用 & 戦闘':LANG==='zh'?'⚡ 应用指令 & 战斗':'⚡ Apply & Fight');}
   }
 }
 
