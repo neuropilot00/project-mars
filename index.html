@@ -13844,6 +13844,7 @@ async function doTerritoryMerge() {
 
 // ── Territory Production Summary ──
 function loadTerritoryProduction(claimId,wallet){
+  if(!wallet) return;
   var prodRow=document.getElementById('infoProdRow');
   var prodBody=document.getElementById('infoProdBody');
   if(!prodRow||!prodBody) return;
@@ -25442,8 +25443,6 @@ function _startOpsBoardCountdown() {
     var str = (LANG==='ko'?'리셋까지 ':LANG==='ja'?'リセットまで ':LANG==='zh'?'重置倒计时 ':'Reset in ') + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     var el = document.getElementById('opsBoardCountdown');
     if (el) el.textContent = str;
-    var el2 = document.getElementById('opsBoardCountdown2');
-    if (el2) el2.textContent = str;
   }
   _tick();
   _opsBoardCountdownTimer = setInterval(_tick, 1000);
@@ -35610,8 +35609,8 @@ function loadBountyBoard() {
   el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading...</div>';
 
   var url = '/api/bounties';
-  if (_bountyTab === 'mine') url = '/api/bounties/my-bounties?wallet=' + walletState.address;
-  else if (_bountyTab === 'onme') url = '/api/bounties/on-me?wallet=' + walletState.address;
+  if (_bountyTab === 'mine') url = '/api/bounties/my-bounties?wallet=' + encodeURIComponent(walletState.address||'');
+  else if (_bountyTab === 'onme') url = '/api/bounties/on-me?wallet=' + encodeURIComponent(walletState.address||'');
 
   fetch(url)
     .then(function(r){ return r.json(); })

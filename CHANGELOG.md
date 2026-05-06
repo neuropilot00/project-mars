@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: frontend wallet null guards + dead el ref cleanup
+
+### index.html
+- `loadTerritoryProduction`: wallet null guard 추가 (undefined가 API URL에 'undefined' 문자열로 들어가는 버그 수정)
+- `loadBountyBoard`: 'mine'/'onme' 탭 wallet URL에 encodeURIComponent 적용
+- `opsBoardCountdown2` 존재하지 않는 DOM 요소 dead reference 제거 (el 자체는 if 가드로 안전했으나 코드 정리)
+
 ## 2026-05-06 — bugfix: battleScheduler stale battle cleanup on startup
 
 ### server/services/battleScheduler.js

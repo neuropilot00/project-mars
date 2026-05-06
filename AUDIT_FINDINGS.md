@@ -1,5 +1,15 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.36 버그수정 — frontend wallet null guard + dead DOM ref
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| loadTerritoryProduction wallet null guard 없음 | ✅ 수정 | if(!wallet) return 추가 |
+| loadBountyBoard wallet URL encodeURIComponent 없음 | ✅ 수정 | encodeURIComponent 적용 |
+| opsBoardCountdown2 존재하지 않는 DOM 참조 | ✅ 수정 | dead ref 제거 |
+
+
+
 ## ✅ v6.35 버그수정 — battleScheduler 프로세스 재시작 시 stale battle 정리
 
 | 항목 | 상태 | 비고 |
