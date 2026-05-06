@@ -6308,6 +6308,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
       <div class="base-tab" data-cat="economy" id="baseTabItems" onclick="switchBaseTab('items',this);loadBaseInventory();clearBaseTabDot('items')" style="color:#ce93d8"><span data-i18n="base_tab_items">내 아이템</span><span class="tab-dot" id="itemsDot"></span></div>
       <!-- 임무 (작전/퀘스트/수송/시즌 — OPS 첫 번째로 자동선택) -->
+      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-i18n="base_tab_ops">⚔ OPS</span><span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
@@ -11336,14 +11337,48 @@ function _vrMakeClusterEl(ev) {
   return wrap;
 }
 
+function _vrMakeSprite(ev) {
+  // Canvas 텍스처로 보스 클러스터 아이콘 그리기
+  const tier = ev.boss_tier || 'raider';
+  const colors = {scout:'#ff8800', raider:'#ff2222', fleet:'#cc0000', leviathan:'#9900ff'};
+  const col = colors[tier] || '#ff2222';
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 128;
+  const ctx = c.getContext('2d');
+  // 배경 원
+  ctx.beginPath();
+  ctx.arc(64, 64, 50, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fill();
+  // 경고 링
+  ctx.beginPath();
+  ctx.arc(64, 64, 52, 0, Math.PI * 2);
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  // 아이콘
+  ctx.fillStyle = col;
+  ctx.font = 'bold 44px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('⚠', 64, 64);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const sp = new THREE.Sprite(mat);
+  sp.scale.set(18, 18, 1);
+  sp._vrData = ev;
+  return sp;
+}
+
 function _vrRenderLayer() {
   const g = window.globe || globe;
-  if (!g || typeof g.htmlElementsData !== 'function') return;
-  g.htmlElementsData(_vrEvents)
-    .htmlLat(d => d.lat)
-    .htmlLng(d => d.lng)
-    .htmlAltitude(0.015)
-    .htmlElement(d => _vrMakeClusterEl(d));
+  if (!g || typeof g.customLayerData !== 'function') return;
+  g.customLayerData(_vrEvents)
+    .customThreeObject(d => _vrMakeSprite(d))
+    .customThreeObjectUpdate((obj, d) => {
+      const coords = g.getCoords(parseFloat(d.lat), parseFloat(d.lng), 0.06);
+      if (coords) Object.assign(obj.position, coords);
+    });
 }
 
 function _initStep1(){
@@ -11429,11 +11464,12 @@ function _initStep3(){
         } else {
           setTimeout(dismissLoader,200);
         }
+        // 글로브 준비 완료 후 Void Raider 레이어 초기화
+        _initVoidRaiderLayer();
       })
       (document.getElementById('globe-wrap'));
 
     window.globe=globe;
-    _initVoidRaiderLayer();
     scene=globe.scene();
     setLoadProgress(90,'Rendering globe...');
 
