@@ -8329,7 +8329,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button type="button" onclick="closeMobTerritoryModal();renameTerritory(selectedPlot)"
           style="padding:14px 8px;border-radius:10px;background:rgba(255,209,102,.12);
           border:1px solid rgba(255,209,102,.3);color:var(--gold);font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
-          ✏️ 이름변경
+          <span data-i18n="mt_rename">✏️ 이름변경</span>
         </button>
       </div>
       <!-- 커스터마이즈 + 판매 -->
@@ -8337,12 +8337,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button type="button" onclick="toggleMobCosmeticPanel()"
           style="padding:14px 8px;border-radius:10px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
           border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
-          ✨ 꾸미기
+          <span data-i18n="mt_decorate">✨ 꾸미기</span>
         </button>
         <button type="button" id="mtSellBtn" onclick="closeMobTerritoryModal();openListModal('claim',selectedPlot&&(selectedPlot.claimId||selectedPlot.id),'Territory','🗺️',0)"
           style="padding:14px 8px;border-radius:10px;background:rgba(160,100,220,.12);
           border:1px solid rgba(160,100,220,.35);color:#a064dc;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
-          💰 판매
+          <span data-i18n="mt_sell">💰 판매</span>
         </button>
       </div>
       <!-- 보호막 + 업그레이드 -->
@@ -8350,12 +8350,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button type="button" onclick="closeMobTerritoryModal();openShieldModal()"
           style="padding:14px 8px;border-radius:10px;background:rgba(92,187,255,.1);
           border:1px solid rgba(92,187,255,.3);color:#5cbbff;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
-          🛡️ 보호막
+          <span data-i18n="mt_shield">🛡️ 보호막</span>
         </button>
         <button type="button" onclick="closeMobTerritoryModal();scrollToTerritoryUpgrade()"
           style="padding:14px 8px;border-radius:10px;background:rgba(129,212,250,.1);
           border:1px solid rgba(129,212,250,.3);color:#81d4fa;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
-          🔧 업그레이드
+          <span data-i18n="mt_upgrade">🔧 업그레이드</span>
         </button>
       </div>
       <!-- 프로모 링크 -->
@@ -8375,7 +8375,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <!-- 남의 영토 액션 -->
     <div id="mtOtherActions" style="display:none;padding:8px 0 4px">
       <button type="button" class="mt-hijack" id="mtHijackBtn" onclick="closeMobTerritoryModal();hijackFromTerritoryInfo()">
-        ⚔ HIJACK 영토
+        <span data-i18n="mt_hijack">⚔ HIJACK 영토</span>
       </button>
     </div>
     <!-- 공유 (항상) -->
@@ -17311,6 +17311,9 @@ var I18N = {
     ob_starter_ship: '🚀 Starter ship granted! {name} × 1',
     guild_donate_placeholder: 'Enter GP amount', guild_donate_btn: 'Donate',
     auth_motto_placeholder: 'Colony Motto…', auth_status_placeholder: 'Status message…', auth_vtag_placeholder: 'Tag…',
+    mt_rename: '✏️ Rename', mt_decorate: '✨ Decorate', mt_sell: '💰 Sell', mt_shield: '🛡️ Shield', mt_upgrade: '🔧 Upgrade', mt_hijack: '⚔ HIJACK',
+    br_hint: 'Claude reads and fixes reports', br_label_desc: 'Bug Description *', br_desc_placeholder: 'Describe the bug.\nE.g. GP not rewarded after battle',
+    br_label_ss: 'Screenshot (optional)', br_ss_placeholder: '📸 Click or paste screenshot (Cmd+V / Ctrl+V)', br_ss_drag: 'or drag file here', br_capturing: 'Capturing screen...', br_submit: 'Submit', br_clear_ss: 'Clear Screenshot',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -18163,6 +18166,9 @@ var I18N = {
     ob_starter_ship: '🚀 스타터 함선 지급! {name} × 1',
     guild_donate_placeholder: '기부할 GP 입력', guild_donate_btn: '기부',
     auth_motto_placeholder: '콜로니 모토…', auth_status_placeholder: '상태 메시지…', auth_vtag_placeholder: '태그…',
+    mt_rename: '✏️ 이름변경', mt_decorate: '✨ 꾸미기', mt_sell: '💰 판매', mt_shield: '🛡️ 보호막', mt_upgrade: '🔧 업그레이드', mt_hijack: '⚔ HIJACK 영토',
+    br_hint: 'Claude가 읽고 수정합니다', br_label_desc: '버그 설명 *', br_desc_placeholder: '어떤 버그인지 설명해주세요.\n예) 전투 후 GP가 지급되지 않음',
+    br_label_ss: '스크린샷 (선택)', br_ss_placeholder: '📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)', br_ss_drag: '또는 파일을 여기에 드래그하세요', br_capturing: '화면 캡처 중...', br_submit: '제출하기', br_clear_ss: '스크린샷 지우기',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -19002,6 +19008,9 @@ var I18N = {
     gw_enemy_has_fleets: '敵に艦隊が生まれました — 直接戦闘してください',
     siege_info_block: '<b style="color:var(--red);font-size:10px">⚔️ セクター包囲戦とは？</b><br>セクターで最大領土保有者（知事）を倒す戦争。<br><b style="color:var(--tx2)">① セクター選択</b> → <b style="color:var(--tx2)">② 包囲宣言 (GPコスト)</b> → <b style="color:var(--tx2)">③ 警告期間</b> → <b style="color:var(--tx2)">④ 戦闘期間</b><br>占領率が最も高い側が知事になります。<br><span style="color:var(--gold)">💡 要件: 対象セクターに領土を所有</span>',
     fleet_battle_info_block: '<b style="color:var(--cyan);font-size:10px">⚓ 艦隊戦とは？</b><br>艦隊を率いて他プレイヤーとPvP戦闘を宣言。<br><b style="color:var(--tx2)">① 造船所で艦船建造</b> → <b style="color:var(--tx2)">② 艦隊編成</b> → <b style="color:var(--tx2)">③ Battle Hubで宣言</b> → <b style="color:var(--tx2)">④ 結果確認</b>',
+    mt_rename: '✏️ 名前変更', mt_decorate: '✨ カスタマイズ', mt_sell: '💰 売却', mt_shield: '🛡️ シールド', mt_upgrade: '🔧 アップグレード', mt_hijack: '⚔ HIJACK テリトリー',
+    br_hint: 'Claudeが読んで修正します', br_label_desc: 'バグの説明 *', br_desc_placeholder: 'バグの内容を説明してください。\n例)戦闘後にGPが付与されない',
+    br_label_ss: 'スクリーンショット (任意)', br_ss_placeholder: '📸 クリックまたはスクリーンショットを貼り付け (Cmd+V / Ctrl+V)', br_ss_drag: 'またはファイルをここにドラッグ', br_capturing: '画面キャプチャ中...', br_submit: '送信する', br_clear_ss: 'スクリーンショット削除',
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -19841,6 +19850,9 @@ var I18N = {
     gw_enemy_has_fleets: '敌方已有舰队 — 请直接战斗',
     siege_info_block: '<b style="color:var(--red);font-size:10px">⚔️ 什么是扇区围攻？</b><br>通过战争夺取扇区最大领土持有者（省长）的位置。<br><b style="color:var(--tx2)">① 选择扇区</b> → <b style="color:var(--tx2)">② 宣布围攻 (GP费用)</b> → <b style="color:var(--tx2)">③ 警告期</b> → <b style="color:var(--tx2)">④ 战斗期</b><br>占领率最高的一方成为省长。<br><span style="color:var(--gold)">💡 入场要求: 必须在目标扇区拥有领地</span>',
     fleet_battle_info_block: '<b style="color:var(--cyan);font-size:10px">⚓ 什么是舰队战？</b><br>率领舰队向其他玩家宣战PvP战斗。<br><b style="color:var(--tx2)">① 在造船厂建造舰船</b> → <b style="color:var(--tx2)">② 组建舰队</b> → <b style="color:var(--tx2)">③ 在战斗枢纽宣战</b> → <b style="color:var(--tx2)">④ 查看结果</b>',
+    mt_rename: '✏️ 重命名', mt_decorate: '✨ 装饰', mt_sell: '💰 出售', mt_shield: '🛡️ 护盾', mt_upgrade: '🔧 升级', mt_hijack: '⚔ HIJACK 领地',
+    br_hint: 'Claude会读取并修复', br_label_desc: '错误描述 *', br_desc_placeholder: '请描述错误内容。\n例)战斗后未发放GP、画面变白',
+    br_label_ss: '截图 (可选)', br_ss_placeholder: '📸 点击或粘贴截图 (Cmd+V / Ctrl+V)', br_ss_drag: '或将文件拖放至此', br_capturing: '截图中...', br_submit: '提交', br_clear_ss: '清除截图',
   }
 };
 
@@ -50700,7 +50712,7 @@ async function wbPlaceBet(eventId) {
       return;
     }
 
-    showFactionToast(`베팅 완료! 현재 배당: ${data.current_odds?.a || '-'}x`, 'success');
+    showFactionToast(`${LANG==='ko'?'베팅 완료!':LANG==='ja'?'ベット完了!':LANG==='zh'?'投注成功!':'Bet placed!'} ${LANG==='ko'?'현재 배당':LANG==='ja'?'現在の倍率':LANG==='zh'?'当前赔率':'Odds'}: ${data.current_odds?.a || '-'}x`, 'success');
     delete wb.selectedOptions[eventId];
     delete wb.betAmounts[eventId];
     await wbLoad();
@@ -50886,28 +50898,28 @@ window.closeTacticalLab = closeTacticalLab;
   <div id="bugReportCard" onclick="event.stopPropagation()">
     <h3>
       🐛 BUG REPORT
-      <span id="bugReportIdHint">Claude가 읽고 수정합니다</span>
+      <span id="bugReportIdHint" data-i18n="br_hint">Claude가 읽고 수정합니다</span>
       <button class="br-close" type="button" onclick="closeBugReporter(event)">✕</button>
     </h3>
     <div class="br-body">
       <div>
-        <div class="br-label">버그 설명 *</div>
-        <textarea id="bugDescArea" placeholder="어떤 버그인지 설명해주세요.&#10;예) 전투 후 GP가 지급되지 않음, 화면이 흰색으로 됨 등"></textarea>
+        <div class="br-label" data-i18n="br_label_desc">버그 설명 *</div>
+        <textarea id="bugDescArea" data-i18n-placeholder="br_desc_placeholder" placeholder="어떤 버그인지 설명해주세요.&#10;예) 전투 후 GP가 지급되지 않음, 화면이 흰색으로 됨 등"></textarea>
       </div>
       <div>
-        <div class="br-label">스크린샷 (선택)</div>
+        <div class="br-label" data-i18n="br_label_ss">스크린샷 (선택)</div>
         <div id="bugScreenshotZone" onclick="bugSsZoneClick(event)" ondragover="event.preventDefault()" ondrop="bugSsDrop(event)">
           <img id="bugSsPreview" alt="screenshot preview"/>
-          <p id="bugSsPlaceholder">📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)</p>
-          <em id="bugSsPlaceholder2">또는 파일을 여기에 드래그하세요</em>
-          <span id="bugCapturingMsg">화면 캡처 중...</span>
+          <p id="bugSsPlaceholder" data-i18n="br_ss_placeholder">📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)</p>
+          <em id="bugSsPlaceholder2" data-i18n="br_ss_drag">또는 파일을 여기에 드래그하세요</em>
+          <span id="bugCapturingMsg" data-i18n="br_capturing">화면 캡처 중...</span>
         </div>
         <input id="bugSsInput" type="file" accept="image/*" onchange="bugSsFileChosen(event)"/>
       </div>
     </div>
     <div class="br-actions">
-      <button id="bugSubmitBtn" type="button" onclick="submitBugReport(event)">제출하기</button>
-      <button id="bugClearSsBtn" type="button" onclick="bugClearSs(event)">스크린샷 지우기</button>
+      <button id="bugSubmitBtn" type="button" onclick="submitBugReport(event)" data-i18n="br_submit">제출하기</button>
+      <button id="bugClearSsBtn" type="button" onclick="bugClearSs(event)" data-i18n="br_clear_ss">스크린샷 지우기</button>
       <span id="bugStatusMsg">✓ 전송 완료</span>
     </div>
   </div>

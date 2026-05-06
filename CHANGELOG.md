@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 로컬라이징 23차 — 워베팅 toast/모바일 영토 버튼/버그리포터 (루프 23차)
+
+### 동적 JS + 정적 HTML data-i18n + i18n 키 추가 (index.html) — 배치 23 (19항목)
+- 워베팅 베팅 성공 toast 4개 언어
+- 모바일 영토 액션 버튼 6개 (이름변경/꾸미기/판매/보호막/업그레이드/HIJACK) data-i18n 처리
+- 버그 리포터 정적 HTML 8개 요소 (힌트/설명라벨/SS라벨/SS placeholder/드래그/캡처중/제출/지우기) data-i18n 처리
+- i18n 4개 언어 섹션에 14개 키 추가 (mt_rename~mt_hijack, br_hint~br_clear_ss)
+
 ## 2026-05-06 — 로컬라이징 22차 — 전투결과/동맹/리플레이/워베팅/온보딩 (루프 22차)
 
 ### 동적 JS 4개 언어 확장 (index.html) — 배치 22 (41항목)

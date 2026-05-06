@@ -1,4 +1,15 @@
-# OCCUPY MARS — Codebase Audit (v6.28 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.29 / 2026-05-06)
+
+## ✅ v6.29 로컬라이징 23차 완성 — 워베팅toast/모바일영토버튼/버그리포터
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 동적 JS — 워베팅 베팅 성공 toast | ✅ | 4개 언어 |
+| 정적 HTML data-i18n — 모바일 영토 버튼 6종 | ✅ | mt_rename/mt_decorate/mt_sell/mt_shield/mt_upgrade/mt_hijack |
+| 정적 HTML data-i18n — 버그 리포터 8요소 | ✅ | br_hint/br_label_desc/br_label_ss 등 |
+| i18n 4개 언어 섹션 — 14개 신규 키 추가 | ✅ | mt_* + br_* |
+
+
 
 ## ✅ v6.28 로컬라이징 22차 완성 — 전투결과/동맹/리플레이/워베팅/온보딩
 
