@@ -13714,7 +13714,7 @@ async function openTerritoryMergePanel() {
   }
 
   if (!myClaims || myClaims.length < 2) {
-    gameAlert(lang === 'ko' ? '병합하려면 영토가 2개 이상 필요합니다' : 'You need at least 2 territories to merge');
+    gameAlert(lang === 'ko' ? '병합하려면 영토가 2개 이상 필요합니다' : lang === 'ja' ? '統合には2つ以上の領土が必要です' : lang === 'zh' ? '合并需要至少2个领地' : 'You need at least 2 territories to merge');
     return;
   }
 
@@ -13727,6 +13727,8 @@ async function openTerritoryMergePanel() {
     var html = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px;line-height:1.5">'
       + (lang === 'ko'
         ? '병합할 영토를 선택하세요. 선택한 영토들이 하나로 합쳐집니다.<br><span style="color:var(--mars)">⚠ 병합 후 원복 불가</span>'
+        : lang === 'ja' ? '統合する領土を選択してください。選択した領土が一つになります。<br><span style="color:var(--mars)">⚠ 統合後は元に戻せません</span>'
+        : lang === 'zh' ? '选择要合并的领地，选中的领地将合并为一个。<br><span style="color:var(--mars)">⚠ 合并后无法撤销</span>'
         : 'Select territories to merge into one. <span style="color:var(--mars)">⚠ Cannot be undone</span>')
       + '</div>';
     html += '<div style="max-height:200px;overflow-y:auto;margin-bottom:10px">';
@@ -13748,8 +13750,8 @@ async function openTerritoryMergePanel() {
     var totalPx = myClaims.filter(function(c){ return selectedIds.has(String(c.claimId || c.id)); })
                           .reduce(function(s,c){ return s + (c._pixelCount || c.pixel_count || ((c.w||c.width||1)*(c.h||c.height||1))); }, 0);
     html += '<div style="font-size:9px;color:#81d4fa;margin-bottom:6px">'
-      + (lang === 'ko' ? '선택: ' : 'Selected: ') + sel.length
-      + (lang === 'ko' ? '개 / 총 ' : ' / ') + totalPx + ' px</div>';
+      + (lang === 'ko' ? '선택: ' : lang === 'ja' ? '選択: ' : lang === 'zh' ? '已选: ' : 'Selected: ') + sel.length
+      + (lang === 'ko' ? '개 / 총 ' : lang === 'ja' ? '個 / 計 ' : lang === 'zh' ? '个 / 共 ' : ' / ') + totalPx + ' px</div>';
     return html;
   };
 
@@ -13759,13 +13761,13 @@ async function openTerritoryMergePanel() {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9990;display:flex;align-items:center;justify-content:center;padding:16px';
   modal.innerHTML = '<div style="background:var(--bg2);border:1px solid rgba(129,212,250,.25);border-radius:12px;padding:16px;width:100%;max-width:360px;max-height:90vh;overflow-y:auto">'
     + '<div style="font-size:11px;font-weight:800;color:#81d4fa;font-family:var(--fn);letter-spacing:1px;margin-bottom:10px">🔗 '
-    + (lang === 'ko' ? '영토 병합' : 'MERGE TERRITORIES') + '</div>'
+    + (lang === 'ko' ? '영토 병합' : lang === 'ja' ? '領土統合' : lang === 'zh' ? '领地合并' : 'MERGE TERRITORIES') + '</div>'
     + '<div id="mergeTerritoryBody">' + renderList() + '</div>'
     + '<div style="display:flex;gap:8px;margin-top:8px">'
     + '<button type="button" onclick="document.getElementById(\'mergeTerritoryModal\').remove()" style="flex:1;padding:8px;font-size:9px;font-family:var(--fn);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer">'
-    + (lang === 'ko' ? '취소' : 'CANCEL') + '</button>'
+    + (lang === 'ko' ? '취소' : lang === 'ja' ? 'キャンセル' : lang === 'zh' ? '取消' : 'CANCEL') + '</button>'
     + '<button type="button" id="mergeTerritoryConfirmBtn" onclick="doTerritoryMerge()" style="flex:2;padding:8px;font-size:9px;font-family:var(--fn);font-weight:800;background:rgba(129,212,250,.15);border:1px solid rgba(129,212,250,.35);color:#81d4fa;border-radius:6px;cursor:pointer">'
-    + (lang === 'ko' ? '🔗 병합 실행' : '🔗 MERGE') + '</button>'
+    + (lang === 'ko' ? '🔗 병합 실행' : lang === 'ja' ? '🔗 統合実行' : lang === 'zh' ? '🔗 执行合并' : '🔗 MERGE') + '</button>'
     + '</div></div>';
   document.body.appendChild(modal);
 
@@ -13795,16 +13797,18 @@ async function doTerritoryMerge() {
   var ids = Array.from(selectedIds).map(Number);
   var ok = await gameConfirm({
     icon: '🔗',
-    title: lang === 'ko' ? '영토 병합 확인' : 'CONFIRM MERGE',
+    title: lang === 'ko' ? '영토 병합 확인' : lang === 'ja' ? '領土統合の確認' : lang === 'zh' ? '确认领地合并' : 'CONFIRM MERGE',
     body: (lang === 'ko'
       ? ids.length + '개 영토를 하나로 병합합니다.<br><span style="color:var(--mars)">병합 후 되돌릴 수 없습니다.</span>'
+      : lang === 'ja' ? ids.length + '個の領土を一つに統合します。<br><span style="color:var(--mars)">統合後は元に戻せません。</span>'
+      : lang === 'zh' ? '将' + ids.length + '个领地合并为一个。<br><span style="color:var(--mars)">合并后无法撤销。</span>'
       : 'Merge ' + ids.length + ' territories into one.<br><span style="color:var(--mars)">This cannot be undone.</span>'),
-    confirmText: lang === 'ko' ? '병합' : 'MERGE'
+    confirmText: lang === 'ko' ? '병합' : lang === 'ja' ? '統合' : lang === 'zh' ? '合并' : 'MERGE'
   });
   if (!ok) return;
 
   var btn = document.getElementById('mergeTerritoryConfirmBtn');
-  if (btn) { btn.disabled = true; btn.textContent = lang === 'ko' ? '병합 중…' : 'Merging…'; }
+  if (btn) { btn.disabled = true; btn.textContent = lang === 'ko' ? '병합 중…' : lang === 'ja' ? '統合中…' : lang === 'zh' ? '合并中…' : 'Merging…'; }
 
   try {
     var d = await fetch('/api/territory/merge', {
@@ -13815,7 +13819,7 @@ async function doTerritoryMerge() {
 
     if (d.error) {
       showToast(d.message || d.error, 'error');
-      if (btn) { btn.disabled = false; btn.textContent = lang === 'ko' ? '🔗 병합 실행' : '🔗 MERGE'; }
+      if (btn) { btn.disabled = false; btn.textContent = lang === 'ko' ? '🔗 병합 실행' : lang === 'ja' ? '🔗 統合実行' : lang === 'zh' ? '🔗 执行合并' : '🔗 MERGE'; }
       return;
     }
 
@@ -13824,6 +13828,8 @@ async function doTerritoryMerge() {
     if (modal) modal.remove();
     showToast((lang === 'ko'
       ? '✅ ' + ids.length + '개 영토가 병합됐습니다! (클레임 #' + d.mergedClaimId + ', ' + d.pixelCount + ' px)'
+      : lang === 'ja' ? '✅ ' + ids.length + '個の領土を統合しました! (クレーム #' + d.mergedClaimId + ', ' + d.pixelCount + ' px)'
+      : lang === 'zh' ? '✅ ' + ids.length + '个领地已合并! (领地 #' + d.mergedClaimId + ', ' + d.pixelCount + ' px)'
       : '✅ Merged into Claim #' + d.mergedClaimId + ' (' + d.pixelCount + ' px)'), 'success');
 
     // Reload territory data
@@ -13832,7 +13838,7 @@ async function doTerritoryMerge() {
     window._mergeSelectedIds = null;
   } catch(e) {
     showToast(e.message || 'Error', 'error');
-    if (btn) { btn.disabled = false; btn.textContent = lang === 'ko' ? '🔗 병합 실행' : '🔗 MERGE'; }
+    if (btn) { btn.disabled = false; btn.textContent = lang === 'ko' ? '🔗 병합 실행' : lang === 'ja' ? '🔗 統合実行' : lang === 'zh' ? '🔗 执行合并' : '🔗 MERGE'; }
   }
 }
 
