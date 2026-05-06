@@ -7,7 +7,7 @@
 //   2) listActiveEvents()     — 활성 이벤트 조회 (UI, 어드민)
 //   3) getEventDetail(id)     — 단일 이벤트 상세 (참여자 랭킹 포함)
 //   4) engageEvent(...)       — 유저가 자기 함대로 NPC 함대에 교전 신청
-//                                → fleet_battles 생성 후 battleEngine.simulateBattle()
+//                                → fleet_battles 생성 후 battleScheduler.runBattle()
 //                                → 결과를 world_events.hp_current에 반영
 //   5) settleExpiredEvents()  — 만료된 이벤트를 결산 (스케줄러)
 //                                → HP 0이면 'defeated' (보상 분배)
@@ -16,7 +16,7 @@
 // NPC 시드 wallet: 0xnpc0000000000000000000000000000000000000
 // ═══════════════════════════════════════════════════════════════════════
 
-const { pool, getSetting } = require('../db');
+const { pool, getSetting, ensureUser } = require('../db');
 
 const NPC_WALLET = '0xnpc0000000000000000000000000000000000000';
 
@@ -471,10 +471,11 @@ async function distributeRewards(eventId, resolution) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      await ensureUser(client, p.wallet);
 
       // GP + XP 보상
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $2, xp = COALESCE(xp,0) + $3 WHERE wallet_address = $1`,
+        `UPDATE users SET gp_balance = gp_balance + $2, xp = COALESCE(xp,0) + $3 WHERE LOWER(wallet_address) = LOWER($1)`,
         [p.wallet, gp, xp]
       );
 

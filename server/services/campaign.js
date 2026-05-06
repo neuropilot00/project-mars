@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const { pool, ensureUser, awardXP, notifyPlayer } = require('../db');
+const { pool, ensureUser, awardXP, notifyPlayer, logGPActivity } = require('../db');
 
 const CH1_ID = 'mcc_campaign_ch1';
 const CH2_ID = 'mcc_campaign_ch2';
@@ -3683,7 +3683,7 @@ async function getOrCreateCampaignFleet(client, wallet) {
     [wallet]
   );
   if (existing[0]) return existing[0].id;
-  const { rows: nick } = await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [wallet]);
+  const { rows: nick } = await client.query('SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)', [wallet]);
   const name = `${nick[0]?.nickname || 'Commander'} 제1함대`;
   const { rows } = await client.query(
     `INSERT INTO fleets (owner_wallet, name, formation, movement)
@@ -3796,7 +3796,7 @@ async function claimReward(wallet, rewardId) {
 }
 
 async function validateStartConditions(client, wallet, chapter) {
-  const userRows = await client.query('SELECT rank_level FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
+  const userRows = await client.query('SELECT rank_level FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
   const rank = parseInt(userRows.rows[0]?.rank_level || 1, 10);
   if (rank < chapter.requiredLevel) return { error: 'LEVEL_REQUIRED', requiredLevel: chapter.requiredLevel };
 
@@ -4330,11 +4330,7 @@ async function complete(wallet, sessionId) {
       // 실패하지 않도록 SAVEPOINT 로 감싼다 — 보상 일부가 실패해도 진행은 완료시킨다.
       if (rewards.GP > 0) {
         await applyOptionalCampaignReward(client, 'gp_balance', () => client.query(
-          'UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2', [rewards.GP, w]
-        ));
-        await applyOptionalCampaignReward(client, 'gp_activity_log', () => client.query(
-          'INSERT INTO gp_activity_log (wallet, delta, source, note) VALUES ($1,$2,$3,$4)',
-          [w, rewards.GP, 'campaign_reward', progress.quest_id]
+          'UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewards.GP, w]
         ));
       }
       if (rewards.XP > 0) {
@@ -4437,6 +4433,9 @@ async function complete(wallet, sessionId) {
       [sim.success ? 'completed' : 'expired', JSON.stringify(sim.metrics), sessionId]
     );
     await client.query('COMMIT');
+    if (sim.success && rewards.GP > 0 && typeof logGPActivity === 'function') {
+      logGPActivity(w, rewards.GP, 'campaign_reward', progress.quest_id).catch(() => {});
+    }
     if (sim.success) {
       try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(w, 'campaign_complete').catch(()=>{}); } catch(_) {}
     }

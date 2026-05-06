@@ -13,7 +13,7 @@
 //   - getFormationOptions(): UI용 진형/기동 옵션 목록
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 
 // ─── 상수 ───
 
@@ -174,7 +174,7 @@ async function createFleet(walletAddress, options = {}) {
     }
     
     // 유저 닉네임 기반 기본 이름
-    let fleetName = name;
+    let fleetName = typeof name === 'string' ? name.trim() : name;
     if (!fleetName) {
       const { rows: userRows } = await client.query(
         `SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)`,
@@ -188,6 +188,9 @@ async function createFleet(walletAddress, options = {}) {
     // 이름 길이 체크
     if (fleetName.length > 60) {
       throw new Error('NAME_TOO_LONG');
+    }
+    if (fleetName.trim().length === 0) {
+      throw new Error('NAME_EMPTY');
     }
     
     const { rows } = await client.query(`
@@ -225,18 +228,6 @@ async function updateFleet(fleetId, walletAddress, updates) {
     throw new Error('NAME_EMPTY');
   }
   
-  // 소유권 + 전투중 체크
-  const { rows: fleetRows } = await pool.query(
-    `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2)`,
-    [fleetId, walletAddress]
-  );
-  if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
-  
-  // 전투 중엔 이름 변경 차단 (진형/기동은 허용 — 전술 변경 기능)
-  if (fleetRows[0].is_in_battle && name !== undefined) {
-    throw new Error('FLEET_IN_BATTLE');
-  }
-  
   // 동적 UPDATE
   const sets = [];
   const params = [];
@@ -254,17 +245,41 @@ async function updateFleet(fleetId, walletAddress, updates) {
   }
   
   if (sets.length === 0) return { no_changes: true };
-  
-  sets.push(`updated_at = NOW()`);
-  params.push(fleetId);
-  
-  const { rows } = await pool.query(`
-    UPDATE fleets SET ${sets.join(', ')}
-    WHERE id = $${params.length}
-    RETURNING id, name, formation, movement, updated_at
-  `, params);
-  
-  return rows[0];
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 소유권 + 전투중 체크
+    const { rows: fleetRows } = await client.query(
+      `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
+      [fleetId, walletAddress]
+    );
+    if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
+
+    // 전투 중엔 이름 변경 차단 (진형/기동은 허용 — 전술 변경 기능)
+    if (fleetRows[0].is_in_battle && name !== undefined) {
+      throw new Error('FLEET_IN_BATTLE');
+    }
+
+    sets.push(`updated_at = NOW()`);
+    params.push(fleetId);
+    params.push(walletAddress);
+
+    const { rows } = await client.query(`
+      UPDATE fleets SET ${sets.join(', ')}
+      WHERE id = $${params.length - 1} AND LOWER(owner_wallet) = LOWER($${params.length})
+      RETURNING id, name, formation, movement, updated_at
+    `, params);
+
+    await client.query('COMMIT');
+    return rows[0];
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 // ─── 함대 해체 ───
@@ -571,12 +586,7 @@ function getMovementOptions() {
 
 async function getSettingInt(client, key, fallback) {
   try {
-    const { rows } = await client.query(
-      `SELECT value FROM settings WHERE category = 'fleet' AND key = $1`,
-      [key]
-    );
-    if (!rows[0]) return fallback;
-    const val = rows[0].value;
+    const val = await getSetting(key, fallback);
     if (typeof val === 'number') return val;
     if (typeof val === 'string') {
       const cleaned = val.replace(/^"|"$/g, '');

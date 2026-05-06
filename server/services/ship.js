@@ -12,7 +12,7 @@
 //   - checkCompleted()   : 완료된 작업 자동 처리 (스케줄러)
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 
 // ─── 건조 가능 함선 블루프린트 조회 ───
 
@@ -24,7 +24,7 @@ const { pool } = require('../db');
 async function getBlueprints(walletAddress, options = {}) {
   // 유저 파벌 확인
   const { rows: userRows } = await pool.query(
-    `SELECT faction_code, rank_level, gp_balance FROM users WHERE wallet_address = $1`,
+    `SELECT faction_code, rank_level, gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1)`,
     [walletAddress]
   );
   if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -44,7 +44,7 @@ async function getBlueprints(walletAddress, options = {}) {
       -- 서버 생존 함선 수 (Titan 한도 체크)
       (SELECT COUNT(*) FROM ships WHERE ship_type_code = st.code AND is_alive = true) AS server_alive_count,
       -- 내가 가진 수
-      (SELECT COUNT(*) FROM ships WHERE ship_type_code = st.code AND owner_wallet = $1 AND is_alive = true) AS my_count
+      (SELECT COUNT(*) FROM ships WHERE ship_type_code = st.code AND LOWER(owner_wallet) = LOWER($1) AND is_alive = true) AS my_count
     FROM ship_types st
     LEFT JOIN factions f ON f.code = st.faction_code
     WHERE st.is_active = true
@@ -125,7 +125,7 @@ async function getMyShips(walletAddress, options = {}) {
     LEFT JOIN factions f ON f.code = st.faction_code
     LEFT JOIN fleets fl ON fl.id = s.fleet_id
     LEFT JOIN ship_market_listings sml ON sml.ship_id = s.id AND sml.status = 'active'
-    WHERE s.owner_wallet = $1
+    WHERE LOWER(s.owner_wallet) = LOWER($1)
   `;
   const params = [walletAddress];
   
@@ -184,7 +184,7 @@ async function getBuildJobs(walletAddress) {
     FROM ship_build_jobs j
     JOIN ship_types st ON st.code = j.ship_type_code
     LEFT JOIN factions f ON f.code = st.faction_code
-    WHERE j.wallet_address = $1 AND j.status = 'building'
+    WHERE LOWER(j.wallet_address) = LOWER($1) AND j.status = 'building'
     ORDER BY j.completes_at ASC
   `, [walletAddress]);
   
@@ -212,7 +212,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     // 1. 유저 정보
     const { rows: userRows } = await client.query(
       `SELECT wallet_address, faction_code, rank_level, gp_balance
-       FROM users WHERE wallet_address = $1 FOR UPDATE`,
+       FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -263,12 +263,12 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     if (st.max_per_player) {
       const { rows: cntRows } = await client.query(
         `SELECT COUNT(*) AS c FROM ships 
-         WHERE owner_wallet = $1 AND ship_type_code = $2 AND is_alive = true`,
+         WHERE LOWER(owner_wallet) = LOWER($1) AND ship_type_code = $2 AND is_alive = true`,
         [walletAddress, shipTypeCode]
       );
       const { rows: jobCntRows } = await client.query(
         `SELECT COUNT(*) AS c FROM ship_build_jobs 
-         WHERE wallet_address = $1 AND ship_type_code = $2 AND status = 'building'`,
+         WHERE LOWER(wallet_address) = LOWER($1) AND ship_type_code = $2 AND status = 'building'`,
         [walletAddress, shipTypeCode]
       );
       const total = parseInt(cntRows[0].c) + parseInt(jobCntRows[0].c);
@@ -279,11 +279,11 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     
     // 7. 유저 총 함선 수 체크 (기본 200척)
     const { rows: totalCntRows } = await client.query(
-      `SELECT COUNT(*) AS c FROM ships WHERE owner_wallet = $1 AND is_alive = true`,
+      `SELECT COUNT(*) AS c FROM ships WHERE LOWER(owner_wallet) = LOWER($1) AND is_alive = true`,
       [walletAddress]
     );
     const { rows: totalJobCntRows } = await client.query(
-      `SELECT COUNT(*) AS c FROM ship_build_jobs WHERE wallet_address = $1 AND status = 'building'`,
+      `SELECT COUNT(*) AS c FROM ship_build_jobs WHERE LOWER(wallet_address) = LOWER($1) AND status = 'building'`,
       [walletAddress]
     );
     const maxPerPlayer = await getSettingInt(client, 'max_ships_per_player', 200);
@@ -301,7 +301,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     }
     if (gpCost > 0) {
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+        `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [gpCost, walletAddress]
       );
     }
@@ -319,7 +319,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
                COALESCE((
                  SELECT uri.quantity
                  FROM user_resource_inventory uri
-                 WHERE uri.resource_id = r.id AND uri.wallet_address = $1
+                 WHERE uri.resource_id = r.id AND LOWER(uri.wallet_address) = LOWER($1)
                ), 0) AS quantity
         FROM resources r
         WHERE r.code = ANY($2::text[])
@@ -349,7 +349,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
         const spent = await client.query(`
           UPDATE user_resource_inventory
           SET quantity = quantity - $1
-          WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+          WHERE LOWER(wallet_address) = LOWER($2) AND resource_id = $3 AND quantity >= $1
           RETURNING quantity
         `, [need, walletAddress, resourceId]);
         if (spent.rowCount === 0) {
@@ -363,7 +363,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     // 10. fleet_id 확인 (주어졌으면 소유권 확인)
     if (fleetId) {
       const { rows: fleetRows } = await client.query(
-        `SELECT id FROM fleets WHERE id = $1 AND owner_wallet = $2`,
+        `SELECT id FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2)`,
         [fleetId, walletAddress]
       );
       if (!fleetRows[0]) {
@@ -594,7 +594,7 @@ async function cancelBuildJob(jobId, walletAddress) {
     const refundedGp = Math.floor((job.gp_cost || 0) * refundPct / 100);
     if (refundedGp > 0) {
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [refundedGp, walletAddress]
       );
     }
@@ -674,7 +674,7 @@ async function getOrCreateDefaultFleet(client, walletAddress) {
   
   // 없으면 기본 함대 생성
   const { rows: nick } = await client.query(
-    `SELECT nickname FROM users WHERE wallet_address = $1`,
+    `SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)`,
     [walletAddress]
   );
   const name = `${nick[0]?.nickname || 'Commander'} 제1함대`;
@@ -738,7 +738,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
              st.name_ko, st.build_gp_cost
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
-      WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
+      WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
       FOR UPDATE OF s
     `, [shipId, walletAddress]);
 
@@ -786,7 +786,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
 
     // 5. GP 확인
     const { rows: userRows } = await client.query(
-      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -802,7 +802,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
              COALESCE((
                SELECT uri.quantity
                FROM user_resource_inventory uri
-               WHERE uri.resource_id = r.id AND uri.wallet_address = $1
+               WHERE uri.resource_id = r.id AND LOWER(uri.wallet_address) = LOWER($1)
              ), 0) AS quantity
       FROM resources r
       WHERE r.code = 'iron_ore'
@@ -822,7 +822,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
 
     // 7. GP 차감
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [gpCost, walletAddress]
     );
 
@@ -897,7 +897,7 @@ async function chargeShield(walletAddress, shipId, units) {
       SELECT s.id, s.max_hp, s.bonus_hp, s.shield_hp, s.shield_max,
              COALESCE(s.is_market_listed, false) AS is_market_listed
       FROM ships s
-      WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
+      WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
       FOR UPDATE OF s
     `, [shipId, walletAddress]);
 
@@ -930,7 +930,7 @@ async function chargeShield(walletAddress, shipId, units) {
 
     // 4. GP 확인
     const { rows: userRows } = await client.query(
-      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -942,7 +942,7 @@ async function chargeShield(walletAddress, shipId, units) {
 
     // 5. GP 차감
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [gpCost, walletAddress]
     );
 
@@ -1132,7 +1132,7 @@ async function consumeShipUpgradeMaterial(client, walletAddress, materialCode, q
            COALESCE(uri.quantity, 0) AS quantity
     FROM resources r
     LEFT JOIN user_resource_inventory uri
-      ON uri.resource_id = r.id AND uri.wallet_address = $1
+      ON uri.resource_id = r.id AND LOWER(uri.wallet_address) = LOWER($1)
     WHERE r.code = $2
     LIMIT 1
   `, [walletAddress, materialCode]);
@@ -1171,7 +1171,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
              st.base_atk, st.base_def, st.base_speed
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
-      WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
+      WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
       FOR UPDATE OF s
     `, [shipId, walletAddress]);
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
@@ -1192,7 +1192,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     }
 
     const { rows: userRows } = await client.query(
-      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -1222,7 +1222,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     await consumeShipUpgradeMaterial(client, walletAddress, offer.material_code, offer.material_qty);
 
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [finalGpCost, walletAddress]
     );
 
@@ -1543,6 +1543,11 @@ async function buyShipListing(walletAddress, listingId) {
     await ensureFleetHasFlagship(client, buyerFleetId);
     await client.query('COMMIT');
 
+    try {
+      const { logGPActivity } = require('../db');
+      logGPActivity(buyer, -price, 'ship_market_buy', `Ship listing #${listingId}`).catch(() => {});
+      logGPActivity(seller, sellerReceive, 'ship_market_sell', `Ship listing #${listingId}`).catch(() => {});
+    } catch (_) {}
     logFleetGpActivity(buyer, 'ship_market_buy', -price, { listing_id: listingId, ship_id: listing.ship_id });
     try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(buyer, 'market_buy').catch(()=>{}); } catch(_) {}
     logFleetGpActivity(seller, 'ship_market_sell', sellerReceive, { listing_id: listingId, ship_id: listing.ship_id, fee_gp: fee });
@@ -1559,12 +1564,7 @@ async function buyShipListing(walletAddress, listingId) {
 
 async function getSettingInt(client, key, fallback) {
   try {
-    const { rows } = await client.query(
-      `SELECT value FROM settings WHERE category = 'fleet' AND key = $1`,
-      [key]
-    );
-    if (!rows[0]) return fallback;
-    const val = rows[0].value;
+    const val = await getSetting(key, fallback);
     if (typeof val === 'number') return val;
     if (typeof val === 'string') {
       const cleaned = val.replace(/^"|"$/g, '');
@@ -1577,12 +1577,7 @@ async function getSettingInt(client, key, fallback) {
 
 async function getSettingNumber(client, key, fallback) {
   try {
-    const { rows } = await client.query(
-      `SELECT value FROM settings WHERE category = 'fleet' AND key = $1`,
-      [key]
-    );
-    if (!rows[0]) return fallback;
-    const raw = rows[0].value;
+    const raw = await getSetting(key, fallback);
     const val = typeof raw === 'string' ? raw.replace(/^"|"$/g, '') : raw;
     const n = Number(val);
     return Number.isFinite(n) ? n : fallback;
@@ -1591,12 +1586,7 @@ async function getSettingNumber(client, key, fallback) {
 
 async function getSettingText(client, key, fallback) {
   try {
-    const { rows } = await client.query(
-      `SELECT value FROM settings WHERE category = 'fleet' AND key = $1`,
-      [key]
-    );
-    if (!rows[0]) return fallback;
-    const raw = rows[0].value;
+    const raw = await getSetting(key, fallback);
     if (raw === null || raw === undefined) return fallback;
     return String(raw).replace(/^"|"$/g, '');
   } catch { return fallback; }
@@ -1683,7 +1673,7 @@ async function scrapShip(walletAddress, shipId) {
     // GP 환불
     if (gpRefund > 0) {
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [gpRefund, walletAddress.toLowerCase()]
       );
     }

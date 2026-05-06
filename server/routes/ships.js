@@ -321,13 +321,10 @@ router.post('/build-jobs/:id/complete', requireAuth, async (req, res) => {
     // 소유권 확인
     const { pool } = require('../db');
     const { rows } = await pool.query(
-      `SELECT wallet_address FROM ship_build_jobs WHERE id = $1`,
-      [jobId]
+      `SELECT wallet_address FROM ship_build_jobs WHERE id = $1 AND LOWER(wallet_address) = LOWER($2)`,
+      [jobId, wallet]
     );
     if (!rows[0]) return res.status(404).json({ error: 'JOB_NOT_FOUND' });
-    if (rows[0].wallet_address !== wallet) {
-      return res.status(403).json({ error: 'NOT_OWNER' });
-    }
 
     const result = await shipService.completeBuildJob(jobId);
     res.json(result);
