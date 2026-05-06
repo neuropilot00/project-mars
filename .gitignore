@@ -10,6 +10,10 @@ assets/*
 !assets/lib/
 !assets/avatars/
 !assets/nav/
+!assets/base/
+assets/base/*
+!assets/base/*.png
+!assets/base/*.jpg
 !assets/tactical-lab-v11.html
 !assets/campaign-editor.html
 !assets/ships/
