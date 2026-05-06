@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v6.24 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.25 / 2026-05-06)
+
+## ✅ v6.25 로컬라이징 19차 완성 — CA모달/전투허브/리플레이공유/파벌설명
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 정적 HTML — 전투 허브 타이틀/탭/버튼/부제목 | ✅ | data-i18n + 4개 언어 키 |
+| 정적 HTML — 전투 선언 다이얼로그 라벨/placeholder | ✅ | data-i18n + 4개 언어 키 |
+| 정적 HTML — Commander Actions 모달 전체 (15항목) | ✅ | data-i18n + 4개 언어 키 |
+| 정적 HTML — AI 연습전 설명 | ✅ | data-i18n + 4개 언어 키 |
+| 정적 HTML — 토너먼트 개최 버튼 | ✅ | data-i18n + 4개 언어 키 |
+| 동적 JS — 전투 선언 confirm 타이틀/본문/버튼 | ✅ | 4개 언어 |
+| 동적 JS — 리플레이 공유 gameInput + 에러코드 3종 + 링크 다이얼로그 + toast | ✅ | 4개 언어 |
+| 동적 JS — 토너먼트 개최 gameInput + 참가비 gameInput | ✅ | 4개 언어 |
+| 동적 JS — Ship Registry FACTION_META desc 3종 | ✅ | 4개 언어 |
+
+
 
 ## ✅ v6.24 로컬라이징 18차 완성 — 전투/토너먼트/리플레이 정적 HTML
 

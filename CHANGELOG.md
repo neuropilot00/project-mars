@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 로컬라이징 19차 — CA모달/전투허브/리플레이공유/파벌설명 (루프 19차)
+
+### 동적 JS + 정적 HTML 4개 언어 확장 (index.html) — 배치 19 (38항목)
+- 전투 선언 허브 정적 HTML: 타이틀/탭(최근·내기록)/선언버튼/부제목 data-i18n
+- 전투 선언 달이얼로그: 내함대/추천상대/상대검색 라벨, 검색 placeholder data-i18n
+- Commander Actions 모달 전체: 부제목/프리셋 라벨/SNIPER 액션/카드설명4종/파라미터라벨3종/힌트4종/선택수/버튼2개 data-i18n
+- AI 연습전 설명 div data-i18n
+- 토너먼트 개최 버튼 span data-i18n
+- JS — 전투 선언 gameConfirm 타이틀/본문/확인 4개 언어
+- JS — 리플레이 공유 gameInput 타이틀/레이블/placeholder 4개 언어
+- JS — 리플레이 에러코드 3종 (NOT_PARTICIPANT/BATTLE_NOT_ENDED/REPLAY_LIMIT_REACHED) 4개 언어
+- JS — 리플레이 공유 링크 gameInput + 완료 toast 4개 언어
+- JS — 토너먼트 개최 gameInput 타이틀/레이블/placeholder + 참가비 gameInput 4개 언어
+- JS — Ship Registry FACTION_META desc 3종 (mcc/fsp/cv) 4개 언어
+- i18n 4개 언어 섹션에 30개 키 추가
+
 ## 2026-05-06 — 로컬라이징 18차 — 전투/토너먼트/리플레이 정적 HTML (루프 18차)
 
 ### 정적 HTML data-i18n 속성 + I18N 4개 언어 키 추가 (index.html) — 배치 18 (11개 항목)
