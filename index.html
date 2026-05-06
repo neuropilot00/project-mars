@@ -37925,7 +37925,7 @@ function loadCapsuleRevealed() {
 }
 
 function buryCapsule() {
-  var wallet = window._walletAddress;
+  var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   var msg    = ((document.getElementById('capsuleMsgInput')||{}).value || '').trim();
   var days   = parseInt((document.getElementById('capsuleDaysInput')||{}).value, 10);
   if (!wallet) { showToast(t('connect_wallet')||'Connect wallet first', 'error'); return; }
@@ -38478,7 +38478,7 @@ function loadClaimDescriptionPreview() {
 function loadMyTdescs() {
   var listEl = document.getElementById('myTdescList');
   if (!listEl) return;
-  var wallet = window._walletAddress;
+  var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   if (!wallet) { listEl.textContent = '—'; return; }
   listEl.innerHTML = '<span style="color:var(--tx3)">Loading…</span>';
   fetch('/api/tdesc/my?wallet='+encodeURIComponent(wallet)).then(function(r){return r.json();}).then(function(rows){

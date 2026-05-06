@@ -1,5 +1,12 @@
 # OCCUPY MARS — Codebase Audit (v6.74 / 2026-05-07)
 
+## ✅ v6.75 버그수정 — window._walletAddress 항상 undefined (2곳)
+
+| 함수 | 버그 | 상태 | 수정 내용 |
+|------|------|------|-----------|
+| `buryCapsule()` | `window._walletAddress` 읽기 — 코드베이스 어디에도 이 전역 변수를 설정하는 코드 없음. 항상 `undefined` → `if (!wallet)` guard가 항상 참 → "Connect wallet first" 표시. 타임캡슐 매장 기능 완전 불능 | ✅ 수정 | `((walletState&&walletState.address)\|\|getMyWallet()\|\|'').toLowerCase()` |
+| `loadMyTdescs()` | 동일한 `window._walletAddress` → 항상 `undefined` → 내 영토 설명 목록이 항상 빈 `'—'` 표시 | ✅ 수정 | 동일 패턴 적용 |
+
 ## ✅ v6.74 버그수정 — gameConfirm 콜백 패턴 전면 수정 + GP 비용 표시 (9개 함수)
 
 | 함수 | 버그 | 상태 | 수정 내용 |

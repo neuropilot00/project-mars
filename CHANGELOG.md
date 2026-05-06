@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.75 — window._walletAddress 항상 undefined 버그 수정 (2곳)
+
+### index.html (2곳)
+- `buryCapsule()`: `window._walletAddress` (항상 undefined, 코드베이스 어디서도 할당 없음) → `((walletState&&walletState.address)||getMyWallet()||'').toLowerCase()`. 타임캡슐 묻기 기능이 항상 "Connect wallet first" 오류를 반환하던 버그 수정.
+- `loadMyTdescs()`: 동일한 `window._walletAddress` 사용 → 동일 패턴으로 수정. 내 영토 설명 목록이 항상 `'—'` (빈 상태)로 표시되던 버그 수정.
+
+---
+
 ## 2026-05-07 v6.74 — gameConfirm 콜백 패턴 전면 수정 + GP 비용 표시
 
 ### index.html (9개 함수)
