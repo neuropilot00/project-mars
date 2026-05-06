@@ -6330,7 +6330,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <!-- Header -->
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(91,184,232,.06);border-bottom:1px solid rgba(91,184,232,.15)">
             <span style="font-size:11px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="ops_board_title">📋 오늘의 작전 보드</span>
-            <span id="opsBoardCountdown" style="font-size:10px;color:var(--gold);font-family:var(--fn)">리셋까지 --:--:--</span>
+            <span id="opsBoardCountdown" style="font-size:10px;color:var(--gold);font-family:var(--fn)">Reset --:--:--</span>
           </div>
           <!-- Legend -->
           <div style="padding:5px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px;color:var(--tx3);display:flex;gap:14px">
@@ -6338,7 +6338,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
           <!-- Mission list -->
           <div id="opsBoardContent" style="padding:6px 12px">
-            <span style="font-size:10px;color:var(--tx3)">로딩 중…</span>
+            <span style="font-size:10px;color:var(--tx3)" data-i18n="loading_dots">로딩 중…</span>
           </div>
           <!-- Weekly progress -->
           <div id="opsBoardWeekly" style="padding:7px 12px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.15)"></div>
@@ -6876,7 +6876,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- ⚔️ GP DUELS → PVP 탭으로 이전 -->
         <div style="padding:8px 10px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
           <span style="font-size:9px;color:#ff8c42;letter-spacing:2px;font-family:var(--fn);font-weight:700">⚔️ GP DUELS</span>
-          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700">⚔ PVP 탭으로 →</button>
+          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700" data-i18n="pvp_goto_tab">⚔ PVP 탭으로 →</button>
         </div>
 
         <!-- 🛡️ ALLIANCE SECTION -->
@@ -7582,7 +7582,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- Sector Siege → PVP 탭으로 이전 -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="base-section-title" style="color:var(--red);margin-bottom:0">⚔️ SECTOR SIEGE</div>
-          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.4);color:var(--red);padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700">⚔ PVP 탭에서 →</button>
+          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.4);color:var(--red);padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700" data-i18n="pvp_from_tab">⚔ PVP 탭에서 →</button>
         </div>
 
         <!-- My Titles -->
@@ -7607,7 +7607,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- Naval Battles → PVP 탭으로 이전 -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="base-section-title" style="color:#5cbbff;margin-bottom:0">⚔️ NAVAL BATTLES</div>
-          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(92,187,255,.12);border:1px solid rgba(92,187,255,.4);color:#5cbbff;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700">⚔ PVP 탭에서 →</button>
+          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(92,187,255,.12);border:1px solid rgba(92,187,255,.4);color:#5cbbff;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700" data-i18n="pvp_from_tab">⚔ PVP 탭에서 →</button>
         </div>
 
         <!-- Hall of Fame -->
@@ -7714,7 +7714,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <!-- GP Donate -->
               <div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-                  <span style="font-size:8px;color:var(--tx3);font-family:var(--fn)">💰 GP 기부</span>
+                  <span style="font-size:8px;color:var(--tx3);font-family:var(--fn)" data-i18n="guild_gp_donate_lbl">💰 GP 기부</span>
                   <span style="font-size:9px;color:var(--gold);font-family:var(--fn)" id="guildDonateMyGP">내 GP: 0</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px">
@@ -7995,8 +7995,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="baseVipPanel" style="display:none">
           <!-- VIP 설명 배너 -->
           <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(206,147,216,.12),rgba(206,147,216,.03));border:1px solid rgba(206,147,216,.25)">
-            <div style="font-size:11px;color:#ce93d8;font-weight:700;margin-bottom:4px">💫 VIP 패스란?</div>
-            <div style="font-size:10px;color:var(--tx2);line-height:1.6">
+            <div style="font-size:11px;color:#ce93d8;font-weight:700;margin-bottom:4px" data-i18n="vip_pass_title">💫 VIP 패스란?</div>
+            <div style="font-size:10px;color:var(--tx2);line-height:1.6" data-i18n="vip_pass_desc">
               PP(플래닛 포인트)로 구매하는 <b style="color:#ce93d8">기간제 프리미엄 구독</b>입니다.<br>
               • ⛏ <b>채굴 속도 +%</b> (등급별 상이)<br>
               • 💰 <b>GP 획득량 보너스</b><br>
@@ -8029,8 +8029,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="baseLuckyBoxPanel" style="display:none">
           <!-- 크레이트 설명 배너 -->
           <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,204,2,.1),rgba(255,204,2,.02));border:1px solid rgba(255,204,2,.25)">
-            <div style="font-size:11px;color:#ffcc02;font-weight:700;margin-bottom:4px">📦 크레이트란?</div>
-            <div style="font-size:10px;color:var(--tx2);line-height:1.6">
+            <div style="font-size:11px;color:#ffcc02;font-weight:700;margin-bottom:4px" data-i18n="crate_what_title">📦 크레이트란?</div>
+            <div style="font-size:10px;color:var(--tx2);line-height:1.6" data-i18n="crate_what_desc">
               GP 또는 PP로 구매하는 <b style="color:#ffcc02">랜덤 아이템 상자</b>입니다.<br>
               • 🎯 <b>방어 아이템</b> — 영토 강화·방어 장치<br>
               • ⚔ <b>전투 아이템</b> — 함선 강화·공격 부스트<br>
@@ -8128,8 +8128,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="basePrestigePanel" style="display:none">
           <!-- 프레스티지 설명 배너 -->
           <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,213,79,.1),rgba(255,213,79,.02));border:1px solid rgba(255,213,79,.25)">
-            <div style="font-size:11px;color:#ffd54f;font-weight:700;margin-bottom:4px">⭐ 프레스티지란?</div>
-            <div style="font-size:10px;color:var(--tx2);line-height:1.6">
+            <div style="font-size:11px;color:#ffd54f;font-weight:700;margin-bottom:4px" data-i18n="prestige_what_title">⭐ 프레스티지란?</div>
+            <div style="font-size:10px;color:var(--tx2);line-height:1.6" data-i18n="prestige_what_desc">
               GP를 소모해 <b style="color:#ffd54f">영구 랭킹 점수</b>를 쌓는 시스템입니다.<br>
               • 🪨 Colonist → 🥉 Pioneer → 🥈 Commander → 🥇 Vanguard → 💎 Sovereign<br>
               • 높은 등급일수록 <b>리더보드 상위 노출</b> + 전용 칭호·프레임 획득<br>
@@ -8627,7 +8627,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- ═══ PROFILE CUSTOMIZE (collapsible) ═══ -->
         <div class="prof-section" id="profSecCustomize">
           <div class="prof-section-header" onclick="_togProfSec('profSecCustomize')">
-            <span class="chevron">▸</span><span>✏️ 프로필 꾸미기</span>
+            <span class="chevron">▸</span><span data-i18n="prof_customize_title">✏️ 프로필 꾸미기</span>
           </div>
           <div class="prof-section-body" style="display:none">
             <!-- Motto -->
@@ -17318,6 +17318,14 @@ var I18N = {
     pvp_declare_btn: '⚔ Declare Battle', pvp_tab_rec: '🎯 Recommended', pvp_tab_bounty: '💰 Bounty', pvp_tab_conflict: '🔥 Sector Conflict',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 Upgrading...',
     we_select_fleet: 'Select fleet...', we_fleet_min: 'At least 1 ship required',
+    pvp_goto_tab: '⚔ PVP TAB →', pvp_from_tab: '⚔ IN PVP TAB →',
+    guild_gp_donate_lbl: '💰 GP Donate', prof_customize_title: '✏️ Customize Profile',
+    vip_pass_title: '💫 What is VIP Pass?',
+    vip_pass_desc: 'A <b style="color:#ce93d8">time-limited premium subscription</b> purchased with PP (Planet Points).<br>• ⛏ <b>Mining Speed +%</b> (varies by tier)<br>• 💰 <b>GP Acquisition Bonus</b><br>• 🎁 <b>Monthly Crate</b><br>• 🏆 <b>VIP Exclusive Title/Avatar</b><br>PP can be obtained by purchase or as season rewards.',
+    crate_what_title: '📦 What is a Crate?',
+    crate_what_desc: 'A <b style="color:#ffcc02">random item box</b> purchased with GP or PP.<br>• 🎯 <b>Defense Items</b> — Territory reinforcement · defense devices<br>• ⚔ <b>Combat Items</b> — Ship upgrades · attack boosts<br>• 💎 <b>Cosmetics</b> — Titles, avatars · territory frames<br>• ✨ <b>Rare Items</b> — Elite tier at low chance<br>Opened items can be checked in inventory and sold on the market.',
+    prestige_what_title: '⭐ What is Prestige?',
+    prestige_what_desc: 'A system that consumes GP to accumulate <b style="color:#ffd54f">permanent ranking score</b>.<br>• 🪨 Colonist → 🥉 Pioneer → 🥈 Commander → 🥇 Vanguard → 💎 Sovereign<br>• Higher ranks gain <b>leaderboard visibility</b> + exclusive titles · frames<br>• Prestige points are <b style="color:#ff8a80">permanent</b> with no downgrade<br>• <b>Prestige frames</b> can also be applied to territory claims',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -18177,6 +18185,14 @@ var I18N = {
     pvp_declare_btn: '⚔ 전투 선언', pvp_tab_rec: '🎯 추천 상대', pvp_tab_bounty: '💰 현상금', pvp_tab_conflict: '🔥 섹터 분쟁',
     wb_title: '🎯 WAR BETTING · 전쟁 베팅', forge_upgrading: '🔨 강화 중...',
     we_select_fleet: '함대 선택...', we_fleet_min: '최소 1척 이상의 함선이 있어야 합니다',
+    pvp_goto_tab: '⚔ PVP 탭으로 →', pvp_from_tab: '⚔ PVP 탭에서 →',
+    guild_gp_donate_lbl: '💰 GP 기부', prof_customize_title: '✏️ 프로필 꾸미기',
+    vip_pass_title: '💫 VIP 패스란?',
+    vip_pass_desc: 'PP(플래닛 포인트)로 구매하는 <b style="color:#ce93d8">기간제 프리미엄 구독</b>입니다.<br>• ⛏ <b>채굴 속도 +%</b> (등급별 상이)<br>• 💰 <b>GP 획득량 보너스</b><br>• 🎁 <b>월간 크레이트 지급</b><br>• 🏆 <b>VIP 전용 칭호/아바타</b><br>PP는 실제 구매하거나 시즌 보상으로 획득합니다.',
+    crate_what_title: '📦 크레이트란?',
+    crate_what_desc: 'GP 또는 PP로 구매하는 <b style="color:#ffcc02">랜덤 아이템 상자</b>입니다.<br>• 🎯 <b>방어 아이템</b> — 영토 강화·방어 장치<br>• ⚔ <b>전투 아이템</b> — 함선 강화·공격 부스트<br>• 💎 <b>코스메틱</b> — 칭호·아바타·영토 프레임<br>• ✨ <b>희귀 아이템</b> — 낮은 확률로 엘리트 등급<br>열린 아이템은 인벤토리에서 확인하고 마켓에 판매할 수 있습니다.',
+    prestige_what_title: '⭐ 프레스티지란?',
+    prestige_what_desc: 'GP를 소모해 <b style="color:#ffd54f">영구 랭킹 점수</b>를 쌓는 시스템입니다.<br>• 🪨 Colonist → 🥉 Pioneer → 🥈 Commander → 🥇 Vanguard → 💎 Sovereign<br>• 높은 등급일수록 <b>리더보드 상위 노출</b> + 전용 칭호·프레임 획득<br>• 프레스티지 포인트는 <b style="color:#ff8a80">영구적</b>이며 다운그레이드 없음<br>• 영토 클레임에도 <b>프레스티지 프레임</b>을 적용할 수 있습니다',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -19023,6 +19039,14 @@ var I18N = {
     pvp_declare_btn: '⚔ 戦闘宣言', pvp_tab_rec: '🎯 推薦相手', pvp_tab_bounty: '💰 賞金', pvp_tab_conflict: '🔥 セクター紛争',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 強化中...',
     we_select_fleet: '艦隊選択...', we_fleet_min: '最低1隻の艦船が必要です',
+    pvp_goto_tab: '⚔ PVPタブへ →', pvp_from_tab: '⚔ PVPタブで →',
+    guild_gp_donate_lbl: '💰 GP寄付', prof_customize_title: '✏️ プロフィール編集',
+    vip_pass_title: '💫 VIPパスとは？',
+    vip_pass_desc: 'PP（プラネットポイント）で購入する<b style="color:#ce93d8">期間限定プレミアムサブスクリプション</b>です。<br>• ⛏ <b>採掘速度 +%</b>（等級により異なる）<br>• 💰 <b>GP獲得量ボーナス</b><br>• 🎁 <b>月間クレート支給</b><br>• 🏆 <b>VIP専用称号・アバター</b><br>PPは購入またはシーズン報酬で獲得できます。',
+    crate_what_title: '📦 クレートとは？',
+    crate_what_desc: 'GPまたはPPで購入する<b style="color:#ffcc02">ランダムアイテムボックス</b>です。<br>• 🎯 <b>防衛アイテム</b> — 領土強化・防衛装置<br>• ⚔ <b>戦闘アイテム</b> — 艦船強化・攻撃ブースト<br>• 💎 <b>コスメティック</b> — 称号・アバター・領土フレーム<br>• ✨ <b>レアアイテム</b> — 低確率でエリート等級<br>開けたアイテムはインベントリで確認しマーケットで販売できます。',
+    prestige_what_title: '⭐ プレスティージとは？',
+    prestige_what_desc: 'GPを消費して<b style="color:#ffd54f">永久ランキングスコア</b>を積み上げるシステムです。<br>• 🪨 Colonist → 🥉 Pioneer → 🥈 Commander → 🥇 Vanguard → 💎 Sovereign<br>• 高い等級ほど<b>リーダーボード上位表示</b>＋専用称号・フレーム獲得<br>• プレスティージポイントは<b style="color:#ff8a80">永久</b>でダウングレードなし<br>• 領土クレームにも<b>プレスティージフレーム</b>を適用できます',
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -19869,6 +19893,14 @@ var I18N = {
     pvp_declare_btn: '⚔ 宣战', pvp_tab_rec: '🎯 推荐对手', pvp_tab_bounty: '💰 赏金', pvp_tab_conflict: '🔥 区域冲突',
     wb_title: '🎯 WAR BETTING · 战争下注', forge_upgrading: '🔨 强化中...',
     we_select_fleet: '选择舰队...', we_fleet_min: '至少需要1艘舰船',
+    pvp_goto_tab: '⚔ PVP标签 →', pvp_from_tab: '⚔ 在PVP标签 →',
+    guild_gp_donate_lbl: '💰 GP捐赠', prof_customize_title: '✏️ 编辑个人资料',
+    vip_pass_title: '💫 什么是VIP通行证？',
+    vip_pass_desc: '使用PP（星球积分）购买的<b style="color:#ce93d8">限时高级订阅</b>。<br>• ⛏ <b>采矿速度 +%</b>（按等级不同）<br>• 💰 <b>GP获取量加成</b><br>• 🎁 <b>每月箱子发放</b><br>• 🏆 <b>VIP专属称号/头像</b><br>PP可通过购买或赛季奖励获得。',
+    crate_what_title: '📦 什么是箱子？',
+    crate_what_desc: '使用GP或PP购买的<b style="color:#ffcc02">随机物品箱</b>。<br>• 🎯 <b>防御道具</b> — 领地强化·防御装置<br>• ⚔ <b>战斗道具</b> — 舰船强化·攻击增益<br>• 💎 <b>外观</b> — 称号·头像·领地框架<br>• ✨ <b>稀有道具</b> — 低概率精英等级<br>开启的道具可在物品栏查看并在市场出售。',
+    prestige_what_title: '⭐ 什么是威望？',
+    prestige_what_desc: '消耗GP积累<b style="color:#ffd54f">永久排名分数</b>的系统。<br>• 🪨 Colonist → 🥉 Pioneer → 🥈 Commander → 🥇 Vanguard → 💎 Sovereign<br>• 等级越高<b>排行榜曝光度越高</b>＋专属称号·框架<br>• 威望积分<b style="color:#ff8a80">永久</b>，不会下降<br>• 领地认领也可以应用<b>威望框架</b>',
   }
 };
 

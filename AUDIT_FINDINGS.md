@@ -1,4 +1,30 @@
-# OCCUPY MARS — Codebase Audit (v6.31 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.33 / 2026-05-06)
+
+## ✅ v6.33 로컬라이징 27차 완성 — ops카운트/PVP탭/길드기부/프로필헤더
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 정적 HTML — Ops 카운트다운 fallback 한국어→중립 EN | ✅ | JS가 동적으로 LANG ternary 처리 |
+| 정적 HTML data-i18n — Ops 보드 loading_dots | ✅ | 기존 loading_dots 키 재사용 |
+| 정적 HTML data-i18n — PVP 탭 이동 버튼 3개 | ✅ | pvp_goto_tab/pvp_from_tab |
+| 정적 HTML data-i18n — 길드 GP 기부 라벨 | ✅ | guild_gp_donate_lbl |
+| 정적 HTML data-i18n — 프로필 꾸미기 헤더 | ✅ | prof_customize_title |
+| i18n 4개 언어 — 4개 신규 키 추가 | ✅ | pvp_goto_tab/pvp_from_tab/guild_gp_donate_lbl/prof_customize_title |
+| 한국어 전용 UI 문자열 — 정적 HTML 전체 완료 | ✅ | 남은 한국어=lang메뉴+data-i18n fallback+i18n KO섹션 값 |
+
+
+
+## ✅ v6.32 로컬라이징 26차 완성 — VIP/크레이트/프레스티지 설명 패널
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 정적 HTML data-i18n — VIP 패스 타이틀 + 설명 div | ✅ | vip_pass_title/vip_pass_desc |
+| 정적 HTML data-i18n — 크레이트 타이틀 + 설명 div | ✅ | crate_what_title/crate_what_desc |
+| 정적 HTML data-i18n — 프레스티지 타이틀 + 설명 div | ✅ | prestige_what_title/prestige_what_desc |
+| i18n 4개 언어 — 6개 신규 키 추가 | ✅ | HTML 포함 desc 키 → applyI18n() innerHTML 처리 |
+| data-i18n 한국어 fallback content 유지 (div 내부) | ✅ | applyI18n()이 즉시 덮어씀 |
+
+
 
 ## ✅ v6.31 로컬라이징 25차 완성 — 영토정체성/섹터라벨/WE모달/카운트접미사
 

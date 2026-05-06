@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 로컬라이징 27차 — ops카운트/PVP탭버튼/길드기부/프로필헤더 (루프 27차)
+
+### 정적 HTML data-i18n + i18n 키 추가 (index.html) — 배치 27 (11항목)
+- Ops 카운트다운 정적 한국어 fallback → 영어 중립 placeholder (JS가 동적으로 LANG처리)
+- Ops 보드 loading span data-i18n="loading_dots" 처리
+- PVP 탭 이동 버튼 3개 (GP Duels/Sector Siege/Naval Battles) data-i18n 처리
+- 길드 GP 기부 라벨 data-i18n 처리
+- 프로필 꾸미기 섹션 헤더 data-i18n 처리
+- i18n 4개 언어 섹션에 4개 키 추가 (pvp_goto_tab/pvp_from_tab/guild_gp_donate_lbl/prof_customize_title)
+
+## 2026-05-06 — 로컬라이징 26차 — VIP/크레이트/프레스티지 설명 패널 (루프 26차)
+
+### 정적 HTML data-i18n + i18n 키 추가 (index.html) — 배치 26 (7항목)
+- VIP 패스 설명 배너 타이틀 + 설명 div data-i18n 처리
+- 크레이트 설명 배너 타이틀 + 설명 div data-i18n 처리
+- 프레스티지 설명 배너 타이틀 + 설명 div data-i18n 처리
+- i18n 4개 언어 섹션에 6개 키 추가 (vip_pass_title/vip_pass_desc/crate_what_title/crate_what_desc/prestige_what_title/prestige_what_desc)
+- 모든 HTML 설명 desc 키는 applyI18n()이 innerHTML로 처리 (< 포함 값 자동 감지)
+
 ## 2026-05-06 — 로컬라이징 25차 — 영토정체성/섹터라벨/WE모달/카운트/로그인토스트 (루프 25차)
 
 ### 정적 HTML data-i18n + 동적 JS LANG 4개 언어 확장 (index.html) — 배치 25 (19항목)
