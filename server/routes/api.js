@@ -2465,7 +2465,9 @@ router.get('/sectors', readLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  GET /api/sectors/:id — single sector detail
 // ══════════════════════════════════════════════════
-router.get('/sectors/:id', async (req, res) => {
+router.get('/sectors/:id', async (req, res, next) => {
+  // 'control' 등 특수 경로는 뒤에 등록된 정적 라우트로 넘김 (라우트 순서 충돌 방지)
+  if (req.params.id === 'control') return next();
   try {
     const sectorId = parseInt(req.params.id);
     if (isNaN(sectorId)) return res.status(400).json({ error: 'Invalid sector ID' });
