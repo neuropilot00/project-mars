@@ -1,5 +1,10 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.64 — Void Raider ENGAGE 지갑 인증 누락 수정
+
+### index.html (1곳)
+- `confirmWeEngage()`: `Authorization: Bearer` 헤더만 전송해, JWT 없이 지갑만 연결된 유저가 교전 시 `wallet_required` 오류 수신. `x-wallet` 헤더 + body `wallet` 필드도 함께 전송하도록 수정.
+
 ## 2026-05-07 v6.63 — Fleet Command 모달 텍스트 깨짐 수정
 
 ### index.html (3곳)

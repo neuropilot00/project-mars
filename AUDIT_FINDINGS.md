@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v6.63 / 2026-05-07)
 
+## ✅ v6.64 버그수정 — Void Raider ENGAGE 지갑 인증 누락
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `confirmWeEngage()` — JWT `Authorization` 헤더만 전송. 이메일 로그인(JWT) 없이 지갑만 연결된 유저가 교전 시 서버 `wallet_required` 반환 | ✅ 수정 | `x-wallet` 헤더 + body `wallet` 필드 추가. worldEvents `/engage` 라우트는 JWT fallback으로 x-wallet도 수락 |
+
 ## ✅ v6.63 버그수정 — Fleet Command 모달 텍스트 깨짐 (정적 HTML에 JS 표현식)
 
 | 항목 | 상태 | 비고 |

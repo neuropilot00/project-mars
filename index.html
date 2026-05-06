@@ -23084,13 +23084,14 @@ async function confirmWeEngage() {
 
   try {
     var tok = localStorage.getItem('pw_token');
+    var weWallet = (walletState && walletState.address) || '';
     var r = await fetch('/api/world-events/' + eventId + '/engage', {
       method: 'POST',
-      headers: {
+      headers: Object.assign({
         'Content-Type': 'application/json',
         'Authorization': tok ? 'Bearer ' + tok : ''
-      },
-      body: JSON.stringify({ fleet_id: parseInt(fleetId) })
+      }, weWallet ? { 'x-wallet': weWallet } : {}),
+      body: JSON.stringify({ fleet_id: parseInt(fleetId), wallet: weWallet })
     });
     var d = await r.json();
     if (!r.ok || d.error) {
