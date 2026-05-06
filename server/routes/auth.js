@@ -804,9 +804,9 @@ router.post('/delete-account', async (req, res) => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
     const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'dev-secret');
     await client.query('BEGIN');
-    // Release all territories
-    await client.query('UPDATE pixels SET owner = NULL WHERE owner = (SELECT wallet FROM users WHERE id = $1)', [decoded.userId]);
-    await client.query("UPDATE claims SET status = 'abandoned' WHERE wallet = (SELECT wallet FROM users WHERE id = $1)", [decoded.userId]);
+    // Release all territories (users.wallet_address, claims uses owner+deleted_at)
+    await client.query('UPDATE pixels SET owner = NULL WHERE owner = (SELECT wallet_address FROM users WHERE id = $1)', [decoded.userId]);
+    await client.query("UPDATE claims SET deleted_at = NOW() WHERE LOWER(owner) = LOWER((SELECT wallet_address FROM users WHERE id = $1)) AND deleted_at IS NULL", [decoded.userId]);
     // Zero out balances
     await client.query('UPDATE users SET pp_balance = 0, usdt_balance = 0, is_active = false WHERE id = $1', [decoded.userId]);
     await client.query('COMMIT');
