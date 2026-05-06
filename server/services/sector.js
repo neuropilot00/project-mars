@@ -295,8 +295,8 @@ async function checkEntryRequirementBySectorId(wallet, sectorId) {
   if (sec.tier === 'core' && reqMid > 0) {
     const mr = await pool.query(
       `SELECT COUNT(*)::int AS cnt FROM claims c
-       JOIN sectors s ON s.id = c.sector_id
-       WHERE LOWER(c.owner) = LOWER($1) AND s.tier = 'mid'`,
+       JOIN sector_definitions sd ON sd.code = c.sector_code
+       WHERE LOWER(c.owner) = LOWER($1) AND sd.sector_type = 'mid'`,
       [wallet]
     );
     const midCnt = parseInt(mr.rows[0]?.cnt || 0);

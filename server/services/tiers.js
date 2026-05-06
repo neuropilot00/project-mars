@@ -46,7 +46,7 @@ async function getTier(claimId) {
 
 async function getMyTiers(wallet) {
   const r = await pool.query(
-    `SELECT tt.*, c.sector_id
+    `SELECT tt.*, c.sector_code AS sector_id
        FROM territory_tiers tt
        JOIN claims c ON c.id = tt.claim_id
        WHERE LOWER(tt.wallet)=LOWER($1)

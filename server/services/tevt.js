@@ -63,7 +63,7 @@ async function getMyEvents(wallet) {
 
 async function getActiveEvents() {
   const r = await pool.query(
-    `SELECT te.*, c.sector_id, u.nickname
+    `SELECT te.*, c.sector_code AS sector_id, u.nickname
        FROM territory_events te
        JOIN claims c ON c.id = te.claim_id
        LEFT JOIN users u ON LOWER(te.wallet)=LOWER(u.wallet_address)

@@ -154,22 +154,10 @@ async function createListing(client, seller, type, params) {
   }
 
   // ── M-156 Phase A: sector_id 자동 결정 (관세 정산용) ──
-  // claim listing → claim의 sector_id
-  // 그 외 → 판매자의 가장 큰 claim의 sector_id (없으면 NULL → 관세 부과 안 함)
+  // claims는 sector_code(sector_definitions.code)를 사용하며
+  // sectors 테이블의 id와 직접 매핑되지 않으므로 관세는 현재 미적용(null).
+  // 향후 sectors ↔ sector_definitions 매핑 통합 시 여기서 sector.id 조회 추가.
   let sectorId = null;
-  try {
-    if (claimId) {
-      const sr = await client.query('SELECT sector_id FROM claims WHERE id = $1', [claimId]);
-      sectorId = sr.rows[0]?.sector_id || null;
-    } else {
-      const sr = await client.query(
-        `SELECT sector_id FROM claims
-         WHERE LOWER(owner) = LOWER($1) AND sector_id IS NOT NULL
-         ORDER BY (width * height) DESC NULLS LAST LIMIT 1`, [w]
-      );
-      sectorId = sr.rows[0]?.sector_id || null;
-    }
-  } catch (_) {}
 
   // Create listing (resource type includes resource_code + resource_quantity)
   const isResource = type === 'resource';
