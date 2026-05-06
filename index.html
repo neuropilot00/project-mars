@@ -6329,12 +6329,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="opsCommandBoard" style="margin-bottom:14px;border-radius:8px;background:rgba(10,15,25,.85);border:1px solid rgba(91,184,232,.2);padding:0;overflow:hidden">
           <!-- Header -->
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(91,184,232,.06);border-bottom:1px solid rgba(91,184,232,.15)">
-            <span style="font-size:11px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:.5px">📋 오늘의 작전 보드</span>
+            <span style="font-size:11px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="ops_board_title">📋 오늘의 작전 보드</span>
             <span id="opsBoardCountdown" style="font-size:10px;color:var(--gold);font-family:var(--fn)">리셋까지 --:--:--</span>
           </div>
           <!-- Legend -->
           <div style="padding:5px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px;color:var(--tx3);display:flex;gap:14px">
-            <span>🟢 완료</span><span>⚪ 미완료</span><span>🔴 긴급</span>
+            <span data-i18n="ops_legend_done">🟢 완료</span><span data-i18n="ops_legend_pending">⚪ 미완료</span><span data-i18n="ops_legend_urgent">🔴 긴급</span>
           </div>
           <!-- Mission list -->
           <div id="opsBoardContent" style="padding:6px 12px">
@@ -7463,14 +7463,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="font-size:11px;font-weight:700;color:#ff8a80;font-family:var(--fn);letter-spacing:.8px">⚔ FLEET BATTLE HUB</div>
             <div style="display:flex;gap:6px">
               <button type="button" onclick="openBattleHub()" style="font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">🔴 LIVE</button>
-              <button type="button" onclick="openDeclareBattle()" style="font-size:9px;background:rgba(232,72,85,.25);border:1px solid rgba(232,72,85,.55);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">⚔ 전투 선언</button>
+              <button type="button" onclick="openDeclareBattle()" style="font-size:9px;background:rgba(232,72,85,.25);border:1px solid rgba(232,72,85,.55);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)"><span data-i18n="pvp_declare_btn">⚔ 전투 선언</span></button>
             </div>
           </div>
           <!-- 3-tab bar -->
           <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.06)">
-            <button type="button" id="pvpHubTab_rec" onclick="pvpHubSwitchTab('rec')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(255,215,0,.08);border:none;border-bottom:2px solid #ffd700;color:#ffd700;cursor:pointer;letter-spacing:.4px">🎯 추천 상대</button>
-            <button type="button" id="pvpHubTab_bounty" onclick="pvpHubSwitchTab('bounty')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);cursor:pointer;letter-spacing:.4px">💰 현상금</button>
-            <button type="button" id="pvpHubTab_conflict" onclick="pvpHubSwitchTab('conflict')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);cursor:pointer;letter-spacing:.4px">🔥 섹터 분쟁</button>
+            <button type="button" id="pvpHubTab_rec" onclick="pvpHubSwitchTab('rec')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(255,215,0,.08);border:none;border-bottom:2px solid #ffd700;color:#ffd700;cursor:pointer;letter-spacing:.4px"><span data-i18n="pvp_tab_rec">🎯 추천 상대</span></button>
+            <button type="button" id="pvpHubTab_bounty" onclick="pvpHubSwitchTab('bounty')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);cursor:pointer;letter-spacing:.4px"><span data-i18n="pvp_tab_bounty">💰 현상금</span></button>
+            <button type="button" id="pvpHubTab_conflict" onclick="pvpHubSwitchTab('conflict')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);cursor:pointer;letter-spacing:.4px"><span data-i18n="pvp_tab_conflict">🔥 섹터 분쟁</span></button>
           </div>
           <!-- tab content -->
           <div id="pvpHubContent" style="padding:10px 12px;min-height:60px"></div>
@@ -8918,7 +8918,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div class="wb-backdrop" id="warBettingModal">
   <div class="wb-modal">
     <div class="wb-header">
-      <div class="wb-title">🎯 WAR BETTING · 전쟁 베팅</div>
+      <div class="wb-title" data-i18n="wb_title">🎯 WAR BETTING · 전쟁 베팅</div>
       <button class="shipyard-close" onclick="closeWarBetting()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="wb-tabs">
@@ -8954,7 +8954,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <!-- glow bg -->
     <div id="forgeGlowBg" style="position:absolute;inset:0;border-radius:16px;opacity:0;transition:opacity .4s;pointer-events:none"></div>
     <!-- title -->
-    <div id="forgeTitleText" style="font-family:var(--fn);font-size:13px;font-weight:900;letter-spacing:2px;color:#ffd166;margin-bottom:16px">🔨 강화 중...</div>
+    <div id="forgeTitleText" style="font-family:var(--fn);font-size:13px;font-weight:900;letter-spacing:2px;color:#ffd166;margin-bottom:16px" data-i18n="forge_upgrading">🔨 강화 중...</div>
     <!-- hammer scene -->
     <div style="position:relative;height:88px;margin-bottom:14px;display:flex;align-items:flex-end;justify-content:center;gap:0">
       <div id="forgeHammerWrap" style="position:relative;width:64px;height:88px;display:flex;align-items:flex-end;justify-content:center">
@@ -8973,7 +8973,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <!-- result -->
     <div id="forgeResult" style="display:none;font-family:var(--fn);font-size:18px;font-weight:900;letter-spacing:2px;margin:10px 0 4px"></div>
     <div id="forgeResultSub" style="display:none;font-family:var(--fn);font-size:10px;color:rgba(255,255,255,.55);margin-bottom:12px"></div>
-    <button id="forgeCloseBtn" type="button" style="display:none;width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-family:var(--fn);font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer" onclick="closeForgeModal()">확인</button>
+    <button id="forgeCloseBtn" type="button" style="display:none;width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-family:var(--fn);font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer" onclick="closeForgeModal()" data-i18n="btn_confirm">확인</button>
   </div>
 </div>
 
@@ -11913,7 +11913,7 @@ function _updateBaseTerritoryGroupList(grpList){
   grpList.forEach(function(g,i){
     var anyForSale=g.claims.some(function(c){return _forSaleMap&&_forSaleMap[c.id];});
     var saleStyle=anyForSale?'border-color:rgba(76,216,154,.4);':'';
-    var saleBadge=anyForSale?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.3);color:#4cd89a;font-weight:700;margin-left:4px">판매중</span>':'';
+    var saleBadge=anyForSale?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.3);color:#4cd89a;font-weight:700;margin-left:4px">'+(LANG==='ko'?'판매중':LANG==='ja'?'販売中':LANG==='zh'?'出售中':'For Sale')+'</span>':'';
     var imgBadge=g.hasImg?'<span style="font-size:12px">📷</span>':'<span style="font-size:12px;opacity:.4">🏴</span>';
     var merged=g.claims.length>1?'<span style="font-size:9px;color:var(--gold);margin-left:3px">('+g.claims.length+'개)</span>':'';
     var name=g.claims.map(function(c){return c.customName||c.custom_name;}).filter(Boolean)[0]||null;
@@ -11932,13 +11932,13 @@ function _updateBaseTerritoryGroupList(grpList){
     html+='</div>';
     // 아코디언 본문
     html+='<div id="bterrBody'+i+'" style="display:'+(isOpen?'block':'none')+';background:rgba(0,0,0,.18);padding:10px 14px 12px">';
-    html+='<div id="bterrProd'+i+'" style="font-size:9px;color:var(--tx2);line-height:1.7">로딩 중…</div>';
+    html+='<div id="bterrProd'+i+'" style="font-size:9px;color:var(--tx2);line-height:1.7">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読み込み中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
     html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">';
     var claimId=g.claims[0]&&g.claims[0].id;
-    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryHarvest('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(255,171,64,.12);border:1px solid rgba(255,171,64,.3);color:#ffab40;cursor:pointer">⛏ 수확</button>';
-    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryShield('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--cyan,#5bb8e8);cursor:pointer">🛡 보호막</button>';
-    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryUpgrade('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(187,134,252,.08);border:1px solid rgba(187,134,252,.25);color:#bb86fc;cursor:pointer">🔧 업그레이드</button>';
-    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryGlobe('+i+')" style="font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">🌐 지도</button>';
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryHarvest('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(255,171,64,.12);border:1px solid rgba(255,171,64,.3);color:#ffab40;cursor:pointer">⛏ '+(LANG==='ko'?'수확':LANG==='ja'?'採掘':LANG==='zh'?'采掘':'Harvest')+'</button>';
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryShield('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--cyan,#5bb8e8);cursor:pointer">🛡 '+(LANG==='ko'?'보호막':LANG==='ja'?'シールド':LANG==='zh'?'护盾':'Shield')+'</button>';
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryUpgrade('+i+')" style="flex:1;min-width:60px;font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(187,134,252,.08);border:1px solid rgba(187,134,252,.25);color:#bb86fc;cursor:pointer">🔧 '+(LANG==='ko'?'업그레이드':LANG==='ja'?'アップグレード':LANG==='zh'?'升级':'Upgrade')+'</button>';
+    html+='<button type="button" onclick="event.stopPropagation();_baseTerritoryGlobe('+i+')" style="font-size:10px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer">🌐 '+(LANG==='ko'?'지도':LANG==='ja'?'マップ':LANG==='zh'?'地图':'Map')+'</button>';
     html+='</div>';
     html+='</div>';
     html+='</div>';
@@ -12002,11 +12002,11 @@ function _bterrLoadProd(idx,g){
       if(d.lastHarvest&&d.lastHarvest.at){
         var ago=_timeAgo(new Date(d.lastHarvest.at));
         html+='<div style="display:flex;justify-content:space-between">';
-        html+='<span style="color:var(--tx3)">최근 수확</span>';
+        html+='<span style="color:var(--tx3)">'+(LANG==='ko'?'최근 수확':LANG==='ja'?'最終採掘':LANG==='zh'?'最近采掘':'Last Harvest')+'</span>';
         html+='<span style="color:var(--tx2)">'+d.lastHarvest.pp.toFixed(4)+' PP · '+ago+'</span>';
         html+='</div>';
       } else {
-        html+='<div style="color:var(--tx3)">아직 수확 없음</div>';
+        html+='<div style="color:var(--tx3)">'+(LANG==='ko'?'아직 수확 없음':LANG==='ja'?'採掘記録なし':LANG==='zh'?'暂无采掘记录':'No harvest yet')+'</div>';
       }
       if(d.materials&&d.materials.length){
         html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">';
@@ -13954,7 +13954,7 @@ function _appendSectorControl(container, sectorId, wallet, lang) {
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.error||!d.sector) return;
-      var TIER_LABELS = { governor:'총독', dominant:'지배', stakeholder:'이해관계자', presence:'존재감' };
+      var TIER_LABELS = lang==='ko'?{ governor:'총독', dominant:'지배', stakeholder:'이해관계자', presence:'존재감' }:lang==='ja'?{ governor:'総督', dominant:'支配', stakeholder:'利害関係者', presence:'プレゼンス' }:lang==='zh'?{ governor:'总督', dominant:'主导', stakeholder:'利益相关者', presence:'存在感' }:{ governor:'Governor', dominant:'Dominant', stakeholder:'Stakeholder', presence:'Presence' };
       var TIER_COLORS = { governor:'#ffd700', dominant:'#ff6b6b', stakeholder:'#ffc140', presence:'#64dc82' };
       var html='<div style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07)">';
       html+='<div style="font-size:8px;color:#bb86fc;font-weight:700;letter-spacing:.8px;margin-bottom:4px">🏛 ' + (lang==='ko'?'섹터 컨트롤':'SECTOR CONTROL') + '</div>';
@@ -15608,7 +15608,7 @@ async function confirmClaim(){
       // 성공 처리
       if(hjData.auto_win){
         // 자동 승리 (수비자 함대 없음)
-        showNotification('hijack','⚔ AUTO-WIN','상대 함대 없음 — 즉시 영토 점령!');
+        showNotification('hijack','⚔ AUTO-WIN',LANG==='ko'?'상대 함대 없음 — 즉시 영토 점령!':LANG==='ja'?'敵艦隊なし — 即座に領土制圧!':LANG==='zh'?'无敌方舰队 — 立即占领领地!':'No enemy fleet — territory captured!');
         try{_sfx.hijackWin()}catch(e){}
         if (typeof refreshGP === 'function') refreshGP();
         // ── 즉시 _serverPixels 반영 (Railway DB 레이턴시와 무관하게 즉시 금색 표시) ──
@@ -15665,7 +15665,7 @@ async function confirmClaim(){
         setTimeout(_refreshPixelsAfterHijack, 6000);
       }else{
         // 함대전 진행 중 — 배틀 뷰어 자동 오픈
-        showNotification('hijack','⚔ 함대전 진행 중','Phase 1 전투 시작!');
+        showNotification('hijack',LANG==='ko'?'⚔ 함대전 진행 중':LANG==='ja'?'⚔ 艦隊戦進行中':LANG==='zh'?'⚔ 舰队战进行中':'⚔ Fleet Battle',LANG==='ko'?'Phase 1 전투 시작!':LANG==='ja'?'Phase 1 開始!':LANG==='zh'?'Phase 1 开始!':'Phase 1 started!');
         try{_sfx.click()}catch(e){}
         if (typeof refreshGP === 'function') refreshGP();
         // Phase 1 battle viewer 자동 오픈 (10초 prep 후 시작)
@@ -17314,6 +17314,9 @@ var I18N = {
     mt_rename: '✏️ Rename', mt_decorate: '✨ Decorate', mt_sell: '💰 Sell', mt_shield: '🛡️ Shield', mt_upgrade: '🔧 Upgrade', mt_hijack: '⚔ HIJACK',
     br_hint: 'Claude reads and fixes reports', br_label_desc: 'Bug Description *', br_desc_placeholder: 'Describe the bug.\nE.g. GP not rewarded after battle',
     br_label_ss: 'Screenshot (optional)', br_ss_placeholder: '📸 Click or paste screenshot (Cmd+V / Ctrl+V)', br_ss_drag: 'or drag file here', br_capturing: 'Capturing screen...', br_submit: 'Submit', br_clear_ss: 'Clear Screenshot',
+    ops_board_title: '📋 Today\'s Ops Board', ops_legend_done: '🟢 Done', ops_legend_pending: '⚪ Pending', ops_legend_urgent: '🔴 Urgent',
+    pvp_declare_btn: '⚔ Declare Battle', pvp_tab_rec: '🎯 Recommended', pvp_tab_bounty: '💰 Bounty', pvp_tab_conflict: '🔥 Sector Conflict',
+    wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 Upgrading...',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -18169,6 +18172,9 @@ var I18N = {
     mt_rename: '✏️ 이름변경', mt_decorate: '✨ 꾸미기', mt_sell: '💰 판매', mt_shield: '🛡️ 보호막', mt_upgrade: '🔧 업그레이드', mt_hijack: '⚔ HIJACK 영토',
     br_hint: 'Claude가 읽고 수정합니다', br_label_desc: '버그 설명 *', br_desc_placeholder: '어떤 버그인지 설명해주세요.\n예) 전투 후 GP가 지급되지 않음',
     br_label_ss: '스크린샷 (선택)', br_ss_placeholder: '📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)', br_ss_drag: '또는 파일을 여기에 드래그하세요', br_capturing: '화면 캡처 중...', br_submit: '제출하기', br_clear_ss: '스크린샷 지우기',
+    ops_board_title: '📋 오늘의 작전 보드', ops_legend_done: '🟢 완료', ops_legend_pending: '⚪ 미완료', ops_legend_urgent: '🔴 긴급',
+    pvp_declare_btn: '⚔ 전투 선언', pvp_tab_rec: '🎯 추천 상대', pvp_tab_bounty: '💰 현상금', pvp_tab_conflict: '🔥 섹터 분쟁',
+    wb_title: '🎯 WAR BETTING · 전쟁 베팅', forge_upgrading: '🔨 강화 중...',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -19011,6 +19017,9 @@ var I18N = {
     mt_rename: '✏️ 名前変更', mt_decorate: '✨ カスタマイズ', mt_sell: '💰 売却', mt_shield: '🛡️ シールド', mt_upgrade: '🔧 アップグレード', mt_hijack: '⚔ HIJACK テリトリー',
     br_hint: 'Claudeが読んで修正します', br_label_desc: 'バグの説明 *', br_desc_placeholder: 'バグの内容を説明してください。\n例)戦闘後にGPが付与されない',
     br_label_ss: 'スクリーンショット (任意)', br_ss_placeholder: '📸 クリックまたはスクリーンショットを貼り付け (Cmd+V / Ctrl+V)', br_ss_drag: 'またはファイルをここにドラッグ', br_capturing: '画面キャプチャ中...', br_submit: '送信する', br_clear_ss: 'スクリーンショット削除',
+    ops_board_title: '📋 今日の作戦ボード', ops_legend_done: '🟢 完了', ops_legend_pending: '⚪ 未完了', ops_legend_urgent: '🔴 緊急',
+    pvp_declare_btn: '⚔ 戦闘宣言', pvp_tab_rec: '🎯 推薦相手', pvp_tab_bounty: '💰 賞金', pvp_tab_conflict: '🔥 セクター紛争',
+    wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 強化中...',
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -19853,6 +19862,9 @@ var I18N = {
     mt_rename: '✏️ 重命名', mt_decorate: '✨ 装饰', mt_sell: '💰 出售', mt_shield: '🛡️ 护盾', mt_upgrade: '🔧 升级', mt_hijack: '⚔ HIJACK 领地',
     br_hint: 'Claude会读取并修复', br_label_desc: '错误描述 *', br_desc_placeholder: '请描述错误内容。\n例)战斗后未发放GP、画面变白',
     br_label_ss: '截图 (可选)', br_ss_placeholder: '📸 点击或粘贴截图 (Cmd+V / Ctrl+V)', br_ss_drag: '或将文件拖放至此', br_capturing: '截图中...', br_submit: '提交', br_clear_ss: '清除截图',
+    ops_board_title: '📋 今日作战板', ops_legend_done: '🟢 完成', ops_legend_pending: '⚪ 未完成', ops_legend_urgent: '🔴 紧急',
+    pvp_declare_btn: '⚔ 宣战', pvp_tab_rec: '🎯 推荐对手', pvp_tab_bounty: '💰 赏金', pvp_tab_conflict: '🔥 区域冲突',
+    wb_title: '🎯 WAR BETTING · 战争下注', forge_upgrading: '🔨 强化中...',
   }
 };
 
