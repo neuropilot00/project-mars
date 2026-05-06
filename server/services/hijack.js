@@ -505,7 +505,7 @@ async function declareHijackWithPP(params) {
     // ── 1. 잔액 확인 + 차감 ──
     const totalCost = Math.round((base_cost + attack_cost) * 1000000) / 1000000;
     const { rows: userRows } = await client.query(
-      `SELECT pp_balance, usdt_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT pp_balance, usdt_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [attacker_wallet]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -516,7 +516,7 @@ async function declareHijackWithPP(params) {
     }
 
     await client.query(
-      `UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2`,
+      `UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [totalCost, attacker_wallet]
     );
 
@@ -547,7 +547,7 @@ async function declareHijackWithPP(params) {
     let resolvedTargetClaimId = primary_def_claim_id || newClaimId;
     if (!resolvedTargetClaimId && primary_defender_wallet) {
       const { rows: defClaims } = await client.query(
-        `SELECT id FROM claims WHERE owner = $1 ORDER BY id DESC LIMIT 1`,
+        `SELECT id FROM claims WHERE LOWER(owner) = LOWER($1) ORDER BY id DESC LIMIT 1`,
         [primary_defender_wallet]
       );
       if (defClaims[0]) {
@@ -586,7 +586,7 @@ async function declareHijackWithPP(params) {
           const credit = (amounts.refund || 0) + (amounts.bonus || 0);
           if (credit > 0) {
             await client.query(
-              `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+              `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
               [credit, owner]
             );
           }
@@ -648,14 +648,14 @@ async function declareHijackWithPP(params) {
 
         // 함대 전투 중 체크
         const { rows: atkFleet } = await client.query(
-          `SELECT is_in_battle FROM fleets WHERE id = $1 AND owner_wallet = $2 FOR UPDATE`,
+          `SELECT is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
           [atk_fleet_id, attacker_wallet]
         );
         if (!atkFleet[0]) throw new Error('ATK_FLEET_NOT_FOUND');
         if (atkFleet[0].is_in_battle) throw new Error('ATK_FLEET_IN_BATTLE');
 
         const { rows: defFleet } = await client.query(
-          `SELECT is_in_battle FROM fleets WHERE id = $1 AND owner_wallet = $2 FOR UPDATE`,
+          `SELECT is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
           [primary_def_fleet_id, primary_defender_wallet]
         );
         if (!defFleet[0]) throw new Error('DEF_FLEET_NOT_FOUND');

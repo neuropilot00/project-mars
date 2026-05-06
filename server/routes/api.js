@@ -1711,7 +1711,7 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
 
     // 공격자 함대 존재 확인
     const atkFleetRes = await pool.query(
-      `SELECT id, is_in_battle, owner_wallet FROM fleets WHERE id = $1 AND owner_wallet = $2`,
+      `SELECT id, is_in_battle, owner_wallet FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2)`,
       [atkFleetId, walletLower]
     );
     if (!atkFleetRes.rows[0]) return res.status(404).json({ error: 'ATK_FLEET_NOT_FOUND' });
@@ -1740,7 +1740,7 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
     for (const p of pixels) {
       const existing = existingMap[p.lat + ',' + p.lng];
       if (existing) {
-        if (existing.owner === walletLower) {
+        if ((existing.owner || '').toLowerCase() === walletLower) {
           // own pixel — skip
         } else {
           // 방패 체크

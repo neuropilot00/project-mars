@@ -221,8 +221,15 @@ async function listActiveEvents() {
 // ═══════════════════════════════════════════════════════════════════
 async function getEventDetail(eventId) {
   const { rows: evRows } = await pool.query(
-    `SELECT we.*, s.name AS sector_name, s.tier AS sector_tier,
-            ROUND((we.hp_current::numeric / NULLIF(we.hp_max, 0) * 100), 1) AS hp_pct
+    `SELECT we.*,
+            s.name AS sector_name, s.tier AS sector_tier,
+            s.center_lat AS lat, s.center_lng AS lng,
+            ROUND((we.hp_current::numeric / NULLIF(we.hp_max, 0) * 100), 1) AS hp_pct,
+            EXTRACT(EPOCH FROM (we.ends_at - NOW()))::INT AS seconds_remaining,
+            (SELECT COUNT(*) FROM world_event_participants wep WHERE wep.event_id = we.id) AS participant_count,
+            (SELECT COALESCE(SUM(damage_dealt),0) FROM world_event_participants wep WHERE wep.event_id = we.id) AS total_damage,
+            we.meta->>'boss_tier' AS boss_tier,
+            COALESCE(we.meta->'ship_sprites', '[]'::jsonb) AS ship_sprites
        FROM world_events we
        LEFT JOIN sectors s ON s.id = we.sector_id
       WHERE we.id = $1`,
@@ -236,7 +243,7 @@ async function getEventDetail(eventId) {
             wep.damage_dealt, wep.ships_lost, wep.battles_count,
             wep.joined_at, wep.last_battle_at
        FROM world_event_participants wep
-       LEFT JOIN users u ON u.wallet_address = wep.wallet
+       LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(wep.wallet)
       WHERE wep.event_id = $1
       ORDER BY wep.damage_dealt DESC
       LIMIT 50`,
