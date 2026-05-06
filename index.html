@@ -35608,9 +35608,9 @@ function loadBountyBoard() {
   }
   el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading...</div>';
 
-  var url = '/api/bounties';
-  if (_bountyTab === 'mine') url = '/api/bounties/my-bounties?wallet=' + encodeURIComponent(walletState.address||'');
-  else if (_bountyTab === 'onme') url = '/api/bounties/on-me?wallet=' + encodeURIComponent(walletState.address||'');
+  var url = '/api/bounty/list';
+  if (_bountyTab === 'mine') url = '/api/bounty/my-bounties?wallet=' + encodeURIComponent(walletState.address||'');
+  else if (_bountyTab === 'onme') url = '/api/bounty/on-me?wallet=' + encodeURIComponent(walletState.address||'');
 
   fetch(url)
     .then(function(r){ return r.json(); })
@@ -35630,8 +35630,11 @@ function renderBountyList(bounties, el) {
   var html = '<div style="display:flex;flex-direction:column;gap:6px">';
   var now = Date.now();
   bounties.forEach(function(b) {
-    var targetNick = b.target_nick || b.target_wallet.slice(0,10) + '…';
-    var posterNick = b.poster_nick || b.poster.slice(0,10) + '…';
+    var posterWallet = b.poster || b.poster_wallet || '';
+    var targetNick = b.target_nick || (b.target_wallet||'').slice(0,10) + '…';
+    var posterNick = b.poster_nick || posterWallet.slice(0,10) + '…';
+    var gpAmount = b.gp_amount || b.reward_gp || 0;
+    var message = b.message || b.reason || '';
     var statusColor = b.status === 'active' ? 'var(--gn)' : b.status === 'claimed' ? '#5cbbff' : 'var(--tx3)';
     var expires = b.expires_at ? Math.max(0, new Date(b.expires_at) - now) : 0;
     var expiresStr = expires > 0 ? Math.floor(expires / 86400000) + 'd ' + Math.floor((expires % 86400000) / 3600000) + 'h' : 'expired';
@@ -35642,13 +35645,13 @@ function renderBountyList(bounties, el) {
     html += '<div style="font-size:10px;font-weight:700;color:var(--mars)">🎯 ' + escHtml(targetNick) + '</div>';
     html += '<div style="font-size:8px;color:var(--tx3);margin-top:2px">by ' + escHtml(posterNick) + ' · ' + (b.status === 'active' ? 'expires in ' + expiresStr : b.status.toUpperCase()) + '</div>';
     html += '</div>';
-    html += '<div style="text-align:right"><div style="font-size:12px;font-weight:800;color:var(--gold)">' + parseFloat(b.gp_amount).toFixed(0) + ' GP</div>';
+    html += '<div style="text-align:right"><div style="font-size:12px;font-weight:800;color:var(--gold)">' + parseFloat(gpAmount).toFixed(0) + ' GP</div>';
     html += '<div style="font-size:8px;color:' + statusColor + '">' + b.status.toUpperCase() + '</div>';
     html += '</div></div>';
-    if (b.message) html += '<div style="font-size:9px;color:var(--tx2);font-style:italic;padding-top:4px;border-top:1px solid rgba(255,255,255,.05)">"' + escHtml(b.message) + '"</div>';
+    if (message) html += '<div style="font-size:9px;color:var(--tx2);font-style:italic;padding-top:4px;border-top:1px solid rgba(255,255,255,.05)">"' + escHtml(message) + '"</div>';
 
     // Cancel button for own active bounties
-    if (_bountyTab === 'mine' && b.status === 'active' && walletState.address && b.poster === walletState.address.toLowerCase()) {
+    if (_bountyTab === 'mine' && b.status === 'active' && walletState.address && posterWallet === walletState.address.toLowerCase()) {
       html += '<button onclick="cancelBounty(' + b.id + ')" style="margin-top:6px;font-size:8px;padding:2px 8px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:4px;cursor:pointer">CANCEL</button>';
     }
     html += '</div>';
@@ -35681,14 +35684,15 @@ function submitPostBounty() {
   if (isNaN(amount) || amount < 50) { showToast('Minimum bounty is 50 GP', 'error'); return; }
   if (!walletState.address) { showToast('Connect wallet', 'error'); return; }
 
-  gameConfirm('🎯', 'POST BOUNTY',
-    'Spend ' + amount + ' GP to place a bounty on "' + escHtml(target) + '"? GP is held in escrow until the bounty is claimed or expires.')
+  gameConfirm({icon:'🎯', title:'POST BOUNTY',
+    body: 'Spend ' + amount + ' GP to place a bounty on "' + escHtml(target) + '"? GP is held in escrow until claimed or expired.',
+    confirmText: 'POST'})
     .then(function(confirmed) {
       if (!confirmed) return;
-      return fetch('/api/bounties/post', {
+      return fetch('/api/bounty/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet: walletState.address, targetWallet: target, gpAmount: amount, message: msg })
+        body: JSON.stringify({ wallet: walletState.address, target_wallet: target, reward_gp: amount, reason: msg })
       }).then(function(r){ return r.json(); }).then(function(d) {
         if (d.error) { showToast(d.error, 'error'); return; }
         showToast('🎯 Bounty posted! ' + amount + ' GP escrowed', 'success');
@@ -35701,18 +35705,18 @@ function submitPostBounty() {
 
 function cancelBounty(bountyId) {
   if (!walletState.address) return;
-  gameConfirm('🎯', 'CANCEL BOUNTY', 'Cancel this bounty? A small cancellation fee applies.')
+  gameConfirm({icon:'🎯', title:'CANCEL BOUNTY', body:'Cancel this bounty? A cancellation fee may apply.', confirmText:'Cancel'})
     .then(function(confirmed) {
       if (!confirmed) return;
-      return fetch('/api/bounties/cancel', {
+      return fetch('/api/bounty/cancel/' + bountyId, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet: walletState.address, bountyId: bountyId })
+        body: JSON.stringify({ wallet: walletState.address })
       }).then(function(r){ return r.json(); }).then(function(d) {
         if (d.error) { showToast(d.error, 'error'); return; }
-        showToast('Bounty cancelled. ' + d.refund + ' GP refunded', 'success');
+        showToast('Bounty cancelled. ' + (d.refunded_gp || 0) + ' GP refunded', 'success');
         loadBountyBoard();
-        loadWalletData();
+        if (typeof loadWalletData === 'function') loadWalletData();
       });
     }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
 }

@@ -1,5 +1,20 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.41 버그수정 — BASE QUESTS 현상금 보드 API URL 불일치 + 필드명 불일치
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| loadBountyBoard() — `/api/bounties/*` → 404 | ✅ 수정 | `/api/bounty/list\|my-bounties\|on-me`로 수정 |
+| renderBountyList() — `b.poster` → crash (필드명 `poster_wallet`) | ✅ 수정 | `b.poster \|\| b.poster_wallet` 호환 처리 |
+| renderBountyList() — `b.gp_amount` → NaN (필드명 `reward_gp`) | ✅ 수정 | `b.gp_amount \|\| b.reward_gp` 호환 처리 |
+| renderBountyList() — `b.message` → undefined (필드명 `reason`) | ✅ 수정 | `b.message \|\| b.reason` 호환 처리 |
+| submitPostBounty() — `/api/bounties/post` + 잘못된 필드명 | ✅ 수정 | `/api/bounty/post` + `target_wallet/reward_gp/reason` |
+| submitPostBounty() — gameConfirm() 구버전 4인수 호출 | ✅ 수정 | options object 패턴으로 교체 |
+| cancelBounty() — `/api/bounties/cancel` + `bountyId` body | ✅ 수정 | `/api/bounty/cancel/:id` + body `{wallet}` |
+| cancelBounty() — `d.refund` → undefined (필드명 `refunded_gp`) | ✅ 수정 | `d.refunded_gp \|\| 0` |
+
+
+
 ## ✅ v6.40 버그수정 — 히든 챕터 MCC 보상 잘못 지급 (M3/M4)
 
 | 항목 | 상태 | 비고 |

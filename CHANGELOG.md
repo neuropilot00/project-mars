@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: BASE QUESTS bounty board broken API + field mismatches
+
+### index.html
+- **버그**: `loadBountyBoard()` — `/api/bounties/*` URL 사용 (서버는 `/api/bounty/*` 마운트) → 전체 404
+- **버그**: `renderBountyList()` — `b.poster`(없음), `b.gp_amount`(없음), `b.message`(없음) 접근 → JS 오류/NaN
+- **버그**: `submitPostBounty()` — `/api/bounties/post` + 잘못된 필드 `targetWallet/gpAmount/message`
+- **버그**: `submitPostBounty()` — `gameConfirm('icon','title','body')` 구버전 4인수 호출 패턴
+- **버그**: `cancelBounty()` — `/api/bounties/cancel` + body `{bountyId}` (서버는 `/api/bounty/cancel/:id`)
+- **버그**: `cancelBounty()` — `d.refund` 미존재 (서버 응답은 `refunded_gp`)
+- **수정**: 모든 URL `/api/bounty/...`로 통일, 필드명 `poster_wallet/reward_gp/reason`으로 정렬, gameConfirm options object 패턴으로 교체
+
 ## 2026-05-06 — bugfix: hidden campaign chapter wrong rewards (M3/M4)
 
 ### server/services/campaign.js
