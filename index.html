@@ -9146,6 +9146,44 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
+<!-- World Event Engage Modal -->
+<div id="weEngageModal" class="game-picker" onclick="if(event.target===this)closeWeModal()" style="display:none">
+  <div class="gp-card" style="min-width:320px;max-width:420px;width:92vw">
+    <div class="gp-header">
+      <span class="gp-title">⚠ VOID RAIDER</span>
+      <button class="gp-close" onclick="closeWeModal()" type="button">✕</button>
+    </div>
+    <div style="padding:12px 16px 6px">
+      <!-- HP Bar -->
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:9px;color:#ff6b6b;font-family:var(--fn);font-weight:700;letter-spacing:1px" id="weEventCode">VR-XXXX</span>
+          <span style="font-size:9px;color:var(--tx3)" id="weEventTimer">--h --m</span>
+        </div>
+        <div style="height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden">
+          <div id="weHpBar" style="height:100%;background:linear-gradient(90deg,#ff6b6b,#ff3030);transition:width .4s;width:100%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:3px">
+          <span style="font-size:8px;color:var(--tx3)" id="weHpText">HP --/--</span>
+          <span style="font-size:8px;color:var(--tx3)" id="weParticipants">0 fighters</span>
+        </div>
+      </div>
+      <!-- Sector info -->
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:12px" id="weEventMeta">Sector — --</div>
+      <!-- Fleet select -->
+      <div style="font-size:9px;color:var(--tx2);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px;font-weight:700">DEPLOY FLEET</div>
+      <select id="weFleetSelect" style="width:100%;background:rgba(0,0,0,.5);border:1px solid rgba(232,72,85,.3);color:#fff;border-radius:7px;padding:8px 10px;font-size:11px;font-family:var(--fn);outline:none;appearance:none;cursor:pointer">
+        <option value="">함대 선택...</option>
+      </select>
+      <div style="font-size:8px;color:var(--tx3);margin-top:4px" id="weFleetNote">최소 1척 이상의 함선이 있어야 합니다</div>
+    </div>
+    <div style="padding:10px 16px 16px;display:flex;gap:8px">
+      <button type="button" onclick="closeWeModal()" style="flex:1;padding:9px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;letter-spacing:.5px">CANCEL</button>
+      <button type="button" id="weEngageBtn" onclick="confirmWeEngage()" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(135deg,rgba(232,72,85,.25),rgba(232,72,85,.08));border:1px solid rgba(232,72,85,.6);color:#ff6b6b;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px">⚔ ENGAGE</button>
+    </div>
+  </div>
+</div>
+
 <!-- Game-themed picker (replaces native select) -->
 <div id="gamePicker" class="game-picker" onclick="if(event.target===this)closeGamePicker()">
   <div class="gp-card">
@@ -22529,16 +22567,114 @@ async function loadFleetCommandCard(){
 // 하위 호환: 기존 호출자(있다면)를 위한 alias
 window.loadShipyardTabPane = loadFleetCommandCard;
 
-// World Event 상세 모달 — 추후 확장 (Phase B Step 3에서 본격 구현)
-window.openWorldEventDetail = window.openWorldEventDetail || function(eventId){
-  if (typeof gameAlert === 'function') {
-    gameAlert('교전 신청 UI는 다음 업데이트에서 추가됩니다 (event #' + eventId + ')');
-  } else if (typeof showToast === 'function') {
-    showToast('Engage UI coming soon (event #' + eventId + ')', 'warn');
-  } else {
-    alert('Engage UI coming soon (event #' + eventId + ')');
+// ── World Event Engage Modal ────────────────────────────────────
+var _weCurrentEventId = null;
+
+window.openWorldEventDetail = async function(eventId) {
+  _weCurrentEventId = eventId;
+  var modal = document.getElementById('weEngageModal');
+  if (!modal) return;
+
+  // 이벤트 상세 로드
+  try {
+    var r = await fetch('/api/world-events/' + eventId);
+    if (!r.ok) throw new Error('fetch fail');
+    var ev = await r.json();
+
+    document.getElementById('weEventCode').textContent = '⚠ ' + (ev.event_code || 'EVENT');
+    var sec = parseInt(ev.seconds_remaining) || 0;
+    document.getElementById('weEventTimer').textContent = Math.floor(sec/3600) + 'h ' + Math.floor((sec%3600)/60) + 'm';
+    var pct = parseFloat(ev.hp_pct) || 0;
+    document.getElementById('weHpBar').style.width = pct + '%';
+    document.getElementById('weHpText').textContent = 'HP ' + Number(ev.hp_current).toLocaleString() + '/' + Number(ev.hp_max).toLocaleString();
+    document.getElementById('weParticipants').textContent = (ev.participant_count || 0) + ' fighters';
+    var meta = ev.meta || {};
+    document.getElementById('weEventMeta').textContent = (ev.sector_name || '?') + ' · ' + (ev.sector_tier || '') + ' · ' + (meta.ship_count || '?') + '× ' + (meta.ship_name_ko || meta.ship_type_code || '?');
+  } catch(e) {
+    document.getElementById('weEventCode').textContent = '⚠ EVENT #' + eventId;
+    document.getElementById('weEventMeta').textContent = '정보를 불러올 수 없습니다';
   }
+
+  // 내 함대 목록 로드
+  var sel = document.getElementById('weFleetSelect');
+  sel.innerHTML = '<option value="">함대 선택...</option>';
+  try {
+    var w = typeof getWalletAddress === 'function' ? getWalletAddress() : (window._wallet || '');
+    if (w) {
+      var fr = await fetch('/api/fleets', { headers: { 'x-wallet': w } });
+      if (fr.ok) {
+        var fd = await fr.json();
+        (fd.fleets || []).forEach(function(f) {
+          var ships = parseInt(f.ship_count) || parseInt(f.alive_ships) || 0;
+          if (ships < 1) return; // 함선 없는 함대 제외
+          var opt = document.createElement('option');
+          opt.value = f.id;
+          opt.textContent = (f.name || '함대 #' + f.id) + ' · ' + ships + '척';
+          sel.appendChild(opt);
+        });
+        document.getElementById('weFleetNote').textContent = sel.options.length <= 1
+          ? '출전 가능한 함대가 없습니다 (함선 1척 이상 필요)'
+          : '선택한 함대를 Void Raider에 출전시킵니다';
+      }
+    }
+  } catch(e) {}
+
+  modal.style.display = 'flex';
 };
+
+function closeWeModal() {
+  var modal = document.getElementById('weEngageModal');
+  if (modal) modal.style.display = 'none';
+  _weCurrentEventId = null;
+}
+
+async function confirmWeEngage() {
+  var eventId = _weCurrentEventId;
+  var fleetId = document.getElementById('weFleetSelect').value;
+  if (!eventId) return;
+  if (!fleetId) { showToast('함대를 선택하세요', 'warn'); return; }
+
+  var btn = document.getElementById('weEngageBtn');
+  btn.disabled = true;
+  btn.textContent = '출전 중...';
+
+  try {
+    var tok = localStorage.getItem('pw_token');
+    var r = await fetch('/api/world-events/' + eventId + '/engage', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': tok ? 'Bearer ' + tok : ''
+      },
+      body: JSON.stringify({ fleet_id: parseInt(fleetId) })
+    });
+    var d = await r.json();
+    if (!r.ok || d.error) {
+      var errMap = {
+        'FLEET_BUSY': '함대가 이미 전투 중입니다',
+        'INSUFFICIENT_SHIPS': '함선이 부족합니다 (최소 1척)',
+        'ENGAGE_COOLDOWN': '쿨다운 중 — ' + (d.meta && d.meta.remaining_minutes ? d.meta.remaining_minutes + '분 후 가능' : '잠시 후 시도'),
+        'EVENT_NOT_ENGAGEABLE': '이미 종료된 이벤트입니다',
+        'EVENT_EXPIRED': '이벤트가 만료됐습니다',
+        'FLEET_NOT_FOUND': '함대를 찾을 수 없습니다',
+      };
+      throw new Error(errMap[d.error] || d.error || '교전 실패');
+    }
+
+    closeWeModal();
+    var result = '전투 완료! 데미지 ' + (d.damage_dealt || 0).toLocaleString();
+    if (d.status === 'defeated') result = '🎉 Void Raider 격퇴 성공! 보상이 지급됩니다';
+    else result += ' · HP ' + (d.hp_pct || 0) + '% 잔여';
+    showToast(result, d.status === 'defeated' ? 'success' : 'info');
+    // 함대 지휘부 카드 갱신
+    if (typeof loadFleetCommandCard === 'function') setTimeout(loadFleetCommandCard, 800);
+  } catch(e) {
+    showToast(e.message || '교전 실패', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚔ ENGAGE';
+  }
+}
 
 function loadMarketListings(){
   var grid=document.getElementById('mktBrowseGrid');
