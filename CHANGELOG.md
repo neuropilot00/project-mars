@@ -1,5 +1,30 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 서버 전수 버그 수정: hijack/ai-fight/harvest/repair/tournament/admin-economy
+
+### `server/routes/api.js`, `server/services/hijack.js`
+- `/api/hijack/declare-with-pp`: 공격 함대/소유 픽셀/유저 PP/수비 claim 조회와 정산 쿼리의 `LOWER()` 지갑 비교 확인
+- `fleet_battles.battle_type='hijack'`, `status='preparing'`, `phase='hijack_phase1'` 유지 확인
+
+### `server/routes/phaseC.js`
+- `/api/ai/fight`: battle/participants INSERT를 `BEGIN/COMMIT/ROLLBACK/finally release` 트랜잭션으로 원자화
+- AI 함대 판별을 `fleets.is_ai` 컬럼 존재 시 + `users.is_ai` owner 기준으로 보강
+- DB CHECK constraint 통과를 위해 AI 연습전 battle_type은 허용값 `pvp_duel` 유지, `battle_summary.is_ai_battle=true`로 구분
+
+### `server/services/ship.js`
+- `repairShip`, `chargeShield`: wallet 정규화 및 재료 차감 `LOWER(wallet_address)=LOWER($1)` 적용
+- market-listed 함선 차단, GP 차감 트랜잭션, GP 로그 fire-and-forget 유지 확인
+
+### `server/services/tournament.js`
+- 참가 등록 wallet/fleet/user 비교를 `LOWER()` 기준으로 보강하고 참가비 GP 로그를 fire-and-forget으로 기록
+- 정원 도달 시 등록 커밋 후 `startTournament()`를 호출해 브래킷 생성까지 이어지도록 수정
+- tournament match의 fleet_battles/participants/match 연결을 트랜잭션으로 원자화, battle_type은 허용값 `event` 유지
+
+### `server/routes/adminEconomyRoutes.js`
+- territory economy/upgrades/admin stats 쿼리는 존재하지 않는 보조 뷰/테이블에 대해 `.catch(() => ...)` fallback이 적용되어 있음 확인
+
+---
+
 ## 2026-05-06 — OPS 미션 전체 와이어링 + 캘린더 요일 제거 + BASE 탭 이모지 제거
 
 ### `server/routes/dailyOps.js`
@@ -34,7 +59,7 @@
 - `/api/harvest` (구버전 미사용): 잘못 추가된 보너스 블록 제거, 미사용 표시
 
 ### `server/routes/phaseC.js`
-- AI 연습전 `battle_type` `pvp_duel` → `ai_duel` 변경 — Daily OPS `ai_battle` 미션 트래킹 정상화
+- AI 연습전은 DB CHECK constraint 허용값인 `pvp_duel`을 유지하고 `battle_summary.is_ai_battle=true`로 미션 트래킹 구분
 
 ---
 

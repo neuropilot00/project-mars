@@ -66,8 +66,9 @@ router.get('/ai/fleets', requireAuth, async (req, res) => {
 });
 
 router.post('/ai/fight', requireAuth, async (req, res) => {
+  const client = await pool.connect();
   try {
-    const wallet = getWallet(req);
+    const wallet = (getWallet(req) || '').toLowerCase();
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
     const { my_fleet_id, ai_fleet_id } = req.body || {};
@@ -75,43 +76,80 @@ router.post('/ai/fight', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'FLEET_IDS_REQUIRED' });
     }
 
-    // AI 함대인지 확인
-    const { rows: aiCheck } = await pool.query(`
-      SELECT f.id, u.is_ai, f.is_in_battle
-      FROM fleets f JOIN users u ON u.wallet_address = f.owner_wallet
+    await client.query('BEGIN');
+
+    const { rows: fleetColumnRows } = await client.query(`
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'fleets'
+        AND column_name = 'is_ai'
+      LIMIT 1
+    `);
+    const hasFleetIsAi = fleetColumnRows.length > 0;
+
+    // AI 함대인지 확인: fleets.is_ai가 있으면 우선 반영하고, 없으면 owner user의 is_ai로 판별
+    const aiSql = `
+      SELECT f.id, u.is_ai AS owner_is_ai, f.is_in_battle
+             ${hasFleetIsAi ? ', COALESCE(f.is_ai, false) AS fleet_is_ai' : ', false AS fleet_is_ai'}
+      FROM fleets f
+      JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
       WHERE f.id = $1
-    `, [ai_fleet_id]);
+      FOR UPDATE OF f
+    `;
+    const { rows: aiCheck } = await client.query(aiSql, [ai_fleet_id]);
 
-    if (!aiCheck[0]) return res.status(404).json({ error: 'AI_FLEET_NOT_FOUND' });
-    if (!aiCheck[0].is_ai) return res.status(400).json({ error: 'NOT_AI_FLEET' });
-    if (aiCheck[0].is_in_battle) return res.status(409).json({ error: 'AI_IN_BATTLE' });
+    if (!aiCheck[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'AI_FLEET_NOT_FOUND' });
+    }
+    if (!aiCheck[0].fleet_is_ai && !aiCheck[0].owner_is_ai) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'NOT_AI_FLEET' });
+    }
+    if (aiCheck[0].is_in_battle) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'AI_IN_BATTLE' });
+    }
 
-    const { rows: myFleet } = await pool.query(`
-      SELECT f.is_in_battle, COUNT(s.id) FILTER (WHERE s.is_alive) AS alive
-      FROM fleets f LEFT JOIN ships s ON s.fleet_id = f.id
-      WHERE f.id = $1 AND f.owner_wallet = $2
-      GROUP BY f.is_in_battle
+    const { rows: myFleet } = await client.query(`
+      SELECT f.is_in_battle,
+             (SELECT COUNT(*) FROM ships s WHERE s.fleet_id = f.id AND s.is_alive) AS alive
+      FROM fleets f
+      WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)
+      FOR UPDATE OF f
     `, [my_fleet_id, wallet]);
-    if (!myFleet[0]) return res.status(404).json({ error: 'MY_FLEET_NOT_FOUND' });
-    if (myFleet[0].is_in_battle) return res.status(409).json({ error: 'MY_FLEET_IN_BATTLE' });
-    if (parseInt(myFleet[0].alive) === 0) return res.status(409).json({ error: 'MY_FLEET_EMPTY' });
+    if (!myFleet[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'MY_FLEET_NOT_FOUND' });
+    }
+    if (myFleet[0].is_in_battle) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'MY_FLEET_IN_BATTLE' });
+    }
+    if (parseInt(myFleet[0].alive) === 0) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'MY_FLEET_EMPTY' });
+    }
 
-    const { rows: aiFleet } = await pool.query(
+    const { rows: aiFleet } = await client.query(
       `SELECT owner_wallet FROM fleets WHERE id = $1`, [ai_fleet_id]
     );
-    const aiWallet = aiFleet[0].owner_wallet;
+    const aiWallet = (aiFleet[0].owner_wallet || '').toLowerCase();
 
-    const { rows: battleRows } = await pool.query(`
+    const { rows: battleRows } = await client.query(`
       INSERT INTO fleet_battles (battle_type, status, phase, prepare_started_at, scheduled_start_at, battle_summary)
       VALUES ('pvp_duel', 'preparing', 'main', NOW(), NOW(), '{"is_ai_battle":true}'::jsonb)
       RETURNING id
     `);
     const battleId = battleRows[0].id;
 
-    await pool.query(`
+    await client.query(`
       INSERT INTO fleet_battle_participants (battle_id, fleet_id, wallet_address, side) VALUES
         ($1, $2, $3, 'atk'), ($1, $4, $5, 'def')
     `, [battleId, my_fleet_id, wallet, ai_fleet_id, aiWallet]);
+
+    await client.query('COMMIT');
 
     // 즉시 실행
     const battleScheduler = require('../services/battleScheduler');
@@ -121,8 +159,11 @@ router.post('/ai/fight', requireAuth, async (req, res) => {
 
     res.json({ success: true, battle_id: battleId });
   } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
     console.error('[phaseC] ai/fight error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
+  } finally {
+    client.release();
   }
 });
 

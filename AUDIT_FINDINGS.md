@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v6.14 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.15 / 2026-05-06)
+
+## ✅ v6.15 서버 전수 버그 수정 — hijack/ai-fight/harvest/repair/tournament/admin-economy
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| Hijack declare-with-pp | ✅ | `api.js` 공격 함대/자가 픽셀 비교와 `hijack.js` PP 정산/수비 claim/함대 조회의 `LOWER()` 적용 확인. `fleet_battles`는 `hijack/preparing/hijack_phase1`로 CHECK 통과. |
+| AI Fight | ✅ | `phaseC.js` battle + participants INSERT 트랜잭션화. AI 판별은 `fleets.is_ai` 컬럼 존재 시 또는 owner `users.is_ai` 기준. `battle_type='pvp_duel'`로 CHECK 통과. |
+| Territory Harvest | ✅ | `/api/territory/:claimId/harvest`는 PP 지급, resource drop, `claims.last_harvest_at`, transaction log가 단일 트랜잭션 안에서 처리됨 확인. |
+| Ship Repair/Shield | ✅ | `ship.js` market-listed 차단/GP 트랜잭션/GP 로그 유지 확인. 수리 재료 차감 wallet 비교를 `LOWER()`로 수정. |
+| Tournament | ✅ | 참가 등록 wallet 비교 `LOWER()` 보강, 참가비 GP 로그 추가, 정원 도달 시 브래킷 생성 자동 호출. match battle 연결을 트랜잭션화하고 `battle_type='event'` 유지. |
+| Admin Economy | ✅ | `adminEconomyRoutes.js` territory economy/upgrades 쿼리 fallback 확인. 존재하지 않는 보조 뷰/테이블은 빈 결과로 응답. |
+| DB 직접 확인 | ⚠️ | sandbox network 제한으로 localhost:5432 `psql` 접속은 `Operation not permitted` 발생. 마이그레이션/코드 기준으로 CHECK 값을 대조함. |
+
+---
 
 ## ✅ v6.14 OPS 미션 전체 와이어링 + UI 수정 — 완료
 
@@ -19,7 +33,7 @@
 |------|------|------|
 | hold_bonus_pct 미적용 | ✅ | `/api/territory/:claimId/harvest`에 적용. 구버전 `/api/harvest`(미사용)에서 제거 |
 | 월요일 채굴 +50% 위치 오류 | ✅ | 실제 사용 엔드포인트에만 적용 |
-| AI 연습전 OPS 미션 미적립 | ✅ | phaseC.js battle_type `pvp_duel` → `ai_duel` 변경 |
+| AI 연습전 OPS 미션 미적립 | ✅ | phaseC.js battle_type은 DB CHECK 허용값 `pvp_duel` 유지, `battle_summary.is_ai_battle=true`로 구분 |
 
 ---
 

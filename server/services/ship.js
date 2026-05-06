@@ -726,6 +726,7 @@ async function getFleetSummary(walletAddress) {
  */
 async function repairShip(walletAddress, shipId, targetHpPct = 100) {
   const { getSetting } = require('../db');
+  const walletLower = String(walletAddress || '').toLowerCase();
 
   const client = await pool.connect();
   try {
@@ -740,7 +741,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       JOIN ship_types st ON st.code = s.ship_type_code
       WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
       FOR UPDATE OF s
-    `, [shipId, walletAddress]);
+    `, [shipId, walletLower]);
 
     if (!shipRows[0]) {
       const err = new Error('SHIP_NOT_FOUND');
@@ -787,7 +788,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     // 5. GP 확인
     const { rows: userRows } = await client.query(
       `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
-      [walletAddress]
+      [walletLower]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
     if (parseInt(userRows[0].gp_balance) < gpCost) {
@@ -806,7 +807,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
              ), 0) AS quantity
       FROM resources r
       WHERE r.code = 'iron_ore'
-    `, [walletAddress]);
+    `, [walletLower]);
 
     if (!invRows[0]) {
       const err = new Error('INSUFFICIENT_IRON');
@@ -823,16 +824,16 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     // 7. GP 차감
     await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-      [gpCost, walletAddress]
+      [gpCost, walletLower]
     );
 
     // 8. iron_ore 차감
     const spentIron = await client.query(`
       UPDATE user_resource_inventory
       SET quantity = quantity - $1, updated_at = NOW()
-      WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+      WHERE LOWER(wallet_address) = LOWER($2) AND resource_id = $3 AND quantity >= $1
       RETURNING quantity
-    `, [ironNeed, walletAddress, ironInv.resource_id]);
+    `, [ironNeed, walletLower, ironInv.resource_id]);
     if (spentIron.rowCount === 0) {
       const err = new Error('INSUFFICIENT_IRON');
       err.meta = { required: ironNeed, have: 0 };
@@ -850,10 +851,10 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     // 10. GP 활동 로그 (fire-and-forget)
     try {
       const { logGPActivity } = require('../db');
-      logGPActivity(walletAddress, -gpCost, 'ship_repair',
+      logGPActivity(walletLower, -gpCost, 'ship_repair',
         `함선 수리 (ID:${shipId}) +${healAmount}HP`).catch(() => {});
     } catch (_) {}
-    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(walletAddress, 'repair_ship').catch(()=>{}); _dOps.notifyMissionProgress(walletAddress, 'repair_ship_3').catch(()=>{}); } catch(_) {}
+    try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(walletLower, 'repair_ship').catch(()=>{}); _dOps.notifyMissionProgress(walletLower, 'repair_ship_3').catch(()=>{}); } catch(_) {}
 
     return {
       success:  true,
@@ -881,6 +882,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
  */
 async function chargeShield(walletAddress, shipId, units) {
   const { getSetting } = require('../db');
+  const walletLower = String(walletAddress || '').toLowerCase();
 
   if (!units || units <= 0) {
     const err = new Error('INVALID_UNITS');
@@ -899,7 +901,7 @@ async function chargeShield(walletAddress, shipId, units) {
       FROM ships s
       WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
       FOR UPDATE OF s
-    `, [shipId, walletAddress]);
+    `, [shipId, walletLower]);
 
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     const ship = shipRows[0];
@@ -931,7 +933,7 @@ async function chargeShield(walletAddress, shipId, units) {
     // 4. GP 확인
     const { rows: userRows } = await client.query(
       `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
-      [walletAddress]
+      [walletLower]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
     if (parseInt(userRows[0].gp_balance) < gpCost) {
@@ -943,7 +945,7 @@ async function chargeShield(walletAddress, shipId, units) {
     // 5. GP 차감
     await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-      [gpCost, walletAddress]
+      [gpCost, walletLower]
     );
 
     // 6. 실드 업데이트
@@ -958,7 +960,7 @@ async function chargeShield(walletAddress, shipId, units) {
     // GP 활동 로그 (fire-and-forget)
     try {
       const { logGPActivity } = require('../db');
-      logGPActivity(walletAddress, -gpCost, 'ship_shield',
+      logGPActivity(walletLower, -gpCost, 'ship_shield',
         `실드 충전 (ID:${shipId}) +${units}`).catch(() => {});
     } catch (_) {}
 

@@ -12,7 +12,7 @@
 //   5. finalizeTournament — 결승 완료 시 상금 지급
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, logGPActivity } = require('../db');
 const siegeFleetBridge = require('./siegeFleetBridge'); // 재사용: battle 생성 유틸
 
 // ─── 토너먼트 생성 ───
@@ -65,6 +65,10 @@ async function createTournament(params) {
 
 async function registerParticipant(tournamentId, walletAddress, fleetId) {
   const client = await pool.connect();
+  const walletLower = String(walletAddress || '').toLowerCase();
+  let shouldStart = false;
+  let entryFeeGp = 0;
+  let committed = false;
   try {
     await client.query('BEGIN');
     
@@ -83,28 +87,29 @@ async function registerParticipant(tournamentId, walletAddress, fleetId) {
     
     // 이미 참가?
     const { rows: exists } = await client.query(
-      `SELECT 1 FROM tournament_participants WHERE tournament_id = $1 AND wallet_address = $2`,
-      [tournamentId, walletAddress]
+      `SELECT 1 FROM tournament_participants WHERE tournament_id = $1 AND LOWER(wallet_address) = LOWER($2)`,
+      [tournamentId, walletLower]
     );
     if (exists[0]) throw new Error('ALREADY_REGISTERED');
     
     // 함대 소유권 + 함선 확인
     const { rows: fleetRows } = await client.query(`
-      SELECT f.id, f.is_in_battle, 
+      SELECT f.id, f.owner_wallet, f.is_in_battle,
              COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive
       FROM fleets f LEFT JOIN ships s ON s.fleet_id = f.id
-      WHERE f.id = $1 AND f.owner_wallet = $2
+      WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)
       GROUP BY f.id
-    `, [fleetId, walletAddress]);
+    `, [fleetId, walletLower]);
     if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
     if (fleetRows[0].is_in_battle) throw new Error('FLEET_IN_BATTLE');
     if (parseInt(fleetRows[0].ships_alive) === 0) throw new Error('FLEET_EMPTY');
+    const participantWallet = (fleetRows[0].owner_wallet || walletLower).toLowerCase();
     
     // Entry fee 차감
     if (t.entry_fee_gp > 0) {
       const { rows: userRows } = await client.query(
-        `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
-        [walletAddress]
+        `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+        [participantWallet]
       );
       if (!userRows[0]) throw new Error('USER_NOT_FOUND');
       if (parseInt(userRows[0].gp_balance) < t.entry_fee_gp) {
@@ -114,9 +119,10 @@ async function registerParticipant(tournamentId, walletAddress, fleetId) {
       }
       
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
-        [t.entry_fee_gp, walletAddress]
+        `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+        [t.entry_fee_gp, participantWallet]
       );
+      entryFeeGp = parseInt(t.entry_fee_gp) || 0;
       
       // Prize pool 증가
       await client.query(
@@ -129,7 +135,7 @@ async function registerParticipant(tournamentId, walletAddress, fleetId) {
     await client.query(`
       INSERT INTO tournament_participants (tournament_id, wallet_address, fleet_id)
       VALUES ($1, $2, $3)
-    `, [tournamentId, walletAddress, fleetId]);
+    `, [tournamentId, participantWallet, fleetId]);
     
     // 카운트 +1
     await client.query(`
@@ -143,12 +149,22 @@ async function registerParticipant(tournamentId, walletAddress, fleetId) {
         `UPDATE tournaments SET status = 'ready' WHERE id = $1`,
         [tournamentId]
       );
+      shouldStart = true;
     }
     
     await client.query('COMMIT');
-    return { success: true, tournament_id: tournamentId };
+    committed = true;
+    if (entryFeeGp > 0) {
+      logGPActivity(participantWallet, -entryFeeGp, 'tournament_entry', `Tournament #${tournamentId} entry`).catch(() => {});
+    }
+    if (shouldStart) {
+      await startTournament(tournamentId);
+    }
+    return { success: true, tournament_id: tournamentId, started: shouldStart };
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (!committed) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+    }
     throw err;
   } finally {
     client.release();
@@ -326,27 +342,34 @@ async function runReadyMatches(tournamentId) {
 }
 
 async function runSingleMatch(match) {
+  const client = await pool.connect();
+  let battleId = null;
+  try {
+    await client.query('BEGIN');
+
   // fleet_battle 생성
-  const { rows: battleRows } = await pool.query(`
+  const { rows: battleRows } = await client.query(`
     INSERT INTO fleet_battles (
       battle_type, status, phase,
       prepare_started_at, scheduled_start_at
     ) VALUES ('event', 'preparing', 'main', NOW(), NOW())
     RETURNING id
   `);
-  const battleId = battleRows[0].id;
+  battleId = battleRows[0].id;
   
-  await pool.query(`
+  await client.query(`
     INSERT INTO fleet_battle_participants (battle_id, fleet_id, wallet_address, side)
     VALUES ($1, $2, $3, 'atk'), ($1, $4, $5, 'def')
   `, [battleId, match.p1_fleet_id, match.p1_wallet, match.p2_fleet_id, match.p2_wallet]);
   
   // 매치에 battle_id 연결
-  await pool.query(`
+  await client.query(`
     UPDATE tournament_matches 
     SET battle_id = $1, status = 'running', started_at = NOW()
     WHERE id = $2
   `, [battleId, match.id]);
+
+  await client.query('COMMIT');
   
   // 즉시 실행
   const battleScheduler = require('./battleScheduler');
@@ -360,6 +383,12 @@ async function runSingleMatch(match) {
   });
   
   return battleId;
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 // ─── 매치 완료 처리 ───
@@ -429,7 +458,7 @@ async function promoteWinner(matchId) {
   // 승자 함대 ID 가져오기
   const { rows: fleetRows } = await pool.query(`
     SELECT fleet_id FROM tournament_participants 
-    WHERE tournament_id = $1 AND wallet_address = $2
+    WHERE tournament_id = $1 AND LOWER(wallet_address) = LOWER($2)
   `, [match.tournament_id, winner]);
   const winnerFleetId = fleetRows[0]?.fleet_id;
   
