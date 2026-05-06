@@ -22336,7 +22336,7 @@ function loadVipView() {
 function purchaseVipPass(tierId, name, cost) {
   var w = walletState && walletState.address;
   if (!w) { showToast(t('err_connect_wallet')||'Connect wallet first','error'); return; }
-  gameConfirm({ title: t('vip_purchase_title')||'Get VIP Pass?', body: 'Activate <b>' + _escHtml(name) + '</b> VIP for <b>' + cost + ' GP</b>?' }).then(function(ok){
+  gameConfirm({ icon:'👑', title: t('vip_purchase_title')||'Get VIP Pass?', body: 'Activate <b>' + _escHtml(name) + '</b> VIP for <b>' + cost + ' GP</b>?', confirmText: t('vip_confirm')||'GET VIP' }).then(function(ok){
     if (!ok) return;
     fetch('/api/vip/purchase', {
       method: 'POST',
@@ -22434,7 +22434,8 @@ function attemptCraft(recipeId){
   var confirmMsg=t('craft_confirm_title')||'Craft: '+recipe.output_name;
   var subMsg=(ingList?ingList+'\n':'')+(gpCost>0?'Cost: '+gpCost+' GP\n':'')+'Success: '+recipe.success_rate+'%';
 
-  gameConfirm(confirmMsg, subMsg, function(){
+  gameConfirm({icon:'⚗️', title:confirmMsg, body:subMsg.replace(/\n/g,'<br>'), confirmText:'CRAFT'}).then(function(ok){
+    if(!ok) return;
     var btn=document.querySelector('[onclick="attemptCraft('+recipeId+')"]');
     if(btn){ btn.disabled=true; btn.textContent='Crafting…'; }
     fetch('/api/crafting/craft',{

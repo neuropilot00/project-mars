@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: gameConfirm legacy calls — crafting + VIP (v6.47)
+
+### index.html
+- **버그**: `attemptCraft()` — `gameConfirm(confirmMsg, subMsg, callback)` 구버전 콜백 패턴 → 제작 확인 모달 완전 비동작
+- **수정**: options object + `.then()` 패턴으로 교체. `\n` → `<br>` 변환 추가
+- **버그**: `purchaseVipPass()` — `gameConfirm({title, body})` icon/confirmText 누락
+- **수정**: `icon:'👑'`, `confirmText:'GET VIP'` 추가
+
 ## 2026-05-06 — bugfix: onboarding API URL mismatch + missing /reward endpoint
 
 ### index.html (5개 fetch 수정)

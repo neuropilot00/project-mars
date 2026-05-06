@@ -1,5 +1,14 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.47 버그수정 — gameConfirm 구버전 호출 잔여 2건
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `attemptCraft()` — `gameConfirm(confirmMsg, subMsg, callback)` 레거시 콜백 패턴 (line ~22437) | ✅ 수정 | options object + `.then()` 패턴. 제작 확인 모달 완전 비동작이었음 |
+| `purchaseVipPass()` — `gameConfirm({title, body})` icon/confirmText 누락 (line ~22339) | ✅ 수정 | `icon:'👑'`, `confirmText:'GET VIP'` 추가 |
+
+
+
 ## ✅ v6.46 버그수정 — 온보딩 API URL 불일치 + POST /reward 엔드포인트 누락
 
 | 항목 | 상태 | 비고 |
