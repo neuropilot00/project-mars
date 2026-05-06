@@ -1,4 +1,14 @@
-# OCCUPY MARS — Codebase Audit (v6.12 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.13 / 2026-05-06)
+
+## ✅ v6.13 Codex 감사 버그 수정 3건 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| hold_bonus_pct 미적용 | ✅ | `/api/territory/:claimId/harvest`에 적용. 구버전 `/api/harvest`(미사용)에서 제거 |
+| 월요일 채굴 +50% 위치 오류 | ✅ | 실제 사용 엔드포인트에만 적용 |
+| AI 연습전 OPS 미션 미적립 | ✅ | phaseC.js battle_type `pvp_duel` → `ai_duel` 변경 |
+
+---
 
 ## ✅ v6.12 주간 이벤트/CPI/OPS 연동 + Field Rating 하이젝 가중 — 완료 (Codex 협업)
 

@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — Codex 감사 버그 수정 3건
+
+### `server/routes/api.js`
+- `/api/territory/:claimId/harvest`: `hold_bonus_pct` (장기 보유 보너스) + 월요일 +50% 보너스 올바른 엔드포인트에 적용
+- `/api/harvest` (구버전 미사용): 잘못 추가된 보너스 블록 제거, 미사용 표시
+
+### `server/routes/phaseC.js`
+- AI 연습전 `battle_type` `pvp_duel` → `ai_duel` 변경 — Daily OPS `ai_battle` 미션 트래킹 정상화
+
+---
+
 ## 2026-05-06 — 주간 이벤트/CPI/OPS 연동 + Field Rating 하이젝 가중 (Codex 협업)
 
 ### `server/routes/api.js`
