@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.60 — 서버 라우트 서비스 require 오류 수정 (6개 파일)
+
+### server/routes/ (6개 파일)
+- `vip.js`, `duel.js`, `alliance.js`, `expedition.js`, `rental.js`, `contest.js`: 존재하지 않는 `gpService.js`, `seasonService.js`, `weeklyChallenge.js`를 require하고 있었음.
+- 실제 서비스로 교정: `require('../db').logGPActivity` (GP 로깅) + `require('../services/season')` (시즌 점수). 이제 VIP 구매/파벌 행동/듀얼 등 GP 활동이 gp_activity_log에 정상 기록됨.
+- `weeklyChallenges`는 삭제된 서비스이므로 주석으로 표시.
+
+## 2026-05-06 v6.59 — admin.html mkStatBox 헬퍼 함수 정의 추가
+
+### admin.html (1곳)
+- `mkStatBox(label, value, color)`: 어드민 패널 실드/복권/경매 탭 스탯 카드에 16회 이상 사용되지만 프로젝트 어디에도 정의 없음 → ReferenceError. 함수 정의 추가.
+
 ## 2026-05-06 v6.58 — refreshBalance / gameAlert 미정의 함수 수정
 
 ### index.html (2곳)

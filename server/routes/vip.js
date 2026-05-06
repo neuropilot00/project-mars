@@ -4,9 +4,9 @@ const router   = express.Router();
 const vipSvc   = require('../services/vip');
 
 let logGPActivity, seasonService, weeklySvc;
-try { ({ logGPActivity } = require('../services/gpService')); } catch (_) {}
-try { seasonService = require('../services/seasonService'); } catch (_) {}
-try { weeklySvc     = require('../services/weeklyChallenge'); } catch (_) {}
+try { ({ logGPActivity } = require('../db')); } catch (_) {}
+try { seasonService = require('../services/season'); } catch (_) {}
+// weeklySvc intentionally not available (service removed)
 
 // GET /api/vip/tiers — list all active VIP tiers
 router.get('/vip/tiers', async (req, res) => {

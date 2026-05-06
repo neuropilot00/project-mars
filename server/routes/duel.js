@@ -4,9 +4,9 @@ const router  = express.Router();
 const duelSvc = require('../services/duel');
 
 let logGPActivity, seasonService, weeklySvc;
-try { ({ logGPActivity } = require('../services/gpService')); } catch (_) {}
-try { seasonService = require('../services/seasonService'); } catch (_) {}
-try { weeklySvc     = require('../services/weeklyChallenge'); } catch (_) {}
+try { ({ logGPActivity } = require('../db')); } catch (_) {}
+try { seasonService = require('../services/season'); } catch (_) {}
+// weeklySvc intentionally not available (service removed)
 
 // ── GET /api/duels/my?wallet= ─────────────────────────────────────────────────
 router.get('/duels/my', async (req, res) => {

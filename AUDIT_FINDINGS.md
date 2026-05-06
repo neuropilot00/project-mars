@@ -1,5 +1,18 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.60 버그수정 — 서버 라우트 잘못된 서비스 require (6개 파일)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `vip.js`, `duel.js`, `alliance.js`, `expedition.js`, `rental.js`, `contest.js`: `require('../services/gpService')`, `require('../services/seasonService')`, `require('../services/weeklyChallenge')` — 모두 존재하지 않는 파일명. try-catch로 감싸있어 서버 crash는 없지만 logGPActivity/시즌 점수가 silent no-op | ✅ 수정 | `require('../db').logGPActivity` + `require('../services/season')` 으로 교정. VIP 구매/파벌 행동/듀얼/원정 등 GP 활동이 이제 정상 기록됨 |
+| `weeklyChallenges.js` / `weeklyChallenge.js` — 삭제된 서비스. staking/shield/claimUpgrades/marketplace/monuments 에서 try-catch로 로드 시도 | 🟡 허용 | 기능 삭제됨. silent no-op 유지. 주석으로 명시 |
+
+## ✅ v6.59 버그수정 — admin.html mkStatBox 헬퍼 함수 정의 없음
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `mkStatBox(label, value, color)` — 어드민 패널 실드/복권/경매 통계 카드에 16회 이상 사용. 프로젝트 어느 파일에도 정의 없음 → 어드민 탭 진입 시 ReferenceError | ✅ 수정 | `admin.html`에 함수 정의 추가 (라인 ~3255) |
+
 ## ✅ v6.58 버그수정 — refreshBalance / gameAlert 미정의 함수 (직접 호출)
 
 | 항목 | 상태 | 비고 |

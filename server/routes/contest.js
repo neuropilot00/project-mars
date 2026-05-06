@@ -4,9 +4,9 @@ const router     = express.Router();
 const contestSvc = require('../services/contest');
 
 let logGPActivity, seasonService, weeklySvc;
-try { ({ logGPActivity } = require('../services/gpService')); } catch (_) {}
-try { seasonService = require('../services/seasonService'); } catch (_) {}
-try { weeklySvc     = require('../services/weeklyChallenge'); } catch (_) {}
+try { ({ logGPActivity } = require('../db')); } catch (_) {}
+try { seasonService = require('../services/season'); } catch (_) {}
+// weeklySvc intentionally not available (service removed)
 
 // GET /api/contests?status=open
 router.get('/contests', async (req, res) => {
