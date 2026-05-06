@@ -6,8 +6,8 @@ const craftingSvc = require('../services/crafting');
 
 // Try to load optional services for GP logging / season tracking
 let logGPActivity, seasonService, weeklySvc;
-try { ({ logGPActivity } = require('../services/gpService')); } catch (_) {}
-try { seasonService = require('../services/seasonService'); } catch (_) {}
+try { ({ logGPActivity } = require('../db')); } catch (_) {}
+try { seasonService = require('../services/season'); } catch (_) {}
 try { weeklySvc     = require('../services/weeklyChallenge'); } catch (_) {}
 
 // ── GET /api/crafting/recipes ─────────────────────────────────────────────────

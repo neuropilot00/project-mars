@@ -34845,7 +34845,7 @@ window.addEventListener('resize', _debounce(function(){
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast('Error: '+d.error);return}
       showToast('Declaration saved! (-5 GP)');
-      if(typeof loadGovDashboard==='function') loadGovDashboard();
+      try { loadGovernanceData(); } catch(_) {}
     }).catch(function(){showToast('Failed')});
   };
 
@@ -40251,6 +40251,17 @@ window.loadUserData = window.loadWalletData;
 window.loadBaseStats = window.loadWalletData;
 // gameAlert: alert() 대체 알림 — 40곳 직접 호출, 정의 없음 → showToast 위임
 window.gameAlert = function(msg) { try { var s = String(msg||''); showToast(s, s.startsWith('✅')||s.startsWith('🎉')||s.startsWith('✔')?'success':'error'); } catch(_) {} };
+// loadGPBalance: 업그레이드/거래 후 GP 잔액 갱신 — typeof 가드로 보호되지만 정의 없어 no-op
+window.loadGPBalance = window.loadWalletData;
+// refreshPP: PP 잔액 갱신 — typeof 가드로 보호
+window.refreshPP = window.loadWalletData;
+// loadClaims / refreshClaims: 영토 병합 후 클레임 목록 재로드 — typeof 가드로 보호
+window.loadClaims = function(){ try { compositeClaimsOnTexture(); } catch(_){} };
+window.refreshClaims = window.loadClaims;
+// renderBlueprintsGrid / renderShipList: 조선소 청사진·보유함 갱신 — typeof 가드로 보호
+// 실제 함수명: renderBlueprints(), renderShips(), renderQueue()
+window.renderBlueprintsGrid = function(){ try { renderBlueprints(); } catch(_){} };
+window.renderShipList = function(){ try { renderShips(); } catch(_){} };
 
 // ── Daily Reset Timer ──
 var _dailyTimerInterval = null;

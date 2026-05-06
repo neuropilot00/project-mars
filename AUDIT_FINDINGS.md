@@ -1,5 +1,15 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.61 버그수정 — typeof 가드 undefined 함수 알리아스 + 거버넌스 리프레시
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `loadGPBalance` / `refreshPP` — typeof 가드로 보호되지만 정의 없어 영토 업그레이드/PP 소비 후 잔액 갱신 no-op | ✅ 수정 | `loadWalletData` 알리아스 추가 |
+| `loadClaims` / `refreshClaims` — 영토 병합 후 클레임 재로드 no-op | ✅ 수정 | `compositeClaimsOnTexture()` 래퍼 추가 |
+| `renderBlueprintsGrid` / `renderShipList` — 조선소 탭 전환 시 재렌더 no-op | ✅ 수정 | `renderBlueprints()` / `renderShips()` 래퍼 추가 |
+| `loadGovDashboard` — 거버넌스 선언 후 대시보드 갱신 no-op (잘못된 함수명) | ✅ 수정 | `loadGovernanceData()` 직접 호출로 교체 |
+| `crafting.js` — `gpService`/`seasonService` 잘못된 require | ✅ 수정 | `require('../db').logGPActivity` + `require('../services/season')` 교정 |
+
 ## ✅ v6.60 버그수정 — 서버 라우트 잘못된 서비스 require (6개 파일)
 
 | 항목 | 상태 | 비고 |

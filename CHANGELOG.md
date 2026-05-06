@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.61 — typeof 가드 undefined 함수 알리아스 추가 + 거버넌스 리프레시 수정
+
+### index.html
+- `loadGPBalance` (1곳 typeof 가드), `refreshPP` (1곳): GP/PP 잔액 갱신 함수 — 정의 없어 silent no-op. `loadWalletData` 알리아스 추가.
+- `loadClaims` / `refreshClaims` (영토 병합 후 재로드): 정의 없어 silent no-op. `compositeClaimsOnTexture()` 래퍼 추가.
+- `renderBlueprintsGrid` / `renderShipList` (조선소 탭 전환 시 갱신): 정의 없어 silent no-op. `renderBlueprints()` / `renderShips()` 래퍼 추가.
+- `loadGovDashboard` (거버넌스 선언 후 대시보드 갱신): 잘못된 함수명. `loadGovernanceData()` 직접 호출로 교체.
+
+### server/routes/crafting.js
+- `require('../services/gpService')` / `require('../services/seasonService')`: 존재하지 않는 파일명 → `require('../db').logGPActivity` + `require('../services/season')` 교정. 크래프팅 GP 활동 이제 정상 기록.
+
 ## 2026-05-06 v6.60 — 서버 라우트 서비스 require 오류 수정 (6개 파일)
 
 ### server/routes/ (6개 파일)
