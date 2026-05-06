@@ -20,8 +20,8 @@ const { pool, getSetting } = require('../db');
 
 const NPC_WALLET = '0xnpc0000000000000000000000000000000000000';
 
-let battleEngine;
-try { battleEngine = require('./battleEngine'); } catch (_) { battleEngine = null; }
+let battleScheduler;
+try { battleScheduler = require('./battleScheduler'); } catch (_) { battleScheduler = null; }
 
 // ── 유틸 ───────────────────────────────────────────────────────────
 function generateEventCode(prefix) {
@@ -253,67 +253,72 @@ async function getEventDetail(eventId) {
  * @returns { battleId, eventId, hp_remaining, hp_pct, status }
  */
 async function engageEvent(eventId, attackerWallet, attackerFleetId) {
-  if (!battleEngine) throw new Error('BATTLE_ENGINE_NOT_AVAILABLE');
+  if (!battleScheduler || typeof battleScheduler.runBattle !== 'function') {
+    throw new Error('BATTLE_SCHEDULER_NOT_AVAILABLE');
+  }
 
   const minShips = await getSetN('void_raider_engage_min_ships', 5);
   const cooldownMin = await getSetN('void_raider_engage_cooldown_min', 30);
 
-  // 1) 이벤트 + NPC fleet 조회
-  const { rows: evRows } = await pool.query(
-    `SELECT * FROM world_events WHERE id = $1 FOR UPDATE`,
-    [eventId]
-  );
-  if (!evRows.length) throw new Error('EVENT_NOT_FOUND');
-  const event = evRows[0];
-  if (!['active','engaged'].includes(event.status)) throw new Error('EVENT_NOT_ENGAGEABLE');
-  if (new Date(event.ends_at) <= new Date()) throw new Error('EVENT_EXPIRED');
-  if (!event.fleet_id) throw new Error('EVENT_HAS_NO_FLEET');
-
-  // 2) 공격자 함대 검증 (wallet 대소문자 무시)
-  const { rows: atkFleetRows } = await pool.query(
-    `SELECT f.id, f.owner_wallet, f.is_in_battle, f.is_npc,
-            (SELECT COUNT(*) FROM ships WHERE fleet_id = f.id AND is_alive = true) AS alive_ships
-       FROM fleets f WHERE f.id = $1`,
-    [attackerFleetId]
-  );
-  if (!atkFleetRows.length) throw new Error('FLEET_NOT_FOUND');
-  const atkFleet = atkFleetRows[0];
-  if ((atkFleet.owner_wallet || '').toLowerCase() !== (attackerWallet || '').toLowerCase()) throw new Error('NOT_FLEET_OWNER');
-  if (atkFleet.is_npc) throw new Error('NPC_CANNOT_ENGAGE');
-  if (atkFleet.is_in_battle) throw new Error('FLEET_BUSY');
-  if (parseInt(atkFleet.alive_ships) < minShips) {
-    const err = new Error('INSUFFICIENT_SHIPS');
-    err.meta = { required: minShips, have: parseInt(atkFleet.alive_ships) };
-    throw err;
-  }
-
-  // 3) 쿨다운 체크
-  const { rows: cdRows } = await pool.query(
-    `SELECT last_battle_at FROM world_event_participants
-      WHERE event_id = $1 AND wallet = $2`,
-    [eventId, attackerWallet]
-  );
-  if (cdRows.length && cdRows[0].last_battle_at) {
-    const since = (Date.now() - new Date(cdRows[0].last_battle_at).getTime()) / 60000;
-    if (since < cooldownMin) {
-      const err = new Error('ENGAGE_COOLDOWN');
-      err.meta = { remaining_minutes: Math.ceil(cooldownMin - since) };
-      throw err;
-    }
-  }
-
   // 4) fleet_battles 생성 (battle_type='world_event')
   const client = await pool.connect();
   let battleId;
+  let event;
   try {
     await client.query('BEGIN');
 
+    // 1) 이벤트 + NPC fleet 조회
+    const { rows: evRows } = await client.query(
+      `SELECT * FROM world_events WHERE id = $1 FOR UPDATE`,
+      [eventId]
+    );
+    if (!evRows.length) throw new Error('EVENT_NOT_FOUND');
+    event = evRows[0];
+    if (!['active','engaged'].includes(event.status)) throw new Error('EVENT_NOT_ENGAGEABLE');
+    if (new Date(event.ends_at) <= new Date()) throw new Error('EVENT_EXPIRED');
+    if (!event.fleet_id) throw new Error('EVENT_HAS_NO_FLEET');
+
+    // 2) 공격자 함대 검증
+    const { rows: atkFleetRows } = await client.query(
+      `SELECT f.id, f.owner_wallet, f.is_in_battle, f.is_npc,
+              (SELECT COUNT(*) FROM ships WHERE fleet_id = f.id AND is_alive = true) AS alive_ships
+         FROM fleets f
+        WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)
+        FOR UPDATE`,
+      [attackerFleetId, attackerWallet]
+    );
+    if (!atkFleetRows.length) throw new Error('FLEET_NOT_FOUND');
+    const atkFleet = atkFleetRows[0];
+    if (atkFleet.is_npc) throw new Error('NPC_CANNOT_ENGAGE');
+    if (atkFleet.is_in_battle) throw new Error('FLEET_BUSY');
+    if (parseInt(atkFleet.alive_ships) < minShips) {
+      const err = new Error('INSUFFICIENT_SHIPS');
+      err.meta = { required: minShips, have: parseInt(atkFleet.alive_ships) };
+      throw err;
+    }
+
+    // 3) 쿨다운 체크
+    const { rows: cdRows } = await client.query(
+      `SELECT last_battle_at FROM world_event_participants
+        WHERE event_id = $1 AND LOWER(wallet) = LOWER($2)`,
+      [eventId, attackerWallet]
+    );
+    if (cdRows.length && cdRows[0].last_battle_at) {
+      const since = (Date.now() - new Date(cdRows[0].last_battle_at).getTime()) / 60000;
+      if (since < cooldownMin) {
+        const err = new Error('ENGAGE_COOLDOWN');
+        err.meta = { remaining_minutes: Math.ceil(cooldownMin - since) };
+        throw err;
+      }
+    }
+
     const { rows: bRows } = await client.query(
       `INSERT INTO fleet_battles
-         (battle_type, sector_id, status, phase, prepare_started_at, battle_started_at, atk_ships_total, def_ships_total)
-       VALUES ('world_event', $1, 'simulating', 'live', NOW(), NOW(), 0, 0)
+         (battle_type, sector_id, status, phase, prepare_started_at, scheduled_start_at, atk_ships_total, def_ships_total, battle_summary)
+       VALUES ('event', $1, 'preparing', 'main', NOW(), NOW(), 0, 0,
+               jsonb_build_object('world_event_id', $2::int, 'is_world_event', true))
        RETURNING id`,
-      [event.sector_id]
+      [event.sector_id, eventId]
     );
     battleId = bRows[0].id;
 
@@ -338,21 +343,20 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
 
     await client.query('COMMIT');
   } catch (err) {
-    await client.query('ROLLBACK');
-    client.release();
+    try { await client.query('ROLLBACK'); } catch (_) {}
     throw err;
+  } finally {
+    client.release();
   }
-  client.release();
 
-  // 5) 시뮬레이션 (battleEngine 호출)
+  // 5) 시뮬레이션 (battleScheduler 호출)
   let result;
   try {
-    result = await battleEngine.simulateBattle(battleId);
+    result = await battleScheduler.runBattle(battleId);
   } catch (err) {
-    console.error('[worldEvents] simulateBattle error:', err);
+    console.error('[worldEvents] runBattle error:', err);
     // fleet 잠금 해제
     await pool.query(`UPDATE fleets SET is_in_battle = false, current_battle_id = NULL WHERE id = $1`, [attackerFleetId]);
-    await pool.query(`UPDATE fleet_battles SET status = 'failed' WHERE id = $1`, [battleId]);
     throw err;
   }
 
