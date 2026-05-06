@@ -1,4 +1,12 @@
-# OCCUPY MARS — Codebase Audit (v6.68 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.69 / 2026-05-07)
+
+## ✅ v6.69 버그수정 — commanderActions.js 지갑 대소문자 비교 오류 (4곳)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 참가자 검증 `owner_wallet = $2` — JWT 지갑 소문자 ≠ DB 대소문자 시 `NOT_A_PARTICIPANT` 403 | ✅ 수정 | `LOWER()` 적용 |
+| 쿼터/중복 체크 `wallet_address = $2` — 동일 문제로 액션 카운트 누락 | ✅ 수정 | `LOWER()` 적용 |
+| GP 차감 `wallet_address = $2` — 케이스 불일치 시 `INSUFFICIENT_GP` 오류 | ✅ 수정 | `LOWER()` 적용 |
 
 ## ✅ v6.68 버그수정 — fleetBattles.js 지갑 대소문자 비교 오류 (4곳)
 

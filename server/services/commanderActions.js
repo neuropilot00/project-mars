@@ -69,7 +69,7 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
     const { rows: partRows } = await client.query(
       `SELECT side FROM fleet_battle_participants
        WHERE battle_id = $1 AND fleet_id IN (
-         SELECT id FROM fleets WHERE owner_wallet = $2
+         SELECT id FROM fleets WHERE LOWER(owner_wallet) = LOWER($2)
        )
        LIMIT 1`,
       [battleId, walletAddress]
@@ -80,7 +80,7 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
     // 3) 쿼터 체크 — formation_change / maneuver_change 는 mutable 이라 quota 에서 제외
     const { rows: cntRows } = await client.query(
       `SELECT COUNT(*)::int AS c FROM commander_actions
-       WHERE battle_id = $1 AND wallet_address = $2
+       WHERE battle_id = $1 AND LOWER(wallet_address) = LOWER($2)
          AND action_type NOT IN ('formation_change', 'maneuver_change')`,
       [battleId, walletAddress]
     );
@@ -95,7 +95,7 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
     const isMutable = actionType === 'formation_change' || actionType === 'maneuver_change';
     const { rows: dupRows } = await client.query(
       `SELECT id, gp_cost FROM commander_actions
-       WHERE battle_id = $1 AND wallet_address = $2 AND action_type = $3`,
+       WHERE battle_id = $1 AND LOWER(wallet_address) = LOWER($2) AND action_type = $3`,
       [battleId, walletAddress, actionType]
     );
     if (dupRows[0] && !isMutable) throw new Error('ACTION_ALREADY_DECLARED');
@@ -163,7 +163,7 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
     if (gpCost > 0 && !skipGp) {
       const { rows: uRows } = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1
-         WHERE wallet_address = $2 AND gp_balance >= $1
+         WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1
          RETURNING gp_balance`,
         [gpCost, walletAddress]
       );

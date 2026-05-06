@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.69 — commanderActions.js 지갑 대소문자 비교 버그 수정
+
+### server/services/commanderActions.js (4곳)
+- 참가자 검증: `owner_wallet = $2` → `LOWER(owner_wallet) = LOWER($2)`.
+- 쿼터 체크: `wallet_address = $2` → `LOWER(wallet_address) = LOWER($2)`.
+- 중복 액션 체크: `wallet_address = $2` → `LOWER(wallet_address) = LOWER($2)`.
+- GP 차감: `wallet_address = $2` → `LOWER(wallet_address) = LOWER($2)`.
+- JWT wallet 소문자 정규화 후 DB 비교 시 케이스 불일치로 `NOT_A_PARTICIPANT` / `INSUFFICIENT_GP` 오류 발생하던 버그 해소.
+
 ## 2026-05-07 v6.68 — fleetBattles.js 지갑 대소문자 비교 버그 수정
 
 ### server/routes/fleetBattles.js (4곳)
