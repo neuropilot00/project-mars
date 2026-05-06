@@ -7718,8 +7718,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                   <span style="font-size:9px;color:var(--gold);font-family:var(--fn)" id="guildDonateMyGP">내 GP: 0</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px">
-                  <input id="guildDonateAmt" type="number" min="1" placeholder="기부할 GP 입력" style="flex:1;padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx);font-size:11px;font-family:var(--fn);box-sizing:border-box">
-                  <button onclick="guildDonateGP()" style="padding:6px 12px;border-radius:5px;background:linear-gradient(135deg,rgba(0,230,118,.2),rgba(0,200,83,.1));border:1px solid rgba(0,230,118,.35);color:var(--gn);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;white-space:nowrap">기부</button>
+                  <input id="guildDonateAmt" type="number" min="1" placeholder="Enter GP amount" data-i18n-placeholder="guild_donate_placeholder" style="flex:1;padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx);font-size:11px;font-family:var(--fn);box-sizing:border-box">
+                  <button onclick="guildDonateGP()" style="padding:6px 12px;border-radius:5px;background:linear-gradient(135deg,rgba(0,230,118,.2),rgba(0,200,83,.1));border:1px solid rgba(0,230,118,.35);color:var(--gn);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;white-space:nowrap" data-i18n="guild_donate_btn">Donate</button>
                 </div>
               </div>
               <!-- Contribution slider -->
@@ -8634,7 +8634,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="margin-bottom:8px">
               <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">MOTTO</div>
               <div style="display:flex;gap:6px">
-                <input id="authMottoInput" maxlength="80" placeholder="콜로니 모토…" style="flex:1;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+                <input id="authMottoInput" maxlength="80" placeholder="Colony Motto…" data-i18n-placeholder="auth_motto_placeholder" style="flex:1;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
                 <button onclick="_authSaveMotto()" style="padding:6px 10px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
               </div>
             </div>
@@ -8642,7 +8642,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="margin-bottom:8px">
               <div style="font-size:9px;color:#ffcc02;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">💬 STATUS</div>
               <div style="display:flex;gap:6px">
-                <input id="authStatusInput" maxlength="60" placeholder="상태 메시지…" style="flex:1;background:rgba(255,204,2,.06);border:1px solid rgba(255,204,2,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+                <input id="authStatusInput" maxlength="60" placeholder="Status message…" data-i18n-placeholder="auth_status_placeholder" style="flex:1;background:rgba(255,204,2,.06);border:1px solid rgba(255,204,2,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
                 <button onclick="_authSaveStatus()" style="padding:6px 10px;background:rgba(255,204,2,.15);border:1px solid rgba(255,204,2,.35);color:#ffcc02;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
               </div>
             </div>
@@ -8650,7 +8650,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="margin-bottom:8px">
               <div style="font-size:9px;color:#ce93d8;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">🏷️ VANITY TAG</div>
               <div style="display:flex;gap:6px">
-                <input id="authVtagInput" maxlength="12" placeholder="태그…" style="flex:1;background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+                <input id="authVtagInput" maxlength="12" placeholder="Tag…" data-i18n-placeholder="auth_vtag_placeholder" style="flex:1;background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
                 <button onclick="_authSaveVtag()" style="padding:6px 10px;background:rgba(206,147,216,.15);border:1px solid rgba(206,147,216,.35);color:#ce93d8;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
               </div>
             </div>
@@ -17296,6 +17296,8 @@ var I18N = {
     ob_reward_gp: '+{n} GP earned!', ob_reward_pp: '+{n} PP earned!',
     ob_reward_item: '{code} acquired!', ob_reward_title: 'Title "{name}" earned!',
     ob_starter_ship: '🚀 Starter ship granted! {name} × 1',
+    guild_donate_placeholder: 'Enter GP amount', guild_donate_btn: 'Donate',
+    auth_motto_placeholder: 'Colony Motto…', auth_status_placeholder: 'Status message…', auth_vtag_placeholder: 'Tag…',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -18133,6 +18135,8 @@ var I18N = {
     ob_reward_gp: '+{n} GP 획득!', ob_reward_pp: '+{n} PP 획득!',
     ob_reward_item: '{code} 획득!', ob_reward_title: '칭호 "{name}" 획득!',
     ob_starter_ship: '🚀 스타터 함선 지급! {name} × 1',
+    guild_donate_placeholder: '기부할 GP 입력', guild_donate_btn: '기부',
+    auth_motto_placeholder: '콜로니 모토…', auth_status_placeholder: '상태 메시지…', auth_vtag_placeholder: '태그…',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -18895,6 +18899,8 @@ var I18N = {
     ob_reward_gp: '+{n} GP 獲得！', ob_reward_pp: '+{n} PP 獲得！',
     ob_reward_item: '{code} 獲得！', ob_reward_title: '称号「{name}」獲得！',
     ob_starter_ship: '🚀 スターター艦船支給！{name} × 1',
+    guild_donate_placeholder: '寄付するGP額を入力', guild_donate_btn: '寄付',
+    auth_motto_placeholder: 'コロニーモットー…', auth_status_placeholder: 'ステータスメッセージ…', auth_vtag_placeholder: 'タグ…',
     // ── v6.08 Battle Report ──────────────────────────────────
     bv_performance: 'パフォーマンス', bv_rating: 'レーティング', bv_efficiency: '効率',
     bv_highlights: '戦闘ハイライト', bv_view_report: '📊 詳細レポート', bv_my_stats: '📈 自分の戦績',
@@ -19719,6 +19725,8 @@ var I18N = {
     ob_reward_gp: '+{n} GP 获得！', ob_reward_pp: '+{n} PP 获得！',
     ob_reward_item: '{code} 获得！', ob_reward_title: '称号"{name}"获得！',
     ob_starter_ship: '🚀 初始舰船发放！{name} × 1',
+    guild_donate_placeholder: '输入捐赠GP数量', guild_donate_btn: '捐赠',
+    auth_motto_placeholder: '殖民地格言…', auth_status_placeholder: '状态消息…', auth_vtag_placeholder: '标签…',
     // ── v6.08 Battle Report ──────────────────────────────────
     bv_performance: '表现', bv_rating: '评级', bv_efficiency: '效率',
     bv_highlights: '战斗亮点', bv_view_report: '📊 详细报告', bv_my_stats: '📈 我的战绩',
