@@ -73,13 +73,13 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 #globe-wrap canvas{display:block}
 
 /* Void Raider Globe Layer */
-.vr-boss-cluster{position:relative;cursor:pointer;animation:vr-float 4s ease-in-out infinite}
-@keyframes vr-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.vr-ship-img{position:absolute;width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 4px var(--vr-glow,#f80));animation:vr-drift var(--vr-dur,6s) ease-in-out infinite var(--vr-delay,0s)}
-@keyframes vr-drift{0%,100%{transform:translate(0,0) rotate(var(--vr-rot,0deg))}50%{transform:translate(var(--vr-dx,4px),var(--vr-dy,-4px)) rotate(var(--vr-rot,0deg))}}
-.vr-warn-ring{position:absolute;top:50%;left:50%;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;border:2px solid var(--vr-glow,#f80);animation:vr-pulse 2s ease-out infinite;pointer-events:none}
-@keyframes vr-pulse{0%{opacity:.9;transform:scale(.8)}100%{opacity:0;transform:scale(1.6)}}
-.vr-hp-bar{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:60px;height:4px;background:#333;border-radius:2px}
+.vr-boss-cluster{position:relative;cursor:pointer;overflow:visible;animation:vr-float 4s ease-in-out infinite}
+@keyframes vr-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.vr-ship-img{position:absolute;width:17px;height:17px;object-fit:contain;filter:drop-shadow(0 0 3px var(--vr-glow,#f80));animation:vr-drift var(--vr-dur,6s) ease-in-out infinite var(--vr-delay,0s)}
+@keyframes vr-drift{0%,100%{transform:translate(0,0) rotate(var(--vr-rot,0deg))}50%{transform:translate(var(--vr-dx,3px),var(--vr-dy,-3px)) rotate(var(--vr-rot,0deg))}}
+.vr-warn-ring{position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:1.5px solid var(--vr-glow,#f80);animation:vr-pulse 2s ease-out infinite;pointer-events:none}
+@keyframes vr-pulse{0%{opacity:.9;transform:scale(.7)}100%{opacity:0;transform:scale(1.5)}}
+.vr-hp-bar{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:38px;height:3px;background:#333;border-radius:2px}
 .vr-hp-fill{height:100%;border-radius:2px;background:var(--vr-glow,#f80);width:var(--vr-hp,100%)}
 .vr-tier-scout{--vr-glow:#f80}
 .vr-tier-raider{--vr-glow:#f22}
@@ -11279,75 +11279,154 @@ function _vrMakeClusterEl(ev) {
   const maxHp = ev.max_hp != null ? ev.max_hp : ev.hp_max;
   const hp = currentHp != null && maxHp ? Math.round(currentHp / maxHp * 100) : 100;
 
+  const SZ = 44; // 컨테이너 px (절반 크기)
+  const SHIP = 17; // 함선 이미지 px
+
   const wrap = document.createElement('div');
   wrap.className = `vr-boss-cluster vr-tier-${tier}`;
-  wrap.style.width = '90px';
-  wrap.style.height = '90px';
+  wrap.style.cssText = `position:absolute;width:${SZ}px;height:${SZ}px;display:none;pointer-events:auto;cursor:pointer`;
   wrap.title = ev.name || ev.event_code || 'Void Raider';
-  wrap.onclick = () => openWorldEventDetail(ev.id);
+  wrap.onclick = (e) => { e.stopPropagation(); openWorldEventDetail(ev.id); };
+  // 휠 이벤트는 글로브로 전달 (zoom 유지)
+  wrap.addEventListener('wheel', (e) => { e.currentTarget.style.pointerEvents='none'; setTimeout(()=>{ e.currentTarget.style.pointerEvents='auto'; },50); }, {passive:true});
 
   const ring = document.createElement('div');
   ring.className = 'vr-warn-ring';
   wrap.appendChild(ring);
 
-  const positions = [
-    {top:'10px',left:'27px'}, {top:'35px',left:'5px'}, {top:'35px',left:'50px'},
-    {top:'55px',left:'20px'}, {top:'55px',left:'45px'}
+  // 쐐기 진형: 선두 1 → 양익 2 → 후방 2 (위를 전선으로)
+  const fleet = [
+    {top: 1,             left: Math.round(SZ/2 - SHIP/2)},        // 선두
+    {top: Math.round(SZ*0.35), left: 2},                           // 좌익
+    {top: Math.round(SZ*0.35), left: SZ - SHIP - 2},               // 우익
+    {top: Math.round(SZ*0.65), left: Math.round(SZ*0.18)},         // 좌후
+    {top: Math.round(SZ*0.65), left: Math.round(SZ*0.62) - 2},     // 우후
   ];
   sprites.slice(0,5).forEach((code, i) => {
+    const pos = fleet[i] || fleet[0];
     const img = document.createElement('img');
     img.className = 'vr-ship-img';
     img.src = `/assets/ships/top/${code}.png`;
     img.onerror = () => { img.style.display='none'; };
-    const pos = positions[i] || positions[0];
-    img.style.top = pos.top;
-    img.style.left = pos.left;
-    img.style.setProperty('--vr-dur', (5+i*1.3)+'s');
-    img.style.setProperty('--vr-delay', (i*0.7)+'s');
-    img.style.setProperty('--vr-dx', ((i%2===0)?4:-4)+'px');
-    img.style.setProperty('--vr-dy', ((i<2)?-4:4)+'px');
-    img.style.setProperty('--vr-rot', (i*15-30)+'deg');
+    img.style.width  = SHIP + 'px';
+    img.style.height = SHIP + 'px';
+    img.style.top  = pos.top + 'px';
+    img.style.left = pos.left + 'px';
+    img.style.setProperty('--vr-dur',   (5 + i * 1.2) + 's');
+    img.style.setProperty('--vr-delay', (i * 0.6) + 's');
+    img.style.setProperty('--vr-dx',    (i % 2 === 0 ? 2 : -2) + 'px');
+    img.style.setProperty('--vr-dy',    (i < 2 ? -2 : 2) + 'px');
+    img.style.setProperty('--vr-rot',   '0deg');
     wrap.appendChild(img);
   });
 
+  const barW = SZ - 6; // 38px
   const bar = document.createElement('div');
   bar.className = 'vr-hp-bar';
+  bar.style.cssText = `position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:${barW}px;height:3px;background:#333;border-radius:2px;overflow:hidden`;
   const fill = document.createElement('div');
   fill.className = 'vr-hp-fill';
-  fill.style.setProperty('--vr-hp', Math.max(0, Math.min(100, hp))+'%');
+  fill.style.cssText = `height:100%;border-radius:2px;background:var(--vr-glow,#f80);width:${Math.round(Math.max(0,Math.min(100,hp))/100*barW)}px`;
   bar.appendChild(fill);
   wrap.appendChild(bar);
 
   return wrap;
 }
 
+// ── Void Raider 스크린 좌표 투영 ──────────────────────────────
+// globe.gl 카메라 행렬로 lat/lng → 픽셀 변환. THREE 전역 불필요.
+var _vrOverlayEl = null;
+var _vrOverlayNodes = [];  // [{el, evId}]
+var _vrRafId = null;
+
+function _vrLatLngToScreen(lat, lng) {
+  var g = window.globe || globe;
+  if (!g) return null;
+  var cam = g.camera && g.camera();
+  var ren = g.renderer && g.renderer();
+  if (!cam || !ren) return null;
+  // 구 좌표 → 3D
+  var phi = (90 - lat) * Math.PI / 180;
+  var theta = (lng + 180) * Math.PI / 180;
+  var R = 100; // globe.gl 기본 반지름
+  var x = -R * Math.sin(phi) * Math.cos(theta);
+  var y =  R * Math.cos(phi);
+  var z =  R * Math.sin(phi) * Math.sin(theta);
+  // 뷰 행렬 적용
+  var vm = cam.matrixWorldInverse.elements;
+  var vx = vm[0]*x+vm[4]*y+vm[8]*z+vm[12];
+  var vy = vm[1]*x+vm[5]*y+vm[9]*z+vm[13];
+  var vz = vm[2]*x+vm[6]*y+vm[10]*z+vm[14];
+  var vw = vm[3]*x+vm[7]*y+vm[11]*z+vm[15];
+  // 프로젝션 행렬 적용
+  var pm = cam.projectionMatrix.elements;
+  var cx = pm[0]*vx+pm[4]*vy+pm[8]*vz+pm[12]*vw;
+  var cy = pm[1]*vx+pm[5]*vy+pm[9]*vz+pm[13]*vw;
+  var cw = pm[3]*vx+pm[7]*vy+pm[11]*vz+pm[15]*vw;
+  if (cw <= 0) return null; // 카메라 뒤
+  var ndx = cx / cw, ndy = cy / cw;
+  if (ndx < -1.5 || ndx > 1.5 || ndy < -1.5 || ndy > 1.5) return null;
+  // 글로브 뒤쪽 판별: 점에서 카메라까지 벡터와 표면 법선의 내적
+  var camPos = cam.position;
+  var dot = camPos.x*x + camPos.y*y + camPos.z*z;
+  if (dot < 0) return null; // 뒤쪽
+  var w = ren.domElement.clientWidth  || window.innerWidth;
+  var h = ren.domElement.clientHeight || window.innerHeight;
+  return { x: (ndx+1)/2*w, y: (1-ndy)/2*h };
+}
+
+function _vrUpdateOverlay() {
+  _vrRafId = requestAnimationFrame(_vrUpdateOverlay);
+  if (!_vrOverlayEl || !_vrEvents.length) return;
+  _vrOverlayNodes.forEach(function(n) {
+    var ev = _vrEvents.find(function(e){ return String(e.id)===String(n.evId); });
+    if (!ev) { n.el.style.display='none'; return; }
+    var sc = _vrLatLngToScreen(parseFloat(ev.lat), parseFloat(ev.lng));
+    if (!sc) { n.el.style.display='none'; return; }
+    n.el.style.display = '';
+    n.el.style.left = (sc.x - 22) + 'px';
+    n.el.style.top  = (sc.y - 22) + 'px';
+  });
+}
+
+function _vrBuildOverlay() {
+  if (!_vrOverlayEl) {
+    _vrOverlayEl = document.createElement('div');
+    _vrOverlayEl.id = 'vrOverlay';
+    _vrOverlayEl.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:12';
+    document.body.appendChild(_vrOverlayEl);
+  }
+  // 기존 노드 정리
+  _vrOverlayNodes.forEach(function(n){ n.el.remove(); });
+  _vrOverlayNodes = [];
+  _vrEvents.forEach(function(ev) {
+    var el = _vrMakeClusterEl(ev);
+    el.style.position = 'absolute';
+    el.style.pointerEvents = 'auto';
+    _vrOverlayEl.appendChild(el);
+    _vrOverlayNodes.push({el:el, evId:ev.id});
+  });
+  if (!_vrRafId) _vrUpdateOverlay();
+}
+
 function _vrRenderLayer() {
-  const g = window.globe || globe;
+  var g = window.globe || globe;
   if (!g) return;
-
-  const tierCol = {scout:'#ff8800', raider:'#ff3333', fleet:'#cc0000', leviathan:'#aa00ff'};
-  const tierRadius = {scout:0.35, raider:0.55, fleet:0.75, leviathan:0.95};
-
-  // ── 1) 글로우 포인트 (확실히 동작) ──
+  // 글로우 포인트 (클릭 핸들러 포함)
   if (typeof g.pointsData === 'function') {
+    var tierRadius = {scout:0.35, raider:0.55, fleet:0.75, leviathan:0.95};
+    var tierCol    = {scout:'#ff8800', raider:'#ff3333', fleet:'#cc0000', leviathan:'#aa00ff'};
     g.pointsData(_vrEvents)
-      .pointLat(d => parseFloat(d.lat))
-      .pointLng(d => parseFloat(d.lng))
+      .pointLat(function(d){ return parseFloat(d.lat); })
+      .pointLng(function(d){ return parseFloat(d.lng); })
       .pointAltitude(0.01)
-      .pointRadius(d => tierRadius[d.boss_tier] || 0.55)
-      .pointColor(d => tierCol[d.boss_tier] || '#ff3333')
+      .pointRadius(function(d){ return tierRadius[d.boss_tier]||0.55; })
+      .pointColor(function(d){ return tierCol[d.boss_tier]||'#ff3333'; })
       .pointsMerge(false)
-      .onPointClick(d => openWorldEventDetail(d.id));
+      .onPointClick(function(d){ openWorldEventDetail(d.id); });
   }
-
-  // ── 2) HTML 클러스터 오버레이 ──
-  if (typeof g.htmlElementsData === 'function') {
-    g.htmlElementsData(_vrEvents)
-      .htmlLat(d => parseFloat(d.lat))
-      .htmlLng(d => parseFloat(d.lng))
-      .htmlAltitude(0.06)
-      .htmlElement(d => _vrMakeClusterEl(d));
-  }
+  // CSS 오버레이 클러스터
+  _vrBuildOverlay();
 }
 
 function _initStep1(){
