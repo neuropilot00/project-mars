@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: Express route shadow-match + legacy gameConfirm callback patterns
+
+### server/routes/tournaments.js
+- **버그**: `GET /tournaments/my`가 `GET /tournaments/:id` 뒤에 등록 → 항상 `:id` 핸들러에 shadow-match
+- **수정**: `/my` 라우트를 `/:id` 앞으로 이동
+
+### server/routes/raffle.js
+- `GET /raffles/my` → `/:id(\d+)` 앞으로 이동 (코드 순서 정정)
+
+### server/routes/api.js
+- **버그**: `GET /user/:wallet`이 `/user/titles`, `/user/my-territories` shadow-match → user 조회 응답 반환
+- **수정**: `staticSubs` `next()` guard 추가 (`titles`, `my-territories`)
+- **버그**: `GET /guild/:id`가 `/guild/research-bonuses` shadow-match
+- **수정**: `research-bonuses` `next()` guard 추가
+
+### index.html
+- **버그**: `respondDuel()`, 임대, 영토 업그레이드, 기념비 설치 — `gameConfirm(icon, title, body)` 구버전 3인수 패턴 (opts=string → 모달 공백)
+- **버그**: 저널/마일스톤/공지/묘비 — `gameConfirm(title, body, callback)` 레거시 콜백 패턴 (Promise 기반 함수에서 완전히 비동작)
+- **수정**: 모든 8개 호출을 `gameConfirm({icon,title,body,confirmText})` + `.then(ok=>{...})` 패턴으로 교체
+
 ## 2026-05-06 — bugfix: BASE QUESTS bounty board broken API + field mismatches
 
 ### index.html

@@ -9,6 +9,14 @@ router.get('/tournaments', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// GET /api/tournaments/my?wallet=  — must be BEFORE /:id to avoid shadow match
+router.get('/tournaments/my', async (req, res) => {
+  const { wallet } = req.query;
+  if (!wallet) return res.status(400).json({ error: 'wallet required' });
+  try { res.json(await svc.getMyTournaments(wallet)); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // GET /api/tournaments/:id — detail + entries
 router.get('/tournaments/:id', async (req, res) => {
   try {
@@ -16,14 +24,6 @@ router.get('/tournaments/:id', async (req, res) => {
     if (!t) return res.status(404).json({ error: 'Not found' });
     res.json(t);
   } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// GET /api/tournaments/my?wallet=
-router.get('/tournaments/my', async (req, res) => {
-  const { wallet } = req.query;
-  if (!wallet) return res.status(400).json({ error: 'wallet required' });
-  try { res.json(await svc.getMyTournaments(wallet)); }
-  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // POST /api/tournaments/join  { wallet, tournamentId }

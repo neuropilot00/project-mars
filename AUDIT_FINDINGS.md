@@ -1,5 +1,24 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.43 버그수정 — Express 라우트 shadow-match + gameConfirm 구버전 호출 일괄 수정
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `tournaments.js` — `GET /tournaments/my` 위치가 `/:id` 뒤라 shadow-match 됨 | ✅ 수정 | `/my` 를 `/:id` 앞으로 이동 |
+| `raffle.js` — `GET /raffles/my` 위치가 `/:id(\d+)` 뒤 (d+ 덕분에 실제 동작하나 코드 순서 정정) | ✅ 수정 | `/my` 를 `/:id` 앞으로 이동 |
+| `api.js` — `GET /user/:wallet` 이 `/user/titles`, `/user/my-territories` shadow-match | ✅ 수정 | staticSubs `next()` guard 추가 |
+| `api.js` — `GET /guild/:id` 이 `/guild/research-bonuses` shadow-match | ✅ 수정 | `research-bonuses` `next()` guard 추가 |
+| `respondDuel()` — `gameConfirm('⚔️', title, body)` 구버전 3인수 호출 | ✅ 수정 | options object 패턴으로 교체 |
+| 임대 확인 — `gameConfirm('🏘️', title, body)` 구버전 3인수 호출 | ✅ 수정 | options object 패턴으로 교체 |
+| 영토 업그레이드 — `gameConfirm(icon, title, body)` 구버전 3인수 호출 | ✅ 수정 | options object 패턴으로 교체 |
+| 기념비 설치 — `gameConfirm('🗿', title, body)` 구버전 3인수 호출 | ✅ 수정 | options object 패턴으로 교체 |
+| 저널 발행 — `gameConfirm(title, body, callback)` 레거시 콜백 패턴 (완전히 비동작) | ✅ 수정 | Promise `.then()` 패턴 + options object로 교체 |
+| 마일스톤 기록 — `gameConfirm(title, body, callback)` 레거시 콜백 패턴 | ✅ 수정 | Promise `.then()` 패턴 + options object로 교체 |
+| 공지 포스팅 — `gameConfirm(title, body, callback)` 레거시 콜백 패턴 | ✅ 수정 | Promise `.then()` 패턴 + options object로 교체 |
+| 묘비 설치 — `gameConfirm(title, body, callback)` 레거시 콜백 패턴 | ✅ 수정 | Promise `.then()` 패턴 + options object로 교체 |
+
+
+
 ## ✅ v6.41 버그수정 — BASE QUESTS 현상금 보드 API URL 불일치 + 필드명 불일치
 
 | 항목 | 상태 | 비고 |

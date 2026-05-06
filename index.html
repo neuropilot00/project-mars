@@ -35819,7 +35819,7 @@ function respondDuel(duelId, accept) {
   if (!w) return;
   var endpoint = accept ? '/api/duels/accept' : '/api/duels/decline';
   var confirmMsg = accept ? (t('duel_accept_confirm') || 'Accept duel and match the wager?') : (t('duel_decline_confirm') || 'Decline this duel challenge?');
-  gameConfirm('⚔️', accept ? 'ACCEPT DUEL' : 'DECLINE DUEL', confirmMsg)
+  gameConfirm({icon:'⚔️', title: accept ? 'ACCEPT DUEL' : 'DECLINE DUEL', body: confirmMsg, confirmText: accept ? 'ACCEPT' : 'DECLINE'})
     .then(function(ok) {
       if (!ok) return;
       return fetch(endpoint, {
@@ -36276,8 +36276,8 @@ function openRentModal(rentalId, gpPerPeriod, periodHours) {
   }).then(function(periods) {
     if (!periods) return;
     var totalGp = periods * gpPerPeriod;
-    gameConfirm('🏘️', 'RENT TERRITORY',
-      'Rent for '+periods+' × '+periodHours+'h\nTotal: '+totalGp+' GP\n+mining boost during rental')
+    gameConfirm({icon:'🏘️', title:'RENT TERRITORY',
+      body:'Rent for '+periods+' × '+periodHours+'h<br>Total: '+totalGp+' GP · +mining boost during rental', confirmText:'RENT'})
       .then(function(ok) {
         if (!ok) return;
         return fetch('/api/rental/rent', {
@@ -38077,27 +38077,27 @@ function publishJournalEntry() {
   if (!title)   { gameAlert(t('journal_title_required')); return; }
   if (!content) { gameAlert(t('journal_content_required')); return; }
   var costGP = (_journalCfg && _journalCfg.costGP) || 60;
-  gameConfirm(
-    t('journal_confirm_title'),
-    t('journal_confirm_body').replace('{gp}', costGP).replace('{title}', title),
-    function() {
-      fetch('/api/journal/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet: w, title: title, content: content })
-      }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { gameAlert(d.error); return; }
-        showToast('📖 ' + t('journal_published'));
-        document.getElementById('journalTitleInput').value = '';
-        document.getElementById('journalContentInput').value = '';
-        document.getElementById('journalCharCount').textContent = '0/500';
-        document.getElementById('journalWriteForm').style.display = 'none';
-        document.getElementById('journalWriteBtn').style.display = '';
-        loadJournalFeed();
-        refreshGP && refreshGP();
-      }).catch(function(e){ gameAlert(e.message); });
-    }
-  );
+  gameConfirm({icon:'📖', title: t('journal_confirm_title') || 'PUBLISH JOURNAL',
+    body: (t('journal_confirm_body') || 'Spend {gp} GP to publish?').replace('{gp}', costGP).replace('{title}', title),
+    confirmText: 'PUBLISH'
+  }).then(function(ok) {
+    if (!ok) return;
+    fetch('/api/journal/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, title: title, content: content })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { gameAlert(d.error); return; }
+      showToast('📖 ' + t('journal_published'));
+      document.getElementById('journalTitleInput').value = '';
+      document.getElementById('journalContentInput').value = '';
+      document.getElementById('journalCharCount').textContent = '0/500';
+      document.getElementById('journalWriteForm').style.display = 'none';
+      document.getElementById('journalWriteBtn').style.display = '';
+      loadJournalFeed();
+      refreshGP && refreshGP();
+    }).catch(function(e){ gameAlert(e.message); });
+  });
 }
 
 // ── Colony Milestone (Migration 150) ─────────────────────────────────────────
@@ -38192,27 +38192,27 @@ function recordMilestone() {
   if (!desc)  { gameAlert(t('milestone_desc_required'));  return; }
   var costGP = (_milestoneCfg && _milestoneCfg.costGP) || 45;
   var ic = _MILESTONE_CAT_ICONS[cat] || '🏆';
-  gameConfirm(
-    t('milestone_confirm_title'),
-    t('milestone_confirm_body').replace('{gp}', costGP).replace('{cat}', ic+' '+cat).replace('{title}', title),
-    function() {
-      fetch('/api/milestone/record', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet: w, category: cat, title: title, description: desc })
-      }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { gameAlert(d.error); return; }
-        showToast('🏆 '+t('milestone_recorded'));
-        document.getElementById('milestoneTitleInput').value = '';
-        document.getElementById('milestoneDescInput').value  = '';
-        document.getElementById('milestoneCharCount').textContent = '0/200';
-        document.getElementById('milestoneWriteForm').style.display = 'none';
-        document.getElementById('milestoneWriteBtn').style.display  = '';
-        loadMilestoneFeed();
-        refreshGP && refreshGP();
-      }).catch(function(e){ gameAlert(e.message); });
-    }
-  );
+  gameConfirm({icon: ic, title: t('milestone_confirm_title') || 'RECORD MILESTONE',
+    body: (t('milestone_confirm_body') || 'Spend {gp} GP to record?').replace('{gp}', costGP).replace('{cat}', ic+' '+cat).replace('{title}', title),
+    confirmText: 'RECORD'
+  }).then(function(ok) {
+    if (!ok) return;
+    fetch('/api/milestone/record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, category: cat, title: title, description: desc })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { gameAlert(d.error); return; }
+      showToast('🏆 '+t('milestone_recorded'));
+      document.getElementById('milestoneTitleInput').value = '';
+      document.getElementById('milestoneDescInput').value  = '';
+      document.getElementById('milestoneCharCount').textContent = '0/200';
+      document.getElementById('milestoneWriteForm').style.display = 'none';
+      document.getElementById('milestoneWriteBtn').style.display  = '';
+      loadMilestoneFeed();
+      refreshGP && refreshGP();
+    }).catch(function(e){ gameAlert(e.message); });
+  });
 }
 
 // ── Colony Announcement (Migration 148) ──────────────────────────────────────
@@ -38257,25 +38257,25 @@ function postGPAnnouncement() {
   if (!msg) { gameAlert(t('gpannounce_msg_required')); return; }
   var blocks = Math.ceil(dur / 30);
   var costGP = ((_gpAnnounceCfg && _gpAnnounceCfg.costGP) || 80) * blocks;
-  gameConfirm(
-    t('gpannounce_confirm_title'),
-    t('gpannounce_confirm_body').replace('{gp}', costGP).replace('{dur}', dur),
-    function() {
-      fetch('/api/announce/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet: w, message: msg, durationM: dur })
-      }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { gameAlert(d.error); return; }
-        showToast('📢 ' + t('gpannounce_posted'));
-        document.getElementById('gpAnnounceMsgInput').value = '';
-        document.getElementById('gpAnnounceCharCount').textContent = '0/80';
-        refreshGP && refreshGP();
-        // Show it immediately
-        if (typeof showAnnounce === 'function') showAnnounce('📢 ' + msg);
-      }).catch(function(e){ gameAlert(e.message); });
-    }
-  );
+  gameConfirm({icon:'📢', title: t('gpannounce_confirm_title') || 'POST ANNOUNCEMENT',
+    body: (t('gpannounce_confirm_body') || 'Spend {gp} GP for {dur}m announcement?').replace('{gp}', costGP).replace('{dur}', dur),
+    confirmText: 'POST'
+  }).then(function(ok) {
+    if (!ok) return;
+    fetch('/api/announce/post', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, message: msg, durationM: dur })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { gameAlert(d.error); return; }
+      showToast('📢 ' + t('gpannounce_posted'));
+      document.getElementById('gpAnnounceMsgInput').value = '';
+      document.getElementById('gpAnnounceCharCount').textContent = '0/80';
+      refreshGP && refreshGP();
+      // Show it immediately
+      if (typeof showAnnounce === 'function') showAnnounce('📢 ' + msg);
+    }).catch(function(e){ gameAlert(e.message); });
+  });
 }
 
 // ── Community Polls (Migration 135) ──────────────────────────────────────────
@@ -38740,28 +38740,28 @@ function submitTombstone() {
   if (!w || !_tombstoneClaimId) return;
   var epitaph = ((document.getElementById('tombstoneEpitaphInput')||{}).value||'').trim() || 'I was here.';
   var costGP = (_tombstoneCfg && _tombstoneCfg.costGP) || 35;
-  gameConfirm(
-    t('tombstone_confirm_title'),
-    t('tombstone_confirm_body').replace('{gp}', costGP),
-    function() {
-      fetch('/api/tombstone/place', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wallet: w, claimId: _tombstoneClaimId, epitaph: epitaph })
-      }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { gameAlert(d.error); return; }
-        closeTombstoneModal();
-        document.getElementById('tombstoneEpitaphInput').value = '';
-        document.getElementById('tombstoneCharCount').textContent = '0/60';
-        showToast('🪦 '+t('tombstone_placed'));
-        loadTombstonesForInfo(_tombstoneClaimId);
-        refreshGP && refreshGP();
-        // Hide the button — only one tombstone per wallet per claim
-        var btn = document.getElementById('infoTombstoneBtn');
-        if (btn) btn.style.display = 'none';
-      }).catch(function(e){ gameAlert(e.message); });
-    }
-  );
+  gameConfirm({icon:'🪦', title: t('tombstone_confirm_title') || 'PLACE TOMBSTONE',
+    body: (t('tombstone_confirm_body') || 'Spend {gp} GP to place tombstone?').replace('{gp}', costGP),
+    confirmText: 'PLACE'
+  }).then(function(ok) {
+    if (!ok) return;
+    fetch('/api/tombstone/place', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, claimId: _tombstoneClaimId, epitaph: epitaph })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { gameAlert(d.error); return; }
+      closeTombstoneModal();
+      document.getElementById('tombstoneEpitaphInput').value = '';
+      document.getElementById('tombstoneCharCount').textContent = '0/60';
+      showToast('🪦 '+t('tombstone_placed'));
+      loadTombstonesForInfo(_tombstoneClaimId);
+      refreshGP && refreshGP();
+      // Hide the button — only one tombstone per wallet per claim
+      var btn = document.getElementById('infoTombstoneBtn');
+      if (btn) btn.style.display = 'none';
+    }).catch(function(e){ gameAlert(e.message); });
+  });
 }
 
 // ── GP Territory Prestige Frame (Migration 147) ──────────────────────────────
@@ -39581,9 +39581,9 @@ function _confirmAndUpgrade(claimId, upgradeType) {
 
   var claimName = ((window.claims||[]).find(function(c){ return c.id == claimId; }) || {}).custom_name || 'Territory ' + claimId;
 
-  gameConfirm(cat.icon, 'UPGRADE: ' + cat.name.toUpperCase(),
-    'Upgrade "' + escHtml(claimName) + '" to ' + cat.name + ' Level ' + (curLevel+1) + '? Costs ' + nextInfo.cost + ' GP (permanent, lost if territory is hijacked).'
-  ).then(function(confirmed) {
+  gameConfirm({icon: cat.icon, title: 'UPGRADE: ' + cat.name.toUpperCase(),
+    body: 'Upgrade "' + escHtml(claimName) + '" to ' + cat.name + ' Level ' + (curLevel+1) + '? Costs ' + nextInfo.cost + ' GP (permanent, lost if territory is hijacked).', confirmText:'UPGRADE'
+  }).then(function(confirmed) {
     if (!confirmed) return;
     return fetch('/api/upgrades/upgrade', {
       method: 'POST',
@@ -39763,7 +39763,7 @@ function submitPlaceMonument() {
   if (!name) { showToast('Monument name is required', 'error'); return; }
   if (!walletState.address) { showToast('Connect wallet', 'error'); return; }
 
-  gameConfirm('🗿', 'PLACE MONUMENT', 'Permanently spend GP to place "' + escHtml(name) + '" on your territory? GP is burned and cannot be recovered.')
+  gameConfirm({icon:'🗿', title:'PLACE MONUMENT', body:'Permanently spend GP to place "' + escHtml(name) + '" on your territory? GP is burned and cannot be recovered.', confirmText:'PLACE'})
     .then(function(confirmed) {
       if (!confirmed) return;
       return fetch('/api/monuments/place', {

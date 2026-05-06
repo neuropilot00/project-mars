@@ -497,7 +497,10 @@ router.get('/referral/tree/:wallet', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  GET /api/user/:wallet
 // ══════════════════════════════════════════════════
-router.get('/user/:wallet', async (req, res) => {
+router.get('/user/:wallet', async (req, res, next) => {
+  // Static sub-routes registered later must not be shadow-matched by :wallet
+  const staticSubs = ['titles', 'my-territories'];
+  if (staticSubs.includes(req.params.wallet)) return next();
   try {
     const wallet = req.params.wallet.toLowerCase();
     const userRes = await pool.query('SELECT * FROM users WHERE wallet_address = $1', [wallet]);
@@ -6293,7 +6296,9 @@ router.get('/guild/search', readLimiter, async (req, res) => {
 });
 
 // Get guild by ID
-router.get('/guild/:id', readLimiter, async (req, res) => {
+router.get('/guild/:id', readLimiter, async (req, res, next) => {
+  // Static sub-routes registered later must not be shadow-matched by :id
+  if (req.params.id === 'research-bonuses') return next();
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
     const guild = await guildService.getGuild(parseInt(req.params.id));

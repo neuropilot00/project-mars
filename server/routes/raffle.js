@@ -9,7 +9,16 @@ router.get('/raffles', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/raffles/:id  (id 숫자만 허용 — 'my' 같은 sub-path보다 후순위)
+// GET /api/raffles/my?wallet=  — must be BEFORE /:id to avoid shadow match
+router.get('/raffles/my', async (req, res) => {
+  try {
+    const { wallet } = req.query;
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    res.json(await raffleSvc.getMyEntries(wallet));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/raffles/:id  (id 숫자만 허용)
 router.get('/raffles/:id(\\d+)', async (req, res) => {
   try {
     const rf = await raffleSvc.getRaffle(parseInt(req.params.id));
@@ -22,15 +31,6 @@ router.get('/raffles/:id(\\d+)', async (req, res) => {
 router.get('/raffles/:id(\\d+)/entrants', async (req, res) => {
   try { res.json(await raffleSvc.getEntrants(parseInt(req.params.id))); }
   catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// GET /api/raffles/my?wallet=
-router.get('/raffles/my', async (req, res) => {
-  try {
-    const { wallet } = req.query;
-    if (!wallet) return res.status(400).json({ error: 'wallet required' });
-    res.json(await raffleSvc.getMyEntries(wallet));
-  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // POST /api/raffles/buy  { wallet, raffleId, count }
