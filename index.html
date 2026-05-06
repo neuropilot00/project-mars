@@ -11977,25 +11977,25 @@ function _bterrLoadProd(idx,g){
   var wallet=(walletState&&walletState.address)||'';
   var claimId=g.claims[0]&&g.claims[0].id;
   if(!claimId||!wallet){prodEl.textContent='—';return;}
-  prodEl.textContent='로딩 중…';
+  prodEl.textContent=LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…';
   fetch('/api/territory/'+claimId+'/production?wallet='+encodeURIComponent(wallet))
     .then(function(r){return r.json();})
     .then(function(d){
       if(!document.getElementById('bterrProd'+idx)) return; // 이미 닫힘
-      if(d.error){prodEl.textContent='생산 정보 없음';return;}
+      if(d.error){prodEl.textContent=LANG==='ko'?'생산 정보 없음':LANG==='ja'?'生産情報なし':LANG==='zh'?'无生产信息':'No production data';return;}
       var html='';
       var ppMin=d.production&&d.production.ppMin||0;
       var ppMax=d.production&&d.production.ppMax||0;
       if(ppMin>0||ppMax>0){
         html+='<div style="display:flex;justify-content:space-between">';
-        html+='<span style="color:var(--tx3)">예상 PP 수확</span>';
+        html+='<span style="color:var(--tx3)">'+(LANG==='ko'?'예상 PP 수확':LANG==='ja'?'予想PP収穫':LANG==='zh'?'预期PP收获':'Est. PP Harvest')+'</span>';
         html+='<span style="color:#ffab40;font-weight:700">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+'</span>';
         html+='</div>';
       }
       if(d.sector&&d.sector.type){
-        var sLabel={core:'코어',mid:'미드',frontier:'프론티어'};
+        var sLabel=LANG==='ko'?{core:'코어',mid:'미드',frontier:'프론티어'}:LANG==='ja'?{core:'コア',mid:'ミッド',frontier:'フロンティア'}:LANG==='zh'?{core:'核心',mid:'中域',frontier:'边疆'}:{core:'Core',mid:'Mid',frontier:'Frontier'};
         html+='<div style="display:flex;justify-content:space-between">';
-        html+='<span style="color:var(--tx3)">섹터</span>';
+        html+='<span style="color:var(--tx3)">'+(LANG==='ko'?'섹터':LANG==='ja'?'セクター':LANG==='zh'?'扇区':'Sector')+'</span>';
         html+='<span style="color:var(--tx2)">'+(sLabel[d.sector.type]||d.sector.type)+'</span>';
         html+='</div>';
       }
@@ -12029,14 +12029,14 @@ async function _baseTerritoryHarvest(idx){
   if(!g||!g.claims||!g.claims.length) return;
   var claim=g.claims[0];
   var wallet=(walletState&&walletState.address)||'';
-  if(!wallet){showToast('로그인이 필요합니다','warn');return;}
+  if(!wallet){showToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','warn');return;}
   var btn=document.querySelector('#bterrBody'+idx+' button');
   // 버튼 비활성화
   var btns=document.querySelectorAll('#bterrBody'+idx+' button');
   btns.forEach(function(b){b.disabled=true;});
   try{_sfx&&_sfx.click&&_sfx.click();}catch(_){}
   var prodEl=document.getElementById('bterrProd'+idx);
-  if(prodEl) prodEl.textContent='수확 중…';
+  if(prodEl) prodEl.textContent=LANG==='ko'?'수확 중…':LANG==='ja'?'収穫中…':LANG==='zh'?'收获中…':'Harvesting…';
   try{
     var headers={'Content-Type':'application/json'};
     if(emailAuth&&emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
@@ -12052,11 +12052,11 @@ async function _baseTerritoryHarvest(idx){
         var hrs=Math.floor(diffMs/3600000);
         var mins=Math.floor((diffMs%3600000)/60000);
         var timeStr=(hrs>0?hrs+'h ':'')+mins+'m';
-        showToast('쿨다운 중 — '+timeStr+' 후 가능','warn');
-        if(prodEl) prodEl.innerHTML='<span style="color:var(--tx3)">다음 수확: '+timeStr+'</span>';
+        showToast(LANG==='ko'?('쿨다운 중 — '+timeStr+' 후 가능'):LANG==='ja'?('クールダウン中 — '+timeStr+'後に可能'):LANG==='zh'?('冷却中 — '+timeStr+'后可用'):('Cooldown — available in '+timeStr),'warn');
+        if(prodEl) prodEl.innerHTML='<span style="color:var(--tx3)">'+(LANG==='ko'?'다음 수확: ':LANG==='ja'?'次の収穫: ':LANG==='zh'?'下次收获: ':'Next harvest: ')+timeStr+'</span>';
       } else {
         showToast(d.error||'수확 실패','error');
-        if(prodEl) prodEl.textContent='수확 실패';
+        if(prodEl) prodEl.textContent=LANG==='ko'?'수확 실패':LANG==='ja'?'収穫失敗':LANG==='zh'?'收获失败':'Harvest failed';
       }
       return;
     }
@@ -15243,7 +15243,7 @@ async function _loadHijackFleets(){
         _hijackSelectedFleetId=myFleets[0].id;
         // 함대 정보 표시
         var finfo=document.getElementById('hijackFleetInfo');
-        if(finfo) finfo.textContent='총 '+myFleets.length+'개 함대 사용 가능';
+        if(finfo) finfo.textContent=LANG==='ko'?('총 '+myFleets.length+'개 함대 사용 가능'):LANG==='ja'?('計 '+myFleets.length+'艦隊 使用可能'):LANG==='zh'?('共 '+myFleets.length+'支舰队 可用'):(myFleets.length+' fleet(s) available');
         sel.onchange=function(){_hijackSelectedFleetId=parseInt(this.value)||null;};
         // 버튼 활성화
         if(_cfmBtn){_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';
@@ -45533,9 +45533,9 @@ function renderBlueprintCard(s) {
   var roleKey = (s.role || 'dps').toLowerCase();
   return '<div class="bp-card ' + s.faction_code + ' ' + (buildDisabled ? 'locked' : '') + '">' +
     '<div class="bp-visual shipyard-top-preview" style="position:relative;background:' + accent + ';display:flex;align-items:center;justify-content:center;overflow:hidden"><div class="bp-starfield"></div>' + silhouette + '</div>' +
-    '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + (LANG==='ko' ? s.name_ko : (s.name_en||s.name_ko)) + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
+    '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + syShipName(s) + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + syClassLabel(s.class_label || '') + '</div>' +
-    '<div class="bp-role ' + roleKey + '"><span class="bp-role-badge">' + roleInfo.label + '</span><span class="bp-role-text">' + fcEsc((LANG==='ko' ? s.description_ko : null) || roleInfo.desc) + '</span></div>' +
+    '<div class="bp-role ' + roleKey + '"><span class="bp-role-badge">' + roleInfo.label + '</span><span class="bp-role-text">' + fcEsc((LANG==='ko' ? s.description_ko : LANG==='ja' ? (s.description_ja||s.description_en||null) : LANG==='zh' ? (s.description_zh||s.description_en||null) : s.description_en) || roleInfo.desc) + '</span></div>' +
     '<div class="bp-stats">' +
       '<div class="bp-stat"><div class="bp-stat-label">HP</div><div class="bp-stat-value">' + syFmt(s.base_hp) + '</div></div>' +
       '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + s.base_atk + '</div></div>' +
@@ -45577,7 +45577,7 @@ async function buildShip(shipTypeCode) {
     '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:'+accent+';margin-bottom:8px">'
     + '<div class="bp-visual" style="position:relative;width:84px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.35);overflow:hidden"><div class="bp-starfield"></div>'+silhouette+'</div>'
     + '<div style="flex:1;min-width:0">'
-    +   '<div style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.04em">'+(LANG==='ko'?ship.name_ko:(ship.name_en||ship.name_ko))+'</div>'
+    +   '<div style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.04em">'+syShipName(ship)+'</div>'
     +   '<div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-top:2px">'+ship.faction_code+' · '+syClassLabel(ship.class_label||ship.size_class||'')+'</div>'
     + '</div></div>'
     + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px">'
@@ -45759,7 +45759,7 @@ function syUpgradeBtn(ship, stat, label) {
   var _matOkLbl = LANG==='ko'?'보유':LANG==='ja'?'所持':LANG==='zh'?'足够':'OK';
   var _matShortLbl = LANG==='ko'?'부족':LANG==='ja'?'不足':LANG==='zh'?'不足':'Low';
   var _successLbl = LANG==='ko'?'% 성공':LANG==='ja'?'% 成功':LANG==='zh'?'% 成功':'% success';
-  var _upgradeTip = LANG==='ko'?label+' 영구 강화':label+' permanent upgrade';
+  var _upgradeTip = LANG==='ko'?label+' 영구 강화':LANG==='ja'?label+' 永続強化':LANG==='zh'?label+' 永久强化':label+' permanent upgrade';
   var material = offer ? (tierBadge + (matShort ? _matShortLbl+' ' : _matOkLbl+' ') + syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
   return '<button class="ship-upgrade-btn ' + (gpShort || matShort ? 'need' : '') + '" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + _upgradeTip + '">' +
     label + ' +' +
@@ -46134,7 +46134,8 @@ function renderShipMarket() {
 
 async function syListShipForSale(shipId) {
   var ship = (shipyardState.ships || []).find(function(s){ return s.id === shipId; });
-  var name = ship ? (syShipName(ship) || ship.name || (LANG==='ko'?'함선':'Ship')) : (LANG==='ko'?'함선':'Ship');
+  var _shipFb = LANG==='ko'?'함선':LANG==='ja'?'艦船':LANG==='zh'?'舰船':'Ship';
+  var name = ship ? (syShipName(ship) || ship.name || _shipFb) : _shipFb;
   var priceText = await gameInput({
     title:'함선 판매 등록',
     label:name + ' 판매가 (GP)',
@@ -46175,7 +46176,7 @@ async function syCancelShipListing(listingId) {
 
 async function syBuyShipListing(listingId) {
   var listing = (shipyardState.marketListings || []).find(function(s){ return s.listing_id === listingId; }) || {};
-  var name = syShipName(listing) || (LANG==='ko'?'함선':'Ship');
+  var name = syShipName(listing) || (LANG==='ko'?'함선':LANG==='ja'?'艦船':LANG==='zh'?'舰船':'Ship');
   var price = Number(listing.price_gp || 0);
   var ok = await gameConfirm({
     title:'함선 구매',
@@ -46538,10 +46539,13 @@ function renderSelectedShipPanel(f) {
   var focused = ships.find(function(s){ return s.id === fleetCmdState.focusedShipId; }) || selected[selected.length - 1];
   var hpPct = focused.max_hp > 0 ? Math.round((focused.current_hp / focused.max_hp) * 100) : 0;
   var role = shipRoleInfo(focused.role);
-  var flagshipState = focused.is_flagship ? '기함' : (focused.is_flagship_capable ? '기함 가능' : '기함 불가');
+  var _flagshipLabels = LANG==='ko'?['기함','기함 가능','기함 불가']:LANG==='ja'?['旗艦','旗艦可能','旗艦不可']:LANG==='zh'?['旗舰','可旗舰','不可旗舰']:['Flagship','Can be Flagship','Cannot be Flagship'];
+  var flagshipState = focused.is_flagship ? _flagshipLabels[0] : (focused.is_flagship_capable ? _flagshipLabels[1] : _flagshipLabels[2]);
+  var _selShipFb = LANG==='ko'?'선택 함선':LANG==='ja'?'選択中の艦船':LANG==='zh'?'已选舰船':'Selected Ship';
+  var _shipsUnit = LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships';
   return '<div class="fs-selected-panel">' +
-    '<div><strong>' + fcEsc(syShipName(focused) || focused.ship_type_code || (LANG==='ko'?'선택 함선':'Selected Ship')) + '</strong>' +
-      '<small>' + fcEsc(syClassLabel(focused.class_label || '')) + ' · ' + role.label + (selected.length > 1 ? ' · ' + selected.length + (LANG==='ko'?'척':'ships') : '') + '</small></div>' +
+    '<div><strong>' + fcEsc(syShipName(focused) || focused.ship_type_code || _selShipFb) + '</strong>' +
+      '<small>' + fcEsc(syClassLabel(focused.class_label || '')) + ' · ' + role.label + (selected.length > 1 ? ' · ' + selected.length + _shipsUnit : '') + '</small></div>' +
     '<div class="fs-selected-stats">' +
       '<span>HP ' + hpPct + '%</span>' +
       '<span>ATK ' + (focused.base_atk || '-') + '</span>' +
@@ -47220,10 +47224,10 @@ function fcEsc(str) {
       byTier[t].push(r);
     });
     const titles = {
-      0: LANG==='ko' ? 'TIER 0 — 기본 광물 (모든 섹터)' : 'TIER 0 — Basic Minerals (All Sectors)',
-      1: LANG==='ko' ? 'TIER 1 — 희귀 광물 (Mid/Frontier)' : 'TIER 1 — Rare Minerals (Mid/Frontier)',
-      2: LANG==='ko' ? 'TIER 2 — 특수 소재 (Frontier·이벤트)' : 'TIER 2 — Special Materials (Frontier·Events)',
-      3: LANG==='ko' ? 'TIER 3 — 중간 부품 (유저 제작)' : 'TIER 3 — Crafted Components (Player-made)',
+      0: LANG==='ko' ? 'TIER 0 — 기본 광물 (모든 섹터)' : LANG==='ja' ? 'TIER 0 — 基本鉱物 (全セクター)' : LANG==='zh' ? 'TIER 0 — 基础矿物 (所有扇区)' : 'TIER 0 — Basic Minerals (All Sectors)',
+      1: LANG==='ko' ? 'TIER 1 — 희귀 광물 (Mid/Frontier)' : LANG==='ja' ? 'TIER 1 — 希少鉱物 (Mid/Frontier)' : LANG==='zh' ? 'TIER 1 — 稀有矿物 (Mid/Frontier)' : 'TIER 1 — Rare Minerals (Mid/Frontier)',
+      2: LANG==='ko' ? 'TIER 2 — 특수 소재 (Frontier·이벤트)' : LANG==='ja' ? 'TIER 2 — 特殊素材 (Frontier·イベント)' : LANG==='zh' ? 'TIER 2 — 特殊材料 (Frontier·活动)' : 'TIER 2 — Special Materials (Frontier·Events)',
+      3: LANG==='ko' ? 'TIER 3 — 중간 부품 (유저 제작)' : LANG==='ja' ? 'TIER 3 — 中間部品 (プレイヤー製作)' : LANG==='zh' ? 'TIER 3 — 中间零件 (玩家制作)' : 'TIER 3 — Crafted Components (Player-made)',
     };
     body.innerHTML = [0,1,2,3].map(t => {
       const list = byTier[t] || [];
@@ -47234,16 +47238,16 @@ function fcEsc(str) {
           const parts = Object.entries(m.craft_recipe).map(([c,q]) => c + '×' + q);
           src = '<div class="min-card-recipe">🔧 ' + escapeHtml(parts.join(' + ')) + '</div>';
         } else if (m.description_ko || m.description_en) {
-          var _desc = LANG==='ko' ? (m.description_ko||m.description_en||'') : (m.description_en||m.description_ko||'');
+          var _desc = LANG==='ko' ? (m.description_ko||m.description_en||'') : LANG==='ja' ? (m.description_ja||m.description_en||m.description_ko||'') : LANG==='zh' ? (m.description_zh||m.description_en||m.description_ko||'') : (m.description_en||m.description_ko||'');
           src = '<div class="min-card-src">' + escapeHtml(_desc) + '</div>';
         }
-        var _mname = LANG==='ko' ? (m.name_ko||m.code) : (m.name_en||m.code);
+        var _mname = LANG==='ko' ? (m.name_ko||m.code) : LANG==='ja' ? (m.name_ja||m.name_en||m.code) : LANG==='zh' ? (m.name_zh||m.name_en||m.code) : (m.name_en||m.code);
         return `
           <div class="min-card">
             <div class="min-card-icon" style="color:${m.color_hex||'#fff'}">${m.icon_emoji || '●'}</div>
             <div class="min-card-info">
               <div class="min-card-name" style="color:${m.color_hex||'#fff'}">${escapeHtml(_mname)}</div>
-              <div class="min-card-en">${escapeHtml(LANG==='ko' ? (m.name_en||'') : '')}</div>
+              <div class="min-card-en">${escapeHtml(LANG!=='en' ? (m.name_en||'') : '')}</div>
               ${src}
             </div>
           </div>
