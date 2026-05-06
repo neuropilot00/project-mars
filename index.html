@@ -9174,9 +9174,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <!-- Fleet select -->
       <div style="font-size:9px;color:var(--tx2);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px;font-weight:700">DEPLOY FLEET</div>
       <select id="weFleetSelect" style="width:100%;background:rgba(0,0,0,.5);border:1px solid rgba(232,72,85,.3);color:#fff;border-radius:7px;padding:8px 10px;font-size:11px;font-family:var(--fn);outline:none;appearance:none;cursor:pointer">
-        <option value="">함대 선택...</option>
+        <option value="" data-i18n="we_select_fleet">함대 선택...</option>
       </select>
-      <div style="font-size:8px;color:var(--tx3);margin-top:4px" id="weFleetNote">최소 1척 이상의 함선이 있어야 합니다</div>
+      <div style="font-size:8px;color:var(--tx3);margin-top:4px" id="weFleetNote" data-i18n="we_fleet_min">최소 1척 이상의 함선이 있어야 합니다</div>
     </div>
     <div style="padding:10px 16px 16px;display:flex;gap:8px">
       <button type="button" onclick="closeWeModal()" style="flex:1;padding:9px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;letter-spacing:.5px">CANCEL</button>
@@ -11915,7 +11915,7 @@ function _updateBaseTerritoryGroupList(grpList){
     var saleStyle=anyForSale?'border-color:rgba(76,216,154,.4);':'';
     var saleBadge=anyForSale?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.3);color:#4cd89a;font-weight:700;margin-left:4px">'+(LANG==='ko'?'판매중':LANG==='ja'?'販売中':LANG==='zh'?'出售中':'For Sale')+'</span>':'';
     var imgBadge=g.hasImg?'<span style="font-size:12px">📷</span>':'<span style="font-size:12px;opacity:.4">🏴</span>';
-    var merged=g.claims.length>1?'<span style="font-size:9px;color:var(--gold);margin-left:3px">('+g.claims.length+'개)</span>':'';
+    var merged=g.claims.length>1?'<span style="font-size:9px;color:var(--gold);margin-left:3px">('+g.claims.length+(LANG==='ko'?'개':LANG==='ja'?'個':LANG==='zh'?'个':'')+')</span>':'';
     var name=g.claims.map(function(c){return c.customName||c.custom_name;}).filter(Boolean)[0]||null;
     var displayName=name?('<span style="font-weight:700;color:var(--tx)">'+name+'</span>'):('<span style="color:var(--tx2)">'+g.centerLat.toFixed(1)+'°, '+g.centerLng.toFixed(1)+'°</span>');
     var isOpen=!!window._baseTerritoryExpanded[i];
@@ -12169,7 +12169,7 @@ function _myTerritoryGroups(wallet){
       var centerLat=b&&b.minLat!==Infinity?(b.minLat+b.maxLat)/2:ec[0].lat;
       var centerLng=b&&b.minLng!==Infinity?(b.minLng+b.maxLng)/2:ec[0].lng;
       var totalPx=(b&&b.count>0)?b.count:ec.reduce(function(s,c){return s+((c.w||c.width||1)*(c.h||c.height||1));},0);
-      var mergedSuffix=ec.length>1?' ('+ec.length+'개)':'';
+      var mergedSuffix=ec.length>1?' ('+ec.length+(LANG==='ko'?'개':LANG==='ja'?'個':LANG==='zh'?'个':'')+')':'';
       var name=ec.map(function(c){return c.customName||c.custom_name;}).filter(Boolean)[0]||null;
       var label=(name||(centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'))+mergedSuffix+' · '+totalPx+'px';
       var hasImg=ec.some(function(c){return c.imgUrl||c.image_url;});
@@ -13876,7 +13876,7 @@ function loadTerritoryProduction(claimId,wallet){
       }
       // Sector
       if(d.sector&&d.sector.type){
-        var sectorLabel={'core':'코어 섹터','mid':'미드 섹터','frontier':'프론티어 섹터'};
+        var sectorLabel=lang==='ko'?{'core':'코어 섹터','mid':'미드 섹터','frontier':'프론티어 섹터'}:lang==='ja'?{'core':'コアセクター','mid':'ミッドセクター','frontier':'フロンティアセクター'}:lang==='zh'?{'core':'核心区域','mid':'中部区域','frontier':'边疆区域'}:{'core':'Core Sector','mid':'Mid Sector','frontier':'Frontier Sector'};
         html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
         html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'섹터':'Sector')+'</span>';
         html+='<span style="color:var(--tx2)">'+(lang==='ko'?(sectorLabel[d.sector.type]||d.sector.type):d.sector.type.charAt(0).toUpperCase()+d.sector.type.slice(1))+'</span>';
@@ -14163,7 +14163,7 @@ function loadTerritoryIdentity(claimId) {
       var ownerShort = id.owner ? id.owner.slice(0,6)+'…'+id.owner.slice(-4) : '—';
       var sectorStr  = id.sector_code || '—';
       if (metaEl) metaEl.innerHTML =
-        '소유자: ' + ownerShort + '<br>섹터: ' + sectorStr
+        (LANG==='ko'?'소유자: ':LANG==='ja'?'オーナー: ':LANG==='zh'?'所有者: ':'Owner: ') + ownerShort + '<br>' + (LANG==='ko'?'섹터: ':LANG==='ja'?'セクター: ':LANG==='zh'?'区域: ':'Sector: ') + sectorStr
         + (id.bio ? '<br><span style="color:rgba(255,255,255,.45)">' + _esc(id.bio) + '</span>' : '');
 
       // 🏅 Field Rating 배지
@@ -14192,15 +14192,15 @@ function loadTerritoryIdentity(claimId) {
 
       // 📜 이력
       var history = [];
-      if (id.hold_days > 0)             history.push(id.hold_days + '일 보유 중');
-      if (id.defense_wins > 0)          history.push(id.defense_wins + '회 방어 성공');
-      if (id.times_hijacked > 0)        history.push(id.times_hijacked + '회 탈환 기록 있음');
-      if (id.longest_hold_days > 0)     history.push('최대 보유 기록: ' + id.longest_hold_days + '일');
+      if (id.hold_days > 0)             history.push(id.hold_days + (LANG==='ko'?' 일 보유 중':LANG==='ja'?' 日保有中':LANG==='zh'?' 天持有中':' days held'));
+      if (id.defense_wins > 0)          history.push(id.defense_wins + (LANG==='ko'?' 회 방어 성공':LANG==='ja'?' 回防衛成功':LANG==='zh'?' 次防御成功':' defense wins'));
+      if (id.times_hijacked > 0)        history.push(id.times_hijacked + (LANG==='ko'?' 회 탈환 기록':LANG==='ja'?' 回ハイジャック':LANG==='zh'?' 次被劫持':' hijacks'));
+      if (id.longest_hold_days > 0)     history.push((LANG==='ko'?'최대 보유 기록: ':LANG==='ja'?'最長保有: ':LANG==='zh'?'最长持有: ':'Longest hold: ') + id.longest_hold_days + (LANG==='ko'?' 일':LANG==='ja'?' 日':LANG==='zh'?' 天':' days'));
 
       var historyHtml = '';
       if (history.length > 0) {
         historyHtml = '<div style="margin-bottom:7px">'
-          + '<div style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:1px;margin-bottom:4px">📜 이력</div>'
+          + '<div style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:1px;margin-bottom:4px">📜 '+(LANG==='ko'?'이력':LANG==='ja'?'履歴':LANG==='zh'?'历史':'History')+'</div>'
           + history.map(function(h){
               return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">'
                 + '<span style="color:rgba(225,190,231,.5);font-size:9px">•</span>'
@@ -14219,7 +14219,7 @@ function loadTerritoryIdentity(claimId) {
           return '<span style="font-size:8px;background:rgba(225,190,231,.1);border:1px solid rgba(225,190,231,.3);color:#e1bee7;padding:2px 7px;border-radius:8px;margin-right:4px;margin-bottom:3px;display:inline-block">' + label + '</span>';
         }).join('');
         badgesHtml = '<div style="margin-top:4px">'
-          + '<div style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:1px;margin-bottom:4px">🏆 배지</div>'
+          + '<div style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:1px;margin-bottom:4px">🏆 '+(LANG==='ko'?'배지':LANG==='ja'?'バッジ':LANG==='zh'?'徽章':'Badges')+'</div>'
           + '<div>' + chips + '</div>'
           + '</div>';
       }
@@ -17317,6 +17317,7 @@ var I18N = {
     ops_board_title: '📋 Today\'s Ops Board', ops_legend_done: '🟢 Done', ops_legend_pending: '⚪ Pending', ops_legend_urgent: '🔴 Urgent',
     pvp_declare_btn: '⚔ Declare Battle', pvp_tab_rec: '🎯 Recommended', pvp_tab_bounty: '💰 Bounty', pvp_tab_conflict: '🔥 Sector Conflict',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 Upgrading...',
+    we_select_fleet: 'Select fleet...', we_fleet_min: 'At least 1 ship required',
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -18175,6 +18176,7 @@ var I18N = {
     ops_board_title: '📋 오늘의 작전 보드', ops_legend_done: '🟢 완료', ops_legend_pending: '⚪ 미완료', ops_legend_urgent: '🔴 긴급',
     pvp_declare_btn: '⚔ 전투 선언', pvp_tab_rec: '🎯 추천 상대', pvp_tab_bounty: '💰 현상금', pvp_tab_conflict: '🔥 섹터 분쟁',
     wb_title: '🎯 WAR BETTING · 전쟁 베팅', forge_upgrading: '🔨 강화 중...',
+    we_select_fleet: '함대 선택...', we_fleet_min: '최소 1척 이상의 함선이 있어야 합니다',
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -19020,6 +19022,7 @@ var I18N = {
     ops_board_title: '📋 今日の作戦ボード', ops_legend_done: '🟢 完了', ops_legend_pending: '⚪ 未完了', ops_legend_urgent: '🔴 緊急',
     pvp_declare_btn: '⚔ 戦闘宣言', pvp_tab_rec: '🎯 推薦相手', pvp_tab_bounty: '💰 賞金', pvp_tab_conflict: '🔥 セクター紛争',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 強化中...',
+    we_select_fleet: '艦隊選択...', we_fleet_min: '最低1隻の艦船が必要です',
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -19865,6 +19868,7 @@ var I18N = {
     ops_board_title: '📋 今日作战板', ops_legend_done: '🟢 完成', ops_legend_pending: '⚪ 未完成', ops_legend_urgent: '🔴 紧急',
     pvp_declare_btn: '⚔ 宣战', pvp_tab_rec: '🎯 推荐对手', pvp_tab_bounty: '💰 赏金', pvp_tab_conflict: '🔥 区域冲突',
     wb_title: '🎯 WAR BETTING · 战争下注', forge_upgrading: '🔨 强化中...',
+    we_select_fleet: '选择舰队...', we_fleet_min: '至少需要1艘舰船',
   }
 };
 
@@ -22911,7 +22915,7 @@ function submitRaidAttempt(tid, cargo) {
       } else {
         showFactionToast((LANG==='ko'?'약탈 실패: ':LANG==='ja'?'略奪失敗: ':LANG==='zh'?'掠夺失败: ':'Raid failed: ')+(d.error||'unknown'), 'error');
       }
-    }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
+    }).catch(function(e){ showFactionToast((LANG==='ko'?'네트워크 오류: ':LANG==='ja'?'ネットワークエラー: ':LANG==='zh'?'网络错误: ':'Network error: ')+e.message, 'error'); });
   };
   gameConfirm({icon:'🏴',title:(LANG==='ko'?'수송 #':LANG==='ja'?'輸送 #':LANG==='zh'?'运输 #':'Transport #')+tid+(LANG==='ko'?' 약탈':LANG==='ja'?' 略奪':LANG==='zh'?' 掠夺':' Raid'),body:(LANG==='ko'?'화물: ':LANG==='ja'?'貨物: ':LANG==='zh'?'货物: ':'Cargo: ')+'<b>'+cargo+' GP</b>. '+(LANG==='ko'?'수송당 1회 시도. 쿨다운 적용.':LANG==='ja'?'輸送ごとに1回試行。クールダウンあり。':LANG==='zh'?'每次运输仅限1次尝试，有冷却。':'One attempt per transport. Cooldown applies.'),confirmText:LANG==='ko'?'약탈':LANG==='ja'?'略奪':LANG==='zh'?'掠夺':'Raid'}).then(function(ok){if(ok)doIt();});
 }
@@ -27846,7 +27850,7 @@ function campaignObjectiveActionLabel(action){
 }
 function handleCampaignObjectiveAction(ev,action){
   if(ev&&ev.stopPropagation) ev.stopPropagation();
-  if(!isLoggedIn()){showFactionToast('로그인이 필요합니다','error');return;}
+  if(!isLoggedIn()){showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'需要登录':'Login required','error');return;}
   closeCampaignModal();
   if(action==='territory'){
     openBaseModal();
@@ -34084,7 +34088,7 @@ window.addEventListener('resize', _debounce(function(){
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:6px 0;line-height:1.6">'
       + '⚔️ ' + (t('gov_battle_use_fleet')||'PVP는 Fleet 시스템 + Hijack에서 진행됩니다.')
       + '<br><span style="color:var(--tx4);font-size:9px">'
-      + (t('gov_battle_use_fleet_hint')||'함대 탭에서 함선을 건조하고, 영토 탈취는 HIJACK 버튼을 사용하세요.')
+      + (t('gov_battle_use_fleet_hint')||(LANG==='ko'?'함대 탭에서 함선을 건조하고, 영토 탈취는 HIJACK 버튼을 사용하세요.':LANG==='ja'?'艦隊タブで艦船を建造し、領土奪取はHIJACKボタンを使用してください。':LANG==='zh'?'在舰队标签页建造舰船，使用HIJACK按钮夺取领地。':'Build ships in the Fleet tab and use the HIJACK button to capture territory.'))
       + '</span></div>';
   }
   window.loadBattlePanel = loadBattlePanel;
