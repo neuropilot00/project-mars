@@ -49454,17 +49454,17 @@ function showBattleResult() {
   title.style.color = winner === 'atk' ? '#4fc3f7' : winner === 'def' ? '#ff7043' : '#ffd700';
   title.style.fontSize = '20px';
   title.style.letterSpacing = '2px';
-  title.innerHTML = '⚔&nbsp; 전투 결과 리포트';
+  title.innerHTML = `⚔&nbsp; ${LANG==='ko'?'전투 결과 리포트':LANG==='ja'?'戦闘結果レポート':LANG==='zh'?'战斗结果报告':'Battle Report'}`;
 
   // 부제목: 함대명 VS 함대명 + 내 승리/패배 배지
   const atkName = (atkParticipant?.fleet_name || atkParticipant?.nickname || 'ATK');
   const defName = (defParticipant?.fleet_name || defParticipant?.nickname || 'DEF');
   const resultBadge = iWon
-    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">🏆 승리</span>`
+    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">🏆 ${LANG==='ko'?'승리':LANG==='ja'?'勝利':LANG==='zh'?'胜利':'Victory'}</span>`
     : iLost
-    ? `<span style="background:#ef5350;color:#fff;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">💀 패배</span>`
+    ? `<span style="background:#ef5350;color:#fff;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">💀 ${LANG==='ko'?'패배':LANG==='ja'?'敗北':LANG==='zh'?'败北':'Defeat'}</span>`
     : winner
-    ? `<span style="background:#ffd700;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">≋ 무승부</span>`
+    ? `<span style="background:#ffd700;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">≋ ${LANG==='ko'?'무승부':LANG==='ja'?'引き分け':LANG==='zh'?'平局':'Draw'}</span>`
     : '';
   // resultBadge를 내 함대 이름 옆에 붙임 (내가 ATK → atk 이름 뒤, 내가 DEF → def 이름 뒤, 관전 → 승자 이름 뒤)
   const atkFinalBadge = mySide === 'atk' ? resultBadge : (!mySide && winner === 'atk' ? resultBadge : '');
@@ -49658,9 +49658,9 @@ async function _loadBattleReport(battleId, mySide) {
             turning_point: '⚡',
           };
           const hlLabelMap = {
-            first_kill: '첫 격침',
-            flagship_threatened: '기함 위기',
-            turning_point: '전세 역전',
+            first_kill: LANG==='ko'?'첫 격침':LANG==='ja'?'初撃沈':LANG==='zh'?'首次击沉':'First Kill',
+            flagship_threatened: LANG==='ko'?'기함 위기':LANG==='ja'?'旗艦危機':LANG==='zh'?'旗舰危机':'Flagship Threatened',
+            turning_point: LANG==='ko'?'전세 역전':LANG==='ja'?'形勢逆転':LANG==='zh'?'形势逆转':'Turning Point',
           };
           const hlRows = hl.map(h => {
             const icon = hlIconMap[h.type] || '▶';
@@ -49670,13 +49670,13 @@ async function _loadBattleReport(battleId, mySide) {
               <span style="font-size:13px">${icon}</span>
               <span style="flex:1;font-size:10px;color:rgba(255,255,255,.75)">${label}</span>
               <span style="font-size:9px;color:rgba(255,255,255,.35)">tick ${h.tick||0}</span>
-              <span style="font-size:9px;color:var(--cyan)">▶ 이동</span>
+              <span style="font-size:9px;color:var(--cyan)">▶ ${LANG==='ko'?'이동':LANG==='ja'?'移動':LANG==='zh'?'跳转':'Jump'}</span>
             </button>`;
           }).join('');
           highlightHtml = `
             <div style="margin-bottom:10px">
               <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:4px">
-                <span>🎬</span><span>하이라이트 장면</span>
+                <span>🎬</span><span>${LANG==='ko'?'하이라이트 장면':LANG==='ja'?'ハイライトシーン':LANG==='zh'?'高光时刻':'Highlights'}</span>
               </div>
               ${hlRows}
             </div>`;
@@ -49776,7 +49776,7 @@ function closeAlliance() {
 
 async function loadAlliance() {
   const container = document.getElementById('allianceContent');
-  container.innerHTML = '<div class="bh-empty" style="padding:40px">로딩 중...</div>';
+  container.innerHTML = `<div class="bh-empty" style="padding:40px">${LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...'}</div>`;
   
   try {
     // 내 동맹 조회
@@ -49790,7 +49790,7 @@ async function loadAlliance() {
     }
   } catch (err) {
     console.error('loadAlliance:', err);
-    container.innerHTML = '<div class="bh-empty" style="padding:40px">로딩 실패</div>';
+    container.innerHTML = `<div class="bh-empty" style="padding:40px">${LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed'}</div>`;
   }
 }
 
@@ -49804,10 +49804,10 @@ function renderMyAlliance(al) {
         ${escapeHtml(al.name)}
       </div>
       <div class="al-meta">
-        <span>멤버 <b>${al.member_count}/${al.max_members}</b></span>
-        <span>전적 <b>${al.battles_won}W ${al.battles_lost}L</b></span>
-        <span>금고 <b>${al.alliance_gp || 0}</b> GP</span>
-        ${al.faction_name ? `<span>소속 <b>${al.faction_name}</b></span>` : ''}
+        <span>${LANG==='ko'?'멤버':LANG==='ja'?'メンバー':LANG==='zh'?'成员':'Members'} <b>${al.member_count}/${al.max_members}</b></span>
+        <span>${LANG==='ko'?'전적':LANG==='ja'?'戦績':LANG==='zh'?'战绩':'Record'} <b>${al.battles_won}W ${al.battles_lost}L</b></span>
+        <span>${LANG==='ko'?'금고':LANG==='ja'?'金庫':LANG==='zh'?'金库':'Vault'} <b>${al.alliance_gp || 0}</b> GP</span>
+        ${al.faction_name ? `<span>${LANG==='ko'?'소속':LANG==='ja'?'所属':LANG==='zh'?'所属':'Faction'} <b>${al.faction_name}</b></span>` : ''}
       </div>
       <div style="margin-top:10px;display:flex;gap:6px">
         ${al.role === 'leader' 
@@ -49815,17 +49815,17 @@ function renderMyAlliance(al) {
           : al.role === 'officer'
             ? `<span class="al-role-badge al-role-officer">★ OFFICER</span>`
             : `<span class="al-role-badge al-role-member">MEMBER</span>`}
-        <button class="fd-btn" onclick="leaveMyAlliance()">탈퇴</button>
+        <button class="fd-btn" onclick="leaveMyAlliance()">${LANG==='ko'?'탈퇴':LANG==='ja'?'脱退':LANG==='zh'?'退出':'Leave'}</button>
       </div>
     </div>
     <div class="al-members">
-      <div class="al-members-title">멤버 (${al.members?.length || 0})</div>
+      <div class="al-members-title">${LANG==='ko'?'멤버':LANG==='ja'?'メンバー':LANG==='zh'?'成员':'Members'} (${al.members?.length || 0})</div>
       ${(al.members || []).map(m => `
         <div class="al-member">
           <span class="al-role-badge al-role-${m.role}">${m.role === 'leader' ? '👑' : m.role === 'officer' ? '★' : '•'}</span>
           <div>
             <div style="font-weight:700">${escapeHtml(m.nickname || '')}</div>
-            <div style="color:rgba(255,255,255,.4);font-size:9px">⚔ ${m.ships_count || 0}척</div>
+            <div style="color:rgba(255,255,255,.4);font-size:9px">⚔ ${m.ships_count || 0}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships'}</div>
           </div>
           <span style="font-size:9px;color:rgba(255,255,255,.4)">기여 ${m.contribution || 0}</span>
         </div>
@@ -49846,13 +49846,13 @@ async function renderAllianceList() {
       <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.05)">
         <button class="bh-declare-btn" style="font-size:10px;padding:8px 16px;width:100%" 
                 onclick="openCreateAlliance()">
-          + 동맹 창설 (5000 GP)
+          + ${LANG==='ko'?'동맹 창설':LANG==='ja'?'同盟創設':LANG==='zh'?'创建联盟':'Create Alliance'} (5000 GP)
         </button>
       </div>
       <div style="padding:14px 20px;overflow-y:auto">
-        <div class="al-members-title">기존 동맹 (${list.length})</div>
+        <div class="al-members-title">${LANG==='ko'?'기존 동맹':LANG==='ja'?'既存の同盟':LANG==='zh'?'现有联盟':'Alliances'} (${list.length})</div>
         ${list.length === 0 
-          ? '<div class="bh-empty">아직 동맹이 없습니다</div>'
+          ? `<div class="bh-empty">${LANG==='ko'?'아직 동맹이 없습니다':LANG==='ja'?'まだ同盟がありません':LANG==='zh'?'暂无联盟':'No alliances yet'}</div>`
           : list.map(a => `
             <div class="al-list-card" style="border-left:3px solid ${a.color_primary || '#4fc3f7'}">
               <div>
@@ -49861,28 +49861,28 @@ async function renderAllianceList() {
                   ${escapeHtml(a.name)}
                 </div>
                 <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px">
-                  멤버 ${a.member_count}/${a.max_members} · ${a.battles_won}W/${a.battles_lost}L · 함선 ${a.total_ships_alive || 0}척
+                  ${LANG==='ko'?'멤버':LANG==='ja'?'メンバー':LANG==='zh'?'成员':'Members'} ${a.member_count}/${a.max_members} · ${a.battles_won}W/${a.battles_lost}L · ${LANG==='ko'?'함선':LANG==='ja'?'艦船':LANG==='zh'?'舰船':'Ships'} ${a.total_ships_alive || 0}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':''}
                 </div>
               </div>
               <button class="bc-btn primary" onclick="joinAllianceConfirm(${a.id}, '${escapeHtml(a.name)}')">
-                가입
+                ${LANG==='ko'?'가입':LANG==='ja'?'加入':LANG==='zh'?'加入':'Join'}
               </button>
             </div>
           `).join('')}
       </div>
     `;
   } catch (err) {
-    container.innerHTML = '<div class="bh-empty" style="padding:40px">로딩 실패</div>';
+    container.innerHTML = `<div class="bh-empty" style="padding:40px">${LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed'}</div>`;
   }
 }
 
 async function openCreateAlliance() {
-  const name = await gameInput({title:'동맹 창설',label:'동맹 이름 (60자 이하)',placeholder:'예: 화성 연합',maxLength:60});
+  const name = await gameInput({title:LANG==='ko'?'동맹 창설':LANG==='ja'?'同盟創設':LANG==='zh'?'创建联盟':'Create Alliance',label:LANG==='ko'?'동맹 이름 (60자 이하)':LANG==='ja'?'同盟名 (60文字以内)':LANG==='zh'?'联盟名称 (60字以内)':'Alliance name (max 60)',placeholder:LANG==='ko'?'예: 화성 연합':LANG==='ja'?'例: 火星連合':LANG==='zh'?'例: 火星联盟':'e.g. Mars Union',maxLength:60});
   if (!name || !name.trim()) return;
 
-  const tag = await gameInput({title:'동맹 태그',label:'태그 (2~6자, 선택)',placeholder:'예: MRS',maxLength:6});
+  const tag = await gameInput({title:LANG==='ko'?'동맹 태그':LANG==='ja'?'同盟タグ':LANG==='zh'?'联盟标签':'Alliance Tag',label:LANG==='ko'?'태그 (2~6자, 선택)':LANG==='ja'?'タグ (2~6文字、任意)':LANG==='zh'?'标签 (2~6字，可选)':'Tag (2-6 chars, optional)',placeholder:'e.g. MRS',maxLength:6});
   
-  var ok=await gameConfirm({icon:'🤝',title:'동맹 창설',body:'이름: <b>'+escapeHTML(name)+'</b>'+(tag?(' · 태그: <b>'+escapeHTML(tag)+'</b>'):'')+'<br>비용: <b>5000 GP</b>',confirmText:'창설'});
+  var ok=await gameConfirm({icon:'🤝',title:LANG==='ko'?'동맹 창설':LANG==='ja'?'同盟創設':LANG==='zh'?'创建联盟':'Create Alliance',body:(LANG==='ko'?'이름: ':LANG==='ja'?'名前: ':LANG==='zh'?'名称: ':'Name: ')+'<b>'+escapeHTML(name)+'</b>'+(tag?(` · ${LANG==='ko'?'태그':LANG==='ja'?'タグ':LANG==='zh'?'标签':'Tag'}: <b>`+escapeHTML(tag)+'</b>'):'')+'<br>'+(LANG==='ko'?'비용: ':LANG==='ja'?'費用: ':LANG==='zh'?'费用: ':'Cost: ')+'<b>5000 GP</b>',confirmText:LANG==='ko'?'창설':LANG==='ja'?'創設':LANG==='zh'?'创建':'Create'});
   if(!ok) return;
   
   try {
@@ -49895,16 +49895,16 @@ async function openCreateAlliance() {
     
     if (!res.ok) {
       const msgMap = {
-        'NAME_TAKEN': '이미 사용 중인 이름',
-        'TAG_TAKEN': '이미 사용 중인 태그',
-        'INSUFFICIENT_GP': 'GP 부족 (5000 필요)',
-        'ALREADY_IN_ALLIANCE': '이미 다른 동맹 소속',
+        'NAME_TAKEN': LANG==='ko'?'이미 사용 중인 이름':LANG==='ja'?'すでに使用中の名前':LANG==='zh'?'名称已被使用':'Name already taken',
+        'TAG_TAKEN': LANG==='ko'?'이미 사용 중인 태그':LANG==='ja'?'すでに使用中のタグ':LANG==='zh'?'标签已被使用':'Tag already taken',
+        'INSUFFICIENT_GP': LANG==='ko'?'GP 부족 (5000 필요)':LANG==='ja'?'GP不足 (5000必要)':LANG==='zh'?'GP不足 (需要5000)':'Insufficient GP (need 5000)',
+        'ALREADY_IN_ALLIANCE': LANG==='ko'?'이미 다른 동맹 소속':LANG==='ja'?'すでに他の同盟に所属':LANG==='zh'?'已加入其他联盟':'Already in an alliance',
       };
       showFactionToast(msgMap[data.error] || (LANG==='ko'?`오류: ${data.error}`:LANG==='ja'?`エラー: ${data.error}`:LANG==='zh'?`错误: ${data.error}`:`Error: ${data.error}`), 'error');
       return;
     }
     
-    showFactionToast(`🤝 동맹 "${data.name}" 창설됨`, 'success');
+    showFactionToast(`🤝 ${LANG==='ko'?`동맹 "${data.name}" 창설됨`:LANG==='ja'?`同盟「${data.name}」創設`:LANG==='zh'?`联盟「${data.name}」已创建`:`Alliance "${data.name}" created`}`, 'success');
     await loadAlliance();
   } catch (err) {
     showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
@@ -49912,7 +49912,7 @@ async function openCreateAlliance() {
 }
 
 async function joinAllianceConfirm(allianceId, name) {
-  var ok=await gameConfirm({icon:'🤝',title:'동맹 가입',body:'<b>'+escapeHTML(name)+'</b> 동맹에 가입합니다.',confirmText:'가입'});
+  var ok=await gameConfirm({icon:'🤝',title:LANG==='ko'?'동맹 가입':LANG==='ja'?'同盟加入':LANG==='zh'?'加入联盟':'Join Alliance',body:'<b>'+escapeHTML(name)+'</b> '+(LANG==='ko'?'동맹에 가입합니다.':LANG==='ja'?'同盟に加入します。':LANG==='zh'?'联盟，确认加入？':'— confirm join?'),confirmText:LANG==='ko'?'가입':LANG==='ja'?'加入':LANG==='zh'?'加入':'Join'});
   if(!ok) return;
   
   try {
@@ -49923,14 +49923,14 @@ async function joinAllianceConfirm(allianceId, name) {
     
     if (!res.ok) {
       const msgMap = {
-        'ALLIANCE_FULL': '정원 초과',
-        'ALREADY_IN_ALLIANCE': '이미 다른 동맹 소속',
+        'ALLIANCE_FULL': LANG==='ko'?'정원 초과':LANG==='ja'?'定員超過':LANG==='zh'?'人数已满':'Alliance full',
+        'ALREADY_IN_ALLIANCE': LANG==='ko'?'이미 다른 동맹 소속':LANG==='ja'?'すでに他の同盟に所属':LANG==='zh'?'已加入其他联盟':'Already in an alliance',
       };
       showFactionToast(msgMap[data.error] || (LANG==='ko'?`오류: ${data.error}`:LANG==='ja'?`エラー: ${data.error}`:LANG==='zh'?`错误: ${data.error}`:`Error: ${data.error}`), 'error');
       return;
     }
     
-    showFactionToast('🤝 가입 완료', 'success');
+    showFactionToast(`🤝 ${LANG==='ko'?'가입 완료':LANG==='ja'?'加入完了':LANG==='zh'?'加入成功':'Joined'}`, 'success');
     await loadAlliance();
   } catch (err) {
     showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
@@ -49938,7 +49938,7 @@ async function joinAllianceConfirm(allianceId, name) {
 }
 
 async function leaveMyAlliance() {
-  var ok=await gameConfirm({icon:'🤝',title:'동맹 탈퇴',body:'동맹에서 탈퇴합니다. 쿨다운 기간 동안 재가입이 제한됩니다.',confirmText:'탈퇴'});
+  var ok=await gameConfirm({icon:'🤝',title:LANG==='ko'?'동맹 탈퇴':LANG==='ja'?'同盟脱退':LANG==='zh'?'退出联盟':'Leave Alliance',body:LANG==='ko'?'동맹에서 탈퇴합니다. 쿨다운 기간 동안 재가입이 제한됩니다.':LANG==='ja'?'同盟から脱退します。クールダウン期間中は再加入が制限されます。':LANG==='zh'?'您将退出联盟。冷却期间内不能重新加入。':'Leave the alliance. Rejoin is restricted during cooldown.',confirmText:LANG==='ko'?'탈퇴':LANG==='ja'?'脱退':LANG==='zh'?'退出':'Leave'});
   if(!ok) return;
   
   try {
@@ -49998,7 +49998,7 @@ async function rpLoad() {
     
     if (replays.length === 0) {
       grid.innerHTML = `<div class="bh-empty" style="grid-column:1/-1">
-        ${rpState.currentTab === 'mine' ? '공유한 리플레이 없음' : '추천 리플레이 없음'}
+        ${rpState.currentTab === 'mine' ? (LANG==='ko'?'공유한 리플레이 없음':LANG==='ja'?'共有したリプレイなし':LANG==='zh'?'没有分享的回放':'No shared replays') : (LANG==='ko'?'추천 리플레이 없음':LANG==='ja'?'おすすめリプレイなし':LANG==='zh'?'没有推荐回放':'No featured replays')}
       </div>`;
       return;
     }
@@ -50472,7 +50472,7 @@ async function finishOnboarding() {
     });
   } catch(_) {}
   closeOnboarding();
-  showFactionToast('🚀 화성에 오신 걸 환영합니다!', 'success');
+  showFactionToast(`🚀 ${LANG==='ko'?'화성에 오신 걸 환영합니다!':LANG==='ja'?'火星へようこそ！':LANG==='zh'?'欢迎来到火星！':'Welcome to Mars!'}`, 'success');
   try { refreshGP(); } catch(_) {}
 }
 
@@ -50528,7 +50528,7 @@ function wbSwitchTab(tab) {
 
 async function wbLoad() {
   const body = document.getElementById('wbBody');
-  body.innerHTML = '<div class="wb-empty">로딩 중...</div>';
+  body.innerHTML = `<div class="wb-empty">${LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...'}</div>`;
 
   try {
     let url = '';
@@ -50542,9 +50542,9 @@ async function wbLoad() {
 
     if (items.length === 0) {
       body.innerHTML = `<div class="wb-empty">
-        ${wb.currentTab === 'active' ? '현재 진행 중인 베팅이 없습니다' :
-          wb.currentTab === 'recent' ? '최근 결과가 없습니다' :
-          '베팅 기록이 없습니다'}
+        ${wb.currentTab === 'active' ? (LANG==='ko'?'현재 진행 중인 베팅이 없습니다':LANG==='ja'?'現在進行中のベットはありません':LANG==='zh'?'暂无进行中的投注':'No active bets') :
+          wb.currentTab === 'recent' ? (LANG==='ko'?'최근 결과가 없습니다':LANG==='ja'?'最近の結果がありません':LANG==='zh'?'暂无最近结果':'No recent results') :
+          (LANG==='ko'?'베팅 기록이 없습니다':LANG==='ja'?'ベット履歴がありません':LANG==='zh'?'暂无投注记录':'No bet history')}
       </div>`;
       return;
     }
@@ -50556,14 +50556,14 @@ async function wbLoad() {
     }
   } catch (err) {
     console.error('[warBetting] load error:', err);
-    body.innerHTML = '<div class="wb-empty">로딩 실패</div>';
+    body.innerHTML = `<div class="wb-empty">${LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed'}</div>`;
   }
 }
 
 // ── 이벤트 카드 렌더 ──
 
 function renderEventCard(event, readonly = false) {
-  const typeMap = { siege: '공성전', guild_war: '길드전', weekly_top: '주간 TOP' };
+  const typeMap = { siege: LANG==='ko'?'공성전':LANG==='ja'?'攻城戦':LANG==='zh'?'攻城战':'Siege', guild_war: LANG==='ko'?'길드전':LANG==='ja'?'ギルド戦':LANG==='zh'?'公会战':'Guild War', weekly_top: LANG==='ko'?'주간 TOP':LANG==='ja'?'週間TOP':LANG==='zh'?'周榜TOP':'Weekly Top' };
   const isThreeWay = !!event.option_c_label;
   const selectedOpt = wb.selectedOptions[event.id];
   const betAmount = wb.betAmounts[event.id] || '';
@@ -50572,10 +50572,10 @@ function renderEventCard(event, readonly = false) {
   const minsLeft = Math.floor((closesAt - Date.now()) / 60000);
   const isSoon = minsLeft < 60;
   const closeText = minsLeft < 0
-    ? '베팅 마감'
+    ? (LANG==='ko'?'베팅 마감':LANG==='ja'?'受付終了':LANG==='zh'?'投注截止':'Betting Closed')
     : minsLeft < 60
-    ? `${minsLeft}분 후 마감`
-    : `${Math.floor(minsLeft/60)}시간 후 마감`;
+    ? `${minsLeft}${LANG==='ko'?'분 후 마감':LANG==='ja'?'分後締切':LANG==='zh'?'分钟后截止':' min left'}`
+    : `${Math.floor(minsLeft/60)}${LANG==='ko'?'시간 후 마감':LANG==='ja'?'時間後締切':LANG==='zh'?'小时后截止':' hr left'}`;
 
   const opts = [
     { key: 'a', label: event.option_a_label, total: event.total_bet_a, odds: event.odds?.a },
@@ -50603,8 +50603,8 @@ function renderEventCard(event, readonly = false) {
                  onclick="${readonly ? '' : `wbSelectOption(${event.id},'${o.key}')`}">
               <div class="wb-option-label">${escapeHtml(o.label || '')}</div>
               <div class="wb-option-odds">${o.odds ? o.odds.toFixed(2) + 'x' : '-'}</div>
-              <div class="wb-option-total">${formatNum(o.total || 0)} GP 베팅</div>
-              ${isWon ? '<div style="font-size:9px;color:#81c784;margin-top:2px">✅ 당첨</div>' : ''}
+              <div class="wb-option-total">${formatNum(o.total || 0)} GP ${LANG==='ko'?'베팅':LANG==='ja'?'ベット':LANG==='zh'?'下注':'bet'}</div>
+              ${isWon ? `<div style="font-size:9px;color:#81c784;margin-top:2px">✅ ${LANG==='ko'?'당첨':LANG==='ja'?'当選':LANG==='zh'?'中奖':'Won'}</div>` : ''}
             </div>
           `;
         }).join('')}
@@ -50623,14 +50623,14 @@ function renderEventCard(event, readonly = false) {
                  oninput="wb.betAmounts[${event.id}]=parseInt(this.value)||0">
           <button class="wb-bet-btn" onclick="wbPlaceBet(${event.id})"
                   ${selectedOpt ? '' : 'disabled'}>
-            베팅
+            ${LANG==='ko'?'베팅':LANG==='ja'?'ベット':LANG==='zh'?'投注':'Bet'}
           </button>
         </div>
         ${selectedOpt ? `<div style="font-size:9px;color:rgba(255,255,255,.4);text-align:right;margin-top:4px">
-          선택: <b style="color:#ff9800">${opts.find(o=>o.key===selectedOpt)?.label || ''}</b>
+          ${LANG==='ko'?'선택':LANG==='ja'?'選択':LANG==='zh'?'已选':'Selected'}: <b style="color:#ff9800">${opts.find(o=>o.key===selectedOpt)?.label || ''}</b>
         </div>` : ''}
         <div style="font-size:9px;color:rgba(255,255,255,.25);text-align:right;margin-top:2px">
-          총 풀: ${formatNum(event.odds?.total_pool || 0)} GP · 하우스 엣지 5%
+          ${LANG==='ko'?'총 풀':LANG==='ja'?'総プール':LANG==='zh'?'总池':'Total pool'}: ${formatNum(event.odds?.total_pool || 0)} GP · ${LANG==='ko'?'하우스 엣지':LANG==='ja'?'ハウスエッジ':LANG==='zh'?'庄家抽水':'House edge'} 5%
         </div>
       ` : ''}
     </div>
@@ -50638,13 +50638,13 @@ function renderEventCard(event, readonly = false) {
 }
 
 function renderMyBet(bet) {
-  const statusMap = { pending:'대기중', won:'당첨', lost:'낙첨', refunded:'환불' };
+  const statusMap = { pending:LANG==='ko'?'대기중':LANG==='ja'?'待機中':LANG==='zh'?'待结算':'Pending', won:LANG==='ko'?'당첨':LANG==='ja'?'当選':LANG==='zh'?'中奖':'Won', lost:LANG==='ko'?'낙첨':LANG==='ja'?'落選':LANG==='zh'?'未中':'Lost', refunded:LANG==='ko'?'환불':LANG==='ja'?'払戻':LANG==='zh'?'已退款':'Refunded' };
   return `
     <div class="wb-my-bet-row">
       <div>
         <div class="wb-my-bet-event">${escapeHtml(bet.title_ko || '')}</div>
         <div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">
-          선택: <span class="wb-my-bet-option">${escapeHtml(bet.option_label || bet.option)}</span>
+          ${LANG==='ko'?'선택':LANG==='ja'?'選択':LANG==='zh'?'已选':'Selected'}: <span class="wb-my-bet-option">${escapeHtml(bet.option_label || bet.option)}</span>
         </div>
       </div>
       <div class="wb-my-bet-amount">
