@@ -12017,9 +12017,9 @@ function _bterrLoadProd(idx,g){
         });
         html+='</div>';
       }
-      prodEl.innerHTML=html||'<span style="color:var(--tx3)">생산 정보 없음</span>';
+      prodEl.innerHTML=html||'<span style="color:var(--tx3)">'+(LANG==='ko'?'생산 정보 없음':LANG==='ja'?'生産情報なし':LANG==='zh'?'无生产信息':'No production data')+'</span>';
     })
-    .catch(function(){if(document.getElementById('bterrProd'+idx)) document.getElementById('bterrProd'+idx).textContent='오류';});
+    .catch(function(){if(document.getElementById('bterrProd'+idx)) document.getElementById('bterrProd'+idx).textContent=LANG==='ko'?'오류':LANG==='ja'?'エラー':LANG==='zh'?'错误':'Error';});
 }
 
 // 내 영토 목록에서 빠른 액션
@@ -15119,7 +15119,7 @@ function openClaimModal(){
     var _dic = document.getElementById('hijackDefenderInfoIcon');
     if(_di && _primaryDef){
       _di.style.display='block';
-      _dt.textContent='조회 중...';
+      _dt.textContent=LANG==='ko'?'조회 중...':LANG==='ja'?'確認中...':LANG==='zh'?'查询中...':'Checking...';
       _di.style.background='rgba(91,184,232,.08)';
       _di.style.border='1px solid rgba(91,184,232,.25)';
       _di.style.color='#bfe2f5';
@@ -16370,7 +16370,7 @@ showContinueOverlay = function(score){
     btn.style.background = 'linear-gradient(135deg,#00E676,#00C853)';
     btn.style.color = '#000';
     btn.textContent = 'FREE CONTINUE';
-    document.getElementById('mgContinueCost').textContent = '무료 컨티뉴 1회 (미션 보너스)';
+    document.getElementById('mgContinueCost').textContent = LANG==='ko'?'무료 컨티뉴 1회 (미션 보너스)':LANG==='ja'?'無料コンティニュー1回 (ミッションボーナス)':LANG==='zh'?'免费续命1次 (任务奖励)':'FREE CONTINUE ×1 (Mission Bonus)';
   }
 };
 
@@ -20651,7 +20651,7 @@ function showResetPassword(){
   document.getElementById('resetStep1Err').textContent='';
   document.getElementById('resetEmailInput').value='';
   var btn=document.getElementById('resetStep1Btn');
-  btn.disabled=false;btn.textContent='인증코드 발송';
+  btn.disabled=false;btn.textContent=LANG==='ko'?'인증코드 발송':LANG==='ja'?'認証コード送信':LANG==='zh'?'发送验证码':'Send Code';
   _resetEmail='';
 }
 function backToAuthForm(){
@@ -20686,43 +20686,44 @@ async function doFindEmail(){
   var errEl=document.getElementById('findEmailErr');
   errEl.textContent='';
   document.getElementById('findEmailResult').style.display='none';
-  if(!nick){errEl.textContent='닉네임을 입력하세요';return}
+  if(!nick){errEl.textContent=LANG==='ko'?'닉네임을 입력하세요':LANG==='ja'?'ニックネームを入力してください':LANG==='zh'?'请输入昵称':'Enter your nickname';return}
   try{
     var resp=await fetch('/api/auth/find-email',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({nickname:nick})
     });
     var d=await resp.json();
-    if(!resp.ok){errEl.textContent=d.error||'찾을 수 없습니다';return}
+    if(!resp.ok){errEl.textContent=d.error||(LANG==='ko'?'찾을 수 없습니다':LANG==='ja'?'見つかりません':LANG==='zh'?'未找到':'Not found');return}
     document.getElementById('foundEmail').textContent=d.maskedEmail;
     document.getElementById('foundWallet').textContent='Wallet: '+d.walletHint;
     document.getElementById('findEmailResult').style.display='';
-  }catch(e){errEl.textContent='네트워크 오류'}
+  }catch(e){errEl.textContent=LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error'}
 }
 
 async function doResetStep1(){
   var email=document.getElementById('resetEmailInput').value.trim();
   var errEl=document.getElementById('resetStep1Err');
   errEl.textContent='';
-  if(!email){errEl.textContent='이메일을 입력하세요';return}
+  if(!email){errEl.textContent=LANG==='ko'?'이메일을 입력하세요':LANG==='ja'?'メールアドレスを入力してください':LANG==='zh'?'请输入邮箱':'Enter your email';return}
   var btn=document.getElementById('resetStep1Btn');
-  btn.disabled=true;btn.textContent='발송 중...';
+  btn.disabled=true;btn.textContent=LANG==='ko'?'발송 중...':LANG==='ja'?'送信中...':LANG==='zh'?'发送中...':'Sending...';
   try{
     var resp=await fetch('/api/auth/reset-password',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email:email})
     });
     var d=await resp.json();
-    if(!resp.ok){errEl.textContent=d.error||'실패';btn.disabled=false;btn.textContent='인증코드 발송';return}
+    var _sendCodeLabel=LANG==='ko'?'인증코드 발송':LANG==='ja'?'認証コード送信':LANG==='zh'?'发送验证码':'Send Code';
+    if(!resp.ok){errEl.textContent=d.error||(LANG==='ko'?'실패':LANG==='ja'?'失敗':LANG==='zh'?'失败':'Failed');btn.disabled=false;btn.textContent=_sendCodeLabel;return}
     _resetEmail=email;
-    document.getElementById('resetStep2Hint').textContent='인증코드 전송: '+(d.hint||email);
+    document.getElementById('resetStep2Hint').textContent=(LANG==='ko'?'인증코드 전송: ':LANG==='ja'?'認証コード送信: ':LANG==='zh'?'验证码已发送: ':'Code sent to: ')+(d.hint||email);
     document.getElementById('resetStep1').style.display='none';
     document.getElementById('resetStep2').style.display='';
     document.getElementById('resetStep2Err').textContent='';
     document.getElementById('resetCodeInput').value='';
     document.getElementById('resetNewPassInput').value='';
     document.getElementById('resetConfirmPassInput').value='';
-  }catch(e){errEl.textContent='네트워크 오류';btn.disabled=false;btn.textContent='인증코드 발송'}
+  }catch(e){errEl.textContent=LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error';btn.disabled=false;btn.textContent=LANG==='ko'?'인증코드 발송':LANG==='ja'?'認証コード送信':LANG==='zh'?'发送验证码':'Send Code'}
 }
 
 async function doResetStep2(){
@@ -20731,21 +20732,22 @@ async function doResetStep2(){
   var confirmPass=document.getElementById('resetConfirmPassInput').value;
   var errEl=document.getElementById('resetStep2Err');
   errEl.textContent='';
-  if(!code||code.length!==6){errEl.textContent='6자리 인증코드를 입력하세요';return}
-  if(!newPass||newPass.length<6){errEl.textContent='비밀번호는 6자 이상';return}
-  if(newPass!==confirmPass){errEl.textContent='비밀번호가 일치하지 않습니다';return}
+  if(!code||code.length!==6){errEl.textContent=LANG==='ko'?'6자리 인증코드를 입력하세요':LANG==='ja'?'6桁の認証コードを入力してください':LANG==='zh'?'请输入6位验证码':'Enter the 6-digit code';return}
+  if(!newPass||newPass.length<6){errEl.textContent=LANG==='ko'?'비밀번호는 6자 이상':LANG==='ja'?'パスワードは6文字以上':LANG==='zh'?'密码至少6位':'Password must be at least 6 characters';return}
+  if(newPass!==confirmPass){errEl.textContent=LANG==='ko'?'비밀번호가 일치하지 않습니다':LANG==='ja'?'パスワードが一致しません':LANG==='zh'?'密码不一致':'Passwords do not match';return}
   var btn=document.getElementById('resetStep2Btn');
-  btn.disabled=true;btn.textContent='변경 중...';
+  btn.disabled=true;btn.textContent=LANG==='ko'?'변경 중...':LANG==='ja'?'変更中...':LANG==='zh'?'更改中...':'Updating...';
   try{
     var resp=await fetch('/api/auth/reset-password/verify',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email:_resetEmail,code:code,newPassword:newPass})
     });
     var d=await resp.json();
-    if(!resp.ok){errEl.textContent=d.error||'실패';btn.disabled=false;btn.textContent='비밀번호 변경';return}
+    var _changePwLabel=LANG==='ko'?'비밀번호 변경':LANG==='ja'?'パスワード変更':LANG==='zh'?'修改密码':'Change Password';
+    if(!resp.ok){errEl.textContent=d.error||(LANG==='ko'?'실패':LANG==='ja'?'失敗':LANG==='zh'?'失败':'Failed');btn.disabled=false;btn.textContent=_changePwLabel;return}
     document.getElementById('resetStep2').style.display='none';
     document.getElementById('resetPassResult').style.display='';
-  }catch(e){errEl.textContent='네트워크 오류';btn.disabled=false;btn.textContent='비밀번호 변경'}
+  }catch(e){errEl.textContent=LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error';btn.disabled=false;btn.textContent=LANG==='ko'?'비밀번호 변경':LANG==='ja'?'パスワード変更':LANG==='zh'?'修改密码':'Change Password'}
 }
 
 var authTab='login';
