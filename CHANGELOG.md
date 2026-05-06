@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.58 — refreshBalance / gameAlert 미정의 함수 수정
+
+### index.html (2곳)
+- `refreshBalance`: 마켓/경매/함선 repair/scrap/shield/list 후 11곳 직접 호출 → ReferenceError. `window.refreshBalance = loadWalletData` 알리아스 추가.
+- `gameAlert`: 영토 병합/크래프팅/듀얼 등 40곳 직접 호출 → ReferenceError. `window.gameAlert = showToast 래퍼` 추가.
+
 ## 2026-05-06 v6.56-v6.57 — 미정의 함수 aliases + 경매 시스템 auth 수정
 
 ### index.html (12곳)

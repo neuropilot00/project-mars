@@ -1,5 +1,14 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.58 버그수정 — refreshBalance / gameAlert 미정의 함수 (직접 호출)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `refreshBalance` — 마켓/경매/함선 ops(upgrade/repair/scrap/shield/list) 후 11곳 직접 호출, 정의 없음 → ReferenceError | ✅ 수정 | `window.refreshBalance = loadWalletData` 알리아스 추가 |
+| `gameAlert` — 영토 병합/크래프팅/듀얼 등 40곳 직접 호출, 정의 없음 → ReferenceError | ✅ 수정 | `window.gameAlert = function(msg){showToast(...)}` 알리아스 추가 |
+
+
+
 ## ✅ v6.57 버그수정 — 경매 시스템 auth 누락 (auction create/bid/buyout/cancel)
 
 | 항목 | 상태 | 비고 |

@@ -40237,9 +40237,11 @@ function updateGPDisplay(){
 }
 // Legacy alias — 일부 코드 경로가 refreshGP() 호출 (정의 안 됨 → ReferenceError)
 window.refreshGP = function(){ try { updateGPDisplay(); } catch(_){} };
-// ── Missing function aliases (v6.56) — 정의 없이 호출되어 ReferenceError 발생 방지 ──
+// ── Missing function aliases (v6.56-58) — 정의 없이 호출되어 ReferenceError 발생 방지 ──
 // loadWalletData: 스테이킹/복권 등 GP 소비 후 잔액 갱신용 — 7곳 직접 호출 (typeof 가드 없음)
 window.loadWalletData = function(){ try { refreshEmailBalances(); } catch(_){ try { updateGPDisplay(); } catch(__){} } };
+// refreshBalance: 마켓/경매/함선 ops 후 GP 잔액 갱신 — 11곳 직접 호출 (typeof 가드 없음)
+window.refreshBalance = window.loadWalletData;
 // refreshWalletInfo: 영토 이벤트/티어업그레이드 등 이후 잔액 갱신 — 21곳 typeof 가드 호출
 window.refreshWalletInfo = window.loadWalletData;
 // updateBalanceDisplays: GP/PP 표시 갱신 — 6곳 typeof 가드 호출
@@ -40247,6 +40249,8 @@ window.updateBalanceDisplays = function(){ try { updateGPDisplay(); } catch(_){}
 // loadUserData / loadBaseStats: 유저 데이터 재로드 — typeof 가드만 있어 조용히 실패
 window.loadUserData = window.loadWalletData;
 window.loadBaseStats = window.loadWalletData;
+// gameAlert: alert() 대체 알림 — 40곳 직접 호출, 정의 없음 → showToast 위임
+window.gameAlert = function(msg) { try { var s = String(msg||''); showToast(s, s.startsWith('✅')||s.startsWith('🎉')||s.startsWith('✔')?'success':'error'); } catch(_) {} };
 
 // ── Daily Reset Timer ──
 var _dailyTimerInterval = null;
