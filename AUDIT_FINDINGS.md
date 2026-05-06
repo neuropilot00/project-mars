@@ -1,5 +1,13 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.55 버그수정 — getWalletAddress 미정의 함수 → walletState.address
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 8개 함수 (`loadTransportTab`, `loadFleetCommandCard`, 수송 관련 다수)가 `getWalletAddress()` 호출. 이 함수는 앱 어디서도 정의되지 않음. 폴백 `window._wallet`도 미설정 → `w = ''` → 모든 함수 `if (!w) return` 조기 종료 | ✅ 수정 | `(walletState && walletState.address) \|\| ''` 로 전면 교체. 수송 탭, Fleet Command 카드, 월드이벤트 함대 선택 등 8개 위치 정상화 |
+
+
+
 ## ✅ v6.54 버그수정 — build-jobs dot 지시자 undefined 토큰
 
 | 항목 | 상태 | 비고 |

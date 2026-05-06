@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.55 — getWalletAddress 미정의 함수 수정 (8곳)
+
+### index.html (8곳)
+- `loadTransportTab`, `loadFleetCommandCard`, 수송 5개 함수, 월드이벤트 함대 선택에서 `getWalletAddress()` 호출. 이 함수는 앱에 정의되지 않고 폴백 `window._wallet`도 미설정 → 모두 빈 문자열 반환 → 함수 즉시 반환. 수송 탭, Fleet Command 카드, 월드이벤트 함대 선택 완전 비동작.
+- `(walletState && walletState.address) || ''` 로 전면 교체.
+
 ## 2026-05-06 v6.54 — build-jobs dot 지시자 JWT 수정
 
 ### index.html (1곳)

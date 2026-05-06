@@ -22734,7 +22734,7 @@ function switchTransportSub(sub) {
 }
 
 function loadTransportTab() {
-  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  var w = (walletState && walletState.address) || '';
   if (!w) return;
   // Fetch settings + sectors in parallel
   Promise.all([
@@ -22813,7 +22813,7 @@ function updateTransportPreview() {
 }
 
 function submitTransportLaunch() {
-  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  var w = (walletState && walletState.address) || '';
   if (!w) { showFactionToast(t('err_connect_wallet')||'Connect wallet first', 'error'); return; }
   var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
   var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
@@ -22844,7 +22844,7 @@ function submitTransportLaunch() {
 }
 
 function loadMyTransports() {
-  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  var w = (walletState && walletState.address) || '';
   if (!w) return;
   fetch('/api/transport/my?limit=30', { headers: {'x-wallet': w} })
     .then(function(r){ return r.json(); })
@@ -22885,7 +22885,7 @@ function loadMyTransports() {
 }
 
 function cancelMyTransport(tid) {
-  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  var w = (walletState && walletState.address) || '';
   if (!w) return;
   var doIt = function() {
     fetch('/api/transport/cancel', {
@@ -22904,7 +22904,7 @@ function cancelMyTransport(tid) {
 }
 
 function loadRaidTargets() {
-  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  var w = (walletState && walletState.address) || '';
   if (!w) return;
   fetch('/api/transport/raids/targets?wallet=' + encodeURIComponent(w) + '&limit=30')
     .then(function(r){ return r.json(); })
@@ -22930,7 +22930,7 @@ function loadRaidTargets() {
 }
 
 function submitRaidAttempt(tid, cargo) {
-  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  var w = (walletState && walletState.address) || '';
   if (!w) { showFactionToast(t('err_connect_wallet')||'Connect wallet first', 'error'); return; }
   var doIt = function() {
     fetch('/api/transport/raid', {
@@ -22960,7 +22960,7 @@ function submitRaidAttempt(tid, cargo) {
 async function loadFleetCommandCard(){
   // 1) 함대 요약 (총 함대 수 / 함선 수)
   try {
-    var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+    var w = (walletState && walletState.address) || '';
     if (w) {
       var r = await fetch('/api/fleets', { headers: getAuthHeaders() });
       if (r.ok) {
@@ -23043,7 +23043,7 @@ window.openWorldEventDetail = async function(eventId) {
   var sel = document.getElementById('weFleetSelect');
   sel.innerHTML = '<option value="">'+(LANG==='ko'?'함대 선택...':LANG==='ja'?'艦隊を選択...':LANG==='zh'?'选择舰队...':'Select fleet...')+'</option>';
   try {
-    var w = typeof getWalletAddress === 'function' ? getWalletAddress() : (window._wallet || '');
+    var w = (walletState && walletState.address) || '';
     if (w) {
       var fr = await fetch('/api/fleets', { headers: getAuthHeaders() });
       if (fr.ok) {
