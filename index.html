@@ -48208,7 +48208,7 @@ function showRewardToast(reward) {
   const title = document.getElementById('rewardToastTitle');
   const items = document.getElementById('rewardToastItems');
 
-  title.textContent = reward.is_winner ? '🏆 승리 보상!' : '🎖 참가 보상';
+  title.textContent = reward.is_winner ? (LANG==='ko'?'🏆 승리 보상!':LANG==='ja'?'🏆 勝利報酬!':LANG==='zh'?'🏆 胜利奖励!':'🏆 Victory Reward!') : (LANG==='ko'?'🎖 참가 보상':LANG==='ja'?'🎖 参加報酬':LANG==='zh'?'🎖 参与奖励':'🎖 Participation Reward');
 
   let html = '';
   if (reward.gp_awarded > 0) {
@@ -48277,7 +48277,7 @@ async function loadAiFleets() {
         <div class="ai-card-nick">${escapeHtml(f.nickname || 'AI')}</div>
         <div class="ai-card-meta">${escapeHtml(f.faction_name || '')}</div>
         <span class="difficulty-badge ${f.ai_difficulty || 'normal'}">${(f.ai_difficulty || 'normal').toUpperCase()}</span>
-        <div class="ai-card-ships">⚔ ${f.ships_alive}척</div>
+        <div class="ai-card-ships">⚔ ${f.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>
       </div>
     `).join('');
   } catch (err) {
@@ -48298,8 +48298,8 @@ async function challengeAi(aiFleetId, aiName) {
     }
 
     const fleetId = await gamePicker({
-      title: `🤖 ${aiName} 에게 도전`,
-      items: myFleets.map(f => ({ value: String(f.id), label: f.name + ' (' + f.ships_alive + '척)', icon: '🚢' }))
+      title: `🤖 ${aiName} ${LANG==='ko'?'에게 도전':LANG==='ja'?'に挑戦':LANG==='zh'?'挑战':'Challenge'}`,
+      items: myFleets.map(f => ({ value: String(f.id), label: f.name + ' (' + f.ships_alive + (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships') + ')', icon: '🚢' }))
     });
     if (!fleetId) return;
     const chosenFleet = myFleets.find(f => String(f.id) === fleetId);
@@ -48317,7 +48317,7 @@ async function challengeAi(aiFleetId, aiName) {
       return;
     }
 
-    showFactionToast(`🤖 ${aiName} 와의 전투 시작!`, 'success');
+    showFactionToast(`🤖 ${aiName} ${LANG==='ko'?'와의 전투 시작!':LANG==='ja'?'との戦闘開始!':LANG==='zh'?'战斗开始!':'- Battle started!'}`, 'success');
     closeAiFight();
     if (data2.battle_id) {
       setTimeout(() => openBattleViewer(data2.battle_id), 3000);
@@ -48396,7 +48396,7 @@ function renderTournamentCard(t) {
           <span>${statusLabel}</span>
           <span>${LANG==='ko'?'참가비':LANG==='ja'?'参加費':LANG==='zh'?'参赛费':'Entry'} <b>${t.entry_fee_gp || 0}</b> GP</span>
           <span>${LANG==='ko'?'상금':LANG==='ja'?'賞金':LANG==='zh'?'奖金':'Prize'} <b>${t.prize_pool_gp || 0}</b> GP</span>
-          <span>${t.max_participants}강</span>
+          <span>${LANG==='ko'?t.max_participants+'강':LANG==='ja'?'TOP'+t.max_participants:LANG==='zh'?t.max_participants+'强':'Top '+t.max_participants}</span>
         </div>
       </div>
       <div style="display:flex;gap:4px">
@@ -48420,8 +48420,8 @@ async function registerTournament(tournamentId) {
     }
 
     const fleetId = await gamePicker({
-      title: '🏆 토너먼트 참가',
-      items: myFleets.map(f => ({ value: String(f.id), label: f.name + ' (' + f.ships_alive + '척)', icon: '🚢' }))
+      title: LANG==='ko'?'🏆 토너먼트 참가':LANG==='ja'?'🏆 トーナメント参加':LANG==='zh'?'🏆 参加锦标赛':'🏆 Join Tournament',
+      items: myFleets.map(f => ({ value: String(f.id), label: f.name + ' (' + f.ships_alive + (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships') + ')', icon: '🚢' }))
     });
     if (!fleetId) return;
     const chosenFleet = myFleets.find(f => String(f.id) === fleetId);
@@ -48457,8 +48457,8 @@ async function openCreateTournament() {
   if (!name || !name.trim()) return;
 
   const sizeStr = await gamePicker({
-    title: '참가 인원',
-    items: [{value:'4',label:'4명',icon:'👥'},{value:'8',label:'8명',icon:'👥'},{value:'16',label:'16명',icon:'👥'}],
+    title: LANG==='ko'?'참가 인원':LANG==='ja'?'参加人数':LANG==='zh'?'参赛人数':'Participants',
+    items: [{value:'4',label:LANG==='ko'?'4명':LANG==='ja'?'4人':LANG==='zh'?'4人':'4 players',icon:'👥'},{value:'8',label:LANG==='ko'?'8명':LANG==='ja'?'8人':LANG==='zh'?'8人':'8 players',icon:'👥'},{value:'16',label:LANG==='ko'?'16명':LANG==='ja'?'16人':LANG==='zh'?'16人':'16 players',icon:'👥'}],
     selected: '8'
   });
   const size = parseInt(sizeStr);
@@ -48489,7 +48489,7 @@ async function openCreateTournament() {
 
 async function openBracket(tournamentId) {
   document.getElementById('bracketModal').classList.add('active');
-  document.getElementById('bracketContent').innerHTML = '<div class="bh-empty">로딩 중...</div>';
+  document.getElementById('bracketContent').innerHTML = `<div class="bh-empty">${LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...'}</div>`;
 
   try {
     const res = await fetch(`/api/tournaments/${tournamentId}`);
@@ -48507,7 +48507,7 @@ async function openBracket(tournamentId) {
 
     const roundKeys = Object.keys(byRound).sort((a,b) => parseInt(a) - parseInt(b));
     if (roundKeys.length === 0) {
-      document.getElementById('bracketContent').innerHTML = '<div class="bh-empty">아직 브래킷이 생성되지 않았습니다</div>';
+      document.getElementById('bracketContent').innerHTML = `<div class="bh-empty">${LANG==='ko'?'아직 브래킷이 생성되지 않았습니다':LANG==='ja'?'まだブラケットが作成されていません':LANG==='zh'?'对阵表尚未生成':'Bracket not generated yet'}</div>`;
       return;
     }
 
@@ -48522,7 +48522,7 @@ async function openBracket(tournamentId) {
             <div class="bracket-player ${m.winner_wallet === m.p2_wallet ? 'winner' : ''} ${!m.p2_wallet ? 'empty' : ''}">
               <span>${escapeHtml(m.p2_nickname || '-')}</span><span>${m.winner_wallet === m.p2_wallet ? '✓' : ''}</span>
             </div>
-            ${m.battle_id ? `<button class="bc-btn primary" style="margin-top:4px;width:100%;font-size:9px" onclick="openBattleViewer(${m.battle_id})">관전</button>` : ''}
+            ${m.battle_id ? `<button class="bc-btn primary" style="margin-top:4px;width:100%;font-size:9px" onclick="openBattleViewer(${m.battle_id})">${LANG==='ko'?'관전':LANG==='ja'?'観戦':LANG==='zh'?'观战':'Watch'}</button>` : ''}
           </div>
         `).join('')}
       </div>
@@ -48531,7 +48531,7 @@ async function openBracket(tournamentId) {
     document.getElementById('bracketContent').innerHTML = html;
   } catch (err) {
     console.error('openBracket:', err);
-    document.getElementById('bracketContent').innerHTML = '<div class="bh-empty">로딩 실패</div>';
+    document.getElementById('bracketContent').innerHTML = `<div class="bh-empty">${LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed'}</div>`;
   }
 }
 
@@ -48547,7 +48547,7 @@ function closeBracket() {
 // ═════════════════════════════════════════════════════════════════
 
 function showHijackEntryHint() {
-  var msg = '하이잭은 맵에서 대상 영토를 선택한 뒤 영토 정보 패널의 HIJACK 버튼으로 시작하세요.';
+  var msg = LANG==='ko'?'하이잭은 맵에서 대상 영토를 선택한 뒤 영토 정보 패널의 HIJACK 버튼으로 시작하세요.':LANG==='ja'?'マップで対象領土を選択し、領土情報パネルのHIJACKボタンから開始してください。':LANG==='zh'?'在地图上选择目标领土，然后点击领土信息面板的HIJACK按钮开始。':'Select a target territory on the map, then click the HIJACK button in the territory info panel.';
   if (typeof showFactionToast === 'function') showFactionToast(msg, 'warn');
   else if (typeof showToast === 'function') showToast(msg, 'warn');
   else alert(msg);
@@ -48613,7 +48613,7 @@ window.addEventListener('message', function(ev) {
   // forfeit: 후퇴 → 뷰어 닫고 조선소로 안내
   if (d.cmd === 'forfeit') {
     closeBattleViewer();
-    showFactionToast('🏳 후퇴 완료 — 조선소에서 함선을 수리하세요', 'info');
+    showFactionToast(LANG==='ko'?'🏳 후퇴 완료 — 조선소에서 함선을 수리하세요':LANG==='ja'?'🏳 撤退完了 — 造船所で艦船を修理してください':LANG==='zh'?'🏳 撤退完成 — 请在船坞修理舰船':'🏳 Retreat complete — repair ships at shipyard', 'info');
     setTimeout(function(){
       if(typeof openShipyard==='function') openShipyard();
       setTimeout(function(){ if(typeof switchSyTab==='function') switchSyTab('fleet'); }, 200);
@@ -48664,13 +48664,14 @@ window.addEventListener('message', function(ev) {
       params: mapped.params || {}
     })
   }).then(function(r) {
-    var label = { formation: '🛡 진형', maneuver: '→ 기동', focus: '⚡ 집중공격', emp: '💥 EMP' }[d.cmd] || d.cmd;
+    var _cmdLabels = { formation: LANG==='ko'?'🛡 진형':LANG==='ja'?'🛡 陣形':LANG==='zh'?'🛡 阵型':'🛡 Formation', maneuver: LANG==='ko'?'→ 기동':LANG==='ja'?'→ 機動':LANG==='zh'?'→ 机动':'→ Maneuver', focus: LANG==='ko'?'⚡ 집중공격':LANG==='ja'?'⚡ 集中攻撃':LANG==='zh'?'⚡ 集中攻击':'⚡ Focus Fire', emp: '💥 EMP' };
+    var label = _cmdLabels[d.cmd] || d.cmd;
     if (r.ok) {
-      if (typeof showFactionToast === 'function') showFactionToast(label + ' 명령 적용', 'success');
+      if (typeof showFactionToast === 'function') showFactionToast(label + (LANG==='ko'?' 명령 적용':LANG==='ja'?' コマンド適用':LANG==='zh'?' 命令已执行':' applied'), 'success');
     } else if (r.status === 401 || r.status === 403) {
-      if (typeof showFactionToast === 'function') showFactionToast(label + ' — 로그인 또는 권한 필요', 'error');
+      if (typeof showFactionToast === 'function') showFactionToast(label + (LANG==='ko'?' — 로그인 또는 권한 필요':LANG==='ja'?' — ログインまたは権限が必要':LANG==='zh'?' — 需要登录或权限':' — login or permission required'), 'error');
     } else {
-      if (typeof showFactionToast === 'function') showFactionToast(label + ' 명령 실패 (' + r.status + ')', 'error');
+      if (typeof showFactionToast === 'function') showFactionToast(label + (LANG==='ko'?' 명령 실패 (':LANG==='ja'?' コマンド失敗 (':LANG==='zh'?' 命令失败 (':'  failed (') + r.status + ')', 'error');
       console.warn('[battle-cmd] API failed:', r.status, d);
     }
   }).catch(function(e) { console.warn('[battle-cmd] fetch error:', e.message); });
@@ -48706,7 +48707,7 @@ async function loadBvSidePanels(battleId) {
       myFleetEl.innerHTML = myParticipants.map(function(p) {
         return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
           + '<div style="color:#4fc3f7;font-weight:700">' + escapeHtmlSafe(p.nickname || ('Fleet#' + p.fleet_id)) + ' <span style="font-size:9px;opacity:.6">[' + (mySide||'').toUpperCase() + ']</span></div>'
-          + '<div style="font-size:9px;color:rgba(255,255,255,.5)">시작: ' + (p.ships_at_start || 0) + '척 · 생존: ' + (p.ships_alive || 0) + '척</div>'
+          + `<div style="font-size:9px;color:rgba(255,255,255,.5)">${LANG==='ko'?'시작':LANG==='ja'?'開始':LANG==='zh'?'初始':'Start'}: ` + (p.ships_at_start || 0) + `${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'} · ${LANG==='ko'?'생존':LANG==='ja'?'生存':LANG==='zh'?'存活':'Alive'}: ` + (p.ships_alive || 0) + `${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>`
           + '</div>';
       }).join('');
     } else if (my && my.fleets) {
@@ -48715,11 +48716,11 @@ async function loadBvSidePanels(battleId) {
         var pct = Math.round((hp / Math.max(1, maxHp)) * 100);
         return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
           + '<div style="color:#4fc3f7;font-weight:700">' + escapeHtmlSafe(f.name || ('Fleet#' + f.id)) + '</div>'
-          + '<div style="font-size:9px;color:rgba(255,255,255,.5)">' + (f.ship_count || 0) + ' 척 · HP ' + pct + '%</div>'
+          + `<div style="font-size:9px;color:rgba(255,255,255,.5)">` + (f.ship_count || 0) + `${LANG==='ko'?' 척':LANG==='ja'?' 隻':LANG==='zh'?' 艘':' ships'} · HP ` + pct + '%</div>'
           + '</div>';
-      }).join('') || '<div style="opacity:.4">함대 없음</div>';
+      }).join('') || `<div style="opacity:.4">${LANG==='ko'?'함대 없음':LANG==='ja'?'艦隊なし':LANG==='zh'?'没有舰队':'No fleets'}</div>`;
     } else {
-      myFleetEl.innerHTML = '<div style="opacity:.4">로그인 필요</div>';
+      myFleetEl.innerHTML = `<div style="opacity:.4">${LANG==='ko'?'로그인 필요':LANG==='ja'?'ログイン必要':LANG==='zh'?'需要登录':'Login required'}</div>`;
     }
   }
 
@@ -48733,7 +48734,7 @@ async function loadBvSidePanels(battleId) {
           + '<b style="color:#fff">' + (r.quantity || 0) + '</b></div>';
       }).join('');
     } else {
-      resEl.innerHTML = '<div style="opacity:.4">광물 없음</div>';
+      resEl.innerHTML = `<div style="opacity:.4">${LANG==='ko'?'광물 없음':LANG==='ja'?'鉱物なし':LANG==='zh'?'没有矿物':'No minerals'}</div>`;
     }
   }
 
@@ -48745,11 +48746,11 @@ async function loadBvSidePanels(battleId) {
         var sideColor = p.side === 'atk' ? '#4fc3f7' : '#ff7043';
         return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
           + '<div style="color:' + sideColor + ';font-weight:700">' + escapeHtmlSafe(p.nickname || ('Fleet#' + p.fleet_id)) + ' <span style="font-size:9px;opacity:.6">[' + (p.side||'').toUpperCase() + ']</span></div>'
-          + '<div style="font-size:9px;color:rgba(255,255,255,.5)">시작: ' + (p.ships_at_start || 0) + '척 · 생존: ' + (p.ships_alive || 0) + '척</div>'
+          + `<div style="font-size:9px;color:rgba(255,255,255,.5)">${LANG==='ko'?'시작':LANG==='ja'?'開始':LANG==='zh'?'初始':'Start'}: ` + (p.ships_at_start || 0) + `${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'} · ${LANG==='ko'?'생존':LANG==='ja'?'生存':LANG==='zh'?'存活':'Alive'}: ` + (p.ships_alive || 0) + `${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>`
           + '</div>';
       }).join('');
     } else {
-      enemyEl.innerHTML = '<div style="opacity:.4">적 함대 없음</div>';
+      enemyEl.innerHTML = `<div style="opacity:.4">${LANG==='ko'?'적 함대 없음':LANG==='ja'?'敵艦隊なし':LANG==='zh'?'没有敌方舰队':'No enemy fleets'}</div>`;
     }
   }
 
@@ -48758,11 +48759,11 @@ async function loadBvSidePanels(battleId) {
   if (statsEl && battleInfo && battleInfo.battle) {
     var b = battleInfo.battle;
     statsEl.innerHTML =
-      '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>전투 ID</span><b>#' + b.id + '</b></div>'
-      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>타입</span><b>' + (b.battle_type || '?') + '</b></div>'
-      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>상태</span><b>' + (b.status || '?') + '</b></div>'
-      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>ATK 함선</span><b>' + (b.atk_ships_total || 0) + '</b></div>'
-      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>DEF 함선</span><b>' + (b.def_ships_total || 0) + '</b></div>';
+      `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전투 ID':LANG==='ja'?'戦闘ID':LANG==='zh'?'战斗ID':'Battle ID'}</span><b>#` + b.id + '</b></div>'
+      + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'타입':LANG==='ja'?'タイプ':LANG==='zh'?'类型':'Type'}</span><b>` + (b.battle_type || '?') + '</b></div>'
+      + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'상태':LANG==='ja'?'状態':LANG==='zh'?'状态':'Status'}</span><b>` + (b.status || '?') + '</b></div>'
+      + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'ATK 함선':LANG==='ja'?'ATK 艦船':LANG==='zh'?'ATK 舰船':'ATK Ships'}</span><b>` + (b.atk_ships_total || 0) + '</b></div>'
+      + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'DEF 함선':LANG==='ja'?'DEF 艦船':LANG==='zh'?'DEF 舰船':'DEF Ships'}</span><b>` + (b.def_ships_total || 0) + '</b></div>';
   }
 }
 
@@ -48855,9 +48856,9 @@ async function openBattleViewer(battleId, startTick) {
   const framesN = bv.timeline?.frames?.length || 0;
   if (framesN < 2) {
     const winner = bv.battle?.winner_side;
-    const msg = winner === 'atk' ? '⚔ 자동 승리 — 즉시 점령 (시뮬 frames 없음)'
-              : winner === 'def' ? '🛡 자동 패배 (시뮬 frames 없음)'
-              : '⚡ 전투 즉시 종료 (시뮬 frames 없음)';
+    const msg = winner === 'atk' ? (LANG==='ko'?'⚔ 자동 승리 — 즉시 점령 (시뮬 frames 없음)':LANG==='ja'?'⚔ 自動勝利 — 即時占領 (シムフレームなし)':LANG==='zh'?'⚔ 自动胜利 — 立即占领 (无模拟帧)':'⚔ Auto-win — instant capture (no sim frames)')
+              : winner === 'def' ? (LANG==='ko'?'🛡 자동 패배 (시뮬 frames 없음)':LANG==='ja'?'🛡 自動敗北 (シムフレームなし)':LANG==='zh'?'🛡 自动失败 (无模拟帧)':'🛡 Auto-loss (no sim frames)')
+              : (LANG==='ko'?'⚡ 전투 즉시 종료 (시뮬 frames 없음)':LANG==='ja'?'⚡ 戦闘即時終了 (シムフレームなし)':LANG==='zh'?'⚡ 战斗立即结束 (无模拟帧)':'⚡ Battle ended instantly (no sim frames)');
     showFactionToast(msg, 'warn');
     console.warn('[battle] only', framesN, 'frame(s) for battle', battleId, 'winner=', winner);
     // viewer 는 닫지 않음 — 사용자가 결과 확인 후 ✕ 로 닫게 함
