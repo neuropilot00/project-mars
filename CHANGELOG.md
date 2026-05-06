@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.68 — fleetBattles.js 지갑 대소문자 비교 버그 수정
+
+### server/routes/fleetBattles.js (4곳)
+- `declare-pvp` — 내 함대 소유권 체크: `owner_wallet = $2` → `LOWER(owner_wallet) = LOWER($2)`. 지갑 대소문자가 JWT ≠ DB일 때 `MY_FLEET_NOT_FOUND` 오류 수정.
+- `declare-pvp` — 자기 함대 공격 방지: `owner_wallet === wallet` → `.toLowerCase()` 비교. 케이스 불일치 시 자기 함대 공격 가능한 버그 수정.
+- `/:id/run` — 참가자 확인 쿼리: `wallet_address = $2` → `LOWER(wallet_address) = LOWER($2)`.
+- `/:id/forfeit` — 참가자 + 사이드 확인 쿼리: 동일하게 LOWER() 적용.
+
 ## 2026-05-07 v6.67 — i18n 누락 키 10개 추가 (4개 언어 블록)
 
 ### index.html (4개 언어 블록)

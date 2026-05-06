@@ -66,7 +66,7 @@ router.post('/declare-pvp', requireAuth, async (req, res) => {
     const { rows: myFleet } = await pool.query(
       `SELECT f.*, COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive
        FROM fleets f LEFT JOIN ships s ON s.fleet_id=f.id
-       WHERE f.id = $1 AND f.owner_wallet = $2
+       WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)
        GROUP BY f.id`,
       [my_fleet_id, wallet]
     );
@@ -85,7 +85,7 @@ router.post('/declare-pvp', requireAuth, async (req, res) => {
       [target_fleet_id]
     );
     if (!targetFleet[0]) return res.status(404).json({ error: 'TARGET_FLEET_NOT_FOUND' });
-    if (targetFleet[0].owner_wallet === wallet) {
+    if ((targetFleet[0].owner_wallet || '').toLowerCase() === (wallet || '').toLowerCase()) {
       return res.status(400).json({ error: 'CANNOT_ATTACK_OWN_FLEET' });
     }
     if (targetFleet[0].is_in_battle) return res.status(409).json({ error: 'TARGET_IN_BATTLE' });
@@ -340,7 +340,7 @@ router.post('/:id/run', requireAuth, async (req, res) => {
     // 참가자인지 확인
     const { rows } = await pool.query(`
       SELECT 1 FROM fleet_battle_participants
-      WHERE battle_id = $1 AND wallet_address = $2
+      WHERE battle_id = $1 AND LOWER(wallet_address) = LOWER($2)
     `, [battleId, wallet]);
     if (!rows[0]) return res.status(403).json({ error: 'NOT_PARTICIPANT' });
 
@@ -382,7 +382,7 @@ router.post('/:id/forfeit', requireAuth, async (req, res) => {
     // 참가자 + 사이드 확인 (공격자만 포기 가능)
     const { rows: pRows } = await pool.query(`
       SELECT side FROM fleet_battle_participants
-      WHERE battle_id = $1 AND wallet_address = $2
+      WHERE battle_id = $1 AND LOWER(wallet_address) = LOWER($2)
     `, [battleId, wallet]);
     if (!pRows[0]) return res.status(403).json({ error: 'NOT_PARTICIPANT' });
     if (pRows[0].side !== 'atk') return res.status(403).json({ error: 'DEFENDER_CANNOT_FORFEIT' });

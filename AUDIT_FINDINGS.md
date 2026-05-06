@@ -1,4 +1,13 @@
-# OCCUPY MARS — Codebase Audit (v6.67 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.68 / 2026-05-07)
+
+## ✅ v6.68 버그수정 — fleetBattles.js 지갑 대소문자 비교 오류 (4곳)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `declare-pvp` 내 함대 소유권 확인 — `owner_wallet = $2` 직접 비교. JWT 지갑이 DB와 대소문자 다를 때 `MY_FLEET_NOT_FOUND` 오류 | ✅ 수정 | `LOWER(f.owner_wallet) = LOWER($2)` 적용 |
+| `declare-pvp` 자기 함대 공격 방지 체크 — `owner_wallet === wallet` JS 직접 비교. 케이스 불일치 시 자기 함대 공격 허용 버그 | ✅ 수정 | `.toLowerCase()` 비교로 교체 |
+| `/:id/run` 참가자 확인 — `wallet_address = $2` 직접 비교. 케이스 불일치 시 `NOT_PARTICIPANT` 403 오류 | ✅ 수정 | `LOWER(wallet_address) = LOWER($2)` 적용 |
+| `/:id/forfeit` 참가자 + 사이드 확인 — 동일한 비대소문자 비교 | ✅ 수정 | `LOWER(wallet_address) = LOWER($2)` 적용 |
 
 ## ✅ v6.67 버그수정 — i18n 누락 키 10개 (4개 언어 블록)
 
