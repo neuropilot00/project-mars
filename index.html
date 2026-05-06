@@ -22504,6 +22504,9 @@ function loadCraftHistory(){
 }
 
 function _escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// Global aliases used across the codebase
+var escHtml = _escHtml;
+window.escHtml = _escHtml;
 
 var _baseInventory=[];
 var _resourceInventory=[];

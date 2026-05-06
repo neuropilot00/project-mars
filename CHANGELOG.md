@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.66 — escHtml 미정의 함수 수정 (index.html 21곳 + admin.html 8곳)
+
+### index.html
+- `escHtml(s)` — 21곳에서 직접 호출되지만 정의 없음 (ReferenceError). 뉴스 패널/바운티/실드/기념비/이벤트/토너먼트 등 텍스트 렌더 전부 오류. `_escHtml`의 전역 alias `var escHtml = _escHtml` 추가.
+
+### admin.html
+- `_escHtml(s)` — 브랜딩/스펠/토너먼트/방송 설정 패널 8곳에서 사용되지만 admin.html에 정의 없음. 함수 정의 추가 + `escHtml` 별칭.
+
 ## 2026-05-07 v6.65 — Void Raider 교전 모달 로그인 가드 추가
 
 ### index.html (1곳)

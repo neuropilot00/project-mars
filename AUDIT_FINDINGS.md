@@ -1,5 +1,12 @@
 # OCCUPY MARS — Codebase Audit (v6.63 / 2026-05-07)
 
+## ✅ v6.66 버그수정 — escHtml 미정의 함수 (21 + 8곳)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `escHtml(s)` — index.html 21곳 호출 (뉴스/바운티/실드/기념비/이벤트 등). 정의 없어 ReferenceError → 해당 패널 텍스트 전체 렌더 실패 | ✅ 수정 | `_escHtml` 정의 옆에 `var escHtml = _escHtml; window.escHtml = _escHtml` 추가 |
+| `_escHtml(s)` — admin.html 8곳 호출 (브랜딩/스펠/방송 설정). admin.html에 정의 없어 ReferenceError | ✅ 수정 | admin.html `apiJson()` 함수 하단에 정의 추가 |
+
 ## ✅ v6.65 버그수정 — Void Raider 교전 모달 로그인 가드 누락
 
 | 항목 | 상태 | 비고 |

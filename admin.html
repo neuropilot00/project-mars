@@ -3251,6 +3251,10 @@ function apiJson(path) {
   });
 }
 
+// ── HTML escape helper ──
+function _escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+var escHtml = _escHtml;
+
 // ── Stat box helper (v6.59) — admin 패널 통계 카드 렌더 ──
 function mkStatBox(label, value, color) {
   var c = color || '#5cbbff';
