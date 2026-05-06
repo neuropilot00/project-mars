@@ -10,7 +10,7 @@ const { pool } = require('../db');
 let logGPActivity;
 try { logGPActivity = require('../db').logGPActivity; } catch (_) {}
 let notifyPlayer;
-try { notifyPlayer = require('./notifications').notifyPlayer; } catch (_) {}
+try { notifyPlayer = require('../db').notifyPlayer; } catch (_) {}
 let seasonService;
 try { seasonService = require('./season'); } catch (_) {}
 

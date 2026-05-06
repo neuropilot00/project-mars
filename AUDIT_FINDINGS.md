@@ -1,5 +1,12 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.62 버그수정 — 서비스 파일 잘못된 require (notifications + betting)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `shield/staking/lottery/claimUpgrades/dividends/monuments`: `require('./notifications').notifyPlayer` — 존재하지 않는 서비스 파일. 인앱 알림이 silent fail | ✅ 수정 | `require('../db').notifyPlayer` 로 교정. 알림 6개 서비스 정상화 |
+| `siege.js`: `require('./betting')` — v1 베팅 서비스 삭제됨. siege 베팅 이벤트 생성/정산 silent fail | ✅ 수정 | `require('./warBetting')` 호환 래퍼 추가. `createBettingEvent` → `warBetting.createEvent`, `settleBettingEvent` → `warBetting.resolveEvent` |
+
 ## ✅ v6.61 버그수정 — typeof 가드 undefined 함수 알리아스 + 거버넌스 리프레시
 
 | 항목 | 상태 | 비고 |

@@ -8,7 +8,7 @@
 const { pool, getSetting } = require('../db');
 
 let notifyPlayer;
-try { notifyPlayer = require('./notifications').notifyPlayer; } catch (_) {}
+try { notifyPlayer = require('../db').notifyPlayer; } catch (_) {}
 let logGPActivity;
 try { logGPActivity = require('../db').logGPActivity; } catch (_) {}
 let seasonService;

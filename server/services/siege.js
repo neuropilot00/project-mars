@@ -22,7 +22,13 @@ try { chronicleService = require('./chronicle'); } catch (_) {}
 
 // Betting 서비스 (없으면 무시)
 let bettingService;
-try { bettingService = require('./betting'); } catch (_) {}
+try {
+  const _wb = require('./warBetting');
+  bettingService = {
+    createBettingEvent: (type, ref, optA, optB, endsAt) => _wb.createEvent({ event_type: type, event_ref_id: ref, option_a_label: optA, option_b_label: optB, closes_at: endsAt }),
+    settleBettingEvent: (id, winner) => _wb.resolveEvent(id, winner),
+  };
+} catch (_) {}
 
 // Title 서비스 (없으면 무시)
 let titleService;

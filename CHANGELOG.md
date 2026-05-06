@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 v6.62 — 서비스 파일 잘못된 require 수정 (notifications + betting)
+
+### server/services/ (7개 파일)
+- `shield.js`, `staking.js`, `lottery.js`, `claimUpgrades.js`, `dividends.js`, `monuments.js`: `require('./notifications').notifyPlayer` → `require('../db').notifyPlayer`. 실드 활성화/스테이킹/복권/영토 업그레이드/배당금 이벤트 알림 이제 정상 작동.
+- `siege.js`: `require('./betting')` (삭제된 서비스) → `require('./warBetting')` 호환 래퍼 추가. siege 선언/종료 시 전쟁 베팅 이벤트 자동 생성/정산 이제 작동. (기존에는 try-catch로 silent fail)
+
 ## 2026-05-06 v6.61 — typeof 가드 undefined 함수 알리아스 추가 + 거버넌스 리프레시 수정
 
 ### index.html
