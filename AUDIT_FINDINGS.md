@@ -1,5 +1,13 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.50 버그수정 — GET /api/ships/my?wallet= 쿼리 파라미터 무시 → 401
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| Ship Registry `GET /api/ships/my?wallet=…` — ships.js requireAuth가 JWT를 확인하고, query.wallet은 requireAuth 통과 후에 사용되므로 JWT 없으면 401 | ✅ 수정 | `fetch('/api/ships/my', { headers: getAuthHeaders() })` 로 교체 (line ~30947). Ship Registry 함선 목록 완전 비표시 버그 수정 |
+
+
+
 ## ✅ v6.49 버그수정 — GET /api/fleets x-wallet 헤더 → JWT 401
 
 | 항목 | 상태 | 비고 |

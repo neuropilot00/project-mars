@@ -30944,7 +30944,7 @@ function openShipRegistry(){
   var w = walletState.address;
   if(!w){ showToast('LOGIN FIRST'); return; }
   _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#5cbbff');
-  fetch('/api/ships/my?wallet='+encodeURIComponent(w))
+  fetch('/api/ships/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       var ships = (d && d.ships) || [];

@@ -1,5 +1,10 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: GET /api/ships/my?wallet= → JWT auth (v6.50)
+
+### index.html (1곳)
+- `loadMyShips()` Ship Registry: `fetch('/api/ships/my?wallet='+encodeURIComponent(w))` → `fetch('/api/ships/my', { headers: getAuthHeaders() })`. ships.js requireAuth가 JWT만 인증하므로 쿼리 파라미터 wallet은 401 이후 도달 불가.
+
 ## 2026-05-06 — bugfix: GET /api/fleets x-wallet → JWT auth (v6.49)
 
 ### index.html (3곳)
