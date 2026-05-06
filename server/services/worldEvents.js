@@ -269,16 +269,16 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
   if (new Date(event.ends_at) <= new Date()) throw new Error('EVENT_EXPIRED');
   if (!event.fleet_id) throw new Error('EVENT_HAS_NO_FLEET');
 
-  // 2) 공격자 함대 검증
+  // 2) 공격자 함대 검증 (wallet 대소문자 무시)
   const { rows: atkFleetRows } = await pool.query(
     `SELECT f.id, f.owner_wallet, f.is_in_battle, f.is_npc,
-            (SELECT COUNT(*) FROM ships WHERE fleet_id = f.id AND current_hp > 0) AS alive_ships
+            (SELECT COUNT(*) FROM ships WHERE fleet_id = f.id AND is_alive = true) AS alive_ships
        FROM fleets f WHERE f.id = $1`,
     [attackerFleetId]
   );
   if (!atkFleetRows.length) throw new Error('FLEET_NOT_FOUND');
   const atkFleet = atkFleetRows[0];
-  if (atkFleet.owner_wallet !== attackerWallet) throw new Error('NOT_FLEET_OWNER');
+  if ((atkFleet.owner_wallet || '').toLowerCase() !== (attackerWallet || '').toLowerCase()) throw new Error('NOT_FLEET_OWNER');
   if (atkFleet.is_npc) throw new Error('NPC_CANNOT_ENGAGE');
   if (atkFleet.is_in_battle) throw new Error('FLEET_BUSY');
   if (parseInt(atkFleet.alive_ships) < minShips) {

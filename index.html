@@ -30666,7 +30666,7 @@ function showFactionFlavor(situation, opts){
 // ── 보조 버튼 실제 구현 ─────────────────────────────────────────────────
 // openMineralsPanel: 보유 광물 (resource_id, name, qty) 모달 표시
 // openShipRegistry: 보유 함선 명부 모달 표시
-// openWorldEventDetail: world event 상세 정보 모달
+// openWorldEventDetail: window.openWorldEventDetail (line 22814) 참조 — ENGAGE 모달로 연결
 
 function _openInfoModal(title, bodyHtml, accentColor){
   var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
@@ -30749,36 +30749,8 @@ function openShipRegistry(){
     });
 }
 
-function openWorldEventDetail(id){
-  if(!id){ showToast('이벤트 ID 없음'); return; }
-  _openInfoModal('⚔ WORLD EVENT', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#ff6b6b');
-  fetch('/api/world-events/'+encodeURIComponent(id))
-    .then(function(r){return r.json();})
-    .then(function(d){
-      var ev = d.event || d;
-      if(!ev || ev.error){
-        var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-        _openInfoModal('⚔ WORLD EVENT', '<div style="text-align:center;color:var(--mars)">이벤트를 찾을 수 없음</div>', '#ff6b6b');
-        return;
-      }
-      var body = '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px">';
-      if(ev.name||ev.title) body += '<div style="color:var(--tx3)">이름</div><div style="color:#fff;font-weight:600">'+escapeHtmlSafe(ev.name||ev.title)+'</div>';
-      if(ev.event_type||ev.type) body += '<div style="color:var(--tx3)">종류</div><div>'+escapeHtmlSafe(ev.event_type||ev.type)+'</div>';
-      if(ev.description) body += '<div style="color:var(--tx3)">설명</div><div>'+escapeHtmlSafe(ev.description)+'</div>';
-      if(ev.starts_at||ev.start_time) body += '<div style="color:var(--tx3)">시작</div><div>'+new Date(ev.starts_at||ev.start_time).toLocaleString()+'</div>';
-      if(ev.ends_at||ev.end_time) body += '<div style="color:var(--tx3)">종료</div><div>'+new Date(ev.ends_at||ev.end_time).toLocaleString()+'</div>';
-      if(ev.location||ev.target_sector) body += '<div style="color:var(--tx3)">위치</div><div>'+escapeHtmlSafe(ev.location||ev.target_sector)+'</div>';
-      if(ev.reward_gp) body += '<div style="color:var(--tx3)">보상</div><div style="color:var(--gold)">+'+ev.reward_gp+' GP</div>';
-      if(ev.participants!=null) body += '<div style="color:var(--tx3)">참여</div><div>'+ev.participants+'명</div>';
-      body += '</div>';
-      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('⚔ WORLD EVENT', body, '#ff6b6b');
-    })
-    .catch(function(){
-      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('⚔ WORLD EVENT', '<div style="text-align:center;color:var(--mars)">로드 실패</div>', '#ff6b6b');
-    });
-}
+// openWorldEventDetail: window.openWorldEventDetail (ENGAGE 모달) 로 위임
+// 중복 function 선언 제거 — 호이스팅으로 window 할당을 덮어쓰는 문제 수정됨
 // Alias: legacy callers (OPS, guild upgrades) use showAlert(msg[,type]).
 // Route them through the toast so they don't ReferenceError.
 window.showAlert=function(m){return showToast(m);};
