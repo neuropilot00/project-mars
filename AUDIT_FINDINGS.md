@@ -1,5 +1,12 @@
 # OCCUPY MARS — Codebase Audit (v6.74 / 2026-05-07)
 
+## ✅ v6.77 버그수정 — walletState 잘못된 필드명 (2곳)
+
+| 함수 | 버그 | 상태 | 수정 |
+|------|------|------|------|
+| `govDeclareSiege()` | `walletState.gpBalance` 미할당 전역 → 항상 0 → 공성전 "INSUFFICIENT GP" 버튼 항상 비활성, 선언 불가 | ✅ 수정 | `walletState.gameGP` |
+| `buyMarketListing()` | `walletState.pp` 미할당 전역 → 항상 0 → PP 구매 시 잔액 0으로 표시 (disabled 포함) | ✅ 수정 | `walletState.gamePP` |
+
 ## ✅ v6.76 버그수정 — Daily OPS 미션 카운터 누락 (harvest/battle/market 복합 미션)
 
 | 버그 | 영향 | 상태 |

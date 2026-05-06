@@ -23332,7 +23332,7 @@ function showMarketDetail(listingId, chartParam, name){
 function buyMarketListing(listingId,price,currency,name){
   var w=(walletState&&walletState.address)||'';
   if(!w){showToast('Connect wallet first','error');return;}
-  var myBal=currency==='GP'?(walletState.gameGP||0):(walletState.pp||0);
+  var myBal=currency==='GP'?(walletState.gameGP||0):(walletState.gamePP||0);
   var insufficient=myBal<price;
   gameConfirm({
     title:t('mkt_buy_title')||'Purchase Item', icon:'🛒',
@@ -33877,7 +33877,7 @@ window.addEventListener('resize', _debounce(function(){
   window.govDeclareSiege = function(code) {
     var w = walletState.address;
     if (!w) { showToast('Connect wallet first'); return; }
-    var gpBal = parseFloat(walletState.gpBalance || 0);
+    var gpBal = parseFloat(walletState.gameGP || 0);
     var cost = 100; // default, should match settings
     gameConfirm({
       title: 'CHALLENGE FOR GOVERNOR',

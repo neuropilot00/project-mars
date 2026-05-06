@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.77 — walletState 잘못된 필드명 수정 (gpBalance, pp → gameGP, gamePP)
+
+### index.html (2곳)
+- `govDeclareSiege()`: `walletState.gpBalance` (할당된 곳 없음, 항상 0) → `walletState.gameGP`. 공성전 선언 시 GP 잔액이 항상 0으로 표시되어 버튼이 "INSUFFICIENT GP"로 비활성화되는 버그 수정. 충분한 GP가 있어도 공성전 선언 불가했던 버그 수정.
+- `buyMarketListing()`: `walletState.pp` (할당된 곳 없음, 항상 0) → `walletState.gamePP`. PP 구매 시 PP 잔액이 항상 0으로 표시되는 버그 수정.
+
+---
+
 ## 2026-05-07 v6.76 — Daily OPS 미션 카운터 누락 수정 (harvest_3/5, battle_3, market_activity)
 
 ### server/routes/api.js (1곳)
