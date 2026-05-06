@@ -13967,7 +13967,7 @@ function _appendSectorControl(container, sectorId, wallet, lang) {
           var isMe = o.wallet===wallet.toLowerCase();
           var wShort = o.wallet.slice(0,6)+'…'+o.wallet.slice(-4);
           html+='<div style="display:flex;justify-content:space-between;align-items:center">';
-          html+='<span style="font-size:8px;color:'+(isMe?'#69f0ae':'var(--tx2)')+(isMe?';font-weight:700':'')+'">'+['🥇','🥈','🥉'][i]+' '+(isMe?'(나) ':'')+wShort+'</span>';
+          html+='<span style="font-size:8px;color:'+(isMe?'#69f0ae':'var(--tx2)')+(isMe?';font-weight:700':'')+'">'+['🥇','🥈','🥉'][i]+' '+(isMe?'('+(lang==='ko'?'나':lang==='ja'?'自分':lang==='zh'?'我':'me')+') ':'')+wShort+'</span>';
           html+='<span style="font-size:8px">';
           if(tierLabel) html+='<span style="color:'+tierColor+';margin-right:3px">'+tierLabel+'</span>';
           html+='<span style="color:var(--tx3)">'+o.controlPct+'%</span></span>';

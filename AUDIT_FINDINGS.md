@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v6.29 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.30 / 2026-05-06)
+
+## ✅ v6.30 로컬라이징 24차 완성 — ops보드/PVP허브/포지/영토JS/하이잭알림
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 정적 HTML data-i18n — Ops 보드 타이틀 + 범례 3개 | ✅ | ops_board_title/ops_legend_done/pending/urgent |
+| 정적 HTML data-i18n — PVP 허브 전투선언 + 탭 3개 | ✅ | pvp_declare_btn/pvp_tab_rec/bounty/conflict |
+| 정적 HTML data-i18n — WAR BETTING 타이틀 | ✅ | wb_title |
+| 정적 HTML data-i18n — 포지 강화중 텍스트 + 확인 버튼 | ✅ | forge_upgrading / btn_confirm |
+| 동적 JS — BASE 영토 판매중 배지 + 로딩중 | ✅ | 4개 언어 LANG ternary |
+| 동적 JS — BASE 영토 수확/보호막/업그레이드/지도 버튼 | ✅ | 4개 언어 |
+| 동적 JS — 영토 생산 최근수확/아직수확없음 | ✅ | 4개 언어 |
+| 동적 JS — TIER_LABELS 섹터컨트롤 등급 | ✅ | 4개 언어 (총독/지배/이해관계자/존재감) |
+| 동적 JS — 섹터컨트롤 (나) 레이블 | ✅ | 4개 언어 |
+| 동적 JS — 하이잭 AUTO-WIN + 함대전 알림 | ✅ | 4개 언어 |
+| i18n 4개 언어 — 10개 신규 키 추가 | ✅ | ops_*/pvp_*/wb_title/forge_upgrading |
+
+
 
 ## ✅ v6.29 로컬라이징 23차 완성 — 워베팅toast/모바일영토버튼/버그리포터
 

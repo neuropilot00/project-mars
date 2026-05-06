@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 로컬라이징 24차 — ops보드/PVP허브/워베팅타이틀/포지/영토JS/하이잭알림 (루프 24차)
+
+### 정적 HTML data-i18n + 동적 JS LANG 4개 언어 확장 (index.html) — 배치 24 (24항목)
+- Ops 작전 보드 타이틀 + 범례 3개 (완료/미완료/긴급) data-i18n 처리
+- PVP 허브 전투 선언 버튼 + 탭 3개 (추천상대/현상금/섹터분쟁) data-i18n 처리
+- WAR BETTING 모달 타이틀 + 포지 강화중 텍스트 + 포지 확인 버튼 data-i18n 처리
+- BASE 영토 패널 JS: 판매중 배지, 로딩중, 수확/보호막/업그레이드/지도 버튼 4개 언어
+- 영토 생산 패널 JS: 최근 수확/아직 수확 없음 4개 언어
+- TIER_LABELS (총독/지배/이해관계자/존재감) 4개 언어
+- 섹터 컨트롤 `(나)` 레이블 4개 언어
+- 하이잭 알림 (AUTO-WIN, 함대전 진행 중) 4개 언어
+- i18n 4개 언어 섹션에 10개 키 추가 (ops_board_title/ops_legend_*/pvp_*/wb_title/forge_upgrading)
+
 ## 2026-05-06 — 로컬라이징 23차 — 워베팅 toast/모바일 영토 버튼/버그리포터 (루프 23차)
 
 ### 동적 JS + 정적 HTML data-i18n + i18n 키 추가 (index.html) — 배치 23 (19항목)
