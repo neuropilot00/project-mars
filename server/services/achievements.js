@@ -12,70 +12,92 @@ try { newsService = require('./news'); } catch (_) {}
 
 // ── Current-value resolvers ──────────────────────────────────────────────────
 
+async function safeNumeric(query, params, key = 'n') {
+  try {
+    const res = await pool.query(query, params);
+    return parseFloat(res.rows[0]?.[key]) || 0;
+  } catch (e) {
+    if (['42P01', '42703'].includes(e.code)) return 0; // missing table/column
+    throw e;
+  }
+}
+
 async function getCurrentValue(wallet, conditionType) {
   const w = wallet.toLowerCase();
   switch (conditionType) {
     case 'claim_count':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COUNT(*) AS n FROM claims WHERE owner = $1 AND deleted_at IS NULL`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'ship_count':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COUNT(*) AS n FROM ships WHERE owner_wallet = $1 AND is_alive = true`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
-    case 'battle_win_count':
-      return parseInt((await pool.query(
+    case 'battle_win_count': {
+      const pixelWins = await safeNumeric(
         `SELECT COUNT(*) AS n FROM battles
-          WHERE winner_wallet = $1 AND status = 'completed'`, [w]
-      )).rows[0]?.n) || 0;
+          WHERE attacker = $1 AND success = true`,
+        [w]
+      );
+      const fleetWins = await safeNumeric(
+        `SELECT COUNT(DISTINCT fb.id) AS n
+           FROM fleet_battles fb
+           JOIN fleet_battle_participants fbp ON fbp.battle_id = fb.id
+          WHERE LOWER(fbp.wallet_address) = LOWER($1)
+            AND fb.status = 'ended'
+            AND fb.winner_side = fbp.side`,
+        [w]
+      );
+      return parseInt(pixelWins + fleetWins) || 0;
+    }
 
     case 'marketplace_buy_count':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COUNT(*) AS n FROM marketplace_listings WHERE buyer = $1 AND status = 'sold'`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'marketplace_sell_count':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COUNT(*) AS n FROM marketplace_listings WHERE seller = $1 AND status = 'sold'`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'gp_balance':
-      return parseFloat((await pool.query(
+      return parseFloat(await safeNumeric(
         `SELECT COALESCE(gp_balance, 0) AS n FROM users WHERE wallet_address = $1`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'guild_membership':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COUNT(*) AS n FROM guild_members WHERE wallet = $1`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'referral_count':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COUNT(*) AS n FROM users
           WHERE referred_by = (
             SELECT referral_code FROM users WHERE wallet_address = $1 LIMIT 1
           )`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'cosmetic_count':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COALESCE(SUM(ui.quantity), 0) AS n
            FROM user_items ui
            JOIN item_types it ON it.id = ui.item_type_id
           WHERE ui.wallet = $1 AND it.category = 'cosmetic'`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'enhancement_count':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COUNT(*) AS n FROM enhancement_log WHERE wallet = $1 AND success = true`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     case 'max_enhancement_level':
-      return parseInt((await pool.query(
+      return parseInt(await safeNumeric(
         `SELECT COALESCE(MAX(to_level), 0) AS n FROM enhancement_log WHERE wallet = $1 AND success = true`, [w]
-      )).rows[0]?.n) || 0;
+      )) || 0;
 
     default:
       return 0;
@@ -213,7 +235,10 @@ async function getUserAchievements(wallet) {
               ON ua.achievement_key = a.key AND ua.wallet = $1
       ORDER BY a.category, a.condition_value ASC, a.key`,
     [w]
-  );
+  ).catch(e => {
+    if (['42P01', '42703'].includes(e.code)) return { rows: [] };
+    throw e;
+  });
   return res.rows;
 }
 

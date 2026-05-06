@@ -3176,10 +3176,16 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
 
     // 소유권 확인 + last_harvest_at 가져오기
     const claimRes = await client.query(
-      `SELECT c.id, c.owner, c.sector_code, c.last_harvest_at,
+      `SELECT c.id, c.owner, c.sector_code, c.last_harvest_at, ps.sector_id,
               COALESCE(sd.sector_type, 'frontier') AS sector_tier,
-              (SELECT COUNT(*) FROM pixels p WHERE p.claim_id = c.id) AS pixel_cnt
+              COALESCE(ps.pixel_cnt, 0) AS pixel_cnt
        FROM claims c
+       LEFT JOIN (
+         SELECT claim_id, COUNT(*) AS pixel_cnt, MIN(sector_id) AS sector_id
+         FROM pixels
+         WHERE claim_id = $1
+         GROUP BY claim_id
+       ) ps ON ps.claim_id = c.id
        LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
        WHERE c.id = $1 AND c.deleted_at IS NULL`,
       [claimId]
@@ -5287,15 +5293,21 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
       SELECT c.id, c.owner, c.image_url, c.adjacency_bonus,
              COALESCE(c.hold_bonus_pct, 0) AS hold_bonus_pct,
              COALESCE(c.longest_hold_days, 0) AS longest_hold_days,
-             COUNT(p.lat) AS pixel_count,
-             COALESCE(s.tier, 'frontier') AS sector_type,
-             COALESCE(s.name, 'Uncharted') AS sector_name,
-             s.id AS sector_id
+             c.sector_code, c.last_harvest_at,
+             COALESCE(ps.pixel_count, 0) AS pixel_count,
+             COALESCE(sd.sector_type, s.tier, 'frontier') AS sector_type,
+             COALESCE(sd.name_en, s.name, 'Uncharted') AS sector_name,
+             COALESCE(sd.id, s.id) AS sector_id
       FROM claims c
-      LEFT JOIN pixels p ON p.claim_id = c.id
-      LEFT JOIN sectors s ON s.id = p.sector_id
+      LEFT JOIN (
+        SELECT claim_id, COUNT(*) AS pixel_count, MIN(sector_id) AS sector_id
+        FROM pixels
+        WHERE claim_id = $1
+        GROUP BY claim_id
+      ) ps ON ps.claim_id = c.id
+      LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
+      LEFT JOIN sectors s ON s.id = ps.sector_id
       WHERE c.id = $1 AND c.deleted_at IS NULL
-      GROUP BY c.id, c.owner, c.image_url, c.adjacency_bonus, c.hold_bonus_pct, c.longest_hold_days, s.tier, s.name, s.id
     `, [claimId]);
 
     if (!claimRes.rows.length) return res.status(404).json({ error: 'Claim not found' });
@@ -5393,35 +5405,33 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
     // Include upgrade modifiers
     for (const um of upgradeModifiers) modifiers.push({ label: um.label, labelKo: um.label, value: um.value });
 
-    // 5. Last harvest (from transactions for this wallet — claim-level not tracked, use global)
+    // 5. Last harvest (claim-level cooldown from claims.last_harvest_at)
     let lastHarvest = null;
     let nextHarvestAt = null;
     if (owned && wallet) {
       try {
-        const harvestRes = await pool.query(`
-          SELECT pp_amount, meta, created_at
-          FROM transactions
-          WHERE (type = 'mining' OR type = 'instant_harvest')
-            AND from_wallet = $1
-          ORDER BY created_at DESC LIMIT 1
-        `, [wallet]);
-        if (harvestRes.rows.length) {
-          const row = harvestRes.rows[0];
-          const miningRow = await pool.query('SELECT last_harvest_at FROM user_mining WHERE wallet_address = $1', [wallet]);
-          const intervalCore = parseInt(s.mining_interval_core) || 24;
-          const intervalMid = parseInt(s.mining_interval_mid) || 48;
-          const intervalFrontier = parseInt(s.mining_interval_frontier) || 72;
-          const interval = sectorType === 'core' ? intervalCore : sectorType === 'mid' ? intervalMid : intervalFrontier;
-          const lastAt = miningRow.rows[0]?.last_harvest_at || row.created_at;
+        const intervalCore = parseInt(s.mining_interval_core) || 24;
+        const intervalMid = parseInt(s.mining_interval_mid) || 48;
+        const intervalFrontier = parseInt(s.mining_interval_frontier) || 72;
+        const interval = sectorType === 'core' ? intervalCore : sectorType === 'mid' ? intervalMid : intervalFrontier;
+        const lastAt = claim.last_harvest_at;
+        if (lastAt) {
           const elapsed = (Date.now() - new Date(lastAt).getTime()) / (1000 * 60 * 60);
           if (elapsed < interval) {
             nextHarvestAt = new Date(new Date(lastAt).getTime() + interval * 3600000);
           }
-          // Extract material drops from transaction meta (P5-2 이후 저장됨)
+          const harvestRes = await pool.query(`
+            SELECT pp_amount, meta, created_at
+            FROM transactions
+            WHERE (type = 'mining' OR type = 'instant_harvest')
+              AND from_wallet = $1
+            ORDER BY created_at DESC LIMIT 1
+          `, [wallet]);
+          const row = harvestRes.rows[0] || {};
           const metaMaterials = (row.meta && row.meta.resourceDrops) ? row.meta.resourceDrops : [];
           lastHarvest = {
-            pp: parseFloat(row.pp_amount),
-            at: row.created_at,
+            pp: parseFloat(row.pp_amount || 0),
+            at: lastAt,
             materials: metaMaterials
           };
         }
@@ -5562,15 +5572,24 @@ router.post('/territory/merge', writeLimiter, async (req, res) => {
 
     // 7. Transfer territory upgrades to merged claim (copy highest levels)
     try {
+      const upgradeColumnRes = await client.query(
+        `SELECT column_name FROM information_schema.columns WHERE table_name = 'territory_upgrades'`
+      );
+      const upgradeColumns = new Set(upgradeColumnRes.rows.map(r => r.column_name));
+      const timestampColumn = upgradeColumns.has('updated_at') ? 'updated_at'
+        : upgradeColumns.has('upgraded_at') ? 'upgraded_at'
+        : 'created_at';
       await client.query(
-        `INSERT INTO territory_upgrades (claim_id, upgrade_type, level, is_active, last_upgraded_at)
-         SELECT $1, upgrade_type, MAX(level), bool_or(is_active), MAX(last_upgraded_at)
+        `INSERT INTO territory_upgrades (claim_id, owner, upgrade_type, level, gp_spent, is_active, ${timestampColumn})
+         SELECT $1, $3, upgrade_type, MAX(level), COALESCE(SUM(gp_spent), 0), bool_or(is_active), MAX(${timestampColumn})
          FROM territory_upgrades WHERE claim_id = ANY($2)
          GROUP BY upgrade_type
          ON CONFLICT (claim_id, upgrade_type) DO UPDATE
            SET level = GREATEST(territory_upgrades.level, EXCLUDED.level),
-               is_active = EXCLUDED.is_active`,
-        [mergedClaimId, claimIds]
+               gp_spent = GREATEST(territory_upgrades.gp_spent, EXCLUDED.gp_spent),
+               is_active = EXCLUDED.is_active,
+               ${timestampColumn} = EXCLUDED.${timestampColumn}`,
+        [mergedClaimId, claimIds, wallet]
       );
     } catch (_) {}
 
@@ -5615,12 +5634,26 @@ router.get('/territory/:claimId/upgrades', readLimiter, async (req, res) => {
     const owned = wallet ? claimRes.rows[0].owner.toLowerCase() === wallet : false;
 
     // Current upgrades
-    const upgradesRes = await pool.query(
-      `SELECT upgrade_type, level, gp_spent, created_at, updated_at FROM territory_upgrades WHERE claim_id = $1 AND is_active = true ORDER BY upgrade_type`,
-      [claimId]
-    );
     const current = {};
-    for (const u of upgradesRes.rows) current[u.upgrade_type] = u;
+    try {
+      const upgradesRes = await pool.query(
+        `SELECT column_name FROM information_schema.columns WHERE table_name = 'territory_upgrades'`
+      );
+      const upgradeColumns = new Set(upgradesRes.rows.map(r => r.column_name));
+      const timestampColumn = upgradeColumns.has('updated_at') ? 'updated_at'
+        : upgradeColumns.has('upgraded_at') ? 'upgraded_at'
+        : 'created_at';
+      const currentUpgradesRes = await pool.query(
+        `SELECT upgrade_type, level, gp_spent, created_at, ${timestampColumn} AS updated_at
+           FROM territory_upgrades
+          WHERE claim_id = $1 AND is_active = true
+          ORDER BY upgrade_type`,
+        [claimId]
+      );
+      for (const u of currentUpgradesRes.rows) current[u.upgrade_type] = u;
+    } catch (e) {
+      if (!['42P01', '42703'].includes(e.code)) throw e;
+    }
 
     // Catalog (P5 tracks only for this endpoint)
     let catalog = [];

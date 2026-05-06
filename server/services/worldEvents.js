@@ -465,16 +465,16 @@ async function distributeRewards(eventId, resolution) {
 
   const { rows: parts } = await pool.query(
     `SELECT wallet, damage_dealt FROM world_event_participants
-      WHERE event_id = $1 AND damage_dealt > 0
+      WHERE event_id = $1 AND damage_dealt > 0 AND rewarded = false
       ORDER BY damage_dealt DESC`,
     [eventId]
   );
   if (!parts.length) return;
 
-  const topWallet = parts[0].wallet;
+  const topWallet = (parts[0].wallet || '').toLowerCase();
 
   for (const p of parts) {
-    const isTop = (p.wallet === topWallet);
+    const isTop = ((p.wallet || '').toLowerCase() === topWallet);
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -523,7 +523,7 @@ async function distributeRewards(eventId, resolution) {
         `UPDATE world_event_participants
             SET rewarded = true,
                 reward_meta = $3::jsonb
-          WHERE event_id = $1 AND wallet = $2`,
+          WHERE event_id = $1 AND LOWER(wallet) = LOWER($2)`,
         [eventId, p.wallet, JSON.stringify({
           gp, xp, iron_dust: ironDust, ice_crystal: iceCrystal,
           ...(isTop ? { ancient_metal: topMetal, title: topTitle } : {})
