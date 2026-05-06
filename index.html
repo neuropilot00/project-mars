@@ -13789,7 +13789,7 @@ async function doTerritoryMerge() {
   var lang = (typeof LANG !== 'undefined' ? LANG : 'ko');
   var selectedIds = window._mergeSelectedIds;
   if (!selectedIds || selectedIds.size < 2) {
-    showToast(lang === 'ko' ? '영토를 2개 이상 선택하세요' : 'Select at least 2 territories', 'error');
+    showToast(lang === 'ko' ? '영토를 2개 이상 선택하세요' : lang === 'ja' ? '領土を2つ以上選択してください' : lang === 'zh' ? '请至少选择2个领地' : 'Select at least 2 territories', 'error');
     return;
   }
   var ids = Array.from(selectedIds).map(Number);
@@ -16313,7 +16313,7 @@ var _origPayAndContinue = payAndContinue;
 payAndContinue = async function(){
   if(!_isMissionMinigame()) return _origPayAndContinue();
   // Mission mode: free continue (limited to 1)
-  if(_mgContinueNum >= 1){ showToast('미션 미니게임은 컨티뉴 1회만 가능'); return; }
+  if(_mgContinueNum >= 1){ showToast(LANG==='ko'?'미션 미니게임은 컨티뉴 1회만 가능':LANG==='ja'?'ミッションミニゲームのコンティニューは1回のみ':LANG==='zh'?'任务小游戏只能继续1次':'Mission mini-game: continue limited to 1'); return; }
   _mgContinueNum = 1;
   document.getElementById('mgContinueOverlay').style.display = 'none';
   _mgCurrentEngine.continueGame();
@@ -23280,7 +23280,7 @@ function openListModal(type,idVal,name,icon,enhLv){
     if(!ok) return;
     var priceVal=parseFloat(document.getElementById('mktListPrice').value);
     var curr=document.getElementById('mktListCurrency').value;
-    if(!priceVal||priceVal<=0){showToast('가격을 입력하세요','error');return;}
+    if(!priceVal||priceVal<=0){showToast(LANG==='ko'?'가격을 입력하세요':LANG==='ja'?'価格を入力してください':LANG==='zh'?'请输入价格':'Enter a price','error');return;}
     var isAuction=document.getElementById('listModeAuction').style.borderColor.indexOf('255,213')>=0;
     if(isAuction){
       // 경매 등록
@@ -23291,11 +23291,11 @@ function openListModal(type,idVal,name,icon,enhLv){
       if(type==='claim') aBody.claimId=idVal; else aBody.itemInstanceId=idVal;
       fetch('/api/auction/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(aBody)})
       .then(function(r){return r.json();}).then(function(d){
-        if(d.error||!d.success){showToast(d.error||'경매 등록 실패','error');return;}
-        showToast('🔨 경매 등록 완료! '+dur+'시간 진행');
+        if(d.error||!d.success){showToast(d.error||(LANG==='ko'?'경매 등록 실패':LANG==='ja'?'オークション登録失敗':LANG==='zh'?'拍卖登记失败':'Auction listing failed'),'error');return;}
+        showToast('🔨 '+(LANG==='ko'?'경매 등록 완료! ':LANG==='ja'?'オークション登録完了! ':LANG==='zh'?'拍卖登记完成! ':'Auction listed! ')+dur+(LANG==='ko'?'시간 진행':LANG==='ja'?'時間':LANG==='zh'?'小时':'h'));
         refreshBalance(); loadSellView();
         if(type==='claim'){try{loadForSaleOverlay();}catch(_){}try{_updateMyTerritories();}catch(_){}}
-      }).catch(function(){showToast('경매 등록 실패','error');});
+      }).catch(function(){showToast(LANG==='ko'?'경매 등록 실패':LANG==='ja'?'オークション登録失敗':LANG==='zh'?'拍卖登记失败':'Auction listing failed','error');});
     } else {
       // 고정가 등록
       var body={wallet:w,type:type,price:priceVal,currency:curr};
@@ -23303,7 +23303,8 @@ function openListModal(type,idVal,name,icon,enhLv){
       fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
       .then(function(r){return r.json()}).then(function(d){
         if(d.error){showToast(d.error,'error');return;}
-        showToast('✅ '+(type==='claim'?'영토를 마켓에 등록했습니다!':'아이템을 마켓에 등록했습니다!'));
+        var _mktListedMsg=type==='claim'?(LANG==='ko'?'영토를 마켓에 등록했습니다!':LANG==='ja'?'領土をマーケットに登録しました!':LANG==='zh'?'领地已上架市场!':'Territory listed on market!'):(LANG==='ko'?'아이템을 마켓에 등록했습니다!':LANG==='ja'?'アイテムをマーケットに登録しました!':LANG==='zh'?'物品已上架市场!':'Item listed on market!');
+        showToast('✅ '+_mktListedMsg);
         refreshBalance(); loadSellView();
         if(type==='claim'){try{loadForSaleOverlay();}catch(_){}try{_updateMyTerritories();}catch(_){}}
       }).catch(function(){showToast('등록 실패','error');});
@@ -24494,7 +24495,7 @@ function renderGuildUpgrades(guild, myRole){
 function guildDonateGP(){
   if(!_myGuildData) return;
   var amt = parseInt(document.getElementById('guildDonateAmt').value);
-  if(!amt||amt<=0){ showToast('금액을 입력하세요'); return; }
+  if(!amt||amt<=0){ showToast(LANG==='ko'?'금액을 입력하세요':LANG==='ja'?'金額を入力してください':LANG==='zh'?'请输入金额':'Enter an amount'); return; }
   fetch('/api/guild/donate',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({wallet:walletState.address, guildId:_myGuildData.id, amount:amt})
   }).then(function(r){return r.json()}).then(function(d){
@@ -24502,7 +24503,7 @@ function guildDonateGP(){
     walletState.gameGP = d.gpBalance!=null ? d.gpBalance : (walletState.gameGP - amt);
     refreshEmailBalances();
     document.getElementById('guildDonateAmt').value = '';
-    showToast('💰 '+amt+' GP 기부 완료!','success');
+    showToast('💰 '+amt+' GP '+(LANG==='ko'?'기부 완료!':LANG==='ja'?'寄付完了!':LANG==='zh'?'捐赠完成!':'donated!'),'success');
     loadGuildTab();
   }).catch(function(e){ showToast('기부 실패: '+e.message,'error'); });
 }
@@ -24733,8 +24734,8 @@ async function viewWarScoreboard(warId){
 
 // ── 길드전 함대전 선포 ──────────────────────────────────────────
 async function openGuildWarFight(warId, guildId){
-  if(!walletState||!walletState.address){ showToast('로그인이 필요합니다','error'); return; }
-  showToast('적 길드 정보 불러오는 중...','info');
+  if(!walletState||!walletState.address){ showToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  showToast(LANG==='ko'?'적 길드 정보 불러오는 중...':LANG==='ja'?'敵ギルド情報を読込中...':LANG==='zh'?'正在加载敌方公会信息...':'Loading enemy guild data...','info');
   try{
     var [myRes, enemyRes] = await Promise.all([
       fetch('/api/fleets', {headers:getAuthHeaders()}),
