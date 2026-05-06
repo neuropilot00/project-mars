@@ -15138,7 +15138,7 @@ function openClaimModal(){
             _di.style.border='1px solid rgba(232,72,85,.4)';
             _di.style.color='#ffb4b4';
             if(_dic) _dic.textContent='⚔';
-            _dt.textContent=LANG==='ko'?('상대 함대 '+fleets+'개 · 함선 '+ships+'척 → 함대전 발생'):(fleets+' fleet(s) · '+ships+' ship(s) → Fleet Battle');
+            _dt.textContent=LANG==='ko'?('상대 함대 '+fleets+'개 · 함선 '+ships+'척 → 함대전 발생'):LANG==='ja'?(fleets+'艦隊 · '+ships+'隻 → 艦隊戦発生'):LANG==='zh'?(fleets+'支舰队 · '+ships+'艘 → 舰队战开始'):(fleets+' fleet(s) · '+ships+' ship(s) → Fleet Battle');
           }
         })
         .catch(function(){
@@ -15194,7 +15194,7 @@ function openClaimModal(){
   var _blockedSec=_getBlockedSector(selectedPlot.lat, selectedPlot.lng);
   if(_blockedSec){
     var _myLv2=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
-    if(_lvWarn){_lvWarn.style.display='';_lvWarn.textContent=LANG==='ko'?('🔒 이 섹터는 Lv '+_blockedSec.entryMinLevel+' 이상만 구매 가능 (현재 Lv '+_myLv2+')'):'🔒 This sector requires Lv '+_blockedSec.entryMinLevel+' (current Lv '+_myLv2+')';}
+    if(_lvWarn){_lvWarn.style.display='';_lvWarn.textContent=LANG==='ko'?('🔒 이 섹터는 Lv '+_blockedSec.entryMinLevel+' 이상만 구매 가능 (현재 Lv '+_myLv2+')'):LANG==='ja'?('🔒 このセクターはLv '+_blockedSec.entryMinLevel+' 以上が必要です (現在Lv '+_myLv2+')'):LANG==='zh'?('🔒 此扇区需要Lv '+_blockedSec.entryMinLevel+' 以上 (当前Lv '+_myLv2+')'):'🔒 This sector requires Lv '+_blockedSec.entryMinLevel+' (current Lv '+_myLv2+')';}
     if(_cfmBtn){_cfmBtn.disabled=true;_cfmBtn.style.opacity='0.4';_cfmBtn.style.cursor='not-allowed';}
   }else{
     if(_lvWarn) _lvWarn.style.display='none';
@@ -22594,7 +22594,7 @@ function loadTransportTab() {
     if (!_tspSectors.length) {
       var origin = document.getElementById('tspOriginSector');
       var dest = document.getElementById('tspDestSector');
-      var errHTML = '<option value="">'+(LANG==='ko'?'섹터 로딩 실패 · 새로고침':'Failed to load sectors · Refresh')+'</option>';
+      var errHTML = '<option value="">'+(LANG==='ko'?'섹터 로딩 실패 · 새로고침':LANG==='ja'?'セクター読込失敗 · 更新':LANG==='zh'?'扇区加载失败 · 刷新':'Failed to load sectors · Refresh')+'</option>';
       if (origin) origin.innerHTML = errHTML;
       if (dest) dest.innerHTML = errHTML;
       return;
@@ -22663,9 +22663,9 @@ function submitTransportLaunch() {
   var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
   var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
   var cargo = parseInt((document.getElementById('tspCargoGp')||{}).value || '0');
-  if (!origin || !dest) { showFactionToast(LANG==='ko'?'출발/도착 섹터를 선택하세요':'Select origin and destination sectors', 'error'); return; }
-  if (origin === dest) { showFactionToast(LANG==='ko'?'출발지와 도착지는 달라야 합니다':'Origin and destination must differ', 'error'); return; }
-  if (!cargo) { showFactionToast(LANG==='ko'?'화물 GP를 입력하세요':'Enter cargo GP amount', 'error'); return; }
+  if (!origin || !dest) { showFactionToast(LANG==='ko'?'출발/도착 섹터를 선택하세요':LANG==='ja'?'出発/到着セクターを選択してください':LANG==='zh'?'请选择出发/到达扇区':'Select origin and destination sectors', 'error'); return; }
+  if (origin === dest) { showFactionToast(LANG==='ko'?'출발지와 도착지는 달라야 합니다':LANG==='ja'?'出発地と目的地は異なる必要があります':LANG==='zh'?'出发地和目的地必须不同':'Origin and destination must differ', 'error'); return; }
+  if (!cargo) { showFactionToast(LANG==='ko'?'화물 GP를 입력하세요':LANG==='ja'?'貨物GP量を入力してください':LANG==='zh'?'请输入货物GP数量':'Enter cargo GP amount', 'error'); return; }
   var doSubmit = function() {
     fetch('/api/transport/start', {
       method: 'POST',
@@ -25424,7 +25424,7 @@ async function loadOpsCommandBoard() {
     var weeklyHtml = '';
     if (we) {
       weeklyHtml += '<div style="font-size:9px;color:var(--gold);margin-bottom:6px">'
-        + (we.icon || '') + ' 오늘의 이벤트: ' + (LANG==='ko' ? we.label_ko : we.label_en) + '</div>';
+        + (we.icon || '') + ' ' + (LANG==='ko'?'오늘의 이벤트':LANG==='ja'?'今日のイベント':LANG==='zh'?'今日活动':'Today\'s Event') + ': ' + (LANG==='ko' ? we.label_ko : we.label_en) + '</div>';
     }
     // 주간 진척도 — 요일 라벨 포함 7칸 표시
     var dayLabels = ['일','월','화','수','목','금','토'];
@@ -45435,6 +45435,8 @@ function syClassLabelKo(label) { return syClassLabel(label); }
 function syShipName(s) {
   if (!s) return '';
   if (LANG === 'ko') return s.name_ko || s.name_en || s.ship_type_code || '';
+  if (LANG === 'ja') return s.name_ja || s.name_en || s.name_ko || s.ship_type_code || '';
+  if (LANG === 'zh') return s.name_zh || s.name_en || s.name_ko || s.ship_type_code || '';
   return s.name_en || s.name_ko || s.ship_type_code || '';
 }
 
