@@ -1,4 +1,16 @@
-# OCCUPY MARS — Codebase Audit (v6.33 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
+
+## ✅ v6.34 버그수정 — dailyOps weekly-events 라우트 순서 수정
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `GET /weekly-events` shadow match by `GET /:wallet` | ✅ 수정 | /weekly-events를 /:wallet 앞으로 이동 |
+| 중복 router.get('/weekly-events') 제거 | ✅ | 하단 블록 삭제 |
+| dailyOps.js syntax check | ✅ | node --check pass |
+
+
+
+## ✅ v6.33 로컬라이징 27차 완성 — ops카운트/PVP탭/길드기부/프로필헤더
 
 ## ✅ v6.33 로컬라이징 27차 완성 — ops카운트/PVP탭/길드기부/프로필헤더
 

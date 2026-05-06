@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: dailyOps weekly-events 라우트 shadow match 수정
+
+### server/routes/dailyOps.js
+- **버그**: `GET /weekly-events` 가 `GET /:wallet` 보다 뒤에 등록되어 있어, `/api/daily-ops/weekly-events` 요청이 wallet='weekly-events'로 처리됨
+- **수정**: `/weekly-events` 라우트를 `/:wallet` 라우트 앞으로 이동 (Express 라우트 등록 순서 원칙 적용)
+- 하단 중복 `/weekly-events` 블록 제거
+
 ## 2026-05-06 — 로컬라이징 27차 — ops카운트/PVP탭버튼/길드기부/프로필헤더 (루프 27차)
 
 ### 정적 HTML data-i18n + i18n 키 추가 (index.html) — 배치 27 (11항목)

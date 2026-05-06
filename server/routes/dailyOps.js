@@ -87,6 +87,26 @@ async function ensureDailyMissions(wallet) {
   }
 }
 
+// ── GET /api/daily-ops/weekly-events ─────────────────────────
+// NOTE: Must be registered BEFORE /:wallet to prevent shadow match
+router.get('/weekly-events', async (req, res) => {
+  try {
+    const week = [
+      { day: 0, name: 'SUN', label_en: 'No Event',          label_ko: '이벤트 없음',      icon: '—', type: null, multiplier: 1 },
+      { day: 1, name: 'MON', label_en: 'Mining Bonus +50%', label_ko: '채굴 보너스 +50%', icon: '⛏', type: 'mining_bonus',    multiplier: 1.5 },
+      { day: 2, name: 'TUE', label_en: 'No Event',          label_ko: '이벤트 없음',      icon: '—', type: null, multiplier: 1 },
+      { day: 3, name: 'WED', label_en: 'Battle GP +30%',    label_ko: '전투 GP +30%',     icon: '⚔', type: 'battle_gp_boost',  multiplier: 1.3 },
+      { day: 4, name: 'THU', label_en: 'No Event',          label_ko: '이벤트 없음',      icon: '—', type: null, multiplier: 1 },
+      { day: 5, name: 'FRI', label_en: 'Upgrade -20%',      label_ko: '강화 비용 -20%',   icon: '🔧', type: 'upgrade_discount', multiplier: 0.8 },
+      { day: 6, name: 'SAT', label_en: 'Double Bounty',     label_ko: '현상금 2배',       icon: '💰', type: 'double_bounty',    multiplier: 2.0 },
+    ];
+    const todayDow = new Date().getDay();
+    res.json({ success: true, week, today_dow: todayDow });
+  } catch (err) {
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
 // ── GET /api/daily-ops/:wallet ────────────────────────────────
 router.get('/:wallet', async (req, res) => {
   try {
@@ -351,26 +371,6 @@ function getTodayWeeklyEvent() {
   };
   return events[dow] || null;
 }
-
-// ── GET /api/daily-ops/weekly-events ─────────────────────────
-router.get('/weekly-events', async (req, res) => {
-  try {
-    const week = [
-      { day: 0, name: 'SUN', label_en: 'No Event',         label_ko: '이벤트 없음',     icon: '—', type: null, multiplier: 1 },
-      { day: 1, name: 'MON', label_en: 'Mining Bonus +50%', label_ko: '채굴 보너스 +50%', icon: '⛏', type: 'mining_bonus',    multiplier: 1.5 },
-      { day: 2, name: 'TUE', label_en: 'No Event',         label_ko: '이벤트 없음',     icon: '—', type: null, multiplier: 1 },
-      { day: 3, name: 'WED', label_en: 'Battle GP +30%',   label_ko: '전투 GP +30%',    icon: '⚔', type: 'battle_gp_boost',  multiplier: 1.3 },
-      { day: 4, name: 'THU', label_en: 'No Event',         label_ko: '이벤트 없음',     icon: '—', type: null, multiplier: 1 },
-      { day: 5, name: 'FRI', label_en: 'Upgrade -20%',     label_ko: '강화 비용 -20%',  icon: '🔧', type: 'upgrade_discount', multiplier: 0.8 },
-      { day: 6, name: 'SAT', label_en: 'Double Bounty',    label_ko: '현상금 2배',      icon: '💰', type: 'double_bounty',    multiplier: 2.0 },
-    ];
-    // today_dow: 서버 로컬 시간 기준 (UTC 고정 시 timezone 오차 발생)
-    const todayDow = new Date().getDay();
-    res.json({ success: true, week, today_dow: todayDow });
-  } catch (err) {
-    res.status(500).json({ error: 'SERVER_ERROR' });
-  }
-});
 
 module.exports = router;
 module.exports.notifyMissionProgress = async function(wallet, missionType) {
