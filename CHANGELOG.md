@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.80 — 스케줄러 DB 커넥션 더블 릴리즈 수정
+
+### server/index.js (4곳)
+- AUTO-RENEW 스케줄러 Shield/Effect 자동갱신 for-loop에서 early `continue` 경로 4곳에 있던 `client.release()` 제거.
+- `finally { client.release() }` 블록이 항상 실행되므로 이중 호출 발생 — pg-pool 더블 릴리즈로 커넥션 풀 오염 가능.
+- 동일한 `finally` 단일 경로로 정리.
+
+### 추가 감사 (이번 루프)
+- VIP Pass, Onboarding, War Betting, Profile 저장 함수 모두 클린.
+- `warBettingRoutes.js` 인증 패턴 전수 검토 — 정상.
+- 서버 서비스 `WHERE wallet` vs `WHERE wallet_address` 오용 검사 — users 테이블 접근은 전부 `wallet_address` 정상 사용.
+
+---
+
 ## 2026-05-07 v6.79 — 확장 감사 완료 (전 시스템 클린 확인)
 
 ### 감사 범위 (v6.78 이후 추가)

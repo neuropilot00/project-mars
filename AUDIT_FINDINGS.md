@@ -1,4 +1,25 @@
-# OCCUPY MARS — Codebase Audit (v6.79 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.80 / 2026-05-07)
+
+## 🔴→✅ v6.80 — 스케줄러 더블 릴리즈 버그 수정 (2026-05-07)
+
+**버그**: `server/index.js` AUTO-RENEW 스케줄러의 for-loop 안에서 `try` 블록 내부 early `continue` 경로 4곳에 `client.release()`가 있었으나, 동일 블록에 `finally { client.release() }`가 항상 실행되어 **더블 릴리즈** 발생.
+
+- pg-pool의 동일 클라이언트 이중 반환 → 다음 체크아웃된 클라이언트가 오염 가능 (풀 상태 불일치)
+
+**수정**: 4곳에서 early `client.release()` 제거 — `finally` 블록 단일 릴리즈로 통일.
+
+| 위치 | 패턴 | 수정 |
+|------|------|------|
+| Shield 자동갱신 — 아이템 없음 경로 | `ROLLBACK; client.release(); continue;` | `client.release()` 제거 |
+| Shield 자동갱신 — PP 부족 경로 | `COMMIT; client.release(); continue;` | `client.release()` 제거 |
+| Effect 자동갱신 — 아이템 없음 경로 | `COMMIT; client.release(); continue;` | `client.release()` 제거 |
+| Effect 자동갱신 — PP 부족 경로 | `COMMIT; client.release(); continue;` | `client.release()` 제거 |
+
+**감사 신규 영역**: VIP (`purchaseVipPass`, `loadVipView`), Onboarding (`obNextStep`, `obSkip`), War Betting (`wbPlaceBet`, `wbLoad`, `wbSwitchTab`), Profile (`saveProfileNickname`, `saveProfileMotto`, `saveProfileColor`), War Betting 라우트 (`warBettingRoutes.js`) — 모두 클린.
+
+---
+
+## ✅ v6.79 확장 감사 완료 — 전 시스템 클린 (2026-05-07)
 
 ## ✅ v6.79 확장 감사 완료 — 전 시스템 클린 (2026-05-07)
 

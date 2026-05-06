@@ -843,7 +843,7 @@ async function start() {
               await client.query('BEGIN');
               // Get item info for the shield type
               const itemRes = await client.query('SELECT * FROM item_types WHERE code = $1 AND active = true', [shield.shield_type]);
-              if (!itemRes.rows.length) { await client.query('ROLLBACK'); client.release(); continue; }
+              if (!itemRes.rows.length) { await client.query('ROLLBACK'); continue; }
               const item = itemRes.rows[0];
               const cost = parseFloat(item.price_pp);
 
@@ -856,7 +856,6 @@ async function start() {
                 await client.query('UPDATE pixel_shields SET auto_renew = false WHERE id = $1', [shield.id]);
                 await client.query('COMMIT');
                 console.log(`[AUTO-RENEW] Shield #${shield.id} — insufficient PP (${ppBal}/${cost}), auto-renew disabled`);
-                client.release();
                 continue;
               }
 
@@ -904,7 +903,7 @@ async function start() {
               const itemRes = await client.query('SELECT * FROM item_types WHERE code = $1 AND active = true', [itemCode]);
               if (!itemRes.rows.length) {
                 await client.query('UPDATE user_active_effects SET active = false, auto_renew = false WHERE id = $1', [effect.id]);
-                await client.query('COMMIT'); client.release(); continue;
+                await client.query('COMMIT'); continue;
               }
               const item = itemRes.rows[0];
               const cost = parseFloat(item.price_pp);
@@ -916,7 +915,6 @@ async function start() {
                 await client.query('UPDATE user_active_effects SET active = false, auto_renew = false WHERE id = $1', [effect.id]);
                 await client.query('COMMIT');
                 console.log(`[AUTO-RENEW] Effect ${effect.effect_type} — insufficient PP (${ppBal}/${cost}), disabled`);
-                client.release();
                 continue;
               }
 
