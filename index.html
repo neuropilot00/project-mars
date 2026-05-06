@@ -14042,7 +14042,7 @@ function toggleTerritoryUpgradePanel() {
 function loadTerritoryUpgrades(claimId) {
   var body = document.getElementById('infoUpgradeBody');
   if (!body) return;
-  var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || '';
+  var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
   _territoryUpgradeState.loading = true;
   fetch('/api/territory/' + claimId + '/upgrades?wallet=' + encodeURIComponent(wallet))
@@ -14104,7 +14104,7 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
 }
 
 async function doTerritoryUpgrade(claimId, upgradeType) {
-  var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || '';
+  var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   if (!wallet) return showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required', 'error');
   var _upgrTitle=LANG==='ko'?'영토 업그레이드':LANG==='ja'?'領土アップグレード':LANG==='zh'?'领地升级':'Territory Upgrade';
   var _upgrConfirm=LANG==='ko'?'업그레이드':LANG==='ja'?'アップグレード':LANG==='zh'?'升级':'Upgrade';
@@ -14233,7 +14233,7 @@ function loadTerritoryIdentity(claimId) {
 function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 async function openTerritoryIdentityEdit() {
-  var wallet = (typeof myW2 !== 'undefined' ? myW2 : '') || walletState?.address || '';
+  var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   var claimId = selectedPlot && selectedPlot.claimId;
   if (!wallet || !claimId) return;
 
@@ -27727,12 +27727,14 @@ function renderCampaignRewardInbox(inbox){
 async function claimCampaignReward(id,btn){
   if(!isLoggedIn()){showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error');return;}
   if(!id){showToast(LANG==='ko'?'보상 정보가 없습니다':LANG==='ja'?'報酬情報がありません':LANG==='zh'?'没有奖励信息':'No reward info','error');return;}
+  var _claimWallet=(walletState&&walletState.address)||getMyWallet();
+  if(!_claimWallet){showFactionToast(LANG==='ko'?'지갑을 연결해주세요':LANG==='ja'?'ウォレットを接続してください':LANG==='zh'?'请先连接钱包':'Connect wallet first','error');return;}
   if(btn){btn.disabled=true;btn.textContent=LANG==='ko'?'수령중':LANG==='ja'?'受取中':LANG==='zh'?'领取中':'Claiming';}
   try{
     var r=await fetch('/api/campaign/reward/claim',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet:walletState.address,reward_id:id})
+      body:JSON.stringify({wallet:_claimWallet,reward_id:id})
     });
     var d=await r.json().catch(function(){return {};});
     if(!r.ok||d.error) throw new Error(d.error||'claim failed');

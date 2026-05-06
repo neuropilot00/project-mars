@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.71 — 영토 업그레이드/아이덴티티/캠페인 보상 지갑 컨텍스트 수정
+
+### index.html (4곳)
+- `claimCampaignReward()`: `wallet:walletState.address` → `getMyWallet()` 폴백 추가. JWT 이메일 유저이면서 지갑 미연결 시 `wallet: undefined`가 서버로 전송되어 `missing fields` 400 오류 발생하던 버그 수정. 지갑 미연결 시 명시적 에러 토스트 표시.
+- `loadTerritoryUpgrades()`: `typeof myW2 !== 'undefined' ? myW2 : ''` → `(walletState&&walletState.address)||getMyWallet()`. `myW2`는 `showTerritoryInfo()` 로컬 변수로, 외부 호출(`toggleTerritoryUpgradePanel`) 시 항상 빈 문자열 → ownership 체크 실패 + 업그레이드 버튼 미표시.
+- `doTerritoryUpgrade()`: 동일한 `myW2` 스코프 오류 수정. 업그레이드 버튼 클릭 시 지갑 주소 없음으로 `로그인 필요` 오류 수정.
+- `openTerritoryIdentityEdit()`: 동일한 `myW2 || walletState?.address` 패턴 → `(walletState&&walletState.address)||getMyWallet()` 통일.
+
 ## 2026-05-07 v6.70 — getMyWallet 지갑 연결 전용 유저 누락 수정 + 보상 토스트 개선
 
 ### index.html (1곳)

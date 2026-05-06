@@ -1,4 +1,13 @@
-# OCCUPY MARS — Codebase Audit (v6.70 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.71 / 2026-05-07)
+
+## ✅ v6.71 버그수정 — myW2 스코프 오류 + 캠페인 보상 지갑 undefined (4곳)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `claimCampaignReward()` — `wallet:walletState.address` 가 undefined일 때 서버에 `wallet: undefined` 전송 → `missing fields` 400 오류 | ✅ 수정 | `(walletState&&walletState.address)||getMyWallet()` 폴백 + 미연결 시 에러 토스트 |
+| `loadTerritoryUpgrades()` — `typeof myW2` 참조, `myW2`는 `showTerritoryInfo()` 지역변수. 외부 호출 시 항상 `''` → ownership 체크 실패, 업그레이드 버튼 미표시 | ✅ 수정 | `(walletState&&walletState.address)||getMyWallet()` |
+| `doTerritoryUpgrade()` — 동일한 `myW2` 스코프 오류. 업그레이드 실행 시 지갑 없음 → 로그인 필요 오류 | ✅ 수정 | 동일 패턴 수정 |
+| `openTerritoryIdentityEdit()` — `myW2 \|\| walletState?.address` 패턴 → optional chaining 없는 환경 호환성 + myW2 스코프 오류 | ✅ 수정 | 통일된 패턴으로 교체 |
 
 ## ✅ v6.70 버그수정 — getMyWallet() 지갑 연결 전용 유저 null 반환
 
