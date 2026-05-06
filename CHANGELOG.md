@@ -1,5 +1,39 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 로컬라이징 15~17차 — 인벤/마켓/조선소/함대지휘/전쟁모달 (루프 15-17차)
+
+### 동적 JS + 정적 HTML 4개 언어 확장 (index.html) — 배치 15~17 (70+ 항목)
+- 인벤토리 카테고리 비어있음 4개 언어
+- 마켓플레이스 등록 다이얼로그 전체: 고정가/경매 버튼, 시작가/즉구가/즉시구매/기간 라벨, 기간 옵션, 수수료 텍스트, 등록하기 confirmText 4개 언어
+- 영토 이름 변경 gameInput 타이틀·레이블 4개 언어
+- 함선 강화 애니메이션 상태: 강화중/오류/성공/실패 제목, 확률/굴림 결과 텍스트 4개 언어
+- 함선 수리 confirm: 타이틀/GP비용/iron_ore 수량/confirmText 4개 언어
+- 함선 해체 confirm: 타이틀/body 설명/환불률/confirmText 4개 언어
+- 실드 충전 confirm: 이미최대 toast/타이틀/body 설명/GP비용/confirmText/완료 toast 4개 언어
+- 함선 마켓 카드: 판매중 스티커/항목 수 4개 언어
+- MY FLEET 판매중 스티커 4개 언어
+- 함선 판매 등록 gameInput 타이틀/레이블/placeholder 4개 언어
+- 판매 취소 confirm: 타이틀/body/confirmText 4개 언어
+- 함선 구매 confirm: 타이틀/body/가격 key/confirmText 4개 언어
+- 건조중 표시 4개 언어
+- 전쟁 선포 모달 정적 HTML: data-i18n 속성 추가 (선포비용/길드재무/검색입력/2글자힌트)
+- i18n 4개 언어 섹션에 4개 전쟁모달 키 추가
+- Fleet Command 모달: 타이틀/새함대/선택없음/함선없음/이름없음/전투중/리네임/해체 버튼 4개 언어
+- Fleet Command 에러 메시지 맵 20종 4개 언어화 (NO_WALLET ~ SHIP_CANNOT_BE_FLAGSHIP)
+- 함대 카드 메타: 척/전투중 배지 4개 언어
+- 함대 상세: 총N척/전적/해제/이동/척선택 4개 언어
+- 함대 해체 confirm: 타이틀/body/confirmText 4개 언어
+- 함대 선택 드롭다운 N척 4개 언어
+
+## 2026-05-06 — 로컬라이징 14차 — 정적 HTML 길드기부/인증 입력 (루프 14차)
+
+### 정적 HTML data-i18n 속성 + I18N 4개 언어 키 추가 (index.html) — 배치 14 (9개 항목)
+- 길드 기부 GP 입력 placeholder → `data-i18n-placeholder="guild_donate_placeholder"` + 4개 언어 키
+- 길드 기부 버튼 → `data-i18n="guild_donate_btn"` + 4개 언어 키
+- 콜로니 모토 입력 placeholder → `data-i18n-placeholder="auth_motto_placeholder"` + 4개 언어 키
+- 콜로니 상태 입력 placeholder → `data-i18n-placeholder="auth_status_placeholder"` + 4개 언어 키
+- vtag 입력 placeholder → `data-i18n-placeholder="auth_vtag_placeholder"` + 4개 언어 키
+
 ## 2026-05-06 — 로컬라이징 13차 — 정보모달/PVP허브/현상금/보호막/업적/SVG (루프 13차)
 
 ### 동적 JS 4개 언어 확장 (index.html) — 배치 13 (43개 항목)

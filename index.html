@@ -15242,7 +15242,7 @@ async function _loadHijackFleets(){
       var sel=document.getElementById('hijackClaimFleetSelect');
       if(sel){
         sel.innerHTML=myFleets.map(function(f){
-          return '<option value="'+f.id+'">'+escapeHtml(f.name)+' ('+f.ships_alive+'척)</option>';
+          return '<option value="'+f.id+'">'+escapeHtml(f.name)+' ('+f.ships_alive+(LANG==="ko"?"척":LANG==="ja"?"隻":LANG==="zh"?"艘":"ships")+')</option>';
         }).join('');
         _hijackSelectedFleetId=myFleets[0].id;
         // 함대 정보 표시
@@ -17153,6 +17153,8 @@ var I18N = {
     war_declare_subtitle: 'Select a guild to declare war on',
     war_declare_title: 'DECLARE WAR',
     war_stake_label: '⚡ STAKE (OPTIONAL): bet GP from treasury — winner takes pot',
+    war_declare_cost_label: 'Declaration Cost', war_treasury_label: 'Guild Treasury',
+    war_search_placeholder: '🔍 Filter: guild name or tag', war_search_hint: 'Enter 2+ characters to search',
     war_duration_label: '⏱ DURATION (h): default 72h',
     war_declare_btn: '⚔️ DECLARE WAR',
     war_declaring_btn: 'DECLARING...',
@@ -17993,6 +17995,8 @@ var I18N = {
     war_declare_subtitle: '전쟁을 선포할 길드를 선택하세요',
     war_declare_title: '전쟁 선포',
     war_stake_label: '⚡ 판돈 (선택): 금고에서 GP 투자 — 승자 독식',
+    war_declare_cost_label: '선포 비용', war_treasury_label: '길드 재무',
+    war_search_placeholder: '🔍 필터: 길드 이름 또는 태그', war_search_hint: '2글자 이상 입력하세요',
     war_duration_label: '⏱ 지속시간 (시): 기본 72시간',
     war_declare_btn: '⚔️ 전쟁 선포',
     war_declaring_btn: '선포 중...',
@@ -18806,6 +18810,8 @@ var I18N = {
     war_declare_subtitle: '宣戦布告するギルドを選択してください',
     war_declare_title: '宣戦布告',
     war_stake_label: '⚡ 掛け金（任意）: 金庫からGPを賭ける — 勝者総取り',
+    war_declare_cost_label: '宣戦費用', war_treasury_label: 'ギルド財庫',
+    war_search_placeholder: '🔍 フィルター: ギルド名またはタグ', war_search_hint: '2文字以上入力してください',
     war_duration_label: '⏱ 期間 (時): デフォルト72時間',
     war_declare_btn: '⚔️ 宣戦布告',
     war_declaring_btn: '宣戦中...',
@@ -19632,6 +19638,8 @@ var I18N = {
     war_declare_subtitle: '选择要宣战的公会',
     war_declare_title: '宣战',
     war_stake_label: '⚡ 赌注（可选）: 从金库投入GP — 胜者通吃',
+    war_declare_cost_label: '宣战费用', war_treasury_label: '公会财库',
+    war_search_placeholder: '🔍 筛选: 公会名或标签', war_search_hint: '请输入2个以上字符',
     war_duration_label: '⏱ 持续（时）: 默认72小时',
     war_declare_btn: '⚔️ 宣战',
     war_declaring_btn: '宣战中...',
@@ -22469,7 +22477,7 @@ function renderBaseInventory(){
   var visibleCats=catFilter==='all'?catOrder:[catFilter];
   var hasAny=visibleCats.some(function(c){return grouped[c]&&grouped[c].length;});
   if(!hasAny){
-    parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">이 카테고리에 보유 아이템이 없습니다</div>');
+    parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(LANG==='ko'?'이 카테고리에 보유 아이템이 없습니다':LANG==='ja'?'このカテゴリにアイテムがありません':LANG==='zh'?'此分类下没有物品':'No items in this category')+'</div>');
     grid.innerHTML=parts.join('');
     return;
   }
@@ -23318,28 +23326,28 @@ function openListModal(type,idVal,name,icon,enhLv){
     body:'<div style="margin-bottom:10px;font-size:11px;color:#a064dc;font-weight:800">'+(icon||'')+(name||'Item')+(enhLv>0?' +'+enhLv:'')+'</div>'
       // 판매 방식 선택
       +'<div style="display:flex;gap:6px;margin-bottom:10px">'
-      +'<button type="button" id="listModeFixed" onclick="document.getElementById(\'listModeFixed\').style.background=\'rgba(160,100,220,.3)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(160,100,220,.7)\';document.getElementById(\'listModeAuction\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'none\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(160,100,220,.3);border:1px solid rgba(160,100,220,.7);color:#a064dc;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">💰 고정가</button>'
-      +'<button type="button" id="listModeAuction" onclick="document.getElementById(\'listModeAuction\').style.background=\'rgba(255,213,79,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,213,79,.6)\';document.getElementById(\'listModeFixed\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'block\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">🔨 경매</button>'
+      +'<button type="button" id="listModeFixed" onclick="document.getElementById(\'listModeFixed\').style.background=\'rgba(160,100,220,.3)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(160,100,220,.7)\';document.getElementById(\'listModeAuction\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'none\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(160,100,220,.3);border:1px solid rgba(160,100,220,.7);color:#a064dc;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">💰 '+(LANG==='ko'?'고정가':LANG==='ja'?'固定価格':LANG==='zh'?'固定价格':'Fixed')+'</button>'
+      +'<button type="button" id="listModeAuction" onclick="document.getElementById(\'listModeAuction\').style.background=\'rgba(255,213,79,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,213,79,.6)\';document.getElementById(\'listModeFixed\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'block\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">🔨 '+(LANG==='ko'?'경매':LANG==='ja'?'オークション':LANG==='zh'?'拍卖':'Auction')+'</button>'
       +'</div>'
       // 가격
       +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">'
-      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">시작가</label>'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">'+(LANG==='ko'?'시작가':LANG==='ja'?'開始価格':LANG==='zh'?'起拍价':'Starting Price')+'</label>'
       +'<input id="mktListPrice" type="number" min="1" placeholder="100" style="flex:1;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
       +'<select id="mktListCurrency" style="font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="GP">GP</option><option value="PP">PP</option></select>'
       +'</div>'
       // 경매 전용 필드
       +'<div id="listAuctionFields" style="display:none;border-top:1px solid rgba(255,213,79,.15);padding-top:8px;margin-bottom:8px">'
       +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
-      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">즉구가</label>'
-      +'<input id="mktAuctionBuyout" type="number" min="1" placeholder="즉시구매 (선택)" style="flex:1;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)">'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">'+(LANG==='ko'?'즉구가':LANG==='ja'?'即決価格':LANG==='zh'?'立即购买价':'Buyout')+'</label>'
+      +'<input id="mktAuctionBuyout" type="number" min="1" placeholder="'+(LANG==='ko'?'즉시구매 (선택)':LANG==='ja'?'即決（任意）':LANG==='zh'?'立即购买（选填）':'Buyout (optional)')+'" style="flex:1;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)">'
       +'</div>'
       +'<div style="display:flex;gap:6px;align-items:center">'
-      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">기간</label>'
-      +'<select id="mktAuctionDur" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="1">1시간</option><option value="6">6시간</option><option value="12">12시간</option><option value="24" selected>24시간</option><option value="48">48시간</option><option value="72">72시간</option></select>'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">'+(LANG==='ko'?'기간':LANG==='ja'?'期間':LANG==='zh'?'时长':'Duration')+'</label>'
+      +'<select id="mktAuctionDur" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="1">1'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="6">6'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="12">12'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="24" selected>24'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="48">48'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="72">72'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option></select>'
       +'</div>'
       +'</div>'
-      +'<div style="font-size:8px;color:var(--tx3)">수수료: 등록 2GP · 낙찰 5%</div>',
-    info:[], confirmText:'등록하기'
+      +'<div style="font-size:8px;color:var(--tx3)">'+(LANG==='ko'?'수수료: 등록 2GP · 낙찰 5%':LANG==='ja'?'手数料: 出品2GP · 落札5%':LANG==='zh'?'手续费: 上架2GP · 成交5%':'Fee: 2GP listing · 5% sale')+'</div>',
+    info:[], confirmText:LANG==='ko'?'등록하기':LANG==='ja'?'出品する':LANG==='zh'?'发布':'List Item'
   }).then(function(ok){
     if(!ok) return;
     var priceVal=parseFloat(document.getElementById('mktListPrice').value);
@@ -29424,7 +29432,7 @@ async function renameTerritory(plot){
   var w=walletState.address;
   if(!w){showToast('LOGIN FIRST');return}
   var currentName=plot.customName||'';
-  var name=await gameInput({title:'영토 이름 변경',label:'이름 (최대 20자, 비용 0.3 PP)',placeholder:currentName,defaultValue:currentName,maxLength:20});
+  var name=await gameInput({title:LANG==='ko'?'영토 이름 변경':LANG==='ja'?'領土名変更':LANG==='zh'?'更改领土名称':'Rename Territory',label:LANG==='ko'?'이름 (최대 20자, 비용 0.3 PP)':LANG==='ja'?'名前（最大20文字、費用0.3PP）':LANG==='zh'?'名称（最多20字符，费用0.3PP）':'Name (max 20 chars, 0.3 PP)',placeholder:currentName,defaultValue:currentName,maxLength:20});
   if(name===null||name===undefined||name.trim()==='')return;
   name=name.trim().substring(0,20);
   try{
@@ -40210,23 +40218,23 @@ if(typeof _origTrackQuestAction === 'function'){
     <!-- Cost info -->
     <div style="padding:10px 18px;background:rgba(232,72,85,.04);border-bottom:1px solid rgba(232,72,85,.15)">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:10px;color:var(--tx3)">선포 비용</span>
+        <span style="font-size:10px;color:var(--tx3)" data-i18n="war_declare_cost_label">선포 비용</span>
         <span style="font-size:12px;font-weight:700;color:var(--gold)" id="warDeclareCost">200 GP</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-        <span style="font-size:10px;color:var(--tx3)">길드 재무</span>
+        <span style="font-size:10px;color:var(--tx3)" data-i18n="war_treasury_label">길드 재무</span>
         <span style="font-size:12px;font-weight:700;color:var(--gn)" id="warTreasuryBal">0 GP</span>
       </div>
     </div>
     <!-- Search -->
     <div style="padding:12px 18px">
-      <input id="warSearchInput" placeholder="🔍 필터: 길드 이름 또는 태그" oninput="searchWarTargetModal(this.value)"
+      <input id="warSearchInput" placeholder="🔍 필터: 길드 이름 또는 태그" data-i18n-placeholder="war_search_placeholder" oninput="searchWarTargetModal(this.value)"
         style="width:100%;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(232,72,85,.2);color:var(--tx);font-size:12px;box-sizing:border-box;outline:none;font-family:var(--fn)"
         onfocus="this.style.borderColor='rgba(232,72,85,.5)'" onblur="this.style.borderColor='rgba(232,72,85,.2)'">
     </div>
     <!-- Results -->
     <div id="warTargetList" style="padding:0 18px 14px;overflow-y:auto;max-height:45vh;min-height:80px;flex:1">
-      <div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">2글자 이상 입력하세요</div>
+      <div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px" data-i18n="war_search_hint">2글자 이상 입력하세요</div>
     </div>
     <!-- Selected target + confirm -->
     <div id="warConfirmSection" style="display:none;padding:12px 18px;border-top:1px solid rgba(232,72,85,.2);background:rgba(232,72,85,.06)">
@@ -45826,7 +45834,7 @@ function renderShips() {
         + '<div style="height:3px;background:rgba(100,181,246,.15);border-radius:2px;overflow:hidden"><div style="height:100%;width:' + shieldPct + '%;background:linear-gradient(90deg,#1565c0,#64b5f6);transition:width .3s"></div></div></div>'
       : '';
     var listed = !!s.is_market_listed;
-    var listedSticker = listed ? '<span class="ship-sale-sticker">판매중</span>' : '';
+    var listedSticker = listed ? '<span class="ship-sale-sticker">'+(LANG==="ko"?"판매중":LANG==="ja"?"販売中":LANG==="zh"?"在售":"For Sale")+'</span>' : '';
     var repairBtn = isDamaged && !listed
       ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + effectiveMaxHp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>'
       : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? '판매중' : '✅ 최대HP') + '</button>';
@@ -46003,7 +46011,7 @@ async function syUpgradeShipStat(shipId, stat) {
   glowBg.style.opacity = '0';
   glowBg.style.background = '';
   hammer.style.transform = 'rotate(0deg)';
-  titleEl.textContent = '🔨 강화 중...';
+  titleEl.textContent = LANG==='ko'?'🔨 강화 중...':LANG==='ja'?'🔨 強化中...':LANG==='zh'?'🔨 强化中...':'🔨 Upgrading...';
   statLabel.textContent = (ship ? (syShipName(ship) || '') + '  ' : '') + (labelMap[stat]||stat).toUpperCase() + ' · MOD ' + curLv + '  →  ' + materialName + ' × ' + needQty;
   modal.style.display = 'flex';
 
@@ -46054,7 +46062,7 @@ async function syUpgradeShipStat(shipId, stat) {
     gauge.style.background = '#ef5350';
     hammer.style.transition = 'transform .15s';
     hammer.style.transform = 'rotate(0deg)';
-    titleEl.textContent = '⚠ 강화 오류';
+    titleEl.textContent = LANG==='ko'?'⚠ 강화 오류':LANG==='ja'?'⚠ 強化エラー':LANG==='zh'?'⚠ 强化错误':'⚠ Upgrade Error';
     resultEl.style.display = 'block';
     resultEl.style.color = '#ef9a9a';
     resultEl.textContent = (LANG==='ko'?'오류: ':LANG==='ja'?'エラー: ':LANG==='zh'?'错误: ':'Error: ') + (apiRes.d && apiRes.d.error ? apiRes.d.error : 'UNKNOWN');
@@ -46070,24 +46078,24 @@ async function syUpgradeShipStat(shipId, stat) {
       setTimeout(function(){ _forgeSparkBurst(canvas, '#ffd166'); }, 200);
       hammer.style.transition = 'transform .2s cubic-bezier(.3,1.6,.5,1)';
       hammer.style.transform = 'rotate(-30deg) translateY(-6px) scale(1.15)';
-      titleEl.textContent = '✅ 강화 성공!';
+      titleEl.textContent = LANG==='ko'?'✅ 강화 성공!':LANG==='ja'?'✅ 強化成功!':LANG==='zh'?'✅ 强化成功!':'✅ Upgrade Successful!';
       resultEl.style.display = 'block';
       resultEl.style.color = '#9be7a0';
       resultEl.textContent = (labelMap[stat]||stat) + ' +' + d.delta + '  (MOD ' + (curLv+1) + ')';
       resultSub.style.display = 'block';
-      resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  확률 ' + d.chance + '%  ·  굴림 ' + d.roll;
+      resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  '+(LANG==='ko'?'확률':LANG==='ja'?'確率':LANG==='zh'?'概率':'Chance')+' ' + d.chance + '%  ·  '+(LANG==='ko'?'굴림':LANG==='ja'?'ロール':LANG==='zh'?'骰值':'Roll')+' ' + d.roll;
     } else {
       glowBg.style.background = 'radial-gradient(circle, rgba(255,152,0,.15) 0%, transparent 70%)';
       glowBg.style.opacity = '1';
       gauge.style.background = 'linear-gradient(90deg,#ff9800,#f44336)';
       hammer.style.transition = 'transform .15s';
       hammer.style.transform = 'rotate(0deg)';
-      titleEl.textContent = '💔 강화 실패';
+      titleEl.textContent = LANG==='ko'?'💔 강화 실패':LANG==='ja'?'💔 強化失敗':LANG==='zh'?'💔 强化失败':'💔 Upgrade Failed';
       resultEl.style.display = 'block';
       resultEl.style.color = '#ffb3b3';
       resultEl.textContent = LANG==='ko'?'재료와 GP는 소모되었습니다':LANG==='ja'?'素材とGPが消費されました':LANG==='zh'?'素材和GP已消耗':'Materials and GP were consumed';
       resultSub.style.display = 'block';
-      resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  확률 ' + d.chance + '%  ·  굴림 ' + d.roll;
+      resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  '+(LANG==='ko'?'확률':LANG==='ja'?'確率':LANG==='zh'?'概率':'Chance')+' ' + d.chance + '%  ·  '+(LANG==='ko'?'굴림':LANG==='ja'?'ロール':LANG==='zh'?'骰值':'Roll')+' ' + d.roll;
     }
   }
   closeBtn.style.display = 'block';
@@ -46100,14 +46108,14 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
   var gpCost  = Math.ceil(missing * 0.01);
   var ironNeed = Math.ceil(missing / 10 * 0.2);
   var ok = await gameConfirm({
-    title: '🔧 함선 수리', icon: '🔧',
+    title: LANG==='ko'?'🔧 함선 수리':LANG==='ja'?'🔧 艦船修理':LANG==='zh'?'🔧 修复舰船':'🔧 Repair Ship', icon: '🔧',
     body: '<div style="font-size:11px;color:#81c784;font-weight:700;margin-bottom:5px">' + name + '</div>'
       + '<div style="font-size:10px;color:var(--tx3)">HP ' + syFmt(currentHp) + ' → ' + syFmt(maxHp) + ' (+' + syFmt(missing) + ')</div>',
     info: [
-      { k: 'GP 비용',      v: gpCost + ' GP' },
-      { k: '🪨 iron_ore',  v: ironNeed + '개' }
+      { k: LANG==='ko'?'GP 비용':LANG==='ja'?'GP費用':LANG==='zh'?'GP费用':'GP Cost', v: gpCost + ' GP' },
+      { k: '🪨 iron_ore', v: ironNeed + (LANG==='ko'?'개':LANG==='ja'?'個':LANG==='zh'?'个':'x') }
     ],
-    confirmText: '🔧 수리하기'
+    confirmText: LANG==='ko'?'🔧 수리하기':LANG==='ja'?'🔧 修理する':LANG==='zh'?'🔧 修复':'🔧 Repair'
   });
   if (!ok) return;
   try {
@@ -46126,11 +46134,14 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
 
 async function syScrapShip(shipId, name) {
   var ok = await gameConfirm({
-    title: '🔥 함선 해체', icon: '🔥',
+    title: LANG==='ko'?'🔥 함선 해체':LANG==='ja'?'🔥 艦船解体':LANG==='zh'?'🔥 拆解舰船':'🔥 Scrap Ship', icon: '🔥',
     body: '<div style="font-size:11px;color:#ff8a80;font-weight:700;margin-bottom:5px">' + name + '</div>'
-      + '<div style="font-size:10px;color:var(--tx3)">해체 시 GP와 광물의 일부가 환불됩니다. 나머지는 소각(경제 sink).</div>'
-      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">기본 환불 40% · admin 조정 가능</div>',
-    confirmText: '🔥 해체하기'
+      + '<div style="font-size:10px;color:var(--tx3)">'+(LANG==="ko"?"해체 시 GP와 광물의 일부가 환불됩니다. 나머지는 소각."
+        :LANG==="ja"?"解体時にGPと素材の一部が返金されます。残りはバーン。"
+        :LANG==="zh"?"解体时返还部分GP和矿物，其余销毁。"
+        :"Some GP/materials refunded on scrap. Rest is burned.")+'</div>'
+      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">'+(LANG==="ko"?"기본 환불 40% · admin 조정 가능":LANG==="ja"?"基本返金率40%":LANG==="zh"?"基础返还率40%":"Default refund 40%")+'</div>',
+    confirmText: LANG==='ko'?'🔥 해체하기':LANG==='ja'?'🔥 解体する':LANG==='zh'?'🔥 拆解':'🔥 Scrap'
   });
   if (!ok) return;
   try {
@@ -46155,16 +46166,16 @@ async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
   var maxRatio = 50;
   var calcShieldMax = shieldMax > 0 ? shieldMax : Math.floor(maxHp * maxRatio / 100);
   var canAdd = calcShieldMax - currentShield;
-  if (canAdd <= 0) { showFactionToast('🛡 실드가 이미 최대입니다', 'info'); return; }
+  if (canAdd <= 0) { showFactionToast(LANG==='ko'?'🛡 실드가 이미 최대입니다':LANG==='ja'?'🛡 シールドは既に最大です':LANG==='zh'?'🛡 护盾已满':'🛡 Shield already at max', 'info'); return; }
   var units = canAdd;
   var gpCost = Math.ceil(units * 0.05);
   var ok = await gameConfirm({
-    title: '🛡 실드 충전', icon: '🛡',
+    title: LANG==='ko'?'🛡 실드 충전':LANG==='ja'?'🛡 シールド充電':LANG==='zh'?'🛡 充能护盾':'🛡 Charge Shield', icon: '🛡',
     body: '<div style="font-size:11px;color:#64b5f6;font-weight:700;margin-bottom:5px">' + name + '</div>'
-      + '<div style="font-size:10px;color:var(--tx3)">실드 ' + syFmt(currentShield) + ' → ' + syFmt(currentShield + units) + '</div>'
-      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">실드는 전투 시 HP 대신 먼저 소모됩니다 · 시간당 3% 자연 감소</div>',
-    info: [{ k: 'GP 비용', v: gpCost + ' GP' }],
-    confirmText: '🛡 충전하기'
+      + '<div style="font-size:10px;color:var(--tx3)">'+(LANG==="ko"?"실드":LANG==="ja"?"シールド":LANG==="zh"?"护盾":"Shield")+' ' + syFmt(currentShield) + ' → ' + syFmt(currentShield + units) + '</div>'
+      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">'+(LANG==="ko"?"실드는 전투 시 HP 대신 먼저 소모됩니다 · 시간당 3% 자연 감소":LANG==="ja"?"シールドは戦闘時HPより先に消費 · 毎時3%自然減少":LANG==="zh"?"护盾优先于HP消耗 · 每小时衰减3%":"Shield absorbs damage before HP · 3% decay/hr")+'</div>',
+    info: [{ k: LANG==='ko'?'GP 비용':LANG==='ja'?'GP費用':LANG==='zh'?'GP费用':'GP Cost', v: gpCost + ' GP' }],
+    confirmText: LANG==='ko'?'🛡 충전하기':LANG==='ja'?'🛡 充電する':LANG==='zh'?'🛡 充能':'🛡 Charge'
   });
   if (!ok) return;
   try {
@@ -46175,7 +46186,7 @@ async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
     });
     var d = await r.json();
     if (d.error) { showFactionToast((LANG==='ko'?'충전 실패: ':LANG==='ja'?'充電失敗: ':LANG==='zh'?'充电失败: ':'Charge failed: ') + d.error, 'error'); return; }
-    showFactionToast('🛡 실드 충전 완료! +' + syFmt(d.shield_added) + ' (-' + d.gp_cost + ' GP)', 'success');
+    showFactionToast('🛡 '+(LANG==='ko'?'실드 충전 완료! ':LANG==='ja'?'シールド充電完了! ':LANG==='zh'?'护盾充能完成! ':'Shield charged! ')+'+' + syFmt(d.shield_added) + ' (-' + d.gp_cost + ' GP)', 'success');
     refreshBalance();
     await refreshShipyard();
   } catch(e) { showFactionToast(LANG==='ko'?'실드 충전 요청 실패':LANG==='ja'?'シールド充電リクエスト失敗':LANG==='zh'?'护盾充电请求失败':'Shield charge request failed','error'); }
@@ -46228,7 +46239,7 @@ function renderShipMarket() {
   // show count label
   var allCount = (shipyardState.marketListings || []).length;
   var countLabel = listings.length < allCount
-    ? '<div style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;padding:6px 0 2px">' + listings.length + ' / ' + allCount + ' 항목</div>'
+    ? '<div style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;padding:6px 0 2px">' + listings.length + ' / ' + allCount + ' '+(LANG==='ko'?'항목':LANG==='ja'?'件':LANG==='zh'?'件':'items')+'</div>'
     : '';
   if (!listings.length) {
     list.innerHTML = countLabel + '<div class="sy-empty" style="grid-column:1/-1">' + (allCount ? (LANG==='ko'?'조건에 맞는 함선이 없습니다':LANG==='ja'?'条件に合う艦船がありません':LANG==='zh'?'没有符合条件的舰船':'No ships match the filter') : (LANG==='ko'?'판매 중인 함선이 없습니다':LANG==='ja'?'販売中の艦船がありません':LANG==='zh'?'没有在售舰船':'No ships for sale')) + '<br><span style="font-size:9px;opacity:.6">'+( LANG==='ko'?'강화한 함선을 MY FLEET에서 판매 등록할 수 있습니다':LANG==='ja'?'強化した艦船をMY FLEETで売りに出せます':LANG==='zh'?'可以在MY FLEET中上架强化后的舰船':'You can list upgraded ships from MY FLEET')+'</span></div>';
@@ -46240,7 +46251,7 @@ function renderShipMarket() {
     var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code });
     var seller = s.seller_name || s.seller_short || 'UNKNOWN';
     return '<div class="ship-market-card">' +
-      '<span class="ship-sale-sticker">판매중</span>' +
+      '<span class="ship-sale-sticker">'+(LANG==="ko"?"판매중":LANG==="ja"?"販売中":LANG==="zh"?"在售":"For Sale")+'</span>' +
       '<div class="bp-visual">' + silhouette + '</div>' +
       '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + fcEsc(syShipName(s)) + '</div>' +
       '<div class="ship-class">' + fcEsc(syClassLabel(s.class_label || '')) + ' · MOD ' + syFmt(s.upgrade_level || 0) + '</div>' +
@@ -46267,9 +46278,9 @@ async function syListShipForSale(shipId) {
   var _shipFb = LANG==='ko'?'함선':LANG==='ja'?'艦船':LANG==='zh'?'舰船':'Ship';
   var name = ship ? (syShipName(ship) || ship.name || _shipFb) : _shipFb;
   var priceText = await gameInput({
-    title:'함선 판매 등록',
-    label:name + ' 판매가 (GP)',
-    placeholder:'예: 1200',
+    title:LANG==='ko'?'함선 판매 등록':LANG==='ja'?'艦船出品':LANG==='zh'?'上架舰船':'List Ship for Sale',
+    label:name + (LANG==='ko'?' 판매가 (GP)':LANG==='ja'?' 売値 (GP)':LANG==='zh'?' 售价 (GP)':' Sale Price (GP)'),
+    placeholder:LANG==='ko'?'예: 1200':LANG==='ja'?'例: 1200':LANG==='zh'?'例如: 1200':'e.g. 1200',
     maxLength:16
   });
   if (priceText === null) return;
@@ -46290,7 +46301,7 @@ async function syListShipForSale(shipId) {
 
 async function syCancelShipListing(listingId) {
   if (!listingId) return;
-  var ok = await gameConfirm({ title:'판매 취소', icon:'🏷', body:'판매 등록을 취소하고 함선을 내 기본 함대로 되돌립니다.', confirmText:'취소하기' });
+  var ok = await gameConfirm({ title:LANG==='ko'?'판매 취소':LANG==='ja'?'出品キャンセル':LANG==='zh'?'取消上架':'Cancel Listing', icon:'🏷', body:LANG==='ko'?'판매 등록을 취소하고 함선을 내 기본 함대로 되돌립니다.':LANG==='ja'?'出品をキャンセルし、艦船を艦隊に戻します。':LANG==='zh'?'取消上架，舰船将返回我的舰队。':'Cancel the listing and return the ship to your fleet.', confirmText:LANG==='ko'?'취소하기':LANG==='ja'?'キャンセル':LANG==='zh'?'取消':'Cancel' });
   if (!ok) return;
   try {
     var r = await fetch('/api/ships/market/listings/' + listingId + '/cancel', {
@@ -46309,11 +46320,11 @@ async function syBuyShipListing(listingId) {
   var name = syShipName(listing) || (LANG==='ko'?'함선':LANG==='ja'?'艦船':LANG==='zh'?'舰船':'Ship');
   var price = Number(listing.price_gp || 0);
   var ok = await gameConfirm({
-    title:'함선 구매',
+    title:LANG==='ko'?'함선 구매':LANG==='ja'?'艦船購入':LANG==='zh'?'购买舰船':'Buy Ship',
     icon:'🚀',
-    body:'<b>' + fcEsc(name) + '</b> 함선을 구매합니다.',
-    info:[{ k:'가격', v: syFmt(price) + ' GP' }],
-    confirmText:'구매하기'
+    body:'<b>' + fcEsc(name) + '</b> '+(LANG==='ko'?'함선을 구매합니다.':LANG==='ja'?'を購入します。':LANG==='zh'?'舰船将加入您的舰队。':'will be added to your fleet.'),
+    info:[{ k:LANG==='ko'?'가격':LANG==='ja'?'価格':LANG==='zh'?'价格':'Price', v: syFmt(price) + ' GP' }],
+    confirmText:LANG==='ko'?'구매하기':LANG==='ja'?'購入する':LANG==='zh'?'购买':'Buy'
   });
   if (!ok) return;
   try {
@@ -46336,7 +46347,7 @@ function updateFooter() {
   document.getElementById('syMineralSummary').textContent = syFmt(totalMinerals);
   var alive = parseInt((shipyardState.summary && shipyardState.summary.ships_alive) || 0);
   var inProg = parseInt((shipyardState.summary && shipyardState.summary.jobs_in_progress) || 0);
-  document.getElementById('syShipCount').textContent = alive + ' (+' + inProg + ' 건조중) / 200';
+  document.getElementById('syShipCount').textContent = alive + ' (+' + inProg + ' '+(LANG==='ko'?'건조중':LANG==='ja'?'建造中':LANG==='zh'?'建造中':'building')+') / 200';
 }
 
 function syFmt(n) {
@@ -46386,19 +46397,19 @@ var MINERAL_EN = {
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
   <div class="fleetcmd-modal" onclick="event.stopPropagation()">
     <div class="fleetcmd-header">
-      <div class="fleetcmd-title">🎖 FLEET COMMAND · 함대 지휘</div>
+      <div class="fleetcmd-title">🎖 FLEET COMMAND · '+(LANG==='ko'?'함대 지휘':LANG==='ja'?'艦隊指揮':LANG==='zh'?'舰队指挥':'Command')+'</div>
       <button type="button" class="shipyard-close" onclick="event.preventDefault();closeFleetCmd()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="fleetcmd-body">
       <div class="fleet-list">
         <div class="fleet-list-header">
           <div class="fleet-list-title">MY FLEETS (<span id="fleetCountLabel">0</span>)</div>
-          <button type="button" class="fleet-new-btn" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ 새 함대</button>
+          <button type="button" class="fleet-new-btn" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ '+(LANG==='ko'?'새 함대':LANG==='ja'?'新艦隊':LANG==='zh'?'新建舰队':'New Fleet')+'</button>
         </div>
         <div id="fleetListContent"></div>
       </div>
       <div class="fleet-detail" id="fleetDetailContent">
-        <div class="fs-empty">함대를 선택하세요</div>
+        <div class="fs-empty">'+(LANG==='ko'?'함대를 선택하세요':LANG==='ja'?'艦隊を選択してください':LANG==='zh'?'请选择舰队':'Select a fleet')+'</div>
       </div>
     </div>
   </div>
@@ -46479,11 +46490,11 @@ function renderFleetList() {
     var formIcon = (f.formation_info && f.formation_info.icon) || '●';
     var moveIcon = (f.movement_info && f.movement_info.icon) || '→';
     return '<div class="fleet-card ' + (isActive ? 'active' : '') + ' ' + (f.is_in_battle ? 'in-battle' : '') + '" onclick="event.preventDefault();event.stopPropagation();selectFleet(' + f.id + ')">' +
-      '<div class="fleet-card-name" title="' + fcEsc(f.name) + '">' + fcEsc(f.name || '이름없음') + '</div>' +
+      '<div class="fleet-card-name" title="' + fcEsc(f.name) + '">' + fcEsc(f.name || (LANG==='ko'?'이름없음':LANG==='ja'?'名前なし':LANG==='zh'?'无名称':'Unnamed')) + '</div>' +
       '<div class="fleet-card-meta"><span>' + f.ships_alive + '척</span>' +
         '<span>' + formIcon + ' ' + ((f.formation_info && f.formation_info.name_ko) || '-') + '</span>' +
         '<span>' + moveIcon + ' ' + ((f.movement_info && f.movement_info.name_ko) || '-') + '</span>' +
-        (f.is_in_battle ? '<span class="fleet-card-battle-tag">전투중</span>' : '') +
+        (f.is_in_battle ? '<span class="fleet-card-battle-tag">'+(LANG==='ko'?'전투중':LANG==='ja'?'戦闘中':LANG==='zh'?'战斗中':'In Battle')+'</span>' : '') +
       '</div>' +
       '<div class="fleet-card-bar"><div class="fleet-card-bar-fill ' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +
     '</div>';
@@ -46514,28 +46525,28 @@ async function loadFleetDetail(fleetId) {
 function fleetCmdErrorMessage(error, data) {
   var meta = data && data.meta ? data.meta : {};
   var msgMap = {
-    NO_WALLET: '지갑 로그인이 필요합니다',
-    INVALID_FLEET_ID: '함대 정보가 올바르지 않습니다',
-    FLEET_NOT_FOUND: '함대를 찾을 수 없습니다',
-    FLEET_IN_BATTLE: '전투 중인 함대는 이 작업을 할 수 없습니다',
-    INVALID_FORMATION: '지원하지 않는 진형입니다',
-    INVALID_MOVEMENT: '지원하지 않는 기동입니다',
-    NAME_TOO_LONG: '이름이 너무 깁니다 (60자 이하)',
-    NAME_EMPTY: '이름이 비어있습니다',
-    FLEET_LIMIT_REACHED: '함대 최대 ' + (meta.max || 5) + '개까지 생성 가능합니다',
-    LAST_FLEET: '마지막 함대는 해체할 수 없습니다',
-    SHIP_IDS_REQUIRED: '이동할 함선을 선택해야 합니다',
-    SHIP_NOT_OWNED: '소유하지 않은 함선이 포함되어 있습니다',
-    SHIPS_IN_BATTLE: '선택한 함선이 전투 중입니다',
-    SHIP_LISTED_FOR_SALE: '판매 중인 함선은 함대 조작에 사용할 수 없습니다',
-    TARGET_FLEET_IN_BATTLE: '대상 함대가 전투 중입니다',
-    SHIP_ID_REQUIRED: '기함으로 지정할 함선을 선택해야 합니다',
-    SHIP_NOT_FOUND: '함선을 찾을 수 없습니다',
-    SHIP_DEAD: '파괴된 함선은 기함이 될 수 없습니다',
-    SHIP_NOT_IN_FLEET: '이 함대 소속 함선이 아닙니다',
-    SHIP_CANNOT_BE_FLAGSHIP: '이 함선은 기함 지정이 불가능합니다'
+    NO_WALLET: LANG==='ko'?'지갑 로그인이 필요합니다':LANG==='ja'?'ウォレットログインが必要です':LANG==='zh'?'需要钱包登录':'Wallet login required',
+    INVALID_FLEET_ID: LANG==='ko'?'함대 정보가 올바르지 않습니다':LANG==='ja'?'艦隊情報が不正です':LANG==='zh'?'舰队信息无效':'Invalid fleet',
+    FLEET_NOT_FOUND: LANG==='ko'?'함대를 찾을 수 없습니다':LANG==='ja'?'艦隊が見つかりません':LANG==='zh'?'找不到舰队':'Fleet not found',
+    FLEET_IN_BATTLE: LANG==='ko'?'전투 중인 함대는 이 작업을 할 수 없습니다':LANG==='ja'?'戦闘中の艦隊では操作できません':LANG==='zh'?'战斗中的舰队无法操作':'Fleet is in battle',
+    INVALID_FORMATION: LANG==='ko'?'지원하지 않는 진형입니다':LANG==='ja'?'サポートされていない陣形です':LANG==='zh'?'不支持的阵型':'Invalid formation',
+    INVALID_MOVEMENT: LANG==='ko'?'지원하지 않는 기동입니다':LANG==='ja'?'サポートされていない機動です':LANG==='zh'?'不支持的机动':'Invalid movement',
+    NAME_TOO_LONG: LANG==='ko'?'이름이 너무 깁니다 (60자 이하)':LANG==='ja'?'名前が長すぎます（60文字以内）':LANG==='zh'?'名称过长（60字以内）':'Name too long (max 60)',
+    NAME_EMPTY: LANG==='ko'?'이름이 비어있습니다':LANG==='ja'?'名前が空です':LANG==='zh'?'名称不能为空':'Name is empty',
+    FLEET_LIMIT_REACHED: LANG==='ko'?'함대 최대 ' + (meta.max || 5) + '개까지 생성 가능합니다':LANG==='ja'?'艦隊は最大' + (meta.max || 5) + '個まで作成できます':LANG==='zh'?'最多可创建' + (meta.max || 5) + '支舰队':'Fleet limit (' + (meta.max || 5) + ')',
+    LAST_FLEET: LANG==='ko'?'마지막 함대는 해체할 수 없습니다':LANG==='ja'?'最後の艦隊は解散できません':LANG==='zh'?'不能解散最后一支舰队':'Cannot disband last fleet',
+    SHIP_IDS_REQUIRED: LANG==='ko'?'이동할 함선을 선택해야 합니다':LANG==='ja'?'移動する艦船を選択してください':LANG==='zh'?'请选择要移动的舰船':'Select ships to move',
+    SHIP_NOT_OWNED: LANG==='ko'?'소유하지 않은 함선이 포함되어 있습니다':LANG==='ja'?'所有していない艦船が含まれています':LANG==='zh'?'包含未拥有的舰船':'Ship not owned',
+    SHIPS_IN_BATTLE: LANG==='ko'?'선택한 함선이 전투 중입니다':LANG==='ja'?'選択した艦船は戦闘中です':LANG==='zh'?'所选舰船正在战斗':'Ships in battle',
+    SHIP_LISTED_FOR_SALE: LANG==='ko'?'판매 중인 함선은 함대 조작에 사용할 수 없습니다':LANG==='ja'?'出品中の艦船は使用できません':LANG==='zh'?'在售舰船无法操作':'Ship listed for sale',
+    TARGET_FLEET_IN_BATTLE: LANG==='ko'?'대상 함대가 전투 중입니다':LANG==='ja'?'対象艦隊が戦闘中です':LANG==='zh'?'目标舰队正在战斗':'Target fleet in battle',
+    SHIP_ID_REQUIRED: LANG==='ko'?'기함으로 지정할 함선을 선택해야 합니다':LANG==='ja'?'旗艦にする艦船を選択してください':LANG==='zh'?'请选择旗舰':'Select a flagship',
+    SHIP_NOT_FOUND: LANG==='ko'?'함선을 찾을 수 없습니다':LANG==='ja'?'艦船が見つかりません':LANG==='zh'?'找不到舰船':'Ship not found',
+    SHIP_DEAD: LANG==='ko'?'파괴된 함선은 기함이 될 수 없습니다':LANG==='ja'?'破壊された艦船は旗艦になれません':LANG==='zh'?'已损毁的舰船无法成为旗舰':'Ship is destroyed',
+    SHIP_NOT_IN_FLEET: LANG==='ko'?'이 함대 소속 함선이 아닙니다':LANG==='ja'?'この艦隊所属の艦船ではありません':LANG==='zh'?'该舰船不属于此舰队':'Ship not in fleet',
+    SHIP_CANNOT_BE_FLAGSHIP: LANG==='ko'?'이 함선은 기함 지정이 불가능합니다':LANG==='ja'?'この艦船は旗艦に指定できません':LANG==='zh'?'此舰船无法成为旗舰':'Ship cannot be flagship'
   };
-  return msgMap[error] || error || '알 수 없는 오류';
+  return msgMap[error] || error || (LANG==='ko'?'알 수 없는 오류':LANG==='ja'?'不明なエラー':LANG==='zh'?'未知错误':'Unknown error');
 }
 
 function updateFleetListSnapshotFromSelected() {
@@ -46559,7 +46570,7 @@ function updateFleetListSnapshotFromSelected() {
 function renderFleetDetail() {
   var container = document.getElementById('fleetDetailContent');
   var f = fleetCmdState.selectedFleet;
-  if (!f) { container.innerHTML = '<div class="fs-empty">함대를 선택하세요</div>'; return; }
+  if (!f) { container.innerHTML = '<div class="fs-empty">'+(LANG==='ko'?'함대를 선택하세요':LANG==='ja'?'艦隊を選択してください':LANG==='zh'?'请选择舰队':'Select a fleet')+'</div>'; return; }
   var formations = fleetCmdState.formations || [];
   var movements  = fleetCmdState.movements  || [];
   var inBattle   = f.is_in_battle;
@@ -46571,17 +46582,17 @@ function renderFleetDetail() {
     return '<button type="button" class="tactic-btn ' + (f.movement === mv.code ? 'active' : '') + '" onclick="event.preventDefault();event.stopPropagation();setFleetTactic(\'movement\',\'' + mv.code + '\')" title="' + fcEsc(mv.desc) + '">' + mv.icon + ' ' + mv.name_ko + '</button>';
   }).join('');
   var shipCards = (f.ships || []).length === 0
-    ? '<div class="fs-empty" style="grid-column:1/-1">이 함대에 함선이 없습니다</div>'
+    ? '<div class="fs-empty" style="grid-column:1/-1">'+(LANG==='ko'?'이 함대에 함선이 없습니다':LANG==='ja'?'この艦隊に艦船がありません':LANG==='zh'?'此舰队没有舰船':'No ships in this fleet')+'</div>'
     : (f.ships || []).map(function(s){ return renderFcShipCard(s, inBattle); }).join('');
   container.innerHTML =
     '<div class="fleet-detail-header">' +
-      '<div class="fleet-detail-name">' + fcEsc(f.name || '이름없음') + '</div>' +
+      '<div class="fleet-detail-name">' + fcEsc(f.name || (LANG==='ko'?'이름없음':LANG==='ja'?'名前なし':LANG==='zh'?'无名称':'Unnamed')) + '</div>' +
       '<div class="fleet-detail-actions">' +
-        '<button type="button" class="fd-btn" onclick="event.preventDefault();event.stopPropagation();renameFleet()" ' + (inBattle ? 'disabled' : '') + '>✎ 이름</button>' +
-        '<button type="button" class="fd-btn danger" onclick="event.preventDefault();event.stopPropagation();deleteFleetPrompt()" ' + (inBattle ? 'disabled' : '') + '>🗑 해체</button>' +
+        '<button type="button" class="fd-btn" onclick="event.preventDefault();event.stopPropagation();renameFleet()" ' + (inBattle ? 'disabled' : '') + '>✎ '+(LANG==='ko'?'이름':LANG==='ja'?'名前':LANG==='zh'?'命名':'Rename')+'</button>' +
+        '<button type="button" class="fd-btn danger" onclick="event.preventDefault();event.stopPropagation();deleteFleetPrompt()" ' + (inBattle ? 'disabled' : '') + '>🗑 '+(LANG==='ko'?'해체':LANG==='ja'?'解散':LANG==='zh'?'解散':'Disband')+'</button>' +
       '</div>' +
     '</div>' +
-    (inBattle ? '<div style="color:#ef5350;font-size:10px;letter-spacing:1px;padding:6px 10px;background:rgba(239,83,80,.08);border-radius:4px">⚠ 전투 중 — 일부 기능 제한</div>' : '') +
+    (inBattle ? '<div style="color:#ef5350;font-size:10px;letter-spacing:1px;padding:6px 10px;background:rgba(239,83,80,.08);border-radius:4px">⚠ '+(LANG==="ko"?"전투 중 — 일부 기능 제한":LANG==="ja"?"戦闘中 — 一部機能制限":LANG==="zh"?"战斗中 — 部分功能受限":"In Battle — Limited")+'</div>' : '') +
     '<div class="tactics-panel">' +
       '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
       '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
@@ -46589,11 +46600,11 @@ function renderFleetDetail() {
     renderSelectedShipPanel(f) +
     renderFleetPreview(f) +
     '<div class="fleet-ships-header">' +
-      '<div class="fs-summary"><span>총 <b>' + f.ships_alive + '</b>척</span><span>HP <b>' + syFmt(f.total_hp) + ' / ' + syFmt(f.total_max_hp) + '</b></span><span>전적 <b>' + (f.battles_won || 0) + 'W / ' + (f.battles_lost || 0) + 'L</b></span></div>' +
+      '<div class="fs-summary"><span>총 <b>' + f.ships_alive + '</b>'+(LANG==="ko"?"척":LANG==="ja"?"隻":LANG==="zh"?"艘":"ships")+'</span><span>HP <b>' + syFmt(f.total_hp) + ' / ' + syFmt(f.total_max_hp) + '</b></span><span>'+(LANG==="ko"?"전적 ":LANG==="ja"?"戦績 ":LANG==="zh"?"战绩 ":"Record ")+'<b>' + (f.battles_won || 0) + 'W / ' + (f.battles_lost || 0) + 'L</b></span></div>' +
       '<div class="fs-select-actions ' + (selCount > 0 ? 'active' : '') + '">' +
-        '<span class="fs-select-count">' + selCount + '척 선택</span>' +
-        '<button type="button" class="fd-btn" onclick="event.preventDefault();event.stopPropagation();fleetCmdState.selectedShipIds.clear();fleetCmdState.focusedShipId=null;renderFleetDetail()">해제</button>' +
-        '<button type="button" class="fd-btn primary" onclick="event.preventDefault();event.stopPropagation();showMoveShipsDialog(event)" ' + (inBattle ? 'disabled' : '') + '>→ 이동</button>' +
+        '<span class="fs-select-count">' + selCount + (LANG==="ko"?" 척 선택":LANG==="ja"?" 隻選択":LANG==="zh"?" 艘已选":" ships selected")+'</span>' +
+        '<button type="button" class="fd-btn" onclick="event.preventDefault();event.stopPropagation();fleetCmdState.selectedShipIds.clear();fleetCmdState.focusedShipId=null;renderFleetDetail()">'+(LANG==="ko"?"해제":LANG==="ja"?"解除":LANG==="zh"?"取消选择":"Deselect")+'</button>' +
+        '<button type="button" class="fd-btn primary" onclick="event.preventDefault();event.stopPropagation();showMoveShipsDialog(event)" ' + (inBattle ? 'disabled' : '') + '>→ '+(LANG==="ko"?"이동":LANG==="ja"?"移動":LANG==="zh"?"移动":"Move")+'</button>' +
       '</div>' +
     '</div>' +
     '<div class="fleet-ships-grid">' + shipCards + '</div>';
@@ -46861,9 +46872,9 @@ async function renameFleet() {
 async function deleteFleetPrompt() {
   var f = fleetCmdState.selectedFleet; if (!f) return;
   var body = f.ships_alive > 0
-    ? '<b>' + fcEsc(f.name) + '</b> 함대를 해체합니다.<br><span style="color:var(--gold)">' + f.ships_alive + '척</span>이 다른 함대로 이동됩니다.'
-    : '<b>' + fcEsc(f.name) + '</b> 함대를 해체합니다.';
-  var ok = await gameConfirm({ icon:'🗑', title:'함대 해체', body:body, confirmText:'해체' });
+    ? '<b>' + fcEsc(f.name) + '</b> '+(LANG==="ko"?"함대를 해체합니다.":LANG==="ja"?"艦隊を解散します。":LANG==="zh"?"解散舰队。":"Fleet will be disbanded.")+'<br><span style="color:var(--gold)">' + f.ships_alive + (LANG==="ko"?"척":LANG==="ja"?"隻":LANG==="zh"?"艘":"ships")+'</span>'+(LANG==="ko"?"이 다른 함대로 이동됩니다.":LANG==="ja"?"は他の艦隊に移動されます。":LANG==="zh"?"将移至其他舰队。":" moved to another fleet.")
+    : '<b>' + fcEsc(f.name) + '</b> '+(LANG==="ko"?"함대를 해체합니다.":LANG==="ja"?"艦隊を解散します。":LANG==="zh"?"解散舰队。":"Fleet will be disbanded.");
+  var ok = await gameConfirm({ icon:'🗑', title:LANG==="ko"?"함대 해체":LANG==="ja"?"艦隊解散":LANG==="zh"?"解散舰队":"Disband Fleet", body:body, confirmText:LANG==="ko"?"해체":LANG==="ja"?"解散":LANG==="zh"?"解散":"Disband" });
   if (!ok) return;
   try {
     var res = await fetch('/api/fleets/' + f.id, { method: 'DELETE', headers: getAuthHeaders() });
