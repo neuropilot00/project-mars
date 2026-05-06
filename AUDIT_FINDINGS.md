@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v6.15 / 2026-05-06)
+# OCCUPY MARS — Codebase Audit (v6.16 / 2026-05-06)
+
+## ✅ v6.16 전수 500 에러 제거 완료 — 서버 전체 엔드포인트 클린
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| claims 유령 컬럼 전수 수정 | ✅ | `sector_x/y→center_lng/lat`, `name→custom_name`, `x/y→center_lng/lat` — shield/claimUpgrades/monuments/tdesc/rating/tribute/sponsor/expedition |
+| users.wallet → wallet_address | ✅ | auth.js delete-account 수정 |
+| claims.status phantom → deleted_at | ✅ | auth.js delete-account 수정 |
+| staking.staked_at → created_at | ✅ | staking.js ORDER BY 수정 |
+| battles 유령 컬럼 | ✅ | season.js: winner_wallet/attacker_wallet/gp_stake/status → attacker/defender/success/attack_cost |
+| auction current_bidder_wallet/current_bid | ✅ | Migration 219로 컬럼 추가 + getUserAuctions 쿼리 수정 |
+| LOWER() wallet 비교 | ✅ | warBetting/contest/spells/donation/arena/worldEvents/achievements |
+| hallOfFameRoutes titleExtended 의존성 | ✅ | 로컬 getHallOfFameBoard() 추가 — 실제 hall_of_fame 컬럼만 사용 |
+| 전체 엔드포인트 500 검수 | ✅ | 50+ 엔드포인트 전수 확인 — 2026-05-06 16:54 기준 500 에러 0건 |
+
+---
+
+## ✅ v6.15 서버 전수 버그 수정 — hijack/ai-fight/harvest/repair/tournament/admin-economy
 
 ## ✅ v6.15 서버 전수 버그 수정 — hijack/ai-fight/harvest/repair/tournament/admin-economy
 

@@ -1,5 +1,54 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — 전수 500 에러 제거 완료 (Claude + Codex 협업)
+
+### 수정된 파일 및 내용
+
+#### `server/services/shield.js`, `claimUpgrades.js`, `monuments.js`
+- `c.sector_x/y` → `c.center_lng AS sector_x, c.center_lat AS sector_y` 수정
+
+#### `server/services/tdesc.js`, `rating.js`, `tribute.js`, `sponsor.js`, `expedition.js`
+- `c.name` → `c.custom_name` 수정
+- `tdesc.js`: `c.x/y` → `c.center_lng/lat` 수정
+
+#### `server/routes/auth.js`
+- delete-account: `users.wallet` → `users.wallet_address`, `claims.status` → `deleted_at`
+
+#### `server/services/staking.js`
+- `ORDER BY staked_at` → `ORDER BY created_at`
+
+#### `server/services/season.js`
+- `battles.winner_wallet/attacker_wallet/gp_stake/status` 유령 컬럼 → 실제 스키마(`attacker/defender/success/attack_cost`)로 교체
+
+#### `server/services/auction.js`
+- `getUserAuctions`: `current_bidder_wallet` → `winner_wallet` + `bids` EXISTS 서브쿼리
+
+#### `server/migrations/219_auction_current_bid_columns.sql` (신규)
+- `auctions` 테이블에 `current_bid`, `current_bidder_wallet` 컬럼 추가
+
+#### `server/services/warBetting.js`, `contest.js`, `spells.js`, `donation.js`
+- wallet 비교 `LOWER()` 적용
+
+#### `server/routes/arena.js`
+- crash_bets/mines_games/hilo_games wallet 비교 `LOWER()` 적용
+
+#### `server/services/worldEvents.js`
+- 보스 보상 중복 지급 방지(idempotent), top-damage wallet 대소문자 무시
+
+#### `server/services/achievements.js`
+- `battles.winner_wallet/status` 유령 컬럼 제거, safe `[]` fallback
+
+#### `server/routes/api.js`
+- territory production sector_code 수정, upgrade column variance 처리
+
+#### `server/routes/hallOfFameRoutes.js` (Codex)
+- `titleExtended.getHallOfFameBoard()` 의존성 제거 → 로컬 구현으로 교체
+
+### 검증
+- 50+ 엔드포인트 전수 스모크 테스트: **500 에러 0건** (2026-05-06 16:54 KST)
+
+---
+
 ## 2026-05-06 — 서버 전수 버그 수정: hijack/ai-fight/harvest/repair/tournament/admin-economy
 
 ### `server/routes/api.js`, `server/services/hijack.js`
