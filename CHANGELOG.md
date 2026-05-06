@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-06 — bugfix: FACTION_FLAVOR JS syntax error — unescaped apostrophes
+
+### index.html
+- **버그**: `FACTION_FLAVOR` 객체의 `line_en` 값 13개가 단일 따옴표로 감싸인 문자열 안에 미이스케이프 아포스트로피(`'`)를 포함
+- 해당 `<script>` 블록(약 25k줄) 전체가 SyntaxError로 파싱 실패 → 클레임/하이잭/함대전 파벌 대사 기능 완전 비동작
+- **수정**: 13개 아포스트로피를 `\'`로 이스케이프. 전체 스크립트 블록 파싱 복구 확인
+
 ## 2026-05-06 — bugfix: phaseD alliance shadow-match + leave 401
 
 ### server/routes/phaseD.js

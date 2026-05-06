@@ -1,5 +1,13 @@
 # OCCUPY MARS — Codebase Audit (v6.34 / 2026-05-06)
 
+## ✅ v6.45 버그수정 — FACTION_FLAVOR 문자열 JS syntax error (미사용 아포스트로피)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `FACTION_FLAVOR` 블록 13개 `line_en` — 단일 따옴표 문자열 내 미이스케이프 아포스트로피 | ✅ 수정 | `'` → `\'` 이스케이프. 해당 `<script>` 블록 전체가 SyntaxError로 파싱 실패 → FACTION_FLAVOR 기능 완전 비동작 상태였음 |
+
+
+
 ## ✅ v6.44 버그수정 — phaseD 동맹 shadow-match + alliance leave 401
 
 | 항목 | 상태 | 비고 |
