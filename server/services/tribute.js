@@ -92,7 +92,7 @@ async function sendTribute(wallet, claimId, amountGP, message) {
 
     // Deduct GP (burned — not transferred)
     const bal = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
       [wallet]
     );
     if (!bal.rows.length) throw new Error('User not found');

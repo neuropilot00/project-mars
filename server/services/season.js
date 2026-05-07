@@ -580,7 +580,7 @@ async function purchasePremiumPass(wallet) {
     }
 
     // Check GP
-    const gp = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
+    const gp = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
     if (parseFloat(gp.rows[0]?.gp_balance || 0) < cost) {
       await client.query('ROLLBACK');
       return { error: `Need ${cost} GP for premium pass` };

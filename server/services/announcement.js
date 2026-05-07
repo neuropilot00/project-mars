@@ -82,7 +82,7 @@ async function postAnnouncement(wallet, message, durationM) {
 
     // Deduct GP
     const bal = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wallet]
+      'SELECT gp_balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]
     );
     if (!bal.rows.length) throw new Error('User not found');
     if (bal.rows[0].gp_balance < costGP)

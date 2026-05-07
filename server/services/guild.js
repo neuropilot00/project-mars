@@ -22,7 +22,7 @@ async function createGuild(wallet, name, tag, emoji, description) {
     }
 
     // Check GP
-    const gpRes = await client.query('SELECT COALESCE(gp_balance,0) AS gp FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
+    const gpRes = await client.query('SELECT COALESCE(gp_balance,0) AS gp FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
     const gp = parseFloat(gpRes.rows[0]?.gp || 0);
     if (gp < cost) {
       await client.query('ROLLBACK');
@@ -180,7 +180,7 @@ async function updateGuildInfo(callerWallet, guildId, fields) {
 
     // Check GP balance (lock row)
     const gpRes = await client.query(
-      'SELECT COALESCE(gp_balance,0) AS gp FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT COALESCE(gp_balance,0) AS gp FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
       [callerWallet]
     );
     const gp = parseFloat(gpRes.rows[0]?.gp || 0);
@@ -367,7 +367,7 @@ async function acceptInvite(wallet, inviteId) {
     const guildId = inv.rows[0].guild_id;
 
     // Check not already in guild
-    const userCheck = await client.query('SELECT guild_id FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
+    const userCheck = await client.query('SELECT guild_id FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
     if (userCheck.rows[0]?.guild_id) { await client.query('ROLLBACK'); return { error: 'Already in a guild' }; }
 
     // Check guild not full
@@ -506,7 +506,7 @@ async function approveJoinRequest(callerWallet, inviteId) {
     }
 
     // Requester must still be guild-less
-    const uCheck = await client.query('SELECT guild_id FROM users WHERE wallet_address = $1 FOR UPDATE', [invited_wallet]);
+    const uCheck = await client.query('SELECT guild_id FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [invited_wallet]);
     if (uCheck.rows[0]?.guild_id) { await client.query('ROLLBACK'); return { error: 'Player is already in a guild' }; }
 
     // Guild not full

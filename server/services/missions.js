@@ -614,7 +614,7 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
 
     // ── Deduct PP fuel
     const balRes = await client.query(
-      'SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT pp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
       [wallet]
     );
     const bal = parseFloat(balRes.rows[0]?.pp_balance || 0);

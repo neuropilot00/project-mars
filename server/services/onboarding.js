@@ -71,7 +71,7 @@ async function completeStep(walletAddress, step, data = {}) {
     await client.query('BEGIN');
 
     const { rows: oRows } = await client.query(`
-      SELECT * FROM user_onboarding WHERE wallet_address = $1 FOR UPDATE
+      SELECT * FROM user_onboarding WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE
     `, [walletAddress]);
 
     let onboarding = oRows[0];

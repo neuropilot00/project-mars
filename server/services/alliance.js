@@ -36,7 +36,7 @@ async function createAlliance(walletAddress, params) {
     const fee = parseInt(String(settingRows[0]?.value || '5000').replace(/"/g,'')) || 5000;
     
     const { rows: userRows } = await client.query(
-      `SELECT gp_balance, faction_code FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT gp_balance, faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');

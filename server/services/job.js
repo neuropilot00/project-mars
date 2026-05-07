@@ -177,7 +177,7 @@ async function selectJob(walletAddress, jobCode) {
     const { rows: userRows } = await client.query(`
       SELECT wallet_address, current_job_id, weekly_job_changes,
              weekly_reset_at, job_changed_at, gp_balance, rank_level
-      FROM users WHERE wallet_address = $1 FOR UPDATE
+      FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE
     `, [walletAddress]);
 
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');

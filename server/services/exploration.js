@@ -228,7 +228,7 @@ async function discoverPOI(wallet, poiId) {
     // PP fee for exploration
     const explorationFee = parseFloat(String(await getSetting('exploration_fee_pp') || '0').replace(/^"|"$/g, '')) || 0;
     if (explorationFee > 0) {
-      const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
+      const balRes = await client.query('SELECT pp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
       const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
       if (ppBal < explorationFee) {
         await client.query('ROLLBACK');

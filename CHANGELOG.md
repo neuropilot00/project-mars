@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.99 — SELECT FOR UPDATE LOWER() 2차 일괄 수정 (15개 서비스)
+
+### 서비스 (SELECT FOR UPDATE wallet_address → LOWER 추가)
+`alliance.js`, `announcement.js`, `banner.js`, `exploration.js`, `faction.js`, `guild.js` (4곳),
+`job.js`, `missions.js`, `onboarding.js`, `prestige.js`, `season.js`, `shield.js`,
+`title.js`, `titleExtended.js`, `tribute.js`
+
+이로써 서버 전체(services/) `SELECT ... FOR UPDATE` 유저 잔액/상태 쿼리에서
+`WHERE wallet_address = $1` 패턴 없음. 모두 `LOWER(wallet_address) = LOWER($1)` 사용.
+
+---
+
 ## 2026-05-07 v6.98 — SELECT FOR UPDATE LOWER() + 라우트 wallet 정규화 (16개 서비스)
 
 ### 공통 패턴 수정

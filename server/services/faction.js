@@ -86,7 +86,7 @@ async function chooseFaction(walletAddress, factionCode) {
     // 유저 현재 상태 조회 (FOR UPDATE로 락)
     const { rows: userRows } = await client.query(
       `SELECT wallet_address, faction_code, faction_chosen_at, gp_balance
-       FROM users WHERE wallet_address = $1 FOR UPDATE`,
+       FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) {

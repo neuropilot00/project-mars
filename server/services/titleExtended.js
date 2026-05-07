@@ -481,7 +481,7 @@ async function equipTitle(walletAddress, titleCode) {
 
     // GP 차감
     const { rows: userRows } = await client.query(
-      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if ((parseInt(userRows[0]?.gp_balance) || 0) < cost) {
