@@ -1,5 +1,34 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.03~v7.08 — 경쟁 조건 전체 sweep + 캠페인 SAVEPOINT 수정
+
+### 핵심 수정 내용
+
+**marketplace.js** — 판매자/거버너 tariff 지급 LOWER() 누락 수정 (listing.seller, tariffGovernor = DB값)
+**db.js** — 레퍼럴 chain 잔액 크레딧 LOWER() 추가 (ref.wallet from DB)
+**guild.js** — guild_id UPDATE 5곳 LOWER() 추가 (invited_wallet from DB)
+**api.js** — shop 잔액 차감 LOWER() 추가
+**aiFleetManager.js / admin.js** — faction_code UPDATE LOWER() 추가
+**rank.js, season.js, db.js** — XP/rank_level UPDATE LOWER() 추가
+
+**dividends.js** — CRITICAL 경쟁 조건: 스테이커 스냅샷을 트랜잭션 외부에서 수집 + INSERT ON CONFLICT DO NOTHING 후 GP 크레딧 무조건 실행 → 동시 호출 시 이중 지급. 수정: 락 후 스냅샷 재수집 + RETURNING id 가드.
+
+**governance route (buff purchase)** — TOCTOU: BEGIN 이전에 buff 존재 확인 → 두 동시 요청 모두 통과 후 GP 이중 차감. 수정: BEGIN을 먼저, FOR UPDATE 후 재확인.
+
+**governance service** — `recalculateGovernor()`: old gp_balance SELECT에 FOR UPDATE 없음; pixels.owner LOWER() 없이 sectors에 기록. `applyDailyMaintenance()`: governance_positions SELECT에 FOR UPDATE 없음. 모두 수정.
+
+**fleet.js** — `createFleet()` / `deleteFleet()`: COUNT 기반 체크 전 user row FOR UPDATE 선취득 없음 → 최대 함대 수 초과 / 마지막 함대 삭제 경쟁 조건. 유저 row 락으로 직렬화.
+
+**battleRewards.js** — "already rewarded" 체크가 트랜잭션 외부 → 동시 호출 시 전 참가자 GP/광물 이중 지급. fleet_battles FOR UPDATE + 트랜잭션 내부 재확인으로 수정.
+
+**hijack.js** — `handlePhase1Complete()`: 전체 함수가 트랜잭션 없이 pool.query 3개 분리 → 크래시 시 이중 환불. `handlePhase2Complete()`: 초기 SELECT 트랜잭션 외부 → 동시 호출 시 픽셀 이전 이중 실행. 모두 BEGIN/COMMIT + FOR UPDATE + phase 가드로 수정.
+
+**lottery.js (drawRound)** — FOR UPDATE 이후에도 스테일 `round` 스냅샷 변수 사용 (ticket_count, ticket_price_gp, prize_pool_gp, round_number). `lockRes.rows[0]` (`lockedRound`)로 교체.
+
+**campaign.js** — `applyOptionalCampaignReward()`: ROLLBACK/RELEASE SAVEPOINT가 연결 수준 오류 시 throw → 전체 chapter completion 트랜잭션 중단. try/catch로 삼켜 외부 ROLLBACK에 위임. `complete()` 최종 UPDATE에 `AND status = 'in_progress'` 가드 추가. 중복 `displayNameEn` 키 제거.
+
+---
+
 ## 2026-05-07 v7.02 — balance credit LOWER() 전체 서버 완전 정리 (18개 파일)
 
 ### 수정 대상 파일
