@@ -37,7 +37,7 @@ async function createGuild(wallet, name, tag, emoji, description) {
     }
 
     // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [cost, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cost, wallet]);
 
     // Create guild
     const guildRes = await client.query(
@@ -217,7 +217,7 @@ async function updateGuildInfo(callerWallet, guildId, fields) {
     );
 
     // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [totalCost, callerWallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [totalCost, callerWallet]);
 
     await client.query('COMMIT');
     console.log(`[GUILD] #${guildId} updated by ${callerWallet} (-${totalCost} GP) ${Object.keys(changes).join(',')}`);

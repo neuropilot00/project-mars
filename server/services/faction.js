@@ -121,7 +121,7 @@ async function chooseFaction(walletAddress, factionCode) {
       }
       
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+        `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [feeGp, walletAddress]
       );
       

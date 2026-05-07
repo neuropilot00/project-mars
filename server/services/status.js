@@ -67,7 +67,7 @@ async function setStatus(wallet, statusText, durationH) {
     if (!balRow.rows.length) throw new Error('User not found');
     if (balRow.rows[0].gp_balance < costGP) throw new Error(`Need ${costGP} GP`);
 
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [costGP, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [costGP, wallet]);
 
     const expiresAt = new Date(Date.now() + durationH * 3600000);
     await client.query(

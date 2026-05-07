@@ -199,7 +199,7 @@ async function startTransport(wallet, originSectorId, destSectorId, cargoGp) {
 
     // Deduct cargo from wallet (held in transit) — use DB's exact-case wallet for FK integrity
     await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)',
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
       [cargoGp, wallet]
     );
 

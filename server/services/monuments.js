@@ -122,7 +122,7 @@ async function placeMonument(client, wallet, claimId, monumentType, name, messag
 
   // Deduct GP
   await client.query(
-    `UPDATE users SET gp_balance = gp_balance - $2 WHERE wallet_address = $1`,
+    `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`,
     [w, cost]
   );
 
@@ -188,7 +188,7 @@ async function preserveMonument(client, wallet, monumentId) {
   if (!userRes.rows.length) throw new Error('User not found');
   if (parseFloat(userRes.rows[0].gp_balance) < cost) throw new Error(`Need ${cost} GP to preserve monument`);
 
-  await client.query(`UPDATE users SET gp_balance = gp_balance - $2 WHERE wallet_address = $1`, [w, cost]);
+  await client.query(`UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`, [w, cost]);
   await client.query(
     `UPDATE territory_monuments SET preserved_by = $2 WHERE id = $1`,
     [monumentId, w]

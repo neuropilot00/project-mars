@@ -586,7 +586,7 @@ async function purchasePremiumPass(wallet) {
       return { error: `Need ${cost} GP for premium pass` };
     }
 
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [cost, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cost, wallet]);
     await client.query(
       `INSERT INTO season_pass_progress (season_id, wallet, is_premium, purchased_at)
        VALUES ($1, $2, true, NOW())
