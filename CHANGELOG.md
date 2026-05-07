@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.20 — Cantina 미니게임 TOCTOU 5종 수정
+
+**server/routes/arena.js** — coinflip/dice/hilo: `SELECT balance FROM users` 에 `FOR UPDATE` 추가. mines/crash: `UPDATE users SET balCol = balCol - $1` 에 `AND ${balCol} >= $1` 가드 + rowCount 확인 추가. 5개 미니게임 베팅 경로 동시성 취약점 전부 해소.
+
+---
+
 ## 2026-05-07 v7.19 — 시즌 패스 티어 보상 중복 수령 방어
 
 **server/services/season.js** — `claimPassTier()`: `season_pass_claims` INSERT에 `ON CONFLICT DO NOTHING RETURNING id` 추가. rowCount=0이면 ROLLBACK + already claimed 반환. DB unique constraint (`season_id, wallet, tier, is_premium`)를 최후 방어선으로 활용.

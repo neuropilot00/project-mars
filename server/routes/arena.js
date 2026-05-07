@@ -153,10 +153,11 @@ router.post('/crash/bet', betLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Already bet this round' });
     }
 
-    // Deduct balance
-    await client.query(
-      `UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]
+    // Deduct balance (AND guard prevents negative on concurrent requests)
+    const deductCrash = await client.query(
+      `UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [bet, w]
     );
+    if (deductCrash.rowCount === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
     // Place bet
     await client.query(
@@ -478,16 +479,17 @@ router.post('/mines/start', betLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Insufficient balance' });
     }
 
-    // Deduct + Create game in parallel
+    // Deduct + Create game in parallel (AND guard prevents negative on concurrent requests)
     const grid = generateMinesGrid(mineCount);
-    const [, gameRes] = await Promise.all([
-      client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]),
+    const [deductMines, gameRes] = await Promise.all([
+      client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [bet, w]),
       client.query(
         `INSERT INTO mines_games (wallet, bet_amount, currency, mine_count, grid, current_multiplier)
          VALUES ($1,$2,$3,$4,$5,1.0) RETURNING id`,
         [w, bet, cur, mineCount, grid]
       )
     ]);
+    if (deductMines.rowCount === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
     // Transaction log + XP in parallel
     await Promise.all([
@@ -712,12 +714,13 @@ router.post('/coinflip/play', betLimiter, async (req, res) => {
   try {
     await client.query('BEGIN');
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
-    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
     if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
-    // Deduct bet
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]);
+    // Deduct bet (AND guard prevents negative on concurrent requests)
+    const deductCf = await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [bet, w]);
+    if (deductCf.rowCount === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
     // Credit winnings
     if (won) {
@@ -803,11 +806,13 @@ router.post('/dice/play', betLimiter, async (req, res) => {
   try {
     await client.query('BEGIN');
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
-    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
     if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]);
+    // Deduct bet (AND guard prevents negative on concurrent requests)
+    const deductDice = await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [bet, w]);
+    if (deductDice.rowCount === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
     if (won) {
       await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [payout, w]);
       await awardXP(client, w, Math.max(1, Math.floor(bet)));
@@ -883,11 +888,13 @@ router.post('/hilo/start', betLimiter, async (req, res) => {
     }
 
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
-    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
     if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [bet, w]);
+    // Deduct bet (AND guard prevents negative on concurrent requests)
+    const deductHilo = await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [bet, w]);
+    if (deductHilo.rowCount === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
 
     const firstCard = drawCard();
     const gameRes = await client.query(

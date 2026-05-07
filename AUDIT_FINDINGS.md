@@ -1,4 +1,16 @@
-# OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.20 / 2026-05-07)
+
+## 🔴→✅ v7.20 — Cantina 미니게임 TOCTOU 4종 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/arena.js` — coinflip `/api/arena/coinflip` | `SELECT balance FROM users` 에 `FOR UPDATE` 없음 + `UPDATE ... SET balance - $1` 에 `AND balance >= $1` 가드 없음 → 동시 두 요청이 같은 잔액 읽고 중복 차감 가능 | ✅ `FOR UPDATE` + `AND ${balCol} >= $1` 가드 + rowCount 확인 추가 |
+| `server/routes/arena.js` — dice `/api/arena/dice` | 동일 패턴: `SELECT` without `FOR UPDATE`, `UPDATE` without guard | ✅ `FOR UPDATE` + 가드 + rowCount 확인 추가 |
+| `server/routes/arena.js` — hilo `/api/arena/hilo/start` | 동일 패턴: `SELECT` without `FOR UPDATE`, `UPDATE` without guard | ✅ `FOR UPDATE` + 가드 + rowCount 확인 추가 |
+| `server/routes/arena.js` — mines `/api/arena/mines/start` | `SELECT FOR UPDATE` 있었으나 `UPDATE` deduction에 `AND ${balCol} >= $1` 가드 없음 + rowCount 미확인 | ✅ `AND ${balCol} >= $1` 가드 + rowCount 확인 추가 |
+| `server/routes/arena.js` — crash `/api/arena/crash/bet` | `SELECT FOR UPDATE` 있었으나 `UPDATE` deduction에 `AND ${balCol} >= $1` 가드 없음 | ✅ `AND ${balCol} >= $1` 가드 + rowCount 확인 추가 |
+
+---
 
 ## 🔴→✅ v7.19 — 시즌 패스 티어 보상 중복 수령 방어 (2026-05-07)
 
