@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.15 — PVP 전투 선언 TOCTOU 수정
+
+**server/routes/fleetBattles.js** — `declare-pvp`: fleet `is_in_battle` 체크를 트랜잭션 외부에서 수행하던 로직을 BEGIN 내부로 이동. `FOR UPDATE` 재확인으로 동시 선언 두 건이 같은 함대를 두 전투에 등록하는 경쟁 조건 수정. COMMIT 전 `is_in_battle = true` 마킹으로 원자성 보장.
+
+---
+
 ## 2026-05-07 v7.14 — 샵 구매 잔액 체크 TOCTOU + negative-balance 수정
 
 **server/routes/api.js** — `/shop/buy`: 잔액 SELECT에 `FOR UPDATE` 추가, UPDATE에 `AND ${balCol} >= $1` 가드 추가.

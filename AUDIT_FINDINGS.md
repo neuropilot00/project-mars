@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
 
+## 🔴→✅ v7.15 — PVP 전투 선언 TOCTOU 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/fleetBattles.js` — `declare-pvp` L66-94 | fleet `is_in_battle` 체크가 트랜잭션 외부 → 두 동시 선언이 모두 통과 후 같은 함대를 두 전투에 등록 | ✅ BEGIN 내부 FOR UPDATE 재확인 + COMMIT 전 `is_in_battle=true` 마킹 추가 (v7.15) |
+
 ## 🔴→✅ v7.14 — 샵 구매 잔액 체크 TOCTOU + negative-balance 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |
