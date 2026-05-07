@@ -1724,7 +1724,7 @@ router.post('/gp/grant', adminAuth, async (req, res) => {
     const { wallet, amount, reason } = req.body;
     if (!wallet || !amount) return res.status(400).json({ error: 'Missing wallet or amount' });
     await pool.query(
-      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
+      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
       [amount, wallet.toLowerCase()]
     );
     await auditLog(req, 'gp_grant', wallet, { amount, reason });
@@ -2316,7 +2316,7 @@ router.post('/staking/force-withdraw', adminAuth, async (req, res) => {
     try {
       await client.query('BEGIN');
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+        `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
         [stake.wallet, totalReturn]
       );
       await client.query(
@@ -2504,7 +2504,7 @@ router.post('/bounties/cancel/:id', adminAuth, async (req, res) => {
     if (!res2.rows.length) return res.status(404).json({ error: 'Bounty not found or not active' });
     const b = res2.rows[0];
     // Refund poster
-    await pool.query(`UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`, [b.poster, b.gp_amount]);
+    await pool.query(`UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`, [b.poster, b.gp_amount]);
     await auditLog(req, 'bounty_admin_cancel', `bounty:${id}`, { poster: b.poster, amount: b.gp_amount });
     res.json({ ok: true, refunded: b.gp_amount });
   } catch (e) {
@@ -4178,12 +4178,12 @@ router.post('/phase-d/duel/:id/cancel', adminAuth, async (req, res) => {
     // Refund wager to challenger (and defender if accepted)
     if (duel.wager_gp > 0) {
       await client.query(
-        'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+        'UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [duel.wager_gp, duel.challenger]
       );
       if (duel.status === 'accepted') {
         await client.query(
-          'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+          'UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
           [duel.wager_gp, duel.defender]
         );
       }

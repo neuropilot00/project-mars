@@ -1271,7 +1271,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
 
     // Credit hijacked owners (PP refund + bonus) — parallel
     const ownerCredits = Object.entries(affectedOwners).map(([owner, amounts]) =>
-      client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+      client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [amounts.refund + amounts.bonus, owner])
     );
     if (ownerCredits.length) await Promise.all(ownerCredits);
@@ -1422,7 +1422,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
         const reward = Math.round(hijackPremium * (pct / 100) * 1000000) / 1000000;
         if (reward <= 0) continue;
 
-        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [reward, ref.wallet]);
+        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [reward, ref.wallet]);
         await client.query(
           `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type, trigger_tx_id)
            VALUES ($1, $2, $3, $4, 'hijack', $5)`,
@@ -3057,7 +3057,7 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
 
     // Credit PP to user
     await client.query(
-      'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+      'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
       [harvestedPP, w]
     );
 
@@ -3331,7 +3331,7 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
     `, [w, harvestedPP, todayDate]);
 
     // PP 지급
-    await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [harvestedPP, w]);
+    await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [harvestedPP, w]);
 
     // 자원 드롭
     let resourceDrops = [];
@@ -7107,7 +7107,7 @@ router.post('/exchange/pp-to-gp', writeLimiter, async (req, res) => {
     // Deduct PP (full amount including fee)
     await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND pp_balance >= $1', [ppAmount, w]);
     // Credit GP
-    await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address=$2', [gpReceived, w]);
+    await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address)=LOWER($2)', [gpReceived, w]);
 
     // Log transaction
     await client.query(
@@ -7539,7 +7539,7 @@ router.post('/gp/transfer', writeLimiter, async (req, res) => {
 
     // Check recipient exists
     const recipRes = await pool.query(
-      'SELECT wallet_address, nickname FROM users WHERE wallet_address = $1', [toWallet]
+      'SELECT wallet_address, nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)', [toWallet]
     );
     if (!recipRes.rows.length)
       return res.status(400).json({ error: 'recipient_not_found' });
@@ -7568,7 +7568,7 @@ router.post('/gp/transfer', writeLimiter, async (req, res) => {
 
       // Deduct from sender
       const senderRes = await client.query(
-        'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+        'SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
         [fromWallet]
       );
       if (!senderRes.rows.length) {
@@ -7589,7 +7589,7 @@ router.post('/gp/transfer', writeLimiter, async (req, res) => {
       );
       // Credit recipient
       await client.query(
-        'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+        'UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [received, toWallet]
       );
       // Log transfer
