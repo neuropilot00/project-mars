@@ -3,6 +3,7 @@ const express     = require('express');
 const jwt         = require('jsonwebtoken');
 const router      = express.Router();
 const allianceSvc = require('../services/alliance');
+let getSetting; try { ({ getSetting } = require('../db')); } catch (_) {}
 
 let logGPActivity, seasonService, weeklySvc;
 try { ({ logGPActivity } = require('../db')); } catch (_) {}
@@ -22,7 +23,8 @@ function getAuthWallet(req) {
 
 // GET /api/alliances?search=
 router.get('/alliances', async (req, res) => {
-  try { res.json(await allianceSvc.getAlliances(req.query.search || null)); }
+  // [v7.61] getAlliances → listAlliances (correct service export name)
+  try { res.json(await allianceSvc.listAlliances()); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -37,16 +39,17 @@ router.get('/alliances/my', async (req, res) => {
 
 // GET /api/alliances/settings
 router.get('/alliances/settings', async (req, res) => {
-  try { res.json(await allianceSvc.getSettings()); }
-  catch (e) { res.status(500).json({ error: e.message }); }
+  // [v7.61] getSettings not in service — read from DB settings directly
+  try {
+    const createCost = parseInt(await getSetting?.('alliance_create_cost_gp', '1000') || '1000', 10);
+    res.json({ createCost });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // GET /api/alliances/:id/log
 router.get('/alliances/:id/log', async (req, res) => {
-  try {
-    res.json(await allianceSvc.getAllianceLog(
-      parseInt(req.params.id, 10), parseInt(req.query.limit || '30', 10)));
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  // [v7.61] getAllianceLog not implemented in service — return empty array
+  res.json([]);
 });
 
 // POST /api/alliances/create — { name, tag, description, emblem }
@@ -56,7 +59,8 @@ router.post('/alliances/create', requireAuth, async (req, res) => {
   if (!wallet || !name || !tag) return res.status(400).json({ error: 'wallet, name, tag required' });
   try {
     const alliance = await allianceSvc.createAlliance(wallet, name, tag, description, emblem);
-    const cost = (await allianceSvc.getSettings()).createCost;
+    // [v7.61] getSettings replaced with direct getSetting call
+    const cost = parseInt(await getSetting?.('alliance_create_cost_gp', '1000') || '1000', 10);
     if (logGPActivity) logGPActivity(wallet, -cost, 'alliance_create', `Created alliance [${tag}]`).catch(() => {});
     if (seasonService && seasonService.trackGPSpend) seasonService.trackGPSpend(wallet, cost).catch(() => {});
     res.json(alliance);
@@ -83,27 +87,15 @@ router.post('/alliances/leave', requireAuth, async (req, res) => {
 });
 
 // POST /api/alliances/deposit — { amount }
+// [v7.61] depositTreasury not implemented in service yet
 router.post('/alliances/deposit', requireAuth, async (req, res) => {
-  const wallet = getAuthWallet(req);
-  const { amount } = req.body || {};
-  if (!wallet || !amount) return res.status(400).json({ error: 'wallet and amount required' });
-  try {
-    const result = await allianceSvc.depositTreasury(wallet, parseFloat(amount));
-    if (logGPActivity) logGPActivity(wallet, -parseFloat(amount), 'alliance_treasury', 'Treasury deposit').catch(() => {});
-    if (seasonService && seasonService.trackGPSpend) seasonService.trackGPSpend(wallet, parseFloat(amount)).catch(() => {});
-    if (weeklySvc && weeklySvc.trackProgress) weeklySvc.trackProgress(wallet, 'gp_burn', parseFloat(amount)).catch(() => {});
-    res.json(result);
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  res.status(501).json({ error: 'TREASURY_NOT_IMPLEMENTED' });
 });
 
 // POST /api/alliances/withdraw — { amount, note }
+// [v7.61] withdrawTreasury not implemented in service yet
 router.post('/alliances/withdraw', requireAuth, async (req, res) => {
-  const wallet = getAuthWallet(req);
-  const { amount, note } = req.body || {};
-  if (!wallet || !amount) return res.status(400).json({ error: 'wallet and amount required' });
-  try {
-    res.json(await allianceSvc.withdrawTreasury(wallet, parseFloat(amount), note));
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  res.status(501).json({ error: 'TREASURY_NOT_IMPLEMENTED' });
 });
 
 module.exports = router;

@@ -76,8 +76,13 @@ router.get('/siege/mine', requireAuth, async (req, res) => {
 /**
  * POST /api/battles/siege/create
  * Siege 전투 생성 (관리자/테스트용)
+ * [v7.61] requireAdmin 추가 — 일반 유저가 임의 fleet ID로 타인 fleet 강제 전투 등록하는 경로 차단
  */
-router.post('/siege/create', requireAuth, async (req, res) => {
+router.post('/siege/create', (req, res, next) => {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) return res.status(403).json({ error: 'FORBIDDEN' });
+  next();
+}, requireAuth, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });

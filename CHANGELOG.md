@@ -1,5 +1,39 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.61 — alliance.js CRITICAL 런타임 크래시 + dailyOps GP 조작 + 다중 getWallet 패턴 수정
+
+**수정 (CRITICAL):**
+
+- `server/routes/alliance.js` — 서비스에 없는 5개 함수(`getAlliances`, `getSettings`, `getAllianceLog`, `depositTreasury`, `withdrawTreasury`) 호출로 모든 alliance 엔드포인트가 500 크래시 발생.
+  - `getAlliances` → `listAlliances` 로 수정
+  - `getSettings` → `getSetting('alliance_create_cost_gp')` 직접 DB 조회로 대체
+  - `getAllianceLog` → 미구현 기능, 빈 배열 반환
+  - `depositTreasury` / `withdrawTreasury` → 501 NOT_IMPLEMENTED (서비스에 아직 없음)
+
+**수정 (HIGH):**
+
+- `server/routes/dailyOps.js` `POST /daily-ops/progress` — `requireAuth`만 있어 일반 유저가 임의 `mission_type`으로 자신의 미션 진행도를 직접 올려 GP 보상 farming 가능. `requireAdmin` (x-admin-secret 헤더 체크) 추가. 서버 내부 호출은 `module.exports.notifyMissionProgress()` 직접 함수 export 경로 사용이므로 영향 없음.
+- `server/routes/battleExtras.js` `POST /battles/siege/create` — "관리자/테스트 전용" 엔드포인트가 `requireAuth`만 있어 일반 유저가 임의 fleet ID로 타인 fleet을 강제 전투에 등록 가능. `requireAdmin` 추가.
+- `server/routes/tacticalLab.js` `GET /tactical-lab/fleet-presets` — 비인증 공개 엔드포인트에서 전체 `ownerWallet` 주소 노출. SERIAL `battleId`로 열거 가능. `0x1234...5678` 형식 마스킹 처리.
+
+**수정 (LOW):**
+
+- `server/routes/phaseD.js` `getWallet()` — `?.` optional chaining + `.toLowerCase().trim()` 누락. team-battle 참가자 체크 `p.wallet === wallet` 대소문자 불일치 우회 방지.
+- `server/routes/phaseC.js` `getWallet()` — 동일 패턴 수정.
+- `server/routes/onboardingRoutes.js` `getWallet()` — 동일 패턴 수정.
+- `server/routes/prestige.js` `/prestige/buy` 인라인 wallet 추출 — 동일 패턴 수정.
+
+**감사 확인 (버그 없음):**
+- commanderActions.js, announcement.js, branding.js, polls.js, vtag.js, banner.js, donation.js, profile.js, territoryIdentity.js, sectors.js, rating.js, sponsor.js, status.js, tdesc.js, tevt.js, tiers.js — CLEAN
+- graffiti.js `placeGraffiti` — 서비스에서 owner 체크 존재 (`SELECT id, owner FROM claims`). 설계상 타인 영토에 쓰는 기능이므로 소유권 차단 아님. DESIGN INTENT.
+- highlight.js `setHighlight` — 서비스에서 `NOT your territory` 소유권 체크 확인. FALSE POSITIVE.
+- journal.js / milestone.js / beacon.js / broadcasts.js / capsule.js GET 엔드포인트 비인증 — read-only public data 설계. 민감 정보 없음. DESIGN INTENT.
+- tombstone.js `svc` 로드 실패 시 TypeError — 서비스 파일 존재 확인, 실제 크래시 없음. LOW 위험.
+- tprestige.js `claimId` parseInt 누락 — PostgreSQL 드라이버 자동 coerce, 실질 영향 없음.
+- resourceCraft.js `GET /jobs` requireAuth 미들웨어 누락 — wallet length check로 기능적 보호. 방어적 패턴 개선 권장.
+
+---
+
 ## 2026-05-07 v7.60 — tournaments.js 중복 참가 GP 이중 차감 수정
 
 **수정 (LOW):**

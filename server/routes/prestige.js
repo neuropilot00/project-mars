@@ -33,7 +33,8 @@ router.get('/prestige/leaderboard', async (req, res) => {
 
 router.post('/prestige/buy', requireAuth, async (req, res) => {
   // wallet은 검증된 JWT에서 추출 — body.wallet을 신뢰하지 않음
-  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  // [v7.61] toLowerCase/trim 추가
+  const wallet = (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
   if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
   try { res.json(await svc.buyPrestige(wallet)); }
   catch(e) { res.status(400).json({ error: e.message }); }

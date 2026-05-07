@@ -258,7 +258,12 @@ router.get('/:wallet', async (req, res) => {
 
 // ── POST /api/daily-ops/progress (내부 호출) ──────────────────
 // 각 행동(채굴/전투/강화/제작)이 완료될 때 서버 내부에서 호출
-router.post('/progress', requireAuth, async (req, res) => {
+// [v7.61] requireAdmin 추가 — 외부 클라이언트가 직접 호출해 GP 미션 조작하는 경로 차단
+router.post('/progress', (req, res, next) => {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) return res.status(403).json({ error: 'FORBIDDEN' });
+  next();
+}, async (req, res) => {
   try {
     const wallet = getAuthWallet(req);
     const { mission_type } = req.body || {};

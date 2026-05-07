@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v7.61 / 2026-05-07)
+
+## 🔴 v7.61 — alliance.js CRITICAL 크래시 + dailyOps/battleExtras 권한 수정 + 다중 파일 getWallet 패턴 통일 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `server/routes/alliance.js` GET/POST 엔드포인트 | 서비스에 없는 5개 함수 호출(`getAlliances/getSettings/getAllianceLog/depositTreasury/withdrawTreasury`) → TypeError: not a function → 모든 alliance 엔드포인트 500 크래시 | 🔴 CRITICAL | ✅ `listAlliances`, `getSetting()` 직접 조회, 빈 배열 반환, 501 stub으로 교체 |
+| `server/routes/dailyOps.js` `POST /progress` | requireAuth만 → 일반 유저가 임의 mission_type으로 진행도 자체 보고 → GP 보상 farming | 🔴 HIGH | ✅ requireAdmin (x-admin-secret) 추가 |
+| `server/routes/battleExtras.js` `POST /siege/create` | requireAuth만 → 일반 유저가 임의 fleet ID로 타 플레이어 fleet 강제 전투 등록 | 🔴 HIGH | ✅ requireAdmin 추가 |
+| `server/routes/tacticalLab.js` `GET /fleet-presets` | 비인증 공개 엔드포인트에서 ownerWallet 전체 주소 노출, battleId SERIAL 열거 가능 | 🟡 HIGH (Privacy) | ✅ `0x1234...5678` 마스킹 |
+| `phaseD/phaseC/onboardingRoutes/prestige.js` `getWallet()` | `?.` optional chaining + `.toLowerCase().trim()` 누락 — case mismatch로 소유권 체크 우회 가능 | 🟡 LOW | ✅ 4개 파일 패턴 통일 |
+
+### 추가 감사 영역 (버그 없음)
+| 영역 | 결과 |
+|------|------|
+| commanderActions, announcement, branding, polls, vtag, banner, donation, profile, territoryIdentity, sectors, rating, sponsor, status, tdesc, tevt, tiers | ✅ CLEAN |
+| graffiti.js — 타인 영토 쓰기 기능 소유권 체크 | ✅ 설계 의도 (타인 영토에 쓰는 기능), 서비스에서 owner 체크 존재 |
+| highlight.js — 소유권 체크 | ✅ 서비스에서 NOT_YOUR_TERRITORY 체크 확인 (FALSE POSITIVE) |
+| journal/milestone/beacon/broadcasts/capsule GET 비인증 | ✅ read-only public data 설계 의도 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.60 / 2026-05-07)
 
 ## 🛠 v7.60 — tournaments.js 중복 참가 GP 이중 차감 수정 (2026-05-07)

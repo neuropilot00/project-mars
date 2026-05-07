@@ -159,7 +159,8 @@ router.get('/fleet-presets', async (req, res) => {
               flagship,
               escort,
               dbFleetId: p.fleet_id,           // ws frame.fleets[].id 매칭용 (Phase 2-C)
-              ownerWallet: p.owner_wallet,
+              // [v7.61] 전체 wallet 주소 노출 방지 — 공개 비인증 엔드포인트이므로 마스킹
+              ownerWallet: p.owner_wallet ? p.owner_wallet.slice(0, 6) + '...' + p.owner_wallet.slice(-4) : null,
             });
           }
         }

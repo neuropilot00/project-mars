@@ -41,7 +41,8 @@ const requireAuth = (req, res, next) => {
 };
 
 function getWallet(req) {
-  return req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  // [v7.61] toLowerCase/trim 추가 — case mismatch로 인한 소유권 체크 우회 방지
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
 // ═══════════════════════════════════════════════════════════════

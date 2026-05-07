@@ -26,7 +26,8 @@ const requireAuth = (req, res, next) => {
 };
 
 function getWallet(req) {
-  return req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  // [v7.61] toLowerCase/trim 추가
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
 const ERROR_STATUS = {
