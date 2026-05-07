@@ -13813,7 +13813,7 @@ async function doTerritoryMerge() {
   try {
     var d = await fetch('/api/territory/merge', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimIds: ids })
     }).then(function(r){return r.json();});
 
@@ -14266,7 +14266,7 @@ async function openTerritoryIdentityEdit() {
   try {
     var res = await fetch('/api/territory/' + claimId + '/identity', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'x-wallet': wallet },
+      headers: Object.assign({ 'Content-Type': 'application/json', 'x-wallet': wallet }, getAuthHeaders()),
       body: JSON.stringify({ wallet: wallet, nickname: nickname.trim(), bio: bio.trim() })
     });
     var resp = await res.json();
@@ -15515,7 +15515,7 @@ async function confirmClaim(){
         if(btn) btn.textContent='UPLOADING...';
         var upResp=await fetch('/api/upload',{
           method:'POST',
-          headers:{'Content-Type':'application/json'},
+          headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
           body:JSON.stringify({dataUrl:dataUrl})
         });
         var upData=await upResp.json();
@@ -22350,7 +22350,7 @@ function purchaseVipPass(tierId, name, cost) {
     if (!ok) return;
     fetch('/api/vip/purchase', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, tierId: tierId })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -22837,7 +22837,7 @@ function submitTransportLaunch() {
   var doSubmit = function() {
     fetch('/api/transport/start', {
       method: 'POST',
-      headers: {'Content-Type':'application/json', 'x-wallet': w},
+      headers: Object.assign({'Content-Type':'application/json', 'x-wallet': w},getAuthHeaders()),
       body: JSON.stringify({ originSectorId: origin, destSectorId: dest, cargoGp: cargo })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
@@ -22903,7 +22903,7 @@ function cancelMyTransport(tid) {
   var doIt = function() {
     fetch('/api/transport/cancel', {
       method: 'POST',
-      headers: {'Content-Type':'application/json', 'x-wallet': w},
+      headers: Object.assign({'Content-Type':'application/json', 'x-wallet': w},getAuthHeaders()),
       body: JSON.stringify({ transportId: tid })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
@@ -22948,7 +22948,7 @@ function submitRaidAttempt(tid, cargo) {
   var doIt = function() {
     fetch('/api/transport/raid', {
       method: 'POST',
-      headers: {'Content-Type':'application/json', 'x-wallet': w},
+      headers: Object.assign({'Content-Type':'application/json', 'x-wallet': w},getAuthHeaders()),
       body: JSON.stringify({ transportId: tid })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
@@ -25514,7 +25514,7 @@ window.opsMissionGo = function(type) {
         var w = walletState.address;
         if (w) fetch('/api/daily-ops/progress', {
           method:'POST',
-          headers:{'Content-Type':'application/json'},
+          headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
           body:JSON.stringify({wallet:w, mission_type:'daily_login'})
         }).then(function(){ loadOpsCommandBoard(); }).catch(function(){});
       } catch(_) {}
@@ -25748,7 +25748,7 @@ async function claimDailyOps(missionId) {
     if (missionId) body.mission_id = missionId;
     var res = await fetch('/api/daily-ops/claim', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify(body)
     });
     var data = await res.json();
@@ -27363,7 +27363,7 @@ function confirmJobSelect(){
 
   fetch('/api/user/job', {
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: walletState.address, jobCode: _selectedJobCode })
   }).then(function(r){return r.json()})
   .then(function(d){
@@ -27731,7 +27731,7 @@ async function claimCampaignReward(id,btn){
   try{
     var r=await fetch('/api/campaign/reward/claim',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:_claimWallet,reward_id:id})
     });
     var d=await r.json().catch(function(){return {};});
@@ -29152,7 +29152,7 @@ async function sendGP() {
     try {
       var r = await fetch('/api/gp/transfer', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, toWallet: recipient, amount: amount, note: note })
       });
       var d = await r.json();
@@ -29271,7 +29271,7 @@ function quickBuyTickets(count) {
 
   fetch('/api/lottery/buy', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: walletState.address, count: count })
   })
     .then(function(r){ return r.json(); })
@@ -31276,7 +31276,7 @@ function _discoverPOI(poiId) {
   console.log('[POI] Discover request:', { wallet: walletState.address, poiId: poiId });
   fetch('/api/exploration/discover', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({ wallet: walletState.address, poiId: poiId })
   }).then(function(r) {
     // Read as text first so we can show server body on parse failure
@@ -33416,7 +33416,7 @@ window.addEventListener('resize', _debounce(function(){
     if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
     fetch('/api/rockets/claim-loot', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: walletState.address, rocketEventId: eventId, lootIndex: lootIndex })
     }).then(function(r){return r.json()}).then(function(data){
       if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.style.opacity='1';} return; }
@@ -33899,7 +33899,7 @@ window.addEventListener('resize', _debounce(function(){
       if (!ok) return;
       fetch('/api/siege/declare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, sectorCode: code })
       }).then(function(r){return r.json()}).then(function(d) {
         if (d.error) {
@@ -33958,7 +33958,7 @@ window.addEventListener('resize', _debounce(function(){
     if (!text) { showToast('Enter declaration text'); return; }
     fetch('/api/governor/declaration', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, sectorCode: code, text: text })
     }).then(function(r){return r.json()}).then(function(d) {
       if (d.error) { showToast('Error: '+d.error); return; }
@@ -34035,7 +34035,7 @@ window.addEventListener('resize', _debounce(function(){
     if (!w) { showToast('Connect wallet first'); return; }
     fetch('/api/user/titles/equip', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, titleCode: titleCode })
     }).then(function(r){return r.json()}).then(function(d) {
       if (!d.success) {
@@ -34684,7 +34684,7 @@ window.addEventListener('resize', _debounce(function(){
       if(!ok) return;
       fetch('/api/governance/commander/event',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body:JSON.stringify({wallet:w,eventType:eventType})
       }).then(function(r){return r.json()}).then(function(d){
         if(d.error){showToast(d.error);return}
@@ -34710,7 +34710,7 @@ window.addEventListener('resize', _debounce(function(){
       if(!ok) return;
       fetch('/api/rockets/trigger',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body:JSON.stringify({wallet:w})
       }).then(function(r){return r.json()}).then(function(d){
         if(d.error){showToast(d.error);return}
@@ -34725,7 +34725,7 @@ window.addEventListener('resize', _debounce(function(){
     var text = document.getElementById('govCmdAnnounce').value.trim();
     fetch('/api/governance/commander/announcement',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,text:text})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
@@ -34759,7 +34759,7 @@ window.addEventListener('resize', _debounce(function(){
     var rate = parseFloat(document.getElementById('govTaxSlider').value);
     fetch('/api/governance/sector/'+_govMySectorId+'/tax-rate',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,rate:rate})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
@@ -34792,7 +34792,7 @@ window.addEventListener('resize', _debounce(function(){
       if(!ok) return;
       fetch('/api/governance/sector/'+_govMySectorId+'/buff',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body:JSON.stringify({wallet:w,buffType:buffType})
       }).then(function(r){return r.json()}).then(function(d){
         if(d.error){showToast(d.error);return}
@@ -34840,7 +34840,7 @@ window.addEventListener('resize', _debounce(function(){
     var text = document.getElementById('govSectorAnnounce').value.trim();
     fetch('/api/governance/sector/'+_govMySectorId+'/announcement',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,text:text})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
@@ -34863,7 +34863,7 @@ window.addEventListener('resize', _debounce(function(){
     if(!code){showToast('Sector code not found');return}
     fetch('/api/governor/declaration',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,sectorCode:code,text:text})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast('Error: '+d.error);return}
@@ -35868,7 +35868,7 @@ function respondDuel(duelId, accept) {
       if (!ok) return;
       return fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, duelId: duelId })
       }).then(function(r){ return r.json(); }).then(function(d) {
         if (d.error) { showToast(d.error, 'error'); return; }
@@ -35891,7 +35891,7 @@ function cancelMyDuel(duelId) {
   if (!w) return;
   fetch('/api/duels/cancel', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({ wallet: w, duelId: duelId })
   }).then(function(r){ return r.json(); }).then(function(d) {
     if (d.error) { showToast(d.error, 'error'); return; }
@@ -35946,7 +35946,7 @@ function submitDuelChallenge() {
 
   fetch('/api/duels/challenge', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({ wallet: w, defender: target, wagerGp: wager })
   }).then(function(r){ return r.json(); }).then(function(d) {
     if (btn) { btn.disabled = false; btn.textContent = '⚔️ SEND CHALLENGE'; }
@@ -36056,7 +36056,7 @@ function openShieldModal() {
           if (!confirmed) return;
           return fetch('/api/shield/activate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
             body: JSON.stringify({ wallet: walletState.address, claimId: parseInt(claimId), durationH: parseInt(hours) })
           }).then(function(r){ return r.json(); }).then(function(d) {
             if (d.error) { showToast(d.error, 'error'); return; }
@@ -36178,7 +36178,7 @@ async function openContestSubmitModal(contestId, entryFeeGp) {
       if (!ok) return;
       return fetch('/api/contests/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, contestId: contestId, title: title.trim(),
           description: desc || null, imageUrl: imageUrl || null })
       }).then(function(r){ return r.json(); }).then(function(d) {
@@ -36195,7 +36195,7 @@ function voteForEntry(entryId) {
   if (!w) { gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
   fetch('/api/contests/vote', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({ wallet: w, entryId: entryId })
   }).then(function(r){ return r.json(); }).then(function(d) {
     if (d.error) { showToast(d.error, 'error'); return; }
@@ -36326,7 +36326,7 @@ function openRentModal(rentalId, gpPerPeriod, periodHours) {
         if (!ok) return;
         return fetch('/api/rental/rent', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
           body: JSON.stringify({ wallet: w, rentalId: rentalId, periods: periods })
         }).then(function(r){ return r.json(); }).then(function(d) {
           if (d.error) { showToast(d.error, 'error'); return; }
@@ -36369,7 +36369,7 @@ function openListForRentModal() {
             if (!gp || gp <= 0) { gameAlert('Invalid GP amount'); return; }
             return fetch('/api/rental/list', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
               body: JSON.stringify({ wallet: w, claimId: claimId, gpPerPeriod: gp, periodHours: periodHours })
             }).then(function(r){return r.json();}).then(function(d){
               if (d.error) { showToast(d.error,'error'); return; }
@@ -36388,7 +36388,7 @@ function cancelRentalListing(rentalId) {
   if (!w) return;
   fetch('/api/rental/cancel', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({ wallet: w, rentalId: rentalId })
   }).then(function(r){return r.json();}).then(function(d){
     if (d.error) { showToast(d.error,'error'); return; }
@@ -36540,7 +36540,7 @@ function launchExpeditionAction() {
     if (!ok) return;
     fetch('/api/expeditions/launch', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimId: parseInt(claimId), expeditionType: _expSelectedType, durationH: _expSelectedDur })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -36557,7 +36557,7 @@ function cancelActiveExpedition() {
     if (!ok) return;
     fetch('/api/expeditions/cancel', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, expeditionId: _expActiveId })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37025,7 +37025,7 @@ function activateTevt(eventType) {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/tevt/activate', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimId: claimId, eventType: eventType })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37115,7 +37115,7 @@ function upgradeTierAction(claimId, currentTier) {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/tiers/upgrade', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimId: claimId })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37349,7 +37349,7 @@ function saveProfileMotto() {
     .then(function(ok){
       if (!ok) return;
       fetch('/api/profile/motto', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
+        method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body: JSON.stringify({ wallet: w, motto: val })
       }).then(function(r){return r.json();}).then(function(d){
         if (d.error) { showToast(d.error,'error'); return; }
@@ -37397,7 +37397,7 @@ function _authSaveStatus() {
   else {
     var w = walletState && walletState.address;
     if (!w || !v.trim()) return;
-    fetch('/api/profile/status', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ wallet:w, status:v.trim() }) })
+    fetch('/api/profile/status', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({ wallet:w, status:v.trim() }) })
       .then(function(r){return r.json();}).then(function(d){ showToast(d.error?d.error:'Status updated!', d.error?'error':'success'); });
   }
 }
@@ -37510,7 +37510,7 @@ function buyPrestige() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/prestige/buy', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37695,7 +37695,7 @@ function submitWagerBet() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/wager/bet', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, poolId: _activeWagerPool.id, targetWallet: target, gpAmount: amount })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37833,7 +37833,7 @@ function submitBuyTickets() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/raffles/buy', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, raffleId: _activeRaffle.id, count: count })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37957,7 +37957,7 @@ function buryCapsule() {
     if (!ok) return;
     fetch('/api/capsule/bury', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet, message: msg, revealInDays: days })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -38128,7 +38128,7 @@ function publishJournalEntry() {
     if (!ok) return;
     fetch('/api/journal/publish', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, title: title, content: content })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { gameAlert(d.error); return; }
@@ -38243,7 +38243,7 @@ function recordMilestone() {
     if (!ok) return;
     fetch('/api/milestone/record', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, category: cat, title: title, description: desc })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { gameAlert(d.error); return; }
@@ -38373,7 +38373,7 @@ function votePoll(pollId, optionIdx) {
   var w = walletState && walletState.address;
   if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
   fetch('/api/polls/vote', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
+    method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: w, pollId: pollId, optionIdx: optionIdx })
   }).then(function(r){return r.json();}).then(function(d){
     if (d.error) { showToast(d.error,'error'); return; }
@@ -38421,7 +38421,7 @@ function submitCreatePoll() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/polls/create', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, question: q, options: opts, durationH: dur })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -38729,7 +38729,7 @@ function submitBanner() {
     if (!ok) return;
     fetch('/api/banner/plant', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, emoji: _bannerSelectedEmoji, message })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -38798,7 +38798,7 @@ function submitTombstone() {
     if (!ok) return;
     fetch('/api/tombstone/place', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimId: _tombstoneClaimId, epitaph: epitaph })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { gameAlert(d.error); return; }
@@ -38887,7 +38887,7 @@ function confirmPrestigeUpgrade() {
   if (btn) { btn.disabled = true; btn.textContent = '…'; }
   fetch('/api/tprestige/upgrade', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({ wallet: w, claimId: _prestigeClaimId })
   }).then(function(r){return r.json();}).then(function(d){
     if (d.error) { gameAlert(d.error); return; }
@@ -38965,7 +38965,7 @@ function submitRating(claimId, rating) {
     if (!ok) return;
     fetch('/api/rating/rate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, rating })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -39052,7 +39052,7 @@ function submitHighlight() {
     if (!ok) return;
     fetch('/api/highlight/set', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, color: _highlightSelectedColor })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -39126,7 +39126,7 @@ function submitGraffiti() {
     if (!ok) return;
     fetch('/api/graffiti/place', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, text })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -39273,7 +39273,7 @@ function submitBroadcast() {
     if (!ok) return;
     fetch('/api/broadcasts/create', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, message: msg, durationH: dur })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error, 'error'); return; }
@@ -39407,7 +39407,7 @@ function joinAllianceAction(id, name) {
     if (!ok) return;
     fetch('/api/alliances/join', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, allianceId: id })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -39431,7 +39431,7 @@ function createAllianceAction() {
     if (!ok) return;
     fetch('/api/alliances/create', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, name: name, tag: tag, emblem: emblem, description: desc })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -39450,7 +39450,7 @@ async function openAllianceDepositModal() {
   if (isNaN(amt) || amt <= 0) { showToast('Invalid amount','error'); return; }
   fetch('/api/alliances/deposit', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: w, amount: amt })
   }).then(function(r){return r.json();}).then(function(d){
     if (d.error) { showToast(d.error,'error'); return; }
@@ -39471,7 +39471,7 @@ async function openAllianceWithdrawModal() {
   var note = await gameInput({title:LANG==='ko'?'출금 메모':LANG==='ja'?'出金メモ':LANG==='zh'?'提取备注':'Withdraw Note',label:t('alliance_withdraw_note_prompt')||(LANG==='ko'?'메모 (선택)':LANG==='ja'?'メモ（任意）':LANG==='zh'?'备注（可选）':'Note (optional)'),placeholder:'',maxLength:100});
   fetch('/api/alliances/withdraw', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: w, amount: amt, note: note })
   }).then(function(r){return r.json();}).then(function(d){
     if (d.error) { showToast(d.error,'error'); return; }
@@ -39644,7 +39644,7 @@ function _confirmAndUpgrade(claimId, upgradeType) {
     if (!confirmed) return;
     return fetch('/api/upgrades/upgrade', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({
         wallet: ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase(),
         claimId: claimId,
@@ -39825,7 +39825,7 @@ function submitPlaceMonument() {
       if (!confirmed) return;
       return fetch('/api/monuments/place', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({
           wallet: walletState.address,
           claimId: parseInt(sel.value),
