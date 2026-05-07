@@ -149,12 +149,17 @@ async function resolveExpeditions() {
           [exp.wallet, rewardAmount]);
       }
 
-      // Mark completed
-      await client.query(
+      // Mark completed — [v7.64] AND status='active' 이중 정산 방지
+      const { rowCount: expRowCount } = await client.query(
         `UPDATE expeditions SET status='completed', reward_type=$1, reward_amount=$2,
            reward_label=$3, completed_at=NOW()
-         WHERE id=$4`,
+         WHERE id=$4 AND status='active'`,
         [rewardType, rewardAmount, rewardLabel, exp.id]);
+      if (expRowCount === 0) {
+        // 이미 다른 인스턴스가 처리했으면 GP 지급 없이 ROLLBACK
+        await client.query('ROLLBACK');
+        continue;
+      }
 
       // Notify player
       try {
@@ -182,34 +187,45 @@ async function resolveExpeditions() {
 // ── Cancel an active expedition (partial refund) ──────────────────────────────
 async function cancelExpedition(wallet, expeditionId) {
   const wLower = wallet.toLowerCase();
-  const { rows } = await pool.query(
-    `SELECT * FROM expeditions WHERE id=$1 AND LOWER(wallet)=LOWER($2) AND status='active'`,
-    [expeditionId, wLower]);
-  if (!rows.length) throw new Error('Expedition not found or already completed');
-  const exp = rows[0];
 
-  // Calculate refund: 50% of remaining time value
-  const totalMs = new Date(exp.returns_at) - new Date(exp.launched_at);
-  const remainMs = new Date(exp.returns_at) - new Date();
-  const refund = remainMs > 0 ? parseFloat((Number(exp.gp_spent) * 0.5 * (remainMs / totalMs)).toFixed(6)) : 0;
-
+  // [v7.64] SELECT 을 트랜잭션 내 FOR UPDATE 로 이동 — 동시 취소 이중 환불 방지
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query(`UPDATE expeditions SET status='cancelled' WHERE id=$1`, [expeditionId]);
+
+    const { rows } = await client.query(
+      `SELECT * FROM expeditions WHERE id=$1 AND LOWER(wallet)=LOWER($2) AND status='active' FOR UPDATE`,
+      [expeditionId, wLower]);
+    if (!rows.length) {
+      await client.query('ROLLBACK');
+      throw new Error('Expedition not found or already completed');
+    }
+    const exp = rows[0];
+
+    // Calculate refund: 50% of remaining time value
+    const totalMs = new Date(exp.returns_at) - new Date(exp.launched_at);
+    const remainMs = new Date(exp.returns_at) - new Date();
+    const refund = remainMs > 0 ? parseFloat((Number(exp.gp_spent) * 0.5 * (remainMs / totalMs)).toFixed(6)) : 0;
+
+    const { rowCount: cancelRowCount } = await client.query(
+      `UPDATE expeditions SET status='cancelled' WHERE id=$1 AND status='active'`, [expeditionId]);
+    if (cancelRowCount === 0) {
+      await client.query('ROLLBACK');
+      throw new Error('Expedition not found or already completed');
+    }
     if (refund > 0) {
       await client.query(
         `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
         [wLower, refund]);
     }
     await client.query('COMMIT');
+    return { ok: true, refund };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
   } finally {
     client.release();
   }
-  return { ok: true, refund };
 }
 
 // ── Get my expeditions ────────────────────────────────────────────────────────

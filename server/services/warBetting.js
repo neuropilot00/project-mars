@@ -186,11 +186,11 @@ async function resolveEvent(eventId, winnerOption) {
     // 승자 총액
     const winnerTotal = parseInt(event[`total_bet_${winnerOption}`]) || 0;
 
-    // 승자에게 배분
+    // 승자에게 배분 — [v7.64] AND status='pending' 로 재시도 시 이중 지급 방지
     let totalPaidOut = 0;
     if (winnerTotal > 0) {
       const { rows: winners } = await client.query(
-        `SELECT * FROM war_bets WHERE event_id = $1 AND option = $2 FOR UPDATE`,
+        `SELECT * FROM war_bets WHERE event_id = $1 AND option = $2 AND status = 'pending' FOR UPDATE`,
         [eventId, winnerOption]
       );
 

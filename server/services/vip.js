@@ -64,6 +64,15 @@ async function purchasePass(wallet, tierId) {
     if (!tierRows.length) throw new Error('VIP tier not found');
     const tier = tierRows[0];
 
+    // [v7.64] vip_passes 행 잠금 — 동시 구매 시 이중 GP 차감 방지
+    await client.query(
+      `INSERT INTO vip_passes (wallet, tier_id, gp_spent, expires_at, is_active)
+       VALUES ($1, $2, 0, NOW(), false)
+       ON CONFLICT (wallet) DO NOTHING`,
+      [w, tierId]
+    );
+    await client.query('SELECT id FROM vip_passes WHERE wallet = $1 FOR UPDATE', [w]);
+
     // GP 잔액 확인
     const { rows: balRows } = await client.query(
       'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]

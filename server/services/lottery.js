@@ -251,8 +251,9 @@ async function drawRound(round, cfg) {
       await client.query('COMMIT');
       console.log(`[LOTTERY] Round #${lockedRound.round_number} cancelled (not enough tickets), refunded`);
     } else {
-      // Pick random winner
-      const winnerTicket = Math.floor(Math.random() * totalTickets) + 1;
+      // Pick random winner — [v7.64] crypto.randomInt for unpredictable draw
+      const { randomInt } = require('crypto');
+      const winnerTicket = randomInt(1, totalTickets + 1);
       const winnerRes = await client.query(
         `SELECT wallet FROM lottery_tickets WHERE round_id = $1 AND ticket_number = $2`,
         [lockedRound.id, winnerTicket]

@@ -316,8 +316,12 @@ async function buyout(buyerWallet, auctionId) {
       await client.query('ROLLBACK'); return { success: false, error: 'insufficient_gp', required: buyoutAmt };
     }
 
-    // Deduct buyer
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [buyoutAmt, w]);
+    // Deduct buyer — [v7.64] rowCount check prevents free buyout on concurrent drain
+    const buyoutDeduct = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [buyoutAmt, w]);
+    if (buyoutDeduct.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'insufficient_gp', required: buyoutAmt };
+    }
 
     // Refund current highest bidder
     if (auction.current_bidder_wallet && auction.current_bid > auction.start_price) {
