@@ -1637,7 +1637,9 @@ function isObjectiveDone(objective, chapter, progress, options = {}) {
 
 function getMissingRequiredObjectives(objectives) {
   return (objectives || [])
-    .filter(o => o?.stat && o.requirementMet !== true && !o.optional)  // optional objectives don't block
+    .filter(o => o && !o.optional && o.action !== 'claim_result' && (
+      o.stat ? o.requirementMet !== true : o.state !== 'done'
+    ))
     .map(o => ({
       id: o.id,
       labelKo: o.labelKo,

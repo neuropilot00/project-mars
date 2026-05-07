@@ -463,6 +463,18 @@ async function completeBuildJob(jobId) {
       [job.ship_type_code]
     );
     const st = stRows[0];
+    if (!st) throw new Error('INVALID_SHIP_TYPE');
+
+    const claimed = await client.query(`
+      UPDATE ship_build_jobs
+      SET status = 'completed', completed_at = NOW()
+      WHERE id = $1 AND status = 'building'
+      RETURNING *
+    `, [jobId]);
+    if (!claimed.rows[0]) {
+      await client.query('ROLLBACK');
+      return { already_completed: true, job };
+    }
     
     // fleet_id 결정: 지정된 함대 없으면 기본 함대 사용/생성
     let fleetId = job.fleet_id;
@@ -478,6 +490,11 @@ async function completeBuildJob(jobId) {
         fleetId = await getOrCreateDefaultFleet(client, job.wallet_address);
       }
     }
+
+    await client.query(
+      `SELECT id FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
+      [fleetId, job.wallet_address]
+    );
     
     // 기함 여부: 함대에 기함이 없으면 이 함선을 기함으로
     const { rows: flagRows } = await client.query(
@@ -503,7 +520,7 @@ async function completeBuildJob(jobId) {
     // 작업 완료 처리
     await client.query(`
       UPDATE ship_build_jobs 
-      SET status = 'completed', completed_at = NOW(), result_ship_id = $1
+      SET result_ship_id = $1
       WHERE id = $2
     `, [shipId, jobId]);
     

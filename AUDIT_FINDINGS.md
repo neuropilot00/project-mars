@@ -1,3 +1,16 @@
+# OCCUPY MARS — Codebase Audit (v7.23 / 2026-05-07)
+
+## 🔴→✅ v7.23 — 캠페인 objective gate + 함선 건조 원자성 수정 (Codex, 2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/campaign.js` — `getMissingRequiredObjectives()` | 기존 `filter(o => o?.stat && ...)` 는 stat 필드가 있는 목표만 gate. `choice`-type 필수 목표는 선택을 안 해도 완료를 막지 않았음 | ✅ non-stat 목표도 `state !== 'done'`이면 차단 |
+| `server/services/ship.js` — `completeBuildJob()` 건조 완료 순서 | ship INSERT 후 status UPDATE → crash 재시도 시 ship 중복 생성 가능 | ✅ `UPDATE SET status = 'completed' WHERE AND status = 'building'` 을 SELECT 직후 선점, rowCount=0이면 early return |
+| `server/services/ship.js` — flagship 체크 race condition | fleet 행 `FOR UPDATE` 락 없이 `SELECT id FROM ships WHERE is_flagship` → 동시 건조 시 기함 두 개 지정 가능 | ✅ flagship 체크 전 fleet 행 FOR UPDATE 추가 |
+| `server/services/ship.js` — ship_type null guard | `stRows[0]` null 체크 없이 `st.base_hp` 접근 → TypeError crash | ✅ `if (!st) throw new Error('INVALID_SHIP_TYPE')` 추가 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.21 / 2026-05-07)
 
 ## ✅ v7.22 — TOCTOU/음수잔액 전체 스윕 완료 확인 (2026-05-07)

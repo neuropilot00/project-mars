@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.23 — 캠페인 objective gate + 함선 건조 완료 원자성 수정 (Codex)
+
+**server/services/campaign.js** — `getMissingRequiredObjectives()`: 기존에는 `stat` 필드가 있는 목표만 gate했음. `choice`-type 필수 목표(분기 선택을 아직 안 한 챕터)가 완료 조건으로 작동하지 않던 버그 수정. 이제 모든 non-optional, non-claim_result 목표가 `state !== 'done'`이면 완료를 막는다.
+
+**server/services/ship.js** — `completeBuildJob()`: 함선 INSERT 전에 `UPDATE ship_build_jobs SET status = 'completed' WHERE id = $1 AND status = 'building'` 을 먼저 실행해 원자적으로 작업을 선점. rowCount=0이면 이미 다른 프로세스가 처리 중이므로 ROLLBACK + `already_completed` 반환. 기존에는 CRASH 재시도 시 ship이 중복 생성될 수 있었음. fleet 행 `FOR UPDATE` 락도 flagship 체크 전으로 앞당겨 동시 건조 완료 race condition 차단. `ship_type_code` null check 추가.
+
+---
+
 ## 2026-05-07 v7.22 — TOCTOU 전체 스윕 완료 확인
 
 전체 server/ 대상 최종 grep 스캔: 미보호 balance/quantity 차감 0건, SQL 인젝션 경로 0건, connection leak 0건. 추가 확인: bounty/dailyOps/shipScheduler/resourceCraft/battleRewards/fleetBattles 모두 클린.
