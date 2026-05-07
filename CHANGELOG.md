@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.31 — 28개 write 엔드포인트 rate limiter 추가 + rowCount 누락 2건 수정 + expedition 트랜잭션 수정
+
+**수정:**
+- `server/index.js`: `apiWriteLimiter`(60req/min, GET/HEAD/OPTIONS skip) 추가 → `app.use('/api', apiWriteLimiter)`로 모든 API write 엔드포인트에 일괄 적용. 28개 라우트 파일의 GP 소각 write 엔드포인트가 globalLimiter(3000/15min)만 적용된 격차를 해소.
+- `server/services/raffle.js`: `buyTickets()` GP deduct UPDATE rowCount 체크 누락 → `if (deductRes.rowCount === 0) throw new Error('INSUFFICIENT_GP')` 추가.
+- `server/services/tdesc.js`: `setDescription()` GP deduct UPDATE rowCount 체크 누락 → 동일 패턴으로 추가.
+- `server/services/expedition.js`: `cancelExpedition()` 취소 처리 2개 쿼리(status UPDATE + refund credit)가 트랜잭션 없이 별도 `pool.query`로 실행됨 → `BEGIN/COMMIT/ROLLBACK` 트랜잭션으로 감쌈.
+
+**감사 완료 (버그 없음):**
+- adminEconomyRoutes.js P5 territory/upgrades, territory/sector-control, territory/production-profile 엔드포인트 → 모두 requireAdmin + allowedKeys 화이트리스트 정상.
+- 28개 루트 파일 SQL 인젝션 전수 검사 → 실제 사용자 입력이 SQL에 직접 삽입되는 사례 0건.
+- 28개 루트 파일 /admin/ 경로 인증 검사 → admin.js (adminAuth 미들웨어) 별도 마운트로 모두 보호됨.
+- 14개 서비스 파일 GP rowCount/FOR UPDATE 패턴 전수 검사 → raffle/tdesc 2건 제외 모두 정상.
+
+---
+
 ## 2026-05-07 v7.30 — 기능 감사 완료 + claimUpgrades rate limiter 추가
 
 **기능 감사 (버그 없음):**

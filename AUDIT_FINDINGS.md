@@ -1,3 +1,20 @@
+# OCCUPY MARS — Codebase Audit (v7.31 / 2026-05-07)
+
+## ✅ v7.31 — write 엔드포인트 rate limit + rowCount 2건 + expedition 트랜잭션 (2026-05-07)
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| 28개 GP write 루트 파일 SQL 인젝션 전수 검사 | ✅ 0건 — 사용자 입력 직접 삽입 없음 |
+| 28개 루트 /admin/ 경로 인증 | ✅ admin.js 별도 마운트(adminAuth) 정상 |
+| 14개 서비스 파일 GP rowCount/FOR UPDATE 패턴 | ✅ raffle/tdesc 수정 완료 |
+| `raffle.js buyTickets()` rowCount 누락 | 🔴→✅ `if (deductRes.rowCount===0) throw INSUFFICIENT_GP` 추가 |
+| `tdesc.js setDescription()` rowCount 누락 | 🔴→✅ 동일 패턴 추가 |
+| `expedition.js cancelExpedition()` 트랜잭션 누락 | 🟡→✅ BEGIN/COMMIT/ROLLBACK 감쌈 |
+| 28개 write 엔드포인트 rate limiter 격차 | 🟡→✅ `apiWriteLimiter`(60/min) `app.use('/api')` 일괄 적용 |
+| adminEconomyRoutes.js P5 territory/* 엔드포인트 | ✅ requireAdmin + allowedKeys 화이트리스트 정상 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.30 / 2026-05-07)
 
 ## ✅ v7.30 — 기능 감사 완료 (2026-05-07)

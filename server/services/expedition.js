@@ -193,11 +193,21 @@ async function cancelExpedition(wallet, expeditionId) {
   const remainMs = new Date(exp.returns_at) - new Date();
   const refund = remainMs > 0 ? parseFloat((Number(exp.gp_spent) * 0.5 * (remainMs / totalMs)).toFixed(6)) : 0;
 
-  await pool.query(`UPDATE expeditions SET status='cancelled' WHERE id=$1`, [expeditionId]);
-  if (refund > 0) {
-    await pool.query(
-      `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
-      [wLower, refund]);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(`UPDATE expeditions SET status='cancelled' WHERE id=$1`, [expeditionId]);
+    if (refund > 0) {
+      await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
+        [wLower, refund]);
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
   return { ok: true, refund };
 }

@@ -246,6 +246,17 @@ const apiLimiter = rateLimit({
   message: { error: 'Too many API requests, please try again later.' }
 });
 
+// API write limiter — applies to all POST/PUT/PATCH/DELETE under /api
+// Covers GP-consuming endpoints that don't have their own writeLimiter
+const apiWriteLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: isDev ? 300 : 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS',
+  message: { error: 'Too many write requests, please try again later.' }
+});
+
 app.use(globalLimiter);
 
 // ── CORS ──
@@ -285,6 +296,7 @@ app.use((req, res, next) => {
 });
 
 // ── API Routes ──
+app.use('/api', apiWriteLimiter); // Write rate limit for all POST/PUT/PATCH/DELETE under /api
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 // ⚠️ job/resource/onboarding/sector routes must come BEFORE apiRoutes to avoid /user/:wallet wildcard conflict

@@ -73,10 +73,11 @@ async function setDescription(wallet, claimId, text) {
       );
       if (!balRow.rows.length) throw new Error('User not found');
       if (balRow.rows[0].gp_balance < gpCost) throw new Error(`Need ${gpCost} GP`);
-      await client.query(
+      const deductRes = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [gpCost, wallet]
       );
+      if (deductRes.rowCount === 0) throw new Error('INSUFFICIENT_GP');
       await client.query(
         `INSERT INTO gp_transactions(wallet, amount, type, ref_id, note)
          VALUES($1,$2,'tdesc',$3,'Territory description')`,
