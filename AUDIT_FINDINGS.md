@@ -1,4 +1,14 @@
-# OCCUPY MARS — Codebase Audit (v7.07 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.11 / 2026-05-07)
+
+## 🔴→✅ v7.11 — 일일 출석 "7일 중 8일차" 표시 버그 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/api.js` — `/api/daily/status` | `maxDays` 기본값 14 (설정값) vs 서비스 CYCLE 7 불일치 → UI에서 14칸 그리드 표시 | ✅ `daily_streak_cycle` 기본값 14→7 변경 (v7.11) |
+| `server/routes/api.js` — `/api/daily/status` | 응답에 `cycleDay` 없음 → 프론트가 raw `streak_day=8`을 직접 사용 → "7일 중 8일차" | ✅ `cycleDay = ((streak-1) % maxDays + 1)` 추가, 양쪽 분기 모두 (v7.11) |
+| `index.html` — `renderInlineCheckin()` | `streak`(=8) 그대로 사용 → `done = d <= 8` → 7칸 전부 ✅, 오늘 칸 없음 | ✅ `cycleDay`로 그리드/period label 계산 분리. raw streak는 "N일 연속" 헤더 전용 (v7.11) |
+| `index.html` — `checkDailyLogin()` | `_dailyState.cycleDay` 미설정 | ✅ `d.cycleDay` 또는 `((streak-1) % maxDays + 1)` 폴백으로 저장 (v7.11) |
+| `index.html` — `claimDailyLogin()` | 클레임 성공 후 `_dailyState.cycleDay` 미갱신, `d.streak` 대신 `d.streakDay`로 내려오는 필드명 불일치 | ✅ `d.streak || d.streakDay` 폴백 + cycleDay 재계산 (v7.11) |
 
 ## 🔴→✅ v7.03~v7.07 — Race condition sweep: governance, fleet, battleRewards, hijack, lottery (2026-05-07)
 

@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.11 — 일일 출석 cycleDay 수정 ("7일 중 8일차" 버그)
+
+### 수정 내용
+**server/routes/api.js** — `/api/daily/status` 응답에 `cycleDay` 필드 추가.
+- `daily_streak_cycle` 기본값 14 → 7 (서비스 CYCLE=7과 일치)
+- `cycleDay = ((rawStreak - 1) % maxDays + 1)`: streak=8, maxDays=7이면 cycleDay=1
+- claimed/not-claimed 양쪽 분기 모두 반환
+
+**index.html** — `renderInlineCheckin()` 및 `checkDailyLogin()` / `claimDailyLogin()`:
+- `_dailyState.cycleDay` 저장 (d.cycleDay 또는 폴백 계산)
+- 그리드 done/isToday/isFuture: raw `streak` → `cycleDay` 기준으로 변경
+- period label: `streak` → `cycleDay` 기준으로 변경 (예: "7일 중 1일차")
+- "N일 연속" 헤더는 raw `streak` 유지
+
+---
+
 ## 2026-05-07 v7.03~v7.08 — 경쟁 조건 전체 sweep + 캠페인 SAVEPOINT 수정
 
 ### 핵심 수정 내용
