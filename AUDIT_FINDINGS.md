@@ -1,3 +1,34 @@
+# OCCUPY MARS — Codebase Audit (v7.67 / 2026-05-07) — 라우트 레이어 wallet 스푸핑 감사 완료
+
+## 🔴 v7.67 — 라우트 레이어 wallet 스푸핑 취약점 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `routes/ships.js` `getWallet()` | `requireAuth` 뮤테이션 라우트에서 `req.query.wallet` 폴백 포함 → 타인 계정 GP 차감 가능 | 🔴 HIGH | ✅ `getWallet()` JWT 전용 + `getWalletOptional()` 읽기 전용 폴백 분리 |
+
+### 라우트 레이어 전체 감사 완료 (버그 없음 — 이미 안전)
+| 라우트 | 결과 |
+|--------|------|
+| staking.js | ✅ CLEAN — POST 뮤테이션에 `getAuthWallet(req)` 사용 |
+| lottery.js | ✅ CLEAN — POST 뮤테이션에 `getAuthWallet(req)` 사용 |
+| auction.js (routes) | ✅ CLEAN — POST 뮤테이션에 `getAuthWallet(req)` 사용 |
+| bounty.js | ✅ CLEAN — POST 뮤테이션에 `getAuthWallet(req)` 사용 |
+| transport.js | ✅ CLEAN — POST 뮤테이션에 `getWalletFromToken(req)` 사용 |
+| territoryIdentity.js | ✅ CLEAN — PATCH 뮤테이션에 `getAuthWallet(req)` 사용 |
+| dailyOps.js | ✅ CLEAN — POST 뮤테이션에 `getAuthWallet(req)` 사용 |
+| admin.js | ✅ CLEAN — `router.use(adminAuth)` 글로벌 미들웨어로 전체 보호 |
+
+### 전체 감사 완료 요약 (v7.53 ~ v7.67)
+| 심각도 | 수정 수 |
+|--------|---------|
+| 🔴 CRITICAL | 3건 (alliance 크래시, auctionCombat 이중결제, auction buyout 무료구매) |
+| 🔴 HIGH | 11건 (+ships.js wallet 스푸핑) |
+| 🟡 MEDIUM | 9건 (expedition, warBetting, worldEvents, governance, rocket, tribute, sponsor 등) |
+| 🟢 LOW | 12건 (wallet 정규화, getWallet 패턴, tournaments, vip, lottery 등) |
+| **총** | **35건** |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.66 / 2026-05-07) — tribute/sponsor + 전체 서비스 감사 완료
 
 ## 🟡 v7.66 — tribute/sponsor 동시 제한 우회 수정 + 전체 서비스 감사 완료 (2026-05-07)

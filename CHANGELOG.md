@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.67 — ships.js 라우트 wallet 스푸핑 취약점 수정
+
+**수정 (HIGH):**
+
+- `server/routes/ships.js` `getWallet()` — `requireAuth` 뮤테이션 라우트(build, upgrade-stat, repair, shield, disassemble, market list/buy/cancel)가 `req.query.wallet` / `req.headers['x-wallet']` 폴백을 포함하는 단일 `getWallet()` 사용. 공격자가 자신의 JWT로 인증 후 `?wallet=victim`으로 타인 계정 GP 차감 가능. `getWallet()` (JWT 전용)와 `getWalletOptional()` (optionalAuth 읽기 전용 폴백 허용)으로 분리.
+
+**감사 완료 (이미 안전):**
+- `staking.js` — 뮤테이션 POST 라우트는 이미 `getAuthWallet(req)` (JWT 전용) 사용
+- `lottery.js` — 뮤테이션 POST 라우트는 이미 `getAuthWallet(req)` 사용
+- `auction.js` (routes) — 뮤테이션 POST 라우트는 이미 `getAuthWallet(req)` 사용
+- `bounty.js` — 뮤테이션 POST 라우트는 이미 `getAuthWallet(req)` 사용
+- `transport.js` — 뮤테이션 POST 라우트는 이미 `getWalletFromToken(req)` 사용
+- `territoryIdentity.js` / `dailyOps.js` — 뮤테이션 라우트는 이미 `getAuthWallet(req)` 사용
+
+---
+
 ## 2026-05-07 v7.66 — tribute/sponsor 동시 요청 제한 우회 방지
 
 **수정 (MEDIUM):**

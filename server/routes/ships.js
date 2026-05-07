@@ -72,7 +72,13 @@ const optionalAuth = (req, res, next) => {
 };
 
 // ── 유저 지갑 헬퍼 ──
+// [v7.67] requireAuth 라우트는 반드시 JWT 페이로드에서만 wallet 추출 — query/header 폴백 제거
+// (폴백이 있으면 인증된 유저가 ?wallet=victim으로 타인 계정 GP 차감 가능)
 function getWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
+// optionalAuth 라우트용 — JWT 없을 때만 query/header 폴백 허용
+function getWalletOptional(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress ||
     req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
 }
@@ -104,7 +110,7 @@ function shipErrorStatus(code) {
  */
 router.get('/blueprints', optionalAuth, async (req, res) => {
   try {
-    const wallet = (getWallet(req) || '').toLowerCase().trim();
+    const wallet = (getWalletOptional(req) || '').toLowerCase().trim();
     if (!wallet) return res.status(400).json({ error: 'WALLET_REQUIRED' });
 
     const ships = await shipService.getBlueprints(wallet, {
