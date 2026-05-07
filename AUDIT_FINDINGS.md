@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v7.32 / 2026-05-07)
+
+## 🔴→✅ v7.32 — 함대전/캠페인 치명 버그 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `fleetBattles.js` forfeit preparing — `is_in_battle` 미해제 | 양측 함대 영구 잠금 — 이후 전투/이동 완전 불가 | 🔴 CRITICAL | ✅ |
+| `fleetBattles.js` /run — 방어자도 호출 가능 | 방어자가 유리한 시점에 전투 즉시 강제 시작 가능 | 🔴 HIGH | ✅ attacker only |
+| `battleRewards.js` distributeMinimalRewards — idempotency 미적용 | 무승부 보상 중복 지급 가능 (draw path) | 🟡 MEDIUM | ✅ |
+| `campaign.js` complete() — 최종 UPDATE rowCount 미검사 | 동시 complete/abandon 경쟁 시 보상 중복 지급 가능 | 🔴 HIGH | ✅ |
+| `campaign.js` reward_inbox INSERT — ON CONFLICT 없음 | 리트라이 시 동일 보상 inbox 행 중복 생성 | 🟡 MEDIUM | ✅ ON CONFLICT DO NOTHING |
+
+**감사 완료 (버그 없음):**
+- 함대전 스케줄러 예외 처리 — runBattle try/catch/finally 정상, 단일 실패가 루프 죽이지 않음
+- distributeRewards (일반 승리 경로) — FOR UPDATE + 기존 행 체크 정상
+- 전투 선언 TOCTOU — FOR UPDATE 이중 체크 정상
+- campaign complete 동시 호출 — FOR UPDATE on progress row 정상 (두 번째 호출 직렬화 후 SESSION_NOT_FOUND)
+- safeCampaignCount() — 전체 objectiveState 쿼리 .catch(() => 0) 패턴 정상
+- objective gate bypass — 서버사이드 OBJECTIVE_PRESETS + getMissingRequiredObjectives() 정상
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.31 / 2026-05-07)
 
 ## ✅ v7.31 — write 엔드포인트 rate limit + rowCount 2건 + expedition 트랜잭션 (2026-05-07)

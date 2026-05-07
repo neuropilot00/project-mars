@@ -361,12 +361,13 @@ router.post('/:id/run', requireAuth, async (req, res) => {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
 
-    // 참가자인지 확인
+    // 공격자(atk)인지 확인 — 방어자가 유리한 시점에 강제 시작하는 악용 방지
     const { rows } = await pool.query(`
-      SELECT 1 FROM fleet_battle_participants
+      SELECT side FROM fleet_battle_participants
       WHERE battle_id = $1 AND LOWER(wallet_address) = LOWER($2)
     `, [battleId, wallet]);
     if (!rows[0]) return res.status(403).json({ error: 'NOT_PARTICIPANT' });
+    if (rows[0].side !== 'atk') return res.status(403).json({ error: 'ONLY_ATTACKER_CAN_RUN' });
 
     // 이미 실행 중/완료 체크
     const { rows: bRows } = await pool.query(
@@ -420,12 +421,35 @@ router.post('/:id/forfeit', requireAuth, async (req, res) => {
 
     if (status === 'preparing') {
       // 아직 시뮬 안 됨 — 즉시 취소 (DEF win, 함선 피해 없음)
-      await pool.query(`
-        UPDATE fleet_battles
-        SET status = 'ended', winner_side = 'def',
-            atk_ships_total = 0, def_ships_total = 0
-        WHERE id = $1
-      `, [battleId]);
+      // is_in_battle 플래그도 함께 해제 (미해제 시 양측 함대 영구 잠금)
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query(`
+          UPDATE fleet_battles
+          SET status = 'ended', winner_side = 'def',
+              atk_ships_total = 0, def_ships_total = 0
+          WHERE id = $1
+        `, [battleId]);
+        // 참가자 fleet_id 조회 후 is_in_battle 해제
+        const { rows: fleetRows } = await client.query(
+          `SELECT fleet_id FROM fleet_battle_participants WHERE battle_id = $1 AND fleet_id IS NOT NULL`,
+          [battleId]
+        );
+        const fleetIds = fleetRows.map(r => r.fleet_id).filter(Boolean);
+        if (fleetIds.length > 0) {
+          await client.query(
+            `UPDATE fleets SET is_in_battle = false WHERE id = ANY($1::int[])`,
+            [fleetIds]
+          );
+        }
+        await client.query('COMMIT');
+      } catch (forfeitErr) {
+        await client.query('ROLLBACK');
+        throw forfeitErr;
+      } finally {
+        client.release();
+      }
       console.log(`[battle] ${battleId} forfeited by atk ${wallet} (was preparing)`);
       try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(wallet, 'battle_forfeit').catch(()=>{}); } catch(_) {}
       return res.json({ success: true, result: 'cancelled', winner_side: 'def' });

@@ -4387,7 +4387,8 @@ async function complete(wallet, sessionId) {
       for (const item of rewards.items || []) {
         await applyOptionalCampaignReward(client, `item:${item.code}`, () => client.query(
             `INSERT INTO campaign_reward_inbox (wallet, quest_id, reward_type, reward_code, quantity, payload)
-             VALUES ($1,$2,$3,$4,$5,$6)`,
+             VALUES ($1,$2,$3,$4,$5,$6)
+             ON CONFLICT DO NOTHING`,
             [w, progress.quest_id, item.type, item.code, item.quantity || 1, JSON.stringify(item)]
           )
         );
@@ -4475,6 +4476,11 @@ async function complete(wallet, sessionId) {
         status,
       ]
     );
+    // 상태가 이미 변경된 경우(동시 호출, abandon 경쟁) 보상 중복 방지
+    if (updated.rowCount === 0) {
+      await client.query('ROLLBACK');
+      throw Object.assign(new Error('SESSION_NOT_FOUND'), { code: 'SESSION_NOT_FOUND' });
+    }
     await client.query(
       `UPDATE campaign_sessions SET status = $1, current_metrics = $2, updated_at = NOW()
        WHERE session_id = $3`,

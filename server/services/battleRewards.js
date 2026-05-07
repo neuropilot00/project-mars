@@ -237,7 +237,17 @@ async function distributeMinimalRewards(battleId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
+    // 이미 지급된 경우 중복 방지 (idempotency guard)
+    const { rows: existing } = await client.query(
+      `SELECT 1 FROM fleet_battle_rewards WHERE battle_id = $1 LIMIT 1`,
+      [battleId]
+    );
+    if (existing.length > 0) {
+      await client.query('ROLLBACK');
+      return results; // 이미 지급됨
+    }
+
     for (const p of participants) {
       // 참가만으로 약간의 GP
       let gp = Math.floor(settings.reward_loser_consolation * 0.5);

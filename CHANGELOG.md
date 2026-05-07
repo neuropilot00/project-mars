@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.32 — 함대전 치명 버그 4건 수정 + 캠페인 안전성 강화
+
+**수정:**
+- `server/routes/fleetBattles.js` `POST /:id/forfeit`: `status='preparing'` 포기 시 `fleets.is_in_battle` 해제 누락 → 양측 함대 영구 잠금 버그 수정. BEGIN/COMMIT 트랜잭션 안에서 fleet_battle_participants → fleet_id 조회 후 `UPDATE fleets SET is_in_battle=false` 추가.
+- `server/routes/fleetBattles.js` `POST /:id/run`: `SELECT 1 FROM fleet_battle_participants` (참가자 여부만 확인)를 `SELECT side` (공격자 확인)로 변경. 방어자가 유리한 시점에 강제 시뮬 시작하는 게임플레이 악용 차단 (`ONLY_ATTACKER_CAN_RUN`).
+- `server/services/battleRewards.js` `distributeMinimalRewards()`: 무승부 보상 중복 방지 idempotency guard 추가 — `fleet_battle_rewards` 기존 행 존재 시 즉시 ROLLBACK 반환.
+- `server/services/campaign.js` `complete()`: 최종 `UPDATE player_campaign_progress WHERE status='in_progress'` rowCount 미검사 → `if (updated.rowCount === 0)` ROLLBACK + `SESSION_NOT_FOUND` 에러 추가. 동시 호출/abandon 경쟁 시 보상 중복 지급 방지.
+- `server/services/campaign.js` campaign_reward_inbox INSERT에 `ON CONFLICT DO NOTHING` 추가 — 리트라이/재시도 시 inbox 중복 행 생성 방지.
+
+---
+
 ## 2026-05-07 v7.31 — 28개 write 엔드포인트 rate limiter 추가 + rowCount 누락 2건 수정 + expedition 트랜잭션 수정
 
 **수정:**
