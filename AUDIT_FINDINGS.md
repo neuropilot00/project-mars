@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
 
+## 🔴→✅ v7.19 — 시즌 패스 티어 보상 중복 수령 방어 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/season.js` — `claimPassTier()` | `season_pass_claims` INSERT에 `ON CONFLICT DO NOTHING` 없음 → 동일 tier 동시 2건 요청 시 두 번째 요청이 progress FOR UPDATE lock 우회 후 이중 수령 가능성 | ✅ `ON CONFLICT (season_id, wallet, tier, is_premium) DO NOTHING RETURNING id` 추가, rowCount=0이면 ROLLBACK + alreadyClaimed 반환 |
+
 ## 🔴→✅ v7.18 — 일일 출석 동시 요청 이중 지급 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |

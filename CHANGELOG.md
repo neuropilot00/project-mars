@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.19 — 시즌 패스 티어 보상 중복 수령 방어
+
+**server/services/season.js** — `claimPassTier()`: `season_pass_claims` INSERT에 `ON CONFLICT DO NOTHING RETURNING id` 추가. rowCount=0이면 ROLLBACK + already claimed 반환. DB unique constraint (`season_id, wallet, tier, is_premium`)를 최후 방어선으로 활용.
+
+---
+
 ## 2026-05-07 v7.18 — 일일 출석 동시 요청 이중 지급 수정
 
 **server/services/daily.js** — `recordDailyLogin()`: `INSERT INTO daily_logins`에 `ON CONFLICT (wallet, login_date) DO NOTHING RETURNING id` 추가. rowCount=0이면 race condition으로 다른 요청이 이미 INSERT한 것이므로 alreadyClaimed 반환. 동시 출석 요청 시 unique violation 500 에러 + 이중 GP/PP credit 위험 완전 차단.

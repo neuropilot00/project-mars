@@ -671,11 +671,15 @@ async function claimPassTier(wallet, tier, isPremium) {
       label = 'Item reward';
     }
 
-    // Record claim
-    await client.query(
-      'INSERT INTO season_pass_claims (season_id, wallet, tier, is_premium) VALUES ($1,$2,$3,$4)',
+    // Record claim (ON CONFLICT DO NOTHING as idempotency guard)
+    const claimInsert = await client.query(
+      'INSERT INTO season_pass_claims (season_id, wallet, tier, is_premium) VALUES ($1,$2,$3,$4) ON CONFLICT (season_id, wallet, tier, is_premium) DO NOTHING RETURNING id',
       [season.id, wallet, tier, isPremium]
     );
+    if (claimInsert.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return { error: 'Already claimed' };
+    }
 
     // Update current tier
     await client.query(
