@@ -1,3 +1,32 @@
+# OCCUPY MARS — Codebase Audit (v7.72 / 2026-05-07) — buildShip 다중 함대 선택 UX gap 수정
+
+## 🟡 v7.72 — buildShip() fleet 선택 기능 공백 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `index.html` `buildShip()` | 함선 건조 시 `fleet_id` 미전송 → 다중 함대 플레이어 배치 함대 선택 불가 | 🟡 MEDIUM | ✅ `gamePicker` 플릿 선택 추가 |
+
+**수정 내용:**
+- 건조 전 `/api/fleets` 호출해 전투 중 아닌 함대 목록 수집
+- 함대 2개 이상 → `gamePicker` 다이얼로그로 배치 함대 선택
+- 함대 1개 → 자동 선택 (기존 동작 유지)
+- 함대 없음 (신규) → `fleet_id` null (서버 자동 배정)
+- `gamePicker` 취소 시 건조 중단
+
+### 전체 감사 최종 요약 (v7.53 ~ v7.72)
+
+| 심각도 | 수정 수 | 대표 항목 |
+|--------|---------|-----------|
+| 🔴 CRITICAL | 6건 | auctionCombat 이중결제, auction buyout 무료, campaign CH1 보상 0, CV 소프트락 |
+| 🔴 HIGH | 11건 | ships.js wallet 스푸핑, auth broken, arena 소유권, dailyOps GP farming 등 |
+| 🟡 MEDIUM | 11건 | expedition/worldEvents/governance/rocket/tribute/sponsor/FSP CH9 실패 보상/buildShip fleet 선택 등 |
+| 🟢 LOW | 17건 | tdesc LOWER(), guild rowCount, branding/replayShare/siegeFleetBridge, lottery PRNG 등 |
+| **총** | **45건** | |
+
+**✅ 전체 서비스(73개) + 주요 라우트(61개) + 프론트엔드 핵심 함수 감사 완료. 미수정 잔여 항목 없음.**
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.71 / 2026-05-07) — 전체 서비스 감사 완료
 
 ## 🟢 v7.71 — tdesc LOWER() 누락 + 전체 서비스/라우트 감사 완료 (2026-05-07)

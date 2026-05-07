@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.72 — buildShip 다중 함대 선택 UI 추가
+
+**수정 (MEDIUM — UX gap):**
+
+- `index.html` `buildShip()` — 함선 건조 시 `fleet_id`를 서버에 전달하지 않아 다중 함대 보유 플레이어가 건조된 함선의 배치 함대를 선택할 수 없는 기능 공백 수정.
+  - 건조 확인 전 `/api/fleets` 호출해 전투 중 아닌 함대 목록 조회.
+  - 함대가 2개 이상이면 `gamePicker`로 배치 함대 선택 다이얼로그 표시.
+  - 함대 1개면 자동 선택, 함대 없으면(신규 플레이어) `fleet_id` 미전송(서버 자동 배정).
+  - `gamePicker` 취소 시 건조 중단.
+  - 선택된 `fleet_id`를 `/api/ships/build` POST body에 포함.
+
+---
+
 ## 2026-05-07 v7.71 — tdesc 소유권 체크 LOWER() 누락 + 최종 감사 완료
 
 **수정 (LOW):**

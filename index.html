@@ -45911,6 +45911,15 @@ async function buildShip(shipTypeCode) {
     +   '<div style="text-align:center;background:rgba(255,255,255,.05);border-radius:4px;padding:4px"><div style="font-size:8px;color:#888">DEF</div><div style="font-size:12px;color:#fc6;font-weight:700">'+ship.base_def+'</div></div>'
     +   '<div style="text-align:center;background:rgba(255,255,255,.05);border-radius:4px;padding:4px"><div style="font-size:8px;color:#888">SPD</div><div style="font-size:12px;color:#6f6;font-weight:700">'+ship.base_speed+'</div></div>'
     + '</div>';
+  // [v7.72] Fetch fleets so multi-fleet players can choose destination fleet
+  var buildFleets = [];
+  try {
+    var fleetRes = await fetch('/api/fleets', { headers: getAuthHeaders() });
+    if (fleetRes.ok) {
+      var fleetData = await fleetRes.json();
+      buildFleets = (fleetData.fleets || []).filter(function(f){ return !f.is_in_battle; });
+    }
+  } catch(_) {}
   var ok = await gameConfirm({
     title: '⚒ ' + (t && t('gov_ship_build') || 'BUILD SHIP'),
     icon: shipSizeIcon(ship.size_class),
@@ -45920,11 +45929,25 @@ async function buildShip(shipTypeCode) {
     disabled: blocked
   });
   if (!ok) return;
+  // [v7.72] If player has 2+ fleets, let them pick which fleet receives the ship
+  var chosenFleetId = null;
+  if (buildFleets.length >= 2) {
+    var pickedFleetStr = await gamePicker({
+      title: LANG==='ko'?'배치할 함대 선택':LANG==='ja'?'配属先艦隊を選択':LANG==='zh'?'选择目标舰队':'Select Fleet',
+      items: buildFleets.map(function(f){
+        return { value: String(f.id), label: f.name + ' (' + (f.ships_alive||0) + (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships') + ')', icon: '🚢' };
+      })
+    });
+    if (pickedFleetStr === null) return; // cancelled
+    chosenFleetId = parseInt(pickedFleetStr, 10) || null;
+  } else if (buildFleets.length === 1) {
+    chosenFleetId = buildFleets[0].id;
+  }
   try {
     var res = await fetch('/api/ships/build', {
       method: 'POST',
       headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
-      body: JSON.stringify({ ship_type_code: shipTypeCode })
+      body: JSON.stringify({ ship_type_code: shipTypeCode, fleet_id: chosenFleetId || undefined })
     });
     var data = await res.json();
     if (!res.ok) {
