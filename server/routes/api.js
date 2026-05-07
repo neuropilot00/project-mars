@@ -4243,12 +4243,13 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
     if (itemRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Item not found' }); }
     const item = itemRes.rows[0];
 
-    // Check user has item
-    const invRes = await client.query('SELECT * FROM user_items WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0', [w, item.id]);
+    // Check user has item (FOR UPDATE prevents concurrent double-use race)
+    const invRes = await client.query('SELECT * FROM user_items WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0 FOR UPDATE', [w, item.id]);
     if (invRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'You don\'t have this item' }); }
 
-    // Deduct quantity
-    await client.query('UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2', [w, item.id]);
+    // Deduct quantity (AND quantity > 0 guard prevents going negative)
+    const deductRes = await client.query('UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0', [w, item.id]);
+    if (deductRes.rowCount === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Item already used' }); }
 
     // Apply item effect based on code
     let effectResult = {};
@@ -4933,10 +4934,14 @@ router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
     }
     // 새 cosmetic quantity -1 (이전과 같은 코드면 차감/환수 없음 = 변동 없음)
     if (prevCode !== itemCode) {
-      await client.query(
-        `UPDATE user_items SET quantity = quantity - 1 WHERE id = $1`,
+      const deductCos = await client.query(
+        `UPDATE user_items SET quantity = quantity - 1 WHERE id = $1 AND quantity > 0`,
         [invRes.rows[0].id]
       );
+      if (deductCos.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'You don\'t own this cosmetic' });
+      }
     }
 
     // PP fee for equipping cosmetics

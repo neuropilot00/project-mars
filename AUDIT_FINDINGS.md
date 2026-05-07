@@ -1,5 +1,17 @@
 # OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
 
+## 🔴→✅ v7.16 — 아이템/재료 소모 TOCTOU 6종 일괄 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/api.js` — `/shop/use` | 아이템 인벤토리 SELECT에 `FOR UPDATE` 없음 + UPDATE에 `AND quantity > 0` 가드 없음 → 동시 아이템 사용 시 quantity 음수 가능 | ✅ `FOR UPDATE` + `AND quantity > 0` 가드 추가 |
+| `server/routes/api.js` — `/cosmetic/equip` | 코스메틱 quantity UPDATE에 `AND quantity > 0` 가드 없음 | ✅ `AND quantity > 0` 가드 + rowCount 확인 추가 |
+| `server/routes/governance.js` — buff/event/bounty 3종 | `governance_positions.gp_balance` UPDATE에 `AND gp_balance >= $1` 가드 없음 (FOR UPDATE SELECT는 있었음) | ✅ `AND gp_balance >= $1` 가드 추가 (3곳) |
+| `server/services/auction.js` — createAuction resource escrow | 재료 차감 UPDATE에 `AND quantity >= $1` 가드 없음 | ✅ `AND quantity >= $1` 가드 + rowCount 확인 추가 |
+| `server/services/enhancement.js` — materializeItem + scroll 소모 | `materializeItem` SELECT에 `FOR UPDATE` 없음; blessed/protect scroll UPDATE에 `AND quantity > 0` 가드 없음 | ✅ `FOR UPDATE OF ui` + `AND quantity > 0` 가드 추가 (3곳) |
+| `server/services/crafting.js` — 재료 차감 | 재료 차감 UPDATE에 `AND quantity >= $1` 가드 없음 | ✅ `AND quantity >= $1` 가드 + rowCount 확인 추가 |
+| `server/services/marketplace.js` — createListing resource escrow | 재료 SELECT에 `FOR UPDATE` 없음 + UPDATE에 `AND quantity >= $1` 가드 없음 | ✅ `FOR UPDATE OF inv` + `AND quantity >= $1` 가드 추가 |
+
 ## 🔴→✅ v7.15 — PVP 전투 선언 TOCTOU 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |

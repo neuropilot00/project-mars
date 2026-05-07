@@ -130,21 +130,22 @@ async function createListing(client, seller, type, params) {
     const resInfo = await client.query('SELECT * FROM resources WHERE code = $1 AND is_active = TRUE AND is_tradeable = TRUE', [resourceCode]);
     if (!resInfo.rows.length) throw new Error('Resource not found or not tradeable');
 
-    // Verify user has enough
+    // Verify user has enough (FOR UPDATE prevents concurrent double-listing race)
     const invRes = await client.query(
       `SELECT inv.quantity FROM user_resource_inventory inv
        JOIN resources r ON r.id = inv.resource_id
-       WHERE inv.wallet_address = $1 AND r.code = $2`, [w, resourceCode]
+       WHERE inv.wallet_address = $1 AND r.code = $2 FOR UPDATE OF inv`, [w, resourceCode]
     );
     const currentQty = invRes.rows.length ? parseInt(invRes.rows[0].quantity) : 0;
     if (currentQty < resourceQty) throw new Error(`Insufficient ${resourceCode} (have ${currentQty}, need ${resourceQty})`);
 
-    // Escrow: deduct from inventory
-    await client.query(
+    // Escrow: deduct from inventory (AND quantity >= $1 guard prevents negative on race)
+    const escrowDeductMp = await client.query(
       `UPDATE user_resource_inventory SET quantity = quantity - $1, updated_at = NOW()
-       WHERE wallet_address = $2 AND resource_id = (SELECT id FROM resources WHERE code = $3)`,
+       WHERE wallet_address = $2 AND resource_id = (SELECT id FROM resources WHERE code = $3) AND quantity >= $1`,
       [resourceQty, w, resourceCode]
     );
+    if (escrowDeductMp.rowCount === 0) throw new Error(`Insufficient ${resourceCode}`);
 
     const r = resInfo.rows[0];
     meta = { resourceName: r.name_en, resourceIcon: r.icon_emoji, resourceCode, resourceQty, rarity: r.rarity };

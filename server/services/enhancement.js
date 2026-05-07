@@ -17,18 +17,19 @@ async function materializeItem(client, wallet, itemTypeId) {
   const item = itemRes.rows[0];
   if (item.category !== 'cosmetic') throw new Error('Only cosmetic items can be materialized');
 
-  // Check user has at least 1
+  // Check user has at least 1 (FOR UPDATE prevents concurrent double-materialize race)
   const invRes = await client.query(
-    'SELECT quantity FROM user_items WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0',
+    'SELECT quantity FROM user_items WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0 FOR UPDATE',
     [w, itemTypeId]
   );
   if (!invRes.rows.length) throw new Error('You do not own this item');
 
-  // Deduct 1 from stack
-  await client.query(
-    'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2',
+  // Deduct 1 from stack (AND quantity > 0 guard prevents going negative)
+  const deductMat = await client.query(
+    'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0',
     [w, itemTypeId]
   );
+  if (deductMat.rowCount === 0) throw new Error('You do not own this item');
 
   // Create individual instance
   const instRes = await client.query(
@@ -245,13 +246,15 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
     const blessedRes = await client.query(
       `SELECT ui.item_type_id, ui.quantity FROM user_items ui
        JOIN item_types it ON it.id = ui.item_type_id
-       WHERE ui.wallet = $1 AND it.code = 'blessed_scroll' AND ui.quantity > 0`,
+       WHERE ui.wallet = $1 AND it.code = 'blessed_scroll' AND ui.quantity > 0
+       FOR UPDATE OF ui`,
       [w]
     );
     const protectRes = await client.query(
       `SELECT ui.item_type_id, ui.quantity FROM user_items ui
        JOIN item_types it ON it.id = ui.item_type_id
-       WHERE ui.wallet = $1 AND it.code = 'protect_scroll' AND ui.quantity > 0`,
+       WHERE ui.wallet = $1 AND it.code = 'protect_scroll' AND ui.quantity > 0
+       FOR UPDATE OF ui`,
       [w]
     );
 
@@ -263,9 +266,9 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
       outcome = 'stay';
       newLevel = currentLevel;
       scrollUsed = 'blessed_scroll';
-      // Consume 1 blessed_scroll
+      // Consume 1 blessed_scroll (AND quantity > 0 guard prevents negative)
       await client.query(
-        'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2',
+        'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0',
         [w, blessedRes.rows[0].item_type_id]
       );
     } else {
@@ -287,8 +290,9 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
           outcome = 'downgrade';
           newLevel = Math.max(0, currentLevel - 1);
           scrollUsed = 'protect_scroll';
+          // Consume 1 protect_scroll (AND quantity > 0 guard prevents negative)
           await client.query(
-            'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2',
+            'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0',
             [w, protectRes.rows[0].item_type_id]
           );
           await client.query(

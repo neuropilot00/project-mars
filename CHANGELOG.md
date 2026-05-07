@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.16 — 아이템/재료 소모 TOCTOU 6종 일괄 수정
+
+- **server/routes/api.js** — `/shop/use`: 인벤토리 SELECT에 `FOR UPDATE` + UPDATE에 `AND quantity > 0` 가드 추가.
+- **server/routes/api.js** — `/cosmetic/equip`: 코스메틱 quantity deduct에 `AND quantity > 0` 가드 + rowCount 확인 추가.
+- **server/routes/governance.js** — buff/event/bounty: `governance_positions` gp_balance UPDATE 3곳에 `AND gp_balance >= $1` 가드 추가.
+- **server/services/auction.js** — `createAuction`: resource escrow 차감에 `AND quantity >= $1` 가드 추가.
+- **server/services/enhancement.js** — `materializeItem`: SELECT에 `FOR UPDATE`; blessed/protect scroll 소모 UPDATE에 `AND quantity > 0` 가드 추가 (3곳).
+- **server/services/crafting.js** — 재료 차감: `AND quantity >= $1` 가드 + rowCount 확인 추가.
+- **server/services/marketplace.js** — `createListing` resource escrow: `FOR UPDATE OF inv` + `AND quantity >= $1` 가드 추가.
+
+---
+
 ## 2026-05-07 v7.15 — PVP 전투 선언 TOCTOU 수정
 
 **server/routes/fleetBattles.js** — `declare-pvp`: fleet `is_in_battle` 체크를 트랜잭션 외부에서 수행하던 로직을 BEGIN 내부로 이동. `FOR UPDATE` 재확인으로 동시 선언 두 건이 같은 함대를 두 전투에 등록하는 경쟁 조건 수정. COMMIT 전 `is_in_battle = true` 마킹으로 원자성 보장.

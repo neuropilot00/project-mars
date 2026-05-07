@@ -127,12 +127,15 @@ async function createAuction(sellerWallet, data) {
       if (!rsRes.rows.length || parseInt(rsRes.rows[0].quantity) < resourceQty) {
         await client.query('ROLLBACK'); return { success: false, error: 'insufficient_resource' };
       }
-      // Deduct for escrow
-      await client.query(
+      // Deduct for escrow (AND quantity >= $1 guard prevents negative on race)
+      const escrowDeduct = await client.query(
         `UPDATE user_resource_inventory SET quantity = quantity - $1
-           WHERE wallet_address = $2 AND resource_id = (SELECT id FROM resources WHERE code = $3)`,
+           WHERE wallet_address = $2 AND resource_id = (SELECT id FROM resources WHERE code = $3) AND quantity >= $1`,
         [resourceQty, w, resourceCode]
       );
+      if (escrowDeduct.rowCount === 0) {
+        await client.query('ROLLBACK'); return { success: false, error: 'insufficient_resource' };
+      }
     }
 
     const endsAt = new Date(Date.now() + hours * 3600000);

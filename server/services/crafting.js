@@ -113,12 +113,15 @@ async function craftItem(client, wallet, recipeId) {
       const itemName = typeRows.length ? typeRows[0].name : `Item #${ing.item_type_id}`;
       throw new Error(`Not enough ${itemName} (need ${ing.qty}, have ${owned})`);
     }
-    // Deduct ingredient (always consumed, even on failure)
-    await client.query(
+    // Deduct ingredient (AND quantity >= $1 guard prevents negative on race)
+    const craftDeduct = await client.query(
       `UPDATE user_items SET quantity = quantity - $1
-       WHERE wallet=$2 AND item_type_id=$3`,
+       WHERE wallet=$2 AND item_type_id=$3 AND quantity >= $1`,
       [ing.qty, walletLower, ing.item_type_id]
     );
+    if (craftDeduct.rowCount === 0) {
+      throw new Error(`Not enough ingredients (item #${ing.item_type_id})`);
+    }
     // Clean up zero-quantity rows
     await client.query(
       'DELETE FROM user_items WHERE wallet=$1 AND item_type_id=$2 AND quantity<=0',

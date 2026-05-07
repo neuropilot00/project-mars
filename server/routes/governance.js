@@ -157,7 +157,7 @@ router.post('/sector/:id/buff', writeLimiter, async (req, res) => {
 
     // Deduct GP
     await client.query(
-      'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2',
+      'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2 AND gp_balance >= $1',
       [gpCost, posRes.rows[0].id]
     );
 
@@ -263,7 +263,7 @@ router.post('/commander/event', writeLimiter, async (req, res) => {
 
     // Deduct GP
     await client.query(
-      'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2',
+      'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2 AND gp_balance >= $1',
       [gpCost, posRes.rows[0].id]
     );
 
@@ -352,7 +352,7 @@ router.post('/commander/bounty', writeLimiter, async (req, res) => {
 
     // Deduct GP
     await client.query(
-      'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2',
+      'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2 AND gp_balance >= $1',
       [amount, posRes.rows[0].id]
     );
 
