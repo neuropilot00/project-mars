@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.97 — exploration getSetting NaN + polls LOWER() 정규화
+
+### server/services/exploration.js
+- `discoverPOI` L229: `getSetting` 반환값이 JSONB 따옴표 포함 문자열(`'"0.5"'`)일 때 `parseFloat` → NaN → 탐사 수수료 무과금 버그 수정
+- 수정: `parseFloat(String(...).replace(/^"|"$/g, ''))` — 외부 따옴표 제거 후 파싱
+
+### server/services/polls.js + server/routes/polls.js
+- `createPoll` SELECT FOR UPDATE: `WHERE wallet_address=$1` → `LOWER(wallet_address)=LOWER($1)`
+- `createPoll` cooldown 조회: `WHERE wallet=$1` → `LOWER(wallet)=LOWER($1)`
+- 라우트 `/polls` GET, `/polls/create` POST, `/polls/vote` POST: wallet 파라미터 `.toLowerCase().trim()` 정규화
+
+---
+
 ## 2026-05-07 v6.96 — warBetting 환불 LOWER() + FOR UPDATE
 
 ### server/routes/warBettingRoutes.js

@@ -68,7 +68,7 @@ async function createPoll(wallet, { question, options, durationH }) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const balRow = await client.query('SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wallet]);
+    const balRow = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
     if (!balRow.rows.length) throw new Error('User not found');
     if (balRow.rows[0].gp_balance < cfg.costGP) throw new Error(`Need ${cfg.costGP} GP`);
 
@@ -80,7 +80,7 @@ async function createPoll(wallet, { question, options, durationH }) {
 
     // Cooldown
     const { rows: last } = await client.query(
-      `SELECT created_at FROM gp_polls WHERE wallet=$1 ORDER BY created_at DESC LIMIT 1`, [wallet]
+      `SELECT created_at FROM gp_polls WHERE LOWER(wallet)=LOWER($1) ORDER BY created_at DESC LIMIT 1`, [wallet]
     );
     if (last.length) {
       const ms = Date.now() - new Date(last[0].created_at).getTime();

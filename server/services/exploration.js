@@ -226,7 +226,7 @@ async function discoverPOI(wallet, poiId) {
     // Any connected wallet may discover any active POI, first-come first-served.
 
     // PP fee for exploration
-    const explorationFee = parseFloat(await getSetting('exploration_fee_pp') || 0);
+    const explorationFee = parseFloat(String(await getSetting('exploration_fee_pp') || '0').replace(/^"|"$/g, '')) || 0;
     if (explorationFee > 0) {
       const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
       const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
