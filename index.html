@@ -14347,7 +14347,7 @@ function openCosmeticPanel(plot){
 function equipCosmetic(claimId,itemCode){
   if(!itemCode)return;
   var w=walletState.address;
-  fetch('/api/cosmetic/equip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,claimId:claimId,itemCode:itemCode})})
+  fetch('/api/cosmetic/equip',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,claimId:claimId,itemCode:itemCode})})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');return;}
     showToast('Cosmetic equipped!');
@@ -14376,7 +14376,7 @@ function _refreshCosmeticPanels(){
 
 function unequipCosmetic(claimId,cosmeticType){
   var w=walletState.address;
-  fetch('/api/cosmetic/unequip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,claimId:claimId,cosmeticType:cosmeticType})})
+  fetch('/api/cosmetic/unequip',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,claimId:claimId,cosmeticType:cosmeticType})})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');return;}
     showToast('Cosmetic removed');
@@ -14400,7 +14400,7 @@ function savePromoLink(){
   if(!w) return showToast('Not logged in','error');
   fetch('/api/claim/'+selectedPlot.claimId+'/image',{
     method:'PUT',
-    headers:{'Content-Type':'application/json'},
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:w, linkUrl:link||''})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error) return showToast(d.error,'error');
@@ -14886,8 +14886,7 @@ async function saveEditorImage(){
     // Only upload if user picked a new file
     if(_editor.newFileDataUrl){
       var upRes=await fetch('/api/upload',{
-        method:'POST',headers:{'Content-Type':'application/json',
-          'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
+        method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body:JSON.stringify({dataUrl:_editor.newFileDataUrl})
       });
       var upData=await upRes.json();
@@ -14910,8 +14909,7 @@ async function saveEditorImage(){
     });
     var putPromises=allClaims.map(function(ac){
       return fetch('/api/claim/'+ac.id+'/image',{
-        method:'PUT',headers:{'Content-Type':'application/json',
-          'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
+        method:'PUT',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body:imgBody
       }).then(function(r){return r.json()});
     });
@@ -15487,7 +15485,7 @@ async function confirmClaim(){
             });
             if(btn) btn.textContent='UPLOADING GIF...';
             var gifResp=await fetch('/api/upload',{
-              method:'POST',headers:{'Content-Type':'application/json'},
+              method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
               body:JSON.stringify({dataUrl:gifDataUrl})
             });
             var gifData=await gifResp.json();
@@ -16319,7 +16317,7 @@ submitMinigameScore = async function(){
   // Claim mission with minigame score
   try{
     var resp = await fetch('/api/missions/'+_missionMgId+'/claim',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:walletState.address, minigameScore:score})
     });
     var d = await resp.json();
@@ -20921,7 +20919,7 @@ async function submitAuth(){
     var resp;
     try{
       resp=await fetch(apiUrl,{
-        method:'POST',headers:{'Content-Type':'application/json'},
+        method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body:JSON.stringify(body)
       });
     }catch(fetchErr){
@@ -21361,7 +21359,7 @@ async function profileApplyRef(){
   if(status){ status.style.color='var(--tx3)'; status.textContent='Registering...'; }
   try{
     var resp=await fetch('/api/referral/register',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:walletState.address,referralCode:code})
     });
     var d=await resp.json();
@@ -21392,7 +21390,7 @@ async function registerReferral(){
   status.style.color='var(--tx3)';status.textContent='Registering...';
   try{
     var resp=await fetch('/api/referral/register',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:walletState.address,referralCode:code})
     });
     var d=await resp.json();
@@ -21769,7 +21767,7 @@ function buyShopItem(code,currency){
     +'<div style="font-size:var(--fs-md);color:var(--gold)">'+price+'</div>','BUY NOW'
   ).then(function(ok){
     if(!ok)return;
-    fetch('/api/shop/buy',{method:'POST',headers:{'Content-Type':'application/json'},
+    fetch('/api/shop/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
@@ -21915,7 +21913,7 @@ function _showClaimPicker(claimList,itemCode,title){
   document.body.appendChild(bg);
 }
 function _doUseItem(w,code,claimId){
-  fetch('/api/shop/use',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/shop/use',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:w,itemCode:code,claimId:claimId})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
@@ -22082,13 +22080,13 @@ function loadNotifications(){
 function markNotifRead(id,el){
   var w=(walletState&&walletState.address)||'';
   if(!w||!id) return;
-  fetch('/api/notifications/read',{method:'POST',headers:{'Content-Type':'application/json','x-wallet':w},body:JSON.stringify({wallet:w,id:id})})
+  fetch('/api/notifications/read',{method:'POST',headers:Object.assign({'Content-Type':'application/json','x-wallet':w},getAuthHeaders()),body:JSON.stringify({wallet:w,id:id})})
     .then(function(){if(el)el.style.opacity='.5';loadNotifCount();}).catch(function(){});
 }
 function markAllNotifsRead(){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/notifications/read-all',{method:'POST',headers:{'Content-Type':'application/json','x-wallet':w},body:JSON.stringify({wallet:w})})
+  fetch('/api/notifications/read-all',{method:'POST',headers:Object.assign({'Content-Type':'application/json','x-wallet':w},getAuthHeaders()),body:JSON.stringify({wallet:w})})
     .then(function(){loadNotifications();loadNotifCount();}).catch(function(){});
 }
 
@@ -23344,7 +23342,7 @@ function buyMarketListing(listingId,price,currency,name){
     confirmText:t('mkt_buy_confirm')||'BUY NOW', disabled:insufficient
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/marketplace/buy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,listingId:listingId})})
+    fetch('/api/marketplace/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,listingId:listingId})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('✅ '+(t('mkt_bought')||'Purchase successful!'),'success');
@@ -23361,7 +23359,7 @@ function cancelMarketListing(listingId){
     info:[], confirmText:t('mkt_cancel_confirm')||'CANCEL LISTING'
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/marketplace/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,listingId:listingId})})
+    fetch('/api/marketplace/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,listingId:listingId})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('✅ '+(t('mkt_cancelled')||'Listing cancelled'));
@@ -23498,7 +23496,7 @@ function openListModal(type,idVal,name,icon,enhLv){
       // 고정가 등록
       var body={wallet:w,type:type,price:priceVal,currency:curr};
       if(type==='claim') body.claimId=idVal; else body.instanceId=idVal;
-      fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
       .then(function(r){return r.json()}).then(function(d){
         if(d.error){showToast(d.error,'error');return;}
         var _mktListedMsg=type==='claim'?(LANG==='ko'?'영토를 마켓에 등록했습니다!':LANG==='ja'?'領土をマーケットに登録しました!':LANG==='zh'?'领地已上架市场!':'Territory listed on market!'):(LANG==='ko'?'아이템을 마켓에 등록했습니다!':LANG==='ja'?'アイテムをマーケットに登録しました!':LANG==='zh'?'物品已上架市场!':'Item listed on market!');
@@ -23540,7 +23538,7 @@ function openResourceMarketListing(resourceCode){
     var curr=document.getElementById('resListCurrency').value;
     if(!price||price<=0){showToast('Enter a valid price','error');return;}
     if(qty<1||qty>maxQty){showToast('Invalid quantity','error');return;}
-    fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,type:'resource',resourceCode:resourceCode,resourceQuantity:qty,price:price,currency:curr})})
+    fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,type:'resource',resourceCode:resourceCode,resourceQuantity:qty,price:price,currency:curr})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('✅ '+(qty)+'× '+(resItem.name||resItem.code)+' listed!');
@@ -23746,7 +23744,7 @@ function loadItemInstances(cb){
 function materializeItem(itemTypeId){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/items/materialize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,itemTypeId:itemTypeId})})
+  fetch('/api/items/materialize',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,itemTypeId:itemTypeId})})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');return;}
     showToast(t('enh_materialized')||'Item ready for enhancement!');
@@ -23758,7 +23756,7 @@ function materializeItem(itemTypeId){
 function dematerializeItem(instanceId){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/items/dematerialize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,instanceId:instanceId})})
+  fetch('/api/items/dematerialize',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,instanceId:instanceId})})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');return;}
     showToast(t('enh_returned')||'Item returned to inventory');
@@ -23805,7 +23803,7 @@ function openEnhanceModal(instanceId){
 function attemptEnhance(instanceId){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/enhance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,instanceId:instanceId})})
+  fetch('/api/enhance',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,instanceId:instanceId})})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');return;}
     // Refresh GP balance
@@ -24694,7 +24692,7 @@ function guildDonateGP(){
   if(!_myGuildData) return;
   var amt = parseInt(document.getElementById('guildDonateAmt').value);
   if(!amt||amt<=0){ showToast(LANG==='ko'?'금액을 입력하세요':LANG==='ja'?'金額を入力してください':LANG==='zh'?'请输入金额':'Enter an amount'); return; }
-  fetch('/api/guild/donate',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/guild/donate',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address, guildId:_myGuildData.id, amount:amt})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showToast(d.error,'error'); return; }
@@ -24707,7 +24705,7 @@ function guildDonateGP(){
 }
 function guildLevelUp(){
   if(!_myGuildData) return;
-  fetch('/api/guild/levelup',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/guild/levelup',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); return; }
@@ -24716,7 +24714,7 @@ function guildLevelUp(){
   }).catch(function(e){ showAlert(t('guild_toast_levelup_failed')+': '+e.message); });
 }
 function guildSetContribution(pct){
-  fetch('/api/guild/contribution',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/guild/contribution',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address,pct:parseInt(pct)})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); }
@@ -24724,7 +24722,7 @@ function guildSetContribution(pct){
 }
 function guildUnlockResearch(key){
   if(!_myGuildData) return;
-  fetch('/api/guild/research',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/guild/research',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id,key:key})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); return; }
@@ -24876,7 +24874,7 @@ function confirmDeclareWar(){
   };
   if (stake && stake > 0) body.stakeGp = stake;
   if (dur && dur > 0) body.durationHours = dur;
-  fetch('/api/guild/war/declare',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/guild/war/declare',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify(body)
   }).then(function(r){return r.json()}).then(function(d){
     btn.disabled=false; btn.textContent=t('war_declare_btn');
@@ -25392,7 +25390,7 @@ function launchOpsMission(){
     if(!tgt){ showAlert(t('ops_target_required')); return; }
     body.targetWallet = tgt;
   }
-  fetch('/api/missions/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  fetch('/api/missions/launch',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
     .then(function(r){return r.json()})
     .then(function(d){
       if(d.error){ showAlert(d.error); return; }
@@ -25412,7 +25410,7 @@ function launchOpsMission(){
     .catch(function(e){ showAlert(t('ops_launch_failed')+' '+e.message); });
 }
 function claimOpsMission(id){
-  fetch('/api/missions/'+id+'/claim',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/missions/'+id+'/claim',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); return; }
@@ -25438,7 +25436,7 @@ function cancelOpsMission(id){
     confirmText:t('ops_abort_btn')
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/missions/'+id+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},
+    fetch('/api/missions/'+id+'/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:walletState.address})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){ showToast(d.error,'error'); return; }
@@ -25847,7 +25845,7 @@ function sendGuildChat(){
   var msg=(input.value||'').trim();
   if(!msg) return;
   input.disabled=true;
-  fetch('/api/guild/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:_myGuildData.id,message:msg})})
+  fetch('/api/guild/chat',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,guildId:_myGuildData.id,message:msg})})
     .then(function(r){return r.json()}).then(function(data){
       input.disabled=false;
       if(data.error){showToast(data.error,'error');return;}
@@ -25878,7 +25876,7 @@ function createGuild(){
   var emoji=document.getElementById('guildEmojiSelect').value;
   var desc=document.getElementById('guildDescInput').value.trim();
   if(!name||!tag){showToast(t('guild_toast_need_name_tag'),'error');return;}
-  fetch('/api/guild/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,name:name,tag:tag,emoji:emoji,description:desc})})
+  fetch('/api/guild/create',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,name:name,tag:tag,emoji:emoji,description:desc})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_created').replace('{tag}',data.tag),'success');
@@ -25894,7 +25892,7 @@ function guildInviteMember(targetOverride){
   // Preserve original case — server resolves nickname→wallet case-insensitively.
   var target=targetOverride||document.getElementById('guildInviteInput').value.trim();
   if(!target){showToast(t('guild_toast_enter_target'),'error');return;}
-  fetch('/api/guild/invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:target,guildId:_myGuildData.id})})
+  fetch('/api/guild/invite',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,targetWallet:target,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_invite_sent'),'success');
@@ -25936,7 +25934,7 @@ function runGuildInviteSearch(){
 
 function guildAcceptInvite(inviteId){
   var w=walletState.address;
-  fetch('/api/guild/invite/accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+  fetch('/api/guild/invite/accept',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,inviteId:inviteId})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_joined'),'success');
@@ -25946,7 +25944,7 @@ function guildAcceptInvite(inviteId){
 
 function guildDeclineInvite(inviteId){
   var w=walletState.address;
-  fetch('/api/guild/invite/decline',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+  fetch('/api/guild/invite/decline',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,inviteId:inviteId})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_declined'),'info');
@@ -26018,7 +26016,7 @@ function loadGuildJoinRequests(guildId){
 }
 function approveGuildRequest(inviteId){
   var w=walletState.address;
-  fetch('/api/guild/request/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+  fetch('/api/guild/request/approve',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,inviteId:inviteId})})
     .then(function(r){return r.json()})
     .then(function(data){
       if(data.error){showToast(data.error,'error');return;}
@@ -26028,7 +26026,7 @@ function approveGuildRequest(inviteId){
 }
 function rejectGuildRequest(inviteId){
   var w=walletState.address;
-  fetch('/api/guild/request/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+  fetch('/api/guild/request/reject',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,inviteId:inviteId})})
     .then(function(r){return r.json()})
     .then(function(data){
       if(data.error){showToast(data.error,'error');return;}
@@ -26044,7 +26042,7 @@ async function requestJoinGuild(guildId, guildName){
   if(!w){showToast(t('guild_toast_sign_in_first'),'error');return;}
   var ok=await gameConfirm({icon:'🏰',title:LANG==='ko'?'길드 가입 신청':LANG==='ja'?'ギルド加入申請':LANG==='zh'?'申请加入公会':'Guild Join Request',body:'<b>'+escapeHTML(guildName)+'</b>'+(LANG==='ko'?'에 가입 신청을 보냅니다.':LANG==='ja'?'に加入申請を送ります。':LANG==='zh'?'发送加入申请。':' — Send a join request?'),confirmText:LANG==='ko'?'신청':LANG==='ja'?'申請':LANG==='zh'?'申请':'Request'});
   if(!ok) return;
-  fetch('/api/guild/join-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:guildId})})
+  fetch('/api/guild/join-request',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,guildId:guildId})})
     .then(function(r){return r.json()})
     .then(function(data){
       if(data.error){showToast(data.error,'error');return;}
@@ -26057,7 +26055,7 @@ async function guildLeave(){
   var ok=await gameConfirm({icon:'🏰',title:LANG==='ko'?'길드 탈퇴':LANG==='ja'?'ギルド脱退':LANG==='zh'?'退出公会':'Leave Guild',body:LANG==='ko'?'길드에서 탈퇴합니다. 쿨다운 기간 동안 재가입이 제한됩니다.':LANG==='ja'?'ギルドを脱退します。クールダウン期間中は再加入が制限されます。':LANG==='zh'?'退出公会。冷却期间内限制重新加入。':'Leave this guild. Rejoining will be restricted during the cooldown.',confirmText:LANG==='ko'?'탈퇴':LANG==='ja'?'脱退':LANG==='zh'?'退出':'Leave'});
   if(!ok) return;
   var w=walletState.address;
-  fetch('/api/guild/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
+  fetch('/api/guild/leave',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_left'),'info');
@@ -26070,7 +26068,7 @@ async function guildKick(targetWallet){
   var ok=await gameConfirm({icon:'⚔',title:LANG==='ko'?'멤버 추방':LANG==='ja'?'メンバー追放':LANG==='zh'?'踢出成员':'Kick Member',body:LANG==='ko'?'해당 멤버를 길드에서 추방합니다.':LANG==='ja'?'このメンバーをギルドから追放します。':LANG==='zh'?'将该成员踢出公会。':'Remove this member from the guild.',confirmText:LANG==='ko'?'추방':LANG==='ja'?'追放':LANG==='zh'?'踢出':'Kick'});
   if(!ok) return;
   var w=walletState.address;
-  fetch('/api/guild/kick',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  fetch('/api/guild/kick',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_kicked'),'info');
@@ -26080,7 +26078,7 @@ async function guildKick(targetWallet){
 
 function guildPromote(targetWallet){
   var w=walletState.address;
-  fetch('/api/guild/promote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  fetch('/api/guild/promote',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_promoted'),'success');
@@ -26090,7 +26088,7 @@ function guildPromote(targetWallet){
 
 function guildDemote(targetWallet){
   var w=walletState.address;
-  fetch('/api/guild/demote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  fetch('/api/guild/demote',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_demoted'),'info');
@@ -26102,7 +26100,7 @@ async function guildTransfer(targetWallet){
   var ok=await gameConfirm({icon:'👑',title:LANG==='ko'?'길드장 양도':LANG==='ja'?'ギルドマスター移譲':LANG==='zh'?'转让会长':'Transfer Leadership',body:LANG==='ko'?'길드장 권한을 해당 멤버에게 영구 양도합니다.':LANG==='ja'?'ギルドマスター権限を該当メンバーに永久移譲します。':LANG==='zh'?'将会长权限永久转让给该成员。':'Permanently transfer guild leadership to this member.',confirmText:LANG==='ko'?'양도':LANG==='ja'?'移譲':LANG==='zh'?'转让':'Transfer'});
   if(!ok) return;
   var w=walletState.address;
-  fetch('/api/guild/transfer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  fetch('/api/guild/transfer',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_transferred'),'success');
@@ -26237,7 +26235,7 @@ function saveGuildEdit(){
 
   var btn=document.getElementById('geSaveBtn');
   btn.disabled=true; btn.textContent='SAVING…';
-  fetch('/api/guild/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  fetch('/api/guild/update',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
     .then(function(r){return r.json()})
     .then(function(data){
       btn.disabled=false; btn.textContent='SAVE CHANGES';
@@ -26262,7 +26260,7 @@ async function guildDisband(){
     return;
   }
   var w=walletState.address;
-  fetch('/api/guild/disband',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:_myGuildData.id})})
+  fetch('/api/guild/disband',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_disbanded'),'info');
@@ -26295,7 +26293,7 @@ document.addEventListener('click',function(){
   if(!_tapTimer){
     _tapTimer=setTimeout(function(){
       if(_tapCount>0&&walletState.address){
-        fetch('/api/season/taps',{method:'POST',headers:{'Content-Type':'application/json'},
+        fetch('/api/season/taps',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
           body:JSON.stringify({wallet:walletState.address,count:_tapCount})}).catch(function(){});
       }
       _tapCount=0;_tapTimer=null;
@@ -26480,7 +26478,7 @@ function renderSeasonPass(data){
 }
 
 function claimPassTier(tier,isPremium){
-  fetch('/api/season/pass/claim',{method:'POST',headers:{'Content-Type':'application/json'},
+  fetch('/api/season/pass/claim',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address,tier:tier,isPremium:isPremium})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); return; }
@@ -26505,7 +26503,7 @@ function purchaseSeasonPass(){
     disabled:insufficient
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/season/pass/purchase',{method:'POST',headers:{'Content-Type':'application/json'},
+    fetch('/api/season/pass/purchase',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:walletState.address})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){ showAlert(d.error); return; }
@@ -26646,7 +26644,7 @@ function loadSeasonLeaderboard(){
 function claimSeasonReward(rewardId){
   var w=walletState.address;
   if(!w) return;
-  fetch('/api/season/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,rewardId:rewardId})})
+  fetch('/api/season/claim',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,rewardId:rewardId})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('season_claim_success').replace('{amount}',data.amount).replace('{type}',data.type.toUpperCase()),'success');
@@ -28103,7 +28101,7 @@ async function abandonCampaignFromStory(){
   if(w&&a&&a.sessionId){
     try{
       await fetch('/api/campaign/abandon',{
-        method:'POST',headers:{'Content-Type':'application/json'},
+        method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body:JSON.stringify({wallet:w,session_id:a.sessionId})
       });
     }catch(e){/* 네트워크 실패는 무시한다 — 다음 진입에서 새 세션 생성 가능 */}
@@ -28773,7 +28771,7 @@ async function openCampaignChapter(questId){
     return;
   }
   try{
-    var resp=await fetch('/api/campaign/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,quest_id:questId})});
+    var resp=await fetch('/api/campaign/start',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,quest_id:questId})});
     var d=await resp.json();
     if(!resp.ok){showToast(d.error||'Campaign start failed');return;}
     ch=d.chapter||ch; p=d.progress||{};
@@ -28796,7 +28794,7 @@ async function chooseCampaignOption(choiceId){
   var w=walletState.address, a=_campaignActive;
   if(!w||!a){showToast('Campaign session missing');return;}
   try{
-    var r=await fetch('/api/campaign/choice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId,choice_id:choiceId})});
+    var r=await fetch('/api/campaign/choice',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId,choice_id:choiceId})});
     var d=await r.json();
     if(!r.ok){showToast(d.error||'Choice failed');return;}
     a.progress=d.progress||a.progress;
@@ -28825,7 +28823,7 @@ async function pollCampaignProgress(immediate){
   var w=walletState.address, a=_campaignActive;
   if(!w||!a||!a.sessionId) return;
   try{
-    var r=await fetch('/api/campaign/progress',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId})});
+    var r=await fetch('/api/campaign/progress',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId})});
     var d=await r.json();
     if(!r.ok){showToast(d.error||'Campaign progress failed');return;}
     a.progress=d.progress||a.progress;
@@ -28867,7 +28865,7 @@ async function completeCampaignMission(){
   var w=walletState.address, a=_campaignActive;
   if(!w||!a) return;
   try{
-    var r=await fetch('/api/campaign/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId})});
+    var r=await fetch('/api/campaign/complete',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId})});
     var d=await r.json();
     if(!r.ok){
       if(d.error==='MISSION_IN_PROGRESS'){
@@ -29641,7 +29639,7 @@ async function toggleAutoRenew(type,id,currentState){
     var body={wallet:w,enabled:newState};
     if(type==='shield') body.shieldId=id;
     else body.effectId=id;
-    var resp=await fetch('/api/shop/auto-renew',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var resp=await fetch('/api/shop/auto-renew',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)});
     var d=await resp.json();
     if(!resp.ok){showToast(d.error||'Toggle failed','error');return}
     showToast('Auto-renew '+(newState?'ON':'OFF'),'success');
@@ -33926,7 +33924,7 @@ window.addEventListener('resize', _debounce(function(){
     var rate = parseFloat(slider.value);
     fetch('/api/governor/tax-rate', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, sectorCode: code, taxRate: rate })
     }).then(function(r){return r.json()}).then(function(d) {
       if (d.error) { showToast('Error: '+d.error); return; }
@@ -33942,7 +33940,7 @@ window.addEventListener('resize', _debounce(function(){
     if (!sel) return;
     fetch('/api/governor/policy', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, sectorCode: code, policy: sel.value })
     }).then(function(r){return r.json()}).then(function(d) {
       if (d.error) { showToast('Error: '+d.error); return; }
@@ -34440,7 +34438,7 @@ window.addEventListener('resize', _debounce(function(){
     try {
       var res = await fetch('/api/bounty/post', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: wallet, target_wallet: target, reward_gp: gp, reason: reason })
       });
       var data = await res.json();
@@ -34461,7 +34459,7 @@ window.addEventListener('resize', _debounce(function(){
     if (!ok) return;
     try {
       var res = await fetch('/api/bounty/cancel/' + id, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: wallet })
       });
       var data = await res.json();
@@ -34744,7 +34742,7 @@ window.addEventListener('resize', _debounce(function(){
     if(!target||!amount||amount<=0){showToast('Enter target nickname and GP amount');return}
     fetch('/api/governance/commander/bounty',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,targetNickname:target,gpAmount:amount})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
@@ -34944,7 +34942,7 @@ function _createShareImage(overlayText,callback){
 
 function _doShare(text,blob){
   // Season tracking: share action
-  if(walletState.address) fetch('/api/season/share',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:walletState.address})}).catch(function(){});
+  if(walletState.address) fetch('/api/season/share',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:walletState.address})}).catch(function(){});
   var shareUrl=window.location.origin;
   var shareText=text||"I'm colonizing Mars! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80";
   if(navigator.share&&blob){
@@ -35737,7 +35735,7 @@ function submitPostBounty() {
       if (!confirmed) return;
       return fetch('/api/bounty/post', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: walletState.address, target_wallet: target, reward_gp: amount, reason: msg })
       }).then(function(r){ return r.json(); }).then(function(d) {
         if (d.error) { showToast(d.error, 'error'); return; }
@@ -35756,7 +35754,7 @@ function cancelBounty(bountyId) {
       if (!confirmed) return;
       return fetch('/api/bounty/cancel/' + bountyId, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
         body: JSON.stringify({ wallet: walletState.address })
       }).then(function(r){ return r.json(); }).then(function(d) {
         if (d.error) { showToast(d.error, 'error'); return; }
