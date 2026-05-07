@@ -1,5 +1,38 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.46 — api.js 전체 write 엔드포인트 JWT 인증 일괄 적용
+
+**수정 (CRITICAL / HIGH — 60+ 엔드포인트):**
+- `POST /withdraw-all`: body wallet → `requireAuth` (CRITICAL — USDT 전액 인출 취약점)
+- `POST /swap`: body wallet → `requireAuth` (PP→USDT 스왑)
+- `POST /exchange/pp-to-gp`: body wallet → `requireAuth` (PP→GP 교환)
+- `POST /gp/transfer`: body/header wallet → `requireAuth` (GP 이체)
+- `POST /shop/buy`, `/shop/use`, `/shop/auto-renew`: body wallet → `requireAuth`
+- `POST /enhance`: body wallet → `requireAuth`
+- `POST /claim`: body wallet → `requireAuth` (영토 클레임)
+- `POST /hijack/declare-with-pp`: body wallet → `requireAuth`
+- `PUT /claim/:id/image`: body wallet → `requireAuth`
+- `POST /territory/merge`, `/territory/:claimId/upgrade`: body/header wallet → `requireAuth`
+- `POST /claims/:id/rename`: body wallet → `requireAuth`
+- `POST /campaign/start,/choice,/progress,/complete,/reward/claim,/abandon`: body wallet → `requireAuth`
+- `POST /quests/:id/progress,/claim,/track`: body wallet → `requireAuth`
+- `POST /season/claim,/share,/taps,/pass/purchase,/pass/claim`: body wallet → `requireAuth`
+- `POST /guild/create,/invite,/invite/accept,/invite/decline,/join-request`: body wallet → `requireAuth`
+- `POST /guild/request/approve,/reject,/leave,/kick,/promote,/demote,/transfer`: body wallet → `requireAuth`
+- `POST /guild/update,/disband,/chat,/contribution,/levelup,/donate,/research`: body wallet → `requireAuth`
+- `POST /guild/war/declare,/auto-win,/score,/continue`: body wallet → `requireAuth`
+- `POST /missions/launch,/:id/claim,/:id/cancel`: body wallet → `requireAuth`
+- `POST /items/materialize,/dematerialize`: body wallet → `requireAuth`
+- `POST /exploration/discover,/hint`: body wallet → `requireAuth`
+- `POST /rockets/trigger,/claim-loot,/priority`: body wallet → `requireAuth`
+- `POST /cosmetic/equip,/unequip`: body wallet → `requireAuth`
+- `POST /daily/login,/missions/:id/claim`: body wallet → `requireAuth`
+- `POST /notifications/read,/read-all`: body/header wallet → `requireAuth`
+- `POST /user/titles/equip`: body wallet → `requireAuth`
+- `POST /tags/set-active-title`: body wallet → `requireAuth`
+
+---
+
 ## 2026-05-07 v7.45 — harvest 3개 엔드포인트 JWT 인증 + api.js requireAuth 추가
 
 **수정 (HIGH):**

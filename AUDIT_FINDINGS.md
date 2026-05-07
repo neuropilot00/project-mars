@@ -1,4 +1,27 @@
-# OCCUPY MARS — Codebase Audit (v7.42 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.46 / 2026-05-07)
+
+## 🔴→✅ v7.46 — api.js 전체 write 엔드포인트 JWT 인증 일괄 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `api.js POST /withdraw-all` — body wallet 신뢰, JWT 없음 | 타인 wallet USDT 전액 인출 + signature 생성 | 🔴 CRITICAL | ✅ requireAuth |
+| `api.js POST /swap` — body wallet 신뢰 | 타인 PP → USDT 스왑 | 🔴 CRITICAL | ✅ requireAuth |
+| `api.js POST /gp/transfer` — body/header wallet 신뢰 | 타인 GP 이체 | 🔴 CRITICAL | ✅ requireAuth |
+| `api.js POST /exchange/pp-to-gp` — body wallet 신뢰 | 타인 PP → GP 교환 | 🔴 HIGH | ✅ requireAuth |
+| `api.js POST /shop/buy,/use` — body wallet 신뢰 | 타인 GP 소각 | 🔴 HIGH | ✅ requireAuth x2 |
+| `api.js POST /enhance` — body wallet 신뢰 | 타인 GP/재료 소각 | 🔴 HIGH | ✅ requireAuth |
+| `api.js POST /claim` — body wallet 신뢰 | 타인 명의 영토 클레임 (PP 소각) | 🔴 HIGH | ✅ requireAuth |
+| `api.js POST /hijack/declare-with-pp` — body wallet 신뢰 | 타인 PP 소각, 타인 명의 공격 | 🔴 HIGH | ✅ requireAuth |
+| `api.js PUT /claim/:id/image` — body wallet 신뢰 | 타인 영토 이미지 변조 | 🔴 HIGH | ✅ requireAuth |
+| `api.js POST /territory/merge,/upgrade` — body/header wallet 신뢰 | 타인 GP/영토 소각 | 🔴 HIGH | ✅ requireAuth x2 |
+| `api.js POST /campaign/*` — body wallet 신뢰 (6개) | 타인 캠페인 조작/완료/보상 수령 | 🔴 HIGH | ✅ requireAuth x6 |
+| `api.js POST /guild/*` — body wallet 신뢰 (15개) | 타인 길드 조작, GP 기부/전쟁 선포 | 🔴 HIGH | ✅ requireAuth x15 |
+| `api.js POST /season/*` — body wallet 신뢰 (5개) | 타인 시즌 보상 수령 | 🟡 MEDIUM | ✅ requireAuth x5 |
+| `api.js POST /quests/*,/missions/*,/daily/*` — body wallet 신뢰 (7개) | 타인 퀘스트/미션/데일리 조작 | 🟡 MEDIUM | ✅ requireAuth x7 |
+| `api.js POST /exploration/*,/rockets/*,/cosmetic/*` — body wallet 신뢰 (6개) | 타인 PP 소각, 코스메틱 조작 | 🟡 MEDIUM | ✅ requireAuth x6 |
+| `api.js POST /notifications/*,/user/titles/equip,/tags/set-active-title` — body wallet | 타인 알림/칭호 조작 | 🟡 LOW | ✅ requireAuth x4 |
+
+---
 
 ## 🔴→✅ v7.45 — harvest endpoints JWT 인증 누락 (2026-05-07)
 

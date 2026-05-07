@@ -843,8 +843,9 @@ router.post('/upload', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/claim
 // ══════════════════════════════════════════════════
-router.post('/claim', writeLimiter, async (req, res) => {
-  const { wallet, lat, lng, width, height, imageUrl, originalImageUrl, linkUrl, payMethod } = req.body;
+router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { lat, lng, width, height, imageUrl, originalImageUrl, linkUrl, payMethod } = req.body;
   if (!wallet || lat == null || lng == null || !width || !height) {
     return res.status(400).json({ error: 'Missing fields' });
   }
@@ -1687,8 +1688,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
 //  POST /api/hijack/declare-with-pp
 //  클레임 스탬프 → 적 영토 → 함대전 하이젝 (PP 즉시 차감)
 // ══════════════════════════════════════════════════
-router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
-  const { wallet, lat, lng, width, height, atk_fleet_id, imageUrl, originalImageUrl, linkUrl, payMethod } = req.body;
+router.post('/hijack/declare-with-pp', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { lat, lng, width, height, atk_fleet_id, imageUrl, originalImageUrl, linkUrl, payMethod } = req.body;
   if (!wallet || lat == null || lng == null || !width || !height || !atk_fleet_id) {
     return res.status(400).json({ error: 'MISSING_PARAMS' });
   }
@@ -1928,9 +1930,10 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  PUT /api/claim/:id/image — Update/add image to existing claim
 // ══════════════════════════════════════════════════
-router.put('/claim/:id/image', writeLimiter, async (req, res) => {
+router.put('/claim/:id/image', requireAuth, writeLimiter, async (req, res) => {
   const claimId = parseInt(req.params.id);
-  const { wallet, imageUrl, originalImageUrl, imgScale, imgRotate, imgOffsetX, imgOffsetY, linkUrl } = req.body;
+  const wallet = getAuthWallet(req);
+  const { imageUrl, originalImageUrl, imgScale, imgRotate, imgOffsetX, imgOffsetY, linkUrl } = req.body;
   if (!wallet || !claimId) return res.status(400).json({ error: 'Missing fields' });
 
   const safeImageUrl = sanitizeUrl(imageUrl, true);
@@ -1983,8 +1986,9 @@ router.put('/claim/:id/image', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/swap — PP → USDT
 // ══════════════════════════════════════════════════
-router.post('/swap', writeLimiter, async (req, res) => {
-  const { wallet, ppAmount } = req.body;
+router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { ppAmount } = req.body;
   if (!wallet || !ppAmount || ppAmount <= 0) return res.status(400).json({ error: 'Invalid input' });
 
   const parsedPP = Number(ppAmount);
@@ -2051,8 +2055,9 @@ router.post('/swap', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/withdraw — USDT withdrawal (server signs)
 // ══════════════════════════════════════════════════
-router.post('/withdraw', writeLimiter, async (req, res) => {
-  const { wallet, amount, chain } = req.body;
+router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { amount, chain } = req.body;
   if (!wallet || !amount || amount <= 0) return res.status(400).json({ error: 'Invalid input' });
 
   const parsedAmount = Number(amount);
@@ -2137,8 +2142,9 @@ router.post('/withdraw', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/withdraw-all — full withdrawal + pixel reset
 // ══════════════════════════════════════════════════
-router.post('/withdraw-all', writeLimiter, async (req, res) => {
-  const { wallet, chain } = req.body;
+router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { chain } = req.body;
   if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
 
   const chainKey = chain || 'base';
@@ -3573,12 +3579,12 @@ router.get('/quests', readLimiter, async (req, res) => {
 });
 
 // POST /api/quests/:id/progress — Update quest progress
-router.post('/quests/:id/progress', writeLimiter, async (req, res) => {
+router.post('/quests/:id/progress', requireAuth, writeLimiter, async (req, res) => {
   const client = await pool.connect();
   try {
     const questId = parseInt(req.params.id);
-    const { wallet, amount } = req.body;
-    const w = sanitize(wallet, 255).toLowerCase();
+    const { amount } = req.body;
+    const w = getAuthWallet(req);
     if (!w || !questId) return res.status(400).json({ error: 'Invalid params' });
     const increment = parseFloat(amount) || 1;
 
@@ -3630,12 +3636,11 @@ router.post('/quests/:id/progress', writeLimiter, async (req, res) => {
 });
 
 // POST /api/quests/:id/claim — Claim completed quest reward (pool-funded)
-router.post('/quests/:id/claim', writeLimiter, async (req, res) => {
+router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => {
   const client = await pool.connect();
   try {
     const questId = parseInt(req.params.id);
-    const { wallet } = req.body;
-    const w = sanitize(wallet, 255).toLowerCase();
+    const w = getAuthWallet(req);
     if (!w || !questId) return res.status(400).json({ error: 'Invalid params' });
 
     await client.query('BEGIN');
@@ -3784,10 +3789,10 @@ router.post('/quests/:id/claim', writeLimiter, async (req, res) => {
 
 // POST /api/quests/track — Server-side quest progress tracking (called by other endpoints)
 // This is an internal helper, also exposed for client-side tracking of view-type quests
-router.post('/quests/track', writeLimiter, async (req, res) => {
+router.post('/quests/track', requireAuth, writeLimiter, async (req, res) => {
   try {
-    const { wallet, action, amount } = req.body;
-    const w = sanitize(wallet, 255);
+    const { action, amount } = req.body;
+    const w = getAuthWallet(req);
     if (!w || !action) return res.status(400).json({ error: 'Invalid params' });
     const increment = parseFloat(amount) || 1;
 
@@ -3863,10 +3868,10 @@ router.get('/campaign/status/:wallet', readLimiter, async (req, res) => {
   }
 });
 
-router.post('/campaign/start', writeLimiter, async (req, res) => {
+router.post('/campaign/start', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
-    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const wallet = getAuthWallet(req);
     const questId = sanitize(req.body.quest_id || 'mcc_campaign_ch1', 80);
     if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet required' });
     const result = await campaignService.startChapter(wallet, questId);
@@ -3878,10 +3883,10 @@ router.post('/campaign/start', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/campaign/choice', writeLimiter, async (req, res) => {
+router.post('/campaign/choice', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
-    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const wallet = getAuthWallet(req);
     const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
     const choiceId = sanitize(req.body.choice_id || req.body.choiceId, 100);
     if (!wallet || wallet.length < 10 || !sessionId || !choiceId) return res.status(400).json({ error: 'missing fields' });
@@ -3894,10 +3899,10 @@ router.post('/campaign/choice', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/campaign/progress', writeLimiter, async (req, res) => {
+router.post('/campaign/progress', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
-    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const wallet = getAuthWallet(req);
     const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
     if (!wallet || wallet.length < 10 || !sessionId) return res.status(400).json({ error: 'missing fields' });
     const result = await campaignService.getProgress(wallet, sessionId);
@@ -3909,10 +3914,10 @@ router.post('/campaign/progress', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/campaign/complete', writeLimiter, async (req, res) => {
+router.post('/campaign/complete', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
-    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const wallet = getAuthWallet(req);
     const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
     if (!wallet || wallet.length < 10 || !sessionId) return res.status(400).json({ error: 'missing fields' });
     const result = await campaignService.complete(wallet, sessionId);
@@ -3927,10 +3932,10 @@ router.post('/campaign/complete', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/campaign/reward/claim', writeLimiter, async (req, res) => {
+router.post('/campaign/reward/claim', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
-    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const wallet = getAuthWallet(req);
     const rewardId = parseInt(req.body.reward_id || req.body.rewardId, 10);
     if (!wallet || wallet.length < 10 || !rewardId) return res.status(400).json({ error: 'missing fields' });
     const result = await campaignService.claimReward(wallet, rewardId);
@@ -3942,10 +3947,10 @@ router.post('/campaign/reward/claim', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/campaign/abandon', writeLimiter, async (req, res) => {
+router.post('/campaign/abandon', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
-    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const wallet = getAuthWallet(req);
     const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
     if (!wallet || wallet.length < 10 || !sessionId) return res.status(400).json({ error: 'missing fields' });
     const result = await campaignService.abandon(wallet, sessionId);
@@ -4029,10 +4034,10 @@ router.post('/tags/revoke', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/tags/set-active-title', writeLimiter, async (req, res) => {
+router.post('/tags/set-active-title', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
-    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const wallet = getAuthWallet(req);
     const tagId = sanitize(req.body.tag_id || req.body.tagId, 100);
     if (!wallet || wallet.length < 10 || !tagId) return res.status(400).json({ error: 'missing fields' });
     const result = await campaignService.setActiveTitle(wallet, tagId);
@@ -4147,9 +4152,9 @@ router.get('/shop/inventory', readLimiter, async (req, res) => {
 });
 
 // POST /api/shop/buy — purchase an item
-router.post('/shop/buy', writeLimiter, async (req, res) => {
-  const { wallet, itemCode, currency, quantity } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/shop/buy', requireAuth, writeLimiter, async (req, res) => {
+  const { itemCode, currency, quantity } = req.body;
+  const w = getAuthWallet(req);
   const qty = parseInt(quantity) || 1;
   if (!w || !itemCode) return res.status(400).json({ error: 'Missing wallet or itemCode' });
 
@@ -4260,9 +4265,9 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
 });
 
 // POST /api/shop/use — use an item
-router.post('/shop/use', writeLimiter, async (req, res) => {
-  const { wallet, itemCode, claimId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
+  const { itemCode, claimId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !itemCode) return res.status(400).json({ error: 'Missing params' });
 
   const client = await pool.connect();
@@ -4595,9 +4600,9 @@ router.get('/items/instances', readLimiter, async (req, res) => {
 });
 
 // POST /api/items/materialize — split 1 from stack into individual instance
-router.post('/items/materialize', writeLimiter, async (req, res) => {
-  const { wallet, itemTypeId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/items/materialize', requireAuth, writeLimiter, async (req, res) => {
+  const { itemTypeId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !itemTypeId) return res.status(400).json({ error: 'Missing wallet or itemTypeId' });
   if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
 
@@ -4617,9 +4622,9 @@ router.post('/items/materialize', writeLimiter, async (req, res) => {
 });
 
 // POST /api/items/dematerialize — return +0 instance back to stack
-router.post('/items/dematerialize', writeLimiter, async (req, res) => {
-  const { wallet, instanceId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/items/dematerialize', requireAuth, writeLimiter, async (req, res) => {
+  const { instanceId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !instanceId) return res.status(400).json({ error: 'Missing wallet or instanceId' });
   if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
 
@@ -4690,14 +4695,14 @@ router.get('/enhance/info/:instanceId', readLimiter, async (req, res) => {
   }
 });
 
-router.post('/enhance', writeLimiter, async (req, res) => {
+router.post('/enhance', requireAuth, writeLimiter, async (req, res) => {
   const {
-    wallet, instanceId,
+    instanceId,
     recipe_ids = [],
     use_protect_scroll = false,
     use_blessed_scroll = false,
   } = req.body;
-  const w = (wallet || '').toLowerCase();
+  const w = getAuthWallet(req);
   if (!w || !instanceId) return res.status(400).json({ error: 'Missing wallet or instanceId' });
   if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
 
@@ -4792,10 +4797,11 @@ router.get('/exploration/pois', readLimiter, async (req, res) => {
 });
 
 // POST /api/exploration/discover — discover a POI
-router.post('/exploration/discover', writeLimiter, async (req, res) => {
+router.post('/exploration/discover', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!explorationService) return res.status(503).json({ error: 'Exploration system not available' });
-    const { wallet, poiId } = req.body;
+    const { poiId } = req.body;
+    const wallet = getAuthWallet(req);
     if (!wallet || !poiId) return res.status(400).json({ error: 'Missing wallet or poiId' });
     const result = await explorationService.discoverPOI(wallet.toLowerCase(), parseInt(poiId));
     if (result.error) return res.status(400).json(result);
@@ -4861,10 +4867,10 @@ router.get('/rockets/:id/loot', readLimiter, async (req, res) => {
 });
 
 // POST /api/rockets/trigger — commander triggers a rocket drop
-router.post('/rockets/trigger', writeLimiter, async (req, res) => {
+router.post('/rockets/trigger', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!rocketService) return res.status(503).json({ error: 'Rocket system not available' });
-    const { wallet } = req.body;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
     // Verify commander — commander_wallet lives in the `commander` table (id=1),
     // NOT in `game_settings`. Old code always 403'd.
@@ -4886,10 +4892,11 @@ router.post('/rockets/trigger', writeLimiter, async (req, res) => {
 });
 
 // POST /api/rockets/claim-loot — claim a loot item
-router.post('/rockets/claim-loot', writeLimiter, async (req, res) => {
+router.post('/rockets/claim-loot', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!rocketService) return res.status(503).json({ error: 'Rocket system not available' });
-    const { wallet, rocketEventId, lootIndex } = req.body;
+    const { rocketEventId, lootIndex } = req.body;
+    const wallet = getAuthWallet(req);
     if (!wallet || rocketEventId == null || lootIndex == null) return res.status(400).json({ error: 'Missing fields' });
     const result = await rocketService.claimRocketLoot(wallet.toLowerCase(), parseInt(rocketEventId), parseInt(lootIndex));
     if (result.error) return res.status(400).json(result);
@@ -4907,9 +4914,9 @@ router.post('/rockets/claim-loot', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════
 
 // POST /api/cosmetic/equip — equip a cosmetic to a claim
-router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
-  const { wallet, claimId, itemCode } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/cosmetic/equip', requireAuth, writeLimiter, async (req, res) => {
+  const { claimId, itemCode } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !claimId || !itemCode) return res.status(400).json({ error: 'Missing params' });
 
   // Derive cosmetic_type from item code
@@ -5022,9 +5029,9 @@ router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
 });
 
 // POST /api/cosmetic/unequip — remove a cosmetic from a claim
-router.post('/cosmetic/unequip', writeLimiter, async (req, res) => {
-  const { wallet, claimId, cosmeticType } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/cosmetic/unequip', requireAuth, writeLimiter, async (req, res) => {
+  const { claimId, cosmeticType } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !claimId || !cosmeticType) return res.status(400).json({ error: 'Missing params' });
 
   const client = await pool.connect();
@@ -5142,10 +5149,10 @@ router.get('/daily/status', readLimiter, async (req, res) => {
 });
 
 // POST /api/daily/login — record daily login & collect streak reward
-router.post('/daily/login', writeLimiter, async (req, res) => {
+router.post('/daily/login', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
-    const { wallet } = req.body;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
     const result = await dailyService.recordDailyLogin(wallet);
     if (!result.alreadyClaimed) {
@@ -5188,10 +5195,10 @@ router.get('/daily/missions', readLimiter, async (req, res) => {
 });
 
 // POST /api/daily/missions/:id/claim — claim a completed mission reward
-router.post('/daily/missions/:id/claim', writeLimiter, async (req, res) => {
+router.post('/daily/missions/:id/claim', requireAuth, writeLimiter, async (req, res) => {
   try {
     if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
-    const { wallet } = req.body;
+    const wallet = getAuthWallet(req);
     const missionId = parseInt(req.params.id);
     if (!wallet || !missionId) return res.status(400).json({ error: 'Missing wallet or mission ID' });
     const result = await dailyService.claimMissionReward(wallet, missionId);
@@ -5284,8 +5291,9 @@ router.post('/harvest-instant', requireAuth, harvestLimiter, async (req, res) =>
 });
 
 // POST /api/claims/:id/rename — rename territory for 0.3 PP
-router.post('/claims/:id/rename', writeLimiter, async (req, res) => {
-  const { wallet, name } = req.body;
+router.post('/claims/:id/rename', requireAuth, writeLimiter, async (req, res) => {
+  const { name } = req.body;
+  const wallet = getAuthWallet(req);
   const claimId = parseInt(req.params.id);
   if (!wallet || !claimId || !name) return res.status(400).json({ error: 'Missing wallet, claimId, or name' });
 
@@ -5542,8 +5550,8 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
 // 여러 영토 클레임을 하나로 병합
 // body: { wallet, claimIds: [id1, id2, ...] }
 // ══════════════════════════════════════════════════
-router.post('/territory/merge', writeLimiter, async (req, res) => {
-  const wallet = ((req.body && req.body.wallet) || (req.headers && req.headers['x-wallet']) || '').toLowerCase().trim();
+router.post('/territory/merge', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
 
   const rawIds = (req.body && req.body.claimIds) || [];
@@ -5746,9 +5754,9 @@ router.get('/territory/:claimId/upgrades', readLimiter, async (req, res) => {
 // 영토 업그레이드 실행 (소유자 전용)
 // body: { wallet, upgradeType }
 // ══════════════════════════════════════════════════
-router.post('/territory/:claimId/upgrade', writeLimiter, async (req, res) => {
+router.post('/territory/:claimId/upgrade', requireAuth, writeLimiter, async (req, res) => {
   const claimId = parseInt(req.params.claimId);
-  const wallet = (req.body.wallet || '').toLowerCase().trim();
+  const wallet = getAuthWallet(req);
   const { upgradeType } = req.body;
   if (!claimId || !wallet || !upgradeType) return res.status(400).json({ error: 'claimId, wallet, upgradeType required' });
   if (!upgradeSvc) return res.status(503).json({ error: 'Upgrade service unavailable' });
@@ -5966,8 +5974,9 @@ router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
 });
 
 // POST /api/exploration/hint — get approximate direction to nearest undiscovered POI (0.2 PP)
-router.post('/exploration/hint', writeLimiter, async (req, res) => {
-  const { wallet, lat, lng } = req.body;
+router.post('/exploration/hint', requireAuth, writeLimiter, async (req, res) => {
+  const { lat, lng } = req.body;
+  const wallet = getAuthWallet(req);
   if (!wallet || lat == null || lng == null) return res.status(400).json({ error: 'Missing wallet or coordinates' });
 
   const client = await pool.connect();
@@ -6057,8 +6066,9 @@ router.post('/exploration/hint', writeLimiter, async (req, res) => {
 });
 
 // POST /api/rockets/priority — purchase priority notification for rocket loot (0.3 PP)
-router.post('/rockets/priority', writeLimiter, async (req, res) => {
-  const { wallet, rocketEventId } = req.body;
+router.post('/rockets/priority', requireAuth, writeLimiter, async (req, res) => {
+  const { rocketEventId } = req.body;
+  const wallet = getAuthWallet(req);
   if (!wallet || rocketEventId == null) return res.status(400).json({ error: 'Missing wallet or rocketEventId' });
 
   const client = await pool.connect();
@@ -6143,9 +6153,9 @@ router.get('/rockets/priority', readLimiter, async (req, res) => {
 });
 
 // POST /api/shop/auto-renew — toggle auto-renewal for shield or active effect
-router.post('/shop/auto-renew', writeLimiter, async (req, res) => {
-  const { wallet, effectId, shieldId, enabled } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/shop/auto-renew', requireAuth, writeLimiter, async (req, res) => {
+  const { effectId, shieldId, enabled } = req.body;
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!effectId && !shieldId) return res.status(400).json({ error: 'Missing effectId or shieldId' });
 
@@ -6246,9 +6256,9 @@ router.get('/season/rewards', readLimiter, async (req, res) => {
 });
 
 // Claim season reward
-router.post('/season/claim', writeLimiter, async (req, res) => {
-  const { wallet, rewardId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/season/claim', requireAuth, writeLimiter, async (req, res) => {
+  const { rewardId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !rewardId) return res.status(400).json({ error: 'Missing fields' });
   if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
   try {
@@ -6262,10 +6272,9 @@ router.post('/season/claim', writeLimiter, async (req, res) => {
 });
 
 // Track share action for "Influencer" season category
-router.post('/season/share', writeLimiter, async (req, res) => {
+router.post('/season/share', requireAuth, writeLimiter, async (req, res) => {
   try {
-    const { wallet } = req.body;
-    const w = (wallet || '').toLowerCase();
+    const w = getAuthWallet(req);
     if (!w) return res.json({ ok: true });
     if (seasonService) { seasonService.addSeasonScore(w, 'share', 1).catch(() => {}); }
     res.json({ ok: true });
@@ -6273,10 +6282,10 @@ router.post('/season/share', writeLimiter, async (req, res) => {
 });
 
 // Track taps/clicks for "Most Active" season category (batched from frontend)
-router.post('/season/taps', writeLimiter, async (req, res) => {
+router.post('/season/taps', requireAuth, writeLimiter, async (req, res) => {
   try {
-    const { wallet, count } = req.body;
-    const w = (wallet || '').toLowerCase();
+    const { count } = req.body;
+    const w = getAuthWallet(req);
     if (!w || !count || count < 1) return res.json({ ok: true });
     // Cap at 500 per batch to prevent abuse
     const taps = Math.min(parseInt(count) || 0, 500);
@@ -6292,9 +6301,9 @@ router.post('/season/taps', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════════════════
 
 // Create guild
-router.post('/guild/create', writeLimiter, async (req, res) => {
-  const { wallet, name, tag, emoji, description } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/create', requireAuth, writeLimiter, async (req, res) => {
+  const { name, tag, emoji, description } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !name || !tag) return res.status(400).json({ error: 'Missing wallet, name, or tag' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6388,9 +6397,9 @@ router.get('/guild/:id', readLimiter, async (req, res, next) => {
 
 // Invite member — accepts either wallet address (0x…) or nickname.
 // If the input doesn't look like a wallet we resolve it via the users table.
-router.post('/guild/invite', writeLimiter, async (req, res) => {
-  const { wallet, targetWallet, guildId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/invite', requireAuth, writeLimiter, async (req, res) => {
+  const { targetWallet, guildId } = req.body;
+  const w = getAuthWallet(req);
   let target = (targetWallet || '').trim();
   if (!w || !target || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
@@ -6418,9 +6427,9 @@ router.post('/guild/invite', writeLimiter, async (req, res) => {
 });
 
 // Accept invite
-router.post('/guild/invite/accept', writeLimiter, async (req, res) => {
-  const { wallet, inviteId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/invite/accept', requireAuth, writeLimiter, async (req, res) => {
+  const { inviteId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6436,9 +6445,9 @@ router.post('/guild/invite/accept', writeLimiter, async (req, res) => {
 });
 
 // ── Join requests (player → guild, approval by leader/officer) ──
-router.post('/guild/join-request', writeLimiter, async (req, res) => {
-  const { wallet, guildId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/join-request', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6482,9 +6491,9 @@ router.get('/guild/:id/search-users', readLimiter, async (req, res) => {
   }
 });
 
-router.post('/guild/request/approve', writeLimiter, async (req, res) => {
-  const { wallet, inviteId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/request/approve', requireAuth, writeLimiter, async (req, res) => {
+  const { inviteId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6497,9 +6506,9 @@ router.post('/guild/request/approve', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/guild/request/reject', writeLimiter, async (req, res) => {
-  const { wallet, inviteId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/request/reject', requireAuth, writeLimiter, async (req, res) => {
+  const { inviteId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6513,9 +6522,9 @@ router.post('/guild/request/reject', writeLimiter, async (req, res) => {
 });
 
 // Decline invite
-router.post('/guild/invite/decline', writeLimiter, async (req, res) => {
-  const { wallet, inviteId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/invite/decline', requireAuth, writeLimiter, async (req, res) => {
+  const { inviteId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6529,9 +6538,8 @@ router.post('/guild/invite/decline', writeLimiter, async (req, res) => {
 });
 
 // Leave guild
-router.post('/guild/leave', writeLimiter, async (req, res) => {
-  const { wallet } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/leave', requireAuth, writeLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6545,9 +6553,9 @@ router.post('/guild/leave', writeLimiter, async (req, res) => {
 });
 
 // Kick member
-router.post('/guild/kick', writeLimiter, async (req, res) => {
-  const { wallet, targetWallet, guildId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/kick', requireAuth, writeLimiter, async (req, res) => {
+  const { targetWallet, guildId } = req.body;
+  const w = getAuthWallet(req);
   const tw = (targetWallet || '').toLowerCase();
   if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
@@ -6562,9 +6570,9 @@ router.post('/guild/kick', writeLimiter, async (req, res) => {
 });
 
 // Promote to officer
-router.post('/guild/promote', writeLimiter, async (req, res) => {
-  const { wallet, targetWallet, guildId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/promote', requireAuth, writeLimiter, async (req, res) => {
+  const { targetWallet, guildId } = req.body;
+  const w = getAuthWallet(req);
   const tw = (targetWallet || '').toLowerCase();
   if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
@@ -6579,9 +6587,9 @@ router.post('/guild/promote', writeLimiter, async (req, res) => {
 });
 
 // Demote to member
-router.post('/guild/demote', writeLimiter, async (req, res) => {
-  const { wallet, targetWallet, guildId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/demote', requireAuth, writeLimiter, async (req, res) => {
+  const { targetWallet, guildId } = req.body;
+  const w = getAuthWallet(req);
   const tw = (targetWallet || '').toLowerCase();
   if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
@@ -6596,9 +6604,9 @@ router.post('/guild/demote', writeLimiter, async (req, res) => {
 });
 
 // Transfer leadership
-router.post('/guild/transfer', writeLimiter, async (req, res) => {
-  const { wallet, targetWallet, guildId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/transfer', requireAuth, writeLimiter, async (req, res) => {
+  const { targetWallet, guildId } = req.body;
+  const w = getAuthWallet(req);
   const tw = (targetWallet || '').toLowerCase();
   if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
@@ -6614,9 +6622,9 @@ router.post('/guild/transfer', writeLimiter, async (req, res) => {
 
 // Disband guild
 // Update guild info (leader-only, charges GP per changed field)
-router.post('/guild/update', writeLimiter, async (req, res) => {
-  const { wallet, guildId, name, description, emblemEmoji, emblemImage } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/update', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId, name, description, emblemEmoji, emblemImage } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   // Build fields dict (only include keys that were actually sent)
@@ -6635,9 +6643,9 @@ router.post('/guild/update', writeLimiter, async (req, res) => {
   }
 });
 
-router.post('/guild/disband', writeLimiter, async (req, res) => {
-  const { wallet, guildId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/disband', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6653,9 +6661,9 @@ router.post('/guild/disband', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  GUILD CHAT — polling based
 // ══════════════════════════════════════════════════
-router.post('/guild/chat', writeLimiter, async (req, res) => {
-  const { wallet, guildId, message } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/chat', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId, message } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6725,9 +6733,9 @@ router.get('/missions/preview', readLimiter, async (req, res) => {
 });
 
 // Launch a new mission
-router.post('/missions/launch', writeLimiter, async (req, res) => {
-  const { wallet, type, originClaimId, targetLat, targetLng, targetWallet } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/missions/launch', requireAuth, writeLimiter, async (req, res) => {
+  const { type, originClaimId, targetLat, targetLng, targetWallet } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !type) return res.status(400).json({ error: 'Missing wallet or type' });
   if (!originClaimId) return res.status(400).json({ error: 'Pick a launch pad first' });
   if (typeof targetLat !== 'number' || typeof targetLng !== 'number') {
@@ -6762,9 +6770,9 @@ router.get('/missions/active', readLimiter, async (req, res) => {
 });
 
 // Claim a completed mission's rewards
-router.post('/missions/:id/claim', writeLimiter, async (req, res) => {
-  const { wallet, minigameScore } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/missions/:id/claim', requireAuth, writeLimiter, async (req, res) => {
+  const { minigameScore } = req.body || {};
+  const w = getAuthWallet(req);
   const missionId = parseInt(req.params.id);
   if (!w || !missionId) return res.status(400).json({ error: 'Missing fields' });
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
@@ -6789,9 +6797,8 @@ router.post('/missions/:id/claim', writeLimiter, async (req, res) => {
 });
 
 // Cancel a traveling mission (partial refund)
-router.post('/missions/:id/cancel', writeLimiter, async (req, res) => {
-  const { wallet } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/missions/:id/cancel', requireAuth, writeLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   const missionId = parseInt(req.params.id);
   if (!w || !missionId) return res.status(400).json({ error: 'Missing fields' });
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
@@ -6810,9 +6817,9 @@ router.post('/missions/:id/cancel', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 
 // Set the caller's harvest contribution percentage (0-30)
-router.post('/guild/contribution', writeLimiter, async (req, res) => {
-  const { wallet, pct } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/contribution', requireAuth, writeLimiter, async (req, res) => {
+  const { pct } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || pct === undefined) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6826,9 +6833,9 @@ router.post('/guild/contribution', writeLimiter, async (req, res) => {
 });
 
 // Trigger a guild level-up (consumes treasury)
-router.post('/guild/levelup', writeLimiter, async (req, res) => {
-  const { wallet, guildId } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/levelup', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6843,9 +6850,9 @@ router.post('/guild/levelup', writeLimiter, async (req, res) => {
 
 // Unlock a research perk (consumes treasury)
 // ── Guild GP Donation ──
-router.post('/guild/donate', writeLimiter, async (req, res) => {
-  const { wallet, guildId, amount } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/donate', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId, amount } = req.body || {};
+  const w = getAuthWallet(req);
   const amt = parseInt(amount);
   if (!w || !guildId || !amt || amt <= 0) return res.status(400).json({ error: 'Missing fields' });
   const client = await pool.connect();
@@ -6887,9 +6894,9 @@ router.post('/guild/donate', writeLimiter, async (req, res) => {
   } finally { client.release(); }
 });
 
-router.post('/guild/research', writeLimiter, async (req, res) => {
-  const { wallet, guildId, key } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/research', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId, key } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !guildId || !key) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6921,9 +6928,9 @@ router.get('/guild/:id/ledger', readLimiter, async (req, res) => {
 //  GUILD WARS
 // ═══════════════════════════════════════
 
-router.post('/guild/war/declare', writeLimiter, async (req, res) => {
-  const { wallet, guildId, targetGuildId, stakeGp, sectorId, durationHours } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/war/declare', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId, targetGuildId, stakeGp, sectorId, durationHours } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !guildId || !targetGuildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -6960,8 +6967,8 @@ router.get('/guild/war/enemies', readLimiter, async (req, res) => {
 });
 
 // 적 함대가 없을 때 자동 승리 포인트 획득 (1회/24h/전쟁)
-router.post('/guild/war/auto-win', writeLimiter, async (req, res) => {
-  const wallet  = (req.body.wallet || '').toLowerCase().trim();
+router.post('/guild/war/auto-win', requireAuth, writeLimiter, async (req, res) => {
+  const wallet  = getAuthWallet(req);
   const warId   = parseInt(req.body.war_id);
   const guildId = parseInt(req.body.guild_id);
   if (!wallet || !warId || !guildId) return res.status(400).json({ error: 'wallet, war_id, guild_id required' });
@@ -7103,9 +7110,8 @@ router.get('/season/pass', readLimiter, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.post('/season/pass/purchase', writeLimiter, async (req, res) => {
-  const { wallet } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/season/pass/purchase', requireAuth, writeLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   try {
     const seasonService = require('../services/season');
@@ -7115,9 +7121,9 @@ router.post('/season/pass/purchase', writeLimiter, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.post('/season/pass/claim', writeLimiter, async (req, res) => {
-  const { wallet, tier, isPremium } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/season/pass/claim', requireAuth, writeLimiter, async (req, res) => {
+  const { tier, isPremium } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || tier === undefined) return res.status(400).json({ error: 'Missing fields' });
   try {
     const seasonService = require('../services/season');
@@ -7131,9 +7137,9 @@ router.post('/season/pass/claim', writeLimiter, async (req, res) => {
 //  GUILD WAR MINIGAMES
 // ═══════════════════════════════════════
 
-router.post('/guild/war/score', writeLimiter, async (req, res) => {
-  const { wallet, warId, gameType, score } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/war/score', requireAuth, writeLimiter, async (req, res) => {
+  const { warId, gameType, score } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !warId || !gameType || !score) return res.status(400).json({ error: 'Missing fields (wallet, warId, gameType, score)' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -7156,9 +7162,9 @@ router.get('/guild/war/:id/scores', readLimiter, async (req, res) => {
 //  PP → GP EXCHANGE
 // ═══════════════════════════════════════
 
-router.post('/exchange/pp-to-gp', writeLimiter, async (req, res) => {
-  const { wallet, amount } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) => {
+  const { amount } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !amount) return res.status(400).json({ error: 'Missing wallet or amount' });
 
   const ppAmount = parseFloat(amount);
@@ -7257,9 +7263,9 @@ router.get('/exchange/pp-to-gp/info', readLimiter, async (req, res) => {
 //  GUILD WAR CONTINUE (pay GP/PP to continue minigame)
 // ═══════════════════════════════════════
 
-router.post('/guild/war/continue', writeLimiter, async (req, res) => {
-  const { wallet, warId, continueNum } = req.body || {};
-  const w = (wallet || '').toLowerCase();
+router.post('/guild/war/continue', requireAuth, writeLimiter, async (req, res) => {
+  const { warId, continueNum } = req.body || {};
+  const w = getAuthWallet(req);
   if (!w || !warId || !continueNum) return res.status(400).json({ error: 'Missing fields' });
 
   const num = parseInt(continueNum);
@@ -7419,8 +7425,9 @@ router.get('/user/titles', readLimiter, async (req, res) => {
 
 // POST /api/user/titles/equip — 칭호 장착
 // body: { wallet, titleCode }
-router.post('/user/titles/equip', writeLimiter, async (req, res) => {
-  const { wallet, titleCode } = req.body;
+router.post('/user/titles/equip', requireAuth, writeLimiter, async (req, res) => {
+  const { titleCode } = req.body;
+  const wallet = getAuthWallet(req);
   if (!wallet || !titleCode) return res.status(400).json({ error: 'missing_fields' });
   try {
     if (!titleService) return res.status(503).json({ error: 'title_service_unavailable' });
@@ -7526,8 +7533,8 @@ router.get('/notifications', readLimiter, async (req, res) => {
 });
 
 // POST /api/notifications/read — mark a specific notification as read
-router.post('/notifications/read', writeLimiter, async (req, res) => {
-  const wallet = (req.headers['x-wallet'] || req.body?.wallet || '').toLowerCase().trim();
+router.post('/notifications/read', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
   const { id } = req.body || {};
   try {
@@ -7541,8 +7548,8 @@ router.post('/notifications/read', writeLimiter, async (req, res) => {
 });
 
 // POST /api/notifications/read-all — mark all as read
-router.post('/notifications/read-all', writeLimiter, async (req, res) => {
-  const wallet = (req.headers['x-wallet'] || req.body?.wallet || '').toLowerCase().trim();
+router.post('/notifications/read-all', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
   try {
     await pool.query('UPDATE player_notifications SET read = true WHERE wallet = $1 AND read = false', [wallet]);
@@ -7612,8 +7619,8 @@ router.get('/user/my-territories', readLimiter, async (req, res) => {
 // GET  /api/gp/transfers — transfer history for wallet
 // ══════════════════════════════════════════════════════
 
-router.post('/gp/transfer', writeLimiter, async (req, res) => {
-  const fromWallet = (req.body?.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+router.post('/gp/transfer', requireAuth, writeLimiter, async (req, res) => {
+  const fromWallet = getAuthWallet(req);
   if (!fromWallet || fromWallet.length < 10)
     return res.status(400).json({ error: 'wallet_required' });
 
