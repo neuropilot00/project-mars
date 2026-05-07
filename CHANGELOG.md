@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.37 — maintenance 이중 실행 + season 동시 생성 + phaseCScheduler CAS + exploration rowCount
+
+**수정 (CRITICAL):**
+- `server/services/maintenance.js` `processMaintenanceFees()`: 주간 타임스탬프 체크가 비원자적 → 동시 스케줄러 2개가 둘 다 체크를 통과해 유저에게 이중 유지비/영토 포기 적용 가능. `pg_try_advisory_lock(ADVISORY_LOCK_KEY)` 추가 — 락 획득 실패 시 `concurrent_run`으로 즉시 반환. 타임스탬프 재조회를 락 획득 후로 이동.
+- `server/services/maintenance.js` `processMaintenanceFees()`: 영토 포기 시 `owner = 'abandoned'` (리터럴 문자열) → `owner = NULL`로 수정. 문자열 'abandoned'는 `claims.owner`가 `users.wallet_address`를 참조하는 FK 컬럼 의미상 잘못된 값. `deleted_at`만으로 soft-delete 신호 전달.
+
+**수정 (경쟁 조건):**
+- `server/services/phaseCScheduler.js` 마감 토너먼트 `registering→ready` 전환: `SELECT + UPDATE` 분리 비원자적 → 동시 2개 스케줄러가 동일 행 중복 전환 가능. 단일 `UPDATE ... WHERE status='registering' ... RETURNING id`로 CAS 원자화.
+- `server/services/exploration.js` `discoverPOI()` 탐색비 PP 차감: `FOR UPDATE` 락 후 deduct UPDATE의 `rowCount` 미검사 → 엣지 케이스에서 차감 실패 무시 가능. `rowCount === 0` 시 ROLLBACK + error 반환 추가.
+- `server/services/season.js` `autoRotateSeason()` 신규 시즌 INSERT: 동시 2개 스케줄러가 "활성 시즌 없음" 체크 통과 → 2개 시즌 동시 생성 가능. `INSERT ... SELECT ... WHERE NOT EXISTS (SELECT 1 FROM seasons WHERE active=true)` 조건부 INSERT로 변경. `rowCount===0` 시 silent skip.
+
+---
+
 ## 2026-05-07 v7.36 — prestige/tprestige 인증 추가 + daily 트랜잭션 + prestige rowCount 수정
 
 **수정 (보안):**

@@ -800,13 +800,25 @@ async function autoRotateSeason() {
     const startsAt = new Date();
     const endsAt = new Date(startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
+    // Conditional INSERT — only succeeds when no active season exists yet.
+    // This makes the auto-create step idempotent: two concurrent scheduler runs
+    // that both pass the "no active season" check above will race here, and only
+    // one INSERT will win; the other returns rowCount=0 and is silently skipped.
     const res = await pool.query(
       `INSERT INTO seasons (name, theme, starts_at, ends_at, active, rewards_json, weather_weights, visual_tint, active_categories)
-       VALUES ($1, $2, $3, $4, true, $5, $6, $7, $8) RETURNING id`,
+       SELECT $1, $2, $3, $4, true, $5, $6, $7, $8
+       WHERE NOT EXISTS (SELECT 1 FROM seasons WHERE active = true AND ends_at > NOW())
+       RETURNING id`,
       [seasonName, theme, startsAt.toISOString(), endsAt.toISOString(),
        JSON.stringify(rewards), JSON.stringify(cfg.weather), cfg.tint,
        JSON.stringify(activeCats)]
     );
+
+    if (res.rowCount === 0) {
+      // Another concurrent auto-rotate already created an active season — skip
+      console.log('[SEASON] Concurrent auto-rotate detected, skipping duplicate INSERT');
+      return null;
+    }
 
     console.log(`[SEASON] Auto-created "${seasonName}" (#${res.rows[0].id}), theme=${theme}, categories=[${activeCats.join(',')}], ends=${endsAt.toISOString()}`);
     return res.rows[0].id;

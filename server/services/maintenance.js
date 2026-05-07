@@ -1,6 +1,8 @@
 const { pool, getSetting } = require('../db');
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+// pg_advisory_lock key — unique constant for maintenance job (avoid collisions with other jobs)
+const ADVISORY_LOCK_KEY = 987654321;
 
 /**
  * Process weekly maintenance fees for users holding more than threshold pixels.
@@ -15,16 +17,42 @@ async function processMaintenanceFees() {
     return { skipped: true, reason: 'disabled' };
   }
 
-  // Check if a week has passed since last run
-  const lastRunRaw = await getSetting('maintenance_last_run', '1970-01-01T00:00:00.000Z');
-  const lastRun = new Date(lastRunRaw);
-  const now = new Date();
+  // ── Concurrency guard ────────────────────────────────────────────────────────
+  // Acquire a session-level advisory lock so only one scheduler process runs at
+  // a time. pg_try_advisory_lock returns false immediately (non-blocking) when
+  // another connection already holds the lock.  The lock is released when the
+  // connection is returned to the pool in the finally block.
+  const lockClient = await pool.connect();
+  let lockAcquired = false;
+  try {
+    const { rows: lockRows } = await lockClient.query(
+      'SELECT pg_try_advisory_lock($1) AS ok', [ADVISORY_LOCK_KEY]
+    );
+    lockAcquired = lockRows[0]?.ok === true;
+    if (!lockAcquired) {
+      return { skipped: true, reason: 'concurrent_run' };
+    }
 
-  if (now.getTime() - lastRun.getTime() < WEEK_MS) {
-    return { skipped: true, reason: 'not_due', nextRun: new Date(lastRun.getTime() + WEEK_MS) };
+    // Check if a week has passed since last run (re-read AFTER acquiring the lock
+    // so two racing callers can't both pass the time check)
+    const lastRunRaw = await getSetting('maintenance_last_run', '1970-01-01T00:00:00.000Z');
+    const lastRun = new Date(lastRunRaw);
+    const now = new Date();
+
+    if (now.getTime() - lastRun.getTime() < WEEK_MS) {
+      return { skipped: true, reason: 'not_due', nextRun: new Date(lastRun.getTime() + WEEK_MS) };
+    }
+
+    return await _runMaintenance(now);
+  } finally {
+    // Advisory lock is released when the connection is returned to the pool
+    lockClient.release();
   }
+}
 
-  const threshold = parseInt(await getSetting('maintenance_fee_threshold', 100));
+async function _runMaintenance(now) {
+
+  const threshold = parseInt(await getSetting('maintenance_fee_threshold', 100) || 100);
   const rate = parseFloat(await getSetting('maintenance_fee_rate', 0.5));
 
   // Find users with pixel count above threshold
@@ -119,10 +147,10 @@ async function processMaintenanceFees() {
             [claim.id, wallet]
           );
 
-          // Soft-delete the claim
+          // Soft-delete the claim — owner set to NULL (deleted_at carries the signal)
           await client.query(
-            'UPDATE claims SET deleted_at = NOW(), owner = $1 WHERE id = $2',
-            ['abandoned', claim.id]
+            'UPDATE claims SET deleted_at = NOW(), owner = NULL WHERE id = $1',
+            [claim.id]
           );
 
           removed += claimPixels;
@@ -179,6 +207,6 @@ async function processMaintenanceFees() {
   console.log(`[MAINTENANCE] Processed ${results.length} users. Fees collected: ${totalFees.toFixed(2)} PP. Pixels abandoned: ${totalAbandoned}`);
 
   return { processed: results.length, totalFees, totalAbandoned, results };
-}
+} // end _runMaintenance
 
 module.exports = { processMaintenanceFees };

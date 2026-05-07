@@ -73,21 +73,23 @@ async function runOnce() {
   }
   
   // 4. 마감된 토너먼트 자동 시작 (최소 인원 도달 시)
+  // CAS: 단일 UPDATE로 SELECT+UPDATE를 원자화 — 동시 스케줄러 이중 전환 방지
   try {
-    const { rows: deadlinePassed } = await pool.query(`
-      SELECT id FROM tournaments 
-      WHERE status = 'registering' 
+    const { rows: promoted } = await pool.query(`
+      UPDATE tournaments SET status = 'ready'
+      WHERE status = 'registering'
         AND registration_deadline <= NOW()
         AND current_participants >= min_participants
+      RETURNING id
     `);
-    for (const t of deadlinePassed) {
-      await pool.query(`UPDATE tournaments SET status = 'ready' WHERE id = $1`, [t.id]);
+    if (promoted.length > 0) {
+      console.log(`[phaseCScheduler] promoted tournaments to ready: ${promoted.map(r => r.id).join(', ')}`);
     }
-    
-    // 인원 미달은 취소
+
+    // 인원 미달은 취소 (이미 단일 UPDATE — 원자적)
     await pool.query(`
-      UPDATE tournaments SET status = 'cancelled' 
-      WHERE status = 'registering' 
+      UPDATE tournaments SET status = 'cancelled'
+      WHERE status = 'registering'
         AND registration_deadline <= NOW()
         AND current_participants < min_participants
     `);

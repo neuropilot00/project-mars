@@ -234,7 +234,15 @@ async function discoverPOI(wallet, poiId) {
         await client.query('ROLLBACK');
         return { error: `Insufficient PP. Need ${explorationFee} PP to discover POIs.` };
       }
-      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [explorationFee, wallet]);
+      const feeDeductRes = await client.query(
+        'UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1',
+        [explorationFee, wallet]
+      );
+      if (feeDeductRes.rowCount === 0) {
+        // FOR UPDATE locked the row but the balance check failed (race or floating-point edge)
+        await client.query('ROLLBACK');
+        return { error: `Insufficient PP. Need ${explorationFee} PP to discover POIs.` };
+      }
       await client.query(
         `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
          VALUES ('shop_purchase', $1, $2, 0, $3)`,

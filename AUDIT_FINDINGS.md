@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v7.37 / 2026-05-07)
+
+## 🔴→✅ v7.37 — maintenance 이중 실행 + season 동시 생성 + phaseCScheduler CAS + exploration rowCount (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `maintenance.js processMaintenanceFees()` — 타임스탬프 체크 비원자적 | 동시 스케줄러 2개 → 유저 전체에 이중 유지비/영토 포기 적용 | 🔴 CRITICAL | ✅ pg_try_advisory_lock 추가 |
+| `maintenance.js` 영토 포기 `owner='abandoned'` 문자열 | owner FK 컬럼에 'abandoned' 리터럴 → JOIN 쿼리 오류 가능 | 🔴 HIGH | ✅ `owner=NULL`로 수정 |
+| `phaseCScheduler.js` `registering→ready` — SELECT+UPDATE 분리 | 동시 스케줄러 중복 전환 가능 | 🟡 MEDIUM | ✅ 단일 CAS UPDATE로 원자화 |
+| `exploration.js discoverPOI()` PP 차감 rowCount 미검사 | FOR UPDATE 있지만 차감 실패 silent — 엣지 케이스 무결성 | 🟡 LOW | ✅ rowCount guard 추가 |
+| `season.js autoRotateSeason()` 신규 시즌 INSERT 비원자 | 동시 스케줄러 2개 → 활성 시즌 2개 동시 생성 가능 | 🟡 MEDIUM | ✅ `INSERT WHERE NOT EXISTS` 조건부로 변경 |
+
+**감사 완료 (버그 없음):**
+- aiFleetManager.js ensureAiFleets() — SAVEPOINT + wallet 중복 체크 정상 (중복 AI 함대는 이미 SAVEPOINT로 격리)
+- missions.js — SELECT/UPDATE 단순 구조, GP 없음, 정상
+- rank.js — 읽기 전용 집계, 정상
+- rating.js — 읽기 전용, 정상
+- battleTimeline.js — 읽기 전용, 정상
+- governanceExpire.js — CAS DELETE+refund 트랜잭션 정상
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.36 / 2026-05-07)
 
 ## 📊 v7.36 전체 감사 범위 요약 (2026-05-07 세션)
