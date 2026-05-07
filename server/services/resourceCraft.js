@@ -40,7 +40,7 @@ async function getMyJobs(walletAddress) {
            EXTRACT(EPOCH FROM (j.completes_at - j.started_at)) AS total_seconds
     FROM resource_crafting_jobs j
     JOIN resources r ON r.code = j.resource_code
-    WHERE j.wallet_address = $1 AND j.status = 'crafting'
+    WHERE LOWER(j.wallet_address) = LOWER($1) AND j.status = 'crafting'
     ORDER BY j.completes_at ASC
   `, [walletAddress]);
 
@@ -74,7 +74,7 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
 
     // 유저 존재 확인
     const { rows: userRows } = await client.query(
-      `SELECT wallet_address FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      `SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
     if (!userRows[0]) throw new Error('USER_NOT_FOUND');
@@ -104,7 +104,7 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
              COALESCE(uri.quantity, 0) AS quantity
       FROM resources r
       LEFT JOIN user_resource_inventory uri
-        ON uri.resource_id = r.id AND uri.wallet_address = $1
+        ON uri.resource_id = r.id AND LOWER(uri.wallet_address) = LOWER($1)
       WHERE r.code = ANY($2::text[])
     `, [walletAddress, mineralCodes]);
 
@@ -141,7 +141,7 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
       const spent = await client.query(`
         UPDATE user_resource_inventory
         SET quantity = quantity - $1
-        WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+        WHERE LOWER(wallet_address) = LOWER($2) AND resource_id = $3 AND quantity >= $1
         RETURNING quantity
       `, [totalNeed, walletAddress, resourceId]);
       if (spent.rowCount === 0) {
@@ -194,7 +194,7 @@ async function claimJob(jobId, walletAddress) {
 
     const { rows: jobRows } = await client.query(
       `SELECT * FROM resource_crafting_jobs
-       WHERE id = $1 AND wallet_address = $2 FOR UPDATE`,
+       WHERE id = $1 AND LOWER(wallet_address) = LOWER($2) FOR UPDATE`,
       [jobId, walletAddress]
     );
     if (!jobRows[0]) throw new Error('JOB_NOT_FOUND');
@@ -248,7 +248,7 @@ async function cancelJob(jobId, walletAddress) {
 
     const { rows: jobRows } = await client.query(
       `SELECT * FROM resource_crafting_jobs
-       WHERE id = $1 AND wallet_address = $2 FOR UPDATE`,
+       WHERE id = $1 AND LOWER(wallet_address) = LOWER($2) FOR UPDATE`,
       [jobId, walletAddress]
     );
     if (!jobRows[0]) throw new Error('JOB_NOT_FOUND');

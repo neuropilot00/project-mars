@@ -130,7 +130,7 @@ async function craftItem(client, wallet, recipeId) {
   const gpCost = Number(recipe.gp_cost);
   if (gpCost > 0) {
     const { rows: balRows } = await client.query(
-      'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [walletLower]);
+      'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [walletLower]);
     const balance = balRows.length ? Number(balRows[0].balance) : 0;
     if (balance < gpCost) throw new Error(`Insufficient GP (need ${gpCost}, have ${balance.toFixed(2)})`);
     await client.query(
@@ -162,7 +162,7 @@ async function craftItem(client, wallet, recipeId) {
     if (refundPct > 0 && gpCost > 0) {
       gpRefunded = parseFloat((gpCost * refundPct / 100).toFixed(6));
       await client.query(
-        'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address=$2',
+        'UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address)=LOWER($2)',
         [gpRefunded, walletLower]
       );
     }
