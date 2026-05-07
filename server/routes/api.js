@@ -7472,7 +7472,7 @@ router.get('/notifications', readLimiter, async (req, res) => {
 });
 
 // POST /api/notifications/read — mark a specific notification as read
-router.post('/notifications/read', async (req, res) => {
+router.post('/notifications/read', writeLimiter, async (req, res) => {
   const wallet = (req.headers['x-wallet'] || req.body?.wallet || '').toLowerCase().trim();
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
   const { id } = req.body || {};
@@ -7487,7 +7487,7 @@ router.post('/notifications/read', async (req, res) => {
 });
 
 // POST /api/notifications/read-all — mark all as read
-router.post('/notifications/read-all', async (req, res) => {
+router.post('/notifications/read-all', writeLimiter, async (req, res) => {
   const wallet = (req.headers['x-wallet'] || req.body?.wallet || '').toLowerCase().trim();
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
   try {
