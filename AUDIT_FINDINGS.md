@@ -1,5 +1,21 @@
 # OCCUPY MARS — Codebase Audit (v7.42 / 2026-05-07)
 
+## 🟡→✅ v7.43 — 11개 서비스 rowCount 누락 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `milestone.js createMilestone()` — GP deduct rowCount 없음 | FOR UPDATE 있어 저위험, 방어코드 누락 | 🟡 MEDIUM | ✅ rowCount guard |
+| `enhancement.js enhanceItem()` — GP deduct rowCount 없음 | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard |
+| `faction.js changeFaction()` — GP deduct rowCount 없음 | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard |
+| `vtag.js setVtag()/clearVtag()` — GP deduct rowCount 없음 (2개소) | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard x2 |
+| `monuments.js createMonument()/preserveMonument()` — GP deduct rowCount 없음 (2개소) | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard x2 |
+| `broadcasts.js createBroadcast()` — GP deduct rowCount 없음 | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard |
+| `tournaments.js enterTournament()` — GP deduct rowCount 없음 | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard |
+| `titleExtended.js equipTitle()` — GP deduct rowCount 없음 | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard |
+| `title.js equipTitle()` — GP deduct rowCount 없음 | FOR UPDATE 있어 저위험 | 🟡 MEDIUM | ✅ rowCount guard + ROLLBACK |
+
+---
+
 ## 🔴→✅ v7.42 — auto-win TOCTOU + 닉네임 TOCTOU + auction 커넥션 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |

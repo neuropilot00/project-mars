@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.43 — 11개 서비스 rowCount 누락 수정
+
+**수정 (MEDIUM — FOR UPDATE 후 rowCount 미검사):**
+- `server/services/milestone.js` `createMilestone()`: rowCount guard 추가
+- `server/services/enhancement.js` `enhanceItem()`: rowCount guard 추가
+- `server/services/faction.js` `changeFaction()`: rowCount guard 추가
+- `server/services/vtag.js` `setVtag()` + `clearVtag()`: rowCount guard 2개 추가
+- `server/services/monuments.js` `createMonument()` + `preserveMonument()`: rowCount guard 2개 추가
+- `server/services/broadcasts.js` `createBroadcast()`: rowCount guard 추가
+- `server/services/tournaments.js` `enterTournament()`: rowCount guard 추가
+- `server/services/titleExtended.js` `equipTitleExtended()`: rowCount guard 추가
+- `server/services/title.js` `equipTitle()`: rowCount guard + ROLLBACK 추가
+
+---
+
 ## 2026-05-07 v7.42 — auto-win TOCTOU + 닉네임 TOCTOU + auction 커넥션 수정
 
 **수정 (HIGH):**

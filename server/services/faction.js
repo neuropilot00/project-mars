@@ -120,11 +120,12 @@ async function chooseFaction(walletAddress, factionCode) {
         throw err;
       }
       
-      await client.query(
+      const facDeduct = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [feeGp, walletAddress]
       );
-      
+      if (facDeduct.rowCount === 0) throw new Error('INSUFFICIENT_GP');
+
       // GP 활동 로그 (테이블 있으면 기록)
       await client.query(`
         INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)

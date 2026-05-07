@@ -487,10 +487,11 @@ async function equipTitle(walletAddress, titleCode) {
     if ((parseInt(userRows[0]?.gp_balance) || 0) < cost) {
       throw new Error('INSUFFICIENT_GP');
     }
-    await client.query(
+    const txDeduct = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [cost, walletAddress]
     );
+    if (txDeduct.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 기존 장착 해제 + 새 장착
     await client.query(

@@ -168,10 +168,11 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
   if (gpBal < cost) throw new Error(`Insufficient GP. Need ${cost}, have ${Math.floor(gpBal)}`);
 
   // Deduct GP
-  await client.query(
+  const enhDeduct = await client.query(
     'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
     [cost, w]
   );
+  if (enhDeduct.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
   // ✅ Referral commission + season score + GP log
   try {

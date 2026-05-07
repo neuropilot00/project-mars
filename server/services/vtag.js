@@ -68,10 +68,11 @@ async function setTag(wallet, tag) {
       if (bal.rows[0].gp_balance < gpCost)
         throw new Error(`Insufficient GP (need ${gpCost})`);
 
-      await client.query(
+      const vtagDeduct1 = await client.query(
         'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
         [gpCost, wallet]
       );
+      if (vtagDeduct1.rowCount === 0) throw new Error('INSUFFICIENT_GP');
       await client.query(
         `INSERT INTO gp_transactions (wallet, amount, type, note)
          VALUES ($1, $2, 'vtag_set', $3)`,
@@ -141,10 +142,11 @@ async function clearTag(wallet) {
       if (bal.rows[0].gp_balance < gpCost)
         throw new Error(`Insufficient GP (need ${gpCost})`);
 
-      await client.query(
+      const vtagDeduct2 = await client.query(
         'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
         [gpCost, wallet]
       );
+      if (vtagDeduct2.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     }
 
     await client.query('DELETE FROM vanity_tags WHERE wallet = $1', [wallet]);

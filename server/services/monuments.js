@@ -121,10 +121,11 @@ async function placeMonument(client, wallet, claimId, monumentType, name, messag
   if (balance < cost) throw new Error(`Insufficient GP: need ${cost}, have ${balance.toFixed(2)}`);
 
   // Deduct GP
-  await client.query(
+  const monDeduct = await client.query(
     `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`,
     [w, cost]
   );
+  if (monDeduct.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
   // Create monument
   const ins = await client.query(
@@ -188,7 +189,8 @@ async function preserveMonument(client, wallet, monumentId) {
   if (!userRes.rows.length) throw new Error('User not found');
   if (parseFloat(userRes.rows[0].gp_balance) < cost) throw new Error(`Need ${cost} GP to preserve monument`);
 
-  await client.query(`UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`, [w, cost]);
+  const preDeduct = await client.query(`UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`, [w, cost]);
+  if (preDeduct.rowCount === 0) throw new Error('INSUFFICIENT_GP');
   await client.query(
     `UPDATE territory_monuments SET preserved_by = $2 WHERE id = $1`,
     [monumentId, w]

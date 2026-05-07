@@ -93,10 +93,11 @@ async function recordMilestone(wallet, category, title, description) {
     if (bal.rows[0].gp_balance < cfg.costGP)
       throw new Error(`Insufficient GP (need ${cfg.costGP})`);
 
-    await client.query(
+    const msDeduct = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1',
       [cfg.costGP, wallet]
     );
+    if (msDeduct.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     await client.query(
       `INSERT INTO gp_transactions (wallet, amount, type, note)
        VALUES ($1, $2, 'milestone', $3)`,
