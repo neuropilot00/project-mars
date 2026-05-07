@@ -66,7 +66,7 @@ async function createAuction(sellerWallet, data) {
     }
 
     // GP for listing fee
-    const userRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+    const userRes = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     if (!userRes.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'user_not_found' }; }
     if (listingFee > 0 && parseFloat(userRes.rows[0].gp_balance) < listingFee) {
       await client.query('ROLLBACK');
@@ -209,7 +209,7 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
     }
 
     // GP check
-    const userRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+    const userRes = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     if (!userRes.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'user_not_found' }; }
     if (parseFloat(userRes.rows[0].gp_balance) < amt) {
       await client.query('ROLLBACK');
@@ -221,7 +221,7 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
 
     // Refund previous bidder
     if (auction.current_bidder_wallet && auction.current_bid > auction.start_price) {
-      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [auction.current_bid, auction.current_bidder_wallet]);
       await client.query(
         'UPDATE bids SET is_winning = FALSE WHERE auction_id = $1 AND is_winning = TRUE',
@@ -294,7 +294,7 @@ async function buyout(buyerWallet, auctionId) {
     if (auction.seller_wallet === w) { await client.query('ROLLBACK'); return { success: false, error: 'cannot_buy_own' }; }
 
     const buyoutAmt = auction.buyout_price;
-    const userRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+    const userRes = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     if (parseFloat(userRes.rows[0]?.gp_balance ?? 0) < buyoutAmt) {
       await client.query('ROLLBACK'); return { success: false, error: 'insufficient_gp', required: buyoutAmt };
     }
@@ -304,14 +304,14 @@ async function buyout(buyerWallet, auctionId) {
 
     // Refund current highest bidder
     if (auction.current_bidder_wallet && auction.current_bid > auction.start_price) {
-      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [auction.current_bid, auction.current_bidder_wallet]);
     }
 
     // Platform fee + seller payout
     const fee = Math.floor(buyoutAmt * auction.platform_fee_rate);
     const sellerPayout = buyoutAmt - fee;
-    await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2', [sellerPayout, auction.seller_wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [sellerPayout, auction.seller_wallet]);
 
     // Transfer item
     await _transferItem(client, auction, w);
@@ -427,7 +427,7 @@ async function settleAuction(auctionId) {
       // 낙찰: 판매자에게 입금 (플랫폼 수수료 차감)
       const fee = Math.floor(auction.current_bid * auction.platform_fee_rate);
       const payout = auction.current_bid - fee;
-      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2', [payout, auction.seller_wallet]);
+      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [payout, auction.seller_wallet]);
       // Transfer item to winner
       await _transferItem(client, auction, auction.current_bidder_wallet);
       await client.query(
