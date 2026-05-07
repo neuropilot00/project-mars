@@ -1,5 +1,23 @@
 # OCCUPY MARS — Codebase Audit (v7.36 / 2026-05-07)
 
+## 📊 v7.36 전체 감사 범위 요약 (2026-05-07 세션)
+
+| 감사 범위 | 파일 수 | 발견된 버그 | 수정됨 |
+|-----------|---------|-------------|--------|
+| 라우트 admin 인증 | 61개 | 6건 | ✅ |
+| SQL 인젝션 | 61개 | 1건 | ✅ |
+| Rate limiter 격차 | 28개 GP write 라우트 | 전체 격차 | ✅ apiWriteLimiter |
+| GP rowCount/FOR UPDATE 패턴 | 50개+ 서비스 | 9건 | ✅ |
+| 트랜잭션 누락 | 서비스 전체 | 3건 | ✅ |
+| 인증 누락 (GP 소각 라우트) | prestige/tprestige | 2건 CRITICAL | ✅ |
+| 함대전 게임플레이 버그 | fleetBattles | 2건 | ✅ |
+| 캠페인 경쟁 조건 | campaign | 2건 | ✅ |
+| 이중 구매/강화 경쟁 | marketplace/enhancement | 2건 | ✅ |
+
+**총 수정 커밋: 8건 (254b4e5 → 9461f28)**
+
+
+
 ## 🔴→✅ v7.36 — prestige/tprestige 인증 누락 + daily 트랜잭션 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
