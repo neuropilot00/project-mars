@@ -1,4 +1,16 @@
-# OCCUPY MARS — Codebase Audit (v6.83 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.84 / 2026-05-07)
+
+## 🔴→✅ v6.84 — 강화/공성/마켓 3개 영역 감사 및 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/enhancementAdvanced.js` `getScrollStatus()` | `user_items` 쿼리에 존재하지 않는 컬럼 `wallet_address`, `item_code` 사용 → 항상 DB 오류로 catch되어 보호권 0 반환. 보유 스크롤이 있어도 UI에 "없음"으로 표시됨 | ✅ `wallet` + `JOIN item_types ... WHERE it.code = $2` 패턴으로 수정 |
+| `server/services/enhancementAdvanced.js` `consumeScrollClient()` | 동일 잘못된 컬럼 사용 → 스크롤 차감 자체가 오류 발생. `checkAndConsumeScroll()`이 현재 직접 호출되지 않아 silent 버그로 잠재 | ✅ `UPDATE user_items ... FROM item_types` JOIN 패턴으로 수정 |
+| `server/services/enhancementAdvanced.js` `getResourceBalance()` / `deductResource()` fallback | user_items 폴백 경로도 동일 잘못된 컬럼 → primary(user_resource_inventory) 실패 시 폴백도 실패. Silent 0 반환 | ✅ 동일 JOIN 패턴으로 수정 |
+| `server/services/siege.js` wallet 대소문자 비교 (15곳) | `WHERE owner = $1`, `WHERE wallet_address = $1`, JS 측 governor 비교 등이 LOWER() 없이 비교 → 대소문자 차이 시 소유권 오판 가능 | ✅ `LOWER(owner) = LOWER($1)`, `LOWER(wallet_address) = LOWER($1)`, JS `.toLowerCase()` 비교로 통일 |
+| `server/routes/marketplace.js` NaN ID가 DB 도달 (3곳) | `GET /listings/:id`, `POST /cancel`, `POST /buy`에서 `parseInt()` 후 `Number.isInteger()` 검증 없음 → 문자열/NaN ID가 DB 캐스트 오류 발생 가능 | ✅ `parseInt(id, 10)` + `Number.isInteger()` 가드 추가, 미통과 시 400 반환 |
+
+---
 
 ## 🔴→✅ v6.83 — 함대전/함대 지휘 4개 영역 전수 감사 및 수정 (2026-05-07)
 

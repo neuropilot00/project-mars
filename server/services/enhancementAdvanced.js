@@ -177,10 +177,11 @@ async function getResourceBalance(walletAddress, resourceCode) {
   } catch {
     try {
       const { rows } = await pool.query(`
-        SELECT COALESCE(quantity, 0) AS qty
-        FROM user_items
-        WHERE wallet_address = $1 AND item_code = $2
-      `, [walletAddress, resourceCode]);
+        SELECT COALESCE(SUM(ui.quantity), 0) AS qty
+        FROM user_items ui
+        JOIN item_types it ON it.id = ui.item_type_id
+        WHERE ui.wallet = $1 AND it.code = $2
+      `, [walletAddress.toLowerCase(), resourceCode]);
       return parseInt(rows[0]?.qty || 0);
     } catch { return 0; }
   }
@@ -199,13 +200,17 @@ async function deductResource(client, walletAddress, resourceCode, quantity) {
     if (rowCount > 0) return true;
   } catch { }
 
-  // user_items 시도
+  // user_items 시도 — item_types JOIN으로 code 조회
   try {
     const { rowCount } = await client.query(`
-      UPDATE user_items
-      SET quantity = quantity - $3
-      WHERE wallet_address = $1 AND item_code = $2 AND quantity >= $3
-    `, [walletAddress, resourceCode, quantity]);
+      UPDATE user_items ui
+      SET quantity = ui.quantity - $3
+      FROM item_types it
+      WHERE ui.item_type_id = it.id
+        AND ui.wallet = $1
+        AND it.code = $2
+        AND ui.quantity >= $3
+    `, [walletAddress.toLowerCase(), resourceCode, quantity]);
     return rowCount > 0;
   } catch { return false; }
 }
@@ -217,21 +222,26 @@ async function getScrollCount(walletAddress, scrollCode) {
 async function getScrollCountClient(db, walletAddress, scrollCode) {
   try {
     const { rows } = await db.query(`
-      SELECT COALESCE(SUM(quantity), 0) AS qty
-      FROM user_items
-      WHERE wallet_address = $1 AND item_code = $2
-    `, [walletAddress, scrollCode]);
+      SELECT COALESCE(SUM(ui.quantity), 0) AS qty
+      FROM user_items ui
+      JOIN item_types it ON it.id = ui.item_type_id
+      WHERE ui.wallet = $1 AND it.code = $2 AND ui.quantity > 0
+    `, [walletAddress.toLowerCase(), scrollCode]);
     return parseInt(rows[0]?.qty || 0);
   } catch { return 0; }
 }
 
 async function consumeScrollClient(client, walletAddress, scrollCode, quantity) {
-  // user_items에서 차감
+  // user_items에서 차감 — wallet + item_types JOIN으로 code 조회
   const { rowCount } = await client.query(`
-    UPDATE user_items
-    SET quantity = quantity - $3
-    WHERE wallet_address = $1 AND item_code = $2 AND quantity >= $3
-  `, [walletAddress, scrollCode, quantity]);
+    UPDATE user_items ui
+    SET quantity = ui.quantity - $3
+    FROM item_types it
+    WHERE ui.item_type_id = it.id
+      AND ui.wallet = $1
+      AND it.code = $2
+      AND ui.quantity >= $3
+  `, [walletAddress.toLowerCase(), scrollCode, quantity]);
 
   if (!rowCount) throw new Error(`SCROLL_NOT_FOUND:${scrollCode}`);
 }

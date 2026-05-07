@@ -44,7 +44,9 @@ router.get('/listings', readLimiter, async (req, res) => {
 router.get('/listings/:id', readLimiter, async (req, res) => {
   try {
     if (!marketService) return res.status(503).json({ error: 'Marketplace service unavailable' });
-    const listing = await marketService.getListingDetail(parseInt(req.params.id));
+    const listingId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(listingId)) return res.status(400).json({ error: 'Invalid listing id' });
+    const listing = await marketService.getListingDetail(listingId);
     if (!listing) return res.status(404).json({ error: 'Listing not found' });
     res.json(listing);
   } catch (e) {
@@ -86,12 +88,14 @@ router.post('/cancel', writeLimiter, async (req, res) => {
   const { wallet, listingId } = req.body;
   const w = (wallet || '').toLowerCase();
   if (!w || !listingId) return res.status(400).json({ error: 'Missing required fields' });
+  const parsedListingId = parseInt(listingId, 10);
+  if (!Number.isInteger(parsedListingId)) return res.status(400).json({ error: 'Invalid listing id' });
   if (!marketService) return res.status(503).json({ error: 'Marketplace service unavailable' });
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await marketService.cancelListing(client, parseInt(listingId), w);
+    await marketService.cancelListing(client, parsedListingId, w);
     await client.query('COMMIT');
     res.json({ success: true });
   } catch (e) {
@@ -108,12 +112,14 @@ router.post('/buy', writeLimiter, async (req, res) => {
   const { wallet, listingId } = req.body;
   const w = (wallet || '').toLowerCase();
   if (!w || !listingId) return res.status(400).json({ error: 'Missing required fields' });
+  const parsedListingId = parseInt(listingId, 10);
+  if (!Number.isInteger(parsedListingId)) return res.status(400).json({ error: 'Invalid listing id' });
   if (!marketService) return res.status(503).json({ error: 'Marketplace service unavailable' });
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const result = await marketService.buyListing(client, parseInt(listingId), w);
+    const result = await marketService.buyListing(client, parsedListingId, w);
     await client.query('COMMIT');
 
     // Season tracking

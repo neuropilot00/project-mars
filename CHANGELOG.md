@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.84 — 강화/공성/마켓 감사 버그 수정
+
+### server/services/enhancementAdvanced.js
+- `getScrollStatus()` / `getScrollCountClient()`: `user_items` 쿼리의 `wallet_address`/`item_code` → `wallet` + `JOIN item_types ... WHERE it.code = $2`로 수정. 보호권 보유 여부가 항상 false로 반환되던 버그 수정.
+- `consumeScrollClient()`: 동일 잘못된 컬럼 → `UPDATE user_items ... FROM item_types` JOIN 패턴으로 수정.
+- `getResourceBalance()` / `deductResource()` user_items fallback: 동일 컬럼 오류 → JOIN 패턴으로 수정.
+- 모든 쿼리에서 wallet을 `.toLowerCase()` 정규화 추가.
+
+### server/services/siege.js
+- `declareSiege`, `resolveSiege`, `updateGovernorDeclaration` 등 15곳의 wallet/owner 비교에 `LOWER()` 추가. 대소문자 차이로 공성 참여자 소유권 오판 방지.
+
+### server/routes/marketplace.js
+- `GET /listings/:id`, `POST /cancel`, `POST /buy` 3곳에 `parseInt(id, 10)` + `Number.isInteger()` 가드 추가. 무효 ID 입력 시 400 반환.
+
+---
+
 ## 2026-05-07 v6.83 — 함대전/함대 지휘 감사 버그 수정
 
 ### server/services/battleEngine.js

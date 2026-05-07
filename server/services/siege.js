@@ -77,14 +77,14 @@ async function declareSiege(challengerWallet, sectorCode) {
     }
 
     // ── 도전자 = 현재 Governor 금지 ──
-    if (sector.governor_wallet && sector.governor_wallet === w) {
+    if (sector.governor_wallet && sector.governor_wallet.toLowerCase() === w) {
       await client.query('ROLLBACK');
       return { success: false, error: 'already_governor' };
     }
 
     // ── 도전자 영토 수 체크 ──
     const terRes = await client.query(
-      'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1 AND sector_code = $2 AND deleted_at IS NULL',
+      'SELECT COUNT(*) AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND sector_code = $2 AND deleted_at IS NULL',
       [w, code]
     );
     const territoryCount = parseInt(terRes.rows[0]?.cnt ?? 0);
@@ -100,7 +100,7 @@ async function declareSiege(challengerWallet, sectorCode) {
 
     // ── GP 잔액 확인 및 차감 ──
     const userRes = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
       [w]
     );
     if (!userRes.rows.length) {
@@ -114,7 +114,7 @@ async function declareSiege(challengerWallet, sectorCode) {
     }
 
     await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)',
       [gpCost, w]
     );
 
@@ -145,11 +145,11 @@ async function declareSiege(challengerWallet, sectorCode) {
     if (bettingService) {
       try {
         const challengerNick = (await pool.query(
-          'SELECT nickname FROM users WHERE wallet_address = $1', [w]
+          'SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)', [w]
         )).rows[0]?.nickname || w.slice(0, 8);
         const defenderNick = siege.defender_wallet
           ? ((await pool.query(
-              'SELECT nickname FROM users WHERE wallet_address = $1', [siege.defender_wallet]
+              'SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)', [siege.defender_wallet]
             )).rows[0]?.nickname || siege.defender_wallet.slice(0, 8))
           : 'Vacant';
         const betEvent = await bettingService.createBettingEvent(
@@ -216,12 +216,12 @@ async function resolveSiege(siegeId) {
     // ── 도전자 / 수비자 영토 수 비교 ──
     const [chalRes, defRes] = await Promise.all([
       client.query(
-        'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1 AND sector_code = $2 AND deleted_at IS NULL',
+        'SELECT COUNT(*) AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND sector_code = $2 AND deleted_at IS NULL',
         [siege.challenger_wallet, code]
       ),
       siege.defender_wallet
         ? client.query(
-            'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1 AND sector_code = $2 AND deleted_at IS NULL',
+            'SELECT COUNT(*) AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND sector_code = $2 AND deleted_at IS NULL',
             [siege.defender_wallet, code]
           )
         : Promise.resolve({ rows: [{ cnt: 0 }] })
@@ -324,8 +324,8 @@ async function resolveSiege(siegeId) {
       (async () => {
         try {
           const [winnerRes, loserRes, sectorRes] = await Promise.all([
-            pool.query('SELECT wallet_address, nickname, created_at FROM users WHERE wallet_address = $1', [winnerWallet]),
-            pool.query('SELECT wallet_address, nickname FROM users WHERE wallet_address = $1', [siege.defender_wallet]),
+            pool.query('SELECT wallet_address, nickname, created_at FROM users WHERE LOWER(wallet_address) = LOWER($1)', [winnerWallet]),
+            pool.query('SELECT wallet_address, nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)', [siege.defender_wallet]),
             pool.query('SELECT code, name FROM sector_definitions WHERE code = $1', [code]),
           ]);
           const winner = winnerRes.rows[0];
@@ -454,14 +454,14 @@ async function updateGovernorDeclaration(wallet, sectorCode, text) {
       'SELECT governor_wallet FROM sector_governance WHERE sector_code = $1',
       [code]
     );
-    if (!govRes.rows.length || govRes.rows[0].governor_wallet !== w) {
+    if (!govRes.rows.length || (govRes.rows[0].governor_wallet || '').toLowerCase() !== w) {
       await client.query('ROLLBACK');
       return { success: false, error: 'not_governor' };
     }
 
     // GP 차감
     const userRes = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
       [w]
     );
     const gp = parseFloat(userRes.rows[0]?.gp_balance ?? 0);
@@ -470,7 +470,7 @@ async function updateGovernorDeclaration(wallet, sectorCode, text) {
       return { success: false, error: 'insufficient_gp', required: gpCost, current: gp };
     }
     await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)',
       [gpCost, w]
     );
 
@@ -509,7 +509,7 @@ async function updateTaxRate(wallet, sectorCode, taxRate) {
     'SELECT governor_wallet FROM sector_governance WHERE sector_code = $1',
     [code]
   );
-  if (!govRes.rows.length || govRes.rows[0].governor_wallet !== w) {
+  if (!govRes.rows.length || (govRes.rows[0].governor_wallet || '').toLowerCase() !== w) {
     return { success: false, error: 'not_governor' };
   }
 
@@ -536,7 +536,7 @@ async function updateSectorPolicy(wallet, sectorCode, policy) {
     'SELECT governor_wallet FROM sector_governance WHERE sector_code = $1',
     [code]
   );
-  if (!govRes.rows.length || govRes.rows[0].governor_wallet !== w) {
+  if (!govRes.rows.length || (govRes.rows[0].governor_wallet || '').toLowerCase() !== w) {
     return { success: false, error: 'not_governor' };
   }
 
