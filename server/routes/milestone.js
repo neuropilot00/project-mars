@@ -25,7 +25,7 @@ router.post('/milestone/record', async (req, res) => {
   if (!wallet)      return res.status(400).json({ error: 'wallet required' });
   if (!title)       return res.status(400).json({ error: 'title required' });
   if (!description) return res.status(400).json({ error: 'description required' });
-  try { res.json(await svc.recordMilestone(wallet, category, title, description)); }
+  try { res.json(await svc.recordMilestone(wallet.toLowerCase().trim(), category, title, description)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.98 — SELECT FOR UPDATE LOWER() + 라우트 wallet 정규화 (16개 서비스)
+
+### 공통 패턴 수정
+- `SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE` 패턴이 혼합 대소문자 wallet에서 "User not found" 오류를 유발하는 문제 일괄 수정
+- `WHERE wallet_address=$1 FOR UPDATE` → `WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE`
+- 각 라우트도 `wallet.toLowerCase().trim()` 정규화 추가 (서비스 호출 전)
+
+### 서비스 (SELECT FOR UPDATE LOWER() 추가)
+`beacon.js`, `capsule.js`, `sponsor.js`, `tdesc.js`, `tprestige.js`, `graffiti.js`, `journal.js`, `highlight.js`, `status.js`, `milestone.js`, `rating.js`, `tombstone.js`
+
+### 라우트 (wallet 정규화 추가)
+`beacon.js`, `capsule.js`, `polls.js`, `tprestige.js`, `tombstone.js`, `journal.js`, `graffiti.js`, `milestone.js`, `highlight.js`, `status.js`, `rating.js`
+
+---
+
 ## 2026-05-07 v6.97 — exploration getSetting NaN + polls LOWER() 정규화
 
 ### server/services/exploration.js

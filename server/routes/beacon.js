@@ -23,7 +23,7 @@ router.get('/beacons/my', async (req, res) => {
 router.post('/beacons/place', async (req, res) => {
   const { wallet, x, y, message, icon } = req.body || {};
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
-  try { res.json(await svc.placeBeacon(wallet, { x: Number(x), y: Number(y), message, icon })); }
+  try { res.json(await svc.placeBeacon(wallet.toLowerCase().trim(), { x: Number(x), y: Number(y), message, icon })); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

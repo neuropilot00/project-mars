@@ -28,7 +28,7 @@ router.post('/highlight/set', async (req, res) => {
   const { wallet, claimId, color } = req.body || {};
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   if (!claimId) return res.status(400).json({ error: 'claimId required' });
-  try { res.json(await svc.setHighlight(wallet, claimId, color)); }
+  try { res.json(await svc.setHighlight(wallet.toLowerCase().trim(), claimId, color)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

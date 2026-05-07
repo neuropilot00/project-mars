@@ -23,14 +23,14 @@ router.get('/status/active', async (req, res) => {
 router.post('/status/set', async (req, res) => {
   const { wallet, status, durationH } = req.body || {};
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
-  try { res.json(await svc.setStatus(wallet, status, durationH)); }
+  try { res.json(await svc.setStatus(wallet.toLowerCase().trim(), status, durationH)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 
 router.post('/status/clear', async (req, res) => {
   const { wallet } = req.body || {};
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
-  try { res.json(await svc.clearStatus(wallet)); }
+  try { res.json(await svc.clearStatus(wallet.toLowerCase().trim())); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

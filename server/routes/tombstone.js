@@ -19,7 +19,7 @@ router.post('/tombstone/place', async (req, res) => {
   const { wallet, claimId, epitaph } = req.body || {};
   if (!wallet)  return res.status(400).json({ error: 'wallet required' });
   if (!claimId) return res.status(400).json({ error: 'claimId required' });
-  try { res.json(await svc.placeTombstone(wallet, claimId, epitaph)); }
+  try { res.json(await svc.placeTombstone(wallet.toLowerCase().trim(), claimId, epitaph)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

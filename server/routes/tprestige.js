@@ -19,7 +19,7 @@ router.post('/tprestige/upgrade', async (req, res) => {
   const { wallet, claimId } = req.body || {};
   if (!wallet)  return res.status(400).json({ error: 'wallet required' });
   if (!claimId) return res.status(400).json({ error: 'claimId required' });
-  try { res.json(await svc.upgradePrestige(wallet, claimId)); }
+  try { res.json(await svc.upgradePrestige(wallet.toLowerCase().trim(), claimId)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

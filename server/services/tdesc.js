@@ -69,7 +69,7 @@ async function setDescription(wallet, claimId, text) {
     // Deduct GP if needed
     if (gpCost > 0) {
       const balRow = await client.query(
-        `SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE`, [wallet]
+        `SELECT gp_balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE`, [wallet]
       );
       if (!balRow.rows.length) throw new Error('User not found');
       if (balRow.rows[0].gp_balance < gpCost) throw new Error(`Need ${gpCost} GP`);

@@ -23,7 +23,7 @@ router.post('/graffiti/place', async (req, res) => {
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   if (!claimId) return res.status(400).json({ error: 'claimId required' });
   if (!text) return res.status(400).json({ error: 'text required' });
-  try { res.json(await svc.placeGraffiti(wallet, claimId, text)); }
+  try { res.json(await svc.placeGraffiti(wallet.toLowerCase().trim(), claimId, text)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

@@ -34,7 +34,7 @@ router.post('/capsule/bury', async (req, res) => {
   const { wallet, message, revealInDays } = req.body || {};
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try {
-    const result = await svc.buryCapsule(wallet, message || '', revealInDays || 7);
+    const result = await svc.buryCapsule(wallet.toLowerCase().trim(), message || '', revealInDays || 7);
     res.json(result);
   } catch(e) { res.status(400).json({ error: e.message }); }
 });

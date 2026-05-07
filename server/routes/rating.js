@@ -31,7 +31,7 @@ router.post('/rating/rate', async (req, res) => {
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   if (!claimId) return res.status(400).json({ error: 'claimId required' });
   if (!rating) return res.status(400).json({ error: 'rating required' });
-  try { res.json(await svc.rateTerritory(wallet, claimId, rating)); }
+  try { res.json(await svc.rateTerritory(wallet.toLowerCase().trim(), claimId, rating)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

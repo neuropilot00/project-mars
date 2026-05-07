@@ -25,7 +25,7 @@ router.post('/journal/publish', async (req, res) => {
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   if (!title)  return res.status(400).json({ error: 'title required' });
   if (!content)return res.status(400).json({ error: 'content required' });
-  try { res.json(await svc.publishEntry(wallet, title, content)); }
+  try { res.json(await svc.publishEntry(wallet.toLowerCase().trim(), title, content)); }
   catch(e) { res.status(400).json({ error: e.message }); }
 });
 

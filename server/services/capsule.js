@@ -97,7 +97,7 @@ async function buryCapsule(wallet, message, revealInDays) {
 
     // Deduct GP
     const balRow = await client.query(
-      `SELECT gp_balance, nickname FROM users WHERE wallet_address=$1 FOR UPDATE`, [wallet]
+      `SELECT gp_balance, nickname FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE`, [wallet]
     );
     if (!balRow.rows.length) throw new Error('User not found');
     if (balRow.rows[0].gp_balance < cfg.costGP) throw new Error(`Need ${cfg.costGP} GP`);
