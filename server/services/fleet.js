@@ -161,6 +161,12 @@ async function createFleet(walletAddress, options = {}) {
   try {
     await client.query('BEGIN');
     
+    // Lock user row first — serializes concurrent createFleet calls so fleet count check is race-free
+    await client.query(
+      `SELECT id FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      [walletAddress]
+    );
+
     // 최대 함대 수 체크 (settings에서 기본 5)
     const { rows: cntRows } = await client.query(
       `SELECT COUNT(*) AS c FROM fleets WHERE LOWER(owner_wallet) = LOWER($1)`,
@@ -302,6 +308,12 @@ async function deleteFleet(fleetId, walletAddress) {
     if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
     if (fleetRows[0].is_in_battle) throw new Error('FLEET_IN_BATTLE');
     
+    // Lock user row — serializes concurrent deleteFleet calls so last-fleet check is race-free
+    await client.query(
+      `SELECT id FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      [walletAddress]
+    );
+
     // 내 함대 총 개수 확인 (마지막 함대는 해체 금지)
     const { rows: cntRows } = await client.query(
       `SELECT COUNT(*) AS c FROM fleets WHERE LOWER(owner_wallet) = LOWER($1)`,

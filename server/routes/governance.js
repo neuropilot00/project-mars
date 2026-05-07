@@ -125,15 +125,6 @@ router.post('/sector/:id/buff', writeLimiter, async (req, res) => {
       return res.status(403).json({ error: 'Only the governor can purchase buffs' });
     }
 
-    // Check if buff already active
-    const existing = await client.query(
-      `SELECT id FROM sector_buffs WHERE sector_id = $1 AND buff_type = $2 AND active = true AND expires_at > NOW()`,
-      [sectorId, buffType]
-    );
-    if (existing.rows.length > 0) {
-      return res.status(400).json({ error: 'This buff is already active' });
-    }
-
     const costKey = `buff_${buffType}_cost`;
     const valueKey = `buff_${buffType}_value`;
     const hoursKey = `buff_${buffType}_hours`;
@@ -141,9 +132,10 @@ router.post('/sector/:id/buff', writeLimiter, async (req, res) => {
     const effectValue = parseFloat(s[valueKey]) || 10;
     const hours = parseFloat(s[hoursKey]) || 24;
 
+    // BEGIN before any checks — prevents TOCTOU double-purchase race
     await client.query('BEGIN');
 
-    // Check governor GP balance
+    // Check governor GP balance (FOR UPDATE serializes concurrent buff purchases)
     const posRes = await client.query(
       `SELECT id, gp_balance FROM governance_positions WHERE role = 'governor' AND sector_id = $1 FOR UPDATE`,
       [sectorId]
@@ -151,6 +143,16 @@ router.post('/sector/:id/buff', writeLimiter, async (req, res) => {
     if (!posRes.rows[0] || parseFloat(posRes.rows[0].gp_balance) < gpCost) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: `Insufficient GP. Need ${gpCost}, have ${posRes.rows[0] ? posRes.rows[0].gp_balance : 0}` });
+    }
+
+    // Re-check buff inside transaction AFTER acquiring the row lock — prevents concurrent double-purchase
+    const existing = await client.query(
+      `SELECT id FROM sector_buffs WHERE sector_id = $1 AND buff_type = $2 AND active = true AND expires_at > NOW()`,
+      [sectorId, buffType]
+    );
+    if (existing.rows.length > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'This buff is already active' });
     }
 
     // Deduct GP

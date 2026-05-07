@@ -29,8 +29,9 @@ async function recalculateGovernor(client, sectorId) {
 
   const top1 = res.rows[0] || null;
   const top2 = res.rows[1] || null;
-  const newGov = top1 ? top1.owner : null;
-  const newVice = top2 ? top2.owner : null;
+  // Normalize to lowercase — pixels.owner may be stored as checksum address
+  const newGov = top1 ? top1.owner.toLowerCase() : null;
+  const newVice = top2 ? top2.owner.toLowerCase() : null;
 
   // Current governor/vice
   const sectorRes = await client.query(
@@ -56,7 +57,7 @@ async function recalculateGovernor(client, sectorId) {
         [oldGov, sectorId]
       );
       const oldPos = await client.query(
-        `SELECT gp_balance FROM governance_positions WHERE role = 'governor' AND sector_id = $1`,
+        `SELECT gp_balance FROM governance_positions WHERE role = 'governor' AND sector_id = $1 FOR UPDATE`,
         [sectorId]
       );
       const oldGP = oldPos.rows[0] ? parseFloat(oldPos.rows[0].gp_balance) : 0;
@@ -386,11 +387,11 @@ async function applyDailyMaintenance() {
   try {
     await client.query('BEGIN');
 
-    // Get all governors with their sector pixel counts
+    // Get all governors with their sector pixel counts (FOR UPDATE prevents double-deduction on concurrent scheduler runs)
     const govs = await client.query(
       `SELECT gp.id, gp.wallet, gp.sector_id, gp.gp_balance,
               (SELECT COUNT(*)::int FROM pixels WHERE sector_id = gp.sector_id AND owner IS NOT NULL) AS total_pixels
-       FROM governance_positions gp WHERE gp.role = 'governor'`
+       FROM governance_positions gp WHERE gp.role = 'governor' FOR UPDATE OF gp`
     );
 
     for (const gov of govs.rows) {
