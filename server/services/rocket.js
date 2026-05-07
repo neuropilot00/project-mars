@@ -81,11 +81,33 @@ async function scheduleRocketEvent(triggeredBy) {
     } catch (_e) { /* resources table missing — mineral slot will fall back */ }
   }
 
-  // Check for existing incoming/landed events
-  const existing = await pool.query(
-    "SELECT id FROM rocket_events WHERE status IN ('incoming','landed','looting') LIMIT 1"
-  );
-  if (existing.rows.length > 0) return { error: 'A rocket event is already active' };
+  // Check for existing incoming/landed events — [v7.65] advisory lock prevents concurrent duplicate insert
+  const lockClient = await pool.connect();
+  try {
+    await lockClient.query('BEGIN');
+    await lockClient.query('SELECT pg_advisory_xact_lock(75300)'); // 75300 = rocket scheduler lock key
+    const existing = await lockClient.query(
+      "SELECT id FROM rocket_events WHERE status IN ('incoming','landed','looting') LIMIT 1"
+    );
+    if (existing.rows.length > 0) {
+      await lockClient.query('ROLLBACK');
+      return { error: 'A rocket event is already active' };
+    }
+    // Also check recent creation
+    const recentRow = await lockClient.query(
+      "SELECT id FROM rocket_events WHERE created_at > NOW() - INTERVAL '6 hours' LIMIT 1"
+    );
+    if (recentRow.rows.length > 0) {
+      await lockClient.query('ROLLBACK');
+      return { error: 'Rocket event created too recently' };
+    }
+    await lockClient.query('COMMIT');
+  } catch (e) {
+    await lockClient.query('ROLLBACK');
+    throw e;
+  } finally {
+    lockClient.release();
+  }
 
   // Random landing coords (avoid extreme poles)
   const lat = -60 + Math.random() * 120; // -60 to 60

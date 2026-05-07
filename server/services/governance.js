@@ -191,7 +191,7 @@ async function recalculateCommander(client) {
         [oldCmd]
       );
       const oldPos = await client.query(
-        `SELECT gp_balance FROM governance_positions WHERE role = 'commander' AND sector_id IS NULL`
+        `SELECT gp_balance FROM governance_positions WHERE role = 'commander' AND sector_id IS NULL FOR UPDATE` // [v7.65]
       );
       const oldGP = oldPos.rows[0] ? parseFloat(oldPos.rows[0].gp_balance) : 0;
       if (oldGP > 0) {

@@ -519,17 +519,22 @@ async function distributeRewards(eventId, resolution) {
         } catch (e) { /* user_titles 테이블 없을 수 있음 */ }
       }
 
-      // 보상 표시
-      await client.query(
+      // 보상 표시 — [v7.65] AND rewarded=false 이중 지급 방지
+      const { rowCount: rewCount } = await client.query(
         `UPDATE world_event_participants
             SET rewarded = true,
                 reward_meta = $3::jsonb
-          WHERE event_id = $1 AND LOWER(wallet) = LOWER($2)`,
+          WHERE event_id = $1 AND LOWER(wallet) = LOWER($2) AND rewarded = false`,
         [eventId, p.wallet, JSON.stringify({
           gp, xp, iron_dust: ironDust, ice_crystal: iceCrystal,
           ...(isTop ? { ancient_metal: topMetal, title: topTitle } : {})
         })]
       );
+      if (rewCount === 0) {
+        // 이미 다른 프로세스가 보상 지급했으면 GP/광물 지급 없이 ROLLBACK
+        await client.query('ROLLBACK');
+        continue;
+      }
 
       await client.query('COMMIT');
 

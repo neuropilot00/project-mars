@@ -622,10 +622,14 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
       await client.query('ROLLBACK');
       return { error: `Need ${costPP} PP fuel. You have ${bal.toFixed(2)} PP.` };
     }
-    await client.query(
+    const ppDeduct = await client.query(
       'UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1',
       [costPP, wallet]
     );
+    if (ppDeduct.rowCount === 0) { // [v7.65] atomic guard 실패 시 미션 생성 차단
+      await client.query('ROLLBACK');
+      return { error: `Need ${costPP} PP fuel. You have ${bal.toFixed(2)} PP.` };
+    }
 
     // ── Insert mission row
     const ins = await client.query(
