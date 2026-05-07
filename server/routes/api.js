@@ -1193,7 +1193,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
     if (attackBoostEffectId && (attackWon > 0 || attackLost > 0)) {
       try {
         await client.query(
-          `UPDATE user_active_effects SET uses_remaining = uses_remaining - 1 WHERE id = $1`, [attackBoostEffectId]
+          `UPDATE user_active_effects SET uses_remaining = uses_remaining - 1 WHERE id = $1 AND uses_remaining > 0`, [attackBoostEffectId]
         );
         await client.query(
           `UPDATE user_active_effects SET active = false WHERE id = $1 AND uses_remaining <= 0`, [attackBoostEffectId]

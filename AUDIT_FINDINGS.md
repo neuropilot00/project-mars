@@ -1,4 +1,13 @@
-# OCCUPY MARS — Codebase Audit (v7.20 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.21 / 2026-05-07)
+
+## 🔴→✅ v7.21 — 길드 Treasury + attack_boost uses_remaining 가드 추가 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/guild.js` — levelUp (L924), startResearch (L1030), declareWar (L1231) | `gp_treasury` 차감 UPDATE에 `AND gp_treasury >= $1` 가드 없음 (FOR UPDATE SELECT는 있었음) → 최후 방어선 미비 | ✅ `AND gp_treasury >= $1` + rowCount 확인 추가 (3곳) |
+| `server/routes/api.js` — attack_boost uses_remaining (L1196) | `uses_remaining - 1` UPDATE에 `AND uses_remaining > 0` 가드 없음 → 0 이하로 감소 가능 | ✅ `AND uses_remaining > 0` 가드 추가 |
+
+---
 
 ## 🔴→✅ v7.20 — Cantina 미니게임 TOCTOU 4종 수정 (2026-05-07)
 

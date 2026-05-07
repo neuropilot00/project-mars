@@ -919,11 +919,12 @@ async function upgradeGuildLevel(wallet, guildId) {
     if (cost <= 0) { await client.query('ROLLBACK'); return { error: 'Level cost not configured' }; }
     if (treasury < cost) { await client.query('ROLLBACK'); return { error: `Need ${cost} GP in treasury. Have ${treasury.toFixed(2)}.` }; }
 
-    // Deduct + upgrade
-    await client.query(
-      'UPDATE guilds SET gp_treasury = gp_treasury - $1, level = $2 WHERE id = $3',
+    // Deduct + upgrade (AND guard: belt-and-suspenders against negative treasury)
+    const deductGuildLvl = await client.query(
+      'UPDATE guilds SET gp_treasury = gp_treasury - $1, level = $2 WHERE id = $3 AND gp_treasury >= $1',
       [cost, nextLvl, guildId]
     );
+    if (deductGuildLvl.rowCount === 0) { await client.query('ROLLBACK'); return { error: 'Insufficient treasury (concurrent modification)' }; }
     const newBal = treasury - cost;
     await client.query(
       `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
@@ -1025,13 +1026,14 @@ async function unlockResearch(wallet, guildId, researchKey) {
     if (treasury < cost) { await client.query('ROLLBACK'); return { error: `Need ${cost} GP. Have ${treasury.toFixed(2)}.` }; }
 
     flags[researchKey] = true;
-    await client.query(
+    const deductGuildRes = await client.query(
       `UPDATE guilds
          SET gp_treasury = gp_treasury - $1,
              research_flags = $2::jsonb
-       WHERE id = $3`,
+       WHERE id = $3 AND gp_treasury >= $1`,
       [cost, JSON.stringify(flags), guildId]
     );
+    if (deductGuildRes.rowCount === 0) { await client.query('ROLLBACK'); return { error: 'Insufficient treasury (concurrent modification)' }; }
     const newBal = treasury - cost;
     await client.query(
       `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
@@ -1228,7 +1230,8 @@ async function declareWar(wallet, guildId, targetGuildId, opts = {}) {
       return { error: `Need ${totalCost} GP in treasury. Have ${treasury.toFixed(0)}.` };
     }
 
-    await client.query('UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2', [totalCost, guildId]);
+    const deductGuildWar = await client.query('UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2 AND gp_treasury >= $1', [totalCost, guildId]);
+    if (deductGuildWar.rowCount === 0) { await client.query('ROLLBACK'); return { error: 'Insufficient treasury (concurrent modification)' }; }
     const newBal = treasury - totalCost;
     await client.query(
       `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)

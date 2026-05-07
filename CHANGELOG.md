@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.21 — 길드 Treasury + attack_boost 가드 추가
+
+**server/services/guild.js** — levelUp/startResearch/declareWar 3곳 `gp_treasury` 차감 UPDATE에 `AND gp_treasury >= $1` 가드 + rowCount 확인 추가.
+**server/routes/api.js** — attack_boost `uses_remaining - 1` 에 `AND uses_remaining > 0` 가드 추가.
+
+---
+
 ## 2026-05-07 v7.20 — Cantina 미니게임 TOCTOU 5종 수정
 
 **server/routes/arena.js** — coinflip/dice/hilo: `SELECT balance FROM users` 에 `FOR UPDATE` 추가. mines/crash: `UPDATE users SET balCol = balCol - $1` 에 `AND ${balCol} >= $1` 가드 + rowCount 확인 추가. 5개 미니게임 베팅 경로 동시성 취약점 전부 해소.
