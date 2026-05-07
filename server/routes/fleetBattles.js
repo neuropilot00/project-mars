@@ -99,6 +99,24 @@ router.post('/declare-pvp', requireAuth, async (req, res) => {
     try {
       await client.query('BEGIN');
 
+      // Re-check is_in_battle inside transaction with FOR UPDATE (TOCTOU 방지)
+      // 두 동시 선언이 모두 외부 체크를 통과한 뒤 같은 함대를 두 전투에 넣는 경쟁 조건 차단
+      const { rows: fleetLock } = await client.query(`
+        SELECT id, is_in_battle FROM fleets
+        WHERE id = ANY($1::int[]) FOR UPDATE`,
+        [[my_fleet_id, target_fleet_id]]
+      );
+      const atkLock = fleetLock.find(f => f.id === parseInt(my_fleet_id));
+      const defLock = fleetLock.find(f => f.id === parseInt(target_fleet_id));
+      if (!atkLock || atkLock.is_in_battle) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: 'MY_FLEET_IN_BATTLE' });
+      }
+      if (!defLock || defLock.is_in_battle) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: 'TARGET_IN_BATTLE' });
+      }
+
       const { rows: battleRows } = await client.query(`
         INSERT INTO fleet_battles (
           battle_type, status, phase,
@@ -107,6 +125,12 @@ router.post('/declare-pvp', requireAuth, async (req, res) => {
         RETURNING id
       `);
       battleId = battleRows[0].id;
+
+      // Mark both fleets as in_battle before COMMIT (prevents duplicate scheduling)
+      await client.query(
+        `UPDATE fleets SET is_in_battle = true WHERE id = ANY($1::int[])`,
+        [[my_fleet_id, target_fleet_id]]
+      );
 
       // participants 추가
       await client.query(`
