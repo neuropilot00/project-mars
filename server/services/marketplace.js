@@ -208,8 +208,10 @@ async function cancelListing(client, listingId, wallet) {
 async function buyListing(client, listingId, buyer) {
   const b = buyer.toLowerCase();
 
+  // FOR UPDATE: serializes concurrent buyers — second buyer blocks until first commits,
+  // then re-evaluates WHERE status='active' and gets 0 rows (already sold)
   const res = await client.query(
-    "SELECT * FROM marketplace_listings WHERE id = $1 AND status = 'active'", [listingId]
+    "SELECT * FROM marketplace_listings WHERE id = $1 AND status = 'active' FOR UPDATE", [listingId]
   );
   if (!res.rows.length) throw new Error('Listing not found or no longer available');
   const listing = res.rows[0];
