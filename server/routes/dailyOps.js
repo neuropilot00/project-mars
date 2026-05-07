@@ -10,8 +10,19 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { pool, getSetting } = require('../db');
 
+// ✅ [v7.44] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 function getWallet(req) {
   return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
 }
@@ -247,9 +258,9 @@ router.get('/:wallet', async (req, res) => {
 
 // ── POST /api/daily-ops/progress (내부 호출) ──────────────────
 // 각 행동(채굴/전투/강화/제작)이 완료될 때 서버 내부에서 호출
-router.post('/progress', async (req, res) => {
+router.post('/progress', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = getAuthWallet(req);
     const { mission_type } = req.body || {};
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
     if (!mission_type) return res.status(400).json({ error: 'MISSION_TYPE_REQUIRED' });
@@ -289,9 +300,9 @@ router.post('/progress', async (req, res) => {
 });
 
 // ── POST /api/daily-ops/claim ─────────────────────────────────
-router.post('/claim', async (req, res) => {
+router.post('/claim', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = getAuthWallet(req);
     const { mission_id } = req.body || {};
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
 

@@ -9,8 +9,19 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { pool, getSetting } = require('../db');
 
+// ✅ [v7.44] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 function getWallet(req) {
   return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
 }
@@ -107,10 +118,10 @@ router.get('/:claimId/identity', async (req, res) => {
 });
 
 // ── PATCH /api/territory/:claimId/identity ────────────────────
-router.patch('/:claimId/identity', async (req, res) => {
+router.patch('/:claimId/identity', requireAuth, async (req, res) => {
   try {
     const claimId = parseInt(req.params.claimId);
-    const wallet  = getWallet(req);
+    const wallet  = getAuthWallet(req);
     const { nickname, bio } = req.body || {};
 
     if (!claimId) return res.status(400).json({ error: 'INVALID_CLAIM_ID' });

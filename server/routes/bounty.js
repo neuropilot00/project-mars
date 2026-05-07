@@ -13,8 +13,19 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { pool, getSetting } = require('../db');
 
+// ✅ [v7.44] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 function getWallet(req) {
   return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
 }
@@ -87,9 +98,9 @@ router.get('/on-me', async (req, res) => {
 });
 
 // ── POST /api/bounty/post ─────────────────────────────────────
-router.post('/post', async (req, res) => {
+router.post('/post', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = getAuthWallet(req);
     const { target_wallet, reward_gp, reason } = req.body || {};
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
     if (!target_wallet) return res.status(400).json({ error: 'TARGET_REQUIRED' });
@@ -173,9 +184,9 @@ router.post('/post', async (req, res) => {
 
 // ── POST /api/bounty/claim ────────────────────────────────────
 // 전투 승리 후 대상 지갑에 걸린 현상금 수령
-router.post('/claim', async (req, res) => {
+router.post('/claim', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = getAuthWallet(req);
     const { battle_id, target_wallet } = req.body || {};
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
     if (!battle_id || !target_wallet) return res.status(400).json({ error: 'BATTLE_ID_AND_TARGET_REQUIRED' });
@@ -268,9 +279,9 @@ router.post('/claim', async (req, res) => {
 });
 
 // ── POST /api/bounty/cancel/:id ───────────────────────────────
-router.post('/cancel/:id', async (req, res) => {
+router.post('/cancel/:id', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = getAuthWallet(req);
     const bountyId = parseInt(req.params.id);
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
     if (!bountyId) return res.status(400).json({ error: 'INVALID_ID' });

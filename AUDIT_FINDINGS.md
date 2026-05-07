@@ -1,5 +1,20 @@
 # OCCUPY MARS — Codebase Audit (v7.42 / 2026-05-07)
 
+## 🔴→✅ v7.44 — 8개 라우트 JWT 인증 누락 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `auction.js` 4개 write endpoint — JWT 없음, body wallet 신뢰 | 타인 wallet으로 경매 생성/입찰/즉구/취소 | 🔴 HIGH | ✅ requireAuth 4개 |
+| `bounty.js` 3개 write endpoint — JWT 없음 | 타인 wallet으로 현상금 등록/수령/취소 | 🔴 HIGH | ✅ requireAuth 3개 |
+| `dailyOps.js` 2개 write endpoint — JWT 없음 | 타인 wallet으로 미션 진행/보상 수령 | 🔴 HIGH | ✅ requireAuth 2개 |
+| `job.js POST /user/job` — JWT 없음 | 타인 wallet으로 직업 변경 | 🔴 HIGH | ✅ requireAuth |
+| `lottery.js POST /lottery/buy` — JWT 없음 | 타인 wallet으로 복권 구매 (GP 소각) | 🔴 HIGH | ✅ requireAuth |
+| `resourceCraft.js` 3개 endpoint — JWT 있으나 body fallback | JWT fallback으로 인증 우회 가능 | 🔴 HIGH | ✅ fallback 제거 + requireAuth |
+| `territoryIdentity.js PATCH /:claimId/identity` — JWT 없음 | 타인 wallet으로 영토 닉네임/바이오 수정 | 🔴 HIGH | ✅ requireAuth |
+| `worldEvents.js POST /engage` — JWT 있으나 body fallback | JWT fallback으로 인증 우회 가능 | 🔴 HIGH | ✅ fallback 제거 + requireAuth |
+
+---
+
 ## 🟡→✅ v7.43 — 11개 서비스 rowCount 누락 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |

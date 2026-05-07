@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.44 — 8개 라우트 JWT 인증 추가
+
+**수정 (HIGH):**
+- `server/routes/auction.js` `POST /auction/create,/bid,/buyout,/cancel`: body wallet → `requireAuth` JWT
+- `server/routes/bounty.js` `POST /post,/claim,/cancel/:id`: body wallet → `requireAuth` JWT
+- `server/routes/dailyOps.js` `POST /progress,/claim`: body wallet → `requireAuth` JWT
+- `server/routes/job.js` `POST /user/job`: body wallet → `requireAuth` JWT
+- `server/routes/lottery.js` `POST /lottery/buy`: body wallet → `requireAuth` JWT
+- `server/routes/resourceCraft.js` `POST /start,/:id/claim,/:id/cancel`: JWT fallback 제거, `requireAuth` 강제
+- `server/routes/territoryIdentity.js` `PATCH /:claimId/identity`: body wallet → `requireAuth` JWT
+- `server/routes/worldEvents.js` `POST /world-events/:id/engage`: JWT fallback 제거, `requireAuth` 강제
+
+---
+
 ## 2026-05-07 v7.43 — 11개 서비스 rowCount 누락 수정
 
 **수정 (MEDIUM — FOR UPDATE 후 rowCount 미검사):**

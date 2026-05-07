@@ -1,6 +1,7 @@
 'use strict';
 const express   = require('express');
 const rateLimit = require('express-rate-limit');
+const jwt       = require('jsonwebtoken');
 const { pool }  = require('../db');
 const router    = express.Router();
 
@@ -10,6 +11,17 @@ try { lotteryService = require('../services/lottery'); } catch (_e) {}
 const isDev = process.env.NODE_ENV !== 'production';
 const readLimiter  = rateLimit({ windowMs: 60 * 1000, max: isDev ? 300 : 60,  message: { error: 'Too many requests' } });
 const writeLimiter = rateLimit({ windowMs: 60 * 1000, max: isDev ? 100 : 15,  message: { error: 'Too many requests' } });
+
+// ✅ [v7.44] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // GET /api/lottery/current — current open round + user ticket count
 router.get('/lottery/current', readLimiter, async (req, res) => {
@@ -25,9 +37,9 @@ router.get('/lottery/current', readLimiter, async (req, res) => {
 });
 
 // POST /api/lottery/buy — buy tickets { wallet, count }
-router.post('/lottery/buy', writeLimiter, async (req, res) => {
-  const { wallet, count } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/lottery/buy', requireAuth, writeLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  const { count } = req.body;
   if (!w) return res.status(400).json({ error: 'wallet required' });
   if (!lotteryService) return res.status(503).json({ error: 'Lottery service unavailable' });
 

@@ -16,16 +16,18 @@ const router = express.Router();
 const we = require('../services/worldEvents');
 
 const jwt = require('jsonwebtoken');
-function getWallet(req) {
+// ✅ [v7.44] JWT 인증 미들웨어 — fallback 제거
+const requireAuth = (req, res, next) => {
   const token = (req.headers.authorization || '').replace('Bearer ', '');
-  if (token && process.env.JWT_SECRET) {
-    try {
-      const p = jwt.verify(token, process.env.JWT_SECRET);
-      return (p.wallet_address || p.wallet || p.walletAddress || '').toLowerCase().trim();
-    } catch (_) {}
-  }
-  return String(req.body?.wallet || req.headers['x-wallet'] || req.query?.wallet || '')
-    .toLowerCase().trim();
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
+function getWallet(req) {
+  return getAuthWallet(req);
 }
 
 const ERROR_STATUS = {
@@ -74,7 +76,7 @@ router.get('/world-events/:id', async (req, res) => {
 });
 
 // ─── 교전 ───
-router.post('/world-events/:id/engage', async (req, res) => {
+router.post('/world-events/:id/engage', requireAuth, async (req, res) => {
   const wallet = getWallet(req);
   if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const id = parseInt(req.params.id);

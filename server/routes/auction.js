@@ -16,7 +16,19 @@
 
 const express = require('express');
 const router  = express.Router();
+const jwt     = require('jsonwebtoken');
 const auctionService = require('../services/auction');
+
+// ✅ [v7.44] JWT 인증 미들웨어 — wallet body 신뢰 없음
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 function getWallet(req) {
   return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
@@ -33,9 +45,9 @@ function requireAdmin(req, res) {
 }
 
 // ── POST /api/auction/create ──
-router.post('/auction/create', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.post('/auction/create', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   try {
     const result = await auctionService.createAuction(wallet, req.body);
     if (!result.success) return res.status(400).json(result);
@@ -75,9 +87,9 @@ router.get('/auction/:id', async (req, res) => {
 });
 
 // ── POST /api/auction/:id/bid ──
-router.post('/auction/:id/bid', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.post('/auction/:id/bid', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const amount = parseInt(req.body.amount);
   if (!amount || amount <= 0) return res.status(400).json({ error: 'invalid_amount' });
   try {
@@ -91,9 +103,9 @@ router.post('/auction/:id/bid', async (req, res) => {
 });
 
 // ── POST /api/auction/:id/buyout ──
-router.post('/auction/:id/buyout', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.post('/auction/:id/buyout', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   try {
     const result = await auctionService.buyout(wallet, req.params.id);
     if (!result.success) return res.status(400).json(result);
@@ -105,9 +117,9 @@ router.post('/auction/:id/buyout', async (req, res) => {
 });
 
 // ── POST /api/auction/:id/cancel ──
-router.post('/auction/:id/cancel', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.post('/auction/:id/cancel', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   try {
     const result = await auctionService.cancelAuction(wallet, req.params.id);
     if (!result.success) return res.status(400).json(result);

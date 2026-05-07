@@ -12,8 +12,20 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
 const jobService = require('../services/job');
+
+// ✅ [v7.44] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // ── 미들웨어: wallet 추출 헬퍼 ──
 function getWallet(req) {
@@ -63,8 +75,8 @@ router.get('/user/job', async (req, res) => {
 // POST /api/user/job
 // 직업 선택/변경 { wallet, jobCode }
 // ─────────────────────────────────────────
-router.post('/user/job', async (req, res) => {
-  const wallet = getWallet(req);
+router.post('/user/job', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   const { jobCode } = req.body;
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   if (!jobCode) return res.status(400).json({ error: 'jobCode required' });
