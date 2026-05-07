@@ -1,5 +1,38 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.02 — balance credit LOWER() 전체 서버 완전 정리 (18개 파일)
+
+### 수정 대상 파일
+`exploration.js`, `missions.js`, `onboarding.js`, `daily.js`, `duel.js`, `hijack.js`,
+`lottery.js`, `achievements.js`, `rocket.js`, `tournament.js`, `dividends.js`,
+`season.js`, `tournaments.js`, `chain.js`, `maintenance.js`, `db.js`, `auth.js`, `api.js`
+
+### 수정 내용
+- `SET *_balance = *_balance + $N WHERE wallet_address = $N` 패턴 전체 → `LOWER(wallet_address) = LOWER($N)` 변경
+- 체인 USDT/PP 입금(chain.js), 시즌 보상(season.js), 복권 당첨(lottery.js), 업적 보상(achievements.js), 로켓 보상(rocket.js), 듀얼 정산(duel.js) 등 실제 GP/PP 지급 경로 모두 커버
+- 서버 전체 grep 기준: 0건 잔여
+
+---
+
+## 2026-05-07 v7.01 — api.js + admin.js 핵심 크레딧 경로 LOWER() 수정
+
+### server/routes/api.js
+- 하이잭 피해자 PP 환불 (`affectedOwners` 키 = DB `pixels.owner`): LOWER() 추가
+- 레퍼럴 PP 크레딧 (`ref.wallet` from DB): LOWER() 추가
+- territory harvest PP 지급 x2: LOWER() 추가
+- pp→gp 교환 GP 크레딧: LOWER() 추가
+- GP 이체 수신자 조회(LOWER 없으면 checksum 지갑 not_found) + 크레딧: LOWER() 추가
+- GP 이체 발신자 FOR UPDATE: LOWER() 추가
+- hijack 실패 환불 PP: LOWER() 추가
+
+### server/routes/admin.js
+- gp/grant 엔드포인트: LOWER() 추가
+- staking withdraw 판매자 지급: LOWER() 추가
+- bounty cancel 환불: LOWER() 추가
+- duel admin cancel challenger/defender 환불 x2: LOWER() 추가
+
+---
+
 ## 2026-05-07 v7.00 — auction.js LOWER() 누락으로 인한 GP 소각 버그 수정
 
 ### server/services/auction.js — 핵심 GP 지급 경로 LOWER() 누락 수정

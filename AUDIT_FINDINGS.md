@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v7.00 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.02 / 2026-05-07)
+
+## 🔴→✅ v7.01~v7.02 — api.js/admin.js + 18개 파일 balance credit LOWER() 완전 정리 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/api.js` — 하이잭 PP 환불 (L1274) | `affectedOwners` 키 = `pixels.owner` DB값 → 혼합 대소문자 가능 → PP 소각 | ✅ LOWER() 추가 (v7.01) |
+| `server/routes/api.js` — 레퍼럴 PP 크레딧 (L1425) | `ref.wallet` from DB → LOWER() 없음 | ✅ LOWER() 추가 (v7.01) |
+| `server/routes/api.js` — territory harvest PP (L3060, L3334) | `WHERE wallet_address = $2` LOWER() 없음 | ✅ LOWER() 추가 (v7.01) |
+| `server/routes/api.js` — pp_to_gp 교환 GP 크레딧 (L7110) | `wallet_address=$2` LOWER() 없음 | ✅ LOWER() 추가 (v7.01) |
+| `server/routes/api.js` — GP 이체 수신자 조회+크레딧 (L7542, L7592) | 조회: LOWER() 없어 checksum 등록 유저 "not_found". 크레딧: LOWER() 없어 GP 소각 | ✅ 두 곳 LOWER() 추가 (v7.01) |
+| `server/routes/api.js` — GP 이체 발신자 FOR UPDATE (L7571) | `WHERE wallet_address = $1 FOR UPDATE` LOWER() 없음 | ✅ LOWER() 추가 (v7.01) |
+| `server/routes/api.js` — PP 환불 refundFromFailed (L1401) | LOWER() 없음 | ✅ LOWER() 추가 (v7.01) |
+| `server/routes/admin.js` — gp/grant (L1727), staking withdraw (L2319), bounty cancel (L2507), duel admin cancel (L4181/4186) | DB 저장 wallet값으로 UPDATE 시 LOWER() 없음 | ✅ 5곳 LOWER() 추가 (v7.01) |
+| **v7.02 batch — 18개 파일** (exploration, missions, onboarding, daily, duel, hijack, lottery, achievements, rocket, tournament, dividends, season, tournaments, chain, maintenance, db.js, auth.js, api.js) | 모든 `SET *_balance = *_balance + $N WHERE wallet_address` 패턴에 LOWER() 누락 | ✅ 전체 sed 일괄 패치 (v7.02) |
+
+**v7.02 이후: 서버 전체에서 `SET *_balance ... WHERE wallet_address` 패턴 중 LOWER() 없는 것: 0건 (grep 확인)**
+
+---
 
 ## 🔴→✅ v6.96~v7.00 — warBetting/exploration/polls/12개 서비스/15개 서비스/auction LOWER() 일괄 수정 (2026-05-07)
 
