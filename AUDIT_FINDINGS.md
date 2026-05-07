@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
 
+## 🔴→✅ v7.13 — 마켓플레이스 구매 TOCTOU 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/marketplace.js` — `buyListing()` L211 | 리스팅 SELECT에 `FOR UPDATE` 없음 → 두 구매자가 동시에 동일 리스팅 status='active' 확인 → 아이템 중복 지급 + 판매자 이중 크레딧 | ✅ `FOR UPDATE` 추가 (v7.13) |
+
 ## 🔴→✅ v7.12 — 영토 수확 TOCTOU 경쟁 조건 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |

@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.13 — 마켓플레이스 구매 TOCTOU 수정
+
+**server/services/marketplace.js** — `buyListing()` 리스팅 SELECT에 `FOR UPDATE` 추가.
+동시 구매 요청 두 건이 모두 `status='active'` 확인 후 진행 → 아이템 중복 지급 + 판매자 이중 크레딧 경쟁 조건 수정.
+
+---
+
 ## 2026-05-07 v7.12 — 영토 수확 TOCTOU 경쟁 조건 수정
 
 **server/routes/api.js** — territory harvest claims SELECT에 `FOR UPDATE OF c` 추가.
