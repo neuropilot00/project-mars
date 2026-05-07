@@ -10,28 +10,23 @@ const express = require('express');
 const router = express.Router();
 const cmdSvc = require('../services/commanderActions');
 
-// ── wallet 추출 (JWT Bearer 혹은 x-wallet 헤더) ──
+// ── JWT 인증 미들웨어 — body/header wallet fallback 없음 ──
 const jwt = require('jsonwebtoken');
-function getWallet(req) {
-  // JWT 우선
+const requireAuth = (req, res, next) => {
   const token = (req.headers.authorization || '').replace('Bearer ', '');
-  if (token && process.env.JWT_SECRET) {
-    try {
-      const p = jwt.verify(token, process.env.JWT_SECRET);
-      return (p.wallet_address || p.wallet || p.walletAddress || '').toLowerCase().trim();
-    } catch (_) {}
-  }
-  // fallback: x-wallet 헤더/body
-  return String(req.body?.wallet || req.headers['x-wallet'] || req.query?.wallet || '')
-    .toLowerCase().trim();
-}
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
 
 // ─── POST /api/battles/:id/commander-action ───
-router.post('/battles/:id/commander-action', async (req, res) => {
+router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
   const battleId = parseInt(req.params.id);
   if (!battleId) return res.status(400).json({ error: 'invalid_battle_id' });
 
-  const wallet = getWallet(req);
+  const wallet = (req.user.wallet_address || req.user.wallet || req.user.walletAddress || '').toLowerCase().trim();
   if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
 
   const { action_type, actionType, params } = req.body || {};

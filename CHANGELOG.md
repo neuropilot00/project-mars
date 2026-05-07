@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.40 — commanderActions/marketplace JWT 인증 + battleRewards FOR UPDATE
+
+**수정 (HIGH):**
+- `server/routes/commanderActions.js` `POST /battles/:id/commander-action`: wallet body/header fallback 허용 → JWT 없이 타인 wallet으로 commander action GP 소각 가능. `requireAuth` 미들웨어 추가, `body.wallet`/`x-wallet` fallback 제거.
+- `server/routes/marketplace.js` `POST /list`, `POST /cancel`, `POST /buy`: wallet body에서 신뢰 (JWT 없음) → 타인 wallet으로 리스팅 취소/구매 조작 가능. `requireAuth` JWT 추가, wallet 토큰에서 추출.
+- `server/services/battleRewards.js` `distributeMinimalRewards()`: `fleet_battles` FOR UPDATE 없이 idempotency check → 동시 2개 호출이 둘 다 기존 보상 없음으로 판정 후 이중 지급. `SELECT id FROM fleet_battles WHERE id=$1 FOR UPDATE`를 BEGIN 직후에 추가.
+
+**감사 완료 (버그 없음):**
+- fleets.js — requireAuth + JWT wallet 정상
+- lottery.js buyTickets — FOR UPDATE 있어 ticket 번호 충돌 방지됨 (fragile but safe)
+- tprestige.js ownership check — LOW (이미 prestige row FOR UPDATE + service-level 체크로 완화)
+- aiFleetManager.js, battleEngine.js, claimUpgrades.js — 정상
+
+---
+
 ## 2026-05-07 v7.39 — worldEvents 이중 정산 + rocket rowCount + siege 인증 누락 + warBetting 정보 유출
 
 **수정 (HIGH):**

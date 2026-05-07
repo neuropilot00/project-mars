@@ -238,6 +238,14 @@ async function distributeMinimalRewards(battleId) {
   try {
     await client.query('BEGIN');
 
+    // Serialize concurrent reward distribution by locking the battle row first.
+    // Without this FOR UPDATE, two concurrent calls both pass the fleet_battle_rewards
+    // check (both see 0 rows) before either inserts, causing double GP payout.
+    await client.query(
+      `SELECT id FROM fleet_battles WHERE id = $1 FOR UPDATE`,
+      [battleId]
+    );
+
     // 이미 지급된 경우 중복 방지 (idempotency guard)
     const { rows: existing } = await client.query(
       `SELECT 1 FROM fleet_battle_rewards WHERE battle_id = $1 LIMIT 1`,

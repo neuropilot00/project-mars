@@ -1,5 +1,18 @@
 # OCCUPY MARS — Codebase Audit (v7.37 / 2026-05-07)
 
+## 🔴→✅ v7.40 — commanderActions/marketplace JWT + battleRewards FOR UPDATE (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `commanderActions.js POST /battles/:id/commander-action` — wallet fallback, JWT 없음 | 타인 wallet으로 commander action GP 소각 | 🔴 HIGH | ✅ requireAuth + body wallet 제거 |
+| `marketplace.js POST /list,/cancel,/buy` — wallet body 신뢰 | 타인 wallet으로 리스팅 취소/구매 조작 | 🔴 HIGH | ✅ requireAuth 3개 추가 |
+| `battleRewards.js distributeMinimalRewards()` — FOR UPDATE 없음 | 동시 2개 호출 → 이중 GP 지급 | 🔴 HIGH | ✅ SELECT fleet_battles FOR UPDATE |
+
+**감사 완료 (버그 없음):**
+- fleets.js, aiFleetManager.js, battleEngine.js, claimUpgrades.js, lottery.js — 정상
+
+---
+
 ## 🔴→✅ v7.39 — worldEvents 이중 정산 + rocket rowCount + siege 인증 + warBetting 정보 유출 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |

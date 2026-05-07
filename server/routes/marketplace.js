@@ -1,6 +1,17 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const jwt = require('jsonwebtoken');
 const { pool, getSetting } = require('../db');
+
+// JWT 인증 미들웨어 — wallet은 반드시 검증된 토큰에서 추출
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
 
 const router = express.Router();
 
@@ -56,9 +67,9 @@ router.get('/listings/:id', readLimiter, async (req, res) => {
 });
 
 // POST /api/marketplace/list — create a new listing
-router.post('/list', writeLimiter, async (req, res) => {
-  const { wallet, type, price, currency, instanceId, claimId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/list', requireAuth, writeLimiter, async (req, res) => {
+  const w = (req.user.wallet_address || req.user.wallet || req.user.walletAddress || '').toLowerCase().trim();
+  const { type, price, currency, instanceId, claimId } = req.body;
   if (!w || !type || !price) return res.status(400).json({ error: 'Missing required fields' });
   if (!marketService) return res.status(503).json({ error: 'Marketplace service unavailable' });
 
@@ -84,9 +95,9 @@ router.post('/list', writeLimiter, async (req, res) => {
 });
 
 // POST /api/marketplace/cancel — cancel own listing
-router.post('/cancel', writeLimiter, async (req, res) => {
-  const { wallet, listingId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/cancel', requireAuth, writeLimiter, async (req, res) => {
+  const w = (req.user.wallet_address || req.user.wallet || req.user.walletAddress || '').toLowerCase().trim();
+  const { listingId } = req.body;
   if (!w || !listingId) return res.status(400).json({ error: 'Missing required fields' });
   const parsedListingId = parseInt(listingId, 10);
   if (!Number.isInteger(parsedListingId)) return res.status(400).json({ error: 'Invalid listing id' });
@@ -108,9 +119,9 @@ router.post('/cancel', writeLimiter, async (req, res) => {
 });
 
 // POST /api/marketplace/buy — instant purchase
-router.post('/buy', writeLimiter, async (req, res) => {
-  const { wallet, listingId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/buy', requireAuth, writeLimiter, async (req, res) => {
+  const w = (req.user.wallet_address || req.user.wallet || req.user.walletAddress || '').toLowerCase().trim();
+  const { listingId } = req.body;
   if (!w || !listingId) return res.status(400).json({ error: 'Missing required fields' });
   const parsedListingId = parseInt(listingId, 10);
   if (!Number.isInteger(parsedListingId)) return res.status(400).json({ error: 'Invalid listing id' });
