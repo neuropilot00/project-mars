@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v7.26 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.27 / 2026-05-07)
+
+## 🔴→✅ v7.27 — P5 영토 업그레이드 버그 3종 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `claimUpgrades.js` upgradeTerritory | `upgraded_at = NOW()` — 컬럼이 `updated_at`임. 모든 업그레이드 시도 42703 에러로 실패 | ✅ `updated_at`으로 수정 |
+| `claimUpgrades.js` upgradeTerritory | P5 트랙에 `cfg.p5Enabled` 체크 없음 — 비활성화해도 P5 업그레이드 가능 | ✅ isP5Track + p5Enabled 게이트 추가 |
+| `claimUpgrades.js` upgradeTerritory | P5 트랙에 `cfg.maxLevel` 대신 `cfg.p5MaxLevel` 미적용 | ✅ 트랙별 effectiveMaxLevel 분기 |
+| `claimUpgrades.js` 카탈로그 | P5 트랙 maxLevel도 cfg.maxLevel 반환 | ✅ P5는 cfg.p5MaxLevel 반환 |
+| `claimUpgrades.js` UPDATE 쿼리 | $2 파라미터(wallet)가 WHERE절에 미사용 — 불필요한 파라미터 전달 | ✅ $2 제거, 파라미터 정리 |
+
+**검증:** `getUpgradeCatalog()` 9개 트랙 정상, P5 5개 costs 올바르게 파싱됨.
+
+---
 
 ## ✅ v7.26 — rowCount 스윕 완료 (38파일, 2026-05-07)
 

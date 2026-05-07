@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.27 — P5 영토 업그레이드 버그 3종 수정
+
+**server/services/claimUpgrades.js**:
+- `upgraded_at` → `updated_at`: territory_upgrades 테이블 실제 컬럼명. 이 버그로 모든 업그레이드 시도가 PostgreSQL `42703` 에러로 실패했음.
+- P5 활성화 게이트 추가: P5 트랙(effect 필드가 있는 타입)은 `cfg.p5Enabled = false`일 때 차단됨.
+- P5 maxLevel 분리: 카탈로그 + upgradeTerritory 모두 P5 트랙에 `cfg.p5MaxLevel`, 클래식 트랙에 `cfg.maxLevel` 사용.
+- UPDATE 쿼리 $2 파라미터 정리: wallet이 $2로 전달됐으나 WHERE 절에 미사용 — $2 제거.
+- 검증: `getUpgradeCatalog()` 9개 트랙, P5 5개 maxLevel=5, extractor 비용 `[50,150,350,800,2000]` 정상 파싱 확인.
+
+---
+
 ## 2026-05-07 v7.26 — 서비스 전체 rowCount 스윕 완료 (38파일)
 
 **rowCount 가드 전체 서비스 적용 완료.** 모든 `AND gp_balance >= $N` / `AND pp_balance >= $N` guarded UPDATE에 `rowCount === 0` 검사 추가:
