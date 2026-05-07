@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.36 — prestige/tprestige 인증 추가 + daily 트랜잭션 + prestige rowCount 수정
+
+**수정 (보안):**
+- `server/routes/prestige.js` `POST /prestige/buy`: `requireAuth` 미들웨어 없음 — 누구나 임의 지갑의 GP를 소각 가능. JWT `requireAuth` 추가, wallet은 토큰에서 추출 (body.wallet 신뢰 안 함).
+- `server/routes/tprestige.js` `POST /tprestige/upgrade`: 동일 문제 — `requireAuth` 추가, wallet 토큰 추출.
+
+**수정 (데이터 정합):**
+- `server/services/daily.js` `recordDailyLogin()`: 로그인 INSERT + GP 지급 + 마일스톤 GP 지급이 별도 `pool.query` 3개로 트랜잭션 없이 실행됨 → 서버 크래시 시 부분 지급 가능. BEGIN/COMMIT 단일 트랜잭션으로 통합.
+- `server/services/prestige.js` `buyPrestige()`: GP deduct UPDATE rowCount 미검사 → `INSUFFICIENT_GP` throw 추가.
+
+---
+
 ## 2026-05-07 v7.35 — enhancement/marketplace/governance FOR UPDATE 경쟁 수정
 
 **수정:**

@@ -1,3 +1,21 @@
+# OCCUPY MARS — Codebase Audit (v7.36 / 2026-05-07)
+
+## 🔴→✅ v7.36 — prestige/tprestige 인증 누락 + daily 트랜잭션 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `routes/prestige.js POST /prestige/buy` — requireAuth 없음 | 누구나 임의 지갑의 GP 소각 가능 | 🔴 CRITICAL | ✅ requireAuth + JWT wallet |
+| `routes/tprestige.js POST /tprestige/upgrade` — requireAuth 없음 | 동일 — 타인 지갑으로 업그레이드 비용 부담 가능 | 🔴 CRITICAL | ✅ requireAuth + JWT wallet |
+| `daily.js recordDailyLogin()` — GP 지급 3개 쿼리 트랜잭션 없음 | 서버 크래시 시 부분 지급 (로그인 기록됨 but GP 미지급) | 🟡 MEDIUM | ✅ BEGIN/COMMIT 통합 |
+| `prestige.js buyPrestige()` — GP deduct rowCount 미검사 | FOR UPDATE로 실제 경쟁 없지만 방어적 패턴 불일치 | 🟡 LOW | ✅ rowCount guard 추가 |
+
+**감사 완료 (버그 없음):**
+- announcement.js, commanderActions.js, donation.js, resourceCraft.js, rocket.js — 모두 정상
+- lottery.js, staking.js, dividends.js — 정상
+- daily.js claimMissionReward() — FOR UPDATE + AND claimed=false 패턴 정상
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.35 / 2026-05-07)
 
 ## 🔴→✅ v7.35 — enhancement/marketplace/governance FOR UPDATE 경쟁 수정 (2026-05-07)

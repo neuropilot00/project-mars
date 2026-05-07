@@ -86,65 +86,80 @@ async function recordDailyLogin(wallet) {
   const rewardGP = parseFloat(gpRewards[streakDay - 1]) || 0;
   const rewardPP = parseFloat(ppRewards[streakDay - 1]) || 0;
 
-  // Insert login record — ON CONFLICT DO NOTHING prevents double-reward on concurrent requests
-  const insertRes = await pool.query(
-    `INSERT INTO daily_logins (wallet, login_date, streak_day, reward_gp, reward_pp)
-     VALUES ($1, CURRENT_DATE, $2, $3, $4)
-     ON CONFLICT (wallet, login_date) DO NOTHING
-     RETURNING id`,
-    [w, streakDay, rewardGP, rewardPP]
-  );
-
-  // If conflict (race condition: another concurrent request already inserted), return alreadyClaimed
-  if (insertRes.rowCount === 0) {
-    const row = await pool.query('SELECT * FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE', [w]);
-    const totalRes = await pool.query('SELECT COUNT(*) AS cnt FROM daily_logins WHERE wallet = $1', [w]);
-    return {
-      alreadyClaimed: true,
-      streakDay: row.rows[0]?.streak_day || streakDay,
-      rewardGP: parseFloat(row.rows[0]?.reward_gp || 0),
-      rewardPP: parseFloat(row.rows[0]?.reward_pp || 0),
-      totalDays: parseInt(totalRes.rows[0].cnt),
-      milestone: null
-    };
-  }
-
-  // Credit user balances
-  if (rewardGP > 0 || rewardPP > 0) {
-    await pool.query(
-      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
-      [rewardGP, rewardPP, w]
-    );
-    // ✅ Log GP activity
-    if (rewardGP > 0) {
-      try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGP, 'daily_login', `Day ${streakDay} check-in`).catch(()=>{}); } catch (_le) {}
-    }
-  }
-
-  // Count total login days for milestone check
-  const totalRes = await pool.query('SELECT COUNT(*) AS cnt FROM daily_logins WHERE wallet = $1', [w]);
-  const totalDays = parseInt(totalRes.rows[0].cnt);
-
-  // Milestone bonuses
+  // 트랜잭션으로 INSERT + GP 지급을 원자적으로 처리 — 서버 크래시 시 부분 지급 방지
+  const client = await pool.connect();
+  let totalDays = 0;
   let milestone = null;
   let milestoneGP = 0;
   let milestonePP = 0;
 
-  // Streak milestones — 7일 주기 기준 (3일, 7일 완주만)
-  if (streakDay === 3) {
-    milestoneGP = parseFloat(await getSetting('streak_3_gp', 30));
-    milestone = { days: 3, gp: milestoneGP, pp: 0 };
-  } else if (streakDay === 7) {
-    // 7일 완주 — cycleReset 플래그로 다음 로그인이 새 주기임을 알림
-    milestoneGP = parseFloat(await getSetting('streak_7_gp', 100));
-    milestone = { days: 7, gp: milestoneGP, pp: 0, cycleComplete: true };
+  try {
+    await client.query('BEGIN');
+
+    // Insert login record — ON CONFLICT DO NOTHING prevents double-reward on concurrent requests
+    const insertRes = await client.query(
+      `INSERT INTO daily_logins (wallet, login_date, streak_day, reward_gp, reward_pp)
+       VALUES ($1, CURRENT_DATE, $2, $3, $4)
+       ON CONFLICT (wallet, login_date) DO NOTHING
+       RETURNING id`,
+      [w, streakDay, rewardGP, rewardPP]
+    );
+
+    // If conflict (race condition: another concurrent request already inserted), return alreadyClaimed
+    if (insertRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      const row = await pool.query('SELECT * FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE', [w]);
+      const totalRes = await pool.query('SELECT COUNT(*) AS cnt FROM daily_logins WHERE wallet = $1', [w]);
+      return {
+        alreadyClaimed: true,
+        streakDay: row.rows[0]?.streak_day || streakDay,
+        rewardGP: parseFloat(row.rows[0]?.reward_gp || 0),
+        rewardPP: parseFloat(row.rows[0]?.reward_pp || 0),
+        totalDays: parseInt(totalRes.rows[0].cnt),
+        milestone: null
+      };
+    }
+
+    // Credit user balances
+    if (rewardGP > 0 || rewardPP > 0) {
+      await client.query(
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
+        [rewardGP, rewardPP, w]
+      );
+    }
+
+    // Count total login days for milestone check
+    const totalRes = await client.query('SELECT COUNT(*) AS cnt FROM daily_logins WHERE wallet = $1', [w]);
+    totalDays = parseInt(totalRes.rows[0].cnt);
+
+    // Streak milestones — 7일 주기 기준 (3일, 7일 완주만)
+    if (streakDay === 3) {
+      milestoneGP = parseFloat(await getSetting('streak_3_gp', 30));
+      milestone = { days: 3, gp: milestoneGP, pp: 0 };
+    } else if (streakDay === 7) {
+      // 7일 완주 — cycleReset 플래그로 다음 로그인이 새 주기임을 알림
+      milestoneGP = parseFloat(await getSetting('streak_7_gp', 100));
+      milestone = { days: 7, gp: milestoneGP, pp: 0, cycleComplete: true };
+    }
+
+    if (milestoneGP > 0 || milestonePP > 0) {
+      await client.query(
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
+        [milestoneGP, milestonePP, w]
+      );
+    }
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
 
-  if (milestoneGP > 0 || milestonePP > 0) {
-    await pool.query(
-      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
-      [milestoneGP, milestonePP, w]
-    );
+  // GP 활동 로그 (fire-and-forget, COMMIT 이후)
+  if (rewardGP > 0) {
+    try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGP, 'daily_login', `Day ${streakDay} check-in`).catch(()=>{}); } catch (_le) {}
   }
 
   return {

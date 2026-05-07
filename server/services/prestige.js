@@ -90,7 +90,8 @@ async function buyPrestige(wallet) {
     const bal = balRow.rows[0].gp_balance;
     if (bal < cfg.costGP) throw new Error(`Need ${cfg.costGP} GP`);
 
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cfg.costGP, wallet]);
+    const deductPres = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cfg.costGP, wallet]);
+    if (deductPres.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // upsert prestige row
     const { rows } = await client.query(
