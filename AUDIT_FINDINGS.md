@@ -1,3 +1,28 @@
+# OCCUPY MARS — Codebase Audit (v7.51 / 2026-05-07)
+
+## ✅ v7.51 — 전체 게임 기능 검수 (버그 없음) (2026-05-07)
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| `fleetBattles.js` — declare-pvp/run/forfeit/history/timeline/report/highlights | ✅ 버그 없음 |
+| `commanderActions.js` — POST commander-action, GET commander-actions | ✅ 버그 없음 |
+| `battleExtras.js` — rewards/mine, siege/mine, siege/create, /:id/rewards | ✅ 버그 없음 |
+| `tacticalLab.js` — /catalog, /fleet-presets (?bid= 실제 함대 로드) | ✅ 버그 없음 |
+| `fleets.js` — 전 엔드포인트 (list/my/options/detail/create/update/delete/move-ships/flagship) | ✅ 버그 없음 |
+| `ships.js` — blueprints/my/market/build/upgrade-stat/repair/scrap/shield | ✅ 버그 없음 |
+| `dailyOps.js` — /progress, /claim: getAuthWallet 사용 확인. getWallet은 dead code | ✅ 버그 없음 |
+| `api.js POST /harvest, /territory/:id/harvest, /harvest-instant` — getAuthWallet 확인 | ✅ 버그 없음 |
+| `api.js` 내부 캠페인 엔드포인트 (reputation/tags/lore/branch) — isInternalRequest 방어 확인 | ✅ 버그 없음 |
+| `campaign.js OBJECTIVE_PRESETS` — MCC/FSP/CV CH1~CH10 전 38챕터 DB 연동 목표 확인 | ✅ 버그 없음 |
+| `campaign.js` 보상 시스템 — ship/resource/item 실제 지급, 미구현 타입 안전 수령 | ✅ 버그 없음 |
+| `campaign.js` 시뮬레이션 — MCC/FSP/CV CH1~CH10 전 경로 핸들러 확인 | ✅ 버그 없음 |
+| `getObjectiveState` — 14개 통계 (ownedClaims~territoryUpgradeLevels) 쿼리 검증 | ✅ 버그 없음 |
+| `/api/sectors/control`, `/api/sectors/:id/control` — 섹터 컨트롤 P5 엔드포인트 | ✅ 버그 없음 |
+| `isInternalRequest()` — ADMIN_SECRET 헤더 검증 방식 확인 | ✅ 정상 |
+| 서버 응답 — `/api/tactical-lab/catalog` (22함선/22재료/3파벌), `/api/transport/settings` | ✅ 200 OK |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.50 / 2026-05-07)
 
 ## ✅ v7.50 — transport.js 크래시 + 캠페인 프롤로그 완료 블록 수정 (2026-05-07)

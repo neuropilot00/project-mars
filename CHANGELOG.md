@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.51 — 전체 게임 기능 검수 (버그 없음)
+
+**감사 완료 (버그 없음):**
+
+- Fleet Battle 전 경로 (declare-pvp, run, forfeit, history, timeline, report, highlights) — 인증/로직 정상
+- Commander Actions (POST/GET) — requireAuth + JWT wallet 정상
+- Battle Extras (rewards, siege) — 인증 정상
+- Tactical Lab 카탈로그/fleet-presets (?bid= 실제 함대 로드) — 정상
+- Fleets 전 엔드포인트 — JWT wallet 정상
+- Ships 전 엔드포인트 (blueprints/market/build/upgrade-stat/repair) — 인증 정상
+- Daily Ops /progress,/claim — getAuthWallet 사용 확인, getWallet dead code
+- Harvest 엔드포인트 — getAuthWallet 확인
+- 내부 캠페인 엔드포인트 (reputation/tags/lore/branch) — isInternalRequest 방어 확인
+- Campaign OBJECTIVE_PRESETS MCC/FSP/CV 38챕터 전체 DB 연동 확인
+- Campaign 보상 시스템 — 실제 지급/안전 수령 정상
+- Campaign 시뮬레이션 — 전 경로 핸들러 확인
+- Sector Control P5 엔드포인트 — 정상
+- 서버 응답 확인 — tactical-lab/catalog, transport/settings 200 OK
+
+---
+
 ## 2026-05-07 v7.50 — transport.js 크래시 + 캠페인 프롤로그 완료 블록 수정
 
 **수정 (HIGH — 서버 크래시):**
