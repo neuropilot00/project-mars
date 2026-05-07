@@ -1,4 +1,28 @@
-# OCCUPY MARS — Codebase Audit (v7.23 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.25 / 2026-05-07)
+
+## 🔴→✅ v7.25 — api.js TOCTOU 12종 + ship.js rowCount 5종 (Codex + local, 2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `api.js /claim` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductClaim.rowCount === 0` 추가 |
+| `api.js /swap` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductSwap.rowCount === 0` 추가 |
+| `api.js /shop/buy` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductShop.rowCount === 0` 추가 |
+| `api.js /cosmetic/equip` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductEquip.rowCount === 0` 추가 |
+| `api.js /harvest-instant` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductHarvest.rowCount === 0` 추가 |
+| `api.js /claims/:id/rename` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductRename.rowCount === 0` 추가 |
+| `api.js /exploration/hint` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductHint.rowCount === 0` 추가 |
+| `api.js /rockets/priority` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductRocket.rowCount === 0` 추가 |
+| `api.js /exchange/pp-to-gp` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductExchange.rowCount === 0` 추가 |
+| `api.js /gp/transfer` | guarded UPDATE 후 rowCount 미확인 | ✅ `deductTransfer.rowCount === 0` 추가 |
+| `api.js /harvest` guild contribution | guarded UPDATE 후 rowCount 미확인 | ✅ `deductGuildContrib.rowCount === 0` 추가 |
+| `api.js /guild/war/continue` | GP·PP 두 경로 모두 rowCount 미확인 | ✅ 두 경로 모두 rowCount 추가 |
+| `ship.js startBuild()` | FOR UPDATE 있으나 rowCount 미확인 → silent 차감 실패 | ✅ `deductBuild.rowCount === 0` 추가 |
+| `ship.js repairShip()` | FOR UPDATE 있으나 rowCount 미확인 | ✅ `deductRepair.rowCount === 0` 추가 |
+| `ship.js chargeShield()` | FOR UPDATE 있으나 rowCount 미확인 | ✅ `deductShield.rowCount === 0` 추가 |
+| `ship.js upgradeShipStat()` | FOR UPDATE 있으나 rowCount 미확인 | ✅ `deductUpgradeStat.rowCount === 0` 추가 |
+| `ship.js buyShipListing()` | FOR UPDATE 있으나 rowCount 미확인 | ✅ `deductBuyListing.rowCount === 0` 추가 |
+
+---
 
 ## 🔴→✅ v7.24 — Rate limiter 누락 엔드포인트 보강 (2026-05-07)
 

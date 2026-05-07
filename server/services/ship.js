@@ -300,10 +300,11 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
       throw err;
     }
     if (gpCost > 0) {
-      await client.query(
+      const deductBuild = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [gpCost, walletAddress]
       );
+      if (deductBuild.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     }
     
     // 9. 광물 차감
@@ -846,10 +847,11 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     }
 
     // 7. GP 차감
-    await client.query(
+    const deductRepair = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [gpCost, walletLower]
     );
+    if (deductRepair.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 8. iron_ore 차감
     const spentIron = await client.query(`
@@ -967,10 +969,11 @@ async function chargeShield(walletAddress, shipId, units) {
     }
 
     // 5. GP 차감
-    await client.query(
+    const deductShield = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [gpCost, walletLower]
     );
+    if (deductShield.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 6. 실드 업데이트
     const newShield = currentShield + chargeUnits;
@@ -1247,10 +1250,11 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     const materialsUsed = { [offer.material_code]: offer.material_qty };
     await consumeShipUpgradeMaterial(client, walletAddress, offer.material_code, offer.material_qty);
 
-    await client.query(
+    const deductUpgradeStat = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [finalGpCost, walletAddress]
     );
+    if (deductUpgradeStat.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     const roll = +(Math.random() * 100).toFixed(2);
     const success = roll <= offer.chance;
@@ -1553,7 +1557,8 @@ async function buyShipListing(walletAddress, listingId) {
     const sellerReceive = price - fee;
     const buyerFleetId = await getOrCreateDefaultFleet(client, buyer);
 
-    await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`, [price, buyer]);
+    const deductBuyListing = await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`, [price, buyer]);
+    if (deductBuyListing.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     await client.query(`UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [sellerReceive, seller]);
     await client.query(`
       UPDATE ships

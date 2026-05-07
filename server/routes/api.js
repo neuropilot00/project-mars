@@ -1264,10 +1264,14 @@ router.post('/claim', writeLimiter, async (req, res) => {
     }
 
     // Deduct from user
-    await client.query(
+    const deductClaim = await client.query(
       'UPDATE users SET pp_balance = pp_balance - $1, usdt_balance = usdt_balance - $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1 AND usdt_balance >= $2',
       [ppUsed, usdtUsed, wallet.toLowerCase()]
     );
+    if (deductClaim.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
 
     // Credit hijacked owners (PP refund + bonus) — parallel
     const ownerCredits = Object.entries(affectedOwners).map(([owner, amounts]) =>
@@ -1997,10 +2001,14 @@ router.post('/swap', writeLimiter, async (req, res) => {
     const fee = Math.round(ppAmount * SWAP_FEE * 1000000) / 1000000;
     const received = Math.round((ppAmount - fee) * 1000000) / 1000000;
 
-    await client.query(
+    const deductSwap = await client.query(
       'UPDATE users SET pp_balance = pp_balance - $1, usdt_balance = usdt_balance + $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1',
       [ppAmount, received, wallet.toLowerCase()]
     );
+    if (deductSwap.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
 
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
@@ -3068,10 +3076,14 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
         const gr = await guildService.contributeHarvest(client, w, harvestedPP);
         if (gr.contributed > 0) {
           // Move the contribution out of user balance
-          await client.query(
+          const deductGuildContrib = await client.query(
             'UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1',
             [gr.contributed, w]
           );
+          if (deductGuildContrib.rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+          }
           guildContrib = gr;
         }
       }
@@ -4161,7 +4173,11 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
     }
 
     // Deduct balance (AND guard prevents negative balance from concurrent edge cases)
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [totalCost, w]);
+    const deductShop = await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [totalCost, w]);
+    if (deductShop.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
 
     // material 카테고리: user_resource_inventory에 지급
     if (item.category === 'material') {
@@ -4953,7 +4969,11 @@ router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: `Insufficient PP. Need ${equipFee} PP to equip cosmetic.` });
       }
-      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [equipFee, w]);
+      const deductEquip = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [equipFee, w]);
+      if (deductEquip.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+      }
       await client.query(
         `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
          VALUES ('shop_purchase', $1, $2, 0, $3)`,
@@ -5217,7 +5237,11 @@ router.post('/harvest-instant', harvestLimiter, async (req, res) => {
     }
 
     // Deduct cost
-    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [instantCost, w]);
+    const deductHarvest = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [instantCost, w]);
+    if (deductHarvest.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
 
     // Log micro-transaction
     await client.query(
@@ -5279,7 +5303,11 @@ router.post('/claims/:id/rename', writeLimiter, async (req, res) => {
     }
 
     // Deduct PP
-    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [renameCost, w]);
+    const deductRename = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [renameCost, w]);
+    if (deductRename.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
 
     // Update custom_name
     await client.query('UPDATE claims SET custom_name = $1 WHERE id = $2', [cleanName, claimId]);
@@ -5984,7 +6012,11 @@ router.post('/exploration/hint', writeLimiter, async (req, res) => {
     else distLabel = 'far away';
 
     // Deduct PP
-    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [hintCost, w]);
+    const deductHint = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [hintCost, w]);
+    if (deductHint.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
 
     // Log transaction
     await client.query(
@@ -6051,7 +6083,11 @@ router.post('/rockets/priority', writeLimiter, async (req, res) => {
     }
 
     // Deduct PP
-    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [priorityCost, w]);
+    const deductRocket = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [priorityCost, w]);
+    if (deductRocket.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
 
     // Record priority claim
     await client.query(
@@ -7115,7 +7151,11 @@ router.post('/exchange/pp-to-gp', writeLimiter, async (req, res) => {
     const gpReceived = Math.floor(netPP * rate);
 
     // Deduct PP (full amount including fee)
-    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND pp_balance >= $1', [ppAmount, w]);
+    const deductExchange = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND pp_balance >= $1', [ppAmount, w]);
+    if (deductExchange.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+    }
     // Credit GP
     await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address)=LOWER($2)', [gpReceived, w]);
 
@@ -7202,13 +7242,21 @@ router.post('/guild/war/continue', writeLimiter, async (req, res) => {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: `Insufficient GP (need ${costAmount})` });
       }
-      await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [costAmount, w]);
+      const deductGuildWarGp = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [costAmount, w]);
+      if (deductGuildWarGp.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+      }
     } else {
       if (parseFloat(user.pp_balance) < costAmount) {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: `Insufficient PP (need ${costAmount.toFixed(2)})` });
       }
-      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND pp_balance >= $1', [costAmount, w]);
+      const deductGuildWarPp = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND pp_balance >= $1', [costAmount, w]);
+      if (deductGuildWarPp.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+      }
     }
 
     // Log
@@ -7593,10 +7641,14 @@ router.post('/gp/transfer', writeLimiter, async (req, res) => {
       const fee      = Math.floor(amount * feePct / 100 * 1000000) / 1000000;
       const received = amount - fee;
 
-      await client.query(
+      const deductTransfer = await client.query(
         'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
         [amount, fromWallet]
       );
+      if (deductTransfer.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
+      }
       // Credit recipient
       await client.query(
         'UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',

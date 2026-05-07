@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.25 — api.js TOCTOU 12종 + ship.js rowCount 5종 완료
+
+**server/routes/api.js** (Codex) — 12개 엔드포인트 guarded UPDATE 이후 `rowCount === 0` 누락 수정:
+- `/claim` · `/swap` · `/shop/buy` · `/cosmetic/equip` · `/harvest-instant` · `/claims/:id/rename`
+- `/exploration/hint` · `/rockets/priority` · `/exchange/pp-to-gp` · `/gp/transfer`
+- `/harvest` guild contribution · `/guild/war/continue` (GP·PP 두 경로 모두)
+
+모든 위치에 `SELECT ... FOR UPDATE`는 이미 존재했음. 누락된 것은 `deductXxx.rowCount === 0` 시 ROLLBACK + 400 응답 뿐이었음. 이제 완전한 원자적 잔액 차감 보장.
+
+**server/services/ship.js** — 5개 GP 차감 위치 rowCount 검사 추가:
+- `startBuild()` (line ~304): `deductBuild.rowCount === 0` → `INSUFFICIENT_GP`
+- `repairShip()` (line ~850): `deductRepair.rowCount === 0` → `INSUFFICIENT_GP`
+- `chargeShield()` (line ~971): `deductShield.rowCount === 0` → `INSUFFICIENT_GP`
+- `upgradeShipStat()` (line ~1251): `deductUpgradeStat.rowCount === 0` → `INSUFFICIENT_GP`
+- `buyShipListing()` (line ~1556): `deductBuyListing.rowCount === 0` → `INSUFFICIENT_GP`
+
+모두 FOR UPDATE 락은 이미 있었으나 silent failure 가능성이 있었음. 이제 잔액 경쟁 조건 시 정확한 에러 반환.
+
+---
+
 ## 2026-05-07 v7.24 — Rate limiter 누락 엔드포인트 보강
 
 **server/routes/api.js** — `writeLimiter` 누락 엔드포인트 4곳 추가:

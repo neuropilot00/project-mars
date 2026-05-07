@@ -254,8 +254,13 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
   const balance = parseFloat(userRes.rows[0].gp_balance) || 0;
   if (balance < cost) throw new Error(`Insufficient GP: need ${cost}, have ${balance.toFixed(2)}`);
 
-  // Deduct GP
-  await client.query(`UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`, [w, cost]);
+  // Deduct GP (AND guard is the final concurrent-safety net; rowCount=0 means race condition or
+  // balance changed between the SELECT FOR UPDATE and this UPDATE — treat as insufficient funds)
+  const deductUpgrade = await client.query(
+    `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`,
+    [w, cost]
+  );
+  if (deductUpgrade.rowCount === 0) throw new Error(`Insufficient GP: need ${cost} (concurrent modification)`);
 
   // Upsert upgrade
   let upgradeId;
