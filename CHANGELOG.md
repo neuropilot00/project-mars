@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.69 — campaign CV 소프트락 + FSP CH9 실패 보상 버그 수정
+
+**수정 (CRITICAL — campaign):**
+
+- `server/services/campaign.js` `calculateCvChapterRewards()` 실패 분기 — `unlocks: nextQuestId ? [] : []` 오타. 두 분기 모두 `[]`여서 CV CH1~CH9 실패 시 다음 챕터가 잠금 해제되지 않아 영구 소프트락. `[nextQuestId]` 로 수정.
+
+**수정 (MEDIUM — campaign):**
+
+- `server/services/campaign.js` `calculateFspCh9Rewards()` — 다른 FSP CH 함수와 달리 `if (!sim.success) return ...` 가드 없음. FSP CH9 실패 시 9000+ GP, branchModifiers, loreFlags 전체 지급. 실패 가드 추가 (GP=0, 디시루전드 엔딩 경로 seed).
+
+**조사 결과 (False Positive):**
+- `ship.js` `assertShipNotInBattle` NULL fleet_id bypass — FALSE POSITIVE. `fleet_battle_participants`는 fleet_id 기준 참여 추적. fleet_id=NULL 함선은 구조상 전투 중 불가. early-return 정상.
+
+---
+
 ## 2026-05-07 v7.68 — campaign CH1 보상 누락 버그 수정 + 잔여 LOW 감사 항목 해소
 
 **수정 (CRITICAL — campaign):**

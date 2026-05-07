@@ -1,3 +1,31 @@
+# OCCUPY MARS — Codebase Audit (v7.69 / 2026-05-07) — campaign CV 소프트락 + FSP CH9 실패 보상 수정
+
+## 🔴 v7.69 — campaign 버그 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `campaign.js` `calculateCvChapterRewards()` | 실패 분기 `unlocks: [] ? [] : []` 오타 → CV CH1~CH9 실패 시 영구 소프트락 | 🔴 CRITICAL | ✅ `[nextQuestId]`로 수정 |
+| `campaign.js` `calculateFspCh9Rewards()` | 실패 가드 없음 → FSP CH9 실패 시 전체 보상 지급 | 🟡 MEDIUM | ✅ `!sim.success` 실패 가드 추가 |
+
+### 추가 감사 완료 (False Positive / CLEAN)
+| 항목 | 결과 |
+|------|------|
+| `ship.js` `assertShipNotInBattle` NULL fleet_id | ✅ FALSE POSITIVE — fleet_id=NULL 함선은 fleet_battle_participants 구조상 전투 불가 |
+| `battleEngine.js` 전체 | ✅ CLEAN |
+| `ship.js` `startBuild` / `upgradeShipStat` | ✅ CLEAN |
+| `ship.js` `buyShipListing` | ✅ CLEAN |
+
+### 전체 감사 완료 요약 (v7.53 ~ v7.69)
+| 심각도 | 수정 수 |
+|--------|---------|
+| 🔴 CRITICAL | 6건 (+CV 소프트락, +CH1 보상 0) |
+| 🔴 HIGH | 11건 |
+| 🟡 MEDIUM | 10건 (+FSP CH9 실패 보상) |
+| 🟢 LOW | 15건 |
+| **총** | **42건** |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.68 / 2026-05-07) — campaign CH1 보상 누락 + 잔여 LOW 항목 해소
 
 ## 🔴 v7.68 — campaign 버그 수정 + LOW 감사 항목 완결 (2026-05-07)

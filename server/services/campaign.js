@@ -3324,6 +3324,10 @@ function calculateFspCh8Rewards(progress, sim) {
 }
 
 function calculateFspCh9Rewards(progress, sim) {
+  // [v7.69] BUGFIX: 실패 가드 누락 — 실패 시 전체 보상/branchModifiers 지급되던 버그 수정
+  if (!sim.success) {
+    return { GP: 0, XP: 400, reputationDelta: { fsp: -10 }, items: [], tags: ['failed_summit'], loreFlags: ['ch9_summit_failed', 'pilgrim_arms_publicly_known'], masteries: [], branchModifiers: [{ targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_strengthened', value: { disillusioned: true } }], unlocks: [FSP_CH10_ID] };
+  }
   const choiceId = selectedChoiceId(progress, 'fsp_ch9_protect_amara');
   const secondary = sim.metrics.secondary_completed || [];
   let gp = 9000;
@@ -3459,7 +3463,7 @@ function calculateCvChapterRewards(progress, sim) {
   const chNum = parseInt((progress.quest_id || '').replace('cv_campaign_ch', ''), 10) || 1;
   if (!sim.success) {
     const nextQuestId = chNum < 9 ? `cv_campaign_ch${chNum + 1}` : null;
-    return { GP: 0, XP: 80 + chNum * 20, reputationDelta: { cv: -5 }, items: [], tags: [], loreFlags: [], masteries: [], branchModifiers: [], unlocks: nextQuestId ? [] : [] };
+    return { GP: 0, XP: 80 + chNum * 20, reputationDelta: { cv: -5 }, items: [], tags: [], loreFlags: [], masteries: [], branchModifiers: [], unlocks: nextQuestId ? [nextQuestId] : [] }; // [v7.69] BUGFIX: was `? [] : []` — CV 챕터 실패 시 다음 챕터 잠금 해제 안 됨
   }
   const metrics = sim.metrics || {};
   const gp = 9000 + chNum * 2500 + (metrics.raid_success_percent >= 90 ? 5000 : metrics.raid_success_percent >= 75 ? 2000 : 0);
