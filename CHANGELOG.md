@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.00 — auction.js LOWER() 누락으로 인한 GP 소각 버그 수정
+
+### server/services/auction.js — 핵심 GP 지급 경로 LOWER() 누락 수정
+
+**버그**: `auction.current_bidder_wallet`, `auction.seller_wallet`은 DB에서 가져온 값으로 Ethereum 체크섬 주소(혼합 대소문자)일 수 있음.
+해당 값을 `WHERE wallet_address = $2` (LOWER 없음)로 업데이트하면 0 rows matched → GP가 허공에 사라짐.
+
+**영향 경로**:
+- 입찰(bid): 이전 최고 입찰자 환불 (L224)
+- 즉시구매(buyout): 이전 입찰자 환불 (L307) + 판매자 지급 (L314)
+- 낙찰 정산(settle): 판매자 지급 (L430)
+
+**수정**: 4곳 → `WHERE LOWER(wallet_address) = LOWER($2)` 변경
+**추가**: SELECT FOR UPDATE 3곳 (L69, L212, L297)도 LOWER() 추가 (일관성)
+
+---
+
 ## 2026-05-07 v6.99 — SELECT FOR UPDATE LOWER() 2차 일괄 수정 (15개 서비스)
 
 ### 서비스 (SELECT FOR UPDATE wallet_address → LOWER 추가)

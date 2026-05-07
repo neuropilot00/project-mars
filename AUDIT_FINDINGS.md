@@ -1,4 +1,36 @@
-# OCCUPY MARS — Codebase Audit (v6.92 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.00 / 2026-05-07)
+
+## 🔴→✅ v6.96~v7.00 — warBetting/exploration/polls/12개 서비스/15개 서비스/auction LOWER() 일괄 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/warBettingRoutes.js` — admin cancel refund 루프 | bet rows에 FOR UPDATE 없음 + refund UPDATE에 LOWER() 없음 → 동시성 위험 + 환불 silent 실패 | ✅ `FOR UPDATE` + `LOWER()` 추가 (v6.96) |
+| `server/services/exploration.js` L231 | `WHERE wallet_address = $1 FOR UPDATE` LOWER() 없음 | ✅ LOWER() 추가 (v6.99) |
+| `server/services/polls.js` L71, L83 | `WHERE wallet_address=$1 FOR UPDATE` + `WHERE wallet=$1 LOWER()` 없음 | ✅ 두 곳 LOWER() 추가 (v6.97) |
+| `server/routes/polls.js` | GET/POST 엔드포인트 wallet 정규화 없음 | ✅ `.toLowerCase().trim()` 추가 (v6.97) |
+| v6.98 batch — 12개 서비스 (`beacon`, `capsule`, `sponsor`, `tdesc`, `tprestige`, `graffiti`, `journal`, `highlight`, `status`, `milestone`, `rating`, `tombstone`) | `WHERE wallet_address=$1 FOR UPDATE`에 LOWER() 없음 (각 서비스 1곳씩) | ✅ 일괄 LOWER() 추가 + 대응 route wallet.toLowerCase().trim() 추가 (v6.98) |
+| v6.99 batch — 15개 서비스 (`alliance`, `announcement`, `banner`, `exploration`, `faction`, `guild` 4곳, `job`, `missions`, `onboarding`, `prestige`, `season`, `shield`, `title`, `titleExtended`, `tribute`) | `WHERE wallet_address = $1 FOR UPDATE` LOWER() 없음 | ✅ sed 일괄 패치 (v6.99) |
+| `server/services/auction.js` — bid 환불, buyout 환불+판매자 지급, settle 판매자 지급 (L224, L307, L314, L430) | `WHERE wallet_address = $2` LOWER() 없음 — `auction.current_bidder_wallet`/`auction.seller_wallet`은 DB 저장값으로 Ethereum checksum(혼합 대소문자) 가능 → UPDATE 0 rows → GP 소각 | ✅ 4곳 모두 `LOWER(wallet_address) = LOWER($2)` 수정 (v7.00) |
+| `server/services/auction.js` — SELECT FOR UPDATE L69, L212, L297 | `WHERE wallet_address = $1 FOR UPDATE` LOWER() 없음 | ✅ LOWER() 추가 (v7.00) |
+
+**v7.00 이후 GP 크레딧(+) UPDATE 경로에 non-LOWER wallet_address 남은 건: 0건 (전체 grep 확인)**
+**v7.00 이후 GP 차감(-) UPDATE 경로에 non-LOWER/non-guard 남은 건: 0건**
+
+---
+
+## ✅ v6.93~v6.95 — campaign.js false positive + wager/raffle/contest 감사 클린 확인 (2026-05-07)
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| `server/services/campaign.js` — `territoryUpgradeLevels` SUM missing AS count alias | ✅ 수정됨 (v6.95) — `SUM(upgrade_level) AS count` |
+| Codex campaign.js audit false positives (qty NaN guard, rewardId guard, WALLET_LOWER) | ✅ 검토 결과 모두 false positive — normalizeWallet() 이미 적용, parseInt 폴백 존재 |
+| `server/services/wager.js` — placeBet, settlePool, adminCancelPool | ✅ 클린 — FOR UPDATE + LOWER() + AND gp_balance >= $1 전부 적용 |
+| `server/services/raffle.js` — buyTickets, drawWinner | ✅ 클린 — FOR UPDATE + LOWER() + AND gp_balance >= $1 전부 적용 |
+| `server/services/contest.js` — submitEntry, voteForEntry, finalizeContest | ✅ 클린 — FOR UPDATE + LOWER() + AND gp_balance >= $1 전부 적용 |
+| `server/services/exploration.js` getSetting JSONB quote strip | ✅ 확인 — db.js getSetting 이미 `value #>> '{}'` 사용으로 따옴표 없이 반환 (false positive) |
+| `server/services/worldEvents.js` | ✅ 클린 — finalClient.release() 있음, 패턴 정상 |
+
+---
 
 ## 🔴→✅ v6.90~v6.92 — ship/fleet FOR UPDATE 경쟁조건 + crafting LOWER() + auto-renew guard (2026-05-07)
 
