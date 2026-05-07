@@ -301,7 +301,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     }
     if (gpCost > 0) {
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+        `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [gpCost, walletAddress]
       );
     }
@@ -823,7 +823,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
 
     // 7. GP 차감
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [gpCost, walletLower]
     );
 
@@ -944,7 +944,7 @@ async function chargeShield(walletAddress, shipId, units) {
 
     // 5. GP 차감
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [gpCost, walletLower]
     );
 
@@ -1224,7 +1224,7 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     await consumeShipUpgradeMaterial(client, walletAddress, offer.material_code, offer.material_qty);
 
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [finalGpCost, walletAddress]
     );
 
@@ -1526,7 +1526,7 @@ async function buyShipListing(walletAddress, listingId) {
     const sellerReceive = price - fee;
     const buyerFleetId = await getOrCreateDefaultFleet(client, buyer);
 
-    await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [price, buyer]);
+    await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`, [price, buyer]);
     await client.query(`UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [sellerReceive, seller]);
     await client.query(`
       UPDATE ships

@@ -516,7 +516,7 @@ async function declareHijackWithPP(params) {
     }
 
     await client.query(
-      `UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+      `UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1`,
       [totalCost, attacker_wallet]
     );
 

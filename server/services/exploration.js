@@ -234,7 +234,7 @@ async function discoverPOI(wallet, poiId) {
         await client.query('ROLLBACK');
         return { error: `Insufficient PP. Need ${explorationFee} PP to discover POIs.` };
       }
-      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [explorationFee, wallet]);
+      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [explorationFee, wallet]);
       await client.query(
         `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
          VALUES ('shop_purchase', $1, $2, 0, $3)`,

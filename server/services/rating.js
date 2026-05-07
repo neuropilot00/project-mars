@@ -81,7 +81,7 @@ async function rateTerritory(wallet, claimId, rating) {
         throw new Error(`Insufficient GP (need ${gpCost})`);
 
       await client.query(
-        'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2',
+        'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1',
         [gpCost, wallet]
       );
       await client.query(

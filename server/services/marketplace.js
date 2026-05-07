@@ -49,7 +49,7 @@ async function createListing(client, seller, type, params) {
     const balRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
     if (!balRes.rows.length) throw new Error('User not found');
     if (parseFloat(balRes.rows[0].gp_balance) < listingFee) throw new Error(`Insufficient GP for listing fee (${listingFee} GP)`);
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [listingFee, w]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [listingFee, w]);
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('marketplace_listing_fee', $1, 0, 0, $2)`,
       [w, JSON.stringify({ fee: listingFee, active_listings: currentListings })]

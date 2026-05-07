@@ -135,7 +135,7 @@ async function challenge(challenger, defender, wagerGp) {
 
     // GP 에스크로 (challenger만 선차감 — defender는 accept 시)
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [wager, cLower]
     );
 
@@ -191,7 +191,7 @@ async function acceptDuel(duelId, defender) {
     if (!dr.rows[0]) throw new Error('USER_NOT_FOUND');
     if (parseFloat(dr.rows[0].gp_balance) < d.wager_gp) throw new Error('INSUFFICIENT_GP');
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [d.wager_gp, dLower]
     );
 

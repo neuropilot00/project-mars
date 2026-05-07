@@ -66,7 +66,7 @@ async function processMaintenanceFees() {
       if (ppBalance >= fee) {
         // User can pay — deduct fee
         await client.query(
-          'UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2',
+          'UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1',
           [fee, wallet]
         );
 
