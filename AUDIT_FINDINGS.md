@@ -1,3 +1,33 @@
+# OCCUPY MARS — Codebase Audit (v7.70 / 2026-05-07) — guild 커스터마이즈 무료 우회 + 서비스 감사 완료
+
+## 🟢 v7.70 — guild.js rowCount 가드 + 추가 서비스 감사 완료 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `guild.js` `updateGuildInfo()` | GP 차감 rowCount 미체크 → 동시 소진 시 무료 길드 커스터마이즈 | 🟢 LOW | ✅ rowCount=0 ROLLBACK 추가 |
+
+### 추가 감사 완료 (CLEAN)
+| 서비스 | 결과 |
+|--------|------|
+| `enhancement.js` | ✅ CLEAN — FOR UPDATE + rowCount 가드 정상 |
+| `daily.js` | ✅ CLEAN — FOR UPDATE 직렬화 + ON CONFLICT DO NOTHING |
+| `transport.js` | ✅ CLEAN — FOR UPDATE SKIP LOCKED 이중 처리 방지 정상 |
+
+### 마이그레이션 감사
+- 번호 충돌 7쌍(014/090/091/092/189/212/213): `schema_migrations.filename` UNIQUE 기반 러너로 기능적 무관. 정보성 메모.
+- campaign.js 참조 테이블 모두 migration 220 이하에서 생성됨. 순방향 참조 없음.
+
+### 전체 감사 완료 요약 (v7.53 ~ v7.70)
+| 심각도 | 수정 수 |
+|--------|---------|
+| 🔴 CRITICAL | 6건 |
+| 🔴 HIGH | 11건 |
+| 🟡 MEDIUM | 10건 |
+| 🟢 LOW | 16건 (+guild updateGuildInfo) |
+| **총** | **43건** |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.69 / 2026-05-07) — campaign CV 소프트락 + FSP CH9 실패 보상 수정
 
 ## 🔴 v7.69 — campaign 버그 수정 (2026-05-07)

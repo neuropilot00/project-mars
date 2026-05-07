@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.70 — guild 커스터마이즈 무료 우회 버그 수정 + 감사 완료
+
+**수정 (LOW):**
+
+- `server/services/guild.js` `updateGuildInfo()` — GP 차감 후 `rowCount` 미체크. 동시 GP 소진 시 무료로 길드 이름/엠블럼 변경 가능. 다른 guild.js GP 차감(createGuild/levelUp/declareWar)은 이미 `rowCount === 0` 가드 있음. 같은 패턴 적용.
+
+**감사 완료 (CLEAN):**
+- `enhancement.js` — FOR UPDATE + AND quantity >= $1 + rowCount 가드 정상
+- `daily.js` — FOR UPDATE 직렬화 + ON CONFLICT DO NOTHING 로그인 보너스 보호
+- `transport.js` — FOR UPDATE SKIP LOCKED 스케줄러 이중 처리 방지 정상
+
+**정보 (변경 없음):**
+- 마이그레이션 번호 충돌 7쌍(014/090/091/092/189/212/213) — `schema_migrations.filename` UNIQUE 키 기반 러너라 실행 순서 이슈 없음. 기능적 무관.
+
+---
+
 ## 2026-05-07 v7.69 — campaign CV 소프트락 + FSP CH9 실패 보상 버그 수정
 
 **수정 (CRITICAL — campaign):**

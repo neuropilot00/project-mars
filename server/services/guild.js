@@ -225,8 +225,15 @@ async function updateGuildInfo(callerWallet, guildId, fields) {
       values
     );
 
-    // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [totalCost, callerWallet]);
+    // Deduct GP — [v7.70] rowCount 체크 추가: 동시 GP 소진 시 무료 길드 커스터마이즈 방지
+    const deductGuildInfo = await client.query(
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
+      [totalCost, callerWallet]
+    );
+    if (deductGuildInfo.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return { error: 'INSUFFICIENT_GP' };
+    }
 
     await client.query('COMMIT');
     console.log(`[GUILD] #${guildId} updated by ${callerWallet} (-${totalCost} GP) ${Object.keys(changes).join(',')}`);
