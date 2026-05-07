@@ -3179,7 +3179,7 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
 
     await client.query('BEGIN');
 
-    // 소유권 확인 + last_harvest_at 가져오기
+    // 소유권 확인 + last_harvest_at 가져오기 (FOR UPDATE으로 동시 이중 수확 경쟁 방지)
     const claimRes = await client.query(
       `SELECT c.id, c.owner, c.sector_code, c.last_harvest_at, ps.sector_id,
               COALESCE(sd.sector_type, 'frontier') AS sector_tier,
@@ -3192,7 +3192,8 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
          GROUP BY claim_id
        ) ps ON ps.claim_id = c.id
        LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
-       WHERE c.id = $1 AND c.deleted_at IS NULL`,
+       WHERE c.id = $1 AND c.deleted_at IS NULL
+       FOR UPDATE OF c`,
       [claimId]
     );
     if (!claimRes.rows.length) {
