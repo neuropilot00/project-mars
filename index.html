@@ -22452,7 +22452,7 @@ function attemptCraft(recipeId){
     if(btn){ btn.disabled=true; btn.textContent='Crafting…'; }
     fetch('/api/crafting/craft',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,recipeId:recipeId})
     }).then(function(r){return r.json();}).then(function(d){
       if(btn){ btn.disabled=false; btn.textContent='⚗️ CRAFT'; }
@@ -36684,7 +36684,7 @@ function setBrandingName() {
   var cfg = _brandingCfg;
   gameConfirm({ title: t('branding_set_name_title') || 'Set Territory Name?', body: 'Name: <b>'+_escHtml(name)+'</b><br>Cost: <b>'+(cfg ? cfg.nameCost : 50)+' GP</b>' })
     .then(function(ok){ if (!ok) return;
-      fetch('/api/branding/name', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:id,name:name}) })
+      fetch('/api/branding/name', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({wallet:w,claimId:id,name:name}) })
         .then(function(r){return r.json();}).then(function(d){
           if (d.error) return showToast(d.error, 'error');
           showToast('🏷️ Territory named! -' + d.gpSpent + ' GP', 'success');
@@ -36704,7 +36704,7 @@ function setBrandingTagline() {
   var cfg = _brandingCfg;
   gameConfirm({ title: t('branding_set_tag_title') || 'Set Tagline?', body: '"<i>'+_escHtml(tag)+'</i>"<br>Cost: <b>'+(cfg ? cfg.tagCost : 25)+' GP</b>' })
     .then(function(ok){ if (!ok) return;
-      fetch('/api/branding/tagline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:id,tagline:tag}) })
+      fetch('/api/branding/tagline', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({wallet:w,claimId:id,tagline:tag}) })
         .then(function(r){return r.json();}).then(function(d){
           if (d.error) return showToast(d.error, 'error');
           showToast('💬 Tagline set! -' + d.gpSpent + ' GP', 'success');
@@ -36723,7 +36723,7 @@ function setBrandingColor() {
   var cfg = _brandingCfg;
   gameConfirm({ title: t('branding_set_color_title') || 'Set Theme Color?', body: 'Color: <span style="display:inline-block;width:16px;height:16px;background:'+color+';border-radius:3px;vertical-align:middle"></span> <b>'+color+'</b><br>Cost: <b>'+(cfg ? cfg.colorCost : 100)+' GP</b>' })
     .then(function(ok){ if (!ok) return;
-      fetch('/api/branding/color', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:id,color:color}) })
+      fetch('/api/branding/color', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({wallet:w,claimId:id,color:color}) })
         .then(function(r){return r.json();}).then(function(d){
           if (d.error) return showToast(d.error, 'error');
           showToast('🎨 Color set! -' + d.gpSpent + ' GP', 'success');
@@ -36805,7 +36805,7 @@ function castSpellAction(spellType) {
   var label = btn ? btn.querySelector('span:nth-child(2)').textContent : spellType;
   gameConfirm({ title: t('spells_cast_confirm')||'Cast Spell?', body: 'Cast <b>'+label+'</b> on territory #'+claimId+'<br>Cost: <b>'+cost+' GP</b>' })
     .then(function(ok){ if (!ok) return;
-      fetch('/api/spells/cast', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:claimId,spellType:spellType}) })
+      fetch('/api/spells/cast', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({wallet:w,claimId:claimId,spellType:spellType}) })
         .then(function(r){return r.json();})
         .then(function(d){
           if (d.error) return showToast(d.error,'error');
@@ -36888,7 +36888,7 @@ function joinTournamentAction(id, name, fee) {
   if (!w) return showToast(t('err_connect_wallet')||'Connect wallet first','error');
   gameConfirm({ title: t('tournament_join_confirm')||'Join Tournament?', body: 'Join <b>'+_escHtml(name)+'</b><br>Entry fee: <b>'+fee+' GP</b>' })
     .then(function(ok){ if (!ok) return;
-      fetch('/api/tournaments/join', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,tournamentId:id}) })
+      fetch('/api/tournaments/join', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({wallet:w,tournamentId:id}) })
         .then(function(r){return r.json();})
         .then(function(d){
           if (d.error) return showToast(d.error,'error');
@@ -37211,7 +37211,7 @@ function setMyStatus() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/status/set', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, status: val })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37271,7 +37271,7 @@ function setMyVtag() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/vtag/set', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, tag: val })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -37319,7 +37319,7 @@ function saveProfileNickname() {
     .then(function(ok){
       if (!ok) return;
       fetch('/api/profile/nickname', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
+        method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, nickname: val })
       }).then(function(r){return r.json();}).then(function(d){
         if (d.error) { showToast(d.error,'error'); return; }
@@ -37363,7 +37363,7 @@ function saveProfileColor() {
     .then(function(ok){
       if (!ok) return;
       fetch('/api/profile/avatar-color', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
+        method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, color: val })
       }).then(function(r){return r.json();}).then(function(d){
         if (d.error) { showToast(d.error,'error'); return; }
@@ -37381,7 +37381,7 @@ function _authSaveMotto() {
   else {
     var w = walletState && walletState.address;
     if (!w || !v.trim()) return;
-    fetch('/api/profile/motto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ wallet:w, motto:v.trim() }) })
+    fetch('/api/profile/motto', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({ wallet:w, motto:v.trim() }) })
       .then(function(r){return r.json();}).then(function(d){ showToast(d.error?d.error:'Motto saved! 📝', d.error?'error':'success'); });
   }
 }
@@ -37603,7 +37603,7 @@ function placeBeacon() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/beacons/place', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, x: x, y: y, message: msg, icon: _selectedBeaconIcon })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -38010,7 +38010,7 @@ function submitDonation() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/donation/donate', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, amount: amount, message: msg })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
@@ -38303,7 +38303,7 @@ function postGPAnnouncement() {
     if (!ok) return;
     fetch('/api/announce/post', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, message: msg, durationM: dur })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { gameAlert(d.error); return; }
@@ -39202,7 +39202,7 @@ function submitTribute() {
     if (!ok) return;
     fetch('/api/tribute/send', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, amountGP, message })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
