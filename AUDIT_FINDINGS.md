@@ -1,4 +1,23 @@
-# OCCUPY MARS — Codebase Audit (v7.29 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.30 / 2026-05-07)
+
+## ✅ v7.30 — 기능 감사 완료 (2026-05-07)
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| harvest/mining 트랜잭션 (`FOR UPDATE OF c`, pool rowCount) | ✅ 정상 |
+| P5-2 resource drop `addResourcesToInventory(client,...)` | ✅ client 전달 정상 |
+| P5-5 sector control 쿼리 | ✅ 정상 |
+| `declare-pvp` 이중 FOR UPDATE 체크 | ✅ 정상 |
+| worldEvents.js engage / admin auth | ✅ requireAdmin 정상 |
+| crafting.js GP deduction (FOR UPDATE + guard) | ✅ 정상 |
+| vip.js GP deduction (rowCount 포함) | ✅ 정상 |
+| alliance.js rowCount + FOR UPDATE | ✅ 정상 |
+| `claimUpgrades.js` route writeLimiter 추가 | ✅ 67e06de |
+| 모든 required route files 존재 확인 | ✅ Missing: 0 |
+| 9개 핵심 서버 파일 syntax check | ✅ 모두 통과 |
+| rows[0] unsafe access (api.js) | ✅ 0건 |
+
+---
 
 ## 🔴→✅ v7.29 — admin 인증 누락 + SQL 인젝션 (2026-05-07)
 

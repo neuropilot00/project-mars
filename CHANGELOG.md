@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.30 — 기능 감사 완료 + claimUpgrades rate limiter 추가
+
+**기능 감사 (버그 없음):**
+- harvest/mining 트랜잭션, P5-2 자원 드롭, P5-5 섹터 컨트롤, declare-pvp, crafting, vip 모두 정상.
+- 9개 핵심 서버 파일 `node --check` 통과. 필요 라우트 파일 전부 존재 확인.
+
+**수정:**
+- `server/routes/claimUpgrades.js` POST /upgrades/upgrade writeLimiter(30req/min) 추가. 기존에는 globalLimiter(3000req/15min)만 적용됐음.
+
+---
+
 ## 2026-05-07 v7.29 — admin 엔드포인트 인증 누락 6건 + SQL 인젝션 1건 수정
 
 **발견 및 수정:**
