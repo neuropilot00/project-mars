@@ -3535,6 +3535,7 @@ function calculatePrologueRewards(progress, sim) {
 
 function calculateRewards(progress, sim) {
   if (isPrologueQuest(progress.quest_id)) return calculatePrologueRewards(progress, sim);
+  if (progress.quest_id === CH1_ID) return calculateCh1Rewards(progress, sim); // [v7.68] BUGFIX: CH1_ID was missing — 0 GP fallback
   if (progress.quest_id === CH2_ID) return calculateCh2Rewards(progress, sim);
   if (progress.quest_id === CH3_ID) return calculateCh3Rewards(progress, sim);
   if (progress.quest_id === CH4_ID) return calculateCh4Rewards(progress, sim);
@@ -4336,7 +4337,11 @@ async function complete(wallet, sessionId) {
       };
     }
     const campaignChapter = CHAPTERS[progress.quest_id];
-    const objectiveState = await getObjectiveState(w);
+    // [v7.68] getObjectiveState는 pool(독립 커넥션)을 사용해 트랜잭션 외부에서 읽힘.
+    // complete() 트랜잭션이 FOR UPDATE로 progress row를 잡은 직후 읽어 TOCTOU 창을 최소화.
+    // 완전한 직렬화는 getObjectiveState를 client 파라미터 방식으로 리팩터링 필요하나
+    // 현재 호출량 기준 실용적 위험은 낮음 — 향후 리팩터링 대상으로 표시.
+    const objectiveState = await getObjectiveState(w); // TODO: pass client for full serialization
     const objectives = buildChapterObjectives(campaignChapter, progress, objectiveState, { progressPct: 100 });
     const missingObjectives = getMissingRequiredObjectives(objectives);
     if (missingObjectives.length > 0) {

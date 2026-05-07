@@ -1,3 +1,32 @@
+# OCCUPY MARS — Codebase Audit (v7.68 / 2026-05-07) — campaign CH1 보상 누락 + 잔여 LOW 항목 해소
+
+## 🔴 v7.68 — campaign 버그 수정 + LOW 감사 항목 완결 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `campaign.js` `calculateRewards()` | `CH1_ID` 분기 누락 → MCC CH1 완료 시 0 GP | 🔴 CRITICAL | ✅ `calculateCh1Rewards()` 분기 추가 |
+| `branding.js` `clearBranding()` | 소유권 확인 트랜잭션 외부 TOCTOU | 🟢 LOW | ✅ 트랜잭션 + FOR UPDATE 이동 |
+| `replayShare.js` `createShare()` | 공유 한도 race condition | 🟢 LOW | ✅ pg_advisory_xact_lock 추가 |
+| `siegeFleetBridge.js` `createSiegeBattle()` | is_in_battle 체크 트랜잭션 외부 TOCTOU | 🟢 LOW | ✅ FOR UPDATE + 트랜잭션 이동 |
+| `campaign.js` `complete()` `getObjectiveState` | pool(트랜잭션 외부)로 목표 상태 읽음 | 🟡 MEDIUM | ⚠️ TODO 주석 추가 (향후 리팩터링) |
+
+### 추가 감사 완료 (False Positive)
+| 항목 | 결과 |
+|------|------|
+| `campaign.js` CH10 `choices[0]` | ✅ FALSE POSITIVE — 챕터당 선택 1개 저장 by design (line 4158 early-return guard) |
+| `fleets.js` / `api.js` harvest/hijack | ✅ CLEAN — 이미 안전 |
+
+### 전체 감사 완료 요약 (v7.53 ~ v7.68)
+| 심각도 | 수정 수 |
+|--------|---------|
+| 🔴 CRITICAL | 4건 (+campaign CH1 보상 0 GP) |
+| 🔴 HIGH | 11건 |
+| 🟡 MEDIUM | 9건 |
+| 🟢 LOW | 15건 (+branding/replayShare/siegeFleetBridge) |
+| **총** | **39건** |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.67 / 2026-05-07) — 라우트 레이어 wallet 스푸핑 감사 완료
 
 ## 🔴 v7.67 — 라우트 레이어 wallet 스푸핑 취약점 수정 (2026-05-07)

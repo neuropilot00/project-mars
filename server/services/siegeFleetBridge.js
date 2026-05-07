@@ -38,33 +38,43 @@ async function createSiegeBattle(params) {
     throw new Error('MISSING_PARAMS');
   }
   
-  // 함대 소유권 확인
-  const { rows: atkFleet } = await pool.query(
-    `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND owner_wallet = $2`,
-    [atk_fleet_id, atk_wallet]
-  );
-  if (!atkFleet[0]) throw new Error('ATK_FLEET_NOT_FOUND');
-  if (atkFleet[0].is_in_battle) throw new Error('ATK_FLEET_IN_BATTLE');
-  
-  const { rows: defFleet } = await pool.query(
-    `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND owner_wallet = $2`,
-    [def_fleet_id, def_wallet]
-  );
-  if (!defFleet[0]) throw new Error('DEF_FLEET_NOT_FOUND');
-  if (defFleet[0].is_in_battle) throw new Error('DEF_FLEET_IN_BATTLE');
-  
-  // Migration 096의 헬퍼 함수 사용
-  const { rows } = await pool.query(`
-    SELECT create_siege_battle($1, $2, $3, $4, $5, $6, $7, $8) AS battle_id
-  `, [
-    governor_siege_id, atk_wallet, def_wallet, 
-    atk_fleet_id, def_fleet_id, sector_id, claim_id, delay_hours
-  ]);
-  
-  const battleId = rows[0].battle_id;
-  console.log(`[siegeBridge] siege ${governor_siege_id} linked to fleet_battle ${battleId}`);
-  
-  return battleId;
+  // [v7.68] 함대 상태 체크를 트랜잭션 내 FOR UPDATE로 직렬화 — is_in_battle TOCTOU 방지
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: atkFleet } = await client.query(
+      `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
+      [atk_fleet_id, atk_wallet]
+    );
+    if (!atkFleet[0]) { await client.query('ROLLBACK'); throw new Error('ATK_FLEET_NOT_FOUND'); }
+    if (atkFleet[0].is_in_battle) { await client.query('ROLLBACK'); throw new Error('ATK_FLEET_IN_BATTLE'); }
+
+    const { rows: defFleet } = await client.query(
+      `SELECT id, is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
+      [def_fleet_id, def_wallet]
+    );
+    if (!defFleet[0]) { await client.query('ROLLBACK'); throw new Error('DEF_FLEET_NOT_FOUND'); }
+    if (defFleet[0].is_in_battle) { await client.query('ROLLBACK'); throw new Error('DEF_FLEET_IN_BATTLE'); }
+
+    // Migration 096의 헬퍼 함수 사용
+    const { rows } = await client.query(`
+      SELECT create_siege_battle($1, $2, $3, $4, $5, $6, $7, $8) AS battle_id
+    `, [
+      governor_siege_id, atk_wallet, def_wallet,
+      atk_fleet_id, def_fleet_id, sector_id, claim_id, delay_hours
+    ]);
+
+    await client.query('COMMIT');
+    const battleId = rows[0].battle_id;
+    console.log(`[siegeBridge] siege ${governor_siege_id} linked to fleet_battle ${battleId}`);
+    return battleId;
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 /**

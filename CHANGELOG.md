@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.68 — campaign CH1 보상 누락 버그 수정 + 잔여 LOW 감사 항목 해소
+
+**수정 (CRITICAL — campaign):**
+
+- `server/services/campaign.js` `calculateRewards()` — `CH1_ID`(`mcc_campaign_ch1`) 분기가 누락되어 MCC CH1 완료 시 GP/XP/아이템 보상이 0으로 지급됨. `calculateCh1Rewards()` 호출 분기 추가.
+
+**수정 (LOW — 잔여 감사 항목):**
+
+- `server/services/branding.js` `clearBranding()` — 소유권 확인(`SELECT owner FROM claims`)이 트랜잭션 외부. 동시 영토 이전과 TOCTOU 가능. 트랜잭션 + `FOR UPDATE`로 이동.
+- `server/services/replayShare.js` `createShare()` — 공유 한도 COUNT 체크와 INSERT 사이 advisory lock 없어 동시 요청 시 한도 초과 가능. `pg_advisory_xact_lock(hashtext(wallet))` 추가.
+- `server/services/siegeFleetBridge.js` `createSiegeBattle()` — `is_in_battle` 체크가 트랜잭션 외부. 동시 함대 배정과 TOCTOU 가능. FOR UPDATE + 트랜잭션으로 이동.
+
+**문서화 (변경 없음):**
+
+- `campaign.js` `complete()` `getObjectiveState` — 트랜잭션 외부에서 읽혀 목표 게이트가 FOR UPDATE lock과 엄격하게 직렬화되지 않음. 실용적 위험 낮음. TODO 주석 추가, 향후 리팩터링 대상.
+- `campaign.js` CH10 `choices[0]` — 에이전트 보고 FALSE POSITIVE. 챕터당 선택 1개만 저장(line 4158 early-return guard)이 의도된 설계.
+
+---
+
 ## 2026-05-07 v7.67 — ships.js 라우트 wallet 스푸핑 취약점 수정
 
 **수정 (HIGH):**

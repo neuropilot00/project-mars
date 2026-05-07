@@ -31,60 +31,76 @@ async function createShare(battleId, walletAddress, options = {}) {
     throw new Error('NOT_PARTICIPANT');
   }
   
-  // 공유 한도 체크
-  const { rows: countRows } = await pool.query(
-    `SELECT COUNT(*) AS c FROM battle_replays 
-     WHERE shared_by = $1 AND (expires_at IS NULL OR expires_at > NOW())`,
-    [walletAddress]
-  );
+  // [v7.68] pg_advisory_xact_lock으로 동일 wallet 직렬화 — 한도 체크 후 INSERT 사이 race 방지
   const { rows: setRows } = await pool.query(
     `SELECT value FROM settings WHERE key = 'max_replays_per_user'`
   );
   const maxReplays = parseInt(String(setRows[0]?.value || '50').replace(/"/g,'')) || 50;
-  if (parseInt(countRows[0].c) >= maxReplays) {
-    throw new Error('REPLAY_LIMIT_REACHED');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [walletAddress.toLowerCase()]);
+
+    // 공유 한도 체크
+    const { rows: countRows } = await client.query(
+      `SELECT COUNT(*) AS c FROM battle_replays
+       WHERE shared_by = $1 AND (expires_at IS NULL OR expires_at > NOW())`,
+      [walletAddress]
+    );
+    if (parseInt(countRows[0].c) >= maxReplays) {
+      await client.query('ROLLBACK');
+      throw new Error('REPLAY_LIMIT_REACHED');
+    }
+
+    // 이미 공유된 전투?
+    const { rows: existing } = await client.query(
+      `SELECT share_token FROM battle_replays
+       WHERE battle_id = $1 AND shared_by = $2
+         AND (expires_at IS NULL OR expires_at > NOW())
+       LIMIT 1`,
+      [battleId, walletAddress]
+    );
+    if (existing[0]) {
+      await client.query('ROLLBACK');
+      return { share_token: existing[0].share_token, already_shared: true };
+    }
+
+    // 만료일
+    const { rows: defaultExpireRows } = await client.query(
+      `SELECT value FROM settings WHERE key = 'default_expire_days'`
+    );
+    const defaultExpireDays = parseInt(String(defaultExpireRows[0]?.value || '30').replace(/"/g,'')) || 30;
+    const actualExpireDays = expires_days !== undefined ? expires_days : defaultExpireDays;
+
+    const token = generateShareToken();
+
+    const { rows } = await client.query(`
+      INSERT INTO battle_replays (
+        battle_id, share_token, shared_by,
+        title, description, thumbnail_url, is_public,
+        expires_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7,
+        CASE WHEN $8::int > 0 THEN NOW() + ($8 || ' days')::INTERVAL ELSE NULL END
+      )
+      RETURNING id, share_token, created_at, expires_at
+    `, [
+      battleId, token, walletAddress,
+      title || null, description || null, thumbnail_url || null, is_public,
+      actualExpireDays
+    ]);
+
+    await client.query('COMMIT');
+    return {
+      ...rows[0],
+      share_url: `/replay/${token}`,
+    };
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw e;
+  } finally {
+    client.release();
   }
-  
-  // 이미 공유된 전투?
-  const { rows: existing } = await pool.query(
-    `SELECT share_token FROM battle_replays 
-     WHERE battle_id = $1 AND shared_by = $2 
-       AND (expires_at IS NULL OR expires_at > NOW())
-     LIMIT 1`,
-    [battleId, walletAddress]
-  );
-  if (existing[0]) {
-    return { share_token: existing[0].share_token, already_shared: true };
-  }
-  
-  // 만료일
-  const { rows: defaultExpireRows } = await pool.query(
-    `SELECT value FROM settings WHERE key = 'default_expire_days'`
-  );
-  const defaultExpireDays = parseInt(String(defaultExpireRows[0]?.value || '30').replace(/"/g,'')) || 30;
-  const actualExpireDays = expires_days !== undefined ? expires_days : defaultExpireDays;
-  
-  const token = generateShareToken();
-  
-  const { rows } = await pool.query(`
-    INSERT INTO battle_replays (
-      battle_id, share_token, shared_by,
-      title, description, thumbnail_url, is_public,
-      expires_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, 
-      CASE WHEN $8::int > 0 THEN NOW() + ($8 || ' days')::INTERVAL ELSE NULL END
-    )
-    RETURNING id, share_token, created_at, expires_at
-  `, [
-    battleId, token, walletAddress,
-    title || null, description || null, thumbnail_url || null, is_public,
-    actualExpireDays
-  ]);
-  
-  return {
-    ...rows[0],
-    share_url: `/replay/${token}`,   // 프론트 라우팅용
-  };
 }
 
 // ─── 리플레이 조회 (토큰으로) ───

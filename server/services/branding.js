@@ -139,11 +139,18 @@ async function setColor(wallet, claimId, color) {
 async function clearBranding(wallet, claimId) {
   wallet = wallet.toLowerCase();
   claimId = parseInt(claimId, 10);
-  const claim = await pool.query('SELECT owner FROM claims WHERE id=$1', [claimId]);
-  if (!claim.rows.length) throw new Error('Territory not found');
-  if (claim.rows[0].owner.toLowerCase() !== wallet) throw new Error('You do not own this territory');
-  await pool.query('DELETE FROM territory_branding WHERE claim_id=$1 AND wallet=$2', [claimId, wallet]);
-  return { cleared: true };
+  // [v7.68] 소유권 확인을 트랜잭션 내 FOR UPDATE로 이동 — 동시 영토 이전과의 TOCTOU 방지
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const claim = await client.query('SELECT owner FROM claims WHERE id=$1 FOR UPDATE', [claimId]);
+    if (!claim.rows.length) { await client.query('ROLLBACK'); throw new Error('Territory not found'); }
+    if (claim.rows[0].owner.toLowerCase() !== wallet) { await client.query('ROLLBACK'); throw new Error('You do not own this territory'); }
+    await client.query('DELETE FROM territory_branding WHERE claim_id=$1 AND wallet=$2', [claimId, wallet]);
+    await client.query('COMMIT');
+    return { cleared: true };
+  } catch (e) { await client.query('ROLLBACK').catch(() => {}); throw e; }
+  finally { client.release(); }
 }
 
 // Admin clear (no ownership check, no GP cost)
