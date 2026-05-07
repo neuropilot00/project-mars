@@ -73,7 +73,14 @@ async function createAuction(sellerWallet, data) {
       return { success: false, error: 'insufficient_gp', required: listingFee };
     }
     if (listingFee > 0) {
-      await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [listingFee, w]);
+      const auctionListDeduct = await client.query(
+        'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
+        [listingFee, w]
+      );
+      if (auctionListDeduct.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return { success: false, error: 'INSUFFICIENT_GP' };
+      }
       // ✅ GP Activity log
       try { const { logGPActivity } = require('../db'); logGPActivity(w, -listingFee, 'auction_list', `listing fee`).catch(()=>{}); } catch (_le) {}
     }
@@ -220,7 +227,14 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
     }
 
     // Deduct new bidder's GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [amt, w]);
+    const bidDeductRes = await client.query(
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
+      [amt, w]
+    );
+    if (bidDeductRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'INSUFFICIENT_GP' };
+    }
 
     // Refund previous bidder
     if (auction.current_bidder_wallet && auction.current_bid > auction.start_price) {

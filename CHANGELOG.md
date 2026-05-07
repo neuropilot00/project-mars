@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.41 — transport/vip JWT 인증 + auction/donate rowCount 수정
+
+**수정 (HIGH):**
+- `server/routes/transport.js` `POST /transport/start`, `/raid`, `/cancel`: wallet body/header fallback → 타인 wallet으로 화물 시작/레이드/취소(GP 환불 포함) 가능. `requireAuth` JWT 미들웨어 추가, wallet 토큰에서 추출.
+- `server/routes/vip.js` `POST /vip/purchase`: 동일 — JWT 없이 타인 wallet으로 VIP 구매 GP 소각 가능. `requireAuth` 추가.
+- `server/services/auction.js` `createAuction()` + `placeBid()`: GP deduct UPDATE rowCount 미검사 → 리스팅비/입찰금 미차감 후 경매 진행 가능. rowCount === 0 → INSUFFICIENT_GP ROLLBACK 추가.
+- `server/routes/api.js` `/guild/donate`: GP deduct rowCount 미검사 → GP 미차감 후 treasury 증가 가능. rowCount guard 추가.
+
+**잔여 알려진 이슈 (다음 이터레이션):**
+- `api.js /guild/war/auto-win` 쿨다운 체크 TOCTOU (포인트 이중 지급, GP 없음) — medium priority
+- `profile.js setNickname()` 닉네임 중복 체크 TOCTOU — DB unique constraint로 해결 필요
+- `auction.js creditReferralCommission` post-COMMIT released client — 커미션 신뢰성 문제
+
+---
+
 ## 2026-05-07 v7.40 — commanderActions/marketplace JWT 인증 + battleRewards FOR UPDATE
 
 **수정 (HIGH):**

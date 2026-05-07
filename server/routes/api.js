@@ -6852,7 +6852,14 @@ router.post('/guild/donate', writeLimiter, async (req, res) => {
       await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient GP' });
     }
     // Deduct from user
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [amt, w]);
+    const guildDonateDeduct = await client.query(
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1',
+      [amt, w]
+    );
+    if (guildDonateDeduct.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'INSUFFICIENT_GP' });
+    }
     // Credit guild treasury
     const tRes = await client.query('UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id=$2 RETURNING gp_treasury', [amt, guildId]);
     const newTreasury = parseFloat(tRes.rows[0]?.gp_treasury || 0);

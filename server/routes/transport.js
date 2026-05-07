@@ -6,15 +6,21 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const transportSvc = require('../services/transport');
 
-function getWallet(req) {
-  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
-}
-function requireWallet(req, res) {
-  const w = getWallet(req);
-  if (!w || w.length < 10) { res.status(400).json({ error: 'wallet_required' }); return null; }
-  return w;
+// JWT 인증 미들웨어 — wallet body 신뢰 없음
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+
+function getWalletFromToken(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
 // ── Public settings (UI consumes this for pricing preview) ──
@@ -26,9 +32,9 @@ router.get('/transport/settings', async (req, res) => {
 });
 
 // ── Start a shipment ──
-router.post('/transport/start', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.post('/transport/start', requireAuth, async (req, res) => {
+  const wallet = getWalletFromToken(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const { originSectorId, destSectorId, cargoGp } = req.body || {};
   const origin = parseInt(originSectorId);
   const dest = parseInt(destSectorId);
@@ -63,9 +69,9 @@ router.get('/transport/raids/targets', async (req, res) => {
 });
 
 // ── Attempt a raid ──
-router.post('/transport/raid', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.post('/transport/raid', requireAuth, async (req, res) => {
+  const wallet = getWalletFromToken(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const transportId = parseInt(req.body?.transportId);
   if (!transportId) return res.status(400).json({ error: 'transport_id_required' });
 
@@ -75,9 +81,9 @@ router.post('/transport/raid', async (req, res) => {
 });
 
 // ── Cancel shipment ──
-router.post('/transport/cancel', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.post('/transport/cancel', requireAuth, async (req, res) => {
+  const wallet = getWalletFromToken(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const transportId = parseInt(req.body?.transportId);
   if (!transportId) return res.status(400).json({ error: 'transport_id_required' });
 
