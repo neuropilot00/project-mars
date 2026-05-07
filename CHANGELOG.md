@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.65 — missions/worldEvents/governance/rocket 경쟁조건 수정
+
+**수정 (MEDIUM):**
+
+- `server/services/worldEvents.js` `distributeRewards()` — `UPDATE world_event_participants SET rewarded=true` 에 `AND rewarded=false` 가드 없음. 동시 `engageEvent`/`settleExpiredEvents` 호출 시 같은 참가자에게 GP+광물 이중 지급. `rowCount=0` 시 ROLLBACK+continue 추가.
+- `server/services/governance.js` `recalculateCommander()` — `SELECT gp_balance FROM governance_positions WHERE role='commander'` 에 `FOR UPDATE` 없음. 동시 호출 시 같은 GP를 이중으로 commander_pool에 이전. `FOR UPDATE` 추가.
+- `server/services/rocket.js` `scheduleRocketEvent()` — `SELECT ... WHERE status IN ('incoming','landed','looting')` 가 트랜잭션 외부. 동시 scheduler 틱 두 개가 각각 이벤트 생성. `pg_advisory_xact_lock(75300)` + `BEGIN/ROLLBACK/COMMIT` 블록으로 직렬화.
+
+**수정 (LOW):**
+
+- `server/services/missions.js` `launchMission()` — PP deduct `rowCount` 미체크. 동시 PP 소진 시 atomic guard 실패 무시하고 미션 생성됨. `rowCount=0` 시 ROLLBACK 추가.
+
+**조사 결과 (변경 없음):**
+
+- `hijack.js` `declareHijackWithPP()` `totalCost` — agent 보고 false positive. `baseCost`/`attackCost`는 route가 DB 픽셀 가격에서 서버사이드 계산. 클라이언트 조작 불가.
+- `claimUpgrades.js` count check after GP deduction — false positive. `claims FOR UPDATE` 가 동일 영토의 모든 업그레이드를 직렬화함.
+
+---
+
 ## 2026-05-07 v7.64 — auction/expedition/warBetting/vip/lottery 서비스 경쟁조건 수정
 
 **수정 (CRITICAL):**

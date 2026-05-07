@@ -1,3 +1,32 @@
+# OCCUPY MARS — Codebase Audit (v7.65 / 2026-05-07) — missions/worldEvents/governance/rocket 경쟁조건 수정
+
+## 🔴 v7.65 — 서비스 레이어 경쟁조건 추가 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `worldEvents.js` `distributeRewards()` | `AND rewarded=false` 없어 이중 GP 지급 | 🔴 MEDIUM | ✅ rowCount=0 ROLLBACK+continue |
+| `governance.js` `recalculateCommander()` | commander GP SELECT FOR UPDATE 없어 이중 이전 | 🟡 MEDIUM | ✅ FOR UPDATE 추가 |
+| `rocket.js` `scheduleRocketEvent()` | TOCTOU 중복 이벤트 생성 | 🟡 MEDIUM | ✅ pg_advisory_xact_lock(75300) 직렬화 |
+| `missions.js` `launchMission()` | PP deduct rowCount 미체크 → 무료 미션 | 🟢 LOW | ✅ rowCount=0 ROLLBACK |
+
+### 추가 감사 (버그 없음 / False Positive)
+| 서비스 | 결과 |
+|--------|------|
+| hijack.js totalCost | ✅ FALSE POSITIVE — baseCost/attackCost 서버사이드 DB 계산 |
+| claimUpgrades.js count check | ✅ FALSE POSITIVE — claims FOR UPDATE가 이미 직렬화 |
+| achievements.js | ✅ CLEAN — INSERT ON CONFLICT DO NOTHING 이중 지급 방지 |
+| aiFleetManager.js | ✅ CLEAN (LOW: NPC wallet collision — 플레이어 자금 영향 없음) |
+| aiStrategy.js | ✅ CLEAN |
+| phaseCScheduler.js | ✅ CLEAN |
+| rank.js | ✅ CLEAN |
+| rating.js | ✅ CLEAN |
+| sector.js | ✅ CLEAN — 읽기 전용 |
+| battleReport.js | ✅ CLEAN |
+| battleTimeline.js | ✅ CLEAN |
+| commanderActions.js | ✅ CLEAN — AND gp_balance >= $1 + RETURNING rowcount |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.64 / 2026-05-07) — 경매/탐험/전쟁베팅/VIP/복권 경쟁조건 수정
 
 ## 🔴 v7.64 — 서비스 레이어 경쟁조건 수정 (2026-05-07)
