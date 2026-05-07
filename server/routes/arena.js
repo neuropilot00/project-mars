@@ -942,6 +942,7 @@ router.post('/hilo/start', requireAuth, betLimiter, async (req, res) => {
 router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
   const { gameId, guess } = req.body;
   const pick = guess === 'low' ? 'low' : 'high';
+  const callerWallet = getAuthWallet(req);
 
   if (!gameId) return res.status(400).json({ error: 'gameId required' });
 
@@ -954,6 +955,10 @@ router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
     if (!gRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Game not found' }); }
 
     const g = gRes.rows[0];
+    if ((g.wallet || '').toLowerCase() !== callerWallet) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'NOT_YOUR_GAME' });
+    }
     const cards = typeof g.cards === 'string' ? JSON.parse(g.cards) : g.cards;
     const lastCard = cards[cards.length - 1];
     const newCard = drawCard();
@@ -1017,6 +1022,7 @@ router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
 // POST /arena/hilo/cashout
 router.post('/hilo/cashout', requireAuth, betLimiter, async (req, res) => {
   const { gameId } = req.body;
+  const callerWallet = getAuthWallet(req);
   if (!gameId) return res.status(400).json({ error: 'gameId required' });
 
   const client = await pool.connect();
@@ -1028,6 +1034,10 @@ router.post('/hilo/cashout', requireAuth, betLimiter, async (req, res) => {
     if (!gRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Game not found' }); }
 
     const g = gRes.rows[0];
+    if ((g.wallet || '').toLowerCase() !== callerWallet) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'NOT_YOUR_GAME' });
+    }
     const cards = typeof g.cards === 'string' ? JSON.parse(g.cards) : g.cards;
     if (cards.length < 2) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Must guess at least once' }); }
 

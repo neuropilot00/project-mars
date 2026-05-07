@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.59 — auth.js 비밀번호 변경/계정삭제 broken + arena.js hilo 소유권 검증 누락 수정
+
+**수정 (HIGH):**
+
+- `server/routes/auth.js` `POST /change-password` — JWT payload에 `userId` 없음 (`{ wallet, email, nickname }` 만 포함). `decoded.userId = undefined` → `WHERE id = $1` 조건이 null과 비교 → 사용자 미발견 → 비밀번호 변경 불가. `decoded.wallet` 기준 `WHERE LOWER(wallet_address) = $1` 로 수정.
+- `server/routes/auth.js` `POST /delete-account` — 동일 원인으로 계정 삭제가 실제로 아무것도 하지 않음. pixels/claims/users 모두 `decoded.wallet` 기준으로 수정.
+- `server/routes/arena.js` `POST /hilo/guess`, `POST /hilo/cashout` — 게임 소유권 검증 누락. `hilo_games.id`가 SERIAL(순차 정수)이므로 다른 플레이어의 게임에 guess를 실행해 강제 패배시킬 수 있는 griefing 공격 가능. 두 엔드포인트 모두 `g.wallet !== callerWallet` 시 403 반환하도록 소유권 체크 추가.
+
+---
+
 ## 2026-05-07 v7.57 — 종합 감사 (governance/hijack/worldEvents/marketplace/daily-ops/siege) — 버그 없음
 
 **감사 확인 (버그 없음):**

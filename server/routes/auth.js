@@ -782,13 +782,15 @@ router.post('/change-password', async (req, res) => {
     if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword)) {
       return res.status(400).json({ error: 'Need uppercase, lowercase, number, special char' });
     }
-    const user = await pool.query('SELECT password_hash FROM users WHERE id = $1', [decoded.userId]);
+    const userWallet = (decoded.wallet || decoded.walletAddress || '').toLowerCase().trim();
+    if (!userWallet) return res.status(401).json({ error: 'Invalid token: missing wallet' });
+    const user = await pool.query('SELECT password_hash FROM users WHERE LOWER(wallet_address) = $1', [userWallet]);
     if (!user.rows.length) return res.status(404).json({ error: 'User not found' });
     const valid = await bcrypt.compare(currentPassword, user.rows[0].password_hash);
     if (!valid) return res.status(403).json({ error: 'Current password is incorrect' });
     const newHash = await bcrypt.hash(newPassword, 12);
-    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, decoded.userId]);
-    console.log(`[Auth] Password changed for user ${decoded.userId}`);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE LOWER(wallet_address) = $2', [newHash, userWallet]);
+    console.log(`[Auth] Password changed for wallet ${userWallet}`);
     res.json({ success: true });
   } catch (e) {
     console.error('[Auth] change-password error:', e.message);
@@ -803,14 +805,16 @@ router.post('/delete-account', async (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
     const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'dev-secret');
+    const delWallet = (decoded.wallet || decoded.walletAddress || '').toLowerCase().trim();
+    if (!delWallet) return res.status(401).json({ error: 'Invalid token: missing wallet' });
     await client.query('BEGIN');
     // Release all territories (users.wallet_address, claims uses owner+deleted_at)
-    await client.query('UPDATE pixels SET owner = NULL WHERE owner = (SELECT wallet_address FROM users WHERE id = $1)', [decoded.userId]);
-    await client.query("UPDATE claims SET deleted_at = NOW() WHERE LOWER(owner) = LOWER((SELECT wallet_address FROM users WHERE id = $1)) AND deleted_at IS NULL", [decoded.userId]);
+    await client.query('UPDATE pixels SET owner = NULL WHERE LOWER(owner) = $1', [delWallet]);
+    await client.query("UPDATE claims SET deleted_at = NOW() WHERE LOWER(owner) = $1 AND deleted_at IS NULL", [delWallet]);
     // Zero out balances
-    await client.query('UPDATE users SET pp_balance = 0, usdt_balance = 0, is_active = false WHERE id = $1', [decoded.userId]);
+    await client.query('UPDATE users SET pp_balance = 0, usdt_balance = 0, is_active = false WHERE LOWER(wallet_address) = $1', [delWallet]);
     await client.query('COMMIT');
-    console.log(`[Auth] Account deleted: user ${decoded.userId}`);
+    console.log(`[Auth] Account deleted: wallet ${delWallet}`);
     res.json({ success: true });
   } catch (e) {
     await client.query('ROLLBACK');

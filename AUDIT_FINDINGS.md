@@ -1,3 +1,26 @@
+# OCCUPY MARS — Codebase Audit (v7.59 / 2026-05-07)
+
+## 🔴 v7.59 — auth.js broken endpoints + arena.js hilo 소유권 취약점 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `server/routes/auth.js` `POST /change-password` | `decoded.userId` 사용 → JWT에 없는 필드 → undefined → `WHERE id = null` → 0 rows → 비밀번호 변경 완전 불가 | 🔴 HIGH | ✅ `decoded.wallet` + `WHERE LOWER(wallet_address) = $1` 로 수정 |
+| `server/routes/auth.js` `POST /delete-account` | 동일 원인으로 pixels/claims/users 아무것도 삭제 안 됨 (silent no-op) | 🔴 HIGH | ✅ `decoded.wallet` 기준으로 수정 |
+| `server/routes/arena.js` `/hilo/guess`, `/hilo/cashout` | 소유권 검증 없음 — SERIAL gameId 순차 추측으로 타 플레이어 게임 강제 패배(griefing) 가능 | 🔴 HIGH | ✅ `g.wallet !== callerWallet` 시 403 반환 추가 |
+
+### 추가 감사 영역 (버그 없음)
+| 영역 | 결과 |
+|------|------|
+| auth.js bcrypt 비용(10/12), JWT 발급 필드, SQL injection, 로그인 rate limit | ✅ 정상 |
+| profile.js requireAuth, 허용 필드 whitelist (nickname/avatar/motto), 입력 sanitization | ✅ 정상 |
+| shop `/api/shop/buy` — requireAuth, GP 차감 원자성, 아이템 지급 동일 트랜잭션 | ✅ 정상 |
+| hallOfFameRoutes.js — 대부분 read-only, POST /titles/equip requireAuth + LOWER() | ✅ 정상 |
+| bounty.js — requireAuth, GP 원자성, 자기 바운티 방지, wallet 정규화 | ✅ 정상 |
+| staking.js — requireAuth, FOR UPDATE 잔액 락, 초과 스테이킹 방지 | ✅ 정상 |
+| duel.js — requireAuth, GP 원자성, 자기 결투 방지 | ✅ 정상 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.57 / 2026-05-07)
 
 ## ✅ v7.57 — 종합 감사 (governance/hijack/worldEvents/marketplace/daily-ops/siege) 버그 없음 (2026-05-07)
