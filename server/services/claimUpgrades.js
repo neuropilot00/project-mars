@@ -169,7 +169,7 @@ async function getUpgradeCatalog() {
       cost,
       bonus: (cfg.bonuses[key] || [])[i] || 0,
     })),
-    maxLevel: cfg.maxLevel,
+    maxLevel: def.effect ? cfg.p5MaxLevel : cfg.maxLevel,
   }));
 }
 
@@ -220,7 +220,12 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
   const cfg = await getSettings();
 
   if (!cfg.enabled) throw new Error('Territory upgrade system is currently disabled');
-  if (!UPGRADE_TYPES[upgradeType]) throw new Error(`Unknown upgrade type: ${upgradeType}`);
+  const typeDef = UPGRADE_TYPES[upgradeType];
+  if (!typeDef) throw new Error(`Unknown upgrade type: ${upgradeType}`);
+
+  // P5 tracks have an 'effect' field — check p5Enabled separately
+  const isP5Track = !!typeDef.effect;
+  if (isP5Track && !cfg.p5Enabled) throw new Error('P5 territory upgrades are currently disabled');
 
   // Verify ownership — FOR UPDATE to prevent concurrent over-limit inserts on same claim
   const claimRes = await client.query(
@@ -240,7 +245,9 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
   const currentLevel = existing ? existing.level : 0;
   const nextLevel    = currentLevel + 1;
 
-  if (nextLevel > cfg.maxLevel) throw new Error(`Already at maximum level ${cfg.maxLevel}`);
+  // Use p5MaxLevel for P5 tracks, maxLevel for classic tracks
+  const effectiveMaxLevel = isP5Track ? cfg.p5MaxLevel : cfg.maxLevel;
+  if (nextLevel > effectiveMaxLevel) throw new Error(`Already at maximum level ${effectiveMaxLevel}`);
 
   const costs = cfg.costs[upgradeType] || [];
   const cost  = costs[currentLevel]; // index = current level (0-based → level 1 cost is costs[0])
@@ -267,9 +274,9 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
   if (existing) {
     await client.query(
       `UPDATE territory_upgrades
-          SET level = $3, gp_spent = gp_spent + $4, upgraded_at = NOW()
+          SET level = $2, gp_spent = gp_spent + $3, updated_at = NOW()
         WHERE id = $1`,
-      [existing.id, w, nextLevel, cost]
+      [existing.id, nextLevel, cost]
     );
     upgradeId = existing.id;
   } else {
@@ -351,7 +358,7 @@ async function getAdminStats() {
       SELECT u.*, usr.nickname AS owner_nick
         FROM territory_upgrades u
         LEFT JOIN users usr ON usr.wallet_address = u.owner
-       ORDER BY u.upgraded_at DESC LIMIT 30
+       ORDER BY u.updated_at DESC LIMIT 30
     `).catch(() => ({ rows: [] })),
     pool.query(`SELECT key, value FROM settings WHERE key LIKE 'upgrade_%' ORDER BY key`).catch(() => ({ rows: [] })),
   ]);
