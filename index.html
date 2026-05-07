@@ -37293,7 +37293,7 @@ function clearMyVtag() {
   }).then(function(ok){
     if (!ok) return;
     fetch('/api/vtag/clear', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w })
     }).then(function(r){return r.json();}).then(function(d){
       if (d.error) { showToast(d.error,'error'); return; }
