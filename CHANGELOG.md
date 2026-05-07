@@ -1,5 +1,27 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.29 — admin 엔드포인트 인증 누락 6건 + SQL 인젝션 1건 수정
+
+**발견 및 수정:**
+
+- **server/routes/siege.js**
+  - `GET /admin/sieges`: `requireAdmin` 누락 → 추가
+  - `POST /admin/sieges/:id/resolve`: `requireAdmin` 누락 → 추가
+  - `GET /admin/sieges`의 `status` 쿼리 파라미터 SQL 직접 삽입 → 화이트리스트(`ALLOWED_STATUSES`) + 파라미터화(`$2`)로 수정
+- **server/routes/resource.js**: `GET /admin/resources`, `PUT /admin/resource-rate` — `requireAdmin` 추가
+- **server/routes/job.js**: `GET /admin/jobs`, `PUT /admin/job-buff` — `requireAdmin` 추가
+- **server/routes/sectors.js**: `GET /admin/sector-defs` — `requireAdmin` 추가
+
+**검증:** `node --check` 전부 통과. 커밋 a2e0006.
+
+**추가 감사 결과 (버그 없음):**
+- `declare-pvp` 트랜잭션 내 `FOR UPDATE` 이중 체크 확인
+- worldEvents.js engage 플로우 정상
+- P5-5 sector control 쿼리 정상
+- alliance.js rowCount + FOR UPDATE 기존 적용 확인
+
+---
+
 ## 2026-05-07 v7.28 — 전체 코드베이스 버그 감사 완료 (shipScheduler + SQL 정합성)
 
 **감사 완료 항목**:

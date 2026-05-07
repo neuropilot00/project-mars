@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v7.28 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.29 / 2026-05-07)
+
+## 🔴→✅ v7.29 — admin 인증 누락 + SQL 인젝션 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `siege.js` GET /admin/sieges | requireAdmin 누락 — 누구나 호출 가능 | 🔴 HIGH | ✅ |
+| `siege.js` POST /admin/sieges/:id/resolve | requireAdmin 누락 — 누구나 siege 강제 종료 가능 | 🔴 HIGH | ✅ |
+| `siege.js` GET /admin/sieges status 파라미터 | WHERE절에 `${status}` 직접 삽입 → SQL 인젝션 | 🔴 CRITICAL | ✅ 화이트리스트+$2 |
+| `resource.js` GET /admin/resources | requireAdmin 누락 | 🟡 MEDIUM | ✅ |
+| `resource.js` PUT /admin/resource-rate | requireAdmin 누락 — 드롭율 무단 변경 가능 | 🔴 HIGH | ✅ |
+| `job.js` GET /admin/jobs | requireAdmin 누락 | 🟡 MEDIUM | ✅ |
+| `job.js` PUT /admin/job-buff | requireAdmin 누락 — 직업 버프 무단 변경 가능 | 🔴 HIGH | ✅ |
+| `sectors.js` GET /admin/sector-defs | requireAdmin 누락 | 🟡 MEDIUM | ✅ |
+
+---
 
 ## ✅ v7.28 — 전체 버그 감사 완료 (2026-05-07)
 
