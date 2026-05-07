@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.38 — guild war 이중 정산·createGuild TOCTOU + crafting/announcement/donation/branding rowCount/FOR UPDATE
+
+**수정 (HIGH):**
+- `server/services/guild.js` `resolveExpiredWars()`: 전쟁 행을 트랜잭션 밖에서 일괄 SELECT → 동시 스케줄러 2개가 동일 war를 처리해 treasury 이중 지급 가능. 루프 내부 BEGIN 후 `SELECT ... WHERE id=$1 AND status='active' FOR UPDATE` CAS 재조회 추가 — 이미 처리된 war는 ROLLBACK+continue.
+- `server/services/crafting.js` `craftItem()`: GP deduct UPDATE rowCount 미검사 → GP 미차감 후 아이템 지급 가능. `rowCount === 0` → `INSUFFICIENT_GP` throw 추가.
+- `server/services/announcement.js` `postAnnouncement()`: 동일 — rowCount guard 추가.
+- `server/services/donation.js` `donate()`: 동일 — rowCount guard 추가.
+
+**수정 (MEDIUM):**
+- `server/services/guild.js` `createGuild()`: guild_id 멤버십 체크를 별도 plain SELECT로 확인 후 FOR UPDATE → TOCTOU — 동시 acceptInvite가 guild_id를 바꿔 2개 길드 동시 멤버십 가능. 단일 `SELECT guild_id, gp_balance ... FOR UPDATE` 쿼리로 통합. GP deduct rowCount guard도 추가.
+- `server/services/branding.js` `_setBrandingField()`: 영토 ownership check가 `FOR UPDATE` 없음 → 동시 territory transfer 후에도 이전 소유자가 브랜딩 가능. `SELECT owner FROM claims WHERE id=$1 FOR UPDATE`로 변경.
+
+**감사 완료 (버그 없음):**
+- transport.js, sponsor.js, capsule.js — FOR UPDATE + rowCount 정상
+- beacon.js, contest.js, announcement.js (잔여 조회) — 정상
+- wager.js autoLockExpired — 이중 UPDATE가 idempotent (LOW, 무시)
+
+---
+
 ## 2026-05-07 v7.37 — maintenance 이중 실행 + season 동시 생성 + phaseCScheduler CAS + exploration rowCount
 
 **수정 (CRITICAL):**

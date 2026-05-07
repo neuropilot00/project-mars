@@ -88,10 +88,11 @@ async function postAnnouncement(wallet, message, durationM) {
     if (bal.rows[0].gp_balance < costGP)
       throw new Error(`Insufficient GP (need ${costGP} for ${durM}min broadcast)`);
 
-    await client.query(
+    const announceDeductRes = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
       [costGP, wallet]
     );
+    if (announceDeductRes.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     await client.query(
       `INSERT INTO gp_transactions (wallet, amount, type, note)
        VALUES ($1, $2, 'announce', $3)`,

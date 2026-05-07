@@ -136,10 +136,11 @@ async function craftItem(client, wallet, recipeId) {
       'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [walletLower]);
     const balance = balRows.length ? Number(balRows[0].balance) : 0;
     if (balance < gpCost) throw new Error(`Insufficient GP (need ${gpCost}, have ${balance.toFixed(2)})`);
-    await client.query(
+    const gpDeductRes = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1',
       [gpCost, walletLower]
     );
+    if (gpDeductRes.rowCount === 0) throw new Error('INSUFFICIENT_GP');
   }
 
   // 6. Roll success

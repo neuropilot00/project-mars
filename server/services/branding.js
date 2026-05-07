@@ -60,8 +60,9 @@ async function _setBrandingField(wallet, claimId, field, value, cost) {
   try {
     await client.query('BEGIN');
 
-    // Verify ownership
-    const claim = await client.query('SELECT owner FROM claims WHERE id=$1', [claimId]);
+    // Verify ownership — FOR UPDATE prevents a concurrent territory transfer from
+    // changing owner between this check and the branding upsert below.
+    const claim = await client.query('SELECT owner FROM claims WHERE id=$1 FOR UPDATE', [claimId]);
     if (!claim.rows.length) throw new Error('Territory not found');
     if (claim.rows[0].owner.toLowerCase() !== wallet) throw new Error('You do not own this territory');
 

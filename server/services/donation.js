@@ -66,7 +66,11 @@ async function donate(wallet, amountGP, message) {
     if (!balRow.rows.length) throw new Error('User not found');
     if (balRow.rows[0].gp_balance < amountGP) throw new Error(`Need ${amountGP} GP`);
 
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [amountGP, wallet]);
+    const donateDeductRes = await client.query(
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1',
+      [amountGP, wallet]
+    );
+    if (donateDeductRes.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     const { rows: [entry] } = await client.query(
       `INSERT INTO donation_wall(wallet, amount_gp, message) VALUES($1,$2,$3) RETURNING id`,

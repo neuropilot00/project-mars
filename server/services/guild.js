@@ -14,16 +14,18 @@ async function createGuild(wallet, name, tag, emoji, description) {
   try {
     await client.query('BEGIN');
 
-    // Check user not already in guild
-    const memberCheck = await client.query('SELECT guild_id FROM users WHERE wallet_address = $1', [wallet]);
-    if (memberCheck.rows[0]?.guild_id) {
+    // Check user not already in guild AND lock balance in one query to prevent TOCTOU:
+    // a concurrent acceptInvite could set guild_id between a plain SELECT and our FOR UPDATE.
+    const userRow = await client.query(
+      'SELECT guild_id, COALESCE(gp_balance,0) AS gp FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
+      [wallet]
+    );
+    if (userRow.rows[0]?.guild_id) {
       await client.query('ROLLBACK');
       return { error: 'You are already in a guild' };
     }
 
-    // Check GP
-    const gpRes = await client.query('SELECT COALESCE(gp_balance,0) AS gp FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
-    const gp = parseFloat(gpRes.rows[0]?.gp || 0);
+    const gp = parseFloat(userRow.rows[0]?.gp || 0);
     if (gp < cost) {
       await client.query('ROLLBACK');
       return { error: `Need ${cost} GP to create a guild. You have ${Math.floor(gp)} GP.` };
@@ -37,7 +39,14 @@ async function createGuild(wallet, name, tag, emoji, description) {
     }
 
     // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cost, wallet]);
+    const deductCreate = await client.query(
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
+      [cost, wallet]
+    );
+    if (deductCreate.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return { error: 'INSUFFICIENT_GP' };
+    }
 
     // Create guild
     const guildRes = await client.query(
@@ -1369,13 +1378,26 @@ async function recordWarAction(wallet, actionType, points, meta) {
 async function resolveExpiredWars() {
   const client = await pool.connect();
   try {
+    // Fetch candidate war IDs (outside transaction — just for iteration)
     const expired = await client.query(
-      `SELECT * FROM guild_wars WHERE status = 'active' AND war_end <= NOW()`
+      `SELECT id FROM guild_wars WHERE status = 'active' AND war_end <= NOW()`
     );
-    for (const w of expired.rows) {
+    for (const row of expired.rows) {
       let chronicleData = null;
       try {
         await client.query('BEGIN');
+        // CAS re-fetch with FOR UPDATE — prevents double-processing when two scheduler
+        // instances run concurrently. If status is no longer 'active', skip silently.
+        const warRes = await client.query(
+          `SELECT * FROM guild_wars WHERE id = $1 AND status = 'active' FOR UPDATE`,
+          [row.id]
+        );
+        if (!warRes.rows.length) {
+          await client.query('ROLLBACK');
+          continue;
+        }
+        const w = warRes.rows[0];
+
         let winnerId = null;
         let loserId = null;
         if (w.attacker_score > w.defender_score) {

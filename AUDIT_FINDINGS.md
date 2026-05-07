@@ -1,5 +1,21 @@
 # OCCUPY MARS — Codebase Audit (v7.37 / 2026-05-07)
 
+## 🔴→✅ v7.38 — guild war 이중 정산 + createGuild TOCTOU + crafting/announcement/donation/branding 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `guild.js resolveExpiredWars()` — war SELECT 트랜잭션 밖, FOR UPDATE 없음 | 동시 스케줄러 2개 → treasury 이중 지급 | 🔴 HIGH | ✅ CAS FOR UPDATE 재조회 |
+| `crafting.js craftItem()` — GP deduct rowCount 미검사 | GP 미차감 후 아이템 지급 가능 | 🔴 HIGH | ✅ rowCount guard |
+| `announcement.js postAnnouncement()` — GP deduct rowCount 미검사 | GP 미차감 후 공지 게시 가능 | 🔴 HIGH | ✅ rowCount guard |
+| `donation.js donate()` — GP deduct rowCount 미검사 | GP 미차감 후 기부 로그 가능 | 🔴 HIGH | ✅ rowCount guard |
+| `guild.js createGuild()` — guild_id 체크 plain SELECT + 별도 FOR UPDATE | 동시 acceptInvite → 2개 길드 동시 멤버십 | 🟡 MEDIUM | ✅ 단일 FOR UPDATE 쿼리 통합 |
+| `branding.js _setBrandingField()` — claims ownership SELECT FOR UPDATE 누락 | 동시 territory transfer 후 이전 소유자 브랜딩 가능 | 🟡 MEDIUM | ✅ FOR UPDATE 추가 |
+
+**감사 완료 (버그 없음):**
+- transport.js, sponsor.js, capsule.js, beacon.js, contest.js — 정상
+
+---
+
 ## 🔴→✅ v7.37 — maintenance 이중 실행 + season 동시 생성 + phaseCScheduler CAS + exploration rowCount (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
