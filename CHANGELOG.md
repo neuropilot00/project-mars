@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.17 — quest_reward_pool 경쟁 조건 수정
+
+**server/services/missions.js, exploration.js, rocket.js** — `quest_reward_pool` SELECT에 `FOR UPDATE` 추가, UPDATE에 `AND balance >= $1` 가드 추가. 동시 보상 지급 시 pool 잔액이 음수로 가는 경쟁 조건 수정 (3파일).
+
+---
+
 ## 2026-05-07 v7.16 — 아이템/재료 소모 TOCTOU 6종 일괄 수정
 
 - **server/routes/api.js** — `/shop/use`: 인벤토리 SELECT에 `FOR UPDATE` + UPDATE에 `AND quantity > 0` 가드 추가.

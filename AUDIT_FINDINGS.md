@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
 
+## 🔴→✅ v7.17 — quest_reward_pool 경쟁 조건 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/missions.js`, `exploration.js`, `rocket.js` — quest_reward_pool PP 지급 | `quest_reward_pool` SELECT에 `FOR UPDATE` 없음 + UPDATE에 `AND balance >= $1` 가드 없음 → 동시 보상 시 pool 잔액 음수 가능 | ✅ `FOR UPDATE` + `AND balance >= $1` 가드 추가 (3파일) |
+
 ## 🔴→✅ v7.16 — 아이템/재료 소모 TOCTOU 6종 일괄 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |

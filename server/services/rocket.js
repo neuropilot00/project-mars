@@ -383,12 +383,12 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
     } else if (loot.type === 'pp') {
       let reward = loot.amount;
       try {
-        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1');
+        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
         const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].balance) : 0;
         const capped = Math.min(reward, poolBal);
         if (capped > 0) {
           await client.query(
-            'UPDATE quest_reward_pool SET balance = balance - $1, total_paid = total_paid + $1, today_paid = today_paid + $1, updated_at = NOW() WHERE id = 1',
+            'UPDATE quest_reward_pool SET balance = balance - $1, total_paid = total_paid + $1, today_paid = today_paid + $1, updated_at = NOW() WHERE id = 1 AND balance >= $1',
             [capped]
           );
           reward = capped;

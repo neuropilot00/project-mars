@@ -1023,7 +1023,7 @@ async function claimMission(wallet, missionId, minigameScore) {
       // PP rewards come from the quest reward pool where possible
       let ppPayout = parseFloat(reward.pp);
       try {
-        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1');
+        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
         const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].balance) : 0;
         const capped = Math.min(ppPayout, poolBal);
         if (capped > 0) {
@@ -1033,7 +1033,7 @@ async function claimMission(wallet, missionId, minigameScore) {
                    total_paid = total_paid + $1,
                    today_paid = today_paid + $1,
                    updated_at = NOW()
-             WHERE id = 1`,
+             WHERE id = 1 AND balance >= $1`,
             [capped]
           );
           ppPayout = capped;
