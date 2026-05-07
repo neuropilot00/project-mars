@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.34 — harvest 첫 수확 경쟁 + SHIP_IN_BATTLE 검사 우회 수정
+
+**수정:**
+- `server/routes/api.js` `POST /harvest`: 신규 유저(user_mining 행 없음) 대상 `FOR UPDATE`가 행이 없어 락 미동작 → 동시 2개 요청이 모두 쿨다운 체크 통과해 이중 수확 가능. 쿨다운 SELECT 전에 `INSERT INTO user_mining … ON CONFLICT DO NOTHING` 센티넬 INSERT 추가 → 항상 실제 행에 FOR UPDATE 락 적용.
+- `server/services/ship.js` `upgradeShipStat()` SHIP_IN_BATTLE 체크: `try/catch`가 `e.message === 'SHIP_IN_BATTLE'`만 re-throw하고 나머지 DB 오류는 삼킴 → 전투 체크 쿼리가 실패해도 업그레이드 진행 가능. `try/catch` 제거하고 쿼리 오류를 정상 전파하도록 수정.
+
+---
+
 ## 2026-05-07 v7.33 — shield 충전 crash 수정 + worldEvents 쿨다운 경쟁 + siege 락 + 스케줄러 admin gate
 
 **수정:**

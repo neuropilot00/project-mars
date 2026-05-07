@@ -1,3 +1,14 @@
+# OCCUPY MARS — Codebase Audit (v7.34 / 2026-05-07)
+
+## 🔴→✅ v7.34 — harvest 이중 수확 + SHIP_IN_BATTLE 우회 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `api.js /harvest` 첫 수확 FOR UPDATE 미동작 | 신규 유저 동시 2개 요청이 둘 다 쿨다운 통과 → PP 이중 지급 가능 | 🔴 HIGH | ✅ sentinel INSERT ON CONFLICT DO NOTHING |
+| `ship.js upgradeShipStat()` SHIP_IN_BATTLE try/catch 오류 삼킴 | DB 오류 시 전투 체크 우회 → 전투 중 함선 강화 가능 | 🔴 HIGH | ✅ try/catch 제거, 직접 전파 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.33 / 2026-05-07)
 
 ## 🔴→✅ v7.33 — ship crash + worldEvents 경쟁 + siege 락 수정 (2026-05-07)

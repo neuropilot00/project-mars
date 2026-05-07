@@ -2809,6 +2809,11 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     try { if (jobService) { const cd = await jobService.getJobBuff(w, 'miner_harvest_cooldown', 1.0); intervalHours = Math.max(1, intervalHours * cd); } } catch (_je) {}
 
     // Check cooldown
+    // 신규 유저에게도 FOR UPDATE가 동작하도록 sentinel 행을 먼저 upsert해서 락 보장
+    await client.query(
+      `INSERT INTO user_mining (wallet_address) VALUES ($1) ON CONFLICT (wallet_address) DO NOTHING`,
+      [w]
+    );
     const miningRes = await client.query(
       'SELECT * FROM user_mining WHERE wallet_address = $1 FOR UPDATE', [w]
     );

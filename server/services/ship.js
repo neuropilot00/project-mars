@@ -1205,18 +1205,15 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     const ship = shipRows[0];
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
-    try {
-      const { rows: battleRows } = await client.query(`
-        SELECT 1
-        FROM fleet_battle_participants fbp
-        JOIN fleet_battles fb ON fb.id = fbp.battle_id
-        WHERE fbp.fleet_id = $1 AND fb.status IN ('pending', 'active')
-        LIMIT 1
-      `, [ship.fleet_id]);
-      if (battleRows.length) throw new Error('SHIP_IN_BATTLE');
-    } catch (e) {
-      if (e.message === 'SHIP_IN_BATTLE') throw e;
-    }
+    // SHIP_IN_BATTLE 체크 — DB 오류가 체크를 우회하지 않도록 명시적으로 re-throw
+    const { rows: battleRows } = await client.query(`
+      SELECT 1
+      FROM fleet_battle_participants fbp
+      JOIN fleet_battles fb ON fb.id = fbp.battle_id
+      WHERE fbp.fleet_id = $1 AND fb.status IN ('pending', 'active')
+      LIMIT 1
+    `, [ship.fleet_id]);
+    if (battleRows.length) throw new Error('SHIP_IN_BATTLE');
 
     const { rows: userRows } = await client.query(
       `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
