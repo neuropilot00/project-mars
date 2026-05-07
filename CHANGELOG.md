@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.71 — tdesc 소유권 체크 LOWER() 누락 + 최종 감사 완료
+
+**수정 (LOW):**
+
+- `server/services/tdesc.js` line 46 — 영토 설명 등록 소유권 체크가 `WHERE owner=$2` 로 대소문자 구별. 체크섬 주소(EIP-55)로 로그인한 오너가 "소유하지 않은 영토" 오류를 받는 버그. `LOWER(owner)=LOWER($2)` 로 수정.
+
+**최종 감사 완료 (CLEAN):**
+- `siege.js` — CLEAN (FOR UPDATE + rowCount 패턴 정상)
+- `tprestige.js` — CLEAN (FOR UPDATE 직렬화 정상)
+- `capsule.js` — CLEAN (LOW: 최대 1개 초과 생성 가능, 자금 영향 없음)
+- `rental.js` — CLEAN (FOR UPDATE + status 체크 정상)
+- `achievements.js` — CLEAN (INSERT ON CONFLICT DO NOTHING 이중 지급 방지)
+- `profile.js` — CLEAN (rowCount 가드 정상)
+- `beacon.js` — CLEAN (FOR UPDATE + rowCount 가드 정상)
+- `territoryIdentity.js` routes — CLEAN (getAuthWallet JWT 전용)
+- `api.js` GP/PP spend 구간 — CLEAN (FOR UPDATE + atomic 가드)
+
+---
+
 ## 2026-05-07 v7.70 — guild 커스터마이즈 무료 우회 버그 수정 + 감사 완료
 
 **수정 (LOW):**

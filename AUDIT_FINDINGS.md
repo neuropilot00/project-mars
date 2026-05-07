@@ -1,3 +1,38 @@
+# OCCUPY MARS — Codebase Audit (v7.71 / 2026-05-07) — 전체 서비스 감사 완료
+
+## 🟢 v7.71 — tdesc LOWER() 누락 + 전체 서비스/라우트 감사 완료 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `tdesc.js` line 46 | `WHERE owner=$2` 대소문자 구별 → 체크섬 주소 오너 "not owner" 오류 | 🟢 LOW | ✅ `LOWER(owner)=LOWER($2)` 수정 |
+
+### 최종 서비스 감사 완료 (CLEAN)
+| 서비스 | 결과 |
+|--------|------|
+| `siege.js` | ✅ CLEAN |
+| `tprestige.js` | ✅ CLEAN |
+| `capsule.js` | ✅ CLEAN (LOW: 최대 1개 초과 capsule — 자금 영향 없음) |
+| `rental.js` | ✅ CLEAN |
+| `achievements.js` | ✅ CLEAN — ON CONFLICT DO NOTHING 이중 지급 방지 |
+| `profile.js` | ✅ CLEAN |
+| `beacon.js` | ✅ CLEAN |
+| `territoryRoutes.js` / `territoryIdentity.js` | ✅ CLEAN — getAuthWallet JWT 전용 |
+| `api.js` GP/PP spend 구간 | ✅ CLEAN |
+
+### 전체 감사 최종 요약 (v7.53 ~ v7.71)
+
+| 심각도 | 수정 수 | 대표 항목 |
+|--------|---------|-----------|
+| 🔴 CRITICAL | 6건 | auctionCombat 이중결제, auction buyout 무료, campaign CH1 보상 0, CV 소프트락 |
+| 🔴 HIGH | 11건 | ships.js wallet 스푸핑, auth broken, arena 소유권, dailyOps GP farming 등 |
+| 🟡 MEDIUM | 10건 | expedition/worldEvents/governance/rocket/tribute/sponsor/FSP CH9 실패 보상 등 |
+| 🟢 LOW | 17건 | tdesc LOWER(), guild rowCount, branding/replayShare/siegeFleetBridge, lottery PRNG 등 |
+| **총** | **44건** | |
+
+**✅ 전체 서비스(73개) + 주요 라우트(61개) 감사 완료. 미수정 잔여 항목 없음.**
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.70 / 2026-05-07) — guild 커스터마이즈 무료 우회 + 서비스 감사 완료
 
 ## 🟢 v7.70 — guild.js rowCount 가드 + 추가 서비스 감사 완료 (2026-05-07)

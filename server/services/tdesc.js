@@ -43,7 +43,7 @@ async function setDescription(wallet, claimId, text) {
 
     // Verify claim ownership
     const claimRow = await client.query(
-      `SELECT id FROM claims WHERE id=$1 AND owner=$2 AND deleted_at IS NULL`,
+      `SELECT id FROM claims WHERE id=$1 AND LOWER(owner)=LOWER($2) AND deleted_at IS NULL`, // [v7.71] LOWER() 정규화 추가 — 체크섬 주소 대소문자 차이로 소유자가 "not owner" 오류 받던 버그 수정
       [claimId, wallet]
     );
     if (!claimRow.rows.length) throw new Error('You do not own this territory');
