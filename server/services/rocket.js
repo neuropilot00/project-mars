@@ -387,11 +387,18 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
         const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].balance) : 0;
         const capped = Math.min(reward, poolBal);
         if (capped > 0) {
-          await client.query(
+          const poolDeductRes = await client.query(
             'UPDATE quest_reward_pool SET balance = balance - $1, total_paid = total_paid + $1, today_paid = today_paid + $1, updated_at = NOW() WHERE id = 1 AND balance >= $1',
             [capped]
           );
-          reward = capped;
+          // rowCount===0 means balance was depleted concurrently after our FOR UPDATE SELECT.
+          // Fall through to mint directly rather than crediting without deducting.
+          if (poolDeductRes.rowCount > 0) {
+            reward = capped;
+          } else {
+            console.warn('[ROCKET] quest_reward_pool depleted concurrently, minting PP directly');
+            // reward remains at original loot.amount (direct mint)
+          }
         } else {
           console.warn('[ROCKET] quest_reward_pool empty, minting PP directly');
         }

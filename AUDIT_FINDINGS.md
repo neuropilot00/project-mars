@@ -1,5 +1,19 @@
 # OCCUPY MARS — Codebase Audit (v7.37 / 2026-05-07)
 
+## 🔴→✅ v7.39 — worldEvents 이중 정산 + rocket rowCount + siege 인증 + warBetting 정보 유출 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `worldEvents.js settleExpiredEvents()` — SELECT+UPDATE 비원자 | 동시 스케줄러 → distributeRewards 이중 호출 | 🔴 HIGH | ✅ CAS UPDATE rowCount guard |
+| `rocket.js claimRocketLoot()` — pool deduct rowCount 미검사 | PP 미차감 후 유저에게 지급 가능 | 🔴 HIGH | ✅ rowCount 조건화 |
+| `siege.js` 4개 write endpoint — JWT 없음, body wallet 신뢰 | 타인 지갑으로 siege/세율/정책 조작 가능 | 🔴 HIGH | ✅ requireAuth + JWT wallet |
+| `warBettingRoutes.js GET /betting/mine` — 폴백 unauthenticated | 임의 지갑의 베팅 내역 조회 가능 | 🟡 MEDIUM | ✅ JWT 필수화, 폴백 제거 |
+
+**감사 완료 (버그 없음):**
+- spells.js, shield.js — 정상
+
+---
+
 ## 🔴→✅ v7.38 — guild war 이중 정산 + createGuild TOCTOU + crafting/announcement/donation/branding 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |

@@ -142,18 +142,16 @@ router.post('/bet', requireAuth, async (req, res) => {
  */
 router.get('/mine', async (req, res) => {
   try {
-    // 1) Try JWT first
-    let wallet = null;
+    // Require JWT — unauthenticated ?wallet= fallback was a data-privacy leak
+    // (anyone could query any player's bet history without auth)
     const token = (req.headers.authorization || '').replace('Bearer ', '');
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        wallet = decoded.wallet_address || decoded.wallet || decoded.walletAddress;
-      } catch (_) { /* fall through to query */ }
-    }
-    // 2) Fallback: ?wallet= query param (legacy compat — was /api/user/bets)
-    if (!wallet) {
-      wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+    let wallet = null;
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      wallet = decoded.wallet_address || decoded.wallet || decoded.walletAddress;
+    } catch (_) {
+      return res.status(401).json({ error: 'INVALID_TOKEN' });
     }
     if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'NO_WALLET' });
 

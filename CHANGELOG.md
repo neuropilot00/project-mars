@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.39 — worldEvents 이중 정산 + rocket rowCount + siege 인증 누락 + warBetting 정보 유출
+
+**수정 (HIGH):**
+- `server/services/worldEvents.js` `settleExpiredEvents()`: 만료 이벤트 목록 SELECT 후 별도 UPDATE → 동시 스케줄러 2개가 동일 이벤트 처리 → `distributeRewards` 이중 호출 가능. CAS `UPDATE ... WHERE id=$1 AND status IN ('active','engaged')` + `rowCount===0` → continue 추가.
+- `server/services/rocket.js` `claimRocketLoot()`: quest_reward_pool deduct UPDATE rowCount 미검사 → 풀에서 차감 실패 시에도 PP가 유저에게 지급됨. `rowCount===0` 시 콘솔 경고 후 직접 민팅 경로로 이동 (reward 변수 업데이트 조건화).
+- `server/routes/siege.js` `POST /siege/declare`, `POST /governor/declaration`, `PUT /governor/tax-rate`, `PUT /governor/policy`: wallet을 body에서 신뢰 (JWT 없음) → 타인 지갑으로 siege 선언/세율 변경/정책 변경 가능. `requireAuth` JWT 미들웨어 추가, wallet은 토큰에서 추출.
+
+**수정 (MEDIUM):**
+- `server/routes/warBettingRoutes.js` `GET /betting/mine`: JWT 실패 시 `?wallet=` query param 폴백 → 누구나 임의 지갑의 베팅 내역 조회 가능. 폴백 제거, JWT 필수화.
+
+**감사 완료 (버그 없음):**
+- spells.js, shield.js — FOR UPDATE + rowCount 정상
+- rocket.js autoScheduleRocket — MEDIUM (스케줄러 중복 INSERT), 이중 이벤트는 서버 재시작 시에만 발생하고 6h 최근 체크로 억제. 향후 advisory lock으로 개선 가능.
+
+---
+
 ## 2026-05-07 v7.38 — guild war 이중 정산·createGuild TOCTOU + crafting/announcement/donation/branding rowCount/FOR UPDATE
 
 **수정 (HIGH):**

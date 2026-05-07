@@ -564,19 +564,26 @@ async function settleExpiredEvents() {
   let settled = 0;
   for (const ev of expired) {
     try {
+      // CAS UPDATE — only transitions rows still in active/engaged status.
+      // Two concurrent scheduler runs both read the same expired event, but
+      // only the first UPDATE wins (rowCount=1); the second sees rowCount=0 and skips.
       // HP 0 도달했는데 status가 안 바뀐 경우 → defeated
       if (parseInt(ev.hp_current) === 0) {
-        await pool.query(
-          `UPDATE world_events SET status='defeated', resolution='defeated', resolved_at=NOW() WHERE id=$1`,
+        const casRes = await pool.query(
+          `UPDATE world_events SET status='defeated', resolution='defeated', resolved_at=NOW()
+           WHERE id=$1 AND status IN ('active','engaged')`,
           [ev.id]
         );
+        if (casRes.rowCount === 0) continue; // already processed by concurrent run
         await distributeRewards(ev.id, 'defeated');
       } else {
         // 시간 만료 → escaped (HP 일부 남음) — 디버프 부여
-        await pool.query(
-          `UPDATE world_events SET status='escaped', resolution='escaped', resolved_at=NOW() WHERE id=$1`,
+        const casRes = await pool.query(
+          `UPDATE world_events SET status='escaped', resolution='escaped', resolved_at=NOW()
+           WHERE id=$1 AND status IN ('active','engaged')`,
           [ev.id]
         );
+        if (casRes.rowCount === 0) continue; // already processed by concurrent run
         await applyFailureDebuff(ev);
       }
 

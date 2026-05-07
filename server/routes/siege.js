@@ -15,7 +15,18 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const siegeService = require('../services/siege');
+
+// JWT auth middleware — wallet extracted from verified token, body.wallet is ignored
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
 
 function requireAdmin(req, res) {
   const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
@@ -30,13 +41,14 @@ function requireAdmin(req, res) {
 // POST /api/siege/declare — Siege 선언
 // body: { wallet, sectorCode }
 // ─────────────────────────────────────────────────────────────
-router.post('/siege/declare', async (req, res) => {
-  const { wallet, sectorCode } = req.body || {};
+router.post('/siege/declare', requireAuth, async (req, res) => {
+  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  const { sectorCode } = req.body || {};
   if (!wallet || !sectorCode) {
-    return res.status(400).json({ error: 'wallet and sectorCode required' });
+    return res.status(400).json({ error: 'sectorCode required' });
   }
   try {
-    const result = await siegeService.declareSiege(wallet, sectorCode);
+    const result = await siegeService.declareSiege(wallet.toLowerCase().trim(), sectorCode);
     if (!result.success) {
       return res.status(400).json({ error: result.error, detail: result });
     }
@@ -98,16 +110,17 @@ router.get('/siege/status/:siegeId', async (req, res) => {
 // POST /api/governor/declaration — 선언문 업데이트
 // body: { wallet, sectorCode, text }
 // ─────────────────────────────────────────────────────────────
-router.post('/governor/declaration', async (req, res) => {
-  const { wallet, sectorCode, text } = req.body || {};
+router.post('/governor/declaration', requireAuth, async (req, res) => {
+  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  const { sectorCode, text } = req.body || {};
   if (!wallet || !sectorCode || !text) {
-    return res.status(400).json({ error: 'wallet, sectorCode, text required' });
+    return res.status(400).json({ error: 'sectorCode and text required' });
   }
   if (text.length > 1000) {
     return res.status(400).json({ error: 'text too long (max 1000 chars)' });
   }
   try {
-    const result = await siegeService.updateGovernorDeclaration(wallet, sectorCode, text);
+    const result = await siegeService.updateGovernorDeclaration(wallet.toLowerCase().trim(), sectorCode, text);
     if (!result.success) return res.status(400).json({ error: result.error, detail: result });
     res.json(result);
   } catch (err) {
@@ -120,13 +133,14 @@ router.post('/governor/declaration', async (req, res) => {
 // PUT /api/governor/tax-rate — 세율 변경
 // body: { wallet, sectorCode, taxRate }
 // ─────────────────────────────────────────────────────────────
-router.put('/governor/tax-rate', async (req, res) => {
-  const { wallet, sectorCode, taxRate } = req.body || {};
+router.put('/governor/tax-rate', requireAuth, async (req, res) => {
+  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  const { sectorCode, taxRate } = req.body || {};
   if (!wallet || !sectorCode || taxRate === undefined) {
-    return res.status(400).json({ error: 'wallet, sectorCode, taxRate required' });
+    return res.status(400).json({ error: 'sectorCode and taxRate required' });
   }
   try {
-    const result = await siegeService.updateTaxRate(wallet, sectorCode, taxRate);
+    const result = await siegeService.updateTaxRate(wallet.toLowerCase().trim(), sectorCode, taxRate);
     if (!result.success) return res.status(400).json({ error: result.error, detail: result });
     res.json(result);
   } catch (err) {
@@ -139,13 +153,14 @@ router.put('/governor/tax-rate', async (req, res) => {
 // PUT /api/governor/policy — 섹터 정책 변경
 // body: { wallet, sectorCode, policy }
 // ─────────────────────────────────────────────────────────────
-router.put('/governor/policy', async (req, res) => {
-  const { wallet, sectorCode, policy } = req.body || {};
+router.put('/governor/policy', requireAuth, async (req, res) => {
+  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  const { sectorCode, policy } = req.body || {};
   if (!wallet || !sectorCode || !policy) {
-    return res.status(400).json({ error: 'wallet, sectorCode, policy required' });
+    return res.status(400).json({ error: 'sectorCode and policy required' });
   }
   try {
-    const result = await siegeService.updateSectorPolicy(wallet, sectorCode, policy);
+    const result = await siegeService.updateSectorPolicy(wallet.toLowerCase().trim(), sectorCode, policy);
     if (!result.success) return res.status(400).json({ error: result.error });
     res.json(result);
   } catch (err) {
