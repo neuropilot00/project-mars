@@ -59,12 +59,16 @@ router.post('/upgrades/upgrade', async (req, res) => {
   if (!wallet || !claimId || !upgradeType) {
     return res.status(400).json({ error: 'wallet, claimId, upgradeType required' });
   }
+  const claimIdInt = parseInt(claimId, 10);
+  if (!Number.isInteger(claimIdInt) || claimIdInt <= 0) {
+    return res.status(400).json({ error: 'INVALID_CLAIM_ID' });
+  }
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const result = await upgradeSvc.upgradeTerritory(
-      client, wallet, parseInt(claimId), upgradeType
+      client, wallet, claimIdInt, upgradeType
     );
     await client.query('COMMIT');
 
