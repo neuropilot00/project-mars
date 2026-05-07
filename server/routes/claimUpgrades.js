@@ -6,6 +6,15 @@
 const express = require('express');
 const router  = express.Router();
 const { pool } = require('../db');
+const rateLimit = require('express-rate-limit');
+
+const writeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
 
 let upgradeSvc;
 try { upgradeSvc = require('../services/claimUpgrades'); } catch (_) {}
@@ -53,7 +62,7 @@ router.get('/upgrades/my-upgrades', async (req, res) => {
 });
 
 // ── POST /api/upgrades/upgrade ────────────────────────────────────────────────
-router.post('/upgrades/upgrade', async (req, res) => {
+router.post('/upgrades/upgrade', writeLimiter, async (req, res) => {
   if (!upgradeSvc) return res.status(503).json({ error: 'Service unavailable' });
   const { wallet, claimId, upgradeType } = req.body;
   if (!wallet || !claimId || !upgradeType) {
