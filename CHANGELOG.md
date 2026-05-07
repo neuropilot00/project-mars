@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.52 — tactical-lab WS 함선 격침 폭발 버그 수정
+
+**수정 (MEDIUM):**
+
+- `assets/tactical-lab-v11.html` — WS 'frame' 핸들러에서 `CATALOG` 미정의 변수 참조 수정. WS 모드에서 이전 프레임 대비 사라진 함선(격침) 감지 시 `CATALOG.ships` 조회가 ReferenceError를 발생시켜 폭발 이펙트/격침 로그가 표시되지 않는 버그. `CATALOG` → `SHIPS[info.code]` 직접 조회로 교체.
+
+**검수 (버그 없음):**
+
+- Fleet Command UX — 진형/기동 변경 모달 유지, 에러 메시지 커버리지, 형성 미리보기 로직 정상
+- Ship Economy UX — 강화 확인 모달 (성공확률/GP/재료 보유/필요), 청사진 카드 재료 표시 정상
+- `fleet-assault-demo.html` — Git 미추적 파일. `tactical-lab-v11.html`이 단일 프로덕션 파일임 확인
+
+---
+
 ## 2026-05-07 v7.51 — 전체 게임 기능 검수 (버그 없음)
 
 **감사 완료 (버그 없음):**

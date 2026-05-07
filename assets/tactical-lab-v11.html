@@ -2547,14 +2547,15 @@ function connectBattleWs() {
             for (const [sid, info] of _wsPrevShips) {
               if (!currIds.has(sid)) {
                 // size_class → 폭발 반경 계산
-                const cat = CATALOG && CATALOG.ships && CATALOG.ships.find(st => st.code === info.code);
-                const sz = cat ? cat.size_class : 'frigate';
+                const shipDef = SHIPS[info.code];
+                const sz = shipDef ? shipDef.size : 'frigate';
+                const shipName = shipDef ? (shipDef.name || info.code) : info.code;
                 const radMap = { frigate:1.2, destroyer:1.8, cruiser:2.8, battleship:4.0, titan:6.0 };
                 const r = radMap[sz] || 1.5;
                 mkExp(info.x, info.y, r);
                 if (sz === 'battleship' || sz === 'titan') {
                   mkShockwave(info.x, info.y, r * 25);
-                  addLog('kl', `☠ ${cat ? (cat.name_ko || cat.name_en) : sz} 격침`);
+                  addLog('kl', `☠ ${shipName} 격침`);
                 }
               }
             }

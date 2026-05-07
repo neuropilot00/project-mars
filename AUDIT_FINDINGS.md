@@ -1,3 +1,20 @@
+# OCCUPY MARS — Codebase Audit (v7.52 / 2026-05-07)
+
+## 🛠 v7.52 — tactical-lab WS 함선 격침 폭발 추적 버그 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `assets/tactical-lab-v11.html` WS 'frame' 핸들러 | `CATALOG` 변수 미정의 — WS 모드에서 함선 격침 시 `ReferenceError: CATALOG is not defined` 발생 (try-catch로 침묵 처리, 폭발 이펙트/격침 로그 미표시) | 🟡 MEDIUM | ✅ `SHIPS[info.code]` 직접 조회로 교체 |
+
+### 추가 검토 영역 (버그 없음)
+| 영역 | 결과 |
+|------|------|
+| Fleet Command UX (`index.html`) — `fleetPreviewPoint`, `renderFleetPreview`, 진형/기동 변경 모달 유지, 에러 메시지 커버리지 | ✅ 정상 |
+| Ship Economy UX (`index.html`) — `syUpgradeBtn` GP/재료 표시, 강화 확인 모달 (성공확률/GP/재료), `syBuildRequirementInfo` 보유/필요 표시 | ✅ 정상 |
+| `fleet-assault-demo.html` — Git 미추적 파일 (로컬에 존재하지 않음). `tactical-lab-v11.html`이 단일 프로덕션 파일. | ✅ 동기화 불필요 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.51 / 2026-05-07)
 
 ## ✅ v7.51 — 전체 게임 기능 검수 (버그 없음) (2026-05-07)
