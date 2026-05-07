@@ -341,11 +341,12 @@ async function buyout(buyerWallet, auctionId) {
 
     await client.query('COMMIT');
 
-    // ✅ Referral commission + season score
+    // ✅ [v7.42] Referral commission — use a fresh pool connection (not the committed client)
     try {
       const { creditReferralCommission } = require('../db');
       const seasonSvc = require('./season');
-      await creditReferralCommission(client, w, 'auction_buy', buyoutAmt, 'gp');
+      const rc = await pool.connect();
+      try { await creditReferralCommission(rc, w, 'auction_buy', buyoutAmt, 'gp'); } finally { rc.release(); }
       seasonSvc.addSeasonScore(w, 'gp_spend', buyoutAmt).catch(() => {});
       seasonSvc.addSeasonScore(w, 'trade', 1).catch(() => {});
     } catch (_re) {}
@@ -452,11 +453,12 @@ async function settleAuction(auctionId) {
       );
       await client.query('COMMIT');
 
-      // ✅ Referral commission + season score for winner
+      // ✅ [v7.42] Referral commission — fresh pool connection (client already committed)
       try {
         const { creditReferralCommission } = require('../db');
         const seasonSvc = require('./season');
-        await creditReferralCommission(client, auction.current_bidder_wallet, 'auction_buy', auction.current_bid, 'gp');
+        const rc = await pool.connect();
+        try { await creditReferralCommission(rc, auction.current_bidder_wallet, 'auction_buy', auction.current_bid, 'gp'); } finally { rc.release(); }
         seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'gp_spend', auction.current_bid).catch(() => {});
         seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'trade', 1).catch(() => {});
       } catch (_re) {}

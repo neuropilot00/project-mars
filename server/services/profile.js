@@ -68,6 +68,16 @@ async function _changeField(wallet, field, value, cfg) {
     // Validate length
     if (value && value.length > maxLen) throw new Error(`Too long (max ${maxLen} chars)`);
 
+    // ✅ [v7.42] Nickname uniqueness check inside transaction — prevents TOCTOU race
+    // where two wallets simultaneously claim the same nickname
+    if (field === 'nickname' && value) {
+      const dupRes = await client.query(
+        `SELECT wallet_address FROM users WHERE LOWER(nickname)=LOWER($1) AND LOWER(wallet_address)!=LOWER($2)`,
+        [value, wallet]
+      );
+      if (dupRes.rows.length) throw new Error('Nickname already taken');
+    }
+
     // Cooldown check (skip for first-set free fields)
     if (gpCost > 0 || (field !== 'nickname' && field !== 'motto')) {
       const cdRes = await client.query(
@@ -140,12 +150,7 @@ async function setNickname(wallet, nickname) {
   if (!nickname) throw new Error('Nickname cannot be empty');
   if (!/^[\w\s\-'.!?#@&()]{1,20}$/.test(nickname)) throw new Error('Invalid characters in nickname');
   if (cfg.blacklist.some(bw => nickname.toLowerCase().includes(bw))) throw new Error('Nickname contains forbidden word');
-  // Uniqueness check
-  const dupRes = await pool.query(
-    `SELECT wallet_address FROM users WHERE LOWER(nickname)=LOWER($1) AND LOWER(wallet_address)!=LOWER($2)`,
-    [nickname, wallet]
-  );
-  if (dupRes.rows.length) throw new Error('Nickname already taken');
+  // Uniqueness is checked again inside _changeField() within the transaction (TOCTOU-safe)
   return _changeField(wallet, 'nickname', nickname, cfg);
 }
 

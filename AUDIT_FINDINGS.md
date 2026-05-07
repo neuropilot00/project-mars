@@ -1,4 +1,14 @@
-# OCCUPY MARS — Codebase Audit (v7.37 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.42 / 2026-05-07)
+
+## 🔴→✅ v7.42 — auto-win TOCTOU + 닉네임 TOCTOU + auction 커넥션 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `api.js POST /guild/war/auto-win` — 쿨다운 체크+INSERT 비원자 | 동시 2개 요청 → 24h 쿨다운 우회, 이중 포인트 지급 | 🔴 HIGH | ✅ FOR UPDATE + 단일 트랜잭션 |
+| `profile.js setNickname()/_changeField()` — 유일성 체크 트랜잭션 외부 | 동시 2개 요청 → 같은 닉네임 중복 등록 가능 | 🟡 MEDIUM | ✅ 트랜잭션 내부로 이동 |
+| `auction.js buyout()/settleExpired()` — COMMIT 후 committed client 재사용 | creditReferralCommission이 닫힌 트랜잭션 client 사용 | 🟡 MEDIUM | ✅ fresh pool connection 사용 |
+
+---
 
 ## 🔴→✅ v7.40 — commanderActions/marketplace JWT + battleRewards FOR UPDATE (2026-05-07)
 

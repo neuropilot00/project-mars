@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.42 — auto-win TOCTOU + 닉네임 TOCTOU + auction 커넥션 수정
+
+**수정 (HIGH):**
+- `server/routes/api.js` `/guild/war/auto-win`: 쿨다운 체크(SELECT)와 포인트 INSERT가 별도 `pool.query()` → 동시 요청 2개가 쿨다운을 통과 후 이중 포인트 지급 가능. 전체 로직을 단일 트랜잭션으로 묶고 `guild_wars FOR UPDATE`로 직렬화.
+
+**수정 (MEDIUM):**
+- `server/services/profile.js` `_changeField()`: `setNickname()`의 닉네임 중복 체크가 트랜잭션 외부(pool.query) → 동시 2개 요청이 같은 닉네임 선점 가능. 유일성 체크를 `_changeField()` 트랜잭션 내부로 이동.
+- `server/services/auction.js` `buyout()` + `settleExpired()`: `COMMIT` 후 이미 사용된 transaction `client`로 `creditReferralCommission()` 호출 → pool에서 fresh connection(`rc`) 획득 후 커미션 처리로 변경.
+
+---
+
 ## 2026-05-07 v7.41 — transport/vip JWT 인증 + auction/donate rowCount 수정
 
 **수정 (HIGH):**
