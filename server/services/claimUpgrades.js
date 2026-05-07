@@ -248,7 +248,7 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
 
   // Check wallet balance
   const userRes = await client.query(
-    `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`, [w]
+    `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]
   );
   if (!userRes.rows.length) throw new Error('User not found');
   const balance = parseFloat(userRes.rows[0].gp_balance) || 0;
