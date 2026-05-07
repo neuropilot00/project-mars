@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v6.89 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.92 / 2026-05-07)
+
+## 🔴→✅ v6.90~v6.92 — ship/fleet FOR UPDATE 경쟁조건 + crafting LOWER() + auto-renew guard (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/ship.js` — `completeBuildJob`, `cancelBuildJob`, `getOrCreateDefaultFleet`, `getFleetSummary` | LOWER(owner_wallet) 미적용 + fleet/flagship SELECT에 FOR UPDATE 없음 | ✅ Codex: LOWER() + FOR UPDATE 추가 (v6.90) |
+| `server/services/ship.js` — `repairShip`, `chargeShield`, `getShipMarketListings` | `targetHpPct`, `units`, `maxPrice` 파라미터에 NaN/non-finite 검증 없음 | ✅ Codex: `Number.isFinite()` guard 추가 (v6.90) |
+| `server/services/ship.js` — `ensureFleetHasFlagship`, `cancelShipListing`, `buyShipListing` | flagship 후보 SELECT에 FOR UPDATE 없음; 마켓 취소/구매 시 listing만 잠기고 ship 미잠금 | ✅ Codex: FOR UPDATE OF sml, s (ship도 잠금) (v6.90) |
+| `server/services/fleet.js` — `deleteFleet`, `setFlagship`, `ensureFlagship` | alive ships / existing flagships SELECT에 FOR UPDATE 없음 → 동시 요청이 같은 함선 두 번 수정 가능 | ✅ Codex: SELECT ... FOR UPDATE 추가 (v6.90) |
+| `server/services/crafting.js` — `craftItem` | `WHERE wallet_address=$1` (LOWER 없음) — SELECT(GP 조회)와 UPDATE(GP 환불) 두 곳 | ✅ LOWER() 추가 (v6.91) |
+| `server/services/resourceCraft.js` — `getMyJobs`, `startCraft`, `claimJob`, `cancelJob` | `WHERE wallet_address = $N` 6곳 LOWER 없음 | ✅ LOWER() 전체 추가 (v6.91) |
+| `server/index.js` — auto-renew 스케줄러 (Shield L863, Effect L922) | `UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2` — LOWER 없음 + AND guard 없음 (FOR UPDATE SELECT는 이미 있었음) | ✅ LOWER() + AND pp_balance >= $1 추가 (v6.92) |
+
+**v6.92 이후 남은 unguarded deduction/missing LOWER: 0건 (서버 전체 grep 확인)**
+
+---
 
 ## 🔴→✅ v6.87 — GP/PP 잔액 가드 + wallet LOWER() 전체 서비스 일괄 수정 (2026-05-07)
 

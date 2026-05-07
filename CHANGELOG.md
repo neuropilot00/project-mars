@@ -1,5 +1,36 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.92 — auto-renew 스케줄러 + ship/fleet FOR UPDATE + crafting LOWER()
+
+### server/index.js (v6.92)
+- Shield auto-renew 스케줄러: SELECT LOWER() + FOR UPDATE 이미 있음, UPDATE에 LOWER() + `AND pp_balance >= $1` guard 추가
+- Effect auto-renew 스케줄러: 동일 패턴 수정
+
+### server/services/ship.js (v6.90, Codex 14개 수정)
+- `completeBuildJob`: LOWER(owner_wallet) + FOR UPDATE on fleet ownership read + flagship existence check
+- `cancelBuildJob`: LOWER(wallet_address) on job ownership check
+- `getOrCreateDefaultFleet`: LOWER(owner_wallet) + FOR UPDATE on fleet lookup
+- `getFleetSummary`: LOWER() on all wallet comparisons
+- `repairShip`: NaN/non-finite guard on targetHpPct
+- `chargeShield`: NaN/non-finite guard on units
+- `consumeShipUpgradeMaterial`: LOWER(wallet_address) on inventory deduction
+- `getShipMarketListings`: NaN/non-finite guard on maxPrice
+- `ensureFleetHasFlagship`: FOR UPDATE on flagship and candidate ship locks
+- `cancelShipListing`, `buyShipListing`: FOR UPDATE OF sml, s (ship locked alongside listing)
+
+### server/services/fleet.js (v6.90, Codex 4개 수정)
+- `deleteFleet`: FOR UPDATE on alive ships + FOR UPDATE on target fleet
+- `setFlagship`: FOR UPDATE on existing flagships before clearing
+- `ensureFlagship`: FOR UPDATE on flagship/candidate selection
+
+### server/services/crafting.js (v6.91)
+- craftItem: SELECT + refund UPDATE wallet_address → LOWER()
+
+### server/services/resourceCraft.js (v6.91)
+- getMyJobs, startCraft (사용자 확인/재고 JOIN/재료 차감), claimJob, cancelJob: 모든 wallet_address → LOWER()
+
+---
+
 ## 2026-05-07 v6.89 — api.js + 최종 잔액 가드 완성 (전체 완료)
 
 ### server/routes/api.js
