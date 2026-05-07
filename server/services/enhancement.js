@@ -116,9 +116,9 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
   const enabled = _enhEnabledRaw === true || String(_enhEnabledRaw).replace(/"/g, '') === 'true';
   if (!enabled) throw new Error('Enhancement system is currently disabled');
 
-  // Load instance
+  // Load instance — FOR UPDATE prevents two concurrent enhance calls from both advancing the level
   const instRes = await client.query(
-    'SELECT ii.*, it.name, it.code, it.icon, it.category FROM item_instances ii JOIN item_types it ON it.id = ii.item_type_id WHERE ii.id = $1 AND ii.wallet = $2',
+    'SELECT ii.*, it.name, it.code, it.icon, it.category FROM item_instances ii JOIN item_types it ON it.id = ii.item_type_id WHERE ii.id = $1 AND ii.wallet = $2 FOR UPDATE OF ii',
     [instanceId, w]
   );
   if (!instRes.rows.length) throw new Error('Item instance not found or not owned');

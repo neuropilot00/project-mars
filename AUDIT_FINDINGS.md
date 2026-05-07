@@ -1,3 +1,16 @@
+# OCCUPY MARS — Codebase Audit (v7.35 / 2026-05-07)
+
+## 🔴→✅ v7.35 — enhancement/marketplace/governance FOR UPDATE 경쟁 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `enhancement.js enhanceItem()` item_instances FOR UPDATE 누락 | 동시 강화 2회 → 동일 아이템 레벨 2회 상승 + GP 2회 차감 | 🔴 HIGH | ✅ FOR UPDATE OF ii |
+| `marketplace.js cancelListing()` listing FOR UPDATE 누락 | 동시 취소 2개 → 광물/아이템/클레임 이중 반환 | 🔴 HIGH | ✅ FOR UPDATE |
+| `governance.js recalculateGovernor()` vice_governor GP 이전 FOR UPDATE 누락 | 동시 거버넌스 재계산 시 이중 이전 가능 | 🟡 MEDIUM | ✅ FOR UPDATE |
+| `governance.js recalculateCommander()` vice_commander GP 이전 FOR UPDATE 누락 | 동일 | 🟡 MEDIUM | ✅ FOR UPDATE |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.34 / 2026-05-07)
 
 ## 🔴→✅ v7.34 — harvest 이중 수확 + SHIP_IN_BATTLE 우회 수정 (2026-05-07)

@@ -119,7 +119,7 @@ async function recalculateGovernor(client, sectorId) {
         [oldVice, sectorId]
       );
       const oldPos = await client.query(
-        `SELECT gp_balance FROM governance_positions WHERE role = 'vice_governor' AND sector_id = $1`,
+        `SELECT gp_balance FROM governance_positions WHERE role = 'vice_governor' AND sector_id = $1 FOR UPDATE`,
         [sectorId]
       );
       const oldGP = oldPos.rows[0] ? parseFloat(oldPos.rows[0].gp_balance) : 0;
@@ -236,7 +236,7 @@ async function recalculateCommander(client) {
         [oldVice]
       );
       const oldPos = await client.query(
-        `SELECT gp_balance FROM governance_positions WHERE role = 'vice_commander' AND sector_id IS NULL`
+        `SELECT gp_balance FROM governance_positions WHERE role = 'vice_commander' AND sector_id IS NULL FOR UPDATE`
       );
       const oldGP = oldPos.rows[0] ? parseFloat(oldPos.rows[0].gp_balance) : 0;
       if (oldGP > 0) {

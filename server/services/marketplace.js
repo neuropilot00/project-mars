@@ -177,8 +177,9 @@ async function createListing(client, seller, type, params) {
 // ── Cancel a listing ──
 async function cancelListing(client, listingId, wallet) {
   const w = wallet.toLowerCase();
+  // FOR UPDATE: 동시 취소 요청 2개가 에스크로를 이중 반환하는 경쟁 방지
   const res = await client.query(
-    "SELECT * FROM marketplace_listings WHERE id = $1 AND seller = $2 AND status = 'active'",
+    "SELECT * FROM marketplace_listings WHERE id = $1 AND seller = $2 AND status = 'active' FOR UPDATE",
     [listingId, w]
   );
   if (!res.rows.length) throw new Error('Listing not found or not yours');

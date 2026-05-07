@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.35 — enhancement/marketplace/governance FOR UPDATE 경쟁 수정
+
+**수정:**
+- `server/services/enhancement.js` `enhanceItem()`: `item_instances` 조회에 `FOR UPDATE OF ii` 누락 → 동시 강화 2회 요청이 둘 다 레벨 올릴 수 있는 경쟁 가능 → `FOR UPDATE OF ii` 추가.
+- `server/services/marketplace.js` `cancelListing()`: 리스팅 조회에 `FOR UPDATE` 누락 → 동시 취소 2개 요청이 에스크로(광물/클레임/아이템)를 이중 반환 가능 → `FOR UPDATE` 추가.
+- `server/services/governance.js` `recalculateGovernor()` vice_governor GP 이전 SELECT — `FOR UPDATE` 누락 → 동시 거버넌스 재계산 시 이중 이전 가능 → `FOR UPDATE` 추가.
+- `server/services/governance.js` `recalculateCommander()` vice_commander GP 이전 SELECT — 동일 수정.
+
+**감사 완료 (버그 없음):**
+- lottery.js — FOR UPDATE + rowCount 패턴 정상.
+- staking.js — FOR UPDATE + rowCount 패턴 정상. withdrawStake FOR UPDATE + status 체크 정상.
+- dividends.js — distributeLastWeek FOR UPDATE + ON CONFLICT DO NOTHING 정상.
+- marketplace.js buyListing — FOR UPDATE 정상, 동시 구매 경쟁 차단됨.
+- enhancement.js GP deduction — FOR UPDATE + AND balance>= + rowCount 정상.
+- achievement.js — ON CONFLICT (wallet, achievement_key) DO NOTHING RETURNING 정상.
+
+---
+
 ## 2026-05-07 v7.34 — harvest 첫 수확 경쟁 + SHIP_IN_BATTLE 검사 우회 수정
 
 **수정:**
