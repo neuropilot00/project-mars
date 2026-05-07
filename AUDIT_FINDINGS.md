@@ -24,6 +24,15 @@
 
 **v7.07 이후 확인된 남은 경쟁조건/비원자성 패턴: 0건 (주요 서비스 전체 검토 완료)**
 
+### v7.08~v7.10 추가 수정
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/siege.js` — `declareSiege()` | `sector_governance` 조회에 FOR UPDATE 없음 → 두 동시 선언이 모두 `active_siege_id = NULL` 확인 → 이중 시즈 생성, 첫 번째 GP 손실 | ✅ `FOR UPDATE OF sg` 추가 (v7.08) |
+| `server/services/ship.js` — `buyShipListing()` L1536 | `Math.floor(price * feePct) / 100` 연산자 우선순위 버그 → 소수 GP가 DB에 기록됨 | ✅ `Math.floor(price * feePct / 100)` 수정 (v7.08) |
+| `server/services/ship.js` — `chargeShield()` L931-934 | `chargeUnits > canAdd` 시 전체 요청 거절 → `SHIELD_FULL` 오류 | ✅ clamp 처리로 변경 (partial charge 허용) (v7.08) |
+| 서버 전체 require smoke test (12개 서비스 + 6개 라우트) | 모두 에러 없이 로드 | ✅ 18/18 OK |
+
 ---
 
 ## 🔴→✅ v7.02 — api.js/admin.js + 18개 파일 balance credit LOWER() 완전 정리 (2026-05-07)
