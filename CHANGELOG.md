@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.48 — 프론트엔드 누락 인증 헤더 일괄 수정 (v7.47 후속 패치)
+
+**수정 (HIGH — index.html 57개 fetch 호출):**
+
+v7.47에서 서버 write endpoint에 requireAuth를 추가한 후 프론트엔드 호출이 Authorization 헤더 없이 요청을 보내 로그인 유저도 401을 받는 회귀 버그 수정.
+
+- `index.html` — 50개 단일라인 `method:'POST',headers:{'Content-Type':'application/json'}` → `headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders())` 일괄 교체 (Python 스크립트 /api/auth/* 제외)
+- `index.html` — governor tax-rate PUT, governor policy PUT, governor commander/bounty POST auth 헤더 추가
+- `index.html` — `/api/upload` POST + `/api/claim/:id/image` PUT의 구 `localStorage.getItem('jwt')` 키를 `getAuthHeaders()`로 교체
+- `index.html` — `/api/notifications/read`, `read-all`에 `getAuthHeaders()` 추가 (기존 x-wallet 헤더는 유지)
+- `index.html` — `/api/bounty/post`, `/api/bounty/cancel` (3개 call site) auth 헤더 추가
+- Arena `arenaAuthHeaders()` 함수 추가 + 10개 Cantina POST 적용 (v7.47 내 별도 커밋)
+
+**영향 없는 호출 (의도적으로 미수정):**
+- `/api/auth/login`, `/api/auth/find-email`, `/api/auth/reset-password`, `/api/auth/reset-password/verify` — 사전 인증 endpoint
+
 ## 2026-05-07 v7.47 — 37개 라우트 파일 JWT 인증 일괄 적용 (CRITICAL 보안 패치)
 
 **수정 (CRITICAL / HIGH — 37개 라우트 파일, 70+ 엔드포인트):**

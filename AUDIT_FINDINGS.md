@@ -1,4 +1,12 @@
-# OCCUPY MARS — Codebase Audit (v7.47 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.48 / 2026-05-07)
+
+## ✅ v7.48 — 프론트엔드 누락 인증 헤더 일괄 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `index.html` — 54개 POST/PUT fetch 호출이 `getAuthHeaders()` 없이 `Content-Type` 헤더만 전송 | v7.47 서버 패치 후 cosmetic/shop/marketplace/items/enhance/guild/missions/season/campaign/bounty/governor 등 모든 write endpoint에서 로그인 유저도 401 | 🔴 CRITICAL | ✅ `Object.assign({...}, getAuthHeaders())` 일괄 적용 (54개) |
+| `/api/upload` + `/api/claim/:id/image` PUT — `localStorage.getItem('jwt')` 구 키 사용 | 토큰을 항상 빈 문자열로 전송 → 401 | 🔴 HIGH | ✅ `getAuthHeaders()` 로 교체 |
+| `/api/notifications/read`, `read-all` — `x-wallet` 헤더만 전송 | requireAuth 추가 후 401 | 🔴 HIGH | ✅ `Object.assign({...,x-wallet:w}, getAuthHeaders())` |
 
 ## 🔴→✅ v7.47 — 37개 라우트 파일 JWT 인증 일괄 (2026-05-07)
 
