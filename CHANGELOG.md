@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.22 — TOCTOU 전체 스윕 완료 확인
+
+전체 server/ 대상 최종 grep 스캔: 미보호 balance/quantity 차감 0건, SQL 인젝션 경로 0건, connection leak 0건. 추가 확인: bounty/dailyOps/shipScheduler/resourceCraft/battleRewards/fleetBattles 모두 클린.
+
+---
+
 ## 2026-05-07 v7.21 — 길드 Treasury + attack_boost 가드 추가
 
 **server/services/guild.js** — levelUp/startResearch/declareWar 3곳 `gp_treasury` 차감 UPDATE에 `AND gp_treasury >= $1` 가드 + rowCount 확인 추가.

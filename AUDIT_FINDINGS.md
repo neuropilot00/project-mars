@@ -1,5 +1,26 @@
 # OCCUPY MARS — Codebase Audit (v7.21 / 2026-05-07)
 
+## ✅ v7.22 — TOCTOU/음수잔액 전체 스윕 완료 확인 (2026-05-07)
+
+**최종 grep 스캔 결과 (전체 server/ 대상):**
+- `gp_balance/pp_balance/usdt_balance = balance - $N` 패턴 중 `AND balance >= $N` 가드 없는 것: **0건**
+- `gp_treasury = gp_treasury - $N` 패턴 중 `AND gp_treasury >= $N` 가드 없는 것: **0건**
+- `quantity = quantity - $N` 패턴 중 `AND quantity >= $N` 가드 없는 것: **0건**
+- SQL 인젝션 가능한 req.* 직접 템플릿 리터럴 삽입: **0건**
+- `pool.connect()` 중 `finally { client.release() }` 없는 것: **0건**
+
+**이번 루프에서 추가 검증한 클린 영역:**
+- `bounty.js`: FOR UPDATE + AND gp_balance >= $1 ✅
+- `dailyOps.js` claim: FOR UPDATE + reward_claimed = FALSE 원자적 잠금 ✅
+- `shipScheduler.js`: FOR UPDATE on build job + fleet ✅
+- `resourceCraft.js` claimJob: FOR UPDATE on job row ✅
+- `battleRewards.js`: FOR UPDATE on battle row + idempotency check ✅
+- `ships.js` 시장 라우트: parseInt/Number.isFinite 검증 + clean error map ✅
+- `fleetBattles.js` declare-pvp: FOR UPDATE on both fleets + 재확인 ✅
+- SQL 쿼리 내 동적 컬럼명(`balCol`)은 항상 2개 고정값 중 하나 → SQL injection 없음 ✅
+
+---
+
 ## 🔴→✅ v7.21 — 길드 Treasury + attack_boost uses_remaining 가드 추가 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |
