@@ -225,38 +225,40 @@ async function drawRound(round, cfg) {
     );
     if (!lockRes.rows.length) { await client.query('ROLLBACK'); return; }
 
-    const totalTickets = parseInt(round.ticket_count);
+    // Use fresh locked values — round param may be stale snapshot from scheduler SELECT
+    const lockedRound = lockRes.rows[0];
+    const totalTickets = parseInt(lockedRound.ticket_count);
 
     if (totalTickets < cfg.minTickets) {
       // Not enough tickets — cancel round, refund everyone
       await client.query(
         `UPDATE lottery_rounds SET status = 'cancelled', drawn_at = NOW() WHERE id = $1`,
-        [round.id]
+        [lockedRound.id]
       );
       // Refund all tickets
       const ticks = await client.query(
         `SELECT wallet, COUNT(*) AS n FROM lottery_tickets WHERE round_id = $1 GROUP BY wallet`,
-        [round.id]
+        [lockedRound.id]
       );
       for (const r of ticks.rows) {
-        const refund = parseFloat(round.ticket_price_gp) * parseInt(r.n);
+        const refund = parseFloat(lockedRound.ticket_price_gp) * parseInt(r.n);
         await client.query(
           `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
           [r.wallet, refund]
         );
       }
       await client.query('COMMIT');
-      console.log(`[LOTTERY] Round #${round.round_number} cancelled (not enough tickets), refunded`);
+      console.log(`[LOTTERY] Round #${lockedRound.round_number} cancelled (not enough tickets), refunded`);
     } else {
       // Pick random winner
       const winnerTicket = Math.floor(Math.random() * totalTickets) + 1;
       const winnerRes = await client.query(
         `SELECT wallet FROM lottery_tickets WHERE round_id = $1 AND ticket_number = $2`,
-        [round.id, winnerTicket]
+        [lockedRound.id, winnerTicket]
       );
       const winnerWallet = winnerRes.rows[0]?.wallet;
 
-      const prize = parseFloat(round.prize_pool_gp);
+      const prize = parseFloat(lockedRound.prize_pool_gp);
 
       if (winnerWallet && prize > 0) {
         // Award prize
@@ -268,7 +270,7 @@ async function drawRound(round, cfg) {
         await client.query(
           `UPDATE lottery_tickets SET is_winner = true
             WHERE round_id = $1 AND ticket_number = $2`,
-          [round.id, winnerTicket]
+          [lockedRound.id, winnerTicket]
         );
       }
 
@@ -277,15 +279,15 @@ async function drawRound(round, cfg) {
         `UPDATE lottery_rounds
             SET status = 'completed', winner_wallet = $2, winner_ticket = $3, drawn_at = NOW()
           WHERE id = $1`,
-        [round.id, winnerWallet || null, winnerTicket]
+        [lockedRound.id, winnerWallet || null, winnerTicket]
       );
 
       await client.query('COMMIT');
 
-      console.log(`[LOTTERY] Round #${round.round_number} drawn — winner: ${winnerWallet?.slice(0,8)}... prize: ${prize} GP`);
+      console.log(`[LOTTERY] Round #${lockedRound.round_number} drawn — winner: ${winnerWallet?.slice(0,8)}... prize: ${prize} GP`);
 
       // Dividend pool: route portion of house cut
-      const houseGp = parseFloat(round.house_gp) || 0;
+      const houseGp = parseFloat(lockedRound.house_gp) || 0;
       if (houseGp > 0) {
         try { const divSvc = require('./dividends'); divSvc.addToPool(houseGp, 'lottery').catch(() => {}); } catch (_dv) {}
       }
@@ -295,10 +297,10 @@ async function drawRound(round, cfg) {
         notifyPlayer(winnerWallet, `🎰 You won the lottery! +${Math.round(prize)} GP`, 'lottery').catch(() => {});
       }
       if (logGPActivity && winnerWallet && prize > 0) {
-        logGPActivity(winnerWallet, prize, 'lottery_win', `Lottery Round #${round.round_number}`).catch(() => {});
+        logGPActivity(winnerWallet, prize, 'lottery_win', `Lottery Round #${lockedRound.round_number}`).catch(() => {});
       }
       if (newsService && winnerWallet) {
-        newsService.onLotteryWin(winnerWallet, prize, round.round_number).catch(() => {});
+        newsService.onLotteryWin(winnerWallet, prize, lockedRound.round_number).catch(() => {});
       }
       if (seasonService && winnerWallet) {
         seasonService.addSeasonScore(winnerWallet, 'gp_earn', Math.round(prize)).catch(() => {});
@@ -309,7 +311,7 @@ async function drawRound(round, cfg) {
     if (cfg.enabled) {
       const newRound = await createRound(cfg);
       // Optionally roll over prize pool for jackpot_rollover setting
-      if (cfg.jackpotRollover && round.status === 'cancelled') {
+      if (cfg.jackpotRollover && lockedRound.status === 'cancelled') {
         // Already handled by refund above — no rollover needed when cancelled
       }
       console.log(`[LOTTERY] New round #${newRound.round_number} created, ends ${newRound.ends_at}`);

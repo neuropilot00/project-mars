@@ -157,71 +157,87 @@ async function declareHijack(params) {
  * battleScheduler에서 hijack 타입 전투 종료 후 호출
  */
 async function handlePhase1Complete(phase1BattleId) {
-  // 이 battle이 hijack의 phase 1인지 확인
-  const { rows: hjRows } = await pool.query(`
-    SELECT hb.*, fb.winner_side
-    FROM hijack_battles hb
-    JOIN fleet_battles fb ON fb.id = hb.phase1_battle_id
-    WHERE hb.phase1_battle_id = $1
-  `, [phase1BattleId]);
-  
-  if (!hjRows[0]) return; // 일반 전투
-  
-  const hijack = hjRows[0];
-  const winner = hijack.winner_side;
-  
-  // Phase 1 종료 처리
-  await pool.query(`
-    UPDATE hijack_battles 
-    SET phase1_ended_at = NOW(), phase1_winner = $1
-    WHERE id = $2
-  `, [winner, hijack.id]);
-  
-  if (winner === 'atk') {
-    await pool.query(`UPDATE hijack_battles SET phase = 'phase2' WHERE id = $1`, [hijack.id]);
-    console.log(`[hijack] ${hijack.id} Phase 1 won → Phase 2 starting`);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
-    // declare-with-pp 방식이면 자동으로 Phase 2 시작 (pending_pixels 있으면 자동 방식)
-    if (hijack.pending_pixels) {
-      try {
-        // Phase 1 참여자 정보에서 함대 ID 가져오기
-        const { rows: parts } = await pool.query(`
+    // Lock hijack row inside transaction — prevents double-processing on concurrent calls
+    const { rows: hjRows } = await client.query(`
+      SELECT hb.*, fb.winner_side
+      FROM hijack_battles hb
+      JOIN fleet_battles fb ON fb.id = hb.phase1_battle_id
+      WHERE hb.phase1_battle_id = $1
+        AND hb.phase = 'phase1'
+      FOR UPDATE OF hb
+    `, [phase1BattleId]);
+
+    if (!hjRows[0]) {
+      await client.query('ROLLBACK');
+      return; // Not a hijack phase1 battle, or already processed
+    }
+
+    const hijack = hjRows[0];
+    const winner = hijack.winner_side;
+
+    // Phase 1 종료 처리 — status + winner in single atomic update
+    await client.query(`
+      UPDATE hijack_battles
+      SET phase1_ended_at = NOW(), phase1_winner = $1
+      WHERE id = $2
+    `, [winner, hijack.id]);
+
+    let autoStartPayload = null;
+
+    if (winner === 'atk') {
+      await client.query(`UPDATE hijack_battles SET phase = 'phase2' WHERE id = $1`, [hijack.id]);
+
+      // Collect Phase 2 auto-start data while inside transaction
+      if (hijack.pending_pixels) {
+        const { rows: parts } = await client.query(`
           SELECT fleet_id, wallet_address, side
           FROM fleet_battle_participants WHERE battle_id = $1
         `, [phase1BattleId]);
         const atkPart = parts.find(p => p.side === 'atk');
         const defPart = parts.find(p => p.side === 'def');
         if (atkPart && defPart) {
-          // 약간의 딜레이 후 Phase 2 자동 시작
-          setTimeout(() => {
-            startPhase2(hijack.id, atkPart.wallet_address, atkPart.fleet_id, defPart.fleet_id)
-              .catch(err => console.error(`[hijack] auto Phase 2 start error:`, err.message));
-          }, 3000);
+          autoStartPayload = { hijackId: hijack.id, atkWallet: atkPart.wallet_address, atkFleet: atkPart.fleet_id, defFleet: defPart.fleet_id };
         }
-      } catch (autoErr) {
-        console.error(`[hijack] auto Phase 2 prep error:`, autoErr.message);
       }
-    }
-    // 기존 방식 (수동): UI에서 "Phase 2 진행" 버튼 눌러야 함
-  } else {
-    // 하이잭 실패 — Phase 1 패배
-    await pool.query(`
-      UPDATE hijack_battles
-      SET phase = 'failed', completed_at = NOW(), final_result = 'defender_won'
-      WHERE id = $1
-    `, [hijack.id]);
+    } else {
+      // 하이잭 실패 — Phase 1 패배: status + refund in one transaction
+      await client.query(`
+        UPDATE hijack_battles
+        SET phase = 'failed', completed_at = NOW(), final_result = 'defender_won'
+        WHERE id = $1
+      `, [hijack.id]);
 
-    // declare-with-pp 방식이면 90% 환불
-    if (hijack.pending_pixels && parseFloat(hijack.attack_cost || 0) > 0) {
-      const refund90 = Math.round(parseFloat(hijack.attack_cost) * 0.9 * 1000000) / 1000000;
-      await pool.query(
-        `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-        [refund90, hijack.attacker_wallet]
-      );
-      console.log(`[hijack] ${hijack.id} Phase 1 lost → 90% refund ${refund90} PP → ${hijack.attacker_wallet}`);
+      // declare-with-pp 방식이면 90% 환불
+      if (hijack.pending_pixels && parseFloat(hijack.attack_cost || 0) > 0) {
+        const refund90 = Math.round(parseFloat(hijack.attack_cost) * 0.9 * 1000000) / 1000000;
+        await client.query(
+          `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+          [refund90, hijack.attacker_wallet]
+        );
+        console.log(`[hijack] ${hijack.id} Phase 1 lost → 90% refund ${refund90} PP → ${hijack.attacker_wallet}`);
+      }
+      console.log(`[hijack] ${hijack.id} Phase 1 lost → hijack failed`);
     }
 
-    console.log(`[hijack] ${hijack.id} Phase 1 lost → hijack failed`);
+    await client.query('COMMIT');
+
+    // Auto-start Phase 2 AFTER commit (uses its own transaction)
+    if (autoStartPayload) {
+      console.log(`[hijack] ${autoStartPayload.hijackId} Phase 1 won → Phase 2 starting`);
+      setTimeout(() => {
+        startPhase2(autoStartPayload.hijackId, autoStartPayload.atkWallet, autoStartPayload.atkFleet, autoStartPayload.defFleet)
+          .catch(err => console.error(`[hijack] auto Phase 2 start error:`, err.message));
+      }, 3000);
+    }
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(`[hijack] handlePhase1Complete error:`, err.message);
+  } finally {
+    client.release();
   }
 }
 
@@ -294,22 +310,28 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
 // ─── Phase 2 종료 처리 ───
 
 async function handlePhase2Complete(phase2BattleId) {
-  const { rows } = await pool.query(`
-    SELECT hb.*, fb.winner_side
-    FROM hijack_battles hb
-    JOIN fleet_battles fb ON fb.id = hb.phase2_battle_id
-    WHERE hb.phase2_battle_id = $1
-  `, [phase2BattleId]);
-
-  if (!rows[0]) return;
-  const hijack = rows[0];
-  const winner = hijack.winner_side;
-
-  const finalResult = winner === 'atk' ? 'attacker_won' : 'defender_won';
-
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    // Lock hijack row inside transaction — prevents double pixel-transfer on concurrent calls
+    const { rows } = await client.query(`
+      SELECT hb.*, fb.winner_side
+      FROM hijack_battles hb
+      JOIN fleet_battles fb ON fb.id = hb.phase2_battle_id
+      WHERE hb.phase2_battle_id = $1
+        AND hb.phase NOT IN ('completed', 'failed')
+      FOR UPDATE OF hb
+    `, [phase2BattleId]);
+
+    if (!rows[0]) {
+      await client.query('ROLLBACK');
+      return; // Not a hijack phase2 battle, or already processed
+    }
+    const hijack = rows[0];
+    const winner = hijack.winner_side;
+
+    const finalResult = winner === 'atk' ? 'attacker_won' : 'defender_won';
 
     await client.query(`
       UPDATE hijack_battles SET
