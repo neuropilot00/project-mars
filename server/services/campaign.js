@@ -1572,7 +1572,7 @@ async function getObjectiveState(wallet) {
         AND jsonb_array_length(COALESCE(meta->'resourceDrops','[]'::jsonb)) > 0
     `, [w]),
     // P5: territory upgrade count (total upgrade levels owned)
-    safeCampaignCount(`SELECT COALESCE(SUM(level),0) FROM territory_upgrades WHERE LOWER(owner) = $1 AND is_active = true`, [w]),
+    safeCampaignCount(`SELECT COALESCE(SUM(level),0) AS count FROM territory_upgrades WHERE LOWER(owner) = $1 AND is_active = true`, [w]),
   ]);
   const marketListings = marketListedShips + marketplaceListings;
   return {
