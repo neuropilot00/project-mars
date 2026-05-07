@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
 
+## 🔴→✅ v7.14 — 샵 구매 잔액 체크 TOCTOU + negative-balance 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/api.js` — `/shop/buy` L4156-4164 | 잔액 SELECT에 `FOR UPDATE` 없음 + UPDATE에 `AND balance >= $1` 가드 없음 → 동시 구매 시 잔액 음수 가능 | ✅ `FOR UPDATE` + `AND balance >= $1` 가드 추가 (v7.14) |
+
 ## 🔴→✅ v7.13 — 마켓플레이스 구매 TOCTOU 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |

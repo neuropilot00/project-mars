@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.14 — 샵 구매 잔액 체크 TOCTOU + negative-balance 수정
+
+**server/routes/api.js** — `/shop/buy`: 잔액 SELECT에 `FOR UPDATE` 추가, UPDATE에 `AND ${balCol} >= $1` 가드 추가.
+동시 구매 시 잔액 음수 진행 가능한 경쟁 조건 수정.
+
+---
+
 ## 2026-05-07 v7.13 — 마켓플레이스 구매 TOCTOU 수정
 
 **server/services/marketplace.js** — `buyListing()` 리스팅 SELECT에 `FOR UPDATE` 추가.
