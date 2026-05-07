@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.62 — 최종 라우트 감사 완료 + getWallet 정규화 마무리
+
+**수정 (LOW):**
+
+- `server/routes/auctionRoutes.js`, `jobs.js`, `factions.js` `getWallet()` — `.toLowerCase().trim()` 누락. 대소문자 불일치로 경매 self-deal 체크 우회 가능성. 패턴 통일.
+
+**감사 확인 (버그 없음):**
+- bugReport.js, crafting.js, resource.js, resources.js, transport.js — CLEAN (read-only 공개 설계)
+- fleetSearch.js — wallet 검색 기능은 의도된 설계 (공개 fleet 검색)
+- warBettingRoutes.js 레거시 admin 엔드포인트 — isAdmin(req)로 x-admin-secret 체크, JWT 불필요. 정상 패턴.
+- weatherRoutes.js — CLEAN
+- job.js, transport.js GET 비인증 — read-only 공개 데이터 (직업/수송 정보). 민감 정보 없음.
+
+**최종 감사 범위:**
+- 총 75개 라우트 파일 감사 완료
+- 수정된 버그: CRITICAL 1개, HIGH 7개, LOW 11개 (v7.53~v7.62)
+
+---
+
 ## 2026-05-07 v7.61 — alliance.js CRITICAL 런타임 크래시 + dailyOps GP 조작 + 다중 getWallet 패턴 수정
 
 **수정 (CRITICAL):**

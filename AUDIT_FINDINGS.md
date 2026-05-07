@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v7.62 / 2026-05-07) — 최종 라우트 감사 완료
+
+## ✅ v7.62 — 최종 75개 라우트 감사 완료 (2026-05-07)
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| auctionRoutes.js getWallet | 🛠 LOW — `.toLowerCase().trim()` 추가 수정 |
+| jobs.js, factions.js getWallet | 🛠 LOW — `.toLowerCase().trim()` 추가 수정 |
+| bugReport.js, resources.js, weatherRoutes.js | ✅ CLEAN |
+| crafting.js, resource.js, transport.js, job.js | ✅ 설계 의도 read-only 공개 엔드포인트 |
+| fleetSearch.js wallet 검색 | ✅ 설계 의도 (공개 fleet 검색 기능) |
+| warBettingRoutes.js 레거시 admin | ✅ isAdmin() x-admin-secret 체크 — 정상 admin 패턴 |
+
+### 최종 버그 수정 요약 (v7.53 ~ v7.62)
+| 심각도 | 수정 항목 |
+|--------|-----------|
+| 🔴 CRITICAL (1) | alliance.js 5개 미존재 함수 호출 → 전체 크래시 |
+| 🔴 HIGH (7) | auth.js 비밀번호 변경/계정삭제 broken, arena.js hilo 소유권 bypass, dailyOps GP farming, battleExtras 권한 없는 siege 생성, tacticalLab wallet PII 노출 |
+| 🟡 LOW (11) | ships/fleets/fleetBattles/phaseD/phaseC/onboarding/prestige/auctionRoutes/jobs/factions getWallet 패턴 통일, tactical-lab reinforce null guard, tournaments 중복 GP 차감 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.61 / 2026-05-07)
 
 ## 🔴 v7.61 — alliance.js CRITICAL 크래시 + dailyOps/battleExtras 권한 수정 + 다중 파일 getWallet 패턴 통일 (2026-05-07)

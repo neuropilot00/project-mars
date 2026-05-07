@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
  */
 router.get('/mine', requireAuth, async (req, res) => {
   try {
-    const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+    const wallet = (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim(); // [v7.62]
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
     
     const faction = await factionService.getUserFaction(wallet);
@@ -62,7 +62,7 @@ router.get('/mine', requireAuth, async (req, res) => {
  */
 router.post('/choose', requireAuth, async (req, res) => {
   try {
-    const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+    const wallet = (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim(); // [v7.62]
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
     
     const { faction_code } = req.body;
