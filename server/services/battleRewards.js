@@ -58,20 +58,31 @@ async function distributeRewards(battleId) {
   const settings = await loadBattleSettings();
   
   const results = [];
-  
-  // 이미 보상 지급됐는지 확인 (중복 방지)
-  const { rows: existingRewards } = await pool.query(
-    `SELECT 1 FROM fleet_battle_rewards WHERE battle_id = $1 LIMIT 1`,
-    [battleId]
-  );
-  if (existingRewards[0]) {
-    console.log(`[rewards] battle ${battleId} already rewarded, skipping`);
-    return [];
-  }
-  
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    // 이미 보상 지급됐는지 확인 (중복 방지) — INSIDE transaction with row lock
+    // Lock the battle row first to serialize concurrent distributeBattleRewards calls
+    const { rows: lockedBattle } = await client.query(
+      `SELECT id, winner_side FROM fleet_battles WHERE id = $1 AND status = 'ended' FOR UPDATE`,
+      [battleId]
+    );
+    if (!lockedBattle[0]) {
+      await client.query('ROLLBACK');
+      console.log(`[rewards] battle ${battleId} not found or not ended, skipping`);
+      return [];
+    }
+    const { rows: existingRewards } = await client.query(
+      `SELECT 1 FROM fleet_battle_rewards WHERE battle_id = $1 LIMIT 1`,
+      [battleId]
+    );
+    if (existingRewards[0]) {
+      await client.query('ROLLBACK');
+      console.log(`[rewards] battle ${battleId} already rewarded, skipping`);
+      return [];
+    }
     
     for (const p of participants) {
       const isWinner = p.side === battle.winner_side;
