@@ -928,10 +928,9 @@ async function chargeShield(walletAddress, shipId, units) {
       err.meta = { current_shield: currentShield, shield_max: shieldMax };
       throw err;
     }
+    // Clamp requested units to available capacity instead of rejecting the entire call
     if (chargeUnits > canAdd) {
-      const err = new Error('SHIELD_FULL');
-      err.meta = { requested: chargeUnits, can_add: canAdd, shield_max: shieldMax };
-      throw err;
+      chargeUnits = canAdd;
     }
 
     // 3. GP 비용 계산
@@ -1533,7 +1532,7 @@ async function buyShipListing(walletAddress, listingId) {
       throw err;
     }
     const feePct = await getSettingNumber(client, 'ship_market_fee_pct', 5);
-    const fee = Math.max(0, Math.floor(price * feePct) / 100);
+    const fee = Math.max(0, Math.floor(price * feePct / 100)); // fixed: floor after full division to avoid float leak
     const sellerReceive = price - fee;
     const buyerFleetId = await getOrCreateDefaultFleet(client, buyer);
 

@@ -59,9 +59,9 @@ async function declareSiege(challengerWallet, sectorCode) {
   try {
     await client.query('BEGIN');
 
-    // ── 섹터 존재 확인 ──
+    // ── 섹터 존재 확인 (FOR UPDATE on governance row prevents double-siege race) ──
     const secRes = await client.query(
-      'SELECT sd.*, sg.governor_wallet, sg.active_siege_id FROM sector_definitions sd LEFT JOIN sector_governance sg ON sg.sector_code = sd.code WHERE sd.code = $1',
+      'SELECT sd.*, sg.governor_wallet, sg.active_siege_id FROM sector_definitions sd LEFT JOIN sector_governance sg ON sg.sector_code = sd.code WHERE sd.code = $1 FOR UPDATE OF sg',
       [code]
     );
     if (!secRes.rows.length) {
