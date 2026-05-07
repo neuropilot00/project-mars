@@ -100,7 +100,7 @@ const CHAPTERS = {
     requiredLevel: 1,
     battleResolution: 'none',
     estimatedPlayTimeSeconds: 480,
-    location: { id: 'new_athens_settlement', displayNameKo: 'New Athens 정착지', displayNameEn: 'New Athens Settlement', displayNameEn: 'New Athens Settlement', region: 'hellas' },
+    location: { id: 'new_athens_settlement', displayNameKo: 'New Athens 정착지', displayNameEn: 'New Athens Settlement', region: 'hellas' },
     briefing: { npcId: 'mikhail', npcName: 'Mikhail', npcTitle: 'New Athens 원로', lines: [{ id: 'fsp_p_01', ko: '규칙은 하나야. 여기선 혼자 살 수 없어.' }], radio: [] },
     choices: [],
   },
@@ -114,7 +114,7 @@ const CHAPTERS = {
     requiredLevel: 1,
     battleResolution: 'none',
     estimatedPlayTimeSeconds: 480,
-    location: { id: 'outer_colony_ruins', displayNameKo: '외곽 식민지 폐허', displayNameEn: 'Outer Colony Ruins', displayNameEn: 'Outer Colony Ruins', region: 'outer' },
+    location: { id: 'outer_colony_ruins', displayNameKo: '외곽 식민지 폐허', displayNameEn: 'Outer Colony Ruins', region: 'outer' },
     briefing: { npcId: 'butcher', npcName: 'The Butcher', npcTitle: 'CV 지도자', lines: [{ id: 'cv_p_01', ko: 'CV에는 규칙이 없어. 그게 규칙이야.' }], radio: [] },
     choices: [],
   },
@@ -4293,8 +4293,13 @@ async function applyOptionalCampaignReward(client, label, fn) {
     await fn();
     await client.query('RELEASE SAVEPOINT campaign_optional_reward');
   } catch (err) {
-    await client.query('ROLLBACK TO SAVEPOINT campaign_optional_reward');
-    await client.query('RELEASE SAVEPOINT campaign_optional_reward');
+    // Wrap ROLLBACK/RELEASE in try/catch — a connection-level abort error on the
+    // inner fn() puts PostgreSQL into an aborted-transaction state where subsequent
+    // SAVEPOINT operations also throw. If we let those bubble up they'd abort the
+    // entire completion transaction. We swallow them here; the outer ROLLBACK in
+    // complete() will still fire if the transaction is truly aborted.
+    try { await client.query('ROLLBACK TO SAVEPOINT campaign_optional_reward'); } catch (_) {}
+    try { await client.query('RELEASE SAVEPOINT campaign_optional_reward'); } catch (_) {}
     console.warn(`[CAMPAIGN] optional reward skipped (${label}):`, err.message);
   }
 }
@@ -4456,7 +4461,7 @@ async function complete(wallet, sessionId) {
            ELSE best_metrics
          END,
          updated_at = NOW()
-       WHERE id = $7 RETURNING *`,
+       WHERE id = $7 AND status = 'in_progress' RETURNING *`,
       [
         status,
         sim.metrics.oxygen_recovery_pct,

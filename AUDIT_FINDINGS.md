@@ -1,4 +1,32 @@
-# OCCUPY MARS — Codebase Audit (v7.02 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.07 / 2026-05-07)
+
+## 🔴→✅ v7.03~v7.07 — Race condition sweep: governance, fleet, battleRewards, hijack, lottery (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/marketplace.js` L284, L289 | `listing.seller`/`tariffGovernor` DB값 → LOWER() 없음 → 판매자 지급 silent 실패 | ✅ LOWER() 추가 (v7.03) |
+| `server/db.js` L444 | 레퍼럴 chain balance credit `ref.wallet` from DB → LOWER() 없음 | ✅ LOWER() 추가 (v7.03) |
+| `server/services/guild.js` L57, L381, L520, L564, L585 | `guild_id` UPDATE 5곳 LOWER() 없음 (invited_wallet from DB) | ✅ sed 일괄 LOWER() 추가 (v7.03) |
+| `server/routes/api.js` L4163 | shop 아이템 잔액 차감 `${balCol} - $1 WHERE wallet_address` LOWER() 없음 | ✅ LOWER() 추가 (v7.03) |
+| `server/services/aiFleetManager.js` L72 / `server/routes/admin.js` L4506, L4681 | `faction_code` UPDATE LOWER() 없음 | ✅ LOWER() 추가 (v7.03) |
+| `server/services/dividends.js` — `distributeLastWeek()` | 스테이커 스냅샷 트랜잭션 외부에서 수집 + INSERT ON CONFLICT DO NOTHING 후 GP 크레딧 무조건 실행 → 동시 호출 시 이중 지급 경쟁 | ✅ 트랜잭션 내부에서 락 후 스냅샷 재수집 + RETURNING id 가드 추가 (v7.03) |
+| `server/services/season.js` L394, L657 / `server/db.js` L548, L596, L598 / `server/services/rank.js` | XP/rank_level UPDATE LOWER() 없음 | ✅ LOWER() 추가 (v7.03) |
+| `server/routes/governance.js` — buff purchase TOCTOU | `existing buff` 체크가 BEGIN 이전에 실행 → 두 동시 요청이 모두 통과해 GP 이중 차감 | ✅ BEGIN을 먼저 실행 + FOR UPDATE 후 재확인으로 수정 (v7.04) |
+| `server/services/governance.js` — `recalculateGovernor()` | old position gp_balance SELECT에 FOR UPDATE 없음 → 동시 재계산 시 sector pool 이중 크레딧 | ✅ FOR UPDATE 추가 (v7.04) |
+| `server/services/governance.js` — `recalculateGovernor()` | `pixels.owner` DB값을 LOWER() 없이 sectors/governance_positions에 기록 → checksum 주소 전파 | ✅ `.toLowerCase()` 추가 (v7.04) |
+| `server/services/governance.js` — `applyDailyMaintenance()` | governance_positions 전체 SELECT에 FOR UPDATE 없음 → 스케줄러 재시작 겹칠 때 이중 차감 | ✅ `FOR UPDATE OF gp` 추가 (v7.04) |
+| `server/services/fleet.js` — `createFleet()` | COUNT(*) 이후 INSERT 사이에 user row 락 없음 → 두 동시 요청이 모두 maxFleets 체크 통과 → 초과 함대 생성 | ✅ 유저 row FOR UPDATE 선취득으로 직렬화 (v7.04) |
+| `server/services/fleet.js` — `deleteFleet()` | 다른 함대 row를 각자 락하는 동시 삭제 요청이 COUNT > 1 체크 모두 통과 → 마지막 함대까지 삭제 | ✅ 유저 row FOR UPDATE로 직렬화 (v7.04) |
+| `server/services/battleRewards.js` — `distributeBattleRewards()` | "already rewarded" 체크가 트랜잭션 외부 → 동시 호출 시 모든 참가자 GP/광물 이중 지급 | ✅ BEGIN 후 fleet_battles FOR UPDATE + 재확인으로 수정 (v7.05) |
+| `server/services/hijack.js` — `handlePhase1Complete()` | 전체 함수가 트랜잭션 없이 `pool.query` 3개 분리 실행 → 크래시 시 부분 상태 + 이중 환불 가능 | ✅ BEGIN/COMMIT 트랜잭션 + FOR UPDATE + phase='phase1' 가드 추가 (v7.06) |
+| `server/services/hijack.js` — `handlePhase2Complete()` | 초기 SELECT가 트랜잭션 외부 → 동시 호출 시 픽셀 이전 + 오너 크레딧 이중 실행 | ✅ BEGIN 후 FOR UPDATE + phase NOT IN ('completed','failed') 가드 추가 (v7.06) |
+| `server/services/lottery.js` — `drawRound()` | FOR UPDATE 이후에도 스테일 `round` 스냅샷 변수 사용 (ticket_count, ticket_price_gp, prize_pool_gp, round_number) → 환불 금액/당첨금/라운드 번호 불일치 | ✅ `lockRes.rows[0]` (`lockedRound`)로 교체 (v7.07) |
+
+**v7.07 이후 확인된 남은 경쟁조건/비원자성 패턴: 0건 (주요 서비스 전체 검토 완료)**
+
+---
+
+## 🔴→✅ v7.02 — api.js/admin.js + 18개 파일 balance credit LOWER() 완전 정리 (2026-05-07)
 
 ## 🔴→✅ v7.01~v7.02 — api.js/admin.js + 18개 파일 balance credit LOWER() 완전 정리 (2026-05-07)
 
