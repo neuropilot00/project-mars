@@ -28,7 +28,29 @@ const requireAuth = (req, res, next) => {
 };
 
 function getWallet(req) {
-  return req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  return typeof wallet === 'string' ? wallet.toLowerCase() : wallet;
+}
+
+function parsePositiveInt(value) {
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
+function parsePositiveIntList(values) {
+  if (!Array.isArray(values)) return null;
+  const parsed = [];
+  const seen = new Set();
+  for (const value of values) {
+    const id = parsePositiveInt(value);
+    if (!id) return null;
+    if (!seen.has(id)) {
+      seen.add(id);
+      parsed.push(id);
+    }
+  }
+  return parsed;
 }
 
 // ── 에러 매핑 ──
@@ -121,7 +143,7 @@ router.get('/:id', requireAuth, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
-    const fleetId = parseInt(req.params.id);
+    const fleetId = parsePositiveInt(req.params.id);
     if (!fleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
 
     const fleet = await fleetService.getFleetDetail(fleetId, wallet);
@@ -160,7 +182,7 @@ router.put('/:id', requireAuth, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
-    const fleetId = parseInt(req.params.id);
+    const fleetId = parsePositiveInt(req.params.id);
     if (!fleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
 
     const result = await fleetService.updateFleet(fleetId, wallet, req.body || {});
@@ -182,7 +204,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
-    const fleetId = parseInt(req.params.id);
+    const fleetId = parsePositiveInt(req.params.id);
     if (!fleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
 
     const result = await fleetService.deleteFleet(fleetId, wallet);
@@ -202,15 +224,16 @@ router.post('/:id/move-ships', requireAuth, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
-    const fleetId = parseInt(req.params.id);
+    const fleetId = parsePositiveInt(req.params.id);
     if (!fleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
 
     const { ship_ids } = req.body || {};
-    if (!Array.isArray(ship_ids)) {
+    const shipIds = parsePositiveIntList(ship_ids);
+    if (!shipIds) {
       return res.status(400).json({ error: 'SHIP_IDS_REQUIRED' });
     }
 
-    const result = await fleetService.moveShips(wallet, ship_ids, fleetId);
+    const result = await fleetService.moveShips(wallet, shipIds, fleetId);
     res.json(result);
   } catch (err) {
     handleError(res, err, 'move-ships');
@@ -227,13 +250,14 @@ router.post('/:id/flagship', requireAuth, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
-    const fleetId = parseInt(req.params.id);
+    const fleetId = parsePositiveInt(req.params.id);
     if (!fleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
 
     const { ship_id } = req.body || {};
-    if (!ship_id) return res.status(400).json({ error: 'SHIP_ID_REQUIRED' });
+    const shipId = parsePositiveInt(ship_id);
+    if (!shipId) return res.status(400).json({ error: 'SHIP_ID_REQUIRED' });
 
-    const result = await fleetService.setFlagship(wallet, fleetId, parseInt(ship_id));
+    const result = await fleetService.setFlagship(wallet, fleetId, shipId);
     res.json(result);
   } catch (err) {
     handleError(res, err, 'flagship');

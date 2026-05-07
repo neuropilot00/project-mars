@@ -85,23 +85,64 @@ async function runBattle(battleId) {
     console.log(`[battleScheduler] running battle ${battleId}`);
     
     // 전투 타입 미리 확인 (hijack 체크용)
-    const { rows: btype } = await pool.query(
-      `SELECT battle_type, phase FROM fleet_battles WHERE id = $1`, [battleId]
-    );
-    const battleType = btype[0]?.battle_type;
-    const battlePhase = btype[0]?.phase;
-    
-    // 1. preparing → active
-    await pool.query(`
-      UPDATE fleet_battles 
-      SET status = 'active', battle_started_at = NOW()
-      WHERE id = $1 AND status = 'preparing'
-    `, [battleId]);
-    
-    await pool.query(`
-      UPDATE fleets SET is_in_battle = true, current_battle_id = $1
-      WHERE id IN (SELECT fleet_id FROM fleet_battle_participants WHERE battle_id = $1)
-    `, [battleId]);
+    let battleType = null;
+    let battlePhase = null;
+
+    // 1. preparing → active + 참가 함대 lock을 한 트랜잭션에서 처리
+    const startClient = await pool.connect();
+    try {
+      await startClient.query('BEGIN');
+
+      const { rows: claimed } = await startClient.query(`
+        UPDATE fleet_battles
+        SET status = 'active', battle_started_at = COALESCE(battle_started_at, NOW())
+        WHERE id = $1 AND status = 'preparing'
+        RETURNING battle_type, phase
+      `, [battleId]);
+      if (!claimed[0]) {
+        await startClient.query('ROLLBACK');
+        console.log(`[battleScheduler] battle ${battleId} already claimed or not preparing`);
+        return null;
+      }
+      battleType = claimed[0].battle_type;
+      battlePhase = claimed[0].phase;
+
+      const { rows: fleetLocks } = await startClient.query(`
+        SELECT f.id, f.is_in_battle, f.current_battle_id
+        FROM fleets f
+        JOIN fleet_battle_participants p ON p.fleet_id = f.id
+        WHERE p.battle_id = $1
+        FOR UPDATE OF f
+      `, [battleId]);
+
+      const conflictingFleet = fleetLocks.find(f =>
+        f.is_in_battle && String(f.current_battle_id || '') !== String(battleId)
+      );
+      if (conflictingFleet) {
+        await startClient.query(`
+          UPDATE fleet_battles
+          SET status = 'cancelled', ended_at = NOW(),
+              battle_summary = COALESCE(battle_summary,'{}'::jsonb)
+                || jsonb_build_object('error', 'fleet_already_in_battle', 'fleet_id', $2::bigint)
+          WHERE id = $1
+        `, [battleId, conflictingFleet.id]);
+        await startClient.query('COMMIT');
+        console.warn(`[battleScheduler] battle ${battleId} cancelled: fleet ${conflictingFleet.id} already in battle`);
+        return null;
+      }
+
+      await startClient.query(`
+        UPDATE fleets SET is_in_battle = true, current_battle_id = $1
+        WHERE id IN (SELECT fleet_id FROM fleet_battle_participants WHERE battle_id = $1)
+      `, [battleId]);
+
+      await startClient.query('COMMIT');
+    } catch (claimErr) {
+      try { await startClient.query('ROLLBACK'); } catch (_) {}
+      throw claimErr;
+    } finally {
+      startClient.release();
+    }
     
     await pool.query(`
       UPDATE fleet_battle_participants p SET
@@ -231,6 +272,15 @@ async function runBattle(battleId) {
     `, [battleId]).catch(()=>{});
     throw err;
   } finally {
+    await pool.query(`
+      UPDATE fleets
+      SET is_in_battle=false, current_battle_id=NULL
+      WHERE current_battle_id=$1
+        AND NOT EXISTS (
+          SELECT 1 FROM fleet_battles
+          WHERE id=$1 AND status='active'
+        )
+    `, [battleId]).catch(()=>{});
     currentlyRunning--;
   }
 }

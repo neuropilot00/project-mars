@@ -1,5 +1,30 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.83 — 함대전/함대 지휘 감사 버그 수정
+
+### server/services/battleEngine.js
+- 함선별 최종 전투 스냅샷(`is_alive`, `current_hp`, `bonus_atk/def/hp/speed`)을 결과 통계와 `battle_summary.final_ships`에 저장.
+- 일반 전투의 생존 함선 HP 반영이 `result.frames`를 참조해 누락될 수 있던 버그를 `result.stats.by_ship` 기반 갱신으로 수정.
+- `bonus_hp`가 적용된 유효 최대 HP 기준으로 전투 후 HP를 clamp하도록 보강.
+
+### server/services/battleScheduler.js
+- `preparing → active` 전환과 참가 함대 lock을 단일 트랜잭션으로 묶어 동일 전투/동일 함대 중복 실행 race condition 방지.
+- 전투 실패·후속 훅 실패 경로 이후에도 `fleet.is_in_battle/current_battle_id`가 정리되도록 `finally` 방어 업데이트 추가.
+- 신규 `pool.connect()` 사용 경로에 `finally { release() }` 적용.
+
+### server/routes/fleets.js
+- JWT wallet을 소문자로 정규화하고, fleet/ship id를 safe integer로 검증.
+- `move-ships`의 문자열/NaN/중복 id 입력을 라우트에서 정규화해 DB 캐스트 오류와 타입 비교 흔들림 방지.
+- 기함 지정 `ship_id` NaN 경로를 400 응답으로 차단.
+
+### index.html
+- `confirmDeclareBattle()`에서 JSON 파싱 실패와 `battle_id` 누락 응답을 명시적으로 처리.
+- `openBattleViewer()`가 battle id와 현재 wallet을 iframe/report 요청에 전달하도록 보강.
+- `forfeitBattle()` 클라이언트 함수를 추가하고 iframe 후퇴 메시지의 실패 payload를 성공 처리하지 않도록 수정.
+- `setFleetFormation()`/`setFleetManeuver()` 호환 래퍼를 추가해 기존 Fleet Command 상태 업데이트 경로를 재사용.
+
+---
+
 ## 2026-05-07 v6.82 — 서버/클라이언트 심층 감사 (신규 버그 없음)
 
 ### 추가 감사 완료

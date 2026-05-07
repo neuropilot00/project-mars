@@ -47011,6 +47011,14 @@ async function setFleetTactic(type, value) {
   }
 }
 
+function setFleetFormation(formation) {
+  return setFleetTactic('formation', formation);
+}
+
+function setFleetManeuver(maneuver) {
+  return setFleetTactic('movement', maneuver);
+}
+
 async function createNewFleet() {
   var name = await gameInput({ title:'새 함대', label:'함대 이름 (비워두면 자동)', placeholder:'예: 1함대', maxLength:60 });
   if (name === null) return;
@@ -48025,7 +48033,7 @@ async function confirmDeclareBattle() {
         run_immediately: false,   // ← 지시 선택 후 별도로 /run 호출
       })
     });
-    const data = await res.json();
+    const data = await res.json().catch(function(){ return {}; });
 
     if (!res.ok) {
       const msgMap = {
@@ -48041,7 +48049,12 @@ async function confirmDeclareBattle() {
       return;
     }
 
-    const battleId = data.battle_id;
+    const battleId = parseInt(data.battle_id);
+    if (!battleId) {
+      console.warn('[battle] declare-pvp response missing battle_id:', data);
+      showFactionToast(LANG==='ko'?'전투 생성 응답에 전투 ID가 없습니다':LANG==='ja'?'戦闘作成レスポンスに戦闘IDがありません':LANG==='zh'?'宣战响应缺少战斗ID':'Battle response missing battle ID','error');
+      return;
+    }
     closeDeclareBattle();
     openCmdActionsModal(battleId, targetFleetId);
   } catch (err) {
@@ -48731,6 +48744,7 @@ const bv = {
   timeline: null,
   battle: null,
   events: [],
+  wallet: null,
   
   // 재생 상태
   playing: false,
@@ -48755,6 +48769,12 @@ window.addEventListener('message', function(ev) {
 
   // forfeit: 후퇴 → 뷰어 닫고 조선소로 안내
   if (d.cmd === 'forfeit') {
+    if (!d.payload || d.payload.success !== true) {
+      var forfeitErr = (d.payload && d.payload.error) || 'FORFEIT_FAILED';
+      showFactionToast((LANG==='ko'?'후퇴 실패: ':LANG==='ja'?'撤退失敗: ':LANG==='zh'?'撤退失败: ':'Retreat failed: ') + forfeitErr, 'error');
+      console.warn('[battle] forfeit failed:', d);
+      return;
+    }
     closeBattleViewer();
     showFactionToast(LANG==='ko'?'🏳 후퇴 완료 — 조선소에서 함선을 수리하세요':LANG==='ja'?'🏳 撤退完了 — 造船所で艦船を修理してください':LANG==='zh'?'🏳 撤退完成 — 请在船坞修理舰船':'🏳 Retreat complete — repair ships at shipyard', 'info');
     setTimeout(function(){
@@ -48819,6 +48839,33 @@ window.addEventListener('message', function(ev) {
     }
   }).catch(function(e) { console.warn('[battle-cmd] fetch error:', e.message); });
 });
+
+async function forfeitBattle(battleId) {
+  battleId = parseInt(battleId || (bv && bv.battle && bv.battle.id));
+  if (!battleId) {
+    showFactionToast(LANG==='ko'?'후퇴할 전투 ID가 없습니다':LANG==='ja'?'撤退する戦闘IDがありません':LANG==='zh'?'缺少要撤退的战斗ID':'Missing battle ID for retreat','error');
+    return false;
+  }
+  try {
+    const res = await fetch('/api/battles/' + encodeURIComponent(battleId) + '/forfeit', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
+      body: JSON.stringify({})
+    });
+    const data = await res.json().catch(function(){ return {}; });
+    if (!res.ok || data.success !== true) {
+      showFactionToast((LANG==='ko'?'후퇴 실패: ':LANG==='ja'?'撤退失敗: ':LANG==='zh'?'撤退失败: ':'Retreat failed: ') + (data.error || res.status), 'error');
+      return false;
+    }
+    closeBattleViewer();
+    showFactionToast(LANG==='ko'?'🏳 후퇴 완료 — 조선소에서 함선을 수리하세요':LANG==='ja'?'🏳 撤退完了 — 造船所で艦船を修理してください':LANG==='zh'?'🏳 撤退完成 — 请在船坞修理舰船':'🏳 Retreat complete — repair ships at shipyard', 'info');
+    return true;
+  } catch (e) {
+    console.warn('[battle] forfeitBattle error:', e);
+    showFactionToast(LANG==='ko'?'후퇴 요청 네트워크 오류':LANG==='ja'?'撤退リクエストのネットワークエラー':LANG==='zh'?'撤退请求网络错误':'Retreat request network error','error');
+    return false;
+  }
+}
 
 async function loadBvSidePanels(battleId) {
   // 사이드 패널 4종 채우기 — 내 함대, 자원, 적 함대, 전투 통계
@@ -48923,6 +48970,8 @@ async function openBattleViewer(battleId, startTick) {
     console.error('[battle] openBattleViewer called with invalid battleId:', battleId);
     return;
   }
+  var viewerWallet = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : '';
+  bv.wallet = viewerWallet;
 
   // 준비 중이면 잠시 대기
   document.getElementById('battleViewer').classList.add('active');
@@ -48931,7 +48980,8 @@ async function openBattleViewer(battleId, startTick) {
   // tactical-lab v11 iframe 로드 (사용자 요청: "택티컬랩 그대로")
   var tf = document.getElementById('bvTacticalFrame');
   if (tf) {
-    var iframeUrl = '/assets/tactical-lab-v11.html?bid=' + battleId + '&t=' + Date.now();
+    var iframeUrl = '/assets/tactical-lab-v11.html?bid=' + encodeURIComponent(battleId) + '&t=' + Date.now();
+    if (viewerWallet) iframeUrl += '&wallet=' + encodeURIComponent(viewerWallet);
     if (startTick && Number.isFinite(Number(startTick)) && Number(startTick) > 0) {
       iframeUrl += '&startTick=' + Math.floor(Number(startTick));
     }
@@ -48954,7 +49004,7 @@ async function openBattleViewer(battleId, startTick) {
     try {
       // 전투 정보
       const infoRes = await fetch(`/api/battles/${battleId}`);
-      const infoData = await infoRes.json();
+      const infoData = await infoRes.json().catch(() => ({}));
       if (!infoRes.ok) { lastErr = 'info: ' + (infoData.error || infoRes.status); break; }
       bv.battle = infoData.battle;
       bv.events = infoData.events || [];
@@ -49720,7 +49770,9 @@ async function _loadBattleReport(battleId, mySide) {
   const section = document.getElementById('bvReportContent');
   if (!section) return;
   try {
-    const res = await fetch(`/api/battles/${battleId}/report`);
+    const reportWallet = (bv && bv.wallet) || ((walletState && walletState.address) ? String(walletState.address).toLowerCase() : '');
+    const reportUrl = `/api/battles/${battleId}/report` + (reportWallet ? `?wallet=${encodeURIComponent(reportWallet)}` : '');
+    const res = await fetch(reportUrl);
     if (!res.ok) throw new Error('fetch failed');
     const data = await res.json();
     const r = data.report;

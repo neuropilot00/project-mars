@@ -1,4 +1,25 @@
-# OCCUPY MARS — Codebase Audit (v6.82 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.83 / 2026-05-07)
+
+## 🔴→✅ v6.83 — 함대전/함대 지휘 4개 영역 전수 감사 및 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/battleEngine.js` | `bonus_atk/def/hp/speed`는 전투 계산에 반영되고 있었으나, 전투 후 부분 HP 저장이 존재하지 않는 `result.frames`를 참조해 생존 함선 HP 손실이 누락될 수 있음 | ✅ `stats.by_ship` 최종 스냅샷 추가 후 DB 갱신 기준으로 사용 |
+| `server/services/battleEngine.js` | 전투 결과 summary에 함선별 `is_alive/current_hp/bonus_*` 스냅샷이 없어 사후 리포트/진단 필드가 부족 | ✅ `battle_summary.final_ships`에 저장 |
+| `server/services/battleEngine.js` | 전투 후 HP clamp가 base `max_hp` 중심이라 `bonus_hp` 유효 최대 HP 기준이 불완전 | ✅ `max_hp + bonus_hp` 기준 clamp 적용 |
+| `server/services/battleEngine.js` | `getShipMatchupMult()` role/size/faction 비교 로직 | ✅ 오타/잘못된 role 비교/누락 케이스 신규 발견 없음 |
+| `server/services/battleScheduler.js` | 여러 scheduler/manual 실행 경로에서 같은 `preparing` 전투가 중복 claim될 수 있고, 동일 fleet이 두 전투에 동시에 들어갈 race condition 가능 | ✅ `UPDATE ... WHERE status='preparing' RETURNING` + `FOR UPDATE OF fleets` 트랜잭션으로 원자적 claim |
+| `server/services/battleScheduler.js` | 전투 후속 처리 중 예외 발생 시 fleet battle lock 해제가 catch 경로에만 의존 | ✅ `finally`에서 비-active 전투의 fleet lock 정리 |
+| `server/services/battleScheduler.js` | 신규 lock 트랜잭션의 connection leak 위험 | ✅ `finally { startClient.release() }` 적용 |
+| `server/routes/fleets.js` | 서비스 소유권 검증은 `LOWER()` 기반으로 정상이나 라우트가 `parseInt`/원본 배열을 그대로 넘겨 문자열·NaN id가 DB 캐스트 오류로 샐 수 있음 | ✅ safe integer 파서와 id 배열 정규화 추가 |
+| `server/routes/fleets.js` | 기함 지정 `ship_id`가 NaN이어도 서비스까지 도달 가능 | ✅ 라우트에서 400 `SHIP_ID_REQUIRED`로 차단 |
+| `server/routes/fleets.js` | 기함 소유권/다른 fleet 소속 검증 | ✅ 서비스의 wallet 소유권, `fleet_id` 숫자 비교, 판매중/사망/기함가능 검증 확인 |
+| `index.html` `confirmDeclareBattle` | API 응답이 OK지만 `battle_id`가 없거나 JSON 파싱 실패 시 이후 모달이 잘못 열릴 수 있음 | ✅ JSON fallback 및 battle id 누락 가드 추가 |
+| `index.html` `openBattleViewer` | iframe/report 요청에 현재 wallet 전달이 없어 내 관점 리포트가 비어질 수 있음 | ✅ wallet query 전달 및 `bv.wallet` 저장 |
+| `index.html` `forfeitBattle` | iframe 후퇴 실패 payload도 성공 토스트/뷰어 종료로 처리될 수 있음, 전역 함수 부재 | ✅ 실패 payload 처리 및 전역 `forfeitBattle()` 추가 |
+| `index.html` `setFleetFormation/setFleetManeuver` | 명시 함수 부재로 레거시 호출 시 상태 업데이트 경로를 못 탈 수 있음 | ✅ 기존 `setFleetTactic()`을 재사용하는 호환 래퍼 추가 |
+
+---
 
 ## ✅ v6.82 — 서버/클라이언트 심층 감사 추가 완료 (2026-05-07)
 

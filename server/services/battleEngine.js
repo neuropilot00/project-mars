@@ -363,6 +363,10 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult =
   // 초기 배치: 랜덤 오비탈
   const orbitAngle = (idx / total) * Math.PI * 2 + Math.random() * 0.3;
   const orbitDist = 15 + Math.random() * (fleetRadius - 15);
+  const bonusAtk = parseInt(shipData.bonus_atk || 0);
+  const bonusDef = parseInt(shipData.bonus_def || 0);
+  const bonusHp = parseInt(shipData.bonus_hp || 0);
+  const bonusSpeed = parseFloat(shipData.bonus_speed || 0);
   
   return {
     id: shipData.id,
@@ -372,16 +376,20 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult =
     role: shipData.role,
     
     // 스탯 (전투력 배율 적용: warrior +30%, miner/crafter/merchant 패널티)
-    atk: Math.max(1, Math.round((parseInt(shipData.base_atk) + parseInt(shipData.bonus_atk || 0)) * combatPowerMult)),
-    def: parseInt(shipData.base_def) + parseInt(shipData.bonus_def || 0),
-    speed: Math.max(0.05, parseFloat(shipData.base_speed) + parseFloat(shipData.bonus_speed || 0)),
+    atk: Math.max(1, Math.round((parseInt(shipData.base_atk) + bonusAtk) * combatPowerMult)),
+    def: parseInt(shipData.base_def) + bonusDef,
+    speed: Math.max(0.05, parseFloat(shipData.base_speed) + bonusSpeed),
     fireInterval: parseInt(shipData.fire_interval),
     fireType: shipData.fire_type,
     shots: parseInt(shipData.shots) || 1,
     renderRadius: parseFloat(shipData.render_radius) || 2,
     
-    maxHp: parseInt(shipData.max_hp) + parseInt(shipData.bonus_hp || 0),
+    maxHp: parseInt(shipData.max_hp) + bonusHp,
     hp: parseInt(shipData.current_hp),
+    bonus_atk: bonusAtk,
+    bonus_def: bonusDef,
+    bonus_hp: bonusHp,
+    bonus_speed: bonusSpeed,
     shield_hp: parseInt(shipData.shield_hp || 0),
     shield_max: parseInt(shipData.shield_max || 0),
 
@@ -888,6 +896,7 @@ function computeBattleStats(state) {
     def: { ships_total: 0, ships_lost: 0, damage_dealt: 0, kills: 0 },
     by_fleet: [],
     by_player: {},   // wallet → { damage, kills, ships_lost }
+    by_ship: [],
   };
   
   for (const fleet of state.fleets) {
@@ -901,6 +910,21 @@ function computeBattleStats(state) {
     for (const s of fleet.ships) {
       fleetDamage += s.damageDealt;
       fleetKills += s.killsDealt;
+      stats.by_ship.push({
+        ship_id: s.id,
+        fleet_id: fleet.id,
+        owner_wallet: fleet.owner_wallet,
+        side: fleet.side,
+        is_alive: !!s.isAlive,
+        current_hp: Math.max(0, Math.round(parseFloat(s.hp) || 0)),
+        max_hp: s.maxHp,
+        bonus_atk: s.bonus_atk || 0,
+        bonus_def: s.bonus_def || 0,
+        bonus_hp: s.bonus_hp || 0,
+        bonus_speed: s.bonus_speed || 0,
+        damage_dealt: Math.round(parseFloat(s.damageDealt) || 0),
+        kills: s.killsDealt || 0,
+      });
     }
     side.damage_dealt += fleetDamage;
     side.kills += fleetKills;
@@ -985,6 +1009,7 @@ async function applyBattleResults(battleId, result) {
         atk: result.stats.atk,
         def: result.stats.def,
         by_player: result.stats.by_player,
+        final_ships: result.stats.by_ship,
       }),
       battleId
     ]);
@@ -1014,72 +1039,58 @@ async function applyBattleResults(battleId, result) {
     }
     
     // 3. 함선 상태 업데이트
+    const finalShips = Array.isArray(result.stats?.by_ship)
+      ? result.stats.by_ship.filter(s => parseInt(s.ship_id) > 0)
+      : [];
     // 하이젝 전투: 함선 파괴하지 않고 HP만 감소 (min 15% of max_hp, 최소 1)
     if (isHijackBattle) {
       // 하이젝 전투 — 시뮬레이션 HP 결과 반영, 단 파괴 없음
-      const frames = result.timeline?.frames || result.frames || [];
-      const lastFrame = frames.length > 0 ? frames[frames.length - 1] : null;
-      if (lastFrame && Array.isArray(lastFrame.ships)) {
-        for (const s of lastFrame.ships) {
-          const sid = parseInt(s.id);
-          if (!sid) continue;
-          // 시뮬 최종 HP로 업데이트, 단 0 이면 max_hp의 15%로 보존
-          const simHp = Math.round(parseFloat(s.hp) || 0);
-          if (simHp <= 0) {
+      for (const s of finalShips) {
+        const sid = parseInt(s.ship_id);
+        const simHp = Math.round(parseFloat(s.current_hp) || 0);
+        if (simHp <= 0) {
+          await client.query(`
+            UPDATE ships
+            SET current_hp = GREATEST(1, ROUND((max_hp + COALESCE(bonus_hp, 0)) * 0.15))
+            WHERE id = $1 AND is_alive = true
+          `, [sid]);
+        } else {
+          await client.query(`
+            UPDATE ships
+            SET current_hp = LEAST(current_hp, max_hp + COALESCE(bonus_hp, 0), $1)
+            WHERE id = $2 AND is_alive = true
+          `, [simHp, sid]);
+        }
+      }
+    } else {
+      // 일반 전투 — 최종 함선 스냅샷 기준으로 생존/부분 HP를 모두 반영
+      if (finalShips.length > 0) {
+        for (const s of finalShips) {
+          const sid = parseInt(s.ship_id);
+          const hp = Math.max(0, Math.round(parseFloat(s.current_hp) || 0));
+          if (!s.is_alive || hp <= 0) {
             await client.query(`
-              UPDATE ships SET current_hp = GREATEST(1, ROUND(max_hp * 0.15))
+              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
               WHERE id = $1 AND is_alive = true
             `, [sid]);
           } else {
             await client.query(`
-              UPDATE ships SET current_hp = LEAST(current_hp, $1)
+              UPDATE ships
+              SET current_hp = LEAST(current_hp, max_hp + COALESCE(bonus_hp, 0), $1)
               WHERE id = $2 AND is_alive = true
-            `, [simHp, sid]);
+            `, [hp, sid]);
           }
         }
-      }
-    } else {
-      // 일반 전투 — 함선 파괴 처리 (events 기반)
-      for (const ev of result.events) {
-        if (ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') {
-          if (ev.ship_id) {
+      } else {
+        // 구형 결과 객체 방어: 이벤트만 있더라도 격침 처리는 유지
+        for (const ev of result.events) {
+          if ((ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') && ev.ship_id) {
             await client.query(`
               UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
               WHERE id = $1
             `, [ev.ship_id]);
           }
-          if (ev.type === 'flagship_destroyed' && ev.fleet_id) {
-            await client.query(`
-              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
-              WHERE fleet_id = $1 AND is_alive = true
-            `, [ev.fleet_id]);
-          }
         }
-      }
-
-      // 살아남은 함선 부분 HP 손실 반영
-      try {
-        const lastFrame = result.frames && result.frames.length > 0 ? result.frames[result.frames.length - 1] : null;
-        if (lastFrame && Array.isArray(lastFrame.ships)) {
-          for (const s of lastFrame.ships) {
-            const sid = parseInt(s.id);
-            const hp = Math.max(0, Math.round(parseFloat(s.hp) || 0));
-            if (!sid) continue;
-            if (hp <= 0) {
-              await client.query(`
-                UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
-                WHERE id = $1 AND is_alive = true
-              `, [sid]);
-            } else {
-              await client.query(`
-                UPDATE ships SET current_hp = LEAST(current_hp, $1)
-                WHERE id = $2 AND is_alive = true
-              `, [hp, sid]);
-            }
-          }
-        }
-      } catch (hpErr) {
-        console.warn('[battle] partial HP apply failed for battle', battleId, ':', hpErr.message);
       }
     }
     
