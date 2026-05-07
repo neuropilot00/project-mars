@@ -1,3 +1,27 @@
+# OCCUPY MARS — Codebase Audit (v7.53 / 2026-05-07)
+
+## ✅ v7.53 — P5 Territory + Campaign + Admin 종합 감사 (버그 없음) (2026-05-07)
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| 캠페인 스토리 렌더러 (`_campaignComposeEditorLayout`, `showCampaignStory`, `renderCampaignScene`, `pollCampaignProgress`) | ✅ 버그 없음 |
+| 영토 업그레이드 UI (P5-4): `loadTerritoryUpgrades`/`doTerritoryUpgrade` ↔ `/api/territory/:claimId/upgrades|upgrade` | ✅ 버그 없음 |
+| 섹터 컨트롤 UI (P5-5): `_appendSectorControl` ↔ `/api/sectors/:sectorId/control` 필드 정합 | ✅ 버그 없음 |
+| Objective State P5-7: `materialHarvests`/`territoryUpgradeLevels` 쿼리 검증 | ✅ 버그 없음 |
+| Admin 영토 경제 (P5-6): `loadTerritoryEconomy` ↔ `/api/admin/territory/economy` 필드 정합 | ✅ 버그 없음 |
+| `claimUpgrades.js` 서비스: `getUpgradeCatalog()` P5 트랙 `isP5` 필드, 레벨/비용/보너스 구조 | ✅ 버그 없음 |
+| `adminEconomyRoutes.js`: 인증 패턴, territory/production-profile POST | ✅ 버그 없음 |
+| 전체 서버 라우트/서비스 JS Syntax check (81파일) | ✅ 모두 통과 |
+| 마이그레이션 누락 파일 없음 (186개 중 index.js require 대상 전체 존재) | ✅ 확인 |
+| 함선 마켓 `market_listing_id`/`listing_id` 필드명 정합 (취소/구매 경로 별도 쿼리) | ✅ 버그 없음 |
+| Forge 애니메이션 DOM 요소 (forgeModal/forgeHammer/forgeGauge/forgeSparks) | ✅ 전부 존재 |
+| `dailyOps.notifyMissionProgress` export 패턴 | ✅ 정상 |
+
+**참고 (기능 영향 없음):**
+- 마이그레이션 `213_ship_upgrade_materials_fix.sql` / `213_shop_materials.sql` 번호 중복. 파일명 기준 러너이므로 두 파일 독립 적용 가능 — 충돌 없음.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.52 / 2026-05-07)
 
 ## 🛠 v7.52 — tactical-lab WS 함선 격침 폭발 추적 버그 수정 (2026-05-07)

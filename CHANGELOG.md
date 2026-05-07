@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.53 — 전체 코드베이스 종합 감사 (P5 Territory + Campaign + Admin) — 버그 없음
+
+**감사 완료 (버그 없음):**
+
+- **캠페인 스토리 렌더러** — `_campaignComposeEditorLayout` 병합 로직, `showCampaignStory`, `renderCampaignScene`, `pollCampaignProgress` 정상. `readyToComplete` 게이트, `campaign_objectives_gate` i18n 키 4개 언어 정의 확인
+- **영토 업그레이드 UI (P5-4)** — `loadTerritoryUpgrades`/`doTerritoryUpgrade` 가 `/api/territory/:claimId/upgrades|upgrade` 엔드포인트 정확히 호출. `getUpgradeCatalog()` 반환 필드(`key/icon/name/nameEn/desc/bonusUnit/color/isP5/levels`) 프론트 렌더와 일치
+- **섹터 컨트롤 UI (P5-5)** — `_appendSectorControl` → `/api/sectors/:sectorId/control` 정상 호출. 응답 필드(`owners/myEntry/influenceTier/controlPct`) 렌더와 일치
+- **캠페인 Objective State (P5-7)** — `getObjectiveState` `materialHarvests`(resourceDrops JSONB 쿼리)/`territoryUpgradeLevels`(territory_upgrades SUM(level)) P5 추가 통계 확인
+- **Admin 영토 경제 (P5-6)** — `loadTerritoryEconomy` → `/api/admin/territory/economy` 응답 필드(`harvestStats/materialIssued/materialBurn/suspiciousHarvesters/topClaims`) 일치. `_buildProfileEditor`/`saveTerritoryProductionProfile` → `/api/admin/territory/production-profile` 정상
+- **서버 라우트 파일** — 전체 라우트/서비스 파일 Syntax check 통과. 모든 require 대상 파일 존재 확인 (`weeklyChallenges` try-catch 안전 처리 확인)
+- **함선 마켓** — `syCancelShipListing(market_listing_id)` 취소, `syBuyShipListing(listing_id)` 구매 필드명 정합 확인
+- **Daily Ops** — `notifyMissionProgress` 함수 `module.exports.prop` 패턴으로 올바르게 export됨
+- **Forge 애니메이션** — DOM 요소(`forgeModal/forgeHammer/forgeGauge/forgeSparks` 등) 모두 존재 확인
+
+**참고 (기능 영향 없음):**
+- 마이그레이션 번호 중복: `213_ship_upgrade_materials_fix.sql`과 `213_shop_materials.sql` 동시 존재. 러너는 전체 파일명 기준 추적이므로 두 파일 모두 독립 적용 가능. 충돌 없음.
+
+---
+
 ## 2026-05-07 v7.52 — tactical-lab WS 함선 격침 폭발 버그 수정
 
 **수정 (MEDIUM):**
