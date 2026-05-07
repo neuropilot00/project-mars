@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.24 — Rate limiter 누락 엔드포인트 보강
+
+**server/routes/api.js** — `writeLimiter` 누락 엔드포인트 4곳 추가:
+- `POST /referral/register`: `ensureUser` 내부에서 wallet 값으로 신규 유저를 생성하므로 스팸 시 DB 블로트 가능. `writeLimiter` 추가.
+- `POST /campaign/editor-layout`: 전역 `settings.campaign_editor_layout` 키를 덮어쓰는 공유 엔드포인트 — 스팸 방지.
+- `POST /user/titles/equip`: 타이틀 장착 변경 요청 스팸 방지.
+- `POST /error-report`: `client_errors` 테이블 INSERT 경로 — 스팸 방지.
+
+---
+
 ## 2026-05-07 v7.23 — 캠페인 objective gate + 함선 건조 완료 원자성 수정 (Codex)
 
 **server/services/campaign.js** — `getMissingRequiredObjectives()`: 기존에는 `stat` 필드가 있는 목표만 gate했음. `choice`-type 필수 목표(분기 선택을 아직 안 한 챕터)가 완료 조건으로 작동하지 않던 버그 수정. 이제 모든 non-optional, non-claim_result 목표가 `state !== 'done'`이면 완료를 막는다.

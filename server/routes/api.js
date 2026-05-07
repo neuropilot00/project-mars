@@ -320,7 +320,7 @@ router.get('/config', readLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/referral/register — Register referral
 // ══════════════════════════════════════════════════
-router.post('/referral/register', async (req, res) => {
+router.post('/referral/register', writeLimiter, async (req, res) => {
   const { wallet, referralCode } = req.body;
   if (!wallet || !referralCode) return res.status(400).json({ error: 'Missing wallet or referralCode' });
 
@@ -2304,7 +2304,7 @@ router.get('/stats', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/error-report — Client-side error logging
 // ══════════════════════════════════════════════════
-router.post('/error-report', async (req, res) => {
+router.post('/error-report', writeLimiter, async (req, res) => {
   try {
     const { message, source, line, stack, userAgent, url } = req.body;
 
@@ -3806,7 +3806,7 @@ router.get('/campaign/editor-layout', async (req, res) => {
     res.json({});
   }
 });
-router.post('/campaign/editor-layout', async (req, res) => {
+router.post('/campaign/editor-layout', writeLimiter, async (req, res) => {
   try {
     const payload = req.body;
     if (!payload || typeof payload !== 'object') return res.status(400).json({ error: 'invalid payload' });
@@ -7317,7 +7317,7 @@ router.get('/user/titles', readLimiter, async (req, res) => {
 
 // POST /api/user/titles/equip — 칭호 장착
 // body: { wallet, titleCode }
-router.post('/user/titles/equip', async (req, res) => {
+router.post('/user/titles/equip', writeLimiter, async (req, res) => {
   const { wallet, titleCode } = req.body;
   if (!wallet || !titleCode) return res.status(400).json({ error: 'missing_fields' });
   try {

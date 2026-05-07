@@ -1,5 +1,16 @@
 # OCCUPY MARS — Codebase Audit (v7.23 / 2026-05-07)
 
+## 🔴→✅ v7.24 — Rate limiter 누락 엔드포인트 보강 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `POST /referral/register` | `writeLimiter` 없음 → ensureUser로 가짜 지갑 스팸 가능 | ✅ `writeLimiter` 추가 |
+| `POST /campaign/editor-layout` | `writeLimiter` 없음 → 전역 설정 키 스팸 덮어쓰기 | ✅ `writeLimiter` 추가 |
+| `POST /user/titles/equip` | `writeLimiter` 없음 | ✅ `writeLimiter` 추가 |
+| `POST /error-report` | `writeLimiter` 없음 → `client_errors` 테이블 스팸 가능 | ✅ `writeLimiter` 추가 |
+
+---
+
 ## 🔴→✅ v7.23 — 캠페인 objective gate + 함선 건조 원자성 수정 (Codex, 2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |
