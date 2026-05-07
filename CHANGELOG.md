@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.55 — ships.js / fleets.js getWallet 정규화 누락 수정
+
+**수정 (LOW):**
+
+- `server/routes/ships.js` `getWallet()` — JWT wallet 추출 시 `.toLowerCase().trim()` 정규화 없이 반환. ship market 등록/구매/취소, 건조, 강화 등 모든 함선 작업에서 미정규화 wallet 전달 가능성. `fleetBattles.js` v7.54 수정과 동일 패턴으로 통일.
+- `server/routes/fleets.js` `getWallet()` — `req.user.wallet_address` optional chaining 누락 + `.trim()` 미처리. `?.` 추가 및 `.toLowerCase().trim()` 패턴 통일.
+
+**참고:** 두 파일 모두 하위 서비스 레이어에서 `LOWER($1)` 비교 및 내부 `.toLowerCase()` 정규화가 있어 실제 데이터 불일치 위험은 낮음. 방어적 코드 품질 통일 목적.
+
+**감사 확인 (버그 없음):**
+- Guild GET 엔드포인트 (`/guild/my`, `/guild/invites`, `/guild/:id/requests`, `/guild/:id/search-users`) — `req.query.wallet` 기반 공개 READ 패턴은 의도된 설계. `/guild/:id/requests`는 서비스 레이어에서 leader/officer 권한 체크 확인.
+- 영토 업그레이드 서비스 (`upgradeTerritory`) — FOR UPDATE 락, GP 차감 원자성, 레벨 한도 체크 정상
+- 섹터 컨트롤 쿼리 (`COUNT(p.lat)`) — pixels.lat이 NOT NULL PRIMARY KEY이므로 `COUNT(*)` 동등. 정상.
+- 함선 마켓 ID 필드명 — 내 함선 목록 `market_listing_id`, 마켓 목록 `listing_id` 일관성 확인.
+
+---
+
 ## 2026-05-07 v7.54 — fleetBattles.js getWallet 정규화 누락 수정
 
 **수정 (LOW):**

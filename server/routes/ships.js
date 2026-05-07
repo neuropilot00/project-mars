@@ -73,8 +73,8 @@ const optionalAuth = (req, res, next) => {
 
 // ── 유저 지갑 헬퍼 ──
 function getWallet(req) {
-  return req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress ||
-    req.query.wallet || req.headers['x-wallet'];
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress ||
+    req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
 }
 
 // ═══════════════════════════════════════════════════════════════

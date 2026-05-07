@@ -1,3 +1,23 @@
+# OCCUPY MARS — Codebase Audit (v7.55 / 2026-05-07)
+
+## 🛠 v7.55 — ships.js / fleets.js getWallet 정규화 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `server/routes/ships.js` `getWallet()` | `.toLowerCase().trim()` 미처리 — 함선 마켓/건조/강화 wallet 정규화 누락 | 🟢 LOW | ✅ `?.` + `.toLowerCase().trim()` 패턴 적용 |
+| `server/routes/fleets.js` `getWallet()` | `req.user?.` optional chaining 누락 + `.trim()` 미처리 | 🟢 LOW | ✅ `?.` + `.toLowerCase().trim()` 패턴 통일 |
+
+### 추가 검토 영역 (버그 없음)
+| 영역 | 결과 |
+|------|------|
+| Guild GET 엔드포인트 (`/guild/my`, `/guild/invites`, `/guild/:id/requests`) — `req.query.wallet` 패턴 | ✅ 의도된 공개 READ 설계; `/guild/:id/requests`는 서비스 레이어 leader/officer 권한 체크 확인 |
+| 영토 업그레이드 서비스 `upgradeTerritory` — FOR UPDATE 락, GP 원자성, 레벨 한도 | ✅ 버그 없음 |
+| 섹터 컨트롤 쿼리 `COUNT(p.lat)` — pixels.lat NOT NULL PK | ✅ COUNT(*) 동등, 정상 |
+| 함선 마켓 ID 필드 (`market_listing_id` / `listing_id`) 필드명 일관성 | ✅ 버그 없음 |
+| `dailyOps.notifyMissionProgress` export (`module.exports.prop` 패턴) | ✅ 정상 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.54 / 2026-05-07)
 
 ## 🛠 v7.54 — fleetBattles.js wallet 정규화 누락 수정 (2026-05-07)

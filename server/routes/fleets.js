@@ -28,8 +28,7 @@ const requireAuth = (req, res, next) => {
 };
 
 function getWallet(req) {
-  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
-  return typeof wallet === 'string' ? wallet.toLowerCase() : wallet;
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
 function parsePositiveInt(value) {
