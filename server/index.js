@@ -848,7 +848,7 @@ async function start() {
               const cost = parseFloat(item.price_pp);
 
               // Check user balance
-              const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [shield.owner]);
+              const balRes = await client.query('SELECT pp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [shield.owner]);
               const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
 
               if (ppBal < cost) {
@@ -860,7 +860,7 @@ async function start() {
               }
 
               // Deduct PP
-              await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [cost, shield.owner]);
+              await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [cost, shield.owner]);
 
               // Delete old shield, create new
               await client.query('DELETE FROM pixel_shields WHERE id = $1', [shield.id]);
@@ -908,7 +908,7 @@ async function start() {
               const item = itemRes.rows[0];
               const cost = parseFloat(item.price_pp);
 
-              const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [effect.wallet]);
+              const balRes = await client.query('SELECT pp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [effect.wallet]);
               const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
 
               if (ppBal < cost) {
@@ -919,7 +919,7 @@ async function start() {
               }
 
               // Deduct PP
-              await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [cost, effect.wallet]);
+              await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [cost, effect.wallet]);
 
               // Deactivate old, create new
               await client.query('UPDATE user_active_effects SET active = false WHERE id = $1', [effect.id]);
