@@ -1,3 +1,22 @@
+# OCCUPY MARS — Codebase Audit (v7.54 / 2026-05-07)
+
+## 🛠 v7.54 — fleetBattles.js wallet 정규화 누락 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `server/routes/fleetBattles.js` `getWallet()` | JWT 추출 wallet을 정규화 없이 반환 → `fleet_battle_participants.wallet_address`에 대소문자 혼재 저장 위험. 다른 라우트와 패턴 불일치 | 🟡 LOW | ✅ `?.` + `.toLowerCase().trim()` 패턴으로 통일 |
+
+### 추가 검토 영역 (버그 없음)
+| 영역 | 결과 |
+|------|------|
+| PVP Battle Hub UI (`openBattleHub`, `confirmDeclareBattle`) — `getAuthHeaders()` 존재 확인 | ✅ 정상 |
+| 크래프팅/인벤토리 GET 엔드포인트 (`/api/crafting/recipes`, `/api/shop/inventory` 등) — 지갑 query param 기반 공개 GET, JWT 불필요 | ✅ 정상 |
+| Bounty GET 엔드포인트 (`/list`, `/on-me`, `/my-bounties`) — 지갑 query param 기반, JWT 불필요 | ✅ 정상 |
+| `resourceCraft.js` 라우트 — JWT auth, wallet 추출, 서비스 export 정상 | ✅ 정상 |
+| `/api/user/resources` → `getUserInventory` 반환 필드 (`code/quantity`) ↔ 프론트 렌더 정합 | ✅ 정상 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.53 / 2026-05-07)
 
 ## ✅ v7.53 — P5 Territory + Campaign + Admin 종합 감사 (버그 없음) (2026-05-07)

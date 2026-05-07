@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.54 — fleetBattles.js getWallet 정규화 누락 수정
+
+**수정 (LOW):**
+
+- `server/routes/fleetBattles.js` `getWallet()` — JWT 토큰에서 wallet 추출 시 `.toLowerCase().trim()` 정규화 없이 원본 케이스 그대로 반환. `fleet_battle_participants.wallet_address`에 대소문자 혼재 지갑 주소가 저장될 수 있어 향후 case-sensitive 쿼리에서 불일치 위험. 모든 다른 route 파일의 패턴 (`?.` + `toLowerCase().trim()`)으로 통일.
+
+---
+
 ## 2026-05-07 v7.53 — 전체 코드베이스 종합 감사 (P5 Territory + Campaign + Admin) — 버그 없음
 
 **감사 완료 (버그 없음):**

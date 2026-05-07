@@ -34,7 +34,7 @@ const requireAuth = (req, res, next) => {
 };
 
 function getWallet(req) {
-  return req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
 // ═══════════════════════════════════════════════════════════════
