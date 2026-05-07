@@ -2066,7 +2066,7 @@ function reinforce(tid,n){
     atkMaxHP+=s.maxHp;atkHP+=s.maxHp;
   }
   assignFormationSlots(f);
-  addLog('ev',`▶ 증원 ${SHIPS[tid].name} ×${n}`);
+  addLog('ev',`▶ 증원 ${(SHIPS[tid]||{}).name||tid} ×${n}`);
 }
 // 부모 (battle viewer) 에게 명령 전달 — 실제 commanderActions API 호출 트리거
 function _bridgeToParent(cmd, payload) {

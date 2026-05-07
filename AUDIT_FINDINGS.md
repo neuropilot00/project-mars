@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v7.56 / 2026-05-07)
+
+## 🛠 v7.56 — tactical-lab reinforce() null guard (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `assets/tactical-lab-v11.html` `reinforce()` | `SHIPS[tid].name` undefined 접근 가능 — `tid`가 유효하지 않을 때 크래시. dead code지만 방어 처리 필요 | 🟢 LOW | ✅ `(SHIPS[tid]||{}).name\|\|tid` null guard 적용 |
+
+### 추가 검토 영역 (버그 없음)
+| 영역 | 결과 |
+|------|------|
+| P5 영토 업그레이드 UI (`loadTerritoryUpgrades`, `doTerritoryUpgrade`, `renderTerritoryUpgradeBody`) | ✅ 버그 없음 |
+| P5 섹터 컨트롤 UI (`_appendSectorControl`) — 빈 배열 처리, `myEntry`, `influenceTier` | ✅ 버그 없음 |
+| `sySectorBadge(code)` — unmapped code fallback | ✅ 버그 없음 |
+| `pollCampaignProgress()` — `readyToComplete` 게이트, missing objectives 표시, 에러 처리 | ✅ 버그 없음 |
+| 캠페인 objective action routing (6개 action type 핸들러 커버리지) | ✅ 버그 없음 |
+| tactical-lab WS frame 핸들러 — v7.52 CATALOG fix 이후 잔여 undefined 참조 없음 | ✅ 버그 없음 |
+| `worldEvents.js getWallet()` — `getAuthWallet()` 정규화 패턴 이미 적용 | ✅ 버그 없음 |
+| 캠페인 완료 gate (`complete()`) — MISSION_IN_PROGRESS/OBJECTIVE_REQUIREMENTS_NOT_MET 게이트 정상 | ✅ 버그 없음 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.55 / 2026-05-07)
 
 ## 🛠 v7.55 — ships.js / fleets.js getWallet 정규화 수정 (2026-05-07)

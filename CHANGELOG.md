@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.56 — tactical-lab reinforce() null guard 수정
+
+**수정 (LOW):**
+
+- `assets/tactical-lab-v11.html` `reinforce()` 함수 — `SHIPS[tid].name` 참조 시 `tid`가 유효하지 않은 코드인 경우 `Cannot read property 'name' of undefined` 크래시. `(SHIPS[tid]||{}).name||tid` 로 null guard 추가. (reinforce는 현재 UI에서 호출되지 않는 dead code지만 방어 처리.)
+
+**감사 확인 (버그 없음):**
+- P5-4 영토 업그레이드 UI (`loadTerritoryUpgrades`, `doTerritoryUpgrade`, `renderTerritoryUpgradeBody`) — wallet 전달, endpoint, 에러 처리, UI 갱신 모두 정상
+- P5-5 섹터 컨트롤 (`_appendSectorControl`) — 빈 `owners` 배열 graceful 처리, `myEntry`, `influenceTier`/`controlPct` 렌더 정상
+- P5-3 섹터 배지 (`sySectorBadge`) — unmapped code 안전 fallback 정상
+- 캠페인 `pollCampaignProgress()` — `readyToComplete` 게이트, 미완료 objective 표시, complete 4xx/5xx 에러 처리 정상
+- 캠페인 objective action routing — 6개 action type (`territory/territory_art/shipyard/fleet/fleet_battle/market`) 모두 핸들러 존재
+- tactical-lab WS frame 핸들러 — v7.52 수정 후 `CATALOG` 참조 없음, `SHIPS[info.code]` null guard 정상
+- 세계 이벤트 engage (`worldEvents.js`) — `getAuthWallet()` 정규화 패턴 (`?.` + `.toLowerCase().trim()`) 이미 적용됨
+
+---
+
 ## 2026-05-07 v7.55 — ships.js / fleets.js getWallet 정규화 누락 수정
 
 **수정 (LOW):**
