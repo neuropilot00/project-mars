@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.26 — 서비스 전체 rowCount 스윕 완료 (38파일)
+
+**rowCount 가드 전체 서비스 적용 완료.** 모든 `AND gp_balance >= $N` / `AND pp_balance >= $N` guarded UPDATE에 `rowCount === 0` 검사 추가:
+
+**server/services/** (Codex 35파일): alliance, banner, beacon, branding, capsule, contest, duel, expedition, graffiti, highlight, hijack, job, journal, lottery, maintenance, polls, profile, rating, rental, shield, siege, spells, sponsor, staking, status, tevt, tiers, tombstone, tournament, tprestige, transport, tribute, vip, wager, warBetting.
+
+**server/routes/governance.js** — governance_positions 차감 3곳 rowCount 추가.
+**server/routes/bounty.js** — 현상금 등록 GP 차감 rowCount 추가.
+**server/services/enhancement.js** — blessed_scroll/protect_scroll 소모 rowCount 추가 (`BLESSED_SCROLL_UNAVAILABLE` / `PROTECT_SCROLL_UNAVAILABLE`).
+
+모든 38파일 `node --check` 통과. 로직 변경 없음 — 경쟁 조건 시 silent no-op이 명시적 에러로 표면화됨.
+
+---
+
 ## 2026-05-07 v7.25 — api.js TOCTOU 12종 + ship.js rowCount 5종 완료
 
 **server/routes/api.js** (Codex) — 12개 엔드포인트 guarded UPDATE 이후 `rowCount === 0` 누락 수정:

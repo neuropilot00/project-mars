@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v7.25 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.26 / 2026-05-07)
+
+## ✅ v7.26 — rowCount 스윕 완료 (38파일, 2026-05-07)
+
+**전체 서비스/라우트 guarded UPDATE rowCount 커버리지 달성.** 코드베이스에서 `AND gp_balance >= $N` / `AND pp_balance >= $N` 가드를 사용하는 UPDATE 문 중 rowCount 검사가 없던 전체를 수정했다. 이 패턴의 잔여 사례는 0건.
+
+| 분류 | 수정 파일 수 | 수정 위치 수 |
+|------|-------------|-------------|
+| services/ (Codex) | 35 | 38+ |
+| routes/governance.js | 1 | 3 |
+| routes/bounty.js | 1 | 1 |
+| services/enhancement.js (스크롤 소모) | 1 | 2 |
+
+**검증:** 모든 38파일 `node --check` 통과. 로직 변경 없음.
+
+---
 
 ## 🔴→✅ v7.25 — api.js TOCTOU 12종 + ship.js rowCount 5종 (Codex + local, 2026-05-07)
 
