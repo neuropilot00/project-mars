@@ -1,3 +1,55 @@
+# OCCUPY MARS — Codebase Audit (v7.66 / 2026-05-07) — tribute/sponsor + 전체 서비스 감사 완료
+
+## 🟡 v7.66 — tribute/sponsor 동시 제한 우회 수정 + 전체 서비스 감사 완료 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `tribute.js` `sendTribute()` | 쿨다운 체크 FOR UPDATE 없어 동시 요청 통과 | 🟡 MEDIUM | ✅ pg_advisory_xact_lock(hashtext(wallet)) |
+| `sponsor.js` `placeSponsor()` | maxPerTerritory COUNT 체크 FOR UPDATE 없어 초과 | 🟡 MEDIUM | ✅ pg_advisory_xact_lock(claimId) |
+
+### 추가 감사 완료 (버그 없음 / False Positive / LOW)
+| 서비스 | 결과 |
+|--------|------|
+| branding.js | ✅ CLEAN (LOW: clearBranding 소유권 체크 트랜잭션 외부 — 코스메틱) |
+| broadcasts.js | ✅ CLEAN |
+| capsule.js | ✅ CLEAN |
+| chain.js | ✅ FALSE POSITIVE — tx_hash UNIQUE NOT NULL 제약으로 이중 입금 방지 |
+| chronicle.js / chronicleEnhanced.js | ✅ CLEAN (INFO: TOCTOU — 자금 영향 없음) |
+| daily.js | ✅ CLEAN — ON CONFLICT + FOR UPDATE 이중 지급 방지 |
+| onboarding.js | ✅ CLEAN |
+| exploration.js | ✅ CLEAN — FOR UPDATE 직렬화 (INFO: POI active 상태 UI 이슈) |
+| graffiti.js / highlight.js | ✅ CLEAN |
+| journal.js / milestone.js / news.js | ✅ CLEAN |
+| maintenance.js | 🟢 LOW — pixel count TOCTOU (scheduler-only, 자금 영향 최소) |
+| monuments.js | 🟢 LOW — FOR SHARE (hijack 경로 FOR UPDATE가 이미 차단) |
+| polls.js | ✅ CLEAN |
+| prestige.js | ✅ CLEAN (INFO: audit log rank 정확도 minor) |
+| profile.js | ✅ CLEAN |
+| replayShare.js | 🟢 LOW — limit race (자금 없음, 초과 replay record 가능) |
+| rental.js | ✅ CLEAN |
+| resource.js | ✅ CLEAN |
+| signer.js | ✅ CLEAN (INFO: zero-address env var fallback) |
+| tacticsAI.js | ✅ CLEAN — DB 없음 순수 시뮬레이션 |
+| tdesc.js / tprestige.js / tribute.js | ✅ CLEAN (tribute 수정 완료) |
+| wager.js | ✅ CLEAN |
+| weather.js | ✅ CLEAN |
+| governanceExpire.js | ✅ CLEAN |
+| siegeFleetBridge.js | 🟡 LOW — is_in_battle TOCTOU. admin/scheduler 경로, stored proc에 DB 보호 의존 |
+| tombstone.js | ✅ CLEAN |
+| territoryVisual.js | ✅ CLEAN — 읽기 전용 |
+| sponsor.js | ✅ CLEAN (수정 완료) |
+
+### 전체 서비스 감사 완료 요약 (v7.53 ~ v7.66)
+| 심각도 | 수정 수 |
+|--------|---------|
+| 🔴 CRITICAL | 3건 (alliance 크래시, auctionCombat 이중결제, auction buyout 무료구매) |
+| 🔴 HIGH | 10건 (auth broken, arena 소유권, dailyOps GP farming, battleExtras 권한, battleEngine 이중전적, guild FOR UPDATE, crafting 제한우회, 등) |
+| 🟡 MEDIUM | 9건 (expedition, warBetting, worldEvents, governance, rocket, tribute, sponsor 등) |
+| 🟢 LOW | 12건 (wallet 정규화, getWallet 패턴, tournaments, vip, lottery 등) |
+| **총** | **34건** |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.65 / 2026-05-07) — missions/worldEvents/governance/rocket 경쟁조건 수정
 
 ## 🔴 v7.65 — 서비스 레이어 경쟁조건 추가 수정 (2026-05-07)

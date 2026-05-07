@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.66 — tribute/sponsor 동시 요청 제한 우회 방지
+
+**수정 (MEDIUM):**
+
+- `server/services/tribute.js` `sendTribute()` — 쿨다운 체크(`SELECT FROM territory_tributes WHERE from_wallet=... ORDER BY created_at DESC`) 가 `FOR UPDATE` 없이 진행. 동시 요청 두 개가 쿨다운 체크를 동시에 통과해 이중 tribute 가능. `pg_advisory_xact_lock(hashtext(wallet))` 추가로 동일 wallet 직렬화.
+- `server/services/sponsor.js` `placeSponsor()` — `maxPerTerritory` COUNT 체크가 `FOR UPDATE` 없이 진행. 동시 요청 두 개가 같은 클레임 COUNT < max 통과 → 초과 sponsor 삽입. `pg_advisory_xact_lock(claimId)` 추가로 동일 클레임 직렬화.
+
+**조사 결과 (변경 없음):**
+- chain.js `processDeposit` — false positive. `deposits.tx_hash UNIQUE NOT NULL` 제약(migration 001)으로 이중 입금 방지됨.
+- exploration.js POI deactivation — `FOR UPDATE` on POI row가 이미 직렬화. UI 상태 이슈. 보안 무관.
+- siegeFleetBridge.js — admin/scheduler 경로. `create_siege_battle` stored proc에 DB 수준 보호 의존. 플레이어 직접 제어 불가.
+- replayShare.js limit race — 자금 손실 없음. 최대 몇 개 초과 replay record. 낮은 우선순위.
+
+---
+
 ## 2026-05-07 v7.65 — missions/worldEvents/governance/rocket 경쟁조건 수정
 
 **수정 (MEDIUM):**
