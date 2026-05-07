@@ -267,10 +267,11 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
       newLevel = currentLevel;
       scrollUsed = 'blessed_scroll';
       // Consume 1 blessed_scroll (AND quantity > 0 guard prevents negative)
-      await client.query(
+      const consumeBlessed = await client.query(
         'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0',
         [w, blessedRes.rows[0].item_type_id]
       );
+      if (consumeBlessed.rowCount === 0) throw new Error('BLESSED_SCROLL_UNAVAILABLE');
     } else {
       // Failure: stay / downgrade / destroy
       const stayPct = parseInt(await getSetting('enhance_fail_stay_pct') || '50');
@@ -291,10 +292,11 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
           newLevel = Math.max(0, currentLevel - 1);
           scrollUsed = 'protect_scroll';
           // Consume 1 protect_scroll (AND quantity > 0 guard prevents negative)
-          await client.query(
+          const consumeProtect = await client.query(
             'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0',
             [w, protectRes.rows[0].item_type_id]
           );
+          if (consumeProtect.rowCount === 0) throw new Error('PROTECT_SCROLL_UNAVAILABLE');
           await client.query(
             'UPDATE item_instances SET enhancement_level = $1 WHERE id = $2',
             [newLevel, instanceId]

@@ -140,10 +140,11 @@ async function buyTickets(client, wallet, count) {
   if (balance < totalCost) throw new Error(`Insufficient GP: need ${totalCost}, have ${balance.toFixed(2)}`);
 
   // Deduct GP
-  await client.query(
+  const deductLottery = await client.query(
     `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`,
     [w, totalCost]
   );
+  if (deductLottery.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
   // Split house cut and prize pool
   const houseGp  = +(totalCost * cfg.houseCutPct / 100).toFixed(6);

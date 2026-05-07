@@ -90,7 +90,8 @@ async function createPoll(wallet, { question, options, durationH }) {
       }
     }
 
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [cfg.costGP, wallet]);
+    const deductPoll = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [cfg.costGP, wallet]);
+    if (deductPoll.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     const endsAt = new Date(Date.now() + durationH * 3600000);
     const { rows: [poll] } = await client.query(
       `INSERT INTO gp_polls(wallet, question, options, gp_cost, duration_h, ends_at)

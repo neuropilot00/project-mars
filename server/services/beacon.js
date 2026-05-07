@@ -90,7 +90,8 @@ async function placeBeacon(wallet, { x, y, message, icon }) {
     }
 
     // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cfg.costGP, wallet]);
+    const deductBeacon = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cfg.costGP, wallet]);
+    if (deductBeacon.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // Insert beacon
     const expiresAt = new Date(Date.now() + cfg.durH * 3600 * 1000);

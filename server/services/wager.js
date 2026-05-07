@@ -99,10 +99,11 @@ async function placeBet(wallet, poolId, targetWallet, gpAmount) {
     if (userRes.rows[0].gp_balance < gpAmount) throw new Error('Insufficient GP');
 
     // Deduct GP
-    await client.query(
+    const deductWager = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1`,
       [gpAmount, wallet]
     );
+    if (deductWager.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     await client.query(
       `INSERT INTO gp_transactions (wallet, amount, transaction_type, description)
        VALUES ($1, $2, 'wager_bet', $3)`,

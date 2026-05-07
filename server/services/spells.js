@@ -90,7 +90,8 @@ async function castSpell(wallet, claimId, spellType) {
     if (balance < gpCost) throw new Error(`Insufficient GP. Need ${gpCost}, have ${balance}`);
 
     // Deduct GP (AND guard prevents negative balance)
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [gpCost, wallet]);
+    const deductSpell = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [gpCost, wallet]);
+    if (deductSpell.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     await client.query(
       "INSERT INTO gp_transactions(wallet,amount,type,note) VALUES($1,$2,'spell_cast',$3)",
       [wallet, -gpCost, `${SPELLS[spellType].icon} ${SPELLS[spellType].label} on claim #${claimId}`]

@@ -198,10 +198,11 @@ async function startTransport(wallet, originSectorId, destSectorId, cargoGp) {
     const rewardGp = Math.max(0, Math.round(rewardBase * rewardBuff));
 
     // Deduct cargo from wallet (held in transit) — use DB's exact-case wallet for FK integrity
-    await client.query(
+    const deductTransport = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
       [cargoGp, wallet]
     );
+    if (deductTransport.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     const ins = await client.query(
       `INSERT INTO transport_jobs

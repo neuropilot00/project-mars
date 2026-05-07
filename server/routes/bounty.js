@@ -133,10 +133,14 @@ router.post('/post', async (req, res) => {
         return res.status(400).json({ error: 'INSUFFICIENT_GP', balance: userRows[0].gp_balance, required: gp });
       }
 
-      await client.query(
+      const deductBounty = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [gp, wallet]
       );
+      if (deductBounty.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'INSUFFICIENT_GP (concurrent modification)' });
+      }
 
       // 현상금 등록
       const { rows: newBounty } = await client.query(

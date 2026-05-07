@@ -113,10 +113,11 @@ async function declareSiege(challengerWallet, sectorCode) {
       return { success: false, error: 'insufficient_gp', required: gpCost, current: gpBalance };
     }
 
-    await client.query(
+    const deductSiegeStart = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
       [gpCost, w]
     );
+    if (deductSiegeStart.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // ── governor_sieges INSERT ──
     const now          = new Date();
@@ -469,10 +470,11 @@ async function updateGovernorDeclaration(wallet, sectorCode, text) {
       await client.query('ROLLBACK');
       return { success: false, error: 'insufficient_gp', required: gpCost, current: gp };
     }
-    await client.query(
+    const deductSiegeDeclaration = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
       [gpCost, w]
     );
+    if (deductSiegeDeclaration.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 선언문 업데이트
     await client.query(

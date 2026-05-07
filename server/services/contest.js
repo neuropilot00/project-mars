@@ -78,8 +78,9 @@ async function submitEntry(wallet, contestId, title, description, imageUrl, clai
         'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wLower]);
       const bal = balRows.length ? Number(balRows[0].balance) : 0;
       if (bal < fee) throw new Error(`Insufficient GP (need ${fee}, have ${bal.toFixed(2)})`);
-      await client.query(
+      const deductContestEntry = await client.query(
         'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [fee, wLower]);
+      if (deductContestEntry.rowCount === 0) throw new Error('INSUFFICIENT_GP');
       // Add to prize pool
       await client.query(
         'UPDATE art_contests SET prize_pool_gp = prize_pool_gp + $1 WHERE id=$2',
@@ -136,8 +137,9 @@ async function voteForEntry(voter, entryId) {
         'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [vLower]);
       const bal = balRows.length ? Number(balRows[0].balance) : 0;
       if (bal < fee) throw new Error(`Insufficient GP (need ${fee} to vote)`);
-      await client.query(
+      const deductContestVote = await client.query(
         'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [fee, vLower]);
+      if (deductContestVote.rowCount === 0) throw new Error('INSUFFICIENT_GP');
       await client.query(
         'UPDATE art_contests SET prize_pool_gp = prize_pool_gp + $1 WHERE id=$2',
         [fee, entry.contest_id]);

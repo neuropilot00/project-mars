@@ -134,10 +134,11 @@ async function challenge(challenger, defender, wagerGp) {
     }
 
     // GP 에스크로 (challenger만 선차감 — defender는 accept 시)
-    await client.query(
+    const deductDuelChallenge = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [wager, cLower]
     );
+    if (deductDuelChallenge.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     const expires = new Date(Date.now() + cfg.expiryHours * 3600 * 1000);
     const ins = await client.query(
@@ -190,10 +191,11 @@ async function acceptDuel(duelId, defender) {
       `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`, [dLower]);
     if (!dr.rows[0]) throw new Error('USER_NOT_FOUND');
     if (parseFloat(dr.rows[0].gp_balance) < d.wager_gp) throw new Error('INSUFFICIENT_GP');
-    await client.query(
+    const deductDuelAccept = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [d.wager_gp, dLower]
     );
+    if (deductDuelAccept.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 시뮬레이션 (결정론적 — seed 고정)
     const seed = crypto.randomBytes(16).toString('hex');

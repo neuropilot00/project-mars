@@ -106,7 +106,8 @@ async function activateShield(client, wallet, claimId, durationH) {
   if (balance < cost) throw new Error(`Insufficient GP: need ${cost}, have ${balance.toFixed(2)}`);
 
   // Deduct GP
-  await client.query(`UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`, [w, cost]);
+  const deductShield = await client.query(`UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`, [w, cost]);
+  if (deductShield.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
   // Create shield
   const expiresAt = new Date(Date.now() + durationH * 3600 * 1000);

@@ -74,9 +74,10 @@ async function purchasePass(wallet, tierId) {
     if (gpBal < cost) throw new Error(`GP 부족 (필요: ${cost}, 보유: ${gpBal.toFixed(0)})`);
 
     // GP 차감
-    await client.query(
+    const deductVip = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cost, w]
     );
+    if (deductVip.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 기존 패스 만료
     await client.query("UPDATE vip_passes SET is_active = false WHERE wallet = $1", [w]);

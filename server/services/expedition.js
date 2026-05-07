@@ -56,8 +56,9 @@ async function launchExpedition(wallet, claimId, expeditionType, durationH) {
     if (bal < cost) throw new Error(`Insufficient GP (need ${cost.toFixed(2)}, have ${bal.toFixed(2)})`);
 
     // Deduct GP
-    await client.query(
+    const deductExpedition = await client.query(
       'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [cost, wLower]);
+    if (deductExpedition.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // Create expedition
     const returnsAt = new Date(Date.now() + dur * 3600000);

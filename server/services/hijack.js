@@ -537,10 +537,11 @@ async function declareHijackWithPP(params) {
       throw Object.assign(new Error('INSUFFICIENT_PP'), { required: totalCost, balance: ppBal });
     }
 
-    await client.query(
+    const deductHijack = await client.query(
       `UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1`,
       [totalCost, attacker_wallet]
     );
+    if (deductHijack.rowCount === 0) throw new Error('INSUFFICIENT_PP');
 
     // ── 2. 새 픽셀 즉시 claim 생성 ──
     // (수비자 지급은 함대전 승리 후 handlePhase2Complete에서 처리)

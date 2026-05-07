@@ -50,10 +50,11 @@ async function createAlliance(walletAddress, params) {
     const allianceFaction = faction_code || userRows[0].faction_code;
     
     // GP 차감
-    await client.query(
+    const deductAlliance = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [fee, walletAddress]
     );
+    if (deductAlliance.rowCount === 0) throw new Error('INSUFFICIENT_GP');
     
     // 파벌 색상 로드
     let colorPrimary = '#4fc3f7';

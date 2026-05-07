@@ -118,10 +118,11 @@ async function registerParticipant(tournamentId, walletAddress, fleetId) {
         throw err;
       }
       
-      await client.query(
+      const deductTournament = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [t.entry_fee_gp, participantWallet]
       );
+      if (deductTournament.rowCount === 0) throw new Error('INSUFFICIENT_GP');
       entryFeeGp = parseInt(t.entry_fee_gp) || 0;
       
       // Prize pool 증가

@@ -104,10 +104,11 @@ async function createStake(client, wallet, amount, lockDays) {
   }
 
   // Deduct GP
-  await client.query(
+  const deductStaking = await client.query(
     `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`,
     [w, amount]
   );
+  if (deductStaking.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
   // Calculate yield
   const bonusMult  = getBonusMult(lockDays, cfg);

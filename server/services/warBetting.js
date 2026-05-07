@@ -118,10 +118,11 @@ async function placeBet(walletAddress, eventId, option, amountGp) {
       throw err;
     }
 
-    await client.query(
+    const deductWarBet = await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
       [amountGp, walletAddress]
     );
+    if (deductWarBet.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 베팅 기록
     await client.query(`

@@ -229,10 +229,11 @@ async function selectJob(walletAddress, jobCode) {
         err.meta = { required: cost, balance: gpBalance };
         throw err;
       }
-      await client.query(
+      const deductJob = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
         [cost, walletAddress]
       );
+      if (deductJob.rowCount === 0) throw new Error('INSUFFICIENT_GP');
       costPaid = cost;
     }
 

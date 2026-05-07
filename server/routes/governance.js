@@ -156,10 +156,14 @@ router.post('/sector/:id/buff', writeLimiter, async (req, res) => {
     }
 
     // Deduct GP
-    await client.query(
+    const deductBuff = await client.query(
       'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2 AND gp_balance >= $1',
       [gpCost, posRes.rows[0].id]
     );
+    if (deductBuff.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient GP (concurrent modification)' });
+    }
 
     // Create buff
     await client.query(
@@ -262,10 +266,14 @@ router.post('/commander/event', writeLimiter, async (req, res) => {
     }
 
     // Deduct GP
-    await client.query(
+    const deductEvent = await client.query(
       'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2 AND gp_balance >= $1',
       [gpCost, posRes.rows[0].id]
     );
+    if (deductEvent.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient GP (concurrent modification)' });
+    }
 
     // Create event
     await client.query(
@@ -351,10 +359,14 @@ router.post('/commander/bounty', writeLimiter, async (req, res) => {
     }
 
     // Deduct GP
-    await client.query(
+    const deductBounty = await client.query(
       'UPDATE governance_positions SET gp_balance = gp_balance - $1 WHERE id = $2 AND gp_balance >= $1',
       [amount, posRes.rows[0].id]
     );
+    if (deductBounty.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient GP (concurrent modification)' });
+    }
 
     // Convert GP to PP reward for the bounty hunter (1:1)
     await client.query(
