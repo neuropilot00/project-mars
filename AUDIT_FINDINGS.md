@@ -1,3 +1,18 @@
+# OCCUPY MARS — Codebase Audit (v7.63 / 2026-05-07) — 핵심 서비스 레이어 이중 처리 방지
+
+## 🔴 v7.63 — 경매/전투/제작 이중 처리 방지 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `auctionCombat.js` `_finalizeAuction()` | `UPDATE auctions SET status='sold'` — `AND status NOT IN ('sold')` 가드 없음 → 동시 scheduler 틱 두 개가 각각 판매자에게 수익 지급 (이중 지급) | 🔴 CRITICAL | ✅ FOR UPDATE 락 + `AND status IN ('active','ended')` + rowCount=0 조기 반환 |
+| `auctionCombat.js` `placeBid()` | 경매 SELECT가 트랜잭션 외부 `pool.query` → 동시 입찰 GP 이중 차감 가능 | 🔴 CRITICAL | ✅ FOR UPDATE 내부 트랜잭션으로 이동 (이전 세션 완료) |
+| `battleEngine.js` `applyBattleResults()` | `UPDATE fleet_battles` — `AND status != 'ended'` 가드 없음 → 이중 호출 시 전적 이중 적산 | 🔴 HIGH | ✅ FOR UPDATE + `AND status != 'ended'` + rowCount=0 guard |
+| `guild.js` `updateGuildInfo()` | 길드장 역할 체크 `SELECT role FROM guild_members` 에 FOR UPDATE 누락 → 동시 역할 변경으로 비리더 수정 가능 | 🔴 HIGH | ✅ `FOR UPDATE` 추가 |
+| `crafting.js` `craftItem()` | 일일 제작 제한 COUNT 체크 → INSERT 사이 레이스 → 동시 요청으로 제한 우회 | 🔴 HIGH | ✅ `pg_advisory_xact_lock(hashtext(wallet))` 어드바이저리 락으로 직렬화 |
+| `enhancementAdvanced.js` `calculateMaterialBonus()` | `pool.query`로 사전 체크, `consumeMaterials`에서 client로 차감 — TOCTOU | 🟡 MEDIUM | ✅ `deductResource`의 `AND quantity >= $3` 원자성 가드로 이중 차감 불가 확인 — DESIGN-SAFE |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.62 / 2026-05-07) — 최종 라우트 감사 완료
 
 ## ✅ v7.62 — 최종 75개 라우트 감사 완료 (2026-05-07)

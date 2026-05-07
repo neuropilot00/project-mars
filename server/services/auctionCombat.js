@@ -132,24 +132,25 @@ async function createAuction(sellerWallet, params) {
 // ─── 입찰 ───
 
 async function placeBid(bidderWallet, auctionId, bidAmount) {
-  const { rows: aRows } = await pool.query(
-    `SELECT * FROM auctions WHERE id = $1 AND status = 'active'`, [auctionId]
-  );
-  if (!aRows[0]) throw new Error('AUCTION_NOT_FOUND');
-  const auction = aRows[0];
-
-  if (auction.seller_wallet === bidderWallet) throw new Error('CANNOT_BID_OWN');
-  if (new Date() > new Date(auction.ends_at)) throw new Error('AUCTION_EXPIRED');
-
-  const minIncrement = await getFloat(
-    `auction_min_bid_${auction.currency.toLowerCase()}`, 1
-  );
-  const minBid = parseFloat(auction.current_price) + minIncrement;
-  if (bidAmount < minBid) throw new Error(`BID_TOO_LOW:${minBid}`);
-
+  // [v7.63] auction 읽기를 트랜잭션 내 FOR UPDATE로 이동 — 동시 입찰 시 이중 잔고 차감 방지
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    const { rows: aRows } = await client.query(
+      `SELECT * FROM auctions WHERE id = $1 AND status = 'active' FOR UPDATE`, [auctionId]
+    );
+    if (!aRows[0]) { await client.query('ROLLBACK'); throw new Error('AUCTION_NOT_FOUND'); }
+    const auction = aRows[0];
+
+    if (auction.seller_wallet === bidderWallet) { await client.query('ROLLBACK'); throw new Error('CANNOT_BID_OWN'); }
+    if (new Date() > new Date(auction.ends_at)) { await client.query('ROLLBACK'); throw new Error('AUCTION_EXPIRED'); }
+
+    const minIncrement = await getFloat(
+      `auction_min_bid_${auction.currency.toLowerCase()}`, 1
+    );
+    const minBid = parseFloat(auction.current_price) + minIncrement;
+    if (bidAmount < minBid) { await client.query('ROLLBACK'); throw new Error(`BID_TOO_LOW:${minBid}`); }
 
     // 입찰자 잔고 차감 (에스크로)
     const ok = await deductBalance(client, bidderWallet, auction.currency, bidAmount);
@@ -256,6 +257,15 @@ async function _finalizeAuction(auction, buyerWallet, amount) {
   try {
     await client.query('BEGIN');
 
+    // [v7.63] 이중 정산 방지: FOR UPDATE로 경매 행 잠금 후 status 재확인
+    const { rows: lockRows } = await client.query(
+      `SELECT status FROM auctions WHERE id = $1 FOR UPDATE`, [auction.id]
+    );
+    if (!lockRows[0] || !['active', 'ended'].includes(lockRows[0].status)) {
+      await client.query('ROLLBACK');
+      return { settled: 'already_finalized', auction_id: auction.id };
+    }
+
     // 즉시구매인 경우 구매자 잔고 차감
     const existingBid = await client.query(`
       SELECT id, amount FROM bids
@@ -274,12 +284,16 @@ async function _finalizeAuction(auction, buyerWallet, amount) {
     // 아이템 소유권 이전
     await _transferItem(client, auction, buyerWallet);
 
-    // 낙찰 처리
-    await client.query(`
+    // 낙찰 처리 — AND status IN ('active','ended') 로 이중 UPDATE 방지 [v7.63]
+    const { rowCount } = await client.query(`
       UPDATE auctions SET
         status = 'sold', winner_wallet = $2, final_price = $3, sold_at = NOW()
-      WHERE id = $1
+      WHERE id = $1 AND status IN ('active', 'ended')
     `, [auction.id, buyerWallet, amount]);
+    if (rowCount === 0) {
+      await client.query('ROLLBACK');
+      return { settled: 'already_finalized', auction_id: auction.id };
+    }
 
     // 다른 입찰자 전원 환불
     const { rows: otherBids } = await client.query(`

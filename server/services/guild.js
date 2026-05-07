@@ -177,9 +177,9 @@ async function updateGuildInfo(callerWallet, guildId, fields) {
   try {
     await client.query('BEGIN');
 
-    // Verify caller is the leader of this guild
+    // Verify caller is the leader of this guild — FOR UPDATE prevents role change race [v7.63]
     const leaderCheck = await client.query(
-      'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2',
+      'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2 FOR UPDATE',
       [guildId, callerWallet]
     );
     if (!leaderCheck.rows.length || leaderCheck.rows[0].role !== 'leader') {

@@ -979,14 +979,19 @@ async function applyBattleResults(battleId, result) {
   try {
     await client.query('BEGIN');
 
-    // 하이젝 전투 여부 확인 (함선 파괴 방지)
+    // [v7.63] 이중 적용 방지: FOR UPDATE로 전투 행 잠금 후 status 재확인
     const { rows: btRows } = await client.query(
-      `SELECT battle_type FROM fleet_battles WHERE id = $1`, [battleId]
+      `SELECT battle_type, status FROM fleet_battles WHERE id = $1 FOR UPDATE`, [battleId]
     );
-    const isHijackBattle = btRows[0] && (btRows[0].battle_type || '').startsWith('hijack');
+    if (!btRows[0] || btRows[0].status === 'ended') {
+      await client.query('ROLLBACK');
+      console.warn(`[battleEngine] applyBattleResults: battle ${battleId} already ended, skipping`);
+      return { skipped: true };
+    }
+    const isHijackBattle = (btRows[0].battle_type || '').startsWith('hijack');
 
-    // 1. fleet_battles 업데이트
-    await client.query(`
+    // 1. fleet_battles 업데이트 — AND status != 'ended' 이중 UPDATE 방지 [v7.63]
+    const { rowCount: battleRowCount } = await client.query(`
       UPDATE fleet_battles SET
         status = 'ended',
         winner_side = $1,
@@ -997,7 +1002,7 @@ async function applyBattleResults(battleId, result) {
         def_ships_lost = $6,
         ended_at = NOW(),
         battle_summary = COALESCE(battle_summary, '{}'::jsonb) || $7::jsonb
-      WHERE id = $8
+      WHERE id = $8 AND status != 'ended'
     `, [
       result.winner_side,
       result.duration_seconds,
@@ -1013,7 +1018,12 @@ async function applyBattleResults(battleId, result) {
       }),
       battleId
     ]);
-    
+    if (battleRowCount === 0) {
+      await client.query('ROLLBACK');
+      console.warn(`[battleEngine] applyBattleResults: battle ${battleId} row not updated (already ended?), aborting`);
+      return { skipped: true };
+    }
+
     // 2. 함대별 전적 업데이트 + 함선 사망 처리
     for (const fleetStat of result.stats.by_fleet) {
       const won = fleetStat.side === result.winner_side;

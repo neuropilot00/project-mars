@@ -89,7 +89,9 @@ async function craftItem(client, wallet, recipeId) {
     ? recipe.ingredients
     : JSON.parse(recipe.ingredients || '[]');
 
-  // 3. Daily limit check
+  // 3. Daily limit check — advisory lock prevents concurrent bypass [v7.63]
+  // pg_advisory_xact_lock serializes same-wallet crafts within this transaction
+  await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [walletLower]);
   const maxPerDay = parseInt(await getSetting('crafting_max_per_day', '20'), 10);
   const { rows: todayRows } = await client.query(
     `SELECT COUNT(*) AS cnt FROM crafting_log

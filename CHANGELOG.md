@@ -1,5 +1,33 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.63 — 핵심 서비스 이중 처리 방지 + 경쟁 조건 수정
+
+**수정 (CRITICAL — 서비스 레이어):**
+
+- `server/services/auctionCombat.js` `_finalizeAuction()` — 동시 scheduler 틱 / buyout 요청 두 개가 같은 경매를 동시에 정산할 경우 `UPDATE auctions SET status='sold'`가 두 번 성공해 판매자에게 수익이 이중 지급됨.
+  - `BEGIN` 직후 `SELECT ... FOR UPDATE`로 경매 행 잠금, `status IN ('active','ended')` 재확인
+  - `UPDATE ... WHERE status IN ('active','ended')` + `rowCount === 0` 시 ROLLBACK & 조기 반환
+- `server/services/auctionCombat.js` `placeBid()` — 이전 세션에서 시작된 수정: 경매 SELECT를 트랜잭션 외부(`pool.query`)에서 읽어 동시 입찰 시 GP 이중 차감 가능. FOR UPDATE 내부 트랜잭션으로 이동 완료.
+
+**수정 (HIGH — 서비스 레이어):**
+
+- `server/services/battleEngine.js` `applyBattleResults()` — 동시 호출 시(스케줄러 버그 or 네트워크 재시도) `fleet_battles` status='ended' 없이 UPDATE → 함대 전적(`battles_won/lost/total_kills`) 이중 적산.
+  - `BEGIN` 직후 `SELECT ... FOR UPDATE`로 전투 행 잠금, `status === 'ended'` 시 ROLLBACK & skip
+  - `UPDATE ... WHERE status != 'ended'` + `rowCount === 0` guard 추가
+- `server/services/guild.js` `updateGuildInfo()` — 길드장 역할 체크 `SELECT role FROM guild_members WHERE ...` 에 `FOR UPDATE` 누락. 동시 요청 시 역할 변경 레이스로 비리더가 정보 수정 가능.
+  - `SELECT role FROM guild_members WHERE guild_id=$1 AND wallet=$2 FOR UPDATE` 로 수정
+
+**수정 (HIGH — 서비스 레이어):**
+
+- `server/services/crafting.js` `craftItem()` — 일일 제작 횟수 제한 `COUNT(*) FROM crafting_log` 체크가 동시 요청 시 레이스 — 두 요청이 동시에 `count < max` 통과 후 모두 제작 진행.
+  - `pg_advisory_xact_lock(hashtext(wallet))` 트랜잭션 어드바이저리 락으로 동일 wallet 직렬화
+
+**조사 결과 (변경 없음):**
+
+- `server/services/enhancementAdvanced.js` `calculateMaterialBonus()` — `pool.query`로 재료 잔액 사전 체크 후 `consumeMaterials(client, ...)` 내 atomic deduct. `AND quantity >= $3` 원자성 가드로 실제 이중 차감 불가. MEDIUM → DESIGN-SAFE 판정.
+
+---
+
 ## 2026-05-07 v7.62 — 최종 라우트 감사 완료 + getWallet 정규화 마무리
 
 **수정 (LOW):**
