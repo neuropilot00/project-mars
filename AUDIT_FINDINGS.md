@@ -1,4 +1,25 @@
-# OCCUPY MARS — Codebase Audit (v7.27 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.28 / 2026-05-07)
+
+## ✅ v7.28 — 전체 버그 감사 완료 (2026-05-07)
+
+**감사 범위**: 잔액 차감 원자성, SQL 인젝션, 스케줄러 이중처리, 에러 핸들링 누락
+
+| 감사 영역 | 결과 |
+|-----------|------|
+| `processCompletedJobs()` / `cancelBuildJob()` (ship.js) | ✅ 정상 — per-job 격리, 원자적 status claim |
+| SQL 인젝션: `${balCol}` (arena/api/marketplace) | ✅ 안전 — 코드 상수에서 유도, 외부 입력 없음 |
+| SQL 인젝션: `${setClause}` (territoryIdentity, admin) | ✅ 안전 — hardcoded 키 배열에서 구성 |
+| `FOR UPDATE` 패턴 확인 (announcement~vtag 전체) | ✅ 모두 `FOR UPDATE` + 명시적 잔액 체크 사용 |
+| `territory_upgrades` 스키마 정합 | ✅ `updated_at` 존재, 머지 코드 동적 감지 정합 |
+| P5 statusMap 분기 | ✅ 비P5 disabled=409, P5 disabled=400 (의도적) |
+| battleRewards.js GP | ✅ 지급만 있음, rowCount 불필요 |
+| arena.js 미니게임 rowCount | ✅ crash/mines/cf/dice/hilo 모두 확인됨 |
+| guild/donate (api.js:6836) | ✅ `FOR UPDATE` + 잔액 체크. 경미한 case 불일치 존재하나 실 영향 없음 |
+| `status(500)` 응답 전체 | ✅ 모두 에러 정보 포함 |
+
+**결론**: 크리티컬 버그 추가 발견 없음. v7.25~v7.27 수정으로 코드베이스 전체 잔액 차감 원자성 달성.
+
+---
 
 ## 🔴→✅ v7.27 — P5 영토 업그레이드 버그 3종 (2026-05-07)
 

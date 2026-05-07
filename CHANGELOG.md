@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.28 — 전체 코드베이스 버그 감사 완료 (shipScheduler + SQL 정합성)
+
+**감사 완료 항목**:
+- `processCompletedJobs()` (ship.js line 566): per-job try/catch 격리 확인, 이중처리 없음 (`WHERE status = 'building'` 원자 claim).
+- `cancelBuildJob()` (ship.js line 592): `FOR UPDATE` + 상태 체크 + 환불 트랜잭션 정상.
+- SQL 인젝션 스캔: `${balCol}` (arena.js/api.js/marketplace.js) — 모두 코드 내 상수에서 유도됨. `${setClause}` (territoryIdentity.js, admin.js) — hardcoded 키 배열에서 구성됨. 외부 입력 삽입 경로 없음.
+- `FOR UPDATE` + 명시적 잔액 체크 패턴 확인: announcement, donation, milestone, monuments, faction, raffle, prestige, tdesc, vtag, tournaments, title, titleExtended, season — 모두 동일한 안전 패턴. rowCount 생략은 `FOR UPDATE` 락이 보장하므로 문제 없음.
+- P5 업그레이드 statusMap: `'P5 territory upgrades are currently disabled'` → 400 반환 (의도적, 기능 비활성화는 클라이언트 에러).
+- `territory_upgrades` 스키마 확인: `updated_at` 컬럼 존재 (migration 180). 머지 코드(api.js:5638)의 동적 컬럼 감지도 `updated_at` 우선 처리로 정합.
+- battleRewards.js: GP 지급만 있고 차감 없음. rowCount 불필요.
+- arena.js: crash/mines/coinflip/dice/hilo 모두 rowCount 가드 존재 확인.
+- guild/donate (api.js:6836): `FOR UPDATE` + 명시적 잔액 체크로 안전. wallet_address 대소문자 경로 경미한 불일치 존재하나 `w`가 이미 소문자이므로 실 영향 없음.
+
+**결론**: 전체 코드베이스 rowCount/TOCTOU 스윕 완료. SQL 인젝션 경로 없음. 잔액 차감 원자성 보장됨. 새로 발견된 크리티컬 버그 없음.
+
+---
+
 ## 2026-05-07 v7.27 — P5 영토 업그레이드 버그 3종 수정
 
 **server/services/claimUpgrades.js**:
