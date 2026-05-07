@@ -3820,3 +3820,20 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 - auction + auctionRoutes (ops + listing)
 - tournament + tournaments (fleet + simple)
 - fix: 하이젝 에러맵 + 병합 버튼 JA/ZH 로컬라이징
+
+## 2026-05-07 v7.49 — 프론트엔드 나머지 API 인증 헤더 완전 적용
+
+**수정 (HIGH — index.html ~100개 추가 fetch 호출):**
+
+v7.48에서 누락된 나머지 write endpoint fetch 호출에 `getAuthHeaders()` 완전 적용.
+
+- governance sector tax-rate/buff/announcement, siege/declare, governor/declaration
+- rockets/trigger, duels (challenge/cancel/accept), shield/activate
+- contests (submit/vote), rental (list/rent/cancel)
+- expeditions (launch/cancel), capsule/bury, broadcasts/create
+- alliances (join/create/deposit/withdraw), territory/merge, territory/identity PATCH
+- user/job, user/titles/equip, vip/purchase, lottery/buy
+- daily-ops (progress/claim), campaign/reward/claim, gp/transfer
+- exploration/discover, rockets/claim-loot, claims/rename 등
+
+전체 index.html API write 호출 커버리지 완성. `/api/auth/*` + `emailAuth` 패턴 사용 호출은 의도적으로 미수정.
