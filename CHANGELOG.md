@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.12 — 영토 수확 TOCTOU 경쟁 조건 수정
+
+**server/routes/api.js** — territory harvest claims SELECT에 `FOR UPDATE OF c` 추가.
+동시 수확 요청 두 건이 쿨다운 체크를 모두 통과해 이중 PP를 지급하는 경쟁 조건 수정.
+
+---
+
 ## 2026-05-07 v7.11 — 일일 출석 cycleDay 수정 ("7일 중 8일차" 버그)
 
 ### 수정 내용

@@ -1,4 +1,10 @@
-# OCCUPY MARS — Codebase Audit (v7.11 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
+
+## 🔴→✅ v7.12 — 영토 수확 TOCTOU 경쟁 조건 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/routes/api.js` — territory harvest (~L3183) | `claims` SELECT에 `FOR UPDATE` 없음 → 동시 harvest 요청 두 건이 모두 쿨다운 체크 통과 → 같은 클레임에서 이중 PP 수확 가능 | ✅ `FOR UPDATE OF c` 추가 (v7.12) |
 
 ## 🔴→✅ v7.11 — 일일 출석 "7일 중 8일차" 표시 버그 수정 (2026-05-07)
 
