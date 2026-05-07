@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.64 — auction/expedition/warBetting/vip/lottery 서비스 경쟁조건 수정
+
+**수정 (CRITICAL):**
+
+- `server/services/auction.js` `buyout()` — GP 차감 후 `rowCount` 미체크. 동시 GP 소진 시 `rowCount=0` 무시하고 auction이 `settled`로 닫히며 판매자에게 수익 지급 + 아이템 이전됨. 구매자 GP는 차감 안 됨 → 무료 즉구 가능. `rowCount === 0` 시 ROLLBACK 추가.
+
+**수정 (MEDIUM):**
+
+- `server/services/expedition.js` `resolveExpeditions()` — `UPDATE expeditions SET status='completed'` 에 `AND status='active'` 가드 없음. 동시 scheduler 틱 두 개가 같은 expedition 처리 → GP 이중 지급. `rowCount=0` 시 ROLLBACK + continue 추가.
+- `server/services/expedition.js` `cancelExpedition()` — SELECT 가 트랜잭션 외부(`pool.query`). 동시 취소 두 요청이 같은 expedition 읽고 이중 환불. SELECT를 `BEGIN` 내 `FOR UPDATE + AND status='active'` 로 이동.
+- `server/services/warBetting.js` `resolveEvent()` — 승자 베팅 `SELECT ... WHERE option=$2` 에 `AND status='pending'` 없음. 트랜잭션 충돌 후 재시도 시 `status='won'` 베팅에도 재지급. `AND status='pending'` 추가.
+
+**수정 (LOW):**
+
+- `server/services/vip.js` `buyVip()` — `vip_passes` FOR UPDATE 없어 동시 구매 두 요청이 각각 GP 차감 후 같은 pass row에 upsert → 패스는 1개지만 GP는 이중 차감. `INSERT DO NOTHING + SELECT FOR UPDATE` 직렬화 추가.
+- `server/services/lottery.js` `drawWinner()` — `Math.random()` → `crypto.randomInt` 로 교체 (PRNG 예측 가능성 제거).
+
+---
+
 ## 2026-05-07 v7.63 — 핵심 서비스 이중 처리 방지 + 경쟁 조건 수정
 
 **수정 (CRITICAL — 서비스 레이어):**

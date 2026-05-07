@@ -1,3 +1,32 @@
+# OCCUPY MARS — Codebase Audit (v7.64 / 2026-05-07) — 경매/탐험/전쟁베팅/VIP/복권 경쟁조건 수정
+
+## 🔴 v7.64 — 서비스 레이어 경쟁조건 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `auction.js` `buyout()` | GP deduct rowCount 미체크 → 동시 drain 시 무료 즉구 + 판매자 이중 지급 | 🔴 CRITICAL | ✅ rowCount=0 ROLLBACK 추가 |
+| `expedition.js` `resolveExpeditions()` | `AND status='active'` 없어 이중 scheduler GP 지급 | 🔴 MEDIUM | ✅ rowCount=0 ROLLBACK+continue 추가 |
+| `expedition.js` `cancelExpedition()` | SELECT 트랜잭션 외부 → 이중 환불 가능 | 🔴 MEDIUM | ✅ FOR UPDATE 내부 트랜잭션으로 이동 |
+| `warBetting.js` `resolveEvent()` | 승자 베팅 SELECT에 `status='pending'` 없어 재시도 시 이중 지급 | 🟡 MEDIUM | ✅ `AND status='pending'` 추가 |
+| `vip.js` `buyVip()` | `vip_passes` FOR UPDATE 없어 동시 구매 GP 이중 차감 | 🟡 LOW | ✅ `INSERT DO NOTHING + SELECT FOR UPDATE` 추가 |
+| `lottery.js` `drawWinner()` | `Math.random()` PRNG 예측 가능 | 🟢 LOW | ✅ `crypto.randomInt` 로 교체 |
+
+### 추가 감사 (버그 없음)
+| 서비스 | 결과 |
+|--------|------|
+| tribute.js | ✅ CLEAN — FOR UPDATE + atomic deduct + cooldown 트랜잭션 내 체크 |
+| dividends.js | ✅ CLEAN — double-distribution `ON CONFLICT DO NOTHING RETURNING` 가드 정상 |
+| duel.js | ✅ CLEAN (LOW: getCfg/getSettings 기본값 불일치 90%/95% — 로직 버그 아님) |
+| raffle.js | ✅ CLEAN |
+| contest.js | ✅ CLEAN |
+| spells.js | ✅ CLEAN |
+| donation.js | ✅ CLEAN |
+| staking.js | ✅ CLEAN (LOW: status='active'/'ready' 둘 다 출금 허용 — 설계 의도) |
+| wager.js | ✅ CLEAN (MEDIUM: warBetting resolveEvent 동일 위험 있었으나 별도 경로) |
+| rental.js | 🟡 LOW — float precision GP leak (totalGp × periods JS float). 실질 손실 미미, 로그 남음. 미수정 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.63 / 2026-05-07) — 핵심 서비스 레이어 이중 처리 방지
 
 ## 🔴 v7.63 — 경매/전투/제작 이중 처리 방지 수정 (2026-05-07)
