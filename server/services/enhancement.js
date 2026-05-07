@@ -159,7 +159,7 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
 
   // Check GP balance
   const balRes = await client.query(
-    'SELECT gp_balance FROM users WHERE wallet_address = $1',
+    'SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
     [w]
   );
   if (!balRes.rows.length) throw new Error('User not found');
@@ -168,7 +168,7 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
 
   // Deduct GP
   await client.query(
-    'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
+    'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
     [cost, w]
   );
 

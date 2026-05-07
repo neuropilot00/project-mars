@@ -95,7 +95,7 @@ async function createStake(client, wallet, amount, lockDays) {
 
   // Check GP balance
   const userRes = await client.query(
-    `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]
+    `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]
   );
   if (!userRes.rows.length) throw new Error('User not found');
   const balance = parseFloat(userRes.rows[0].gp_balance) || 0;
@@ -105,7 +105,7 @@ async function createStake(client, wallet, amount, lockDays) {
 
   // Deduct GP
   await client.query(
-    `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1)`,
+    `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`,
     [w, amount]
   );
 

@@ -51,7 +51,7 @@ async function processMaintenanceFees() {
 
       // Get current PP balance
       const balRes = await client.query(
-        'SELECT pp_balance FROM users WHERE wallet_address = $1',
+        'SELECT pp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
         [wallet]
       );
 

@@ -110,18 +110,18 @@ async function rentClaim(tenant, rentalId, periods) {
 
     // Check tenant balance
     const { rows: balRows } = await client.query(
-      'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [tLower]);
+      'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [tLower]);
     const bal = balRows.length ? Number(balRows[0].balance) : 0;
     if (bal < totalGp) throw new Error(`Insufficient GP (need ${totalGp}, have ${bal.toFixed(2)})`);
 
     // Deduct from tenant
     await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2',
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1',
       [totalGp, tLower]
     );
     // Pay owner
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+      `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
       [rental.owner, ownerGp]
     );
 

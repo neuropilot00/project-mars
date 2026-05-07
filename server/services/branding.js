@@ -71,14 +71,14 @@ async function _setBrandingField(wallet, claimId, field, value, cost) {
     const gpCost   = isUpdate ? cfg.updateCost : cost;
 
     // Check balance
-    const bal = await client.query('SELECT gp_balance AS balance FROM users WHERE wallet_address=$1', [wallet]);
+    const bal = await client.query('SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
     const balance = bal.rows.length ? parseInt(bal.rows[0].balance, 10) : 0;
     if (balance < gpCost) throw new Error(`Insufficient GP. Need ${gpCost}, have ${balance}`);
 
     const oldValue = isUpdate ? existing.rows[0][field] : null;
 
     // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [gpCost, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [gpCost, wallet]);
     await client.query(
       "INSERT INTO gp_transactions(wallet,amount,type,note) VALUES($1,$2,'branding',$3)",
       [wallet, -gpCost, `Set territory ${field} (claim #${claimId})`]
