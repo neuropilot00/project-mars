@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.45 — harvest 3개 엔드포인트 JWT 인증 + api.js requireAuth 추가
+
+**수정 (HIGH):**
+- `server/routes/api.js` `POST /harvest`, `/territory/:claimId/harvest`, `/harvest-instant`: body wallet → `requireAuth` JWT. `/harvest-instant`는 body wallet으로 타인 PP 소각 가능한 치명적 취약점 차단.
+- `server/routes/api.js`에 JWT `requireAuth` 미들웨어 추가 (공통 사용 가능).
+
+---
+
 ## 2026-05-07 v7.44 — 8개 라우트 JWT 인증 추가
 
 **수정 (HIGH):**

@@ -79,6 +79,18 @@ const harvestLimiter = rateLimit({
   message: { error: 'Harvest rate limit exceeded.' }
 });
 
+// ✅ [v7.45] JWT 인증 미들웨어 — harvest/instant 등 중요 write endpoint 보호용
+const jwt = require('jsonwebtoken');
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
+
 // ── Shared input sanitizer ──
 function sanitize(str, maxLen) {
   if (typeof str !== 'string') return '';
@@ -2762,16 +2774,14 @@ router.get('/breakthrough/:wallet', readLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/harvest — Mining harvest (collect PP from owned pixels)
 // ══════════════════════════════════════════════════
-router.post('/harvest', harvestLimiter, async (req, res) => {
-  const { wallet } = req.body;
-  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  if (!w) return res.status(401).json({ error: 'Wallet required' });
 
   const client = await pool.connect();
   try {
     const s = await cfg();
     if (s.mining_enabled === false) return res.status(403).json({ error: 'Mining is disabled' });
-
-    const w = wallet.toLowerCase();
     await client.query('BEGIN');
 
     // Count pixels by sector tier
@@ -3183,10 +3193,10 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
 //  POST /api/territory/:claimId/harvest — 영토별 개별 수확
 //  각 claim 에 독립 cooldown (claims.last_harvest_at)
 // ══════════════════════════════════════════════════════════
-router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
+router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (req, res) => {
   const claimId = parseInt(req.params.claimId);
-  const w = (req.body.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
-  if (!w || w.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  const w = getAuthWallet(req);
+  if (!w || w.length < 10) return res.status(401).json({ error: 'wallet_required' });
   if (!claimId || isNaN(claimId)) return res.status(400).json({ error: 'invalid_claim_id' });
 
   const client = await pool.connect();
@@ -5218,16 +5228,14 @@ router.get('/daily/streak', readLimiter, async (req, res) => {
 // ══════════════════════════════════════
 
 // POST /api/harvest-instant — skip cooldown for 0.5 PP
-router.post('/harvest-instant', harvestLimiter, async (req, res) => {
-  const { wallet } = req.body;
-  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+router.post('/harvest-instant', requireAuth, harvestLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  if (!w) return res.status(401).json({ error: 'Wallet required' });
 
   const client = await pool.connect();
   try {
     const s = await cfg();
     if (s.mining_enabled === false) return res.status(403).json({ error: 'Mining is disabled' });
-
-    const w = wallet.toLowerCase();
     const instantCost = parseFloat(s.instant_harvest_cost_pp) || 0.5;
 
     await client.query('BEGIN');

@@ -1,5 +1,15 @@
 # OCCUPY MARS — Codebase Audit (v7.42 / 2026-05-07)
 
+## 🔴→✅ v7.45 — harvest endpoints JWT 인증 누락 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `api.js POST /harvest-instant` — body wallet 신뢰, JWT 없음 | 타인 wallet의 PP 소각 (즉구 쿨다운 스킵 비용) 가능 | 🔴 HIGH | ✅ requireAuth |
+| `api.js POST /harvest` — body wallet 신뢰, JWT 없음 | 타인 wallet으로 채굴 트리거 (수익은 피해자에게 감) | 🟡 MEDIUM | ✅ requireAuth |
+| `api.js POST /territory/:claimId/harvest` — body wallet 신뢰, JWT 없음 | DB 소유권 체크 있으나 wallet 위조 가능 | 🟡 MEDIUM | ✅ requireAuth |
+
+---
+
 ## 🔴→✅ v7.44 — 8개 라우트 JWT 인증 누락 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
