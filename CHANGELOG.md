@@ -1,5 +1,36 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.87 — GP/PP 잔액 가드 전체 서비스 일괄 수정 (39개 서비스)
+
+### 수정 패턴 (전체 공통)
+- 모든 `UPDATE users SET gp_balance/pp_balance = balance - $N` 경로에 `AND gp_balance >= $N` (또는 `pp_balance >= $N`) 음수 방지 가드 추가
+- `WHERE wallet_address = $N` → `WHERE LOWER(wallet_address) = LOWER($N)` wallet 대소문자 정규화
+- 잔액 SELECT에 `FOR UPDATE` 누락 시 추가 (동시 이중 차감 방지)
+
+### v6.86 커밋 (10개 서비스 — Claude + Codex 협업)
+- `spells.js`: SELECT에 FOR UPDATE 추가
+- `staking.js`: FOR UPDATE + AND guard
+- `rental.js`: LOWER() + AND guard (3곳)
+- `branding.js`: LOWER() + FOR UPDATE + AND guard
+- `enhancement.js`: FOR UPDATE + LOWER() + AND guard
+- `lottery.js`: FOR UPDATE + LOWER() + AND guard
+- `tournaments.js`: LOWER() + FOR UPDATE + AND guard
+- `vtag.js`: setTag + clearTag 양쪽 LOWER() + FOR UPDATE + AND guard
+- `broadcasts.js`: LOWER() + FOR UPDATE + AND guard
+- `maintenance.js`: LOWER() + FOR UPDATE + SELECT guard + UPDATE guard
+
+### v6.87 커밋 (39개 서비스 — Claude 27개 + Codex 12개)
+- `ship.js` 5곳 (건조/수리/실드/업그레이드/마켓 구매): `AND gp_balance >= $1` 일괄 추가
+- `hijack.js`: pp_balance 차감 guard 추가
+- `duel.js`: challenger 에스크로 + defender 에스크로 양쪽 guard
+- `marketplace.js` listing fee: LOWER() + guard
+- `auction.js` 3곳 (listing fee/bid/buyout): LOWER() + guard
+- `siege.js` 2곳: guard 추가
+- `contest.js` 2곳 (entry fee/vote fee): guard 추가
+- 나머지 22개 서비스 (`graffiti`, `prestige`, `capsule`, `announcement`, `alliance`, `beacon`, `sponsor`, `banner`, `tdesc`, `highlight`, `titleExtended`, `tprestige`, `shield`, `tombstone`, `rating`, `journal`, `milestone`, `polls`, `profile`, `job`, `missions`, `exploration`, `claimUpgrades`, `warBetting`, `raffle`, `tiers`, `expedition`, `wager`, `tevt`, `tournament`, `donation`): 동일 패턴 수정
+
+---
+
 ## 2026-05-07 v6.85 — 일일미션/퀘스트 풀/마켓 구매 동시성 수정
 
 ### server/services/daily.js

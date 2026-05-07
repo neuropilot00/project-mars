@@ -1,4 +1,22 @@
-# OCCUPY MARS — Codebase Audit (v6.85 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.87 / 2026-05-07)
+
+## 🔴→✅ v6.87 — GP/PP 잔액 가드 + wallet LOWER() 전체 서비스 일괄 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| **v6.86 커밋** — 10개 서비스 (`spells`, `staking`, `rental`, `branding`, `enhancement`, `lottery`, `tournaments`, `vtag`, `broadcasts`, `maintenance`) | `SELECT gp_balance` 후 `FOR UPDATE` 누락 → 동시 요청이 동일 잔액을 보고 중복 차감 가능. wallet 대소문자 비교 버그. 음수 잔액 방지 guard 없음 | ✅ `FOR UPDATE` + `LOWER()` + `AND gp_balance >= $N` 일괄 추가 |
+| **v6.87 커밋 — Claude 27개 + Codex 12개 = 39개 서비스** 전체 GP/PP 차감 경로 | 동일 패턴: `AND gp_balance >= $N` guard 없음, wallet 대소문자 미정규화 (`ship.js` 5곳, `siege.js` 2곳, `auction.js` 3곳, `duel.js` 2곳, `contest.js` 2곳 포함 총 48곳 이상) | ✅ 모든 `UPDATE users SET gp_balance/pp_balance = ... - $N` 경로에 guard + LOWER() 완료 |
+| `server/services/ship.js` (L304, L826, L947, L1227, L1529) | LOWER() 있었으나 `AND gp_balance >= $1` 없음 → 함선 건조/수리/실드/업그레이드/마켓 구매 전 경로에서 음수 잔액 가능 | ✅ replace_all로 5곳 동시 수정 |
+| `server/services/hijack.js` L519 | `pp_balance` 차감에 guard 없음 → 하이잭 공격 비용 음수 차감 가능 | ✅ `AND pp_balance >= $1` 추가 |
+| `server/services/duel.js` (challenger escrow L138, defender escrow L194) | 잔액 확인 후 차감 사이 guard 없음 | ✅ 두 경로 모두 `AND gp_balance >= $1` 추가 |
+| `server/services/marketplace.js` listing fee L52 | `wallet_address = $2` LOWER() 없음 + guard 없음 | ✅ LOWER() + guard 추가 |
+| `server/services/commanderActions.js` | 이미 `AND gp_balance >= $1 RETURNING` 패턴 사용 중 — 클린 | ✅ 수정 불필요 |
+
+**이 시점 이후 `UPDATE users SET gp_balance/pp_balance = ... - $N` 패턴 관련 버그는 전부 해소됨.**
+
+---
+
+## 🔴→✅ v6.85 — 일일미션/퀘스트 풀/마켓 구매 동시성 버그 수정 (2026-05-07)
 
 ## 🔴→✅ v6.85 — 일일미션/퀘스트 풀/마켓 구매 동시성 버그 수정 (2026-05-07)
 
