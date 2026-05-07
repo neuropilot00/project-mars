@@ -4152,16 +4152,16 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
     if (unitPrice <= 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: `Item not purchasable with ${cur}` }); }
     const totalCost = unitPrice * qty;
 
-    // Check balance
-    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    // Check balance — FOR UPDATE prevents concurrent double-spend
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
     if (balRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
     if (parseFloat(balRes.rows[0].bal) < totalCost) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: `Insufficient ${cur}. Need ${totalCost}, have ${parseFloat(balRes.rows[0].bal).toFixed(2)}` });
     }
 
-    // Deduct balance
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [totalCost, w]);
+    // Deduct balance (AND guard prevents negative balance from concurrent edge cases)
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [totalCost, w]);
 
     // material 카테고리: user_resource_inventory에 지급
     if (item.category === 'material') {
