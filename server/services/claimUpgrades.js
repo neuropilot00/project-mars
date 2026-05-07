@@ -222,9 +222,9 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
   if (!cfg.enabled) throw new Error('Territory upgrade system is currently disabled');
   if (!UPGRADE_TYPES[upgradeType]) throw new Error(`Unknown upgrade type: ${upgradeType}`);
 
-  // Verify ownership
+  // Verify ownership — FOR UPDATE to prevent concurrent over-limit inserts on same claim
   const claimRes = await client.query(
-    `SELECT id, owner FROM claims WHERE id = $1 AND deleted_at IS NULL FOR SHARE`,
+    `SELECT id, owner FROM claims WHERE id = $1 AND deleted_at IS NULL FOR UPDATE`,
     [claimId]
   );
   if (!claimRes.rows.length) throw new Error('Territory not found');
