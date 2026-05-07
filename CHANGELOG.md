@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.60 — tournaments.js 중복 참가 GP 이중 차감 수정
+
+**수정 (LOW):**
+
+- `server/services/tournaments.js` `joinTournament()` — 동일 wallet이 동시에 같은 토너먼트에 두 번 참가 요청 시 GP가 두 번 차감되나 entry는 `ON CONFLICT DO NOTHING`으로 한 번만 등록됨. tournament row의 `FOR UPDATE` 락이 직렬화하므로 실질 위험은 낮으나 두 번째 차감분 GP 손실 가능. `FOR UPDATE` 락 직후 `SELECT 1 FROM tournament_entries` 존재 체크를 추가해 `ALREADY_ENTERED` 에러로 조기 차단.
+
+**감사 확인 (버그 없음):**
+- `Math.random()` 기반 lottery/raffle 추첨 — 약한 PRNG이나 현재 Web3 블록체인 검증 없는 플랫폼 특성상 실질 조작 위험 낮음. 개선 필요 시 `crypto.getRandomValues()` 전환 권장.
+
+---
+
 ## 2026-05-07 v7.59 — auth.js 비밀번호 변경/계정삭제 broken + arena.js hilo 소유권 검증 누락 수정
 
 **수정 (HIGH):**

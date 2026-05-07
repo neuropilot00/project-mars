@@ -1,3 +1,14 @@
+# OCCUPY MARS — Codebase Audit (v7.60 / 2026-05-07)
+
+## 🛠 v7.60 — tournaments.js 중복 참가 GP 이중 차감 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `server/services/tournaments.js` `joinTournament()` | 중복 참가 체크 없이 GP 차감 → 동시 요청 시 GP 이중 차감 가능, entry는 `ON CONFLICT DO NOTHING` 무시 → GP 손실 | 🟡 LOW | ✅ `FOR UPDATE` 락 직후 `tournament_entries` 존재 체크 추가, `ALREADY_ENTERED` 조기 차단 |
+| lottery.js / raffle.js `Math.random()` 추첨 | 약한 PRNG — 블록체인 기반 검증 없으면 이론적 추첨 조작 가능 | 🟢 LOW (설계 위험) | ⏳ 미수정 — 현 플랫폼에서 실질 위험 낮음; `crypto.getRandomValues()` 전환 권장 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.59 / 2026-05-07)
 
 ## 🔴 v7.59 — auth.js broken endpoints + arena.js hilo 소유권 취약점 수정 (2026-05-07)

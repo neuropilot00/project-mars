@@ -81,6 +81,14 @@ async function joinTournament(wallet, tournamentId) {
     if (!tRow.rows.length) throw new Error('Tournament not found');
     const t = tRow.rows[0];
     if (t.status !== 'open') throw new Error(`Tournament is ${t.status}, not open for registration`);
+
+    // [v7.60] Check for duplicate entry BEFORE GP deduction to prevent double-charge
+    const dupCheck = await client.query(
+      'SELECT 1 FROM tournament_entries WHERE tournament_id=$1 AND wallet=$2',
+      [tournamentId, wallet]
+    );
+    if (dupCheck.rows.length) throw new Error('ALREADY_ENTERED');
+
     if (t.max_players) {
       const cnt = await client.query('SELECT COUNT(*) AS n FROM tournament_entries WHERE tournament_id=$1', [tournamentId]);
       if (parseInt(cnt.rows[0].n, 10) >= t.max_players) throw new Error('Tournament is full');
