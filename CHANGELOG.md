@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.96 — warBetting 환불 LOWER() + FOR UPDATE
+
+### server/routes/warBettingRoutes.js
+- admin cancel fallback 환불 루프 L257: `SELECT war_bets ... FOR UPDATE` 추가 (이중 환불 경쟁 방지)
+- admin cancel fallback 환불 루프 L259: `WHERE wallet_address = $1` → `WHERE LOWER(wallet_address) = LOWER($1)` (혼합 대소문자 저장 wallet 환불 누락 방지)
+
+---
+
 ## 2026-05-07 v6.92 — auto-renew 스케줄러 + ship/fleet FOR UPDATE + crafting LOWER()
 
 ### server/index.js (v6.92)

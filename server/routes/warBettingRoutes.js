@@ -254,9 +254,9 @@ router.post('/admin/events/:id/cancel', async (req, res) => {
           await client.query('ROLLBACK');
           return res.status(409).json({ error: 'ALREADY_RESOLVED' });
         }
-        const bets = await client.query(`SELECT bettor_wallet, amount_gp FROM war_bets WHERE event_id=$1`, [id]);
+        const bets = await client.query(`SELECT bettor_wallet, amount_gp FROM war_bets WHERE event_id=$1 FOR UPDATE`, [id]);
         for (const b of bets.rows) {
-          await client.query(`UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`, [b.bettor_wallet, b.amount_gp]);
+          await client.query(`UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`, [b.bettor_wallet, b.amount_gp]);
         }
         await client.query(`UPDATE war_bet_events SET status='cancelled', resolved_at=NOW() WHERE id=$1`, [id]);
         await client.query('COMMIT');
