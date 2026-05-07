@@ -31852,6 +31852,13 @@ var arenaWallet = null;
 var arenaPpBal = 0, arenaUsdtBal = 0;
 var arenaInited = false;
 
+// ── Arena Auth Header (JWT) ──
+function arenaAuthHeaders() {
+  var t = localStorage.getItem('pw_token');
+  return t ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t }
+           : { 'Content-Type': 'application/json' };
+}
+
 // ── Arena Toast ──
 function arenaToast(msg, isErr) {
   var t = document.getElementById('arenaToast');
@@ -32128,7 +32135,7 @@ window.placeCrashBet = function() {
   var amount = parseFloat(document.getElementById('crashBetInput').value);
   if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
   fetch(ARENA_API + '/crash/bet', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: crashCurrency })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32144,7 +32151,7 @@ window.placeCrashBet = function() {
 function doCrashCashout() {
   if (!myBet || myBet.cashed) return;
   fetch(ARENA_API + '/crash/cashout', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, multiplier: crashMultiplier })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32378,7 +32385,7 @@ function startMines() {
   var amount = parseFloat(document.getElementById('minesBetInput').value);
   if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
   fetch(ARENA_API + '/mines/start', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: minesCurrency, mines: mineCount })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32406,7 +32413,7 @@ function revealTile(pos) {
   var tile = tiles[pos];
   tile.style.pointerEvents = 'none';
   fetch(ARENA_API + '/mines/reveal', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, gameId: minesGameId, position: pos })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32441,7 +32448,7 @@ function cashoutMines() {
   if (!minesActive || !minesGameId) return;
   if (minesRevealed.length === 0) return arenaToast('Reveal at least one tile', true);
   fetch(ARENA_API + '/mines/cashout', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, gameId: minesGameId })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32537,7 +32544,7 @@ window.playCoinflip = function() {
   coin.className = 'cf-coin spinning';
 
   fetch(ARENA_API + '/coinflip/play', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: cfCurrency, choice: cfChoice })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32648,7 +32655,7 @@ window.playDice = function() {
   labelEl.textContent = '';
 
   fetch(ARENA_API + '/dice/play', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: diceCurrency, target: target, direction: diceDirection })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32792,7 +32799,7 @@ window.startHilo = function() {
   btn.textContent = 'STARTING...';
 
   fetch(ARENA_API + '/hilo/start', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: hiloCurrency })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32825,7 +32832,7 @@ window.guessHilo = function(dir) {
   if (lowerBtn) lowerBtn.disabled = true;
 
   fetch(ARENA_API + '/hilo/guess', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ gameId: hiloGameId, guess: dir })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
@@ -32861,7 +32868,7 @@ window.cashoutHilo = function() {
   if (cashBtn) { cashBtn.disabled = true; cashBtn.textContent = 'CASHING OUT...'; }
 
   fetch(ARENA_API + '/hilo/cashout', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ gameId: hiloGameId })
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
