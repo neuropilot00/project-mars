@@ -54,7 +54,7 @@ async function createGuild(wallet, name, tag, emoji, description) {
     );
 
     // Update user
-    await client.query('UPDATE users SET guild_id = $1 WHERE wallet_address = $2', [guildId, wallet]);
+    await client.query('UPDATE users SET guild_id = $1 WHERE LOWER(wallet_address) = LOWER($2)', [guildId, wallet]);
 
     await client.query('COMMIT');
     console.log(`[GUILD] Created "${name}" [${tag}] by ${wallet} (-${cost} GP)`);
@@ -378,7 +378,7 @@ async function acceptInvite(wallet, inviteId) {
     await client.query("UPDATE guild_invites SET status = 'accepted' WHERE id = $1", [inviteId]);
     await client.query("INSERT INTO guild_members (guild_id, wallet, role) VALUES ($1, $2, 'member')", [guildId, wallet]);
     await client.query('UPDATE guilds SET member_count = member_count + 1 WHERE id = $1', [guildId]);
-    await client.query('UPDATE users SET guild_id = $1 WHERE wallet_address = $2', [guildId, wallet]);
+    await client.query('UPDATE users SET guild_id = $1 WHERE LOWER(wallet_address) = LOWER($2)', [guildId, wallet]);
 
     await client.query('COMMIT');
 
@@ -517,7 +517,7 @@ async function approveJoinRequest(callerWallet, inviteId) {
     await client.query("UPDATE guild_invites SET status = 'accepted' WHERE id = $1", [inviteId]);
     await client.query("INSERT INTO guild_members (guild_id, wallet, role) VALUES ($1, $2, 'member')", [guild_id, invited_wallet]);
     await client.query('UPDATE guilds SET member_count = member_count + 1 WHERE id = $1', [guild_id]);
-    await client.query('UPDATE users SET guild_id = $1 WHERE wallet_address = $2', [guild_id, invited_wallet]);
+    await client.query('UPDATE users SET guild_id = $1 WHERE LOWER(wallet_address) = LOWER($2)', [guild_id, invited_wallet]);
 
     await client.query('COMMIT');
     return { success: true };
@@ -561,7 +561,7 @@ async function leaveGuild(wallet) {
     const guildId = mem.rows[0].guild_id;
     await client.query('DELETE FROM guild_members WHERE wallet = $1', [wallet]);
     await client.query('UPDATE guilds SET member_count = member_count - 1 WHERE id = $1', [guildId]);
-    await client.query('UPDATE users SET guild_id = NULL WHERE wallet_address = $1', [wallet]);
+    await client.query('UPDATE users SET guild_id = NULL WHERE LOWER(wallet_address) = LOWER($1)', [wallet]);
 
     await client.query('COMMIT');
     return { success: true };
@@ -582,7 +582,7 @@ async function kickMember(leaderWallet, targetWallet, guildId) {
 
     await client.query('DELETE FROM guild_members WHERE guild_id = $1 AND wallet = $2', [guildId, targetWallet]);
     await client.query('UPDATE guilds SET member_count = member_count - 1 WHERE id = $1', [guildId]);
-    await client.query('UPDATE users SET guild_id = NULL WHERE wallet_address = $1', [targetWallet]);
+    await client.query('UPDATE users SET guild_id = NULL WHERE LOWER(wallet_address) = LOWER($1)', [targetWallet]);
 
     await client.query('COMMIT');
     return { success: true };

@@ -391,7 +391,7 @@ async function claimSeasonReward(wallet, rewardId) {
         [reward.reward_amount, wallet]);
       rewardLabel = reward.reward_amount + ' GP';
     } else if (reward.reward_type === 'xp') {
-      await client.query('UPDATE users SET xp = xp + $1 WHERE wallet_address = $2',
+      await client.query('UPDATE users SET xp = xp + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [reward.reward_amount, wallet]);
       rewardLabel = reward.reward_amount + ' XP';
     } else if (reward.reward_type === 'item' && meta.item_code) {
@@ -654,7 +654,7 @@ async function claimPassTier(wallet, tier, isPremium) {
       await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [t.reward_amount, wallet]);
       label = t.reward_amount + ' GP';
     } else if (t.reward_type === 'xp') {
-      await client.query('UPDATE users SET xp = xp + $1 WHERE wallet_address = $2', [t.reward_amount, wallet]);
+      await client.query('UPDATE users SET xp = xp + $1 WHERE LOWER(wallet_address) = LOWER($2)', [t.reward_amount, wallet]);
       label = t.reward_amount + ' XP';
     } else if (t.reward_type === 'item') {
       const meta = t.reward_meta || {};

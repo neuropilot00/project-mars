@@ -441,7 +441,7 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
 
       // Credit upline balance (correct column per currency)
       await client.query(
-        `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`,
+        `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [reward, ref.wallet]
       );
 
@@ -545,7 +545,7 @@ async function checkBreakthroughCondition(client, wallet, condition) {
 async function awardXP(client, wallet, xpAmount) {
   if (!xpAmount || xpAmount <= 0) return null;
   const res = await client.query(
-    'UPDATE users SET xp = xp + $1, total_actions = total_actions + 1 WHERE wallet_address = $2 RETURNING xp, rank_level',
+    'UPDATE users SET xp = xp + $1, total_actions = total_actions + 1 WHERE LOWER(wallet_address) = LOWER($2) RETURNING xp, rank_level',
     [xpAmount, wallet]
   );
   if (!res.rows.length) return null;
@@ -593,7 +593,7 @@ async function awardXP(client, wallet, xpAmount) {
   }
 
   if (newLevel > rank_level) {
-    await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newLevel, wallet]);
+    await client.query('UPDATE users SET rank_level = $1 WHERE LOWER(wallet_address) = LOWER($2)', [newLevel, wallet]);
     if (totalRewardPp > 0) {
       await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [totalRewardPp, wallet]);
     }

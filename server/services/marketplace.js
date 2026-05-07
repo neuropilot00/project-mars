@@ -281,12 +281,12 @@ async function buyListing(client, listingId, buyer) {
   const sellerReceives = price - fee - tariffAmount;
 
   // Credit seller
-  await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [sellerReceives, listing.seller]);
+  await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [sellerReceives, listing.seller]);
 
   // Credit governor (if tariff applied)
   if (tariffAmount > 0 && tariffGovernor) {
     await client.query(
-      `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`,
+      `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [tariffAmount, tariffGovernor]
     );
     // sectors.total_tax_collected 누적 (있으면)

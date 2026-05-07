@@ -947,7 +947,7 @@ router.post('/recalc-ranks', async (req, res) => {
       }
 
       if (newLevel !== user.rank_level) {
-        await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newLevel, w]);
+        await client.query('UPDATE users SET rank_level = $1 WHERE LOWER(wallet_address) = LOWER($2)', [newLevel, w]);
       }
       results.push({ wallet: w.slice(0, 10) + '...', oldRank: user.rank_level, newRank: newLevel, xp: user.xp });
     }
@@ -4503,7 +4503,7 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
     let factionCode = uRows[0].faction_code || forceFaction || 'mcc';
     if (!uRows[0].faction_code) {
       // 파벌 DB에도 저장
-      await client.query(`UPDATE users SET faction_code = $1 WHERE wallet_address = $2`, [factionCode, w]);
+      await client.query(`UPDATE users SET faction_code = $1 WHERE LOWER(wallet_address) = LOWER($2)`, [factionCode, w]);
     }
 
     // 함대 생성 or 조회
@@ -4678,7 +4678,7 @@ router.post('/fleet/grant-starter-all-npcs', adminAuth, async (req, res) => {
     try {
       await client.query('BEGIN');
       if (!npc.faction_code) {
-        await client.query(`UPDATE users SET faction_code=$1 WHERE wallet_address=$2`, [faction, w]);
+        await client.query(`UPDATE users SET faction_code=$1 WHERE LOWER(wallet_address)=LOWER($2)`, [faction, w]);
       }
       // 함대 확보
       let fleetId;

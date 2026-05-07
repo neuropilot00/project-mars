@@ -149,23 +149,57 @@ async function distributeLastWeek() {
   try {
     await client.query('BEGIN');
 
-    // Lock pool row
-    await client.query(`SELECT id FROM gp_dividend_pool WHERE id = $1 AND is_distributed = false FOR UPDATE`, [poolRow.id]);
+    // Lock pool row and verify it is still undistributed (guard against concurrent calls)
+    const lockedPool = await client.query(
+      `SELECT id FROM gp_dividend_pool WHERE id = $1 AND is_distributed = false FOR UPDATE`,
+      [poolRow.id]
+    );
+    if (!lockedPool.rows.length) {
+      // Another concurrent call already distributed this pool
+      await client.query('ROLLBACK');
+      return 0;
+    }
+
+    // Re-fetch stakers INSIDE the transaction after the lock (prevents snapshot/lock gap)
+    const lockedStakersRes = await client.query(
+      `SELECT wallet, SUM(amount) AS total_staked
+         FROM gp_stakes
+        WHERE status IN ('active', 'ready')
+          AND staked_at < $1
+          AND amount >= $2
+        GROUP BY wallet
+        HAVING SUM(amount) >= $2`,
+      [lastWeekStart + 'T00:00:00Z', cfg.minStake]
+    );
+    const stakers = lockedStakersRes.rows;
+    if (!stakers.length) {
+      await client.query(
+        `UPDATE gp_dividend_pool SET is_distributed = true, distributed_at = NOW() WHERE id = $1`,
+        [poolRow.id]
+      );
+      await client.query('COMMIT');
+      return 0;
+    }
+    const lockedTotalWeight = stakers.reduce((sum, r) => sum + parseFloat(r.total_staked), 0);
 
     let totalDistributed = 0;
 
-    for (const staker of stakersRes.rows) {
+    for (const staker of stakers) {
       const weight = parseFloat(staker.total_staked);
-      const share = +(totalPool * (weight / totalWeight)).toFixed(6);
+      const share = +(totalPool * (weight / lockedTotalWeight)).toFixed(6);
       if (share <= 0) continue;
 
-      // Create claim record
-      await client.query(
+      // Create claim record — RETURNING id tells us if the INSERT actually fired
+      const claimIns = await client.query(
         `INSERT INTO gp_dividend_claims (pool_id, wallet, stake_weight, dividend_gp)
          VALUES ($1, $2, $3, $4)
-         ON CONFLICT (pool_id, wallet) DO NOTHING`,
+         ON CONFLICT (pool_id, wallet) DO NOTHING
+         RETURNING id`,
         [poolRow.id, staker.wallet, weight, share]
       );
+
+      // Only credit GP if this is a new claim (not a conflict-skip)
+      if (!claimIns.rows.length) continue;
 
       // Auto-pay the dividend (no manual claim needed — simpler UX)
       await client.query(

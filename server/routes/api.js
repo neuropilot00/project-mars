@@ -4160,7 +4160,7 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
     }
 
     // Deduct balance
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [totalCost, w]);
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [totalCost, w]);
 
     // material 카테고리: user_resource_inventory에 지급
     if (item.category === 'material') {
@@ -4424,7 +4424,7 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
     } else if (item.code === 'supply_crate') {
       // Supply crate — instant random PP grant
       const randomPP = +(Math.random() * 0.4 + 0.1).toFixed(4);
-      await client.query('UPDATE users SET game_pp = game_pp + $1 WHERE wallet_address = $2', [randomPP, w]);
+      await client.query('UPDATE users SET game_pp = game_pp + $1 WHERE LOWER(wallet_address) = LOWER($2)', [randomPP, w]);
       effectResult = { applied: true, code: item.code, ppGained: randomPP };
     } else if (item.code === 'recall_beacon') {
       // Recall beacon — instantly complete oldest in-transit mission

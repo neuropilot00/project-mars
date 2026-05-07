@@ -126,7 +126,7 @@ async function recalcUserRank(walletAddress, opts = {}) {
 
     let changed = false;
     if (newLevel !== oldLevel) {
-      await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newLevel, w]);
+      await client.query('UPDATE users SET rank_level = $1 WHERE LOWER(wallet_address) = LOWER($2)', [newLevel, w]);
       changed = true;
     }
 

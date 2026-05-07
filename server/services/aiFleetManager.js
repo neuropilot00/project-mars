@@ -69,7 +69,7 @@ async function ensureAiUser(factionCode, difficulty, index) {
   if (existing[0]) {
     // faction 업데이트
     await pool.query(
-      `UPDATE users SET faction_code = $1 WHERE wallet_address = $2 AND (faction_code IS NULL OR faction_code != $1)`,
+      `UPDATE users SET faction_code = $1 WHERE LOWER(wallet_address) = LOWER($2) AND (faction_code IS NULL OR faction_code != $1)`,
       [factionCode, aiWallet]
     );
     return aiWallet;
