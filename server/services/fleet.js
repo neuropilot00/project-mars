@@ -322,11 +322,17 @@ async function deleteFleet(fleetId, walletAddress) {
     let movedTo = null;
     
     if (aliveShips > 0) {
+      await client.query(
+        `SELECT id FROM ships WHERE fleet_id = $1 AND is_alive = true FOR UPDATE`,
+        [fleetId]
+      );
+
       // 다른 함대 중 가장 오래된 것으로 이동
       const { rows: targetRows } = await client.query(`
         SELECT id FROM fleets 
         WHERE LOWER(owner_wallet) = LOWER($1) AND id != $2
         ORDER BY created_at ASC LIMIT 1
+        FOR UPDATE
       `, [walletAddress, fleetId]);
       
       if (!targetRows[0]) {
@@ -508,6 +514,10 @@ async function setFlagship(walletAddress, fleetId, shipId) {
     
     // 기존 기함 해제
     await client.query(
+      `SELECT id FROM ships WHERE fleet_id = $1 AND is_flagship = true FOR UPDATE`,
+      [fleetId]
+    );
+    await client.query(
       `UPDATE ships SET is_flagship = false WHERE fleet_id = $1 AND is_flagship = true`,
       [fleetId]
     );
@@ -539,7 +549,8 @@ async function ensureFlagship(client, fleetId) {
        AND is_flagship = true
        AND is_alive = true
        AND COALESCE(is_market_listed, false) = false
-     LIMIT 1`,
+     LIMIT 1
+     FOR UPDATE`,
     [fleetId]
   );
   if (existingFlag[0]) return existingFlag[0].id;
@@ -555,6 +566,7 @@ async function ensureFlagship(client, fleetId) {
       AND st.is_flagship_capable = true
     ORDER BY st.sort_order DESC, s.id ASC
     LIMIT 1
+    FOR UPDATE OF s
   `, [fleetId]);
   
   if (candidateRows[0]) {

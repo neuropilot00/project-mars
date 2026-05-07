@@ -471,7 +471,7 @@ async function completeBuildJob(jobId) {
     } else {
       // 지정된 함대가 아직 존재하는지 확인
       const { rows: flRows } = await client.query(
-        `SELECT id FROM fleets WHERE id = $1 AND owner_wallet = $2`,
+        `SELECT id FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
         [fleetId, job.wallet_address]
       );
       if (!flRows[0]) {
@@ -481,11 +481,12 @@ async function completeBuildJob(jobId) {
     
     // 기함 여부: 함대에 기함이 없으면 이 함선을 기함으로
     const { rows: flagRows } = await client.query(
-      `SELECT COUNT(*) AS c FROM ships 
-       WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`,
+      `SELECT id FROM ships 
+       WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true
+       FOR UPDATE`,
       [fleetId]
     );
-    const isFlagship = parseInt(flagRows[0].c) === 0 && st.is_flagship_capable;
+    const isFlagship = flagRows.length === 0 && st.is_flagship_capable;
     
     // 함선 생성 (트리거가 Titan/유저 한도 체크)
     const { rows: shipRows } = await client.query(`
@@ -577,7 +578,7 @@ async function cancelBuildJob(jobId, walletAddress) {
     
     const { rows: jobRows } = await client.query(
       `SELECT * FROM ship_build_jobs 
-       WHERE id = $1 AND wallet_address = $2 FOR UPDATE`,
+       WHERE id = $1 AND LOWER(wallet_address) = LOWER($2) FOR UPDATE`,
       [jobId, walletAddress]
     );
     if (!jobRows[0]) throw new Error('JOB_NOT_FOUND');
@@ -667,7 +668,7 @@ async function cancelBuildJob(jobId, walletAddress) {
 async function getOrCreateDefaultFleet(client, walletAddress) {
   // 기존 함대가 있으면 첫 번째 반환
   const { rows: existing } = await client.query(
-    `SELECT id FROM fleets WHERE owner_wallet = $1 ORDER BY id ASC LIMIT 1`,
+    `SELECT id FROM fleets WHERE LOWER(owner_wallet) = LOWER($1) ORDER BY id ASC LIMIT 1 FOR UPDATE`,
     [walletAddress]
   );
   if (existing[0]) return existing[0].id;
@@ -699,12 +700,12 @@ async function getFleetSummary(walletAddress) {
       COUNT(s.id) FILTER (WHERE s.is_alive AND st.is_capital) AS capital_ships,
       COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive), 0) AS total_hp,
       (SELECT COUNT(*) FROM ship_build_jobs 
-       WHERE wallet_address = $1 AND status = 'building') AS jobs_in_progress
+       WHERE LOWER(wallet_address) = LOWER($1) AND status = 'building') AS jobs_in_progress
     FROM users u
-    LEFT JOIN fleets f ON f.owner_wallet = u.wallet_address
+    LEFT JOIN fleets f ON LOWER(f.owner_wallet) = LOWER(u.wallet_address)
     LEFT JOIN ships s ON s.fleet_id = f.id
     LEFT JOIN ship_types st ON st.code = s.ship_type_code
-    WHERE u.wallet_address = $1
+    WHERE LOWER(u.wallet_address) = LOWER($1)
     GROUP BY u.gp_balance
   `, [walletAddress]);
   
@@ -727,6 +728,12 @@ async function getFleetSummary(walletAddress) {
 async function repairShip(walletAddress, shipId, targetHpPct = 100) {
   const { getSetting } = require('../db');
   const walletLower = String(walletAddress || '').toLowerCase();
+  const targetPct = Number(targetHpPct);
+  if (!Number.isFinite(targetPct) || targetPct <= 0) {
+    const err = new Error('INVALID_TARGET_HP_PCT');
+    err.meta = { targetHpPct };
+    throw err;
+  }
 
   const client = await pool.connect();
   try {
@@ -760,7 +767,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
 
     // 3. 목표 HP 계산
     const repairMaxPct = parseInt(await getSetting('ship_repair_max_pct', '100')) || 100;
-    const clampedPct = Math.min(targetHpPct, repairMaxPct);
+    const clampedPct = Math.min(targetPct, repairMaxPct);
     const targetHp = Math.min(Math.floor(effectiveMax * clampedPct / 100), effectiveMax);
     const healAmount = targetHp - parseInt(ship.current_hp);
 
@@ -883,8 +890,9 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
 async function chargeShield(walletAddress, shipId, units) {
   const { getSetting } = require('../db');
   const walletLower = String(walletAddress || '').toLowerCase();
+  const chargeUnits = Number(units);
 
-  if (!units || units <= 0) {
+  if (!Number.isFinite(chargeUnits) || chargeUnits <= 0) {
     const err = new Error('INVALID_UNITS');
     err.meta = { units };
     throw err;
@@ -920,15 +928,15 @@ async function chargeShield(walletAddress, shipId, units) {
       err.meta = { current_shield: currentShield, shield_max: shieldMax };
       throw err;
     }
-    if (units > canAdd) {
+    if (chargeUnits > canAdd) {
       const err = new Error('SHIELD_FULL');
-      err.meta = { requested: units, can_add: canAdd, shield_max: shieldMax };
+      err.meta = { requested: chargeUnits, can_add: canAdd, shield_max: shieldMax };
       throw err;
     }
 
     // 3. GP 비용 계산
     const gpPerUnit = parseInt(await getSetting('shield_gp_per_unit', '3')) || 3;
-    const gpCost    = units * gpPerUnit;
+    const gpCost    = chargeUnits * gpPerUnit;
 
     // 4. GP 확인
     const { rows: userRows } = await client.query(
@@ -949,7 +957,7 @@ async function chargeShield(walletAddress, shipId, units) {
     );
 
     // 6. 실드 업데이트
-    const newShield = currentShield + units;
+    const newShield = currentShield + chargeUnits;
     await client.query(
       `UPDATE ships SET shield_hp = $1, shield_max = $2 WHERE id = $3`,
       [newShield, shieldMax, shipId]
@@ -961,12 +969,12 @@ async function chargeShield(walletAddress, shipId, units) {
     try {
       const { logGPActivity } = require('../db');
       logGPActivity(walletLower, -gpCost, 'ship_shield',
-        `실드 충전 (ID:${shipId}) +${units}`).catch(() => {});
+        `실드 충전 (ID:${shipId}) +${chargeUnits}`).catch(() => {});
     } catch (_) {}
 
     return {
       success:       true,
-      shield_added:  units,
+      shield_added:  chargeUnits,
       new_shield:    newShield,
       gp_cost:       gpCost,
     };
@@ -1146,7 +1154,7 @@ async function consumeShipUpgradeMaterial(client, walletAddress, materialCode, q
   const spent = await client.query(`
     UPDATE user_resource_inventory
     SET quantity = quantity - $1, updated_at = NOW()
-    WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+    WHERE LOWER(wallet_address) = LOWER($2) AND resource_id = $3 AND quantity >= $1
   `, [quantity, walletAddress, rows[0].resource_id]);
   if (spent.rowCount === 0) {
     const err = new Error('INSUFFICIENT_MATERIALS');
@@ -1336,7 +1344,9 @@ async function getShipMarketListings(walletAddress, options = {}) {
     query += ` AND st.size_class = $${params.length}`;
   }
   if (options.maxPrice) {
-    params.push(Number(options.maxPrice));
+    const maxPrice = Number(options.maxPrice);
+    if (!Number.isFinite(maxPrice)) throw new Error('INVALID_MAX_PRICE');
+    params.push(maxPrice);
     query += ` AND sml.price_gp <= $${params.length}`;
   }
   const sort = String(options.sort || 'listed').toLowerCase();
@@ -1357,7 +1367,7 @@ async function getShipMarketListings(walletAddress, options = {}) {
 async function ensureFleetHasFlagship(client, fleetId) {
   if (!fleetId) return;
   const { rows: existing } = await client.query(
-    `SELECT 1 FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true LIMIT 1`,
+    `SELECT id FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true FOR UPDATE`,
     [fleetId]
   );
   if (existing.length) return;
@@ -1370,6 +1380,7 @@ async function ensureFleetHasFlagship(client, fleetId) {
       AND st.is_flagship_capable = true
     ORDER BY st.sort_order DESC, s.id ASC
     LIMIT 1
+    FOR UPDATE OF s
   `, [fleetId]);
   if (candidate[0]) {
     await client.query(`UPDATE ships SET is_flagship = true WHERE id = $1`, [candidate[0].id]);
@@ -1461,7 +1472,7 @@ async function cancelShipListing(walletAddress, listingId) {
       FROM ship_market_listings sml
       JOIN ships s ON s.id = sml.ship_id
       WHERE sml.id = $1 AND sml.status = 'active' AND LOWER(sml.seller_wallet) = LOWER($2)
-      FOR UPDATE OF sml
+      FOR UPDATE OF sml, s
     `, [listingId, wallet]);
     if (!rows[0]) throw new Error('LISTING_NOT_FOUND');
     const listing = rows[0];
@@ -1497,7 +1508,7 @@ async function buyShipListing(walletAddress, listingId) {
       FROM ship_market_listings sml
       JOIN ships s ON s.id = sml.ship_id
       WHERE sml.id = $1 AND sml.status = 'active' AND s.is_alive = true
-      FOR UPDATE OF sml
+      FOR UPDATE OF sml, s
     `, [listingId]);
     if (!rows[0]) throw new Error('LISTING_NOT_FOUND');
     const listing = rows[0];
