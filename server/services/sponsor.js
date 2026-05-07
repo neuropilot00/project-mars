@@ -63,6 +63,9 @@ async function placeSponsor(wallet, claimId, message) {
   try {
     await client.query('BEGIN');
 
+    // [v7.66] per-claim 어드바이저리 락 — 동시 요청 max-per-territory 초과 방지
+    await client.query('SELECT pg_advisory_xact_lock($1::bigint)', [claimId]);
+
     // Claim must exist and not be deleted
     const claimRow = await client.query(
       `SELECT id FROM claims WHERE id=$1 AND deleted_at IS NULL`,

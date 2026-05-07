@@ -65,6 +65,9 @@ async function sendTribute(wallet, claimId, amountGP, message) {
   try {
     await client.query('BEGIN');
 
+    // [v7.66] per-wallet 어드바이저리 락 — 동시 요청 쿨다운 우회 방지
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [wallet.toLowerCase()]);
+
     // Verify claim exists and get owner
     const claimRes = await client.query(
       'SELECT id, owner FROM claims WHERE id = $1 AND deleted_at IS NULL',
