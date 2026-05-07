@@ -1,4 +1,49 @@
-# OCCUPY MARS — Codebase Audit (v7.46 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v7.47 / 2026-05-07)
+
+## 🔴→✅ v7.47 — 37개 라우트 파일 JWT 인증 일괄 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `arena.js` Cantina 게임 10개 POST — body wallet 신뢰 | 타인 PP/USDT 소각 (crash/mines/coinflip/dice/hilo 베팅) | 🔴 CRITICAL | ✅ requireAuth x10 |
+| `governance.js` 6개 POST — body wallet 신뢰 | 타인 거버너 권한으로 세율/버프/공지/이벤트/현상금 조작 (GP 소각) | 🔴 HIGH | ✅ requireAuth x6 |
+| `alliance.js` 5개 POST — body wallet 신뢰 | 타인 GP 동맹 입금/동맹 탈퇴/동맹 조작 | 🔴 HIGH | ✅ requireAuth x5 |
+| `duel.js` 4개 POST — body wallet 신뢰 | 타인 GP 에스크로 결투 선언/수락/거절/취소 | 🔴 HIGH | ✅ requireAuth x4 |
+| `crafting.js` — body wallet 신뢰 | 타인 GP + 재료 소각 제작 | 🔴 HIGH | ✅ requireAuth |
+| `branding.js` 4개 POST — body wallet 신뢰 | 타인 GP 소각, 타인 영토 브랜딩 조작 | 🔴 HIGH | ✅ requireAuth x4 |
+| `raffle.js` — body wallet 신뢰 | 타인 GP 소각 래플 구매 | 🔴 HIGH | ✅ requireAuth |
+| `expedition.js` 2개 POST — body wallet 신뢰 | 타인 GP 소각 탐험 발사/취소 | 🔴 HIGH | ✅ requireAuth x2 |
+| `tiers.js` — body wallet 신뢰 | 타인 GP 소각 티어 업그레이드 | 🔴 HIGH | ✅ requireAuth |
+| `tribute.js` — body wallet 신뢰 | 타인 GP 소각 헌납 | 🔴 HIGH | ✅ requireAuth |
+| `capsule.js` — body wallet 신뢰 | 타인 GP 소각 타임캡슐 매립 | 🔴 HIGH | ✅ requireAuth |
+| `sponsor.js` — body wallet 신뢰 | 타인 GP 소각 스폰서 등록 | 🔴 HIGH | ✅ requireAuth |
+| `donation.js` — body wallet 신뢰 | 타인 GP 소각 기부 | 🔴 HIGH | ✅ requireAuth |
+| `beacon.js` — body wallet 신뢰 | 타인 GP 소각 비콘 설치 | 🔴 HIGH | ✅ requireAuth |
+| `claimUpgrades.js` — body wallet 신뢰 | 타인 GP 소각 영토 업그레이드 | 🔴 HIGH | ✅ requireAuth |
+| `tournaments.js` — body wallet 신뢰 | 타인 GP 소각 토너먼트 참가 | 🔴 HIGH | ✅ requireAuth |
+| `broadcasts.js` — body wallet 신뢰 | 타인 GP 소각 방송 생성 | 🔴 HIGH | ✅ requireAuth |
+| `highlight.js` — body wallet 신뢰 | 타인 GP 소각 하이라이트 설정 | 🔴 HIGH | ✅ requireAuth |
+| `monuments.js` 2개 POST — body wallet 신뢰 | 타인 GP 소각 기념물 설치/보존 | 🔴 HIGH | ✅ requireAuth x2 |
+| `spells.js` — body wallet 신뢰 | 타인 GP 소각 주문 시전 | 🔴 HIGH | ✅ requireAuth |
+| `wager.js` — body wallet 신뢰 | 타인 GP 소각 베팅 | 🔴 HIGH | ✅ requireAuth |
+| `contest.js` 2개 POST — body wallet 신뢰 | 타인 GP 소각 컨테스트 제출/투표 | 🟡 MEDIUM | ✅ requireAuth x2 |
+| `profile.js` 3개 POST — body wallet 신뢰 | 타인 닉네임/아바타/모토 변조 | 🟡 MEDIUM | ✅ requireAuth x3 |
+| `rental.js` 3개 POST — body wallet 신뢰 | 타인 명의 임대 조작 | 🟡 MEDIUM | ✅ requireAuth x3 |
+| `staking.js` 2개 POST — body wallet 신뢰 | 타인 명의 스테이킹/출금 | 🟡 MEDIUM | ✅ requireAuth x2 |
+| `shield.js` — body wallet 신뢰 | 타인 실드 강제 활성화 | 🟡 MEDIUM | ✅ requireAuth |
+| `tombstone.js` — body wallet 신뢰 | 타인 명의 묘비 설치 | 🟡 MEDIUM | ✅ requireAuth |
+| `polls.js` 2개 POST — body wallet 신뢰 | 타인 명의 투표/생성 | 🟡 MEDIUM | ✅ requireAuth x2 |
+| `banner.js` — body wallet 신뢰 | 타인 명의 배너 설치 | 🟡 LOW | ✅ requireAuth |
+| `journal.js` — body wallet 신뢰 | 타인 명의 저널 게시 | 🟡 LOW | ✅ requireAuth |
+| `milestone.js` — body wallet 신뢰 | 타인 명의 마일스톤 기록 | 🟡 LOW | ✅ requireAuth |
+| `status.js` 2개 POST — body wallet 신뢰 | 타인 상태 설정/초기화 | 🟡 LOW | ✅ requireAuth x2 |
+| `tdesc.js` — body wallet 신뢰 | 타인 영토 설명 변조 (GP 소각) | 🟡 LOW | ✅ requireAuth |
+| `vtag.js` 2개 POST — body wallet 신뢰 | 타인 태그 설정/초기화 | 🟡 LOW | ✅ requireAuth x2 |
+| `announcement.js` — body wallet 신뢰 | 타인 명의 공지 게시 | 🟡 LOW | ✅ requireAuth |
+| `graffiti.js` — body wallet 신뢰 | 타인 명의 그래피티 설치 | 🟡 LOW | ✅ requireAuth |
+| `rating.js` — body wallet 신뢰 | 타인 명의 평점 제출 | 🟡 LOW | ✅ requireAuth |
+| `tevt.js` — body wallet 신뢰 | 타인 명의 이벤트 활성화 | 🟡 LOW | ✅ requireAuth |
+
+---
 
 ## 🔴→✅ v7.46 — api.js 전체 write 엔드포인트 JWT 인증 일괄 (2026-05-07)
 

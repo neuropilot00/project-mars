@@ -1,8 +1,20 @@
 'use strict';
 const express   = require('express');
 const rateLimit = require('express-rate-limit');
+const jwt       = require('jsonwebtoken');
 const { pool }  = require('../db');
 const router    = express.Router();
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 let stakingService;
 try { stakingService = require('../services/staking'); } catch (_e) {}
@@ -47,9 +59,9 @@ router.get('/staking/my-stakes', readLimiter, async (req, res) => {
 });
 
 // POST /api/staking/stake — create a new stake { wallet, amount, lockDays }
-router.post('/staking/stake', writeLimiter, async (req, res) => {
-  const { wallet, amount, lockDays } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/staking/stake', requireAuth, writeLimiter, async (req, res) => {
+  const { amount, lockDays } = req.body;
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'wallet required' });
   if (!amount || !lockDays) return res.status(400).json({ error: 'amount and lockDays required' });
   if (!stakingService) return res.status(503).json({ error: 'Staking service unavailable' });
@@ -87,9 +99,9 @@ router.post('/staking/stake', writeLimiter, async (req, res) => {
 });
 
 // POST /api/staking/withdraw — withdraw a matured stake { wallet, stakeId }
-router.post('/staking/withdraw', writeLimiter, async (req, res) => {
-  const { wallet, stakeId } = req.body;
-  const w = (wallet || '').toLowerCase();
+router.post('/staking/withdraw', requireAuth, writeLimiter, async (req, res) => {
+  const { stakeId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !stakeId) return res.status(400).json({ error: 'wallet and stakeId required' });
   if (!stakingService) return res.status(503).json({ error: 'Staking service unavailable' });
 

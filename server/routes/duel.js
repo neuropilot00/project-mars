@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const jwt     = require('jsonwebtoken');
 const router  = express.Router();
 const duelSvc = require('../services/duel');
 
@@ -7,6 +8,17 @@ let logGPActivity, seasonService, weeklySvc;
 try { ({ logGPActivity } = require('../db')); } catch (_) {}
 try { seasonService = require('../services/season'); } catch (_) {}
 // weeklySvc intentionally not available (service removed)
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // ── GET /api/duels/my?wallet= ─────────────────────────────────────────────────
 router.get('/duels/my', async (req, res) => {
@@ -52,9 +64,10 @@ router.get('/duels/settings', async (req, res) => {
 });
 
 // ── POST /api/duels/challenge ─────────────────────────────────────────────────
-// { wallet, defender, wagerGp }
-router.post('/duels/challenge', async (req, res) => {
-  const { wallet, defender, wagerGp } = req.body || {};
+// { defender, wagerGp }
+router.post('/duels/challenge', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { defender, wagerGp } = req.body || {};
   if (!wallet || !defender || !wagerGp) {
     return res.status(400).json({ error: 'wallet, defender, wagerGp required' });
   }
@@ -63,7 +76,7 @@ router.post('/duels/challenge', async (req, res) => {
 
     // Side effects
     if (logGPActivity) {
-      logGPActivity(wallet.toLowerCase(), -parseFloat(wagerGp), 'duel_wager_escrowed',
+      logGPActivity(wallet, -parseFloat(wagerGp), 'duel_wager_escrowed',
         `Duel challenge vs ${defender}`).catch(() => {});
     }
 
@@ -74,9 +87,10 @@ router.post('/duels/challenge', async (req, res) => {
 });
 
 // ── POST /api/duels/accept ────────────────────────────────────────────────────
-// { wallet, duelId }
-router.post('/duels/accept', async (req, res) => {
-  const { wallet, duelId } = req.body || {};
+// { duelId }
+router.post('/duels/accept', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { duelId } = req.body || {};
   if (!wallet || !duelId) return res.status(400).json({ error: 'wallet and duelId required' });
   try {
     const result = await duelSvc.acceptDuel(parseInt(duelId, 10), wallet);
@@ -91,7 +105,7 @@ router.post('/duels/accept', async (req, res) => {
         logGPActivity(loser,  -wager,            'duel_loss', `Duel loss vs ${winner}`).catch(() => {});
       }
     }
-    // Season / weekly tracking for GP burn (fee)
+    // Season tracking for GP burn (fee)
     const feeBurned = Number(result.fee_gp || 0);
     if (feeBurned > 0) {
       if (seasonService && seasonService.trackGPSpend) {
@@ -101,7 +115,7 @@ router.post('/duels/accept', async (req, res) => {
       }
     }
     if (weeklySvc && weeklySvc.trackProgress) {
-      weeklySvc.trackProgress(wallet.toLowerCase(), 'duel_fight', 1).catch(() => {});
+      weeklySvc.trackProgress(wallet, 'duel_fight', 1).catch(() => {});
     }
 
     res.json(result);
@@ -111,8 +125,9 @@ router.post('/duels/accept', async (req, res) => {
 });
 
 // ── POST /api/duels/decline ───────────────────────────────────────────────────
-router.post('/duels/decline', async (req, res) => {
-  const { wallet, duelId } = req.body || {};
+router.post('/duels/decline', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { duelId } = req.body || {};
   if (!wallet || !duelId) return res.status(400).json({ error: 'wallet and duelId required' });
   try {
     res.json(await duelSvc.declineDuel(parseInt(duelId, 10), wallet));
@@ -122,8 +137,9 @@ router.post('/duels/decline', async (req, res) => {
 });
 
 // ── POST /api/duels/cancel ────────────────────────────────────────────────────
-router.post('/duels/cancel', async (req, res) => {
-  const { wallet, duelId } = req.body || {};
+router.post('/duels/cancel', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { duelId } = req.body || {};
   if (!wallet || !duelId) return res.status(400).json({ error: 'wallet and duelId required' });
   try {
     res.json(await duelSvc.cancelDuel(parseInt(duelId, 10), wallet));

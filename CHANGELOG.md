@@ -1,5 +1,53 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.47 — 37개 라우트 파일 JWT 인증 일괄 적용 (CRITICAL 보안 패치)
+
+**수정 (CRITICAL / HIGH — 37개 라우트 파일, 70+ 엔드포인트):**
+
+기존 `req.body.wallet` / `req.headers['x-wallet']` 신뢰 취약점을 전체 해소.
+모든 파일에 표준 `requireAuth` JWT 미들웨어 + `getAuthWallet(req)` 패턴 적용.
+
+- `profile.js` — `/profile/nickname`, `/avatar-color`, `/motto`
+- `rental.js` — `/rental/list`, `/rent`, `/cancel`
+- `staking.js` — `/staking/stake`, `/withdraw`
+- `shield.js` — `/shield/activate`
+- `tombstone.js` — `/tombstone/place`
+- `wager.js` — `/wager/bet`
+- `branding.js` — `/branding/name`, `/tagline`, `/color`, `/clear` (GP 소각)
+- `graffiti.js` — `/graffiti/place`
+- `spells.js` — `/spells/cast` (GP 소각)
+- `rating.js` — `/rating/rate`
+- `duel.js` — `/duels/challenge`, `/accept`, `/decline`, `/cancel` (GP 에스크로)
+- `contest.js` — `/contests/submit`, `/vote`
+- `tevt.js` — `/tevt/activate`
+- `alliance.js` — `/alliances/create`, `/join`, `/leave`, `/deposit`, `/withdraw` (GP 소각)
+- `raffle.js` — `/raffles/buy` (GP 소각)
+- `crafting.js` — `/crafting/craft` (GP + 재료 소각)
+- `expedition.js` — `/expeditions/launch`, `/cancel` (GP 소각)
+- `tiers.js` — `/tiers/upgrade` (GP 소각)
+- `tribute.js` — `/tribute/send` (GP 소각)
+- `capsule.js` — `/capsule/bury` (GP 소각)
+- `sponsor.js` — `/sponsor/place` (GP 소각)
+- `donation.js` — `/donation/donate` (GP 소각)
+- `beacon.js` — `/beacons/place` (GP 소각)
+- `claimUpgrades.js` — `/upgrades/upgrade` (GP 소각, writeLimiter 유지)
+- `tournaments.js` — `/tournaments/join` (GP 참가비)
+- `polls.js` — `/polls/create`, `/vote`
+- `banner.js` — `/banner/plant`
+- `broadcasts.js` — `/broadcasts/create` (GP 소각)
+- `highlight.js` — `/highlight/set` (GP 소각)
+- `journal.js` — `/journal/publish`
+- `milestone.js` — `/milestone/record`
+- `monuments.js` — `/monuments/place`, `/preserve` (GP 소각)
+- `status.js` — `/status/set`, `/clear`
+- `tdesc.js` — `/tdesc/set` (GP 소각)
+- `vtag.js` — `/vtag/set`, `/clear`
+- `announcement.js` — `/announce/post`
+- `governance.js` — `/sector/:id/tax-rate`, `/buff`, `/announcement`, `/commander/event`, `/announcement`, `/bounty` (GP 소각)
+- `arena.js` — `/crash/bet`, `/cashout`, `/mines/start`, `/reveal`, `/cashout`, `/coinflip/play`, `/dice/play`, `/hilo/start`, `/guess`, `/cashout` (PP/USDT 소각 — Cantina 게임)
+
+---
+
 ## 2026-05-07 v7.46 — api.js 전체 write 엔드포인트 JWT 인증 일괄 적용
 
 **수정 (CRITICAL / HIGH — 60+ 엔드포인트):**

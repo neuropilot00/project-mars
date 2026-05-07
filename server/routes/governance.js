@@ -2,6 +2,7 @@
 //  Governance API — Governor, Commander, GP endpoints
 // ═══════════════════════════════════════════════════════
 const express = require('express');
+const jwt     = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { pool, getSettings } = require('../db');
 const {
@@ -11,6 +12,17 @@ const {
 } = require('../services/governance');
 
 const router = express.Router();
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 const readLimiter = rateLimit({ windowMs: 60000, max: 120, message: { error: 'Too many requests' } });
 const writeLimiter = rateLimit({ windowMs: 60000, max: 20, message: { error: 'Too many requests' } });
@@ -82,8 +94,9 @@ router.get('/my-positions/:wallet', readLimiter, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 //  POST /api/governance/sector/:id/tax-rate — set tax rate
 // ═══════════════════════════════════════════════════════
-router.post('/sector/:id/tax-rate', writeLimiter, async (req, res) => {
-  const { wallet, rate } = req.body;
+router.post('/sector/:id/tax-rate', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { rate } = req.body;
   const sectorId = parseInt(req.params.id);
   if (!wallet || rate == null) return res.status(400).json({ error: 'Missing wallet or rate' });
 
@@ -110,8 +123,9 @@ router.post('/sector/:id/tax-rate', writeLimiter, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 //  POST /api/governance/sector/:id/buff — purchase sector buff
 // ═══════════════════════════════════════════════════════
-router.post('/sector/:id/buff', writeLimiter, async (req, res) => {
-  const { wallet, buffType } = req.body;
+router.post('/sector/:id/buff', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { buffType } = req.body;
   const sectorId = parseInt(req.params.id);
   if (!wallet || !buffType) return res.status(400).json({ error: 'Missing fields' });
 
@@ -193,8 +207,9 @@ router.post('/sector/:id/buff', writeLimiter, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 //  POST /api/governance/sector/:id/announcement
 // ═══════════════════════════════════════════════════════
-router.post('/sector/:id/announcement', writeLimiter, async (req, res) => {
-  const { wallet, text } = req.body;
+router.post('/sector/:id/announcement', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { text } = req.body;
   const sectorId = parseInt(req.params.id);
   if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
 
@@ -215,8 +230,9 @@ router.post('/sector/:id/announcement', writeLimiter, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 //  POST /api/governance/commander/event — trigger global event
 // ═══════════════════════════════════════════════════════
-router.post('/commander/event', writeLimiter, async (req, res) => {
-  const { wallet, eventType } = req.body;
+router.post('/commander/event', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { eventType } = req.body;
   if (!wallet || !eventType) return res.status(400).json({ error: 'Missing fields' });
 
   const validEvents = ['double_mining', 'war_time', 'peace_treaty'];
@@ -303,8 +319,9 @@ router.post('/commander/event', writeLimiter, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 //  POST /api/governance/commander/announcement
 // ═══════════════════════════════════════════════════════
-router.post('/commander/announcement', writeLimiter, async (req, res) => {
-  const { wallet, text } = req.body;
+router.post('/commander/announcement', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { text } = req.body;
   if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
 
   try {
@@ -323,8 +340,9 @@ router.post('/commander/announcement', writeLimiter, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 //  POST /api/governance/commander/bounty — place bounty
 // ═══════════════════════════════════════════════════════
-router.post('/commander/bounty', writeLimiter, async (req, res) => {
-  const { wallet, targetWallet, targetNickname, gpAmount, reason } = req.body;
+router.post('/commander/bounty', requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { targetWallet, targetNickname, gpAmount, reason } = req.body;
   if (!wallet || (!targetWallet && !targetNickname) || !gpAmount) return res.status(400).json({ error: 'Missing fields' });
 
   const client = await pool.connect();

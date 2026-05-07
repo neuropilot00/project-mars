@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const jwt     = require('jsonwebtoken');
 const router  = express.Router();
 const { pool } = require('../db');
 const craftingSvc = require('../services/crafting');
@@ -9,6 +10,17 @@ let logGPActivity, seasonService, weeklySvc;
 try { ({ logGPActivity } = require('../db')); } catch (_) {}
 try { seasonService = require('../services/season'); } catch (_) {}
 try { weeklySvc     = require('../services/weeklyChallenge'); } catch (_) {}
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // ── GET /api/crafting/recipes ─────────────────────────────────────────────────
 // Query: ?category=general&wallet=0x...
@@ -62,9 +74,10 @@ router.get('/crafting/item-types', async (req, res) => {
 });
 
 // ── POST /api/crafting/craft ──────────────────────────────────────────────────
-// Body: { wallet, recipeId }
-router.post('/crafting/craft', async (req, res) => {
-  const { wallet, recipeId } = req.body || {};
+// Body: { recipeId }
+router.post('/crafting/craft', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { recipeId } = req.body || {};
   if (!wallet || !recipeId) {
     return res.status(400).json({ error: 'wallet and recipeId required' });
   }
@@ -78,25 +91,23 @@ router.post('/crafting/craft', async (req, res) => {
     // Daily OPS mission progress (fire-and-forget)
     try {
       const _dOps = require('./dailyOps');
-      const _w = wallet.toLowerCase();
-      _dOps.notifyMissionProgress(_w, 'craft_resource').catch(() => {});
-      _dOps.notifyMissionProgress(_w, 'craft_resource_3').catch(() => {});
-      _dOps.notifyMissionProgress(_w, 'craft_resource_5').catch(() => {});
+      _dOps.notifyMissionProgress(wallet, 'craft_resource').catch(() => {});
+      _dOps.notifyMissionProgress(wallet, 'craft_resource_3').catch(() => {});
+      _dOps.notifyMissionProgress(wallet, 'craft_resource_5').catch(() => {});
     } catch (_) {}
 
     // Side effects (fire-and-forget)
     const gpBurned = result.gpCost - result.gpRefunded;
     if (gpBurned > 0) {
-      const walletLower = wallet.toLowerCase();
       if (logGPActivity) {
-        logGPActivity(walletLower, -gpBurned, 'crafting_cost',
+        logGPActivity(wallet, -gpBurned, 'crafting_cost',
           `Crafted: ${result.recipeName}`).catch(() => {});
       }
       if (seasonService && seasonService.trackGPSpend) {
-        seasonService.trackGPSpend(walletLower, gpBurned).catch(() => {});
+        seasonService.trackGPSpend(wallet, gpBurned).catch(() => {});
       }
       if (weeklySvc && weeklySvc.trackProgress) {
-        weeklySvc.trackProgress(walletLower, 'gp_burn', gpBurned).catch(() => {});
+        weeklySvc.trackProgress(wallet, 'gp_burn', gpBurned).catch(() => {});
       }
     }
 

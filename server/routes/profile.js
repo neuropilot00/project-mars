@@ -2,6 +2,18 @@
 const express = require('express');
 const router = express.Router();
 const profileSvc = require('../services/profile');
+const jwt = require('jsonwebtoken');
+
+// ✅ [v7.47] JWT 인증 미들웨어 — fallback 제거
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // GET /api/profile?wallet=
 router.get('/profile', async (req, res) => {
@@ -32,30 +44,33 @@ router.get('/profile/history', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// POST /api/profile/nickname  { wallet, nickname }
-router.post('/profile/nickname', async (req, res) => {
+// POST /api/profile/nickname  { nickname }
+router.post('/profile/nickname', requireAuth, async (req, res) => {
   try {
-    const { wallet, nickname } = req.body || {};
+    const wallet = getAuthWallet(req);
+    const { nickname } = req.body || {};
     if (!wallet || !nickname) return res.status(400).json({ error: 'wallet and nickname required' });
     const result = await profileSvc.setNickname(wallet, nickname);
     res.json(result);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
-// POST /api/profile/avatar-color  { wallet, color }
-router.post('/profile/avatar-color', async (req, res) => {
+// POST /api/profile/avatar-color  { color }
+router.post('/profile/avatar-color', requireAuth, async (req, res) => {
   try {
-    const { wallet, color } = req.body || {};
+    const wallet = getAuthWallet(req);
+    const { color } = req.body || {};
     if (!wallet || !color) return res.status(400).json({ error: 'wallet and color required' });
     const result = await profileSvc.setAvatarColor(wallet, color);
     res.json(result);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
-// POST /api/profile/motto  { wallet, motto }
-router.post('/profile/motto', async (req, res) => {
+// POST /api/profile/motto  { motto }
+router.post('/profile/motto', requireAuth, async (req, res) => {
   try {
-    const { wallet, motto } = req.body || {};
+    const wallet = getAuthWallet(req);
+    const { motto } = req.body || {};
     if (!wallet || !motto) return res.status(400).json({ error: 'wallet and motto required' });
     const result = await profileSvc.setMotto(wallet, motto);
     res.json(result);

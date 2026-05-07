@@ -1,5 +1,6 @@
 'use strict';
 const express    = require('express');
+const jwt        = require('jsonwebtoken');
 const router     = express.Router();
 const contestSvc = require('../services/contest');
 
@@ -7,6 +8,17 @@ let logGPActivity, seasonService, weeklySvc;
 try { ({ logGPActivity } = require('../db')); } catch (_) {}
 try { seasonService = require('../services/season'); } catch (_) {}
 // weeklySvc intentionally not available (service removed)
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // GET /api/contests?status=open
 router.get('/contests', async (req, res) => {
@@ -33,9 +45,10 @@ router.get('/contests/:id/entries', async (req, res) => {
 });
 
 // POST /api/contests/submit
-// { wallet, contestId, title, description, imageUrl, claimId }
-router.post('/contests/submit', async (req, res) => {
-  const { wallet, contestId, title, description, imageUrl, claimId } = req.body || {};
+// { contestId, title, description, imageUrl, claimId }
+router.post('/contests/submit', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { contestId, title, description, imageUrl, claimId } = req.body || {};
   if (!wallet || !contestId) return res.status(400).json({ error: 'wallet and contestId required' });
   try {
     const entry = await contestSvc.submitEntry(
@@ -45,18 +58,19 @@ router.post('/contests/submit', async (req, res) => {
     // GP side effects
     const fee = Number(entry.gp_paid);
     if (fee > 0) {
-      if (logGPActivity) logGPActivity(wallet.toLowerCase(), -fee, 'contest_entry', `Contest #${contestId} entry`).catch(() => {});
-      if (seasonService && seasonService.trackGPSpend) seasonService.trackGPSpend(wallet.toLowerCase(), fee).catch(() => {});
-      if (weeklySvc && weeklySvc.trackProgress) weeklySvc.trackProgress(wallet.toLowerCase(), 'gp_burn', fee).catch(() => {});
+      if (logGPActivity) logGPActivity(wallet, -fee, 'contest_entry', `Contest #${contestId} entry`).catch(() => {});
+      if (seasonService && seasonService.trackGPSpend) seasonService.trackGPSpend(wallet, fee).catch(() => {});
+      if (weeklySvc && weeklySvc.trackProgress) weeklySvc.trackProgress(wallet, 'gp_burn', fee).catch(() => {});
     }
     res.json(entry);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
 // POST /api/contests/vote
-// { wallet, entryId }
-router.post('/contests/vote', async (req, res) => {
-  const { wallet, entryId } = req.body || {};
+// { entryId }
+router.post('/contests/vote', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  const { entryId } = req.body || {};
   if (!wallet || !entryId) return res.status(400).json({ error: 'wallet and entryId required' });
   try {
     const result = await contestSvc.voteForEntry(wallet, parseInt(entryId, 10));

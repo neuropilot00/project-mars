@@ -1,9 +1,21 @@
 const express = require('express');
 const crypto = require('crypto');
+const jwt     = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { pool, getSettings, awardXP, creditReferralCommission, getSetting } = require('../db');
 
 const router = express.Router();
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // ── Cantina 비활성화 미들웨어 (BIBLE Migration 080) ──
 // cantina_enabled = false 이면 모든 /api/arena/* 요청에 503 반환
@@ -102,11 +114,11 @@ router.get('/crash/current', async (req, res) => {
 });
 
 // POST /arena/crash/bet — Place a bet
-router.post('/crash/bet', betLimiter, async (req, res) => {
+router.post('/crash/bet', requireAuth, betLimiter, async (req, res) => {
   const client = await pool.connect();
   try {
-    const { wallet, amount, currency } = req.body;
-    const w = (wallet || '').toLowerCase().trim();
+    const { amount, currency } = req.body;
+    const w = getAuthWallet(req);
     const cur = currency === 'USDT' ? 'USDT' : 'PP';
     const bet = parseFloat(amount);
     const s = await cfg();
@@ -197,11 +209,11 @@ router.post('/crash/bet', betLimiter, async (req, res) => {
 });
 
 // POST /arena/crash/cashout — Cash out during a round
-router.post('/crash/cashout', betLimiter, async (req, res) => {
+router.post('/crash/cashout', requireAuth, betLimiter, async (req, res) => {
   const client = await pool.connect();
   try {
-    const { wallet, multiplier } = req.body;
-    const w = (wallet || '').toLowerCase().trim();
+    const { multiplier } = req.body;
+    const w = getAuthWallet(req);
     const cashoutAt = parseFloat(multiplier);
 
     if (!w || !cashoutAt || cashoutAt < 1.01) {
@@ -443,10 +455,10 @@ function minesMultiplier(revealed, mineCount) {
 }
 
 // POST /arena/mines/start — Start a new mines game
-router.post('/mines/start', betLimiter, async (req, res) => {
+router.post('/mines/start', requireAuth, betLimiter, async (req, res) => {
   // Validate outside transaction
-  const { wallet, amount, currency, mines } = req.body;
-  const w = (wallet || '').toLowerCase().trim();
+  const { amount, currency, mines } = req.body;
+  const w = getAuthWallet(req);
   const cur = currency === 'USDT' ? 'USDT' : 'PP';
   const bet = parseFloat(amount);
   const mineCount = Math.max(1, Math.min(24, parseInt(mines) || 5));
@@ -528,10 +540,10 @@ router.post('/mines/start', betLimiter, async (req, res) => {
 });
 
 // POST /arena/mines/reveal — Reveal a tile
-router.post('/mines/reveal', betLimiter, async (req, res) => {
+router.post('/mines/reveal', requireAuth, betLimiter, async (req, res) => {
   // Validate outside transaction
-  const { wallet, gameId, position } = req.body;
-  const w = (wallet || '').toLowerCase().trim();
+  const { gameId, position } = req.body;
+  const w = getAuthWallet(req);
   const pos = parseInt(position);
   if (!w || !gameId || pos < 0 || pos > 24) {
     return res.status(400).json({ error: 'Invalid params' });
@@ -599,9 +611,9 @@ router.post('/mines/reveal', betLimiter, async (req, res) => {
 });
 
 // POST /arena/mines/cashout — Cash out current mines game
-router.post('/mines/cashout', betLimiter, async (req, res) => {
-  const { wallet, gameId } = req.body;
-  const w = (wallet || '').toLowerCase().trim();
+router.post('/mines/cashout', requireAuth, betLimiter, async (req, res) => {
+  const { gameId } = req.body;
+  const w = getAuthWallet(req);
   if (!w || !gameId) return res.status(400).json({ error: 'Missing params' });
 
   const client = await pool.connect();
@@ -689,9 +701,9 @@ router.get('/mines/active', async (req, res) => {
 //  SANDSTORM SURVIVAL (Coin Flip)
 // ══════════════════════════════════
 
-router.post('/coinflip/play', betLimiter, async (req, res) => {
-  const { wallet, amount, currency, choice } = req.body;
-  const w = (wallet || '').toLowerCase().trim();
+router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
+  const { amount, currency, choice } = req.body;
+  const w = getAuthWallet(req);
   const cur = currency === 'USDT' ? 'USDT' : 'PP';
   const bet = parseFloat(amount);
   const pick = choice === 'perish' ? 'perish' : 'survive';
@@ -776,9 +788,9 @@ router.get('/coinflip/history', async (req, res) => {
 //  METEORITE PREDICTION (Dice)
 // ══════════════════════════════════
 
-router.post('/dice/play', betLimiter, async (req, res) => {
-  const { wallet, amount, currency, target, direction } = req.body;
-  const w = (wallet || '').toLowerCase().trim();
+router.post('/dice/play', requireAuth, betLimiter, async (req, res) => {
+  const { amount, currency, target, direction } = req.body;
+  const w = getAuthWallet(req);
   const cur = currency === 'USDT' ? 'USDT' : 'PP';
   const bet = parseFloat(amount);
   const tgt = parseInt(target);
@@ -860,9 +872,9 @@ function cardName(v) {
 }
 
 // POST /arena/hilo/start
-router.post('/hilo/start', betLimiter, async (req, res) => {
-  const { wallet, amount, currency } = req.body;
-  const w = (wallet || '').toLowerCase().trim();
+router.post('/hilo/start', requireAuth, betLimiter, async (req, res) => {
+  const { amount, currency } = req.body;
+  const w = getAuthWallet(req);
   const cur = currency === 'USDT' ? 'USDT' : 'PP';
   const bet = parseFloat(amount);
 
@@ -927,7 +939,7 @@ router.post('/hilo/start', betLimiter, async (req, res) => {
 });
 
 // POST /arena/hilo/guess
-router.post('/hilo/guess', betLimiter, async (req, res) => {
+router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
   const { gameId, guess } = req.body;
   const pick = guess === 'low' ? 'low' : 'high';
 
@@ -1003,7 +1015,7 @@ router.post('/hilo/guess', betLimiter, async (req, res) => {
 });
 
 // POST /arena/hilo/cashout
-router.post('/hilo/cashout', betLimiter, async (req, res) => {
+router.post('/hilo/cashout', requireAuth, betLimiter, async (req, res) => {
   const { gameId } = req.body;
   if (!gameId) return res.status(400).json({ error: 'gameId required' });
 

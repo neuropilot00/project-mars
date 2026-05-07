@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const jwt     = require('jsonwebtoken');
 const router  = express.Router();
 const { pool } = require('../db');
 const rateLimit = require('express-rate-limit');
@@ -25,6 +26,17 @@ let seasonService;
 try { seasonService = require('../services/season'); } catch (_) {}
 let weeklySvc;
 try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // ── GET /api/upgrades/catalog ─────────────────────────────────────────────────
 router.get('/upgrades/catalog', async (req, res) => {
@@ -62,9 +74,10 @@ router.get('/upgrades/my-upgrades', async (req, res) => {
 });
 
 // ── POST /api/upgrades/upgrade ────────────────────────────────────────────────
-router.post('/upgrades/upgrade', writeLimiter, async (req, res) => {
+router.post('/upgrades/upgrade', requireAuth, writeLimiter, async (req, res) => {
   if (!upgradeSvc) return res.status(503).json({ error: 'Service unavailable' });
-  const { wallet, claimId, upgradeType } = req.body;
+  const wallet = getAuthWallet(req);
+  const { claimId, upgradeType } = req.body || {};
   if (!wallet || !claimId || !upgradeType) {
     return res.status(400).json({ error: 'wallet, claimId, upgradeType required' });
   }
@@ -82,12 +95,11 @@ router.post('/upgrades/upgrade', writeLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     // Side effects (fire-and-forget)
-    const w = wallet.toLowerCase();
-    if (logGPActivity) logGPActivity(w, -result.cost, 'territory_upgrade', {
+    if (logGPActivity) logGPActivity(wallet, -result.cost, 'territory_upgrade', {
       claimId, upgradeType, level: result.level
     }).catch(() => {});
-    if (seasonService?.trackGPSpend) seasonService.trackGPSpend(w, result.cost).catch(() => {});
-    if (weeklySvc?.trackProgress) weeklySvc.trackProgress(w, 'gp_burn', result.cost).catch(() => {});
+    if (seasonService?.trackGPSpend) seasonService.trackGPSpend(wallet, result.cost).catch(() => {});
+    if (weeklySvc?.trackProgress) weeklySvc.trackProgress(wallet, 'gp_burn', result.cost).catch(() => {});
 
     res.json({ ok: true, ...result });
   } catch (err) {

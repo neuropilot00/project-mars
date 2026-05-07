@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const jwt     = require('jsonwebtoken');
 const router  = express.Router();
 const { pool } = require('../db');
 
@@ -18,6 +19,17 @@ let weeklySvc;
 try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
 let achSvc;
 try { achSvc = require('../services/achievements'); } catch (_) {}
+
+// ✅ [v7.47] JWT 인증 미들웨어
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 // ── GET /api/monuments/claim/:claimId ─────────────────────────────────────────
 router.get('/monuments/claim/:claimId', async (req, res) => {
@@ -80,9 +92,10 @@ router.get('/monuments/cost', async (req, res) => {
 });
 
 // ── POST /api/monuments/place ─────────────────────────────────────────────────
-router.post('/monuments/place', async (req, res) => {
+router.post('/monuments/place', requireAuth, async (req, res) => {
   if (!monumentSvc) return res.status(503).json({ error: 'Service unavailable' });
-  const { wallet, claimId, monumentType, name, message } = req.body;
+  const wallet = getAuthWallet(req);
+  const { claimId, monumentType, name, message } = req.body || {};
   if (!wallet || !claimId || !monumentType || !name) {
     return res.status(400).json({ error: 'wallet, claimId, monumentType, name required' });
   }
@@ -96,10 +109,9 @@ router.post('/monuments/place', async (req, res) => {
     await client.query('COMMIT');
 
     // Side effects (fire-and-forget)
-    const w = wallet.toLowerCase();
-    if (logGPActivity) logGPActivity(w, -cost, 'monument_place', { monumentId: monument.id, name }).catch(() => {});
-    if (seasonService?.trackGPSpend) seasonService.trackGPSpend(w, cost).catch(() => {});
-    if (weeklySvc?.trackProgress) weeklySvc.trackProgress(w, 'gp_burn', cost).catch(() => {});
+    if (logGPActivity) logGPActivity(wallet, -cost, 'monument_place', { monumentId: monument.id, name }).catch(() => {});
+    if (seasonService?.trackGPSpend) seasonService.trackGPSpend(wallet, cost).catch(() => {});
+    if (weeklySvc?.trackProgress) weeklySvc.trackProgress(wallet, 'gp_burn', cost).catch(() => {});
 
     res.json({ ok: true, monument, cost });
   } catch (err) {
@@ -111,9 +123,10 @@ router.post('/monuments/place', async (req, res) => {
 });
 
 // ── POST /api/monuments/preserve ─────────────────────────────────────────────
-router.post('/monuments/preserve', async (req, res) => {
+router.post('/monuments/preserve', requireAuth, async (req, res) => {
   if (!monumentSvc) return res.status(503).json({ error: 'Service unavailable' });
-  const { wallet, monumentId } = req.body;
+  const wallet = getAuthWallet(req);
+  const { monumentId } = req.body || {};
   if (!wallet || !monumentId) return res.status(400).json({ error: 'wallet, monumentId required' });
 
   const client = await pool.connect();
@@ -122,9 +135,8 @@ router.post('/monuments/preserve', async (req, res) => {
     const { cost, monument } = await monumentSvc.preserveMonument(client, wallet, parseInt(monumentId));
     await client.query('COMMIT');
 
-    const w = wallet.toLowerCase();
-    if (logGPActivity) logGPActivity(w, -cost, 'monument_preserve', { monumentId: monument.id }).catch(() => {});
-    if (seasonService?.trackGPSpend) seasonService.trackGPSpend(w, cost).catch(() => {});
+    if (logGPActivity) logGPActivity(wallet, -cost, 'monument_preserve', { monumentId: monument.id }).catch(() => {});
+    if (seasonService?.trackGPSpend) seasonService.trackGPSpend(wallet, cost).catch(() => {});
 
     res.json({ ok: true, cost, monument });
   } catch (err) {
