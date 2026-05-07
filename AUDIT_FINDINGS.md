@@ -1,3 +1,14 @@
+# OCCUPY MARS — Codebase Audit (v7.50 / 2026-05-07)
+
+## ✅ v7.50 — transport.js 크래시 + 캠페인 프롤로그 완료 블록 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `transport.js GET /transport/my` — `requireWallet`/`getWallet` 미정의 | 트랜스포트 GET 엔드포인트 접근 시 `ReferenceError: requireWallet is not defined` 서버 크래시 | 🔴 HIGH | ✅ `getWallet`/`requireWallet` 헬퍼 추가 |
+| `campaign.js isObjectiveDone()` — `action: 'unlock'` 핸들러 없음 | 프롤로그의 `route_unlock` objective가 `in_progress` 상태에서도 영구 미완료 판정 → 프롤로그 완료 시 항상 `OBJECTIVE_REQUIREMENTS_NOT_MET` 반환 | 🔴 HIGH | ✅ `action === 'unlock'` 핸들러 추가 (story와 동일 처리) |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.48 / 2026-05-07)
 
 ## ✅ v7.48 — 프론트엔드 누락 인증 헤더 일괄 수정 (2026-05-07)

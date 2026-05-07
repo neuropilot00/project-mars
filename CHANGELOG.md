@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.50 — transport.js 크래시 + 캠페인 프롤로그 완료 블록 수정
+
+**수정 (HIGH — 서버 크래시):**
+
+- `server/routes/transport.js` — `requireWallet`/`getWallet` 미정의 참조 오류 수정. GET `/transport/my` 호출 시 서버가 `ReferenceError`로 크래시하는 버그 수정. `getWallet`/`requireWallet` 헬퍼 함수 추가.
+
+**수정 (MEDIUM — 캠페인 프롤로그 완료 불가):**
+
+- `server/services/campaign.js` — `isObjectiveDone()`에서 `action: 'unlock'`을 `action: 'story'`와 동일하게 처리. 프롤로그의 `route_unlock` objective가 `in_progress` 상태에서도 never-done으로 판정돼 프롤로그 챕터가 영구 OBJECTIVE_REQUIREMENTS_NOT_MET 상태가 되는 버그 수정.
+
+---
+
 ## 2026-05-07 v7.48 — 프론트엔드 누락 인증 헤더 일괄 수정 (v7.47 후속 패치)
 
 **수정 (HIGH — index.html 57개 fetch 호출):**

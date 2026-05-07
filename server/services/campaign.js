@@ -1627,6 +1627,8 @@ function isObjectiveDone(objective, chapter, progress, options = {}) {
   const status = progress?.status || 'new';
   const active = status === 'in_progress' || status === 'completed' || status === 'claimed';
   if (objective?.action === 'story') return active;
+  // 'unlock' objectives (e.g. prologue route_unlock) are considered done once the chapter is active
+  if (objective?.action === 'unlock') return active;
   if (objective?.action === 'campaign_progress') return Number(options.progressPct || 0) >= 100;
   if (objective?.action === 'choice') {
     const choices = Array.isArray(progress?.choices_payload) ? progress.choices_payload : [];
