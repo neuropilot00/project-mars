@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.57 — 종합 감사 (governance/hijack/worldEvents/marketplace/daily-ops/siege) — 버그 없음
+
+**감사 확인 (버그 없음):**
+- **Governance/Commander Actions** — `verifyCommander(wallet, role)` 가 governance_positions WHERE wallet = $1 AND role = $2 로 실제 커맨더 권한을 확인. 글로벌 이벤트/바운티 GP 차감은 단일 커맨더 포지션 row에서만 발생. 에이전트가 제보한 "다른 커맨더 GP 도용" 시나리오는 UNIQUE(role, sector_id) 제약 + verifyCommander 게이트로 불가능.
+- **Hijack `declareHijackWithPP()`** — `FOR UPDATE` 락 이후 잔액 체크, UPDATE에 `AND pp_balance >= $1` 이중 보호. 에이전트의 TOCTOU 제보는 FOR UPDATE가 행 잠금을 유지하는 한 불가능한 시나리오. FALSE POSITIVE.
+- **World Events `engageEvent()`** — HP 차감 `UPDATE ... SET hp = GREATEST(0, hp - $2)` 단일 문장 원자 처리. FOR UPDATE 불필요. 쿨다운 삽입 wallet은 `getAuthWallet()`에서 이미 `.toLowerCase().trim()` 정규화됨. FALSE POSITIVE.
+- **Marketplace `createListing()`** — `const w = seller.toLowerCase()` 함수 진입 시 정규화. SELECT/UPDATE 모두 `w`(소문자) 사용. 에이전트의 "wallet normalization mismatch" 제보는 FALSE POSITIVE.
+- **Daily Ops claim** — `reward_claimed = FALSE FOR UPDATE` 이중 잠금, 트랜잭션 내 원자 처리. CLEAN.
+- **Siege declare** — `requireAuth` 사용, JWT wallet 추출, GP 차감 `AND gp_balance >= $1` 원자 처리. CLEAN.
+- **resourceCraft.js** — `user_resource_inventory` 올바르게 사용, 재료 차감과 결과 지급 동일 트랜잭션, `AND quantity >= $1` 원자 처리. CLEAN.
+
+---
+
 ## 2026-05-07 v7.56 — tactical-lab reinforce() null guard 수정
 
 **수정 (LOW):**

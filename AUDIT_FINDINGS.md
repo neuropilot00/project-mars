@@ -1,3 +1,20 @@
+# OCCUPY MARS — Codebase Audit (v7.57 / 2026-05-07)
+
+## ✅ v7.57 — 종합 감사 (governance/hijack/worldEvents/marketplace/daily-ops/siege) 버그 없음 (2026-05-07)
+
+| 감사 영역 | 결과 | 에이전트 제보 결과 |
+|-----------|------|------------------|
+| Governance Commander Actions — `verifyCommander()` + GP 차감 | ✅ 버그 없음 | FALSE POSITIVE |
+| Hijack `declareHijackWithPP()` — TOCTOU PP 차감 제보 | ✅ 버그 없음 | FALSE POSITIVE (FOR UPDATE 보호) |
+| World Events `engageEvent()` — HP 차감 race condition 제보 | ✅ 버그 없음 | FALSE POSITIVE (단일 UPDATE 원자) |
+| World Events wallet normalization — 쿨다운 INSERT 제보 | ✅ 버그 없음 | FALSE POSITIVE (getAuthWallet() 이미 정규화) |
+| Marketplace `createListing()` wallet normalization 제보 | ✅ 버그 없음 | FALSE POSITIVE (const w = seller.toLowerCase()) |
+| Daily Ops claim — double-claim 방지 | ✅ 버그 없음 | CLEAN |
+| Siege declare — GP 차감 원자성 | ✅ 버그 없음 | CLEAN |
+| resourceCraft.js — user_resource_inventory 사용, 원자성 | ✅ 버그 없음 | CLEAN |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.56 / 2026-05-07)
 
 ## 🛠 v7.56 — tactical-lab reinforce() null guard (2026-05-07)
