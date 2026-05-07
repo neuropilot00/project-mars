@@ -35268,11 +35268,15 @@ function checkDailyLogin(){
     headers:{'Authorization':'Bearer '+emailAuth.token}
   }).then(function(r){return r.json()}).then(function(d){
     _dailyState.streak = d.streak || 0;
+    // cycleDay: position within current cycle (e.g. streak=8 with maxDays=7 → cycleDay=1)
+    var _maxDays = (d.maxDays || 7);
+    _dailyState.cycleDay = d.cycleDay !== undefined ? d.cycleDay :
+      (_dailyState.streak > 0 ? ((_dailyState.streak - 1) % _maxDays + 1) : 0);
     // Load reward defs from server (admin-configurable)
     if(d.dayRewards && d.dayRewards.length) {
       _dayRewardDefs = d.dayRewards.map(function(dr){
         var icon = dr.milestone ? '🏆' : '💰';
-        if(dr.day === (d.maxDays || 14)) icon = '👑';
+        if(dr.day === _maxDays) icon = '👑';
         return { icon: icon, gp: dr.gp || 0, milestone: dr.milestone, day: dr.day };
       });
     } else {
@@ -35357,18 +35361,20 @@ var _dayRewardDefaults = [
 function renderInlineCheckin(){
   var board = document.getElementById('inlineStampBoard');
   if(!board) return;
-  var streak = _dailyState.streak;
+  var streak = _dailyState.streak;          // total consecutive days (for header label)
+  var cycleDay = _dailyState.cycleDay !== undefined ? _dailyState.cycleDay : streak; // position in 7-day cycle
   var claimed = _dailyState.todayClaimed;
   var html = '';
   var defs = _dayRewardDefs.length ? _dayRewardDefs : _dayRewardDefaults;
-  var maxDays = defs.length || 14;
+  var maxDays = defs.length || 7;
 
   for(var d=1;d<=maxDays;d++){
     var def = defs[d-1] || { icon: '💰', gp: 10 };
-    var done = claimed ? d <= streak : d < streak + 1;
-    if(!claimed && d <= streak) done = true;
-    var isToday = !claimed && d === streak + 1;
-    var isFuture = claimed ? d > streak : d > streak + 1;
+    // Use cycleDay (1-7) instead of raw streak to prevent "8-of-7" display
+    var done = claimed ? d <= cycleDay : d < cycleDay + 1;
+    if(!claimed && d <= cycleDay) done = true;
+    var isToday = !claimed && d === cycleDay + 1;
+    var isFuture = claimed ? d > cycleDay : d > cycleDay + 1;
 
     // Styles
     var bg, bdr, opacity;
@@ -35425,7 +35431,7 @@ function renderInlineCheckin(){
 
   // Period label
   var periodEl = document.getElementById('checkinPeriodLabel');
-  if(periodEl) periodEl.textContent = t('daily_day_of').replace('{cur}',(claimed ? streak : streak+1)).replace('{total}',maxDays);
+  if(periodEl) periodEl.textContent = t('daily_day_of').replace('{cur}',(claimed ? cycleDay : cycleDay+1)).replace('{total}',maxDays);
 
   // Reward text + button
   var rewardEl = document.getElementById('inlineCheckinReward');
@@ -35454,8 +35460,14 @@ function claimDailyLogin(){
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error && !d.already_claimed) { showToast(d.error); return; }
     var today = new Date().toISOString().slice(0,10);
-    _dailyState.streak = d.streak || (_dailyState.streak + 1);
-    _dailyState.lastReward = d.reward || _dailyRewards[Math.min(_dailyState.streak - 1, 13)] || 10;
+    // Service returns streakDay; status endpoint returns streak
+    var newStreak = d.streak || d.streakDay || (_dailyState.streak + 1);
+    _dailyState.streak = newStreak;
+    // Compute cycleDay from the updated streak
+    var _md = (_dayRewardDefs.length || 7);
+    _dailyState.cycleDay = d.cycleDay !== undefined ? d.cycleDay :
+      (newStreak > 0 ? ((newStreak - 1) % _md + 1) : 1);
+    _dailyState.lastReward = d.reward || d.rewardGP || _dailyRewards[Math.min(newStreak - 1, 13)] || 10;
     _dailyState.todayClaimed = true;
     localStorage.setItem('daily_login_date_'+walletState.address, today);
     localStorage.setItem('daily_last_streak_'+walletState.address, String(_dailyState.streak));

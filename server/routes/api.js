@@ -5069,7 +5069,7 @@ router.get('/daily/status', readLimiter, async (req, res) => {
     else if (typeof gpRaw === 'string') {
       try { const p = JSON.parse(gpRaw); if (Array.isArray(p)) gpRewards = p; } catch (_) {}
     }
-    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14)) || 14;
+    const maxDays = parseInt(await getSetting('daily_streak_cycle', 7)) || 7;
     const milestones = {
       3:  { bonus: parseFloat(await getSetting('streak_3_gp', 30)) },
       7:  { bonus: parseFloat(await getSetting('streak_7_gp', 100)) },
@@ -5083,13 +5083,17 @@ router.get('/daily/status', readLimiter, async (req, res) => {
     }
 
     if (existing.rows.length) {
-      return res.json({ todayClaimed: true, streak: existing.rows[0].streak_day, reward: parseFloat(existing.rows[0].reward_gp), dayRewards, maxDays });
+      const rawStreak = existing.rows[0].streak_day;
+      // cycleDay: position within the current 7-day cycle (caps at maxDays, never shows day 8-of-7)
+      const cycleDay = maxDays > 0 ? ((rawStreak - 1) % maxDays + 1) : rawStreak;
+      return res.json({ todayClaimed: true, streak: rawStreak, cycleDay, reward: parseFloat(existing.rows[0].reward_gp), dayRewards, maxDays });
     }
     const yesterday = await pool.query(
       "SELECT streak_day FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE - INTERVAL '1 day'", [w]
     );
-    const streak = yesterday.rows.length ? yesterday.rows[0].streak_day : 0;
-    res.json({ todayClaimed: false, streak, dayRewards, maxDays });
+    const rawStreak = yesterday.rows.length ? yesterday.rows[0].streak_day : 0;
+    const cycleDay = (rawStreak > 0 && maxDays > 0) ? ((rawStreak - 1) % maxDays + 1) : rawStreak;
+    res.json({ todayClaimed: false, streak: rawStreak, cycleDay, dayRewards, maxDays });
   } catch (e) {
     console.error('[DAILY] status error:', e.message);
     res.status(500).json({ error: 'Status check failed' });
