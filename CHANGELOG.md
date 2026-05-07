@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.89 — api.js + 최종 잔액 가드 완성 (전체 완료)
+
+### server/routes/api.js
+- Codex: 13개 GP/PP 차감 경로 LOWER() + AND guard 추가. 잔액 SELECT에 FOR UPDATE 보강.
+- Claude: usdt_balance 출금 L2088 — `AND usdt_balance >= $1` + LOWER() 추가.
+
+**이 커밋 이후 서버 전체(services/ + routes/)에서 unguarded balance deduction 0건 확인.**
+
+---
+
+## 2026-05-07 v6.88 — guild/monuments/crafting/vip/faction/title/tribute/status/season/transport + bounty
+
+### server/services/ (Codex 수정 10개)
+- `guild.js`, `monuments.js` (2곳), `crafting.js`, `vip.js`, `faction.js`, `title.js`, `tribute.js`, `status.js`, `season.js`, `transport.js`: LOWER() + AND guard
+
+### server/routes/bounty.js
+- L137: `LOWER(wallet_address) = $2` → `LOWER(wallet_address) = LOWER($2)` (LOWER() 누락 버그 수정) + AND guard 추가
+
+---
+
 ## 2026-05-07 v6.87 — GP/PP 잔액 가드 전체 서비스 일괄 수정 (39개 서비스)
 
 ### 수정 패턴 (전체 공통)

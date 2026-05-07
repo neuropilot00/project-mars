@@ -1,4 +1,4 @@
-# OCCUPY MARS — Codebase Audit (v6.87 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.89 / 2026-05-07)
 
 ## 🔴→✅ v6.87 — GP/PP 잔액 가드 + wallet LOWER() 전체 서비스 일괄 수정 (2026-05-07)
 
@@ -12,7 +12,7 @@
 | `server/services/marketplace.js` listing fee L52 | `wallet_address = $2` LOWER() 없음 + guard 없음 | ✅ LOWER() + guard 추가 |
 | `server/services/commanderActions.js` | 이미 `AND gp_balance >= $1 RETURNING` 패턴 사용 중 — 클린 | ✅ 수정 불필요 |
 
-**이 시점 이후 `UPDATE users SET gp_balance/pp_balance = ... - $N` 패턴 관련 버그는 전부 해소됨.**
+**v6.89 이후: `UPDATE users SET gp_balance/pp_balance/usdt_balance = ... - $N` 패턴 관련 버그 전부 해소. 전체 서비스/라우트 grep 스캔 결과 0건 확인.**
 
 ---
 
