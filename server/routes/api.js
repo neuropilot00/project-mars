@@ -3030,14 +3030,19 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     }
 
     // Deduct pool
-    await client.query(`
+    const poolUpdate = await client.query(`
       UPDATE quest_reward_pool SET
         balance = balance - $1,
         total_paid = total_paid + $1,
         today_paid = today_paid + $1,
         updated_at = NOW()
-      WHERE id = 1
+      WHERE id = 1 AND balance >= $1
+      RETURNING balance
     `, [harvestedPP]);
+    if (poolUpdate.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'Mining reward pool depleted. Try again later.' });
+    }
 
     // Update user_mining record
     await client.query(`
@@ -3302,7 +3307,14 @@ router.post('/territory/:claimId/harvest', harvestLimiter, async (req, res) => {
     harvestedPP = Math.round(harvestedPP * 10000) / 10000;
     if (harvestedPP <= 0) { await client.query('ROLLBACK'); return res.status(429).json({ error: 'no_rewards' }); }
 
-    await client.query('UPDATE quest_reward_pool SET balance=balance-$1, total_paid=total_paid+$1, today_paid=today_paid+$1, updated_at=NOW() WHERE id=1', [harvestedPP]);
+    const poolUpdate = await client.query(
+      'UPDATE quest_reward_pool SET balance=balance-$1, total_paid=total_paid+$1, today_paid=today_paid+$1, updated_at=NOW() WHERE id=1 AND balance >= $1 RETURNING balance',
+      [harvestedPP]
+    );
+    if (poolUpdate.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'pool_depleted' });
+    }
 
     // claims.last_harvest_at 갱신
     await client.query('UPDATE claims SET last_harvest_at = NOW() WHERE id = $1', [claimId]);
@@ -3375,12 +3387,13 @@ function randReward(min, max) {
 
 // Generate quests for a user (called on login / daily refresh)
 async function generateQuestsForUser(wallet) {
+  const w = sanitize(wallet, 255).toLowerCase();
   const client = await pool.connect();
   try {
     // Check existing active quests
     const existing = await client.query(
-      "SELECT tier FROM user_quests WHERE wallet = $1 AND status IN ('active','completed')",
-      [wallet]
+      "SELECT tier FROM user_quests WHERE LOWER(wallet) = LOWER($1) AND status IN ('active','completed')",
+      [w]
     );
     const activeTiers = new Set(existing.rows.map(r => r.tier));
 
@@ -3404,9 +3417,9 @@ async function generateQuestsForUser(wallet) {
       // Check cooldowns — avoid recently completed quest types
       const recentRes = await client.query(
         `SELECT template_id FROM user_quests
-         WHERE wallet = $1 AND tier = $2 AND status = 'claimed'
+         WHERE LOWER(wallet) = LOWER($1) AND tier = $2 AND status = 'claimed'
          AND claimed_at > NOW() - INTERVAL '1 hour' * (SELECT cooldown_hours FROM quest_templates WHERE id = user_quests.template_id)`,
-        [wallet, tier]
+        [w, tier]
       );
       const cooldownIds = new Set(recentRes.rows.map(r => r.template_id));
       const available = tierTemplates.filter(t => !cooldownIds.has(t.id));
@@ -3427,7 +3440,7 @@ async function generateQuestsForUser(wallet) {
         const expiryHours = tier === 'free' ? 24 : tier === 'activity' ? 48 : 72;
 
         questsToAdd.push({
-          wallet, template_id: tpl.id, tier,
+          wallet: w, template_id: tpl.id, tier,
           title, description: desc,
           requirement_type: tpl.requirement_type,
           requirement_value: reqValue,
@@ -3455,7 +3468,7 @@ async function generateQuestsForUser(wallet) {
 // GET /api/quests?wallet=xxx — Get user's active quests (+ auto-generate if needed)
 router.get('/quests', readLimiter, async (req, res) => {
   try {
-    const w = sanitize(req.query.wallet, 255);
+    const w = sanitize(req.query.wallet, 255).toLowerCase();
     if (!w) return res.status(400).json({ error: 'wallet required' });
 
     // Auto-generate quests if user has fewer than expected
@@ -3463,7 +3476,7 @@ router.get('/quests', readLimiter, async (req, res) => {
 
     // Expire old quests
     await pool.query(
-      "UPDATE user_quests SET status = 'expired' WHERE wallet = $1 AND status = 'active' AND expires_at < NOW()",
+      "UPDATE user_quests SET status = 'expired' WHERE LOWER(wallet) = LOWER($1) AND status = 'active' AND expires_at < NOW()",
       [w]
     );
 
@@ -3472,7 +3485,7 @@ router.get('/quests', readLimiter, async (req, res) => {
       `SELECT id, tier, title, description, requirement_type, requirement_value,
               current_progress, reward_pp, status, assigned_at, expires_at
        FROM user_quests
-       WHERE wallet = $1 AND status IN ('active','completed')
+       WHERE LOWER(wallet) = LOWER($1) AND status IN ('active','completed')
        ORDER BY
          CASE tier WHEN 'free' THEN 1 WHEN 'activity' THEN 2 WHEN 'spending' THEN 3 END,
          assigned_at DESC`,
@@ -3483,7 +3496,7 @@ router.get('/quests', readLimiter, async (req, res) => {
     const claimed = await pool.query(
       `SELECT id, tier, title, reward_pp, claimed_at
        FROM user_quests
-       WHERE wallet = $1 AND status = 'claimed' AND claimed_at > NOW() - INTERVAL '24 hours'
+       WHERE LOWER(wallet) = LOWER($1) AND status = 'claimed' AND claimed_at > NOW() - INTERVAL '24 hours'
        ORDER BY claimed_at DESC LIMIT 10`,
       [w]
     );
@@ -3537,14 +3550,14 @@ router.post('/quests/:id/progress', writeLimiter, async (req, res) => {
   try {
     const questId = parseInt(req.params.id);
     const { wallet, amount } = req.body;
-    const w = sanitize(wallet, 255);
+    const w = sanitize(wallet, 255).toLowerCase();
     if (!w || !questId) return res.status(400).json({ error: 'Invalid params' });
     const increment = parseFloat(amount) || 1;
 
     await client.query('BEGIN');
 
     const qRes = await client.query(
-      "SELECT * FROM user_quests WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
+      "SELECT * FROM user_quests WHERE id = $1 AND LOWER(wallet) = LOWER($2) AND status = 'active' FOR UPDATE",
       [questId, w]
     );
     if (qRes.rows.length === 0) {
@@ -3594,13 +3607,13 @@ router.post('/quests/:id/claim', writeLimiter, async (req, res) => {
   try {
     const questId = parseInt(req.params.id);
     const { wallet } = req.body;
-    const w = sanitize(wallet, 255);
+    const w = sanitize(wallet, 255).toLowerCase();
     if (!w || !questId) return res.status(400).json({ error: 'Invalid params' });
 
     await client.query('BEGIN');
 
     const qRes = await client.query(
-      "SELECT * FROM user_quests WHERE id = $1 AND wallet = $2 AND status = 'completed' FOR UPDATE",
+      "SELECT * FROM user_quests WHERE id = $1 AND LOWER(wallet) = LOWER($2) AND status = 'completed' FOR UPDATE",
       [questId, w]
     );
     if (qRes.rows.length === 0) {
@@ -3659,7 +3672,7 @@ router.post('/quests/:id/claim', writeLimiter, async (req, res) => {
 
     // Check user's daily total claimed
     const userTodayRes = await client.query(
-      "SELECT COALESCE(SUM(pp_amount),0) AS total FROM transactions WHERE type='quest' AND from_wallet=$1 AND created_at > CURRENT_DATE",
+      "SELECT COALESCE(SUM(pp_amount),0) AS total FROM transactions WHERE type='quest' AND LOWER(from_wallet)=LOWER($1) AND created_at > CURRENT_DATE",
       [w]
     );
     const userTodayTotal = parseFloat(userTodayRes.rows[0].total);
@@ -3668,6 +3681,8 @@ router.post('/quests/:id/claim', writeLimiter, async (req, res) => {
     let actualReward = Math.round(baseReward * multiplier * 10000) / 10000;
     actualReward = Math.min(actualReward, tierCap);          // tier hard cap
     actualReward = Math.min(actualReward, userDailyRemaining); // user daily cap
+    actualReward = Math.min(actualReward, Math.max(0, dailyBudget - todayPaid)); // pool daily budget
+    actualReward = Math.min(actualReward, poolBalance);      // locked pool balance
     actualReward = Math.round(actualReward * 10000) / 10000;
 
     if (actualReward <= 0) {
@@ -3677,18 +3692,23 @@ router.post('/quests/:id/claim', writeLimiter, async (req, res) => {
     }
 
     // Deduct from pool
-    await client.query(`
+    const poolUpdate = await client.query(`
       UPDATE quest_reward_pool SET
         balance = balance - $1,
         total_paid = total_paid + $1,
         today_paid = today_paid + $1,
         updated_at = NOW()
-      WHERE id = 1
+      WHERE id = 1 AND balance >= $1
+      RETURNING balance
     `, [actualReward]);
+    if (poolUpdate.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'Quest reward pool depleted. Try again later.' });
+    }
 
     // Credit PP to user
     await client.query(
-      'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+      'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
       [actualReward, w]
     );
 

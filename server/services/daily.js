@@ -249,67 +249,88 @@ async function updateMissionProgress(wallet, missionType, increment) {
 // ── Claim mission reward ──
 async function claimMissionReward(wallet, missionId) {
   const w = wallet.toLowerCase();
+  const client = await pool.connect();
 
-  // Verify mission belongs to wallet, is completed, not claimed
-  const res = await pool.query(
-    'SELECT * FROM daily_missions WHERE id = $1 AND wallet = $2 AND completed = true AND claimed = false',
-    [missionId, w]
-  );
-  if (!res.rows.length) {
-    return { error: 'Mission not claimable (not completed, already claimed, or not yours)' };
-  }
+  try {
+    await client.query('BEGIN');
 
-  const mission = res.rows[0];
-
-  // Mark as claimed
-  await pool.query('UPDATE daily_missions SET claimed = true WHERE id = $1', [missionId]);
-
-  // Credit GP
-  const rewardGP = parseFloat(mission.reward_gp);
-  if (rewardGP > 0) {
-    await pool.query(
-      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
-      [rewardGP, w]
+    await client.query(
+      'SELECT id FROM daily_missions WHERE LOWER(wallet) = LOWER($1) AND mission_date = CURRENT_DATE ORDER BY id FOR UPDATE',
+      [w]
     );
-    // ✅ Log GP activity
-    try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGP, 'mission_reward', mission.mission_type).catch(()=>{}); } catch (_le) {}
-  }
 
-  // Award XP if applicable
-  let xpAwarded = mission.reward_xp || 0;
-  if (xpAwarded > 0) {
-    try {
-      await pool.query(
-        'UPDATE users SET xp = xp + $1 WHERE wallet_address = $2',
-        [xpAwarded, w]
-      );
-    } catch (_e) { /* xp column may not exist */ }
-  }
+    // Atomically claim the mission so concurrent requests cannot both pay it.
+    const res = await client.query(
+      `UPDATE daily_missions
+       SET claimed = true
+       WHERE id = $1 AND LOWER(wallet) = LOWER($2) AND completed = true AND claimed = false
+       RETURNING *`,
+      [missionId, w]
+    );
+    if (!res.rows.length) {
+      await client.query('ROLLBACK');
+      return { error: 'Mission not claimable (not completed, already claimed, or not yours)' };
+    }
 
-  // Check if all 3 missions are claimed -> bonus GP
-  const allClaimed = await pool.query(
-    'SELECT COUNT(*) AS cnt FROM daily_missions WHERE wallet = $1 AND mission_date = CURRENT_DATE AND claimed = true',
-    [w]
-  );
-  let bonusGP = 0;
-  if (parseInt(allClaimed.rows[0].cnt) >= 3) {
-    bonusGP = parseFloat(await getSetting('daily_mission_bonus_gp', 50));
-    if (bonusGP > 0) {
-      await pool.query(
-        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
-        [bonusGP, w]
+    const mission = res.rows[0];
+
+    // Credit GP
+    const rewardGP = parseFloat(mission.reward_gp);
+    if (rewardGP > 0) {
+      await client.query(
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+        [rewardGP, w]
       );
     }
-  }
 
-  return {
-    success: true,
-    missionId,
-    rewardGP,
-    xpAwarded,
-    bonusGP,
-    allComplete: parseInt(allClaimed.rows[0].cnt) >= 3
-  };
+    // Award XP if applicable
+    let xpAwarded = mission.reward_xp || 0;
+    if (xpAwarded > 0) {
+      try {
+        await client.query(
+          'UPDATE users SET xp = xp + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+          [xpAwarded, w]
+        );
+      } catch (_e) { /* xp column may not exist */ }
+    }
+
+    // Check if all 3 missions were claimed by this transaction -> bonus GP
+    const allClaimed = await client.query(
+      'SELECT COUNT(*) AS cnt FROM daily_missions WHERE LOWER(wallet) = LOWER($1) AND mission_date = CURRENT_DATE AND claimed = true',
+      [w]
+    );
+    let bonusGP = 0;
+    if (parseInt(allClaimed.rows[0].cnt) === 3) {
+      bonusGP = parseFloat(await getSetting('daily_mission_bonus_gp', 50));
+      if (bonusGP > 0) {
+        await client.query(
+          'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+          [bonusGP, w]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+
+    // ✅ Log GP activity after commit
+    if (rewardGP > 0) {
+      try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGP, 'mission_reward', mission.mission_type).catch(()=>{}); } catch (_le) {}
+    }
+
+    return {
+      success: true,
+      missionId,
+      rewardGP,
+      xpAwarded,
+      bonusGP,
+      allComplete: parseInt(allClaimed.rows[0].cnt) >= 3
+    };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 // ── Get streak info ──

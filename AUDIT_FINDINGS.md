@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v6.84 / 2026-05-07)
+# OCCUPY MARS — Codebase Audit (v6.85 / 2026-05-07)
+
+## 🔴→✅ v6.85 — 일일미션/퀘스트 풀/마켓 구매 동시성 버그 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/daily.js` `claimMissionReward()` | `pool.query()` 직접 사용 — 트랜잭션 없음 → 동시 두 요청이 동일 미션을 중복 수령 가능. 오류 발생 시 롤백 누락 | ✅ BEGIN/COMMIT/ROLLBACK + `finally { client.release() }` 추가. `UPDATE ... SET claimed=true WHERE ... AND claimed=false RETURNING *` 원자적 claim으로 중복 방지. wallet LOWER() 정규화 |
+| `server/routes/api.js` `quest_reward_pool` UPDATE | `SET balance = balance - $1 WHERE id = 1` — `balance >= $1` 조건 없음 → 동시 요청이 풀 잔액을 음수로 만들 수 있음 (harvest, territory/harvest 두 경로 모두 해당) | ✅ `WHERE id = 1 AND balance >= $1 RETURNING balance` 추가. UPDATE rows = 0이면 ROLLBACK 후 pool_depleted 반환 |
+| `server/routes/api.js` 퀘스트 claim `actualReward` 계산 | `tierCap`, `userDailyRemaining`만으로 캡핑 → `poolBalance`, `dailyBudget - todayPaid` 초과 공제 가능 | ✅ `actualReward = Math.min(actualReward, Math.max(0, dailyBudget - todayPaid), poolBalance)` 추가 |
+| `server/routes/api.js` quest 엔드포인트 wallet 비교 | `WHERE wallet = $1` 대소문자 구분 비교로 quest/transaction 누락 가능 | ✅ `LOWER(wallet) = LOWER($1)` + wallet 소문자 정규화 |
+| `server/services/marketplace.js` `buyListing()` 구매자 잔액 | `SELECT ${balCol} FROM users WHERE wallet_address = $1` — `FOR UPDATE` 없음 → 동시 두 요청이 같은 잔액을 보고 동시에 차감, 음수 잔액 가능 | ✅ `FOR UPDATE` + `LOWER()` 추가. UPDATE에 `AND ${balCol} >= $1` 가드 추가 |
+
+---
+
+## 🔴→✅ v6.84 — 강화/공성/마켓 3개 영역 감사 및 수정 (2026-05-07)
 
 ## 🔴→✅ v6.84 — 강화/공성/마켓 3개 영역 감사 및 수정 (2026-05-07)
 

@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v6.85 — 일일미션/퀘스트 풀/마켓 구매 동시성 수정
+
+### server/services/daily.js
+- `claimMissionReward()`: `pool.query()` 직접 사용 → `BEGIN/COMMIT/ROLLBACK + finally { client.release() }` 패턴으로 리팩터링.
+- 중복 수령 방지: `UPDATE ... SET claimed=true WHERE ... AND claimed=false RETURNING *` 원자적 처리.
+- wallet 대소문자 정규화 (`LOWER()`).
+
+### server/routes/api.js
+- `quest_reward_pool` UPDATE (harvest, territory/harvest): `AND balance >= $1 RETURNING balance` 조건 추가. 0 rows 반환 시 ROLLBACK + pool_depleted 오류.
+- 퀘스트 claim `actualReward`: 풀 잔액(`poolBalance`)과 일별 예산 잔여(`dailyBudget - todayPaid`) 캡 추가.
+- quest 엔드포인트 wallet 비교: `LOWER(wallet) = LOWER($1)` 통일.
+
+### server/services/marketplace.js
+- `buyListing()` 구매자 잔액 SELECT에 `FOR UPDATE` 추가 → 동시 구매 이중 차감 방지.
+- 잔액 UPDATE에 `AND ${balCol} >= $1` 음수 방지 가드 추가. `LOWER()` 정규화.
+
+---
+
 ## 2026-05-07 v6.84 — 강화/공성/마켓 감사 버그 수정
 
 ### server/services/enhancementAdvanced.js

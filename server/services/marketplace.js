@@ -226,13 +226,13 @@ async function buyListing(client, listingId, buyer) {
   const currency = listing.currency;
   const balCol = currency === 'PP' ? 'pp_balance' : 'gp_balance';
 
-  // Check buyer balance
-  const balRes = await client.query(`SELECT ${balCol} AS bal FROM users WHERE wallet_address = $1`, [b]);
+  // Check buyer balance — FOR UPDATE to prevent concurrent double-spend
+  const balRes = await client.query(`SELECT ${balCol} AS bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [b]);
   if (!balRes.rows.length) throw new Error('User not found');
   if (parseFloat(balRes.rows[0].bal) < price) throw new Error(`Insufficient ${currency}. Need ${price}`);
 
-  // Deduct buyer balance
-  await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [price, b]);
+  // Deduct buyer balance (AND balance >= $1 guard prevents negative balance)
+  await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [price, b]);
 
   // ✅ Referral commission + season score (GP purchases only)
   // (레퍼럴 커미션은 fee 계산 후로 이동 — Migration 173: 마켓 수수료 연동)
