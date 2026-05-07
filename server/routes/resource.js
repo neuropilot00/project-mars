@@ -17,6 +17,12 @@ function getWallet(req) {
   return (req.query.wallet || req.body.wallet || req.headers['x-wallet'] || '').toLowerCase();
 }
 
+function requireAdmin(req, res) {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) { res.status(403).json({ error: 'FORBIDDEN' }); return false; }
+  return true;
+}
+
 // ─────────────────────────────────────────
 // GET /api/resources
 // 전체 자원 목록 (마켓 등록 / UI용)
@@ -54,6 +60,7 @@ router.get('/user/resources', async (req, res) => {
 // 어드민: 자원 통계 + 최근 거래
 // ─────────────────────────────────────────
 router.get('/admin/resources', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   try {
     const stats = await resourceService.getResourceStats();
     // 섹터별 드롭율 테이블도 반환
@@ -77,6 +84,7 @@ router.get('/admin/resources', async (req, res) => {
 // { sectorType, resourceCode, baseRate, minerBonus }
 // ─────────────────────────────────────────
 router.put('/admin/resource-rate', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   const { sectorType, resourceCode, baseRate, minerBonus } = req.body;
   if (!sectorType || !resourceCode || baseRate === undefined) {
     return res.status(400).json({ error: 'sectorType, resourceCode, baseRate required' });

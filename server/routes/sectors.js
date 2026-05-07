@@ -17,6 +17,12 @@ const express = require('express');
 const router = express.Router();
 const sectorService = require('../services/sector');
 
+function requireAdmin(req, res) {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) { res.status(403).json({ error: 'FORBIDDEN' }); return false; }
+  return true;
+}
+
 // ─────────────────────────────────────────────────────────────
 // GET /api/sector-defs  — 전체 섹터 목록
 // ─────────────────────────────────────────────────────────────
@@ -86,6 +92,7 @@ router.get('/sector-defs/:code/entry-check', async (req, res) => {
 // GET /api/admin/sector-defs  — 어드민 섹터 통계
 // ─────────────────────────────────────────────────────────────
 router.get('/admin/sector-defs', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   try {
     const stats = await sectorService.getSectorStats();
     res.json({ sectors: stats });

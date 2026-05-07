@@ -20,6 +20,12 @@ function getWallet(req) {
   return (req.query.wallet || req.body.wallet || req.headers['x-wallet'] || '').toLowerCase();
 }
 
+function requireAdmin(req, res) {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) { res.status(403).json({ error: 'FORBIDDEN' }); return false; }
+  return true;
+}
+
 // ─────────────────────────────────────────
 // GET /api/jobs
 // 전체 직업 목록 (프론트엔드 선택 UI용)
@@ -94,6 +100,7 @@ router.get('/user/job/change-status', async (req, res) => {
 // 어드민: 직업별 유저 분포 + 버프 수치 + 최근 변경 로그
 // ─────────────────────────────────────────
 router.get('/admin/jobs', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   try {
     const [distribution, buffs, recentLog, recentAgg, perJobBalance] = await Promise.all([
       pool.query(`SELECT * FROM admin_job_distribution`).catch(() => ({ rows: [] })),
@@ -168,6 +175,7 @@ router.get('/admin/jobs', async (req, res) => {
 // 어드민: 버프 수치 수정 { jobId, buffKey, value }
 // ─────────────────────────────────────────
 router.put('/admin/job-buff', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   const { jobId, buffKey, value } = req.body;
   if (!jobId || !buffKey || value === undefined) {
     return res.status(400).json({ error: 'jobId, buffKey, value required' });

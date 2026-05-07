@@ -17,6 +17,15 @@ const express = require('express');
 const router = express.Router();
 const siegeService = require('../services/siege');
 
+function requireAdmin(req, res) {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) {
+    res.status(403).json({ error: 'FORBIDDEN' });
+    return false;
+  }
+  return true;
+}
+
 // ─────────────────────────────────────────────────────────────
 // POST /api/siege/declare — Siege 선언
 // body: { wallet, sectorCode }
@@ -149,11 +158,15 @@ router.put('/governor/policy', async (req, res) => {
 // GET /api/admin/sieges — 어드민: 전체 Siege 목록
 // ─────────────────────────────────────────────────────────────
 router.get('/admin/sieges', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   const { status = 'all', limit = 50 } = req.query;
+  const ALLOWED_STATUSES = ['all', 'pending', 'active', 'resolved', 'cancelled', 'expired'];
+  const safeStatus = ALLOWED_STATUSES.includes(status) ? status : 'all';
   try {
     const { pool } = require('../db');
-    const lim = Math.min(parseInt(limit), 200);
-    const where = status === 'all' ? '' : `WHERE gs.status = '${status}'`;
+    const lim = Math.min(parseInt(limit) || 50, 200);
+    const params = [lim];
+    const whereClause = safeStatus === 'all' ? '' : `WHERE gs.status = $${params.push(safeStatus)}`;
     const result = await pool.query(
       `SELECT gs.*,
               uc.nickname AS challenger_nickname,
@@ -163,9 +176,9 @@ router.get('/admin/sieges', async (req, res) => {
        LEFT JOIN users uc ON uc.wallet_address = gs.challenger_wallet
        LEFT JOIN users ud ON ud.wallet_address = gs.defender_wallet
        LEFT JOIN users uw ON uw.wallet_address = gs.winner_wallet
-       ${where}
+       ${whereClause}
        ORDER BY gs.declared_at DESC LIMIT $1`,
-      [lim]
+      params
     );
     res.json({ sieges: result.rows });
   } catch (err) {
@@ -178,6 +191,7 @@ router.get('/admin/sieges', async (req, res) => {
 // POST /api/admin/sieges/:siegeId/resolve — 어드민: 강제 Siege 종료
 // ─────────────────────────────────────────────────────────────
 router.post('/admin/sieges/:siegeId/resolve', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   const id = parseInt(req.params.siegeId);
   if (isNaN(id)) return res.status(400).json({ error: 'invalid siege id' });
   try {
