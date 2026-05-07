@@ -1,5 +1,11 @@
 # OCCUPY MARS — Codebase Audit (v7.12 / 2026-05-07)
 
+## 🔴→✅ v7.18 — 일일 출석 동시 요청 이중 지급 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 수정 여부 |
+|-----------|-------------|-----------|
+| `server/services/daily.js` — `recordDailyLogin()` | `daily_logins` INSERT에 `ON CONFLICT DO NOTHING` 없음 → 동시 요청 두 건 중 하나가 unique constraint violation으로 500 에러; 또는 race 타이밍에 따라 이중 balance credit 위험 | ✅ `ON CONFLICT (wallet, login_date) DO NOTHING RETURNING id` 추가, rowCount=0(race)이면 alreadyClaimed 반환, 이중 credit 완전 차단 |
+
 ## 🔴→✅ v7.17 — quest_reward_pool 경쟁 조건 수정 (2026-05-07)
 
 | 감사 영역 | 발견된 버그 | 수정 여부 |

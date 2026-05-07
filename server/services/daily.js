@@ -86,12 +86,28 @@ async function recordDailyLogin(wallet) {
   const rewardGP = parseFloat(gpRewards[streakDay - 1]) || 0;
   const rewardPP = parseFloat(ppRewards[streakDay - 1]) || 0;
 
-  // Insert login record
-  await pool.query(
+  // Insert login record — ON CONFLICT DO NOTHING prevents double-reward on concurrent requests
+  const insertRes = await pool.query(
     `INSERT INTO daily_logins (wallet, login_date, streak_day, reward_gp, reward_pp)
-     VALUES ($1, CURRENT_DATE, $2, $3, $4)`,
+     VALUES ($1, CURRENT_DATE, $2, $3, $4)
+     ON CONFLICT (wallet, login_date) DO NOTHING
+     RETURNING id`,
     [w, streakDay, rewardGP, rewardPP]
   );
+
+  // If conflict (race condition: another concurrent request already inserted), return alreadyClaimed
+  if (insertRes.rowCount === 0) {
+    const row = await pool.query('SELECT * FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE', [w]);
+    const totalRes = await pool.query('SELECT COUNT(*) AS cnt FROM daily_logins WHERE wallet = $1', [w]);
+    return {
+      alreadyClaimed: true,
+      streakDay: row.rows[0]?.streak_day || streakDay,
+      rewardGP: parseFloat(row.rows[0]?.reward_gp || 0),
+      rewardPP: parseFloat(row.rows[0]?.reward_pp || 0),
+      totalDays: parseInt(totalRes.rows[0].cnt),
+      milestone: null
+    };
+  }
 
   // Credit user balances
   if (rewardGP > 0 || rewardPP > 0) {
