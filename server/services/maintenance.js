@@ -80,7 +80,7 @@ async function processMaintenanceFees() {
         // User can't pay full fee — deduct what they have, then abandon oldest territories
         if (ppBalance > 0) {
           await client.query(
-            'UPDATE users SET pp_balance = 0 WHERE wallet_address = $1',
+            'UPDATE users SET pp_balance = 0 WHERE LOWER(wallet_address) = LOWER($1)',
             [wallet]
           );
         }

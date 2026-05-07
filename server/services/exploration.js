@@ -252,7 +252,7 @@ async function discoverPOI(wallet, poiId) {
     let rewardGiven = { type: poi.reward_type, amount: parseFloat(poi.reward_amount), itemCode: poi.reward_item_code, itemName: null, itemIcon: null };
 
     if (poi.reward_type === 'gp') {
-      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [rewardGiven.amount, wallet]);
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGiven.amount, wallet]);
     } else if (poi.reward_type === 'mineral' && poi.reward_item_code) {
       // Mineral reward — user_resource_inventory 적립 (resource_id 기반)
       const resRes = await client.query(
@@ -275,7 +275,7 @@ async function discoverPOI(wallet, poiId) {
         rewardGiven.type = 'gp';
         rewardGiven.amount = 15;
         rewardGiven.itemCode = null;
-        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [15, wallet]);
+        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [15, wallet]);
       }
     } else if (poi.reward_type === 'item' && poi.reward_item_code) {
       // Item reward — add to user inventory
@@ -295,7 +295,7 @@ async function discoverPOI(wallet, poiId) {
         rewardGiven.type = 'gp';
         rewardGiven.amount = 15;
         rewardGiven.itemCode = null;
-        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [15, wallet]);
+        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [15, wallet]);
       }
     } else if (poi.reward_type === 'pp') {
       // PP reward — fund from quest_reward_pool.balance (singleton row id=1).
@@ -319,7 +319,7 @@ async function discoverPOI(wallet, poiId) {
         console.warn('[EXPLORE] quest_reward_pool missing, minting PP directly:', _poolErr.message);
       }
       if (reward > 0) {
-        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [reward, wallet]);
+        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [reward, wallet]);
         rewardGiven.amount = reward;
       } else {
         rewardGiven.amount = 0;

@@ -215,7 +215,7 @@ async function handlePhase1Complete(phase1BattleId) {
     if (hijack.pending_pixels && parseFloat(hijack.attack_cost || 0) > 0) {
       const refund90 = Math.round(parseFloat(hijack.attack_cost) * 0.9 * 1000000) / 1000000;
       await pool.query(
-        `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+        `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [refund90, hijack.attacker_wallet]
       );
       console.log(`[hijack] ${hijack.id} Phase 1 lost → 90% refund ${refund90} PP → ${hijack.attacker_wallet}`);
@@ -343,7 +343,7 @@ async function handlePhase2Complete(phase2BattleId) {
         for (const [owner, credit] of Object.entries(ownerCredits)) {
           if (credit > 0) {
             await client.query(
-              `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+              `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
               [Math.round(credit * 1000000) / 1000000, owner]
             );
           }
@@ -396,7 +396,7 @@ async function handlePhase2Complete(phase2BattleId) {
       if (attackCost > 0) {
         const refund90 = Math.round(attackCost * 0.9 * 1000000) / 1000000;
         await client.query(
-          `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+          `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
           [refund90, hijack.attacker_wallet]
         );
         console.log(`[hijack] ${hijack.id} DEF WIN: 90% refund ${refund90} PP → ${hijack.attacker_wallet}`);

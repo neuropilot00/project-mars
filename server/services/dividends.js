@@ -169,7 +169,7 @@ async function distributeLastWeek() {
 
       // Auto-pay the dividend (no manual claim needed — simpler UX)
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+        `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
         [staker.wallet, share]
       );
       await client.query(

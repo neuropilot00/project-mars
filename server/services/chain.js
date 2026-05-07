@@ -237,7 +237,7 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
 
     // Update user balances
     await client.query(
-      `UPDATE users SET usdt_balance = usdt_balance + $1, pp_balance = pp_balance + $2 WHERE wallet_address = $3`,
+      `UPDATE users SET usdt_balance = usdt_balance + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)`,
       [amountNum, ppBonus, wallet]
     );
 

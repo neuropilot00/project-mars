@@ -203,7 +203,7 @@ router.post('/register', authLimiter, async (req, res) => {
     const signupBonus = bonusRes.rows.length ? Number(bonusRes.rows[0].value) : 0;
     if (signupBonus > 0) {
       await client.query(
-        `UPDATE users SET pp_balance = pp_balance + $2 WHERE wallet_address = $1`,
+        `UPDATE users SET pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
         [walletAddress, signupBonus]
       );
       console.log(`[Auth] Gifted ${signupBonus} PP to new user ${walletAddress}`);

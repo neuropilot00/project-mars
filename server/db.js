@@ -595,7 +595,7 @@ async function awardXP(client, wallet, xpAmount) {
   if (newLevel > rank_level) {
     await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newLevel, wallet]);
     if (totalRewardPp > 0) {
-      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [totalRewardPp, wallet]);
+      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [totalRewardPp, wallet]);
     }
     // 🔔 레벨업 알림
     notifyPlayer(wallet, 'rank_up',

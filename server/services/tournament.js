@@ -525,7 +525,7 @@ async function finalizeTournament(tournamentId) {
   for (const p of prizes) {
     if (p.gp > 0) {
       await pool.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [p.gp, p.wallet]
       );
       await pool.query(`

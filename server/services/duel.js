@@ -207,13 +207,13 @@ async function acceptDuel(duelId, defender) {
 
     if (result.winner) {
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [winnerTake, result.winner]
       );
       const loser = result.winner === d.challenger ? dLower : d.challenger;
       if (loserTake > 0) {
         await client.query(
-          `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+          `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
           [loserTake, loser]
         );
       }
@@ -221,7 +221,7 @@ async function acceptDuel(duelId, defender) {
       // 무승부 — 양쪽에 (totalPot - fee) / 2
       const half = Math.floor((totalPot - fee) / 2);
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address IN ($2, $3)`,
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) IN (LOWER($2), LOWER($3))`,
         [half, d.challenger, dLower]
       );
     }
@@ -294,7 +294,7 @@ async function declineDuel(duelId, defender) {
 
     // challenger 환불
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [d.wager_gp, d.challenger]
     );
     await client.query(
@@ -325,7 +325,7 @@ async function cancelDuel(duelId, challenger) {
     if (d.status !== 'pending') throw new Error('DUEL_NOT_PENDING');
 
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+      `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
       [d.wager_gp, cLower]
     );
     await client.query(
@@ -354,7 +354,7 @@ async function expireDuels() {
     let n = 0;
     for (const d of r.rows) {
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [d.wager_gp, d.challenger]
       );
       await client.query(

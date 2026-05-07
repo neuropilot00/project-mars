@@ -241,7 +241,7 @@ async function drawRound(round, cfg) {
       for (const r of ticks.rows) {
         const refund = parseFloat(round.ticket_price_gp) * parseInt(r.n);
         await client.query(
-          `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+          `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
           [r.wallet, refund]
         );
       }
@@ -261,7 +261,7 @@ async function drawRound(round, cfg) {
       if (winnerWallet && prize > 0) {
         // Award prize
         await client.query(
-          `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+          `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
           [winnerWallet, prize]
         );
         // Mark winner ticket

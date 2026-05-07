@@ -96,7 +96,7 @@ async function recordDailyLogin(wallet) {
   // Credit user balances
   if (rewardGP > 0 || rewardPP > 0) {
     await pool.query(
-      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE wallet_address = $3',
+      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
       [rewardGP, rewardPP, w]
     );
     // ✅ Log GP activity
@@ -126,7 +126,7 @@ async function recordDailyLogin(wallet) {
 
   if (milestoneGP > 0 || milestonePP > 0) {
     await pool.query(
-      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE wallet_address = $3',
+      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
       [milestoneGP, milestonePP, w]
     );
   }

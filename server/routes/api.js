@@ -1398,7 +1398,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
     await fundQuestPool(client, baseCost);
     if (refundFromFailed > 0) {
       await client.query(
-        'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+        'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [refundFromFailed, walletLower]
       );
     }
@@ -2163,7 +2163,7 @@ router.post('/withdraw-all', writeLimiter, async (req, res) => {
 
     // Zero balances, increment nonce, and update last_withdrawal_at
     await client.query(
-      'UPDATE users SET usdt_balance = 0, pp_balance = 0, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE wallet_address = $1',
+      'UPDATE users SET usdt_balance = 0, pp_balance = 0, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($1)',
       [wallet.toLowerCase()]
     );
 

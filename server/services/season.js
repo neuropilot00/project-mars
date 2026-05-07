@@ -383,11 +383,11 @@ async function claimSeasonReward(wallet, rewardId) {
     let rewardLabel = '';
 
     if (reward.reward_type === 'pp') {
-      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [reward.reward_amount, wallet]);
       rewardLabel = reward.reward_amount + ' PP';
     } else if (reward.reward_type === 'gp') {
-      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2',
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [reward.reward_amount, wallet]);
       rewardLabel = reward.reward_amount + ' GP';
     } else if (reward.reward_type === 'xp') {
@@ -406,7 +406,7 @@ async function claimSeasonReward(wallet, rewardId) {
         rewardLabel = reward.reward_amount + 'x ' + meta.item_code;
       }
     } else if (reward.reward_type === 'usdt') {
-      await client.query('UPDATE users SET usdt_balance = usdt_balance + $1 WHERE wallet_address = $2',
+      await client.query('UPDATE users SET usdt_balance = usdt_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [reward.reward_amount, wallet]);
       rewardLabel = reward.reward_amount + ' USDT';
     }
@@ -648,10 +648,10 @@ async function claimPassTier(wallet, tier, isPremium) {
     // Give reward
     let label = '';
     if (t.reward_type === 'pp') {
-      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [t.reward_amount, wallet]);
+      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [t.reward_amount, wallet]);
       label = t.reward_amount + ' PP';
     } else if (t.reward_type === 'gp') {
-      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2', [t.reward_amount, wallet]);
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [t.reward_amount, wallet]);
       label = t.reward_amount + ' GP';
     } else if (t.reward_type === 'xp') {
       await client.query('UPDATE users SET xp = xp + $1 WHERE wallet_address = $2', [t.reward_amount, wallet]);

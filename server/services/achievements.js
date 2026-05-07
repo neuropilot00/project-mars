@@ -126,7 +126,7 @@ async function unlockAchievement(wallet, key, rewardGp) {
 
     if (finalGp > 0) {
       await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+        `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
         [w, finalGp]
       );
       // Log GP activity

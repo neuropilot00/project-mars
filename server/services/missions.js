@@ -1041,7 +1041,7 @@ async function claimMission(wallet, missionId, minigameScore) {
       } catch (_e) { /* pool missing, fall through and mint */ }
       if (ppPayout > 0) {
         await client.query(
-          'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+          'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
           [ppPayout, wallet]
         );
         reward.pp = ppPayout;
@@ -1049,7 +1049,7 @@ async function claimMission(wallet, missionId, minigameScore) {
     }
     if ((reward.gp || 0) > 0) {
       await client.query(
-        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [reward.gp, wallet]
       );
     }
@@ -1174,7 +1174,7 @@ async function cancelMission(wallet, missionId) {
     const refund = Math.round(parseFloat(m.launch_cost_pp) * refundPct / 100 * 1000000) / 1000000;
     if (refund > 0) {
       await client.query(
-        'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+        'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [refund, wallet]
       );
     }
