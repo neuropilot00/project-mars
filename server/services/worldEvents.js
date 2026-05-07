@@ -304,10 +304,11 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
       throw err;
     }
 
-    // 3) 쿨다운 체크
+    // 3) 쿨다운 체크 — FOR UPDATE로 동시 요청이 쿨다운 체크를 통과하는 경쟁 방지
     const { rows: cdRows } = await client.query(
       `SELECT last_battle_at FROM world_event_participants
-        WHERE event_id = $1 AND LOWER(wallet) = LOWER($2)`,
+        WHERE event_id = $1 AND LOWER(wallet) = LOWER($2)
+        FOR UPDATE`,
       [eventId, attackerWallet]
     );
     if (cdRows.length && cdRows[0].last_battle_at) {

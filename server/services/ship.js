@@ -948,13 +948,11 @@ async function chargeShield(walletAddress, shipId, units) {
       throw err;
     }
     // Clamp requested units to available capacity instead of rejecting the entire call
-    if (chargeUnits > canAdd) {
-      chargeUnits = canAdd;
-    }
+    const actualUnits = chargeUnits > canAdd ? canAdd : chargeUnits;
 
     // 3. GP 비용 계산
     const gpPerUnit = parseInt(await getSetting('shield_gp_per_unit', '3')) || 3;
-    const gpCost    = chargeUnits * gpPerUnit;
+    const gpCost    = actualUnits * gpPerUnit;
 
     // 4. GP 확인
     const { rows: userRows } = await client.query(
@@ -976,7 +974,7 @@ async function chargeShield(walletAddress, shipId, units) {
     if (deductShield.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
     // 6. 실드 업데이트
-    const newShield = currentShield + chargeUnits;
+    const newShield = currentShield + actualUnits;
     await client.query(
       `UPDATE ships SET shield_hp = $1, shield_max = $2 WHERE id = $3`,
       [newShield, shieldMax, shipId]
@@ -988,12 +986,12 @@ async function chargeShield(walletAddress, shipId, units) {
     try {
       const { logGPActivity } = require('../db');
       logGPActivity(walletLower, -gpCost, 'ship_shield',
-        `실드 충전 (ID:${shipId}) +${chargeUnits}`).catch(() => {});
+        `실드 충전 (ID:${shipId}) +${actualUnits}`).catch(() => {});
     } catch (_) {}
 
     return {
       success:       true,
-      shield_added:  chargeUnits,
+      shield_added:  actualUnits,
       new_shield:    newShield,
       gp_cost:       gpCost,
     };

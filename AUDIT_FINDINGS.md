@@ -1,3 +1,24 @@
+# OCCUPY MARS — Codebase Audit (v7.33 / 2026-05-07)
+
+## 🔴→✅ v7.33 — ship crash + worldEvents 경쟁 + siege 락 수정 (2026-05-07)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `ship.js chargeShield()` const 재할당 crash | `TypeError: Assignment to constant variable` — 실드 클램핑 시 서버 크래시 | 🔴 CRITICAL | ✅ actualUnits 분리 |
+| `worldEvents.js engageEvent()` 쿨다운 SELECT — FOR UPDATE 누락 | 동시 요청 2개가 쿨다운 체크 통과 → 이벤트 2회 참가 가능 | 🔴 HIGH | ✅ FOR UPDATE 추가 |
+| `siege.js declareSiege()` FOR UPDATE OF sg — NULL row 시 무효 | 미거버너 섹터 동시 2개 siege 선언 경쟁 가능 | 🟡 MEDIUM | ✅ FOR UPDATE OF sd 변경 |
+| `ships.js /process-completed` — requireAuth (일반 유저 접근) | 스케줄러 일괄 처리를 일반 유저도 트리거 가능 | 🟡 MEDIUM | ✅ requireAdmin으로 변경 |
+
+**감사 완료 (버그 없음):**
+- siege.js GP deduction rowCount — 정상
+- alliance.js GP deduction rowCount — 정상
+- worldEvents.js GP 차감 없음 (무료 참가) — 해당 없음
+- ship.js processCompletedJobs 에러 격리 — try/catch 정상
+- fleet.js setFlagship fleet_id 체크 — line 524 정상
+- ship.js startBuild/repairShip/upgradeShipStat rowCount — 정상
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.32 / 2026-05-07)
 
 ## 🔴→✅ v7.32 — 함대전/캠페인 치명 버그 수정 (2026-05-07)

@@ -397,10 +397,13 @@ router.post('/build-jobs/:id/cancel', requireAuth, async (req, res) => {
  * POST /api/ships/process-completed
  * 완료된 모든 작업을 일괄 처리 (스케줄러/관리자용)
  */
-router.post('/process-completed', requireAuth, async (req, res) => {
+const requireAdmin = (req, res, next) => {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) return res.status(403).json({ error: 'FORBIDDEN' });
+  next();
+};
+router.post('/process-completed', requireAdmin, async (req, res) => {
   try {
-    const wallet = getWallet(req);
-    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
     const result = await shipService.processCompletedJobs();
     res.json(result);

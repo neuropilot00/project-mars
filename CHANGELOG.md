@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-07 v7.33 — shield 충전 crash 수정 + worldEvents 쿨다운 경쟁 + siege 락 + 스케줄러 admin gate
+
+**수정:**
+- `server/services/ship.js` `chargeShield()`: `const chargeUnits` 재할당으로 `TypeError: Assignment to constant variable` crash 발생 → `actualUnits` 변수로 분리. 요청량이 여유 용량 초과 시 크래시 대신 클램핑 처리.
+- `server/services/worldEvents.js` `engageEvent()`: 쿨다운 SELECT에 `FOR UPDATE` 누락 → 동시 요청 2개가 쿨다운 체크를 동시에 통과해 동일 이벤트 2회 참가 가능 → `FOR UPDATE` 추가.
+- `server/services/siege.js` `declareSiege()`: `FOR UPDATE OF sg` (LEFT JOIN 결과가 NULL인 미거버너 섹터에서 락 없음) → `FOR UPDATE OF sd` (sector_definitions는 항상 존재)로 변경. 동시 2회 siege 선언 경쟁 차단.
+- `server/routes/ships.js` `POST /process-completed`: `requireAuth` (일반 유저도 접근 가능) → `requireAdmin` (어드민 시크릿 필수)으로 변경. 스케줄러급 일괄 처리 엔드포인트를 일반 유저에게 노출하지 않음.
+
+---
+
 ## 2026-05-07 v7.32 — 함대전 치명 버그 4건 수정 + 캠페인 안전성 강화
 
 **수정:**
