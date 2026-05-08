@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-05 v5.97 (P5-3~7 Territory Full Utility Stack) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-08 v5.97 (P5 Territory Stack + Daily OPS / Tactical Lab Hotfix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -7,7 +7,8 @@
 > 3. **docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md** — 현재 게임 방향성/우선순위 기준
 > 4. **docs/CLAUDE_WORK_ORDER_2026-05-05.md** — 다음 작업 실행 지시서
 > 5. **docs/CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER_2026-05-05.md** — P5 영토 유틸리티 구현 지시서
-> 6. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
+> 6. **docs/CLAUDE_COMPETITIVE_LOOP_IMPLEMENTATION_ORDER_2026-05-05.md** — 전투 피드백/리텐션/PvP 구현 지시서
+> 7. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
 
 ---
 
@@ -43,6 +44,22 @@
   - 내 영토 클릭 시 자동 로드. 예상 PP / 섹터 / 모디파이어 칩 / 광물 칩 / 수확 정보 표시.
   - 남의 영토에는 production 섹션 노출하지 않음.
 - 관련 함수: `loadTerritoryProduction(claimId, wallet)`, `_timeAgo(date)` in `index.html`.
+
+### v5.96 최신 핸드오프 — 전투 피드백/리텐션/PvP 실행 지시서
+
+- `docs/CLAUDE_COMPETITIVE_LOOP_IMPLEMENTATION_ORDER_2026-05-05.md`를 추가했다.
+- 이 문서는 초안이 아니라 구현 계약서다. 클로드는 이 문서의 Read Order, Recon Gate, Acceptance Gate, QA Matrix, final report format을 따라야 한다.
+- 전투 결과 리포트, Daily OPS Board, 영토 닉네임/Field Rating, Battle Hub 추천 상대, 현상금 보드, 섹터 분쟁/주간 캘린더의 구현 순서를 고정한다.
+- 첫 착수는 P1 전투 결과 리포트만 진행한다. 전투 리포트가 실제 API/UI로 동작하기 전에는 Daily OPS, Field Rating, CPI, 현상금, 캘린더를 건드리지 않는다.
+- 클로드가 기획을 넓게 해석해 새 페이지/프로토타입으로 빠지지 않도록, 모든 기능은 기존 BASE/Battle Hub/영토 패널/전투 결과 모달에 붙인다.
+- 완료 판정은 "API + UI + fallback + mobile + docs + verification" 전체가 충족될 때만 가능하다.
+
+### v5.97 최신 핸드오프 — Daily OPS / 전술랩 로컬라이징 핫픽스
+
+- Daily OPS 주간 보상 버튼은 `openOpsRewardInventory()`를 통해 `BASE > SHOP > MY ITEMS`로 이동한다.
+- `openBaseModal()`이 기본적으로 내 영토 탭을 여는 흐름이 있으므로, 상점/인벤토리 이동은 모달 오픈 후 지연 실행되어야 한다.
+- 전술랩은 `lang` 쿼리 또는 부모 `LANG`을 읽어 UI 문구/명령/함선 도감/광물/함대 상태 패널을 현 언어로 렌더링한다.
+- 영토 외부 링크는 `_normalizeExternalLink()`와 `_applyExternalLinkDisplay()`를 통해 데스크탑/모바일 모두 같은 정규화 규칙을 사용한다.
 
 ### v5.87 최신 핸드오프 — Claude 남은 작업 실행 지시서
 

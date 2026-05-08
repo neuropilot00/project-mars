@@ -255,8 +255,8 @@ body{padding:0;background:#03040b;}
 <div class="wrap">
 
 <div class="hdr">
-  <h1>OCCUPY MARS — FLEET WAR v11.1 VERTICAL</h1>
-  <small>// FORMATION + MANEUVER · REAL TACTICAL LAYOUTS //</small>
+  <h1 id="uiTitle">OCCUPY MARS — FLEET WAR v11.1 VERTICAL</h1>
+  <small id="uiSubtitle">// FORMATION + MANEUVER · REAL TACTICAL LAYOUTS //</small>
 </div>
 
 <canvas id="c" width="460" height="600"></canvas>
@@ -269,51 +269,51 @@ body{padding:0;background:#03040b;}
 <div id="forfeit-overlay">
   <div class="fo-box">
     <div class="fo-icon">🏳</div>
-    <div class="fo-title">RETREAT</div>
-    <div class="fo-desc">전투를 포기하고 후퇴합니다.<br>함선은 현재 HP 그대로 살아남습니다.</div>
+    <div class="fo-title" id="foTitle">RETREAT</div>
+    <div class="fo-desc" id="foDesc">전투를 포기하고 후퇴합니다.<br>함선은 현재 HP 그대로 살아남습니다.</div>
     <div class="fo-btns">
-      <button class="fo-cancel" onclick="closeForfeitOverlay()">취소</button>
-      <button class="fo-confirm" onclick="confirmForfeit()">후퇴 확인</button>
+      <button class="fo-cancel" id="foCancel" onclick="closeForfeitOverlay()">취소</button>
+      <button class="fo-confirm" id="foConfirm" onclick="confirmForfeit()">후퇴 확인</button>
     </div>
   </div>
 </div>
 
 <div class="bui">
-  <div class="team"><div class="tn a">ATK COALITION</div><div class="tfl" id="ai">—</div>
-    <div class="hr"><div class="hl">HP</div><div class="hb"><div class="hf a" id="ah" style="width:100%"></div></div></div></div>
-  <div class="cp"><div class="vs">VS</div><div class="tmr" id="tm">00:00</div><div class="tinfo">TURN <span id="tn">0</span></div></div>
-  <div class="team r"><div class="tn d">DEF COALITION</div><div class="tfl" id="di">—</div>
-    <div class="hr"><div class="hb rtl"><div class="hf d" id="dh" style="width:100%"></div></div><div class="hl">HP</div></div></div>
+  <div class="team"><div class="tn a" id="uiAtkCoalition">ATK COALITION</div><div class="tfl" id="ai">—</div>
+    <div class="hr"><div class="hl" id="uiHpLeft">HP</div><div class="hb"><div class="hf a" id="ah" style="width:100%"></div></div></div></div>
+  <div class="cp"><div class="vs">VS</div><div class="tmr" id="tm">00:00</div><div class="tinfo"><span id="uiTurnLabel">TURN</span> <span id="tn">0</span></div></div>
+  <div class="team r"><div class="tn d" id="uiDefCoalition">DEF COALITION</div><div class="tfl" id="di">—</div>
+    <div class="hr"><div class="hb rtl"><div class="hf d" id="dh" style="width:100%"></div></div><div class="hl" id="uiHpRight">HP</div></div></div>
 </div>
 
 <div class="blog" id="blog"></div>
 
 <!-- 컨트롤 — CMD + Formation/Maneuver (실제 전투에 반영) -->
 <div class="ctrl">
-  <span class="clbl">CMD</span>
-  <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
+  <span class="clbl" id="uiCmdLabel">CMD</span>
+  <button class="cb y" id="cmdFocusBtn" onclick="cmdFocus()">⚡ 집중공격</button>
   <button class="cb y charge" id="cmdEMP" onclick="cmdEMP()">💥 EMP 0%</button>
   <button class="cb y charge" id="cmdMissile" onclick="cmdMissileBarrage()">☄ 미사일 0%</button>
   <button class="cb y charge" id="cmdBeam" onclick="cmdBeamCannon()">☢ 빔포 0%</button>
   <div class="sep"></div>
-  <span class="clbl">FORMATION</span>
-  <button class="cb p" onclick="cmdFormation('sphere')">⬢ Sphere</button>
-  <button class="cb p" onclick="cmdFormation('wedge')">▶ Wedge</button>
-  <button class="cb p" onclick="cmdFormation('screen')">▬ Screen</button>
-  <button class="cb p" onclick="cmdFormation('pincer')">◀▶ Pincer</button>
+  <span class="clbl" id="uiFormationLabel">FORMATION</span>
+  <button class="cb p" id="formationSphereBtn" onclick="cmdFormation('sphere')">⬢ Sphere</button>
+  <button class="cb p" id="formationWedgeBtn" onclick="cmdFormation('wedge')">▶ Wedge</button>
+  <button class="cb p" id="formationScreenBtn" onclick="cmdFormation('screen')">▬ Screen</button>
+  <button class="cb p" id="formationPincerBtn" onclick="cmdFormation('pincer')">◀▶ Pincer</button>
 </div>
 <div class="ctrl">
-  <span class="clbl">MANEUVER</span>
-  <button class="cb g" onclick="cmdManeuver('advance')">↑ Advance</button>
-  <button class="cb g" onclick="cmdManeuver('flank')">↗ Flank</button>
-  <button class="cb g" onclick="cmdManeuver('retreat')">↓ Retreat</button>
-  <button class="cb g" onclick="cmdManeuver('scatter')">✦ Scatter</button>
-  <button class="cb g" onclick="cmdManeuver('rally')">◉ Rally</button>
+  <span class="clbl" id="uiManeuverLabel">MANEUVER</span>
+  <button class="cb g" id="maneuverAdvanceBtn" onclick="cmdManeuver('advance')">↑ Advance</button>
+  <button class="cb g" id="maneuverFlankBtn" onclick="cmdManeuver('flank')">↗ Flank</button>
+  <button class="cb g" id="maneuverRetreatBtn" onclick="cmdManeuver('retreat')">↓ Retreat</button>
+  <button class="cb g" id="maneuverScatterBtn" onclick="cmdManeuver('scatter')">✦ Scatter</button>
+  <button class="cb g" id="maneuverRallyBtn" onclick="cmdManeuver('rally')">◉ Rally</button>
   <div class="sep"></div>
-  <button class="cb" onclick="cmdForfeit()" style="background:rgba(239,83,80,.18);border-color:rgba(239,83,80,.5);color:#ef5350;font-weight:900">🏳 RETREAT</button>
+  <button class="cb" id="cmdRetreatBtn" onclick="cmdForfeit()" style="background:rgba(239,83,80,.18);border-color:rgba(239,83,80,.5);color:#ef5350;font-weight:900">🏳 RETREAT</button>
 </div>
 <div class="ctrl speed-row">
-  <span class="clbl">SPEED</span>
+  <span class="clbl" id="uiSpeedLabel">SPEED</span>
   <button class="cb" id="spd1" onclick="setSimSpeed(1)"  style="font-weight:900">×1</button>
   <button class="cb" id="spd2" onclick="setSimSpeed(2)"  style="font-weight:900">×2</button>
   <button class="cb" id="spd4" onclick="setSimSpeed(4)"  style="font-weight:900;background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.5);color:#ffc107">×4</button>
@@ -322,22 +322,22 @@ body{padding:0;background:#03040b;}
 
 <!-- 하단 토글 패널 (v10 그대로) -->
 <div class="info-toggles">
-  <button class="itog" onclick="togglePanel('fleet',this)">📊 FLEET STATUS <span class="arr">▲</span></button>
-  <button class="itog" onclick="togglePanel('registry',this)">🚀 SHIP REGISTRY <span class="arr">▲</span></button>
-  <button class="itog" onclick="togglePanel('minerals',this)">💎 MINERALS <span class="arr">▲</span></button>
-  <button class="itog" onclick="togglePanel('analysis',this)">📈 DOCTRINES <span class="arr">▲</span></button>
+  <button class="itog" id="toggleFleetBtn" onclick="togglePanel('fleet',this)">📊 FLEET STATUS <span class="arr">▲</span></button>
+  <button class="itog" id="toggleRegistryBtn" onclick="togglePanel('registry',this)">🚀 SHIP REGISTRY <span class="arr">▲</span></button>
+  <button class="itog" id="toggleMineralsBtn" onclick="togglePanel('minerals',this)">💎 MINERALS <span class="arr">▲</span></button>
+  <button class="itog" id="toggleAnalysisBtn" onclick="togglePanel('analysis',this)">📈 DOCTRINES <span class="arr">▲</span></button>
 </div>
 
 <div class="info-panel" id="panel-fleet">
   <div class="a-section">
-    <div class="a-title">// FLEET STATUS — 실시간 함대 현황</div>
+    <div class="a-title" id="fleetPanelTitle">// FLEET STATUS — 실시간 함대 현황</div>
     <div class="fs-grid" id="fs-grid"></div>
   </div>
 </div>
 
 <div class="info-panel" id="panel-registry">
   <div class="faction-header">
-    <span style="font-size:6px;letter-spacing:2px;color:rgba(255,255,255,.3)">FACTION:</span>
+    <span id="registryFactionLabel" style="font-size:6px;letter-spacing:2px;color:rgba(255,255,255,.3)">FACTION:</span>
     <button class="faction-tab mcc on" onclick="showFaction('mcc',this)">⬢ MCC</button>
     <button class="faction-tab fsp" onclick="showFaction('fsp',this)">◉ FSP</button>
     <button class="faction-tab cv" onclick="showFaction('cv',this)">▲ CV</button>
@@ -352,11 +352,11 @@ body{padding:0;background:#03040b;}
 
 <div class="info-panel" id="panel-analysis">
   <div class="a-section">
-    <div class="a-title">// FLEET DOCTRINES</div>
+    <div class="a-title" id="analysisDoctrineTitle">// FLEET DOCTRINES</div>
     <div class="doctrine-grid" id="doctrines"></div>
   </div>
   <div class="a-section">
-    <div class="a-title">// FACTION COMPARISON</div>
+    <div class="a-title" id="analysisFactionTitle">// FACTION COMPARISON</div>
     <div id="faction-compare"></div>
   </div>
 </div>
@@ -365,6 +365,317 @@ body{padding:0;background:#03040b;}
 
 <script>
 'use strict';
+
+const TLANG=(function resolveBattleLang(){
+  try{
+    const qs=new URLSearchParams(location.search);
+    const qLang=(qs.get('lang')||'').toLowerCase();
+    if(qLang) return qLang;
+  }catch(_){}
+  try{
+    if(window.parent&&window.parent!==window){
+      if(window.parent.LANG) return String(window.parent.LANG).toLowerCase();
+      const pLang=window.parent.localStorage&&window.parent.localStorage.getItem('pw_lang');
+      if(pLang) return String(pLang).toLowerCase();
+    }
+  }catch(_){}
+  try{
+    const localLang=localStorage.getItem('pw_lang');
+    if(localLang) return String(localLang).toLowerCase();
+  }catch(_){}
+  return 'en';
+})();
+
+const TL10N={
+  en:{
+    docTitle:'OCCUPY MARS — Coalition War v11.1 Vertical',
+    uiTitle:'OCCUPY MARS — FLEET WAR v11.1 VERTICAL',
+    uiSubtitle:'// FORMATION + MANEUVER · REAL TACTICAL LAYOUTS //',
+    sound:'SOUND',
+    soundOn:'SOUND ON',
+    retreat:'RETREAT',
+    forfeitDesc:'Retreat from battle.<br>Your ships survive with their current HP.',
+    cancel:'CANCEL',
+    confirmRetreat:'CONFIRM RETREAT',
+    atkCoalition:'ATK COALITION',
+    defCoalition:'DEF COALITION',
+    hp:'HP',
+    turn:'TURN',
+    cmd:'CMD',
+    focus:'⚡ FOCUS FIRE',
+    emp:'💥 EMP',
+    missile:'☄ MISSILE',
+    beam:'☢ BEAM',
+    formation:'FORMATION',
+    maneuver:'MANEUVER',
+    speed:'SPEED',
+    fleetStatus:'📊 FLEET STATUS',
+    shipRegistry:'🚀 SHIP REGISTRY',
+    factionLabel:'FACTION:',
+    minerals:'💎 MINERALS',
+    doctrines:'📈 DOCTRINES',
+    fleetPanelTitle:'// FLEET STATUS — LIVE FLEET STATUS',
+    doctrinesTitle:'// FLEET DOCTRINES',
+    factionCompareTitle:'// FACTION COMPARISON',
+    sphere:'Sphere', wedge:'Wedge', screen:'Screen', pincer:'Pincer',
+    advance:'Advance', flank:'Flank', retreatMove:'Retreat', scatter:'Scatter', rally:'Rally',
+    ships:'ships', fleets:'fleets', wiped:'Wiped Out', build:'BUILD',
+    design:'Design', specialty:'Specialty', naming:'Naming',
+    unavailable:'Unavailable',
+    noTarget:'No target',
+    missingBattleId:'battleId missing',
+    retreatFailed:'retreat failed',
+    fleetStatusMeta:'{alive}/{total} ships · HP {hp}% · {formation}/{maneuver}{suffix}',
+    ttl0:'TIER 0 — Basic Minerals (All Sectors)',
+    ttl1:'TIER 1 — Rare Minerals (Mid/Frontier)',
+    ttl2:'TIER 2 — Special Materials (Frontier/Events)',
+    ttl3:'TIER 3 — Components (Crafted)',
+    size_frigate:'Frigate', size_destroyer:'Destroyer', size_cruiser:'Cruiser', size_battleship:'Battleship', size_titan:'Titan',
+    role_tackle:'Tackle', role_dps:'DPS', role_ewar:'EW', role_logi:'Logi', role_tank:'Tank'
+  },
+  ko:{
+    docTitle:'OCCUPY MARS — 연합 전쟁 v11.1 세로형',
+    uiTitle:'OCCUPY MARS — FLEET WAR v11.1 VERTICAL',
+    uiSubtitle:'// 진형 + 기동 · 실전 전술 레이아웃 //',
+    sound:'사운드',
+    soundOn:'사운드 ON',
+    retreat:'후퇴',
+    forfeitDesc:'전투를 포기하고 후퇴합니다.<br>함선은 현재 HP 그대로 살아남습니다.',
+    cancel:'취소',
+    confirmRetreat:'후퇴 확인',
+    atkCoalition:'공격 연합',
+    defCoalition:'수비 연합',
+    hp:'HP',
+    turn:'턴',
+    cmd:'명령',
+    focus:'⚡ 집중공격',
+    emp:'💥 EMP',
+    missile:'☄ 미사일',
+    beam:'☢ 빔포',
+    formation:'진형',
+    maneuver:'기동',
+    speed:'속도',
+    fleetStatus:'📊 함대 현황',
+    shipRegistry:'🚀 함선 도감',
+    factionLabel:'파벌:',
+    minerals:'💎 광물',
+    doctrines:'📈 독트린',
+    fleetPanelTitle:'// FLEET STATUS — 실시간 함대 현황',
+    doctrinesTitle:'// FLEET DOCTRINES',
+    factionCompareTitle:'// FACTION COMPARISON',
+    sphere:'구형 집결', wedge:'쐐기', screen:'방어막', pincer:'협공',
+    advance:'전진', flank:'측면 우회', retreatMove:'후퇴', scatter:'산개', rally:'재집결',
+    ships:'척', fleets:'함대', wiped:'괴멸',
+    build:'건조',
+    design:'디자인', specialty:'특기', naming:'네이밍',
+    unavailable:'사용 불가',
+    noTarget:'목표 없음',
+    missingBattleId:'battleId 없음',
+    retreatFailed:'후퇴 요청 실패',
+    fleetStatusMeta:'{alive}/{total}척 · HP {hp}% · {formation}/{maneuver}{suffix}',
+    ttl0:'TIER 0 — 기본 광물 (모든 섹터)',
+    ttl1:'TIER 1 — 희귀 광물 (Mid/Frontier)',
+    ttl2:'TIER 2 — 특수 소재 (Frontier·이벤트)',
+    ttl3:'TIER 3 — 중간 부품 (유저 제작)',
+    size_frigate:'프리깃', size_destroyer:'구축함', size_cruiser:'순양함', size_battleship:'전함', size_titan:'타이탄',
+    role_tackle:'태클', role_dps:'DPS', role_ewar:'전자전', role_logi:'보급', role_tank:'탱커'
+  },
+  ja:{
+    docTitle:'OCCUPY MARS — 連合戦争 v11.1 縦型',
+    uiTitle:'OCCUPY MARS — FLEET WAR v11.1 VERTICAL',
+    uiSubtitle:'// 陣形 + 機動 · 実戦タクティカルレイアウト //',
+    sound:'サウンド',
+    soundOn:'サウンド ON',
+    retreat:'撤退',
+    forfeitDesc:'戦闘を放棄して撤退します。<br>艦船は現在 HP のまま生存します。',
+    cancel:'キャンセル',
+    confirmRetreat:'撤退確認',
+    atkCoalition:'攻撃連合',
+    defCoalition:'防衛連合',
+    hp:'HP',
+    turn:'ターン',
+    cmd:'指令',
+    focus:'⚡ 集中攻撃',
+    emp:'💥 EMP',
+    missile:'☄ ミサイル',
+    beam:'☢ ビーム砲',
+    formation:'陣形',
+    maneuver:'機動',
+    speed:'速度',
+    fleetStatus:'📊 艦隊状況',
+    shipRegistry:'🚀 艦船図鑑',
+    factionLabel:'勢力:',
+    minerals:'💎 鉱物',
+    doctrines:'📈 ドクトリン',
+    fleetPanelTitle:'// FLEET STATUS — リアルタイム艦隊状況',
+    doctrinesTitle:'// FLEET DOCTRINES',
+    factionCompareTitle:'// FACTION COMPARISON',
+    sphere:'球形集結', wedge:'楔形', screen:'防壁', pincer:'挟撃',
+    advance:'前進', flank:'側面機動', retreatMove:'後退', scatter:'散開', rally:'再集結',
+    ships:'隻', fleets:'艦隊', wiped:'壊滅',
+    build:'建造',
+    design:'デザイン', specialty:'特性', naming:'命名',
+    unavailable:'使用不可',
+    noTarget:'目標なし',
+    missingBattleId:'battleId 不明',
+    retreatFailed:'撤退要求失敗',
+    fleetStatusMeta:'{alive}/{total}隻 · HP {hp}% · {formation}/{maneuver}{suffix}',
+    ttl0:'TIER 0 — 基本鉱物 (全セクター)',
+    ttl1:'TIER 1 — 希少鉱物 (Mid/Frontier)',
+    ttl2:'TIER 2 — 特殊素材 (Frontier/イベント)',
+    ttl3:'TIER 3 — 中間部品 (クラフト)',
+    size_frigate:'フリゲート', size_destroyer:'駆逐艦', size_cruiser:'巡洋艦', size_battleship:'戦艦', size_titan:'タイタン',
+    role_tackle:'タックル', role_dps:'DPS', role_ewar:'電子戦', role_logi:'支援', role_tank:'タンク'
+  },
+  zh:{
+    docTitle:'OCCUPY MARS — 联合战争 v11.1 纵向版',
+    uiTitle:'OCCUPY MARS — FLEET WAR v11.1 VERTICAL',
+    uiSubtitle:'// 阵型 + 机动 · 实战战术布局 //',
+    sound:'声音',
+    soundOn:'声音 ON',
+    retreat:'撤退',
+    forfeitDesc:'放弃战斗并撤退。<br>舰船将保留当前 HP 存活。',
+    cancel:'取消',
+    confirmRetreat:'确认撤退',
+    atkCoalition:'进攻联盟',
+    defCoalition:'防守联盟',
+    hp:'HP',
+    turn:'回合',
+    cmd:'指令',
+    focus:'⚡ 集火',
+    emp:'💥 EMP',
+    missile:'☄ 导弹',
+    beam:'☢ 光束炮',
+    formation:'阵型',
+    maneuver:'机动',
+    speed:'速度',
+    fleetStatus:'📊 舰队状态',
+    shipRegistry:'🚀 舰船图鉴',
+    factionLabel:'阵营:',
+    minerals:'💎 矿物',
+    doctrines:'📈 战术',
+    fleetPanelTitle:'// FLEET STATUS — 实时舰队状态',
+    doctrinesTitle:'// FLEET DOCTRINES',
+    factionCompareTitle:'// FACTION COMPARISON',
+    sphere:'球形集结', wedge:'楔形', screen:'屏障', pincer:'钳击',
+    advance:'前进', flank:'侧翼', retreatMove:'后退', scatter:'分散', rally:'集结',
+    ships:'艘', fleets:'舰队', wiped:'覆灭',
+    build:'建造',
+    design:'设计', specialty:'特长', naming:'命名',
+    unavailable:'不可用',
+    noTarget:'没有目标',
+    missingBattleId:'battleId 缺失',
+    retreatFailed:'撤退请求失败',
+    fleetStatusMeta:'{alive}/{total}艘 · HP {hp}% · {formation}/{maneuver}{suffix}',
+    ttl0:'TIER 0 — 基础矿物 (所有区域)',
+    ttl1:'TIER 1 — 稀有矿物 (Mid/Frontier)',
+    ttl2:'TIER 2 — 特殊材料 (Frontier/活动)',
+    ttl3:'TIER 3 — 中间部件 (制作)',
+    size_frigate:'护卫舰', size_destroyer:'驱逐舰', size_cruiser:'巡洋舰', size_battleship:'战列舰', size_titan:'泰坦',
+    role_tackle:'拦截', role_dps:'输出', role_ewar:'电子战', role_logi:'后勤', role_tank:'坦克'
+  }
+};
+
+function tl(key){
+  return (TL10N[TLANG]&&TL10N[TLANG][key]) || TL10N.en[key] || key;
+}
+function formatTl(key,repl){
+  let out=tl(key);
+  Object.keys(repl||{}).forEach(k=>{
+    out=out.replace(new RegExp('\\{'+k+'\\}','g'), String(repl[k]));
+  });
+  return out;
+}
+function shipNameValue(v){
+  if(!v) return '';
+  if(typeof v==='string') return v;
+  return v[TLANG] || v.en || v.ko || Object.values(v)[0] || '';
+}
+function shipTextValue(v){
+  if(!v) return '';
+  if(typeof v==='string') return v;
+  return v[TLANG] || v.ko || v.en || Object.values(v)[0] || '';
+}
+function localizedClassLabel(ship){
+  if(ship.classI18n&&ship.classI18n[TLANG]) return ship.classI18n[TLANG];
+  return tl('size_'+ship.size)+' · T'+(ship.tier||1);
+}
+function tlManeuverLine(mv){
+  const lines={
+    en:{
+      advance:'All fleets advance and attack!',
+      flank:'Swing around to the flank!',
+      retreat:'Fall back and rebuild the line!',
+      scatter:'Scatter and break beam lock!',
+      rally:'Rally and rebuild the shield wall!'
+    },
+    ko:{
+      advance:'전 함대 전진 공격하라!',
+      flank:'측면으로 돌아 들어가!',
+      retreat:'후퇴! 전열을 다시 잡아!',
+      scatter:'산개! 빔 궤도에서 벗어나!',
+      rally:'재집결! 방어선을 세워!'
+    },
+    ja:{
+      advance:'全艦前進、攻撃開始！',
+      flank:'側面へ回り込め！',
+      retreat:'後退、戦列を立て直せ！',
+      scatter:'散開、ビーム軌道から外れろ！',
+      rally:'再集結、防衛線を築け！'
+    },
+    zh:{
+      advance:'全舰前进，开始攻击！',
+      flank:'从侧翼包过去！',
+      retreat:'后撤，重新整队！',
+      scatter:'散开，脱离光束轨道！',
+      rally:'重新集结，重建防线！'
+    }
+  };
+  return (lines[TLANG]&&lines[TLANG][mv]) || (lines.en&&lines.en[mv]) || mv;
+}
+function localizeStaticUI(){
+  document.documentElement.lang=TLANG;
+  document.title=tl('docTitle');
+  const setText=(id,val)=>{const el=document.getElementById(id); if(el) el.textContent=val;};
+  const setHtml=(id,val)=>{const el=document.getElementById(id); if(el) el.innerHTML=val;};
+  setText('uiTitle', tl('uiTitle'));
+  setText('uiSubtitle', tl('uiSubtitle'));
+  setText('soundToggle', audioOn ? tl('soundOn') : tl('sound'));
+  setText('foTitle', tl('retreat'));
+  setHtml('foDesc', tl('forfeitDesc'));
+  setText('foCancel', tl('cancel'));
+  setText('foConfirm', tl('confirmRetreat'));
+  setText('uiAtkCoalition', tl('atkCoalition'));
+  setText('uiDefCoalition', tl('defCoalition'));
+  setText('uiHpLeft', tl('hp'));
+  setText('uiHpRight', tl('hp'));
+  setText('uiTurnLabel', tl('turn'));
+  setText('uiCmdLabel', tl('cmd'));
+  setText('cmdFocusBtn', tl('focus'));
+  setText('cmdEMP', tl('emp') + ' 0%');
+  setText('uiFormationLabel', tl('formation'));
+  setText('formationSphereBtn', '⬢ '+tl('sphere'));
+  setText('formationWedgeBtn', '▶ '+tl('wedge'));
+  setText('formationScreenBtn', '▬ '+tl('screen'));
+  setText('formationPincerBtn', '◀▶ '+tl('pincer'));
+  setText('uiManeuverLabel', tl('maneuver'));
+  setText('maneuverAdvanceBtn', '↑ '+tl('advance'));
+  setText('maneuverFlankBtn', '↗ '+tl('flank'));
+  setText('maneuverRetreatBtn', '↓ '+tl('retreatMove'));
+  setText('maneuverScatterBtn', '✦ '+tl('scatter'));
+  setText('maneuverRallyBtn', '◉ '+tl('rally'));
+  setText('cmdRetreatBtn', '🏳 '+tl('retreat'));
+  setText('uiSpeedLabel', tl('speed'));
+  setHtml('toggleFleetBtn', '📊 '+tl('fleetStatus')+' <span class="arr">▲</span>');
+  setHtml('toggleRegistryBtn', '🚀 '+tl('shipRegistry')+' <span class="arr">▲</span>');
+  setHtml('toggleMineralsBtn', '💎 '+tl('minerals')+' <span class="arr">▲</span>');
+  setHtml('toggleAnalysisBtn', '📈 '+tl('doctrines')+' <span class="arr">▲</span>');
+  setText('registryFactionLabel', tl('factionLabel'));
+  setText('fleetPanelTitle', tl('fleetPanelTitle'));
+  setText('analysisDoctrineTitle', tl('doctrinesTitle'));
+  setText('analysisFactionTitle', tl('factionCompareTitle'));
+  updateChargeButtons();
+}
 
 /* ═══════════════════════════════════════════════════════════
    광물 — 기본값(오프라인 폴백). boot()에서 /api/tactical-lab/catalog로 덮어씀
@@ -770,6 +1081,18 @@ function startBattleMusic(){
 function stopBattleMusic(){
   if(musicTimer){clearInterval(musicTimer);musicTimer=null;}
 }
+function updateChargeButtons(){
+  const beamBtn=document.getElementById('cmdBeam');
+  const missileBtn=document.getElementById('cmdMissile');
+  if(beamBtn){
+    beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
+    beamBtn.classList.toggle('ready',beamCharge>=100);
+  }
+  if(missileBtn){
+    missileBtn.textContent=`${tl('missile')} ${Math.floor(missileCharge)}%`;
+    missileBtn.classList.toggle('ready',missileCharge>=100);
+  }
+}
 async function toggleBattleAudio(){
   const btn=document.getElementById('soundToggle');
   const ac=ensureAudio();
@@ -777,8 +1100,8 @@ async function toggleBattleAudio(){
   if(ac.state==='suspended')await ac.resume();
   audioOn=!audioOn;
   btn.classList.toggle('on',audioOn);
-  btn.textContent=audioOn?'SOUND ON':'SOUND';
-  if(audioOn){startBattleMusic();}
+  btn.textContent=audioOn?tl('soundOn'):tl('sound');
+  if(audioOn){startBattleMusic();tone(220,.12,.03,'triangle');}
   else stopBattleMusic();
 }
 
@@ -1289,21 +1612,21 @@ function updateSpecialCharge(dt){
   const missileBtn=document.getElementById('cmdMissile');
   const empBtn=document.getElementById('cmdEMP');
   if(beamBtn){
-    beamBtn.textContent=`☢ 빔포 ${Math.floor(beamCharge)}%`;
+    beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
     beamBtn.classList.toggle('ready',beamCharge>=100);
   }
   if(missileBtn){
-    missileBtn.textContent=`☄ 미사일 ${Math.floor(missileCharge)}%`;
+    missileBtn.textContent=`${tl('missile')} ${Math.floor(missileCharge)}%`;
     missileBtn.classList.toggle('ready',missileCharge>=100);
   }
   if(empBtn){
     if(ewars.length===0){
-      empBtn.textContent=`💥 EMP (재머없음)`;
+      empBtn.textContent=`${tl('emp')} (${tl('unavailable')})`;
       empBtn.classList.remove('ready');
       empBtn.disabled=true;
     } else {
       empBtn.disabled=false;
-      empBtn.textContent=`💥 EMP ${Math.floor(empCharge)}%`;
+      empBtn.textContent=`${tl('emp')} ${Math.floor(empCharge)}%`;
       empBtn.classList.toggle('ready',empCharge>=100);
     }
   }
@@ -2082,19 +2405,19 @@ function cmdFocus(){
   if(!ef.length)return;
   const tf=ef.sort((a,b)=>(b.flagship?.type.r||0)-(a.flagship?.type.r||0))[0];
   focusFleet=tf;
-  addLog('wn',`⚡ 집중공격 — [${tf.userId}]`);
-  battleCallout(`[${tf.userId}]에 집중포화! 전 포문 개방!`,'order','top',2500);
+  addLog('wn',`${tl('focus')} — [${tf.userId}]`);
+  battleCallout(`${tl('focus')} — [${tf.userId}]`,'order','top',2500);
   // Visual: shockwave at the targeted fleet
   mkShockwave(tf.cx,tf.cy,tf.radius*1.6);
   _bridgeToParent('focus', { target: tf.userId });
 }
 function cmdEMP(){
   const ewars=aliveAtkShips().filter(s=>s.type.role==='ewar');
-  if(ewars.length===0){addLog('wn','💥 EMP: 재머 함선 없음');return;}
-  if(empCharge<100){addLog('wn',`💥 EMP 충전 중 ${Math.floor(empCharge)}%`);return;}
+  if(ewars.length===0){addLog('wn',`${tl('emp')}: ${tl('unavailable')}`);return;}
+  if(empCharge<100){addLog('wn',`${tl('emp')} ${Math.floor(empCharge)}%`);return;}
   empCharge=0;
-  empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 투하 — 적 6초 사격 마비!');
-  battleCallout('EMP 투하! 적 사격 통제를 끊어!','order','top',2400);
+  empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn',`${tl('emp')} 6s`);
+  battleCallout(`${tl('emp')}!`,'order','top',2400);
   // EMP flash on each ewar ship
   ewars.forEach(s=>addFloatText(s.x,s.y-14,'⚡ EMP','order',2000));
   // Visual: shockwave from each DEF fleet center
@@ -2105,11 +2428,11 @@ function cmdEMP(){
   _bridgeToParent('emp', { duration_ms: 6000 });
 }
 function cmdBeamCannon(){
-  if(beamCharge<100){addLog('wn',`☢ 빔포 충전 중 ${Math.floor(beamCharge)}%`);return;}
+  if(beamCharge<100){addLog('wn',`${tl('beam')} ${Math.floor(beamCharge)}%`);return;}
   const guns=aliveAtkShips().filter(isCapitalShip);
   const target=findPriorityTarget();
-  if(!guns.length){addLog('wn','☢ 빔포 발사 가능한 전함/타이탄 없음');return;}
-  if(!target){addLog('wn','☢ 빔포 목표 없음');return;}
+  if(!guns.length){addLog('wn',`${tl('beam')} · ${tl('unavailable')}`);return;}
+  if(!target){addLog('wn',`${tl('beam')} · ${tl('noTarget')}`);return;}
   beamCharge=0;
   playBeamCannonSound();
   guns.slice(0,4).forEach((gun,i)=>{
@@ -2123,15 +2446,15 @@ function cmdBeamCannon(){
       width,alpha:1.25,ttl:160,age:0,dmg,target:tgt,attackerType:gun.type,applied:false,side:'atk',visual:false,beamCannon:true});
     mkShockwave(gun.x,gun.y,gun.type.r*5);
   });
-  addLog('wn',`☢ 주포 빔포 발사 — ${guns.length}척 동기화`);
-  battleCallout('주포 충전 완료. 빔포 발사!', 'order', 'top', 2700);
+  addLog('wn',`${tl('beam')} × ${guns.length}`);
+  battleCallout(`${tl('beam')}!`, 'order', 'top', 2700);
   _bridgeToParent('beam_cannon', { charge: 100, capital_count: guns.length });
 }
 function cmdMissileBarrage(){
-  if(missileCharge<100){addLog('wn',`☄ 미사일 장전 중 ${Math.floor(missileCharge)}%`);return;}
+  if(missileCharge<100){addLog('wn',`${tl('missile')} ${Math.floor(missileCharge)}%`);return;}
   const launchers=aliveAtkShips().filter(s=>['frigate','destroyer','cruiser'].includes(s.type.size));
   const targets=aliveDefShips();
-  if(!launchers.length||!targets.length){addLog('wn','☄ 미사일 발사 조건 없음');return;}
+  if(!launchers.length||!targets.length){addLog('wn',`${tl('missile')} · ${tl('unavailable')}`);return;}
   missileCharge=0;
   playMissileBarrageSound();
   launchers.slice(0,24).forEach((sh,i)=>{
@@ -2146,13 +2469,13 @@ function cmdMissileBarrage(){
     lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
       color:FACTIONS[sh.type.faction].color,width:1.4,alpha:.7,ttl:130,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,missileTrail:true});
   });
-  addLog('wn',`☄ 미사일 일제사격 — ${Math.min(24,launchers.length)}척 발사`);
-  battleCallout('미사일 전탄 발사! 궤도 열어!', 'order', 'top', 2600);
+  addLog('wn',`${tl('missile')} × ${Math.min(24,launchers.length)}`);
+  battleCallout(`${tl('missile')}!`, 'order', 'top', 2600);
   _bridgeToParent('missile_barrage', { charge: 100, launcher_count: launchers.length });
 }
 function cmdForfeit(){
   document.getElementById('forfeit-overlay').classList.add('on');
-  battleCallout('후퇴 신호 대기. 확인하면 전 함대 이탈한다.', 'panic', 'bottom', 2600);
+  battleCallout(`${tl('confirmRetreat')}`, 'panic', 'bottom', 2600);
 }
 function closeForfeitOverlay(){
   document.getElementById('forfeit-overlay').classList.remove('on');
@@ -2160,7 +2483,7 @@ function closeForfeitOverlay(){
 async function confirmForfeit(){
   closeForfeitOverlay();
   const bid = new URLSearchParams(location.search).get('bid');
-  if (!bid) { addLog('kl','⚠ battleId 없음'); return; }
+  if (!bid) { addLog('kl','⚠ '+tl('missingBattleId')); return; }
   try {
     const token = (window.parent && window.parent.localStorage && window.parent.localStorage.getItem('pw_token')) || '';
     const r = await fetch('/api/battles/' + bid + '/forfeit', {
@@ -2169,34 +2492,27 @@ async function confirmForfeit(){
       body: JSON.stringify({})
     });
     const d = await r.json();
-    addLog('kl','🏳 후퇴 — 함선 HP 보존됨. 조선소에서 수리하세요.');
+    addLog('kl',`🏳 ${tl('retreat')}`);
     try {
       if (window.parent && window.parent !== window) {
         window.parent.postMessage({ source:'tactical-lab', battleId:parseInt(bid), cmd:'forfeit', payload:d }, '*');
       }
     } catch(_){}
-  } catch(e){ addLog('kl','⚠ 후퇴 요청 실패: '+e.message); }
+  } catch(e){ addLog('kl','⚠ '+tl('retreatFailed')+': '+e.message); }
 }
 function cmdFormation(form){
   fleets.filter(f=>f.side==='atk'&&f.ships.some(s=>!s.dead)).forEach(f=>{
     f.formation=form;
     assignFormationSlots(f);
   });
-  addLog('fm',`${FORMATIONS[form].icon} 전 ATK 함대 진형: ${FORMATIONS[form].name}`);
-  battleCallout(`${FORMATIONS[form].name} 대형 전개!`, 'system', 'top', 2300);
+  addLog('fm',`${FORMATIONS[form].icon} ${tl('formation')}: ${tl(form)}`);
+  battleCallout(`${tl('formation')} · ${tl(form)}`, 'system', 'top', 2300);
   _bridgeToParent('formation', { formation: form });
 }
 function cmdManeuver(mv){
   fleets.filter(f=>f.side==='atk'&&f.ships.some(s=>!s.dead)).forEach(f=>{f.maneuver=mv;});
-  addLog('tc',`${MANEUVERS[mv].icon} 전 ATK 함대 기동: ${MANEUVERS[mv].name}`);
-  const lines={
-    advance:'전 함대 전진 공격하라!',
-    flank:'측면으로 돌아 들어가!',
-    retreat:'후퇴! 전열을 다시 잡아!',
-    scatter:'산개! 빔 궤도에서 벗어나!',
-    rally:'재집결! 방어선을 세워!'
-  };
-  battleCallout(lines[mv]||`${MANEUVERS[mv].name} 기동!`, 'system', 'top', 2300);
+  addLog('tc',`${MANEUVERS[mv].icon} ${tl('maneuver')}: ${tl(mv)}`);
+  battleCallout(tlManeuverLine(mv), 'system', 'top', 2300);
   _bridgeToParent('maneuver', { maneuver: mv });
 }
 
@@ -2252,7 +2568,7 @@ function renderFleetStatus(){
       <div class="fs-fleet ${isAtk?'atk':'def'}${f.dead?' fs-dead':''}">
         <div class="fs-fname ${isAtk?'a':'d'}">[${f.tag}] ${f.userId} ${fm.icon} ${mv.icon}</div>
         <div class="fs-hp"><div class="fs-hpf ${isAtk?'a':'d'}" style="width:${hpR*100}%"></div></div>
-        <div class="fs-meta">${alive}/${total}척 · HP ${(hpR*100).toFixed(0)}% · ${fm.name}/${mv.name}${f.dead?' · 괴멸':''}</div>
+        <div class="fs-meta">${formatTl('fleetStatusMeta',{alive:alive,total:total,hp:(hpR*100).toFixed(0),formation:fm.name,maneuver:mv.name,suffix:f.dead?(' · '+tl('wiped')):''})}</div>
         <div class="fs-ships">${shipTags}</div>
       </div>
     `;
@@ -2269,14 +2585,14 @@ function showFaction(fid,btn){
 function renderRegistry(){
   const grid=document.getElementById('ship-grid');
   const f=FACTIONS[currentFaction];
-  document.getElementById('faction-desc').textContent=f.full+' · '+f.specialty;
+  document.getElementById('faction-desc').textContent=shipTextValue(f.fullI18n||f.full)+' · '+shipTextValue(f.specialtyI18n||f.specialty);
   const list=Object.entries(SHIPS).filter(([id,s])=>s.faction===currentFaction);
   grid.innerHTML=list.map(([id,s])=>`
     <div class="ship-card ${s.faction}">
       <canvas width="120" height="70" data-id="${id}"></canvas>
-      <div class="sname" style="color:${f.color}">${s.name}</div>
-      <div class="scls">${s.cls}</div>
-      <span class="srole ${s.role}">${s.role.toUpperCase()}</span>
+      <div class="sname" style="color:${f.color}">${shipNameValue(s.nameI18n||s.name)}</div>
+      <div class="scls">${localizedClassLabel(s)}</div>
+      <span class="srole ${s.role}">${tl('role_'+s.role) || s.role.toUpperCase()}</span>
       <div class="stats">
         <div class="stat-row"><span>HP</span><span>${s.hp.toLocaleString()}</span></div>
         <div class="stat-row"><span>ATK</span><span>${s.atk}</span></div>
@@ -2284,8 +2600,8 @@ function renderRegistry(){
         <div class="stat-row"><span>SPD</span><span>${s.spd}</span></div>
       </div>
       <div class="recipe">
-        <em>BUILD: ${s.buildTime}</em><br>
-        ${Object.entries(s.recipe).map(([k,v])=>{const m=MINERALS[k];return `${m?.icon||''} ${m?.ko||k}×${v}`;}).join(' · ')}
+        <em>${tl('build')}: ${s.buildTime}</em><br>
+        ${Object.entries(s.recipe).map(([k,v])=>{const m=MINERALS[k];return `${m?.icon||''} ${shipNameValue(m)||k}×${v}`;}).join(' · ')}
       </div>
     </div>
   `).join('');
@@ -2312,10 +2628,10 @@ function renderRegistry(){
 function renderMinerals(){
   const el=document.getElementById('minerals-content');
   const tiers=[
-    {t:0,title:'TIER 0 — 기본 광물 (모든 섹터)'},
-    {t:1,title:'TIER 1 — 희귀 광물 (Mid/Frontier)'},
-    {t:2,title:'TIER 2 — 특수 소재 (Frontier·이벤트)'},
-    {t:3,title:'TIER 3 — 중간 부품 (유저 제작)'},
+    {t:0,title:tl('ttl0')},
+    {t:1,title:tl('ttl1')},
+    {t:2,title:tl('ttl2')},
+    {t:3,title:tl('ttl3')},
   ];
   el.innerHTML=tiers.map(({t,title})=>{
     const mins=Object.entries(MINERALS).filter(([id,m])=>m.tier===t);
@@ -2327,9 +2643,9 @@ function renderMinerals(){
             <div class="min-card">
               <div class="min-icon" style="color:${m.color}">${m.icon}</div>
               <div class="min-info">
-                <div class="min-name" style="color:${m.color}">${m.ko}</div>
-                <div class="min-desc">${m.en}</div>
-                <div class="min-src">${m.src}</div>
+                <div class="min-name" style="color:${m.color}">${shipNameValue(m)}</div>
+                <div class="min-desc">${m.en || shipNameValue(m)}</div>
+                <div class="min-src">${shipTextValue(m.srcI18n||m.src)}</div>
               </div>
             </div>
           `).join('')}
@@ -2365,13 +2681,13 @@ function renderAnalysis(){
     <div class="doctrine-grid">
       ${Object.entries(FACTIONS).map(([id,f])=>`
         <div class="doctrine" style="border-left:3px solid ${f.color}">
-          <h4 style="color:${f.color}">${f.full}</h4>
-          <p><strong>디자인:</strong> ${f.desc}</p>
-          <p><strong>특기:</strong> ${f.specialty}</p>
-          <p><strong>네이밍:</strong> ${f.namingScheme}</p>
+          <h4 style="color:${f.color}">${shipTextValue(f.fullI18n||f.full)}</h4>
+          <p><strong>${tl('design')}:</strong> ${shipTextValue(f.descI18n||f.desc)}</p>
+          <p><strong>${tl('specialty')}:</strong> ${shipTextValue(f.specialtyI18n||f.specialty)}</p>
+          <p><strong>${tl('naming')}:</strong> ${f.namingScheme}</p>
           <div class="comp">
             ${Object.entries(SHIPS).filter(([i,s])=>s.faction===id).map(([i,s])=>
-              `<span class="comp-tag" style="color:${f.color}">${s.name}</span>`
+              `<span class="comp-tag" style="color:${f.color}">${shipNameValue(s.nameI18n||s.name)}</span>`
             ).join('')}
           </div>
         </div>
@@ -2403,10 +2719,17 @@ async function loadCatalog(){
           m[r.code] = {
             ko: r.name_ko || r.code,
             en: r.name_en || r.code,
+            ja: r.name_ja || r.name_en || r.name_ko || r.code,
+            zh: r.name_zh || r.name_en || r.name_ko || r.code,
             icon: r.icon_emoji || '●',
             color: r.color_hex || '#9e9e9e',
             tier: r.tier || 0,
-            src: r.description_ko || r.description_en || '',
+            srcI18n: {
+              ko: r.description_ko || r.description_en || '',
+              en: r.description_en || r.description_ko || '',
+              ja: r.description_en || r.description_ko || '',
+              zh: r.description_en || r.description_ko || ''
+            },
           };
         }
         MINERALS = m;
@@ -2417,12 +2740,27 @@ async function loadCatalog(){
         for (const r of cat.factions) {
           f[r.code] = {
             name: (r.code || '').toUpperCase(),
-            full: r.name_en || r.name_ko || r.code,
-            desc: r.description_ko || r.description_en || '',
+            fullI18n: {
+              ko: r.name_ko || r.name_en || r.code,
+              en: r.name_en || r.name_ko || r.code,
+              ja: r.name_ja || r.name_en || r.name_ko || r.code,
+              zh: r.name_zh || r.name_en || r.name_ko || r.code
+            },
+            descI18n: {
+              ko: r.description_ko || r.description_en || '',
+              en: r.description_en || r.description_ko || '',
+              ja: r.description_en || r.description_ko || '',
+              zh: r.description_en || r.description_ko || ''
+            },
             color: r.color_primary || '#4fc3f7',
             colorDark: r.color_dark || '#0277bd',
             colorBright: r.color_bright || '#81d4fa',
-            specialty: r.specialty_ko || r.specialty_en || '',
+            specialtyI18n: {
+              ko: r.specialty_ko || r.specialty_en || '',
+              en: r.specialty_en || r.specialty_ko || '',
+              ja: r.specialty_en || r.specialty_ko || '',
+              zh: r.specialty_en || r.specialty_ko || ''
+            },
             namingScheme: r.naming_scheme || '',
           };
         }
@@ -2446,8 +2784,15 @@ async function loadCatalog(){
             size: r.size_class,
             role: r.role,
             tier: r.tier || 1,
-            name: r.name_en || r.code,
-            cls: r.class_label || ((r.size_class || '') + ' · T' + (r.tier || 1)),
+            nameI18n: {
+              ko: r.name_ko || r.name_en || r.code,
+              en: r.name_en || r.name_ko || r.code,
+              ja: r.name_ja || r.name_en || r.name_ko || r.code,
+              zh: r.name_zh || r.name_en || r.name_ko || r.code
+            },
+            classI18n: {
+              en: r.class_label || ((r.size_class || '') + ' · T' + (r.tier || 1))
+            },
             r: rr,
             hp: r.base_hp,
             atk: r.base_atk,
@@ -2456,7 +2801,12 @@ async function loadCatalog(){
             fireInt: r.fire_interval || 150,
             fireType: r.fire_type || 'bullet',
             shots: r.shots || 1,
-            desc: r.description_ko || r.description_en || '',
+            descI18n: {
+              ko: r.description_ko || r.description_en || '',
+              en: r.description_en || r.description_ko || '',
+              ja: r.description_en || r.description_ko || '',
+              zh: r.description_en || r.description_ko || ''
+            },
             recipe: r.recipe_minerals || {},
             buildTime: r.build_time_label || '-',
           };
@@ -2583,7 +2933,13 @@ function connectBattleWs() {
 }
 
 async function boot(){
+  localizeStaticUI();
   await loadCatalog();
+  localizeStaticUI();
+  renderRegistry();
+  renderMinerals();
+  renderAnalysis();
+  renderFleetStatus();
   initBattle();
   setSimSpeed(1); // 버튼 초기 하이라이트
   requestAnimationFrame(loop);

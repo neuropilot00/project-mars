@@ -6770,6 +6770,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane" id="basePane_quests">
         <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png" alt=""></div>
 
+        <!-- Today's Ops Board -->
+        <div id="dailyOpsBoardPanel" style="margin:0;padding:8px 10px 10px;border-bottom:1px solid var(--bdr)">
+          <div style="text-align:center;color:var(--tx3);padding:12px;font-size:10px">Loading ops board...</div>
+        </div>
+
         <!-- Daily Check-in (Mobile Game Style) -->
         <div id="dailyCheckinInline" style="margin:0;padding:0;border-bottom:1px solid var(--bdr)">
           <div style="background:linear-gradient(135deg,rgba(255,160,40,.12),rgba(255,80,30,.06));padding:10px 12px 6px">
@@ -13504,6 +13509,21 @@ function cancelMobileStamp(){
 }
 
 // ── Territory Info (for existing claims) ──
+function _normalizeExternalLink(raw){
+  var s=(raw||'').trim();
+  if(!s) return '';
+  if(/^https?:\/\//i.test(s)) return s;
+  if(/^\/\//.test(s)) return 'https:'+s;
+  if(/^[a-z]+:/i.test(s)) return '';
+  return 'https://'+s.replace(/^\/+/,'');
+}
+function _applyExternalLinkDisplay(elId, raw){
+  var linkEl=document.getElementById(elId);
+  if(!linkEl) return;
+  var normalized=_normalizeExternalLink(raw);
+  linkEl.href=normalized||'#';
+  linkEl.textContent=(raw||'').replace(/^https?:\/\//i,'').replace(/^\/\//,'').substring(0,30) || '--';
+}
 function showTerritoryInfo(plot){
   if(!plot||!plot.owner) return;
   var info=document.getElementById('territoryInfo');
@@ -13550,10 +13570,7 @@ function showTerritoryInfo(plot){
   document.getElementById('infoPrice').textContent=parseFloat(plot.price||0).toFixed(2)+' PP';
   if(plot.link){
     document.getElementById('linkRow').style.display='';
-    var linkEl=document.getElementById('infoLink');
-    var safeLink=(plot.link&&plot.link.trim().indexOf('https://')===0)?plot.link.trim():'#';
-    linkEl.href=safeLink;
-    linkEl.textContent=plot.link.replace(/^https?:\/\//,'').substring(0,30);
+    _applyExternalLinkDisplay('infoLink', plot.link);
   }else{
     document.getElementById('linkRow').style.display='none';
   }
@@ -14395,24 +14412,29 @@ function savePromoLink(){
   var desktopInput=document.getElementById('infoLinkInput');
   var mobileInput=document.getElementById('mtLinkInput');
   var link=(desktopInput&&desktopInput.offsetParent?desktopInput:mobileInput||desktopInput).value.trim();
-  if(link&&link.indexOf('https://')!==0){return showToast('Link must start with https://','error');}
+  var normalizedLink=_normalizeExternalLink(link);
+  if(link&&!normalizedLink){return showToast('Invalid link. Use a valid domain or https:// URL','error');}
   var w=walletState.address;
   if(!w) return showToast('Not logged in','error');
   fetch('/api/claim/'+selectedPlot.claimId+'/image',{
     method:'PUT',
     headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
-    body:JSON.stringify({wallet:w, linkUrl:link||''})
+    body:JSON.stringify({wallet:w, linkUrl:normalizedLink||''})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error) return showToast(d.error,'error');
-    selectedPlot.link=link;
+    selectedPlot.link=normalizedLink||'';
     showToast('Link saved!');
     // Update link display
-    if(link){
+    if(normalizedLink){
       document.getElementById('linkRow').style.display='';
-      var linkEl=document.getElementById('infoLink');
-      linkEl.href=link;linkEl.textContent=link.replace(/^https?:\/\//,'').substring(0,30);
+      var mtRow=document.getElementById('mtLinkRow');
+      if(mtRow) mtRow.style.display='';
+      _applyExternalLinkDisplay('infoLink', normalizedLink);
+      _applyExternalLinkDisplay('mtLink', normalizedLink);
     }else{
       document.getElementById('linkRow').style.display='none';
+      var mtHide=document.getElementById('mtLinkRow');
+      if(mtHide) mtHide.style.display='none';
     }
   }).catch(function(){showToast('Save failed','error')});
 }
@@ -14986,10 +15008,7 @@ function openMobTerritoryModal(){
   // Link
   if(plot.link){
     document.getElementById('mtLinkRow').style.display='';
-    var linkEl=document.getElementById('mtLink');
-    var safeLink=(plot.link&&plot.link.trim().indexOf('https://')===0)?plot.link.trim():'#';
-    linkEl.href=safeLink;
-    linkEl.textContent=plot.link.replace(/^https?:\/\//,'').substring(0,30);
+    _applyExternalLinkDisplay('mtLink', plot.link);
   }else{
     document.getElementById('mtLinkRow').style.display='none';
   }
@@ -20356,6 +20375,7 @@ function setLang(lang){
   try{ if(typeof showSeasonGuide==='function' && _seasonData) showSeasonGuide(_seasonData); }catch(_e){}
   try{ if(typeof loadSeasonLeaderboard==='function') loadSeasonLeaderboard(); }catch(_e){}
   try{ if(typeof renderInlineCheckin==='function') renderInlineCheckin(); }catch(_e){}
+  try{ if(typeof renderDailyOpsBoard==='function') renderDailyOpsBoard(); }catch(_e){}
   try{ if(typeof renderDailyMissions==='function' && _dailyState && _dailyState.missions.length) renderDailyMissions(); }catch(_e){}
   try{ if(typeof loadQuests==='function' && walletState && walletState.address) loadQuests(walletState.address); }catch(_e){}
   // Re-render locale-sensitive dynamic content
@@ -23812,16 +23832,20 @@ function attemptEnhance(instanceId){
       // Show result
       if(d.success){
         showToast('✨ '+(t('enh_success')||'Enhancement succeeded!')+' +'+(d.toLevel),'success');
+        try{ markDailyOpsAction('ship_upgrade', 1); }catch(_e){}
         // Re-open modal for next attempt if not maxed
         if(d.toLevel<10 && d.instanceId) setTimeout(function(){ openEnhanceModal(d.instanceId); },600);
       }else if(d.outcome==='stay'){
         showToast('😤 '+(t('enh_fail_stay')||'Enhancement failed. Level unchanged.')+' +'+d.toLevel,'warn');
+        try{ markDailyOpsAction('ship_upgrade', 1); }catch(_e){}
         if(d.instanceId) setTimeout(function(){ openEnhanceModal(d.instanceId); },600);
       }else if(d.outcome==='downgrade'){
         showToast('📉 '+(t('enh_fail_down')||'Enhancement failed! Level dropped to')+' +'+d.toLevel,'error');
+        try{ markDailyOpsAction('ship_upgrade', 1); }catch(_e){}
         if(d.instanceId) setTimeout(function(){ openEnhanceModal(d.instanceId); },600);
       }else if(d.outcome==='destroy'){
         showToast('💥 '+(t('enh_fail_destroy')||'Enhancement failed! Item destroyed!'),'error');
+        try{ markDailyOpsAction('ship_upgrade', 1); }catch(_e){}
       }
     });
   }).catch(function(){showToast('Enhancement failed','error')});
@@ -24029,7 +24053,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{renderDailyOpsBoard();}catch(_){} try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} }
@@ -29552,6 +29576,80 @@ function renderBurnPanel(types) {
 
 function doBurnGP(burnType, cost) {
   showToast('GP Burn is currently unavailable', 'warn');
+}
+
+async function harvestMining(){
+  try{_sfx.click()}catch(e){}
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return}
+  var btn=document.getElementById('baseHarvestBtn');
+  btn.disabled=true;btn.textContent='HARVESTING...';
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var resp=await fetch('/api/harvest',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Harvest failed');try{_sfx.error()}catch(e){}return}
+    showNotification('mining','HARVEST COMPLETE','+'+d.harvestedPP.toFixed(4)+' PP collected from your territory');
+    // ✅ [Resource System] 자원 드롭 알림 (Phase 2)
+    if(d.resources&&d.resources.length>0){
+      var _RICONS={iron_ore:'🪨',carbon_fiber:'🖤',silicon_chip:'💎',titanium_alloy:'⚙️',plasma_crystal:'🔷',nano_polymer:'🧬',dark_matter:'🌑',quantum_core:'⚡',exotic_alloy:'🌟'};
+      var _RNAMES_KO={iron_ore:'철광석',carbon_fiber:'탄소섬유',silicon_chip:'실리콘칩',titanium_alloy:'티타늄합금',plasma_crystal:'플라즈마크리스탈',nano_polymer:'나노폴리머',dark_matter:'암흑물질',quantum_core:'양자코어',exotic_alloy:'이국합금'};
+      var _lang=(window.currentLang||'en').toLowerCase();
+      var resMsg=d.resources.map(function(r){
+        var icon=_RICONS[r.code]||'💠';
+        var name=_lang==='ko'?(_RNAMES_KO[r.code]||r.code):r.code.replace(/_/g,' ');
+        return icon+' +'+r.quantity+' '+name;
+      }).join('  ');
+      showToast('⛏ '+resMsg,'success');
+    }
+    try{_sfx.harvest()}catch(e){}
+    try{trackQuestAction('harvest',1)}catch(e){}
+    try{markDailyOpsAction('territory_harvest',1)}catch(_e){}
+    // Update UI
+    document.getElementById('baseMineAvail').textContent='0.00';
+    var totalEl=document.getElementById('baseMineTotalMined');
+    var prev=parseFloat(totalEl.textContent)||0;
+    totalEl.textContent=(prev+d.harvestedPP).toFixed(2);
+    // Update timer & hide mining dot
+    if(d.nextHarvestAt) startMineTimer(new Date(d.nextHarvestAt));
+    var md=document.getElementById('miningDot');if(md)md.style.display='none';
+    // Refresh balances
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Network error')}
+  finally{
+    btn.disabled=false;
+    var rng='';if(window._miningEstMin>0) rng=' ('+window._miningEstMin.toFixed(2)+'~'+window._miningEstMax.toFixed(2)+' PP + 🪨)';
+    btn.innerHTML='<span>'+t('harvest_pp')+rng+'</span>';
+  }
+}
+
+// ── Instant Harvest (skip cooldown micro-transaction) ──
+async function instantHarvest(){
+  try{_sfx.click()}catch(e){}
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return}
+  var ihCost=window._instantHarvestCost||0.5;
+  var ok=await shopConfirm('','Skip Cooldown',
+    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">INSTANT HARVEST</div>'
+    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Skip the harvest cooldown and harvest immediately.</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+ihCost+' PP</div>','SKIP COOLDOWN');
+  if(!ok)return;
+  var btn=document.getElementById('baseInstantHarvestBtn');
+  btn.disabled=true;btn.textContent='PROCESSING...';
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var resp=await fetch('/api/harvest-instant',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Failed','error');return}
+    showToast('Cooldown skipped! Harvest now.','success');
+    btn.style.display='none';
+    document.getElementById('baseMineTimer').textContent='Harvest available now!';
+    if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Network error','error')}
+  finally{btn.disabled=false;var ic=window._instantHarvestCost||0.5;btn.innerHTML='<span>HARVEST NOW ('+ic+' PP)</span>'}
 }
 
 // ── Territory Rename (micro-transaction) ──
@@ -35453,6 +35551,195 @@ function renderInlineCheckin(){
   }
 }
 
+// ── Today's OPS Board ──
+function _dailyOpsTodayKey(){
+  return new Date().toISOString().slice(0,10);
+}
+function _dailyOpsWeekStartKey(){
+  var now = new Date();
+  var day = now.getDay(); // 0 Sun, 1 Mon
+  var delta = day === 0 ? 6 : day - 1;
+  now.setHours(0,0,0,0);
+  now.setDate(now.getDate() - delta);
+  return now.toISOString().slice(0,10);
+}
+function _dailyOpsStorageKey(){
+  var w = (walletState && walletState.address ? walletState.address : 'guest').toLowerCase();
+  return 'daily_ops_board_' + w + '_' + _dailyOpsTodayKey();
+}
+function _dailyOpsWeekStorageKey(){
+  var w = (walletState && walletState.address ? walletState.address : 'guest').toLowerCase();
+  return 'daily_ops_week_' + w + '_' + _dailyOpsWeekStartKey();
+}
+function _loadDailyOpsState(){
+  var raw = null;
+  try { raw = JSON.parse(localStorage.getItem(_dailyOpsStorageKey()) || 'null'); } catch(_e) {}
+  var base = {
+    date: _dailyOpsTodayKey(),
+    loginRewardClaimed: false,
+    tasks: {
+      ai_practice: { current: 0, target: 1 },
+      login_check: { current: 0, target: 1 },
+      territory_harvest: { current: 0, target: 1 },
+      ship_upgrade: { current: 0, target: 1 }
+    }
+  };
+  if (raw && raw.tasks) {
+    Object.keys(base.tasks).forEach(function(k){
+      var cur = raw.tasks[k] || {};
+      base.tasks[k].current = Math.max(0, Number(cur.current || 0));
+      if (cur.target != null) base.tasks[k].target = Math.max(1, Number(cur.target || 1));
+    });
+    base.loginRewardClaimed = !!raw.loginRewardClaimed;
+  }
+  if (isLoggedIn()) base.tasks.login_check.current = 1;
+  return base;
+}
+function _saveDailyOpsState(state){
+  try { localStorage.setItem(_dailyOpsStorageKey(), JSON.stringify(state)); } catch(_e) {}
+}
+function _loadDailyOpsWeekState(){
+  var raw = null;
+  try { raw = JSON.parse(localStorage.getItem(_dailyOpsWeekStorageKey()) || 'null'); } catch(_e) {}
+  if (!raw || typeof raw !== 'object') raw = {};
+  if (!raw.completedDates || typeof raw.completedDates !== 'object') raw.completedDates = {};
+  raw.rewardClaimed = !!raw.rewardClaimed;
+  return raw;
+}
+function _saveDailyOpsWeekState(state){
+  try { localStorage.setItem(_dailyOpsWeekStorageKey(), JSON.stringify(state)); } catch(_e) {}
+}
+function _isDailyOpsTaskComplete(task){
+  return Number(task.current || 0) >= Number(task.target || 1);
+}
+function _syncDailyOpsWeekProgress(state){
+  var week = _loadDailyOpsWeekState();
+  var allDone = Object.keys(state.tasks).every(function(key){
+    return _isDailyOpsTaskComplete(state.tasks[key]);
+  });
+  if (allDone) {
+    week.completedDates[state.date] = true;
+    _saveDailyOpsWeekState(week);
+  }
+  return week;
+}
+function markDailyOpsAction(type, amount){
+  var state = _loadDailyOpsState();
+  var task = state.tasks[type];
+  if (!task) return;
+  task.current = Math.min(Number(task.target || 1), Number(task.current || 0) + Math.max(1, Number(amount || 1)));
+  if (type === 'login_check') task.current = 1;
+  _saveDailyOpsState(state);
+  _syncDailyOpsWeekProgress(state);
+  renderDailyOpsBoard();
+}
+function openOpsRewardInventory(){
+  openBaseModal();
+  setTimeout(function(){
+    try {
+      var shopTab = document.getElementById('baseTabShop');
+      switchBaseTab('shop', shopTab || null);
+      if(typeof loadBaseShopItems === 'function') loadBaseShopItems();
+      if(typeof clearBaseTabDot === 'function') clearBaseTabDot('shop');
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          try{
+            var btn = document.querySelector('.base-shop-view[onclick*=\"inventory\"]');
+            switchBaseShopView('inventory', btn || null);
+          }catch(_inner){}
+        });
+      });
+    } catch(_e) {}
+  }, 80);
+}
+function openDailyOpsRoute(route){
+  if (route === 'ai_practice') {
+    openBaseModal();
+    switchBaseTab('pvp', document.getElementById('baseTabPvp'));
+    setTimeout(function(){ try { openAiFight(); } catch(_e) {} }, 50);
+    return;
+  }
+  if (route === 'territory_harvest') {
+    openBaseModal();
+    switchBaseTab('mining', document.getElementById('baseTabMining'));
+    return;
+  }
+  if (route === 'ship_upgrade') {
+    openShipyard();
+    return;
+  }
+  if (route === 'my_items') {
+    openOpsRewardInventory();
+    return;
+  }
+}
+function renderDailyOpsBoard(){
+  var panel = document.getElementById('dailyOpsBoardPanel');
+  if (!panel) return;
+  var state = _loadDailyOpsState();
+  _saveDailyOpsState(state);
+  var week = _syncDailyOpsWeekProgress(state);
+  var weekCount = Object.keys(week.completedDates || {}).length;
+  var now = new Date();
+  var nextReset = new Date();
+  nextReset.setHours(24, 0, 0, 0);
+  var diff = Math.max(0, nextReset.getTime() - now.getTime());
+  var hh = String(Math.floor(diff / 3600000)).padStart(2, '0');
+  var mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+  var ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+  var tasks = [
+    { key:'ai_practice', title:'AI 연습전 참여 1회', hint:'→ PvP → AI 연습전', route:'ai_practice', button:'GO →' },
+    { key:'login_check', title:'오늘 로그인 확인', hint:'→ 자동 완료' },
+    { key:'territory_harvest', title:'영토 채굴 1회', hint:'→ 내 영토 → 채굴', route:'territory_harvest', button:'GO →' },
+    { key:'ship_upgrade', title:'함선 강화 1회', hint:'→ 조선소', route:'ship_upgrade', button:'GO →' }
+  ];
+  var rows = tasks.map(function(item){
+    var task = state.tasks[item.key];
+    var done = _isDailyOpsTaskComplete(task);
+    var circleBg = done ? 'radial-gradient(circle at 30% 30%, #79ff9e, #0db44d 70%)' : '#f1f3f5';
+    var circleGlow = done ? '0 0 10px rgba(76,216,154,.45)' : 'none';
+    var buttonHtml = item.route
+      ? '<button onclick="openDailyOpsRoute(\''+item.route+'\')" style="min-width:94px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);color:'+(done?'#9be7a0':'#d3b48a')+';font-family:var(--fn);font-size:10px;font-weight:800;letter-spacing:.6px;cursor:pointer">'+item.button+'</button>'
+      : '<div style="font-size:10px;color:'+(done?'#9be7a0':'var(--tx3)')+';font-family:var(--fn);font-weight:700">'+(done?'완료':'대기')+'</div>';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:14px 8px;border-top:1px solid rgba(255,255,255,.06)">' +
+      '<span style="width:22px;height:22px;border-radius:50%;display:inline-block;background:'+circleBg+';box-shadow:'+circleGlow+';flex:0 0 22px"></span>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:14px;color:var(--tx);font-weight:800;line-height:1.2">'+item.title+'</div>' +
+        '<div style="font-size:10px;color:var(--tx3);margin-top:4px">'+item.hint+'</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:flex-end">'+buttonHtml+'</div>' +
+    '</div>';
+  }).join('');
+  var weekBars = '';
+  for (var i = 0; i < 7; i++) {
+    var filled = i < weekCount;
+    weekBars += '<div style="height:16px;border-radius:3px;background:'+(filled?'linear-gradient(90deg,#30d86e,#1eb656)':'rgba(255,255,255,.08)')+';border:'+(filled?'1px solid rgba(76,216,154,.45)':'1px solid rgba(255,209,102,.22)')+'"></div>';
+  }
+  panel.innerHTML =
+    '<div style="border:1px solid rgba(91,184,232,.35);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,rgba(9,18,32,.92),rgba(8,12,22,.96));box-shadow:0 12px 30px rgba(0,0,0,.22)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(91,184,232,.26)">' +
+        '<div style="font-size:14px;color:var(--cyan);font-weight:900;letter-spacing:.4px">📋 오늘의 작전 보드</div>' +
+        '<div style="font-size:10px;color:var(--gold);font-family:var(--fn);font-weight:800">리셋까지 '+hh+':'+mm+':'+ss+'</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:18px;padding:10px 18px 2px;color:var(--tx2);font-size:10px;font-family:var(--fn)">' +
+        '<span><span style="display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;background:radial-gradient(circle at 30% 30%, #79ff9e, #0db44d 70%);box-shadow:0 0 8px rgba(76,216,154,.45);margin-right:6px"></span>완료</span>' +
+        '<span><span style="display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;background:#f1f3f5;margin-right:6px"></span>미완료</span>' +
+        '<span><span style="display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;background:radial-gradient(circle at 30% 30%, #ff8a8a, #df2626 70%);box-shadow:0 0 8px rgba(232,72,85,.35);margin-right:6px"></span>긴급</span>' +
+      '</div>' +
+      '<div style="padding:0 18px 6px">' + rows + '</div>' +
+      '<div style="border-top:1px solid rgba(255,255,255,.06);padding:12px 18px 16px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<div style="font-size:10px;color:var(--tx3)">이번 주 완료일</div>' +
+          '<div style="font-size:12px;color:var(--cyan);font-family:var(--fn);font-weight:800">'+weekCount+' / 7일</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:10px">' + weekBars + '</div>' +
+        '<button onclick="openDailyOpsRoute(\'my_items\')" style="width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.22);color:var(--gold);font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer;text-align:left">' +
+          '<span style="font-size:16px">🎁</span><span>이번 주 보상: 주간 OPS 보상 팩</span>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+}
+
 // ── Claim Daily Login ──
 function claimDailyLogin(){
   if(!emailAuth.token || !walletState.address) { showToast(t('daily_login_required')); return; }
@@ -35485,6 +35772,7 @@ function claimDailyLogin(){
     try{_sfx.harvest()}catch(e){}
     renderInlineCheckin();
     updateDailyHudDot();
+    renderDailyOpsBoard();
     try{ refreshEmailBalances(); }catch(_rb){}
   }).catch(function(){ showToast(t('daily_check_in_failed')); });
 }
@@ -35501,6 +35789,7 @@ var _defaultMissions = [
 ];
 
 function loadDailyMissions(){
+  try{ renderDailyOpsBoard(); }catch(_e){}
   if(!emailAuth.token) return;
   document.getElementById('dailyMissionsPanel').style.display = '';
 
@@ -46202,7 +46491,6 @@ async function syUpgradeShipStat(shipId, stat) {
     disabled: blocked
   });
   if (!ok) return;
-
   // ── Forge Animation ──────────────────────
   var modal = document.getElementById('forgeModal');
   var hammer = document.getElementById('forgeHammer');
@@ -46311,6 +46599,7 @@ async function syUpgradeShipStat(shipId, stat) {
     }
   }
   closeBtn.style.display = 'block';
+  try{ markDailyOpsAction('ship_upgrade', 1); }catch(_e){}
   refreshBalance();
   refreshShipyard();
 }
@@ -48514,6 +48803,7 @@ async function challengeAi(aiFleetId, aiName) {
     }
 
     showFactionToast(`🤖 ${aiName} ${LANG==='ko'?'와의 전투 시작!':LANG==='ja'?'との戦闘開始!':LANG==='zh'?'战斗开始!':'- Battle started!'}`, 'success');
+    try{ markDailyOpsAction('ai_practice', 1); }catch(_e){}
     closeAiFight();
     if (data2.battle_id) {
       setTimeout(() => openBattleViewer(data2.battle_id), 3000);
@@ -49020,7 +49310,7 @@ async function openBattleViewer(battleId, startTick) {
   // tactical-lab v11 iframe 로드 (사용자 요청: "택티컬랩 그대로")
   var tf = document.getElementById('bvTacticalFrame');
   if (tf) {
-    var iframeUrl = '/assets/tactical-lab-v11.html?bid=' + encodeURIComponent(battleId) + '&t=' + Date.now();
+    var iframeUrl = '/assets/tactical-lab-v11.html?bid=' + encodeURIComponent(battleId) + '&lang=' + encodeURIComponent(LANG || 'en') + '&t=' + Date.now();
     if (viewerWallet) iframeUrl += '&wallet=' + encodeURIComponent(viewerWallet);
     if (startTick && Number.isFinite(Number(startTick)) && Number(startTick) > 0) {
       iframeUrl += '&startTick=' + Math.floor(Number(startTick));
@@ -50955,7 +51245,7 @@ function openTacticalLab(){
   var frame = document.getElementById('tacticalLabFrame');
   if (frame && !frame.src) {
     // 지연 로드: 첫 오픈 시에만 iframe 초기화 → 메모리/CPU 절약
-    frame.src = 'assets/tactical-lab-v11.html?v=20260502b';
+    frame.src = 'assets/tactical-lab-v11.html?v=20260502b&lang=' + encodeURIComponent(LANG || 'en');
   }
   bd.classList.add('active');
 }

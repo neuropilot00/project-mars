@@ -4438,6 +4438,13 @@ cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
 - P5 영토 유틸리티는 `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md` 기준으로, 생산 가시성 → 재료 harvest → 조선소 연결 → 영토 업그레이드/역할 → 섹터 컨트롤 → 어드민 경제 튜닝까지 전체 개발한다.
 - 클로드 구현 착수는 `docs/CLAUDE_P5_TERRITORY_IMPLEMENTATION_ORDER_2026-05-05.md`의 P5-1 생산 가시성부터 시작하되, 최종 목표는 P5 풀 시스템 완성이다.
 - `docs/GAME_IMPLEMENTATION_PLAN_2026-05-04.md`의 P5 항목도 풀기획 기준으로 갱신했다. `Near-Term/Later` 식 축소 해석 대신 최종 목표와 구현 순서를 분리해서 읽어야 한다.
+- 전투 피드백/리텐션/PvP 개선은 `docs/CLAUDE_COMPETITIVE_LOOP_IMPLEMENTATION_ORDER_2026-05-05.md` 기준으로 진행한다. 이 문서는 초안이 아니라 구현 계약서이며, Recon Gate / Acceptance Gate / QA Matrix를 통과해야 완료로 본다.
+- 구현 순서는 전투 결과 리포트 → Daily OPS Board → 영토 닉네임/Field Rating → Battle Hub 추천 상대 → 현상금 보드 → 섹터 분쟁/주간 캘린더다.
+- 첫 착수는 P1 전투 결과 리포트로 제한한다. 기존 전투 결과 모달/패널에 붙이고, Daily OPS/CPI/현상금 등은 P1 검증 뒤 진행한다.
+- 완료 판정은 API, UI, fallback, mobile, docs, verification이 모두 충족될 때만 가능하다. static UI, 프로토타입 HTML, 특정 지갑 하드코딩은 완료가 아니다.
+- 2026-05-08 확인: Daily OPS 주간 보상 버튼은 베이스 모달 기본 영토 탭 초기화 이후 `SHOP > MY ITEMS`로 다시 전환해야 한다. `openOpsRewardInventory()`는 상점 탭 로드와 인벤토리 전환을 순차 실행하도록 보정했다.
+- 2026-05-08 확인: 전술랩은 iframe 진입 시 `lang` 쿼리를 전달받아 정적 UI, 명령 버튼, 함선 도감, 광물/파벌 패널을 현 언어에 맞춰 렌더링해야 한다.
+- 2026-05-08 확인: 영토 외부 링크는 사용자가 도메인만 입력해도 `https://`로 정규화해 저장/표시한다. `http(s)://` 외 임의 스킴은 차단한다.
 
 ## 🆕 신규 진단/검증 API (이번 세션 추가)
 

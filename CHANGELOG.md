@@ -4118,6 +4118,27 @@ b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announceme
 
 ---
 
+## 2026-05-08 v5.97 — Daily OPS 내 아이템 이동 + 전술랩 로컬라이징
+
+- 오늘의 작전 보드 주간 보상 버튼이 실제 `BASE > SHOP > MY ITEMS`로 이동하도록 베이스 모달/상점 탭 초기화 순서를 보정했다.
+- 완료된 Daily OPS 항목은 초록 상태등으로 표시되도록 로컬 상태 렌더링을 연결했다.
+- 영토 외부 링크 입력은 도메인만 넣어도 `https://`로 정규화되게 수정하고, 데스크탑/모바일 표시 로직을 통합했다.
+- 전술랩 iframe에 현재 언어를 전달하고, 전술랩 정적 UI/명령 버튼/함선 도감/광물/함대 상태 패널 로컬라이징을 적용했다.
+- 검증: `git diff --check` 통과.
+
+---
+
+## 2026-05-05 v5.96 — 전투 피드백/리텐션/PvP 실행 지시서
+
+- `docs/CLAUDE_COMPETITIVE_LOOP_IMPLEMENTATION_ORDER_2026-05-05.md`를 추가했다.
+- 클로드 약점 개선 기획을 실제 개발 지시서가 아니라 구현 계약서 수준으로 재정리했다.
+- Source of Truth, Meaning of Done, Delivery Gates, Commit Packet Rules, Recon Gate, Acceptance Gate, QA Matrix, API/DB 계약, final report format을 추가했다.
+- 구현 순서를 전투 결과 리포트 → Daily OPS Board → 영토 닉네임/Field Rating → Battle Hub 추천 상대 → 현상금 보드 → 섹터 분쟁/주간 캘린더로 고정했다.
+- 첫 착수 범위를 P1 전투 결과 리포트로 제한하고, 기존 전투 결과 모달/패널에 붙이도록 명시했다.
+- `CLAUDE.md`의 새 세션 읽기 순서에 경쟁 루프 구현 지시서를 추가했다.
+
+---
+
 ## 2026-05-05 v5.91 — P5 영토 유틸리티 풀기획
 
 - `docs/TERRITORY_UTILITY_PLAN_2026-05-05.md`를 추가했다.
