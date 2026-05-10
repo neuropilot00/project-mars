@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-11 v7.73 — 모바일 하단 nav 아이템 버튼 라우팅 수정
+
+**수정 (MEDIUM — UX 단절):**
+
+- `index.html` 하단 nav `mn-items` 버튼이 `openItemShop();shopSwitchTab('inv')` 를 호출. `openItemShop()` 은 BASE 모달을 열어 SHOP 탭으로 가지만(setTimeout 100/150ms), 직후 동기 호출되는 `shopSwitchTab('inv')` 는 더 이상 화면에 떠 있지 않은 구버전 `shopModal` DOM(`shopTabShop`/`shopTabInv`/`shopInventoryView`)을 토글한다. 결과적으로 사용자에게는 "내 아이템"이 아니라 SHOP 진열대가 보이거나 아무 변화도 없는 것처럼 보임.
+- BASE 모달은 이미 `baseTabItems`(내 아이템) 탭을 별도 카테고리로 가지고 있음. nav 버튼이 `loadBaseInventory()` 를 거쳐 그 탭으로 직접 이동하도록 `openMyItems()` 헬퍼 추가하고 `mn-items` onclick 을 교체.
+
+---
+
 ## 2026-05-07 v7.72 — buildShip 다중 함대 선택 UI 추가
 
 **수정 (MEDIUM — UX gap):**

@@ -8290,7 +8290,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button class="mob-nav-item mn-myland"  onclick="toggleMyLand()"           id="mobNavMyLand" aria-label="My Land"></button>
     <button class="mob-nav-item mn-cantina" onclick="openArena()"              aria-label="Cantina"></button>
     <button class="mob-nav-item mn-claim"   onclick="activateLandSelect()"     id="mobNavClaim"  aria-label="Claim"></button>
-    <button class="mob-nav-item mn-items"   onclick="openItemShop();shopSwitchTab('inv')" aria-label="Items"></button>
+    <button class="mob-nav-item mn-items"   onclick="openMyItems()" aria-label="Items"></button>
     <button class="mob-nav-item mn-base"    onclick="openBaseModal()"          aria-label="Base">
       <span id="mobBaseDot" class="mob-base-dot" aria-hidden="true"></span>
     </button>
@@ -21631,6 +21631,17 @@ function openItemShop(){
       setTimeout(function(){
         switchBaseShopView('shop', document.querySelectorAll('.base-shop-view')[0]);
       },50);
+    }
+  }, 100);
+}
+function openMyItems(){
+  try{ openBaseModal(); }catch(_){}
+  setTimeout(function(){
+    var itemsTab = document.getElementById('baseTabItems');
+    if(itemsTab){
+      try{ switchBaseTab('items', itemsTab); }catch(_){}
+      try{ loadBaseInventory(); }catch(_){}
+      try{ clearBaseTabDot('items'); }catch(_){}
     }
   }, 100);
 }

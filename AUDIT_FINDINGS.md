@@ -1,4 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v7.72 / 2026-05-07) — buildShip 다중 함대 선택 UX gap 수정
+# OCCUPY MARS — Codebase Audit (v7.73 / 2026-05-11) — 모바일 하단 nav 아이템 버튼 라우팅 수정
+
+## 🟡 v7.73 — `mn-items` onclick 라우팅 수정 (2026-05-11)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `index.html` 하단 nav `mn-items` | `openItemShop();shopSwitchTab('inv')` — `openItemShop()` 이 BASE/SHOP 으로 setTimeout 후 전환하는 동안 `shopSwitchTab('inv')` 는 구버전 `shopModal` DOM 을 동기 토글 → "내 아이템" 도달 못 함 | 🟡 MEDIUM | ✅ `openMyItems()` 헬퍼 추가 + `baseTabItems` 직접 라우팅 |
+
+**수정 내용:**
+- `openMyItems()` — `openBaseModal()` 호출 후 setTimeout 100ms 안에서 `switchBaseTab('items', baseTabItems)` + `loadBaseInventory()` + `clearBaseTabDot('items')` 실행.
+- 하단 nav `mn-items` onclick 을 `openMyItems()` 단일 호출로 교체. 구버전 `shopSwitchTab('inv')` race 제거.
+- `openItemShop()`/`shopSwitchTab()` 자체는 다른 호출 지점이 있을 수 있어 그대로 둠.
+
+---
 
 ## 🟡 v7.72 — buildShip() fleet 선택 기능 공백 수정 (2026-05-07)
 
