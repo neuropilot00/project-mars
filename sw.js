@@ -5,7 +5,8 @@
 // 2026-05-02 v6: 캠페인 배경 184장 Codex gpt-image-1 전면 재생성 (gritty cinematic sci-fi, 9:16/1:1 portrait)
 // 2026-05-02 v7: campaign backgrounds → network-first (cache-first로 구 이미지 고착 문제 해소)
 // 2026-05-02 v8: campaign asset fetch uses cache:reload to bypass HTTP cache too.
-const CACHE_NAME = 'mars-v8';
+// 2026-05-11 v9: 모바일/데스크탑 nav 아이템 버튼 BASE 내 아이템 탭으로 직접 라우팅 — 옛 캐시 무효화.
+const CACHE_NAME = 'mars-v9';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

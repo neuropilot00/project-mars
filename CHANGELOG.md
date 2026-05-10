@@ -1,11 +1,13 @@
 # OCCUPY MARS — Changelog
 
-## 2026-05-11 v7.73 — 모바일 하단 nav 아이템 버튼 라우팅 수정
+## 2026-05-11 v7.73 — 모바일/데스크탑 nav 아이템 버튼 라우팅 수정 + SW 캐시 bump
 
 **수정 (MEDIUM — UX 단절):**
 
 - `index.html` 하단 nav `mn-items` 버튼이 `openItemShop();shopSwitchTab('inv')` 를 호출. `openItemShop()` 은 BASE 모달을 열어 SHOP 탭으로 가지만(setTimeout 100/150ms), 직후 동기 호출되는 `shopSwitchTab('inv')` 는 더 이상 화면에 떠 있지 않은 구버전 `shopModal` DOM(`shopTabShop`/`shopTabInv`/`shopInventoryView`)을 토글한다. 결과적으로 사용자에게는 "내 아이템"이 아니라 SHOP 진열대가 보이거나 아무 변화도 없는 것처럼 보임.
-- BASE 모달은 이미 `baseTabItems`(내 아이템) 탭을 별도 카테고리로 가지고 있음. nav 버튼이 `loadBaseInventory()` 를 거쳐 그 탭으로 직접 이동하도록 `openMyItems()` 헬퍼 추가하고 `mn-items` onclick 을 교체.
+- 데스크탑 사이드 FAB `col-fab items` 도 동일한 옛 onclick 을 쓰고 있어 같이 수정. v7.73 1차 패치는 `mn-items` 만 고쳐서 데스크탑/사이드바 사용자에게는 그대로 안 통했음.
+- BASE 모달은 이미 `baseTabItems`(내 아이템) 탭을 별도 카테고리로 가지고 있음. nav 버튼이 `loadBaseInventory()` 를 거쳐 그 탭으로 직접 이동하도록 `openMyItems()` 헬퍼 추가하고 `mn-items` + `col-fab items` onclick 을 교체.
+- `sw.js` CACHE_NAME `mars-v8` → `mars-v9`. HTML 은 이미 network-first 라 영향 없지만, 옛 빌드의 정적 캐시(JS bundle 같은 부수 자원) 를 강제로 비워서 재발 방지.
 
 ---
 

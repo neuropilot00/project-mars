@@ -1,15 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v7.73 / 2026-05-11) — 모바일 하단 nav 아이템 버튼 라우팅 수정
+# OCCUPY MARS — Codebase Audit (v7.73 / 2026-05-11) — 모바일/데스크탑 nav 아이템 버튼 라우팅 수정
 
-## 🟡 v7.73 — `mn-items` onclick 라우팅 수정 (2026-05-11)
+## 🟡 v7.73 — nav 아이템 버튼 (모바일+데스크탑) 라우팅 수정 + SW bump (2026-05-11)
 
 | 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
 |-----------|-------------|--------|-----------|
 | `index.html` 하단 nav `mn-items` | `openItemShop();shopSwitchTab('inv')` — `openItemShop()` 이 BASE/SHOP 으로 setTimeout 후 전환하는 동안 `shopSwitchTab('inv')` 는 구버전 `shopModal` DOM 을 동기 토글 → "내 아이템" 도달 못 함 | 🟡 MEDIUM | ✅ `openMyItems()` 헬퍼 추가 + `baseTabItems` 직접 라우팅 |
+| `index.html` 사이드 `col-fab items` | 동일한 옛 onclick. 1차 패치(v7.73 mobile-only) 후에도 데스크탑/사이드바 유저는 여전히 SHOP 진열대로 빠짐 | 🟡 MEDIUM | ✅ `openMyItems()` 로 통일 |
+| `sw.js` CACHE_NAME | `mars-v8` 정적 캐시에 옛 onclick 포함된 보조 자원 잔존 가능 | 🟢 LOW | ✅ `mars-v9` 로 bump |
 
 **수정 내용:**
 - `openMyItems()` — `openBaseModal()` 호출 후 setTimeout 100ms 안에서 `switchBaseTab('items', baseTabItems)` + `loadBaseInventory()` + `clearBaseTabDot('items')` 실행.
-- 하단 nav `mn-items` onclick 을 `openMyItems()` 단일 호출로 교체. 구버전 `shopSwitchTab('inv')` race 제거.
-- `openItemShop()`/`shopSwitchTab()` 자체는 다른 호출 지점이 있을 수 있어 그대로 둠.
+- 모바일 `mn-items` + 데스크탑 `col-fab items` onclick 을 `openMyItems()` 단일 호출로 교체. 구버전 `shopSwitchTab('inv')` race 제거.
+- `openItemShop()`/`shopSwitchTab()` 자체는 다른 호출 지점(상단 nav 의 `shop` 진입, 코스메틱 카테고리 직링크)이 있어 그대로 둠.
+- `sw.js` CACHE_NAME bump 으로 옛 클라이언트 캐시 강제 무효화.
 
 ---
 
