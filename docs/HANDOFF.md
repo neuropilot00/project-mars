@@ -9,6 +9,7 @@
 - **스택**: Node.js + PostgreSQL (Railway) / 단일 파일 프론트엔드 `index.html` (35k+ lines)
 - **배포**: GitHub push → Railway 자동 배포 (`origin: github.com/neuropilot00/project-mars`)
 - **절대 규칙**: `index.html`은 단일 파일 유지. 절대 분리하지 말 것.
+- **운영 경계**: `start-test.sh`는 지인 테스트/로컬 확인용이다. 상업 운영 기본 경로로 쓰지 말고, 외부 공개는 `ALLOW_PUBLIC_TUNNEL=1`일 때만 임시 허용된다.
 
 ---
 

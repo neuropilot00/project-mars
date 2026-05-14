@@ -1,3 +1,26 @@
+# OCCUPY MARS — Codebase Audit (v7.80 / 2026-05-15) — 테스트 런처 기본 외부 공개 차단 + 관리자 비밀번호 노출 제거
+
+## 🔴 v7.80 — start-test launcher exposure control 정리 (2026-05-15)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `start-test.sh` | 기본 실행만으로 Cloudflare Tunnel을 열어 외부 URL을 즉시 노출 | 🔴 HIGH | ✅ opt-in 외부 공개로 전환 |
+| `start-test.sh` | 실행 배너에 관리자 비밀번호 `admin1234`를 평문 노출 | 🔴 HIGH | ✅ 평문 제거 |
+
+**수정 내용:**
+- `start-test.sh` 헤더에 지인 테스트/로컬 확인용이며 상업 운영 경로가 아니라는 경고를 추가.
+- 기본 실행은 로컬 전용으로 두고, `ALLOW_PUBLIC_TUNNEL=1`일 때만 Cloudflare 터널을 열도록 변경.
+- 출력문에서 `admin1234` 평문을 제거하고 관리자 시크릿은 환경변수/운영 문서 기준으로 확인하도록 수정.
+- 터널 비활성 시에는 로컬 전용 실행 메시지를, 활성 시에는 임시 외부 테스트 URL 경고를 노출.
+- `docs/TEST_LAUNCHER_USAGE_2026-05-15.md`와 `docs/HANDOFF.md`에 운영 경계를 문서화.
+
+**검증:**
+- `bash -n start-test.sh` 문법 검증 통과.
+- 코드 검색으로 `admin1234`가 `start-test.sh`에 더 이상 남아 있지 않음을 확인.
+- 코드 검색으로 `ALLOW_PUBLIC_TUNNEL` opt-in 분기가 들어간 것 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.78 / 2026-05-15) — 캠페인 UI 가이드 카피를 행동 중심으로 정리
 
 ## 🟡 v7.78 — campaign action copy clarity 정리 (2026-05-15)

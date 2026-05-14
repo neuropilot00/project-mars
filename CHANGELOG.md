@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.80 — 테스트 런처 기본 외부 공개 차단 + 관리자 비밀번호 노출 제거
+
+**수정 (HIGH — launch exposure control):**
+
+- `start-test.sh`를 상업 운영 경로가 아닌 지인 테스트/로컬 확인용 런처로 명시했다.
+- 기본 실행에서는 Cloudflare 터널을 열지 않도록 바꾸고, `ALLOW_PUBLIC_TUNNEL=1`일 때만 명시 opt-in으로 외부 공개를 허용했다.
+- 출력문에서 `admin1234` 평문 노출을 제거하고, 관리자 시크릿은 환경변수/운영 문서 기준으로 확인하도록 정리했다.
+- 로컬 전용 실행일 때와 임시 외부 테스트일 때의 안내 문구를 분리했다.
+- `docs/TEST_LAUNCHER_USAGE_2026-05-15.md`를 추가하고 `docs/HANDOFF.md`에 운영 경계를 반영했다.
+
+---
+
 ## 2026-05-15 v7.79 — 상용 오픈 blocker 실행 문서 / 회귀 체크리스트 / 최소 런북 추가
 
 **수정 (DOCS — launch readiness):**
