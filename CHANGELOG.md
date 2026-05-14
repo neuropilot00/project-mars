@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.82 — health 응답 보정 + DB smoke script 추가
+
+**수정 (OPS automation — minimal):**
+
+- `server/index.js`
+  - `/health`가 DB 장애 시 JSON 본문만 `degraded`를 주는 데서 끝나지 않고 HTTP `503`도 함께 반환하도록 보정했다.
+- `server/tools/db_smoke.js` 추가
+  - DB ping, 핵심 테이블 존재, settings seed, 핵심 경제 설정 키 존재를 빠르게 확인하는 운영용 smoke script를 추가했다.
+- `server/package.json`
+  - `npm run smoke:db` 스크립트를 추가했다.
+- 운영 문서 갱신
+  - 런북/배포 체크리스트/복구 baseline에 `/health` 및 `smoke:db` 사용 기준을 반영했다.
+
+---
+
 ## 2026-05-15 v7.81 — 관리자 정책 / 배포 롤백 / 백업 복구 운영 문서 추가
 
 **수정 (DOCS — ops hardening):**

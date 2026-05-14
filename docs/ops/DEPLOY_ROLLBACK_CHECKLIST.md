@@ -21,6 +21,7 @@
 - [ ] 운영 URL 확인
 - [ ] `ADMIN_SECRET` 준비
 - [ ] 핵심 env 누락 없음
+- [ ] 필요 시 `npm run smoke:db` 실행 가능
 
 ---
 
@@ -44,6 +45,7 @@
 
 ### HTTP
 - [ ] 메인 URL 접속
+- [ ] `/health`가 200인지 확인
 - [ ] `/admin` 접속
 
 ### User Flow

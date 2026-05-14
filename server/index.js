@@ -212,7 +212,8 @@ app.get('/health', async (req, res) => {
   }
   const memoryMB = Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100;
   const status = dbStatus === 'ok' ? 'ok' : 'degraded';
-  res.json({
+  const httpStatus = status === 'ok' ? 200 : 503;
+  res.status(httpStatus).json({
     status,
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),

@@ -106,4 +106,4 @@
 - 실제 DB 백업 명령/도구 명시
 - 복구 리허설 주기 고정
 - 운영 env inventory 문서화
-- health endpoint / DB smoke script 추가
+- release script 추가

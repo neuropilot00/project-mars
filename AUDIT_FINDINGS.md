@@ -1,3 +1,24 @@
+# OCCUPY MARS — Codebase Audit (v7.82 / 2026-05-15) — health 응답 보정 + DB smoke script 추가
+
+## 🟡 v7.82 — 운영 최소 자동화 추가 (2026-05-15)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 검증 | `/health`는 있었지만 DB 장애 시 HTTP 상태 코드로 실패를 드러내지 않았고, 반복 가능한 경량 DB smoke 명령이 없었음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/index.js`: `/health`가 DB 오류 시 HTTP `503`을 반환하도록 보정.
+- `server/tools/db_smoke.js` 추가: DB ping / 핵심 테이블 / settings seed / 핵심 경제 설정 키 점검.
+- `server/package.json`: `npm run smoke:db` 추가.
+- 운영 문서에 `/health`와 `smoke:db` 사용 기준 반영.
+
+**검증:**
+- `node --check server/index.js`
+- `node --check server/tools/db_smoke.js`
+- `npm run smoke:db` → `4 passed / 0 failed`
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.81 / 2026-05-15) — 관리자 정책 / 배포 롤백 / 백업 복구 운영 문서 추가
 
 ## 🟡 v7.81 — ops documentation hardening 정리 (2026-05-15)
