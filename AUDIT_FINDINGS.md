@@ -1,3 +1,73 @@
+# OCCUPY MARS — Codebase Audit (v7.78 / 2026-05-15) — 캠페인 UI 가이드 카피를 행동 중심으로 정리
+
+## 🟡 v7.78 — campaign action copy clarity 정리 (2026-05-15)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `index.html` campaign objective/action UI | `시작 / 계속 / 결과 / 내 영토 / 전투 / 다시 확인` 같은 추상 라벨이 많아, 스토리와 분리된 가이드 영역에서도 플레이어가 다음 행동을 즉시 이해하기 어려움 | 🟡 MEDIUM | ✅ 행동 중심 카피로 정리 |
+| `index.html` campaign gate warning | 목표 미완료 상태 문구가 실패/막힘처럼 들려 실제로는 "남은 행동 진행" 단계임에도 흐름이 끊겨 보임 | 🟡 MEDIUM | ✅ 진행 안내형 문구로 정리 |
+
+**수정 내용:**
+- 캠페인 카드 CTA를 `작전 시작 / 작전 계속 / 결과 확인`으로 조정.
+- 목표 액션 라벨을 `영토 확인 / 함선 준비 / 함대 편성 / 전투 진입 / 마켓 확인`으로 조정.
+- 액션 진입 토스트를 `영토 화면에서 목표를 진행하세요`, `함대전을 열고 전투 목표를 진행하세요`처럼 현재 해야 할 행동이 드러나게 수정.
+- 결과 재확인/게이트 문구를 `목표 다시 확인`, `아직 완료할 행동이 남아 있습니다`, `남은 목표를 먼저 진행한 뒤 결과를 확인하세요`로 정리.
+- 스토리 본문/세계관 대사는 건드리지 않고, 분리된 가이드/버튼/경고 카피만 수정.
+
+**검증:**
+- `index.html` 해당 키/함수 위치를 직접 확인해 반영 문자열이 들어간 것 확인.
+- 서버 파일 `node --check server/index.js server/routes/api.js server/routes/admin.js server/db.js server/services/signer.js` 통과.
+- 간단한 문자열 존재 검사 스크립트로 이번 세션의 캠페인 카피 반영값 확인.
+
+---
+
+# OCCUPY MARS — Codebase Audit (v7.77 / 2026-05-14) — 구형 튜토리얼 자동 실행 중단 + 신형 온보딩 루프 재정렬
+
+## 🔴 v7.77 — first-session onboarding 정리 (2026-05-14)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `index.html` | 구형 localStorage 기반 spotlight 튜토리얼이 로더 종료 직후 자동 실행되어, 서버 기반 온보딩/랜딩/캠페인 초반 루프와 3중으로 겹침 | 🔴 HIGH | ✅ 자동 실행 차단 |
+| `index.html` | 신형 온보딩 step 3~5가 현재 게임의 북극성 루프(영토 → 수확 → 함대 → 캠페인)와 어긋나 직업/길드/일일미션 중심으로 안내됨 | 🔴 HIGH | ✅ 카피/순서 재정렬 |
+
+**수정 내용:**
+- `dismissLoader` override에서 구형 `startTutorial()` 자동 호출 제거.
+- 신형 onboarding step copy를 아래 루프로 정렬:
+  - 첫 영토 확보
+  - 영토 수확
+  - 첫 함대 준비
+  - 첫 캠페인/임무 진행
+  - 루프 요약 + 시작 보상
+
+**검증:**
+- `index.html` 코드 확인으로 로더 종료 경로에 더 이상 `startTutorial()` 호출이 없음을 확인.
+- `index.html` 온보딩 step 3~5 문구가 `fleet / campaign / loop summary` 기준으로 바뀐 것 확인.
+- 이번 변경은 UX 카피/진입 경로 정리만 수행했고, 서버 onboarding API 계약은 건드리지 않음.
+
+---
+
+# OCCUPY MARS — Codebase Audit (v7.76 / 2026-05-14) — 출금 최소값 설정 일관화 + withdraw-all 계약 잔액 계산 수정
+
+## 🔴 v7.76 — finance/admin correctness 수정 (2026-05-14)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `server/routes/api.js` + `server/db.js` + `server/migrations/201_withdraw_min_amount.sql` | `min_withdraw` / `withdraw_min_amount` 키가 갈라져 있어 `/api/config` 노출값과 실제 출금 검증값이 달라질 수 있음 | 🔴 HIGH | ✅ 설정 키 일관화 + fallback 정리 |
+| `server/routes/admin.js` | `withdraw_all`의 실제 지급액은 `meta.totalOut`인데 관리자 계약 잔액은 `usdt_amount`만 차감해 잔액을 과대 표시 | 🔴 HIGH | ✅ `withdraw_all`은 `meta.totalOut` 우선 차감 |
+
+**수정 내용:**
+- `/api/config`의 `minWithdraw`를 `withdraw_min_amount ?? min_withdraw ?? 10`으로 통일.
+- `/api/withdraw`, `/api/withdraw-all` 최소 출금 검증도 같은 fallback 체인으로 통일.
+- 기본 설정 시드와 migration 201의 기준 키/기본값을 `withdraw_min_amount = 10`으로 맞춤.
+- 관리자 계약 잔액 집계에서 `withdraw_all`은 `meta.totalOut`을 우선 사용하고, 없을 때만 `usdt_amount` fallback 사용.
+
+**검증:**
+- `node --check server/routes/api.js && node --check server/routes/admin.js && node --check server/db.js` 통과.
+- 코드 검색으로 `/api/config`, `/api/withdraw`, `/api/withdraw-all`이 동일 fallback 체인을 사용함을 확인.
+- 샘플 계산(`usdt=10, pp=100, fee=5`) 기준 기존 집계는 10만 차감하지만 실제 지급액은 105여서 95 과대계상됨을 재현.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.75 / 2026-05-14) — admin 패널 `window.ADMIN_SECRET` 동기화 누락 수정
 
 ## 🔴 v7.75 — admin 후반 탭 인증 헤더 누락 수정 (2026-05-14)

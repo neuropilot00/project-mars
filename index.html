@@ -2744,7 +2744,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .faction-card.selected.fsp { border-color: #81c784; box-shadow: 0 0 20px rgba(129, 199, 132, 0.3); }
 .faction-card.selected.cv  { border-color: #ef5350; box-shadow: 0 0 20px rgba(239, 83, 80, 0.3); }
 .faction-card.current::before {
-  content: '현재';
+  content: 'CURRENT';
   position: absolute;
   top: 8px; right: 8px;
   font-size: 8px;
@@ -5806,10 +5806,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span data-i18n="live_feed_title">LIVE FEED</span> <span id="feedToggle" style="font-size:10px;color:var(--tx3)">▼</span>
     </div>
     <div id="liveFeed" style="max-height:52px;overflow:hidden;transition:max-height .3s">
-      <div class="feed-item">⚡ DogeTeam claimed OLYMPUS MONS</div>
-      <div class="feed-item">💀 예원♥ hijacked ELYSIUM for 120 USDT</div>
-      <div class="feed-item">⚡ 0xDEAD claimed NORTH POLE</div>
-      <div class="feed-item">⚡ PepeArmy claimed HELLAS BASIN</div>
+      <div class="feed-item" id="liveFeedEmpty" data-i18n="live_feed_empty">No live events yet.</div>
     </div>
   </div>
 
@@ -7600,7 +7597,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="base-section-title" style="color:#5cbbff;cursor:pointer" onclick="toggleFleetSection()"><span data-i18n="gov_fleet_title">⚓ MY FLEET</span> <span id="fleetToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
         <div id="govFleetSection" style="display:none;margin-bottom:12px">
           <div id="fleetPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_fleet_hint">Connect wallet to view your fleet.</div>
-          <button onclick="openShipyard()" style="width:100%;margin-top:8px;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.15),rgba(79,195,247,.05));border:1px solid rgba(79,195,247,.35);color:#5cbbff;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚓ 조선소 열기 / OPEN SHIPYARD</button>
+          <button onclick="openShipyard()" style="width:100%;margin-top:8px;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.15),rgba(79,195,247,.05));border:1px solid rgba(79,195,247,.35);color:#5cbbff;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚓ OPEN SHIPYARD</button>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
             <button onclick="openFactionModal()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_faction_btn">🛡 FACTION</button>
             <button onclick="showHijackEntryHint()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.13),rgba(232,72,85,.04));border:1px solid rgba(232,72,85,.35);color:#ff6b6b;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_hijack_btn">⚔ HIJACK</button>
@@ -7720,7 +7717,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
                   <span style="font-size:8px;color:var(--tx3);font-family:var(--fn)" data-i18n="guild_gp_donate_lbl">💰 GP 기부</span>
-                  <span style="font-size:9px;color:var(--gold);font-family:var(--fn)" id="guildDonateMyGP">내 GP: 0</span>
+                  <span style="font-size:9px;color:var(--gold);font-family:var(--fn)" id="guildDonateMyGP">My GP: 0</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px">
                   <input id="guildDonateAmt" type="number" min="1" placeholder="Enter GP amount" data-i18n-placeholder="guild_donate_placeholder" style="flex:1;padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx);font-size:11px;font-family:var(--fn);box-sizing:border-box">
@@ -8000,14 +7997,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="baseVipPanel" style="display:none">
           <!-- VIP 설명 배너 -->
           <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(206,147,216,.12),rgba(206,147,216,.03));border:1px solid rgba(206,147,216,.25)">
-            <div style="font-size:11px;color:#ce93d8;font-weight:700;margin-bottom:4px" data-i18n="vip_pass_title">💫 VIP 패스란?</div>
+            <div style="font-size:11px;color:#ce93d8;font-weight:700;margin-bottom:4px" data-i18n="vip_pass_title">💫 What is VIP Pass?</div>
             <div style="font-size:10px;color:var(--tx2);line-height:1.6" data-i18n="vip_pass_desc">
-              PP(플래닛 포인트)로 구매하는 <b style="color:#ce93d8">기간제 프리미엄 구독</b>입니다.<br>
-              • ⛏ <b>채굴 속도 +%</b> (등급별 상이)<br>
-              • 💰 <b>GP 획득량 보너스</b><br>
-              • 🎁 <b>월간 크레이트 지급</b><br>
-              • 🏆 <b>VIP 전용 칭호/아바타</b><br>
-              PP는 실제 구매하거나 시즌 보상으로 획득합니다.
+              A <b style="color:#ce93d8">time-limited premium subscription</b> purchased with PP (Planet Points).<br>
+              • ⛏ <b>Mining speed +%</b> (varies by tier)<br>
+              • 💰 <b>GP earnings bonus</b><br>
+              • 🎁 <b>Monthly crate rewards</b><br>
+              • 🏆 <b>VIP-exclusive titles/avatars</b><br>
+              PP can be purchased directly or earned through seasonal rewards.
             </div>
           </div>
           <!-- Current VIP status -->
@@ -8034,14 +8031,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="baseLuckyBoxPanel" style="display:none">
           <!-- 크레이트 설명 배너 -->
           <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,204,2,.1),rgba(255,204,2,.02));border:1px solid rgba(255,204,2,.25)">
-            <div style="font-size:11px;color:#ffcc02;font-weight:700;margin-bottom:4px" data-i18n="crate_what_title">📦 크레이트란?</div>
+            <div style="font-size:11px;color:#ffcc02;font-weight:700;margin-bottom:4px" data-i18n="crate_what_title">📦 What is a crate?</div>
             <div style="font-size:10px;color:var(--tx2);line-height:1.6" data-i18n="crate_what_desc">
-              GP 또는 PP로 구매하는 <b style="color:#ffcc02">랜덤 아이템 상자</b>입니다.<br>
-              • 🎯 <b>방어 아이템</b> — 영토 강화·방어 장치<br>
-              • ⚔ <b>전투 아이템</b> — 함선 강화·공격 부스트<br>
-              • 💎 <b>코스메틱</b> — 칭호·아바타·영토 프레임<br>
-              • ✨ <b>희귀 아이템</b> — 낮은 확률로 엘리트 등급<br>
-              열린 아이템은 인벤토리에서 확인하고 마켓에 판매할 수 있습니다.
+              A <b style="color:#ffcc02">random item box</b> purchased with GP or PP.<br>
+              • 🎯 <b>Defense items</b> — territory upgrades and defensive gear<br>
+              • ⚔ <b>Combat items</b> — ship upgrades and attack boosts<br>
+              • 💎 <b>Cosmetics</b> — titles, avatars, and territory frames<br>
+              • ✨ <b>Rare items</b> — elite-tier rewards at low probability<br>
+              Opened items can be viewed in your inventory or sold on the market.
             </div>
           </div>
           <div id="luckyBoxList" style="display:flex;flex-direction:column;gap:8px">
@@ -8133,13 +8130,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="basePrestigePanel" style="display:none">
           <!-- 프레스티지 설명 배너 -->
           <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,213,79,.1),rgba(255,213,79,.02));border:1px solid rgba(255,213,79,.25)">
-            <div style="font-size:11px;color:#ffd54f;font-weight:700;margin-bottom:4px" data-i18n="prestige_what_title">⭐ 프레스티지란?</div>
+            <div style="font-size:11px;color:#ffd54f;font-weight:700;margin-bottom:4px" data-i18n="prestige_what_title">⭐ What is Prestige?</div>
             <div style="font-size:10px;color:var(--tx2);line-height:1.6" data-i18n="prestige_what_desc">
-              GP를 소모해 <b style="color:#ffd54f">영구 랭킹 점수</b>를 쌓는 시스템입니다.<br>
+              A system where you spend GP to build <b style="color:#ffd54f">permanent ranking score</b>.<br>
               • 🪨 Colonist → 🥉 Pioneer → 🥈 Commander → 🥇 Vanguard → 💎 Sovereign<br>
-              • 높은 등급일수록 <b>리더보드 상위 노출</b> + 전용 칭호·프레임 획득<br>
-              • 프레스티지 포인트는 <b style="color:#ff8a80">영구적</b>이며 다운그레이드 없음<br>
-              • 영토 클레임에도 <b>프레스티지 프레임</b>을 적용할 수 있습니다
+              • Higher ranks get <b>better leaderboard visibility</b> plus exclusive titles and frames<br>
+              • Prestige points are <b style="color:#ff8a80">permanent</b> and never downgrade<br>
+              • <b>Prestige frames</b> can also be applied to territory claims
             </div>
           </div>
           <!-- Rank card -->
@@ -11733,7 +11730,7 @@ function toggleSectorOverlay(){
 var _myLandMode=false;
 var _myLandIdx=-1; // current territory GROUP index for cycling
 function toggleMyLand(){
-  if(!walletState.connected){showToast('LOGIN REQUIRED');openAuthModal();return;}
+  if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));openAuthModal();return;}
   var myAddr=walletState.address||'';
   var groups=_ownerGroups[myAddr]||[];
 
@@ -11758,7 +11755,7 @@ function toggleMyLand(){
       claimsSnapshot=null;
       compositeClaimsOnTexture();
       document.getElementById('myTerritoriesSection').style.display='none';
-      showToast('MY LAND OFF');
+      showToast(tl('My Land off','내 영토 보기 종료','マイ領土表示オフ','我的领地视图已关闭'));
       return;
     }
   }
@@ -11767,17 +11764,17 @@ function toggleMyLand(){
   if(groups.length>0&&_myLandIdx<groups.length){
     var grp=groups[_myLandIdx];
     var firstClaim=claims[grp.claimIndices[0]];
-    if(!firstClaim){showToast('No territories owned');return;}
+    if(!firstClaim){showToast(tl('No territories owned','보유한 영토가 없습니다','所有している領土がありません','没有拥有的领地'));return;}
     var merged=_buildMergedPlot(myAddr,firstClaim.lat,firstClaim.lng);
     if(!merged) merged=firstClaim;
     var pw=merged.w||merged.size||20, ph=merged.h||merged.size||20;
     globe.pointOfView({lat:merged.lat,lng:merged.lng,altitude:Math.max(0.8,Math.max(pw,ph)*0.008)},600);
     selectedPlot=merged;
     showTerritoryInfo(merged);
-    showToast('MY LAND '+(_myLandIdx+1)+'/'+groups.length+(merged._pixelCount?' — '+merged._pixelCount+' px':''));
+    showToast(tl('My Land ','내 영토 ','マイ領土 ','我的领地 ')+(_myLandIdx+1)+'/'+groups.length+(merged._pixelCount?' — '+merged._pixelCount+' px':''));
     _highlightMyTerritoryItem(_myLandIdx);
   }else{
-    showToast('No territories owned');
+    showToast(tl('No territories owned','보유한 영토가 없습니다','所有している領土がありません','没有拥有的领地'));
   }
 }
 function _highlightMyTerritoryItem(idx){
@@ -12811,7 +12808,7 @@ var landDragRect=null;  // {lat, lng, w, h} — computed rect
 
 function activateLandSelect(){
   if(!walletState.connected){
-    showToast('LOGIN REQUIRED');
+    showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));
     openAuthModal();
     return;
   }
@@ -12835,9 +12832,9 @@ function activateLandSelect(){
   if(isMobile){
     _mobLandW=10; _mobLandH=10;
     _showMobSizeControls(true);
-    showToast('TAP to place center → drag to move → pinch zoom');
+    showToast(tl('Tap to place center → drag to move → pinch zoom','탭해서 중심 배치 → 드래그로 이동 → 핀치로 확대/축소','タップで中心配置 → ドラッグで移動 → ピンチで拡大縮小','点击放置中心 → 拖动移动 → 双指缩放'));
   }else{
-    showToast('CLICK START POINT → CLICK END POINT');
+    showToast(tl('Click start point → click end point','시작 지점 클릭 → 종료 지점 클릭','開始地点をクリック → 終了地点をクリック','点击起点 → 点击终点'));
   }
 }
 // Mobile land size state
@@ -12849,7 +12846,7 @@ function _showMobSizeControls(show){
   if(show) _updateMobLabels();
 }
 function _mobConfirmLand(){
-  if(!landDragRect){showToast('Tap Mars to set location first','error');return;}
+  if(!landDragRect){showToast(tl('Tap Mars to set location first','먼저 화성을 탭해 위치를 정하세요','まず火星をタップして位置を決めてください','请先点击火星设置位置'),'error');return;}
   _showMobSizeControls(false);
   landSelectMode=false;
   _restoreGlobeControls();
@@ -13011,7 +13008,7 @@ function updateLandSelectUI(){
   // 섹터 레벨 제한 체크
   var _lsBlocked=_getBlockedSector(r.lat,r.lng);
   if(_lsBlocked){
-    costStr='🔒 Lv '+_lsBlocked.entryMinLevel+' 이상 필요';
+    costStr=LANG==='ko'?('🔒 Lv '+_lsBlocked.entryMinLevel+' 이상 필요'):LANG==='ja'?('🔒 Lv '+_lsBlocked.entryMinLevel+' 以上必要'):LANG==='zh'?('🔒 需要 Lv '+_lsBlocked.entryMinLevel+' 以上'):('🔒 Requires Lv '+_lsBlocked.entryMinLevel+'+');
     var costEl=document.getElementById('landCostLabel');
     if(costEl) costEl.style.color='var(--red)';
   }else{
@@ -13113,7 +13110,7 @@ function _attachGlobeClick(){
       landDragRect=computeLandRect(lat,lng,lat,lng);
       var _btn=document.getElementById('landSelectBtn');
       if(_btn) _btn.textContent='CLICK AGAIN TO SET END';
-      showToast('START POINT SET — Click to set end point');
+      showToast(tl('Start point set — click to set end point','시작 지점 설정 완료 — 종료 지점을 클릭하세요','開始地点を設定しました — 終了地点をクリックしてください','起点已设置 — 点击终点'));
       _setDragPreviewPolygon(landDragRect);
     }else{
       landDragEnd={lat:lat,lng:lng};
@@ -13209,7 +13206,7 @@ function _attachGlobeClick(){
       landDragRect={lat:lat,lng:lng,w:_mobLandW,h:_mobLandH};
       updateLandSelectUI();
       _updateMobLabels();
-      showToast('📍 Pin placed! Drag to move · Pinch to zoom');
+      showToast(tl('📍 Pin placed! Drag to move · pinch to zoom','📍 핀이 배치되었습니다! 드래그로 이동 · 핀치로 확대/축소','📍 ピンを配置しました！ドラッグで移動・ピンチで拡大縮小','📍 已放置标记！拖动移动 · 双指缩放'));
       _setDragPreviewPolygon(landDragRect);
       return;
     }
@@ -13223,7 +13220,7 @@ function _attachGlobeClick(){
       // 극지방 체크
       var _halfH=stampH*0.1/2;
       if(lat+_halfH>70||lat-_halfH<-70){
-        showToast('POLAR ZONE — Cannot place here (beyond ±70°)');
+        showToast(tl('Polar zone — cannot place here (beyond ±70°)','극지대에서는 배치할 수 없습니다 (±70° 초과)','極地帯には配置できません（±70°超過）','极地区域无法放置（超出 ±70°）'));
         return;
       }
       selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
@@ -13252,14 +13249,14 @@ function _attachGlobeClick(){
 var _stampOrigFile=null; // keep original File for GIF detection
 document.getElementById('stampFileInput').addEventListener('change',function(e){
   var file=e.target.files[0]; if(!file) return;
-  if(file.size>4.5*1024*1024){ showToast('⚠️ File too large (max 5MB). Choose a smaller image.'); e.target.value=''; return; }
+  if(file.size>4.5*1024*1024){ showToast(tl('⚠️ File too large (max 5MB). Choose a smaller image.','⚠️ 파일이 너무 큽니다 (최대 5MB). 더 작은 이미지를 선택하세요.','⚠️ ファイルが大きすぎます（最大5MB）。より小さい画像を選択してください。','⚠️ 文件过大（最大 5MB）。请选择更小的图片。')); e.target.value=''; return; }
   _stampOrigFile=file;
   var url=URL.createObjectURL(file);
   activateStamp(url);
 });
 function activateStamp(url){
   if(!walletState.connected){
-    showToast('LOGIN REQUIRED');
+    showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));
     openAuthModal();
     return;
   }
@@ -13282,9 +13279,9 @@ function activateStamp(url){
     slider.min=-100; slider.max=100; slider.value=0;
     updateStampScale(100);
     var _sp2=document.getElementById('stampPreview');if(_sp2)_sp2.style.display='';
-    showToast('IMAGE READY — CLICK MARS TO STAMP!');
+    showToast(tl('Image ready — click Mars to stamp!','이미지 준비 완료 — 화성을 클릭해 스탬프하세요!','画像の準備完了 — 火星をクリックしてスタンプ！','图片已就绪 — 点击火星进行盖章！'));
   };
-  img.onerror=function(){showToast('IMAGE LOAD FAILED — try selecting from Files app for GIF')};
+  img.onerror=function(){showToast(tl('Image load failed — try selecting from Files app for GIF','이미지 불러오기 실패 — GIF는 파일 앱에서 선택해 보세요','画像の読み込みに失敗しました — GIF はファイルアプリから選択してみてください','图片加载失败 — GIF 请尝试从文件应用中选择'))};
   img.crossOrigin='anonymous';
   img.src=url;
 }
@@ -13878,7 +13875,7 @@ function loadTerritoryProduction(claimId,wallet){
       var ppMax=d.production&&d.production.ppMax||0;
       if(ppMin>0||ppMax>0){
         html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
-        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'예상 PP 수확':'PP Estimate')+'</span>';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'예상 PP 수확':lang==='ja'?'予想PP収穫':lang==='zh'?'预估PP收获':'PP Estimate')+'</span>';
         html+='<span style="color:#ffab40;font-weight:700">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+' PP</span>';
         html+='</div>';
       }
@@ -13886,9 +13883,13 @@ function loadTerritoryProduction(claimId,wallet){
       var holdBonusPct = d.production && d.production.holdBonusPct || 0;
       var holdDays = d.production && d.production.holdDays || 0;
       if(holdBonusPct>0){
-        var holdBadge = holdDays>=90 ? '⛏ 개척자' : holdDays>=30 ? '🏠 토지주' : '🌱 정착민';
+        var holdBadge = holdDays>=90
+          ? (lang==='ko' ? '⛏ 개척자' : lang==='ja' ? '⛏ 開拓者' : lang==='zh' ? '⛏ 开拓者' : '⛏ Pioneer')
+          : holdDays>=30
+            ? (lang==='ko' ? '🏠 토지주' : lang==='ja' ? '🏠 地主' : lang==='zh' ? '🏠 地主' : '🏠 Landholder')
+            : (lang==='ko' ? '🌱 정착민' : lang==='ja' ? '🌱 入植者' : lang==='zh' ? '🌱 定居者' : '🌱 Settler');
         html+='<div style="display:flex;justify-content:space-between;padding:2px 0;align-items:center">';
-        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'장기 보유 보너스':'Hold Bonus')+'</span>';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'장기 보유 보너스':lang==='ja'?'長期保有ボーナス':lang==='zh'?'长期持有加成':'Hold Bonus')+'</span>';
         html+='<span style="display:flex;align-items:center;gap:4px"><span style="font-size:8px;padding:1px 5px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:10px;color:#ffd700">'+holdBadge+'</span><span style="color:#69f0ae;font-weight:700">+'+holdBonusPct+'%</span></span>';
         html+='</div>';
       }
@@ -13896,28 +13897,28 @@ function loadTerritoryProduction(claimId,wallet){
       if(d.sector&&d.sector.type){
         var sectorLabel=lang==='ko'?{'core':'코어 섹터','mid':'미드 섹터','frontier':'프론티어 섹터'}:lang==='ja'?{'core':'コアセクター','mid':'ミッドセクター','frontier':'フロンティアセクター'}:lang==='zh'?{'core':'核心区域','mid':'中部区域','frontier':'边疆区域'}:{'core':'Core Sector','mid':'Mid Sector','frontier':'Frontier Sector'};
         html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
-        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'섹터':'Sector')+'</span>';
-        html+='<span style="color:var(--tx2)">'+(lang==='ko'?(sectorLabel[d.sector.type]||d.sector.type):d.sector.type.charAt(0).toUpperCase()+d.sector.type.slice(1))+'</span>';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'섹터':lang==='ja'?'セクター':lang==='zh'?'区域':'Sector')+'</span>';
+        html+='<span style="color:var(--tx2)">'+((sectorLabel[d.sector.type]||d.sector.type.charAt(0).toUpperCase()+d.sector.type.slice(1)))+'</span>';
         html+='</div>';
       }
       // Modifiers
       if(d.production&&d.production.modifiers&&d.production.modifiers.length){
-        html+='<div style="margin-top:4px;font-size:8px;color:var(--tx3)">'+(lang==='ko'?'모디파이어:':'Modifiers:')+'</div>';
+        html+='<div style="margin-top:4px;font-size:8px;color:var(--tx3)">'+(lang==='ko'?'모디파이어:':lang==='ja'?'修飾子:':lang==='zh'?'修正项:':'Modifiers:')+'</div>';
         html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px">';
         d.production.modifiers.forEach(function(m){
-          var lbl=lang==='ko'?(m.labelKo||m.label):m.label;
+          var lbl=lang==='ko'?(m.labelKo||m.label):lang==='ja'?(m.labelJa||m.labelEn||m.label):lang==='zh'?(m.labelZh||m.labelEn||m.label):(m.labelEn||m.label);
           html+='<span style="font-size:8px;padding:1px 5px;background:rgba(255,171,64,.1);border:1px solid rgba(255,171,64,.2);border-radius:10px;color:#ffab40">'+lbl+' '+m.value+'</span>';
         });
         html+='</div>';
       }
       // Materials
       if(d.materials&&d.materials.length){
-        html+='<div style="margin-top:5px;font-size:8px;color:var(--tx3)">'+(lang==='ko'?'드롭 광물:':'Drop materials:')+'</div>';
+        html+='<div style="margin-top:5px;font-size:8px;color:var(--tx3)">'+(lang==='ko'?'드롭 광물:':lang==='ja'?'ドロップ鉱物:':lang==='zh'?'掉落矿物:':'Drop materials:')+'</div>';
         html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px">';
         d.materials.forEach(function(m){
           var pct=Math.round(m.chance*100);
           var rarityColor={'common':'var(--tx2)','rare':'#64b5f6','special':'#ffb74d','legendary':'#ce93d8'}[m.rarity]||'var(--tx2)';
-          var name=lang==='ko'?(m.nameKo||m.nameEn):m.nameEn;
+          var name=lang==='ko'?(m.nameKo||m.nameEn):lang==='ja'?(m.nameJa||m.nameEn):lang==='zh'?(m.nameZh||m.nameEn):m.nameEn;
           html+='<span title="'+pct+'% chance" style="font-size:8px;padding:1px 5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:'+rarityColor+'">';
           html+=m.icon+' '+name+' <span style="opacity:.6">'+pct+'%</span></span>';
         });
@@ -13927,7 +13928,7 @@ function loadTerritoryProduction(claimId,wallet){
       if(d.lastHarvest&&d.lastHarvest.at){
         var ago=_timeAgo(new Date(d.lastHarvest.at));
         html+='<div style="margin-top:5px;display:flex;justify-content:space-between;padding:2px 0">';
-        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'최근 수확':'Last harvest')+'</span>';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'최근 수확':lang==='ja'?'最近の採掘':lang==='zh'?'最近收获':'Last harvest')+'</span>';
         html+='<span style="color:var(--tx2)">'+d.lastHarvest.pp.toFixed(4)+' PP · '+ago+'</span>';
         html+='</div>';
         if(d.lastHarvest.materials&&d.lastHarvest.materials.length){
@@ -13950,14 +13951,14 @@ function loadTerritoryProduction(claimId,wallet){
           var mins=Math.floor((diffMs%3600000)/60000);
           nextLabel=(hrs>0?hrs+'h ':'')+mins+'m';
         }else{
-          nextLabel=lang==='ko'?'지금 가능':'Available now';
+          nextLabel=lang==='ko'?'지금 가능':lang==='ja'?'現在可能':lang==='zh'?'现在可用':'Available now';
         }
         html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
-        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'다음 수확':'Next harvest')+'</span>';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'다음 수확':lang==='ja'?'次の採掘':lang==='zh'?'下次收获':'Next harvest')+'</span>';
         html+='<span style="color:'+(diffMs>0?'var(--tx3)':'#69f0ae')+'">';
         html+=nextLabel+'</span></div>';
       }
-      if(!html) html='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'데이터 없음':'No production data')+'</span>';
+      if(!html) html='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'데이터 없음':lang==='ja'?'データなし':lang==='zh'?'无数据':'No production data')+'</span>';
       prodBody.innerHTML=html;
       // Append sector control info if sector is known
       if(d.sector&&d.sector.id&&wallet){
@@ -13975,7 +13976,7 @@ function _appendSectorControl(container, sectorId, wallet, lang) {
       var TIER_LABELS = lang==='ko'?{ governor:'총독', dominant:'지배', stakeholder:'이해관계자', presence:'존재감' }:lang==='ja'?{ governor:'総督', dominant:'支配', stakeholder:'利害関係者', presence:'プレゼンス' }:lang==='zh'?{ governor:'总督', dominant:'主导', stakeholder:'利益相关者', presence:'存在感' }:{ governor:'Governor', dominant:'Dominant', stakeholder:'Stakeholder', presence:'Presence' };
       var TIER_COLORS = { governor:'#ffd700', dominant:'#ff6b6b', stakeholder:'#ffc140', presence:'#64dc82' };
       var html='<div style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07)">';
-      html+='<div style="font-size:8px;color:#bb86fc;font-weight:700;letter-spacing:.8px;margin-bottom:4px">🏛 ' + (lang==='ko'?'섹터 컨트롤':'SECTOR CONTROL') + '</div>';
+      html+='<div style="font-size:8px;color:#bb86fc;font-weight:700;letter-spacing:.8px;margin-bottom:4px">🏛 ' + (lang==='ko'?'섹터 컨트롤':lang==='ja'?'セクター支配':lang==='zh'?'区域控制':'SECTOR CONTROL') + '</div>';
       // Top owners
       if(d.owners&&d.owners.length){
         html+='<div style="display:flex;flex-direction:column;gap:2px;margin-bottom:4px">';
@@ -13998,16 +13999,16 @@ function _appendSectorControl(container, sectorId, wallet, lang) {
         var myInTop3 = d.owners&&d.owners.slice(0,3).some(function(o){return o.wallet===wallet.toLowerCase();});
         if(!myInTop3){
           var myTierColor = d.myEntry.influenceTier ? (TIER_COLORS[d.myEntry.influenceTier]||'var(--tx2)') : 'var(--tx3)';
-          var myTierLabel = d.myEntry.influenceTier ? (TIER_LABELS[d.myEntry.influenceTier]||d.myEntry.influenceTier) : (lang==='ko'?'영향력 없음':'no influence');
+          var myTierLabel = d.myEntry.influenceTier ? (TIER_LABELS[d.myEntry.influenceTier]||d.myEntry.influenceTier) : (lang==='ko'?'영향력 없음':lang==='ja'?'影響力なし':lang==='zh'?'无影响力':'No influence');
           html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 4px;background:rgba(105,240,174,.06);border:1px solid rgba(105,240,174,.15);border-radius:4px">';
-          html+='<span style="font-size:8px;color:#69f0ae;font-weight:700">'+(lang==='ko'?'내 위치':'My position')+'</span>';
+          html+='<span style="font-size:8px;color:#69f0ae;font-weight:700">'+(lang==='ko'?'내 위치':lang==='ja'?'自分の位置':lang==='zh'?'我的位置':'My position')+'</span>';
           html+='<span style="font-size:8px;color:'+myTierColor+'">'+myTierLabel+' · '+d.myEntry.controlPct+'%</span>';
           html+='</div>';
         }
       }
       // No owners
       if(!d.owners||!d.owners.length){
-        html+='<div style="font-size:8px;color:var(--tx3)">'+(lang==='ko'?'이 섹터는 아직 미개척입니다':'This sector is unclaimed')+'</div>';
+        html+='<div style="font-size:8px;color:var(--tx3)">'+(lang==='ko'?'이 섹터는 아직 미개척입니다':lang==='ja'?'このセクターは未開拓です':lang==='zh'?'该区域尚未被开拓':'This sector is unclaimed')+'</div>';
       }
       html+='</div>';
       container.innerHTML += html;
@@ -14016,10 +14017,32 @@ function _appendSectorControl(container, sectorId, wallet, lang) {
 }
 function _timeAgo(date){
   var diff=Math.floor((Date.now()-date.getTime())/1000);
-  if(diff<60) return diff+'s ago';
-  if(diff<3600) return Math.floor(diff/60)+'m ago';
-  if(diff<86400) return Math.floor(diff/3600)+'h ago';
-  return Math.floor(diff/86400)+'d ago';
+  var lang=(typeof LANG!=='undefined'&&LANG)||'en';
+  if(diff<60){
+    if(lang==='ko') return diff+'초 전';
+    if(lang==='ja') return diff+'秒前';
+    if(lang==='zh') return diff+'秒前';
+    return diff+'s ago';
+  }
+  if(diff<3600){
+    var mins=Math.floor(diff/60);
+    if(lang==='ko') return mins+'분 전';
+    if(lang==='ja') return mins+'分前';
+    if(lang==='zh') return mins+'分钟前';
+    return mins+'m ago';
+  }
+  if(diff<86400){
+    var hrs=Math.floor(diff/3600);
+    if(lang==='ko') return hrs+'시간 전';
+    if(lang==='ja') return hrs+'時間前';
+    if(lang==='zh') return hrs+'小时前';
+    return hrs+'h ago';
+  }
+  var days=Math.floor(diff/86400);
+  if(lang==='ko') return days+'일 전';
+  if(lang==='ja') return days+'日前';
+  if(lang==='zh') return days+'天前';
+  return days+'d ago';
 }
 
 // 모바일 업그레이드 버튼 → 현재 선택 영토 업그레이드 패널로 직접 이동
@@ -14122,7 +14145,7 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
 
 async function doTerritoryUpgrade(claimId, upgradeType) {
   var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
-  if (!wallet) return showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required', 'error');
+  if (!wallet) return showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'), 'error');
   var _upgrTitle=LANG==='ko'?'영토 업그레이드':LANG==='ja'?'領土アップグレード':LANG==='zh'?'领地升级':'Territory Upgrade';
   var _upgrConfirm=LANG==='ko'?'업그레이드':LANG==='ja'?'アップグレード':LANG==='zh'?'升级':'Upgrade';
   var _upgrBody=upgradeType.replace(/_/g,' ').toUpperCase()+' '+(LANG==='ko'?'업그레이드를 진행하시겠습니까?':LANG==='ja'?'をアップグレードしますか?':LANG==='zh'?'升级确认？':'upgrade?');
@@ -14189,7 +14212,13 @@ function loadTerritoryIdentity(claimId) {
       if (id.field_rating !== undefined) {
         var fr = id.field_rating || 0;
         var frTierData = id.fr_tier || {};
-        var frLabel = frTierData.label_ko || frTierData.label_en || '신규';
+        var frLabel = LANG==='ko'
+          ? (frTierData.label_ko || frTierData.label_en || '신규')
+          : LANG==='ja'
+            ? (frTierData.label_ja || frTierData.label_en || '新規')
+          : LANG==='zh'
+              ? (frTierData.label_zh || frTierData.label_en || '新手')
+              : (frTierData.label_en || 'New');
         var frIcon  = frTierData.icon || '🌱';
         // 보너스 PP%: tier에 따른 매핑
         var frBonusMap = { newcomer: 0, pioneer: 5, settler: 12, fortress: 20, legend: 25 };
@@ -14350,7 +14379,7 @@ function _renderCosmeticSlotsInto(slotsId, plot){
       html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px 0;margin-top:4px">No cosmetics owned. <span style="color:#c088e0;cursor:pointer;text-decoration:underline" onclick="closeMobTerritoryModal();openItemShop();shopFilterCat(\'cosmetic\',document.querySelectorAll(\'.shop-cat-btn\')[5])">Visit Shop</span></div>';
     }
     slots.innerHTML=html;
-  }).catch(function(){slots.innerHTML='<div style="font-size:9px;color:var(--red)">Failed to load</div>'});
+  }).catch(function(){slots.innerHTML='<div style="font-size:9px;color:var(--red)">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'});
 }
 
 function openCosmeticPanel(plot){
@@ -15154,7 +15183,7 @@ function openClaimModal(){
             _di.style.border='1px solid rgba(255,153,68,.4)';
             _di.style.color='#FFD0A0';
             if(_dic) _dic.textContent='⚠';
-            _dt.textContent=t('hijack_no_fleet_auto_win')||'상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)';
+            _dt.textContent=t('hijack_no_fleet_auto_win')||'No enemy fleet — auto-win (pixels transfer immediately)';
           }else{
             _di.style.background='rgba(232,72,85,.1)';
             _di.style.border='1px solid rgba(232,72,85,.4)';
@@ -15164,7 +15193,7 @@ function openClaimModal(){
           }
         })
         .catch(function(){
-          _dt.textContent=t('hijack_fleet_info_fail')||'상대 함대 정보 확인 실패';
+          _dt.textContent=t('hijack_fleet_info_fail')||'Failed to check enemy fleet info';
           _di.style.background='rgba(255,255,255,.04)';
           _di.style.border='1px solid rgba(255,255,255,.15)';
           _di.style.color='var(--tx3)';
@@ -15429,7 +15458,15 @@ function _showBattleAnimation(result){
         // Auto-close after showing result
         if(elapsed>4.5){
           document.body.removeChild(ov);
-          showNotification('hijack',isWin?'BATTLE WON':'TERRITORY DEFENDED',isWin?won+'/'+total+'px captured!':'Held '+lost+'/'+total+'px against attack');
+          showNotification(
+            'hijack',
+            isWin
+              ? tl('Battle won','전투 승리','戦闘勝利','战斗胜利')
+              : tl('Territory defended','영토 방어 성공','領土防衛成功','领地防御成功'),
+            isWin
+              ? tl(won+'/'+total+'px captured!',won+'/'+total+'px 점령!',won+'/'+total+'px を占領!', '已夺取 '+won+'/'+total+'px!')
+              : tl('Held '+lost+'/'+total+'px against attack',lost+'/'+total+'px 방어 유지',lost+'/'+total+'px を防衛','守住了 '+lost+'/'+total+'px')
+          );
           try{isWin?_sfx.hijackWin():_sfx.hijackFail()}catch(e){}
           resolve();
           return;
@@ -15448,7 +15485,7 @@ async function confirmClaim(){
   // 로그인 체크
   if(!walletState.connected){
     closeClaimModal();
-    showToast('LOGIN REQUIRED');
+    showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));
     openAuthModal();
     return;
   }
@@ -15464,7 +15501,7 @@ async function confirmClaim(){
   var claimLatMax=selectedPlot.lat+ch*0.1/2;
   var claimLatMin=selectedPlot.lat-ch*0.1/2;
   if(claimLatMax>70||claimLatMin<-70){
-    showToast('POLAR ZONE — Cannot claim beyond ±70° latitude');
+    showToast(tl('Polar zone — cannot claim beyond ±70° latitude','극지대는 ±70° 위도를 넘어 점령할 수 없습니다','極地帯では ±70° 緯度を超えて領土を確保できません','极地区域无法在 ±70° 纬度之外占领'));
     if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
     return;
   }
@@ -15766,7 +15803,7 @@ async function confirmClaim(){
       // Show battle animation overlay before revealing results
       await _showBattleAnimation(d);
     }else{
-      showNotification('claim','TERRITORY CLAIMED','New land secured for $'+d.totalCost.toFixed(2));
+      showNotification('claim',tl('Territory claimed','영토 점령 완료','領土を確保しました','领地占领成功'),tl('New land secured for $'+d.totalCost.toFixed(2),'새 영토 확보 — $'+d.totalCost.toFixed(2),'新しい領土を確保 — $'+d.totalCost.toFixed(2),'已花费 $'+d.totalCost.toFixed(2)+' 成功占领新领地'));
       try{_sfx.claim()}catch(e){}
     }
 
@@ -16059,7 +16096,7 @@ function selectChain(ch){
 var depChain='base';
 
 function openDepositModal(){
-  if(!walletState.connected){showToast('LOGIN FIRST');return}
+  if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   document.getElementById('depCurBal').textContent=walletState.gameUsdt.toFixed(2)+' USDT';
   selectDepChain(depChain);
   updateDepositAddr();
@@ -16096,7 +16133,7 @@ function copyDepositAddr(){
 
 // ── Withdraw Modal ──
 function openWithdrawModal(){
-  if(!walletState.connected){showToast('LOGIN FIRST');return}
+  if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   document.getElementById('wdrAvail').textContent=walletState.gameUsdt.toFixed(2)+' USDT';
   document.getElementById('wdrAmount').value='';
   document.getElementById('withdrawModal').classList.add('open');
@@ -16110,7 +16147,7 @@ function setWdrMax(){document.getElementById('wdrAmount').value=walletState.game
 var _exchInfo = { rate:4, min:0.1, max:10, fee:5, dailyLimit:50, enabled:true };
 
 async function openExchangeModal(){
-  if(!walletState.connected){ showToast('LOGIN FIRST'); return; }
+  if(!walletState.connected){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
   try{
     var r = await fetch('/api/exchange/pp-to-gp/info');
     var d = await r.json();
@@ -16425,7 +16462,7 @@ async function confirmWithdraw(){
 
 // ── Swap Modal (PP → USDT) ──
 function openSwapModal(){
-  if(!walletState.connected){showToast('LOGIN FIRST');return}
+  if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   document.getElementById('swpPPBal').textContent=walletState.gamePP.toFixed(2)+' PP';
   document.getElementById('swpAmount').value='';
   document.getElementById('swpReceive').textContent='0.00 USDT';
@@ -17194,8 +17231,8 @@ var I18N = {
     codex_subtitle: 'Official game guidebook',
     loading: 'Loading…',
     // Campaign
-    campaign_btn_start: 'START', campaign_btn_continue: 'CONTINUE',
-    campaign_btn_results: 'RESULTS', campaign_btn_locked: 'LOCKED',
+    campaign_btn_start: 'BEGIN OP', campaign_btn_continue: 'RESUME OP',
+    campaign_btn_results: 'VIEW RESULT', campaign_btn_locked: 'LOCKED',
     campaign_label_completed: 'COMPLETED', campaign_label_prologue: 'PROLOGUE',
     campaign_label_route: 'ROUTE', campaign_label_ch: 'CH',
     campaign_no_chapters: 'No campaign chapters available.',
@@ -18065,8 +18102,8 @@ var I18N = {
     codex_subtitle: '공식 게임 가이드북',
     loading: '불러오는 중…',
     // 캠페인
-    campaign_btn_start: '시작', campaign_btn_continue: '계속',
-    campaign_btn_results: '결과', campaign_btn_locked: '잠김',
+    campaign_btn_start: '작전 시작', campaign_btn_continue: '작전 계속',
+    campaign_btn_results: '결과 확인', campaign_btn_locked: '잠김',
     campaign_label_completed: '완료', campaign_label_prologue: '프롤로그',
     campaign_label_route: '루트', campaign_label_ch: 'CH',
     campaign_no_chapters: '이용 가능한 캠페인 챕터가 없습니다.',
@@ -18081,9 +18118,9 @@ var I18N = {
     campaign_result_npc_failure: '작전 실패. 결과는 기록된다.',
     campaign_result_reward: '보상:',
     campaign_result_confirm: '확인',
-    campaign_result_recheck: '다시 확인',
-    campaign_objectives_gate: '남은 목표를 먼저 완료하세요.',
-    campaign_objectives_gate_sub: '작전 시간은 끝났지만 실제 플레이 조건이 아직 부족합니다.',
+    campaign_result_recheck: '목표 다시 확인',
+    campaign_objectives_gate: '아직 완료할 행동이 남아 있습니다.',
+    campaign_objectives_gate_sub: '남은 목표를 먼저 진행한 뒤 결과를 확인하세요.',
     campaign_sim_in_progress: '작전 진행 중...',
     campaign_sim_radio_prefix: '무전:',
     campaign_sim_radio_default: '작전 진행 상황 업데이트.',
@@ -19935,6 +19972,7 @@ var I18N = {
 };
 
 function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
+function tl(en,ko,ja,zh){ return LANG==='ko'?ko:LANG==='ja'?ja:LANG==='zh'?zh:en; }
 
 // ── Item i18n mapping (shop items come from DB with English names) ──
 var _itemI18n = {
@@ -20571,11 +20609,8 @@ function endTutorial(){
   var _origDismissLoader = dismissLoader;
   dismissLoader = function(){
     _origDismissLoader();
-    setTimeout(function(){
-      if(!localStorage.getItem('pw_tutorial_done')){
-        startTutorial();
-      }
-    }, 1200);
+    // Legacy spotlight tutorial disabled.
+    // First-run guidance now comes from the server-backed onboarding flow.
   };
 })();
 
@@ -21224,8 +21259,8 @@ async function requestDeleteAccount(){
   if(!ok2)return;
   fetch(API+'/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
     .then(function(r){return r.json()})
-    .then(function(d){if(d.success){showToast('Account deleted');logoutEmail();}else{showToast(d.error||'Failed to delete');}})
-    .catch(function(){showToast('Network error');});
+    .then(function(d){if(d.success){showToast(tl('Account deleted','계정이 삭제되었습니다','アカウントが削除されました','账号已删除'));logoutEmail();}else{showToast(d.error||'Failed to delete');}})
+    .catch(function(){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'));});
 }
 function logoutEmail(){
   emailAuth.token=null;
@@ -21371,10 +21406,10 @@ async function loadReferralInfo(){
 }
 
 async function profileApplyRef(){
-  if(!walletState.connected){showToast('LOGIN FIRST');return}
+  if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var inp=document.getElementById('profileRefInput');
   var code=(inp?inp.value:'').trim().toUpperCase();
-  if(!code){showToast('ENTER A CODE');return}
+  if(!code){showToast(tl('Enter a code','코드를 입력하세요','コードを入力してください','请输入代码'));return}
   var status=document.getElementById('profileRefStatus');
   if(status){ status.style.color='var(--tx3)'; status.textContent='Registering...'; }
   try{
@@ -21403,9 +21438,9 @@ function copyRefCode(){
 }
 
 async function registerReferral(){
-  if(!walletState.connected){showToast('LOGIN FIRST');return}
+  if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var code=document.getElementById('refCodeInput').value.trim().toUpperCase();
-  if(!code){showToast('ENTER A CODE');return}
+  if(!code){showToast(tl('Enter a code','코드를 입력하세요','コードを入力してください','请输入代码'));return}
   var status=document.getElementById('refStatus');
   status.style.color='var(--tx3)';status.textContent='Registering...';
   try{
@@ -21667,7 +21702,7 @@ function loadShopData(){
     renderShopItems();
   }).catch(function(e){
     console.error('Shop load:',e);
-    document.getElementById('shopItemsGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--red);font-size:var(--fs-sm)">Failed to load items</div>';
+    document.getElementById('shopItemsGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--red);font-size:var(--fs-sm)">'+tl('Failed to load items','아이템을 불러오지 못했습니다','アイテムを読み込めませんでした','无法加载物品')+'</div>';
   });
   // Load inventory
   if(w){
@@ -21754,7 +21789,7 @@ function renderShopInventory(){
           :'<button class="inv-use" onclick="useShopItem(\''+item.code+'\',false)">USE</button>')
         +'</div>';
     }).join('');
-  }).catch(function(){list.innerHTML='<div style="text-align:center;color:var(--red);font-size:var(--fs-sm)">Failed to load</div>'});
+  }).catch(function(){list.innerHTML='<div style="text-align:center;color:var(--red);font-size:var(--fs-sm)">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'});
   // Render active effects in inventory view (with auto-renew toggles)
   var actSec=document.getElementById('shopActiveSection');
   var actList=document.getElementById('shopActiveList');
@@ -22132,7 +22167,7 @@ function loadBaseShopItems(){
     _baseShopItems = (data.items||data||[]).filter(function(i){return i.active !== false});
     renderBaseShop();
   }).catch(function(){
-    document.getElementById('baseShopGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px;font-size:10px">Failed to load shop</div>';
+    document.getElementById('baseShopGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px;font-size:10px">'+tl('Failed to load shop','상점을 불러오지 못했습니다','ショップを読み込めませんでした','无法加载商店')+'</div>';
   });
 }
 function _updateBaseShopBalances(){
@@ -22587,7 +22622,7 @@ function loadBaseInventory(){
     _resourceInventory=(results[3]&&results[3].inventory)||[];
     renderBaseInventory();
   }).catch(function(){
-    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);padding:20px 0;font-size:10px">Failed to load inventory</div>';
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);padding:20px 0;font-size:10px">'+tl('Failed to load inventory','인벤토리를 불러오지 못했습니다','インベントリを読み込めませんでした','无法加载背包')+'</div>';
   });
 }
 
@@ -23060,7 +23095,7 @@ var _weCurrentEventId = null;
 
 window.openWorldEventDetail = async function(eventId) {
   if (!isLoggedIn() && !(walletState && walletState.address)) {
-    showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required to engage','error');
+    showFactionToast(t('daily_login_required')||tl('Login required to engage','로그인이 필요합니다','ログインが必要です','请先登录'),'error');
     return;
   }
   _weCurrentEventId = eventId;
@@ -23206,7 +23241,7 @@ function loadMarketListings(){
       return;
     }
     grid.innerHTML=items.map(function(l){ return renderMarketCard(l); }).join('');
-  }).catch(function(){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);font-size:10px">Failed to load</div>'});
+  }).catch(function(){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);font-size:10px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'});
 }
 
 function loadRecentSales(){
@@ -23354,7 +23389,7 @@ function showMarketDetail(listingId, chartParam, name){
       }).join('');
     }).catch(function(){
       var chartEl=document.getElementById('mktDetailChart');
-      if(chartEl) chartEl.innerHTML='<div style="font-size:9px;color:var(--red);padding:8px">Failed to load.</div>';
+      if(chartEl) chartEl.innerHTML='<div style="font-size:9px;color:var(--red);padding:8px">'+tl('Failed to load.','불러오기 실패.','読み込み失敗。','加载失败。')+'</div>';
     });
 }
 
@@ -23602,7 +23637,7 @@ function loadMyListings(){
     });
     html+='</div>';
     el.innerHTML=html;
-  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">Failed to load</div>'});
+  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'});
 }
 
 // ══════════════════════════════════════
@@ -23671,7 +23706,7 @@ function loadAuctions(){
       },1000);
       _auctionTimers.push(tid);
     });
-  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">Failed to load</div>'});
+  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'});
 }
 
 window.govPlaceAuctionBid=function(auctionId,minBid,currency){
@@ -27110,44 +27145,44 @@ var _OB_STEPS = {
     emoji: '🚀',
     title_en: 'CLAIM YOUR FIRST TERRITORY',
     title_ko: '첫 영토를 점령하세요',
-    body_en: '<b>Mars is yours for the taking.</b><br>Tap anywhere on the red map to plant your flag on your first territory.<br><br>⭐ Your first claim is <b>FREE</b> — no PP required.',
-    body_ko: '<b>화성은 당신의 것입니다.</b><br>지도의 빨간 영역을 탭해서 첫 영토를 점령하세요.<br><br>⭐ 첫 번째 클레임은 <b>무료</b>입니다 — PP 불필요.',
+    body_en: '<b>Mars starts with one small claim.</b><br>Tap any red zone on the map and plant your flag on your first territory.<br><br>⭐ Your first claim is <b>FREE</b> — no PP required.',
+    body_ko: '<b>화성의 시작은 작은 영토 하나입니다.</b><br>지도의 빨간 영역을 탭해 첫 영토에 깃발을 세우세요.<br><br>⭐ 첫 번째 클레임은 <b>무료</b>입니다 — PP가 필요 없습니다.',
     next_en: 'GOT IT — SHOW ME THE MAP',
     next_ko: '알겠어요 — 지도 보기'
   },
   2: {
     emoji: '⛏️',
-    title_en: 'YOUR TERRITORY GENERATES PP',
-    title_ko: '영토에서 PP가 생성됩니다',
-    body_en: 'Every 4 hours, your territory <b>generates PP</b> — the game\'s currency.<br><br>→ Tap <b>[HARVEST]</b> to collect it.<br>→ Use PP to expand your empire.',
-    body_ko: '4시간마다 영토에서 <b>PP</b>가 생성됩니다.<br><br>→ <b>[수확하기]</b>를 탭해서 수집하세요.<br>→ PP로 영토를 확장할 수 있습니다.',
+    title_en: 'HARVEST FROM YOUR TERRITORY',
+    title_ko: '영토에서 수확하세요',
+    body_en: 'Your territory generates <b>PP</b> over time.<br><br>→ Tap <b>[HARVEST]</b> to collect it.<br>→ PP is the fuel for expansion, ships, and growth.',
+    body_ko: '영토에서는 시간이 지나면 <b>PP</b>가 생성됩니다.<br><br>→ <b>[수확하기]</b>를 눌러 회수하세요.<br>→ PP는 확장, 함선, 성장의 연료입니다.',
     next_en: 'UNDERSTOOD',
     next_ko: '이해했어요'
   },
   3: {
-    emoji: '⚔️',
-    title_en: 'CHOOSE YOUR PATH',
-    title_ko: '당신의 길을 선택하세요',
-    body_en: 'At <b>Level 5</b>, you can choose a Job:<br>⛏️ <b>Miner</b> — harvest more resources<br>⚔️ <b>Warrior</b> — dominate in combat<br>🔨 <b>Crafter</b> — master enhancement<br>💼 <b>Merchant</b> — rule the market',
-    body_ko: '<b>레벨 5</b>가 되면 직업을 선택할 수 있어요:<br>⛏️ <b>광부</b> — 더 많은 자원 수집<br>⚔️ <b>전사</b> — 전투 지배<br>🔨 <b>제작자</b> — 강화 전문<br>💼 <b>상인</b> — 마켓 지배',
+    emoji: '🚢',
+    title_en: 'BUILD YOUR FIRST FLEET',
+    title_ko: '첫 함대 준비하기',
+    body_en: 'Territory growth leads to combat power.<br><br>Use your resources to prepare ships, organize a fleet, and get ready to defend what you own.',
+    body_ko: '영토 성장은 전력으로 이어집니다.<br><br>자원을 모아 함선을 준비하고, 함대를 구성해 당신의 영토를 지킬 준비를 하세요.',
     next_en: 'NEXT',
     next_ko: '다음'
   },
   4: {
-    emoji: '🛡️',
-    title_en: 'JOIN A GUILD',
-    title_ko: '길드에 가입하세요',
-    body_en: '<b>Alone you survive. Together you conquer.</b><br><br>Guilds give you sector buffs, teammates in war, and shared treasury rewards.<br><br>Find a guild in the <b>GUILD</b> tab.',
-    body_ko: '<b>혼자서는 살아남고, 함께라면 정복합니다.</b><br><br>길드는 섹터 버프, 전쟁 동료, 공유 treasury 보상을 제공합니다.<br><br><b>GUILD</b> 탭에서 길드를 찾아보세요.',
+    emoji: '⚔️',
+    title_en: 'FOLLOW YOUR FIRST MISSION',
+    title_ko: '첫 임무를 따라가세요',
+    body_en: 'Your next objective lives in <b>Campaign</b>.<br><br>Follow the mission steps to learn the core loop: claim territory, harvest, and push toward conflict.',
+    body_ko: '다음 목표는 <b>캠페인</b>에 있습니다.<br><br>임무 순서를 따라가며 영토 확보, 수확, 그리고 첫 분쟁까지 핵심 루프를 익히세요.',
     next_en: 'NEXT',
     next_ko: '다음'
   },
   5: {
     emoji: '🎯',
-    title_en: 'COMPLETE DAILY MISSIONS',
-    title_ko: '일일 미션을 완료하세요',
-    body_en: 'Every day there are <b>7 missions</b> waiting.<br>Complete them for GP, XP, and special rewards.<br><br>Find them in the <b>OPS</b> tab.',
-    body_ko: '매일 <b>7개의 미션</b>이 기다리고 있습니다.<br>완료하면 GP, XP, 특별 보상을 얻을 수 있어요.<br><br><b>OPS</b> 탭에서 확인하세요.',
+    title_en: 'READY TO EXPAND',
+    title_ko: '이제 확장할 시간입니다',
+    body_en: 'You now know the core loop.<br><br><b>Claim territory → Harvest resources → Build your fleet → Follow missions</b><br><br>Take your starter reward and begin expanding on Mars.',
+    body_ko: '이제 핵심 루프를 이해했습니다.<br><br><b>영토 확보 → 자원 수확 → 함대 준비 → 임무 진행</b><br><br>시작 보상을 받고 화성에서 세력을 확장하세요.',
     next_en: '🎉 CLAIM REWARD',
     next_ko: '🎉 보상 수령'
   }
@@ -27758,7 +27793,7 @@ function renderCampaignRewardInbox(inbox){
 }
 
 async function claimCampaignReward(id,btn){
-  if(!isLoggedIn()){showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error');return;}
+  if(!isLoggedIn()){showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error');return;}
   if(!id){showToast(LANG==='ko'?'보상 정보가 없습니다':LANG==='ja'?'報酬情報がありません':LANG==='zh'?'没有奖励信息':'No reward info','error');return;}
   var _claimWallet=(walletState&&walletState.address)||getMyWallet();
   if(!_claimWallet){showFactionToast(LANG==='ko'?'지갑을 연결해주세요':LANG==='ja'?'ウォレットを接続してください':LANG==='zh'?'请先连接钱包':'Connect wallet first','error');return;}
@@ -27929,30 +27964,30 @@ function campaignObjectiveActionTarget(action){
 function campaignObjectiveActionLabel(action){
   var lang=(typeof LANG!=='undefined'?LANG:'ko');
   if(lang==='ko'){
-    var mapKo={territory:'내 영토',territory_art:'내 영토',shipyard:'조선소',fleet:'함대',fleet_battle:'전투',market:'마켓'};
+    var mapKo={territory:'영토 확인',territory_art:'영토 확인',shipyard:'함선 준비',fleet:'함대 편성',fleet_battle:'전투 진입',market:'마켓 확인'};
     return mapKo[action]||t('campaign_objective_go');
   }
   if(lang==='ja'){
-    var mapJa={territory:'領地',territory_art:'領地',shipyard:'造船所',fleet:'艦隊',fleet_battle:'戦闘',market:'マーケット'};
+    var mapJa={territory:'領地確認',territory_art:'領地確認',shipyard:'艦船準備',fleet:'艦隊編成',fleet_battle:'戦闘開始',market:'マーケット確認'};
     return mapJa[action]||t('campaign_objective_go');
   }
   if(lang==='zh'){
-    var mapZh={territory:'我的领地',territory_art:'我的领地',shipyard:'造船厂',fleet:'舰队',fleet_battle:'战斗',market:'市场'};
+    var mapZh={territory:'查看领地',territory_art:'查看领地',shipyard:'准备舰船',fleet:'编成舰队',fleet_battle:'进入战斗',market:'查看市场'};
     return mapZh[action]||t('campaign_objective_go');
   }
-  var map={territory:'MY LAND',territory_art:'MY LAND',shipyard:'SHIPYARD',fleet:'FLEET',fleet_battle:'BATTLE',market:'MARKET'};
+  var map={territory:'CHECK TERRITORY',territory_art:'CHECK TERRITORY',shipyard:'PREP SHIPS',fleet:'FORM FLEET',fleet_battle:'ENTER BATTLE',market:'CHECK MARKET'};
   return map[action]||t('campaign_objective_go');
 }
 function handleCampaignObjectiveAction(ev,action){
   if(ev&&ev.stopPropagation) ev.stopPropagation();
-  if(!isLoggedIn()){showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'需要登录':'Login required','error');return;}
+  if(!isLoggedIn()){showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error');return;}
   closeCampaignModal();
   if(action==='territory'){
     openBaseModal();
     setTimeout(function(){
       var tab=document.getElementById('baseTabTerritory');
       switchBaseTab('territory',tab);
-      showToast(LANG==='ko'?'내 영토에서 목표를 진행하세요':LANG==='ja'?'自分の領土で目標を進めてください':LANG==='zh'?'请在自己的领地推进目标':'Complete objectives in your territory','info');
+      showToast(LANG==='ko'?'영토 화면에서 목표를 진행하세요':LANG==='ja'?'領地画面で目標を進めてください':LANG==='zh'?'请在领地界面推进目标':'Continue the objective from your territory','info');
     },0);
   }else if(action==='shipyard'){
     openShipyard();
@@ -27964,7 +27999,7 @@ function handleCampaignObjectiveAction(ev,action){
     setTimeout(function(){
       var tab=document.getElementById('baseTabPvp');
       switchBaseTab('pvp',tab);
-      try{openBattleHub()}catch(_){showToast(LANG==='ko'?'PVP 탭에서 함대전을 시작하세요':LANG==='ja'?'PVPタブで艦隊戦を開始してください':LANG==='zh'?'请在PVP标签开始舰队战':'Start fleet battle in the PVP tab','info');}
+      try{openBattleHub()}catch(_){showToast(LANG==='ko'?'함대전을 열고 전투 목표를 진행하세요':LANG==='ja'?'艦隊戦を開いて戦闘目標を進めてください':LANG==='zh'?'请打开舰队战并推进战斗目标':'Open fleet battle and continue the combat objective','info');}
     },0);
   }else if(action==='market'){
     openBaseModal();
@@ -28792,7 +28827,7 @@ function closeCampaignStory(){
 
 async function openCampaignChapter(questId){
   var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return;}
+  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return;}
   var ch=_findCampaignChapter(questId);
   if(!ch){await loadCampaignStatus();ch=_findCampaignChapter(questId);}
   if(!ch){showToast('Campaign not loaded');return;}
@@ -29592,7 +29627,7 @@ function doBurnGP(burnType, cost) {
 async function harvestMining(){
   try{_sfx.click()}catch(e){}
   var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return}
+  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var btn=document.getElementById('baseHarvestBtn');
   btn.disabled=true;btn.textContent='HARVESTING...';
   try{
@@ -29600,8 +29635,8 @@ async function harvestMining(){
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
     var resp=await fetch('/api/harvest',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Harvest failed');try{_sfx.error()}catch(e){}return}
-    showNotification('mining','HARVEST COMPLETE','+'+d.harvestedPP.toFixed(4)+' PP collected from your territory');
+    if(!resp.ok){showToast(d.error||tl('Harvest failed','수확 실패','収穫失敗','收获失败'));try{_sfx.error()}catch(e){}return}
+    showNotification('mining',tl('Harvest complete','수확 완료','収穫完了','收获完成'),tl('+'+d.harvestedPP.toFixed(4)+' PP collected from your territory','영토에서 +'+d.harvestedPP.toFixed(4)+' PP 수확','領土から +'+d.harvestedPP.toFixed(4)+' PP を採掘','已从你的领地收获 +'+d.harvestedPP.toFixed(4)+' PP'));
     // ✅ [Resource System] 자원 드롭 알림 (Phase 2)
     if(d.resources&&d.resources.length>0){
       var _RICONS={iron_ore:'🪨',carbon_fiber:'🖤',silicon_chip:'💎',titanium_alloy:'⚙️',plasma_crystal:'🔷',nano_polymer:'🧬',dark_matter:'🌑',quantum_core:'⚡',exotic_alloy:'🌟'};
@@ -29627,7 +29662,7 @@ async function harvestMining(){
     var md=document.getElementById('miningDot');if(md)md.style.display='none';
     // Refresh balances
     try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Network error')}
+  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'))}
   finally{
     btn.disabled=false;
     var rng='';if(window._miningEstMin>0) rng=' ('+window._miningEstMin.toFixed(2)+'~'+window._miningEstMax.toFixed(2)+' PP + 🪨)';
@@ -29639,7 +29674,7 @@ async function harvestMining(){
 async function instantHarvest(){
   try{_sfx.click()}catch(e){}
   var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return}
+  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var ihCost=window._instantHarvestCost||0.5;
   var ok=await shopConfirm('','Skip Cooldown',
     '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">INSTANT HARVEST</div>'
@@ -29653,13 +29688,13 @@ async function instantHarvest(){
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
     var resp=await fetch('/api/harvest-instant',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Failed','error');return}
-    showToast('Cooldown skipped! Harvest now.','success');
+    if(!resp.ok){showToast(d.error||tl('Failed','실패했습니다','失敗しました','失败了'),'error');return}
+    showToast(tl('Cooldown skipped! Harvest now.','쿨다운을 건너뛰었습니다! 지금 수확하세요.','クールダウンをスキップしました！今すぐ採掘できます。','已跳过冷却！现在即可收获。'),'success');
     btn.style.display='none';
     document.getElementById('baseMineTimer').textContent='Harvest available now!';
     if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
     try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Network error','error')}
+  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
   finally{btn.disabled=false;var ic=window._instantHarvestCost||0.5;btn.innerHTML='<span>HARVEST NOW ('+ic+' PP)</span>'}
 }
 
@@ -29667,7 +29702,7 @@ async function instantHarvest(){
 async function renameTerritory(plot){
   if(!plot||!plot.id)return;
   var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return}
+  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var currentName=plot.customName||'';
   var name=await gameInput({title:LANG==='ko'?'영토 이름 변경':LANG==='ja'?'領土名変更':LANG==='zh'?'更改领土名称':'Rename Territory',label:LANG==='ko'?'이름 (최대 20자, 비용 0.3 PP)':LANG==='ja'?'名前（最大20文字、費用0.3PP）':LANG==='zh'?'名称（最多20字符，费用0.3PP）':'Name (max 20 chars, 0.3 PP)',placeholder:currentName,defaultValue:currentName,maxLength:20});
   if(name===null||name===undefined||name.trim()==='')return;
@@ -29677,21 +29712,21 @@ async function renameTerritory(plot){
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
     var resp=await fetch('/api/claims/'+plot.id+'/rename',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,name:name})});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Rename failed','error');return}
-    showToast('Territory renamed to "'+d.name+'"','success');
+    if(!resp.ok){showToast(d.error||tl('Rename failed','이름 변경 실패','名前変更失敗','重命名失败'),'error');return}
+    showToast(tl('Territory renamed to "'+d.name+'"','영토 이름이 "'+d.name+'"(으)로 변경되었습니다','領土名を「'+d.name+'」に変更しました','领地名称已更改为“'+d.name+'”'),'success');
     // Update local data
     plot.customName=d.name;
     var nameRow=document.getElementById('infoNameRow');
     nameRow.style.display='';
     document.getElementById('infoCustomName').textContent=d.name;
     try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Network error','error')}
+  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
 }
 
 // ── POI Hint (micro-transaction) ──
 async function getPOIHint(){
   var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return}
+  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   // Use camera/globe center as user position
   var lat=0,lng=0;
   try{
@@ -29712,17 +29747,17 @@ async function getPOIHint(){
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
     var resp=await fetch('/api/exploration/hint',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,lat:lat,lng:lng})});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Hint failed','error');return}
+    if(!resp.ok){showToast(d.error||tl('Hint failed','힌트 요청 실패','ヒント取得失敗','提示获取失败'),'error');return}
     var icon=d.hint.poiType?({'ancient_ruins':'','ore_deposit':'','crashed_probe':'','water_ice':'','alien_artifact':''}[d.hint.poiType]||''):'';
-    showNotification('exploration','POI HINT',icon+' '+d.hint.direction+' — '+d.hint.distance);
+    showNotification('exploration',tl('POI hint','POI 힌트','POIヒント','POI 提示'),icon+' '+d.hint.direction+' — '+d.hint.distance);
     try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Network error','error')}
+  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
 }
 
 // ── Rocket Loot Priority (micro-transaction) ──
 async function buyLootPriority(rocketEventId){
   var w=walletState.address;
-  if(!w){showToast('LOGIN FIRST');return}
+  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var ok=await shopConfirm('','Priority Queue',
     '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">LOOT PRIORITY</div>'
     +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Get a 5-second head start notification when rocket loot drops.</div>'
@@ -29733,10 +29768,10 @@ async function buyLootPriority(rocketEventId){
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
     var resp=await fetch('/api/rockets/priority',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,rocketEventId:rocketEventId})});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Priority failed','error');return}
-    showToast('Priority notification activated!','success');
+    if(!resp.ok){showToast(d.error||tl('Priority failed','우선권 구매 실패','優先権の購入に失敗しました','优先权购买失败'),'error');return}
+    showToast(tl('Priority notification activated!','우선 알림이 활성화되었습니다!','優先通知を有効化しました！','优先通知已启用！'),'success');
     try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Network error','error')}
+  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
 }
 
 // ── Auto-Renew Toggle ──
@@ -29750,11 +29785,11 @@ async function toggleAutoRenew(type,id,currentState){
     else body.effectId=id;
     var resp=await fetch('/api/shop/auto-renew',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Toggle failed','error');return}
-    showToast('Auto-renew '+(newState?'ON':'OFF'),'success');
+    if(!resp.ok){showToast(d.error||tl('Toggle failed','토글 변경 실패','切り替え失敗','切换失败'),'error');return}
+    showToast(tl('Auto-renew '+(newState?'ON':'OFF'),newState?'자동 갱신 ON':'자동 갱신 OFF',newState?'自動更新 ON':'自動更新 OFF',newState?'自动续订 ON':'自动续订 OFF'),'success');
     // Refresh inventory view if open
     if(typeof renderShopInventory==='function') renderShopInventory();
-  }catch(e){showToast('Network error','error')}
+  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
 }
 
 function startMineTimer(nextAt){
@@ -31036,7 +31071,7 @@ function _openInfoModal(title, bodyHtml, accentColor){
 
 function openMineralsPanel(){
   var w = walletState.address;
-  if(!w){ showToast('LOGIN FIRST'); return; }
+  if(!w){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
   _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#81c784');
   fetch('/api/resources/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
@@ -31067,7 +31102,7 @@ function openMineralsPanel(){
 
 function openShipRegistry(){
   var w = walletState.address;
-  if(!w){ showToast('LOGIN FIRST'); return; }
+  if(!w){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
   _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#5cbbff');
   fetch('/api/ships/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
@@ -31480,6 +31515,8 @@ function _showRewardSplash(label, rwText, xp, bonusCosmetic, poiType) {
 function addFeed(text){
   var f=document.getElementById('liveFeed');
   if(f){
+    var empty = document.getElementById('liveFeedEmpty');
+    if (empty) empty.remove();
     var d=document.createElement('div');d.className='feed-item new';d.textContent=text;
     f.insertBefore(d,f.firstChild);
     if(f.children.length>15)f.removeChild(f.lastChild);
@@ -33531,17 +33568,17 @@ window.addEventListener('resize', _debounce(function(){
       if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.style.opacity='1';} return; }
       var r = data.reward;
       var msg;
-      if (r.type === 'gp') msg = '+'+r.amount+' GP from supply drop';
-      else if (r.type === 'xp') msg = '+'+r.amount+' XP from supply drop';
-      else if (r.type === 'pp') msg = '+'+r.amount+' PP from supply drop';
-      else if (r.type === 'cosmetic') msg = 'Got '+(r.itemName||r.itemCode||'cosmetic')+' (rare cosmetic)!';
-      else if (r.type === 'item') msg = 'Got '+(r.itemName||r.itemCode||'item')+' x'+(r.amount||1);
-      else msg = 'Loot claimed!';
-      showNotification('rocket','LOOT CLAIMED',msg);
+      if (r.type === 'gp') msg = tl('+'+r.amount+' GP from supply drop','보급 투하에서 +'+r.amount+' GP 획득','補給投下から +'+r.amount+' GP 獲得','从补给投放获得 +'+r.amount+' GP');
+      else if (r.type === 'xp') msg = tl('+'+r.amount+' XP from supply drop','보급 투하에서 +'+r.amount+' XP 획득','補給投下から +'+r.amount+' XP 獲得','从补给投放获得 +'+r.amount+' XP');
+      else if (r.type === 'pp') msg = tl('+'+r.amount+' PP from supply drop','보급 투하에서 +'+r.amount+' PP 획득','補給投下から +'+r.amount+' PP 獲得','从补给投放获得 +'+r.amount+' PP');
+      else if (r.type === 'cosmetic') msg = tl('Got '+(r.itemName||r.itemCode||'cosmetic')+' (rare cosmetic)!','희귀 코스메틱 획득: '+(r.itemName||r.itemCode||'cosmetic')+'!','レアコスメを獲得: '+(r.itemName||r.itemCode||'cosmetic')+'!','获得稀有外观：'+(r.itemName||r.itemCode||'cosmetic')+'！');
+      else if (r.type === 'item') msg = tl('Got '+(r.itemName||r.itemCode||'item')+' x'+(r.amount||1),(r.itemName||r.itemCode||'item')+' x'+(r.amount||1)+' 획득',(r.itemName||r.itemCode||'item')+' x'+(r.amount||1)+' 獲得','获得 '+(r.itemName||r.itemCode||'item')+' x'+(r.amount||1));
+      else msg = tl('Loot claimed!','보상을 획득했습니다!','戦利品を獲得しました！','已领取战利品！');
+      showNotification('rocket',tl('Loot claimed','보상 획득','戦利品獲得','已领取战利品'),msg);
       try{_sfx.harvest()}catch(e){}
       if (btn) { btn.textContent = '\u2713'; btn.style.background = 'rgba(0,255,100,0.2)'; btn.style.borderColor = '#00FF88'; }
       try{ refreshEmailBalances(); }catch(_rb){}
-    }).catch(function(){ showToast('Claim failed'); if(btn){btn.disabled=false;btn.style.opacity='1';} });
+    }).catch(function(){ showToast(tl('Claim failed','획득 실패','受取失敗','领取失败')); if(btn){btn.disabled=false;btn.style.opacity='1';} });
   };
 
   // ═══════ ROCKET INFO POPUP ═══════
@@ -33682,6 +33719,8 @@ window.addEventListener('resize', _debounce(function(){
       if (text) {
         var feed = document.getElementById('liveFeed');
         if (!feed) return;
+        var empty = document.getElementById('liveFeedEmpty');
+        if (empty) empty.remove();
         var div = document.createElement('div');
         div.className = 'feed-item feed-gov';
         div.style.cssText = 'border-left:2px solid var(--gold);padding-left:6px;font-weight:bold;color:var(--gold)';
@@ -40731,7 +40770,7 @@ if(typeof _origTrackQuestAction === 'function'){
         <span id="warTargetEmblem" style="font-size:24px">🔴</span>
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--tx)" id="warTargetName">[TAG] Guild Name</div>
-          <div style="font-size:9px;color:var(--tx3)" id="warTargetInfo">Lv.1 · 5명</div>
+          <div style="font-size:9px;color:var(--tx3)" id="warTargetInfo">Lv.1 · 5 members</div>
         </div>
       </div>
       <!-- Optional stake (M-157) -->
@@ -45335,7 +45374,7 @@ async function loadFactions() {
 }
 
 function openFactionModal() {
-  if (!_factionIsLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  if (!_factionIsLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   var modal = document.getElementById('factionModal');
   var cardsEl = document.getElementById('factionCards');
   var subtitle = document.getElementById('factionModalSubtitle');
@@ -45397,7 +45436,7 @@ async function confirmFaction() {
       if (data.error === 'FACTION_CHANGE_COOLDOWN') {
         showFactionToast((LANG==='ko'?'쿨다운: ':LANG==='ja'?'クールダウン: ':LANG==='zh'?'冷却: ':'Cooldown: ') + Math.ceil((new Date(data.meta.can_change_at)-new Date())/3600000) + (LANG==='ko'?'시간 남음':LANG==='ja'?'時間後':LANG==='zh'?'小时后':' hrs left'), 'error');
       } else if (data.error === 'INSUFFICIENT_GP') {
-        showFactionToast('GP 부족: ' + data.meta.required + ' GP 필요', 'error');
+        showFactionToast(tl('Not enough GP: need ' + data.meta.required + ' GP','GP 부족: ' + data.meta.required + ' GP 필요','GP不足: ' + data.meta.required + ' GP 必要','GP 不足：需要 ' + data.meta.required + ' GP'), 'error');
       } else if (data.error === 'SAME_FACTION') {
         showFactionToast(LANG==='ko'?'이미 같은 파벌입니다':LANG==='ja'?'すでに同じ派閥です':LANG==='zh'?'已在同一派系':'Already in same faction','error');
       } else {
@@ -45416,7 +45455,7 @@ async function confirmFaction() {
     }
   } catch(err) {
     console.error('[Faction] confirmFaction error:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
     btn.disabled = false; btn.textContent = LANG==='ko'?'선택':LANG==='ja'?'選択':LANG==='zh'?'选择':'Select';
   }
 }
@@ -45458,12 +45497,12 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
 <div class="faction-modal-backdrop" id="factionModal">
   <div class="faction-modal">
     <div class="faction-modal-title">FACTION SELECTION</div>
-    <div class="faction-modal-subtitle" id="factionModalSubtitle">// 파벌을 선택하세요</div>
+    <div class="faction-modal-subtitle" id="factionModalSubtitle">// Select your faction</div>
     <div class="faction-cards" id="factionCards"></div>
     <div class="faction-warning" id="factionWarning" style="display:none"></div>
     <div class="faction-actions">
-      <button class="faction-btn" onclick="closeFactionModal()">취소</button>
-      <button class="faction-btn primary" id="factionConfirmBtn" onclick="confirmFaction()" disabled>선택</button>
+      <button class="faction-btn" onclick="closeFactionModal()">Cancel</button>
+      <button class="faction-btn primary" id="factionConfirmBtn" onclick="confirmFaction()" disabled>Select</button>
     </div>
   </div>
 </div>
@@ -45473,7 +45512,7 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
 <div class="shipyard-modal-backdrop" id="shipyardModal" onclick="if(event.target===this)closeShipyard()">
   <div class="shipyard-modal">
     <div class="shipyard-header">
-      <div class="shipyard-title">⚒ SHIPYARD · 조선소</div>
+      <div class="shipyard-title">⚒ SHIPYARD</div>
       <button class="shipyard-close" onclick="closeShipyard()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="shipyard-tabs">
@@ -45563,7 +45602,7 @@ var shipyardState = {
 
 function openShipyard() {
   if (!isLoggedIn()) {
-    showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error');
+    showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error');
     return;
   }
   document.getElementById('shipyardModal').classList.add('active');
@@ -46269,7 +46308,7 @@ async function buildShip(shipTypeCode) {
     await refreshShipyard();
   } catch(err) {
     console.error('buildShip error:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -46309,10 +46348,10 @@ async function claimJob(jobId) {
   try {
     var res = await fetch('/api/ships/build-jobs/' + jobId + '/complete', { method: 'POST', headers: getAuthHeaders() });
     var data = await res.json();
-    if (!res.ok) { showFactionToast('수령 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast(data.is_flagship ? '🚀 함선 수령! (기함 지정됨)' : '🚀 함선 수령 완료', 'success');
+    if (!res.ok) { showFactionToast(tl('Claim failed: ','수령 실패: ','受取失敗: ','领取失败：') + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast(data.is_flagship ? tl('🚀 Ship claimed! (flagship assigned)','🚀 함선 수령! (기함 지정됨)','🚀 艦船受取!（旗艦指定）','🚀 已领取舰船！（已设为旗舰）') : tl('🚀 Ship claim complete','🚀 함선 수령 완료','🚀 艦船受取完了','🚀 舰船领取完成'), 'success');
     await refreshShipyard();
-  } catch(err) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
+  } catch(err) { showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
 }
 
 async function cancelJob(jobId) {
@@ -46321,10 +46360,10 @@ async function cancelJob(jobId) {
   try {
     var res = await fetch('/api/ships/build-jobs/' + jobId + '/cancel', { method: 'POST', headers: getAuthHeaders() });
     var data = await res.json();
-    if (!res.ok) { showFactionToast('취소 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
-    showFactionToast('환불 완료: +' + data.refunded_gp + ' GP', 'success');
+    if (!res.ok) { showFactionToast(tl('Cancel failed: ','취소 실패: ','キャンセル失敗: ','取消失败：') + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast(tl('Refund complete: +','환불 완료: +','返金完了: +','退款完成：+') + data.refunded_gp + ' GP', 'success');
     await refreshShipyard();
-  } catch(err) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
+  } catch(err) { showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
 }
 
 function renderShips() {
@@ -46909,19 +46948,19 @@ var MINERAL_EN = {
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
   <div class="fleetcmd-modal" onclick="event.stopPropagation()">
     <div class="fleetcmd-header">
-      <div class="fleetcmd-title">🎖 FLEET COMMAND · <span id="fleetCmdSubtitle">함대 지휘</span></div>
+      <div class="fleetcmd-title">🎖 FLEET COMMAND · <span id="fleetCmdSubtitle">Command</span></div>
       <button type="button" class="shipyard-close" onclick="event.preventDefault();closeFleetCmd()" data-i18n="btn_close">✕ Close</button>
     </div>
     <div class="fleetcmd-body">
       <div class="fleet-list">
         <div class="fleet-list-header">
           <div class="fleet-list-title">MY FLEETS (<span id="fleetCountLabel">0</span>)</div>
-          <button type="button" class="fleet-new-btn" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ <span id="fleetCmdNewBtn">새 함대</span></button>
+          <button type="button" class="fleet-new-btn" onclick="event.preventDefault();event.stopPropagation();createNewFleet()">+ <span id="fleetCmdNewBtn">New Fleet</span></button>
         </div>
         <div id="fleetListContent"></div>
       </div>
       <div class="fleet-detail" id="fleetDetailContent">
-        <div class="fs-empty" id="fleetCmdSelectHint">함대를 선택하세요</div>
+        <div class="fs-empty" id="fleetCmdSelectHint">Select a fleet</div>
       </div>
     </div>
   </div>
@@ -46940,7 +46979,7 @@ var fleetCmdState = {
 };
 
 function openFleetCmd() {
-  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   // Update i18n text for static HTML spans
   var subtitle = document.getElementById('fleetCmdSubtitle');
   if (subtitle) subtitle.textContent = LANG==='ko'?'함대 지휘':LANG==='ja'?'艦隊指揮':LANG==='zh'?'舰队指挥':'Command';
@@ -47347,7 +47386,7 @@ async function setFleetTactic(type, value) {
     if (prevFleet) fleetCmdState.selectedFleet = prevFleet;
     renderFleetDetail();
     if (wasOpen) keepFleetCmdOpen(scrollTop);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -47375,7 +47414,7 @@ async function createNewFleet() {
     showFactionToast('\'' + data.name + '\' ' + (LANG==='ko'?'생성됨':LANG==='ja'?'作成しました':LANG==='zh'?'已创建':'created'), 'success');
     await refreshFleetList();
     await selectFleet(data.id);
-  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
+  } catch(e) { showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
 }
 
 async function renameFleet() {
@@ -47393,7 +47432,7 @@ async function renameFleet() {
     if (!res.ok) { showFactionToast((LANG==='ko'?'변경 실패: ':LANG==='ja'?'変更失敗: ':LANG==='zh'?'更改失败: ':'Change failed: ') + fleetCmdErrorMessage(data.error, data), 'error'); return; }
     showFactionToast(LANG==='ko'?'이름 변경됨':LANG==='ja'?'名前変更しました':LANG==='zh'?'名称已更改':'Name changed','success');
     await refreshFleetList();
-  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
+  } catch(e) { showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
 }
 
 async function deleteFleetPrompt() {
@@ -47412,7 +47451,7 @@ async function deleteFleetPrompt() {
     showFactionToast(data.ships_moved > 0 ? ((LANG==='ko'?'해체 완료 — ':LANG==='ja'?'解散完了 — ':LANG==='zh'?'解散完成 — ':'Disbanded — ') + data.ships_moved + (LANG==='ko'?'척 이동':LANG==='ja'?'隻移動':LANG==='zh'?'艘已移动':' ships moved')) : (LANG==='ko'?'해체 완료':LANG==='ja'?'解散完了':LANG==='zh'?'解散完成':'Disbanded'), 'success');
     fleetCmdState.selectedFleetId = null; fleetCmdState.selectedFleet = null;
     await refreshFleetList();
-  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
+  } catch(e) { showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
 }
 
 async function showMoveShipsDialog(event) {
@@ -47443,7 +47482,7 @@ async function showMoveShipsDialog(event) {
     fleetCmdState.selectedShipIds.clear();
     await refreshFleetList();
     keepFleetCmdOpen(scrollTop);
-  } catch(e) { showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error'); }
+  } catch(e) { showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
 }
 
 async function setAsFlagship(shipId) {
@@ -47459,18 +47498,18 @@ async function setAsFlagship(shipId) {
     });
     var data = await res.json();
     if (!res.ok) {
-      showFactionToast('지정 실패: ' + fleetCmdErrorMessage(data.error, data), 'error');
+      showFactionToast(tl('Assign failed: ','지정 실패: ','指定失敗: ','指定失败：') + fleetCmdErrorMessage(data.error, data), 'error');
       if (wasOpen) keepFleetCmdOpen(scrollTop);
       return;
     }
-    showFactionToast('기함 변경됨', 'success');
+    showFactionToast(tl('Flagship updated','기함 변경됨','旗艦を変更しました','旗舰已更新'), 'success');
     await loadFleetDetail(fleetId);
     updateFleetListSnapshotFromSelected();
     renderFleetList();
     if (wasOpen) keepFleetCmdOpen(scrollTop);
   } catch(e) {
     if (wasOpen) keepFleetCmdOpen(scrollTop);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -48072,7 +48111,7 @@ let battleHubState = {
 };
 
 async function openBattleHub() {
-  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   document.getElementById('battleHubModal').classList.add('active');
   await bhLoad();
   // 5초마다 active 탭 polling
@@ -48189,7 +48228,7 @@ async function bhRunBattle(battleId) {
     showFactionToast(LANG==='ko'?'전투 시작됨':LANG==='ja'?'戦闘開始':LANG==='zh'?'战斗已开始':'Battle started', 'success');
     setTimeout(bhLoad, 1500);
   } catch (err) {
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -48399,7 +48438,7 @@ async function confirmDeclareBattle() {
     openCmdActionsModal(battleId, targetFleetId);
   } catch (err) {
     console.error('confirmDeclareBattle error:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -48639,7 +48678,7 @@ async function caApplyAndFight(){
     await caStartBattle(battleId);
   } catch (err) {
     console.error('caApplyAndFight error:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
     if (btn){btn.disabled=false;btn.textContent=(LANG==='ko'?'⚡ 지시 적용 & 전투':LANG==='ja'?'⚡ 指示適用 & 戦闘':LANG==='zh'?'⚡ 应用指令 & 战斗':'⚡ Apply & Fight');}
   }
 }
@@ -48659,7 +48698,7 @@ async function caStartBattle(battleId){
     setTimeout(() => showRewardIfAny(battleId), 8000);
   } catch (err) {
     console.error('caStartBattle error:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -48744,7 +48783,7 @@ function getMyWallet() {
 // ═════════════════════════════════════════════════════════════════
 
 async function openAiFight() {
-  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   document.getElementById('aiFightModal').classList.add('active');
   await loadAiFleets();
 }
@@ -48822,7 +48861,7 @@ async function challengeAi(aiFleetId, aiName) {
     } else console.warn('[ai] battle_id missing in response:', data2);
   } catch (err) {
     console.error('challengeAi:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -48833,7 +48872,7 @@ async function challengeAi(aiFleetId, aiName) {
 var tnState = { currentTab: 'open' };
 
 async function openTournaments() {
-  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   document.getElementById('tournamentModal').classList.add('active');
   await tnLoad();
 }
@@ -48945,7 +48984,7 @@ async function registerTournament(tournamentId) {
     tnLoad();
   } catch (err) {
     console.error('registerTournament:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -48980,7 +49019,7 @@ async function openCreateTournament() {
     showFactionToast('🏆 ' + (LANG==='ko'?'토너먼트 개최됨':LANG==='ja'?'トーナメント開催されました':LANG==='zh'?'锦标赛已创建':'Tournament created'), 'success');
     tnLoad();
   } catch (err) {
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -49203,7 +49242,7 @@ async function forfeitBattle(battleId) {
     return true;
   } catch (e) {
     console.warn('[battle] forfeitBattle error:', e);
-    showFactionToast(LANG==='ko'?'후퇴 요청 네트워크 오류':LANG==='ja'?'撤退リクエストのネットワークエラー':LANG==='zh'?'撤退请求网络错误':'Retreat request network error','error');
+    showFactionToast(t('quests_network_error')||tl('Retreat request network error','후퇴 요청 네트워크 오류','撤退リクエストのネットワークエラー','撤退请求网络错误'),'error');
     return false;
   }
 }
@@ -50301,7 +50340,7 @@ if ('serviceWorker' in navigator) {
 // ═════════════════════════════════════════════════════════════════
 
 async function openAlliance() {
-  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   document.getElementById('allianceModal').classList.add('active');
   await loadAlliance();
 }
@@ -50443,7 +50482,7 @@ async function openCreateAlliance() {
     showFactionToast(`🤝 ${LANG==='ko'?`동맹 "${data.name}" 창설됨`:LANG==='ja'?`同盟「${data.name}」創設`:LANG==='zh'?`联盟「${data.name}」已创建`:`Alliance "${data.name}" created`}`, 'success');
     await loadAlliance();
   } catch (err) {
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -50469,7 +50508,7 @@ async function joinAllianceConfirm(allianceId, name) {
     showFactionToast(`🤝 ${LANG==='ko'?'가입 완료':LANG==='ja'?'加入完了':LANG==='zh'?'加入成功':'Joined'}`, 'success');
     await loadAlliance();
   } catch (err) {
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -50495,7 +50534,7 @@ async function leaveMyAlliance() {
     showFactionToast(LANG==='ko'?'동맹에서 탈퇴했습니다':LANG==='ja'?'同盟から脱退しました':LANG==='zh'?'已退出联盟':'Left alliance','success');
     await loadAlliance();
   } catch (err) {
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -50624,7 +50663,7 @@ async function shareCurrentBattle() {
     showFactionToast(LANG==='ko'?'📼 공유 링크 생성 완료':LANG==='ja'?'📼 共有リンク作成完了':LANG==='zh'?'📼 分享链接已创建':'📼 Share link created', 'success');
   } catch (err) {
     console.error('shareCurrentBattle:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 
@@ -50897,7 +50936,7 @@ async function obConfirmFaction() {
     try { await loadFactions(); } catch(_) {}
     advanceStep(2);
   } catch(e) {
-    showFactionToast(t('err_network')||'Network error', 'error');
+    showFactionToast(t('err_network')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error');
     if (btn) { btn.disabled = false; btn.textContent = t('ob_confirm'); }
   }
 }
@@ -51045,7 +51084,7 @@ const wb = {
 };
 
 async function openWarBetting() {
-  if (!isLoggedIn()) { showFactionToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
+  if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   document.getElementById('warBettingModal').classList.add('active');
   await wbLoad();
 }
@@ -51242,7 +51281,7 @@ async function wbPlaceBet(eventId) {
     await wbLoad();
   } catch (err) {
     console.error('[warBetting] placeBet error:', err);
-    showFactionToast(LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error','error');
+    showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
 }
 

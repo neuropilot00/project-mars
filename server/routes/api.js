@@ -5,7 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer } = require('../db');
-const { generateWithdrawSignature, CHAINS } = require('../services/signer');
+const { generateWithdrawSignature, getAvailableLiquidity, CHAINS } = require('../services/signer');
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
 let weatherService;
 try { weatherService = require('../services/weather'); } catch (_e) { /* weather service not available */ }
@@ -312,7 +312,7 @@ router.get('/config', readLimiter, async (req, res) => {
       maxDeposit: s.max_deposit || 100000,
       maxClaimWidth: s.max_claim_width || 500,
       maxClaimHeight: s.max_claim_height || 500,
-      minWithdraw: s.min_withdraw || 10,
+      minWithdraw: Number(s.withdraw_min_amount ?? s.min_withdraw ?? 10),
       announcement: s.announcement || '',
       maintenanceMode: s.maintenance_mode || false,
       activeEvents: events.map(e => ({
@@ -2099,6 +2099,19 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
       }
     }
 
+    const minWithdrawAmount = Number(s.withdraw_min_amount ?? s.min_withdraw ?? 1);
+    if (!Number.isFinite(minWithdrawAmount) || minWithdrawAmount < 0) {
+      await client.query('ROLLBACK');
+      return res.status(500).json({ error: 'Invalid withdraw minimum configuration' });
+    }
+    if (parsedAmount < minWithdrawAmount) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: `Minimum withdrawal amount is ${minWithdrawAmount} USDT`,
+        minAmount: minWithdrawAmount
+      });
+    }
+
     const bal = parseFloat(userRes.rows[0].usdt_balance);
     if (bal < amount) {
       await client.query('ROLLBACK');
@@ -2117,6 +2130,17 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
     // Generate on-chain withdrawal signature
     const amountBN = ethers.utils.parseUnits(amount.toString(), chainCfg.decimals);
     const feeBN = ethers.BigNumber.from(0); // no fee on withdrawal for now
+
+    const availableLiquidity = await getAvailableLiquidity(chainKey);
+    if (availableLiquidity.lt(amountBN.add(feeBN))) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: 'Insufficient on-chain liquidity',
+        available: ethers.utils.formatUnits(availableLiquidity, chainCfg.decimals),
+        required: ethers.utils.formatUnits(amountBN.add(feeBN), chainCfg.decimals),
+        chain: chainKey
+      });
+    }
 
     const sigData = await generateWithdrawSignature(
       wallet, amountBN, feeBN, nonce, chainKey
@@ -2148,6 +2172,10 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
   if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
 
   const chainKey = chain || 'base';
+  const VALID_CHAINS = ['base', 'bnb', 'eth'];
+  if (!VALID_CHAINS.includes(chainKey)) {
+    return res.status(400).json({ error: 'Invalid chain (must be one of: base, bnb, eth)' });
+  }
   const client = await pool.connect();
 
   try {
@@ -2179,12 +2207,25 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
     const ppBal = parseFloat(userRes.rows[0].pp_balance);
     const nonce = userRes.rows[0].withdrawal_nonce || 0;
     const swapFeePct = (s.swap_fee_percent || 5) / 100;
+    const minWithdrawAmount = Number(s.withdraw_min_amount ?? s.min_withdraw ?? 1);
     const ppFee = Math.round(ppBal * swapFeePct * 1000000) / 1000000;
     const totalOut = Math.round((usdtBal + ppBal - ppFee) * 1000000) / 1000000;
 
     if (totalOut <= 0) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Nothing to withdraw' });
+    }
+    if (!Number.isFinite(minWithdrawAmount) || minWithdrawAmount < 0) {
+      await client.query('ROLLBACK');
+      return res.status(500).json({ error: 'Invalid withdraw minimum configuration' });
+    }
+    if (totalOut < minWithdrawAmount) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: `Minimum withdrawal amount is ${minWithdrawAmount} USDT`,
+        minAmount: minWithdrawAmount,
+        totalOut
+      });
     }
 
     // Zero balances, increment nonce, and update last_withdrawal_at
@@ -2209,6 +2250,16 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
     const chainCfg = CHAINS[chainKey];
     const amountBN = ethers.utils.parseUnits(totalOut.toString(), chainCfg.decimals);
     const feeBN = ethers.utils.parseUnits(ppFee.toString(), chainCfg.decimals);
+    const availableLiquidity = await getAvailableLiquidity(chainKey);
+    if (availableLiquidity.lt(amountBN.add(feeBN))) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: 'Insufficient on-chain liquidity',
+        available: ethers.utils.formatUnits(availableLiquidity, chainCfg.decimals),
+        required: ethers.utils.formatUnits(amountBN.add(feeBN), chainCfg.decimals),
+        chain: chainKey
+      });
+    }
     const sigData = await generateWithdrawSignature(wallet, amountBN, feeBN, nonce, chainKey);
 
     await client.query(

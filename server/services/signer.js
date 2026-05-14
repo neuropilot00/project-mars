@@ -2,12 +2,17 @@ const { ethers } = require('ethers');
 
 // Chain configs matching frontend + smart contract
 const CHAINS = {
-  base: { chainId: 8453, decimals: 6 },
-  bnb:  { chainId: 56,   decimals: 18 },
-  eth:  { chainId: 1,    decimals: 6 }
+  base: { chainId: 8453, decimals: 6, rpcEnvKey: 'BASE_RPC_URL', depositEnvKey: 'BASE_DEPOSIT_ADDRESS' },
+  bnb:  { chainId: 56,   decimals: 18, rpcEnvKey: 'BNB_RPC_URL',  depositEnvKey: 'BNB_DEPOSIT_ADDRESS' },
+  eth:  { chainId: 1,    decimals: 6, rpcEnvKey: 'ETH_RPC_URL',   depositEnvKey: 'ETH_DEPOSIT_ADDRESS' }
 };
 
+const DEPOSIT_ABI = [
+  'function getContractBalance() view returns (uint256)'
+];
+
 let signerWallet = null;
+const providers = new Map();
 
 function init() {
   if (!process.env.SIGNER_PRIVATE_KEY) {
@@ -58,12 +63,44 @@ async function generateWithdrawSignature(userAddress, amountBN, feeBN, nonce, ch
 }
 
 function getDepositAddress(chainKey) {
-  const envKey = chainKey.toUpperCase() + '_DEPOSIT_ADDRESS';
-  return process.env[envKey] || '0x0000000000000000000000000000000000000000';
+  const cfg = CHAINS[chainKey];
+  if (!cfg) throw new Error('Unknown chain: ' + chainKey);
+  const address = (process.env[cfg.depositEnvKey] || '').trim();
+  if (!address) {
+    throw new Error(`Missing deposit contract address for ${chainKey} (${cfg.depositEnvKey})`);
+  }
+  if (!ethers.utils.isAddress(address) || address === ethers.constants.AddressZero) {
+    throw new Error(`Invalid deposit contract address for ${chainKey} (${cfg.depositEnvKey})`);
+  }
+  return address;
+}
+
+function getRpcUrl(chainKey) {
+  const cfg = CHAINS[chainKey];
+  if (!cfg) throw new Error('Unknown chain: ' + chainKey);
+  const rpcUrl = (process.env[cfg.rpcEnvKey] || '').trim();
+  if (!rpcUrl) {
+    throw new Error(`Missing RPC URL for ${chainKey} (${cfg.rpcEnvKey})`);
+  }
+  return rpcUrl;
+}
+
+function getProvider(chainKey) {
+  if (!providers.has(chainKey)) {
+    providers.set(chainKey, new ethers.providers.JsonRpcProvider(getRpcUrl(chainKey)));
+  }
+  return providers.get(chainKey);
+}
+
+async function getAvailableLiquidity(chainKey) {
+  const provider = getProvider(chainKey);
+  const contractAddress = getDepositAddress(chainKey);
+  const contract = new ethers.Contract(contractAddress, DEPOSIT_ABI, provider);
+  return contract.getContractBalance();
 }
 
 function getSignerAddress() {
   return signerWallet ? signerWallet.address : null;
 }
 
-module.exports = { init, generateWithdrawSignature, getSignerAddress, CHAINS };
+module.exports = { init, generateWithdrawSignature, getAvailableLiquidity, getDepositAddress, getSignerAddress, CHAINS };

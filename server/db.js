@@ -299,7 +299,7 @@ async function seedDefaults(client) {
     { key: 'max_deposit', value: 100000, desc: 'Maximum deposit amount (USDT)', cat: 'limits' },
     { key: 'max_claim_width', value: 500, desc: 'Maximum claim width in pixels', cat: 'limits' },
     { key: 'max_claim_height', value: 500, desc: 'Maximum claim height in pixels', cat: 'limits' },
-    { key: 'min_withdraw', value: 10, desc: 'Minimum withdrawal amount (USDT)', cat: 'limits' },
+    { key: 'withdraw_min_amount', value: 10, desc: 'Minimum withdrawal amount (USDT)', cat: 'limits' },
     { key: 'max_image_size_mb', value: 5, desc: 'Maximum image upload size (MB)', cat: 'limits' },
     { key: 'max_search_results', value: 50, desc: 'Max search results returned', cat: 'limits' },
     { key: 'claims_load_limit', value: 5000, desc: 'Max claims loaded on frontend init', cat: 'limits' },

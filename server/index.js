@@ -99,6 +99,7 @@ if (process.env.NODE_ENV === 'production') {
 const { pool, initDB } = require('./db');
 const { init: initSigner } = require('./services/signer');
 const { startListeners } = require('./services/chain');
+const { requireAdmin } = require('./middleware/adminAuth');
 
 // ══════════════════════════════════════════════════════════════
 // 라우트 파일 로드 (61개)
@@ -530,7 +531,7 @@ function isSafeCampaignJsonFile(file) {
   return typeof file === 'string' && !file.includes('..') && file.endsWith('.json') && path.basename(file) === file;
 }
 
-app.get('/admin/api/campaign-editor/chapters', (req, res) => {
+app.get('/admin/api/campaign-editor/chapters', requireAdmin, (req, res) => {
   try {
     const chapters = fs.readdirSync(CAMPAIGN_DIR)
       .filter(file => file.endsWith('.json'))
@@ -556,7 +557,7 @@ app.get('/admin/api/campaign-editor/chapters', (req, res) => {
   }
 });
 
-app.get('/admin/api/campaign-editor/chapter/:file', (req, res) => {
+app.get('/admin/api/campaign-editor/chapter/:file', requireAdmin, (req, res) => {
   const { file } = req.params;
   if (!isSafeCampaignJsonFile(file)) {
     return res.status(400).json({ error: 'Invalid chapter file' });
@@ -572,7 +573,7 @@ app.get('/admin/api/campaign-editor/chapter/:file', (req, res) => {
   }
 });
 
-app.post('/admin/api/campaign-editor/chapter/:file', (req, res) => {
+app.post('/admin/api/campaign-editor/chapter/:file', requireAdmin, (req, res) => {
   const { file } = req.params;
   if (!isSafeCampaignJsonFile(file)) {
     return res.status(400).json({ error: 'Invalid chapter file' });
@@ -589,7 +590,7 @@ app.post('/admin/api/campaign-editor/chapter/:file', (req, res) => {
   }
 });
 
-app.get('/admin/api/campaign-editor/assets', (req, res) => {
+app.get('/admin/api/campaign-editor/assets', requireAdmin, (req, res) => {
   try {
     const backgroundsDir = path.join(__dirname, '..', 'assets', 'campaign', 'backgrounds');
     const charactersDir = path.join(__dirname, '..', 'assets', 'campaign', 'characters');

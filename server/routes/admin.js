@@ -96,7 +96,16 @@ router.get('/stats', async (req, res) => {
     const balRes = await pool.query(`
       SELECT
         (SELECT COALESCE(SUM(amount),0) FROM deposits) -
-        (SELECT COALESCE(SUM(usdt_amount),0) FROM transactions WHERE type IN ('withdraw','withdraw_all'))
+        (
+          SELECT COALESCE(SUM(
+            CASE
+              WHEN type = 'withdraw_all' THEN COALESCE(NULLIF(meta->>'totalOut','')::numeric, usdt_amount)
+              ELSE usdt_amount
+            END
+          ),0)
+          FROM transactions
+          WHERE type IN ('withdraw','withdraw_all')
+        )
         as contract_balance
     `);
 

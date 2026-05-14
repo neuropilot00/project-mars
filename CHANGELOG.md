@@ -1,5 +1,39 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.78 — 캠페인 가이드 카피를 행동 중심으로 정리
+
+**수정 (LOW — onboarding/campaign UX clarity):**
+
+- 캠페인 카드 CTA를 `시작/계속/결과` 같은 추상 라벨에서 `작전 시작 / 작전 계속 / 결과 확인`으로 구체화했다.
+- 캠페인 목표 액션 버튼을 `영토 확인 / 함선 준비 / 함대 편성 / 전투 진입 / 마켓 확인`처럼 실제 플레이 행동이 보이도록 조정했다.
+- 목표 미완료 경고를 `아직 완료할 행동이 남아 있습니다 / 남은 목표를 먼저 진행한 뒤 결과를 확인하세요`로 바꿔, 실패처럼 보이던 문구를 진행 안내형으로 정리했다.
+- 결과 모달의 `다시 확인`을 `목표 다시 확인`으로 바꿔 의미를 명확히 했다.
+
+---
+
+## 2026-05-14 v7.77 — 구형 튜토리얼 자동 실행 중단 + 신형 온보딩 루프 재정렬
+
+**수정 (HIGH — first-session UX):**
+
+- 로더 종료 후 `startTutorial()`를 자동 실행하던 구형 spotlight 튜토리얼 경로를 비활성화했다.
+- 이제 첫 실행 가이드는 `server-backed onboarding` 흐름이 단일 진입점이 된다.
+- 신형 온보딩 step 3~5를 `직업 선택 / 길드 / 일일 미션` 중심에서 **영토 → 수확 → 함대 → 캠페인** 중심 루프로 재정렬했다.
+- 최종 온보딩 보상 step도 현재 게임의 북극성 루프를 한 줄로 요약하도록 바꿨다.
+
+---
+
+## 2026-05-14 v7.76 — 출금 최소값 설정 일관화 + withdraw-all 계약 잔액 계산 수정
+
+**수정 (HIGH — finance/admin correctness):**
+
+- `min_withdraw` / `withdraw_min_amount` 이중화로 인해 `/api/config`가 보여주는 최소 출금값과 실제 `/api/withdraw`, `/api/withdraw-all` 서버 검증값이 달라질 수 있었다.
+- `/api/config`와 출금 검증 로직 모두 `withdraw_min_amount` 우선, 없으면 `min_withdraw` fallback을 쓰도록 통일했다.
+- 기본 설정 시드(`server/db.js`)와 migration `201_withdraw_min_amount.sql`도 `withdraw_min_amount = 10` 기준으로 맞췄다.
+- `withdraw-all`은 실제 지급액 `meta.totalOut`을 기록해두고도 관리자 대시보드 계약 잔액 계산에서 `usdt_amount`만 차감하고 있어 잔액을 과대 표시할 수 있었다.
+- `server/routes/admin.js` 계약 잔액 계산을 수정해 `withdraw_all`은 `meta.totalOut`을 우선 차감하고, 구데이터/예외 시에만 `usdt_amount` fallback을 사용한다.
+
+---
+
 ## 2026-05-14 v7.75 — admin 패널 `window.ADMIN_SECRET` 동기화 누락 수정
 
 **수정 (HIGH — admin tab breakage):**
