@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.79 — 상용 오픈 blocker 실행 문서 / 회귀 체크리스트 / 최소 런북 추가
+
+**수정 (DOCS — launch readiness):**
+
+- `docs/LAUNCH_BLOCKER_EXECUTION_PLAN_2026-05-15.md` 추가
+  - 테스트 공개 경로 차단 → 관리자 정책 → 운영 기본선 → 회귀 게이트 → 첫 세션 polish 순서로 실제 작업 단위를 분해했다.
+- `docs/RELEASE_REGRESSION_CHECKLIST_2026-05-15.md` 추가
+  - L1 10분 스모크 / L2 1시간 리허설 / L3 주간 회귀팩 기준을 정리했다.
+- `docs/OPS_MINIMUM_RUNBOOK_2026-05-15.md` 추가
+  - 배포 전/후 확인, 기본 health 판단, 장애 분류, 롤백 기준을 정리했다.
+
+---
+
 ## 2026-05-15 v7.78 — 캠페인 가이드 카피를 행동 중심으로 정리
 
 **수정 (LOW — onboarding/campaign UX clarity):**
