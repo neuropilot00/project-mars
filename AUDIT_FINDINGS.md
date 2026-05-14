@@ -1,3 +1,24 @@
+# OCCUPY MARS — Codebase Audit (v7.74 / 2026-05-14) — campaign editor admin auth 회귀 수정
+
+## 🔴 v7.74 — campaign editor 403 regression 수정 (2026-05-14)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `assets/campaign-editor.html` + `server/index.js` admin campaign-editor routes | 서버가 `/admin/api/campaign-editor/chapters|assets|chapter/:file` 에 `requireAdmin`을 붙였지만 에디터 프론트는 헤더 없는 `fetch()` 유지 → 로드 즉시 403, 캠페인 에디터 unusable | 🔴 HIGH | ✅ `adminFetch()` 추가 + `x-admin-secret` 자동 첨부 |
+
+**수정 내용:**
+- `assets/campaign-editor.html`에 `adminFetch()` helper 추가.
+- 관리자 시크릿은 `sessionStorage(campaignEditorAdminSecret)`에만 저장하고, 없으면 prompt로 입력받도록 구성.
+- 저장된 시크릿이 stale 해서 403이 나면 sessionStorage를 비우고 새 시크릿을 강제로 다시 입력받아 1회 재시도.
+- `loadInitial()`의 `chapters/assets` 로드와 `loadChapter()`의 개별 챕터 로드를 모두 `adminFetch()`로 전환.
+
+**검증:**
+- 헤더 없는 `/admin/api/campaign-editor/chapters` 요청이 `403`임을 재현.
+- 유효한 `x-admin-secret` 헤더 포함 시 동일 엔드포인트가 `200` 응답.
+- 수정 후 `campaign-editor.html` 인라인 스크립트를 추출해 `node --check` 문법 검증 통과.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.73 / 2026-05-11) — 모바일/데스크탑 nav 아이템 버튼 라우팅 수정
 
 ## 🟡 v7.73 — nav 아이템 버튼 (모바일+데스크탑) 라우팅 수정 + SW bump (2026-05-11)

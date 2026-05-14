@@ -418,6 +418,7 @@ input[type="number"]:focus, select:focus, #canvas:focus {
 
 <script>
 const API = '/admin/api/campaign-editor';
+const ADMIN_SECRET_STORAGE_KEY = 'campaignEditorAdminSecret';
 const excludedSpeakers = new Set(['player', 'player_silhouette', 'narrator', 'prologue_voice', 'observer']);
 const portraitMap = {
   player: 'player_silhouette',
@@ -534,6 +535,36 @@ function syncToServer() {
   _syncTimer = setTimeout(() => {
     syncToServerNow().catch(() => {});
   }, 600);
+}
+
+function getAdminSecret(options) {
+  const opts = options || {};
+  const stored = (sessionStorage.getItem(ADMIN_SECRET_STORAGE_KEY) || '').trim();
+  if (stored && !opts.forcePrompt) return stored;
+  if (opts.prompt === false) return '';
+  const entered = (window.prompt('Admin secret required for campaign editor') || '').trim();
+  if (!entered) throw new Error('Admin secret is required');
+  sessionStorage.setItem(ADMIN_SECRET_STORAGE_KEY, entered);
+  return entered;
+}
+
+async function adminFetch(url, options) {
+  const opts = options ? { ...options } : {};
+  const headers = { ...(opts.headers || {}) };
+  const secret = getAdminSecret({ prompt: opts.prompt !== false });
+  headers['x-admin-secret'] = secret;
+  opts.headers = headers;
+  delete opts.prompt;
+  let response = await fetch(url, opts);
+  if (response.status === 403) {
+    sessionStorage.removeItem(ADMIN_SECRET_STORAGE_KEY);
+    const retrySecret = getAdminSecret({ forcePrompt: true });
+    response = await fetch(url, {
+      ...opts,
+      headers: { ...headers, 'x-admin-secret': retrySecret }
+    });
+  }
+  return response;
 }
 
 function clamp(value, min, max) {
@@ -866,8 +897,8 @@ function selectLine(index) {
 
 async function loadInitial() {
   const [chapterResponse, assetResponse, layoutResponse] = await Promise.all([
-    fetch(`${API}/chapters`),
-    fetch(`${API}/assets`),
+    adminFetch(`${API}/chapters`),
+    adminFetch(`${API}/assets`),
     fetch('/api/campaign/editor-layout?t=' + Date.now(), { cache: 'no-store' }).catch(() => null)
   ]);
   if (!chapterResponse.ok) throw new Error('Failed to load chapters');
@@ -890,7 +921,7 @@ async function loadInitial() {
 }
 
 async function loadChapter(file) {
-  const response = await fetch(`${API}/chapter/${encodeURIComponent(file)}`);
+  const response = await adminFetch(`${API}/chapter/${encodeURIComponent(file)}`);
   if (!response.ok) throw new Error(`Failed to load ${file}`);
   chapter = await response.json();
   currentFile = file;

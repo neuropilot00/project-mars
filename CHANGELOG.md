@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-14 v7.74 — campaign editor admin auth 회귀 수정
+
+**수정 (HIGH — admin tool regression):**
+
+- `server/index.js`에서 `/admin/api/campaign-editor/*` read endpoints에 `requireAdmin`이 붙은 뒤, `assets/campaign-editor.html`은 여전히 헤더 없는 `fetch()`로 `chapters/assets/chapter`를 읽고 있어 즉시 `403 FORBIDDEN`으로 깨졌다.
+- `assets/campaign-editor.html`에 `adminFetch()`를 추가해 `x-admin-secret`을 자동 첨부하도록 수정.
+  - `sessionStorage(campaignEditorAdminSecret)`에 저장된 시크릿을 우선 사용하고, 없으면 prompt로 입력받음
+  - 저장된 시크릿으로 403이 나면 sessionStorage를 비우고 새 시크릿을 강제로 다시 입력받아 1회 재시도
+- 결과적으로 캠페인 에디터가 다시 챕터 목록/에셋/개별 챕터를 정상 로드할 수 있는 상태로 복구.
+
+---
+
 ## 2026-05-11 v7.73 — 모바일/데스크탑 nav 아이템 버튼 라우팅 수정 + SW 캐시 bump
 
 **수정 (MEDIUM — UX 단절):**
