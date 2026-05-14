@@ -2623,36 +2623,36 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <!-- ═══ FLEET STARTER PACK GRANT ═══ -->
   <div class="section cat-ships" style="display:none">
     <div class="sec-header">
-      <span class="sec-title" style="color:#4cd89a">🎁 스타터 팩 수동 지급</span>
+      <span class="sec-title" style="color:#4cd89a" data-i18n="starter_pack_title">🎁 MANUAL STARTER PACK GRANT</span>
     </div>
-    <div style="background:rgba(76,216,154,.06);border:1px solid rgba(76,216,154,.15);border-radius:6px;padding:12px;margin-bottom:12px;font-size:10px;color:#bbb;line-height:1.7">
-      파벌은 선택했지만 스타터 함선·광물이 지급되지 않은 유저에게 수동으로 지급합니다.<br>
-      지급 내용: <b style="color:#4cd89a">T1 프리깃 1척 (해당 파벌) + iron_ore 20 + carbon_fiber 20 + silicon_chip 10</b><br>
-      ※ 이미 함선이 있는 유저는 광물만 지급됩니다.
+    <div style="background:rgba(76,216,154,.06);border:1px solid rgba(76,216,154,.15);border-radius:6px;padding:12px;margin-bottom:12px;font-size:10px;color:#bbb;line-height:1.7" data-i18n-html="starter_pack_desc">
+      Manually grants starter rewards to users who picked a faction but did not receive their starter ship and minerals.<br>
+      Contents: <b style="color:#4cd89a">1 T1 frigate (matching faction) + iron_ore 20 + carbon_fiber 20 + silicon_chip 10</b><br>
+      ※ Users who already own a ship receive minerals only.
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input id="starterPackWallet" type="text" placeholder="닉네임 또는 wallet 주소"
+      <input id="starterPackWallet" type="text" placeholder="Nickname or wallet address" data-i18n-placeholder="starter_pack_wallet_placeholder"
         style="flex:1;min-width:200px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px"
         onkeydown="if(event.key==='Enter')grantStarterPack()">
       <select id="starterPackFaction" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 8px;border-radius:4px;font-size:11px">
-        <option value="">파벌자동(유저설정)</option>
+        <option value="" data-i18n="starter_pack_faction_auto">Auto faction (user setting)</option>
         <option value="mcc">MCC</option>
         <option value="fsp">FSP</option>
         <option value="cv">CV</option>
       </select>
       <button onclick="grantStarterPack()"
         style="background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.4);color:#4cd89a;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700">
-        🚀 스타터 팩 지급
+        <span data-i18n="starter_pack_grant_btn">🚀 GRANT STARTER PACK</span>
       </button>
       <button onclick="grantStarterAllNpcs()"
         style="background:rgba(255,153,68,.2);border:1px solid rgba(255,153,68,.5);color:#FF9944;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700"
-        title="0xnpc_% 지갑 전부에 함대+프리깃+광물 일괄 지급">
-        🤖 모든 NPC에 일괄 지급
+        title="Bulk grant fleet + frigate + minerals to all 0xnpc_% wallets" data-i18n-title="starter_pack_npc_title">
+        <span data-i18n="starter_pack_npc_btn">🤖 GRANT TO ALL NPCS</span>
       </button>
       <button onclick="diagnoseNpcStatus()"
         style="background:rgba(91,184,232,.2);border:1px solid rgba(91,184,232,.5);color:#5bb8e8;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700"
-        title="NPC들이 hijack 시 함대전을 할지 자동승리할지 확인">
-        🔍 NPC 함대 진단
+        title="Check whether NPCs trigger fleet battles or auto-win during hijacks" data-i18n-title="starter_pack_diagnose_title">
+        <span data-i18n="starter_pack_diagnose_btn">🔍 NPC FLEET DIAGNOSIS</span>
       </button>
     </div>
     <div id="starterPackResult" style="margin-top:10px;font-size:11px"></div>
@@ -2690,47 +2690,47 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       <button onclick="loadWorldEventsAdmin()" style="font-size:10px;background:rgba(176,136,224,.12);border:1px solid rgba(176,136,224,.3);color:#b088e0;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
     </div>
 
-    <!-- 설명 -->
-    <div style="background:rgba(176,136,224,.06);border:1px solid rgba(176,136,224,.15);border-radius:6px;padding:10px;margin-bottom:16px;font-size:10px;color:#bbb;line-height:1.7">
-      <b style="color:#b088e0">Void Raider 이벤트란?</b><br>
-      외계함선 NPC가 특정 섹터에 침공합니다. 플레이어들이 함대를 보내 격퇴하면 보상을 받고, 시간 내에 격퇴 못 하면 플레이어 영토에 디버프가 적용됩니다.<br>
-      <b style="color:#ddd">자동 스폰:</b> 설정된 UTC 시각(void_raider_spawn_hour_utc)에 자동 생성 · 3일 간격(void_raider_spawn_interval_days)<br>
-      <b style="color:#ddd">수동 스폰:</b> 아래 폼으로 즉시 생성 가능
+    <!-- Description -->
+    <div style="background:rgba(176,136,224,.06);border:1px solid rgba(176,136,224,.15);border-radius:6px;padding:10px;margin-bottom:16px;font-size:10px;color:#bbb;line-height:1.7" data-i18n-html="world_event_desc">
+      <b style="color:#b088e0">What is a Void Raider event?</b><br>
+      Alien NPC ships invade a specific sector. Players can send fleets to repel them for rewards; if not defeated in time, debuffs are applied to player territories.<br>
+      <b style="color:#ddd">Auto spawn:</b> Spawns automatically at the configured UTC hour (void_raider_spawn_hour_utc) on the configured interval (void_raider_spawn_interval_days)<br>
+      <b style="color:#ddd">Manual spawn:</b> Can be created instantly with the form below
     </div>
 
     <!-- 활성 이벤트 목록 -->
     <div class="sec-header" style="margin-bottom:8px">
       <span class="sec-title" style="color:#b088e0;font-size:11px">ACTIVE EVENTS</span>
     </div>
-    <div id="weAdmActiveList" style="margin-bottom:16px;color:#888;font-size:11px">로딩 중...</div>
+    <div id="weAdmActiveList" style="margin-bottom:16px;color:#888;font-size:11px" data-i18n="loading_dots_admin">Loading...</div>
 
     <!-- 수동 스폰 -->
     <div class="sec-header">
-      <span class="sec-title" style="color:#b088e0;font-size:11px">⚡ 수동 스폰 (테스트용)</span>
+      <span class="sec-title" style="color:#b088e0;font-size:11px" data-i18n="world_event_manual_spawn">⚡ MANUAL SPAWN (TEST)</span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:10px">
       <div>
-        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">SECTOR ID (비워두면 랜덤)</label>
-        <input id="weSectorId" type="number" placeholder="예: 3" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px" data-i18n="world_event_sector_id">SECTOR ID (leave blank for random)</label>
+        <input id="weSectorId" type="number" placeholder="e.g. 3" data-i18n-placeholder="world_event_sector_placeholder" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
       </div>
       <div>
-        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">SHIP TYPE (비워두면 기본값)</label>
-        <input id="weShipType" type="text" placeholder="예: mcc_frg" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px" data-i18n="world_event_ship_type">SHIP TYPE (leave blank for default)</label>
+        <input id="weShipType" type="text" placeholder="e.g. mcc_frg" data-i18n-placeholder="world_event_ship_placeholder" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
       </div>
       <div>
-        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">SHIP COUNT (기본: 설정값)</label>
-        <input id="weShipCount" type="number" placeholder="예: 10" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px" data-i18n="world_event_ship_count">SHIP COUNT (default: setting value)</label>
+        <input id="weShipCount" type="number" placeholder="e.g. 10" data-i18n-placeholder="world_event_count_placeholder" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
       </div>
       <div>
-        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">DURATION HOURS (기본: 설정값)</label>
-        <input id="weDuration" type="number" placeholder="예: 24" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px" data-i18n="world_event_duration">DURATION HOURS (default: setting value)</label>
+        <input id="weDuration" type="number" placeholder="e.g. 24" data-i18n-placeholder="world_event_duration_placeholder" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
       </div>
     </div>
-    <button onclick="spawnWorldEvent()" style="width:100%;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(176,136,224,.25),rgba(176,136,224,.08));border:1px solid rgba(176,136,224,.4);color:#b088e0;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:16px">👾 VOID RAIDER 즉시 스폰</button>
+    <button onclick="spawnWorldEvent()" style="width:100%;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(176,136,224,.25),rgba(176,136,224,.08));border:1px solid rgba(176,136,224,.4);color:#b088e0;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:16px" data-i18n="world_event_spawn_now">👾 SPAWN VOID RAIDER NOW</button>
 
     <!-- 설정 키 안내 -->
     <div class="sec-header">
-      <span class="sec-title" style="color:#b088e0;font-size:11px">SETTINGS 키</span>
+      <span class="sec-title" style="color:#b088e0;font-size:11px" data-i18n="world_event_settings_keys">SETTINGS KEYS</span>
     </div>
     <div style="background:rgba(0,0,0,.3);border-radius:6px;padding:10px;font-size:10px;color:#aaa;line-height:1.8">
       <code style="color:#b088e0">void_raider_enabled</code> = true/false (활성화 여부)<br>
@@ -2741,7 +2741,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       <code style="color:#b088e0">void_raider_spawn_hour_utc</code> = 자동 스폰 UTC 시각 (기본 19)<br>
       <code style="color:#b088e0">void_raider_spawn_interval_days</code> = 재스폰 간격 일수 (기본 3)<br>
       <code style="color:#b088e0">void_raider_reward_gp_base</code> = 기본 GP 보상 (기본 100)<br>
-      → <a href="#" onclick="switchTab('game');return false" style="color:#5cbbff">GAME SETTINGS 탭</a>에서 void_raider_* 로 검색
+      <span data-i18n-html="world_event_settings_hint">→ <a href="#" onclick="switchTab('game');return false" style="color:#5cbbff">Search for void_raider_*</a> in the GAME SETTINGS tab</span>
     </div>
 
     <!-- 최근 종료 이벤트 -->
@@ -2805,10 +2805,10 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
 
     <div style="background:rgba(255,136,102,.06);border:1px solid rgba(255,136,102,.15);border-radius:6px;padding:10px;margin-bottom:12px;font-size:10px;color:#bbb;line-height:1.7">
-      <b style="color:#ff8866">버그 리포트 트리아지</b><br>
-      유저 인게임 🐞 BUG 버튼으로 접수된 리포트입니다. 행을 클릭하면 본문/최근 JS 에러/Claude 노트가 펼쳐지며, 상태와 노트를 갱신할 수 있습니다.<br>
-      <b style="color:#ddd">상태:</b> new → triaged → in_progress → fixed (또는 wontfix / duplicate)<br>
-      <b style="color:#ddd">파이프라인:</b> 새 리포트는 <code style="color:#ff8866">server/bug-reports/inbox/</code> 에도 JSON 미러됨 (Claude Code watcher 픽업용)
+      <span data-i18n-html="bug_triage_desc"><b style="color:#ff8866">Bug report triage</b><br>
+      Reports submitted from the in-game 🐞 BUG button appear here. Click a row to expand the body, recent JS errors, and Claude notes; you can update status and notes from the detail panel.<br>
+      <b style="color:#ddd">Status:</b> new → triaged → in_progress → fixed (or wontfix / duplicate)<br>
+      <b style="color:#ddd">Pipeline:</b> new reports are also mirrored as JSON into <code style="color:#ff8866">server/bug-reports/inbox/</code> for Claude Code watcher pickup</span>
     </div>
 
     <div style="overflow-x:auto">
@@ -2876,7 +2876,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
 
       <div style="margin-bottom:12px">
         <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">CLAUDE NOTES</div>
-        <textarea id="brdNotes" placeholder="Claude Code 또는 어드민이 남기는 트리아지 노트..." style="width:100%;min-height:80px;font-size:10px;padding:8px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:4px;color:#fff;font-family:inherit;resize:vertical"></textarea>
+        <textarea id="brdNotes" placeholder="Triage notes from Claude Code or an admin..." data-i18n-placeholder="bug_notes_placeholder" style="width:100%;min-height:80px;font-size:10px;padding:8px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:4px;color:#fff;font-family:inherit;resize:vertical"></textarea>
         <div style="font-size:8px;color:var(--tx3);margin-top:4px">
           attempts: <span id="brdAttempts" style="color:var(--cyan)">0</span> · resolved_commit: <span id="brdCommit" style="color:var(--cyan);font-family:monospace">-</span>
         </div>
@@ -3026,6 +3026,7 @@ function adminConfirm(msg, title) {
   });
 }
 var adminSecret = '';
+window.ADMIN_SECRET = '';
 // Set language selector to stored value on load
 (function() {
   var stored = localStorage.getItem('adminLang') || 'en';
@@ -3098,7 +3099,35 @@ var adminLangData = {
     sec_error_log: 'CLIENT ERROR LOG', btn_clear_errors: 'CLEAR ALL', btn_refresh: 'REFRESH',
     err_th_time: 'TIME', err_th_message: 'MESSAGE', err_th_source: 'SOURCE', err_th_line: 'LINE',
     err_th_url: 'PAGE', err_th_browser: 'BROWSER', err_th_ip: 'IP', err_stack_trace: 'STACK TRACE',
-    err_no_errors: 'No errors recorded', err_total: 'total errors'
+    err_no_errors: 'No errors recorded', err_total: 'total errors',
+    starter_pack_wallet_required: 'Enter a nickname or wallet address',
+    starter_pack_loading: 'Granting starter pack...',
+    starter_pack_none_ship: 'None (already owned)',
+    starter_pack_none_minerals: 'None',
+    starter_pack_success: '✓ Starter pack granted!',
+    starter_pack_faction_label: 'Faction', starter_pack_ship_label: 'Ship', starter_pack_minerals_label: 'Minerals',
+    starter_pack_failed: 'Failed', starter_pack_error: 'Error',
+    starter_pack_bulk_confirm: 'Grant starter packs (fleet + frigate + minerals) to all 0xnpc_% wallets. Continue?',
+    starter_pack_bulk_loading: 'Bulk granting... (may take a while depending on NPC count)',
+    starter_pack_bulk_error_count: 'Errors', starter_pack_bulk_more: 'more',
+    starter_pack_bulk_success: '✓ Bulk grant complete!', starter_pack_bulk_targets: 'Target NPCs', starter_pack_bulk_granted: 'New ships granted', starter_pack_bulk_existing: 'Already had ships',
+    npc_diag_loading: 'Running diagnosis...', npc_diag_title: 'NPC fleet status', npc_diag_auto_risk: 'Auto-win risk', npc_diag_status_ships: ' ships', npc_diag_status_fleet_only: 'Fleet exists but has no ships', npc_diag_status_none: 'No fleet → auto-win',
+    starter_pack_title: '🎁 MANUAL STARTER PACK GRANT',
+    starter_pack_desc: 'Manually grants starter rewards to users who picked a faction but did not receive their starter ship and minerals.<br>Contents: <b style="color:#4cd89a">1 T1 frigate (matching faction) + iron_ore 20 + carbon_fiber 20 + silicon_chip 10</b><br>※ Users who already own a ship receive minerals only.',
+    starter_pack_wallet_placeholder: 'Nickname or wallet address', starter_pack_faction_auto: 'Auto faction (user setting)',
+    starter_pack_grant_btn: '🚀 GRANT STARTER PACK', starter_pack_npc_btn: '🤖 GRANT TO ALL NPCS',
+    starter_pack_npc_title: 'Bulk grant fleet + frigate + minerals to all 0xnpc_% wallets',
+    starter_pack_diagnose_btn: '🔍 NPC FLEET DIAGNOSIS', starter_pack_diagnose_title: 'Check whether NPCs trigger fleet battles or auto-win during hijacks',
+    world_event_desc: '<b style="color:#b088e0">What is a Void Raider event?</b><br>Alien NPC ships invade a specific sector. Players can send fleets to repel them for rewards; if not defeated in time, debuffs are applied to player territories.<br><b style="color:#ddd">Auto spawn:</b> Spawns automatically at the configured UTC hour (void_raider_spawn_hour_utc) on the configured interval (void_raider_spawn_interval_days)<br><b style="color:#ddd">Manual spawn:</b> Can be created instantly with the form below',
+    loading_dots_admin: 'Loading...', world_event_manual_spawn: '⚡ MANUAL SPAWN (TEST)',
+    world_event_sector_id: 'SECTOR ID (leave blank for random)', world_event_sector_placeholder: 'e.g. 3',
+    world_event_ship_type: 'SHIP TYPE (leave blank for default)', world_event_ship_placeholder: 'e.g. mcc_frg',
+    world_event_ship_count: 'SHIP COUNT (default: setting value)', world_event_count_placeholder: 'e.g. 10',
+    world_event_duration: 'DURATION HOURS (default: setting value)', world_event_duration_placeholder: 'e.g. 24',
+    world_event_spawn_now: '👾 SPAWN VOID RAIDER NOW', world_event_settings_keys: 'SETTINGS KEYS',
+    world_event_settings_hint: '→ <a href="#" onclick="switchTab(\'game\');return false" style="color:#5cbbff">Search for void_raider_*</a> in the GAME SETTINGS tab',
+    bug_triage_desc: '<b style="color:#ff8866">Bug report triage</b><br>Reports submitted from the in-game 🐞 BUG button appear here. Click a row to expand the body, recent JS errors, and Claude notes; you can update status and notes from the detail panel.<br><b style="color:#ddd">Status:</b> new → triaged → in_progress → fixed (or wontfix / duplicate)<br><b style="color:#ddd">Pipeline:</b> new reports are also mirrored as JSON into <code style="color:#ff8866">server/bug-reports/inbox/</code> for Claude Code watcher pickup',
+    bug_notes_placeholder: 'Triage notes from Claude Code or an admin...'
   },
   ko: {
     tab_dashboard: '\uB300\uC2DC\uBCF4\uB4DC', tab_users: '\uC720\uC800 \uAD00\uB9AC', tab_game: '\uAC8C\uC784 \uC124\uC815', tab_finance: '\uC7AC\uBB34',
@@ -3122,7 +3151,35 @@ var adminLangData = {
     sec_error_log: '\uD074\uB77C\uC774\uC5B8\uD2B8 \uC5D0\uB7EC \uB85C\uADF8', btn_clear_errors: '\uC804\uCCB4 \uC0AD\uC81C', btn_refresh: '\uC0C8\uB85C\uACE0\uCE68',
     err_th_time: '\uC2DC\uAC04', err_th_message: '\uBA54\uC2DC\uC9C0', err_th_source: '\uC18C\uC2A4', err_th_line: '\uB77C\uC778',
     err_th_url: '\uD398\uC774\uC9C0', err_th_browser: '\uBE0C\uB77C\uC6B0\uC800', err_th_ip: 'IP', err_stack_trace: '\uC2A4\uD0DD \uD2B8\uB808\uC774\uC2A4',
-    err_no_errors: '\uAE30\uB85D\uB41C \uC5D0\uB7EC \uC5C6\uC74C', err_total: '\uCD1D \uC5D0\uB7EC'
+    err_no_errors: '\uAE30\uB85D\uB41C \uC5D0\uB7EC \uC5C6\uC74C', err_total: '\uCD1D \uC5D0\uB7EC',
+    starter_pack_wallet_required: '\uB2C9\uB124\uC784 \uB610\uB294 wallet \uC8FC\uC18C\uB97C \uC785\uB825\uD558\uC138\uC694',
+    starter_pack_loading: '\uC9C0\uAE09 \uC911...',
+    starter_pack_none_ship: '\uC5C6\uC74C(\uC774\uBBF8 \uBCF4\uC720)',
+    starter_pack_none_minerals: '\uC5C6\uC74C',
+    starter_pack_success: '✓ \uC2A4\uD0C0\uD130 \uD329 \uC9C0\uAE09 \uC644\uB8CC!',
+    starter_pack_faction_label: '\uD30C\uBC8C', starter_pack_ship_label: '\uD568\uC120', starter_pack_minerals_label: '\uAD11\uBB3C',
+    starter_pack_failed: '\uC2E4\uD328', starter_pack_error: '\uC624\uB958',
+    starter_pack_bulk_confirm: '0xnpc_% \uC9C0\uAC11 \uC804\uBD80\uC5D0\uAC8C \uC2A4\uD0C0\uD130 \uD329(\uD568\uB300+\uD504\uB9AC\uAE43+\uAD11\uBB3C)\uC744 \uC77C\uAD04 \uC9C0\uAE09\uD569\uB2C8\uB2E4. \uACC4\uC18D\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?',
+    starter_pack_bulk_loading: '\uC77C\uAD04 \uC9C0\uAE09 \uC911... (NPC \uC218\uC5D0 \uB530\uB77C \uC2DC\uAC04\uC774 \uAC78\uB9B4 \uC218 \uC788\uC74C)',
+    starter_pack_bulk_error_count: '\uC5D0\uB7EC', starter_pack_bulk_more: '\uC678',
+    starter_pack_bulk_success: '✓ \uC77C\uAD04 \uC9C0\uAE09 \uC644\uB8CC!', starter_pack_bulk_targets: '\uB300\uC0C1 NPC', starter_pack_bulk_granted: '\uD568\uC120 \uC2E0\uADDC \uC9C0\uAE09', starter_pack_bulk_existing: '\uC774\uBBF8 \uD568\uC120 \uBCF4\uC720',
+    npc_diag_loading: '\uC9C4\uB2E8 \uC911...', npc_diag_title: 'NPC \uD568\uB300 \uD604\uD669', npc_diag_auto_risk: '\uC790\uB3D9\uC2B9\uB9AC \uC704\uD5D8', npc_diag_status_ships: '\uCC99', npc_diag_status_fleet_only: '\uD568\uB300\uB9CC \uC788\uACE0 \uD568\uC120 \uC5C6\uC74C', npc_diag_status_none: '\uD568\uB300 \uC5C6\uC74C → \uC790\uB3D9\uC2B9\uB9AC',
+    starter_pack_title: '\uD83C\uDF81 \uC2A4\uD0C0\uD130 \uD329 \uC218\uB3D9 \uC9C0\uAE09',
+    starter_pack_desc: '\uD30C\uBC8C\uC740 \uC120\uD0DD\uD588\uC9C0\uB9CC \uC2A4\uD0C0\uD130 \uD568\uC120\u00B7\uAD11\uBB3C\uC774 \uC9C0\uAE09\uB418\uC9C0 \uC54A\uC740 \uC720\uC800\uC5D0\uAC8C \uC218\uB3D9\uC73C\uB85C \uC9C0\uAE09\uD569\uB2C8\uB2E4.<br>\uC9C0\uAE09 \uB0B4\uC6A9: <b style="color:#4cd89a">T1 \uD504\uB9AC\uAE43 1\uCC99 (\uD574\uB2F9 \uD30C\uBC8C) + iron_ore 20 + carbon_fiber 20 + silicon_chip 10</b><br>※ \uC774\uBBF8 \uD568\uC120\uC774 \uC788\uB294 \uC720\uC800\uB294 \uAD11\uBB3C\uB9CC \uC9C0\uAE09\uB429\uB2C8\uB2E4.',
+    starter_pack_wallet_placeholder: '\uB2C9\uB124\uC784 \uB610\uB294 wallet \uC8FC\uC18C', starter_pack_faction_auto: '\uD30C\uBC8C\uC790\uB3D9(\uC720\uC800\uC124\uC815)',
+    starter_pack_grant_btn: '\uD83D\uDE80 \uC2A4\uD0C0\uD130 \uD329 \uC9C0\uAE09', starter_pack_npc_btn: '\uD83E\uDD16 \uBAA8\uB4E0 NPC\uC5D0 \uC77C\uAD04 \uC9C0\uAE09',
+    starter_pack_npc_title: '0xnpc_% \uC9C0\uAC11 \uC804\uBD80\uC5D0 \uD568\uB300+\uD504\uB9AC\uAE43+\uAD11\uBB3C \uC77C\uAD04 \uC9C0\uAE09',
+    starter_pack_diagnose_btn: '\uD83D\uDD0D NPC \uD568\uB300 \uC9C4\uB2E8', starter_pack_diagnose_title: 'NPC\uB4E4\uC774 hijack \uC2DC \uD568\uB300\uC804\uC744 \uD560\uC9C0 \uC790\uB3D9\uC2B9\uB9AC\uD560\uC9C0 \uD655\uC778',
+    world_event_desc: '<b style="color:#b088e0">Void Raider \uC774\uBCA4\uD2B8\uB780?</b><br>\uC678\uACC4\uD568\uC120 NPC\uAC00 \uD2B9\uC815 \uC139\uD130\uC5D0 \uCE68\uACF5\uD569\uB2C8\uB2E4. \uD50C\uB808\uC774\uC5B4\uB4E4\uC774 \uD568\uB300\uB97C \uBCF4\uB0B4 \uACA9\uD1F4\uD558\uBA74 \uBCF4\uC0C1\uC744 \uBC1B\uACE0, \uC2DC\uAC04 \uB0B4\uC5D0 \uACA9\uD1F4 \uBABB \uD558\uBA74 \uD50C\uB808\uC774\uC5B4 \uC601\uD1A0\uC5D0 \uB514\uBC84\uD504\uAC00 \uC801\uC6A9\uB429\uB2C8\uB2E4.<br><b style="color:#ddd">\uC790\uB3D9 \uC2A4\uD3F0:</b> \uC124\uC815\uB41C UTC \uC2DC\uAC01(void_raider_spawn_hour_utc)\uC5D0 \uC790\uB3D9 \uC0DD\uC131 \u00B7 3\uC77C \uAC04\uACA9(void_raider_spawn_interval_days)<br><b style="color:#ddd">\uC218\uB3D9 \uC2A4\uD3F0:</b> \uC544\uB798 \uD3FC\uC73C\uB85C \uC989\uC2DC \uC0DD\uC131 \uAC00\uB2A5',
+    loading_dots_admin: '\uB85C\uB529 \uC911...', world_event_manual_spawn: '⚡ \uC218\uB3D9 \uC2A4\uD3F0 (\uD14C\uC2A4\uD2B8\uC6A9)',
+    world_event_sector_id: 'SECTOR ID (\uBE44\uC6CC\uB450\uBA74 \uB79C\uB364)', world_event_sector_placeholder: '\uC608: 3',
+    world_event_ship_type: 'SHIP TYPE (\uBE44\uC6CC\uB450\uBA74 \uAE30\uBCF8\uAC12)', world_event_ship_placeholder: '\uC608: mcc_frg',
+    world_event_ship_count: 'SHIP COUNT (\uAE30\uBCF8: \uC124\uC815\uAC12)', world_event_count_placeholder: '\uC608: 10',
+    world_event_duration: 'DURATION HOURS (\uAE30\uBCF8: \uC124\uC815\uAC12)', world_event_duration_placeholder: '\uC608: 24',
+    world_event_spawn_now: '\uD83D\uDC7E VOID RAIDER \uC989\uC2DC \uC2A4\uD3F0', world_event_settings_keys: 'SETTINGS \uD0A4',
+    world_event_settings_hint: '→ <a href="#" onclick="switchTab(\'game\');return false" style="color:#5cbbff">GAME SETTINGS \uD0ED</a>\uC5D0\uC11C void_raider_* \uB85C \uAC80\uC0C9',
+    bug_triage_desc: '<b style="color:#ff8866">\uBC84\uADF8 \uB9AC\uD3EC\uD2B8 \uD2B8\uB9AC\uC544\uC9C0</b><br>\uC720\uC800 \uC778\uAC8C\uC784 🐞 BUG \uBC84\uD2BC\uC73C\uB85C \uC811\uC218\uB41C \uB9AC\uD3EC\uD2B8\uC785\uB2C8\uB2E4. \uD589\uC744 \uD074\uB9AD\uD558\uBA74 \uBCF8\uBB38/\uCD5C\uADFC JS \uC5D0\uB7EC/Claude \uB178\uD2B8\uAC00 \uD3BC\uCCD0\uC9C0\uBA70, \uC0C1\uD0DC\uC640 \uB178\uD2B8\uB97C \uAC31\uC2E0\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.<br><b style="color:#ddd">\uC0C1\uD0DC:</b> new → triaged → in_progress → fixed (\uB610\uB294 wontfix / duplicate)<br><b style="color:#ddd">\uD30C\uC774\uD504\uB77C\uC778:</b> \uC0C8 \uB9AC\uD3EC\uD2B8\uB294 <code style="color:#ff8866">server/bug-reports/inbox/</code> \uC5D0\uB3C4 JSON \uBBF8\uB7EC\uB428 (Claude Code watcher \uD53D\uC5C5\uC6A9)',
+    bug_notes_placeholder: 'Claude Code \uB610\uB294 \uC5B4\uB4DC\uBBFC\uC774 \uB0A8\uAE30\uB294 \uD2B8\uB9AC\uC544\uC9C0 \uB178\uD2B8...'
   },
   ja: {
     tab_dashboard: '\u30C0\u30C3\u30B7\u30E5\u30DC\u30FC\u30C9', tab_users: '\u30E6\u30FC\u30B6\u30FC\u7BA1\u7406', tab_game: '\u30B2\u30FC\u30E0\u8A2D\u5B9A', tab_finance: '\u8CA1\u52D9',
@@ -3180,16 +3237,37 @@ function setAdminLang(lang) {
   var sel = document.getElementById('adminLangSelect');
   if (sel) sel.value = adminLang;
   var dict = adminLangData[adminLang] || adminLangData.en;
+  var enDict = adminLangData.en || {};
   // Apply text content
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
-    if (dict[key]) el.textContent = dict[key];
+    var val = dict[key] != null ? dict[key] : enDict[key];
+    if (val != null) el.textContent = val;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-html');
+    var val = dict[key] != null ? dict[key] : enDict[key];
+    if (val != null) el.innerHTML = val;
   });
   // Apply placeholders
   document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
     var key = el.getAttribute('data-i18n-placeholder');
-    if (dict[key]) el.placeholder = dict[key];
+    var val = dict[key] != null ? dict[key] : enDict[key];
+    if (val != null) el.placeholder = val;
   });
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-title');
+    var val = dict[key] != null ? dict[key] : enDict[key];
+    if (val != null) el.title = val;
+  });
+}
+
+function adminT(key, fallback) {
+  var dict = adminLangData[adminLang] || {};
+  var enDict = adminLangData.en || {};
+  if (dict[key] != null) return dict[key];
+  if (enDict[key] != null) return enDict[key];
+  return fallback;
 }
 
 // ── User Edit ──
@@ -3272,6 +3350,7 @@ function doAuth() {
       return r.json();
     })
     .then(function() {
+      window.ADMIN_SECRET = adminSecret;
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('mainContent').style.display = '';
       switchTab('dashboard');
@@ -10782,33 +10861,33 @@ function grantStarterPack() {
   var wallet = (document.getElementById('starterPackWallet').value || '').trim();
   var faction = (document.getElementById('starterPackFaction').value || '').trim();
   var resultEl = document.getElementById('starterPackResult');
-  if (!wallet) { resultEl.innerHTML = '<span style="color:#f44">닉네임 또는 wallet 주소를 입력하세요</span>'; return; }
-  resultEl.innerHTML = '<span style="color:#aaa">지급 중...</span>';
+  if (!wallet) { resultEl.innerHTML = '<span style="color:#f44">'+adminT('starter_pack_wallet_required','Enter a nickname or wallet address')+'</span>'; return; }
+  resultEl.innerHTML = '<span style="color:#aaa">'+adminT('starter_pack_loading','Granting starter pack...')+'</span>';
   fetch('/admin/api/fleet/grant-starter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
     body: JSON.stringify({ wallet: wallet, faction: faction || undefined })
   }).then(function(r){ return r.json(); }).then(function(d){
     if (d.success) {
-      var shipInfo = typeof d.ship === 'object' ? (d.ship.name + ' (' + d.ship.code + ')') : (d.ship || '없음(이미 보유)');
-      var minInfo = d.minerals ? Object.entries(d.minerals).map(function(e){return e[0]+' x'+e[1];}).join(', ') : '없음';
+      var shipInfo = typeof d.ship === 'object' ? (d.ship.name + ' (' + d.ship.code + ')') : (d.ship || adminT('starter_pack_none_ship','None (already owned)'));
+      var minInfo = d.minerals ? Object.entries(d.minerals).map(function(e){return e[0]+' x'+e[1];}).join(', ') : adminT('starter_pack_none_minerals','None');
       resultEl.innerHTML = '<div style="background:rgba(76,216,154,.1);border:1px solid rgba(76,216,154,.3);border-radius:6px;padding:8px;line-height:1.8">'
-        +'<b style="color:#4cd89a">✓ 지급 완료!</b><br>'
-        +'파벌: '+d.faction+'<br>'
-        +'함선: '+shipInfo+'<br>'
-        +'광물: '+minInfo
+        +'<b style="color:#4cd89a">'+adminT('starter_pack_success','✓ Starter pack granted!')+'</b><br>'
+        +adminT('starter_pack_faction_label','Faction')+': '+d.faction+'<br>'
+        +adminT('starter_pack_ship_label','Ship')+': '+shipInfo+'<br>'
+        +adminT('starter_pack_minerals_label','Minerals')+': '+minInfo
         +'</div>';
     } else {
-      resultEl.innerHTML = '<span style="color:#f44">실패: ' + (d.error || JSON.stringify(d)) + '</span>';
+      resultEl.innerHTML = '<span style="color:#f44">'+adminT('starter_pack_failed','Failed')+': ' + (d.error || JSON.stringify(d)) + '</span>';
     }
-  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
+  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">'+adminT('starter_pack_error','Error')+': '+e.message+'</span>'; });
 }
 
 // ── 모든 NPC에 스타터 팩 일괄 지급 ──
 async function grantStarterAllNpcs() {
   var resultEl = document.getElementById('starterPackResult');
-  if (!await adminConfirm('0xnpc_% 지갑 전부에게 스타터 팩(함대+프리깃+광물)을 일괄 지급합니다. 계속하시겠습니까?')) return;
-  resultEl.innerHTML = '<span style="color:#aaa">일괄 지급 중... (NPC 수에 따라 시간이 걸릴 수 있음)</span>';
+  if (!await adminConfirm(adminT('starter_pack_bulk_confirm','Grant starter packs (fleet + frigate + minerals) to all 0xnpc_% wallets. Continue?'))) return;
+  resultEl.innerHTML = '<span style="color:#aaa">'+adminT('starter_pack_bulk_loading','Bulk granting... (may take a while depending on NPC count)')+'</span>';
   fetch('/admin/api/fleet/grant-starter-all-npcs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret }
@@ -10816,39 +10895,39 @@ async function grantStarterAllNpcs() {
     if (d.success) {
       var errHtml = '';
       if (d.errors && d.errors.length) {
-        errHtml = '<div style="margin-top:6px;color:#f88;font-size:10px"><b>에러 ('+d.errors.length+'개):</b><br>'
+        errHtml = '<div style="margin-top:6px;color:#f88;font-size:10px"><b>'+adminT('starter_pack_bulk_error_count','Errors')+' ('+d.errors.length+'):</b><br>'
           + d.errors.slice(0,5).map(function(e){return '• '+e.wallet+': '+e.error;}).join('<br>')
-          + (d.errors.length > 5 ? '<br>...외 ' + (d.errors.length-5) + '건' : '') + '</div>';
+          + (d.errors.length > 5 ? '<br>... '+adminT('starter_pack_bulk_more','more')+' ' + (d.errors.length-5) : '') + '</div>';
       }
       resultEl.innerHTML = '<div style="background:rgba(255,153,68,.1);border:1px solid rgba(255,153,68,.3);border-radius:6px;padding:8px;line-height:1.8">'
-        +'<b style="color:#FF9944">✓ 일괄 지급 완료!</b><br>'
-        +'대상 NPC: '+d.total+'명<br>'
-        +'함선 신규 지급: '+d.granted+'명<br>'
-        +'이미 함선 보유: '+d.alreadyHad+'명<br>'
-        +'에러: '+(d.errors ? d.errors.length : 0)+'건'
+        +'<b style="color:#FF9944">'+adminT('starter_pack_bulk_success','✓ Bulk grant complete!')+'</b><br>'
+        +adminT('starter_pack_bulk_targets','Target NPCs')+': '+d.total+'<br>'
+        +adminT('starter_pack_bulk_granted','New ships granted')+': '+d.granted+'<br>'
+        +adminT('starter_pack_bulk_existing','Already had ships')+': '+d.alreadyHad+'<br>'
+        +adminT('starter_pack_bulk_error_count','Errors')+': '+(d.errors ? d.errors.length : 0)
         + errHtml
         +'</div>';
     } else {
-      resultEl.innerHTML = '<span style="color:#f44">실패: ' + (d.error || JSON.stringify(d)) + '</span>';
+      resultEl.innerHTML = '<span style="color:#f44">'+adminT('starter_pack_failed','Failed')+': ' + (d.error || JSON.stringify(d)) + '</span>';
     }
-  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
+  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">'+adminT('starter_pack_error','Error')+': '+e.message+'</span>'; });
 }
 
 // ── NPC 함대 진단 (hijack 자동승리 원인 추적) ──
 function diagnoseNpcStatus() {
   var resultEl = document.getElementById('starterPackResult');
-  resultEl.innerHTML = '<span style="color:#aaa">진단 중...</span>';
+  resultEl.innerHTML = '<span style="color:#aaa">'+adminT('npc_diag_loading','Running diagnosis...')+'</span>';
   fetch('/admin/api/fleet/npc-status', {
     headers: { 'x-admin-secret': adminSecret }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { resultEl.innerHTML = '<span style="color:#f44">오류: '+d.error+'</span>'; return; }
+    if (d.error) { resultEl.innerHTML = '<span style="color:#f44">'+adminT('starter_pack_error','Error')+': '+d.error+'</span>'; return; }
     var s = d.summary || {};
     var rows = (d.npcs || []).slice(0, 30).map(function(n){
       var status = n.alive_ships > 0
-        ? '<span style="color:#4cd89a">⚔ '+n.alive_ships+'척</span>'
+        ? '<span style="color:#4cd89a">⚔ '+n.alive_ships+adminT('npc_diag_status_ships',' ships')+'</span>'
         : (n.fleet_count > 0
-            ? '<span style="color:#FF9944">⚠ 함대만 있고 함선 없음</span>'
-            : '<span style="color:#f44">✕ 함대 없음 → 자동승리</span>');
+            ? '<span style="color:#FF9944">⚠ '+adminT('npc_diag_status_fleet_only','Fleet exists but has no ships')+'</span>'
+            : '<span style="color:#f44">✕ '+adminT('npc_diag_status_none','No fleet → auto-win')+'</span>');
       return '<tr><td style="padding:2px 8px;font-size:10px">'+n.wallet_address+'</td>'
         +'<td style="padding:2px 8px;font-size:10px">'+(n.nickname||'-')+'</td>'
         +'<td style="padding:2px 8px;font-size:10px">'+(n.faction_code||'-')+'</td>'
@@ -10857,15 +10936,15 @@ function diagnoseNpcStatus() {
     var hintColor = s.willAutoWin > 0 ? '#FF9944' : '#4cd89a';
     resultEl.innerHTML =
       '<div style="background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.3);border-radius:6px;padding:10px;margin-bottom:8px">'
-      +'<b style="color:#5bb8e8">NPC 함대 현황</b><br>'
-      +'전체: <b>'+s.total+'</b>명 · 함대 보유: <b>'+s.withFleet+'</b>명 · 함선 보유: <b style="color:#4cd89a">'+s.withShips+'</b>명 · '
-      +'<b style="color:'+hintColor+'">자동승리 위험: '+s.willAutoWin+'명</b>'
+      +'<b style="color:#5bb8e8">'+adminT('npc_diag_title','NPC fleet status')+'</b><br>'
+      +'Total: <b>'+s.total+'</b> · With fleet: <b>'+s.withFleet+'</b> · With ships: <b style="color:#4cd89a">'+s.withShips+'</b> · '
+      +'<b style="color:'+hintColor+'">'+adminT('npc_diag_auto_risk','Auto-win risk')+': '+s.willAutoWin+'</b>'
       +'<div style="margin-top:6px;font-size:10px;color:'+hintColor+'">'+(d.hint||'')+'</div>'
       +'</div>'
       +'<div style="max-height:300px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:6px"><table style="width:100%;border-collapse:collapse">'
       +'<thead><tr style="background:rgba(255,255,255,.05)"><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Wallet</th><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Nick</th><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Faction</th><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Status</th></tr></thead>'
       +'<tbody>'+rows+'</tbody></table></div>';
-  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
+  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">'+adminT('starter_pack_error','Error')+': '+e.message+'</span>'; });
 }
 
 

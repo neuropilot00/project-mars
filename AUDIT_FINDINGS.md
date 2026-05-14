@@ -1,3 +1,23 @@
+# OCCUPY MARS — Codebase Audit (v7.75 / 2026-05-14) — admin 패널 `window.ADMIN_SECRET` 동기화 누락 수정
+
+## 🔴 v7.75 — admin 후반 탭 인증 헤더 누락 수정 (2026-05-14)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `admin.html` | 로그인 성공 시 `adminSecret`만 설정하고 `window.ADMIN_SECRET`는 끝까지 빈 문자열. 그런데 Contest/Rental/Duel/Expedition/Branding/Spells/Tournaments 등 다수 탭이 `window.ADMIN_SECRET` 기반으로 헤더를 구성 → 후반 탭 대량 401/403/빈 데이터 | 🔴 HIGH | ✅ 로그인 성공 시 전역 동기화 |
+
+**수정 내용:**
+- 전역 초기값 `window.ADMIN_SECRET = ''` 추가.
+- `doAuth()` 성공 직후 `window.ADMIN_SECRET = adminSecret` 동기화 추가.
+- 기존 `adminSecret` 기반 탭은 그대로 유지하고, `window.ADMIN_SECRET` 사용 탭들만 정상 복구.
+
+**검증:**
+- `admin.html` 전체 검색 기준 `window.ADMIN_SECRET` 사용처는 다수인데, 수정 전에는 대입문이 0건이었음.
+- 수정 후 대입문이 2건(초기화 1, 로그인 성공 동기화 1)으로 생김.
+- `admin.html` 인라인 스크립트 추출 후 `node --check` 문법 검증 통과.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.74 / 2026-05-14) — campaign editor admin auth 회귀 수정
 
 ## 🔴 v7.74 — campaign editor 403 regression 수정 (2026-05-14)

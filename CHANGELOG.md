@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-14 v7.75 — admin 패널 `window.ADMIN_SECRET` 동기화 누락 수정
+
+**수정 (HIGH — admin tab breakage):**
+
+- `admin.html`은 로그인 시 `adminSecret` 지역 변수만 채우고, 다수의 후반 탭(Contest/Rental/Duel/Expedition/Branding/Spells/Tournaments/... 다수)은 `window.ADMIN_SECRET`를 헤더 소스로 사용하고 있었다.
+- 그런데 `window.ADMIN_SECRET`에 값을 넣는 코드가 전혀 없어, 로그인 성공 후에도 해당 탭들은 빈 `x-admin-secret`로 요청을 보내며 401/403 또는 빈 데이터 상태가 났다.
+- 초기 전역값 `window.ADMIN_SECRET = ''`를 선언하고, `doAuth()` 성공 직후 `window.ADMIN_SECRET = adminSecret`으로 동기화하도록 수정.
+
+---
+
 ## 2026-05-14 v7.74 — campaign editor admin auth 회귀 수정
 
 **수정 (HIGH — admin tool regression):**
