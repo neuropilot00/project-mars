@@ -1,3 +1,24 @@
+# OCCUPY MARS — Codebase Audit (v7.81 / 2026-05-15) — 관리자 정책 / 배포 롤백 / 백업 복구 운영 문서 추가
+
+## 🟡 v7.81 — ops documentation hardening 정리 (2026-05-15)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 문서 | 관리자 시크릿 관리, 배포/롤백, 백업/복구 기준이 최소 런북에만 추상적으로 적혀 있고 개별 실행 문서가 없음 | 🟡 MEDIUM | ✅ 운영 문서 3종 추가 |
+
+**수정 내용:**
+- `docs/ops/ADMIN_ACCESS_POLICY.md` 추가: `ADMIN_SECRET` 보관/전달 금지 규칙, 교체 주기, 유출 대응 절차 정리.
+- `docs/ops/DEPLOY_ROLLBACK_CHECKLIST.md` 추가: 배포 전/직후 확인, 롤백 트리거, 핫픽스 vs 롤백 기준 정리.
+- `docs/ops/BACKUP_RECOVERY_BASELINE.md` 추가: DB/환경변수/배포 SHA 기준 최소 백업 자산과 복구 검증 절차 정리.
+- `docs/OPS_MINIMUM_RUNBOOK_2026-05-15.md`의 다음 단계 권장 항목을 실제 생성 상태에 맞게 갱신.
+
+**검증:**
+- `server/middleware/adminAuth.js` 기준 실제 관리자 인증 헤더/환경변수 이름(`x-admin-secret`, `ADMIN_SECRET`)을 문서에 반영.
+- 새 문서 3개 생성 확인.
+- 런북의 참조 경로와 실제 파일 경로 일치 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.80 / 2026-05-15) — 테스트 런처 기본 외부 공개 차단 + 관리자 비밀번호 노출 제거
 
 ## 🔴 v7.80 — start-test launcher exposure control 정리 (2026-05-15)

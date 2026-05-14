@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.81 — 관리자 정책 / 배포 롤백 / 백업 복구 운영 문서 추가
+
+**수정 (DOCS — ops hardening):**
+
+- `docs/ops/ADMIN_ACCESS_POLICY.md` 추가
+  - `ADMIN_SECRET` / `x-admin-secret` 기준, 저장 금지/허용 범위, 교체/회수 절차를 정리했다.
+- `docs/ops/DEPLOY_ROLLBACK_CHECKLIST.md` 추가
+  - 배포 전 확인, 배포 직후 스모크, 롤백 트리거, 핫픽스 vs 롤백 기준을 정리했다.
+- `docs/ops/BACKUP_RECOVERY_BASELINE.md` 추가
+  - DB/환경변수/배포 SHA 기준의 최소 백업·복구 기준과 복구 검증 항목을 정리했다.
+- `docs/OPS_MINIMUM_RUNBOOK_2026-05-15.md`의 다음 단계 권장을 실제 생성 상태에 맞게 갱신했다.
+
+---
+
 ## 2026-05-15 v7.80 — 테스트 런처 기본 외부 공개 차단 + 관리자 비밀번호 노출 제거
 
 **수정 (HIGH — launch exposure control):**
