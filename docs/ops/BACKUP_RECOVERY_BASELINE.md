@@ -30,6 +30,7 @@
 - 최소 일 1회 전체 백업
 - 주요 배포 전 추가 백업 권장
 - 보관 주기: 최근 7일 이상 권장
+- 사전 점검은 `npm run backup:verify`로 수행 가능
 
 ### Environment / Secrets
 - 값 자체를 평문 문서화하지 말고,
@@ -106,4 +107,4 @@
 - 실제 DB 백업 명령/도구 명시
 - 복구 리허설 주기 고정
 - 운영 env inventory 문서화
-- release script 추가
+- backup artifact 보관 위치/보존 주기 문서화

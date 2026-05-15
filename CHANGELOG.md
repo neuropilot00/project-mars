@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.85 — backup verify script 추가
+
+**수정 (OPS automation — backup verify):**
+
+- `server/tools/backup_verify.js` 추가
+  - `DATABASE_URL` 해석 여부
+  - `pg_dump` 사용 가능 여부
+  - DB ping
+  - 백업 핵심 테이블 존재 여부
+  - Git 원격 존재 여부를 점검한다.
+- `server/package.json`
+  - `npm run backup:verify` 스크립트 추가
+- `docs/ops/BACKUP_RECOVERY_BASELINE.md`
+  - backup baseline에 `backup:verify` 사전 점검 기준을 반영했다.
+
+**검증:**
+- `node --check tools/backup_verify.js`
+- `npm run backup:verify` → `5 passed / 0 failed`
+
+---
+
 ## 2026-05-15 v7.84 — rollback helper script 추가
 
 **수정 (OPS automation — rollback helper):**

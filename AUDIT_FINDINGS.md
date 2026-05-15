@@ -1,3 +1,22 @@
+# OCCUPY MARS — Codebase Audit (v7.85 / 2026-05-15) — backup verify script 추가
+
+## 🟡 v7.85 — 백업 전제 점검 스크립트 추가 (2026-05-15)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 백업 | 백업 baseline 문서는 있었지만, 실제로 DB/pg_dump/핵심 테이블/원격 상태를 빠르게 점검하는 반복 가능한 verify 명령이 없었음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/tools/backup_verify.js` 추가: `DATABASE_URL`, `pg_dump`, DB ping, 핵심 테이블, Git 원격 점검.
+- `server/package.json`: `npm run backup:verify` 추가.
+- `docs/ops/BACKUP_RECOVERY_BASELINE.md`에 backup verify 사전 점검 기준 반영.
+
+**검증:**
+- `node --check tools/backup_verify.js`
+- `npm run backup:verify` → `5 passed / 0 failed`
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.84 / 2026-05-15) — rollback helper script 추가
 
 ## 🟡 v7.84 — 롤백 보조 스크립트 추가 (2026-05-15)

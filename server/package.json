@@ -8,7 +8,8 @@
     "dev": "node --watch index.js",
     "smoke:db": "node tools/db_smoke.js",
     "release:check": "node tools/release_preflight.js",
-    "rollback:plan": "node tools/rollback_helper.js"
+    "rollback:plan": "node tools/rollback_helper.js",
+    "backup:verify": "node tools/backup_verify.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
