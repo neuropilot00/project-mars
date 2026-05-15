@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.83 — release preflight script 추가
+
+**수정 (OPS automation — release preflight):**
+
+- `server/tools/release_preflight.js` 추가
+  - `npm run smoke:db` 실행
+  - `TARGET_URL` 기준 `/health` 200 + DB ok 확인
+  - `TARGET_URL` 기준 `/api/config` 응답 확인
+- `server/package.json`
+  - `npm run release:check` 스크립트 추가
+- 운영 문서 갱신
+  - 배포 체크리스트/런북에 `TARGET_URL=https://... npm run release:check` 기준 반영
+
+**검증:**
+- `node --check server/tools/release_preflight.js`
+- `npm run release:check` → `3 passed / 0 failed`
+
+---
+
 ## 2026-05-15 v7.82 — health 응답 보정 + DB smoke script 추가
 
 **수정 (OPS automation — minimal):**

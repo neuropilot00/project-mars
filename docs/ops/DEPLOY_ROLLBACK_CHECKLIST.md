@@ -22,6 +22,7 @@
 - [ ] `ADMIN_SECRET` 준비
 - [ ] 핵심 env 누락 없음
 - [ ] 필요 시 `npm run smoke:db` 실행 가능
+- [ ] `TARGET_URL=https://... npm run release:check` 실행 가능
 
 ---
 
@@ -47,6 +48,7 @@
 - [ ] 메인 URL 접속
 - [ ] `/health`가 200인지 확인
 - [ ] `/admin` 접속
+- [ ] 가능하면 `TARGET_URL=https://... npm run release:check` 1회 실행
 
 ### User Flow
 - [ ] 로그인 가능

@@ -1,3 +1,23 @@
+# OCCUPY MARS — Codebase Audit (v7.83 / 2026-05-15) — release preflight script 추가
+
+## 🟡 v7.83 — 배포 전 점검 스크립트 추가 (2026-05-15)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 점검 | `smoke:db`와 `/health`는 있었지만, 배포 전 운영 URL 기준으로 둘을 묶어 반복 실행하는 단일 명령이 없었음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/tools/release_preflight.js` 추가: `smoke:db` → `/health` → `/api/config` 순으로 점검.
+- `server/package.json`: `npm run release:check` 추가.
+- 운영 문서에 `TARGET_URL=https://... npm run release:check` 반영.
+
+**검증:**
+- `node --check server/tools/release_preflight.js`
+- `npm run release:check` → `3 passed / 0 failed`
+- 로컬 3000 포트는 이미 점유 중이어서 새 서버 실행은 `EADDRINUSE`였지만, 기존 실행 서버 대상으로 점검 스크립트는 정상 통과.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.82 / 2026-05-15) — health 응답 보정 + DB smoke script 추가
 
 ## 🟡 v7.82 — 운영 최소 자동화 추가 (2026-05-15)
