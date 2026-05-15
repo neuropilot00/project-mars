@@ -135,6 +135,12 @@
 - 출금/잔액 정합성 이상
 - 메인/로그인/핵심 루프 단절
 
+### 실행 보조
+- dry-run: `npm run rollback:plan -- <known-good-sha>`
+- 로컬 적용: `npm run rollback:plan -- <known-good-sha> --apply`
+- 원격 반영 포함: `npm run rollback:plan -- <known-good-sha> --apply --push`
+- `--push`는 `main`에서만 허용되며 force-with-lease를 사용한다.
+
 ### 롤백 후 반드시 남길 것
 - 장애 시작 시각
 - 영향 범위

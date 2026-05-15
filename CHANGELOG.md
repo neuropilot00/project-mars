@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-15 v7.84 — rollback helper script 추가
+
+**수정 (OPS automation — rollback helper):**
+
+- `server/tools/rollback_helper.js` 추가
+  - known-good SHA를 받아 `git reset --hard <sha>` 기준 롤백 계획을 dry-run으로 보여준다.
+  - `--apply`로 로컬 적용, `--apply --push`로 원격 반영까지 가능하게 했다.
+  - `--push`는 `main`에서만 허용하고 `force-with-lease`를 사용한다.
+- `server/package.json`
+  - `npm run rollback:plan -- <known-good-sha>` 스크립트 추가
+- 운영 문서 갱신
+  - 배포 체크리스트/런북에 rollback helper 사용 예시 반영
+
+**검증:**
+- `node --check tools/rollback_helper.js`
+- `npm run rollback:plan -- 8383be7` → dry-run complete
+
+---
+
 ## 2026-05-15 v7.83 — release preflight script 추가
 
 **수정 (OPS automation — release preflight):**

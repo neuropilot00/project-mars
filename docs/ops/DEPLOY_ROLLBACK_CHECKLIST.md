@@ -82,9 +82,12 @@
 2. 해당 SHA로 되돌릴 방법 결정
    - revert commit
    - known-good SHA 재배포
-3. Railway 재배포 확인
-4. 롤백 후 L1 스모크 재실행
-5. 장애 기록 남김
+   - `npm run rollback:plan -- <known-good-sha>` dry-run 확인
+3. 적용이 필요하면 `npm run rollback:plan -- <known-good-sha> --apply`
+4. 원격까지 되돌려야 하면 `npm run rollback:plan -- <known-good-sha> --apply --push`
+5. Railway 재배포 확인
+6. 롤백 후 L1 스모크 재실행
+7. 장애 기록 남김
 
 기록할 것:
 - 롤백 기준이 된 증상

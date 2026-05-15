@@ -1,3 +1,22 @@
+# OCCUPY MARS — Codebase Audit (v7.84 / 2026-05-15) — rollback helper script 추가
+
+## 🟡 v7.84 — 롤백 보조 스크립트 추가 (2026-05-15)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 롤백 | 롤백 절차 문서는 있었지만 known-good SHA 기준으로 실제 명령을 미리 검토하는 반복 가능한 helper가 없었음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/tools/rollback_helper.js` 추가: target SHA 검증, commit diff 요약, dry-run 계획 출력, `--apply`/`--push` 가드 포함.
+- `server/package.json`: `npm run rollback:plan` 추가.
+- 운영 문서에 rollback helper 사용 순서 반영.
+
+**검증:**
+- `node --check tools/rollback_helper.js`
+- `npm run rollback:plan -- 8383be7` → dry-run complete
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.83 / 2026-05-15) — release preflight script 추가
 
 ## 🟡 v7.83 — 배포 전 점검 스크립트 추가 (2026-05-15)
