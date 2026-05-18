@@ -276,9 +276,17 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .lb-rank.gold{color:var(--gold)}.lb-rank.silver{color:#C0C0D0}.lb-rank.bronze{color:#CD7F32}
 .lb-name{font-size:var(--fs-sm);color:var(--tx2);flex:1}.lb-val{font-size:var(--fs-sm);color:var(--gn)}
 
-.feed-item{font-size:var(--fs-xs);color:var(--tx2);padding:5px 0;
-  border-bottom:1px solid rgba(255,255,255,.02);line-height:1.7}
+.feed-item{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px;color:rgba(255,255,255,0.7);border-bottom:1px solid rgba(255,255,255,0.05);line-height:1.7}
+.feed-item.feed-new{background:rgba(79,195,247,0.08);border-radius:4px}
 .feed-item.new{color:var(--mars);animation:feedIn .3s}
+.feed-icon{flex-shrink:0;width:18px;text-align:center}
+.feed-text b{color:#4fc3f7}
+.feed-target{color:rgba(255,255,255,0.5)}
+.feed-meta{color:var(--gold, #FFD166)}
+.feed-time{margin-left:auto;flex-shrink:0;color:rgba(255,255,255,0.3);font-size:10px}
+#liveFeedPanel{position:fixed;bottom:60px;left:8px;width:260px;max-height:200px;overflow:hidden;z-index:50;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 8px;pointer-events:none}
+#liveFeedPanel .feed-header{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+#liveFeedList{display:flex;flex-direction:column;gap:1px}
 @keyframes feedIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 
 /* Territory Info */
@@ -51265,12 +51273,57 @@ function startChatPolling() {
   loadChatMessages();
   _chatPollTimer = setInterval(() => { loadChatMessages(); }, 5000);
 }
+
+var _feedSince = null;
+var _feedTimer = null;
+
+async function loadActivityFeed() {
+  try {
+    var url = '/api/activity/feed?limit=15' + (_feedSince ? '&since=' + encodeURIComponent(_feedSince) : '');
+    var r = await fetch(url);
+    if (!r.ok) return;
+    var data = await r.json();
+    var events = data.events || [];
+    if (!events.length) return;
+    _feedSince = events[0].created_at;
+    var container = document.getElementById('liveFeedList') || document.getElementById('liveFeed');
+    if (!container) return;
+    var empty = document.getElementById('liveFeedEmpty');
+    if (empty) empty.remove();
+    var icons = { claim: '📍', harvest: '⛏', battle: '⚔', build: '⚓' };
+    var labels = { claim: '영토 확보', harvest: '채굴', battle: '전투 승리', build: '함선 건조' };
+    events.forEach(function(e) {
+      var el = document.createElement('div');
+      el.className = 'feed-item feed-new';
+      var icon = icons[e.type] || '•';
+      var label = labels[e.type] || e.type;
+      var escFn = typeof _escapeHtmlSafe === 'function' ? _escapeHtmlSafe : (typeof _escapeHtml === 'function' ? _escapeHtml : function(s){ return String(s).replace(/[&<>"]/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); });
+      var agoFn = typeof _timeAgo === 'function' ? _timeAgo : function(d){ var s=Math.floor((Date.now()-d)/1000); return s<60?s+'s ago':Math.floor(s/60)+'m ago'; };
+      var ago = agoFn(new Date(e.created_at));
+      el.innerHTML = '<span class="feed-icon">' + icon + '</span>'
+        + '<span class="feed-text"><b>' + escFn(e.actor || '?') + '</b> ' + label
+        + (e.target ? ' <span class="feed-target">' + escFn(e.target) + '</span>' : '')
+        + (e.meta ? ' <span class="feed-meta">(' + escFn(e.meta) + ')</span>' : '')
+        + '</span><span class="feed-time">' + ago + '</span>';
+      container.insertBefore(el, container.firstChild);
+      setTimeout(function(){ el.classList.remove('feed-new'); }, 300);
+    });
+    while (container.children.length > 30) container.removeChild(container.lastChild);
+  } catch(e) {}
+}
+
+function startFeedPolling() {
+  if (_feedTimer) clearInterval(_feedTimer);
+  loadActivityFeed();
+  _feedTimer = setInterval(loadActivityFeed, 10000);
+}
 // ── END CHAT SYSTEM ───────────────────────────────────────────
 
 // ── DOMContentLoaded: 랜딩 + 온보딩 트리거 ──
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(checkLandingOverlay, 800);
   startChatPolling();
+  startFeedPolling();
   if (typeof isLoggedIn === 'function' && isLoggedIn()) {
     setTimeout(runOnboardingCheck, 2000);
   }

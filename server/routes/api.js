@@ -7935,4 +7935,112 @@ router.post('/onboarding/dismiss', requireAuth, async (req, res) => {
   return res.json({ success: true });
 });
 
+// GET /api/activity/feed — global polling-based activity feed (best-effort per source)
+// [Gemini review] 5초 인메모리 캐시로 DB 부하 방지
+let _feedCache = null;
+let _feedCacheAt = 0;
+const FEED_CACHE_TTL_MS = 5000;
+
+router.get('/activity/feed', async (req, res) => {
+  const sinceParam = req.query.since ? String(req.query.since) : '';
+  const sinceDate = sinceParam ? new Date(sinceParam) : null;
+  const since = sinceDate && !Number.isNaN(sinceDate.getTime())
+    ? sinceDate.toISOString()
+    : new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const limit = Math.min(20, Math.max(1, parseInt(req.query.limit, 10) || 15));
+
+  // 캐시 히트 (since 없는 초기 요청에만 적용)
+  if (!sinceParam && _feedCache && Date.now() - _feedCacheAt < FEED_CACHE_TTL_MS) {
+    return res.json({ events: _feedCache.slice(0, limit) });
+  }
+
+  const safeQuery = async (sql, params) => {
+    try {
+      const result = await pool.query(sql, params);
+      return result.rows || [];
+    } catch (err) {
+      console.warn('[activity/feed] source query failed:', err.message);
+      return [];
+    }
+  };
+
+  try {
+    const [claims, harvests, battles, builds] = await Promise.all([
+      safeQuery(
+        `SELECT 'claim' AS type,
+            COALESCE(u.nickname, LEFT(c.owner, 8)) AS actor,
+            COALESCE(c.custom_name, 'territory') AS target,
+            NULL AS meta,
+            c.created_at
+         FROM claims c
+         LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(c.owner)
+         WHERE c.created_at > $1
+         ORDER BY c.created_at DESC
+         LIMIT 5`,
+        [since]
+      ),
+      safeQuery(
+        `SELECT 'harvest' AS type,
+            LEFT(from_wallet, 8) AS actor,
+            NULL AS target,
+            pp_amount::text || ' PP' AS meta,
+            created_at
+         FROM transactions
+         WHERE type = 'mining' AND created_at > $1
+         ORDER BY created_at DESC
+         LIMIT 5`,
+        [since]
+      ),
+      safeQuery(
+        // [Gemini review] DISTINCT ON으로 전투당 1개만 반환 (JOIN 시 중복 방지)
+        `SELECT DISTINCT ON (fb.id)
+            'battle' AS type,
+            COALESCE(u.nickname, LEFT(fbp.wallet_address, 8)) AS actor,
+            NULL AS target,
+            NULL AS meta,
+            COALESCE(fb.ended_at, fb.created_at) AS created_at
+         FROM fleet_battles fb
+         JOIN fleet_battle_participants fbp
+           ON fbp.battle_id = fb.id AND fbp.side = fb.winner_side
+         LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(fbp.wallet_address)
+         WHERE fb.status = 'ended'
+           AND fb.winner_side IS NOT NULL
+           AND fb.winner_side != 'draw'
+           AND COALESCE(fb.ended_at, fb.created_at) > $1
+         ORDER BY fb.id, COALESCE(fb.ended_at, fb.created_at) DESC
+         LIMIT 5`,
+        [since]
+      ),
+      safeQuery(
+        `SELECT 'build' AS type,
+            COALESCE(u.nickname, LEFT(s.owner_wallet, 8)) AS actor,
+            st.name AS target,
+            NULL AS meta,
+            s.built_at AS created_at
+         FROM ships s
+         LEFT JOIN ship_types st ON s.ship_type_code = st.code
+         LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(s.owner_wallet)
+         WHERE s.built_at > $1
+         ORDER BY s.built_at DESC
+         LIMIT 5`,
+        [since]
+      ),
+    ]);
+
+    const events = []
+      .concat(claims, harvests, battles, builds)
+      .filter(e => e && e.created_at)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, limit);
+
+    // 초기 요청 캐시 저장
+    if (!sinceParam) { _feedCache = events; _feedCacheAt = Date.now(); }
+
+    return res.json({ events });
+  } catch (err) {
+    console.error('[activity/feed] error:', err.message);
+    return res.json({ events: [] });
+  }
+});
+
 module.exports = router;

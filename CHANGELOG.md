@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-18 v7.77 — 실시간 활동 피드 (Live Feed)
+
+**신규 기능 (EVE Lite 감각):**
+
+- `server/routes/api.js` — `GET /api/activity/feed?since=&limit=` 공개 엔드포인트
+  - 영토 클레임 / 채굴 / 전투 승리 / 함선 건조 4개 소스 Promise.all
+  - actor는 nickname 또는 wallet 앞 8자리 (개인정보 최소 노출)
+- `index.html` — `loadActivityFeed()` + `startFeedPolling()` (10초 폴링)
+  - 기존 `#liveFeed` 컨테이너에 연결, 새 이벤트 위에서 삽입
+  - `feed-new` 애니메이션, 최대 30개 유지
+
+**교차검수 (Gemini):**
+- 공개 엔드포인트 DB 부하 → 5초 인메모리 캐시 추가 ✅
+- fleet_battles JOIN 중복 → `DISTINCT ON (fb.id)` 수정 ✅
+
+---
+
 ## 2026-05-18 v7.76 — 신규 유저 온보딩 힌트 시스템
 
 **신규 기능 (온보딩 플로우):**
