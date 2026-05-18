@@ -113,6 +113,7 @@ const governanceRoutes = require('./routes/governance');
 const marketplaceRoutes = require('./routes/marketplace');
 const jobRoutes = require('./routes/job');
 const resourceRoutes = require('./routes/resource');
+const chatRoutes = require('./routes/chat');
 // Removed: routes/onboarding.js v1 (frontend uses v2 only — onboardingRoutes.js mounted at /api/onboarding)
 const sectorRoutes = require('./routes/sectors');
 const siegeRoutes = require('./routes/siege');
@@ -304,6 +305,7 @@ app.use('/api/auth/register', authLimiter);
 // ⚠️ job/resource/onboarding/sector routes must come BEFORE apiRoutes to avoid /user/:wallet wildcard conflict
 app.use('/api', jobRoutes);
 app.use('/api', resourceRoutes);
+app.use('/api', chatRoutes);
 // Removed: onboardingRoutes v1 mount
 app.use('/api', sectorRoutes);
 app.use('/api', siegeRoutes);

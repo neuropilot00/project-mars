@@ -5397,6 +5397,28 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   text-align: center; padding: 40px 20px;
   color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 2px;
 }
+.chat-overlay{position:fixed;right:16px;bottom:16px;width:320px;z-index:900;border:1px solid rgba(79,195,247,0.3);border-radius:8px;background:rgba(10,10,20,0.95);font-size:13px;transition:all .2s}
+.chat-overlay.collapsed .chat-body{display:none}
+.chat-header{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;color:#4fc3f7;font-weight:700;letter-spacing:1px;user-select:none}
+.chat-header:hover{background:rgba(79,195,247,0.08)}
+.chat-unread{background:#f44336;color:#fff;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:700}
+.chat-toggle-icon{margin-left:auto;font-size:10px}
+.chat-overlay.collapsed .chat-toggle-icon{transform:rotate(180deg)}
+.chat-body{display:flex;flex-direction:column;height:360px}
+.chat-channel-row{display:flex;gap:6px;padding:6px 8px;border-bottom:1px solid rgba(79,195,247,0.15)}
+.chat-ch{background:transparent;border:1px solid rgba(79,195,247,0.3);color:#90caf9;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:11px}
+.chat-ch.active{background:rgba(79,195,247,0.2);color:#4fc3f7;border-color:#4fc3f7}
+.chat-messages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:4px}
+.chat-msg{word-break:break-word;line-height:1.4}
+.chat-msg-nick{color:#4fc3f7;font-weight:600;margin-right:4px}
+.chat-msg-text{color:#e0e0e0}
+.chat-msg-time{color:#546e7a;font-size:10px;margin-left:4px}
+.chat-input-row{display:flex;gap:6px;padding:8px;border-top:1px solid rgba(79,195,247,0.15)}
+.chat-input-row input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(79,195,247,0.3);border-radius:4px;padding:6px 8px;color:#e0e0e0;font-size:12px;outline:none}
+.chat-input-row input:focus{border-color:#4fc3f7}
+.chat-input-row button{background:#1565c0;border:none;color:#fff;border-radius:4px;padding:6px 10px;cursor:pointer;font-size:13px}
+.chat-input-row button:hover{background:#1976d2}
+@media(max-width:600px){.chat-overlay{width:calc(100vw - 32px);bottom:70px;right:16px}}
 </style>
 </head>
 <body>
@@ -51062,9 +51084,104 @@ async function initOnboarding(wallet) {
   setTimeout(checkOnboarding, 1500);
 }
 
+// ── CHAT SYSTEM ──────────────────────────────────────────────
+let _chatChannel = 'global';
+let _chatSince = null;
+let _chatPollTimer = null;
+let _chatUnread = 0;
+let _chatExpanded = false;
+
+function toggleChat() {
+  const el = document.getElementById('chatOverlay');
+  _chatExpanded = !_chatExpanded;
+  el.classList.toggle('collapsed', !_chatExpanded);
+  if (_chatExpanded) {
+    _chatUnread = 0;
+    const badge = document.getElementById('chatUnreadBadge');
+    if (badge) { badge.style.display = 'none'; badge.textContent = '0'; }
+    setTimeout(() => {
+      const msgs = document.getElementById('chatMessages');
+      if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    }, 50);
+  }
+}
+
+function switchChatChannel(ch) {
+  _chatChannel = ch === 'sector' ? (window._chatCurrentSector || 'global') : 'global';
+  _chatSince = null;
+  document.getElementById('chatMessages').innerHTML = '';
+  document.querySelectorAll('.chat-ch').forEach(b => b.classList.remove('active'));
+  const idx = ch === 'sector' ? 1 : 0;
+  document.querySelectorAll('.chat-ch')[idx]?.classList.add('active');
+  loadChatMessages();
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = (input?.value || '').trim();
+  if (!msg) return;
+  const wallet = window._walletAddress || (window.walletState && walletState.address) || localStorage.getItem('wallet') || '';
+  if (!wallet) { if(typeof showToast === 'function') showToast('로그인이 필요합니다'); return; }
+  const token = localStorage.getItem('pw_token') || localStorage.getItem('token') || localStorage.getItem('jwt') || '';
+  try {
+    const r = await fetch('/api/chat/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? {'Authorization': 'Bearer ' + token} : {}) },
+      body: JSON.stringify({ channel: _chatChannel, message: msg })
+    });
+    if (r.status === 429) { if(typeof showToast === 'function') showToast('메시지를 너무 빠르게 전송하고 있습니다'); return; }
+    if (!r.ok) { if(typeof showToast === 'function') showToast('전송 실패'); return; }
+    input.value = '';
+    await loadChatMessages();
+  } catch(e) { if(typeof showToast === 'function') showToast('전송 오류'); }
+}
+
+async function loadChatMessages() {
+  try {
+    const url = '/api/chat/messages?channel=' + encodeURIComponent(_chatChannel) + (_chatSince ? '&since=' + encodeURIComponent(_chatSince) : '');
+    const r = await fetch(url);
+    if (!r.ok) return;
+    const data = await r.json();
+    const msgs = data.messages || [];
+    if (!msgs.length) return;
+    _chatSince = msgs[msgs.length - 1].created_at;
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
+    const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 40;
+    msgs.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'chat-msg';
+      const nick = m.nickname || (m.wallet || '').substring(0, 8);
+      const t = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      div.innerHTML = '<span class="chat-msg-nick">' + nick + '</span><span class="chat-msg-text">' + _escapeHtml(m.message) + '</span><span class="chat-msg-time">' + t + '</span>';
+      container.appendChild(div);
+    });
+    if (wasAtBottom || !_chatExpanded) {
+      container.scrollTop = container.scrollHeight;
+    }
+    if (!_chatExpanded && msgs.length > 0) {
+      _chatUnread += msgs.length;
+      const badge = document.getElementById('chatUnreadBadge');
+      if (badge) { badge.style.display = 'inline'; badge.textContent = _chatUnread > 99 ? '99+' : String(_chatUnread); }
+    }
+  } catch(e) { /* silent */ }
+}
+
+function _escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function startChatPolling() {
+  if (_chatPollTimer) clearInterval(_chatPollTimer);
+  loadChatMessages();
+  _chatPollTimer = setInterval(() => { loadChatMessages(); }, 5000);
+}
+// ── END CHAT SYSTEM ───────────────────────────────────────────
+
 // ── DOMContentLoaded: 랜딩 + 온보딩 트리거 ──
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(checkLandingOverlay, 800);
+  startChatPolling();
   if (typeof isLoggedIn === 'function' && isLoggedIn()) {
     setTimeout(checkOnboarding, 2000);
   }
@@ -51765,6 +51882,25 @@ window.closeTacticalLab = closeTacticalLab;
 
 })();
 </script>
+
+<div id="chatOverlay" class="chat-overlay collapsed">
+  <div class="chat-header" onclick="toggleChat()">
+    <span>💬 COMMS</span>
+    <span id="chatUnreadBadge" class="chat-unread" style="display:none">0</span>
+    <span class="chat-toggle-icon">▲</span>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-channel-row">
+      <button class="chat-ch active" onclick="switchChatChannel('global')">🌐 전체</button>
+      <button class="chat-ch" id="chatSectorBtn" onclick="switchChatChannel('sector')" style="display:none">📍 섹터</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input id="chatInput" type="text" maxlength="200" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter')sendChatMessage()">
+      <button onclick="sendChatMessage()">▶</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-18 v7.75 — 인게임 채팅 시스템 (COMMS)
+
+**신규 기능 (MMO 사회성 레이어):**
+
+- `server/migrations/212_chat.sql` — `chat_messages` 테이블 + 채널/시간 복합 인덱스
+- `server/routes/chat.js` — 채팅 API 3개:
+  - `GET /api/chat/messages?channel=&since=` — 최신 50개 (초기: DESC 서브쿼리→ASC 정렬, 폴링: ASC)
+  - `POST /api/chat/send` — JWT 전용 wallet, DB timestamp 레이트리밋(10초/3개)
+  - `GET /api/chat/channels` — 24시간 내 활성 섹터 채널 목록
+- `server/index.js` — chatRoutes 마운트
+- `index.html` — 우하단 플로팅 COMMS 오버레이:
+  - 글로벌/섹터 채널 전환
+  - 5초 폴링, 접힌 상태에서 미읽은 배지 표시
+  - XSS 방어 (`_escapeHtml`), 모바일 safe-area 위 배치
+
+**교차검수 (Gemini):**
+- rate limit TOCTOU — low risk, 채팅 시스템에서 허용 가능한 수준
+- 초기 로딩 정렬 버그 발견 → `DESC LIMIT 50` 서브쿼리 후 `ASC` 재정렬로 수정 ✅
+
+---
+
 ## 2026-05-18 v7.74 — withdraw env 변수명 정보 유출 방지
 
 **수정 (MEDIUM — 보안):**
