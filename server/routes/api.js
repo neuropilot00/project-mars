@@ -2131,7 +2131,15 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
     const amountBN = ethers.utils.parseUnits(amount.toString(), chainCfg.decimals);
     const feeBN = ethers.BigNumber.from(0); // no fee on withdrawal for now
 
-    const availableLiquidity = await getAvailableLiquidity(chainKey);
+    // [v7.74] Liquidity check — wrap separately to avoid leaking env-var names in error messages
+    let availableLiquidity;
+    try {
+      availableLiquidity = await getAvailableLiquidity(chainKey);
+    } catch (liquidityErr) {
+      await client.query('ROLLBACK');
+      console.error('[API] withdraw liquidity check error:', liquidityErr.message);
+      return res.status(503).json({ error: 'On-chain liquidity check unavailable. Try again shortly.' });
+    }
     if (availableLiquidity.lt(amountBN.add(feeBN))) {
       await client.query('ROLLBACK');
       return res.status(409).json({
@@ -2250,7 +2258,15 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
     const chainCfg = CHAINS[chainKey];
     const amountBN = ethers.utils.parseUnits(totalOut.toString(), chainCfg.decimals);
     const feeBN = ethers.utils.parseUnits(ppFee.toString(), chainCfg.decimals);
-    const availableLiquidity = await getAvailableLiquidity(chainKey);
+    // [v7.74] Liquidity check — wrap separately to avoid leaking env-var names in error messages
+    let availableLiquidity;
+    try {
+      availableLiquidity = await getAvailableLiquidity(chainKey);
+    } catch (liquidityErr) {
+      await client.query('ROLLBACK');
+      console.error('[API] withdraw-all liquidity check error:', liquidityErr.message);
+      return res.status(503).json({ error: 'On-chain liquidity check unavailable. Try again shortly.' });
+    }
     if (availableLiquidity.lt(amountBN.add(feeBN))) {
       await client.query('ROLLBACK');
       return res.status(409).json({
