@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-18 v7.76 — 신규 유저 온보딩 힌트 시스템
+
+**신규 기능 (온보딩 플로우):**
+
+- `server/routes/api.js` — `/api/onboarding/status` (GET, requireAuth) + `/api/onboarding/dismiss` (POST, requireAuth)
+  - 영토 없음(step 0) → 채굴 미경험(1) → 함선 없음(2) → 완료(3) 4단계 판별
+  - `claims.owner` / `transactions.from_wallet` / `ships.owner_wallet` 실제 컬럼 사용
+- `index.html` — 하단 플로팅 온보딩 힌트 카드:
+  - STEP 1/3: 화성 지도 클릭 안내 → STEP 2/3: 채굴 안내 → STEP 3/3: 조선소 안내
+  - ✕ 버튼으로 닫기, 로그인 후 2초 딜레이 자동 표시
+  - `runOnboardingCheck()` (기존 `checkOnboarding`과 충돌 회피)
+
+**교차검수 (Gemini):**
+- wallet 추출이 `req.query` 기반이었던 버그 → `requireAuth` + `getAuthWallet(req)` JWT 전용으로 수정 ✅
+- `countFirst` 다중 컬럼 시도 패턴 → 정확한 단일 쿼리 3개 `Promise.all`로 교체 ✅
+
+---
+
 ## 2026-05-18 v7.75 — 인게임 채팅 시스템 (COMMS)
 
 **신규 기능 (MMO 사회성 레이어):**

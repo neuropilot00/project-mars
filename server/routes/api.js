@@ -7884,4 +7884,55 @@ router.get('/news', readLimiter, async (req, res) => {
   }
 });
 
+// GET /api/onboarding/status — lightweight first-session progress hint
+// [Gemini review] JWT 전용 wallet 추출, 정확한 컬럼명 사용
+router.get('/onboarding/status', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet) return res.json({ step: 0, completed: false });
+
+  try {
+    const [claimRes, miningRes, shipRes] = await Promise.all([
+      pool.query(
+        'SELECT COUNT(*)::int AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND deleted_at IS NULL',
+        [wallet]
+      ),
+      pool.query(
+        "SELECT COUNT(*)::int AS cnt FROM transactions WHERE type = 'mining' AND LOWER(from_wallet) = LOWER($1)",
+        [wallet]
+      ),
+      pool.query(
+        'SELECT COUNT(*)::int AS cnt FROM ships WHERE LOWER(owner_wallet) = LOWER($1)',
+        [wallet]
+      ),
+    ]);
+
+    const territoryCount = claimRes.rows[0]?.cnt || 0;
+    const miningCount    = miningRes.rows[0]?.cnt || 0;
+    const shipCount      = shipRes.rows[0]?.cnt   || 0;
+
+    if (territoryCount <= 0) return res.json({ step: 0, completed: false });
+    if (miningCount <= 0)    return res.json({ step: 1, completed: false });
+    if (shipCount <= 0)      return res.json({ step: 2, completed: false });
+    return res.json({ step: 3, completed: true });
+  } catch (err) {
+    console.error('[onboarding] status error:', err.message);
+    return res.json({ step: 0, completed: false });
+  }
+});
+
+// POST /api/onboarding/dismiss — best-effort (users.settings 컬럼 없어도 graceful)
+// [Gemini review] JWT 전용 wallet 추출
+router.post('/onboarding/dismiss', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (wallet) {
+    try {
+      await pool.query(
+        "UPDATE users SET settings = COALESCE(settings, '{}'::jsonb) || jsonb_build_object('onboarding_dismissed', true) WHERE LOWER(wallet_address) = LOWER($1)",
+        [wallet]
+      );
+    } catch (_) { /* users.settings 컬럼 없는 환경에서도 무시 — 프론트 로컬 상태로 처리 */ }
+  }
+  return res.json({ success: true });
+});
+
 module.exports = router;
