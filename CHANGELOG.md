@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-18 v7.74 — withdraw env 변수명 정보 유출 방지
+
+**수정 (MEDIUM — 보안):**
+
+- `server/routes/api.js` `/api/withdraw` + `/api/withdraw-all` — `getAvailableLiquidity()` 예외 시 `e.message`가 클라이언트에 반환되어 서버 env 변수명(`BASE_RPC_URL` 등)이 노출되는 정보 유출 수정.
+  - 별도 `try/catch`로 감싸 503 + 제네릭 메시지 반환. 내부 에러는 서버 로그에만 기록.
+
+**Codex 신규 커밋 감사 완료 (be1fe9d ~ 6bc645e):**
+- `adminAuth.js` / campaign editor `requireAdmin` 라우트 / `getAdminSecret` 재시도 — ✅ CLEAN
+- `minWithdrawAmount` BEGIN 이후 체크 / `signer.js` `getAvailableLiquidity` — ✅ CLEAN (env 정보 유출만 v7.74 수정)
+- `admin.js` `withdraw_all` totalOut 계산 / `db.js` 키 변경 호환 — ✅ CLEAN (Codex fix 정상)
+
+---
+
 ## 2026-05-15 v7.85 — backup verify script 추가
 
 **수정 (OPS automation — backup verify):**

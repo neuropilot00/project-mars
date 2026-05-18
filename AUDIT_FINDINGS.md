@@ -1,3 +1,34 @@
+# OCCUPY MARS — Codebase Audit (v7.74 / 2026-05-18) — Codex 신규 코드 감사 + withdraw 정보 유출 수정
+
+## 🟡 v7.74 — withdraw env 변수명 정보 유출 수정 (2026-05-18)
+
+| 감사 영역 | 발견된 버그 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `api.js` `/api/withdraw` + `/api/withdraw-all` `getAvailableLiquidity` 예외 경로 | `e.message` 클라이언트 노출 → env 변수명(`BASE_RPC_URL` 등) 정보 유출 | 🟡 MEDIUM | ✅ 503 + 제네릭 메시지로 대체 |
+
+### Codex 신규 커밋 감사 (be1fe9d ~ 6bc645e) — 전원 CLEAN
+| 항목 | 결과 |
+|------|------|
+| `adminAuth.js` requireAdmin 미들웨어 | ✅ CLEAN |
+| campaign editor 4개 라우트 requireAdmin | ✅ CLEAN |
+| campaign-editor.html 403 재시도 | ✅ CLEAN |
+| `withdraw` minWithdrawAmount ROLLBACK 패턴 | ✅ CLEAN |
+| `signer.js` getAvailableLiquidity | ✅ CLEAN (env 유출만 v7.74 수정) |
+| `admin.js` withdraw_all totalOut 계산 수정 | ✅ CLEAN |
+| `db.js` 키 rename 호환성 | ✅ CLEAN |
+
+### 전체 감사 최종 요약 (v7.53 ~ v7.74)
+
+| 심각도 | 수정 수 |
+|--------|---------|
+| 🔴 CRITICAL | 6건 |
+| 🔴 HIGH | 11건 |
+| 🟡 MEDIUM | 12건 |
+| 🟢 LOW | 17건 |
+| **총** | **46건** |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.85 / 2026-05-15) — backup verify script 추가
 
 ## 🟡 v7.85 — 백업 전제 점검 스크립트 추가 (2026-05-15)
