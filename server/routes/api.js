@@ -1422,29 +1422,33 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     // ── Referral rewards on hijack (needs txId, so runs after) ──
     const referralRewards = [];
     if (overlapCount > 0 && (s.referral_enabled !== false)) {
-      const tierPercents = [
-        s.referral_tier1_percent || 15,
-        s.referral_tier2_percent || 10,
-        s.referral_tier3_percent || 5
-      ];
-      const chain = await getReferralChain(client, wallet.toLowerCase());
-      let hijackPremium = wonAttackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
-      // ✅ [Job] Warrior hijack 탈취량 +15% (warrior_hijack_damage = 1.15)
-      try { if (jobService) { const dmgBuff = await jobService.getJobBuff(wallet.toLowerCase(), 'warrior_hijack_damage', 1.0); hijackPremium = Math.round(hijackPremium * dmgBuff * 1000000) / 1000000; } } catch (_je) {}
+      const triggerPct = parseFloat(await getSetting('referral_hijack_pct')) || 0;
+      if (triggerPct > 0) {
+        const tierPercents = [
+          s.referral_tier1_percent || 15,
+          s.referral_tier2_percent || 10,
+          s.referral_tier3_percent || 5
+        ];
+        const chain = await getReferralChain(client, wallet.toLowerCase());
+        let hijackPremium = wonAttackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
+        // ✅ [Job] Warrior hijack 탈취량 +15% (warrior_hijack_damage = 1.15)
+        try { if (jobService) { const dmgBuff = await jobService.getJobBuff(wallet.toLowerCase(), 'warrior_hijack_damage', 1.0); hijackPremium = Math.round(hijackPremium * dmgBuff * 1000000) / 1000000; } } catch (_je) {}
+        const commissionPool = Math.round(hijackPremium * (triggerPct / 100) * 1000000) / 1000000;
 
-      for (const ref of chain) {
-        const pct = tierPercents[ref.tier - 1] || 0;
-        if (pct <= 0) continue;
-        const reward = Math.round(hijackPremium * (pct / 100) * 1000000) / 1000000;
-        if (reward <= 0) continue;
+        for (const ref of chain) {
+          const pct = tierPercents[ref.tier - 1] || 0;
+          if (pct <= 0) continue;
+          const reward = Math.round(commissionPool * (pct / 100) * 1000000) / 1000000;
+          if (reward <= 0) continue;
 
-        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [reward, ref.wallet]);
-        await client.query(
-          `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type, trigger_tx_id)
-           VALUES ($1, $2, $3, $4, 'hijack', $5)`,
-          [wallet.toLowerCase(), ref.wallet, ref.tier, reward, txId]
-        );
-        referralRewards.push({ tier: ref.tier, wallet: ref.wallet.slice(0, 6) + '...', reward });
+          await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [reward, ref.wallet]);
+          await client.query(
+            `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type, trigger_tx_id)
+             VALUES ($1, $2, $3, $4, 'hijack', $5)`,
+            [wallet.toLowerCase(), ref.wallet, ref.tier, reward, txId]
+          );
+          referralRewards.push({ tier: ref.tier, wallet: ref.wallet.slice(0, 6) + '...', reward });
+        }
       }
     }
 
