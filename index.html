@@ -6813,11 +6813,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane" id="basePane_quests">
         <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png" alt=""></div>
 
-        <!-- Today's Ops Board -->
-        <div id="dailyOpsBoardPanel" style="margin:0;padding:8px 10px 10px;border-bottom:1px solid var(--bdr)">
-          <div style="text-align:center;color:var(--tx3);padding:12px;font-size:10px">Loading ops board...</div>
-        </div>
-
         <!-- Daily Check-in (Mobile Game Style) -->
         <div id="dailyCheckinInline" style="margin:0;padding:0;border-bottom:1px solid var(--bdr)">
           <div style="background:linear-gradient(135deg,rgba(255,160,40,.12),rgba(255,80,30,.06));padding:10px 12px 6px">
@@ -24145,7 +24140,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{renderDailyOpsBoard();}catch(_){} try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} }

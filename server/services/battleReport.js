@@ -511,19 +511,24 @@ async function updateFleetCPI(fleetId) {
 async function getRecommendedOpponents(wallet, limit = 10) {
   const w = wallet.toLowerCase().trim();
   try {
-    // 내 최강 함대 CPI
-    const { rows: myFleets } = await pool.query(
-      `SELECT id, cpi, name FROM fleets WHERE LOWER(owner_wallet) = $1
-       ORDER BY cpi DESC LIMIT 1`,
+    const { rows: myRows } = await pool.query(
+      `SELECT
+         COALESCE((SELECT cpi FROM fleets WHERE LOWER(owner_wallet) = $1 ORDER BY cpi DESC LIMIT 1), 0) AS my_cpi,
+         (SELECT sector_code FROM claims WHERE LOWER(owner) = $1 ORDER BY (width * height) DESC LIMIT 1) AS my_sector_code`,
       [w]
     );
-    const myCPI = myFleets[0]?.cpi || 0;
+    const myCPI = parseFloat(myRows[0]?.my_cpi) || 0;
+    const mySectorCode = myRows[0]?.my_sector_code || null;
 
     const { rows } = await pool.query(
       `SELECT
-         f.id AS fleet_id, f.name AS fleet_name, f.cpi,
+         f.id AS fleet_id,
+         f.name AS fleet_name,
+         f.cpi,
          f.owner_wallet AS wallet,
+         u.nickname,
          u.faction_code,
+         fa.color_primary AS faction_color,
          ABS(f.cpi - $2) AS cpi_diff,
          COUNT(s.id) FILTER (WHERE s.is_alive) AS ship_count,
          (SELECT COUNT(*) FROM fleet_battle_participants fbp2
@@ -536,17 +541,22 @@ async function getRecommendedOpponents(wallet, limit = 10) {
          (SELECT MAX(fb3.ended_at) FROM fleet_battles fb3
           JOIN fleet_battle_participants fbp3 ON fbp3.battle_id = fb3.id
           WHERE LOWER(fbp3.wallet_address) = LOWER(f.owner_wallet)
-            AND fb3.status = 'ended') AS last_battle_at
+            AND fb3.status = 'ended') AS last_battle_at,
+         (SELECT COUNT(*) FROM bounty_listings bl
+          WHERE LOWER(bl.target_wallet) = LOWER(f.owner_wallet)
+            AND bl.status = 'active'
+            AND (bl.expires_at IS NULL OR bl.expires_at > NOW())) AS active_bounties
        FROM fleets f
        JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
+       LEFT JOIN factions fa ON fa.code = u.faction_code
        LEFT JOIN ships s ON s.fleet_id = f.id
        WHERE LOWER(f.owner_wallet) != $1
          AND f.is_in_battle = FALSE
          AND f.cpi > 0
-       GROUP BY f.id, f.name, f.cpi, f.owner_wallet, u.faction_code
+       GROUP BY f.id, f.name, f.cpi, f.owner_wallet, u.nickname, u.faction_code, fa.color_primary
        ORDER BY ABS(f.cpi - $2) ASC
        LIMIT $3`,
-      [w, myCPI, limit]
+      [w, myCPI, limit * 3]
     );
 
     const now = Date.now();
@@ -562,22 +572,59 @@ async function getRecommendedOpponents(wallet, limit = 10) {
 
     return rows.map(r => {
       const lastBattleAt = r.last_battle_at ? new Date(r.last_battle_at) : null;
-      const isOnline = lastBattleAt ? (now - lastBattleAt.getTime()) < 3600000 : false;
+      const ageMs = lastBattleAt ? (now - lastBattleAt.getTime()) : null;
+      const isOnline = ageMs !== null ? ageMs < 3600000 : false;
+      const cpiDiff = parseFloat(r.cpi_diff) || 0;
+      const cpiBase = Math.max(1, myCPI || parseFloat(r.cpi) || 1);
+      const reasons = [];
+      let score = 100 - Math.min(45, (cpiDiff / cpiBase) * 45);
+
+      reasons.push('fair_match');
+
+      if (ageMs !== null && ageMs < 6 * 3600000) {
+        score += 18;
+        reasons.push('active_recently');
+      } else if (ageMs !== null && ageMs < 24 * 3600000) {
+        score += 10;
+        reasons.push('active_recently');
+      }
+
+      if (mySectorCode && r.sector_code && mySectorCode === r.sector_code) {
+        score += 12;
+        reasons.push('same_sector_pressure');
+      }
+
+      if ((parseInt(r.active_bounties, 10) || 0) > 0) {
+        score += 20;
+        reasons.push('bounty_target');
+      }
+
       return {
         fleet_id: r.fleet_id,
         fleet_name: r.fleet_name,
         wallet: r.wallet,
+        nickname: r.nickname || null,
         faction_code: r.faction_code,
+        faction_color: r.faction_color || null,
         cpi: parseFloat(r.cpi) || 0,
-        my_cpi: parseFloat(myCPI) || 0,
-        cpi_diff: parseFloat(r.cpi_diff) || 0,
-        ship_count: parseInt(r.ship_count) || 0,
-        wins: parseInt(r.wins) || 0,
+        my_cpi: myCPI,
+        cpi_diff: cpiDiff,
+        ship_count: parseInt(r.ship_count, 10) || 0,
+        ships_alive: parseInt(r.ship_count, 10) || 0,
+        wins: parseInt(r.wins, 10) || 0,
         sector_code: r.sector_code || null,
+        active_bounties: parseInt(r.active_bounties, 10) || 0,
         last_battle_ago: fmtAgo(r.last_battle_at),
-        is_online: isOnline
+        is_online: isOnline,
+        recommendation_score: Math.round(score * 10) / 10,
+        recommendation_reasons: reasons,
       };
-    });
+    }).sort((a, b) => {
+      if (b.recommendation_score !== a.recommendation_score) {
+        return b.recommendation_score - a.recommendation_score;
+      }
+      return a.cpi_diff - b.cpi_diff;
+    }).slice(0, limit);
   } catch (err) {
     console.error('[battleReport] getRecommendedOpponents error:', err.message);
     return [];

@@ -13,6 +13,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
+const battleReport = require('../services/battleReport');
 
 // ── 인증 (inline JWT) ──
 const requireAuth = (req, res, next) => {
@@ -103,41 +104,12 @@ router.get('/search/opponents', requireAuth, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
-    // 내 전적
-    const { rows: myRows } = await pool.query(`
-      SELECT COALESCE(SUM(battles_won), 0) AS wins
-      FROM fleets WHERE owner_wallet = $1
-    `, [wallet]);
-    const myWins = parseInt(myRows[0]?.wins || 0);
-
-    // 비슷한 전적 유저의 함대 (±5 range)
-    const { rows } = await pool.query(`
-      SELECT
-        f.id AS fleet_id,
-        f.name AS fleet_name,
-        f.owner_wallet,
-        f.battles_won,
-        u.nickname,
-        u.faction_code,
-        fa.color_primary AS faction_color,
-        COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive
-      FROM fleets f
-      JOIN users u ON u.wallet_address = f.owner_wallet
-      LEFT JOIN factions fa ON fa.code = u.faction_code
-      LEFT JOIN ships s ON s.fleet_id = f.id
-      WHERE f.owner_wallet != $1
-        AND NOT f.is_in_battle
-        AND f.battles_won BETWEEN GREATEST(0, $2 - 5) AND $2 + 5
-      GROUP BY f.id, u.nickname, u.faction_code, fa.color_primary
-      HAVING COUNT(s.id) FILTER (WHERE s.is_alive) >= 3
-      ORDER BY RANDOM()
-      LIMIT 10
-    `, [wallet, myWins]);
+    const limit = Math.min(parseInt(req.query.limit, 10) || 10, 12);
+    const results = await battleReport.getRecommendedOpponents(wallet, limit);
 
     res.json({
-      results: rows.map(r => ({
+      results: results.map(r => ({
         ...r,
-        ships_alive: parseInt(r.ships_alive) || 0,
         can_attack: true,
       }))
     });

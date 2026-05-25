@@ -1301,11 +1301,10 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     );
     const claimId = claimRes.rows[0].id;
 
-    // ── [Onboarding] Record tutorial claim + advance step 1 ──
+    // ── [Onboarding] Record tutorial claim + advance territory claim step ──
     if (isTutorialFreeClaim && onboardingService) {
       try {
-        await onboardingService.recordTutorialClaim(wallet.toLowerCase(), claimId);
-        await onboardingService.completeStep(wallet.toLowerCase(), 1);
+        await onboardingService.completeStep(wallet.toLowerCase(), 2, { claim_id: claimId });
       } catch (_oe) { /* non-critical */ }
     }
 
