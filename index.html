@@ -6355,7 +6355,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- 임무 (퀘스트 → 작전 → 수송 → 시즌) -->
       <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-i18n="base_tab_ops">⚔ OPS</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-i18n="base_tab_ops">⚔ OPS CONSOLE</span><span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
       <!-- 커뮤니티 (길드·거버넌스) -->
@@ -7848,8 +7848,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
             <div style="font-size:22px">🛰️</div>
             <div style="flex:1">
-              <div style="font-size:12px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:1px" data-i18n="ops_title">TACTICAL OPERATIONS</div>
-              <div style="font-size:9px;color:var(--tx3);font-family:var(--fn)" data-i18n="ops_desc">Launch invasion &amp; exploration missions from your territory</div>
+              <div style="font-size:12px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:1px" data-i18n="ops_title">OPS MISSION CONSOLE</div>
+              <div style="font-size:9px;color:var(--tx3);font-family:var(--fn)" data-i18n="ops_desc">Launch and manage invasion &amp; exploration missions from your territory pads</div>
             </div>
             <div style="text-align:right">
               <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)" data-i18n="ops_pads_ready">PADS READY</div>
@@ -16645,7 +16645,7 @@ var I18N = {
     lore_close: 'ENTER MARS',
     // ── BASE tab labels ──
     base_tab_territory: 'MY TERRITORY', base_tab_sectors: 'SECTORS', base_tab_season: 'SEASON',
-    base_tab_mining: 'MINING', base_tab_quests: 'QUESTS', base_tab_ops: 'OPS',
+    base_tab_mining: 'MINING', base_tab_quests: 'QUESTS', base_tab_ops: 'OPS CONSOLE',
     base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_items: 'MY ITEMS', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN', shop_cat_material: '⛏ MATERIALS',
     base_tab_transport: 'TRANSPORT', base_tab_quests_full: 'CAMPAIGN/QUESTS',
     bcat_territory: 'Territory', bcat_fleet: 'Fleet', bcat_economy: 'Economy', bcat_mission: 'Mission', bcat_community: 'Community',
@@ -17148,8 +17148,8 @@ var I18N = {
     gov_hall_of_fame: '🏆 HALL OF FAME', gov_select_sector_hof: 'Select sector...',
     gov_select_hof_hint: 'Select a sector to view history.',
     // ── OPS tab ──
-    ops_title: 'TACTICAL OPERATIONS',
-    ops_desc: 'Launch invasion & exploration missions from your territory',
+    ops_title: 'OPS MISSION CONSOLE',
+    ops_desc: 'Launch and manage invasion & exploration missions from your territory pads',
     ops_pads_ready: 'PADS READY',
     ops_launch_new: 'LAUNCH NEW MISSION',
     ops_invasion: '⚔ INVASION', ops_explore: '🛰 EXPLORE',
@@ -17518,7 +17518,7 @@ var I18N = {
     lore_close: '화성 진입',
     // ── BASE tab labels ──
     base_tab_territory: '내 영토', base_tab_sectors: '섹터', base_tab_season: '시즌',
-    base_tab_mining: '채굴', base_tab_quests: '퀘스트', base_tab_ops: '작전',
+    base_tab_mining: '채굴', base_tab_quests: '퀘스트', base_tab_ops: '작전 콘솔',
     base_tab_shop: '상점', base_tab_market: '마켓', base_tab_items: '내 아이템', base_tab_guild: '길드', base_tab_govern: '거버넌스', shop_cat_material: '⛏ 재료',
     base_tab_transport: '수송', base_tab_quests_full: '캠페인/퀘스트',
     bcat_territory: '영토', bcat_fleet: '함대 지휘부', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
@@ -18001,8 +18001,8 @@ var I18N = {
     gov_hall_of_fame: '🏆 명예의 전당', gov_select_sector_hof: '섹터 선택...',
     gov_select_hof_hint: '섹터를 선택하여 이력을 확인하세요.',
     // ── OPS tab ──
-    ops_title: '전술 작전',
-    ops_desc: '영토에서 침공 및 탐사 미션을 실행하세요',
+    ops_title: '작전 실행 콘솔',
+    ops_desc: '영토 발사 패드에서 침공·탐사 작전을 실행하고 진행 상황을 관리하세요',
     ops_pads_ready: '발사대 준비',
     ops_launch_new: '새 미션 실행',
     ops_invasion: '⚔ 침공', ops_explore: '🛰 탐사',
@@ -18388,7 +18388,7 @@ var I18N = {
     lore_close: '火星へ突入',
     // ── BASE tab labels ──
     base_tab_territory: 'マイ領土', base_tab_sectors: 'セクター', base_tab_season: 'シーズン',
-    base_tab_mining: 'マイニング', base_tab_quests: 'クエスト', base_tab_ops: '作戦',
+    base_tab_mining: 'マイニング', base_tab_quests: 'クエスト', base_tab_ops: '作戦コンソール',
     base_tab_shop: 'ショップ', base_tab_market: 'マーケット', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
     base_tab_transport: '輸送', base_tab_quests_full: 'キャンペーン/クエスト',
     bcat_territory: '領土', bcat_fleet: '艦隊', bcat_economy: '経済', bcat_mission: 'ミッション', bcat_community: 'コミュニティ',
@@ -18851,8 +18851,8 @@ var I18N = {
     gov_battle_cancelled_ok: '戦闘キャンセル。GPを返還。',
     gov_hall_of_fame: '🏆 殿堂', gov_select_sector_hof: 'セクター選択...',
     gov_select_hof_hint: 'セクターを選択して履歴を表示。',
-    ops_title: '戦術作戦',
-    ops_desc: '領土から侵攻・探索ミッションを発射',
+    ops_title: '作戦ミッションコンソール',
+    ops_desc: '領土の発射パッドから侵攻・探索作戦を開始し、進行状況を管理',
     ops_pads_ready: '発射台準備',
     ops_launch_new: '新規ミッション発射',
     ops_invasion: '⚔ 侵攻', ops_explore: '🛰 探索',
@@ -19245,7 +19245,7 @@ var I18N = {
     lore_close: '进入火星',
     // ── BASE tab labels ──
     base_tab_territory: '我的领土', base_tab_sectors: '区域', base_tab_season: '赛季',
-    base_tab_mining: '采矿', base_tab_quests: '任务', base_tab_ops: '作战',
+    base_tab_mining: '采矿', base_tab_quests: '任务', base_tab_ops: '作战控制台',
     base_tab_shop: '商店', base_tab_market: '市场', base_tab_guild: '公会', base_tab_govern: '治理',
     base_tab_transport: '运输', base_tab_quests_full: '战役/任务',
     bcat_territory: '领土', bcat_fleet: '舰队', bcat_economy: '经济', bcat_mission: '任务', bcat_community: '社区',
@@ -19708,8 +19708,8 @@ var I18N = {
     gov_battle_cancelled_ok: '战斗已取消。GP已退还。',
     gov_hall_of_fame: '🏆 名人堂', gov_select_sector_hof: '选择区域...',
     gov_select_hof_hint: '选择区域以查看历史。',
-    ops_title: '战术行动',
-    ops_desc: '从你的领土发射入侵和探索任务',
+    ops_title: '作战任务控制台',
+    ops_desc: '从你的领土发射台启动并管理入侵和探索任务',
     ops_pads_ready: '发射台就绪',
     ops_launch_new: '发射新任务',
     ops_invasion: '⚔ 入侵', ops_explore: '🛰 探索',
