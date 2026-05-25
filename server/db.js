@@ -285,9 +285,13 @@ async function seedDefaults(client) {
     // 0 = disabled. These let admin tune which money sources feed the referral tree.
     { key: 'referral_deposit_pct', value: 5, desc: 'Deposit USDT → upline % (0=off). Minted as PP bonus.', cat: 'referral' },
     { key: 'referral_swap_pct', value: 50, desc: 'Swap fee USDT → upline % of fee (0=off)', cat: 'referral' },
-    { key: 'referral_shop_pct', value: 8, desc: 'Shop USDT purchase → upline % (0=off)', cat: 'referral' },
-    { key: 'referral_cantina_pct', value: 2, desc: 'Cantina PP bet → upline % (0=off)', cat: 'referral' },
-    { key: 'referral_harvest_pct', value: 2, desc: 'Mining PP harvest → upline % (0=off)', cat: 'referral' },
+    { key: 'referral_shop_pct', value: 8, desc: 'Shop spend → upline % (0=off)', cat: 'referral' },
+    { key: 'referral_market_fee_pct', value: 100, desc: 'Marketplace referral base → upline % (0=off). Applied to marketplace_referral_commission_pct_of_fee slice.', cat: 'referral' },
+    { key: 'referral_enhance_pct', value: 5, desc: 'Enhancement GP spend → upline % (0=off)', cat: 'referral' },
+    { key: 'referral_auction_buy_pct', value: 3, desc: 'Auction buy GP spend → upline % (0=off)', cat: 'referral' },
+    { key: 'referral_cantina_pct', value: 2, desc: 'Cantina house-edge base → upline % (0=off)', cat: 'referral' },
+    { key: 'referral_harvest_pct', value: 0, desc: 'Mining PP harvest → upline % (0=off, disabled by default for operator EV safety)', cat: 'referral' },
+    { key: 'marketplace_referral_commission_pct_of_fee', value: 25, desc: 'Share of marketplace fee exposed as referral commission base %', cat: 'referral' },
 
     // ── Arena ──
     { key: 'arena_enabled', value: true, desc: 'Enable/disable arena', cat: 'arena' },

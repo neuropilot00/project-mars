@@ -796,12 +796,14 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     }
 
     // 4. 비용 계산 + 신조 대비 경제성 캡 (Migration 173)
-    const gpPerHp     = parseInt(await getSetting('ship_repair_gp_per_hp', '2'))     || 2;
-    const ironPer10hp = parseInt(await getSetting('ship_repair_iron_per_10hp', '1')) || 1;
+    const gpPerHpRaw = Number(await getSetting('ship_repair_gp_per_hp', '2'));
+    const ironPer10hpRaw = Number(await getSetting('ship_repair_iron_per_10hp', '1'));
+    const gpPerHp = Number.isFinite(gpPerHpRaw) && gpPerHpRaw > 0 ? gpPerHpRaw : 2;
+    const ironPer10hp = Number.isFinite(ironPer10hpRaw) && ironPer10hpRaw >= 0 ? ironPer10hpRaw : 1;
     const capPct      = parseInt(await getSetting('ship_repair_cost_cap_pct_of_build', '60')) || 60;
 
-    let gpCost   = healAmount * gpPerHp;
-    const ironNeed = Math.ceil(healAmount / 10) * ironPer10hp;
+    let gpCost   = Math.ceil(healAmount * gpPerHp);
+    const ironNeed = Math.ceil((healAmount / 10) * ironPer10hp);
 
     // 신조 비용 대비 수리비 캡: 항상 신조보다 싸야 유의미
     const buildCost = parseInt(ship.build_gp_cost) || 0;
@@ -951,8 +953,9 @@ async function chargeShield(walletAddress, shipId, units) {
     const actualUnits = chargeUnits > canAdd ? canAdd : chargeUnits;
 
     // 3. GP 비용 계산
-    const gpPerUnit = parseInt(await getSetting('shield_gp_per_unit', '3')) || 3;
-    const gpCost    = actualUnits * gpPerUnit;
+    const gpPerUnitRaw = Number(await getSetting('shield_gp_per_unit', '3'));
+    const gpPerUnit = Number.isFinite(gpPerUnitRaw) && gpPerUnitRaw > 0 ? gpPerUnitRaw : 3;
+    const gpCost    = Math.ceil(actualUnits * gpPerUnit);
 
     // 4. GP 확인
     const { rows: userRows } = await client.query(

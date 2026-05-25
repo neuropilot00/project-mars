@@ -47,6 +47,14 @@ async function cfg() {
   return _cfg;
 }
 
+async function getCantinaReferralBase(betAmount) {
+  const settings = await cfg();
+  const houseEdgePct = Math.max(0, parseFloat(settings.arena_house_edge) || 0);
+  const bet = Math.max(0, parseFloat(betAmount) || 0);
+  if (bet <= 0 || houseEdgePct <= 0) return 0;
+  return Math.round((bet * houseEdgePct / 100) * 1000000) / 1000000;
+}
+
 // ══════════════════════════════════
 //  CRASH GAME
 // ══════════════════════════════════
@@ -187,9 +195,14 @@ router.post('/crash/bet', requireAuth, betLimiter, async (req, res) => {
     // Award 1 XP per game bet
     await awardXP(client, w, 1);
 
-    // Referral commission — uplines get small PP cut from PP bets (cantina rake)
+    // Referral commission — uplines get a small PP cut from cantina house edge, not gross wager
     if (cur === 'PP') {
-      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+      try {
+        const referralBase = await getCantinaReferralBase(bet);
+        if (referralBase > 0) {
+          await creditReferralCommission(client, w, 'cantina', referralBase, 'pp');
+        }
+      } catch (_e) {}
     }
 
     await client.query('COMMIT');
@@ -513,9 +526,14 @@ router.post('/mines/start', requireAuth, betLimiter, async (req, res) => {
       awardXP(client, w, 1)
     ]);
 
-    // Referral commission — uplines get small PP cut from PP bets
+    // Referral commission — uplines get a small PP cut from cantina house edge, not gross wager
     if (cur === 'PP') {
-      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+      try {
+        const referralBase = await getCantinaReferralBase(bet);
+        if (referralBase > 0) {
+          await creditReferralCommission(client, w, 'cantina', referralBase, 'pp');
+        }
+      } catch (_e) {}
     }
 
     await client.query('COMMIT');
@@ -746,9 +764,14 @@ router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
       [w, bet, cur, pick, result, payout, seed]
     );
 
-    // Referral commission — uplines get small PP cut from PP bets
+    // Referral commission — uplines get a small PP cut from cantina house edge, not gross wager
     if (cur === 'PP') {
-      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+      try {
+        const referralBase = await getCantinaReferralBase(bet);
+        if (referralBase > 0) {
+          await creditReferralCommission(client, w, 'cantina', referralBase, 'pp');
+        }
+      } catch (_e) {}
     }
 
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
@@ -835,9 +858,14 @@ router.post('/dice/play', requireAuth, betLimiter, async (req, res) => {
       [w, bet, cur, tgt, dir, roll, multiplier, payout]
     );
 
-    // Referral commission — uplines get small PP cut from PP bets
+    // Referral commission — uplines get a small PP cut from cantina house edge, not gross wager
     if (cur === 'PP') {
-      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+      try {
+        const referralBase = await getCantinaReferralBase(bet);
+        if (referralBase > 0) {
+          await creditReferralCommission(client, w, 'cantina', referralBase, 'pp');
+        }
+      } catch (_e) {}
     }
 
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
@@ -915,9 +943,14 @@ router.post('/hilo/start', requireAuth, betLimiter, async (req, res) => {
       [w, bet, cur, JSON.stringify([firstCard])]
     );
 
-    // Referral commission — uplines get small PP cut from PP bets
+    // Referral commission — uplines get a small PP cut from cantina house edge, not gross wager
     if (cur === 'PP') {
-      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+      try {
+        const referralBase = await getCantinaReferralBase(bet);
+        if (referralBase > 0) {
+          await creditReferralCommission(client, w, 'cantina', referralBase, 'pp');
+        }
+      } catch (_e) {}
     }
 
     await client.query('COMMIT');
