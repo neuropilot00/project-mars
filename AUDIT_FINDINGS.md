@@ -1,3 +1,24 @@
+# OCCUPY MARS — Codebase Audit (v7.80 / 2026-05-26) — week-1 funnel GP bundle
+
+## 🟡 v7.80 — onboarding/daily GP front-load 조정 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 신규 유저 GP 체감 | `223`으로 season pass/territory 가격은 낮아졌지만, 신규 유저 GP 유입은 여전히 Day7 후반 비중이 커 초반 spend 체감이 약했음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/migrations/224_week1_funnel_gp_bundle.sql` 추가.
+- `onboarding_gp_reward`를 `75`로 상향.
+- `daily_login_gp_rewards`를 `[8, 12, 16, 20, 22, 25, 40]`로 조정.
+- 7일 총합은 `143 GP`로 유지하고, Day1~Day3 보상만 front-load.
+- PP 보상, PP→GP 환율, 함선 build cost, monument/expedition 비용은 이번 묶음에서 제외.
+
+**검증:**
+- migration 파일 내용 확인.
+- `git diff`로 변경 파일이 migration + 문서만인지 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.79 / 2026-05-26) — 222/223 migration 적용 확인 SQL
 
 ## 🟢 v7.79 — referral/pricing migration verify SQL 추가 (2026-05-26)

@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.80 — week-1 funnel GP bundle
+
+**경제 설정 조정 (신규 유저 GP 체감 개선):**
+
+- `server/migrations/224_week1_funnel_gp_bundle.sql` 추가
+- `onboarding_gp_reward`: `50 -> 75`
+- `daily_login_gp_rewards`: `[5, 8, 12, 16, 22, 30, 50] -> [8, 12, 16, 20, 22, 25, 40]`
+  - 7일 총합 `143 GP`는 유지
+  - Day1~Day3 보상만 앞당겨 초반 체감을 높임
+- PP 보상/환율/함선 비용은 이번 묶음에서 건드리지 않음
+
+**검증:**
+- migration 파일 내용 확인
+- `git diff`로 변경 범위가 migration + 문서만인지 확인
+
+---
+
 ## 2026-05-26 v7.79 — 222/223 migration 적용 확인 SQL
 
 **운영 확인 도구:**
