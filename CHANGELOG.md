@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.79 — 222/223 migration 적용 확인 SQL
+
+**운영 확인 도구:**
+
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql` 추가
+- 확인 항목:
+  - `schema_migrations` 내 `222_operator_safe_referral_stage1.sql`, `223_week1_pricing_soften.sql`
+  - referral 안전 기본값 4개
+  - week-1 pricing 기본값 2개
+- `psql "$DATABASE_URL" -f docs/ops/VERIFY_MIGRATIONS_222_223.sql` 로 바로 실행 가능
+
+**검증:**
+- SQL 파일 내용 확인
+- `git diff`로 변경 범위가 ops SQL + 문서인지 확인
+
+---
+
 ## 2026-05-26 v7.78 — 주차 1 가격 완화 (Season Pass / Territory)
 
 **경제 설정 조정 (온보딩 진입 완화):**

@@ -1,3 +1,23 @@
+# OCCUPY MARS — Codebase Audit (v7.79 / 2026-05-26) — 222/223 migration 적용 확인 SQL
+
+## 🟢 v7.79 — referral/pricing migration verify SQL 추가 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 확인 절차 | 222/223 migration이 실DB에 적용됐는지와 핵심 setting 값이 맞는지 한 번에 확인하는 반복 가능한 SQL이 없었음 | 🟢 LOW | ✅ 수정 |
+
+**수정 내용:**
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql` 추가.
+- `schema_migrations` 적용 여부 확인 쿼리 추가.
+- referral 안전 기본값 4개 + week-1 pricing 기본값 2개 확인 쿼리 추가.
+- 마지막 snapshot 쿼리와 expected values 주석 추가.
+
+**검증:**
+- SQL 파일 내용 확인.
+- `git diff`로 변경 파일이 ops SQL + 문서만인지 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.78 / 2026-05-26) — 주차 1 가격 완화
 
 ## 🟡 v7.78 — Season Pass / Territory 주차 1 가격 완화 (2026-05-26)
