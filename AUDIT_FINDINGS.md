@@ -1,3 +1,23 @@
+# OCCUPY MARS — Codebase Audit (v7.78 / 2026-05-26) — 주차 1 가격 완화
+
+## 🟡 v7.78 — Season Pass / Territory 주차 1 가격 완화 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| `season_pass_premium_cost_gp`, `land_base_price_pp` 기본값 | 온보딩/첫 과금 구간 대비 premium pass 500 GP, territory base 0.1 PP가 초반 진입 장벽으로 작용 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/migrations/223_week1_pricing_soften.sql` 추가.
+- `season_pass_premium_cost_gp`를 `150`으로 하향.
+- `land_base_price_pp`를 `0.08`로 하향.
+- referral 안전화 patch와 분리해 가격 정책만 독립적으로 적용/롤백 가능하게 유지.
+
+**검증:**
+- migration 파일 내용 확인.
+- `git diff`로 변경 파일이 migration + 문서만인지 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.74 / 2026-05-18) — Codex 신규 코드 감사 + withdraw 정보 유출 수정
 
 ## 🟡 v7.74 — withdraw env 변수명 정보 유출 수정 (2026-05-18)

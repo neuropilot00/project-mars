@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.78 — 주차 1 가격 완화 (Season Pass / Territory)
+
+**경제 설정 조정 (온보딩 진입 완화):**
+
+- `server/migrations/223_week1_pricing_soften.sql` 추가
+  - `season_pass_premium_cost_gp`: `500 -> 150`
+  - `land_base_price_pp`: `0.1 -> 0.08`
+- 추천(referral) 안전화 migration과 분리해 가격 조정만 별도 롤백/적용 가능하게 유지
+
+**검증:**
+- migration 파일 diff 확인
+- `git status` / `git diff`로 변경 범위 확인
+
+---
+
 ## 2026-05-18 v7.77 — 실시간 활동 피드 (Live Feed)
 
 **신규 기능 (EVE Lite 감각):**
