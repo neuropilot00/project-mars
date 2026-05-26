@@ -271,12 +271,23 @@ allowedOrigins.push('https://*.railway.app');
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
+    // Local dev is served interchangeably on localhost AND 127.0.0.1 (any port).
+    // globe.gl loads textures with crossOrigin='anonymous', which makes the browser
+    // send an Origin header even for same-origin requests — so a 127.0.0.1 visitor
+    // would otherwise be rejected because only localhost was allow-listed. Allow both.
+    if (isDev && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
     var allowed = allowedOrigins.some(function(ao) {
       if (ao.includes('*')) return origin.endsWith(ao.replace('https://*', ''));
       return ao === origin;
     });
-    if (allowed) callback(null, true);
-    else callback(new Error('Not allowed by CORS'));
+    // Disallowed origin: do NOT throw — a thrown error propagates to the global
+    // error handler and becomes a 500, which (for crossOrigin asset requests like
+    // Mars textures) makes the planet fail to render. Returning false simply omits
+    // CORS headers; the browser still enforces the block client-side, and
+    // same-origin asset requests continue to serve normally.
+    return callback(null, !!allowed);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],

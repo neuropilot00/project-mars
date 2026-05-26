@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.92 — CORS가 127.0.0.1 텍스처 요청을 500으로 막던 근본 버그 (화성 안 보임)
+
+**증상:** 로컬(127.0.0.1:3000)에서 화성이 안 보임. Railway(프로덕션)에선 정상.
+
+**근본 원인:** `server/index.js` CORS 미들웨어
+- `allowedOrigins` 기본값이 `http://localhost:3000`만 포함. 사용자는 `127.0.0.1:3000`으로 접속.
+- globe.gl이 텍스처를 `crossOrigin='anonymous'`로 로드 → 브라우저가 same-origin 요청에도 `Origin` 헤더 전송 → CORS 검사 대상이 됨.
+- `Origin: http://127.0.0.1:3000`이 허용목록에 없어 `callback(new Error('Not allowed by CORS'))` → 전역 에러 핸들러 → **500** → 텍스처 로드 실패 → 머티리얼 맵 null → 행성 투명.
+- Railway는 `*.railway.app`가 허용목록에 있어 정상. → "Railway는 되는데 로컬만 안 됨"의 정체.
+- 진단 결정타: `curl -H "Origin: http://127.0.0.1:3000"` → 500, `localhost:3000` → 200.
+
+**왜 세션 초반엔 보였나:** SW 캐시가 NASA를 깨진 500으로 들고 있어 globe가 프로시저럴 텍스처(data URL, CORS 무관)로 폴백 → 화성이 보였음. v7.90에서 SW 캐시를 고치자 globe가 진짜 NASA 파일 로드를 시도 → 숨어있던 CORS 버그가 드러남.
+
+**수정:** `server/index.js` CORS origin 콜백
+- dev 모드에서 `localhost`/`127.0.0.1` 모든 포트 허용 (`/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/`).
+- 비허용 origin도 `callback(new Error)`(→500) 대신 `callback(null, false)`로 처리. CORS 헤더만 생략되고 same-origin 에셋은 정상 서빙, 진짜 cross-origin은 브라우저가 클라이언트측에서 차단. 더는 에셋 요청이 500으로 죽지 않음.
+
+**검증:** 서버 재시작 후 `Origin: http://127.0.0.1:3000` 텍스처 요청 → 200 + `Access-Control-Allow-Origin: *`. 2K/8K 모두 200.
+
+---
+
 ## 2026-05-27 v7.91 — 화성 텍스처 안전장치: 머티리얼 맵 null → 투명 행성 방지
 
 **증상:** 별/Starlink 오버레이는 보이는데 화성 본체가 통째로 사라지는 케이스.

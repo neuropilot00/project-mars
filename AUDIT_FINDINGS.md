@@ -1,3 +1,17 @@
+# OCCUPY MARS — Codebase Audit (v7.92 / 2026-05-27) — CORS 127.0.0.1 텍스처 500 (화성 안 보임)
+
+## 🔴 v7.92 — CORS 미들웨어가 127.0.0.1 origin의 텍스처 요청을 500으로 거부 (2026-05-27)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| server/index.js CORS | `allowedOrigins` 기본값에 `localhost:3000`만 있고 `127.0.0.1:3000` 누락. globe.gl이 `crossOrigin='anonymous'`로 텍스처 로드 시 브라우저가 Origin 헤더 전송 → CORS 검사 → 127.0.0.1 거부 → `callback(new Error)` → 전역 핸들러 500 → 텍스처 로드 실패 → 화성 투명. 비허용 origin을 throw로 처리해 에셋 요청까지 500으로 죽임. | 🔴 HIGH | ✅ 수정 |
+
+**진단:** `curl -H "Origin: http://127.0.0.1:3000"` → 500 / `Origin: http://localhost:3000` → 200. Railway(`*.railway.app` 허용)는 정상 → "Railway는 되고 로컬만 안 됨". v7.90 SW 캐시 수정 전엔 프로시저럴 폴백이 증상을 가리고 있었음.
+
+**수정:** dev 모드에서 localhost/127.0.0.1 모든 포트 허용 + 비허용 origin은 `callback(null, false)`(throw 금지 → 500 방지). 서버 재시작 후 127.0.0.1 텍스처 200 + ACAO 헤더 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.90 / 2026-05-27) — NASA 텍스처 SW 캐시 오염 + 자전 속도
 
 ## 🔴 v7.90 — Service Worker 가 깨진 500 응답을 영구 캐시해 NASA 화성 텍스처가 사라지던 문제 (2026-05-27)
