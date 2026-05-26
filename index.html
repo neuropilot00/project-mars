@@ -11187,7 +11187,21 @@ function compositeClaimsOnTexture(previewOnly){
     var mat=globe.globeMaterial(); if(!mat) return;
     var existingMap=mat.map;
     var TexClass=existingMap&&existingMap.constructor ? existingMap.constructor : (window.THREE&&THREE.CanvasTexture);
-    if(!TexClass) return;
+    if(!TexClass){
+      // No existing map to clone the constructor from, and THREE isn't exposed on
+      // window in this globe.gl build. Rather than returning silently (which could
+      // leave mat.map null → fully transparent/invisible planet while Starlink
+      // overlays keep rendering), fall back to globe.gl's own TextureLoader, which
+      // does not need window.THREE. Once it populates mat.map, a later composite
+      // clones its constructor via existingMap and the claim overlay returns.
+      try{
+        var _fallbackTex = (currentTexMode==='nasa')
+          ? (nasa8kLoaded ? NASA_MARS_8K : NASA_MARS_2K)
+          : (marsTexUrl || NASA_MARS_2K);
+        if(_fallbackTex) globe.globeImageUrl(_fallbackTex);
+      }catch(_fe){}
+      return;
+    }
     marsCanvasTexture=new TexClass(marsCanvas);
     if(existingMap){
       try{

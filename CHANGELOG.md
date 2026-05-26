@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.91 — 화성 텍스처 안전장치: 머티리얼 맵 null → 투명 행성 방지
+
+**증상:** 별/Starlink 오버레이는 보이는데 화성 본체가 통째로 사라지는 케이스.
+
+**원인:** `compositeClaimsOnTexture()` 데스크탑 직접 맵 갱신 경로에서, 클론할 기존
+`mat.map`도 없고 `window.THREE`도 노출 안 된 globe.gl 빌드일 때 `TexClass`가 undefined →
+`return`으로 조용히 빠지면서 `mat.map`이 null로 남음. 머티리얼이 `transparent:true`라
+맵이 없으면 행성이 완전 투명하게 렌더 → "화성 안 보임".
+
+**수정:**
+- `index.html` `compositeClaimsOnTexture()`
+  - `TexClass`를 못 구하면 조용히 return 하지 않고, globe.gl 자체 TextureLoader(`globeImageUrl`)로
+    현재 모드의 실제 텍스처(nasa→2K/8K, procedural→marsTexUrl)를 폴백 로드.
+    globe.gl 내부 로더는 `window.THREE` 불필요 → 행성이 절대 투명해지지 않음.
+  - globe.gl이 `mat.map`을 채우면 이후 composite가 `existingMap.constructor`로 클론 →
+    클레임 오버레이도 자동 복귀.
+
+**검증:** 브라우저에서 인라인 스크립트 파싱 정상(`_initStep1`/`compositeClaimsOnTexture`/`cacheImage` 함수 존재) 확인.
+
+---
+
 ## 2026-05-27 v7.90.2 — capital ship 스모크 테스트 rank 셋업 보강
 
 **테스트 전용 수정 (게임 로직 변경 없음):**
