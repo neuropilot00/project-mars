@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.89 — 글로브 렌더 경쟁 제거 (채팅/피드 폴링 지연)
+
+**Globe.GL 렌더 루프 보호:**
+
+- `index.html`
+  - `startChatPolling()` / `startFeedPolling()` 호출을 `DOMContentLoaded`에서 즉시 시작하지 않고 8s / 12s 지연 후 시작하도록 변경
+    → Globe.GL WebGL 초기화(~5-7s) 동안 fetch 경쟁 없음. 행성 자전 끊김 / 초기 렉 해소.
+  - `loadChatMessages()` — `document.hidden && !_chatExpanded` 일 때 fetch 스킵 (탭 비활성 + 채팅 닫힘 상태에서 불필요한 네트워크 요청 제거)
+  - `loadActivityFeed()` — `document.hidden` 일 때 fetch 스킵
+  - `visibilitychange` 리스너 추가: 탭 재활성화 시 즉시 최신 메시지/피드 조회
+
+**검증 계획:**
+- `node --check` for server files (no server changes)
+- 브라우저 새로고침 후 첫 8초간 `/api/chat/messages` + `/api/activity/feed` 요청 없음 확인 (Network 탭)
+- 8초 경과 후 자동 polling 시작 확인
+
+---
+
 ## 2026-05-26 v7.88 — campaign retry gates + locked reason UI
 
 **캠페인 평판 잠금/재도전 정합 보강:**

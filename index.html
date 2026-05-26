@@ -10083,14 +10083,19 @@ function compositeClaimsOnTexture(previewOnly){
   if(currentTexMode==='nasa' && _isMob){
     var _nasaKey = nasa8kLoaded ? NASA_MARS_8K : NASA_MARS_2K;
     if(!imgCache[_nasaKey]){
-      // Ensure cache load kicks off (idempotent)
-      cacheImage(_nasaKey, function(img){
-        if(img) compositeClaimsOnTexture();
-      });
-      return;
+      if(_imgFailed[_nasaKey]){
+        if(!marsBaseData) return;
+        console.warn('[Mars] NASA cache unavailable on mobile — using procedural fallback for composite');
+      } else {
+        // Ensure cache load kicks off (idempotent)
+        cacheImage(_nasaKey, function(img){
+          if(img) compositeClaimsOnTexture();
+        });
+        return;
+      }
     }
     // Extra safety: verify the cached image actually has valid dimensions
-    if(!imgCache[_nasaKey].width || !imgCache[_nasaKey].height){
+    if(imgCache[_nasaKey] && (!imgCache[_nasaKey].width || !imgCache[_nasaKey].height)){
       delete imgCache[_nasaKey];
       cacheImage(_nasaKey, function(img){
         if(img) compositeClaimsOnTexture();
@@ -10111,9 +10116,14 @@ function compositeClaimsOnTexture(previewOnly){
     if(imgCache[nasaUrl]){
       baseUrl=nasaUrl;
     }else{
-      // Cache NASA texture then retry
+      // Keep the already-mounted NASA globe texture visible until the cache is ready.
+      // Falling through to the procedural base here makes the planet appear as if the
+      // 2K/8K texture disappeared, even though the real NASA image is still loading.
       cacheImage(nasaUrl,function(){compositeClaimsOnTexture()});
-      // Fall through to procedural as temporary base
+      if(_imgFailed[nasaUrl] && marsTexUrl && globe){
+        try{ globe.globeImageUrl(marsTexUrl); }catch(_nf){}
+      }
+      return;
     }
   }
 
@@ -11170,25 +11180,30 @@ function compositeClaimsOnTexture(previewOnly){
     return;
   }
 
-  // Desktop: direct GPU upload via CanvasTexture (no JPEG cost)
+  // Desktop: update the mounted material map directly. Re-routing this through
+  // globe.globeImageUrl(dataURL) can briefly clear/reload the globe texture and
+  // leave the planet invisible while overlays keep rendering.
   if(!marsCanvasTexture){
-    var mat=globe.globeMaterial(); if(!mat||!mat.map) return;
-    var TexClass=mat.map.constructor;
+    var mat=globe.globeMaterial(); if(!mat) return;
+    var existingMap=mat.map;
+    var TexClass=existingMap&&existingMap.constructor ? existingMap.constructor : (window.THREE&&THREE.CanvasTexture);
+    if(!TexClass) return;
     marsCanvasTexture=new TexClass(marsCanvas);
-    // Preserve colorSpace & anisotropy from the original texture loaded by globe.gl
+    if(existingMap){
+      try{
+        if(existingMap.colorSpace) marsCanvasTexture.colorSpace=existingMap.colorSpace;
+        else if(existingMap.encoding!=null) marsCanvasTexture.encoding=existingMap.encoding;
+      }catch(_ce){}
+    }
     try{
-      if(mat.map.colorSpace) marsCanvasTexture.colorSpace=mat.map.colorSpace;
-      else if(mat.map.encoding!=null) marsCanvasTexture.encoding=mat.map.encoding;
-    }catch(_ce){}
-    try{
-      // Max out anisotropy so 4K canvas stays sharp at oblique viewing angles
       var _renderer = globe.renderer && globe.renderer();
       var _maxAniso = _renderer && _renderer.capabilities && _renderer.capabilities.getMaxAnisotropy
         ? _renderer.capabilities.getMaxAnisotropy() : 16;
       marsCanvasTexture.anisotropy = _maxAniso;
     }catch(_ae){}
     marsCanvasTexture.needsUpdate=true;
-    globe.globeMaterial().map=marsCanvasTexture;
+    mat.map=marsCanvasTexture;
+    mat.needsUpdate=true;
   }else{
     marsCanvasTexture.needsUpdate=true;
   }
@@ -12233,13 +12248,25 @@ function _myTerritoryGroups(wallet){
 // Image cache for instant recomposite
 var imgCache={};
 var _imgRetry={};
+var _imgFailed={};
+function _shouldUseCrossOrigin(url){
+  try{
+    var u=new URL(url, window.location.href);
+    return /^https?:$/.test(u.protocol) && u.origin!==window.location.origin;
+  }catch(_e){
+    return false;
+  }
+}
+function _setImageCrossOriginIfNeeded(img,url){
+  if(_shouldUseCrossOrigin(url)){
+    try{ img.crossOrigin='anonymous'; }catch(_ce){}
+  }
+}
 function cacheImage(url,cb){
   if(!url){cb&&cb(null);return}
   if(imgCache[url]){cb&&cb(imgCache[url]);return}
   var img=new Image();
-  // Same-origin images don't strictly need this, but it ensures canvas isn't tainted
-  // and helps with strict mobile browsers.
-  try{ img.crossOrigin='anonymous'; }catch(_ce){}
+  _setImageCrossOriginIfNeeded(img,url);
   img.onload=function(){
     // Sanity check: ensure image has dimensions
     if(!img.width || !img.height){
@@ -12247,20 +12274,21 @@ function cacheImage(url,cb){
       cb&&cb(null);
       return;
     }
-    imgCache[url]=img;delete _imgRetry[url];cb&&cb(img);
+    imgCache[url]=img;delete _imgRetry[url];delete _imgFailed[url];cb&&cb(img);
   };
   img.onerror=function(){
     console.warn('[cacheImage] Image load failed:', url);
+    _imgFailed[url]=true;
     // Retry up to 3 times with delay
     var rc=(_imgRetry[url]||0)+1;
     _imgRetry[url]=rc;
     if(rc<=3){
       setTimeout(function(){
         var r=new Image();
-        try{ r.crossOrigin='anonymous'; }catch(_ce2){}
+        _setImageCrossOriginIfNeeded(r,url);
         r.onload=function(){
           if(!r.width||!r.height){return;}
-          imgCache[url]=r;delete _imgRetry[url];claimsSnapshot=null;compositeClaimsOnTexture();
+          imgCache[url]=r;delete _imgRetry[url];delete _imgFailed[url];claimsSnapshot=null;compositeClaimsOnTexture();
         };
         r.onerror=function(){if(_imgRetry[url]<3){_imgRetry[url]++;setTimeout(arguments.callee,rc*2000)}};
         r.src=url+'?retry='+rc;
@@ -27888,6 +27916,7 @@ function campaignBranchLabel(id){
   return map[id]||String(id||'route');
 }
 function campaignLockedReason(ch){
+  if(ch&&ch.lockReason&&ch.lockReason.error) return campaignStartErrorMessage(ch,ch.lockReason);
   var data=_campaignData||{};
   var rep=data.reputation||{};
   var completed=data.completedChapters||[];
@@ -28946,7 +28975,10 @@ function campaignStartErrorMessage(ch,payload){
       : 'Insufficient reputation. Current '+current+', required '+required+'.';
   }
   if(err==='PREREQUISITE_NOT_MET') return LANG==='ko'?'선행 챕터를 먼저 완료해야 합니다.':'Complete the prerequisite chapter first.';
-  if(err==='LEVEL_REQUIRED') return LANG==='ko'?'레벨 조건이 부족합니다.':'Required level not met.';
+  if(err==='LEVEL_REQUIRED'){
+    var requiredLevel=payload&&payload.requiredLevel!=null?payload.requiredLevel:0;
+    return LANG==='ko'?(requiredLevel?'레벨 '+requiredLevel+' 이상 필요합니다.':'레벨 조건이 부족합니다.'):(requiredLevel?'Required level '+requiredLevel+' or higher.':'Required level not met.');
+  }
   if(err==='BLOCKED_BY_TAG') return LANG==='ko'?'현재 상태에서는 이 챕터를 시작할 수 없습니다.':'This chapter is blocked by your current state.';
   if(err==='BRANCH_REQUIRED') return LANG==='ko'?'이 챕터에 필요한 이전 선택 분기가 없습니다.':'This chapter requires a prior route choice.';
   if(err==='FSP_DELEGATION_ABSENT') return LANG==='ko'?'대표단 조건이 바뀌어 대체 FSP 챕터로 진행해야 합니다.':'The delegation state changed. Continue through the alternate FSP chapter.';
@@ -51303,6 +51335,9 @@ async function sendChatMessage() {
 
 async function loadChatMessages() {
   try {
+    // Skip polling when page is hidden (tab not visible) AND chat is collapsed —
+    // avoids competing with the Globe.GL render loop for network/CPU bandwidth.
+    if (document.hidden && !_chatExpanded) return;
     const url = '/api/chat/messages?channel=' + encodeURIComponent(_chatChannel) + (_chatSince ? '&since=' + encodeURIComponent(_chatSince) : '');
     const r = await fetch(url);
     if (!r.ok) return;
@@ -51347,6 +51382,8 @@ var _feedTimer = null;
 
 async function loadActivityFeed() {
   try {
+    // Skip when the tab is hidden — keeps the render loop smooth.
+    if (document.hidden) return;
     var url = '/api/activity/feed?limit=15' + (_feedSince ? '&since=' + encodeURIComponent(_feedSince) : '');
     var r = await fetch(url);
     if (!r.ok) return;
@@ -51385,13 +51422,25 @@ function startFeedPolling() {
   loadActivityFeed();
   _feedTimer = setInterval(loadActivityFeed, 10000);
 }
+// When the tab becomes visible again after being hidden, immediately fetch
+// fresh messages/feed so the user sees up-to-date content.
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    try { loadChatMessages(); } catch(_) {}
+    try { loadActivityFeed(); } catch(_) {}
+  }
+});
+
 // ── END CHAT SYSTEM ───────────────────────────────────────────
 
 // ── DOMContentLoaded: 랜딩 + 온보딩 트리거 ──
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(checkLandingOverlay, 800);
-  startChatPolling();
-  startFeedPolling();
+  // Delay chat/feed polling so Globe.GL WebGL initialisation gets the first
+  // ~8 seconds of network+CPU budget without competing fetch requests.
+  // Chat: 8s cold start, then every 5s. Feed: 12s cold start, then every 10s.
+  setTimeout(startChatPolling, 8000);
+  setTimeout(startFeedPolling, 12000);
   if (typeof isLoggedIn === 'function' && isLoggedIn()) {
     setTimeout(runOnboardingCheck, 2000);
   }
