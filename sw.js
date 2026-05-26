@@ -6,7 +6,11 @@
 // 2026-05-02 v7: campaign backgrounds → network-first (cache-first로 구 이미지 고착 문제 해소)
 // 2026-05-02 v8: campaign asset fetch uses cache:reload to bypass HTTP cache too.
 // 2026-05-11 v9: 모바일/데스크탑 nav 아이템 버튼 BASE 내 아이템 탭으로 직접 라우팅 — 옛 캐시 무효화.
-const CACHE_NAME = 'mars-v9';
+// 2026-05-27 v10: 정적 에셋 핸들러가 500/404 응답까지 cache.put 하던 버그 수정.
+//   NASA 화성 텍스처(mars_nasa_2k.jpg)가 일시적 500을 받은 뒤 SW가 그 500을 영구 캐시 →
+//   cache-first 라 매번 깨진 500을 반환 → 프로시저럴 텍스처로 폴백되던 문제. v10 으로 올려
+//   activate 시 오염된 v9 캐시를 전부 삭제하고, 이제 2xx 응답만 캐시한다.
+const CACHE_NAME = 'mars-v10';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
@@ -109,10 +113,14 @@ self.addEventListener('fetch', (e) => {
       caches.match(e.request).then((cached) => {
         if (cached) return cached;
         return fetch(e.request).then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+          // Only cache successful 2xx responses — never poison the cache with
+          // 4xx/5xx (a transient 500 on an image used to get stuck forever).
+          if (res && res.ok && res.status >= 200 && res.status < 300) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone)).catch(() => {});
+          }
           return res;
-        });
+        }).catch(() => cached);
       })
     );
     return;

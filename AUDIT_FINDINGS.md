@@ -1,3 +1,30 @@
+# OCCUPY MARS — Codebase Audit (v7.90 / 2026-05-27) — NASA 텍스처 SW 캐시 오염 + 자전 속도
+
+## 🔴 v7.90 — Service Worker 가 깨진 500 응답을 영구 캐시해 NASA 화성 텍스처가 사라지던 문제 (2026-05-27)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| sw.js 정적 에셋 캐시 | 정적 에셋(이미지/CSS/JS) fetch 핸들러가 `res.ok` 확인 없이 모든 응답을 `cache.put` → `/assets/textures/mars_nasa_2k.jpg` 가 일시적 500을 받은 순간 SW가 500을 캐시. cache-first 라 이후 매 요청이 캐시된 500을 반환 → 이미지 로드 실패 → 프로시저럴 텍스처 폴백. API/HTML 핸들러는 `res.ok` 가드가 있었으나 정적 핸들러만 누락된 비대칭 버그. | 🔴 HIGH | ✅ 수정 |
+| index.html 글로브 | 자전 속도(autoRotateSpeed=0.35)가 느리다는 사용자 피드백. | 🟢 LOW | ✅ 수정 (0.6) |
+
+**진단 (브라우저 라이브 디버깅):**
+- `curl` 및 `?fresh=<ts>` (쿼리스트링 → SW 캐시 우회) → HTTP 200 정상.
+- plain URL `fetch(...,{cache:'reload'})` → HTTP **500** (SW 캐시된 500 반환).
+- `navigator.serviceWorker.controller` 활성, 캐시 엔트리 삭제 후 재요청 → 200 (오염 캐시 확정).
+
+**수정 내용:**
+- `sw.js`
+  - 정적 에셋 핸들러: 2xx 응답만 캐시 (`res.ok && status 200~299`). 네트워크 실패 시 cached fallback.
+  - `CACHE_NAME` `mars-v9` → `mars-v10` → `activate` 가 오염된 v9 캐시 전체 삭제 → 기존 사용자 자동 복구.
+- `index.html`
+  - `globe.controls().autoRotateSpeed` 0.35 → 0.6.
+
+**검증:**
+- `node --check sw.js` → OK.
+- 브라우저: 오염 캐시 삭제 후 NASA 텍스처 200 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.88 / 2026-05-26) — campaign retry gates + locked reason UI
 
 ## 🟠 v7.88 — 실패 챕터 재도전 gate와 잠금 사유 표시 정합 보강 (2026-05-26)

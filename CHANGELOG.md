@@ -1,5 +1,35 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.90 — NASA 화성 텍스처 복구 (SW 캐시 오염 수정) + 자전 속도
+
+**근본 원인 — Service Worker 가 깨진 500 응답을 영구 캐시:**
+
+- `sw.js` 정적 에셋 핸들러(이미지/CSS/JS)가 `res.ok` 확인 없이 모든 응답을 `cache.put` 하고 있었음.
+  → `/assets/textures/mars_nasa_2k.jpg` 가 (서버 재시작/배포 중) 일시적 500을 받은 순간 SW가 그 500을 캐시.
+  → cache-first 전략이라 이후 매 요청이 캐시된 500을 반환 → 브라우저 이미지 로드 실패(`_imgFailed`) →
+     `compositeClaimsOnTexture()` 가 프로시저럴 텍스처로 폴백 → 사용자에게 "나사 텍스처 없음"으로 보임.
+- 진단 근거 (브라우저 디버깅):
+  - `curl` / `?fresh=<ts>` (쿼리스트링 → SW 캐시 우회) → HTTP 200, 177ms 정상 로드
+  - 쿼리 없는 plain URL `fetch(...,{cache:'reload'})` → **HTTP 500** (SW 캐시된 500)
+  - `navigator.serviceWorker.controller` 활성, `sw_count: 1`
+  - 캐시 엔트리 삭제 후 재요청 → **200** (오염 캐시가 원인임을 확정)
+
+**수정:**
+
+- `sw.js`
+  - 정적 에셋 핸들러: 2xx 응답만 캐시하도록 변경 (`res.ok && 200~299`). 네트워크 실패 시 cached fallback.
+    → API/HTML 핸들러는 이미 `res.ok` 가드가 있었고, 정적 핸들러만 누락돼 있던 비대칭 버그.
+  - `CACHE_NAME` `mars-v9` → `mars-v10`. `activate` 이벤트가 오염된 v9 캐시를 전체 삭제 → 기존 사용자도 다음 방문 시 자동 복구.
+- `index.html`
+  - 글로브 자전 속도 `autoRotateSpeed` 0.35 → 0.6 (사용자 요청: "속도가 좀 느리지만").
+
+**검증:**
+- `node --check sw.js` → OK
+- 브라우저: 오염 캐시 삭제 후 NASA 텍스처 `cache:'reload'` 요청 → status 200 확인
+- 배포 후 기존 사용자: SW v10 activate 시 v9 캐시 wipe → NASA 텍스처 정상 표시 예상
+
+---
+
 ## 2026-05-27 v7.89 — 글로브 렌더 경쟁 제거 (채팅/피드 폴링 지연)
 
 **Globe.GL 렌더 루프 보호:**
