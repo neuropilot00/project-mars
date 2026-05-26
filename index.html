@@ -11607,7 +11607,9 @@ function _initStep3(){
     initTexUrl=NASA_MARS_2K;
     currentTexMode='nasa';
   } else {
-    initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
+    // Desktop starts from the already-generated procedural surface so a hard refresh
+    // never shows a blank/white globe while the NASA texture is still downloading.
+    initTexUrl=(currentTexMode==='nasa')?(marsTexUrl||NASA_MARS_2K):marsTexUrl;
   }
   setLoadProgress(80,'Initializing globe...');
 
@@ -11642,6 +11644,8 @@ function _initStep3(){
         if(isMobileDevice){
           // Wait for NASA texture to load before dismissing
           setLoadProgress(96,'Downloading Mars surface...');
+        } else if(currentTexMode==='nasa'){
+          setLoadProgress(96,'Preparing Mars surface...');
         } else {
           setTimeout(dismissLoader,200);
         }
@@ -11673,8 +11677,14 @@ function _initStep3(){
 
     // Pre-cache initial NASA 2K so compositeClaimsOnTexture can use it immediately
     if(currentTexMode==='nasa'){
-      cacheImage(NASA_MARS_2K,function(){
+      cacheImage(NASA_MARS_2K,function(img){
         console.log('[Mars] NASA 2K cached for compositing');
+        if(!img || !globe) return;
+        compositeClaimsOnTexture();
+        if(!isMobileDevice){
+          setLoadProgress(100,'Ready!');
+          setTimeout(dismissLoader,150);
+        }
       });
     }
     // Mobile: NASA 2K already set as initTexUrl, just cache for compositing
