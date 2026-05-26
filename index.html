@@ -5644,7 +5644,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="p-title" data-i18n="referral_program">REFERRAL PROGRAM <span class="help-tip" onclick="event.stopPropagation();showHelpTip('referral')">?</span></div>
     <div id="referralContent">
       <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:6px">
-        Share your code & earn PP<br>when referrals hijack territory!
+        Share your code & earn PP<br>from live referral commission activity!
       </div>
       <div style="background:rgba(255,120,60,.06);border:1px solid var(--bdr);border-radius:6px;padding:8px;margin-bottom:8px">
         <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">MY REFERRAL CODE</div>
@@ -6169,7 +6169,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="mf"><div class="mfl">GP BALANCE</div><div class="mfv" style="color:var(--gn)" id="exchGPBal">0 GP</div></div>
       <div class="mdv"></div>
       <div style="text-align:center;font-size:10px;color:var(--tx3);font-family:var(--fn);margin:4px 0">
-        Rate: <span id="exchRate" style="color:var(--gn)">1 PP = 4 GP</span> · Fee: <span id="exchFee" style="color:var(--red)">5%</span>
+        Rate: <span id="exchRate" style="color:var(--gn)">1 PP = 10 GP</span> · Fee: <span id="exchFee" style="color:var(--red)">5%</span>
       </div>
       <div class="mf">
         <div class="mfl">EXCHANGE AMOUNT (PP)</div>
@@ -16185,7 +16185,7 @@ function setWdrMax(){document.getElementById('wdrAmount').value=walletState.game
 // ═══════════════════════════════════════
 //  PP → GP EXCHANGE
 // ═══════════════════════════════════════
-var _exchInfo = { rate:4, min:0.1, max:10, fee:5, dailyLimit:50, enabled:true };
+var _exchInfo = { rate:10, min:0.1, max:5, fee:5, dailyLimit:50, enabled:true };
 
 async function openExchangeModal(){
   if(!walletState.connected){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
@@ -16568,10 +16568,10 @@ var I18N = {
     hijack_cost: 'HIJACK COST', hijack_this: 'HIJACK THIS PLOT',
     my_alerts: 'MY ALERTS', live_feed: 'LIVE FEED', place_image: 'PLACE YOUR IMAGE',
     choose_file: 'CHOOSE IMAGE FILE', item_shop: 'ITEM SHOP', open_shop: 'OPEN SHOP',
-    referral_program: 'REFERRAL PROGRAM', referral_desc: 'Share your code & earn PP<br>when referrals hijack territory!',
+    referral_program: 'REFERRAL PROGRAM', referral_desc: 'Share your code & earn PP<br>from live referral commission activity!',
     codex_open: 'GAME GUIDEBOOK', codex_tagline: 'Learn the lore & mechanics', profile_prefs: 'PREFERENCES', profile_language: 'LANGUAGE', codex_prev: 'PREV', codex_next: 'NEXT',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
-    ref_sources: 'Earn from: deposit · swap · shop · harvest · cantina · hijack · enhance · marketplace · ships · battles',
+    ref_sources: 'Base live sources: deposit · swap · shop · cantina · market fees (other sources vary by operator settings)',
     view_dynasty: '👑 VIEW DYNASTY', dyn_leaderboard: 'LEADERBOARD', dyn_my_tree: 'MY TREE',
     my_ref_code: 'MY REFERRAL CODE', enter_ref_code: 'ENTER REFERRAL CODE',
     referrals: 'REFERRALS', total_earned: 'TOTAL EARNED', coming_soon: 'COMING SOON',
@@ -17198,7 +17198,7 @@ var I18N = {
     // ── Profile / Account ──
     prof_referral: 'REFERRAL', prof_live_feed: 'LIVE FEED', prof_alerts: 'ALERTS',
     prof_settings: 'SETTINGS',
-    ref_share_desc: 'Share your code & earn PP when referrals deposit, harvest, or hijack.',
+    ref_share_desc: 'Share your code & earn PP from live referral commission activity (deposit, swap, shop, cantina, market fees).',
     ref_my_code: 'MY REFERRAL CODE', ref_code_copied: 'Code copied!',
     ref_enter_code: 'ENTER REFERRAL CODE', ref_code_placeholder: 'CODE...',
     ref_referred_by: 'Referred by:', prof_no_alerts: 'No alerts yet',
@@ -17441,10 +17441,10 @@ var I18N = {
     hijack_cost: '탈취 비용', hijack_this: '이 영토 탈취하기',
     my_alerts: '내 알림', live_feed: '실시간 피드', place_image: '이미지 배치',
     choose_file: '이미지 파일 선택', item_shop: '아이템 상점', open_shop: '상점 열기',
-    referral_program: '추천 프로그램', referral_desc: '코드를 공유하고 추천인이<br>영토를 탈취할 때 PP를 획득하세요!',
+    referral_program: '추천 프로그램', referral_desc: '코드를 공유하고 추천인의 라이브 커미션 활동에서 PP를 획득하세요!',
     codex_open: '게임 가이드북', codex_tagline: '세계관과 게임 구조 안내', profile_prefs: '환경 설정', profile_language: '언어', codex_prev: '이전', codex_next: '다음',
     ref_tiers: '1단계: 15% · 2단계: 10% · 3단계: 5%',
-    ref_sources: '수익원: 입금 · 스왑 · 상점 · 채굴 · 칸티나 · 탈취 · 강화 · 마켓 · 함선 · 전투',
+    ref_sources: '기본 수익원: 입금 · 스왑 · 상점 · 칸티나 · 마켓 수수료 (기타 소스는 운영 설정에 따라 변동)',
     view_dynasty: '👑 다이너스티 보기', dyn_leaderboard: '리더보드', dyn_my_tree: '내 트리',
     my_ref_code: '내 추천 코드', enter_ref_code: '추천 코드 입력',
     referrals: '추천 수', total_earned: '총 수익', coming_soon: '준비 중',
@@ -18051,7 +18051,7 @@ var I18N = {
     // ── Profile / Account ──
     prof_referral: '추천', prof_live_feed: '실시간 피드', prof_alerts: '알림',
     prof_settings: '설정',
-    ref_share_desc: '코드를 공유하고 추천인이 입금, 수확, 탈취할 때 PP를 받으세요.',
+    ref_share_desc: '코드를 공유하고 추천인의 라이브 커미션 활동(입금·스왑·상점·칸티나·마켓 수수료)에서 PP를 받으세요.',
     ref_my_code: '내 추천 코드', ref_code_copied: '코드 복사 완료!',
     ref_enter_code: '추천 코드 입력', ref_code_placeholder: '코드...',
     ref_referred_by: '추천인:', prof_no_alerts: '알림이 없습니다',
@@ -18311,10 +18311,10 @@ var I18N = {
     hijack_cost: '奪取コスト', hijack_this: 'この領土を奪取',
     my_alerts: 'アラート', live_feed: 'ライブフィード', place_image: '画像を配置',
     choose_file: '画像ファイルを選択', item_shop: 'アイテムショップ', open_shop: 'ショップを開く',
-    referral_program: '紹介プログラム', referral_desc: 'コードを共有して紹介者が<br>領土を奪取するとPPを獲得！',
+    referral_program: '紹介プログラム', referral_desc: 'コードを共有して紹介者の<br>ライブコミッション活動でPPを獲得！',
     codex_open: 'ゲームガイド', codex_tagline: '世界観とシステム解説', profile_prefs: '環境設定', profile_language: '言語', codex_prev: '前へ', codex_next: '次へ',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
-    ref_sources: '収益源: 入金 · スワップ · ショップ · 採掘 · カンティーナ · 奪取 · 強化 · マーケット · 艦船 · 海戦',
+    ref_sources: '収益源(既定): 入金 · スワップ · ショップ · カンティーナ · マーケット手数料 (その他は運営設定で変動)',
     view_dynasty: '👑 ダイナスティ表示', dyn_leaderboard: 'ランキング', dyn_my_tree: 'マイツリー',
     my_ref_code: '紹介コード', enter_ref_code: '紹介コード入力',
     referrals: '紹介数', total_earned: '総収益', coming_soon: '準備中',
@@ -18897,7 +18897,7 @@ var I18N = {
     hilo_higher: '⬆ ハイ', hilo_cashout: 'キャッシュアウト', hilo_lower: '⬇ ロー',
     prof_referral: '紹介', prof_live_feed: 'ライブフィード', prof_alerts: 'アラート',
     prof_settings: '設定',
-    ref_share_desc: 'コードを共有して紹介者が入金・収穫・奪取するとPPを獲得。',
+    ref_share_desc: 'コードを共有して紹介者のライブコミッション活動(入金・スワップ・ショップ・カンティナ・マーケット手数料)でPPを獲得。',
     ref_my_code: '紹介コード', ref_code_copied: 'コードをコピー！',
     ref_enter_code: '紹介コード入力', ref_code_placeholder: 'コード...',
     ref_referred_by: '紹介者：', prof_no_alerts: 'アラートはまだありません',
@@ -19168,10 +19168,10 @@ var I18N = {
     hijack_cost: '劫持费用', hijack_this: '劫持此领土',
     my_alerts: '我的提醒', live_feed: '实时动态', place_image: '放置图片',
     choose_file: '选择图片文件', item_shop: '道具商店', open_shop: '打开商店',
-    referral_program: '推荐计划', referral_desc: '分享你的推荐码，<br>当推荐人劫持领土时获得PP！',
+    referral_program: '推荐计划', referral_desc: '分享你的推荐码，<br>在推荐人的 live 佣金活动中获得PP！',
     codex_open: '游戏指南', codex_tagline: '了解世界观与玩法机制', profile_prefs: '偏好设置', profile_language: '语言', codex_prev: '上一页', codex_next: '下一页',
     ref_tiers: '一级: 15% · 二级: 10% · 三级: 5%',
-    ref_sources: '收益来源: 充值 · 兑换 · 商店 · 挖矿 · 赌场 · 劫持 · 强化 · 市场 · 舰船 · 海战',
+    ref_sources: '收益来源(默认): 充值 · 兑换 · 商店 · 卡提纳 · 市场手续费（其他来源随运营设置变化）',
     view_dynasty: '👑 查看王朝', dyn_leaderboard: '排行榜', dyn_my_tree: '我的树',
     my_ref_code: '我的推荐码', enter_ref_code: '输入推荐码',
     referrals: '推荐数', total_earned: '总收益', coming_soon: '即将上线',
@@ -19754,7 +19754,7 @@ var I18N = {
     hilo_higher: '⬆ 更高', hilo_cashout: '提现', hilo_lower: '⬇ 更低',
     prof_referral: '推荐', prof_live_feed: '实时动态', prof_alerts: '提醒',
     prof_settings: '设置',
-    ref_share_desc: '分享你的推荐码，当推荐人充值、收获或劫持时你获得PP。',
+    ref_share_desc: '分享你的推荐码，在推荐人的 live 佣金活动（充值·兑换·商店·卡提纳·市场手续费）中获得PP。',
     ref_my_code: '我的推荐码', ref_code_copied: '推荐码已复制！',
     ref_enter_code: '输入推荐码', ref_code_placeholder: '推荐码...',
     ref_referred_by: '推荐人：', prof_no_alerts: '暂无提醒',
@@ -41822,7 +41822,7 @@ var CODEX_CONTENT = {
               ['Tier 30 (max)',   {v:'500 GP',cls:'num'},       {v:'1500 GP',cls:'num'}]
             ]},
           { type:'callout', variant:'info', title:'Premium pass costs GP',
-            text:'The premium pass upgrade costs GP (admin-configurable). It unlocks the premium reward track for the current season only.' }
+            text:'The premium pass upgrade currently costs **150 GP** by live default (admin-configurable). It unlocks the premium reward track for the current season only.' }
         ]
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP Exchange',
@@ -41831,10 +41831,10 @@ var CODEX_CONTENT = {
           { type:'table',
             headers:['Setting','Default','Source'],
             rows:[
-              ['Exchange rate', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['Exchange rate', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
               ['Fee',           {v:'5% (burned)',cls:'num'},    '`pp_to_gp_exchange_fee_pct`'],
               ['Min per tx',    {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
-              ['Max per tx',    {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
+              ['Max per tx',    {v:'5 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
               ['Daily limit',   {v:'50 PP/day',cls:'num'},       '`pp_to_gp_exchange_daily_limit`']
             ]},
           { type:'callout', variant:'warn', title:'One-way exchange',
@@ -41936,20 +41936,19 @@ var CODEX_CONTENT = {
             caption:'YOU → T1 (direct) → T2 (indirect) → T3 (3 levels deep)' },
           { type:'p', text:'The `referral_rewards` table has a **tier INT** column that tracks which level each payout came from. Tier percentages are admin-configurable — check the DYNASTY tab in-game for the current live rate.' },
 
-          { type:'h2', text:'2. 6 Activities That Pay Commission' },
-          { type:'p', text:'Even one friend pays you out from **6 activities** — you earn while you sleep.' },
+          { type:'h2', text:'2. Commission-bearing activities (live defaults)' },
+          { type:'p', text:'Live defaults currently pay commission from **5 activities**. Some sources can be turned on/off by operator settings, so always treat the DYNASTY tab as the source of truth.' },
           { type:'table',
             headers:['Activity','Description'],
             rows:[
               ['💰 Deposit',    'Bringing USDT into the game'],
               ['🔄 Swap',       'USDT ↔ PP conversion'],
               ['🛒 Shop',       'Item / cosmetic purchases'],
-              ['⛏ Harvest',    'Passive mining collection'],
               ['🎰 Cantina',    'Casino bets'],
-              ['⚔ Hijack',      'Territory seizures']
+              ['🏪 Market fee', 'Marketplace listing / trading fees']
             ]},
           { type:'callout', variant:'info', title:'Real-time settlement',
-            text:'Whenever the referee acts, PP arrives in your wallet instantly. No accrual delay. A toast notification also pops.' },
+            text:'Whenever the referee triggers a live commission source, PP arrives in your wallet instantly. Harvest / hijack / enhancement / auction sources may be operator-disabled in live ops.' },
 
           { type:'h2', text:'3. Leaderboard and Tree View' },
           { type:'p', text:'The `DYNASTY` tab shows your referral tree and the global leaderboard.' },
@@ -42912,7 +42911,7 @@ var CODEX_CONTENT = {
               ['30단계(최대)',   {v:'500 GP',cls:'num'},      {v:'1500 GP',cls:'num'}]
             ]},
           { type:'callout', variant:'info', title:'프리미엄 패스는 GP로 구매',
-            text:'프리미엄 업그레이드는 GP로 구매 (어드민 조정 가능). 현재 시즌에만 적용.' }
+            text:'프리미엄 업그레이드는 현재 라이브 기본값 기준 **150 GP** (어드민 조정 가능). 현재 시즌에만 적용.' }
         ]
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP 환전',
@@ -42921,10 +42920,10 @@ var CODEX_CONTENT = {
           { type:'table',
             headers:['설정','기본값','소스'],
             rows:[
-              ['환전 비율', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['환전 비율', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
               ['수수료',    {v:'5% (소각)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
               ['최소',      {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
-              ['최대',      {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
+              ['최대',      {v:'5 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
               ['일일 한도', {v:'50 PP/일',cls:'num'},        '`pp_to_gp_exchange_daily_limit`']
             ]},
           { type:'callout', variant:'warn', title:'단방향 환전',
@@ -42995,7 +42994,7 @@ var CODEX_CONTENT = {
           { type:'p', text:'친구를 초대하면 **3단계 MLM** 구조로 커미션이 들어와. 직접 초대한 친구(Tier 1)뿐 아니라 그 친구가 초대한 사람(Tier 2), 또 그 아래까지(Tier 3) 전부 내 수익 라인이 돼.' },
           { type:'toc', label:'이 섹션 내용', items:[
             '3단계 구조',
-            '커미션이 발생하는 활동 6가지',
+            '커미션이 발생하는 활동 (라이브 기본값)',
             '리더보드와 트리 뷰',
             '장기 전략'
           ]},
@@ -43026,20 +43025,19 @@ var CODEX_CONTENT = {
             caption:'YOU → T1 (직접 초대) → T2 (간접) → T3 (3단계까지)' },
           { type:'p', text:'테이블 `referral_rewards` 에 **tier INT** 컬럼이 있어서 각 지급이 몇 단계에서 왔는지 추적돼. 단계별 비율은 관리자 설정에서 조정 가능해 — 게임 내 수치가 바뀔 수 있으니 DYNASTY 탭에서 실시간 비율을 확인하는 게 정확해.' },
 
-          { type:'h2', text:'2. 커미션이 발생하는 활동 6가지' },
-          { type:'p', text:'친구 한 명만 있어도 그 친구가 **아래 6가지 활동** 전부에서 네 쪽으로 %를 태워줘. 자고 있어도 돈이 들어와.' },
+          { type:'h2', text:'2. 커미션이 발생하는 활동 (라이브 기본값)' },
+          { type:'p', text:'현재 라이브 기본값 기준 커미션은 **5가지 활동** 에서 발생해. 일부 소스는 운영 설정으로 켜고 끌 수 있으니, 최종 실시간 기준은 DYNASTY 탭이 맞다.' },
           { type:'table',
             headers:['활동','설명'],
             rows:[
               ['💰 입금',        'USDT를 게임에 넣을 때'],
               ['🔄 스왑',        'USDT ↔ PP 교환'],
               ['🛒 상점',        '아이템·코스메틱 구매'],
-              ['⛏ 수확',        '패시브 채굴 수령'],
               ['🎰 칸티나',       '카지노 베팅'],
-              ['⚔ 하이잭',       '영토 탈취']
+              ['🏪 마켓 수수료',   '마켓 등록/거래 수수료']
             ]},
           { type:'callout', variant:'info', title:'실시간 정산',
-            text:'피추천인이 활동할 때마다 즉시 **PP 형태**로 내 지갑에 들어와. 적립 지연 없음. 알림 토스트로도 뜨고.' },
+            text:'피추천인이 라이브 커미션 소스를 실행할 때마다 즉시 **PP 형태**로 내 지갑에 들어와. 수확·하이잭·강화·경매 구매 계열은 운영 설정에 따라 비활성일 수 있어.' },
 
           { type:'h2', text:'3. 리더보드와 트리 뷰' },
           { type:'p', text:'`DYNASTY` 탭에서 내 추천 트리와 전체 리더보드를 볼 수 있어.' },
@@ -43933,7 +43931,7 @@ CODEX_CONTENT.ja = {
               ['30段階(最大)',   {v:'500 GP',cls:'num'},      {v:'1500 GP',cls:'num'}]
             ]},
           { type:'callout', variant:'info', title:'プレミアムパスはGPで購入',
-            text:'プレミアムアップグレードはGPで購入(管理者調整可)。現シーズンのみ有効。' }
+            text:'プレミアムアップグレードは現在のライブ既定値で **150 GP** (管理者調整可)。現シーズンのみ有効。' }
         ]
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP 両替',
@@ -43942,10 +43940,10 @@ CODEX_CONTENT.ja = {
           { type:'table',
             headers:['設定','デフォルト','ソース'],
             rows:[
-              ['両替レート', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
-              ['手数料',     {v:'5%(バーン)',cls:'num'},     '`pp_to_gp_exchange_fee_pct`'],
+              ['両替レート', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['手数料',     {v:'5% (焼却)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
               ['最小',       {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
-              ['最大',       {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
+              ['最大',       {v:'5 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
               ['日次上限',   {v:'50 PP/日',cls:'num'},       '`pp_to_gp_exchange_daily_limit`']
             ]},
           { type:'callout', variant:'warn', title:'一方通行',
@@ -44016,7 +44014,7 @@ CODEX_CONTENT.ja = {
         { type:'p', text:'友人を招待すると **3 段階 MLM** 構造でコミッションが入る。直接招待した友人(Tier 1)だけでなく、その友人が招待した人(Tier 2)、さらにその下(Tier 3)まで全部自分の収益ラインになる。' },
         { type:'toc', label:'このセクションの内容', items:[
           '3 段階構造',
-          'コミッション発生活動 6 種',
+          'コミッション発生活動 (ライブ既定値)',
           'リーダーボードとツリービュー',
           '長期戦略'
         ]},
@@ -44047,20 +44045,19 @@ CODEX_CONTENT.ja = {
           caption:'YOU → T1(直接招待)→ T2(間接)→ T3(3 段階まで)' },
         { type:'p', text:'テーブル `referral_rewards` には **tier INT** カラムがあり、各支払いがどの段階から来たか追跡される。段階別比率は管理者設定で調整可能 — ゲーム内の数字が変わる可能性があるので DYNASTY タブでリアルタイム比率を確認するのが正確だ。' },
 
-        { type:'h2', text:'2. コミッション発生活動 6 種' },
-        { type:'p', text:'友人 1 人いるだけで、その友人が **以下の 6 種類の活動** 全部で自分に % を還元する。寝ていてもお金が入る。' },
+        { type:'h2', text:'2. コミッション発生活動 (ライブ既定値)' },
+        { type:'p', text:'現在のライブ既定値ではコミッションは **5 種類の活動** から発生する。一部ソースは運営設定で ON/OFF されるため、最終的なリアルタイム基準は DYNASTY タブを見ればよい。' },
         { type:'table',
           headers:['活動','説明'],
           rows:[
             ['💰 入金',        'USDT をゲームに入れるとき'],
             ['🔄 スワップ',        'USDT ↔ PP 交換'],
             ['🛒 ショップ',        'アイテム・コスメ購入'],
-            ['⛏ ハーベスト',        'パッシブ採掘受取'],
             ['🎰 カンティナ',       'カジノベット'],
-            ['⚔ ハイジャック',       '領土奪取']
+            ['🏪 マーケット手数料',  '出品・取引手数料']
           ]},
         { type:'callout', variant:'info', title:'リアルタイム精算',
-          text:'被紹介者が行動するたびに即時 **PP 形式** で自分のウォレットに入る。積立遅延なし。通知トーストも出る。' },
+          text:'被紹介者がライブコミッションソースを実行するたび、即時 **PP 形式** で自分のウォレットに入る。採掘・ハイジャック・強化・オークション購入系は運営設定で無効化される場合がある。' },
 
         { type:'h2', text:'3. リーダーボードとツリービュー' },
         { type:'p', text:'`DYNASTY` タブで自分の紹介ツリーと全体リーダーボードを見られる。' },
@@ -44953,7 +44950,7 @@ CODEX_CONTENT.zh = {
               ['30级(最高)',    {v:'500 GP',cls:'num'},       {v:'1500 GP',cls:'num'}]
             ]},
           { type:'callout', variant:'info', title:'高级通行证用GP购买',
-            text:'高级升级用GP购买(管理员可调)。仅当前赛季有效。' }
+            text:'高级升级当前 live 默认价为 **150 GP**（管理员可调）。仅当前赛季有效。' }
         ]
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP 兑换',
@@ -44962,10 +44959,10 @@ CODEX_CONTENT.zh = {
           { type:'table',
             headers:['设置','默认值','来源'],
             rows:[
-              ['兑换比率', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
-              ['手续费',   {v:'5%(销毁)',cls:'num'},       '`pp_to_gp_exchange_fee_pct`'],
+              ['兑换比率', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['手续费',   {v:'5% (销毁)',cls:'num'},       '`pp_to_gp_exchange_fee_pct`'],
               ['最小',     {v:'0.1 PP',cls:'num'},          '`pp_to_gp_exchange_min`'],
-              ['最大',     {v:'10 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
+              ['最大',     {v:'5 PP',cls:'num'},             '`pp_to_gp_exchange_max`'],
               ['每日上限', {v:'50 PP/天',cls:'num'},        '`pp_to_gp_exchange_daily_limit`']
             ]},
           { type:'callout', variant:'warn', title:'单向兑换',
@@ -45036,7 +45033,7 @@ CODEX_CONTENT.zh = {
         { type:'p', text:'邀请朋友后,佣金会按 **3 级 MLM** 结构进入你的账户。不仅是你直接邀请的朋友(Tier 1),朋友邀请的人(Tier 2)、再下面的人(Tier 3)也全都是你的收益线。' },
         { type:'toc', label:'本节内容', items:[
           '3 级结构',
-          '6 种产生佣金的活动',
+          '产生佣金的活动（live 默认）',
           '排行榜与树状视图',
           '长期策略'
         ]},
@@ -45067,20 +45064,19 @@ CODEX_CONTENT.zh = {
           caption:'YOU → T1(直接邀请)→ T2(间接)→ T3(到 3 级)' },
         { type:'p', text:'`referral_rewards` 表里有 **tier INT** 列,可以追踪每笔到账来自第几级。各级百分比可由管理员设置调整 — 游戏里的数字有可能变,所以以 DYNASTY 标签里的实时数字为准更准确。' },
 
-        { type:'h2', text:'2. 6 种产生佣金的活动' },
-        { type:'p', text:'哪怕只有 1 个朋友,他在 **以下 6 种活动** 里都会给你分 %。睡觉也有钱进。' },
+        { type:'h2', text:'2. 产生佣金的活动（live 默认）' },
+        { type:'p', text:'当前 live 默认下，佣金来自 **5 种活动**。部分来源可被运营设置开关，所以最终实时口径以 DYNASTY 标签为准。' },
         { type:'table',
           headers:['活动','说明'],
           rows:[
             ['💰 充值',        '把 USDT 放进游戏时'],
             ['🔄 兑换',        'USDT ↔ PP 互换'],
             ['🛒 商店',        '买物品·饰品'],
-            ['⛏ 收获',        '领取被动采矿'],
             ['🎰 卡提纳',       '赌场投注'],
-            ['⚔ 劫掠',       '夺取领土']
+            ['🏪 市场手续费',   '上架/交易手续费']
           ]},
         { type:'callout', variant:'info', title:'实时结算',
-          text:'被推荐人每次活动都会立刻以 **PP 形式** 进入你的钱包。没有延迟。也会弹出提示。' },
+          text:'被推荐人每次触发 live 佣金来源时都会立刻以 **PP 形式** 进入你的钱包。收获·劫掠·强化·拍卖购买等来源可能被运营设置关闭。' },
 
         { type:'h2', text:'3. 排行榜与树状视图' },
         { type:'p', text:'在 `DYNASTY` 标签里可以看到自己的推荐树和全服排行榜。' },
@@ -51029,8 +51025,8 @@ async function renderObStep4(el) {
       <div class="ob-title" style="font-size:16px">${t('ob_step4_title')}</div>
       <div class="ob-subtitle">${t('ob_step4_sub')}</div>
       <div class="ob-rewards-grid">
-        <div class="ob-reward-chip gp">💰 +200 GP</div>
-        <div class="ob-reward-chip pp">🔵 +100 PP</div>
+        <div class="ob-reward-chip gp">💰 +75 GP</div>
+        <div class="ob-reward-chip pp">🔵 +0.5 PP</div>
         <div class="ob-reward-chip title">${t('ob_reward_pioneer')}</div>
       </div>
       <div style="background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.15);border-radius:8px;padding:12px 16px;margin:12px 0;text-align:left">

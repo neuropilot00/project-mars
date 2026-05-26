@@ -227,7 +227,7 @@ Three.js 3D 글로브로 렌더링 (기존 유지)
 ```
 영토 가격 = 기본 단가 × 섹터 배율 × 위치 배율 × 인접 배율
 
-기본 단가: settings('land_base_price_pp') = 0.1 PP/px
+기본 단가: settings('land_base_price_pp') = 0.08 PP/px
 
 섹터 배율:
   Core:     ×5.0
@@ -315,7 +315,7 @@ CREATE TABLE sector_definitions (
 
 -- 영토 가격 설정
 INSERT INTO settings (key, value, description) VALUES
-('land_base_price_pp', '0.1', '픽셀당 기본 PP 가격'),
+('land_base_price_pp', '0.08', '픽셀당 기본 PP 가격'),
 ('land_adjacent_discount', '0.85', '인접 구매 할인 배율'),
 ('land_core_price_mult', '5.0', 'Core 섹터 가격 배율'),
 ('land_mid_price_mult', '2.0', 'Mid 섹터 가격 배율'),

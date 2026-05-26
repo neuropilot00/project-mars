@@ -96,8 +96,8 @@ UPDATE settings SET value = '10' WHERE key = 'marketplace_listing_fee_gp';
 - job_change_cost_gp = 50
 - job_change_weekly_free = 1
 - onboarding_enabled = true
-- onboarding_pp_reward = 100
-- onboarding_gp_reward = 200
+- onboarding_pp_reward = 0.5
+- onboarding_gp_reward = 75
 - war_betting_enabled = false
 - weather_forecast_hours = 48
 - weather_duration_hours = 6
