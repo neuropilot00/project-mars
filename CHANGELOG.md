@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.81 — 224 포함 migration verify SQL 확장
+
+**운영 확인 도구 보강:**
+
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql` 확장
+- 확인 항목 추가:
+  - `schema_migrations` 내 `224_week1_funnel_gp_bundle.sql`
+  - `onboarding_gp_reward`
+  - `daily_login_gp_rewards`
+- 기존 referral/pricing 확인과 함께 week-1 funnel GP 기본값까지 한 번에 확인 가능
+- 실행 방식은 동일: `psql "$DATABASE_URL" -f docs/ops/VERIFY_MIGRATIONS_222_223.sql`
+
+**검증:**
+- SQL 파일 내용 확인
+- `git diff`로 변경 범위가 ops SQL + 문서만인지 확인
+
+---
+
 ## 2026-05-26 v7.80 — week-1 funnel GP bundle
 
 **경제 설정 조정 (신규 유저 GP 체감 개선):**

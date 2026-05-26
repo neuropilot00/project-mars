@@ -1,3 +1,22 @@
+# OCCUPY MARS — Codebase Audit (v7.81 / 2026-05-26) — 224 포함 migration verify SQL 확장
+
+## 🟢 v7.81 — 224 migration 운영 확인 SQL 보강 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 확인 절차 | `224_week1_funnel_gp_bundle.sql`까지 반영된 뒤에도 verify SQL은 여전히 `222/223`만 확인해서 온보딩 GP / daily GP front-load 적용 여부를 한 번에 점검할 수 없었음 | 🟢 LOW | ✅ 수정 |
+
+**수정 내용:**
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql`에 `224_week1_funnel_gp_bundle.sql` 적용 여부 확인 추가.
+- `onboarding_gp_reward`, `daily_login_gp_rewards` 조회 쿼리 추가.
+- 마지막 snapshot 쿼리와 expected values 주석도 `224` 기준으로 확장.
+
+**검증:**
+- SQL 파일 내용 확인.
+- `git diff`로 변경 파일이 ops SQL + 문서만인지 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.80 / 2026-05-26) — week-1 funnel GP bundle
 
 ## 🟡 v7.80 — onboarding/daily GP front-load 조정 (2026-05-26)
