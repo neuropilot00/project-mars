@@ -1,5 +1,30 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.85 — production KPI / cohort / phase2 audit SQL pack
+
+**운영 분석 SQL 추가:**
+
+- `docs/ops/PROD_KPI_CHECK_WEEK1_FUNNEL.sql`
+  - active season
+  - 최근 7/30일 signups / onboarding / first claim / D1/D3/D7 / season pass premium 7d
+  - PP→GP exchange usage
+  - ship / expedition / monument / season pass sink checkpoint
+- `docs/ops/DASHBOARD_COHORTS_RETENTION_AND_CONVERSION.sql`
+  - 일별 signup cohort 대시보드
+  - first territory lag bucket
+  - active season premium depth
+- `docs/ops/PHASE2_AUDIT_SHIP_EXPEDITION_MONUMENT.sql`
+  - ship build mix / builder concentration / throughput
+  - expedition usage audit
+  - monument usage audit
+  - phase2 sink share
+
+**검증:**
+- 운영 DB(Railway public proxy)에서 세 SQL 파일 모두 `psql -v ON_ERROR_STOP=1 -f ...` 실행 성공
+- 0-row 테이블(expeditions/monuments)도 오탐 없이 `0`으로 집계되도록 보정
+
+---
+
 ## 2026-05-26 v7.84 — week-1 economy fallback/verify hardening
 
 **경제 런타임 fallback 정합 보강:**

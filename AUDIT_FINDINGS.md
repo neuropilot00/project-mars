@@ -1,3 +1,30 @@
+# OCCUPY MARS — Codebase Audit (v7.85 / 2026-05-26) — production KPI / cohort / phase2 audit SQL pack
+
+## 🟢 v7.85 — 운영 KPI/코호트/phase2 감사 SQL 추가 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 분석 도구 | week-1 경제를 운영 DB에 반영한 뒤에도 D1/D3/D7, first territory, season pass premium, phase2 ship/expedition/monument 사용량을 한 번에 점검할 표준 SQL이 없었음 | 🟢 LOW | ✅ 수정 |
+
+**수정 내용:**
+- `docs/ops/PROD_KPI_CHECK_WEEK1_FUNNEL.sql` 추가.
+- `docs/ops/DASHBOARD_COHORTS_RETENTION_AND_CONVERSION.sql` 추가.
+- `docs/ops/PHASE2_AUDIT_SHIP_EXPEDITION_MONUMENT.sql` 추가.
+- 0-row feature table에서도 잘못된 `1건` 집계가 나오지 않게 COUNT 대상을 명시적으로 보정.
+
+**운영 실행으로 확인한 현재 상태:**
+- 최근 30일 signup: `25`
+- 최근 30일 first claim 1d: `1`명 (`4.0%`)
+- 최근 30일 season pass premium 7d: `0`
+- 최근 30일 PP→GP exchange: `4`건 / `2`유저 / `40 PP -> 152 GP`
+- phase2 usage: ship build `32`건 / `1`유저 / `7940 GP`, expeditions `0`, monuments `0`
+
+**검증:**
+- 운영 DB(Railway public proxy)에서 세 SQL 파일 모두 직접 실행.
+- 결과 tail 확인으로 active season / KPI / cohort / phase2 섹션이 끝까지 출력되는지 재확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.84 / 2026-05-26) — week-1 economy fallback/verify hardening
 
 ## 🟡 v7.84 — 런타임 fallback이 구형 고비용 값으로 회귀하던 리스크 보강 (2026-05-26)
