@@ -33,6 +33,13 @@ async function main() {
     `UPDATE users SET gp_balance = 1000000 WHERE wallet_address = $1`,
     [TEST_WALLET]
   );
+  // Grant rank 8: above battleship min_player_rank (7) so the mcc_bs build path
+  // actually exercises material deduction, but below titan rank (10) so the
+  // mcc_titan check below still validates the RANK_REQUIRED gate.
+  await pool.query(
+    `UPDATE users SET rank_level = 8 WHERE wallet_address = $1`,
+    [TEST_WALLET]
+  );
 
   try {
     const r = await ship.startBuild(TEST_WALLET, 'mcc_bs');

@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.90.2 — capital ship 스모크 테스트 rank 셋업 보강
+
+**테스트 전용 수정 (게임 로직 변경 없음):**
+
+- `server/tools/smoke_capital_recipes.js`
+  - `mcc_bs`(battleship, min_player_rank=7) 빌드 테스트가 테스트 지갑 rank_level=1 때문에 `RANK_REQUIRED`로 실패하던 false-negative 수정.
+  - 셋업에 `UPDATE users SET rank_level = 8` 추가 → battleship 빌드 경로가 실제 재료 차감까지 검증되도록.
+  - rank 8은 titan(rank 10) 미만이라 `mcc_titan` 검증 케이스의 RANK_REQUIRED gate 체크는 그대로 유지.
+  - 결과: 11/11 pass (이전 9/11). 게임 랭크 게이팅 로직 자체는 정상 동작 확인.
+
+---
+
 ## 2026-05-27 v7.90 — NASA 화성 텍스처 복구 (SW 캐시 오염 수정) + 자전 속도
 
 **근본 원인 — Service Worker 가 깨진 500 응답을 영구 캐시:**
