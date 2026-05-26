@@ -24,7 +24,7 @@ async function launchExpedition(wallet, claimId, expeditionType, durationH) {
   if (enabled !== 'true') throw new Error('Expedition system is disabled');
 
   const expType = EXP_TYPES[expeditionType] || EXP_TYPES.salvage;
-  const baseCost = parseFloat(await getSetting('expedition_base_cost_gp', '30'));
+  const baseCost = parseFloat(await getSetting('expedition_base_cost_gp', '15'));
   const maxDur   = parseInt(await getSetting('expedition_max_duration_h', '24'), 10);
   const dur = Math.min(Math.max(1, parseInt(durationH, 10) || 1), maxDur);
   const cost = parseFloat((baseCost * dur * expType.costMult).toFixed(6));
@@ -243,7 +243,7 @@ async function getMyExpeditions(wallet) {
 // ── Get available durations and costs ────────────────────────────────────────
 async function getExpeditionInfo() {
   const [baseCost, maxDur, durations, enabled] = await Promise.all([
-    getSetting('expedition_base_cost_gp', '30'),
+    getSetting('expedition_base_cost_gp', '15'),
     getSetting('expedition_max_duration_h', '24'),
     getSetting('expedition_durations', '1,3,6,12,24'),
     getSetting('expedition_enabled', 'true')

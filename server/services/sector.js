@@ -186,7 +186,7 @@ async function checkEntryRequirement(wallet, sectorCode) {
 // 5. 영토 가격 계산
 // ─────────────────────────────────────────────────────────────
 async function calculateLandPrice(pixelCount, sectorCode, isAdjacent = false) {
-  const basePrice  = parseFloat(await getSetting('land_base_price_pp')     ?? '0.1');
+  const basePrice  = parseFloat(await getSetting('land_base_price_pp')     ?? '0.08');
   const adjDisc    = parseFloat(await getSetting('land_adjacent_discount')  ?? '0.85');
 
   let multiplier = 1.0;

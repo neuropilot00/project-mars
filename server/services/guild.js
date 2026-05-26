@@ -861,7 +861,7 @@ async function contributeHarvest(client, wallet, grossPP) {
     if (ppCut <= 0) return { contributed: 0, remaining: grossPP };
 
     // Convert PP contribution to GP (rate from settings, default 100)
-    const ppToGpRate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '4');
+    const ppToGpRate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '10');
     const gpCredit = Math.floor(ppCut * ppToGpRate);
     if (gpCredit <= 0) return { contributed: 0, remaining: grossPP };
 

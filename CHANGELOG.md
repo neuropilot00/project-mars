@@ -1,5 +1,27 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.84 — week-1 economy fallback/verify hardening
+
+**경제 런타임 fallback 정합 보강:**
+
+- settings 누락/구형 DB fallback이 기존 고비용 값으로 되돌아가지 않게 런타임 기본값을 현재 경제 의도와 맞춤
+- 반영 파일:
+  - `server/services/onboarding.js` → `onboarding_gp_reward` fallback `75`
+  - `server/services/daily.js` → 기본 7일 보상표를 현재 week-1 값으로 정렬
+  - `server/routes/api.js`, `server/services/guild.js` → `pp_to_gp_exchange_rate` fallback `10`
+  - `server/services/expedition.js` → `expedition_base_cost_gp` fallback `15`
+  - `server/services/monuments.js` → `monument_cost_base` fallback `100`
+  - `server/services/season.js` → season pass fallback `150`
+  - `server/services/territoryVisual.js`, `server/services/sector.js` → `land_base_price_pp` fallback `0.08`
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql`도 `220` + week-1 PP/GP/exchange/sink 값까지 확인하도록 확장
+
+**검증:**
+- `node --check`로 수정 JS 파일 문법 확인
+- 로컬 DB `pixelwar`에서 verify SQL 재실행
+- `git diff`로 변경 범위가 economy fallback + verify/docs인지 확인
+
+---
+
 ## 2026-05-26 v7.83 — referral safe key backfill
 
 **로컬/구형 DB 정합 보강:**

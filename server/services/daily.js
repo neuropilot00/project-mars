@@ -61,8 +61,8 @@ async function recordDailyLogin(wallet) {
 
   // 7일 주기 보상표 — Day7 완주 후 리셋 시 랜덤 재생성
   // 기본값: [Day1..Day7] GP 고정. 리셋 시 각 일차 보상을 랜덤하게 섞음
-  const BASE_GP  = [5, 10, 15, 20, 25, 30, 50];
-  const BASE_PP  = [0,  0,  0,  0,  0,  0,  0];
+  const BASE_GP  = [8, 12, 16, 20, 22, 25, 40];
+  const BASE_PP  = [0,  0,  0,  0,  0,  0,  0.1];
   let gpRewards, ppRewards;
   if (cycleReset) {
     // 리셋 사이클: GP 보상을 랜덤 변형 (±50%), Day7는 항상 보너스

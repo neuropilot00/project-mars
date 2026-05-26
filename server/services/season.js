@@ -563,7 +563,7 @@ async function purchasePremiumPass(wallet) {
   const season = await getActiveSeason();
   if (!season) return { error: 'No active season' };
 
-  const cost = parseInt(await getSetting('season_pass_premium_cost_gp') || '500');
+  const cost = parseInt(await getSetting('season_pass_premium_cost_gp') || '150');
 
   const client = await pool.connect();
   try {

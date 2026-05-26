@@ -138,7 +138,7 @@ async function completeStep(walletAddress, step, data = {}) {
 
     if (step === 5) {
       // STEP 5: 온보딩 완료 — 최종 보상
-      const gpReward = await getSettingInt(client, 'onboarding_gp_reward', 200);
+      const gpReward = await getSettingInt(client, 'onboarding_gp_reward', 75);
 
       if (!onboarding.gp_rewarded) {
         await client.query(

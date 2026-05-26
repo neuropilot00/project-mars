@@ -39,7 +39,7 @@ async function getSettings() {
   res.rows.forEach(r => { map[r.key] = r.value; });
   return {
     enabled:        (map.monument_enabled || 'true') !== 'false',
-    costBase:       parseFloat(map.monument_cost_base)       || 150,
+    costBase:       parseFloat(map.monument_cost_base)       || 100,
     costPerPixel:   parseFloat(map.monument_cost_per_pixel)  || 0.5,
     maxPerWallet:   parseInt(map.monument_max_per_wallet)    || 10,
     maxPerClaim:    parseInt(map.monument_max_per_claim)     || 1,

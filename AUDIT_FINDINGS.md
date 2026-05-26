@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v7.84 / 2026-05-26) — week-1 economy fallback/verify hardening
+
+## 🟡 v7.84 — 런타임 fallback이 구형 고비용 값으로 회귀하던 리스크 보강 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 경제 런타임 fallback | settings 누락/구형 DB/부분 복구 상황에서 여러 코드 경로가 여전히 예전 고비용 fallback(`200 GP`, `500 GP`, `0.1 PP`, `30 GP`, `150 GP`, `4 GP/PP`)로 회귀할 수 있었음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/services/onboarding.js`의 `onboarding_gp_reward` fallback을 `75`로 조정.
+- `server/services/daily.js`의 기본 7일 GP/PP 보상표를 현재 week-1 값으로 조정.
+- `server/routes/api.js`, `server/services/guild.js`의 `pp_to_gp_exchange_rate` fallback을 `10`으로 조정.
+- `server/services/expedition.js`, `server/services/monuments.js`, `server/services/season.js`, `server/services/territoryVisual.js`, `server/services/sector.js` fallback도 현재 경제 기준으로 정렬.
+- verify SQL을 `220` + week-1 PP/GP/exchange/sink 항목까지 확장.
+
+**검증:**
+- 수정 JS 파일 `node --check` 실행.
+- 로컬 DB `pixelwar`에서 verify SQL 재실행.
+- diff 범위가 경제 fallback + verify/docs에 국한되는지 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.83 / 2026-05-26) — referral safe key backfill
 
 ## 🟡 v7.83 — 구형 DB referral 안전 키 누락 보강 (2026-05-26)

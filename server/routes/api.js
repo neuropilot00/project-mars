@@ -7247,7 +7247,7 @@ router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) =>
 
     const minPP = parseFloat(await getSetting('pp_to_gp_exchange_min') || '0.1');
     const maxPP = parseFloat(await getSetting('pp_to_gp_exchange_max') || '5');
-    const rate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '4');
+    const rate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '10');
     const feePct = parseFloat(await getSetting('pp_to_gp_exchange_fee_pct') || '5');
     const dailyLimit = parseFloat(await getSetting('pp_to_gp_exchange_daily_limit') || '50');
 
@@ -7318,7 +7318,7 @@ router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) =>
 // Get exchange info
 router.get('/exchange/pp-to-gp/info', readLimiter, async (req, res) => {
   try {
-    const rate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '4');
+    const rate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '10');
     const min = parseFloat(await getSetting('pp_to_gp_exchange_min') || '0.1');
     const max = parseFloat(await getSetting('pp_to_gp_exchange_max') || '5');
     const fee = parseFloat(await getSetting('pp_to_gp_exchange_fee_pct') || '5');

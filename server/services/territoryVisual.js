@@ -29,7 +29,7 @@ async function getFloat(key, fallback) { return parseFloat(await getSetting(key,
  * @param {string} sectorCode  - 섹터 코드
  */
 async function calcPrice(ownerWallet, pixelCount, bounds, sectorCode) {
-  const base     = await getFloat('land_base_price_pp', 0.1);
+  const base     = await getFloat('land_base_price_pp', 0.08);
   const minSize  = parseInt(await getSetting('land_min_size', '25'));
   const maxSize  = parseInt(await getSetting('land_max_single_purchase', '10000'));
 
