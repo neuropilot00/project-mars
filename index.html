@@ -25620,15 +25620,8 @@ window.opsMissionGo = function(type) {
     // ─ 자동 완료 (로그인 확인 등) ─
     } else if (type === 'daily_login') {
       showToast(LANG==='ko'?'오늘 로그인 확인! 자동 완료됩니다.':LANG==='ja'?'今日のログイン確認！自動完了します。':LANG==='zh'?'今日登录确认！自动完成。':'Daily login confirmed! Auto-completing.', 'success');
-      // 서버 progress 트리거
-      try {
-        var w = walletState.address;
-        if (w) fetch('/api/daily-ops/progress', {
-          method:'POST',
-          headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
-          body:JSON.stringify({wallet:w, mission_type:'daily_login'})
-        }).then(function(){ loadOpsCommandBoard(); }).catch(function(){});
-      } catch(_) {}
+      // daily login OPS 진행도는 /api/daily/login 성공 시 서버가 처리한다.
+      try { loadOpsCommandBoard(); } catch(_) {}
     }
   } catch(_) {}
 };
@@ -25682,7 +25675,7 @@ async function loadOpsCommandBoard() {
     missions.forEach(function(m, idx) {
       var label = LANG==='ko' ? m.label_ko : m.label_en;
       var dest = LANG==='ko' ? (m.dest_ko || '') : (m.dest_en || '');
-      var dot = m.reward_claimed ? '🟢' : '⚪';
+      var dot = (m.completed || m.reward_claimed) ? '🟢' : '⚪';
       var labelColor = m.reward_claimed ? 'var(--gn)' : (m.completed ? 'var(--gold)' : 'var(--tx)');
 
       var rewardStr;
@@ -28884,12 +28877,41 @@ async function openCampaignChapter(questId){
   try{
     var resp=await fetch('/api/campaign/start',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,quest_id:questId})});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Campaign start failed');return;}
+    if(!resp.ok){showCampaignStartBlocked(ch,d);return;}
     ch=d.chapter||ch; p=d.progress||{};
     _campaignActive={chapter:ch,progress:p,sessionId:d.sessionId||p.sessionId};
     if(ch.scenes) showCampaignStory(ch);
     else showCampaignBriefing(ch,p);
   }catch(e){showToast('Campaign start failed');}
+}
+
+function campaignStartErrorMessage(ch,payload){
+  var err=(payload&&payload.error)||'Campaign start failed';
+  if(err==='INSUFFICIENT_REPUTATION'){
+    var faction=((payload&&payload.faction)||'').toUpperCase();
+    var current=payload&&payload.current!=null?payload.current:0;
+    var required=payload&&payload.required!=null?payload.required:0;
+    return LANG==='ko'
+      ? (faction||'평판')+' 평판이 부족합니다. 현재 '+current+', 필요 '+required+'.'
+      : 'Insufficient reputation. Current '+current+', required '+required+'.';
+  }
+  if(err==='PREREQUISITE_NOT_MET') return LANG==='ko'?'선행 챕터를 먼저 완료해야 합니다.':'Complete the prerequisite chapter first.';
+  if(err==='LEVEL_REQUIRED') return LANG==='ko'?'레벨 조건이 부족합니다.':'Required level not met.';
+  if(err==='BLOCKED_BY_TAG') return LANG==='ko'?'현재 상태에서는 이 챕터를 시작할 수 없습니다.':'This chapter is blocked by your current state.';
+  return err;
+}
+
+function showCampaignStartBlocked(ch,payload){
+  var npc=(ch&&ch.briefing&&ch.briefing.npcName)||'Mission Control';
+  var reason=campaignStartErrorMessage(ch,payload);
+  var lines=((ch&&ch.briefing||{}).lines||[]).map(function(l){return '<div class="campaign-dialog"><b>'+escapeHtmlSafe(npc)+'</b><br>'+escapeHtmlSafe(_campaignStoryText(l)||l.ko||'')+'</div>';}).join('');
+  var meta='';
+  if(ch&&ch.location){
+    var loc=_campaignStoryText(ch.location.displayName)||ch.location.displayNameKo||ch.location.displayNameEn||'Mars';
+    meta+='<div class="campaign-desc" style="margin-bottom:8px">'+escapeHtmlSafe(loc)+'</div>';
+  }
+  meta+='<div class="campaign-dialog" style="border-color:rgba(255,80,30,.35);color:var(--gold)">'+escapeHtmlSafe(reason)+'</div>';
+  _setCampaignModal(ch, meta+lines+campaignObjectivesHtml(ch,4)+'<button class="campaign-btn" style="margin-top:12px" onclick="closeCampaignModal()">'+t('campaign_result_confirm')+'</button>');
 }
 
 function showCampaignBriefing(ch,p){
@@ -35864,6 +35886,8 @@ function claimDailyLogin(){
     renderInlineCheckin();
     updateDailyHudDot();
     renderDailyOpsBoard();
+    try{ loadOpsCommandBoard(); }catch(_ops){}
+    try{ loadDailyOpsBoard(); }catch(_dops){}
     try{ refreshEmailBalances(); }catch(_rb){}
   }).catch(function(){ showToast(t('daily_check_in_failed')); });
 }

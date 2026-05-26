@@ -1,3 +1,29 @@
+# OCCUPY MARS — Codebase Audit (v7.87 / 2026-05-26) — campaign retry gate + daily OPS board sync
+
+## 🟠 v7.87 — 실패 챕터 재도전 계약과 OPS 완료 표시가 어긋나던 문제 보강 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| campaign retry / daily ops board | 실패 상태 캠페인 카드가 `재도전` 버튼을 보여도 `startChapter()`가 새 시작처럼 현재 평판을 다시 검사해 `INSUFFICIENT_REPUTATION`로 막고 있었고, 프론트는 raw error code를 그대로 토스트로 노출했다. 별도로 daily login OPS는 서버에서 이미 진행도를 기록하는데 프론트가 내부용 progress endpoint를 다시 치거나 로컬 보드만 다시 그려 완료 점/상태가 늦게 반영될 수 있었다. | 🟠 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/services/campaign.js`
+  - 실패 이력이 있는 동일 챕터 재도전 시 기존 progress를 먼저 잠그고 읽은 뒤 평판 재검사를 건너뛰도록 수정.
+- `index.html`
+  - 캠페인 시작 실패를 raw 코드 토스트 대신 브리핑/목표를 유지한 차단 안내 모달로 교체.
+  - daily login 자동완료 분기에서 내부용 `/api/daily-ops/progress` 재호출을 제거.
+  - 출석 체크 성공 후 OPS 서버 보드 재조회 호출 추가.
+  - OPS 보드 점 표시를 `completed || reward_claimed` 기준으로 보정.
+
+**검증:**
+- `node --check server/services/campaign.js`
+- `curl -I http://localhost:3001`로 로컬 서버 `200 OK` 확인.
+- 브라우저 페이지 컨텍스트 `document.title` 응답 확인.
+- 브라우저 콘솔 `js_errors: 0`, `console_messages: []` 확인.
+- 서빙 중인 HTML/소스에서 변경된 함수/분기 문자열 존재 재확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.86 / 2026-05-26) — onboarding first-claim sync + production backfill
 
 ## 🔴 v7.86 — first claim을 해도 onboarding STEP 2가 닫히지 않던 운영 누락 보강 (2026-05-26)

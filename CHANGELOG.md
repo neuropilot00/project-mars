@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.87 — campaign retry gate + daily OPS board sync
+
+**캠페인 재도전/OPS 보드 정합 보강:**
+
+- `server/services/campaign.js`
+  - `startChapter()`가 기존 실패 진행 상태를 먼저 읽고, `failed` 챕터 재도전일 때는 현재 평판 재검사를 건너뛰도록 수정
+  - 완료/보상수령 챕터의 기존 조기 반환 경로는 그대로 유지
+- `index.html`
+  - 캠페인 시작 실패 시 raw error code 토스트 대신 브리핑/목표와 함께 사람이 읽는 차단 안내 모달을 표시하도록 변경
+  - OPS `daily_login` 자동완료는 내부용 `/api/daily-ops/progress` 재호출 대신 실제 `/api/daily/login` 성공 후 서버 보드 재조회에 의존하도록 정리
+  - OPS 보드 점 표시 기준을 `reward_claimed` 전용에서 `completed || reward_claimed`로 보정해 완료 즉시 녹색 점이 보이도록 수정
+  - 출석 체크 성공 후 `loadOpsCommandBoard()` / `loadDailyOpsBoard()`를 추가 호출해 서버 진행도가 즉시 반영되게 보강
+
+**검증:**
+- `node --check server/services/campaign.js`
+- `curl -I http://localhost:3001` → `200 OK`
+- 브라우저 페이지 컨텍스트에서 `document.title` 확인 및 콘솔 `js_errors: 0`
+- 로컬 서빙 HTML과 소스에서 변경 문자열/분기 존재 재확인
+
+---
+
 ## 2026-05-26 v7.86 — onboarding first-claim sync + production backfill
 
 **온보딩 first-claim 연동 보강:**

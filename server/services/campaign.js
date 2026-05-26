@@ -3845,7 +3845,7 @@ async function claimReward(wallet, rewardId) {
   }
 }
 
-async function validateStartConditions(client, wallet, chapter) {
+async function validateStartConditions(client, wallet, chapter, options = {}) {
   const userRows = await client.query('SELECT rank_level FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
   const rank = parseInt(userRows.rows[0]?.rank_level || 1, 10);
   if (rank < chapter.requiredLevel) return { error: 'LEVEL_REQUIRED', requiredLevel: chapter.requiredLevel };
@@ -3876,10 +3876,12 @@ async function validateStartConditions(client, wallet, chapter) {
     if (!prereq.rows.length && !branchOverride) return { error: 'PREREQUISITE_NOT_MET', prerequisiteChapter: chapter.prerequisiteChapter };
   }
 
-  for (const [faction, minValue] of Object.entries(chapter.requiredReputation || {})) {
-    const rep = await client.query('SELECT value FROM player_reputation WHERE wallet = $1 AND faction = $2', [wallet, faction]);
-    const value = parseInt(rep.rows[0]?.value || 0, 10);
-    if (value < minValue) return { error: 'INSUFFICIENT_REPUTATION', faction, required: minValue, current: value };
+  if (!options.skipReputation) {
+    for (const [faction, minValue] of Object.entries(chapter.requiredReputation || {})) {
+      const rep = await client.query('SELECT value FROM player_reputation WHERE wallet = $1 AND faction = $2', [wallet, faction]);
+      const value = parseInt(rep.rows[0]?.value || 0, 10);
+      if (value < minValue) return { error: 'INSUFFICIENT_REPUTATION', faction, required: minValue, current: value };
+    }
   }
 
   for (const tag of chapter.blockingTags || []) {
@@ -4057,20 +4059,21 @@ async function startChapter(wallet, questId) {
     await client.query('BEGIN');
     await ensureUser(client, w);
     await ensureReputationRows(client, w);
-    const startError = await validateStartConditions(client, w, chapter);
-    if (startError) {
-      await client.query('ROLLBACK');
-      return startError;
-    }
-
     const existing = await client.query(
       'SELECT * FROM player_campaign_progress WHERE wallet = $1 AND quest_id = $2 FOR UPDATE',
       [w, chapter.questId]
     );
-    if (existing.rows[0] && ['completed', 'claimed'].includes(existing.rows[0].status)) {
+    const existingProgress = existing.rows[0] || null;
+    const retryingFailedChapter = existingProgress && existingProgress.status === 'failed';
+    const startError = await validateStartConditions(client, w, chapter, { skipReputation: retryingFailedChapter });
+    if (startError) {
+      await client.query('ROLLBACK');
+      return startError;
+    }
+    if (existingProgress && ['completed', 'claimed'].includes(existingProgress.status)) {
       await client.query('COMMIT');
       const objectiveState = await getObjectiveState(w);
-      return { alreadyCompleted: true, chapter: publicChapter(chapter, existing.rows[0], objectiveState), progress: formatProgress(existing.rows[0]) };
+      return { alreadyCompleted: true, chapter: publicChapter(chapter, existingProgress, objectiveState), progress: formatProgress(existingProgress) };
     }
 
     const sessionId = crypto.randomBytes(16).toString('hex');
