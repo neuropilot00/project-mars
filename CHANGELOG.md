@@ -1,5 +1,30 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.86 — onboarding first-claim sync + production backfill
+
+**온보딩 first-claim 연동 보강:**
+
+- `server/routes/api.js`
+  - 첫 owned claim 판정 시 onboarding 상태를 먼저 읽고, `current_step >= 2`인 유저는 첫 claim 생성 직후 STEP 2를 자동 완료하도록 보강
+  - 기존 `getOnboardingState()` 호출이 서비스 export 누락으로 깨질 수 있던 경로도 함께 정합 보강
+- `server/services/onboarding.js`
+  - STEP 1(직업 선택) 완료 시 이미 영토를 가진 유저면 earliest claim을 찾아 STEP 2를 즉시 동기화
+  - 누락된 `tutorial_claim_id` / `pp_rewarded`를 같은 트랜잭션에서 복구
+  - `getOnboardingState` alias export 추가로 route 호환성 복구
+- `docs/ops/BACKFILL_ONBOARDING_FIRST_CLAIM.sql`
+  - 기존 운영 유저의 earliest real claim 기준으로 `tutorial_claim_id` / `current_step` / `pp_rewarded` 백필 SQL 추가
+
+**검증:**
+- `node --check server/services/onboarding.js`
+- `node --check server/routes/api.js`
+- 운영 DB(Railway public proxy)에서 `docs/ops/BACKFILL_ONBOARDING_FIRST_CLAIM.sql` 직접 실행
+- 실행 전후 대조:
+  - real claimer `6`
+  - `tutorial_claim_id` 보유: `0 -> 5`
+  - `pp_rewarded` 보유: `0 -> 4`
+
+---
+
 ## 2026-05-26 v7.85 — production KPI / cohort / phase2 audit SQL pack
 
 **운영 분석 SQL 추가:**

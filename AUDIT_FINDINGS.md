@@ -1,3 +1,38 @@
+# OCCUPY MARS — Codebase Audit (v7.86 / 2026-05-26) — onboarding first-claim sync + production backfill
+
+## 🔴 v7.86 — first claim을 해도 onboarding STEP 2가 닫히지 않던 운영 누락 보강 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| onboarding first-claim funnel | claim route가 `getOnboardingState()`를 호출하지만 서비스 export가 없어 tutorial/free-claim 판정이 catch로 삼켜질 수 있었고, 일반 first claim은 STEP 2 완료와 연결되지 않아 `tutorial_claim_id` / `pp_rewarded`가 운영에서 거의 전부 비어 있었음 | 🔴 HIGH | ✅ 수정 |
+
+**수정 내용:**
+- `server/routes/api.js`
+  - first owned claim을 별도 판정하고, onboarding이 STEP 2 대기 이상(`current_step >= 2`)이면 claim 생성 직후 `completeStep(2)`를 자동 호출하도록 수정.
+- `server/services/onboarding.js`
+  - STEP 1 완료 시 이미 earliest claim이 있으면 `tutorial_claim_id`를 복구하고 `pp_rewarded`를 함께 지급하도록 보강.
+  - `getOnboardingState` alias export 추가로 기존 route 호출 정합성 복구.
+- `docs/ops/BACKFILL_ONBOARDING_FIRST_CLAIM.sql`
+  - 운영 유저용 earliest-claim 백필 SQL 추가 및 실제 운영 DB에 실행.
+
+**운영 실행으로 확인한 상태:**
+- 백필 실행 전:
+  - real claimer `6`
+  - onboarding row 보유 `5`
+  - `tutorial_claim_id` 보유 `0`
+  - `pp_rewarded` 보유 `0`
+- 백필 실행 후:
+  - `tutorial_claim_id` 보유 `5`
+  - `pp_rewarded` 보유 `4`
+- 아직 onboarding row 자체가 없는 real claimer `1명`은 남아 있으며, 이번 변경은 row 자동 생성이 아니라 first-claim sync + 보정 범위에 한정됨.
+
+**검증:**
+- 수정 JS 파일 `node --check` 실행.
+- 운영 DB(Railway public proxy)에서 백필 SQL 직접 실행.
+- 실행 후 claimer/onboarding linkage 카운트 재조회.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.85 / 2026-05-26) — production KPI / cohort / phase2 audit SQL pack
 
 ## 🟢 v7.85 — 운영 KPI/코호트/phase2 감사 SQL 추가 (2026-05-26)

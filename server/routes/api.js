@@ -1226,20 +1226,24 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     const failedAttackCost = attackLost > 0 ? (attackCost - wonAttackCost) : 0;
     const totalCost = Math.round((baseCost + wonAttackCost + failedAttackCost - refundFromFailed) * 1000000) / 1000000;
 
-    // ── [Onboarding] Tutorial Free First Claim ──
+    // ── [Onboarding] Tutorial Free First Claim / First Claim Sync ──
     let isTutorialFreeClaim = false;
+    let onboardingState = null;
+    let isFirstOwnedClaim = false;
     try {
       if (onboardingService && attackLost === 0 && enemyPixels.length === 0 && totalCost > 0) {
+        onboardingState = await onboardingService.getOnboardingState(wallet.toLowerCase());
+        const existingClaims = await client.query(
+          'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1',
+          [wallet.toLowerCase()]
+        );
+        const claimCount = parseInt(existingClaims.rows[0]?.cnt ?? 0);
+        isFirstOwnedClaim = claimCount === 0;
+
         const freeEnabled = (await getSetting('onboarding_free_claim_enabled') ?? 'true').toString() === 'true';
         const freeSize    = parseInt(await getSetting('onboarding_free_claim_size') ?? '25');
         if (freeEnabled && newPixels.length <= freeSize) {
-          const obState = await onboardingService.getOnboardingState(wallet.toLowerCase());
-          const existingClaims = await client.query(
-            'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1',
-            [wallet.toLowerCase()]
-          );
-          const claimCount = parseInt(existingClaims.rows[0]?.cnt ?? 0);
-          if (obState.enabled && !obState.completed && !obState.skipped && claimCount === 0) {
+          if (onboardingState.enabled && !onboardingState.completed && !onboardingState.skipped && isFirstOwnedClaim) {
             isTutorialFreeClaim = true;
           }
         }
@@ -1301,8 +1305,8 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     );
     const claimId = claimRes.rows[0].id;
 
-    // ── [Onboarding] Record tutorial claim + advance territory claim step ──
-    if (isTutorialFreeClaim && onboardingService) {
+    // ── [Onboarding] Record first claim + advance territory claim step ──
+    if (onboardingService && isFirstOwnedClaim && onboardingState?.enabled && !onboardingState.completed && !onboardingState.skipped && onboardingState.current_step >= 2) {
       try {
         await onboardingService.completeStep(wallet.toLowerCase(), 2, { claim_id: claimId });
       } catch (_oe) { /* non-critical */ }

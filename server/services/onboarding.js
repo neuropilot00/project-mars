@@ -110,6 +110,34 @@ async function completeStep(walletAddress, step, data = {}) {
         // 이미 직업 있으면 무시
         if (e.message !== 'SAME_JOB') throw e;
       }
+
+      // STEP 1 이후 이미 첫 영토를 가진 유저면 STEP 2를 즉시 동기화
+      if (!onboarding.tutorial_claim_id) {
+        const { rows: claimRows } = await client.query(
+          `SELECT id
+             FROM claims
+            WHERE LOWER(owner) = LOWER($1)
+            ORDER BY claimed_at ASC, id ASC
+            LIMIT 1`,
+          [walletAddress]
+        );
+
+        const firstClaimId = claimRows[0]?.id;
+        if (firstClaimId) {
+          updates.tutorial_claim_id = firstClaimId;
+          updates.current_step = 3;
+
+          if (!onboarding.pp_rewarded) {
+            const ppReward = await getSettingFloat(client, 'onboarding_pp_reward', 0.5);
+            await client.query(
+              `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+              [ppReward, walletAddress]
+            );
+            updates.pp_rewarded = true;
+            rewards.push({ type: 'pp', amount: ppReward });
+          }
+        }
+      }
     }
 
     if (step === 2 && data.claim_id) {
@@ -358,6 +386,7 @@ async function getSettingStr(client, key, fallback) {
 }
 
 module.exports = {
+  getOnboardingState: getOnboardingStatus,
   getOnboardingStatus,
   completeStep,
   skipOnboarding,
