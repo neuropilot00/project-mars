@@ -1,4 +1,4 @@
--- OCCUPY MARS — verify migrations 222 + 223 + 224
+-- OCCUPY MARS — verify migrations 222 + 223 + 224 + 225
 -- 사용법 예시:
 --   psql "$DATABASE_URL" -f docs/ops/VERIFY_MIGRATIONS_222_223.sql
 
@@ -8,7 +8,8 @@ FROM schema_migrations
 WHERE filename IN (
   '222_operator_safe_referral_stage1.sql',
   '223_week1_pricing_soften.sql',
-  '224_week1_funnel_gp_bundle.sql'
+  '224_week1_funnel_gp_bundle.sql',
+  '225_referral_safe_key_backfill.sql'
 )
 ORDER BY filename;
 

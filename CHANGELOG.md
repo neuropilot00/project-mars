@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.83 — referral safe key backfill
+
+**로컬/구형 DB 정합 보강:**
+
+- `server/migrations/225_referral_safe_key_backfill.sql` 추가
+- 누락될 수 있던 referral settings 2개를 안전 기본값 `0`으로 백필
+  - `referral_enhance_pct`
+  - `referral_auction_buy_pct`
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql`도 `225` 적용 여부까지 확인하도록 확장
+
+**검증:**
+- 로컬 DB `pixelwar`에 `225` 적용
+- verify SQL 재실행으로 referral/pricing/funnel 기대값 재확인
+
+---
+
 ## 2026-05-26 v7.82 — verify SQL JSONB snapshot 실행 오류 수정
 
 **운영 확인 도구 수정:**

@@ -1,3 +1,22 @@
+# OCCUPY MARS — Codebase Audit (v7.83 / 2026-05-26) — referral safe key backfill
+
+## 🟡 v7.83 — 구형 DB referral 안전 키 누락 보강 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| referral settings 정합 | 로컬 구형 DB에서 `referral_enhance_pct`, `referral_auction_buy_pct` 키가 없어 `222` 적용 후에도 verify snapshot이 완전한 기대값 형태로 나오지 않았음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/migrations/225_referral_safe_key_backfill.sql` 추가.
+- 누락된 `referral_enhance_pct`, `referral_auction_buy_pct`를 `0`/`referral` 카테고리/안전 설명으로 백필.
+- verify SQL도 `225` migration 적용 여부까지 확인하도록 확장.
+
+**검증:**
+- 로컬 DB `pixelwar`에 `225` 적용.
+- verify SQL 재실행으로 referral/pricing/funnel snapshot 재확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.82 / 2026-05-26) — verify SQL JSONB snapshot 오류 수정
 
 ## 🟡 v7.82 — verify SQL snapshot jsonb 집계 오류 수정 (2026-05-26)
