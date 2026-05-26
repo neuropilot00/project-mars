@@ -1683,6 +1683,10 @@ function publicChapter(chapter, progress, objectiveState) {
     faction: chapter.faction,
     title: chapter.title,
     requiredLevel: chapter.requiredLevel,
+    requiredReputation: chapter.requiredReputation || {},
+    prerequisiteChapter: chapter.prerequisiteChapter || null,
+    blockingTags: chapter.blockingTags || [],
+    requiredBranchAny: chapter.requiredBranchAny || [],
     battleResolution: chapter.battleResolution,
     estimatedPlayTimeSeconds: chapter.estimatedPlayTimeSeconds,
     location: chapter.location,
@@ -3884,9 +3888,11 @@ async function validateStartConditions(client, wallet, chapter, options = {}) {
     }
   }
 
-  for (const tag of chapter.blockingTags || []) {
-    const tagRows = await client.query('SELECT 1 FROM player_tags WHERE wallet = $1 AND tag_id = $2', [wallet, tag]);
-    if (tagRows.rows.length) return { error: 'BLOCKED_BY_TAG', tag };
+  if (!options.skipBlockingTags) {
+    for (const tag of chapter.blockingTags || []) {
+      const tagRows = await client.query('SELECT 1 FROM player_tags WHERE wallet = $1 AND tag_id = $2', [wallet, tag]);
+      if (tagRows.rows.length) return { error: 'BLOCKED_BY_TAG', tag };
+    }
   }
   if (chapter.questId === FSP_CH5_ID) {
     const amaraDead = await client.query(
@@ -3904,7 +3910,7 @@ async function validateStartConditions(client, wallet, chapter, options = {}) {
     const flags = new Set(collapse.rows.map(r => r.flag_id));
     if (flags.has('amara_killed_at_kepler') && flags.has('liang_wei_killed')) return { error: 'FSP_POLITICAL_COLLAPSE', alternativeChapter: 'fsp_campaign_ch6_collapse_variant' };
   }
-  if ((chapter.requiredBranchAny || []).length) {
+  if (!options.skipRequiredBranchAny && (chapter.requiredBranchAny || []).length) {
     const branch = await client.query(
       `SELECT modifier_id FROM player_branch_modifiers
        WHERE wallet = $1 AND modifier_id = ANY($2) AND consumed_at IS NULL`,
@@ -4065,7 +4071,11 @@ async function startChapter(wallet, questId) {
     );
     const existingProgress = existing.rows[0] || null;
     const retryingFailedChapter = existingProgress && existingProgress.status === 'failed';
-    const startError = await validateStartConditions(client, w, chapter, { skipReputation: retryingFailedChapter });
+    const startError = await validateStartConditions(client, w, chapter, {
+      skipReputation: retryingFailedChapter,
+      skipBlockingTags: retryingFailedChapter,
+      skipRequiredBranchAny: retryingFailedChapter,
+    });
     if (startError) {
       await client.query('ROLLBACK');
       return startError;

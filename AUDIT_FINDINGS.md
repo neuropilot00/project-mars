@@ -1,3 +1,26 @@
+# OCCUPY MARS — Codebase Audit (v7.88 / 2026-05-26) — campaign retry gates + locked reason UI
+
+## 🟠 v7.88 — 실패 챕터 재도전 gate와 잠금 사유 표시 정합 보강 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| campaign retry / locked reason UI | 실패 챕터 목록은 재도전 가능으로 표시하지만 시작 검증은 평판 외 `blockingTags` / `requiredBranchAny` gate로 다시 막힐 수 있었고, 잠긴 챕터 compact 카드에는 어떤 조건 때문에 잠겼는지 표시할 정적 payload와 UI가 부족했다. | 🟠 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `server/services/campaign.js`
+  - 실패 챕터 재도전 시 평판, blocking tag, required branch gate를 건너뛰도록 수정.
+  - 레벨/선행 챕터 검증은 기존 동작 유지.
+  - public chapter payload에 `requiredReputation`, `prerequisiteChapter`, `blockingTags`, `requiredBranchAny` 추가.
+- `index.html`
+  - 잠긴 캠페인 카드에 평판/선행 챕터/태그/분기 기반 잠금 사유 표시.
+  - `BRANCH_REQUIRED` 및 FSP 대체 챕터 blocker 메시지를 사람이 읽는 문장으로 매핑.
+
+**검증 계획:**
+- `node --check server/services/campaign.js`
+- `index.html`은 HTML 내 inline script라 직접 `node --check` 대상이 아니므로 변경 함수/문자열 존재를 소스에서 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.87 / 2026-05-26) — campaign retry gate + daily OPS board sync
 
 ## 🟠 v7.87 — 실패 챕터 재도전 계약과 OPS 완료 표시가 어긋나던 문제 보강 (2026-05-26)

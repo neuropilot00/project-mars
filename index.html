@@ -1230,6 +1230,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-card.compact .campaign-meta{font-size:7px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .campaign-card.compact .campaign-desc,.campaign-card.compact .campaign-stats{display:none}
 .campaign-card.compact .campaign-btn{width:92px;padding:7px 8px;font-size:8px}
+.campaign-lock-reason{grid-column:2/4;font-size:8px;color:var(--gold);line-height:1.4;margin-top:-3px}
 .campaign-locked-toggle{width:100%;margin:2px 0 7px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx2);font-family:var(--fn);font-size:9px;font-weight:800;letter-spacing:1px;cursor:pointer}
 .campaign-locked-toggle:hover{background:rgba(255,255,255,.07)}
 .campaign-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -27866,6 +27867,53 @@ function isCampaignProgressActive(progress){
 function campaignStatusLabel(progress,fallback){
   return campaignProgressStatus(progress)||fallback||'new';
 }
+function campaignBranchLabel(id){
+  var map={
+    mcc_route_a_active:'MCC Branch A',
+    mcc_route_b_active:'MCC Branch B',
+    mcc_route_c_active:'MCC Branch C',
+    ending_1_pathway_aligned:'FSP Ending 1 path',
+    ending_1_pathway_strengthened:'FSP Ending 1 path',
+    ending_2_pathway_aligned:'FSP Ending 2 path',
+    ending_2_pathway_strengthened:'FSP Ending 2 path',
+    ending_2_alt_path_cv_alliance:'FSP-CV alliance path',
+    gaia_captain_offer_unlocked:'Gaia Captain offer',
+    ending_3_pathway_unlocked:'FSP Ending 3 path',
+    ending_3_pathway_unavoidable:'FSP Ending 3 path',
+    ending_3_pathway_strengthened:'FSP Ending 3 path',
+    ending_4_pathway_unlocked:'FSP Ending 4 path',
+    ending_4_pathway_unavoidable:'FSP Ending 4 path',
+    ending_4_pathway_strengthened:'FSP Ending 4 path'
+  };
+  return map[id]||String(id||'route');
+}
+function campaignLockedReason(ch){
+  var data=_campaignData||{};
+  var rep=data.reputation||{};
+  var completed=data.completedChapters||[];
+  var tags=data.tags||[];
+  var branchRows=data.branchModifiers||[];
+  var branchIds=[];
+  branchRows.forEach(function(b){var id=b&&((b.modifier_id)||(b.modifier_key));if(id&&branchIds.indexOf(id)<0)branchIds.push(id);});
+  var missingRep=Object.entries(ch.requiredReputation||{}).filter(function(pair){return (parseInt(rep[pair[0]]||0,10)||0)<pair[1];});
+  if(missingRep.length){
+    var mr=missingRep[0], f=String(mr[0]||'').toUpperCase();
+    return LANG==='ko'?f+' 평판 '+mr[1]+' 필요':LANG==='ja'?f+' 評判 '+mr[1]+' が必要':LANG==='zh'?'需要 '+f+' 声望 '+mr[1]:'Requires '+f+' reputation '+mr[1];
+  }
+  if(ch.prerequisiteChapter&&completed.indexOf(ch.prerequisiteChapter)<0){
+    return LANG==='ko'?'선행 챕터 완료 필요':LANG==='ja'?'前提チャプター完了が必要':LANG==='zh'?'需要先完成前置章节':'Complete the prerequisite chapter';
+  }
+  var blocking=(ch.blockingTags||[]).filter(function(t){return tags.indexOf(t)>=0;});
+  if(blocking.length){
+    return LANG==='ko'?'현재 태그로 차단됨: '+blocking[0]:LANG==='ja'?'現在のタグでブロック: '+blocking[0]:LANG==='zh'?'当前标签阻止: '+blocking[0]:'Blocked by current tag: '+blocking[0];
+  }
+  var requiredBranches=ch.requiredBranchAny||[];
+  if(requiredBranches.length&&!requiredBranches.some(function(b){return branchIds.indexOf(b)>=0;})){
+    var label=requiredBranches.slice(0,2).map(campaignBranchLabel).join(' / ');
+    return LANG==='ko'?'필요 분기: '+label:LANG==='ja'?'必要ルート: '+label:LANG==='zh'?'需要路线: '+label:'Requires route: '+label;
+  }
+  return LANG==='ko'?'시작 조건 미충족':LANG==='ja'?'開始条件未達':LANG==='zh'?'未满足开始条件':'Start requirements not met';
+}
 
 function renderCampaignList(chapters){
   var el=document.getElementById('campaignList');
@@ -27901,9 +27949,11 @@ function renderCampaignList(chapters){
     var card='';
     if(locked){
       lockedCount++;
+      var lockedReason=campaignLockedReason(ch);
       card+='<div class="campaign-card compact">';
       card+='<div class="campaign-icon">⚡</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' · '+t('campaign_label_ch')+' '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
       card+='<button class="campaign-btn secondary" disabled style="opacity:.55;cursor:not-allowed">'+btn+'</button>';
+      card+='<div class="campaign-lock-reason">🔒 '+escapeHtmlSafe(lockedReason)+'</div>';
       card+='</div>';
       lockedHtml+=card;
       return;
@@ -28898,6 +28948,9 @@ function campaignStartErrorMessage(ch,payload){
   if(err==='PREREQUISITE_NOT_MET') return LANG==='ko'?'선행 챕터를 먼저 완료해야 합니다.':'Complete the prerequisite chapter first.';
   if(err==='LEVEL_REQUIRED') return LANG==='ko'?'레벨 조건이 부족합니다.':'Required level not met.';
   if(err==='BLOCKED_BY_TAG') return LANG==='ko'?'현재 상태에서는 이 챕터를 시작할 수 없습니다.':'This chapter is blocked by your current state.';
+  if(err==='BRANCH_REQUIRED') return LANG==='ko'?'이 챕터에 필요한 이전 선택 분기가 없습니다.':'This chapter requires a prior route choice.';
+  if(err==='FSP_DELEGATION_ABSENT') return LANG==='ko'?'대표단 조건이 바뀌어 대체 FSP 챕터로 진행해야 합니다.':'The delegation state changed. Continue through the alternate FSP chapter.';
+  if(err==='FSP_POLITICAL_COLLAPSE') return LANG==='ko'?'정치 상황이 붕괴되어 대체 FSP 챕터로 진행해야 합니다.':'The political state collapsed. Continue through the alternate FSP chapter.';
   return err;
 }
 

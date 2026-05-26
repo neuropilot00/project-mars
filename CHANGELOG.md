@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.88 — campaign retry gates + locked reason UI
+
+**캠페인 평판 잠금/재도전 정합 보강:**
+
+- `server/services/campaign.js`
+  - 실패 챕터 재도전 시 평판뿐 아니라 `blockingTags` / `requiredBranchAny` 시작 gate도 건너뛰도록 보강
+  - 레벨/선행 챕터 조건은 기존대로 유지
+  - public chapter payload에 `requiredReputation`, `prerequisiteChapter`, `blockingTags`, `requiredBranchAny`를 추가해 클라이언트 잠금 사유 표시가 가능하게 함
+- `index.html`
+  - 잠긴 캠페인 compact 카드에 평판/선행 챕터/태그/분기 기반의 사람이 읽는 잠금 사유를 표시
+  - `BRANCH_REQUIRED`, `FSP_DELEGATION_ABSENT`, `FSP_POLITICAL_COLLAPSE` 시작 실패가 raw code로 노출되지 않도록 메시지 매핑 추가
+
+**검증 계획:**
+- `node --check server/services/campaign.js`
+- `node --check`는 HTML 파일에 직접 적용할 수 없어, `index.html` 변경은 소스 문자열/DOM 경로 확인으로 보조 검증
+
+---
+
 ## 2026-05-26 v7.87 — campaign retry gate + daily OPS board sync
 
 **캠페인 재도전/OPS 보드 정합 보강:**
