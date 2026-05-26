@@ -43,14 +43,14 @@ ORDER BY key;
 
 -- 5) expected snapshot (human-readable)
 SELECT
-  MAX(CASE WHEN key = 'referral_hijack_pct' THEN value END) AS referral_hijack_pct,
-  MAX(CASE WHEN key = 'referral_enhance_pct' THEN value END) AS referral_enhance_pct,
-  MAX(CASE WHEN key = 'referral_auction_buy_pct' THEN value END) AS referral_auction_buy_pct,
-  MAX(CASE WHEN key = 'referral_harvest_pct' THEN value END) AS referral_harvest_pct,
-  MAX(CASE WHEN key = 'season_pass_premium_cost_gp' THEN value END) AS season_pass_premium_cost_gp,
-  MAX(CASE WHEN key = 'land_base_price_pp' THEN value END) AS land_base_price_pp,
-  MAX(CASE WHEN key = 'onboarding_gp_reward' THEN value END) AS onboarding_gp_reward,
-  MAX(CASE WHEN key = 'daily_login_gp_rewards' THEN value END) AS daily_login_gp_rewards
+  MAX(CASE WHEN key = 'referral_hijack_pct' THEN value::text END) AS referral_hijack_pct,
+  MAX(CASE WHEN key = 'referral_enhance_pct' THEN value::text END) AS referral_enhance_pct,
+  MAX(CASE WHEN key = 'referral_auction_buy_pct' THEN value::text END) AS referral_auction_buy_pct,
+  MAX(CASE WHEN key = 'referral_harvest_pct' THEN value::text END) AS referral_harvest_pct,
+  MAX(CASE WHEN key = 'season_pass_premium_cost_gp' THEN value::text END) AS season_pass_premium_cost_gp,
+  MAX(CASE WHEN key = 'land_base_price_pp' THEN value::text END) AS land_base_price_pp,
+  MAX(CASE WHEN key = 'onboarding_gp_reward' THEN value::text END) AS onboarding_gp_reward,
+  MAX(CASE WHEN key = 'daily_login_gp_rewards' THEN value::text END) AS daily_login_gp_rewards
 FROM settings
 WHERE key IN (
   'referral_hijack_pct',

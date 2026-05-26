@@ -1,3 +1,21 @@
+# OCCUPY MARS — Codebase Audit (v7.82 / 2026-05-26) — verify SQL JSONB snapshot 오류 수정
+
+## 🟡 v7.82 — verify SQL snapshot jsonb 집계 오류 수정 (2026-05-26)
+
+| 감사 영역 | 발견된 문제 | 심각도 | 수정 여부 |
+|-----------|-------------|--------|-----------|
+| 운영 확인 SQL | `settings.value`가 `jsonb`인 실제 DB에서 snapshot 쿼리의 `MAX(value)`가 `function max(jsonb) does not exist`로 실패해 verify SQL이 끝까지 실행되지 않았음 | 🟡 MEDIUM | ✅ 수정 |
+
+**수정 내용:**
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql` snapshot 구간을 `value::text` 기준으로 집계하도록 수정.
+- 앞단의 migration/settings 조회 쿼리는 유지하고, 마지막 human-readable snapshot만 타입 호환되게 보정.
+
+**검증:**
+- 로컬 DB `pixelwar`에서 `psql -d pixelwar -f docs/ops/VERIFY_MIGRATIONS_222_223.sql` 재실행.
+- snapshot 쿼리까지 오류 없이 완료되는지 확인.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.81 / 2026-05-26) — 224 포함 migration verify SQL 확장
 
 ## 🟢 v7.81 — 224 migration 운영 확인 SQL 보강 (2026-05-26)

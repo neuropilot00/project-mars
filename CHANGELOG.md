@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-26 v7.82 — verify SQL JSONB snapshot 실행 오류 수정
+
+**운영 확인 도구 수정:**
+
+- `docs/ops/VERIFY_MIGRATIONS_222_223.sql` snapshot 쿼리의 `MAX(... value ...)`를 `value::text` 기준으로 수정
+- `settings.value`가 `jsonb`인 실제 DB에서 `function max(jsonb) does not exist`로 실패하던 실행 오류 제거
+- 개별 settings 조회 쿼리는 그대로 두고, 마지막 human-readable snapshot만 실행 가능하게 보정
+
+**검증:**
+- 로컬 DB `pixelwar`에서 `psql -d pixelwar -f docs/ops/VERIFY_MIGRATIONS_222_223.sql` 재실행
+- snapshot 쿼리까지 오류 없이 완료 확인
+
+---
+
 ## 2026-05-26 v7.81 — 224 포함 migration verify SQL 확장
 
 **운영 확인 도구 보강:**
