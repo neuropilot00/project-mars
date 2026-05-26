@@ -108,7 +108,7 @@ self.addEventListener('fetch', (e) => {
   if (e.request.destination === 'image' ||
       e.request.destination === 'style' ||
       e.request.destination === 'script' ||
-      url.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|css|js|woff2?)$/)) {
+      url.pathname.match(/\.(png|jpg|jpeg|webp|gif|svg|ico|css|js|woff2?)$/)) {
     e.respondWith(
       caches.match(e.request).then((cached) => {
         if (cached) return cached;
