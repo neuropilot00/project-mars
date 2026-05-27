@@ -8251,6 +8251,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <option value="price_desc" data-i18n="mkt_sort_expensive">EXPENSIVE</option>
             <option value="ending" data-i18n="mkt_sort_ending">ENDING SOON</option>
           </select>
+          <select id="mktFilterSector" onchange="loadMarketListings()" title="Sector" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+            <option value="">🌐 ALL SECTORS</option>
+          </select>
           <input id="mktSearch" placeholder="Search..." onkeyup="if(event.key==='Enter')loadMarketListings()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);flex:1;min-width:80px">
         </div>
         <!-- Browse grid -->
@@ -23323,14 +23326,38 @@ async function confirmWeEngage() {
   }
 }
 
+var _mktSectorsPopulated=false;
+function populateMktSectorFilter(){
+  if(_mktSectorsPopulated) return;
+  var sel=document.getElementById('mktFilterSector');
+  if(!sel) return;
+  _mktSectorsPopulated=true;
+  fetch('/api/sectors/control').then(function(r){return r.json()}).then(function(d){
+    var secs=(d&&d.sectors)||[];
+    if(!secs.length) return;
+    // tier 순(frontier→mid→core)으로 정렬해 보기 좋게
+    var order={frontier:0,mid:1,core:2};
+    secs.sort(function(a,b){ return (order[a.tier]||9)-(order[b.tier]||9) || String(a.name||'').localeCompare(String(b.name||'')); });
+    var cur=sel.value;
+    var icon={frontier:'🟢',mid:'🟡',core:'🔴'};
+    sel.innerHTML='<option value="">🌐 ALL SECTORS</option>'+secs.map(function(s){
+      return '<option value="'+s.id+'">'+(icon[s.tier]||'•')+' '+(s.name||('Sector '+s.id))+'</option>';
+    }).join('');
+    if(cur) sel.value=cur;
+  }).catch(function(){ _mktSectorsPopulated=false; });
+}
 function loadMarketListings(){
   var grid=document.getElementById('mktBrowseGrid');
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">Loading...</div>';
+  populateMktSectorFilter();
   var type=document.getElementById('mktFilterType').value;
   var sort=document.getElementById('mktFilterSort').value;
   var search=(document.getElementById('mktSearch').value||'').trim();
+  var sectorEl=document.getElementById('mktFilterSector');
+  var sector=sectorEl?sectorEl.value:'';
   var url='/api/marketplace/listings?sort='+sort+'&limit=40';
   if(type) url+='&type='+type;
+  if(sector) url+='&sectorId='+encodeURIComponent(sector);
   if(search) url+='&search='+encodeURIComponent(search);
   fetch(url).then(function(r){return r.json()}).then(function(d){
     var items=d.listings||[];

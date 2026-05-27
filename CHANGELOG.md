@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.134 — 프론트 미연결 기능 연결: 마켓 섹터 필터
+
+전수 조사로 "백엔드 완비 + 프론트 미연결" 실유저 기능 식별 후 1순위 연결.
+
+- **마켓 지역(섹터) 필터 연결** — `GET /api/marketplace/listings?sectorId=`(v7.130에서 백엔드만 있던 것)를 마켓 브라우즈 UI에 연결. 필터바에 섹터 드롭다운 추가(`mktFilterSector`), `/api/sectors/control`로 24개 섹터 자동 채움(tier 아이콘·정렬), 선택 시 `loadMarketListings()`가 `&sectorId=` 전달. 실측: 25옵션 채움 + URL `...&sectorId=5` 정상.
+- 남은 미연결(차기): `/api/sectors/control` 글로벌 컨트롤 보드(High), 전투보상 이력/복권 이력/연속로그인/파벌통계(Med). HoF·Jobs 중복 route는 연결 대신 정리 대상.
+
 ## 2026-05-28 v7.133 — 게임 가이드 4개 언어 전면 최신화 (실유저 대비) + 로컬라이징/검수
 
 실유저 유입 대비 출시 준비 검수(전문가 팀 병렬 + Codex).
