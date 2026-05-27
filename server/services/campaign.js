@@ -1674,7 +1674,7 @@ function buildChapterObjectives(chapter, progress, objectiveState, options = {})
   });
 }
 
-function publicChapter(chapter, progress, objectiveState) {
+function publicChapter(chapter, progress, objectiveState, extra = {}) {
   const objectives = buildChapterObjectives(chapter, progress, objectiveState);
   return {
     questId: chapter.questId,
@@ -1696,6 +1696,7 @@ function publicChapter(chapter, progress, objectiveState) {
     choices: chapter.choices.map(c => ({ id: c.id, labelKo: c.labelKo, label: { ko: c.labelKo, en: c.labelEn || c.labelKo } })),
     objectives,
     nextObjective: objectives.find(o => o.state !== 'done') || objectives[objectives.length - 1] || null,
+    lockReason: extra.lockReason || null,
     progress: progress ? formatProgress(progress) : null,
   };
 }
@@ -3584,58 +3585,60 @@ function calculateRewards(progress, sim) {
 
 async function getStatus(wallet) {
   const w = normalizeWallet(wallet);
-  const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes, objectiveState] = await Promise.all([
-    pool.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
-    pool.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
-    pool.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
-    pool.query(`SELECT modifier_id FROM player_branch_modifiers WHERE wallet = $1 AND consumed_at IS NULL ORDER BY set_at DESC`, [w]),
-    pool.query(`SELECT id, quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
-    pool.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
-    pool.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
-    getObjectiveState(w),
-  ]);
-  const rows = progressRes.rows;
-  const progressByQuest = {};
-  rows.forEach(r => { progressByQuest[r.quest_id] = r; });
-  const reputation = {};
-  reputationRes.rows.forEach(r => { reputation[r.faction] = r.value; });
-  for (const faction of FACTIONS) if (reputation[faction] == null) reputation[faction] = 0;
-  const completedSet = new Set(rows.filter(r => r.status === 'completed' || r.status === 'claimed').map(r => r.quest_id));
-  const activeSet = new Set(rows.filter(r => r.status === 'in_progress').map(r => r.quest_id));
-  // Failed chapters are always retryable — never lock them regardless of prereq state
-  const failedSet = new Set(rows.filter(r => r.status === 'failed').map(r => r.quest_id));
-  const tagSet = new Set(tagRes.rows.map(r => r.tag_id));
-  const branchSet = new Set([
-    ...branchRes.rows.map(r => r.modifier_key),
-    ...playerBranchRes.rows.map(r => r.modifier_id),
-  ]);
-  const availableChapters = [];
-  const lockedChapters = [];
-  for (const ch of Object.values(CHAPTERS)) {
-    if (completedSet.has(ch.questId) || activeSet.has(ch.questId)) continue;
-    // Always allow retry of previously failed chapters — they must never appear locked
-    if (failedSet.has(ch.questId)) { availableChapters.push(ch.questId); continue; }
-    const prereqOk = !ch.prerequisiteChapter || completedSet.has(ch.prerequisiteChapter) || (ch.questId === CH3_ID && branchSet.has('mcc_route_termination_offered'));
-    const repOk = Object.entries(ch.requiredReputation || {}).every(([f, v]) => (reputation[f] || 0) >= v);
-    const tagOk = !(ch.blockingTags || []).some(t => tagSet.has(t));
-    const branchOk = !(ch.requiredBranchAny || []).length || ch.requiredBranchAny.some(b => branchSet.has(b));
-    if (prereqOk && repOk && tagOk && branchOk) availableChapters.push(ch.questId);
-    else lockedChapters.push(ch.questId);
+  const client = await pool.connect();
+  try {
+    const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes, objectiveState] = await Promise.all([
+      client.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
+      client.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
+      client.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
+      client.query(`SELECT modifier_id FROM player_branch_modifiers WHERE wallet = $1 AND consumed_at IS NULL ORDER BY set_at DESC`, [w]),
+      client.query(`SELECT id, quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
+      client.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
+      client.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
+      getObjectiveState(w),
+    ]);
+    const rows = progressRes.rows;
+    const progressByQuest = {};
+    rows.forEach(r => { progressByQuest[r.quest_id] = r; });
+    const reputation = {};
+    reputationRes.rows.forEach(r => { reputation[r.faction] = r.value; });
+    for (const faction of FACTIONS) if (reputation[faction] == null) reputation[faction] = 0;
+    const completedSet = new Set(rows.filter(r => r.status === 'completed' || r.status === 'claimed').map(r => r.quest_id));
+    const activeRows = rows.filter(r => r.status === 'in_progress');
+    const activeSet = new Set(activeRows.map(r => r.quest_id));
+    // Failed chapters are always retryable — never lock them regardless of prereq state
+    const failedSet = new Set(rows.filter(r => r.status === 'failed').map(r => r.quest_id));
+    const availableChapters = [];
+    const lockedChapters = [];
+    const lockReasonsByQuest = {};
+    for (const ch of Object.values(CHAPTERS)) {
+      if (completedSet.has(ch.questId) || activeSet.has(ch.questId)) continue;
+      // Always allow retry of previously failed chapters — they must never appear locked
+      if (failedSet.has(ch.questId)) { availableChapters.push(ch.questId); continue; }
+      const lockReason = await validateStartConditions(client, w, ch, { forUpdateUser: false });
+      if (!lockReason) availableChapters.push(ch.questId);
+      else {
+        lockedChapters.push(ch.questId);
+        lockReasonsByQuest[ch.questId] = lockReason;
+      }
+    }
+    return {
+      chapters: Object.values(CHAPTERS).map(ch => publicChapter(ch, progressByQuest[ch.questId], objectiveState, { lockReason: lockReasonsByQuest[ch.questId] || null })),
+      completedChapters: Array.from(completedSet),
+      active: activeRows[0] ? formatProgress(activeRows[0]) : null,
+      activeSession: sessionRes.rows[0] || null,
+      objectiveState,
+      availableChapters,
+      lockedChapters,
+      reputation,
+      tierLabels: Object.fromEntries(Object.entries(reputation).map(([f, v]) => [f, reputationTierLabel(v)])),
+      tags: tagRes.rows.map(r => r.tag_id),
+      branchModifiers: branchRes.rows,
+      rewardInbox: inboxRes.rows,
+    };
+  } finally {
+    client.release();
   }
-  return {
-    chapters: Object.values(CHAPTERS).map(ch => publicChapter(ch, progressByQuest[ch.questId], objectiveState)),
-    completedChapters: Array.from(completedSet),
-    active: rows.find(r => r.status === 'in_progress') ? formatProgress(rows.find(r => r.status === 'in_progress')) : null,
-    activeSession: sessionRes.rows[0] || null,
-    objectiveState,
-    availableChapters,
-    lockedChapters,
-    reputation,
-    tierLabels: Object.fromEntries(Object.entries(reputation).map(([f, v]) => [f, reputationTierLabel(v)])),
-    tags: tagRes.rows.map(r => r.tag_id),
-    branchModifiers: branchRes.rows,
-    rewardInbox: inboxRes.rows,
-  };
 }
 
 async function applyClaimedInboxReward(client, wallet, reward) {
@@ -3850,7 +3853,10 @@ async function claimReward(wallet, rewardId) {
 }
 
 async function validateStartConditions(client, wallet, chapter, options = {}) {
-  const userRows = await client.query('SELECT rank_level FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
+  const userRows = await client.query(
+    `SELECT rank_level FROM users WHERE LOWER(wallet_address) = LOWER($1)${options.forUpdateUser === false ? '' : ' FOR UPDATE'}`,
+    [wallet]
+  );
   const rank = parseInt(userRows.rows[0]?.rank_level || 1, 10);
   if (rank < chapter.requiredLevel) return { error: 'LEVEL_REQUIRED', requiredLevel: chapter.requiredLevel };
 
