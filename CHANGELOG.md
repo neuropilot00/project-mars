@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.137 — 레벨별 탭 해금 (온보딩 단계화)
+
+BASE 모달 고급 탭을 레벨로 단계 해금 — 신규 유저 과부하 완화 + 레벨업에 의미 부여. 핵심 초반 루프는 항상 열림.
+
+- 게이트(`BASE_TAB_MIN_LEVEL`): Fleet Lv3, Transport Lv4, PVP Lv6, Guild Lv8, Govern Lv10. 영토/섹터/상점/마켓/아이템/캠페인/OPS/시즌 = 항상 열림.
+- 잠긴 탭은 🔒+필요레벨 뱃지로 노출(숨기지 않음 → 목표 부여), 클릭 시 안내 토스트 후 차단.
+- `#profileLevel` 기준. 레벨 미확정(0)이면 fail-open(잘못 잠그지 않음) → 기존 유저 소급 잠금 방지. `window.LEVEL_GATING_ENABLED=false`로 전체 비활성 가능.
+- `openBaseModal`/레벨 갱신 시 `applyBaseTabLocks()` 자동 적용. 실측: Lv2에서 fleet/pvp/guild/govern 잠김+클릭차단+🔒뱃지, market/territory 열림.
+
 ## 2026-05-28 v7.136 — NPC 아레나 인파이팅 + 초반 밀도 (유령도시 방지, 기본 OFF)
 
 실유저 유입 시 "살아있는 세계" 연출 — NPC 함대끼리 주기적으로 함대전 + 초반 NPC 밀도 유지.

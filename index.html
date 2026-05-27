@@ -21468,6 +21468,7 @@ async function refreshEmailBalances(){
               var plb = document.getElementById('profileLevelBadge');
               if (pl)  pl.textContent  = u.user.rank;
               if (plb) plb.textContent = u.user.rank;
+              try{ applyBaseTabLocks(); }catch(_){}
               if (typeof marsCanvasTexture !== 'undefined') marsCanvasTexture = null;
               if (typeof claimsSnapshot !== 'undefined') claimsSnapshot = null;
               if (typeof compositeClaimsOnTexture === 'function') compositeClaimsOnTexture();
@@ -22202,6 +22203,9 @@ function openBaseModal(){
   try{ _updateBaseTerritoryGroupList(); }catch(_){}
   setTimeout(loadNotifCount, 500);
   setTimeout(function(){ try{ loadOpsCommandBoard(); }catch(_){} }, 200);
+  // [v7.137] 레벨 게이트 잠금 표시 (레벨 DOM 채워진 뒤)
+  try{ applyBaseTabLocks(); }catch(_){}
+  setTimeout(function(){ try{ applyBaseTabLocks(); }catch(_){} }, 600);
 }
 function closeBaseModal(){
   document.getElementById('baseModal').classList.remove('open');
@@ -24231,7 +24235,39 @@ function switchBaseCat(cat, el) {
   if(first) first.click();
 }
 
+// [v7.137] 레벨별 탭 해금 — 고급 탭만 게이트(핵심 초반 루프는 항상 열림). 잠긴 탭은 🔒Lv N.
+var BASE_TAB_MIN_LEVEL = { fleet:3, transport:4, pvp:6, guild:8, govern:10 };
+function _myBaseLevel(){ return parseInt((document.getElementById('profileLevel')||{}).textContent||'0')||0; }
+function _tabGatingOn(){ return window.LEVEL_GATING_ENABLED!==false; }
+// 잠겨 있으면 필요 레벨 반환, 아니면 0. 레벨 미확정(0)이면 fail-open(잘못 잠그지 않음).
+function baseTabLocked(tab){
+  if(!_tabGatingOn()) return 0;
+  var req = BASE_TAB_MIN_LEVEL[tab]||0;
+  if(!req) return 0;
+  var lv=_myBaseLevel();
+  if(lv<=0) return 0;
+  return lv < req ? req : 0;
+}
+function applyBaseTabLocks(){
+  Object.keys(BASE_TAB_MIN_LEVEL).forEach(function(tab){
+    var el=document.getElementById('baseTab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+    if(!el) return;
+    el.querySelectorAll('.tab-lock').forEach(function(x){x.remove()});
+    var need=baseTabLocked(tab);
+    if(need){
+      el.style.opacity='.5';
+      var lk=document.createElement('span'); lk.className='tab-lock'; lk.style.cssText='font-size:8px;margin-left:3px;color:#ffab40;font-weight:700'; lk.textContent='🔒'+need; el.appendChild(lk);
+    } else { el.style.opacity=''; }
+  });
+}
 function switchBaseTab(tab,el){
+  // 레벨 게이트: 고급 탭은 필요 레벨 미달 시 차단 + 안내
+  var _need=baseTabLocked(tab);
+  if(_need){
+    var _lg=(typeof LANG!=='undefined'?LANG:'ko');
+    if(typeof showToast==='function') showToast((_lg==='ko'?'🔒 레벨 '+_need+' 부터 이용 가능합니다':_lg==='ja'?'🔒 レベル '+_need+' から利用可能':_lg==='zh'?'🔒 等级 '+_need+' 起可用':'🔒 Unlocks at Level '+_need),'error');
+    return;
+  }
   document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
   document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
   // el can be null when called programmatically — find tab button by id fallback
