@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.139 — 게임 가이드 신기능 반영 (4개 언어)
+
+신기능 추가분을 인게임 GUIDEBOOK(CODEX_CONTENT)에 4개 언어 반영 — 실유저 대비 가이드 최신 유지.
+
+- **What's New** 최상단에 5개 추가: 영토 condition/grade/TEND, 레벨별 탭 해금(Fleet3/Transport4/PVP6/Guild8/Govern10), NPC 아레나(살아있는 세계), 재료 수급 균형(frontier tier-2), 마켓 섹터 필터.
+- **Overview**: "Progression & Unlocks" 섹션(해금 레벨 표 + toc) 추가.
+- **Territory**: "Condition, Grade & TEND" 섹션(등급→수확 배수 표 S×1.5~F×0.6 + TEND 안내) 추가.
+- **Fleet & Shipyard**: frontier tier-2 재료 드롭 안내 callout.
+- 검증: 4개 언어 동일 구조, 인라인 JS 0 errors, 편집 CODEX_CONTENT 범위 내 확인.
+
 ## 2026-05-28 v7.138 — 재료 수급 균형 보정 (신규 유저 진행 봉쇄 해소)
 
 경제 균형 감사(전문가 에이전트) 결과 진행 차단 2건 해소 — **소스(faucet) 추가만**, 레시피/요구량 무변경(기존 빌드 밸런스 무영향).

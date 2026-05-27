@@ -41322,6 +41322,16 @@ var CODEX_CONTENT = {
       { id: 'whatsnew', icon: '🆕', title: "What's New",
         blocks: [
           { type:'p', text:'**v7.13x — 2026-05 Living economy + EVE-grade fleet warfare.** Latest stable build.' },
+          { type:'h2', text:'🏗 Territory condition, grade & TEND' },
+          { type:'p', text:'• Every territory now has a **condition (0–100, an HP gauge)** and a **grade (F → S)**. Condition **decays a little every day**; if you neglect it, the grade slips.\n• **🔧 TEND** (in the territory **PRODUCTION** panel) spends GP to **restore condition** and push the grade back up.\n• **Higher grade = bigger payouts**: harvest PP and mineral-drop rates scale with grade (about **S ×1.5 down to F ×0.6**). Keeping your land well-tended directly raises your income.' },
+          { type:'h2', text:'🔓 Level-gated tab unlocks' },
+          { type:'p', text:'• Advanced features now unlock by account level: **Fleet Lv3, Transport Lv4, PVP Lv6, Guild Lv8, Governance Lv10**.\n• Core early-game tabs (territory, shop, market, campaign) are **open from the start**. Locked tabs show a **🔒 + required level** badge.' },
+          { type:'h2', text:'🤖 NPC Arena — a living world' },
+          { type:'p', text:'• NPC fleets now fight in the **arena around the clock**, so the world feels alive even at off-peak hours and there is always action to watch and learn from.' },
+          { type:'h2', text:'⛏ Material supply rebalanced' },
+          { type:'p', text:'• Frontier sectors now also drop **some tier-2 crafting materials**, so new players can build their first real ships without owning premium CORE land.' },
+          { type:'h2', text:'🏪 Regional market sector filter' },
+          { type:'p', text:'• The ship/item market can be **filtered by sector**, making it easy to spot cross-sector arbitrage and same-sector deals.' },
           { type:'callout', variant:'warn', title:'⚠ Ship full-loss is now LIVE',
             text:'Ships sunk (HP 0) in **hijack battles are now permanently destroyed** — they cannot be revived and must be rebuilt from scratch. Treat your fleet as real, losable capital. (`hijack_ship_loss_enabled = true`)' },
           { type:'h2', text:'💰 Currency model clarified' },
@@ -41349,6 +41359,7 @@ var CODEX_CONTENT = {
             'Core game loop',
             'Currency structure (USDT / PP / GP / XP)',
             'Win conditions',
+            'Progression & unlocks',
             'First 5 minutes checklist'
           ]},
 
@@ -41389,7 +41400,22 @@ var CODEX_CONTENT = {
           { type:'callout', variant:'pro', title:'There is no ending',
             text:'Occupy Mars is a **persistent world**. The goal isn\'t a score — it\'s to stack **territory + reputation + governance power** until you become a "Commander no one can ignore". Only rankings reset each season; territory and assets are permanent.' },
 
-          { type:'h2', text:'4. First 5 Minutes Checklist' },
+          { type:'h2', text:'4. Progression & Unlocks' },
+          { type:'p', text:'The core early-game loop is **open from the start** — territory, shop, market, and campaign need no level. Advanced features unlock as your account level rises. Locked tabs show a **🔒 + required level** badge.' },
+          { type:'table',
+            headers:['Feature','Unlocks at'],
+            rows:[
+              ['Territory · Shop · Market · Campaign', {v:'Lv 1 (open)',cls:'num'}],
+              ['🚢 Fleet & Shipyard',                  {v:'Lv 3',cls:'num'}],
+              ['🚚 Transport',                          {v:'Lv 4',cls:'num'}],
+              ['⚔ PVP',                                 {v:'Lv 6',cls:'num'}],
+              ['🛡 Guild',                              {v:'Lv 8',cls:'num'}],
+              ['🏛 Governance',                         {v:'Lv 10',cls:'num'}]
+            ]},
+          { type:'callout', variant:'tip', title:'Level up by playing',
+            text:'Every claim, hijack, mission, and login grants XP. Just running the daily loop carries you past these gates quickly — see [Token Economy](#tokens) §4 for the XP table.' },
+
+          { type:'h2', text:'5. First 5 Minutes Checklist' },
           { type:'p', text:'Do these in order right after launching the game for the fastest on-ramp:' },
           { type:'table',
             headers:['#','Task','Actual reward'],
@@ -41515,7 +41541,8 @@ var CODEX_CONTENT = {
             'Hijack (territory theft)',
             'Shields (defense)',
             'Image upload limits',
-            'Territory rename'
+            'Territory rename',
+            'Condition, grade & TEND'
           ]},
 
           { type:'h2', text:'1. Claim Basics' },
@@ -41581,7 +41608,22 @@ var CODEX_CONTENT = {
               ['Territory rename', {v:'0.3 PP',cls:'num'}]
             ]},
           { type:'callout', variant:'pro', title:'Names are guild & hijack psychology',
-            text:'A name like "Do Not Hijack — Woo\'s HQ" actually reduces hijack attempts. Community-minded players usually leave named territories alone.' }
+            text:'A name like "Do Not Hijack — Woo\'s HQ" actually reduces hijack attempts. Community-minded players usually leave named territories alone.' },
+
+          { type:'h2', text:'7. Condition, Grade & TEND' },
+          { type:'p', text:'Every territory carries a **condition (0–100, an HP gauge)** and a **grade (F → S)**. Condition **decays a little each day**, so a territory you never touch slowly slides down the grade ladder. Open the territory **PRODUCTION** panel to see the HP bar and grade badge.' },
+          { type:'table',
+            headers:['Grade','Harvest PP','Mineral drop'],
+            rows:[
+              [{v:'S',cls:'mars'}, {v:'× 1.50',cls:'num'}, {v:'× 1.50',cls:'num'}],
+              [{v:'A',cls:'mars'}, {v:'× 1.25',cls:'num'}, {v:'× 1.30',cls:'num'}],
+              [{v:'B',cls:'mars'}, {v:'× 1.10',cls:'num'}, {v:'× 1.15',cls:'num'}],
+              [{v:'C',cls:'mars'}, {v:'× 1.00',cls:'num'}, {v:'× 1.00',cls:'num'}],
+              [{v:'D',cls:'mars'}, {v:'× 0.85',cls:'num'}, {v:'× 0.90',cls:'num'}],
+              [{v:'F',cls:'mars'}, {v:'× 0.60',cls:'num'}, {v:'× 0.75',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'🔧 TEND keeps the income flowing',
+            text:'The **🔧 TEND** button in the PRODUCTION panel spends GP to restore condition and lift the grade back up. Because **higher grade means more harvest PP and more mineral drops**, regularly tending your best plots pays for itself. Let a territory rot to grade F and it earns barely over half of its potential.' }
         ]
       },
       { id: 'mining', icon: '⛏', title: 'Mining & Income',
@@ -41729,6 +41771,8 @@ var CODEX_CONTENT = {
             ]},
           { type:'callout', variant:'info', title:'Listed ships are locked',
             text:'A ship listed on the market (`is_market_listed`) cannot be upgraded, repaired, shielded, scrapped, or moved between fleets until you cancel the listing.' },
+          { type:'callout', variant:'tip', title:'New players can build early',
+            text:'After a balance pass, **frontier sectors now also drop some tier-2 crafting materials** — so you can build your first real ship from cheap outer-rim land without owning premium CORE territory.' },
 
           { type:'h2', text:'3. Stat Upgrades' },
           { type:'p', text:'Owned ships can be **permanently upgraded** in `atk / def / hp / speed`. Upgrades have a **success chance** and consume GP + materials on both success and failure. Cost scales with total investment count.' },
@@ -42434,6 +42478,16 @@ var CODEX_CONTENT = {
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
           { type:'p', text:'**v7.13x — 2026-05 살아있는 경제 + EVE급 함대전.** 최신 안정 빌드.' },
+          { type:'h2', text:'🏗 영토 컨디션·등급·정비(TEND)' },
+          { type:'p', text:'• 모든 영토에 **컨디션(0~100, HP 개념)**과 **등급(F → S)**이 생겼어. 컨디션은 **매일 조금씩 감쇠**하고, 방치하면 등급이 떨어져.\n• **🔧 TEND(정비)**(영토 **PRODUCTION** 패널)는 GP를 소모해 **컨디션을 회복**하고 등급을 다시 올려줘.\n• **등급이 높을수록 보상이 커져**: 수확 PP와 재료 드롭량이 등급에 비례해 (대략 **S ×1.5 ~ F ×0.6**). 영토를 꾸준히 관리하는 게 수익에 직결돼.' },
+          { type:'h2', text:'🔓 레벨별 탭 해금' },
+          { type:'p', text:'• 고급 기능이 계정 레벨로 단계 해금돼: **함대 Lv3, 수송 Lv4, PVP Lv6, 길드 Lv8, 거버넌스 Lv10**.\n• 핵심 초반 탭(영토·상점·마켓·캠페인)은 **처음부터 열려 있어**. 잠긴 탭은 **🔒 + 필요 레벨** 뱃지로 표시돼.' },
+          { type:'h2', text:'🤖 NPC 아레나 — 살아있는 세계' },
+          { type:'p', text:'• NPC 함대가 이제 **아레나에서 24시간 전투**를 벌여서, 한산한 시간대에도 세계가 살아 있게 느껴지고 언제든 관전하며 배울 거리가 있어.' },
+          { type:'h2', text:'⛏ 재료 수급 균형 보정' },
+          { type:'p', text:'• 이제 frontier 섹터에서도 **일부 tier-2 제작 재료**가 채굴돼서, 신규 유저도 비싼 CORE 영토 없이 첫 함선을 만들 수 있어.' },
+          { type:'h2', text:'🏪 지역 마켓 섹터 필터' },
+          { type:'p', text:'• 함선/아이템 마켓을 **섹터별로 필터링**할 수 있어 — 섹터 간 차익 거래와 같은 섹터 매물을 쉽게 찾을 수 있어.' },
           { type:'callout', variant:'warn', title:'⚠ 함선 영구파괴(full-loss) 적용됨',
             text:'하이젝 전투에서 격침된(HP 0) 함선은 이제 **영구 손실**돼. 되살릴 수 없고 조선소에서 다시 건조해야 해. 함대를 잃어도 되는 자산으로만 운용해. (`hijack_ship_loss_enabled = true`)' },
           { type:'h2', text:'💰 통화 모델 명확화' },
@@ -42513,6 +42567,7 @@ var CODEX_CONTENT = {
             '핵심 게임 루프',
             '통화 구조 (USDT / PP / GP / XP)',
             '승리 조건',
+            '진행 & 해금',
             '첫 5분 체크리스트'
           ]},
 
@@ -42553,7 +42608,22 @@ var CODEX_CONTENT = {
           { type:'callout', variant:'pro', title:'엔딩은 없다',
             text:'Occupy Mars는 **영원히 돌아가는 세계**야. 목표는 점수가 아니라 **영토 + 명성 + 거버넌스 파워**를 쌓아서 "아무도 무시 못 하는 커맨더"가 되는 거지. 시즌마다 리셋되는 건 랭킹 뿐, 영토와 자산은 영구야.' },
 
-          { type:'h2', text:'4. 첫 5분 체크리스트' },
+          { type:'h2', text:'4. 진행 & 해금' },
+          { type:'p', text:'핵심 초반 루프는 **처음부터 열려 있어** — 영토·상점·마켓·캠페인은 레벨 제한이 없어. 고급 기능은 계정 레벨이 오를수록 해금돼. 잠긴 탭은 **🔒 + 필요 레벨** 뱃지로 표시돼.' },
+          { type:'table',
+            headers:['기능','해금 레벨'],
+            rows:[
+              ['영토 · 상점 · 마켓 · 캠페인', {v:'Lv 1 (오픈)',cls:'num'}],
+              ['🚢 함대 & 조선소',           {v:'Lv 3',cls:'num'}],
+              ['🚚 수송',                    {v:'Lv 4',cls:'num'}],
+              ['⚔ PVP',                     {v:'Lv 6',cls:'num'}],
+              ['🛡 길드',                    {v:'Lv 8',cls:'num'}],
+              ['🏛 거버넌스',                {v:'Lv 10',cls:'num'}]
+            ]},
+          { type:'callout', variant:'tip', title:'플레이하면 레벨이 오른다',
+            text:'클레임·하이젝·미션·로그인마다 XP가 들어와. 그냥 일일 루프만 돌려도 이 게이트들을 금방 지나가 — XP 표는 [토큰 이코노미](#tokens) §4 참고.' },
+
+          { type:'h2', text:'5. 첫 5분 체크리스트' },
           { type:'p', text:'게임 처음 켰을 때 이 순서대로 하면 빠르게 본게임 진입 가능:' },
           { type:'table',
             headers:['#','할 일','실제 보상'],
@@ -42679,7 +42749,8 @@ var CODEX_CONTENT = {
             '하이잭 (영토 탈취)',
             '쉴드 (방어)',
             '이미지 업로드 제한',
-            '영토 이름 변경'
+            '영토 이름 변경',
+            '컨디션·등급·정비(TEND)'
           ]},
 
           { type:'h2', text:'1. 클레임 기본 규칙' },
@@ -42746,7 +42817,22 @@ var CODEX_CONTENT = {
               ['영토 이름 변경', {v:'0.3 PP',cls:'num'}]
             ]},
           { type:'callout', variant:'pro', title:'이름은 길드·하이잭 심리전 무기',
-            text:'"Do Not Hijack — Woo\'s HQ" 같은 이름을 붙이면 실제로 하이잭 시도가 줄어. 커뮤니티 매너가 있는 플레이어들은 대부분 이름 있는 영토는 건드리지 않거든.' }
+            text:'"Do Not Hijack — Woo\'s HQ" 같은 이름을 붙이면 실제로 하이잭 시도가 줄어. 커뮤니티 매너가 있는 플레이어들은 대부분 이름 있는 영토는 건드리지 않거든.' },
+
+          { type:'h2', text:'7. 컨디션·등급·정비(TEND)' },
+          { type:'p', text:'모든 영토에는 **컨디션(0~100, HP 개념)**과 **등급(F → S)**이 있어. 컨디션은 **매일 조금씩 감쇠**해서, 손대지 않으면 영토 등급이 서서히 내려가. 영토 **PRODUCTION** 패널을 열면 HP 바와 등급 뱃지를 볼 수 있어.' },
+          { type:'table',
+            headers:['등급','수확 PP','광물 드롭'],
+            rows:[
+              [{v:'S',cls:'mars'}, {v:'× 1.50',cls:'num'}, {v:'× 1.50',cls:'num'}],
+              [{v:'A',cls:'mars'}, {v:'× 1.25',cls:'num'}, {v:'× 1.30',cls:'num'}],
+              [{v:'B',cls:'mars'}, {v:'× 1.10',cls:'num'}, {v:'× 1.15',cls:'num'}],
+              [{v:'C',cls:'mars'}, {v:'× 1.00',cls:'num'}, {v:'× 1.00',cls:'num'}],
+              [{v:'D',cls:'mars'}, {v:'× 0.85',cls:'num'}, {v:'× 0.90',cls:'num'}],
+              [{v:'F',cls:'mars'}, {v:'× 0.60',cls:'num'}, {v:'× 0.75',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'🔧 TEND로 수익을 유지한다',
+            text:'PRODUCTION 패널의 **🔧 TEND(정비)** 버튼은 GP를 소모해 컨디션을 회복하고 등급을 다시 끌어올려. **등급이 높을수록 수확 PP와 광물 드롭이 늘어나니까**, 좋은 영토를 꾸준히 정비하면 그 비용은 본전을 뽑아. 등급 F까지 방치하면 잠재 수익의 절반 남짓밖에 못 벌어.' }
         ]
       },
       { id: 'mining', icon: '⛏', title: '채굴 & 수익',
@@ -42910,6 +42996,8 @@ var CODEX_CONTENT = {
             ]},
           { type:'callout', variant:'info', title:'판매중 함선은 잠김',
             text:'마켓에 등록된(`is_market_listed`) 함선은 등록을 취소하기 전까지 강화·수리·실드·해체·함대 이동이 모두 막혀.' },
+          { type:'callout', variant:'tip', title:'신규 유저도 초반에 함선 제작 가능',
+            text:'밸런스 보정으로 이제 **frontier 섹터에서도 일부 tier-2 제작 재료**가 드롭돼 — 비싼 CORE 영토 없이 저렴한 변방 땅만으로도 첫 함선을 만들 수 있어.' },
 
           { type:'h2', text:'3. 스탯 강화' },
           { type:'p', text:'보유 함선은 `atk / def / hp / speed`를 **영구 강화**할 수 있어. 강화는 **성공 확률**이 있고, 성공/실패 모두 GP + 재료를 소모해. 비용은 총 투자 횟수에 따라 올라가.' },
@@ -43617,6 +43705,16 @@ CODEX_CONTENT.ja = {
     { id: 'whatsnew', icon: '🆕', title: '最新アップデート',
       blocks: [
         { type:'p', text:'**v7.13x — 2026-05 生きた経済 + EVE 級の艦隊戦。** 最新の安定ビルド。' },
+        { type:'h2', text:'🏗 領土のコンディション・等級・整備(TEND)' },
+        { type:'p', text:'• すべての領土に**コンディション(0〜100、HP の概念)**と**等級(F → S)**が付いた。コンディションは**毎日少しずつ減衰**し、放置すると等級が下がる。\n• **🔧 TEND(整備)**(領土の **PRODUCTION** パネル)は GP を消費して**コンディションを回復**し、等級を押し上げる。\n• **等級が高いほど報酬が増える**: 収穫 PP と鉱物ドロップ率が等級に比例(おおよそ **S ×1.5 〜 F ×0.6**)。領土をこまめに管理することが収益に直結する。' },
+        { type:'h2', text:'🔓 レベル別タブ解放' },
+        { type:'p', text:'• 上級機能がアカウントレベルで段階的に解放: **艦隊 Lv3、輸送 Lv4、PVP Lv6、ギルド Lv8、ガバナンス Lv10**。\n• コアな序盤タブ(領土・ショップ・マーケット・キャンペーン)は**最初から開いている**。ロックされたタブは **🔒 + 必要レベル**バッジで表示。' },
+        { type:'h2', text:'🤖 NPC アリーナ — 生きた世界' },
+        { type:'p', text:'• NPC 艦隊が**アリーナで 24 時間戦闘**するようになり、過疎時間帯でも世界が生きているように感じられ、いつでも観戦して学べる。' },
+        { type:'h2', text:'⛏ 素材供給のリバランス' },
+        { type:'p', text:'• frontier セクターでも**一部の tier-2 製作素材**がドロップするようになり、新規プレイヤーも高価な CORE 領土なしで最初の艦船を建造できる。' },
+        { type:'h2', text:'🏪 地域マーケットのセクターフィルタ' },
+        { type:'p', text:'• 艦船/アイテムマーケットを**セクター別にフィルタ**できる — セクター間の裁定取引や同一セクターの出品を簡単に探せる。' },
         { type:'callout', variant:'warn', title:'⚠ 艦船の完全ロスト(full-loss)が有効化',
           text:'ハイジャック戦で撃沈された(HP 0)艦船は**永久に失われる** — 復活不可、造船所で再建造が必要。艦隊は失っても許容できる本物の資産として運用すること。(`hijack_ship_loss_enabled = true`)' },
         { type:'h2', text:'💰 通貨モデルの明確化' },
@@ -43644,6 +43742,7 @@ CODEX_CONTENT.ja = {
           'コアゲームループ',
           '通貨構造 (USDT / PP / GP / XP)',
           '勝利条件',
+          '進行 & 解放',
           '最初の 5 分チェックリスト'
         ]},
 
@@ -43684,7 +43783,22 @@ CODEX_CONTENT.ja = {
         { type:'callout', variant:'pro', title:'エンディングは存在しない',
           text:'Occupy Mars は **永続世界** だ。ゴールはスコアではなく、**領土 + 名声 + ガバナンス権力** を積み上げて「誰も無視できないコマンダー」になること。シーズンごとにリセットされるのはランキングだけで、領土と資産は永久だ。' },
 
-        { type:'h2', text:'4. 最初の 5 分チェックリスト' },
+        { type:'h2', text:'4. 進行 & 解放' },
+        { type:'p', text:'コアな序盤ループは**最初から開いている** — 領土・ショップ・マーケット・キャンペーンにレベル制限はない。上級機能はアカウントレベルが上がると解放される。ロックされたタブは **🔒 + 必要レベル**バッジで表示。' },
+        { type:'table',
+          headers:['機能','解放レベル'],
+          rows:[
+            ['領土 · ショップ · マーケット · キャンペーン', {v:'Lv 1 (開放)',cls:'num'}],
+            ['🚢 艦隊 & 造船所',                            {v:'Lv 3',cls:'num'}],
+            ['🚚 輸送',                                     {v:'Lv 4',cls:'num'}],
+            ['⚔ PVP',                                      {v:'Lv 6',cls:'num'}],
+            ['🛡 ギルド',                                   {v:'Lv 8',cls:'num'}],
+            ['🏛 ガバナンス',                               {v:'Lv 10',cls:'num'}]
+          ]},
+        { type:'callout', variant:'tip', title:'プレイすればレベルが上がる',
+          text:'クレーム・ハイジャック・ミッション・ログインのたびに XP が入る。デイリーループを回すだけでこれらのゲートをすぐ越えられる — XP 表は [トークン経済](#tokens) §4 参照。' },
+
+        { type:'h2', text:'5. 最初の 5 分チェックリスト' },
         { type:'p', text:'ゲームを初めて起動したらこの順番で進めると素早く本編に入れる:' },
         { type:'table',
           headers:['#','やること','実際の報酬'],
@@ -43810,7 +43924,8 @@ CODEX_CONTENT.ja = {
           'ハイジャック(領土奪取)',
           'シールド(防御)',
           '画像アップロード制限',
-          '領土名変更'
+          '領土名変更',
+          'コンディション・等級・整備(TEND)'
         ]},
 
         { type:'h2', text:'1. クレームの基本ルール' },
@@ -43876,7 +43991,22 @@ CODEX_CONTENT.ja = {
             ['領土名変更', {v:'0.3 PP',cls:'num'}]
           ]},
         { type:'callout', variant:'pro', title:'名前はギルド・ハイジャック心理戦の武器',
-          text:'「Do Not Hijack — Woo\'s HQ」のような名前を付けると実際にハイジャック試行が減る。マナーのあるプレイヤーは名前のある領土にはあまり手を出さない。' }
+          text:'「Do Not Hijack — Woo\'s HQ」のような名前を付けると実際にハイジャック試行が減る。マナーのあるプレイヤーは名前のある領土にはあまり手を出さない。' },
+
+        { type:'h2', text:'7. コンディション・等級・整備(TEND)' },
+        { type:'p', text:'すべての領土には**コンディション(0〜100、HP の概念)**と**等級(F → S)**がある。コンディションは**毎日少しずつ減衰**するため、手を入れない領土は徐々に等級が下がっていく。領土の **PRODUCTION** パネルを開くと HP バーと等級バッジが見える。' },
+        { type:'table',
+          headers:['等級','収穫 PP','鉱物ドロップ'],
+          rows:[
+            [{v:'S',cls:'mars'}, {v:'× 1.50',cls:'num'}, {v:'× 1.50',cls:'num'}],
+            [{v:'A',cls:'mars'}, {v:'× 1.25',cls:'num'}, {v:'× 1.30',cls:'num'}],
+            [{v:'B',cls:'mars'}, {v:'× 1.10',cls:'num'}, {v:'× 1.15',cls:'num'}],
+            [{v:'C',cls:'mars'}, {v:'× 1.00',cls:'num'}, {v:'× 1.00',cls:'num'}],
+            [{v:'D',cls:'mars'}, {v:'× 0.85',cls:'num'}, {v:'× 0.90',cls:'num'}],
+            [{v:'F',cls:'mars'}, {v:'× 0.60',cls:'num'}, {v:'× 0.75',cls:'num'}]
+          ]},
+        { type:'callout', variant:'pro', title:'🔧 TEND で収益を維持する',
+          text:'PRODUCTION パネルの **🔧 TEND(整備)** ボタンは GP を消費してコンディションを回復し、等級を再び引き上げる。**等級が高いほど収穫 PP と鉱物ドロップが増える**ので、優良領土をこまめに整備すればその費用は元が取れる。等級 F まで放置すると潜在収益の半分ちょっとしか稼げない。' }
       ]
     },
     { id: 'mining', icon: '⛏', title: '採掘と収益',
@@ -44021,6 +44151,8 @@ CODEX_CONTENT.ja = {
           ]},
         { type:'callout', variant:'info', title:'出品中の艦船はロック',
           text:'マーケットに出品された(`is_market_listed`)艦船は、出品を取り消すまで強化・修理・シールド・解体・艦隊移動がすべて不可。' },
+        { type:'callout', variant:'tip', title:'新規プレイヤーも序盤から建造できる',
+          text:'バランス調整により、**frontier セクターでも一部の tier-2 製作素材**がドロップするようになった — 高価な CORE 領土なしで、安価な辺境の土地だけで最初の艦船を建造できる。' },
 
         { type:'h2', text:'3. ステータス強化' },
         { type:'p', text:'保有艦船は `atk / def / hp / speed` を**永久強化**できる。強化には**成功確率**があり、成功/失敗いずれも GP + 素材を消費する。コストは累計投資回数に応じて上昇する。' },
@@ -44723,6 +44855,16 @@ CODEX_CONTENT.zh = {
     { id: 'whatsnew', icon: '🆕', title: '最新更新',
       blocks: [
         { type:'p', text:'**v7.13x — 2026-05 活的经济 + EVE 级舰队战。** 最新稳定版本。' },
+        { type:'h2', text:'🏗 领土状态·等级·维护(TEND)' },
+        { type:'p', text:'• 每块领土现在都有**状态(0~100,HP 概念)**和**等级(F → S)**。状态**每天小幅衰减**,若放任不管,等级就会下滑。\n• **🔧 TEND(维护)**(领土 **PRODUCTION** 面板)消耗 GP **恢复状态**并把等级重新拉高。\n• **等级越高,收益越大**: 收获 PP 与矿物掉落率随等级提升(约 **S ×1.5 ~ F ×0.6**)。持续打理领土直接关系到收益。' },
+        { type:'h2', text:'🔓 按等级解锁标签页' },
+        { type:'p', text:'• 高级功能按账号等级分阶段解锁: **舰队 Lv3、运输 Lv4、PVP Lv6、公会 Lv8、治理 Lv10**。\n• 核心前期标签(领地·商店·市场·战役)**从一开始就开放**。锁定的标签会显示 **🔒 + 所需等级**徽章。' },
+        { type:'h2', text:'🤖 NPC 竞技场 — 活的世界' },
+        { type:'p', text:'• NPC 舰队现在**全天候在竞技场战斗**,即使在冷门时段世界也显得鲜活,随时都有可观摩学习的对战。' },
+        { type:'h2', text:'⛏ 材料供给再平衡' },
+        { type:'p', text:'• 现在 frontier 区域也会掉落**部分 tier-2 制作材料**,新玩家无需拥有昂贵的 CORE 领地也能建造第一艘真正的舰船。' },
+        { type:'h2', text:'🏪 地区市场区域筛选' },
+        { type:'p', text:'• 舰船/物品市场可**按区域筛选** — 轻松发现跨区域套利和同区域交易。' },
         { type:'callout', variant:'warn', title:'⚠ 舰船永久损失(full-loss)已上线',
           text:'劫持战中被击沉(HP 0)的舰船现在会**永久损失** — 无法复活,必须在船坞重新建造。请把舰队当作可能失去的真实资产来运营。(`hijack_ship_loss_enabled = true`)' },
         { type:'h2', text:'💰 货币模型澄清' },
@@ -44750,6 +44892,7 @@ CODEX_CONTENT.zh = {
           '核心游戏循环',
           '货币结构 (USDT / PP / GP / XP)',
           '胜利条件',
+          '进度 & 解锁',
           '前 5 分钟清单'
         ]},
 
@@ -44790,7 +44933,22 @@ CODEX_CONTENT.zh = {
         { type:'callout', variant:'pro', title:'没有终局',
           text:'Occupy Mars 是一个 **永续世界**。目标不是分数,而是积累 **领土 + 声望 + 治理权力**,成为一个「没人能忽视的指挥官」。每个赛季重置的只是排行,领土和资产是永久的。' },
 
-        { type:'h2', text:'4. 前 5 分钟清单' },
+        { type:'h2', text:'4. 进度 & 解锁' },
+        { type:'p', text:'核心前期循环**从一开始就开放** — 领地、商店、市场、战役无需等级。高级功能随账号等级提升而解锁。锁定的标签会显示 **🔒 + 所需等级**徽章。' },
+        { type:'table',
+          headers:['功能','解锁等级'],
+          rows:[
+            ['领地 · 商店 · 市场 · 战役', {v:'Lv 1 (开放)',cls:'num'}],
+            ['🚢 舰队 & 船坞',            {v:'Lv 3',cls:'num'}],
+            ['🚚 运输',                  {v:'Lv 4',cls:'num'}],
+            ['⚔ PVP',                   {v:'Lv 6',cls:'num'}],
+            ['🛡 公会',                  {v:'Lv 8',cls:'num'}],
+            ['🏛 治理',                  {v:'Lv 10',cls:'num'}]
+          ]},
+        { type:'callout', variant:'tip', title:'边玩边升级',
+          text:'每次占领、劫持、任务和登录都会获得 XP。只要跑日常循环就能很快越过这些门槛 — XP 表见 [代币经济](#tokens) §4。' },
+
+        { type:'h2', text:'5. 前 5 分钟清单' },
         { type:'p', text:'首次启动游戏时,按这个顺序做,可以最快进入正式玩法:' },
         { type:'table',
           headers:['#','要做的事','实际奖励'],
@@ -44916,7 +45074,8 @@ CODEX_CONTENT.zh = {
           '劫掠(领土夺取)',
           '护盾(防御)',
           '图像上传限制',
-          '领土改名'
+          '领土改名',
+          '状态·等级·维护(TEND)'
         ]},
 
         { type:'h2', text:'1. 占领基本规则' },
@@ -44982,7 +45141,22 @@ CODEX_CONTENT.zh = {
             ['领土改名', {v:'0.3 PP',cls:'num'}]
           ]},
         { type:'callout', variant:'pro', title:'名字是公会·劫掠的心理战武器',
-          text:'起个类似「Do Not Hijack — Woo\'s HQ」的名字,劫掠尝试会真的减少。讲究社区礼仪的玩家大多不会去碰带名字的领土。' }
+          text:'起个类似「Do Not Hijack — Woo\'s HQ」的名字,劫掠尝试会真的减少。讲究社区礼仪的玩家大多不会去碰带名字的领土。' },
+
+        { type:'h2', text:'7. 状态·等级·维护(TEND)' },
+        { type:'p', text:'每块领土都带有**状态(0~100,HP 概念)**和**等级(F → S)**。状态**每天小幅衰减**,因此从不打理的领土会慢慢沿等级阶梯下滑。打开领土 **PRODUCTION** 面板即可看到 HP 条与等级徽章。' },
+        { type:'table',
+          headers:['等级','收获 PP','矿物掉落'],
+          rows:[
+            [{v:'S',cls:'mars'}, {v:'× 1.50',cls:'num'}, {v:'× 1.50',cls:'num'}],
+            [{v:'A',cls:'mars'}, {v:'× 1.25',cls:'num'}, {v:'× 1.30',cls:'num'}],
+            [{v:'B',cls:'mars'}, {v:'× 1.10',cls:'num'}, {v:'× 1.15',cls:'num'}],
+            [{v:'C',cls:'mars'}, {v:'× 1.00',cls:'num'}, {v:'× 1.00',cls:'num'}],
+            [{v:'D',cls:'mars'}, {v:'× 0.85',cls:'num'}, {v:'× 0.90',cls:'num'}],
+            [{v:'F',cls:'mars'}, {v:'× 0.60',cls:'num'}, {v:'× 0.75',cls:'num'}]
+          ]},
+        { type:'callout', variant:'pro', title:'🔧 TEND 维持收益流',
+          text:'PRODUCTION 面板里的 **🔧 TEND(维护)** 按钮消耗 GP 恢复状态并把等级重新拉高。由于**等级越高,收获 PP 越多、矿物掉落越多**,定期维护你的优质领地能回本。把领土放任到 F 级,它只能赚到潜在收益的一半多一点。' }
       ]
     },
     { id: 'mining', icon: '⛏', title: '采矿 & 收入',
@@ -45127,6 +45301,8 @@ CODEX_CONTENT.zh = {
           ]},
         { type:'callout', variant:'info', title:'挂售中的舰船被锁定',
           text:'已挂到市场(`is_market_listed`)的舰船在取消挂售前无法强化、维修、护盾、拆解或在舰队间移动。' },
+        { type:'callout', variant:'tip', title:'新玩家也能早期建造',
+          text:'经过平衡调整,现在 **frontier 区域也会掉落部分 tier-2 制作材料** — 无需拥有昂贵的 CORE 领地,仅靠便宜的边境土地就能建造第一艘真正的舰船。' },
 
         { type:'h2', text:'3. 属性强化' },
         { type:'p', text:'已有舰船可**永久强化** `atk / def / hp / speed`。强化有**成功概率**,无论成功或失败都消耗 GP + 材料。成本随累计投资次数上升。' },
