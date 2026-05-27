@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.94 — 작전보드 GO 버튼 이동 수정
+
+**증상:** 오늘의 작전 보드에서 GO를 눌러도 화면 이동이 안 됨.
+
+**원인 (`index.html` `opsMissionGo`):**
+1. **캠페인 미션**(`campaign_progress`/`campaign_complete`)이 존재하지 않는 `'quests'` 카테고리를 `switchBaseCat`에 넘김 → 모든 base-tab이 숨겨지며 네비게이션이 깨짐. 실제 `baseTabQuests`의 `data-cat`은 `'mission'`.
+2. **영토 채굴/업그레이드/이미지 미션**(`harvest_*`/`territory_upgrade*`/`territory_art`)이 BASE 모달의 territory 탭으로 이동 — 그런데 작전보드 자체가 그 탭 안에 있어 "같은 탭 재선택" → 시각적 변화 없음. 실제 채굴/업그레이드는 화성 지도(글로브)에서 수행.
+3. **영토 클레임**(`territory_claim`)도 territory 탭으로 보냈으나 클레임은 지도에서 함.
+
+**수정:**
+- 탭 이동을 `switchBaseCat`+`switchBaseTab` 대신 **탭 버튼 `.click()`**(`_opsClickTab`)으로 처리 → 해당 탭 onclick 로더(`loadMarketTab` 등)까지 함께 발동.
+- 캠페인 → `baseTabQuests.click()` (mission 카테고리 자동 활성).
+- 영토 채굴/업그레이드/이미지 → `closeBaseModal()` 후 `toggleMyLand()`로 글로브 MY LAND 모드 진입 + 안내 토스트.
+- 영토 클레임 → `closeBaseModal()` 후 `activateLandSelect()`로 지도 클레임 모드.
+- 알 수 없는 타입엔 안내 토스트(무반응 방지).
+
+**검증:** 로컬 브라우저에서 `opsMissionGo` 직접 호출 — 캠페인→`basePane_quests`, 마켓→`basePane_market`, 전투→`basePane_pvp` 활성 확인. 스크립트 파싱 정상.
+
+---
+
 ## 2026-05-27 v7.93 — 하드 새로고침 직후 흰 화성/정지처럼 보이던 초기 로드 공백 축소
 
 **증상:** `Cmd+Shift+R` 하드 새로고침 직후 몇 초 동안 화성이 흰 구처럼 보이고, 사용자는 텍스처가 안 뜨거나 회전이 멈춘 것으로 느낄 수 있었음.

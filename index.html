@@ -25639,42 +25639,64 @@ function _fmtDuration(sec) {
 }
 
 // GO 버튼 네비게이션 헬퍼 (onclick 직접 호출용 — 이벤트리스너 대신)
+// 작전보드 GO 버튼 — 미션 타입별로 실제 동작 화면으로 이동시킨다.
+// 탭 이동은 tab 버튼 .click() 으로 처리해 해당 탭의 onclick 로더(loadMarketTab 등)도 함께 발동시킨다.
+function _opsClickTab(tabId) {
+  var btn = document.getElementById(tabId);
+  if (btn) { btn.click(); return true; }
+  return false;
+}
 window.opsMissionGo = function(type) {
   try {
-    // ─ 영토 계열 ─
-    if (['harvest_pp','harvest_3','harvest_5','territory_art','territory_upgrade','territory_upgrade_3','territory_claim'].includes(type)) {
-      switchBaseCat('territory', document.querySelector('.bcat[data-cat=territory]'));
-      switchBaseTab('territory', document.getElementById('baseTabTerritory'));
-    // ─ 전투 계열 ─
+    // ─ 영토 채굴/업그레이드/이미지: 실제 동작은 화성 지도(글로브)에서 한다.
+    //   작전보드는 BASE 모달 > 내 영토 탭 안에 있으므로, 같은 탭으로 "이동"해도
+    //   화면 변화가 없어 GO가 안 먹는 것처럼 보였다. 모달을 닫고 MY LAND 모드로 보낸다. ─
+    if (['harvest_pp','harvest_3','harvest_5','territory_art','territory_upgrade','territory_upgrade_3'].includes(type)) {
+      try { closeBaseModal(); } catch(_) {}
+      setTimeout(function(){
+        try { if (typeof toggleMyLand === 'function' && !window._myLandMode) toggleMyLand(); } catch(_) {}
+        var msg = (type.indexOf('harvest') === 0)
+          ? tl('Tap your territory on Mars to harvest PP','화성 지도에서 내 영토를 눌러 채굴하세요','火星マップで自分の領土をタップして採掘','在火星地图上点击你的领地进行采集')
+          : (type === 'territory_art'
+              ? tl('Open one of your territories to register its image','내 영토를 열어 이미지를 등록하세요','自分の領土を開いて画像を登録','打开你的领地注册图片')
+              : tl('Open one of your territories to upgrade it','내 영토를 열어 업그레이드하세요','自分の領土を開いてアップグレード','打开你的领地进行升级'));
+        try { showToast(msg); } catch(_) {}
+      }, 280);
+    // ─ 영토 클레임: 모달 닫고 지도 클레임 모드 진입 ─
+    } else if (type === 'territory_claim') {
+      try { closeBaseModal(); } catch(_) {}
+      setTimeout(function(){
+        try {
+          if (typeof activateLandSelect === 'function') activateLandSelect();
+          else showToast(tl('Pick an empty spot on Mars to claim','화성의 빈 곳을 골라 클레임하세요','火星の空き地を選んでクレーム','在火星上选择空地进行占领'));
+        } catch(_) {}
+      }, 280);
+    // ─ 전투 계열 → PvP 탭 (.click 으로 로더 포함 발동) ─
     } else if (['battle_participate','battle_win','battle_participate_3','battle_win_3','battle_forfeit'].includes(type)) {
-      switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
-      switchBaseTab('pvp', document.getElementById('baseTabPvp'));
+      _opsClickTab('baseTabPvp');
     } else if (['ai_battle','ai_battle_3'].includes(type)) {
-      switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
-      switchBaseTab('pvp', document.getElementById('baseTabPvp'));
-      try { setTimeout(function(){ openAiFight(); }, 400); } catch(_) {}
-    // ─ 함선/함대 계열 ─
+      _opsClickTab('baseTabPvp');
+      try { setTimeout(function(){ if (typeof openAiFight === 'function') openAiFight(); }, 450); } catch(_) {}
+    // ─ 함선/함대 계열 → 조선소 / 함대지휘 ─
     } else if (['upgrade_ship','upgrade_ship_3','upgrade_ship_5','build_ship','repair_ship','repair_ship_3'].includes(type)) {
-      try { openShipyard(); } catch(_) {
-        switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
-      }
+      try { openShipyard(); } catch(_) { _opsClickTab('baseTabPvp'); }
     } else if (type === 'fleet_formation') {
-      try { openFleetCmd(); } catch(_) {
-        switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]'));
-      }
-    // ─ 경제 계열 ─
+      try { openFleetCmd(); } catch(_) {}
+    // ─ 경제 계열 → 마켓 탭 ─
     } else if (['craft_resource','craft_resource_3','craft_resource_5','market_list','market_buy','market_activity'].includes(type)) {
-      switchBaseCat('economy', document.querySelector('.bcat[data-cat=economy]'));
-      try { switchBaseTab('market', document.getElementById('baseTabMarket')); } catch(_) {}
-    // ─ 캠페인 계열 ─
+      _opsClickTab('baseTabMarket');
+    // ─ 캠페인 계열 → CAMPAIGN/QUESTS 탭. (이전엔 존재하지 않는 'quests' 카테고리를
+    //   switchBaseCat 에 넘겨 모든 탭이 숨겨지며 이동이 깨졌다. 실제 탭 data-cat 은 'mission'.) ─
     } else if (['campaign_progress','campaign_complete'].includes(type)) {
-      switchBaseCat('quests', document.querySelector('.bcat[data-cat=quests]'));
-      try { switchBaseTab('quests', document.getElementById('baseTabQuests')); } catch(_) {}
+      _opsClickTab('baseTabQuests');
     // ─ 자동 완료 (로그인 확인 등) ─
     } else if (type === 'daily_login') {
-      showToast(LANG==='ko'?'오늘 로그인 확인! 자동 완료됩니다.':LANG==='ja'?'今日のログイン確認！自動完了します。':LANG==='zh'?'今日登录确认！自动完成。':'Daily login confirmed! Auto-completing.', 'success');
+      showToast(LANG==='ko'?'오늘 로그인 확인! 자동 완료됩니다.':LANG==='ja'?'今日のログイン確認！自動完了します。':LANG==='zh'?'今日登录确认！自动完成。':'Daily login confirmed! Auto-completing.');
       // daily login OPS 진행도는 /api/daily/login 성공 시 서버가 처리한다.
       try { loadOpsCommandBoard(); } catch(_) {}
+    } else {
+      // 알 수 없는 타입 — 최소한 사용자에게 피드백
+      try { showToast(tl('No destination for this mission','이 작전은 이동할 화면이 없습니다','この作戦に移動先はありません','该任务无可跳转页面')); } catch(_) {}
     }
   } catch(_) {}
 };
