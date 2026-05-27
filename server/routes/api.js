@@ -3409,6 +3409,27 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
     } catch (_) {}
 
+    // ✅ [PP 일일 채굴 상한] pp_daily_earn_cap_per_user (0=무제한) — 무제한 farm/봇 파밍 방지
+    // user_mining.today_mined_pp(오늘 누적)을 기준으로 남은 한도만큼만 지급한다.
+    const _ppCapDate = now.toISOString().slice(0, 10);
+    try {
+      const ppDailyCap = parseFloat(await getSetting('pp_daily_earn_cap_per_user', '0')) || 0;
+      if (ppDailyCap > 0) {
+        const minedRes = await client.query(
+          `SELECT CASE WHEN today_date = $2 THEN COALESCE(today_mined_pp, 0) ELSE 0 END AS mined_today
+             FROM user_mining WHERE LOWER(wallet_address) = LOWER($1)`,
+          [w, _ppCapDate]
+        );
+        const minedToday = parseFloat(minedRes.rows[0]?.mined_today || 0);
+        const remaining = Math.round(Math.max(0, ppDailyCap - minedToday) * 10000) / 10000;
+        if (remaining <= 0) {
+          await client.query('ROLLBACK');
+          return res.status(429).json({ error: 'daily_pp_cap_reached', cap: ppDailyCap, minedToday });
+        }
+        if (harvestedPP > remaining) harvestedPP = remaining;
+      }
+    } catch (_) {}
+
     // Reward pool 차감
     const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
     const poolBalance = parseFloat(poolRes.rows[0].balance);

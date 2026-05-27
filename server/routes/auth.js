@@ -162,6 +162,10 @@ router.post('/register', authLimiter, async (req, res) => {
     return res.status(400).json({ error: pwError });
   }
 
+  // 시빌 방어용 클라이언트 식별자 (trust proxy=1 → req.ip 가 실제 IP)
+  const signupIp = (req.ip || req.headers['x-forwarded-for'] || '').toString().split(',')[0].trim() || null;
+  const signupUa = (req.headers['user-agent'] || '').toString().slice(0, 300) || null;
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -171,6 +175,24 @@ router.post('/register', authLimiter, async (req, res) => {
     if (existing.rows.length) {
       await client.query('ROLLBACK');
       return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    // ✅ [시빌 방어] IP당 일일 가입 캡 — 대량 계정 생성으로 가입/추천 보너스 파밍 차단
+    if (signupIp) {
+      try {
+        const capRes = await client.query("SELECT value FROM settings WHERE key = 'signup_max_per_ip_per_day'");
+        const ipCap = capRes.rows.length ? Number(capRes.rows[0].value) : 0;
+        if (ipCap > 0) {
+          const cntRes = await client.query(
+            `SELECT COUNT(*)::int AS n FROM account_signups WHERE signup_ip = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
+            [signupIp]
+          );
+          if ((cntRes.rows[0]?.n || 0) >= ipCap) {
+            await client.query('ROLLBACK');
+            return res.status(429).json({ error: 'signup_ip_limit', message: 'Too many accounts created from this network today. Please try again later.' });
+          }
+        }
+      } catch (_) { /* account_signups 미생성 환경(마이그레이션 전)에서는 캡 미적용 */ }
     }
 
     // Generate custodial wallet address
@@ -213,16 +235,43 @@ router.post('/register', authLimiter, async (req, res) => {
     // 추천인만 보상받던 단방향 구조 → 초대받은 사람도 즉시 이득 → 가입 전환율 상승.
     // 금액은 admin 설정 referral_signup_bonus_pp 로 조정(기본은 migration 227에서 시드).
     if (referredBy) {
-      const refBonusRes = await client.query("SELECT value FROM settings WHERE key = 'referral_signup_bonus_pp'");
-      const refBonus = refBonusRes.rows.length ? Number(refBonusRes.rows[0].value) : 0;
-      if (refBonus > 0) {
-        await client.query(
-          `UPDATE users SET pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
-          [walletAddress, refBonus]
-        );
-        console.log(`[Auth] Referred-signup bonus ${refBonus} PP to ${walletAddress} (ref by ${referredBy})`);
+      // ✅ [시빌 방어] 셀프추천 차단: 추천인이 같은 IP에서 최근 가입했다면 양면 보너스 미지급.
+      let selfIpReferral = false;
+      if (signupIp) {
+        try {
+          const blockRes = await client.query("SELECT value FROM settings WHERE key = 'referral_self_ip_block'");
+          const blockOn = blockRes.rows.length ? String(blockRes.rows[0].value) === 'true' : false;
+          if (blockOn) {
+            const refIpRes = await client.query(
+              `SELECT 1 FROM account_signups WHERE LOWER(wallet_address) = LOWER($1) AND signup_ip = $2 LIMIT 1`,
+              [referredBy, signupIp]
+            );
+            if (refIpRes.rows.length) selfIpReferral = true;
+          }
+        } catch (_) { /* 마이그레이션 전 환경: 차단 미적용 */ }
+      }
+      if (selfIpReferral) {
+        console.log(`[Auth] Self-IP referral suppressed (invitee ${walletAddress}, ref ${referredBy}, ip ${signupIp})`);
+      } else {
+        const refBonusRes = await client.query("SELECT value FROM settings WHERE key = 'referral_signup_bonus_pp'");
+        const refBonus = refBonusRes.rows.length ? Number(refBonusRes.rows[0].value) : 0;
+        if (refBonus > 0) {
+          await client.query(
+            `UPDATE users SET pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
+            [walletAddress, refBonus]
+          );
+          console.log(`[Auth] Referred-signup bonus ${refBonus} PP to ${walletAddress} (ref by ${referredBy})`);
+        }
       }
     }
+
+    // 시빌 포렌식/캡 집계용 가입 기록 (실패해도 가입 자체는 진행)
+    try {
+      await client.query(
+        `INSERT INTO account_signups (wallet_address, email, signup_ip, user_agent, referred_by) VALUES ($1, $2, $3, $4, $5)`,
+        [walletAddress, email.toLowerCase(), signupIp, signupUa, referredBy]
+      );
+    } catch (_) { /* account_signups 미생성 환경 */ }
 
     await client.query('COMMIT');
 

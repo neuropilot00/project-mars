@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.124 — 경제 인플레 방어: PP 일일 채굴 캡 + 시빌 방어 (EVE급 로드맵 즉시)
+
+- **v7.124 PP 일일 채굴 상한 enforce** — `pp_daily_earn_cap_per_user`(0=무제한) 설정이 정의만 되어 있고 **코드에서 한 번도 적용되지 않던** 문제 수정. `server/routes/api.js` 영토 harvest 에서 `user_mining.today_mined_pp`(오늘 누적, 날짜 리셋) 기준 남은 한도만큼만 지급하고, 소진 시 `429 daily_pp_cap_reached`. 무제한 채굴 farm/봇 파밍 차단. ⚠️ 현재 시드값 `0.3`(=$0.30/일)은 보수적이므로 운영자가 admin 경제 패널에서 실밸런스로 상향 검토 필요.
+- **v7.124 시빌(다계정) 방어** — 이메일+비번 커스터디얼 가입(온체인 서명 없음)이라 다계정 생성이 쉬워 가입/추천 PP 보너스 파밍이 가능했음. migration 229: `account_signups`(IP/UA/추천인 기록) + 설정 `signup_max_per_ip_per_day`(기본 8) + `referral_self_ip_block`(기본 true). `server/routes/auth.js`: IP당 24h 가입 캡 초과 시 `429 signup_ip_limit`, 같은 IP에서 가입한 피추천인에게는 양면 추천 보너스 미지급(셀프추천 차단), 모든 가입을 포렌식용으로 기록. trust proxy=1 이라 req.ip 가 실제 IP. 공유 IP 오탐 줄이려 캡은 보수적 시작·admin 조정 가능.
+
+검증: migration 229 로컬 적용 OK, settings 3종 확인, `node -c` api.js/auth.js 통과, 서버 부팅 무에러.
+
+## 2026-05-27 v7.112~7.123 — MMO 수평확장 마감 + 경제 익스플로잇 봉쇄 (catch-up)
+
+- **v7.112~7.117** WS Redis Pub/Sub 팬아웃(`_PUB_CH='om:ws'`), WS 연결 수 제한(DoS), 채팅 닉네임 이중 escape, SCALING.md 갱신.
+- **v7.118~7.120** `/health` 에 redis 상태(cachePing) 노출, Redis 부팅 차단/Railway IPv6 내부망(`family:0`) 프로덕션 다운 복구, 리더 선출이 Redis ready 를 기다리도록(스케줄러 미실행 사고 해소).
+- **v7.121** AI 연습전 GP/광물 보상 차단 — 무한 mint 현금화 익스플로잇 봉쇄(`battleRewards.js`).
+- **v7.122** 영토 패널 `claimId` 게이트 정규화 + 보호막 catalog 로드 — 죽은 버튼 12개(업그레이드/HIJACK/PRODUCTION/보호막 등) 복구.
+- **v7.123** 경제 헬스 모니터링 `GET /api/admin/economy/health` — 유통량/담보율(뱅크런 조기경보)/GP·PP flow(EVE MER 대응).
+
+---
+
 ## 2026-05-27 v7.108~7.111 — 함대전 화면 정리 + MMO 수평확장 기반
 
 - **v7.108** 함대전 화면 정리 — 함선/함대 주변 원 제거(난잡), PC 발사 렌더를 모바일 경량 모드(PERF_MODE)로 통일(미사일·레이저 무덤/렉 해소).
