@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.128 — 동적 PP↔GP 환율 (수급 밴딩, 하이퍼인플레 방어, 기본 OFF)
+
+고정 환율(`pp_to_gp_exchange_rate=10`)을 24h 환전 수요 기반으로 자동 밴딩 — EVE식 수급 반영 + 봇 펌핑 방어.
+
+- **migration 233** `pp_gp_rate_history` + 설정(floor 5/ceil 20/max_step_pct 2/daily_vol_target 1000/dynamic_enabled false).
+- **`services/exchangeRate.js#recomputeRate()`** — D>목표 → rate↓(GP 인플레 억제), D<목표 → rate↑. 1회 변동 ≤2%, [5,20] 하드밴드. 결과를 기존 `pp_to_gp_exchange_rate` 설정에 써서 read 경로 무변경 + 히스토리 기록.
+- **스케줄러** `index.js` RUN_SCHEDULERS 게이트 하 1h 주기(리더 인스턴스만).
+- **검증**: D=0→target=1000 → +2% step-cap 상승(10→10.2→10.404), 밴드/스텝캡 정상, 복원 OK. 기본 OFF라 켜기 전 동작 무변경.
+- ⚠️ 역방향(GP→PP) 추가 시 round-trip 차익 방지 위해 spread(양방향 fee) 필수 — 후속.
+
 ## 2026-05-27 v7.127 — 함선 영구파괴 토글 (EVE full-loss 수요엔진, 기본 OFF)
 
 EVE 경제의 심장 = "전투로 함선 영구파괴 → 재건조 수요 → 생산/시장 순환". 현재 게임은 하이젝 전투에서 함선 HP만 깎고 보존(의도된 설계)이고, 일반 전투(AI/토너먼트)는 원래부터 영구파괴.

@@ -1055,6 +1055,13 @@ async function start() {
       console.log('[warBetting] closeExpiredEvents scheduler started (60s interval)');
     } catch(e) { console.warn('[warBetting] Could not init scheduler:', e.message); }
 
+    // ── 동적 PP↔GP 환율 재계산 (every 1 hour, 기본 OFF) [v7.128] ──
+    try {
+      const { recomputeRate } = require('./services/exchangeRate');
+      setInterval(() => recomputeRate().catch((e) => console.warn('[exchangeRate] recompute error:', e.message)), 60 * 60 * 1000);
+      console.log('[exchangeRate] dynamic PP→GP rate scheduler started (1h interval, default OFF)');
+    } catch(e) { console.warn('[exchangeRate] Could not init scheduler:', e.message); }
+
     // ── Auction: Settle Expired Auctions (every 5 minutes) ──
     try {
       const { settleExpiredAuctions } = require('./services/auction');
