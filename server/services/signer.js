@@ -1,10 +1,13 @@
 const { ethers } = require('ethers');
 
-// Chain configs matching frontend + smart contract
+// Chain configs matching frontend + smart contract.
+// chainId 는 env 로 오버라이드 가능(테스트넷 대응): 미설정 시 mainnet 기본.
+//   Base mainnet 8453 / Base Sepolia 84532, BNB mainnet 56 / testnet 97, ETH mainnet 1 / Sepolia 11155111.
+// ⚠️ chainId 는 출금 서명 해시에 포함되므로 컨트랙트가 배포된 체인의 chainId 와 반드시 일치해야 함.
 const CHAINS = {
-  base: { chainId: 8453, decimals: 6, rpcEnvKey: 'BASE_RPC_URL', depositEnvKey: 'BASE_DEPOSIT_ADDRESS' },
-  bnb:  { chainId: 56,   decimals: 18, rpcEnvKey: 'BNB_RPC_URL',  depositEnvKey: 'BNB_DEPOSIT_ADDRESS' },
-  eth:  { chainId: 1,    decimals: 6, rpcEnvKey: 'ETH_RPC_URL',   depositEnvKey: 'ETH_DEPOSIT_ADDRESS' }
+  base: { chainId: parseInt(process.env.BASE_CHAIN_ID || '8453', 10) || 8453, decimals: 6, rpcEnvKey: 'BASE_RPC_URL', depositEnvKey: 'BASE_DEPOSIT_ADDRESS' },
+  bnb:  { chainId: parseInt(process.env.BNB_CHAIN_ID  || '56', 10)   || 56,   decimals: 18, rpcEnvKey: 'BNB_RPC_URL',  depositEnvKey: 'BNB_DEPOSIT_ADDRESS' },
+  eth:  { chainId: parseInt(process.env.ETH_CHAIN_ID  || '1', 10)    || 1,    decimals: 6, rpcEnvKey: 'ETH_RPC_URL',   depositEnvKey: 'ETH_DEPOSIT_ADDRESS' }
 };
 
 const DEPOSIT_ABI = [

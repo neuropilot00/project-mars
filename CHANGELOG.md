@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.141 — Base 체인 테스트넷 연결 준비 (실지갑 입출금 테스트)
+
+실유저 지갑 입출금(USDT) 테스트를 위한 Base 체인 연결 코드 정비. **온체인 작업(컨트랙트 배포·키·자금·RPC)은 운영자 몫** — 코드/문서로 핸드오프.
+
+- **🐞 chainId 하드코딩 제거** (`server/services/signer.js`): `base.chainId=8453`(메인넷) 고정 → `BASE_CHAIN_ID` env 오버라이드(미설정 시 8453). 테스트넷은 `BASE_CHAIN_ID=84532`만 설정. BNB/ETH 도 동일 패턴. **chainId 는 출금 서명 해시에 포함**되므로 컨트랙트 배포 체인과 일치 필수였던 블로커 해소.
+- **교차 검증**: `contracts/MarsDeposit.sol` 이 입금 이벤트/출금 서명 모두 `block.chainid` 사용 → Base Sepolia 84532. 서버 서명도 84532 → **서명 검증 일치 확인**. 입금 리스너(`chain.js`)는 chainId 하드코딩 없음(RPC/주소 env 만 필요).
+- **`.env.testnet.example` 생성**: BASE_CHAIN_ID/RPC/DEPOSIT_ADDRESS/SIGNER_PRIVATE_KEY/TREASURY + 백필 튜닝 + 표준 서버 env 안내.
+- **런북 §2 갱신**(`docs/BASE_TESTNET_RUNBOOK.md`): chainId env 오버라이드 완료 표기 + 프론트 체인 라벨은 표시용(실입금 대상은 서버 env)이라는 주의.
+- 검증: env 미설정→8453 / `BASE_CHAIN_ID=84532`→84532, signer.js 문법 OK.
+
 ## 2026-05-28 v7.140 — 영토 등급 → 마켓/드롭 확장 (자산관리 루프 전방위)
 
 자산관리(영토 등급) 루프를 마켓·드롭에 **경제적으로 건전하게** 확장. (가격 직접 커플링은 자유시장 왜곡이라 비채택)

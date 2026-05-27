@@ -20,12 +20,13 @@
 - [ ] **RPC** — `https://sepolia.base.org` (공용) 또는 Alchemy/Infura의 Base Sepolia 엔드포인트(권장).
 - [ ] **서명자 키** — 출금 승인용 별도 키페어 생성. 이 키의 주소를 컨트랙트 `signer`로 설정.
 
-## 2. ⚠️ 코드 선반영 (테스트넷 chainId)
-`server/services/signer.js`의 `base.chainId`가 **8453(메인넷)으로 하드코딩**되어 있습니다.
-테스트넷 출금 서명을 검증하려면 chainId가 **84532**로 일치해야 합니다. 둘 중 하나:
-- (a) 테스트 동안 `signer.js`의 `base.chainId`를 `84532`로 임시 변경, 또는
-- (b) `BASE_CHAIN_ID` 환경변수로 오버라이드하도록 코드 보강(권장, 메인넷 전환 시 코드수정 불필요).
-> (b)를 원하면 말씀 주세요 — `signer.js`/`chain.js`가 env로 chainId를 읽도록 패치해 드리겠습니다.
+## 2. ✅ 코드 선반영 완료 (테스트넷 chainId env 오버라이드)
+**(v7.141) 적용됨** — `server/services/signer.js`의 chainId 하드코딩 제거, 이제 **env 로 오버라이드**:
+- `BASE_CHAIN_ID` 미설정 → 8453(메인넷 기본). 테스트넷은 **`BASE_CHAIN_ID=84532`** 설정만 하면 됨(코드수정 불필요).
+- 컨트랙트(`MarsDeposit.sol`)는 입금/출금 모두 `block.chainid` 사용 → Base Sepolia 에서 84532. 서버 서명도 84532 가 되어 **서명 검증 일치**(교차 확인 완료).
+- 같은 패턴으로 `BNB_CHAIN_ID`(testnet 97) / `ETH_CHAIN_ID`(Sepolia 11155111) 오버라이드 가능.
+- 입금 리스너(`chain.js`)는 chainId 하드코딩 없음 — RPC/주소 env 만 설정하면 동작.
+> ⚠️ 프론트 입금 UI 의 체인 라벨(`index.html` ~16149, `chainIdDec:8453 name:'Base'`)은 **표시용**. 실제 입금 대상은 서버 env `BASE_DEPOSIT_ADDRESS`(테스트넷 컨트랙트)라 자금은 올바른 곳으로 가지만, 테스터 혼동 방지 위해 테스트 중 "테스트넷" 별도 안내 권장.
 
 ## 3. 컨트랙트 배포 (Base Sepolia)
 1. [ ] `contracts/MarsDeposit.sol` 컴파일 (Hardhat/Foundry). OpenZeppelin 의존성 설치.
