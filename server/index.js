@@ -187,6 +187,10 @@ const hofRoutes         = require('./routes/hallOfFameRoutes'); // Hall of Fame 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
 const PORT = process.env.PORT || 3000;
+// 수평 확장용: 스케줄러(setInterval 잡)와 온체인 입금 리스너를 어느 인스턴스에서 돌릴지 게이트.
+// 기본 true(단일 인스턴스 하위호환). 여러 web 인스턴스로 확장할 땐 web=false, 워커 1개만 true.
+// (false 인데도 켜지 않으면 중복 스폰/중복 입금 크레딧이 발생하므로 워커 정확히 1개만 true)
+const RUN_SCHEDULERS = process.env.RUN_SCHEDULERS !== 'false';
 
 // ── Security Headers ──
 app.use((req, res, next) => {
@@ -716,9 +720,14 @@ async function start() {
       console.warn('[boot] cantina enable failed:', cErr.message);
     }
 
-    // Initialize withdrawal signer
+    // Initialize withdrawal signer (모든 인스턴스 — 출금 서명은 web API에서 처리)
     initSigner();
 
+    // ── 워커 게이트 시작 ──────────────────────────────────────────
+    // 온체인 입금 리스너 + 모든 스케줄러는 RUN_SCHEDULERS 인스턴스에서만 실행한다.
+    // 수평 확장 시 web 인스턴스(RUN_SCHEDULERS=false)는 이 블록을 건너뛰어 중복 스폰 및
+    // 중복 입금 크레딧을 방지. 워커는 정확히 1개만 RUN_SCHEDULERS=true 로 둔다.
+    if (RUN_SCHEDULERS) {
     // Start on-chain event listeners
     await startListeners();
 
@@ -1543,6 +1552,11 @@ async function start() {
       }, 60 * 60 * 1000); // 매 1시간마다 UTC 체크
       console.log('[RETURN-HOOK] Inactive user reminder scheduler started (1h check)');
     } catch(e) { console.warn('[RETURN-HOOK] Could not init scheduler:', e.message); }
+
+    } else {
+      console.log('[WORKER-GATE] RUN_SCHEDULERS=false — 스케줄러/온체인 리스너 스킵 (web 인스턴스 모드)');
+    }
+    // ── 워커 게이트 끝 ────────────────────────────────────────────
 
     // Start HTTP server
     const server = app.listen(PORT, () => {
