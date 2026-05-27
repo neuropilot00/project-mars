@@ -1587,6 +1587,27 @@ async function start() {
       console.log('[RETURN-HOOK] Inactive user reminder scheduler started (1h check)');
     } catch(e) { console.warn('[RETURN-HOOK] Could not init scheduler:', e.message); }
 
+    // ── NPC Arena: NPC끼리 다투기(인파이팅) + 초반 밀도 유지 ──
+    //  유령도시 방지 — NPC 함대가 주기적으로 서로 함대전(NPC↔NPC). 보상 mint 0 (is_ai_battle).
+    //  기본 OFF (npc_arena_enabled). leader 인스턴스에서만 도는 _runSchedulers 블록 내부.
+    try {
+      const npcArena = require('./services/npcArena');
+      // 함대전 생성 tick (설정 주기, 기본 120s) — DB 설정으로 게이팅되므로 interval 은 보수적으로 잡고 내부에서 enabled 체크
+      setInterval(async () => {
+        try {
+          const r = await npcArena.runArenaTick();
+          if (r && r.spawned) console.log(`[npcArena] tick: spawned battle ${r.battle_id}`);
+        } catch(e) { console.warn('[npcArena] arena tick error:', e.message); }
+      }, 120 * 1000);
+      // 밀도 보충 tick (5분마다 활성 NPC 함대 수 확인 후 부족분 보충)
+      setInterval(async () => {
+        try {
+          await npcArena.ensureNpcDensity();
+        } catch(e) { console.warn('[npcArena] density tick error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[npcArena] NPC arena scheduler started (arena 120s, density 5min — gated by npc_arena_enabled)');
+    } catch(e) { console.warn('[npcArena] Could not init scheduler:', e.message); }
+
     } else {
       console.log('[WORKER-GATE] 비리더(web 인스턴스 모드) — 스케줄러/온체인 리스너 스킵');
     }
