@@ -51482,7 +51482,7 @@ async function loadChatMessages() {
       div.className = 'chat-msg';
       const nick = m.nickname || (m.wallet || '').substring(0, 8);
       const t = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      div.innerHTML = '<span class="chat-msg-nick">' + nick + '</span><span class="chat-msg-text">' + _escapeHtml(m.message) + '</span><span class="chat-msg-time">' + t + '</span>';
+      div.innerHTML = '<span class="chat-msg-nick">' + _escapeHtml(nick) + '</span><span class="chat-msg-text">' + _escapeHtml(m.message) + '</span><span class="chat-msg-time">' + t + '</span>';
       container.appendChild(div);
     });
     if (wasAtBottom || !_chatExpanded) {

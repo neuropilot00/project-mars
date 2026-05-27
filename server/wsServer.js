@@ -24,6 +24,29 @@ const _channels = new Map();
 const _live = new Set();
 let _wss = null;
 
+// ── WS 연결 수 제한 (DoS 방어) ── upgrade 는 express rate limiter 밖이라 자체 캡 필요.
+const WS_MAX_TOTAL = parseInt(process.env.WS_MAX_TOTAL || '20000', 10) || 20000;
+const WS_MAX_PER_IP = parseInt(process.env.WS_MAX_PER_IP || '50', 10) || 50;
+const _ipConns = new Map(); // ip -> count
+function _clientIp(req) {
+  const xff = (req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return xff || (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+function _totalConns() { return _live.size + (() => { let n = 0; for (const s of _channels.values()) n += s.size; return n; })(); }
+function _admitConn(req) {
+  if (_totalConns() >= WS_MAX_TOTAL) return false;
+  const ip = _clientIp(req);
+  const c = _ipConns.get(ip) || 0;
+  if (c >= WS_MAX_PER_IP) return false;
+  _ipConns.set(ip, c + 1);
+  return true;
+}
+function _releaseConn(ip) {
+  if (!ip) return;
+  const c = (_ipConns.get(ip) || 1) - 1;
+  if (c <= 0) _ipConns.delete(ip); else _ipConns.set(ip, c);
+}
+
 function _verifyToken(token) {
   if (!token || !process.env.JWT_SECRET) return null;
   try {
@@ -40,30 +63,27 @@ function attachWsServer(httpServer) {
   httpServer.on('upgrade', (req, socket, head) => {
     const parsed = url.parse(req.url, true);
     const path = parsed.pathname || '';
-    // 경로 매칭: /ws/battle/{id}
-    const m = /^\/ws\/battle\/(\d+)$/.exec(path);
-    if (m) {
-      const battleId = parseInt(m[1]);
+    const isBattle = /^\/ws\/battle\/(\d+)$/.exec(path);
+    const isLive = path === '/ws/live';
+    if (!isBattle && !isLive) { socket.destroy(); return; }
+    // DoS 방어: 전역/IP별 연결 상한 초과 시 거부
+    if (!_admitConn(req)) { try { socket.write('HTTP/1.1 429 Too Many Requests\r\n\r\n'); } catch (_) {} socket.destroy(); return; }
+    const ip = _clientIp(req);
+    if (isBattle) {
+      const battleId = parseInt(isBattle[1]);
       const wallet = _verifyToken(parsed.query.token); // 인증 실패해도 read-only 허용 (관전 모드)
       _wss.handleUpgrade(req, socket, head, (ws) => {
-        ws.battleId = battleId;
-        ws.wallet = wallet;
+        ws.battleId = battleId; ws.wallet = wallet; ws._ip = ip;
         _wss.emit('connection', ws, req);
       });
       return;
     }
     // 라이브 채널: /ws/live (채팅 + 활동피드 푸시)
-    if (path === '/ws/live') {
-      const wallet = _verifyToken(parsed.query.token);
-      _wss.handleUpgrade(req, socket, head, (ws) => {
-        ws.isLive = true;
-        ws.wallet = wallet;
-        ws.subs = new Set();
-        _wss.emit('connection', ws, req);
-      });
-      return;
-    }
-    socket.destroy();
+    const wallet = _verifyToken(parsed.query.token);
+    _wss.handleUpgrade(req, socket, head, (ws) => {
+      ws.isLive = true; ws.wallet = wallet; ws.subs = new Set(); ws._ip = ip;
+      _wss.emit('connection', ws, req);
+    });
   });
 
   _wss.on('connection', (ws) => {
@@ -110,6 +130,7 @@ function attachWsServer(httpServer) {
         set.delete(ws);
         if (set.size === 0) _channels.delete(bid);
       }
+      _releaseConn(ws._ip);
     });
 
     ws.on('error', () => {}); // silent — close 가 대신 처리
@@ -203,7 +224,7 @@ function _handleLive(ws) {
       try { ws.send(JSON.stringify({ type: 'pong' })); } catch (_) {}
     }
   });
-  ws.on('close', () => _live.delete(ws));
+  ws.on('close', () => { _live.delete(ws); _releaseConn(ws._ip); });
   ws.on('error', () => {});
 }
 
