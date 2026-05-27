@@ -221,13 +221,17 @@ app.get('/health', async (req, res) => {
   // 리더(스케줄러/입금 리스너 실행) 여부 노출 — 모니터링이 "워커 0개" 사고를 감지하도록.
   let leaderStatus = false;
   try { leaderStatus = require('./services/leader').isLeader(); } catch (_) {}
+  // Redis 실제 연결 상태 (off=인메모리 / ok=연결 / down=끊김) — 멀티 인스턴스 검증·모니터링.
+  let redisStatus = 'off';
+  try { redisStatus = await require('./services/cache').cachePing(); } catch (_) {}
   res.status(httpStatus).json({
     status,
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     database: dbStatus,
     memory: memoryMB,
-    scheduler_leader: leaderStatus  // ⚠️ 전체 인스턴스에서 모두 false면 워커 0개 = 입금 처리 중단 경보
+    scheduler_leader: leaderStatus,  // ⚠️ 전체 인스턴스에서 모두 false면 워커 0개 = 입금 처리 중단 경보
+    redis: redisStatus               // off=인메모리, ok=Redis 연결, down=Redis 끊김
   });
 });
 

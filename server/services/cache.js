@@ -64,4 +64,14 @@ async function cacheDel(key) {
 
 function cacheMode() { return _mode; }
 
-module.exports = { cacheGet, cacheSet, cacheDel, cacheMode };
+// 실제 Redis 연결 상태 점검 (모니터링/배포 검증용).
+//   'off'  = REDIS_URL 미설정(인메모리 모드)
+//   'ok'   = Redis 연결 + PING 응답
+//   'down' = REDIS_URL 설정됐으나 PING 실패(연결 끊김)
+async function cachePing() {
+  if (!_redis) return 'off';
+  try { const r = await _redis.ping(); return r === 'PONG' ? 'ok' : 'down'; }
+  catch (_) { return 'down'; }
+}
+
+module.exports = { cacheGet, cacheSet, cacheDel, cacheMode, cachePing };
