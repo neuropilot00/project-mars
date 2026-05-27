@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.138 — 재료 수급 균형 보정 (신규 유저 진행 봉쇄 해소)
+
+경제 균형 감사(전문가 에이전트) 결과 진행 차단 2건 해소 — **소스(faucet) 추가만**, 레시피/요구량 무변경(기존 빌드 밸런스 무영향).
+
+- **migration 239**: (1) frontier(신규존)에 tier-2 제작재료(titanium_alloy 0.08/plasma_crystal 0.06/nano_polymer 0.06) 추가 → 신규 유저 **cruiser 제작 진입로** 개방(기존 frontier=0이라 제작 불가였음). (2) mid 섹터에 t3(exotic_alloy 0.03/dark_matter 0.025/quantum_core 0.02) 추가 → **BS/Titan 진입로** 개방(기존 core 섹터 독점 봉쇄 완화).
+- 감사 추가 발견(후속 검토): xenomatter/hull_plate/meteorite_fragment 등 sink 없는 "고사 재료"는 레시피 변경 필요 → 밸런스 영향 커서 별도 디자인 검토 후 적용.
+
 ## 2026-05-28 v7.137 — 레벨별 탭 해금 (온보딩 단계화)
 
 BASE 모달 고급 탭을 레벨로 단계 해금 — 신규 유저 과부하 완화 + 레벨업에 의미 부여. 핵심 초반 루프는 항상 열림.
