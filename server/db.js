@@ -437,12 +437,35 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
     const commissionPool = baseAmount * (triggerPct / 100);
     const credited = [];
 
+    // Operator-safety: per-upline daily commission cap (anti-farming/anti-inflation).
+    // 0 / unset = no cap (legacy behavior preserved). Configurable per-currency via admin
+    // settings: referral_daily_cap_pp / referral_daily_cap_gp / referral_daily_cap_usdt.
+    const capKey = cur === 'usdt' ? 'referral_daily_cap_usdt' : cur === 'gp' ? 'referral_daily_cap_gp' : 'referral_daily_cap_pp';
+    const dailyCap = parseFloat(await getSetting(capKey)) || 0;
+    const capSumCol = cur === 'gp' ? 'gp_amount' : 'pp_amount';
+
     for (const ref of chain) {
       const tierIdx = ref.tier - 1;
       const pct = tierPcts[tierIdx] || 0;
       if (pct <= 0) continue;
-      const reward = Math.round(commissionPool * (pct / 100) * 1000000) / 1000000;
+      let reward = Math.round(commissionPool * (pct / 100) * 1000000) / 1000000;
       if (reward <= 0) continue;
+
+      // Clamp to the upline's remaining daily cap, if a cap is configured.
+      if (dailyCap > 0) {
+        let earnedToday = 0;
+        try {
+          const er = await client.query(
+            `SELECT COALESCE(SUM(${capSumCol}), 0) AS s FROM referral_rewards
+             WHERE LOWER(to_wallet) = LOWER($1) AND currency = $2 AND created_at >= date_trunc('day', NOW())`,
+            [ref.wallet, cur]
+          );
+          earnedToday = parseFloat(er.rows[0]?.s || 0);
+        } catch (_capErr) { earnedToday = 0; /* schema 미지원 시 캡 미적용(안전 degrade) */ }
+        const remaining = dailyCap - earnedToday;
+        if (remaining <= 0) continue;                 // 오늘 상한 도달 — 이 업라인 스킵
+        if (reward > remaining) reward = Math.round(remaining * 1000000) / 1000000;
+      }
 
       // Credit upline balance (correct column per currency)
       await client.query(
