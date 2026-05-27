@@ -74,11 +74,10 @@ async function getCurrentValue(wallet, conditionType) {
       )) || 0;
 
     case 'referral_count':
+      // referred_by 에는 추천인의 wallet_address 가 저장된다(auth.js). 과거엔 referral_code 와
+      // 비교해 항상 0이 나오던 버그가 있었음. 지갑 기준으로 비교하도록 수정.
       return parseInt(await safeNumeric(
-        `SELECT COUNT(*) AS n FROM users
-          WHERE referred_by = (
-            SELECT referral_code FROM users WHERE wallet_address = $1 LIMIT 1
-          )`, [w]
+        `SELECT COUNT(*) AS n FROM users WHERE LOWER(referred_by) = LOWER($1)`, [w]
       )) || 0;
 
     case 'cosmetic_count':

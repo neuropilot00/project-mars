@@ -93,7 +93,9 @@ async function recalcUserRank(walletAddress, opts = {}) {
                 have = parseInt(r.rows[0].cnt);
                 met = have >= c.min;
               } else if (c.type === 'referrals') {
-                const r = await client.query('SELECT COUNT(*)::int AS cnt FROM users WHERE referred_by = (SELECT referral_code FROM users WHERE wallet_address = $1)', [w]);
+                // referred_by 에는 추천인의 wallet_address 가 저장됨(auth.js). 과거 referral_code
+                // 비교는 항상 0을 반환하던 버그 — 지갑 기준 비교로 수정.
+                const r = await client.query('SELECT COUNT(*)::int AS cnt FROM users WHERE LOWER(referred_by) = LOWER($1)', [w]);
                 have = parseInt(r.rows[0].cnt);
                 met = have >= c.min;
               } else {
