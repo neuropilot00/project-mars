@@ -389,16 +389,28 @@ function getTodayWeeklyEvent() {
 }
 
 module.exports = router;
+// 게임 행동(채굴/전투/강화/제작 등)이 완료될 때 각 라우트/서비스에서 호출한다.
+// ⚠️ 날짜 정합: GET /:wallet, ensureDailyMissions, POST /progress 는 모두
+//   new Date().toISOString().slice(0,10) (UTC 날짜)로 ops_date 를 쓴다.
+//   기존엔 여기만 CURRENT_DATE(=DB 세션 타임존, 현재 Asia/Tokyo)를 써서,
+//   JST 00:00~09:00(UTC 전날) 구간에는 표시 미션(UTC 날짜)과 진행도 UPDATE 대상
+//   (CURRENT_DATE=JST 날짜)이 어긋나 0행 매칭 → 완료해도 녹색으로 안 바뀌었다.
+//   UTC 날짜로 통일한다.
+// 또한 작전보드를 한 번도 열지 않은 상태(미션 행 미생성)에서 행동하면 UPDATE 대상이
+//   없으므로, 먼저 ensureDailyMissions 로 오늘 미션 행을 보장한다.
 module.exports.notifyMissionProgress = async function(wallet, missionType) {
   if (!wallet || !missionType) return;
   try {
+    const w = wallet.toLowerCase();
+    await ensureDailyMissions(w);
+    const today = new Date().toISOString().slice(0, 10); // UTC — GET/ensureDailyMissions 와 동일 기준
     await pool.query(
       `UPDATE daily_ops
        SET current_count = LEAST(target_count, current_count + 1),
            completed = CASE WHEN LEAST(target_count, current_count + 1) >= target_count THEN TRUE ELSE completed END,
            completed_at = CASE WHEN LEAST(target_count, current_count + 1) >= target_count AND completed = FALSE THEN NOW() ELSE completed_at END
-       WHERE wallet_address = $1 AND ops_date = CURRENT_DATE AND mission_type = $2 AND completed = FALSE`,
-      [wallet.toLowerCase(), missionType]
+       WHERE wallet_address = $1 AND ops_date = $2 AND mission_type = $3 AND completed = FALSE`,
+      [w, today, missionType]
     );
   } catch (_) {}
 };

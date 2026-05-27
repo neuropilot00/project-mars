@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.95 — 작전보드 진행도 날짜 불일치 수정 (완료해도 녹색 안 되던 버그)
+
+**증상:** 작전보드 미션을 실제로 완료해도(채굴/전투/강화 등) 🟢 녹색/완료로 안 바뀌는 경우가 있음.
+
+**원인 (`server/routes/dailyOps.js` `notifyMissionProgress`):**
+- 미션 생성/조회(`ensureDailyMissions`, `GET /:wallet`, `POST /progress`)는 `new Date().toISOString().slice(0,10)` = **UTC 날짜** 기준으로 `ops_date`를 사용.
+- 그런데 실제 게임 행동(30종 전부: 채굴/전투/강화/제작/클레임/캠페인/로그인 등)이 호출하는 `notifyMissionProgress`만 `ops_date = CURRENT_DATE`(= DB 세션 타임존, 현재 **Asia/Tokyo**)를 사용.
+- DB 타임존이 UTC가 아니라 **매일 JST 00:00~09:00(UTC 전날) 9시간 동안** 표시 미션(UTC 날짜)과 진행도 UPDATE 대상(JST 날짜)이 어긋나 0행 매칭 → 진행도 유실 → 완료해도 녹색 안 됨.
+- 추가로 `notifyMissionProgress`가 `ensureDailyMissions`를 호출하지 않아, 작전보드를 한 번도 안 연 상태에서 행동하면 미션 행이 없어 진행도가 유실됨.
+
+**수정:**
+- `notifyMissionProgress`를 UTC 날짜(`toISOString().slice(0,10)`)로 통일 → 생성/조회/진행도 모두 동일 기준.
+- 진행도 기록 전에 `ensureDailyMissions(w)` 호출 → 보드 미오픈 상태의 행동도 정상 집계.
+
+**검증:** 백엔드 직접 호출 테스트 — 오늘(수) combo `harvest_3`(target=3)을 누적 호출 시 `current_count:3, completed:true`로 정상 전환 확인. 전체 미션 30종에 progress 훅 연결 확인(fleets/ships/crafting/api/battleScheduler/campaign 등).
+
+---
+
 ## 2026-05-27 v7.94 — 작전보드 GO 버튼 이동 수정
 
 **증상:** 오늘의 작전 보드에서 GO를 눌러도 화면 이동이 안 됨.
