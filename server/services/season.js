@@ -406,6 +406,24 @@ async function claimSeasonReward(wallet, rewardId) {
         rewardLabel = reward.reward_amount + 'x ' + meta.item_code;
       }
     } else if (reward.reward_type === 'usdt') {
+      // ✅ [솔벤시] USDT 보상도 미담보 발행이므로 담보 여유분(room) 이내만 지급 — 뱅크런 불변식 유지.
+      // 운영자가 redemption 담보를 적립해야 USDT 보상이 지급 가능(부족 시 보상 청구 보류).
+      const usdtReward = Number(reward.reward_amount) || 0;
+      if (usdtReward > 0) {
+        try {
+          const _treasury = require('./treasury');
+          if (await _treasury.guardEnabled(getSetting)) {
+            const { room } = await _treasury.lockRoom(client);
+            if (usdtReward > room + 1e-9) {
+              await client.query('ROLLBACK');
+              return { success: false, error: 'usdt_reward_collateral_insufficient', room, required: usdtReward };
+            }
+          }
+        } catch (e) {
+          if (!(e && e.code)) { await client.query('ROLLBACK'); return { success: false, error: 'treasury_guard_error' }; }
+          /* treasury_ledger 미생성 환경 → 가드 미적용 */
+        }
+      }
       await client.query('UPDATE users SET usdt_balance = usdt_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [reward.reward_amount, wallet]);
       rewardLabel = reward.reward_amount + ' USDT';

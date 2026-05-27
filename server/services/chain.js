@@ -256,7 +256,9 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     );
 
     // ✅ [솔벤시] 실입금 USDT 만큼 담보(collateral) 증액 — usdt_balance 와 함께 늘어 불변식 유지.
-    try { await require('./treasury').adjustCollateral(client, amountNum); } catch (_) {}
+    // 실패를 삼키면 collateral 누락(과소담보)이 되므로 던져서 트랜잭션 전체 롤백 → 입금은
+    // tx_hash 중복 가드로 멱등 재처리되니 안전(Codex 검토 반영).
+    await require('./treasury').adjustCollateral(client, amountNum);
 
     // Insert deposit record
     await client.query(

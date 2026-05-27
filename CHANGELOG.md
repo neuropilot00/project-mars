@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.126 — 뱅크런 수정 하드닝 (Codex 독립검토 반영)
+
+Codex 독립 검토가 v7.125 에서 찾은 결함 3개 보강(현재 USDT=0 이라 즉시 영향은 없으나 실입금 개시 전 차단):
+- **담보 초기식 보정** (migration 231) — 230 은 출금을 `type='withdraw'` 만 차감했으나 `/withdraw-all` 은 `type='withdraw_all'`(실유출=usdt+pp−fee)로 기록되어 누락. 운영자 `treasury_topup` 도 반영. 진짜 담보=입금−(withdraw+withdraw_all)+적립.
+- **season.js USDT 보상 가드** — 시즌 보상 `reward_type='usdt'` 가 room 가드 없이 usdt_balance 를 mint 하던 불변식 누수 차단. room 부족 시 보상 청구 보류.
+- **chain.js 입금 담보 동기화 강화** — `adjustCollateral` 실패를 `catch(_){}` 로 삼키던 것을 제거. 실패 시 트랜잭션 롤백(입금은 tx_hash 멱등 재처리되어 안전).
+
 ## 2026-05-27 v7.125 — 뱅크런 구조적 차단: Treasury 담보 원장 + 솔벤시 가드 (EVE급 핵심)
 
 경제 진단의 **#1 실존 리스크**(미담보 PP가 실USDT로 환금 → 먼저 빠진 PP파머가 트레저리를 말려 실예치자 출금불가 = 뱅크런) 봉쇄.
