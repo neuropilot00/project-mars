@@ -37926,7 +37926,9 @@ function _authSaveStatus() {
   else {
     var w = walletState && walletState.address;
     if (!w || !v.trim()) return;
-    fetch('/api/profile/status', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({ wallet:w, status:v.trim() }) })
+    // 정확한 엔드포인트는 /api/status/set (setMyStatus 와 동일). 과거 /api/profile/status 는
+    // 백엔드에 없어 404 → 거짓 성공 토스트가 뜨던 버그였음. [v7.98]
+    fetch('/api/status/set', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({ wallet:w, status:v.trim() }) })
       .then(function(r){return r.json();}).then(function(d){ showToast(d.error?d.error:'Status updated!', d.error?'error':'success'); });
   }
 }
