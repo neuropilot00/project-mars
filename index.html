@@ -5632,6 +5632,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="wallet-actions">
         <button class="wa-btn dep" onclick="openDepositModal()" data-i18n="deposit_btn">DEPOSIT</button>
         <button class="wa-btn wdr" onclick="openWithdrawModal()" data-i18n="withdraw_btn">WITHDRAW</button>
+        <button class="wa-btn" onclick="openExportKeyModal()" style="background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--gold)" data-i18n="export_key_btn">🔑 KEY</button>
       </div>
       <div class="wallet-actions">
         <button class="wa-btn swp" onclick="openSwapModal()">PP→USDT</button>
@@ -6128,6 +6129,37 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
       <button class="cfm" id="wdrConfirmBtn" onclick="confirmWithdraw()">REQUEST WITHDRAWAL</button>
       <div class="mn">Server verifies → Signs → You execute on-chain</div>
+    </div>
+  </div>
+</div>
+
+<!-- Export Private Key Modal (자동 커스터디 키 열람 + 면책) -->
+<div class="mbg" id="exportKeyModal">
+  <div class="mdl" style="width:420px">
+    <div class="mhd">
+      <span class="mtl" data-i18n="export_key_title">🔑 EXPORT WALLET KEY</span>
+      <button class="mx" onclick="closeExportKeyModal()">×</button>
+    </div>
+    <div class="mbd">
+      <div id="exportKeyWarn">
+        <div style="background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.35);border-radius:8px;padding:12px;margin-bottom:12px;font-size:11px;line-height:1.6;color:#ffaaaa" data-i18n="export_key_disclaimer">
+          ⚠ This reveals your wallet's PRIVATE KEY. Anyone with this key controls your funds. Store it offline and never share it. <b>You alone are responsible — if it is lost or stolen, the operator cannot recover it or your assets.</b>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tx2);margin-bottom:10px;cursor:pointer">
+          <input type="checkbox" id="exportKeyAck" onchange="document.getElementById('exportKeyRevealBtn').disabled=!this.checked">
+          <span data-i18n="export_key_ack">I understand and accept full responsibility for safekeeping my key.</span>
+        </label>
+        <input type="password" id="exportKeyPw" placeholder="Confirm your password" data-i18n-placeholder="export_key_pw_ph" style="width:100%;box-sizing:border-box;padding:8px;margin-bottom:10px;background:var(--surface1);border:1px solid var(--bdr);border-radius:6px;color:var(--tx);font-size:12px">
+        <button class="cfm" id="exportKeyRevealBtn" onclick="confirmRevealKey()" disabled data-i18n="export_key_reveal_btn">REVEAL PRIVATE KEY</button>
+      </div>
+      <div id="exportKeyResult" style="display:none">
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:4px" data-i18n="export_key_addr">ADDRESS</div>
+        <div id="exportKeyAddr" style="font-family:monospace;font-size:11px;word-break:break-all;background:var(--surface1);padding:8px;border-radius:6px;margin-bottom:10px"></div>
+        <div style="font-size:10px;color:var(--tx3);margin-bottom:4px" data-i18n="export_key_priv">PRIVATE KEY</div>
+        <div id="exportKeyPriv" style="font-family:monospace;font-size:11px;word-break:break-all;background:var(--surface1);padding:8px;border-radius:6px;margin-bottom:10px;color:var(--gold)"></div>
+        <button class="cfm" onclick="copyExportKey()" data-i18n="export_key_copy">📋 COPY KEY</button>
+        <div class="mn" style="color:#ffaaaa" data-i18n="export_key_close_warn">Close this window after saving. The key will not be shown again automatically.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -16277,6 +16309,54 @@ function openWithdrawModal(){
   document.getElementById('withdrawModal').classList.add('open');
 }
 function closeWithdrawModal(){document.getElementById('withdrawModal').classList.remove('open')}
+
+// ── Export Private Key (자동 커스터디 키 열람 + 면책) ──
+function openExportKeyModal(){
+  if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
+  // reset state
+  document.getElementById('exportKeyWarn').style.display='';
+  document.getElementById('exportKeyResult').style.display='none';
+  var ack=document.getElementById('exportKeyAck'); if(ack) ack.checked=false;
+  var btn=document.getElementById('exportKeyRevealBtn'); if(btn) btn.disabled=true;
+  document.getElementById('exportKeyAddr').textContent='';
+  document.getElementById('exportKeyPriv').textContent='';
+  document.getElementById('exportKeyModal').classList.add('open');
+}
+function closeExportKeyModal(){
+  document.getElementById('exportKeyModal').classList.remove('open');
+  // 보안: 닫을 때 화면의 키 제거
+  document.getElementById('exportKeyPriv').textContent='';
+  document.getElementById('exportKeyResult').style.display='none';
+}
+function confirmRevealKey(){
+  var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  if(!(typeof emailAuth!=='undefined'&&emailAuth&&emailAuth.token)){ showToast(tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
+  var pw=(document.getElementById('exportKeyPw')||{}).value||'';
+  if(!pw){ showToast(tl('Enter your password','비밀번호를 입력하세요','パスワードを入力','请输入密码'),'error'); return; }
+  var btn=document.getElementById('exportKeyRevealBtn'); if(btn){ btn.disabled=true; btn.textContent='...'; }
+  fetch('/api/auth/reveal-key',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:emailAuth.token,password:pw})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){
+        document.getElementById('exportKeyAddr').textContent=d.address||'';
+        document.getElementById('exportKeyPriv').textContent=d.privateKey||'';
+        document.getElementById('exportKeyWarn').style.display='none';
+        document.getElementById('exportKeyResult').style.display='';
+      } else {
+        var msg=d.error==='no_custodial_key'?tl('This account has no exportable key (external wallet).','이 계정은 내보낼 키가 없습니다(외부 지갑).','このアカウントにエクスポート可能な鍵はありません','此账户无可导出密钥')
+          :(d.message||d.error||'failed');
+        showToast(msg,'error');
+        if(btn){ btn.disabled=false; btn.textContent=t('export_key_reveal_btn')||'REVEAL PRIVATE KEY'; }
+      }
+    })
+    .catch(function(e){ showToast('Error: '+e.message,'error'); if(btn){ btn.disabled=false; } });
+}
+function copyExportKey(){
+  var pk=document.getElementById('exportKeyPriv').textContent||'';
+  if(!pk) return;
+  try{ navigator.clipboard.writeText(pk); showToast(tl('Key copied — store it safely','키 복사됨 — 안전하게 보관하세요','鍵をコピーしました','密钥已复制 — 请妥善保管'),'success'); }
+  catch(_){ showToast(tl('Copy failed','복사 실패','コピー失敗','复制失败'),'error'); }
+}
 function setWdrMax(){document.getElementById('wdrAmount').value=walletState.gameUsdt.toFixed(2)}
 
 // ═══════════════════════════════════════
@@ -17124,6 +17204,7 @@ var I18N = {
     nav_my_land: 'MY LAND', sectors_btn: 'SECTORS',
     open_base: 'OPEN BASE', enter_cantina: '⚔ ENTER THE CANTINA',
     my_base: 'MY BASE', deposit_btn: 'DEPOSIT', withdraw_btn: 'WITHDRAW', logout_btn: 'LOGOUT',
+    export_key_btn: '🔑 KEY', export_key_title: '🔑 EXPORT WALLET KEY', export_key_disclaimer: '⚠ This reveals your wallet PRIVATE KEY. Anyone with it controls your funds. Store it offline and never share it. <b>You alone are responsible — if it is lost or stolen, the operator cannot recover it or your assets.</b>', export_key_ack: 'I understand and accept full responsibility for safekeeping my key.', export_key_pw_ph: 'Confirm your password', export_key_reveal_btn: 'REVEAL PRIVATE KEY', export_key_addr: 'ADDRESS', export_key_priv: 'PRIVATE KEY', export_key_copy: '📋 COPY KEY', export_key_close_warn: 'Close this window after saving. The key is not shown again automatically.',
     address_copied: 'Address copied!',
     // ── Territory Info (left panel) ──
     top_governors: '👑 TOP GOVERNORS', loading_dots: 'Loading...',
@@ -17977,6 +18058,7 @@ var I18N = {
     nav_my_land: '내 영토', sectors_btn: '섹터',
     open_base: '베이스 열기', enter_cantina: '⚔ 칸티나 입장',
     my_base: '마이 베이스', deposit_btn: '입금', withdraw_btn: '출금', logout_btn: '로그아웃',
+    export_key_btn: '🔑 키', export_key_title: '🔑 지갑 키 내보내기', export_key_disclaimer: '⚠ 지갑의 개인키를 표시합니다. 이 키를 가진 누구나 자금을 통제할 수 있습니다. 오프라인에 보관하고 절대 공유하지 마세요. <b>보관 책임은 전적으로 본인에게 있으며, 분실·도난 시 운영자는 키나 자산을 복구할 수 없습니다.</b>', export_key_ack: '키 보관 책임이 전적으로 나에게 있음을 이해하고 동의합니다.', export_key_pw_ph: '비밀번호 확인', export_key_reveal_btn: '개인키 표시', export_key_addr: '주소', export_key_priv: '개인키', export_key_copy: '📋 키 복사', export_key_close_warn: '저장 후 이 창을 닫으세요. 키는 자동으로 다시 표시되지 않습니다.',
     address_copied: '주소가 복사되었습니다!',
     // ── Territory Info ──
     top_governors: '👑 최고 총독', loading_dots: '로딩 중...',
@@ -18836,6 +18918,7 @@ var I18N = {
     nav_my_land: 'マイ領土', sectors_btn: 'セクター',
     open_base: 'ベースを開く', enter_cantina: '⚔ カンティーナに入る',
     my_base: 'マイベース', deposit_btn: '入金', withdraw_btn: '出金', logout_btn: 'ログアウト',
+    export_key_btn: '🔑 キー', export_key_title: '🔑 ウォレットキーをエクスポート', export_key_disclaimer: '⚠ ウォレットの秘密鍵を表示します。この鍵を持つ者は誰でも資金を管理できます。オフラインで保管し、絶対に共有しないでください。<b>保管責任は全て本人にあり、紛失・盗難時に運営者は鍵や資産を復元できません。</b>', export_key_ack: '鍵の保管責任が全て自分にあることを理解し同意します。', export_key_pw_ph: 'パスワードを確認', export_key_reveal_btn: '秘密鍵を表示', export_key_addr: 'アドレス', export_key_priv: '秘密鍵', export_key_copy: '📋 鍵をコピー', export_key_close_warn: '保存後このウィンドウを閉じてください。鍵は自動的に再表示されません。',
     address_copied: 'アドレスをコピーしました！',
     top_governors: '👑 トップ総督', loading_dots: '読込中...',
     no_alerts: 'アラートはまだありません', live_feed_title: 'ライブフィード', live_feed_empty: 'ライブイベントはまだありません。',
@@ -19693,6 +19776,7 @@ var I18N = {
     nav_my_land: '我的领土', sectors_btn: '区域',
     open_base: '打开基地', enter_cantina: '⚔ 进入酒吧',
     my_base: '我的基地', deposit_btn: '充值', withdraw_btn: '提现', logout_btn: '退出',
+    export_key_btn: '🔑 密钥', export_key_title: '🔑 导出钱包密钥', export_key_disclaimer: '⚠ 这将显示您钱包的私钥。任何持有此密钥的人都能控制您的资金。请离线保存，切勿分享。<b>保管责任完全由您承担，若丢失或被盗，运营方无法找回密钥或资产。</b>', export_key_ack: '我理解并接受妥善保管密钥的全部责任。', export_key_pw_ph: '确认密码', export_key_reveal_btn: '显示私钥', export_key_addr: '地址', export_key_priv: '私钥', export_key_copy: '📋 复制密钥', export_key_close_warn: '保存后请关闭此窗口。密钥不会自动再次显示。',
     address_copied: '地址已复制！',
     top_governors: '👑 顶级总督', loading_dots: '加载中...',
     no_alerts: '暂无提醒', live_feed_title: '实时动态', live_feed_empty: '暂无实时事件。',

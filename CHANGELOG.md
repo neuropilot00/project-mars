@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.142 — 자동 커스터디 지갑: 실키 생성/암호화/열람 (+ Codex 보안검토 반영)
+
+운영자 결정: 자동 커스터디(서버가 실 키페어 생성·보관) + 유저 키 열람 + 분실 면책. **실제 개인키를 다루는 보안 핵심부**라 Codex 독립검토 후 보강.
+
+- **migration 241**: `users.encrypted_privkey`(암호문), `wallet_type`, `key_revealed_at`, `key_reveal_count` + `custodial_wallet_enabled`(기본 OFF).
+- **`services/custodialWallet.js`**: 진짜 EOA 키페어 생성 + **AES-256-GCM**(서버 마스터키 `WALLET_ENCRYPTION_KEY`로 sha256 파생, 매 암호화 랜덤 IV 12B + auth tag) 암호화/복호화. **마스터키 미설정 시 키 생성 거부**(평문 저장 절대 금지) → placeholder 폴백. 개인키/니모닉 로그 금지.
+- **가입(`auth.js`)**: custodial 활성화 시 실 지갑 생성·암호문 저장. **가입 응답에 개인키 미포함**.
+- **키 열람 `POST /api/auth/reveal-key`**: JWT(본인) + **비밀번호 재확인**(bcrypt) 필수 → 복호화 후 1회 반환 + 면책 문구. 열람 사실(횟수/시각)만 감사. 개인키 로그 금지.
+- **프론트(`index.html`)**: 🔑 KEY 버튼 + 면책 동의 체크 + 비밀번호 입력 → 키 표시/복사 모달. 4개 언어(EN/KO/JA/ZH).
+- **🔐 Codex 검토 반영**: (E2) reveal-key 비밀번호 재확인 추가, (E3) link-wallet이 custodial 계정 재할당 시 비밀번호 재확인(정식 EIP-191 서명검증은 후속), (A4) `WALLET_ENCRYPTION_KEY` env 문서화(`.env.testnet.example`). 크립토/누출/스키마는 전부 PASS.
+- 검증(E2E): 가입 응답 키 없음, 틀린 비번 401, 맞는 비번 키(0x·66자)+면책 반환, **서버 로그 키 누출 0**, 감사 기록 OK.
+- ⚠️ 미구현(phase 2): 입금감시(유저 EOA Transfer 감지)·자동 출금 relayer(서버가 가스내고 broadcast)·운영 키 KMS화.
+
 ## 2026-05-28 v7.141 — Base 체인 테스트넷 연결 준비 (실지갑 입출금 테스트)
 
 실유저 지갑 입출금(USDT) 테스트를 위한 Base 체인 연결 코드 정비. **온체인 작업(컨트랙트 배포·키·자금·RPC)은 운영자 몫** — 코드/문서로 핸드오프.

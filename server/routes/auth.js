@@ -195,8 +195,18 @@ router.post('/register', authLimiter, async (req, res) => {
       } catch (_) { /* account_signups 미생성 환경(마이그레이션 전)에서는 캡 미적용 */ }
     }
 
-    // Generate custodial wallet address
-    const walletAddress = generateCustodialAddress();
+    // [v7.142] 자동 커스터디: 활성화 시 진짜 EOA 키페어 생성 + 개인키 암호화 저장. 아니면 placeholder 주소.
+    let walletAddress, encryptedPrivkey = null, walletType = 'placeholder', _newMnemonicShown = false;
+    try {
+      const cw = require('../services/custodialWallet');
+      if (await cw.isEnabled()) {
+        const kp = cw.generateWallet();
+        walletAddress = kp.address;
+        encryptedPrivkey = cw.encryptPrivateKey(kp.privateKey);
+        walletType = 'custodial';
+      }
+    } catch (e) { console.warn('[Auth] custodial wallet gen failed, fallback placeholder:', e.message); }
+    if (!walletAddress) walletAddress = generateCustodialAddress();
     const passwordHash = await bcrypt.hash(password, 10);
     const refCode = generateReferralCode();
     const displayName = nickname || email.split('@')[0].slice(0, 12);
@@ -213,11 +223,11 @@ router.post('/register', authLimiter, async (req, res) => {
       }
     }
 
-    // Insert user with TOS acceptance
+    // Insert user with TOS acceptance (+ 커스터디 키 암호문/타입)
     await client.query(
-      `INSERT INTO users (wallet_address, email, password_hash, nickname, referral_code, referred_by, tos_accepted_at, tos_version)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), '1.0')`,
-      [walletAddress, email.toLowerCase(), passwordHash, displayName, refCode, referredBy]
+      `INSERT INTO users (wallet_address, email, password_hash, nickname, referral_code, referred_by, tos_accepted_at, tos_version, encrypted_privkey, wallet_type)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), '1.0', $7, $8)`,
+      [walletAddress, email.toLowerCase(), passwordHash, displayName, refCode, referredBy, encryptedPrivkey, walletType]
     );
 
     // Gift PP bonus to new users (configurable via admin settings)
@@ -481,6 +491,48 @@ router.post('/update-profile', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+//  POST /api/auth/reveal-key — 자동 커스터디 개인키 1회 열람 (면책 고지)
+//  ⚠️ 개인키는 응답으로만 반환, 로그 금지. 열람 사실(횟수/시각)만 감사.
+// ══════════════════════════════════════════════════
+router.post('/reveal-key', authLimiter, async (req, res) => {
+  const { token, password } = req.body;
+  if (!token) return res.status(400).json({ error: 'Missing token' });
+  // 🔐 [보안] 개인키 노출은 30일 JWT 단독으론 부족 → 비밀번호 재확인 필수(Codex 검토 E2)
+  if (!password) return res.status(400).json({ error: 'password_required', message: 'Re-enter your password to reveal your key.' });
+  let decoded;
+  try { decoded = jwt.verify(token, JWT_SECRET); }
+  catch (e) { return res.status(401).json({ error: e.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token' }); }
+  const wallet = (decoded.wallet || '').toLowerCase();
+  if (!wallet) return res.status(401).json({ error: 'Invalid token' });
+  try {
+    const r = await pool.query('SELECT encrypted_privkey, wallet_type, password_hash FROM users WHERE LOWER(wallet_address) = LOWER($1)', [wallet]);
+    if (!r.rows.length) return res.status(404).json({ error: 'User not found' });
+    const row = r.rows[0];
+    // 비밀번호 재검증
+    const okPw = row.password_hash ? await bcrypt.compare(password, row.password_hash) : false;
+    if (!okPw) return res.status(401).json({ error: 'bad_password', message: 'Incorrect password.' });
+    if (row.wallet_type !== 'custodial' || !row.encrypted_privkey) {
+      return res.status(409).json({ error: 'no_custodial_key', message: 'This account has no custodial private key (placeholder wallet).' });
+    }
+    const cw = require('../services/custodialWallet');
+    let pk;
+    try { pk = cw.decryptPrivateKey(row.encrypted_privkey); }
+    catch (e) { console.error('[Auth] reveal-key decrypt failed'); return res.status(500).json({ error: 'decrypt_failed' }); }
+    pool.query('UPDATE users SET key_revealed_at = NOW(), key_reveal_count = COALESCE(key_reveal_count,0) + 1 WHERE LOWER(wallet_address) = LOWER($1)', [wallet]).catch(() => {});
+    console.log(`[Auth] private key revealed for ${wallet.slice(0, 10)}… (audit)`);
+    return res.json({
+      success: true,
+      address: wallet,
+      privateKey: pk,
+      disclaimer: 'You alone are responsible for safekeeping this private key. If it is lost or stolen, the operator cannot recover it or your assets.'
+    });
+  } catch (e) {
+    console.error('[Auth] reveal-key error:', e.message);
+    return res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 //  POST /api/auth/link-wallet — Link MetaMask to email account
 // ══════════════════════════════════════════════════
 router.post('/link-wallet', async (req, res) => {
@@ -510,6 +562,18 @@ router.post('/link-wallet', async (req, res) => {
   if (newWallet === oldWallet.toLowerCase()) {
     return res.status(400).json({ error: 'New wallet address is the same as current' });
   }
+
+  // 🔐 [보안 E3] custodial 계정의 지갑 재할당 = 계정 탈취 위험 → 비밀번호 재확인 필수.
+  //    (정식 해법은 신규 주소의 EIP-191 소유권 서명 검증 — 후속 과제)
+  try {
+    const me = await pool.query('SELECT wallet_type, password_hash FROM users WHERE LOWER(wallet_address) = LOWER($1)', [oldWallet.toLowerCase()]);
+    if (me.rows[0]?.wallet_type === 'custodial') {
+      const linkPw = req.body.password;
+      if (!linkPw) return res.status(400).json({ error: 'password_required', message: 'Re-enter your password to relink a custodial wallet.' });
+      const okPw = me.rows[0].password_hash ? await bcrypt.compare(linkPw, me.rows[0].password_hash) : false;
+      if (!okPw) return res.status(401).json({ error: 'bad_password', message: 'Incorrect password.' });
+    }
+  } catch (_e) { /* lookup 실패는 비차단(기존 동작 유지) */ }
 
   const client = await pool.connect();
   try {
