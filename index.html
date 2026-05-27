@@ -41221,15 +41221,23 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: "What's New",
         blocks: [
-          { type:'p', text:'**v6.07 — 2026-05-05 Per-territory harvest + Fleet Dashboard.** Latest stable build.' },
-          { type:'h2', text:'⛏ v6.07 Per-territory Harvest' },
-          { type:'p', text:'• **MINE tab removed** — harvest is now per-territory inside the BASE → Territory accordion.\n• Each territory has its own cooldown (CORE 24h / MID 48h / FRONTIER 72h).\n• Mineral drops shown alongside PP on each harvest.\n• Fleet tab shows full fleet dashboard: ship list, HP bars, build queue.' },
-          { type:'h2', text:'🚢 v6.0 Real-time Fleet Battles (WebSocket)' },
-          { type:'p', text:'• Live battle viewer over WebSocket — fleet positions, HP, formations update in real time.\n• Tactical Lab v11 integrated as the official battle viewer.\n• Ship PNG sprites (22 types, top-down view) replace legacy vector silhouettes.\n• Manual skills: Beam Cannon ☢, Missile Barrage ☄, EMP, Focus Fire.' },
-          { type:'h2', text:'🏭 v5.9x Territory Utility Stack (P5)' },
-          { type:'p', text:'• **Production panel**: expected PP range, sector tier, mineral drop list per territory.\n• **Material harvest**: mineral drops bundled into each territory harvest cycle.\n• **Territory upgrades**: 5 upgrade tracks (extractor / refinery / shield grid / relay tower / art beacon).\n• **Sector Control**: influence tiers (presence 10% → governor 75%), live leaderboard per sector.\n• **Shipyard hints**: blueprint cards show which sector tier drops each required mineral.' },
-          { type:'h2', text:'⚔ v5.8x Campaign + Ship Economy' },
-          { type:'p', text:'• Campaign chapters MCC/FSP Ch1~10 fully wired with live DB objectives (territory claim, fleet build, battle, listing).\n• Campaign rewards grant real ship instances into your default fleet.\n• Ship stat upgrades with probability, material cost, success/fail log.\n• Ship market: list → buy → cancel flow with `is_market_listed` lock.\n• Fleet Command: formation preview, flagship assignment, move ships between fleets.' },
+          { type:'p', text:'**v7.13x — 2026-05 Living economy + EVE-grade fleet warfare.** Latest stable build.' },
+          { type:'callout', variant:'warn', title:'⚠ Ship full-loss is now LIVE',
+            text:'Ships sunk (HP 0) in **hijack battles are now permanently destroyed** — they cannot be revived and must be rebuilt from scratch. Treat your fleet as real, losable capital. (`hijack_ship_loss_enabled = true`)' },
+          { type:'h2', text:'💰 Currency model clarified' },
+          { type:'p', text:'• **GP is the main spending currency** — earned from daily login, missions, battles, expeditions, **and by converting PP → GP**. Spent on the shop, ship build/upgrade/repair, ship crates, territory upgrades, market fees.\n• **PP is the territory-mining token, pegged ~1 PP ≈ $1.** Earned from territory harvest (daily cap), signup/referral/deposit bonuses. Used to claim/upgrade territory, convert to GP, or **redeem to USDT** (within the operator collateral pool).\n• **USDT** is real deposit/withdraw on Base chain.' },
+          { type:'h2', text:'🎰 Ship Crate (gacha)' },
+          { type:'p', text:'• Open ship crates with **GP**. Three tiers: Standard 300 GP, Premium 1,000 GP, Legendary 3,000 GP.\n• **Published odds** on every crate + **pity ceiling** (Premium 10 pulls, Legendary 5 pulls) that guarantees a Cruiser-or-better ship.' },
+          { type:'h2', text:'📈 Dynamic PP ↔ GP exchange rate' },
+          { type:'p', text:'• The PP→GP rate is **no longer fixed**. It floats with 24h demand inside a hard band of **5–20 GP per PP**, moving at most **±2% per recompute**. High GP demand pushes the rate down; low demand lets it drift back up.' },
+          { type:'h2', text:'🏪 Regional (sector) market' },
+          { type:'p', text:'• Market listings are now bound to the **seller’s home sector**. Buying can incur a **tariff to that sector’s governor**, and operators may optionally require same-sector trades — turning sectors into trade hubs.' },
+          { type:'h2', text:'🛡 Economy safety rails' },
+          { type:'p', text:'• **Bank-run protection**: PP→USDT redemption is only allowed within the operator-funded **collateral room** (`room = collateral − liabilities`). No unbacked redemption.\n• **PP mining cap**: passive harvest is capped at **1 PP/day per user**, anti-whale by design.\n• **Sybil defense** on referral rewards (per-account and daily caps).' },
+          { type:'h2', text:'⚙ Infrastructure' },
+          { type:'p', text:'• **Multi-instance horizontal scaling** — scheduler/listener workers gated behind `RUN_SCHEDULERS`, Redis-backed cache and shared rate-limit store with in-memory fallback.\n• **WebSocket real-time push** — chat and activity feed stream over WebSocket instead of polling, with Redis Pub/Sub fan-out across instances.' },
+          { type:'h2', text:'🚢 Real-time Fleet Battles' },
+          { type:'p', text:'• Live battle viewer over WebSocket — fleet positions, HP, formations update in real time.\n• Tactical Lab v11 is the official battle viewer; 22 ship PNG sprites (top-down).\n• Manual skills: Beam Cannon ☢, Missile Barrage ☄, EMP, Focus Fire.\n• Per-territory harvest inside BASE → Territory (CORE 24h / MID 48h / FRONTIER 72h), with mineral drops.' },
           { type:'callout', variant:'tip', title:'For developers',
             text:'See `CHANGELOG.md` and `AUDIT_FINDINGS.md` in repo root for the full technical breakdown.' }
         ]
@@ -41267,15 +41275,15 @@ var CODEX_CONTENT = {
           { type:'h2', text:'2. Currency Structure' },
           { type:'p', text:'There are **4 assets** in the game. Each plays a different role — don\'t mix them up.' },
           { type:'table',
-            headers:['Asset','Type','Source','Use','Tradable?'],
+            headers:['Asset','Role','Source','Use','Convertible?'],
             rows:[
-              [{v:'💵 USDT',cls:'mars'},  'Real crypto',     'Deposit (Base chain)',           'Premium claims, cosmetics, cantina', {v:'○',cls:'num'}],
-              [{v:'🥔 PP',cls:'mars'},    'In-game token',   'Mining, POI, commission, quests','Basic claims, shop, guild fees, bets',{v:'△ (swap to USDT)',cls:'num'}],
-              [{v:'🏛 GP',cls:'mars'},    'Political points','Territory holdings, elections',  'Voting, sector control, policy',     {v:'✕',cls:'num'}],
-              [{v:'⭐ XP',cls:'mars'},    'Account level',   'All activity',                   'Rank perks, fee boosts',             {v:'✕',cls:'num'}]
+              [{v:'💵 USDT',cls:'mars'},  'Real crypto',          'Deposit (Base chain)',                    'Premium claims, cosmetics, cantina',        {v:'Deposit / withdraw',cls:'num'}],
+              [{v:'🥔 PP',cls:'mars'},    'Territory token (~$1)','Territory harvest, signup/referral/deposit','Territory claim/upgrade, → GP, → USDT redeem',{v:'→ GP / → USDT (capped)',cls:'num'}],
+              [{v:'🏛 GP',cls:'mars'},    'Main spend currency',  'Login, missions, battles, PP→GP',          'Shop, ships (build/upgrade/repair/crate), upgrades',{v:'Bought via PP→GP',cls:'num'}],
+              [{v:'⭐ XP',cls:'mars'},    'Account level',        'All activity',                            'Rank perks, fee boosts',                    {v:'✕',cls:'num'}]
             ]},
-          { type:'callout', variant:'info', title:'Currency distinction matters',
-            text:'USDT is **real money**. Betting USDT in the casino means really losing money. PP is the in-game score, GP is voting power. Don\'t mix their roles. See [Token Economy](#tokens) §2 for details.' },
+          { type:'callout', variant:'info', title:'GP spends, PP stores value',
+            text:'**GP is what you spend** on almost everything (shop, ships, upgrades) — you stock it from rewards and by converting PP. **PP is the value token** pegged near $1: you mine it, convert it to GP, or redeem it to USDT (within the operator collateral pool). **USDT is real money** — betting it in the casino loses real money. See [Token Economy](#tokens) §2.' },
 
           { type:'h2', text:'3. Win Conditions' },
           { type:'callout', variant:'pro', title:'There is no ending',
@@ -41321,34 +41329,35 @@ var CODEX_CONTENT = {
           { type:'callout', variant:'warn', title:'USDT is real money',
             text:'Any number with the `USDT` label is **your actual capital**. Betting USDT in the casino tab loses real money. Always play carefully.' },
 
-          { type:'h2', text:'2. PP — Potato Points' },
-          { type:'p', text:'The main in-game currency. New signups automatically receive **+100 PP** (`signup_pp_bonus=100`).' },
-          { type:'formula', label:'PP Income Sources (6)',
-            eq:'PP = ~mining~ + ~POI~ + ~hijack~ + ~DYNASTY commission~ + ~casino wins~ + ~daily missions~',
-            note:'Mining is capped at 1 PP/harvest. Big income comes from quests, POIs, and DYNASTY.' },
+          { type:'h2', text:'2. PP — Pixel Points (value token)' },
+          { type:'p', text:'PP is the **territory-mining value token**, pegged at roughly **1 PP ≈ $1**. New signups automatically receive a PP bonus, and deposits/referrals add more. PP is not the everyday spending currency — it is the asset you **store value in, convert to GP, or redeem to USDT**.' },
+          { type:'formula', label:'PP Income Sources',
+            eq:'PP = ~territory harvest~ + ~signup bonus~ + ~referral~ + ~deposit bonus~',
+            note:'Passive harvest is capped at **1 PP/day per user** (`mining_daily_cap_per_user=1.0`). PP is meant to be scarce and valuable — not farmed in bulk.' },
           { type:'table',
-            headers:['Spend','Cost (server default)'],
+            headers:['PP Use','Detail'],
             rows:[
-              ['Energy Shield (12h)',     {v:'2.5 PP',cls:'num'}],
-              ['Plasma Shield (24h)',     {v:'5.0 PP',cls:'num'}],
-              ['POI hint',                {v:'0.2 PP',cls:'num'}],
-              ['PP → USDT swap',          {v:'5% fee',cls:'num'}]
+              ['Claim / upgrade territory', {v:'pixel claims & territory upgrades',cls:'num'}],
+              ['PP → GP convert',           {v:'dynamic rate 5–20 GP/PP',cls:'num'}],
+              ['PP → USDT redeem',          {v:'within collateral room',cls:'num'}]
             ]},
-          { type:'callout', variant:'info', title:'PP ↔ USDT swap',
-            text:'The `SWAP` tab lets you convert PP to USDT with a `swap_fee_percent=5%` fee. The reverse direction (USDT → PP) also works.' },
+          { type:'callout', variant:'info', title:'PP ↔ USDT redemption',
+            text:'The `SWAP` tab converts PP to USDT (and back). **Redemption is only allowed within the operator-funded collateral pool** — there is no unlimited cash-out. See [PP ⇄ USDT Swap](#exchange) for the bank-run protection rule.' },
 
-          { type:'h2', text:'3. GP — Governance Points' },
-          { type:'p', text:'**Political power**. The fuel for sector taxes, governor elections, and DAO votes. **Cannot be bought directly with money.**' },
+          { type:'h2', text:'3. GP — Game Points (main spend currency)' },
+          { type:'p', text:'GP is the **primary in-game spending currency**. It pays for the shop, ship build/upgrade/repair, ship crates, territory upgrades, market fees, governance actions, and more. You earn GP from gameplay **and by converting PP → GP**.' },
           { type:'table',
             headers:['Source','Details'],
             rows:[
+              ['Daily login / missions',  {v:'login + 3 dailies',cls:'num'}],
               ['POI drop (70% weight)',   {v:'10 ~ 50 GP / POI',cls:'num'}],
               ['Rocket drop (50% weight)',{v:'10 ~ 40 GP / drop',cls:'num'}],
-              ['Sector tax share',        {v:'20% of taxes = citizen cut',cls:'num'}],
-              ['Governor election win',   {v:'20% sector tax recurring',cls:'num'}]
+              ['Battles / expeditions',   {v:'reward per ship destroyed',cls:'num'}],
+              ['PP → GP conversion',      {v:'5–20 GP per PP (dynamic)',cls:'num'}],
+              ['Sector tax / governor',   {v:'recurring sector income',cls:'num'}]
             ]},
-          { type:'callout', variant:'pro', title:'GP is a long-term savings asset',
-            text:'GP **cannot be converted**, but it recycles into PP through sector taxes and governor income. See [Governance](#governance) §5 for details.' },
+          { type:'callout', variant:'pro', title:'Top up GP by converting PP',
+            text:'When you run short on GP for a build or upgrade, convert some PP → GP in the `SWAP`/exchange tab. The rate floats between 5 and 20 GP per PP depending on demand. See [PP → GP Exchange](#exchange) §1.' },
 
           { type:'h2', text:'4. XP & Rank' },
           { type:'p', text:'**Every activity** gains XP. Sample rank table (30 levels total — partial view):' },
@@ -41377,24 +41386,24 @@ var CODEX_CONTENT = {
               '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"実通貨":typeof LANG!=="undefined"&&LANG==="zh"?"真实货币":typeof LANG!=="undefined"&&LANG==="ko"?"실제 화폐":"Real Money")+'</text>'+
               '<rect x="195" y="30" width="110" height="50" rx="6" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/>'+
               '<text x="250" y="55" text-anchor="middle" font-size="12" fill="#ff783c" font-weight="700">PP</text>'+
-              '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"ゲーム内通貨":typeof LANG!=="undefined"&&LANG==="zh"?"游戏内货币":typeof LANG!=="undefined"&&LANG==="ko"?"인게임 통화":"In-Game Currency")+'</text>'+
+              '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"価値トークン~$1":typeof LANG!=="undefined"&&LANG==="zh"?"价值代币~$1":typeof LANG!=="undefined"&&LANG==="ko"?"가치 토큰 ~$1":"Value Token ~$1")+'</text>'+
               '<rect x="360" y="30" width="110" height="50" rx="6" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="1.5"/>'+
               '<text x="415" y="55" text-anchor="middle" font-size="12" fill="#ffd166" font-weight="700">GP</text>'+
-              '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"政治力":typeof LANG!=="undefined"&&LANG==="zh"?"政治权力":typeof LANG!=="undefined"&&LANG==="ko"?"정치 권력":"Political Power")+'</text>'+
+              '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"主要消費通貨":typeof LANG!=="undefined"&&LANG==="zh"?"主要消费货币":typeof LANG!=="undefined"&&LANG==="ko"?"주 소비 통화":"Main Spend Currency")+'</text>'+
               '<line x1="140" y1="55" x2="190" y2="55" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">SWAP</text>'+
+              '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">'+( typeof LANG!=="undefined"&&LANG==="ja"?"換金":typeof LANG!=="undefined"&&LANG==="zh"?"兑换":typeof LANG!=="undefined"&&LANG==="ko"?"환금":"REDEEM")+'</text>'+
               '<line x1="190" y1="60" x2="140" y2="60" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)" stroke-dasharray="3,3"/>'+
-              '<line x1="305" y1="55" x2="355" y2="55" stroke="#ff783c" stroke-width="1.5" stroke-dasharray="3,3"/>'+
-              '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"換金 ✕":typeof LANG!=="undefined"&&LANG==="zh"?"兑换 ✕":typeof LANG!=="undefined"&&LANG==="ko"?"환전 ✕":"No Swap ✕")+'</text>'+
-              '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"採掘・クエスト・委託 ↓":typeof LANG!=="undefined"&&LANG==="zh"?"采矿·任务·佣金 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"채굴·퀘스트·커미션 ↓":"Mining·Quest·Commission ↓")+'</text>'+
+              '<line x1="305" y1="55" x2="355" y2="55" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+              '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#ffd166">'+( typeof LANG!=="undefined"&&LANG==="ja"?"PP→GP 5-20":typeof LANG!=="undefined"&&LANG==="zh"?"PP→GP 5-20":typeof LANG!=="undefined"&&LANG==="ko"?"PP→GP 5-20":"PP→GP 5-20")+'</text>'+
+              '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"領土採掘・ボーナス ↓":typeof LANG!=="undefined"&&LANG==="zh"?"领地采矿·奖励 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"영토 채굴·보너스 ↓":"Territory Harvest·Bonus ↓")+'</text>'+
               '<line x1="250" y1="125" x2="250" y2="80" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"領土保有 ↓":typeof LANG!=="undefined"&&LANG==="zh"?"领地持有 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"영토 보유 ↓":"Territory Holding ↓")+'</text>'+
+              '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"ログイン・任務・戦闘 ↓":typeof LANG!=="undefined"&&LANG==="zh"?"登录·任务·战斗 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"로그인·미션·전투 ↓":"Login·Mission·Battle ↓")+'</text>'+
               '<line x1="415" y1="125" x2="415" y2="80" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
               '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">'+( typeof LANG!=="undefined"&&LANG==="ja"?"入金 ↓":typeof LANG!=="undefined"&&LANG==="zh"?"入款 ↓":typeof LANG!=="undefined"&&LANG==="ko"?"입금 ↓":"Deposit ↓")+'</text>'+
               '<line x1="85"  y1="125" x2="85"  y2="80" stroke="#5bb8e8" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP ('+( typeof LANG!=="undefined"&&LANG==="ja"?"GPは一方向蓄積":typeof LANG!=="undefined"&&LANG==="zh"?"GP单向累积":typeof LANG!=="undefined"&&LANG==="ko"?"GP는 단방향 축적":"GP is one-way accumulation")+')</text>'+
+              '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP → GP ('+( typeof LANG!=="undefined"&&LANG==="ja"?"PP→GPは動的レート":typeof LANG!=="undefined"&&LANG==="zh"?"PP→GP动态汇率":typeof LANG!=="undefined"&&LANG==="ko"?"PP→GP 동적 환율":"dynamic PP→GP rate")+')</text>'+
             '</svg>',
-            caption:'USDT ⇄ PP bidirectional swap / GP is one-way accumulation (no swap)' }
+            caption:'USDT ⇄ PP (redeem within collateral) / PP → GP at a dynamic 5–20 rate' }
         ]
       },
       { id: 'territory', icon: '🏴', title: 'Territory',
@@ -41435,6 +41444,8 @@ var CODEX_CONTENT = {
               ['Defender refund',     {v:'+50 %',cls:'num'},    '50% of hijack cost returned as bonus'],
               ['Shield absorption',   {v:'50 ~ 75 %',cls:'num'},'Active shields absorb damage']
             ]},
+          { type:'callout', variant:'warn', title:'⚠ Ship full-loss in hijack battles',
+            text:'Hijacks can escalate into **fleet battles**, and ships sunk there (HP 0) are **permanently destroyed** — they cannot be revived and must be rebuilt at the shipyard (`hijack_ship_loss_enabled=true`). Never bring ships you can\'t afford to lose. See [Fleet & Shipyard](#fleet) for build/repair.' },
           { type:'callout', variant:'warn', title:'Careless hijacks are expensive',
             text:'Hijacks in pricey CORE sectors quickly hit tens of USDT. The best targets are **large territories inactive for 1+ weeks**. Hijacking tiny plots just burns your fees.' },
           { type:'callout', variant:'pro', title:'Hijacks also score season points',
@@ -41582,6 +41593,70 @@ var CODEX_CONTENT = {
             text:'Territory and mining are linear (you earn what you work), but **DYNASTY is a network effect**. Inviting 5 active users will eventually make your passive PP exceed your personal mining. See [DYNASTY / Referral](#dynasty) §8 for details.' }
         ]
       },
+      { id: 'fleet', icon: '🚢', title: 'Fleet & Shipyard',
+        blocks: [
+          { type:'p', text:'Ships are **real, losable capital**. You build them at the shipyard, upgrade and repair them with GP and minerals, open ship crates for a chance at rare hulls, and trade them on the ship market. In hijack battles, ships can be **permanently destroyed**.' },
+          { type:'toc', label:'In this section', items:[
+            'Ship roster & factions',
+            'Shipyard — build & repair',
+            'Stat upgrades',
+            'Ship Crate (gacha)',
+            'Ship market (regional)',
+            'Full-loss warning'
+          ]},
+
+          { type:'h2', text:'1. Ship Roster & Factions' },
+          { type:'p', text:'There are **22 ship types** across 3 factions (MCC / FSP / CV), in 5 size classes. Bigger hulls hit harder and tank more, but cost rarer Core/Mid minerals. Titans are server-capped (max 3 alive per type).' },
+          { type:'table',
+            headers:['Class','Role','Build cost tier'],
+            rows:[
+              [{v:'Frigate',cls:'mars'},    'Fast tackle / EW',          {v:'low',cls:'num'}],
+              [{v:'Destroyer',cls:'mars'},  'Skirmish damage',           {v:'low–mid',cls:'num'}],
+              [{v:'Cruiser',cls:'mars'},    'Flexible mainline',         {v:'mid',cls:'num'}],
+              [{v:'Battleship',cls:'mars'}, 'Heavy line — Core/Mid mats',{v:'high',cls:'num'}],
+              [{v:'Titan',cls:'mars'},      'Capital — server-capped',   {v:'highest',cls:'num'}]
+            ]},
+
+          { type:'h2', text:'2. Shipyard — Build & Repair' },
+          { type:'p', text:'Open `Shipyard` to see blueprints. Each card shows GP + mineral cost as **have / need**, and a ⛏ badge for which sector tier drops each required mineral. Building queues a `ship_build_job`; the ship lands in your default fleet.' },
+          { type:'table',
+            headers:['Action','Cost','Note'],
+            rows:[
+              ['Build', {v:'GP + minerals',cls:'num'}, 'BS/Titan need Core + Mid mats'],
+              ['Repair',{v:'GP + minerals',cls:'num'}, 'Restores HP after battle'],
+              ['Shield',{v:'GP',cls:'num'},            'Pre-battle damage absorption'],
+              ['Scrap', {v:'—',cls:'num'},             'Dismantle for partial return']
+            ]},
+          { type:'callout', variant:'info', title:'Listed ships are locked',
+            text:'A ship listed on the market (`is_market_listed`) cannot be upgraded, repaired, shielded, scrapped, or moved between fleets until you cancel the listing.' },
+
+          { type:'h2', text:'3. Stat Upgrades' },
+          { type:'p', text:'Owned ships can be **permanently upgraded** in `atk / def / hp / speed`. Upgrades have a **success chance** and consume GP + materials on both success and failure. Cost scales with total investment count.' },
+          { type:'callout', variant:'pro', title:'Upgrades are probabilistic',
+            text:'A failed roll still burns GP and materials — only a success adds the stat bonus. The combat engine reads `bonus_atk/def/hp/speed` directly, so upgrades matter in real battles.' },
+
+          { type:'h2', text:'4. Ship Crate (gacha)' },
+          { type:'p', text:'Open ship crates with **GP** for a random ship by size class. Every crate has **published odds**, and Premium/Legendary crates carry a **pity ceiling** that guarantees a Cruiser-or-better once you hit the pull count.' },
+          { type:'table',
+            headers:['Crate','Price','Pity','Top hull'],
+            rows:[
+              [{v:'📦 Standard',cls:'mars'},  {v:'300 GP',cls:'num'},  {v:'—',cls:'num'},        'Cruiser'],
+              [{v:'🎁 Premium',cls:'mars'},   {v:'1,000 GP',cls:'num'},{v:'10 pulls',cls:'num'}, 'Battleship'],
+              [{v:'🌟 Legendary',cls:'mars'}, {v:'3,000 GP',cls:'num'},{v:'5 pulls',cls:'num'},  'Titan']
+            ]},
+          { type:'callout', variant:'info', title:'Server RNG + Titan cap',
+            text:'Rolls use server-authoritative RNG. If the Titan server cap is full, a Titan roll is downgraded to a Battleship. Odds are shown on each crate card.' },
+
+          { type:'h2', text:'5. Ship Market (regional)' },
+          { type:'p', text:'List ships with `list → buy → cancel`. Each listing is bound to the **seller’s home sector**: buying can incur a **tariff to that sector’s governor**, and operators may optionally restrict purchases to the same sector — making sectors into trade hubs and creating arbitrage between them.' },
+          { type:'callout', variant:'tip', title:'Watch the sector tariff',
+            text:'A listing in a high-tax CORE sector costs the buyer extra. Cheaper deals often sit in low-tax frontier sectors — at the cost of logistics.' },
+
+          { type:'h2', text:'6. ⚠ Full-Loss Warning' },
+          { type:'callout', variant:'warn', title:'Sunk ships are gone for good',
+            text:'With full-loss live (`hijack_ship_loss_enabled=true`), any ship reduced to **HP 0 in a hijack battle is permanently destroyed** — `is_alive=false`, no revival. You must rebuild it at the shipyard. Only commit a fleet you are willing to lose, and keep reserves + minerals for rebuilds.' }
+        ]
+      },
       { id: 'governance', icon: '🏛', title: 'Governance',
         blocks: [
           { type:'p', text:'Mars runs on a **two-layer power structure**. A single global **Commander** and one **Governor** per sector. Both can change real game rules — taxes, authorizations, event triggers. Governance is a real shipped feature — not decorative.' },
@@ -41591,7 +41666,7 @@ var CODEX_CONTENT = {
             'Sector buffs (governor powers)',
             'Global events (commander powers)',
             'Bounty system',
-            'GP — Governance Points'
+            'GP for governance'
           ]},
 
           { type:'h2', text:'1. Power Structure' },
@@ -41655,8 +41730,8 @@ var CODEX_CONTENT = {
           { type:'callout', variant:'pro', title:'Bounties are a political tool',
             text:'Want to destabilize a rival governor? Post bounties on their core territories. Once players swarm in, that governor is too busy defending to collect taxes.' },
 
-          { type:'h2', text:'6. GP — Governance Points' },
-          { type:'p', text:'GP is the dedicated governance currency. **Cannot be bought with PP or USDT** (cosmetics accept GP at 4× PP rate). GP comes only from activity.' },
+          { type:'h2', text:'6. GP for Governance' },
+          { type:'p', text:'Governance runs on GP — the main spend currency. You stack it from gameplay rewards **and by converting PP → GP** (dynamic 5–20 rate), then spend it on elections, sector control, and buffs. GP cannot be redeemed back to PP or USDT.' },
           { type:'table',
             headers:['GP Source','Typical Reward'],
             rows:[
@@ -41987,20 +42062,30 @@ var CODEX_CONTENT = {
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP Exchange',
         blocks: [
-          { type:'p', text:'Need GP fast? Exchange your PP (real money token) into GP at a configurable rate. This is a **PP sink** — the fee portion is burned permanently.' },
+          { type:'p', text:'Need GP fast? Convert your PP (value token) into GP. The rate is **dynamic**, not fixed — it floats with demand. This is also a **PP sink**, since the fee portion is burned.' },
+          { type:'h2', text:'1. Dynamic PP → GP Rate' },
+          { type:'p', text:'The exchange rate is recomputed from 24h conversion demand and clamped to a hard band. High GP demand pushes the rate **down** (fewer GP per PP); low demand lets it drift back **up**.' },
           { type:'table',
-            headers:['Setting','Default','Source'],
+            headers:['Setting','Value','Source'],
             rows:[
-              ['Exchange rate', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['Rate band',     {v:'5 ~ 20 GP / PP',cls:'num'}, '`pp_to_gp_rate_floor` / `_ceil`'],
+              ['Base rate',     {v:'10 GP / PP',cls:'num'},     '`pp_to_gp_exchange_rate`'],
+              ['Max move',      {v:'±2% per recompute',cls:'num'}, '`pp_to_gp_rate_max_step_pct`'],
               ['Fee',           {v:'5% (burned)',cls:'num'},    '`pp_to_gp_exchange_fee_pct`'],
-              ['Min per tx',    {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
-              ['Max per tx',    {v:'5 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
-              ['Daily limit',   {v:'50 PP/day',cls:'num'},       '`pp_to_gp_exchange_daily_limit`']
+              ['Dynamic',       {v:'enabled',cls:'num'},        '`pp_to_gp_dynamic_enabled=true`']
             ]},
-          { type:'callout', variant:'warn', title:'One-way exchange',
-            text:'PP → GP only. You cannot convert GP back to PP. Think of it as buying in-game currency with real money. The 5% fee is destroyed, reducing total PP supply.' },
-          { type:'callout', variant:'tip', title:'When to exchange',
-            text:'Exchange when you need GP for guild wars (continues!), season pass premium, guild creation, or research unlocks. Day-to-day GP comes from harvesting and quests.' }
+          { type:'callout', variant:'warn', title:'PP → GP is one-way',
+            text:'You convert **PP into GP**, not the reverse — GP cannot be turned back into PP. Convert PP when you need GP for ship builds, upgrades, crates, the shop, or governance. Day-to-day GP also comes from login, missions and battles.' },
+          { type:'callout', variant:'tip', title:'Watch the rate before converting',
+            text:'Because the rate floats between 5 and 20 GP/PP, converting when GP demand is low (rate near 20) gives you more GP per PP. The 5% fee is burned, reducing PP supply.' },
+
+          { type:'h2', text:'2. PP → USDT Redemption (collateral-gated)' },
+          { type:'p', text:'PP can also be redeemed to **USDT** in the `SWAP` tab — but only within the operator-funded **collateral pool**. This structurally prevents a bank run.' },
+          { type:'formula', label:'REDEMPTION ROOM',
+            eq:'room = ~collateral~ − ~total user USDT liabilities~',
+            note:'PP → USDT redemption (and PP-sourced withdrawals) are only allowed up to `room`. If the pool is exhausted, redemption pauses until the operator tops up collateral.' },
+          { type:'callout', variant:'warn', title:'Redemption is not unlimited',
+            text:'PP is pegged ~$1, but cashing out to USDT depends on available collateral room. Large simultaneous redemptions can hit the cap — this is the bank-run safety rail (`migration 230`).' }
         ]
       },
       { id: 'casino', icon: '🎰', title: 'Cantina Casino',
@@ -42248,6 +42333,21 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
+          { type:'p', text:'**v7.13x — 2026-05 살아있는 경제 + EVE급 함대전.** 최신 안정 빌드.' },
+          { type:'callout', variant:'warn', title:'⚠ 함선 영구파괴(full-loss) 적용됨',
+            text:'하이젝 전투에서 격침된(HP 0) 함선은 이제 **영구 손실**돼. 되살릴 수 없고 조선소에서 다시 건조해야 해. 함대를 잃어도 되는 자산으로만 운용해. (`hijack_ship_loss_enabled = true`)' },
+          { type:'h2', text:'💰 통화 모델 명확화' },
+          { type:'p', text:'• **GP가 주 소비 통화** — 일일 로그인·미션·전투·원정 보상으로 얻고, **PP를 GP로 환전**해서도 충당해. 상점, 함선 건조/강화/수리, 함선 가챠, 영토 업그레이드, 마켓 수수료 등에 소비.\n• **PP는 영토 채굴 토큰, 1 PP ≈ $1 페그.** 영토 수확(일일 채굴 캡)·가입/추천/입금 보너스로 획득. 영토 클레임/업그레이드, GP로 환전, **USDT 환금**(운영자 담보 풀 한도 내)에 사용.\n• **USDT**는 Base 체인 실입출금.' },
+          { type:'h2', text:'🎰 함선 가챠(Ship Crate)' },
+          { type:'p', text:'• **GP**로 함선 상자 개봉. 3등급: 스탠다드 300 GP, 프리미엄 1,000 GP, 레전더리 3,000 GP.\n• 모든 상자에 **확률 공개** + **천장(pity)**(프리미엄 10회, 레전더리 5회)으로 순양함 이상을 보장.' },
+          { type:'h2', text:'📈 동적 PP ↔ GP 환율' },
+          { type:'p', text:'• PP→GP 환율은 더 이상 고정이 아니야. 24h 수요에 따라 **PP당 5~20 GP** 하드밴드 안에서 변동하고, 1회 재계산당 최대 **±2%** 움직여. GP 수요가 높으면 환율이 내려가고, 낮으면 다시 올라가.' },
+          { type:'h2', text:'🏪 지역(섹터) 마켓' },
+          { type:'p', text:'• 마켓 매물은 이제 **판매자 거점 섹터**에 귀속돼. 매수 시 해당 **섹터 거버너에게 관세**가 붙을 수 있고, 운영자는 같은 섹터 거래만 허용하도록 선택할 수 있어 — 섹터가 거래 허브가 돼.' },
+          { type:'h2', text:'🛡 경제 안전장치' },
+          { type:'p', text:'• **뱅크런 방어**: PP→USDT 환금은 운영자가 적립한 **담보 한도(room = 담보 − 부채)** 내에서만 가능. 담보 없는 환금은 불가.\n• **PP 채굴 캡**: 패시브 수확은 **유저당 1 PP/일** 상한(`mining_daily_cap_per_user=1.0`). 고래 방지.\n• 추천 보상에 **시빌 방어**(계정별·일일 캡).' },
+          { type:'h2', text:'⚙ 인프라' },
+          { type:'p', text:'• **멀티 인스턴스 수평확장** — 스케줄러/리스너 워커를 `RUN_SCHEDULERS` 플래그로 분리, Redis 캐시 + 공유 레이트리밋(인메모리 폴백).\n• **WebSocket 실시간 푸시** — 채팅·활동피드가 폴링 대신 WebSocket으로 스트리밍, Redis Pub/Sub로 인스턴스 간 팬아웃.' },
           { type:'p', text:'**v6.0 — 2026-04-26 실시간 함대전 완성 (Phase 2 4단계).** WebSocket + 사용자 요구 4가지 모두 ✅' },
           { type:'h2', text:'🔴 v6.0 실시간 함대전 (WebSocket)' },
           { type:'p', text:'• **Phase 2-A**: ws 인프라 — `/ws/battle/{id}` 채널 + frame/end broadcast + JWT 인증 cmd\n• **Phase 2-B**: 클라이언트 ws 연결 + ws_end 즉시 결과 카드 (timeline 끝 대기 X)\n• **Phase 2-C**: fleet 단위 동기화 — DB fleet_id 매칭으로 위치/HP/진형/기동 실시간 반영\n• **Phase 2-D**: 자체 시뮬 fire/damage 비활성화 + 자동 재시작 비활성화 (실제 hijack 결과 영구)\n\n**동작**: hijack → viewer → "🔌 실시간 연결됨" → 함대 위치/HP 가 진짜 시뮬 따라 움직임 → 종료 즉시 결과 카드' },
@@ -42339,15 +42439,15 @@ var CODEX_CONTENT = {
           { type:'h2', text:'2. 통화 구조' },
           { type:'p', text:'게임 안에는 **4가지 자산**이 돌아다녀. 각각 역할이 다르니 혼동하지 마.' },
           { type:'table',
-            headers:['자산','종류','획득','용도','교환 가능?'],
+            headers:['자산','역할','획득','용도','전환 가능?'],
             rows:[
-              [{v:'💵 USDT',cls:'mars'},  '실제 암호화폐', '입금 (Base 체인)',        '프리미엄 클레임·코스메틱·칸티나', {v:'○',cls:'num'}],
-              [{v:'🥔 PP',cls:'mars'},    '인게임 토큰',   '채굴·POI·커미션·퀘스트',  '기본 클레임·상점·길드비·베팅',   {v:'△ (USDT로 스왑)',cls:'num'}],
-              [{v:'🏛 GP',cls:'mars'},    '정치 포인트',   '영토 보유·선거 승리',      '투표·섹터 지배·정책',           {v:'✕',cls:'num'}],
-              [{v:'⭐ XP',cls:'mars'},    '계정 레벨',     '모든 활동',                '계급 특전·수수료 부스트',        {v:'✕',cls:'num'}]
+              [{v:'💵 USDT',cls:'mars'},  '실제 암호화폐',     '입금 (Base 체인)',              '프리미엄 클레임·코스메틱·칸티나', {v:'입금 / 출금',cls:'num'}],
+              [{v:'🥔 PP',cls:'mars'},    '영토 토큰 (~$1)',  '영토 수확·가입/추천/입금',       '영토 클레임/업그레이드, →GP, →USDT 환금', {v:'→GP / →USDT (한도)',cls:'num'}],
+              [{v:'🏛 GP',cls:'mars'},    '주 소비 통화',     '로그인·미션·전투·PP→GP',         '상점, 함선(건조/강화/수리/가챠), 업그레이드', {v:'PP→GP로 구매',cls:'num'}],
+              [{v:'⭐ XP',cls:'mars'},    '계정 레벨',        '모든 활동',                      '계급 특전·수수료 부스트',        {v:'✕',cls:'num'}]
             ]},
-          { type:'callout', variant:'info', title:'통화 구별이 중요하다',
-            text:'USDT는 **실돈**이야. 카지노에서 USDT 베팅하는 건 실제로 돈 잃는 거야. PP는 인게임 점수, GP는 투표권. 각자 역할 섞지 마. 자세한 건 [토큰 이코노미](#tokens) §2 참고.' },
+          { type:'callout', variant:'info', title:'GP로 쓰고, PP로 가치를 저장한다',
+            text:'**GP가 거의 모든 소비처(상점·함선·업그레이드)의 통화**야. 보상으로 모으고 PP를 환전해서도 채워. **PP는 ~$1 페그의 가치 토큰**으로 채굴해서 GP로 바꾸거나 USDT로 환금(운영자 담보 풀 한도 내)해. **USDT는 실돈**이라 카지노에서 베팅하면 진짜 돈이 날아가. 자세한 건 [토큰 이코노미](#tokens) §2 참고.' },
 
           { type:'h2', text:'3. 승리 조건' },
           { type:'callout', variant:'pro', title:'엔딩은 없다',
@@ -42393,34 +42493,35 @@ var CODEX_CONTENT = {
           { type:'callout', variant:'warn', title:'USDT는 실돈이다',
             text:'게임 내에서 `USDT` 라벨이 붙은 모든 숫자는 **네 실제 자금**이야. 카지노 탭에서 USDT로 베팅하면 실제 돈이 날아가. 항상 신중하게.' },
 
-          { type:'h2', text:'2. PP — Potato Points' },
-          { type:'p', text:'인게임 메인 통화. 신규 가입시 **+100 PP** 무료 지급 (`signup_pp_bonus=100`).' },
-          { type:'formula', label:'PP 획득 경로 (6가지)',
-            eq:'PP = ~채굴~ + ~POI~ + ~하이잭~ + ~DYNASTY 커미션~ + ~카지노 승리~ + ~일일 퀘스트~',
-            note:'채굴은 최대 1 PP/하베스트로 제한. 큰 수익은 퀘스트·POI·DYNASTY 쪽.' },
+          { type:'h2', text:'2. PP — Pixel Points (가치 토큰)' },
+          { type:'p', text:'PP는 **영토 채굴 가치 토큰**으로 대략 **1 PP ≈ $1** 페그야. 신규 가입 보너스 + 입금/추천으로 받아. 일상 소비 통화가 아니라 **가치를 저장하고, GP로 바꾸고, USDT로 환금**하는 자산이지.' },
+          { type:'formula', label:'PP 획득 경로',
+            eq:'PP = ~영토 수확~ + ~가입 보너스~ + ~추천~ + ~입금 보너스~',
+            note:'패시브 수확은 **유저당 1 PP/일** 상한(`mining_daily_cap_per_user=1.0`). PP는 희소하고 가치 있게 설계됐어 — 대량 파밍 불가.' },
           { type:'table',
-            headers:['지출 항목','비용 (서버 기본값)'],
+            headers:['PP 용도','상세'],
             rows:[
-              ['기본 에너지 쉴드 (12h)',   {v:'2.5 PP',cls:'num'}],
-              ['플라즈마 쉴드 (24h)',      {v:'5.0 PP',cls:'num'}],
-              ['POI 힌트',                {v:'0.2 PP',cls:'num'}],
-              ['PP → USDT 스왑',          {v:'수수료 5%',cls:'num'}]
+              ['영토 클레임/업그레이드', {v:'픽셀 클레임 & 영토 업그레이드',cls:'num'}],
+              ['PP → GP 환전',           {v:'동적 환율 5~20 GP/PP',cls:'num'}],
+              ['PP → USDT 환금',         {v:'담보 한도 내',cls:'num'}]
             ]},
-          { type:'callout', variant:'info', title:'PP ↔ USDT 스왑',
-            text:'`SWAP` 탭에서 PP를 USDT로 바꿀 수 있어. 수수료 `swap_fee_percent=5%` 차감. 반대 방향(USDT → PP)도 가능.' },
+          { type:'callout', variant:'info', title:'PP ↔ USDT 환금',
+            text:'`SWAP` 탭에서 PP를 USDT로(또는 반대로) 바꿔. **환금은 운영자가 적립한 담보 풀 한도 내에서만 허용**돼 — 무제한 환금은 없어. 뱅크런 방어 규칙은 [PP ⇄ USDT 환금](#exchange) 참고.' },
 
-          { type:'h2', text:'3. GP — Governance Points' },
-          { type:'p', text:'**정치 권력**. 섹터 세수·거버너 선거·DAO 투표의 재료야. 돈으로 직접 못 사.' },
+          { type:'h2', text:'3. GP — Game Points (주 소비 통화)' },
+          { type:'p', text:'GP는 **인게임 주 소비 통화**야. 상점, 함선 건조/강화/수리, 함선 가챠, 영토 업그레이드, 마켓 수수료, 거버넌스 행동 등에 써. 게임 플레이 보상 **그리고 PP→GP 환전**으로 모아.' },
           { type:'table',
             headers:['획득 방법','상세'],
             rows:[
+              ['일일 로그인/미션',        {v:'로그인 + 일일 3종',cls:'num'}],
               ['POI 드롭 (70% 비중)',     {v:'10 ~ 50 GP/POI',cls:'num'}],
               ['로켓 드롭 (50% 비중)',    {v:'10 ~ 40 GP/드롭',cls:'num'}],
-              ['섹터 세수 분배',          {v:'세금의 20%가 시민 몫',cls:'num'}],
-              ['거버너 선거 승리',        {v:'섹터 세수 20% 지속 수입',cls:'num'}]
+              ['전투 / 원정',             {v:'격침당 보상',cls:'num'}],
+              ['PP → GP 환전',           {v:'5~20 GP/PP (동적)',cls:'num'}],
+              ['섹터 세수 / 거버너',      {v:'섹터 지속 수입',cls:'num'}]
             ]},
-          { type:'callout', variant:'pro', title:'GP는 장기 축적 자산',
-            text:'GP는 **환전 불가**지만 섹터 세금·거버너 수입으로 연결되면서 결국 PP로 회전돼. 자세한 건 [거버넌스](#governance) §5 참고.' },
+          { type:'callout', variant:'pro', title:'GP가 부족하면 PP를 환전',
+            text:'건조나 강화에 GP가 모자라면 `SWAP`/환전 탭에서 PP를 GP로 바꿔. 환율은 수요에 따라 PP당 5~20 GP 사이에서 변동해. 자세한 건 [PP → GP 환전](#exchange) §1 참고.' },
 
           { type:'h2', text:'4. XP & 계급' },
           { type:'p', text:'**모든 활동**에서 XP가 쌓여. 실제 계급 테이블 (총 30단계 — 일부만 표시):' },
@@ -42449,24 +42550,24 @@ var CODEX_CONTENT = {
               '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">실제 화폐</text>'+
               '<rect x="195" y="30" width="110" height="50" rx="6" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/>'+
               '<text x="250" y="55" text-anchor="middle" font-size="12" fill="#ff783c" font-weight="700">PP</text>'+
-              '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">인게임 통화</text>'+
+              '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">가치 토큰 ~$1</text>'+
               '<rect x="360" y="30" width="110" height="50" rx="6" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="1.5"/>'+
               '<text x="415" y="55" text-anchor="middle" font-size="12" fill="#ffd166" font-weight="700">GP</text>'+
-              '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">정치 권력</text>'+
+              '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">주 소비 통화</text>'+
               '<line x1="140" y1="55" x2="190" y2="55" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">SWAP</text>'+
+              '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">환금</text>'+
               '<line x1="190" y1="60" x2="140" y2="60" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)" stroke-dasharray="3,3"/>'+
-              '<line x1="305" y1="55" x2="355" y2="55" stroke="#ff783c" stroke-width="1.5" stroke-dasharray="3,3"/>'+
-              '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#9aa3b0">환전 ✕</text>'+
-              '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">채굴·퀘스트·커미션 ↓</text>'+
+              '<line x1="305" y1="55" x2="355" y2="55" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+              '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#ffd166">PP→GP 5-20</text>'+
+              '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">영토 채굴·보너스 ↓</text>'+
               '<line x1="250" y1="125" x2="250" y2="80" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">영토 보유 ↓</text>'+
+              '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">로그인·미션·전투 ↓</text>'+
               '<line x1="415" y1="125" x2="415" y2="80" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
               '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">입금 ↓</text>'+
               '<line x1="85"  y1="125" x2="85"  y2="80" stroke="#5bb8e8" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-              '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP (PG는 단방향 축적)</text>'+
+              '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP → GP (PP→GP 동적 환율)</text>'+
             '</svg>',
-            caption:'USDT ⇄ PP 양방향 스왑 / GP는 스왑 불가 단방향 축적' }
+            caption:'USDT ⇄ PP 환금(담보 한도 내) / PP → GP 동적 환율 5~20' }
         ]
       },
       { id: 'territory', icon: '🏴', title: '영토 시스템',
@@ -42508,6 +42609,8 @@ var CODEX_CONTENT = {
               ['플랫폼 수수료',     {v:'10 %',cls:'num'},     '나머지 0.1x는 금고로'],
               ['쉴드 차감',         {v:'50 ~ 75 %',cls:'num'},'쉴드가 걸려있으면 피해 흡수']
             ]},
+          { type:'callout', variant:'warn', title:'⚠ 하이잭 전투의 함선 영구파괴',
+            text:'하이잭은 **함대전**으로 번질 수 있고, 거기서 격침된(HP 0) 함선은 **영구 손실**돼 — 되살릴 수 없고 조선소에서 재건조해야 해 (`hijack_ship_loss_enabled=true`). 잃어도 되는 함대만 투입해. 건조/수리는 [함대 & 조선소](#fleet) 참고.' },
           { type:'callout', variant:'warn', title:'섣부른 하이잭은 손해',
             text:'비싼 CORE 섹터에서 하이잭하면 비용이 금방 수십 USDT로 뛰어. 타겟은 **1주일 이상 활동 없는 대형 영토**가 가성비 최고. 작은 땅 빼앗으려고 하이잭 하면 수수료만 날려.' },
           { type:'callout', variant:'pro', title:'하이잭도 시즌 점수',
@@ -42671,6 +42774,70 @@ var CODEX_CONTENT = {
             text:'영토·채굴은 선형 성장(내가 일한 만큼), **DYNASTY는 네트워크 효과**야. 활발한 유저 5명만 초대해도 패시브 PP가 본인 채굴보다 많아지는 시점이 와. 자세한 건 [DYNASTY 추천](#dynasty) §8 참고.' }
         ]
       },
+      { id: 'fleet', icon: '🚢', title: '함대 & 조선소',
+        blocks: [
+          { type:'p', text:'함선은 **잃을 수 있는 진짜 자산**이야. 조선소에서 건조하고, GP와 광물로 강화·수리하고, 함선 가챠로 희귀 함선을 노리고, 함선 마켓에서 거래해. 하이젝 전투에선 함선이 **영구 파괴**될 수 있어.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '함선 로스터 & 파벌',
+            '조선소 — 건조 & 수리',
+            '스탯 강화',
+            '함선 가챠(Ship Crate)',
+            '함선 마켓 (지역)',
+            '영구파괴 경고'
+          ]},
+
+          { type:'h2', text:'1. 함선 로스터 & 파벌' },
+          { type:'p', text:'3파벌(MCC / FSP / CV)에 걸쳐 **함선 22종**, 5개 사이즈 클래스가 있어. 큰 함급은 화력·탱킹이 강하지만 희귀한 Core/Mid 광물이 필요해. 타이탄은 서버 캡(종류당 생존 3척)으로 제한돼.' },
+          { type:'table',
+            headers:['함급','역할','건조 비용 티어'],
+            rows:[
+              [{v:'프리깃',cls:'mars'},   '고속 태클 / 전자전',        {v:'낮음',cls:'num'}],
+              [{v:'구축함',cls:'mars'},   '스커미시 딜',               {v:'낮음–중간',cls:'num'}],
+              [{v:'순양함',cls:'mars'},   '유연한 주력',               {v:'중간',cls:'num'}],
+              [{v:'전함',cls:'mars'},     '중장 라인 — Core/Mid 광물', {v:'높음',cls:'num'}],
+              [{v:'타이탄',cls:'mars'},   '캐피탈 — 서버 캡',          {v:'최상',cls:'num'}]
+            ]},
+
+          { type:'h2', text:'2. 조선소 — 건조 & 수리' },
+          { type:'p', text:'`조선소`를 열면 청사진이 보여. 각 카드는 GP + 광물 비용을 **보유 / 필요**로 표시하고, 어느 섹터 티어가 그 광물을 드롭하는지 ⛏ 뱃지로 알려줘. 건조하면 `ship_build_job`이 큐에 들어가고, 함선은 기본 함대에 편입돼.' },
+          { type:'table',
+            headers:['행동','비용','비고'],
+            rows:[
+              ['건조', {v:'GP + 광물',cls:'num'}, '전함/타이탄은 Core + Mid 광물 필요'],
+              ['수리', {v:'GP + 광물',cls:'num'}, '전투 후 HP 회복'],
+              ['실드', {v:'GP',cls:'num'},        '전투 전 피해 흡수'],
+              ['해체', {v:'—',cls:'num'},         '분해해서 일부 회수']
+            ]},
+          { type:'callout', variant:'info', title:'판매중 함선은 잠김',
+            text:'마켓에 등록된(`is_market_listed`) 함선은 등록을 취소하기 전까지 강화·수리·실드·해체·함대 이동이 모두 막혀.' },
+
+          { type:'h2', text:'3. 스탯 강화' },
+          { type:'p', text:'보유 함선은 `atk / def / hp / speed`를 **영구 강화**할 수 있어. 강화는 **성공 확률**이 있고, 성공/실패 모두 GP + 재료를 소모해. 비용은 총 투자 횟수에 따라 올라가.' },
+          { type:'callout', variant:'pro', title:'강화는 확률형',
+            text:'실패해도 GP와 재료는 소모되고, 성공할 때만 스탯 보너스가 붙어. 전투 엔진이 `bonus_atk/def/hp/speed`를 직접 읽어서 실제 전투에 반영돼.' },
+
+          { type:'h2', text:'4. 함선 가챠(Ship Crate)' },
+          { type:'p', text:'**GP**로 함선 상자를 열어 사이즈 클래스별 함선을 무작위로 얻어. 모든 상자는 **확률 공개**가 돼 있고, 프리미엄/레전더리 상자는 정해진 횟수에 도달하면 순양함 이상을 보장하는 **천장(pity)**이 있어.' },
+          { type:'table',
+            headers:['상자','가격','천장','최고 함급'],
+            rows:[
+              [{v:'📦 스탠다드',cls:'mars'},  {v:'300 GP',cls:'num'},  {v:'—',cls:'num'},      '순양함'],
+              [{v:'🎁 프리미엄',cls:'mars'},  {v:'1,000 GP',cls:'num'},{v:'10회',cls:'num'},   '전함'],
+              [{v:'🌟 레전더리',cls:'mars'}, {v:'3,000 GP',cls:'num'},{v:'5회',cls:'num'},    '타이탄']
+            ]},
+          { type:'callout', variant:'info', title:'서버 RNG + 타이탄 캡',
+            text:'추첨은 서버 권위 RNG를 써. 타이탄 서버 캡이 가득 차면 타이탄 추첨은 전함으로 강등돼. 확률은 각 상자 카드에 표시돼.' },
+
+          { type:'h2', text:'5. 함선 마켓 (지역)' },
+          { type:'p', text:'`등록 → 구매 → 취소`로 함선을 거래해. 각 매물은 **판매자 거점 섹터**에 귀속돼: 매수 시 해당 **섹터 거버너에게 관세**가 붙을 수 있고, 운영자는 같은 섹터 구매만 허용하도록 제한할 수 있어 — 섹터를 거래 허브로 만들고 섹터 간 차익거래를 유발해.' },
+          { type:'callout', variant:'tip', title:'섹터 관세를 보라',
+            text:'세율 높은 CORE 섹터의 매물은 매수자가 추가 비용을 내. 더 싼 매물은 세율 낮은 프론티어 섹터에 있는 경우가 많아 — 대신 물류 부담이 있지.' },
+
+          { type:'h2', text:'6. ⚠ 영구파괴 경고' },
+          { type:'callout', variant:'warn', title:'격침된 함선은 영영 사라진다',
+            text:'풀로스 적용 상태(`hijack_ship_loss_enabled=true`)에서 하이젝 전투 중 **HP 0이 된 함선은 영구 파괴**돼 — `is_alive=false`, 부활 불가. 조선소에서 다시 건조해야 해. 잃어도 되는 함대만 투입하고, 재건조용 예비 함선 + 광물을 비축해 둬.' }
+        ]
+      },
       { id: 'governance', icon: '🏛', title: '거버넌스',
         blocks: [
           { type:'p', text:'화성은 **두 단계 권력 구조**로 돌아가. 전역 1인자인 **커맨더**와 섹터마다 한 명씩 있는 **거버너**. 둘 다 세수·권한·이벤트 발동 같은 실제 게임 규칙을 바꿀 수 있어. 거버넌스는 구현된 실제 기능이야 — 상징적인 장식이 아냐.' },
@@ -42680,7 +42847,7 @@ var CODEX_CONTENT = {
             '섹터 버프 (거버너 권한)',
             '글로벌 이벤트 (커맨더 권한)',
             '현상금 시스템',
-            'GP — 거버넌스 포인트'
+            '거버넌스의 GP'
           ]},
 
           { type:'h2', text:'1. 권력 구조' },
@@ -42744,8 +42911,8 @@ var CODEX_CONTENT = {
           { type:'callout', variant:'pro', title:'현상금은 정치 도구',
             text:'경쟁자 거버너를 흔들고 싶으면 그의 핵심 영토에 현상금을 걸어. 다른 유저들이 습격하러 몰려오면 그 거버너는 방어에 쫓겨서 세수를 제대로 못 걷어.' },
 
-          { type:'h2', text:'6. GP — 거버넌스 포인트' },
-          { type:'p', text:'GP는 거버넌스 전용 통화야. **PP나 USDT로 살 수 없어** (코스메틱은 4× PP 비율로 GP 결제 가능). GP를 얻는 방법은 활동뿐이야.' },
+          { type:'h2', text:'6. 거버넌스의 GP' },
+          { type:'p', text:'거버넌스는 주 소비 통화인 GP로 돌아가. 게임 플레이 보상 **그리고 PP → GP 환전**(동적 5~20 환율)으로 모은 뒤 선거·섹터 지배·버프에 써. GP는 PP나 USDT로 되돌릴 수 없어.' },
           { type:'table',
             headers:['GP 획득 경로','일반 보상'],
             rows:[
@@ -43076,20 +43243,30 @@ var CODEX_CONTENT = {
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP 환전',
         blocks: [
-          { type:'p', text:'GP가 급하면 PP(실제 돈 토큰)를 GP로 환전. 수수료 부분은 영구 소각 = **PP 싱크**.' },
+          { type:'p', text:'GP가 급하면 PP(가치 토큰)를 GP로 환전. 환율은 고정이 아니라 수요에 따라 **변동**해. 수수료 부분은 영구 소각 = **PP 싱크**.' },
+          { type:'h2', text:'1. 동적 PP → GP 환율' },
+          { type:'p', text:'환율은 24h 환전 수요로 재계산되고 하드밴드 안에 묶여. GP 수요가 높으면 환율이 **내려가고**(PP당 GP 적게), 낮으면 다시 **올라가**.' },
           { type:'table',
-            headers:['설정','기본값','소스'],
+            headers:['설정','값','소스'],
             rows:[
-              ['환전 비율', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
-              ['수수료',    {v:'5% (소각)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
-              ['최소',      {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
-              ['최대',      {v:'5 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
-              ['일일 한도', {v:'50 PP/일',cls:'num'},        '`pp_to_gp_exchange_daily_limit`']
+              ['환율 밴드',  {v:'5 ~ 20 GP/PP',cls:'num'}, '`pp_to_gp_rate_floor` / `_ceil`'],
+              ['기준 환율',  {v:'10 GP/PP',cls:'num'},      '`pp_to_gp_exchange_rate`'],
+              ['1회 변동',   {v:'±2% / 재계산',cls:'num'},   '`pp_to_gp_rate_max_step_pct`'],
+              ['수수료',     {v:'5% (소각)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
+              ['동적 환율',  {v:'활성',cls:'num'},           '`pp_to_gp_dynamic_enabled=true`']
             ]},
-          { type:'callout', variant:'warn', title:'단방향 환전',
-            text:'PP → GP만 가능. GP를 PP로 되돌릴 수 없다. 인게임 화폐를 실제 돈으로 사는 것. 5% 수수료는 소각되어 PP 총 공급량 감소.' },
-          { type:'callout', variant:'tip', title:'언제 환전?',
-            text:'길드전 컨티뉴, 시즌패스 프리미엄, 길드 창설, 연구 해금에 GP가 필요할 때. 평소 GP는 채굴과 퀘스트로 충분.' }
+          { type:'callout', variant:'warn', title:'PP → GP는 단방향',
+            text:'**PP를 GP로** 바꾸는 거지 반대는 안 돼 — GP는 PP로 되돌릴 수 없어. 함선 건조·강화·가챠·상점·거버넌스에 GP가 필요할 때 PP를 환전해. 평소 GP는 로그인·미션·전투로도 들어와.' },
+          { type:'callout', variant:'tip', title:'환율 보고 환전',
+            text:'환율이 PP당 5~20 GP 사이에서 변동하니까, GP 수요가 낮을 때(환율이 20 근처) 환전하면 PP당 GP를 더 받아. 5% 수수료는 소각돼 PP 공급량을 줄여.' },
+
+          { type:'h2', text:'2. PP → USDT 환금 (담보 한도)' },
+          { type:'p', text:'PP는 `SWAP` 탭에서 **USDT로 환금**할 수도 있어 — 단 운영자가 적립한 **담보 풀** 한도 내에서만. 구조적으로 뱅크런을 막아.' },
+          { type:'formula', label:'환금 가능 한도(room)',
+            eq:'room = ~담보~ − ~전체 유저 USDT 부채~',
+            note:'PP → USDT 환금(과 PP 유래 출금)은 `room`까지만 허용돼. 풀이 소진되면 운영자가 담보를 채울 때까지 환금이 멈춰.' },
+          { type:'callout', variant:'warn', title:'환금은 무제한이 아니다',
+            text:'PP는 ~$1 페그지만 USDT 환금은 가용 담보 한도에 달려 있어. 동시 대량 환금은 한도에 막힐 수 있어 — 이게 뱅크런 안전장치야 (`migration 230`).' }
         ]
       },
       { id: 'casino', icon: '🎰', title: '칸티나 카지노',
@@ -43339,13 +43516,23 @@ CODEX_CONTENT.ja = {
   sections: [
     { id: 'whatsnew', icon: '🆕', title: '最新アップデート',
       blocks: [
-        { type:'p', text:'**v6.07 — 2026-05-05 領土別収穫 + 艦隊ダッシュボード。** 最新の安定ビルド。' },
-        { type:'h2', text:'⛏ v6.07 領土別収穫' },
-        { type:'p', text:'• **MINE タブ廃止** — 収穫は BASE → My Territory アコーディオン内で領土ごとに行う。\n• 各領土の収穫クールダウンはそれぞれ独立 (CORE 24h / MID 48h / FRONTIER 72h)。\n• 収穫時に PP と一緒に鉱物ドロップを表示。\n• 艦隊タブにフルダッシュボード追加: 艦船リスト、HP バー、建造キュー。' },
-        { type:'h2', text:'🚢 v6.0 リアルタイム艦隊戦 (WebSocket)' },
-        { type:'p', text:'• WebSocket でライブ戦闘ビューア — 艦隊位置・HP・陣形がリアルタイム更新。\n• Tactical Lab v11 を公式戦闘ビューアとして統合。\n• 22 種の艦船 PNG スプライト (トップダウン表示)。\n• 手動スキル: ビーム砲 ☢、ミサイル斉射 ☄、EMP、集中攻撃。' },
-        { type:'h2', text:'🏭 v5.9x 領土ユーティリティ (P5)' },
-        { type:'p', text:'• 生産パネル: 領土ごとに期待 PP 範囲・セクタータイア・鉱物ドロップリスト表示。\n• 5 つのアップグレードトラック (採掘機 / 精製所 / シールドグリッド / 中継塔 / 芸術ビーコン)。\n• セクターコントロール: 影響力ティア (presence 10% → governor 75%)。\n• 造船所ヒント: 設計図カードに必要鉱物のセクタータイアを表示。' },
+        { type:'p', text:'**v7.13x — 2026-05 生きた経済 + EVE 級の艦隊戦。** 最新の安定ビルド。' },
+        { type:'callout', variant:'warn', title:'⚠ 艦船の完全ロスト(full-loss)が有効化',
+          text:'ハイジャック戦で撃沈された(HP 0)艦船は**永久に失われる** — 復活不可、造船所で再建造が必要。艦隊は失っても許容できる本物の資産として運用すること。(`hijack_ship_loss_enabled = true`)' },
+        { type:'h2', text:'💰 通貨モデルの明確化' },
+        { type:'p', text:'• **GP がメイン消費通貨** — デイリーログイン・ミッション・戦闘・遠征の報酬で得るほか、**PP → GP 両替**でも補充。ショップ、艦船の建造/強化/修理、艦船ガチャ、領土アップグレード、マーケット手数料などに消費。\n• **PP は領土採掘トークンで 1 PP ≈ $1 ペッグ。** 領土収穫(日次採掘キャップ)・登録/紹介/入金ボーナスで獲得。領土クレーム/アップグレード、GP への両替、**USDT への換金**(運営者の担保プール内)に使用。\n• **USDT** は Base チェーンの実入出金。' },
+        { type:'h2', text:'🎰 艦船ガチャ(Ship Crate)' },
+        { type:'p', text:'• **GP** で艦船クレートを開封。3 ティア: スタンダード 300 GP、プレミアム 1,000 GP、レジェンダリー 3,000 GP。\n• 全クレートに**確率公開** + **天井(pity)**(プレミアム 10 回、レジェンダリー 5 回)で巡洋艦以上を保証。' },
+        { type:'h2', text:'📈 動的 PP ↔ GP レート' },
+        { type:'p', text:'• PP→GP レートは固定ではなく、24h 需要に応じて **PP あたり 5〜20 GP** のハードバンド内で変動し、1 回の再計算で最大 **±2%** 動く。GP 需要が高いとレートは下がり、低いと再び上がる。' },
+        { type:'h2', text:'🏪 地域(セクター)マーケット' },
+        { type:'p', text:'• マーケット出品は**出品者の拠点セクター**に紐づくようになった。購入時にその**セクターガバナーへ関税**がかかることがあり、運営者は同一セクター取引のみ許可するよう設定できる — セクターが取引ハブになる。' },
+        { type:'h2', text:'🛡 経済の安全装置' },
+        { type:'p', text:'• **バンクラン防止**: PP→USDT 換金は運営者が積み立てた**担保枠(room = 担保 − 負債)**内でのみ可能。裏付けのない換金は不可。\n• **PP 採掘キャップ**: パッシブ収穫は**ユーザーあたり 1 PP/日**が上限(`mining_daily_cap_per_user=1.0`)。クジラ対策。\n• 紹介報酬に**シビル防御**(アカウント別・日次キャップ)。' },
+        { type:'h2', text:'⚙ インフラ' },
+        { type:'p', text:'• **マルチインスタンス水平スケーリング** — スケジューラ/リスナーワーカーを `RUN_SCHEDULERS` で分離、Redis キャッシュ + 共有レートリミット(インメモリフォールバック)。\n• **WebSocket リアルタイムプッシュ** — チャット・アクティビティフィードがポーリングではなく WebSocket でストリーミング、Redis Pub/Sub でインスタンス間ファンアウト。' },
+        { type:'h2', text:'🚢 リアルタイム艦隊戦' },
+        { type:'p', text:'• WebSocket でライブ戦闘ビューア — 艦隊位置・HP・陣形がリアルタイム更新。\n• Tactical Lab v11 を公式戦闘ビューアとして統合、22 種の艦船 PNG スプライト(トップダウン)。\n• 手動スキル: ビーム砲 ☢、ミサイル斉射 ☄、EMP、集中攻撃。\n• 収穫は BASE → 領土内で領土ごと(CORE 24h / MID 48h / FRONTIER 72h)、鉱物ドロップ付き。' },
         { type:'callout', variant:'tip', title:'開発者向け',
           text:'技術的詳細はリポジトリルートの `CHANGELOG.md` と `AUDIT_FINDINGS.md` を参照。' }
       ]
@@ -43383,15 +43570,15 @@ CODEX_CONTENT.ja = {
         { type:'h2', text:'2. 通貨構造' },
         { type:'p', text:'ゲーム内には **4 種類の資産** がある。それぞれ役割が異なるので混同しないこと。' },
         { type:'table',
-          headers:['資産','種別','獲得方法','用途','交換可能?'],
+          headers:['資産','役割','獲得方法','用途','変換可能?'],
           rows:[
-            [{v:'💵 USDT',cls:'mars'},  '実暗号資産', '入金(Base チェーン)',       'プレミアムクレーム・コスメ・カンティナ', {v:'○',cls:'num'}],
-            [{v:'🥔 PP',cls:'mars'},    'ゲーム内トークン', '採掘・POI・コミッション・クエスト', '基本クレーム・ショップ・ギルド手数料・ベット', {v:'△ (USDT へスワップ)',cls:'num'}],
-            [{v:'🏛 GP',cls:'mars'},    '政治ポイント', '領土保持・選挙勝利',         '投票・セクター支配・政策',         {v:'✕',cls:'num'}],
-            [{v:'⭐ XP',cls:'mars'},    'アカウントレベル', '全活動',                     'ランク特典・手数料ブースト',       {v:'✕',cls:'num'}]
+            [{v:'💵 USDT',cls:'mars'},  '実暗号資産',          '入金(Base チェーン)',                'プレミアムクレーム・コスメ・カンティナ', {v:'入金 / 出金',cls:'num'}],
+            [{v:'🥔 PP',cls:'mars'},    '領土トークン (~$1)', '領土収穫・登録/紹介/入金',            '領土クレーム/アップグレード, →GP, →USDT 換金', {v:'→GP / →USDT (上限あり)',cls:'num'}],
+            [{v:'🏛 GP',cls:'mars'},    'メイン消費通貨',     'ログイン・ミッション・戦闘・PP→GP',   'ショップ, 艦船(建造/強化/修理/ガチャ), アップグレード', {v:'PP→GP で購入',cls:'num'}],
+            [{v:'⭐ XP',cls:'mars'},    'アカウントレベル',   '全活動',                             'ランク特典・手数料ブースト',       {v:'✕',cls:'num'}]
           ]},
-        { type:'callout', variant:'info', title:'通貨の区別が重要',
-          text:'USDT は **本物のお金** だ。カジノで USDT を賭けるのは実際にお金を失うこと。PP はゲーム内スコア、GP は投票権。役割を混ぜるな。詳細は [トークン経済](#tokens) §2 参照。' },
+        { type:'callout', variant:'info', title:'GP で使い、PP で価値を蓄える',
+          text:'**GP がほぼ全ての消費先(ショップ・艦船・アップグレード)の通貨** だ。報酬で貯め、PP を両替しても補充する。**PP は ~$1 ペッグの価値トークン**で、採掘して GP に換えたり USDT に換金(運営者の担保プール内)したりする。**USDT は本物のお金**でカジノで賭けると実際に失う。詳細は [トークン経済](#tokens) §2 参照。' },
 
         { type:'h2', text:'3. 勝利条件' },
         { type:'callout', variant:'pro', title:'エンディングは存在しない',
@@ -43437,34 +43624,35 @@ CODEX_CONTENT.ja = {
         { type:'callout', variant:'warn', title:'USDT は実マネー',
           text:'ゲーム内で `USDT` ラベルが付いたすべての数字は **あなたの実資金** だ。カジノタブで USDT を賭ければ本当にお金が飛ぶ。常に慎重に。' },
 
-        { type:'h2', text:'2. PP — Potato Points' },
-        { type:'p', text:'ゲーム内メイン通貨。新規登録時に **+100 PP**(`signup_pp_bonus=100`)。' },
-        { type:'formula', label:'PP 獲得ルート(6 種)',
-          eq:'PP = ~採掘~ + ~POI~ + ~ハイジャック~ + ~DYNASTY コミッション~ + ~カジノ勝利~ + ~デイリーミッション~',
-          note:'採掘は 1 ハーベスト最大 1 PP に制限。大きな収益はクエスト・POI・DYNASTY から。' },
+        { type:'h2', text:'2. PP — Pixel Points (価値トークン)' },
+        { type:'p', text:'PP は **領土採掘の価値トークン**で、おおむね **1 PP ≈ $1** ペッグだ。新規登録ボーナス + 入金/紹介で得る。日常の消費通貨ではなく、**価値を蓄え、GP に換え、USDT に換金する**資産だ。' },
+        { type:'formula', label:'PP 獲得ルート',
+          eq:'PP = ~領土収穫~ + ~登録ボーナス~ + ~紹介~ + ~入金ボーナス~',
+          note:'パッシブ収穫は **ユーザーあたり 1 PP/日** が上限(`mining_daily_cap_per_user=1.0`)。PP は希少で価値あるよう設計され、大量ファーム不可。' },
         { type:'table',
-          headers:['支出項目','コスト(サーバーデフォルト)'],
+          headers:['PP の用途','詳細'],
           rows:[
-            ['エナジーシールド (12h)',   {v:'2.5 PP',cls:'num'}],
-            ['プラズマシールド (24h)',   {v:'5.0 PP',cls:'num'}],
-            ['POI ヒント',              {v:'0.2 PP',cls:'num'}],
-            ['PP → USDT スワップ',      {v:'手数料 5%',cls:'num'}]
+            ['領土クレーム/アップグレード', {v:'ピクセルクレーム & 領土アップグレード',cls:'num'}],
+            ['PP → GP 両替',                {v:'動的レート 5〜20 GP/PP',cls:'num'}],
+            ['PP → USDT 換金',              {v:'担保枠内',cls:'num'}]
           ]},
-        { type:'callout', variant:'info', title:'PP ↔ USDT スワップ',
-          text:'`SWAP` タブで PP を USDT に交換できる。手数料 `swap_fee_percent=5%`。逆方向(USDT → PP)も可能。' },
+        { type:'callout', variant:'info', title:'PP ↔ USDT 換金',
+          text:'`SWAP` タブで PP を USDT に(または逆に)交換する。**換金は運営者が積み立てた担保プール内でのみ許可**され、無制限の現金化はできない。バンクラン防止ルールは [PP ⇄ USDT 換金](#exchange) 参照。' },
 
-        { type:'h2', text:'3. GP — Governance Points' },
-        { type:'p', text:'**政治権力**。セクター税収・ガバナー選挙・DAO 投票の燃料だ。お金で直接買えない。' },
+        { type:'h2', text:'3. GP — Game Points (メイン消費通貨)' },
+        { type:'p', text:'GP は **ゲーム内のメイン消費通貨**だ。ショップ、艦船の建造/強化/修理、艦船ガチャ、領土アップグレード、マーケット手数料、ガバナンス行動などに使う。ゲームプレイ報酬 **および PP → GP 両替** で貯める。' },
         { type:'table',
           headers:['獲得方法','詳細'],
           rows:[
+            ['デイリーログイン/ミッション', {v:'ログイン + 日次 3 種',cls:'num'}],
             ['POI ドロップ (70% 重み)',{v:'10 ~ 50 GP/POI',cls:'num'}],
             ['ロケットドロップ (50% 重み)', {v:'10 ~ 40 GP/ドロップ',cls:'num'}],
-            ['セクター税分配',         {v:'税収の 20% が市民分',cls:'num'}],
-            ['ガバナー選挙勝利',        {v:'セクター税収 20% を継続受取',cls:'num'}]
+            ['戦闘 / 遠征',            {v:'撃沈ごとの報酬',cls:'num'}],
+            ['PP → GP 両替',           {v:'5〜20 GP/PP (動的)',cls:'num'}],
+            ['セクター税 / ガバナー',   {v:'セクター継続収入',cls:'num'}]
           ]},
-        { type:'callout', variant:'pro', title:'GP は長期蓄積資産',
-          text:'GP は **両替不可** だがセクター税・ガバナー収入を経て最終的に PP に回転する。詳細は [ガバナンス](#governance) §5 参照。' },
+        { type:'callout', variant:'pro', title:'GP が足りなければ PP を両替',
+          text:'建造や強化に GP が足りなければ `SWAP`/両替タブで PP を GP に換える。レートは需要に応じて PP あたり 5〜20 GP の間で変動する。詳細は [PP → GP 両替](#exchange) §1 参照。' },
 
         { type:'h2', text:'4. XP & ランク' },
         { type:'p', text:'**全活動** で XP が蓄積される。実際のランクテーブル(全 30 段階 — 一部抜粋):' },
@@ -43490,27 +43678,27 @@ CODEX_CONTENT.ja = {
             '<defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ff783c"/></marker></defs>'+
             '<rect x="30"  y="30" width="110" height="50" rx="6" fill="rgba(91,184,232,.1)" stroke="#5bb8e8" stroke-width="1.5"/>'+
             '<text x="85"  y="55" text-anchor="middle" font-size="12" fill="#5bb8e8" font-weight="700">USDT</text>'+
-            '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">실제 화폐</text>'+
+            '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">実通貨</text>'+
             '<rect x="195" y="30" width="110" height="50" rx="6" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/>'+
             '<text x="250" y="55" text-anchor="middle" font-size="12" fill="#ff783c" font-weight="700">PP</text>'+
-            '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">인게임 통화</text>'+
+            '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">価値トークン ~$1</text>'+
             '<rect x="360" y="30" width="110" height="50" rx="6" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="1.5"/>'+
             '<text x="415" y="55" text-anchor="middle" font-size="12" fill="#ffd166" font-weight="700">GP</text>'+
-            '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">정치 권력</text>'+
+            '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">メイン消費通貨</text>'+
             '<line x1="140" y1="55" x2="190" y2="55" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">SWAP</text>'+
+            '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">換金</text>'+
             '<line x1="190" y1="60" x2="140" y2="60" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)" stroke-dasharray="3,3"/>'+
-            '<line x1="305" y1="55" x2="355" y2="55" stroke="#ff783c" stroke-width="1.5" stroke-dasharray="3,3"/>'+
-            '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#9aa3b0">환전 ✕</text>'+
-            '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">채굴·퀘스트·커미션 ↓</text>'+
+            '<line x1="305" y1="55" x2="355" y2="55" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+            '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#ffd166">PP→GP 5-20</text>'+
+            '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">領土採掘・ボーナス ↓</text>'+
             '<line x1="250" y1="125" x2="250" y2="80" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">영토 보유 ↓</text>'+
+            '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">ログイン・任務・戦闘 ↓</text>'+
             '<line x1="415" y1="125" x2="415" y2="80" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">입금 ↓</text>'+
+            '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">入金 ↓</text>'+
             '<line x1="85"  y1="125" x2="85"  y2="80" stroke="#5bb8e8" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP (PG는 단방향 축적)</text>'+
+            '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP → GP (PP→GP 動的レート)</text>'+
           '</svg>',
-          caption:'USDT ⇄ PP 双方向スワップ / GP はスワップ不可の一方向蓄積' }
+          caption:'USDT ⇄ PP 換金(担保枠内) / PP → GP 動的レート 5〜20' }
       ]
     },
     { id: 'territory', icon: '🏴', title: '領土システム',
@@ -43551,6 +43739,8 @@ CODEX_CONTENT.ja = {
             ['元所有者への還付',{v:'+50 %',cls:'num'},    'ハイジャック費用の 50% をボーナス還元'],
             ['シールド吸収',   {v:'50 ~ 75 %',cls:'num'},'シールド有効時はダメージ吸収']
           ]},
+        { type:'callout', variant:'warn', title:'⚠ ハイジャック戦の艦船完全ロスト',
+          text:'ハイジャックは**艦隊戦**に発展することがあり、そこで撃沈された(HP 0)艦船は**永久に失われる** — 復活不可、造船所で再建造が必要(`hijack_ship_loss_enabled=true`)。失っても許容できない艦船は持ち込むな。建造/修理は [艦隊と造船所](#fleet) 参照。' },
         { type:'callout', variant:'warn', title:'軽率なハイジャックは損',
           text:'高価な CORE セクターでハイジャックするとあっという間に数十 USDT に跳ね上がる。ターゲットは **1 週間以上活動のない大型領土** が一番コスパが良い。小さな土地を奪おうとすると手数料だけが飛ぶ。' },
         { type:'callout', variant:'pro', title:'ハイジャックはシーズンスコアにも',
@@ -43695,6 +43885,70 @@ CODEX_CONTENT.ja = {
           text:'領土・採掘は線形成長(自分が働いた分)、**DYNASTY はネットワーク効果** だ。活発なユーザーを 5 人招待すればパッシブ PP が自分の採掘を上回る時点が必ず来る。詳細は [DYNASTY/紹介](#dynasty) §8 参照。' }
       ]
     },
+    { id: 'fleet', icon: '🚢', title: '艦隊と造船所',
+      blocks: [
+        { type:'p', text:'艦船は**失う可能性のある本物の資産**だ。造船所で建造し、GP と鉱物で強化・修理し、艦船ガチャでレア艦を狙い、艦船マーケットで取引する。ハイジャック戦では艦船が**永久に破壊**されることがある。' },
+        { type:'toc', label:'このセクションの内容', items:[
+          '艦船ロスター & 派閥',
+          '造船所 — 建造 & 修理',
+          'ステータス強化',
+          '艦船ガチャ(Ship Crate)',
+          '艦船マーケット(地域)',
+          '完全ロスト警告'
+        ]},
+
+        { type:'h2', text:'1. 艦船ロスター & 派閥' },
+        { type:'p', text:'3 派閥(MCC / FSP / CV)にまたがり **22 種の艦船**、5 つのサイズクラスがある。大型艦ほど火力・耐久が高いがレアな Core/Mid 鉱物を要する。タイタンはサーバーキャップ(種別ごと生存 3 隻)で制限される。' },
+        { type:'table',
+          headers:['艦級','役割','建造コストティア'],
+          rows:[
+            [{v:'フリゲート',cls:'mars'}, '高速タックル / 電子戦',        {v:'低',cls:'num'}],
+            [{v:'駆逐艦',cls:'mars'},     'スカーミッシュ火力',          {v:'低〜中',cls:'num'}],
+            [{v:'巡洋艦',cls:'mars'},     '柔軟な主力',                  {v:'中',cls:'num'}],
+            [{v:'戦艦',cls:'mars'},       '重ライン — Core/Mid 鉱物',    {v:'高',cls:'num'}],
+            [{v:'タイタン',cls:'mars'},   'キャピタル — サーバーキャップ',{v:'最高',cls:'num'}]
+          ]},
+
+        { type:'h2', text:'2. 造船所 — 建造 & 修理' },
+        { type:'p', text:'`造船所` を開くと設計図が見える。各カードは GP + 鉱物コストを **保有 / 必要** で表示し、どのセクターティアがその鉱物をドロップするかを ⛏ バッジで示す。建造すると `ship_build_job` がキューに入り、艦船はデフォルト艦隊に編入される。' },
+        { type:'table',
+          headers:['行動','コスト','備考'],
+          rows:[
+            ['建造', {v:'GP + 鉱物',cls:'num'}, '戦艦/タイタンは Core + Mid 鉱物が必要'],
+            ['修理', {v:'GP + 鉱物',cls:'num'}, '戦闘後の HP 回復'],
+            ['シールド',{v:'GP',cls:'num'},     '戦闘前のダメージ吸収'],
+            ['解体', {v:'—',cls:'num'},         '分解して一部回収']
+          ]},
+        { type:'callout', variant:'info', title:'出品中の艦船はロック',
+          text:'マーケットに出品された(`is_market_listed`)艦船は、出品を取り消すまで強化・修理・シールド・解体・艦隊移動がすべて不可。' },
+
+        { type:'h2', text:'3. ステータス強化' },
+        { type:'p', text:'保有艦船は `atk / def / hp / speed` を**永久強化**できる。強化には**成功確率**があり、成功/失敗いずれも GP + 素材を消費する。コストは累計投資回数に応じて上昇する。' },
+        { type:'callout', variant:'pro', title:'強化は確率型',
+          text:'失敗しても GP と素材は消費され、成功時のみステータスボーナスが付く。戦闘エンジンが `bonus_atk/def/hp/speed` を直接参照するため、実戦に反映される。' },
+
+        { type:'h2', text:'4. 艦船ガチャ(Ship Crate)' },
+        { type:'p', text:'**GP** で艦船クレートを開け、サイズクラス別の艦船をランダムに得る。全クレートは**確率公開**され、プレミアム/レジェンダリーは規定回数に達すると巡洋艦以上を保証する**天井(pity)**を持つ。' },
+        { type:'table',
+          headers:['クレート','価格','天井','最高艦級'],
+          rows:[
+            [{v:'📦 スタンダード',cls:'mars'},  {v:'300 GP',cls:'num'},  {v:'—',cls:'num'},     '巡洋艦'],
+            [{v:'🎁 プレミアム',cls:'mars'},    {v:'1,000 GP',cls:'num'},{v:'10 回',cls:'num'}, '戦艦'],
+            [{v:'🌟 レジェンダリー',cls:'mars'},{v:'3,000 GP',cls:'num'},{v:'5 回',cls:'num'},  'タイタン']
+          ]},
+        { type:'callout', variant:'info', title:'サーバー RNG + タイタンキャップ',
+          text:'抽選はサーバー権威 RNG を使う。タイタンのサーバーキャップが満杯ならタイタン抽選は戦艦に降格される。確率は各クレートカードに表示される。' },
+
+        { type:'h2', text:'5. 艦船マーケット(地域)' },
+        { type:'p', text:'`出品 → 購入 → 取消` で艦船を取引する。各出品は**出品者の拠点セクター**に紐づく: 購入時にその**セクターガバナーへ関税**がかかることがあり、運営者は同一セクター購入のみ許可するよう制限できる — セクターを取引ハブにし、セクター間アービトラージを生む。' },
+        { type:'callout', variant:'tip', title:'セクター関税を見よ',
+          text:'税率の高い CORE セクターの出品は購入者が追加コストを払う。安い出品は税率の低いフロンティアセクターにあることが多い — 代わりに物流の負担がある。' },
+
+        { type:'h2', text:'6. ⚠ 完全ロスト警告' },
+        { type:'callout', variant:'warn', title:'撃沈された艦船は永遠に消える',
+          text:'完全ロスト有効時(`hijack_ship_loss_enabled=true`)、ハイジャック戦で **HP 0 になった艦船は永久破壊**される — `is_alive=false`、復活不可。造船所で再建造が必要だ。失っても許容できる艦隊のみ投入し、再建造用の予備艦 + 鉱物を備蓄しておけ。' }
+      ]
+    },
     { id: 'governance', icon: '🏛', title: 'ガバナンス',
       blocks: [
         { type:'p', text:'火星は **2 層の権力構造** で動く。全域トップの **コマンダー** と、セクターごとに 1 人の **ガバナー**。どちらも税収・権限・イベント発動など実際のゲームルールを変えられる。ガバナンスは実装済みの実機能であり、象徴的な装飾ではない。' },
@@ -43704,7 +43958,7 @@ CODEX_CONTENT.ja = {
           'セクターバフ(ガバナー権限)',
           'グローバルイベント(コマンダー権限)',
           '賞金システム',
-          'GP — ガバナンスポイント'
+          'ガバナンスの GP'
         ]},
 
         { type:'h2', text:'1. 権力構造' },
@@ -43768,8 +44022,8 @@ CODEX_CONTENT.ja = {
         { type:'callout', variant:'pro', title:'賞金は政治ツール',
           text:'ライバルガバナーを揺さぶりたいなら、彼の核心領土に賞金を掛けろ。他のユーザーが襲いに殺到すれば、そのガバナーは防衛に追われて税収を満足に取れなくなる。' },
 
-        { type:'h2', text:'6. GP — ガバナンスポイント' },
-        { type:'p', text:'GP はガバナンス専用通貨だ。**PP や USDT では買えない**(コスメは PP 価格の 4 倍で GP 決済可)。GP を得る方法は活動のみだ。' },
+        { type:'h2', text:'6. ガバナンスの GP' },
+        { type:'p', text:'ガバナンスはメイン消費通貨である GP で動く。ゲームプレイ報酬 **および PP → GP 両替**(動的 5〜20 レート)で貯め、選挙・セクター支配・バフに使う。GP は PP や USDT に戻せない。' },
         { type:'table',
           headers:['GP 獲得経路','一般的な報酬'],
           rows:[
@@ -44096,20 +44350,30 @@ CODEX_CONTENT.ja = {
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP 両替',
         blocks: [
-          { type:'p', text:'GPが急ぎで必要? PP(リアルマネートークン)をGPに両替。手数料分は永久バーン = **PPシンク**。' },
+          { type:'p', text:'GP が急ぎで必要? PP(価値トークン)を GP に両替する。レートは固定ではなく需要に応じて**変動**する。手数料分は永久バーン = **PP シンク**。' },
+          { type:'h2', text:'1. 動的 PP → GP レート' },
+          { type:'p', text:'レートは 24h の両替需要から再計算され、ハードバンド内に収まる。GP 需要が高いとレートは**下がり**(PP あたり GP 減)、低いと再び**上がる**。' },
           { type:'table',
-            headers:['設定','デフォルト','ソース'],
+            headers:['設定','値','ソース'],
             rows:[
-              ['両替レート', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
-              ['手数料',     {v:'5% (焼却)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
-              ['最小',       {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
-              ['最大',       {v:'5 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
-              ['日次上限',   {v:'50 PP/日',cls:'num'},       '`pp_to_gp_exchange_daily_limit`']
+              ['レートバンド', {v:'5 〜 20 GP/PP',cls:'num'}, '`pp_to_gp_rate_floor` / `_ceil`'],
+              ['基準レート',   {v:'10 GP/PP',cls:'num'},      '`pp_to_gp_exchange_rate`'],
+              ['1 回の変動',   {v:'±2% / 再計算',cls:'num'},   '`pp_to_gp_rate_max_step_pct`'],
+              ['手数料',       {v:'5% (焼却)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
+              ['動的レート',   {v:'有効',cls:'num'},           '`pp_to_gp_dynamic_enabled=true`']
             ]},
-          { type:'callout', variant:'warn', title:'一方通行',
-            text:'PP → GPのみ。GPをPPに戻すことは不可。5%手数料はバーンされ、PP総供給量が減少。' },
-          { type:'callout', variant:'tip', title:'いつ両替する?',
-            text:'ギルド戦コンティニュー、シーズンパスプレミアム、ギルド創設、研究解放にGPが必要な時。普段のGPは採掘とクエストで十分。' }
+          { type:'callout', variant:'warn', title:'PP → GP は一方通行',
+            text:'**PP を GP に**変換するのであって逆はできない — GP は PP に戻せない。艦船建造・強化・ガチャ・ショップ・ガバナンスに GP が必要なとき PP を両替せよ。普段の GP はログイン・ミッション・戦闘でも入る。' },
+          { type:'callout', variant:'tip', title:'レートを見て両替',
+            text:'レートは PP あたり 5〜20 GP の間で変動するので、GP 需要が低いとき(レートが 20 付近)に両替すると PP あたり GP を多く得られる。5% 手数料はバーンされ PP 供給を減らす。' },
+
+          { type:'h2', text:'2. PP → USDT 換金(担保ゲート)' },
+          { type:'p', text:'PP は `SWAP` タブで **USDT に換金**もできる — ただし運営者が積み立てた**担保プール**内でのみ。構造的にバンクランを防ぐ。' },
+          { type:'formula', label:'換金可能枠(room)',
+            eq:'room = ~担保~ − ~全ユーザー USDT 負債~',
+            note:'PP → USDT 換金(と PP 由来の出金)は `room` までのみ許可される。プールが尽きると運営者が担保を補充するまで換金は停止する。' },
+          { type:'callout', variant:'warn', title:'換金は無制限ではない',
+            text:'PP は ~$1 ペッグだが USDT 換金は利用可能な担保枠に依存する。同時大量換金は上限に達することがある — これがバンクラン安全装置だ(`migration 230`)。' }
         ]
       },
     { id: 'casino', icon: '🎰', title: 'カンティナカジノ',
@@ -44358,13 +44622,23 @@ CODEX_CONTENT.zh = {
   sections: [
     { id: 'whatsnew', icon: '🆕', title: '最新更新',
       blocks: [
-        { type:'p', text:'**v6.07 — 2026-05-05 逐地块收获 + 舰队仪表盘。** 最新稳定版本。' },
-        { type:'h2', text:'⛏ v6.07 逐地块收获' },
-        { type:'p', text:'• **MINE 标签已移除** — 收获改为在 BASE → My Territory 手风琴中逐块进行。\n• 每块领地的收获冷却时间独立 (CORE 24h / MID 48h / FRONTIER 72h)。\n• 收获时同时显示 PP 和矿物掉落。\n• 舰队标签新增完整仪表盘: 舰船列表、HP 条、建造队列。' },
-        { type:'h2', text:'🚢 v6.0 实时舰队战 (WebSocket)' },
-        { type:'p', text:'• WebSocket 实时战斗查看器 — 舰队位置、HP、阵型实时更新。\n• Tactical Lab v11 集成为官方战斗查看器。\n• 22 种舰船 PNG 精灵图 (俯视角)。\n• 手动技能: 粒子炮 ☢、导弹齐射 ☄、EMP、集中火力。' },
-        { type:'h2', text:'🏭 v5.9x 领地实用工具栈 (P5)' },
-        { type:'p', text:'• 生产面板: 每块领地显示预期 PP 范围、区域等级、矿物掉落列表。\n• 5 条升级路径 (采矿机 / 精炼厂 / 护盾网格 / 中继塔 / 艺术信标)。\n• 区域控制: 影响力等级 (presence 10% → governor 75%)。\n• 船坞提示: 蓝图卡显示所需矿物的区域等级。' },
+        { type:'p', text:'**v7.13x — 2026-05 活的经济 + EVE 级舰队战。** 最新稳定版本。' },
+        { type:'callout', variant:'warn', title:'⚠ 舰船永久损失(full-loss)已上线',
+          text:'劫持战中被击沉(HP 0)的舰船现在会**永久损失** — 无法复活,必须在船坞重新建造。请把舰队当作可能失去的真实资产来运营。(`hijack_ship_loss_enabled = true`)' },
+        { type:'h2', text:'💰 货币模型澄清' },
+        { type:'p', text:'• **GP 是主要消费货币** — 通过每日登录、任务、战斗、远征奖励获得,也可**将 PP 兑换为 GP**。消费于商店、舰船建造/强化/维修、舰船扭蛋、领地升级、市场手续费等。\n• **PP 是领地采矿代币,锚定 1 PP ≈ $1。** 通过领地收获(每日采矿上限)、注册/推荐/充值奖励获得。用于领地占领/升级、兑换为 GP、或**赎回为 USDT**(在运营方担保池额度内)。\n• **USDT** 是 Base 链的真实充提。' },
+        { type:'h2', text:'🎰 舰船扭蛋(Ship Crate)' },
+        { type:'p', text:'• 用 **GP** 开启舰船箱。三档: 标准 300 GP、高级 1,000 GP、传说 3,000 GP。\n• 每个箱子均**公开概率** + **保底(pity)**(高级 10 抽、传说 5 抽)保证巡洋舰或更高。' },
+        { type:'h2', text:'📈 动态 PP ↔ GP 汇率' },
+        { type:'p', text:'• PP→GP 汇率不再固定,随 24h 需求在 **每 PP 5~20 GP** 的硬区间内浮动,每次重算最多 **±2%**。GP 需求高则汇率下降,需求低则回升。' },
+        { type:'h2', text:'🏪 地区(区域)市场' },
+        { type:'p', text:'• 市场挂单现在绑定到**卖家的据点区域**。购买时可能对该**区域总督征收关税**,运营方还可选择仅允许同区域交易 — 让区域成为交易枢纽。' },
+        { type:'h2', text:'🛡 经济安全机制' },
+        { type:'p', text:'• **挤兑防护**: PP→USDT 赎回仅在运营方注资的**担保额度(room = 担保 − 负债)**内允许。无担保赎回不可。\n• **PP 采矿上限**: 被动收获上限为**每用户 1 PP/天**(`mining_daily_cap_per_user=1.0`),反巨鲸设计。\n• 推荐奖励设有**女巫防御**(按账号与每日上限)。' },
+        { type:'h2', text:'⚙ 基础设施' },
+        { type:'p', text:'• **多实例水平扩展** — 调度器/监听器 worker 由 `RUN_SCHEDULERS` 开关分离,Redis 缓存 + 共享限流(内存回退)。\n• **WebSocket 实时推送** — 聊天与活动流改用 WebSocket 推送而非轮询,通过 Redis Pub/Sub 跨实例扇出。' },
+        { type:'h2', text:'🚢 实时舰队战' },
+        { type:'p', text:'• WebSocket 实时战斗查看器 — 舰队位置、HP、阵型实时更新。\n• Tactical Lab v11 为官方战斗查看器,22 种舰船 PNG 精灵图(俯视角)。\n• 手动技能: 粒子炮 ☢、导弹齐射 ☄、EMP、集中火力。\n• 收获在 BASE → 领地内逐块进行(CORE 24h / MID 48h / FRONTIER 72h),附带矿物掉落。' },
         { type:'callout', variant:'tip', title:'面向开发者',
           text:'完整技术细节请查看仓库根目录的 `CHANGELOG.md` 和 `AUDIT_FINDINGS.md`。' }
       ]
@@ -44402,15 +44676,15 @@ CODEX_CONTENT.zh = {
         { type:'h2', text:'2. 货币结构' },
         { type:'p', text:'游戏中有 **4 种资产** 在流转,各自角色不同,不要混淆。' },
         { type:'table',
-          headers:['资产','类型','获取','用途','可交换?'],
+          headers:['资产','角色','获取','用途','可转换?'],
           rows:[
-            [{v:'💵 USDT',cls:'mars'},  '真实加密货币', '充值(Base 链)',        '高级占领·饰品·卡提纳', {v:'○',cls:'num'}],
-            [{v:'🥔 PP',cls:'mars'},    '游戏内代币',   '采矿·POI·佣金·任务',  '基础占领·商店·公会费·投注',   {v:'△ (可兑换 USDT)',cls:'num'}],
-            [{v:'🏛 GP',cls:'mars'},    '政治积分',   '领土持有·选举获胜',      '投票·扇区掌控·政策',           {v:'✕',cls:'num'}],
-            [{v:'⭐ XP',cls:'mars'},    '账号等级',     '所有活动',                '等级特权·费用加成',        {v:'✕',cls:'num'}]
+            [{v:'💵 USDT',cls:'mars'},  '真实加密货币',     '充值(Base 链)',                  '高级占领·饰品·卡提纳', {v:'充值 / 提现',cls:'num'}],
+            [{v:'🥔 PP',cls:'mars'},    '领地代币 (~$1)',  '领地收获·注册/推荐/充值',         '领地占领/升级, →GP, →USDT 赎回',   {v:'→GP / →USDT (有额度)',cls:'num'}],
+            [{v:'🏛 GP',cls:'mars'},    '主要消费货币',    '登录·任务·战斗·PP→GP',            '商店, 舰船(建造/强化/维修/扭蛋), 升级', {v:'通过 PP→GP 获得',cls:'num'}],
+            [{v:'⭐ XP',cls:'mars'},    '账号等级',        '所有活动',                        '等级特权·费用加成',        {v:'✕',cls:'num'}]
           ]},
-        { type:'callout', variant:'info', title:'货币区分很重要',
-          text:'USDT 是 **真钱**。在赌场里用 USDT 投注等于真的在输钱。PP 是游戏内积分,GP 是投票权。别混用角色。详情见 [代币经济](#tokens) §2。' },
+        { type:'callout', variant:'info', title:'用 GP 消费,用 PP 储值',
+          text:'**GP 是几乎所有消费(商店·舰船·升级)的货币**,靠奖励攒取并通过兑换 PP 补充。**PP 是锚定 ~$1 的价值代币**,你采矿获得它、换成 GP、或赎回为 USDT(在运营方担保池额度内)。**USDT 是真钱**,在赌场投注会真的亏钱。详情见 [代币经济](#tokens) §2。' },
 
         { type:'h2', text:'3. 胜利条件' },
         { type:'callout', variant:'pro', title:'没有终局',
@@ -44456,34 +44730,35 @@ CODEX_CONTENT.zh = {
         { type:'callout', variant:'warn', title:'USDT 是真钱',
           text:'游戏中所有带 `USDT` 标签的数字都是 **你的真实资金**。在赌场用 USDT 投注就是真的在烧钱。务必谨慎。' },
 
-        { type:'h2', text:'2. PP — Potato Points' },
-        { type:'p', text:'游戏主货币。新用户注册自动获得 **+100 PP**(`signup_pp_bonus=100`)。' },
-        { type:'formula', label:'PP 获取途径(6 种)',
-          eq:'PP = ~采矿~ + ~POI~ + ~劫掠~ + ~DYNASTY 佣金~ + ~赌场胜利~ + ~每日任务~',
-          note:'采矿限定每次收获最多 1 PP。大收益来自任务、POI 和 DYNASTY。' },
+        { type:'h2', text:'2. PP — Pixel Points (价值代币)' },
+        { type:'p', text:'PP 是**领地采矿的价值代币**,大致锚定 **1 PP ≈ $1**。通过注册奖励 + 充值/推荐获得。它不是日常消费货币,而是用来**储值、换成 GP、或赎回为 USDT**的资产。' },
+        { type:'formula', label:'PP 获取途径',
+          eq:'PP = ~领地收获~ + ~注册奖励~ + ~推荐~ + ~充值奖励~',
+          note:'被动收获上限为**每用户 1 PP/天**(`mining_daily_cap_per_user=1.0`)。PP 被设计得稀缺且有价值 — 无法批量刷取。' },
         { type:'table',
-          headers:['支出项目','费用(服务器默认)'],
+          headers:['PP 用途','详情'],
           rows:[
-            ['基础能量护盾 (12h)',   {v:'2.5 PP',cls:'num'}],
-            ['等离子护盾 (24h)',      {v:'5.0 PP',cls:'num'}],
-            ['POI 提示',                {v:'0.2 PP',cls:'num'}],
-            ['PP → USDT 兑换',          {v:'5% 手续费',cls:'num'}]
+            ['领地占领/升级', {v:'像素占领 & 领地升级',cls:'num'}],
+            ['PP → GP 兑换',  {v:'动态汇率 5~20 GP/PP',cls:'num'}],
+            ['PP → USDT 赎回', {v:'担保额度内',cls:'num'}]
           ]},
-        { type:'callout', variant:'info', title:'PP ↔ USDT 兑换',
-          text:'`SWAP` 标签里可以把 PP 换成 USDT。扣 `swap_fee_percent=5%` 手续费。反向(USDT → PP)也可以。' },
+        { type:'callout', variant:'info', title:'PP ↔ USDT 赎回',
+          text:'`SWAP` 标签可把 PP 换成 USDT(或反向)。**赎回仅在运营方注资的担保池额度内允许** — 没有无限套现。挤兑防护规则见 [PP ⇄ USDT 赎回](#exchange)。' },
 
-        { type:'h2', text:'3. GP — Governance Points' },
-        { type:'p', text:'**政治权力**。扇区税收、总督选举、DAO 投票的燃料。**不能用钱直接买**。' },
+        { type:'h2', text:'3. GP — Game Points (主要消费货币)' },
+        { type:'p', text:'GP 是**游戏内主要消费货币**。用于商店、舰船建造/强化/维修、舰船扭蛋、领地升级、市场手续费、治理行动等。通过游戏奖励**以及 PP → GP 兑换**攒取。' },
         { type:'table',
           headers:['获取方式','详情'],
           rows:[
+            ['每日登录/任务',          {v:'登录 + 每日 3 种',cls:'num'}],
             ['POI 掉落 (70% 权重)',     {v:'10 ~ 50 GP/POI',cls:'num'}],
             ['火箭掉落 (50% 权重)',    {v:'10 ~ 40 GP/掉落',cls:'num'}],
-            ['扇区税收分配',          {v:'税收的 20% 归市民',cls:'num'}],
-            ['总督选举胜利',        {v:'扇区税收 20% 持续收入',cls:'num'}]
+            ['战斗 / 远征',            {v:'每击沉奖励',cls:'num'}],
+            ['PP → GP 兑换',           {v:'5~20 GP/PP (动态)',cls:'num'}],
+            ['扇区税收 / 总督',        {v:'扇区持续收入',cls:'num'}]
           ]},
-        { type:'callout', variant:'pro', title:'GP 是长期积累资产',
-          text:'GP **不可兑换**,但通过扇区税收和总督收入最终回流为 PP。详情见 [治理](#governance) §5。' },
+        { type:'callout', variant:'pro', title:'GP 不足就兑换 PP',
+          text:'建造或强化时 GP 不够,就在 `SWAP`/兑换标签把 PP 换成 GP。汇率随需求在每 PP 5~20 GP 之间浮动。详情见 [PP → GP 兑换](#exchange) §1。' },
 
         { type:'h2', text:'4. XP & 等级' },
         { type:'p', text:'**所有活动** 都会积累 XP。实际等级表(共 30 级 — 部分显示):' },
@@ -44509,27 +44784,27 @@ CODEX_CONTENT.zh = {
             '<defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ff783c"/></marker></defs>'+
             '<rect x="30"  y="30" width="110" height="50" rx="6" fill="rgba(91,184,232,.1)" stroke="#5bb8e8" stroke-width="1.5"/>'+
             '<text x="85"  y="55" text-anchor="middle" font-size="12" fill="#5bb8e8" font-weight="700">USDT</text>'+
-            '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">실제 화폐</text>'+
+            '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">真实货币</text>'+
             '<rect x="195" y="30" width="110" height="50" rx="6" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/>'+
             '<text x="250" y="55" text-anchor="middle" font-size="12" fill="#ff783c" font-weight="700">PP</text>'+
-            '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">인게임 통화</text>'+
+            '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">价值代币 ~$1</text>'+
             '<rect x="360" y="30" width="110" height="50" rx="6" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="1.5"/>'+
             '<text x="415" y="55" text-anchor="middle" font-size="12" fill="#ffd166" font-weight="700">GP</text>'+
-            '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">정치 권력</text>'+
+            '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">主要消费货币</text>'+
             '<line x1="140" y1="55" x2="190" y2="55" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">SWAP</text>'+
+            '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">赎回</text>'+
             '<line x1="190" y1="60" x2="140" y2="60" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)" stroke-dasharray="3,3"/>'+
-            '<line x1="305" y1="55" x2="355" y2="55" stroke="#ff783c" stroke-width="1.5" stroke-dasharray="3,3"/>'+
-            '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#9aa3b0">환전 ✕</text>'+
-            '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">채굴·퀘스트·커미션 ↓</text>'+
+            '<line x1="305" y1="55" x2="355" y2="55" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+            '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#ffd166">PP→GP 5-20</text>'+
+            '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">领地采矿·奖励 ↓</text>'+
             '<line x1="250" y1="125" x2="250" y2="80" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">영토 보유 ↓</text>'+
+            '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">登录·任务·战斗 ↓</text>'+
             '<line x1="415" y1="125" x2="415" y2="80" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">입금 ↓</text>'+
+            '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">充值 ↓</text>'+
             '<line x1="85"  y1="125" x2="85"  y2="80" stroke="#5bb8e8" stroke-width="1.5" marker-end="url(#ar2)"/>'+
-            '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP (PG는 단방향 축적)</text>'+
+            '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP → GP (PP→GP 动态汇率)</text>'+
           '</svg>',
-          caption:'USDT ⇄ PP 双向兑换 / GP 不可兑换,单向累积' }
+          caption:'USDT ⇄ PP 赎回(担保额度内) / PP → GP 动态汇率 5~20' }
       ]
     },
     { id: 'territory', icon: '🏴', title: '领土系统',
@@ -44570,6 +44845,8 @@ CODEX_CONTENT.zh = {
             ['原主返还',       {v:'+50 %',cls:'num'},    '劫掠费用的 50% 作为补偿返回'],
             ['护盾抵扣',         {v:'50 ~ 75 %',cls:'num'},'有护盾时吸收伤害']
           ]},
+        { type:'callout', variant:'warn', title:'⚠ 劫持战中的舰船永久损失',
+          text:'劫持可能升级为**舰队战**,在那里被击沉(HP 0)的舰船会**永久损失** — 无法复活,必须在船坞重新建造(`hijack_ship_loss_enabled=true`)。绝不要带上你无法承受失去的舰船。建造/维修见 [舰队与船坞](#fleet)。' },
         { type:'callout', variant:'warn', title:'轻率劫掠反吃亏',
           text:'在昂贵的 CORE 扇区劫掠,费用会立刻飙到几十 USDT。**超过一周没活动的大型领地** 才是最划算的目标。为了抢小地块去劫掠只会白白送手续费。' },
         { type:'callout', variant:'pro', title:'劫掠也计赛季分',
@@ -44714,6 +44991,70 @@ CODEX_CONTENT.zh = {
           text:'领土·采矿是线性增长(你干多少赚多少),**DYNASTY 是网络效应**。仅邀请 5 个活跃用户,到某一刻被动 PP 就会超过你自己的采矿。详情见 [DYNASTY/推荐](#dynasty) §8。' }
       ]
     },
+    { id: 'fleet', icon: '🚢', title: '舰队与船坞',
+      blocks: [
+        { type:'p', text:'舰船是**可能失去的真实资产**。你在船坞建造它们,用 GP 和矿物强化、维修,开舰船扭蛋博取稀有舰,在舰船市场交易。在劫持战中,舰船可能**永久被摧毁**。' },
+        { type:'toc', label:'本节内容', items:[
+          '舰船阵容 & 派系',
+          '船坞 — 建造 & 维修',
+          '属性强化',
+          '舰船扭蛋(Ship Crate)',
+          '舰船市场(地区)',
+          '永久损失警告'
+        ]},
+
+        { type:'h2', text:'1. 舰船阵容 & 派系' },
+        { type:'p', text:'横跨 3 个派系(MCC / FSP / CV)共有 **22 种舰船**,分 5 个尺寸等级。大型舰输出与耐久更高,但需要更稀有的 Core/Mid 矿物。泰坦受服务器上限限制(每型存活 3 艘)。' },
+        { type:'table',
+          headers:['舰级','角色','建造成本档'],
+          rows:[
+            [{v:'护卫舰',cls:'mars'}, '高速缠斗 / 电子战',         {v:'低',cls:'num'}],
+            [{v:'驱逐舰',cls:'mars'}, '游击输出',                  {v:'低–中',cls:'num'}],
+            [{v:'巡洋舰',cls:'mars'}, '灵活主力',                  {v:'中',cls:'num'}],
+            [{v:'战列舰',cls:'mars'}, '重型阵线 — Core/Mid 矿物',  {v:'高',cls:'num'}],
+            [{v:'泰坦',cls:'mars'},   '旗舰级 — 服务器上限',       {v:'最高',cls:'num'}]
+          ]},
+
+        { type:'h2', text:'2. 船坞 — 建造 & 维修' },
+        { type:'p', text:'打开 `船坞` 查看蓝图。每张卡以 **拥有 / 需要** 显示 GP + 矿物成本,并用 ⛏ 徽章标示哪个区域等级掉落所需矿物。建造会排入 `ship_build_job` 队列,舰船落入你的默认舰队。' },
+        { type:'table',
+          headers:['操作','成本','备注'],
+          rows:[
+            ['建造', {v:'GP + 矿物',cls:'num'}, '战列舰/泰坦需要 Core + Mid 矿物'],
+            ['维修', {v:'GP + 矿物',cls:'num'}, '战后恢复 HP'],
+            ['护盾', {v:'GP',cls:'num'},        '战前伤害吸收'],
+            ['拆解', {v:'—',cls:'num'},         '拆解回收部分资源']
+          ]},
+        { type:'callout', variant:'info', title:'挂售中的舰船被锁定',
+          text:'已挂到市场(`is_market_listed`)的舰船在取消挂售前无法强化、维修、护盾、拆解或在舰队间移动。' },
+
+        { type:'h2', text:'3. 属性强化' },
+        { type:'p', text:'已有舰船可**永久强化** `atk / def / hp / speed`。强化有**成功概率**,无论成功或失败都消耗 GP + 材料。成本随累计投资次数上升。' },
+        { type:'callout', variant:'pro', title:'强化是概率型',
+          text:'失败也会消耗 GP 和材料,只有成功才加属性加成。战斗引擎直接读取 `bonus_atk/def/hp/speed`,因此强化在实战中确实有用。' },
+
+        { type:'h2', text:'4. 舰船扭蛋(Ship Crate)' },
+        { type:'p', text:'用 **GP** 开舰船箱,按尺寸等级随机获得舰船。每个箱子都**公开概率**,高级/传说箱带有**保底(pity)**,达到抽数即保证巡洋舰或更高。' },
+        { type:'table',
+          headers:['箱子','价格','保底','最高舰级'],
+          rows:[
+            [{v:'📦 标准',cls:'mars'},  {v:'300 GP',cls:'num'},  {v:'—',cls:'num'},     '巡洋舰'],
+            [{v:'🎁 高级',cls:'mars'},  {v:'1,000 GP',cls:'num'},{v:'10 抽',cls:'num'}, '战列舰'],
+            [{v:'🌟 传说',cls:'mars'}, {v:'3,000 GP',cls:'num'},{v:'5 抽',cls:'num'},  '泰坦']
+          ]},
+        { type:'callout', variant:'info', title:'服务器 RNG + 泰坦上限',
+          text:'抽取使用服务器权威 RNG。若泰坦服务器上限已满,泰坦抽取会降级为战列舰。概率显示在每张箱子卡上。' },
+
+        { type:'h2', text:'5. 舰船市场(地区)' },
+        { type:'p', text:'通过 `挂售 → 购买 → 取消` 交易舰船。每个挂单绑定**卖家的据点区域**: 购买时可能对该**区域总督征收关税**,运营方还可限制仅同区域购买 — 让区域成为交易枢纽并产生区域间套利。' },
+        { type:'callout', variant:'tip', title:'留意区域关税',
+          text:'高税率 CORE 区域的挂单会让买家多付钱。更便宜的挂单往往在低税率的前沿区域 — 代价是物流成本。' },
+
+        { type:'h2', text:'6. ⚠ 永久损失警告' },
+        { type:'callout', variant:'warn', title:'被击沉的舰船永远消失',
+          text:'在永久损失生效时(`hijack_ship_loss_enabled=true`),劫持战中 **HP 归零的舰船会被永久摧毁** — `is_alive=false`,无法复活。必须在船坞重新建造。只投入你愿意失去的舰队,并备好重建用的备用舰 + 矿物。' }
+      ]
+    },
     { id: 'governance', icon: '🏛', title: '治理',
       blocks: [
         { type:'p', text:'火星以 **两层权力结构** 运作。全局第一的 **指挥官** 和每扇区一人的 **总督**。两者都能修改税收、权限、事件触发这类真实的游戏规则。治理是实装的真功能,不是装饰。' },
@@ -44723,7 +45064,7 @@ CODEX_CONTENT.zh = {
           '扇区 buff(总督权限)',
           '全局事件(指挥官权限)',
           '悬赏系统',
-          'GP — 治理积分'
+          '治理中的 GP'
         ]},
 
         { type:'h2', text:'1. 权力结构' },
@@ -44787,8 +45128,8 @@ CODEX_CONTENT.zh = {
         { type:'callout', variant:'pro', title:'悬赏是政治工具',
           text:'想撼动对手总督,就给他核心领土发悬赏。一旦其他用户涌过去袭击,那个总督就得忙着防守,没法正经收税了。' },
 
-        { type:'h2', text:'6. GP — 治理积分' },
-        { type:'p', text:'GP 是治理专用货币。**不能用 PP 或 USDT 购买**(饰品可以按 PP 价 × 4 倍用 GP 结算)。GP 只能通过活动获取。' },
+        { type:'h2', text:'6. 治理中的 GP' },
+        { type:'p', text:'治理依靠主要消费货币 GP 运转。通过游戏奖励 **以及 PP → GP 兑换**(动态 5~20 汇率)攒取,再用于选举、区域掌控和增益。GP 无法换回 PP 或 USDT。' },
         { type:'table',
           headers:['GP 获取途径','常规奖励'],
           rows:[
@@ -45115,20 +45456,30 @@ CODEX_CONTENT.zh = {
       },
       { id: 'exchange', icon: '💱', title: 'PP → GP 兑换',
         blocks: [
-          { type:'p', text:'急需GP？用PP(真钱代币)兑换GP。手续费部分永久销毁 = **PP通缩**。' },
+          { type:'p', text:'急需 GP?把 PP(价值代币)兑换成 GP。汇率不固定,随需求**浮动**。手续费部分永久销毁 = **PP 通缩**。' },
+          { type:'h2', text:'1. 动态 PP → GP 汇率' },
+          { type:'p', text:'汇率根据 24h 兑换需求重算,并被锁定在硬区间内。GP 需求高则汇率**下降**(每 PP 换到的 GP 更少),需求低则再次**上升**。' },
           { type:'table',
-            headers:['设置','默认值','来源'],
+            headers:['设置','值','来源'],
             rows:[
-              ['兑换比率', {v:'1 PP = 10 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['汇率区间', {v:'5 ~ 20 GP/PP',cls:'num'}, '`pp_to_gp_rate_floor` / `_ceil`'],
+              ['基准汇率', {v:'10 GP/PP',cls:'num'},      '`pp_to_gp_exchange_rate`'],
+              ['单次变动', {v:'±2% / 每次重算',cls:'num'}, '`pp_to_gp_rate_max_step_pct`'],
               ['手续费',   {v:'5% (销毁)',cls:'num'},       '`pp_to_gp_exchange_fee_pct`'],
-              ['最小',     {v:'0.1 PP',cls:'num'},          '`pp_to_gp_exchange_min`'],
-              ['最大',     {v:'5 PP',cls:'num'},             '`pp_to_gp_exchange_max`'],
-              ['每日上限', {v:'50 PP/天',cls:'num'},        '`pp_to_gp_exchange_daily_limit`']
+              ['动态汇率', {v:'启用',cls:'num'},           '`pp_to_gp_dynamic_enabled=true`']
             ]},
-          { type:'callout', variant:'warn', title:'单向兑换',
-            text:'只能PP → GP。不能把GP换回PP。5%手续费被销毁，减少PP总供应量。' },
-          { type:'callout', variant:'tip', title:'什么时候兑换？',
-            text:'公会战续命、赛季通行证高级版、公会创建、研究解锁需要GP时。平时GP靠采矿和任务就够。' }
+          { type:'callout', variant:'warn', title:'PP → GP 是单向',
+            text:'是**把 PP 换成 GP**,反过来不行 — GP 无法换回 PP。当舰船建造、强化、扭蛋、商店或治理需要 GP 时就兑换 PP。日常 GP 也来自登录、任务和战斗。' },
+          { type:'callout', variant:'tip', title:'看汇率再兑换',
+            text:'汇率在每 PP 5~20 GP 间浮动,所以在 GP 需求低(汇率接近 20)时兑换,每 PP 能换到更多 GP。5% 手续费被销毁,减少 PP 供应。' },
+
+          { type:'h2', text:'2. PP → USDT 赎回(担保门槛)' },
+          { type:'p', text:'PP 也可在 `SWAP` 标签**赎回为 USDT** — 但仅在运营方注资的**担保池**额度内。从结构上防止挤兑。' },
+          { type:'formula', label:'可赎回额度(room)',
+            eq:'room = ~担保~ − ~全体用户 USDT 负债~',
+            note:'PP → USDT 赎回(及 PP 来源的提现)仅允许到 `room` 上限。池子耗尽则赎回暂停,直到运营方补充担保。' },
+          { type:'callout', variant:'warn', title:'赎回并非无限',
+            text:'PP 锚定 ~$1,但赎回为 USDT 取决于可用担保额度。同时大量赎回可能触及上限 — 这就是挤兑安全机制(`migration 230`)。' }
         ]
       },
     { id: 'casino', icon: '🎰', title: '卡提纳赌场',
