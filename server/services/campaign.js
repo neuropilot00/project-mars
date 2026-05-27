@@ -3905,7 +3905,13 @@ async function validateStartConditions(client, wallet, chapter, options = {}) {
       `SELECT 1 FROM player_lore_flags WHERE wallet = $1 AND flag_id = 'amara_killed_at_sandstone' LIMIT 1`,
       [wallet]
     );
-    if (amaraDead.rows.length) return { error: 'FSP_DELEGATION_ABSENT', alternativeChapter: 'fsp_campaign_ch5_no_chair_variant' };
+    // 변형 챕터(fsp_campaign_ch5_no_chair_variant)는 아직 CHAPTERS에 구현돼 있지 않다.
+    // 변형이 없는데 여기서 하드블록하면 Amara 사망 분기 플레이어가 FSP 메인 스토리에서
+    // 영구히 막힌다(dead-end). 변형 챕터가 실제 존재할 때만 리다이렉트하고, 없으면
+    // 표준 CH5로 진행시킨다. (변형을 추후 추가하면 redirect 가 자동 활성화됨)
+    if (amaraDead.rows.length && CHAPTERS['fsp_campaign_ch5_no_chair_variant']) {
+      return { error: 'FSP_DELEGATION_ABSENT', alternativeChapter: 'fsp_campaign_ch5_no_chair_variant' };
+    }
   }
   if (chapter.questId === FSP_CH6_ID) {
     const collapse = await client.query(
@@ -3914,7 +3920,11 @@ async function validateStartConditions(client, wallet, chapter, options = {}) {
       [wallet, ['amara_killed_at_kepler', 'liang_wei_killed']]
     );
     const flags = new Set(collapse.rows.map(r => r.flag_id));
-    if (flags.has('amara_killed_at_kepler') && flags.has('liang_wei_killed')) return { error: 'FSP_POLITICAL_COLLAPSE', alternativeChapter: 'fsp_campaign_ch6_collapse_variant' };
+    // 위와 동일: 변형 챕터(fsp_campaign_ch6_collapse_variant) 미구현 상태에서는 dead-end 방지를
+    // 위해 표준 CH6 로 진행시킨다. 변형이 CHAPTERS에 추가되면 그때 redirect 활성화.
+    if (flags.has('amara_killed_at_kepler') && flags.has('liang_wei_killed') && CHAPTERS['fsp_campaign_ch6_collapse_variant']) {
+      return { error: 'FSP_POLITICAL_COLLAPSE', alternativeChapter: 'fsp_campaign_ch6_collapse_variant' };
+    }
   }
   if (!options.skipRequiredBranchAny && (chapter.requiredBranchAny || []).length) {
     const branch = await client.query(
