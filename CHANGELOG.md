@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.136 — NPC 아레나 인파이팅 + 초반 밀도 (유령도시 방지, 기본 OFF)
+
+실유저 유입 시 "살아있는 세계" 연출 — NPC 함대끼리 주기적으로 함대전 + 초반 NPC 밀도 유지.
+
+- **`services/npcArena.js`**: `runArenaTick()`(NPC 2함대 선택→기존 battle 파이프라인으로 NPC vs NPC 전투 1건, 가능하면 다른 파벌, 동시 수 cap) + `ensureNpcDensity()`(활성 NPC 함대 최소치 미달 시 aiFleetManager 로 보충). 라이브 피드 브로드캐스트.
+- **🔴 경제 안전**: arena 전투를 `battle_summary.is_ai_battle=true` + `arena=true` 로 마킹 → `battleRewards`(v7.121 가드)가 보상 mint 0 차단. 1-tick 실측: 전투 1건 생성, GP/재료 발행 0 확인.
+- **migration 238**: `npc_arena_enabled`(기본 false)/interval/concurrent/min_fleets.
+- **스케줄러**(index.js, RUN_SCHEDULERS·leader 게이트): arena 120s + density 5min, `npc_arena_enabled` 로 내부 게이트.
+- 기본 OFF — 운영자가 검증 후 켬. 부팅/스케줄러 기동 무에러.
+- (Codex 워크트리 전문가 구현 → diff 검증 후 fast-forward 머지)
+
 ## 2026-05-28 v7.135 — 영토 HP/등급/감쇠 시스템 (자산 관리 루프)
 
 영토에 condition(HP)·grade(F~S)·감쇠를 부여 — "관리 안 하면 등급↓ / 관리하면 수확·레어↑" EVE식 자산관리 루프.
