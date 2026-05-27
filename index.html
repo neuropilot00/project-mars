@@ -17184,7 +17184,7 @@ var I18N = {
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
     gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
     gov_ship_upgrade: 'UPGRADE', gov_ship_upgraded: 'upgraded!', gov_ship_upgrade_cost: 'Upgrade Cost',
-    sy_tab_blueprints: 'BLUEPRINTS', sy_tab_queue: 'BUILD QUEUE', sy_tab_fleet: 'MY FLEET', sy_tab_market: 'SHIP MARKET',
+    sy_tab_blueprints: 'BLUEPRINTS', sy_tab_queue: 'BUILD QUEUE', sy_tab_fleet: 'MY FLEET', sy_tab_market: 'SHIP MARKET', sy_tab_crates: 'CRATES', sy_crate_intro: 'Open a crate to receive a random ship. Ships you receive are tradeable on the Ship Market. Drop rates are disclosed on each crate.',
     sy_filter_size: 'SIZE:', sy_size_all: 'ALL', sy_size_frigate: 'Frigate', sy_size_destroyer: 'Destroyer', sy_size_cruiser: 'Cruiser', sy_size_battleship: 'Battleship', sy_size_titan: 'Titan',
     sy_filter_faction: 'FACTION:', sy_filter_size2: 'SIZE:',
     sy_mineral_label: 'Minerals Owned', sy_ships_label: 'Ships',
@@ -18037,7 +18037,7 @@ var I18N = {
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
     gov_ship_upgrade: '강화', gov_ship_upgraded: '강화 완료!', gov_ship_upgrade_cost: '강화 비용',
-    sy_tab_blueprints: '청사진', sy_tab_queue: '건조 대기열', sy_tab_fleet: '내 함선', sy_tab_market: '함선 마켓',
+    sy_tab_blueprints: '청사진', sy_tab_queue: '건조 대기열', sy_tab_fleet: '내 함선', sy_tab_market: '함선 마켓', sy_tab_crates: '상자', sy_crate_intro: '함선 상자를 열어 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 상자에 공개됩니다.',
     sy_filter_size: '함급:', sy_size_all: '전체', sy_size_frigate: '프리깃', sy_size_destroyer: '구축함', sy_size_cruiser: '순양함', sy_size_battleship: '전함', sy_size_titan: '타이탄',
     sy_filter_faction: '파벌:', sy_filter_size2: '크기:',
     sy_mineral_label: '광물 보유', sy_ships_label: '함선',
@@ -18888,7 +18888,7 @@ var I18N = {
     gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
     gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
     gov_ship_upgrade: 'アップグレード', gov_ship_upgraded: 'アップグレード完了！', gov_ship_upgrade_cost: 'アップグレード費用',
-    sy_tab_blueprints: '設計図', sy_tab_queue: '建造待機', sy_tab_fleet: '自艦隊', sy_tab_market: '艦船市場',
+    sy_tab_blueprints: '設計図', sy_tab_queue: '建造待機', sy_tab_fleet: '自艦隊', sy_tab_market: '艦船市場', sy_tab_crates: 'ボックス', sy_crate_intro: '艦船ボックスを開けてランダムな艦船を獲得。獲得した艦船は艦船市場で取引できます。確率は各ボックスに公開されています。',
     sy_filter_size: '艦級:', sy_size_all: '全て', sy_size_frigate: 'フリゲート', sy_size_destroyer: '駆逐艦', sy_size_cruiser: '巡洋艦', sy_size_battleship: '戦艦', sy_size_titan: 'タイタン',
     sy_filter_faction: '勢力:', sy_filter_size2: 'サイズ:',
     sy_mineral_label: '鉱物所有', sy_ships_label: '艦船',
@@ -19745,7 +19745,7 @@ var I18N = {
     gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
     gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
     gov_ship_upgrade: '升级', gov_ship_upgraded: '升级完成！', gov_ship_upgrade_cost: '升级费用',
-    sy_tab_blueprints: '蓝图', sy_tab_queue: '建造队列', sy_tab_fleet: '我的舰队', sy_tab_market: '舰船市场',
+    sy_tab_blueprints: '蓝图', sy_tab_queue: '建造队列', sy_tab_fleet: '我的舰队', sy_tab_market: '舰船市场', sy_tab_crates: '宝箱', sy_crate_intro: '打开宝箱获得随机舰船。获得的舰船可在舰船市场交易。每个宝箱都公开掉落概率。',
     sy_filter_size: '舰级:', sy_size_all: '全部', sy_size_frigate: '护卫舰', sy_size_destroyer: '驱逐舰', sy_size_cruiser: '巡洋舰', sy_size_battleship: '战列舰', sy_size_titan: '泰坦',
     sy_filter_faction: '势力:', sy_filter_size2: '大小:',
     sy_mineral_label: '矿石持有', sy_ships_label: '舰船',
@@ -45716,6 +45716,9 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
       <button class="sy-tab" data-tab="market" onclick="switchSyTab('market')">
         🏷 <span data-i18n="sy_tab_market">SHIP MARKET</span>
       </button>
+      <button class="sy-tab" data-tab="crates" onclick="switchSyTab('crates')">
+        🎲 <span data-i18n="sy_tab_crates">CRATES</span>
+      </button>
     </div>
     <div class="shipyard-filters" id="syFilters">
       <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px" data-i18n="sy_filter_size">SIZE:</span>
@@ -45759,6 +45762,12 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
           </select>
         </div>
         <div class="ship-market-list" id="shipMarketList"></div>
+      </div>
+      <div id="syCratesTab" style="display:none">
+        <div style="font-size:10px;color:rgba(255,255,255,.45);line-height:1.6;margin:2px 2px 12px;padding:8px 10px;border:1px solid rgba(255,180,80,.2);border-radius:8px;background:rgba(255,180,80,.04)">
+          <span data-i18n="sy_crate_intro">함선 상자를 열어 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 상자에 공개됩니다.</span>
+        </div>
+        <div class="bp-grid" id="crateGrid"></div>
       </div>
     </div>
     <div class="shipyard-footer" id="syFooter">
@@ -45817,11 +45826,83 @@ function switchSyTab(tab) {
   document.getElementById('syQueueTab').style.display      = tab === 'queue'      ? '' : 'none';
   document.getElementById('syFleetTab').style.display      = tab === 'fleet'      ? '' : 'none';
   document.getElementById('syMarketTab').style.display     = tab === 'market'     ? '' : 'none';
+  var _cratesTab = document.getElementById('syCratesTab'); if (_cratesTab) _cratesTab.style.display = tab === 'crates' ? '' : 'none';
   document.getElementById('syFilters').style.display       = tab === 'blueprints' ? '' : 'none';
   if (tab === 'queue') renderQueue();
   else if (tab === 'fleet') renderShips();
   else if (tab === 'market') renderShipMarket();
+  else if (tab === 'crates') loadShipCrates();
   else renderBlueprints();
+}
+
+// ═════ 함선 가챠(Ship Crate) UI ═════
+var _rarityMeta = {
+  frigate:    { ko:'프리깃',   en:'Frigate',    col:'#9aa7b4', emoji:'🛰' },
+  destroyer:  { ko:'구축함',   en:'Destroyer',  col:'#5cbbff', emoji:'🚀' },
+  cruiser:    { ko:'순양함',   en:'Cruiser',    col:'#a78bfa', emoji:'⚓' },
+  battleship: { ko:'전함',     en:'Battleship', col:'#ffd54f', emoji:'⚔' },
+  titan:      { ko:'타이탄',   en:'Titan',      col:'#ff7a45', emoji:'👑' }
+};
+function _rarityLabel(c){ var m=_rarityMeta[c]; return m ? (LANG==='ko'?m.ko:m.en) : c; }
+async function loadShipCrates() {
+  var grid = document.getElementById('crateGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(LANG==='ko'?'로딩 중…':'Loading…')+'</div>';
+  try {
+    var r = await fetch('/api/ships/crates');
+    var d = await r.json();
+    if (!d || d.enabled === false || !(d.crates||[]).length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(LANG==='ko'?'이용 가능한 상자가 없습니다.':'No crates available.')+'</div>';
+      return;
+    }
+    grid.innerHTML = d.crates.map(function(c){
+      var oddsHtml = Object.keys(c.odds||{}).sort(function(a,b){ return (c.odds[b]-c.odds[a]); }).map(function(cls){
+        var m=_rarityMeta[cls]||{col:'#888',emoji:'•'};
+        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:'+m.col+';margin-right:8px">'+m.emoji+' '+_rarityLabel(cls)+' '+c.odds[cls]+'%</span>';
+      }).join('');
+      var pityHtml = c.pity_pulls>0 ? '<div style="font-size:8px;color:var(--gold);margin-top:4px">🎯 '+(LANG==='ko'?(c.pity_pulls+'회 내 순양함+ 확정'):('Cruiser+ guaranteed within '+c.pity_pulls+' pulls'))+'</div>' : '';
+      var label = LANG==='ko' ? (c.label_ko||c.code) : (c.label_en||c.code);
+      return '<div class="bp-card" style="display:flex;flex-direction:column;gap:6px;padding:12px">'
+        + '<div style="font-size:13px;font-weight:800;color:var(--tx);letter-spacing:.5px">🎲 '+label+'</div>'
+        + '<div style="line-height:1.7">'+oddsHtml+'</div>'
+        + pityHtml
+        + '<button type="button" onclick="openShipCrate(\''+c.code+'\','+c.price_gp+')" style="margin-top:8px;padding:9px;border-radius:7px;background:linear-gradient(135deg,rgba(255,180,80,.25),rgba(255,120,40,.1));border:1px solid rgba(255,180,80,.5);color:var(--gold);font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">'+(LANG==='ko'?'개봉':'OPEN')+' · '+c.price_gp+' GP</button>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--rd);padding:24px;font-size:10px">'+(LANG==='ko'?'불러오기 실패':'Failed to load')+'</div>';
+  }
+}
+async function openShipCrate(code, priceGp) {
+  var ok = await gameConfirm({
+    icon: '🎲',
+    title: LANG==='ko'?'상자 개봉':'Open Crate',
+    body: (LANG==='ko'?'무작위 함선 1척을 획득합니다.':'You will receive 1 random ship.'),
+    info: [{ k: LANG==='ko'?'비용':'Cost', v: priceGp + ' GP' }],
+    confirmText: LANG==='ko'?'개봉':'OPEN'
+  });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/ships/crates/'+encodeURIComponent(code)+'/open', {
+      method:'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders())
+    });
+    var d = await r.json();
+    if (!r.ok || d.error) {
+      var em = { INSUFFICIENT_GP: (LANG==='ko'?'GP가 부족합니다':'Not enough GP'),
+        NO_FACTION:(LANG==='ko'?'먼저 파벌을 선택하세요':'Pick a faction first'),
+        CRATE_DISABLED:(LANG==='ko'?'가챠가 비활성화됨':'Crates disabled') };
+      showToast(em[d.error] || d.error || (LANG==='ko'?'개봉 실패':'Open failed'), 'error');
+      return;
+    }
+    var m = _rarityMeta[d.ship.rarity] || { col:'#fff', emoji:'🚀' };
+    var _bp = ((shipyardState && shipyardState.blueprints) || []).find(function(b){ return b.code===d.ship.code || b.ship_type_code===d.ship.code; });
+    var name = _bp ? syShipName(_bp) : d.ship.code;
+    var rare = ['cruiser','battleship','titan'].includes(d.ship.rarity);
+    showToast((rare?'✨ ':'')+ m.emoji +' '+ _rarityLabel(d.ship.rarity) +' — '+ name + (d.was_pity?(LANG==='ko'?' (천장!)':' (pity!)'):''), rare?'success':'info');
+    try { refreshGP(); } catch(_) {}
+    // 함대/잔액 갱신 — 조선소 다시 로드
+    try { if (typeof refreshShipyard==='function') refreshShipyard(); } catch(_) {}
+  } catch(e) { showToast(LANG==='ko'?'개봉 실패':'Open failed', 'error'); }
 }
 
 function filterBySize(size) {
