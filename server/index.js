@@ -237,6 +237,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeLimiterStore('global'),
+  passOnStoreError: true,
   message: { error: 'Too many requests, please try again later.' }
 });
 
@@ -246,6 +247,7 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeLimiterStore('auth'),
+  passOnStoreError: true,
   message: { error: 'Too many authentication attempts, please try again later.' }
 });
 
@@ -255,6 +257,7 @@ const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeLimiterStore('api'),
+  passOnStoreError: true,
   message: { error: 'Too many API requests, please try again later.' }
 });
 
@@ -266,6 +269,7 @@ const apiWriteLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeLimiterStore('apiwrite'),
+  passOnStoreError: true,
   skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS',
   message: { error: 'Too many write requests, please try again later.' }
 });
