@@ -989,6 +989,11 @@ async function applyBattleResults(battleId, result) {
       return { skipped: true };
     }
     const isHijackBattle = (btRows[0].battle_type || '').startsWith('hijack');
+    // [v7.127][EVE 수요엔진] 하이젝에서도 함선 영구파괴 옵션(기본 OFF=현행 HP 보존).
+    // 켜면 격침(sim HP≤0) 함선은 is_alive=false 로 영구 파괴 → 재건조 수요 발생(EVE full-loss).
+    // 일반 전투(AI/토너먼트 등)는 원래부터 영구파괴이므로 영향 없음.
+    const hijackShipLoss = isHijackBattle &&
+      String(await getSetting('hijack_ship_loss_enabled', 'false')) === 'true';
 
     // 1. fleet_battles 업데이트 — AND status != 'ended' 이중 UPDATE 방지 [v7.63]
     const { rowCount: battleRowCount } = await client.query(`
@@ -1052,18 +1057,27 @@ async function applyBattleResults(battleId, result) {
     const finalShips = Array.isArray(result.stats?.by_ship)
       ? result.stats.by_ship.filter(s => parseInt(s.ship_id) > 0)
       : [];
-    // 하이젝 전투: 함선 파괴하지 않고 HP만 감소 (min 15% of max_hp, 최소 1)
+    // 하이젝 전투: 기본은 함선 파괴하지 않고 HP만 감소 (min 15% of max_hp, 최소 1).
+    // hijack_ship_loss_enabled=true 면 격침 함선을 영구 파괴(EVE full-loss 수요엔진).
     if (isHijackBattle) {
-      // 하이젝 전투 — 시뮬레이션 HP 결과 반영, 단 파괴 없음
+      // 하이젝 전투 — 시뮬레이션 HP 결과 반영
       for (const s of finalShips) {
         const sid = parseInt(s.ship_id);
         const simHp = Math.round(parseFloat(s.current_hp) || 0);
         if (simHp <= 0) {
-          await client.query(`
-            UPDATE ships
-            SET current_hp = GREATEST(1, ROUND((max_hp + COALESCE(bonus_hp, 0)) * 0.15))
-            WHERE id = $1 AND is_alive = true
-          `, [sid]);
+          if (hijackShipLoss) {
+            // [EVE full-loss] 영구 파괴
+            await client.query(`
+              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+              WHERE id = $1 AND is_alive = true
+            `, [sid]);
+          } else {
+            await client.query(`
+              UPDATE ships
+              SET current_hp = GREATEST(1, ROUND((max_hp + COALESCE(bonus_hp, 0)) * 0.15))
+              WHERE id = $1 AND is_alive = true
+            `, [sid]);
+          }
         } else {
           await client.query(`
             UPDATE ships

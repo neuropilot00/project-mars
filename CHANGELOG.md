@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.127 — 함선 영구파괴 토글 (EVE full-loss 수요엔진, 기본 OFF)
+
+EVE 경제의 심장 = "전투로 함선 영구파괴 → 재건조 수요 → 생산/시장 순환". 현재 게임은 하이젝 전투에서 함선 HP만 깎고 보존(의도된 설계)이고, 일반 전투(AI/토너먼트)는 원래부터 영구파괴.
+
+- **migration 232** `hijack_ship_loss_enabled`(기본 false) — 켜면 하이젝 격침 함선(sim HP≤0)도 `is_alive=false` 영구파괴.
+- **`battleEngine.js applyBattleResults`** 하이젝 분기에 config 게이트 추가. OFF면 기존 HP 보존(15% floor) 그대로, 1줄도 동작 안 바뀜.
+- **default OFF** — 플레이어 자산 손실은 리텐션에 직결되므로 운영자가 수리/재건조 비용·보험 밸런스를 정비한 뒤 켜는 것을 권장. 기능만 먼저 완비("지금 다 만들어둔다").
+- killmail 데이터 소스는 이미 존재(`fleet_battle_events.event_type='ship_destroyed'`, `fleet_battle_participants.ships_lost`) — looting/killmail 보상 UI는 후속.
+
 ## 2026-05-27 v7.126 — 뱅크런 수정 하드닝 (Codex 독립검토 반영)
 
 Codex 독립 검토가 v7.125 에서 찾은 결함 3개 보강(현재 USDT=0 이라 즉시 영향은 없으나 실입금 개시 전 차단):
