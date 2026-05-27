@@ -832,7 +832,9 @@ function assignFormationSlots(fleet){
 const CVs=document.getElementById('c'),CX=CVs.getContext('2d');
 CX.imageSmoothingEnabled=true;CX.imageSmoothingQuality='high';
 const W=CVs.width,H=CVs.height;
-const PERF_MODE=window.matchMedia&&window.matchMedia('(max-width: 900px)').matches;
+// PC도 모바일과 동일한 경량 렌더를 사용한다(사용자 요청). PC에서 발사 무제한/글로우 과다로
+// "미사일·레이저 무덤" + 렉이 발생하던 문제 해소. (이전: 모바일(<=900px)만 PERF_MODE)
+const PERF_MODE=true;
 const SHIP_SPRITE_CODES=[
   'mcc_int','mcc_frg','mcc_ewar','mcc_dst','mcc_crs','mcc_snp','mcc_bs','mcc_titan',
   'fsp_int','fsp_logi','fsp_dst','fsp_crs','fsp_logi_crs','fsp_bs','fsp_titan',
@@ -1971,14 +1973,7 @@ function drawFleets(){
   fleets.forEach(f=>{
     if(f.dead)return;
     const fc=f.flagship?FACTIONS[f.flagship.type.faction].color:'#4fc3f7';
-    const rgb=hexRGB(fc);
-    // 함대 영역 그라디언트 (희미하게 유지, 장판 효과 최소화)
-    const ag=CX.createRadialGradient(f.cx,f.cy,0,f.cx,f.cy,f.radius);
-    const alpha=f.maneuver==='scatter'?.03:f.maneuver==='retreat'?.05:.08;
-    ag.addColorStop(0,`rgba(${rgb},${alpha})`);
-    ag.addColorStop(1,'transparent');
-    CX.fillStyle=ag;CX.beginPath();CX.arc(f.cx,f.cy,f.radius,0,Math.PI*2);CX.fill();
-    // 외곽 점선 제거 (장판 느낌 원인)
+    // 함대 영역 원(그라디언트 디스크) 제거 — 난잡함 원인 (사용자 요청). 라벨/HP바만 유지.
 
     const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     const labelDir=f.side==='atk'?1:-1;
@@ -2021,20 +2016,9 @@ function drawShips2(){
     const t=sh.type;
     if(PERF_MODE&&isSmall(sh)&&!sh.isFlagship&&idx%2===1)return;
     const F=FACTIONS[t.faction];
-    const teamCol=TEAM_COLOR[sh.side]||'#ffffff';
 
-    // ── 팀 식별 링: 함선 아래 희미한 팀색 원 ──────────────
-    if(!PERF_MODE||sh.isFlagship){
-      const classScale={frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[t.size]||1.2;
-      const ringR=t.r*classScale*1.35;
-      CX.beginPath();
-      CX.arc(sh.x,sh.y,ringR,0,Math.PI*2);
-      CX.strokeStyle=teamCol;
-      CX.globalAlpha=sh.isFlagship?0.55:0.28;
-      CX.lineWidth=sh.isFlagship?2.2:1.2;
-      CX.stroke();
-      CX.globalAlpha=1;
-    }
+    // 팀 식별 링(함선 주변 원) 제거 — 난잡함 원인 (사용자 요청).
+    // 팀 구분은 함선 색/엔진 플레임/HP바 색으로 유지된다.
 
     CX.shadowColor=F.color;
     CX.shadowBlur=PERF_MODE?(sh.isFlagship?8:0):(sh.isFlagship?t.r*5:t.r*2.2);
