@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.143 — 컨트랙트 배포 툴체인 (자금 없이 미리 준비, 컴파일·드라이런 검증)
+
+체인 연결의 마지막 갭(컨트랙트 배포)을 1커맨드로 만드는 Hardhat 툴체인 — 운영자는 가스용 테스트 ETH만 받으면 됨.
+
+- **`contracts/MockTestUSDC.sol`**: 테스트넷용 USDC 모형(6 decimals, 공개 mint). 메인넷은 실제 USDC 주소 사용.
+- **`deploy/`** Hardhat 프로젝트: `package.json`(hardhat 2.22 + toolbox 5 + OZ 5), `hardhat.config.js`(Base Sepolia 84532 / Base 8453, basescan verify), `scripts/deploy.js`(MockUSDC+MarsDeposit 배포 → 100k tUSDC 유동성 충전 → `server/.env` 라인 출력), `.env.example`, `README.md`. `deploy/contracts` → 루트 `contracts/` 심링크.
+- **검증**: `npm install` OK, `hardhat compile` 16파일 성공, **드라이런 배포(in-memory)로 MockUSDC+MarsDeposit 배포+유동성충전+env출력 전 과정 동작 확인**.
+- 사용: `cd deploy && npm install && npm run deploy:base-sepolia` (가스 ETH 보유 시). `node_modules/cache/artifacts` .gitignore 처리.
+- ⚠️ 다음(phase 2, 배포 후): 입금 자동감지(유저 EOA Transfer 워치)→WS UI 반영, 자동 출금 relayer(서버 키 broadcast).
+
 ## 2026-05-28 v7.142 — 자동 커스터디 지갑: 실키 생성/암호화/열람 (+ Codex 보안검토 반영)
 
 운영자 결정: 자동 커스터디(서버가 실 키페어 생성·보관) + 유저 키 열람 + 분실 면책. **실제 개인키를 다루는 보안 핵심부**라 Codex 독립검토 후 보강.

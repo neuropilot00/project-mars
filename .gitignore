@@ -41,3 +41,9 @@ scripts/__pycache__/
 # Redis local dump (test artifact)
 dump.rdb
 server/dump.rdb
+
+# Hardhat deploy toolchain
+deploy/node_modules
+deploy/cache
+deploy/artifacts
+deploy/.env
