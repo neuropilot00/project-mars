@@ -35,6 +35,7 @@ function _verifyToken(token) {
 function attachWsServer(httpServer) {
   if (_wss) return _wss;
   _wss = new WebSocketServer({ noServer: true });
+  _initRedisPubSub();  // 멀티 인스턴스 팬아웃 (REDIS_URL 있을 때만; 없으면 로컬 전용)
 
   httpServer.on('upgrade', (req, socket, head) => {
     const parsed = url.parse(req.url, true);
@@ -117,37 +118,74 @@ function attachWsServer(httpServer) {
   return _wss;
 }
 
-/**
- * Broadcast 한 frame 을 battle 채널의 모든 구독자에게 전송.
- * battleScheduler 가 매 tick 호출.
- */
-function broadcastBattleFrame(battleId, frame) {
+// ── Redis Pub/Sub 팬아웃 (멀티 인스턴스) ──────────────────────
+// REDIS_URL 있으면 broadcast* 가 Redis 로 publish → 모든 인스턴스(origin 포함)가
+// subscribe 해서 자기 로컬 클라이언트에 전달. 없으면 로컬 전용(단일 인스턴스, 현 동작).
+// ⚠️ battleScheduler 가 워커(RUN_SCHEDULERS)에서만 돌고 viewer 는 web 인스턴스에 붙으므로,
+//    멀티 인스턴스에서 battle frame 도 반드시 pub/sub 로 팬아웃돼야 한다.
+const _PUB_CH = 'om:ws';
+let _pub = null, _sub = null, _redisReady = false;
+function _initRedisPubSub() {
+  if (!process.env.REDIS_URL) { console.log('[WS] broadcast: 로컬 전용 (REDIS_URL 미설정)'); return; }
+  let Redis;
+  try { Redis = require('ioredis'); } catch (e) { console.warn('[WS] ioredis 미설치 — 로컬 broadcast 폴백'); return; }
+  try {
+    _pub = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, enableOfflineQueue: false });
+    _sub = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2 });
+    _pub.on('error', () => {}); _sub.on('error', () => {});
+    _sub.subscribe(_PUB_CH, (err) => {
+      if (err) { console.warn('[WS] Redis subscribe 실패 — 로컬 폴백:', err.message); _redisReady = false; return; }
+      _redisReady = true;
+      console.log('[WS] Redis Pub/Sub 팬아웃 활성 (멀티 인스턴스)');
+    });
+    _sub.on('message', (ch, raw) => {
+      if (ch !== _PUB_CH) return;
+      let m = null; try { m = JSON.parse(raw); } catch (_) { return; }
+      if (!m || !m.kind) return;
+      // 로컬 클라이언트에 전달 (origin 인스턴스 포함 — broadcast* 는 publish 만 하고 직접 로컬전달 안 함)
+      if (m.kind === 'chat') _localChat(m.channel, m.message);
+      else if (m.kind === 'feed') _localFeed(m.event);
+      else if (m.kind === 'battleFrame') _localBattleFrame(m.battleId, m.frame);
+      else if (m.kind === 'battleEnd') _localBattleEnd(m.battleId, m.summary);
+    });
+  } catch (e) { console.warn('[WS] Redis pub/sub init 실패 — 로컬 폴백:', e.message); _pub = null; _sub = null; _redisReady = false; }
+}
+// Redis 활성 시 publish, 아니면 로컬 전달.
+function _publishOrLocal(kind, payload, localFn) {
+  if (_redisReady && _pub) {
+    try { _pub.publish(_PUB_CH, JSON.stringify(Object.assign({ kind }, payload))); return; } catch (_) {}
+  }
+  localFn();
+}
+
+// ── Battle frame/end ──────────────────────────────────────────
+function _localBattleFrame(battleId, frame) {
   const set = _channels.get(battleId);
   if (!set || set.size === 0) return 0;
   const payload = JSON.stringify({ type: 'frame', battleId, ...frame });
   let sent = 0;
   for (const ws of set) {
-    try {
-      if (ws.readyState === 1) { ws.send(payload); sent++; }
-    } catch (_) {}
+    try { if (ws.readyState === 1) { ws.send(payload); sent++; } } catch (_) {}
   }
   return sent;
 }
-
-/**
- * Battle 종료 broadcast — winner / summary 포함.
- */
-function broadcastBattleEnd(battleId, summary) {
+function _localBattleEnd(battleId, summary) {
   const set = _channels.get(battleId);
   if (!set || set.size === 0) return 0;
   const payload = JSON.stringify({ type: 'end', battleId, ...summary });
   let sent = 0;
   for (const ws of set) {
-    try {
-      if (ws.readyState === 1) { ws.send(payload); sent++; }
-    } catch (_) {}
+    try { if (ws.readyState === 1) { ws.send(payload); sent++; } } catch (_) {}
   }
   return sent;
+}
+/** Battle frame broadcast (battleScheduler 가 매 tick 호출). 멀티 인스턴스 시 Redis 팬아웃. */
+function broadcastBattleFrame(battleId, frame) {
+  _publishOrLocal('battleFrame', { battleId, frame }, () => _localBattleFrame(battleId, frame));
+}
+/** Battle 종료 broadcast — winner / summary. */
+function broadcastBattleEnd(battleId, summary) {
+  _publishOrLocal('battleEnd', { battleId, summary }, () => _localBattleEnd(battleId, summary));
 }
 
 // ── 라이브 채널 (채팅/활동피드) ──────────────────────────────
@@ -169,8 +207,8 @@ function _handleLive(ws) {
   ws.on('error', () => {});
 }
 
-/** 채팅 메시지를 해당 채널 구독자에게 푸시. chat.js POST /chat/send 가 호출. */
-function broadcastChat(channel, message) {
+// 로컬 _live 클라이언트에 채팅 전달 (해당 채널 구독자만).
+function _localChat(channel, message) {
   if (!_live.size) return 0;
   const payload = JSON.stringify({ type: 'chat', channel, message });
   let sent = 0;
@@ -181,9 +219,8 @@ function broadcastChat(channel, message) {
   }
   return sent;
 }
-
-/** 활동피드 이벤트를 'feed' 구독자에게 푸시. */
-function broadcastFeed(event) {
+// 로컬 _live 클라이언트에 피드 이벤트 전달 ('feed' 구독자만).
+function _localFeed(event) {
   if (!_live.size) return 0;
   const payload = JSON.stringify({ type: 'feed', event });
   let sent = 0;
@@ -193,6 +230,14 @@ function broadcastFeed(event) {
     } catch (_) {}
   }
   return sent;
+}
+/** 채팅 메시지 푸시. chat.js POST /chat/send 가 호출. 멀티 인스턴스 시 Redis 팬아웃. */
+function broadcastChat(channel, message) {
+  _publishOrLocal('chat', { channel, message }, () => _localChat(channel, message));
+}
+/** 활동피드 이벤트 푸시. 멀티 인스턴스 시 Redis 팬아웃. */
+function broadcastFeed(event) {
+  _publishOrLocal('feed', { event }, () => _localFeed(event));
 }
 
 function channelStats() {
