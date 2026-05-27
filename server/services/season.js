@@ -420,8 +420,9 @@ async function claimSeasonReward(wallet, rewardId) {
             }
           }
         } catch (e) {
-          if (!(e && e.code)) { await client.query('ROLLBACK'); return { success: false, error: 'treasury_guard_error' }; }
-          /* treasury_ledger 미생성 환경 → 가드 미적용 */
+          // ⚠️ fail-CLOSED: 42P01(테이블 미존재)만 면제, 그 외 오류는 미담보 USDT 발행 방지 위해 차단.
+          if (e && e.code === '42P01') { /* 마이그레이션 전 → 가드 면제 */ }
+          else { await client.query('ROLLBACK'); return { success: false, error: 'treasury_guard_error' }; }
         }
       }
       await client.query('UPDATE users SET usdt_balance = usdt_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',

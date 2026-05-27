@@ -2041,8 +2041,12 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
         }
       }
     } catch (e) {
-      if (e && e.code) { /* treasury_ledger 미생성(마이그레이션 전) → 가드 미적용 */ }
-      else { await client.query('ROLLBACK'); console.error('[API] swap solvency guard error:', e.message); return res.status(500).json({ error: 'internal_error' }); }
+      // ⚠️ fail-CLOSED: treasury_ledger 미존재(42P01, 마이그레이션 전)만 가드 면제. 그 외 모든 오류는
+      //    미담보 발행을 막기 위해 거래 차단(Codex 검토 — 과거 모든 e.code 면제 = fail-open 버그였음).
+      await client.query('ROLLBACK');
+      if (e && e.code === '42P01') { return res.status(503).json({ error: 'solvency_guard_unavailable' }); }
+      console.error('[API] swap solvency guard error:', e.message);
+      return res.status(500).json({ error: 'internal_error' });
     }
 
     const deductSwap = await client.query(
@@ -2284,8 +2288,11 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
         }
       }
     } catch (e) {
-      if (e && e.code) { /* treasury_ledger 미생성 → 가드 미적용 */ }
-      else { await client.query('ROLLBACK'); console.error('[API] withdraw-all solvency guard error:', e.message); return res.status(500).json({ error: 'internal_error' }); }
+      // ⚠️ fail-CLOSED: 42P01(테이블 미존재)만 면제, 그 외 오류는 미담보 발행 방지 위해 차단.
+      await client.query('ROLLBACK');
+      if (e && e.code === '42P01') { return res.status(503).json({ error: 'solvency_guard_unavailable' }); }
+      console.error('[API] withdraw-all solvency guard error:', e.message);
+      return res.status(500).json({ error: 'internal_error' });
     }
 
     // Zero balances, increment nonce, and update last_withdrawal_at
@@ -2973,7 +2980,10 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     const rewardMin = parseFloat(s.mining_reward_min) || 0.01;
     const rewardMax = parseFloat(s.mining_reward_max) || 0.5;
     const harvestCap = parseFloat(s.mining_reward_cap_per_harvest) || 1.0;
-    const dailyCap = parseFloat(s.mining_daily_cap_per_user) || 0; // 0=unlimited
+    // [통일] 전역/영토 harvest 가 동일 today_mined_pp 카운터를 공유하므로 두 캡 중 더 제한적인 값으로 통일(Codex 검토 — 키 불일치 우회 차단). 0=무제한
+    const _capA = parseFloat(s.pp_daily_earn_cap_per_user) || 0;
+    const _capB = parseFloat(s.mining_daily_cap_per_user) || 0;
+    const dailyCap = (_capA > 0 && _capB > 0) ? Math.min(_capA, _capB) : (_capA || _capB);
 
     // Random base reward scaled by pixel count (diminishing returns)
     // sqrt(pixels) gives diminishing returns: 100px=10x, 10000px=100x (not 100x linear)
@@ -3470,7 +3480,10 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     // user_mining.today_mined_pp(오늘 누적)을 기준으로 남은 한도만큼만 지급한다.
     const _ppCapDate = now.toISOString().slice(0, 10);
     try {
-      const ppDailyCap = parseFloat(await getSetting('pp_daily_earn_cap_per_user', '0')) || 0;
+      // [통일] 전역 /harvest 와 동일 캡 적용(둘 중 더 제한적). 공유 today_mined_pp 우회 차단.
+      const _capA = parseFloat(await getSetting('pp_daily_earn_cap_per_user', '0')) || 0;
+      const _capB = parseFloat(await getSetting('mining_daily_cap_per_user', '0')) || 0;
+      const ppDailyCap = (_capA > 0 && _capB > 0) ? Math.min(_capA, _capB) : (_capA || _capB);
       if (ppDailyCap > 0) {
         const minedRes = await client.query(
           `SELECT CASE WHEN today_date = $2 THEN COALESCE(today_mined_pp, 0) ELSE 0 END AS mined_today

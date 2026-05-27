@@ -573,7 +573,11 @@ router.post('/link-wallet', async (req, res) => {
       const okPw = me.rows[0].password_hash ? await bcrypt.compare(linkPw, me.rows[0].password_hash) : false;
       if (!okPw) return res.status(401).json({ error: 'bad_password', message: 'Incorrect password.' });
     }
-  } catch (_e) { /* lookup 실패는 비차단(기존 동작 유지) */ }
+  } catch (e) {
+    // ⚠️ fail-CLOSED: 인증 게이트 조회 실패 시 지갑 재할당을 진행하면 안 됨(계정 탈취 방지, Codex 검토).
+    console.error('[Auth] link-wallet guard error:', e.message);
+    return res.status(500).json({ error: 'link_guard_error' });
+  }
 
   const client = await pool.connect();
   try {
