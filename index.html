@@ -51273,10 +51273,15 @@ function showOnboardingHint(step) {
   if (!el) return;
   var title = el.querySelector('.onboarding-hint__title');
   var body = el.querySelector('.onboarding-hint__body');
+  // 4개 언어 현지화 + 골든패스(첫 영토→채굴→함대→캠페인 메인 스토리) 유도.
+  // 기존엔 영어 하드코딩이라 KO/JA/ZH 유저에게 영어로 노출되던 문제를 함께 수정.
   var messages = [
-    { title: 'FIRST LANDING', body: 'Start by claiming your first Mars territory.' },
-    { title: 'START MINING', body: 'Harvest PP from your territory to begin earning.' },
-    { title: 'BUILD A FLEET', body: 'Open BASE and build your first ship for defense.' }
+    { title: tl('FIRST LANDING','첫 상륙','ファーストランディング','首次登陆'),
+      body: tl('Claim your first Mars territory to stake your claim.','첫 화성 영토를 점령해 거점을 마련하세요.','最初の火星領土を獲得して拠点を築こう。','占领你的第一块火星领土，建立据点。') },
+    { title: tl('START MINING','채굴 시작','採掘開始','开始采矿'),
+      body: tl('Harvest PP from your territory — your first income.','영토에서 PP를 채굴하세요 — 첫 수입입니다.','領土からPPを採掘 — 最初の収入です。','从领土收获PP——你的第一笔收入。') },
+    { title: tl('BUILD & ADVANCE','함대 & 진격','艦隊 & 進撃','舰队 & 推进'),
+      body: tl('Build your first ship in BASE, then follow the CAMPAIGN — the main story.','BASE에서 첫 함선을 만들고, 메인 스토리인 캠페인을 따라가세요.','BASEで最初の艦船を建造し、メインストーリーのキャンペーンを進めよう。','在BASE建造第一艘舰船，然后跟随主线剧情战役。') }
   ];
   var msg = messages[Math.max(0, Math.min(step, messages.length - 1))];
   if (title) title.textContent = msg.title;
