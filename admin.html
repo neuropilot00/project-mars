@@ -315,6 +315,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('worldevents')" data-tab="worldevents" style="color:#b088e0">👾 EVENTS</button>
   <button class="adm-tab" onclick="switchTab('bugs')" data-tab="bugs" style="color:#ff8866">🐞 BUGS</button>
   <button class="adm-tab" onclick="switchTab('territory_economy')" data-tab="territory_economy" style="color:#64dc82">🌍 TERRITORY</button>
+  <button class="adm-tab" onclick="switchTab('economy')" data-tab="economy" style="color:var(--gold)">💰 ECONOMY</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -2966,6 +2967,68 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ ECONOMY (EVE급 모니터링 대시보드) ═══ -->
+  <div class="section cat-economy" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--gold)">💰 ECONOMY HEALTH (EVE MER)</span>
+      <div class="sec-tools">
+        <select class="adm-select" id="econDays" onchange="loadEconomyDashboard()" style="font-size:9px">
+          <option value="1">1 day</option>
+          <option value="7">7 days</option>
+          <option value="30" selected>30 days</option>
+        </select>
+        <button class="adm-btn primary" onclick="loadEconomyDashboard()" style="color:var(--gold);border-color:rgba(255,193,64,.3)">REFRESH</button>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div id="econAlerts" style="margin-bottom:12px"></div>
+
+    <!-- Solvency / Bank-run -->
+    <div style="background:rgba(255,193,64,.05);border:1px solid rgba(255,193,64,.18);border-radius:8px;padding:12px;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:8px">🏦 SOLVENCY (뱅크런 가드) — 불변식: USDT부채 ≤ 담보</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+        <div style="text-align:center"><div style="font-size:9px;color:var(--tx3)">담보 collateral</div><div style="font-size:16px;color:#64dc82;font-weight:700" id="econCollateral">—</div></div>
+        <div style="text-align:center"><div style="font-size:9px;color:var(--tx3)">USDT 부채</div><div style="font-size:16px;color:#ffab40;font-weight:700" id="econLiability">—</div></div>
+        <div style="text-align:center"><div style="font-size:9px;color:var(--tx3)">환금 여유 room</div><div style="font-size:16px;font-weight:700" id="econRoom">—</div></div>
+        <div style="text-align:center"><div style="font-size:9px;color:var(--tx3)">PP→USDT 환금</div><div style="font-size:13px;font-weight:700" id="econRedemption">—</div></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <span style="font-size:10px;color:var(--tx3)">담보 적립(redemption pool):</span>
+        <input id="econTopupAmt" type="number" step="0.01" placeholder="USDT 금액" class="adm-input" style="width:120px;font-size:11px">
+        <button class="adm-btn primary" onclick="topupTreasury()" style="color:#64dc82;border-color:rgba(100,220,130,.4)">＋ 담보 적립</button>
+        <span id="econTopupStatus" style="font-size:10px;color:var(--tx3)"></span>
+      </div>
+    </div>
+
+    <!-- Circulation -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:14px">
+      <div style="background:rgba(92,187,255,.06);border:1px solid rgba(92,187,255,.15);border-radius:6px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--tx3)">유저</div><div style="font-size:18px;color:#5cbbff;font-weight:700" id="econUsers">—</div></div>
+      <div style="background:rgba(255,193,64,.06);border:1px solid rgba(255,193,64,.15);border-radius:6px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--tx3)">GP 총량</div><div style="font-size:18px;color:var(--gold);font-weight:700" id="econGpTotal">—</div></div>
+      <div style="background:rgba(255,171,64,.06);border:1px solid rgba(255,171,64,.15);border-radius:6px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--tx3)">PP 총량</div><div style="font-size:18px;color:#ffab40;font-weight:700" id="econPpTotal">—</div></div>
+      <div style="background:rgba(100,220,130,.06);border:1px solid rgba(100,220,130,.15);border-radius:6px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--tx3)">USDT 총량</div><div style="font-size:18px;color:#64dc82;font-weight:700" id="econUsdtTotal">—</div></div>
+    </div>
+
+    <!-- GP flow -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:6px">💸 GP FLOW (기간)</div>
+        <div style="font-size:11px" id="econGpFlow">—</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#ffab40;font-weight:700;margin-bottom:6px">🪙 PP FLOW (type별)</div>
+        <div style="font-size:10px" id="econPpFlow">—</div>
+      </div>
+    </div>
+
+    <!-- EVE toggles -->
+    <div style="background:rgba(160,100,220,.05);border:1px solid rgba(160,100,220,.15);border-radius:6px;padding:10px">
+      <div style="font-size:10px;color:#a064dc;font-weight:700;margin-bottom:8px">⚙ EVE 경제 토글 (클릭하여 ON/OFF)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="econToggles">—</div>
+      <div style="font-size:10px;color:var(--tx3);margin-top:8px">현재 PP→GP 환율: <b id="econRate" style="color:var(--gold)">—</b></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -3047,7 +3110,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege', 'ships', 'worldevents', 'bugs'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege', 'ships', 'worldevents', 'bugs', 'territory_economy', 'economy'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -11169,6 +11232,7 @@ switchTab = function(tab) {
   if (tab === 'worldevents') setTimeout(loadWorldEventsAdmin, 100);
   if (tab === 'bugs')        setTimeout(function(){ loadBugReports(0); }, 100);
   if (tab === 'territory_economy') setTimeout(loadTerritoryEconomy, 100);
+  if (tab === 'economy') setTimeout(loadEconomyDashboard, 100);
 };
 
 // ─── BUG REPORTS ─────────────────────────────────────────────
@@ -11376,6 +11440,114 @@ function _adminFetch(path, options) {
   var opts = options || {};
   opts.headers = Object.assign({ 'x-admin-secret': adminSecret }, opts.headers || {});
   return fetch(path, opts);
+}
+
+// ─── ECONOMY DASHBOARD (EVE급 모니터링) ─────────────────────────
+function _econFmt(n) {
+  var v = parseFloat(n);
+  if (!isFinite(v)) return '—';
+  return v.toLocaleString(undefined, { maximumFractionDigits: 4 });
+}
+async function loadEconomyDashboard() {
+  var days = document.getElementById('econDays') ? document.getElementById('econDays').value : 30;
+  try {
+    var res = await _adminFetch('/api/admin/economy/health?days=' + days);
+    var d = await res.json();
+    if (d.error) { showToast('경제 헬스 오류: ' + d.error, 'error'); return; }
+
+    var c = d.circulation || {};
+    document.getElementById('econUsers').textContent = c.users != null ? c.users : '—';
+    document.getElementById('econGpTotal').textContent = _econFmt(c.gp_total);
+    document.getElementById('econPpTotal').textContent = _econFmt(c.pp_total);
+    document.getElementById('econUsdtTotal').textContent = _econFmt(c.usdt_balance_total);
+
+    // Solvency
+    var s = d.solvency || {};
+    document.getElementById('econCollateral').textContent = _econFmt(s.collateral_usdt);
+    document.getElementById('econLiability').textContent = _econFmt(s.usdt_liability);
+    var roomEl = document.getElementById('econRoom');
+    roomEl.textContent = _econFmt(s.swap_room);
+    roomEl.style.color = (parseFloat(s.swap_room) > 0) ? '#64dc82' : '#ff6b6b';
+    var redEl = document.getElementById('econRedemption');
+    redEl.textContent = s.redemption_open ? '🟢 OPEN' : '🔴 CLOSED (담보 적립 필요)';
+    redEl.style.color = s.redemption_open ? '#64dc82' : '#ff6b6b';
+
+    // Alerts
+    var alerts = [];
+    var col = d.collateral || {};
+    if (col.bankrun_risk) alerts.push('<div style="background:rgba(255,80,80,.12);border:1px solid #ff5050;border-radius:6px;padding:8px;color:#ff8888;font-size:11px">⚠ 뱅크런 위험: 출금가능 부채(' + _econFmt(col.withdrawable_liability_pp_plus_usdt) + ')가 순담보(' + _econFmt(col.net_collateral) + ')를 ' + _econFmt(col.undercollateralized_by) + ' 초과. (PP페그 가정 기준)</div>');
+    if (d.inflation_signal && d.inflation_signal.gp_inflating) alerts.push('<div style="background:rgba(255,171,64,.12);border:1px solid #ffab40;border-radius:6px;padding:8px;color:#ffc888;font-size:11px">📈 GP 인플레 경향: faucet > sink (기간 net +' + _econFmt((d.gp_flow||{}).net) + ')</div>');
+    document.getElementById('econAlerts').innerHTML = alerts.join('') || '<div style="background:rgba(100,220,130,.08);border:1px solid rgba(100,220,130,.25);border-radius:6px;padding:8px;color:#88dd99;font-size:11px">✓ 위험 신호 없음</div>';
+
+    // GP flow
+    var g = d.gp_flow || {};
+    document.getElementById('econGpFlow').innerHTML =
+      '<div>faucet: <b style="color:#64dc82">' + _econFmt(g.faucet_total) + '</b></div>' +
+      '<div>sink: <b style="color:#ff6b6b">' + _econFmt(g.sink_total) + '</b></div>' +
+      '<div>net: <b style="color:' + ((g.net||0) > 0 ? '#ffab40' : '#64dc82') + '">' + _econFmt(g.net) + '</b> ' + ((g.net||0) > 0 ? '(인플레)' : '(디플레)') + '</div>';
+
+    // PP flow by type
+    var pp = (d.pp_flow && d.pp_flow.by_type) || [];
+    document.getElementById('econPpFlow').innerHTML = pp.length
+      ? '<table style="width:100%;border-collapse:collapse">' + pp.map(function(r){
+          return '<tr><td style="padding:2px 4px;color:var(--tx2)">' + (r.type||'?') + '</td><td style="text-align:right;color:#ffab40">' + _econFmt(r.pp_total) + '</td><td style="text-align:right;color:var(--tx3)">×' + (r.n||0) + '</td></tr>';
+        }).join('') + '</table>'
+      : '<span style="color:var(--tx3)">데이터 없음</span>';
+
+    // EVE toggles + current rate
+    loadEconomyToggles();
+  } catch (e) { showToast('경제 대시보드 로드 실패: ' + e.message, 'error'); }
+}
+
+async function loadEconomyToggles() {
+  try {
+    var res = await _adminFetch('/admin/api/settings');
+    var all = await res.json();
+    var map = {};
+    (Array.isArray(all) ? all : []).forEach(function(s){ map[s.key] = s.value; });
+    var truthy = function(v){ return v === true || v === 'true' || v === 1; };
+    var toggles = [
+      { key: 'hijack_ship_loss_enabled', label: '함선 영구파괴(full-loss)' },
+      { key: 'pp_to_gp_dynamic_enabled', label: '동적 PP→GP 환율' },
+      { key: 'marketplace_sector_restricted_buy', label: '동일섹터 매수제한' }
+    ];
+    document.getElementById('econToggles').innerHTML = toggles.map(function(t){
+      var on = truthy(map[t.key]);
+      return '<button class="adm-btn" onclick="econToggle(\'' + t.key + '\',' + on + ')" style="border-color:' + (on ? 'rgba(100,220,130,.5)' : 'rgba(255,255,255,.15)') + ';color:' + (on ? '#64dc82' : 'var(--tx3)') + '">' + (on ? '🟢 ' : '⚪ ') + t.label + '</button>';
+    }).join('');
+    var rate = map['pp_to_gp_exchange_rate'];
+    document.getElementById('econRate').textContent = (rate != null ? rate : '—') + ' GP / PP';
+  } catch (e) { document.getElementById('econToggles').innerHTML = '<span style="color:var(--tx3)">토글 로드 실패</span>'; }
+}
+
+function econToggle(key, currentOn) {
+  var next = currentOn ? 'false' : 'true';
+  _adminFetch('/admin/api/settings/' + key, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value: next })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d && (d.success || d.value !== undefined)) { showToast(key + ' → ' + next, 'success'); loadEconomyToggles(); }
+    else { showToast('토글 실패: ' + (d && d.error || '?'), 'error'); }
+  }).catch(function(e){ showToast('토글 오류: ' + e.message, 'error'); });
+}
+
+function topupTreasury() {
+  var amt = parseFloat(document.getElementById('econTopupAmt').value);
+  if (!isFinite(amt) || amt === 0) { showToast('금액을 입력하세요', 'error'); return; }
+  var st = document.getElementById('econTopupStatus');
+  st.textContent = '처리 중...';
+  _adminFetch('/api/admin/economy/treasury/topup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount: amt })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.success) {
+      st.textContent = '✓ 담보 ' + _econFmt(d.collateral_usdt) + ' / room ' + _econFmt(d.swap_room);
+      document.getElementById('econTopupAmt').value = '';
+      loadEconomyDashboard();
+    } else { st.textContent = '실패: ' + (d.error || '?'); }
+  }).catch(function(e){ st.textContent = '오류: ' + e.message; });
 }
 
 async function loadTerritoryEconomy() {

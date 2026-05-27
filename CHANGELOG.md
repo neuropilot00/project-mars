@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.131 — 경제 모니터링 대시보드 UI (admin) + 토글 ON + 토픽업 버그 2건 수정
+
+지금껏 백엔드만 있던 경제 기능들을 admin.html 에 **💰 ECONOMY 탭**으로 제대로 배치.
+
+- **ECONOMY 대시보드** (`admin.html`) — `GET /api/admin/economy/health` 연동: 뱅크런 경보, SOLVENCY(담보/USDT부채/환금 room/redemption open) + **담보 적립(topup) 컨트롤**, 유통량(유저/GP/PP/USDT), GP faucet/sink/net, PP flow(type별), EVE 토글 3종 ON/OFF 버튼 + 현재 환율. Claude Preview 실측 검증(스샷).
+- **🐞 기존 UI 버그 수정**: `switchTab` cats 배열에 `territory_economy` 누락 → 🌍 TERRITORY 탭 콘텐츠가 표시 안 되던 버그 동시 수정(+`economy` 추가).
+- **🐞 토픽업 버그 2건 (UI 검수로 발견)**:
+  1. 라우트 경로 불일치 — UI/주석은 `/api/admin/economy/treasury/topup` 인데 실제 등록은 `/treasury/topup` → 404(HTML). 경로 일치 수정.
+  2. **트랜잭션 오염** — audit용 `INSERT type='treasury_topup'` 가 CHECK 제약에 없어 실패 → 같은 트랜잭션의 담보 적립까지 COMMIT 시 롤백(성공 응답은 롤백 전 값이라 오해 유발). migration 236(CHECK 에 treasury_topup 추가) + 적립을 COMMIT 후 audit 분리(실패해도 적립 불변). 재검증: 적립 300→health 300/room 300/redemption OPEN + audit row 기록 확인.
+
 ## 2026-05-27 v7.130 — 지역(섹터) 마켓 차별화 (휴면 관세 시스템 활성화)
 
 마켓 `sector_id`(mig 156)가 항상 null 로 들어가 섹터 관세/거버너 시스템(`computeSectorTariff`)이 휴면이었음 → 활성화.

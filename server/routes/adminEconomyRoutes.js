@@ -647,28 +647,30 @@ router.get('/economy/health', requireAdmin, async (req, res) => {
 //   - 운영자가 실수익(광고/PP판매 등)으로 PP→USDT 환금 담보(redemption pool)를 적립.
 //   - amount>0: 적립(room 증가, 환금 허용량↑). amount<0: 회수(주의).
 // ═══════════════════════════════════════════════════════════════
-router.post('/treasury/topup', requireAdmin, async (req, res) => {
+router.post('/economy/treasury/topup', requireAdmin, async (req, res) => {
   const amount = Number(req.body?.amount);
   if (!Number.isFinite(amount) || amount === 0) {
     return res.status(400).json({ error: 'amount must be a non-zero finite number' });
   }
   const client = await pool.connect();
   try {
+    // 담보 적립만 트랜잭션으로 확정. (audit INSERT 는 COMMIT 후 별도 — 실패해도 적립 롤백 금지)
     await client.query('BEGIN');
     await require('../services/treasury').adjustCollateral(client, amount);
     const after = (await client.query(`SELECT collateral_usdt FROM treasury_ledger WHERE id = 1`)).rows[0] || {};
     const liab = (await client.query(`SELECT COALESCE(SUM(usdt_balance),0) AS s FROM users`)).rows[0] || {};
-    await client.query(
-      `INSERT INTO transactions (type, from_wallet, usdt_amount, meta)
-       VALUES ('treasury_topup', 'operator', $1, $2)`,
-      [amount, JSON.stringify({ by: 'admin', at: new Date().toISOString() })]
-    ).catch(() => {});
     await client.query('COMMIT');
     const collateral = Number(after.collateral_usdt || 0);
     const liability = Number(liab.s || 0);
+    // 감사 로그(best-effort, COMMIT 후 별도 쿼리 — 실패해도 담보 적립에 영향 없음)
+    pool.query(
+      `INSERT INTO transactions (type, from_wallet, usdt_amount, meta)
+       VALUES ('treasury_topup', 'operator', $1, $2)`,
+      [amount, JSON.stringify({ by: 'admin', at: new Date().toISOString() })]
+    ).catch((e) => console.warn('[treasury/topup] audit log insert failed:', e.message));
     res.json({ success: true, added: amount, collateral_usdt: collateral, usdt_liability: liability, swap_room: Math.round((collateral - liability) * 1000000) / 1000000 });
   } catch (err) {
-    await client.query('ROLLBACK');
+    try { await client.query('ROLLBACK'); } catch (_) {}
     handleErr(res, err, 'treasury/topup');
   } finally {
     client.release();
