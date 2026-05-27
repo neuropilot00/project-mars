@@ -14,7 +14,7 @@ function _getClient() {
   if (!process.env.REDIS_URL) return null;
   try {
     const Redis = require('ioredis');
-    _client = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, enableOfflineQueue: false });
+    _client = new Redis(process.env.REDIS_URL, { family: 0, maxRetriesPerRequest: 2, enableOfflineQueue: false });
     _client.on('error', () => {}); // 오류 시에도 프로세스 죽지 않게
     console.log('[ratelimit] Redis 공유 스토어 활성');
   } catch (e) {

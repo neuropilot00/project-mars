@@ -47,10 +47,19 @@ async function shouldRunSchedulers() {
     _isLeader = (process.env.RUN_SCHEDULERS !== 'false');
     return _isLeader;
   }
-  const redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3 });
+  // family:0 = IPv4/IPv6 모두 시도(Railway 내부망은 IPv6 전용 redis.railway.internal).
+  // enableOfflineQueue:false + connectTimeout = Redis 불통 시 명령이 무한 대기하지 않게.
+  const redis = new Redis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: 3, family: 0, enableOfflineQueue: false, connectTimeout: 5000
+  });
   redis.on('error', () => {});
   try {
-    const ok = await redis.set(LOCK_KEY, INSTANCE_ID, 'NX', 'PX', TTL_MS);
+    // ⚠️ 부팅을 절대 막지 않는다: 락 획득 시도를 6초 타임아웃으로 감싼다.
+    //    Redis 불통이어도 HTTP 서버는 떠야 하므로(과거 여기서 await 가 멈춰 전체 다운된 사고 방지).
+    const ok = await Promise.race([
+      redis.set(LOCK_KEY, INSTANCE_ID, 'NX', 'PX', TTL_MS),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('leader acquire timeout')), 6000))
+    ]);
     if (ok !== 'OK') {
       const holder = await redis.get(LOCK_KEY).catch(() => '?');
       console.log(`[leader] 리더 락 미획득 — web-only 모드 (현재 리더: ${holder})`);

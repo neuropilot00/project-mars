@@ -151,8 +151,8 @@ function _initRedisPubSub() {
   let Redis;
   try { Redis = require('ioredis'); } catch (e) { console.warn('[WS] ioredis 미설치 — 로컬 broadcast 폴백'); return; }
   try {
-    _pub = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, enableOfflineQueue: false });
-    _sub = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2 });
+    _pub = new Redis(process.env.REDIS_URL, { family: 0, maxRetriesPerRequest: 2, enableOfflineQueue: false });
+    _sub = new Redis(process.env.REDIS_URL, { family: 0, maxRetriesPerRequest: 2 });
     _pub.on('error', () => {}); _sub.on('error', () => {});
     _sub.subscribe(_PUB_CH, (err) => {
       if (err) { console.warn('[WS] Redis subscribe 실패 — 로컬 폴백:', err.message); _redisReady = false; return; }

@@ -23,7 +23,7 @@ const _mem = new Map(); // key -> { v, exp(ms, 0=무기한) }
   if (process.env.REDIS_URL) {
     try {
       const Redis = require('ioredis'); // 미설치 시 throw → 폴백
-      _redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, enableOfflineQueue: false });
+      _redis = new Redis(process.env.REDIS_URL, { family: 0, maxRetriesPerRequest: 2, enableOfflineQueue: false });
       _redis.on('error', () => { /* 연결 오류 시에도 인메모리 폴백 경로가 동작 */ });
       _mode = 'redis';
       console.log('[cache] Redis mode (REDIS_URL set)');
