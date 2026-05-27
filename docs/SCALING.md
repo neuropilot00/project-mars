@@ -3,11 +3,22 @@
 단일 인스턴스 기준으로 베타~수백 동접은 무리 없음. 수천+ 동접(진짜 MMO)으로 가려면 아래를
 순서대로 적용한다. **전면 재작성 불필요 — 인프라 리엔지니어링.**
 
-## ✅ 완료 (이번 작업)
-- **워커 게이트** (`RUN_SCHEDULERS`): 스케줄러 50여 개 + 온체인 입금 리스너를 1개 워커에만.
-  web 인스턴스는 `RUN_SCHEDULERS=false` → 중복 스폰/중복 입금 크레딧 방지. (v7.109)
-- **WebSocket 푸시** (`/ws/live`): 채팅/활동피드 실시간 → 폴링 부하 대폭 감소. (v7.110)
+## ✅ 완료 (이번 작업 + 교차검수 반영)
+- **워커 게이트 → 리더 election** (`services/leader.js`, v7.115): REDIS_URL 있으면 Redis 락
+  (`SET om:scheduler:leader NX PX`)으로 스케줄러+입금 리스너를 **정확히 1개** 자동 선출 +
+  하트비트/페일오버. 워커 0개/2개+ 사고를 코드로 차단. `/health.scheduler_leader`로 0-리더 감지.
+  REDIS_URL 없으면 단일 인스턴스 기본(`RUN_SCHEDULERS=false` opt-out).
+- **WebSocket 푸시 + Redis Pub/Sub 팬아웃** (`/ws/live`, v7.110/112): 채팅/피드/전투프레임이
+  REDIS_URL 시 모든 인스턴스 클라이언트에 도달(om:ws publish/subscribe). 없으면 로컬 폴백.
+- **전역 레이트리밋 Redis 스토어** (`services/rateLimitStore.js`, v7.113/114): Lua 원자 INCR+PEXPIRE,
+  Redis 장애 시 fail-open(+passOnStoreError). 메모리 폴백.
+- **온체인 backfill 커서** (v7.116): currentBlock-1000 floor 제거 → 장기 다운 입금 유실 방지, 청크 조회.
+- **WS 연결 수 제한** (v7.117): 전역/IP별 캡(DoS 방어). 채팅 닉네임 escape(이중방어).
 - **캐시 추상화** (`services/cache.js`): REDIS_URL 있으면 Redis, 없으면 인메모리 폴백.
+
+### ⚠️ 인메모리 캐시(cache.js memory 모드) 주의
+멀티 인스턴스에서 REDIS_URL 없이 cache.js 를 쓰면 인스턴스마다 다른 값 → 정합성 깨짐.
+잔액/소유권 등 정합성 민감 데이터에는 절대 메모리 모드 캐시를 쓰지 말 것(반드시 Redis 또는 DB).
 
 ## 🔜 멀티 인스턴스 전환 체크리스트
 
