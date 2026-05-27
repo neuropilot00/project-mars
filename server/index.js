@@ -218,12 +218,16 @@ app.get('/health', async (req, res) => {
   const memoryMB = Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100;
   const status = dbStatus === 'ok' ? 'ok' : 'degraded';
   const httpStatus = status === 'ok' ? 200 : 503;
+  // 리더(스케줄러/입금 리스너 실행) 여부 노출 — 모니터링이 "워커 0개" 사고를 감지하도록.
+  let leaderStatus = false;
+  try { leaderStatus = require('./services/leader').isLeader(); } catch (_) {}
   res.status(httpStatus).json({
     status,
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     database: dbStatus,
-    memory: memoryMB
+    memory: memoryMB,
+    scheduler_leader: leaderStatus  // ⚠️ 전체 인스턴스에서 모두 false면 워커 0개 = 입금 처리 중단 경보
   });
 });
 
@@ -733,11 +737,13 @@ async function start() {
     // Initialize withdrawal signer (모든 인스턴스 — 출금 서명은 web API에서 처리)
     initSigner();
 
-    // ── 워커 게이트 시작 ──────────────────────────────────────────
-    // 온체인 입금 리스너 + 모든 스케줄러는 RUN_SCHEDULERS 인스턴스에서만 실행한다.
-    // 수평 확장 시 web 인스턴스(RUN_SCHEDULERS=false)는 이 블록을 건너뛰어 중복 스폰 및
-    // 중복 입금 크레딧을 방지. 워커는 정확히 1개만 RUN_SCHEDULERS=true 로 둔다.
-    if (RUN_SCHEDULERS) {
+    // ── 워커 게이트 시작 (leader election) ────────────────────────
+    // 온체인 입금 리스너 + 모든 스케줄러는 "리더" 인스턴스 1개에서만 실행한다.
+    //  - REDIS_URL 있으면 Redis 락(SET NX PX)으로 정확히 1개 자동 선출 + 하트비트/페일오버.
+    //  - REDIS_URL 없으면 단일 인스턴스 기본(RUN_SCHEDULERS=false 면 opt-out).
+    // honor-based env 단독 의존(워커 0개/2개+ 사고)을 코드로 차단. (services/leader.js)
+    const _runSchedulers = await require('./services/leader').shouldRunSchedulers();
+    if (_runSchedulers) {
     // Start on-chain event listeners
     await startListeners();
 
@@ -1564,7 +1570,7 @@ async function start() {
     } catch(e) { console.warn('[RETURN-HOOK] Could not init scheduler:', e.message); }
 
     } else {
-      console.log('[WORKER-GATE] RUN_SCHEDULERS=false — 스케줄러/온체인 리스너 스킵 (web 인스턴스 모드)');
+      console.log('[WORKER-GATE] 비리더(web 인스턴스 모드) — 스케줄러/온체인 리스너 스킵');
     }
     // ── 워커 게이트 끝 ────────────────────────────────────────────
 
