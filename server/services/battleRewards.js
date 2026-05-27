@@ -30,13 +30,24 @@ const MINERAL_DROP_POOL = {
 async function distributeRewards(battleId) {
   // 전투 정보 + 참가자 데이터
   const { rows: battleRows } = await pool.query(`
-    SELECT id, battle_type, winner_side, atk_ships_lost, def_ships_lost
+    SELECT id, battle_type, winner_side, atk_ships_lost, def_ships_lost, battle_summary
     FROM fleet_battles WHERE id = $1 AND status = 'ended'
   `, [battleId]);
-  
+
   if (!battleRows[0]) throw new Error('BATTLE_NOT_ENDED');
   const battle = battleRows[0];
-  
+
+  // ⚠️ AI 연습전(/api/ai/fight, battle_summary.is_ai_battle)은 GP/광물 보상 미지급.
+  // 비용·쿨다운·rate-limit 없는 AI전이 PvP와 동일 보상을 mint 하던 무한 GP 인플레/현금화
+  // 익스플로잇 차단(경제 진단 최우선 발견). 데일리 OPS 미션 진행은 별도 경로로 그대로 추적됨.
+  const _sum = battle.battle_summary || {};
+  const _isAi = _sum.is_ai_battle === true || _sum.is_ai_battle === 'true'
+    || String(battle.battle_type || '').toLowerCase().includes('ai');
+  if (_isAi) {
+    console.log(`[rewards] battle ${battleId} is AI practice — no currency/mineral reward (anti-mint)`);
+    return [];
+  }
+
   if (battle.winner_side === null || battle.winner_side === 'draw') {
     // 무승부면 참가 보상 최소치만
     return await distributeMinimalRewards(battleId);
