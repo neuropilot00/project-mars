@@ -48,18 +48,27 @@ async function shouldRunSchedulers() {
     return _isLeader;
   }
   // family:0 = IPv4/IPv6 모두 시도(Railway 내부망은 IPv6 전용 redis.railway.internal).
-  // enableOfflineQueue:false + connectTimeout = Redis 불통 시 명령이 무한 대기하지 않게.
   const redis = new Redis(process.env.REDIS_URL, {
-    maxRetriesPerRequest: 3, family: 0, enableOfflineQueue: false, connectTimeout: 5000
+    maxRetriesPerRequest: 3, family: 0, connectTimeout: 8000
   });
   redis.on('error', () => {});
+  // ⚠️ 락 경합 전에 Redis 연결(ready)을 최대 12초 대기한다.
+  //    Railway 내부망 DNS/연결이 부팅 직후 몇 초 늦게 잡히므로, 즉시 set() 하면 실패 →
+  //    리더 미획득 → 스케줄러 영구 미실행 사고가 났었음(연결은 됐는데 선출은 못 함).
+  const ready = await new Promise((res) => {
+    if (redis.status === 'ready') return res(true);
+    const t = setTimeout(() => res(false), 12000);
+    redis.once('ready', () => { clearTimeout(t); res(true); });
+  });
+  if (!ready) {
+    // Redis 진짜 불통 → env 기반 폴백: 지정/단일 워커에서 스케줄러는 계속 돌게(입금 처리 중단 방지).
+    const lead = process.env.RUN_SCHEDULERS !== 'false';
+    console.warn(`[leader] Redis 연결 실패(12s) — env 폴백으로 스케줄러 ${lead ? '실행' : '미실행'}`);
+    _isLeader = lead;
+    return lead;
+  }
   try {
-    // ⚠️ 부팅을 절대 막지 않는다: 락 획득 시도를 6초 타임아웃으로 감싼다.
-    //    Redis 불통이어도 HTTP 서버는 떠야 하므로(과거 여기서 await 가 멈춰 전체 다운된 사고 방지).
-    const ok = await Promise.race([
-      redis.set(LOCK_KEY, INSTANCE_ID, 'NX', 'PX', TTL_MS),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('leader acquire timeout')), 6000))
-    ]);
+    const ok = await redis.set(LOCK_KEY, INSTANCE_ID, 'NX', 'PX', TTL_MS);
     if (ok !== 'OK') {
       const holder = await redis.get(LOCK_KEY).catch(() => '?');
       console.log(`[leader] 리더 락 미획득 — web-only 모드 (현재 리더: ${holder})`);
