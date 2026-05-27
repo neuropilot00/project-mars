@@ -209,6 +209,21 @@ router.post('/register', authLimiter, async (req, res) => {
       console.log(`[Auth] Gifted ${signupBonus} PP to new user ${walletAddress}`);
     }
 
+    // 양면 추천 보상(invitee side): 추천 코드로 가입한 신규 유저에게 추가 PP 보너스.
+    // 추천인만 보상받던 단방향 구조 → 초대받은 사람도 즉시 이득 → 가입 전환율 상승.
+    // 금액은 admin 설정 referral_signup_bonus_pp 로 조정(기본은 migration 227에서 시드).
+    if (referredBy) {
+      const refBonusRes = await client.query("SELECT value FROM settings WHERE key = 'referral_signup_bonus_pp'");
+      const refBonus = refBonusRes.rows.length ? Number(refBonusRes.rows[0].value) : 0;
+      if (refBonus > 0) {
+        await client.query(
+          `UPDATE users SET pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
+          [walletAddress, refBonus]
+        );
+        console.log(`[Auth] Referred-signup bonus ${refBonus} PP to ${walletAddress} (ref by ${referredBy})`);
+      }
+    }
+
     await client.query('COMMIT');
 
     // 🏆 Achievement: 추천인이 있으면 referrer의 referral_count 진행 체크
