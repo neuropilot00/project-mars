@@ -572,4 +572,27 @@ router.post('/:id/shield', requireAuth, async (req, res) => {
   }
 });
 
+// ── 함선 가챠(Ship Crate) ──────────────────────────────────────
+// GET  /api/ships/crates           — 상자 목록 + 공개 확률(odds)
+// POST /api/ships/crates/:code/open — 상자 개봉(GP 차감 → 함선 획득). JWT 필요.
+const shipCrate = require('../services/shipCrate');
+router.get('/crates', async (_req, res) => {
+  try { res.json(await shipCrate.listCrates()); }
+  catch (e) { console.error('[ships] crates list error:', e.message); res.status(500).json({ error: 'SERVER_ERROR' }); }
+});
+router.post('/crates/:code/open', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    const result = await shipCrate.openCrate(wallet, req.params.code);
+    if (result && result.error) {
+      const status = result.error === 'INSUFFICIENT_GP' ? 402
+        : result.error === 'CRATE_NOT_FOUND' ? 404
+        : result.error === 'CRATE_DISABLED' ? 403 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (e) { console.error('[ships] crate open error:', e.message); res.status(500).json({ error: 'SERVER_ERROR' }); }
+});
+
 module.exports = router;
