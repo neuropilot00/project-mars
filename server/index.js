@@ -229,11 +229,14 @@ app.get('/health', async (req, res) => {
 
 // ── Rate Limiting ──
 const isDev = process.env.NODE_ENV !== 'production';
+// 멀티 인스턴스 전역 레이트리밋: REDIS_URL 있으면 Redis 공유 스토어, 없으면 메모리 폴백.
+const { makeLimiterStore } = require('./services/rateLimitStore');
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: isDev ? 5000 : 3000,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeLimiterStore('global'),
   message: { error: 'Too many requests, please try again later.' }
 });
 
@@ -242,6 +245,7 @@ const authLimiter = rateLimit({
   max: isDev ? 50 : 10,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeLimiterStore('auth'),
   message: { error: 'Too many authentication attempts, please try again later.' }
 });
 
@@ -250,6 +254,7 @@ const apiLimiter = rateLimit({
   max: isDev ? 300 : 200,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeLimiterStore('api'),
   message: { error: 'Too many API requests, please try again later.' }
 });
 
@@ -260,6 +265,7 @@ const apiWriteLimiter = rateLimit({
   max: isDev ? 300 : 60,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeLimiterStore('apiwrite'),
   skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS',
   message: { error: 'Too many write requests, please try again later.' }
 });
