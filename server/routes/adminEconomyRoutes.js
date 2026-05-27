@@ -560,4 +560,72 @@ router.post('/territory/production-profile', requireAdmin, async (req, res) => {
   } catch (err) { handleErr(res, err, 'territory/production-profile'); }
 });
 
+// ═══════════════════════════════════════════════════════════════
+// ECONOMY HEALTH — EVE MER(경제 리포트) + 뱅크런 조기경보 (읽기 전용)
+//   GET /api/admin/economy/health
+//   - 유통량(GP/PP/USDT) + PP담보율(미담보 PP 경보) + faucet/sink(최근 N일)
+// ═══════════════════════════════════════════════════════════════
+async function _safe(q, params) {
+  try { const { rows } = await pool.query(q, params || []); return rows; }
+  catch (e) { return [{ _error: e.message }]; }
+}
+router.get('/economy/health', requireAdmin, async (req, res) => {
+  try {
+    const days = Math.min(parseInt(req.query.days || '30', 10) || 30, 365);
+
+    // 1) 유통량
+    const circ = (await _safe(
+      `SELECT COUNT(*)::int AS users,
+              COALESCE(SUM(gp_balance),0) AS gp_total,
+              COALESCE(SUM(pp_balance),0) AS pp_total,
+              COALESCE(SUM(usdt_balance),0) AS usdt_balance_total
+       FROM users`))[0] || {};
+
+    // 2) 담보(뱅크런) — 실입금 USDT vs 출금가능 부채(PP+USDT). transactions.type 으로 추정.
+    const depIn = (await _safe(
+      `SELECT COALESCE(SUM(usdt_amount),0) AS v FROM transactions WHERE type ILIKE '%deposit%'`))[0]?.v || 0;
+    const wOut = (await _safe(
+      `SELECT COALESCE(SUM(usdt_amount),0) AS v FROM transactions WHERE type ILIKE '%withdraw%'`))[0]?.v || 0;
+    const netCollateral = Number(depIn) - Number(wOut);
+    const liability = Number(circ.pp_total || 0) + Number(circ.usdt_balance_total || 0); // PP는 1:1 페그 가정
+    const undercollateral = liability - netCollateral;
+
+    // 3) faucet/sink (GP) — gp_activity_log: delta>0 faucet, delta<0 sink
+    const gpFlow = await _safe(
+      `SELECT source,
+              COALESCE(SUM(CASE WHEN delta>0 THEN delta ELSE 0 END),0) AS faucet,
+              COALESCE(SUM(CASE WHEN delta<0 THEN -delta ELSE 0 END),0) AS sink,
+              COUNT(*)::int AS n
+       FROM gp_activity_log WHERE created_at > NOW() - ($1||' days')::interval
+       GROUP BY source ORDER BY faucet DESC NULLS LAST LIMIT 30`, [String(days)]);
+
+    // 4) faucet/sink (PP) — transactions: pp_amount by type
+    const ppFlow = await _safe(
+      `SELECT type, COALESCE(SUM(pp_amount),0) AS pp_total, COUNT(*)::int AS n
+       FROM transactions WHERE created_at > NOW() - ($1||' days')::interval AND pp_amount IS NOT NULL
+       GROUP BY type ORDER BY ABS(COALESCE(SUM(pp_amount),0)) DESC LIMIT 30`, [String(days)]);
+
+    const gpFaucet = gpFlow.reduce((s, r) => s + Number(r.faucet || 0), 0);
+    const gpSink = gpFlow.reduce((s, r) => s + Number(r.sink || 0), 0);
+
+    res.json({
+      window_days: days,
+      circulation: circ,
+      collateral: {
+        usdt_deposited_total: Number(depIn),
+        usdt_withdrawn_total: Number(wOut),
+        net_collateral: netCollateral,
+        withdrawable_liability_pp_plus_usdt: liability,
+        undercollateralized_by: undercollateral,
+        // ⚠️ >0 이면 미담보(발행 PP가 실담보 초과) — 유저 증가 시 뱅크런 위험
+        bankrun_risk: undercollateral > 0
+      },
+      gp_flow: { faucet_total: gpFaucet, sink_total: gpSink, net: gpFaucet - gpSink, by_source: gpFlow },
+      pp_flow: { by_type: ppFlow },
+      // net>0(faucet>sink) 면 인플레 경향
+      inflation_signal: { gp_inflating: (gpFaucet - gpSink) > 0 }
+    });
+  } catch (err) { handleErr(res, err, 'economy/health'); }
+});
+
 module.exports = router;
