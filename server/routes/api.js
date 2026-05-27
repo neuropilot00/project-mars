@@ -3525,13 +3525,13 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     let resourceDrops = [];
     try {
       if (resourceService) {
-        const drops = await resourceService.rollResourceDrop(w, tier);
+        // ✅ [영토 등급 v7.140] 고등급 영토는 rare/special 재료 드롭 "확률"↑ (drop chance, 수량 아님 → 이중적용 방지)
+        let _gradeRareMult = 1;
+        try { _gradeRareMult = await require('../services/territoryCondition').rareMultiplier(_claimGrade); } catch (_) {}
+        const drops = await resourceService.rollResourceDrop(w, tier, { gradeRareMult: _gradeRareMult });
         const merged = {};
         for (const d of drops) merged[d.code] = (merged[d.code] || 0) + d.quantity;
-        // ✅ [영토 등급] grade 별 레어/재료 드롭 배수 (migration 237). 고등급일수록 드롭량↑.
-        let _rareMult = 1;
-        try { _rareMult = await require('../services/territoryCondition').rareMultiplier(_claimGrade); } catch (_) {}
-        resourceDrops = Object.keys(merged).map(code => ({ code, quantity: Math.max(1, Math.round(merged[code] * (_rareMult || 1))) }));
+        resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
         if (resourceDrops.length > 0) await resourceService.addResourcesToInventory(client, w, resourceDrops);
       }
     } catch (_) {}

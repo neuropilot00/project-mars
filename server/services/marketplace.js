@@ -289,6 +289,8 @@ async function buyListing(client, listingId, buyer) {
       feePct = Math.max(0, feePct * await jobService.getJobBuff(listing.seller, 'crafter_market_fee', 1.0));
     }
   } catch (_je) {}
+  // [영토 등급 v7.140] 판매자 최고 등급 영토 → 마켓 수수료 할인(가격 왜곡 없이 등급 효용 부여)
+  try { feePct = Math.max(0, feePct * await require('./territoryCondition').marketFeeMultiplier(listing.seller)); } catch (_ge) {}
   const fee = Math.floor(price * feePct / 100 * 1000000) / 1000000;
 
   // ── M-156 Phase A: 섹터 관세 (거버너 수수료) ──

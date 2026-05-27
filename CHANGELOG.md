@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.140 — 영토 등급 → 마켓/드롭 확장 (자산관리 루프 전방위)
+
+자산관리(영토 등급) 루프를 마켓·드롭에 **경제적으로 건전하게** 확장. (가격 직접 커플링은 자유시장 왜곡이라 비채택)
+
+- **등급 → 마켓 수수료 할인**: 판매자 최고 등급 영토 기준 `marketplace_fee_pct` 배수(S 50%/A 30%/B 15% 할인). `buyListing` 의 fee 계산에 적용(가격은 플레이어가 정함 그대로 — 왜곡 없음). migration 240 `market_fee_grade_discount`.
+- **등급 → rare/special 재료 드롭 *확률* 보너스**: `rollResourceDrop(w, tier, {gradeRareMult})` 로 rare/special 행 확률을 등급 배수만큼 상향(상한 0.99). 기존 v7.135 의 드롭 *수량* 배수는 제거해 **이중 적용 방지**(이제 등급은 PP 수확배수 + 드롭 확률).
+- 검증: S 수수료 배수 0.5/C 1.0, rareMult S 1.5/F 0.75, `node -c` 4파일 통과, migration 240 적용.
+
 ## 2026-05-28 v7.139 — 게임 가이드 신기능 반영 (4개 언어)
 
 신기능 추가분을 인게임 GUIDEBOOK(CODEX_CONTENT)에 4개 언어 반영 — 실유저 대비 가이드 최신 유지.

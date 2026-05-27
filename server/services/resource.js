@@ -40,10 +40,12 @@ async function _getRates() {
 // rollResourceDrop(wallet, sectorType)
 // 반환: [{code, quantity}, ...]  (빈 배열 가능)
 // ─────────────────────────────────────────
-async function rollResourceDrop(wallet, sectorType) {
+async function rollResourceDrop(wallet, sectorType, opts) {
   const enabled = (await getSetting('resource_drop_enabled') || 'true') === 'true';
   if (!enabled) return [];
 
+  // [영토 등급 v7.140] 고등급 영토는 rare/special 재료 드롭 "확률"이 올라간다(상한 0.99).
+  const gradeRareMult = (opts && Number(opts.gradeRareMult)) || 1;
   const type = (sectorType || 'frontier').toLowerCase();
   const maxDrops    = parseInt(await getSetting('resource_max_drop_per_harvest') || '3');
   const qMin        = parseInt(await getSetting('resource_drop_quantity_min')    || '1');
@@ -72,14 +74,19 @@ async function rollResourceDrop(wallet, sectorType) {
     // 기본 확률
     let prob = parseFloat(row.base_rate);
 
+    const _isRare = (row.rarity === 'rare' || row.rarity === 'special');
     // Miner 직업 보너스: flat 추가
     if (minerRareBonus > 1.0) {
-      if (row.rarity === 'rare' || row.rarity === 'special') {
+      if (_isRare) {
         prob += parseFloat(row.miner_bonus) * minerRareBonus;
         prob = Math.min(prob * rareMult, 0.99); // 배율 적용 + 상한
       } else {
         prob += parseFloat(row.miner_bonus);
       }
+    }
+    // [영토 등급] rare/special 드롭 확률을 등급 배수만큼 상향(상한 0.99)
+    if (_isRare && gradeRareMult !== 1) {
+      prob = Math.min(prob * gradeRareMult, 0.99);
     }
 
     if (Math.random() < prob) {

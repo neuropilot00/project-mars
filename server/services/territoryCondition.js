@@ -122,4 +122,23 @@ async function tend(wallet, claimId) {
   }
 }
 
-module.exports = { gradeFromCondition, isEnabled, getGradeBonuses, harvestMultiplier, rareMultiplier, applyDailyDecay, tend };
+// 마켓 수수료 등급 할인: 판매자의 최고 등급 영토 기준 fee 배수(낮을수록 할인). 가격 왜곡 없이 등급 효용 부여.
+async function marketFeeMultiplier(wallet) {
+  if (!(await isEnabled())) return 1;
+  const w = String(wallet || '').toLowerCase();
+  if (!w) return 1;
+  let map = { S: 0.5, A: 0.7, B: 0.85, C: 1.0, D: 1.0, F: 1.0 };
+  try { const m = await getSetting('market_fee_grade_discount', null); if (m) map = (typeof m === 'string') ? JSON.parse(m) : m; } catch (_) {}
+  try {
+    const r = await pool.query(
+      `SELECT grade FROM claims WHERE LOWER(owner) = LOWER($1) AND deleted_at IS NULL
+        ORDER BY CASE grade WHEN 'S' THEN 6 WHEN 'A' THEN 5 WHEN 'B' THEN 4 WHEN 'C' THEN 3 WHEN 'D' THEN 2 ELSE 1 END DESC LIMIT 1`,
+      [w]
+    );
+    const g = r.rows[0]?.grade;
+    if (g && map[g] != null) { const v = Number(map[g]); return (v > 0 && v <= 1) ? v : 1; }
+  } catch (_) {}
+  return 1;
+}
+
+module.exports = { gradeFromCondition, isEnabled, getGradeBonuses, harvestMultiplier, rareMultiplier, applyDailyDecay, tend, marketFeeMultiplier };
