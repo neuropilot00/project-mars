@@ -608,6 +608,12 @@ router.get('/economy/health', requireAdmin, async (req, res) => {
     const gpFaucet = gpFlow.reduce((s, r) => s + Number(r.faucet || 0), 0);
     const gpSink = gpFlow.reduce((s, r) => s + Number(r.sink || 0), 0);
 
+    // 5) 솔벤시 원장(migration 230) — 권위 있는 담보값 + USDT 환금 여유분(room)
+    const ledger = (await _safe(`SELECT collateral_usdt FROM treasury_ledger WHERE id = 1`))[0] || {};
+    const collateralLedger = Number(ledger.collateral_usdt || 0);
+    const usdtLiability = Number(circ.usdt_balance_total || 0);
+    const swapRoom = Math.round((collateralLedger - usdtLiability) * 1000000) / 1000000;
+
     res.json({
       window_days: days,
       circulation: circ,
@@ -620,12 +626,53 @@ router.get('/economy/health', requireAdmin, async (req, res) => {
         // ⚠️ >0 이면 미담보(발행 PP가 실담보 초과) — 유저 증가 시 뱅크런 위험
         bankrun_risk: undercollateral > 0
       },
+      // 솔벤시 가드(권위): SUM(usdt_balance) ≤ collateral_usdt. room<0 이면 이미 미담보, room 만큼만 추가 PP→USDT 환금 가능.
+      solvency: {
+        collateral_usdt: collateralLedger,
+        usdt_liability: usdtLiability,
+        swap_room: swapRoom,
+        // room<=0 이면 현재 신규 PP→USDT 환금 차단(운영자 담보 적립 필요)
+        redemption_open: swapRoom > 0
+      },
       gp_flow: { faucet_total: gpFaucet, sink_total: gpSink, net: gpFaucet - gpSink, by_source: gpFlow },
       pp_flow: { by_type: ppFlow },
       // net>0(faucet>sink) 면 인플레 경향
       inflation_signal: { gp_inflating: (gpFaucet - gpSink) > 0 }
     });
   } catch (err) { handleErr(res, err, 'economy/health'); }
+});
+
+// ═══════════════════════════════════════════════════════════════
+//   POST /api/admin/economy/treasury/topup  { amount }
+//   - 운영자가 실수익(광고/PP판매 등)으로 PP→USDT 환금 담보(redemption pool)를 적립.
+//   - amount>0: 적립(room 증가, 환금 허용량↑). amount<0: 회수(주의).
+// ═══════════════════════════════════════════════════════════════
+router.post('/treasury/topup', requireAdmin, async (req, res) => {
+  const amount = Number(req.body?.amount);
+  if (!Number.isFinite(amount) || amount === 0) {
+    return res.status(400).json({ error: 'amount must be a non-zero finite number' });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await require('../services/treasury').adjustCollateral(client, amount);
+    const after = (await client.query(`SELECT collateral_usdt FROM treasury_ledger WHERE id = 1`)).rows[0] || {};
+    const liab = (await client.query(`SELECT COALESCE(SUM(usdt_balance),0) AS s FROM users`)).rows[0] || {};
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, usdt_amount, meta)
+       VALUES ('treasury_topup', 'operator', $1, $2)`,
+      [amount, JSON.stringify({ by: 'admin', at: new Date().toISOString() })]
+    ).catch(() => {});
+    await client.query('COMMIT');
+    const collateral = Number(after.collateral_usdt || 0);
+    const liability = Number(liab.s || 0);
+    res.json({ success: true, added: amount, collateral_usdt: collateral, usdt_liability: liability, swap_room: Math.round((collateral - liability) * 1000000) / 1000000 });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    handleErr(res, err, 'treasury/topup');
+  } finally {
+    client.release();
+  }
 });
 
 module.exports = router;

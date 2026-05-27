@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.125 — 뱅크런 구조적 차단: Treasury 담보 원장 + 솔벤시 가드 (EVE급 핵심)
+
+경제 진단의 **#1 실존 리스크**(미담보 PP가 실USDT로 환금 → 먼저 빠진 PP파머가 트레저리를 말려 실예치자 출금불가 = 뱅크런) 봉쇄.
+
+- **불변식**: `SUM(users.usdt_balance) ≤ treasury_ledger.collateral_usdt`. `room = collateral − liability` 만큼만 신규 PP→USDT 환금 허용.
+- **migration 230** `treasury_ledger`(단일행 담보 원장) + 초기 담보=순실입금. 설정 `swap_solvency_guard_enabled`(기본 true).
+- **`services/treasury.js`** `lockRoom`(treasury 행 FOR UPDATE 직렬화 + 부채 합계)/`adjustCollateral`/`guardEnabled`.
+- **가드 적용**: `POST /api/swap`(PP→USDT) 와 `POST /api/withdraw-all`의 PP유래 발행분(`ppBal−ppFee`)을 room 이내로 제한 → 초과 시 `409 swap_pool_insufficient`. ⚠️ withdraw-all 이 보유 PP 전체를 on-chain 출금액에 합산하던 더 큰 구멍도 함께 막음.
+- **담보 동기화**: deposit(`chain.js`) → 담보 +입금액, withdraw/withdraw-all → 담보 −출금액. usdt_balance 와 담보가 같이 움직여 불변식 유지.
+- **운영자 환금풀 적립**: `POST /api/admin/economy/treasury/topup {amount}` — 실수익(광고/PP판매)으로 redemption 담보 적립 → 그만큼 환금 허용. `GET /economy/health` 에 `solvency{collateral_usdt, usdt_liability, swap_room, redemption_open}` 노출.
+- **현재 상태**: USDT=0 → room=0 → PP→USDT 환금 안전하게 OFF. 운영자가 담보 적립해야 환금 개방(EVE식 "현금화는 실수익 백킹 내에서만").
+
+검증: migration 230 적용 OK, 트랜잭션 단위 불변식 테스트(+100담보→swap50허용→swap60차단→경계50허용) 통과, `node -c` 4파일 통과, 서버 부팅/health/swap-auth 정상.
+
 ## 2026-05-27 v7.124 — 경제 인플레 방어: PP 일일 채굴 캡 + 시빌 방어 (EVE급 로드맵 즉시)
 
 - **v7.124 PP 일일 채굴 상한 enforce** — `pp_daily_earn_cap_per_user`(0=무제한) 설정이 정의만 되어 있고 **코드에서 한 번도 적용되지 않던** 문제 수정. `server/routes/api.js` 영토 harvest 에서 `user_mining.today_mined_pp`(오늘 누적, 날짜 리셋) 기준 남은 한도만큼만 지급하고, 소진 시 `429 daily_pp_cap_reached`. 무제한 채굴 farm/봇 파밍 차단. ⚠️ 현재 시드값 `0.3`(=$0.30/일)은 보수적이므로 운영자가 admin 경제 패널에서 실밸런스로 상향 검토 필요.

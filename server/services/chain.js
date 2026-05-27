@@ -255,6 +255,9 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
       [amountNum, ppBonus, wallet]
     );
 
+    // ✅ [솔벤시] 실입금 USDT 만큼 담보(collateral) 증액 — usdt_balance 와 함께 늘어 불변식 유지.
+    try { await require('./treasury').adjustCollateral(client, amountNum); } catch (_) {}
+
     // Insert deposit record
     await client.query(
       `INSERT INTO deposits (wallet_address, amount, pp_bonus, chain, tx_hash, block_number) VALUES ($1,$2,$3,$4,$5,$6)`,

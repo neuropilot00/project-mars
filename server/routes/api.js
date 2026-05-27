@@ -2026,6 +2026,25 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     const fee = Math.round(ppAmount * SWAP_FEE * 1000000) / 1000000;
     const received = Math.round((ppAmount - fee) * 1000000) / 1000000;
 
+    // ✅ [솔벤시 가드] PP→USDT 환금은 담보(collateral) 여유분(room) 이내만 허용 — 뱅크런 차단.
+    try {
+      const _treasury = require('../services/treasury');
+      if (await _treasury.guardEnabled(getSetting)) {
+        const { collateral, liability, room } = await _treasury.lockRoom(client);
+        if (received > room + 1e-9) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({
+            error: 'swap_pool_insufficient',
+            message: 'PP→USDT redemption pool is currently insufficient. The operator must fund the redemption collateral.',
+            room, collateral, liability, requested: received
+          });
+        }
+      }
+    } catch (e) {
+      if (e && e.code) { /* treasury_ledger 미생성(마이그레이션 전) → 가드 미적용 */ }
+      else { await client.query('ROLLBACK'); console.error('[API] swap solvency guard error:', e.message); return res.status(500).json({ error: 'internal_error' }); }
+    }
+
     const deductSwap = await client.query(
       'UPDATE users SET pp_balance = pp_balance - $1, usdt_balance = usdt_balance + $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1',
       [ppAmount, received, wallet.toLowerCase()]
@@ -2136,6 +2155,9 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
       [amount, wallet.toLowerCase()]
     );
 
+    // ✅ [솔벤시] 출금만큼 담보 차감 — usdt_balance 와 collateral 을 함께 줄여 불변식 유지.
+    try { await require('../services/treasury').adjustCollateral(client, -parsedAmount); } catch (_) {}
+
     // Generate on-chain withdrawal signature
     const amountBN = ethers.utils.parseUnits(amount.toString(), chainCfg.decimals);
     const feeBN = ethers.BigNumber.from(0); // no fee on withdrawal for now
@@ -2245,11 +2267,35 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
       });
     }
 
+    // ✅ [솔벤시 가드] withdraw-all 은 보유 PP 전체를 USDT 출금에 합산한다.
+    // PP유래 발행분(ppRedeemed = ppBal - ppFee)은 담보 여유분(room) 이내만 허용 — 뱅크런 차단.
+    const ppRedeemed = Math.round((ppBal - ppFee) * 1000000) / 1000000;
+    try {
+      const _treasury = require('../services/treasury');
+      if (ppRedeemed > 0 && await _treasury.guardEnabled(getSetting)) {
+        const { collateral, liability, room } = await _treasury.lockRoom(client);
+        if (ppRedeemed > room + 1e-9) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({
+            error: 'swap_pool_insufficient',
+            message: 'Your PP cannot be redeemed to USDT right now: redemption collateral is insufficient. You may withdraw your USDT balance only, or try again after the operator funds the redemption pool.',
+            room, collateral, liability, ppRedeemed
+          });
+        }
+      }
+    } catch (e) {
+      if (e && e.code) { /* treasury_ledger 미생성 → 가드 미적용 */ }
+      else { await client.query('ROLLBACK'); console.error('[API] withdraw-all solvency guard error:', e.message); return res.status(500).json({ error: 'internal_error' }); }
+    }
+
     // Zero balances, increment nonce, and update last_withdrawal_at
     await client.query(
       'UPDATE users SET usdt_balance = 0, pp_balance = 0, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($1)',
       [wallet.toLowerCase()]
     );
+
+    // ✅ [솔벤시] 실제 빠져나가는 USDT(totalOut)만큼 담보 차감.
+    try { await require('../services/treasury').adjustCollateral(client, -totalOut); } catch (_) {}
 
     // Reset owned pixels
     await client.query(
