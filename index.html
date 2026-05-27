@@ -25723,14 +25723,8 @@ async function loadOpsCommandBoard() {
     var urgentEvents = data.urgent_events || [];
     var expectedPP = data.expected_pp || 0;
 
-    // 미션 타입별 이동 액션
-    var missionNav = {
-      harvest_pp:          { action: function(){ try{ switchBaseCat('territory', document.querySelector('.bcat[data-cat=territory]')); }catch(_){} try{ switchBaseTab('territory', document.getElementById('baseTabTerritory')); }catch(_){} } },
-      upgrade_ship:        { action: function(){ try{ openShipyard(); }catch(_){ try{ switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]')); }catch(_e){} } } },
-      craft_resource:      { action: function(){ try{ switchBaseCat('economy', document.querySelector('.bcat[data-cat=economy]')); }catch(_){} try{ switchBaseTab('market', document.getElementById('baseTabMarket')); }catch(_){} } },
-      battle_participate:  { action: function(){ try{ switchBaseCat('fleet', document.querySelector('.bcat[data-cat=fleet]')); }catch(_){} try{ switchBaseTab('pvp', document.getElementById('baseTabPvp')); }catch(_){} } },
-      territory_art:       { action: function(){ try{ switchBaseCat('territory', document.querySelector('.bcat[data-cat=territory]')); }catch(_){} try{ switchBaseTab('territory', document.getElementById('baseTabTerritory')); }catch(_){} } },
-    };
+    // (이동 액션은 opsMissionGo() 가 onclick 으로 직접 처리한다. 과거의 missionNav 매핑은
+    //  미사용 죽은 코드라 제거됨 — v7.96.)
 
     var html = '';
 

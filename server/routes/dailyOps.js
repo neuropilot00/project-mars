@@ -124,9 +124,8 @@ router.get('/:wallet', async (req, res) => {
     const wallet = req.params.wallet.toLowerCase().trim();
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
 
-    const enabled = await getSetting('enabled', 'true'); // daily_ops.enabled
-    // (category match는 getSetting이 key 기반이므로 'daily_ops.enabled' 아니라 직접 key)
-
+    // (과거 'enabled' 설정을 읽기만 하고 사용하지 않던 죽은 코드 제거 — v7.96.
+    //  작전보드 비활성 게이트가 필요해지면 별도 daily_ops_enabled 키로 명시 구현할 것.)
     const today = new Date().toISOString().slice(0, 10);
 
     // 미션이 없으면 생성
