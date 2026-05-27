@@ -154,11 +154,26 @@ async function createListing(client, seller, type, params) {
     throw new Error('Invalid listing type');
   }
 
-  // ── M-156 Phase A: sector_id 자동 결정 (관세 정산용) ──
-  // claims는 sector_code(sector_definitions.code)를 사용하며
-  // sectors 테이블의 id와 직접 매핑되지 않으므로 관세는 현재 미적용(null).
-  // 향후 sectors ↔ sector_definitions 매핑 통합 시 여기서 sector.id 조회 추가.
+  // ── [지역 마켓 v7.130] 리스팅의 sector_id 자동 결정 (관세/지역 시세용) ──
+  // pixels.sector_id(→ sectors.id)로 거점 섹터를 산출 → 기존 관세/거버너 시스템 활성화.
+  //   - claim 리스팅: 해당 claim 픽셀의 최빈 섹터.
+  //   - 그 외(item/cosmetic/resource): 판매자 보유 픽셀의 최빈 섹터(거점).
+  // 섹터를 못 찾으면 null(무관세, 기존 동작) — 안전.
   let sectorId = null;
+  try {
+    if (type === 'claim' && claimId) {
+      const sr = await client.query(
+        `SELECT sector_id FROM pixels WHERE claim_id = $1 AND sector_id IS NOT NULL
+          GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [claimId]);
+      sectorId = sr.rows[0]?.sector_id ?? null;
+    }
+    if (sectorId == null) {
+      const sr = await client.query(
+        `SELECT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL
+          GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [w]);
+      sectorId = sr.rows[0]?.sector_id ?? null;
+    }
+  } catch (_) { sectorId = null; }
 
   // Create listing (resource type includes resource_code + resource_quantity)
   const isResource = type === 'resource';
@@ -219,6 +234,23 @@ async function buyListing(client, listingId, buyer) {
   const listing = res.rows[0];
 
   if (listing.seller === b) throw new Error('Cannot buy your own listing');
+
+  // [지역 마켓 v7.130] 동일 섹터 매수 제한(옵션, 기본 OFF).
+  // 켜면 구매자 거점 섹터 ≠ 매물 섹터 → 차단 → 물류(운송) 강제 + 섹터간 차익거래 유발(EVE 허브화).
+  if (listing.sector_id != null) {
+    try {
+      const restrict = String(await getSetting('marketplace_sector_restricted_buy', 'false')) === 'true';
+      if (restrict) {
+        const bs = await client.query(
+          `SELECT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL
+            GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [b]);
+        const buyerSector = bs.rows[0]?.sector_id ?? null;
+        if (buyerSector !== listing.sector_id) {
+          throw new Error('SECTOR_RESTRICTED: different sector — 같은 섹터에서만 구매할 수 있습니다.');
+        }
+      }
+    } catch (e) { if (String(e.message || '').startsWith('SECTOR_RESTRICTED')) throw e; /* 설정/쿼리 실패는 미제한 */ }
+  }
 
   // Check expiry
   if (new Date(listing.expires_at) < new Date()) {
@@ -448,6 +480,8 @@ async function getListings(filters = {}) {
   if (filters.minPrice) { conditions.push(`price >= $${idx++}`); params.push(parseFloat(filters.minPrice)); }
   if (filters.maxPrice) { conditions.push(`price <= $${idx++}`); params.push(parseFloat(filters.maxPrice)); }
   if (filters.seller) { conditions.push(`seller = $${idx++}`); params.push(filters.seller.toLowerCase()); }
+  // [지역 마켓 v7.130] 섹터별 호가 브라우징
+  if (filters.sectorId != null && filters.sectorId !== '') { conditions.push(`sector_id = $${idx++}`); params.push(parseInt(filters.sectorId)); }
   if (filters.search) {
     conditions.push(`(meta->>'itemName' ILIKE $${idx} OR meta->>'itemCode' ILIKE $${idx})`);
     params.push('%' + filters.search + '%');

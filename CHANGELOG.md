@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-27 v7.130 — 지역(섹터) 마켓 차별화 (휴면 관세 시스템 활성화)
+
+마켓 `sector_id`(mig 156)가 항상 null 로 들어가 섹터 관세/거버너 시스템(`computeSectorTariff`)이 휴면이었음 → 활성화.
+
+- **리스팅 자동 섹터 태깅** (`marketplace.js createListing`) — `pixels.sector_id`(→sectors.id)로 거점 산출. claim 매물=해당 claim 최빈 섹터, 그 외=판매자 보유픽셀 최빈 섹터. 못 찾으면 null(기존 동작).
+- **효과**: 매물이 섹터에 귀속 → 매수 시 그 섹터 거버너 관세 적용(기존 시스템 자동 작동) → 섹터별 실효가격 차등 = 지역 시세.
+- **섹터별 브라우징** — `GET /api/marketplace/listings?sectorId=N` 필터 + 인덱스(mig 235).
+- **동일 섹터 매수 제한 토글** `marketplace_sector_restricted_buy`(기본 OFF) — 켜면 타섹터 매물 차단 → 물류(운송) 강제 + 섹터간 차익거래(EVE 허브화).
+- 검증: 거점/claim 섹터 해석(12/20) 정확, 필터 쿼리/엔드포인트 정상, 부팅 무에러.
+- 매핑 근거: `pixels.sector_id` 6118건 채워짐(12섹터). `sectors`는 lat/lng 밴드(코드 없음), `sector_definitions`와 분리 — pixels.sector_id 가 권위.
+
 ## 2026-05-27 v7.128 — 동적 PP↔GP 환율 (수급 밴딩, 하이퍼인플레 방어, 기본 OFF)
 
 고정 환율(`pp_to_gp_exchange_rate=10`)을 24h 환전 수요 기반으로 자동 밴딩 — EVE식 수급 반영 + 봇 펌핑 방어.

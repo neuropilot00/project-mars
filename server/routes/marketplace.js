@@ -41,6 +41,7 @@ router.get('/listings', readLimiter, async (req, res) => {
       maxPrice: req.query.maxPrice,
       search: req.query.search,
       sort: req.query.sort,
+      sectorId: req.query.sectorId,
       limit: req.query.limit,
       offset: req.query.offset
     });
