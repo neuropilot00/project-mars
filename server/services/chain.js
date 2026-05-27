@@ -192,25 +192,39 @@ async function backfillEvents(chainKey, contract, provider, decimals) {
   );
   const lastBlock = res.rows[0].last_block || 0;
   const currentBlock = await provider.getBlockNumber();
-  const fromBlock = Math.max(lastBlock + 1, currentBlock - 1000);
-
+  // 커서: deposits.MAX(block_number) 가 곧 커서다. 이전 입금이 있으면 그 다음 블록부터
+  // "전부" 스캔(누락 0). 과거의 currentBlock-1000 floor 는 워커 장기 다운 시 그 사이 블록을
+  // 통째로 건너뛰어 입금이 영구 유실되던 CRITICAL 결함 → 제거.
+  // 최초(입금 이력 0)에만 cold-start 로 최근 BACKFILL_BLOCKS 블록만 본다.
+  const BACKFILL_BLOCKS = parseInt(process.env.BACKFILL_BLOCKS || '1000', 10) || 1000;
+  let fromBlock = lastBlock > 0 ? (lastBlock + 1) : Math.max(0, currentBlock - BACKFILL_BLOCKS);
   if (fromBlock > currentBlock) return;
 
-  console.log(`[Chain] ${CHAIN_CONFIGS[chainKey].name}: backfilling blocks ${fromBlock} → ${currentBlock}`);
-  const events = await contract.queryFilter('Deposited', fromBlock, currentBlock);
-
-  for (const event of events) {
+  // RPC 블록범위 제한(보통 ~1만 블록) 대응: 큰 공백은 청크로 나눠 조회.
+  const CHUNK = parseInt(process.env.BACKFILL_CHUNK || '5000', 10) || 5000;
+  console.log(`[Chain] ${CHAIN_CONFIGS[chainKey].name}: backfilling blocks ${fromBlock} → ${currentBlock} (chunk ${CHUNK})`);
+  for (let start = fromBlock; start <= currentBlock; start += CHUNK) {
+    const end = Math.min(start + CHUNK - 1, currentBlock);
+    let events;
     try {
-      await processDeposit({
-        wallet: event.args.user.toLowerCase(),
-        amount: ethers.utils.formatUnits(event.args.amount, decimals),
-        chain: chainKey,
-        txHash: event.transactionHash,
-        blockNumber: event.blockNumber
-      });
-    } catch (e) {
-      if (!e.message.includes('duplicate')) {
-        console.error(`[Chain] Backfill error:`, e.message);
+      events = await contract.queryFilter('Deposited', start, end);
+    } catch (qe) {
+      console.error(`[Chain] backfill queryFilter ${start}~${end} 실패(다음 청크 계속):`, qe.message);
+      continue;
+    }
+    for (const event of events) {
+      try {
+        await processDeposit({
+          wallet: event.args.user.toLowerCase(),
+          amount: ethers.utils.formatUnits(event.args.amount, decimals),
+          chain: chainKey,
+          txHash: event.transactionHash,
+          blockNumber: event.blockNumber
+        });
+      } catch (e) {
+        if (!e.message.includes('duplicate')) {
+          console.error(`[Chain] Backfill error:`, e.message);
+        }
       }
     }
   }
