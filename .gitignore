@@ -37,3 +37,7 @@ logs/
 server/backups/
 bug-reports/
 scripts/__pycache__/
+
+# Redis local dump (test artifact)
+dump.rdb
+server/dump.rdb
