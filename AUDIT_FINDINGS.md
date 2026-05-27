@@ -1,3 +1,45 @@
+# OCCUPY MARS — Codebase Audit (v7.94~v7.108 / 2026-05-27) — 7대 점검 + 기능 추가
+
+서브에이전트 4종(UI↔백엔드 연결·캠페인·추천·Hermes) 병렬 감사 + 직접 수정/구현.
+
+## 🟢 감사 총평
+- **UI↔백엔드 연결** (FE 377 fetch ↔ BE 837 route + onclick 대조): HIGH 0건, 전체 양호. 실제 단절 1건만.
+- **Hermes/Codex 최근 배치**: 회귀·이질 변경 0건. JWT-only/getSetting/ON CONFLICT(key)/네이티브 다이얼로그 0/4기둥 전부 준수. ("Hermes" 작성자는 존재하지 않음 — 전부 neuropilot00/Codex)
+- **캠페인 35챕터**: objective 훅/하드게이트/함선보상/씬파일/이미지 거의 정상. HIGH 1건만.
+- **추천 3단**: 활성 확인(T1 15%/T2 10%/T3 5%). 운영 안전·바이럴 갭 식별.
+
+## 🔴 발견·수정 (심각도순)
+
+| # | 감사 영역 | 발견 | 심각도 | 수정 |
+|---|-----------|------|--------|------|
+| 1 | 작전보드 진행도 (`dailyOps.js`) | `notifyMissionProgress`만 `ops_date=CURRENT_DATE`(DB=Asia/Tokyo), 나머지는 UTC → JST 0~9시 9시간 진행도 유실 → 완료해도 녹색 안 됨 + ensureDailyMissions 미호출 | 🔴 HIGH | ✅ v7.95 |
+| 2 | 캠페인 (`campaign.js`) | FSP CH5/CH6에서 존재하지 않는 변형 챕터로 하드 리다이렉트 → 특정 분기 메인 스토리 영구 막힘 | 🔴 HIGH | ✅ v7.99 |
+| 3 | 추천 (`achievements.js`/`rank.js`) | `referred_by`(지갑 저장)를 `referral_code`와 비교 → 추천 업적/랭크 영구 0 | 🟠 MED | ✅ v7.100 |
+| 4 | 추천 운영안전 (`db.js`) | 커미션 신규 발행 + 일일 캡/시빌 방어 전무 | 🟠 MED | ✅ v7.101/104 (일일 캡 메커니즘+기본값 PP/GP 10000·USDT 500) |
+| 5 | 추천 도움말 (`index.html`) | 비활성 hijack 보상을 4개 언어로 거짓 광고 | 🟡 LOW | ✅ v7.101 |
+| 6 | 상태 메시지 (`index.html`) | fallback이 없는 `/api/profile/status` 호출 → 404·거짓 성공 토스트 | 🟠 MED | ✅ v7.98 (→/api/status/set) |
+| 7 | 작전보드 GO (`index.html`) | 캠페인이 없는 'quests' 카테고리 호출로 탭 숨김 + territory 미션 동선 부재 | 🟠 MED | ✅ v7.94 |
+| 8 | 함대전 화면 (`tactical-lab-v11.html`) | 함선/함대 원 난잡 + PC 발사 무제한(`fireBudget 9999`)/글로우 과다 → 미사일·레이저 무덤·렉 | 🟠 MED | ✅ v7.108 (원 제거 + PERF_MODE PC 적용) |
+
+## 🟢 신규 기능 / 콘텐츠
+- **v7.96** 작전보드 죽은 코드 정리(missionNav/enabled).
+- **v7.97** 게임 가이드(HOW TO PLAY) 4개 언어 최신화(폐기 Hijack 제거, 캠페인/작전보드/추천 반영).
+- **v7.102** 온보딩 힌트 4개 언어 현지화 + 캠페인 골든패스 유도(영어 하드코딩이던 버그 동반 수정).
+- **v7.103** 양면 추천 보상(invitee 가입 보너스 PP, migration 227).
+- **v7.105/106** 함선 가챠(Ship Crate) 풀스택 — migration 228 + `shipCrate.js`(crypto RNG·천장·타이탄 캡·확률공개) + 조선소 CRATES 탭 4개 언어.
+- **v7.107** Base 테스트넷 연결 런북 + `.env.testnet.example`. ⚠️ signer.js base.chainId 8453(메인넷) 하드코딩 → 테스트넷 84532 불일치 명시.
+
+## 🟡 잔여 (보고 — 후속 결정)
+- 추천: 시빌/봇 방어(계정수·디바이스 제한) 여전히 약함. `referral_signup_bonus_pp`/캡 실제값은 트래픽 데이터로 튜닝 필요.
+- 캠페인 MED: 분기 modifier 완료시 저장이 swallow-error SAVEPOINT(선택 시점 저장으로 완화).
+- 영토 업그레이드 시스템 2개 공존(둘 다 동작, 기술부채). `/api/chat/channels` 미사용.
+- Base 메인넷 전: `MarsDeposit.sol` 외부 보안 감사 필수.
+
+## 🟢 QA
+db_smoke 4/4, smoke_capital_recipes 11/11, 3002 핵심 엔드포인트(health/config/daily-ops/season/ships/crates) 200. 가챠 E2E(개봉/GP차감/천장/타이탄캡/GP부족) 통과.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.93 / 2026-05-27) — 하드 새로고침 직후 흰 화성 / 정지처럼 보이는 초기 로드 공백
 
 ## 🔴 v7.93 — NASA 초기 로드 전에 로더가 먼저 내려가 흰 화성이 노출되던 문제 (2026-05-27)
