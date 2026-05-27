@@ -3450,6 +3450,17 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       if (holdBonus > 0) harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
     } catch (_) {}
 
+    // ✅ [영토 등급] grade 별 수확 PP 배수 (migration 237). 관리 잘한 고등급일수록 수확↑.
+    //    grade 는 아래 resourceDrops 의 레어 배수에도 재사용.
+    let _claimGrade = 'B';
+    try {
+      const gradeRes = await client.query(`SELECT grade FROM claims WHERE id = $1 AND deleted_at IS NULL`, [claimId]);
+      _claimGrade = gradeRes.rows[0]?.grade || 'B';
+      const _tc = require('../services/territoryCondition');
+      const gm = await _tc.harvestMultiplier(_claimGrade);
+      if (gm && gm !== 1) harvestedPP = Math.round(harvestedPP * gm * 10000) / 10000;
+    } catch (_) {}
+
     // ✅ [주간 이벤트] 월요일 채굴 +50%
     try {
       if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
@@ -3517,7 +3528,10 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
         const drops = await resourceService.rollResourceDrop(w, tier);
         const merged = {};
         for (const d of drops) merged[d.code] = (merged[d.code] || 0) + d.quantity;
-        resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
+        // ✅ [영토 등급] grade 별 레어/재료 드롭 배수 (migration 237). 고등급일수록 드롭량↑.
+        let _rareMult = 1;
+        try { _rareMult = await require('../services/territoryCondition').rareMultiplier(_claimGrade); } catch (_) {}
+        resourceDrops = Object.keys(merged).map(code => ({ code, quantity: Math.max(1, Math.round(merged[code] * (_rareMult || 1))) }));
         if (resourceDrops.length > 0) await resourceService.addResourcesToInventory(client, w, resourceDrops);
       }
     } catch (_) {}
@@ -5501,6 +5515,27 @@ router.post('/claims/:id/rename', requireAuth, writeLimiter, async (req, res) =>
 });
 
 // ══════════════════════════════════════════════════
+// POST /api/territory/:claimId/tend — 영토 정비(GP 소모 → condition 회복) [migration 237]
+// ══════════════════════════════════════════════════
+router.post('/territory/:claimId/tend', requireAuth, writeLimiter, async (req, res) => {
+  const claimId = parseInt(req.params.claimId);
+  const w = getAuthWallet(req);
+  if (!w || w.length < 10) return res.status(401).json({ error: 'wallet_required' });
+  if (!claimId || isNaN(claimId)) return res.status(400).json({ error: 'invalid_claim_id' });
+  try {
+    const r = await require('../services/territoryCondition').tend(w, claimId);
+    if (!r.success) {
+      const code = (r.error === 'insufficient_gp') ? 402 : (r.error === 'not_owner') ? 403 : (r.error === 'cooldown' || r.error === 'already_full') ? 409 : 400;
+      return res.status(code).json(r);
+    }
+    res.json(r);
+  } catch (e) {
+    console.error('[API] territory tend error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 // GET /api/territory/:claimId/production?wallet=...
 // 영토 생산 요약 — 소유 여부, 섹터 유형, 예상 PP, 드롭 재료 목록, 모디파이어, 마지막 수확
 // ══════════════════════════════════════════════════
@@ -5515,6 +5550,7 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
       SELECT c.id, c.owner, c.image_url, c.adjacency_bonus,
              COALESCE(c.hold_bonus_pct, 0) AS hold_bonus_pct,
              COALESCE(c.longest_hold_days, 0) AS longest_hold_days,
+             COALESCE(c.condition, 100) AS condition, COALESCE(c.grade, 'B') AS grade, c.last_tended_at,
              c.sector_code, c.last_harvest_at,
              COALESCE(ps.pixel_count, 0) AS pixel_count,
              COALESCE(sd.sector_type, s.tier, 'frontier') AS sector_type,
@@ -5663,6 +5699,9 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
     res.json({
       claimId,
       owned,
+      condition: parseFloat(claim.condition != null ? claim.condition : 100),
+      grade: claim.grade || 'B',
+      lastTendedAt: claim.last_tended_at || null,
       sector: {
         type: sectorType,
         name: claim.sector_name,

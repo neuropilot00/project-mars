@@ -1062,6 +1062,13 @@ async function start() {
       console.log('[exchangeRate] dynamic PP→GP rate scheduler started (1h interval, default OFF)');
     } catch(e) { console.warn('[exchangeRate] Could not init scheduler:', e.message); }
 
+    // ── 영토 컨디션 일일 감쇠 (every 24h) [v7.135] ──
+    try {
+      const { applyDailyDecay } = require('./services/territoryCondition');
+      setInterval(() => applyDailyDecay().catch((e) => console.warn('[territoryCondition] decay error:', e.message)), 24 * 60 * 60 * 1000);
+      console.log('[territoryCondition] daily decay scheduler started (24h interval)');
+    } catch(e) { console.warn('[territoryCondition] Could not init scheduler:', e.message); }
+
     // ── Auction: Settle Expired Auctions (every 5 minutes) ──
     try {
       const { settleExpiredAuctions } = require('./services/auction');

@@ -13958,6 +13958,28 @@ async function doTerritoryMerge() {
 }
 
 // ── Territory Production Summary ──
+function tendTerritory(claimId,wallet){
+  var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  var headers={'Content-Type':'application/json'};
+  if(typeof emailAuth!=='undefined'&&emailAuth&&emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+  fetch('/api/territory/'+claimId+'/tend',{method:'POST',headers:headers})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){
+        if(typeof showToast==='function') showToast((lang==='ko'?'🔧 정비 완료 — 등급 ':lang==='ja'?'🔧 整備完了 — 等級 ':lang==='zh'?'🔧 维护完成 — 等级 ':'🔧 Tended — Grade ')+d.grade+' ('+Math.round(d.condition)+'/100, -'+d.gpSpent+' GP)','success');
+        try{ if(typeof loadGPBalance==='function') loadGPBalance(); else if(typeof refreshGP==='function') refreshGP(); }catch(_){}
+        loadTerritoryProduction(claimId,wallet);
+      } else {
+        var msg=d.error==='insufficient_gp'?(lang==='ko'?'GP 부족 (필요 '+d.costGp+')':'Insufficient GP (need '+d.costGp+')')
+          :d.error==='cooldown'?(lang==='ko'?'정비 쿨다운 중':'Tend on cooldown')
+          :d.error==='already_full'?(lang==='ko'?'이미 최상 상태':'Already at full condition')
+          :d.error==='not_owner'?(lang==='ko'?'소유자가 아닙니다':'Not the owner')
+          :(d.error||'failed');
+        if(typeof showToast==='function') showToast(msg,'error');
+      }
+    })
+    .catch(function(e){ if(typeof showToast==='function') showToast('Error: '+e.message,'error'); });
+}
 function loadTerritoryProduction(claimId,wallet){
   if(!wallet) return;
   var prodRow=document.getElementById('infoProdRow');
@@ -13978,6 +14000,21 @@ function loadTerritoryProduction(claimId,wallet){
         html+='<div style="display:flex;justify-content:space-between;padding:2px 0">';
         html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'예상 PP 수확':lang==='ja'?'予想PP収穫':lang==='zh'?'预估PP收获':'PP Estimate')+'</span>';
         html+='<span style="color:#ffab40;font-weight:700">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+' PP</span>';
+        html+='</div>';
+      }
+      // 영토 컨디션(HP) + 등급 + 정비(TEND) [v7.135]
+      if(typeof d.condition!=='undefined'&&d.owned){
+        var cond=Math.max(0,Math.min(100,parseFloat(d.condition)||0));
+        var grade=d.grade||'B';
+        var gColor=({S:'#69f0ae',A:'#7cf0ff',B:'#ffd700',C:'#ffab40',D:'#ff8a65',F:'#ff5252'})[grade]||'#ffd700';
+        var barColor=cond>=60?'#69f0ae':cond>=30?'#ffab40':'#ff5252';
+        html+='<div style="padding:5px 0;border-top:1px solid rgba(255,255,255,.06);margin-top:4px">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
+        html+='<span style="color:var(--tx3);font-size:8px">'+(lang==='ko'?'영토 상태 (HP)':lang==='ja'?'領土状態(HP)':lang==='zh'?'领土状态(HP)':'Condition (HP)')+'</span>';
+        html+='<span style="display:flex;align-items:center;gap:5px"><span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px;color:'+gColor+';border:1px solid '+gColor+'66;background:'+gColor+'1a">'+grade+'</span><span style="color:'+barColor+';font-weight:700;font-size:9px">'+cond.toFixed(0)+'/100</span></span>';
+        html+='</div>';
+        html+='<div style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+cond+'%;background:'+barColor+';transition:width .3s"></div></div>';
+        html+='<button onclick="tendTerritory('+claimId+',\''+(wallet||'')+'\')" style="margin-top:5px;width:100%;font-size:8px;padding:5px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.3);border-radius:6px;color:#69f0ae;cursor:pointer;font-family:var(--fn)">'+(lang==='ko'?'🔧 정비하기 (TEND)':lang==='ja'?'🔧 整備する (TEND)':lang==='zh'?'🔧 维护 (TEND)':'🔧 TEND')+'</button>';
         html+='</div>';
       }
       // Hold bonus

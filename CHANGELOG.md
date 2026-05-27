@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.135 — 영토 HP/등급/감쇠 시스템 (자산 관리 루프)
+
+영토에 condition(HP)·grade(F~S)·감쇠를 부여 — "관리 안 하면 등급↓ / 관리하면 수확·레어↑" EVE식 자산관리 루프.
+
+- **migration 237**: `claims.condition`(0~100), `grade`, `last_tended_at` + 설정(감쇠량/정비비용/회복량/쿨다운/등급별 수확·레어 배수). 기존 영토는 grade S/condition 100으로 초기화.
+- **`services/territoryCondition.js`**: 등급 계산, 일일 감쇠(bulk UPDATE + grade 재계산), TEND(정비) 트랜잭션(GP 차감→회복→등급/쿨다운).
+- **수확 연동**(`api.js`): 등급별 PP 배수(S 1.5x ~ F 0.6x) + 재료 드롭량 배수 적용.
+- **TEND 엔드포인트**: `POST /api/territory/:claimId/tend`(GP 소모→condition 회복, 소유자/쿨다운/잔액 가드). production 응답에 `condition/grade/lastTendedAt` 포함.
+- **일일 감쇠 스케줄러**(index.js, RUN_SCHEDULERS 게이트, 24h).
+- **프론트**(index.html): 영토 PRODUCTION 패널에 HP 바 + 등급 뱃지(색상) + 🔧 TEND 버튼(4개 언어). `tendTerritory()` 연동.
+- 검증: tend 실측(cond 50→75, grade C→A, −50 GP), 감쇠 스케줄러 기동, 인라인 JS 0 errors, 부팅 무에러.
+
 ## 2026-05-28 v7.134 — 프론트 미연결 기능 연결: 마켓 섹터 필터
 
 전수 조사로 "백엔드 완비 + 프론트 미연결" 실유저 기능 식별 후 1순위 연결.
