@@ -20,6 +20,8 @@ const url = require('url');
 
 // battle_id -> Set<WebSocket>
 const _channels = new Map();
+// 라이브(채팅/활동피드) 연결 — 각 ws.subs(Set) 로 구독 채널 추적
+const _live = new Set();
 let _wss = null;
 
 function _verifyToken(token) {
@@ -36,23 +38,35 @@ function attachWsServer(httpServer) {
 
   httpServer.on('upgrade', (req, socket, head) => {
     const parsed = url.parse(req.url, true);
+    const path = parsed.pathname || '';
     // 경로 매칭: /ws/battle/{id}
-    const m = /^\/ws\/battle\/(\d+)$/.exec(parsed.pathname || '');
-    if (!m) {
-      socket.destroy();
+    const m = /^\/ws\/battle\/(\d+)$/.exec(path);
+    if (m) {
+      const battleId = parseInt(m[1]);
+      const wallet = _verifyToken(parsed.query.token); // 인증 실패해도 read-only 허용 (관전 모드)
+      _wss.handleUpgrade(req, socket, head, (ws) => {
+        ws.battleId = battleId;
+        ws.wallet = wallet;
+        _wss.emit('connection', ws, req);
+      });
       return;
     }
-    const battleId = parseInt(m[1]);
-    const token = parsed.query.token;
-    const wallet = _verifyToken(token); // 인증 실패해도 read-only 허용 (관전 모드)
-    _wss.handleUpgrade(req, socket, head, (ws) => {
-      ws.battleId = battleId;
-      ws.wallet = wallet;
-      _wss.emit('connection', ws, req);
-    });
+    // 라이브 채널: /ws/live (채팅 + 활동피드 푸시)
+    if (path === '/ws/live') {
+      const wallet = _verifyToken(parsed.query.token);
+      _wss.handleUpgrade(req, socket, head, (ws) => {
+        ws.isLive = true;
+        ws.wallet = wallet;
+        ws.subs = new Set();
+        _wss.emit('connection', ws, req);
+      });
+      return;
+    }
+    socket.destroy();
   });
 
   _wss.on('connection', (ws) => {
+    if (ws.isLive) { _handleLive(ws); return; }
     const bid = ws.battleId;
     if (!_channels.has(bid)) _channels.set(bid, new Set());
     _channels.get(bid).add(ws);
@@ -136,10 +150,55 @@ function broadcastBattleEnd(battleId, summary) {
   return sent;
 }
 
+// ── 라이브 채널 (채팅/활동피드) ──────────────────────────────
+function _handleLive(ws) {
+  _live.add(ws);
+  try { ws.send(JSON.stringify({ type: 'hello', live: true, wallet: ws.wallet || null })); } catch (_) {}
+  ws.on('message', (raw) => {
+    let msg = null;
+    try { msg = JSON.parse(raw.toString()); } catch (_) { return; }
+    if (!msg || !msg.type) return;
+    // 구독 설정: { type:'sub', channels:['global','sector:foo','feed'] }
+    if (msg.type === 'sub' && Array.isArray(msg.channels)) {
+      ws.subs = new Set(msg.channels.slice(0, 30).map(String));
+    } else if (msg.type === 'ping') {
+      try { ws.send(JSON.stringify({ type: 'pong' })); } catch (_) {}
+    }
+  });
+  ws.on('close', () => _live.delete(ws));
+  ws.on('error', () => {});
+}
+
+/** 채팅 메시지를 해당 채널 구독자에게 푸시. chat.js POST /chat/send 가 호출. */
+function broadcastChat(channel, message) {
+  if (!_live.size) return 0;
+  const payload = JSON.stringify({ type: 'chat', channel, message });
+  let sent = 0;
+  for (const ws of _live) {
+    try {
+      if (ws.readyState === 1 && (ws.subs.has(channel) || ws.subs.has('*'))) { ws.send(payload); sent++; }
+    } catch (_) {}
+  }
+  return sent;
+}
+
+/** 활동피드 이벤트를 'feed' 구독자에게 푸시. */
+function broadcastFeed(event) {
+  if (!_live.size) return 0;
+  const payload = JSON.stringify({ type: 'feed', event });
+  let sent = 0;
+  for (const ws of _live) {
+    try {
+      if (ws.readyState === 1 && ws.subs.has('feed')) { ws.send(payload); sent++; }
+    } catch (_) {}
+  }
+  return sent;
+}
+
 function channelStats() {
-  const out = {};
+  const out = { _live: _live.size };
   for (const [bid, set] of _channels) out[bid] = set.size;
   return out;
 }
 
-module.exports = { attachWsServer, broadcastBattleFrame, broadcastBattleEnd, channelStats };
+module.exports = { attachWsServer, broadcastBattleFrame, broadcastBattleEnd, broadcastChat, broadcastFeed, channelStats };

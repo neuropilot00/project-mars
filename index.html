@@ -51439,6 +51439,7 @@ function switchChatChannel(ch) {
   const idx = ch === 'sector' ? 1 : 0;
   document.querySelectorAll('.chat-ch')[idx]?.classList.add('active');
   loadChatMessages();
+  try { _liveWSSubscribe(); } catch(_) {}  // 새 채널 실시간 구독 갱신
 }
 
 async function sendChatMessage() {
@@ -51502,7 +51503,8 @@ function _escapeHtml(s) {
 function startChatPolling() {
   if (_chatPollTimer) clearInterval(_chatPollTimer);
   loadChatMessages();
-  _chatPollTimer = setInterval(() => { loadChatMessages(); }, 5000);
+  // WebSocket(/ws/live)이 실시간 푸시를 담당 → 폴링은 폴백으로 간격을 늘림(5s→15s, 부하 감소).
+  _chatPollTimer = setInterval(() => { loadChatMessages(); }, 15000);
 }
 
 var _feedSince = null;
@@ -51548,7 +51550,46 @@ async function loadActivityFeed() {
 function startFeedPolling() {
   if (_feedTimer) clearInterval(_feedTimer);
   loadActivityFeed();
-  _feedTimer = setInterval(loadActivityFeed, 10000);
+  // WebSocket 푸시(broadcastFeed)가 즉시 갱신 → 폴링은 폴백 15s (소스 일부만 WS 연결됨).
+  _feedTimer = setInterval(loadActivityFeed, 15000);
+}
+
+// ── 실시간 라이브 WebSocket (/ws/live) — 채팅/피드 즉시 갱신 ──
+// WS 메시지는 "즉시 fetch 트리거(poke)"로만 쓴다 → 기존 렌더/커서 중복제거 로직 재사용.
+// 연결 실패/끊김 시 위 폴링 폴백이 계속 동작하므로 안전.
+var _liveWS = null, _liveWSRetry = 0, _liveWSTimer = null;
+function _liveWSSubscribe() {
+  if (!_liveWS || _liveWS.readyState !== 1) return;
+  try {
+    _liveWS.send(JSON.stringify({ type: 'sub', channels: [ (typeof _chatChannel!=='undefined'?_chatChannel:'global'), 'feed' ] }));
+  } catch (_) {}
+}
+function connectLiveWS() {
+  try {
+    if (_liveWS && (_liveWS.readyState === 0 || _liveWS.readyState === 1)) return;
+    var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var tok = '';
+    try { tok = localStorage.getItem('pw_token') || ''; } catch (_) {}
+    _liveWS = new WebSocket(proto + '//' + location.host + '/ws/live' + (tok ? ('?token=' + encodeURIComponent(tok)) : ''));
+    _liveWS.onopen = function(){ _liveWSRetry = 0; _liveWSSubscribe(); };
+    _liveWS.onmessage = function(ev){
+      var d = null; try { d = JSON.parse(ev.data); } catch(_) { return; }
+      if (!d || !d.type) return;
+      if (d.type === 'chat') {
+        // 현재 보고 있는 채널이면 즉시 증분 로드
+        if (d.channel === (typeof _chatChannel!=='undefined'?_chatChannel:'global')) { try { loadChatMessages(); } catch(_){} }
+      } else if (d.type === 'feed') {
+        try { loadActivityFeed(); } catch(_){}
+      }
+    };
+    _liveWS.onclose = function(){
+      // 지수 백오프 재연결 (최대 30s)
+      _liveWSRetry = Math.min(_liveWSRetry + 1, 6);
+      if (_liveWSTimer) clearTimeout(_liveWSTimer);
+      _liveWSTimer = setTimeout(connectLiveWS, Math.min(1000 * Math.pow(2, _liveWSRetry), 30000));
+    };
+    _liveWS.onerror = function(){ try { _liveWS.close(); } catch(_){} };
+  } catch (_) {}
 }
 // When the tab becomes visible again after being hidden, immediately fetch
 // fresh messages/feed so the user sees up-to-date content.
@@ -51569,6 +51610,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Chat: 8s cold start, then every 5s. Feed: 12s cold start, then every 10s.
   setTimeout(startChatPolling, 8000);
   setTimeout(startFeedPolling, 12000);
+  setTimeout(connectLiveWS, 9000);  // 실시간 푸시 (채팅/피드) — 폴링과 병행, 끊겨도 폴링 폴백
   if (typeof isLoggedIn === 'function' && isLoggedIn()) {
     setTimeout(runOnboardingCheck, 2000);
   }

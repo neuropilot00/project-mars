@@ -1628,6 +1628,8 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
       try {
         if (newCount > 0) await dailyService.updateMissionProgress(walletLower, 'claim_pixels', newCount);
         if (newCount > 0) try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(walletLower, 'territory_claim').catch(()=>{}); } catch(_) {}
+        // 활동피드 실시간 푸시 — 구독 클라이언트가 즉시 재조회 (WS, fire-and-forget)
+        if (newCount > 0) try { require('../wsServer').broadcastFeed({ type: 'claim' }); } catch(_) {}
         if (attackWon > 0) await dailyService.updateMissionProgress(walletLower, 'hijack', attackWon);
       } catch (_de) { /* daily mission tracking non-critical */ }
     }

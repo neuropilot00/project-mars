@@ -93,6 +93,9 @@ router.post('/chat/send', requireAuth, async (req, res) => {
       [wallet, nickname, channel, message]
     );
 
+    // WebSocket 실시간 푸시 (구독자에게 즉시 전달 — 채팅 폴링 부하 감소)
+    try { require('../wsServer').broadcastChat(channel, rows[0]); } catch (_) {}
+
     return res.json({ success: true, message: rows[0] });
   } catch (err) {
     console.error('[chat] send error:', err);
