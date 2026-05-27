@@ -19,6 +19,9 @@ async function recomputeRate() {
   const ceil   = parseFloat(await getSetting('pp_to_gp_rate_ceil', '20')) || 20;
   const maxStep = (parseFloat(await getSetting('pp_to_gp_rate_max_step_pct', '2')) || 2) / 100;
   const target = parseFloat(await getSetting('pp_to_gp_exchange_daily_vol_target', '1000')) || 1000;
+  // 최소 활동 임계치: 24h 거래량이 이보다 적으면 "신호 없음"으로 보고 환율 유지(저활동 시 ceil 로
+  // 무의미하게 드리프트하는 것 방지). 기본 0 이지만 운영 시 target 의 일부로 설정 권장.
+  const minActivity = parseFloat(await getSetting('pp_to_gp_exchange_min_activity', '0')) || 0;
 
   if (!(floor > 0) || !(ceil >= floor)) return { skipped: true, reason: 'bad_band' };
 
@@ -30,6 +33,9 @@ async function recomputeRate() {
         WHERE type = 'pp_to_gp_exchange' AND created_at > NOW() - INTERVAL '24 hours'`);
     D = parseFloat(r.rows[0]?.v || 0) || 0;
   } catch (_) { return { skipped: true, reason: 'vol_query_failed' }; }
+
+  // 신호 부족 → 환율 유지(드리프트 방지)
+  if (D < minActivity) return { skipped: true, reason: 'low_activity', rate: prev, vol24h: D, minActivity };
 
   // 수요 편차를 변동률로 환산(부호: D>target → 음수 → rate 하락), step cap 적용
   let deltaFrac = -maxStep * ((D - target) / target);
