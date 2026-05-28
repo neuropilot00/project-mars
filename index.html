@@ -41940,7 +41940,10 @@ function updateDailyHudDot(){
 }
 function _updateBaseBtnDot(){
   var anyDot = false;
-  var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','guildDot','opsDot','governDot'];
+  // [v7.189 fix] 누락된 economy/fleet/mission 신규 카테고리 추가 — 이전엔 marketDot/itemsDot 등 켜져도
+  //   상단 OPEN BASE 버튼이 안 빛나 sub-tab 알림을 놓치는 문제.
+  var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','guildDot','opsDot','governDot',
+                'shopDot','marketDot','itemsDot','pvpDot','transportDot','fleetDot'];
   dotIds.forEach(function(id){
     var el = document.getElementById(id);
     if(el && getComputedStyle(el).display !== 'none') anyDot = true;
@@ -51574,6 +51577,9 @@ const bv = {
 // tactical-lab iframe 의 컨트롤 클릭 → postMessage → 실제 commanderActions API 호출
 // hijack 한정 유저 컨트롤 (Phase 3-A)
 window.addEventListener('message', function(ev) {
+  // [v7.189 fix] origin 검증 — 외부 iframe / XSS 가 source:'tactical-lab' 위조해 forfeit 트리거 못 하도록 차단.
+  //   tactical-lab 은 같은 도메인 iframe 이므로 ev.origin === location.origin.
+  if (ev.origin !== location.origin) return;
   var d = ev && ev.data;
   if (!d || d.source !== 'tactical-lab' || !d.battleId) return;
 

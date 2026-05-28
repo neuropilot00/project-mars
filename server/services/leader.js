@@ -43,9 +43,12 @@ async function shouldRunSchedulers() {
   let Redis;
   try { Redis = require('ioredis'); }
   catch (e) {
-    console.warn('[leader] ioredis 미설치 — RUN_SCHEDULERS env 기준으로 폴백');
-    _isLeader = (process.env.RUN_SCHEDULERS !== 'false');
-    return _isLeader;
+    // [v7.189 fix] fail-CLOSED 통일. 이전엔 RUN_SCHEDULERS!=='false' (기본 true) → ioredis 미설치 시 모든 워커가 리더로 동작 → 입금 N배 처리 위험.
+    //   ioredis 가 없으면 단일 인스턴스 가정 — RUN_SCHEDULERS=true 명시적 설정한 워커만 실행.
+    const lead = process.env.RUN_SCHEDULERS === 'true';
+    console.warn(`[leader] ioredis 미설치 — RUN_SCHEDULERS=true 인 워커만 스케줄러 실행 (현재: ${lead})`);
+    _isLeader = lead;
+    return lead;
   }
   // family:0 = IPv4/IPv6 모두 시도(Railway 내부망은 IPv6 전용 redis.railway.internal).
   const redis = new Redis(process.env.REDIS_URL, {
@@ -61,9 +64,10 @@ async function shouldRunSchedulers() {
     redis.once('ready', () => { clearTimeout(t); res(true); });
   });
   if (!ready) {
-    // Redis 진짜 불통 → env 기반 폴백: 지정/단일 워커에서 스케줄러는 계속 돌게(입금 처리 중단 방지).
-    const lead = process.env.RUN_SCHEDULERS !== 'false';
-    console.warn(`[leader] Redis 연결 실패(12s) — env 폴백으로 스케줄러 ${lead ? '실행' : '미실행'}`);
+    // [v7.189 fix] fail-CLOSED 통일. 이전엔 `!=='false'` (기본 true) → Redis 다운 시 모든 워커가 리더 → 중복 처리.
+    //   Redis 불통이면 RUN_SCHEDULERS=true 명시한 워커만. 입금은 backfillEvents 가 다음 시도에 복구하므로 일시 중단 OK.
+    const lead = process.env.RUN_SCHEDULERS === 'true';
+    console.warn(`[leader] Redis 연결 실패(12s) — fail-CLOSED 폴백 (RUN_SCHEDULERS=true 인 워커만): ${lead ? '실행' : '미실행'}`);
     _isLeader = lead;
     return lead;
   }

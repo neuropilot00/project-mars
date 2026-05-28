@@ -69,10 +69,23 @@ function attachWsServer(httpServer) {
     // DoS 방어: 전역/IP별 연결 상한 초과 시 거부
     if (!_admitConn(req)) { try { socket.write('HTTP/1.1 429 Too Many Requests\r\n\r\n'); } catch (_) {} socket.destroy(); return; }
     const ip = _clientIp(req);
+    // [v7.189 fix] upgrade 실패 시 _releaseConn 누수 차단 — handleUpgrade 콜백이 호출되지 않거나
+    //   socket 이 즉시 종료되면 ws 'close' 핸들러도 안 붙어 _ipConns 카운터 영구 증가 → IP 차단됨.
+    //   socket-level close/error 에서 release. handleUpgrade 콜백이 성공하면 _upgraded=true 로 표시하고
+    //   release 책임은 ws.on('close') 로 이관. 한 connection 당 _releaseConn 정확히 1회 보장.
+    const _upgradeGuard = { upgraded: false, released: false };
+    const _socketRelease = () => {
+      if (_upgradeGuard.upgraded || _upgradeGuard.released) return;
+      _upgradeGuard.released = true;
+      _releaseConn(ip);
+    };
+    socket.once('close', _socketRelease);
+    socket.once('error', _socketRelease);
     if (isBattle) {
       const battleId = parseInt(isBattle[1]);
       const wallet = _verifyToken(parsed.query.token); // 인증 실패해도 read-only 허용 (관전 모드)
       _wss.handleUpgrade(req, socket, head, (ws) => {
+        _upgradeGuard.upgraded = true; // [v7.189] socket-level release 비활성화 — ws.close 가 release 담당
         ws.battleId = battleId; ws.wallet = wallet; ws._ip = ip;
         _wss.emit('connection', ws, req);
       });
@@ -81,6 +94,7 @@ function attachWsServer(httpServer) {
     // 라이브 채널: /ws/live (채팅 + 활동피드 푸시)
     const wallet = _verifyToken(parsed.query.token);
     _wss.handleUpgrade(req, socket, head, (ws) => {
+      _upgradeGuard.upgraded = true; // [v7.189] 동일 — ws.close release 로 이관
       ws.isLive = true; ws.wallet = wallet; ws.subs = new Set(); ws._ip = ip;
       _wss.emit('connection', ws, req);
     });

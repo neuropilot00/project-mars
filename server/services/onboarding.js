@@ -190,14 +190,18 @@ async function completeStep(walletAddress, step, data = {}) {
     }
 
     // DB 업데이트
-    const setClauses = Object.entries(updates).map(([k, v], i) => {
-      if (v === 'NOW()') return `${k} = NOW()`;
-      return `${k} = $${i + 2}`;
-    }).join(', ');
-
-    const values = Object.entries(updates)
-      .filter(([, v]) => v !== 'NOW()')
-      .map(([, v]) => v);
+    // [v7.189 fix] 이전엔 setClauses 가 전체 entries 의 인덱스 i+2 를 placeholder 로 썼는데, values 는 NOW() 를
+    //   필터링해 짧아진 배열이라 NOW() 가 중간에 들어오면 $N 위치가 한 칸씩 어긋남.
+    //   예: {step,updated_at:'NOW()',claim_id,pp_rewarded} → $4=tutorial_claim_id 절을 만들지만 실제 $4 는 pp_rewarded(true) →
+    //       claim_id 컬럼에 boolean 입력 / 타입 에러 / 진행 막힘.
+    //   비-NOW() 항목만으로 placeholder 재인덱싱하고, NOW() 절은 별도 append.
+    const nonNowEntries = Object.entries(updates).filter(([, v]) => v !== 'NOW()');
+    const nowKeys = Object.entries(updates).filter(([, v]) => v === 'NOW()').map(([k]) => k);
+    const setClauses = [
+      ...nonNowEntries.map(([k], i) => `${k} = $${i + 2}`),
+      ...nowKeys.map((k) => `${k} = NOW()`)
+    ].join(', ');
+    const values = nonNowEntries.map(([, v]) => v);
 
     await client.query(
       `UPDATE user_onboarding SET ${setClauses} WHERE wallet_address = $1`,

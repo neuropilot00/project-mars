@@ -805,26 +805,40 @@ async function declareHijackWithPP(params) {
 // [v7.188 fix] handlePhase1Complete 가 setTimeout(3000) 으로 Phase 2 를 비동기 시작 → 그 사이 프로세스가 죽으면
 // hijack 이 phase='phase2', phase2_battle_id=NULL 로 영원히 stuck. 서버 부팅 시 한 번 sweep.
 async function recoverOrphanedPhase2() {
+  // [v7.189 fix] FOR UPDATE SKIP LOCKED — 멀티 인스턴스 부팅 시 두 워커가 같은 row 잡고 noisy log 내는 거 차단.
+  //   pool.query 는 connection 즉시 release 라 lock 안 잡힘 → client 로 TX 안에서 SELECT/UPDATE.
+  //   각 row 마다 별도 TX 로 락 잡고 startPhase2 호출하면, 다른 워커가 처리 중이면 SKIP LOCKED 로 즉시 0 row → silent skip.
+  const client = await pool.connect();
   try {
-    const { rows } = await pool.query(`
+    await client.query('BEGIN');
+    const { rows } = await client.query(`
       SELECT h.id, h.attacker_wallet, h.attacker_fleet_id, h.defender_fleet_id
         FROM hijack_battles h
        WHERE h.phase = 'phase2'
          AND h.phase2_battle_id IS NULL
          AND h.phase1_ended_at < NOW() - INTERVAL '30 seconds'
        LIMIT 20
+       FOR UPDATE SKIP LOCKED
     `);
+    // lock 만 잡은 상태 — 실제 startPhase2 는 자기 client/TX 가 필요해서 commit 후 호출.
+    await client.query('COMMIT');
     for (const h of rows) {
       console.log(`[hijack] recovering orphaned Phase 2 for hijack ${h.id}`);
       try {
         await startPhase2(h.id, h.attacker_wallet, h.attacker_fleet_id, h.defender_fleet_id);
       } catch (err) {
-        console.warn(`[hijack] recover Phase 2 failed for ${h.id}: ${err.message}`);
+        // startPhase2 의 FOR UPDATE 가 다시 잡으니 race 없음. 다른 워커가 먼저 처리한 경우 NOT_IN_PHASE2/ALREADY_STARTED.
+        if (!/ALREADY_STARTED|NOT_IN_PHASE2|NOT_FOUND/.test(err.message)) {
+          console.warn(`[hijack] recover Phase 2 failed for ${h.id}: ${err.message}`);
+        }
       }
     }
     if (rows.length) console.log(`[hijack] orphan Phase 2 sweep processed ${rows.length} hijack(s)`);
   } catch (err) {
+    await client.query('ROLLBACK').catch(()=>{});
     console.warn('[hijack] recoverOrphanedPhase2 error:', err.message);
+  } finally {
+    client.release();
   }
 }
 

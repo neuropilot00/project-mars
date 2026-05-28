@@ -2070,7 +2070,8 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     try {
       const _treasury = require('../services/treasury');
       if (await _treasury.guardEnabled(getSetting)) {
-        const { collateral, liability, room } = await _treasury.lockRoom(client, w);
+        // [v7.189 fix] `w` 미정의 → 유저 pre-lock 스킵되던 버그. wallet 변수가 정확한 식별자.
+        const { collateral, liability, room } = await _treasury.lockRoom(client, wallet);
         if (received > room + 1e-9) {
           await client.query('ROLLBACK');
           return res.status(409).json({
@@ -2202,7 +2203,9 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
     );
 
     // ✅ [솔벤시] 출금만큼 담보 차감 — usdt_balance 와 collateral 을 함께 줄여 불변식 유지.
-    try { await require('../services/treasury').adjustCollateral(client, -parsedAmount); } catch (_) {}
+    // [v7.189 fix] 이전엔 try/catch (_) {} 로 silent swallow → adjustCollateral 실패 시 usdt_balance 는 감소했는데 collateral 은 유지 → 불변식 깨짐.
+    //   fail-CLOSED 로 변경: 에러 시 throw → 호출자 catch 에서 ROLLBACK 으로 잔액 변경도 같이 취소.
+    await require('../services/treasury').adjustCollateral(client, -parsedAmount);
 
     // Generate on-chain withdrawal signature
     const amountBN = ethers.utils.parseUnits(amount.toString(), chainCfg.decimals);
@@ -2344,7 +2347,8 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
     );
 
     // ✅ [솔벤시] 실제 빠져나가는 USDT(totalOut)만큼 담보 차감.
-    try { await require('../services/treasury').adjustCollateral(client, -totalOut); } catch (_) {}
+    // [v7.189 fix] withdraw 와 같은 이유로 fail-CLOSED — 에러 시 throw → 위 ROLLBACK 으로 잔액 변경 취소.
+    await require('../services/treasury').adjustCollateral(client, -totalOut);
 
     // Reset owned pixels
     await client.query(
