@@ -5666,14 +5666,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="wallet-bal" id="walletGPRow"><span class="lbl" style="color:var(--gold)">GP</span><span class="val" style="color:var(--gold)" id="walletGP">0</span></div>
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-actions">
-        <button class="wa-btn dep" onclick="openDepositModal()" data-i18n="deposit_btn">DEPOSIT</button>
-        <button class="wa-btn wdr" onclick="openWithdrawModal()" data-i18n="withdraw_btn">WITHDRAW</button>
-        <button class="wa-btn" onclick="openExportKeyModal()" style="background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--gold)" data-i18n="export_key_btn">🔑 KEY</button>
+        <!-- [v7.174 F-Crit-2 fix] aria-label 추가 -->
+        <button class="wa-btn dep" onclick="openDepositModal()" aria-label="Deposit USDT" data-i18n="deposit_btn">DEPOSIT</button>
+        <button class="wa-btn wdr" onclick="openWithdrawModal()" aria-label="Withdraw USDT" data-i18n="withdraw_btn">WITHDRAW</button>
+        <button class="wa-btn" onclick="openExportKeyModal()" aria-label="Export wallet private key" style="background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--gold)" data-i18n="export_key_btn">🔑 KEY</button>
       </div>
       <div class="wallet-actions">
-        <button class="wa-btn swp" onclick="openSwapModal()">PP→USDT</button>
-        <button class="wa-btn swp" onclick="openExchangeModal()" style="color:var(--gn);border-color:rgba(0,230,118,.3)">PP→GP</button>
-        <button class="wa-btn dis" onclick="logoutEmail()" data-i18n="logout_btn">LOGOUT</button>
+        <button class="wa-btn swp" onclick="openSwapModal()" aria-label="Swap PP to USDT">PP→USDT</button>
+        <button class="wa-btn swp" onclick="openExchangeModal()" aria-label="Exchange PP to GP" style="color:var(--gn);border-color:rgba(0,230,118,.3)">PP→GP</button>
+        <button class="wa-btn dis" onclick="logoutEmail()" aria-label="Logout" data-i18n="logout_btn">LOGOUT</button>
       </div>
       <button class="wa-btn" onclick="openPortfolioModal()" aria-label="My assets portfolio" style="width:100%;margin-top:4px;background:linear-gradient(135deg,rgba(184,140,255,.18),rgba(79,195,247,.10));border:1px solid rgba(184,140,255,.42);color:#e7d6ff;font-weight:800;letter-spacing:.6px" data-i18n="my_assets_btn">🪐 MY ASSETS</button>
     </div>
@@ -21081,11 +21082,12 @@ var emailAuth = {
     fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
       .then(function(r){if(!r.ok) throw new Error('expired'); return r.json()})
       .then(function(d){
-        emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode};
+        // [v7.174 A-C3] emailVerified 추적 — 미인증 시 verify 배너 노출
+        emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode,emailVerified:!!d.emailVerified};
         walletState.connected=true;
         walletState.address=d.wallet;
         walletState.chain='base';
-        try{updateWalletUI()}catch(e){}
+        try{updateWalletUI();updateEmailVerifyBanner();}catch(e){}
         try{updateChainUI()}catch(e){}
         try{updateTopbarAvatar(true)}catch(e){}
         try{refreshEmailBalances()}catch(e){}
@@ -47433,6 +47435,96 @@ function _p2oStep(icon,title,desc){
     + '<div><div style="font-size:10.5px;font-weight:800;color:#fff">'+title+'</div>'
     + '<div style="font-size:9.5px;color:rgba(255,255,255,.6);margin-top:1px">'+desc+'</div></div>'
     + '</div>';
+}
+
+// ── [v7.174 A-C3] 이메일 인증 배너 + 모달 ──────────────────────────
+// 미인증 사용자에게 wallet 패널 위에 작은 배너를 띄우고, 클릭 시 6자리 코드 입력 모달.
+// emailAuth.user.emailVerified 기반 자동 갱신.
+function updateEmailVerifyBanner(){
+  var el = document.getElementById('emailVerifyBanner');
+  var u = (typeof emailAuth!=='undefined' && emailAuth && emailAuth.user) || null;
+  var show = u && u.email && u.emailVerified === false;
+  if (!el && show) {
+    el = document.createElement('div');
+    el.id = 'emailVerifyBanner';
+    el.style.cssText = 'margin:6px 8px 4px;padding:8px 11px;border-radius:8px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.45);cursor:pointer;display:flex;align-items:center;gap:8px';
+    el.onclick = function(){ openEmailVerifyModal(); };
+    el.innerHTML = '<span style="font-size:14px">✉️</span><div style="flex:1"><div style="font-size:10px;font-weight:800;color:#ffd166">'+tl('Verify your email','이메일 인증 필요','メール認証が必要','需要邮箱验证')+'</div><div style="font-size:8.5px;color:rgba(255,255,255,.55);margin-top:1px">'+tl('Click to enter the 6-digit code we sent.','코드 6자리 입력하기','6桁コードを入力','输入6位验证码')+'</div></div><span style="font-size:9px;color:#ffd166">→</span>';
+    var anchor = document.getElementById('walletSection');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor);
+  }
+  if (el) el.style.display = show ? '' : 'none';
+}
+function openEmailVerifyModal(){
+  var u = (typeof emailAuth!=='undefined' && emailAuth && emailAuth.user) || null;
+  if (!u || !u.email) return;
+  var old = document.getElementById('emailVerifyModal'); if (old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'emailVerifyModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.82);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
+  el.onclick = function(e){ if (e.target===el) el.remove(); };
+  el.innerHTML =
+    '<div style="position:relative;width:min(380px,94vw);border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(255,209,102,.2),rgba(10,12,22,.98) 65%);border:1.5px solid rgba(255,209,102,.55);box-shadow:0 0 30px rgba(255,209,102,.25),0 18px 60px rgba(0,0,0,.7);padding:20px;animation:crPop .3s cubic-bezier(.2,1.3,.5,1)">'
+    +   '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#ffd166">✉️ '+tl('VERIFY EMAIL','이메일 인증','メール認証','邮箱验证')+'</div>'
+    +   '<div style="text-align:center;font-size:10px;color:rgba(255,255,255,.6);margin-top:6px;line-height:1.5">'+tl('A 6-digit code was sent to','인증 코드가 다음 이메일로 발송되었습니다','6桁コードを以下に送信','6位验证码已发送到')+'<br><b style="color:#fff">'+escapeHtmlSafe(u.email)+'</b></div>'
+    +   '<input type="text" id="evCodeInput" maxlength="6" inputmode="numeric" placeholder="000000" style="margin-top:14px;width:100%;padding:11px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,209,102,.4);color:#fff;font-family:var(--fn);font-size:18px;font-weight:900;letter-spacing:6px;text-align:center" autofocus>'
+    +   '<div id="evErr" style="font-size:10px;color:#ff5252;margin-top:8px;min-height:14px;text-align:center"></div>'
+    +   '<div style="margin-top:10px;display:flex;gap:8px">'
+    +     '<button type="button" onclick="document.getElementById(\'emailVerifyModal\').remove()" style="flex:1;padding:11px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">'+tl('LATER','나중에','後で','稍后')+'</button>'
+    +     '<button type="button" id="evVerifyBtn" onclick="_evSubmitVerify()" style="flex:1.5;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,209,102,.5),rgba(255,209,102,.15));border:1px solid rgba(255,209,102,.7);color:#fff;font-family:var(--fn);font-size:11px;font-weight:900;cursor:pointer">✓ '+tl('VERIFY','인증','認証','验证')+'</button>'
+    +   '</div>'
+    +   '<button type="button" id="evResendBtn" onclick="_evSubmitResend()" style="margin-top:8px;width:100%;padding:8px;border-radius:7px;background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55);font-family:var(--fn);font-size:9.5px;cursor:pointer">↻ '+tl('Resend code','코드 재발송','コード再送','重新发送')+'</button>'
+    + '</div>';
+  document.body.appendChild(el);
+}
+function _evSubmitVerify(){
+  var u = (typeof emailAuth!=='undefined' && emailAuth && emailAuth.user) || null;
+  var code = (document.getElementById('evCodeInput')||{}).value || '';
+  code = String(code).replace(/\D/g,'').trim();
+  var errEl = document.getElementById('evErr');
+  if (!/^[0-9]{6}$/.test(code)) { if (errEl) errEl.textContent = tl('Enter the 6-digit code.','6자리 코드를 입력하세요.','6桁コードを入力してください。','请输入6位代码。'); return; }
+  var btn = document.getElementById('evVerifyBtn'); if (btn) btn.disabled = true;
+  fetch('/api/auth/verify-email', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email: u.email, code: code })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d && d.success) {
+      if (emailAuth && emailAuth.user) emailAuth.user.emailVerified = true;
+      try { document.getElementById('emailVerifyModal').remove(); } catch(_){}
+      try { updateEmailVerifyBanner(); } catch(_){}
+      showToast(tl('Email verified! ✓','이메일 인증 완료! ✓','メール認証完了！✓','邮箱已验证！✓'), 'success');
+    } else {
+      var em = {
+        invalid_code: tl('Wrong code.','코드가 일치하지 않습니다.','コードが一致しません。','验证码错误。'),
+        code_expired: tl('Code expired — resend.','코드 만료 — 재발송하세요.','コード期限切れ — 再送してください。','验证码已过期 — 请重新发送。'),
+        no_pending_verification: tl('No pending verification — resend.','대기 중인 인증이 없습니다 — 재발송하세요.','保留中の認証がありません — 再送してください。','无待验证 — 请重新发送。'),
+        user_not_found: tl('Account not found.','계정을 찾을 수 없음.','アカウントが見つかりません。','找不到账户。'),
+        invalid_code_format: tl('Format: 6 digits.','6자리 숫자만.','6桁数字のみ。','仅限6位数字。')
+      };
+      if (errEl) errEl.textContent = em[d&&d.error] || (d&&d.error) || tl('Failed','실패','失敗','失败');
+      if (btn) btn.disabled = false;
+    }
+  }).catch(function(){ if (errEl) errEl.textContent = tl('Network error.','네트워크 오류','ネットワークエラー','网络错误'); if (btn) btn.disabled = false; });
+}
+function _evSubmitResend(){
+  var u = (typeof emailAuth!=='undefined' && emailAuth && emailAuth.user) || null;
+  if (!u) return;
+  var btn = document.getElementById('evResendBtn'); if (btn) btn.disabled = true;
+  fetch('/api/auth/resend-verification', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email: u.email })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    var errEl = document.getElementById('evErr');
+    if (d && d.success) {
+      showToast(tl('Code resent.','코드 재발송됨.','コード再送しました。','已重新发送。'), 'success');
+      if (errEl) errEl.textContent = '';
+    } else if (d && d.error === 'cooldown') {
+      if (errEl) errEl.textContent = tl('Wait '+d.wait_seconds+'s before resending.','재발송까지 '+d.wait_seconds+'초 대기','再送まで'+d.wait_seconds+'秒','请等待'+d.wait_seconds+'秒后重发');
+    } else {
+      if (errEl) errEl.textContent = (d&&d.error) || tl('Resend failed','재발송 실패','再送失敗','重发失败');
+    }
+    if (btn) btn.disabled = false;
+  }).catch(function(){ var errEl=document.getElementById('evErr'); if (errEl) errEl.textContent = tl('Network error.','네트워크 오류','ネットワークエラー','网络错误'); if (btn) btn.disabled = false; });
 }
 
 function filterBySize(size) {

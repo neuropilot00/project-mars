@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.174 — 이메일 인증 풀스택 + CSP 강화 + aria 보강
+
+남은 critical 다 처리. 비용 들어도 켜야 할 것들 (이메일 인증·CSP) + 운영 위생.
+
+- **A-C3 이메일 인증 시스템 풀스택**:
+  - `mig 252` — `users.email_verified` + 코드/만료/발송시각 + 설정 3종(enabled/ttl/cooldown)
+  - 백엔드: `POST /api/auth/register` 가입 시 6자리 코드 자동 발송(SMTP 미설정 시 dev 로그). `POST /api/auth/verify-email` 검증. `POST /api/auth/resend-verification` 재발송(60초 쿨다운).
+  - `/api/auth/me` 응답에 `emailVerified` 포함.
+  - 프론트: 미인증 시 wallet 패널 위 작은 `✉️ 이메일 인증 필요` 배너 → 클릭 시 6자리 코드 모달 + 재발송 버튼. 4언어 + 5 에러 메시지 매핑.
+  - 운영 비용: Gmail SMTP 500/일 무료(현 규모), 수만 명 → Resend 3000/월 무료, 십만 명+ → AWS SES $0.10/1000건. 즉 사실상 무료.
+
+- **G-Crit-3 부분 (CSP 강화)**:
+  - `Content-Security-Policy` 에 `object-src 'none'` (플래시/PDF 임베드 차단), `base-uri 'self'` (base 태그 변조 방지), `form-action 'self'` (폼 외부 송신 차단), `frame-ancestors 'none'` (clickjacking 이중 가드).
+  - JWT localStorage 자체 제거(httpOnly cookie 전환)는 큰 변경 — 별도 스프린트. 이번엔 XSS 폭발 반경 축소.
+
+- **F-Crit-2 보강**: 지갑 HUD 5 버튼(DEPOSIT/WITHDRAW/KEY/PP→USDT/PP→GP/LOGOUT) aria-label 추가.
+
+검증: 마이그 적용·DB 컬럼 확인, auth.js 신규 endpoint syntax pass, AUDIT 문서 상태 갱신.
+
 ## 2026-05-28 v7.173 — ServiceWorker 배너 캐시 진짜 원인 차단 + Tier 3 잔여 처리
 
 **배너 안 바뀜 진짜 원인 확정** — sw.js(mars-v10) 의 cache-first 가 `/assets/base/*` 를 영구 캐싱. 서버 Cache-Control: no-cache 무관. 다음 배포 시 자동 갱신:

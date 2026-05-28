@@ -23,7 +23,7 @@
 |---|---|---|---|---|
 | **A-C1** | `index.html:21585,21608` | `API` 전역 미정의 → change-password / delete-account fetch URL `"undefined/auth/..."` 항상 실패 | 🟢 v7.170 | `/api/auth/...` 절대경로로 직접 호출 |
 | **A-C2** | `auth.js:818-820`, `email.js:7-12` | SMTP 미설정 시 reset code **평문 응답 노출** (dev fallback) | 🟢 v7.170 | `NODE_ENV !== 'production'` 가드 + warn 로그 |
-| **A-C3** | `auth.js:129~` | `email_verified` 없음 — 회원가입 즉시 JWT 발급(이메일 인증 0) | ⚙ 별도 라운드 | SMTP 시스템 도입 필요 |
+| **A-C3** | `auth.js:129~` | `email_verified` 없음 — 회원가입 즉시 JWT 발급 | 🟢 v7.174 | mig 252 + verify-email + resend-verification + verify 배너/모달 4언어 |
 | **D-Crit-1** | `index.html:28163-28176` | `renderCampaignReputation` 이 `[mcc/fsp/cv]` 3종만 순회 → **Pilgrim Arms 평판 안 보임** | 🟢 v7.170 | 4종 확장 + 보라 색상(`#c08bff`) 추가 |
 | **D-Crit-2** | `index.html` 전체 | 활성 칭호 장착 UI **0건** (백엔드 완비) | 🔴 차후 | UI 모달 별도 라운드 |
 | **D-Crit-3** | `campaign.js:1769-1773` | `reputation_history` UI/API 노출 0 | 🔴 차후 | 화면 별도 라운드 |
@@ -32,7 +32,7 @@
 | **F-Crit-2** | 버튼 780개 중 aria 12개 | 이모지 버튼 스크린리더 무명 | 🟡 v7.171 부분 | 핵심 5(CRATES/CAMPAIGN/PORTFOLIO/ZB 줌3) aria 추가. 나머지 buttons 잔여 |
 | **G-Crit-1** | `_liveWS.onmessage` 2종만 처리 | `cmd_err/error/notification` 사일런트 무시 | 🟢 v7.170 | 핸들러 3종 추가 + 토스트/폴링 갱신 |
 | **G-Crit-2** | `index.js` CORS `endsWith` | wildcard 우회 가능 | 🟢 v7.170 | 정규식 매칭(메타이스케이프 + `[a-z0-9-]+`) |
-| **G-Crit-3** | `index.html:21121,21346` | JWT localStorage XSS 노출 | ⚙ 별도 라운드 | httpOnly cookie 전환 필요 |
+| **G-Crit-3** | `index.html:21121,21346` | JWT localStorage XSS 노출 | 🟡 v7.174 부분 | CSP 강화(object-src none/base-uri self/form-action self/frame-ancestors none). httpOnly cookie 전환은 별도 |
 | **G-Crit-4** | `/admin/api/*` | CSRF 토큰 없음 | ⚙ 별도 라운드 | CSRF 미들웨어 도입 |
 | **G-Crit-5** | mount 다수 dead | 공격 표면 | 🔴 차후 | 라우트 정리 별도 |
 

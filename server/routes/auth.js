@@ -225,12 +225,38 @@ router.post('/register', authLimiter, async (req, res) => {
       }
     }
 
-    // Insert user with TOS acceptance (+ 커스터디 키 암호문/타입)
+    // [v7.174 A-C3] 이메일 인증 코드 생성 — 가입 직후 SMTP 발송, 15분 유효.
+    //   email_verification_enabled=true 일 때만 발송. 코드는 DB 에 저장 후 /verify-email 에서 검증.
+    //   기존 사용자는 grandfather(email_verified=true 명시 미설정).
+    const _evCode = String(Math.floor(100000 + Math.random() * 900000)); // 6자리
+    const _evTtl = parseInt(await getEmailVerifyTtlMin()) || 15;
+    const _evEnabled = String(await getEmailVerifyEnabled()).toLowerCase() === 'true';
+
+    // Insert user with TOS acceptance (+ 커스터디 키 암호문/타입 + 이메일 인증 컬럼)
     await client.query(
-      `INSERT INTO users (wallet_address, email, password_hash, nickname, referral_code, referred_by, tos_accepted_at, tos_version, encrypted_privkey, wallet_type)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), '1.0', $7, $8)`,
-      [walletAddress, email.toLowerCase(), passwordHash, displayName, refCode, referredBy, encryptedPrivkey, walletType]
+      `INSERT INTO users (wallet_address, email, password_hash, nickname, referral_code, referred_by, tos_accepted_at, tos_version, encrypted_privkey, wallet_type,
+                          email_verified, email_verification_code, email_verification_expires, email_verification_sent_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), '1.0', $7, $8,
+               $9, $10, NOW() + ($11 || ' minutes')::interval, NOW())`,
+      [walletAddress, email.toLowerCase(), passwordHash, displayName, refCode, referredBy, encryptedPrivkey, walletType,
+       false /* always start unverified */, _evEnabled ? _evCode : null, String(_evTtl)]
     );
+
+    // [v7.174 A-C3] 가입 직후 인증 메일 발송 — non-blocking, 실패해도 가입 자체는 성공.
+    //   유저는 LOGIN 후 /verify-email 페이지에서 코드 입력. 미인증이어도 기본 게임 플레이 OK.
+    if (_evEnabled) {
+      try {
+        const { sendEmail, isSmtpConfigured } = require('../services/email');
+        if (isSmtpConfigured && isSmtpConfigured()) {
+          sendEmail(email.toLowerCase(),
+            '[OCCUPY MARS] Verify your email — 인증 코드 ' + _evCode,
+            'Your verification code: ' + _evCode + '\n\nThis code expires in ' + _evTtl + ' minutes.\n인증 코드: ' + _evCode + ' (' + _evTtl + '분 유효)'
+          ).catch(e => console.warn('[Auth] verification email send failed:', e.message));
+        } else {
+          console.log('[Auth] SMTP not configured — verification code for ' + email.toLowerCase() + ': ' + _evCode + ' (dev only)');
+        }
+      } catch (e) { console.warn('[Auth] verification email error:', e.message); }
+    }
 
     // Gift PP bonus to new users (configurable via admin settings)
     const bonusRes = await client.query("SELECT value FROM settings WHERE key = 'signup_pp_bonus'");
@@ -417,8 +443,9 @@ router.get('/me', async (req, res) => {
 
   try {
     const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
+    // [v7.174 A-C3] email_verified 포함 — 프론트 verify 배너 표시용
     const result = await pool.query(
-      'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code FROM users WHERE wallet_address = $1',
+      'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code, COALESCE(email_verified,false) AS email_verified FROM users WHERE wallet_address = $1',
       [decoded.wallet]
     );
 
@@ -444,7 +471,8 @@ router.get('/me', async (req, res) => {
       usdtBalance: parseFloat(u.usdt_balance),
       ppBalance: parseFloat(u.pp_balance),
       gpBalance: parseFloat(u.gp_balance) + govGP,
-      referralCode: u.referral_code
+      referralCode: u.referral_code,
+      emailVerified: !!u.email_verified  // [v7.174 A-C3]
     });
   } catch (e) {
     if (e.name === 'TokenExpiredError') {
@@ -959,6 +987,115 @@ router.post('/delete-account', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete account' });
   } finally {
     client.release();
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────
+// [v7.174 A-C3] 이메일 인증 — verify-email / resend-verification
+// ─────────────────────────────────────────────────────────────────
+async function getEmailVerifyEnabled() {
+  try { const r = await pool.query("SELECT value FROM settings WHERE key='email_verification_enabled'"); return r.rows[0]?.value || 'true'; }
+  catch (_) { return 'true'; }
+}
+async function getEmailVerifyTtlMin() {
+  try { const r = await pool.query("SELECT value FROM settings WHERE key='email_verification_ttl_minutes'"); return r.rows[0]?.value || '15'; }
+  catch (_) { return '15'; }
+}
+async function getEmailVerifyResendCooldownSec() {
+  try { const r = await pool.query("SELECT value FROM settings WHERE key='email_verification_resend_cooldown_sec'"); return parseInt(r.rows[0]?.value || '60'); }
+  catch (_) { return 60; }
+}
+
+// POST /api/auth/verify-email — 6자리 코드 검증 → email_verified=true
+router.post('/verify-email', authLimiter, async (req, res) => {
+  try {
+    const { email, code } = req.body || {};
+    if (!email || !code) return res.status(400).json({ error: 'email and code required' });
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const normalizedCode = String(code).trim();
+    if (!/^[0-9]{6}$/.test(normalizedCode)) return res.status(400).json({ error: 'invalid_code_format' });
+
+    const { rows } = await pool.query(
+      `SELECT wallet_address, email_verified, email_verification_code, email_verification_expires
+         FROM users WHERE LOWER(email) = LOWER($1)`,
+      [normalizedEmail]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'user_not_found' });
+    const u = rows[0];
+    if (u.email_verified) return res.json({ success: true, already_verified: true });
+    if (!u.email_verification_code) return res.status(400).json({ error: 'no_pending_verification' });
+    if (u.email_verification_expires && new Date(u.email_verification_expires) < new Date()) {
+      return res.status(400).json({ error: 'code_expired', hint: 'Request a new code via /resend-verification' });
+    }
+    if (u.email_verification_code !== normalizedCode) return res.status(400).json({ error: 'invalid_code' });
+
+    await pool.query(
+      `UPDATE users SET email_verified = TRUE, email_verification_code = NULL, email_verification_expires = NULL
+        WHERE LOWER(email) = LOWER($1)`,
+      [normalizedEmail]
+    );
+    console.log('[Auth] Email verified: ' + normalizedEmail);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[Auth] verify-email error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// POST /api/auth/resend-verification — 코드 재발송(쿨다운 적용)
+router.post('/resend-verification', authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'email required' });
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const cooldownSec = await getEmailVerifyResendCooldownSec();
+
+    const { rows } = await pool.query(
+      `SELECT email_verified, email_verification_sent_at FROM users WHERE LOWER(email) = LOWER($1)`,
+      [normalizedEmail]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'user_not_found' });
+    if (rows[0].email_verified) return res.json({ success: true, already_verified: true });
+
+    if (rows[0].email_verification_sent_at) {
+      const sinceMs = Date.now() - new Date(rows[0].email_verification_sent_at).getTime();
+      if (sinceMs < cooldownSec * 1000) {
+        return res.status(429).json({ error: 'cooldown', wait_seconds: Math.ceil((cooldownSec * 1000 - sinceMs) / 1000) });
+      }
+    }
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const ttlMin = parseInt(await getEmailVerifyTtlMin()) || 15;
+    await pool.query(
+      `UPDATE users SET email_verification_code = $1,
+                       email_verification_expires = NOW() + ($2 || ' minutes')::interval,
+                       email_verification_sent_at = NOW()
+        WHERE LOWER(email) = LOWER($3)`,
+      [code, String(ttlMin), normalizedEmail]
+    );
+
+    try {
+      const { sendEmail, isSmtpConfigured } = require('../services/email');
+      if (isSmtpConfigured && isSmtpConfigured()) {
+        await sendEmail(normalizedEmail,
+          '[OCCUPY MARS] Verification code — 인증 코드 ' + code,
+          'Your verification code: ' + code + '\n\nThis code expires in ' + ttlMin + ' minutes.\n인증 코드: ' + code + ' (' + ttlMin + '분 유효)'
+        );
+        return res.json({ success: true, ttl_minutes: ttlMin });
+      }
+      // SMTP 미설정 + dev — 코드 인라인 반환(prod 에선 절대 X)
+      if (process.env.NODE_ENV !== 'production') {
+        return res.json({ success: true, ttl_minutes: ttlMin, code, _dev: 'SMTP not configured' });
+      }
+      console.warn('[Auth] SMTP not configured in production — verification email NOT sent');
+      return res.status(503).json({ error: 'email_service_unavailable' });
+    } catch (e) {
+      console.error('[Auth] resend send error:', e.message);
+      return res.status(500).json({ error: 'send_failed' });
+    }
+  } catch (e) {
+    console.error('[Auth] resend-verification error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
   }
 });
 
