@@ -119,7 +119,9 @@ async function getSettings() {
   return {
     enabled:          (map.upgrade_enabled || 'true') !== 'false',
     p5Enabled:        (map.upgrade_p5_enabled || 'true') !== 'false',
-    maxPerClaim:      parseInt(map.upgrade_max_per_claim) || 4,
+    // [v7.209 fix] maxPerClaim 4 → 5 — P5 catalog 가 5 트랙(extractor/refinery/shield_grid/relay_tower/art_beacon)인데
+    //   상한을 4로 두면 5번째에 영원히 도달 불가. 모든 트랙 풀 강화 허용.
+    maxPerClaim:      parseInt(map.upgrade_max_per_claim) || 5,
     maxLevel:         parseInt(map.upgrade_max_level)     || 5,
     p5MaxLevel:       parseInt(map.upgrade_p5_max_level)  || 5,
     destroyOnHijack:  (map.upgrade_destroy_on_hijack || 'true') !== 'false',
