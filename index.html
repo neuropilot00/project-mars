@@ -8596,8 +8596,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <button class="mob-info-btn" id="mobInfoBtn" onclick="openMobTerritoryModal()" data-i18n="territory_info">INFO</button>
 
 <!-- [v7.205] 영토 업그레이드 전용 모달 — 모바일/데스크탑 공통. 이전엔 사이드바 슬라이드 인이라 UX 어색.
-     onclick backdrop = 닫기. ESC 도 닫기. 내용은 loadTerritoryUpgrades(claimId, 'territoryUpgradeModalBody') 가 채움. -->
-<div id="territoryUpgradeModal" style="display:none;position:fixed;inset:0;z-index:10500;background:rgba(0,0,0,.78);align-items:center;justify-content:center;padding:14px" onclick="if(event.target===this)closeTerritoryUpgradeModal()">
+     onclick backdrop = 닫기. ESC 도 닫기. 내용은 loadTerritoryUpgrades(claimId, 'territoryUpgradeModalBody') 가 채움.
+     [v7.207 fix] z-index 10500 → 9990 — gameConfirm(10001) 보다 낮춰 ⬆ 버튼 클릭 시 confirm 모달이 위로 보이게. -->
+<div id="territoryUpgradeModal" style="display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.78);align-items:center;justify-content:center;padding:14px" onclick="if(event.target===this)closeTerritoryUpgradeModal()">
   <div style="background:linear-gradient(160deg,#1a1a2e,#12121e);border:1px solid rgba(187,134,252,.25);border-radius:14px;width:min(420px,96vw);max-height:90vh;overflow-y:auto;padding:18px 16px 16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <div style="display:flex;align-items:center;gap:8px">
@@ -8627,47 +8628,46 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="mt-row" id="mtLinkRow" style="display:none"><span class="mt-label" data-i18n="info_link">LINK</span><a class="mt-val" id="mtLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan)">--</a></div>
     <div class="mt-row"><span class="mt-label" data-i18n="size">SIZE</span><span class="mt-val" id="mtSize">--</span></div>
     <div class="mt-row"><span class="mt-label" data-i18n="price_paid">PRICE PAID</span><span class="mt-val" id="mtPrice" style="color:var(--gn)">--</span></div>
+    <!-- [v7.207] 영토 정보 모달에 HP/생산/섹터/광물 정보 추가 — 이전엔 좌표/소유자/크기만 보였음. -->
+    <div id="mtProdInfo" style="display:none;margin:8px 0 4px;padding:8px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.15);border-radius:8px;font-size:9px;color:var(--tx2);line-height:1.6"></div>
     <div class="mt-img" id="mtImgWrap" style="display:none">
       <img id="mtImgPreview" src="" onclick="expandMtImg()">
     </div>
     <!-- 내 영토 액션 버튼 그리드 -->
-    <div id="mtOwnActions" style="display:none;padding:10px 0 4px">
-      <!-- 이미지 + 이름변경 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+    <!-- [v7.207] 버튼 6개 → 3열 2행 컴팩트. min-height 52→36, padding 14→8, font 11→9.
+         정보 표시 영역 확보. 사용자 요구: "버튼 크기 좀 줄이고 정보를 많이 보여줘". -->
+    <div id="mtOwnActions" style="display:none;padding:6px 0 2px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px">
         <button id="mtEditImgBtn" type="button" onclick="closeMobTerritoryModal();openImageEditor(selectedPlot)"
-          style="padding:14px 8px;border-radius:10px;background:linear-gradient(135deg,var(--mars),var(--red));
-          border:none;color:#fff;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
-          📷 <span id="mtEditImgLabel">ADD IMAGE</span>
+          style="padding:8px 4px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));
+          border:none;color:#fff;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700;min-height:36px">
+          📷 <span id="mtEditImgLabel">IMAGE</span>
         </button>
         <button type="button" onclick="closeMobTerritoryModal();renameTerritory(selectedPlot)"
-          style="padding:14px 8px;border-radius:10px;background:rgba(255,209,102,.12);
-          border:1px solid rgba(255,209,102,.3);color:var(--gold);font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
-          <span data-i18n="mt_rename">✏️ 이름변경</span>
+          style="padding:8px 4px;border-radius:8px;background:rgba(255,209,102,.12);
+          border:1px solid rgba(255,209,102,.3);color:var(--gold);font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700;min-height:36px">
+          <span data-i18n="mt_rename">✏️ 이름</span>
         </button>
-      </div>
-      <!-- 커스터마이즈 + 판매 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <button type="button" onclick="toggleMobCosmeticPanel()"
-          style="padding:14px 8px;border-radius:10px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
-          border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          style="padding:8px 4px;border-radius:8px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
+          border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700;min-height:36px">
           <span data-i18n="mt_decorate">✨ 꾸미기</span>
         </button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px">
         <button type="button" id="mtSellBtn" onclick="closeMobTerritoryModal();openListModal('claim',selectedPlot&&(selectedPlot.claimId||selectedPlot.id),'Territory','🗺️',0)"
-          style="padding:14px 8px;border-radius:10px;background:rgba(160,100,220,.12);
-          border:1px solid rgba(160,100,220,.35);color:#a064dc;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          style="padding:8px 4px;border-radius:8px;background:rgba(160,100,220,.12);
+          border:1px solid rgba(160,100,220,.35);color:#a064dc;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700;min-height:36px">
           <span data-i18n="mt_sell">💰 판매</span>
         </button>
-      </div>
-      <!-- 보호막 + 업그레이드 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <button type="button" onclick="closeMobTerritoryModal();openShieldModal()"
-          style="padding:14px 8px;border-radius:10px;background:rgba(92,187,255,.1);
-          border:1px solid rgba(92,187,255,.3);color:#5cbbff;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+          style="padding:8px 4px;border-radius:8px;background:rgba(92,187,255,.1);
+          border:1px solid rgba(92,187,255,.3);color:#5cbbff;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700;min-height:36px">
           <span data-i18n="mt_shield">🛡️ 보호막</span>
         </button>
-        <button type="button" onclick="closeMobTerritoryModal();scrollToTerritoryUpgrade()"
-          style="padding:14px 8px;border-radius:10px;background:rgba(129,212,250,.1);
-          border:1px solid rgba(129,212,250,.3);color:#81d4fa;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:700;min-height:52px">
+        <button type="button" onclick="scrollToTerritoryUpgrade()"
+          style="padding:8px 4px;border-radius:8px;background:rgba(129,212,250,.1);
+          border:1px solid rgba(129,212,250,.3);color:#81d4fa;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700;min-height:36px">
           <span data-i18n="mt_upgrade">🔧 업그레이드</span>
         </button>
       </div>
@@ -15645,6 +15645,73 @@ function openMobTerritoryModal(){
     if(hijackBtn) hijackBtn.style.display=canHijack?'':'none';
   }
   document.getElementById('mobTerritoryModal').classList.add('open');
+  // [v7.207] HP/생산/섹터/광물 정보 로드 — territory production endpoint 호출.
+  //   본인 영토는 d.owned=true 라 condition 표시 + TEND 가능. 남의 영토는 condition 만.
+  try { _loadMobTerritoryProdInfo(plot.claimId || plot.id, plot); } catch(_){}
+}
+// [v7.207] mobTerritoryModal 의 #mtProdInfo 영역에 HP/생산/섹터/광물 채우기.
+function _loadMobTerritoryProdInfo(claimId, plot){
+  var box = document.getElementById('mtProdInfo');
+  if (!box || !claimId) return;
+  box.style.display = '';
+  box.innerHTML = '<div style="color:var(--tx3);font-size:9px">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
+  var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
+  fetch('/api/territory/'+claimId+'/production'+(wallet?('?wallet='+encodeURIComponent(wallet)):''))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (!d || d.error) { box.style.display='none'; return; }
+      var lang = LANG;
+      var html = '';
+      // HP / 등급
+      if (typeof d.condition !== 'undefined') {
+        var cond = Math.max(0, Math.min(100, parseFloat(d.condition)||0));
+        var grade = d.grade || 'B';
+        var gColor = ({S:'#69f0ae',A:'#7cf0ff',B:'#ffd700',C:'#ffab40',D:'#ff8a65',F:'#ff5252'})[grade] || '#ffd700';
+        var barColor = cond>=60?'#69f0ae':cond>=30?'#ffab40':'#ff5252';
+        try { window._lastTerritoryCondition = cond; window._lastTerritoryGrade = grade; } catch(_){}
+        html += '<div style="margin-bottom:6px">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
+        html += '<span style="color:var(--tx3);font-size:9px">'+(lang==='ko'?'영토 상태 (HP)':lang==='ja'?'領土状態(HP)':lang==='zh'?'领土状态(HP)':'Condition (HP)')+'</span>';
+        html += '<span style="display:flex;align-items:center;gap:5px">';
+        html += '<span style="font-size:10px;font-weight:800;padding:1px 7px;border-radius:8px;color:'+gColor+';border:1px solid '+gColor+'66;background:'+gColor+'1a">'+grade+'</span>';
+        html += '<span style="color:'+barColor+';font-weight:700;font-size:10px">'+cond.toFixed(0)+'/100</span>';
+        html += '</span></div>';
+        html += '<div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+cond+'%;background:'+barColor+'"></div></div>';
+        if (d.owned && cond < 100) {
+          html += '<button type="button" onclick="event.stopPropagation();closeMobTerritoryModal();tendTerritory('+claimId+',\''+(wallet||'').replace(/\047/g,"\\\047")+'\')" style="margin-top:5px;width:100%;font-size:9px;padding:5px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.3);border-radius:5px;color:#69f0ae;cursor:pointer;font-family:var(--fn)">'+(lang==='ko'?'🔧 정비하기':lang==='ja'?'🔧 整備する':lang==='zh'?'🔧 维护':'🔧 TEND')+'</button>';
+        }
+        html += '</div>';
+      }
+      // 예상 PP 수확
+      var ppMin = d.production && d.production.ppMin || 0;
+      var ppMax = d.production && d.production.ppMax || 0;
+      if (ppMin > 0 || ppMax > 0) {
+        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--tx3);font-size:9px">'+(lang==='ko'?'예상 PP 수확':lang==='ja'?'予想PP収穫':lang==='zh'?'预估PP收获':'PP Estimate')+'</span><span style="color:#ffab40;font-weight:700;font-size:10px">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+'</span></div>';
+      }
+      // 섹터
+      if (d.sector && d.sector.type) {
+        var sLabel = lang==='ko'?{core:'코어',mid:'미드',frontier:'프론티어'}:lang==='ja'?{core:'コア',mid:'ミッド',frontier:'フロンティア'}:lang==='zh'?{core:'核心',mid:'中域',frontier:'边疆'}:{core:'Core',mid:'Mid',frontier:'Frontier'};
+        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--tx3);font-size:9px">'+(lang==='ko'?'섹터':lang==='ja'?'セクター':lang==='zh'?'扇区':'Sector')+'</span><span style="color:var(--tx2);font-size:10px">'+(sLabel[d.sector.type]||d.sector.type)+'</span></div>';
+      }
+      // 마지막 수확
+      if (d.lastHarvest && d.lastHarvest.at) {
+        var ago = (typeof _timeAgo==='function')?_timeAgo(new Date(d.lastHarvest.at)):'';
+        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--tx3);font-size:9px">'+(lang==='ko'?'최근 수확':lang==='ja'?'最終採掘':lang==='zh'?'最近采掘':'Last Harvest')+'</span><span style="color:var(--tx2);font-size:10px">'+d.lastHarvest.pp.toFixed(4)+' PP · '+ago+'</span></div>';
+      }
+      // 광물 칩
+      if (d.materials && d.materials.length) {
+        html += '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px">';
+        d.materials.forEach(function(m){
+          var rColor = {'common':'var(--tx2)','rare':'#64b5f6','special':'#ffb74d','legendary':'#ce93d8'}[m.rarity]||'var(--tx2)';
+          var name = lang==='ko'?(m.nameKo||m.nameEn):(m.nameEn||m.nameKo);
+          html += '<span style="font-size:8px;padding:1px 5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:'+rColor+'">'+m.icon+' '+name+'</span>';
+        });
+        html += '</div>';
+      }
+      box.innerHTML = html || '';
+      if (!html) box.style.display = 'none';
+    })
+    .catch(function(){ box.style.display='none'; });
 }
 function closeMobTerritoryModal(){
   document.getElementById('mobTerritoryModal').classList.remove('open');
