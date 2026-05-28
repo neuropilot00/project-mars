@@ -811,8 +811,11 @@ async function recoverOrphanedPhase2() {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // [v7.218 OPS-003 fix] 이전엔 h.attacker_fleet_id / h.defender_fleet_id 를 SELECT 했으나
+    //   hijack_battles 에 그 컬럼이 없어 항상 'column does not exist' 에러 → orphan 복구 0% 동작.
+    //   fleet 출처는 phase1_battle_id 의 fleet_battle_participants (handlePhase1Complete 와 동일). phase1_battle_id 만 잠그고 commit 후 참여자 조회.
     const { rows } = await client.query(`
-      SELECT h.id, h.attacker_wallet, h.attacker_fleet_id, h.defender_fleet_id
+      SELECT h.id, h.attacker_wallet, h.phase1_battle_id
         FROM hijack_battles h
        WHERE h.phase = 'phase2'
          AND h.phase2_battle_id IS NULL
@@ -820,12 +823,21 @@ async function recoverOrphanedPhase2() {
        LIMIT 20
        FOR UPDATE SKIP LOCKED
     `);
-    // lock 만 잡은 상태 — 실제 startPhase2 는 자기 client/TX 가 필요해서 commit 후 호출.
     await client.query('COMMIT');
     for (const h of rows) {
       console.log(`[hijack] recovering orphaned Phase 2 for hijack ${h.id}`);
       try {
-        await startPhase2(h.id, h.attacker_wallet, h.attacker_fleet_id, h.defender_fleet_id);
+        // phase1 참여자에서 atk/def fleet_id 복원.
+        const { rows: parts } = await pool.query(
+          `SELECT side, fleet_id FROM fleet_battle_participants WHERE battle_id = $1`, [h.phase1_battle_id]
+        );
+        const atk = parts.find(p => p.side === 'atk');
+        const def = parts.find(p => p.side === 'def');
+        if (!atk || !def || atk.fleet_id == null || def.fleet_id == null) {
+          console.warn(`[hijack] recover ${h.id}: phase1 참여자 fleet 불완전 — skip`);
+          continue;
+        }
+        await startPhase2(h.id, h.attacker_wallet, atk.fleet_id, def.fleet_id);
       } catch (err) {
         // startPhase2 의 FOR UPDATE 가 다시 잡으니 race 없음. 다른 워커가 먼저 처리한 경우 NOT_IN_PHASE2/ALREADY_STARTED.
         if (!/ALREADY_STARTED|NOT_IN_PHASE2|NOT_FOUND/.test(err.message)) {
