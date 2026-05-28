@@ -6069,17 +6069,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
      이전엔 데드 콘텐츠(invasion/exploration)로 메인 자리 차지만 했음.
      이제 로그인 후 dailyOps 미진행 미션 · 진행중 캠페인 챕터 · 활성 시즌 중 하나를 자동 표시.
      클릭 시 해당 화면으로 라우팅. 백업: 위 주석 + git history. -->
-<div class="ops-quick ops-quick-split" id="opsQuick" style="display:none">
-  <button id="dailyHintBtn" type="button" onclick="dailyHintClick()" aria-label="Today's recommended action" style="width:100%;height:100%;border:none;background:rgba(8,10,16,.85);cursor:pointer;border-radius:8px;overflow:hidden;position:relative;display:flex;align-items:center;gap:10px;padding:8px 14px;font-family:var(--fn);color:#fff;text-align:left">
-    <span id="dailyHintIcon" style="font-size:22px;line-height:1;flex:0 0 auto">📅</span>
-    <div style="flex:1;min-width:0">
-      <div id="dailyHintLabel" style="font-size:9px;font-weight:800;color:#ffd166;letter-spacing:1px;line-height:1.2">TODAY'S OPS</div>
-      <div id="dailyHintTitle" style="font-size:12px;font-weight:900;line-height:1.25;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Loading...</div>
-      <div id="dailyHintSub" style="font-size:8.5px;color:rgba(255,255,255,.55);line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-    </div>
-    <span style="font-size:11px;color:#ffd166;flex:0 0 auto">→</span>
-  </button>
-</div>
+<!-- [v7.195] 오늘의 추천 카드 제거 — 가치 낮음 분석:
+     1) 같은 동선이 좌측 캠페인/가챠 버튼에 이미 있음 (중복)
+     2) claim 후 다음 후보로 자동 회전 안 함 (단조로움)
+     3) 모바일 좌측 세로 컬럼 4개 → 3개로 줄여 가독성 ↑
+     id="opsQuick" 자체는 유지 (CSS / updateDailyHint 가 null-check 로 안전 동작),
+     단 display:none + aria-hidden 처리. 향후 carousel 형태로 부활시키려면 이 블록 복원. -->
+<div class="ops-quick ops-quick-split" id="opsQuick" style="display:none !important" aria-hidden="true"></div>
 
 <!-- [v7.171 F-Crit-2 fix] aria-label 추가 — 스크린리더 접근성 -->
 <button class="crates-quick" id="cratesQuickBtn" onclick="openGacha()" title="Ship Crates" aria-label="Open ship crate gacha">
@@ -16465,11 +16461,15 @@ if (!document.getElementById('_crSlideUpKf')) {
 }
 
 function updateDailyHint(){
+  // [v7.195] 오늘의 추천 카드 제거 — early return. 호출자(claim fan-out) 가 여전히 호출하지만 no-op.
+  //   향후 carousel 부활 시 이 early return 만 제거. _setDailyHint / dailyHintClick 도 그대로 보존.
+  return;
+  /* dead code below — kept for quick rollback
   var card = document.getElementById('opsQuick');
   if (!card) return;
   if (!walletState || !walletState.connected) { card.style.display='none'; return; }
   card.style.display = '';
-  var btn = document.getElementById('dailyHintBtn');
+  var btn = document.getElementById('dailyHintBtn'); */
   // 폴백 기본값 (캠페인/미션 로드 실패 시)
   // [v7.185] 폴백 아이콘 🎲 → 📅 (달력) — 가챠보다 "오늘의 추천 행동" 정체성에 맞게.
   _setDailyHint('📅', tl("TODAY'S OPS","오늘의 추천","今日のオプス",'今日推荐'), tl('Open a Ship Crate','상자 개봉하기','艦船ボックスを開ける','开启舰船宝箱'), tl('Free Recruit daily','매일 무료 상자','毎日無料','每日免费'), 'openGacha');
