@@ -477,6 +477,26 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   .ops-quick-split #dailyHintBtn{padding:0!important;gap:0!important;justify-content:center!important}
   .ops-quick-split #dailyHintBtn>div{display:none!important} /* 라벨 wrapper 숨김 */
   .ops-quick-split #dailyHintIcon{font-size:20px!important}
+
+  /* [v7.182 Task 2,3] 마켓 모바일 UI — 필터 버튼/검색/리프레시 크기 일치 + 가독성.
+     필터/정렬/섹터 드롭다운 trigger, 검색 input, 서브뷰 토글 모두 36px 통일 높이.
+     리프레시 ↻ 버튼도 같은 36px로 키워 줄 맞춤. */
+  #mktFilters > button,
+  #mktFilters > input{
+    min-height:36px!important;
+    font-size:11px!important;
+    padding:8px 12px!important;
+    box-sizing:border-box!important;
+  }
+  #mktFilters > button{min-width:120px!important}
+  #mktFilters > input{flex:1 1 100%!important;min-width:0!important;margin-top:4px}
+  /* 서브뷰 토글 (BROWSE / SELL / AUCTION / MY LISTINGS) — 같은 36px 높이 */
+  .mkt-view-btn{min-height:36px!important;font-size:11px!important;padding:8px 14px!important}
+  /* RECENT SALES 헤더의 리프레시 ↻ — 드롭다운 트리거와 같은 36px */
+  #mktRecentSalesWrap > div:first-child > button{
+    min-height:36px!important;min-width:36px!important;
+    font-size:14px!important;padding:6px 10px!important;
+  }
   .ops-quick-split .ops-invade{
     clip-path:polygon(0 0, 100% 0, 100% 40%, 0 60%);
     -webkit-clip-path:polygon(0 0, 100% 0, 100% 40%, 0 60%)}
@@ -8148,7 +8168,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="display:flex;gap:4px">
             <button class="base-shop-view active" onclick="switchBaseShopView('shop',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.15);color:var(--gold);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_shop_btn">🛒 SHOP</button>
             <button class="base-shop-view" onclick="switchBaseShopView('crafting',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_craft_btn">⚗️ CRAFT</button>
-            <button class="base-shop-view" onclick="switchBaseShopView('lucky',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_lucky_btn">📦 CRATES</button>
+            <!-- [v7.182] 옛 LuckyBox CRATES 탭 제거 — renderLuckyBoxUnavailable() 로 dead UI 였음. 함선 가챠는 메인 화면 🎲 SHIP CRATES 버튼 사용. -->
+
             <button class="base-shop-view" onclick="switchBaseShopView('vip',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_vip_btn">💫 VIP</button>
             <button class="base-shop-view" onclick="switchBaseShopView('prestige',this);loadMyPrestige()" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="prestige_btn">⭐ PRESTIGE</button>
           </div>
