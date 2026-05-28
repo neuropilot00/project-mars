@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.177 — 함선 마켓 통합 Phase 2 (인라인 구매 + 마켓 SELL 함선 등록)
+
+v7.176 의 함선 카테고리 추가에 이어 거래 동선 완전 통합. 조선소 진입 강제 없이 마켓에서 모든 단계 처리.
+- **인라인 함선 구매** (`openMarketShipBuy`): 마켓 함선 카드 클릭 → 확인 모달 → `/api/ships/market/listings/:id/buy` 직접 호출. 가격·잔액 표시, cross-faction 함선 경고("함대 편성 불가, 재판매 가능"). 5 에러 코드 4언어. 구매 후 `refreshGP` + `loadMarketListings` 갱신.
+- **마켓 SELL 탭에 🚀 MY SHIPS 섹션**: `loadSellView` 에 함선 그리드 추가. `/api/ships/my` → 살아있고 미등록 함선만 표시(reveal 포트레이트·각인 별점). `openShipSellModal` (가격 입력) → `/api/ships/:id/list` 호출. 6 에러 코드 4언어. 이전엔 조선소 안에서만 등록 가능했음.
+- **각인 품질 별점**: 마켓 카드 좌상단에 ★~★★★★ (가챠로 강화된 함선이 마켓에 더 비싸게 거래되는 시그널).
+- **그라데이션 하단 페이드**: 카드 하단 어두운 그라데이션 + 가격 글로우 — 시각 위계 강화.
+
+[Phase 3 권고 — 후속 라운드] 가격 추세 차트(거래 히스토리), 통합 검색(함선 코드/이름), bundle listing(함선+자원).
+
+## 2026-05-28 v7.176 — 마켓 함선 통합 + 커스텀 select 모달
+
+- 마켓 카테고리 🚀 SHIPS 추가 → ship_market_listings 통합 표시
+- 4 select 모두 hidden + 게임 styled trigger 버튼 + `openSelectModal` 풀스크린 바텀 시트 — 모바일 native dropdown 차단
+
 ## 2026-05-28 v7.175 — 시각 업그레이드 라운드 (코드 part1 — 이미지 별도 도착)
 
 사용자 요청 — 침공/탐사 데드 콘텐츠 교체 + MY ASSETS 메인 노출 + 시각 전반 업그레이드. 모든 변경 fallback 안전(이미지 미존재 시 단색/SVG 폴백).

@@ -23820,11 +23820,20 @@ function loadMarketListings(){
         if (sort === 'price_asc')  ships.sort(function(a,b){return (parseFloat(a.price_gp||0))-(parseFloat(b.price_gp||0));});
         else if (sort === 'price_desc') ships.sort(function(a,b){return (parseFloat(b.price_gp||0))-(parseFloat(a.price_gp||0));});
         else                       ships.sort(function(a,b){return (parseInt(b.listing_id||0))-(parseInt(a.listing_id||0));});
+        // [v7.177 Phase 2] 마켓 함선 카드 — 인라인 구매 흐름. 클릭 시 확인 모달 → buy API 직접 호출.
+        //   이전엔 조선소로 이동 강제했음.
         grid.innerHTML = ships.map(function(s){
           var portrait = 'assets/ships/reveal/' + (s.ship_type_code||'') + '.jpg';
           var nm = (typeof syShipName==='function') ? syShipName(s) : (s.name_ko||s.ship_type_code||'Ship');
-          return '<div class="mkt-card" onclick="openShipyard();try{switchSyTab(\'market\')}catch(_){}" style="background:var(--surface1);border:1px solid rgba(184,140,255,.35);border-radius:8px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column">'
-            + '<div style="position:relative;aspect-ratio:4/3;background:#0a0e1a;overflow:hidden"><img src="'+portrait+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"><div style="position:absolute;top:5px;right:5px;font-size:8px;font-weight:800;background:rgba(184,140,255,.85);color:#fff;padding:2px 6px;border-radius:4px">🚀 SHIP</div></div>'
+          var qm = (typeof _crateQualityMeta!=='undefined' && s.quality) ? _crateQualityMeta[s.quality] : null;
+          var qBadge = (qm && qm.stars > 0) ? '<span style="position:absolute;top:5px;left:5px;font-size:9px;font-weight:900;color:'+qm.col+';background:rgba(20,18,28,.92);border:1px solid '+qm.col+'80;padding:2px 6px;border-radius:5px">'+('★'.repeat(qm.stars))+'</span>' : '';
+          return '<div class="mkt-card" onclick="openMarketShipBuy('+(s.listing_id||0)+',\''+escapeHtmlSafe(nm).replace(/\047/g,"\\\047")+'\','+(parseInt(s.price_gp)||0)+',\''+(s.ship_type_code||'')+'\',\''+(s.faction_code||'')+'\')" style="background:var(--surface1);border:1px solid rgba(184,140,255,.35);border-radius:8px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column">'
+            + '<div style="position:relative;aspect-ratio:4/3;background:#0a0e1a;overflow:hidden">'
+            +   '<img src="'+portrait+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'
+            +   qBadge
+            +   '<div style="position:absolute;top:5px;right:5px;font-size:8px;font-weight:800;background:rgba(184,140,255,.85);color:#fff;padding:2px 6px;border-radius:4px">🚀 SHIP</div>'
+            +   '<div style="position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(180deg,transparent,rgba(6,8,15,.8));pointer-events:none"></div>'
+            + '</div>'
             + '<div style="padding:7px 8px"><div style="font-size:10px;font-weight:800;color:'+(s.faction_color||'#fff')+'">'+escapeHtmlSafe(nm)+'</div>'
             + '<div style="font-size:8px;color:var(--tx3);margin-top:1px">'+escapeHtmlSafe(s.class_label||s.size_class||'')+'</div>'
             + '<div style="font-size:11px;font-weight:900;color:#ffd166;margin-top:3px">'+(parseInt(s.price_gp)||0).toLocaleString()+' GP</div></div>'
@@ -24110,7 +24119,124 @@ function loadSellView(){
       });
       html+='</div>';
     }
+
+    // [v7.177 Phase 2] 함선 SELL 섹션 — 마켓에서 직접 함선 등록(이전엔 조선소 only)
+    html+='<div style="font-size:10px;color:#5cbbff;font-weight:800;letter-spacing:.5px;margin:14px 0 6px">🚀 '+tl('MY SHIPS','내 함선','所有艦船','我的舰船')+'</div>';
+    html+='<div id="mktSellShipsPane" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:10px 0;font-size:10px">'+tl('Loading ships...','함선 로딩 중...','艦船読み込み中...','加载舰船中...')+'</div></div>';
+
     el.innerHTML=html;
+
+    // 함선 비동기 로드 — listed=false & alive=true 만 등록 가능
+    fetch('/api/ships/my', { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).then(function(d){
+      var pane=document.getElementById('mktSellShipsPane'); if(!pane) return;
+      var ships=((d&&d.ships)||[]).filter(function(s){ return s.is_alive!==false && !s.is_market_listed; });
+      if(!ships.length){
+        pane.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:10px 0;font-size:10px">'+tl('No ships available to sell.','등록 가능한 함선이 없습니다.','売却可能な艦船がありません。','无可上架的舰船。')+'</div>';
+        return;
+      }
+      pane.innerHTML=ships.slice(0,12).map(function(s){
+        var portrait='assets/ships/reveal/'+(s.ship_type_code||'')+'.jpg';
+        var nm=(typeof syShipName==='function')?syShipName(s):(s.name_ko||s.ship_type_code||'Ship');
+        var qm=(typeof _crateQualityMeta!=='undefined'&&s.quality)?_crateQualityMeta[s.quality]:null;
+        var qBadge=(qm&&qm.stars>0)?'<span style="font-size:8px;color:'+qm.col+';margin-left:4px">'+('★'.repeat(qm.stars))+'</span>':'';
+        return '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.25);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:5px">'
+          + '<div style="position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#0a0e1a"><img src="'+portrait+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"></div>'
+          + '<div style="font-size:10px;font-weight:700;color:'+(s.faction_color||'#fff')+'">'+escapeHtmlSafe(nm)+qBadge+'</div>'
+          + '<div style="font-size:8px;color:var(--tx3)">'+escapeHtmlSafe(s.class_label||s.size_class||'')+'</div>'
+          + '<button type="button" onclick="openShipSellModal('+s.id+',\''+escapeHtmlSafe(nm).replace(/\047/g,"\\\047")+'\')" style="font-size:9px;font-weight:700;padding:5px;border-radius:5px;border:1px solid rgba(92,187,255,.45);background:rgba(92,187,255,.12);color:#5cbbff;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+tl('LIST SHIP','함선 등록','艦船を出品','上架舰船')+'</button>'
+          + '</div>';
+      }).join('');
+    }).catch(function(){
+      var pane=document.getElementById('mktSellShipsPane'); if(!pane) return;
+      pane.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);font-size:10px">'+tl('Failed to load ships','함선 로드 실패','艦船読み込み失敗','加载舰船失败')+'</div>';
+    });
+  });
+}
+
+// [v7.177 Phase 2] 마켓 함선 카드 → 인라인 구매 확인 모달.
+//   조선소로 이동 강제 없이 마켓에서 바로 구매. cross-faction(다른 진영) 경고 포함.
+function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
+  if (!listingId) return;
+  var w = (walletState && walletState.address) || '';
+  if (!w) { showToast(tl('Login required','로그인 필요','ログインが必要','请先登录'),'error'); return; }
+  var myGP = Number((walletState && walletState.gameGP)||0);
+  var insufficient = myGP < priceGp;
+  var myFaction = (typeof shipyardState!=='undefined' && shipyardState.myFaction && (shipyardState.myFaction.code||'').toLowerCase()) || '';
+  var crossFaction = myFaction && shipFaction && (myFaction !== (shipFaction||'').toLowerCase());
+
+  var info = [
+    { k: tl('Price','가격','価格','价格'), v: priceGp.toLocaleString() + ' GP' },
+    { k: tl('Balance','보유 GP','残高','余额'), v: Math.floor(myGP).toLocaleString() + ' GP', insufficient: insufficient }
+  ];
+  var body = tl('Buy this ship from the market.','마켓에서 이 함선을 구매합니다.','市場でこの艦船を購入します。','从市场购买这艘舰船。');
+  if (crossFaction) {
+    body += '<br><br><span style="color:#aac4dc;font-size:10px">🔒 ' + tl(
+      'Other faction ship — cannot deploy in your fleet. You can resell on market.',
+      '다른 진영 함선 — 함대에 편성 불가. 마켓에서 재판매 가능.',
+      '他陣営の艦船 — 艦隊に編入不可。市場で再販売可能。',
+      '其他阵营舰船 — 无法编入舰队。可在市场再次出售。'
+    ) + '</span>';
+  }
+  gameConfirm({
+    title: '🚀 ' + name,
+    icon: '💰',
+    body: body,
+    info: info,
+    confirmText: tl('BUY','구매','購入','购买'),
+    disabled: insufficient
+  }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/ships/market/listings/' + listingId + '/buy', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders())
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (d && d.success) {
+        showToast(tl('Ship purchased!','함선 구매 완료!','艦船購入完了！','已购买舰船！'),'success');
+        try { refreshGP(); } catch(_){}
+        try { loadMarketListings(); } catch(_){}
+      } else {
+        var em = {
+          INSUFFICIENT_GP: tl('Not enough GP','GP 부족','GP不足','GP不足'),
+          LISTING_NOT_FOUND: tl('Listing no longer available','매물 없음(이미 판매됨)','出品が見つかりません','物品已售出'),
+          CANNOT_BUY_OWN_LISTING: tl('Cannot buy your own listing','본인 매물은 구매 불가','自分の出品は購入不可','无法购买自己的上架'),
+          SHIP_PLAYER_TYPE_LIMIT: tl('Ship type limit reached','함급 보유 한도 도달','艦種保有上限到達','舰种持有上限')
+        };
+        showToast(em[d&&d.error] || (d&&d.error) || tl('Failed','실패','失敗','失败'),'error');
+      }
+    }).catch(function(){ showToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); });
+  });
+}
+
+// [v7.177 Phase 2] 마켓에서 직접 함선 등록 — 가격 입력 → /api/ships/:id/list
+function openShipSellModal(shipId, shipName){
+  gameInput({
+    title: tl('LIST SHIP','함선 마켓 등록','艦船出品','上架舰船'),
+    label: shipName + ' — ' + tl('Enter price (GP)','가격 입력 (GP)','価格(GP)','价格(GP)'),
+    placeholder: '5000',
+    maxLength: 12
+  }).then(function(priceStr){
+    if (priceStr === null || priceStr === undefined) return;
+    var price = parseInt(priceStr, 10);
+    if (!price || price < 10) { showToast(tl('Minimum 10 GP','최소 10 GP','最低10 GP','最低 10 GP'),'error'); return; }
+    fetch('/api/ships/'+shipId+'/list', {
+      method:'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ price_gp: price })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d && d.success) {
+        showToast(tl('Ship listed!','함선 등록 완료!','艦船を出品しました！','已上架舰船！'),'success');
+        try { loadSellView(); } catch(_) {}
+      } else {
+        var em = {
+          SHIP_LISTED_FOR_SALE: tl('Already listed','이미 등록됨','既に出品中','已上架'),
+          SHIP_NOT_FOUND: tl('Ship not found','함선을 찾을 수 없음','艦船が見つかりません','找不到舰船'),
+          SHIP_IN_BATTLE: tl('Ship in battle — wait','전투 중 — 종료 후 등록','戦闘中 — 終了後に出品','战斗中 — 结束后再上架'),
+          MARKET_DISABLED: tl('Ship market disabled','함선 마켓 비활성','艦船市場無効','舰船市场关闭'),
+          INVALID_PRICE: tl('Invalid price range','가격 범위 오류','価格範囲エラー','价格范围错误')
+        };
+        showToast(em[d&&d.error] || (d&&d.error) || tl('Failed','실패','失敗','失败'),'error');
+      }
+    }).catch(function(){ showToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); });
   });
 }
 
