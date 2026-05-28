@@ -197,6 +197,27 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .tb-commander .cmd-label{font-size:8px;opacity:0.7;text-transform:uppercase}
 .tb-commander .cmd-name{font-weight:700;font-size:11px}
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
+
+/* [v7.175 Task 1] MY ASSETS topbar button — Commander Banner 우측에 페어. 측면 패널 안 열어도 메인 화면에서 즉시 접근. */
+.tb-myassets{position:fixed;top:121px;right:18px;z-index:109;
+  display:none;align-items:center;gap:6px;padding:6px 14px;
+  background:linear-gradient(135deg,rgba(184,140,255,.22),rgba(79,195,247,.12)),rgba(10,12,22,.85);
+  border:1px solid rgba(184,140,255,.5);border-radius:20px;backdrop-filter:blur(6px);
+  color:#e7d6ff;font-family:var(--fn);font-size:10px;font-weight:800;letter-spacing:.6px;
+  cursor:pointer;transition:transform .14s ease,filter .14s ease,border-color .14s ease;
+  box-shadow:0 0 14px rgba(184,140,255,.22),0 4px 14px rgba(0,0,0,.5);
+  animation:tbMyAssetsPulse 2.6s ease-in-out infinite}
+.tb-myassets.show{display:inline-flex}
+.tb-myassets:hover{transform:translateY(-1px);filter:brightness(1.1);border-color:rgba(202,168,255,.7)}
+.tb-myassets:active{transform:translateY(0);filter:brightness(.9)}
+.tb-myassets .ma-icon{font-size:13px}
+.tb-myassets .ma-label{font-size:10px;letter-spacing:.5px}
+@keyframes tbMyAssetsPulse{0%,100%{box-shadow:0 0 12px rgba(184,140,255,.2),0 4px 14px rgba(0,0,0,.5)}50%{box-shadow:0 0 22px rgba(184,140,255,.5),0 4px 14px rgba(0,0,0,.5)}}
+@media (max-width:768px){
+  .tb-myassets{top:auto;bottom:calc(env(safe-area-inset-bottom) + 200px);right:10px;padding:6px 11px;font-size:9px}
+  .tb-myassets .ma-label{display:none}
+  .tb-myassets .ma-icon{font-size:15px}
+}
 @media(max-width:768px){.tb-commander{top:108px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
   #tbCmdAnnounce{top:127px!important;font-size:8px!important;max-width:80%!important}
@@ -5485,11 +5506,30 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <body>
 
 <!-- Loading Overlay -->
-<div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s">
-  <div style="font-family:var(--fn);font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
-  <div id="loadQuote" style="font-family:var(--fn);font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
-  <div id="loadMsg" style="font-family:var(--fn);font-size:11px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
+<!-- [v7.175 Task 3a] 로딩 스크린 — 시네마틱 백그라운드 6장 랜덤. 이미지 미존재 시 깔끔한 단색 폴백.
+     백업 정책: 신규 폴더 assets/loading/ — 기존 텍스트 전용 화면이 폴백으로 항상 동작. -->
+<div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s;overflow:hidden">
+  <div id="loadBg" style="position:absolute;inset:0;background:#0D0B14;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,11,20,.55) 0%,rgba(13,11,20,.85) 70%,rgba(13,11,20,.95) 100%);pointer-events:none"></div>
+  <div style="position:relative;font-family:var(--fn);font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
+  <div id="loadQuote" style="position:relative;font-family:var(--fn);font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
+  <div id="loadMsg" style="position:relative;font-family:var(--fn);font-size:11px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
 </div>
+<script>
+// [v7.175 Task 3a] 로딩 배경 6종 중 랜덤 1장 — 이미지 로드 성공 시에만 fade-in (실패 시 단색 폴백 유지).
+(function(){
+  try {
+    var n = 1 + Math.floor(Math.random()*6);
+    var pad = (n < 10 ? '0' : '') + n;
+    var img = new Image();
+    img.onload = function(){
+      var bg = document.getElementById('loadBg');
+      if (bg) { bg.style.backgroundImage = 'url("/assets/loading/load_'+pad+'.jpg")'; bg.style.opacity = '0.55'; }
+    };
+    img.src = '/assets/loading/load_'+pad+'.jpg';
+  } catch(_) {}
+})();
+</script>
 
 <!-- Globe Container -->
 <div id="globe-wrap"></div>
@@ -5537,6 +5577,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <span class="cmd-label">COMMANDER</span>
   <span class="cmd-name" id="tbCmdName">--</span>
 </div>
+
+<!-- [v7.175 Task 1] MY ASSETS 메인 상단 진입 버튼 — 측면 패널 안 열어도 접근.
+     로그인 시에만 보이고 (#tbMyAssetsBtn.show), Commander Banner 옆에 같이 노출. -->
+<button id="tbMyAssetsBtn" class="tb-myassets" onclick="openPortfolioModal()" title="My Mars Portfolio" aria-label="Open my assets portfolio">
+  <span class="ma-icon">🪐</span>
+  <span class="ma-label" data-i18n="my_assets_btn">🪐 MY ASSETS</span>
+</button>
 <div id="tbCmdAnnounce" style="display:none;position:fixed;top:152px;left:50%;transform:translateX(-50%);z-index:108;
   font-family:var(--fn);font-size:9px;color:var(--gold);opacity:0.9;white-space:nowrap;pointer-events:auto;
   padding:3px 12px;background:rgba(20,16,10,0.72);border-radius:10px;backdrop-filter:blur(4px);max-width:60%;overflow:hidden;text-overflow:ellipsis"></div>
@@ -5957,17 +6004,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
      Mobile:  vertical stack, right side above the zoom column
      Both open BASE → OPS tab with the type pre-selected
      ═════════════════════════════════════════════════ -->
-<!-- Single split card: diagonal divider, left half = INVADE, right half = EXPLORE -->
-<div class="ops-quick ops-quick-split" id="opsQuick">
-  <button class="ops-split-half ops-invade" onclick="openOpsLauncher('invasion')" title="Launch an invasion">
-    <img src="/assets/nav/ops_invade.png" alt="" class="ops-card-img" draggable="false">
-    <span class="ops-card-glow"></span>
-    <span class="ops-card-label" data-i18n="ops_invade_label">INVADE</span>
-  </button>
-  <button class="ops-split-half ops-explore" onclick="openOpsLauncher('exploration')" title="Launch an exploration">
-    <img src="/assets/nav/ops_explore.png" alt="" class="ops-card-img" draggable="false">
-    <span class="ops-card-glow"></span>
-    <span class="ops-card-label" data-i18n="ops_explore_label">EXPLORE</span>
+<!-- [v7.175 Task 2] OPS 침공/탐사 → "오늘의 추천 행동" 동적 카드 교체.
+     이전엔 데드 콘텐츠(invasion/exploration)로 메인 자리 차지만 했음.
+     이제 로그인 후 dailyOps 미진행 미션 · 진행중 캠페인 챕터 · 활성 시즌 중 하나를 자동 표시.
+     클릭 시 해당 화면으로 라우팅. 백업: 위 주석 + git history. -->
+<div class="ops-quick ops-quick-split" id="opsQuick" style="display:none">
+  <button id="dailyHintBtn" type="button" onclick="dailyHintClick()" aria-label="Today's recommended action" style="width:100%;height:100%;border:none;background:rgba(8,10,16,.85);cursor:pointer;border-radius:8px;overflow:hidden;position:relative;display:flex;align-items:center;gap:10px;padding:8px 14px;font-family:var(--fn);color:#fff;text-align:left">
+    <span id="dailyHintIcon" style="font-size:22px;line-height:1;flex:0 0 auto">🎯</span>
+    <div style="flex:1;min-width:0">
+      <div id="dailyHintLabel" style="font-size:9px;font-weight:800;color:#ffd166;letter-spacing:1px;line-height:1.2">TODAY'S OPS</div>
+      <div id="dailyHintTitle" style="font-size:12px;font-weight:900;line-height:1.25;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Loading...</div>
+      <div id="dailyHintSub" style="font-size:8.5px;color:rgba(255,255,255,.55);line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+    </div>
+    <span style="font-size:11px;color:#ffd166;flex:0 0 auto">→</span>
   </button>
 </div>
 
@@ -16290,13 +16339,68 @@ function shortAddr(addr){
   return addr?addr.slice(0,6)+'...'+addr.slice(-4):'--';
 }
 
+// [v7.175 Task 2] 오늘의 추천 행동 카드 — opsQuick 자리 동적 콘텐츠.
+//   우선순위: ① 미완료 일일 미션 → ② 진행중 캠페인 → ③ 진행중 시즌 → ④ 기본(상자 개봉)
+//   클릭 시 적절한 화면 라우팅. 비로그인 시 카드 숨김.
+function updateDailyHint(){
+  var card = document.getElementById('opsQuick');
+  if (!card) return;
+  if (!walletState || !walletState.connected) { card.style.display='none'; return; }
+  card.style.display = '';
+  var btn = document.getElementById('dailyHintBtn');
+  // 폴백 기본값 (캠페인/미션 로드 실패 시)
+  _setDailyHint('🎲', tl("TODAY'S OPS","오늘의 추천","今日のオプス",'今日推荐'), tl('Open a Ship Crate','상자 개봉하기','艦船ボックスを開ける','开启舰船宝箱'), tl('Free Recruit daily','매일 무료 상자','毎日無料','每日免费'), 'openGacha');
+  // 1) 미완료 일일 미션 — dailyOps 또는 daily missions 사용
+  try {
+    fetch('/api/dailyOps/'+encodeURIComponent(walletState.address), { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).then(function(d){
+      if (!d) return;
+      var pending = (d.missions||[]).find(function(m){ return m && !m.completed && !m.claimed; });
+      if (pending) {
+        _setDailyHint('🎯', tl("TODAY'S OPS","오늘의 작전","今日のオプス",'今日作战'), pending.title || pending.id, (pending.progress!=null && pending.target ? (pending.progress+'/'+pending.target) : tl('In progress','진행 중','進行中','进行中')), 'openBaseQuests');
+        return;
+      }
+      // 2) 진행중 캠페인 fallback
+      fetch('/api/campaign/status/'+encodeURIComponent(walletState.address), { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).then(function(c){
+        if (!c) return;
+        var active = (c.chapters||[]).find(function(ch){ return ch && ch.progress && ch.progress.status && ch.progress.status !== 'completed' && ch.progress.status !== 'claimed'; });
+        if (active) {
+          _setDailyHint('⚡', tl('CAMPAIGN','캠페인','キャンペーン','战役'), active.title || active.id, tl('Continue your story','이야기 이어가기','物語を続ける','继续你的故事'), 'openCampaignHub');
+          return;
+        }
+        // 3) 시즌 진행 fallback — 기본값 유지
+      }).catch(function(){});
+    }).catch(function(){});
+  } catch(_) {}
+}
+function _setDailyHint(icon, label, title, sub, actionKey){
+  var i=document.getElementById('dailyHintIcon'); if(i) i.textContent=icon;
+  var l=document.getElementById('dailyHintLabel'); if(l) l.textContent=label;
+  var t=document.getElementById('dailyHintTitle'); if(t) t.textContent=title;
+  var s=document.getElementById('dailyHintSub'); if(s) s.textContent=sub||'';
+  var btn=document.getElementById('dailyHintBtn'); if(btn) btn.dataset.action=actionKey||'';
+}
+function dailyHintClick(){
+  var btn=document.getElementById('dailyHintBtn');
+  var action=(btn&&btn.dataset.action)||'openGacha';
+  try {
+    if (action==='openGacha' && typeof openGacha==='function') return openGacha();
+    if (action==='openBaseQuests' && typeof openBaseModal==='function') { openBaseModal(); try{switchBaseTab('quests',document.querySelector('[onclick*=quests]'));}catch(_){} return; }
+    if (action==='openCampaignHub' && typeof openCampaignHub==='function') return openCampaignHub();
+  } catch(_) {}
+}
+
 function updateWalletUI(){
   var el;
   if((el=document.getElementById('walletCTA'))) el.style.display='none';
   if((el=document.getElementById('walletSection'))) el.style.display='';
   if((el=document.getElementById('alertsSection'))) el.style.display='';
   if((el=document.getElementById('walletAddr'))) el.textContent=walletState.address;
+  // [v7.175 Task 1] 로그인 상태일 때 MY ASSETS 메인 상단 버튼 노출
+  var maBtn = document.getElementById('tbMyAssetsBtn');
+  if (maBtn) maBtn.classList.toggle('show', !!(walletState && walletState.connected));
   try{loadActiveEffects()}catch(e){}
+  // [v7.175 Task 2] 로그인 직후 추천 행동 카드 갱신
+  try{ updateDailyHint(); }catch(_){}
   // Load equipped title badge
   if (walletState.address) {
     fetch('/api/user/titles?wallet='+encodeURIComponent(walletState.address))
@@ -21660,6 +21764,8 @@ function logoutEmail(){
   document.getElementById('alertsSection').style.display='none';
   document.getElementById('referralSection').style.display='none';
   document.getElementById('chainIndicator').style.display='none';
+  // [v7.175 Task 1] 로그아웃 시 MY ASSETS 상단 버튼 숨김
+  var maBtn=document.getElementById('tbMyAssetsBtn'); if(maBtn) maBtn.classList.remove('show');
   closeAuthModal();
   showToast(t('logout'));
 }
@@ -48702,11 +48808,18 @@ function renderShipMarket() {
   list.innerHTML = countLabel + listings.map(function(s) {
     var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
     var hpPct = Math.max(0, Math.min(100, (s.current_hp / effectiveMaxHp) * 100));
+    // [v7.175 Task 3c] 마켓 카드 시각 업그레이드 — 가챠 리빌 포트레이트(800x600 실사풍) 활용.
+    //   기존 SVG silhouette 은 fallback (포트레이트 미존재 시). object-fit:cover 로 깔끔.
+    var portraitSrc = 'assets/ships/reveal/' + (s.ship_type_code||'') + '.jpg';
     var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code });
     var seller = s.seller_name || s.seller_short || 'UNKNOWN';
     return '<div class="ship-market-card">' +
       '<span class="ship-sale-sticker">'+(LANG==="ko"?"판매중":LANG==="ja"?"販売中":LANG==="zh"?"在售":"For Sale")+'</span>' +
-      '<div class="bp-visual">' + silhouette + '</div>' +
+      '<div class="bp-visual" style="position:relative;overflow:hidden;border-radius:8px">' +
+        '<img src="'+portraitSrc+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:8px" ' +
+        'onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.innerHTML=\''+silhouette.replace(/'/g,"\\'")+'\'">' +
+        '<div style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,rgba(6,8,15,.7));pointer-events:none"></div>' +
+      '</div>' +
       '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + fcEsc(syShipName(s)) + '</div>' +
       '<div class="ship-class">' + fcEsc(syClassLabel(s.class_label || '')) + ' · MOD ' + syFmt(s.upgrade_level || 0) + '</div>' +
       '<div class="bp-stats" style="margin:7px 0 0">' +

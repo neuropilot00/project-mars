@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.175 — 시각 업그레이드 라운드 (코드 part1 — 이미지 별도 도착)
+
+사용자 요청 — 침공/탐사 데드 콘텐츠 교체 + MY ASSETS 메인 노출 + 시각 전반 업그레이드. 모든 변경 fallback 안전(이미지 미존재 시 단색/SVG 폴백).
+- **[Task 1] MY ASSETS 메인 상단 버튼** (`#tbMyAssetsBtn`): 측면 패널 안 열어도 접근 가능. 로그인 시 화면 우상단 보라 펄스 버튼. 모바일은 우측 안전영역 안쪽으로. `updateWalletUI()` 에서 자동 토글, `logoutEmail()` 에서 숨김. aria-label + 4언어.
+- **[Task 2] OPS 침공/탐사 → 동적 "오늘의 추천 행동"** (`#opsQuick` HTML 교체): 데드 콘텐츠 제거하고 자리에 `updateDailyHint()` 동적 카드 — 우선순위 ① 미완료 일일미션 ② 진행중 캠페인 ③ 기본 가챠. 클릭 시 적절 화면 라우팅(`dailyHintClick`). 4언어.
+- **[Task 3c] 마켓 함선 카드 reveal 포트레이트 활용** (`renderShipMarket`): 기존 SVG silhouette → 실사풍 800x600 포트레이트(가챠 22장 재활용). object-fit:cover + 하단 그라데이션. onerror 시 SVG 폴백.
+- **SW v11 → v12** + 신규 폴더 4종(`/loading/`, `/factions/`, `/poi/`, `/login_bg/`) network-first 처리.
+- **로딩 스크린 동적 배경**: `load_01.jpg`~`load_06.jpg` 6장 중 랜덤 1장, 이미지 로드 성공 시에만 fade-in. 미존재 환경에선 기존 검은 화면 유지(완전 안전).
+
+**Codex 백그라운드 15장 생성 중** (`b0zcoorus`): 로딩 6 + 파벌 3 + POI 5 + 로그인 1. 도착 시 자동 노출(코드는 이미 hook 설치됨).
+
+**백업 전략**:
+- BASE 9 배너: `assets/base/_backup_orig/` (v7.160)
+- 신규 폴더 4종: 신규 파일이라 백업 불필요 — git history 가 백업.
+- 모든 변경에 `[v7.175 Task X]` 주석 — 1초 검색.
+
 ## 2026-05-28 v7.174 — 이메일 인증 풀스택 + CSP 강화 + aria 보강
 
 남은 critical 다 처리. 비용 들어도 켜야 할 것들 (이메일 인증·CSP) + 운영 위생.
