@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.150 — 미연결 UI 3종 연결 (파벌통계/복권이력/전투보상이력)
+
+상용화 검수 MED 미연결 잔여분 연결 (백엔드는 이미 존재, 프론트만 연결):
+- **파벌 통계** `GET /api/factions/stats` → 파벌 선택 모달 카드에 파벌별 점유율 바 + 인원/함대 + `★ 합류 추천`(최소 인원 파벌) 밸런스 유도 뱃지.
+- **복권 이력/내 티켓** `GET /api/lottery/history` + `/my-tickets` → 복권 패널에 "지난 회차/내 티켓" 접힘 섹션(WON/OPEN/CLOSED 태그).
+- **내 전투 보상 이력** `GET /api/battles/rewards/mine` → Battle Hub 에 🏅 보상 이력 패널(WIN/LOSS·+GP·광물 칩·time-ago).
+- 4언어(tl 인라인), 인라인 JS 0 errors. (워크트리 전문가 작성→diff 검증 후 fast-forward 머지)
+
 ## 2026-05-28 v7.149 — 첫 입금 보너스 (첫 결제 후크)
 
 - **첫 입금 보너스**(migration 244, `chain.js processDeposit`): 첫 USDT 입금 시 추가 PP 보너스(`first_deposit_bonus_pct`, 기본 20%, 기존 deposit_pp_bonus 위에). **PP만 추가**라 담보 불변식 무관. deposit row INSERT 전 prior 0건 확인으로 진짜 첫 입금만 적용. (USDT 입금은 컨트랙트 배포 후 개시 — 런칭 대비 후크)
