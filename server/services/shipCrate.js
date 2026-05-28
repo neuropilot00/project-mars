@@ -30,7 +30,7 @@ async function listCrates() {
   const enabled = String(await getSetting('ship_crate_enabled', 'true'));
   if (enabled === 'false') return { enabled: false, crates: [] };
   const { rows } = await pool.query(
-    `SELECT code, label_ko, label_en, price_gp, price_usdt, rarity_weights, pity_pulls
+    `SELECT code, label_ko, label_en, price_gp, price_usdt, rarity_weights, pity_pulls, daily_limit
      FROM ship_crate_types WHERE active = true ORDER BY sort_order ASC, price_gp ASC`
   );
   // 확률 공개(odds disclosure): 가중치를 % 로 환산해 함께 내려준다(법적 대응).
@@ -42,7 +42,7 @@ async function listCrates() {
     return {
       code: r.code, label_ko: r.label_ko, label_en: r.label_en,
       price_gp: r.price_gp, price_usdt: Number(r.price_usdt) || 0,
-      pity_pulls: r.pity_pulls, odds
+      pity_pulls: r.pity_pulls, daily_limit: parseInt(r.daily_limit, 10) || 0, odds
     };
   });
   return { enabled: true, crates };
@@ -73,11 +73,25 @@ async function openCrate(wallet, crateCode) {
     await client.query('BEGIN');
 
     const { rows: crateRows } = await client.query(
-      `SELECT code, price_gp, rarity_weights, pity_pulls FROM ship_crate_types WHERE code = $1 AND active = true`,
+      `SELECT code, price_gp, rarity_weights, pity_pulls, daily_limit FROM ship_crate_types WHERE code = $1 AND active = true`,
       [crateCode]
     );
     const crate = crateRows[0];
     if (!crate) { await client.query('ROLLBACK'); return { error: 'CRATE_NOT_FOUND' }; }
+
+    // 일일 개봉 제한(무료/데일리 상자 함선 공급 통제). daily_limit=0 이면 무제한.
+    const dailyLimit = parseInt(crate.daily_limit, 10) || 0;
+    if (dailyLimit > 0) {
+      const { rows: usedRows } = await client.query(
+        `SELECT COUNT(*)::int AS c FROM ship_crate_pulls
+         WHERE wallet = $1 AND crate_code = $2 AND created_at >= date_trunc('day', NOW())`,
+        [w, crateCode]
+      );
+      if ((usedRows[0]?.c || 0) >= dailyLimit) {
+        await client.query('ROLLBACK');
+        return { error: 'DAILY_LIMIT_REACHED', daily_limit: dailyLimit };
+      }
+    }
 
     // 유저 락 + GP/파벌 확인
     const { rows: userRows } = await client.query(

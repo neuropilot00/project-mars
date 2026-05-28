@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.155 — 가챠샵 확장: 신병 무료 데일리 + 엘리트 상자 (3종→5종)
+
+"가챠 3개로 되겠어?" 지적 반영 — 상자 라인업 확장 + 데일리 리텐션 후크. **경제 안전 원칙 유지**(유료 상자=순수 GP 싱크, 무료 상자=함선 공급 통제).
+- **신병 보급 상자(recruit_crate)**: **무료·1일 1회**, frigate 88 / destroyer 12. EVE 무료 루키십 = 신규/복귀 유도. 함선 공급 폭주 방지 위해 `daily_limit` 강제(서버 권위, `ship_crate_pulls` 당일 카운트).
+- **엘리트 상자(elite_crate)**: 2000 GP — premium(1000)~legendary(3000) 가격 갭 메움. cruiser 52 / battleship 28 / destroyer 18 / titan 2, 천장 7. 순수 GP 싱크.
+- 가격 사다리: **무료 → 300 → 1000 → 2000 → 3000 GP** (5종).
+- Migration 245: `ship_crate_types.daily_limit` 컬럼 추가 + 2종 시드 + sort_order 재배치.
+- `shipCrate.js`: `listCrates` daily_limit 노출, `openCrate` daily-limit 게이트(0=무제한·기존 동작 불변, price 0 은 GP 체크 자연 통과).
+- 프론트: 배너/글로우 **상자 코드별 매핑**(인덱스 의존 제거), 무료 상자 `FREE` 뱃지+무료 라벨+`1일 N회` 태그, 개봉 다이얼로그 비용 `무료` 표기, `DAILY_LIMIT_REACHED` 에러 4언어.
+- 검증: migration 적용, 실유저 스모크 — 무료 개봉 #1 성공(gp_spent:0·frigate)·#2 `DAILY_LIMIT_REACHED` 확인(테스트 함선 클린업). 인라인 JS 영향 함수 한정 수정.
+- (메모) recruit/elite 배너는 등급 톤 맞춰 기존 배너 재사용(recruit→청색·elite→보라). 전용 아트는 추후 Codex 생성 가능.
+
+## 2026-05-28 v7.154 — 가챠 배너 3종 실사풍 재생성 (함선 레퍼런스 입체감)
+
+- Codex CLI 실제 이미지 생성으로 절차합성/Pillow 배너 → 실사풍 교체(생성 원본 1774x887 → sips 1024x512). standard 청색 소형 함대 / premium 보라 순양함·전함 편대 / legendary 금색 타이탄 기함+호위. 등급 톤 분리·입체감 확인(육안 검증).
+
 ## 2026-05-28 v7.153 — GP 표시 소스 통일 (stale 잠재결함 제거)
 
 표시값 미연결 전수 스캔(에이전트) 결과 — stale-DOM 복사 버그는 GP 푸터 1곳뿐(v7.152 수정)이고 다른 사례 0. 단 **GP 표시 소스 이원화** MED 결함 발견·수정:

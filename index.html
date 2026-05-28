@@ -46880,29 +46880,40 @@ async function loadShipCrates() {
       return;
     }
     // 가챠 상자 카드 — 상자 배너 + 등급 글로우, 개봉 버튼 하단 정렬
-    var _crateBanners = ['assets/banners/crate_standard.png','assets/banners/crate_premium.png','assets/banners/crate_legendary.png'];
-    var _crateHeroes = ['assets/ships/top/cv_frg.png','assets/ships/top/fsp_bs.png','assets/ships/top/cv_titan.png'];
-    var _crateGlows  = ['#7da6ff','#b98cff','#ff7a45']; // standard / premium / legendary
+    // 배너/글로우를 상자 코드별로 매핑(인덱스 의존 제거). 신규 상자는 등급 톤에 맞춰 재사용.
+    var _crateArt = {
+      recruit_crate:   { banner:'assets/banners/crate_standard.png',  hero:'assets/ships/top/mcc_frg.png', glow:'#4fd1c5' },
+      standard_crate:  { banner:'assets/banners/crate_standard.png',  hero:'assets/ships/top/cv_frg.png',  glow:'#7da6ff' },
+      premium_crate:   { banner:'assets/banners/crate_premium.png',   hero:'assets/ships/top/fsp_bs.png',  glow:'#b98cff' },
+      elite_crate:     { banner:'assets/banners/crate_premium.png',   hero:'assets/ships/top/mcc_cru.png', glow:'#ff5d8f' },
+      legendary_crate: { banner:'assets/banners/crate_legendary.png', hero:'assets/ships/top/cv_titan.png',glow:'#ff7a45' }
+    };
+    var _crateDefault = { banner:'assets/banners/crate_standard.png', hero:'assets/ships/top/cv_frg.png', glow:'#7da6ff' };
     grid.innerHTML = d.crates.map(function(c, idx){
       var oddsHtml = Object.keys(c.odds||{}).sort(function(a,b){ return (c.odds[b]-c.odds[a]); }).map(function(cls){
         var m=_rarityMeta[cls]||{col:'#888',emoji:'•'};
         return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:'+m.col+';margin-right:8px">'+m.emoji+' '+_rarityLabel(cls)+' '+c.odds[cls]+'%</span>';
       }).join('');
       var pityHtml = c.pity_pulls>0 ? '<div style="font-size:8px;color:var(--gold);margin-top:2px">🎯 '+(LANG==='ko'?(c.pity_pulls+'회 내 순양함+ 확정'):('Cruiser+ guaranteed within '+c.pity_pulls+' pulls'))+'</div>' : '';
+      var isFree = !(c.price_gp>0);
+      var dailyHtml = (c.daily_limit>0) ? '<div style="font-size:8px;color:#4fd1c5;margin-top:2px">🆓 '+(LANG==='ko'?('1일 '+c.daily_limit+'회 무료'):('Free · '+c.daily_limit+'/day'))+'</div>' : '';
       var label = LANG==='ko' ? (c.label_ko||c.code) : (c.label_en||c.code);
-      var banner = _crateBanners[idx % _crateBanners.length];
-      var hero = _crateHeroes[idx % _crateHeroes.length];
-      var glow = _crateGlows[idx % _crateGlows.length];
+      var art = _crateArt[c.code] || _crateDefault;
+      var banner = art.banner, hero = art.hero, glow = art.glow;
+      var priceLabel = isFree ? (LANG==='ko'?'무료':'FREE') : (c.price_gp+' GP');
+      var btnLabel = (LANG==='ko'?'개봉':'OPEN') + ' · ' + priceLabel;
       return '<div class="bp-card" style="padding:0;overflow:hidden;border:1px solid '+glow+'55;box-shadow:0 0 20px '+glow+'22">'
         + '<div style="position:relative;height:140px;background:radial-gradient(circle at 50% 28%, '+glow+'40, transparent 72%), #0a0e1a;display:flex;align-items:center;justify-content:center;overflow:hidden">'
         +   '<img src="'+banner+'" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:8px 8px 0 0;display:block" onerror="this.onerror=null;this.src=\''+hero+'\';this.style.width=\'auto\';this.style.height=\'120px\';this.style.objectFit=\'contain\';this.style.filter=\'drop-shadow(0 0 14px '+glow+'cc)\'">'
         +   '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(8,10,20,.94))"></div>'
+        +   (isFree ? '<div style="position:absolute;top:9px;right:9px;font-size:9px;font-weight:900;color:#04221f;background:#4fd1c5;padding:2px 7px;border-radius:6px;letter-spacing:.5px">'+(LANG==='ko'?'무료':'FREE')+'</div>' : '')
         +   '<div style="position:absolute;bottom:9px;left:12px;right:12px;font-size:14px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.5px">🎲 '+label+'</div>'
         + '</div>'
         + '<div style="padding:12px;display:flex;flex-direction:column;flex:1;gap:6px">'
         +   '<div style="line-height:1.8">'+oddsHtml+'</div>'
         +   pityHtml
-        +   '<button type="button" onclick="openShipCrate(\''+c.code+'\','+c.price_gp+')" style="margin-top:auto;padding:11px;border-radius:8px;background:linear-gradient(135deg,'+glow+'4d,'+glow+'14);border:1px solid '+glow+'99;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer;text-shadow:0 1px 4px #000;letter-spacing:.5px">'+(LANG==='ko'?'개봉':'OPEN')+' · '+c.price_gp+' GP</button>'
+        +   dailyHtml
+        +   '<button type="button" onclick="openShipCrate(\''+c.code+'\','+c.price_gp+')" style="margin-top:auto;padding:11px;border-radius:8px;background:linear-gradient(135deg,'+glow+'4d,'+glow+'14);border:1px solid '+glow+'99;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer;text-shadow:0 1px 4px #000;letter-spacing:.5px">'+btnLabel+'</button>'
         + '</div>'
         + '</div>';
     }).join('');
@@ -46915,7 +46926,7 @@ async function openShipCrate(code, priceGp) {
     icon: '🎲',
     title: LANG==='ko'?'상자 개봉':'Open Crate',
     body: (LANG==='ko'?'무작위 함선 1척을 획득합니다.':'You will receive 1 random ship.'),
-    info: [{ k: LANG==='ko'?'비용':'Cost', v: priceGp + ' GP' }],
+    info: [{ k: LANG==='ko'?'비용':'Cost', v: (priceGp>0 ? (priceGp + ' GP') : (LANG==='ko'?'무료':'FREE')) }],
     confirmText: LANG==='ko'?'개봉':'OPEN'
   });
   if (!ok) return;
@@ -46927,6 +46938,7 @@ async function openShipCrate(code, priceGp) {
     if (!r.ok || d.error) {
       var em = { INSUFFICIENT_GP: (LANG==='ko'?'GP가 부족합니다':'Not enough GP'),
         NO_FACTION:(LANG==='ko'?'먼저 파벌을 선택하세요':'Pick a faction first'),
+        DAILY_LIMIT_REACHED:(LANG==='ko'?'오늘 무료 개봉을 모두 사용했습니다':'Daily free opens used up'),
         CRATE_DISABLED:(LANG==='ko'?'가챠가 비활성화됨':'Crates disabled') };
       showToast(em[d.error] || d.error || (LANG==='ko'?'개봉 실패':'Open failed'), 'error');
       return;
