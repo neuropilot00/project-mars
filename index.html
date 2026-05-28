@@ -371,6 +371,7 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 @keyframes crFade{from{opacity:0}to{opacity:1}}
 @keyframes crPop{from{opacity:0;transform:scale(.86) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes crFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes crHeroIn{from{opacity:0;transform:scale(1.07)}to{opacity:1;transform:scale(1)}}
 @media (min-width:769px) and (max-width:1024px){
   .campaign-quick{right:auto;left:12px;top:110px;bottom:auto}
   .crates-quick{right:auto;left:12px;top:64px;bottom:auto}
@@ -5674,6 +5675,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button class="wa-btn swp" onclick="openExchangeModal()" style="color:var(--gn);border-color:rgba(0,230,118,.3)">PP→GP</button>
         <button class="wa-btn dis" onclick="logoutEmail()" data-i18n="logout_btn">LOGOUT</button>
       </div>
+      <button class="wa-btn" onclick="openPortfolioModal()" style="width:100%;margin-top:4px;background:linear-gradient(135deg,rgba(184,140,255,.18),rgba(79,195,247,.10));border:1px solid rgba(184,140,255,.42);color:#e7d6ff;font-weight:800;letter-spacing:.6px" data-i18n="my_assets_btn">🪐 MY ASSETS</button>
     </div>
   </div>
   <!-- REFERRAL PROGRAM (below wallet) -->
@@ -17271,7 +17273,7 @@ var I18N = {
     guild_toast_send_failed: 'Failed to send',
     // ── Global UI ──
     nav_claim: 'CLAIM', nav_cantina: 'CANTINA', nav_base: 'BASE', nav_items: 'ITEMS',
-    nav_my_land: 'MY LAND', sectors_btn: 'SECTORS', open_gacha_label: 'SHIP CRATES', open_gacha_sub: 'GACHA',
+    nav_my_land: 'MY LAND', sectors_btn: 'SECTORS', open_gacha_label: 'SHIP CRATES', open_gacha_sub: 'GACHA', my_assets_btn: '🪐 MY ASSETS',
     open_base: 'OPEN BASE', open_gacha: '🎲 SHIP CRATES', enter_cantina: '⚔ ENTER THE CANTINA',
     my_base: 'MY BASE', deposit_btn: 'DEPOSIT', withdraw_btn: 'WITHDRAW', logout_btn: 'LOGOUT',
     tend_all_btn: '🔧 TEND ALL', export_key_btn: '🔑 KEY', export_key_title: '🔑 EXPORT WALLET KEY', export_key_disclaimer: '⚠ This reveals your wallet PRIVATE KEY. Anyone with it controls your funds. Store it offline and never share it. <b>You alone are responsible — if it is lost or stolen, the operator cannot recover it or your assets.</b>', export_key_ack: 'I understand and accept full responsibility for safekeeping my key.', export_key_pw_ph: 'Confirm your password', export_key_reveal_btn: 'REVEAL PRIVATE KEY', export_key_addr: 'ADDRESS', export_key_priv: 'PRIVATE KEY', export_key_copy: '📋 COPY KEY', export_key_close_warn: 'Close this window after saving. The key is not shown again automatically.',
@@ -18125,7 +18127,7 @@ var I18N = {
     guild_toast_send_failed: '전송 실패',
     // ── Global UI ──
     nav_claim: '점령', nav_cantina: '칸티나', nav_base: '베이스', nav_items: '아이템',
-    nav_my_land: '내 영토', sectors_btn: '섹터', open_gacha_label: '함선 상자', open_gacha_sub: '가챠',
+    nav_my_land: '내 영토', sectors_btn: '섹터', open_gacha_label: '함선 상자', open_gacha_sub: '가챠', my_assets_btn: '🪐 내 자산',
     open_base: '베이스 열기', open_gacha: '🎲 함선 상자', enter_cantina: '⚔ 칸티나 입장',
     my_base: '마이 베이스', deposit_btn: '입금', withdraw_btn: '출금', logout_btn: '로그아웃',
     tend_all_btn: '🔧 일괄 정비', export_key_btn: '🔑 키', export_key_title: '🔑 지갑 키 내보내기', export_key_disclaimer: '⚠ 지갑의 개인키를 표시합니다. 이 키를 가진 누구나 자금을 통제할 수 있습니다. 오프라인에 보관하고 절대 공유하지 마세요. <b>보관 책임은 전적으로 본인에게 있으며, 분실·도난 시 운영자는 키나 자산을 복구할 수 없습니다.</b>', export_key_ack: '키 보관 책임이 전적으로 나에게 있음을 이해하고 동의합니다.', export_key_pw_ph: '비밀번호 확인', export_key_reveal_btn: '개인키 표시', export_key_addr: '주소', export_key_priv: '개인키', export_key_copy: '📋 키 복사', export_key_close_warn: '저장 후 이 창을 닫으세요. 키는 자동으로 다시 표시되지 않습니다.',
@@ -18985,7 +18987,7 @@ var I18N = {
     guild_toast_send_failed: '送信失敗',
     // ── Global UI ──
     nav_claim: 'CLAIM', nav_cantina: 'カンティーナ', nav_base: 'ベース', nav_items: 'アイテム',
-    nav_my_land: 'マイ領土', sectors_btn: 'セクター', open_gacha_label: '艦船ボックス', open_gacha_sub: 'ガチャ',
+    nav_my_land: 'マイ領土', sectors_btn: 'セクター', open_gacha_label: '艦船ボックス', open_gacha_sub: 'ガチャ', my_assets_btn: '🪐 マイアセット',
     open_base: 'ベースを開く', open_gacha: '🎲 艦船ボックス', enter_cantina: '⚔ カンティーナに入る',
     my_base: 'マイベース', deposit_btn: '入金', withdraw_btn: '出金', logout_btn: 'ログアウト',
     tend_all_btn: '🔧 一括整備', export_key_btn: '🔑 キー', export_key_title: '🔑 ウォレットキーをエクスポート', export_key_disclaimer: '⚠ ウォレットの秘密鍵を表示します。この鍵を持つ者は誰でも資金を管理できます。オフラインで保管し、絶対に共有しないでください。<b>保管責任は全て本人にあり、紛失・盗難時に運営者は鍵や資産を復元できません。</b>', export_key_ack: '鍵の保管責任が全て自分にあることを理解し同意します。', export_key_pw_ph: 'パスワードを確認', export_key_reveal_btn: '秘密鍵を表示', export_key_addr: 'アドレス', export_key_priv: '秘密鍵', export_key_copy: '📋 鍵をコピー', export_key_close_warn: '保存後このウィンドウを閉じてください。鍵は自動的に再表示されません。',
@@ -19843,7 +19845,7 @@ var I18N = {
     guild_toast_send_failed: '发送失败',
     // ── Global UI ──
     nav_claim: '占领', nav_cantina: '酒吧', nav_base: '基地', nav_items: '道具',
-    nav_my_land: '我的领土', sectors_btn: '区域', open_gacha_label: '舰船宝箱', open_gacha_sub: '抽卡',
+    nav_my_land: '我的领土', sectors_btn: '区域', open_gacha_label: '舰船宝箱', open_gacha_sub: '抽卡', my_assets_btn: '🪐 我的资产',
     open_base: '打开基地', open_gacha: '🎲 舰船宝箱', enter_cantina: '⚔ 进入酒吧',
     my_base: '我的基地', deposit_btn: '充值', withdraw_btn: '提现', logout_btn: '退出',
     tend_all_btn: '🔧 批量维护', export_key_btn: '🔑 密钥', export_key_title: '🔑 导出钱包密钥', export_key_disclaimer: '⚠ 这将显示您钱包的私钥。任何持有此密钥的人都能控制您的资金。请离线保存，切勿分享。<b>保管责任完全由您承担，若丢失或被盗，运营方无法找回密钥或资产。</b>', export_key_ack: '我理解并接受妥善保管密钥的全部责任。', export_key_pw_ph: '确认密码', export_key_reveal_btn: '显示私钥', export_key_addr: '地址', export_key_priv: '私钥', export_key_copy: '📋 复制密钥', export_key_close_warn: '保存后请关闭此窗口。密钥不会自动再次显示。',
@@ -47031,9 +47033,10 @@ function showCrateReveal(d, code, priceGp){
     +     '<span style="font-size:10px;font-weight:800;color:'+qm.col+';background:'+qm.col+'1f;border:1px solid '+qm.col+'55;padding:2px 9px;border-radius:20px">'+_qLabel(s.quality)+(stars?(' '+stars):'')+'</span>'
     +     (d.was_pity?'<span style="font-size:10px;font-weight:800;color:var(--gold);background:rgba(255,209,102,.14);border:1px solid rgba(255,209,102,.5);padding:2px 9px;border-radius:20px">🎯 '+tl('PITY','천장','天井','保底')+'</span>':'')
     +   '</div>'
-    +   '<div style="margin:12px auto 4px;width:200px;height:150px;display:flex;align-items:center;justify-content:center;position:relative">'
-    +     '<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, '+glow+'44, transparent 68%);filter:blur(6px)"></div>'
-    +     '<img src="assets/ships/top/'+s.code+'.png" alt="" style="max-width:188px;max-height:144px;object-fit:contain;position:relative;filter:drop-shadow(0 0 16px '+glow+'cc);animation:crFloat 3s ease-in-out infinite" onerror="this.style.display=\'none\'">'
+    +   '<div style="margin:12px auto 4px;width:100%;height:172px;border-radius:12px;overflow:hidden;position:relative;border:1px solid '+glow+'66;box-shadow:inset 0 0 26px '+glow+'33">'
+    +     '<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, '+glow+'33, #06080f 72%)"></div>'
+    +     '<img src="assets/ships/reveal/'+s.code+'.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;position:relative;animation:crHeroIn .5s ease" onerror="this.onerror=null;this.src=\'assets/ships/top/'+s.code+'.png\';this.style.objectFit=\'contain\';this.style.padding=\'12px\';this.style.filter=\'drop-shadow(0 0 16px '+glow+'cc)\';this.style.animation=\'crFloat 3s ease-in-out infinite\'">'
+    +     '<div style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,rgba(6,8,15,.62));pointer-events:none"></div>'
     +   '</div>'
     +   '<div style="font-size:17px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.4px">'+name+'</div>'
     +   (s.isFlagship?'<div style="font-size:9px;color:var(--gold);font-weight:800;margin-top:2px">👑 '+tl('FLAGSHIP','기함','旗艦','旗舰')+'</div>':'')
@@ -47050,6 +47053,78 @@ function showCrateReveal(d, code, priceGp){
     +   '</div>'
     + '</div>';
   document.body.appendChild(el);
+}
+
+// ── 🪐 MY MARS PORTFOLIO 모달 (P2O = Play-to-Own 프레임) ──
+// 자산 가시화: 보유 함선/영토/PP/USDT를 "소유 자산"으로 표시. "벌어라/수익률/일당" 등 P2E 카피는 사용하지 않는다(법무/경제 권고).
+// 체인 미가동 상태에서는 USDT 환금 잠금 + 디스클로저 필수(허위광고 회피).
+function openPortfolioModal(){
+  if(!isLoggedIn()){
+    showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error');
+    return;
+  }
+  // 잔액 — walletState 우선, _dailyState 폴백
+  var pp = Number((typeof walletState!=='undefined' && walletState.PP) || 0);
+  var usdt = Number((typeof walletState!=='undefined' && walletState.USDT) || 0);
+  var shipCount = ((typeof shipyardState!=='undefined' && shipyardState.ships) || []).filter(function(s){ return s.is_alive!==false; }).length;
+  var terrCount = (typeof myClaims!=='undefined' && myClaims) ? (myClaims.length||0) : 0;
+  // 환금 가능 잠재가치(PP는 ~$1 페그, USDT는 1:1). 수익률/일당 환산 금지.
+  var redeemable = pp + usdt;
+  var chainLive = (typeof walletState!=='undefined' && walletState.chainContractLive===true); // 기본 false
+  var old=document.getElementById('portfolioModal'); if(old) old.remove();
+  var el=document.createElement('div');
+  el.id='portfolioModal';
+  el.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.85);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
+  el.onclick=function(e){ if(e.target===el) el.remove(); };
+  var disclosureColor = chainLive ? '#5cd6a8' : '#ffb347';
+  var disclosureText = chainLive
+    ? tl('USDT withdrawal active on Base mainnet.','USDT 출금이 Base 메인넷에서 활성화되어 있습니다.','USDT出金がBaseメインネットで有効です。','USDT 提现已在 Base 主网启用。')
+    : tl('USDT withdrawal activates at Base mainnet contract launch. PP balance has no current redemption value.','USDT 출금은 Base 메인넷 컨트랙트 가동 시 활성화됩니다. PP 잔액은 현재 환금 가치가 없습니다.','USDTの出金はBaseメインネット契約稼働時に有効になります。PP残高は現在換金価値がありません。','USDT 提现将在 Base 主网合约启动后激活。PP 余额目前无兑现价值。');
+  el.innerHTML =
+    '<div style="position:relative;width:min(520px,94vw);max-height:92vh;overflow:auto;border-radius:16px;'
+    + 'background:radial-gradient(circle at 50% 0%,rgba(184,140,255,.22),rgba(10,12,22,.98) 65%);'
+    + 'border:1.5px solid rgba(184,140,255,.6);box-shadow:0 0 50px rgba(184,140,255,.32),0 18px 60px rgba(0,0,0,.7);'
+    + 'padding:22px 22px 18px;animation:crPop .32s cubic-bezier(.2,1.3,.5,1)">'
+    +   '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:2.5px;color:#e7d6ff">🪐 '+tl('MY MARS PORTFOLIO','내 화성 자산 현황','マイ火星ポートフォリオ','我的火星资产')+'</div>'
+    +   '<div style="text-align:center;font-size:9.5px;color:rgba(231,214,255,.65);margin-top:4px;letter-spacing:.5px">'+tl('Play · Collect · Trade · Own','플레이 · 수집 · 거래 · 소유','プレイ · 収集 · 取引 · 所有','游戏 · 收集 · 交易 · 拥有')+'</div>'
+    // 보유 자산 카드 (수치는 자산 수량 — 수익률 가시화 금지)
+    +   '<div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    +     _portfolioCard('🛸', tl('SHIPS','함선','艦船','舰船'),       shipCount, tl('On-chain · Tradable','온체인 · 거래가능','オンチェーン · 取引可','链上 · 可交易'), '#5cbbff')
+    +     _portfolioCard('🪨', tl('TERRITORIES','영토','領土','领土'), terrCount,  tl('Pixel-claimed · Mining','픽셀 클레임 · 채굴 중','ピクセル領有 · 採掘','像素占领 · 挖矿中'), '#ff7a45')
+    +     _portfolioCard('💎', 'PP',                                pp.toFixed(2),  tl('Pegged ≈ $1','~$1 페그','ペグ ~$1','锚定 ~$1'), '#caa8ff')
+    +     _portfolioCard('💵', 'USDT',                              usdt.toFixed(2),tl('On Base · Yours','Base 체인 · 보유','Baseチェーン · 保有','Base 链 · 持有'), '#5cd6a8')
+    +   '</div>'
+    // 환금 가능 잠재가치 (잠금 상태 시각화)
+    +   '<div style="margin-top:14px;padding:14px;border-radius:11px;background:rgba(255,179,71,.07);border:1px solid '+disclosureColor+'55">'
+    +     '<div style="font-size:10px;font-weight:800;color:'+disclosureColor+';letter-spacing:1.2px">'+(chainLive?'🟢 ':'🔒 ')+tl('REDEEMABLE VALUE','환금 가능 잠재가치','換金可能潜在価値','可兑现潜在价值')+'</div>'
+    +     '<div style="margin-top:5px;font-size:22px;font-weight:900;color:#fff">$'+redeemable.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+'</div>'
+    +     '<div style="margin-top:3px;font-size:9px;color:rgba(255,255,255,.55);line-height:1.45">'+disclosureText+'</div>'
+    +   '</div>'
+    // P2O 3-스텝 설명 (법무 권고: "Earn" 미사용, "Own/Trade" 사용)
+    +   '<div style="margin-top:14px;padding:12px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)">'
+    +     '<div style="font-size:10px;font-weight:800;color:#e7d6ff;letter-spacing:1.2px;margin-bottom:7px">'+tl('HOW IT WORKS','자산이 쌓이는 방식','資産が積み上がる仕組み','资产积累方式')+'</div>'
+    +     _p2oStep('⛏', tl('MINE','채굴','採掘','挖矿'),    tl('Claim Mars territory · accumulate PP','화성 영토 클레임 · PP 누적','火星領土を占領 · PPを蓄積','占领火星领土 · 积累 PP'))
+    +     _p2oStep('🛸', tl('COLLECT','수집','収集','收集'), tl('Open crates · build · upgrade fleet','상자 개봉 · 함선 건조 · 강화','箱を開封 · 艦隊建造 · 強化','开箱 · 建造舰队 · 强化'))
+    +     _p2oStep('🔁', tl('TRADE','거래','取引','交易'),   tl('Sell ships and assets on the on-chain market','함선·자산을 온체인 마켓에서 거래','艦船・資産をオンチェーン市場で取引','在链上市场交易舰船与资产'))
+    +   '</div>'
+    +   '<div style="margin-top:12px;font-size:8.5px;color:rgba(255,255,255,.42);text-align:center;line-height:1.5">'+tl('In-game assets only. No guaranteed earnings. See Terms.','게임 내 자산만 표시. 수익 보장 없음. 약관 참조.','ゲーム内資産のみ。収益保証なし。利用規約参照。','仅显示游戏内资产。无收益保证。详见条款。')+'</div>'
+    +   '<button type="button" onclick="document.getElementById(\'portfolioModal\').remove()" style="margin-top:13px;width:100%;padding:12px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer">'+tl('CLOSE','닫기','閉じる','关闭')+'</button>'
+    + '</div>';
+  document.body.appendChild(el);
+}
+function _portfolioCard(icon,label,value,sub,color){
+  return '<div style="padding:11px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid '+color+'40">'
+    + '<div style="font-size:9px;font-weight:800;color:'+color+';letter-spacing:1px">'+icon+' '+label+'</div>'
+    + '<div style="margin-top:4px;font-size:18px;font-weight:900;color:#fff">'+value+'</div>'
+    + '<div style="font-size:8.5px;color:rgba(255,255,255,.5);margin-top:2px">'+sub+'</div>'
+    + '</div>';
+}
+function _p2oStep(icon,title,desc){
+  return '<div style="display:flex;align-items:flex-start;gap:9px;padding:5px 0">'
+    + '<span style="font-size:15px;line-height:1.2;flex:0 0 22px;text-align:center">'+icon+'</span>'
+    + '<div><div style="font-size:10.5px;font-weight:800;color:#fff">'+title+'</div>'
+    + '<div style="font-size:9.5px;color:rgba(255,255,255,.6);margin-top:1px">'+desc+'</div></div>'
+    + '</div>';
 }
 
 function filterBySize(size) {
