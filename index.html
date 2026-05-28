@@ -378,7 +378,8 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   box-shadow:0 6px 20px rgba(76,216,154,.20),0 0 0 1px rgba(0,0,0,.4)}
 .ops-explore:hover{box-shadow:0 10px 26px rgba(76,216,154,.36),0 0 0 1px rgba(140,240,200,.45)}
 .ops-explore .ops-card-label{color:#c8f4dc;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 8px rgba(40,200,140,.7)}
-.campaign-quick{position:fixed;right:266px;bottom:276px;z-index:61;
+/* [v7.190] 데탑: 오늘의 추천 / 캠페인 / 함선 가챠 를 모두 좌측 컬럼으로 통일. 이전엔 캠페인/가챠 우측, 오늘의 추천 가운데 분산. */
+.campaign-quick{position:fixed;left:12px;bottom:118px;z-index:61;
   display:flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:8px;
   background:linear-gradient(135deg,rgba(79,195,247,.2),rgba(255,209,102,.12)),rgba(8,10,14,.82);
   border:1px solid rgba(79,195,247,.38);color:#eaf8ff;font-family:var(--fn);font-size:11px;
@@ -390,7 +391,7 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .campaign-quick-icon{font-size:14px;color:var(--gold);text-shadow:0 0 10px rgba(255,209,102,.55)}
 .campaign-quick-sub{font-size:8px;color:rgba(234,248,255,.58);letter-spacing:.8px;font-weight:700}
 /* SHIP CRATES quick button — sits directly ABOVE the CAMPAIGN button. */
-.crates-quick{position:fixed;right:266px;bottom:322px;z-index:61;
+.crates-quick{position:fixed;left:12px;bottom:164px;z-index:61;
   display:flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:8px;
   background:linear-gradient(135deg,rgba(184,140,255,.24),rgba(255,122,69,.10)),rgba(8,10,14,.82);
   border:1px solid rgba(184,140,255,.5);color:#f0e6ff;font-family:var(--fn);font-size:11px;
@@ -416,7 +417,8 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
    right = EXPLORE. The diagonal slash goes from (60% top) to (40% bottom),
    which on a 150×40 card maps to a ~127° gradient angle (used for the
    subtle seam highlight). Image is dimmed so the label dominates. */
-.ops-quick-split{position:fixed;left:50%;bottom:123px;transform:translateX(-50%);
+/* [v7.190] 데탑 오늘의 추천 — 가운데 → 좌측 컬럼 (캠페인/가챠 위). 모바일은 아래 @media 에서 별도 처리. */
+.ops-quick-split{position:fixed;left:12px;bottom:212px;transform:none;
   z-index:60;display:block;width:195px;height:52px;
   pointer-events:auto;
   border-radius:8px;overflow:hidden;background:#0e0c16;
@@ -465,18 +467,19 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   .crates-quick:hover{transform:translateY(-1px)}
   .crates-quick:active{transform:none}
   .crates-quick-sub{display:none}
-  /* [v7.181 Task 2] 오늘의 추천 카드 — 모바일에서 .zb 줌버튼(42×42)과 줄 맞춤.
-     이전엔 60×120 직사각형이라 우측 사이드 컬럼이 들쭉날쭉. 이제 정사각 42×42. */
-  .ops-quick-split{right:8px;left:auto;top:auto;transform:none;
-    /* zc 컬럼(↩+−SECTORS MY LAND) 바로 위에 같은 right:8px 로 줄 맞춤. */
-    bottom:calc(env(safe-area-inset-bottom) + 360px);
-    width:42px;height:42px;
+  /* [v7.190] 모바일: 오늘의 추천 → 좌측 컬럼 함선 가챠(crates-quick) 위로 이동.
+     이전엔 우측 zc 컬럼 위(42×42). 이제 좌측 캠페인/가챠와 같은 라인. */
+  .ops-quick-split{left:12px!important;right:auto!important;top:auto!important;transform:none!important;
+    bottom:202px!important; /* crates(160) + 34px + gap */
+    width:auto!important;height:34px!important;
     background:rgba(8,10,16,.85);border:1px solid rgba(255,209,102,.45);
-    border-radius:10px;overflow:hidden}
-  /* 내부 dailyHintBtn — 모바일은 아이콘만 가운데, 텍스트 라벨 숨김 */
-  .ops-quick-split #dailyHintBtn{padding:0!important;gap:0!important;justify-content:center!important}
-  .ops-quick-split #dailyHintBtn>div{display:none!important} /* 라벨 wrapper 숨김 */
-  .ops-quick-split #dailyHintIcon{font-size:20px!important}
+    border-radius:8px;overflow:hidden;padding:0 10px;display:flex;align-items:center}
+  /* 내부 dailyHintBtn — 모바일은 아이콘 + 짧은 라벨 (좌측 컬럼은 가로 공간 충분) */
+  .ops-quick-split #dailyHintBtn{padding:0 4px!important;gap:5px!important;justify-content:center!important;height:100%}
+  .ops-quick-split #dailyHintLabel{display:none!important}
+  .ops-quick-split #dailyHintSub{display:none!important}
+  .ops-quick-split #dailyHintTitle{font-size:9px!important;font-weight:800;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis}
+  .ops-quick-split #dailyHintIcon{font-size:14px!important}
 
   /* [v7.182 Task 2,3] 마켓 모바일 UI — 필터 버튼/검색/리프레시 크기 일치 + 가독성.
      필터/정렬/섹터 드롭다운 trigger, 검색 input, 서브뷰 토글 모두 36px 통일 높이.
