@@ -1,9 +1,53 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto'); // [v7.172 G-Crit-4]
 const { pool, awardXP } = require('../db');
 
 const router = express.Router();
+const csrfTokens = new Map(); // [v7.172 G-Crit-4] admin credential-bound CSRF tokens, 1h TTL
+const CSRF_TTL_MS = 60 * 60 * 1000; // [v7.172 G-Crit-4]
+
+function sha256(value) { // [v7.172 G-Crit-4]
+  return crypto.createHash('sha256').update(String(value)).digest('hex');
+}
+
+function timingSafeEqualString(a, b) { // [v7.172 G-Crit-4]
+  const left = Buffer.from(String(a || ''), 'utf8');
+  const right = Buffer.from(String(b || ''), 'utf8');
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+function getCsrfRecord(key) { // [v7.172 G-Crit-4]
+  const record = csrfTokens.get(key);
+  if (!record) return null;
+  if (record.expiresAt <= Date.now()) {
+    csrfTokens.delete(key);
+    return null;
+  }
+  return record;
+}
+
+function issueCsrfToken(req) { // [v7.172 G-Crit-4]
+  const expiresAt = Date.now() + CSRF_TTL_MS;
+  const nonce = crypto.randomBytes(32).toString('hex');
+  const token = sha256(`${req.adminCsrfKey}:${expiresAt}:${nonce}`);
+  csrfTokens.set(req.adminCsrfKey, { token, expiresAt });
+  return { token, expiresAt };
+}
+
+function csrfGuard(req, res, next) { // [v7.172 G-Crit-4]
+  if (!['POST', 'PUT', 'DELETE'].includes(req.method)) return next();
+  const headerToken = req.headers['x-csrf-token'];
+  if (!headerToken) {
+    return res.status(403).json({ error: 'CSRF token missing: send X-CSRF-Token header' });
+  }
+  const record = getCsrfRecord(req.adminCsrfKey);
+  if (!record || !timingSafeEqualString(headerToken, record.token)) {
+    return res.status(403).json({ error: 'CSRF token invalid or expired' });
+  }
+  next();
+}
 
 // ── Security checks ──
 const isProduction = process.env.NODE_ENV === 'production';
@@ -24,6 +68,7 @@ function adminAuth(req, res, next) {
   const adminSecret = process.env.ADMIN_SECRET || (isProduction ? '' : 'admin1234');
   if (secret && adminSecret && secret === adminSecret) {
     req.adminAuth = 'secret';
+    req.adminCsrfKey = `secret:${sha256(adminSecret)}`; // [v7.172 G-Crit-4]
     return next();
   }
   // Method 2: JWT Bearer token
@@ -31,7 +76,11 @@ function adminAuth(req, res, next) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     try {
       const decoded = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET);
-      if (decoded.role === 'admin') { req.adminAuth = 'jwt'; return next(); }
+      if (decoded.role === 'admin') {
+        req.adminAuth = 'jwt';
+        req.adminCsrfKey = `jwt:${sha256(authHeader.slice(7))}`; // [v7.172 G-Crit-4]
+        return next();
+      }
     } catch(e) {}
   }
   res.status(401).json({ error: 'Unauthorized' });
@@ -60,6 +109,18 @@ router.post('/login', async (req, res) => {
 
 // Apply auth middleware to all routes below
 router.use(adminAuth);
+
+// [v7.172 G-Crit-4] Issue an authenticated, credential-bound CSRF token for admin mutating requests.
+router.get('/csrf-token', (req, res) => {
+  const issued = issueCsrfToken(req);
+  res.json({
+    csrfToken: issued.token,
+    expiresAt: new Date(issued.expiresAt).toISOString(),
+    ttlSeconds: Math.floor(CSRF_TTL_MS / 1000)
+  });
+});
+
+router.use(csrfGuard); // [v7.172 G-Crit-4] Protect all authenticated POST/PUT/DELETE routes below.
 
 // ══════════════════════════════════════════════════
 //  GET /admin/api/stats — Dashboard overview
