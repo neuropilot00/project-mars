@@ -14459,6 +14459,14 @@ function scrollToTerritoryUpgrade() {
   if (claim && (claim.claimId || claim.id)) {
     // 영토 정보 패널 열기 → upgrade 섹션 자동 로드
     showTerritoryInfo(claim);
+    // [v7.202 fix] 모바일/좁은 화면에서는 panel-r 이 transform 으로 화면 밖에 숨어 있음 (.collapsed).
+    //   이전엔 showTerritoryInfo 만 호출 → 데스크탑 사이드 패널만 열려고 시도 → 모바일에선 안 보임 →
+    //   사용자는 "튕긴다" 로 인식.
+    //   panel-r 에 .open 클래스 강제 부여 + 우측 사이드로 슬라이드 표시.
+    try {
+      var pr = document.getElementById('panelR');
+      if (pr) { pr.classList.add('open'); pr.classList.remove('collapsed'); }
+    } catch(_){}
     setTimeout(function(){
       var row = document.getElementById('infoUpgradeRow');
       if (row && row.style.display !== 'none') {

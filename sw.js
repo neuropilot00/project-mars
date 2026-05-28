@@ -25,7 +25,8 @@
 // 2026-05-28 v20: v7.199 데탑 캠페인/가챠 버튼 width 명시 (stretch 차단).
 // 2026-05-28 v21: v7.200 영토 업그레이드 외부 try-catch + event.stopPropagation + console.error/alert 진단.
 // 2026-05-29 v22: v7.201 옛 버전 자동 unregister + inline button alert + no-cache meta.
-const CACHE_NAME = 'mars-v22';
+// 2026-05-29 v23: v7.202 모바일 영토 업그레이드 — mobTerritoryModal '🔧 업그레이드' 클릭 시 panel-r 강제 open.
+const CACHE_NAME = 'mars-v23';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
