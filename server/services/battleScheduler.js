@@ -195,10 +195,30 @@ async function runBattle(battleId) {
     // 2-bis. WebSocket 실시간 broadcast — Phase 2
     // 시뮬은 동기로 끝났지만, 클라가 ws 로 구독 중이면 frame 단위로 stream.
     // 1 frame = tick_ms (200ms) 간격으로 emit. 클라가 이미 timeline replay 모드면 ws 무시 가능.
+    // [v7.192 F1] 멀티 인스턴스 frame stream 중복 차단 — 직접 runBattle 호출 경로(hijack/tournament 등)가
+    //   web 인스턴스에서 동시 실행될 때, 두 워커가 같은 battle frame 을 Redis Pub/Sub 으로 모든 viewer 에 보내
+    //   클라가 frame 을 N배 받는 문제. claim TX 가 battle 자체는 1회만 실행되게 막지만, scheduler 경로 외
+    //   runBattle 호출은 leader gate 우회. _streamLock Redis SETNX 로 frame stream 책임은 한 워커만.
     try {
       const ws = require('../wsServer');
       const stats = ws.channelStats();
-      if (stats[battleId]) {
+      // Redis 가 있으면 SETNX 로 frame stream lock — 다른 워커가 이미 stream 중이면 skip.
+      let _streamOwnership = true;
+      try {
+        if (process.env.REDIS_URL) {
+          const Redis = require('ioredis');
+          if (!global.__streamLockRedis) {
+            global.__streamLockRedis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, family: 0 });
+            global.__streamLockRedis.on('error', () => {});
+          }
+          const lockKey = 'om:battle_stream:' + battleId;
+          // 60초 TTL — frame stream 최대 길이 (typical battle 30s × 8x speed = 4s, 안전 마진 60).
+          const got = await global.__streamLockRedis.set(lockKey, process.pid, 'NX', 'PX', 60000).catch(() => null);
+          _streamOwnership = (got === 'OK');
+          if (!_streamOwnership) console.log(`[battleScheduler] battle ${battleId} frame stream lock held by another worker — skipping`);
+        }
+      } catch (_e) {}
+      if (_streamOwnership && stats[battleId]) {
         const frames = result.timeline?.frames || [];
         const tickMs = result.timeline?.tick_ms || 200;
         // 별도 setTimeout 체인으로 frame stream — 시뮬 결과 저장은 즉시 진행

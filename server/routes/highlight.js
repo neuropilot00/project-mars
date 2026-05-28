@@ -21,10 +21,10 @@ router.get('/highlight/config', async (req, res) => {
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/highlight/active  — all active highlights (for map rendering)
+// [v7.192 deprecated] GET /api/highlight/active — 프론트 호출 0건. 1주 410 모니터링 후 제거.
 router.get('/highlight/active', async (req, res) => {
-  try { res.json(await svc.getActiveHighlights()); }
-  catch(e) { res.status(500).json({ error: e.message }); }
+  console.warn('[deprecated] /api/highlight/active called', req.headers['user-agent']);
+  return res.status(410).json({ error: 'GONE', message: 'Endpoint deprecated.' });
 });
 
 // GET /api/highlight/claim/:claimId

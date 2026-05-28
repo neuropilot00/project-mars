@@ -31,12 +31,10 @@ router.get('/sponsor/claim/:claimId', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/sponsor/my?wallet=
+// [v7.192 deprecated] GET /api/sponsor/my — 프론트 호출 0건. 1주 410 모니터링 후 제거.
 router.get('/sponsor/my', async (req, res) => {
-  const { wallet } = req.query;
-  if (!wallet) return res.status(400).json({ error: 'wallet required' });
-  try { res.json(await svc.getMySponsorships(wallet)); }
-  catch(e) { res.status(500).json({ error: e.message }); }
+  console.warn('[deprecated] /api/sponsor/my called', req.headers['user-agent']);
+  return res.status(410).json({ error: 'GONE', message: 'Endpoint deprecated.' });
 });
 
 // POST /api/sponsor/place  { claimId, message }

@@ -36,10 +36,10 @@ router.get('/tevt/my', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/tevt/active
+// [v7.192 deprecated] GET /api/tevt/active — 프론트 호출 0건. 1주 410 모니터링 후 제거.
 router.get('/tevt/active', async (req, res) => {
-  try { res.json(await tevtSvc.getActiveEvents()); }
-  catch (e) { res.status(500).json({ error: e.message }); }
+  console.warn('[deprecated] /api/tevt/active called', req.headers['user-agent']);
+  return res.status(410).json({ error: 'GONE', message: 'Endpoint deprecated.' });
 });
 
 // POST /api/tevt/activate  { claimId, eventType }

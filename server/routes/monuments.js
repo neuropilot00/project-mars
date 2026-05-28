@@ -123,28 +123,11 @@ router.post('/monuments/place', requireAuth, async (req, res) => {
 });
 
 // ── POST /api/monuments/preserve ─────────────────────────────────────────────
+// [v7.192 deprecated] POST /api/monuments/preserve — 프론트 호출 0건. 1주 410 모니터링 후 제거.
+//   기존 로직은 git history 에 남아 있어 필요 시 복구 가능.
 router.post('/monuments/preserve', requireAuth, async (req, res) => {
-  if (!monumentSvc) return res.status(503).json({ error: 'Service unavailable' });
-  const wallet = getAuthWallet(req);
-  const { monumentId } = req.body || {};
-  if (!wallet || !monumentId) return res.status(400).json({ error: 'wallet, monumentId required' });
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    const { cost, monument } = await monumentSvc.preserveMonument(client, wallet, parseInt(monumentId));
-    await client.query('COMMIT');
-
-    if (logGPActivity) logGPActivity(wallet, -cost, 'monument_preserve', { monumentId: monument.id }).catch(() => {});
-    if (seasonService?.trackGPSpend) seasonService.trackGPSpend(wallet, cost).catch(() => {});
-
-    res.json({ ok: true, cost, monument });
-  } catch (err) {
-    await client.query('ROLLBACK');
-    res.status(400).json({ error: err.message });
-  } finally {
-    client.release();
-  }
+  console.warn('[deprecated] /api/monuments/preserve called', getAuthWallet(req), req.headers['user-agent']);
+  return res.status(410).json({ error: 'GONE', message: 'Endpoint deprecated.' });
 });
 
 module.exports = router;

@@ -210,10 +210,13 @@ app.use((req, res, next) => {
   }
   // [v7.174 G-Crit-3 부분] CSP 강화 — object-src none(플래시/PDF 임베드 차단),
   //   base-uri self(base 태그 변조 방지), form-action self(폼 외부 송신 차단),
-  //   frame-ancestors 'self' (clickjacking 방어 — 자체 도메인에서만 iframe 허용).
-  //   [v7.186 hotfix] 'none' 으로 두면 tactical-lab-v11.html iframe 임베드가 같은 도메인에서도 차단됨 → 전술 실험실 시작 안 됨.
+  //   frame-ancestors — 페이지별 분리: iframe 컨텐츠 (tactical-lab/campaign-editor) 만 'self', 나머지는 'none'.
+  //   [v7.186] 'none' 으로 두면 iframe 임베드 차단 → 전술 실험실 시작 안 됨.
+  //   [v7.192 F2] 페이지별 정책 — 일반 페이지는 'none' (clickjacking 강화), iframe 자식 페이지만 'self' 허용.
   //   JWT localStorage XSS 완전 차단은 httpOnly cookie 전환 필요(큰 변경 — 별도 스프린트).
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://*.trycloudflare.com https://*.railway.app https://*.infura.io https://*.alchemy.com wss://*; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';");
+  const _iframeChildren = ['/assets/tactical-lab-v11.html', '/assets/ace-combat.html', '/assets/campaign-editor.html'];
+  const _frameAncestors = _iframeChildren.includes(req.path) ? "'self'" : "'none'";
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://*.trycloudflare.com https://*.railway.app https://*.infura.io https://*.alchemy.com wss://*; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors " + _frameAncestors + ";");
   next();
 });
 

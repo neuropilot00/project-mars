@@ -3366,6 +3366,11 @@ function calculateFspCh9Rewards(progress, sim) {
   return { GP: gp, XP: 1700, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: [FSP_CH10_ID], branchModifiers };
 }
 
+// [v7.192 design clarification] FSP CH10 보상은 **의도적으로 token-only**.
+//   이유: CH1~9 에서 함선을 점진 지급, CH10 엔딩은 대량 GP (200K~1M) + 평판 + 칭호 + NG+ token 으로
+//   "route completion" 자체가 보상. 추가 함선 지급 시 CH10 만 압도적이 됨 (다른 엔딩과 균형 깨짐).
+//   캠페인 reward inbox 시스템 (campaign_reward_inbox) 은 type='ship' 도 처리하지만 CH10 은 사용 안 함.
+//   향후 ending 별 특수 함선 (예: gaia_captain 엔딩 → 한정판 Gaia 함선) 추가 시 items 배열에 ship type push.
 function calculateFspCh10Rewards(progress, sim) {
   const choiceId = selectedChoiceId(progress, 'fsp_bad_ending_fallback');
   const endingMap = {

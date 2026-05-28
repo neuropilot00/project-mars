@@ -62,13 +62,11 @@ router.post('/branding/color', requireAuth, async (req, res) => {
   catch (e) { res.status(400).json({ error: e.message }); }
 });
 
-// POST /api/branding/clear  { claimId }
+// [v7.192 deprecated] POST /api/branding/clear — 프론트 호출 0건 확인 (감사 v7.191).
+//   1주 모니터링 후 mount 자체 제거 예정. 호출되면 console.warn 으로 식별.
 router.post('/branding/clear', requireAuth, async (req, res) => {
-  const wallet = getAuthWallet(req);
-  const { claimId } = req.body || {};
-  if (!wallet || !claimId) return res.status(400).json({ error: 'wallet and claimId required' });
-  try { res.json(await svc.clearBranding(wallet, claimId)); }
-  catch (e) { res.status(400).json({ error: e.message }); }
+  console.warn('[deprecated] /api/branding/clear called by', getAuthWallet(req), req.headers['user-agent']);
+  return res.status(410).json({ error: 'GONE', message: 'Endpoint deprecated, will be removed.' });
 });
 
 module.exports = router;

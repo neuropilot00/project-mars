@@ -9216,18 +9216,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div id="forgeGlowBg" style="position:absolute;inset:0;border-radius:16px;opacity:0;transition:opacity .4s;pointer-events:none"></div>
     <!-- title -->
     <div id="forgeTitleText" style="font-family:var(--fn);font-size:13px;font-weight:900;letter-spacing:2px;color:#ffd166;margin-bottom:16px" data-i18n="forge_upgrading">🔨 강화 중...</div>
-    <!-- hammer scene -->
-    <div style="position:relative;height:88px;margin-bottom:14px;display:flex;align-items:flex-end;justify-content:center;gap:0">
+    <!-- [v7.192] 강화 hero — 진행 중: 망치+톱니 / 성공: ⭐ / 실패: 💔.
+         결과 표시 시점에 syRenderForgeResult() 가 hero 안의 emoji 만 교체. -->
+    <div id="forgeHeroScene" style="position:relative;height:88px;margin-bottom:14px;display:flex;align-items:flex-end;justify-content:center;gap:0">
       <div id="forgeHammerWrap" style="position:relative;width:64px;height:88px;display:flex;align-items:flex-end;justify-content:center">
-        <div id="forgeHammer" style="font-size:40px;transform-origin:50% 100%;display:block;filter:drop-shadow(0 0 8px #ffd16688)">🔨</div>
+        <!-- [v7.192] 🔨 head 방향 보정 — iOS/Android emoji 가 손잡이 오른쪽 → scaleX(-1) 로 좌측. -->
+        <div id="forgeHammer" style="font-size:40px;transform-origin:50% 100%;display:block;filter:drop-shadow(0 0 8px #ffd16688);transform:scaleX(-1)">🔨</div>
       </div>
       <div id="forgeAnvil" style="font-size:36px;margin-bottom:2px;filter:drop-shadow(0 2px 6px #0008)">⚙️</div>
+      <!-- 결과 표시 emoji (성공:⭐ / 실패:💔) — 초기 숨김, syRenderForgeResult 가 .show 추가. -->
+      <div id="forgeResultEmoji" style="display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(0);font-size:56px;filter:drop-shadow(0 0 12px currentColor);transition:transform .35s cubic-bezier(.3,1.6,.4,1)"></div>
     </div>
     <!-- sparks canvas -->
     <canvas id="forgeSparks" width="300" height="60" style="position:absolute;top:60px;left:50%;transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity .2s"></canvas>
-    <!-- gauge -->
-    <div style="background:rgba(255,255,255,.06);border-radius:8px;height:8px;overflow:hidden;margin-bottom:10px">
-      <div id="forgeGauge" style="height:100%;width:0%;background:linear-gradient(90deg,#ffd166,#ff9800);border-radius:8px;transition:width .12s linear"></div>
+    <!-- [v7.192] gauge — 강화 의미상 hero, 키워서 ⭐/💔 와 함께 강조. height 8→12, 그라디언트 더 강하게. -->
+    <div style="background:rgba(255,255,255,.06);border-radius:10px;height:12px;overflow:hidden;margin-bottom:10px;box-shadow:inset 0 1px 3px rgba(0,0,0,.45)">
+      <div id="forgeGauge" style="height:100%;width:0%;background:linear-gradient(90deg,#ffd166,#ff9800);border-radius:10px;transition:width .12s linear;box-shadow:0 0 12px rgba(255,209,102,.45)"></div>
     </div>
     <!-- stat labels -->
     <div id="forgeStatLabel" style="font-family:var(--fn);font-size:10px;color:rgba(255,255,255,.45);margin-bottom:4px"></div>
@@ -26478,8 +26482,13 @@ function claimOpsMission(id){
     showAlert('✓ '+parts.join(' · '),'success');
     if(d.mission.type==='invasion'){try{trackQuestAction('complete_invasion',1)}catch(e){}}
     if(d.mission.type==='exploration'){try{trackQuestAction('complete_exploration',1)}catch(e){}}
-    loadOpsTab();
-    if(typeof loadUserData==='function') loadUserData();
+    // [v7.192 fix] 동일한 stale UI 문제 — claimOpsMission 도 모든 관련 UI 즉시 갱신.
+    try { loadOpsTab(); } catch(_){}
+    try { if(typeof loadUserData==='function') loadUserData(); } catch(_){}
+    try { if(typeof updateDailyHint==='function') updateDailyHint(); } catch(_){}
+    try { if(typeof loadDailyMissions==='function') loadDailyMissions(); } catch(_){}
+    try { if(typeof refreshGP==='function') refreshGP(); } catch(_){}
+    try { if(typeof _pollBaseTabDots==='function') _pollBaseTabDots(); } catch(_){}
   }).catch(function(e){ showAlert(t('ops_claim_failed')+' '+e.message); });
 }
 function cancelOpsMission(id){
@@ -26815,11 +26824,18 @@ async function claimDailyOps(missionId) {
       body: JSON.stringify(body)
     });
     var data = await res.json();
-    if (!data.success) { showToast(data.error || 'Claim failed', 'error'); return; }
+    if (!data.success) { showToast(srvErr(data.error || 'Claim failed'), 'error'); return; }
     showToast('+' + data.total_gp + ' GP', 'success');
-    loadDailyOpsBoard();
-    if (typeof loadUserData === 'function') loadUserData();
-  } catch(e) { showToast('Claim failed', 'error'); }
+    // [v7.192 fix] dailyOps claim 직후 모든 관련 UI 즉시 갱신 — 이전엔 이 함수가
+    //   loadDailyOpsBoard + loadUserData 만 호출 → 메인 화면 "오늘의 추천" 카드,
+    //   BASE 임무 dot, CAMPAIGN/QUESTS 탭의 미션 리스트가 페이지 리로드 전까지 stale.
+    try { loadDailyOpsBoard(); } catch(_){}
+    try { if (typeof loadUserData === 'function') loadUserData(); } catch(_){}
+    try { if (typeof updateDailyHint === 'function') updateDailyHint(); } catch(_){}        // 오늘의 추천 카드 갱신
+    try { if (typeof loadDailyMissions === 'function') loadDailyMissions(); } catch(_){}    // QUESTS 탭 미션 리스트
+    try { if (typeof refreshGP === 'function') refreshGP(); } catch(_){}                    // GP HUD
+    try { if (typeof _pollBaseTabDots === 'function') _pollBaseTabDots(); } catch(_){}      // BASE 카테고리 dot 재평가
+  } catch(e) { showToast(srvErr('NETWORK_ERROR'), 'error'); }
 }
 
 async function claimAllDailyOps() {
@@ -48961,12 +48977,18 @@ async function syUpgradeShipStat(shipId, stat) {
   // reset
   gauge.style.width = '0%';
   gauge.style.background = 'linear-gradient(90deg,#ffd166,#ff9800)';
+  gauge.style.boxShadow = '0 0 12px rgba(255,209,102,.45)';
   resultEl.style.display = 'none';
   resultSub.style.display = 'none';
   closeBtn.style.display = 'none';
   glowBg.style.opacity = '0';
   glowBg.style.background = '';
-  hammer.style.transform = 'rotate(0deg)';
+  hammer.style.transform = 'scaleX(-1) rotate(0deg)'; // [v7.192] 좌측 방향 유지하면서 회전 초기화
+  // [v7.192] 매 호출마다 hero 상태 초기화 — 망치+톱니 다시 보이게, 결과 emoji 숨김.
+  var _hw = document.getElementById('forgeHammerWrap'); if (_hw) _hw.style.opacity = '1';
+  var _av = document.getElementById('forgeAnvil');     if (_av) _av.style.opacity = '1';
+  var _re = document.getElementById('forgeResultEmoji');
+  if (_re) { _re.style.display = 'none'; _re.style.transform = 'translate(-50%,-50%) scale(0)'; }
   titleEl.textContent = LANG==='ko'?'🔨 강화 중...':LANG==='ja'?'🔨 強化中...':LANG==='zh'?'🔨 强化中...':'🔨 Upgrading...';
   statLabel.textContent = (ship ? (syShipName(ship) || '') + '  ' : '') + (labelMap[stat]||stat).toUpperCase() + ' · MOD ' + curLv + '  →  ' + materialName + ' × ' + needQty;
   modal.style.display = 'flex';
@@ -48990,11 +49012,12 @@ async function syUpgradeShipStat(shipId, stat) {
   var swingCount = 0;
   function doHammerSwing() {
     if (!document.getElementById('forgeModal') || modal.style.display==='none') return;
+    // [v7.192] scaleX(-1) (좌측 방향) 유지하면서 회전 — 합성 transform.
     hammer.style.transition = 'transform 135ms cubic-bezier(.2,1,.4,1)';
-    hammer.style.transform = 'rotate(-58deg) translateY(-12px)';
+    hammer.style.transform = 'scaleX(-1) rotate(-58deg) translateY(-12px)';
     setTimeout(function(){
       hammer.style.transition = 'transform 155ms cubic-bezier(.5,0,1,.7)';
-      hammer.style.transform = 'rotate(10deg) translateY(4px)';
+      hammer.style.transform = 'scaleX(-1) rotate(10deg) translateY(4px)';
       swingCount++;
       _forgeSparkBurst(canvas, swingCount % 2 === 0 ? '#ffd166' : '#ff9800');
       if (swingCount < 6) setTimeout(doHammerSwing, 340);
@@ -49026,14 +49049,33 @@ async function syUpgradeShipStat(shipId, stat) {
     resultSub.textContent = LANG==='ko'?'재료/GP가 차감됐을 수 있습니다. 새로고침 확인 바랍니다.':LANG==='ja'?'素材/GPが消費された可能性があります。更新して確認してください。':LANG==='zh'?'素材/GP可能已被扣除，请刷新确认。':'Materials/GP may have been deducted. Please refresh to verify.';
   } else {
     var d = apiRes.d;
+    // [v7.192] 결과 emoji 헬퍼 — 성공 ⭐ / 실패 💔. 망치+톱니 페이드아웃 후 emoji 팝.
+    var hammerWrap = document.getElementById('forgeHammerWrap');
+    var anvilEl    = document.getElementById('forgeAnvil');
+    var resultEmoji= document.getElementById('forgeResultEmoji');
+    function _showForgeResultEmoji(emoji, color) {
+      if (hammerWrap) hammerWrap.style.opacity = '0';
+      if (anvilEl)    anvilEl.style.opacity = '0';
+      if (resultEmoji) {
+        resultEmoji.textContent = emoji;
+        resultEmoji.style.color = color; // drop-shadow 가 currentColor 사용
+        resultEmoji.style.display = 'block';
+        // 다음 프레임에 transform 적용 → 0 → 1 scale 팝 애니메이션
+        requestAnimationFrame(function(){
+          resultEmoji.style.transform = 'translate(-50%,-50%) scale(1.15)';
+          setTimeout(function(){ resultEmoji.style.transform = 'translate(-50%,-50%) scale(1)'; }, 350);
+        });
+      }
+    }
     if (d.upgraded) {
-      glowBg.style.background = 'radial-gradient(circle, rgba(102,187,106,.22) 0%, transparent 70%)';
+      glowBg.style.background = 'radial-gradient(circle, rgba(102,187,106,.28) 0%, transparent 70%)';
       glowBg.style.opacity = '1';
-      gauge.style.background = 'linear-gradient(90deg,#66bb6a,#a5d6a7)';
+      gauge.style.background = 'linear-gradient(90deg,#66bb6a,#a5d6a7,#ffd166)';
+      gauge.style.boxShadow = '0 0 20px rgba(165,214,167,.7), 0 0 8px rgba(255,209,102,.5)';
       _forgeSparkBurst(canvas, '#a5d6a7');
       setTimeout(function(){ _forgeSparkBurst(canvas, '#ffd166'); }, 200);
-      hammer.style.transition = 'transform .2s cubic-bezier(.3,1.6,.5,1)';
-      hammer.style.transform = 'rotate(-30deg) translateY(-6px) scale(1.15)';
+      setTimeout(function(){ _forgeSparkBurst(canvas, '#fff'); }, 400);
+      _showForgeResultEmoji('⭐', '#ffd166'); // [v7.192] 강화 성공 = 별 (level up 의미)
       titleEl.textContent = LANG==='ko'?'✅ 강화 성공!':LANG==='ja'?'✅ 強化成功!':LANG==='zh'?'✅ 强化成功!':'✅ Upgrade Successful!';
       resultEl.style.display = 'block';
       resultEl.style.color = '#9be7a0';
@@ -49041,11 +49083,11 @@ async function syUpgradeShipStat(shipId, stat) {
       resultSub.style.display = 'block';
       resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  '+(LANG==='ko'?'확률':LANG==='ja'?'確率':LANG==='zh'?'概率':'Chance')+' ' + d.chance + '%  ·  '+(LANG==='ko'?'굴림':LANG==='ja'?'ロール':LANG==='zh'?'骰值':'Roll')+' ' + d.roll;
     } else {
-      glowBg.style.background = 'radial-gradient(circle, rgba(255,152,0,.15) 0%, transparent 70%)';
+      glowBg.style.background = 'radial-gradient(circle, rgba(244,67,54,.18) 0%, transparent 70%)';
       glowBg.style.opacity = '1';
       gauge.style.background = 'linear-gradient(90deg,#ff9800,#f44336)';
-      hammer.style.transition = 'transform .15s';
-      hammer.style.transform = 'rotate(0deg)';
+      gauge.style.boxShadow = '0 0 10px rgba(244,67,54,.45)';
+      _showForgeResultEmoji('💔', '#ef9a9a'); // [v7.192] 강화 실패 = 깨진 하트
       titleEl.textContent = LANG==='ko'?'💔 강화 실패':LANG==='ja'?'💔 強化失敗':LANG==='zh'?'💔 强化失败':'💔 Upgrade Failed';
       resultEl.style.display = 'block';
       resultEl.style.color = '#ffb3b3';
