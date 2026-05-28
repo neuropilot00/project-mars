@@ -33,8 +33,17 @@ async function shouldRunSchedulers() {
     console.log('[leader] RUN_SCHEDULERS=false — 스케줄러 미실행 (순수 web 인스턴스)');
     return false;
   }
-  // Redis 없으면 단일 인스턴스 기본 동작
+  // Redis 없으면 단일 인스턴스 기본 동작.
+  // [v7.191 fix] 프로덕션에서 REDIS_URL 누락 + 멀티 워커는 입금 N배 처리 위험.
+  //   NODE_ENV=production 환경에서는 REDIS_URL 또는 명시적 RUN_SCHEDULERS=true 둘 중 하나는 있어야 함.
+  //   둘 다 없으면 fail-CLOSED (안전 우선) — 운영자가 명시적으로 single-node 임을 선언해야 동작.
   if (!process.env.REDIS_URL) {
+    if (process.env.NODE_ENV === 'production' && process.env.RUN_SCHEDULERS !== 'true') {
+      console.error('[leader] ⚠ 프로덕션 환경에서 REDIS_URL 누락 + RUN_SCHEDULERS != "true" — 스케줄러 미실행 (단일 워커 명시 안 됨).');
+      console.error('[leader] 단일 워커 명시: RUN_SCHEDULERS=true / 멀티 워커: REDIS_URL 설정.');
+      _isLeader = false;
+      return false;
+    }
     console.log('[leader] REDIS_URL 미설정 — 단일 인스턴스로 스케줄러 실행');
     _isLeader = true;
     return true;

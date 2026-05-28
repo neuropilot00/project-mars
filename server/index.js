@@ -203,6 +203,11 @@ app.use((req, res, next) => {
   }
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // [v7.191] HSTS — production HTTPS 강제. Railway/Cloudflare 가 HTTPS 종단처리, 그 뒤 평문 HTTP로 오는 케이스 차단.
+  //   max-age=2년, includeSubDomains 미적용 (서브도메인 별도 운영 가능성). preload 도 후순위 (한번 등록되면 되돌리기 어려움).
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=63072000');
+  }
   // [v7.174 G-Crit-3 부분] CSP 강화 — object-src none(플래시/PDF 임베드 차단),
   //   base-uri self(base 태그 변조 방지), form-action self(폼 외부 송신 차단),
   //   frame-ancestors 'self' (clickjacking 방어 — 자체 도메인에서만 iframe 허용).

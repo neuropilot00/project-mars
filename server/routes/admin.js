@@ -1802,6 +1802,11 @@ router.post('/gp/grant', adminAuth, async (req, res) => {
       [amount, wallet.toLowerCase()]
     );
     await auditLog(req, 'gp_grant', wallet, { amount, reason });
+    // [v7.191] 유저 거래원장 일관성 — admin 잔액 조정도 gp_activity_log 에 남겨 유저 입장 거래 내역에서 보임.
+    try {
+      const { logGPActivity } = require('../db');
+      logGPActivity(wallet.toLowerCase(), Number(amount)||0, 'admin_grant', reason || 'admin grant').catch(()=>{});
+    } catch (_) {}
     res.json({ success: true, amount });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

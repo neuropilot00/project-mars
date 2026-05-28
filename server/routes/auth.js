@@ -1,5 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+// [v7.191] bcrypt cost 통일. 이전엔 register/reset=10, change-password=12 로 불일치 → cost 다른 hash 가 DB에 혼재.
+//   12 로 통일 (현재 보안 권장). 기존 cost=10 hash 는 그대로 valid (bcrypt 가 cost 포함 저장).
+const BCRYPT_COST = 12;
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
@@ -209,7 +212,7 @@ router.post('/register', authLimiter, async (req, res) => {
       }
     } catch (e) { console.warn('[Auth] custodial wallet gen failed, fallback placeholder:', e.message); }
     if (!walletAddress) walletAddress = generateCustodialAddress();
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
     const refCode = generateReferralCode();
     const displayName = nickname || email.split('@')[0].slice(0, 12);
 
@@ -916,7 +919,7 @@ router.post('/reset-password/verify', passwordResetLimiter, async (req, res) => 
     );
 
     // Update the password
-    const newHash = await bcrypt.hash(newPassword, 10);
+    const newHash = await bcrypt.hash(newPassword, BCRYPT_COST);
     await client.query(
       'UPDATE users SET password_hash = $1 WHERE email = $2',
       [newHash, normalizedEmail]
@@ -940,7 +943,9 @@ router.post('/change-password', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
-    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'dev-secret');
+    // [v7.191 fix] 이전엔 fallback 'dev-secret' — prod 에서 env 누락 시 약한 시크릿으로 서명 검증 → JWT 위조 위험.
+    //   파일 상단 JWT_SECRET 은 부팅 시 누락이면 throw 하므로 보장됨. 그 변수 재사용.
+    const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Missing fields' });
     if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be 8+ characters' });
@@ -953,7 +958,7 @@ router.post('/change-password', async (req, res) => {
     if (!user.rows.length) return res.status(404).json({ error: 'User not found' });
     const valid = await bcrypt.compare(currentPassword, user.rows[0].password_hash);
     if (!valid) return res.status(403).json({ error: 'Current password is incorrect' });
-    const newHash = await bcrypt.hash(newPassword, 12);
+    const newHash = await bcrypt.hash(newPassword, BCRYPT_COST);
     await pool.query('UPDATE users SET password_hash = $1 WHERE LOWER(wallet_address) = $2', [newHash, userWallet]);
     console.log(`[Auth] Password changed for wallet ${userWallet}`);
     res.json({ success: true });
@@ -969,7 +974,9 @@ router.post('/delete-account', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
-    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'dev-secret');
+    // [v7.191 fix] 이전엔 fallback 'dev-secret' — prod 에서 env 누락 시 약한 시크릿으로 서명 검증 → JWT 위조 위험.
+    //   파일 상단 JWT_SECRET 은 부팅 시 누락이면 throw 하므로 보장됨. 그 변수 재사용.
+    const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
     const delWallet = (decoded.wallet || decoded.walletAddress || '').toLowerCase().trim();
     if (!delWallet) return res.status(401).json({ error: 'Invalid token: missing wallet' });
     await client.query('BEGIN');
