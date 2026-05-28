@@ -249,12 +249,14 @@ async function settleAuction(auctionId) {
 }
 
 async function _finalizeAuction(auction, buyerWallet, amount) {
-  // [v7.165] fee_pct 는 fraction(0~1) 컨벤션. admin 이 5(=500%) 같은 percent 표기로 잘못 넣으면
-  // 판매자 잔고가 음수로 빠질 수 있어 안전 clamp(0~0.5). 0.5 초과 시 misconfigured 로 0% 적용.
-  let fee = parseFloat(auction.fee_pct);
-  if (!isFinite(fee) || fee < 0) fee = 0;
+  // [v7.166] fee_pct 두 컨벤션(fraction 0~1 vs percent 0~100) 자동 정규화.
+  //   값이 >= 1 이면 percent 로 간주해 /100, 아니면 fraction 그대로. 컨벤션 혼선·admin 오타에 견고.
+  //   최대 50% 안전 clamp(>0.5 fraction → 0 적용).
+  let raw = parseFloat(auction.fee_pct);
+  if (!isFinite(raw) || raw < 0) raw = 0;
+  let fee = raw >= 1 ? raw / 100 : raw;
   if (fee > 0.5) {
-    console.warn('[auctionCombat] fee_pct misconfigured (>0.5):', fee, '→ 0 적용');
+    console.warn('[auctionCombat] fee_pct misconfigured (>50%):', raw, '→ 0 적용');
     fee = 0;
   }
   const feeAmt   = Math.floor(amount * fee * 100) / 100;

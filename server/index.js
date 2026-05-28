@@ -1608,6 +1608,20 @@ async function start() {
       console.log('[npcArena] NPC arena scheduler started (arena 120s, density 5min — gated by npc_arena_enabled)');
     } catch(e) { console.warn('[npcArena] Could not init scheduler:', e.message); }
 
+    // ── [v7.166] Sybil chain 감지 (6h마다 자기거래 chain 분석 → suspicious_wallet_flags 적립) ──
+    try {
+      const sybilDetect = require('./services/sybilDetect');
+      setInterval(async () => {
+        try {
+          const r = await sybilDetect.detectSelfTradeChains();
+          if (r && !r.skipped) console.log('[sybilDetect]', JSON.stringify(r));
+        } catch(e) { console.warn('[sybilDetect] tick error:', e.message); }
+      }, 6 * 60 * 60 * 1000);
+      // 시작 직후 1회 즉시 실행(부팅 후 즉시 감지)
+      setTimeout(() => sybilDetect.detectSelfTradeChains().catch(()=>{}), 60 * 1000);
+      console.log('[sybilDetect] sybil chain scheduler started (every 6h, gated by sybil_detect_enabled)');
+    } catch(e) { console.warn('[sybilDetect] Could not init scheduler:', e.message); }
+
     } else {
       console.log('[WORKER-GATE] 비리더(web 인스턴스 모드) — 스케줄러/온체인 리스너 스킵');
     }

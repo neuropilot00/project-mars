@@ -11,8 +11,14 @@
 // ─────────────────────────────────────────────────────────────
 
 // treasury_ledger 행을 FOR UPDATE 로 잠그고 현재 담보/부채/여유분을 반환.
-// 호출 전 해당 유저 행을 FOR UPDATE 로 이미 잠근 상태여야 한다.
-async function lockRoom(client) {
+// [v7.166] contract 강제화 — 호출자가 lockedWallet 을 명시하면 해당 행도 FOR UPDATE 잠금 확정.
+//   호출자가 깜빡해도 여기서 추가 잠금이 idempotent (이미 잠긴 경우 no-op).
+//   기존 callers(호환): wallet 인자 안 줘도 동작 (legacy contract — 호출자 책임).
+async function lockRoom(client, lockedWallet) {
+  if (lockedWallet) {
+    // 안전망 — 호출자가 이미 잠갔다고 contract 이지만 한 번 더 보장. 잠겨있으면 즉시 통과.
+    await client.query('SELECT 1 FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [lockedWallet]);
+  }
   const col = await client.query('SELECT collateral_usdt FROM treasury_ledger WHERE id = 1 FOR UPDATE');
   const collateral = parseFloat(col.rows[0]?.collateral_usdt ?? 0) || 0;
   const liab = await client.query('SELECT COALESCE(SUM(usdt_balance), 0) AS s FROM users');

@@ -413,7 +413,7 @@ async function claimSeasonReward(wallet, rewardId) {
         try {
           const _treasury = require('./treasury');
           if (await _treasury.guardEnabled(getSetting)) {
-            const { room } = await _treasury.lockRoom(client);
+            const { room } = await _treasury.lockRoom(client, wallet);
             if (usdtReward > room + 1e-9) {
               await client.query('ROLLBACK');
               return { success: false, error: 'usdt_reward_collateral_insufficient', room, required: usdtReward };

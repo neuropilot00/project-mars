@@ -441,6 +441,10 @@ router.put('/settings/:key', async (req, res) => {
     if (_touchedSectors || /^(price_pixel_|sector_)/.test(k)) {
       try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
     }
+    // [v7.166] resource rate 영향 키들 — admin 변경 즉시 반영
+    if (/^(resource_|mining_|harvest_|drop_rate)/.test(k)) {
+      try { require('../services/resource').invalidateRateCache(); } catch(_) {}
+    }
 
     await auditLog(req, 'setting_update', req.params.key, { value });
     console.log(`[Admin] Setting updated: ${req.params.key} = ${JSON.stringify(value)}`);
@@ -4833,6 +4837,44 @@ router.post('/governance/clear-all', adminAuth, async (req, res) => {
     console.error('[admin /governance/clear-all]', e.message);
     res.status(500).json({ error: e.message });
   } finally { client.release(); }
+});
+
+// ─── [v7.166] Sybil chain 감지 — 의심 wallet 목록 / 수동 스캔 / 검토 처리 ───
+router.get('/suspicious-wallets', async (req, res) => {
+  try {
+    const status = (req.query.status || 'pending').toLowerCase(); // 'pending'|'reviewed'|'all'
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500);
+    const where = status === 'pending' ? 'WHERE reviewed = false' : status === 'reviewed' ? 'WHERE reviewed = true' : '';
+    const { rows } = await pool.query(
+      `SELECT id, wallet, pair_wallet, flag_type, severity, evidence, detected_at, reviewed, action_taken
+         FROM suspicious_wallet_flags ${where}
+         ORDER BY severity DESC, detected_at DESC LIMIT $1`, [limit]
+    );
+    res.json({ count: rows.length, flags: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/suspicious-wallets/scan', async (req, res) => {
+  // 즉시 수동 스캔 — 스케줄러 대기 없이 운영자가 트리거
+  try {
+    const r = await require('../services/sybilDetect').detectSelfTradeChains();
+    res.json(r);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/suspicious-wallets/:id/review', async (req, res) => {
+  // 검토 처리 — action_taken: 'observe' | 'restrict' | 'ban' | 'dismiss'
+  try {
+    const action = (req.body?.action || 'observe').toLowerCase();
+    const reviewer = req.headers['x-admin-key'] || 'admin';
+    await pool.query(
+      `UPDATE suspicious_wallet_flags
+         SET reviewed = true, reviewed_at = NOW(), reviewed_by = $1, action_taken = $2
+         WHERE id = $3`,
+      [reviewer.slice(0, 64), action.slice(0, 32), parseInt(req.params.id)]
+    );
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 module.exports = router;

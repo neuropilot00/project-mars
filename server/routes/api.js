@@ -2031,7 +2031,7 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     try {
       const _treasury = require('../services/treasury');
       if (await _treasury.guardEnabled(getSetting)) {
-        const { collateral, liability, room } = await _treasury.lockRoom(client);
+        const { collateral, liability, room } = await _treasury.lockRoom(client, w);
         if (received > room + 1e-9) {
           await client.query('ROLLBACK');
           return res.status(409).json({
@@ -2280,7 +2280,7 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
     try {
       const _treasury = require('../services/treasury');
       if (ppRedeemed > 0 && await _treasury.guardEnabled(getSetting)) {
-        const { collateral, liability, room } = await _treasury.lockRoom(client);
+        const { collateral, liability, room } = await _treasury.lockRoom(client, wallet);
         if (ppRedeemed > room + 1e-9) {
           await client.query('ROLLBACK');
           return res.status(409).json({

@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.166 — Tier 2 잔여 4건 모두 처리 (sybil 감지·캐시·treasury·fee 컨벤션)
+
+이번 라운드까지 머니플로 감사 후속 잔여 0:
+- **fee_pct 두 컨벤션 자동 정규화** (`auctionCombat.js:252`): admin이 fraction(0.05) 또는 percent(5) 어느 쪽으로 넣어도 `>= 1 → /100`로 안전 변환. 50% 초과 시 0 적용. 컨벤션 혼선·오타 모두 견고.
+- **treasury contract 강제화** (`treasury.js:lockRoom`): `lockedWallet` 옵션 인자 추가, 호출자가 명시하면 함수 내부에서 한 번 더 잠금 보장(idempotent). swap·withdraw-all·season USDT 보상 호출 모두 wallet 전달하도록 업데이트. legacy 호환 유지(wallet 안 줘도 작동).
+- **settings 캐시 무효화 일관화** (`admin.js:441`): admin이 settings 변경 시 sectors 캐시뿐 아니라 **resource rate 캐시도 자동 무효화**(`/^(resource_|mining_|harvest_|drop_rate)/` 키 패턴). getSetting 자체는 캐시 없어 즉시 반영.
+- **sybil chain 자기거래 감지 스캐폴드** (mig 250, `services/sybilDetect.js`):
+  - `suspicious_wallet_flags` 테이블 + 설정 4종 시드(`self_trade_window_days=7`, `self_trade_min_pairs=3`, `self_trade_min_value=100`, `sybil_detect_enabled=true`).
+  - `detectSelfTradeChains()` — gp_transfers 양방향+`>=minPairs`+`>=minValue` 쌍을 검출해 `suspicious_wallet_flags`에 적립(unique 멱등). `42P01` 미존재 환경 silent skip.
+  - 스케줄러(`index.js`): 6시간마다 자동 스캔 + 부팅 60초 후 1회 즉시.
+  - admin 엔드포인트 3종: `GET /admin/api/suspicious-wallets`(목록), `POST /scan`(수동), `POST /:id/review`(처리).
+  - **자동 차단 없음 — false positive 위험으로 운영자 review 후 액션**. 1차원 sybil 가드(가입·입금·추천)의 사각 보완.
+
+검증: 마이그레이션 적용, treasury 두 시그니처 모두 정상 동작, sybilDetect 미존재 테이블 silent skip 확인.
+
 ## 2026-05-28 v7.165 — 머니플로 감사 Tier 2 일괄 수정 (timezone·race·clamp·dust)
 
 Tier 1 hotfix(v7.163) 이후 4 페르소나 감사가 지적한 구조적 위험들 일괄 차단.
