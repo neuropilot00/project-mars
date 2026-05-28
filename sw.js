@@ -28,7 +28,8 @@
 // 2026-05-29 v23: v7.202 모바일 영토 업그레이드 — mobTerritoryModal '🔧 업그레이드' 클릭 시 panel-r 강제 open.
 // 2026-05-29 v24: v7.203 BASE > 내 영토 카드에 HP/등급 + TEND 버튼 표시.
 // 2026-05-29 v25: v7.204 CRITICAL — 신규 가입 PP 보너스 100→0 + 추천 PP 150→0 (USDT 1:1 mint 차단).
-const CACHE_NAME = 'mars-v25';
+// 2026-05-29 v26: v7.205 영토 업그레이드 전용 모달 — 사이드바 슬라이드 인 폐기, 모바일/데스크탑 통일.
+const CACHE_NAME = 'mars-v26';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

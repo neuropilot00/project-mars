@@ -8588,6 +8588,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Mobile: Territory Info Button (floats on globe near clicked claim) -->
 <button class="mob-info-btn" id="mobInfoBtn" onclick="openMobTerritoryModal()" data-i18n="territory_info">INFO</button>
 
+<!-- [v7.205] 영토 업그레이드 전용 모달 — 모바일/데스크탑 공통. 이전엔 사이드바 슬라이드 인이라 UX 어색.
+     onclick backdrop = 닫기. ESC 도 닫기. 내용은 loadTerritoryUpgrades(claimId, 'territoryUpgradeModalBody') 가 채움. -->
+<div id="territoryUpgradeModal" style="display:none;position:fixed;inset:0;z-index:10500;background:rgba(0,0,0,.78);align-items:center;justify-content:center;padding:14px" onclick="if(event.target===this)closeTerritoryUpgradeModal()">
+  <div style="background:linear-gradient(160deg,#1a1a2e,#12121e);border:1px solid rgba(187,134,252,.25);border-radius:14px;width:min(420px,96vw);max-height:90vh;overflow-y:auto;padding:18px 16px 16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">🔧</span>
+        <div>
+          <div style="font-size:11px;color:#bb86fc;font-family:var(--fn);font-weight:800;letter-spacing:1.5px" data-i18n="terr_upgrade_modal_title">TERRITORY UPGRADE</div>
+          <div id="territoryUpgradeModalMeta" style="font-size:9px;color:var(--tx3);margin-top:1px"></div>
+        </div>
+      </div>
+      <button type="button" onclick="closeTerritoryUpgradeModal()" style="background:transparent;border:0;color:var(--tx3);font-size:18px;cursor:pointer;padding:4px 8px">✕</button>
+    </div>
+    <div id="territoryUpgradeModalBody" style="font-size:10px"></div>
+  </div>
+</div>
+
 <!-- Mobile: Territory Info Modal -->
 <div class="mob-territory-modal" id="mobTerritoryModal" onclick="if(event.target===this)closeMobTerritoryModal()">
   <div class="mob-territory-card">
@@ -12446,16 +12464,11 @@ function _baseTerritoryUpgrade(idx){
   if(!g||!g.claims||!g.claims.length) return;
   var claim=g.claims[0];
   selectedPlot=claim;
-  // BASE 모달 닫고 영토 정보 패널 열기 → upgrade 섹션은 showTerritoryInfo 안에서 자동 로드
-  closeBaseModal();
-  showTerritoryInfo(claim);
-  // 업그레이드 섹션으로 스크롤 (렌더 후)
-  setTimeout(function(){
-    var upgradeRow=document.getElementById('infoUpgradeRow');
-    if(upgradeRow&&upgradeRow.style.display!=='none'){
-      upgradeRow.scrollIntoView({behavior:'smooth',block:'nearest'});
-    }
-  }, 400);
+  // [v7.205] BASE 모달 → 사이드바 열기 폐기 → 영토 업그레이드 전용 모달.
+  //   BASE 모달은 유지 (닫으면 사용자가 다시 열어야 해서 번거로움). 위에 업그레이드 모달이 z-index 10500 으로 덮음.
+  if (typeof openTerritoryUpgradeModal === 'function') {
+    openTerritoryUpgradeModal(claim.id || claim.claimId, claim);
+  }
 }
 function _baseTerritoryGlobe(idx){
   var grpList=window._baseTerritoryGroups||[];
@@ -14474,31 +14487,51 @@ function _timeAgo(date){
 }
 
 // 모바일 업그레이드 버튼 → 현재 선택 영토 업그레이드 패널로 직접 이동
+// [v7.205] 사이드바 슬라이드 인 폐기 → 영토 업그레이드 전용 모달 사용.
+//   모바일/데스크탑 일관된 UX. 모달 안에 HP/등급 + 업그레이드 트랙 + 비용 정보 모두 표시.
 function scrollToTerritoryUpgrade() {
   var claim = selectedPlot;
   if (claim && (claim.claimId || claim.id)) {
-    // 영토 정보 패널 열기 → upgrade 섹션 자동 로드
-    showTerritoryInfo(claim);
-    // [v7.202 fix] 모바일/좁은 화면에서는 panel-r 이 transform 으로 화면 밖에 숨어 있음 (.collapsed).
-    //   이전엔 showTerritoryInfo 만 호출 → 데스크탑 사이드 패널만 열려고 시도 → 모바일에선 안 보임 →
-    //   사용자는 "튕긴다" 로 인식.
-    //   panel-r 에 .open 클래스 강제 부여 + 우측 사이드로 슬라이드 표시.
-    try {
-      var pr = document.getElementById('panelR');
-      if (pr) { pr.classList.add('open'); pr.classList.remove('collapsed'); }
-    } catch(_){}
-    setTimeout(function(){
-      var row = document.getElementById('infoUpgradeRow');
-      if (row && row.style.display !== 'none') {
-        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }, 400);
+    openTerritoryUpgradeModal(claim.claimId || claim.id, claim);
   } else {
-    // 선택된 영토 없으면 BASE 내 영토 탭으로 이동
     var tab = document.getElementById('baseTabTerritory');
     if (tab) { openBaseModal(); switchBaseTab('territory', tab); }
   }
 }
+
+// [v7.205] 영토 업그레이드 전용 모달 — 데스크탑/모바일 공용.
+window.openTerritoryUpgradeModal = function(claimId, plotMeta) {
+  var modal = document.getElementById('territoryUpgradeModal');
+  if (!modal) return;
+  // 메타 — 좌표 / 크기 표시
+  var meta = document.getElementById('territoryUpgradeModalMeta');
+  if (meta && plotMeta) {
+    var coord = (plotMeta.lat!=null && plotMeta.lng!=null) ? (plotMeta.lat.toFixed(1)+'°, '+plotMeta.lng.toFixed(1)+'°') : '';
+    var size  = (plotMeta.w && plotMeta.h) ? (' · '+(plotMeta.w*plotMeta.h)+' px') : '';
+    meta.textContent = coord + size;
+  } else if (meta) {
+    meta.textContent = '#' + claimId;
+  }
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // 배경 스크롤 차단
+  // body 가 만들어진 후 loadTerritoryUpgrades 호출 (모달용 targetBodyId).
+  setTimeout(function(){
+    loadTerritoryUpgrades(claimId, 'territoryUpgradeModalBody');
+  }, 50);
+};
+window.closeTerritoryUpgradeModal = function() {
+  var modal = document.getElementById('territoryUpgradeModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+// ESC 로 닫기
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') {
+    var m = document.getElementById('territoryUpgradeModal');
+    if (m && m.style.display !== 'none') closeTerritoryUpgradeModal();
+  }
+});
 
 // ── Territory Upgrade Panel (P5-4) ──────────────────────────────────
 var _territoryUpgradeState = { open: true, data: null, loading: false };
@@ -14515,8 +14548,11 @@ function toggleTerritoryUpgradePanel() {
   }
 }
 
-function loadTerritoryUpgrades(claimId) {
-  var body = document.getElementById('infoUpgradeBody');
+// [v7.205] targetBodyId 인자 추가 — 'infoUpgradeBody'(사이드 패널) 또는 'territoryUpgradeModalBody'(모달).
+//   기본값 'infoUpgradeBody' 로 기존 호출자 호환성 유지.
+function loadTerritoryUpgrades(claimId, targetBodyId) {
+  targetBodyId = targetBodyId || 'infoUpgradeBody';
+  var body = document.getElementById(targetBodyId);
   if (!body) return;
   var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   // [v7.198 fix] HP 캐시 없으면 같이 로드 — 업그레이드 패널 헤더 HP 미니 표시용.
@@ -14530,7 +14566,7 @@ function loadTerritoryUpgrades(claimId) {
     .then(function(d){
       _territoryUpgradeState.loading = false;
       _territoryUpgradeState.data = d;
-      renderTerritoryUpgradeBody(d, claimId, wallet);
+      renderTerritoryUpgradeBody(d, claimId, wallet, targetBodyId);
     })
     .catch(function(){
       _territoryUpgradeState.loading = false;
@@ -14538,8 +14574,10 @@ function loadTerritoryUpgrades(claimId) {
     });
 }
 
-function renderTerritoryUpgradeBody(d, claimId, wallet) {
-  var body = document.getElementById('infoUpgradeBody');
+function renderTerritoryUpgradeBody(d, claimId, wallet, targetBodyId) {
+  // [v7.205] targetBodyId 추가 — 모달/사이드 패널 공용.
+  targetBodyId = targetBodyId || 'infoUpgradeBody';
+  var body = document.getElementById(targetBodyId);
   if (!body) return;
   var lang = (typeof LANG !== 'undefined' ? LANG : 'ko');
   var catalog = d.catalog || [];
