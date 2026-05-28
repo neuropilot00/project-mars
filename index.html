@@ -47063,11 +47063,16 @@ function openPortfolioModal(){
     showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error');
     return;
   }
-  // 잔액 — walletState 우선, _dailyState 폴백
-  var pp = Number((typeof walletState!=='undefined' && walletState.PP) || 0);
-  var usdt = Number((typeof walletState!=='undefined' && walletState.USDT) || 0);
-  var shipCount = ((typeof shipyardState!=='undefined' && shipyardState.ships) || []).filter(function(s){ return s.is_alive!==false; }).length;
-  var terrCount = (typeof myClaims!=='undefined' && myClaims) ? (myClaims.length||0) : 0;
+  // 잔액 — 올바른 필드명(gamePP/gameUsdt) + 폴백
+  var pp = Number((walletState && (walletState.gamePP!=null?walletState.gamePP:walletState.PP)) || (_dailyState && _dailyState.ppBalance) || 0);
+  var usdt = Number((walletState && (walletState.gameUsdt!=null?walletState.gameUsdt:walletState.usdtBalance)) || 0);
+  // 함선·영토는 로그인 직후엔 캐시가 없을 수 있어 API에서 fresh fetch. 우선 placeholder로 렌더 후 패치.
+  var owner = (walletState && (walletState.address||walletState.gameAddress)) || (typeof gameWallet!=='undefined'?gameWallet:null) || '';
+  // 캐시된 값이 있으면 즉시 표시(부분 정확) — 모달 깜빡임 최소화
+  var cachedShips = ((shipyardState && shipyardState.ships) || []).filter(function(s){ return s.is_alive!==false; }).length;
+  var cachedTerr = (typeof claims!=='undefined' && claims && owner) ? claims.filter(function(c){ return (c.owner||'').toLowerCase()===(owner||'').toLowerCase(); }).length : 0;
+  var shipCount = cachedShips || '—';
+  var terrCount = cachedTerr || '—';
   // 환금 가능 잠재가치(PP는 ~$1 페그, USDT는 1:1). 수익률/일당 환산 금지.
   var redeemable = pp + usdt;
   var chainLive = (typeof walletState!=='undefined' && walletState.chainContractLive===true); // 기본 false
@@ -47089,8 +47094,8 @@ function openPortfolioModal(){
     +   '<div style="text-align:center;font-size:9.5px;color:rgba(231,214,255,.65);margin-top:4px;letter-spacing:.5px">'+tl('Play · Collect · Trade · Own','플레이 · 수집 · 거래 · 소유','プレイ · 収集 · 取引 · 所有','游戏 · 收集 · 交易 · 拥有')+'</div>'
     // 보유 자산 카드 (수치는 자산 수량 — 수익률 가시화 금지)
     +   '<div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">'
-    +     _portfolioCard('🛸', tl('SHIPS','함선','艦船','舰船'),       shipCount, tl('On-chain · Tradable','온체인 · 거래가능','オンチェーン · 取引可','链上 · 可交易'), '#5cbbff')
-    +     _portfolioCard('🪨', tl('TERRITORIES','영토','領土','领土'), terrCount,  tl('Pixel-claimed · Mining','픽셀 클레임 · 채굴 중','ピクセル領有 · 採掘','像素占领 · 挖矿中'), '#ff7a45')
+    +     _portfolioCard('🛸', tl('SHIPS','함선','艦船','舰船'),       shipCount, tl('On-chain · Tradable','온체인 · 거래가능','オンチェーン · 取引可','链上 · 可交易'), '#5cbbff', 'pfShipsVal')
+    +     _portfolioCard('🪨', tl('TERRITORIES','영토','領土','领土'), terrCount,  tl('Pixel-claimed · Mining','픽셀 클레임 · 채굴 중','ピクセル領有 · 採掘','像素占领 · 挖矿中'), '#ff7a45', 'pfTerrVal')
     +     _portfolioCard('💎', 'PP',                                pp.toFixed(2),  tl('Pegged ≈ $1','~$1 페그','ペグ ~$1','锚定 ~$1'), '#caa8ff')
     +     _portfolioCard('💵', 'USDT',                              usdt.toFixed(2),tl('On Base · Yours','Base 체인 · 보유','Baseチェーン · 保有','Base 链 · 持有'), '#5cd6a8')
     +   '</div>'
@@ -47111,13 +47116,41 @@ function openPortfolioModal(){
     +   '<button type="button" onclick="document.getElementById(\'portfolioModal\').remove()" style="margin-top:13px;width:100%;padding:12px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer">'+tl('CLOSE','닫기','閉じる','关闭')+'</button>'
     + '</div>';
   document.body.appendChild(el);
+  // 함선·영토 정확 카운트 비동기 패치(로그인 직후 캐시 비어있어도 정확하게 표시)
+  _portfolioFetchFresh(owner);
 }
-function _portfolioCard(icon,label,value,sub,color){
+function _portfolioCard(icon,label,value,sub,color,valId){
+  var idAttr = valId ? (' id="'+valId+'"') : '';
   return '<div style="padding:11px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid '+color+'40">'
     + '<div style="font-size:9px;font-weight:800;color:'+color+';letter-spacing:1px">'+icon+' '+label+'</div>'
-    + '<div style="margin-top:4px;font-size:18px;font-weight:900;color:#fff">'+value+'</div>'
+    + '<div'+idAttr+' style="margin-top:4px;font-size:18px;font-weight:900;color:#fff">'+value+'</div>'
     + '<div style="font-size:8.5px;color:rgba(255,255,255,.5);margin-top:2px">'+sub+'</div>'
     + '</div>';
+}
+async function _portfolioFetchFresh(owner){
+  // 함선·영토 fresh fetch — 캐시가 없거나 부정확할 때 정확한 카운트로 패치.
+  var headers = (typeof getAuthHeaders==='function') ? getAuthHeaders() : {};
+  try {
+    var shipsResp = await fetch('/api/ships/my', { headers: headers });
+    if (shipsResp.ok) {
+      var sd = await shipsResp.json();
+      var alive = (sd.ships||[]).filter(function(s){ return s.is_alive!==false; }).length;
+      var el = document.getElementById('pfShipsVal');
+      if (el) el.textContent = alive;
+    }
+  } catch(_) {}
+  try {
+    var w = (owner||'').toLowerCase();
+    if (!w) return;
+    var qs = '?wallet=' + encodeURIComponent(w);
+    var terrResp = await fetch('/api/claims/my' + qs, { headers: headers });
+    if (terrResp.ok) {
+      var td = await terrResp.json();
+      var count = Array.isArray(td) ? td.length : ((td && td.length) || 0);
+      var el2 = document.getElementById('pfTerrVal');
+      if (el2) el2.textContent = count;
+    }
+  } catch(_) {}
 }
 function _p2oStep(icon,title,desc){
   return '<div style="display:flex;align-items:flex-start;gap:9px;padding:5px 0">'

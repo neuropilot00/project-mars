@@ -7,6 +7,7 @@
 - **🪐 MY MARS PORTFOLIO 모달**(`openPortfolioModal`, 지갑 HUD 신규 버튼): 함선·영토 자산 수량 + PP/USDT 잔액 + 🔒 환금 잠금(체인 미가동 디스클로저) + P2O 3-스텝(채굴/수집/거래) + 면책. 4언어. "수익률·일당·ROI" 가시화 0.
 - 체인 가동 상태는 `walletState.chainContractLive` 플래그로 디스클로저 동적 전환(가동 후 🟢로). 메시지 카피는 docs 가이드 준수.
 - **카피 정합성**: 게임 가이드 인트로의 위험 표현(KO "돈을 벌고", JA "稼ぎ", ZH "赚钱")을 EN과 동일한 "PP 채굴/모으기" 톤으로 3언어 통일(EN은 이미 안전). 다른 "earn rewards/PP" 게임 내 보상 맥락은 팀 진단 기준 안전이라 유지.
+- **데이터 연결 hotfix**: PORTFOLIO 모달이 잘못된 필드명(`walletState.PP/USDT`)을 읽어 잔액 0 + 함선/영토 지역변수 의존으로 카운트 0 고정이던 버그 수정 → 정확한 `walletState.gamePP/gameUsdt` + `/api/ships/my` & `/api/claims/my` fresh fetch로 패치(placeholder "—" 우아한 폴백). Preview 실측: 함선 7·영토 4·PP 850.50·USDT 25.00·잠재가치 $875.50 정확 합산 확인.
 
 ## 2026-05-28 v7.160 — BASE 탭 배너 9종 실사풍 전면 교체 (컨셉 매칭)
 
