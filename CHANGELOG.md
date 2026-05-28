@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.165 — 머니플로 감사 Tier 2 일괄 수정 (timezone·race·clamp·dust)
+
+Tier 1 hotfix(v7.163) 이후 4 페르소나 감사가 지적한 구조적 위험들 일괄 차단.
+- **timezone `CURRENT_DATE` 일관화**: `db.js` Pool `connect` 훅에 `SET TIME ZONE 'Asia/Seoul'` 강제(`DB_SESSION_TZ` env 오버라이드 가능). 30+ 지점(daily/governance/mission/login_streak/quest/gp_transfer)이 한꺼번에 KST 정합 → 호스트 OS TZ 차이로 인한 자정 boundary 더블 보상 우회 차단.
+- **GP transfer race** (`api.js:7892`): `sentToday` 집계 전에 **송신자 행 FOR UPDATE 잠금** 추가 + `from_wallet` 비교 LOWER() 양쪽 적용. 동시 송금 시 일일 한도 +amount 초과되던 race window 차단.
+- **chain.processDeposit users FOR UPDATE** (`chain.js:255`): deposit listener 가 prior 0건 SELECT ↔ deposits INSERT 사이에 race로 첫입금 보너스 중복 지급 가능했음 → 동일 wallet 행 잠금으로 차단.
+- **dividends dust 누적 차단** (`dividends.js:223`): `.toFixed(6)` 절삭 잔여(totalPool - totalDistributed)를 다음 주 풀에 carry-forward. 풀 잔여 ghost GP 영구 적립 방지.
+- **marketplace fee floor** (`marketplace.js:294`): Merchant/Crafter/등급 곱연산 누적으로 0% 까지 떨어져 referral/dividend base 0 되던 결함 → `marketplace_fee_min_pct`(기본 0.5%) 하한.
+- **referral 분배 0~100 clamp** (`marketplace.js:413`, `db.js:430·435`): `marketplace_referral_commission_pct_of_fee`, `referral_*_pct`(per-trigger), `referral_tier{1,2,3}_percent` 모두 admin 오타로 음수/>100 들어가도 fee 초과 분배 차단.
+- **withdraw float 누수 차단** (`api.js:2096`): `parsedAmount = Math.round(amount*1e6)/1e6` 정규화 + SQL 도 parsedAmount 사용. swap/treasury 컨벤션과 일관.
+- **auction self-trade LOWER() 비교** (`auction.js:204·311`): `seller_wallet === w` raw 비교 → `LOWER()` 양쪽으로 case-mixed 우회 차단.
+- **auctionCombat fee 안전 clamp** (`auctionCombat.js:252`): fee_pct 0.05(fraction) 컨벤션인데 admin 오타로 5(percent) 입력 시 500% 수수료 → 0~0.5 범위 강제, 초과 시 0 적용 + warn 로그.
+
+검증: 모든 모듈 load OK, DB TZ = Asia/Seoul 확인, processDeposit 0/NaN refused 로그, tier clamp 코드 적용. **Tier 2 잔여(2차 그래프 자기거래 chain, settings 캐시 무효화, treasury contract 강제화, fee_pct 명명 통일)**: 아키텍처/네이밍 변경 사안이라 별도 계획 작업.
+
 ## 2026-05-28 v7.164 — 가챠 리빌 전용 함선 포트레이트 22종 (실사풍·진영 톤 분리)
 
 리빌 모달의 평평한 탑뷰 폴백 대신, **전투/조선소와 분리된 가챠 전용 시네마틱 포트레이트** 22종을 Codex CLI(6 배치 순차)로 신규 생성·배치. `assets/ships/reveal/{code}.jpg`, 800x600, 3/4 다이내믹 앵글, 실사풍 입체감, 텍스트 없음. 진영 톤 분리:

@@ -249,7 +249,14 @@ async function settleAuction(auctionId) {
 }
 
 async function _finalizeAuction(auction, buyerWallet, amount) {
-  const fee      = parseFloat(auction.fee_pct);
+  // [v7.165] fee_pct 는 fraction(0~1) 컨벤션. admin 이 5(=500%) 같은 percent 표기로 잘못 넣으면
+  // 판매자 잔고가 음수로 빠질 수 있어 안전 clamp(0~0.5). 0.5 초과 시 misconfigured 로 0% 적용.
+  let fee = parseFloat(auction.fee_pct);
+  if (!isFinite(fee) || fee < 0) fee = 0;
+  if (fee > 0.5) {
+    console.warn('[auctionCombat] fee_pct misconfigured (>0.5):', fee, '→ 0 적용');
+    fee = 0;
+  }
   const feeAmt   = Math.floor(amount * fee * 100) / 100;
   const sellerGet = amount - feeAmt;
 

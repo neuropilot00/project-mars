@@ -254,6 +254,11 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     // Ensure user exists
     await ensureUser(client, wallet);
 
+    // [v7.165] users 행 FOR UPDATE 잠금 — 동시 deposit listener / 첫 입금 보너스 체크 race window 차단.
+    //   prior deposits 0건 SELECT ↔ deposits INSERT 사이에 다른 워커가 같은 wallet 처리 시
+    //   양쪽 모두 prior 0 → 보너스 중복 지급 가능 위험 차단.
+    await client.query(`SELECT 1 FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [wallet]);
+
     // Update user balances
     await client.query(
       `UPDATE users SET usdt_balance = usdt_balance + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)`,

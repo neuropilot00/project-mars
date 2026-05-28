@@ -229,6 +229,21 @@ async function distributeLastWeek() {
       [poolRow.id, totalDistributed, totalWeight]
     );
 
+    // [v7.165] dust carry-forward — 소수점 6자리 절삭 누적분(totalPool - totalDistributed)을
+    // 다음 주 풀에 이월. 누가 못 가져가는 ghost GP 영구 적립 방지.
+    const dust = Math.max(0, +(parseFloat(totalPool) - totalDistributed).toFixed(6));
+    if (dust > 0) {
+      const nextWeek = getWeekStart(); // 분배일 = 월요일 실행. getWeekStart() 호출 시 "이번 주"=다음 회차 풀.
+      await client.query(
+        `INSERT INTO gp_dividend_pool (week_start, pool_gp)
+         VALUES ($1, $2)
+         ON CONFLICT (week_start) DO UPDATE
+           SET pool_gp = gp_dividend_pool.pool_gp + EXCLUDED.pool_gp`,
+        [nextWeek, dust]
+      );
+      console.log(`[DIV] dust ${dust.toFixed(6)} GP carried to ${nextWeek}`);
+    }
+
     await client.query('COMMIT');
 
     console.log(`[DIV] Distributed ${totalDistributed.toFixed(2)} GP to ${stakersRes.rows.length} stakers for week ${lastWeekStart}`);

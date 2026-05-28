@@ -2093,7 +2093,8 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
   const { amount, chain } = req.body;
   if (!wallet || !amount || amount <= 0) return res.status(400).json({ error: 'Invalid input' });
 
-  const parsedAmount = Number(amount);
+  // [v7.165] 6자리 소수 라운드로 정규화(swap/treasury 컨벤션과 일관) — float 미세 누수 차단.
+  const parsedAmount = Math.round(Number(amount) * 1e6) / 1e6;
   if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0) {
     return res.status(400).json({ error: 'Amount must be a positive finite number' });
   }
@@ -2155,9 +2156,10 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
     const nonce = userRes.rows[0].withdrawal_nonce || 0;
 
     // Deduct from DB, increment nonce, and update last_withdrawal_at
+    // [v7.165] parsedAmount(6자리 정규화)을 사용 — 미세 float 누수 차단(원래 raw amount였음).
     await client.query(
       'UPDATE users SET usdt_balance = usdt_balance - $1, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($2) AND usdt_balance >= $1',
-      [amount, wallet.toLowerCase()]
+      [parsedAmount, wallet.toLowerCase()]
     );
 
     // ✅ [솔벤시] 출금만큼 담보 차감 — usdt_balance 와 collateral 을 함께 줄여 불변식 유지.
@@ -7889,11 +7891,22 @@ router.post('/gp/transfer', requireAuth, writeLimiter, async (req, res) => {
     try {
       await client.query('BEGIN');
 
-      // Daily limit check
+      // [v7.165] 송신자 행을 먼저 FOR UPDATE 로 잠가 동일 사용자 동시 송금 race 차단.
+      // 그 후 daily limit 집계 — race window 제거(둘 다 통과해 한도 +amount 초과되던 결함 수정).
+      const senderRes = await client.query(
+        'SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
+        [fromWallet]
+      );
+      if (!senderRes.rows.length) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'sender_not_found' });
+      }
+
+      // Daily limit check (LOWER 양쪽 비교 — 대소문자 우회 차단)
       const dayRes = await client.query(
         `SELECT COALESCE(SUM(amount), 0) AS sent_today
            FROM gp_transfers
-          WHERE from_wallet = $1 AND created_at >= CURRENT_DATE`,
+          WHERE LOWER(from_wallet) = LOWER($1) AND created_at >= CURRENT_DATE`,
         [fromWallet]
       );
       const sentToday = parseFloat(dayRes.rows[0].sent_today) || 0;
@@ -7904,16 +7917,6 @@ router.post('/gp/transfer', requireAuth, writeLimiter, async (req, res) => {
           remaining: Math.max(0, dayLimit - sentToday),
           limit: dayLimit
         });
-      }
-
-      // Deduct from sender
-      const senderRes = await client.query(
-        'SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE',
-        [fromWallet]
-      );
-      if (!senderRes.rows.length) {
-        await client.query('ROLLBACK');
-        return res.status(400).json({ error: 'sender_not_found' });
       }
       const senderGP = parseFloat(senderRes.rows[0].gp_balance) || 0;
       if (senderGP < amount) {

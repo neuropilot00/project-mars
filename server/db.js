@@ -35,6 +35,16 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
+// [v7.165] 모든 새 connection 에 일관된 TZ 강제. dailyOps 등 30+ 지점이 CURRENT_DATE 를 쓰는데
+// 호스트 TZ 가 다르면(예: Railway UTC vs 로컬 KST) 일일 캡/스트릭/미션이 사용자 자정 boundary 에서
+// 어긋나 더블 보상 우회 가능. 게임은 한국 운영이므로 KST(Asia/Seoul) 고정.
+const DB_SESSION_TZ = process.env.DB_SESSION_TZ || 'Asia/Seoul';
+pool.on('connect', (client) => {
+  client.query(`SET TIME ZONE '${DB_SESSION_TZ}'`).catch((e) => {
+    console.warn('[DB] SET TIME ZONE failed:', e.message);
+  });
+});
+
 pool.on('error', (err) => {
   console.error('[DB] Unexpected pool error:', err.message);
 });
@@ -415,15 +425,18 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
     if (enabled === false || enabled === 'false') return [];
 
     // Per-trigger rate (% of baseAmount sent to the referral tree, before tier split)
+    // [v7.165] admin 오타로 >100 또는 음수가 들어와도 fee 초과/음수 분배 차단 — 0~100 clamp.
     const triggerKey = 'referral_' + triggerType + '_pct';
     const triggerPctRaw = await getSetting(triggerKey);
-    const triggerPct = parseFloat(triggerPctRaw) || 0;
+    const triggerPct = Math.max(0, Math.min(100, parseFloat(triggerPctRaw) || 0));
     if (triggerPct <= 0) return [];
 
     // Tier multipliers (% of the trigger pool that each tier gets)
-    const t1 = parseFloat(await getSetting('referral_tier1_percent') || '15');
-    const t2 = parseFloat(await getSetting('referral_tier2_percent') || '10');
-    const t3 = parseFloat(await getSetting('referral_tier3_percent') || '5');
+    // [v7.165] 각 tier 도 0~100 clamp — 음수/초과로 pool 초과 분배 차단.
+    const clamp01 = (v) => Math.max(0, Math.min(100, parseFloat(v) || 0));
+    const t1 = clamp01(await getSetting('referral_tier1_percent') || '15');
+    const t2 = clamp01(await getSetting('referral_tier2_percent') || '10');
+    const t3 = clamp01(await getSetting('referral_tier3_percent') || '5');
     const tierPcts = [t1, t2, t3];
 
     const chain = await getReferralChain(client, fromWallet.toLowerCase());

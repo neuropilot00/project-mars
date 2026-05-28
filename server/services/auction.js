@@ -201,7 +201,7 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
       await client.query('ROLLBACK');
       return { success: false, error: 'auction_ended' };
     }
-    if (auction.seller_wallet === w) {
+    if (String(auction.seller_wallet || '').toLowerCase() === String(w || '').toLowerCase()) {
       await client.query('ROLLBACK');
       return { success: false, error: 'cannot_bid_own_auction' };
     }
@@ -308,7 +308,7 @@ async function buyout(buyerWallet, auctionId) {
     if (!aRes.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'auction_not_found' }; }
     const auction = aRes.rows[0];
     if (!auction.buyout_price) { await client.query('ROLLBACK'); return { success: false, error: 'no_buyout_price' }; }
-    if (auction.seller_wallet === w) { await client.query('ROLLBACK'); return { success: false, error: 'cannot_buy_own' }; }
+    if (String(auction.seller_wallet || '').toLowerCase() === String(w || '').toLowerCase()) { await client.query('ROLLBACK'); return { success: false, error: 'cannot_buy_own' }; }
 
     const buyoutAmt = auction.buyout_price;
     const userRes = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);

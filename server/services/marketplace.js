@@ -291,6 +291,10 @@ async function buyListing(client, listingId, buyer) {
   } catch (_je) {}
   // [영토 등급 v7.140] 판매자 최고 등급 영토 → 마켓 수수료 할인(가격 왜곡 없이 등급 효용 부여)
   try { feePct = Math.max(0, feePct * await require('./territoryCondition').marketFeeMultiplier(listing.seller)); } catch (_ge) {}
+  // [v7.165] 곱연산 누적으로 feePct 가 0 까지 떨어지면 referral/dividend base 도 0 → 수익 누락.
+  // 운영자 보호용 최소 수수료 floor(기본 0.5%). marketplace_fee_min_pct 로 admin 조정 가능.
+  const feeMinPct = parseFloat(await getSetting('marketplace_fee_min_pct') || '0.5');
+  if (feePct < feeMinPct) feePct = feeMinPct;
   const fee = Math.floor(price * feePct / 100 * 1000000) / 1000000;
 
   // ── M-156 Phase A: 섹터 관세 (거버너 수수료) ──
@@ -406,7 +410,8 @@ async function buyListing(client, listingId, buyer) {
     if (fee > 0) {
       const { creditReferralCommission } = require('../db');
       const refShareRaw = await getSetting('marketplace_referral_commission_pct_of_fee', '25');
-      const refSharePct = parseFloat(refShareRaw) || 0;
+      // [v7.165] admin 오타로 >100 들어가도 fee 초과 추천 분배 차단 — 0~100 clamp.
+      const refSharePct = Math.max(0, Math.min(100, parseFloat(refShareRaw) || 0));
       if (refSharePct > 0) {
         const refBase = Math.floor(fee * refSharePct / 100 * 1000000) / 1000000;
         if (refBase > 0) {
