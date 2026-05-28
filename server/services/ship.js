@@ -1489,15 +1489,19 @@ async function cancelShipListing(walletAddress, listingId) {
   try {
     await client.query('BEGIN');
     const { rows } = await client.query(`
-      SELECT sml.*, s.owner_wallet
+      SELECT sml.*, s.owner_wallet, st.faction_code AS ship_faction
       FROM ship_market_listings sml
       JOIN ships s ON s.id = sml.ship_id
+      JOIN ship_types st ON st.code = s.ship_type_code
       WHERE sml.id = $1 AND sml.status = 'active' AND LOWER(sml.seller_wallet) = LOWER($2)
       FOR UPDATE OF sml, s
     `, [listingId, wallet]);
     if (!rows[0]) throw new Error('LISTING_NOT_FOUND');
     const listing = rows[0];
-    const fleetId = await getOrCreateDefaultFleet(client, wallet);
+    // Cross-faction: 판매자 진영과 함선 진영이 다르면 함대 복귀 X (fleet_id=NULL "창고" 유지). 사용 불가 상태 유지, 재등록만 가능.
+    const { rows: sellerRows } = await client.query(`SELECT faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [wallet]);
+    const sellerFactionMatches = (sellerRows[0] && (sellerRows[0].faction_code||'').toLowerCase() === (listing.ship_faction||'').toLowerCase());
+    const fleetId = sellerFactionMatches ? await getOrCreateDefaultFleet(client, wallet) : null;
     await client.query(`
       UPDATE ship_market_listings
       SET status = 'cancelled', cancelled_at = NOW()
@@ -1525,9 +1529,10 @@ async function buyShipListing(walletAddress, listingId) {
   try {
     await client.query('BEGIN');
     const { rows } = await client.query(`
-      SELECT sml.*, s.owner_wallet, s.ship_type_code
+      SELECT sml.*, s.owner_wallet, s.ship_type_code, st.faction_code AS ship_faction
       FROM ship_market_listings sml
       JOIN ships s ON s.id = sml.ship_id
+      JOIN ship_types st ON st.code = s.ship_type_code
       WHERE sml.id = $1 AND sml.status = 'active' AND s.is_alive = true
       FOR UPDATE OF sml, s
     `, [listingId]);
@@ -1537,7 +1542,7 @@ async function buyShipListing(walletAddress, listingId) {
     if (seller === buyer) throw new Error('CANNOT_BUY_OWN_LISTING');
 
     const { rows: buyerRows } = await client.query(
-      `SELECT wallet_address, gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      `SELECT wallet_address, gp_balance, faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [buyer]
     );
     if (!buyerRows[0]) throw new Error('USER_NOT_FOUND');
@@ -1556,7 +1561,9 @@ async function buyShipListing(walletAddress, listingId) {
     const feePct = await getSettingNumber(client, 'ship_market_fee_pct', 5);
     const fee = Math.max(0, Math.floor(price * feePct / 100)); // fixed: floor after full division to avoid float leak
     const sellerReceive = price - fee;
-    const buyerFleetId = await getOrCreateDefaultFleet(client, buyer);
+    // Cross-faction: 구매자 진영과 함선 진영이 다르면 함대 편입 X (fleet_id=NULL "창고"). 사용 불가, 다시 마켓 판매만 가능.
+    const buyerFactionMatches = (buyerRows[0].faction_code || '').toLowerCase() === (listing.ship_faction || '').toLowerCase();
+    const buyerFleetId = buyerFactionMatches ? await getOrCreateDefaultFleet(client, buyer) : null;
 
     const deductBuyListing = await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`, [price, buyer]);
     if (deductBuyListing.rowCount === 0) throw new Error('INSUFFICIENT_GP');

@@ -8,6 +8,11 @@
 - 리빌 모달: `🔒 다른 진영 함선 (XXX)` 배너 + "마켓에 등록하면 해당 진영 유저가 구매 가능합니다 — 거래로 가치 실현" 4언어 안내. cross-faction 톤(blue-gray glow) 적용. 기함 표시 X.
 - 사용 차단: fleet_id NULL이라 함대지휘·전투 코드가 자연 필터(추가 코드 0). 마켓은 owner_wallet 기준이라 fleet 무관 — cross-faction 함선도 자유 등록·판매.
 - 검증: 실유저 6풀 스모크(60% 시 own 3·cross 3 정확, cross 3개 모두 DB fleet_id=NULL 확인). Preview 모달 시각 확인.
+- **백엔드 hotfix (3 갭 차단)**: 진영 무관 fleet 편입 우회 경로 차단.
+  - `fleet.moveShips`: cross-faction 함선을 함대에 못 넣음(`CROSS_FACTION_SHIP` throw, 핵심 차단).
+  - `ship.buyShipListing`: 구매자 진영≠함선 진영이면 `fleet_id=NULL`로 전송(창고, 사용 불가·재판매만).
+  - `ship.cancelShipListing`: 판매자 진영≠함선 진영이면 취소 후에도 `fleet_id=NULL` 유지.
+  - E2E 스모크 PASS — 풀(cross fleet_id NULL) → moveShips 차단 → 마켓 등록 → 타진영 구매(매칭 시 편입) → 자가 진영 재구매(미매칭 시 fleet_id NULL) 전 시나리오 통과.
 
 ## 2026-05-28 v7.161 — P2E → P2O 전환 + 자산 가시화 모달 (팀 진단 반영)
 

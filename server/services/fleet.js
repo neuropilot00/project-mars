@@ -425,21 +425,23 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     if (!targetRows[0]) throw new Error('TARGET_FLEET_NOT_FOUND');
     if (targetRows[0].is_in_battle) throw new Error('TARGET_FLEET_IN_BATTLE');
     
-    // 함선 소유권 확인 + 전투중 함대에서 빼낼 수 없음
+    // 함선 소유권 확인 + 전투중 함대에서 빼낼 수 없음 + 진영 일치 확인(cross-faction 차단)
     const { rows: shipRows } = await client.query(`
       SELECT s.id, s.fleet_id, s.is_flagship, s.is_alive,
              COALESCE(s.is_market_listed, false) AS is_market_listed,
-             COALESCE(f.is_in_battle, false) AS is_in_battle
+             COALESCE(f.is_in_battle, false) AS is_in_battle,
+             st.faction_code AS ship_faction
       FROM ships s
+      JOIN ship_types st ON st.code = s.ship_type_code
       LEFT JOIN fleets f ON f.id = s.fleet_id
       WHERE s.id = ANY($1::bigint[]) AND LOWER(s.owner_wallet) = LOWER($2)
       FOR UPDATE OF s
     `, [shipIds, walletAddress]);
-    
+
     if (shipRows.length !== shipIds.length) {
       throw new Error('SHIP_NOT_OWNED');
     }
-    
+
     const listed = shipRows.filter(s => s.is_market_listed);
     if (listed.length > 0) {
       throw new Error('SHIP_LISTED_FOR_SALE');
@@ -448,6 +450,16 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     const inBattle = shipRows.filter(s => s.is_in_battle);
     if (inBattle.length > 0) {
       throw new Error('SHIPS_IN_BATTLE');
+    }
+
+    // Cross-faction 차단: 본인 진영과 다른 함선은 함대에 못 넣음(창고 전용·마켓 판매만)
+    const { rows: ownerRows } = await client.query(`SELECT faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [walletAddress]);
+    const ownerFaction = (ownerRows[0] && (ownerRows[0].faction_code||'').toLowerCase()) || '';
+    const crossFaction = shipRows.filter(s => (s.ship_faction||'').toLowerCase() !== ownerFaction);
+    if (crossFaction.length > 0) {
+      const err = new Error('CROSS_FACTION_SHIP');
+      err.meta = { ship_ids: crossFaction.map(s => Number(s.id)), reason: 'cannot deploy other-faction ships; list on market instead' };
+      throw err;
     }
     
     const dead = shipRows.filter(s => !s.is_alive);
