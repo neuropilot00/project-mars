@@ -257,7 +257,29 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
     if (hijack.attacker_wallet !== walletAddress) throw new Error('NOT_ATTACKER');
     if (hijack.phase !== 'phase2') throw new Error('NOT_IN_PHASE2');
     if (hijack.phase2_battle_id) throw new Error('PHASE2_ALREADY_STARTED');
-    
+
+    // [v7.188 fix] hijack_ship_loss_enabled=true 시 Phase 1 에서 함선이 전멸할 수 있음.
+    //   atk 함대에 살아있는 함선이 0 이면 Phase 2 battle 을 만들어도 simulateBattle 이 null 반환 → applyBattleResults 미호출 → 함대 영구 잠금.
+    //   여기서 미리 차단하고 hijack 을 실패로 종료.
+    const { rows: aliveRows } = await client.query(
+      `SELECT COUNT(*)::int AS cnt FROM ships WHERE fleet_id = $1 AND is_alive = true`,
+      [atkFleetId]
+    );
+    if (!aliveRows[0] || aliveRows[0].cnt === 0) {
+      await client.query(`
+        UPDATE hijack_battles SET phase='failed', ended_at=NOW(),
+          result_payload = COALESCE(result_payload,'{}')::jsonb || '{"reason":"attacker_no_alive_ships_for_phase2"}'::jsonb
+        WHERE id = $1
+      `, [hijackId]);
+      await client.query(
+        `UPDATE fleets SET is_in_battle = false WHERE id IN ($1, $2)`,
+        [atkFleetId, defFleetId]
+      );
+      await client.query('COMMIT');
+      console.warn(`[hijack] ${hijackId} Phase 2 skipped — attacker fleet ${atkFleetId} has 0 alive ships`);
+      return { success: false, error: 'ATTACKER_NO_ALIVE_SHIPS' };
+    }
+
     // Phase 2 battle 생성
     const { rows: bRows } = await client.query(`
       INSERT INTO fleet_battles (
@@ -780,6 +802,32 @@ async function declareHijackWithPP(params) {
   }
 }
 
+// [v7.188 fix] handlePhase1Complete 가 setTimeout(3000) 으로 Phase 2 를 비동기 시작 → 그 사이 프로세스가 죽으면
+// hijack 이 phase='phase2', phase2_battle_id=NULL 로 영원히 stuck. 서버 부팅 시 한 번 sweep.
+async function recoverOrphanedPhase2() {
+  try {
+    const { rows } = await pool.query(`
+      SELECT h.id, h.attacker_wallet, h.attacker_fleet_id, h.defender_fleet_id
+        FROM hijack_battles h
+       WHERE h.phase = 'phase2'
+         AND h.phase2_battle_id IS NULL
+         AND h.phase1_ended_at < NOW() - INTERVAL '30 seconds'
+       LIMIT 20
+    `);
+    for (const h of rows) {
+      console.log(`[hijack] recovering orphaned Phase 2 for hijack ${h.id}`);
+      try {
+        await startPhase2(h.id, h.attacker_wallet, h.attacker_fleet_id, h.defender_fleet_id);
+      } catch (err) {
+        console.warn(`[hijack] recover Phase 2 failed for ${h.id}: ${err.message}`);
+      }
+    }
+    if (rows.length) console.log(`[hijack] orphan Phase 2 sweep processed ${rows.length} hijack(s)`);
+  } catch (err) {
+    console.warn('[hijack] recoverOrphanedPhase2 error:', err.message);
+  }
+}
+
 module.exports = {
   declareHijack,
   declareHijackWithPP,
@@ -788,6 +836,7 @@ module.exports = {
   handlePhase2Complete,
   getHijackDetail,
   getMyHijacks,
+  recoverOrphanedPhase2,
   PHASE1_ALLOWED_SIZES,
   PHASE1_MAX_SHIPS,
 };

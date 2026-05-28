@@ -422,15 +422,33 @@ router.post('/:id/forfeit', requireAuth, async (req, res) => {
     if (status === 'preparing') {
       // 아직 시뮬 안 됨 — 즉시 취소 (DEF win, 함선 피해 없음)
       // is_in_battle 플래그도 함께 해제 (미해제 시 양측 함대 영구 잠금)
+      // [v7.188 fix] race condition — 동시 forfeit 두 번 또는 scheduler 가 그 사이 claim 하는 케이스 방어.
+      //   1) SELECT ... FOR UPDATE 로 row lock
+      //   2) UPDATE 에 WHERE status='preparing' 명시 — 이미 active/ended 면 rowCount=0
+      //   3) 0 rowCount 면 already_resolved 로 처리, atk_ships_total 등 zero 덮어쓰기 안 함
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
-        await client.query(`
+        const { rows: lockRows } = await client.query(
+          `SELECT status FROM fleet_battles WHERE id = $1 FOR UPDATE`,
+          [battleId]
+        );
+        const lockedStatus = lockRows[0] && lockRows[0].status;
+        if (lockedStatus !== 'preparing') {
+          // scheduler 가 그 사이 claim 했거나 이미 ended — race 종료, 아무 변경 없이 OK
+          await client.query('COMMIT');
+          return res.json({ success: true, result: 'already_resolved', status: lockedStatus || status });
+        }
+        const upd = await client.query(`
           UPDATE fleet_battles
           SET status = 'ended', winner_side = 'def',
               atk_ships_total = 0, def_ships_total = 0
-          WHERE id = $1
+          WHERE id = $1 AND status = 'preparing'
         `, [battleId]);
+        if (upd.rowCount === 0) {
+          await client.query('COMMIT');
+          return res.json({ success: true, result: 'already_resolved', status: 'unknown' });
+        }
         // 참가자 fleet_id 조회 후 is_in_battle 해제
         const { rows: fleetRows } = await client.query(
           `SELECT fleet_id FROM fleet_battle_participants WHERE battle_id = $1 AND fleet_id IS NOT NULL`,

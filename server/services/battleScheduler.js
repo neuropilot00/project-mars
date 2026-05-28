@@ -15,8 +15,18 @@ const aiFleetManager = require('./aiFleetManager');       // Phase C
 
 let intervalHandle = null;
 const CHECK_INTERVAL_MS = 30 * 1000;
-const MAX_CONCURRENT = 2;
+// [v7.188 fix] 이전엔 MAX_CONCURRENT 가 하드코딩 2 였음 — settings.battle_max_concurrent 무시. 이제 매 tick 마다 읽음.
+let MAX_CONCURRENT_CACHE = 3; // settings 미존재 시 폴백
 let currentlyRunning = 0;
+async function _readMaxConcurrent() {
+  try {
+    const { rows } = await pool.query(`SELECT value FROM settings WHERE key = 'battle_max_concurrent'`);
+    const v = rows[0] && rows[0].value;
+    const n = parseInt(typeof v === 'string' ? v.replace(/"/g,'') : v) || 0;
+    if (n > 0 && n < 50) MAX_CONCURRENT_CACHE = n; // sane 범위 가드
+  } catch (_) {}
+  return MAX_CONCURRENT_CACHE;
+}
 
 async function cleanupStaleBattles() {
   // On startup: any battle still 'active' after 30+ minutes is stuck (process crash).
@@ -46,9 +56,17 @@ async function cleanupStaleBattles() {
 
 function start() {
   if (intervalHandle) return;
-  console.log(`[battleScheduler] starting (every ${CHECK_INTERVAL_MS/1000}s, max concurrent ${MAX_CONCURRENT})`);
+  // [v7.188 fix] 시작 시 1회 cache 워밍업.
+  _readMaxConcurrent().then((n)=>{
+    console.log(`[battleScheduler] starting (every ${CHECK_INTERVAL_MS/1000}s, max concurrent ${n})`);
+  }).catch(()=>{});
   // Clean up any battles that were left active from a previous process run
   cleanupStaleBattles().catch(() => {});
+  // [v7.188 fix] hijack Phase 2 orphans 복구 — setTimeout(3000) 중 프로세스 죽으면 stuck.
+  try {
+    const _hj = require('./hijack');
+    if (typeof _hj.recoverOrphanedPhase2 === 'function') _hj.recoverOrphanedPhase2().catch(() => {});
+  } catch (_) {}
   intervalHandle = setInterval(runOnce, CHECK_INTERVAL_MS);
 }
 
@@ -57,17 +75,19 @@ function stop() {
 }
 
 async function runOnce() {
-  if (currentlyRunning >= MAX_CONCURRENT) return;
-  
+  // [v7.188 fix] 매 tick 마다 settings 재조회 — admin 이 런타임에 바꿔도 반영.
+  const maxC = await _readMaxConcurrent();
+  if (currentlyRunning >= maxC) return;
+
   try {
     const { rows } = await pool.query(`
       SELECT id FROM fleet_battles
-      WHERE status = 'preparing' 
+      WHERE status = 'preparing'
         AND scheduled_start_at IS NOT NULL
         AND scheduled_start_at <= NOW()
       ORDER BY scheduled_start_at ASC
       LIMIT $1
-    `, [MAX_CONCURRENT - currentlyRunning]);
+    `, [maxC - currentlyRunning]);
     
     for (const row of rows) {
       runBattle(row.id).catch(err => {

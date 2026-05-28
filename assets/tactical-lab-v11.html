@@ -859,11 +859,14 @@ MARS_BATTLE_BG.src='textures/mars_nasa_2k.jpg';
 // [v7.180 VFX] 폭발 8장 + 임팩트 4종 스프라이트 프리로드 — 로드 실패해도 기존 캔버스 폭발로 fallback.
 const VFX_EXPLOSION_FRAMES=[]; // [Image, Image, ...] 8장
 let VFX_EXPLOSION_READY=0;
+let VFX_EXPLOSION_FAIL=0;
+// [v7.188 fix] 8장 중 1장이라도 404 면 onload 카운터가 8 도달 못 해 PNG 합성이 영원히 비활성화됨.
+// onerror 도 같이 카운트하고, drawExps 안에서는 "ready 이거나 ready+fail==8" 으로 게이트 — 로드 끝나면 무조건 진행.
 for(let i=1;i<=8;i++){
   const im=new Image();
   im.decoding='async';
   im.onload=()=>{ VFX_EXPLOSION_READY++; };
-  im.onerror=()=>{};
+  im.onerror=()=>{ VFX_EXPLOSION_FAIL++; };
   im.src='fx/explosion_'+String(i).padStart(2,'0')+'.png';
   VFX_EXPLOSION_FRAMES.push(im);
 }
@@ -2238,7 +2241,8 @@ function drawLasers(_wsActive){
 function drawExps(){
   // [v7.179 VFX] 다층 렌더 — 연기(under) → 코어 플래시 → 파편 글로우 → 흰 코어
   // [v7.180 VFX] 8단계 스프라이트가 모두 로드되면 위에 PNG 시퀀스도 합성 (additive).
-  const spritesReady = VFX_EXPLOSION_READY===8;
+  // [v7.188 fix] ready 가 정확히 8 이고 fail 이 0 일 때만 PNG 합성 — 일부 실패 시 캔버스 폴백만.
+  const spritesReady = (VFX_EXPLOSION_READY===8 && VFX_EXPLOSION_FAIL===0);
   exps=exps.filter(ex=>{
     const prog=ex.age/ex.ttl;
     // [v7.180 VFX] PNG 스프라이트 — 폭발 크기에 비례한 박스에 8장 순차 합성
