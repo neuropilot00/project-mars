@@ -46879,7 +46879,7 @@ async function loadShipCrates() {
       return;
     }
     // 가챠 상자 카드 — 상자 배너 + 등급 글로우, 개봉 버튼 하단 정렬
-    var _crateBanners = ['assets/banners/crate_standard.svg','assets/banners/crate_premium.svg','assets/banners/crate_legendary.svg'];
+    var _crateBanners = ['assets/banners/crate_standard.png','assets/banners/crate_premium.png','assets/banners/crate_legendary.png'];
     var _crateHeroes = ['assets/ships/top/cv_frg.png','assets/ships/top/fsp_bs.png','assets/ships/top/cv_titan.png'];
     var _crateGlows  = ['#7da6ff','#b98cff','#ff7a45']; // standard / premium / legendary
     grid.innerHTML = d.crates.map(function(c, idx){
@@ -48197,8 +48197,8 @@ async function syBuyShipListing(listingId) {
 }
 
 function updateFooter() {
-  var gpEl = document.getElementById('gpBalance');
-  if (gpEl) document.getElementById('syGpBalance').textContent = gpEl.textContent;
+  // GP 는 권위 소스(syGpBalance: summary.gp_balance ?? walletState.gameGP)에서 — DOM 복사(stale "-") 버그 수정
+  document.getElementById('syGpBalance').textContent = syFmt(syGpBalance());
   var totalMinerals = Object.values(shipyardState.myInventory).reduce(function(a,b){ return a+b; }, 0);
   document.getElementById('syMineralSummary').textContent = syFmt(totalMinerals);
   var alive = parseInt((shipyardState.summary && shipyardState.summary.ships_alive) || 0);

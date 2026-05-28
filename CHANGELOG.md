@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.152 — 조선소 GP "-" 연결 버그 수정 + 가챠 배너 텍스트 잘림 수정
+
+UI 검수 지적 2건:
+- **🐞 조선소 푸터 GP "-" 버그**: `updateFooter()`가 GP를 `#gpBalance` DOM 의 textContent 복사로 채워(미로드 시 "-") 광물/함선은 되는데 GP만 "-"로 표시됨. → 권위 소스 `syGpBalance()`(summary.gp_balance ?? walletState.gameGP)에서 직접 채우도록 수정. 카드 affordability와 동일 소스라 일관.
+- **🐞 가챠 배너 텍스트 잘림**: 절차배너에 영문 타이틀("STANDARD SUPPLY CRATE" 등)이 구워져 카드 cover-crop 시 잘림 + 카드가 이미 현지화 라벨 오버레이(중복). → 배너 생성 스크립트의 `draw_title` no-op 처리 후 재생성(텍스트 제거). SVG 배너 → PNG 래스터로 교체(`crate_*.png`), 미사용 SVG 삭제.
+- 검증: 인라인 JS 0 errors, 배너 PNG 재생성(텍스트 없음 — 실측 확인), 1024x512.
+- ⚠️ 배너는 여전히 절차합성(임시) — 실사풍 AI 아트는 이미지생성 키 제공 시 교체(WALLET/이미지 키 env 설정 대기).
+
 ## 2026-05-28 v7.151 — 가챠샵 전용 디자인 배너 아트 (Codex 제작)
 
 - **등급별 배너 3종**(`assets/banners/crate_{standard,premium,legendary}.svg`, Codex 제작): 우주/화성 SF 톤 디자인 — 라디얼·리니어 그라데이션 + feGaussianBlur 글로우 + 성운/별 + 벡터 함선 실루엣(등급↑ 대형함). standard 청색 / premium 보라 / legendary 주황금+폭발 이펙트. 자체완결 SVG(외부 PNG 의존 없음 → 깨짐 위험 0).
