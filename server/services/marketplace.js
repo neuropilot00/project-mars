@@ -473,6 +473,16 @@ async function buyListing(client, listingId, buyer) {
     ach.checkAndUnlock(listing.seller, 'marketplace_sell_count').catch(() => {});
   } catch (_ae) {}
 
+  // [v7.193 F4] wash-trade 탐지 fire-and-forget — 일반 마켓플레이스 (cosmetic/item/claim/resource).
+  //   buyer/seller IP+referrer+reciprocal 점수. ≥60 자동 의심 플래그.
+  try {
+    const _wash = require('./washTradeDetect');
+    _wash.observeTrade({
+      buyer: b, seller: listing.seller, assetType: listing.listing_type || 'item',
+      assetId: listing.id, priceGp: currency === 'GP' ? price : null
+    }).catch(()=>{});
+  } catch (_) {}
+
   return { success: true, price, fee, sellerReceives, currency, listing };
 }
 

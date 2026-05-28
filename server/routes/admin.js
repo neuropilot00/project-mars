@@ -4928,6 +4928,46 @@ router.post('/suspicious-wallets/scan', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// [v7.193 F4] wash-trade 관찰 raw 데이터 조회 — flagged 까진 안 된 관찰까지 포함, 디버깅용.
+router.get('/wash-trade-observations', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500);
+    const minScore = parseInt(req.query.min_score) || 0;
+    const { rows } = await pool.query(`
+      SELECT id, buyer_wallet, seller_wallet, asset_type, asset_id, price_gp,
+             shared_ip, shared_referrer, reciprocal_window, score, created_at
+        FROM wash_trade_observations
+       WHERE score >= $1
+       ORDER BY score DESC, created_at DESC
+       LIMIT $2
+    `, [minScore, limit]);
+    res.json({ count: rows.length, observations: rows });
+  } catch (e) {
+    if (e.code === '42P01') return res.json({ count: 0, observations: [], _note: 'migration 253 not applied' });
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// [v7.193 F4] wash-trade 통계 — 최근 7일 카테고리별 의심도 분포 (어드민 대시보드).
+router.get('/wash-trade-stats', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT asset_type,
+             COUNT(*)::int AS total,
+             COUNT(*) FILTER (WHERE score >= 60)::int AS flagged,
+             AVG(score)::int AS avg_score,
+             MAX(score)::int AS max_score
+        FROM wash_trade_observations
+       WHERE created_at > NOW() - INTERVAL '7 days'
+       GROUP BY asset_type
+    `);
+    res.json({ window_days: 7, stats: rows });
+  } catch (e) {
+    if (e.code === '42P01') return res.json({ window_days: 7, stats: [], _note: 'migration 253 not applied' });
+    res.status(500).json({ error: e.message });
+  }
+});
+
 router.post('/suspicious-wallets/:id/review', async (req, res) => {
   // 검토 처리 — action_taken: 'observe' | 'restrict' | 'ban' | 'dismiss'
   try {

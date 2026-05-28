@@ -1594,6 +1594,12 @@ async function buyShipListing(walletAddress, listingId) {
     logFleetGpActivity(buyer, 'ship_market_buy', -price, { listing_id: listingId, ship_id: listing.ship_id });
     try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(buyer, 'market_buy').catch(()=>{}); } catch(_) {}
     logFleetGpActivity(seller, 'ship_market_sell', sellerReceive, { listing_id: listingId, ship_id: listing.ship_id, fee_gp: fee });
+    // [v7.193 F4] wash-trade 탐지 fire-and-forget — buyer/seller IP / referrer / reciprocal 점수.
+    //   ≥60 점이면 suspicious_wallet_flags 자동 기록 (어드민 검수). 거래 자체는 비차단.
+    try {
+      const _wash = require('./washTradeDetect');
+      _wash.observeTrade({ buyer, seller, assetType: 'ship', assetId: listing.ship_id, priceGp: price }).catch(()=>{});
+    } catch (_) {}
     return { success: true, listing_id: listingId, ship_id: listing.ship_id, price_gp: price, fee_gp: fee };
   } catch (err) {
     try { await client.query('ROLLBACK'); } catch (_) {}

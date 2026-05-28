@@ -1645,6 +1645,20 @@ async function start() {
       console.log('[sybilDetect] sybil chain scheduler started (every 6h, gated by sybil_detect_enabled)');
     } catch(e) { console.warn('[sybilDetect] Could not init scheduler:', e.message); }
 
+    // [v7.193 F4] wash-trade 누적 sweep — 6시간 마다 같은 buyer/seller 쌍의 반복 거래 패턴 재평가.
+    //   단발은 점수 낮아 통과해도 5회+ 누적되면 의심 플래그. sybilDetect 와 별개 (다른 패턴).
+    try {
+      const washSvc = require('./services/washTradeDetect');
+      setInterval(async () => {
+        try {
+          const r = await washSvc.sweepRecentObservations();
+          if (r && r.flagged > 0) console.log('[washTrade] sweep', JSON.stringify(r));
+        } catch(e) { console.warn('[washTrade] sweep tick error:', e.message); }
+      }, 6 * 60 * 60 * 1000);
+      setTimeout(() => washSvc.sweepRecentObservations().catch(()=>{}), 90 * 1000);
+      console.log('[washTrade] sweep scheduler started (every 6h)');
+    } catch(e) { console.warn('[washTrade] Could not init scheduler:', e.message); }
+
     } else {
       console.log('[WORKER-GATE] 비리더(web 인스턴스 모드) — 스케줄러/온체인 리스너 스킵');
     }

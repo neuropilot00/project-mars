@@ -381,6 +381,16 @@ async function buyout(buyerWallet, auctionId) {
       _checkMarketplaceSalesTitle(auction.seller_wallet).catch(() => {});
     }
 
+    // [v7.193 F4] wash-trade 탐지 — auction buyout 도 매수/매도 패턴.
+    //   placeBid 는 단발성이라 미관찰 (마지막 정산 시점만 의미 있음).
+    try {
+      const _wash = require('./washTradeDetect');
+      _wash.observeTrade({
+        buyer: w, seller: auction.seller_wallet, assetType: 'auction',
+        assetId: id, priceGp: buyoutAmt
+      }).catch(()=>{});
+    } catch (_) {}
+
     return { success: true, buyout_amount: buyoutAmt, seller_payout: sellerPayout, fee };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -491,6 +501,14 @@ async function settleAuction(auctionId) {
       if (titleService) {
         _checkMarketplaceSalesTitle(auction.seller_wallet).catch(() => {});
       }
+      // [v7.193 F4] wash-trade 탐지 — auction 자연 종료 낙찰 케이스.
+      try {
+        const _wash = require('./washTradeDetect');
+        _wash.observeTrade({
+          buyer: auction.current_bidder_wallet, seller: auction.seller_wallet,
+          assetType: 'auction', assetId: id, priceGp: auction.current_bid
+        }).catch(()=>{});
+      } catch (_) {}
       console.log(`[AUCTION] #${id} settled. Winner: ${auction.current_bidder_wallet}, Payout: ${payout} GP`);
       return { success: true, settled: true, payout };
     } else {

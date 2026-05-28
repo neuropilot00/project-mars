@@ -105,21 +105,31 @@ async function observeTrade(opts) {
       VALUES (LOWER($1), LOWER($2), $3, $4, $5, $6, $7, $8, $9)
     `, [buyer, seller, assetType, assetId, priceGp, ip, ref, reciprocalFlag, score]);
 
-    // 임계 이상이면 양 쪽 wallet 에 의심 플래그
+    // 임계 이상이면 양 쪽 wallet 에 의심 플래그.
+    // [v7.193 fix] suspicious_wallet_flags 실제 스키마(mig 250) 에 맞춤 — wallet, pair_wallet, flag_type, severity(1~5), evidence JSONB.
+    //   wash-trade score (0~100) → severity 1~5 매핑: 60~69=2, 70~79=3, 80~89=4, 90~100=5.
     if (score >= minScore) {
-      const reason = `wash_trade score=${score} (ip=${!!ip}, ref=${!!ref}, recip=${reciprocalFlag})`;
-      for (const w of [buyer, seller]) {
+      const severity = score >= 90 ? 5 : score >= 80 ? 4 : score >= 70 ? 3 : 2;
+      const evidence = { score, shared_ip: !!ip, shared_referrer: !!ref, reciprocal: reciprocalFlag,
+                         asset_type: assetType, asset_id: assetId, price_gp: priceGp };
+      // 두 wallet 각각 기록 (pair_wallet 가 상대) — UNIQUE(wallet, pair_wallet, flag_type) 기준 upsert.
+      const pairs = [[buyer, seller], [seller, buyer]];
+      for (const [w, p] of pairs) {
         try {
           await pool.query(`
-            INSERT INTO suspicious_wallet_flags (wallet_address, reason, score, detected_at)
-            VALUES (LOWER($1), $2, $3, NOW())
-            ON CONFLICT (wallet_address, reason) DO UPDATE
-              SET score = GREATEST(suspicious_wallet_flags.score, EXCLUDED.score),
-                  detected_at = NOW()
-          `, [w, reason, score]);
-        } catch (_) {}
+            INSERT INTO suspicious_wallet_flags (wallet, pair_wallet, flag_type, severity, evidence, detected_at)
+            VALUES (LOWER($1), LOWER($2), 'wash_trade', $3, $4::jsonb, NOW())
+            ON CONFLICT (wallet, pair_wallet, flag_type) DO UPDATE
+              SET severity = GREATEST(suspicious_wallet_flags.severity, EXCLUDED.severity),
+                  evidence = EXCLUDED.evidence,
+                  detected_at = NOW(),
+                  reviewed = FALSE
+          `, [w, p, severity, JSON.stringify(evidence)]);
+        } catch (e) {
+          console.warn('[washTrade] flag upsert error:', e.message);
+        }
       }
-      console.warn(`[washTrade] flagged ${buyer.slice(0,8)} ↔ ${seller.slice(0,8)} (${reason})`);
+      console.warn(`[washTrade] flagged ${buyer.slice(0,8)} ↔ ${seller.slice(0,8)} score=${score} sev=${severity}`);
     }
     return { score, ip: !!ip, ref: !!ref, reciprocal: reciprocalFlag };
   } catch (e) {
@@ -128,4 +138,53 @@ async function observeTrade(opts) {
   }
 }
 
-module.exports = { observeTrade };
+// [v7.193 F4] 6시간 누적 sweep — 단발 거래는 점수 낮아 통과했어도, 같은 쌍이 N회 반복되면
+//   reciprocal 점수가 누적돼 임계 넘기는 케이스 캐치. 스케줄러가 호출.
+async function sweepRecentObservations() {
+  try {
+    const minScore = parseInt(await getSetting('wash_trade_min_score', 60));
+    // 최근 24h 안 같은 buyer/seller 쌍이 reciprocal=true 기록 다수 → 재플래그.
+    const { rows } = await pool.query(`
+      SELECT LEAST(LOWER(buyer_wallet), LOWER(seller_wallet)) AS w1,
+             GREATEST(LOWER(buyer_wallet), LOWER(seller_wallet)) AS w2,
+             COUNT(*)::int AS cnt,
+             AVG(score)::int AS avg_score,
+             MAX(score)::int AS max_score
+        FROM wash_trade_observations
+       WHERE created_at > NOW() - INTERVAL '24 hours'
+       GROUP BY w1, w2
+      HAVING COUNT(*) >= 3 AND AVG(score) >= 30
+       ORDER BY cnt DESC
+       LIMIT 200
+    `);
+    let flagged = 0;
+    for (const r of rows) {
+      // 누적 위험 점수: 거래 횟수 × 평균. 5회 + 평균 50점 = 의심.
+      const accumScore = Math.min(100, r.avg_score + r.cnt * 8);
+      if (accumScore < minScore) continue;
+      const severity = accumScore >= 90 ? 5 : accumScore >= 80 ? 4 : accumScore >= 70 ? 3 : 2;
+      const evidence = { sweep: true, pair_count: r.cnt, avg_score: r.avg_score, max_score: r.max_score, accum_score: accumScore };
+      for (const [w, p] of [[r.w1, r.w2], [r.w2, r.w1]]) {
+        try {
+          await pool.query(`
+            INSERT INTO suspicious_wallet_flags (wallet, pair_wallet, flag_type, severity, evidence, detected_at)
+            VALUES ($1, $2, 'wash_trade_cumulative', $3, $4::jsonb, NOW())
+            ON CONFLICT (wallet, pair_wallet, flag_type) DO UPDATE
+              SET severity = GREATEST(suspicious_wallet_flags.severity, EXCLUDED.severity),
+                  evidence = EXCLUDED.evidence,
+                  detected_at = NOW(),
+                  reviewed = FALSE
+          `, [w, p, severity, JSON.stringify(evidence)]);
+        } catch (_) {}
+      }
+      flagged++;
+    }
+    if (flagged) console.log(`[washTrade] sweep flagged ${flagged} cumulative pair(s)`);
+    return { swept: rows.length, flagged };
+  } catch (e) {
+    console.warn('[washTrade] sweep error:', e.message);
+    return { swept: 0, flagged: 0, error: e.message };
+  }
+}
+
+module.exports = { observeTrade, sweepRecentObservations };
