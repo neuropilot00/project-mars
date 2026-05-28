@@ -76,13 +76,22 @@ function rollBonusStats(quality, base) {
   };
 }
 
-async function listCrates() {
+async function listCrates(walletAddress) {
   const enabled = String(await getSetting('ship_crate_enabled', 'true'));
   if (enabled === 'false') return { enabled: false, crates: [] };
   const { rows } = await pool.query(
     `SELECT code, label_ko, label_en, price_gp, price_usdt, rarity_weights, pity_pulls, daily_limit
      FROM ship_crate_types WHERE active = true ORDER BY sort_order ASC, price_gp ASC`
   );
+  // [v7.168] 사용자 pity 카운터 — wallet 전달 시 각 crate 별 "다음 보장까지 N회" 표시용
+  let userPity = {};
+  if (walletAddress) {
+    try {
+      const w = String(walletAddress).toLowerCase().trim();
+      const pr = await pool.query(`SELECT crate_code, pulls_since_rare FROM ship_crate_pity WHERE LOWER(wallet) = LOWER($1)`, [w]);
+      for (const row of pr.rows) userPity[row.crate_code] = parseInt(row.pulls_since_rare, 10) || 0;
+    } catch (_) {}
+  }
   // 확률 공개(odds disclosure): 가중치를 % 로 환산해 함께 내려준다(법적 대응).
   const crates = rows.map(r => {
     const w = r.rarity_weights || {};
@@ -92,7 +101,9 @@ async function listCrates() {
     return {
       code: r.code, label_ko: r.label_ko, label_en: r.label_en,
       price_gp: r.price_gp, price_usdt: Number(r.price_usdt) || 0,
-      pity_pulls: r.pity_pulls, daily_limit: parseInt(r.daily_limit, 10) || 0, odds
+      pity_pulls: r.pity_pulls, daily_limit: parseInt(r.daily_limit, 10) || 0, odds,
+      pulls_since_rare: userPity[r.code] || 0,
+      pity_remaining: (r.pity_pulls && r.pity_pulls > 0) ? Math.max(0, r.pity_pulls - (userPity[r.code] || 0)) : null
     };
   });
   return { enabled: true, crates };

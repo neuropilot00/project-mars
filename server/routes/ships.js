@@ -576,8 +576,12 @@ router.post('/:id/shield', requireAuth, async (req, res) => {
 // GET  /api/ships/crates           — 상자 목록 + 공개 확률(odds)
 // POST /api/ships/crates/:code/open — 상자 개봉(GP 차감 → 함선 획득). JWT 필요.
 const shipCrate = require('../services/shipCrate');
-router.get('/crates', async (_req, res) => {
-  try { res.json(await shipCrate.listCrates()); }
+router.get('/crates', async (req, res) => {
+  // [v7.168] wallet 전달 시 pity_remaining 포함 — 사용자별 천장 잔여 표시
+  try {
+    const w = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+    res.json(await shipCrate.listCrates(w || null));
+  }
   catch (e) { console.error('[ships] crates list error:', e.message); res.status(500).json({ error: 'SERVER_ERROR' }); }
 });
 router.post('/crates/:code/open', requireAuth, async (req, res) => {

@@ -6231,7 +6231,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
       <div class="dw-info">
-        <span data-i18n="swap_fee">Swap fee:</span> <span style="color:var(--red)">5%</span><br>
+        <span data-i18n="swap_fee">Swap fee:</span> <span id="swpFeePctDisplay" style="color:var(--red)">5%</span><br>
         <span data-i18n="you_receive">You receive:</span> <span id="swpReceive" style="color:var(--gn)">0.00 USDT</span>
       </div>
       <button class="cfm" onclick="confirmSwap()" data-i18n="confirm_swap">CONFIRM SWAP</button>
@@ -16781,12 +16781,25 @@ async function confirmWithdraw(){
 }
 
 // ── Swap Modal (PP → USDT) ──
+var _swpFeePct = 0.05; // [v7.168] 서버 setting 으로 동적 갱신
 function openSwapModal(){
   if(!walletState.connected){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   document.getElementById('swpPPBal').textContent=walletState.gamePP.toFixed(2)+' PP';
   document.getElementById('swpAmount').value='';
   document.getElementById('swpReceive').textContent='0.00 USDT';
   document.getElementById('swapModal').classList.add('open');
+  // [v7.168] swap fee % 동적 표시 — admin 변경 즉시 반영 (이전엔 5% 하드코딩)
+  try {
+    fetch('/api/exchange/pp-to-gp/info').then(function(r){return r.json();}).then(function(d){
+      // pp-to-gp/info 는 GP 환전 정보 — swap 은 별도. 차라리 swap 전용 info 가 없으니 cfg 노출 안 함.
+    }).catch(function(){});
+    fetch('/api/public/swap-info').then(function(r){return r.json();}).then(function(d){
+      if (d && typeof d.fee_percent === 'number') {
+        _swpFeePct = d.fee_percent / 100;
+        var el = document.getElementById('swpFeePctDisplay'); if (el) el.textContent = d.fee_percent + '%';
+      }
+    }).catch(function(){});
+  } catch(_) {}
 }
 function closeSwapModal(){document.getElementById('swapModal').classList.remove('open')}
 function setSwpMax(){
@@ -16795,15 +16808,15 @@ function setSwpMax(){
 }
 function updateSwapPreview(){
   var amt=parseFloat(document.getElementById('swpAmount').value)||0;
-  var fee=amt*0.05;
+  var fee=amt*_swpFeePct;
   document.getElementById('swpReceive').textContent=(amt-fee).toFixed(2)+' USDT (fee: '+fee.toFixed(2)+')';
 }
 
 async function confirmSwap(){
   var amt=parseFloat(document.getElementById('swpAmount').value);
-  if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
-  if(amt>walletState.gamePP){showToast('INSUFFICIENT PP');return}
-  var fee=amt*0.05;
+  if(!amt||amt<=0){showToast(tl('Enter amount','금액을 입력하세요','金額を入力','请输入金额'));return}
+  if(amt>walletState.gamePP){showToast(tl('Insufficient PP','PP 부족','PP不足','PP不足'));return}
+  var fee=amt*_swpFeePct;
   var received=amt-fee;
 
   try{
@@ -16813,7 +16826,17 @@ async function confirmSwap(){
       body:JSON.stringify({amount:amt})
     });
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'SWAP FAILED');return}
+    if(!resp.ok){
+      // [v7.168] swap 에러 4언어 매핑(이전 영문 only) — 환금 풀 부족이 가장 자주 발생
+      var em = {
+        swap_pool_insufficient: tl('Swap pool insufficient — try a smaller amount or later','환금 풀이 부족합니다 — 금액을 줄이거나 잠시 후 다시 시도하세요','スワッププールが不足しています','兑换池余额不足'),
+        amount_too_small: tl('Amount too small','금액이 너무 적습니다','金額が小さすぎます','金额过小'),
+        insufficient_pp: tl('Insufficient PP balance','PP 잔액 부족','PP残高不足','PP余额不足'),
+        invalid_amount: tl('Invalid amount','유효하지 않은 금액','無効な金額','无效金额')
+      };
+      showToast(em[d.error] || d.error || tl('Swap failed','환금 실패','スワップ失敗','兑换失败'));
+      return;
+    }
 
     walletState.gamePP=d.ppBalance!=null?d.ppBalance:walletState.gamePP-amt;
     walletState.gameUsdt=d.usdtBalance!=null?d.usdtBalance:walletState.gameUsdt+received;
@@ -28170,8 +28193,9 @@ function renderCampaignRewardInbox(inbox){
   var el=document.getElementById('campaignRewardInbox');
   if(!el) return;
   if(!Array.isArray(inbox)||!inbox.length){el.innerHTML='';return;}
-  var html='<div class="campaign-reward-inbox">';
-  inbox.slice(0,4).forEach(function(r){
+  // [v7.168] inbox 표시 한도 4→12 (서버 LIMIT 20 — 5건 이상도 노출). 스크롤 가능 컨테이너.
+  var html='<div class="campaign-reward-inbox" style="max-height:340px;overflow-y:auto">';
+  inbox.slice(0,12).forEach(function(r){
     var id=parseInt(r.id,10)||0;
     var qty=parseInt(r.quantity,10)||1;
     var type=campaignRewardTypeLabel(r.reward_type);
@@ -46940,7 +46964,8 @@ async function loadShipCrates() {
   if (!grid) return;
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(LANG==='ko'?'로딩 중…':'Loading…')+'</div>';
   try {
-    var r = await fetch('/api/ships/crates');
+    // [v7.168] wallet 전달 — pity_remaining(천장까지 N회) 포함하도록
+    var r = await fetch('/api/ships/crates', { headers: getAuthHeaders() });
     var d = await r.json();
     if (!d || d.enabled === false || !(d.crates||[]).length) {
       grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(LANG==='ko'?'이용 가능한 상자가 없습니다.':'No crates available.')+'</div>';
@@ -46961,7 +46986,18 @@ async function loadShipCrates() {
         var m=_rarityMeta[cls]||{col:'#888',emoji:'•'};
         return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:'+m.col+';margin-right:8px">'+m.emoji+' '+_rarityLabel(cls)+' '+c.odds[cls]+'%</span>';
       }).join('');
-      var pityHtml = c.pity_pulls>0 ? '<div style="font-size:8px;color:var(--gold);margin-top:2px">🎯 '+(LANG==='ko'?(c.pity_pulls+'회 내 순양함+ 확정'):('Cruiser+ guaranteed within '+c.pity_pulls+' pulls'))+'</div>' : '';
+      // [v7.168] pity 카운터 — 사용자별 잔여 표시. pity_remaining 가 있으면 "X/Y 보장까지" 동적 표시.
+      var pityHtml = '';
+      if (c.pity_pulls > 0) {
+        var rem = (typeof c.pity_remaining === 'number') ? c.pity_remaining : c.pity_pulls;
+        var since = c.pulls_since_rare || 0;
+        pityHtml = '<div style="font-size:8px;color:var(--gold);margin-top:2px">🎯 '
+          + (LANG==='ko' ? ('순양함+ 확정 — '+rem+'회 남음 ('+since+'/'+c.pity_pulls+')')
+          : LANG==='ja' ? ('巡洋艦+確定 — 残り'+rem+'回 ('+since+'/'+c.pity_pulls+')')
+          : LANG==='zh' ? ('巡洋舰+保底 — 剩'+rem+'次 ('+since+'/'+c.pity_pulls+')')
+          : ('Cruiser+ in '+rem+' more ('+since+'/'+c.pity_pulls+')'))
+          +'</div>';
+      }
       var isFree = !(c.price_gp>0);
       var dailyHtml = (c.daily_limit>0) ? '<div style="font-size:8px;color:#4fd1c5;margin-top:2px">🆓 '+(LANG==='ko'?('1일 '+c.daily_limit+'회 무료'):('Free · '+c.daily_limit+'/day'))+'</div>' : '';
       var label = LANG==='ko' ? (c.label_ko||c.code) : (c.label_en||c.code);

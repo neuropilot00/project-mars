@@ -125,6 +125,17 @@ async function cfg() {
   return cachedSettings;
 }
 
+// [v7.168] GET /api/public/swap-info — swap 모달 fee % 동적 표시(이전 5% 하드코딩 제거)
+router.get('/public/swap-info', async (req, res) => {
+  try {
+    const s = await cfg();
+    res.json({
+      fee_percent: parseFloat(s.swap_fee_percent) || 5,
+      guard_enabled: String(s.swap_solvency_guard_enabled || 'true').toLowerCase() === 'true'
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // [v7.167] GET /api/wallet/deposit-bonus-info — 입금 모달에 첫입금 보너스 강조 표시용
 router.get('/wallet/deposit-bonus-info', requireAuth, async (req, res) => {
   try {

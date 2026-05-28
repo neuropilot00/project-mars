@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.168 — 카테고리별 UI↔백엔드 정밀 감사 후속 fixes
+
+5 페르소나 병렬 감사(통화/영토/함선/캠페인-길드/마켓-시즌-자산) 결과 — Critical 잔여 즉시 차단:
+- **swap 모달 fee 5% 하드코딩 → 동적 표시** (`/api/public/swap-info` 신규 + openSwapModal fetch). admin이 `swap_fee_percent` 변경하면 즉시 반영. updateSwapPreview/confirmSwap 도 동적 fee 사용.
+- **swap 에러 4언어 매핑** (`swap_pool_insufficient`/`amount_too_small`/`insufficient_pp`/`invalid_amount`). 환금 풀 부족 등 솔벤시 가드 메시지 한국어 명확화.
+- **가챠 pity 카운터 동적 표시** (`listCrates(wallet)` 시그니처 확장 + `/api/ships/crates` x-wallet 헤더 전달). 각 상자 카드에 "🎯 X/Y 보장까지" 표시(4언어). 천장 시스템 사용자 가시화 — 검증: premium 1/10 → 9 남음 표시 확인.
+- **campaign reward inbox 4건 제한 해제** (서버 LIMIT 20인데 프론트 slice(0,4) → slice(0,12) + 스크롤 컨테이너). 5건 이상 미수령 잔존 해소.
+
+[감사 거짓경보 정정] hidden faction 차단(의도된 unlock 미정), guild `/guilds/:id/alliance`(phaseD.js 정상 라우트 존재), 함선 마켓 sort/size/faction 필터(이미 존재).
+
+[Tier 2 잔여 — 별도 후속] NPC arena PvE 진입점, titleExtended 칭호 장착 UI(tags 기반), 어드민에 first_deposit_bonus_pct + pp_to_gp 동적 환율 파라미터(floor/ceil/step) 노출, 함선 마켓 거래 히스토리 그래프, 거버너 수익 화면, 업적 unlock 토스트, enhancementAdvanced UI.
+
 ## 2026-05-28 v7.167 — UI 미연결 잔존 2건 연결 (각인 품질·첫 입금 보너스)
 
 최근 백엔드 기능 중 프론트 UI 미반영 잔존분 처리:
