@@ -12316,6 +12316,26 @@ function _bterrLoadProd(idx,g){
       if(!document.getElementById('bterrProd'+idx)) return; // 이미 닫힘
       if(d.error){prodEl.textContent=LANG==='ko'?'생산 정보 없음':LANG==='ja'?'生産情報なし':LANG==='zh'?'无生产信息':'No production data';return;}
       var html='';
+      // [v7.203] BASE > 내 영토 카드에 HP/등급 표시 — 사이드 패널/모달엔 있었는데 이 리스트엔 누락.
+      //   condition(HP) 0~100 + grade S/A/B/C/D/F + TEND 버튼 한 줄. 정비도 카드 안에서 가능.
+      if(typeof d.condition!=='undefined'){
+        var cond=Math.max(0,Math.min(100,parseFloat(d.condition)||0));
+        var grade=d.grade||'B';
+        var gColor=({S:'#69f0ae',A:'#7cf0ff',B:'#ffd700',C:'#ffab40',D:'#ff8a65',F:'#ff5252'})[grade]||'#ffd700';
+        var barColor=cond>=60?'#69f0ae':cond>=30?'#ffab40':'#ff5252';
+        html+='<div style="margin-bottom:6px;padding:6px 8px;background:rgba(255,255,255,.03);border:1px solid '+gColor+'33;border-radius:6px">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+        html+='<span style="color:var(--tx3);font-size:9px">'+(LANG==='ko'?'영토 상태 (HP)':LANG==='ja'?'領土状態(HP)':LANG==='zh'?'领土状态(HP)':'Condition (HP)')+'</span>';
+        html+='<span style="display:flex;align-items:center;gap:5px">';
+        html+='<span style="font-size:10px;font-weight:800;padding:1px 7px;border-radius:8px;color:'+gColor+';border:1px solid '+gColor+'66;background:'+gColor+'1a">'+grade+'</span>';
+        html+='<span style="color:'+barColor+';font-weight:700;font-size:10px">'+cond.toFixed(0)+'/100</span>';
+        html+='</span></div>';
+        html+='<div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+cond+'%;background:'+barColor+';transition:width .3s"></div></div>';
+        if (cond < 100) {
+          html+='<button type="button" onclick="event.stopPropagation();tendTerritory('+claimId+',\''+(wallet||'').replace(/\047/g,"\\\047")+'\')" style="margin-top:5px;width:100%;font-size:9px;padding:5px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.3);border-radius:5px;color:#69f0ae;cursor:pointer;font-family:var(--fn)">'+(LANG==='ko'?'🔧 정비하기':LANG==='ja'?'🔧 整備する':LANG==='zh'?'🔧 维护':'🔧 TEND')+'</button>';
+        }
+        html+='</div>';
+      }
       var ppMin=d.production&&d.production.ppMin||0;
       var ppMax=d.production&&d.production.ppMax||0;
       if(ppMin>0||ppMax>0){
