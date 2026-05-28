@@ -2195,6 +2195,14 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
     // Read and increment nonce
     const nonce = userRes.rows[0].withdrawal_nonce || 0;
 
+    // [v7.217 ECON-005] 출금 수수료 — swap(5%) vs withdraw(0%) 비대칭으로 담보 무수수료 유출되던 구조 차단.
+    //   유저 잔액에서는 요청액 전액(parsedAmount) 차감, on-chain 으로는 net(=요청액-fee) 만 전송.
+    //   fee 만큼은 담보(collateral)에 남겨 페그 강화. 0~20% clamp.
+    const _wfPctRaw = (s && (s.withdraw_fee_percent ?? s.withdrawFeePercent));
+    const withdrawFeePct = Math.max(0, Math.min(20, parseFloat(_wfPctRaw) || 0));
+    const feeAmount = Math.round(parsedAmount * (withdrawFeePct / 100) * 1000000) / 1000000;
+    const netAmount = Math.round((parsedAmount - feeAmount) * 1000000) / 1000000;
+
     // Deduct from DB, increment nonce, and update last_withdrawal_at
     // [v7.165] parsedAmount(6자리 정규화)을 사용 — 미세 float 누수 차단(원래 raw amount였음).
     await client.query(
@@ -2202,14 +2210,14 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
       [parsedAmount, wallet.toLowerCase()]
     );
 
-    // ✅ [솔벤시] 출금만큼 담보 차감 — usdt_balance 와 collateral 을 함께 줄여 불변식 유지.
-    // [v7.189 fix] 이전엔 try/catch (_) {} 로 silent swallow → adjustCollateral 실패 시 usdt_balance 는 감소했는데 collateral 은 유지 → 불변식 깨짐.
-    //   fail-CLOSED 로 변경: 에러 시 throw → 호출자 catch 에서 ROLLBACK 으로 잔액 변경도 같이 취소.
-    await require('../services/treasury').adjustCollateral(client, -parsedAmount);
+    // ✅ [솔벤시] 담보는 net(실제 체인 전송분)만큼만 차감 — fee 는 담보에 잔류해 불변식 강화.
+    // [v7.189 fix] fail-CLOSED: 에러 시 throw → 호출자 catch 에서 ROLLBACK 으로 잔액 변경도 같이 취소.
+    // [v7.217] 이전엔 -parsedAmount(전액) → 이제 -netAmount.
+    await require('../services/treasury').adjustCollateral(client, -netAmount);
 
-    // Generate on-chain withdrawal signature
-    const amountBN = ethers.utils.parseUnits(amount.toString(), chainCfg.decimals);
-    const feeBN = ethers.BigNumber.from(0); // no fee on withdrawal for now
+    // Generate on-chain withdrawal signature — net 만 전송 (fee 는 체인에 안 나감).
+    const amountBN = ethers.utils.parseUnits(netAmount.toString(), chainCfg.decimals);
+    const feeBN = ethers.BigNumber.from(0); // fee 는 DB 차감으로 처리, on-chain feeBN 은 0 유지
 
     // [v7.74] Liquidity check — wrap separately to avoid leaking env-var names in error messages
     let availableLiquidity;
@@ -2234,14 +2242,16 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
       wallet, amountBN, feeBN, nonce, chainKey
     );
 
+    // [v7.217] fee 컬럼 + meta 에 net/fee 기록 (회계 정확성).
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, fee, meta)
-       VALUES ('withdraw', $1, $2, 0, $3)`,
-      [wallet.toLowerCase(), amount, JSON.stringify({ chain: chainKey, nonce, deadline: sigData.deadline })]
+       VALUES ('withdraw', $1, $2, $3, $4)`,
+      [wallet.toLowerCase(), parsedAmount, feeAmount, JSON.stringify({ chain: chainKey, nonce, deadline: sigData.deadline, net: netAmount, fee: feeAmount, feePct: withdrawFeePct })]
     );
 
     await client.query('COMMIT');
-    res.json({ success: true, ...sigData });
+    // [v7.217] 프론트에 fee/net 노출 — 유저가 실수령액 확인 가능.
+    res.json({ success: true, ...sigData, requested: parsedAmount, fee: feeAmount, feePct: withdrawFeePct, net: netAmount });
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] withdraw error:', e.message);
