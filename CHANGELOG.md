@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.153 — GP 표시 소스 통일 (stale 잠재결함 제거)
+
+표시값 미연결 전수 스캔(에이전트) 결과 — stale-DOM 복사 버그는 GP 푸터 1곳뿐(v7.152 수정)이고 다른 사례 0. 단 **GP 표시 소스 이원화** MED 결함 발견·수정:
+- `updateGPDisplay`(사이드바 #walletGP + 프로필 #authGPBal), `_updateBaseShopBalances`(#baseShopBalGP), 레거시 SHOP(#shopBalGP) 3곳이 `_dailyState.gpBalance` 만 읽음 → GP 소비 경로(환전/캠페인/길드기부)는 `walletState.gameGP` 갱신이라 일시 stale 가능(refreshEmailBalances self-heal 전까지). 같은 함수의 PP/USDT 는 이미 walletState 사용.
+- → 3곳 모두 `walletState.gameGP ?? _dailyState.gpBalance ?? 0` 우선순위로 통일(syGpBalance/푸터와 동일 소스). 인라인 JS 0 errors.
+- LOW(미수정/메모): `#guildPpTreasury` ID-라벨 표기 혼동(값 정상·레거시 ID), base/fleet 등 배너 cover-crop 텍스트 잘림 위험(텍스트 구운 경우만).
+
 ## 2026-05-28 v7.152 — 조선소 GP "-" 연결 버그 수정 + 가챠 배너 텍스트 잘림 수정
 
 UI 검수 지적 2건:

@@ -21957,7 +21957,7 @@ function loadShopData(){
     document.getElementById('shopBalPP').textContent=(walletState.gamePP||0).toFixed(1)+' PP';
     document.getElementById('shopBalUSDT').textContent=(walletState.gameUsdt||0).toFixed(2)+' USDT';
     var gpEl=document.getElementById('shopBalGP');
-    if(gpEl) gpEl.textContent=Math.floor((_dailyState&&_dailyState.gpBalance)||0)+' GP';
+    if(gpEl) gpEl.textContent=Math.floor((walletState&&walletState.gameGP)||(_dailyState&&_dailyState.gpBalance)||0)+' GP';
   }
   // Load items
   fetch('/api/shop/items').then(function(r){return r.json()}).then(function(items){
@@ -22443,7 +22443,7 @@ function _updateBaseShopBalances(){
   var gp=document.getElementById('baseShopBalGP');
   if(pp) pp.textContent=(walletState.gamePP||0).toFixed(1);
   if(usdt) usdt.textContent=(walletState.gameUsdt||0).toFixed(2);
-  if(gp) gp.textContent=Math.floor((_dailyState&&_dailyState.gpBalance)||0);
+  if(gp) gp.textContent=Math.floor((walletState&&walletState.gameGP)||(_dailyState&&_dailyState.gpBalance)||0);
 }
 function filterBaseShop(cat,el){
   _baseShopFilter = cat;
@@ -41108,7 +41108,8 @@ function updateMissionProgress(actionType, amount){
 
 // ── GP Display ──
 function updateGPDisplay(){
-  var gpVal = _dailyState.gpBalance;
+  // 권위 소스 우선(walletState.gameGP) — GP 소비 경로가 walletState 를 갱신하므로 stale 방지. fallback _dailyState.
+  var gpVal = Number((typeof walletState !== 'undefined' && walletState.gameGP) || (_dailyState && _dailyState.gpBalance) || 0);
   // Profile modal
   var authGP = document.getElementById('authGPBal');
   if(authGP) authGP.textContent = gpVal.toFixed(0);
