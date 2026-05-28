@@ -3,6 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<!-- [v7.201] no-cache meta — HTML 항상 fresh. SW 가 network-first 로 잡지만 비-SW 경로에서도 강제. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="app-version" content="v7.201-2026-05-29">
+<script>
+// [v7.201] 부팅 시 SW 강제 갱신 트리거 — 이전 SW 가 캐시 잡고 있으면 unregister 시도.
+// 옛 버전(<v7.200) 감지: doTerritoryUpgrade 가 console.log('[territoryUpgrade] click') 안 가지면 강제 리로드.
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    try {
+      var f = (typeof doTerritoryUpgrade === 'function') ? String(doTerritoryUpgrade) : '';
+      if (f && f.indexOf("[territoryUpgrade] click") === -1) {
+        console.warn('[v7.201] 옛 doTerritoryUpgrade 감지 — SW/cache 강제 정리');
+        Promise.all([
+          navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).catch(()=>{}),
+          ('caches' in window) ? caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))).catch(()=>{}) : null
+        ]).then(function(){
+          if (!sessionStorage.getItem('_v7201_reloaded')) {
+            sessionStorage.setItem('_v7201_reloaded','1');
+            location.reload();
+          }
+        });
+      }
+    } catch(_) {}
+  }, 2000);
+});
+</script>
 <meta name="theme-color" content="#FF4500">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14533,8 +14561,10 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
     if (!atMax && nextCost !== null) {
       html += '<div style="display:flex;justify-content:space-between;align-items:center">';
       html += '<span style="font-size:8px;color:var(--tx2)">Lv' + (curLevel + 1) + ': +' + nextBonus + ' ' + track.bonusUnit + '</span>';
-      // [v7.200 fix] event.stopPropagation 추가 — 영토 패널/지구본 click outside 핸들러로 버블링되어 패널 닫히는 케이스 차단.
-      html += '<button type="button" onclick="event.stopPropagation();doTerritoryUpgrade(' + claimId + ',\'' + track.key + '\')" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
+      // [v7.201 diag] inline alert — 사용자가 캐시 지워도 안 된다 함. onclick 까지 도달하는지 무조건 확인.
+      //   alert 가 뜨면 click 핸들러 정상, doTerritoryUpgrade 자체 문제. alert 안 뜨면 button onclick 미등록.
+      //   v7.201 검증 완료 후 alert 제거하고 console.log 만 남길 예정.
+      html += '<button type="button" onclick="console.log(\'[BTN] upgrade click '+claimId+'/'+track.key+'\');event.stopPropagation();if(typeof doTerritoryUpgrade!==\'function\'){alert(\'doTerritoryUpgrade NOT DEFINED — 캐시 미갱신\');return;}doTerritoryUpgrade(' + claimId + ',\'' + track.key + '\')" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
       html += '</div>';
     } else if (atMax) {
       html += '<div style="font-size:8px;color:#69f0ae;font-weight:700">✅ MAX</div>';
