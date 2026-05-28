@@ -5529,6 +5529,25 @@ router.post('/claims/:id/rename', requireAuth, writeLimiter, async (req, res) =>
 });
 
 // ══════════════════════════════════════════════════
+// POST /api/territory/tend-all — 보유 영토 일괄 정비 (GP 여유 한도까지) [v7.147]
+// ══════════════════════════════════════════════════
+router.post('/territory/tend-all', requireAuth, writeLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  if (!w || w.length < 10) return res.status(401).json({ error: 'wallet_required' });
+  try {
+    const r = await require('../services/territoryCondition').tendAll(w);
+    if (!r.success) {
+      const code = (r.error === 'insufficient_gp') ? 402 : (r.error === 'nothing_to_tend') ? 409 : 400;
+      return res.status(code).json(r);
+    }
+    res.json(r);
+  } catch (e) {
+    console.error('[API] territory tend-all error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 // POST /api/territory/:claimId/tend — 영토 정비(GP 소모 → condition 회복) [migration 237]
 // ══════════════════════════════════════════════════
 router.post('/territory/:claimId/tend', requireAuth, writeLimiter, async (req, res) => {

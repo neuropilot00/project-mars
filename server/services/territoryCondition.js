@@ -141,4 +141,54 @@ async function marketFeeMultiplier(wallet) {
   return 1;
 }
 
-module.exports = { gradeFromCondition, isEnabled, getGradeBonuses, harvestMultiplier, rareMultiplier, applyDailyDecay, tend, marketFeeMultiplier };
+// 일괄 정비(TEND ALL): 보유 영토 중 condition<100 + 쿨다운 지난 것들을 GP 여유 한도까지 한 번에 정비.
+// 영토 다수 보유 시 매번 클릭하는 노동을 줄인다(게임성 검수 반영). 한 트랜잭션.
+async function tendAll(wallet) {
+  const w = String(wallet || '').toLowerCase();
+  if (!w) return { success: false, error: 'bad_input' };
+  if (!(await isEnabled())) return { success: false, error: 'disabled' };
+  const costGp = parseFloat(await getSetting('territory_tend_cost_gp', '50')) || 0;
+  const restore = parseFloat(await getSetting('territory_tend_restore', '25')) || 0;
+  const cooldownMin = parseFloat(await getSetting('territory_tend_cooldown_min', '60')) || 0;
+  const maxPerCall = parseInt(await getSetting('territory_tend_all_max', '50')) || 50;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // 유저 GP 잠금
+    const ur = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [w]);
+    if (!ur.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'user_not_found' }; }
+    let gp = parseFloat(ur.rows[0].gp_balance) || 0;
+
+    // 정비 대상: 내 소유 + condition<100 + 쿨다운 경과. condition 낮은 순.
+    const cr = await client.query(
+      `SELECT id, condition FROM claims
+         WHERE LOWER(owner)=LOWER($1) AND deleted_at IS NULL AND condition < 100
+           AND (last_tended_at IS NULL OR last_tended_at < NOW() - ($2 || ' minutes')::interval)
+         ORDER BY condition ASC LIMIT $3 FOR UPDATE`,
+      [w, String(cooldownMin), maxPerCall]
+    );
+    let tended = 0, spent = 0;
+    for (const row of cr.rows) {
+      if (costGp > 0 && gp < costGp) break; // GP 소진 시 중단
+      const newCond = Math.min(100, Number(row.condition) + restore);
+      await client.query('UPDATE claims SET condition=$1, grade=$2, last_tended_at=NOW() WHERE id=$3',
+        [newCond, gradeFromCondition(newCond), row.id]);
+      gp -= costGp; spent += costGp; tended++;
+    }
+    if (tended === 0) { await client.query('ROLLBACK'); return { success: false, error: 'nothing_to_tend', candidates: cr.rows.length }; }
+    if (spent > 0) {
+      const ded = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1 RETURNING gp_balance', [spent, w]);
+      if (!ded.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'insufficient_gp' }; }
+    }
+    await client.query('COMMIT');
+    try { const { logGPActivity } = require('../db'); if (spent>0) logGPActivity(w, -spent, 'territory_tend_all', `영토 일괄정비 ${tended}건`).catch(()=>{}); } catch (_) {}
+    return { success: true, tended, gpSpent: spent, remaining: cr.rows.length - tended };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[territoryCondition] tendAll error:', e.message);
+    return { success: false, error: 'internal_error' };
+  } finally { client.release(); }
+}
+
+module.exports = { gradeFromCondition, isEnabled, getGradeBonuses, harvestMultiplier, rareMultiplier, applyDailyDecay, tend, tendAll, marketFeeMultiplier };
