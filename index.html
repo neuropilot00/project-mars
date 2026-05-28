@@ -389,7 +389,8 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 /* [v7.190] 데탑: 오늘의 추천 / 캠페인 / 함선 가챠 를 모두 좌측 컬럼으로 통일. 이전엔 캠페인/가챠 우측, 오늘의 추천 가운데 분산. */
 /* [v7.199 fix] width 미지정 + position:fixed + display:flex 가 일부 브라우저에서 viewport 끝까지 늘어나는 케이스 발생 (사용자 데탑 스크린샷).
    width:max-content 로 컨텐츠 너비 고정 + right:auto 명시. inline-flex 보다 flex 유지 (flex 자식 align-items 유지) + max-content 로 폭만 잠금. */
-.campaign-quick{position:fixed;left:12px;bottom:118px;right:auto;z-index:61;
+/* [v7.210] 데스크탑 좌측 컬럼 더 아래로 — col-fab-wrap(bottom:16+~80=96) 위 살짝. */
+.campaign-quick{position:fixed;left:12px;bottom:100px;right:auto;z-index:61;
   width:max-content;
   display:flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:8px;
   background:linear-gradient(135deg,rgba(79,195,247,.2),rgba(255,209,102,.12)),rgba(8,10,14,.82);
@@ -402,7 +403,7 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .campaign-quick-icon{font-size:14px;color:var(--gold);text-shadow:0 0 10px rgba(255,209,102,.55)}
 .campaign-quick-sub{font-size:8px;color:rgba(234,248,255,.58);letter-spacing:.8px;font-weight:700}
 /* SHIP CRATES quick button — sits directly ABOVE the CAMPAIGN button. */
-.crates-quick{position:fixed;left:12px;bottom:164px;right:auto;z-index:61;
+.crates-quick{position:fixed;left:12px;bottom:148px;right:auto;z-index:61;
   width:max-content; /* [v7.199 fix] 데탑 stretch 차단 — campaign-quick 와 동일 사유. */
   display:flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:8px;
   background:linear-gradient(135deg,rgba(184,140,255,.24),rgba(255,122,69,.10)),rgba(8,10,14,.82);
@@ -469,12 +470,13 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 /* Mobile: vertical (portrait) split card on the right, just above the zoom column.
    Top half = INVADE, bottom half = EXPLORE, slash from upper-right to lower-left. */
 @media (max-width:768px){
-  .campaign-quick{left:12px!important;top:auto!important;right:auto!important;bottom:118px!important;transform:none;
+  /* [v7.210] 모바일 좌측 컬럼 더 아래 — mob-bottom-nav(bottom:5+~60=65) 위 살짝. */
+  .campaign-quick{left:12px!important;top:auto!important;right:auto!important;bottom:72px!important;transform:none;
     width:auto;height:34px;justify-content:center;padding:0 10px;font-size:9px}
   .campaign-quick:hover{transform:translateY(-1px)}
   .campaign-quick:active{transform:none}
   .campaign-quick-sub{display:none}
-  .crates-quick{left:12px!important;top:auto!important;right:auto!important;bottom:160px!important;transform:none;
+  .crates-quick{left:12px!important;top:auto!important;right:auto!important;bottom:114px!important;transform:none;
     width:auto;height:34px;justify-content:center;padding:0 10px;font-size:9px}
   .crates-quick:hover{transform:translateY(-1px)}
   .crates-quick:active{transform:none}
@@ -6076,6 +6078,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <button class="zb" onclick="zoomOut()" aria-label="Zoom out">−</button>
   <button class="zb" id="sectorToggleBtn" onclick="toggleSectorOverlay()" title="Toggle sectors" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 2px"><span id="sectorToggleLabel" data-i18n="sectors_btn" style="font-size:7px;letter-spacing:-.3px;line-height:1;white-space:nowrap">SECTORS</span></button>
   <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="My territories" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)" data-i18n="nav_my_land">MY LAND</button>
+  <!-- [v7.210] 🐛 버그 신고 — zc 컬럼 마지막 자식. '내 영토' 바로 밑. -->
+  <button id="bugReportBtn" type="button" title="버그 신고 (Bug Report)" onclick="openBugReporter(event)">🐛</button>
 </div>
 
 <!-- ═════════════════════════════════════════════════
@@ -54429,7 +54433,20 @@ window.closeTacticalLab = closeTacticalLab;
 /* Final position is computed by alignBugFab() to sit just LEFT of the
    SECTORS button. The bottom/right fallback below is only used for the
    first paint before JS runs. */
-#bugReportBtn{
+/* [v7.210] 🐛 버그 신고 — HTML 로 .zc 컬럼 안으로 옮김 (마지막 자식). position:fixed 제거.
+   .zc 가 fixed + column 이라 column flow 마지막에 자연스럽게 '내 영토' 바로 밑에 위치. */
+.zc #bugReportBtn{
+  position:static;width:36px;height:36px;border-radius:50%;margin-top:4px;
+  background:rgba(20,26,34,.9);border:1px solid rgba(239,83,80,.45);
+  color:#ef5350;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(0,0,0,.5);
+  transition:background .15s ease,transform .15s ease,box-shadow .15s ease;user-select:none;
+}
+.zc #bugReportBtn:hover{background:rgba(239,83,80,.18);transform:scale(1.08);}
+.zc #bugReportBtn:active{transform:scale(.96);}
+/* zc 컬럼 밖에 있는 경우 (legacy/안전 폴백) — 기존 위치 그대로. */
+body > #bugReportBtn{
   position:fixed;bottom:84px;right:316px;z-index:100;
   width:40px;height:40px;border-radius:50%;
   background:rgba(20,26,34,.9);border:1px solid rgba(239,83,80,.45);
@@ -54522,8 +54539,9 @@ window.closeTacticalLab = closeTacticalLab;
 #bugStatusMsg{font-size:10px;letter-spacing:1px;color:#66bb6a;display:none;margin-left:4px;}
 </style>
 
-<!-- 플로팅 버튼 -->
-<button id="bugReportBtn" type="button" title="버그 신고 (Bug Report)" onclick="openBugReporter(event)">🐛</button>
+<!-- [v7.210] 🐛 버그 신고 버튼은 .zc 컬럼 안으로 옮김 (line 6078 myLandBtn 직후). 여기서는 제거. -->
+<!-- (legacy 위치 — 빈 placeholder) -->
+
 
 <!-- 버그 리포터 모달 -->
 <div id="bugReportModal" onclick="if(event.target===this)closeBugReporter(event)">
