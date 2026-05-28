@@ -35,7 +35,8 @@
 // 2026-05-29 v30: v7.209 영토 업그레이드 트랙 상한 4 → 5 (5번째 트랙 막혀 있던 버그).
 // 2026-05-29 v31: v7.210 좌측 컬럼 위치 아래로 + 🐛 버그신고 zc 컬럼 안으로 이동.
 // 2026-05-29 v32: v7.211 주간 진척도 시인성 + 칭호 장착 onclick fix (data-* delegated).
-const CACHE_NAME = 'mars-v32';
+// 2026-05-29 v33: v7.212 모바일 캠페인/가챠/🐛 위치 원복 (데스크탑만 변경 유지).
+const CACHE_NAME = 'mars-v33';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

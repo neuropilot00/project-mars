@@ -470,13 +470,13 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 /* Mobile: vertical (portrait) split card on the right, just above the zoom column.
    Top half = INVADE, bottom half = EXPLORE, slash from upper-right to lower-left. */
 @media (max-width:768px){
-  /* [v7.210] 모바일 좌측 컬럼 더 아래 — mob-bottom-nav(bottom:5+~60=65) 위 살짝. */
-  .campaign-quick{left:12px!important;top:auto!important;right:auto!important;bottom:72px!important;transform:none;
+  /* [v7.212 revert] 모바일은 v7.190 위치 그대로 — bottom:118. 사용자 의도는 데스크탑만 아래로 옮기는 것이었음. */
+  .campaign-quick{left:12px!important;top:auto!important;right:auto!important;bottom:118px!important;transform:none;
     width:auto;height:34px;justify-content:center;padding:0 10px;font-size:9px}
   .campaign-quick:hover{transform:translateY(-1px)}
   .campaign-quick:active{transform:none}
   .campaign-quick-sub{display:none}
-  .crates-quick{left:12px!important;top:auto!important;right:auto!important;bottom:114px!important;transform:none;
+  .crates-quick{left:12px!important;top:auto!important;right:auto!important;bottom:160px!important;transform:none;
     width:auto;height:34px;justify-content:center;padding:0 10px;font-size:9px}
   .crates-quick:hover{transform:translateY(-1px)}
   .crates-quick:active{transform:none}
@@ -54462,6 +54462,14 @@ window.closeTacticalLab = closeTacticalLab;
 }
 .zc #bugReportBtn:hover{background:rgba(239,83,80,.18);transform:scale(1.08);}
 .zc #bugReportBtn:active{transform:scale(.96);}
+/* [v7.212 revert] 모바일은 v7.209 이전 floating 위치 복구 — zc 컬럼 column flow 무시 + 원래 좌표.
+   사용자 보고: 모바일 위치 건드리지 말 것. 데스크탑만 zc 컬럼 안. */
+@media (max-width:768px){
+  .zc #bugReportBtn{
+    position:fixed!important;bottom:84px;right:316px;z-index:100;
+    width:40px;height:40px;font-size:16px;margin-top:0;
+  }
+}
 /* zc 컬럼 밖에 있는 경우 (legacy/안전 폴백) — 기존 위치 그대로. */
 body > #bugReportBtn{
   position:fixed;bottom:84px;right:316px;z-index:100;
