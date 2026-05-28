@@ -36,7 +36,8 @@
 // 2026-05-29 v31: v7.210 좌측 컬럼 위치 아래로 + 🐛 버그신고 zc 컬럼 안으로 이동.
 // 2026-05-29 v32: v7.211 주간 진척도 시인성 + 칭호 장착 onclick fix (data-* delegated).
 // 2026-05-29 v33: v7.212 모바일 캠페인/가챠/🐛 위치 원복 (데스크탑만 변경 유지).
-const CACHE_NAME = 'mars-v33';
+// 2026-05-29 v34: v7.213 업그레이드 모달 자동 갱신 + 중복 클릭 가드.
+const CACHE_NAME = 'mars-v34';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

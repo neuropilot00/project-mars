@@ -14631,14 +14631,24 @@ function renderTerritoryUpgradeBody(d, claimId, wallet, targetBodyId) {
     var btn = event.target && event.target.closest ? event.target.closest('button[data-territory-upgrade-type]') : null;
     if (!btn || !body.contains(btn)) return;
     event.stopPropagation();
+    // [v7.213 fix] 레드팀 🔴 #5 — in-flight 가드. await gameConfirm 동안 중복 클릭 시 confirm 모달 두 번 쌓이고
+    //   GP 두 번 차감 가능. 처리 중인 버튼은 disabled + 시각 표시.
+    if (btn.disabled || btn.dataset.busy === '1') return;
+    btn.dataset.busy = '1'; btn.disabled = true;
+    var prevText = btn.textContent;
+    btn.textContent = '...';
     var btnClaimId = parseInt(btn.getAttribute('data-territory-upgrade-claim'), 10);
     var upgradeType = btn.getAttribute('data-territory-upgrade-type');
     console.log('[BTN] upgrade click ' + btnClaimId + '/' + upgradeType);
     if (typeof doTerritoryUpgrade !== 'function') {
+      btn.disabled = false; btn.dataset.busy = '0'; btn.textContent = prevText;
       alert('doTerritoryUpgrade NOT DEFINED — 캐시 미갱신');
       return;
     }
-    doTerritoryUpgrade(btnClaimId, upgradeType);
+    Promise.resolve(doTerritoryUpgrade(btnClaimId, upgradeType)).finally(function(){
+      // 응답 후 버튼 복구 — render redraw 가 이 버튼 자체를 교체하기 전에 finally 가 먼저 돌 수도 있어 safe.
+      try { if (btn && body.contains(btn)) { btn.disabled = false; btn.dataset.busy = '0'; btn.textContent = prevText; } } catch(_){}
+    });
   };
 }
 
@@ -41307,7 +41317,7 @@ function searchAlliances() {
               + _escHtml(a.name) + ' <span style="color:#80cbc4;font-size:9px;font-family:var(--fn)">[' + _escHtml(a.tag) + ']</span></div>'
             + '<div style="font-size:9px;color:var(--tx3)">' + (a.member_count||1) + '/' + (a.max_members||5) + ' members · ' + parseFloat(a.total_gp_burned||0).toFixed(0) + ' GP burned</div>'
           + '</div>'
-          + '<button onclick="joinAllianceAction(' + a.id + ',\'' + _escHtml(a.name) + '\')" style="font-size:9px;padding:4px 8px;border-radius:4px;background:rgba(128,203,196,.15);border:1px solid rgba(128,203,196,.35);color:#80cbc4;cursor:pointer;font-weight:700;white-space:nowrap" data-i18n="alliance_join_btn">JOIN</button>'
+          + '<button data-action="joinAllianceAction" data-alliance-id="' + escapeHTML(a.id) + '" data-alliance-name="' + escapeHTML(a.name) + '" style="font-size:9px;padding:4px 8px;border-radius:4px;background:rgba(128,203,196,.15);border:1px solid rgba(128,203,196,.35);color:#80cbc4;cursor:pointer;font-weight:700;white-space:nowrap" data-i18n="alliance_join_btn">JOIN</button>'
           + '</div>';
       }).join('');
     }).catch(function(e){ list.innerHTML = '<div style="color:var(--red);font-size:10px;text-align:center;padding:8px">'+e.message+'</div>'; });
@@ -49074,7 +49084,7 @@ function renderShips() {
     var listed = !!s.is_market_listed;
     var listedSticker = listed ? '<span class="ship-sale-sticker">'+(LANG==="ko"?"판매중":LANG==="ja"?"販売中":LANG==="zh"?"在售":"For Sale")+'</span>' : '';
     var repairBtn = isDamaged && !listed
-      ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + effectiveMaxHp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>'
+      ? '<button data-action="syRepairShip" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" data-current-hp="' + escapeHTML(s.current_hp) + '" data-effective-max-hp="' + escapeHTML(effectiveMaxHp) + '" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>'
       : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? '판매중' : '✅ 최대HP') + '</button>';
     return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + (crossFaction ? ' cross-faction' : '') + '" style="position:relative">' +
       listedSticker +
@@ -49099,8 +49109,8 @@ function renderShips() {
       '</div>' +
       '<div style="display:flex;gap:4px;margin-top:6px">' +
         repairBtn +
-        '<button ' + (listed ? 'disabled' : '') + ' onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + effectiveMaxHp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
-        '<button ' + (listed ? 'disabled' : '') + ' onclick="syScrapShip(' + s.id + ',\'' + s.name_ko + '\')" title="해체 (환불+소각)" style="padding:5px 6px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.35);color:#ff8a80;cursor:pointer;font-family:var(--fn)">🔥</button>' +
+        '<button ' + (listed ? 'disabled' : '') + ' data-action="syChargeShield" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" data-effective-max-hp="' + escapeHTML(effectiveMaxHp) + '" data-shield-hp="' + escapeHTML(shieldHp) + '" data-shield-max="' + escapeHTML(shieldMax) + '" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
+        '<button ' + (listed ? 'disabled' : '') + ' data-action="syScrapShip" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" title="해체 (환불+소각)" style="padding:5px 6px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.35);color:#ff8a80;cursor:pointer;font-family:var(--fn)">🔥</button>' +
       '</div>' +
       '<div class="ship-sale-actions">' +
         (listed
@@ -49145,6 +49155,77 @@ function syUpgradeBtn(ship, stat, label) {
     (offer ? '<span class="chance">' + offer.chance + _successLbl + '</span><span class="mat ' + (matShort ? 'short' : 'ok') + '">' + material + '</span>' : '') +
   '</button>';
 }
+
+document.addEventListener('click', function(ev) {
+  var el = ev.target && ev.target.closest ? ev.target.closest('[data-action]') : null;
+  if (!el) return;
+  var action = el.getAttribute('data-action');
+  if (action === 'syRepairShip') {
+    ev.stopPropagation();
+    var repairParams = {
+      shipId: parseInt(el.getAttribute('data-ship-id'), 10),
+      name: el.getAttribute('data-ship-name') || '',
+      currentHp: parseFloat(el.getAttribute('data-current-hp')),
+      effectiveMaxHp: parseFloat(el.getAttribute('data-effective-max-hp'))
+    };
+    console.log('[BTN] syRepairShip triggered', repairParams);
+    syRepairShip(repairParams.shipId, repairParams.name, repairParams.currentHp, repairParams.effectiveMaxHp);
+    return;
+  }
+  if (action === 'syChargeShield') {
+    ev.stopPropagation();
+    var shieldParams = {
+      shipId: parseInt(el.getAttribute('data-ship-id'), 10),
+      name: el.getAttribute('data-ship-name') || '',
+      effectiveMaxHp: parseFloat(el.getAttribute('data-effective-max-hp')),
+      shieldHp: parseInt(el.getAttribute('data-shield-hp'), 10),
+      shieldMax: parseInt(el.getAttribute('data-shield-max'), 10)
+    };
+    console.log('[BTN] syChargeShield triggered', shieldParams);
+    syChargeShield(shieldParams.shipId, shieldParams.name, shieldParams.effectiveMaxHp, shieldParams.shieldHp, shieldParams.shieldMax);
+    return;
+  }
+  if (action === 'syScrapShip') {
+    ev.stopPropagation();
+    var scrapParams = {
+      shipId: parseInt(el.getAttribute('data-ship-id'), 10),
+      name: el.getAttribute('data-ship-name') || ''
+    };
+    console.log('[BTN] syScrapShip triggered', scrapParams);
+    syScrapShip(scrapParams.shipId, scrapParams.name);
+    return;
+  }
+  if (action === 'selectTargetFleet') {
+    ev.stopPropagation();
+    var targetParams = {
+      fleetId: parseInt(el.getAttribute('data-fleet-id'), 10),
+      nickname: el.getAttribute('data-nickname') || '',
+      shipsAlive: parseInt(el.getAttribute('data-ships-alive'), 10)
+    };
+    console.log('[BTN] selectTargetFleet triggered', targetParams);
+    selectTargetFleet(targetParams.fleetId, targetParams.nickname, targetParams.shipsAlive);
+    return;
+  }
+  if (action === 'joinAllianceAction') {
+    ev.stopPropagation();
+    var allianceActionParams = {
+      allianceId: parseInt(el.getAttribute('data-alliance-id'), 10),
+      name: el.getAttribute('data-alliance-name') || ''
+    };
+    console.log('[BTN] joinAllianceAction triggered', allianceActionParams);
+    joinAllianceAction(allianceActionParams.allianceId, allianceActionParams.name);
+    return;
+  }
+  if (action === 'joinAllianceConfirm') {
+    ev.stopPropagation();
+    var allianceConfirmParams = {
+      allianceId: parseInt(el.getAttribute('data-alliance-id'), 10),
+      name: el.getAttribute('data-alliance-name') || ''
+    };
+    console.log('[BTN] joinAllianceConfirm triggered', allianceConfirmParams);
+    joinAllianceConfirm(allianceConfirmParams.allianceId, allianceConfirmParams.name);
+  }
+});
 
 // ── Forge Animation Modal ──────────────────────────────────────
 var _forgeAnimFrame = null;
@@ -51097,7 +51178,7 @@ async function loadRecommendedOpponents() {
     }
 
     chips.innerHTML = data.results.slice(0, 6).map(r => `
-      <div class="bd-opponent-chip" onclick="selectTargetFleet(${r.fleet_id}, '${escapeHtml(r.nickname || 'Unknown')}', ${r.ships_alive})">
+      <div class="bd-opponent-chip" data-action="selectTargetFleet" data-fleet-id="${escapeHTML(r.fleet_id)}" data-nickname="${escapeHTML(r.nickname || 'Unknown')}" data-ships-alive="${escapeHTML(r.ships_alive)}">
         ${escapeHtml(r.nickname || 'Unknown')} (${r.ships_alive}척)
       </div>
     `).join('');
@@ -51154,7 +51235,7 @@ function renderSearchResult(r) {
 
   return `
     <div class="bd-search-card ${isSelected ? 'selected' : ''} ${!r.can_attack ? 'in-battle' : ''}"
-         ${r.can_attack ? `onclick="selectTargetFleet(${r.fleet_id}, '${escapeHtml(r.nickname || '')}', ${r.ships_alive})"` : ''}>
+         ${r.can_attack ? `data-action="selectTargetFleet" data-fleet-id="${escapeHTML(r.fleet_id)}" data-nickname="${escapeHTML(r.nickname || '')}" data-ships-alive="${escapeHTML(r.ships_alive)}"` : ''}>
       <div class="bd-search-faction" style="color:${color}">${factionIcon}</div>
       <div class="bd-search-info">
         <div class="bd-search-nick">${escapeHtml(r.nickname || 'Unknown')}</div>
@@ -53237,7 +53318,7 @@ async function renderAllianceList() {
                   ${LANG==='ko'?'멤버':LANG==='ja'?'メンバー':LANG==='zh'?'成员':'Members'} ${a.member_count}/${a.max_members} · ${a.battles_won}W/${a.battles_lost}L · ${LANG==='ko'?'함선':LANG==='ja'?'艦船':LANG==='zh'?'舰船':'Ships'} ${a.total_ships_alive || 0}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':''}
                 </div>
               </div>
-              <button class="bc-btn primary" onclick="joinAllianceConfirm(${a.id}, '${escapeHtml(a.name)}')">
+              <button class="bc-btn primary" data-action="joinAllianceConfirm" data-alliance-id="${escapeHTML(a.id)}" data-alliance-name="${escapeHTML(a.name)}">
                 ${LANG==='ko'?'가입':LANG==='ja'?'加入':LANG==='zh'?'加入':'Join'}
               </button>
             </div>
