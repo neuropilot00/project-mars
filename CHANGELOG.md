@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.145 — 신규 유저 hijack 면역 (상용화 stop-ship) + 월렛 로드맵
+
+상용화 종합검수(Codex+게임성+미연결+로컬라이징 4트랙 병렬)의 stop-ship 대응 + 월렛 미진행 로드맵화.
+
+- **🛡 신규 유저 hijack 면역**(migration 242, `hijack.js`): full-loss(영구파괴) ON 상태에서 고인물의 신규 학살 방지 — 가입 N일 미만(기본 3)/레벨 N 미만(기본 5) 수비자는 hijack 대상 제외(`DEFENDER_PROTECTED` 403). 설정으로 조정/해제.
+- **월렛 로드맵**(`docs/WALLET_ROADMAP.md`): 완료/운영자작업/미진행 Phase2(입금 자동감지+WS UI, 자동 출금 relayer, KMS, EIP-191, 대사, 메인넷) 정리.
+- **검수 결과**: 첫 수확은 신규 claim `last_harvest_at` NULL → **즉시 가능**(게임성 에이전트 과대평가, 변경 불요). 로컬라이징 **clean**(1678키×4언어 동일, undefined 0). 가이드 정확(커스터디 면책 안내만 본문 누락 — 후속). 미연결 BLOCKER/HIGH 0(MED: factions/stats·lottery·battle보상 이력 UI — 후속).
+
+## 2026-05-28 v7.144 — 상용화 검수: 솔벤시/링크월렛 fail-open 차단 + PP캡 키 통일
+
+Codex 경제 재검증이 찾은 결함 수정(내가 넣은 fail-open 버그 포함):
+- **트레저리 가드 fail-CLOSED 화**(api.js /swap·/withdraw-all, season.js): catch 가 모든 `e.code` 면제 → 미담보 USDT 발행 가능했음. `42P01`(테이블 미존재)만 면제, 그 외 오류는 ROLLBACK+차단.
+- **link-wallet 게이트 fail-CLOSED**: custodial 비번 게이트 조회 실패 시 비차단 → 500 차단(계정탈취 방지).
+- **PP 일일캡 통일**: 전역 /harvest(mining_daily_cap 1.0) vs 영토(pp_daily_earn_cap 0.3) 키 불일치(공유 today_mined_pp 우회) → 더 제한적 캡으로 통일.
+
 ## 2026-05-28 v7.143 — 컨트랙트 배포 툴체인 (자금 없이 미리 준비, 컴파일·드라이런 검증)
 
 체인 연결의 마지막 갭(컨트랙트 배포)을 1커맨드로 만드는 Hardhat 툴체인 — 운영자는 가스용 테스트 ETH만 받으면 됨.

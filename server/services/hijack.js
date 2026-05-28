@@ -684,6 +684,28 @@ async function declareHijackWithPP(params) {
         if (!defFleet[0]) throw new Error('DEF_FLEET_NOT_FOUND');
         if (defFleet[0].is_in_battle) throw new Error('DEF_FLEET_IN_BATTLE');
 
+        // 🛡 [상용화 stop-ship] 신규 유저 hijack 면역 — full-loss ON 상태에서 고인물의 신규 학살 방지.
+        //    가입 N일 미만 또는 레벨 N 미만 수비자는 hijack 대상에서 제외(설정으로 조정/해제 가능).
+        try {
+          if (String(await getSetting('hijack_newbie_protection_enabled', 'true')) === 'true' && primary_defender_wallet) {
+            const protDays = parseFloat(await getSetting('hijack_newbie_protection_days', '3')) || 0;
+            const protLvl  = parseInt(await getSetting('hijack_newbie_protection_max_level', '5')) || 0;
+            const { rows: defU } = await client.query(
+              `SELECT created_at, COALESCE(level, 1) AS lvl FROM users WHERE LOWER(wallet_address) = LOWER($1)`,
+              [primary_defender_wallet]
+            );
+            if (defU[0]) {
+              const ageDays = (Date.now() - new Date(defU[0].created_at).getTime()) / 86400000;
+              const lvl = parseInt(defU[0].lvl) || 1;
+              if ((protDays > 0 && ageDays < protDays) || (protLvl > 0 && lvl < protLvl)) {
+                const e = new Error('DEFENDER_PROTECTED');
+                e.meta = { reason: (protDays > 0 && ageDays < protDays) ? 'new_account' : 'low_level', protDays, protLvl, defenderLevel: lvl };
+                throw e;
+              }
+            }
+          }
+        } catch (e) { if (e.message === 'DEFENDER_PROTECTED') throw e; /* 조회 실패는 비차단 */ }
+
         // hijack_battles 생성 (attack_cost 저장 — 패배 시 환불 계산용)
         const { rows: hjRows } = await client.query(`
           INSERT INTO hijack_battles (

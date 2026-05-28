@@ -1928,6 +1928,7 @@ router.post('/hijack/declare-with-pp', requireAuth, writeLimiter, async (req, re
       'DEF_FLEET_IN_BATTLE': 409,
       'NO_PHASE1_SHIPS': 409,
       'TOO_MANY_PHASE1_SHIPS': 409,
+      'DEFENDER_PROTECTED': 403,
     };
     const status = errMap[err.message];
     if (status) return res.status(status).json({ error: err.message, meta: err.meta, required: err.required, balance: err.balance });
