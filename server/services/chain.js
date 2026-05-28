@@ -260,6 +260,22 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     // tx_hash 중복 가드로 멱등 재처리되니 안전(Codex 검토 반영).
     await require('./treasury').adjustCollateral(client, amountNum);
 
+    // [첫 결제 후크] 첫 입금이면 추가 PP 보너스(first_deposit_bonus_pct, 기본 20%). PP만 추가 → 담보 불변식 무관.
+    //   이 deposit row INSERT 전에 조회하므로 prior 0건 = 진짜 첫 입금.
+    let firstDepBonus = 0;
+    try {
+      const prior = await client.query('SELECT 1 FROM deposits WHERE LOWER(wallet_address) = LOWER($1) LIMIT 1', [wallet]);
+      if (prior.rows.length === 0) {
+        const fr = await client.query(`SELECT value FROM settings WHERE key = 'first_deposit_bonus_pct'`);
+        const firstPct = fr.rows.length ? (parseFloat(fr.rows[0].value) || 0) : 0;
+        if (firstPct > 0) {
+          firstDepBonus = Math.round(amountNum * (firstPct / 100) * 1000000) / 1000000;
+          await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [firstDepBonus, wallet]);
+          console.log(`[Chain] First-deposit bonus +${firstDepBonus} PP (${firstPct}%) to ${wallet.slice(0,8)}…`);
+        }
+      }
+    } catch (_) {}
+
     // Insert deposit record
     await client.query(
       `INSERT INTO deposits (wallet_address, amount, pp_bonus, chain, tx_hash, block_number) VALUES ($1,$2,$3,$4,$5,$6)`,
