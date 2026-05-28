@@ -41616,6 +41616,42 @@ var CODEX_CONTENT = {
             caption:'USDT ⇄ PP (redeem within collateral) / PP → GP at a dynamic 5–20 rate' }
         ]
       },
+      { id: 'wallet', icon: '🔐', title: 'Wallet & Custody',
+        blocks: [
+          { type:'p', text:'You do **not** need MetaMask or any external wallet to play. When you sign up with email, the game **automatically creates a real wallet (key pair)** for you. That wallet holds your on-chain assets and is what every game action is tied to.' },
+          { type:'toc', label:'In this section', items:[
+            'Auto-generated wallet',
+            'Viewing & backing up your private key',
+            'Your custody responsibility',
+            'Deposits & withdrawals'
+          ]},
+
+          { type:'h2', text:'1. Auto-Generated Wallet' },
+          { type:'p', text:'On email signup the game generates a genuine **key pair** for you behind the scenes — no browser extension, no separate wallet app, no seed-phrase setup required. You can start claiming territory and earning straight away.' },
+          { type:'callout', variant:'info', title:'No MetaMask needed',
+            text:'A real wallet is provisioned for you automatically. The address it produces is your in-game identity and the destination for deposits.' },
+
+          { type:'h2', text:'2. View & Back Up Your Private Key' },
+          { type:'p', text:'You can **view and back up your own private key** at any time. Open the **wallet panel in BASE**, press the **🔑 KEY** button, and re-enter your password to confirm — the key is then revealed for you to copy and store safely.' },
+          { type:'callout', variant:'tip', title:'Back it up offline',
+            text:'Copy the key into offline, secure storage (e.g. a written note in a safe, or an encrypted offline file). This is the only thing that can restore access to your assets.' },
+
+          { type:'h2', text:'3. Your Custody Responsibility' },
+          { type:'callout', variant:'warn', title:'⚠ You alone are responsible for your key',
+            text:'Custody of your private key is **entirely your own responsibility**. If it is lost or stolen, **the operator cannot recover your key or your assets** — there is no reset and no backdoor. Keep the key offline, store it securely, and **never share it with anyone**, including anyone claiming to be support staff.' },
+
+          { type:'h2', text:'4. Deposits & Withdrawals' },
+          { type:'p', text:'Funding your account uses your auto-generated wallet:' },
+          { type:'table',
+            headers:['Action','How it works'],
+            rows:[
+              ['USDT deposit',  {v:'Auto-detected, credited to game balance',cls:'num'}],
+              ['Withdrawal',    {v:'Goes through security checks (password / signature)',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'Deposits are detected automatically',
+            text:'USDT sent to your wallet on Base chain is **detected automatically** and reflected in your game balance. **Withdrawals pass through a security flow** (password / signature) before they are released.' }
+        ]
+      },
       { id: 'territory', icon: '🏴', title: 'Territory',
         blocks: [
           { type:'p', text:'Buying **pixels** on the Mars surface is where this game starts. A single claim picks a rectangular region, uploads your image, and plants your flag.' },
@@ -42824,6 +42860,42 @@ var CODEX_CONTENT = {
             caption:'USDT ⇄ PP 환금(담보 한도 내) / PP → GP 동적 환율 5~20' }
         ]
       },
+      { id: 'wallet', icon: '🔐', title: '지갑 & 키 보관',
+        blocks: [
+          { type:'p', text:'플레이에 메타마스크나 외부 지갑이 **필요 없습니다.** 이메일로 가입하면 게임이 **자동으로 실제 지갑(키페어)을 생성**해 줍니다. 이 지갑이 당신의 온체인 자산을 보관하며, 모든 게임 행동이 이 지갑에 연결됩니다.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '자동 생성 지갑',
+            '개인키 열람 & 백업',
+            '키 보관 책임 (면책)',
+            '입금 & 출금'
+          ]},
+
+          { type:'h2', text:'1. 자동 생성 지갑' },
+          { type:'p', text:'이메일 가입 시 게임이 내부적으로 진짜 **키페어**를 생성합니다. 브라우저 확장 프로그램, 별도 지갑 앱, 시드 구문 설정이 전혀 필요 없습니다. 가입 즉시 영토 클레임과 수익 활동을 시작할 수 있습니다.' },
+          { type:'callout', variant:'info', title:'메타마스크 불필요',
+            text:'실제 지갑이 자동으로 발급됩니다. 발급된 주소가 인게임 신원이자 입금받는 주소가 됩니다.' },
+
+          { type:'h2', text:'2. 개인키 열람 & 백업' },
+          { type:'p', text:'본인의 **개인키를 언제든 열람하고 백업**할 수 있습니다. **BASE의 지갑 패널**을 열고 **🔑 KEY** 버튼을 누른 뒤 비밀번호를 재확인하면 키가 표시되어 복사·보관할 수 있습니다.' },
+          { type:'callout', variant:'tip', title:'오프라인에 백업하세요',
+            text:'키를 오프라인의 안전한 곳(예: 금고 속 종이 메모, 암호화된 오프라인 파일)에 복사해 두세요. 자산 접근을 복구할 수 있는 유일한 수단입니다.' },
+
+          { type:'h2', text:'3. 키 보관 책임 (면책)' },
+          { type:'callout', variant:'warn', title:'⚠ 개인키 보관 책임은 전적으로 본인에게 있습니다',
+            text:'개인키 보관 책임은 **전적으로 본인에게 있습니다.** 분실·도난 시 **운영자는 키나 자산을 복구할 수 없습니다** — 초기화도, 백도어도 없습니다. 키는 오프라인에 안전하게 보관하고, 운영진을 사칭하는 사람을 포함해 **누구에게도 절대 공유하지 마세요.**' },
+
+          { type:'h2', text:'4. 입금 & 출금' },
+          { type:'p', text:'자금 충전은 자동 생성된 지갑을 사용합니다:' },
+          { type:'table',
+            headers:['행동','동작 방식'],
+            rows:[
+              ['USDT 입금', {v:'자동 감지되어 게임 잔고에 반영',cls:'num'}],
+              ['출금',      {v:'보안 절차(비밀번호 / 서명)를 거침',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'입금은 자동 감지됩니다',
+            text:'Base 체인의 지갑으로 들어온 USDT는 **자동으로 감지**되어 게임 잔고에 반영됩니다. **출금은 보안 절차(비밀번호 / 서명)**를 통과한 뒤에 처리됩니다.' }
+        ]
+      },
       { id: 'territory', icon: '🏴', title: '영토 시스템',
         blocks: [
           { type:'p', text:'화성 표면의 **픽셀**을 사는 게 이 게임의 출발점이야. 한 번의 클레임으로 사각형 영역을 지정하고 이미지를 업로드해서 네 깃발을 꽂아.' },
@@ -43999,6 +44071,42 @@ CODEX_CONTENT.ja = {
           caption:'USDT ⇄ PP 換金(担保枠内) / PP → GP 動的レート 5〜20' }
       ]
     },
+    { id: 'wallet', icon: '🔐', title: 'ウォレットと鍵の保管',
+      blocks: [
+        { type:'p', text:'プレイにMetaMaskや外部ウォレットは**不要です。** メールで登録すると、ゲームが**自動的に実際のウォレット(キーペア)を生成**します。このウォレットがあなたのオンチェーン資産を保管し、すべてのゲーム行動がこのウォレットに紐づきます。' },
+        { type:'toc', label:'このセクションの内容', items:[
+          '自動生成ウォレット',
+          '秘密鍵の閲覧とバックアップ',
+          '鍵保管の責任(免責)',
+          '入金と出金'
+        ]},
+
+        { type:'h2', text:'1. 自動生成ウォレット' },
+        { type:'p', text:'メール登録時、ゲームは内部で本物の**キーペア**を生成します。ブラウザ拡張機能、別のウォレットアプリ、シードフレーズの設定は一切不要です。登録後すぐに領土クレームや収益活動を始められます。' },
+        { type:'callout', variant:'info', title:'MetaMaskは不要',
+          text:'実際のウォレットが自動的に発行されます。発行されたアドレスがゲーム内のあなたのIDであり、入金先アドレスになります。' },
+
+        { type:'h2', text:'2. 秘密鍵の閲覧とバックアップ' },
+        { type:'p', text:'自分の**秘密鍵をいつでも閲覧・バックアップ**できます。**BASEのウォレットパネル**を開き、**🔑 KEY**ボタンを押してパスワードを再確認すると、鍵が表示されコピー・保管できます。' },
+        { type:'callout', variant:'tip', title:'オフラインにバックアップ',
+          text:'鍵をオフラインの安全な場所(例:金庫の中の手書きメモ、暗号化されたオフラインファイル)にコピーしてください。資産へのアクセスを復元できる唯一の手段です。' },
+
+        { type:'h2', text:'3. 鍵保管の責任(免責)' },
+        { type:'callout', variant:'warn', title:'⚠ 秘密鍵の保管責任は完全にあなた自身にあります',
+          text:'秘密鍵の保管責任は**完全にあなた自身にあります。** 紛失・盗難の場合、**運営は鍵や資産を復元できません** — リセットもバックドアもありません。鍵はオフラインで安全に保管し、運営を装う者を含め**誰にも絶対に共有しないでください。**' },
+
+        { type:'h2', text:'4. 入金と出金' },
+        { type:'p', text:'資金のチャージには自動生成されたウォレットを使用します:' },
+        { type:'table',
+          headers:['操作','仕組み'],
+          rows:[
+            ['USDT入金', {v:'自動検出されゲーム残高に反映',cls:'num'}],
+            ['出金',     {v:'セキュリティ手順(パスワード / 署名)を経る',cls:'num'}]
+          ]},
+        { type:'callout', variant:'info', title:'入金は自動検出されます',
+          text:'BaseチェーンのウォレットへのUSDT入金は**自動的に検出**され、ゲーム残高に反映されます。**出金はセキュリティフロー(パスワード / 署名)**を通過した後に処理されます。' }
+      ]
+    },
     { id: 'territory', icon: '🏴', title: '領土システム',
       blocks: [
         { type:'p', text:'火星表面の **ピクセル** を買うのがこのゲームの出発点だ。1 回のクレームで矩形エリアを指定し、画像をアップロードして旗を立てる。' },
@@ -45147,6 +45255,42 @@ CODEX_CONTENT.zh = {
             '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP → GP (PP→GP 动态汇率)</text>'+
           '</svg>',
           caption:'USDT ⇄ PP 赎回(担保额度内) / PP → GP 动态汇率 5~20' }
+      ]
+    },
+    { id: 'wallet', icon: '🔐', title: '钱包与密钥保管',
+      blocks: [
+        { type:'p', text:'游玩**无需**MetaMask或任何外部钱包。用邮箱注册时,游戏会**自动为你创建一个真实钱包(密钥对)。** 该钱包保管你的链上资产,所有游戏行为都与它绑定。' },
+        { type:'toc', label:'本节内容', items:[
+          '自动生成钱包',
+          '查看与备份私钥',
+          '密钥保管责任(免责)',
+          '充值与提现'
+        ]},
+
+        { type:'h2', text:'1. 自动生成钱包' },
+        { type:'p', text:'邮箱注册时,游戏在后台为你生成真正的**密钥对** — 无需浏览器扩展、无需单独的钱包应用、无需设置助记词。注册后即可立刻开始占领领地与赚取收益。' },
+        { type:'callout', variant:'info', title:'无需MetaMask',
+          text:'系统自动为你配置一个真实钱包。生成的地址即为你的游戏内身份,也是充值的目标地址。' },
+
+        { type:'h2', text:'2. 查看与备份私钥' },
+        { type:'p', text:'你可随时**查看并备份自己的私钥。** 打开**BASE中的钱包面板**,点击**🔑 KEY**按钮并再次输入密码确认,密钥便会显示出来供你复制保存。' },
+        { type:'callout', variant:'tip', title:'离线备份',
+          text:'请将密钥复制到离线的安全处(例如保险箱里的手写记录,或加密的离线文件)。这是唯一能恢复资产访问权的凭据。' },
+
+        { type:'h2', text:'3. 密钥保管责任(免责)' },
+        { type:'callout', variant:'warn', title:'⚠ 私钥保管责任完全在于你本人',
+          text:'私钥的保管责任**完全在于你本人。** 一旦丢失或被盗,**运营方无法找回你的密钥或资产** — 没有重置,也没有后门。请将密钥离线安全保管,并且**绝不向任何人分享**,包括任何自称是客服的人。' },
+
+        { type:'h2', text:'4. 充值与提现' },
+        { type:'p', text:'账户充值使用你的自动生成钱包:' },
+        { type:'table',
+          headers:['操作','工作方式'],
+          rows:[
+            ['USDT充值', {v:'自动检测,计入游戏余额',cls:'num'}],
+            ['提现',     {v:'需通过安全流程(密码 / 签名)',cls:'num'}]
+          ]},
+        { type:'callout', variant:'info', title:'充值自动检测',
+          text:'向你Base链钱包发送的USDT会被**自动检测**并反映到游戏余额中。**提现需先通过安全流程(密码 / 签名)**后才会放行。' }
       ]
     },
     { id: 'territory', icon: '🏴', title: '领土系统',
