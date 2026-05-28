@@ -34,7 +34,8 @@
 // 2026-05-29 v29: v7.208 '2번 로딩' 픽스 — v7.201 self-heal 제거 + 첫 SW 등록 시 reload 안 함.
 // 2026-05-29 v30: v7.209 영토 업그레이드 트랙 상한 4 → 5 (5번째 트랙 막혀 있던 버그).
 // 2026-05-29 v31: v7.210 좌측 컬럼 위치 아래로 + 🐛 버그신고 zc 컬럼 안으로 이동.
-const CACHE_NAME = 'mars-v31';
+// 2026-05-29 v32: v7.211 주간 진척도 시인성 + 칭호 장착 onclick fix (data-* delegated).
+const CACHE_NAME = 'mars-v32';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

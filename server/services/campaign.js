@@ -4646,6 +4646,11 @@ async function revokeTag(wallet, tagId) {
 
 async function setActiveTitle(wallet, tagId) {
   const w = normalizeWallet(wallet);
+  // [v7.211] tagId null/'' → 해제(unequip). 이전엔 NULL 체크 없어 SELECT 빈 결과 → TITLE_TAG_NOT_OWNED 에러.
+  if (tagId === null || tagId === '' || tagId === undefined) {
+    await pool.query(`DELETE FROM player_active_title WHERE wallet = $1`, [w]);
+    return getTags(w);
+  }
   const { rows } = await pool.query(
     `SELECT td.id FROM player_tags pt
      JOIN tag_definitions td ON td.id = pt.tag_id

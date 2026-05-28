@@ -4280,8 +4280,10 @@ router.post('/tags/set-active-title', requireAuth, writeLimiter, async (req, res
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
     const wallet = getAuthWallet(req);
-    const tagId = sanitize(req.body.tag_id || req.body.tagId, 100);
-    if (!wallet || wallet.length < 10 || !tagId) return res.status(400).json({ error: 'missing fields' });
+    // [v7.211] tagId 빈 문자열/null 도 허용 — '해제' 의미. 이전엔 !tagId 가 'missing fields' 로 막아서 해제 불가.
+    const rawTag = req.body.tag_id || req.body.tagId;
+    const tagId = (rawTag == null || rawTag === '') ? null : sanitize(String(rawTag), 100);
+    if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'missing fields' });
     const result = await campaignService.setActiveTitle(wallet, tagId);
     if (result.error) return res.status(400).json(result);
     res.json(result);

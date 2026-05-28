@@ -26942,15 +26942,19 @@ async function loadOpsCommandBoard() {
     // 주간 진척도 — 요일 라벨 포함 7칸 표시
     var dayLabels = LANG==='ja'?['日','月','火','水','木','金','土']:LANG==='zh'?['日','一','二','三','四','五','六']:LANG==='ko'?['일','월','화','수','목','금','토']:['S','M','T','W','T','F','S'];
     var todayDow = new Date().getUTCDay();
-    var blocks = '<div style="display:flex;gap:2px;width:100%">';
+    // [v7.211] 주간 진척도 시인성 — 빈 칸 rgba(.15)는 모바일 다크 배경에서 검정으로 보임.
+    //   bg 살짝 밝게 + border 더 진하게 + height 8→10px + label 추가.
+    var blocks = '<div style="display:flex;gap:3px;width:100%">';
     for (var i = 0; i < weeklyTotal; i++) {
-      var dayIdx = (1 + i) % 7; // 월요일부터 시작 (0=Mon...6=Sun)
+      var dayIdx = (1 + i) % 7;
       var isToday = dayIdx === todayDow;
       var isDone = i < weeklyDone;
-      var bg = isDone ? 'var(--cyan)' : 'rgba(255,255,255,.15)';
-      var border = isToday ? '1px solid rgba(255,215,0,.6)' : '1px solid transparent';
-      blocks += '<div style="flex:1">'
-        + '<div style="width:100%;height:8px;border-radius:2px;background:' + bg + ';border:' + border + '"></div>'
+      var bg = isDone ? 'var(--cyan)' : 'rgba(255,255,255,.06)';
+      var border = isToday ? '1px solid rgba(255,215,0,.85)' : '1px solid rgba(255,255,255,.25)';
+      var labelColor = isDone ? '#fff' : (isToday ? '#ffd700' : 'rgba(255,255,255,.45)');
+      blocks += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'
+        + '<div style="font-size:8px;color:'+labelColor+';font-family:var(--fn);font-weight:'+(isToday?'800':'600')+'">'+dayLabels[dayIdx]+'</div>'
+        + '<div style="width:100%;height:10px;border-radius:3px;background:' + bg + ';border:' + border + (isDone?';box-shadow:0 0 6px rgba(91,184,232,.5)':'')+'"></div>'
         + '</div>';
     }
     blocks += '</div>';
@@ -29055,6 +29059,8 @@ function _cpLoadTitles(w){
         pane.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);font-size:10px;padding:30px;line-height:1.6">'+tl('No titles yet.','아직 받은 칭호가 없습니다.','まだ称号がありません。','尚无称号。')+'<br><span style="color:rgba(255,255,255,.3);font-size:9px">'+tl('Complete campaign chapters to earn titles.','캠페인 챕터를 완료하면 칭호를 받습니다.','キャンペーンを完了すると獲得できます。','完成战役章节可获得称号。')+'</span></div>';
         return;
       }
+      // [v7.211] inline onclick 깨짐 위험 차단 — data-* + delegated listener (영토 업그레이드와 동일 패턴).
+      //   사용자 보고: '장착 눌러도 반응 없음'. 트랙 키 escape edge case 가능성.
       pane.innerHTML = tags.map(function(tag){
         var id = tag.tag_id || tag.id || tag.code || '';
         var label = tag.label || tag.name || tag.tag_label || id;
@@ -29064,10 +29070,21 @@ function _cpLoadTitles(w){
           + (tag.description?'<div style="font-size:8.5px;color:rgba(255,255,255,.5);margin-top:2px">'+escapeHtmlSafe(tag.description)+'</div>':'')
           + '</div>'
           + (isActive
-              ? '<button onclick="_cpSetActiveTitle(\'\')" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-family:var(--fn);cursor:pointer">'+tl('Unequip','해제','解除','卸下')+'</button>'
-              : '<button onclick="_cpSetActiveTitle(\''+escapeHtmlSafe(id).replace(/\047/g,'\\\047')+'\')" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(184,140,255,.18);border:1px solid rgba(184,140,255,.45);color:#fff;font-family:var(--fn);cursor:pointer">'+tl('Equip','장착','装着','装备')+'</button>')
+              ? '<button type="button" data-cp-action="unequip" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-family:var(--fn);cursor:pointer">'+tl('Unequip','해제','解除','卸下')+'</button>'
+              : '<button type="button" data-cp-action="equip" data-cp-tag-id="'+escapeHtmlSafe(id)+'" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(184,140,255,.18);border:1px solid rgba(184,140,255,.45);color:#fff;font-family:var(--fn);cursor:pointer">'+tl('Equip','장착','装着','装备')+'</button>')
           + '</div>';
       }).join('');
+      // [v7.211] delegated click listener — 모든 장착/해제 버튼 한 번에 처리.
+      pane.onclick = function(ev){
+        var btn = ev.target && ev.target.closest ? ev.target.closest('button[data-cp-action]') : null;
+        if (!btn || !pane.contains(btn)) return;
+        ev.stopPropagation();
+        var action = btn.getAttribute('data-cp-action');
+        var tagId = btn.getAttribute('data-cp-tag-id') || '';
+        console.log('[BTN] title action', action, tagId);
+        if (action === 'unequip') _cpSetActiveTitle('');
+        else if (action === 'equip' && tagId) _cpSetActiveTitle(tagId);
+      };
     })
     .catch(function(){ var pane = document.getElementById('cpTitlesPane'); if (pane) pane.innerHTML = '<div style="text-align:center;color:#ff5252;font-size:10px;padding:20px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'; });
 }
