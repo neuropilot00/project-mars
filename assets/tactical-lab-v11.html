@@ -1553,6 +1553,29 @@ function applyDmg(sh,dmg,isLaser,attackerType){
   if(sh.hp<=0){
     sh.dead=true;
     mkExp(sh.x,sh.y,sh.type.r*1.4);
+    // [v7.179 VFX] 함급별 화면 흔들림 + 충격파 — 큰 함선일수록 강하게
+    const _sz=sh.type.size;
+    if(_sz==='titan'){
+      triggerScreenShake(14, 900);
+      mkShockwave(sh.x,sh.y,sh.type.r*5);
+      triggerMiniSlowmo(450);
+      // 2차 연쇄 폭발
+      for(let i=0;i<3;i++){
+        setTimeout(()=>mkExp(sh.x+(Math.random()-.5)*sh.type.r*2,sh.y+(Math.random()-.5)*sh.type.r*2,sh.type.r*0.7),i*90+60);
+      }
+    } else if(_sz==='battleship'){
+      triggerScreenShake(9, 650);
+      mkShockwave(sh.x,sh.y,sh.type.r*4);
+      triggerMiniSlowmo(280);
+      setTimeout(()=>mkExp(sh.x+(Math.random()-.5)*sh.type.r,sh.y+(Math.random()-.5)*sh.type.r,sh.type.r*0.6),120);
+    } else if(_sz==='cruiser'){
+      triggerScreenShake(5, 400);
+      mkShockwave(sh.x,sh.y,sh.type.r*3);
+    } else if(_sz==='destroyer'){
+      triggerScreenShake(3, 280);
+    } else {
+      triggerScreenShake(1.5, 180);
+    }
     if(sh.type.size==='cruiser'||sh.type.size==='battleship'||sh.type.size==='titan'){
       addLog('kl',`☠ ${sh.type.name} 격침 [${sh.fleet.userId}]`);
       panicCallout(sh);
@@ -1636,13 +1659,24 @@ function updateSpecialCharge(dt){
 
 function mkExp(x,y,sz){
   playExplosionSound();
+  // [v7.179 VFX] 다층 폭발 — 코어 플래시 + 파편 + 연기 + 글로우
   const n=Math.min(3+sz*(PERF_MODE?1.25:2.5),PERF_MODE?10:18);
   const cs=['#ffd700','#ff6d00','#ef5350','#fff','#ff8f00'];
-  exps.push({x,y,ptcl:Array.from({length:n},()=>{
-    const a=Math.random()*Math.PI*2,sp=.4+Math.random()*sz*.5;
+  // 파편 파티클
+  const ptcl=Array.from({length:n},()=>{
+    const a=Math.random()*Math.PI*2,sp=.5+Math.random()*sz*.8;
     return{vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
-      c:cs[0|Math.random()*cs.length],sz:.8+Math.random()*sz*.5,al:1};
-  }),ttl:32,age:0});
+      c:cs[0|Math.random()*cs.length],sz:.8+Math.random()*sz*.6,al:1,
+      decay:.985+Math.random()*.012};
+  });
+  // 연기 파티클 (느리고 어두움, 천천히 사라짐)
+  const smokeN=Math.min(2+Math.floor(sz*0.8), PERF_MODE?4:8);
+  const smoke=Array.from({length:smokeN},()=>{
+    const a=Math.random()*Math.PI*2,sp=.15+Math.random()*sz*.25;
+    return{vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-.05,
+      sz:sz*0.8+Math.random()*sz*.6,al:.6};
+  });
+  exps.push({x,y,ptcl,smoke,sz,ttl:48,age:0,coreTtl:10});
 }
 function mkShockwave(x,y,maxR){shockwaves.push({x,y,r:2,maxR,ttl:45,age:0});}
 
@@ -2148,18 +2182,61 @@ function drawLasers(_wsActive){
     }
     CX.strokeStyle='rgba(255,255,255,.82)';CX.lineWidth=l.width*(l.beamCannon?.42:.28);
     CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
+    // [v7.179 VFX] 임팩트 플래시 — 빔이 함선에 닿는 끝점에 광원 (초반 30%만)
+    if(prog<.3 && !PERF_MODE){
+      const flashR=l.beamCannon?(18+l.width*4):(7+l.width*2);
+      CX.globalCompositeOperation='lighter';
+      CX.globalAlpha=(1-prog/.3)*.85;
+      const fg=CX.createRadialGradient(l.x2,l.y2,0,l.x2,l.y2,flashR);
+      fg.addColorStop(0,'#ffffff');
+      fg.addColorStop(.4,l.color||'#ffd166');
+      fg.addColorStop(1,'rgba(0,0,0,0)');
+      CX.fillStyle=fg;
+      CX.beginPath();CX.arc(l.x2,l.y2,flashR,0,Math.PI*2);CX.fill();
+      CX.globalCompositeOperation='source-over';
+    }
     CX.shadowBlur=0;CX.lineWidth=1;CX.globalAlpha=1;
     l.age++;return l.age<l.ttl;
   });
 }
 
 function drawExps(){
+  // [v7.179 VFX] 다층 렌더 — 연기(under) → 코어 플래시 → 파편 글로우 → 흰 코어
   exps=exps.filter(ex=>{
     const prog=ex.age/ex.ttl;
+    // 1) 연기 (additive 아님, 어두움) — 폭발 뒤에 깔림
+    if(ex.smoke && ex.age>2){
+      const smokeProg=Math.min(1,(ex.age-2)/ex.ttl);
+      ex.smoke.forEach(sm=>{
+        CX.globalAlpha=sm.al*(1-smokeProg)*.55;
+        CX.fillStyle='#1a1a22';
+        const sx=ex.x+sm.vx*ex.age, sy=ex.y+sm.vy*ex.age;
+        const sr=sm.sz*(0.6+smokeProg*1.2);
+        CX.beginPath();CX.arc(sx,sy,sr,0,Math.PI*2);CX.fill();
+      });
+    }
+    // 2) 코어 플래시 (additive blend, 초반에만)
+    if(ex.age<ex.coreTtl && !PERF_MODE){
+      const coreProg=ex.age/ex.coreTtl;
+      CX.globalCompositeOperation='lighter';
+      CX.globalAlpha=(1-coreProg)*.9;
+      const gr=CX.createRadialGradient(ex.x,ex.y,0,ex.x,ex.y,ex.sz*4*(1+coreProg*1.5));
+      gr.addColorStop(0,'#ffffff');
+      gr.addColorStop(.3,'#ffe082');
+      gr.addColorStop(.7,'#ff6d00');
+      gr.addColorStop(1,'rgba(239,83,80,0)');
+      CX.fillStyle=gr;
+      CX.beginPath();CX.arc(ex.x,ex.y,ex.sz*4*(1+coreProg*1.5),0,Math.PI*2);CX.fill();
+      CX.globalCompositeOperation='source-over';
+    }
+    // 3) 파편 파티클 (additive 글로우)
+    CX.globalCompositeOperation='lighter';
     ex.ptcl.forEach(p=>{
+      p.al*=(p.decay||.985);
       CX.globalAlpha=p.al*(1-prog);CX.fillStyle=p.c;
       CX.fillRect(ex.x+p.vx*ex.age-p.sz/2,ex.y+p.vy*ex.age-p.sz/2,p.sz,p.sz);
     });
+    CX.globalCompositeOperation='source-over';
     CX.globalAlpha=1;ex.age++;return ex.age<ex.ttl;
   });
 }
@@ -2192,6 +2269,18 @@ function drawRepairBeams(){
 let lt=0,turnT=0,panelT=0,battleOver=false;
 let simSpeed=1; // 기본 1x — WS 없는 로컬 시뮬 전용
 let _slowmoActive=false,_slowmoTimer=0; // 마지막 함선 폭발 슬로우모션
+// [v7.179 VFX] 격침 화면 흔들림 + 미니 슬로모 (대형함 전용)
+let _shakeIntensity=0, _shakeDecay=0;
+let _miniSlowmoUntil=0; // 대형함 격침 시 짧은 슬로모 종료 시각
+function triggerScreenShake(intensity, ms){
+  // 이미 더 강한 흔들림 진행 중이면 무시 — 누적은 산만
+  if(intensity>_shakeIntensity){_shakeIntensity=intensity;_shakeDecay=intensity/Math.max(ms,1);}
+}
+function triggerMiniSlowmo(durMs){
+  // 마지막 함선 격침 슬로모(_slowmoActive) 중엔 별도 트리거 안 함
+  if(_slowmoActive) return;
+  _miniSlowmoUntil=Math.max(_miniSlowmoUntil, performance.now()+durMs);
+}
 function setSimSpeed(s){
   simSpeed=s;
   const speedCycle=document.getElementById('speedCycle');
@@ -2215,7 +2304,13 @@ function loop(ts){
   const rawDt=ts-lt;lt=ts;
   // WS 모드엔 서버가 8x 속도로 frame을 쏘므로 로컬 speed 배수 미적용
   const _wsOn = _wsBattle && _wsBattle.readyState === 1;
-  const dt=Math.min(rawDt,100)*(_wsOn?1:simSpeed);
+  // [v7.179 VFX] 미니 슬로모 — 대형함 격침 직후 시뮬 속도 일시 감속 (WS/메인 슬로모 제외)
+  let _slowmoMul=1;
+  if(_miniSlowmoUntil>0 && !_wsOn && !_slowmoActive){
+    if(ts<_miniSlowmoUntil) _slowmoMul=0.45;
+    else _miniSlowmoUntil=0;
+  }
+  const dt=Math.min(rawDt,100)*(_wsOn?1:simSpeed)*_slowmoMul;
   btMs+=rawDt;turnT+=rawDt;panelT+=rawDt; // 실시간 시계는 원본 dt 사용
   if(empMs>0)empMs-=dt;
   if(turnT>600){turnT=0;turn++;document.getElementById('tn').textContent=turn;}
@@ -2284,9 +2379,15 @@ function loop(ts){
   if(_halfW<W/2)camCx=Math.max(_halfW,Math.min(W-_halfW,camCx)); else camCx=W/2;
   if(_halfH<H/2)camCy=Math.max(_halfH,Math.min(H-_halfH,camCy)); else camCy=H/2;
 
+  // [v7.179 VFX] 격침 화면 흔들림 — 카메라 transform 직전에 오프셋 계산
+  if(_shakeIntensity>0){
+    _shakeIntensity=Math.max(0,_shakeIntensity-_shakeDecay*rawDt);
+  }
+  const _shakeX=_shakeIntensity?(Math.random()-.5)*_shakeIntensity*2:0;
+  const _shakeY=_shakeIntensity?(Math.random()-.5)*_shakeIntensity*2:0;
   drawBG();
   CX.save();
-  CX.translate(W/2,H/2);
+  CX.translate(W/2+_shakeX,H/2+_shakeY);
   CX.scale(camScale,camScale);
   CX.translate(-camCx,-camCy);
   drawShockwaves();
