@@ -20,7 +20,8 @@
 // 2026-05-28 v15: v7.192~v7.194 daily mission claim 자동 갱신 / forge ⭐ UI / wash-trade / dead endpoint 410 — index.html 강제 새로고침.
 // 2026-05-28 v16: v7.195 오늘의 추천 카드 제거 — 좌측 컬럼 3개 → 캠페인/가챠/(zb 컬럼).
 // 2026-05-28 v17: v7.196 한국어 "함선 상자" → "함선 가챠" 통일.
-const CACHE_NAME = 'mars-v17';
+// 2026-05-28 v18: v7.197 tactical-lab 라이브 버전 표시 (제목 "v11.1 + VFX v7.196") + iframe URL Date.now() — 캐시 확실 폐기.
+const CACHE_NAME = 'mars-v18';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

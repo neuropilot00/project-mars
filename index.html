@@ -54118,7 +54118,9 @@ function openTacticalLab(){
     // 지연 로드: 첫 오픈 시에만 iframe 초기화 → 메모리/CPU 절약
     // [v7.191] cache-bust 갱신 — v7.179/180/188/190 VFX 업그레이드가 옛 ?v= 캐시에 가려 사용자에게 안 보이던 문제.
     //   배포 때마다 이 값을 갱신해 iframe 강제 새로 로드. 다음 변경 시 v= 만 올리면 됨.
-    frame.src = 'assets/tactical-lab-v11.html?v=20260528-vfx&lang=' + encodeURIComponent(LANG || 'en');
+    // [v7.197] Date.now() 도 같이 붙여 매 오픈마다 새 URL — SW HTML network-first 라 안전.
+    //   확실한 검증: 전술랩 상단 제목이 "FLEET WAR v11.1 + VFX v7.196" 으로 보이면 새 코드 적용됨.
+    frame.src = 'assets/tactical-lab-v11.html?v=v7.196&t=' + Date.now() + '&lang=' + encodeURIComponent(LANG || 'en');
   }
   bd.classList.add('active');
 }
