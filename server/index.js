@@ -323,7 +323,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-secret', 'x-wallet']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-secret', 'x-wallet', 'X-CSRF-Token'] // [v7.172 G-Crit-4]
 }));
 
 // ── Middleware ──
@@ -366,8 +366,8 @@ app.use('/api', phaseDRoutes);               // Phase D: Alliance/Replay/Mobile
 app.use('/api/jobs', jobsRoutes);            // Job System (mine/select/buffs)
 app.use('/api/onboarding', onboardingV2Routes); // Onboarding Tutorial v2
 // Removed: publicV2Routes mount (was Chronicle Enhanced Public API)
-app.use('/api/titles', hofRoutes);               // Hall of Fame & Titles
-app.use('/api/hof',    hofRoutes);               // Hall of Fame board
+// app.use('/api/titles', hofRoutes);             // [v7.172 G-Crit-5 disabled — frontend 호출 0건] Hall of Fame & Titles
+// app.use('/api/hof',    hofRoutes);             // [v7.172 G-Crit-5 disabled — frontend 호출 0건] Hall of Fame board
 app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (before fleetBattles to capture /rewards/mine etc.)
 app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
 try { app.use('/api', require('./routes/commanderActions')); } catch (e) { console.warn('[mount] commanderActions skipped:', e.message); } // M-151: Commander Actions
