@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.164 — 가챠 리빌 전용 함선 포트레이트 22종 (실사풍·진영 톤 분리)
+
+리빌 모달의 평평한 탑뷰 폴백 대신, **전투/조선소와 분리된 가챠 전용 시네마틱 포트레이트** 22종을 Codex CLI(6 배치 순차)로 신규 생성·배치. `assets/ships/reveal/{code}.jpg`, 800x600, 3/4 다이내믹 앵글, 실사풍 입체감, 텍스트 없음. 진영 톤 분리:
+- **MCC** 8종: 주황/골드 정밀 군용 (frg/int/dst/crs/bs/snp/ewar/titan)
+- **FSP** 7종: 청록/블루 견고 방어 (int/dst/crs/bs/logi/logi_crs/titan)
+- **CV** 7종: 보라/마젠타 공격적 (frg/int/dst/crs/bs/bomb/titan)
+모든 함선 기존 탑뷰 스프라이트(전투/조선소 공유)를 디자인 레퍼런스로 활용, 같은 함급/실루엣/파벌 느낌 유지하되 3/4 시네마틱 포트레이트로 재해석. 스팟 검증 4장 통과(mcc_titan, fsp_crs, cv_titan, fsp_titan, cv_bomb 진영 톤·실사 입체감 확인). `.gitignore`에 `assets/ships/reveal/` 예외 추가됨. 리빌 모달은 자동으로 새 포트레이트 사용(미존재 함선만 탑뷰 폴백).
+
 ## 2026-05-28 v7.163 — 머니플로 전수 감사 hotfix Tier 1 (Critical 4건)
 
 4 페르소나 병렬 감사(환전·마켓·보상·비판검토자)로 유저 머니플로 198곳 점검. Critical 4건 즉시 차단:

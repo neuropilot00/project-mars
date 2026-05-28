@@ -1,3 +1,27 @@
+# OCCUPY MARS — Audit (v7.160~v7.164 / 2026-05-28) — 비주얼·P2O·시장 유동성·머니플로 hotfix
+
+> 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
+
+## 🟢 v7.160~v7.164 적용 완료
+- **v7.160**: BASE 탭 배너 9종 실사풍 교체 (fleet/pvp/governance/sectors/territory/quests/rank/guild/transport, Codex CLI, 1600x680, 컨셉 매칭 육안 검증).
+- **v7.161**: P2E→P2O 프레임 전환(4 페르소나 진단 docs/P2E_STRATEGY_2026-05-28.md). 🪐 MY MARS PORTFOLIO 모달(자산 수량+환금 잠금+P2O 3스텝), 데이터 연결 hotfix(`walletState.gamePP/gameUsdt` + `/api/ships/my`·`/api/claims/my` fresh fetch), 4언어 카피.
+- **v7.162**: 가챠 시스템 강화. (a) 획득 리빌 모달(✨획득!✨ + 함선 포트레이트 + 능력치+보너스), (b) 랜덤 보너스 스탯(각인 품질 common~legendary), (c) cross-faction 함선(사용 불가·마켓 판매 — 시장 유동성), (d) E2E 감사 후 fleet 편입 우회 3 경로 차단(`moveShips`/`buyShipListing`/`cancelShipListing` 진영 매칭 강제), (e) 프론트 🔒 lock 배지 + 에러 메시지.
+- **v7.163**: 머니플로 전수 감사(4 페르소나 병렬 198곳) → Critical 4 즉시 차단: PP→GP 대소문자 우회·fail-OPEN·rate≤0 통과·processDeposit 음수.
+- **mig 248**: `ship_market_fee_pct` 0.05→5 영속 복원(실효 0.05%→5% 100배 차이 버그).
+- **mig 249**: `auction_platform_fee_pct=5` 시드(admin 튜닝성).
+- **v7.164**: 가챠 리빌 전용 함선 포트레이트 22종 실사풍 신규 생성(`assets/ships/reveal/*.jpg`, 800x600, 진영 톤 분리: mcc 주황/골드, fsp 청록/블루, cv 보라/마젠타). 기존 탑뷰 스프라이트(전투/조선소 공유)는 손 안 댐.
+
+## 🟡 Tier 2 — 후속 (구조적 위험, 별도 작업)
+- **timezone `CURRENT_DATE` 일일캡 우회** (30+ 파일, daily/governance/mission/login_streak): DB 세션 TZ Asia/Tokyo, 자정 boundary 시 더블 보상 가능. dailyOps.js만 패치됨.
+- **GP transfer race**: `sentToday` 집계에 FOR UPDATE 없음 — 동시 송금 시 일일 한도 초과 가능.
+- **treasury 가드 contract 미강제**: FOR UPDATE가 "주석 contract"라 호출자 누락 시 솔벤시 윈도우 누수.
+- **dividends `.toFixed(6)` 누적 dust**: 풀 잔여 ghost GP 영구 적립.
+- **settings 캐시 무효화 누락**: `__invalidateSectorsCache`만, exchangeRate floor/ceil 등 미반영.
+- **2차 그래프 자기거래 chain**: 4겹 sybil 가드(229/242/244/227) 모두 1차원만 봄, 연결 wallet 관계 감지 없음.
+- **fee_pct 두 컨벤션 공존**(`÷100`와 `×직접`): 각자 정합이나 admin 헷갈림 — 운영 매뉴얼/키 prefix 통일 가치.
+
+---
+
 # OCCUPY MARS — Codebase Audit (v7.94~v7.128 / 2026-05-27) — 7대 점검 + 기능 추가 + EVE급 경제
 
 > **경제(EVE급) 진단·수정 v7.121~7.128**: 상세는 `docs/ECONOMY_EVE_ROADMAP.md` 참조.
