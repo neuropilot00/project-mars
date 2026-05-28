@@ -26,6 +26,56 @@ function rollRarity(weights, allow) {
   return entries[entries.length - 1][0];
 }
 
+// ── 각인 품질(quality) — 개봉 함선의 랜덤 보너스 스탯 등급 ──
+// 보너스는 base 스탯의 일정 비율(범위) 만큼 bonus_atk/def/hp/speed 에 가산된다.
+const QUALITY_GRADES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+const QUALITY_BONUS_RANGE = {        // base 스탯 대비 보너스 비율 [min, max]
+  common:    [0,    0],
+  uncommon:  [0.05, 0.13],
+  rare:      [0.14, 0.27],
+  epic:      [0.28, 0.48],
+  legendary: [0.50, 0.85],
+};
+// 상자별 품질 가중치 — 고가 상자일수록 강화 개체 확률↑ (admin 조정 가능: settings crate_quality_weights)
+const CRATE_QUALITY_WEIGHTS = {
+  recruit_crate:   { common: 80, uncommon: 18, rare: 2,  epic: 0,  legendary: 0 },
+  standard_crate:  { common: 62, uncommon: 26, rare: 9,  epic: 2.5, legendary: 0.5 },
+  premium_crate:   { common: 45, uncommon: 32, rare: 16, epic: 6,  legendary: 1 },
+  elite_crate:     { common: 30, uncommon: 34, rare: 24, epic: 9,  legendary: 3 },
+  legendary_crate: { common: 18, uncommon: 32, rare: 30, epic: 14, legendary: 6 },
+};
+const QUALITY_WEIGHTS_DEFAULT = { common: 60, uncommon: 27, rare: 10, epic: 2.5, legendary: 0.5 };
+
+// 보안 RNG 실수 [0,1)
+function randFloat() { return crypto.randomInt(0, 1e9) / 1e9; }
+
+function rollQuality(crateCode) {
+  const w = CRATE_QUALITY_WEIGHTS[crateCode] || QUALITY_WEIGHTS_DEFAULT;
+  const entries = QUALITY_GRADES.map(g => [g, Number(w[g]) || 0]).filter(([, v]) => v > 0);
+  const total = entries.reduce((s, [, v]) => s + v, 0);
+  if (total <= 0) return 'common';
+  let r = randFloat() * total;
+  for (const [g, v] of entries) { r -= v; if (r < 0) return g; }
+  return entries[entries.length - 1][0];
+}
+
+// quality 등급 + base 스탯 → 각 스탯 보너스(정수/소수) 계산. 스탯별 ±30% 분산으로 굴림이 다양해짐.
+function rollBonusStats(quality, base) {
+  const range = QUALITY_BONUS_RANGE[quality] || [0, 0];
+  if (range[1] <= 0) return { atk: 0, def: 0, hp: 0, speed: 0 };
+  function pct() {
+    const p = range[0] + randFloat() * (range[1] - range[0]);
+    const variance = 0.7 + randFloat() * 0.6; // 0.7~1.3
+    return p * variance;
+  }
+  return {
+    atk:   Math.round((base.atk   || 0) * pct()),
+    def:   Math.round((base.def   || 0) * pct()),
+    hp:    Math.round((base.hp    || 0) * pct()),
+    speed: Math.round((base.speed || 0) * pct() * 100) / 100,
+  };
+}
+
 async function listCrates() {
   const enabled = String(await getSetting('ship_crate_enabled', 'true'));
   if (enabled === 'false') return { enabled: false, crates: [] };
@@ -131,9 +181,9 @@ async function openCrate(wallet, crateCode) {
       }
     }
 
-    // 해당 파벌·등급의 함선 중 랜덤 선택
+    // 해당 파벌·등급의 함선 중 랜덤 선택 (base 스탯 포함)
     const { rows: shipTypeRows } = await client.query(
-      `SELECT code, base_hp, is_flagship_capable FROM ship_types
+      `SELECT code, base_hp, base_atk, base_def, base_speed, is_flagship_capable FROM ship_types
        WHERE faction_code = $1 AND size_class = $2 AND is_active = true`,
       [user.faction_code, rarity]
     );
@@ -144,29 +194,41 @@ async function openCrate(wallet, crateCode) {
     }
     const picked = shipTypeRows[randInt(shipTypeRows.length)];
 
+    // 각인 품질 롤 → 보너스 스탯(강화된 개체 가능)
+    const baseStats = {
+      atk:   parseInt(picked.base_atk, 10) || 0,
+      def:   parseInt(picked.base_def, 10) || 0,
+      hp:    parseInt(picked.base_hp, 10) || 0,
+      speed: Number(picked.base_speed) || 0,
+    };
+    const quality = rollQuality(crateCode);
+    const bonus = rollBonusStats(quality, baseStats);
+
     // GP 차감
     await client.query(
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [price, w]
     );
 
-    // 함대 확보 + 함선 인스턴스 생성 (grantCampaignShips 와 동일 규칙)
+    // 함대 확보 + 함선 인스턴스 생성 (grantCampaignShips 와 동일 규칙 + 보너스 스탯)
     const fleetId = await getOrCreateFleet(client, w);
     const { rows: flagRows } = await client.query(
       `SELECT COUNT(*) AS c FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`, [fleetId]
     );
     const isFlagship = parseInt(flagRows[0]?.c || 0, 10) === 0 && picked.is_flagship_capable;
+    const fullHp = baseStats.hp + (bonus.hp || 0); // 보너스 HP 포함 만피로 도착
     const { rows: shipRows } = await client.query(
-      `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet)
-       VALUES ($1, $2, $3, $4, $4, $5, true, NOW(), $3) RETURNING id`,
-      [fleetId, picked.code, w, picked.base_hp, isFlagship]
+      `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet,
+                          bonus_atk, bonus_def, bonus_hp, bonus_speed)
+       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10) RETURNING id`,
+      [fleetId, picked.code, w, fullHp, baseStats.hp, isFlagship, bonus.atk, bonus.def, bonus.hp, bonus.speed]
     );
 
     const isRare = RARE_CLASSES.includes(rarity);
-    // 풀 로그
+    // 풀 로그 (품질 포함)
     await client.query(
-      `INSERT INTO ship_crate_pulls (wallet, crate_code, ship_type_code, rarity, was_pity, price_gp)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [w, crateCode, picked.code, rarity, pityHit && isRare, price]
+      `INSERT INTO ship_crate_pulls (wallet, crate_code, ship_type_code, rarity, was_pity, price_gp, quality)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [w, crateCode, picked.code, rarity, pityHit && isRare, price, quality]
     );
     // 천장 카운터: 희귀 뽑으면 0, 아니면 +1
     await client.query(
@@ -178,18 +240,32 @@ async function openCrate(wallet, crateCode) {
 
     await client.query('COMMIT');
 
-    try { logGPActivity(w, -price, 'ship_crate', `${crateCode} 개봉 → ${picked.code}(${rarity})`).catch(() => {}); } catch (_) {}
+    try { logGPActivity(w, -price, 'ship_crate', `${crateCode} 개봉 → ${picked.code}(${rarity}/${quality})`).catch(() => {}); } catch (_) {}
 
     return {
       success: true,
       crate: crateCode,
-      ship: { id: shipRows[0].id, code: picked.code, rarity, isFlagship },
+      ship: {
+        id: shipRows[0].id, code: picked.code, rarity, isFlagship, quality,
+        base: baseStats,
+        bonus,
+        stats: {
+          atk:   baseStats.atk + (bonus.atk || 0),
+          def:   baseStats.def + (bonus.def || 0),
+          hp:    baseStats.hp + (bonus.hp || 0),
+          speed: Math.round((baseStats.speed + (bonus.speed || 0)) * 100) / 100,
+        }
+      },
       was_pity: pityHit && isRare,
       gp_spent: price
     };
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[shipCrate] openCrate error:', err.message);
+    // 함급당 보유 한도(서버 트리거)에 걸리면 GP는 롤백되어 차감 없음 — 명확한 코드로 반환.
+    if (err && /SHIP_PLAYER_TYPE_LIMIT|per player/i.test(err.message || '')) {
+      return { error: 'SHIP_TYPE_LIMIT' };
+    }
     return { error: 'SERVER_ERROR' };
   } finally {
     client.release();

@@ -1,5 +1,29 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.159 — 가챠 획득 리빌 모달 + 랜덤 강화 스탯 (각인 품질)
+
+"토스트 너무 썰렁 / 강화된 함선 얻을 수 있어야 돈 쓴다" 반영. 결제 보람·재개봉 동기 강화.
+- **각인 품질(quality) 시스템**: 개봉 시 함선이 랜덤 등급(common/uncommon/rare/epic/legendary)을 받아 **base 스탯 비율만큼 보너스 스탯**(bonus_atk/def/hp/speed)이 굴려진다. 같은 함급이라도 강화된 개체가 나옴.
+  - 보너스 범위: uncommon 5–13% · rare 14–27% · epic 28–48% · legendary 50–85% (스탯별 ±30% 분산).
+  - 상자별 품질 가중치: 고가 상자일수록 강화 확률↑ (recruit 거의 plain → legendary는 epic 14%/legendary 6%).
+  - `ships.bonus_*` 컬럼 활용(기존 강화 시스템과 동일), `current_hp = base_hp + bonus_hp` 만피 지급.
+- **획득 리빌 모달**(`showCrateReveal`): 토스트 대신 풀스크린 연출 — `✨획득!✨` + 등급/품질(별)/천장 뱃지 + **함선 top PNG(글로우·플로팅)** + 능력치 그리드(ATK/DEF/HP/SPD, 보너스 +N 녹색) + "강화된 함선" 강조 + 확인/다시개봉 버튼(잔액 체크). 4언어.
+- **에러 안전**: 함급 보유한도(서버 트리거) 적중 시 GP 롤백+`SHIP_TYPE_LIMIT` 명확 메시지(차감 없음).
+- Migration 246: `ship_crate_pulls.quality`. shipCrate.js 응답에 base/bonus/stats/quality 포함.
+- 검증: 실유저 스모크(common=보너스0·rare=+64atk/+54k hp 강화 확인, DB bonus 저장·current_hp=max+bonus), Preview 모달 렌더(시각 확인).
+
+## 2026-05-28 v7.158 — 우측 레일 SECTORS 버튼 영문 라벨 칸 넘침 수정
+
+- EN 'SECTORS'(공백 없는 1단어라 줄바꿈 불가)가 42px zb 버튼 밖으로 넘침. 라벨 font 7px+자간 축소+nowrap, 버튼 가로 padding 4→2px. 4언어 칸 내 안착(Preview 실측). ko/ja/zh 영향 없음.
+
+## 2026-05-28 v7.157 — 메인 가챠 버튼을 CAMPAIGN 버튼 바로 위로 배치
+
+- zc 줌레일 버전 제거 → CAMPAIGN 위 전용 `.crates-quick`(보라 펄스). 패널 접힘 런타임 레이아웃에 cratesQuickBtn 추적 추가. 데스크탑/태블릿/모바일 3 브레이크포인트 모두 campaign 위 정렬(Preview 실측+시각 검증).
+
+## 2026-05-28 v7.156 — 신병/엘리트 가챠 배너 2종 실사풍 추가 (5종 전부 전용 아트)
+
+- Codex CLI 실제 이미지 생성. crate_recruit(청록 소형함대), crate_elite(크림슨 순양함/전함). 배너 맵 코드별 매핑 + elite hero fallback 오타 수정.
+
 ## 2026-05-28 v7.155 — 가챠샵 확장: 신병 무료 데일리 + 엘리트 상자 (3종→5종)
 
 "가챠 3개로 되겠어?" 지적 반영 — 상자 라인업 확장 + 데일리 리텐션 후크. **경제 안전 원칙 유지**(유료 상자=순수 GP 싱크, 무료 상자=함선 공급 통제).

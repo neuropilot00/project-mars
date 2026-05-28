@@ -368,6 +368,9 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .crates-quick-icon{font-size:14px;text-shadow:0 0 10px rgba(184,140,255,.6)}
 .crates-quick-sub{font-size:8px;color:rgba(240,230,255,.6);letter-spacing:.8px;font-weight:700}
 @keyframes cratesQuickPulse{0%,100%{box-shadow:0 8px 22px rgba(0,0,0,.48),0 0 16px rgba(184,140,255,.25)}50%{box-shadow:0 8px 22px rgba(0,0,0,.48),0 0 26px rgba(184,140,255,.62)}}
+@keyframes crFade{from{opacity:0}to{opacity:1}}
+@keyframes crPop{from{opacity:0;transform:scale(.86) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes crFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media (min-width:769px) and (max-width:1024px){
   .campaign-quick{right:auto;left:12px;top:110px;bottom:auto}
   .crates-quick{right:auto;left:12px;top:64px;bottom:auto}
@@ -46971,19 +46974,82 @@ async function openShipCrate(code, priceGp) {
       var em = { INSUFFICIENT_GP: (LANG==='ko'?'GP가 부족합니다':'Not enough GP'),
         NO_FACTION:(LANG==='ko'?'먼저 파벌을 선택하세요':'Pick a faction first'),
         DAILY_LIMIT_REACHED:(LANG==='ko'?'오늘 무료 개봉을 모두 사용했습니다':'Daily free opens used up'),
+        SHIP_TYPE_LIMIT:(LANG==='ko'?'해당 함급 보유 한도에 도달했습니다 (GP 미차감)':'Ship type limit reached (no GP charged)'),
         CRATE_DISABLED:(LANG==='ko'?'가챠가 비활성화됨':'Crates disabled') };
       showToast(em[d.error] || d.error || (LANG==='ko'?'개봉 실패':'Open failed'), 'error');
       return;
     }
-    var m = _rarityMeta[d.ship.rarity] || { col:'#fff', emoji:'🚀' };
-    var _bp = ((shipyardState && shipyardState.blueprints) || []).find(function(b){ return b.code===d.ship.code || b.ship_type_code===d.ship.code; });
-    var name = _bp ? syShipName(_bp) : d.ship.code;
-    var rare = ['cruiser','battleship','titan'].includes(d.ship.rarity);
-    showToast((rare?'✨ ':'')+ m.emoji +' '+ _rarityLabel(d.ship.rarity) +' — '+ name + (d.was_pity?(LANG==='ko'?' (천장!)':' (pity!)'):''), rare?'success':'info');
+    // 잔액/함대 갱신은 모달 뒤에서 진행
     try { refreshGP(); } catch(_) {}
-    // 함대/잔액 갱신 — 조선소 다시 로드
     try { if (typeof refreshShipyard==='function') refreshShipyard(); } catch(_) {}
+    showCrateReveal(d, code, priceGp);
   } catch(e) { showToast(LANG==='ko'?'개봉 실패':'Open failed', 'error'); }
+}
+
+// ── 가챠 획득 리빌 모달 — 함선 이미지 + 능력치 + 각인 품질 ──
+var _crateQualityMeta = {
+  common:    { ko:'표준 각인',  en:'Standard',  col:'#9aa7b4', stars:0 },
+  uncommon:  { ko:'정예 각인',  en:'Fine',      col:'#5cd6a8', stars:1 },
+  rare:      { ko:'걸작 각인',  en:'Superior',  col:'#5c9dff', stars:2 },
+  epic:      { ko:'전설 각인',  en:'Prime',     col:'#c08bff', stars:3 },
+  legendary: { ko:'신화 각인',  en:'Pristine',  col:'#ffb347', stars:4 }
+};
+function _qLabel(q){ var m=_crateQualityMeta[q]||_crateQualityMeta.common; return (LANG==='ko'?m.ko:m.en); }
+function _fmtStat(n){ if(n===undefined||n===null) return '-'; return (Math.round(n*100)/100).toLocaleString(); }
+function _statRow(icon,label,total,bonus){
+  var hasB = bonus && bonus>0;
+  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)">'
+    + '<span style="font-size:11px;color:var(--tx2)">'+icon+' '+label+'</span>'
+    + '<span style="font-size:12px;font-weight:800;color:#fff">'+_fmtStat(total)
+    +   (hasB?' <span style="color:#5cd6a8;font-size:10px;font-weight:800">(+'+_fmtStat(bonus)+')</span>':'')
+    + '</span></div>';
+}
+function showCrateReveal(d, code, priceGp){
+  var s = d.ship||{}; var rm = _rarityMeta[s.rarity]||{col:'#fff',emoji:'🚀'};
+  var qm = _crateQualityMeta[s.quality]||_crateQualityMeta.common;
+  var _bp = ((shipyardState&&shipyardState.blueprints)||[]).find(function(b){ return b.code===s.code||b.ship_type_code===s.code; });
+  var name = _bp ? syShipName(_bp) : s.code;
+  var enhanced = qm.stars>0;
+  var glow = enhanced ? qm.col : rm.col;
+  var stars = qm.stars>0 ? ('<span style="color:'+qm.col+';letter-spacing:2px">'+'★'.repeat(qm.stars)+'<span style="opacity:.25">'+'★'.repeat(4-qm.stars)+'</span></span>') : '';
+  var base=s.base||{}, bonus=s.bonus||{}, st=s.stats||{};
+  var old = document.getElementById('crateRevealModal'); if(old) old.remove();
+  var balOk = (typeof walletState!=='undefined' && Number(walletState.gameGP||0) >= (priceGp||0));
+  var againLabel = priceGp>0 ? (tl('OPEN AGAIN','다시 개봉','もう一度','再开')+' · '+priceGp+' GP') : tl('OPEN AGAIN','다시 개봉','もう一度','再开');
+  var el = document.createElement('div');
+  el.id='crateRevealModal';
+  el.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.82);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
+  el.onclick=function(e){ if(e.target===el) el.remove(); };
+  el.innerHTML =
+    '<div style="position:relative;width:min(440px,94vw);max-height:92vh;overflow:auto;border-radius:16px;'
+    + 'background:radial-gradient(circle at 50% 0%, '+glow+'22, rgba(10,12,22,.98) 62%);'
+    + 'border:1.5px solid '+glow+'88;box-shadow:0 0 50px '+glow+'55,0 18px 60px rgba(0,0,0,.7);'
+    + 'padding:20px 20px 18px;text-align:center;animation:crPop .32s cubic-bezier(.2,1.3,.5,1)">'
+    +   '<div style="font-size:13px;font-weight:900;letter-spacing:3px;color:'+glow+';text-shadow:0 0 14px '+glow+'">'+(enhanced?'✨ ':'')+tl('ACQUIRED!','획득!','獲得！','获得！')+(enhanced?' ✨':'')+'</div>'
+    +   '<div style="margin-top:7px;display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap">'
+    +     '<span style="font-size:10px;font-weight:800;color:'+rm.col+';background:'+rm.col+'1f;border:1px solid '+rm.col+'55;padding:2px 9px;border-radius:20px">'+rm.emoji+' '+_rarityLabel(s.rarity)+'</span>'
+    +     '<span style="font-size:10px;font-weight:800;color:'+qm.col+';background:'+qm.col+'1f;border:1px solid '+qm.col+'55;padding:2px 9px;border-radius:20px">'+_qLabel(s.quality)+(stars?(' '+stars):'')+'</span>'
+    +     (d.was_pity?'<span style="font-size:10px;font-weight:800;color:var(--gold);background:rgba(255,209,102,.14);border:1px solid rgba(255,209,102,.5);padding:2px 9px;border-radius:20px">🎯 '+tl('PITY','천장','天井','保底')+'</span>':'')
+    +   '</div>'
+    +   '<div style="margin:12px auto 4px;width:200px;height:150px;display:flex;align-items:center;justify-content:center;position:relative">'
+    +     '<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, '+glow+'44, transparent 68%);filter:blur(6px)"></div>'
+    +     '<img src="assets/ships/top/'+s.code+'.png" alt="" style="max-width:188px;max-height:144px;object-fit:contain;position:relative;filter:drop-shadow(0 0 16px '+glow+'cc);animation:crFloat 3s ease-in-out infinite" onerror="this.style.display=\'none\'">'
+    +   '</div>'
+    +   '<div style="font-size:17px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.4px">'+name+'</div>'
+    +   (s.isFlagship?'<div style="font-size:9px;color:var(--gold);font-weight:800;margin-top:2px">👑 '+tl('FLAGSHIP','기함','旗艦','旗舰')+'</div>':'')
+    +   (enhanced?'<div style="font-size:10px;color:'+qm.col+';font-weight:800;margin-top:5px">⚡ '+tl('ENHANCED SHIP — bonus stats rolled!','강화된 함선 — 추가 능력치 획득!','強化艦 — ボーナス能力獲得！','强化舰 — 获得额外属性！')+'</div>':'')
+    +   '<div style="margin-top:13px;display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:left">'
+    +     _statRow('⚔', tl('ATK','공격','攻撃','攻击'),   st.atk,   bonus.atk)
+    +     _statRow('🛡', tl('DEF','방어','防御','防御'),   st.def,   bonus.def)
+    +     _statRow('❤', 'HP',                              st.hp,    bonus.hp)
+    +     _statRow('💨', tl('SPD','속도','速度','速度'),   st.speed, bonus.speed)
+    +   '</div>'
+    +   '<div style="margin-top:15px;display:flex;gap:8px">'
+    +     '<button type="button" onclick="document.getElementById(\'crateRevealModal\').remove()" style="flex:1;padding:12px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer">'+tl('CONFIRM','확인','確認','确认')+'</button>'
+    +     '<button type="button" '+(balOk?'':'disabled')+' onclick="document.getElementById(\'crateRevealModal\').remove();openShipCrate(\''+code+'\','+(priceGp||0)+')" style="flex:1.3;padding:12px;border-radius:9px;background:linear-gradient(135deg,'+glow+'55,'+glow+'1a);border:1px solid '+glow+'aa;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:'+(balOk?'pointer':'not-allowed')+';opacity:'+(balOk?'1':'.45')+'">🎲 '+againLabel+'</button>'
+    +   '</div>'
+    + '</div>';
+  document.body.appendChild(el);
 }
 
 function filterBySize(size) {
