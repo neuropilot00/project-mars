@@ -8381,24 +8381,29 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button class="mkt-view-btn" onclick="switchMarketView('mine',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_my_listings">📋 MY LISTINGS</button>
           </div>
         </div>
-        <!-- Filters (browse view) -->
+        <!-- [v7.176] 카테고리 필터 — 모바일 native dropdown 차단을 위해 select 숨김 + 커스텀 trigger.
+             함선 추가(🚀 SHIPS) — ship_market_listings 동시 노출. -->
         <div id="mktFilters" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
-          <select id="mktFilterType" onchange="loadMarketListings()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+          <select id="mktFilterType" onchange="loadMarketListings()" style="display:none">
             <option value="">ALL TYPES</option>
             <option value="cosmetic">🎨 COSMETIC</option>
+            <option value="ship">🚀 SHIPS</option>
             <option value="item">📦 ITEM</option>
             <option value="claim">🗺️ TERRITORY</option>
             <option value="resource">⛏️ RESOURCE</option>
           </select>
-          <select id="mktFilterSort" onchange="loadMarketListings()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+          <button type="button" id="mktFilterTypeTrigger" onclick="openSelectModal('mktFilterType','TYPE')" style="font-size:9px;padding:5px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);cursor:pointer;display:flex;align-items:center;gap:5px;min-width:110px;justify-content:space-between"><span id="mktFilterTypeLabel">ALL TYPES</span><span style="opacity:.5">▾</span></button>
+          <select id="mktFilterSort" onchange="loadMarketListings()" style="display:none">
             <option value="newest" data-i18n="mkt_sort_newest">NEWEST</option>
             <option value="price_asc" data-i18n="mkt_sort_cheap">CHEAPEST</option>
             <option value="price_desc" data-i18n="mkt_sort_expensive">EXPENSIVE</option>
             <option value="ending" data-i18n="mkt_sort_ending">ENDING SOON</option>
           </select>
-          <select id="mktFilterSector" onchange="loadMarketListings()" title="Sector" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+          <button type="button" id="mktFilterSortTrigger" onclick="openSelectModal('mktFilterSort','SORT')" style="font-size:9px;padding:5px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);cursor:pointer;display:flex;align-items:center;gap:5px;min-width:110px;justify-content:space-between"><span id="mktFilterSortLabel">NEWEST</span><span style="opacity:.5">▾</span></button>
+          <select id="mktFilterSector" onchange="loadMarketListings()" title="Sector" style="display:none">
             <option value="">🌐 ALL SECTORS</option>
           </select>
+          <button type="button" id="mktFilterSectorTrigger" onclick="openSelectModal('mktFilterSector','SECTOR')" style="font-size:9px;padding:5px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);cursor:pointer;display:flex;align-items:center;gap:5px;min-width:110px;justify-content:space-between"><span id="mktFilterSectorLabel">🌐 ALL SECTORS</span><span style="opacity:.5">▾</span></button>
           <input id="mktSearch" placeholder="Search..." onkeyup="if(event.key==='Enter')loadMarketListings()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);flex:1;min-width:80px">
         </div>
         <!-- Browse grid -->
@@ -8421,13 +8426,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="mktAuctionView" style="display:none">
           <!-- Auction filters -->
           <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
-            <select id="auctFilterType" onchange="loadAuctions()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+            <select id="auctFilterType" onchange="loadAuctions()" style="display:none">
               <option value="">ALL TYPES</option>
               <option value="cosmetic">🎨 COSMETIC</option>
               <option value="item">📦 ITEM</option>
               <option value="claim">🗺️ TERRITORY</option>
               <option value="resource">⛏️ RESOURCE</option>
             </select>
+            <button type="button" id="auctFilterTypeTrigger" onclick="openSelectModal('auctFilterType','TYPE')" style="font-size:9px;padding:5px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);cursor:pointer;display:flex;align-items:center;gap:5px;min-width:110px;justify-content:space-between"><span id="auctFilterTypeLabel">ALL TYPES</span><span style="opacity:.5">▾</span></button>
             <button class="sz-btn" onclick="loadAuctions()" style="font-size:8px;padding:4px 8px;color:var(--gold);border-color:rgba(255,209,102,.3)">↻ REFRESH</button>
           </div>
           <!-- Auction cards -->
@@ -16342,6 +16348,56 @@ function shortAddr(addr){
 // [v7.175 Task 2] 오늘의 추천 행동 카드 — opsQuick 자리 동적 콘텐츠.
 //   우선순위: ① 미완료 일일 미션 → ② 진행중 캠페인 → ③ 진행중 시즌 → ④ 기본(상자 개봉)
 //   클릭 시 적절한 화면 라우팅. 비로그인 시 카드 숨김.
+// [v7.176] 커스텀 select 모달 — 모바일 native dropdown 차단(게임 분위기 깨짐 방지).
+//   기존 <select> 는 hidden 으로 두고, trigger 버튼 클릭 → 풀스크린 모달.
+//   호환성: select.value 갱신 + 'change' 이벤트 발동 → 기존 onchange 콜백 그대로 동작.
+function openSelectModal(selectId, title){
+  var sel = document.getElementById(selectId);
+  if (!sel) return;
+  var opts = Array.prototype.map.call(sel.options, function(o){ return { value:o.value, label:o.textContent||o.value }; });
+  var current = sel.value;
+  var old = document.getElementById('customSelectModal'); if (old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'customSelectModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:100001;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,6,12,.78);backdrop-filter:blur(6px);animation:crFade .15s ease';
+  el.onclick = function(e){ if (e.target===el) el.remove(); };
+  var rows = opts.map(function(o){
+    var active = (o.value === current);
+    return '<button type="button" data-val="'+escapeHtmlSafe(o.value).replace(/"/g,'&quot;')+'" style="width:100%;padding:14px 18px;border:none;background:'+(active?'rgba(184,140,255,.18)':'transparent')+';border-bottom:1px solid rgba(255,255,255,.06);color:'+(active?'#caa8ff':'#fff')+';font-family:var(--fn);font-size:13px;font-weight:'+(active?'900':'600')+';text-align:left;cursor:pointer;display:flex;align-items:center;gap:10px">'
+      + '<span style="width:14px;height:14px;border-radius:50%;border:2px solid '+(active?'#caa8ff':'rgba(255,255,255,.3)')+';background:'+(active?'#caa8ff':'transparent')+';flex:0 0 auto"></span>'
+      + '<span>'+escapeHtmlSafe(o.label)+'</span></button>';
+  }).join('');
+  el.innerHTML =
+    '<div style="width:100%;max-width:540px;max-height:75vh;display:flex;flex-direction:column;border-radius:16px 16px 0 0;background:linear-gradient(180deg,rgba(20,16,30,.98),rgba(10,12,22,.98));border:1px solid rgba(184,140,255,.4);border-bottom:none;box-shadow:0 -10px 40px rgba(0,0,0,.6);animation:crSlideUp .25s ease">'
+    +   '<div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between">'
+    +     '<div style="font-size:11px;font-weight:900;letter-spacing:1.5px;color:#caa8ff">'+escapeHtmlSafe(title||'SELECT')+'</div>'
+    +     '<button type="button" onclick="document.getElementById(\'customSelectModal\').remove()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;padding:0 4px">×</button>'
+    +   '</div>'
+    +   '<div style="overflow-y:auto;flex:1">'+rows+'</div>'
+    + '</div>';
+  // delegated click for option buttons
+  el.querySelectorAll('[data-val]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.getAttribute('data-val') || '';
+      sel.value = v;
+      // 트리거 label 즉시 갱신
+      var lbl = document.getElementById(selectId+'Label');
+      var opt = Array.prototype.find.call(sel.options, function(o){ return o.value===v; });
+      if (lbl && opt) lbl.textContent = (opt.textContent||v).trim();
+      try { sel.dispatchEvent(new Event('change', { bubbles:true })); } catch(_) { if (typeof sel.onchange==='function') sel.onchange(); }
+      el.remove();
+    });
+  });
+  document.body.appendChild(el);
+}
+// keyframes for slide-up
+if (!document.getElementById('_crSlideUpKf')) {
+  var _kfStyle = document.createElement('style');
+  _kfStyle.id = '_crSlideUpKf';
+  _kfStyle.textContent = '@keyframes crSlideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}';
+  document.head.appendChild(_kfStyle);
+}
+
 function updateDailyHint(){
   var card = document.getElementById('opsQuick');
   if (!card) return;
@@ -23740,6 +23796,9 @@ function populateMktSectorFilter(){
   }).catch(function(){ _mktSectorsPopulated=false; });
 }
 function loadMarketListings(){
+  // [v7.176] 통합 마켓 — type='ship' 분기 추가. 함선은 별도 ship_market_listings 시스템이라
+  //   /api/ships/market/listings 호출 후 renderShipMarketCard 로 같은 그리드에 렌더.
+  //   이전엔 함선이 마켓에 안 나와 거래 동선이 두 곳(조선소·일반 마켓)으로 갈렸음.
   var grid=document.getElementById('mktBrowseGrid');
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">Loading...</div>';
   populateMktSectorFilter();
@@ -23748,6 +23807,34 @@ function loadMarketListings(){
   var search=(document.getElementById('mktSearch').value||'').trim();
   var sectorEl=document.getElementById('mktFilterSector');
   var sector=sectorEl?sectorEl.value:'';
+
+  // [v7.176] 함선 카테고리 — 별도 시스템 호출
+  if (type === 'ship') {
+    fetch('/api/ships/market/listings', { headers: getAuthHeaders() })
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var ships = (d && d.listings) || [];
+        if (!ships.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_empty')||'No ship listings')+'</div>'; return; }
+        // 정렬 적용
+        ships = ships.slice();
+        if (sort === 'price_asc')  ships.sort(function(a,b){return (parseFloat(a.price_gp||0))-(parseFloat(b.price_gp||0));});
+        else if (sort === 'price_desc') ships.sort(function(a,b){return (parseFloat(b.price_gp||0))-(parseFloat(a.price_gp||0));});
+        else                       ships.sort(function(a,b){return (parseInt(b.listing_id||0))-(parseInt(a.listing_id||0));});
+        grid.innerHTML = ships.map(function(s){
+          var portrait = 'assets/ships/reveal/' + (s.ship_type_code||'') + '.jpg';
+          var nm = (typeof syShipName==='function') ? syShipName(s) : (s.name_ko||s.ship_type_code||'Ship');
+          return '<div class="mkt-card" onclick="openShipyard();try{switchSyTab(\'market\')}catch(_){}" style="background:var(--surface1);border:1px solid rgba(184,140,255,.35);border-radius:8px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column">'
+            + '<div style="position:relative;aspect-ratio:4/3;background:#0a0e1a;overflow:hidden"><img src="'+portrait+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"><div style="position:absolute;top:5px;right:5px;font-size:8px;font-weight:800;background:rgba(184,140,255,.85);color:#fff;padding:2px 6px;border-radius:4px">🚀 SHIP</div></div>'
+            + '<div style="padding:7px 8px"><div style="font-size:10px;font-weight:800;color:'+(s.faction_color||'#fff')+'">'+escapeHtmlSafe(nm)+'</div>'
+            + '<div style="font-size:8px;color:var(--tx3);margin-top:1px">'+escapeHtmlSafe(s.class_label||s.size_class||'')+'</div>'
+            + '<div style="font-size:11px;font-weight:900;color:#ffd166;margin-top:3px">'+(parseInt(s.price_gp)||0).toLocaleString()+' GP</div></div>'
+            + '</div>';
+        }).join('');
+      })
+      .catch(function(){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);font-size:10px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'; });
+    return;
+  }
+
   var url='/api/marketplace/listings?sort='+sort+'&limit=40';
   if(type) url+='&type='+type;
   if(sector) url+='&sectorId='+encodeURIComponent(sector);
