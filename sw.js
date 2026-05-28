@@ -23,7 +23,8 @@
 // 2026-05-28 v18: v7.197 tactical-lab 라이브 버전 표시 (제목 "v11.1 + VFX v7.196") + iframe URL Date.now() — 캐시 확실 폐기.
 // 2026-05-28 v19: v7.198 영토 업그레이드 모달 정보 풍부화 + HP 패널 헤더 표시 + 에러 처리.
 // 2026-05-28 v20: v7.199 데탑 캠페인/가챠 버튼 width 명시 (stretch 차단).
-const CACHE_NAME = 'mars-v20';
+// 2026-05-28 v21: v7.200 영토 업그레이드 외부 try-catch + event.stopPropagation + console.error/alert 진단.
+const CACHE_NAME = 'mars-v21';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

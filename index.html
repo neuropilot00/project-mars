@@ -14533,7 +14533,8 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
     if (!atMax && nextCost !== null) {
       html += '<div style="display:flex;justify-content:space-between;align-items:center">';
       html += '<span style="font-size:8px;color:var(--tx2)">Lv' + (curLevel + 1) + ': +' + nextBonus + ' ' + track.bonusUnit + '</span>';
-      html += '<button type="button" onclick="doTerritoryUpgrade(' + claimId + ',\'' + track.key + '\')" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
+      // [v7.200 fix] event.stopPropagation 추가 — 영토 패널/지구본 click outside 핸들러로 버블링되어 패널 닫히는 케이스 차단.
+      html += '<button type="button" onclick="event.stopPropagation();doTerritoryUpgrade(' + claimId + ',\'' + track.key + '\')" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
       html += '</div>';
     } else if (atMax) {
       html += '<div style="font-size:8px;color:#69f0ae;font-weight:700">✅ MAX</div>';
@@ -14545,6 +14546,10 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
 }
 
 async function doTerritoryUpgrade(claimId, upgradeType) {
+  // [v7.200 fix] 사용자 보고 "어디서든 튕긴다" — 모달 안 뜨고 튕긴다는 의미.
+  //   진단: 함수 진입 즉시 console 로그 + try 전체 wrap. 첫 줄에서 throw 나도 silent 아님.
+  console.log('[territoryUpgrade] click', { claimId, upgradeType });
+  try {
   var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   if (!wallet) return showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'), 'error');
   // [v7.198 fix] 이전엔 confirm body 가 "EXTRACTOR 업그레이드 하시겠습니까?" 한 줄뿐이라
@@ -14615,6 +14620,13 @@ async function doTerritoryUpgrade(claimId, upgradeType) {
     // [v7.198] 이전엔 catch 가 silent → 콘솔에 에러 흔적 안 남아 디버깅 불가.
     console.error('[territoryUpgrade] request error:', e);
     showFactionToast((LANG==='ko'?'업그레이드 요청 실패: ':LANG==='ja'?'要求失敗: ':LANG==='zh'?'请求失败: ':'Request failed: ')+(e.message||'network'), 'error');
+  }
+  } catch (outerErr) {
+    // [v7.200 fix] doTerritoryUpgrade 전체를 외부 try 로 감싸 — 함수 어디서든 throw 해도 silent 가 아닌
+    //   명시적 toast + console.error. 사용자에게 "튕긴다" 인상이 사라지고, 콘솔 보면 정확한 위치 알 수 있음.
+    console.error('[territoryUpgrade] OUTER catch:', outerErr);
+    try { showFactionToast('Upgrade UI error: ' + (outerErr.message || outerErr), 'error'); } catch(_){}
+    try { alert('Territory upgrade error (please report): ' + (outerErr.message || outerErr)); } catch(_){}
   }
 }
 
