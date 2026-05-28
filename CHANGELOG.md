@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.169 — 배너 캐시 버스팅 (브라우저/CDN 강제 무효화)
+
+사용자가 본 BASE 모달 배너(함대 지휘부/PVP/내 영토 등)는 디스크의 새 실사풍 파일이 정확히 배치돼 있었으나 **브라우저/CDN 캐시**로 픽셀아트 구버전이 계속 표시되던 문제. 9개 base-banner `<img src>` 에 모두 `?v=v7160` cache-bust 쿼리스트링 추가:
+- territory.png · fleet.jpg · sectors.png · rank.png · quests.png · pvp.jpg · governance.jpg · guild.jpg · transport.jpg
+- 향후 배너 업데이트 시 `?v=` 값만 올리면 자동 강제 무효화 패턴(주석으로 명시).
+- transport object-position 오타(`create 40%` → `center 40%`) 동시 수정.
+
 ## 2026-05-28 v7.168 — 카테고리별 UI↔백엔드 정밀 감사 후속 fixes
 
 5 페르소나 병렬 감사(통화/영토/함선/캠페인-길드/마켓-시즌-자산) 결과 — Critical 잔여 즉시 차단:

@@ -6448,7 +6448,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: MY TERRITORY -->
       <div class="base-pane active" id="basePane_territory">
-        <div class="base-banner" id="bannerTerritory"><img src="/assets/base/territory.png" alt=""></div>
+        <!-- [v7.169] 배너 cache-bust 쿼리(?v=...) — 브라우저/CDN 캐시 무효화. 신규 배너 업데이트 시 ?v= 값을 올린다. -->
+        <div class="base-banner" id="bannerTerritory"><img src="/assets/base/territory.png?v=v7160" alt=""></div>
 
         <!-- ─ OPS COMMAND BOARD ─────────────────────────────────── -->
         <div id="opsCommandBoard" style="margin-bottom:14px;border-radius:8px;background:rgba(10,15,25,.85);border:1px solid rgba(91,184,232,.2);padding:0;overflow:hidden">
@@ -6694,7 +6695,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: FLEET COMMAND (⚓ 함대 카테고리 전용 허브) -->
       <div class="base-pane" id="basePane_fleet">
-        <div class="base-banner" id="bannerFleet"><img src="/assets/base/fleet.jpg" alt="Fleet Command" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
+        <div class="base-banner" id="bannerFleet"><img src="/assets/base/fleet.jpg?v=v7160" alt="Fleet Command" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
         <!-- 빠른 액션 버튼 (크고 사각형) -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
           <button type="button" onclick="openShipyard()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
@@ -6725,7 +6726,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: SECTORS -->
       <div class="base-pane" id="basePane_sectors">
-        <div class="base-banner" id="bannerSectors"><img src="assets/base/sectors.png" alt="Sectors"></div>
+        <div class="base-banner" id="bannerSectors"><img src="assets/base/sectors.png?v=v7160" alt="Sectors"></div>
 
         <!-- PLANET NEWS Section -->
         <div class="base-section-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"
@@ -6754,7 +6755,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: SEASON (formerly RANK) -->
       <div class="base-pane" id="basePane_rank">
-        <div class="base-banner" id="bannerRank"><img src="assets/base/rank.png" alt="Season"></div>
+        <div class="base-banner" id="bannerRank"><img src="assets/base/rank.png?v=v7160" alt="Season"></div>
 
         <!-- Season Banner (main content) -->
         <div id="seasonGuide" style="margin-bottom:14px;padding:14px;border-radius:10px;background:linear-gradient(135deg,rgba(255,120,60,.08),rgba(255,120,60,.02));border:1px solid rgba(255,120,60,.25)">
@@ -6896,7 +6897,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: QUESTS -->
       <div class="base-pane" id="basePane_quests">
-        <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png" alt=""></div>
+        <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png?v=v7160" alt=""></div>
 
         <!-- Daily Check-in (Mobile Game Style) -->
         <div id="dailyCheckinInline" style="margin:0;padding:0;border-bottom:1px solid var(--bdr)">
@@ -7547,7 +7548,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: PVP -->
       <div class="base-pane" id="basePane_pvp">
-        <div class="base-banner"><img src="/assets/base/pvp.jpg" alt="PVP Battle Arena" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;border-radius:inherit"></div>
+        <div class="base-banner"><img src="/assets/base/pvp.jpg?v=v7160" alt="PVP Battle Arena" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;border-radius:inherit"></div>
 
         <!-- ⚔️ GP DUEL SECTION -->
         <div id="duelSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
@@ -7621,7 +7622,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: GOVERN -->
       <div class="base-pane" id="basePane_govern">
-        <div class="base-banner"><img src="/assets/base/governance.jpg" alt="Governance" style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;border-radius:inherit"></div>
+        <div class="base-banner"><img src="/assets/base/governance.jpg?v=v7160" alt="Governance" style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;border-radius:inherit"></div>
 
         <!-- Active Global Events -->
         <div id="govActiveEvents" style="display:none;margin-bottom:12px">
@@ -7755,7 +7756,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: GUILD -->
       <div class="base-pane" id="basePane_guild">
-        <div class="base-banner" id="bannerGuild"><img src="/assets/base/guild.jpg" alt="Guild" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
+        <div class="base-banner" id="bannerGuild"><img src="/assets/base/guild.jpg?v=v7160" alt="Guild" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
         <div id="guildContent">
           <!-- No guild state -->
           <div id="guildNoGuild">
@@ -7986,7 +7987,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: TRANSPORT (M-158 Phase C) -->
       <div class="base-pane" id="basePane_transport">
-        <div class="base-banner" id="bannerTransport"><img src="/assets/base/transport.jpg" alt="Transport" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
+        <div class="base-banner" id="bannerTransport"><img src="/assets/base/transport.jpg?v=v7160" alt="Transport" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
         <div style="padding:8px 2px 12px">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
             <div style="font-size:22px">🚚</div>
