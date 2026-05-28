@@ -198,7 +198,21 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .tb-commander .cmd-name{font-weight:700;font-size:11px}
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
 
-/* [v7.175 Task 1] MY ASSETS topbar button — Commander Banner 우측에 페어. 측면 패널 안 열어도 메인 화면에서 즉시 접근. */
+/* [v7.181 Task 1] MY ASSETS — 상단 라이브 라인 인라인 버튼. OCCUPY MARS / HOW TO PLAY / lang / avatar 와 같은 줄. */
+.tb-myassets-top{align-items:center;gap:5px;padding:5px 10px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(184,140,255,.22),rgba(79,195,247,.10));
+  border:1px solid rgba(184,140,255,.55);color:#e7d6ff;font-family:var(--fn);
+  font-size:10px;font-weight:800;letter-spacing:.6px;cursor:pointer;
+  transition:transform .12s ease,filter .12s ease,border-color .12s ease}
+.tb-myassets-top:hover{transform:translateY(-1px);filter:brightness(1.1);border-color:rgba(202,168,255,.8)}
+.tb-myassets-top:active{transform:translateY(0);filter:brightness(.9)}
+.tb-myassets-top .ma-icon{font-size:13px}
+@media (max-width:768px){
+  .tb-myassets-top{padding:4px 7px;font-size:9px;gap:3px}
+  .tb-myassets-top .ma-label-top{display:none} /* 모바일은 아이콘만 — 좁은 상단 정리 */
+}
+
+/* [v7.175 Task 1] (legacy) MY ASSETS topbar floating button — v7.181 이후 미사용. .show 클래스 안 붙으면 항상 숨김. */
 .tb-myassets{position:fixed;top:121px;right:18px;z-index:109;
   display:none;align-items:center;gap:6px;padding:6px 14px;
   background:linear-gradient(135deg,rgba(184,140,255,.22),rgba(79,195,247,.12)),rgba(10,12,22,.85);
@@ -451,9 +465,18 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   .crates-quick:hover{transform:translateY(-1px)}
   .crates-quick:active{transform:none}
   .crates-quick-sub{display:none}
+  /* [v7.181 Task 2] 오늘의 추천 카드 — 모바일에서 .zb 줌버튼(42×42)과 줄 맞춤.
+     이전엔 60×120 직사각형이라 우측 사이드 컬럼이 들쭉날쭉. 이제 정사각 42×42. */
   .ops-quick-split{right:8px;left:auto;top:auto;transform:none;
-    bottom:calc(env(safe-area-inset-bottom) + 300px);
-    width:60px;height:120px}
+    /* zc 컬럼(↩+−SECTORS MY LAND) 바로 위에 같은 right:8px 로 줄 맞춤. */
+    bottom:calc(env(safe-area-inset-bottom) + 360px);
+    width:42px;height:42px;
+    background:rgba(8,10,16,.85);border:1px solid rgba(255,209,102,.45);
+    border-radius:10px;overflow:hidden}
+  /* 내부 dailyHintBtn — 모바일은 아이콘만 가운데, 텍스트 라벨 숨김 */
+  .ops-quick-split #dailyHintBtn{padding:0!important;gap:0!important;justify-content:center!important}
+  .ops-quick-split #dailyHintBtn>div{display:none!important} /* 라벨 wrapper 숨김 */
+  .ops-quick-split #dailyHintIcon{font-size:20px!important}
   .ops-quick-split .ops-invade{
     clip-path:polygon(0 0, 100% 0, 100% 40%, 0 60%);
     -webkit-clip-path:polygon(0 0, 100% 0, 100% 40%, 0 60%)}
@@ -5567,6 +5590,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button id="telegramBtn" onclick="openTelegramGroup()" title="Join Telegram" style="display:none">✈</button>
     <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()" style="display:none">👤</div>
     <img class="tb-avatar" id="tbAvatarImg" src="/assets/avatars/default.png" onclick="openAuthModal()" onerror="this.style.display='none';document.getElementById('tbAvatarEmoji').style.display='flex'">
+    <!-- [v7.181 Task 1] MY ASSETS — 상단 라이브 라인으로 이동. 별도 floating 버튼 제거. -->
+    <button id="tbMyAssetsBtnTop" class="tb-myassets-top" onclick="openPortfolioModal()" title="My Mars Portfolio" aria-label="Open my assets portfolio" style="display:none">
+      <span class="ma-icon">🪐</span>
+      <span class="ma-label-top" data-i18n="my_assets_btn">MY ASSETS</span>
+    </button>
     <button class="tb-btn" id="loginBtn" onclick="openAuthModal()" data-i18n="login">LOGIN</button>
   </div>
 </div>
@@ -16452,8 +16480,11 @@ function updateWalletUI(){
   if((el=document.getElementById('alertsSection'))) el.style.display='';
   if((el=document.getElementById('walletAddr'))) el.textContent=walletState.address;
   // [v7.175 Task 1] 로그인 상태일 때 MY ASSETS 메인 상단 버튼 노출
-  var maBtn = document.getElementById('tbMyAssetsBtn');
-  if (maBtn) maBtn.classList.toggle('show', !!(walletState && walletState.connected));
+  // [v7.181] 신규 topbar inline 버튼(#tbMyAssetsBtnTop) 사용. 구 floating 버튼(#tbMyAssetsBtn)은 항상 숨김.
+  var maBtnOld = document.getElementById('tbMyAssetsBtn');
+  if (maBtnOld) maBtnOld.classList.remove('show');
+  var maBtnTop = document.getElementById('tbMyAssetsBtnTop');
+  if (maBtnTop) maBtnTop.style.display = (walletState && walletState.connected) ? 'inline-flex' : 'none';
   try{loadActiveEffects()}catch(e){}
   // [v7.175 Task 2] 로그인 직후 추천 행동 카드 갱신
   try{ updateDailyHint(); }catch(_){}
