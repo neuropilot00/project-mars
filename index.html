@@ -21104,10 +21104,15 @@ var emailAuth = {
 })();
 
 function _tryCredentialAutoLogin(){
+  // [v7.170 A-M5 fix] 평문 비밀번호 localStorage 의존 폐지. 자동 로그인은 JWT 토큰(pw_token) 갱신 흐름으로만.
+  //   token 만료 시 사용자가 재로그인하도록 정상 흐름 복귀(보안 우선).
   try{
     if(localStorage.getItem('pw_autologin')!=='1') return;
     var email=localStorage.getItem('pw_rem_email');
     var passB64=localStorage.getItem('pw_rem_pass');
+    // 과거 저장된 평문 cleanup
+    if (passB64) { try { localStorage.removeItem('pw_rem_pass'); } catch(_){} }
+    return; // credential auto-login 비활성 — JWT token 갱신 경로(별도)만 사용
     if(!email||!passB64) return;
     var pass=decodeURIComponent(escape(atob(passB64)));
     console.log('[Auth] Credential auto-login for:',email);
@@ -21208,9 +21213,9 @@ function showAuthForm(){
     if(autoCb) autoCb.checked=auto;
     if(rem){
       var savedEmail=localStorage.getItem('pw_rem_email');
-      var savedPass=localStorage.getItem('pw_rem_pass');
+      // [v7.170 A-M5] pw_rem_pass 평문 의존 폐지 — email 만 prefill, 비밀번호는 직접 입력
       if(savedEmail) document.getElementById('authEmailInput').value=savedEmail;
-      if(savedPass) try{document.getElementById('authPassInput').value=decodeURIComponent(escape(atob(savedPass)))}catch(e){}
+      try { localStorage.removeItem('pw_rem_pass'); } catch(_){}
     }
   }catch(e){}
 }
@@ -21349,15 +21354,17 @@ async function submitAuth(){
     try{
       var remCb=document.getElementById('rememberMe');
       var autoCb=document.getElementById('autoLogin');
+      // [v7.170 A-M5 fix] 비밀번호 평문 localStorage 저장 제거 — XSS 1회로 탈취 가능했음.
+      //   email 만 기억하고, 자동 로그인은 JWT 토큰(pw_token)으로만 처리(이미 onauth 흐름에 있음).
       if(remCb&&remCb.checked){
         localStorage.setItem('pw_rem_email',email);
-        localStorage.setItem('pw_rem_pass',btoa(unescape(encodeURIComponent(pass))));
         localStorage.setItem('pw_remember','1');
       }else{
         localStorage.removeItem('pw_rem_email');
-        localStorage.removeItem('pw_rem_pass');
         localStorage.removeItem('pw_remember');
       }
+      // 과거 저장된 평문 비밀번호 cleanup (있다면 제거)
+      try { localStorage.removeItem('pw_rem_pass'); } catch(_){}
       if(autoCb&&autoCb.checked){
         localStorage.setItem('pw_autologin','1');
       }else{
@@ -21582,7 +21589,8 @@ async function doChangePassword(){
   if(!/[A-Z]/.test(nw)||!/[a-z]/.test(nw)||!/[0-9]/.test(nw)||!/[^A-Za-z0-9]/.test(nw)){
     errEl.textContent='Need uppercase, lowercase, number, special char';return;}
   try{
-    var r=await fetch(API+'/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+    // [v7.170 A-C1 fix] API 전역 미정의로 'undefined/auth/...' 호출되던 버그. 동일 origin '/api' 로 고정.
+    var r=await fetch('/api/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
       body:JSON.stringify({currentPassword:cur,newPassword:nw})});
     var d=await r.json();
     if(!r.ok){errEl.textContent=d.error||'Failed';return;}
@@ -21605,7 +21613,7 @@ async function requestDeleteAccount(){
   if(!ok1)return;
   var ok2=await gameConfirm({icon:'💀',title:'FINAL WARNING',body:'<b style="color:var(--red)">'+(LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'PERMANENT DELETE')+'</b> — '+(LANG==='ko'?'지갑, 영토, 모든 게임 데이터가 삭제됩니다.':LANG==='ja'?'ウォレット、領土、すべてのゲームデータが削除されます。':LANG==='zh'?'钱包、领地和所有游戏数据将被删除。':'Your wallet, territory, and all game data will be deleted.'),confirmText:LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'Delete Forever'});
   if(!ok2)return;
-  fetch(API+'/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
+  fetch('/api/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
     .then(function(r){return r.json()})
     .then(function(d){if(d.success){showToast(tl('Account deleted','계정이 삭제되었습니다','アカウントが削除されました','账号已删除'));logoutEmail();}else{showToast(d.error||'Failed to delete');}})
     .catch(function(){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'));});
@@ -28161,12 +28169,15 @@ function loadCampaignStatus(){
 }
 
 function renderCampaignReputation(rep,tiers){
+  // [v7.170 D-Crit-1 fix] Pilgrim Arms 평판 추가 — campaign.js FACTIONS=['mcc','fsp','cv','pilgrim_arms'] 4종.
+  //   기존엔 3종만 순회해 보상으로 받은 pilgrim_arms 평판이 UI에서 안 보였음. Ending 4 분기 추적 가능해짐.
   var el=document.getElementById('campaignReputation');
   if(!el) return;
-  var colors={mcc:'#4fc3f7',fsp:'#81c784',cv:'#ef5350'};
-  var labels={mcc:'MCC',fsp:'FSP',cv:'CV'};
+  var colors={mcc:'#4fc3f7',fsp:'#81c784',cv:'#ef5350',pilgrim_arms:'#c08bff'};
+  var labels={mcc:'MCC',fsp:'FSP',cv:'CV',pilgrim_arms:'Pilgrim Arms'};
   var html='<div class="campaign-rep">';
-  ['mcc','fsp','cv'].forEach(function(f){
+  ['mcc','fsp','cv','pilgrim_arms'].forEach(function(f){
+    if (rep[f] === undefined && f === 'pilgrim_arms') return; // 응답에 pilgrim_arms 없으면 행 자체 생략(legacy 호환)
     var v=parseInt(rep[f]||0,10);
     var pct=Math.max(0,Math.min(100,v+100)/2);
     html+='<div class="campaign-rep-item"><div class="campaign-rep-top"><span>'+labels[f]+'</span><span>'+v+' · '+escapeHtmlSafe(tiers[f]||'Neutral')+'</span></div><div class="campaign-rep-track"><div class="campaign-rep-fill" style="width:'+pct+'%;background:'+colors[f]+'"></div></div></div>';
@@ -29320,24 +29331,33 @@ async function openCampaignChapter(questId){
 }
 
 function campaignStartErrorMessage(ch,payload){
+  // [v7.170 D-M1 fix] lockReason 4언어 모두 매핑 — 기존엔 ko/en만 있어 ja/zh 사용자는 영어로 폴백됨.
   var err=(payload&&payload.error)||'Campaign start failed';
   if(err==='INSUFFICIENT_REPUTATION'){
     var faction=((payload&&payload.faction)||'').toUpperCase();
     var current=payload&&payload.current!=null?payload.current:0;
     var required=payload&&payload.required!=null?payload.required:0;
-    return LANG==='ko'
-      ? (faction||'평판')+' 평판이 부족합니다. 현재 '+current+', 필요 '+required+'.'
-      : 'Insufficient reputation. Current '+current+', required '+required+'.';
+    return tl(
+      'Insufficient reputation. Current '+current+', required '+required+'.',
+      (faction||'평판')+' 평판이 부족합니다. 현재 '+current+', 필요 '+required+'.',
+      (faction||'評判')+'評判が不足しています。現在 '+current+', 必要 '+required+'.',
+      (faction||'声誉')+'声誉不足。当前 '+current+'，需要 '+required+'.'
+    );
   }
-  if(err==='PREREQUISITE_NOT_MET') return LANG==='ko'?'선행 챕터를 먼저 완료해야 합니다.':'Complete the prerequisite chapter first.';
+  if(err==='PREREQUISITE_NOT_MET') return tl('Complete the prerequisite chapter first.','선행 챕터를 먼저 완료해야 합니다.','先行チャプターを先に完了してください。','请先完成前置章节。');
   if(err==='LEVEL_REQUIRED'){
     var requiredLevel=payload&&payload.requiredLevel!=null?payload.requiredLevel:0;
-    return LANG==='ko'?(requiredLevel?'레벨 '+requiredLevel+' 이상 필요합니다.':'레벨 조건이 부족합니다.'):(requiredLevel?'Required level '+requiredLevel+' or higher.':'Required level not met.');
+    return tl(
+      requiredLevel?'Required level '+requiredLevel+' or higher.':'Required level not met.',
+      requiredLevel?'레벨 '+requiredLevel+' 이상 필요합니다.':'레벨 조건이 부족합니다.',
+      requiredLevel?'レベル '+requiredLevel+' 以上が必要です。':'レベル条件が不足しています。',
+      requiredLevel?'需要 '+requiredLevel+' 级以上。':'等级条件不足。'
+    );
   }
-  if(err==='BLOCKED_BY_TAG') return LANG==='ko'?'현재 상태에서는 이 챕터를 시작할 수 없습니다.':'This chapter is blocked by your current state.';
-  if(err==='BRANCH_REQUIRED') return LANG==='ko'?'이 챕터에 필요한 이전 선택 분기가 없습니다.':'This chapter requires a prior route choice.';
-  if(err==='FSP_DELEGATION_ABSENT') return LANG==='ko'?'대표단 조건이 바뀌어 대체 FSP 챕터로 진행해야 합니다.':'The delegation state changed. Continue through the alternate FSP chapter.';
-  if(err==='FSP_POLITICAL_COLLAPSE') return LANG==='ko'?'정치 상황이 붕괴되어 대체 FSP 챕터로 진행해야 합니다.':'The political state collapsed. Continue through the alternate FSP chapter.';
+  if(err==='BLOCKED_BY_TAG') return tl('This chapter is blocked by your current state.','현재 상태에서는 이 챕터를 시작할 수 없습니다.','現在の状態ではこのチャプターを開始できません。','当前状态下无法开始本章节。');
+  if(err==='BRANCH_REQUIRED') return tl('This chapter requires a prior route choice.','이 챕터에 필요한 이전 선택 분기가 없습니다.','このチャプターに必要な前の選択分岐がありません。','本章节缺少所需的前置选择分支。');
+  if(err==='FSP_DELEGATION_ABSENT') return tl('The delegation state changed. Continue through the alternate FSP chapter.','대표단 조건이 바뀌어 대체 FSP 챕터로 진행해야 합니다.','代表団の状態が変わったため、代替FSPチャプターで進めてください。','代表团状态已变,请通过备用 FSP 章节继续。');
+  if(err==='FSP_POLITICAL_COLLAPSE') return tl('The political state collapsed. Continue through the alternate FSP chapter.','정치 상황이 붕괴되어 대체 FSP 챕터로 진행해야 합니다.','政治状況が崩壊したため、代替FSPチャプターで進めてください。','政治局势已崩溃,请通过备用 FSP 章节继续。');
   return err;
 }
 
@@ -52981,6 +53001,9 @@ function connectLiveWS() {
     _liveWS = new WebSocket(proto + '//' + location.host + '/ws/live' + (tok ? ('?token=' + encodeURIComponent(tok)) : ''));
     _liveWS.onopen = function(){ _liveWSRetry = 0; _liveWSSubscribe(); };
     _liveWS.onmessage = function(ev){
+      // [v7.170 G-Crit-1 fix] WS 핸들러 보강 — 서버 송신 8 타입 중 chat/feed 2종만 처리하던 결함.
+      //   cmd_err/error/notification 추가 처리 → 함대 명령 실패·알림이 사일런트로 묻히던 문제 해소.
+      //   battle frame/end 는 battle viewer iframe 이 별도 처리하므로 여기선 명시 무시.
       var d = null; try { d = JSON.parse(ev.data); } catch(_) { return; }
       if (!d || !d.type) return;
       if (d.type === 'chat') {
@@ -52988,6 +53011,14 @@ function connectLiveWS() {
         if (d.channel === (typeof _chatChannel!=='undefined'?_chatChannel:'global')) { try { loadChatMessages(); } catch(_){} }
       } else if (d.type === 'feed') {
         try { loadActivityFeed(); } catch(_){}
+      } else if (d.type === 'cmd_err' || d.type === 'error') {
+        // 함대 명령 / 일반 오류 — 토스트로 즉시 안내(이전엔 silent 무시였음)
+        try { showToast(d.message || d.error || tl('Command failed','명령 실패','コマンド失敗','命令失败'), 'error'); } catch(_){}
+      } else if (d.type === 'notification') {
+        // 서버가 직접 푸시한 알림 — polling 갱신
+        try { if (typeof loadNotifications === 'function') loadNotifications(); } catch(_){}
+      } else if (d.type === 'frame' || d.type === 'end' || d.type === 'cmd_ok' || d.type === 'pong' || d.type === 'hello') {
+        // 무시 — battle viewer iframe 이 자체 수신/처리
       }
     };
     _liveWS.onclose = function(){

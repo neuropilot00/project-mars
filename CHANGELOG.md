@@ -1,5 +1,21 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.170 — 풀카테고리 감사 Tier 1 일괄 차단 (7개 Critical/Medium)
+
+7 페르소나 풀카테고리 감사(v7.169) 결과 — Critical/Medium 즉시 처리 가능한 7건 한 번에 차단. 상세는 `docs/AUDIT_v7.169_FULL_CATEGORY.md`.
+
+- **A-C1**: `index.html:21585,21608` change-password / delete-account 의 `API` 전역 미정의로 `'undefined/auth/...'` 호출되던 버그 → `/api/auth/...` 절대경로 직접 호출. 두 기능 즉시 복구.
+- **A-C2**: `auth.js` reset-password — SMTP 미설정 시 dev fallback 으로 reset code 평문 응답 노출 → `NODE_ENV !== 'production'` 가드 추가. prod 에선 warn 로그만 남기고 코드 비반환.
+- **A-M5**: `index.html` `pw_rem_pass` Base64 평문 비밀번호 localStorage 저장 → 저장 자체 제거 + `_tryCredentialAutoLogin` 비활성 + cleanup. JWT 토큰 갱신 흐름만 사용(XSS 영구 탈취 차단).
+- **D-Crit-1**: `renderCampaignReputation` 이 [mcc/fsp/cv] 3종만 순회 → Pilgrim Arms 평판 화면 미노출. 4종 확장 + 보라(`#c08bff`) 추가. Ending 4 분기 추적 가능.
+- **D-M1**: `campaignStartErrorMessage` ko/en만 매핑 → 8개 에러 키 모두 `tl()` 4언어. ja/zh 사용자 영어 폴백 해소.
+- **G-Crit-1**: `_liveWS.onmessage` 가 chat/feed 2종만 처리 → `cmd_err/error/notification` 핸들러 추가(토스트 + 폴링 갱신). 함대 명령 실패 사일런트 무시 해소.
+- **G-Crit-2**: CORS `origin.endsWith(...)` 가 wildcard 우회 가능(`evil-railway.app` 통과) → 정규식 매칭(메타이스케이프 + `[a-z0-9-]+`)으로 교체. 서브도메인 외 거부.
+
+**잔여 (별도 라운드)**: A-C3 이메일 인증(SMTP 시스템), D-Crit-2 활성 칭호 장착 UI, D-Crit-3 reputation history 화면, E-Crit enhancementAdvanced UI, F-Crit-1/2 i18n 누락 키·aria-label, G-Crit-3 JWT httpOnly cookie, G-Crit-4 어드민 CSRF, G-Crit-5 dead 라우트 정리. AUDIT 문서에 🟢/🔴/⚙ 상태 표기.
+
+[원칙] 모든 수정 코드에 `[v7.170 X-XX fix]` 주석으로 AUDIT ID 매칭 — 다음 라운드 중복 작업 방지.
+
 ## 2026-05-28 v7.169 — 배너 캐시 버스팅 (브라우저/CDN 강제 무효화)
 
 사용자가 본 BASE 모달 배너(함대 지휘부/PVP/내 영토 등)는 디스크의 새 실사풍 파일이 정확히 배치돼 있었으나 **브라우저/CDN 캐시**로 픽셀아트 구버전이 계속 표시되던 문제. 9개 base-banner `<img src>` 에 모두 `?v=v7160` cache-bust 쿼리스트링 추가:

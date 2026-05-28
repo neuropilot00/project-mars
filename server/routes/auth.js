@@ -814,9 +814,12 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
       hint: maskedEmail
     };
 
-    // Only include the code in the response if SMTP is not configured (dev fallback)
-    if (!isSmtpConfigured()) {
+    // [v7.170 A-C2 fix] SMTP 미설정 시 dev 편의로 reset code 응답에 평문 노출 — 단 prod 절대 금지.
+    //   NODE_ENV=production 이면 isSmtpConfigured 결과와 무관하게 코드 미반환. dev/test 에서만 inline 반환.
+    if (!isSmtpConfigured() && process.env.NODE_ENV !== 'production') {
       response.code = code;
+    } else if (!isSmtpConfigured()) {
+      console.warn('[Auth] SMTP not configured in production — reset code NOT delivered. Configure SMTP_HOST/PORT/USER/PASS.');
     }
 
     console.log(`[Auth] Reset code generated for: ${normalizedEmail} (email=${emailSent ? 'sent' : 'not_sent'})`);

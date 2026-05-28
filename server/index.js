@@ -300,8 +300,18 @@ app.use(cors({
     if (isDev && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
       return callback(null, true);
     }
+    // [v7.170 G-Crit-2 fix] CORS wildcard 매칭을 endsWith → 정규식으로 변경.
+    //   기존: 'https://*.railway.app' 를 '.railway.app' 로 바꿔 endsWith.
+    //          → 'https://evil-railway.app' 같은 도메인이 통과(prefix·subdomain 검증 X).
+    //   신규: 'https://*.railway.app' → /^https:\/\/[a-z0-9.-]+\.railway\.app$/ 매칭.
+    //          서브도메인 외 어떤 prefix/postfix도 거부.
     var allowed = allowedOrigins.some(function(ao) {
-      if (ao.includes('*')) return origin.endsWith(ao.replace('https://*', ''));
+      if (ao.includes('*')) {
+        var pattern = ao
+          .replace(/[.+?^${}()|[\]\\]/g, '\\$&')  // 메타문자 이스케이프
+          .replace(/\\\*/g, '[a-z0-9-]+');         // \* → 서브도메인 1단
+        try { return new RegExp('^' + pattern + '$').test(origin); } catch (_) { return false; }
+      }
       return ao === origin;
     });
     // Disallowed origin: do NOT throw — a thrown error propagates to the global
