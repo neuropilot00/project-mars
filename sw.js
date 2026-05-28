@@ -15,7 +15,8 @@
 //   사용자 화면이 옛 픽셀아트로 고착되던 문제. v10 cache 전체 폐기 + 배너 경로 fresh fetch.
 // 2026-05-28 v12: 신규 시각 업그레이드 폴더 추가(/assets/loading/, /factions/, /poi/, /login_bg/).
 //   v7.175 시각 업그레이드 라운드 — 신규 에셋이 cache-first 에 잡히지 않게 동일 정책.
-const CACHE_NAME = 'mars-v12';
+// 2026-05-28 v13: /assets/fx/ 전투 VFX (폭발/임팩트) network-first 등록.
+const CACHE_NAME = 'mars-v13';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
@@ -102,7 +103,8 @@ self.addEventListener('fetch', (e) => {
       url.pathname.startsWith('/assets/loading/') ||      // [v7.175 SW] 로딩 스크린 새 폴더
       url.pathname.startsWith('/assets/factions/') ||     // [v7.175 SW] 파벌 일러스트
       url.pathname.startsWith('/assets/poi/') ||          // [v7.175 SW] POI 마커
-      url.pathname.startsWith('/assets/login_bg/')) {     // [v7.175 SW] 로그인 배경
+      url.pathname.startsWith('/assets/login_bg/') ||     // [v7.175 SW] 로그인 배경
+      url.pathname.startsWith('/assets/fx/')) {           // [v7.180 SW] 전투 VFX (폭발/임팩트)
     e.respondWith(
       fetch(new Request(e.request, { cache: 'reload' }))
         .then((res) => {

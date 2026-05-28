@@ -855,6 +855,34 @@ let marsBattleBgReady=false;
 MARS_BATTLE_BG.decoding='async';
 MARS_BATTLE_BG.onload=()=>{marsBattleBgReady=true;};
 MARS_BATTLE_BG.src='textures/mars_nasa_2k.jpg';
+
+// [v7.180 VFX] 폭발 8장 + 임팩트 4종 스프라이트 프리로드 — 로드 실패해도 기존 캔버스 폭발로 fallback.
+const VFX_EXPLOSION_FRAMES=[]; // [Image, Image, ...] 8장
+let VFX_EXPLOSION_READY=0;
+for(let i=1;i<=8;i++){
+  const im=new Image();
+  im.decoding='async';
+  im.onload=()=>{ VFX_EXPLOSION_READY++; };
+  im.onerror=()=>{};
+  im.src='fx/explosion_'+String(i).padStart(2,'0')+'.png';
+  VFX_EXPLOSION_FRAMES.push(im);
+}
+const VFX_IMPACT={red:null,orange:null,cyan:null,white:null};
+['red','orange','cyan','white'].forEach(col=>{
+  const im=new Image();im.decoding='async';
+  im.onerror=()=>{};
+  im.src='fx/impact_'+col+'.png';
+  VFX_IMPACT[col]=im;
+});
+// 함선 fireType 색상 → impact 매핑 키
+function vfxImpactKeyForColor(color){
+  if(!color) return 'white';
+  const c=String(color).toLowerCase();
+  if(c.indexOf('ff6')>=0||c.indexOf('ff7')>=0||c.indexOf('ff8')>=0||c.indexOf('ff5')>=0||c.indexOf('ef5')>=0||c.indexOf('orange')>=0) return 'orange';
+  if(c.indexOf('64b6')>=0||c.indexOf('00b')>=0||c.indexOf('cyan')>=0||c.indexOf('blue')>=0||c.indexOf('00e5')>=0||c.indexOf('80d')>=0) return 'cyan';
+  if(c.indexOf('f4433')>=0||c.indexOf('e53')>=0||c.indexOf('f00')>=0||c.indexOf('red')>=0) return 'red';
+  return 'white';
+}
 function hasShipSpriteAsset(code){return SHIP_SPRITE_CODES.includes(code);}
 function isShipSpriteReady(code){return !!SHIP_SPRITES[code];}
 function trimShipSprite(img){
@@ -2183,16 +2211,23 @@ function drawLasers(_wsActive){
     CX.strokeStyle='rgba(255,255,255,.82)';CX.lineWidth=l.width*(l.beamCannon?.42:.28);
     CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
     // [v7.179 VFX] 임팩트 플래시 — 빔이 함선에 닿는 끝점에 광원 (초반 30%만)
+    // [v7.180 VFX] PNG impact 스프라이트 우선, 없으면 radial gradient fallback.
     if(prog<.3 && !PERF_MODE){
-      const flashR=l.beamCannon?(18+l.width*4):(7+l.width*2);
+      const flashR=l.beamCannon?(22+l.width*5):(10+l.width*2.5);
+      const imKey=vfxImpactKeyForColor(l.color);
+      const imImpact=VFX_IMPACT[imKey];
       CX.globalCompositeOperation='lighter';
-      CX.globalAlpha=(1-prog/.3)*.85;
-      const fg=CX.createRadialGradient(l.x2,l.y2,0,l.x2,l.y2,flashR);
-      fg.addColorStop(0,'#ffffff');
-      fg.addColorStop(.4,l.color||'#ffd166');
-      fg.addColorStop(1,'rgba(0,0,0,0)');
-      CX.fillStyle=fg;
-      CX.beginPath();CX.arc(l.x2,l.y2,flashR,0,Math.PI*2);CX.fill();
+      CX.globalAlpha=(1-prog/.3)*.9;
+      if(imImpact && imImpact.complete && imImpact.naturalWidth>0){
+        try { CX.drawImage(imImpact, l.x2-flashR, l.y2-flashR, flashR*2, flashR*2); } catch(_){}
+      } else {
+        const fg=CX.createRadialGradient(l.x2,l.y2,0,l.x2,l.y2,flashR);
+        fg.addColorStop(0,'#ffffff');
+        fg.addColorStop(.4,l.color||'#ffd166');
+        fg.addColorStop(1,'rgba(0,0,0,0)');
+        CX.fillStyle=fg;
+        CX.beginPath();CX.arc(l.x2,l.y2,flashR,0,Math.PI*2);CX.fill();
+      }
       CX.globalCompositeOperation='source-over';
     }
     CX.shadowBlur=0;CX.lineWidth=1;CX.globalAlpha=1;
@@ -2202,8 +2237,21 @@ function drawLasers(_wsActive){
 
 function drawExps(){
   // [v7.179 VFX] 다층 렌더 — 연기(under) → 코어 플래시 → 파편 글로우 → 흰 코어
+  // [v7.180 VFX] 8단계 스프라이트가 모두 로드되면 위에 PNG 시퀀스도 합성 (additive).
+  const spritesReady = VFX_EXPLOSION_READY===8;
   exps=exps.filter(ex=>{
     const prog=ex.age/ex.ttl;
+    // [v7.180 VFX] PNG 스프라이트 — 폭발 크기에 비례한 박스에 8장 순차 합성
+    if(spritesReady){
+      const frameIdx=Math.min(7, Math.floor(prog*8));
+      const img=VFX_EXPLOSION_FRAMES[frameIdx];
+      const drawR=ex.sz*14; // 픽셀 단위 — 폭발 시각 크기
+      CX.globalCompositeOperation='lighter';
+      CX.globalAlpha=Math.max(0,1-prog*1.05);
+      try { CX.drawImage(img, ex.x-drawR, ex.y-drawR, drawR*2, drawR*2); } catch(_){}
+      CX.globalCompositeOperation='source-over';
+      CX.globalAlpha=1;
+    }
     // 1) 연기 (additive 아님, 어두움) — 폭발 뒤에 깔림
     if(ex.smoke && ex.age>2){
       const smokeProg=Math.min(1,(ex.age-2)/ex.ttl);

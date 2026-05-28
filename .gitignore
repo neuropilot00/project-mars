@@ -24,6 +24,8 @@ assets/ships/*
 !assets/ships/reveal/
 !assets/ships/reveal/*.jpg
 !assets/ships/reveal/*.png
+!assets/fx/
+!assets/fx/*.png
 !assets/campaign/
 assets/campaign/*
 !assets/campaign/backgrounds/
