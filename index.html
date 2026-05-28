@@ -18427,8 +18427,8 @@ var I18N = {
     guild_toast_send_failed: '전송 실패',
     // ── Global UI ──
     nav_claim: '점령', nav_cantina: '칸티나', nav_base: '베이스', nav_items: '아이템',
-    nav_my_land: '내 영토', sectors_btn: '섹터', open_gacha_label: '함선 상자', open_gacha_sub: '가챠', my_assets_btn: '내 자산',
-    open_base: '베이스 열기', open_gacha: '🎲 함선 상자', enter_cantina: '⚔ 칸티나 입장',
+    nav_my_land: '내 영토', sectors_btn: '섹터', open_gacha_label: '함선 가챠', open_gacha_sub: '가챠', my_assets_btn: '내 자산',
+    open_base: '베이스 열기', open_gacha: '🎲 함선 가챠', enter_cantina: '⚔ 칸티나 입장',
     my_base: '마이 베이스', deposit_btn: '입금', withdraw_btn: '출금', logout_btn: '로그아웃',
     tend_all_btn: '🔧 일괄 정비', export_key_btn: '🔑 키', export_key_title: '🔑 지갑 키 내보내기', export_key_disclaimer: '⚠ 지갑의 개인키를 표시합니다. 이 키를 가진 누구나 자금을 통제할 수 있습니다. 오프라인에 보관하고 절대 공유하지 마세요. <b>보관 책임은 전적으로 본인에게 있으며, 분실·도난 시 운영자는 키나 자산을 복구할 수 없습니다.</b>', export_key_ack: '키 보관 책임이 전적으로 나에게 있음을 이해하고 동의합니다.', export_key_pw_ph: '비밀번호 확인', export_key_reveal_btn: '개인키 표시', export_key_addr: '주소', export_key_priv: '개인키', export_key_copy: '📋 키 복사', export_key_close_warn: '저장 후 이 창을 닫으세요. 키는 자동으로 다시 표시되지 않습니다.',
     address_copied: '주소가 복사되었습니다!',
@@ -18535,7 +18535,7 @@ var I18N = {
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
     gov_ship_upgrade: '강화', gov_ship_upgraded: '강화 완료!', gov_ship_upgrade_cost: '강화 비용',
-    sy_tab_blueprints: '청사진', sy_tab_queue: '건조 대기열', sy_tab_fleet: '내 함선', sy_tab_market: '함선 마켓', sy_tab_crates: '상자', sy_crate_intro: '함선 상자를 열어 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 상자에 공개됩니다.',
+    sy_tab_blueprints: '청사진', sy_tab_queue: '건조 대기열', sy_tab_fleet: '내 함선', sy_tab_market: '함선 마켓', sy_tab_crates: '가챠', sy_crate_intro: '함선 가챠를 돌려 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 가챠에 공개됩니다.',
     sy_filter_size: '함급:', sy_size_all: '전체', sy_size_frigate: '프리깃', sy_size_destroyer: '구축함', sy_size_cruiser: '순양함', sy_size_battleship: '전함', sy_size_titan: '타이탄',
     sy_filter_faction: '파벌:', sy_filter_size2: '크기:',
     sy_mineral_label: '광물 보유', sy_ships_label: '함선',
@@ -43551,7 +43551,7 @@ var CODEX_CONTENT = {
           { type:'h2', text:'💰 통화 모델 명확화' },
           { type:'p', text:'• **GP가 주 소비 통화** — 일일 로그인·미션·전투·원정 보상으로 얻고, **PP를 GP로 환전**해서도 충당해. 상점, 함선 건조/강화/수리, 함선 가챠, 영토 업그레이드, 마켓 수수료 등에 소비.\n• **PP는 영토 채굴 토큰, 1 PP ≈ $1 페그.** 영토 수확(일일 채굴 캡)·가입/추천/입금 보너스로 획득. 영토 클레임/업그레이드, GP로 환전, **USDT 환금**(운영자 담보 풀 한도 내)에 사용.\n• **USDT**는 Base 체인 실입출금.' },
           { type:'h2', text:'🎰 함선 가챠(Ship Crate)' },
-          { type:'p', text:'• **GP**로 함선 상자 개봉. 3등급: 스탠다드 300 GP, 프리미엄 1,000 GP, 레전더리 3,000 GP.\n• 모든 상자에 **확률 공개** + **천장(pity)**(프리미엄 10회, 레전더리 5회)으로 순양함 이상을 보장.' },
+          { type:'p', text:'• **GP**로 함선 가챠 개봉. 3등급: 스탠다드 300 GP, 프리미엄 1,000 GP, 레전더리 3,000 GP.\n• 모든 상자에 **확률 공개** + **천장(pity)**(프리미엄 10회, 레전더리 5회)으로 순양함 이상을 보장.' },
           { type:'h2', text:'📈 동적 PP ↔ GP 환율' },
           { type:'p', text:'• PP→GP 환율은 더 이상 고정이 아니야. 24h 수요에 따라 **PP당 5~20 GP** 하드밴드 안에서 변동하고, 1회 재계산당 최대 **±2%** 움직여. GP 수요가 높으면 환율이 내려가고, 낮으면 다시 올라가.' },
           { type:'h2', text:'🏪 지역(섹터) 마켓' },
@@ -44099,7 +44099,7 @@ var CODEX_CONTENT = {
             text:'실패해도 GP와 재료는 소모되고, 성공할 때만 스탯 보너스가 붙어. 전투 엔진이 `bonus_atk/def/hp/speed`를 직접 읽어서 실제 전투에 반영돼.' },
 
           { type:'h2', text:'4. 함선 가챠(Ship Crate)' },
-          { type:'p', text:'**GP**로 함선 상자를 열어 사이즈 클래스별 함선을 무작위로 얻어. 모든 상자는 **확률 공개**가 돼 있고, 프리미엄/레전더리 상자는 정해진 횟수에 도달하면 순양함 이상을 보장하는 **천장(pity)**이 있어.' },
+          { type:'p', text:'**GP**로 함선 가챠를 열어 사이즈 클래스별 함선을 무작위로 얻어. 모든 상자는 **확률 공개**가 돼 있고, 프리미엄/레전더리 상자는 정해진 횟수에 도달하면 순양함 이상을 보장하는 **천장(pity)**이 있어.' },
           { type:'table',
             headers:['상자','가격','천장','최고 함급'],
             rows:[
@@ -47601,7 +47601,7 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
       </div>
       <div id="syCratesTab" style="display:none">
         <div style="font-size:10px;color:rgba(255,255,255,.45);line-height:1.6;margin:2px 2px 12px;padding:8px 10px;border:1px solid rgba(255,180,80,.2);border-radius:8px;background:rgba(255,180,80,.04)">
-          <span data-i18n="sy_crate_intro">함선 상자를 열어 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 상자에 공개됩니다.</span>
+          <span data-i18n="sy_crate_intro">함선 가챠를 열어 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 상자에 공개됩니다.</span>
         </div>
         <div class="bp-grid" id="crateGrid"></div>
       </div>
