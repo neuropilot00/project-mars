@@ -187,7 +187,7 @@ router.get('/market/listings', requireAuth, async (req, res) => {
 // [v7.178 Phase 3] GET /api/ships/market/price-history/:shipTypeCode
 // 함선 타입별 최근 30건 sale price — 마켓 카드 sparkline 차트용.
 // snapshot 의 quality 별점 변동까지는 표시 안 함(가격 시계열만, 단순화).
-const { pool } = require('../db');
+// [v7.179 hotfix] pool 은 파일 상단 line 19 에서 이미 import — 재선언하면 SyntaxError.
 router.get('/market/price-history/:shipTypeCode', async (req, res) => {
   try {
     const code = String(req.params.shipTypeCode || '').slice(0, 64);
@@ -408,7 +408,7 @@ router.post('/build-jobs/:id/complete', requireAuth, async (req, res) => {
     if (!jobId) return res.status(400).json({ error: 'INVALID_JOB_ID' });
 
     // 소유권 확인
-    const { pool } = require('../db');
+    // [v7.179 hotfix] pool 은 파일 상단에서 이미 import — 중복 선언 제거.
     const { rows } = await pool.query(
       `SELECT wallet_address FROM ship_build_jobs WHERE id = $1 AND LOWER(wallet_address) = LOWER($2)`,
       [jobId, wallet]
