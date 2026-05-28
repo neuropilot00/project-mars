@@ -5614,18 +5614,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Top Bar -->
 <div class="topbar" id="topbar">
   <div class="tb-left">
-    <span class="tb-title" onclick="showLorePopup()" style="cursor:pointer">OCCUPY MARS</span>
+    <span class="tb-title" data-action="showLorePopup" style="cursor:pointer">OCCUPY MARS</span>
     <span class="tb-sub">CLAIM YOUR TERRITORY</span>
   </div>
   <div style="display:flex;gap:6px;align-items:center">
-    <button class="tut-howto-btn" id="tutHowtoBtn" onclick="startTutorial()" data-i18n="tut_howto">HOW TO PLAY</button>
+    <button class="tut-howto-btn" id="tutHowtoBtn" data-action="startTutorial" data-i18n="tut_howto">HOW TO PLAY</button>
     <div class="lang-switcher" id="langSwitcher">
       <button class="lang-btn active" onclick="setLang('en')">EN</button>
       <button class="lang-btn" onclick="setLang('ko')">KO</button>
       <button class="lang-btn" onclick="setLang('ja')">JA</button>
       <button class="lang-btn" onclick="setLang('zh')">ZH</button>
     </div>
-    <div class="lang-dropdown" id="langDropdown" onclick="toggleLangDropdown(event)">
+    <div class="lang-dropdown" id="langDropdown" data-action="toggleLangDropdown">
       <div class="lang-current" id="langCurrent">EN</div>
       <div class="lang-menu" id="langMenu">
         <div class="lang-menu-item active" onclick="setLang('en');closeLangDropdown()">EN English</div>
@@ -5635,7 +5635,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
     </div>
     <!-- [v7.184] MY ASSETS — 체인 인디케이터(BASE) 왼쪽으로 이동. -->
-    <button id="tbMyAssetsBtnTop" class="tb-myassets-top" onclick="openPortfolioModal()" title="My Mars Portfolio" aria-label="Open my assets portfolio" style="display:none">
+    <button id="tbMyAssetsBtnTop" class="tb-myassets-top" data-action="openPortfolioModal" title="My Mars Portfolio" aria-label="Open my assets portfolio" style="display:none">
       <span class="ma-icon">🪐</span>
       <span class="ma-label-top" data-i18n="my_assets_btn">MY ASSETS</span>
     </button>
@@ -5644,11 +5644,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span id="chainNameTop">BASE</span>
     </div>
     <!-- daily hud moved to OPEN BASE button -->
-    <button id="telegramBtn" onclick="openTelegramGroup()" title="Join Telegram" style="display:none">✈</button>
-    <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()" style="display:none">👤</div>
-    <img class="tb-avatar" id="tbAvatarImg" src="/assets/avatars/default.png" onclick="openAuthModal()" onerror="this.style.display='none';document.getElementById('tbAvatarEmoji').style.display='flex'">
+    <button id="telegramBtn" data-action="openTelegramGroup" title="Join Telegram" style="display:none">✈</button>
+    <div class="tb-avatar-emoji" id="tbAvatarEmoji" data-action="openAuthModal" style="display:none">👤</div>
+    <img class="tb-avatar" id="tbAvatarImg" src="/assets/avatars/default.png" data-action="openAuthModal" onerror="this.style.display='none';document.getElementById('tbAvatarEmoji').style.display='flex'">
     <!-- [v7.184] MY ASSETS 버튼은 위 chainIndicator 왼쪽으로 이동. (구 위치 삭제) -->
-    <button class="tb-btn" id="loginBtn" onclick="openAuthModal()" data-i18n="login">LOGIN</button>
+    <button class="tb-btn" id="loginBtn" data-action="openAuthModal" data-i18n="login">LOGIN</button>
   </div>
 </div>
 
@@ -5661,7 +5661,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- [v7.175 Task 1] MY ASSETS 메인 상단 진입 버튼 — 측면 패널 안 열어도 접근.
      로그인 시에만 보이고 (#tbMyAssetsBtn.show), Commander Banner 옆에 같이 노출. -->
-<button id="tbMyAssetsBtn" class="tb-myassets" onclick="openPortfolioModal()" title="My Mars Portfolio" aria-label="Open my assets portfolio">
+<button id="tbMyAssetsBtn" class="tb-myassets" data-action="openPortfolioModal" title="My Mars Portfolio" aria-label="Open my assets portfolio">
   <span class="ma-icon">🪐</span>
   <span class="ma-label" data-i18n="my_assets_btn">🪐 MY ASSETS</span>
 </button>
@@ -5680,7 +5680,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Rocket Event Banner -->
-<div class="rocket-banner" id="rocketBanner" onclick="showRocketInfo()"></div>
+<div class="rocket-banner" id="rocketBanner" data-action="showRocketInfo"></div>
 
 <!-- Active Item Buffs Overlay -->
 <div id="tbActiveBuffs" style="display:none;position:fixed;z-index:110;gap:6px;pointer-events:none" class="active-buffs-bar"></div>
@@ -5693,8 +5693,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="tut-step-counter" id="tutStepCounter"></div>
     <div class="tut-text" id="tutText"></div>
     <div class="tut-btns">
-      <button class="tut-btn tut-btn-skip" id="tutSkipBtn" onclick="endTutorial()"></button>
-      <button class="tut-btn tut-btn-next" id="tutNextBtn" onclick="nextTutStep()"></button>
+      <button class="tut-btn tut-btn-skip" id="tutSkipBtn" data-action="endTutorial"></button>
+      <button class="tut-btn tut-btn-next" id="tutNextBtn" data-action="nextTutStep"></button>
     </div>
   </div>
 </div>
@@ -5702,7 +5702,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Announcement Banner (overlay below topbar) -->
 <div class="announce-bar" id="announceBanner">
   <div class="announce-track" id="announceTrack"></div>
-  <button class="announce-close" onclick="closeAnnounce()">&times;</button>
+  <button class="announce-close" data-action="closeAnnounce">&times;</button>
 </div>
 
 <!-- Season Banner -->
@@ -5730,22 +5730,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Collapsed-mode bottom nav (desktop/tablet painted image) -->
 <div class="col-fab-wrap" id="colFabWrap">
   <img class="cf-bg" src="/assets/nav/main_buttons_desktop.png" alt="">
-  <button class="col-fab myland" onclick="toggleMyLand()" title="My Land" aria-label="My Land"></button>
-  <button class="col-fab arena"  onclick="openArena()"    title="Cantina" aria-label="Cantina"></button>
-  <button class="col-fab place"  onclick="activateLandSelect()" title="Claim" aria-label="Claim"></button>
-  <button class="col-fab items"  onclick="openMyItems()" title="Items" aria-label="Items"></button>
-  <button class="col-fab base"   onclick="openBaseModal()" title="Base" aria-label="Base">
+  <button class="col-fab myland" data-action="toggleMyLand" title="My Land" aria-label="My Land"></button>
+  <button class="col-fab arena"  data-action="openArena"    title="Cantina" aria-label="Cantina"></button>
+  <button class="col-fab place"  data-action="activateLandSelect" title="Claim" aria-label="Claim"></button>
+  <button class="col-fab items"  data-action="openMyItems" title="Items" aria-label="Items"></button>
+  <button class="col-fab base"   data-action="openBaseModal" title="Base" aria-label="Base">
     <span class="cf-dot" aria-hidden="true"></span>
   </button>
 </div>
 
 <!-- Mobile Panel Toggles -->
-<button class="mob-toggle" style="left:0" onclick="toggleLeft()">◀ STATS</button>
-<button class="mob-toggle right" style="right:0" onclick="toggleRight()">LIVE ▶</button>
+<button class="mob-toggle" style="left:0" data-action="toggleLeft">◀ STATS</button>
+<button class="mob-toggle right" style="right:0" data-action="toggleRight">LIVE ▶</button>
 
 <!-- Panel close buttons (fixed, outside panels) -->
-<button class="panel-close-fixed for-left" id="closeBtnLeft" onclick="closeLeft()">✕</button>
-<button class="panel-close-fixed for-right" id="closeBtnRight" onclick="closeRight()">✕</button>
+<button class="panel-close-fixed for-left" id="closeBtnLeft" data-action="closeLeft">✕</button>
+<button class="panel-close-fixed for-right" id="closeBtnRight" data-action="closeRight">✕</button>
 
 <!-- Left Panel -->
 <div class="panel-l" id="panelL">
@@ -5760,7 +5760,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div class="p-section">
     <div class="p-title" data-i18n="leaderboard">LEADERBOARD</div>
     <div id="leaderboardList"></div>
-    <div id="lbToggle" style="display:none;text-align:center;padding:2px 0;cursor:pointer;font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:0.5px" onclick="toggleLeaderboard()">▼ TOP 10</div>
+    <div id="lbToggle" style="display:none;text-align:center;padding:2px 0;cursor:pointer;font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:0.5px" data-action="toggleLeaderboard">▼ TOP 10</div>
   </div>
   <!-- Governance Leaderboard -->
   <div class="p-section gov-lb-section" id="govLeaderboardSection">
@@ -5775,7 +5775,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:10px" data-i18n="wallet_cta_desc">
         Login to deposit USDT,<br>claim territories & earn rewards
       </div>
-      <button class="cfm" onclick="openAuthModal()" style="font-size:var(--fs-sm);margin-bottom:6px" data-i18n="email_login">EMAIL LOGIN / REGISTER</button>
+      <button class="cfm" data-action="openAuthModal" style="font-size:var(--fs-sm);margin-bottom:6px" data-i18n="email_login">EMAIL LOGIN / REGISTER</button>
     </div>
   </div>
   <!-- Wallet: connected -->
@@ -5805,7 +5805,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button class="wa-btn dis" onclick="logoutEmail()" aria-label="Logout" data-i18n="logout_btn">LOGOUT</button>
       </div>
       <!-- [v7.186] 사이드 패널용 — i18n 라벨엔 🪐 빠졌으니 여기 인라인으로 보강. -->
-      <button class="wa-btn" onclick="openPortfolioModal()" aria-label="My assets portfolio" style="width:100%;margin-top:4px;background:linear-gradient(135deg,rgba(184,140,255,.18),rgba(79,195,247,.10));border:1px solid rgba(184,140,255,.42);color:#e7d6ff;font-weight:800;letter-spacing:.6px">🪐 <span data-i18n="my_assets_btn">MY ASSETS</span></button>
+      <button class="wa-btn" data-action="openPortfolioModal" aria-label="My assets portfolio" style="width:100%;margin-top:4px;background:linear-gradient(135deg,rgba(184,140,255,.18),rgba(79,195,247,.10));border:1px solid rgba(184,140,255,.42);color:#e7d6ff;font-weight:800;letter-spacing:.6px">🪐 <span data-i18n="my_assets_btn">MY ASSETS</span></button>
     </div>
   </div>
   <!-- REFERRAL PROGRAM (below wallet) -->
@@ -5819,14 +5819,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">MY REFERRAL CODE</div>
         <div style="display:flex;align-items:center;gap:4px">
           <span style="font-size:var(--fs-lg);color:var(--gold);letter-spacing:2px;flex:1" id="myRefCode">--</span>
-          <button class="sz-btn" onclick="copyRefCode()" style="font-size:8px;padding:3px 8px">COPY</button>
+          <button class="sz-btn" data-action="copyRefCode" style="font-size:8px;padding:3px 8px">COPY</button>
         </div>
       </div>
       <div id="enterRefWrap">
         <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">ENTER REFERRAL CODE</div>
         <div style="display:flex;gap:4px">
           <input type="text" class="ui" id="refCodeInput" placeholder="CODE..." style="flex:1;text-transform:uppercase;letter-spacing:1px">
-          <button class="sz-btn" onclick="registerReferral()" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
+          <button class="sz-btn" data-action="registerReferral" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
         </div>
         <div id="refStatus" style="font-size:8px;margin-top:3px;min-height:12px"></div>
       </div>
@@ -5840,7 +5840,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <span data-i18n="ref_tiers">Tier 1: 15% · Tier 2: 10% · Tier 3: 5%</span><br>
         <span data-i18n="ref_sources">Earn from: deposit · swap · shop · harvest · cantina · hijack · enhance · marketplace · ships · battles</span>
       </div>
-      <button class="sz-btn" onclick="toggleDynastyView()" style="width:100%;margin-top:8px;font-size:9px;padding:6px;color:var(--gold);border-color:rgba(255,184,77,.4);background:linear-gradient(135deg,rgba(255,184,77,.1),rgba(255,120,60,.05))"><span data-i18n="view_dynasty">👑 VIEW DYNASTY</span></button>
+      <button class="sz-btn" data-action="toggleDynastyView" style="width:100%;margin-top:8px;font-size:9px;padding:6px;color:var(--gold);border-color:rgba(255,184,77,.4);background:linear-gradient(135deg,rgba(255,184,77,.1),rgba(255,120,60,.05))"><span data-i18n="view_dynasty">👑 VIEW DYNASTY</span></button>
       <div id="dynastyViewWrap" style="display:none;margin-top:8px">
         <div style="display:flex;gap:4px;margin-bottom:6px">
           <button class="sz-btn" id="dynTabLb" onclick="showDynastyTab('lb')" style="flex:1;font-size:8px;padding:4px"><span data-i18n="dyn_leaderboard">LEADERBOARD</span></button>
@@ -5874,7 +5874,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="stat-row"><span class="stat-label" data-i18n="size">SIZE</span><span class="stat-val" id="infoSize">--</span></div>
     <div class="stat-row"><span class="stat-label" data-i18n="price_paid">PRICE PAID</span><span class="stat-val gn" id="infoPrice">--</span></div>
     <div id="infoImgWrap" style="display:none;margin:8px 0;text-align:center">
-      <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
+      <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" data-action="expandInfoImg">
     </div>
     <div class="stat-row" id="infoNameRow" style="display:none"><span class="stat-label" data-i18n="info_name">NAME</span><span class="stat-val" id="infoCustomName" style="color:var(--gold)">--</span></div>
     <div id="infoDescRow" style="display:none;margin:6px 0;padding:6px 8px;background:rgba(255,171,145,.05);border:1px solid rgba(255,171,145,.12);border-radius:6px">
@@ -6028,7 +6028,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <!-- CLAIM LAND: Land-first workflow (no image needed) -->
   <div class="p-section" id="landSection">
     <div class="p-title"><span data-i18n="claim_land">CLAIM TERRITORY</span> <span class="help-tip" onclick="event.stopPropagation();showHelpTip('claim')">?</span></div>
-    <button class="uf" id="landSelectBtn" onclick="activateLandSelect()" style="background:linear-gradient(135deg,rgba(255,120,60,.15),rgba(255,120,60,.05));border-color:rgba(255,120,60,.35);color:var(--mars)" data-i18n="drag_select">DRAG TO SELECT LAND</button>
+    <button class="uf" id="landSelectBtn" data-action="activateLandSelect" style="background:linear-gradient(135deg,rgba(255,120,60,.15),rgba(255,120,60,.05));border-color:rgba(255,120,60,.35);color:var(--mars)" data-i18n="drag_select">DRAG TO SELECT LAND</button>
     <div id="landSelectPreview" style="display:none;margin-top:8px">
       <div class="stat-row"><span class="stat-label" data-i18n="land_size">SIZE</span><span class="stat-val" id="landSizeLabel">--</span></div>
       <div class="stat-row"><span class="stat-label" data-i18n="land_pixels">PIXELS</span><span class="stat-val" id="landPixelLabel">--</span></div>
@@ -6054,7 +6054,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <!-- CANTINA -->
   <div class="p-section">
     <div class="p-title"><span data-i18n="nav_cantina">CANTINA</span> <span class="help-tip" onclick="event.stopPropagation();showHelpTip('cantina')">?</span></div>
-    <button class="action-btn" onclick="openArena()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:10px;letter-spacing:1.5px" data-i18n="enter_cantina">
+    <button class="action-btn" data-action="openArena" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:10px;letter-spacing:1.5px" data-i18n="enter_cantina">
       ⚔ ENTER THE CANTINA
     </button>
   </div>
@@ -6062,7 +6062,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <!-- BASE (Dashboard) -->
   <div class="p-section">
     <div class="p-title"><span data-i18n="my_base">MY BASE</span> <span class="help-tip" onclick="event.stopPropagation();showHelpTip('base')">?</span></div>
-    <button class="action-btn" id="openBaseBtn" onclick="openBaseModal()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35);position:relative" data-i18n="open_base">
+    <button class="action-btn" id="openBaseBtn" data-action="openBaseModal" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35);position:relative" data-i18n="open_base">
       OPEN BASE
       <span id="dailyHudDot" class="tab-dot" style="top:4px;right:4px;width:8px;height:8px"></span>
     </button>
@@ -6077,7 +6077,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <button class="zb" onclick="zoomIn()" aria-label="Zoom in">+</button>
   <button class="zb" onclick="zoomOut()" aria-label="Zoom out">−</button>
   <button class="zb" id="sectorToggleBtn" onclick="toggleSectorOverlay()" title="Toggle sectors" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 2px"><span id="sectorToggleLabel" data-i18n="sectors_btn" style="font-size:7px;letter-spacing:-.3px;line-height:1;white-space:nowrap">SECTORS</span></button>
-  <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="My territories" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)" data-i18n="nav_my_land">MY LAND</button>
+  <button class="zb" id="myLandBtn" data-action="toggleMyLand" title="My territories" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)" data-i18n="nav_my_land">MY LAND</button>
   <!-- [v7.210] 🐛 버그 신고 — zc 컬럼 마지막 자식. '내 영토' 바로 밑. -->
   <button id="bugReportBtn" type="button" title="버그 신고 (Bug Report)" onclick="openBugReporter(event)">🐛</button>
 </div>
@@ -6272,8 +6272,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
       <div class="mf">
         <div class="mfl">DEPOSIT ADDRESS</div>
-        <div style="background:rgba(0,0,0,.3);border:1px solid var(--bdr);border-radius:6px;padding:10px;word-break:break-all;font-family:var(--fn);font-size:11px;color:var(--cyan);cursor:pointer;user-select:all;margin-top:4px" id="depAddrDisplay" onclick="copyDepositAddr()">--</div>
-        <button class="cfm" onclick="copyDepositAddr()" style="margin-top:8px;font-size:var(--fs-xs)">📋 COPY ADDRESS</button>
+        <div style="background:rgba(0,0,0,.3);border:1px solid var(--bdr);border-radius:6px;padding:10px;word-break:break-all;font-family:var(--fn);font-size:11px;color:var(--cyan);cursor:pointer;user-select:all;margin-top:4px" id="depAddrDisplay" data-action="copyDepositAddr">--</div>
+        <button class="cfm" data-action="copyDepositAddr" style="margin-top:8px;font-size:var(--fs-xs)">📋 COPY ADDRESS</button>
       </div>
       <div class="dw-info">
         Send <b>USDT</b> on the selected chain to this address.<br>
@@ -8561,11 +8561,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <nav class="mob-bottom-nav" id="mobBottomNav">
   <div class="nav-img-wrap">
     <img class="mob-nav-bg" src="/assets/nav/main_buttons_mobile.png" alt="">
-    <button class="mob-nav-item mn-myland"  onclick="toggleMyLand()"           id="mobNavMyLand" aria-label="My Land"></button>
-    <button class="mob-nav-item mn-cantina" onclick="openArena()"              aria-label="Cantina"></button>
-    <button class="mob-nav-item mn-claim"   onclick="activateLandSelect()"     id="mobNavClaim"  aria-label="Claim"></button>
-    <button class="mob-nav-item mn-items"   onclick="openMyItems()" aria-label="Items"></button>
-    <button class="mob-nav-item mn-base"    onclick="openBaseModal()"          aria-label="Base">
+    <button class="mob-nav-item mn-myland"  data-action="toggleMyLand"           id="mobNavMyLand" aria-label="My Land"></button>
+    <button class="mob-nav-item mn-cantina" data-action="openArena"              aria-label="Cantina"></button>
+    <button class="mob-nav-item mn-claim"   data-action="activateLandSelect"     id="mobNavClaim"  aria-label="Claim"></button>
+    <button class="mob-nav-item mn-items"   data-action="openMyItems" aria-label="Items"></button>
+    <button class="mob-nav-item mn-base"    data-action="openBaseModal"          aria-label="Base">
       <span id="mobBaseDot" class="mob-base-dot" aria-hidden="true"></span>
     </button>
   </div>
@@ -8582,7 +8582,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- [v7.205] 영토 업그레이드 전용 모달 — 모바일/데스크탑 공통. 이전엔 사이드바 슬라이드 인이라 UX 어색.
      onclick backdrop = 닫기. ESC 도 닫기. 내용은 loadTerritoryUpgrades(claimId, 'territoryUpgradeModalBody') 가 채움.
      [v7.207 fix] z-index 10500 → 9990 — gameConfirm(10001) 보다 낮춰 ⬆ 버튼 클릭 시 confirm 모달이 위로 보이게. -->
-<div id="territoryUpgradeModal" style="display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.78);align-items:center;justify-content:center;padding:14px" onclick="if(event.target===this)closeTerritoryUpgradeModal()">
+<div id="territoryUpgradeModal" style="display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.78);align-items:center;justify-content:center;padding:14px" onclick="if(event.target===this)_safeBackdropClose(this,closeTerritoryUpgradeModal)">
   <div style="background:linear-gradient(160deg,#1a1a2e,#12121e);border:1px solid rgba(187,134,252,.25);border-radius:14px;width:min(420px,96vw);max-height:90vh;overflow-y:auto;padding:18px 16px 16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <div style="display:flex;align-items:center;gap:8px">
@@ -8599,7 +8599,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Mobile: Territory Info Modal -->
-<div class="mob-territory-modal" id="mobTerritoryModal" onclick="if(event.target===this)closeMobTerritoryModal()">
+<div class="mob-territory-modal" id="mobTerritoryModal" onclick="if(event.target===this)_safeBackdropClose(this,closeMobTerritoryModal)">
   <div class="mob-territory-card">
     <div class="mt-handle"></div>
     <div class="mt-title">
@@ -9059,7 +9059,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <button class="sz-btn" onclick="openTelegramGroup()" style="width:100%;font-size:10px;color:var(--mars);border-color:rgba(255,120,60,.22);background:rgba(255,120,60,.06);padding:8px;margin-top:8px">✈ JOIN TELEGRAM</button>
+        <button class="sz-btn" data-action="openTelegramGroup" style="width:100%;font-size:10px;color:var(--mars);border-color:rgba(255,120,60,.22);background:rgba(255,120,60,.06);padding:8px;margin-top:8px">✈ JOIN TELEGRAM</button>
 
         <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red);margin-top:8px" data-i18n="logout">LOGOUT</button>
       </div>
@@ -14505,6 +14505,9 @@ window.openTerritoryUpgradeModal = function(claimId, plotMeta) {
   }
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden'; // 배경 스크롤 차단
+  // [v7.215 iOS phantom-click 가드] 모달 open 직후 350ms 동안 backdrop close 차단.
+  //   iOS Safari touchend→click 합성 이벤트로 backdrop 즉시 닫힘 방지.
+  modal.dataset.openedAt = String(Date.now());
   // body 가 만들어진 후 loadTerritoryUpgrades 호출 (모달용 targetBodyId).
   setTimeout(function(){
     loadTerritoryUpgrades(claimId, 'territoryUpgradeModalBody');
@@ -15642,7 +15645,10 @@ function openMobTerritoryModal(){
     var canHijack=plot.owner&&plot.owner!=='__dead__'&&walletState.address;
     if(hijackBtn) hijackBtn.style.display=canHijack?'':'none';
   }
-  document.getElementById('mobTerritoryModal').classList.add('open');
+  var _mtm = document.getElementById('mobTerritoryModal');
+  _mtm.classList.add('open');
+  // [v7.215] iOS phantom-click 가드 — 모달 열린 직후 350ms 안 backdrop click 무시.
+  _mtm.dataset.openedAt = String(Date.now());
   // [v7.207] HP/생산/섹터/광물 정보 로드 — territory production endpoint 호출.
   //   본인 영토는 d.owned=true 라 condition 표시 + TEND 가능. 남의 영토는 condition 만.
   try { _loadMobTerritoryProdInfo(plot.claimId || plot.id, plot); } catch(_){}
@@ -20831,6 +20837,17 @@ var I18N = {
 
 function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
 function tl(en,ko,ja,zh){ return LANG==='ko'?ko:LANG==='ja'?ja:LANG==='zh'?zh:en; }
+// [v7.215] iOS phantom-click 가드 — backdrop close 함수 wrapper.
+//   모달 open 직후 (modal.dataset.openedAt 기록) 350ms 안의 backdrop click 은 무시.
+//   iOS Safari 의 touchstart→touchend→click 합성 이벤트로 인한 false close 차단.
+//   사용법: <div onclick="if(event.target===this)_safeBackdropClose(this, closeXxx)">
+window._safeBackdropClose = function(modalEl, closeFn) {
+  try {
+    var openedAt = parseInt(modalEl.dataset.openedAt || '0', 10);
+    if (openedAt && (Date.now() - openedAt) < 350) return; // iOS phantom click
+  } catch(_) {}
+  if (typeof closeFn === 'function') closeFn();
+};
 // [v7.190] 서버 에러 코드 4언어 매핑 공통 헬퍼. 사용: showToast(srvErr(d.error || 'FAIL'), 'error')
 function srvErr(code){
   if (!code) return tl('Failed','실패','失敗','失败');
@@ -29028,9 +29045,16 @@ function openCampaignProfileModal(){
   var el = document.createElement('div');
   el.id = 'campaignProfileModal';
   el.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.82);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
-  el.onclick = function(e){ if(e.target===el) el.remove(); };
+  // [v7.215] iOS phantom-click 가드 — backdrop close 가 모달 open 350ms 안엔 무시.
+  el.dataset.openedAt = String(Date.now());
+  el.onclick = function(e){
+    if (e.target !== el) return; // inner 클릭은 무시
+    if (Date.now() - parseInt(el.dataset.openedAt || '0', 10) < 350) return; // phantom-click
+    el.remove();
+  };
   el.innerHTML =
-    '<div style="position:relative;width:min(540px,94vw);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(184,140,255,.18),rgba(10,12,22,.98) 65%);border:1.5px solid rgba(184,140,255,.55);box-shadow:0 0 30px rgba(184,140,255,.25),0 18px 60px rgba(0,0,0,.7);padding:18px;animation:crPop .3s cubic-bezier(.2,1.3,.5,1)">'
+    // [v7.215] inner card 에 stopPropagation — 자식 클릭이 el.onclick 까지 버블되지 않게 명시.
+    '<div onclick="event.stopPropagation()" style="position:relative;width:min(540px,94vw);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(184,140,255,.18),rgba(10,12,22,.98) 65%);border:1.5px solid rgba(184,140,255,.55);box-shadow:0 0 30px rgba(184,140,255,.25),0 18px 60px rgba(0,0,0,.7);padding:18px;animation:crPop .3s cubic-bezier(.2,1.3,.5,1)">'
     +   '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#caa8ff">🎖 '+tl('CAMPAIGN PROFILE','캠페인 프로필','キャンペーンプロフィール','战役档案')+'</div>'
     +   '<div style="display:flex;gap:6px;margin-top:12px">'
     +     '<button id="cpTabTitles" onclick="_cpSwitchTab(\'titles\')" style="flex:1;padding:9px;border-radius:7px;background:rgba(184,140,255,.18);border:1px solid rgba(184,140,255,.5);color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">🎖 '+tl('TITLES','칭호','称号','称号')+'</button>'
