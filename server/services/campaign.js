@@ -4433,9 +4433,11 @@ async function complete(wallet, sessionId) {
       }
       for (const item of rewards.items || []) {
         await applyOptionalCampaignReward(client, `item:${item.code}`, () => client.query(
+            // [v7.216 CAMPAIGN-001] conflict target 명시 — mig 256 UNIQUE(wallet, quest_id, reward_code).
+            //   같은 챕터 재완료 시 중복 inbox 삽입(double-claim) 차단. 단 quest 내 여러 item 보상은 reward_code 로 구분돼 모두 보존.
             `INSERT INTO campaign_reward_inbox (wallet, quest_id, reward_type, reward_code, quantity, payload)
              VALUES ($1,$2,$3,$4,$5,$6)
-             ON CONFLICT DO NOTHING`,
+             ON CONFLICT (wallet, quest_id, reward_code) DO NOTHING`,
             [w, progress.quest_id, item.type, item.code, item.quantity || 1, JSON.stringify(item)]
           )
         );

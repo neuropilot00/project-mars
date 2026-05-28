@@ -311,7 +311,8 @@ router.put('/users/:wallet', async (req, res) => {
     if (email !== undefined) { updates.push(`email = $${idx++}`); params.push(email.toLowerCase()); }
     if (nickname !== undefined) { updates.push(`nickname = $${idx++}`); params.push(nickname); }
     if (newPassword) {
-      const hash = await bcrypt.hash(newPassword, 10);
+      // [v7.216 SEC-001] bcrypt cost auth.js(12)와 통일. 이전 10 → hash 강도 불일치.
+      const hash = await bcrypt.hash(newPassword, 12);
       updates.push(`password_hash = $${idx++}`); params.push(hash);
     }
     if (usdtBalance !== undefined) { updates.push(`usdt_balance = $${idx++}`); params.push(usdtBalance); }
