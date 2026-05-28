@@ -14616,9 +14616,13 @@ function renderTerritoryUpgradeBody(d, claimId, wallet, targetBodyId) {
     html += '<div style="margin-bottom:4px">' + barHtml + '</div>';
     html += '<div style="font-size:8px;color:var(--tx3);margin-bottom:4px">' + fcEsc(track.desc) + '</div>';
     if (!atMax && nextCost !== null) {
+      // [v7.214 fix] 레드팀 🟡 #7 — GP 부족 시 버튼 자체 disabled. 이전엔 클릭해야 confirm 모달 disabled 보고 무반응 인식.
+      var _myGp214 = Number((walletState && walletState.gameGP)||0);
+      var _insufficient214 = _myGp214 < (nextCost||0);
+      var _btnDis = _insufficient214 ? ' disabled style="padding:2px 8px;border-radius:4px;border:1px solid '+track.color+'55;background:rgba(255,255,255,.02);color:'+track.color+'66;font-size:8px;font-family:var(--fn);font-weight:700;cursor:not-allowed;opacity:.55" title="GP 부족"' : ' style="padding:2px 8px;border-radius:4px;border:1px solid '+track.color+';background:rgba(255,255,255,.04);color:'+track.color+';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer"';
       html += '<div style="display:flex;justify-content:space-between;align-items:center">';
       html += '<span style="font-size:8px;color:var(--tx2)">Lv' + (curLevel + 1) + ': +' + nextBonus + ' ' + track.bonusUnit + '</span>';
-      html += '<button type="button" data-territory-upgrade-claim="' + fcEsc(claimId) + '" data-territory-upgrade-type="' + fcEsc(track.key) + '" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
+      html += '<button type="button" data-territory-upgrade-claim="' + fcEsc(claimId) + '" data-territory-upgrade-type="' + fcEsc(track.key) + '"' + _btnDis + '>⬆ ' + nextCost + ' GP</button>';
       html += '</div>';
     } else if (atMax) {
       html += '<div style="font-size:8px;color:#69f0ae;font-weight:700">✅ MAX</div>';
@@ -40423,16 +40427,33 @@ function loadMyTdescs() {
   listEl.innerHTML = '<span style="color:var(--tx3)">Loading…</span>';
   fetch('/api/tdesc/my?wallet='+encodeURIComponent(wallet)).then(function(r){return r.json();}).then(function(rows){
     if (!rows.length) { listEl.innerHTML = '<span style="color:var(--tx3)" data-i18n="tdesc_none">No descriptions set yet.</span>'; return; }
-    listEl.innerHTML = rows.map(function(r){
+    // [v7.214 fix] description text 인라인 onclick 안에 들어가 escape 깨짐 위험.
+    //   index-based cache + data-action + delegated listener.
+    window._tdescEditRows = rows.slice();
+    listEl.innerHTML = rows.map(function(r, idx){
       var name = r.claim_name ? r.claim_name : '#'+r.claim_id;
       return '<div style="padding:6px 8px;background:rgba(255,171,145,.04);border:1px solid rgba(255,171,145,.1);border-radius:6px;margin-bottom:4px">'
         +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">'
           +'<span style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700">'+_escHtml(name)+'</span>'
-          +'<button onclick="prefillTdescEdit('+r.claim_id+',\''+_escHtml(r.description).replace(/'/g,'\\\'')+'\')" style="font-size:8px;background:rgba(255,171,145,.1);border:1px solid rgba(255,171,145,.2);color:#ffab91;padding:2px 6px;border-radius:4px;cursor:pointer">EDIT</button>'
+          +'<button type="button" data-action="tdescEdit" data-idx="'+idx+'" style="font-size:8px;background:rgba(255,171,145,.1);border:1px solid rgba(255,171,145,.2);color:#ffab91;padding:2px 6px;border-radius:4px;cursor:pointer">EDIT</button>'
         +'</div>'
         +'<div style="font-size:9px;color:var(--tx2)">'+_escHtml(r.description)+'</div>'
       +'</div>';
     }).join('');
+    // Delegated listener — 한 번만 등록.
+    if (!listEl.dataset.delegated) {
+      listEl.dataset.delegated = '1';
+      listEl.addEventListener('click', function(ev){
+        var btn = ev.target && ev.target.closest ? ev.target.closest('button[data-action="tdescEdit"]') : null;
+        if (!btn) return;
+        ev.stopPropagation();
+        var idx = parseInt(btn.getAttribute('data-idx'), 10);
+        var row = (window._tdescEditRows || [])[idx];
+        if (!row) return;
+        console.log('[BTN] tdescEdit triggered', row.claim_id);
+        prefillTdescEdit(row.claim_id, row.description);
+      });
+    }
   }).catch(function(e){ listEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
@@ -51678,15 +51699,29 @@ async function loadAiFleets() {
       return;
     }
 
-    grid.innerHTML = fleets.map(f => `
+    // [v7.214 fix] nickname 인라인 onclick escape 위험 — index cache + delegated listener.
+    window._aiFightFleets = fleets.slice();
+    grid.innerHTML = fleets.map((f, idx) => `
       <div class="ai-card difficulty-${f.ai_difficulty || 'normal'}"
-           onclick="challengeAi(${f.fleet_id}, '${escapeHtml(f.nickname || '')}')">
+           data-action="challengeAi" data-idx="${idx}">
         <div class="ai-card-nick">${escapeHtml(f.nickname || 'AI')}</div>
         <div class="ai-card-meta">${escapeHtml(f.faction_name || '')}</div>
         <span class="difficulty-badge ${f.ai_difficulty || 'normal'}">${(f.ai_difficulty || 'normal').toUpperCase()}</span>
         <div class="ai-card-ships">⚔ ${f.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>
       </div>
     `).join('');
+    if (!grid.dataset.delegated) {
+      grid.dataset.delegated = '1';
+      grid.addEventListener('click', function(ev){
+        var card = ev.target && ev.target.closest ? ev.target.closest('div[data-action="challengeAi"]') : null;
+        if (!card) return;
+        var idx = parseInt(card.getAttribute('data-idx'), 10);
+        var f = (window._aiFightFleets || [])[idx];
+        if (!f) return;
+        console.log('[BTN] challengeAi triggered', f.fleet_id);
+        challengeAi(f.fleet_id, f.nickname || '');
+      });
+    }
   } catch (err) {
     console.error('loadAiFleets:', err);
     grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
@@ -53457,13 +53492,27 @@ async function rpLoad() {
       return;
     }
     
-    grid.innerHTML = replays.map(r => renderReplayCard(r)).join('');
+    // [v7.214 fix] share_token 인라인 onclick — index cache + delegated.
+    window._replayCards = replays.slice();
+    grid.innerHTML = replays.map((r, idx) => renderReplayCard(r, idx)).join('');
+    if (!grid.dataset.delegated) {
+      grid.dataset.delegated = '1';
+      grid.addEventListener('click', function(ev){
+        var card = ev.target && ev.target.closest ? ev.target.closest('div[data-action="viewReplay"]') : null;
+        if (!card) return;
+        var idx = parseInt(card.getAttribute('data-idx'), 10);
+        var r = (window._replayCards || [])[idx];
+        if (!r) return;
+        console.log('[BTN] viewReplay triggered', r.share_token);
+        viewReplay(r.share_token, r.battle_id || null);
+      });
+    }
   } catch (err) {
     grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
   }
 }
 
-function renderReplayCard(r) {
+function renderReplayCard(r, idx) {
   const typeLabel = {
     'pvp_duel': 'PvP',
     'siege': '공성전',
@@ -53471,9 +53520,9 @@ function renderReplayCard(r) {
     'event': '이벤트',
     'raid': '레이드',
   }[r.battle_type] || r.battle_type;
-  
+  // [v7.214] data-action + data-idx, listener 는 loadReplays 안에서 한 번만 등록.
   return `
-    <div class="rp-card" onclick="viewReplay('${r.share_token}', ${r.battle_id || 'null'})">
+    <div class="rp-card" data-action="viewReplay" data-idx="${idx != null ? idx : ''}">
       <div class="rp-card-thumb">${r.is_featured ? '⭐' : '🎬'}</div>
       <div class="rp-card-body">
         <div class="rp-card-title">${escapeHtml(r.title || `[${typeLabel}]`)}</div>

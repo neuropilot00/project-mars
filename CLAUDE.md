@@ -1064,5 +1064,89 @@ window.parent.postMessage({ source:'tactical-lab', battleId, cmd:'forfeit', payl
 
 ---
 
+---
+
+## 19. 동적 렌더 버튼 패턴 — Inline onclick 금지
+
+> ⚠️ **반복된 회귀 (v7.205, v7.211, v7.214)** — inline `onclick="someFn('+val+')"` 동적 string concat 은 escape 깨짐으로 클릭 무반응. **신규 코드는 금지**.
+
+### ❌ 금지 패턴
+
+```js
+// 동적 값을 inline onclick 문자열에 concat — escape 깨짐 위험
+listEl.innerHTML = rows.map(function(r){
+  return '<button onclick="doFn(\''+r.id+'\',\''+r.name+'\')">Click</button>';
+}).join('');
+```
+
+깨지는 조건:
+- `r.name` 에 `'`, `"`, 한글, 특수문자, 또는 사용자 입력 텍스트
+- escapeHtmlSafe / fcEsc 가 entity 변환 (`'` → `&#39;`) 후 JS 안에서 다시 decode 실패
+- 결과: onclick attribute 자체가 syntax error → 핸들러 등록 안 됨 → 클릭 무반응
+
+### ✅ 표준 패턴 — data-action + delegated listener
+
+```js
+// 1) 데이터 캐시
+window._myRows = rows.slice();
+
+// 2) 버튼은 data-action + data-idx 만
+container.innerHTML = rows.map(function(r, idx){
+  return '<button type="button" data-action="myAction" data-idx="'+idx+'">Click</button>';
+}).join('');
+
+// 3) 한 번만 등록되는 delegated listener
+if (!container.dataset.delegated) {
+  container.dataset.delegated = '1';
+  container.addEventListener('click', function(ev){
+    var btn = ev.target.closest('button[data-action="myAction"]');
+    if (!btn) return;
+    ev.stopPropagation();
+    var idx = parseInt(btn.getAttribute('data-idx'), 10);
+    var row = (window._myRows || [])[idx];
+    if (!row) return;
+    console.log('[BTN] myAction triggered', row.id);
+    // 처리 중 가드 (중복 클릭 race)
+    if (btn.disabled) return;
+    btn.disabled = true;
+    var prev = btn.textContent; btn.textContent = '...';
+    Promise.resolve(doFn(row.id, row.name)).finally(function(){
+      try { if (btn) { btn.disabled = false; btn.textContent = prev; } } catch(_){}
+    });
+  });
+}
+```
+
+### Checklist (신규 버튼 만들 때)
+
+- [ ] inline `onclick="someFn(...)"` 사용 안 함
+- [ ] data-action + data-* 속성으로 메타 전달
+- [ ] 부모 컨테이너에 delegated listener 한 번만 등록 (`dataset.delegated` 가드)
+- [ ] listener 안 `console.log('[BTN] xxx triggered', ...)` 진입 로그
+- [ ] `event.stopPropagation()` (모달 안 버튼이라면)
+- [ ] async 액션은 in-flight 가드 (btn.disabled + busy + textContent 변경)
+- [ ] 비용/조건 미충족 시 버튼 자체 disabled (클릭 후 confirm 모달에서 거부 X)
+
+### pre-commit hook (제안 — 별도 작업)
+
+```bash
+# index.html 안에 'innerHTML' + 'onclick=' 같은 라인 → 회귀 신호
+grep -nE 'innerHTML.*onclick=' index.html && {
+  echo "[v7.214 규칙] 동적 onclick concat 감지. data-action + delegated 패턴 사용."
+  exit 1
+}
+```
+
+### 이미 fix 완료된 사례 (회귀 방지 reference)
+
+| 버전 | 위치 | 증상 |
+|---|---|---|
+| v7.205 | 영토 업그레이드 버튼 | 클릭 무반응 |
+| v7.211 | 캠페인 프로필 칭호 장착 | 클릭 무반응 |
+| v7.213 | + 중복 클릭 race 가드 | GP 이중 차감 위험 |
+| v7.214 | shipyard/alliance/AI fight/replay/tdesc 일괄 마이그 | 잠재 무반응 |
+
+---
+
 *이 문서는 새 Claude Code 세션이 컨텍스트 없이도 즉시 작업을 이어갈 수 있도록 작성됐습니다.*
 *상세 히스토리가 필요하면 git log 또는 server/migrations/ 파일 순서를 참고하세요.*

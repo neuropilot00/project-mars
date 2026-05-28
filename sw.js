@@ -37,7 +37,8 @@
 // 2026-05-29 v32: v7.211 주간 진척도 시인성 + 칭호 장착 onclick fix (data-* delegated).
 // 2026-05-29 v33: v7.212 모바일 캠페인/가챠/🐛 위치 원복 (데스크탑만 변경 유지).
 // 2026-05-29 v34: v7.213 업그레이드 모달 자동 갱신 + 중복 클릭 가드.
-const CACHE_NAME = 'mars-v34';
+// 2026-05-29 v35: v7.214 inline onclick 회귀 3차 마이그 (tdesc/AI fight/replay) + 카탈로그 disabled + CLAUDE.md §19 + pre-commit hook.
+const CACHE_NAME = 'mars-v35';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
