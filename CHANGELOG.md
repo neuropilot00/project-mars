@@ -13,6 +13,7 @@
   - `ship.buyShipListing`: 구매자 진영≠함선 진영이면 `fleet_id=NULL`로 전송(창고, 사용 불가·재판매만).
   - `ship.cancelShipListing`: 판매자 진영≠함선 진영이면 취소 후에도 `fleet_id=NULL` 유지.
   - E2E 스모크 PASS — 풀(cross fleet_id NULL) → moveShips 차단 → 마켓 등록 → 타진영 구매(매칭 시 편입) → 자가 진영 재구매(미매칭 시 fleet_id NULL) 전 시나리오 통과.
+- **프론트엔드 보강**: 내 함선 카드에 `🔒 [진영]` 좌상단 lock 배지(cross-faction일 때만, hover 툴팁 "사용 불가·마켓 판매 가능"). Fleet Command 에러 매핑에 `CROSS_FACTION_SHIP` 4언어 추가("다른 진영 함선은 함대에 편입할 수 없습니다 — 마켓에 판매 가능"). 가챠 풀(✅)·보유 표시(✅ cross 배지)·마켓 등록(✅ owner 기준)·구매(✅ 진영 매칭 시 편입)·이동 차단(✅ CROSS_FACTION_SHIP) 전 단계 백엔드+프론트 연결 검증.
 
 ## 2026-05-28 v7.161 — P2E → P2O 전환 + 자산 가시화 모달 (팀 진단 반영)
 

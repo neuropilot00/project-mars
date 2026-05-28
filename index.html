@@ -47901,7 +47901,12 @@ function renderShips() {
     list.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">보유 함선이 없습니다<br><span style="font-size:9px;opacity:.6">블루프린트에서 건조를 시작하세요</span></div>';
     return;
   }
+  var _myFac = (shipyardState.myFaction && (shipyardState.myFaction.code||'').toLowerCase()) || '';
   list.innerHTML = shipyardState.ships.map(function(s) {
+    var crossFaction = _myFac && s.faction_code && (s.faction_code.toLowerCase() !== _myFac);
+    var crossBadge = crossFaction
+      ? '<span style="position:absolute;top:6px;left:6px;font-size:8px;font-weight:900;color:#aac4dc;background:rgba(20,28,40,.92);border:1px solid rgba(136,170,204,.6);padding:2px 6px;border-radius:5px;letter-spacing:.5px" title="'+tl('Other faction — cannot deploy, list on market','다른 진영 — 사용 불가, 마켓 판매 가능','他陣営 — 配置不可、市場で販売可','其他阵营 — 无法部署，可上架销售')+'">🔒 '+(s.faction_code||'').toUpperCase()+'</span>'
+      : '';
     var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
     var hpPct = Math.max(0, Math.min(100, (s.current_hp / effectiveMaxHp) * 100));
     var hpClass = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
@@ -47918,8 +47923,9 @@ function renderShips() {
     var repairBtn = isDamaged && !listed
       ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + effectiveMaxHp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>'
       : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? '판매중' : '✅ 최대HP') + '</button>';
-    return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + '">' +
+    return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + (crossFaction ? ' cross-faction' : '') + '" style="position:relative">' +
       listedSticker +
+      crossBadge +
       '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + syShipName(s) + '</div>' +
       '<div class="ship-class">' + syClassLabel(s.class_label || '') + '</div>' +
       '<div class="ship-hp-bar"><div class="ship-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div></div>' +
@@ -48631,7 +48637,8 @@ function fleetCmdErrorMessage(error, data) {
     SHIP_NOT_FOUND: LANG==='ko'?'함선을 찾을 수 없습니다':LANG==='ja'?'艦船が見つかりません':LANG==='zh'?'找不到舰船':'Ship not found',
     SHIP_DEAD: LANG==='ko'?'파괴된 함선은 기함이 될 수 없습니다':LANG==='ja'?'破壊された艦船は旗艦になれません':LANG==='zh'?'已损毁的舰船无法成为旗舰':'Ship is destroyed',
     SHIP_NOT_IN_FLEET: LANG==='ko'?'이 함대 소속 함선이 아닙니다':LANG==='ja'?'この艦隊所属の艦船ではありません':LANG==='zh'?'该舰船不属于此舰队':'Ship not in fleet',
-    SHIP_CANNOT_BE_FLAGSHIP: LANG==='ko'?'이 함선은 기함 지정이 불가능합니다':LANG==='ja'?'この艦船は旗艦に指定できません':LANG==='zh'?'此舰船无法成为旗舰':'Ship cannot be flagship'
+    SHIP_CANNOT_BE_FLAGSHIP: LANG==='ko'?'이 함선은 기함 지정이 불가능합니다':LANG==='ja'?'この艦船は旗艦に指定できません':LANG==='zh'?'此舰船无法成为旗舰':'Ship cannot be flagship',
+    CROSS_FACTION_SHIP: LANG==='ko'?'다른 진영 함선은 함대에 편입할 수 없습니다 (마켓에 판매 가능)':LANG==='ja'?'他陣営の艦船は艦隊に編入できません(マーケット販売は可能)':LANG==='zh'?'其他阵营舰船无法编入舰队（可在市场出售）':'Other-faction ship cannot be deployed (listable on market)'
   };
   return msgMap[error] || error || (LANG==='ko'?'알 수 없는 오류':LANG==='ja'?'不明なエラー':LANG==='zh'?'未知错误':'Unknown error');
 }
