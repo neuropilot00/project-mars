@@ -14561,10 +14561,7 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
     if (!atMax && nextCost !== null) {
       html += '<div style="display:flex;justify-content:space-between;align-items:center">';
       html += '<span style="font-size:8px;color:var(--tx2)">Lv' + (curLevel + 1) + ': +' + nextBonus + ' ' + track.bonusUnit + '</span>';
-      // [v7.201 diag] inline alert — 사용자가 캐시 지워도 안 된다 함. onclick 까지 도달하는지 무조건 확인.
-      //   alert 가 뜨면 click 핸들러 정상, doTerritoryUpgrade 자체 문제. alert 안 뜨면 button onclick 미등록.
-      //   v7.201 검증 완료 후 alert 제거하고 console.log 만 남길 예정.
-      html += '<button type="button" onclick="console.log(\'[BTN] upgrade click '+claimId+'/'+track.key+'\');event.stopPropagation();if(typeof doTerritoryUpgrade!==\'function\'){alert(\'doTerritoryUpgrade NOT DEFINED — 캐시 미갱신\');return;}doTerritoryUpgrade(' + claimId + ',\'' + track.key + '\')" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
+      html += '<button type="button" data-territory-upgrade-claim="' + fcEsc(claimId) + '" data-territory-upgrade-type="' + fcEsc(track.key) + '" style="padding:2px 8px;border-radius:4px;border:1px solid ' + track.color + ';background:rgba(255,255,255,.04);color:' + track.color + ';font-size:8px;font-family:var(--fn);font-weight:700;cursor:pointer">⬆ ' + nextCost + ' GP</button>';
       html += '</div>';
     } else if (atMax) {
       html += '<div style="font-size:8px;color:#69f0ae;font-weight:700">✅ MAX</div>';
@@ -14573,6 +14570,19 @@ function renderTerritoryUpgradeBody(d, claimId, wallet) {
   });
   html += '</div>';
   body.innerHTML = html;
+  body.onclick = function(event) {
+    var btn = event.target && event.target.closest ? event.target.closest('button[data-territory-upgrade-type]') : null;
+    if (!btn || !body.contains(btn)) return;
+    event.stopPropagation();
+    var btnClaimId = parseInt(btn.getAttribute('data-territory-upgrade-claim'), 10);
+    var upgradeType = btn.getAttribute('data-territory-upgrade-type');
+    console.log('[BTN] upgrade click ' + btnClaimId + '/' + upgradeType);
+    if (typeof doTerritoryUpgrade !== 'function') {
+      alert('doTerritoryUpgrade NOT DEFINED — 캐시 미갱신');
+      return;
+    }
+    doTerritoryUpgrade(btnClaimId, upgradeType);
+  };
 }
 
 async function doTerritoryUpgrade(claimId, upgradeType) {
