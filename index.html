@@ -2774,6 +2774,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .faction-stats { display: flex; justify-content: space-between; font-size: 8px; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
 .faction-stats span { text-align: center; }
 .faction-stats b { color: rgba(255,255,255,0.8); font-weight: normal; }
+.faction-balance { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); }
+.faction-balance-bar { height: 5px; background: rgba(0,0,0,0.4); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+.faction-balance-fill { height: 100%; border-radius: 3px; background: rgba(255,255,255,0.5); transition: width 0.4s ease; }
+.faction-balance-fill.mcc { background: #4fc3f7; }
+.faction-balance-fill.fsp { background: #81c784; }
+.faction-balance-fill.cv { background: #e57373; }
+.faction-balance-meta { display: flex; justify-content: space-between; font-size: 8px; color: rgba(255,255,255,0.5); letter-spacing: 0.5px; }
+.faction-balance-meta b { color: rgba(255,255,255,0.85); font-weight: normal; }
+.faction-balance-underdog { margin-top: 4px; font-size: 8px; color: #ffd54f; text-align: center; letter-spacing: 0.5px; }
 .faction-warning { background: rgba(255,180,40,0.08); border: 1px solid rgba(255,180,40,0.3); border-radius: 6px; padding: 10px 14px; font-size: 10px; color: #ffb74d; margin-bottom: 16px; line-height: 1.6; }
 .faction-actions { display: flex; gap: 10px; justify-content: flex-end; }
 .faction-btn { padding: 10px 20px; font-family: var(--fn); font-size: 11px; letter-spacing: 2px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.7); border-radius: 4px; cursor: pointer; transition: all 0.15s; }
@@ -7545,9 +7554,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(232,72,85,.12)">
             <div style="font-size:11px;font-weight:700;color:#ff8a80;font-family:var(--fn);letter-spacing:.8px">⚔ FLEET BATTLE HUB</div>
             <div style="display:flex;gap:6px">
+              <button type="button" onclick="toggleBattleRewardsHistory()" style="font-size:9px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.3);color:#ffd166;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)"><span data-i18n="pvp_rewards_btn">🏅 보상 이력</span></button>
               <button type="button" onclick="openBattleHub()" style="font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">🔴 LIVE</button>
               <button type="button" onclick="openDeclareBattle()" style="font-size:9px;background:rgba(232,72,85,.25);border:1px solid rgba(232,72,85,.55);color:#ff8a80;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)"><span data-i18n="pvp_declare_btn">⚔ 전투 선언</span></button>
             </div>
+          </div>
+          <!-- 내 전투 보상 이력 (접힘) -->
+          <div id="battleRewardsHistoryWrap" style="display:none;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)">
+            <div id="battleRewardsHistoryContent" style="font-size:9px;color:var(--tx3)"></div>
           </div>
           <!-- 3-tab bar -->
           <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.06)">
@@ -29716,6 +29730,14 @@ function renderLotteryPanel(round) {
     html += '</div>';
   }
 
+  // 지난 회차 / 내 티켓 — 접힘 섹션
+  html += '<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px">'
+    + '<div onclick="toggleLotteryHistory()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:9px;color:var(--gold);font-weight:700;letter-spacing:0.5px">'
+    + '<span>' + tl('PAST ROUNDS / MY TICKETS','지난 회차 / 내 티켓','過去のラウンド / マイチケット','往期 / 我的彩票') + '</span>'
+    + '<span id="lotteryHistoryToggle">▼</span></div>'
+    + '<div id="lotteryHistoryContent" style="display:none;margin-top:6px"></div>'
+    + '</div>';
+
   el.innerHTML = html;
 
   // Countdown timer
@@ -29759,6 +29781,72 @@ function quickBuyTickets(count) {
       btn.disabled = false;
       showToast('Error: ' + e.message, 'error');
     });
+}
+
+var _lotteryHistoryOpen = false;
+function toggleLotteryHistory() {
+  _lotteryHistoryOpen = !_lotteryHistoryOpen;
+  var c = document.getElementById('lotteryHistoryContent');
+  var tg = document.getElementById('lotteryHistoryToggle');
+  if (!c) return;
+  c.style.display = _lotteryHistoryOpen ? '' : 'none';
+  if (tg) tg.textContent = _lotteryHistoryOpen ? '▲' : '▼';
+  if (_lotteryHistoryOpen) loadLotteryHistory();
+}
+
+function loadLotteryHistory() {
+  var c = document.getElementById('lotteryHistoryContent');
+  if (!c) return;
+  c.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:8px">Loading...</div>';
+  var wallet = walletState.address || '';
+  var reqs = [fetch('/api/lottery/history?limit=10').then(function(r){ return r.json(); }).catch(function(){ return { history: [] }; })];
+  reqs.push(wallet
+    ? fetch('/api/lottery/my-tickets?wallet=' + wallet).then(function(r){ return r.json(); }).catch(function(){ return { tickets: [] }; })
+    : Promise.resolve({ tickets: [] }));
+  Promise.all(reqs).then(function(res) {
+    var history = (res[0] && res[0].history) || [];
+    var tickets = (res[1] && res[1].tickets) || [];
+    var html = '';
+
+    // 내 티켓
+    html += '<div style="font-size:9px;color:var(--cyan);font-weight:700;margin-bottom:4px">' + tl('MY TICKETS','내 티켓','マイチケット','我的彩票') + '</div>';
+    if (!wallet) {
+      html += '<div style="font-size:9px;color:var(--tx3);padding:2px 0 6px">' + tl('Connect wallet to view','지갑 연결 필요','ウォレット接続が必要','请连接钱包') + '</div>';
+    } else if (!tickets.length) {
+      html += '<div style="font-size:9px;color:var(--tx3);padding:2px 0 6px">' + tl('No tickets yet','보유 티켓 없음','チケットなし','暂无彩票') + '</div>';
+    } else {
+      html += '<div style="font-size:9px;color:var(--tx2);line-height:1.7;margin-bottom:6px">';
+      tickets.forEach(function(tk) {
+        var rn = tk.round_number != null ? tk.round_number : '?';
+        var stat = tk.round_status || '';
+        var won = stat === 'completed' && wallet && tk.winner_wallet && tk.winner_wallet.toLowerCase() === wallet.toLowerCase();
+        var tag = won ? '<span style="color:var(--gold)">🏆 ' + tl('WON','당첨','当選','中奖') + '</span>'
+          : (stat === 'open' ? '<span style="color:var(--cyan)">' + tl('OPEN','진행중','進行中','进行中') + '</span>'
+          : '<span style="color:var(--tx3)">' + (stat === 'cancelled' ? tl('CANCELLED','취소','キャンセル','已取消') : tl('CLOSED','종료','終了','已结束')) + '</span>');
+        html += '<div style="display:flex;justify-content:space-between"><span>#' + rn + '</span>' + tag + '</div>';
+      });
+      html += '</div>';
+    }
+
+    // 지난 회차
+    html += '<div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:4px">' + tl('PAST ROUNDS','지난 회차','過去のラウンド','往期') + '</div>';
+    if (!history.length) {
+      html += '<div style="font-size:9px;color:var(--tx3);padding:2px 0">' + tl('No past rounds','지난 회차 없음','過去のラウンドなし','暂无往期') + '</div>';
+    } else {
+      html += '<div style="font-size:9px;color:var(--tx2);line-height:1.7">';
+      history.forEach(function(h) {
+        var rn = h.round_number != null ? h.round_number : '?';
+        var prize = Math.round(parseFloat(h.prize_pool_gp) || 0);
+        var nick = h.winner_nick || (h.winner_wallet ? (h.winner_wallet.slice(0,6) + '...') : (h.status === 'cancelled' ? tl('cancelled','취소됨','キャンセル','已取消') : '—'));
+        html += '<div style="display:flex;justify-content:space-between"><span>#' + rn + ' · ' + nick + '</span><span style="color:var(--gold)">' + prize + ' GP</span></div>';
+      });
+      html += '</div>';
+    }
+
+    c.innerHTML = html;
+  }).catch(function() {
+    c.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:9px;padding:8px">Failed to load</div>';
+  });
 }
 
 
@@ -46436,6 +46524,7 @@ var factionState = {
   list: [],
   current: null,   // 내 현재 파벌
   selected: null,  // 모달에서 선택된 파벌
+  stats: [],       // 파벌별 점유율/인원 통계
 };
 
 async function loadFactions() {
@@ -46443,6 +46532,11 @@ async function loadFactions() {
     var listRes = await fetch('/api/factions');
     var listData = await listRes.json();
     factionState.list = listData.factions || [];
+    try {
+      var statsRes = await fetch('/api/factions/stats');
+      var statsData = await statsRes.json();
+      factionState.stats = statsData.stats || [];
+    } catch(_e) { factionState.stats = []; }
     if (_factionIsLoggedIn()) {
       var myRes = await fetch('/api/factions/mine', { headers: _factionAuthHeaders() });
       var myData = await myRes.json();
@@ -46469,14 +46563,42 @@ function openFactionModal() {
   } else {
     warning.style.display = 'none';
   }
+  // 파벌별 점유율 계산 (밸런스 유도 — 인원 적은 파벌이 보이게)
+  var _statMap = {};
+  (factionState.stats || []).forEach(function(s){ _statMap[s.code] = s; });
+  var _totalPlayers = (factionState.stats || []).reduce(function(a, s){ return a + (parseInt(s.player_count)||0); }, 0);
+  var _minShare = null;
+  (factionState.stats || []).forEach(function(s){
+    var pc = parseInt(s.player_count)||0;
+    if (_minShare === null || pc < _minShare.pc) _minShare = { code: s.code, pc: pc };
+  });
   cardsEl.innerHTML = factionState.list.map(function(f) {
     var isCurrent = factionState.current && factionState.current.code === f.code;
+    var st = _statMap[f.code] || {};
+    var playerCount = parseInt(st.player_count) || 0;
+    var shipsAlive = parseInt(st.ships_alive) || 0;
+    var sharePct = _totalPlayers > 0 ? Math.round((playerCount / _totalPlayers) * 100) : 0;
+    var isUnderdog = _minShare && _minShare.code === f.code && _totalPlayers > 0 && (factionState.stats||[]).length > 1;
+    var balLabel = tl('Players','인원','人員','人数');
+    var fleetLabel = tl('Fleet','함대','艦隊','舰队');
+    var underdogTxt = tl('Needs you','합류 추천','参加推奨','建议加入');
+    var statHtml = (factionState.stats && factionState.stats.length)
+      ? '<div class="faction-balance">'
+        + '<div class="faction-balance-bar"><div class="faction-balance-fill ' + f.code + '" style="width:' + sharePct + '%"></div></div>'
+        + '<div class="faction-balance-meta">'
+          + '<span>' + balLabel + ' <b>' + playerCount + '</b> · ' + sharePct + '%</span>'
+          + '<span>' + fleetLabel + ' <b>' + shipsAlive + '</b></span>'
+        + '</div>'
+        + (isUnderdog ? '<div class="faction-balance-underdog">★ ' + underdogTxt + '</div>' : '')
+      + '</div>'
+      : '';
     return '<div class="faction-card ' + f.code + (isCurrent ? ' current' : '') + '" data-code="' + f.code + '" onclick="selectFaction(\'' + f.code + '\')">'
       + '<div class="faction-icon">' + (f.icon_emoji||'⬢') + '</div>'
       + '<div class="faction-name ' + f.code + '">' + f.name_ko + '</div>'
       + '<div class="faction-desc">' + (f.description_ko||'') + '</div>'
       + '<div class="faction-specialty">' + (f.specialty_ko||'') + '</div>'
       + '<div class="faction-stats"><span>공격<b>' + f.atk_multiplier + '</b></span><span>방어<b>' + f.def_multiplier + '</b></span><span>속도<b>' + f.spd_multiplier + '</b></span></div>'
+      + statHtml
       + '</div>';
   }).join('');
   factionState.selected = null;
@@ -49290,6 +49412,74 @@ let battleHubState = {
   currentTab: 'active',
   pollTimer: null,
 };
+
+var _battleRewardsHistoryOpen = false;
+function toggleBattleRewardsHistory() {
+  _battleRewardsHistoryOpen = !_battleRewardsHistoryOpen;
+  var wrap = document.getElementById('battleRewardsHistoryWrap');
+  if (!wrap) return;
+  wrap.style.display = _battleRewardsHistoryOpen ? '' : 'none';
+  if (_battleRewardsHistoryOpen) loadBattleRewardsHistory();
+}
+
+function loadBattleRewardsHistory() {
+  var el = document.getElementById('battleRewardsHistoryContent');
+  if (!el) return;
+  if (!isLoggedIn()) {
+    el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">' + tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录') + '</div>';
+    return;
+  }
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">Loading...</div>';
+  fetch('/api/battles/rewards/mine?limit=20', { headers: getAuthHeaders() })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (data && data.error) { el.innerHTML = '<div style="text-align:center;color:var(--mars);padding:6px">' + data.error + '</div>'; return; }
+      var rewards = (data && data.rewards) || [];
+      var totalGp = (data && data.total_gp) || 0;
+      if (!rewards.length) {
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">' + tl('No battle rewards yet','전투 보상 이력 없음','戦闘報酬の履歴なし','暂无战斗奖励') + '</div>';
+        return;
+      }
+      var html = '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--gold);font-weight:700;margin-bottom:5px">'
+        + '<span>' + tl('MY BATTLE REWARDS','내 전투 보상','戦闘報酬','我的战斗奖励') + '</span>'
+        + '<span>' + tl('Total','합계','合計','合计') + ' ' + Math.round(parseFloat(totalGp) || 0) + ' GP</span></div>';
+      html += '<div style="font-size:9px;color:var(--tx2);line-height:1.8;max-height:160px;overflow-y:auto">';
+      rewards.forEach(function(rw) {
+        var won = rw.is_winner;
+        var gp = Math.round(parseFloat(rw.gp_awarded) || 0);
+        var bt = rw.battle_type || tl('battle','전투','戦闘','战斗');
+        var when = rw.created_at ? _battleRewardTimeAgo(rw.created_at) : '';
+        var minerals = '';
+        try {
+          var mo = (typeof rw.minerals_awarded === 'string') ? JSON.parse(rw.minerals_awarded) : (rw.minerals_awarded || {});
+          var keys = Object.keys(mo || {});
+          if (keys.length) minerals = ' · ' + keys.map(function(k){ return k + '×' + mo[k]; }).join(' ');
+        } catch(_e) {}
+        var resultTag = won ? '<span style="color:var(--gold)">🏆 ' + tl('WIN','승','勝','胜') + '</span>' : '<span style="color:var(--tx3)">' + tl('LOSS','패','敗','败') + '</span>';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.05);padding:2px 0">'
+          + '<span>' + resultTag + ' <span style="color:var(--tx3)">' + bt + (when ? ' · ' + when : '') + '</span></span>'
+          + '<span style="color:var(--gold)">+' + gp + ' GP' + '<span style="color:var(--cyan)">' + minerals + '</span></span></div>';
+      });
+      html += '</div>';
+      el.innerHTML = html;
+    })
+    .catch(function() {
+      el.innerHTML = '<div style="text-align:center;color:var(--mars);padding:6px">Failed to load</div>';
+    });
+}
+
+function _battleRewardTimeAgo(ts) {
+  try {
+    var diff = Date.now() - new Date(ts).getTime();
+    if (isNaN(diff)) return '';
+    var m = Math.floor(diff / 60000);
+    if (m < 1) return tl('now','방금','たった今','刚刚');
+    if (m < 60) return m + tl('m ago','분 전','分前','分钟前');
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + tl('h ago','시간 전','時間前','小时前');
+    return Math.floor(h / 24) + tl('d ago','일 전','日前','天前');
+  } catch(_e) { return ''; }
+}
 
 async function openBattleHub() {
   if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
