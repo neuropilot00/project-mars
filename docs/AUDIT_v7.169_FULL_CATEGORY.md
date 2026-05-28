@@ -27,9 +27,9 @@
 | **D-Crit-1** | `index.html:28163-28176` | `renderCampaignReputation` 이 `[mcc/fsp/cv]` 3종만 순회 → **Pilgrim Arms 평판 안 보임** | 🟢 v7.170 | 4종 확장 + 보라 색상(`#c08bff`) 추가 |
 | **D-Crit-2** | `index.html` 전체 | 활성 칭호 장착 UI **0건** (백엔드 완비) | 🔴 차후 | UI 모달 별도 라운드 |
 | **D-Crit-3** | `campaign.js:1769-1773` | `reputation_history` UI/API 노출 0 | 🔴 차후 | 화면 별도 라운드 |
-| **E-Crit** | `index.html:24210-24273` | `enhancementAdvanced` (recipe + protect/blessed scroll) UI 0 | 🔴 차후 | 큰 모달 변경 별도 라운드 |
+| **E-Crit** | `index.html:24218+` | `enhancementAdvanced` (recipe + protect/blessed scroll) UI 0 | 🟢 v7.171 | 신규 enhanceAdvModal — /enhance/info fetch + scroll 토글 + recipe 표시 |
 | **F-Crit-1** | i18n 4언어 블록 | ZH-only 21·JA/ZH 6·KO 4 누락 | 🔴 차후 | 키 백필 별도 라운드 |
-| **F-Crit-2** | 버튼 780개 중 aria 12개 | 이모지 버튼 스크린리더 무명 | 🔴 차후 | 핵심 버튼 aria 별도 |
+| **F-Crit-2** | 버튼 780개 중 aria 12개 | 이모지 버튼 스크린리더 무명 | 🟡 v7.171 부분 | 핵심 5(CRATES/CAMPAIGN/PORTFOLIO/ZB 줌3) aria 추가. 나머지 buttons 잔여 |
 | **G-Crit-1** | `_liveWS.onmessage` 2종만 처리 | `cmd_err/error/notification` 사일런트 무시 | 🟢 v7.170 | 핸들러 3종 추가 + 토스트/폴링 갱신 |
 | **G-Crit-2** | `index.js` CORS `endsWith` | wildcard 우회 가능 | 🟢 v7.170 | 정규식 매칭(메타이스케이프 + `[a-z0-9-]+`) |
 | **G-Crit-3** | `index.html:21121,21346` | JWT localStorage XSS 노출 | ⚙ 별도 라운드 | httpOnly cookie 전환 필요 |
@@ -41,11 +41,11 @@
 | ID | 위치 | 결함 | 우선순위 |
 |---|---|---|---|
 | A-M1 | `auth.js:538-701` | `/api/auth/link-wallet` 700줄 고아 — 외부 지갑 졸업 동선 0 | 후속 |
-| A-M2 | `index.html:16449` | reveal-key 에러 메시지 ko-only | v7.170 |
+| A-M2 | `index.html:16449` | reveal-key 에러 메시지 ko-only | 🟢 v7.171 — 5 에러 코드 4언어 |
 | A-M3 | `auth.js:215-223` | 추천 자동 적용 — VPN 우회 가능 | 후속 |
 | A-M4 | `auth.js:111` vs `index.html:21270` | 비밀번호 정책 클라/서버 불일치 (클라 6자/서버 8+복잡) | v7.170 |
 | A-M5 | `index.html:21354` | `pw_rem_pass` Base64 평문 localStorage 저장 | 🟢 v7.170 — 저장 제거 + auto-login 비활성 + cleanup |
-| A-M6 | `auth.js:155` | 닉네임 정규식 — 한글/일/중 닉네임 차단 | v7.170 |
+| A-M6 | `auth.js:155` | 닉네임 정규식 — 한글/일/중 닉네임 차단 | 🟢 v7.171 — `\p{L}\p{N}` 유니코드 글자/숫자 |
 | A-M7 | onboarding routes 분산 | 두 mount 충돌 가능 | 후속(문서화) |
 | B-M1 | `bounty.js:11` + `territoryIdentity.js:7,171` | `/api/sectors/conflict-map` 중복 정의 | v7.170 |
 | B-M2 | `index.html:33964` | POI 마커 렌더 경로 불명 | 후속(점검) |

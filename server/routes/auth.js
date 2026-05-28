@@ -147,12 +147,14 @@ router.post('/register', authLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Invalid email format' });
   }
 
-  // Validate nickname if provided
+  // [v7.171 A-M6 fix] 닉네임 정규식 — 한글/일본어/중국어 허용. ASCII-only 차단으로 다국어 사용자 가입 막혔던 결함.
+  //   허용: Unicode letter(\p{L}) + 숫자 + 일부 기호. 제어 문자·XSS 메타문자(<>"'`) 차단.
   if (nickname !== undefined && nickname !== null && nickname !== '') {
     if (typeof nickname !== 'string' || nickname.length > 50) {
       return res.status(400).json({ error: 'Nickname too long (max 50 chars)' });
     }
-    if (!/^[a-zA-Z0-9_\-. ]+$/.test(nickname)) {
+    // 허용 문자: 유니코드 글자/숫자(\p{L}/\p{N}) + 일부 안전 기호. 제어/HTML 메타 차단.
+    if (!/^[\p{L}\p{N}_\-. ]+$/u.test(nickname)) {
       return res.status(400).json({ error: 'Nickname may only contain letters, numbers, underscores, hyphens, dots, and spaces' });
     }
   }

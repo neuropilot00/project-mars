@@ -5675,7 +5675,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button class="wa-btn swp" onclick="openExchangeModal()" style="color:var(--gn);border-color:rgba(0,230,118,.3)">PP→GP</button>
         <button class="wa-btn dis" onclick="logoutEmail()" data-i18n="logout_btn">LOGOUT</button>
       </div>
-      <button class="wa-btn" onclick="openPortfolioModal()" style="width:100%;margin-top:4px;background:linear-gradient(135deg,rgba(184,140,255,.18),rgba(79,195,247,.10));border:1px solid rgba(184,140,255,.42);color:#e7d6ff;font-weight:800;letter-spacing:.6px" data-i18n="my_assets_btn">🪐 MY ASSETS</button>
+      <button class="wa-btn" onclick="openPortfolioModal()" aria-label="My assets portfolio" style="width:100%;margin-top:4px;background:linear-gradient(135deg,rgba(184,140,255,.18),rgba(79,195,247,.10));border:1px solid rgba(184,140,255,.42);color:#e7d6ff;font-weight:800;letter-spacing:.6px" data-i18n="my_assets_btn">🪐 MY ASSETS</button>
     </div>
   </div>
   <!-- REFERRAL PROGRAM (below wallet) -->
@@ -5943,9 +5943,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Zoom + Back -->
 <div class="zc">
-  <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="background:var(--surface2);border-color:rgba(255,107,53,.5);margin-bottom:6px">↩</button>
-  <button class="zb" onclick="zoomIn()">+</button>
-  <button class="zb" onclick="zoomOut()">−</button>
+  <button class="zb back-btn" onclick="goBack()" title="Back to overview" aria-label="Back to overview" style="background:var(--surface2);border-color:rgba(255,107,53,.5);margin-bottom:6px">↩</button>
+  <button class="zb" onclick="zoomIn()" aria-label="Zoom in">+</button>
+  <button class="zb" onclick="zoomOut()" aria-label="Zoom out">−</button>
   <button class="zb" id="sectorToggleBtn" onclick="toggleSectorOverlay()" title="Toggle sectors" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 2px"><span id="sectorToggleLabel" data-i18n="sectors_btn" style="font-size:7px;letter-spacing:-.3px;line-height:1;white-space:nowrap">SECTORS</span></button>
   <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="My territories" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)" data-i18n="nav_my_land">MY LAND</button>
 </div>
@@ -5970,13 +5970,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </button>
 </div>
 
-<button class="crates-quick" id="cratesQuickBtn" onclick="openGacha()" title="Ship Crates">
+<!-- [v7.171 F-Crit-2 fix] aria-label 추가 — 스크린리더 접근성 -->
+<button class="crates-quick" id="cratesQuickBtn" onclick="openGacha()" title="Ship Crates" aria-label="Open ship crate gacha">
   <span class="crates-quick-icon">🎲</span>
   <span data-i18n="open_gacha_label">SHIP CRATES</span>
   <span class="crates-quick-sub" data-i18n="open_gacha_sub">GACHA</span>
 </button>
 
-<button class="campaign-quick" id="campaignQuickBtn" onclick="openCampaignHub()" title="Open campaign">
+<button class="campaign-quick" id="campaignQuickBtn" onclick="openCampaignHub()" title="Open campaign" aria-label="Open campaign hub">
   <span class="campaign-quick-icon">⚡</span>
   <span>CAMPAIGN</span>
   <span class="campaign-quick-sub">STORY</span>
@@ -16446,8 +16447,15 @@ function confirmRevealKey(){
         document.getElementById('exportKeyWarn').style.display='none';
         document.getElementById('exportKeyResult').style.display='';
       } else {
-        var msg=d.error==='no_custodial_key'?tl('This account has no exportable key (external wallet).','이 계정은 내보낼 키가 없습니다(외부 지갑).','このアカウントにエクスポート可能な鍵はありません','此账户无可导出密钥')
-          :(d.message||d.error||'failed');
+        // [v7.171 A-M2 fix] reveal-key 에러 4언어 — 기존엔 no_custodial_key 1개만 다국어, 나머지는 영문 raw.
+        var em = {
+          no_custodial_key: tl('This account has no exportable key (external wallet).','이 계정은 내보낼 키가 없습니다(외부 지갑).','このアカウントにエクスポート可能な鍵はありません','此账户无可导出密钥'),
+          invalid_password: tl('Incorrect password.','비밀번호가 일치하지 않습니다.','パスワードが正しくありません','密码不正确'),
+          invalid_token: tl('Session expired — please log in again.','세션이 만료됐습니다 — 다시 로그인하세요.','セッション期限切れ — 再ログインしてください','会话已过期，请重新登录'),
+          rate_limited: tl('Too many attempts — try again later.','시도 횟수 초과 — 잠시 후 다시 시도하세요.','試行回数超過 — 後で再試行','尝试次数过多，请稍后再试'),
+          server_error: tl('Server error — try again.','서버 오류 — 다시 시도하세요.','サーバーエラー — 再試行してください','服务器错误，请重试')
+        };
+        var msg = em[d.error] || d.message || d.error || tl('Failed','실패','失敗','失败');
         showToast(msg,'error');
         if(btn){ btn.disabled=false; btn.textContent=t('export_key_reveal_btn')||'REVEAL PRIVATE KEY'; }
       }
@@ -24216,6 +24224,9 @@ function dematerializeItem(instanceId){
 }
 
 function openEnhanceModal(instanceId){
+  // [v7.171 E-Crit fix] enhancementAdvanced 백엔드(스크롤·레시피) 완비됐는데 UI 노출 0이었음.
+  //   이제 /api/enhance/info/:id 로 scroll_status + available_recipes 받아 모달에 노출.
+  //   protect/blessed scroll 보유 시 토글로 강화 안전성 즉시 향상 가능.
   var inst=_enhInstances.find(function(i){return i.id===instanceId});
   if(!inst) return showToast('Item not found','error');
   var lv=inst.enhancement_level||0;
@@ -24225,35 +24236,72 @@ function openEnhanceModal(instanceId){
   var myGP=walletState.gameGP||0;
   var insufficient=myGP<gpCost;
   var maxed=lv>=10;
-
-  var infoRows=[];
-  if(!maxed){
-    infoRows.push({k:t('enh_current_level')||'Current Level',v:'+'+lv});
-    infoRows.push({k:t('enh_next_level')||'Next Level',v:'+'+(lv+1)});
-    infoRows.push({k:t('enh_cost')||'Cost',v:gpCost+' GP'});
-    infoRows.push({k:t('enh_balance')||'Balance',v:Math.floor(myGP)+' GP',insufficient:insufficient});
-    if(rate) infoRows.push({k:t('enh_success_rate')||'Success Rate',v:rate.rate+'%'});
-  }else{
-    infoRows.push({k:t('enh_current_level')||'Current Level',v:'+10 MAX',ok:true});
+  if(maxed){
+    return gameConfirm({title:(inst.icon||'')+' '+(inst.name||'Item')+' +10', icon:'✨', body:t('enh_maxed_body')||'This item has reached maximum enhancement.', confirmText:'OK', disabled:true});
   }
 
-  gameConfirm({
-    title:(inst.icon||'')+' '+(inst.name||'Item')+_enhBadge(lv).replace(/<[^>]+>/g,' +'+lv),
-    icon:'🔨',
-    body:maxed?(t('enh_maxed_body')||'This item has reached maximum enhancement.'):(t('enh_body')||'Attempt to enhance this item. On failure: level may stay, drop, or the item may be destroyed.'),
-    info:infoRows,
-    confirmText:maxed?'MAX':t('enh_confirm')||'ENHANCE',
-    disabled:maxed||insufficient
-  }).then(function(ok){
-    if(!ok) return;
-    attemptEnhance(instanceId);
+  // 스크롤·레시피 정보 비동기 fetch — 폴백: 정보 없으면 기존 흐름 그대로 동작
+  var w=(walletState&&walletState.address)||'';
+  var infoUrl='/api/enhance/info/'+instanceId+(w?('?wallet='+encodeURIComponent(w)):'');
+  fetch(infoUrl,{headers:getAuthHeaders()}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}).then(function(info){
+    _showEnhanceModalWithInfo(inst, lv, gpCost, myGP, insufficient, rate, info);
   });
 }
+function _showEnhanceModalWithInfo(inst, lv, gpCost, myGP, insufficient, rate, info){
+  var old=document.getElementById('enhanceAdvModal'); if(old) old.remove();
+  var protectOwned=(info&&info.scroll_status&&info.scroll_status.protect&&info.scroll_status.protect.owned)||0;
+  var blessedOwned=(info&&info.scroll_status&&info.scroll_status.blessed&&info.scroll_status.blessed.owned)||0;
+  var recipes=(info&&Array.isArray(info.available_recipes))?info.available_recipes:[];
+  var el=document.createElement('div');
+  el.id='enhanceAdvModal';
+  el.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.82);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
+  el.onclick=function(e){ if(e.target===el) el.remove(); };
+  function statRow(icon,label,val,extra){
+    return '<div style="display:flex;justify-content:space-between;padding:6px 11px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:5px"><span style="font-size:11px;color:var(--tx2)">'+icon+' '+label+'</span><span style="font-size:12px;font-weight:800;color:'+(extra==='insufficient'?'#ff5252':'#fff')+'">'+val+'</span></div>';
+  }
+  var html='<div style="position:relative;width:min(440px,94vw);max-height:92vh;overflow:auto;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(255,209,102,.18),rgba(10,12,22,.98) 65%);border:1.5px solid rgba(255,209,102,.55);box-shadow:0 0 30px rgba(255,209,102,.25),0 18px 60px rgba(0,0,0,.7);padding:20px;animation:crPop .3s cubic-bezier(.2,1.3,.5,1)">'
+    + '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#ffd166">🔨 '+tl('ENHANCE','강화','強化','强化')+' '+(inst.icon||'')+' '+(inst.name||'Item')+' +'+lv+' → +'+(lv+1)+'</div>'
+    + '<div style="margin-top:13px">'
+    +   statRow('💰', tl('Cost','비용','コスト','费用'), gpCost+' GP')
+    +   statRow('💎', tl('Balance','보유 GP','残高','余额'), Math.floor(myGP)+' GP', insufficient?'insufficient':'')
+    +   (rate ? statRow('📊', tl('Success rate','성공 확률','成功率','成功率'), rate.rate+'%') : '')
+    + '</div>';
+  // 스크롤 토글
+  if (protectOwned>0 || blessedOwned>0) {
+    html += '<div style="margin-top:12px;padding:11px;border-radius:9px;background:rgba(184,140,255,.07);border:1px solid rgba(184,140,255,.3)">'
+      + '<div style="font-size:10px;font-weight:800;color:#caa8ff;letter-spacing:.8px;margin-bottom:6px">📜 '+tl('SCROLLS — Enhance safety','스크롤 — 강화 안전 옵션','スクロール — 強化安全オプション','卷轴 — 强化安全选项')+'</div>';
+    if (protectOwned>0) {
+      html += '<label style="display:flex;align-items:center;gap:7px;font-size:10px;color:#e8d8ff;cursor:pointer;padding:3px 0"><input type="checkbox" id="enhUseProtect" style="cursor:pointer"> 🛡 '+tl('Protect scroll','보호 스크롤','保護スクロール','保护卷轴')+' — '+tl('No level drop on failure','실패 시 레벨 유지','失敗時もレベル維持','失败时保留等级')+' ('+protectOwned+' '+tl('owned','보유','所持','持有')+')</label>';
+    }
+    if (blessedOwned>0) {
+      html += '<label style="display:flex;align-items:center;gap:7px;font-size:10px;color:#e8d8ff;cursor:pointer;padding:3px 0"><input type="checkbox" id="enhUseBlessed" style="cursor:pointer"> ✨ '+tl('Blessed scroll','축복 스크롤','祝福スクロール','祝福卷轴')+' — '+tl('Success rate boost','성공률 +20%','成功率+20%','成功率 +20%')+' ('+blessedOwned+' '+tl('owned','보유','所持','持有')+')</label>';
+    }
+    html += '</div>';
+  }
+  // 레시피
+  if (recipes && recipes.length) {
+    html += '<div style="margin-top:10px;padding:9px;border-radius:9px;background:rgba(76,216,154,.06);border:1px solid rgba(76,216,154,.25)"><div style="font-size:10px;font-weight:800;color:#5cd6a8;letter-spacing:.5px;margin-bottom:4px">🧪 '+tl('AVAILABLE RECIPES (bonus)','적용 가능 레시피 (보너스)','適用可能レシピ(ボーナス)','可用配方（加成）')+'</div>'
+      + recipes.slice(0,3).map(function(r){return '<div style="font-size:9.5px;color:rgba(232,245,255,.85);padding:2px 0">• '+escapeHtmlSafe(r.label||r.id||'recipe')+(r.bonus_pct?' (+'+r.bonus_pct+'%)':'')+'</div>';}).join('')
+      + '</div>';
+  }
+  html += '<div style="margin-top:15px;display:flex;gap:8px">'
+    + '<button type="button" onclick="document.getElementById(\'enhanceAdvModal\').remove()" style="flex:1;padding:11px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">'+tl('CANCEL','취소','キャンセル','取消')+'</button>'
+    + '<button type="button" '+(insufficient?'disabled':'')+' onclick="(function(){var u={useProtectScroll:(document.getElementById(\'enhUseProtect\')||{}).checked||false,useBlessedScroll:(document.getElementById(\'enhUseBlessed\')||{}).checked||false};document.getElementById(\'enhanceAdvModal\').remove();attemptEnhance('+inst.id+',u);})()" style="flex:1.4;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,209,102,.5),rgba(255,209,102,.15));border:1px solid rgba(255,209,102,.7);color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:'+(insufficient?'not-allowed':'pointer')+';opacity:'+(insufficient?'.5':'1')+'">🔨 '+tl('ENHANCE','강화','強化','强化')+'</button>'
+    + '</div></div>';
+  el.innerHTML = html;
+  document.body.appendChild(el);
+}
 
-function attemptEnhance(instanceId){
+function attemptEnhance(instanceId, opts){
+  // [v7.171 E-Crit fix] opts 인자 추가 — useProtectScroll/useBlessedScroll/recipeIds 전달 가능.
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/enhance',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,instanceId:instanceId})})
+  opts = opts || {};
+  var body = { wallet:w, instanceId:instanceId };
+  if (opts.useProtectScroll) body.use_protect_scroll = true;
+  if (opts.useBlessedScroll) body.use_blessed_scroll = true;
+  if (Array.isArray(opts.recipeIds) && opts.recipeIds.length) body.recipe_ids = opts.recipeIds;
+  fetch('/api/enhance',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');return;}
     // Refresh GP balance

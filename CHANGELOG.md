@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.171 — Tier 2 감사 후속 4건 (Enhancement UI · 닉네임 · reveal-key · aria)
+
+- **E-Crit**: enhancementAdvanced 백엔드(scroll/recipe) 완비됐는데 UI 0건이던 결함 → 신규 `enhanceAdvModal` 모달:
+  - `GET /api/enhance/info/:id?wallet=...` async fetch → `scroll_status` + `available_recipes` 표시
+  - 🛡 Protect Scroll · ✨ Blessed Scroll 보유 시 체크박스 토글
+  - 적용 가능 레시피 최대 3개 미리보기 + bonus%
+  - `attemptEnhance(id, opts)` 시그니처 확장 — useProtectScroll/useBlessedScroll/recipeIds 전달
+- **A-M6**: 닉네임 정규식 `^[a-zA-Z0-9_\-. ]+$` → `^[\p{L}\p{N}_\-. ]+$/u` — 한글/일본어/중국어 등 유니코드 글자 허용. 다국어 사용자 가입 차단 해소.
+- **A-M2**: `reveal-key` 에러 메시지 ko-only → 5개 코드(no_custodial_key/invalid_password/invalid_token/rate_limited/server_error) 4언어.
+- **F-Crit-2 부분**: 핵심 5 버튼(CRATES/CAMPAIGN/PORTFOLIO/ZB back/zoom-in/zoom-out) aria-label 추가. 나머지 buttons 잔여(별도 라운드).
+
+AUDIT 문서 상태 갱신(🟢/🟡/🔴/⚙). 모든 수정 코드에 `[v7.171 X-XX fix]` 주석.
+
 ## 2026-05-28 v7.170 — 풀카테고리 감사 Tier 1 일괄 차단 (7개 Critical/Medium)
 
 7 페르소나 풀카테고리 감사(v7.169) 결과 — Critical/Medium 즉시 처리 가능한 7건 한 번에 차단. 상세는 `docs/AUDIT_v7.169_FULL_CATEGORY.md`.
