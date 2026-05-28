@@ -8917,7 +8917,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
         <input type="email" class="auth-input" id="authEmailInput" placeholder="email@example.com" data-i18n-placeholder="email_placeholder">
         <div class="auth-pass-wrap">
-          <input type="password" class="auth-input" id="authPassInput" placeholder="Password (6+ chars)" data-i18n-placeholder="password_placeholder">
+          <!-- [v7.173 A-M4 fix] 비밀번호 정책 일관화 — 서버 8자+대소문자+숫자+특수문자 요구. placeholder 와 검증 양쪽 8자 통일. -->
+          <input type="password" class="auth-input" id="authPassInput" placeholder="Password (8+ chars · Aa1!)" data-i18n-placeholder="password_placeholder">
           <button type="button" class="pass-eye" id="passEyeBtn" onclick="togglePassEye()">👁</button>
         </div>
         <div id="registerFields" style="display:none">
@@ -16872,7 +16873,7 @@ var I18N = {
     login: 'LOGIN', register: 'REGISTER', logout: 'LOGOUT', account: 'ACCOUNT',
     email_login: 'EMAIL LOGIN / REGISTER', my_wallet: 'MY WALLET',
     wallet_cta_desc: 'Login to deposit USDT,<br>claim territories & earn rewards',
-    email_placeholder: 'email@example.com', password_placeholder: 'Password (6+ chars)',
+    email_placeholder: 'email@example.com', password_placeholder: 'Password (8+ chars · Aa1!)',
     nickname_placeholder: 'Nickname (optional)', referral_placeholder: 'Referral code (optional)',
     or: 'OR', email_wallet_note: 'Your email account has a built-in game wallet.<br>Use DEPOSIT to get your deposit address.',
     game_wallet: 'GAME WALLET', usdt_balance: 'USDT BALANCE', pp_balance: 'PP BALANCE',
@@ -21292,7 +21293,12 @@ async function doResetStep2(){
   var errEl=document.getElementById('resetStep2Err');
   errEl.textContent='';
   if(!code||code.length!==6){errEl.textContent=LANG==='ko'?'6자리 인증코드를 입력하세요':LANG==='ja'?'6桁の認証コードを入力してください':LANG==='zh'?'请输入6位验证码':'Enter the 6-digit code';return}
-  if(!newPass||newPass.length<6){errEl.textContent=LANG==='ko'?'비밀번호는 6자 이상':LANG==='ja'?'パスワードは6文字以上':LANG==='zh'?'密码至少6位':'Password must be at least 6 characters';return}
+  // [v7.173 A-M4 fix] 서버 정책(8자+대소문자+숫자+특수문자)에 맞춰 클라 검증 강화 — 이전 6자만 통과시켜 서버 거절 빈발했음.
+  if(!newPass||newPass.length<8){errEl.textContent=tl('Password must be at least 8 characters','비밀번호는 8자 이상','パスワードは8文字以上','密码至少8位');return}
+  if(!/[A-Z]/.test(newPass)||!/[a-z]/.test(newPass)||!/[0-9]/.test(newPass)||!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPass)){
+    errEl.textContent=tl('Need uppercase, lowercase, number, special char','대문자·소문자·숫자·특수문자 모두 필요','大文字・小文字・数字・特殊文字すべて必要','需包含大写、小写、数字与特殊字符');
+    return;
+  }
   if(newPass!==confirmPass){errEl.textContent=LANG==='ko'?'비밀번호가 일치하지 않습니다':LANG==='ja'?'パスワードが一致しません':LANG==='zh'?'密码不一致':'Passwords do not match';return}
   var btn=document.getElementById('resetStep2Btn');
   btn.disabled=true;btn.textContent=LANG==='ko'?'변경 중...':LANG==='ja'?'変更中...':LANG==='zh'?'更改中...':'Updating...';

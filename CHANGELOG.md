@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.173 — ServiceWorker 배너 캐시 진짜 원인 차단 + Tier 3 잔여 처리
+
+**배너 안 바뀜 진짜 원인 확정** — sw.js(mars-v10) 의 cache-first 가 `/assets/base/*` 를 영구 캐싱. 서버 Cache-Control: no-cache 무관. 다음 배포 시 자동 갱신:
+- `CACHE_NAME` v10 → **v11** bump → activate 시 옛 캐시 전체 폐기.
+- `/assets/base/` + `/assets/banners/` 도 `/assets/campaign/` 와 동일하게 **network-first** 처리. 배너 재생성 시 즉시 반영.
+- 사용자 다음 페이지 로드 시 자동 SW 업데이트 → 화면 갱신.
+
+**Tier 3 잔여 처리**:
+- **A-M4 비밀번호 정책 일관화** — 클라 6자만 검증 → 서버 8자+대소문자+숫자+특수문자와 일치하도록 강화. placeholder 도 "8+ chars · Aa1!" 로 명확화. reset 흐름 검증 4언어.
+- **C-M3 Hijack Phase 2 자동 시작 시 방어자 알림** — `startPhase2` 가 silent 였음. `notifyPlayer(defWallet, '🚨 영토 방어! Phase 2 시작')` 추가. 사용자가 모르고 패배하던 케이스 차단.
+
 ## 2026-05-28 v7.172 — 풀 리소스 병렬 처리 (Codex 2 백그라운드 + 직접 4건)
 
 7 페르소나 감사 잔여 Critical 다수를 한 라운드에 일괄 처리. Codex CLI 2건 백그라운드 + Claude 직접 4건 병렬.

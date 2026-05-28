@@ -10,7 +10,10 @@
 //   NASA 화성 텍스처(mars_nasa_2k.jpg)가 일시적 500을 받은 뒤 SW가 그 500을 영구 캐시 →
 //   cache-first 라 매번 깨진 500을 반환 → 프로시저럴 텍스처로 폴백되던 문제. v10 으로 올려
 //   activate 시 오염된 v9 캐시를 전부 삭제하고, 이제 2xx 응답만 캐시한다.
-const CACHE_NAME = 'mars-v10';
+// 2026-05-28 v11: /assets/base/ 와 /assets/banners/ 도 network-first 로 전환.
+//   BASE 모달 배너(fleet/pvp/governance 등) 실사풍 재생성 후에도 cache-first 에 막혀
+//   사용자 화면이 옛 픽셀아트로 고착되던 문제. v10 cache 전체 폐기 + 배너 경로 fresh fetch.
+const CACHE_NAME = 'mars-v11';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
@@ -89,7 +92,11 @@ self.addEventListener('fetch', (e) => {
   }
 
   // Network-first for campaign assets (AI 재생성으로 자주 교체됨 — cache-first 금지)
-  if (url.pathname.startsWith('/assets/campaign/')) {
+  // [v7.173 SW-fix] /assets/base/ (BASE 모달 9 배너) + /assets/banners/ (가챠 5 배너)도
+  //   같은 정책. 실사풍 재생성 후 cache-first 에 막혀 옛 픽셀아트 고착되던 문제 차단.
+  if (url.pathname.startsWith('/assets/campaign/') ||
+      url.pathname.startsWith('/assets/base/') ||
+      url.pathname.startsWith('/assets/banners/')) {
     e.respondWith(
       fetch(new Request(e.request, { cache: 'reload' }))
         .then((res) => {

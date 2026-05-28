@@ -281,12 +281,28 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
     `, [phase2BattleId, atkFleetId, walletAddress, defFleetId, defWallet]);
     
     await client.query(`
-      UPDATE hijack_battles 
+      UPDATE hijack_battles
       SET phase2_battle_id = $1, phase2_started_at = NOW()
       WHERE id = $2
     `, [phase2BattleId, hijackId]);
-    
+
     await client.query('COMMIT');
+
+    // [v7.173 C-M3 fix] Phase 2 자동 시작 시 방어자에게 in-game 알림 push (이전엔 silent 였음).
+    //   사용자가 자기 영토 하이잭이 Phase 2 로 진행됐다는 사실을 모르고 패배하는 경우가 있었음.
+    //   notifyPlayer fire-and-forget — 실패해도 메인 흐름 영향 0.
+    if (defWallet) {
+      try {
+        const { notifyPlayer } = require('../db');
+        if (typeof notifyPlayer === 'function') {
+          notifyPlayer(defWallet,
+            '🚨 영토 방어! Hijack Phase 2 시작 — 함대를 점검하세요',
+            'hijack_phase2_start',
+            { hijack_id: hijackId, battle_id: phase2BattleId, claim_id: hijack.target_claim_id }
+          ).catch(() => {});
+        }
+      } catch (_) {}
+    }
     
     // Phase 2 즉시 실행
     const battleScheduler = require('./battleScheduler');
