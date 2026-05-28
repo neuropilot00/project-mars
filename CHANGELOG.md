@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.148 — 조선소/가챠 UI 정렬 + 가챠샵 강화 + 메인 진입 버튼
+
+UI 검수 피드백 반영:
+- **카드 버튼 하단 정렬**: `.bp-card` flex-column + `.bp-build-btn`/개봉 버튼 `margin-top:auto`. 재료 수·콘텐츠량 달라도 "재료 확인"/"개봉" 버튼이 카드 하단에 통일 정렬(들쑥날쑥 해소). 그리드 stretch 로 카드 높이 동일.
+- **가챠샵 강화**: 상자 카드에 **함선 배너 이미지(등급별 함선 PNG) + 등급 글로우/그라데이션**. 밋밋한 텍스트 3개 → 화려한 비주얼.
+- **메인 화면 가챠 버튼**: MY BASE 패널에 `🎲 SHIP CRATES`(4언어) + `openGacha()`(조선소→상자 탭 바로 이동).
+- 검증: 인라인 JS 0 errors, DOM 렌더 확인(카드3+배너3+버튼 하단정렬), 배너 이미지 존재.
+
+## 2026-05-28 v7.147 — 영토 일괄 정비(TEND ALL)
+
+다수 영토 관리 노동 완화: `territoryCondition.tendAll` + `POST /api/territory/tend-all` + 내 영토 헤더 🔧 TEND ALL 버튼(4언어). condition<100+쿨다운 경과분을 GP 여유 한도(territory_tend_all_max=50)까지 일괄 정비. 실측 검증.
+
 ## 2026-05-28 v7.146 — 코어행동 XP 연결 + 가이드 커스터디 면책 섹션
 
 상용화 후속(게임성/가이드):
