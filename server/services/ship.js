@@ -389,7 +389,10 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
       INSERT INTO ship_build_log (wallet_address, ship_type_code, gp_cost, minerals_used, result)
       VALUES ($1, $2, $3, $4, 'success')
     `, [walletAddress, shipTypeCode, gpCost, JSON.stringify(recipe)]);
-    
+
+    // [코어행동 XP] 함선 건조 착수 시 XP — 진행감을 건조 행동과 연결
+    try { const { awardXP } = require('../db'); const buildXp = parseInt(await getSetting('ship_build_xp', '10')) || 10; if (buildXp > 0) await awardXP(client, walletAddress, buildXp); } catch (_) {}
+
     await client.query('COMMIT');
 
     // ── GP 활동 로그 + 시즌 점수 (fire-and-forget, COMMIT 후) ──

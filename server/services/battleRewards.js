@@ -95,6 +95,11 @@ async function distributeRewards(battleId) {
       return [];
     }
     
+    // [코어행동 XP] 전투 참여/승리 XP (AI/연습전은 위 _isAi 가드로 이미 return[] 처리됨 → NPC mint 없음)
+    const _db = require('../db');
+    const _winXp = parseInt(await _db.getSetting('battle_win_xp', '15')) || 15;
+    const _lossXp = parseInt(await _db.getSetting('battle_loss_xp', '5')) || 5;
+
     for (const p of participants) {
       const isWinner = p.side === battle.winner_side;
       const reward = await computeReward(p, battle, settings, isWinner);
@@ -130,7 +135,10 @@ async function distributeRewards(battleId) {
           `, [p.wallet_address, rRows[0].id, qty]);
         }
       }
-      
+
+      // [코어행동 XP] 전투 결과로 XP 부여 → 레벨/진행감을 전투와 연결
+      try { const xp = isWinner ? _winXp : _lossXp; if (xp > 0) await _db.awardXP(client, p.wallet_address, xp); } catch (_) {}
+
       // 보상 로그
       await client.query(`
         INSERT INTO fleet_battle_rewards (
