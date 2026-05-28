@@ -41847,6 +41847,12 @@ function finalizeMissionClaim(mission){
   updateGPDisplay();
   showToast(t('daily_mission_complete_toast').replace('{n}',mission.reward));
   try{_sfx.claim()}catch(e){}
+  // [v7.194 fix] daily mission claim 직후 메인 화면 + dot 도 즉시 갱신 — claim 3종(claimMission/claimDailyOps/claimOpsMission)
+  //   중 이 경로는 v7.192 에서 누락. 페이지 리로드 안 해도 메인 추천 카드, 카테고리 dot, GP HUD 동기화.
+  try { if(typeof updateDailyHint==='function') updateDailyHint(); } catch(_){}
+  try { if(typeof refreshGP==='function') refreshGP(); } catch(_){}
+  try { if(typeof _pollBaseTabDots==='function') _pollBaseTabDots(); } catch(_){}
+  try { if(typeof loadDailyOpsBoard==='function') loadDailyOpsBoard(); } catch(_){}
 
   // Check if all claimed for bonus
   var allClaimed = true;
