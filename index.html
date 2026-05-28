@@ -421,6 +421,26 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 @keyframes crPop{from{opacity:0;transform:scale(.86) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes crFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes crHeroIn{from{opacity:0;transform:scale(1.07)}to{opacity:1;transform:scale(1)}}
+/* [v7.219] 가챠 개봉 연출 — 박스 흔들림(충전) → 빛 폭발(reveal). rarity 높을수록 흔들림 강도↑ (인라인 --shk 변수). */
+@keyframes crateShake{
+  0%,100%{transform:translate(0,0) rotate(0)}
+  10%{transform:translate(calc(var(--shk,3px)*-1),1px) rotate(-2deg)}
+  25%{transform:translate(var(--shk,3px),-1px) rotate(2deg)}
+  40%{transform:translate(calc(var(--shk,3px)*-1),-1px) rotate(-3deg)}
+  55%{transform:translate(var(--shk,3px),1px) rotate(3deg)}
+  70%{transform:translate(calc(var(--shk,3px)*-1),0) rotate(-2deg)}
+  85%{transform:translate(var(--shk,3px),0) rotate(2deg)}
+}
+@keyframes crateBurstFx{
+  0%{opacity:0;transform:scale(.2)}
+  35%{opacity:1;transform:scale(1.05)}
+  100%{opacity:0;transform:scale(2.6)}
+}
+@keyframes crateBoxOut{
+  0%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.45)}
+}
+@keyframes crateRayspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 @media (min-width:769px) and (max-width:1024px){
   .campaign-quick{right:auto;left:12px;top:110px;bottom:auto}
   .crates-quick{right:auto;left:12px;top:64px;bottom:auto}
@@ -10073,6 +10093,34 @@ var _sfx={
     var o5=ctx.createOscillator();var g5=_sfx._gain(0.12);
     o5.type='triangle';o5.frequency.value=1047;o5.connect(g5);
     g5.gain.exponentialRampToValueAtTime(0.001,t+0.7);o5.start(t+0.4);o5.stop(t+0.7);
+  },
+  // [v7.219] 가챠 개봉 충전음 — 상승 rumble (서스펜스 0.7s).
+  crateCharge:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    var o=ctx.createOscillator();var g=_sfx._gain(0.16);
+    o.type='sawtooth';o.frequency.setValueAtTime(70,t);
+    o.frequency.exponentialRampToValueAtTime(420,t+0.7);
+    g.gain.setValueAtTime(0.02,t);g.gain.exponentialRampToValueAtTime(0.18,t+0.62);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.72);
+    o.connect(g);o.start(t);o.stop(t+0.72);
+  },
+  // [v7.219] 개봉 폭발음 — rarity 높을수록 화려(코드 수 차등). tier: 0=common ~ 4=legendary.
+  crateBurst:function(tier){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    tier=Math.max(0,Math.min(4,tier|0));
+    // 기본 임팩트 — 하강 노이즈성 폭발
+    var o=ctx.createOscillator();var g=_sfx._gain(0.3);
+    o.type='square';o.frequency.setValueAtTime(900,t);o.frequency.exponentialRampToValueAtTime(180,t+0.18);
+    g.gain.setValueAtTime(0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);
+    o.connect(g);o.start(t);o.stop(t+0.25);
+    // rarity 별 상승 아르페지오 — tier 만큼 음 추가
+    var notes=[523,659,784,1047,1319];
+    for(var i=0;i<=tier;i++){
+      var oo=ctx.createOscillator();var gg=_sfx._gain(0.14);
+      oo.type='triangle';oo.frequency.value=notes[i];oo.connect(gg);
+      gg.gain.exponentialRampToValueAtTime(0.001,t+0.12+i*0.07+0.18);
+      oo.start(t+0.12+i*0.07);oo.stop(t+0.12+i*0.07+0.18);
+    }
   }
 };
 
@@ -48097,8 +48145,62 @@ async function openShipCrate(code, priceGp) {
     // 잔액/함대 갱신은 모달 뒤에서 진행
     try { refreshGP(); } catch(_) {}
     try { if (typeof refreshShipyard==='function') refreshShipyard(); } catch(_) {}
+    // [v7.219] 결과 카드 전에 개봉 서스펜스 연출 — rarity/quality 따라 강도 차등. 끝나면 reveal.
+    try { await playCrateOpening(d); } catch(_) {}
     showCrateReveal(d, code, priceGp);
   } catch(e) { showToast(LANG==='ko'?'개봉 실패':'Open failed', 'error'); }
+}
+
+// ── [v7.219] 가챠 개봉 서스펜스 연출 — 박스 흔들림(충전) → 빛 폭발 → reveal.
+//   rarity/quality tier 가 높을수록 흔들림·폭발 화려. Promise — 끝나면 showCrateReveal 호출.
+//   reduced-motion / 자산 없음에도 안전(최소 시간 후 resolve).
+function playCrateOpening(d){
+  return new Promise(function(resolve){
+    try {
+      var s = (d && d.ship) || {};
+      var rm = (_rarityMeta && _rarityMeta[s.rarity]) || { col:'#9aa7b4' };
+      var qm = (_crateQualityMeta && _crateQualityMeta[s.quality]) || _crateQualityMeta.common;
+      // tier 0~4 — rarity + quality 중 큰 값 기준 연출 강도.
+      var rarityTier = ({common:0,uncommon:1,rare:2,epic:3,legendary:4})[s.rarity] || 0;
+      var qualTier = qm.stars || 0;
+      var tier = Math.max(rarityTier, qualTier);
+      var glow = (qualTier>0 ? qm.col : rm.col) || '#9aa7b4';
+      var shk = (2 + tier*1.5) + 'px'; // 흔들림 강도
+      var chargeMs = 700, burstMs = 420;
+
+      // reduced-motion 존중 — 즉시 resolve.
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return resolve();
+      }
+
+      var ov = document.createElement('div');
+      ov.id = 'crateOpeningOverlay';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:100001;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.9);backdrop-filter:blur(6px);animation:crFade .2s ease';
+      // 박스(상자) — 📦 이모지 + glow. 흔들림.
+      ov.innerHTML =
+        '<div style="position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center">'
+        +  (tier>=3 ? '<div style="position:absolute;width:340px;height:340px;background:conic-gradient('+glow+'00,'+glow+'66,'+glow+'00,'+glow+'66,'+glow+'00);border-radius:50%;animation:crateRayspin '+(tier>=4?3:4)+'s linear infinite;opacity:.5"></div>' : '')
+        +  '<div id="_crateBox" style="font-size:96px;filter:drop-shadow(0 0 18px '+glow+'cc);--shk:'+shk+';animation:crateShake '+(chargeMs)+'ms ease-in-out;transform-origin:50% 60%">📦</div>'
+        +  '<div id="_crateBurst" style="position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,'+glow+'ff,'+glow+'88 40%,transparent 72%);opacity:0"></div>'
+        + '</div>';
+      document.body.appendChild(ov);
+      try { _sfx.crateCharge(); } catch(_){}
+
+      // 충전 끝 → 폭발
+      setTimeout(function(){
+        try { _sfx.crateBurst(tier); } catch(_){}
+        var box = document.getElementById('_crateBox');
+        var burst = document.getElementById('_crateBurst');
+        if (box) box.style.animation = 'crateBoxOut '+burstMs+'ms ease-out forwards';
+        if (burst) burst.style.animation = 'crateBurstFx '+burstMs+'ms ease-out forwards';
+        // 폭발 끝 → overlay 제거 + resolve.
+        setTimeout(function(){ try { ov.remove(); } catch(_){}; resolve(); }, burstMs);
+      }, chargeMs);
+
+      // 안전망 — 어떤 이유로든 멈추면 1.5s 후 강제 resolve.
+      setTimeout(function(){ try { if(document.getElementById('crateOpeningOverlay')) ov.remove(); } catch(_){}; resolve(); }, chargeMs + burstMs + 400);
+    } catch(_) { resolve(); }
+  });
 }
 
 // ── 가챠 획득 리빌 모달 — 함선 이미지 + 능력치 + 각인 품질 ──

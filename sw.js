@@ -39,7 +39,8 @@
 // 2026-05-29 v34: v7.213 업그레이드 모달 자동 갱신 + 중복 클릭 가드.
 // 2026-05-29 v35: v7.214 inline onclick 회귀 3차 마이그 (tdesc/AI fight/replay) + 카탈로그 disabled + CLAUDE.md §19 + pre-commit hook.
 // 2026-05-29 v36: v7.215 iOS phantom-click 가드 (350ms) + campaignProfileModal inner stopPropagation.
-const CACHE_NAME = 'mars-v36';
+// 2026-05-29 v37: v7.219 가챠 개봉 서스펜스 연출(박스 흔들림→빛 폭발) + crateCharge/Burst 사운드.
+const CACHE_NAME = 'mars-v37';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
