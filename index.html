@@ -23810,19 +23810,32 @@ function loadMarketListings(){
 
   // [v7.176] 함선 카테고리 — 별도 시스템 호출
   if (type === 'ship') {
-    fetch('/api/ships/market/listings', { headers: getAuthHeaders() })
-      .then(function(r){return r.ok?r.json():null;})
-      .then(function(d){
-        var ships = (d && d.listings) || [];
-        if (!ships.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_empty')||'No ship listings')+'</div>'; return; }
-        // 정렬 적용
-        ships = ships.slice();
-        if (sort === 'price_asc')  ships.sort(function(a,b){return (parseFloat(a.price_gp||0))-(parseFloat(b.price_gp||0));});
-        else if (sort === 'price_desc') ships.sort(function(a,b){return (parseFloat(b.price_gp||0))-(parseFloat(a.price_gp||0));});
-        else                       ships.sort(function(a,b){return (parseInt(b.listing_id||0))-(parseInt(a.listing_id||0));});
+    // [v7.178 Phase 3] 마켓 stats chip + 검색 통합 + sparkline 인프라
+    Promise.all([
+      fetch('/api/ships/market/listings', { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+      fetch('/api/ships/market/stats').then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+    ]).then(function(results){
+      var d = results[0], stats = results[1];
+      var ships = (d && d.listings) || [];
+      // 검색 적용 — 함선 코드 또는 이름에 부분 매칭
+      var q = (search||'').toLowerCase().trim();
+      if (q) ships = ships.filter(function(s){
+        var nm = (typeof syShipName==='function')?syShipName(s).toLowerCase():'';
+        return ((s.ship_type_code||'').toLowerCase().indexOf(q)>=0) ||
+               ((s.class_label||'').toLowerCase().indexOf(q)>=0) ||
+               (nm.indexOf(q)>=0);
+      });
+      // stats chip
+      var statsBar = stats ? ('<div style="grid-column:1/-1;display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap"><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(184,140,255,.12);border:1px solid rgba(184,140,255,.4);color:#caa8ff;font-weight:700">🚀 '+tl('Active','활성','活性','活跃')+': '+(stats.active_listings||0)+'</div><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.35);color:#ffd166;font-weight:700">📊 '+tl('7d sales','7일 거래','7日取引','7天交易')+': '+(stats.sales_7d||0)+'</div><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.35);color:#69f0ae;font-weight:700">💰 '+(stats.volume_gp_7d||0).toLocaleString()+' GP</div></div>') : '';
+      if (!ships.length) { grid.innerHTML = statsBar + '<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_empty')||'No ship listings')+'</div>'; return; }
+      // 정렬 적용
+      ships = ships.slice();
+      if (sort === 'price_asc')  ships.sort(function(a,b){return (parseFloat(a.price_gp||0))-(parseFloat(b.price_gp||0));});
+      else if (sort === 'price_desc') ships.sort(function(a,b){return (parseFloat(b.price_gp||0))-(parseFloat(a.price_gp||0));});
+      else                       ships.sort(function(a,b){return (parseInt(b.listing_id||0))-(parseInt(a.listing_id||0));});
         // [v7.177 Phase 2] 마켓 함선 카드 — 인라인 구매 흐름. 클릭 시 확인 모달 → buy API 직접 호출.
         //   이전엔 조선소로 이동 강제했음.
-        grid.innerHTML = ships.map(function(s){
+        grid.innerHTML = statsBar + ships.map(function(s){
           var portrait = 'assets/ships/reveal/' + (s.ship_type_code||'') + '.jpg';
           var nm = (typeof syShipName==='function') ? syShipName(s) : (s.name_ko||s.ship_type_code||'Ship');
           var qm = (typeof _crateQualityMeta!=='undefined' && s.quality) ? _crateQualityMeta[s.quality] : null;
@@ -24169,6 +24182,40 @@ function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
     { k: tl('Balance','보유 GP','残高','余额'), v: Math.floor(myGP).toLocaleString() + ' GP', insufficient: insufficient }
   ];
   var body = tl('Buy this ship from the market.','마켓에서 이 함선을 구매합니다.','市場でこの艦船を購入します。','从市场购买这艘舰船。');
+  // [v7.178 Phase 3] 가격 히스토리 sparkline — 최근 30건 판매가 inline SVG
+  try {
+    fetch('/api/ships/market/price-history/' + encodeURIComponent(shipTypeCode))
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(h){
+        if (!h || !h.points || !h.points.length) return;
+        var prices = h.points.map(function(p){return Number(p.price)||0;}).filter(function(v){return v>0;});
+        if (!prices.length) return;
+        var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
+        var avg = Math.round(prices.reduce(function(a,b){return a+b;},0)/prices.length);
+        var W=140, H=28, span=Math.max(1, max-min);
+        var pts = prices.map(function(v,i){
+          var x = (i/Math.max(1,prices.length-1))*W;
+          var y = H - ((v-min)/span)*H;
+          return x.toFixed(1)+','+y.toFixed(1);
+        }).join(' ');
+        var svg = '<svg width="'+W+'" height="'+H+'" style="display:block;margin-top:4px"><polyline points="'+pts+'" fill="none" stroke="#ffd166" stroke-width="1.5"/></svg>';
+        var label = tl('Recent','최근','最近','最近')+' '+prices.length+' '+tl('sales','거래','取引','交易');
+        var html = '<div style="margin-top:8px;padding:6px 8px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.25);border-radius:6px;font-size:9px;color:var(--tx2)">'
+          + '<div style="display:flex;justify-content:space-between"><span>'+label+'</span><span style="color:#ffd166;font-weight:700">'+tl('avg','평균','平均','均')+' '+avg.toLocaleString()+' GP</span></div>'
+          + svg
+          + '<div style="display:flex;justify-content:space-between;color:var(--tx3);font-size:8px"><span>'+tl('min','최저','最低','最低')+' '+min.toLocaleString()+'</span><span>'+tl('max','최고','最高','最高')+' '+max.toLocaleString()+'</span></div>'
+          + '</div>';
+        // gameConfirm body 영역 찾아서 append
+        var bodyEl = document.querySelector('#gameConfirm .gc-body');
+        if (bodyEl && !bodyEl.querySelector('[data-sparkline]')) {
+          var wrap = document.createElement('div');
+          wrap.setAttribute('data-sparkline','1');
+          wrap.innerHTML = html;
+          bodyEl.appendChild(wrap);
+        }
+      })
+      .catch(function(){});
+  } catch(_){}
   if (crossFaction) {
     body += '<br><br><span style="color:#aac4dc;font-size:10px">🔒 ' + tl(
       'Other faction ship — cannot deploy in your fleet. You can resell on market.',

@@ -184,6 +184,55 @@ router.get('/market/listings', requireAuth, async (req, res) => {
   }
 });
 
+// [v7.178 Phase 3] GET /api/ships/market/price-history/:shipTypeCode
+// 함선 타입별 최근 30건 sale price — 마켓 카드 sparkline 차트용.
+// snapshot 의 quality 별점 변동까지는 표시 안 함(가격 시계열만, 단순화).
+const { pool } = require('../db');
+router.get('/market/price-history/:shipTypeCode', async (req, res) => {
+  try {
+    const code = String(req.params.shipTypeCode || '').slice(0, 64);
+    if (!code) return res.status(400).json({ error: 'INVALID_CODE' });
+    const { rows } = await pool.query(
+      `SELECT price_gp, created_at, snapshot
+         FROM ship_market_sale_log sl
+         JOIN ships s ON s.id = sl.ship_id
+        WHERE s.ship_type_code = $1
+        ORDER BY sl.created_at DESC LIMIT 30`,
+      [code]
+    );
+    res.json({
+      code,
+      count: rows.length,
+      points: rows.reverse().map(r => ({ price: Number(r.price_gp), at: r.created_at }))
+    });
+  } catch (e) {
+    if (e && e.code === '42P01') return res.json({ code: req.params.shipTypeCode, count: 0, points: [], _note: 'log table missing' });
+    console.error('[ships] price-history error:', e.message);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+// [v7.178 Phase 3] GET /api/ships/market/stats
+// 함선 마켓 활성 listing 카운트 + 거래량 — dashboard chip 용.
+router.get('/market/stats', async (_req, res) => {
+  try {
+    const [activeRows, salesRows] = await Promise.all([
+      pool.query(`SELECT COUNT(*)::int AS c FROM ship_market_listings WHERE status='active'`),
+      pool.query(`SELECT COUNT(*)::int AS c, COALESCE(SUM(price_gp),0)::numeric AS vol
+                    FROM ship_market_sale_log WHERE created_at > NOW() - INTERVAL '7 days'`)
+    ]).catch(() => [{ rows:[{c:0}] }, { rows:[{c:0,vol:0}] }]);
+    res.json({
+      active_listings: activeRows.rows[0]?.c || 0,
+      sales_7d: salesRows.rows[0]?.c || 0,
+      volume_gp_7d: Number(salesRows.rows[0]?.vol || 0)
+    });
+  } catch (e) {
+    if (e && e.code === '42P01') return res.json({ active_listings: 0, sales_7d: 0, volume_gp_7d: 0 });
+    console.error('[ships] market stats error:', e.message);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
 /**
  * POST /api/ships/:id/list
  * 보유 함선을 판매 등록
