@@ -237,7 +237,9 @@ async function seedDefaults(client) {
     { key: 'deposit_pp_bonus', value: 10, desc: 'PP bonus % on USDT deposit', cat: 'economy' },
     { key: 'swap_fee_percent', value: 5, desc: 'Fee % on PP→USDT swap', cat: 'economy' },
     { key: 'withdraw_fee_percent', value: 0, desc: 'Fee % on USDT withdrawal', cat: 'economy' },
-    { key: 'signup_pp_bonus', value: 100, desc: 'PP gifted to new users on registration (0=disabled)', cat: 'economy' },
+    // [v7.204 critical fix] 신규 가입 PP 보너스 100 → 0 (PP=USDT 1:1 이라 가입만으로 100불 mint = 운영 자살).
+    //   온보딩은 가챠(데일리 무료) + 일일로그인 GP + 미션으로 진행 — PP 직접 지급은 제로.
+    { key: 'signup_pp_bonus', value: 0, desc: 'PP gifted to new users on registration (0=disabled). KEEP AT 0 — PP=USDT.', cat: 'economy' },
 
     // ── Sector tax & distribution ──
     { key: 'sector_tax_rate', value: 2, desc: 'Sector transaction tax % on claim/hijack', cat: 'sector' },
