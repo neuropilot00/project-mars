@@ -167,13 +167,27 @@ async function openCrate(wallet, crateCode) {
     if (!rarity) rarity = rollRarity(weights, null); // 천장 후보가 없으면 일반 롤로 폴백
     if (!rarity) { await client.query('ROLLBACK'); return { error: 'CRATE_MISCONFIGURED' }; }
 
-    // 타이탄 서버 캡 존중: 캡 가득이면 battleship 으로 강등
+    // Cross-faction 롤 — 다른 진영 함선이 나올 확률(settings 조정 가능, 기본 18%).
+    // 사용은 불가하지만 마켓에 팔 수 있어 cross-faction 시장 유동성을 생성한다.
+    const crossPct = parseFloat(await getSetting('crate_cross_faction_pct', '18')) || 0;
+    const isCrossFaction = crossPct > 0 && (randFloat() * 100) < crossPct;
+    let targetFaction = user.faction_code;
+    if (isCrossFaction) {
+      const { rows: factionRows } = await client.query(
+        `SELECT code FROM factions WHERE code <> $1 AND is_active = true`, [user.faction_code]
+      );
+      if (factionRows.length > 0) {
+        targetFaction = factionRows[randInt(factionRows.length)].code;
+      }
+    }
+
+    // 타이탄 서버 캡 존중: 캡 가득이면 battleship 으로 강등 (target faction 기준)
     if (rarity === 'titan') {
       const { rows: tRows } = await client.query(
         `SELECT st.code, st.max_per_server,
                 (SELECT COUNT(*) FROM ships s WHERE s.ship_type_code = st.code AND s.is_alive = true) AS alive
          FROM ship_types st WHERE st.faction_code = $1 AND st.size_class = 'titan' AND st.is_active = true LIMIT 1`,
-        [user.faction_code]
+        [targetFaction]
       );
       const t = tRows[0];
       if (!t || (t.max_per_server && parseInt(t.alive, 10) >= parseInt(t.max_per_server, 10))) {
@@ -181,11 +195,11 @@ async function openCrate(wallet, crateCode) {
       }
     }
 
-    // 해당 파벌·등급의 함선 중 랜덤 선택 (base 스탯 포함)
+    // target faction·등급의 함선 중 랜덤 선택 (base 스탯 포함)
     const { rows: shipTypeRows } = await client.query(
-      `SELECT code, base_hp, base_atk, base_def, base_speed, is_flagship_capable FROM ship_types
+      `SELECT code, faction_code, base_hp, base_atk, base_def, base_speed, is_flagship_capable FROM ship_types
        WHERE faction_code = $1 AND size_class = $2 AND is_active = true`,
-      [user.faction_code, rarity]
+      [targetFaction, rarity]
     );
     if (!shipTypeRows.length) {
       // 해당 등급 함선이 없으면(이론상 드묾) 한 단계 낮춰 재시도
@@ -209,12 +223,19 @@ async function openCrate(wallet, crateCode) {
       `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [price, w]
     );
 
-    // 함대 확보 + 함선 인스턴스 생성 (grantCampaignShips 와 동일 규칙 + 보너스 스탯)
-    const fleetId = await getOrCreateFleet(client, w);
-    const { rows: flagRows } = await client.query(
-      `SELECT COUNT(*) AS c FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`, [fleetId]
-    );
-    const isFlagship = parseInt(flagRows[0]?.c || 0, 10) === 0 && picked.is_flagship_capable;
+    // 함선 인스턴스 생성:
+    // · own-faction → 함대에 편입 + 기함 후보 검사 (기존 로직)
+    // · cross-faction → fleet_id=NULL (창고), 기함 아님 — 사용 불가, 마켓 판매만 가능
+    const shipFactionMatches = (picked.faction_code === user.faction_code);
+    let fleetId = null;
+    let isFlagship = false;
+    if (shipFactionMatches) {
+      fleetId = await getOrCreateFleet(client, w);
+      const { rows: flagRows } = await client.query(
+        `SELECT COUNT(*) AS c FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`, [fleetId]
+      );
+      isFlagship = parseInt(flagRows[0]?.c || 0, 10) === 0 && picked.is_flagship_capable;
+    }
     const fullHp = baseStats.hp + (bonus.hp || 0); // 보너스 HP 포함 만피로 도착
     const { rows: shipRows } = await client.query(
       `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet,
@@ -247,6 +268,9 @@ async function openCrate(wallet, crateCode) {
       crate: crateCode,
       ship: {
         id: shipRows[0].id, code: picked.code, rarity, isFlagship, quality,
+        faction: picked.faction_code,
+        userFaction: user.faction_code,
+        isCrossFaction: !shipFactionMatches,
         base: baseStats,
         bonus,
         stats: {

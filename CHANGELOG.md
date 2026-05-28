@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.162 — 가챠 cross-faction 함선 (사용 불가 · 마켓 판매 — 시장 유동성 생성)
+
+가챠가 다른 진영 함선도 줄 수 있게 풀었다. 본인은 사용 못 하지만 마켓에 팔 수 있어 진영 간 교차 거래가 자연 발생 = EVE식 깊은 시장 형성.
+- Migration 247: `ships.fleet_id` NULL 허용(cross-faction 함선은 "창고" = fleet_id NULL → 함대/전투에서 자동 제외) + `crate_cross_faction_pct` 설정(기본 18%, admin 조정 가능).
+- `shipCrate.js`: `crossPct` 확률로 다른 진영 롤. cross-faction 픽은 fleet_id=NULL/is_flagship=false로 INSERT. 응답에 `faction/userFaction/isCrossFaction` 포함.
+- 리빌 모달: `🔒 다른 진영 함선 (XXX)` 배너 + "마켓에 등록하면 해당 진영 유저가 구매 가능합니다 — 거래로 가치 실현" 4언어 안내. cross-faction 톤(blue-gray glow) 적용. 기함 표시 X.
+- 사용 차단: fleet_id NULL이라 함대지휘·전투 코드가 자연 필터(추가 코드 0). 마켓은 owner_wallet 기준이라 fleet 무관 — cross-faction 함선도 자유 등록·판매.
+- 검증: 실유저 6풀 스모크(60% 시 own 3·cross 3 정확, cross 3개 모두 DB fleet_id=NULL 확인). Preview 모달 시각 확인.
+
 ## 2026-05-28 v7.161 — P2E → P2O 전환 + 자산 가시화 모달 (팀 진단 반영)
 
 운영자의 "P2E 강조" 요구를 4 페르소나 팀 진단(그로스/게임경제학자/법무/비판검토자) 후 안전한 P2O(Play-to-Own) 프레임으로 전환. `docs/P2E_STRATEGY_2026-05-28.md` 종합.
