@@ -1562,12 +1562,14 @@ async function getObjectiveState(wallet) {
       WHERE LOWER(p.wallet_address) = $1 AND fb.status = 'ended'
     `, [w]),
     getSuccessfulShipUpgradeCount(w),
-    safeCampaignCount(`SELECT COUNT(*) FROM transactions WHERE type = 'mining' AND LOWER(from_wallet) = $1`, [w]),
+    // [v7.190] type='mining' OR 'instant_harvest' — 즉시 수확 트랜잭션도 first_harvest 충족.
+    //   from_wallet=miner (api.js:3600 INSERT 기준 검증 완료).
+    safeCampaignCount(`SELECT COUNT(*) FROM transactions WHERE type IN ('mining','instant_harvest') AND LOWER(from_wallet) = $1`, [w]),
     safeCampaignCount(`SELECT COUNT(*) FROM campaign_reward_inbox WHERE LOWER(wallet) = $1 AND claimed = TRUE`, [w]),
     // P5: material harvests (harvests with at least one resource drop)
     safeCampaignCount(`
       SELECT COUNT(*) FROM transactions
-      WHERE type = 'mining' AND LOWER(from_wallet) = $1
+      WHERE type IN ('mining','instant_harvest') AND LOWER(from_wallet) = $1
         AND meta->'resourceDrops' IS NOT NULL
         AND jsonb_array_length(COALESCE(meta->'resourceDrops','[]'::jsonb)) > 0
     `, [w]),

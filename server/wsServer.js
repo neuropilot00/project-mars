@@ -194,13 +194,24 @@ function _publishOrLocal(kind, payload, localFn) {
 }
 
 // ── Battle frame/end ──────────────────────────────────────────
+// [v7.190 backpressure] 느린 client 가 frame 큐에 1MB 이상 쌓이면 강제 종료.
+//   battle frame 은 200ms tick × 수백 frame → viewer 한 명 stuck 시 Node RAM 누적.
+const _WS_BUFFER_LIMIT = 1_048_576; // 1 MB
+function _safeSendOrTerminate(ws, payload) {
+  if (ws.readyState !== 1) return false;
+  if (ws.bufferedAmount > _WS_BUFFER_LIMIT) {
+    try { ws.terminate(); } catch (_) {}
+    return false;
+  }
+  try { ws.send(payload); return true; } catch (_) { return false; }
+}
 function _localBattleFrame(battleId, frame) {
   const set = _channels.get(battleId);
   if (!set || set.size === 0) return 0;
   const payload = JSON.stringify({ type: 'frame', battleId, ...frame });
   let sent = 0;
   for (const ws of set) {
-    try { if (ws.readyState === 1) { ws.send(payload); sent++; } } catch (_) {}
+    if (_safeSendOrTerminate(ws, payload)) sent++;
   }
   return sent;
 }
@@ -210,7 +221,7 @@ function _localBattleEnd(battleId, summary) {
   const payload = JSON.stringify({ type: 'end', battleId, ...summary });
   let sent = 0;
   for (const ws of set) {
-    try { if (ws.readyState === 1) { ws.send(payload); sent++; } } catch (_) {}
+    if (_safeSendOrTerminate(ws, payload)) sent++;
   }
   return sent;
 }

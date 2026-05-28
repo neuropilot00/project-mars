@@ -16162,7 +16162,7 @@ async function confirmClaim(){
       _rebuildOwnerData();
       claimsSnapshot=null;
       compositeClaimsOnTexture();
-      showToast(d.error||'CLAIM FAILED');
+      showToast(srvErr(d.error)||'CLAIM FAILED','error');
       try{_sfx.error()}catch(e){}
       if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
       return;
@@ -16745,7 +16745,7 @@ async function confirmExchange(){
       body:JSON.stringify({ wallet:walletState.address, amount:amt })
     });
     var d = await resp.json();
-    if(!resp.ok){ showToast(d.error||'EXCHANGE FAILED'); return; }
+    if(!resp.ok){ showToast(srvErr(d.error)||'EXCHANGE FAILED','error'); return; }
     walletState.gamePP = d.ppBalance!=null ? d.ppBalance : (walletState.gamePP-amt);
     walletState.gameGP = d.gpBalance!=null ? d.gpBalance : (walletState.gameGP+(d.gpReceived||0));
     refreshEmailBalances();
@@ -16854,7 +16854,7 @@ async function payAndContinue(){
       body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, continueNum:nextNum })
     });
     var d = await resp.json();
-    if(!resp.ok){ showToast(d.error||'CONTINUE FAILED'); return; }
+    if(!resp.ok){ showToast(srvErr(d.error)||'CONTINUE FAILED','error'); return; }
     // Update balances
     if(d.ppBalance!=null) walletState.gamePP = d.ppBalance;
     if(d.gpBalance!=null) walletState.gameGP = d.gpBalance;
@@ -16877,7 +16877,7 @@ async function submitMinigameScore(){
       body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, gameType:_mgCurrentGame, score:score })
     });
     var d = await resp.json();
-    if(!resp.ok){ showToast(d.error||'SUBMIT FAILED'); return; }
+    if(!resp.ok){ showToast(srvErr(d.error)||'SUBMIT FAILED','error'); return; }
     showToast('🎮 Score '+score+' submitted! (Plays left: '+(d.playsRemaining||0)+')','success');
     // Go back to game select
     _mgCurrentEngine = null;
@@ -17005,7 +17005,7 @@ async function confirmWithdraw(){
       body:JSON.stringify({amount:amt,chain:walletState.chain||'base'})
     });
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'WITHDRAW FAILED');return}
+    if(!resp.ok){showToast(srvErr(d.error)||'WITHDRAW FAILED','error');return}
 
     walletState.gameUsdt=d.usdtBalance!=null?d.usdtBalance:walletState.gameUsdt-amt;
     refreshEmailBalances();
@@ -20569,6 +20569,45 @@ var I18N = {
 
 function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
 function tl(en,ko,ja,zh){ return LANG==='ko'?ko:LANG==='ja'?ja:LANG==='zh'?zh:en; }
+// [v7.190] 서버 에러 코드 4언어 매핑 공통 헬퍼. 사용: showToast(srvErr(d.error || 'FAIL'), 'error')
+function srvErr(code){
+  if (!code) return tl('Failed','실패','失敗','失败');
+  var c = String(code).toUpperCase();
+  var M = {
+    INSUFFICIENT_GP: ['Not enough GP','GP 부족','GP不足','GP不足'],
+    INSUFFICIENT_PP: ['Not enough PP','PP 부족','PP不足','PP不足'],
+    INSUFFICIENT_USDT: ['Not enough USDT','USDT 부족','USDT不足','USDT不足'],
+    INSUFFICIENT_BALANCE: ['Insufficient balance','잔액 부족','残高不足','余额不足'],
+    INSUFFICIENT_RESOURCES: ['Not enough materials','재료 부족','材料不足','材料不足'],
+    NO_WALLET: ['Login required','로그인 필요','ログインが必要','请先登录'],
+    NOT_AUTHENTICATED: ['Login required','로그인 필요','ログインが必要','请先登录'],
+    FORBIDDEN: ['Forbidden','권한 없음','権限なし','无权限'],
+    NOT_PARTICIPANT: ['Not a participant','참여자 아님','参加者ではない','非参与者'],
+    DEFENDER_CANNOT_FORFEIT: ['Defender cannot forfeit','방어자는 후퇴 불가','防御者は撤退不可','防御方无法撤退'],
+    SHIP_LISTED_FOR_SALE: ['Ship is listed for sale','함선이 마켓 등록 중','艦船は出品中','舰船已上架'],
+    SHIP_IN_BATTLE: ['Ship is in battle','함선 전투 중','艦船は戦闘中','舰船作战中'],
+    SHIP_NOT_FOUND: ['Ship not found','함선 없음','艦船が見つかりません','未找到舰船'],
+    SHIP_DEAD: ['Ship destroyed','함선 파괴됨','艦船は撃沈済','舰船已被击毁'],
+    SHIP_PLAYER_TYPE_LIMIT: ['Ship type limit reached','함급 보유 한도 도달','艦種保有上限','舰种持有上限'],
+    SHIP_CROSS_FACTION_BLOCKED: ['Cross-faction ship cannot deploy','다른 진영 함선 편성 불가','他陣営艦船は編入不可','跨阵营舰船无法编入'],
+    FLEET_IN_BATTLE: ['Fleet in battle','함대 전투 중','艦隊戦闘中','舰队作战中'],
+    FLEET_NOT_FOUND: ['Fleet not found','함대 없음','艦隊が見つかりません','未找到舰队'],
+    CANNOT_BUY_OWN_LISTING: ['Cannot buy your own listing','본인 매물 구매 불가','自分の出品は購入不可','无法购买自己的上架'],
+    LISTING_NOT_FOUND: ['Listing no longer available','매물 없음','出品が見つかりません','物品已售出'],
+    INVALID_PRICE: ['Invalid price','잘못된 가격','価格が不正','价格无效'],
+    PRICE_TOO_LOW: ['Price too low','가격이 너무 낮음','価格が低すぎる','价格过低'],
+    PRICE_TOO_HIGH: ['Price too high','가격이 너무 높음','価格が高すぎる','价格过高'],
+    RATE_LIMITED: ['Too many requests','요청이 너무 잦음','リクエストが多すぎる','请求过于频繁'],
+    SERVER_ERROR: ['Server error','서버 오류','サーバーエラー','服务器错误'],
+    NETWORK_ERROR: ['Network error','네트워크 오류','ネットワークエラー','网络错误'],
+    BATTLE_NOT_FOUND: ['Battle not found','전투 없음','戦闘が見つかりません','未找到战斗'],
+    OBJECTIVE_REQUIREMENTS_NOT_MET: ['Objective incomplete','목표 미달성','目標未達成','目标未完成'],
+    MISSION_IN_PROGRESS: ['Mission still in progress','미션 진행 중','ミッション進行中','任务进行中'],
+    CSRF_REQUIRED: ['Session expired — please refresh','세션 만료 — 새로고침 필요','セッション切れ — 更新してください','会话已过期'],
+  };
+  return (M[c] && (LANG==='ko'?M[c][1]:LANG==='ja'?M[c][2]:LANG==='zh'?M[c][3]:M[c][0])) || String(code);
+}
+window.srvErr = srvErr;
 
 // ── Item i18n mapping (shop items come from DB with English names) ──
 var _itemI18n = {
@@ -21727,7 +21766,7 @@ async function saveNickname(){
       document.getElementById('authNickname').textContent=newName;
       document.getElementById('nickEditWrap').style.display='none';
       showToast('NAME UPDATED!');
-    }else{showToast(d.error||'FAILED')}
+    }else{showToast(srvErr(d.error)||'FAILED','error')}
   }catch(e){showToast('NETWORK ERROR')}
 }
 
@@ -21869,7 +21908,7 @@ async function requestDeleteAccount(){
   if(!ok2)return;
   fetch('/api/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
     .then(function(r){return r.json()})
-    .then(function(d){if(d.success){showToast(tl('Account deleted','계정이 삭제되었습니다','アカウントが削除されました','账号已删除'));logoutEmail();}else{showToast(d.error||'Failed to delete');}})
+    .then(function(d){if(d.success){showToast(tl('Account deleted','계정이 삭제되었습니다','アカウントが削除されました','账号已删除'));logoutEmail();}else{showToast(srvErr(d.error)||'Failed to delete','error');}})
     .catch(function(){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'));});
 }
 function logoutEmail(){
@@ -24249,7 +24288,9 @@ function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
   ];
   var body = tl('Buy this ship from the market.','마켓에서 이 함선을 구매합니다.','市場でこの艦船を購入します。','从市场购买这艘舰船。');
   // [v7.178 Phase 3] 가격 히스토리 sparkline — 최근 30건 판매가 inline SVG
+  // [v7.190] race 가드 토큰 — gameConfirm 모달에 listingId 기록. 응답 도착 시 토큰 일치할 때만 append.
   try {
+    var _gcEl = document.getElementById('gameConfirm'); if (_gcEl) _gcEl.dataset.sparkToken = String(listingId);
     fetch('/api/ships/market/price-history/' + encodeURIComponent(shipTypeCode))
       .then(function(r){return r.ok?r.json():null;})
       .then(function(h){
@@ -24271,8 +24312,11 @@ function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
           + svg
           + '<div style="display:flex;justify-content:space-between;color:var(--tx3);font-size:8px"><span>'+tl('min','최저','最低','最低')+' '+min.toLocaleString()+'</span><span>'+tl('max','최고','最高','最高')+' '+max.toLocaleString()+'</span></div>'
           + '</div>';
-        // gameConfirm body 영역 찾아서 append
-        var bodyEl = document.querySelector('#gameConfirm .gc-body');
+        // [v7.190] race 가드 — gameConfirm 가 닫힌 뒤 응답 도착하면 다른 모달에 잘못 삽입 가능.
+        //   token 확인: 현재 #gameConfirm.dataset.sparkToken 이 같은 listingId 인지.
+        var gc = document.getElementById('gameConfirm');
+        if (!gc || gc.dataset.sparkToken !== String(listingId)) return;
+        var bodyEl = gc.querySelector('.gc-body');
         if (bodyEl && !bodyEl.querySelector('[data-sparkline]')) {
           var wrap = document.createElement('div');
           wrap.setAttribute('data-sparkline','1');
@@ -24298,6 +24342,8 @@ function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
     confirmText: tl('BUY','구매','購入','购买'),
     disabled: insufficient
   }).then(function(ok){
+    // [v7.190] sparkline race 가드 토큰 해제 — 모달 닫힘.
+    var _gc2 = document.getElementById('gameConfirm'); if (_gc2) delete _gc2.dataset.sparkToken;
     if (!ok) return;
     fetch('/api/ships/market/listings/' + listingId + '/buy', {
       method: 'POST',
@@ -30028,7 +30074,7 @@ async function chooseCampaignOption(choiceId){
   try{
     var r=await fetch('/api/campaign/choice',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId,choice_id:choiceId})});
     var d=await r.json();
-    if(!r.ok){showToast(d.error||'Choice failed');return;}
+    if(!r.ok){showToast(srvErr(d.error)||'Choice failed','error');return;}
     a.progress=d.progress||a.progress;
     try{loadCampaignStatus();}catch(_){}
     showCampaignSim(a.chapter,a.progress);
@@ -30057,7 +30103,7 @@ async function pollCampaignProgress(immediate){
   try{
     var r=await fetch('/api/campaign/progress',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId})});
     var d=await r.json();
-    if(!r.ok){showToast(d.error||'Campaign progress failed');return;}
+    if(!r.ok){showToast(srvErr(d.error)||'Campaign progress failed','error');return;}
     a.progress=d.progress||a.progress;
     var preview=d.preview||{};
     var pct=Math.max(0,Math.min(100,Number(preview.progressPct||preview.oxygenRecoveryPct||0)));
@@ -30113,7 +30159,7 @@ async function completeCampaignMission(){
         _setCampaignModal(d.chapter||a.chapter,html);
         return;
       }
-      showToast(d.error||'Campaign complete failed');return;
+      showToast(srvErr(d.error)||'Campaign complete failed','error');return;
     }
     showCampaignResult(a.chapter,d.progress,d);
     loadCampaignStatus();

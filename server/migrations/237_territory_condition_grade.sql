@@ -22,6 +22,9 @@ INSERT INTO settings (category, key, value, description) VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- 기존 영토 등급 초기화(condition 100 → grade S 로 시작점 부여; 이후 감쇠로 자연 하락)
-UPDATE claims SET grade = 'S', condition = 100, last_tended_at = NOW() WHERE deleted_at IS NULL;
+-- [v7.190 guard] grade 가 아직 NULL 인 row 만 초기화 — 누군가 schema_migrations 에서 이 row 를 지우고 재실행해도
+--   이미 등급이 매겨진 영토(S/A/B/C/D/F) 는 보존. 신규 영토 / pre-237 cold-start 만 영향.
+UPDATE claims SET grade = 'S', condition = 100, last_tended_at = NOW()
+  WHERE deleted_at IS NULL AND grade IS NULL;
 
 INSERT INTO schema_migrations (filename) VALUES ('237_territory_condition_grade.sql') ON CONFLICT DO NOTHING;

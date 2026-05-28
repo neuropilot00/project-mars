@@ -448,6 +448,9 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
 
     // Pool that the tree shares for this event
     const commissionPool = baseAmount * (triggerPct / 100);
+    // [v7.190 fix] tier 합계가 100 초과해도 pool 초과 분배 차단 — 누적 trackingPool 로 cap.
+    //   기존엔 각 tier 가 independently pool*(pct/100) → t1+t2+t3>100 시 pool 초과 mint.
+    let poolRemaining = commissionPool;
     const credited = [];
 
     // Operator-safety: per-upline daily commission cap (anti-farming/anti-inflation).
@@ -463,6 +466,9 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
       if (pct <= 0) continue;
       let reward = Math.round(commissionPool * (pct / 100) * 1000000) / 1000000;
       if (reward <= 0) continue;
+      // [v7.190 fix] pool 잔여분 cap — 누적 분배가 pool 초과하지 못하게.
+      if (reward > poolRemaining) reward = Math.round(poolRemaining * 1000000) / 1000000;
+      if (reward <= 0) break; // pool 소진
 
       // Clamp to the upline's remaining daily cap, if a cap is configured.
       if (dailyCap > 0) {
@@ -514,6 +520,7 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
       }
 
       credited.push({ tier: ref.tier, wallet: ref.wallet, amount: reward, currency: cur });
+      poolRemaining = Math.max(0, poolRemaining - reward); // [v7.190 fix] pool 잔여분 갱신
     }
     return credited;
   } catch (e) {
