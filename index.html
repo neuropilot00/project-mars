@@ -46878,7 +46878,8 @@ async function loadShipCrates() {
       grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(LANG==='ko'?'이용 가능한 상자가 없습니다.':'No crates available.')+'</div>';
       return;
     }
-    // 가챠 상자 카드 — 함선 배너 + 등급 글로우, 개봉 버튼 하단 정렬
+    // 가챠 상자 카드 — 상자 배너 + 등급 글로우, 개봉 버튼 하단 정렬
+    var _crateBanners = ['assets/banners/crate_standard.svg','assets/banners/crate_premium.svg','assets/banners/crate_legendary.svg'];
     var _crateHeroes = ['assets/ships/top/cv_frg.png','assets/ships/top/fsp_bs.png','assets/ships/top/cv_titan.png'];
     var _crateGlows  = ['#7da6ff','#b98cff','#ff7a45']; // standard / premium / legendary
     grid.innerHTML = d.crates.map(function(c, idx){
@@ -46888,11 +46889,12 @@ async function loadShipCrates() {
       }).join('');
       var pityHtml = c.pity_pulls>0 ? '<div style="font-size:8px;color:var(--gold);margin-top:2px">🎯 '+(LANG==='ko'?(c.pity_pulls+'회 내 순양함+ 확정'):('Cruiser+ guaranteed within '+c.pity_pulls+' pulls'))+'</div>' : '';
       var label = LANG==='ko' ? (c.label_ko||c.code) : (c.label_en||c.code);
+      var banner = _crateBanners[idx % _crateBanners.length];
       var hero = _crateHeroes[idx % _crateHeroes.length];
       var glow = _crateGlows[idx % _crateGlows.length];
       return '<div class="bp-card" style="padding:0;overflow:hidden;border:1px solid '+glow+'55;box-shadow:0 0 20px '+glow+'22">'
         + '<div style="position:relative;height:140px;background:radial-gradient(circle at 50% 28%, '+glow+'40, transparent 72%), #0a0e1a;display:flex;align-items:center;justify-content:center;overflow:hidden">'
-        +   '<img src="'+hero+'" alt="" style="height:120px;object-fit:contain;filter:drop-shadow(0 0 14px '+glow+'cc)" onerror="this.style.display=\'none\'">'
+        +   '<img src="'+banner+'" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:8px 8px 0 0;display:block" onerror="this.onerror=null;this.src=\''+hero+'\';this.style.width=\'auto\';this.style.height=\'120px\';this.style.objectFit=\'contain\';this.style.filter=\'drop-shadow(0 0 14px '+glow+'cc)\'">'
         +   '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(8,10,20,.94))"></div>'
         +   '<div style="position:absolute;bottom:9px;left:12px;right:12px;font-size:14px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.5px">🎲 '+label+'</div>'
         + '</div>'

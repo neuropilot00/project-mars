@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.151 — 가챠샵 전용 디자인 배너 아트 (Codex 제작)
+
+- **등급별 배너 3종**(`assets/banners/crate_{standard,premium,legendary}.svg`, Codex 제작): 우주/화성 SF 톤 디자인 — 라디얼·리니어 그라데이션 + feGaussianBlur 글로우 + 성운/별 + 벡터 함선 실루엣(등급↑ 대형함). standard 청색 / premium 보라 / legendary 주황금+폭발 이펙트. 자체완결 SVG(외부 PNG 의존 없음 → 깨짐 위험 0).
+- `loadShipCrates()` 의 단일 함선 PNG 배너 → 위 3종 디자인 배너로 교체(등급 인덱스 매핑, 글로우/개봉 버튼 하단정렬 유지).
+- `.gitignore` 에 `!assets/banners/` 예외 추가(추적). 검증: xmllint 통과, 인라인 JS 0 errors.
+
 ## 2026-05-28 v7.150 — 미연결 UI 3종 연결 (파벌통계/복권이력/전투보상이력)
 
 상용화 검수 MED 미연결 잔여분 연결 (백엔드는 이미 존재, 프론트만 연결):

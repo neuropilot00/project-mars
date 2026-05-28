@@ -10,6 +10,7 @@ assets/*
 !assets/lib/
 !assets/avatars/
 !assets/nav/
+!assets/banners/
 !assets/base/
 assets/base/*
 !assets/base/*.png
