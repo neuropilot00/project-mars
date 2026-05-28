@@ -7387,24 +7387,29 @@ router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) =>
 
   const client = await pool.connect();
   try {
+    // [v7.163 hotfix] fail-CLOSED: 명시적 true 만 허용. null/undefined → 비활성.
     const enabledVal = await getSetting('pp_to_gp_exchange_enabled');
-    if (enabledVal !== true && enabledVal !== 'true' && enabledVal != null) return res.status(400).json({ error: 'PP→GP exchange is currently disabled' });
+    if (enabledVal !== true && enabledVal !== 'true') return res.status(400).json({ error: 'PP→GP exchange is currently disabled' });
 
     const minPP = parseFloat(await getSetting('pp_to_gp_exchange_min') || '0.1');
     const maxPP = parseFloat(await getSetting('pp_to_gp_exchange_max') || '5');
     const rate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '10');
     const feePct = parseFloat(await getSetting('pp_to_gp_exchange_fee_pct') || '5');
     const dailyLimit = parseFloat(await getSetting('pp_to_gp_exchange_daily_limit') || '50');
+    // [v7.163 hotfix] rate ≤ 0 또는 NaN 차단(admin 오타로 음수/0 시 GP 무한 민팅 위험).
+    if (!(rate > 0) || !isFinite(rate)) return res.status(500).json({ error: 'Exchange rate misconfigured' });
+    if (!(feePct >= 0) || !isFinite(feePct) || feePct >= 100) return res.status(500).json({ error: 'Exchange fee misconfigured' });
 
     if (ppAmount < minPP) return res.status(400).json({ error: `Minimum ${minPP} PP` });
     if (ppAmount > maxPP) return res.status(400).json({ error: `Maximum ${maxPP} PP per transaction` });
 
     await client.query('BEGIN');
 
-    // Check daily limit
+    // [v7.163 hotfix] Daily limit — LOWER() 양쪽 + pp_amount 컬럼 직접 사용
+    //   (mixed-case JWT 우회 차단 + meta JSON 키 변경에 견고).
     const { rows: [dailyRow] } = await client.query(
-      `SELECT COALESCE(SUM((meta->>'pp_amount')::numeric), 0) as total
-       FROM transactions WHERE from_wallet=$1 AND type='pp_to_gp_exchange'
+      `SELECT COALESCE(SUM(pp_amount), 0) as total
+       FROM transactions WHERE LOWER(from_wallet)=LOWER($1) AND type='pp_to_gp_exchange'
        AND created_at > NOW() - INTERVAL '24 hours'`, [w]
     );
     const dailyUsed = parseFloat(dailyRow.total || 0);
@@ -7469,7 +7474,8 @@ router.get('/exchange/pp-to-gp/info', readLimiter, async (req, res) => {
     const fee = parseFloat(await getSetting('pp_to_gp_exchange_fee_pct') || '5');
     const daily = parseFloat(await getSetting('pp_to_gp_exchange_daily_limit') || '50');
     const enabledVal = await getSetting('pp_to_gp_exchange_enabled');
-    const enabled = enabledVal === true || enabledVal === 'true' || enabledVal == null;
+    // [v7.163 hotfix] fail-CLOSED 정합성 — 명시 true 만 enabled
+    const enabled = enabledVal === true || enabledVal === 'true';
     res.json({ rate, min, max, fee, dailyLimit: daily, enabled });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

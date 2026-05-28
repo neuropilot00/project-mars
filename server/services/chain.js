@@ -232,6 +232,11 @@ async function backfillEvents(chainKey, contract, provider, decimals) {
 
 async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
   const amountNum = parseFloat(amount);
+  // [v7.163 hotfix] 음수/0/NaN amount 차단(외부 RPC/admin replay 오염 방지 — 음수 시 잔액 차감 가능).
+  if (!(amountNum > 0) || !isFinite(amountNum)) {
+    console.warn('[chain] processDeposit refused — invalid amount:', amount, 'tx:', txHash);
+    return;
+  }
   const ppBonusPct = await getPpBonusPct();
   const ppBonus = Math.round(amountNum * (ppBonusPct / 100) * 1000000) / 1000000;
 

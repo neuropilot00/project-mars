@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.163 — 머니플로 전수 감사 hotfix Tier 1 (Critical 4건)
+
+4 페르소나 병렬 감사(환전·마켓·보상·비판검토자)로 유저 머니플로 198곳 점검. Critical 4건 즉시 차단:
+1. **PP→GP daily-limit wallet 대소문자 우회** (`api.js:7405`) — `from_wallet=$1` raw 비교라 mixed-case JWT 발급 시 일일 한도 0으로 보임 → 무제한 PP→GP 환전 가능했음. `LOWER(from_wallet)=LOWER($1)` 양쪽 적용 + 집계도 `meta->>'pp_amount'` 대신 `pp_amount` 컬럼 직접 사용으로 견고화.
+2. **PP→GP `enabled` flag fail-OPEN** (`api.js:7390-7391`, `:7475-7476`) — `enabledVal == null` 시 통과로 설정 삭제·DB 누락 시 GP 인플레 게이트 자동 개방. **명시 true 만 허용**으로 fail-CLOSED 전환(info 엔드포인트도 정합성).
+3. **PP→GP rate ≤ 0 / NaN 미검증** (`api.js:7395`) — admin 오타로 rate에 음수/0 들어가면 `Math.floor(netPP * -5)` 음수 GP 발급 + 무한 민팅 위험. `rate > 0 && isFinite` 가드 + feePct 범위(0≤x<100) 가드 추가.
+4. **`processDeposit` 음수 amount 미검증** (`chain.js:234`) — 외부 RPC/admin replay에서 음수 amount 시 `pp_balance` 차감 가능. `amountNum > 0 && isFinite` 가드 추가 + refused 로그.
+
+검증: 실DB 스모크 — 음수 deposit 거부(PP 불변·deposits row 미생성), 대소문자 SUM 정확(raw 10 우회 vs LOWER 25 정확).
+
+**Tier 2 (구조적 위험 — 별도 후속)**: timezone `CURRENT_DATE` 일일캡 우회(30+ 파일, daily/governance/mission/login_streak), GP transfer race(FOR UPDATE 미적용), treasury 가드 contract 미강제, dividends 부동소수 누적 dust, settings 캐시 무효화 누락, self-trade chain.
+
 ## 2026-05-28 v7.162 — 가챠 cross-faction 함선 (사용 불가 · 마켓 판매 — 시장 유동성 생성)
 
 가챠가 다른 진영 함선도 줄 수 있게 풀었다. 본인은 사용 못 하지만 마켓에 팔 수 있어 진영 간 교차 거래가 자연 발생 = EVE식 깊은 시장 형성.
