@@ -1,9 +1,46 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+ OCCUPY MARS — Tactical Lab v11.1 (Vertical) + VFX patches v7.179~v7.191
+================================================================================
+ 이 파일은 함대전 시각화 + 클라이언트 시뮬레이션 엔진. 본 서버 함대전이 시작되면
+ index.html 에서 iframe 으로 임베드 (PVP > Battle Hub > 🧪 TACTICAL LAB).
+
+ ▶ 함대전 메카닉 버전: v11.1 (세로 전장, 22 종 함선 PNG, 상성/진영 밸런스)
+ ▶ VFX 누적 패치:
+   - v7.179: 격침 화면 흔들림 (함급별 1.5~14px / 180~900ms),
+             대형함 미니 슬로모 (0.45×), 다층 폭발 (smoke+core+debris glow),
+             빔 임팩트 플래시, 타이탄 격침 2차 폭발 연쇄
+   - v7.180: 8단계 폭발 PNG 시퀀스 (assets/fx/explosion_01~08.png),
+             4 종 빔 임팩트 PNG (red/orange/cyan/white), 색상→key 매핑
+   - v7.188: VFX 부분 로드 실패 시 영구 fallback 잠김 차단 (FAIL 카운터)
+   - v7.191: 캐시 무효화 (iframe URL ?v=20260528-vfx, SW v14)
+
+ ▶ 변경 위치 빠르게 찾기:
+   - 라인 ~860:  VFX_EXPLOSION_FRAMES 프리로드
+   - 라인 ~880:  vfxImpactKeyForColor 색상 매핑
+   - 라인 ~1587: applyDmg 안 함급별 cascade (shake/slowmo/충격파)
+   - 라인 ~1672: mkExp 다층 폭발 (smoke + core flash + debris)
+   - 라인 ~2200: drawLasers 임팩트 플래시 (PNG + radial gradient)
+   - 라인 ~2238: drawExps PNG 시퀀스 합성
+   - 라인 ~2317: triggerScreenShake / triggerMiniSlowmo 함수
+   - 라인 ~2356: 메인 loop dt 에 _slowmoMul 적용
+   - 라인 ~2453: 카메라 transform 직전 _shakeX/_shakeY 적용
+
+ ▶ 백업 / 롤백:
+   - 캔버스 폴백: VFX PNG 가 1장이라도 실패하면 자동 적용 (drawExps if spritesReady)
+   - 전체 롤백: cp assets/_backup_v178_tactical-lab-v11.html assets/tactical-lab-v11.html
+
+ ▶ 검수 시나리오: docs/FLEET_BATTLE_CHANGELOG_v7.179-188.md §E
+ ▶ 다음 손볼 사람에게: 캔버스 합성 (lighter ↔ source-over) 균형 깨면 화면 누적됨.
+                       save/restore 균형 (loop ~2453,2466) 유지 필수.
+================================================================================
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OCCUPY MARS — Coalition War v11.1 Vertical</title>
+<title>OCCUPY MARS — Tactical Lab v11.1 + VFX (v7.191)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}

@@ -16,7 +16,8 @@
 // 2026-05-28 v12: 신규 시각 업그레이드 폴더 추가(/assets/loading/, /factions/, /poi/, /login_bg/).
 //   v7.175 시각 업그레이드 라운드 — 신규 에셋이 cache-first 에 잡히지 않게 동일 정책.
 // 2026-05-28 v13: /assets/fx/ 전투 VFX (폭발/임팩트) network-first 등록.
-const CACHE_NAME = 'mars-v13';
+// 2026-05-28 v14: tactical-lab-v11.html (VFX v7.179~v7.190) 가 옛 캐시에 가려 사용자가 못 봄 — 캐시 전면 폐기.
+const CACHE_NAME = 'mars-v14';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
