@@ -125,6 +125,34 @@ async function cfg() {
   return cachedSettings;
 }
 
+// [v7.167] GET /api/wallet/deposit-bonus-info — 입금 모달에 첫입금 보너스 강조 표시용
+router.get('/wallet/deposit-bonus-info', requireAuth, async (req, res) => {
+  try {
+    const wallet = getAuthWallet(req).toLowerCase();
+    const basePct = await getDepositBonusPercent();
+    let firstPct = 0;
+    let eligible = false;
+    try {
+      const fr = await pool.query("SELECT value FROM settings WHERE key='first_deposit_bonus_pct'");
+      firstPct = parseFloat(String(fr.rows[0]?.value || '0').replace(/"/g,'')) || 0;
+    } catch (_) {}
+    if (firstPct > 0) {
+      try {
+        const prior = await pool.query('SELECT 1 FROM deposits WHERE LOWER(wallet_address) = LOWER($1) LIMIT 1', [wallet]);
+        eligible = prior.rows.length === 0;
+      } catch (_) {}
+    }
+    res.json({
+      base_bonus_pct: basePct,
+      first_deposit_bonus_pct: firstPct,
+      first_deposit_eligible: eligible,
+      total_bonus_pct_if_first: basePct + (eligible ? firstPct : 0)
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Active events with bonus calculation ──
 async function getDepositBonusPercent() {
   const s = await cfg();

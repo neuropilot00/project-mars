@@ -111,6 +111,7 @@ async function getMyShips(walletAddress, options = {}) {
       s.shield_hp, s.shield_max,
       s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
       COALESCE(s.bonus_speed, 0) AS bonus_speed,
+      s.quality,
       s.kills_dealt, s.damage_dealt,
       s.built_at,
       st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,

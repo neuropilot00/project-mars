@@ -239,9 +239,9 @@ async function openCrate(wallet, crateCode) {
     const fullHp = baseStats.hp + (bonus.hp || 0); // 보너스 HP 포함 만피로 도착
     const { rows: shipRows } = await client.query(
       `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet,
-                          bonus_atk, bonus_def, bonus_hp, bonus_speed)
-       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10) RETURNING id`,
-      [fleetId, picked.code, w, fullHp, baseStats.hp, isFlagship, bonus.atk, bonus.def, bonus.hp, bonus.speed]
+                          bonus_atk, bonus_def, bonus_hp, bonus_speed, quality)
+       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10, $11) RETURNING id`,
+      [fleetId, picked.code, w, fullHp, baseStats.hp, isFlagship, bonus.atk, bonus.def, bonus.hp, bonus.speed, quality]
     );
 
     const isRare = RARE_CLASSES.includes(rarity);

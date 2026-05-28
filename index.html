@@ -6125,6 +6125,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <div class="mbd">
       <div class="mf"><div class="mfl">CURRENT BALANCE</div><div class="mfv gn" id="depCurBal">0.00 USDT</div></div>
+      <!-- [v7.167] 첫 입금 보너스 강조 배너 — 조건 충족 시 노출(openDepositModal 에서 fetch) -->
+      <div id="depFirstBonusBanner" style="display:none;margin:8px 0;padding:11px 13px;border-radius:9px;background:linear-gradient(135deg,rgba(255,209,102,.18),rgba(184,140,255,.08));border:1px solid rgba(255,209,102,.6);box-shadow:0 0 14px rgba(255,209,102,.25)">
+        <div style="font-size:11px;font-weight:900;color:#ffd166;letter-spacing:.5px">🎁 <span id="depFirstBonusTitle">FIRST DEPOSIT BONUS</span></div>
+        <div style="font-size:10px;color:rgba(255,255,255,.85);margin-top:3px;line-height:1.45" id="depFirstBonusBody">--</div>
+      </div>
       <div class="mdv"></div>
       <div class="mf">
         <div class="mfl">SELECT CHAIN</div>
@@ -16343,6 +16348,31 @@ function openDepositModal(){
   selectDepChain(depChain);
   updateDepositAddr();
   document.getElementById('depositModal').classList.add('open');
+  // [v7.167] 첫 입금 보너스 강조 — 자격 있으면 배너 노출
+  try {
+    var banner = document.getElementById('depFirstBonusBanner');
+    if (banner) banner.style.display = 'none'; // reset (혹시 이전 호출 잔여)
+    fetch('/api/wallet/deposit-bonus-info', { headers: getAuthHeaders() })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d || !banner) return;
+        if (d.first_deposit_eligible && d.first_deposit_bonus_pct > 0) {
+          var titleEl = document.getElementById('depFirstBonusTitle');
+          var bodyEl  = document.getElementById('depFirstBonusBody');
+          if (titleEl) titleEl.textContent = tl('FIRST DEPOSIT BONUS','첫 입금 보너스','初回入金ボーナス','首次充值奖励');
+          if (bodyEl) {
+            bodyEl.innerHTML = tl(
+              'Your <b>first</b> deposit gets an extra <b style="color:#ffd166">+'+d.first_deposit_bonus_pct+'%</b> PP on top of the base <b>+'+d.base_bonus_pct+'%</b>. <span style="color:#69f0ae">Total +'+d.total_bonus_pct_if_first+'% PP — one-time offer.</span>',
+              '<b>첫</b> 입금에는 기본 <b>+'+d.base_bonus_pct+'%</b>에 추가로 <b style="color:#ffd166">+'+d.first_deposit_bonus_pct+'%</b> PP 보너스. <span style="color:#69f0ae">총 +'+d.total_bonus_pct_if_first+'% PP — 일회성 기회.</span>',
+              '<b>初回</b>入金は基本<b>+'+d.base_bonus_pct+'%</b>に加えて<b style="color:#ffd166">+'+d.first_deposit_bonus_pct+'%</b>PPボーナス。<span style="color:#69f0ae">合計 +'+d.total_bonus_pct_if_first+'% PP — 一回限り。</span>',
+              '<b>首次</b>充值在基础<b>+'+d.base_bonus_pct+'%</b>之上额外赠送<b style="color:#ffd166">+'+d.first_deposit_bonus_pct+'%</b>PP。<span style="color:#69f0ae">合计 +'+d.total_bonus_pct_if_first+'% PP — 限一次。</span>'
+            );
+          }
+          banner.style.display = '';
+        }
+      })
+      .catch(function(){});
+  } catch(_) {}
 }
 function closeDepositModal(){document.getElementById('depositModal').classList.remove('open')}
 
@@ -47907,6 +47937,11 @@ function renderShips() {
     var crossBadge = crossFaction
       ? '<span style="position:absolute;top:6px;left:6px;font-size:8px;font-weight:900;color:#aac4dc;background:rgba(20,28,40,.92);border:1px solid rgba(136,170,204,.6);padding:2px 6px;border-radius:5px;letter-spacing:.5px" title="'+tl('Other faction — cannot deploy, list on market','다른 진영 — 사용 불가, 마켓 판매 가능','他陣営 — 配置不可、市場で販売可','其他阵营 — 无法部署，可上架销售')+'">🔒 '+(s.faction_code||'').toUpperCase()+'</span>'
       : '';
+    // [v7.167] 각인 품질 배지 — common(없음) 외엔 별점으로 강화 함선 식별. 마켓 가치 직관 노출.
+    var qm = (typeof _crateQualityMeta !== 'undefined' && s.quality) ? _crateQualityMeta[s.quality] : null;
+    var qBadge = (qm && qm.stars > 0)
+      ? '<span style="position:absolute;top:6px;right:6px;font-size:8px;font-weight:900;color:'+qm.col+';background:rgba(20,18,28,.92);border:1px solid '+qm.col+'80;padding:2px 6px;border-radius:5px;letter-spacing:.3px" title="'+(LANG==='ko'?qm.ko:qm.en)+' — '+tl('Enhanced ship (gacha)','강화 함선 (가챠 각인)','強化艦(ガチャ)','强化舰（抽卡）')+'">'+'★'.repeat(qm.stars)+'</span>'
+      : '';
     var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
     var hpPct = Math.max(0, Math.min(100, (s.current_hp / effectiveMaxHp) * 100));
     var hpClass = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
@@ -47926,6 +47961,7 @@ function renderShips() {
     return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + (crossFaction ? ' cross-faction' : '') + '" style="position:relative">' +
       listedSticker +
       crossBadge +
+      qBadge +
       '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + syShipName(s) + '</div>' +
       '<div class="ship-class">' + syClassLabel(s.class_label || '') + '</div>' +
       '<div class="ship-hp-bar"><div class="ship-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div></div>' +

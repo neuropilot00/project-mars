@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.167 — UI 미연결 잔존 2건 연결 (각인 품질·첫 입금 보너스)
+
+최근 백엔드 기능 중 프론트 UI 미반영 잔존분 처리:
+- **각인 품질 배지 — 보유 함선 카드** (mig 251 + `ship.js`/`renderShips`):
+  - `ships.quality` 컬럼 추가 + 가챠 INSERT 시 함께 저장 + 기존 풀 이력 백필. `getMyShips` SELECT 포함.
+  - 보유 함선 카드 우상단에 `★~★★★★` 배지(stars >= 1 일 때만 노출, common=숨김). 색·툴팁은 등급 메타와 일치. 강화된 함선(=마켓 프리미엄 가격 자산)이 한눈에 식별 → 거래·관리 동기.
+- **첫 입금 보너스 강조 — 입금 모달** (`/api/wallet/deposit-bonus-info` + `openDepositModal`):
+  - 신규 엔드포인트: `base_bonus_pct`, `first_deposit_bonus_pct`, `first_deposit_eligible`, `total_bonus_pct_if_first` 반환(`deposits` 테이블 prior 0건 체크).
+  - 입금 모달 열릴 때 fetch → 자격 있으면 🎁 보너스 배너 노출("기본 +10% 위에 추가 +20%, 총 +30% — 일회성"). 4언어. 자격 없으면 배너 숨김.
+
+영토 HP/등급/TEND·cross-faction lock·각인 품질(리빌)·PORTFOLIO 모달 등은 이미 v7.135~v7.165에서 UI 연결 완료. NPC arena/sybil flags 는 운영 측 영역(사용자 표시 불필요).
+
 ## 2026-05-28 v7.166 — Tier 2 잔여 4건 모두 처리 (sybil 감지·캐시·treasury·fee 컨벤션)
 
 이번 라운드까지 머니플로 감사 후속 잔여 0:
