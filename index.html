@@ -1171,6 +1171,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* ── BASE 카테고리 바 ── */
 .base-cat-row{display:flex;gap:0;padding:0 10px;background:rgba(0,0,0,.25);flex-shrink:0;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bdr)}
 .base-cat-row::-webkit-scrollbar{display:none}
+/* [v7.183] .bcat 상위 카테고리도 하위 sub-tab 미확인 dot 가 있으면 같이 빛나게.
+   하위 .base-tab[data-cat=X] 안의 .tab-dot 이 표시 중이면 .bcat[data-cat=X] 에 .has-dot 부여 → ::after 로 빨간 점 점멸. */
+.bcat{position:relative}
+.bcat.has-dot::after{
+  content:'';position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;
+  background:var(--red);box-shadow:0 0 6px rgba(232,72,85,.8);
+  animation:dotPulse 1.5s ease-in-out infinite;pointer-events:none;
+}
 .bcat{flex-shrink:0;padding:13px 20px;font-size:15px;font-family:var(--fn);font-weight:700;letter-spacing:.4px;min-height:50px;
   background:none;border:none;border-bottom:3px solid transparent;color:var(--tx3);cursor:pointer;transition:all .2s;white-space:nowrap;line-height:1}
 .bcat:hover{color:var(--tx2);background:rgba(255,120,60,.04)}
@@ -25019,6 +25027,26 @@ window._baseDotSeen = (function(){
 function _saveDotSeen(){ try{ localStorage.setItem('base_tab_seen', JSON.stringify(window._baseDotSeen)); }catch(_e){} }
 // Tracks latest polled counts so clearBaseTabDot can snapshot them
 var _pollDotState = {};
+// [v7.183] 카테고리 dot 동기화 — 어느 sub-tab 이라도 dot 켜져 있으면 부모 .bcat 에 .has-dot 부여.
+// setBaseTabDot / clearBaseTabDot / _pollBaseTabDots 직후 항상 호출돼야 함.
+function _syncBcatDots(){
+  try {
+    document.querySelectorAll('.bcat[data-cat]').forEach(function(b){
+      var cat = b.getAttribute('data-cat');
+      if (!cat) return;
+      // 같은 카테고리의 base-tab 중 .tab-dot 이 visible 인 게 하나라도 있나
+      var anyOn = Array.prototype.some.call(
+        document.querySelectorAll('.base-tab[data-cat="'+cat+'"] .tab-dot'),
+        function(d){ return d.style.display !== 'none' && d.style.display !== ''; }
+      );
+      // 처음 로드 시 style.display 가 '' 라 false. CSS 기본은 display:none 이므로 정확히 매칭.
+      // 일부 dot 은 inline style.display='block' 으로 켜짐.
+      b.classList.toggle('has-dot', !!anyOn);
+    });
+  } catch(_) {}
+}
+window._syncBcatDots = _syncBcatDots;
+
 window.clearBaseTabDot = function(tab){
   var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot',govern:'governDot',shop:'shopDot',market:'marketDot',pvp:'pvpDot',transport:'transportDot',fleet:'fleetDot',items:'itemsDot'};
   var id = map[tab]; if(!id) return;
@@ -25047,12 +25075,14 @@ window.clearBaseTabDot = function(tab){
   // on next poll if unclaimed items still exist, until user actually claims them
   _saveDotSeen();
   if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
+  _syncBcatDots(); // [v7.183] 부모 .bcat dot 동기화
 };
 window.setBaseTabDot = function(tab, on){
   var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot',govern:'governDot',shop:'shopDot',market:'marketDot',pvp:'pvpDot',transport:'transportDot',fleet:'fleetDot',items:'itemsDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display = on ? 'block' : 'none';
   if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
+  _syncBcatDots(); // [v7.183] 부모 .bcat dot 동기화
 };
 // Poll once a minute for new info across tabs. Minimal server hits —
 // piggybacks on existing endpoints.
