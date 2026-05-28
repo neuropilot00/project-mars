@@ -5610,6 +5610,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="lang-menu-item" onclick="setLang('zh');closeLangDropdown()">ZH 中文</div>
       </div>
     </div>
+    <!-- [v7.184] MY ASSETS — 체인 인디케이터(BASE) 왼쪽으로 이동. -->
+    <button id="tbMyAssetsBtnTop" class="tb-myassets-top" onclick="openPortfolioModal()" title="My Mars Portfolio" aria-label="Open my assets portfolio" style="display:none">
+      <span class="ma-icon">🪐</span>
+      <span class="ma-label-top" data-i18n="my_assets_btn">MY ASSETS</span>
+    </button>
     <div class="chain-indicator" id="chainIndicator" style="display:none">
       <span class="chain-dot base" id="chainDotTop"></span>
       <span id="chainNameTop">BASE</span>
@@ -5618,11 +5623,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button id="telegramBtn" onclick="openTelegramGroup()" title="Join Telegram" style="display:none">✈</button>
     <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()" style="display:none">👤</div>
     <img class="tb-avatar" id="tbAvatarImg" src="/assets/avatars/default.png" onclick="openAuthModal()" onerror="this.style.display='none';document.getElementById('tbAvatarEmoji').style.display='flex'">
-    <!-- [v7.181 Task 1] MY ASSETS — 상단 라이브 라인으로 이동. 별도 floating 버튼 제거. -->
-    <button id="tbMyAssetsBtnTop" class="tb-myassets-top" onclick="openPortfolioModal()" title="My Mars Portfolio" aria-label="Open my assets portfolio" style="display:none">
-      <span class="ma-icon">🪐</span>
-      <span class="ma-label-top" data-i18n="my_assets_btn">MY ASSETS</span>
-    </button>
+    <!-- [v7.184] MY ASSETS 버튼은 위 chainIndicator 왼쪽으로 이동. (구 위치 삭제) -->
     <button class="tb-btn" id="loginBtn" onclick="openAuthModal()" data-i18n="login">LOGIN</button>
   </div>
 </div>
