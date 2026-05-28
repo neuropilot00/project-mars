@@ -1154,13 +1154,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .mob-info-btn:active{transform:translate(-50%,-100%) scale(.93)}
 
 /* Mobile territory info modal */
+/* [v7.206] 데스크탑/모바일 공용 영토 정보 모달.
+   모바일은 bottom sheet (align-items:flex-end), 데스크탑은 중앙 모달.
+   bottom sheet 의 둥근 모서리 → 데스크탑은 전체 둥글게 + center. */
 .mob-territory-modal{position:fixed;inset:0;z-index:510;background:rgba(0,0,0,.7);
-  backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding:0}
 .mob-territory-modal.open{display:flex}
 .mob-territory-card{width:100%;max-width:480px;background:var(--panel2);
   border-top:1px solid var(--bdr2);border-radius:16px 16px 0 0;
   padding:16px 20px 24px;max-height:85vh;overflow-y:auto;
   box-shadow:0 -8px 40px rgba(0,0,0,.5)}
+@media (min-width:769px){
+  .mob-territory-modal{align-items:center;padding:16px}
+  .mob-territory-card{border:1px solid var(--bdr2);border-top-width:1px;border-radius:16px;max-height:90vh}
+}
 .mob-territory-card .mt-handle{width:36px;height:4px;background:var(--bdr2);
   border-radius:2px;margin:0 auto 14px}
 .mob-territory-card .mt-title{font-family:var(--fn);font-size:12px;color:var(--gold);
@@ -33310,8 +33317,8 @@ function searchOwner(){
     d.onclick=function(){
       globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.08,Math.max(cw,ch)*GRID_SIZE/50)},800);
       isZoomedIn=true; selectedPlot=c;
-      if(isMobile){ openMobTerritoryModalDirect(c); }
-      else{ showTerritoryInfo(c); }
+      // [v7.206] 데스크탑/모바일 모두 모달로 통일 — 이전엔 데스크탑이 사이드바 슬라이드라 UX 분기.
+      openMobTerritoryModalDirect(c);
       compositeClaimsOnTexture();
     };
     box.appendChild(d);
