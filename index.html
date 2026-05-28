@@ -6927,7 +6927,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
 
         <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
-          <div class="base-section-title" style="color:#4fc3f7;margin-top:2px">⚡ CAMPAIGN</div>
+          <div class="base-section-title" style="display:flex;align-items:center;justify-content:space-between;color:#4fc3f7;margin-top:2px">
+            <span>⚡ CAMPAIGN</span>
+            <!-- [v7.172 D-Crit-2/3 fix] 칭호 장착 + 평판 history 진입 버튼 — 백엔드 완비됐는데 UI 0건이었음 -->
+            <button type="button" onclick="openCampaignProfileModal()" aria-label="Campaign profile — titles and reputation history" style="font-size:9px;padding:3px 9px;border-radius:6px;background:rgba(184,140,255,.12);border:1px solid rgba(184,140,255,.35);color:#caa8ff;cursor:pointer;font-family:var(--fn)" data-i18n="campaign_profile_btn">🎖 PROFILE</button>
+          </div>
           <div id="campaignReputation"></div>
           <div id="campaignRewardInbox"></div>
           <div id="campaignList">
@@ -17584,6 +17588,7 @@ var I18N = {
     codex_subtitle: 'Official game guidebook',
     loading: 'Loading…',
     // Campaign
+    campaign_profile_btn: '🎖 PROFILE', // [i18n backfill v7.172]
     campaign_btn_start: 'BEGIN OP', campaign_btn_continue: 'RESUME OP',
     campaign_btn_results: 'VIEW RESULT', campaign_btn_locked: 'LOCKED',
     campaign_label_completed: 'COMPLETED', campaign_label_prologue: 'PROLOGUE',
@@ -17726,6 +17731,7 @@ var I18N = {
     br_hint: 'Claude reads and fixes reports', br_label_desc: 'Bug Description *', br_desc_placeholder: 'Describe the bug.\nE.g. GP not rewarded after battle',
     br_label_ss: 'Screenshot (optional)', br_ss_placeholder: '📸 Click or paste screenshot (Cmd+V / Ctrl+V)', br_ss_drag: 'or drag file here', br_capturing: 'Capturing screen...', br_submit: 'Submit', br_clear_ss: 'Clear Screenshot',
     ops_board_title: '📋 Today\'s Ops Board', ops_legend_done: '🟢 Done', ops_legend_pending: '⚪ Pending', ops_legend_urgent: '🔴 Urgent',
+    pvp_rewards_btn: '🏅 Reward History', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ Declare Battle', pvp_tab_rec: '🎯 Recommended', pvp_tab_bounty: '💰 Bounty', pvp_tab_conflict: '🔥 Sector Conflict',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 Upgrading...',
     we_select_fleet: 'Select fleet...', we_fleet_min: 'At least 1 ship required',
@@ -18456,6 +18462,7 @@ var I18N = {
     codex_subtitle: '공식 게임 가이드북',
     loading: '불러오는 중…',
     // 캠페인
+    campaign_profile_btn: '🎖 프로필', // [i18n backfill v7.172]
     campaign_btn_start: '작전 시작', campaign_btn_continue: '작전 계속',
     campaign_btn_results: '결과 확인', campaign_btn_locked: '잠김',
     campaign_label_completed: '완료', campaign_label_prologue: '프롤로그',
@@ -18597,6 +18604,7 @@ var I18N = {
     br_hint: 'Claude가 읽고 수정합니다', br_label_desc: '버그 설명 *', br_desc_placeholder: '어떤 버그인지 설명해주세요.\n예) 전투 후 GP가 지급되지 않음',
     br_label_ss: '스크린샷 (선택)', br_ss_placeholder: '📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)', br_ss_drag: '또는 파일을 여기에 드래그하세요', br_capturing: '화면 캡처 중...', br_submit: '제출하기', br_clear_ss: '스크린샷 지우기',
     ops_board_title: '📋 오늘의 작전 보드', ops_legend_done: '🟢 완료', ops_legend_pending: '⚪ 미완료', ops_legend_urgent: '🔴 긴급',
+    pvp_rewards_btn: '🏅 보상 이력', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 전투 선언', pvp_tab_rec: '🎯 추천 상대', pvp_tab_bounty: '💰 현상금', pvp_tab_conflict: '🔥 섹터 분쟁',
     wb_title: '🎯 WAR BETTING · 전쟁 베팅', forge_upgrading: '🔨 강화 중...',
     we_select_fleet: '함대 선택...', we_fleet_min: '최소 1척 이상의 함선이 있어야 합니다',
@@ -19300,6 +19308,7 @@ var I18N = {
     war_treasury_low: '金庫GP不足 ({need}必要、保有{have})',
     codex_subtitle: '公式ゲームガイドブック',
     loading: '読み込み中…',
+    campaign_profile_btn: '🎖 プロフィール', // [i18n backfill v7.172]
     campaign_btn_start: 'スタート', campaign_btn_continue: '続ける',
     campaign_btn_results: '結果', campaign_btn_locked: 'ロック済',
     campaign_label_completed: '完了', campaign_label_prologue: 'プロローグ',
@@ -19455,6 +19464,7 @@ var I18N = {
     br_hint: 'Claudeが読んで修正します', br_label_desc: 'バグの説明 *', br_desc_placeholder: 'バグの内容を説明してください。\n例)戦闘後にGPが付与されない',
     br_label_ss: 'スクリーンショット (任意)', br_ss_placeholder: '📸 クリックまたはスクリーンショットを貼り付け (Cmd+V / Ctrl+V)', br_ss_drag: 'またはファイルをここにドラッグ', br_capturing: '画面キャプチャ中...', br_submit: '送信する', br_clear_ss: 'スクリーンショット削除',
     ops_board_title: '📋 今日の作戦ボード', ops_legend_done: '🟢 完了', ops_legend_pending: '⚪ 未完了', ops_legend_urgent: '🔴 緊急',
+    pvp_rewards_btn: '🏅 報酬履歴', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 戦闘宣言', pvp_tab_rec: '🎯 推薦相手', pvp_tab_bounty: '💰 賞金', pvp_tab_conflict: '🔥 セクター紛争',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 強化中...',
     we_select_fleet: '艦隊選択...', we_fleet_min: '最低1隻の艦船が必要です',
@@ -20158,6 +20168,7 @@ var I18N = {
     war_treasury_low: '金库GP不足（需要{need}，拥有{have}）',
     codex_subtitle: '官方游戏指南',
     loading: '加载中…',
+    campaign_profile_btn: '🎖 个人资料', // [i18n backfill v7.172]
     campaign_btn_start: '开始', campaign_btn_continue: '继续',
     campaign_btn_results: '结果', campaign_btn_locked: '锁定',
     campaign_label_completed: '已完成', campaign_label_prologue: '序章',
@@ -20313,6 +20324,7 @@ var I18N = {
     br_hint: 'Claude会读取并修复', br_label_desc: '错误描述 *', br_desc_placeholder: '请描述错误内容。\n例)战斗后未发放GP、画面变白',
     br_label_ss: '截图 (可选)', br_ss_placeholder: '📸 点击或粘贴截图 (Cmd+V / Ctrl+V)', br_ss_drag: '或将文件拖放至此', br_capturing: '截图中...', br_submit: '提交', br_clear_ss: '清除截图',
     ops_board_title: '📋 今日作战板', ops_legend_done: '🟢 完成', ops_legend_pending: '⚪ 未完成', ops_legend_urgent: '🔴 紧急',
+    pvp_rewards_btn: '🏅 奖励记录', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 宣战', pvp_tab_rec: '🎯 推荐对手', pvp_tab_bounty: '💰 赏金', pvp_tab_conflict: '🔥 区域冲突',
     wb_title: '🎯 WAR BETTING · 战争下注', forge_upgrading: '🔨 强化中...',
     we_select_fleet: '选择舰队...', we_fleet_min: '至少需要1艘舰船',
@@ -28214,6 +28226,123 @@ function loadCampaignStatus(){
         el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
       });
   });
+}
+
+// [v7.172 D-Crit-2/3 fix] 캠페인 프로필 모달 — 칭호 장착 + 평판 history.
+//   백엔드 /api/tags/:wallet, /api/tags/set-active-title, /api/reputation/history/:wallet 완비됐는데 UI 0건이었음.
+//   이 한 모달이 두 가지를 다 처리: TITLES 탭(보유 칭호 클릭→활성), HISTORY 탭(최근 30건 평판 변동).
+function openCampaignProfileModal(){
+  if (typeof isLoggedIn === 'function' && !isLoggedIn()){
+    showFactionToast(tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error');
+    return;
+  }
+  var w = (walletState && walletState.address) || '';
+  if (!w) { showToast('Wallet not ready', 'error'); return; }
+  var old = document.getElementById('campaignProfileModal'); if (old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'campaignProfileModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.82);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
+  el.onclick = function(e){ if(e.target===el) el.remove(); };
+  el.innerHTML =
+    '<div style="position:relative;width:min(540px,94vw);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(184,140,255,.18),rgba(10,12,22,.98) 65%);border:1.5px solid rgba(184,140,255,.55);box-shadow:0 0 30px rgba(184,140,255,.25),0 18px 60px rgba(0,0,0,.7);padding:18px;animation:crPop .3s cubic-bezier(.2,1.3,.5,1)">'
+    +   '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#caa8ff">🎖 '+tl('CAMPAIGN PROFILE','캠페인 프로필','キャンペーンプロフィール','战役档案')+'</div>'
+    +   '<div style="display:flex;gap:6px;margin-top:12px">'
+    +     '<button id="cpTabTitles" onclick="_cpSwitchTab(\'titles\')" style="flex:1;padding:9px;border-radius:7px;background:rgba(184,140,255,.18);border:1px solid rgba(184,140,255,.5);color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">🎖 '+tl('TITLES','칭호','称号','称号')+'</button>'
+    +     '<button id="cpTabHistory" onclick="_cpSwitchTab(\'history\')" style="flex:1;padding:9px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">📜 '+tl('REP HISTORY','평판 이력','評判履歴','声誉历史')+'</button>'
+    +   '</div>'
+    +   '<div id="cpTitlesPane" style="margin-top:13px;overflow-y:auto;max-height:50vh"><div style="text-align:center;color:rgba(255,255,255,.4);font-size:10px;padding:30px">'+tl('Loading...','로딩 중...','読み込み中...','加载中...')+'</div></div>'
+    +   '<div id="cpHistoryPane" style="display:none;margin-top:13px;overflow-y:auto;max-height:50vh"></div>'
+    +   '<button type="button" onclick="document.getElementById(\'campaignProfileModal\').remove()" style="margin-top:13px;width:100%;padding:11px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">'+tl('CLOSE','닫기','閉じる','关闭')+'</button>'
+    + '</div>';
+  document.body.appendChild(el);
+  _cpLoadTitles(w);
+}
+function _cpSwitchTab(tab){
+  var t = document.getElementById('cpTabTitles'), h = document.getElementById('cpTabHistory');
+  var tp = document.getElementById('cpTitlesPane'), hp = document.getElementById('cpHistoryPane');
+  if (!t||!h||!tp||!hp) return;
+  var active = 'background:rgba(184,140,255,.18);border:1px solid rgba(184,140,255,.5);color:#fff';
+  var inactive = 'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7)';
+  if (tab==='titles'){
+    t.style.cssText = 'flex:1;padding:9px;border-radius:7px;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;'+active;
+    h.style.cssText = 'flex:1;padding:9px;border-radius:7px;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;'+inactive;
+    tp.style.display=''; hp.style.display='none';
+  } else {
+    h.style.cssText = 'flex:1;padding:9px;border-radius:7px;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;'+active;
+    t.style.cssText = 'flex:1;padding:9px;border-radius:7px;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;'+inactive;
+    hp.style.display=''; tp.style.display='none';
+    var w = (walletState && walletState.address) || '';
+    if (w && !hp.dataset.loaded) _cpLoadHistory(w);
+  }
+}
+function _cpLoadTitles(w){
+  fetch('/api/tags/'+encodeURIComponent(w), { headers: getAuthHeaders() })
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(d){
+      var pane = document.getElementById('cpTitlesPane'); if (!pane) return;
+      if (!d) { pane.innerHTML = '<div style="text-align:center;color:#ff5252;font-size:10px;padding:20px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'; return; }
+      var tags = (d.tags || d.list || []);
+      var active = d.activeTitle || d.active_title || null;
+      if (!tags.length) {
+        pane.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);font-size:10px;padding:30px;line-height:1.6">'+tl('No titles yet.','아직 받은 칭호가 없습니다.','まだ称号がありません。','尚无称号。')+'<br><span style="color:rgba(255,255,255,.3);font-size:9px">'+tl('Complete campaign chapters to earn titles.','캠페인 챕터를 완료하면 칭호를 받습니다.','キャンペーンを完了すると獲得できます。','完成战役章节可获得称号。')+'</span></div>';
+        return;
+      }
+      pane.innerHTML = tags.map(function(tag){
+        var id = tag.tag_id || tag.id || tag.code || '';
+        var label = tag.label || tag.name || tag.tag_label || id;
+        var isActive = (active === id);
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-radius:8px;background:'+(isActive?'rgba(184,140,255,.16)':'rgba(255,255,255,.04)')+';border:1px solid '+(isActive?'rgba(184,140,255,.55)':'rgba(255,255,255,.08)')+';margin-bottom:5px">'
+          + '<div><div style="font-size:11px;font-weight:800;color:'+(isActive?'#caa8ff':'#fff')+'">🎖 '+escapeHtmlSafe(label)+(isActive?' <span style="font-size:9px;color:#69f0ae">'+tl('· ACTIVE','· 활성','· 装着中','· 已装备')+'</span>':'')+'</div>'
+          + (tag.description?'<div style="font-size:8.5px;color:rgba(255,255,255,.5);margin-top:2px">'+escapeHtmlSafe(tag.description)+'</div>':'')
+          + '</div>'
+          + (isActive
+              ? '<button onclick="_cpSetActiveTitle(\'\')" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-family:var(--fn);cursor:pointer">'+tl('Unequip','해제','解除','卸下')+'</button>'
+              : '<button onclick="_cpSetActiveTitle(\''+escapeHtmlSafe(id).replace(/\047/g,'\\\047')+'\')" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(184,140,255,.18);border:1px solid rgba(184,140,255,.45);color:#fff;font-family:var(--fn);cursor:pointer">'+tl('Equip','장착','装着','装备')+'</button>')
+          + '</div>';
+      }).join('');
+    })
+    .catch(function(){ var pane = document.getElementById('cpTitlesPane'); if (pane) pane.innerHTML = '<div style="text-align:center;color:#ff5252;font-size:10px;padding:20px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'; });
+}
+function _cpSetActiveTitle(tagId){
+  fetch('/api/tags/set-active-title', { method:'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()), body: JSON.stringify({ tag_id: tagId || null }) })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (!d || d.error) { showToast(d&&d.error || tl('Failed','실패','失敗','失败'), 'error'); return; }
+      showToast(tagId?tl('Title equipped','칭호 장착됨','称号装着','称号已装备'):tl('Title removed','칭호 해제됨','称号解除','称号已卸下'),'success');
+      var w = (walletState && walletState.address) || ''; if (w) _cpLoadTitles(w);
+    })
+    .catch(function(){ showToast(tl('Failed','실패','失敗','失败'),'error'); });
+}
+function _cpLoadHistory(w){
+  fetch('/api/reputation/history/'+encodeURIComponent(w), { headers: getAuthHeaders() })
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(d){
+      var pane = document.getElementById('cpHistoryPane'); if (!pane) return;
+      pane.dataset.loaded = '1';
+      var hist = (d && d.history) || [];
+      if (!hist.length) {
+        pane.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);font-size:10px;padding:30px">'+tl('No reputation changes yet.','아직 평판 변동이 없습니다.','評判の変動がありません。','尚无声誉变动。')+'</div>';
+        return;
+      }
+      var facColor = { mcc:'#4fc3f7', fsp:'#81c784', cv:'#ef5350', pilgrim_arms:'#c08bff' };
+      var facLabel = { mcc:'MCC', fsp:'FSP', cv:'CV', pilgrim_arms:'Pilgrim Arms' };
+      pane.innerHTML = hist.map(function(h){
+        var col = facColor[h.faction] || '#fff';
+        var lbl = facLabel[h.faction] || h.faction;
+        var sign = (h.delta > 0) ? '+' : '';
+        var sCol = (h.delta > 0) ? '#69f0ae' : (h.delta < 0 ? '#ff5252' : '#fff');
+        var src = h.source_type ? (h.source_type + (h.source_id ? (' · '+h.source_id) : '')) : '';
+        var when = h.created_at ? new Date(h.created_at).toLocaleString() : '';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:4px">'
+          + '<div><div style="font-size:10px;font-weight:800;color:'+col+'">'+lbl+'</div>'
+          +   (src?'<div style="font-size:8.5px;color:rgba(255,255,255,.5);margin-top:1px">'+escapeHtmlSafe(src)+'</div>':'')
+          +   (when?'<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:1px">'+when+'</div>':'')
+          + '</div>'
+          + '<div style="font-size:13px;font-weight:900;color:'+sCol+'">'+sign+h.delta+'</div>'
+          + '</div>';
+      }).join('');
+    })
+    .catch(function(){ var pane = document.getElementById('cpHistoryPane'); if (pane) pane.innerHTML = '<div style="text-align:center;color:#ff5252;font-size:10px;padding:20px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'; });
 }
 
 function renderCampaignReputation(rep,tiers){

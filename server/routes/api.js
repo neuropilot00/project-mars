@@ -4174,6 +4174,32 @@ router.post('/campaign/abandon', requireAuth, writeLimiter, async (req, res) => 
   }
 });
 
+// [v7.172 D-Crit-3 fix] reputation_history 사용자 조회 — 플레이어가 "왜 평판이 떨어졌나" 추적 가능
+router.get('/reputation/history/:wallet', readLimiter, async (req, res) => {
+  try {
+    const wallet = String(req.params.wallet || '').toLowerCase().trim();
+    if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet required' });
+    const limit = Math.min(parseInt(req.query.limit) || 30, 100);
+    const { rows } = await pool.query(
+      `SELECT id, faction, delta, before_value, after_value,
+              COALESCE(source_type, '') AS source_type,
+              COALESCE(source_id, '') AS source_id,
+              created_at
+         FROM reputation_history
+        WHERE LOWER(wallet) = LOWER($1)
+        ORDER BY created_at DESC, id DESC
+        LIMIT $2`,
+      [wallet, limit]
+    );
+    res.json({ history: rows, count: rows.length });
+  } catch (e) {
+    // 테이블 미존재 환경(42P01) 등은 빈 결과로 폴백 — UI 깨짐 방지
+    if (e && e.code === '42P01') return res.json({ history: [], count: 0, _note: 'reputation_history table missing' });
+    console.error('[reputation/history] error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 router.get('/reputation/:wallet', readLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });

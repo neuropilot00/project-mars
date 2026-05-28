@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-28 v7.172 — 풀 리소스 병렬 처리 (Codex 2 백그라운드 + 직접 4건)
+
+7 페르소나 감사 잔여 Critical 다수를 한 라운드에 일괄 처리. Codex CLI 2건 백그라운드 + Claude 직접 4건 병렬.
+- **D-Crit-2 활성 칭호 장착 UI** (Claude 직접) — 신규 `openCampaignProfileModal` 통합 모달. `/api/tags/:wallet` fetch → 보유 칭호 목록·활성 표시·`Equip/Unequip` 버튼 → `/api/tags/set-active-title` 호출. CAMPAIGN 패널 헤더에 `🎖 PROFILE` 진입 버튼.
+- **D-Crit-3 reputation history 화면** (Claude 직접) — 신규 endpoint `GET /api/reputation/history/:wallet` (4언어 한도 30) + 프로필 모달의 두 번째 탭. 4파벌 색·delta±·source/시각 표시. 테이블 미존재 silent fallback.
+- **G-Crit-4 어드민 CSRF 미들웨어** (Codex `bh9crb2wu`) — `csrfGuard` 추가, `GET /admin/api/csrf-token` 발급(sha256, 1h TTL), 모든 POST/PUT/DELETE 검증. 토큰 없거나 불일치 시 403.
+- **G-Crit-5 dead 라우트 식별·비활성** (Codex `bh9crb2wu` 후속) — Hall of Fame 별칭 `/api/titles`, `/api/hof` 등 frontend 호출 0건 라우트 `// [v7.172 G-Crit-5 disabled — frontend 호출 0건]` 주석으로 비활성. 재활성 1초.
+- **F-Crit-1 i18n 누락 키 백필** (Codex `bjwcauxlp`) — 8 라인 추가 (`campaign_profile_btn`, `pvp_rewards_btn` 등 4언어 정합). 모든 라인에 `// [i18n backfill v7.172]` 마커.
+
+모든 수정 코드에 `[v7.172 X-XX]` 주석 + AUDIT 문서 ID 매칭. `docs/AUDIT_v7.169_FULL_CATEGORY.md` 상태 갱신.
+
+**잔여(대규모 별도 라운드)**: A-C3 이메일 인증 SMTP, G-Crit-3 JWT httpOnly cookie 전환, C-M3 Hijack Phase 2 푸시 알림, A-M4 비밀번호 정책 일관화, F-Crit-2 나머지 buttons aria-label.
+
 ## 2026-05-28 v7.171 — Tier 2 감사 후속 4건 (Enhancement UI · 닉네임 · reveal-key · aria)
 
 - **E-Crit**: enhancementAdvanced 백엔드(scroll/recipe) 완비됐는데 UI 0건이던 결함 → 신규 `enhanceAdvModal` 모달:
