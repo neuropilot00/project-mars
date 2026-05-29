@@ -39,6 +39,7 @@ assets/ships/*
 !assets/poi/*.png
 !assets/poi/*.jpg
 !assets/fx/*.png
+!assets/fx/*.mp4
 !assets/campaign/
 assets/campaign/*
 !assets/campaign/backgrounds/

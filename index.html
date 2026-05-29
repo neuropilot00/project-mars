@@ -16443,11 +16443,11 @@ async function confirmClaim(){
         if (typeof refreshGP === 'function') refreshGP();
         // Phase 1 battle viewer 자동 오픈 (10초 prep 후 시작)
         if (hjData.phase1_battle_id && typeof openBattleViewer === 'function') {
-          // 슬로대 스타일 — 함대전 진입 직전 파벌 캐릭터 대사
-          try { showFactionFlavor('fleet_battle_engage', { duration: 2200 }); } catch(_){ }
-          setTimeout(function(){
-            try { openBattleViewer(hjData.phase1_battle_id); } catch(e) { console.error('openBattleViewer:', e); }
-          }, 2400);
+          // [v7.227] 영토 탈취 개시 인트로 영상 → 끝나면(또는 탭 스킵) battle viewer.
+          var _bid = hjData.phase1_battle_id;
+          playHijackIntro().then(function(){
+            try { openBattleViewer(_bid); } catch(e) { console.error('openBattleViewer:', e); }
+          });
         }
       }
       return;
@@ -48269,6 +48269,36 @@ function playCrateOpening(d){
 
       // 안전망 — 어떤 이유로든 멈추면 1.5s 후 강제 resolve.
       setTimeout(function(){ try { if(document.getElementById('crateOpeningOverlay')) ov.remove(); } catch(_){}; resolve(); }, chargeMs + burstMs + 400);
+    } catch(_) { resolve(); }
+  });
+}
+
+// [v7.227] 하이젝 영토 탈취 개시 인트로 영상 — 풀스크린, 가로/세로 분기. 끝나거나 탭하면 resolve.
+//   영상 로드 실패/없으면 즉시 resolve (battle viewer 진행 막지 않음). 최대 5초 자동.
+function playHijackIntro(){
+  return new Promise(function(resolve){
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return resolve();
+      var ov = document.createElement('div');
+      ov.id = 'hijackIntroOverlay';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:#05040b;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:crFade .25s ease';
+      var src = window.innerWidth > 768 ? '/assets/fx/hijack_intro.mp4' : '/assets/fx/hijack_intro_v.mp4';
+      ov.innerHTML =
+        '<video id="_hjIntroVid" muted playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
+        + '<div style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,rgba(5,4,11,.85));pointer-events:none"></div>'
+        + '<div style="position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);text-align:center;font-family:var(--fn);font-size:22px;font-weight:900;letter-spacing:4px;color:#ff6b6b;text-shadow:0 0 24px rgba(232,72,85,.7);pointer-events:none">⚔ '+tl("TERRITORY HIJACK","영토 탈취 개시","領土ハイジャック","领地劫持")+'</div>'
+        + '<div style="position:absolute;bottom:24px;left:0;right:0;text-align:center;font-family:var(--fn);font-size:10px;color:rgba(255,255,255,.55)">'+tl("tap to skip","탭하여 건너뛰기","タップでスキップ","点击跳过")+'</div>';
+      document.body.appendChild(ov);
+      var done = false;
+      var finish = function(){ if(done) return; done=true; try{ov.remove();}catch(_){}; resolve(); };
+      ov.addEventListener('click', finish);
+      var vid = document.getElementById('_hjIntroVid');
+      if (vid) {
+        vid.addEventListener('ended', finish, { once:true });
+        var pp = vid.play(); if (pp && pp.catch) pp.catch(function(){ setTimeout(finish, 800); });
+      }
+      try { _sfx.crateCharge(); } catch(_){}
+      setTimeout(finish, 5000); // 최대 5초 자동 진행
     } catch(_) { resolve(); }
   });
 }
