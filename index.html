@@ -14381,10 +14381,14 @@ function loadTerritoryProduction(claimId,wallet){
         html+='<span style="color:var(--tx2)">'+((sectorLabel[d.sector.type]||d.sector.type.charAt(0).toUpperCase()+d.sector.type.slice(1)))+'</span>';
         html+='</div>';
       }
-      // Modifiers
+      // Modifiers + [v7.222 upgrade #4] 총 생산 배수 ×N.NN — 각 +% 를 곱연산해 "왜 이만큼 나오는지" 투명화.
       if(d.production&&d.production.modifiers&&d.production.modifiers.length){
-        html+='<div style="margin-top:4px;font-size:8px;color:var(--tx3)">'+(lang==='ko'?'모디파이어:':lang==='ja'?'修飾子:':lang==='zh'?'修正项:':'Modifiers:')+'</div>';
-        html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px">';
+        var _tm = _calcTotalMult(d.production.modifiers);
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">';
+        html+='<span style="font-size:8px;color:var(--tx3)">'+(lang==='ko'?'생산 배수':lang==='ja'?'生産倍率':lang==='zh'?'生产倍率':'Yield Mult')+'</span>';
+        html+='<span style="font-size:10px;font-weight:800;color:#ffd166;text-shadow:0 0 8px rgba(255,209,102,.4)">×'+_tm.toFixed(2)+'</span>';
+        html+='</div>';
+        html+='<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">';
         d.production.modifiers.forEach(function(m){
           var lbl=lang==='ko'?(m.labelKo||m.label):lang==='ja'?(m.labelJa||m.labelEn||m.label):lang==='zh'?(m.labelZh||m.labelEn||m.label):(m.labelEn||m.label);
           html+='<span style="font-size:8px;padding:1px 5px;background:rgba(255,171,64,.1);border:1px solid rgba(255,171,64,.2);border-radius:10px;color:#ffab40">'+lbl+' '+m.value+'</span>';
@@ -15744,6 +15748,17 @@ function _loadMobTerritoryProdInfo(claimId, plot){
       if (d.sector && d.sector.type) {
         var sLabel = lang==='ko'?{core:'코어',mid:'미드',frontier:'프론티어'}:lang==='ja'?{core:'コア',mid:'ミッド',frontier:'フロンティア'}:lang==='zh'?{core:'核心',mid:'中域',frontier:'边疆'}:{core:'Core',mid:'Mid',frontier:'Frontier'};
         html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--tx3);font-size:9px">'+(lang==='ko'?'섹터':lang==='ja'?'セクター':lang==='zh'?'扇区':'Sector')+'</span><span style="color:var(--tx2);font-size:10px">'+(sLabel[d.sector.type]||d.sector.type)+'</span></div>';
+      }
+      // [v7.222 upgrade #4] 총 생산 배수 + modifier 칩 — 모바일에도 곱연산 투명화.
+      if (d.production && d.production.modifiers && d.production.modifiers.length) {
+        var _tmm = _calcTotalMult(d.production.modifiers);
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0"><span style="color:var(--tx3);font-size:9px">'+(lang==='ko'?'생산 배수':lang==='ja'?'生産倍率':lang==='zh'?'生产倍率':'Yield Mult')+'</span><span style="font-size:11px;font-weight:800;color:#ffd166;text-shadow:0 0 8px rgba(255,209,102,.4)">×'+_tmm.toFixed(2)+'</span></div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:2px">';
+        d.production.modifiers.forEach(function(m){
+          var lbl=lang==='ko'?(m.labelKo||m.label):(m.labelEn||m.label);
+          html += '<span style="font-size:8px;padding:1px 5px;background:rgba(255,171,64,.1);border:1px solid rgba(255,171,64,.2);border-radius:10px;color:#ffab40">'+lbl+' '+m.value+'</span>';
+        });
+        html += '</div>';
       }
       // 마지막 수확
       if (d.lastHarvest && d.lastHarvest.at) {
@@ -20889,6 +20904,18 @@ function tl(en,ko,ja,zh){ return LANG==='ko'?ko:LANG==='ja'?ja:LANG==='zh'?zh:en
 //   모달 open 직후 (modal.dataset.openedAt 기록) 350ms 안의 backdrop click 은 무시.
 //   iOS Safari 의 touchstart→touchend→click 합성 이벤트로 인한 false close 차단.
 //   사용법: <div onclick="if(event.target===this)_safeBackdropClose(this, closeXxx)">
+// [v7.222 upgrade #4] 생산 modifier 배열의 +% 들을 곱연산해 총 배수 반환. '+50%' → ×1.5.
+//   음수(-%)/단순 숫자도 안전 파싱. 빈 배열이면 1.
+function _calcTotalMult(mods){
+  var m = 1;
+  (mods||[]).forEach(function(x){
+    var v = String(x && x.value || '').replace(/[^0-9.\-]/g,'');
+    var pct = parseFloat(v);
+    if (isFinite(pct)) m *= (1 + pct/100);
+  });
+  return Math.max(0, m);
+}
+window._calcTotalMult = _calcTotalMult;
 window._safeBackdropClose = function(modalEl, closeFn) {
   try {
     var openedAt = parseInt(modalEl.dataset.openedAt || '0', 10);
@@ -29469,7 +29496,25 @@ function campaignObjectivesHtml(ch,limit){
   var objectives=(ch&&Array.isArray(ch.objectives))?ch.objectives:[];
   if(!objectives.length) return '';
   var list=objectives.slice(0,limit||3);
-  var html='<div class="campaign-objectives">';
+  // [v7.222 upgrade #5] objective 진행률 바 + 다음 목표 힌트 — 초반 이탈 방지, 완료율 가시화.
+  var _doneN=objectives.filter(function(o){return o.state==='done';}).length;
+  var _totN=objectives.length;
+  var _pct=_totN?Math.round(_doneN/_totN*100):0;
+  var _next=objectives.find(function(o){return o.state!=='done';});
+  var _lang5=(typeof LANG!=='undefined'?LANG:'ko');
+  var _nextLbl=_next?(_campaignStoryText(_next.label)||_next.labelKo||_next.label||''):'';
+  var html='';
+  html+='<div style="margin:6px 0 4px">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
+  html+='<span style="font-size:8px;color:var(--tx3);letter-spacing:.5px">'+(_lang5==='ko'?'작전 진행도':_lang5==='ja'?'作戦進行度':_lang5==='zh'?'作战进度':'PROGRESS')+'</span>';
+  html+='<span style="font-size:9px;font-weight:800;color:'+(_pct>=100?'#69f0ae':'#ffd166')+'">'+_doneN+'/'+_totN+' · '+_pct+'%</span>';
+  html+='</div>';
+  html+='<div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+_pct+'%;background:linear-gradient(90deg,#ffd166,#ff9030);border-radius:3px;transition:width .4s"></div></div>';
+  if(_next&&_nextLbl){
+    html+='<div style="font-size:8px;color:#ffab40;margin-top:3px">▶ '+(_lang5==='ko'?'다음: ':_lang5==='ja'?'次: ':_lang5==='zh'?'下一步: ':'Next: ')+escapeHtmlSafe(_nextLbl)+'</div>';
+  }
+  html+='</div>';
+  html+='<div class="campaign-objectives">';
   list.forEach(function(o){
     var state=o.state||'pending';
     var icon=state==='done'?'✓':(state==='active'?'▶':'•');
