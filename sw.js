@@ -49,7 +49,8 @@
 // 2026-05-29 v47: v7.229 함대전 박력 강화 — 발사 머즐 플래시 + 빔/폭발 강화 + 대형함 격침 히트스톱(타격감).
 // 2026-05-29 v48: v7.230 로딩 영상 frozen Mars 3번째 추가(load_loop_03/v03) + 가챠 레전더리 전용 영상(gacha_reveal_legendary).
 // 2026-05-29 v49: v7.231 가챠 레전더리 모바일 세로 전용 영상(gacha_reveal_legendary_v) — 데/모 분기.
-const CACHE_NAME = 'mars-v49';
+// 2026-05-29 v50: v7.233 가챠 영상 4종 전부 레전더리 풀로 통합 + 티어별 영상 매핑 구조(준비된 티어만 재생).
+const CACHE_NAME = 'mars-v50';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

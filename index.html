@@ -48243,9 +48243,10 @@ function playCrateOpening(d){
         return resolve();
       }
 
-      // [v7.232] 고급 뽑기(tier>=3) 는 풀스크린 가챠 리빌 영상 → 끝나면 resolve. 일반은 아래 캔버스 연출.
-      //   tier>=4(레전더리)는 전용 레전더리 영상, tier 3은 사용자가 준 일반 가챠 리빌 영상 사용.
-      if (tier >= 3) { _playGachaVideo(resolve, tier); return; }
+      // [v7.233] 영상이 준비된 티어만 풀스크린 리빌 영상 → 끝나면 resolve. 나머지 티어는 아래 캔버스 연출.
+      //   현재는 레전더리만 영상(사용자 제공 4종 풀). 에픽/레어/언커먼/커먼은 영상 도착 시 _GACHA_TIER_VIDEO 에 추가.
+      var _tierKey = ['common','uncommon','rare','epic','legendary'][Math.min(tier,4)] || 'common';
+      if (_GACHA_TIER_VIDEO[_tierKey]) { _playGachaVideo(resolve, tier, _tierKey); return; }
 
       var ov = document.createElement('div');
       ov.id = 'crateOpeningOverlay';
@@ -48277,19 +48278,30 @@ function playCrateOpening(d){
   });
 }
 
-// [v7.232] 가챠 풀스크린 리빌 영상 연출 (crate cracks open → warship emerges).
-//   일반 고급 뽑기: 가로(데스크탑) gacha_reveal.mp4 / 세로(모바일) gacha_reveal_v01~v02 랜덤 — 모두 사용자가 "가챠"로 준 영상.
-//   레전더리(tier>=4): 전용 gacha_reveal_legendary(_v).mp4. 끝나거나 탭하면 resolve.
-//   [v7.230] tier>=4(레전더리) 는 전용 영상 — 데스크탑 가로 gacha_reveal_legendary.mp4 / 모바일 세로 _v.mp4.
-function _playGachaVideo(resolve, tier){
+// [v7.233] 티어별 가챠 리빌 영상 매핑. 항목이 있는 티어만 영상 재생, 없으면 캔버스 연출 폴백.
+//   pool_h/pool_v: 가로/세로 후보 파일(랜덤). 단일 마스터만 있으면 h/v 키로 지정(반대 방향은 object-fit:cover 크롭).
+//   레전더리 = 사용자가 준 4종(가로 2 / 세로 3) 통합 풀. 다른 티어는 영상 도착 시 한 줄 추가.
+var _GACHA_TIER_VIDEO = {
+  legendary: {
+    pool_h: ['gacha_reveal_legendary', 'gacha_reveal'],
+    pool_v: ['gacha_reveal_legendary_v', 'gacha_reveal_v01', 'gacha_reveal_v02']
+  }
+  // epic:      { h:'gacha_reveal_epic' },      // 보라 상자, 대형 순양함
+  // rare:      { h:'gacha_reveal_rare' },      // 파랑 상자, 중형 구축함
+  // uncommon:  { h:'gacha_reveal_uncommon' },  // 초록 상자, 소형함
+  // common:    { h:'gacha_reveal_common' }     // 회색 상자, 소형 정찰기
+};
+// [v7.233] 가챠 풀스크린 리빌 영상 — tierKey 의 _GACHA_TIER_VIDEO 항목으로 가로/세로 소스 선택. 끝나거나 탭하면 resolve.
+function _playGachaVideo(resolve, tier, tierKey){
   try {
     var ov = document.createElement('div');
     ov.id = 'gachaVideoOverlay';
     ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:#05040b;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:crFade .2s ease';
-    var src;
-    if (tier >= 4) src = (window.innerWidth > 768) ? '/assets/fx/gacha_reveal_legendary.mp4' : '/assets/fx/gacha_reveal_legendary_v.mp4'; // 레전더리 전용 — 데스크탑 가로 / 모바일 세로
-    else if (window.innerWidth > 768) src = '/assets/fx/gacha_reveal.mp4';
-    else src = '/assets/fx/gacha_reveal_v0'+(1+Math.floor(Math.random()*2))+'.mp4';
+    var cfg = _GACHA_TIER_VIDEO[tierKey] || _GACHA_TIER_VIDEO.legendary;
+    var mobile = !(window.innerWidth > 768);
+    var src, pick = function(arr){ return arr[Math.floor(Math.random()*arr.length)]; };
+    if (mobile) src = '/assets/fx/' + (cfg.pool_v ? pick(cfg.pool_v) : (cfg.v || cfg.h || (cfg.pool_h && pick(cfg.pool_h)))) + '.mp4';
+    else        src = '/assets/fx/' + (cfg.pool_h ? pick(cfg.pool_h) : (cfg.h || cfg.v || (cfg.pool_v && pick(cfg.pool_v)))) + '.mp4';
     ov.innerHTML =
       '<video id="_gachaVid" muted playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
       + '<div style="position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--fn);font-size:10px;color:rgba(255,255,255,.5)">'+tl("tap to skip","탭하여 건너뛰기","タップでスキップ","点击跳过")+'</div>';
@@ -48300,7 +48312,7 @@ function _playGachaVideo(resolve, tier){
     var vid=document.getElementById('_gachaVid');
     if (vid){ vid.addEventListener('ended', finish, {once:true}); var pp=vid.play(); if(pp&&pp.catch) pp.catch(function(){ setTimeout(finish,800); }); }
     try { _sfx.crateCharge(); } catch(_){}
-    setTimeout(finish, (tier>=4?8200:6000)); // 레전더리는 battleship 등장(8s)까지, 그 외 6초
+    setTimeout(finish, 8200); // Veo 리빌 영상 8s 완주 (탭하면 즉시 스킵)
   } catch(_) { resolve(); }
 }
 
