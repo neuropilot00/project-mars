@@ -681,10 +681,24 @@ async function commitSiegeFleet(siegeId, wallet, fleetId) {
     );
     if (parseInt(shipRes.rows[0]?.cnt ?? 0) < 1) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_empty' }; }
 
+    // [Phase 2] 다중 함대 — siege_fleet_commits 에 upsert(지갑당 1함대). 진영 정원 체크.
+    const battleSide = side === 'challenger' ? 'atk' : 'def';
+    const maxPerSide = parseInt(await getSetting('siege_max_fleets_per_side') ?? '20');
+    const cntRes = await client.query(
+      'SELECT COUNT(*)::int AS c FROM siege_fleet_commits WHERE siege_id = $1 AND side = $2 AND wallet <> LOWER($3)',
+      [siegeId, battleSide, w]
+    );
+    if (parseInt(cntRes.rows[0].c) >= maxPerSide) { await client.query('ROLLBACK'); return { success: false, error: 'side_full', max: maxPerSide }; }
+    await client.query(
+      `INSERT INTO siege_fleet_commits (siege_id, wallet, fleet_id, side) VALUES ($1, LOWER($2), $3, $4)
+       ON CONFLICT (siege_id, wallet) DO UPDATE SET fleet_id = $3, side = $4, committed_at = NOW()`,
+      [siegeId, w, fleetId, battleSide]
+    );
+    // 대표 함대(단일 컬럼) — prepareSiegeBattles 게이트/요약 호환. 비어있을 때만 채움.
     const col = side === 'challenger' ? 'challenger_fleet_id' : 'defender_fleet_id';
-    await client.query(`UPDATE governor_sieges SET ${col} = $1 WHERE id = $2`, [fleetId, siegeId]);
+    await client.query(`UPDATE governor_sieges SET ${col} = COALESCE(${col}, $1) WHERE id = $2`, [fleetId, siegeId]);
     await client.query('COMMIT');
-    return { success: true, side, fleetId };
+    return { success: true, side: battleSide, fleetId };
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     console.error('[SIEGE] commitSiegeFleet error:', err.message);
@@ -718,16 +732,12 @@ async function prepareSiegeBattles() {
   let created = 0;
   for (const s of rows) {
     try {
-      await bridge.createSiegeBattle({
+      // [Phase 2] 다함대 — siege_fleet_commits 의 모든 함대를 양 진영 참가자로. (게이트: 대표 함대 = ≥1/측)
+      await bridge.createSiegeBattleMulti({
         governor_siege_id: s.id,
-        atk_wallet: s.challenger_wallet,
-        def_wallet: s.defender_wallet,
-        atk_fleet_id: s.challenger_fleet_id,
-        def_fleet_id: s.defender_fleet_id,
         sector_id: null, claim_id: null,
         delay_hours: 0, // 고정 결전 시각 = 지금. battleScheduler 가 곧 실행.
       });
-      // create_siege_battle() 가 fleet_battle_id/uses_fleet_combat 설정. resolution_mode 표시.
       await pool.query(`UPDATE governor_sieges SET resolution_mode = 'fleet_battle' WHERE id = $1`, [s.id]);
       created++;
     } catch (e) {

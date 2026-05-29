@@ -2,6 +2,12 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 폴리시 + Phase 2 다함대 공성 (v7.249~250, 2026-05-29)
+- **v7.249 폴리시**: 공성 패널에 지오 섹터명(현지화)+티어 배지, 길드 거버너([TAG] 길드명)+섹터 세수→금고 누적 표시. sector.js getSectorGovernance 확장.
+- **v7.250 Phase 2 다함대 공성**: siege_fleet_commits(지갑당 1함대) + createSiegeBattleMulti(전 커밋을 한 전장 participants). 혈맹원 여럿이 같은 전장에서 싸움. DB e2e(2v1=3 participants) PASS. battleEngine은 진영당 N함대 기존 지원.
+  - 🟡 후속(비차단): Phase 2 다함대 전투의 관전 UX(누가 몇 함대 살아있나 실시간), 커맨더 공성(상위), sov 지도/주간 캘린더, full-loss 전력차 캡/보험.
+  - 참고: 현재도 전투 자체는 서버 결정형 시뮬 관전(실시간 동시 조작 아님). 다함대=여러 유저 함대가 한 전장에 모여 싸우는 구조까지 완성. 실시간 동시 명령(수동 스킬 등)은 tactical-lab 계층 추가 작업.
+
 ## 🟢 길드 공성전 라이브 활성화 완료 (v7.246~248, 2026-05-29)
 유저 부재 시점에 전 기능 ON (mig 261). guild-war-golive 워크플로(15에이전트) 확정 8건 처리.
 - ✅ 세금→길드 금고(collectTax) + withdrawTreasury + disband 금고 정산(소각 방지, disbandCleanup 공통 헬퍼, admin force-disband 포함) + collectTax NULL sector_id 하드닝 + mig 262 sector_id UNIQUE.

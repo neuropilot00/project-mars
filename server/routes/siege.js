@@ -144,7 +144,18 @@ router.get('/siege/:siegeId/roster', async (req, res) => {
         WHERE gs.id = $1`, [id]
     );
     if (!rows[0]) return res.status(404).json({ error: 'siege not found' });
-    res.json({ roster: rows[0] });
+    // [Phase 2] 다함대 — 양 진영 합류 함대 목록/카운트
+    const commits = (await pool.query(
+      `SELECT c.side, c.wallet, c.fleet_id, f.name AS fleet_name,
+              (SELECT COUNT(*) FROM ships s WHERE s.fleet_id = c.fleet_id AND s.is_alive = true) AS ship_count
+         FROM siege_fleet_commits c LEFT JOIN fleets f ON f.id = c.fleet_id
+        WHERE c.siege_id = $1 ORDER BY c.side, c.committed_at`, [id]
+    )).rows;
+    const roster = rows[0];
+    roster.commits = commits;
+    roster.atk_count = commits.filter(c => c.side === 'atk').length;
+    roster.def_count = commits.filter(c => c.side === 'def').length;
+    res.json({ roster });
   } catch (err) {
     console.error('[SIEGE] roster error:', err.message);
     res.status(500).json({ error: 'internal error' });

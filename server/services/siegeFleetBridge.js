@@ -78,6 +78,55 @@ async function createSiegeBattle(params) {
 }
 
 /**
+ * [Phase 2] 다(多)함대 공성 전투 생성 — siege_fleet_commits 의 모든 함대를 양 진영 참가자로 등록.
+ *   엔진은 진영당 N함대를 지원하므로 혈맹원 여럿이 같은 전장에서 싸운다.
+ *   양측 최소 1함대 필요. 전투중 함대는 거부. 참가 함대는 is_in_battle 표시.
+ */
+async function createSiegeBattleMulti(params) {
+  const { governor_siege_id, sector_id = null, claim_id = null, delay_hours = 0 } = params;
+  if (!governor_siege_id) throw new Error('MISSING_PARAMS');
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const commits = (await client.query(
+      `SELECT c.wallet, c.fleet_id, c.side, f.is_in_battle
+         FROM siege_fleet_commits c JOIN fleets f ON f.id = c.fleet_id
+        WHERE c.siege_id = $1 ORDER BY c.side, c.fleet_id FOR UPDATE OF f`,
+      [governor_siege_id]
+    )).rows;
+    const atk = commits.filter(c => c.side === 'atk');
+    const def = commits.filter(c => c.side === 'def');
+    if (!atk.length || !def.length) { await client.query('ROLLBACK'); throw new Error('NEED_BOTH_SIDES'); }
+    for (const c of commits) {
+      if (c.is_in_battle) { await client.query('ROLLBACK'); throw new Error('FLEET_IN_BATTLE'); }
+    }
+    const b = await client.query(
+      `INSERT INTO fleet_battles (battle_type, status, phase, sector_id, claim_id, governor_siege_id, prepare_started_at, scheduled_start_at)
+       VALUES ('siege','preparing','main',$1,$2,$3,NOW(), NOW() + ($4 || ' hours')::INTERVAL) RETURNING id`,
+      [sector_id, claim_id, governor_siege_id, String(delay_hours)]
+    );
+    const battleId = b.rows[0].id;
+    for (const c of commits) {
+      await client.query(
+        'INSERT INTO fleet_battle_participants (battle_id, fleet_id, wallet_address, side) VALUES ($1,$2,$3,$4)',
+        [battleId, c.fleet_id, c.wallet, c.side]
+      );
+    }
+    await client.query(
+      'UPDATE fleets SET is_in_battle = true, current_battle_id = $1 WHERE id = ANY($2::bigint[])',
+      [battleId, commits.map(c => c.fleet_id)]
+    );
+    await client.query('UPDATE governor_sieges SET fleet_battle_id = $1, uses_fleet_combat = true WHERE id = $2', [battleId, governor_siege_id]);
+    await client.query('COMMIT');
+    console.log(`[siegeBridge] multi siege ${governor_siege_id} → battle ${battleId} (${atk.length} atk / ${def.length} def fleets)`);
+    return battleId;
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw e;
+  } finally { client.release(); }
+}
+
+/**
  * Siege 결과를 governor_sieges에 반영
  * battleScheduler 의 전투 종료 훅에서 siege 전투일 때 호출.
  * [Phase1] 전투 승자를 지갑으로 매핑해 siege.resolveSiege() 에 위임 — 거버너 이전/명예전당/평판 등
@@ -133,6 +182,7 @@ async function getMySiegeBattles(walletAddress) {
 
 module.exports = {
   createSiegeBattle,
+  createSiegeBattleMulti,
   applySiegeResult,
   getMySiegeBattles,
 };

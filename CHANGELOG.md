@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.250 — Phase 2: 다(多)함대 공성 (혈맹원 여럿이 한 전장에)
+
+"1함대 vs 1함대"였던 공성을 **혈맹원 여럿이 각자 함대를 같은 전장에** 투입하는 구조로 확장. battleEngine이 이미 진영당 N함대를 지원(participants ORDER BY side + 위치 배치)함을 확인 → 엔진 재작성 없이 커밋 다중화로 달성.
+- **mig 263**: `siege_fleet_commits(siege_id, wallet, fleet_id, side)` — 지갑당 1함대 UNIQUE + 함대 UNIQUE. setting `siege_max_fleets_per_side`(20).
+- **siege.js commitSiegeFleet**: 단일 컬럼 → siege_fleet_commits upsert(측 정원 체크). 대표 함대 컬럼은 게이트 호환용으로 COALESCE 유지.
+- **siegeFleetBridge.createSiegeBattleMulti**: 공성의 모든 커밋 함대를 한 fleet_battle의 participants로 등록(양측 ≥1, 전투중 함대 거부, is_in_battle 표시). prepareSiegeBattles가 이걸 호출.
+- **roster API**: 양 진영 합류 함대 목록 + 카운트(atk_count/def_count) 반환.
+- **UI**: '⚔ 결전 함대 (N vs M)' + 진영별 합류 함대 목록(함선 수). JOIN 공격/수비는 정원 차기 전까지 누구나(서버 권한 검증). side_full 에러 한국어.
+- **검증**: node --check 3파일 + 인라인 11종 파싱 + DB e2e(공격 2함대+수비 1함대→3 participants 한 전장, 전부 in_battle) PASS. 라이브 부팅(전 플래그 ON, mig 263) 에러 0. SW v59→v60.
+
 ## 2026-05-29 v7.248 — 라이브 UX: 합류 full-loss 경고 + 무손실 대안 + 공성 모드 배지
 
 full-loss가 ON인 라이브 전환에 맞춘 공성 UX (워크플로 UX 발견 반영).

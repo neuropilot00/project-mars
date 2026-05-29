@@ -59,7 +59,8 @@
 // 2026-05-29 v57: v7.244 공성 패널 결전 함대 합류(JOIN 공격/수비)+로스터+관전 UI (siege 우주 자족, data-action delegated).
 // 2026-05-29 v58: v7.248 라이브 UX — 합류 전 full-loss 경고(무손실 점유율 대안 안내) + ACTIVE SIEGE 헤더 resolution_mode 배지.
 // 2026-05-29 v59: v7.249 공성 패널 지오 섹터명+티어 배지 + 길드 거버너/세수 표시.
-const CACHE_NAME = 'mars-v59';
+// 2026-05-29 v60: v7.250 Phase 2 다함대 공성 — 혈맹원 여럿이 각자 함대를 한 전장에(JOIN 다중 커밋+로스터 목록).
+const CACHE_NAME = 'mars-v60';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
