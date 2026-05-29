@@ -10247,6 +10247,22 @@ function dismissLoader(){
 
 setLoadProgress(2,'Initializing...');
 
+// [v7.263 fix] 하드 안전장치 — 로딩 오버레이(z9999, pointer-events:auto)가 어떤 이유로든
+//   영구히 화면을 덮어 모든 클릭을 막는 사고를 차단한다. 과거 증상: globe/WebGL init 예외
+//   (SW 업데이트 후 stale globe.gl·텍스처, 컨텍스트 손실 등) → _doInitGlobe 내부 throw →
+//   그 뒤에 등록되던 8s fallback 이 실행 안 됨 → 로더가 95%에서 고착 → "버튼 안 눌림".
+//   이 타이머는 어떤 init 예외와도 독립적으로 최상위에서 무조건 등록되어 오버레이를 해제한다.
+setTimeout(function(){
+  try {
+    if (typeof _loadPct === 'undefined' || _loadPct < 100) {
+      if (typeof dismissLoader === 'function') dismissLoader();
+    }
+  } catch(_) {}
+  // 최후 안전망: dismissLoader 가 없거나 실패해도 오버레이를 강제로 클릭 불가 처리.
+  var _el = document.getElementById('loadOverlay');
+  if (_el && getComputedStyle(_el).display !== 'none') { _el.style.opacity='0'; _el.style.pointerEvents='none'; setTimeout(function(){ try{ _el.style.display='none'; }catch(_){} }, 650); }
+}, 8000);
+
 /* ── Noise helpers (improved) ─────────────────────── */
 function _h(a,b){var n=a*374761393+b*668265263;n=(n^(n>>13))*1274126177;return((n^(n>>16))&0xffff)/65535}
 function _n(px,py){var ix=Math.floor(px),iy=Math.floor(py),fx=px-ix,fy=py-iy;fx=fx*fx*fx*(fx*(fx*6-15)+10);fy=fy*fy*fy*(fy*(fy*6-15)+10);return _h(ix,iy)+((_h(ix+1,iy)-_h(ix,iy))*fx)+((_h(ix,iy+1)-_h(ix,iy))*fy)+((_h(ix,iy)-_h(ix+1,iy)-_h(ix,iy+1)+_h(ix+1,iy+1))*fx*fy)}
@@ -53835,15 +53851,12 @@ if ('serviceWorker' in navigator) {
     // 1시간마다 SW update 체크 (긴 세션 사용자 대응 — 새 sw.js 가 있으면 다음 nav 시 적용)
     setInterval(function(){ try { reg.update(); } catch(_) {} }, 60 * 60 * 1000);
   }).catch(function(){});
-  // [v7.208 fix] 페이지 로드 시점 controller 보관 — 첫 SW 등록(controller=null → new) 시 reload 안 함.
-  //   이전엔 첫 방문자도 무조건 reload → "2번 로딩" 사용자 보고. 진짜 업데이트(controller 가 이미 있는 상태에서 swap) 시에만 reload.
-  var _swHadControllerOnLoad = !!navigator.serviceWorker.controller;
-  let _swRefreshing = false;
+  // [v7.263 fix] 완전 silent 업데이트 — controllerchange 시 강제 reload 안 함.
+  //   기존엔 새 sw.js 배포 시 복귀 유저에게 controllerchange→location.reload() 가 발생해
+  //   "로딩 두 번 + 화면 겹침"을 유발했다(주석은 silent 라면서 실제론 reload 했음 — 모순 해소).
+  //   HTML 은 network-first 라 다음 자연스러운 새로고침/이동에서 새 콘텐츠가 자동 적용된다.
   navigator.serviceWorker.addEventListener('controllerchange', function() {
-    if (_swRefreshing) return;
-    if (!_swHadControllerOnLoad) return; // 첫 등록 → reload 안 함
-    _swRefreshing = true;
-    window.location.reload();
+    /* no-op: silent update — 다음 nav 에서 새 버전 자동 반영. 강제 reload 없음. */
   });
 }
 // ─── Phase D: Alliance / Replay / Mobile ───

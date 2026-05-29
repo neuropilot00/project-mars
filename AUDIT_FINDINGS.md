@@ -2,6 +2,12 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🔴→🟢 핫픽스: 로딩 오버레이 고착 = 전 버튼 클릭 불능 (v7.263, 2026-05-30)
+- ✅ [CRITICAL] `#loadOverlay`(z9999, pe:auto) 미해제로 모든 클릭 차단. 원인: globe init 예외 시 그 뒤의 8s fallback 미등록 → 로더 95% 고착(브라우저 재현 확인). 수정: 최상위 독립 하드 안전장치(8s 무조건 dismiss + 강제 display:none/pe:none).
+- ✅ [FIXED] SW controllerchange 강제 reload(더블로드/겹침) 제거 → 완전 silent 업데이트. SW v69.
+- 트리거 추정: SW v68 갱신 후 캐시된 globe.gl/텍스처 stale → globe init throw. 신선 로드에선 미발생이라 그간 안 잡힘.
+- 검증: Preview MCP 브라우저 재현 — 수정 후 loadPct 100, overlay display:none/pe:none, `#openBaseBtn`→`openBaseModal` 클릭 동작.
+
 ## 🟢 경제 정책: 담보-룸 소프트 환매 + redeemable_pp 게이팅 (v7.262, 2026-05-29)
 적대토론 워크플로 단일 권고 채택(문서 `docs/ECONOMY_TOKEN_POLICY_2026-05-29.md`). PP→USDT는 "1:1 페그"가 아니라 담보-룸 내 재량 환매. GP·PP 토큰화 보류. M단계(법인/캡드토큰) 사장 지시로 제외.
 - ✅ [W1-2] 페그 약속 문구 13곳(4언어) 제거 → "운영 환율(변동 가능) — 고정 페그 아님". 결제비율 1:1 테이블은 환매 약속 아니라 유지.

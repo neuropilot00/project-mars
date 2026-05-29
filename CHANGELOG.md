@@ -1,3 +1,11 @@
+## 2026-05-30 v7.263 — 핫픽스: 로딩 오버레이 고착(전 버튼 클릭 불능) + SW 더블로드
+
+사용자 보고: 하단 네비(MY LAND/CANTINA/CLAIM/ITEMS/BASE) 등 모든 버튼 무반응 + 첫 로딩 2번 + 화면 겹침.
+- **[CRITICAL→FIXED] 로딩 오버레이 고착** — `#loadOverlay`(z-index 9999, pointer-events:auto)가 화면 전체를 덮은 채 안 닫혀 모든 클릭을 흡수. 원인: `onGlobeReady`/`_doInitGlobe` 내부에서 globe/WebGL init 예외(SW 업데이트 후 stale globe.gl·텍스처, 컨텍스트 손실 등) 발생 시 그 **뒤에** 등록되던 8s fallback(line 12078)이 실행되지 않아 로더가 95%에서 영구 고착. 브라우저 재현으로 `_loadPct=95, loadOverlay display:flex` 확인.
+  · 수정: 스크립트 최상위(`setLoadProgress(2)` 직후)에 **init 예외와 독립적인 하드 안전장치** 추가 — 8초 후 무조건 `dismissLoader()` + 실패 시 오버레이 강제 `display:none`/`pointer-events:none`. 재현 환경에서 오버레이 해제→`#openBaseBtn` 클릭→`openBaseModal` 동작 확인.
+- **[FIXED] SW 강제 reload 더블로드** — `controllerchange`에서 복귀 유저에게 `location.reload()` 발생 → "로딩 2번 + 겹침". 주석은 silent 표방이나 실제 reload 하던 모순 제거. 이제 완전 silent(다음 nav에서 새 버전 자동 반영, network-first HTML). SW v68→v69.
+- 검증: 인라인 스크립트 9/9 파싱 + Preview 브라우저 재현(loadPct 100, overlay display:none/pe:none, 네비 클릭 가능).
+
 ## 2026-05-29 v7.262 — 경제 정책: 담보-룸 소프트 환매 + redeemable_pp 게이팅 (W1-10)
 
 적대토론 워크플로(옹호/설계/규제→심판) 단일 권고 채택. 문서: `docs/ECONOMY_TOKEN_POLICY_2026-05-29.md`. M단계(법인구조·캡드토큰)는 사장 지시로 보류.
