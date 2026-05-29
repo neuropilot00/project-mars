@@ -65,7 +65,8 @@
 // 2026-05-29 v63: v7.255 SOV MAP — 24섹터 길드 지배 현황 모달(거버넌스 탭) + sov-map 엔드포인트.
 // 2026-05-29 v64: v7.256 주간 공성 캘린더(결전 고정 슬롯) + SOV MAP 일정 노출.
 // 2026-05-29 v65: v7.257 화성 맹주(Commander)=sov 지배 1위 길드 + SOV MAP 배너.
-const CACHE_NAME = 'mars-v65';
+// 2026-05-29 v66: v7.258 커맨더 공성 전투(맹주 sov1위 vs 도전 sov2위, 기존 siege/live 재사용) + 맹주 명시 저장 + full-loss 분리.
+const CACHE_NAME = 'mars-v66';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

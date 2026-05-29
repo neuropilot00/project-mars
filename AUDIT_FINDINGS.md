@@ -2,6 +2,14 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 커맨더 공성 전투 (v7.258, 2026-05-29) — Codex+레드팀 16에이전트
+맹주(sov1)=수비 vs 도전(sov2)=공격, 다함대 실시간 결전→승자 맹주. mig 268(siege_kind/mars_commander/시스템섹터), declareCommanderSiege/resolveCommanderSiege, resolveSiege 커맨더 가드, getSovMap mars_commander 우선, full-loss 분리(commander_full_loss). 기존 commit/battle/live 인프라 무변경 재사용. DB e2e PASS.
+레드팀 11건 처리:
+- ✅ battle_type CHECK / _installGeoGovernor 오작동 / dual-SoT: 'siege'+siege_kind 가드 + getSovMap 우선 + 전용 resolver로 회피.
+- ✅ [CRITICAL] 맹주전 함대 전손: commander_full_loss_enabled(기본 false) 분리.
+- ✅ 연합 승자 모호성: 1v1(sov1 vs sov2) 모델이라 승자 결정적(challenger_guild_id).
+- 🟡 [design 후속, 비차단]: ①도전 0명 영구유임→강제 신임/임기(commander term + 자동 도전 윈도우) ②조기 전투 락(첫 1함대 커밋 시)→결전 시각까지 커밋 윈도우+정족수 ③맹주 권력/혜택 미정의(수도세/칭호 정의 — 'commander_win' 칭호 미정의 no-op) ④연합(다길드 공격) 모델은 commit/role 확장 필요. siege_realtime/full_loss 라이브 ON 상태.
+
 ## 🟢 sov 지도 + 주간 캘린더 + 맹주 (v7.255~257, 2026-05-29)
 - **sov 지도(v7.255)**: getSovMap + /api/sector-defs/sov-map(24섹터 거버너/길드 leaderboard), 거버넌스 탭 🗺 SOV MAP 모달(티어 그리드+지배 길드).
 - **주간 공성 캘린더(v7.256)**: declareSiege가 결전 시각을 고정 슬롯(수/토 12:00 UTC)으로 스냅, /api/siege/schedule, SOV 모달 일정 칩. mig 266.

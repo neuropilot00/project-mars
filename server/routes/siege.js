@@ -60,6 +60,21 @@ router.post('/siege/declare', requireAuth, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// [Phase 3] POST /api/siege/commander/declare — 맹주 공성 선언 (맹주 sov1위 수비 vs 도전 sov2위 공격)
+//   ※ '/siege/:sectorCode' 보다 먼저 등록
+// ─────────────────────────────────────────────────────────────
+router.post('/siege/commander/declare', requireAuth, async (req, res) => {
+  try {
+    const result = await siegeService.declareCommanderSiege();
+    if (!result.success) return res.status(400).json({ error: result.error, detail: result });
+    res.json(result);
+  } catch (err) {
+    console.error('[SIEGE] commander declare error:', err.message);
+    res.status(500).json({ error: 'internal error' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
 // [Phase 3] GET /api/siege/schedule — 주간 공성 결전 캘린더 (다가오는 슬롯)
 //   ※ '/siege/:sectorCode' 보다 먼저 등록
 // ─────────────────────────────────────────────────────────────

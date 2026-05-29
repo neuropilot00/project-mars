@@ -431,14 +431,21 @@ async function getSovMap() {
     (b.count - a.count) || ((b.core || 0) - (a.core || 0)) || ((b.mid || 0) - (a.mid || 0)));
   const total = sectors.length;
   const claimed = sectors.filter(s => s.governorGuild || s.governor).length;
-  // [Phase 3] 커맨더(맹주) — sov 지배 1위 길드. 최소 점유 기준(설정) 충족 시에만. 명확한 단독 1위만 인정.
+  // [Phase 3] 커맨더(맹주) — 커맨더 공성으로 선출된 명시 맹주(mars_commander) 우선, 없으면 sov 1위 파생.
   let commander = null;
   try {
-    const minHold = parseInt(await getSetting('commander_min_sectors', '3')) || 3;
-    const top = leaderboard[0];
-    if (top && top.count >= minHold) {
-      const tie = leaderboard[1] && leaderboard[1].count === top.count && (leaderboard[1].core || 0) === (top.core || 0);
-      if (!tie) commander = { id: top.id, name: top.name, tag: top.tag, emblem: top.emblem, sectors: top.count, core: top.core || 0 };
+    let mc = null;
+    try { mc = (await pool.query('SELECT guild_id, guild_tag, guild_name FROM mars_commander WHERE id = 1')).rows[0]; } catch (_) { /* 테이블 미존재(마이그 이전) */ }
+    if (mc && mc.guild_id) {
+      const held = byGuild[mc.guild_id];
+      commander = { id: mc.guild_id, name: mc.guild_name, tag: mc.guild_tag, emblem: (held && held.emblem) || '👑', sectors: held ? held.count : 0, core: held ? (held.core || 0) : 0, source: 'elected' };
+    } else {
+      const minHold = parseInt(await getSetting('commander_min_sectors', '3')) || 3;
+      const top = leaderboard[0];
+      if (top && top.count >= minHold) {
+        const tie = leaderboard[1] && leaderboard[1].count === top.count && (leaderboard[1].core || 0) === (top.core || 0);
+        if (!tie) commander = { id: top.id, name: top.name, tag: top.tag, emblem: top.emblem, sectors: top.count, core: top.core || 0, source: 'sov' };
+      }
     }
   } catch (_) {}
   return { sectors, leaderboard, total, claimed, vacant: total - claimed, commander };

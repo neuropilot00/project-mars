@@ -1,3 +1,14 @@
+## 2026-05-29 v7.258 — 커맨더 공성 전투 (맹주전) — 마지막 큰 조각 완료
+
+Codex 설계 + 레드팀 16에이전트 검토. 맹주(sov 1위)=수비 vs 최강 도전자(sov 2위)=공격, 양측 길드원이 다함대 합류해 실시간 결전, 승리 길드가 화성 맹주. 기존 인프라 최대 재사용(commitSiegeFleet/createSiegeBattleMulti/simulateBattleLive/실시간 명령 무변경).
+- **mig 268**: governor_sieges.siege_kind('sector'|'commander'), 시스템 섹터 '__commander__', `mars_commander`(단일행 명시 맹주), 설정(commander_siege_enabled/commander_full_loss_enabled/notice_hours).
+- **siege.js**: declareCommanderSiege(sov로 맹주·도전자 산정), resolveCommanderSiege(승자→mars_commander upsert+칭호). resolveSiege 커맨더 가드 — _installGeoGovernor/섹터 로직 우회·전용 resolver 위임(레드팀 #2/#3 차단).
+- **getSovMap**: mars_commander 명시 맹주 우선(elected), 없으면 sov 파생(dual-SoT 차단).
+- **battleEngine**: 커맨더 full-loss를 commander_full_loss_enabled(별도, 기본 false)로 분리(레드팀 CRITICAL: 맹주전 전손 경제충격 차단).
+- **API/UI**: POST /api/siege/commander/declare, SOV MAP 👑 맹주 배너 + "맹주 공성 선언" 버튼.
+- **검증**: node --check 4 + DB e2e(선언→도전승리→맹주 교체→getSovMap 우선) PASS + 부팅/엔드포인트 200 + 파싱·훅. SW v65→v66.
+- 후속(레드팀 design, 비차단): 강제 신임/임기(도전 0명 영구유임 방지), 결전 시각까지 커밋 윈도우+정족수(조기 락 방지), 맹주 권력/혜택(수도세/칭호 정의). 현 1v1(sov1 vs sov2)은 승자 결정적이라 안전.
+
 ## 2026-05-29 v7.257 — 화성 맹주(Commander) = sov 지배 1위 길드
 
 큰 기능 #3 (커맨더) — 1차: sov 지배 기반 맹주. ("거버너들이 한 전장에서 싸우는 커맨더 공성 전투"는 후속 전용 증분.)

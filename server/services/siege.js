@@ -276,6 +276,18 @@ async function resolveSiege(siegeId, opts = {}) {
       return { success: true, alreadyResolved: true };
     }
 
+    // [Phase 3] 커맨더 공성은 전용 resolver 로 위임 (섹터 픽셀/거버너 로직 미적용)
+    if (siege.siege_kind === 'commander') {
+      await client.query('ROLLBACK');
+      let winnerSide = null;
+      if (siege.fleet_battle_id) {
+        const b = (await pool.query('SELECT status, winner_side FROM fleet_battles WHERE id = $1', [siege.fleet_battle_id])).rows[0];
+        if (b && b.status !== 'ended') return { success: true, pending: true, reason: 'battle_not_ended' };
+        winnerSide = b ? b.winner_side : null;
+      }
+      return await resolveCommanderSiege(siegeId, { winnerSide });
+    }
+
     const code = siege.sector_code;
 
     // [Phase1b] 거버너 이전 race 방지 — 해결 동안 sector_governance 행 잠금 (Codex 검토 지적)
@@ -833,9 +845,80 @@ async function _installGeoGovernor(client, sectorId, newGov) {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════
+// [Phase 3] 커맨더 공성(맹주전) — 맹주(sov 1위)=수비 vs 최강 도전자(sov 2위)=공격.
+//   governor_sieges(siege_kind='commander', sector_code='__commander__') 재사용.
+//   양측 길드원이 commitSiegeFleet 으로 합류 → prepareSiegeBattles → createSiegeBattleMulti →
+//   simulateBattleLive → applySiegeResult(commander 분기) → resolveCommanderSiege → mars_commander 갱신.
+// ═══════════════════════════════════════════════════════════════
+async function declareCommanderSiege() {
+  const enabled = String(await getSetting('commander_siege_enabled') ?? 'false') === 'true';
+  if (!enabled) return { success: false, error: 'commander_siege_disabled' };
+  // 이미 진행 중?
+  const active = (await pool.query("SELECT id FROM governor_sieges WHERE siege_kind='commander' AND status IN ('pending','active')")).rows;
+  if (active.length) return { success: false, error: 'commander_siege_active', siegeId: active[0].id };
+  // sov 현황으로 맹주(수비)·도전자(공격) 산정
+  const sov = await require('./sector').getSovMap();
+  const mc = (await pool.query('SELECT guild_id FROM mars_commander WHERE id = 1')).rows[0];
+  const champGuildId = (mc && mc.guild_id) || (sov.commander && sov.commander.id) || (sov.leaderboard[0] && sov.leaderboard[0].id) || null;
+  const challenger = (sov.leaderboard || []).find(g => g.id !== champGuildId) || null;
+  if (!challenger) return { success: false, error: 'no_challenger' };
+  const minSectors = parseInt(await getSetting('commander_min_sectors', '3')) || 3;
+  if ((challenger.count || 0) < minSectors) return { success: false, error: 'challenger_below_min', required: minSectors };
+
+  const noticeH = parseInt(await getSetting('commander_siege_notice_hours', '24')) || 24;
+  const battleHours = parseInt(await getSetting('siege_battle_hours') ?? '24');
+  const startsAt = new Date(Date.now() + noticeH * 3600000);
+  const endsAt = new Date(startsAt.getTime() + battleHours * 3600000);
+  const champLeader = champGuildId ? (await pool.query('SELECT leader_wallet FROM guilds WHERE id = $1', [champGuildId])).rows[0]?.leader_wallet : null;
+  const chalLeader = (await pool.query('SELECT leader_wallet FROM guilds WHERE id = $1', [challenger.id])).rows[0]?.leader_wallet;
+  const res = await pool.query(
+    `INSERT INTO governor_sieges (sector_code, siege_kind, challenger_wallet, defender_wallet, status, gp_cost, declared_at, siege_starts_at, siege_ends_at, challenger_guild_id, defender_guild_id)
+     VALUES ('__commander__','commander',$1,$2,'pending',0,NOW(),$3,$4,$5,$6) RETURNING id`,
+    [chalLeader, champLeader, startsAt, endsAt, challenger.id, champGuildId]
+  );
+  return { success: true, siegeId: res.rows[0].id, championGuildId: champGuildId, challengerGuildId: challenger.id, startsAt, endsAt };
+}
+
+async function resolveCommanderSiege(siegeId, opts = {}) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const s = (await client.query('SELECT * FROM governor_sieges WHERE id = $1 FOR UPDATE', [siegeId])).rows[0];
+    if (!s || s.status === 'resolved') { await client.query('ROLLBACK'); return { success: true, alreadyResolved: true }; }
+    const winnerSide = opts.winnerSide; // 'atk'|'def'|'draw'|null
+    // atk 승리 → 도전 길드 즉위 / def·draw·미정 → 현 맹주(수비 길드) 유지
+    const winnerGuildId = winnerSide === 'atk' ? s.challenger_guild_id : (s.defender_guild_id || null);
+    await client.query("UPDATE governor_sieges SET status='resolved', resolved_at=NOW(), winner_guild_id=$1 WHERE id=$2", [winnerGuildId, siegeId]);
+    if (winnerGuildId) {
+      const g = (await client.query('SELECT name, tag FROM guilds WHERE id = $1', [winnerGuildId])).rows[0];
+      // since: 같은 길드 방어성공이면 유지, 새 맹주면 NOW
+      await client.query(
+        `UPDATE mars_commander SET guild_id=$1, guild_tag=$2, guild_name=$3, elected_siege_id=$4,
+            since = COALESCE((SELECT since FROM mars_commander WHERE id=1 AND guild_id=$1), NOW()), updated_at=NOW()
+          WHERE id = 1`,
+        [winnerGuildId, g && g.tag, g && g.name, siegeId]
+      );
+    }
+    await client.query('COMMIT');
+    // 칭호(non-blocking)
+    if (titleService && winnerGuildId) {
+      const lw = (await pool.query('SELECT leader_wallet FROM guilds WHERE id=$1', [winnerGuildId])).rows[0]?.leader_wallet;
+      if (lw) titleService.checkAndAwardTitles(lw, 'commander_win', { guild_id: winnerGuildId }).catch(() => {});
+    }
+    console.log(`[COMMANDER] siege ${siegeId} resolved — commander guild=${winnerGuildId} (winnerSide=${winnerSide})`);
+    return { success: true, commanderGuildId: winnerGuildId };
+  } catch (e) {
+    await client.query('ROLLBACK'); console.error('[COMMANDER] resolveCommanderSiege error:', e.message);
+    return { success: false, error: 'internal_error' };
+  } finally { client.release(); }
+}
+
 module.exports = {
   declareSiege,
   resolveSiege,
+  declareCommanderSiege,
+  resolveCommanderSiege,
   getActiveSiege,
   getSiegeStatus,
   getSiegeHistory,

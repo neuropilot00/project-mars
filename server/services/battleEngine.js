@@ -1118,7 +1118,7 @@ async function applyBattleResults(battleId, result) {
 
     // [v7.63] 이중 적용 방지: FOR UPDATE로 전투 행 잠금 후 status 재확인
     const { rows: btRows } = await client.query(
-      `SELECT battle_type, status FROM fleet_battles WHERE id = $1 FOR UPDATE`, [battleId]
+      `SELECT battle_type, status, governor_siege_id FROM fleet_battles WHERE id = $1 FOR UPDATE`, [battleId]
     );
     if (!btRows[0] || btRows[0].status === 'ended') {
       await client.query('ROLLBACK');
@@ -1135,8 +1135,17 @@ async function applyBattleResults(battleId, result) {
     //   이전엔 siege 가 일반 전투 분기로 빠져 플래그(기본 false)를 무시하고 무조건 영구파괴 → 설계상
     //   '경제 재균형 전까지 전사 OFF' 계약 위반. 플래그 OFF 면 hijack 비전사와 동일하게 HP 15% 보존.
     const isSiegeBattle = (btRows[0].battle_type || '') === 'siege';
+    // [v7.258][레드팀 수정] 커맨더 공성(siege_kind='commander')은 별도 commander_full_loss_enabled(기본 false)로 게이트.
+    //   맹주전 함대 전손은 경제 충격이 커, 일반 섹터 공성의 siege_full_loss_enabled 와 분리.
+    let _isCommanderSiege = false;
+    if (isSiegeBattle && btRows[0].governor_siege_id) {
+      try {
+        const gk = await client.query('SELECT siege_kind FROM governor_sieges WHERE id = $1', [btRows[0].governor_siege_id]);
+        _isCommanderSiege = gk.rows[0] && gk.rows[0].siege_kind === 'commander';
+      } catch (_) { /* 컬럼 미존재 — 일반 siege 취급 */ }
+    }
     const siegeShipLoss = isSiegeBattle &&
-      String(await getSetting('siege_full_loss_enabled', 'false')) === 'true';
+      String(await getSetting(_isCommanderSiege ? 'commander_full_loss_enabled' : 'siege_full_loss_enabled', 'false')) === 'true';
 
     // 1. fleet_battles 업데이트 — AND status != 'ended' 이중 UPDATE 방지 [v7.63]
     const { rowCount: battleRowCount } = await client.query(`
