@@ -79,39 +79,35 @@ async function createSiegeBattle(params) {
 
 /**
  * Siege 결과를 governor_sieges에 반영
- * battleScheduler에서 siege 전투 종료 시 호출
+ * battleScheduler 의 전투 종료 훅에서 siege 전투일 때 호출.
+ * [Phase1] 전투 승자를 지갑으로 매핑해 siege.resolveSiege() 에 위임 — 거버너 이전/명예전당/평판 등
+ *          기존 해결 로직을 한 경로로 재사용한다.
  */
 async function applySiegeResult(battleId) {
   const { rows } = await pool.query(`
-    SELECT fb.*, gs.id AS siege_id
-    FROM fleet_battles fb
-    LEFT JOIN governor_sieges gs ON gs.id = fb.governor_siege_id
-    WHERE fb.id = $1
+    SELECT fb.winner_side, fb.governor_siege_id,
+           gs.id AS siege_id, gs.challenger_wallet, gs.defender_wallet, gs.status
+      FROM fleet_battles fb
+      JOIN governor_sieges gs ON gs.id = fb.governor_siege_id
+     WHERE fb.id = $1
   `, [battleId]);
-  
-  if (!rows[0] || !rows[0].siege_id) {
-    return; // siege 연동 없는 전투
+
+  if (!rows[0] || !rows[0].siege_id) return; // siege 연동 없는 전투
+  const r = rows[0];
+  if (r.status === 'resolved') return; // 이미 해결됨
+
+  // winner_side(atk/def/draw) → 지갑. def/draw = 수비자 유지.
+  const battleWinnerWallet = r.winner_side === 'atk'
+    ? r.challenger_wallet
+    : (r.defender_wallet || null);
+
+  try {
+    const siege = require('./siege');
+    const res = await siege.resolveSiege(r.siege_id, { battleWinnerWallet });
+    console.log(`[siegeBridge] siege ${r.siege_id} resolved via battle ${battleId} (winner_side=${r.winner_side}, winner=${res?.winner ?? 'n/a'})`);
+  } catch (err) {
+    console.error('[siegeBridge] applySiegeResult resolveSiege failed:', err.message);
   }
-  
-  const battle = rows[0];
-  
-  // governor_sieges 결과 반영
-  // (governor_sieges 테이블 구조에 맞게 수정 필요)
-  await pool.query(`
-    UPDATE governor_sieges SET
-      completed_at = NOW(),
-      result = $1,
-      updated_at = NOW()
-    WHERE id = $2
-  `, [
-    battle.winner_side === 'atk' ? 'attacker_won' : 
-    battle.winner_side === 'def' ? 'defender_held' : 'draw',
-    battle.siege_id
-  ]).catch(err => {
-    console.warn('[siegeBridge] governor_sieges update failed (columns may differ):', err.message);
-  });
-  
-  console.log(`[siegeBridge] siege ${battle.siege_id} result applied: ${battle.winner_side}`);
 }
 
 /**

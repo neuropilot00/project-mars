@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.240 — 길드 공성전 Phase 1a: 섹터 공성 → 실제 함대전 (백엔드, 플래그 OFF)
+
+설계 `docs/GUILD_TERRITORY_WAR_DESIGN_2026-05-29.md` Phase 1 착수. 공성 승패를 "픽셀 수 비교"에서 "실제 함대전 결과"로 전환하는 배선. **`siege_fleet_combat_enabled` 기본 false → 프로덕션 동작 무변경**, 검증 후 플래그 ON.
+- **mig 258**: `governor_sieges` 에 `challenger_fleet_id`/`defender_fleet_id`/`resolution_mode` 추가(+`fleet_battle_id`/`uses_fleet_combat` 재보장). settings `siege_fleet_combat_enabled`(false)/`siege_full_loss_enabled`(false, §12 경제 재균형 전까지)/`siege_fleet_commit_deadline_min`.
+- **siege.js**: `commitSiegeFleet()`(도전/수비 함대 커밋, 소유·전투중·빈함대 검증), `prepareSiegeBattles()`(active+양측 커밋 시 `create_siege_battle()`로 결전 fleet_battle 생성, `resolution_mode='fleet_battle'`), `resolveSiege(id, opts)` 전투 승자 우선(전투 미종료 시 `pending` 반환해 보류).
+- **siegeFleetBridge.applySiegeResult()**: 전투 종료 시 winner_side→지갑 매핑 후 `resolveSiege` 위임(거버너 이전/명예전당/평판 기존 경로 재사용).
+- **battleScheduler `_postBattleHooks`**: `battle_type==='siege'` 전투 종료 시 `applySiegeResult` 호출(fire-and-forget).
+- **API**: `POST /api/siege/:id/commit-fleet`, `GET /api/siege/:id/roster`.
+- **스케줄러**: siege 5분 tick에 `prepareSiegeBattles()` 추가(resolveExpiredSieges 직후).
+- **검증**: 5개 서버 파일 `node --check` 통과, 로컬 DB 스모크(모듈 로드/순환참조 없음, helper·컬럼·설정 확인, enabled=false 시 prepare=0).
+- **다음**: 검증 후 플래그 ON + UI(합류/관전) + full-loss 경제 재균형(§12) + Phase 2 N-side.
+
 ## 2026-05-29 v7.238 — 가챠/하이젝 리빌 영상 SKIP 버튼
 
 - 가챠 리빌 영상 + 하이젝 인트로 영상 우측 상단에 또렷한 `SKIP ▸` 버튼(반투명+블러 알약형, safe-area inset 반영, 4언어). 기존엔 "탭하여 건너뛰기" 텍스트 + 전체 탭만 있었음 — 전체 탭-스킵은 유지하고 버튼으로 명확성 추가. `stopPropagation`으로 버튼 클릭 처리. 모든 등급이 8s 영상을 재생해도 즉시 건너뛸 수 있어 낮은 등급 영상 제거 불필요.

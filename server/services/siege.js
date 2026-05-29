@@ -192,7 +192,7 @@ async function declareSiege(challengerWallet, sectorCode) {
 // ─────────────────────────────────────────────────────────────
 // 2. Siege 해결 (종료 시 자동 호출)
 // ─────────────────────────────────────────────────────────────
-async function resolveSiege(siegeId) {
+async function resolveSiege(siegeId, opts = {}) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -214,7 +214,27 @@ async function resolveSiege(siegeId) {
 
     const code = siege.sector_code;
 
-    // ── 도전자 / 수비자 영토 수 비교 ──
+    // ── [Phase1] fleet-combat 모드: 결전 전투 결과로 승자 결정 ──
+    //   전투가 아직 안 끝났으면 해결 보류(pending) — battleScheduler 종료 훅이 다시 호출.
+    let battleWinnerWallet; // undefined = 전투모드 아님 / null = draw(수비자 유지)
+    if (siege.resolution_mode === 'fleet_battle' && !opts.force) {
+      if (opts.battleWinnerWallet !== undefined) {
+        battleWinnerWallet = opts.battleWinnerWallet; // 훅에서 매핑해 전달
+      } else if (siege.fleet_battle_id) {
+        const bRes = await client.query(
+          'SELECT status, winner_side FROM fleet_battles WHERE id = $1', [siege.fleet_battle_id]
+        );
+        const b = bRes.rows[0];
+        if (!b || b.status !== 'ended') {
+          await client.query('ROLLBACK');
+          return { success: true, pending: true, reason: 'battle_not_ended' };
+        }
+        battleWinnerWallet = b.winner_side === 'atk' ? siege.challenger_wallet
+                           : (siege.defender_wallet || null); // def/draw → 수비자 유지
+      }
+    }
+
+    // ── 도전자 / 수비자 영토 수 비교 (픽셀 폴백) ──
     const [chalRes, defRes] = await Promise.all([
       client.query(
         'SELECT COUNT(*) AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND sector_code = $2 AND deleted_at IS NULL',
@@ -231,10 +251,10 @@ async function resolveSiege(siegeId) {
     const chalPx = parseInt(chalRes.rows[0]?.cnt ?? 0);
     const defPx  = parseInt(defRes.rows[0]?.cnt ?? 0);
 
-    // ── 승자 결정: 도전자 영토 수 > 수비자이면 도전자 승 ──
-    const winnerWallet = chalPx > defPx
-      ? siege.challenger_wallet
-      : (siege.defender_wallet || null);
+    // ── 승자 결정: 전투 모드면 전투 결과, 아니면 영토 수 비교 ──
+    const winnerWallet = (battleWinnerWallet !== undefined)
+      ? battleWinnerWallet
+      : (chalPx > defPx ? siege.challenger_wallet : (siege.defender_wallet || null));
 
     // ── governor_sieges 업데이트 ──
     await client.query(
@@ -560,6 +580,97 @@ async function _recordChronicle(eventType, data) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// [Phase1] 공성 함대 커밋 — 도전자/수비자가 결전에 투입할 함대 지정
+//   결전 전투 생성(fleet_battle_id) 전까지 변경 가능. 소유/상태 검증.
+// ─────────────────────────────────────────────────────────────
+async function commitSiegeFleet(siegeId, wallet, fleetId) {
+  const w = String(wallet || '').toLowerCase();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const sRes = await client.query('SELECT * FROM governor_sieges WHERE id = $1 FOR UPDATE', [siegeId]);
+    if (!sRes.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'siege_not_found' }; }
+    const siege = sRes.rows[0];
+    if (siege.status === 'resolved') { await client.query('ROLLBACK'); return { success: false, error: 'siege_resolved' }; }
+    if (siege.fleet_battle_id)       { await client.query('ROLLBACK'); return { success: false, error: 'battle_already_created' }; }
+
+    // 측 판별: 도전자 또는 (공석이 아닌) 수비자만
+    let side;
+    if (siege.challenger_wallet && siege.challenger_wallet.toLowerCase() === w) side = 'challenger';
+    else if (siege.defender_wallet && siege.defender_wallet.toLowerCase() === w) side = 'defender';
+    else { await client.query('ROLLBACK'); return { success: false, error: 'not_a_participant' }; }
+
+    // 함대 소유/상태 검증 (FOR UPDATE — is_in_battle TOCTOU 방지)
+    const fRes = await client.query(
+      'SELECT id, is_in_battle FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE',
+      [fleetId, w]
+    );
+    if (!fRes.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_not_found' }; }
+    if (fRes.rows[0].is_in_battle) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_in_battle' }; }
+    const shipRes = await client.query(
+      'SELECT COUNT(*) AS cnt FROM ships WHERE fleet_id = $1 AND is_alive = true AND is_market_listed = false',
+      [fleetId]
+    );
+    if (parseInt(shipRes.rows[0]?.cnt ?? 0) < 1) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_empty' }; }
+
+    const col = side === 'challenger' ? 'challenger_fleet_id' : 'defender_fleet_id';
+    await client.query(`UPDATE governor_sieges SET ${col} = $1 WHERE id = $2`, [fleetId, siegeId]);
+    await client.query('COMMIT');
+    return { success: true, side, fleetId };
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error('[SIEGE] commitSiegeFleet error:', err.message);
+    return { success: false, error: 'internal_error' };
+  } finally {
+    client.release();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// [Phase1] 활성 공성 중 양측 함대 커밋된 건에 대해 결전 함대전 생성
+//   siege_fleet_combat_enabled=true 일 때만. battleScheduler 가 생성된 전투를 실행.
+//   스케줄러 tick 에서 resolveExpiredSieges(pending→active 전환) 직후 호출한다.
+// ─────────────────────────────────────────────────────────────
+async function prepareSiegeBattles() {
+  const enabled = String(await getSetting('siege_fleet_combat_enabled') ?? 'false') === 'true';
+  if (!enabled) return 0;
+
+  const rows = (await pool.query(
+    `SELECT id, challenger_wallet, defender_wallet, challenger_fleet_id, defender_fleet_id
+       FROM governor_sieges
+      WHERE status = 'active'
+        AND fleet_battle_id IS NULL
+        AND challenger_fleet_id IS NOT NULL
+        AND defender_fleet_id IS NOT NULL`
+  )).rows;
+  if (!rows.length) return 0;
+
+  let bridge;
+  try { bridge = require('./siegeFleetBridge'); } catch (_) { return 0; }
+  let created = 0;
+  for (const s of rows) {
+    try {
+      await bridge.createSiegeBattle({
+        governor_siege_id: s.id,
+        atk_wallet: s.challenger_wallet,
+        def_wallet: s.defender_wallet,
+        atk_fleet_id: s.challenger_fleet_id,
+        def_fleet_id: s.defender_fleet_id,
+        sector_id: null, claim_id: null,
+        delay_hours: 0, // 고정 결전 시각 = 지금. battleScheduler 가 곧 실행.
+      });
+      // create_siege_battle() 가 fleet_battle_id/uses_fleet_combat 설정. resolution_mode 표시.
+      await pool.query(`UPDATE governor_sieges SET resolution_mode = 'fleet_battle' WHERE id = $1`, [s.id]);
+      created++;
+    } catch (e) {
+      console.warn(`[SIEGE] prepareSiegeBattles: siege ${s.id} battle create failed (${e.message}) — 픽셀 폴백 유지`);
+    }
+  }
+  if (created > 0) console.log(`[SIEGE] prepareSiegeBattles: ${created} siege fleet battle(s) created`);
+  return created;
+}
+
 module.exports = {
   declareSiege,
   resolveSiege,
@@ -567,6 +678,8 @@ module.exports = {
   getSiegeStatus,
   getSiegeHistory,
   resolveExpiredSieges,
+  commitSiegeFleet,
+  prepareSiegeBattles,
   updateGovernorDeclaration,
   updateTaxRate,
   updateSectorPolicy

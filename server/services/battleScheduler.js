@@ -343,6 +343,14 @@ async function _postBattleHooks(battleId, result) {
   const defWallet = defPart?.wallet_address;
   const winner = result?.winner_side;
 
+  // ✅ [Phase1 길드공성] siege 전투 종료 → 거버너 이전 등 siege 해결 위임 (fire-and-forget)
+  try {
+    if (parts[0]?.battle_type === 'siege') {
+      require('./siegeFleetBridge').applySiegeResult(battleId).catch((e) =>
+        console.warn('[battleScheduler] applySiegeResult failed:', e.message));
+    }
+  } catch (_siege) {}
+
   // ✅ [CPI] 전투 종료 후 양 함대 CPI 재계산 (fire-and-forget)
   try {
     const battleReport = require('./battleReport');

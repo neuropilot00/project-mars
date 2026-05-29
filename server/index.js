@@ -1060,12 +1060,16 @@ async function start() {
 
     // ── Siege Auto-Resolve (every 5 minutes) ──
     try {
-      const { resolveExpiredSieges } = require('./services/siege');
+      const { resolveExpiredSieges, prepareSiegeBattles } = require('./services/siege');
       setInterval(async () => {
         try {
-          const n = await resolveExpiredSieges();
+          const n = await resolveExpiredSieges(); // pending→active 전환 + 만료 siege 해결(픽셀 폴백)
           if (n > 0) console.log(`[SIEGE] Auto-resolved ${n} expired siege(s)`);
         } catch(e) { console.warn('[SIEGE] auto-resolve error:', e.message); }
+        // [Phase1] active + 양측 함대 커밋된 siege → 결전 함대전 생성 (siege_fleet_combat_enabled=true 일 때만)
+        try {
+          if (typeof prepareSiegeBattles === 'function') await prepareSiegeBattles();
+        } catch(e) { console.warn('[SIEGE] prepareSiegeBattles error:', e.message); }
       }, 5 * 60 * 1000); // every 5 minutes
       console.log('[SIEGE] Auto-resolve scheduler started (5min interval)');
     } catch(e) { console.warn('[SIEGE] Could not init auto-resolve scheduler:', e.message); }

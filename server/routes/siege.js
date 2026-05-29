@@ -107,6 +107,51 @@ router.get('/siege/status/:siegeId', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// [Phase1] POST /api/siege/:siegeId/commit-fleet — 결전 함대 지정
+// body: { fleetId }  (도전자/수비자만, 결전 전투 생성 전까지)
+// ─────────────────────────────────────────────────────────────
+router.post('/siege/:siegeId/commit-fleet', requireAuth, async (req, res) => {
+  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  const id = parseInt(req.params.siegeId);
+  const fleetId = parseInt(req.body?.fleetId);
+  if (isNaN(id) || isNaN(fleetId)) return res.status(400).json({ error: 'siegeId and fleetId required' });
+  try {
+    const result = await siegeService.commitSiegeFleet(id, wallet.toLowerCase().trim(), fleetId);
+    if (!result.success) return res.status(400).json({ error: result.error, detail: result });
+    res.json(result);
+  } catch (err) {
+    console.error('[SIEGE] commit-fleet error:', err.message);
+    res.status(500).json({ error: 'internal error' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// [Phase1] GET /api/siege/:siegeId/roster — 양측 함대 커밋/연결 전투 미리보기
+// ─────────────────────────────────────────────────────────────
+router.get('/siege/:siegeId/roster', async (req, res) => {
+  const id = parseInt(req.params.siegeId);
+  if (isNaN(id)) return res.status(400).json({ error: 'invalid siege id' });
+  try {
+    const { pool } = require('../db');
+    const { rows } = await pool.query(
+      `SELECT gs.id, gs.status, gs.sector_code, gs.resolution_mode, gs.fleet_battle_id,
+              gs.challenger_wallet, gs.defender_wallet,
+              gs.challenger_fleet_id, gs.defender_fleet_id,
+              cf.name AS challenger_fleet_name, df.name AS defender_fleet_name
+         FROM governor_sieges gs
+         LEFT JOIN fleets cf ON cf.id = gs.challenger_fleet_id
+         LEFT JOIN fleets df ON df.id = gs.defender_fleet_id
+        WHERE gs.id = $1`, [id]
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'siege not found' });
+    res.json({ roster: rows[0] });
+  } catch (err) {
+    console.error('[SIEGE] roster error:', err.message);
+    res.status(500).json({ error: 'internal error' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
 // POST /api/governor/declaration — 선언문 업데이트
 // body: { wallet, sectorCode, text }
 // ─────────────────────────────────────────────────────────────

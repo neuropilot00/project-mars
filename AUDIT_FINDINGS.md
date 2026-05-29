@@ -2,6 +2,11 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 v7.239~v7.240 (영상 오디오 · 길드 공성전 Phase 1a)
+- **v7.239**: 가챠/하이젝 영상 원본 오디오 복원(`-an` 무음 인코딩 버그 → AAC 96k). 플레이어 unmute + 자동재생 막힐 시 음소거 재시도. WebAudio `_sfx.crateCharge` "방구소리" 제거. 로딩 배경은 음소거 유지(자동재생+루프 정책).
+- **v7.240 길드 공성전 Phase 1a (백엔드, 플래그 OFF)**: 공성 승패 "픽셀 비교 → 실제 함대전" 배선. mig 258(컬럼/설정), `siege.js`(commitSiegeFleet/prepareSiegeBattles/resolveSiege 전투우선), `siegeFleetBridge.applySiegeResult`(→resolveSiege 위임), `battleScheduler` siege 종료 훅, API(commit-fleet/roster), 스케줄러 tick. **`siege_fleet_combat_enabled=false` 기본 → 프로덕션 무영향**. node --check + DB 스모크 통과.
+  - 🟡 미완(Phase 1 잔여): 플래그 ON 검증, 수비자 미커밋 시 auto-pick(현재 미커밋이면 픽셀 폴백), UI(합류/관전), full-loss 경제 재균형(§12), Phase 2 N-side 엔진.
+
 ## 🟢 v7.229~v7.238 적용 완료 (전투 VFX · 영상 연출)
 - **v7.229 함대전 박력 강화**(`assets/tactical-lab-v11.html`): 발사 머즐 플래시(`mkMuzzle`/`drawMuzzles`, 신규 `muzzles[]`), 빔 굵기/알파/코어 상향, `mkExp` 파편·격침 폭발 크기 상향, 대형함 격침 히트스톱(`triggerHitstop` 타이탄 110ms/배틀십 70ms), 탄·미사일 명중 임팩트 스파크. WS 서버 전투 데미지 로직 무변경(시각/로컬 시뮬 계층만). 카메라/속도 미변경.
 - **v7.230 로딩 영상 frozen Mars**: `load_loop_03`(가로)/`load_loop_v03`(세로) 추가, 로딩 랜덤 2종→3종.
