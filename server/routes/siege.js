@@ -60,6 +60,20 @@ router.post('/siege/declare', requireAuth, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// [Phase 3] GET /api/siege/schedule — 주간 공성 결전 캘린더 (다가오는 슬롯)
+//   ※ '/siege/:sectorCode' 보다 먼저 등록
+// ─────────────────────────────────────────────────────────────
+router.get('/siege/schedule', async (req, res) => {
+  try {
+    const count = Math.min(parseInt(req.query.count ?? '4'), 12);
+    res.json(await siegeService.getSiegeSchedule(count));
+  } catch (err) {
+    console.error('[SIEGE] schedule error:', err.message);
+    res.status(500).json({ error: 'internal error' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
 // GET /api/siege/:sectorCode — 활성 Siege 조회
 // ─────────────────────────────────────────────────────────────
 router.get('/siege/:sectorCode', async (req, res) => {

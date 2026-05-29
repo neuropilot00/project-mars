@@ -1,4 +1,11 @@
-# OCCUPY MARS — Changelog
+## 2026-05-29 v7.256 — 주간 공성 캘린더 (결전 시각 고정 슬롯)
+
+큰 기능 #2 — 공성 결전을 고정 주간 슬롯으로 스냅(관전 집중, 리니지 공성 시간표).
+- **mig 266**: siege_schedule_enabled(true)/dows("3,6"=수·토)/hour_utc(12)/min_notice_hours(6).
+- **`_nextSiegeSlot` + declareSiege**: 스케줄 활성 시 siege_starts_at을 다음 고정 슬롯(UTC dows+hour)으로 스냅. 비활성 시 기존 now+warning_hours.
+- **`getSiegeSchedule` + GET /api/siege/schedule**: 다가오는 결전 슬롯 N개 + 설정. SOV MAP 모달 상단에 "⚔ 다음 공성 결전" 칩으로 노출(현지 시각).
+- **검증**: getSiegeSchedule 단위(전 슬롯 수/토 12:00 UTC) PASS + 부팅/엔드포인트 200 + 파싱·훅. SW v63→v64.
+
 
 ## 2026-05-29 v7.255 — SOV MAP: 화성 지배 현황 (24섹터 길드 거버너 지도)
 

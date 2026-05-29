@@ -63,7 +63,8 @@
 // 2026-05-29 v61: v7.253 실시간 수동스킬 beam/missile 서버권위(충전/쿨다운/데미지) + 비-라이브 cmd rate limit.
 // 2026-05-29 v62: v7.254 수동스킬 충전 게이지 프레임 노출(클라 표시용).
 // 2026-05-29 v63: v7.255 SOV MAP — 24섹터 길드 지배 현황 모달(거버넌스 탭) + sov-map 엔드포인트.
-const CACHE_NAME = 'mars-v63';
+// 2026-05-29 v64: v7.256 주간 공성 캘린더(결전 고정 슬롯) + SOV MAP 일정 노출.
+const CACHE_NAME = 'mars-v64';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

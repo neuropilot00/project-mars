@@ -45,6 +45,36 @@ try { titleExt = require('./titleExtended'); } catch (_) {}
 // ─────────────────────────────────────────────────────────────
 // 1. Siege 선언
 // ─────────────────────────────────────────────────────────────
+// [Phase 3] 주간 공성 캘린더 — after 이후 가장 이른 고정 슬롯(UTC dows 요일 + hourUtc 시, 분 0) 반환.
+function _nextSiegeSlot(after, dows, hourUtc) {
+  if (!Array.isArray(dows) || !dows.length) return new Date(after.getTime() + 48 * 3600000);
+  for (let i = 0; i <= 14; i++) {
+    const d = new Date(after.getTime());
+    d.setUTCDate(d.getUTCDate() + i);
+    d.setUTCHours(hourUtc, 0, 0, 0);
+    if (dows.includes(d.getUTCDay()) && d.getTime() >= after.getTime()) return d;
+  }
+  return new Date(after.getTime() + 48 * 3600000);
+}
+
+// [Phase 3] 다가오는 공성 결전 슬롯 N개 + 스케줄 설정 — UI 노출용
+async function getSiegeSchedule(count = 4) {
+  const enabled = String(await getSetting('siege_schedule_enabled') ?? 'false') === 'true';
+  const dows = String(await getSetting('siege_schedule_dows') ?? '3,6').split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  const hourUtc = parseInt(await getSetting('siege_schedule_hour_utc') ?? '12');
+  const minNotice = parseInt(await getSetting('siege_schedule_min_notice_hours') ?? '6');
+  const slots = [];
+  if (enabled) {
+    let cursor = new Date(Date.now() + minNotice * 3600000);
+    for (let n = 0; n < count; n++) {
+      const slot = _nextSiegeSlot(cursor, dows, hourUtc);
+      slots.push(slot.toISOString());
+      cursor = new Date(slot.getTime() + 3600000); // 다음 슬롯 탐색은 1시간 뒤부터
+    }
+  }
+  return { enabled, dows, hour_utc: hourUtc, min_notice_hours: minNotice, next_slots: slots };
+}
+
 async function declareSiege(challengerWallet, sectorCode) {
   const w = challengerWallet.toLowerCase();
   const code = sectorCode.toLowerCase();
@@ -142,8 +172,18 @@ async function declareSiege(challengerWallet, sectorCode) {
     }
 
     // ── governor_sieges INSERT ──
-    const now          = new Date();
-    const siegeStartsAt = new Date(now.getTime() + warnHours * 3600000);
+    const now = new Date();
+    // [Phase 3] 주간 공성 캘린더 — 결전 시각을 고정 슬롯으로 스냅(관전 집중). 비활성 시 기존 now+warning_hours.
+    let siegeStartsAt;
+    const schedEnabled = String(await getSetting('siege_schedule_enabled') ?? 'false') === 'true';
+    if (schedEnabled) {
+      const dows = String(await getSetting('siege_schedule_dows') ?? '3,6').split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+      const hourUtc = parseInt(await getSetting('siege_schedule_hour_utc') ?? '12');
+      const minNotice = parseInt(await getSetting('siege_schedule_min_notice_hours') ?? '6');
+      siegeStartsAt = _nextSiegeSlot(new Date(now.getTime() + minNotice * 3600000), dows, hourUtc);
+    } else {
+      siegeStartsAt = new Date(now.getTime() + warnHours * 3600000);
+    }
     const siegeEndsAt   = new Date(siegeStartsAt.getTime() + battleHours * 3600000);
 
     const siegeRes = await client.query(
@@ -802,6 +842,7 @@ module.exports = {
   resolveExpiredSieges,
   commitSiegeFleet,
   prepareSiegeBattles,
+  getSiegeSchedule,
   updateGovernorDeclaration,
   updateTaxRate,
   updateSectorPolicy

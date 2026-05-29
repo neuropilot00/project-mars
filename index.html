@@ -36523,11 +36523,21 @@ window.addEventListener('resize', _debounce(function(){
     document.body.appendChild(ov);
     ov.addEventListener('click', function(e){ if(e.target===ov) ov.remove(); });
     var cb = document.getElementById('sovMapClose'); if(cb) cb.addEventListener('click', function(){ ov.remove(); });
-    fetch('/api/sector-defs/sov-map').then(function(r){return r.json()}).then(function(d){
+    Promise.all([
+      fetch('/api/sector-defs/sov-map').then(function(r){return r.json()}),
+      fetch('/api/siege/schedule?count=3').then(function(r){return r.json()}).catch(function(){return null})
+    ]).then(function(res){
+      var d = res[0]; var sched = res[1];
       var body = document.getElementById('sovMapBody'); if(!body) return;
       var L = function(s){ return (LANG==='ko'?s.name_ko:LANG==='ja'?s.name_ja:LANG==='zh'?s.name_zh:s.name_en)||s.name_en||s.code; };
       var tierCol = { core:'var(--gold)', mid:'var(--cyan)', frontier:'var(--tx3)' };
       var h = '<div style="margin-bottom:10px;color:var(--tx2)">'+tl("Held","점령","占領","占领")+' '+d.claimed+' / '+d.total+' · '+tl("Vacant","무주공산","空白","空白")+' '+d.vacant+'</div>';
+      // [Phase 3] 다가오는 공성 결전 일정
+      if(sched && sched.enabled && sched.next_slots && sched.next_slots.length){
+        h += '<div style="font-size:10px;color:#ff8a80;font-weight:700;margin-bottom:4px">⚔ '+tl("Next Siege Windows","다음 공성 결전","次の攻城戦","下次攻城")+'</div><div style="margin-bottom:10px">';
+        sched.next_slots.forEach(function(iso){ try{ var dt=new Date(iso); h += '<span style="display:inline-block;font-size:9px;color:var(--tx2);background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);border-radius:10px;padding:2px 8px;margin:0 4px 4px 0">'+dt.toLocaleString(LANG==='ko'?'ko-KR':undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})+'</span>'; }catch(_){} });
+        h += '</div>';
+      }
       if(d.leaderboard && d.leaderboard.length){
         h += '<div style="font-size:10px;color:#ffb74d;font-weight:700;margin-bottom:6px">🏛 '+tl("Ruling Guilds","지배 길드","支配ギルド","支配公会")+'</div>';
         d.leaderboard.slice(0,8).forEach(function(g,i){
