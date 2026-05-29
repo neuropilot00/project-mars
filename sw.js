@@ -66,7 +66,8 @@
 // 2026-05-29 v64: v7.256 주간 공성 캘린더(결전 고정 슬롯) + SOV MAP 일정 노출.
 // 2026-05-29 v65: v7.257 화성 맹주(Commander)=sov 지배 1위 길드 + SOV MAP 배너.
 // 2026-05-29 v66: v7.258 커맨더 공성 전투(맹주 sov1위 vs 도전 sov2위, 기존 siege/live 재사용) + 맹주 명시 저장 + full-loss 분리.
-const CACHE_NAME = 'mars-v66';
+// 2026-05-29 v67: v7.260 게임 가이드북 '길드 공성전' 챕터 4언어 추가(섹터/커맨더 공성·실시간 명령·세금·full-loss).
+const CACHE_NAME = 'mars-v67';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

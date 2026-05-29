@@ -43008,6 +43008,21 @@ if(typeof _origTrackQuestAction === 'function'){
 var CODEX_CONTENT = {
   en: {
     sections: [
+      { id: 'siegewar', icon: '🏛', title: 'Guild Siege War',
+        blocks: [
+          { type:'p', text:'**Capture Mars sector by sector.** Guilds fight scheduled fleet battles to seize sectors, collect their tax, and crown the planet Commander. Inspired by EVE alliance wars and Lineage castle sieges.' },
+          { type:'h2', text:'🗺 Sectors & Governors' },
+          { type:'p', text:'• Mars is split into **24 sectors** (frontier / mid / core). The guild that wins a sector siege becomes its **Governor** and collects **sector tax** into the **guild treasury**.\n• See the whole map in **BASE → GOVERN → 🗺 SOV MAP**: who rules each sector, the ruling-guild leaderboard, and upcoming siege windows.' },
+          { type:'h2', text:'⚔ Sector Siege (weekly)' },
+          { type:'p', text:'1. A challenger declares a siege on a sector (needs territory there).\n2. The decisive battle snaps to a **fixed weekly slot** (Wed & Sat 12:00 UTC) so everyone can watch.\n3. **Guild members each commit one fleet** to attack or defend (1 fleet per person).\n4. At the slot, **all committed fleets fight on one battlefield in real time** — you steer your own fleet live.\n5. The winning guild becomes the new Governor.' },
+          { type:'h2', text:'🎮 Real-time commands' },
+          { type:'p', text:'During a live siege you command **your own fleet**: **formation**, **maneuver**, **focus target**, plus charged manual skills **☢ Beam** / **☄ Missile** (server-charged — fire at 100%). Everyone watches the same authoritative battle.' },
+          { type:'callout', variant:'warn', title:'⚠ Ships can be permanently lost', text:'With siege full-loss ON, a losing fleet is **permanently destroyed**. Want zero risk? **Don\'t commit a fleet** — challenge or defend by territory occupancy instead (decided by pixel count, no ship loss).' },
+          { type:'h2', text:'👑 Commander Siege (monthly)' },
+          { type:'p', text:'• The guild controlling the most sectors is the **Mars Commander**. Once a month (1st, 12:00 UTC) a **Commander Siege** auto-opens: Commander (defender) vs the #2 guild (challenger). The winner rules Mars.\n• If nobody challenges for several cycles, the throne is **vacated** and falls back to the top sector-holding guild.' },
+          { type:'h2', text:'💰 Tax → Guild Treasury' },
+          { type:'p', text:'Sector tax flows into the **guild treasury**. Leaders/officers withdraw it from the guild panel. Disbanding a guild **refunds** the treasury to the leader (no GP is burned).' },
+        ] },
       { id: 'whatsnew', icon: '🆕', title: "What's New",
         blocks: [
           { type:'p', text:'**v7.13x — 2026-05 Living economy + EVE-grade fleet warfare.** Latest stable build.' },
@@ -44200,6 +44215,21 @@ var CODEX_CONTENT = {
   },
   ko: {
     sections: [
+      { id: 'siegewar', icon: '🏛', title: '길드 공성전',
+        blocks: [
+          { type:'p', text:'**화성을 섹터 단위로 점령하라.** 길드(혈맹)가 정해진 시각에 함대전을 벌여 섹터를 차지하고 세금을 거두며, 최종적으로 화성 맹주 자리를 다툰다. EVE 동맹전 + 리니지 공성전에서 영감.' },
+          { type:'h2', text:'🗺 섹터 & 거버너' },
+          { type:'p', text:'• 화성은 **24개 섹터**(frontier/mid/core)로 나뉜다. 섹터 공성에서 이긴 길드가 **거버너**가 되어 **섹터 세금**을 **길드 금고**로 거둔다.\n• 전체 현황은 **BASE → GOVERN → 🗺 SOV MAP** 에서: 누가 어느 섹터를 지배하는지, 지배 길드 순위, 다가오는 공성 일정을 본다.' },
+          { type:'h2', text:'⚔ 섹터 공성 (주간)' },
+          { type:'p', text:'1. 도전자가 섹터에 공성을 선언(해당 섹터 영토 필요).\n2. 결전은 **고정 주간 슬롯**(수·토 12:00 UTC)으로 스냅돼 모두가 관전 가능.\n3. **길드원이 각자 함대 1개씩** 공격/수비에 합류(1인 1함대).\n4. 결전 시각에 **합류한 모든 함대가 한 전장에서 실시간 전투** — 내 함대를 직접 조종.\n5. 승리 길드가 새 거버너.' },
+          { type:'h2', text:'🎮 실시간 명령' },
+          { type:'p', text:'라이브 공성 중 **내 함대**를 지휘: **진형**, **기동**, **집중공격**, 충전형 수동 스킬 **☢ 빔포** / **☄ 미사일**(서버 충전 — 100%에서 발동). 모두 같은 권위 전투를 관전한다.' },
+          { type:'callout', variant:'warn', title:'⚠ 함선 영구 손실 주의', text:'공성 full-loss가 켜져 있으면 패배한 함대는 **영구 파괴**된다. 손실 없이 하려면 **함대를 걸지 말 것** — 영토 점유율로 도전/방어하면(픽셀 수 판정) 함선 손실이 없다.' },
+          { type:'h2', text:'👑 커맨더 공성 (월간)' },
+          { type:'p', text:'• 가장 많은 섹터를 지배한 길드가 **화성 맹주**다. 매월 1회(1일 12:00 UTC) **커맨더 공성**이 자동 개최: 맹주(수비) vs 2위 길드(도전). 승자가 화성을 지배한다.\n• 여러 주기 동안 아무도 도전하지 않으면 맹주 자리가 **비워지고** 섹터 최다 지배 길드로 폴백된다.' },
+          { type:'h2', text:'💰 세금 → 길드 금고' },
+          { type:'p', text:'섹터 세금은 **길드 금고**로 들어간다. 리더/오피서가 길드 패널에서 인출한다. 길드 해체 시 금고는 리더에게 **환원**된다(GP 소각 없음).' },
+        ] },
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
           { type:'p', text:'**v7.13x — 2026-05 살아있는 경제 + EVE급 함대전.** 최신 안정 빌드.' },
@@ -45463,6 +45493,21 @@ var CODEX_CONTENT = {
 // ── Japanese / Chinese guidebook (translated from verified EN/KO content) ──
 CODEX_CONTENT.ja = {
   sections: [
+    { id: 'siegewar', icon: '🏛', title: 'ギルド攻城戦',
+      blocks: [
+        { type:'p', text:'**火星をセクター単位で占領せよ。** ギルドが定刻の艦隊戦でセクターを奪い、税を徴収し、最終的に火星総督の座を争う。EVE同盟戦＋リネージュ攻城戦に着想。' },
+        { type:'h2', text:'🗺 セクターと総督' },
+        { type:'p', text:'• 火星は**24セクター**(frontier/mid/core)に分かれる。セクター攻城戦に勝ったギルドが**総督(Governor)**となり**セクター税**を**ギルド金庫**へ徴収。\n• 全体は **BASE → GOVERN → 🗺 SOV MAP** で: 誰がどのセクターを支配し、支配ギルド順位、次回攻城スケジュールを確認。' },
+        { type:'h2', text:'⚔ セクター攻城戦(週次)' },
+        { type:'p', text:'1. 挑戦者がセクターに攻城を宣言(そのセクターの領地が必要)。\n2. 決戦は**固定週次スロット**(水・土 12:00 UTC)に固定され全員が観戦可能。\n3. **ギルド員が各自1艦隊**を攻撃/防衛に投入(1人1艦隊)。\n4. 決戦時刻に**投入された全艦隊が一つの戦場でリアルタイム戦闘** — 自分の艦隊を直接操作。\n5. 勝利ギルドが新総督。' },
+        { type:'h2', text:'🎮 リアルタイム指令' },
+        { type:'p', text:'ライブ攻城中、**自分の艦隊**を指揮: **陣形**、**機動**、**集中攻撃**、チャージ式手動スキル **☢ ビーム** / **☄ ミサイル**(サーバーチャージ — 100%で発動)。全員が同じ権威戦闘を観戦。' },
+        { type:'callout', variant:'warn', title:'⚠ 艦船は永久喪失しうる', text:'攻城 full-loss が ON のとき、敗北した艦隊は**永久破壊**される。無損失で行うなら**艦隊を投入しない** — 領地占有率で挑戦/防衛すれば(ピクセル数判定)艦船損失なし。' },
+        { type:'h2', text:'👑 総督攻城戦(月次)' },
+        { type:'p', text:'• 最多セクターを支配するギルドが**火星総督**。毎月1回(1日 12:00 UTC)**総督攻城戦**が自動開催: 総督(防衛) vs 2位ギルド(挑戦)。勝者が火星を支配。\n• 数サイクル誰も挑戦しなければ王座は**空位**となり、最多支配ギルドへフォールバック。' },
+        { type:'h2', text:'💰 税 → ギルド金庫' },
+        { type:'p', text:'セクター税は**ギルド金庫**に入る。リーダー/オフィサーがギルドパネルから引き出す。解散時は金庫がリーダーへ**返還**される(GP焼却なし)。' },
+      ] },
     { id: 'whatsnew', icon: '🆕', title: '最新アップデート',
       blocks: [
         { type:'p', text:'**v7.13x — 2026-05 生きた経済 + EVE 級の艦隊戦。** 最新の安定ビルド。' },
@@ -46649,6 +46694,21 @@ CODEX_CONTENT.ja = {
 
 CODEX_CONTENT.zh = {
   sections: [
+    { id: 'siegewar', icon: '🏛', title: '公会攻城战',
+      blocks: [
+        { type:'p', text:'**逐区占领火星。** 公会在固定时间进行舰队战，夺取区域、征收税收，并最终争夺火星统帅之位。灵感来自 EVE 联盟战 + 天堂攻城战。' },
+        { type:'h2', text:'🗺 区域与总督' },
+        { type:'p', text:'• 火星分为**24个区域**(frontier/mid/core)。赢得区域攻城战的公会成为**总督**，将**区域税收**收入**公会金库**。\n• 全局查看 **BASE → GOVERN → 🗺 SOV MAP**: 谁统治哪个区域、统治公会排行、即将到来的攻城时间。' },
+        { type:'h2', text:'⚔ 区域攻城战(每周)' },
+        { type:'p', text:'1. 挑战者对区域宣战(需在该区域拥有领地)。\n2. 决战固定到**每周固定时段**(周三、周六 12:00 UTC)以便观战。\n3. **公会成员各投入1支舰队**进攻或防守(每人1舰队)。\n4. 决战时刻**所有投入舰队在同一战场实时作战** — 直接操控自己的舰队。\n5. 获胜公会成为新总督。' },
+        { type:'h2', text:'🎮 实时指令' },
+        { type:'p', text:'实时攻城中指挥**你自己的舰队**: **阵型**、**机动**、**集火**，以及充能手动技能 **☢ 光束** / **☄ 导弹**(服务器充能 — 满100%释放)。所有人观看同一权威战斗。' },
+        { type:'callout', variant:'warn', title:'⚠ 舰船可能永久损失', text:'攻城 full-loss 开启时，战败舰队将被**永久摧毁**。想零风险？**不要投入舰队** — 改以领地占有率挑战/防守(按像素数判定，无舰船损失)。' },
+        { type:'h2', text:'👑 统帅攻城战(每月)' },
+        { type:'p', text:'• 控制最多区域的公会即**火星统帅**。每月一次(1日 12:00 UTC)自动开启**统帅攻城战**: 统帅(防守) vs 第2名公会(挑战)。胜者统治火星。\n• 若数个周期无人挑战，王座**空缺**并回退至控制最多区域的公会。' },
+        { type:'h2', text:'💰 税收 → 公会金库' },
+        { type:'p', text:'区域税收进入**公会金库**。会长/官员从公会面板提取。解散公会时金库**返还**给会长(不销毁GP)。' },
+      ] },
     { id: 'whatsnew', icon: '🆕', title: '最新更新',
       blocks: [
         { type:'p', text:'**v7.13x — 2026-05 活的经济 + EVE 级舰队战。** 最新稳定版本。' },
