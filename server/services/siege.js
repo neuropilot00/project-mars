@@ -282,8 +282,9 @@ async function resolveSiege(siegeId, opts = {}) {
       let winnerSide = null;
       if (siege.fleet_battle_id) {
         const b = (await pool.query('SELECT status, winner_side FROM fleet_battles WHERE id = $1', [siege.fleet_battle_id])).rows[0];
-        if (b && b.status !== 'ended') return { success: true, pending: true, reason: 'battle_not_ended' };
-        winnerSide = b ? b.winner_side : null;
+        // [QA fix] 진행 중(preparing/active)만 보류. cancelled/소실은 무승부(수비자 유지)로 해결 — dead-lock 방지.
+        if (b && (b.status === 'preparing' || b.status === 'active')) return { success: true, pending: true, reason: 'battle_not_ended' };
+        winnerSide = b ? b.winner_side : null; // ended → winner_side / cancelled·없음 → null(수비자 유지)
       }
       return await resolveCommanderSiege(siegeId, { winnerSide });
     }
@@ -305,12 +306,18 @@ async function resolveSiege(siegeId, opts = {}) {
           'SELECT status, winner_side FROM fleet_battles WHERE id = $1', [siege.fleet_battle_id]
         );
         const b = bRes.rows[0];
-        if (!b || b.status !== 'ended') {
+        if (b && (b.status === 'preparing' || b.status === 'active')) {
           await client.query('ROLLBACK');
           return { success: true, pending: true, reason: 'battle_not_ended' };
         }
-        battleWinnerWallet = b.winner_side === 'atk' ? siege.challenger_wallet
-                           : (siege.defender_wallet || null); // def/draw → 수비자 유지
+        if (!b || b.status === 'cancelled') {
+          // [QA fix] 전투 취소/소실 → 픽셀 폴백으로 해결 진행(섹터 dead-lock 방지). 링크/모드 리셋.
+          await client.query("UPDATE governor_sieges SET fleet_battle_id = NULL, resolution_mode = 'pixel_fallback' WHERE id = $1", [siegeId]);
+          // battleWinnerWallet 미설정 → 아래 픽셀 비교로 승자 결정
+        } else {
+          battleWinnerWallet = b.winner_side === 'atk' ? siege.challenger_wallet
+                             : (siege.defender_wallet || null); // ended: def/draw → 수비자 유지
+        }
       }
     }
 
@@ -831,6 +838,22 @@ async function _installGeoGovernor(client, sectorId, newGov) {
     );
     await client.query(`DELETE FROM governance_positions WHERE role='governor' AND sector_id=$1`, [sectorId]);
   }
+  // [QA fix] 옛 정권 vice_governor 포지션도 정리 — siege_governor_locked 로 픽셀 재산정이 멈추므로
+  //   stale vice 가 새 거버너 섹터 세금 20%를 영구 수취하는 누수 차단. 잔여 GP → sector_pool 후 제거.
+  try {
+    const oldVice = (await client.query(
+      `SELECT gp_balance FROM governance_positions WHERE role='vice_governor' AND sector_id=$1 FOR UPDATE`, [sectorId]
+    )).rows[0];
+    if (oldVice) {
+      const vgp = parseFloat(oldVice.gp_balance) || 0;
+      if (vgp > 0) await client.query('UPDATE sectors SET sector_pool_gp = sector_pool_gp + $1 WHERE id = $2', [vgp, sectorId]);
+      await client.query(
+        `UPDATE governance_history SET ended_at=NOW(), tenure_seconds=EXTRACT(EPOCH FROM (NOW()-started_at))::int
+         WHERE role='vice_governor' AND sector_id=$1 AND ended_at IS NULL`, [sectorId]
+      );
+      await client.query(`DELETE FROM governance_positions WHERE role='vice_governor' AND sector_id=$1`, [sectorId]);
+    }
+  } catch (_) { /* vice 없음 */ }
   // 새 거버너 설치 (포지션 + 히스토리 + sectors)
   await client.query(
     `INSERT INTO governance_positions (wallet, role, sector_id, gp_balance, appointed_at)

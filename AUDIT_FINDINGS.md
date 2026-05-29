@@ -2,6 +2,14 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 공성전 풀스택 최종 QA (v7.260~261, 2026-05-29) — 10에이전트 통합검증
+가이드북 '길드 공성전' 4언어 챕터(v7.260, id=siegewar) + QA 6확정 처리(v7.261):
+- ✅ [CRITICAL] siege dead-lock(cancelled 전투→영구 active/섹터 잠김): resolveSiege가 cancelled를 픽셀 폴백 해결+fleet_battle_id 리셋. e2e PASS.
+- ✅ [HIGH] vice_governor 세수 누수(옛 정권 vice 20% 영구 수취): _installGeoGovernor에서 vice 포지션 정리.
+- ✅ [HIGH→완화] 라이브 동시성 점유: wall-clock 10→6분(mig 270).
+- 🟡 [HIGH 후속, 멀티인스턴스 전용] 라이브 명령 Redis 라우팅 미구현 — 비-leader 워커 명령이 권위 워커 미도달(단일 인스턴스 정상). om:ws battleCmd kind 추가 또는 ops 게이트.
+- 🟡 [LOW 후속] shouldAbort 데드코드 정리. [HIGH 후속] 라이브 전용 동시성 lane(siege_realtime_max_concurrent)+tick drift 보정.
+
 ## 🟢 커맨더 공성 전투 (v7.258, 2026-05-29) — Codex+레드팀 16에이전트
 맹주(sov1)=수비 vs 도전(sov2)=공격, 다함대 실시간 결전→승자 맹주. mig 268(siege_kind/mars_commander/시스템섹터), declareCommanderSiege/resolveCommanderSiege, resolveSiege 커맨더 가드, getSovMap mars_commander 우선, full-loss 분리(commander_full_loss). 기존 commit/battle/live 인프라 무변경 재사용. DB e2e PASS.
 레드팀 11건 처리:

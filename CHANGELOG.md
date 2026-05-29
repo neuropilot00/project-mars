@@ -1,3 +1,12 @@
+## 2026-05-29 v7.261 — 공성전 풀스택 QA 수정 (dead-lock / 세수 누수 / 동시성)
+
+최종 통합 QA 워크플로(10에이전트) 확정 결함 수정.
+- **[CRITICAL→FIXED] siege 상태머신 dead-lock**: 연결 fleet_battle이 cancelled(함대충돌/예외/재시작정리)되면 resolveSiege가 'ended' 아님→영원히 pending→governor_sieges active 고착+`active_siege_id` 미해제→섹터 영구 잠김. 수정: 진행중(preparing/active)만 보류, **cancelled는 fleet_battle_id 리셋+픽셀 폴백으로 해결 진행**(커맨더 가드도 동일). DB e2e PASS(cancelled→resolved+잠금해제).
+- **[HIGH→FIXED] vice_governor 세수 누수**: 공성으로 거버너 바뀌어도 옛 정권 vice 포지션이 남아 siege_governor_locked로 픽셀 재산정 멈춘 섹터 세금 20%를 영구 수취. 수정: `_installGeoGovernor`에서 거버너 교체 시 옛 vice 포지션도 정리(잔여 GP→sector_pool 후 제거).
+- **[HIGH→완화] 라이브 전투 동시성 점유**(mig 270): 라이브 시즈가 전역 battle_max_concurrent(3) 슬롯을 점유→타 전투 적체. wall-clock 한도 10→6분으로 단축(정상 1~2분 종료). 근본책(라이브 전용 lane)은 후속.
+- node --check + DB e2e + 부팅 OK.
+- 후속(AUDIT): 멀티인스턴스 라이브 명령 라우팅(Redis battleCmd — 단일인스턴스 정상), shouldAbort 데드코드 정리, 라이브 전용 동시성 lane.
+
 ## 2026-05-29 v7.260 — 게임 가이드북 '길드 공성전' 챕터 (4언어)
 
 공성전 풀스택 출시에 맞춰 게임 가이드북 버전업.
