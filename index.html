@@ -48278,14 +48278,14 @@ function playCrateOpening(d){
 
 // [v7.228] 가챠 에픽/레전더리 풀스크린 영상 연출 (crate cracks open → warship emerges).
 //   가로(데스크탑) gacha_reveal.mp4 / 세로(모바일) gacha_reveal_v01~v02 랜덤. 끝나거나 탭하면 resolve.
-//   [v7.230] tier>=4(레전더리) 는 전용 gacha_reveal_legendary.mp4 (battleship 등장) — 데/모 공통, object-fit:cover.
+//   [v7.230] tier>=4(레전더리) 는 전용 영상 — 데스크탑 가로 gacha_reveal_legendary.mp4 / 모바일 세로 _v.mp4.
 function _playGachaVideo(resolve, tier){
   try {
     var ov = document.createElement('div');
     ov.id = 'gachaVideoOverlay';
     ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:#05040b;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:crFade .2s ease';
     var src;
-    if (tier >= 4) src = '/assets/fx/gacha_reveal_legendary.mp4'; // 레전더리 전용 (가로 마스터, cover 크롭)
+    if (tier >= 4) src = (window.innerWidth > 768) ? '/assets/fx/gacha_reveal_legendary.mp4' : '/assets/fx/gacha_reveal_legendary_v.mp4'; // 레전더리 전용 — 데스크탑 가로 / 모바일 세로
     else if (window.innerWidth > 768) src = '/assets/fx/gacha_reveal.mp4';
     else src = '/assets/fx/gacha_reveal_v0'+(1+Math.floor(Math.random()*2))+'.mp4';
     ov.innerHTML =
