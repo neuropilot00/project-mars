@@ -2,6 +2,15 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 함선 채굴 v2(깊이) + 레드팀 P0 + 임무탭 이동 + 경매장 GP↔PP 통합 (v7.269, 2026-05-30)
+- ✅ [기획] 채굴 깊이: 함급 적재량(HP비례 frigate1~titan60)×등급보너스 → 함대 capacity. 목적지 frontier/mid/core 수율·마모·약탈 차등(mig 277). "어느 함선·어디로·어떻게" 의사결정.
+- ✅ [레드팀 P0-1 게임엔딩] 채굴↔공성 상호 잠금(siege commit이 채굴함대 거부 + launch가 공성투입함대 거부) → full-loss 영구 함대파괴 차단.
+- ✅ [레드팀 P0-2] 마모 GREATEST(1,...) clamp → 좀비함선(HP0) 차단. [인플레] 일일 GP상한1500 + GP율5→3 + 최소HP게이트0.15(수리 sink 강제)(mig 278).
+- ✅ [UX] 채굴 FLEET→QUESTS 임무탭 이동(⛏ MINING OPS 카드) + 목적지 선택 모달(색상/약탈%/예상GP). §19. i18n 4언어.
+- ✅ [Codex] 경매장 통합: auction.js↔auctionCombat 2시스템 → auctionCombat 일원화. 전자산 PP/GP + GP↔PP 경매장 내부 거래. 매수 PP 비상환(USDT누수차단). 프론트 전 엔드포인트 /api/auctions/* 재연결.
+- 검증: 채굴v2 e2e 6/6 + 레드팀 5/5 + 일일캡 2/2 + 경매 4/5 + 인라인 9/9 + 부팅200. SW v74.
+- 🟡 후속(비차단): 채굴 함선 specialization(mining_yield 컬럼), 호위 슬롯, 플레이어 갱킹, 정제 체인, 보호화물, 자동재출항/완료알림 뱃지. Codex 채굴 배너/썸네일 아트.
+
 ## 🟢 함선 채굴 런(경제v2 P5) — 땅 없는 F2P 노가다 (v7.267, 2026-05-30)
 - ✅ 함대를 채굴 런에 보내 재료+GP 수급(땅 불필요). ship_mining_jobs(mig 275) + shipMining 서비스/라우트(/api/mining/*) + FLEET COMMAND ⛏ 버튼 + openShipMining 모달. 격리·추가형이라 기존 흐름 무영향.
 - ✅ GP=함선수×시간×5, 재료=rollResourceDrop(시간비례), PP 안 줌. launch 검증(소유/전투/중복/한도/생존함선), collect 가드(미완료/재수령). 무료 출항(F2P).

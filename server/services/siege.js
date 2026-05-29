@@ -734,6 +734,13 @@ async function commitSiegeFleet(siegeId, wallet, fleetId) {
     );
     if (!fRes.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_not_found' }; }
     if (fRes.rows[0].is_in_battle) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_in_battle' }; }
+    // [P0-1 fix] 채굴 중 함대는 공성 합류 불가 — 채굴↔전투 이중 점유 + 마모 함선 full-loss 소각 방지.
+    try {
+      const mRes = await client.query(
+        `SELECT 1 FROM ship_mining_jobs WHERE fleet_id = $1 AND status = 'mining' LIMIT 1`, [fleetId]
+      );
+      if (mRes.rows.length) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_mining' }; }
+    } catch (_) { /* ship_mining_jobs 미존재(마이그 전) — 무시 */ }
     const shipRes = await client.query(
       'SELECT COUNT(*) AS cnt FROM ships WHERE fleet_id = $1 AND is_alive = true AND is_market_listed = false',
       [fleetId]

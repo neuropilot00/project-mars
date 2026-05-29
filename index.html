@@ -6867,7 +6867,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane" id="basePane_fleet">
         <div class="base-banner" id="bannerFleet"><img src="/assets/base/fleet.jpg?v=v7160" alt="Fleet Command" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
         <!-- 빠른 액션 버튼 (크고 사각형) -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
           <button type="button" onclick="openShipyard()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">🔨</span>
             <span data-i18n="fcmd_open_shipyard_short">Shipyard</span>
@@ -6875,10 +6875,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <button type="button" onclick="openFleetCmd()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(255,152,0,.12);border:1px solid rgba(255,152,0,.45);color:#ffaa33;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">⚔</span>
             <span data-i18n="fcmd_my_fleets_short">My Fleets</span>
-          </button>
-          <button type="button" onclick="openShipMining()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(100,220,130,.12);border:1px solid rgba(100,220,130,.4);color:#64dc82;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
-            <span style="font-size:22px;line-height:1">⛏</span>
-            <span data-i18n="fcmd_mining_short">Mining Run</span>
           </button>
           <button type="button" onclick="openTacticalLab()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.4);color:#ce93d8;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">🧪</span>
@@ -7097,6 +7093,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
           <div id="dailyMissionCards"></div>
           <div id="dailyBonusCard" style="display:none"></div>
+        </div>
+
+        <!-- ⛏ MINING OPS (함선 채굴 — 땅 없이 GP/재료 수급하는 반복 활동) -->
+        <div id="miningOpsCard" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
+          <div onclick="openShipMining()" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(100,220,130,.14),rgba(100,220,130,.04));border:1px solid rgba(100,220,130,.4);border-radius:10px;padding:12px">
+            <div style="font-size:26px;line-height:1">⛏</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:800;color:#64dc82;letter-spacing:.5px" data-i18n="mining_ops_title">MINING OPS</div>
+              <div style="font-size:8.5px;color:var(--tx3);margin-top:2px" data-i18n="mining_ops_desc">Send fleets to mine GP &amp; materials — no land needed.</div>
+            </div>
+            <button type="button" onclick="event.stopPropagation();openShipMining()" style="font-size:9px;font-weight:700;padding:7px 12px;border-radius:7px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;cursor:pointer;font-family:var(--fn);white-space:nowrap" data-i18n="mining_ops_btn">⛏ MINE</button>
+          </div>
         </div>
 
         <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
@@ -8559,6 +8567,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <option value="item">📦 ITEM</option>
               <option value="claim">🗺️ TERRITORY</option>
               <option value="resource">⛏️ RESOURCE</option>
+              <option value="currency">💱 GP↔PP</option>
             </select>
             <button type="button" id="auctFilterTypeTrigger" onclick="openSelectModal('auctFilterType','TYPE')" style="font-size:9px;padding:5px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);cursor:pointer;display:flex;align-items:center;gap:5px;min-width:110px;justify-content:space-between"><span id="auctFilterTypeLabel">ALL TYPES</span><span style="opacity:.5">▾</span></button>
             <button class="sz-btn" onclick="loadAuctions()" style="font-size:8px;padding:4px 8px;color:var(--gold);border-color:rgba(255,209,102,.3)">↻ REFRESH</button>
@@ -17565,7 +17574,7 @@ var I18N = {
     base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_items: 'MY ITEMS', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN', shop_cat_material: '⛏ MATERIALS',
     base_tab_transport: 'TRANSPORT', base_tab_quests_full: 'CAMPAIGN/QUESTS',
     bcat_territory: 'Territory', bcat_fleet: 'Fleet', bcat_economy: 'Economy', bcat_mission: 'Mission', bcat_community: 'Community',
-    fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_mining_short: 'Mining Run', fcmd_tactical_lab: 'Tactical Lab', fcmd_tactical_lab_short: 'Tactical Lab',
+    fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_mining_short: 'Mining Run', mining_ops_title: 'MINING OPS', mining_ops_desc: 'Send fleets to mine GP & materials — no land needed.', mining_ops_btn: '⛏ MINE', fcmd_tactical_lab: 'Tactical Lab', fcmd_tactical_lab_short: 'Tactical Lab',
     fleet_status_label: 'Fleet Status', fleet_world_events: 'Active World Events', btn_refresh: '↻ Refresh',
     hijack_no_fleet_auto_win: 'No enemy fleet — Auto Win (instant territory transfer)',
     hijack_no_fleet_label: 'No Fleet — Hijack Unavailable',
@@ -18441,7 +18450,7 @@ var I18N = {
     base_tab_shop: '상점', base_tab_market: '마켓', base_tab_items: '내 아이템', base_tab_guild: '길드', base_tab_govern: '거버넌스', shop_cat_material: '⛏ 재료',
     base_tab_transport: '수송', base_tab_quests_full: '캠페인/퀘스트',
     bcat_territory: '영토', bcat_fleet: '함대 지휘부', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
-    fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_mining_short: '채굴 출항', fcmd_tactical_lab: '전술랩', fcmd_tactical_lab_short: '전술 실험실',
+    fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_mining_short: '채굴 출항', mining_ops_title: '함선 채굴', mining_ops_desc: '함대를 보내 GP·재료 채굴 — 땅 필요 없음.', mining_ops_btn: '⛏ 채굴', fcmd_tactical_lab: '전술랩', fcmd_tactical_lab_short: '전술 실험실',
     fleet_status_label: '내 함대 현황', fleet_world_events: '활성 월드 이벤트', btn_refresh: '↻ 새로고침',
     hijack_no_fleet_auto_win: '상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)',
     hijack_no_fleet_label: '함대 없음 — 하이젝 불가',
@@ -19314,7 +19323,7 @@ var I18N = {
     base_tab_shop: 'ショップ', base_tab_market: 'マーケット', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
     base_tab_transport: '輸送', base_tab_quests_full: 'キャンペーン/クエスト',
     bcat_territory: '領土', bcat_fleet: '艦隊', bcat_economy: '経済', bcat_mission: 'ミッション', bcat_community: 'コミュニティ',
-    fcmd_open_shipyard_short: '造船所', fcmd_my_fleets_short: '艦隊管理', fcmd_mining_short: '採掘出航', fcmd_tactical_lab: '戦術ラボ', fcmd_tactical_lab_short: '戦術ラボ',
+    fcmd_open_shipyard_short: '造船所', fcmd_my_fleets_short: '艦隊管理', fcmd_mining_short: '採掘出航', mining_ops_title: '艦船採掘', mining_ops_desc: '艦隊を送ってGP·素材を採掘 — 領土不要。', mining_ops_btn: '⛏ 採掘', fcmd_tactical_lab: '戦術ラボ', fcmd_tactical_lab_short: '戦術ラボ',
     fleet_status_label: '艦隊状況', fleet_world_events: 'アクティブイベント', btn_refresh: '↻ 更新',
     hijack_no_fleet_auto_win: '敵艦隊なし — 自動勝利（即時領土移転）',
     hijack_fleet_info_fail: '敵艦隊情報の読み込み失敗',
@@ -20174,7 +20183,7 @@ var I18N = {
     base_tab_shop: '商店', base_tab_market: '市场', base_tab_guild: '公会', base_tab_govern: '治理',
     base_tab_transport: '运输', base_tab_quests_full: '战役/任务',
     bcat_territory: '领土', bcat_fleet: '舰队', bcat_economy: '经济', bcat_mission: '任务', bcat_community: '社区',
-    fcmd_open_shipyard_short: '造船厂', fcmd_my_fleets_short: '我的舰队', fcmd_mining_short: '采矿出航', fcmd_tactical_lab: '战术实验室', fcmd_tactical_lab_short: '战术实验室',
+    fcmd_open_shipyard_short: '造船厂', fcmd_my_fleets_short: '我的舰队', fcmd_mining_short: '采矿出航', mining_ops_title: '舰船采矿', mining_ops_desc: '派舰队采集GP·素材 — 无需领地。', mining_ops_btn: '⛏ 采矿', fcmd_tactical_lab: '战术实验室', fcmd_tactical_lab_short: '战术实验室',
     fleet_status_label: '舰队状态', fleet_world_events: '活跃世界事件', btn_refresh: '↻ 刷新',
     hijack_no_fleet_auto_win: '无敌方舰队 — 自动胜利（即时领土转移）',
     hijack_fleet_info_fail: '加载敌方舰队信息失败',
@@ -24634,6 +24643,15 @@ function loadSellView(){
       html+='</div>';
     }
 
+    html+='<div style="font-size:10px;color:#4cd89a;font-weight:800;letter-spacing:.5px;margin:14px 0 6px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px">💱 '+tl('GP↔PP TRADE','GP↔PP 거래','GP↔PP 取引','GP↔PP 交易')+'</div>';
+    html+='<div style="background:rgba(76,216,154,.04);border:1px solid rgba(76,216,154,.18);border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px">'
+      +'<div style="min-width:0">'
+      +'<div style="font-size:10px;font-weight:700;color:#4cd89a">💱 '+tl('GP↔PP auction bundle','GP↔PP 경매 번들','GP↔PP オークション束','GP↔PP 拍卖包')+'</div>'
+      +'<div style="font-size:8px;color:var(--tx3);margin-top:2px">'+tl('Sell one currency for bids in the other.','한 통화를 내놓고 다른 통화로 입찰받습니다.','片方の通貨を出してもう片方で入札を受けます。','出售一种货币，用另一种货币竞价。')+'</div>'
+      +'</div>'
+      +'<button type="button" onclick="openListModal(\'currency\',0,\'GP↔PP Trade\',\'💱\',0)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:#4cd89a;cursor:pointer;font-family:var(--fn);white-space:nowrap">🔨 '+(t('mkt_list_sell')||'SELL')+'</button>'
+      +'</div>';
+
     // [v7.177 Phase 2] 함선 SELL 섹션 — 마켓에서 직접 함선 등록(이전엔 조선소 only)
     html+='<div style="font-size:10px;color:#5cbbff;font-weight:800;letter-spacing:.5px;margin:14px 0 6px">🚀 '+tl('MY SHIPS','내 함선','所有艦船','我的舰船')+'</div>';
     html+='<div id="mktSellShipsPane" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:10px 0;font-size:10px">'+tl('Loading ships...','함선 로딩 중...','艦船読み込み中...','加载舰船中...')+'</div></div>';
@@ -24797,22 +24815,27 @@ function openShipSellModal(shipId, shipName){
 
 function openListModal(type,idVal,name,icon,enhLv){
   var w=(walletState&&walletState.address)||'';
+  var isCurrencyListing=type==='currency';
   gameConfirm({
     title:(t('mkt_list_title')||'판매 등록'), icon:icon||'💰',
     body:'<div style="margin-bottom:10px;font-size:11px;color:#a064dc;font-weight:800">'+(icon||'')+(name||'Item')+(enhLv>0?' +'+enhLv:'')+'</div>'
       // 판매 방식 선택
       +'<div style="display:flex;gap:6px;margin-bottom:10px">'
-      +'<button type="button" id="listModeFixed" onclick="document.getElementById(\'listModeFixed\').style.background=\'rgba(160,100,220,.3)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(160,100,220,.7)\';document.getElementById(\'listModeAuction\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'none\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(160,100,220,.3);border:1px solid rgba(160,100,220,.7);color:#a064dc;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">💰 '+(LANG==='ko'?'고정가':LANG==='ja'?'固定価格':LANG==='zh'?'固定价格':'Fixed')+'</button>'
-      +'<button type="button" id="listModeAuction" onclick="document.getElementById(\'listModeAuction\').style.background=\'rgba(255,213,79,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,213,79,.6)\';document.getElementById(\'listModeFixed\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'block\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">🔨 '+(LANG==='ko'?'경매':LANG==='ja'?'オークション':LANG==='zh'?'拍卖':'Auction')+'</button>'
+      +(isCurrencyListing?'':'<button type="button" id="listModeFixed" onclick="document.getElementById(\'listModeFixed\').style.background=\'rgba(160,100,220,.3)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(160,100,220,.7)\';document.getElementById(\'listModeAuction\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'none\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(160,100,220,.3);border:1px solid rgba(160,100,220,.7);color:#a064dc;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">💰 '+(LANG==='ko'?'고정가':LANG==='ja'?'固定価格':LANG==='zh'?'固定价格':'Fixed')+'</button>')
+      +'<button type="button" id="listModeAuction" onclick="document.getElementById(\'listModeAuction\').style.background=\'rgba(255,213,79,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,213,79,.6)\';var f=document.getElementById(\'listModeFixed\');if(f){f.style.background=\'rgba(0,0,0,.2)\';f.style.borderColor=\'rgba(255,255,255,.1)\';}document.getElementById(\'listAuctionFields\').style.display=\'block\'" style="flex:1;padding:8px;border-radius:7px;background:'+(isCurrencyListing?'rgba(255,213,79,.2)':'rgba(0,0,0,.2)')+';border:1px solid '+(isCurrencyListing?'rgba(255,213,79,.6)':'rgba(255,255,255,.1)')+';color:'+(isCurrencyListing?'var(--gold)':'var(--tx3)')+';font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">🔨 '+(isCurrencyListing?tl('GP↔PP Trade','GP↔PP 거래','GP↔PP 取引','GP↔PP 交易'):(LANG==='ko'?'경매':LANG==='ja'?'オークション':LANG==='zh'?'拍卖':'Auction'))+'</button>'
       +'</div>'
       // 가격
       +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">'
-      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">'+(LANG==='ko'?'시작가':LANG==='ja'?'開始価格':LANG==='zh'?'起拍价':'Starting Price')+'</label>'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:52px">'+(isCurrencyListing?tl('Bid start','입찰 시작가','開始価格','起拍价'):(LANG==='ko'?'시작가':LANG==='ja'?'開始価格':LANG==='zh'?'起拍价':'Starting Price'))+'</label>'
       +'<input id="mktListPrice" type="number" min="1" placeholder="100" style="flex:1;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
       +'<select id="mktListCurrency" style="font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="GP">GP</option><option value="PP">PP</option></select>'
       +'</div>'
       // 경매 전용 필드
-      +'<div id="listAuctionFields" style="display:none;border-top:1px solid rgba(255,213,79,.15);padding-top:8px;margin-bottom:8px">'
+      +'<div id="listAuctionFields" style="display:'+(isCurrencyListing?'block':'none')+';border-top:1px solid rgba(255,213,79,.15);padding-top:8px;margin-bottom:8px">'
+      +(isCurrencyListing?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">'
+        +'<div><label style="font-size:9px;color:var(--tx3);display:block;margin-bottom:3px">'+tl('Sell currency','파는 통화','売る通貨','出售货币')+'</label><select id="mktBundleCurrency" style="width:100%;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(76,216,154,.25);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="PP">PP</option><option value="GP">GP</option></select></div>'
+        +'<div><label style="font-size:9px;color:var(--tx3);display:block;margin-bottom:3px">'+tl('Amount','수량','数量','数量')+'</label><input id="mktBundleAmount" type="number" min="1" placeholder="100" style="width:100%;box-sizing:border-box;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(76,216,154,.25);color:#fff;border-radius:6px;font-family:var(--fn)"></div>'
+        +'</div>':'')
       +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
       +'<label style="font-size:9px;color:var(--tx3);min-width:52px">'+(LANG==='ko'?'즉구가':LANG==='ja'?'即決価格':LANG==='zh'?'立即购买价':'Buyout')+'</label>'
       +'<input id="mktAuctionBuyout" type="number" min="1" placeholder="'+(LANG==='ko'?'즉시구매 (선택)':LANG==='ja'?'即決（任意）':LANG==='zh'?'立即购买（选填）':'Buyout (optional)')+'" style="flex:1;font-size:11px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)">'
@@ -24829,17 +24852,24 @@ function openListModal(type,idVal,name,icon,enhLv){
     var priceVal=parseFloat(document.getElementById('mktListPrice').value);
     var curr=document.getElementById('mktListCurrency').value;
     if(!priceVal||priceVal<=0){showToast(LANG==='ko'?'가격을 입력하세요':LANG==='ja'?'価格を入力してください':LANG==='zh'?'请输入价格':'Enter a price','error');return;}
-    var isAuction=document.getElementById('listModeAuction').style.borderColor.indexOf('255,213')>=0;
+    var isAuction=isCurrencyListing||document.getElementById('listModeAuction').style.borderColor.indexOf('255,213')>=0;
     if(isAuction){
       // 경매 등록
       var buyout=parseFloat(document.getElementById('mktAuctionBuyout').value)||null;
       var dur=parseInt(document.getElementById('mktAuctionDur').value)||24;
-      var aBody={wallet:w,listingType:type,startPrice:priceVal,currency:curr,durationHours:dur};
-      if(buyout&&buyout>priceVal) aBody.buyoutPrice=buyout;
-      if(type==='claim') aBody.claimId=idVal; else aBody.itemInstanceId=idVal;
-      fetch('/api/auction/create',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(aBody)})
+      var aBody={listing_type:type,start_price:priceVal,currency:curr,duration_hours:dur};
+      if(buyout&&buyout>priceVal) aBody.buyout_price=buyout;
+      if(isCurrencyListing){
+        var bundleCurrency=document.getElementById('mktBundleCurrency').value;
+        var bundleAmount=parseFloat(document.getElementById('mktBundleAmount').value);
+        if(!bundleAmount||bundleAmount<=0){showToast(tl('Enter bundle amount','번들 수량을 입력하세요','数量を入力してください','请输入数量'),'error');return;}
+        if(bundleCurrency===curr){showToast(tl('Choose the other currency for bids','입찰 통화는 파는 통화와 달라야 합니다','入札通貨は売る通貨と異なる必要があります','竞价货币必须不同'),'error');return;}
+        aBody.bundle_currency=bundleCurrency;
+        aBody.bundle_amount=bundleAmount;
+      } else if(type==='claim') aBody.claim_id=idVal; else aBody.item_instance_id=idVal;
+      fetch('/api/auctions',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(aBody)})
       .then(function(r){return r.json();}).then(function(d){
-        if(d.error||!d.success){showToast(d.error||(LANG==='ko'?'경매 등록 실패':LANG==='ja'?'オークション登録失敗':LANG==='zh'?'拍卖登记失败':'Auction listing failed'),'error');return;}
+        if(d.error||!d.id){showToast(d.error||(LANG==='ko'?'경매 등록 실패':LANG==='ja'?'オークション登録失敗':LANG==='zh'?'拍卖登记失败':'Auction listing failed'),'error');return;}
         showToast('🔨 '+(LANG==='ko'?'경매 등록 완료! ':LANG==='ja'?'オークション登録完了! ':LANG==='zh'?'拍卖登记完成! ':'Auction listed! ')+dur+(LANG==='ko'?'시간 진행':LANG==='ja'?'時間':LANG==='zh'?'小时':'h'));
         refreshBalance(); loadSellView();
         if(type==='claim'){try{loadForSaleOverlay();}catch(_){}try{_updateMyTerritories();}catch(_){}}
@@ -24946,7 +24976,7 @@ function loadAuctions(){
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
   var typeFilter=document.getElementById('auctFilterType');
   var typeVal=typeFilter?typeFilter.value:'';
-  var url='/api/auctions?status=active&limit=30'+(typeVal?'&type='+encodeURIComponent(typeVal):'');
+  var url='/api/auctions?status=active&limit=30'+(typeVal?'&listing_type='+encodeURIComponent(typeVal):'');
   fetch(url).then(function(r){return r.json()}).then(function(d){
     var auctions=d.auctions||[];
     if(!auctions.length){
@@ -24955,16 +24985,17 @@ function loadAuctions(){
     }
     var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
     auctions.forEach(function(a){
-      var meta=a.meta||{};
       var w=(walletState&&walletState.address)||'';
       var isSelf=(w&&a.seller_wallet&&w.toLowerCase()===a.seller_wallet.toLowerCase());
       var hasBid=a.current_bid>0;
-      var minBid=hasBid?Math.ceil(a.current_bid*1.05):a.start_price;
-      var itemLabel=a.item_type==='cosmetic'?(meta.itemIcon||'🎨')+' '+(meta.itemName||'Cosmetic')
-        :a.item_type==='item'?'📦 '+(meta.itemName||'Item')
-        :a.item_type==='claim'?'🗺️ Territory #'+a.claim_id
-        :'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||'Resource');
-      var enhLv=meta.enhancementLevel||0;
+      var minBid=hasBid?Math.ceil(a.current_bid*1.05):Math.ceil(parseFloat(a.current_price||a.start_price||0)+1);
+      var itemLabel=a.listing_type==='cosmetic'?(a.item_icon||'🎨')+' '+(a.item_name||'Cosmetic')
+        :a.listing_type==='item'?'📦 '+(a.item_name||'Item')
+        :a.listing_type==='claim'?'🗺️ Territory #'+a.claim_id
+        :a.listing_type==='resource'?'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||'Resource')
+        :a.listing_type==='currency'?'💱 '+(a.bundle_amount||0)+' '+(a.bundle_currency||'')+' → '+a.currency
+        :'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||'Resource');
+      var enhLv=a.enhancement_level||0;
       html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,165,0,.15);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
         +'<div style="font-size:10px;font-weight:700;color:var(--gold)">'+itemLabel+(enhLv>0?_enhBadge(enhLv):'')+'</div>'
         +'<div style="font-size:9px;color:var(--tx3)">'+(t('auc_current_bid')||'Bid')+': <span style="color:#fff;font-weight:700">'+(hasBid?a.current_bid:a.start_price)+' '+a.currency+'</span></div>'
@@ -25011,7 +25042,7 @@ window.govPlaceAuctionBid=function(auctionId,minBid,currency){
     if(!ok) return;
     var amt=parseInt(document.getElementById('aucBidAmt').value);
     if(!amt||amt<minBid){showToast((t('auc_too_low')||'Bid must be at least ')+minBid,'error');return;}
-    fetch('/api/auction/'+auctionId+'/bid',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,amount:amt})})
+    fetch('/api/auctions/'+auctionId+'/bid',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({amount:amt})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('🔨 '+(t('auc_bid_placed')||'Bid placed!'));
@@ -25029,7 +25060,7 @@ window.govAuctionBuyout=function(auctionId,currency){
     info:[],confirmText:t('auc_confirm_buyout')||'BUY NOW'
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/auction/'+auctionId+'/buyout',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w})})
+    fetch('/api/auctions/'+auctionId+'/buyout',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('⚡ '+(t('auc_bought')||'Item purchased!'));
@@ -25047,7 +25078,7 @@ window.govCancelAuction=function(auctionId){
     info:[],confirmText:t('auc_confirm_cancel')||'CANCEL AUCTION'
   }).then(function(ok){
     if(!ok) return;
-    fetch('/api/auction/'+auctionId+'/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w})})
+    fetch('/api/auctions/'+auctionId+'/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
       showToast('✅ '+(t('auc_cancelled')||'Auction cancelled'));
@@ -48464,18 +48495,76 @@ async function _renderShipMining() {
     if (!usable.length) {
       h += '<div style="font-size:10px;color:var(--tx3);padding:8px 0">'+tl('No fleet with ships. Build a ship in the Shipyard first.','함선 있는 함대가 없습니다. 조선소에서 함선부터 건조하세요.','艦船のある艦隊がありません。まず造船所で建造を。','没有带舰船的舰队。请先在造船厂建造。')+'</div>';
     } else {
-      h += '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+      // ① 함대 + 시간
+      h += '<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">'
         + '<select id="smFleet" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(100,220,130,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
         + usable.map(function(f){ return '<option value="'+f.id+'">'+escapeHtmlSafe(f.name||('Fleet #'+f.id))+' ('+(f.ship_count||0)+'🛸)</option>'; }).join('')
         + '</select>'
         + '<select id="smDur" style="font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(100,220,130,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
         + durs.map(function(d){ return '<option value="'+d+'">'+d+'h</option>'; }).join('')
         + '</select></div>';
-      h += '<div style="font-size:8.5px;color:var(--tx3);margin-bottom:4px">'+tl('Reward','보상','報酬','奖励')+': '+(info.gpPerShipHour||5)+' GP × '+tl('ships','함선','艦','舰')+' × '+tl('hours','시간','時間','小时')+' + '+tl('materials','재료','素材','素材')+(info.launchCostGp>0?(' · '+tl('Cost','비용','コスト','费用')+': '+info.launchCostGp+' GP'):'')+'</div>';
+      // ② 목적지(거리) 카드 — near/mid/core. 멀수록 고수율·희귀재료·마모↑·약탈위험.
+      var destMeta = {
+        frontier: { ko:'근거리', label:tl('NEAR','근거리','近距離','近'), c:'#3fb6a8', ico:'🏳' },
+        mid:      { ko:'중거리', label:tl('MID','중거리','中距離','中'), c:'#e0a93b', ico:'⚒' },
+        core:     { ko:'원거리', label:tl('FAR','원거리','遠距離','远'), c:'#d9483b', ico:'☢' }
+      };
+      var dests = info.destinations || [{key:'frontier',yieldMult:1,raidPct:0}];
+      h += '<div style="font-size:8px;color:var(--tx3);margin-bottom:3px">'+tl('DESTINATION','목적지','目的地','目的地')+'</div>';
+      h += '<div id="smDests" style="display:flex;gap:5px;margin-bottom:8px">';
+      dests.forEach(function(d, i){
+        var m = destMeta[d.key] || { label:d.key, c:'#888', ico:'•' };
+        var raid = Math.round((Number(d.raidPct)||0)*100);
+        h += '<div class="sm-dest" data-dest="'+d.key+'" data-sel="'+(i===0?'1':'0')+'" style="flex:1;cursor:pointer;border:1.5px solid '+(i===0?m.c:'rgba(255,255,255,.12)')+';border-radius:8px;padding:7px 4px;text-align:center;background:'+(i===0?(m.c+'22'):'rgba(0,0,0,.2)')+';transition:all .15s">'
+          + '<div style="font-size:15px;line-height:1">'+m.ico+'</div>'
+          + '<div style="font-size:9px;font-weight:700;color:'+m.c+';margin-top:2px">'+m.label+'</div>'
+          + '<div style="font-size:7.5px;color:var(--tx3);margin-top:1px">×'+(Number(d.yieldMult)||1)+(raid>0?(' · ⚠'+raid+'%'):'')+'</div>'
+          + '</div>';
+      });
+      h += '</div>';
+      // ③ 미리보기 (capacity·예상 GP·위험)
+      h += '<div id="smPreview" style="font-size:8.5px;color:var(--tx3);margin-bottom:4px"></div>';
       h += '<div style="font-size:8px;color:#ffab40;margin-bottom:8px">⚠ '+tl('Mining wears ship hull — repair at the Shipyard when worn.','채굴은 함선 내구도를 소모합니다 — 닳으면 조선소에서 수리하세요.','採掘は艦船の耐久度を消耗します — 摩耗したら造船所で修理を。','采矿会损耗舰船耐久 — 磨损后请在造船厂修理。')+'</div>';
       h += '<button type="button" id="smLaunch" style="width:100%;padding:9px;border-radius:8px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer">⛏ '+tl('LAUNCH MINING RUN','채굴 출항','採掘出航','出航采矿')+'</button>';
     }
     c.innerHTML = h;
+
+    // 목적지 카드 선택 + 미리보기 갱신 (§19: addEventListener)
+    var _selDest = (info.destinations && info.destinations[0] && info.destinations[0].key) || 'frontier';
+    var capWeights = info.capacityWeights || {};
+    var gpPerCapH = info.gpPerCapacityHour || 3;
+    function _smFleetCapacity(fleetId){
+      // 클라 추정(함급 미상 시 ship_count 근사). 정확값은 서버가 계산.
+      var f = usable.find(function(x){ return String(x.id)===String(fleetId); });
+      return f ? (parseInt(f.ship_count)||1) : 1; // 근사(서버가 함급 weight 정밀 반영)
+    }
+    function _smUpdatePreview(){
+      var pv = document.getElementById('smPreview'); if(!pv) return;
+      var fleetId = document.getElementById('smFleet') && document.getElementById('smFleet').value;
+      var durEl = document.getElementById('smDur'); var dur = durEl ? parseFloat(durEl.value) : (durs[0]||1);
+      var dest = (info.destinations||[]).find(function(d){ return d.key===_selDest; }) || {yieldMult:1,raidPct:0};
+      var approxCap = _smFleetCapacity(fleetId);
+      var estGp = Math.round(approxCap * dur * gpPerCapH * (Number(dest.yieldMult)||1));
+      var raid = Math.round((Number(dest.raidPct)||0)*100);
+      pv.innerHTML = tl('Est.','예상','推定','预计')+' ~'+estGp.toLocaleString()+' GP · '+tl('materials','재료','素材','素材')+' 🪨'
+        + (raid>0 ? (' · <span style="color:#d9483b">⚠ '+tl('raid','약탈','襲撃','袭击')+' '+raid+'%</span>') : '')
+        + ' <span style="color:var(--tx3)">('+tl('exact yield uses ship class','정확 수율은 함급 반영','正確な収率は艦級反映','精确产量按舰级')+')</span>';
+    }
+    Array.prototype.forEach.call(c.querySelectorAll('.sm-dest'), function(card){
+      card.addEventListener('click', function(){
+        _selDest = card.getAttribute('data-dest');
+        Array.prototype.forEach.call(c.querySelectorAll('.sm-dest'), function(o){
+          var k=o.getAttribute('data-dest'); var dm={frontier:'#3fb6a8',mid:'#e0a93b',core:'#d9483b'}[k]||'#888';
+          var on=(k===_selDest);
+          o.style.borderColor = on?dm:'rgba(255,255,255,.12)';
+          o.style.background = on?(dm+'22'):'rgba(0,0,0,.2)';
+        });
+        _smUpdatePreview();
+      });
+    });
+    var smFleetEl=document.getElementById('smFleet'); if(smFleetEl) smFleetEl.addEventListener('change', _smUpdatePreview);
+    var smDurEl=document.getElementById('smDur'); if(smDurEl) smDurEl.addEventListener('change', _smUpdatePreview);
+    _smUpdatePreview();
 
     // 핸들러 (갓 생성한 요소에 직접 — §19: inline concat 금지, addEventListener 사용)
     var launchBtn = document.getElementById('smLaunch');
@@ -48483,7 +48572,7 @@ async function _renderShipMining() {
       var fleetId = parseInt(document.getElementById('smFleet').value,10);
       var durationH = parseFloat(document.getElementById('smDur').value);
       launchBtn.disabled = true; launchBtn.textContent = '...';
-      fetch('/api/mining/launch',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({fleetId:fleetId,durationH:durationH})})
+      fetch('/api/mining/launch',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({fleetId:fleetId,durationH:durationH,destination:_selDest})})
         .then(function(r){return r.json();}).then(function(d){
           if (d.error){ showToast(_smErr(d.error),'error'); launchBtn.disabled=false; launchBtn.textContent='⛏'; return; }
           showToast('⛏ '+tl('Mining run launched!','채굴 출항 완료!','採掘出航!','采矿出航!'));

@@ -32,8 +32,8 @@ router.get('/mining/my', async (req, res) => {
 // POST /api/mining/launch — { fleetId, durationH }
 router.post('/mining/launch', requireAuth, async (req, res) => {
   const wallet = getAuthWallet(req);
-  const { fleetId, durationH } = req.body || {};
-  try { res.json(await mining.launchMining(wallet, parseInt(fleetId, 10), durationH)); }
+  const { fleetId, durationH, destination } = req.body || {};
+  try { res.json(await mining.launchMining(wallet, parseInt(fleetId, 10), durationH, destination)); }
   catch (e) { res.status(400).json({ error: e.message }); }
 });
 

@@ -73,7 +73,8 @@
 // 2026-05-30 v71: v7.266 무료 PP→GP 전환(P2, Codex) + activity/feed st.name 컬럼 버그 수정 + 로켓 오버레이 가드.
 // 2026-05-30 v72: v7.267 함선 채굴 런(P5, 땅 없는 F2P 노가다) + FLEET COMMAND ⛏ Mining 버튼 + 경매 cancel 엔드포인트.
 // 2026-05-30 v73: v7.268 함선 채굴 내구도 마모(EVE식 수리 GP sink) + 모달 마모 안내.
-const CACHE_NAME = 'mars-v73';
+// 2026-05-30 v74: v7.269 함선 채굴 v2(적재량/목적지/약탈 깊이) + 레드팀 P0 수정(채굴↔공성 잠금, 마모 clamp, 일일 GP상한, 최소HP 게이트) + 채굴 임무탭 이동(목적지 선택 UI) + 경매장 GP↔PP 통합.
+const CACHE_NAME = 'mars-v74';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

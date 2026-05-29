@@ -36,7 +36,7 @@ const ERROR_STATUS = {
   AUCTION_NOT_FOUND: 404,
   CANNOT_BID_OWN: 400, CANNOT_BUY_OWN: 400,
   INVALID_START_PRICE: 400, INVALID_CURRENCY: 400,
-  INVALID_DURATION: 400, NO_BUYOUT_PRICE: 400,
+  INVALID_DURATION: 400, NO_BUYOUT_PRICE: 400, BID_TOO_LOW: 400,
   AUCTION_EXPIRED: 409, MAX_AUCTIONS_REACHED: 409,
   SHIP_NOT_AVAILABLE: 409,
   INSUFFICIENT_BALANCE: 402,
@@ -61,6 +61,7 @@ router.get('/', async (req, res) => {
       listing_type: req.query.listing_type || null,
       currency:     req.query.currency     || null,
       page:         parseInt(req.query.page) || 1,
+      limit:        parseInt(req.query.limit) || 20,
     });
     res.json({ auctions: list });
   } catch (err) { handleErr(res, err, 'list'); }

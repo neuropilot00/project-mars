@@ -203,9 +203,13 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
     }
 
     await client.query(`
-      UPDATE auctions SET current_price = $2, ends_at = $3
+      UPDATE auctions SET
+        current_price = $2,
+        current_bid = $2,
+        current_bidder_wallet = $4,
+        ends_at = $3
       WHERE id = $1
-    `, [auctionId, bidAmount, newEndsAt]);
+    `, [auctionId, bidAmount, newEndsAt, bidderWallet]);
 
     await client.query('COMMIT');
     return {
@@ -437,10 +441,18 @@ async function getAuctions({ listing_type, currency, page = 1, limit = 20 } = {}
   const { rows } = await pool.query(`
     SELECT a.*,
            u.nickname AS seller_nickname,
+           it.name AS item_name,
+           it.icon AS item_icon,
+           ii.enhancement_level,
+           r.code AS resource_code,
+           r.name_en AS resource_name,
            (SELECT COUNT(*) FROM bids b WHERE b.auction_id = a.id) AS bid_count,
            EXTRACT(EPOCH FROM (a.ends_at - NOW()))::INT AS seconds_remaining
     FROM auctions a
     LEFT JOIN users u ON u.wallet_address = a.seller_wallet
+    LEFT JOIN item_instances ii ON ii.id = a.item_instance_id
+    LEFT JOIN item_types it ON it.id = ii.item_type_id
+    LEFT JOIN resources r ON r.id = a.resource_id
     ${where}
     ORDER BY a.ends_at ASC
     LIMIT $${params.length - 1} OFFSET $${params.length}
@@ -451,18 +463,34 @@ async function getAuctions({ listing_type, currency, page = 1, limit = 20 } = {}
 async function getMyAuctions(walletAddress) {
   const { rows: selling } = await pool.query(`
     SELECT a.*,
+           it.name AS item_name,
+           it.icon AS item_icon,
+           ii.enhancement_level,
+           r.code AS resource_code,
+           r.name_en AS resource_name,
            (SELECT COUNT(*) FROM bids b WHERE b.auction_id = a.id) AS bid_count,
            EXTRACT(EPOCH FROM (a.ends_at - NOW()))::INT AS seconds_remaining
     FROM auctions a
+    LEFT JOIN item_instances ii ON ii.id = a.item_instance_id
+    LEFT JOIN item_types it ON it.id = ii.item_type_id
+    LEFT JOIN resources r ON r.id = a.resource_id
     WHERE a.seller_wallet = $1
     ORDER BY a.created_at DESC LIMIT 20
   `, [walletAddress]);
 
   const { rows: bidding } = await pool.query(`
     SELECT a.*, b.amount AS my_bid, b.is_winning,
+           it.name AS item_name,
+           it.icon AS item_icon,
+           ii.enhancement_level,
+           r.code AS resource_code,
+           r.name_en AS resource_name,
            EXTRACT(EPOCH FROM (a.ends_at - NOW()))::INT AS seconds_remaining
     FROM bids b
     JOIN auctions a ON a.id = b.auction_id
+    LEFT JOIN item_instances ii ON ii.id = a.item_instance_id
+    LEFT JOIN item_types it ON it.id = ii.item_type_id
+    LEFT JOIN resources r ON r.id = a.resource_id
     WHERE b.bidder_wallet = $1
     ORDER BY b.created_at DESC LIMIT 20
   `, [walletAddress]);
@@ -472,9 +500,17 @@ async function getMyAuctions(walletAddress) {
 
 async function getAuctionDetail(auctionId) {
   const { rows: aRows } = await pool.query(`
-    SELECT a.*, u.nickname AS seller_nickname
+    SELECT a.*, u.nickname AS seller_nickname,
+           it.name AS item_name,
+           it.icon AS item_icon,
+           ii.enhancement_level,
+           r.code AS resource_code,
+           r.name_en AS resource_name
     FROM auctions a
     LEFT JOIN users u ON u.wallet_address = a.seller_wallet
+    LEFT JOIN item_instances ii ON ii.id = a.item_instance_id
+    LEFT JOIN item_types it ON it.id = ii.item_type_id
+    LEFT JOIN resources r ON r.id = a.resource_id
     WHERE a.id = $1
   `, [auctionId]);
   if (!aRows[0]) return null;

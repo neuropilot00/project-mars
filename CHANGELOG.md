@@ -1,3 +1,16 @@
+## 2026-05-30 v7.269 — 함선 채굴 v2(적재량/목적지/약탈 깊이) + 레드팀 P0 수정 + 임무탭 이동 + 경매장 GP↔PP 통합
+
+사용자 기획 반영: "어느 함선을, 어디로, 어떻게" 의사결정. 혼자 만들지 말라는 지시에 따라 Plan/레드팀(4에이전트)/Codex 협업.
+- **채굴 깊이 v2(mig 277)**: 함급별 적재량(capacity) 가중치(frigate1/destroyer2/cruiser4/battleship14/titan60 — HP비례) × 등급보너스(+10%/tier)로 함대 총 capacity 산출. GP=capacity×시간×`gp_per_capacity_h`. 목적지 3종(frontier/mid/core) 수율·마모·약탈위험 차등(y1.0/1.5/2.2, w1.0/1.5/2.5, raid 0%/5%/15%). core는 고수율이나 마모·피습 위험 큼.
+- **레드팀 P0 수정(게임붕괴 차단, mig 278)**:
+  · **P0-1(게임엔딩)**: 채굴 중 함대가 공성(full-loss)에 투입되면 영구 함대 파괴 가능 → siege commit이 채굴 함대 거부(`fleet_mining`) + launch가 공성 투입 함대 거부.
+  · **P0-2(좀비함선)**: 마모 `GREATEST(1, current_hp - round(...))` clamp → HP 0 함선 발생 차단.
+  · **인플레 #1**: 지갑당 채굴 GP 일일 상한(`gp_cap_per_day`1500, 24h 합산 후 headroom clamp) → 무료 GP 무한 양산 차단. GP 환율 5→3 하향(GP→PP 우회 인플레 억제).
+  · **수리 게이트**: 최소 출항 HP(`min_hp_pct`0.15) 이하 함선은 채굴 불가 → 조선소 수리(GP+재료) 강제.
+- **채굴 임무탭 이동**: FLEET 허브의 ⛏ 버튼 제거(그리드 3열 복귀) → QUESTS 패널에 `⛏ MINING OPS` 카드. 모달에 목적지 카드 선택(색상 구분 #3fb6a8/#e0a93b/#d9483b, 수율·약탈% 표시) + 예상 GP 프리뷰. §19 준수. i18n 4언어.
+- **경매장 GP↔PP 통합(Codex)**: 2경매 시스템(auction.js GP전용 ↔ auctionCombat 통화인식)을 auctionCombat로 일원화. 전 자산 PP/GP 매물 + GP↔PP 거래를 경매장 내부에서(별도 위젯 X). 매수 PP는 비상환(USDT 누수 차단). 프론트 create/bid/buyout/cancel 전부 `/api/auctions/*`로 재연결, SELL UI "💱 GP↔PP" 옵션.
+- 검증: 채굴 v2 e2e 6/6 + 레드팀수정 5/5 + 일일캡 clamp 2/2 + 경매 4/5(1 코스메틱) + 인라인 9/9 + 부팅 200(mining/info gpPerCapacityHour:3 + auctions). SW v73→v74.
+
 ## 2026-05-30 v7.268 — 함선 채굴 내구도 마모 → 수리 GP sink (EVE식)
 
 채굴 런 복귀 시 함대 함선 HP가 닳는다. 닳은 함선은 조선소에서 수리(GP+재료)해야 다시 채굴 가능 → GP/재료 sink 루프.
