@@ -1060,7 +1060,7 @@ async function start() {
 
     // ── Siege Auto-Resolve (every 5 minutes) ──
     try {
-      const { resolveExpiredSieges, prepareSiegeBattles } = require('./services/siege');
+      const { resolveExpiredSieges, prepareSiegeBattles, maybeOpenCommanderSiege } = require('./services/siege');
       setInterval(async () => {
         try {
           const n = await resolveExpiredSieges(); // pending→active 전환 + 만료 siege 해결(픽셀 폴백)
@@ -1070,6 +1070,10 @@ async function start() {
         try {
           if (typeof prepareSiegeBattles === 'function') await prepareSiegeBattles();
         } catch(e) { console.warn('[SIEGE] prepareSiegeBattles error:', e.message); }
+        // [Phase3] 월간 자동 커맨더 공성 — 매월 슬롯 1회 자동 개최 / 무도전 시 강등
+        try {
+          if (typeof maybeOpenCommanderSiege === 'function') await maybeOpenCommanderSiege();
+        } catch(e) { console.warn('[SIEGE] maybeOpenCommanderSiege error:', e.message); }
       }, 5 * 60 * 1000); // every 5 minutes
       console.log('[SIEGE] Auto-resolve scheduler started (5min interval)');
     } catch(e) { console.warn('[SIEGE] Could not init auto-resolve scheduler:', e.message); }

@@ -914,11 +914,45 @@ async function resolveCommanderSiege(siegeId, opts = {}) {
   } finally { client.release(); }
 }
 
+// [Phase 3] 월간 자동 커맨더 공성 — 스케줄러 tick 에서 호출. 매월 dom일 hourUtc시(UTC) 슬롯 1회.
+//   도전자 있으면 declareCommanderSiege 개최 / 없으면 무도전 streak++ → 임계 시 맹주 vacant(sov 파생 폴백).
+async function maybeOpenCommanderSiege() {
+  try {
+    if (String(await getSetting('commander_siege_auto_enabled') ?? 'false') !== 'true') return;
+    const active = (await pool.query("SELECT id FROM governor_sieges WHERE siege_kind='commander' AND status IN ('pending','active')")).rows;
+    if (active.length) return; // 진행 중이면 skip
+    const dom = parseInt(await getSetting('commander_siege_dom', '1')) || 1;
+    const hourUtc = parseInt(await getSetting('commander_siege_hour_utc', '12')) || 12;
+    const now = new Date();
+    const slot = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), dom, hourUtc, 0, 0, 0));
+    if (now.getTime() < slot.getTime()) return; // 이번 달 슬롯 전
+    const mc = (await pool.query('SELECT last_attempt_at, no_challenge_streak FROM mars_commander WHERE id = 1')).rows[0] || {};
+    if (mc.last_attempt_at && new Date(mc.last_attempt_at).getTime() >= slot.getTime()) return; // 이번 달 이미 시도
+    await pool.query('UPDATE mars_commander SET last_attempt_at = NOW() WHERE id = 1');
+    const res = await declareCommanderSiege();
+    if (res && res.success) {
+      await pool.query('UPDATE mars_commander SET no_challenge_streak = 0 WHERE id = 1');
+      console.log(`[COMMANDER] auto commander siege opened — siege ${res.siegeId}`);
+    } else {
+      const vac = parseInt(await getSetting('commander_vacate_after_no_challenge', '3')) || 3;
+      const streak = (parseInt(mc.no_challenge_streak) || 0) + 1;
+      if (streak >= vac) {
+        await pool.query('UPDATE mars_commander SET guild_id=NULL, guild_tag=NULL, guild_name=NULL, no_challenge_streak=0, updated_at=NOW() WHERE id = 1');
+        console.log(`[COMMANDER] no challenge ${streak}x → commander vacated (sov fallback)`);
+      } else {
+        await pool.query('UPDATE mars_commander SET no_challenge_streak = $1 WHERE id = 1', [streak]);
+        console.log(`[COMMANDER] auto siege no challenger (streak ${streak}/${vac}, reason=${res && res.error})`);
+      }
+    }
+  } catch (e) { console.warn('[COMMANDER] maybeOpenCommanderSiege error:', e.message); }
+}
+
 module.exports = {
   declareSiege,
   resolveSiege,
   declareCommanderSiege,
   resolveCommanderSiege,
+  maybeOpenCommanderSiege,
   getActiveSiege,
   getSiegeStatus,
   getSiegeHistory,

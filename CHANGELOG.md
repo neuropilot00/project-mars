@@ -1,3 +1,12 @@
+## 2026-05-29 v7.259 — 커맨더 공성 월 1회 자동 개최 + 무도전 강등 (주기 확립)
+
+레드팀 권고(도전 0명 영구 유임 방지) 반영. 커맨더 공성에 자동 주기 도입.
+- **mig 269**: mars_commander.no_challenge_streak/last_attempt_at/term_ends_at. 설정 commander_siege_auto_enabled(true)/dom(1)/hour_utc(12)/vacate_after_no_challenge(3).
+- **siege.maybeOpenCommanderSiege()**: 매월 dom일 hourUtc시(UTC) 슬롯 1회 — 도전자(sov2위·최소섹터) 있으면 자동 declareCommanderSiege 개최, 없으면 무도전 streak++ → 3회 연속 시 맹주 vacant 강등(getSovMap이 sov 파생으로 폴백). 같은 달 중복 개최 가드(last_attempt).
+- **index.js**: siege 5분 스케줄러 tick에 maybeOpenCommanderSiege 추가.
+- **검증**: node --check + DB e2e(슬롯 도달→자동 개최 def/chal 산정→last_attempt 기록 PASS, 같은 달 재개최 안 함 PASS) + 부팅(RUN_SCHEDULERS=true) OK.
+- **주기 요약**: 섹터 공성=주간(수·토 12:00 UTC) / 커맨더 공성=월 1회(매월 1일 12:00 UTC) 자동, 선언 후 24h 예고.
+
 ## 2026-05-29 v7.258 — 커맨더 공성 전투 (맹주전) — 마지막 큰 조각 완료
 
 Codex 설계 + 레드팀 16에이전트 검토. 맹주(sov 1위)=수비 vs 최강 도전자(sov 2위)=공격, 양측 길드원이 다함대 합류해 실시간 결전, 승리 길드가 화성 맹주. 기존 인프라 최대 재사용(commitSiegeFleet/createSiegeBattleMulti/simulateBattleLive/실시간 명령 무변경).

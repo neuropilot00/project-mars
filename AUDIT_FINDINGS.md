@@ -8,7 +8,7 @@
 - ✅ battle_type CHECK / _installGeoGovernor 오작동 / dual-SoT: 'siege'+siege_kind 가드 + getSovMap 우선 + 전용 resolver로 회피.
 - ✅ [CRITICAL] 맹주전 함대 전손: commander_full_loss_enabled(기본 false) 분리.
 - ✅ 연합 승자 모호성: 1v1(sov1 vs sov2) 모델이라 승자 결정적(challenger_guild_id).
-- 🟡 [design 후속, 비차단]: ①도전 0명 영구유임→강제 신임/임기(commander term + 자동 도전 윈도우) ②조기 전투 락(첫 1함대 커밋 시)→결전 시각까지 커밋 윈도우+정족수 ③맹주 권력/혜택 미정의(수도세/칭호 정의 — 'commander_win' 칭호 미정의 no-op) ④연합(다길드 공격) 모델은 commit/role 확장 필요. siege_realtime/full_loss 라이브 ON 상태.
+- 🟡 [design 후속, 비차단]: ①[FIXED v7.259]도전 0명 영구유임→월1회 자동 개최+무도전 3회 강등(maybeOpenCommanderSiege) ②조기 전투 락(첫 1함대 커밋 시)→결전 시각까지 커밋 윈도우+정족수 ③맹주 권력/혜택 미정의(수도세/칭호 정의 — 'commander_win' 칭호 미정의 no-op) ④연합(다길드 공격) 모델은 commit/role 확장 필요. siege_realtime/full_loss 라이브 ON 상태.
 
 ## 🟢 sov 지도 + 주간 캘린더 + 맹주 (v7.255~257, 2026-05-29)
 - **sov 지도(v7.255)**: getSovMap + /api/sector-defs/sov-map(24섹터 거버너/길드 leaderboard), 거버넌스 탭 🗺 SOV MAP 모달(티어 그리드+지배 길드).
