@@ -50,7 +50,8 @@
 // 2026-05-29 v48: v7.230 로딩 영상 frozen Mars 3번째 추가(load_loop_03/v03) + 가챠 레전더리 전용 영상(gacha_reveal_legendary).
 // 2026-05-29 v49: v7.231 가챠 레전더리 모바일 세로 전용 영상(gacha_reveal_legendary_v) — 데/모 분기.
 // 2026-05-29 v50: v7.233 가챠 영상 4종 전부 레전더리 풀로 통합 + 티어별 영상 매핑 구조(준비된 티어만 재생).
-const CACHE_NAME = 'mars-v50';
+// 2026-05-29 v51: v7.234 에픽 가챠 리빌 영상(gacha_reveal_epic/_v, 보라 상자·대형 순양함) — tier 3 연결.
+const CACHE_NAME = 'mars-v51';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
