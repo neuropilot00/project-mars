@@ -44,7 +44,8 @@
 // 2026-05-29 v39: v7.221 함대전 AI 리매치 훅 (결과 카드 → 같은 상대 즉시 재도전).
 // 2026-05-29 v40: v7.222 생산 배수 시각화(#4) + 캠페인 진행률 바(#5).
 // 2026-05-29 v41: v7.223 로딩 배경 영상(데스크탑) + v7.175 시각자산 15개 git 복구(allowlist 누락 수정).
-const CACHE_NAME = 'mars-v41';
+// 2026-05-29 v42: v7.224 로딩 배경 영상 4종 랜덤(load_loop_01~04).
+const CACHE_NAME = 'mars-v42';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

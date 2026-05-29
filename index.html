@@ -5609,10 +5609,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div id="loadBg" style="position:absolute;inset:0;background:#0D0B14;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease"></div>
   <!-- [v7.223] 로딩 배경 영상 (데스크탑 가로). 이미지(loadBg)가 즉시 poster 역할 → 영상 준비되면 위에 fade-in.
        모바일은 CSS 로 숨김(세로 영상 별도 예정). muted/loop/playsinline = 자동재생 정책 충족. -->
+  <!-- [v7.224] src 는 아래 스크립트가 4종(load_loop_01~04) 중 랜덤 지정. -->
   <video id="loadVideo" muted loop playsinline preload="auto"
-    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;pointer-events:none">
-    <source src="/assets/loading/load_loop.mp4" type="video/mp4">
-  </video>
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;pointer-events:none"></video>
   <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,11,20,.55) 0%,rgba(13,11,20,.85) 70%,rgba(13,11,20,.95) 100%);pointer-events:none"></div>
   <div style="position:relative;font-family:var(--fn);font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
   <div id="loadQuote" style="position:relative;font-family:var(--fn);font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
@@ -5630,11 +5629,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       if (bg) { bg.style.backgroundImage = 'url("/assets/loading/load_'+pad+'.jpg")'; bg.style.opacity = '0.55'; }
     };
     img.src = '/assets/loading/load_'+pad+'.jpg';
-    // [v7.223] 로딩 배경 영상 — 데스크탑(가로)만. 준비되면 fade-in. 실패/모바일이면 이미지 유지.
+    // [v7.224] 로딩 배경 영상 4종(load_loop_01~04) 중 랜덤 — 데스크탑(가로)만. 준비되면 fade-in.
     var vid = document.getElementById('loadVideo');
     if (vid && window.innerWidth > 768) {
+      var vn = 1 + Math.floor(Math.random()*4);
+      var vpad = (vn < 10 ? '0' : '') + vn;
+      vid.src = '/assets/loading/load_loop_'+vpad+'.mp4';
       vid.addEventListener('canplay', function(){ vid.style.opacity = '0.6'; }, { once:true });
-      // 자동재생 시도 — 차단되면 이미지 폴백 유지 (조용히).
       var pp = vid.play(); if (pp && pp.catch) pp.catch(function(){});
     }
   } catch(_) {}
