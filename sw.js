@@ -72,7 +72,8 @@
 // 2026-05-30 v70: v7.264 CRITICAL — 네비 data-action 위임 디스패처 누락 복구(모든 진입 버튼 클릭 무반응 수정).
 // 2026-05-30 v71: v7.266 무료 PP→GP 전환(P2, Codex) + activity/feed st.name 컬럼 버그 수정 + 로켓 오버레이 가드.
 // 2026-05-30 v72: v7.267 함선 채굴 런(P5, 땅 없는 F2P 노가다) + FLEET COMMAND ⛏ Mining 버튼 + 경매 cancel 엔드포인트.
-const CACHE_NAME = 'mars-v72';
+// 2026-05-30 v73: v7.268 함선 채굴 내구도 마모(EVE식 수리 GP sink) + 모달 마모 안내.
+const CACHE_NAME = 'mars-v73';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

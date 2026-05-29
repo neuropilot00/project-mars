@@ -1,3 +1,11 @@
+## 2026-05-30 v7.268 — 함선 채굴 내구도 마모 → 수리 GP sink (EVE식)
+
+채굴 런 복귀 시 함대 함선 HP가 닳는다. 닳은 함선은 조선소에서 수리(GP+재료)해야 다시 채굴 가능 → GP/재료 sink 루프.
+- collectMining: 함대 함선 `current_hp -= round((max_hp+bonus_hp) × wear_pct × duration_h)`. 설정 `ship_mining_hull_wear_pct_per_hour`(0.02=2%/h, mig 276).
+- 채굴 가능 함선 조건에 `current_hp > 0` 추가 → 완전 마모 함선은 수리 전 채굴 불가.
+- 프론트 모달에 "채굴은 내구도 소모 — 닳으면 조선소 수리" 안내(4언어).
+- 검증: DB e2e 3/3(GP=40·8h 후 HP 100→84 마모·HP0 채굴거부). SW v72→v73.
+
 ## 2026-05-30 v7.267 — 함선 채굴 런(경제v2 P5) — 땅 없는 F2P 노가다
 
 EVE식 함선 채굴. 땅(영토) 없는 유저가 함대를 채굴 런에 보내 재료+GP를 수급하는 F2P 사다리 1단.

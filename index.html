@@ -48471,7 +48471,8 @@ async function _renderShipMining() {
         + '<select id="smDur" style="font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(100,220,130,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
         + durs.map(function(d){ return '<option value="'+d+'">'+d+'h</option>'; }).join('')
         + '</select></div>';
-      h += '<div style="font-size:8.5px;color:var(--tx3);margin-bottom:8px">'+tl('Reward','보상','報酬','奖励')+': '+(info.gpPerShipHour||5)+' GP × '+tl('ships','함선','艦','舰')+' × '+tl('hours','시간','時間','小时')+' + '+tl('materials','재료','素材','素材')+(info.launchCostGp>0?(' · '+tl('Cost','비용','コスト','费用')+': '+info.launchCostGp+' GP'):'')+'</div>';
+      h += '<div style="font-size:8.5px;color:var(--tx3);margin-bottom:4px">'+tl('Reward','보상','報酬','奖励')+': '+(info.gpPerShipHour||5)+' GP × '+tl('ships','함선','艦','舰')+' × '+tl('hours','시간','時間','小时')+' + '+tl('materials','재료','素材','素材')+(info.launchCostGp>0?(' · '+tl('Cost','비용','コスト','费用')+': '+info.launchCostGp+' GP'):'')+'</div>';
+      h += '<div style="font-size:8px;color:#ffab40;margin-bottom:8px">⚠ '+tl('Mining wears ship hull — repair at the Shipyard when worn.','채굴은 함선 내구도를 소모합니다 — 닳으면 조선소에서 수리하세요.','採掘は艦船の耐久度を消耗します — 摩耗したら造船所で修理を。','采矿会损耗舰船耐久 — 磨损后请在造船厂修理。')+'</div>';
       h += '<button type="button" id="smLaunch" style="width:100%;padding:9px;border-radius:8px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer">⛏ '+tl('LAUNCH MINING RUN','채굴 출항','採掘出航','出航采矿')+'</button>';
     }
     c.innerHTML = h;

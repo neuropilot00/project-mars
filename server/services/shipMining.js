@@ -27,10 +27,11 @@ async function getMiningInfo() {
   };
 }
 
-// 함대의 살아있는(판매중 아님) 함선 수
+// 함대의 채굴 가능한 함선 수(살아있고, 판매중 아니고, 내구도 > 0). 내구도 0 = 수리 필요.
 async function _aliveShipCount(client, fleetId) {
   const r = await client.query(
-    `SELECT COUNT(*)::int AS c FROM ships WHERE fleet_id = $1 AND is_alive = TRUE AND COALESCE(is_market_listed, FALSE) = FALSE`,
+    `SELECT COUNT(*)::int AS c FROM ships
+     WHERE fleet_id = $1 AND is_alive = TRUE AND COALESCE(is_market_listed, FALSE) = FALSE AND COALESCE(current_hp, 1) > 0`,
     [fleetId]
   );
   return r.rows[0]?.c || 0;
@@ -158,6 +159,17 @@ async function collectMining(wallet, jobId) {
       await client.query(
         `UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [rewardGp, w]
+      );
+    }
+
+    // [경제v2 P5] 채굴은 함선 내구도를 마모시킨다 → 조선소 수리(GP+재료) sink 강제(EVE식).
+    const wearPct = _num(await getSetting('ship_mining_hull_wear_pct_per_hour', '0.02'), 0.02);
+    if (wearPct > 0) {
+      await client.query(
+        `UPDATE ships
+           SET current_hp = GREATEST(0, current_hp - ROUND((COALESCE(max_hp, 100) + COALESCE(bonus_hp, 0)) * $2::numeric * $3::numeric))::int
+         WHERE fleet_id = $1 AND is_alive = TRUE`,
+        [job.fleet_id, wearPct, Number(job.duration_h)]
       );
     }
 
