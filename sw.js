@@ -54,7 +54,8 @@
 // 2026-05-29 v52: v7.235 레어 가챠 리빌 영상(gacha_reveal_rare/_v, 파랑 상자·중형 구축함) — tier 2 연결.
 // 2026-05-29 v53: v7.236 언커먼 가챠 리빌 영상(gacha_reveal_uncommon/_v, 초록 상자·소형 프리깃) — tier 1 연결.
 // 2026-05-29 v54: v7.237 커먼 가챠 리빌 영상(gacha_reveal_common/_v, 회색 상자·소형 정찰기) — tier 0 연결, 5티어 전부 영상 완성.
-const CACHE_NAME = 'mars-v54';
+// 2026-05-29 v55: v7.238 가챠/하이젝 리빌 영상 우측 상단 명시적 SKIP 버튼 추가 (텍스트만 있던 것 → 또렷한 버튼).
+const CACHE_NAME = 'mars-v55';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
