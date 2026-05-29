@@ -52546,7 +52546,9 @@ window.addEventListener('message', function(ev) {
     formation: { actionType: 'formation_change', params: { formation: d.payload && d.payload.formation } },
     maneuver:  { actionType: 'maneuver_change',  params: { maneuver:  d.payload && d.payload.maneuver  } },
     focus:     { actionType: 'focus_fire',       params: { targetFleetId: d.payload && (d.payload.targetFleetId || d.payload.target) } },
-    emp:       { actionType: 'emp',              params: { startTick: d.payload && d.payload.startTick } }
+    emp:       { actionType: 'emp',              params: { startTick: d.payload && d.payload.startTick } },
+    beam_cannon:     { actionType: 'beam',    params: {} },   // [Phase 3] 수동 스킬 — 서버 권위 충전/데미지 (tactical-lab _bridgeToParent('beam_cannon'))
+    missile_barrage: { actionType: 'missile', params: {} }
   };
   var mapped = actionMap[d.cmd];
   if (!mapped) return;

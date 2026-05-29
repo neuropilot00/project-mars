@@ -129,7 +129,8 @@ function attachWsServer(httpServer) {
             ws._cmdTimes.push(now);
             const fleetId = msg.payload && msg.payload.fleetId;
             if (!fleetId) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'fleetId_required' })); return; }
-            const action = (msg.cmd === 'maneuver') ? 'maneuver' : (msg.cmd === 'focus') ? 'focus' : (msg.cmd === 'formation') ? 'formation' : null;
+            const action = (msg.cmd === 'maneuver') ? 'maneuver' : (msg.cmd === 'focus') ? 'focus' : (msg.cmd === 'formation') ? 'formation'
+              : (msg.cmd === 'beam') ? 'beam' : (msg.cmd === 'missile') ? 'missile' : null;
             if (!action) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'unsupported_live_cmd' })); return; }
             const { pool } = require('./db');
             pool.query(

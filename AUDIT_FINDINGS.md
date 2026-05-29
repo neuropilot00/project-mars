@@ -2,6 +2,12 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 실시간 수동스킬 + 1인1함대 + rate limit (v7.253, 2026-05-29)
+- 1인 1함대(#1): siege_fleet_commits UNIQUE(siege_id,wallet)+upsert로 강제(e2e 확인).
+- beam/missile 서버 권위(충전 누적/100%발동/리셋, _applySkill 데미지, 소유권). WS+route+postMessage 배선(클라 변경0, tactical-lab 기존 버튼). mig 265.
+- 비-라이브 declareAction per-wallet 5/s rate limit(레드팀 풀고갈 차단). 단위 PASS.
+- 🟡 남은: 멀티인스턴스 명령 라우팅(Redis, 단일인스턴스 무관), beam/missile 충전 게이지 클라 동기(현재 시도→서버 수락/거부), 참가자 버튼 가시성.
+
 ## 🟢 Phase 3 완성: 참가자 실시간 명령 연결 (v7.252, 2026-05-29)
 commander-action 라우트가 라이브 전투면 declareAction 대신 라이브 큐 enqueue(참가 함대 자동 해석). 클라 변경 0(기존 tactical-lab 버튼→postMessage→라우트 체인 그대로 라이브 분기). liveBattle per-wallet 5/s rate limit 중앙화. rate limit 단위 PASS, 부팅 OK. → "혈맹원이 한 전장에서 실시간 조작" 동작.
 

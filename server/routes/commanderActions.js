@@ -10,6 +10,17 @@ const express = require('express');
 const router = express.Router();
 const cmdSvc = require('../services/commanderActions');
 
+// [Phase 3 레드팀] 비-라이브(pre-battle) declareAction 도 per-wallet rate limit — 풀 고갈/락 경합 방지.
+//   (라이브 경로는 liveBattle.enqueueCommand 에서 5/s 별도 제한.)
+const _cmdRate = new Map(); // wallet -> timestamps[]
+function _rateOk(wallet, perSec = 5) {
+  const now = Date.now();
+  const ts = (_cmdRate.get(wallet) || []).filter((t) => now - t < 1000);
+  if (ts.length >= perSec) { _cmdRate.set(wallet, ts); return false; }
+  ts.push(now); _cmdRate.set(wallet, ts);
+  return true;
+}
+
 // ── JWT 인증 미들웨어 — body/header wallet fallback 없음 ──
 const jwt = require('jsonwebtoken');
 const requireAuth = (req, res, next) => {
@@ -33,6 +44,9 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
   const type = action_type || actionType;
   if (!type) return res.status(400).json({ error: 'action_type_required' });
 
+  // per-wallet rate limit (라이브/pre-battle 공통 1차 방어 — 플러딩/매크로 차단)
+  if (!_rateOk(wallet)) return res.status(429).json({ error: 'RATE_LIMITED' });
+
   // [Phase 3 실시간] 라이브 전투 진행 중이면 인메모리 큐로 즉시 반영 (pre-battle declareAction 우회).
   //   클라 postMessage 핸들러는 변경 없음 — 동일 라우트가 라이브/pre-battle 자동 분기.
   try {
@@ -48,7 +62,9 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
       const p = params || {};
       const liveAction = type === 'formation_change' ? 'formation'
         : type === 'maneuver_change' ? 'maneuver'
-        : type === 'focus_fire' ? 'focus' : null;
+        : type === 'focus_fire' ? 'focus'
+        : (type === 'beam' || type === 'beam_cannon') ? 'beam'
+        : (type === 'missile' || type === 'missile_barrage') ? 'missile' : null;
       if (!liveAction) return res.status(400).json({ error: 'UNSUPPORTED_LIVE_ACTION' });
       const ok = liveBattle.enqueueCommand(battleId, {
         fleetId, wallet, action: liveAction,

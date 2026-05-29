@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.253 — 실시간 수동 스킬(beam/missile) 서버 권위 + 1인 1함대 확인 + cmd rate limit
+
+- **1인 1함대 제약(#1)**: `siege_fleet_commits` UNIQUE(siege_id, wallet) + upsert로 이미 강제됨 — DB e2e로 확인(재커밋=교체, 항상 1개). 추가 작업 불요.
+- **beam/missile 서버 권위 수동 스킬** (레드팀: 클라 게이지 신뢰 금지): `simulateBattleLive`에서 함대별 충전(살아있는 ATK 함선 수 × per-ship/틱) 서버 누적. `applyLiveCommand` beam/missile — 충전 100%에서만 발동(쿨다운=재충전), 발동 후 0 리셋. `_applySkill`: beam=우선 적함(기함/최대HP) 강타(ATK합×8), missile=최대 6척 분산(×4). 소유권 검증. mig 265 배율/충전율 설정.
+- **명령 배선**: WS cmd + commander-action 라우트 + index.html postMessage 핸들러에 beam/missile(=tactical-lab `beam_cannon`/`missile_barrage`) 매핑. tactical-lab 버튼은 이미 `_bridgeToParent` 호출 → 클라 추가 변경 없음.
+- **비-라이브 cmd rate limit**(레드팀): commander-action 라우트 per-wallet 5/s — pre-battle declareAction 폭주(풀 고갈/락 경합) 차단.
+- **검증**: node --check 4파일 + 수동스킬 단위(발동/격침/충전리셋/저충전거부/소유권거부/missile분산) PASS + 인라인 11종 파싱. SW v60→v61.
+- 남은(비차단): 멀티인스턴스 명령 라우팅(Redis battleCmd→권위워커, 현 단일인스턴스 무관), 참가자 전용 버튼 가시성(서버는 비참가자 거부 중).
+
 ## 2026-05-29 v7.252 — Phase 3 완성: 참가자 실시간 명령 연결 (클라→서버 라이브 큐)
 
 서버 라이브 루프(v7.251)에 **참가자 명령 입력을 연결** — 이제 진행 중 함대전에서 자기 함대를 실시간 조작.

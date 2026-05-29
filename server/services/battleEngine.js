@@ -156,7 +156,43 @@ function applyLiveCommand(state, cmd) {
   if (cmd.action === 'formation' && p.formation) { fleet.formation = String(p.formation); return true; }
   if (cmd.action === 'maneuver'  && p.movement)  { fleet.movement = String(p.movement); fleet.maneuver = String(p.movement); return true; }
   if (cmd.action === 'focus') { fleet.focusFireTargetId = p.targetFleetId || p.targetShipId || null; return true; }
+  // [Phase 3 실시간] 수동 스킬 — 서버 권위 충전/쿨다운(레드팀: 클라 게이지 신뢰 금지). 충전 100% 일 때만 발동, 발동 후 0 리셋.
+  if (cmd.action === 'beam') {
+    if ((fleet.beamCharge || 0) < 100) return false;
+    if (_applySkill(state, fleet, 'beam')) { fleet.beamCharge = 0; return true; }
+    return false;
+  }
+  if (cmd.action === 'missile') {
+    if ((fleet.missileCharge || 0) < 100) return false;
+    if (_applySkill(state, fleet, 'missile')) { fleet.missileCharge = 0; return true; }
+    return false;
+  }
   return false;
+}
+
+// [Phase 3] 수동 스킬 데미지 적용 — beam: 우선순위 적함(기함/최대HP) 단일 강타, missile: 다수 분산.
+//   데미지 = 발동 함대 살아있는 ATK 합 × 배율(state.skillMult). 서버 권위 — 클라가 데미지를 정하지 않음.
+function _applySkill(state, fleet, kind) {
+  const myAtk = fleet.ships.filter(s => s.isAlive && (s.atk || 0) > 0).reduce((a, s) => a + (s.atk || 0), 0);
+  if (myAtk <= 0) return false;
+  const enemies = state.fleets.filter(e => e.side !== fleet.side).flatMap(e => e.ships.filter(s => s.isAlive));
+  if (!enemies.length) return false;
+  const beamMult = (state.skillMult && state.skillMult.beam) || 8;
+  const missileMult = (state.skillMult && state.skillMult.missile) || 4;
+  if (kind === 'beam') {
+    enemies.sort((a, b) => ((b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)) || ((b.maxHp || 0) - (a.maxHp || 0)));
+    const t = enemies[0];
+    t.hp -= Math.round(myAtk * beamMult);
+    if (t.hp <= 0) { t.hp = 0; t.isAlive = false; }
+    return true;
+  }
+  // missile — 최대 6척 분산
+  const dmgEach = Math.round(myAtk * missileMult);
+  for (const t of enemies.slice(0, Math.min(6, enemies.length))) {
+    t.hp -= dmgEach;
+    if (t.hp <= 0) { t.hp = 0; t.isAlive = false; }
+  }
+  return true;
 }
 
 // [Phase 3 실시간] 권위적 라이브 틱 루프 — simulateBattle 과 동일 헬퍼/결과 형태를 쓰되,
@@ -170,6 +206,12 @@ async function simulateBattleLive(battleId, hooks) {
   if (!battleData) throw new Error('BATTLE_NOT_FOUND');
   const state = initBattleState(battleData);
   try { state.focusFireDmgBonus = parseFloat(await getSetting('focus_fire_dmg_bonus_pct', '15')) || 0; } catch (_) { state.focusFireDmgBonus = 15; }
+  // [Phase 3] 수동 스킬 배율/충전율 — 서버 권위(클라 게이지 신뢰 금지)
+  try {
+    state.skillMult = { beam: parseFloat(await getSetting('siege_beam_dmg_mult', '8')) || 8, missile: parseFloat(await getSetting('siege_missile_dmg_mult', '4')) || 4 };
+    state.beamChargePerShipTick = parseFloat(await getSetting('siege_beam_charge_per_ship', '0.4')) || 0.4;
+    state.missileChargePerShipTick = parseFloat(await getSetting('siege_missile_charge_per_ship', '0.6')) || 0.6;
+  } catch (_) { state.skillMult = { beam: 8, missile: 4 }; state.beamChargePerShipTick = 0.4; state.missileChargePerShipTick = 0.6; }
 
   const timeline = {
     tick_ms: TICK_MS, field_w: FIELD_W, field_h: FIELD_H, battle_id: battleId, live: true,
@@ -193,6 +235,14 @@ async function simulateBattleLive(battleId, hooks) {
     for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateFleetPosition(fleet, state);
     for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet);
     processCombat(state, events);
+
+    // [Phase 3] 수동 스킬 충전 — 살아있는 ATK 함선 수 비례(서버 권위). 100% 에서 beam/missile 발동 가능.
+    for (const fleet of state.fleets) {
+      const atkN = fleet.ships.filter(s => s.isAlive && (s.atk || 0) > 0).length;
+      if (atkN <= 0) continue;
+      fleet.beamCharge = Math.min(100, (fleet.beamCharge || 0) + atkN * (state.beamChargePerShipTick || 0.4));
+      fleet.missileCharge = Math.min(100, (fleet.missileCharge || 0) + atkN * (state.missileChargePerShipTick || 0.6));
+    }
 
     if (tick % 5 === 0) {
       const fr = captureFrame(state, tick);
