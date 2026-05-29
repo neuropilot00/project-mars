@@ -38,13 +38,27 @@ router.get('/sector-defs', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// [Phase 3] GET /api/sector-defs/sov-map — SOV 지도 (어느 길드가 24섹터 지배) + leaderboard
+//   ※ '/:code' 보다 먼저 등록해야 :code 로 안 먹힘
+// ─────────────────────────────────────────────────────────────
+router.get('/sector-defs/sov-map', async (req, res) => {
+  try {
+    const data = await sectorService.getSovMap();
+    res.json(data);
+  } catch (err) {
+    console.error('[SECTORS] sov-map error:', err.message);
+    res.status(500).json({ error: 'internal error' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
 // GET /api/sector-defs/:code  — 섹터 상세
 // ─────────────────────────────────────────────────────────────
 router.get('/sector-defs/:code', async (req, res) => {
   const lang = (req.query.lang || 'en').toLowerCase();
   const code = req.params.code.toLowerCase();
-  // governance, entry-check 서브라우트는 별도 처리
-  if (code === 'governance' || code === 'entry-check') return res.status(404).json({ error: 'not found' });
+  // governance, entry-check, sov-map 서브라우트는 별도 처리
+  if (code === 'governance' || code === 'entry-check' || code === 'sov-map') return res.status(404).json({ error: 'not found' });
   try {
     const sectors = await sectorService.getAllSectors(lang);
     const sector = sectors.find(s => s.code === code);

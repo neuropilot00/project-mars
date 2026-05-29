@@ -62,7 +62,8 @@
 // 2026-05-29 v60: v7.250 Phase 2 다함대 공성 — 혈맹원 여럿이 각자 함대를 한 전장에(JOIN 다중 커밋+로스터 목록).
 // 2026-05-29 v61: v7.253 실시간 수동스킬 beam/missile 서버권위(충전/쿨다운/데미지) + 비-라이브 cmd rate limit.
 // 2026-05-29 v62: v7.254 수동스킬 충전 게이지 프레임 노출(클라 표시용).
-const CACHE_NAME = 'mars-v62';
+// 2026-05-29 v63: v7.255 SOV MAP — 24섹터 길드 지배 현황 모달(거버넌스 탭) + sov-map 엔드포인트.
+const CACHE_NAME = 'mars-v63';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

@@ -7798,6 +7798,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane" id="basePane_govern">
         <div class="base-banner"><img src="/assets/base/governance.jpg?v=v7160" alt="Governance" style="width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;border-radius:inherit"></div>
 
+        <!-- [Phase 3] SOV MAP — 누가 화성을 지배하나 (24섹터 길드 거버너 지도) -->
+        <button type="button" onclick="openSovMap()" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;background:linear-gradient(135deg,rgba(255,109,0,.16),rgba(255,209,102,.05));border:1px solid rgba(255,109,0,.4);color:#ffb74d;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.5px">🗺 <span data-i18n="sov_map_btn">SOV MAP — 화성 지배 현황</span></button>
+
         <!-- Active Global Events -->
         <div id="govActiveEvents" style="display:none;margin-bottom:12px">
           <div class="base-section-title" style="color:var(--cyan)" data-i18n="gov_active_events">ACTIVE EVENTS</div>
@@ -36508,6 +36511,45 @@ window.addEventListener('resize', _debounce(function(){
   }
 
   // ── Load governance data for GOVERN tab ──
+  // [Phase 3] SOV MAP — 24섹터 길드 지배 현황 모달 (읽기 전용 표시)
+  window.openSovMap = function(){
+    var ex = document.getElementById('sovMapModal'); if(ex) ex.remove();
+    var ov = document.createElement('div');
+    ov.id = 'sovMapModal';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(4,6,12,.92);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.innerHTML = '<div style="background:linear-gradient(180deg,#12131a,#0b0c12);border:1px solid rgba(255,109,0,.3);border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow:auto;padding:18px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:14px;font-weight:900;color:#ffb74d;font-family:var(--fn)">🗺 '+tl("SOV MAP — Mars Control","🗺 SOV MAP — 화성 지배 현황","SOV MAP — 火星支配","SOV MAP — 火星支配")+'</span><button type="button" id="sovMapClose" style="background:none;border:none;color:var(--tx3);font-size:18px;cursor:pointer">✕</button></div>'
+      + '<div id="sovMapBody" style="font-size:11px;color:var(--tx3)">'+tl("Loading…","불러오는 중…","読み込み中…","加载中…")+'</div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if(e.target===ov) ov.remove(); });
+    var cb = document.getElementById('sovMapClose'); if(cb) cb.addEventListener('click', function(){ ov.remove(); });
+    fetch('/api/sector-defs/sov-map').then(function(r){return r.json()}).then(function(d){
+      var body = document.getElementById('sovMapBody'); if(!body) return;
+      var L = function(s){ return (LANG==='ko'?s.name_ko:LANG==='ja'?s.name_ja:LANG==='zh'?s.name_zh:s.name_en)||s.name_en||s.code; };
+      var tierCol = { core:'var(--gold)', mid:'var(--cyan)', frontier:'var(--tx3)' };
+      var h = '<div style="margin-bottom:10px;color:var(--tx2)">'+tl("Held","점령","占領","占领")+' '+d.claimed+' / '+d.total+' · '+tl("Vacant","무주공산","空白","空白")+' '+d.vacant+'</div>';
+      if(d.leaderboard && d.leaderboard.length){
+        h += '<div style="font-size:10px;color:#ffb74d;font-weight:700;margin-bottom:6px">🏛 '+tl("Ruling Guilds","지배 길드","支配ギルド","支配公会")+'</div>';
+        d.leaderboard.slice(0,8).forEach(function(g,i){
+          h += '<div style="display:flex;justify-content:space-between;padding:5px 8px;background:rgba(255,209,102,.05);border-radius:6px;margin-bottom:3px"><span style="font-size:10px;color:var(--tx)">'+(i+1)+'. '+(g.emblem||"🔴")+' ['+escapeHtml(g.tag||"")+'] '+escapeHtml(g.name||"")+'</span><span style="font-size:10px;color:var(--gold)">'+g.count+' · C'+(g.core||0)+'/M'+(g.mid||0)+'/F'+(g.frontier||0)+'</span></div>';
+        });
+      }
+      ['core','mid','frontier'].forEach(function(tier){
+        var secs = (d.sectors||[]).filter(function(s){ return s.tier===tier; });
+        if(!secs.length) return;
+        h += '<div style="font-size:10px;color:'+tierCol[tier]+';font-weight:700;margin:10px 0 5px;text-transform:uppercase">'+tier+' ('+secs.length+')</div>';
+        h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">';
+        secs.forEach(function(s){
+          var gov = s.governorGuild ? ((s.governorGuild.emblem||"🔴")+' ['+escapeHtml(s.governorGuild.tag||"")+']')
+            : (s.governor ? ('👤 '+escapeHtml(s.governor.nickname||"")) : ('<span style="color:var(--tx3)">'+tl("Vacant","무주공산","空白","空白")+'</span>'));
+          h += '<div style="padding:6px 8px;background:rgba(255,255,255,.03);border-radius:6px;border-left:3px solid '+tierCol[tier]+'"><div style="font-size:10px;color:var(--tx);font-weight:600">'+escapeHtml(L(s))+'</div><div style="font-size:9px;color:var(--tx2);margin-top:2px">'+gov+'</div></div>';
+        });
+        h += '</div>';
+      });
+      body.innerHTML = h;
+    }).catch(function(){ var b=document.getElementById('sovMapBody'); if(b) b.innerHTML='<div style="color:var(--red)">'+tl("Load failed","불러오기 실패","読み込み失敗","加载失败")+'</div>'; });
+  };
+
   window.loadGovernanceData = function(){
     var w = walletState.address;
     if(!w) {

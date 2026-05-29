@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.255 — SOV MAP: 화성 지배 현황 (24섹터 길드 거버너 지도)
+
+"누가 화성을 지배하나" 한눈에 — 큰 기능 #1 (sov 지도).
+- **`sector.getSovMap()` + `GET /api/sector-defs/sov-map`**: sector_definitions + sector_governance + guilds 조인 → 24섹터 각 거버너(길드/개인) + 티어 + 길드별 점유 leaderboard(core/mid/frontier 카운트) + claimed/vacant 요약. (`/:code` 보다 먼저 등록해 라우트 충돌 방지)
+- **`openSovMap()` 모달** (거버넌스 탭 🗺 SOV MAP 버튼): 티어별(core/mid/frontier) 섹터 그리드 — 각 섹터 현지화 이름 + 지배 길드(이모지/태그) 또는 무주공산. 상단에 지배 길드 leaderboard. 4언어. §19 준수(inline onclick 없이 listener).
+- **검증**: getSovMap 직접 호출(24섹터/leaderboard) PASS + 인라인 11종 파싱 + onclick 훅 통과. SW v62→v63.
+- 순서대로 다음: 주간 공성 캘린더 → 커맨더 공성.
+
 ## 2026-05-29 v7.253 — 실시간 수동 스킬(beam/missile) 서버 권위 + 1인 1함대 확인 + cmd rate limit
 
 - **1인 1함대 제약(#1)**: `siege_fleet_commits` UNIQUE(siege_id, wallet) + upsert로 이미 강제됨 — DB e2e로 확인(재커밋=교체, 항상 1개). 추가 작업 불요.

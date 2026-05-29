@@ -396,10 +396,47 @@ async function computeSectorTariff(sectorId, payerWallet, grossAmount) {
   };
 }
 
+// ─────────────────────────────────────────────────────────────
+// [Phase 3] SOV MAP — 24섹터를 누가/어느 길드가 지배하나 (전쟁 지도)
+//   sector_definitions(코드/이름/티어) + sector_governance(거버너 길드/개인) + guilds 조인.
+//   sectors 배열(티어순) + 길드별 점유 leaderboard 반환.
+// ─────────────────────────────────────────────────────────────
+async function getSovMap() {
+  const { rows } = await pool.query(`
+    SELECT sd.id, sd.code, sd.name_en, sd.name_ko, sd.name_ja, sd.name_zh, sd.sector_type,
+           sg.governor_wallet, sg.governor_guild_id,
+           g.name AS guild_name, g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
+           u.nickname AS governor_nickname
+      FROM sector_definitions sd
+      LEFT JOIN sector_governance sg ON sg.sector_code = sd.code
+      LEFT JOIN guilds g ON g.id = sg.governor_guild_id
+      LEFT JOIN users u ON u.wallet_address = sg.governor_wallet
+     ORDER BY CASE sd.sector_type WHEN 'core' THEN 0 WHEN 'mid' THEN 1 ELSE 2 END, sd.id
+  `);
+  const sectors = rows.map(r => ({
+    code: r.code, name_en: r.name_en, name_ko: r.name_ko, name_ja: r.name_ja, name_zh: r.name_zh,
+    tier: r.sector_type,
+    governorGuild: r.governor_guild_id ? { id: r.governor_guild_id, name: r.guild_name, tag: r.guild_tag, emblem: r.guild_emblem } : null,
+    governor: r.governor_wallet ? { wallet: r.governor_wallet, nickname: r.governor_nickname || r.governor_wallet.slice(0, 8) } : null,
+  }));
+  const byGuild = {};
+  for (const s of sectors) {
+    if (!s.governorGuild) continue;
+    const k = s.governorGuild.id;
+    if (!byGuild[k]) byGuild[k] = { id: k, name: s.governorGuild.name, tag: s.governorGuild.tag, emblem: s.governorGuild.emblem, count: 0, core: 0, mid: 0, frontier: 0 };
+    byGuild[k].count++; byGuild[k][s.tier] = (byGuild[k][s.tier] || 0) + 1;
+  }
+  const leaderboard = Object.values(byGuild).sort((a, b) => b.count - a.count);
+  const total = sectors.length;
+  const claimed = sectors.filter(s => s.governorGuild || s.governor).length;
+  return { sectors, leaderboard, total, claimed, vacant: total - claimed };
+}
+
 module.exports = {
   getSector,
   getAllSectors,
   getSectorGovernance,
+  getSovMap,
   checkEntryRequirement,
   checkEntryRequirementBySectorId,   // M-156: sectors 기반
   computeSectorTariff,                // M-156: 관세 계산
