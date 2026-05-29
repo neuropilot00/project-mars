@@ -5628,14 +5628,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       if (bg) { bg.style.backgroundImage = 'url("/assets/loading/load_'+pad+'.jpg")'; bg.style.opacity = '0.55'; }
     };
     img.src = '/assets/loading/load_'+pad+'.jpg';
-    // [v7.226] 로딩 배경 영상 — 2종 콘텐츠(deep_space/drift)를 비율별로. 데스크탑 가로 2종, 모바일 세로 2종.
+    // [v7.230] 로딩 배경 영상 — 3종 콘텐츠(deep_space/drift/frozen_mars)를 비율별로. 데스크탑 가로 3종, 모바일 세로 3종.
     var vid = document.getElementById('loadVideo');
     if (vid) {
       if (window.innerWidth > 768) {
-        var vn = 1 + Math.floor(Math.random()*2); // 가로 load_loop_01~02
+        var vn = 1 + Math.floor(Math.random()*3); // 가로 load_loop_01~03
         vid.src = '/assets/loading/load_loop_0'+vn+'.mp4';
       } else {
-        var vvn = 1 + Math.floor(Math.random()*2); // 세로 load_loop_v01~02
+        var vvn = 1 + Math.floor(Math.random()*3); // 세로 load_loop_v01~03
         vid.src = '/assets/loading/load_loop_v0'+vvn+'.mp4';
       }
       vid.addEventListener('canplay', function(){ vid.style.opacity = '0.6'; }, { once:true });
@@ -48244,7 +48244,7 @@ function playCrateOpening(d){
       }
 
       // [v7.228] 에픽/레전더리(tier>=3) 는 풀스크린 영상 연출 → 끝나면 resolve. 일반은 아래 캔버스 연출.
-      if (tier >= 3) { _playGachaVideo(resolve); return; }
+      if (tier >= 3) { _playGachaVideo(resolve, tier); return; }
 
       var ov = document.createElement('div');
       ov.id = 'crateOpeningOverlay';
@@ -48278,13 +48278,15 @@ function playCrateOpening(d){
 
 // [v7.228] 가챠 에픽/레전더리 풀스크린 영상 연출 (crate cracks open → warship emerges).
 //   가로(데스크탑) gacha_reveal.mp4 / 세로(모바일) gacha_reveal_v01~v02 랜덤. 끝나거나 탭하면 resolve.
-function _playGachaVideo(resolve){
+//   [v7.230] tier>=4(레전더리) 는 전용 gacha_reveal_legendary.mp4 (battleship 등장) — 데/모 공통, object-fit:cover.
+function _playGachaVideo(resolve, tier){
   try {
     var ov = document.createElement('div');
     ov.id = 'gachaVideoOverlay';
     ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:#05040b;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:crFade .2s ease';
     var src;
-    if (window.innerWidth > 768) src = '/assets/fx/gacha_reveal.mp4';
+    if (tier >= 4) src = '/assets/fx/gacha_reveal_legendary.mp4'; // 레전더리 전용 (가로 마스터, cover 크롭)
+    else if (window.innerWidth > 768) src = '/assets/fx/gacha_reveal.mp4';
     else src = '/assets/fx/gacha_reveal_v0'+(1+Math.floor(Math.random()*2))+'.mp4';
     ov.innerHTML =
       '<video id="_gachaVid" muted playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
@@ -48296,7 +48298,7 @@ function _playGachaVideo(resolve){
     var vid=document.getElementById('_gachaVid');
     if (vid){ vid.addEventListener('ended', finish, {once:true}); var pp=vid.play(); if(pp&&pp.catch) pp.catch(function(){ setTimeout(finish,800); }); }
     try { _sfx.crateCharge(); } catch(_){}
-    setTimeout(finish, 6000); // 최대 6초
+    setTimeout(finish, (tier>=4?8200:6000)); // 레전더리는 battleship 등장(8s)까지, 그 외 6초
   } catch(_) { resolve(); }
 }
 

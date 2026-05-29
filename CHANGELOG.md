@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.230 — 로딩 영상 frozen Mars 추가 + 가챠 레전더리 전용 영상
+
+사용자 제공 영상 3종 통합.
+- **로딩 배경 frozen Mars 3번째 콘텐츠**: `load_loop_03.mp4`(가로 1280x720) + `load_loop_v03.mp4`(세로 720x1280). 데스크탑/모바일 로딩 랜덤 범위 2종→3종(deep_space/drift/frozen_mars). 720p·crf30·무음·faststart로 <800KB.
+- **가챠 레전더리 전용 영상**: `gacha_reveal_legendary.mp4`(battleship 등장, 가로 마스터). `_playGachaVideo(resolve, tier)` 에 tier 인자 추가 — tier>=4(레전더리)는 데/모 공통 전용 영상(object-fit:cover 크롭), tier 3(에픽)은 기존 gacha_reveal. 레전더리는 8s 리빌 완주 위해 자동종료 6s→8.2s.
+- SW v47→v48. 신규 mp4는 gitignore allowlist(`*.mp4`) 이미 포함 — git 추적 확인.
+
 ## 2026-05-29 v7.229 — 함대전 박력 강화 (발사/폭발 이펙트 + 타격감)
 
 사용자 피드백 "함대전이 박력이 없네" → 발사/폭발 이펙트 약함 + 타격감 없음 두 축으로 좁혀 `assets/tactical-lab-v11.html` 전투 렌더러 강화. 카메라/속도는 손대지 않음.
