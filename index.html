@@ -5596,8 +5596,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .onboarding-hint button:hover{background:rgba(255,120,60,.22);}
 .onboarding-hint button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.55);}
 @media(max-width:600px){.onboarding-hint{bottom:78px;align-items:flex-start;flex-direction:column}.onboarding-hint__actions{width:100%}.onboarding-hint button{flex:1}}
-/* [v7.223] 로딩 배경 영상 — 가로 영상이라 데스크탑만. 모바일은 숨기고 기존 이미지 폴백(세로 영상 별도 예정). */
-@media(max-width:768px){ #loadVideo{display:none!important} }
+/* [v7.225] 로딩 배경 영상 — 데스크탑 가로(load_loop_01~04) / 모바일 세로(load_loop_v01~03). 양쪽 표시. */
 </style>
 </head>
 <body>
@@ -5629,12 +5628,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       if (bg) { bg.style.backgroundImage = 'url("/assets/loading/load_'+pad+'.jpg")'; bg.style.opacity = '0.55'; }
     };
     img.src = '/assets/loading/load_'+pad+'.jpg';
-    // [v7.224] 로딩 배경 영상 4종(load_loop_01~04) 중 랜덤 — 데스크탑(가로)만. 준비되면 fade-in.
+    // [v7.225] 로딩 배경 영상 — 데스크탑은 가로 4종(load_loop_01~04) 랜덤, 모바일은 세로(load_loop_v01).
     var vid = document.getElementById('loadVideo');
-    if (vid && window.innerWidth > 768) {
-      var vn = 1 + Math.floor(Math.random()*4);
-      var vpad = (vn < 10 ? '0' : '') + vn;
-      vid.src = '/assets/loading/load_loop_'+vpad+'.mp4';
+    if (vid) {
+      if (window.innerWidth > 768) {
+        var vn = 1 + Math.floor(Math.random()*4);
+        vid.src = '/assets/loading/load_loop_'+(vn<10?'0':'')+vn+'.mp4';
+      } else {
+        var vvn = 1 + Math.floor(Math.random()*3); // 모바일 세로 3종 랜덤
+        vid.src = '/assets/loading/load_loop_v0'+vvn+'.mp4';
+      }
       vid.addEventListener('canplay', function(){ vid.style.opacity = '0.6'; }, { once:true });
       var pp = vid.play(); if (pp && pp.catch) pp.catch(function(){});
     }
