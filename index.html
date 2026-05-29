@@ -51029,6 +51029,8 @@ function fcEsc(str) {
         <div class="bv-result-subtitle" id="bvResultSubtitle"></div>
         <div class="bv-result-stats" id="bvResultStats"></div>
         <div class="bv-result-actions">
+          <!-- [v7.221 upgrade #3] AI 전투 리매치 — 같은 상대 즉시 재도전. showBattleResult 가 AI 전투일 때만 표시. -->
+          <button id="bvRematchBtn" class="primary" style="display:none;background:linear-gradient(135deg,#5cbbff,#4fc3f7);color:#001018" onclick="bvRematch()">🔄 <span data-i18n="bv_rematch">Rematch</span></button>
           <button class="primary" onclick="shareCurrentBattle()">📼 <span data-i18n="bv_share">Share</span></button>
           <button onclick="closeBattleViewer()" data-i18n="btn_close">✕ Close</button>
         </div>
@@ -51893,6 +51895,8 @@ async function challengeAi(aiFleetId, aiName) {
 
     showFactionToast(`🤖 ${aiName} ${LANG==='ko'?'와의 전투 시작!':LANG==='ja'?'との戦闘開始!':LANG==='zh'?'战斗开始!':'- Battle started!'}`, 'success');
     try{ markDailyOpsAction('ai_practice', 1); }catch(_e){}
+    // [v7.221 upgrade #3] 마지막 AI 상대 저장 — 전투 결과 카드의 '리매치' 버튼이 재사용 (battleId 일치 시만 표시).
+    window._lastAiChallenge = { aiFleetId: aiFleetId, aiName: aiName, battleId: data2.battle_id };
     closeAiFight();
     if (data2.battle_id) {
       setTimeout(() => openBattleViewer(data2.battle_id), 3000);
@@ -53125,6 +53129,16 @@ function showBattleResult() {
     </div>
   `;
 
+  // [v7.221 upgrade #3] AI 전투 리매치 버튼 — 이번 결과가 방금 끝낸 AI 전투(_lastAiChallenge.battleId 일치)일 때만 표시.
+  try {
+    var _rb = document.getElementById('bvRematchBtn');
+    if (_rb) {
+      var _la = window._lastAiChallenge;
+      var _canRematch = _la && bv.battle && String(_la.battleId) === String(bv.battle.id);
+      _rb.style.display = _canRematch ? '' : 'none';
+    }
+  } catch(_) {}
+
   // 시각 시뮬이 충분히 재생되도록 2초 후 결과 카드 표시 (Bug2: HP 감소 전 승리 방지)
   setTimeout(() => {
     overlay.classList.add('active');
@@ -53146,6 +53160,14 @@ function showBattleResult() {
       }
     } catch(_) {}
   }, 3000);
+}
+
+// [v7.221 upgrade #3] 리매치 — 결과 뷰어 닫고 같은 AI 상대 재도전. challengeAi 재사용.
+function bvRematch(){
+  var la = window._lastAiChallenge;
+  if (!la || la.aiFleetId == null) { showFactionToast(tl('No rematch target','리매치 상대 없음','再戦相手なし','无对手'),'error'); return; }
+  try { closeBattleViewer(); } catch(_){}
+  setTimeout(function(){ try { challengeAi(la.aiFleetId, la.aiName || 'AI'); } catch(e){ console.error('bvRematch:', e); } }, 300);
 }
 
 // Bug4: 전투 결과 카드에 보상 인라인 표시 (별도 토스트 대체)

@@ -41,7 +41,8 @@
 // 2026-05-29 v36: v7.215 iOS phantom-click 가드 (350ms) + campaignProfileModal inner stopPropagation.
 // 2026-05-29 v37: v7.219 가챠 개봉 서스펜스 연출(박스 흔들림→빛 폭발) + crateCharge/Burst 사운드.
 // 2026-05-29 v38: v7.220 Daily Streak 48h 유예 (하루 놓쳐도 streak 유지) + grace 안내.
-const CACHE_NAME = 'mars-v38';
+// 2026-05-29 v39: v7.221 함대전 AI 리매치 훅 (결과 카드 → 같은 상대 즉시 재도전).
+const CACHE_NAME = 'mars-v39';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
