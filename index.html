@@ -48305,7 +48305,7 @@ function _playGachaVideo(resolve, tier, tierKey){
     if (mobile) src = '/assets/fx/' + (cfg.pool_v ? pick(cfg.pool_v) : (cfg.v || cfg.h || (cfg.pool_h && pick(cfg.pool_h)))) + '.mp4';
     else        src = '/assets/fx/' + (cfg.pool_h ? pick(cfg.pool_h) : (cfg.h || cfg.v || (cfg.pool_v && pick(cfg.pool_v)))) + '.mp4';
     ov.innerHTML =
-      '<video id="_gachaVid" muted playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
+      '<video id="_gachaVid" playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
       + '<button type="button" id="_gachaSkipBtn" style="position:absolute;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:2;display:flex;align-items:center;gap:6px;padding:9px 16px;font-family:var(--fn);font-size:12px;font-weight:800;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.35);border-radius:20px;backdrop-filter:blur(4px);cursor:pointer">'+tl("SKIP","건너뛰기","スキップ","跳过")+' ▸</button>';
     document.body.appendChild(ov);
     var done=false;
@@ -48314,8 +48314,13 @@ function _playGachaVideo(resolve, tier, tierKey){
     if(skipBtn) skipBtn.addEventListener('click', function(ev){ ev.stopPropagation(); finish(); });
     ov.addEventListener('click', finish);
     var vid=document.getElementById('_gachaVid');
-    if (vid){ vid.addEventListener('ended', finish, {once:true}); var pp=vid.play(); if(pp&&pp.catch) pp.catch(function(){ setTimeout(finish,800); }); }
-    try { _sfx.crateCharge(); } catch(_){}
+    // [v7.239] 영상 자체 오디오 사용(가챠는 사용자 클릭 제스처 직후라 소리 자동재생 허용).
+    //   소리 자동재생이 막히면 음소거로 재시도해 화면은 계속 보이게 한다. WebAudio _sfx 는 더 이상 안 씀.
+    if (vid){
+      vid.addEventListener('ended', finish, {once:true});
+      var pp=vid.play();
+      if(pp&&pp.catch) pp.catch(function(){ try{ vid.muted=true; var pp2=vid.play(); if(pp2&&pp2.catch) pp2.catch(function(){ setTimeout(finish,800); }); }catch(_){ setTimeout(finish,800); } });
+    }
     setTimeout(finish, 8200); // Veo 리빌 영상 8s 완주 (탭하면 즉시 스킵)
   } catch(_) { resolve(); }
 }
@@ -48331,7 +48336,7 @@ function playHijackIntro(){
       ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:#05040b;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:crFade .25s ease';
       var src = window.innerWidth > 768 ? '/assets/fx/hijack_intro.mp4' : '/assets/fx/hijack_intro_v.mp4';
       ov.innerHTML =
-        '<video id="_hjIntroVid" muted playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
+        '<video id="_hjIntroVid" playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
         + '<div style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,rgba(5,4,11,.85));pointer-events:none"></div>'
         + '<div style="position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);text-align:center;font-family:var(--fn);font-size:22px;font-weight:900;letter-spacing:4px;color:#ff6b6b;text-shadow:0 0 24px rgba(232,72,85,.7);pointer-events:none">⚔ '+tl("TERRITORY HIJACK","영토 탈취 개시","領土ハイジャック","领地劫持")+'</div>'
         + '<button type="button" id="_hjSkipBtn" style="position:absolute;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:2;display:flex;align-items:center;gap:6px;padding:9px 16px;font-family:var(--fn);font-size:12px;font-weight:800;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.35);border-radius:20px;backdrop-filter:blur(4px);cursor:pointer">'+tl("SKIP","건너뛰기","スキップ","跳过")+' ▸</button>';
@@ -48342,12 +48347,13 @@ function playHijackIntro(){
       if(hjSkip) hjSkip.addEventListener('click', function(ev){ ev.stopPropagation(); finish(); });
       ov.addEventListener('click', finish);
       var vid = document.getElementById('_hjIntroVid');
+      // [v7.239] 영상 자체 오디오 사용(하이젝은 사용자 클릭 직후). 막히면 음소거 재시도. WebAudio _sfx 미사용.
       if (vid) {
         vid.addEventListener('ended', finish, { once:true });
-        var pp = vid.play(); if (pp && pp.catch) pp.catch(function(){ setTimeout(finish, 800); });
+        var pp = vid.play();
+        if (pp && pp.catch) pp.catch(function(){ try{ vid.muted=true; var pp2=vid.play(); if(pp2&&pp2.catch) pp2.catch(function(){ setTimeout(finish,800); }); }catch(_){ setTimeout(finish,800); } });
       }
-      try { _sfx.crateCharge(); } catch(_){}
-      setTimeout(finish, 5000); // 최대 5초 자동 진행
+      setTimeout(finish, 8200); // Veo 인트로 8s 완주 (탭/SKIP 시 즉시)
     } catch(_) { resolve(); }
   });
 }
