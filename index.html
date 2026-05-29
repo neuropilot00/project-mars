@@ -32527,7 +32527,10 @@ _starshipImg.src = '/assets/textures/rocket_drop.svg';
 _starshipImg.onerror = function(){ _starshipImg.src = '/assets/textures/starship.png'; };
 
 function _drawRocketOverlay(ctx, w, h) {
-  if (!_rocketData.events.length) return;
+  // [v7.265 fix] API 502/미로드 시 _rocketData.events 가 undefined 일 수 있음 → undefined.length 크래시 방어.
+  //   이 함수는 compositeClaimsOnTexture(globe 텍스처 합성) 중 호출되므로, 여기서 throw 하면 globe 초기화가
+  //   깨져 로딩/렌더가 꼬인다(서버 다운 시 화면 전체 영향). 안전 가드로 조용히 skip.
+  if (!_rocketData || !_rocketData.events || !_rocketData.events.length) return;
   ctx.save();
   var t = Date.now();
 
