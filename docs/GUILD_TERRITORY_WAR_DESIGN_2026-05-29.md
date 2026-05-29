@@ -224,4 +224,49 @@ Phase 1 (siege→fleet)  ← 단독 가능, 최우선, 기존 엔진 재사용
 
 ---
 
-*이 문서는 합의 완료(§9). 다음 단계는 `docs/CLAUDE_GUILD_WAR_PHASE1_IMPLEMENTATION_ORDER` 실행 지시서로 분해해 Phase 1부터 착수한다.*
+---
+
+## 13. 거버너 = 길드 소유 (Codex + 아키텍트 독립 검토 합의, 2026-05-29)
+
+사용자 결정 "거버너를 처음부터 길드가 먹게". Codex(codex-rescue) + Plan(opus) 병렬 독립 검토 결과 강하게 수렴.
+
+### 13.1 🔴 선결 — 거버넌스 테이블 이원화 해소 (가장 큰 리스크)
+코드에 **병렬 거버넌스 2개**가 존재:
+- `sectors`(정수 id): `governance.js` 픽셀 최다 **개인 자동 산정** + `routes/api.js` claim/hijack 시 호출(`recalculateGovernor`/`collectTax`).
+- `sector_governance`(sector_code): `siege.js` **공성으로만** 교체.
+
+→ **`sector_governance`를 길드 거버너 정본으로 단일화**, `sectors.governor_wallet`은 표시용 미러로 강등. 길드 거버너 존재 시 픽셀 자동산정 skip(`governor_auto_seed_enabled`는 미점령 섹터 부트스트랩만).
+
+### 13.2 확정 데이터 모델 (mig 259 적용 완료, 동작 무변경)
+- `sector_governance.governor_guild_id`(nullable, FK guilds ON DELETE SET NULL) + `governor_member_wallet`(표시용, FK 미검 — 탈퇴 내성). `governor_wallet` 유지.
+- `governor_sieges.challenger_guild_id`/`defender_guild_id`/`winner_guild_id`.
+- `guilds.sector_tax_collected`.
+- Backfill: 기존 개인 거버너 → `users.guild_id` 길드 승계(무길드면 NULL=기존 동작, 길드 생성 안 함).
+- 설정: `guild_governance_enabled`(false), `governor_auto_seed_enabled`(true), `sector_tax_to_guild_treasury`(true).
+
+### 13.3 권한·세금 (구현 시)
+- 멤버십 정본 = `guild_members(guild_id, wallet, role)` (role: leader/officer/member). `users.guild_id` = 현 소속.
+- `declareSiege`/`commitSiegeFleet`: **리더/오피서**만(현재 본인 지갑만 → 재정의). 함대는 길드 대표 함대.
+- 세금: 길드 거버너면 `guilds.gp_treasury` 적립 + `guild_treasury_ledger` 기록(인프라 존재). 자동분배 금지, 리더/오피서 출금(`withdrawTreasury` 신규, ledger 필수).
+
+### 13.4 ✅ 확정 적용 순서 (두 검토 공통 강권)
+1. **Phase 1a(개인) 플래그 ON 검증** — `siege_fleet_combat_enabled=true`로 개인 vs 개인 공성이 함대전으로 정상 해결됨을 먼저 확인. (동시 길드화 금지 — 실패 격리 불가)
+2. **mig 259** 적용(완료, 읽기 호환).
+3. **읽기 길드화** — 조회/UI에 길드명 표시(쓰기 불변).
+4. **쓰기 길드화** — declare/commit/resolve를 `governor_guild_id` 정본으로, `guild_governance_enabled` 게이트.
+5. **세금 금고 전환** + `withdrawTreasury`.
+6. 자동산정 skip 활성화.
+
+### 13.5 Codex가 Phase 1a(v7.240)에서 발견한 결함 (길드-쓰기 단계에서 수정)
+- `commitSiegeFleet` 인증이 **본인 지갑만** → 길드원/오피서 참여 불가(길드 모델에서 역할 체크로 교체).
+- `resolveSiege` 전투 종료 훅이 **해결 시점 현 거버너 재검증 안 함** → race 가능. 길드-쓰기 시 `sector_governance` 행 FOR UPDATE 잠금 추가.
+- GP 이중지불: 없음(FOR UPDATE 보호 확인).
+
+### 13.6 리스크 가드 (구현 시)
+- 길드 해체(`disbandGuild`): 트랜잭션 안에서 `sector_governance` 무주공산화(다음 공성 대기). FK ON DELETE SET NULL.
+- 탈퇴/추방: 권한 근거 = `guild_id`+role(표시용 wallet 아님). 대표 탈퇴 시 leader_wallet 재해석.
+- 금고 어뷰징: 세수 직입금 후 즉시 disband 인출 방지 — 출금 쿨다운/리더 전용/ledger 필수, disband 잔액 정책 명시.
+
+---
+
+*§9 + §13 합의 완료. mig 258(공성→함대전)·259(거버너=길드) 데이터 모델 적용됨(플래그 OFF). 다음: Phase 1a 플래그 ON 검증 → 길드 읽기/쓰기 단계.*
