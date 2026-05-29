@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.243 — 레드팀 수정: 공성 함선 전사 플래그 게이트 (full-loss footgun 차단)
+
+멀티에이전트 검토(guild-war-review 워크플로, 13 에이전트)가 확정한 high 결함 수정.
+- **[HIGH] siege full-loss 플래그 무시**: `battle_type='siege'` 전투가 `isHijackBattle=false`라 battleEngine 일반 분기로 빠져 격침함을 **무조건 영구파괴**했음. `siege_full_loss_enabled`(기본 false, "경제 재균형 전까지 OFF")는 코드에서 읽힌 적 없음 → `siege_fleet_combat_enabled`를 켜는 순간 설계 계약과 달리 전사 강제 ON 되는 footgun.
+- **수정** (`battleEngine.js` applyBattleResults): siege를 hijack처럼 loss-gated 처리. `siege_full_loss_enabled` OFF면 hijack 비전사와 동일하게 격침함 HP 15% 보존, ON일 때만 영구파괴. node --check 통과.
+- 나머지 확정 발견은 AUDIT_FINDINGS에 우선순위 기록(이원 거버넌스 테이블 세금 표류 / JOIN·관전 UI 부재 / 세금→길드금고 미배선 / 도움말 옛모델). 플래그 ON 전 선결.
+
 ## 2026-05-29 v7.242 — 길드 공성전 Phase 1b: 거버너=길드 쓰기 로직 (플래그 OFF)
 
 거버너를 길드 소유로 운용하는 쓰기 경로. `guild_governance_enabled` 기본 false → 프로덕션 무변경. Codex+아키텍트 검토 합의(§13) 반영 + Codex 지적 결함 수정. siege.js만 변경.

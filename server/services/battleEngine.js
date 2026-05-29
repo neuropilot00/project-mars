@@ -994,6 +994,12 @@ async function applyBattleResults(battleId, result) {
     // 일반 전투(AI/토너먼트 등)는 원래부터 영구파괴이므로 영향 없음.
     const hijackShipLoss = isHijackBattle &&
       String(await getSetting('hijack_ship_loss_enabled', 'false')) === 'true';
+    // [v7.243][레드팀 수정] 공성(siege) 전투도 함선 영구전사를 siege_full_loss_enabled 플래그로 게이트.
+    //   이전엔 siege 가 일반 전투 분기로 빠져 플래그(기본 false)를 무시하고 무조건 영구파괴 → 설계상
+    //   '경제 재균형 전까지 전사 OFF' 계약 위반. 플래그 OFF 면 hijack 비전사와 동일하게 HP 15% 보존.
+    const isSiegeBattle = (btRows[0].battle_type || '') === 'siege';
+    const siegeShipLoss = isSiegeBattle &&
+      String(await getSetting('siege_full_loss_enabled', 'false')) === 'true';
 
     // 1. fleet_battles 업데이트 — AND status != 'ended' 이중 UPDATE 방지 [v7.63]
     const { rowCount: battleRowCount } = await client.query(`
@@ -1059,8 +1065,9 @@ async function applyBattleResults(battleId, result) {
       : [];
     // 하이젝 전투: 기본은 함선 파괴하지 않고 HP만 감소 (min 15% of max_hp, 최소 1).
     // hijack_ship_loss_enabled=true 면 격침 함선을 영구 파괴(EVE full-loss 수요엔진).
-    if (isHijackBattle) {
-      // 하이젝 전투 — 시뮬레이션 HP 결과 반영
+    if (isHijackBattle || (isSiegeBattle && !siegeShipLoss)) {
+      // 하이젝 전투 + [v7.243] 전사 OFF 공성 — 시뮬레이션 HP 반영, 격침함은 영구파괴 대신 15% 보존.
+      //   (siege full-loss ON 이면 이 분기를 타지 않고 아래 일반 분기에서 영구파괴.)
       for (const s of finalShips) {
         const sid = parseInt(s.ship_id);
         const simHp = Math.round(parseFloat(s.current_hp) || 0);

@@ -2,6 +2,14 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🔴 길드 공성전 — 멀티에이전트 검토 확정 발견 (guild-war-review, 13에이전트, 2026-05-29)
+플래그(siege_fleet_combat_enabled / guild_governance_enabled) **ON 전 반드시 선결**. 현재 둘 다 OFF라 라이브 영향 없음.
+- **[FIXED v7.243] siege full-loss 플래그 무시** — battleEngine 일반 분기가 격침함 무조건 영구파괴. siege를 loss-gated 처리로 수정.
+- **[TODO HIGH] 거버넌스 이원 테이블 세금 표류** — resolveSiege는 sector_governance만 갱신, collectTax(`api.js:1511`)는 sectors+governance_positions 기준 징수 + recalculateGovernor(`api.js:1514`)가 픽셀로 sectors.governor_wallet 덮어씀. → 공성 승자가 세수 못 받고 픽셀로 되돌려짐. **이건 비-길드 기존 공성에도 존재(pre-existing)**. 수정: resolveSiege 트랜잭션에서 sectors/governance_positions 동기화 + recalculateGovernor가 공성 거버너 섹터 skip, 또는 collectTax를 sector_governance 정본으로 이관. (siege.js resolveSiege / governance.js collectTax·recalculateGovernor)
+- **[TODO HIGH] JOIN/로스터/관전 UI 부재** — 백엔드(commit-fleet/roster/applySiegeResult) 완성됐으나 index.html(`~35505 loadSiegeInfoPanel`)에 함대 합류 동선 없음 → fleet_id NULL → prepareSiegeBattles 미발동 → 플래그 켜도 전부 픽셀 폴백. JOIN ATTACK/DEFENSE + 로스터 + 관전(openBattleViewer(fleet_battle_id)) 추가 필요(§19 data-action).
+- **[TODO MEDIUM] 세금→길드 금고 미배선** — collectTax가 guilds.gp_treasury/sector_tax_collected(mig259 시드)를 안 씀. guild_governance ON 시 길드 세수 0. 길드 쓰기 단계에서 배선 + withdrawTreasury(리더/오피서, ledger, disband 가드).
+- **[TODO LOW] 도움말·관전 진입** — siege_info_block 4언어가 옛 픽셀 모델 안내, resolution_mode 배지 없음. 플래그 flip과 묶어 처리.
+
 ## 🟢 v7.241~v7.242 (거버너=길드 데이터모델 + 쓰기로직)
 - **v7.241 mig 259 (additive, 플래그 OFF)**: sector_governance.governor_guild_id/governor_member_wallet, governor_sieges.{challenger,defender,winner}_guild_id, guilds.sector_tax_collected + 개인거버너→길드 backfill. Codex+아키텍트 검토로 거버넌스 테이블 이원화(sectors vs sector_governance) 정본 단일화 결정(설계 §13).
 - **v7.242 길드 쓰기로직 (siege.js, guild_governance_enabled OFF)**: declareSiege 길드 리더/오피서 검증+길드 기록, resolveSiege 길드 거버너 이전 + Codex race fix(sector_governance FOR UPDATE), commitSiegeFleet 길드 임원 허용(Codex auth fix). 로컬 DB end-to-end 시뮬 PASS.
