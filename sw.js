@@ -64,7 +64,8 @@
 // 2026-05-29 v62: v7.254 수동스킬 충전 게이지 프레임 노출(클라 표시용).
 // 2026-05-29 v63: v7.255 SOV MAP — 24섹터 길드 지배 현황 모달(거버넌스 탭) + sov-map 엔드포인트.
 // 2026-05-29 v64: v7.256 주간 공성 캘린더(결전 고정 슬롯) + SOV MAP 일정 노출.
-const CACHE_NAME = 'mars-v64';
+// 2026-05-29 v65: v7.257 화성 맹주(Commander)=sov 지배 1위 길드 + SOV MAP 배너.
+const CACHE_NAME = 'mars-v65';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

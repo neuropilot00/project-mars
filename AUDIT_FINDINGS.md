@@ -2,6 +2,12 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 sov 지도 + 주간 캘린더 + 맹주 (v7.255~257, 2026-05-29)
+- **sov 지도(v7.255)**: getSovMap + /api/sector-defs/sov-map(24섹터 거버너/길드 leaderboard), 거버넌스 탭 🗺 SOV MAP 모달(티어 그리드+지배 길드).
+- **주간 공성 캘린더(v7.256)**: declareSiege가 결전 시각을 고정 슬롯(수/토 12:00 UTC)으로 스냅, /api/siege/schedule, SOV 모달 일정 칩. mig 266.
+- **맹주(v7.257)**: getSovMap commander = sov 지배 1위 길드(최소 3섹터·단독). SOV 모달 👑 배너. mig 267.
+- 🟡 남은 큰 조각: **커맨더 공성 전투**(거버너 길드들이 수도 전장에서 simulateBattleLive 다자전→승자 맹주). siege 인프라 재사용. 별도 증분.
+
 ## 🟢 실시간 수동스킬 + 1인1함대 + rate limit (v7.253, 2026-05-29)
 - 1인 1함대(#1): siege_fleet_commits UNIQUE(siege_id,wallet)+upsert로 강제(e2e 확인).
 - beam/missile 서버 권위(충전 누적/100%발동/리셋, _applySkill 데미지, 소유권). WS+route+postMessage 배선(클라 변경0, tactical-lab 기존 버튼). mig 265.

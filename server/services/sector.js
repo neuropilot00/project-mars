@@ -426,10 +426,22 @@ async function getSovMap() {
     if (!byGuild[k]) byGuild[k] = { id: k, name: s.governorGuild.name, tag: s.governorGuild.tag, emblem: s.governorGuild.emblem, count: 0, core: 0, mid: 0, frontier: 0 };
     byGuild[k].count++; byGuild[k][s.tier] = (byGuild[k][s.tier] || 0) + 1;
   }
-  const leaderboard = Object.values(byGuild).sort((a, b) => b.count - a.count);
+  // [Phase 3] 정렬: 섹터 수 → core 수 → mid 수 (동점 처리)
+  const leaderboard = Object.values(byGuild).sort((a, b) =>
+    (b.count - a.count) || ((b.core || 0) - (a.core || 0)) || ((b.mid || 0) - (a.mid || 0)));
   const total = sectors.length;
   const claimed = sectors.filter(s => s.governorGuild || s.governor).length;
-  return { sectors, leaderboard, total, claimed, vacant: total - claimed };
+  // [Phase 3] 커맨더(맹주) — sov 지배 1위 길드. 최소 점유 기준(설정) 충족 시에만. 명확한 단독 1위만 인정.
+  let commander = null;
+  try {
+    const minHold = parseInt(await getSetting('commander_min_sectors', '3')) || 3;
+    const top = leaderboard[0];
+    if (top && top.count >= minHold) {
+      const tie = leaderboard[1] && leaderboard[1].count === top.count && (leaderboard[1].core || 0) === (top.core || 0);
+      if (!tie) commander = { id: top.id, name: top.name, tag: top.tag, emblem: top.emblem, sectors: top.count, core: top.core || 0 };
+    }
+  } catch (_) {}
+  return { sectors, leaderboard, total, claimed, vacant: total - claimed, commander };
 }
 
 module.exports = {
