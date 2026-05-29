@@ -1,4 +1,4 @@
-const { pool, getSetting } = require('../db');
+const { pool, getSetting, getPPToGPRate } = require('../db');
 
 // POI type definitions
 const POI_TYPES = {
@@ -306,8 +306,8 @@ async function discoverPOI(wallet, poiId) {
         await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [15, wallet]);
       }
     } else if (poi.reward_type === 'pp') {
-      // PP reward — fund from quest_reward_pool.balance (singleton row id=1).
-      // Falls back to direct mint if the pool table/row is missing.
+      // PP-denominated reward — fund from quest_reward_pool.balance (singleton row id=1),
+      // then [경제v2 P2] pay GP at the configured PP→GP rate.
       let reward = rewardGiven.amount;
       try {
         const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
@@ -320,15 +320,19 @@ async function discoverPOI(wallet, poiId) {
           );
           reward = capped;
         } else {
-          // Pool empty — still mint the full reward (bootstrap economy)
-          console.warn('[EXPLORE] quest_reward_pool empty, minting PP directly');
+          // Pool empty — still pay the full GP-equivalent reward (bootstrap economy)
+          console.warn('[EXPLORE] quest_reward_pool empty, paying GP equivalent');
         }
       } catch (_poolErr) {
-        console.warn('[EXPLORE] quest_reward_pool missing, minting PP directly:', _poolErr.message);
+        console.warn('[EXPLORE] quest_reward_pool missing, paying GP equivalent:', _poolErr.message);
       }
       if (reward > 0) {
-        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [reward, wallet]);
+        const rewardGP = Math.round(reward * await getPPToGPRate(client) * 1000000) / 1000000;
+        // [경제v2 P2] POI PP 보상은 PP 발행 대신 가치 보존 GP로 지급.
+        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGP, wallet]);
         rewardGiven.amount = reward;
+        rewardGiven.currency = 'gp';
+        rewardGiven.gpAmount = rewardGP;
       } else {
         rewardGiven.amount = 0;
       }

@@ -23,7 +23,7 @@
 //   rocket_drop_{gp|item|xp|pp|cosmetic}_weight
 // ═══════════════════════════════════════════════════════════════
 
-const { pool, getSetting } = require('../db');
+const { pool, getSetting, getPPToGPRate } = require('../db');
 const { sendTelegramNotification } = require('./telegram');
 
 // ═══════════════════════════════════════
@@ -418,18 +418,22 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
           if (poolDeductRes.rowCount > 0) {
             reward = capped;
           } else {
-            console.warn('[ROCKET] quest_reward_pool depleted concurrently, minting PP directly');
-            // reward remains at original loot.amount (direct mint)
+            console.warn('[ROCKET] quest_reward_pool depleted concurrently, paying GP equivalent');
+            // reward remains at original loot.amount (GP-equivalent payout)
           }
         } else {
-          console.warn('[ROCKET] quest_reward_pool empty, minting PP directly');
+          console.warn('[ROCKET] quest_reward_pool empty, paying GP equivalent');
         }
       } catch (_poolErr) {
-        console.warn('[ROCKET] quest_reward_pool missing, minting PP directly:', _poolErr.message);
+        console.warn('[ROCKET] quest_reward_pool missing, paying GP equivalent:', _poolErr.message);
       }
       if (reward > 0) {
-        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [reward, wallet]);
+        const rewardGP = Math.round(reward * await getPPToGPRate(client) * 1000000) / 1000000;
+        // [경제v2 P2] 로켓 PP 룻은 PP 발행 대신 가치 보존 GP로 지급.
+        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGP, wallet]);
         rewardGiven.amount = reward;
+        rewardGiven.currency = 'gp';
+        rewardGiven.gpAmount = rewardGP;
       } else {
         rewardGiven.amount = 0;
       }

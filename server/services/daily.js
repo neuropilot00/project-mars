@@ -1,4 +1,4 @@
-const { pool, getSetting, notifyPlayer } = require('../db');
+const { pool, getSetting, getPPToGPRate, notifyPlayer } = require('../db');
 
 // Mission pool definitions
 // rewardGP is the default; admin can override via daily_mission_<type>_reward_gp setting
@@ -127,11 +127,15 @@ async function recordDailyLogin(wallet) {
       };
     }
 
+    const ppToGpRate = await getPPToGPRate(client);
+
     // Credit user balances
     if (rewardGP > 0 || rewardPP > 0) {
+      const totalRewardGP = rewardGP + Math.round(rewardPP * ppToGpRate * 1000000) / 1000000;
+      // [경제v2 P2] 일일 로그인 PP 보상분은 PP 발행 대신 GP에 합산.
       await client.query(
-        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
-        [rewardGP, rewardPP, w]
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+        [totalRewardGP, w]
       );
     }
 
@@ -150,9 +154,11 @@ async function recordDailyLogin(wallet) {
     }
 
     if (milestoneGP > 0 || milestonePP > 0) {
+      const totalMilestoneGP = milestoneGP + Math.round(milestonePP * ppToGpRate * 1000000) / 1000000;
+      // [경제v2 P2] 일일 로그인 milestone PP 보상분은 PP 발행 대신 GP에 합산.
       await client.query(
-        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)',
-        [milestoneGP, milestonePP, w]
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+        [totalMilestoneGP, w]
       );
     }
 

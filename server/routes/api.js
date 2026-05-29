@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
-const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer } = require('../db');
+const { pool, ensureUser, getSettings, getSetting, getPPToGPRate, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer } = require('../db');
 const { generateWithdrawSignature, getAvailableLiquidity, CHAINS } = require('../services/signer');
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
 let weatherService;
@@ -1334,6 +1334,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
     }
 
+    // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 공격비용 PP↔환불/보너스 PP 균형, redeemable 미적립.
     // Credit hijacked owners (PP refund + bonus) — parallel
     const ownerCredits = Object.entries(affectedOwners).map(([owner, amounts]) =>
       client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
@@ -1461,6 +1462,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     const rankUp = await awardXP(client, walletLower, totalXP);
     await fundQuestPool(client, baseCost);
     if (refundFromFailed > 0) {
+      // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 공격 실패 환불은 소비한 PP의 균형 항목.
       await client.query(
         'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [refundFromFailed, walletLower]
@@ -1489,6 +1491,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
           const reward = Math.round(commissionPool * (pct / 100) * 1000000) / 1000000;
           if (reward <= 0) continue;
 
+          // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 하이잭 프리미엄 분배는 해당 PP 비용 내부에서만 발생.
           await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [reward, ref.wallet]);
           await client.query(
             `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type, trigger_tx_id)
@@ -3345,10 +3348,13 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
         today_date = $3
     `, [w, harvestedPP, todayDate]);
 
-    // Credit PP to user
+    const ppToGpRate = await getPPToGPRate(client);
+    const harvestedGP = Math.round(harvestedPP * ppToGpRate * 1000000) / 1000000;
+
+    // [경제v2 P2] 채굴 수확은 PP 발행 대신 가치 보존 GP로 지급.
     await client.query(
-      'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
-      [harvestedPP, w]
+      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+      [harvestedGP, w]
     );
 
     // ── Guild harvest contribution (auto-siphon into guild treasury) ──
@@ -3358,9 +3364,10 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
         const gr = await guildService.contributeHarvest(client, w, harvestedPP);
         if (gr.contributed > 0) {
           // Move the contribution out of user balance
+          const guildContribGP = Math.round((gr.gpCredit || (gr.contributed * ppToGpRate)) * 1000000) / 1000000;
           const deductGuildContrib = await client.query(
-            'UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1',
-            [gr.contributed, w]
+            'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1',
+            [guildContribGP, w]
           );
           if (deductGuildContrib.rowCount === 0) {
             await client.query('ROLLBACK');
@@ -3397,15 +3404,15 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
        VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100, guildContrib, resourceDrops })]
+      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100, guildContrib, resourceDrops })]
     );
 
     // Award XP for harvesting (5 XP per harvest)
     const harvestRankUp = await awardXP(client, w, 5);
 
-    // Referral commission — uplines get small PP cut from each harvest
+    // Referral commission — [경제v2 P2] harvest referral also pays GP, not PP.
     try {
-      await creditReferralCommission(client, w, 'harvest', harvestedPP, 'pp');
+      await creditReferralCommission(client, w, 'harvest', harvestedGP, 'gp');
     } catch (_e) { /* non-critical */ }
 
     await client.query('COMMIT');
@@ -3660,8 +3667,11 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
         today_date = $3
     `, [w, harvestedPP, todayDate]);
 
-    // PP 지급
-    await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [harvestedPP, w]);
+    const ppToGpRate = await getPPToGPRate(client);
+    const harvestedGP = Math.round(harvestedPP * ppToGpRate * 1000000) / 1000000;
+
+    // [경제v2 P2] 즉시 수확은 PP 발행 대신 가치 보존 GP로 지급.
+    await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [harvestedGP, w]);
 
     // 자원 드롭
     let resourceDrops = [];
@@ -3681,11 +3691,12 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     // 트랜잭션 로그
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ claimId, totalPixels, tier, pixelFactor: Math.round(pixelFactor*100)/100, resourceDrops })]
+      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, pixelFactor: Math.round(pixelFactor*100)/100, resourceDrops })]
     );
 
     await awardXP(client, w, 5).catch(() => {});
-    try { await creditReferralCommission(client, w, 'harvest', harvestedPP, 'pp'); } catch (_) {}
+    // [경제v2 P2] harvest referral also pays GP, not PP.
+    try { await creditReferralCommission(client, w, 'harvest', harvestedGP, 'gp'); } catch (_) {}
 
     await client.query('COMMIT');
 
@@ -4038,10 +4049,13 @@ router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => 
       return res.status(429).json({ error: 'Quest reward pool depleted. Try again later.' });
     }
 
-    // Credit PP to user
+    const ppToGpRate = await getPPToGPRate(client);
+    const actualRewardGP = Math.round(actualReward * ppToGpRate * 1000000) / 1000000;
+
+    // [경제v2 P2] 퀘스트 보상은 PP 발행 대신 가치 보존 GP로 지급.
     await client.query(
-      'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
-      [actualReward, w]
+      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+      [actualRewardGP, w]
     );
 
     // Mark claimed
@@ -4055,6 +4069,7 @@ router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => 
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
        VALUES ('quest', $1, $2, 0, $3)`,
       [w, actualReward, JSON.stringify({
+        currency: 'gp', gp_amount: actualRewardGP, pp_equivalent: actualReward,
         quest_id: questId, tier: quest.tier, title: quest.title,
         base_reward: baseReward, multiplier, pool_balance: poolBalance
       })]
@@ -8341,7 +8356,7 @@ router.get('/activity/feed', async (req, res) => {
       safeQuery(
         `SELECT 'build' AS type,
             COALESCE(u.nickname, LEFT(s.owner_wallet, 8)) AS actor,
-            st.name AS target,
+            COALESCE(st.name_ko, s.ship_type_code) AS target,
             NULL AS meta,
             s.built_at AS created_at
          FROM ships s

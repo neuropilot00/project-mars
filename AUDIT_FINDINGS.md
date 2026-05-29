@@ -2,6 +2,12 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 무료 PP→GP 전환(경제v2 P2) + activity/feed 버그 + 로켓 가드 (v7.266, 2026-05-30)
+- ✅ [경제v2 P2] 무료 PP faucet 12파일 전부 GP로(값보존 ×환율). PP=입금 발행 전용. 하이잭 land-PvP는 PP 유지. governance 바운티 GP→PP 발행 제거(누수 차단). 마이그 없음. Codex 구현, 내가 검수(구문/헬퍼/모듈로드/잔여 0/부팅200).
+- ✅ [FIX] /activity/feed `st.name`(ship_types엔 name_ko만) → COALESCE(name_ko, code). 함선 건조 이벤트 피드 누락 복구. 비치명.
+- ✅ [FIX] _drawRocketOverlay undefined.length 가드(API 502 시 globe 합성 크래시 방지).
+- 🟡 후속: P3 프론트 경매 통화 UI, 함선 PP 거래(ship_market_listings GP전용), P5 함선 F2P 엔진.
+
 ## 🔴→🟢 CRITICAL: 네비 data-action 디스패처 누락 = 전 진입 버튼 무반응 (v7.264, 2026-05-30)
 - ✅ [CRITICAL] col-fab/상단바/모바일 네비 버튼이 v7.215에서 inline onclick→data-action 마이그됐으나 위임 디스패처 미추가 → 모든 진입 버튼(MY LAND/CANTINA/CLAIM/ITEMS/BASE/로그인/포트폴리오) 클릭 무반응. 브라우저 재현으로 "7개 click → 함수 0 호출" 확인.
 - ✅ 수정: 무인자 네비/UI 액션 24종 화이트리스트 위임 디스패처 추가(인자형은 기존 디스패처가 처리 → 무충돌). 재현 후 7/7 함수 호출 확인. SW v70.

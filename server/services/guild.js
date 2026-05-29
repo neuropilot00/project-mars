@@ -935,7 +935,8 @@ async function contributeHarvest(client, wallet, grossPP) {
     const ppCut = Math.round(grossPP * pct / 100 * 1000000) / 1000000;
     if (ppCut <= 0) return { contributed: 0, remaining: grossPP };
 
-    // Convert PP contribution to GP (rate from settings, default 100)
+    // [경제v2 P2] 채굴 보상은 GP로 지급되므로 길드 기여도 동일 환율의 GP로 차감/적립.
+    // Convert PP contribution to GP (rate from settings, default 10)
     const ppToGpRate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '10');
     const gpCredit = Math.floor(ppCut * ppToGpRate);
     if (gpCredit <= 0) return { contributed: 0, remaining: grossPP };
@@ -957,7 +958,7 @@ async function contributeHarvest(client, wallet, grossPP) {
        WHERE guild_id = $2 AND wallet = $3`,
       [ppCut, guild_id, wallet]
     );
-    return { contributed: ppCut, remaining: grossPP - ppCut, guildId: guild_id };
+    return { contributed: ppCut, gpCredit, remaining: grossPP - ppCut, guildId: guild_id };
   } catch (e) {
     console.warn('[GUILD] contributeHarvest failed:', e.message);
     return { contributed: 0, remaining: grossPP };

@@ -214,6 +214,7 @@ async function handlePhase1Complete(phase1BattleId) {
       // declare-with-pp 방식이면 90% 환불
       if (hijack.pending_pixels && parseFloat(hijack.attack_cost || 0) > 0) {
         const refund90 = Math.round(parseFloat(hijack.attack_cost) * 0.9 * 1000000) / 1000000;
+        // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 선언 공격 실패 환불.
         await client.query(
           `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
           [refund90, hijack.attacker_wallet]
@@ -402,6 +403,7 @@ async function handlePhase2Complete(phase2BattleId) {
         }
         for (const [owner, credit] of Object.entries(ownerCredits)) {
           if (credit > 0) {
+            // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 공격비용 PP 내부 수비자 보상.
             await client.query(
               `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
               [Math.round(credit * 1000000) / 1000000, owner]
@@ -455,6 +457,7 @@ async function handlePhase2Complete(phase2BattleId) {
       const attackCost = parseFloat(hijack.attack_cost || 0);
       if (attackCost > 0) {
         const refund90 = Math.round(attackCost * 0.9 * 1000000) / 1000000;
+        // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 수비 승리 시 공격비용 PP 환불.
         await client.query(
           `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
           [refund90, hijack.attacker_wallet]
@@ -646,6 +649,7 @@ async function declareHijackWithPP(params) {
         for (const [owner, amounts] of Object.entries(affected_owners || {})) {
           const credit = (amounts.refund || 0) + (amounts.bonus || 0);
           if (credit > 0) {
+            // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 자동승리 수비자 보상은 공격비용 내부 분배.
             await client.query(
               `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
               [credit, owner]

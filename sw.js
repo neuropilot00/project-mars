@@ -70,7 +70,8 @@
 // 2026-05-29 v68: v7.262 경제정책 — 페그 문구 제거 + redeemable_pp 게이팅 + 환매 한도/대시보드.
 // 2026-05-30 v69: v7.263 핫픽스 — 로딩 오버레이 하드 안전장치 + SW 강제 reload 제거(더블로드).
 // 2026-05-30 v70: v7.264 CRITICAL — 네비 data-action 위임 디스패처 누락 복구(모든 진입 버튼 클릭 무반응 수정).
-const CACHE_NAME = 'mars-v70';
+// 2026-05-30 v71: v7.266 무료 PP→GP 전환(P2, Codex) + activity/feed st.name 컬럼 버그 수정 + 로켓 오버레이 가드.
+const CACHE_NAME = 'mars-v71';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

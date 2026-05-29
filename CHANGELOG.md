@@ -1,3 +1,16 @@
+## 2026-05-30 v7.266 — 무료 PP→GP 전환(경제v2 P2, Codex) + activity/feed 버그 + 로켓 가드
+
+- **[경제v2 P2] 무료 PP faucet 전부 GP로 전환** (Codex 구현 + 검수). PP는 입금(chain.js)에서만 발행. 무료 보상은 `settings.pp_to_gp_exchange_rate`(기본 10) 배 GP로 가치 보존.
+  · 전환: 가입/추천가입 보너스(auth.js), 레벨업(db.js), 채굴 수확·즉시수확·퀘스트(api.js), 미션 보상/환불(missions.js), POI 탐사(exploration.js), 온보딩(onboarding.js), 일일 로그인·마일스톤(daily.js), 로켓 룻(rocket.js), 시즌패스 reward_type='pp'(season.js).
+  · 유지(PP): 입금 보너스(chain.js). **하이잭 land-PvP 닫힌 루프(공격비용↔환불/보너스 PP 균형) — PP 유지**(받은 PP는 redeemable 미적립이라 비환매).
+  · **governance 바운티 GP→PP 발행 제거**(GP 보상 유지) — 미담보 PP 발행 누수 차단.
+  · guild 기여도 차감도 GP로 일치. 신규 헬퍼 `db.getPPToGPRate(client)`.
+  · **마이그레이션 없음**(순수 코드) → 부팅 리스크 낮음.
+  · 검수: node --check 12파일 + getPPToGPRate()=10 + 모듈 로드 + 잔여 무료 PP 발행 0 + 서버 부팅 200 확인.
+- **[FIX] /activity/feed 쿼리 `st.name` 컬럼 없음** → `COALESCE(st.name_ko, s.ship_type_code)`. 함선 건조 이벤트가 피드에서 누락되던 비치명 버그(로그 `column st.name does not exist`).
+- **[FIX] _drawRocketOverlay undefined.length 가드** — API 미로드/502 시 globe 텍스처 합성 중 크래시 방지.
+- SW v70→v71.
+
 ## 2026-05-30 v7.264 — CRITICAL: 네비 data-action 디스패처 누락 → 전 진입 버튼 무반응 복구
 
 **진짜 원인 확정**(브라우저 재현). v7.263 오버레이 가설은 headless 한정 artifact였고, 실제 원인은 별개.

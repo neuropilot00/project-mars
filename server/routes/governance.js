@@ -386,10 +386,10 @@ router.post('/commander/bounty', requireAuth, writeLimiter, async (req, res) => 
       return res.status(400).json({ error: 'Insufficient GP (concurrent modification)' });
     }
 
-    // Convert GP to PP reward for the bounty hunter (1:1)
+    // [경제v2 P2] 바운티는 GP 예치 그대로 GP 보상으로 유지하고 PP 전환 발행을 제거.
     await client.query(
       `INSERT INTO bounties (placed_by, target_wallet, gp_reward, pp_reward, reason, expires_at)
-       VALUES ($1, $2, $3, $3, $4, NOW() + INTERVAL '7 days')`,
+       VALUES ($1, $2, $3, 0, $4, NOW() + INTERVAL '7 days')`,
       [wallet.toLowerCase(), resolvedTarget.toLowerCase(), amount, (reason || '').slice(0, 200)]
     );
 
@@ -400,7 +400,7 @@ router.post('/commander/bounty', requireAuth, writeLimiter, async (req, res) => 
     );
 
     await client.query('COMMIT');
-    res.json({ success: true, target: resolvedTarget, nickname: targetNickname || null, gpSpent: amount, ppReward: amount });
+    res.json({ success: true, target: resolvedTarget, nickname: targetNickname || null, gpSpent: amount, gpReward: amount, ppReward: 0 });
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[GOV] bounty error:', e.message);
@@ -416,8 +416,8 @@ router.post('/commander/bounty', requireAuth, writeLimiter, async (req, res) => 
 router.get('/bounties', readLimiter, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, placed_by, target_wallet, pp_reward, reason, expires_at, created_at
-       FROM bounties WHERE status = 'active' ORDER BY pp_reward DESC`
+      `SELECT id, placed_by, target_wallet, gp_reward, pp_reward, reason, expires_at, created_at
+       FROM bounties WHERE status = 'active' ORDER BY gp_reward DESC`
     );
     res.json(result.rows);
   } catch (e) {

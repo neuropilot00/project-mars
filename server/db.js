@@ -6,6 +6,7 @@
  *   pool                    — pg.Pool 인스턴스 (직접 query 사용 가능)
  *   initDB()                — 서버 시작 시 1회 호출, 마이그레이션 + 기본 테이블 생성
  *   getSetting(key, fallback) — settings 테이블에서 값 조회 (fallback=기본값)
+ *   getPPToGPRate(client)     — settings.pp_to_gp_exchange_rate 조회 (기본 10)
  *   getSettings()           — settings 테이블 전체 반환 { key: value }
  *   ensureUser(client, wallet) — 지갑이 없으면 users 테이블에 자동 생성
  *   generateReferralCode()  — 유니크 추천인 코드 생성
@@ -387,6 +388,23 @@ async function getSetting(key, fallback) {
   }
 }
 
+// ── Helper: PP-denominated rewards convert to GP at admin exchange rate ──
+async function getPPToGPRate(client = pool) {
+  // [경제v2 P2] 무료 PP 지급 제거: 기존 PP 보상액은 settings.pp_to_gp_exchange_rate 배 GP로 보존한다.
+  try {
+    const res = await client.query(`SELECT value #>> '{}' AS v FROM settings WHERE key = $1`, ['pp_to_gp_exchange_rate']);
+    const rate = parseFloat(res.rows[0]?.v ?? '10');
+    if (rate > 0 && isFinite(rate)) return rate;
+  } catch (_) {
+    try {
+      const res2 = await client.query('SELECT value FROM settings WHERE key = $1', ['pp_to_gp_exchange_rate']);
+      const rate2 = parseFloat(res2.rows[0]?.value ?? '10');
+      if (rate2 > 0 && isFinite(rate2)) return rate2;
+    } catch (__) {}
+  }
+  return 10;
+}
+
 // ── Helper: get active events ──
 async function getActiveEvents() {
   const res = await pool.query(
@@ -445,12 +463,15 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
     const chain = await getReferralChain(client, fromWallet.toLowerCase());
     if (!chain.length) return [];
 
-    const cur = (currency || 'pp').toLowerCase();
+    const requestedCur = (currency || 'pp').toLowerCase();
+    // [경제v2 P2] PP 발행은 chain.js 입금 경로만 허용. 그 외 PP-denominated referral은 GP로 환산 지급.
+    const cur = requestedCur === 'pp' && triggerType !== 'deposit' && triggerType !== 'hijack' ? 'gp' : requestedCur;
     // ✅ Fix (Migration 099): correctly map currency to the right balance column
     const balCol = cur === 'usdt' ? 'usdt_balance' : cur === 'gp' ? 'gp_balance' : 'pp_balance';
 
     // Pool that the tree shares for this event
-    const commissionPool = baseAmount * (triggerPct / 100);
+    const commissionBase = cur === 'gp' && requestedCur === 'pp' ? baseAmount * await getPPToGPRate(client) : baseAmount;
+    const commissionPool = commissionBase * (triggerPct / 100);
     // [v7.190 fix] tier 합계가 100 초과해도 pool 초과 분배 차단 — 누적 trackingPool 로 cap.
     //   기존엔 각 tier 가 independently pool*(pct/100) → t1+t2+t3>100 시 pool 초과 mint.
     let poolRemaining = commissionPool;
@@ -646,11 +667,13 @@ async function awardXP(client, wallet, xpAmount) {
   if (newLevel > rank_level) {
     await client.query('UPDATE users SET rank_level = $1 WHERE LOWER(wallet_address) = LOWER($2)', [newLevel, wallet]);
     if (totalRewardPp > 0) {
-      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [totalRewardPp, wallet]);
+      const rewardGP = Math.round(totalRewardPp * await getPPToGPRate(client) * 1000000) / 1000000;
+      // [경제v2 P2] 레벨업 reward_pp는 PP 발행 대신 가치 보존 GP로 지급.
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGP, wallet]);
     }
     // 🔔 레벨업 알림
     notifyPlayer(wallet, 'rank_up',
-      `🎖 레벨 ${newLevel} 달성! ${newRankName ? '「' + newRankName + '」' : ''}${totalRewardPp > 0 ? ' +' + totalRewardPp + ' PP 보상 지급' : ''}`,
+      `🎖 레벨 ${newLevel} 달성! ${newRankName ? '「' + newRankName + '」' : ''}${totalRewardPp > 0 ? ' +' + totalRewardPp + ' PP 상당 GP 보상 지급' : ''}`,
       { newLevel, name: newRankName, rewardPp: totalRewardPp }
     ).catch(() => {});
     return { newLevel, name: newRankName, rewardPp: totalRewardPp, blockedAt };
@@ -713,4 +736,4 @@ async function notifyPlayer(wallet, type, message, metadata = {}) {
   }
 }
 
-module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer, logGPActivity };
+module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getPPToGPRate, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer, logGPActivity };

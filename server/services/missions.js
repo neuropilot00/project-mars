@@ -16,7 +16,7 @@
 //  also sourced from settings.
 // ════════════════════════════════════════════════════════════════
 
-const { pool, getSetting, ensureUser, creditReferralCommission, awardXP } = require('../db');
+const { pool, getSetting, getPPToGPRate, ensureUser, creditReferralCommission, awardXP } = require('../db');
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -1024,7 +1024,7 @@ async function claimMission(wallet, missionId, minigameScore) {
 
     // ── PP + GP credit
     if ((reward.pp || 0) > 0) {
-      // PP rewards come from the quest reward pool where possible
+      // [경제v2 P2] PP-denominated rewards come from the quest reward pool where possible, then pay GP.
       let ppPayout = parseFloat(reward.pp);
       try {
         const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
@@ -1044,11 +1044,15 @@ async function claimMission(wallet, missionId, minigameScore) {
         }
       } catch (_e) { /* pool missing, fall through and mint */ }
       if (ppPayout > 0) {
+        const gpPayout = Math.round(ppPayout * await getPPToGPRate(client) * 1000000) / 1000000;
+        // [경제v2 P2] 미션 PP 보상은 PP 발행 대신 가치 보존 GP로 지급.
         await client.query(
-          'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
-          [ppPayout, wallet]
+          'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+          [gpPayout, wallet]
         );
         reward.pp = ppPayout;
+        reward.ppAsGp = gpPayout;
+        reward.currency = 'gp';
       }
     }
     if ((reward.gp || 0) > 0) {
@@ -1084,10 +1088,11 @@ async function claimMission(wallet, missionId, minigameScore) {
       catch (_e) { /* non-critical */ }
     }
 
-    // ── Referral commission on PP paid out (missions count as earn events)
+    // ── Referral commission on PP-equivalent paid out (missions count as earn events)
     if ((reward.pp || 0) > 0) {
       try {
-        await creditReferralCommission(client, wallet, 'harvest', reward.pp, 'pp');
+        // [경제v2 P2] 미션 referral도 GP로 지급.
+        await creditReferralCommission(client, wallet, 'harvest', reward.ppAsGp || 0, 'gp');
       } catch (_e) { /* non-critical */ }
     }
 
@@ -1177,9 +1182,11 @@ async function cancelMission(wallet, missionId) {
     const refundPct = parseInt(await getSetting('mission_invade_fail_refund_pct') || '30');
     const refund = Math.round(parseFloat(m.launch_cost_pp) * refundPct / 100 * 1000000) / 1000000;
     if (refund > 0) {
+      const refundGP = Math.round(refund * await getPPToGPRate(client) * 1000000) / 1000000;
+      // [경제v2 P2] 미션 취소 환불은 PP 발행 대신 가치 보존 GP로 지급.
       await client.query(
-        'UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
-        [refund, wallet]
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+        [refundGP, wallet]
       );
     }
     await client.query(

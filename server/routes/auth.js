@@ -6,7 +6,7 @@ const BCRYPT_COST = 12;
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
-const { pool, ensureUser, generateReferralCode } = require('../db');
+const { pool, ensureUser, generateReferralCode, getPPToGPRate } = require('../db');
 const { sendResetCode, isSmtpConfigured } = require('../services/email');
 
 const router = express.Router();
@@ -261,15 +261,17 @@ router.post('/register', authLimiter, async (req, res) => {
       } catch (e) { console.warn('[Auth] verification email error:', e.message); }
     }
 
-    // Gift PP bonus to new users (configurable via admin settings)
+    // Gift signup bonus to new users (configurable via admin settings)
     const bonusRes = await client.query("SELECT value FROM settings WHERE key = 'signup_pp_bonus'");
     const signupBonus = bonusRes.rows.length ? Number(bonusRes.rows[0].value) : 0;
     if (signupBonus > 0) {
+      const signupBonusGP = Math.round(signupBonus * await getPPToGPRate(client) * 1000000) / 1000000;
+      // [경제v2 P2] 신규가입 보너스는 PP 발행 대신 가치 보존 GP로 지급.
       await client.query(
-        `UPDATE users SET pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
-        [walletAddress, signupBonus]
+        `UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
+        [walletAddress, signupBonusGP]
       );
-      console.log(`[Auth] Gifted ${signupBonus} PP to new user ${walletAddress}`);
+      console.log(`[Auth] Gifted ${signupBonusGP} GP (${signupBonus} PP equivalent) to new user ${walletAddress}`);
     }
 
     // 양면 추천 보상(invitee side): 추천 코드로 가입한 신규 유저에게 추가 PP 보너스.
@@ -297,11 +299,13 @@ router.post('/register', authLimiter, async (req, res) => {
         const refBonusRes = await client.query("SELECT value FROM settings WHERE key = 'referral_signup_bonus_pp'");
         const refBonus = refBonusRes.rows.length ? Number(refBonusRes.rows[0].value) : 0;
         if (refBonus > 0) {
+          const refBonusGP = Math.round(refBonus * await getPPToGPRate(client) * 1000000) / 1000000;
+          // [경제v2 P2] 추천 가입 보너스는 PP 발행 대신 가치 보존 GP로 지급.
           await client.query(
-            `UPDATE users SET pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
-            [walletAddress, refBonus]
+            `UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
+            [walletAddress, refBonusGP]
           );
-          console.log(`[Auth] Referred-signup bonus ${refBonus} PP to ${walletAddress} (ref by ${referredBy})`);
+          console.log(`[Auth] Referred-signup bonus ${refBonusGP} GP (${refBonus} PP equivalent) to ${walletAddress} (ref by ${referredBy})`);
         }
       }
     }

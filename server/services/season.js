@@ -1,4 +1,4 @@
-const { pool, getSetting } = require('../db');
+const { pool, getSetting, getPPToGPRate } = require('../db');
 
 // All possible season ranking categories (18+)
 // Each season picks 6 from this list via active_categories
@@ -383,9 +383,11 @@ async function claimSeasonReward(wallet, rewardId) {
     let rewardLabel = '';
 
     if (reward.reward_type === 'pp') {
-      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
-        [reward.reward_amount, wallet]);
-      rewardLabel = reward.reward_amount + ' PP';
+      const rewardGP = Math.round(parseFloat(reward.reward_amount) * await getPPToGPRate(client) * 1000000) / 1000000;
+      // [경제v2 P2] 시즌 reward_type='pp' 보상은 PP 발행 대신 가치 보존 GP로 지급.
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+        [rewardGP, wallet]);
+      rewardLabel = reward.reward_amount + ' PP equivalent (' + rewardGP + ' GP)';
     } else if (reward.reward_type === 'gp') {
       await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [reward.reward_amount, wallet]);
@@ -667,8 +669,10 @@ async function claimPassTier(wallet, tier, isPremium) {
     // Give reward
     let label = '';
     if (t.reward_type === 'pp') {
-      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [t.reward_amount, wallet]);
-      label = t.reward_amount + ' PP';
+      const rewardGP = Math.round(parseFloat(t.reward_amount) * await getPPToGPRate(client) * 1000000) / 1000000;
+      // [경제v2 P2] 시즌패스 reward_type='pp' 보상은 PP 발행 대신 가치 보존 GP로 지급.
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGP, wallet]);
+      label = t.reward_amount + ' PP equivalent (' + rewardGP + ' GP)';
     } else if (t.reward_type === 'gp') {
       await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [t.reward_amount, wallet]);
       label = t.reward_amount + ' GP';

@@ -11,7 +11,7 @@
 //   STEP 5: 첫 미션 + 완료 보상
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getPPToGPRate } = require('../db');
 let titleExt; try { titleExt = require('./titleExtended'); } catch (_) {}
 
 // ─── 온보딩 상태 조회 ───
@@ -129,12 +129,14 @@ async function completeStep(walletAddress, step, data = {}) {
 
           if (!onboarding.pp_rewarded) {
             const ppReward = await getSettingFloat(client, 'onboarding_pp_reward', 0.5);
+            const gpReward = Math.round(ppReward * await getPPToGPRate(client) * 1000000) / 1000000;
+            // [경제v2 P2] 온보딩 PP 보상은 PP 발행 대신 가치 보존 GP로 지급.
             await client.query(
-              `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-              [ppReward, walletAddress]
+              `UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+              [gpReward, walletAddress]
             );
             updates.pp_rewarded = true;
-            rewards.push({ type: 'pp', amount: ppReward });
+            rewards.push({ type: 'gp', amount: gpReward, ppEquivalent: ppReward });
           }
         }
       }
@@ -144,15 +146,17 @@ async function completeStep(walletAddress, step, data = {}) {
       // STEP 2: 첫 영토 점령 완료
       updates.tutorial_claim_id = data.claim_id;
 
-      // PP 보상 지급
+      // [경제v2 P2] PP-denominated 보상은 GP로 지급.
       if (!onboarding.pp_rewarded) {
         const ppReward = await getSettingFloat(client, 'onboarding_pp_reward', 0.5);
+        const gpReward = Math.round(ppReward * await getPPToGPRate(client) * 1000000) / 1000000;
+        // [경제v2 P2] 온보딩 PP 보상은 PP 발행 대신 가치 보존 GP로 지급.
         await client.query(
-          `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-          [ppReward, walletAddress]
+          `UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+          [gpReward, walletAddress]
         );
         updates.pp_rewarded = true;
-        rewards.push({ type: 'pp', amount: ppReward });
+        rewards.push({ type: 'gp', amount: gpReward, ppEquivalent: ppReward });
       }
     }
 
