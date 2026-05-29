@@ -2,6 +2,13 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 길드 공성전 라이브 활성화 완료 (v7.246~248, 2026-05-29)
+유저 부재 시점에 전 기능 ON (mig 261). guild-war-golive 워크플로(15에이전트) 확정 8건 처리.
+- ✅ 세금→길드 금고(collectTax) + withdrawTreasury + disband 금고 정산(소각 방지, disbandCleanup 공통 헬퍼, admin force-disband 포함) + collectTax NULL sector_id 하드닝 + mig 262 sector_id UNIQUE.
+- ✅ 라이브 UX: 합류 full-loss 경고 + 무손실 점유율 대안 안내 + resolution_mode 배지.
+- 🟡 남은 폴ish(비차단, LOW): 공성 패널 지오 섹터명/티어 표시(sector.js getSectorGovernance에 name/tier/sector_id 추가 필요), 세수→길드금고 가시화 라인(GOVERNOR CONTROLS + 길드 모달 ledger 뷰), 비거버너에 '거버너 길드가 세금 X% 수취' 안내.
+- 🟡 후속 설계(retention, 비차단): full-loss 전력차 캡/부분손실/첫공성 보험 토큰(워크플로 UX #8 ③④), Phase 2 N-side 난전 엔진, 커맨더 공성, sov 지도/주간 캘린더.
+
 ## 🔴🔴 [ROOT CAUSE] 섹터 시스템이 두 개의 분리된 우주 (2026-05-29 배포검증 중 발견)
 워크플로의 "이원 테이블 표류"보다 더 깊은 근본 원인. **공성 시스템과 픽셀/세금 시스템이 서로 다른 24섹터 집합이며 매핑이 없다.**
 - **`sectors`** (24): name="Vastitas Borealis" 등 실제 화성 지명, 지오 경계, tier. governance.js/collectTax/recalculateGovernor + 픽셀 클레임(findSectorForPixelSync는 sectors.id 반환)이 사용 = **라이브 세금/거버너**.
