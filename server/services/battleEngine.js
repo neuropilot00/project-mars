@@ -1007,6 +1007,9 @@ function captureFrame(state, tick) {
       maxHp: f.maxHp,
       side: f.side,
       dead: f.dead,
+      // [Phase 3] 라이브 수동스킬 충전(0~100) — precompute 경로엔 undefined→0
+      beamCharge: Math.round(f.beamCharge || 0),
+      missileCharge: Math.round(f.missileCharge || 0),
     })),
     ships: state.fleets.flatMap(f =>
       f.ships.filter(s => s.isAlive).map(s => ({
