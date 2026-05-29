@@ -5596,6 +5596,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .onboarding-hint button:hover{background:rgba(255,120,60,.22);}
 .onboarding-hint button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.55);}
 @media(max-width:600px){.onboarding-hint{bottom:78px;align-items:flex-start;flex-direction:column}.onboarding-hint__actions{width:100%}.onboarding-hint button{flex:1}}
+/* [v7.223] 로딩 배경 영상 — 가로 영상이라 데스크탑만. 모바일은 숨기고 기존 이미지 폴백(세로 영상 별도 예정). */
+@media(max-width:768px){ #loadVideo{display:none!important} }
 </style>
 </head>
 <body>
@@ -5605,6 +5607,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
      백업 정책: 신규 폴더 assets/loading/ — 기존 텍스트 전용 화면이 폴백으로 항상 동작. -->
 <div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s;overflow:hidden">
   <div id="loadBg" style="position:absolute;inset:0;background:#0D0B14;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease"></div>
+  <!-- [v7.223] 로딩 배경 영상 (데스크탑 가로). 이미지(loadBg)가 즉시 poster 역할 → 영상 준비되면 위에 fade-in.
+       모바일은 CSS 로 숨김(세로 영상 별도 예정). muted/loop/playsinline = 자동재생 정책 충족. -->
+  <video id="loadVideo" muted loop playsinline preload="auto"
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;pointer-events:none">
+    <source src="/assets/loading/load_loop.mp4" type="video/mp4">
+  </video>
   <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,11,20,.55) 0%,rgba(13,11,20,.85) 70%,rgba(13,11,20,.95) 100%);pointer-events:none"></div>
   <div style="position:relative;font-family:var(--fn);font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
   <div id="loadQuote" style="position:relative;font-family:var(--fn);font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
@@ -5622,6 +5630,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       if (bg) { bg.style.backgroundImage = 'url("/assets/loading/load_'+pad+'.jpg")'; bg.style.opacity = '0.55'; }
     };
     img.src = '/assets/loading/load_'+pad+'.jpg';
+    // [v7.223] 로딩 배경 영상 — 데스크탑(가로)만. 준비되면 fade-in. 실패/모바일이면 이미지 유지.
+    var vid = document.getElementById('loadVideo');
+    if (vid && window.innerWidth > 768) {
+      vid.addEventListener('canplay', function(){ vid.style.opacity = '0.6'; }, { once:true });
+      // 자동재생 시도 — 차단되면 이미지 폴백 유지 (조용히).
+      var pp = vid.play(); if (pp && pp.catch) pp.catch(function(){});
+    }
   } catch(_) {}
 })();
 </script>
