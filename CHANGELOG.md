@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.244 — 공성 결전 함대 합류/로스터/관전 UI (B)
+
+워크플로 #4(CRITICAL) 해소: 백엔드(commit-fleet/roster/applySiegeResult)는 완성됐으나 프론트에 함대 합류 동선이 없어 플래그 켜도 전부 픽셀 폴백이던 문제. **siege 우주 안에서 자족적이라 섹터 통합(A)과 무관하게 안전.**
+- 공성 패널(`loadSiegeInfoPanel`)에 결전 함대 패널 async 로드(`_loadSiegeFleetPanel`): `GET /api/siege/:id/roster`로 양측 함대 커밋 상태(공격/수비 미배치/✓) + resolution_mode 배지(⚔함대전/◌무혈판정) 표시.
+- **JOIN 공격/수비**: 내 함대 select(함선 보유분만) → `POST /api/siege/:id/commit-fleet`. 6개 에러코드 한국어화. 커밋 후 패널 갱신.
+- **관전**: 결전 전투 생성 시(`fleet_battle_id` + active) `👁 관전` → 기존 `openBattleViewer(battleId)` 재사용.
+- §19 준수: inline onclick 금지, data-action + delegated listener + in-flight 가드 + `[BTN]` 로그. 인라인 스크립트 11종 node 파싱 통과, onclick 훅 통과. SW v56→v57.
+- 다음(A): 섹터 이원 우주 통합(지오 정본) — 별도 큰 마이그레이션. 그 전까지 공성은 코드섹터 우주에서 동작.
+
 ## 2026-05-29 v7.243 — 레드팀 수정: 공성 함선 전사 플래그 게이트 (full-loss footgun 차단)
 
 멀티에이전트 검토(guild-war-review 워크플로, 13 에이전트)가 확정한 high 결함 수정.

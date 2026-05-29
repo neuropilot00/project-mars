@@ -56,7 +56,8 @@
 // 2026-05-29 v54: v7.237 커먼 가챠 리빌 영상(gacha_reveal_common/_v, 회색 상자·소형 정찰기) — tier 0 연결, 5티어 전부 영상 완성.
 // 2026-05-29 v55: v7.238 가챠/하이젝 리빌 영상 우측 상단 명시적 SKIP 버튼 추가 (텍스트만 있던 것 → 또렷한 버튼).
 // 2026-05-29 v56: v7.239 가챠/하이젝 영상 원본 오디오 복원 — -an 무음 인코딩 제거(AAC 96k), 플레이어 unmute, WebAudio "방구소리" _sfx 제거.
-const CACHE_NAME = 'mars-v56';
+// 2026-05-29 v57: v7.244 공성 패널 결전 함대 합류(JOIN 공격/수비)+로스터+관전 UI (siege 우주 자족, data-action delegated).
+const CACHE_NAME = 'mars-v57';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

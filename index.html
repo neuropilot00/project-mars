@@ -35555,6 +35555,9 @@ window.addEventListener('resize', _debounce(function(){
         }
         html += '</div>';
 
+        // [v7.244] 결전 함대 합류/로스터/관전 패널 (async 로드, siege 우주 자족)
+        html += '<div id="siegeFleetPanel_'+s.id+'"></div>';
+
         // Betting panel placeholder (filled async below)
         if (s.betting_event_id) {
           html += '<div id="siegeBettingPanel_'+code+'" style="margin-bottom:8px"><div style="font-size:9px;color:var(--tx3);padding:4px 0">Loading betting...</div></div>';
@@ -35600,12 +35603,112 @@ window.addEventListener('resize', _debounce(function(){
 
       panel.innerHTML = html;
 
+      // [v7.244] 결전 함대 패널 async 로드 (활성 공성일 때만)
+      if (siegeData && siegeData.active && siegeData.siege) {
+        _loadSiegeFleetPanel(siegeData.siege, code, w);
+      }
+
       // Load betting panel async if there's a betting_event_id
       if (siegeData && siegeData.siege && siegeData.siege.betting_event_id) {
         _loadSiegeBettingPanel(code, siegeData.siege.betting_event_id, w);
       }
     });
   };
+
+  // ── [v7.244] 결전 함대 패널 — 로스터 + JOIN(공격/수비) + 관전 (siege 우주 자족) ──
+  //   §19 규칙: inline onclick 금지 → data-action + delegated listener.
+  function _siegeSeatRow(sideKey, label, fleetName, fleetId) {
+    var col = sideKey === 'attack' ? 'var(--red)' : 'var(--cyan)';
+    var val = fleetId
+      ? '✓ ' + escapeHtml(fleetName || ('Fleet #' + fleetId))
+      : '<span style="color:var(--tx3)">미배치</span>';
+    return '<div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:9px;color:'+col+'">'+label+'</span><span style="font-size:9px">'+val+'</span></div>';
+  }
+  function _siegeJoinErr(code) {
+    var m = { not_a_participant:'이 공성의 참가자가 아닙니다', fleet_in_battle:'해당 함대가 전투 중입니다',
+      fleet_empty:'함대에 함선이 없습니다', battle_already_created:'이미 결전이 시작되었습니다',
+      fleet_not_found:'함대를 찾을 수 없습니다', siege_resolved:'이미 종료된 공성입니다' };
+    return m[code] || ('합류 실패' + (code ? (': ' + code) : ''));
+  }
+  async function _loadSiegeFleetPanel(siege, code, w) {
+    var el = document.getElementById('siegeFleetPanel_' + siege.id);
+    if (!el) return;
+    if (!w) { el.innerHTML = ''; return; }
+    try {
+      var rosterResp = await fetch('/api/siege/' + siege.id + '/roster').then(function(r){return r.json()}).catch(function(){return null});
+      var roster = rosterResp && rosterResp.roster ? rosterResp.roster : null;
+      if (!roster) { el.innerHTML = ''; return; }
+      var myFleets = [];
+      try {
+        var fr = await fetch('/api/fleets', { headers: getAuthHeaders() });
+        if (fr.ok) { var fd = await fr.json(); myFleets = (fd.fleets || []).filter(function(f){ return (parseInt(f.ship_count)||0) > 0; }); }
+      } catch(_) {}
+
+      var battleMade = !!roster.fleet_battle_id;
+      var modeBadge = roster.resolution_mode === 'fleet_battle' ? '⚔ 함대전' : '◌ 무혈판정';
+      var h = '<div style="padding:8px;background:rgba(255,209,102,.05);border-radius:6px;border:1px solid rgba(255,209,102,.2);margin-bottom:8px">';
+      h += '<div style="font-size:9px;color:var(--gold);font-family:var(--fn);font-weight:700;margin-bottom:6px">⚔ 결전 함대<span style="float:right;color:var(--tx3)">'+modeBadge+'</span></div>';
+      h += _siegeSeatRow('attack', '공격', roster.challenger_fleet_name, roster.challenger_fleet_id);
+      h += _siegeSeatRow('defense', '수비', roster.defender_fleet_name, roster.defender_fleet_id);
+
+      if (!battleMade) {
+        if (myFleets.length) {
+          h += '<select data-siege-fleet-sel="'+siege.id+'" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:4px 6px;border-radius:4px;font-family:var(--fn);margin:4px 0">';
+          myFleets.forEach(function(f){ h += '<option value="'+f.id+'">'+escapeHtml(f.name||('Fleet #'+f.id))+' ('+(f.ship_count||0)+')</option>'; });
+          h += '</select>';
+          h += '<div style="display:flex;gap:6px">';
+          if (!roster.challenger_fleet_id) h += '<button type="button" class="sz-btn" data-action="siegeJoin" data-side="attack" data-siege="'+siege.id+'" style="flex:1;font-size:9px;padding:6px;color:var(--red);border-color:rgba(232,72,85,.4)">⚔ 공격 합류</button>';
+          if (!roster.defender_fleet_id) h += '<button type="button" class="sz-btn" data-action="siegeJoin" data-side="defense" data-siege="'+siege.id+'" style="flex:1;font-size:9px;padding:6px;color:var(--cyan);border-color:rgba(91,184,232,.4)">🛡 수비 합류</button>';
+          h += '</div>';
+        } else {
+          h += '<div style="font-size:9px;color:var(--tx3);padding:4px 0">함대가 없습니다 — 조선소에서 함선을 건조하세요.</div>';
+        }
+      }
+      if (battleMade && siege.status === 'active') {
+        h += '<button type="button" class="sz-btn" data-action="siegeSpectate" data-battle="'+roster.fleet_battle_id+'" style="width:100%;font-size:9px;padding:6px;margin-top:6px;color:var(--gold);border-color:rgba(255,209,102,.4)">👁 관전</button>';
+      }
+      h += '</div>';
+      el.innerHTML = h;
+
+      if (!el.dataset.delegated) {
+        el.dataset.delegated = '1';
+        el.addEventListener('click', function(ev) {
+          var btn = ev.target.closest('button[data-action]');
+          if (!btn) return;
+          ev.stopPropagation();
+          var act = btn.getAttribute('data-action');
+          if (act === 'siegeSpectate') {
+            var bid = parseInt(btn.getAttribute('data-battle'), 10);
+            if (bid && typeof openBattleViewer === 'function') { try { openBattleViewer(bid); } catch(e){ console.error('openBattleViewer', e); } }
+            return;
+          }
+          if (act === 'siegeJoin') {
+            if (btn.disabled) return;
+            var sid = parseInt(btn.getAttribute('data-siege'), 10);
+            var side = btn.getAttribute('data-side');
+            var sel = el.querySelector('select[data-siege-fleet-sel="'+sid+'"]');
+            var fleetId = sel ? parseInt(sel.value, 10) : null;
+            if (!fleetId) { if (typeof showToast==='function') showToast('함대를 선택하세요','warn'); return; }
+            btn.disabled = true; var prev = btn.textContent; btn.textContent = '...';
+            console.log('[BTN] siegeJoin', sid, side, fleetId);
+            fetch('/api/siege/'+sid+'/commit-fleet', {
+              method: 'POST',
+              headers: Object.assign({ 'Content-Type':'application/json' }, getAuthHeaders()),
+              body: JSON.stringify({ fleetId: fleetId })
+            }).then(function(r){ return r.json().then(function(j){ return { ok:r.ok, j:j }; }); })
+              .then(function(res){
+                if (!res.ok || !res.j || !res.j.success) {
+                  if (typeof showToast==='function') showToast(_siegeJoinErr(res.j && res.j.error), 'warn');
+                  btn.disabled = false; btn.textContent = prev; return;
+                }
+                if (typeof showToast==='function') showToast(side==='attack'?'⚔ 공격 함대 합류 완료':'🛡 수비 함대 합류 완료','success');
+                loadSiegeInfoPanel(code);
+              }).catch(function(){ if (typeof showToast==='function') showToast('합류 실패','warn'); btn.disabled = false; btn.textContent = prev; });
+          }
+        });
+      }
+    } catch(e) { console.error('[siegeFleetPanel]', e); el.innerHTML = ''; }
+  }
 
   // ── Betting panel loader ──
   function _loadSiegeBettingPanel(code, betEventId, w) {
