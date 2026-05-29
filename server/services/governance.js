@@ -312,7 +312,9 @@ async function collectTax(client, sectorId, totalAmount, txType) {
   let guildGovId = null;
   if (String(s.sector_tax_to_guild_treasury) === 'true') {
     try {
-      const sgRes = await client.query('SELECT governor_guild_id FROM sector_governance WHERE sector_id = $1', [sectorId]);
+      const sgRes = await client.query(
+        'SELECT governor_guild_id FROM sector_governance WHERE sector_id = $1 AND sector_id IS NOT NULL LIMIT 1', [sectorId]
+      );
       guildGovId = sgRes.rows[0]?.governor_guild_id || null;
     } catch (_) { /* sector_id 컬럼 미존재(마이그 이전) — 개인 경로 유지 */ }
   }

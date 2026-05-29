@@ -648,6 +648,40 @@ async function transferLeadership(leaderWallet, newLeaderWallet, guildId) {
   finally { client.release(); }
 }
 
+// [Phase A] 길드 삭제 전 공통 정리 — 거버너 섹터 무주공산화 + 금고 잔액 정산(소각/동결 방지).
+//   client 트랜잭션 안에서 호출. disbandGuild + admin force-disband 양쪽이 공유(경로 분기 방지).
+//   ① sector_governance.governor_guild_id 섹터: sectors.siege_governor_locked 해제 + governor_wallet NULL +
+//      governance_positions(governor) 제거 + sector_governance 클리어 → 다음 공성/픽셀 재산정으로 회복 가능.
+//   ② gp_treasury>0 이면 refundWallet(리더)에게 환원 + ledger(disband_settle) → GP 증발(디플레) 방지.
+async function disbandCleanup(client, guildId, refundWallet) {
+  try {
+    const govSectors = (await client.query(
+      'SELECT sector_id, sector_code FROM sector_governance WHERE governor_guild_id = $1', [guildId]
+    )).rows;
+    for (const gs of govSectors) {
+      if (gs.sector_id) {
+        await client.query('UPDATE sectors SET governor_wallet = NULL, siege_governor_locked = false WHERE id = $1', [gs.sector_id]);
+        await client.query(`DELETE FROM governance_positions WHERE role='governor' AND sector_id = $1`, [gs.sector_id]);
+      }
+      await client.query('UPDATE sector_governance SET governor_wallet = NULL, governor_member_wallet = NULL WHERE sector_code = $1', [gs.sector_code]);
+    }
+  } catch (e) { console.warn('[GUILD] disbandCleanup sectors:', e.message); }
+  try {
+    const g = (await client.query('SELECT gp_treasury FROM guilds WHERE id = $1 FOR UPDATE', [guildId])).rows[0];
+    const treasury = g ? (parseFloat(g.gp_treasury) || 0) : 0;
+    if (treasury > 0 && refundWallet) {
+      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [treasury, refundWallet]);
+      await client.query(
+        `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+         VALUES ($1, $2, 'disband_settle', 0, $3, 0, $4)`,
+        [guildId, refundWallet, -treasury, 'Disband refund (' + treasury.toFixed(2) + ' GP → leader)']
+      );
+      await client.query('UPDATE guilds SET gp_treasury = 0 WHERE id = $1', [guildId]);
+      console.log(`[GUILD] disband settle: ${treasury} GP refunded to ${refundWallet}`);
+    }
+  } catch (e) { console.warn('[GUILD] disbandCleanup treasury:', e.message); }
+}
+
 async function disbandGuild(leaderWallet, guildId) {
   const client = await pool.connect();
   try {
@@ -655,21 +689,8 @@ async function disbandGuild(leaderWallet, guildId) {
     const caller = await client.query('SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2', [guildId, leaderWallet]);
     if (!caller.rows.length || caller.rows[0].role !== 'leader') { await client.query('ROLLBACK'); return { error: 'Only leader can disband' }; }
 
-    // [Phase A] 이 길드가 거버너인 섹터 무주공산화 — sectors 잠금 해제 + 포지션 정리.
-    //   미처리 시 sectors.siege_governor_locked 가 true 로 남아 픽셀 재산정이 영구 skip → frozen governor.
-    try {
-      const govSectors = (await client.query(
-        'SELECT sector_id, sector_code FROM sector_governance WHERE governor_guild_id = $1', [guildId]
-      )).rows;
-      for (const gs of govSectors) {
-        if (gs.sector_id) {
-          await client.query('UPDATE sectors SET governor_wallet = NULL, siege_governor_locked = false WHERE id = $1', [gs.sector_id]);
-          await client.query(`DELETE FROM governance_positions WHERE role='governor' AND sector_id = $1`, [gs.sector_id]);
-        }
-        await client.query('UPDATE sector_governance SET governor_wallet = NULL, governor_member_wallet = NULL WHERE sector_code = $1', [gs.sector_code]);
-      }
-      // sector_governance.governor_guild_id 는 FK ON DELETE SET NULL 로 자동 정리
-    } catch (_) { /* 컬럼 미존재(마이그 이전) — 스킵 */ }
+    // [Phase A] 거버너 섹터 무주공산화 + 금고 잔액 정산(소각 방지). 리더에게 환원.
+    await disbandCleanup(client, guildId, leaderWallet);
 
     // Clear all members' guild_id
     await client.query('UPDATE users SET guild_id = NULL WHERE guild_id = $1', [guildId]);
@@ -1780,7 +1801,7 @@ module.exports = {
   createJoinRequest, getGuildJoinRequests, approveJoinRequest, rejectJoinRequest,
   leaveGuild, kickMember,
   promoteToOfficer, demoteToMember, transferLeadership, disbandGuild,
-  withdrawTreasury,
+  withdrawTreasury, disbandCleanup,
   getGuildLeaderboard, searchGuilds, refreshGuildPixelCount,
   updateGuildInfo,
   sendGuildMessage, getGuildMessages,

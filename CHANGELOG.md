@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.247 — 레드팀 확정 결함 수정 (disband 금고 소각/admin 동결/세금 라우팅)
+
+guild-war-golive 워크플로(15에이전트) 확정 결함 반영.
+- **[HIGH] disband 금고 GP 소각**: `disbandCleanup(client, guildId, refundWallet)` 공통 헬퍼 신설 — 거버너 섹터 무주공산화 + `gp_treasury>0`이면 리더에게 환원 + ledger(disband_settle). disbandGuild + **admin force-disband(DELETE /guilds/:id)** 양쪽이 공유 → 경로 분기 차단(admin은 섹터 잠금·정산 둘 다 누락이었음).
+- **[MED] collectTax NULL sector_id 조용한 폴백**: 길드 거버너 조회에 `AND sector_id IS NOT NULL LIMIT 1` 추가.
+- **mig 262**: `sector_governance(sector_id)` 부분 UNIQUE — 코드↔지오 1:1 DB 강제.
+- node --check 3파일 통과. (앞선 v7.246 머니플로 e2e PASS 유지.)
+
 ## 2026-05-29 v7.246 — 세금→길드 금고 + 인출 + disband 가드 + 길드 공성전 라이브 활성화
 
 유저 부재 시점에 길드 공성전 전 기능 ON. 머니플로 e2e 검증 완료.

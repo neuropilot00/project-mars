@@ -1651,6 +1651,14 @@ router.delete('/guilds/:id', adminAuth, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // [Phase A] 강제 해체도 동일 정리 — 거버너 섹터 무주공산화 + 금고 정산(소각/동결 방지). 잔액은 리더에게 환원.
+    try {
+      const lead = (await client.query('SELECT leader_wallet FROM guilds WHERE id = $1', [req.params.id])).rows[0];
+      const guildSvc = require('../services/guild');
+      if (guildSvc && guildSvc.disbandCleanup) {
+        await guildSvc.disbandCleanup(client, parseInt(req.params.id), lead && lead.leader_wallet);
+      }
+    } catch (ce) { console.warn('[ADMIN] force-disband cleanup:', ce.message); }
     await client.query('UPDATE users SET guild_id = NULL WHERE guild_id = $1', [req.params.id]);
     await client.query('DELETE FROM guild_invites WHERE guild_id = $1', [req.params.id]);
     await client.query('DELETE FROM guild_members WHERE guild_id = $1', [req.params.id]);
