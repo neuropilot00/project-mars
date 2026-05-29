@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.242 — 길드 공성전 Phase 1b: 거버너=길드 쓰기 로직 (플래그 OFF)
+
+거버너를 길드 소유로 운용하는 쓰기 경로. `guild_governance_enabled` 기본 false → 프로덕션 무변경. Codex+아키텍트 검토 합의(§13) 반영 + Codex 지적 결함 수정. siege.js만 변경.
+- **declareSiege**: guildGov 시 도전자의 `guild_members` 리더/오피서 검증(`not_in_guild`/`guild_rank_required`), 도전/수비 길드(`challenger_guild_id`/`defender_guild_id`) 기록. 자기 길드가 현 거버너면 금지. 섹터 조회에 `governor_guild_id` 포함.
+- **resolveSiege**: ① [Codex race fix] 해결 트랜잭션 시작 시 `sector_governance` 행 `FOR UPDATE` 잠금. ② guildGov 시 승자 길드 매핑 → `governor_guild_id`/`governor_member_wallet`/`winner_guild_id` 이전. 개인 모드는 기존 동작.
+- **commitSiegeFleet**: [Codex auth fix] guildGov 시 본인 지갑뿐 아니라 도전/수비 길드의 **리더/오피서**도 함대 커밋 허용.
+- **검증**: node --check + 로컬 DB end-to-end 시뮬(길드 거버너 생성→공성→전투 승자→거버너 길드 이전 PASS, 테스트 데이터/플래그 정리). guild_governance_enabled OFF 유지 — 활성화는 Phase 1a 개인 검증 후.
+
 ## 2026-05-29 v7.240 — 길드 공성전 Phase 1a: 섹터 공성 → 실제 함대전 (백엔드, 플래그 OFF)
 
 설계 `docs/GUILD_TERRITORY_WAR_DESIGN_2026-05-29.md` Phase 1 착수. 공성 승패를 "픽셀 수 비교"에서 "실제 함대전 결과"로 전환하는 배선. **`siege_fleet_combat_enabled` 기본 false → 프로덕션 동작 무변경**, 검증 후 플래그 ON.

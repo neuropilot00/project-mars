@@ -2,6 +2,12 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 v7.241~v7.242 (거버너=길드 데이터모델 + 쓰기로직)
+- **v7.241 mig 259 (additive, 플래그 OFF)**: sector_governance.governor_guild_id/governor_member_wallet, governor_sieges.{challenger,defender,winner}_guild_id, guilds.sector_tax_collected + 개인거버너→길드 backfill. Codex+아키텍트 검토로 거버넌스 테이블 이원화(sectors vs sector_governance) 정본 단일화 결정(설계 §13).
+- **v7.242 길드 쓰기로직 (siege.js, guild_governance_enabled OFF)**: declareSiege 길드 리더/오피서 검증+길드 기록, resolveSiege 길드 거버너 이전 + Codex race fix(sector_governance FOR UPDATE), commitSiegeFleet 길드 임원 허용(Codex auth fix). 로컬 DB end-to-end 시뮬 PASS.
+  - 🟡 미완: Phase 1a 개인 플래그 ON 검증(활성화 전제), 세금→길드금고(sector.js/governance.js), UI(합류/관전/거버너 길드명), 길드 해체 시 섹터 무주공산화 가드, full-loss.
+  - 🔴 병행: guild-war-review 워크플로(레드팀/품질/UX) 결과 대기 — 확정 발견 반영 예정.
+
 ## 🟢 v7.239~v7.240 (영상 오디오 · 길드 공성전 Phase 1a)
 - **v7.239**: 가챠/하이젝 영상 원본 오디오 복원(`-an` 무음 인코딩 버그 → AAC 96k). 플레이어 unmute + 자동재생 막힐 시 음소거 재시도. WebAudio `_sfx.crateCharge` "방구소리" 제거. 로딩 배경은 음소거 유지(자동재생+루프 정책).
 - **v7.240 길드 공성전 Phase 1a (백엔드, 플래그 OFF)**: 공성 승패 "픽셀 비교 → 실제 함대전" 배선. mig 258(컬럼/설정), `siege.js`(commitSiegeFleet/prepareSiegeBattles/resolveSiege 전투우선), `siegeFleetBridge.applySiegeResult`(→resolveSiege 위임), `battleScheduler` siege 종료 훅, API(commit-fleet/roster), 스케줄러 tick. **`siege_fleet_combat_enabled=false` 기본 → 프로덕션 무영향**. node --check + DB 스모크 통과.
