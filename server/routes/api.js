@@ -574,6 +574,8 @@ router.get('/user/:wallet', async (req, res, next) => {
     res.json({
       usdtBalance: parseFloat(user.usdt_balance),
       ppBalance: parseFloat(user.pp_balance),
+      // [경제정책 W2-4] USDT 환매 가능한(입금 연동) PP. 나머지는 GP 환전만 가능.
+      redeemablePP: parseFloat(user.redeemable_pp || 0) || 0,
       plots: claimsRes.rows.map(c => ({
         lat: parseFloat(c.center_lat), lng: parseFloat(c.center_lng),
         width: c.width, height: c.height,
@@ -2050,15 +2052,34 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     await client.query('BEGIN');
 
     const userRes = await client.query(
-      'SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT pp_balance, redeemable_pp FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
     );
     if (!userRes.rows.length) throw new Error('User not found');
 
     const ppBal = parseFloat(userRes.rows[0].pp_balance);
+    const redeemablePP = parseFloat(userRes.rows[0].redeemable_pp || 0) || 0;
     if (ppBal < ppAmount) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Insufficient PP', balance: ppBal });
+    }
+
+    // [경제정책 W2-4] redeemable_pp 게이팅 — 입금 연동 PP 만 USDT 환매 가능.
+    //   채굴/가챠/추천 PP 는 redeemable_pp 에 안 잡혀 → GP 환전(/exchange/pp-to-gp)만 가능.
+    try {
+      const _t = require('../services/treasury');
+      if (await _t.redeemableGatingEnabled(getSetting) && ppAmount > redeemablePP + 1e-9) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({
+          error: 'pp_not_redeemable',
+          message: 'Only deposit-linked PP can be redeemed to USDT. Mined/gacha PP can be converted to GP instead.',
+          redeemable: redeemablePP, requested: ppAmount
+        });
+      }
+    } catch (e) {
+      await client.query('ROLLBACK');
+      console.error('[API] swap redeemable gate error:', e.message);
+      return res.status(500).json({ error: 'internal_error' });
     }
 
     const s = await cfg();
@@ -2090,8 +2111,29 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
       return res.status(500).json({ error: 'internal_error' });
     }
 
+    // [경제정책 W4-6] 환매 한도(주간 글로벌 + 유저 일일) — received(USDT) 기준. 잔액 변경 전 호출.
+    try {
+      const _t = require('../services/treasury');
+      const lim = await _t.checkRedemptionLimits(client, { wallet, redeemUsdt: received }, getSetting);
+      if (!lim.ok) {
+        await client.query('ROLLBACK');
+        return res.status(429).json({
+          error: lim.code,
+          message: lim.code === 'redemption_weekly_cap'
+            ? 'Weekly redemption cap reached. Please try again later.'
+            : 'Daily redemption limit reached. Please try again tomorrow.',
+          ...lim
+        });
+      }
+    } catch (e) {
+      await client.query('ROLLBACK');
+      console.error('[API] swap redemption limit error:', e.message);
+      return res.status(500).json({ error: 'internal_error' });
+    }
+
+    // [경제정책 W2-4] redeemable_pp 도 함께 차감(환매한 PP 는 redeemable 소진). 트리거가 ≤pp_balance 보강.
     const deductSwap = await client.query(
-      'UPDATE users SET pp_balance = pp_balance - $1, usdt_balance = usdt_balance + $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1',
+      'UPDATE users SET pp_balance = pp_balance - $1, redeemable_pp = GREATEST(redeemable_pp - $1, 0), usdt_balance = usdt_balance + $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1',
       [ppAmount, received, wallet.toLowerCase()]
     );
     if (deductSwap.rowCount === 0) {
@@ -2280,7 +2322,7 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
     await client.query('BEGIN');
 
     const userRes = await client.query(
-      'SELECT usdt_balance, pp_balance, withdrawal_nonce, last_withdrawal_at FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT usdt_balance, pp_balance, redeemable_pp, withdrawal_nonce, last_withdrawal_at FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
     );
     if (!userRes.rows.length) throw new Error('User not found');
@@ -2303,11 +2345,19 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
 
     const usdtBal = parseFloat(userRes.rows[0].usdt_balance);
     const ppBal = parseFloat(userRes.rows[0].pp_balance);
+    const redeemablePP = parseFloat(userRes.rows[0].redeemable_pp || 0) || 0;
     const nonce = userRes.rows[0].withdrawal_nonce || 0;
     const swapFeePct = (s.swap_fee_percent || 5) / 100;
     const minWithdrawAmount = Number(s.withdraw_min_amount ?? s.min_withdraw ?? 1);
-    const ppFee = Math.round(ppBal * swapFeePct * 1000000) / 1000000;
-    const totalOut = Math.round((usdtBal + ppBal - ppFee) * 1000000) / 1000000;
+
+    // [경제정책 W2-4] 게이팅 on 이면 입금 연동(redeemable_pp) 부분만 USDT 환매 대상.
+    //   비환매 PP(ppLeftover)는 출금되지 않고 계정에 남아 이후 GP 환전만 가능.
+    const _redeemGating = await require('../services/treasury').redeemableGatingEnabled(getSetting);
+    const ppRedeemBase = _redeemGating ? Math.min(ppBal, redeemablePP) : ppBal;
+    const ppLeftover = Math.round((ppBal - ppRedeemBase) * 1000000) / 1000000;
+    const ppFee = Math.round(ppRedeemBase * swapFeePct * 1000000) / 1000000;
+    const ppRedeemed = Math.round((ppRedeemBase - ppFee) * 1000000) / 1000000;
+    const totalOut = Math.round((usdtBal + ppRedeemed) * 1000000) / 1000000;
 
     if (totalOut <= 0) {
       await client.query('ROLLBACK');
@@ -2326,9 +2376,7 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
       });
     }
 
-    // ✅ [솔벤시 가드] withdraw-all 은 보유 PP 전체를 USDT 출금에 합산한다.
-    // PP유래 발행분(ppRedeemed = ppBal - ppFee)은 담보 여유분(room) 이내만 허용 — 뱅크런 차단.
-    const ppRedeemed = Math.round((ppBal - ppFee) * 1000000) / 1000000;
+    // ✅ [솔벤시 가드] PP유래 발행분(ppRedeemed)은 담보 여유분(room) 이내만 허용 — 뱅크런 차단.
     try {
       const _treasury = require('../services/treasury');
       if (ppRedeemed > 0 && await _treasury.guardEnabled(getSetting)) {
@@ -2350,10 +2398,31 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
       return res.status(500).json({ error: 'internal_error' });
     }
 
-    // Zero balances, increment nonce, and update last_withdrawal_at
+    // [경제정책 W4-6] 환매 한도(주간 글로벌 + 유저 일일) — ppRedeemed(USDT) 기준. 잔액 변경 전 호출.
+    try {
+      const _t = require('../services/treasury');
+      const lim = await _t.checkRedemptionLimits(client, { wallet, redeemUsdt: ppRedeemed }, getSetting);
+      if (!lim.ok) {
+        await client.query('ROLLBACK');
+        return res.status(429).json({
+          error: lim.code,
+          message: lim.code === 'redemption_weekly_cap'
+            ? 'Weekly redemption cap reached. You may withdraw your USDT balance only, or try again later.'
+            : 'Daily redemption limit reached. Please try again tomorrow.',
+          ...lim
+        });
+      }
+    } catch (e) {
+      await client.query('ROLLBACK');
+      console.error('[API] withdraw-all redemption limit error:', e.message);
+      return res.status(500).json({ error: 'internal_error' });
+    }
+
+    // [경제정책 W2-4] usdt=0, 환매한 PP 만 소진하고 비환매 PP(ppLeftover)는 잔류.
+    //   redeemable_pp 는 환매분(ppRedeemBase)만큼 차감. 트리거가 ≤pp_balance 보강.
     await client.query(
-      'UPDATE users SET usdt_balance = 0, pp_balance = 0, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($1)',
-      [wallet.toLowerCase()]
+      'UPDATE users SET usdt_balance = 0, pp_balance = $2, redeemable_pp = GREATEST(redeemable_pp - $3, 0), withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($1)',
+      [wallet.toLowerCase(), ppLeftover, ppRedeemBase]
     );
 
     // ✅ [솔벤시] 실제 빠져나가는 USDT(totalOut)만큼 담보 차감.
@@ -2396,11 +2465,12 @@ router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
     }
     const sigData = await generateWithdrawSignature(wallet, amountBN, feeBN, nonce, chainKey);
 
+    // [경제정책 W4-6] pp_amount 는 환매분(ppRedeemBase)으로 기록 — 주간 환매 집계(pp_amount-fee)가 정확.
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
        VALUES ('withdraw_all', $1, $2, $3, $4, $5)`,
-      [wallet.toLowerCase(), usdtBal, ppBal, ppFee,
-       JSON.stringify({ totalOut, chain: chainKey })]
+      [wallet.toLowerCase(), usdtBal, ppRedeemBase, ppFee,
+       JSON.stringify({ totalOut, chain: chainKey, ppRedeemed, ppLeftover, redeemGating: _redeemGating })]
     );
 
     // Fund quest pool from withdrawal fees

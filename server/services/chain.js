@@ -260,8 +260,10 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     await client.query(`SELECT 1 FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [wallet]);
 
     // Update user balances
+    // [경제정책 W2-4] 입금 보너스 PP 는 redeemable_pp 에도 적립 — 입금 연동 잔액만 USDT 환매 가능.
+    //   채굴/가챠 PP 는 redeemable_pp 를 올리지 않으므로 USDT 직행 불가(GP 환전만).
     await client.query(
-      `UPDATE users SET usdt_balance = usdt_balance + $1, pp_balance = pp_balance + $2 WHERE LOWER(wallet_address) = LOWER($3)`,
+      `UPDATE users SET usdt_balance = usdt_balance + $1, pp_balance = pp_balance + $2, redeemable_pp = redeemable_pp + $2 WHERE LOWER(wallet_address) = LOWER($3)`,
       [amountNum, ppBonus, wallet]
     );
 
@@ -280,7 +282,8 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
         const firstPct = fr.rows.length ? (parseFloat(fr.rows[0].value) || 0) : 0;
         if (firstPct > 0) {
           firstDepBonus = Math.round(amountNum * (firstPct / 100) * 1000000) / 1000000;
-          await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [firstDepBonus, wallet]);
+          // [경제정책 W2-4] 첫 입금 보너스도 입금 연동 → redeemable_pp 에 적립.
+          await client.query('UPDATE users SET pp_balance = pp_balance + $1, redeemable_pp = redeemable_pp + $1 WHERE LOWER(wallet_address) = LOWER($2)', [firstDepBonus, wallet]);
           console.log(`[Chain] First-deposit bonus +${firstDepBonus} PP (${firstPct}%) to ${wallet.slice(0,8)}…`);
         }
       }

@@ -2,6 +2,16 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 경제 정책: 담보-룸 소프트 환매 + redeemable_pp 게이팅 (v7.262, 2026-05-29)
+적대토론 워크플로 단일 권고 채택(문서 `docs/ECONOMY_TOKEN_POLICY_2026-05-29.md`). PP→USDT는 "1:1 페그"가 아니라 담보-룸 내 재량 환매. GP·PP 토큰화 보류. M단계(법인/캡드토큰) 사장 지시로 제외.
+- ✅ [W1-2] 페그 약속 문구 13곳(4언어) 제거 → "운영 환율(변동 가능) — 고정 페그 아님". 결제비율 1:1 테이블은 환매 약속 아니라 유지.
+- ✅ [W2-4] `users.redeemable_pp`(mig 271) — 입금 보너스만 환매가능, 채굴/가챠/추천 PP는 USDT 직행 차단(GP 환전만). DB 트리거 `clamp_redeemable_pp`로 불변식 중앙 강제(16개 PP 차감 사이트 자동 커버). swap 초과 시 `pp_not_redeemable`. **솔벤시 하드가드는 여전히 treasury room(담보)** — 게이팅은 상위 차익차단 레이어.
+- ✅ [W4-6] `treasury.checkRedemptionLimits` — 주간 글로벌 cap=max(100, 입금×30%) + 유저 일일 한도. swap/withdraw-all 연결(429). withdraw-all은 게이팅 on 시 redeemable분만 USDT화.
+- ✅ [W6-10] `GET /api/admin/economy/redemption` + admin ECONOMY 탭 REDEMPTION 패널(환매율 실측 vs 가정 10~25%, cap 소진율, 탑 리디머).
+- 검증: node --check 4파일 + mig 271(46명 백필) + DB e2e 6/6 + 인라인스크립트 파싱 + 라우트 로드. SW v68.
+- 🟡 후속(비차단): ①`redemption_weekly_cap_enabled`는 false(입금0 잠금 footgun)—런칭 후 입금 흐름 확인하고 on ②withdraw-all 게이팅 on 시 비환매 PP 잔류+픽셀리셋 동반(전액 현금화 기대와 UX 차이 — 프론트 안내 권장) ③환매율 실측 모니터링이 런칭 후 최우선 지표.
+- ⛔ 토큰화 전부 보류: 무캡 GP 온체인=가격 0 수렴(균형가 부재), PP 온체인=가상자산이용자보호법 트리거. 코드 변경 없음.
+
 ## 🟢 공성전 풀스택 최종 QA (v7.260~261, 2026-05-29) — 10에이전트 통합검증
 가이드북 '길드 공성전' 4언어 챕터(v7.260, id=siegewar) + QA 6확정 처리(v7.261):
 - ✅ [CRITICAL] siege dead-lock(cancelled 전투→영구 active/섹터 잠김): resolveSiege가 cancelled를 픽셀 폴백 해결+fleet_battle_id 리셋. e2e PASS.

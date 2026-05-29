@@ -677,4 +677,78 @@ router.post('/economy/treasury/topup', requireAdmin, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════
+// [경제정책 W6-10] REDEMPTION 대시보드 — docs/ECONOMY_TOKEN_POLICY_2026-05-29.md
+//   담보/부채/room, 주간 입금·환매, 환매율(실측 vs 가정), 일일 환매, 탑 리디머, 설정 스냅샷.
+//   환매율 실측이 런칭 후 최우선 관측 지표(가정 10~25%).
+// ═══════════════════════════════════════════════════════════════
+router.get('/economy/redemption', requireAdmin, async (req, res) => {
+  try {
+    const REDEEM_EXPR = `COALESCE(SUM(
+      CASE WHEN type='swap' THEN COALESCE(usdt_amount,0)
+           WHEN type='withdraw_all' THEN GREATEST(COALESCE(pp_amount,0)-COALESCE(fee,0),0)
+           ELSE 0 END),0)`;
+
+    // 담보/부채/room
+    let collateral = 0;
+    try { collateral = Number((await pool.query(`SELECT collateral_usdt FROM treasury_ledger WHERE id=1`)).rows[0]?.collateral_usdt || 0); } catch (_) {}
+    const liability = Number((await pool.query(`SELECT COALESCE(SUM(usdt_balance),0) AS s FROM users`)).rows[0]?.s || 0);
+    const room = Math.round((collateral - liability) * 1e6) / 1e6;
+
+    // 주간(7d) 입금/환매, 일일 환매
+    const weeklyDeposits = Number((await pool.query(
+      `SELECT COALESCE(SUM(COALESCE(usdt_amount,0)),0) AS s FROM transactions WHERE type='deposit' AND created_at > NOW()-INTERVAL '7 days'`
+    )).rows[0]?.s || 0);
+    const weeklyRedeemed = Number((await pool.query(
+      `SELECT ${REDEEM_EXPR} AS s FROM transactions WHERE created_at > NOW()-INTERVAL '7 days'`
+    )).rows[0]?.s || 0);
+    const dailyRedeemed = Number((await pool.query(
+      `SELECT ${REDEEM_EXPR} AS s FROM transactions WHERE created_at > NOW()-INTERVAL '24 hours'`
+    )).rows[0]?.s || 0);
+
+    // redeemable PP 총량(미상환 환매 부채 잠재량) vs 전체 PP
+    const redeemablePP = Number((await pool.query(`SELECT COALESCE(SUM(redeemable_pp),0) AS s FROM users`)).rows[0]?.s || 0);
+    const totalPP = Number((await pool.query(`SELECT COALESCE(SUM(pp_balance),0) AS s FROM users`)).rows[0]?.s || 0);
+
+    // 환매율(실측): 주간 환매 / 주간 입금
+    const redemptionRatePct = weeklyDeposits > 0 ? Math.round((weeklyRedeemed / weeklyDeposits) * 1000) / 10 : null;
+
+    // 탑 리디머(7d)
+    const topRedeemers = (await pool.query(
+      `SELECT LOWER(from_wallet) AS wallet, ${REDEEM_EXPR} AS redeemed,
+              COUNT(*) FILTER (WHERE type IN ('swap','withdraw_all')) AS tx_count
+       FROM transactions
+       WHERE type IN ('swap','withdraw_all') AND created_at > NOW()-INTERVAL '7 days'
+       GROUP BY LOWER(from_wallet)
+       HAVING ${REDEEM_EXPR} > 0
+       ORDER BY redeemed DESC LIMIT 20`
+    )).rows.map(r => ({ wallet: r.wallet, redeemed: Number(r.redeemed || 0), txCount: Number(r.tx_count || 0) }));
+
+    // 설정 스냅샷
+    const settings = {};
+    const skeys = ['redeemable_pp_gating_enabled','redemption_weekly_cap_enabled','redemption_weekly_cap_pct',
+                   'redemption_weekly_cap_floor_usdt','redemption_daily_limit_usdt','swap_fee_percent',
+                   'withdraw_fee_percent','withdrawal_cooldown_hours','swap_solvency_guard_enabled'];
+    const sr = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [skeys]);
+    sr.rows.forEach(r => { settings[r.key] = r.value; });
+
+    // 주간 환매 cap(게이트 on 시 적용값)
+    const capPct = parseFloat(settings.redemption_weekly_cap_pct || '30') || 0;
+    const capFloor = parseFloat(settings.redemption_weekly_cap_floor_usdt || '100') || 0;
+    const weeklyCap = Math.max(capFloor, weeklyDeposits * (capPct / 100));
+
+    res.json({
+      collateral, liability, room,
+      weeklyDeposits, weeklyRedeemed, dailyRedeemed,
+      redemptionRatePct, weeklyCap,
+      weeklyCapUsedPct: weeklyCap > 0 ? Math.round((weeklyRedeemed / weeklyCap) * 1000) / 10 : null,
+      redeemablePP, totalPP,
+      redeemablePPPct: totalPP > 0 ? Math.round((redeemablePP / totalPP) * 1000) / 10 : 0,
+      topRedeemers, settings
+    });
+  } catch (err) {
+    handleErr(res, err, 'economy/redemption');
+  }
+});
+
 module.exports = router;

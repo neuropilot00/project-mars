@@ -1,3 +1,14 @@
+## 2026-05-29 v7.262 — 경제 정책: 담보-룸 소프트 환매 + redeemable_pp 게이팅 (W1-10)
+
+적대토론 워크플로(옹호/설계/규제→심판) 단일 권고 채택. 문서: `docs/ECONOMY_TOKEN_POLICY_2026-05-29.md`. M단계(법인구조·캡드토큰)는 사장 지시로 보류.
+- **[W1-2] 페그 약속 문구 전면 제거** — index.html 13곳(en/ko/ja/zh)의 "1 PP ≈ $1 / pegged / 페그 / ペッグ / 锚定"을 "운영 환율(변동 가능, 담보 한도 내) USDT 환금 — 고정 페그 아님"으로 교체. 포트폴리오 카드/주석 포함. (상점 결제비율 1:1 테이블은 환매 약속 아님 → 유지.) 프리런칭 무비용 시점에 법적 시한폭탄 제거.
+- **[W2-4] redeemable_pp 게이팅** (mig 271) — `users.redeemable_pp` 컬럼 신설. 입금 보너스 PP(+첫입금 보너스)만 redeemable 적립(chain.js). **채굴/가챠/추천 PP는 USDT 직행 불가**(GP 환전만) → 봇 채굴→USDT 차익 구멍 차단. swap이 redeemable 한도 초과 시 `pp_not_redeemable` 반환. **DB 트리거 `clamp_redeemable_pp`로 불변식 `redeemable_pp ≤ pp_balance`를 16개 PP 차감 사이트 전체에 중앙 강제**(누락 방지). 솔벤시 하드가드는 여전히 treasury room(담보)이며 게이팅은 그 위 차익차단 레이어.
+- **[W4-6] 환매 한도** — `treasury.checkRedemptionLimits`: 주간 글로벌 cap=max(floor 100, 신규입금×30%), 유저 일일 한도(USDT). swap/withdraw-all에 연결, 초과 시 429. 정산 딜레이는 기존 withdrawal_cooldown_hours(24~72h) 활용. withdraw-all은 게이팅 on 시 redeemable 부분만 USDT화하고 비환매 PP는 계정에 잔류.
+- **[W6-10] 환매 대시보드** — `GET /api/admin/economy/redemption`(담보/부채/room, 주간 입금·환매, **환매율 실측 vs 가정 10~25%**, cap 소진율, redeemable PP 비중, 탑 리디머 7d, 설정 스냅샷). admin.html ECONOMY 탭에 REDEMPTION 패널.
+- 신규 설정: `redeemable_pp_gating_enabled`(true), `redemption_weekly_cap_enabled`(false—입금0 잠금 footgun 회피, 런칭후 on), `redemption_weekly_cap_pct`(30), `_floor_usdt`(100), `redemption_daily_limit_usdt`(0).
+- 검증: node --check(api/treasury/chain/adminEconomy) + mig 271 적용(46명 백필) + DB e2e 6/6(트리거 clamp·게이팅·한도) + 인라인스크립트 파싱(index 9 / admin 1) + 라우트 로드. SW v67→v68.
+- **GP·PP·신규토큰 온체인 토큰화는 전부 보류**(무캡 GP 토큰화=가격 0 수렴 자살, PP=가상자산법 트리거). 코드 변경 없음, 정책 기록만.
+
 ## 2026-05-29 v7.261 — 공성전 풀스택 QA 수정 (dead-lock / 세수 누수 / 동시성)
 
 최종 통합 QA 워크플로(10에이전트) 확정 결함 수정.

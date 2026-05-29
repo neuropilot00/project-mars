@@ -46,4 +46,69 @@ async function guardEnabled(getSetting) {
   }
 }
 
-module.exports = { lockRoom, adjustCollateral, guardEnabled };
+// ─────────────────────────────────────────────────────────────
+// [경제정책 W4-6] 환매(PP→USDT) 한도 체크 — docs/ECONOMY_TOKEN_POLICY_2026-05-29.md
+//   주간 환매 한도: max(floor, 주간 신규입금 USDT × pct%) — 환매 부채를 매출에 연동.
+//   유저 일일 한도: redemption_daily_limit_usdt (0 = 무제한).
+// 호출자의 트랜잭션 client 안에서, 잔액 변경 "전"에 호출(현재 진행 row 미포함 집계).
+// 환매로 집계하는 USDT: swap.usdt_amount + withdraw_all 의 PP유래분(pp_amount - fee).
+// 반환: { ok:true } 또는 { ok:false, code, ...진단 }. fail-CLOSED 는 호출자 책임(여기선 throw 안 함).
+// ─────────────────────────────────────────────────────────────
+const REDEEM_SUM_EXPR = `COALESCE(SUM(
+  CASE WHEN type = 'swap' THEN COALESCE(usdt_amount, 0)
+       WHEN type = 'withdraw_all' THEN GREATEST(COALESCE(pp_amount, 0) - COALESCE(fee, 0), 0)
+       ELSE 0 END), 0)`;
+
+async function checkRedemptionLimits(client, opts, getSetting) {
+  const wallet = (opts && opts.wallet ? String(opts.wallet) : '').toLowerCase();
+  const redeemUsdt = Math.max(0, Number(opts && opts.redeemUsdt) || 0);
+  if (redeemUsdt <= 0) return { ok: true };
+
+  // ── 유저 일일 한도 ──
+  const dailyLimit = parseFloat(await getSetting('redemption_daily_limit_usdt', '0')) || 0;
+  if (dailyLimit > 0 && wallet) {
+    const dr = await client.query(
+      `SELECT ${REDEEM_SUM_EXPR} AS used FROM transactions
+       WHERE LOWER(from_wallet) = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
+      [wallet]
+    );
+    const used = parseFloat(dr.rows[0]?.used || 0) || 0;
+    if (used + redeemUsdt > dailyLimit + 1e-9) {
+      return { ok: false, code: 'redemption_daily_limit', limit: dailyLimit, used, requested: redeemUsdt };
+    }
+  }
+
+  // ── 주간 글로벌 한도 (게이트 off 면 스킵) ──
+  const weeklyEnabled = String(await getSetting('redemption_weekly_cap_enabled', 'false')) === 'true';
+  if (weeklyEnabled) {
+    const pct = parseFloat(await getSetting('redemption_weekly_cap_pct', '30')) || 0;
+    const floorUsdt = parseFloat(await getSetting('redemption_weekly_cap_floor_usdt', '100')) || 0;
+    const dep = await client.query(
+      `SELECT COALESCE(SUM(COALESCE(usdt_amount, 0)), 0) AS s FROM transactions
+       WHERE type = 'deposit' AND created_at > NOW() - INTERVAL '7 days'`
+    );
+    const weeklyDeposits = parseFloat(dep.rows[0]?.s || 0) || 0;
+    const cap = Math.max(floorUsdt, weeklyDeposits * (pct / 100));
+    const red = await client.query(
+      `SELECT ${REDEEM_SUM_EXPR} AS used FROM transactions
+       WHERE created_at > NOW() - INTERVAL '7 days'`
+    );
+    const weeklyRedeemed = parseFloat(red.rows[0]?.used || 0) || 0;
+    if (weeklyRedeemed + redeemUsdt > cap + 1e-9) {
+      return { ok: false, code: 'redemption_weekly_cap', cap, weeklyRedeemed, weeklyDeposits, requested: redeemUsdt };
+    }
+  }
+
+  return { ok: true };
+}
+
+// redeemable_pp 게이팅 on/off (기본 on). settings.redeemable_pp_gating_enabled
+async function redeemableGatingEnabled(getSetting) {
+  try {
+    return String(await getSetting('redeemable_pp_gating_enabled', 'true')) === 'true';
+  } catch (_) {
+    return true; // 안전 기본값: 켜짐(채굴 PP USDT 직행 차단)
+  }
+}
+
+module.exports = { lockRoom, adjustCollateral, guardEnabled, checkRedemptionLimits, redeemableGatingEnabled };

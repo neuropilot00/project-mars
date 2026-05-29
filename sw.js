@@ -67,7 +67,8 @@
 // 2026-05-29 v65: v7.257 화성 맹주(Commander)=sov 지배 1위 길드 + SOV MAP 배너.
 // 2026-05-29 v66: v7.258 커맨더 공성 전투(맹주 sov1위 vs 도전 sov2위, 기존 siege/live 재사용) + 맹주 명시 저장 + full-loss 분리.
 // 2026-05-29 v67: v7.260 게임 가이드북 '길드 공성전' 챕터 4언어 추가(섹터/커맨더 공성·실시간 명령·세금·full-loss).
-const CACHE_NAME = 'mars-v67';
+// 2026-05-29 v68: v7.262 경제정책 — 페그 문구 제거 + redeemable_pp 게이팅 + 환매 한도/대시보드(가이드/약관 문구 변경 반영).
+const CACHE_NAME = 'mars-v68';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
