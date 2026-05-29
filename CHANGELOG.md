@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.245 — (A) 지오 섹터 정본 통합: 공성 승리 → 실제 세금 (플래그 OFF)
+
+근본원인(섹터 이원 우주) 해소. 공성 결과를 라이브 세금 시스템(sectors/governance_positions)에 연결. **`siege_governor_canonical_enabled` 기본 false → 프로덕션 세금/클레임 경로 무변경**, 스테이징 검증 후 플래그 ON.
+- **mig 260**: `sector_governance.sector_id`(→sectors.id, sector_definitions.id 위치 1:1 backfill 24/24) + `sectors.siege_governor_locked`. setting `siege_governor_canonical_enabled`.
+- **siege.js `_installGeoGovernor`**: 공성 승자를 정본 sectors 거버너로 설치 — 옛 거버너 잔여 GP→sector_pool, governance_positions/history 교체, `siege_governor_locked=true`. resolveSiege 트랜잭션에서 거버너 변경 시 호출(원자적).
+- **governance.js recalculateGovernor**: `siege_governor_locked` 섹터는 픽셀 자동 재산정 skip → 공성 거버너가 다음 클레임에 안 덮어써짐.
+- **updateTaxRate**: 공성 거버너 세율을 `sectors.tax_rate`(collectTax가 읽는 정본)에도 동기화.
+- **검증**: node --check + DB end-to-end 2종 PASS — ①공성 승리→sectors 거버너/포지션/lock 설치 ②recalc 가드 동작 + collectTax가 공성 승자에게 세금 적립(2% of 1000=20, gov 14). 테스트 데이터/플래그 정리.
+- **남은 활성화 절차**: 스테이징에서 siege_fleet_combat_enabled + guild_governance_enabled + siege_governor_canonical_enabled 순차 ON 검증. 코스메틱(공성 UI에 지오 섹터명 표시)은 비경제 후속.
+
 ## 2026-05-29 v7.244 — 공성 결전 함대 합류/로스터/관전 UI (B)
 
 워크플로 #4(CRITICAL) 해소: 백엔드(commit-fleet/roster/applySiegeResult)는 완성됐으나 프론트에 함대 합류 동선이 없어 플래그 켜도 전부 픽셀 폴백이던 문제. **siege 우주 안에서 자족적이라 섹터 통합(A)과 무관하게 안전.**

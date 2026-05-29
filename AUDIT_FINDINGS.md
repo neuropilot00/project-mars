@@ -10,6 +10,7 @@
 - **결론**: 플레이어가 픽셀 찍는 섹터(지오)와 공성 벌이는 섹터(코드)가 물리적으로 다름. siege의 영토 요건(`claims WHERE sector_code=`)도 빈 컬럼 조회. 두 우주를 잇는 키가 없어 거버너/세금 단일화(A)를 코드로 하면 라이브 세금 경로 손상.
 - **선결 제품 결정 필요** (코드로 결정 불가): ① 24지오섹터를 정본으로 공성을 그 위에서 운용(sector_definitions/sector_governance를 sectors.id에 매핑/병합), 또는 ② 두 시스템 통합 마이그레이션. 이 결정 전까지 (A) 거버너 단일화·세금→길드금고는 착수 불가(footgun).
 - **영향 범위**: (B) JOIN/관전 UI는 공성 우주 안에서 자족적이라 **독립 진행 가능**(세금 우주 무관).
+- **[RESOLVED v7.245] 결정=지오 정본**. mig 260 브리지: sector_governance.sector_id↔sectors.id(1:1 backfill), 공성 승리 시 `_installGeoGovernor`로 sectors/governance_positions 동기화 + recalc 가드(siege_governor_locked) + tax_rate 동기화. DB e2e 검증(공성→세금이 승자에게). `siege_governor_canonical_enabled` 플래그 OFF — 스테이징 검증 후 ON. 코스메틱(공성 UI 지오섹터명) 후속.
 
 ## 🔴 길드 공성전 — 멀티에이전트 검토 확정 발견 (guild-war-review, 13에이전트, 2026-05-29)
 플래그(siege_fleet_combat_enabled / guild_governance_enabled) **ON 전 반드시 선결**. 현재 둘 다 OFF라 라이브 영향 없음.

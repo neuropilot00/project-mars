@@ -19,6 +19,15 @@ async function govCfg() {
 //  Called after claim/hijack changes pixel ownership
 // ═══════════════════════════════════════════════════════
 async function recalculateGovernor(client, sectorId) {
+  // [Phase A] 공성으로 거버너가 설치된 섹터는 픽셀 자동 재산정이 덮어쓰지 않음.
+  //   siege_governor_locked=true 면 거버너 교체를 건너뛴다(공성으로만 교체 가능). 컬럼 없으면 무시(구버전 방어).
+  try {
+    const lock = await client.query('SELECT siege_governor_locked FROM sectors WHERE id = $1', [sectorId]);
+    if (lock.rows[0] && lock.rows[0].siege_governor_locked === true) {
+      return { changed: false, siegeLocked: true };
+    }
+  } catch (_) { /* 컬럼 미존재(마이그 이전) — 기존 동작 유지 */ }
+
   // Top 2 pixel holders in this sector
   const res = await client.query(
     `SELECT owner, COUNT(*)::int AS cnt FROM pixels

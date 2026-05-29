@@ -340,6 +340,18 @@ async function resolveSiege(siegeId, opts = {}) {
       );
     }
 
+    // [Phase A] 지오 정본 동기화 — 거버너가 실제로 바뀐 경우 sectors/세금 경로에도 반영.
+    //   siege_governor_canonical_enabled 게이트. 같은 트랜잭션이라 원자적.
+    const canonicalGov = String(await getSetting('siege_governor_canonical_enabled') ?? 'false') === 'true';
+    if (canonicalGov && winnerWallet && winnerWallet !== siege.defender_wallet) {
+      const sidRow = (await client.query(
+        'SELECT sector_id FROM sector_governance WHERE sector_code = $1', [code]
+      )).rows[0];
+      if (sidRow && sidRow.sector_id) {
+        await _installGeoGovernor(client, sidRow.sector_id, winnerWallet);
+      }
+    }
+
     await client.query('COMMIT');
 
     // Betting 정산 (non-blocking)
@@ -573,6 +585,15 @@ async function updateTaxRate(wallet, sectorCode, taxRate) {
     'UPDATE sector_governance SET tax_rate = $1 WHERE sector_code = $2',
     [rate, code]
   );
+
+  // [Phase A] 지오 정본: 실제 세금 징수가 읽는 sectors.tax_rate 도 동기화 (canonical 게이트).
+  const canonicalGov = String(await getSetting('siege_governor_canonical_enabled') ?? 'false') === 'true';
+  if (canonicalGov) {
+    const sidRow = (await pool.query('SELECT sector_id FROM sector_governance WHERE sector_code = $1', [code])).rows[0];
+    if (sidRow && sidRow.sector_id) {
+      await pool.query('UPDATE sectors SET tax_rate = $1 WHERE id = $2', [rate, sidRow.sector_id]).catch(() => {});
+    }
+  }
   return { success: true, tax_rate: rate };
 }
 
@@ -715,6 +736,51 @@ async function prepareSiegeBattles() {
   }
   if (created > 0) console.log(`[SIEGE] prepareSiegeBattles: ${created} siege fleet battle(s) created`);
   return created;
+}
+
+// ─────────────────────────────────────────────────────────────
+// [Phase A] 지오 정본 동기화 — 공성 승자를 sectors/governance_positions(라이브 세금 경로)에 설치.
+//   sector_governance(코드 우주) 갱신과 별개로, 실제 세수가 흐르는 sectors(지오) 거버너를 교체하고
+//   siege_governor_locked=true 로 픽셀 자동 재산정의 덮어쓰기를 막는다. (siege_governor_canonical_enabled 게이트)
+// ─────────────────────────────────────────────────────────────
+async function _installGeoGovernor(client, sectorId, newGov) {
+  if (!sectorId || !newGov) return;
+  const cur = (await client.query('SELECT governor_wallet FROM sectors WHERE id = $1', [sectorId])).rows[0];
+  if (!cur) return;
+  const oldGov = cur.governor_wallet;
+  const nw = String(newGov).toLowerCase();
+  if (oldGov && oldGov.toLowerCase() === nw) {
+    // 동일 거버너 — 누적 세수 리셋 없이 잠금만 보장
+    await client.query('UPDATE sectors SET siege_governor_locked = true WHERE id = $1', [sectorId]);
+    return;
+  }
+  // 옛 거버너 포지션 정리: 잔여 GP → sector_pool, 히스토리 종료, 포지션 제거
+  if (oldGov) {
+    const oldPos = (await client.query(
+      `SELECT gp_balance FROM governance_positions WHERE role='governor' AND sector_id=$1 FOR UPDATE`, [sectorId]
+    )).rows[0];
+    const oldGP = oldPos ? (parseFloat(oldPos.gp_balance) || 0) : 0;
+    if (oldGP > 0) {
+      await client.query('UPDATE sectors SET sector_pool_gp = sector_pool_gp + $1 WHERE id = $2', [oldGP, sectorId]);
+    }
+    await client.query(
+      `UPDATE governance_history SET ended_at=NOW(), tenure_seconds=EXTRACT(EPOCH FROM (NOW()-started_at))::int
+       WHERE wallet=$1 AND role='governor' AND sector_id=$2 AND ended_at IS NULL`, [oldGov, sectorId]
+    );
+    await client.query(`DELETE FROM governance_positions WHERE role='governor' AND sector_id=$1`, [sectorId]);
+  }
+  // 새 거버너 설치 (포지션 + 히스토리 + sectors)
+  await client.query(
+    `INSERT INTO governance_positions (wallet, role, sector_id, gp_balance, appointed_at)
+     VALUES ($1, 'governor', $2, 0, NOW())
+     ON CONFLICT (role, sector_id) DO UPDATE SET wallet=$1, gp_balance=0, appointed_at=NOW()`, [nw, sectorId]
+  );
+  await client.query(
+    `INSERT INTO governance_history (wallet, role, sector_id, started_at) VALUES ($1, 'governor', $2, NOW())`, [nw, sectorId]
+  );
+  await client.query(
+    'UPDATE sectors SET governor_wallet=$1, governor_since=NOW(), siege_governor_locked=true WHERE id=$2', [nw, sectorId]
+  );
 }
 
 module.exports = {
