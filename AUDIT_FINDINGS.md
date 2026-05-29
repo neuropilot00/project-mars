@@ -2,6 +2,15 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🔴🔴 [ROOT CAUSE] 섹터 시스템이 두 개의 분리된 우주 (2026-05-29 배포검증 중 발견)
+워크플로의 "이원 테이블 표류"보다 더 깊은 근본 원인. **공성 시스템과 픽셀/세금 시스템이 서로 다른 24섹터 집합이며 매핑이 없다.**
+- **`sectors`** (24): name="Vastitas Borealis" 등 실제 화성 지명, 지오 경계, tier. governance.js/collectTax/recalculateGovernor + 픽셀 클레임(findSectorForPixelSync는 sectors.id 반환)이 사용 = **라이브 세금/거버너**.
+- **`sector_definitions`+`sector_governance`** (24): code="olympus_crown" 등 판타지 코드. siege.js가 사용 = **공성 거버너**.
+- id 정렬 안 됨(sectors#1 Vastitas/frontier ≠ sector_definitions#1 olympus_crown/core). `claims.sector_code`는 0건(클레임은 sector_code 미사용).
+- **결론**: 플레이어가 픽셀 찍는 섹터(지오)와 공성 벌이는 섹터(코드)가 물리적으로 다름. siege의 영토 요건(`claims WHERE sector_code=`)도 빈 컬럼 조회. 두 우주를 잇는 키가 없어 거버너/세금 단일화(A)를 코드로 하면 라이브 세금 경로 손상.
+- **선결 제품 결정 필요** (코드로 결정 불가): ① 24지오섹터를 정본으로 공성을 그 위에서 운용(sector_definitions/sector_governance를 sectors.id에 매핑/병합), 또는 ② 두 시스템 통합 마이그레이션. 이 결정 전까지 (A) 거버너 단일화·세금→길드금고는 착수 불가(footgun).
+- **영향 범위**: (B) JOIN/관전 UI는 공성 우주 안에서 자족적이라 **독립 진행 가능**(세금 우주 무관).
+
 ## 🔴 길드 공성전 — 멀티에이전트 검토 확정 발견 (guild-war-review, 13에이전트, 2026-05-29)
 플래그(siege_fleet_combat_enabled / guild_governance_enabled) **ON 전 반드시 선결**. 현재 둘 다 OFF라 라이브 영향 없음.
 - **[FIXED v7.243] siege full-loss 플래그 무시** — battleEngine 일반 분기가 격침함 무조건 영구파괴. siege를 loss-gated 처리로 수정.
