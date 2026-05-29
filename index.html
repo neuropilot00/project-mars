@@ -35516,12 +35516,29 @@ window.addEventListener('resize', _debounce(function(){
       var w = walletState.address ? walletState.address.toLowerCase() : null;
       var html = '';
 
+      // [v7.249] 섹터 정체성 헤더 — 지오 섹터명(현 언어) + 티어 배지 (어디를 두고 싸우는지 각인)
+      if (gov) {
+        var _szName = (LANG==='ko'?gov.sector_name_ko:LANG==='ja'?gov.sector_name_ja:LANG==='zh'?gov.sector_name_zh:gov.sector_name_en) || gov.sector_name_en || code;
+        var _szTier = (gov.sector_type||'').toLowerCase();
+        var _tierCol = _szTier==='core'?'var(--gold)':_szTier==='mid'?'var(--cyan)':'var(--tx3)';
+        html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">';
+        html += '<span style="font-size:13px;font-weight:800;color:var(--tx)">🪐 '+escapeHtml(_szName)+'</span>';
+        if (_szTier) html += '<span style="font-size:8px;font-weight:700;color:'+_tierCol+';border:1px solid '+_tierCol+';border-radius:8px;padding:1px 6px;text-transform:uppercase;font-family:var(--fn)">'+_szTier+'</span>';
+        html += '</div>';
+      }
+
       // Governor info
       html += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;padding:8px;background:rgba(91,184,232,.04);border-radius:6px;border:1px solid rgba(91,184,232,.12)">';
       if (gov && gov.governor) {
-        var govName = gov.governor.nickname || gov.governor.wallet.slice(0,8)+'...';
+        // [v7.249] 길드 거버너면 길드명/태그 우선 표시 (혈맹이 섹터 소유)
+        var govName = gov.governor_guild
+          ? ('['+escapeHtml(gov.governor_guild.tag||'')+'] '+escapeHtml(gov.governor_guild.name||''))
+          : (gov.governor.nickname || gov.governor.wallet.slice(0,8)+'...');
         var daysTxt = gov.governor.days != null ? ' · '+gov.governor.days+'d' : '';
-        html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">GOVERNOR</span><span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">👑 '+govName+daysTxt+'</span></div>';
+        html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">'+(gov.governor_guild?'GOVERNOR GUILD':'GOVERNOR')+'</span><span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">👑 '+govName+daysTxt+'</span></div>';
+        if (gov.governor_guild) {
+          html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">섹터 세수 → 금고</span><span style="font-size:10px;color:var(--gold);font-family:var(--fn)">🏛 '+(Math.round(gov.governor_guild.sectorTaxCollected||0)).toLocaleString()+' GP</span></div>';
+        }
         html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">TAX RATE</span><span style="font-size:10px;color:var(--gold)">'+parseFloat(gov.tax_rate||2).toFixed(1)+'%</span></div>';
         html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">POLICY</span><span style="font-size:10px;color:var(--tx2)">'+_siegePolicyLabel(gov.sector_policy)+'</span></div>';
         if (gov.declaration_text) {

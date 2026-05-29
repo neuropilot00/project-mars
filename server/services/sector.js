@@ -79,10 +79,13 @@ async function getSectorGovernance(sectorCode) {
     `SELECT sg.*,
             u.nickname AS governor_nickname,
             u.wallet_address AS governor_wallet_addr,
-            sd.name_en, sd.name_ko, sd.name_ja, sd.name_zh, sd.sector_type
+            sd.name_en, sd.name_ko, sd.name_ja, sd.name_zh, sd.sector_type,
+            g.id AS gov_guild_id, g.name AS gov_guild_name, g.tag AS gov_guild_tag,
+            g.sector_tax_collected AS gov_guild_sector_tax
      FROM sector_governance sg
      LEFT JOIN users u ON u.wallet_address = sg.governor_wallet
      LEFT JOIN sector_definitions sd ON sd.code = sg.sector_code
+     LEFT JOIN guilds g ON g.id = sg.governor_guild_id
      WHERE sg.sector_code = $1`,
     [sectorCode]
   );
@@ -101,7 +104,18 @@ async function getSectorGovernance(sectorCode) {
   return {
     sector_code:        row.sector_code,
     sector_name_en:     row.name_en,
+    sector_name_ko:     row.name_ko,
+    sector_name_ja:     row.name_ja,
+    sector_name_zh:     row.name_zh,
     sector_type:        row.sector_type,
+    sector_id:          row.sector_id || null,
+    // [Phase A] 길드 거버너 — 있으면 개인 대신 길드가 섹터 소유
+    governor_guild: row.gov_guild_id ? {
+      id:   row.gov_guild_id,
+      name: row.gov_guild_name,
+      tag:  row.gov_guild_tag,
+      sectorTaxCollected: parseFloat(row.gov_guild_sector_tax || 0)
+    } : null,
     governor: row.governor_wallet ? {
       wallet:    row.governor_wallet,
       nickname:  row.governor_nickname || row.governor_wallet.slice(0, 8),
