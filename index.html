@@ -37469,6 +37469,12 @@ function claimDailyLogin(){
     var milestone = _dailyMilestones[_dailyState.streak];
     if(milestone) msg += ' ' + t('daily_streak_bonus').replace('{n}', milestone.bonus);
     showToast(msg);
+    // [v7.220 upgrade #2] 48h 유예 발동 시 안내 — 하루 놓쳤지만 streak 살아남.
+    if (d.graceUsed) {
+      setTimeout(function(){
+        showToast(tl('🛟 Streak saved! (1-day grace used)','🛟 연속 보너스 유지! (하루 유예 사용)','🛟 連続維持！(1日猶予)','🛟 连续保留！(1日宽限)'),'success');
+      }, 900);
+    }
     showNotification('system',t('daily_checkin_complete'),t('daily_streak_msg').replace('{n}',_dailyState.streak)+' '+msg);
     try{_sfx.harvest()}catch(e){}
     renderInlineCheckin();

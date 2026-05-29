@@ -40,7 +40,8 @@
 // 2026-05-29 v35: v7.214 inline onclick 회귀 3차 마이그 (tdesc/AI fight/replay) + 카탈로그 disabled + CLAUDE.md §19 + pre-commit hook.
 // 2026-05-29 v36: v7.215 iOS phantom-click 가드 (350ms) + campaignProfileModal inner stopPropagation.
 // 2026-05-29 v37: v7.219 가챠 개봉 서스펜스 연출(박스 흔들림→빛 폭발) + crateCharge/Burst 사운드.
-const CACHE_NAME = 'mars-v37';
+// 2026-05-29 v38: v7.220 Daily Streak 48h 유예 (하루 놓쳐도 streak 유지) + grace 안내.
+const CACHE_NAME = 'mars-v38';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

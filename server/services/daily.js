@@ -44,9 +44,11 @@ async function recordDailyLogin(wallet) {
     };
   }
 
-  // Check yesterday's record for streak continuity
-  const yesterday = await pool.query(
-    "SELECT streak_day FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE - INTERVAL '1 day'",
+  // [v7.220 upgrade #2] 48h 유예 streak — 어제(1일 전) 또는 그저께(2일 전) 기록이 있으면 streak 이어감.
+  //   시간대 경계/하루 깜빡으로 streak 손실되던 리텐션 누수 방지. 3일+ 공백이면 0 row → 리셋(streak 1).
+  //   가장 최근 2일 내 기록의 streak_day 를 기준(어제 우선, 없으면 그저께).
+  const recent = await pool.query(
+    "SELECT streak_day, login_date FROM daily_logins WHERE wallet = $1 AND login_date >= CURRENT_DATE - INTERVAL '2 days' ORDER BY login_date DESC LIMIT 1",
     [w]
   );
 
@@ -54,8 +56,13 @@ async function recordDailyLogin(wallet) {
   const CYCLE = 7;
   let streakDay = 1;
   let cycleReset = false;
-  if (yesterday.rows.length) {
-    streakDay = yesterday.rows[0].streak_day + 1;
+  let graceUsed = false;
+  if (recent.rows.length) {
+    // 그저께(2일 전) 기록을 썼다면 하루 놓친 것 → grace 적용됨 (안내용 플래그).
+    const lastDate = new Date(recent.rows[0].login_date);
+    const daysAgo = Math.round((Date.now() - lastDate.getTime()) / 86400000);
+    graceUsed = daysAgo >= 2;
+    streakDay = recent.rows[0].streak_day + 1;
     if (streakDay > CYCLE) { streakDay = 1; cycleReset = true; }
   }
 
@@ -168,7 +175,8 @@ async function recordDailyLogin(wallet) {
     rewardGP,
     rewardPP,
     totalDays,
-    milestone
+    milestone,
+    graceUsed // [v7.220] true 면 하루 놓쳤지만 48h 유예로 streak 유지 — 프론트 안내용.
   };
 }
 
