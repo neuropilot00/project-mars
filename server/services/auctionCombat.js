@@ -67,6 +67,7 @@ async function createAuction(sellerWallet, params) {
   const {
     listing_type = 'item',
     item_instance_id, item_type_id, claim_id, resource_id, resource_quantity, ship_instance_id,
+    bundle_currency, bundle_amount,
     start_price, currency = 'GP',
     buyout_price,
     duration_hours = 24,
@@ -74,6 +75,15 @@ async function createAuction(sellerWallet, params) {
 
   if (!start_price || start_price <= 0) throw new Error('INVALID_START_PRICE');
   if (!['GP','PP'].includes(currency)) throw new Error('INVALID_CURRENCY');
+
+  // [경제v2 P3] 통화 번들(GP↔PP) 매물 검증 — 파는 통화는 입찰 통화와 달라야 함.
+  if (listing_type === 'currency') {
+    if (!['GP','PP'].includes(bundle_currency)) throw new Error('INVALID_BUNDLE_CURRENCY');
+    if (bundle_currency === currency) throw new Error('BUNDLE_SAME_CURRENCY');
+    if (!(bundle_amount > 0)) throw new Error('INVALID_BUNDLE_AMOUNT');
+    const enabled = String(await getSetting('currency_auction_enabled', 'true')) === 'true';
+    if (!enabled) throw new Error('CURRENCY_AUCTION_DISABLED');
+  }
 
   const minHours = await getInt('auction_min_duration_hours', 1);
   const maxHours = await getInt('auction_max_duration_hours', 72);
@@ -101,20 +111,28 @@ async function createAuction(sellerWallet, params) {
       );
       if (!rowCount) throw new Error('SHIP_NOT_AVAILABLE');
     }
+    // [경제v2 P3] 통화 번들 에스크로 — 파는 통화(bundle_currency) 수량을 판매자 잔고에서 잠금.
+    if (listing_type === 'currency') {
+      const ok = await deductBalance(client, sellerWallet, bundle_currency, bundle_amount);
+      if (!ok) throw new Error('INSUFFICIENT_BALANCE');
+    }
 
     const { rows } = await client.query(`
       INSERT INTO auctions (
         seller_wallet, listing_type,
         item_instance_id, item_type_id, claim_id,
         resource_id, resource_quantity, ship_instance_id,
+        bundle_currency, bundle_amount,
         start_price, currency, current_price, buyout_price,
         fee_pct, ends_at
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$9,$11,$12,$13)
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$11,$13,$14,$15)
       RETURNING *
     `, [
       sellerWallet, listing_type,
       item_instance_id || null, item_type_id || null, claim_id || null,
       resource_id || null, resource_quantity || null, ship_instance_id || null,
+      (listing_type === 'currency' ? bundle_currency : null),
+      (listing_type === 'currency' ? bundle_amount : null),
       start_price, currency,
       buyout_price || null, fee, endsAt,
     ]);
@@ -356,6 +374,13 @@ async function _transferItem(client, auction, buyerWallet) {
         `, [buyerWallet, auction.resource_id, auction.resource_quantity]).catch(() => {});
       }
       break;
+    case 'currency':
+      // [경제v2 P3] 낙찰자에게 번들 통화 지급. addBalance 는 pp_balance/gp_balance 만 갱신 →
+      //   매수한 PP 는 redeemable_pp(환매 버킷)에 적립되지 않아 비환매 유지(모델 정합).
+      if (auction.bundle_currency && auction.bundle_amount) {
+        await addBalance(client, buyerWallet, auction.bundle_currency, parseFloat(auction.bundle_amount));
+      }
+      break;
     default:
       // cosmetic/item: item_instance 소유권 이전
       if (auction.item_instance_id) {
@@ -371,6 +396,14 @@ async function _returnEscrowItem(auction) {
   if (auction.listing_type === 'ship' && auction.ship_instance_id) {
     await pool.query(
       `UPDATE ship_instances SET status = 'docked' WHERE id = $1`, [auction.ship_instance_id]
+    ).catch(() => {});
+  }
+  // [경제v2 P3] 통화 번들 유찰 시 판매자에게 에스크로 통화 환불.
+  if (auction.listing_type === 'currency' && auction.bundle_currency && auction.bundle_amount) {
+    const col = auction.bundle_currency === 'PP' ? 'pp_balance' : 'gp_balance';
+    await pool.query(
+      `UPDATE users SET ${col} = COALESCE(${col},0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+      [parseFloat(auction.bundle_amount), auction.seller_wallet]
     ).catch(() => {});
   }
 }
