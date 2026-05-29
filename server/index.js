@@ -407,6 +407,7 @@ app.use('/api', allianceRoutes);
 // Removed: luckyBoxRoutes (phantom tables, 0 UI refs)
 app.use('/api', vipRoutes);
 app.use('/api', expeditionRoutes);
+app.use('/api', require('./routes/shipMining')); // 경제 v2 P5 — 함선 채굴 런 (F2P 노가다)
 app.use('/api', brandingRoutes);
 app.use('/api', spellRoutes);
 app.use('/api', tournamentRoutes);

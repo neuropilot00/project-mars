@@ -2,6 +2,13 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 함선 채굴 런(경제v2 P5) — 땅 없는 F2P 노가다 (v7.267, 2026-05-30)
+- ✅ 함대를 채굴 런에 보내 재료+GP 수급(땅 불필요). ship_mining_jobs(mig 275) + shipMining 서비스/라우트(/api/mining/*) + FLEET COMMAND ⛏ 버튼 + openShipMining 모달. 격리·추가형이라 기존 흐름 무영향.
+- ✅ GP=함선수×시간×5, 재료=rollResourceDrop(시간비례), PP 안 줌. launch 검증(소유/전투/중복/한도/생존함선), collect 가드(미완료/재수령). 무료 출항(F2P).
+- ✅ 경매 cancel 엔드포인트(auctionCombat, 입찰0만 환불) — 마켓 통합 준비.
+- 검증: DB e2e 8/8 + 부팅 200 + 인라인 9/9 + §19. SW v72.
+- 🟡 후속: 경매 프론트 통화 UI(자산 PP/GP + GP↔PP 거래소)는 auction.js↔auctionCombat 2시스템 통합 필요 → 별도 검증 세션. 함선 PP 마켓. 채굴 자동완료 스케줄러(현재 collect-on-demand).
+
 ## 🟢 무료 PP→GP 전환(경제v2 P2) + activity/feed 버그 + 로켓 가드 (v7.266, 2026-05-30)
 - ✅ [경제v2 P2] 무료 PP faucet 12파일 전부 GP로(값보존 ×환율). PP=입금 발행 전용. 하이잭 land-PvP는 PP 유지. governance 바운티 GP→PP 발행 제거(누수 차단). 마이그 없음. Codex 구현, 내가 검수(구문/헬퍼/모듈로드/잔여 0/부팅200).
 - ✅ [FIX] /activity/feed `st.name`(ship_types엔 name_ko만) → COALESCE(name_ko, code). 함선 건조 이벤트 피드 누락 복구. 비치명.

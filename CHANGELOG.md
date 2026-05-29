@@ -1,3 +1,14 @@
+## 2026-05-30 v7.267 — 함선 채굴 런(경제v2 P5) — 땅 없는 F2P 노가다
+
+EVE식 함선 채굴. 땅(영토) 없는 유저가 함대를 채굴 런에 보내 재료+GP를 수급하는 F2P 사다리 1단.
+- **백엔드(격리·추가형, 기존 흐름 무영향)**: `ship_mining_jobs` 테이블(mig 275) + `services/shipMining.js` + `routes/shipMining.js`(`/api/mining/info|my|launch|collect`).
+  · launch: 함대 소유·전투중아님·중복채굴아님·동시한도·살아있는 함선≥1 검증 후 시간 점유. collect: 복귀(ends_at 경과) 시 GP(=함선수×시간×`ship_mining_gp_per_ship_h`5) + 재료(rollResourceDrop, 시간비례 roll) 수급. **PP 안 줌**(무료PP 폐지 정책). 출항 비용 0(무료 노가다, 설정 가능).
+  · 설정(mig 275): `ship_mining_enabled`, `_durations_h`[1,4,8], `_gp_per_ship_h`5, `_max_per_wallet`3, `_resource_rolls_per_4h`1, `_launch_cost_gp`0.
+- **프론트**: FLEET COMMAND 허브에 ⛏ Mining Run 버튼(3열→2×2) + `openShipMining()` 모달(함대/시간 선택→출항, 진행/완료 런 목록+수령). §19 준수(addEventListener, inline concat 없음). i18n 4언어.
+- **경매 cancel 엔드포인트** 추가(auctionCombat — 입찰 0건만, 에스크로 환불) — 향후 마켓 통합용.
+- 검증: node --check + mig 275 + **DB e2e 8/8**(launch 가드·GP=함선×시간×5·재료·중복/미완료/재collect 거부) + 서버 부팅 200(/api/mining/info) + 인라인스크립트 9/9. SW v71→v72.
+- 후속(비차단): 경매 프론트 통화 UI(자산 PP/GP·GP↔PP 거래소) — 2시스템 통합 필요라 별도 검증 세션. 함선 PP 마켓.
+
 ## 2026-05-30 v7.266 — 무료 PP→GP 전환(경제v2 P2, Codex) + activity/feed 버그 + 로켓 가드
 
 - **[경제v2 P2] 무료 PP faucet 전부 GP로 전환** (Codex 구현 + 검수). PP는 입금(chain.js)에서만 발행. 무료 보상은 `settings.pp_to_gp_exchange_rate`(기본 10) 배 GP로 가치 보존.

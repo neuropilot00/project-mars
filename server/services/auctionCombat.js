@@ -490,10 +490,49 @@ async function getAuctionDetail(auctionId) {
   return { auction: aRows[0], bids };
 }
 
+// ─── 취소 (입찰 없을 때만, 에스크로 환불) ───
+// [경제v2 P3] 프론트 경매를 auctionCombat 으로 일원화하면서 cancel 추가(기존 auction.js 정책 동일: 입찰 0건만).
+async function cancelAuction(walletAddress, auctionId) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(
+      `SELECT * FROM auctions WHERE id = $1 AND status = 'active' FOR UPDATE`, [auctionId]
+    );
+    if (!rows[0]) { await client.query('ROLLBACK'); throw new Error('AUCTION_NOT_FOUND'); }
+    const a = rows[0];
+    if (a.seller_wallet !== walletAddress) { await client.query('ROLLBACK'); throw new Error('NOT_OWNER'); }
+    const { rows: bc } = await client.query(
+      `SELECT COUNT(*)::int AS c FROM bids WHERE auction_id = $1 AND is_refunded = FALSE`, [auctionId]
+    );
+    if (bc[0].c > 0) { await client.query('ROLLBACK'); throw new Error('HAS_BIDS'); }
+
+    // 에스크로 환불 (트랜잭션 내) — ship: dock 복귀, currency: 번들 통화 반환.
+    if (a.listing_type === 'ship' && a.ship_instance_id) {
+      await client.query(`UPDATE ship_instances SET status = 'docked' WHERE id = $1`, [a.ship_instance_id]);
+    } else if (a.listing_type === 'currency' && a.bundle_currency && a.bundle_amount) {
+      const col = a.bundle_currency === 'PP' ? 'pp_balance' : 'gp_balance';
+      await client.query(
+        `UPDATE users SET ${col} = COALESCE(${col},0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+        [parseFloat(a.bundle_amount), a.seller_wallet]
+      );
+    }
+    await client.query(`UPDATE auctions SET status = 'cancelled' WHERE id = $1`, [auctionId]);
+    await client.query('COMMIT');
+    return { cancelled: true, auction_id: auctionId };
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   createAuction,
   placeBid,
   buyout,
+  cancelAuction,
   settleAuction,
   processAllAuctions,
   getAuctions,

@@ -6867,7 +6867,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane" id="basePane_fleet">
         <div class="base-banner" id="bannerFleet"><img src="/assets/base/fleet.jpg?v=v7160" alt="Fleet Command" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
         <!-- 빠른 액션 버튼 (크고 사각형) -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
           <button type="button" onclick="openShipyard()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">🔨</span>
             <span data-i18n="fcmd_open_shipyard_short">Shipyard</span>
@@ -6875,6 +6875,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <button type="button" onclick="openFleetCmd()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(255,152,0,.12);border:1px solid rgba(255,152,0,.45);color:#ffaa33;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">⚔</span>
             <span data-i18n="fcmd_my_fleets_short">My Fleets</span>
+          </button>
+          <button type="button" onclick="openShipMining()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(100,220,130,.12);border:1px solid rgba(100,220,130,.4);color:#64dc82;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
+            <span style="font-size:22px;line-height:1">⛏</span>
+            <span data-i18n="fcmd_mining_short">Mining Run</span>
           </button>
           <button type="button" onclick="openTacticalLab()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.4);color:#ce93d8;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">🧪</span>
@@ -17561,7 +17565,7 @@ var I18N = {
     base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_items: 'MY ITEMS', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN', shop_cat_material: '⛏ MATERIALS',
     base_tab_transport: 'TRANSPORT', base_tab_quests_full: 'CAMPAIGN/QUESTS',
     bcat_territory: 'Territory', bcat_fleet: 'Fleet', bcat_economy: 'Economy', bcat_mission: 'Mission', bcat_community: 'Community',
-    fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_tactical_lab: 'Tactical Lab', fcmd_tactical_lab_short: 'Tactical Lab',
+    fcmd_open_shipyard_short: 'Shipyard', fcmd_my_fleets_short: 'My Fleets', fcmd_mining_short: 'Mining Run', fcmd_tactical_lab: 'Tactical Lab', fcmd_tactical_lab_short: 'Tactical Lab',
     fleet_status_label: 'Fleet Status', fleet_world_events: 'Active World Events', btn_refresh: '↻ Refresh',
     hijack_no_fleet_auto_win: 'No enemy fleet — Auto Win (instant territory transfer)',
     hijack_no_fleet_label: 'No Fleet — Hijack Unavailable',
@@ -18437,7 +18441,7 @@ var I18N = {
     base_tab_shop: '상점', base_tab_market: '마켓', base_tab_items: '내 아이템', base_tab_guild: '길드', base_tab_govern: '거버넌스', shop_cat_material: '⛏ 재료',
     base_tab_transport: '수송', base_tab_quests_full: '캠페인/퀘스트',
     bcat_territory: '영토', bcat_fleet: '함대 지휘부', bcat_economy: '경제', bcat_mission: '임무', bcat_community: '커뮤니티',
-    fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_tactical_lab: '전술랩', fcmd_tactical_lab_short: '전술 실험실',
+    fcmd_open_shipyard_short: '조선소', fcmd_my_fleets_short: '내 함대', fcmd_mining_short: '채굴 출항', fcmd_tactical_lab: '전술랩', fcmd_tactical_lab_short: '전술 실험실',
     fleet_status_label: '내 함대 현황', fleet_world_events: '활성 월드 이벤트', btn_refresh: '↻ 새로고침',
     hijack_no_fleet_auto_win: '상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)',
     hijack_no_fleet_label: '함대 없음 — 하이젝 불가',
@@ -19310,7 +19314,7 @@ var I18N = {
     base_tab_shop: 'ショップ', base_tab_market: 'マーケット', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
     base_tab_transport: '輸送', base_tab_quests_full: 'キャンペーン/クエスト',
     bcat_territory: '領土', bcat_fleet: '艦隊', bcat_economy: '経済', bcat_mission: 'ミッション', bcat_community: 'コミュニティ',
-    fcmd_open_shipyard_short: '造船所', fcmd_my_fleets_short: '艦隊管理', fcmd_tactical_lab: '戦術ラボ', fcmd_tactical_lab_short: '戦術ラボ',
+    fcmd_open_shipyard_short: '造船所', fcmd_my_fleets_short: '艦隊管理', fcmd_mining_short: '採掘出航', fcmd_tactical_lab: '戦術ラボ', fcmd_tactical_lab_short: '戦術ラボ',
     fleet_status_label: '艦隊状況', fleet_world_events: 'アクティブイベント', btn_refresh: '↻ 更新',
     hijack_no_fleet_auto_win: '敵艦隊なし — 自動勝利（即時領土移転）',
     hijack_fleet_info_fail: '敵艦隊情報の読み込み失敗',
@@ -20170,7 +20174,7 @@ var I18N = {
     base_tab_shop: '商店', base_tab_market: '市场', base_tab_guild: '公会', base_tab_govern: '治理',
     base_tab_transport: '运输', base_tab_quests_full: '战役/任务',
     bcat_territory: '领土', bcat_fleet: '舰队', bcat_economy: '经济', bcat_mission: '任务', bcat_community: '社区',
-    fcmd_open_shipyard_short: '造船厂', fcmd_my_fleets_short: '我的舰队', fcmd_tactical_lab: '战术实验室', fcmd_tactical_lab_short: '战术实验室',
+    fcmd_open_shipyard_short: '造船厂', fcmd_my_fleets_short: '我的舰队', fcmd_mining_short: '采矿出航', fcmd_tactical_lab: '战术实验室', fcmd_tactical_lab_short: '战术实验室',
     fleet_status_label: '舰队状态', fleet_world_events: '活跃世界事件', btn_refresh: '↻ 刷新',
     hijack_no_fleet_auto_win: '无敌方舰队 — 自动胜利（即时领土转移）',
     hijack_fleet_info_fail: '加载敌方舰队信息失败',
@@ -48406,6 +48410,116 @@ var shipyardState = {
   marketSort: 'price_asc',
   materialSectorHints: {},  // resource_code → primary sector_type (frontier/mid/core)
 };
+
+// ⛏ 함선 채굴 런 (경제 v2 P5) — 땅 없는 F2P 노가다. 함대를 보내 재료+GP 수급.
+async function openShipMining() {
+  if (!isLoggedIn()) { showFactionToast(tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
+  var w = (walletState && walletState.address) || '';
+  var old = document.getElementById('shipMiningModal'); if (old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'shipMiningModal';
+  el.style.cssText = 'position:fixed;inset:0;z-index:100020;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.85);backdrop-filter:blur(6px);padding:16px';
+  el.addEventListener('click', function(e){ if(e.target===el) el.remove(); });
+  el.innerHTML = '<div id="smBody" style="position:relative;width:min(460px,95vw);max-height:90vh;overflow:auto;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(100,220,130,.14),rgba(10,14,20,.98) 60%);border:1.5px solid rgba(100,220,130,.5);box-shadow:0 0 40px rgba(100,220,130,.25);padding:18px">'
+    + '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#64dc82">⛏ '+tl('SHIP MINING','함선 채굴','艦船採掘','舰船采矿')+'</div>'
+    + '<div style="text-align:center;font-size:9px;color:var(--tx3);margin-top:3px">'+tl('Send a fleet to mine materials + GP. No land needed.','함대를 보내 재료+GP 채굴. 땅 필요 없음.','艦隊を送って素材+GP採掘。領土不要。','派舰队采集素材+GP。无需领地。')+'</div>'
+    + '<div id="smContent" style="margin-top:14px;font-size:11px;color:var(--tx2)">'+tl('Loading…','불러오는 중…','読み込み中…','加载中…')+'</div>'
+    + '<button type="button" id="smClose" style="width:100%;margin-top:14px;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--tx2);font-family:var(--fn);font-size:10px;cursor:pointer">'+tl('CLOSE','닫기','閉じる','关闭')+'</button>';
+  document.body.appendChild(el);
+  el.querySelector('#smClose').addEventListener('click', function(){ el.remove(); });
+  _renderShipMining();
+}
+
+async function _renderShipMining() {
+  var w = (walletState && walletState.address) || '';
+  var c = document.getElementById('smContent'); if (!c) return;
+  try {
+    var res = await Promise.all([
+      fetch('/api/mining/info').then(function(r){return r.json();}),
+      fetch('/api/mining/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}),
+      fetch('/api/fleets', {headers:getAuthHeaders()}).then(function(r){return r.json();})
+    ]);
+    var info = res[0]||{}, my = (res[1]&&res[1].jobs)||[], fleets = (res[2]&&res[2].fleets)||[];
+    if (info.enabled === false) { c.innerHTML = '<div style="color:var(--tx3);text-align:center;padding:16px 0">'+tl('Mining is disabled.','채굴이 비활성화됨.','採掘は無効です。','采矿已禁用。')+'</div>'; return; }
+    // 함선 보유 함대만 (ship_count>0)
+    var usable = fleets.filter(function(f){ return (parseInt(f.ship_count)||0) > 0; });
+    var durs = info.durationsH || [1,4,8];
+    var h = '';
+    // 진행/완료 런
+    if (my.length) {
+      h += '<div style="font-size:9px;color:#64dc82;font-weight:700;letter-spacing:.5px;margin-bottom:6px">'+tl('ACTIVE / RECENT RUNS','진행/최근 런','進行/最近','进行/最近')+'</div>';
+      my.forEach(function(j){
+        var ready = j.status==='mining' && (j.seconds_remaining||0) <= 0;
+        var done = j.status==='collected';
+        var mins = Math.ceil((j.seconds_remaining||0)/60);
+        h += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(100,220,130,.18);border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px">'
+          + '<div style="flex:1;font-size:10px"><b style="color:#fff">'+escapeHtmlSafe(j.fleet_name||('Fleet #'+j.fleet_id))+'</b> <span style="color:var(--tx3)">· '+j.ship_count+'🛸 · '+j.duration_h+'h</span><br>'
+          + '<span style="font-size:8.5px;color:var(--tx3)">'+(done?('✅ '+tl('Collected','수령완료','受取済','已领取')+': '+_fmtGp(j.reward_gp)+' GP'):(ready?('⛏ '+tl('Ready to collect','수령 가능','受取可能','可领取')):('⏳ '+mins+tl('m left','분 남음','分残り','分钟')))) + '</span></div>'
+          + (ready?'<button type="button" class="sm-collect" data-job="'+j.id+'" style="font-size:9px;font-weight:700;padding:6px 10px;border-radius:6px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;cursor:pointer;font-family:var(--fn)">'+tl('COLLECT','수령','受取','领取')+'</button>':'')
+          + '</div>';
+      });
+    }
+    // 출항 폼
+    h += '<div style="font-size:9px;color:#64dc82;font-weight:700;letter-spacing:.5px;margin:12px 0 6px">'+tl('LAUNCH NEW RUN','새 채굴 출항','新規出航','新采矿')+'</div>';
+    if (!usable.length) {
+      h += '<div style="font-size:10px;color:var(--tx3);padding:8px 0">'+tl('No fleet with ships. Build a ship in the Shipyard first.','함선 있는 함대가 없습니다. 조선소에서 함선부터 건조하세요.','艦船のある艦隊がありません。まず造船所で建造を。','没有带舰船的舰队。请先在造船厂建造。')+'</div>';
+    } else {
+      h += '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+        + '<select id="smFleet" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(100,220,130,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
+        + usable.map(function(f){ return '<option value="'+f.id+'">'+escapeHtmlSafe(f.name||('Fleet #'+f.id))+' ('+(f.ship_count||0)+'🛸)</option>'; }).join('')
+        + '</select>'
+        + '<select id="smDur" style="font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(100,220,130,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
+        + durs.map(function(d){ return '<option value="'+d+'">'+d+'h</option>'; }).join('')
+        + '</select></div>';
+      h += '<div style="font-size:8.5px;color:var(--tx3);margin-bottom:8px">'+tl('Reward','보상','報酬','奖励')+': '+(info.gpPerShipHour||5)+' GP × '+tl('ships','함선','艦','舰')+' × '+tl('hours','시간','時間','小时')+' + '+tl('materials','재료','素材','素材')+(info.launchCostGp>0?(' · '+tl('Cost','비용','コスト','费用')+': '+info.launchCostGp+' GP'):'')+'</div>';
+      h += '<button type="button" id="smLaunch" style="width:100%;padding:9px;border-radius:8px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer">⛏ '+tl('LAUNCH MINING RUN','채굴 출항','採掘出航','出航采矿')+'</button>';
+    }
+    c.innerHTML = h;
+
+    // 핸들러 (갓 생성한 요소에 직접 — §19: inline concat 금지, addEventListener 사용)
+    var launchBtn = document.getElementById('smLaunch');
+    if (launchBtn) launchBtn.addEventListener('click', function(){
+      var fleetId = parseInt(document.getElementById('smFleet').value,10);
+      var durationH = parseFloat(document.getElementById('smDur').value);
+      launchBtn.disabled = true; launchBtn.textContent = '...';
+      fetch('/api/mining/launch',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({fleetId:fleetId,durationH:durationH})})
+        .then(function(r){return r.json();}).then(function(d){
+          if (d.error){ showToast(_smErr(d.error),'error'); launchBtn.disabled=false; launchBtn.textContent='⛏'; return; }
+          showToast('⛏ '+tl('Mining run launched!','채굴 출항 완료!','採掘出航!','采矿出航!'));
+          _renderShipMining();
+        }).catch(function(){ showToast(tl('Launch failed','출항 실패','失敗','失败'),'error'); launchBtn.disabled=false; });
+    });
+    Array.prototype.forEach.call(c.querySelectorAll('.sm-collect'), function(btn){
+      btn.addEventListener('click', function(){
+        var jobId = parseInt(btn.getAttribute('data-job'),10);
+        btn.disabled = true; btn.textContent = '...';
+        fetch('/api/mining/collect',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({jobId:jobId})})
+          .then(function(r){return r.json();}).then(function(d){
+            if (d.error){ showToast(_smErr(d.error),'error'); btn.disabled=false; btn.textContent=tl('COLLECT','수령','受取','领取'); return; }
+            var matN = (d.resources||[]).reduce(function(a,x){return a+(x.quantity||0);},0);
+            showToast('⛏ +'+_fmtGp(d.rewardGp)+' GP'+(matN>0?(' · +'+matN+' '+tl('materials','재료','素材','素材')):''));
+            try{ refreshBalance(); }catch(_){}
+            _renderShipMining();
+          }).catch(function(){ showToast(tl('Collect failed','수령 실패','失敗','失败'),'error'); btn.disabled=false; });
+      });
+    });
+  } catch(e) {
+    c.innerHTML = '<div style="color:var(--red);font-size:10px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>';
+  }
+}
+function _fmtGp(v){ var n=Math.round(Number(v)||0); return n.toLocaleString(); }
+function _smErr(code){
+  var m = {
+    fleet_already_mining: tl('This fleet is already mining','이미 채굴 중인 함대','既に採掘中','已在采矿'),
+    mining_limit_reached: tl('Mining run limit reached','채굴 런 한도 도달','上限到達','已达上限'),
+    no_alive_ships: tl('Fleet has no usable ships','사용 가능한 함선 없음','使用可能な艦なし','无可用舰船'),
+    fleet_in_battle: tl('Fleet is in battle','전투 중인 함대','戦闘中','战斗中'),
+    not_ready: tl('Not finished yet','아직 진행 중','まだ未完了','尚未完成'),
+    already_collected: tl('Already collected','이미 수령함','受取済','已领取'),
+    insufficient_gp: tl('Not enough GP','GP 부족','GP不足','GP不足')
+  };
+  return m[code] || code;
+}
 
 function openShipyard() {
   if (!isLoggedIn()) {

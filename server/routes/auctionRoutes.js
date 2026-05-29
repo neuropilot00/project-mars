@@ -42,6 +42,7 @@ const ERROR_STATUS = {
   INSUFFICIENT_BALANCE: 402,
   INVALID_BUNDLE_CURRENCY: 400, BUNDLE_SAME_CURRENCY: 400,
   INVALID_BUNDLE_AMOUNT: 400, CURRENCY_AUCTION_DISABLED: 409,
+  NOT_OWNER: 403, HAS_BIDS: 409,
 };
 
 function handleErr(res, err, ctx) {
@@ -108,6 +109,14 @@ router.post('/:id/buyout', requireAuth, async (req, res) => {
     const result = await auction.buyout(getWallet(req), parseInt(req.params.id));
     res.json(result);
   } catch (err) { handleErr(res, err, 'buyout'); }
+});
+
+/** POST /api/auctions/:id/cancel — 취소 (입찰 없을 때만, 에스크로 환불) */
+router.post('/:id/cancel', requireAuth, async (req, res) => {
+  try {
+    const result = await auction.cancelAuction(getWallet(req), parseInt(req.params.id));
+    res.json(result);
+  } catch (err) { handleErr(res, err, 'cancel'); }
 });
 
 module.exports = router;
