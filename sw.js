@@ -46,7 +46,7 @@
 // 2026-05-29 v41: v7.223 로딩 배경 영상(데스크탑) + v7.175 시각자산 15개 git 복구(allowlist 누락 수정).
 // 2026-05-29 v42: v7.224 로딩 배경 영상 4종 랜덤(load_loop_01~04).
 // 2026-05-29 v43: v7.225 모바일 세로 로딩 영상 3종(load_loop_v01~03) — 데스크탑 가로 4종과 분기.
-const CACHE_NAME = 'mars-v45';
+const CACHE_NAME = 'mars-v46';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

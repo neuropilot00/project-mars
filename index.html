@@ -48243,6 +48243,9 @@ function playCrateOpening(d){
         return resolve();
       }
 
+      // [v7.228] 에픽/레전더리(tier>=3) 는 풀스크린 영상 연출 → 끝나면 resolve. 일반은 아래 캔버스 연출.
+      if (tier >= 3) { _playGachaVideo(resolve); return; }
+
       var ov = document.createElement('div');
       ov.id = 'crateOpeningOverlay';
       ov.style.cssText = 'position:fixed;inset:0;z-index:100001;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.9);backdrop-filter:blur(6px);animation:crFade .2s ease';
@@ -48271,6 +48274,30 @@ function playCrateOpening(d){
       setTimeout(function(){ try { if(document.getElementById('crateOpeningOverlay')) ov.remove(); } catch(_){}; resolve(); }, chargeMs + burstMs + 400);
     } catch(_) { resolve(); }
   });
+}
+
+// [v7.228] 가챠 에픽/레전더리 풀스크린 영상 연출 (crate cracks open → warship emerges).
+//   가로(데스크탑) gacha_reveal.mp4 / 세로(모바일) gacha_reveal_v01~v02 랜덤. 끝나거나 탭하면 resolve.
+function _playGachaVideo(resolve){
+  try {
+    var ov = document.createElement('div');
+    ov.id = 'gachaVideoOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:#05040b;display:flex;align-items:center;justify-content:center;overflow:hidden;animation:crFade .2s ease';
+    var src;
+    if (window.innerWidth > 768) src = '/assets/fx/gacha_reveal.mp4';
+    else src = '/assets/fx/gacha_reveal_v0'+(1+Math.floor(Math.random()*2))+'.mp4';
+    ov.innerHTML =
+      '<video id="_gachaVid" muted playsinline autoplay style="width:100%;height:100%;object-fit:cover"><source src="'+src+'" type="video/mp4"></video>'
+      + '<div style="position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--fn);font-size:10px;color:rgba(255,255,255,.5)">'+tl("tap to skip","탭하여 건너뛰기","タップでスキップ","点击跳过")+'</div>';
+    document.body.appendChild(ov);
+    var done=false;
+    var finish=function(){ if(done)return; done=true; try{ov.remove();}catch(_){}; resolve(); };
+    ov.addEventListener('click', finish);
+    var vid=document.getElementById('_gachaVid');
+    if (vid){ vid.addEventListener('ended', finish, {once:true}); var pp=vid.play(); if(pp&&pp.catch) pp.catch(function(){ setTimeout(finish,800); }); }
+    try { _sfx.crateCharge(); } catch(_){}
+    setTimeout(finish, 6000); // 최대 6초
+  } catch(_) { resolve(); }
 }
 
 // [v7.227] 하이젝 영토 탈취 개시 인트로 영상 — 풀스크린, 가로/세로 분기. 끝나거나 탭하면 resolve.
