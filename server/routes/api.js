@@ -6956,6 +6956,22 @@ router.post('/guild/disband', requireAuth, writeLimiter, async (req, res) => {
   }
 });
 
+// [Phase A] 길드 금고 인출 — 리더/오피서만, 섹터 세수 회수 경로
+router.post('/guild/treasury/withdraw', requireAuth, writeLimiter, async (req, res) => {
+  const { guildId, amount } = req.body;
+  const w = getAuthWallet(req);
+  if (!w || !guildId || !amount) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService || !guildService.withdrawTreasury) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.withdrawTreasury(w, parseInt(guildId), amount);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] treasury withdraw error:', e.message);
+    res.status(500).json({ error: 'Failed to withdraw' });
+  }
+});
+
 // ══════════════════════════════════════════════════
 //  GUILD CHAT — polling based
 // ══════════════════════════════════════════════════

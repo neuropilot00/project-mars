@@ -655,6 +655,22 @@ async function disbandGuild(leaderWallet, guildId) {
     const caller = await client.query('SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2', [guildId, leaderWallet]);
     if (!caller.rows.length || caller.rows[0].role !== 'leader') { await client.query('ROLLBACK'); return { error: 'Only leader can disband' }; }
 
+    // [Phase A] 이 길드가 거버너인 섹터 무주공산화 — sectors 잠금 해제 + 포지션 정리.
+    //   미처리 시 sectors.siege_governor_locked 가 true 로 남아 픽셀 재산정이 영구 skip → frozen governor.
+    try {
+      const govSectors = (await client.query(
+        'SELECT sector_id, sector_code FROM sector_governance WHERE governor_guild_id = $1', [guildId]
+      )).rows;
+      for (const gs of govSectors) {
+        if (gs.sector_id) {
+          await client.query('UPDATE sectors SET governor_wallet = NULL, siege_governor_locked = false WHERE id = $1', [gs.sector_id]);
+          await client.query(`DELETE FROM governance_positions WHERE role='governor' AND sector_id = $1`, [gs.sector_id]);
+        }
+        await client.query('UPDATE sector_governance SET governor_wallet = NULL, governor_member_wallet = NULL WHERE sector_code = $1', [gs.sector_code]);
+      }
+      // sector_governance.governor_guild_id 는 FK ON DELETE SET NULL 로 자동 정리
+    } catch (_) { /* 컬럼 미존재(마이그 이전) — 스킵 */ }
+
     // Clear all members' guild_id
     await client.query('UPDATE users SET guild_id = NULL WHERE guild_id = $1', [guildId]);
     // Delete guild (cascades to members + invites)
@@ -664,6 +680,44 @@ async function disbandGuild(leaderWallet, guildId) {
     console.log(`[GUILD] Disbanded guild #${guildId} by ${leaderWallet}`);
     return { success: true };
   } catch (e) { await client.query('ROLLBACK'); throw e; }
+  finally { client.release(); }
+}
+
+// ═══════════════════════════════════════
+//  [Phase A] TREASURY WITHDRAW — 리더/오피서만, 금고→개인 GP, 음수 금지, ledger 기록
+//  섹터 세수가 길드 금고로 쌓이므로(collectTax) 인출 경로 필요. 어뷰징 가드: FOR UPDATE + 조건부 차감.
+// ═══════════════════════════════════════
+async function withdrawTreasury(wallet, guildId, amount) {
+  const amt = Math.floor(parseFloat(amount) || 0);
+  if (amt <= 0) return { error: 'Invalid amount' };
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const mem = await client.query('SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2', [guildId, wallet]);
+    if (!mem.rows.length || !['leader', 'officer'].includes(mem.rows[0].role)) {
+      await client.query('ROLLBACK'); return { error: 'Only leader/officer can withdraw' };
+    }
+    const g = await client.query('SELECT gp_treasury FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
+    if (!g.rows.length) { await client.query('ROLLBACK'); return { error: 'Guild not found' }; }
+    const treasury = parseFloat(g.rows[0].gp_treasury || 0);
+    if (treasury < amt) { await client.query('ROLLBACK'); return { error: `Insufficient treasury. Have ${treasury.toFixed(2)} GP.` }; }
+    // 조건부 차감 (동시 인출 race 방지)
+    const ded = await client.query(
+      'UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2 AND gp_treasury >= $1 RETURNING gp_treasury',
+      [amt, guildId]
+    );
+    if (!ded.rowCount) { await client.query('ROLLBACK'); return { error: 'Insufficient treasury (concurrent withdrawal)' }; }
+    const bal = parseFloat(ded.rows[0].gp_treasury || 0);
+    await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [amt, wallet]);
+    await client.query(
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+       VALUES ($1, $2, 'withdraw', 0, $3, $4, $5)`,
+      [guildId, wallet, -amt, bal, 'Treasury withdrawal to ' + wallet.slice(0, 8)]
+    );
+    await client.query('COMMIT');
+    console.log(`[GUILD] #${guildId} treasury withdraw ${amt} GP by ${wallet}`);
+    return { success: true, withdrawn: amt, treasuryRemaining: bal };
+  } catch (e) { await client.query('ROLLBACK'); return { error: e.message }; }
   finally { client.release(); }
 }
 
@@ -1726,6 +1780,7 @@ module.exports = {
   createJoinRequest, getGuildJoinRequests, approveJoinRequest, rejectJoinRequest,
   leaveGuild, kickMember,
   promoteToOfficer, demoteToMember, transferLeadership, disbandGuild,
+  withdrawTreasury,
   getGuildLeaderboard, searchGuilds, refreshGuildPixelCount,
   updateGuildInfo,
   sendGuildMessage, getGuildMessages,

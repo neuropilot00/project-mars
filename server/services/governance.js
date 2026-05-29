@@ -307,15 +307,42 @@ async function collectTax(client, sectorId, totalAmount, txType) {
   const buffFund = Math.round(poolAmount * (poolBuffSplit / 100) * 1000000) / 1000000;
   const cmdFund = poolAmount - buffFund;
 
-  // Credit governor GP
+  // [Phase A] 길드 거버너 섹터면 세수를 길드 금고로 (sector_governance.governor_guild_id by sector_id).
+  //   sector_tax_to_guild_treasury 게이트. 길드 금고 OR 개인 포지션 — 둘 중 하나만(이중적립 방지).
+  let guildGovId = null;
+  if (String(s.sector_tax_to_guild_treasury) === 'true') {
+    try {
+      const sgRes = await client.query('SELECT governor_guild_id FROM sector_governance WHERE sector_id = $1', [sectorId]);
+      guildGovId = sgRes.rows[0]?.governor_guild_id || null;
+    } catch (_) { /* sector_id 컬럼 미존재(마이그 이전) — 개인 경로 유지 */ }
+  }
+
+  // Credit governor GP (길드 금고 또는 개인 governance_positions)
   if (govAmount > 0) {
-    await client.query(
-      `UPDATE governance_positions SET gp_balance = gp_balance + $1
-       WHERE role = 'governor' AND sector_id = $2`,
-      [govAmount, sectorId]
-    );
-    await logGovTx(client, 'tax_income', txType, 'governor', sectorId, null, govAmount,
-      { taxRate, totalAmount });
+    if (guildGovId) {
+      const upd = await client.query(
+        `UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1,
+                           sector_tax_collected = COALESCE(sector_tax_collected,0) + $1
+         WHERE id = $2 RETURNING gp_treasury`,
+        [govAmount, guildGovId]
+      );
+      const bal = parseFloat(upd.rows[0]?.gp_treasury || 0);
+      await client.query(
+        `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+         VALUES ($1, NULL, 'sector_tax', 0, $2, $3, $4)`,
+        [guildGovId, govAmount, bal, 'Sector #' + sectorId + ' tax ' + taxRate + '%']
+      );
+      await logGovTx(client, 'tax_income', txType, 'guild_treasury', sectorId, null, govAmount,
+        { guildId: guildGovId, taxRate, totalAmount });
+    } else {
+      await client.query(
+        `UPDATE governance_positions SET gp_balance = gp_balance + $1
+         WHERE role = 'governor' AND sector_id = $2`,
+        [govAmount, sectorId]
+      );
+      await logGovTx(client, 'tax_income', txType, 'governor', sectorId, null, govAmount,
+        { taxRate, totalAmount });
+    }
   }
 
   // Credit vice governor GP

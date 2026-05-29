@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.246 — 세금→길드 금고 + 인출 + disband 가드 + 길드 공성전 라이브 활성화
+
+유저 부재 시점에 길드 공성전 전 기능 ON. 머니플로 e2e 검증 완료.
+- **세금→길드 금고** (`governance.js collectTax`): 섹터에 길드 거버너(`sector_governance.governor_guild_id` by sector_id) 있고 `sector_tax_to_guild_treasury`면 거버너 몫을 `guilds.gp_treasury`로 적립 + `guild_treasury_ledger`(kind=sector_tax) + `sector_tax_collected` 누적. 개인 거버너는 기존 governance_positions(이중적립 방지 — 둘 중 하나).
+- **`guild.withdrawTreasury`** + `POST /api/guild/treasury/withdraw`: 리더/오피서만, FOR UPDATE+조건부 차감(음수/동시인출 가드), ledger(kind=withdraw), 유저 GP 환급.
+- **disband 가드** (`guild.disbandGuild`): 해체 시 거버너 섹터 무주공산화 — `sectors.siege_governor_locked=false`+governor_wallet NULL, governance_positions 정리, sector_governance 클리어 (frozen governor 방지).
+- **mig 261 라이브 활성화**: siege_fleet_combat_enabled / guild_governance_enabled / siege_governor_canonical_enabled / sector_tax_to_guild_treasury / siege_full_loss_enabled = true.
+- **검증**: node --check 4파일 + DB e2e — collectTax(1000@5%)=50→길드금고 35 적립, 인출 100→40/유저+60, 초과인출·비멤버 차단 PASS.
+
 ## 2026-05-29 v7.245 — (A) 지오 섹터 정본 통합: 공성 승리 → 실제 세금 (플래그 OFF)
 
 근본원인(섹터 이원 우주) 해소. 공성 결과를 라이브 세금 시스템(sectors/governance_positions)에 연결. **`siege_governor_canonical_enabled` 기본 false → 프로덕션 세금/클레임 경로 무변경**, 스테이징 검증 후 플래그 ON.
