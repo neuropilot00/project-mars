@@ -2,6 +2,9 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 Phase 3 완성: 참가자 실시간 명령 연결 (v7.252, 2026-05-29)
+commander-action 라우트가 라이브 전투면 declareAction 대신 라이브 큐 enqueue(참가 함대 자동 해석). 클라 변경 0(기존 tactical-lab 버튼→postMessage→라우트 체인 그대로 라이브 분기). liveBattle per-wallet 5/s rate limit 중앙화. rate limit 단위 PASS, 부팅 OK. → "혈맹원이 한 전장에서 실시간 조작" 동작.
+
 ## 🟢 Phase 3 실시간 권위 전투 (서버 기반, v7.251, 2026-05-29)
 "미리계산→스트림"→실시간 틱 루프. simulateBattleLive + applyLiveCommand + liveBattle 큐 + battleScheduler 분기 + WS 큐 라우팅. siege_realtime_enabled=true. 라이브 e2e PASS.
 realtime-battle-redteam 워크플로(16에이전트) 확정 결함 처리 상태:

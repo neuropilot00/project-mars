@@ -33,6 +33,31 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
   const type = action_type || actionType;
   if (!type) return res.status(400).json({ error: 'action_type_required' });
 
+  // [Phase 3 실시간] 라이브 전투 진행 중이면 인메모리 큐로 즉시 반영 (pre-battle declareAction 우회).
+  //   클라 postMessage 핸들러는 변경 없음 — 동일 라우트가 라이브/pre-battle 자동 분기.
+  try {
+    const liveBattle = require('../services/liveBattle');
+    if (liveBattle.isActive(battleId)) {
+      const { pool } = require('../db');
+      const pr = await pool.query(
+        'SELECT fleet_id FROM fleet_battle_participants WHERE battle_id = $1 AND LOWER(wallet_address) = LOWER($2) LIMIT 1',
+        [battleId, wallet]
+      );
+      if (!pr.rows.length) return res.status(403).json({ error: 'NOT_A_PARTICIPANT' });
+      const fleetId = pr.rows[0].fleet_id;
+      const p = params || {};
+      const liveAction = type === 'formation_change' ? 'formation'
+        : type === 'maneuver_change' ? 'maneuver'
+        : type === 'focus_fire' ? 'focus' : null;
+      if (!liveAction) return res.status(400).json({ error: 'UNSUPPORTED_LIVE_ACTION' });
+      const ok = liveBattle.enqueueCommand(battleId, {
+        fleetId, wallet, action: liveAction,
+        params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId },
+      });
+      return res.json({ success: true, live: true, queued: ok, ...(ok ? {} : { error: 'RATE_LIMITED' }) });
+    }
+  } catch (_) { /* liveBattle 미가용 — pre-battle 경로 */ }
+
   try {
     const result = await cmdSvc.declareAction(battleId, wallet, type, params || {});
     res.json({ success: true, action: result });

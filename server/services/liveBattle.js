@@ -10,12 +10,22 @@
 
 const _queues = new Map(); // battleId(str) -> cmd[]
 const _active = new Set(); // 라이브 진행 중 battleId(str) — 이 워커가 권위
+const _rate = new Map();   // 'battleId:wallet' -> timestamps[] (per-wallet 명령 rate limit)
 
-const MAX_QUEUE = 500; // 폭주 방어 — 틱당 드레인되므로 정상 시 수십개 이하
+const MAX_QUEUE = 500;     // 폭주 방어 — 틱당 드레인되므로 정상 시 수십개 이하
+const RATE_PER_SEC = 5;    // 참가자 1인당 초당 명령 상한 (레드팀: 플러딩/매크로 차단)
 
 function enqueueCommand(battleId, cmd) {
   const k = String(battleId);
   if (!_active.has(k)) return false; // 이 워커가 권위 아님 → 무시(라우팅은 wsServer 책임)
+  // per-wallet rate limit (WS·HTTP 양 경로 공통 choke point)
+  if (cmd && cmd.wallet) {
+    const rk = k + ':' + String(cmd.wallet).toLowerCase();
+    const now = Date.now();
+    const ts = (_rate.get(rk) || []).filter((t) => now - t < 1000);
+    if (ts.length >= RATE_PER_SEC) { _rate.set(rk, ts); return false; }
+    ts.push(now); _rate.set(rk, ts);
+  }
   let q = _queues.get(k);
   if (!q) { q = []; _queues.set(k, q); }
   if (q.length >= MAX_QUEUE) q.shift(); // 가장 오래된 명령 폐기
@@ -32,7 +42,10 @@ function drainCommands(battleId) {
 }
 
 function markActive(battleId) { _active.add(String(battleId)); }
-function clearActive(battleId) { const k = String(battleId); _active.delete(k); _queues.delete(k); }
+function clearActive(battleId) {
+  const k = String(battleId); _active.delete(k); _queues.delete(k);
+  for (const rk of _rate.keys()) { if (rk.startsWith(k + ':')) _rate.delete(rk); }
+}
 function isActive(battleId) { return _active.has(String(battleId)); }
 
 module.exports = { enqueueCommand, drainCommands, markActive, clearActive, isActive };

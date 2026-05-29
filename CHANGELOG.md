@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.252 — Phase 3 완성: 참가자 실시간 명령 연결 (클라→서버 라이브 큐)
+
+서버 라이브 루프(v7.251)에 **참가자 명령 입력을 연결** — 이제 진행 중 함대전에서 자기 함대를 실시간 조작.
+- **commander-action 라우트 라이브 분기**: `liveBattle.isActive(battleId)` 면 pre-battle `declareAction`(per-msg DB 트랜잭션) 대신 **참가 함대 자동 해석 + 라이브 큐 enqueue**. 클라 변경 0 — 기존 tactical-lab 명령 버튼 → postMessage → 이 라우트 체인이 그대로 라이브로 분기.
+- **liveBattle per-wallet rate limit**(5/s) 중앙화 — WS·HTTP 양 경로 공통 choke point (레드팀 플러딩/매크로 차단). clearActive에서 rate 상태 정리.
+- **완성된 전체 체인**: tactical-lab 진형/기동/포커스 버튼 → postMessage → commander-action → 라이브 큐 → simulateBattleLive 틱 드레인 → applyLiveCommand(소유권 검증) → fleet state 변경 → 다음 프레임 broadcast → 전원 관전 반영.
+- **검증**: node --check 2파일 + rate limit 단위(5 통과/3 차단) PASS + 부팅 에러 0.
+- 이로써 "혈맹원 여럿이 각자 함대를 한 전장에 모아(Phase 2) 실시간 명령으로 조작하며(Phase 3) 다 같이 관전"하는 혈맹 공성전이 동작.
+- 남은 후속: beam/missile 수동스킬 서버 권위 쿨다운, 멀티인스턴스 명령 라우팅(Redis), 비-라이브 declareAction rate limit, 참가자 전용 버튼 가시성(현재 서버가 비참가자 거부).
+
 ## 2026-05-29 v7.251 — Phase 3: 실시간 권위 전투 루프 (서버) — 다유저 동시 명령 기반
 
 "미리 계산 → 스트림" 자동전투를 **실시간 권위 틱 루프**로 전환(siege). 참가자가 진행 중 자기 함대에 명령을 보내고 모두 라이브 관전. Codex 설계 + 레드팀 워크플로(16에이전트) 반영.
