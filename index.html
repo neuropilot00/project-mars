@@ -5628,14 +5628,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       if (bg) { bg.style.backgroundImage = 'url("/assets/loading/load_'+pad+'.jpg")'; bg.style.opacity = '0.55'; }
     };
     img.src = '/assets/loading/load_'+pad+'.jpg';
-    // [v7.225] 로딩 배경 영상 — 데스크탑은 가로 4종(load_loop_01~04) 랜덤, 모바일은 세로(load_loop_v01).
+    // [v7.226] 로딩 배경 영상 — 2종 콘텐츠(deep_space/drift)를 비율별로. 데스크탑 가로 2종, 모바일 세로 2종.
     var vid = document.getElementById('loadVideo');
     if (vid) {
       if (window.innerWidth > 768) {
-        var vn = 1 + Math.floor(Math.random()*4);
-        vid.src = '/assets/loading/load_loop_'+(vn<10?'0':'')+vn+'.mp4';
+        var vn = 1 + Math.floor(Math.random()*2); // 가로 load_loop_01~02
+        vid.src = '/assets/loading/load_loop_0'+vn+'.mp4';
       } else {
-        var vvn = 1 + Math.floor(Math.random()*3); // 모바일 세로 3종 랜덤
+        var vvn = 1 + Math.floor(Math.random()*2); // 세로 load_loop_v01~02
         vid.src = '/assets/loading/load_loop_v0'+vvn+'.mp4';
       }
       vid.addEventListener('canplay', function(){ vid.style.opacity = '0.6'; }, { once:true });
