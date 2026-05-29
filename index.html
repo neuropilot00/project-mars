@@ -48243,7 +48243,8 @@ function playCrateOpening(d){
         return resolve();
       }
 
-      // [v7.228] 에픽/레전더리(tier>=3) 는 풀스크린 영상 연출 → 끝나면 resolve. 일반은 아래 캔버스 연출.
+      // [v7.232] 고급 뽑기(tier>=3) 는 풀스크린 가챠 리빌 영상 → 끝나면 resolve. 일반은 아래 캔버스 연출.
+      //   tier>=4(레전더리)는 전용 레전더리 영상, tier 3은 사용자가 준 일반 가챠 리빌 영상 사용.
       if (tier >= 3) { _playGachaVideo(resolve, tier); return; }
 
       var ov = document.createElement('div');
@@ -48276,8 +48277,9 @@ function playCrateOpening(d){
   });
 }
 
-// [v7.228] 가챠 에픽/레전더리 풀스크린 영상 연출 (crate cracks open → warship emerges).
-//   가로(데스크탑) gacha_reveal.mp4 / 세로(모바일) gacha_reveal_v01~v02 랜덤. 끝나거나 탭하면 resolve.
+// [v7.232] 가챠 풀스크린 리빌 영상 연출 (crate cracks open → warship emerges).
+//   일반 고급 뽑기: 가로(데스크탑) gacha_reveal.mp4 / 세로(모바일) gacha_reveal_v01~v02 랜덤 — 모두 사용자가 "가챠"로 준 영상.
+//   레전더리(tier>=4): 전용 gacha_reveal_legendary(_v).mp4. 끝나거나 탭하면 resolve.
 //   [v7.230] tier>=4(레전더리) 는 전용 영상 — 데스크탑 가로 gacha_reveal_legendary.mp4 / 모바일 세로 _v.mp4.
 function _playGachaVideo(resolve, tier){
   try {
