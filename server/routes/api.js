@@ -1293,14 +1293,20 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
 
     // Check user balance based on selected payment method
     const userRes = await client.query(
-      'SELECT usdt_balance, pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT usdt_balance, pp_balance, redeemable_pp FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
     );
     const user = userRes.rows[0];
     let ppUsed = 0, usdtUsed = 0;
     const ppBal = parseFloat(user.pp_balance);
+    const redeemablePP = parseFloat(user.redeemable_pp || 0) || 0;
     const usdtBal = parseFloat(user.usdt_balance);
     const method = payMethod || 'pp';
+
+    // [경제v2 P1] 땅은 입금 유저 전용 — PP 결제는 입금 연동(redeemable_pp)으로만.
+    //   유한한 땅을 무료 PP로 사들이는 것을 차단. USDT 결제는 그대로(입금자만 USDT 보유).
+    //   설정 off 시 기존 동작(전체 pp_balance 결제)으로 폴백.
+    const landDepositOnly = String(await getSetting('land_requires_deposit_pp', 'true')) === 'true';
 
     if (isTutorialFreeClaim) {
       // Tutorial free claim — no balance deduction
@@ -1313,17 +1319,20 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
       }
       usdtUsed = totalCost;
     } else {
-      // PP only
-      if (ppBal < totalCost) {
+      // PP — 입금 전용 게이팅 적용 시 redeemable_pp(입금분) 기준으로 검사.
+      const payableBal = landDepositOnly ? redeemablePP : ppBal;
+      if (payableBal < totalCost) {
         await client.query('ROLLBACK');
-        return res.status(400).json({ error: 'Insufficient PP balance', required: totalCost, ppBalance: ppBal });
+        return res.status(400).json(landDepositOnly
+          ? { error: 'land_requires_deposit', message: 'Territory can be purchased only with deposit-linked PP or USDT. Please deposit to acquire land.', required: totalCost, redeemablePP }
+          : { error: 'Insufficient PP balance', required: totalCost, ppBalance: ppBal });
       }
       ppUsed = totalCost;
     }
 
-    // Deduct from user
+    // Deduct from user — PP 사용분만큼 redeemable_pp 도 차감(트리거가 ≤pp_balance 보강).
     const deductClaim = await client.query(
-      'UPDATE users SET pp_balance = pp_balance - $1, usdt_balance = usdt_balance - $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1 AND usdt_balance >= $2',
+      'UPDATE users SET pp_balance = pp_balance - $1, redeemable_pp = GREATEST(redeemable_pp - $1, 0), usdt_balance = usdt_balance - $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1 AND usdt_balance >= $2',
       [ppUsed, usdtUsed, wallet.toLowerCase()]
     );
     if (deductClaim.rowCount === 0) {
