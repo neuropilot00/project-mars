@@ -240,6 +240,18 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
   const ppBonusPct = await getPpBonusPct();
   const ppBonus = Math.round(amountNum * (ppBonusPct / 100) * 1000000) / 1000000;
 
+  // [경제v2 P4] 출금 한도 — 입금 origin PP 의 일정 %만 USDT 환매(redeemable)로 적립. 나머지는 영구 버퍼.
+  //   PP=입금 발행 전용(무료 faucet 없음)이라 redeemable 버킷이 곧 입금 담보분의 출금 가능 한도.
+  let withdrawablePct = 80;
+  try {
+    const wr = await pool.query(`SELECT value FROM settings WHERE key = 'pp_withdrawable_pct'`);
+    if (wr.rows.length && wr.rows[0].value != null) {
+      const v = parseFloat(wr.rows[0].value);
+      if (!isNaN(v) && v >= 0 && v <= 100) withdrawablePct = v;
+    }
+  } catch (_) { /* 설정 부재 시 기본 80 */ }
+  const redeemableBonus = Math.round(ppBonus * (withdrawablePct / 100) * 1000000) / 1000000;
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -260,11 +272,11 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     await client.query(`SELECT 1 FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [wallet]);
 
     // Update user balances
-    // [경제정책 W2-4] 입금 보너스 PP 는 redeemable_pp 에도 적립 — 입금 연동 잔액만 USDT 환매 가능.
-    //   채굴/가챠 PP 는 redeemable_pp 를 올리지 않으므로 USDT 직행 불가(GP 환전만).
+    // [경제정책 W2-4 / v2 P4] 입금 보너스 PP 전액은 pp_balance 에, 그 중 withdrawablePct(기본 80%)만
+    //   redeemable_pp(USDT 환매 가능 버킷)에 적립. 채굴/가챠/경매취득 PP 는 버킷 미적립 → USDT 직행 불가.
     await client.query(
-      `UPDATE users SET usdt_balance = usdt_balance + $1, pp_balance = pp_balance + $2, redeemable_pp = redeemable_pp + $2 WHERE LOWER(wallet_address) = LOWER($3)`,
-      [amountNum, ppBonus, wallet]
+      `UPDATE users SET usdt_balance = usdt_balance + $1, pp_balance = pp_balance + $2, redeemable_pp = redeemable_pp + $4 WHERE LOWER(wallet_address) = LOWER($3)`,
+      [amountNum, ppBonus, wallet, redeemableBonus]
     );
 
     // ✅ [솔벤시] 실입금 USDT 만큼 담보(collateral) 증액 — usdt_balance 와 함께 늘어 불변식 유지.
@@ -282,8 +294,9 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
         const firstPct = fr.rows.length ? (parseFloat(fr.rows[0].value) || 0) : 0;
         if (firstPct > 0) {
           firstDepBonus = Math.round(amountNum * (firstPct / 100) * 1000000) / 1000000;
-          // [경제정책 W2-4] 첫 입금 보너스도 입금 연동 → redeemable_pp 에 적립.
-          await client.query('UPDATE users SET pp_balance = pp_balance + $1, redeemable_pp = redeemable_pp + $1 WHERE LOWER(wallet_address) = LOWER($2)', [firstDepBonus, wallet]);
+          // [경제정책 W2-4 / v2 P4] 첫 입금 보너스도 입금 origin → withdrawablePct 만 redeemable 적립.
+          const firstRedeemable = Math.round(firstDepBonus * (withdrawablePct / 100) * 1000000) / 1000000;
+          await client.query('UPDATE users SET pp_balance = pp_balance + $1, redeemable_pp = redeemable_pp + $3 WHERE LOWER(wallet_address) = LOWER($2)', [firstDepBonus, wallet, firstRedeemable]);
           console.log(`[Chain] First-deposit bonus +${firstDepBonus} PP (${firstPct}%) to ${wallet.slice(0,8)}…`);
         }
       }
