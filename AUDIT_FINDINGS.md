@@ -2,7 +2,13 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
-## 🔴→🟢 핫픽스: 로딩 오버레이 고착 = 전 버튼 클릭 불능 (v7.263, 2026-05-30)
+## 🔴→🟢 CRITICAL: 네비 data-action 디스패처 누락 = 전 진입 버튼 무반응 (v7.264, 2026-05-30)
+- ✅ [CRITICAL] col-fab/상단바/모바일 네비 버튼이 v7.215에서 inline onclick→data-action 마이그됐으나 위임 디스패처 미추가 → 모든 진입 버튼(MY LAND/CANTINA/CLAIM/ITEMS/BASE/로그인/포트폴리오) 클릭 무반응. 브라우저 재현으로 "7개 click → 함수 0 호출" 확인.
+- ✅ 수정: 무인자 네비/UI 액션 24종 화이트리스트 위임 디스패처 추가(인자형은 기존 디스패처가 처리 → 무충돌). 재현 후 7/7 함수 호출 확인. SW v70.
+- ⚠️ v7.263의 "로딩 오버레이" 진단은 headless WebGL 한정 artifact 오판이었음(실제 원인 별개). v7.263 변경(오버레이 하드 안전장치 + SW silent 업데이트)은 방어적으로 유효해 유지.
+- 🟡 후속: 21515~ `[onclick*="openBaseModal"]` 잔재 셀렉터(튜토리얼 하이라이트)도 data-action 으로 갱신.
+
+## 🟡 핫픽스: 로딩 오버레이 하드 안전장치 + SW 더블로드 (v7.263, 2026-05-30)
 - ✅ [CRITICAL] `#loadOverlay`(z9999, pe:auto) 미해제로 모든 클릭 차단. 원인: globe init 예외 시 그 뒤의 8s fallback 미등록 → 로더 95% 고착(브라우저 재현 확인). 수정: 최상위 독립 하드 안전장치(8s 무조건 dismiss + 강제 display:none/pe:none).
 - ✅ [FIXED] SW controllerchange 강제 reload(더블로드/겹침) 제거 → 완전 silent 업데이트. SW v69.
 - 트리거 추정: SW v68 갱신 후 캐시된 globe.gl/텍스처 stale → globe init throw. 신선 로드에선 미발생이라 그간 안 잡힘.

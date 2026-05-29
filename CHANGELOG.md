@@ -1,3 +1,12 @@
+## 2026-05-30 v7.264 — CRITICAL: 네비 data-action 디스패처 누락 → 전 진입 버튼 무반응 복구
+
+**진짜 원인 확정**(브라우저 재현). v7.263 오버레이 가설은 headless 한정 artifact였고, 실제 원인은 별개.
+- **[CRITICAL→FIXED]** col-fab/상단바/모바일 네비 버튼(MY LAND/CANTINA/CLAIM/ITEMS/BASE, 로그인, 포트폴리오 등)이 v7.215(239cc5e)에서 inline onclick → `data-action` 으로 마이그(§19)됐으나 **이 무인자 액션들을 함수로 잇는 위임 클릭 리스너가 추가되지 않아** 클릭이 전부 무반응이었다. 재현: 7개 버튼 click 시 함수 0개 호출 확인.
+  · 수정: `data-action` 무인자 네비/UI 액션(toggleMyLand/openArena/openBaseModal/openMyItems/activateLandSelect/openAuthModal/openPortfolioModal/openTelegramGroup/toggle*·close*·튜토리얼·copyRefCode 등 24종) 화이트리스트 위임 디스패처 추가. 인자형 액션(syRepairShip/siegeJoin/selectTargetFleet 등)은 기존 디스패처가 인자와 함께 처리 → 이중 호출/충돌 없음.
+  · 검증: Preview 브라우저 재현 — 수정 후 7개 버튼 click → 대응 함수(openBaseModal·toggleMyLand·openArena·activateLandSelect·openMyItems …) 전부 호출 확인. 인라인 스크립트 9/9 파싱.
+- SW v69→v70.
+- 후속(비차단): 21515~ `[onclick*="openBaseModal"]` 잔재 셀렉터(튜토리얼 하이라이트 타겟 탐색)도 data-action 으로 갱신 필요.
+
 ## 2026-05-30 v7.263 — 핫픽스: 로딩 오버레이 고착(전 버튼 클릭 불능) + SW 더블로드
 
 사용자 보고: 하단 네비(MY LAND/CANTINA/CLAIM/ITEMS/BASE) 등 모든 버튼 무반응 + 첫 로딩 2번 + 화면 겹침.

@@ -27778,6 +27778,34 @@ window.addEventListener('beforeunload',function(){
   }
 });
 
+// [v7.264 CRITICAL fix] 네비/UI data-action 위임 디스패처 — 누락 회귀 복구.
+//   v7.215(239cc5e)에서 col-fab/상단바/모바일 네비 버튼을 inline onclick → data-action 으로
+//   마이그(§19)했으나, 이 무인자(no-arg) 액션들을 실제 함수로 잇는 위임 리스너가 추가되지 않아
+//   MY LAND/CANTINA/CLAIM/ITEMS/BASE 등 거의 모든 진입 버튼이 "클릭 무반응" 상태였다(브라우저 재현 확인).
+//   인자형 액션(syRepairShip/siegeJoin/selectTargetFleet 등)은 별도 디스패처가 인자와 함께 처리하므로
+//   여기서는 화이트리스트의 무인자 글로벌 함수만 호출 → 이중 호출/충돌 없음.
+(function(){
+  var NAV_NOARG_ACTIONS = {
+    toggleMyLand:1, openArena:1, openBaseModal:1, openMyItems:1, activateLandSelect:1,
+    openAuthModal:1, openPortfolioModal:1, openTelegramGroup:1, toggleLangDropdown:1,
+    toggleLeaderboard:1, toggleDynastyView:1, toggleLeft:1, toggleRight:1,
+    closeLeft:1, closeRight:1, closeAnnounce:1, startTutorial:1, nextTutStep:1,
+    endTutorial:1, showRocketInfo:1, showLorePopup:1, copyRefCode:1, registerReferral:1,
+    copyDepositAddr:1
+  };
+  document.addEventListener('click', function(ev){
+    var el = ev.target && ev.target.closest ? ev.target.closest('[data-action]') : null;
+    if(!el) return;
+    var act = el.getAttribute('data-action');
+    if(!act || NAV_NOARG_ACTIONS[act] !== 1) return;       // 화이트리스트 외(인자형/동적)은 손대지 않음
+    var fn = window[act];
+    if(typeof fn !== 'function') return;
+    if(el.disabled) return;
+    ev.preventDefault(); ev.stopPropagation();
+    try { fn(); } catch(e){ console.error('[NAV] '+act+' error:', e); }
+  }, false);
+})();
+
 function toggleRankTable(){
   var wrap=document.getElementById('rankTableWrap');
   var tog=document.getElementById('rankTableToggle');
