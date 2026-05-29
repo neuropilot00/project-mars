@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.251 — Phase 3: 실시간 권위 전투 루프 (서버) — 다유저 동시 명령 기반
+
+"미리 계산 → 스트림" 자동전투를 **실시간 권위 틱 루프**로 전환(siege). 참가자가 진행 중 자기 함대에 명령을 보내고 모두 라이브 관전. Codex 설계 + 레드팀 워크플로(16에이전트) 반영.
+- **battleEngine.simulateBattleLive**: simulateBattle과 동일 헬퍼/결과 shape를 쓰되 틱 사이 await + 매 틱 명령 큐 드레인 + 프레임마다 즉시 onFrame broadcast + wall-clock 타임아웃 + 권위 abort. 결과 동일 → applyBattleResults 그대로.
+- **applyLiveCommand**: 진형/기동/포커스를 라이브 state에 적용 + **소유권 이중검증**(명령 wallet==함대 owner).
+- **liveBattle.js**: 권위 워커 in-memory 명령 큐(enqueue/drain/markActive). 큐 상한 500.
+- **battleScheduler**: siege + `siege_realtime_enabled` 면 simulateBattleLive(라이브 broadcast) 분기, 아니면 기존 precompute→stream. 결과 이후 경로 공통.
+- **wsServer cmd**: 라이브 전투 진행 중이면 declareAction(pre-battle, per-msg 트랜잭션) 대신 **인메모리 큐 enqueue** — per-socket rate limit(3/s) + 소유권 SELECT 검증. (레드팀 최상위 발견 "명령 플러딩 DoS/트랜잭션 폭풍"을 큐+rate limit로 차단.)
+- **mig 264**: siege_realtime_enabled(true)/tick_ms(250)/wallclock_min(10)/cmd_rate_per_sec(3).
+- **검증**: node --check 4파일 + 라이브 e2e(틱 루프 완주·명령 드레인·onFrame·결과) PASS + applyLiveCommand 단위(권한 차단) PASS + 라이브 부팅 에러 0.
+- **남은(다음 증분)**: 참가자 명령 UI(자기 함대 진형/기동 버튼 → WS, fleetId 포함), beam/missile 수동스킬은 **서버 권위 쿨다운/충전**으로(레드팀: 클라 게이지 신뢰 금지), 멀티인스턴스 명령 라우팅(Redis battleCmd → 권위 워커), 비-라이브 declareAction rate limit.
+
 ## 2026-05-29 v7.250 — Phase 2: 다(多)함대 공성 (혈맹원 여럿이 한 전장에)
 
 "1함대 vs 1함대"였던 공성을 **혈맹원 여럿이 각자 함대를 같은 전장에** 투입하는 구조로 확장. battleEngine이 이미 진영당 N함대를 지원(participants ORDER BY side + 위치 배치)함을 확인 → 엔진 재작성 없이 커밋 다중화로 달성.

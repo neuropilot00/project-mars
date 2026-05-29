@@ -118,6 +118,35 @@ function attachWsServer(httpServer) {
           ws.send(JSON.stringify({ type: 'error', error: 'wallet_required' }));
           return;
         }
+        // [Phase 3 실시간] 라이브 전투 진행 중이면 실시간 명령 큐로 라우팅 (commanderActions 는 pre-battle 전용).
+        //   소유권(participant 함대) 검증 + rate limit(기본 3/s). 단일 인스턴스: 권위 워커=WS 워커 동일.
+        try {
+          const liveBattle = require('./services/liveBattle');
+          if (liveBattle.isActive(bid)) {
+            const now = Date.now();
+            ws._cmdTimes = (ws._cmdTimes || []).filter((t) => now - t < 1000);
+            if (ws._cmdTimes.length >= 3) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'rate_limited' })); return; }
+            ws._cmdTimes.push(now);
+            const fleetId = msg.payload && msg.payload.fleetId;
+            if (!fleetId) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'fleetId_required' })); return; }
+            const action = (msg.cmd === 'maneuver') ? 'maneuver' : (msg.cmd === 'focus') ? 'focus' : (msg.cmd === 'formation') ? 'formation' : null;
+            if (!action) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'unsupported_live_cmd' })); return; }
+            const { pool } = require('./db');
+            pool.query(
+              'SELECT 1 FROM fleet_battle_participants WHERE battle_id = $1 AND fleet_id = $2 AND LOWER(wallet_address) = LOWER($3)',
+              [bid, fleetId, ws.wallet]
+            ).then((r) => {
+              if (!r.rows.length) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'not_your_fleet' })); return; }
+              const p = msg.payload || {};
+              const ok = liveBattle.enqueueCommand(bid, {
+                fleetId, wallet: ws.wallet, action,
+                params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId },
+              });
+              ws.send(JSON.stringify({ type: ok ? 'cmd_ok' : 'cmd_err', cmd: msg.cmd, live: true, error: ok ? undefined : 'not_authority' }));
+            }).catch(() => ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'validation_failed' })));
+            return; // 라이브 처리 완료
+          }
+        } catch (_) { /* liveBattle 미가용 — 아래 pre-battle 경로 */ }
         // 비동기 import 회피: lazy require
         try {
           const cmdSvc = require('./services/commanderActions');

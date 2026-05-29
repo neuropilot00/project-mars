@@ -142,6 +142,90 @@ async function simulateBattle(battleId) {
   };
 }
 
+function _sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+// [Phase 3 실시간] 라이브 명령 적용 — 참가자가 자기 함대에 보낸 명령을 진행 중 state 에 반영.
+//   cmd: { fleetId, wallet, action('formation'|'maneuver'|'focus'), params }. 권한: 명령 wallet == 함대 owner (이중검증).
+function applyLiveCommand(state, cmd) {
+  if (!cmd || !cmd.fleetId) return false;
+  const fleet = state.fleets.find(f => String(f.id) === String(cmd.fleetId));
+  if (!fleet) return false;
+  // 권위 레이어 이중검증 — 남의 함대 명령 차단
+  if (cmd.wallet && String(fleet.owner_wallet || '').toLowerCase() !== String(cmd.wallet).toLowerCase()) return false;
+  const p = cmd.params || {};
+  if (cmd.action === 'formation' && p.formation) { fleet.formation = String(p.formation); return true; }
+  if (cmd.action === 'maneuver'  && p.movement)  { fleet.movement = String(p.movement); fleet.maneuver = String(p.movement); return true; }
+  if (cmd.action === 'focus') { fleet.focusFireTargetId = p.targetFleetId || p.targetShipId || null; return true; }
+  return false;
+}
+
+// [Phase 3 실시간] 권위적 라이브 틱 루프 — simulateBattle 과 동일 헬퍼/결과 형태를 쓰되,
+//   ① 틱 사이 await 로 양보 ② 매 틱 명령 큐 드레인·적용 ③ 프레임마다 즉시 broadcast(onFrame)
+//   ④ wall-clock 타임아웃 ⑤ 권위 lock 상실 시 abort. 결과는 simulateBattle 과 같은 shape → applyBattleResults 동일 경로.
+//   hooks: { drainCommands:()=>cmd[], onFrame:async(frame)=>{}, shouldAbort:()=>bool, wallClockMs, tickMs }
+async function simulateBattleLive(battleId, hooks) {
+  hooks = hooks || {};
+  console.log(`[battleEngine] LIVE simulating battle ${battleId}...`);
+  const battleData = await loadBattleData(battleId);
+  if (!battleData) throw new Error('BATTLE_NOT_FOUND');
+  const state = initBattleState(battleData);
+  try { state.focusFireDmgBonus = parseFloat(await getSetting('focus_fire_dmg_bonus_pct', '15')) || 0; } catch (_) { state.focusFireDmgBonus = 15; }
+
+  const timeline = {
+    tick_ms: TICK_MS, field_w: FIELD_W, field_h: FIELD_H, battle_id: battleId, live: true,
+    fleets_meta: state.fleets.map(f => ({ id: f.id, name: f.name, side: f.side, faction_code: f.faction_code, owner_wallet: f.owner_wallet, ships_total: f.ships.length })),
+    frames: [],
+  };
+  const events = [];
+  let winnerSide = null;
+  const started = Date.now();
+  const wallClockMs = hooks.wallClockMs || (10 * 60 * 1000);
+  const tickMs = hooks.tickMs || TICK_MS;
+
+  for (let tick = 0; tick < MAX_TICKS; tick++) {
+    state.tick = tick;
+    // ① 명령 큐 드레인·적용
+    if (typeof hooks.drainCommands === 'function') {
+      let cmds; try { cmds = hooks.drainCommands() || []; } catch (_) { cmds = []; }
+      for (const c of cmds) { try { applyLiveCommand(state, c); } catch (_) {} }
+    }
+    for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) tacticsAI.evaluate(fleet, state, events);
+    for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateFleetPosition(fleet, state);
+    for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet);
+    processCombat(state, events);
+
+    if (tick % 5 === 0) {
+      const fr = captureFrame(state, tick);
+      timeline.frames.push(fr);
+      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(fr); } catch (_) {} }
+    }
+
+    const atkAlive = state.fleets.filter(f => f.side === 'atk' && f.ships.some(s => s.isAlive)).length;
+    const defAlive = state.fleets.filter(f => f.side === 'def' && f.ships.some(s => s.isAlive)).length;
+    if (atkAlive === 0 || defAlive === 0) {
+      winnerSide = atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
+      const fr = captureFrame(state, tick); timeline.frames.push(fr);
+      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(fr); } catch (_) {} }
+      events.push({ tick, type: 'battle_ended', payload: { winner_side: winnerSide, duration_ticks: tick } });
+      break;
+    }
+    if (Date.now() - started > wallClockMs) {
+      winnerSide = 'draw';
+      events.push({ tick, type: 'battle_timeout', payload: { winner_side: 'draw', reason: 'wall_clock' } });
+      break;
+    }
+    // 권위 lock 상실 — 이중 권위 방지 위해 결과 미기록 중단
+    if (typeof hooks.shouldAbort === 'function' && hooks.shouldAbort()) {
+      throw new Error('AUTHORITY_LOST');
+    }
+    await _sleep(tickMs);
+  }
+  if (!winnerSide) { winnerSide = 'draw'; events.push({ tick: state.tick, type: 'battle_timeout', payload: { winner_side: 'draw' } }); }
+  const stats = computeBattleStats(state);
+  console.log(`[battleEngine] LIVE battle ${battleId} ended. Winner: ${winnerSide}. Ticks: ${state.tick}.`);
+  return { winner_side: winnerSide, duration_ticks: state.tick, duration_seconds: Math.round(state.tick * TICK_MS / 1000), timeline, events, stats };
+}
+
 // ─── DB에서 전투 데이터 로드 ───
 
 async function loadBattleData(battleId) {
@@ -1145,6 +1229,8 @@ async function applyBattleResults(battleId, result) {
 
 module.exports = {
   simulateBattle,
+  simulateBattleLive,
+  applyLiveCommand,
   applyBattleResults,
   TICK_MS,
   MAX_TICKS,

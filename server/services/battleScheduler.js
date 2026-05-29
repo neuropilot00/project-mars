@@ -6,7 +6,7 @@
 // ⚠️ Phase B의 battleScheduler.js를 이 파일로 교체하세요.
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 const battleEngine = require('./battleEngine');
 const battleTimeline = require('./battleTimeline');
 const battleRewards = require('./battleRewards');         // Phase B
@@ -189,59 +189,73 @@ async function runBattle(battleId) {
       console.warn(`[battleScheduler] AI strategy failed for battle ${battleId}:`, aiErr.message);
     }
 
-    // 2. 시뮬레이션
-    const result = await battleEngine.simulateBattle(battleId);
+    // 2. 시뮬레이션 — [Phase 3] siege + siege_realtime_enabled 면 실시간 권위 라이브 루프,
+    //    아니면 기존 precompute → setTimeout stream(replay). 결과 shape 는 동일 → 이후 경로 공통.
+    let result;
+    let _liveEnabled = false;
+    try { _liveEnabled = (battleType === 'siege') && (String(await getSetting('siege_realtime_enabled', 'false')) === 'true'); } catch (_) {}
 
-    // 2-bis. WebSocket 실시간 broadcast — Phase 2
-    // 시뮬은 동기로 끝났지만, 클라가 ws 로 구독 중이면 frame 단위로 stream.
-    // 1 frame = tick_ms (200ms) 간격으로 emit. 클라가 이미 timeline replay 모드면 ws 무시 가능.
-    // [v7.192 F1] 멀티 인스턴스 frame stream 중복 차단 — 직접 runBattle 호출 경로(hijack/tournament 등)가
-    //   web 인스턴스에서 동시 실행될 때, 두 워커가 같은 battle frame 을 Redis Pub/Sub 으로 모든 viewer 에 보내
-    //   클라가 frame 을 N배 받는 문제. claim TX 가 battle 자체는 1회만 실행되게 막지만, scheduler 경로 외
-    //   runBattle 호출은 leader gate 우회. _streamLock Redis SETNX 로 frame stream 책임은 한 워커만.
-    try {
+    if (_liveEnabled) {
+      // 라이브 틱 루프 — onFrame 으로 매 프레임 즉시 broadcast, 매 틱 명령 큐 드레인.
+      //   권위: 이 워커(스케줄러 리더 = runBattle 실행자)가 단독 실행 + liveBattle.markActive 로 명령 수신 등록.
       const ws = require('../wsServer');
-      const stats = ws.channelStats();
-      // Redis 가 있으면 SETNX 로 frame stream lock — 다른 워커가 이미 stream 중이면 skip.
-      let _streamOwnership = true;
+      const liveBattle = require('./liveBattle');
+      let tickMs = 250, wallMin = 10;
+      try { tickMs = parseInt(await getSetting('siege_realtime_tick_ms', '250')) || 250; } catch (_) {}
+      try { wallMin = parseInt(await getSetting('siege_realtime_wallclock_min', '10')) || 10; } catch (_) {}
+      liveBattle.markActive(battleId);
       try {
-        if (process.env.REDIS_URL) {
-          const Redis = require('ioredis');
-          if (!global.__streamLockRedis) {
-            global.__streamLockRedis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, family: 0 });
-            global.__streamLockRedis.on('error', () => {});
+        result = await battleEngine.simulateBattleLive(battleId, {
+          drainCommands: () => liveBattle.drainCommands(battleId),
+          onFrame: (frame) => { try { ws.broadcastBattleFrame(battleId, frame); } catch (_) {} },
+          tickMs, wallClockMs: wallMin * 60 * 1000,
+        });
+      } finally { liveBattle.clearActive(battleId); }
+      try {
+        ws.broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats });
+      } catch (_) {}
+      console.log(`[battleScheduler] LIVE siege ${battleId} done. Winner: ${result.winner_side}`);
+    } else {
+      result = await battleEngine.simulateBattle(battleId);
+
+      // 2-bis. WebSocket 실시간 broadcast (precompute → setTimeout 체인 replay)
+      //   [v7.192 F1] 멀티 인스턴스 frame stream 중복 차단 — _streamLock Redis SETNX 로 한 워커만 stream.
+      try {
+        const ws = require('../wsServer');
+        const stats = ws.channelStats();
+        let _streamOwnership = true;
+        try {
+          if (process.env.REDIS_URL) {
+            const Redis = require('ioredis');
+            if (!global.__streamLockRedis) {
+              global.__streamLockRedis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, family: 0 });
+              global.__streamLockRedis.on('error', () => {});
+            }
+            const lockKey = 'om:battle_stream:' + battleId;
+            const got = await global.__streamLockRedis.set(lockKey, process.pid, 'NX', 'PX', 60000).catch(() => null);
+            _streamOwnership = (got === 'OK');
+            if (!_streamOwnership) console.log(`[battleScheduler] battle ${battleId} frame stream lock held by another worker — skipping`);
           }
-          const lockKey = 'om:battle_stream:' + battleId;
-          // 60초 TTL — frame stream 최대 길이 (typical battle 30s × 8x speed = 4s, 안전 마진 60).
-          const got = await global.__streamLockRedis.set(lockKey, process.pid, 'NX', 'PX', 60000).catch(() => null);
-          _streamOwnership = (got === 'OK');
-          if (!_streamOwnership) console.log(`[battleScheduler] battle ${battleId} frame stream lock held by another worker — skipping`);
+        } catch (_e) {}
+        if (_streamOwnership && stats[battleId]) {
+          const frames = result.timeline?.frames || [];
+          const tickMs = result.timeline?.tick_ms || 200;
+          let i = 0;
+          const streamNext = () => {
+            if (i >= frames.length) {
+              ws.broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats });
+              return;
+            }
+            ws.broadcastBattleFrame(battleId, frames[i]);
+            i++;
+            setTimeout(streamNext, Math.max(10, tickMs / 8));
+          };
+          streamNext();
+          console.log(`[battleScheduler] WS streaming ${frames.length} frames to ${stats[battleId]} subscribers`);
         }
-      } catch (_e) {}
-      if (_streamOwnership && stats[battleId]) {
-        const frames = result.timeline?.frames || [];
-        const tickMs = result.timeline?.tick_ms || 200;
-        // 별도 setTimeout 체인으로 frame stream — 시뮬 결과 저장은 즉시 진행
-        let i = 0;
-        const streamNext = () => {
-          if (i >= frames.length) {
-            ws.broadcastBattleEnd(battleId, {
-              winner_side: result.winner_side,
-              duration_seconds: result.duration_seconds,
-              stats: result.stats
-            });
-            return;
-          }
-          ws.broadcastBattleFrame(battleId, frames[i]);
-          i++;
-          // 8x speed 로 stream (클라에서 속도 조절 가능, 기본 빠르게)
-          setTimeout(streamNext, Math.max(10, tickMs / 8));
-        };
-        streamNext();
-        console.log(`[battleScheduler] WS streaming ${frames.length} frames to ${stats[battleId]} subscribers`);
+      } catch (wsErr) {
+        console.warn(`[battleScheduler] ws broadcast failed:`, wsErr.message);
       }
-    } catch (wsErr) {
-      console.warn(`[battleScheduler] ws broadcast failed:`, wsErr.message);
     }
 
     // 3. 타임라인 저장

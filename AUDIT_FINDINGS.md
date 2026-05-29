@@ -2,6 +2,15 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 Phase 3 실시간 권위 전투 (서버 기반, v7.251, 2026-05-29)
+"미리계산→스트림"→실시간 틱 루프. simulateBattleLive + applyLiveCommand + liveBattle 큐 + battleScheduler 분기 + WS 큐 라우팅. siege_realtime_enabled=true. 라이브 e2e PASS.
+realtime-battle-redteam 워크플로(16에이전트) 확정 결함 처리 상태:
+- ✅ **[HIGH→addressed] WS 명령 플러딩 DoS/트랜잭션 폭풍**: 라이브 명령을 per-msg declareAction(BEGIN/FOR UPDATE) 대신 인메모리 큐 enqueue + per-socket 3/s rate limit + 소유권 SELECT만. 트랜잭션 폭풍 제거.
+- 🟡 **[HIGH→deferred] beam/missile 서버 권위 쿨다운**: 현재 applyLiveCommand는 formation/maneuver/focus만 — 수동스킬 미연결(스팸 벡터 없음). 추가 시 반드시 서버 state 쿨다운/충전(클라 게이지 신뢰 금지) + quota 면제 금지.
+- 🟡 **[deferred] 멀티인스턴스 명령 라우팅**: 단일 인스턴스는 권위 워커=WS 워커라 동작. 다중 인스턴스는 비권위 워커 명령이 enqueue 실패(not_authority) → Redis battleCmd 라우팅 필요(현 dev 단일 인스턴스라 미차단).
+- 🟡 **[deferred] 비-라이브 declareAction rate limit**: pre-battle 경로(preparing/pending) 무제한 — 풀 고갈 가능. 별도 hardening.
+- 🟡 **[deferred] 참가자 명령 UI**: 자기 함대 진형/기동 버튼(fleetId 포함 WS cmd) — 다음 증분.
+
 ## 🟢 폴리시 + Phase 2 다함대 공성 (v7.249~250, 2026-05-29)
 - **v7.249 폴리시**: 공성 패널에 지오 섹터명(현지화)+티어 배지, 길드 거버너([TAG] 길드명)+섹터 세수→금고 누적 표시. sector.js getSectorGovernance 확장.
 - **v7.250 Phase 2 다함대 공성**: siege_fleet_commits(지갑당 1함대) + createSiegeBattleMulti(전 커밋을 한 전장 participants). 혈맹원 여럿이 같은 전장에서 싸움. DB e2e(2v1=3 participants) PASS. battleEngine은 진영당 N함대 기존 지원.
