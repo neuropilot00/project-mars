@@ -6607,6 +6607,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- 임무 (퀘스트 → 작전 → 수송 → 시즌) -->
       <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')" style="color:#64dc82"><span data-i18n="base_tab_mining">⛏ MINING</span><span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-i18n="base_tab_ops">⚔ OPS CONSOLE</span><span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
@@ -7095,17 +7096,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="dailyBonusCard" style="display:none"></div>
         </div>
 
-        <!-- ⛏ MINING OPS (함선 채굴 — 땅 없이 GP/재료 수급하는 반복 활동) -->
-        <div id="miningOpsCard" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
-          <div onclick="openShipMining()" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(100,220,130,.14),rgba(100,220,130,.04));border:1px solid rgba(100,220,130,.4);border-radius:10px;padding:12px">
-            <div style="font-size:26px;line-height:1">⛏</div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:800;color:#64dc82;letter-spacing:.5px" data-i18n="mining_ops_title">MINING OPS</div>
-              <div style="font-size:8.5px;color:var(--tx3);margin-top:2px" data-i18n="mining_ops_desc">Send fleets to mine GP &amp; materials — no land needed.</div>
-            </div>
-            <button type="button" onclick="event.stopPropagation();openShipMining()" style="font-size:9px;font-weight:700;padding:7px 12px;border-radius:7px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;cursor:pointer;font-family:var(--fn);white-space:nowrap" data-i18n="mining_ops_btn">⛏ MINE</button>
-          </div>
-        </div>
 
         <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
           <div class="base-section-title" style="display:flex;align-items:center;justify-content:space-between;color:#4fc3f7;margin-top:2px">
@@ -8118,6 +8108,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <button onclick="guildDisband()" style="padding:6px 12px;border-radius:4px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.3);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)" data-i18n="guild_disband_btn">DISBAND GUILD</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- TAB: MINING — 함선 채굴(임무 독립 서브탭). 땅 없이 함대로 GP/재료 수급. -->
+      <div class="base-pane" id="basePane_mining">
+        <div class="base-banner" id="bannerMining"><img src="/assets/base/mining.png?v=v7269" alt="" onerror="this.style.display='none'"></div>
+        <div style="padding:6px 10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-size:22px;line-height:1">⛏</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:900;letter-spacing:.5px;color:#64dc82" data-i18n="mining_ops_title">SHIP MINING</div>
+              <div style="font-size:8.5px;color:var(--tx3);margin-top:1px" data-i18n="mining_ops_desc">Send fleets to mine GP &amp; materials — no land needed.</div>
+            </div>
+          </div>
+          <div id="smContent" style="margin-top:8px;font-size:11px;color:var(--tx2)"></div>
         </div>
       </div>
 
@@ -25489,6 +25494,7 @@ function switchBaseTab(tab,el){
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
+  if(tab==='mining'){ try{ _renderShipMining(); }catch(_e){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} }
@@ -48443,22 +48449,11 @@ var shipyardState = {
 };
 
 // ⛏ 함선 채굴 런 (경제 v2 P5) — 땅 없는 F2P 노가다. 함대를 보내 재료+GP 수급.
+// 채굴은 임무 > ⛏ MINING 서브탭으로 통합(모달 폐기). 외부 진입점은 BASE 열고 해당 탭으로 라우팅.
 async function openShipMining() {
   if (!isLoggedIn()) { showFactionToast(tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
-  var w = (walletState && walletState.address) || '';
-  var old = document.getElementById('shipMiningModal'); if (old) old.remove();
-  var el = document.createElement('div');
-  el.id = 'shipMiningModal';
-  el.style.cssText = 'position:fixed;inset:0;z-index:100020;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.85);backdrop-filter:blur(6px);padding:16px';
-  el.addEventListener('click', function(e){ if(e.target===el) el.remove(); });
-  el.innerHTML = '<div id="smBody" style="position:relative;width:min(460px,95vw);max-height:90vh;overflow:auto;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(100,220,130,.14),rgba(10,14,20,.98) 60%);border:1.5px solid rgba(100,220,130,.5);box-shadow:0 0 40px rgba(100,220,130,.25);padding:18px">'
-    + '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#64dc82">⛏ '+tl('SHIP MINING','함선 채굴','艦船採掘','舰船采矿')+'</div>'
-    + '<div style="text-align:center;font-size:9px;color:var(--tx3);margin-top:3px">'+tl('Send a fleet to mine materials + GP. No land needed.','함대를 보내 재료+GP 채굴. 땅 필요 없음.','艦隊を送って素材+GP採掘。領土不要。','派舰队采集素材+GP。无需领地。')+'</div>'
-    + '<div id="smContent" style="margin-top:14px;font-size:11px;color:var(--tx2)">'+tl('Loading…','불러오는 중…','読み込み中…','加载中…')+'</div>'
-    + '<button type="button" id="smClose" style="width:100%;margin-top:14px;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--tx2);font-family:var(--fn);font-size:10px;cursor:pointer">'+tl('CLOSE','닫기','閉じる','关闭')+'</button>';
-  document.body.appendChild(el);
-  el.querySelector('#smClose').addEventListener('click', function(){ el.remove(); });
-  _renderShipMining();
+  try { if (typeof openBaseModal==='function' && !document.getElementById('baseModal').classList.contains('open')) openBaseModal(); } catch(_e){}
+  try { switchBaseTab('mining'); } catch(_e){}
 }
 
 async function _renderShipMining() {

@@ -86,13 +86,18 @@ async function shouldRunSchedulers() {
       const holder = await redis.get(LOCK_KEY).catch(() => '?');
       console.log(`[leader] 리더 락 미획득 — web-only 모드 (현재 리더: ${holder})`);
       _isLeader = false;
-      // 비리더도 주기적으로 재경합: 리더가 죽으면(락 만료) 다음 시도에서 획득 → 그때 재시작 유도
+      // 비리더도 주기적으로 재경합: 리더가 죽어 락이 만료(공석)되면 재시작 → 부팅 path 의 SET NX 가 공석 락을 깨끗이 획득.
+      // ⚠ [v7.270 FIX] 여기서 직접 SET 으로 락을 "미리 잡고" exit 하면 안 된다.
+      //    INSTANCE_ID 는 부팅마다 새로 생성되므로(21줄), 곧 죽을 현재 ID 로 락을 물면
+      //    재시작된 프로세스(새 ID)는 그 락을 자기 것으로 인식 못 해 SET NX 실패 → 또 web-only →
+      //    재경합 → 획득 → exit … 무한 재시작 루프(전 엔드포인트 502)가 발생했다.
+      //    → 락이 진짜 공석(GET null)일 때만 exit. 락 획득은 재시작 후 부팅 path 가 단독 수행한다.
       setInterval(async () => {
         try {
-          const got = await redis.set(LOCK_KEY, INSTANCE_ID, 'NX', 'PX', TTL_MS);
-          if (got === 'OK') {
-            console.error('[leader] 리더 공석 감지 → 락 획득. 스케줄러 기동 위해 프로세스 재시작.');
-            process.exit(0); // 오케스트레이터 재시작 → shouldRunSchedulers 가 true 로 부팅
+          const holder = await redis.get(LOCK_KEY);
+          if (!holder) {
+            console.error('[leader] 리더 공석 감지 → 재시작하여 부팅 시 리더 재경합.');
+            process.exit(0); // 오케스트레이터 재시작 → shouldRunSchedulers 부팅 path 의 SET NX 가 획득
           }
         } catch (_) {}
       }, RENEW_MS);

@@ -74,7 +74,8 @@
 // 2026-05-30 v72: v7.267 함선 채굴 런(P5, 땅 없는 F2P 노가다) + FLEET COMMAND ⛏ Mining 버튼 + 경매 cancel 엔드포인트.
 // 2026-05-30 v73: v7.268 함선 채굴 내구도 마모(EVE식 수리 GP sink) + 모달 마모 안내.
 // 2026-05-30 v74: v7.269 함선 채굴 v2(적재량/목적지/약탈 깊이) + 레드팀 P0 수정(채굴↔공성 잠금, 마모 clamp, 일일 GP상한, 최소HP 게이트) + 채굴 임무탭 이동(목적지 선택 UI) + 경매장 GP↔PP 통합.
-const CACHE_NAME = 'mars-v74';
+// 2026-05-30 v75: v7.270 CRITICAL 핫픽스 — 리더선출 무한 재시작 루프(전 엔드포인트 502) 수정 + 채굴을 임무 독립 '채굴' 서브탭으로 이동(캠페인/퀘스트에서 분리).
+const CACHE_NAME = 'mars-v75';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
