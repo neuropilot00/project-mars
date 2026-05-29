@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-29 v7.248 — 라이브 UX: 합류 full-loss 경고 + 무손실 대안 + 공성 모드 배지
+
+full-loss가 ON인 라이브 전환에 맞춘 공성 UX (워크플로 UX 발견 반영).
+- **합류 전 full-loss 경고** (`_loadSiegeFleetPanel` siegeJoin): 함대 합류 시 `gameConfirm`으로 "패배 시 함선 영구 손실 + 함대 안 걸면 점유율 판정(무손실)" 경고 후 커밋.
+- **무손실 경로 안내**: 함대 없는 유저에게 "영토 점유율로 도전/방어 가능(◌ 무혈, 손실 없음)"로 안내(조선소 유도 일변도 제거).
+- **resolution_mode 배지**: ACTIVE SIEGE 헤더에 ⚔ 함대 결전(패배 시 손실, red) / ⚔ 함대전 대기 / ◌ 무혈 판정을 선언 시점부터 표시.
+- 인라인 스크립트 11종 파싱 + onclick 훅 통과. 라이브 부팅(플래그 ON) 에러 0. SW v57→v58.
+
 ## 2026-05-29 v7.247 — 레드팀 확정 결함 수정 (disband 금고 소각/admin 동결/세금 라우팅)
 
 guild-war-golive 워크플로(15에이전트) 확정 결함 반영.

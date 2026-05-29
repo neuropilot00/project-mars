@@ -35542,7 +35542,10 @@ window.addEventListener('resize', _debounce(function(){
         var timeStr  = remaining != null ? (remaining > 60 ? Math.floor(remaining/60)+'h '+remaining%60+'m' : remaining+'m') : '—';
         var statusColor = s.status === 'active' ? 'var(--red)' : 'var(--gold)';
         html += '<div style="padding:8px;background:rgba(232,72,85,.06);border-radius:6px;border:1px solid rgba(232,72,85,.25);margin-bottom:8px">';
-        html += '<div style="font-size:9px;color:var(--red);font-family:var(--fn);font-weight:700;margin-bottom:6px">⚔️ ACTIVE SIEGE · '+s.status.toUpperCase()+'</div>';
+        html += '<div style="font-size:9px;color:var(--red);font-family:var(--fn);font-weight:700;margin-bottom:4px">⚔️ ACTIVE SIEGE · '+s.status.toUpperCase()+'</div>';
+        // [v7.248] resolution_mode 배지 — 이번 공성이 함대 결전(손실 위험)인지 무혈 판정인지 선언 시점부터 노출
+        var _szMode = s.fleet_battle_id ? '⚔ 함대 결전 — 패배 시 함선 손실' : (s.resolution_mode === 'fleet_battle' ? '⚔ 함대전 대기' : '◌ 무혈 판정 (함대 미배치 시 점유율 비교)');
+        html += '<div style="font-size:8px;color:'+(s.fleet_battle_id?'#ff6b6b':'var(--tx3)')+';margin-bottom:6px;font-family:var(--fn)">'+_szMode+'</div>';
         html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;color:var(--tx3)">CHALLENGER</span><span style="font-size:10px;color:var(--red)">'+chalName+'</span></div>';
         html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;color:var(--tx3)">DEFENDER</span><span style="font-size:10px;color:var(--cyan)">'+defName+'</span></div>';
         if (s.status === 'active') {
@@ -35661,7 +35664,7 @@ window.addEventListener('resize', _debounce(function(){
           if (!roster.defender_fleet_id) h += '<button type="button" class="sz-btn" data-action="siegeJoin" data-side="defense" data-siege="'+siege.id+'" style="flex:1;font-size:9px;padding:6px;color:var(--cyan);border-color:rgba(91,184,232,.4)">🛡 수비 합류</button>';
           h += '</div>';
         } else {
-          h += '<div style="font-size:9px;color:var(--tx3);padding:4px 0">함대가 없습니다 — 조선소에서 함선을 건조하세요.</div>';
+          h += '<div style="font-size:9px;color:var(--tx3);padding:4px 0">함대가 없어도 <b>영토 점유율로 도전/방어</b> 가능 (◌ 무혈 판정, 함선 손실 없음). 함대전을 원하면 조선소에서 함선을 건조하세요.</div>';
         }
       }
       if (battleMade && siege.status === 'active') {
@@ -35689,21 +35692,32 @@ window.addEventListener('resize', _debounce(function(){
             var sel = el.querySelector('select[data-siege-fleet-sel="'+sid+'"]');
             var fleetId = sel ? parseInt(sel.value, 10) : null;
             if (!fleetId) { if (typeof showToast==='function') showToast('함대를 선택하세요','warn'); return; }
-            btn.disabled = true; var prev = btn.textContent; btn.textContent = '...';
             console.log('[BTN] siegeJoin', sid, side, fleetId);
-            fetch('/api/siege/'+sid+'/commit-fleet', {
-              method: 'POST',
-              headers: Object.assign({ 'Content-Type':'application/json' }, getAuthHeaders()),
-              body: JSON.stringify({ fleetId: fleetId })
-            }).then(function(r){ return r.json().then(function(j){ return { ok:r.ok, j:j }; }); })
-              .then(function(res){
-                if (!res.ok || !res.j || !res.j.success) {
-                  if (typeof showToast==='function') showToast(_siegeJoinErr(res.j && res.j.error), 'warn');
-                  btn.disabled = false; btn.textContent = prev; return;
-                }
-                if (typeof showToast==='function') showToast(side==='attack'?'⚔ 공격 함대 합류 완료':'🛡 수비 함대 합류 완료','success');
-                loadSiegeInfoPanel(code);
-              }).catch(function(){ if (typeof showToast==='function') showToast('합류 실패','warn'); btn.disabled = false; btn.textContent = prev; });
+            // [v7.248] full-loss 라이브 — 합류 = 패배 시 함선 영구 손실. 무손실 대안(점유율 판정) 안내 후 confirm.
+            var doCommit = function() {
+              btn.disabled = true; var prev = btn.textContent; btn.textContent = '...';
+              fetch('/api/siege/'+sid+'/commit-fleet', {
+                method: 'POST',
+                headers: Object.assign({ 'Content-Type':'application/json' }, getAuthHeaders()),
+                body: JSON.stringify({ fleetId: fleetId })
+              }).then(function(r){ return r.json().then(function(j){ return { ok:r.ok, j:j }; }); })
+                .then(function(res){
+                  if (!res.ok || !res.j || !res.j.success) {
+                    if (typeof showToast==='function') showToast(_siegeJoinErr(res.j && res.j.error), 'warn');
+                    btn.disabled = false; btn.textContent = prev; return;
+                  }
+                  if (typeof showToast==='function') showToast(side==='attack'?'⚔ 공격 함대 합류 완료':'🛡 수비 함대 합류 완료','success');
+                  loadSiegeInfoPanel(code);
+                }).catch(function(){ if (typeof showToast==='function') showToast('합류 실패','warn'); btn.disabled = false; btn.textContent = prev; });
+            };
+            if (typeof gameConfirm === 'function') {
+              Promise.resolve(gameConfirm({
+                icon: '⚠',
+                title: side==='attack' ? '공격 함대 합류' : '수비 함대 합류',
+                body: '결전에서 <b>패배하면 합류한 함대의 함선이 <span style="color:#ff6b6b">영구 손실(전사)</span></b>될 수 있습니다.<br><br>함대를 걸지 않으면 영토 점유율로만 판정되어 <b>함선 손실이 없습니다</b>.',
+                confirmText: side==='attack' ? '⚔ 합류' : '🛡 합류'
+              })).then(function(ok){ if (ok) doCommit(); });
+            } else { doCommit(); }
           }
         });
       }
