@@ -2,6 +2,20 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 전체 카테고리 검수 수정 #1 + 게임가이드 갱신 (v7.275~v7.276, 2026-05-30)
+- ✅ v7.275: 통화 오표기(현상금/퀘스트 GP), OPS 잔액갱신, 에러 54곳 srvErr 4언어화, 영토 업그레이드 에러 코드화, DEPLOY 라벨 회귀.
+- ✅ v7.276: 게임 가이드(GUIDEBOOK/CODEX_CONTENT) whatsnew 섹션 4언어 갱신 — 자원 출항(F2P 채굴/목적지/마모) + GP 중심 경제(무료 PP→GP, GP↔PP 경매, 보상 GP화).
+- 🟡 **남은 백로그(다음 세션 — medium/low 폴리시, 기능 차단 아님)**:
+  · [기능] Commander 'LAUNCH SUPPLY DROP' 403 — `/api/rockets/trigger`는 `commander` 테이블(id=1) 검증, 대시보드 게이트는 다른 소스 → 커맨더 모델(commander vs governance_positions) 확인 후 권한 정렬 필요(성급 변경 시 보안위험이라 보류).
+  · [명확성] TEND(정비) 비용 사전 미표시(즉시 차감) — production 응답에 tendCostGp 추가 + 버튼 라벨/confirm.
+  · [명확성] 상점 구매 confirm 잔액 미표시 + 사전 차단 없음 — gameConfirm로 buyMarketListing 패턴 적용.
+  · [명확성] 조선소 블루프린트 카드·건조큐·강화 confirm 다이얼로그 한국어 전용 → 4언어화.
+  · [명확성] War declare '200 GP'·governance 이벤트/버프 비용 하드코딩 → 서버 설정 동기화.
+  · [경제] 함선 건조/취소 후 전역 GP 헤더 미갱신, 일일미션 '전부완료' +50 GP 클라 임의표시(서버값 사용 권장).
+  · [§19] index.html 동적 onclick concat 잔여(renderBaseShop/renderMarketCard 등) — data-action 패턴 이관.
+  · [정리] auctionCombat ship_instances dead-path, 구버전 auction.js GP전용(혼란), guild LEVEL UP 권한(멤버십만 체크), war stake hint 미표시, 퀘스트 티어 raw enum 뱃지, 수송 에스크로 미고지.
+  · ✅ 무결 확인: 매수 PP 비상환(USDT 누수 없음).
+
 ## 🔴→🟢 스프린트 QA(멀티에이전트+Codex) 확정 버그 수정 (v7.274, 2026-05-30)
 - ✅ [HIGH] 자원 판매 전부 400 — /api/marketplace/list가 resourceCode/resourceQuantity 미전달 → createListing 'resourceCode required'. route 2필드 추가.
 - ✅ [HIGH] 채굴 일일 GP상한 동시성 우회(레드팀#1 무력화) — collect가 단일 job만 잠가 동시 collect로 상한 Nx 초과. 지갑 advisory lock(collect+launch).
