@@ -1,3 +1,12 @@
+## 2026-05-30 v7.286 — 합체 필살기(overdrive) 서버 권위 구현
+
+합체 액티브 필살기 — 기존 beam/missile 수동스킬 시스템(server-authoritative charge/쿨다운) 패턴으로 추가:
+- `battleEngine.js`: 살아있는 `assembled` 함선 보유 함대만 `overdriveCharge` 누적. `applyLiveCommand`에 `overdrive` 명령(충전 100% + 합체체 보유 시에만 발동, 발동 후 0 리셋 — 클라 게이지 불신, 서버 권위). `_applySkill('overdrive')`: 최대 10척 광역 강타(데미지 = 살아있는 ATK 합 × 배율). 프레임에 `overdriveCharge`/`hasAssembled` 노출.
+- `commanderActions.js`: live action에 `overdrive`/`combine_ultimate` 타입 통과.
+- 마이그레이션 281: `assembly_overdrive_dmg_mult`(5)/`assembly_overdrive_charge_per_ship`(0.5) settings.
+- 검증(node): 충전100+합체체→발동·리셋·광역데미지, 합체체 없으면 미발동(false), 엔진 로딩 정상.
+- ⏳ 잔여(UI 사탕): 전술랩/배틀뷰어 발동 버튼 + 충전 게이지(데모 미러 포함). 명령 경로는 완성 — `{type:'overdrive'}` 전송 시 서버에서 발동.
+
 ## 2026-05-30 v7.285 — 합체체 P3 전투통합 (PvP 투입 + 밸런스 카운터)
 
 사용자 결정(합체체 성능을 PvP에 투입 — 격리 안 함) 반영. 일방학살 방지를 위해 "중상위 + 명확한 카운터"로 밸런스:

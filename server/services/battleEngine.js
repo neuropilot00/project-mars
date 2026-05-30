@@ -167,6 +167,13 @@ function applyLiveCommand(state, cmd) {
     if (_applySkill(state, fleet, 'missile')) { fleet.missileCharge = 0; return true; }
     return false;
   }
+  // 합체 필살기 — 충전 100% + 살아있는 합체체 보유 시에만 발동(서버 권위)
+  if (cmd.action === 'overdrive') {
+    if ((fleet.overdriveCharge || 0) < 100) return false;
+    if (!fleet.ships.some(s => s.isAlive && s.size_class === 'assembled')) return false;
+    if (_applySkill(state, fleet, 'overdrive')) { fleet.overdriveCharge = 0; return true; }
+    return false;
+  }
   return false;
 }
 
@@ -179,6 +186,16 @@ function _applySkill(state, fleet, kind) {
   if (!enemies.length) return false;
   const beamMult = (state.skillMult && state.skillMult.beam) || 8;
   const missileMult = (state.skillMult && state.skillMult.missile) || 4;
+  if (kind === 'overdrive') {
+    // 합체 필살기 — 광역 강타(미사일보다 강하고 더 많은 표적). assembled의 atk 비중이 클수록 강함.
+    const odMult = (state.skillMult && state.skillMult.overdrive) || 5;
+    const dmgEach = Math.round(myAtk * odMult);
+    for (const t of enemies.slice(0, Math.min(10, enemies.length))) {
+      t.hp -= dmgEach;
+      if (t.hp <= 0) { t.hp = 0; t.isAlive = false; }
+    }
+    return true;
+  }
   if (kind === 'beam') {
     enemies.sort((a, b) => ((b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)) || ((b.maxHp || 0) - (a.maxHp || 0)));
     const t = enemies[0];
@@ -208,10 +225,11 @@ async function simulateBattleLive(battleId, hooks) {
   try { state.focusFireDmgBonus = parseFloat(await getSetting('focus_fire_dmg_bonus_pct', '15')) || 0; } catch (_) { state.focusFireDmgBonus = 15; }
   // [Phase 3] 수동 스킬 배율/충전율 — 서버 권위(클라 게이지 신뢰 금지)
   try {
-    state.skillMult = { beam: parseFloat(await getSetting('siege_beam_dmg_mult', '8')) || 8, missile: parseFloat(await getSetting('siege_missile_dmg_mult', '4')) || 4 };
+    state.skillMult = { beam: parseFloat(await getSetting('siege_beam_dmg_mult', '8')) || 8, missile: parseFloat(await getSetting('siege_missile_dmg_mult', '4')) || 4, overdrive: parseFloat(await getSetting('assembly_overdrive_dmg_mult', '5')) || 5 };
     state.beamChargePerShipTick = parseFloat(await getSetting('siege_beam_charge_per_ship', '0.4')) || 0.4;
     state.missileChargePerShipTick = parseFloat(await getSetting('siege_missile_charge_per_ship', '0.6')) || 0.6;
-  } catch (_) { state.skillMult = { beam: 8, missile: 4 }; state.beamChargePerShipTick = 0.4; state.missileChargePerShipTick = 0.6; }
+    state.overdriveChargePerShipTick = parseFloat(await getSetting('assembly_overdrive_charge_per_ship', '0.5')) || 0.5;
+  } catch (_) { state.skillMult = { beam: 8, missile: 4, overdrive: 5 }; state.beamChargePerShipTick = 0.4; state.missileChargePerShipTick = 0.6; state.overdriveChargePerShipTick = 0.5; }
 
   const timeline = {
     tick_ms: TICK_MS, field_w: FIELD_W, field_h: FIELD_H, battle_id: battleId, live: true,
@@ -242,6 +260,10 @@ async function simulateBattleLive(battleId, hooks) {
       if (atkN <= 0) continue;
       fleet.beamCharge = Math.min(100, (fleet.beamCharge || 0) + atkN * (state.beamChargePerShipTick || 0.4));
       fleet.missileCharge = Math.min(100, (fleet.missileCharge || 0) + atkN * (state.missileChargePerShipTick || 0.6));
+      // 합체 필살기(overdrive): 살아있는 합체체(assembled)가 함대에 있을 때만 충전
+      if (fleet.ships.some(s => s.isAlive && s.size_class === 'assembled')) {
+        fleet.overdriveCharge = Math.min(100, (fleet.overdriveCharge || 0) + atkN * (state.overdriveChargePerShipTick || 0.5));
+      }
     }
 
     if (tick % 5 === 0) {
@@ -1017,6 +1039,8 @@ function captureFrame(state, tick) {
       // [Phase 3] 라이브 수동스킬 충전(0~100) — precompute 경로엔 undefined→0
       beamCharge: Math.round(f.beamCharge || 0),
       missileCharge: Math.round(f.missileCharge || 0),
+      overdriveCharge: Math.round(f.overdriveCharge || 0),
+      hasAssembled: f.ships.some(s => s.isAlive && s.size_class === 'assembled'),
     })),
     ships: state.fleets.flatMap(f =>
       f.ships.filter(s => s.isAlive).map(s => ({

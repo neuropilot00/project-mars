@@ -64,7 +64,8 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
         : type === 'maneuver_change' ? 'maneuver'
         : type === 'focus_fire' ? 'focus'
         : (type === 'beam' || type === 'beam_cannon') ? 'beam'
-        : (type === 'missile' || type === 'missile_barrage') ? 'missile' : null;
+        : (type === 'missile' || type === 'missile_barrage') ? 'missile'
+        : (type === 'overdrive' || type === 'combine_ultimate') ? 'overdrive' : null;
       if (!liveAction) return res.status(400).json({ error: 'UNSUPPORTED_LIVE_ACTION' });
       const ok = liveBattle.enqueueCommand(battleId, {
         fleetId, wallet, action: liveAction,
