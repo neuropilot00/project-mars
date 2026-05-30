@@ -1,3 +1,15 @@
+## 2026-05-30 v7.315 — 컨테스트 자동 운영 (어드민 불필요)
+
+- **요청**: "래플/배팅처럼 어드민 세팅 없이 자동으로 돌아가야 하는 컨텐츠 전부 자동화."
+- **전수 조사 결과** (Explore + Codex 교차검증):
+  - 이미 자동: 래플/예측배팅(gamblingAuto v7.314), 복권(lottery drawExpiredRounds가 마감 시 새 라운드 생성), 월드이벤트(worldEvents maybeAutoSpawn, 2분), 시즌(autoRotateSeason, 1h).
+  - **수동→자동 전환 대상**: 컨테스트(art_contests). 생성만 어드민 수동이고 정산(상태전환+득표순 자동 승자선정 advanceContestStatuses/finalizeContest)은 이미 5분 스케줄로 자동.
+  - **자동화 제외(의도적·안전)**: 토너먼트(tournaments)·wager 풀은 승자선정이 어드민 수동(adminPickWinner/settlePool)이라 자동 생성 시 참가비/베팅금이 영구 묶임 → 자동 생성하지 않음. 경매/투표/원정/비콘/스폰서는 유저 생성형.
+- **신규 `server/services/autoContent.js`** + `server/index.js` 등록(10분 주기, 부팅+30s):
+  - 진행/예정 컨테스트가 없으면 자동 생성. 종류 4종 회전(best_territory/most_claims/most_pp). 정산은 기존 [CONTEST] advanceContestStatuses가 처리.
+  - 설정 키(기본값 내장): `contest_auto_enabled`, `contest_auto_prize_gp`(3000), `contest_auto_submission_hours`(72), `contest_auto_voting_hours`(48).
+- art_contests 미프로비저닝 환경에서도 safe(조용히 통과·다음 tick 재시도).
+
 ## 2026-05-30 v7.314 — GP 래플 + 파벌 예측배팅 완전 자동화 (어드민 불필요)
 
 - **요청**: "gp 예측배팅도 알아서 자동으로 계속 되야지 어드민이 세팅하면 안됨". 모든 퀘스트/도박은 자동 운영.

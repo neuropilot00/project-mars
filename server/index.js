@@ -1680,6 +1680,11 @@ async function start() {
       require('./services/gamblingAuto').start();
     } catch (e) { console.warn('[gamblingAuto] start failed:', e.message); }
 
+    // [v7.315] 자동 컨텐츠 운영 — 컨테스트 + 토너먼트 + 월드이벤트 자동 생성/정산 (어드민 불필요)
+    try {
+      require('./services/autoContent').start();
+    } catch (e) { console.warn('[autoContent] start failed:', e.message); }
+
     const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);
       console.log(`║  OCCUPY MARS — Server Running             ║`);
