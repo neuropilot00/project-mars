@@ -1,3 +1,10 @@
+## 2026-05-30 v7.317b — 토너먼트+Wager 자동화 스키마 정합 재작성
+
+- v7.317 최초 구현이 실제 DB 스키마와 불일치(존재하지 않는 wager_pools.options 컬럼, tournaments status 'open' 가정)라 동작 안 함. 실 스키마 기준 재작성.
+- **토너먼트**: `adminCreateTournament`가 status='registering'으로 생성됨을 반영. 진행 중(완료/취소 제외) 자동 토너먼트가 없을 때만 생성(중복 방지). 마감(ends_at) 시 참가자 중 윈도우 영토최다를 승자로 `adminPickWinner`, 0명이면 `adminCancelTournament`.
+- **Wager**: wager_pools엔 options 없고 target_wallet에 베팅하는 구조 → "토너먼트 승자 맞히기" 풀로 연동. 생성 시 description에 `TID:<tournamentId>` 기록, 토너먼트 정산 시 같은 승자 지갑으로 `settlePool` 자동 호출(승자 없으면 전원 환불).
+- 라이브 DB 검증: 토너먼트+연동wager 생성→마감→정산(참가자 0명: 취소+환불) 전 경로 통과, 중복생성 0.
+
 ## 2026-05-30 v7.316b — 모바일 스프라이트 캐시통일 실제 반영 + 미사일 정정
 
 - **모바일/데스크탑 로봇 탑뷰 통일(실제 적용)**: v7.316 커밋에서 앵커 불일치로 누락됐던 캐시버스트를 실제 반영. `ASSET_VER 7300→7316`, 함대 미리보기 스프라이트 로더(`/assets/ships/top/${code}.png`)와 조선소 블루프린트 이미지에 `?v=ASSET_VER` 추가. 모바일이 옛 PNG 캐시를 들고 있던 문제 해소.
