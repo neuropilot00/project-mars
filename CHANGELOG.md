@@ -1,3 +1,10 @@
+## 2026-05-31 v7.322 — 합체 유닛 전 유저 공용 (진영 무관)
+
+- 사용자 결정: 합체 로봇/외계 유닛은 진영 나누지 않고 **전 유저 공용**.
+- **server/services/fleet.js `moveShips`**: cross-faction 차단에서 합체 유닛 예외 처리. `ship_types.faction_code='pilgrim'` 또는 `size_class='assembled'`인 함선은 어느 진영 플레이어든 함대 편입 허용(기존엔 CROSS_FACTION_SHIP으로 막혀 만들어도 못 쓰던 설계 충돌 해소). 쿼리에 `size_class` 추가.
+- **index.html `shipFleetCardHtml`**: 합체 유닛 카드의 🔒 진영 잠금 배지를 제거하고 대신 🜲 **UNIVERSAL/공용** 배지 표시. `canFlag`도 합체 유닛은 진영 무관 통과.
+- 자물쇠 의미가 "다른 진영이라 못 씀"이었으나, 합체 유닛엔 더 이상 적용 안 됨.
+
 ## 2026-05-31 v7.321 — 복권 구매 500 근본수정 + 수확/일괄수확 실제반영 + 가챠SKIP
 
 - **GP 복권 구매 에러(사용자 보고) 근본 원인 수정**: `lottery.buyTickets`가 존재하지 않는 `lottery_rounds.house_gp` 컬럼을 UPDATE해 **모든 구매가 500**. 라이브 재현(`column "house_gp" does not exist`) 후 제거 → 구매 정상(buy=OK). 하우스컷은 추첨 시점 분리.

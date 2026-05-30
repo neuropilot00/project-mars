@@ -455,9 +455,11 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     }
 
     // Cross-faction 차단: 본인 진영과 다른 함선은 함대에 못 넣음(창고 전용·마켓 판매만)
+    // [v7.322] 단, 합체 유닛(pilgrim 진영 또는 size_class='assembled')은 전 유저 공용 — 진영 무관 편입 허용.
     const { rows: ownerRows } = await client.query(`SELECT faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [walletAddress]);
     const ownerFaction = (ownerRows[0] && (ownerRows[0].faction_code||'').toLowerCase()) || '';
-    const crossFaction = shipRows.filter(s => (s.ship_faction||'').toLowerCase() !== ownerFaction);
+    const isUniversal = (s) => (s.ship_faction||'').toLowerCase() === 'pilgrim' || (s.ship_size||'').toLowerCase() === 'assembled';
+    const crossFaction = shipRows.filter(s => !isUniversal(s) && (s.ship_faction||'').toLowerCase() !== ownerFaction);
     if (crossFaction.length > 0) {
       const err = new Error('CROSS_FACTION_SHIP');
       err.meta = { ship_ids: crossFaction.map(s => Number(s.id)), reason: 'cannot deploy other-faction ships; list on market instead' };
