@@ -10724,12 +10724,12 @@ function compositeClaimsOnTexture(previewOnly){
           }
           // Pass 1: Wide halo (atmospheric bleed)
           ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+territoryTone.halo+')';
-          ctx.lineWidth=isMine?4.5:4;
+          ctx.lineWidth=isMine?2:2;
           ctx.stroke();
           // Pass 2: Crisp tactical line
           if(territoryTone.dash) ctx.setLineDash(territoryTone.dash); else ctx.setLineDash([]);
           ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'1':'0.9')+')';
-          ctx.lineWidth=isMine?1.5:1.4;
+          ctx.lineWidth=isMine?0.8:0.8;
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.lineCap='butt';
@@ -10801,12 +10801,12 @@ function compositeClaimsOnTexture(previewOnly){
           // Pass 1: Wide atmospheric halo
           if(isMine){ctx.shadowColor='rgba(255,209,102,0.45)';ctx.shadowBlur=4;}
           ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+territoryTone.halo+')';
-          ctx.lineWidth=isMine?4.5:4;
+          ctx.lineWidth=isMine?2:2;
           ctx.stroke();
           if(isMine) ctx.shadowBlur=0;
           // Pass 2: Crisp tactical inner line
           ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.9')+')';
-          ctx.lineWidth=isMine?1.5:1.4;
+          ctx.lineWidth=isMine?0.8:0.8;
           ctx.stroke();
           ctx.lineCap='butt';ctx.setLineDash([]);
         }
@@ -18075,7 +18075,7 @@ var I18N = {
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
     gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
     gov_ship_upgrade: 'UPGRADE', gov_ship_upgraded: 'upgraded!', gov_ship_upgrade_cost: 'Upgrade Cost',
-    sy_tab_blueprints: 'BLUEPRINTS', sy_tab_queue: 'BUILD QUEUE', sy_tab_fleet: 'MY FLEET', sy_tab_market: 'SHIP MARKET', sy_tab_crates: 'CRATES', sy_tab_assembly: 'ASSEMBLY', sy_crate_intro: 'Open a crate to receive a random ship. Ships you receive are tradeable on the Ship Market. Drop rates are disclosed on each crate.',
+    sy_tab_blueprints: 'BLUEPRINTS', sy_tab_queue: 'BUILD QUEUE', sy_tab_fleet: 'MY FLEET', sy_tab_market: 'SHIP MARKET', sy_tab_crates: 'CRATES', sy_tab_assembly: 'ACTIVATE', sy_crate_intro: 'Open a crate to receive a random ship. Ships you receive are tradeable on the Ship Market. Drop rates are disclosed on each crate.',
     sy_filter_size: 'SIZE:', sy_size_all: 'ALL', sy_size_frigate: 'Frigate', sy_size_destroyer: 'Destroyer', sy_size_cruiser: 'Cruiser', sy_size_battleship: 'Battleship', sy_size_titan: 'Titan',
     sy_filter_faction: 'FACTION:', sy_filter_size2: 'SIZE:',
     sy_mineral_label: 'Minerals Owned', sy_ships_label: 'Ships',
@@ -18931,7 +18931,7 @@ var I18N = {
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
     gov_ship_upgrade: '강화', gov_ship_upgraded: '강화 완료!', gov_ship_upgrade_cost: '강화 비용',
-    sy_tab_blueprints: '청사진', sy_tab_queue: '건조 대기열', sy_tab_fleet: '내 함선', sy_tab_market: '함선 마켓', sy_tab_crates: '가챠', sy_tab_assembly: '합체', sy_crate_intro: '함선 가챠를 돌려 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 가챠에 공개됩니다.',
+    sy_tab_blueprints: '청사진', sy_tab_queue: '건조 대기열', sy_tab_fleet: '내 함선', sy_tab_market: '함선 마켓', sy_tab_crates: '가챠', sy_tab_assembly: '기동', sy_crate_intro: '함선 가챠를 돌려 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 가챠에 공개됩니다.',
     sy_filter_size: '함급:', sy_size_all: '전체', sy_size_frigate: '프리깃', sy_size_destroyer: '구축함', sy_size_cruiser: '순양함', sy_size_battleship: '전함', sy_size_titan: '타이탄',
     sy_filter_faction: '파벌:', sy_filter_size2: '크기:',
     sy_mineral_label: '광물 보유', sy_ships_label: '함선',
@@ -19785,7 +19785,7 @@ var I18N = {
     gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
     gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
     gov_ship_upgrade: 'アップグレード', gov_ship_upgraded: 'アップグレード完了！', gov_ship_upgrade_cost: 'アップグレード費用',
-    sy_tab_blueprints: '設計図', sy_tab_queue: '建造待機', sy_tab_fleet: '自艦隊', sy_tab_market: '艦船市場', sy_tab_crates: 'ボックス', sy_tab_assembly: '合体', sy_crate_intro: '艦船ボックスを開けてランダムな艦船を獲得。獲得した艦船は艦船市場で取引できます。確率は各ボックスに公開されています。',
+    sy_tab_blueprints: '設計図', sy_tab_queue: '建造待機', sy_tab_fleet: '自艦隊', sy_tab_market: '艦船市場', sy_tab_crates: 'ボックス', sy_tab_assembly: '起動', sy_crate_intro: '艦船ボックスを開けてランダムな艦船を獲得。獲得した艦船は艦船市場で取引できます。確率は各ボックスに公開されています。',
     sy_filter_size: '艦級:', sy_size_all: '全て', sy_size_frigate: 'フリゲート', sy_size_destroyer: '駆逐艦', sy_size_cruiser: '巡洋艦', sy_size_battleship: '戦艦', sy_size_titan: 'タイタン',
     sy_filter_faction: '勢力:', sy_filter_size2: 'サイズ:',
     sy_mineral_label: '鉱物所有', sy_ships_label: '艦船',
@@ -20645,7 +20645,7 @@ var I18N = {
     gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
     gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
     gov_ship_upgrade: '升级', gov_ship_upgraded: '升级完成！', gov_ship_upgrade_cost: '升级费用',
-    sy_tab_blueprints: '蓝图', sy_tab_queue: '建造队列', sy_tab_fleet: '我的舰队', sy_tab_market: '舰船市场', sy_tab_crates: '宝箱', sy_tab_assembly: '合体', sy_crate_intro: '打开宝箱获得随机舰船。获得的舰船可在舰船市场交易。每个宝箱都公开掉落概率。',
+    sy_tab_blueprints: '蓝图', sy_tab_queue: '建造队列', sy_tab_fleet: '我的舰队', sy_tab_market: '舰船市场', sy_tab_crates: '宝箱', sy_tab_assembly: '启动', sy_crate_intro: '打开宝箱获得随机舰船。获得的舰船可在舰船市场交易。每个宝箱都公开掉落概率。',
     sy_filter_size: '舰级:', sy_size_all: '全部', sy_size_frigate: '护卫舰', sy_size_destroyer: '驱逐舰', sy_size_cruiser: '巡洋舰', sy_size_battleship: '战列舰', sy_size_titan: '泰坦',
     sy_filter_faction: '势力:', sy_filter_size2: '大小:',
     sy_mineral_label: '矿石持有', sy_ships_label: '舰船',
@@ -44906,6 +44906,8 @@ var CODEX_CONTENT = {
               [{v:'전함',cls:'mars'},     '중장 라인 — Core/Mid 광물', {v:'높음',cls:'num'}],
               [{v:'타이탄',cls:'mars'},   '캐피탈 — 서버 캡',          {v:'최상',cls:'num'}]
             ]},
+          { type:'callout', variant:'tip', title:'🜲 기동 슈퍼유닛 (퍼펙트 가챠)',
+            text:'`가챠`의 **퍼펙트 가챠 박스**에서 파츠를 모아 거대 슈퍼유닛을 **기동**시킬 수 있어. 한 유닛당 **파츠 5종**이 필요하고, 다 모으면 조선소 `기동` 탭에서 함대에 배치돼. 중복 파츠는 **조각**으로 분해되어 원하는 파츠와 교환 가능(코어 파츠는 교환비용이 더 비싸). 로봇 6종(볼타리스·이그니스·글라키우스·움브라·아우룸·템페스트)과 화성 외계 생명체 4종(디바우러·레비아탄·하이브 퀸·보이드 모)이 있고, 각각 무기 특화·상성이 달라. 중상위 성능이라 저격/폭격/전자전에 약점이 있고, 해체하면 파츠로 되돌아와(영구 손실 없음).' },
 
           { type:'h2', text:'2. 조선소 — 건조 & 수리' },
           { type:'p', text:'`조선소`를 열면 청사진이 보여. 각 카드는 GP + 광물 비용을 **보유 / 필요**로 표시하고, 어느 섹터 티어가 그 광물을 드롭하는지 ⛏ 뱃지로 알려줘. 건조하면 `ship_build_job`이 큐에 들어가고, 함선은 기본 함대에 편입돼.' },
@@ -48895,18 +48897,19 @@ function _asmRenderUnitModal(d){
     '</div>';
   }).join('');
   var exchangeBtns = (d.parts||[]).filter(function(p){ return parseInt(p.owned,10) < 1; }).map(function(p){
-    var enough = (parseInt(d.shards,10)||0) >= (parseInt(d.shard_exchange_cost,10)||0);
-    return '<button type="button" class="fd-btn" data-action="asm-exchange" data-part-code="'+escapeHtmlSafe(p.part_code||'')+'" '+(enough?'':'disabled')+' style="font-size:8px">'+(p.icon||'🜲')+' '+escapeHtmlSafe(_asmName(p)||p.part_code||'Part')+' · '+formatNum(d.shard_exchange_cost)+'</button>';
+    var cost = parseInt(p.exchange_cost,10) || parseInt(d.shard_exchange_cost,10) || 40;
+    var enough = (parseInt(d.shards,10)||0) >= cost;
+    return '<button type="button" class="fd-btn" data-action="asm-exchange" data-part-code="'+escapeHtmlSafe(p.part_code||'')+'" '+(enough?'':'disabled')+' style="font-size:8px">'+(p.icon||'🜲')+' '+escapeHtmlSafe(_asmName(p)||p.part_code||'Part')+' · '+formatNum(cost)+'</button>';
   }).join('');
   var built = parseInt(d.built_count,10)>0;
   var actionHtml = built
     ? '<div style="padding:11px 13px;border:1px solid rgba(129,199,132,.32);border-radius:10px;background:rgba(129,199,132,.07)">' +
-        '<div style="font-size:10px;color:#a5d6a7;letter-spacing:.6px;margin-bottom:8px">✓ '+tl("ASSEMBLED — deployed in your fleet","합체 완료 — 함대에 배치됨","合体完了 — 艦隊配備","已合体 — 已部署")+'</div>' +
+        '<div style="font-size:10px;color:#a5d6a7;letter-spacing:.6px;margin-bottom:8px">✓ '+tl("ACTIVATED — deployed in your fleet","기동 완료 — 함대에 배치됨","起動完了 — 艦隊配備","已启动 — 已部署")+'</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
           '<button type="button" class="fd-btn primary" data-action="asm-upgrade" style="flex:1;min-width:130px">⬆ '+tl("Go to Upgrade","강화하러 가기","強化へ","前往强化")+'</button>' +
           '<button type="button" class="fd-btn danger" data-action="asm-disassemble" style="flex:1;min-width:130px">🔧 '+tl("DISASSEMBLE","해체","分解","拆解")+'</button>' +
         '</div></div>'
-    : '<button type="button" class="fd-btn primary" data-action="asm-assemble" '+(d.can_assemble && !maxReached ? '' : 'disabled')+' style="width:100%;padding:13px;font-size:13px;letter-spacing:1px">🜲 '+(maxReached?tl('MAX OWNED','최대 보유','上限所持','已达上限'):tl('ASSEMBLE','합 체','合体','合体'))+(d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'')+'</button>';
+    : '<button type="button" class="fd-btn primary" data-action="asm-assemble" '+(d.can_assemble && !maxReached ? '' : 'disabled')+' style="width:100%;padding:13px;font-size:13px;letter-spacing:1px">🜲 '+(maxReached?tl('MAX OWNED','최대 보유','上限所持','已达上限'):tl('ACTIVATE','기동','起動','启动'))+(d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'')+'</button>';
   var shardHtml = '<div style="padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025)">' +
         '<div style="font-size:9px;color:rgba(255,255,255,.58);letter-spacing:.8px">💎 '+tl('SHARDS','조각','シャード','碎片')+': <b style="color:#fff">'+formatNum(d.shards)+'</b> · '+tl('exchange cost','교환 비용','交換コスト','兑换消耗')+' <b style="color:#e1bee7">'+formatNum(d.shard_exchange_cost)+'</b></div>' +
         (exchangeBtns ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'+exchangeBtns+'</div>' : '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:8px">'+tl('All parts collected','모든 파츠 보유','全パーツ所持','已集齐')+'</div>') +
@@ -48958,7 +48961,7 @@ async function _asmOnModalClick(ev){
     if (act === 'asm-assemble') {
       res = await _asmPost('/api/assembly/assemble', w, { unit_code: _asmUnit });
       if (res.error) showFactionToast(_asmErr(res), 'error');
-      else showFactionToast('🜲 '+tl('Assembled!','합체 완료!','合体完了！','合体完成！'), 'success');
+      else showFactionToast('🜲 '+tl('Activated!','기동 완료!','起動完了！','启动完成！'), 'success');
     } else if (act === 'asm-disassemble') {
       var ok = await gameConfirm({ icon:'🔧', title:tl('Disassemble','해체','分解','拆解'), body:tl('Return parts and remove the assembled unit?','파츠로 환원하고 합체체를 해체할까요?','パーツに戻して合体ユニットを解体しますか？','拆解为零件并移除合体单位？'), confirmText:tl('Disassemble','해체','分解','拆解') });
       if (!ok) return;
@@ -49002,7 +49005,7 @@ function _asmErr(r) {
     INSUFFICIENT_SHARDS: tl('Not enough shards','조각 부족','シャード不足','碎片不足'),
     MISSING_PARTS: tl('Missing parts','파츠 부족','パーツ不足','零件不足'),
     MAX_ASSEMBLED_REACHED: tl('Already own max','이미 최대 보유','最大数所持','已达上限'),
-    SHIP_NOT_FOUND: tl('Unit not found','합체체 없음','ユニットなし','未找到单位'),
+    SHIP_NOT_FOUND: tl('Unit not found','유닛 없음','ユニットなし','未找到单位'),
     GACHA_DISABLED: tl('Gacha disabled','가챠 비활성','ガチャ無効','扭蛋已关闭')
   };
   return m[r.error] || r.error || tl('Error','오류','エラー','错误');
@@ -49139,7 +49142,7 @@ function _perfectGachaBoxHtml(d, loading) {
       '</div>' +
     '</div>' +
     '<div style="padding:12px;display:flex;flex-direction:column;flex:1;gap:8px">' +
-      '<div style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.72)">'+tl('Collect parts of robots & alien lifeforms to assemble super-units','로봇·외계생명체 파츠를 모아 합체 슈퍼유닛 완성','ロボ・エイリアンのパーツを集めて合体','收集机器人与外星生命零件合体')+'</div>' +
+      '<div style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.72)">'+tl('Collect parts of robots & alien lifeforms to assemble super-units','로봇·외계생명체 파츠를 모아 기동 슈퍼유닛 완성','ロボ・エイリアンのパーツを集めて合体','收集机器人与外星生命零件合体')+'</div>' +
       '<div style="font-size:9px;color:var(--gold)">🎯 '+status+'</div>' +
       '<div style="font-size:9px;color:rgba(255,255,255,.48)">GP <b style="color:#fff">'+(loading?'-':formatNum(price))+'</b></div>' +
       '<div style="display:flex;gap:8px;margin-top:auto">' +

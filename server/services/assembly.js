@@ -18,6 +18,13 @@
 const { pool } = require('../db');
 
 // ── 유닛 카탈로그 조회 ──
+// 슬롯별 조각 교환비용 차등: 슬롯1=코어/머리, 슬롯5=지휘코어 = 핵심(비쌈), 2·3·4=팔다리(쌈).
+// base(기본 40) 기준 배수: [1.5, 0.75, 1.0, 0.75, 1.5] → 60/30/40/30/60
+function _slotShardCost(base, slot) {
+  const mult = { 1: 1.5, 2: 0.75, 3: 1.0, 4: 0.75, 5: 1.5 };
+  return Math.round((base || 40) * (mult[slot] || 1.0));
+}
+
 async function getUnit(unitCode) {
   if (unitCode) {
     const { rows } = await pool.query(`SELECT * FROM assembly_units WHERE unit_code = $1 AND active = true`, [unitCode]);
@@ -105,10 +112,12 @@ async function getState(wallet, unitCode) {
      FROM ship_types WHERE code = $1`, [u.ship_type_code]
   );
 
+  const baseCost = u.shard_exchange_cost || 40;
   const partState = parts.map(p => ({
     part_code: p.part_code, slot: p.slot, icon: p.icon_emoji,
     name_en: p.name_en, name_ko: p.name_ko, name_ja: p.name_ja, name_zh: p.name_zh,
     owned: ownMap[p.part_code] || 0,
+    exchange_cost: _slotShardCost(baseCost, p.slot),
   }));
   const distinct = partState.filter(p => p.owned >= 1).length;
 
@@ -366,15 +375,15 @@ async function exchangeShards(wallet, unitCode, partCode) {
   if (!w) return { error: 'INVALID_WALLET' };
   const u = await getUnit(unitCode);
   if (!u) return { error: 'UNIT_NOT_FOUND' };
-  const cost = u.shard_exchange_cost || 40;
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const { rows: partRows } = await client.query(
-      `SELECT part_code FROM assembly_parts WHERE part_code = $1 AND unit_code = $2 AND is_active = true`, [partCode, u.unit_code]
+      `SELECT part_code, slot FROM assembly_parts WHERE part_code = $1 AND unit_code = $2 AND is_active = true`, [partCode, u.unit_code]
     );
     if (!partRows[0]) { await client.query('ROLLBACK'); return { error: 'INVALID_PART' }; }
+    const cost = _slotShardCost(u.shard_exchange_cost || 40, partRows[0].slot);
 
     const { rows: shardRows } = await client.query(`SELECT shards FROM user_assembly_shards WHERE wallet = $1 FOR UPDATE`, [w]);
     const shards = parseInt(shardRows[0]?.shards, 10) || 0;
