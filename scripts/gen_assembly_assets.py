@@ -37,45 +37,71 @@ PART_ROLES = {
     'command':   "command head part - cockpit dome, command antenna, glowing sensor visor",
 }
 
-# 유닛 정의 — accent(색), theme(전체 컨셉)
-UNITS = {
-    'pilgrim_voltaris': dict(ship_code='pilgrim_voltaris', accent='purple to magenta (#b388ff)',
-        theme="colossal balanced super-mech, the original sealed Pilgrim weapon"),
-    'pilgrim_ignis':    dict(ship_code='pilgrim_ignis',    accent='molten red and orange',
-        theme="aggressive assault super-mech wreathed in heat vents and ember glow"),
-    'pilgrim_glacius':  dict(ship_code='pilgrim_glacius',  accent='icy cyan and white',
-        theme="heavily armored fortress super-mech with frost-plated bulwark shields"),
-    'pilgrim_umbra':    dict(ship_code='pilgrim_umbra',    accent='dark teal and toxic green',
-        theme="stealth electronic-warfare super-mech with cloaking panels and emitter spines"),
-    'pilgrim_aurum':    dict(ship_code='pilgrim_aurum',    accent='royal gold and deep black',
-        theme="regal command titan super-mech, ornate gilded armor, commander unit"),
+# 외계 유전자 파츠 스킴
+ALIEN_PART_ROLES = {
+    'cortex':  "alien neural cortex organ, glistening brain tissue, glowing synapses",
+    'heart':   "alien bio-heart organ, pulsing veins, bioluminescent core",
+    'claw':    "alien razor claw appendage, chitinous talon, dripping",
+    'hide':    "alien chitin carapace plate, armored shell scales",
+    'tendril': "alien tendril cluster, writhing tentacles, suckers",
 }
+
+# 유닛 정의 — kind(robot/alien), prefix(파츠 코드 접두사), accent, theme
+UNITS = {
+    # ── 로봇 6종 (무기 특화 반영) ──
+    'pilgrim_voltaris': dict(ship_code='pilgrim_voltaris', kind='robot', prefix='voltaris', accent='purple to magenta (#b388ff)',
+        theme="colossal balanced super-mech with twin energy laser cannons, the original sealed Pilgrim weapon"),
+    'pilgrim_ignis':    dict(ship_code='pilgrim_ignis', kind='robot', prefix='ignis', accent='molten red and orange',
+        theme="aggressive missile-bombardment super-mech bristling with rocket pods, heat vents and ember glow"),
+    'pilgrim_glacius':  dict(ship_code='pilgrim_glacius', kind='robot', prefix='glacius', accent='icy cyan and white',
+        theme="heavily armored fortress super-mech with a massive shoulder railgun and frost-plated bulwark shields"),
+    'pilgrim_umbra':    dict(ship_code='pilgrim_umbra', kind='robot', prefix='umbra', accent='dark teal and toxic green',
+        theme="stealth electronic-warfare super-mech with disruptor emitter spines and cloaking panels"),
+    'pilgrim_aurum':    dict(ship_code='pilgrim_aurum', kind='robot', prefix='aurum', accent='royal gold and deep black',
+        theme="regal long-range sniper super-mech with an enormous gilded precision lance rifle, ornate commander armor"),
+    'pilgrim_tempest':  dict(ship_code='pilgrim_tempest', kind='robot', prefix='tempest', accent='electric blue and white lightning',
+        theme="sleek high-speed vanguard super-mech with rapid swarm autocannons and crackling lightning thrusters"),
+    # ── 외계 대형생명체 4종 (공격 특화) ──
+    'alien_devourer':   dict(ship_code='alien_devourer', kind='alien', prefix='devourer', accent='sickly acid green and violet',
+        theme="colossal acid-spewing alien predator beast, gaping maws and spitting glands, wide-area horror"),
+    'alien_leviathan':  dict(ship_code='alien_leviathan', kind='alien', prefix='leviathan', accent='deep abyssal blue and bioluminescent teal',
+        theme="gigantic abyssal alien leviathan with living bio-armor plating and crushing tentacles"),
+    'alien_hive':       dict(ship_code='alien_hive', kind='alien', prefix='hive', accent='amber orange and chitin brown',
+        theme="towering alien hive queen surrounded by swarming broodlings, egg sacs and spines"),
+    'alien_voidmaw':    dict(ship_code='alien_voidmaw', kind='alien', prefix='voidmaw', accent='void black and eldritch purple',
+        theme="nightmarish alien void maw, a colossal eye-and-mouth horror that devours capital ships whole"),
+}
+
+ALIEN_STYLE = ("biomechanical alien horror creature design, H.R. Giger inspired, organic exoskeleton, "
+               "menacing predator, NOT a robot, NOT mechanical, living monster")
 
 
 def assets_for(unit_code):
     u = UNITS[unit_code]
-    short = unit_code.replace('pilgrim_', '')
+    prefix = u['prefix']
+    is_alien = u.get('kind') == 'alien'
+    style_tail = (ALIEN_STYLE + ", " + STYLE) if is_alien else (PILGRIM + ", " + STYLE)
+    subj = "monstrous alien lifeform creature" if is_alien else "massive humanoid super-mech robot"
     out = [(
         # 정면 히어로샷(역동적 포즈) — 합체 탭 카드/모달용
         f"assets/assembly/portrait/{u['ship_code']}.png",
-        f"epic full-body hero shot of a massive humanoid super-mech robot in a dynamic dramatic action pose, "
-        f"low heroic camera angle looking up, one arm raised with glowing weapon, energy charging, "
-        f"cinematic rim lighting, dramatic atmosphere, character splash art key visual, full body in frame, "
-        f"{u['theme']}, {u['accent']} color scheme, {PILGRIM}, {STYLE}",
+        f"epic full-body hero shot of a {subj} in a dynamic dramatic menacing pose, "
+        f"low heroic camera angle looking up, attacking stance, cinematic rim lighting, dramatic atmosphere, "
+        f"character splash art key visual, full body in frame, {u['theme']}, {u['accent']} color scheme, {style_tail}",
     ), (
-        # 진짜 탑다운 전투 스프라이트 — 전술랩 전투 렌더러용(다른 22척 함선 탑뷰와 같은 규격)
+        # 진짜 탑다운 전투 스프라이트 — 전술랩 전투 렌더러용
         f"assets/ships/top/{u['ship_code']}.png",
-        f"strict top-down orthographic view looking straight down from directly overhead at a giant "
-        f"humanoid combat mech robot lying flat, seen from above so only the tops of its head, shoulders, "
-        f"arms and weapons are visible, nose/head pointing toward the top of the frame like a vertical "
-        f"game unit sprite, centered, isolated on solid pure black background, "
-        f"{u['theme']}, {u['accent']} color scheme, {PILGRIM}, {STYLE}",
+        f"strict top-down orthographic view looking straight down from directly overhead at a giant {subj} "
+        f"seen from above, head/front pointing toward the top of the frame like a vertical game unit sprite, "
+        f"centered, isolated on solid pure black background, {u['theme']}, {u['accent']} color scheme, {style_tail}",
     )]
-    for role, desc in PART_ROLES.items():
+    part_roles = ALIEN_PART_ROLES if is_alien else PART_ROLES
+    for role, desc in part_roles.items():
+        thing = desc if is_alien else f"mech {desc}"
         out.append((
-            f"assets/assembly/parts/{short}_{role}.png",
-            f"square inventory icon, close-up of a single mech {desc}, isolated on dark background, "
-            f"{u['accent']} accent, shares design language of the {u['theme']}, {PILGRIM}, {STYLE}",
+            f"assets/assembly/parts/{prefix}_{role}.png",
+            f"square inventory icon, close-up of a single {thing}, isolated on dark background, "
+            f"{u['accent']} accent, shares design of the {u['theme']}, {style_tail}",
         ))
     return out
 

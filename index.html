@@ -49022,12 +49022,29 @@ async function loadShipCrates() {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--rd);padding:24px;font-size:10px">'+(LANG==='ko'?'불러오기 실패':'Failed to load')+'</div>';
   }
 }
+function _injectPremiumGachaCss(){
+  if (document.getElementById('premiumGachaCss')) return;
+  var s = document.createElement('style'); s.id = 'premiumGachaCss';
+  s.textContent =
+    '.premium-gacha-card{position:relative;border-radius:14px!important;' +
+      'background:linear-gradient(125deg,#b388ff,#7dd3fc,#ffd166,#ff5d8f,#b388ff)!important;background-size:300% 300%!important;' +
+      'animation:pgcBorder 6s ease infinite;box-shadow:0 0 24px rgba(179,136,255,.4),0 0 60px rgba(179,136,255,.18)!important}' +
+    '.premium-gacha-card>.pgc-inner{background:#0a0e1a;border-radius:12px;overflow:hidden;position:relative}' +
+    '.premium-gacha-card::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;z-index:4;' +
+      'background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.20) 48%,transparent 62%);background-size:250% 250%;animation:pgcShine 4.5s ease-in-out infinite}' +
+    '.pgc-ribbon{position:absolute;top:13px;right:-32px;transform:rotate(38deg);z-index:5;background:linear-gradient(90deg,#ffd166,#ff8a3d);color:#221400;font-weight:900;font-size:9px;letter-spacing:1px;padding:3px 36px;box-shadow:0 2px 8px rgba(0,0,0,.5)}' +
+    '@keyframes pgcBorder{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}' +
+    '@keyframes pgcShine{0%{background-position:130% 0}60%,100%{background-position:-30% 0}}';
+  document.head.appendChild(s);
+}
 async function _appendPerfectGachaBoxCard(grid) {
   if (!grid) return;
+  _injectPremiumGachaCss();
   var card = document.createElement('div');
-  card.className = 'bp-card';
+  card.className = 'bp-card premium-gacha-card';
   card.id = 'perfectGachaBoxCard';
-  card.style.cssText = 'padding:0;overflow:hidden;border:1px solid rgba(179,136,255,.45);box-shadow:0 0 22px rgba(179,136,255,.22)';
+  card.style.cssText = 'padding:2px;overflow:visible';
+  _injectPremiumGachaCss();
   card.innerHTML = _perfectGachaBoxHtml(null, true);
   grid.appendChild(card);
   _bindPerfectGachaBoxCard(card);
@@ -49050,19 +49067,25 @@ function _perfectGachaBoxHtml(d, loading) {
   var status = loading ? tl('Loading…','로딩 중…','読み込み中…','加载中…') :
     (d.error === 'LOGIN_REQUIRED' ? tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录') :
     (d.error ? tl('Unavailable','이용 불가','利用不可','不可用') : (tl('Pity in','천장까지','天井まで','保底还需')+' '+pity+' '+tl('pulls','회','回','次')+' · Pool '+pool)));
-  return '<div style="position:relative;height:140px;background-image:url(assets/banners/crate_perfect_assembly.png);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden">' +
-      '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(8,10,20,.94));box-shadow:inset 0 0 40px rgba(179,136,255,.25)"></div>' +
-      '<div style="position:absolute;bottom:9px;left:12px;right:12px;font-size:14px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.5px">🜲 '+tl('PERFECT GACHA BOX','퍼펙트 가챠 박스','合体パーツBOX','合体零件宝箱')+'</div>' +
+  return '<div class="pgc-inner" style="display:flex;flex-direction:column;height:100%">' +
+    '<div class="pgc-ribbon">'+tl('PREMIUM','프리미엄','プレミアム','尊享')+'</div>' +
+    '<div style="position:relative;height:152px;background-image:url(assets/banners/crate_perfect_assembly.png);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden">' +
+      '<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 28%,rgba(179,136,255,.3),transparent 60%),linear-gradient(180deg,transparent 46%,rgba(8,10,20,.96));box-shadow:inset 0 0 50px rgba(179,136,255,.32)"></div>' +
+      '<div style="position:absolute;bottom:11px;left:13px;right:13px">' +
+        '<div style="font-family:Orbitron,monospace;font-size:17px;font-weight:900;color:#fff;text-shadow:0 0 16px rgba(179,136,255,.95),0 2px 8px #000;letter-spacing:1px">🜲 '+tl('PERFECT GACHA','퍼펙트 가챠','合体ガチャ','合体扭蛋')+'</div>' +
+        '<div style="font-size:8px;color:#e1bee7;letter-spacing:2px;margin-top:2px;text-shadow:0 1px 4px #000">PILGRIM ARMS · LIMITED ARSENAL</div>' +
+      '</div>' +
     '</div>' +
     '<div style="padding:12px;display:flex;flex-direction:column;flex:1;gap:8px">' +
-      '<div style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.68)">'+tl('Random parts from all 5 assembly units','5종 합체 유닛 파츠가 무작위로 나옵니다','5体の合体ユニットのパーツがランダム','5种合体单位的零件随机掉落')+'</div>' +
+      '<div style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.72)">'+tl('Collect parts of robots & alien lifeforms to assemble super-units','로봇·외계생명체 파츠를 모아 합체 슈퍼유닛 완성','ロボ・エイリアンのパーツを集めて合体','收集机器人与外星生命零件合体')+'</div>' +
       '<div style="font-size:9px;color:var(--gold)">🎯 '+status+'</div>' +
       '<div style="font-size:9px;color:rgba(255,255,255,.48)">GP <b style="color:#fff">'+(loading?'-':formatNum(price))+'</b></div>' +
       '<div style="display:flex;gap:8px;margin-top:auto">' +
         '<button type="button" class="fd-btn" data-action="gacha-box-pull" data-count="1" '+(enabled?'':'disabled')+' style="flex:1">1회 · '+formatNum(price)+'GP</button>' +
         '<button type="button" class="fd-btn primary" data-action="gacha-box-pull" data-count="10" '+(enabled?'':'disabled')+' style="flex:1">10연차 · '+formatNum(price*10)+'GP</button>' +
       '</div>' +
-    '</div>';
+    '</div>' +
+  '</div>';
 }
 function _bindPerfectGachaBoxCard(card) {
   if (!card || card.dataset.delegated) return;
