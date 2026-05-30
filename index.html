@@ -12493,47 +12493,52 @@ async function _baseTerritoryHarvest(idx){
   var grpList=window._baseTerritoryGroups||[];
   var g=grpList[idx];
   if(!g||!g.claims||!g.claims.length) return;
-  var claim=g.claims[0];
   var wallet=(walletState&&walletState.address)||'';
   if(!wallet){showToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','warn');return;}
-  var btn=document.querySelector('#bterrBody'+idx+' button');
   // 버튼 비활성화
   var btns=document.querySelectorAll('#bterrBody'+idx+' button');
   btns.forEach(function(b){b.disabled=true;});
   try{_sfx&&_sfx.click&&_sfx.click();}catch(_){}
   var prodEl=document.getElementById('bterrProd'+idx);
   if(prodEl) prodEl.textContent=LANG==='ko'?'수확 중…':LANG==='ja'?'収穫中…':LANG==='zh'?'收获中…':'Harvesting…';
+  // [v7.320] 그룹(병합 영토)의 모든 claim을 순회 수확 (이전엔 claims[0] 하나만 수확 → "안 누른 영토 수확 안됨"). 보상은 GP.
+  var harvested=0, cooldown=0, totalGP=0, allDrops={}, nextTimeStr='';
   try{
     var headers={'Content-Type':'application/json'};
     if(emailAuth&&emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
-    var resp=await fetch('/api/territory/'+claim.id+'/harvest',{
-      method:'POST',headers:headers,
-      body:JSON.stringify({wallet:wallet})
-    });
-    var d=await resp.json();
-    if(!resp.ok){
-      if(resp.status===429&&d.nextHarvestAt){
-        var nxt=new Date(d.nextHarvestAt);
-        var diffMs=nxt-Date.now();
-        var hrs=Math.floor(diffMs/3600000);
-        var mins=Math.floor((diffMs%3600000)/60000);
-        var timeStr=(hrs>0?hrs+'h ':'')+mins+'m';
-        showToast(LANG==='ko'?('쿨다운 중 — '+timeStr+' 후 가능'):LANG==='ja'?('クールダウン中 — '+timeStr+'後に可能'):LANG==='zh'?('冷却中 — '+timeStr+'后可用'):('Cooldown — available in '+timeStr),'warn');
-        if(prodEl) prodEl.innerHTML='<span style="color:var(--tx3)">'+(LANG==='ko'?'다음 수확: ':LANG==='ja'?'次の収穫: ':LANG==='zh'?'下次收获: ':'Next harvest: ')+timeStr+'</span>';
+    for(var ci=0; ci<g.claims.length; ci++){
+      try{
+        var resp=await fetch('/api/territory/'+g.claims[ci].id+'/harvest',{method:'POST',headers:headers,body:JSON.stringify({wallet:wallet})});
+        var d=await resp.json();
+        if(resp.ok&&d.success){
+          harvested++; totalGP+=(d.harvestedGP!=null?d.harvestedGP:0);
+          if(d.resources){ d.resources.forEach(function(x){ allDrops[x.code]=(allDrops[x.code]||0)+x.quantity; }); }
+        } else if(resp.status===429){
+          cooldown++;
+          if(d.nextHarvestAt&&!nextTimeStr){ var nxt=new Date(d.nextHarvestAt),diffMs=nxt-Date.now(),hrs=Math.floor(diffMs/3600000),mins=Math.floor((diffMs%3600000)/60000); nextTimeStr=(hrs>0?hrs+'h ':'')+mins+'m'; }
+        }
+      }catch(e){}
+    }
+    if(harvested===0){
+      if(cooldown>0){
+        showToast((LANG==='ko'?('쿨다운 중'+(nextTimeStr?' — '+nextTimeStr+' 후 가능':'')):LANG==='ja'?'クールダウン中':LANG==='zh'?'冷却中':('On cooldown'+(nextTimeStr?' — '+nextTimeStr:''))),'warn');
+        if(prodEl) prodEl.innerHTML='<span style="color:var(--tx3)">'+(LANG==='ko'?'다음 수확: ':LANG==='ja'?'次の収穫: ':LANG==='zh'?'下次收获: ':'Next harvest: ')+nextTimeStr+'</span>';
       } else {
-        showToast(d.error||(LANG==='ko'?'수확 실패':LANG==='ja'?'収穫失敗':LANG==='zh'?'收获失败':'Harvest failed'),'error');
+        showToast((LANG==='ko'?'수확 실패':LANG==='ja'?'収穫失敗':LANG==='zh'?'收获失败':'Harvest failed'),'error');
         if(prodEl) prodEl.textContent=LANG==='ko'?'수확 실패':LANG==='ja'?'収穫失敗':LANG==='zh'?'收获失败':'Harvest failed';
       }
+      btns.forEach(function(b){b.disabled=false;});
       return;
     }
     try{_sfx&&_sfx.success&&_sfx.success();}catch(_){}
-    var pp=d.harvestedPP||0;
+    totalGP=Math.round(totalGP*10000)/10000;
     var resStr='';
-    if(d.resources&&d.resources.length){
+    var dk=Object.keys(allDrops);
+    if(dk.length){
       var _RICONS={iron_dust:'🟤',red_sand:'🔴',basalt_chip:'⬛',ice_crystal:'🔵',regolith_ore:'🟠',volcanic_shard:'🌋',ancient_metal:'⭐',carbon_fiber:'🧵',iron_ore:'🪨',silicon_chip:'💠',xenomatter:'💠',nano_polymer:'🧬',plasma_crystal:'🔮',titanium_alloy:'⚙️',meteorite_fragment:'☄️',plasma_dust:'💜',dark_matter:'🌑',exotic_alloy:'✨',quantum_core:'⚡',alloy_frame:'⬢',hull_plate:'▣',plasma_coil:'⚡'};
-      resStr=' + '+d.resources.map(function(r){return (_RICONS[r.code]||'💠')+r.quantity;}).join(' ');
+      resStr=' + '+dk.map(function(c){return (_RICONS[c]||'💠')+allDrops[c];}).join(' ');
     }
-    showToast('⛏ +'+pp.toFixed(4)+' PP'+resStr,'success');
+    showToast('⛏ +'+totalGP+' GP'+(cooldown>0?' · '+cooldown+(LANG==='ko'?' 쿨다운':' cd'):'')+resStr,'success');
     // 수확 후 생산 정보 새로고침
     _bterrLoadProd(idx,g);
     // PP 잔액 갱신
@@ -14333,30 +14338,36 @@ async function doTerritoryMerge() {
 }
 
 // ── Territory Bulk Harvest [v7.313] ──
-function harvestAllTerritories(){
+// [v7.320] 일괄 수확 — 없는 /territory/harvest-all 대신 내 영토를 영토별로 순차 수확. 보상은 GP.
+async function harvestAllTerritories(){
   var lang=(typeof LANG!=='undefined'?LANG:'ko');
   if(!(typeof emailAuth!=='undefined'&&emailAuth&&emailAuth.token)){ showToast(tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
-  var btn=event&&event.target?event.target:null;
-  if(btn){ if(btn.disabled) return; btn.disabled=true; var _prev=btn.textContent; btn.textContent='...'; }
-  fetch('/api/territory/harvest-all',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token}})
-    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
-    .then(function(res){
-      var d=res.d;
-      if(d.success){
-        var dropTxt='';
-        if(d.resourceDrops&&d.resourceDrops.length){ dropTxt=' · '+d.resourceDrops.map(function(x){return x.code+'×'+x.quantity;}).join(', '); }
-        showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+d.harvested+(lang==='ko'?'건 (+'+d.totalPP+' PP)':lang==='ja'?'件 (+'+d.totalPP+' PP)':lang==='zh'?'个 (+'+d.totalPP+' PP)':' (+'+d.totalPP+' PP)')+(d.skipped>0?' · '+d.skipped+(lang==='ko'?' 쿨다운':lang==='zh'?' 冷却':' cooldown'):'')+dropTxt,'success');
-        try{ if(typeof loadPPBalance==='function') loadPPBalance(); }catch(_){}
-        try{ if(typeof refreshGP==='function') refreshGP(); }catch(_){}
-        try{ if(typeof _updateBaseTerritoryGroupList==='function') _updateBaseTerritoryGroupList(); }catch(_){}
-      } else {
-        var msg=d.error==='nothing_to_harvest'?(lang==='ko'?'수확할 영토 없음(전부 쿨다운 중)':lang==='ja'?'収穫対象なし(クールダウン中)':lang==='zh'?'无可收获领地(冷却中)':'Nothing to harvest (all on cooldown)')
-          :(d.message||d.error||'failed');
-        showToast(msg,'error');
-      }
-    })
-    .catch(function(e){ showToast('Error: '+e.message,'error'); })
-    .finally(function(){ if(btn){ btn.disabled=false; btn.textContent=_prev; } });
+  var wallet=((typeof getMyWallet==='function'?getMyWallet():'')||(walletState&&walletState.address)||'').toLowerCase();
+  var mine=(window.claims||[]).filter(function(c){ return (c.owner||'').toLowerCase()===wallet; });
+  if(!mine.length){ showToast(tl('No territory','보유 영토가 없습니다','領土がありません','无领地'),'error'); return; }
+  var btn=(typeof event!=='undefined'&&event&&event.target)?event.target:null;
+  var _prev=btn?btn.textContent:'';
+  if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent='...'; }
+  var harvested=0, cooldown=0, totalGP=0, drops={};
+  for(var i=0;i<mine.length;i++){
+    try{
+      var r=await fetch('/api/territory/'+mine[i].id+'/harvest',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token}});
+      var d=await r.json();
+      if(r.ok&&d.success){ harvested++; totalGP+=(d.harvestedGP||0); if(d.resources){ d.resources.forEach(function(x){ drops[x.code]=(drops[x.code]||0)+x.quantity; }); } }
+      else if(d.error==='harvest_on_cooldown'||r.status===429){ cooldown++; }
+    }catch(e){}
+  }
+  if(btn){ btn.disabled=false; btn.textContent=_prev; }
+  if(harvested>0){
+    totalGP=Math.round(totalGP*10000)/10000;
+    var dk=Object.keys(drops); var dropTxt=dk.length?(' · '+dk.map(function(c){return c+'×'+drops[c];}).join(', ')):'';
+    showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+harvested+(lang==='ko'?'건 (+'+totalGP+' GP)':lang==='ja'?'件 (+'+totalGP+' GP)':lang==='zh'?'个 (+'+totalGP+' GP)':' (+'+totalGP+' GP)')+(cooldown>0?' · '+cooldown+(lang==='ko'?' 쿨다운':' cd'):'')+dropTxt,'success');
+    try{ if(typeof loadGPBalance==='function') loadGPBalance(); }catch(_){}
+    try{ if(typeof refreshGP==='function') refreshGP(); }catch(_){}
+    try{ if(typeof _updateBaseTerritoryGroupList==='function') _updateBaseTerritoryGroupList(); }catch(_){}
+  } else if(cooldown>0){
+    showToast((lang==='ko'?'수확할 영토 없음 (전부 쿨다운 중)':lang==='ja'?'収穫対象なし(クールダウン中)':lang==='zh'?'无可收获领地(冷却中)':'Nothing to harvest (all on cooldown)'),'error');
+  } else { showToast(tl('Harvest failed','수확 실패','収穫失敗','收获失败'),'error'); }
 }
 
 // ── Territory Production Summary ──
@@ -49219,7 +49230,14 @@ function _playBoxOpenVideo() {
       function fin(){ if(done) return; done = true; clearTimeout(safety); try{ ov.remove(); }catch(_){} resolve(); }
       var safety = setTimeout(fin, 10000);
       v.onended = fin; v.onerror = fin; ov.onclick = fin;
-      ov.appendChild(v); document.body.appendChild(ov);
+      // [v7.320] 보이는 건너뛰기 버튼 (우상단)
+      var _lang=(typeof LANG!=='undefined'?LANG:'ko');
+      var _skip=document.createElement('button');
+      _skip.type='button';
+      _skip.textContent=(_lang==='ko'?'건너뛰기 ▶▶':_lang==='ja'?'スキップ ▶▶':_lang==='zh'?'跳过 ▶▶':'SKIP ▶▶');
+      _skip.style.cssText='position:absolute;top:18px;right:18px;z-index:2;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.45);color:#fff;font-size:13px;letter-spacing:1px;padding:8px 16px;border-radius:8px;cursor:pointer';
+      _skip.onclick=function(ev){ ev.stopPropagation(); try{v.pause();}catch(_){} fin(); };
+      ov.appendChild(v); ov.appendChild(_skip); document.body.appendChild(ov);
       var p = v.play();
       if (p && p.catch) p.catch(function(){ v.muted = true; var p2 = v.play(); if (p2 && p2.catch) p2.catch(fin); });
     } catch(e){ resolve(); }

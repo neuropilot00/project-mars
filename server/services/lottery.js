@@ -162,14 +162,14 @@ async function buyTickets(client, wallet, count) {
     );
   }
 
-  // Update round totals
+  // Update round totals — [v7.320] house_gp 컬럼은 실제 스키마에 없음(complete buy가 500나던 원인).
+  // 프라이즈 풀에 totalCost 전액 반영, 하우스컷은 추첨 시점에 분리.
   await client.query(
     `UPDATE lottery_rounds
         SET ticket_count   = ticket_count + $2,
-            prize_pool_gp  = prize_pool_gp + $3,
-            house_gp       = house_gp + $4
+            prize_pool_gp  = prize_pool_gp + $3
       WHERE id = $1`,
-    [round.id, count, prizeGp, houseGp]
+    [round.id, count, prizeGp]
   );
 
   const newRound = (await client.query(`SELECT * FROM lottery_rounds WHERE id = $1`, [round.id])).rows[0];

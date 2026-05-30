@@ -1,3 +1,13 @@
+## 2026-05-31 v7.321 — 복권 구매 500 근본수정 + 수확/일괄수확 실제반영 + 가챠SKIP
+
+- **GP 복권 구매 에러(사용자 보고) 근본 원인 수정**: `lottery.buyTickets`가 존재하지 않는 `lottery_rounds.house_gp` 컬럼을 UPDATE해 **모든 구매가 500**. 라이브 재현(`column "house_gp" does not exist`) 후 제거 → 구매 정상(buy=OK). 하우스컷은 추첨 시점 분리.
+- **단일/그룹 수확 — 안 누른 영토 수확 안 되던 버그**: `_baseTerritoryHarvest`가 그룹의 `claims[0]`만 수확하던 것을 그룹 내 모든 claim 순회 수확으로 수정. 표시 PP→GP.
+- **일괄 수확**: 없는 `/territory/harvest-all` 호출 대신 영토별 순차 수확으로 교체(이전 버전 미반영분 실제 적용). +N GP 표시.
+- **수확 GP 표시**: `/territory/:id/harvest` 응답에 harvestedGP 추가(서버는 원래 GP로 지급).
+- **가챠 박스오픈 영상 SKIP 버튼**: 보이는 건너뛰기 버튼(4언어) 추가(기존엔 배경 탭만 가능).
+- **미사일 발사**: fireType missile/torpedo/swarm을 지렁이 호밍 미사일로 발사(빔처럼 나가던 버그) — v7.320.
+- **점검**: GP 스테이킹 라이브 정상(info/stake=OK).
+
 ## 2026-05-31 v7.320 — 미사일 발사/일괄수확/단일수확/가챠스킵 수정 + 점검
 
 - **미사일이 레이저처럼 나가던 버그 수정**(tactical-lab): `fire()`에서 fireType='missile'/'torpedo'/'swarm' 함선이 최종 else로 빠져 일반 직선 탄으로 발사되던 것을, 지렁이 호밍 미사일(kind='missile')로 발사하도록 분기 추가. 이제 미사일 유닛(pilgrim_ignis 등)은 구불구불 탄막으로 보인다.
