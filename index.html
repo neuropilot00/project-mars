@@ -48726,6 +48726,13 @@ var _asmState = null;
 var _asmUnit = null;        // 현재 선택된 유닛 코드
 var _asmUnits = [];         // 활성 유닛 목록
 function _asmName(o){ return LANG==='ko'?(o.name_ko||o.name_en):LANG==='ja'?(o.name_ja||o.name_en):LANG==='zh'?(o.name_zh||o.name_en):o.name_en; }
+// 이미지(PNG) → 없으면 이모지 폴백. art: assets/ships/top/<ship>.png, assets/assembly/parts/<part>.png
+function _asmImg(src, emoji, px){
+  return '<img src="'+src+'" data-emoji="'+escapeHtmlSafe(emoji||'🜲')+'" alt="" style="width:'+px+'px;height:'+px+'px;object-fit:contain;display:inline-block;vertical-align:middle" onerror="_asmImgFail(this)">';
+}
+function _asmImgFail(img){
+  try{ var s=document.createElement('span'); s.textContent=img.getAttribute('data-emoji')||'🜲'; s.style.fontSize=Math.round((parseInt(img.style.width)||24)*0.8)+'px'; img.replaceWith(s); }catch(_){ }
+}
 
 async function loadAssembly() {
   var wrap = document.getElementById('asmWrap');
@@ -48765,7 +48772,7 @@ function renderAssembly(d) {
   var slots = (d.parts||[]).map(function(p){
     var has = p.owned >= 1;
     return '<div style="flex:1;min-width:78px;text-align:center;padding:8px 4px;border-radius:8px;border:1px solid '+(has?'#b388ff':'rgba(255,255,255,.1)')+';background:'+(has?'rgba(179,136,255,.12)':'rgba(255,255,255,.02)')+'">' +
-      '<div style="font-size:22px;line-height:1;filter:'+(has?'none':'grayscale(1) opacity(.35)')+'">'+(p.icon||'🜲')+'</div>' +
+      '<div style="height:30px;display:flex;align-items:center;justify-content:center;line-height:1;filter:'+(has?'none':'grayscale(1) opacity(.35)')+'">'+_asmImg('assets/assembly/parts/'+p.part_code+'.png', p.icon||'🜲', 30)+'</div>' +
       '<div style="font-size:8px;letter-spacing:.5px;margin-top:4px;color:'+(has?'#e1bee7':'rgba(255,255,255,.4)')+'">'+escapeHtmlSafe(_asmName(p))+'</div>' +
       '<div style="font-size:9px;margin-top:2px;color:'+(has?'#fff':'rgba(255,255,255,.3)')+'">'+(has?('×'+p.owned):'—')+'</div>' +
     '</div>';
@@ -48804,7 +48811,7 @@ function renderAssembly(d) {
   wrap.innerHTML =
     _asmUnitSelectorHtml() +
     '<div style="display:flex;gap:12px;align-items:center;padding:10px;border:1px solid rgba(179,136,255,.3);border-radius:10px;background:rgba(179,136,255,.06)">' +
-      '<div style="font-size:34px">'+(d.icon||'🜲')+'</div>' +
+      '<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:34px">'+_asmImg('assets/ships/top/'+(d.ship_type_code||'pilgrim_voltaris')+'.png', d.icon||'🜲', 52)+'</div>' +
       '<div style="flex:1">' +
         '<div style="font-family:Orbitron,monospace;font-size:13px;color:#e1bee7;letter-spacing:1px">'+escapeHtmlSafe(_asmName(unit)||'Voltaris')+'</div>' +
         '<div style="font-size:8px;color:rgba(255,255,255,.45);margin-top:2px">'+_asmKindLabel(d.kind)+(d.season&&d.season!=='permanent'?(' · '+tl('Limited','한정','限定','限定')):'')+(unit.base_hp?(' · HP '+formatNum(unit.base_hp)+' / ATK '+unit.base_atk+' / DEF '+unit.base_def):'')+'</div>' +

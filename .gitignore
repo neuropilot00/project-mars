@@ -24,6 +24,11 @@ assets/ships/*
 !assets/ships/reveal/
 !assets/ships/reveal/*.jpg
 !assets/ships/reveal/*.png
+!assets/ships/top/
+!assets/ships/top/*.png
+!assets/assembly/
+!assets/assembly/parts/
+!assets/assembly/parts/*.png
 !assets/fx/
 !assets/loading/
 !assets/loading/*.jpg

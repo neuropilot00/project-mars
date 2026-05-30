@@ -1,3 +1,10 @@
+## 2026-05-30 v7.288 — 합체 유닛 아트(Imagen 3) + UI 이미지 연결
+
+- 합체체/5파츠 PNG를 GCP Vertex AI Imagen 3로 생성(scripts/gen_assembly_assets.py): assets/ships/top/pilgrim_voltaris.png(탑뷰 메카) + assets/assembly/parts/voltaris_{scout,assault,artillery,shield,command}.png. 톤=기존 캠페인 아트(32-bit semi-realistic, Pilgrim Arms 보라 메카).
+- index.html renderAssembly: 이모지→PNG 자동 폴백(_asmImg/_asmImgFail). 합체체 헤더 + 5파츠 슬롯 이미지 표시, 로드 실패 시 이모지.
+- .gitignore: assets/ships/top/, assets/assembly/parts/ 추적 예외(향후 유닛 아트 자동 포함).
+- 검증(preview): 6개 PNG 정적 서빙 200 + 패널 내 6개 img 전부 로드(naturalWidth 1024), 폴백 0, 콘솔에러0.
+
 ## 2026-05-30 v7.287 — 합체 유닛 프레임워크화 + 전술랩 필살기 버튼
 
 한정 유닛(로봇/함선/우주인 등)을 코드 추가 없이 데이터만으로 늘리는 체계로 전환 + 필살기 발동 UI:
