@@ -18,11 +18,11 @@
 const { pool } = require('../db');
 
 // ── 유닛 카탈로그 조회 ──
-// 슬롯별 조각 교환비용 차등: 슬롯1=코어/머리, 슬롯5=지휘코어 = 핵심(비쌈), 2·3·4=팔다리(쌈).
-// base(기본 40) 기준 배수: [1.5, 0.75, 1.0, 0.75, 1.5] → 60/30/40/30/60
+// 조각 교환비용: 유닛별 base(30~120, 10간격) + 슬롯별 오프셋(0/2/4/6/8).
+// 유닛 base 간격(10) > 최대 슬롯 오프셋(8) → 50개 파츠(10유닛×5슬롯)가 전부 고유값.
 function _slotShardCost(base, slot) {
-  const mult = { 1: 1.5, 2: 0.75, 3: 1.0, 4: 0.75, 5: 1.5 };
-  return Math.round((base || 40) * (mult[slot] || 1.0));
+  const offset = { 1: 0, 2: 2, 3: 4, 4: 6, 5: 8 };
+  return (base || 40) + (offset[slot] || 0);
 }
 
 async function getUnit(unitCode) {
