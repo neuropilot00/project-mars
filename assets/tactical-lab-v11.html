@@ -1007,14 +1007,31 @@ function battleCallout(msg,type='order',slot='top',ttl=2400){
   while(host.children.length>3)host.removeChild(host.firstElementChild);
   setTimeout(()=>el.remove(),ttl+120);
 }
+// [v7.279] 전투 콜아웃/플로팅 텍스트 4언어 — 이전엔 한국어 하드코딩이라 ja/en/zh 모드에서도 한국어로 떴다.
+const CALLOUTS={
+  en:{ ambient:['All fleets, hold the firing line!','Open distance! Stay off the beam path!','Their line is wavering — keep pushing!','Redistribute shields, brace for portside fire!','Small craft, flank them!'],
+       sunkSuffix:' down!', hull:'Hull collapse!', flag:'Flagship explodes!', pLight:['Down!','Ejecting!','Engine hit!','Breaking off!'],
+       focusFloat:'🎯 Focus!', focus:'Focus fire on [{u}]!', flagFloat:'💥 Flagship down!', flagDown:'[{u}] flagship down! Ships fight on!', victory:'{w} COALITION wins! Field secured!', lastShip:'Last ship destroyed!' },
+  ko:{ ambient:['전 함대, 사격선 유지!','거리 벌려! 빔 궤도에 서지 마!','적 전열 흔들린다. 계속 밀어!','실드 재분배, 좌현 포격 대비!','소형함은 측면으로 돌아 들어가!'],
+       sunkSuffix:' 격침!', hull:'선체 붕괴!', flag:'기함 폭발!', pLight:['격침!','탈출!','엔진 손상!','전열 이탈!'],
+       focusFloat:'🎯 집중!', focus:'[{u}]에 집중포화!', flagFloat:'💥 기함 격침!', flagDown:'[{u}] 기함 침몰! 잔존 함선 계속 교전!', victory:'{w} COALITION 승리! 전장 통제 완료!', lastShip:'마지막 함선 격침!' },
+  ja:{ ambient:['全艦隊、射線を維持！','距離を取れ！ビーム軌道に立つな！','敵の戦列が揺らいでいる。押し続けろ！','シールド再配分、左舷砲撃に備えろ！','小型艦は側面から回り込め！'],
+       sunkSuffix:' 撃沈！', hull:'船体崩壊！', flag:'旗艦爆発！', pLight:['撃沈！','脱出！','エンジン損傷！','戦列離脱！'],
+       focusFloat:'🎯 集中！', focus:'[{u}]に集中砲火！', flagFloat:'💥 旗艦撃沈！', flagDown:'[{u}] 旗艦沈没！残存艦は交戦継続！', victory:'{w} COALITION 勝利！戦場制圧完了！', lastShip:'最後の艦を撃沈！' },
+  zh:{ ambient:['全舰队，保持射击线！','拉开距离！别站在光束轨道上！','敌方阵线动摇了，继续推进！','重新分配护盾，准备左舷炮击！','小型舰从侧翼包抄！'],
+       sunkSuffix:' 击沉！', hull:'船体崩溃！', flag:'旗舰爆炸！', pLight:['击沉！','弃舰！','引擎受损！','脱离阵线！'],
+       focusFloat:'🎯 集中！', focus:'集中火力攻击[{u}]！', flagFloat:'💥 旗舰击沉！', flagDown:'[{u}] 旗舰沉没！残余舰只继续交战！', victory:'{w} COALITION 胜利！战场已控制！', lastShip:'最后一舰被击沉！' }
+};
+function CO(){ return CALLOUTS[TLANG]||CALLOUTS.en; }
 function panicCallout(sh){
   if(btMs-lastPanicCallout<600)return;
   lastPanicCallout=btMs;
   const side=sh.side==='atk'?'atk':'def';
   const heavy=['cruiser','battleship','titan'].includes(sh.type.size);
+  const C=CO();
   const lines=heavy
-    ? [`${sh.type.name} 격침!`,'선체 붕괴!','기함 폭발!']
-    : ['격침!','탈출!','엔진 손상!','전열 이탈!'];
+    ? [`${sh.type.name}${C.sunkSuffix}`,C.hull,C.flag]
+    : C.pLight;
   const msg=pick(lines);
   // 함선 위 플로팅 텍스트 (월드 좌표)
   addFloatText(sh.x,sh.y-12,msg,heavy?'heavy':side,heavy?2200:1600);
@@ -1024,13 +1041,7 @@ function panicCallout(sh){
 function maybeAmbientCallout(){
   if(battleOver||btMs-lastAmbientCallout<9000||Math.random()>.018)return;
   lastAmbientCallout=btMs;
-  battleCallout(pick([
-    '전 함대, 사격선 유지!',
-    '거리 벌려! 빔 궤도에 서지 마!',
-    '적 전열 흔들린다. 계속 밀어!',
-    '실드 재분배, 좌현 포격 대비!',
-    '소형함은 측면으로 돌아 들어가!'
-  ]),'system',Math.random()>.45?'top':'bottom',2400);
+  battleCallout(pick(CO().ambient),'system',Math.random()>.45?'top':'bottom',2400);
 }
 
 function ensureAudio(){
@@ -1077,9 +1088,9 @@ function _onCanvasTap(clientX,clientY){
   if(!tf||tf.ships.every(s=>s.dead))return;
   focusFleet=tf;
   mkShockwave(tf.cx,tf.cy,tf.radius*1.6);
-  addFloatText(best.x,best.y-18,'🎯 집중!','order',1800);
-  addLog('wn',`🎯 집중공격 지정 — [${tf.userId}]`);
-  battleCallout(`[${tf.userId}]에 집중포화!`,'order','top',2000);
+  addFloatText(best.x,best.y-18,CO().focusFloat,'order',1800);
+  addLog('wn',`🎯 ${tl('focus')} — [${tf.userId}]`);
+  battleCallout(CO().focus.replace('{u}',tf.userId),'order','top',2000);
   _bridgeToParent('focus',{target:tf.userId});
 }
 CVs.addEventListener('click',e=>{e.preventDefault();_onCanvasTap(e.clientX,e.clientY);});
@@ -1660,8 +1671,8 @@ function applyDmg(sh,dmg,isLaser,attackerType){
       sh.fleet.flagshipDown=true;
       mkShockwave(sh.fleet.cx,sh.fleet.cy,sh.fleet.radius*2);
       addLog('kl',`💥 [${sh.fleet.userId}] 기함 격침 — 지휘 붕괴!`);
-      battleCallout(`[${sh.fleet.userId}] 기함 침몰! 잔존 함선 계속 교전!`,'panic','top',3000);
-      addFloatText(sh.x,sh.y-18,'💥 기함 격침!','heavy',3000);
+      battleCallout(CO().flagDown.replace('{u}',sh.fleet.userId),'panic','top',3000);
+      addFloatText(sh.x,sh.y-18,CO().flagFloat,'heavy',3000);
       // 해당 함대 모든 함선이 죽었는지 확인 후 fleet.dead 설정
       if(sh.fleet.ships.every(s=>s.dead)){
         sh.fleet.dead=true;
@@ -2547,7 +2558,7 @@ function loop(ts){
     battleOver=true;
     const winner=af>0?'ATK':'DEF';
     addLog('wn',`🏆 ${winner} COALITION 승리 — ${mm}:${String(ss).padStart(2,'0')}`);
-    battleCallout(`${winner} COALITION 승리! 전장 통제 완료!`,'order','top',3200);
+    battleCallout(CO().victory.replace('{w}',winner),'order','top',3200);
 
     // ── 마지막 전함 폭발 슬로우모션 ──────────────────────────
     // 1) 슬로우모션 시작 (0.15x), 마지막 폭발 연출
@@ -2564,7 +2575,7 @@ function loop(ts){
         setTimeout(()=>mkExp(f.cx+dx,f.cy+dy,3.5+Math.random()*2),i*180);
       }
     });
-    battleCallout('마지막 함선 격침!','panic','top',2000);
+    battleCallout(CO().lastShip,'panic','top',2000);
 
     // 3) 1.8초 슬로우모션 후 정상속도 복귀, 결과 화면 알림
     setTimeout(()=>{
