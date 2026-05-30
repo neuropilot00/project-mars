@@ -2118,9 +2118,9 @@ function drawFleets(){
     CX.fillText(`[${f.tag}] ${f.userId}`,f.cx,labelBase);
     CX.font=`${szSm}px Share Tech Mono`;
     CX.fillStyle=fm.color;
-    CX.fillText(`${fm.icon} ${fm.name}`,f.cx-sz*2.5,labelBase+szSm*1.7);
+    CX.fillText(`${fm.icon} ${tl(f.formation)||fm.name}`,f.cx-sz*2.5,labelBase+szSm*1.7);
     CX.fillStyle=f.maneuver==='retreat'?'#ff8a65':f.maneuver==='scatter'?'#ff5252':f.maneuver==='flank'?'#66bb6a':'rgba(255,255,255,.4)';
-    CX.fillText(`${mv.icon} ${mv.name}`,f.cx+sz*2.5,labelBase+szSm*1.7);
+    CX.fillText(`${mv.icon} ${tl(f.maneuver==='retreat'?'retreatMove':f.maneuver)||mv.name}`,f.cx+sz*2.5,labelBase+szSm*1.7);
 
     const alive=f.ships.filter(s=>!s.dead).length;
     const hpR=f.hp/f.maxHp;

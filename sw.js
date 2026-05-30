@@ -81,7 +81,8 @@
 // 2026-05-30 v79: v7.274 스프린트 검수 수정 — 자원판매 400버그(marketplace resourceCode 누락), 채굴 일일캡 동시성 우회(지갑 advisory lock), leader exit(1)+railway ALWAYS, ITEMS 탭 영구점멸, _smErr 번역/2GP 허위표기.
 // 2026-05-30 v80: v7.275 카테고리 검수 수정1 — 현상금/퀘스트 통화 GP 오표기 수정, OPS 연료 잔액갱신, 에러토스트 54곳 srvErr 4언어화, 영토 업그레이드 에러 코드화, 자원출항 버튼 라벨.
 // 2026-05-30 v81: v7.276 게임 가이드(GUIDEBOOK) whatsnew 4언어 갱신 — 자원 출항 + GP 중심 경제 반영.
-const CACHE_NAME = 'mars-v81';
+// 2026-05-30 v82: v7.277 전술랩 로컬라이징 — 래퍼 헤더(戦術ラボ 등) 열 때 현 언어 재적용 + 캔버스 함대 라벨(formation/maneuver) tl() 4언어화.
+const CACHE_NAME = 'mars-v82';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

@@ -55400,6 +55400,13 @@ function openTacticalLab(){
     //   확실한 검증: 전술랩 상단 제목이 "FLEET WAR v11.1 + VFX v7.196" 으로 보이면 새 코드 적용됨.
     frame.src = 'assets/tactical-lab-v11.html?v=v7.196&t=' + Date.now() + '&lang=' + encodeURIComponent(LANG || 'en');
   }
+  // [v7.277] 헤더 i18n 명시 재적용 — 이 모달은 문서 하단에 있어 초기 applyI18n 시점(파싱 전)에 누락될 수 있어
+  //   열 때마다 현재 LANG으로 강제 갱신(일본어 등 엉뚱한 언어로 남는 문제 방지).
+  try {
+    var _tt=bd.querySelector('.tlab-title'); if(_tt) _tt.textContent=t('tlab_title');
+    var _ts=bd.querySelector('.tlab-sub');   if(_ts) _ts.textContent=t('tlab_sub');
+    var _tc=bd.querySelector('.tlab-close');  if(_tc) _tc.textContent=t('tlab_close');
+  } catch(_e){}
   bd.classList.add('active');
 }
 function closeTacticalLab(){

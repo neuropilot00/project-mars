@@ -1,3 +1,11 @@
+## 2026-05-30 v7.277 — 전술랩 로컬라이징 (헤더 + 캔버스 함대 라벨)
+
+전술랩 헤더가 한국어 세션에서도 일본어(戦術ラボ…)로 남고, 캔버스 함대 라벨의 진형/기동(Screen/Advance/Rally/Wedge/Scatter)이 영어로 표시되던 문제 수정:
+- **헤더(부모 래퍼)**: `tlab-title/tlab-sub/tlab-close`는 문서 하단 모달이라 초기 `applyI18n`(파싱 전 호출) 시점에 누락될 수 있었음 → `openTacticalLab()`에서 열 때마다 `t()`로 현 LANG 강제 재적용(`index.html`).
+- **캔버스 함대 라벨(iframe)**: `assets/tactical-lab-v11.html` 2121/2123이 `fm.name`/`mv.name`(영문 하드코딩)을 그리던 것을 `tl(f.formation)` / `tl(maneuver)` (retreat→retreatMove 매핑)로 변경 → 4언어. iframe은 `&t=Date.now()`로 항상 새로 로드돼 캐시 영향 없음.
+- 검증: 인라인 파싱 index 11/11 + tactical-lab 1/1. SW v81→v82.
+- 참고: 데모(`assets/fleet-assault-demo.html`)는 tl() 시스템 미탑재 standalone이라 본 수정 대상 아님(본서버 파일 직접 수정).
+
 ## 2026-05-30 v7.276 — 게임 가이드(GUIDEBOOK) 4언어 갱신
 
 인게임 게임 가이드(GUIDEBOOK / `CODEX_CONTENT`)의 What's New 섹션을 en/ko/ja/zh 4언어로 갱신:
