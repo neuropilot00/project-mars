@@ -102,9 +102,11 @@ async function simulateBattle(battleId) {
       timeline.frames.push(captureFrame(state, tick));
     }
     
-    // 승패 체크 — 함선이 1척도 남지 않은 사이드를 패배로 판정
-    const atkAlive = state.fleets.filter(f => f.side === 'atk' && f.ships.some(s => s.isAlive)).length;
-    const defAlive = state.fleets.filter(f => f.side === 'def' && f.ships.some(s => s.isAlive)).length;
+    // 자동 퇴각 — HP 임계 이하 함대 후퇴(함선 보존)
+    processAutoRetreat(state, events);
+    // 승패 체크 — 살아있고 후퇴하지 않은 함선이 1척도 없는 사이드를 패배로 판정
+    const atkAlive = state.fleets.filter(f => f.side === 'atk' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
+    const defAlive = state.fleets.filter(f => f.side === 'def' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
     if (atkAlive === 0 || defAlive === 0) {
       winnerSide = atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
       events.push({
@@ -272,8 +274,9 @@ async function simulateBattleLive(battleId, hooks) {
       if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(fr); } catch (_) {} }
     }
 
-    const atkAlive = state.fleets.filter(f => f.side === 'atk' && f.ships.some(s => s.isAlive)).length;
-    const defAlive = state.fleets.filter(f => f.side === 'def' && f.ships.some(s => s.isAlive)).length;
+    processAutoRetreat(state, events);
+    const atkAlive = state.fleets.filter(f => f.side === 'atk' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
+    const defAlive = state.fleets.filter(f => f.side === 'def' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
     if (atkAlive === 0 || defAlive === 0) {
       winnerSide = atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
       const fr = captureFrame(state, tick); timeline.frames.push(fr);
@@ -298,6 +301,24 @@ async function simulateBattleLive(battleId, hooks) {
   return { winner_side: winnerSide, duration_ticks: state.tick, duration_seconds: Math.round(state.tick * TICK_MS / 1000), timeline, events, stats };
 }
 
+// ─── 자동 퇴각 처리 ───
+// 함대 HP가 autoRetreatPct% 이하로 떨어지면 그 함대 전원 후퇴(함선 보존, 격침 아님).
+// 후퇴 함선은 withdrawn 표시 → 승패판정/타겟팅에서 제외되지만 isAlive 유지 → applyBattleResults가 현재 HP로 보존.
+function processAutoRetreat(state, events) {
+  for (const fleet of state.fleets) {
+    if (fleet.retreated || !fleet.autoRetreatPct || fleet.autoRetreatPct <= 0) continue;
+    const alive = fleet.ships.filter(s => s.isAlive && !s.withdrawn);
+    if (!alive.length) continue;
+    const ratio = fleet.maxHp > 0 ? (fleet.hp / fleet.maxHp) * 100 : 100;
+    if (ratio <= fleet.autoRetreatPct) {
+      fleet.retreated = true;
+      alive.forEach(s => { s.withdrawn = true; });
+      events.push({ tick: state.tick, type: 'fleet_retreated',
+        payload: { fleet_id: fleet.id, side: fleet.side, hp_pct: Math.round(ratio), saved_ships: alive.length } });
+    }
+  }
+}
+
 // ─── DB에서 전투 데이터 로드 ───
 
 async function loadBattleData(battleId) {
@@ -313,7 +334,7 @@ async function loadBattleData(battleId) {
     SELECT 
       p.side, p.spawn_x, p.spawn_y,
       f.id AS fleet_id, f.name AS fleet_name, f.owner_wallet,
-      f.formation, f.movement,
+      f.formation, f.movement, f.auto_retreat_pct,
       u.faction_code, fa.color_primary AS faction_color
     FROM fleet_battle_participants p
     JOIN fleets f ON f.id = p.fleet_id
@@ -460,6 +481,8 @@ function initBattleState(battleData) {
       
       formation: f.formation || 'sphere',
       movement: f.movement || 'advance',
+      autoRetreatPct: parseInt(f.auto_retreat_pct, 10) || 0,
+      retreated: false,
 
       hp: maxHp, maxHp,
       dead: false,
@@ -780,7 +803,7 @@ function processCombat(state, events) {
   }
 
   for (const fleet of state.fleets) {
-    if (!fleet.ships.some(s => s.isAlive)) continue;
+    if (fleet.retreated || !fleet.ships.some(s => s.isAlive && !s.withdrawn)) continue;
 
     // EMP 영향: targetSide 의 함선은 발사주기 × mult (더 느려짐)
     const empMult = (state.empActive && state.empActive.targetSide === fleet.side)
@@ -804,7 +827,7 @@ function processCombat(state, events) {
       }
 
       // 공격 대상 찾기 (가장 가까운 적 함대의 랜덤 함선)
-      const enemies = state.fleets.filter(e => e.side !== fleet.side && e.ships.some(s => s.isAlive));
+      const enemies = state.fleets.filter(e => e.side !== fleet.side && !e.retreated && e.ships.some(s => s.isAlive && !s.withdrawn));
       if (!enemies.length) continue;
 
       // ── Commander Action: focus_fire 대상 강제 ──
@@ -824,7 +847,7 @@ function processCombat(state, events) {
       }
 
       // 타겟 함대에서 살아있는 함선 랜덤 선택
-      const aliveTargets = targetFleet.ships.filter(s => s.isAlive);
+      const aliveTargets = targetFleet.ships.filter(s => s.isAlive && !s.withdrawn);
       if (!aliveTargets.length) continue;
 
       const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)];

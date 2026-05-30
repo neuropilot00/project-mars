@@ -51350,6 +51350,7 @@ function renderFleetDetail() {
     '<div class="tactics-panel">' +
       '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
       '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
+      _autoRetreatRow(f) +
     '</div>' +
     renderSelectedShipPanel(f) +
     renderFleetPreview(f) +
@@ -51542,6 +51543,34 @@ function toggleShipSel(shipId, event) {
   renderFleetDetail();
 }
 
+// 자동 퇴각 설정 UI — HP 임계% 이하 시 자동 후퇴(함선 보존). 0=비활성.
+function _autoRetreatRow(f) {
+  var cur = parseInt((f && f.auto_retreat_pct), 10) || 0;
+  var opts = [0, 15, 25, 35, 50];
+  var btns = opts.map(function(p){
+    var on = cur === p;
+    var label = p === 0 ? tl('OFF','끔','OFF','关') : (p + '%');
+    return '<button type="button" class="tactic-btn '+(on?'active':'')+'" onclick="event.preventDefault();event.stopPropagation();setAutoRetreat('+p+')">'+label+'</button>';
+  }).join('');
+  return '<div class="tactics-group"><div class="tactics-label">🛟 '+tl('AUTO-RETREAT (save ships)','자동 퇴각 (함선 보존)','自動退却','自动撤退')+'</div><div class="tactics-options">' + btns + '</div>' +
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);margin-top:4px">'+tl('Fleet retreats when HP drops below this — losing ships is avoided (loss counts as defeat).','함대 HP가 이 % 이하로 떨어지면 자동 후퇴 — 함선 파괴를 막습니다(패배 처리).','艦隊HPがこの%以下で自動退却 — 艦船喪失を回避（敗北扱い）。','舰队HP低于此%自动撤退 — 避免损失舰船（计为失败）。')+'</div></div>';
+}
+async function setAutoRetreat(pct) {
+  var fleetId = fleetCmdState.selectedFleetId;
+  if (!fleetId) return;
+  var scrollTop = fleetCmdBodyScroll();
+  if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.auto_retreat_pct = pct; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
+  try {
+    var res = await fetch('/api/fleets/' + fleetId, {
+      method: 'PUT',
+      headers: Object.assign({'Content-Type':'application/json','x-wallet':(getMyWallet()||'')}, getAuthHeaders()),
+      body: JSON.stringify({ auto_retreat_pct: pct })
+    });
+    var d = await res.json();
+    if (!res.ok || d.success === false) { showFactionToast(tl('Failed','설정 실패','失敗','失败'), 'error'); }
+    else { showFactionToast(pct===0 ? tl('Auto-retreat off','자동 퇴각 끔','自動退却OFF','自动撤退关') : (tl('Auto-retreat at','자동 퇴각','自動退却','自动撤退')+' '+pct+'%'), 'success'); }
+  } catch(e) { showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error'); }
+}
 async function setFleetTactic(type, value) {
   var fleetId = fleetCmdState.selectedFleetId;
   if (!fleetId) return;
