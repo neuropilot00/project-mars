@@ -1594,7 +1594,7 @@ function fire(sh,wsMode){
   } else if(t.fireType==='mixed'){
     const ts=tf.ships.filter(s=>!s.dead)[0|Math.random()*4];
     if(ts)lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
-      color:FACTIONS[sh.type.faction].color,width:1.4,alpha:.65,ttl:40,age:0,
+      color:weaponColor(t),width:1.4,alpha:.65,ttl:40,age:0,
       dmg:t.atk*2*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
     if(ts)playLaserSound();
     spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult,wsMode);
@@ -1610,6 +1610,15 @@ function fire(sh,wsMode){
   }
 }
 
+// 무기별 발사 색상 — fire_type 으로 차별화. 없으면 파벌 색 폴백.
+const WEAPON_COLORS={
+  laser:'#7df9ff', missile:'#ff8a3d', railgun:'#e8f0ff', disruptor:'#7cff5c',
+  lance:'#ffd166', swarm:'#5cd6ff', spread:'#aaff44', plasma:'#3df0ff', torpedo:'#c08bff',
+  ew:'#9d7cff', stealth_bomb:'#ff5d8f'
+};
+function weaponColor(t){
+  return (t && t.fireType && WEAPON_COLORS[t.fireType]) || (FACTIONS[t.faction]&&FACTIONS[t.faction].color) || '#fff';
+}
 function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget){
   if(PERF_MODE&&bullets.length>120)return;
   const isMissile=kind==='missile';
@@ -1617,7 +1626,7 @@ function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget){
   const spd=isMissile?(0.85+Math.random()*.2):(1.55+Math.random()*.45);
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
     r:isMissile?Math.min(t.r*.38+.6,2.8):Math.min(t.r*.3+.3,1.6),
-    col:FACTIONS[t.faction].color,
+    col:weaponColor(t),
     dmg:t.atk*dmgMult*2,attackerType:t,side,
     ttl:isMissile?240:190,  // 미사일 TTL 늘림 (더 긴 비행)
     age:0,visual:!!visual,kind,
