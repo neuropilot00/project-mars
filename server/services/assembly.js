@@ -77,6 +77,11 @@ async function getState(wallet) {
   const builtCount = builtRows[0]?.c || 0;
   const maxPer = parseInt(await setting('assembly_max_per_player', '1'), 10) || 1;
 
+  const { rows: pityRows } = await pool.query(
+    `SELECT pulls_since_new, total_pulls FROM user_assembly_gacha WHERE wallet = $1`, [w]
+  );
+  const hardPity = parseInt(await setting('assembly_hard_pity_pulls', '30'), 10) || 30;
+
   return {
     unit_code: unitCode,
     unit: unitInfo[0] || null,
@@ -89,6 +94,11 @@ async function getState(wallet) {
     shards,
     shard_exchange_cost: exchangeCost,
     assemble_gp_cost: parseInt(await setting('assembly_assemble_gp_cost', '0'), 10) || 0,
+    gacha_enabled: String(await setting('assembly_gacha_enabled', 'true')) !== 'false',
+    gacha_price_gp: parseInt(await setting('assembly_gacha_price_gp', '500'), 10) || 0,
+    pulls_since_new: parseInt(pityRows[0]?.pulls_since_new, 10) || 0,
+    hard_pity: hardPity,
+    pity_remaining: Math.max(0, hardPity - (parseInt(pityRows[0]?.pulls_since_new, 10) || 0)),
   };
 }
 
@@ -293,7 +303,131 @@ async function exchangeShards(wallet, partCode) {
   }
 }
 
-// 어드민/테스트 파츠 지급 (P2 가챠 전까지 검증용)
+// ── P2 가챠: 박스가챠 + 하드천장 + 중복→조각 ──
+// 컴플리트가챠 회피: 합체체가 아니라 "파츠"만 공급, 합체는 결정론적(P1).
+async function pull(wallet, count) {
+  const w = (wallet || '').toLowerCase().trim();
+  if (!w) return { error: 'INVALID_WALLET' };
+  if (String(await setting('assembly_enabled', 'true')) === 'false') return { error: 'ASSEMBLY_DISABLED' };
+  if (String(await setting('assembly_gacha_enabled', 'true')) === 'false') return { error: 'GACHA_DISABLED' };
+
+  const unitCode = String(await setting('assembly_unit_code', 'pilgrim_voltaris')).replace(/"/g, '');
+  const price = parseInt(await setting('assembly_gacha_price_gp', '500'), 10) || 0;
+  const hardPity = parseInt(await setting('assembly_hard_pity_pulls', '30'), 10) || 30;
+  const dupYield = parseInt(await setting('assembly_dup_shard_yield', '15'), 10) || 15;
+  const maxMulti = parseInt(await setting('assembly_gacha_max_multi', '10'), 10) || 10;
+  const n = Math.max(1, Math.min(maxMulti, parseInt(count, 10) || 1));
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: partRows } = await client.query(
+      `SELECT part_code FROM assembly_parts WHERE unit_code = $1 AND is_active = true ORDER BY slot ASC`, [unitCode]
+    );
+    if (!partRows.length) { await client.query('ROLLBACK'); return { error: 'NO_PARTS_DEFINED' }; }
+    const allParts = partRows.map(p => p.part_code);
+
+    // GP 락/검증/차감
+    const total = price * n;
+    if (total > 0) {
+      const { rows: u } = await client.query(
+        `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]
+      );
+      if (!u[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
+      if (Number(u[0].gp_balance) < total) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: total, current: Number(u[0].gp_balance) }; }
+      await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [total, w]);
+    }
+
+    // 보유 파츠 셋 락
+    const { rows: owned } = await client.query(
+      `SELECT part_code, qty FROM user_assembly_parts WHERE wallet = $1 FOR UPDATE`, [w]
+    );
+    const ownMap = {};
+    owned.forEach(r => { ownMap[r.part_code] = parseInt(r.qty, 10) || 0; });
+
+    // 천장 카운터 락
+    const { rows: pityRows } = await client.query(
+      `SELECT pulls_since_new FROM user_assembly_gacha WHERE wallet = $1 FOR UPDATE`, [w]
+    );
+    let pullsSinceNew = pityRows[0]?.pulls_since_new || 0;
+
+    let shardGain = 0;
+    const results = [];
+    for (let i = 0; i < n; i++) {
+      const missing = allParts.filter(pc => (ownMap[pc] || 0) < 1);
+      const pityHit = hardPity > 0 && (pullsSinceNew + 1) >= hardPity && missing.length > 0;
+
+      let picked;
+      if (pityHit) {
+        picked = missing[Math.floor(Math.random() * missing.length)]; // 천장: 미보유 중 확정
+      } else {
+        picked = allParts[Math.floor(Math.random() * allParts.length)]; // 균등 20%
+      }
+
+      const wasNew = (ownMap[picked] || 0) < 1;
+      const wasDup = !wasNew;
+      ownMap[picked] = (ownMap[picked] || 0) + 1;
+
+      let gain = 0;
+      if (wasDup) { gain = dupYield; shardGain += gain; }
+
+      if (wasNew) pullsSinceNew = 0; else pullsSinceNew += 1;
+
+      await client.query(
+        `INSERT INTO assembly_gacha_pulls (wallet, part_code, was_pity, was_dup, shards_gain, price_gp)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [w, picked, pityHit, wasDup, gain, price]
+      );
+      results.push({ part_code: picked, is_new: wasNew, is_dup: wasDup, is_pity: pityHit, shards_gain: gain });
+    }
+
+    // 보유 파츠 반영 (count 누적)
+    const tally = {};
+    results.forEach(r => { tally[r.part_code] = (tally[r.part_code] || 0) + 1; });
+    for (const pc of Object.keys(tally)) {
+      await client.query(
+        `INSERT INTO user_assembly_parts (wallet, part_code, qty) VALUES ($1, $2, $3)
+         ON CONFLICT (wallet, part_code) DO UPDATE SET qty = user_assembly_parts.qty + $3, updated_at = NOW()`,
+        [w, pc, tally[pc]]
+      );
+    }
+    // 조각 반영
+    if (shardGain > 0) {
+      await client.query(
+        `INSERT INTO user_assembly_shards (wallet, shards) VALUES ($1, $2)
+         ON CONFLICT (wallet) DO UPDATE SET shards = user_assembly_shards.shards + $2, updated_at = NOW()`,
+        [w, shardGain]
+      );
+    }
+    // 천장 카운터 반영
+    await client.query(
+      `INSERT INTO user_assembly_gacha (wallet, pulls_since_new, total_pulls) VALUES ($1, $2, $3)
+       ON CONFLICT (wallet) DO UPDATE SET pulls_since_new = $2, total_pulls = user_assembly_gacha.total_pulls + $3, updated_at = NOW()`,
+      [w, pullsSinceNew, n]
+    );
+
+    await client.query('COMMIT');
+
+    try {
+      const { logGPActivity } = require('../db');
+      if (total > 0) logGPActivity(w, -total, 'assembly_gacha', `합체 파츠 가챠 x${n}`).catch(() => {});
+    } catch (_) {}
+
+    return {
+      success: true, count: n, price_gp: price, total_gp: total,
+      results, shards_gained: shardGain, pulls_since_new: pullsSinceNew, hard_pity: hardPity,
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('[ASSEMBLY] pull error:', err.message);
+    return { success: false, error: 'internal_error' };
+  } finally {
+    client.release();
+  }
+}
+
+// 어드민/테스트 파츠 지급 (검증용)
 async function grantParts(wallet, partCode, qty) {
   const w = (wallet || '').toLowerCase().trim();
   const n = Math.max(1, parseInt(qty, 10) || 1);
@@ -313,4 +447,4 @@ async function grantParts(wallet, partCode, qty) {
   return { success: true, part_code: partCode, granted: n };
 }
 
-module.exports = { getState, assemble, disassemble, exchangeShards, grantParts };
+module.exports = { getState, assemble, disassemble, exchangeShards, grantParts, pull };

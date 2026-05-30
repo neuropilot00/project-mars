@@ -59,6 +59,15 @@ router.post('/assembly/exchange', async (req, res) => {
   } catch (e) { console.error('[assembly/exchange]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
+router.post('/assembly/pull', async (req, res) => {
+  const w = requireWallet(req, res); if (!w) return;
+  try {
+    const r = await assembly.pull(w, req.body?.count);
+    if (r.error) return res.status(400).json(r);
+    res.json(r);
+  } catch (e) { console.error('[assembly/pull]', e.message); res.status(500).json({ error: 'internal_error' }); }
+});
+
 router.post('/assembly/admin/grant', async (req, res) => {
   if (!requireAdmin(req, res)) return;
   const w = (req.body?.wallet || '').toLowerCase().trim();
