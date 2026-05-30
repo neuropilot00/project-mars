@@ -75,7 +75,8 @@
 // 2026-05-30 v73: v7.268 함선 채굴 내구도 마모(EVE식 수리 GP sink) + 모달 마모 안내.
 // 2026-05-30 v74: v7.269 함선 채굴 v2(적재량/목적지/약탈 깊이) + 레드팀 P0 수정(채굴↔공성 잠금, 마모 clamp, 일일 GP상한, 최소HP 게이트) + 채굴 임무탭 이동(목적지 선택 UI) + 경매장 GP↔PP 통합.
 // 2026-05-30 v75: v7.270 CRITICAL 핫픽스 — 리더선출 무한 재시작 루프(전 엔드포인트 502) 수정 + 채굴을 임무 독립 '채굴' 서브탭으로 이동(캠페인/퀘스트에서 분리).
-const CACHE_NAME = 'mars-v75';
+// 2026-05-30 v76: v7.271 함대 함선수 필드 버그 수정 — /api/fleets 의 ships_alive 를 잘못된 ship_count 로 읽어 채굴/월드이벤트(Void Raider) engage 함대선택이 "함대 없음"으로 비던 문제(10곳) 일괄 수정.
+const CACHE_NAME = 'mars-v76';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

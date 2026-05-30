@@ -2,6 +2,13 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🔴→🟢 함대 함선수 필드 버그(ship_count) = 채굴/Void Raider 함대선택 빈칸 (v7.271, 2026-05-30)
+- ✅ [BUG] `/api/fleets`는 `ships_alive`로 함선수 반환하는데 프론트 10곳이 없는 `f.ship_count`를 읽음 → 함선 많아도 0 → 채굴 출항 "함대 없음", 월드이벤트(Void Raider) engage 함대목록 빈칸.
+- ✅ 수정: `parseInt(f.ships_alive)||parseInt(f.ship_count)||0` 폴백으로 10곳 일괄 교체(채굴/_renderShipMining, we engage 24115·24200, 함대요약 35773·36205·53025 등). 프론트 전용.
+- ✅ 이게 사용자가 보고한 "Void Raider ENGAGE 버그"의 실제 원인으로 추정(engage 코드 자체는 정상, 함대 선택기가 비어 출전 불가였음).
+- 검증: 인라인 11/11 + bare ship_count 0건. SW v76.
+- 🟡 후속: 채굴 배너 신규 제작(현재 800×340 저해상, Codex 아트). 함선수 alias를 서버가 ship_count로도 내려주면 더 견고.
+
 ## 🔴→🟢 CRITICAL: 리더선출 무한 재시작 루프 = 전 엔드포인트 502 (v7.270, 2026-05-30)
 - ✅ [CRITICAL] v7.269 배포 후 프로덕션 부팅→~10초 요청→재시작 무한반복(전 API 502, ~15분 다운). 런타임 로그 `[leader] 리더 공석 감지 → 락 획득 → 프로세스 재시작`로 확정.
 - ✅ 근본: `leader.js` 비리더 재경합이 매부팅 랜덤 `INSTANCE_ID`로 락 선점 후 exit → 재시작 새 ID가 자기 락(TTL 30s) 인식 불가 → web-only → 재경합 → 무한루프.

@@ -1,3 +1,11 @@
+## 2026-05-30 v7.271 — 함대 함선수 필드 버그(ship_count→ships_alive): 채굴/Void Raider 함대선택 "함대 없음" 수정
+
+함선이 많은데도 채굴 출항 함대 선택이 "함선 있는 함대 없음"으로 비는 버그. 근본: `/api/fleets`는 함선 수를 **`ships_alive`** 필드로 반환하는데(`fleet.js` listFleets), 프론트 10곳이 존재하지 않는 **`f.ship_count`**를 읽어 항상 0 처리.
+- 영향 범위: 채굴 함대 선택/적재량 미리보기(`_renderShipMining`), **월드이벤트(Void Raider) engage 함대 선택기**(이게 ENGAGE 함대목록 빈칸의 원인일 가능성), 함대 요약/표시 등 `f.ship_count` 사용 10곳.
+- 수정: 모두 `parseInt(f.ships_alive)||parseInt(f.ship_count)||0` 형태(폴백 포함)로 일괄 교체. 서버 변경 없음(프론트 전용).
+- 검증: 인라인 스크립트 11/11 파싱 + 잔여 bare `f.ship_count` 0건. SW v75→v76.
+- 별건: 채굴 배너(`assets/base/mining.png` 800×340, 타 배너 1600×680 대비 저해상도) 신규 제작은 Codex 아트 작업으로 분리.
+
 ## 2026-05-30 v7.270 — CRITICAL 핫픽스: 리더선출 무한 재시작 루프(전 엔드포인트 502) + 채굴 독립 서브탭
 
 v7.269 배포 후 프로덕션이 부팅→몇 초 요청 처리→재시작을 무한 반복(전 API 502). Railway 런타임 로그의 `[leader] 리더 공석 감지 → 락 획득. 스케줄러 기동 위해 프로세스 재시작.` 로 원인 확정.

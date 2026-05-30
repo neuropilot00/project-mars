@@ -24112,7 +24112,7 @@ async function loadFleetCommandCard(){
         var summary = document.getElementById('fcmdSummary');
         if (summary && d.fleets) {
           var total = d.fleets.length;
-          var ships = d.fleets.reduce(function(s,f){ return s + (parseInt(f.ship_count)||0); }, 0);
+          var ships = d.fleets.reduce(function(s,f){ return s + (parseInt(f.ships_alive)||parseInt(f.ship_count)||0); }, 0);
           summary.textContent = total + ' fleets · ' + ships + ' ships';
         }
       }
@@ -24197,7 +24197,7 @@ window.openWorldEventDetail = async function(eventId) {
       if (fr.ok) {
         var fd = await fr.json();
         (fd.fleets || []).forEach(function(f) {
-          var ships = parseInt(f.ship_count) || parseInt(f.alive_ships) || 0;
+          var ships = parseInt(f.ships_alive) || parseInt(f.ship_count) || parseInt(f.alive_ships) || 0;
           if (ships < 1) return; // 함선 없는 함대 제외
           var opt = document.createElement('option');
           opt.value = f.id;
@@ -35770,7 +35770,7 @@ window.addEventListener('resize', _debounce(function(){
       var myFleets = [];
       try {
         var fr = await fetch('/api/fleets', { headers: getAuthHeaders() });
-        if (fr.ok) { var fd = await fr.json(); myFleets = (fd.fleets || []).filter(function(f){ return (parseInt(f.ship_count)||0) > 0; }); }
+        if (fr.ok) { var fd = await fr.json(); myFleets = (fd.fleets || []).filter(function(f){ return (parseInt(f.ships_alive)||parseInt(f.ship_count)||0) > 0; }); }
       } catch(_) {}
 
       var battleMade = !!roster.fleet_battle_id;
@@ -35787,7 +35787,7 @@ window.addEventListener('resize', _debounce(function(){
       if (!battleMade) {
         if (myFleets.length) {
           h += '<select data-siege-fleet-sel="'+siege.id+'" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:4px 6px;border-radius:4px;font-family:var(--fn);margin:4px 0">';
-          myFleets.forEach(function(f){ h += '<option value="'+f.id+'">'+escapeHtml(f.name||('Fleet #'+f.id))+' ('+(f.ship_count||0)+')</option>'; });
+          myFleets.forEach(function(f){ h += '<option value="'+f.id+'">'+escapeHtml(f.name||('Fleet #'+f.id))+' ('+(f.ships_alive||f.ship_count||0)+')</option>'; });
           h += '</select>';
           h += '<div style="display:flex;gap:6px">';
           h += '<button type="button" class="sz-btn" data-action="siegeJoin" data-side="attack" data-siege="'+siege.id+'" style="flex:1;font-size:9px;padding:6px;color:var(--red);border-color:rgba(232,72,85,.4)">⚔ 공격 합류</button>';
@@ -36202,7 +36202,7 @@ window.addEventListener('resize', _debounce(function(){
       .then(function(data) {
         var fleets = data.fleets || data || [];
         if (!Array.isArray(fleets)) fleets = [];
-        var totalShips = fleets.reduce(function(sum,f){ return sum + (parseInt(f.ship_count)||0); }, 0);
+        var totalShips = fleets.reduce(function(sum,f){ return sum + (parseInt(f.ships_alive)||parseInt(f.ship_count)||0); }, 0);
         var html = '';
         if (fleets.length) {
           html += '<div style="margin-bottom:8px"><div style="font-size:9px;color:#5cbbff;font-weight:700;margin-bottom:6px">'
@@ -36211,7 +36211,7 @@ window.addEventListener('resize', _debounce(function(){
             var nm = f.name || ('Fleet #'+f.id);
             html += '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.12);border-radius:6px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">'
               + '<span style="font-size:10px;font-weight:700;color:#5cbbff">⚓ '+nm+'</span>'
-              + '<span style="font-size:9px;color:var(--tx3)">'+(parseInt(f.ship_count)||0)+' ships</span>'
+              + '<span style="font-size:9px;color:var(--tx3)">'+(parseInt(f.ships_alive)||parseInt(f.ship_count)||0)+' ships</span>'
               + '</div>';
           });
           if (fleets.length > 3) {
@@ -48468,7 +48468,7 @@ async function _renderShipMining() {
     var info = res[0]||{}, my = (res[1]&&res[1].jobs)||[], fleets = (res[2]&&res[2].fleets)||[];
     if (info.enabled === false) { c.innerHTML = '<div style="color:var(--tx3);text-align:center;padding:16px 0">'+tl('Mining is disabled.','채굴이 비활성화됨.','採掘は無効です。','采矿已禁用。')+'</div>'; return; }
     // 함선 보유 함대만 (ship_count>0)
-    var usable = fleets.filter(function(f){ return (parseInt(f.ship_count)||0) > 0; });
+    var usable = fleets.filter(function(f){ return (parseInt(f.ships_alive)||parseInt(f.ship_count)||0) > 0; });
     var durs = info.durationsH || [1,4,8];
     var h = '';
     // 진행/완료 런
@@ -48493,7 +48493,7 @@ async function _renderShipMining() {
       // ① 함대 + 시간
       h += '<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">'
         + '<select id="smFleet" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(100,220,130,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
-        + usable.map(function(f){ return '<option value="'+f.id+'">'+escapeHtmlSafe(f.name||('Fleet #'+f.id))+' ('+(f.ship_count||0)+'🛸)</option>'; }).join('')
+        + usable.map(function(f){ return '<option value="'+f.id+'">'+escapeHtmlSafe(f.name||('Fleet #'+f.id))+' ('+(f.ships_alive||f.ship_count||0)+'🛸)</option>'; }).join('')
         + '</select>'
         + '<select id="smDur" style="font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(100,220,130,.3);color:#fff;border-radius:6px;font-family:var(--fn)">'
         + durs.map(function(d){ return '<option value="'+d+'">'+d+'h</option>'; }).join('')
@@ -48531,7 +48531,7 @@ async function _renderShipMining() {
     function _smFleetCapacity(fleetId){
       // 클라 추정(함급 미상 시 ship_count 근사). 정확값은 서버가 계산.
       var f = usable.find(function(x){ return String(x.id)===String(fleetId); });
-      return f ? (parseInt(f.ship_count)||1) : 1; // 근사(서버가 함급 weight 정밀 반영)
+      return f ? (parseInt(f.ships_alive)||parseInt(f.ship_count)||1) : 1; // 근사(서버가 함급 weight 정밀 반영)
     }
     function _smUpdatePreview(){
       var pv = document.getElementById('smPreview'); if(!pv) return;
@@ -53022,7 +53022,7 @@ async function loadBvSidePanels(battleId) {
         var pct = Math.round((hp / Math.max(1, maxHp)) * 100);
         return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
           + '<div style="color:#4fc3f7;font-weight:700">' + escapeHtmlSafe(f.name || ('Fleet#' + f.id)) + '</div>'
-          + `<div style="font-size:9px;color:rgba(255,255,255,.5)">` + (f.ship_count || 0) + `${LANG==='ko'?' 척':LANG==='ja'?' 隻':LANG==='zh'?' 艘':' ships'} · HP ` + pct + '%</div>'
+          + `<div style="font-size:9px;color:rgba(255,255,255,.5)">` + (f.ships_alive || f.ship_count || 0) + `${LANG==='ko'?' 척':LANG==='ja'?' 隻':LANG==='zh'?' 艘':' ships'} · HP ` + pct + '%</div>'
           + '</div>';
       }).join('') || `<div style="opacity:.4">${LANG==='ko'?'함대 없음':LANG==='ja'?'艦隊なし':LANG==='zh'?'没有舰队':'No fleets'}</div>`;
     } else {
