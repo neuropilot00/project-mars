@@ -3883,6 +3883,12 @@ router.get('/quests', readLimiter, async (req, res) => {
 
     // [v7.275] 퀘스트 보상은 GP로 지급(경제v2 P2)되므로 GP 환산값을 함께 내려 UI가 'GP'로 정확히 표기하게 함.
     const questRate = await getPPToGPRate();
+    // [v7.325] 무료/활동 미션도 의미있는 GP를 주도록 티어별 최소 GP 바닥값 적용 (소액 PP가 0 GP로 반올림되던 문제 해소).
+    const _qFloor = {
+      free:     parseInt(await getSetting('quest_min_gp_free', '3'), 10)     || 3,
+      activity: parseInt(await getSetting('quest_min_gp_activity', '8'), 10)  || 8,
+      spending: parseInt(await getSetting('quest_min_gp_spending', '20'), 10) || 20
+    };
     res.json({
       quests: result.rows.map(r => {
         const ar = Math.min(
@@ -3895,7 +3901,7 @@ router.get('/quests', readLimiter, async (req, res) => {
           ...r,
           reward_pp: parseFloat(r.reward_pp),
           actual_reward: ar,
-          reward_gp: Math.round(ar * questRate * 1e6) / 1e6,
+          reward_gp: Math.max(_qFloor[r.tier] || 0, Math.round(ar * questRate * 1e6) / 1e6),
           requirement_value: parseFloat(r.requirement_value),
           current_progress: parseFloat(r.current_progress),
           progress_pct: Math.min(100, Math.round((parseFloat(r.current_progress) / parseFloat(r.requirement_value)) * 100))
