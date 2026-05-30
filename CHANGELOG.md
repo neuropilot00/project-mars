@@ -1,3 +1,9 @@
+## 2026-05-30 v7.313 — 영토 일괄 수확 + 어드민 배팅 이벤트 생성 UI
+
+- **영토 일괄 수확(⛏ HARVEST ALL)**: 내 영토 패널에 일괄 정비(🔧 TEND ALL) 옆 일괄 수확 버튼 추가. 검증된 단일 `/api/territory/:id/harvest`를 내 영토 전체에 순차 호출 → 풀 차감/일일 캡/자원 드롭/리퍼럴 로직 100% 재사용. 쿨다운 영토는 건너뛰고 수확 건수·총 PP·드롭을 토스트로 요약. 4언어 i18n(`harvest_all_btn`).
+- **어드민 War Betting 이벤트 생성 UI**: 서버 `POST /api/betting/events`는 존재했으나 admin.html에 생성 폼이 없어 배팅 풀이 영원히 안 생기던 문제 수정. WAR BETTING 섹션에 `+ NEW EVENT` 버튼 + 모달(이벤트 유형/제목 KO·EN/옵션 A·B·C/마감) 추가. `requireAuth`가 JWT 또는 x-wallet을 요구하므로 생성 요청에 `x-wallet:admin` + `x-admin-secret` 동봉.
+- **점검 결과(이상 없음)**: 시즌 시스템(점수/리더보드/보상/시즌패스), 수송 시스템(start/raid/60초 정산 스케줄러), 미션 GP 보상(무료/활동/특수 = `quest_max_reward_*` PP 설정 후 실시간 PP→GP 환산), GP 래플(어드민 `+NEW RAFFLE`로 생성) 모두 정상 동작 확인. 배팅·래플은 **어드민이 생성해야 유저에게 노출**되는 구조 — 이것이 "열린 게 없다"의 원인.
+
 ## 2026-05-30 v7.312 — 어드민 CSRF 클라이언트 배선 (SAVE CHANGES 403 수정)
 
 - **증상**: 어드민 유저 편집에서 `SAVE CHANGES` → `✗ CSRF token missing: send X-CSRF-Token header`. 모든 어드민 변경(POST/PUT/DELETE)이 막힘.

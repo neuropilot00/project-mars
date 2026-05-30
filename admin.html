@@ -2574,6 +2574,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
           <option value="cancelled">CANCELLED</option>
         </select>
         <button onclick="loadBettingAdmin()" style="font-size:10px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);color:#FFD166;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="openBetCreateModal()" style="font-size:10px;background:rgba(255,209,102,.25);border:1px solid rgba(255,209,102,.5);color:#FFD166;padding:4px 10px;border-radius:4px;cursor:pointer">+ NEW EVENT</button>
       </div>
     </div>
     <div class="table-wrap">
@@ -2586,6 +2587,36 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         </tr></thead>
         <tbody id="bettingAdmTable"></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- War Betting Create Modal [v7.313] -->
+  <div id="betCreateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#1a1a2e;border:1px solid rgba(255,209,102,.3);border-radius:12px;padding:22px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="color:#FFD166;font-weight:700;font-size:14px">🎰 CREATE BETTING EVENT</span>
+        <button onclick="closeBetCreateModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">EVENT TYPE *</div>
+          <select id="beType" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+            <option value="siege">Governor Siege</option>
+            <option value="guild_war">Guild War</option>
+            <option value="weekly_top">Weekly Top Hijacker</option>
+          </select></div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">TITLE (KO) *</div><input id="beTitleKo" placeholder="예: 알파 섹터 공성전 승자는?" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">TITLE (EN) *</div><input id="beTitleEn" placeholder="e.g. Who wins the Alpha siege?" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">OPTION A *</div><input id="beOptA" placeholder="MCC" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">OPTION B *</div><input id="beOptB" placeholder="FSP" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">OPTION C (선택)</div><input id="beOptC" placeholder="CV (optional)" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">REF ID (선택)</div><input id="beRefId" placeholder="siege/guild id" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        </div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">CLOSES AT *</div><input id="beClosesAt" type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        <button onclick="createBetEvent()" style="width:100%;padding:10px;background:rgba(255,209,102,.2);border:1px solid rgba(255,209,102,.4);color:#FFD166;border-radius:6px;cursor:pointer;font-weight:700">🎰 CREATE EVENT</button>
+      </div>
     </div>
   </div>
 
@@ -10570,6 +10601,55 @@ async function adminForceSiege(siegeId) {
 // ══════════════════════════════════════
 // WAR BETTING ADMIN
 // ══════════════════════════════════════
+// War Betting create [v7.313]
+function openBetCreateModal() {
+  var m = document.getElementById('betCreateModal');
+  if (m) m.style.display = 'flex';
+}
+function closeBetCreateModal() {
+  var m = document.getElementById('betCreateModal');
+  if (m) m.style.display = 'none';
+}
+function createBetEvent() {
+  var type = document.getElementById('beType').value;
+  var titleKo = (document.getElementById('beTitleKo').value || '').trim();
+  var titleEn = (document.getElementById('beTitleEn').value || '').trim();
+  var optA = (document.getElementById('beOptA').value || '').trim();
+  var optB = (document.getElementById('beOptB').value || '').trim();
+  var optC = (document.getElementById('beOptC').value || '').trim();
+  var refId = (document.getElementById('beRefId').value || '').trim();
+  var closesRaw = document.getElementById('beClosesAt').value;
+  if (!titleKo || !titleEn) { showToast('Title (KO+EN) required'); return; }
+  if (!optA || !optB) { showToast('Option A and B required'); return; }
+  if (!closesRaw) { showToast('Closes-at required'); return; }
+  var closesAt = new Date(closesRaw).toISOString();
+  // requireAuth needs JWT or x-wallet; isAdmin then validates x-admin-secret.
+  fetch('/api/betting/events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret, 'x-wallet': 'admin' },
+    body: JSON.stringify({
+      event_type: type,
+      event_ref_id: refId || null,
+      title_ko: titleKo,
+      title_en: titleEn,
+      option_a_label: optA,
+      option_b_label: optB,
+      option_c_label: optC || null,
+      closes_at: closesAt
+    })
+  }).then(function(r) { return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+    .then(function(res) {
+      if (res.ok && res.d && res.d.id) {
+        showToast('✓ Betting event created (#' + res.d.id + ')');
+        closeBetCreateModal();
+        loadBettingAdmin();
+      } else {
+        showToast('✗ ' + ((res.d && res.d.error) || 'Failed to create'));
+      }
+    })
+    .catch(function(e) { showToast('✗ ' + e.message); });
+}
+
 function loadBettingAdmin() {
   var tbl = document.getElementById('bettingAdmTable');
   if (!tbl) return;

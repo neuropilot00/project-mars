@@ -6735,7 +6735,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="base-section-title" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between">
           <span>🗺️ <span data-i18n="my_territory_title">My Territory</span></span>
           <span style="display:flex;align-items:center;gap:6px">
-            <button onclick="tendAllTerritories()" style="font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.3);color:#69f0ae;cursor:pointer;font-family:var(--fn)" data-i18n="tend_all_btn">🔧 TEND ALL</button>
+            <button onclick="harvestAllTerritories()" style="font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.35);color:#ffd166;cursor:pointer;font-family:var(--fn)" data-i18n="harvest_all_btn">⛏ HARVEST ALL</button>
+        <button onclick="tendAllTerritories()" style="font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.3);color:#69f0ae;cursor:pointer;font-family:var(--fn)" data-i18n="tend_all_btn">🔧 TEND ALL</button>
             <span id="baseTerritoryCountBadge" style="background:var(--mars);color:#fff;font-size:9px;padding:1px 7px;border-radius:8px;font-weight:800">0</span>
           </span>
         </div>
@@ -14331,6 +14332,33 @@ async function doTerritoryMerge() {
   }
 }
 
+// ── Territory Bulk Harvest [v7.313] ──
+function harvestAllTerritories(){
+  var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  if(!(typeof emailAuth!=='undefined'&&emailAuth&&emailAuth.token)){ showToast(tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
+  var btn=event&&event.target?event.target:null;
+  if(btn){ if(btn.disabled) return; btn.disabled=true; var _prev=btn.textContent; btn.textContent='...'; }
+  fetch('/api/territory/harvest-all',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token}})
+    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+    .then(function(res){
+      var d=res.d;
+      if(d.success){
+        var dropTxt='';
+        if(d.resourceDrops&&d.resourceDrops.length){ dropTxt=' · '+d.resourceDrops.map(function(x){return x.code+'×'+x.quantity;}).join(', '); }
+        showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+d.harvested+(lang==='ko'?'건 (+'+d.totalPP+' PP)':lang==='ja'?'件 (+'+d.totalPP+' PP)':lang==='zh'?'个 (+'+d.totalPP+' PP)':' (+'+d.totalPP+' PP)')+(d.skipped>0?' · '+d.skipped+(lang==='ko'?' 쿨다운':lang==='zh'?' 冷却':' cooldown'):'')+dropTxt,'success');
+        try{ if(typeof loadPPBalance==='function') loadPPBalance(); }catch(_){}
+        try{ if(typeof refreshGP==='function') refreshGP(); }catch(_){}
+        try{ if(typeof _updateBaseTerritoryGroupList==='function') _updateBaseTerritoryGroupList(); }catch(_){}
+      } else {
+        var msg=d.error==='nothing_to_harvest'?(lang==='ko'?'수확할 영토 없음(전부 쿨다운 중)':lang==='ja'?'収穫対象なし(クールダウン中)':lang==='zh'?'无可收获领地(冷却中)':'Nothing to harvest (all on cooldown)')
+          :(d.message||d.error||'failed');
+        showToast(msg,'error');
+      }
+    })
+    .catch(function(e){ showToast('Error: '+e.message,'error'); })
+    .finally(function(){ if(btn){ btn.disabled=false; btn.textContent=_prev; } });
+}
+
 // ── Territory Production Summary ──
 function tendAllTerritories(){
   var lang=(typeof LANG!=='undefined'?LANG:'ko');
@@ -17970,7 +17998,7 @@ var I18N = {
     nav_my_land: 'MY LAND', sectors_btn: 'SECTORS', open_gacha_label: 'SHIP CRATES', open_gacha_sub: 'GACHA', my_assets_btn: 'MY ASSETS',
     open_base: 'OPEN BASE', open_gacha: '🎲 SHIP CRATES', enter_cantina: '⚔ ENTER THE CANTINA',
     my_base: 'MY BASE', deposit_btn: 'DEPOSIT', withdraw_btn: 'WITHDRAW', logout_btn: 'LOGOUT',
-    tend_all_btn: '🔧 TEND ALL', export_key_btn: '🔑 KEY', export_key_title: '🔑 EXPORT WALLET KEY', export_key_disclaimer: '⚠ This reveals your wallet PRIVATE KEY. Anyone with it controls your funds. Store it offline and never share it. <b>You alone are responsible — if it is lost or stolen, the operator cannot recover it or your assets.</b>', export_key_ack: 'I understand and accept full responsibility for safekeeping my key.', export_key_pw_ph: 'Confirm your password', export_key_reveal_btn: 'REVEAL PRIVATE KEY', export_key_addr: 'ADDRESS', export_key_priv: 'PRIVATE KEY', export_key_copy: '📋 COPY KEY', export_key_close_warn: 'Close this window after saving. The key is not shown again automatically.',
+    harvest_all_btn: '⛏ HARVEST ALL', tend_all_btn: '🔧 TEND ALL', export_key_btn: '🔑 KEY', export_key_title: '🔑 EXPORT WALLET KEY', export_key_disclaimer: '⚠ This reveals your wallet PRIVATE KEY. Anyone with it controls your funds. Store it offline and never share it. <b>You alone are responsible — if it is lost or stolen, the operator cannot recover it or your assets.</b>', export_key_ack: 'I understand and accept full responsibility for safekeeping my key.', export_key_pw_ph: 'Confirm your password', export_key_reveal_btn: 'REVEAL PRIVATE KEY', export_key_addr: 'ADDRESS', export_key_priv: 'PRIVATE KEY', export_key_copy: '📋 COPY KEY', export_key_close_warn: 'Close this window after saving. The key is not shown again automatically.',
     address_copied: 'Address copied!',
     // ── Territory Info (left panel) ──
     top_governors: '👑 TOP GOVERNORS', loading_dots: 'Loading...',
@@ -18826,7 +18854,7 @@ var I18N = {
     nav_my_land: '내 영토', sectors_btn: '섹터', open_gacha_label: '함선 가챠', open_gacha_sub: '가챠', my_assets_btn: '내 자산',
     open_base: '베이스 열기', open_gacha: '🎲 함선 가챠', enter_cantina: '⚔ 칸티나 입장',
     my_base: '마이 베이스', deposit_btn: '입금', withdraw_btn: '출금', logout_btn: '로그아웃',
-    tend_all_btn: '🔧 일괄 정비', export_key_btn: '🔑 키', export_key_title: '🔑 지갑 키 내보내기', export_key_disclaimer: '⚠ 지갑의 개인키를 표시합니다. 이 키를 가진 누구나 자금을 통제할 수 있습니다. 오프라인에 보관하고 절대 공유하지 마세요. <b>보관 책임은 전적으로 본인에게 있으며, 분실·도난 시 운영자는 키나 자산을 복구할 수 없습니다.</b>', export_key_ack: '키 보관 책임이 전적으로 나에게 있음을 이해하고 동의합니다.', export_key_pw_ph: '비밀번호 확인', export_key_reveal_btn: '개인키 표시', export_key_addr: '주소', export_key_priv: '개인키', export_key_copy: '📋 키 복사', export_key_close_warn: '저장 후 이 창을 닫으세요. 키는 자동으로 다시 표시되지 않습니다.',
+    harvest_all_btn: '⛏ 일괄 수확', tend_all_btn: '🔧 일괄 정비', export_key_btn: '🔑 키', export_key_title: '🔑 지갑 키 내보내기', export_key_disclaimer: '⚠ 지갑의 개인키를 표시합니다. 이 키를 가진 누구나 자금을 통제할 수 있습니다. 오프라인에 보관하고 절대 공유하지 마세요. <b>보관 책임은 전적으로 본인에게 있으며, 분실·도난 시 운영자는 키나 자산을 복구할 수 없습니다.</b>', export_key_ack: '키 보관 책임이 전적으로 나에게 있음을 이해하고 동의합니다.', export_key_pw_ph: '비밀번호 확인', export_key_reveal_btn: '개인키 표시', export_key_addr: '주소', export_key_priv: '개인키', export_key_copy: '📋 키 복사', export_key_close_warn: '저장 후 이 창을 닫으세요. 키는 자동으로 다시 표시되지 않습니다.',
     address_copied: '주소가 복사되었습니다!',
     // ── Territory Info ──
     top_governors: '👑 최고 총독', loading_dots: '로딩 중...',
@@ -19688,7 +19716,7 @@ var I18N = {
     nav_my_land: 'マイ領土', sectors_btn: 'セクター', open_gacha_label: '艦船ボックス', open_gacha_sub: 'ガチャ', my_assets_btn: 'マイアセット',
     open_base: 'ベースを開く', open_gacha: '🎲 艦船ボックス', enter_cantina: '⚔ カンティーナに入る',
     my_base: 'マイベース', deposit_btn: '入金', withdraw_btn: '出金', logout_btn: 'ログアウト',
-    tend_all_btn: '🔧 一括整備', export_key_btn: '🔑 キー', export_key_title: '🔑 ウォレットキーをエクスポート', export_key_disclaimer: '⚠ ウォレットの秘密鍵を表示します。この鍵を持つ者は誰でも資金を管理できます。オフラインで保管し、絶対に共有しないでください。<b>保管責任は全て本人にあり、紛失・盗難時に運営者は鍵や資産を復元できません。</b>', export_key_ack: '鍵の保管責任が全て自分にあることを理解し同意します。', export_key_pw_ph: 'パスワードを確認', export_key_reveal_btn: '秘密鍵を表示', export_key_addr: 'アドレス', export_key_priv: '秘密鍵', export_key_copy: '📋 鍵をコピー', export_key_close_warn: '保存後このウィンドウを閉じてください。鍵は自動的に再表示されません。',
+    harvest_all_btn: '⛏ 一括収穫', tend_all_btn: '🔧 一括整備', export_key_btn: '🔑 キー', export_key_title: '🔑 ウォレットキーをエクスポート', export_key_disclaimer: '⚠ ウォレットの秘密鍵を表示します。この鍵を持つ者は誰でも資金を管理できます。オフラインで保管し、絶対に共有しないでください。<b>保管責任は全て本人にあり、紛失・盗難時に運営者は鍵や資産を復元できません。</b>', export_key_ack: '鍵の保管責任が全て自分にあることを理解し同意します。', export_key_pw_ph: 'パスワードを確認', export_key_reveal_btn: '秘密鍵を表示', export_key_addr: 'アドレス', export_key_priv: '秘密鍵', export_key_copy: '📋 鍵をコピー', export_key_close_warn: '保存後このウィンドウを閉じてください。鍵は自動的に再表示されません。',
     address_copied: 'アドレスをコピーしました！',
     top_governors: '👑 トップ総督', loading_dots: '読込中...',
     no_alerts: 'アラートはまだありません', live_feed_title: 'ライブフィード', live_feed_empty: 'ライブイベントはまだありません。',
@@ -20548,7 +20576,7 @@ var I18N = {
     nav_my_land: '我的领土', sectors_btn: '区域', open_gacha_label: '舰船宝箱', open_gacha_sub: '抽卡', my_assets_btn: '我的资产',
     open_base: '打开基地', open_gacha: '🎲 舰船宝箱', enter_cantina: '⚔ 进入酒吧',
     my_base: '我的基地', deposit_btn: '充值', withdraw_btn: '提现', logout_btn: '退出',
-    tend_all_btn: '🔧 批量维护', export_key_btn: '🔑 密钥', export_key_title: '🔑 导出钱包密钥', export_key_disclaimer: '⚠ 这将显示您钱包的私钥。任何持有此密钥的人都能控制您的资金。请离线保存，切勿分享。<b>保管责任完全由您承担，若丢失或被盗，运营方无法找回密钥或资产。</b>', export_key_ack: '我理解并接受妥善保管密钥的全部责任。', export_key_pw_ph: '确认密码', export_key_reveal_btn: '显示私钥', export_key_addr: '地址', export_key_priv: '私钥', export_key_copy: '📋 复制密钥', export_key_close_warn: '保存后请关闭此窗口。密钥不会自动再次显示。',
+    harvest_all_btn: '⛏ 批量收获', tend_all_btn: '🔧 批量维护', export_key_btn: '🔑 密钥', export_key_title: '🔑 导出钱包密钥', export_key_disclaimer: '⚠ 这将显示您钱包的私钥。任何持有此密钥的人都能控制您的资金。请离线保存，切勿分享。<b>保管责任完全由您承担，若丢失或被盗，运营方无法找回密钥或资产。</b>', export_key_ack: '我理解并接受妥善保管密钥的全部责任。', export_key_pw_ph: '确认密码', export_key_reveal_btn: '显示私钥', export_key_addr: '地址', export_key_priv: '私钥', export_key_copy: '📋 复制密钥', export_key_close_warn: '保存后请关闭此窗口。密钥不会自动再次显示。',
     address_copied: '地址已复制！',
     top_governors: '👑 顶级总督', loading_dots: '加载中...',
     no_alerts: '暂无提醒', live_feed_title: '实时动态', live_feed_empty: '暂无实时事件。',
