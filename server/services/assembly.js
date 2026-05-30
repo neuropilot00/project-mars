@@ -417,4 +417,125 @@ async function grantParts(wallet, partCode, qty) {
   return { success: true, part_code: partCode, granted: n };
 }
 
-module.exports = { listUnits, getState, pull, assemble, disassemble, exchangeShards, grantParts, getUnit };
+// ── 퍼펙트 가챠 박스: 활성 유닛 전체 파츠 풀에서 드롭(여러 유닛 동시 수집) ──
+async function getBoxInfo() {
+  const { getSetting } = require('../db');
+  return {
+    enabled: String(await getSetting('assembly_box_enabled', 'true')) !== 'false',
+    price: parseInt(await getSetting('assembly_box_price_gp', '700'), 10) || 700,
+    hardPity: parseInt(await getSetting('assembly_box_hard_pity', '50'), 10) || 50,
+    dupYield: parseInt(await getSetting('assembly_box_dup_shard_yield', '15'), 10) || 15,
+  };
+}
+
+async function pullBox(wallet, count) {
+  const w = (wallet || '').toLowerCase().trim();
+  if (!w) return { error: 'INVALID_WALLET' };
+  const info = await getBoxInfo();
+  if (!info.enabled) return { error: 'BOX_DISABLED' };
+  const n = Math.max(1, Math.min(10, parseInt(count, 10) || 1));
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // 활성 유닛 전체 파츠 풀
+    const { rows: pool0 } = await client.query(
+      `SELECT ap.part_code FROM assembly_parts ap
+       JOIN assembly_units au ON au.unit_code = ap.unit_code AND au.active = true
+       WHERE ap.is_active = true ORDER BY ap.part_code`
+    );
+    if (!pool0.length) { await client.query('ROLLBACK'); return { error: 'NO_PARTS_DEFINED' }; }
+    const allParts = pool0.map(r => r.part_code);
+
+    const total = info.price * n;
+    if (total > 0) {
+      const { rows: uu } = await client.query(`SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
+      if (!uu[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
+      if (Number(uu[0].gp_balance) < total) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: total, current: Number(uu[0].gp_balance) }; }
+      await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [total, w]);
+    }
+
+    const { rows: owned } = await client.query(`SELECT part_code, qty FROM user_assembly_parts WHERE wallet = $1 FOR UPDATE`, [w]);
+    const ownMap = {};
+    owned.forEach(r => { ownMap[r.part_code] = parseInt(r.qty, 10) || 0; });
+
+    const { rows: pityRows } = await client.query(
+      `SELECT pulls_since_new FROM user_assembly_gacha WHERE wallet = $1 AND unit_code = '__box__' FOR UPDATE`, [w]
+    );
+    let pulls = pityRows[0]?.pulls_since_new || 0;
+
+    let shardGain = 0;
+    const results = [];
+    for (let i = 0; i < n; i++) {
+      const missing = allParts.filter(pc => (ownMap[pc] || 0) < 1);
+      const pityHit = info.hardPity > 0 && (pulls + 1) >= info.hardPity && missing.length > 0;
+      const picked = pityHit ? missing[Math.floor(Math.random() * missing.length)] : allParts[Math.floor(Math.random() * allParts.length)];
+      const wasNew = (ownMap[picked] || 0) < 1;
+      ownMap[picked] = (ownMap[picked] || 0) + 1;
+      let gain = 0;
+      if (!wasNew) { gain = info.dupYield; shardGain += gain; }
+      if (wasNew) pulls = 0; else pulls += 1;
+      await client.query(
+        `INSERT INTO assembly_gacha_pulls (wallet, part_code, was_pity, was_dup, shards_gain, price_gp, unit_code)
+         VALUES ($1, $2, $3, $4, $5, $6, '__box__')`,
+        [w, picked, pityHit, !wasNew, gain, info.price]
+      );
+      results.push({ part_code: picked, is_new: wasNew, is_dup: !wasNew, is_pity: pityHit, shards_gain: gain });
+    }
+
+    const tally = {};
+    results.forEach(r => { tally[r.part_code] = (tally[r.part_code] || 0) + 1; });
+    for (const pc of Object.keys(tally)) {
+      await client.query(
+        `INSERT INTO user_assembly_parts (wallet, part_code, qty) VALUES ($1, $2, $3)
+         ON CONFLICT (wallet, part_code) DO UPDATE SET qty = user_assembly_parts.qty + $3, updated_at = NOW()`,
+        [w, pc, tally[pc]]
+      );
+    }
+    if (shardGain > 0) {
+      await client.query(
+        `INSERT INTO user_assembly_shards (wallet, shards) VALUES ($1, $2)
+         ON CONFLICT (wallet) DO UPDATE SET shards = user_assembly_shards.shards + $2, updated_at = NOW()`,
+        [w, shardGain]
+      );
+    }
+    await client.query(
+      `INSERT INTO user_assembly_gacha (wallet, unit_code, pulls_since_new, total_pulls) VALUES ($1, '__box__', $2, $3)
+       ON CONFLICT (wallet, unit_code) DO UPDATE SET pulls_since_new = $2, total_pulls = user_assembly_gacha.total_pulls + $3, updated_at = NOW()`,
+      [w, pulls, n]
+    );
+    await client.query('COMMIT');
+    try {
+      const { logGPActivity } = require('../db');
+      if (total > 0) logGPActivity(w, -total, 'assembly_box', `퍼펙트 가챠 박스 x${n}`).catch(() => {});
+    } catch (_) {}
+
+    // 결과에 유닛/파츠 표시명 부착
+    const { rows: meta } = await pool.query(
+      `SELECT ap.part_code, ap.name_ko AS part_ko, ap.name_en AS part_en, ap.icon_emoji, au.unit_code, au.name_ko AS unit_ko, au.name_en AS unit_en
+       FROM assembly_parts ap JOIN assembly_units au ON au.unit_code = ap.unit_code`
+    );
+    const metaMap = {};
+    meta.forEach(m => { metaMap[m.part_code] = m; });
+    const enriched = results.map(r => Object.assign({}, r, metaMap[r.part_code] || {}));
+    return { success: true, count: n, price_gp: info.price, total_gp: total, results: enriched, shards_gained: shardGain, pulls_since_new: pulls, hard_pity: info.hardPity };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('[ASSEMBLY] pullBox error:', err.message);
+    return { success: false, error: 'internal_error' };
+  } finally { client.release(); }
+}
+
+async function boxState(wallet) {
+  const w = (wallet || '').toLowerCase().trim();
+  if (!w) return { error: 'INVALID_WALLET' };
+  const info = await getBoxInfo();
+  const { rows: pity } = await pool.query(`SELECT pulls_since_new FROM user_assembly_gacha WHERE wallet = $1 AND unit_code = '__box__'`, [w]);
+  const { rows: poolCnt } = await pool.query(
+    `SELECT COUNT(*)::int AS c FROM assembly_parts ap JOIN assembly_units au ON au.unit_code = ap.unit_code AND au.active = true WHERE ap.is_active = true`
+  );
+  const pulls = parseInt(pity[0]?.pulls_since_new, 10) || 0;
+  return { enabled: info.enabled, price_gp: info.price, hard_pity: info.hardPity, pity_remaining: Math.max(0, info.hardPity - pulls), pool_size: poolCnt[0]?.c || 0 };
+}
+
+module.exports = { listUnits, getState, pull, assemble, disassemble, exchangeShards, grantParts, getUnit, pullBox, boxState };
