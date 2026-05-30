@@ -48872,6 +48872,7 @@ function _asmRenderUnitModal(d){
   var unit = d.unit || {};
   var pct = d.total_parts ? Math.round((d.distinct_owned||0) / d.total_parts * 100) : 0;
   var maxReached = parseInt(d.built_count,10) >= parseInt(d.max_per_player,10);
+  var mob = (typeof window!=="undefined") && window.innerWidth <= 760;
   var slots = (d.parts||[]).map(function(p){
     var has = parseInt(p.owned,10) >= 1;
     return '<div style="min-height:118px;text-align:center;padding:10px 6px;border-radius:8px;border:1px solid '+(has?'rgba(179,136,255,.58)':'rgba(255,255,255,.1)')+';background:'+(has?'rgba(179,136,255,.12)':'rgba(255,255,255,.025)')+'">' +
@@ -48898,9 +48899,9 @@ function _asmRenderUnitModal(d){
         (exchangeBtns ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'+exchangeBtns+'</div>' : '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:8px">'+tl('All parts collected','모든 파츠 보유','全パーツ所持','已集齐')+'</div>') +
       '</div>';
   c.innerHTML =
-    '<div class="asm-modal-grid" style="display:grid;grid-template-columns:minmax(280px,42%) 1fr;gap:0">' +
+    '<div class="asm-modal-grid" style="display:grid;grid-template-columns:'+(mob?'1fr':'minmax(280px,42%) 1fr')+';gap:0">' +
       // ── 좌: 대형 히어로샷 ──
-      '<div style="position:relative;min-height:520px;background:radial-gradient(circle at 50% 32%,rgba(179,136,255,.22),#05060c 72%);overflow:hidden;border-radius:14px 0 0 14px">' +
+      '<div style="position:relative;min-height:'+(mob?'40vh':'520px')+';background:radial-gradient(circle at 50% 32%,rgba(179,136,255,.22),#05060c 72%);overflow:hidden;border-radius:'+(mob?'14px 14px 0 0':'14px 0 0 14px')+'">' +
         '<img src="assets/assembly/portrait/'+(d.unit_code||d.ship_type_code||'')+'.png?v='+ASSET_VER+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;position:absolute;inset:0" onerror="this.style.display=\'none\'">' +
         '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,6,12,.96))"></div>' +
         '<div style="position:absolute;top:12px;left:12px;display:flex;gap:6px">' +
