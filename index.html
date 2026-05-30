@@ -48422,6 +48422,9 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
       <button class="sy-tab" data-tab="crates" onclick="switchSyTab('crates')">
         🎲 <span data-i18n="sy_tab_crates">CRATES</span>
       </button>
+      <button class="sy-tab" data-tab="assembly" onclick="switchSyTab('assembly')">
+        🜲 <span data-i18n="sy_tab_assembly">ASSEMBLY</span>
+      </button>
     </div>
     <div class="shipyard-filters" id="syFilters">
       <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px" data-i18n="sy_filter_size">SIZE:</span>
@@ -48471,6 +48474,11 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
           <span data-i18n="sy_crate_intro">함선 가챠를 열어 무작위 함선을 획득하세요. 획득한 함선은 함선 마켓에서 거래할 수 있습니다. 확률은 각 상자에 공개됩니다.</span>
         </div>
         <div class="bp-grid" id="crateGrid"></div>
+      </div>
+      <div id="syAssemblyTab" style="display:none">
+        <div class="asm-wrap" id="asmWrap">
+          <div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px" data-i18n="loading">Loading…</div>
+        </div>
       </div>
     </div>
     <div class="shipyard-footer" id="syFooter">
@@ -48701,12 +48709,166 @@ function switchSyTab(tab) {
   document.getElementById('syFleetTab').style.display      = tab === 'fleet'      ? '' : 'none';
   document.getElementById('syMarketTab').style.display     = tab === 'market'     ? '' : 'none';
   var _cratesTab = document.getElementById('syCratesTab'); if (_cratesTab) _cratesTab.style.display = tab === 'crates' ? '' : 'none';
+  var _asmTab = document.getElementById('syAssemblyTab'); if (_asmTab) _asmTab.style.display = tab === 'assembly' ? '' : 'none';
   document.getElementById('syFilters').style.display       = tab === 'blueprints' ? '' : 'none';
   if (tab === 'queue') renderQueue();
   else if (tab === 'fleet') renderShips();
   else if (tab === 'market') renderShipMarket();
   else if (tab === 'crates') loadShipCrates();
+  else if (tab === 'assembly') loadAssembly();
   else renderBlueprints();
+}
+
+// ═════ 합체 슈퍼유닛(Assembly) UI — P1+P2 ═════
+// 아트 에셋(Codex 제작 예정): 합체체 assets/ships/top/pilgrim_voltaris.png,
+// 파츠 assets/assembly/parts/<part_code>.png. 없으면 이모지 아이콘 폴백.
+var _asmState = null;
+function _asmName(o){ return LANG==='ko'?(o.name_ko||o.name_en):LANG==='ja'?(o.name_ja||o.name_en):LANG==='zh'?(o.name_zh||o.name_en):o.name_en; }
+
+async function loadAssembly() {
+  var wrap = document.getElementById('asmWrap');
+  if (!wrap) return;
+  var w = (typeof getMyWallet === 'function' ? getMyWallet() : '') || '';
+  if (!w) { wrap.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')+'</div>'; return; }
+  wrap.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+tl('Loading…','로딩 중…','読み込み中…','加载中…')+'</div>';
+  try {
+    var r = await fetch('/api/assembly/state?wallet=' + encodeURIComponent(w), { headers: Object.assign({'x-wallet':w}, getAuthHeaders()) });
+    var d = await r.json();
+    if (d.error) { wrap.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+tl('Unavailable','이용 불가','利用不可','不可用')+' ('+d.error+')</div>'; return; }
+    _asmState = d;
+    renderAssembly(d);
+  } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
+}
+
+function renderAssembly(d) {
+  var wrap = document.getElementById('asmWrap');
+  var unit = d.unit || {};
+  var pct = d.total_parts ? Math.round(d.distinct_owned / d.total_parts * 100) : 0;
+  // 파츠 5칸
+  var slots = (d.parts||[]).map(function(p){
+    var has = p.owned >= 1;
+    return '<div style="flex:1;min-width:78px;text-align:center;padding:8px 4px;border-radius:8px;border:1px solid '+(has?'#b388ff':'rgba(255,255,255,.1)')+';background:'+(has?'rgba(179,136,255,.12)':'rgba(255,255,255,.02)')+'">' +
+      '<div style="font-size:22px;line-height:1;filter:'+(has?'none':'grayscale(1) opacity(.35)')+'">'+(p.icon||'🜲')+'</div>' +
+      '<div style="font-size:8px;letter-spacing:.5px;margin-top:4px;color:'+(has?'#e1bee7':'rgba(255,255,255,.4)')+'">'+escapeHtmlSafe(_asmName(p))+'</div>' +
+      '<div style="font-size:9px;margin-top:2px;color:'+(has?'#fff':'rgba(255,255,255,.3)')+'">'+(has?('×'+p.owned):'—')+'</div>' +
+    '</div>';
+  }).join('');
+  // 가챠
+  var canPull = d.gacha_enabled !== false;
+  var price = d.gacha_price_gp || 0;
+  var gacha = canPull ? (
+    '<div style="margin-top:14px;padding:10px;border:1px solid rgba(179,136,255,.25);border-radius:10px;background:rgba(179,136,255,.04)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;font-size:9px;color:rgba(255,255,255,.55);letter-spacing:1px">' +
+        '<span>🎲 '+tl('PART GACHA','파츠 가챠','パーツガチャ','零件扭蛋')+'</span>' +
+        '<span>'+tl('Pity in','천장까지','天井まで','保底还需')+' <b style="color:#b388ff">'+d.pity_remaining+'</b> '+tl('pulls','회','回','次')+'</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:8px">' +
+        '<button type="button" class="fd-btn" data-action="asmPull" data-count="1" style="flex:1">'+tl('Pull ×1','1회','1回','单抽')+' · '+formatNum(price)+' GP</button>' +
+        '<button type="button" class="fd-btn primary" data-action="asmPull" data-count="10" style="flex:1">'+tl('Pull ×10','10연차','10連','十连')+' · '+formatNum(price*10)+' GP</button>' +
+      '</div>' +
+    '</div>') : '';
+  // 조각 교환
+  var shardOpts = (d.parts||[]).filter(function(p){return p.owned<1;}).map(function(p){
+    return '<button type="button" class="fd-btn" data-action="asmExchange" data-part="'+p.part_code+'" style="font-size:8px">'+(p.icon||'🜲')+' '+escapeHtmlSafe(_asmName(p))+'</button>';
+  }).join('');
+  var shards = '<div style="margin-top:12px;padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:10px">' +
+    '<div style="font-size:9px;color:rgba(255,255,255,.55);letter-spacing:1px">💎 '+tl('SHARDS','조각','シャード','碎片')+': <b style="color:#fff">'+formatNum(d.shards)+'</b> · '+tl('exchange','교환','交換','兑换')+' '+d.shard_exchange_cost+'/'+tl('part','파츠','パーツ','零件')+'</div>' +
+    (shardOpts && d.shards >= d.shard_exchange_cost ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+shardOpts+'</div>' : '<div style="font-size:8px;color:rgba(255,255,255,.3);margin-top:6px">'+(d.distinct_owned>=d.total_parts?tl('All parts collected','모든 파츠 보유','全パーツ所持','已集齐'):tl('Not enough shards','조각 부족','シャード不足','碎片不足'))+'</div>') +
+  '</div>';
+  // 합체/보유
+  var action;
+  if (d.built_count >= d.max_per_player) {
+    action = '<button type="button" class="fd-btn danger" data-action="asmDisassemble" style="width:100%;margin-top:14px">🔧 '+tl('Disassemble (return parts)','해체 (파츠 환원)','分解（パーツ返却）','拆解（返还零件）')+'</button>';
+  } else {
+    var ready = d.can_assemble;
+    action = '<button type="button" class="fd-btn primary" data-action="asmAssemble" '+(ready?'':'disabled')+' style="width:100%;margin-top:14px;'+(ready?'':'opacity:.45')+'">🜲 '+
+      (ready ? tl('ASSEMBLE','합체','合体','合体') : (d.distinct_owned+'/'+d.total_parts+' '+tl('parts','파츠','パーツ','零件'))) + (d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'') + '</button>';
+  }
+  wrap.innerHTML =
+    '<div style="display:flex;gap:12px;align-items:center;padding:10px;border:1px solid rgba(179,136,255,.3);border-radius:10px;background:rgba(179,136,255,.06)">' +
+      '<div style="font-size:34px">🜲</div>' +
+      '<div style="flex:1">' +
+        '<div style="font-family:Orbitron,monospace;font-size:13px;color:#e1bee7;letter-spacing:1px">'+escapeHtmlSafe(_asmName(unit)||'Voltaris')+'</div>' +
+        '<div style="font-size:8px;color:rgba(255,255,255,.45);margin-top:2px">'+tl('Pilgrim Arms · Assembled Unit','필그림 아머스 · 합체병기','ピルグリム・アームズ · 合体兵器','朝圣者军备 · 合体兵器')+(unit.base_hp?(' · HP '+formatNum(unit.base_hp)+' / ATK '+unit.base_atk+' / DEF '+unit.base_def):'')+'</div>' +
+        '<div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#b388ff,#e1bee7)"></div></div>' +
+      '</div>' +
+      '<div style="font-size:16px;font-weight:700;color:#b388ff">'+d.distinct_owned+'/'+d.total_parts+'</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:6px;margin-top:12px">'+slots+'</div>' +
+    action + gacha + shards;
+  // delegated listener (한 번만)
+  if (!wrap.dataset.delegated) {
+    wrap.dataset.delegated = '1';
+    wrap.addEventListener('click', _asmOnClick);
+  }
+}
+
+async function _asmOnClick(ev) {
+  var btn = ev.target.closest('button[data-action]');
+  if (!btn || btn.disabled) return;
+  ev.preventDefault(); ev.stopPropagation();
+  var act = btn.getAttribute('data-action');
+  var w = (typeof getMyWallet === 'function' ? getMyWallet() : '') || '';
+  if (!w) return;
+  var prev = btn.textContent;
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    if (act === 'asmPull') {
+      var count = parseInt(btn.getAttribute('data-count'),10)||1;
+      var r = await _asmPost('/api/assembly/pull', w, { count: count });
+      if (r.error) { showFactionToast(_asmErr(r), 'error'); }
+      else {
+        var newCnt = (r.results||[]).filter(function(x){return x.is_new;}).length;
+        var dupCnt = (r.results||[]).filter(function(x){return x.is_dup;}).length;
+        showFactionToast(tl('Pulled','뽑기','排出','抽取')+' ×'+r.count+' · '+tl('new','신규','新規','新')+' '+newCnt+' · '+tl('dup','중복','重複','重复')+' '+dupCnt+(r.shards_gained?(' · +'+r.shards_gained+' '+tl('shards','조각','シャード','碎片')):''), 'success');
+      }
+    } else if (act === 'asmAssemble') {
+      var r2 = await _asmPost('/api/assembly/assemble', w, {});
+      if (r2.error) showFactionToast(_asmErr(r2), 'error');
+      else showFactionToast('🜲 '+tl('Assembled!','합체 완료!','合体完了！','合体完成！'), 'success');
+    } else if (act === 'asmDisassemble') {
+      var ok = await gameConfirm({ icon:'🔧', title:tl('Disassemble','해체','分解','拆解'), body:tl('Return 5 parts and remove the assembled unit?','5개 파츠로 환원하고 합체체를 해체할까요?','5パーツに戻して合体ユニットを解体しますか？','拆解为5个零件并移除合体单位？'), confirmText:tl('Disassemble','해체','分解','拆解') });
+      if (!ok) { btn.disabled=false; btn.textContent=prev; return; }
+      // 보유 합체체 id 조회
+      var r3 = await _asmDisassemble(w);
+      if (r3.error) showFactionToast(_asmErr(r3), 'error');
+      else showFactionToast(tl('Disassembled','해체 완료','分解完了','已拆解'), 'success');
+    } else if (act === 'asmExchange') {
+      var part = btn.getAttribute('data-part');
+      var r4 = await _asmPost('/api/assembly/exchange', w, { part_code: part });
+      if (r4.error) showFactionToast(_asmErr(r4), 'error');
+      else showFactionToast(tl('Exchanged','교환 완료','交換完了','已兑换'), 'success');
+    }
+  } catch(e) { showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error'); }
+  await loadAssembly();
+  try { refreshShipyard(); } catch(_){}
+}
+
+function _asmPost(url, w, body) {
+  return fetch(url, { method:'POST', headers:Object.assign({'Content-Type':'application/json','x-wallet':w}, getAuthHeaders()), body:JSON.stringify(Object.assign({wallet:w}, body)) }).then(function(r){return r.json();});
+}
+async function _asmDisassemble(w) {
+  // 내 합체체 ships id 찾기 (ship market/fleet 조회 재활용)
+  try {
+    var r = await fetch('/api/ships/my?wallet='+encodeURIComponent(w), { headers: Object.assign({'x-wallet':w}, getAuthHeaders()) });
+    var d = await r.json();
+    var ships = d.ships || d || [];
+    var unitCode = (_asmState && _asmState.unit_code) || 'pilgrim_voltaris';
+    var found = (Array.isArray(ships)?ships:[]).find(function(s){ return s.ship_type_code === unitCode && (s.is_alive !== false); });
+    if (!found) return { error: 'SHIP_NOT_FOUND' };
+    return await _asmPost('/api/assembly/disassemble', w, { ship_id: String(found.id) });
+  } catch(e) { return { error: 'internal_error' }; }
+}
+function _asmErr(r) {
+  var m = {
+    INSUFFICIENT_GP: tl('Not enough GP','GP 부족','GP不足','GP不足'),
+    INSUFFICIENT_SHARDS: tl('Not enough shards','조각 부족','シャード不足','碎片不足'),
+    MISSING_PARTS: tl('Missing parts','파츠 부족','パーツ不足','零件不足'),
+    MAX_ASSEMBLED_REACHED: tl('Already own max','이미 최대 보유','最大数所持','已达上限'),
+    SHIP_NOT_FOUND: tl('Unit not found','합체체 없음','ユニットなし','未找到单位'),
+    GACHA_DISABLED: tl('Gacha disabled','가챠 비활성','ガチャ無効','扭蛋已关闭')
+  };
+  return m[r.error] || r.error || tl('Error','오류','エラー','错误');
 }
 
 // ═════ 함선 가챠(Ship Crate) UI ═════

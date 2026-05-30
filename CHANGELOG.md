@@ -1,3 +1,14 @@
+## 2026-05-30 v7.283 — 합체 슈퍼유닛 UI (조선소 ASSEMBLY 탭)
+
+조선소(SHIPYARD)에 🜲 ASSEMBLY 탭 추가 — P1/P2 백엔드를 UI로 연결:
+- 합체체 헤더(이름/HP·ATK·DEF/수집 진행 바), 5파츠 슬롯 그리드(보유=보라 하이라이트/미보유=그레이), `distinct/total` 카운트.
+- 가챠 패널: `Pull ×1`/`×10` 버튼(가격 표시) + **천장까지 N회**(pity_remaining). 조각(SHARDS) 보유/교환 버튼(미보유 파츠 한정, 조각 충분 시).
+- 합체 버튼(5/5에서 활성) / 보유 시 해체 버튼(gameConfirm). 전부 4언어(en/ko/ja/zh).
+- §19 data-action 위임 패턴(inline onclick 금지), 액션 후 in-flight 가드 + loadAssembly 재조회.
+- 아트 폴백: 합체체/파츠 PNG(`assets/ships/top/pilgrim_voltaris.png`, `assets/assembly/parts/<code>.png`) 미존재 시 이모지. **아트는 Codex 제작 예정.**
+- 검증(preview): 함수 정의/렌더 무오류/버튼 생성/콘솔 에러 0 확인.
+- 위치: `index.html` 조선소 모달 + switchSyTab 훅 + loadAssembly/renderAssembly/_asmOnClick.
+
 ## 2026-05-30 v7.282 — 합체 파츠 가챠 P2 (박스가챠+하드천장+조각)
 
 합체 슈퍼유닛 P2 가챠 백엔드:
