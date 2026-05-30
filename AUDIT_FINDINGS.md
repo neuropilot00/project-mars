@@ -2,6 +2,16 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🔴→🟢 스프린트 QA(멀티에이전트+Codex) 확정 버그 수정 (v7.274, 2026-05-30)
+- ✅ [HIGH] 자원 판매 전부 400 — /api/marketplace/list가 resourceCode/resourceQuantity 미전달 → createListing 'resourceCode required'. route 2필드 추가.
+- ✅ [HIGH] 채굴 일일 GP상한 동시성 우회(레드팀#1 무력화) — collect가 단일 job만 잠가 동시 collect로 상한 Nx 초과. 지갑 advisory lock(collect+launch).
+- ✅ [MEDIUM] leader 페일오버 — 재경합 exit(0)는 ON_FAILURE 미재시작→영구 web-only. exit(1)+railway ALWAYS. 하트비트 즉시 exit 유지(이중처리 방지).
+- ✅ [MEDIUM] ITEMS 탭 영구 점멸(SHOP 동일 클래스) — clearBaseTabDot items 스냅샷 누락 보강.
+- ✅ [LOW] _smErr 누락 번역 3종, 마켓 "등록 2GP" 허위표기 제거.
+- ✅ 검증통과(무결): 매수 PP 비상환=USDT 누수 없음.
+- 🟡 보류(저위험/도달불가): auctionCombat ship_instances(ship 경매 미사용 dead-path), buyout FOR UPDATE(방어됨), mining/my 비인증 wallet(읽기).
+- 검증: node --check + 인라인 11/11 + advisory lock psql OK. SW v79.
+
 ## 🟢 채굴→"자원 출항" 리네이밍 + SHOP 점멸 버그 + 새 배너 (v7.272, 2026-05-30)
 - ✅ [BUG] 경제 카테고리 빨간 점멸 안 꺼짐 — SHOP dot 폴링이 `_pollDotState.shop_items` 미설정 → clearBaseTabDot 스냅샷 undefined→0 → `cnt>0` 항상 참 → 영구 재점등. `_pollDotState.shop_items=cnt` 추가로 수정.
 - ✅ [UX] 함선 기반 자원획득 "채굴"→"자원 출항"(4언어). 영토 PP채굴/원정과 구분.

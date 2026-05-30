@@ -24850,7 +24850,7 @@ function openListModal(type,idVal,name,icon,enhLv){
       +'<select id="mktAuctionDur" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="1">1'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="6">6'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="12">12'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="24" selected>24'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="48">48'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="72">72'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option></select>'
       +'</div>'
       +'</div>'
-      +'<div style="font-size:8px;color:var(--tx3)">'+(LANG==='ko'?'수수료: 등록 2GP · 낙찰 5%':LANG==='ja'?'手数料: 出品2GP · 落札5%':LANG==='zh'?'手续费: 上架2GP · 成交5%':'Fee: 2GP listing · 5% sale')+'</div>',
+      +'<div style="font-size:8px;color:var(--tx3)">'+(LANG==='ko'?'수수료: 낙찰가의 5%':LANG==='ja'?'手数料: 落札額の5%':LANG==='zh'?'手续费: 成交价5%':'Fee: 5% of sale')+'</div>',
     info:[], confirmText:LANG==='ko'?'등록하기':LANG==='ja'?'出品する':LANG==='zh'?'发布':'List Item'
   }).then(function(ok){
     if(!ok) return;
@@ -25555,6 +25555,7 @@ window.clearBaseTabDot = function(tab){
   if(tab==='govern') window._baseDotSeen._govern_seen = _pollDotState.govern_count || 0;
   if(tab==='market') window._baseDotSeen._market_sold_seen = _pollDotState.market_sold || 0;
   if(tab==='shop')   window._baseDotSeen._shop_item_seen   = _pollDotState.shop_items || 0;
+  if(tab==='items')  window._baseDotSeen._items_cnt_seen   = _pollDotState.items_cnt || 0; // [v7.274] 누락 시 ITEMS 탭 dot 영구 점멸(SHOP과 동일 클래스)
   if(tab==='pvp')    window._baseDotSeen._pvp_seen         = _pollDotState.pvp_active || 0;
   // ACTION tabs (quests, ops, rank/season): do NOT snapshot — dot re-appears
   // on next poll if unclaimed items still exist, until user actually claims them
@@ -48602,7 +48603,10 @@ function _smErr(code){
     fleet_in_battle: tl('Fleet is in battle','전투 중인 함대','戦闘中','战斗中'),
     not_ready: tl('Not finished yet','아직 진행 중','まだ未完了','尚未完成'),
     already_collected: tl('Already collected','이미 수령함','受取済','已领取'),
-    insufficient_gp: tl('Not enough GP','GP 부족','GP不足','GP不足')
+    insufficient_gp: tl('Not enough GP','GP 부족','GP不足','GP不足'),
+    fleet_not_found: tl('Fleet not found','함대를 찾을 수 없음','艦隊が見つかりません','找不到舰队'),
+    fleet_in_siege: tl('Fleet is committed to a siege','공성에 투입된 함대','攻城に投入中の艦隊','已投入攻城的舰队'),
+    job_not_found: tl('Mining run not found','채굴 런을 찾을 수 없음','採掘ランが見つかりません','找不到采矿任务')
   };
   return m[code] || code;
 }

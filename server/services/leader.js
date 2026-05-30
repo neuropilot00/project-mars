@@ -97,7 +97,9 @@ async function shouldRunSchedulers() {
           const holder = await redis.get(LOCK_KEY);
           if (!holder) {
             console.error('[leader] 리더 공석 감지 → 재시작하여 부팅 시 리더 재경합.');
-            process.exit(0); // 오케스트레이터 재시작 → shouldRunSchedulers 부팅 path 의 SET NX 가 획득
+            // [v7.274] exit(0)은 ON_FAILURE 정책에서 재시작되지 않아 web replica가 영구 web-only로 남았다.
+            //   non-zero로 종료해 오케스트레이터가 반드시 재시작 → 부팅 path SET NX가 공석 락 획득.
+            process.exit(1);
           }
         } catch (_) {}
       }, RENEW_MS);
@@ -106,7 +108,10 @@ async function shouldRunSchedulers() {
     // 리더 획득
     _isLeader = true;
     console.log(`[leader] ✅ 리더 획득 (${INSTANCE_ID}) — 스케줄러/입금 리스너 실행`);
-    // 하트비트: 내 소유면 갱신, 상실 시 종료(재경합)
+    // 하트비트: 내 소유면 갱신, 소유권 상실(renewed!==1) 시 즉시 종료(재경합).
+    //   renewed!==1 = Redis가 응답했으나 락이 내 것이 아님 = 다른 인스턴스가 이미 인수 → 중복 스케줄러/입금
+    //   이중처리를 막기 위해 즉시 exit. (일시 Redis 장애는 throw → catch에서 재시도하므로 여기 안 옴.)
+    //   restartPolicyMaxRetries 소진 우려는 railway.json restartPolicyType=ALWAYS(무제한)로 해소.
     setInterval(async () => {
       try {
         const renewed = await redis.eval(LUA_RENEW, 1, LOCK_KEY, INSTANCE_ID, String(TTL_MS));

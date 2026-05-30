@@ -95,6 +95,8 @@ async function launchMining(wallet, fleetId, durationH, destination) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // [v7.274] 지갑 단위 advisory lock — 서로 다른 함대로 동시 launch 시 max_per_wallet 한도를 우회하던 레이스 차단.
+    await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, ['ship_mining:' + String(w).toLowerCase()]);
 
     // 함대 소유 + 전투중 아님 확인 (행 잠금)
     const fr = await client.query(
@@ -182,6 +184,9 @@ async function collectMining(wallet, jobId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // [v7.274 레드팀#1 보강] 지갑 단위 트랜잭션 advisory lock — 동시 collect가 같은 24h SUM을 읽어
+    //   일일 GP 상한(gp_cap_per_day)을 N배 우회하던 레이스 차단. 같은 지갑 collect는 직렬화된다.
+    await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, ['ship_mining:' + String(w).toLowerCase()]);
     const jr = await client.query(
       `SELECT * FROM ship_mining_jobs WHERE id = $1 AND LOWER(wallet_address) = LOWER($2) FOR UPDATE`,
       [jobId, w]

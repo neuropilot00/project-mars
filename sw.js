@@ -78,7 +78,8 @@
 // 2026-05-30 v76: v7.271 함대 함선수 필드 버그 수정 — /api/fleets 의 ships_alive 를 잘못된 ship_count 로 읽어 채굴/월드이벤트(Void Raider) engage 함대선택이 "함대 없음"으로 비던 문제(10곳) 일괄 수정.
 // 2026-05-30 v77: v7.272 채굴→'자원 출항' 리네이밍(4언어, 영토채굴·원정과 구분) + SHOP 탭 영구 점멸 버그 수정(_pollDotState.shop_items 누락) + 새 채굴 배너(Imagen, 1600×680).
 // 2026-05-30 v78: v7.273 자원 출항 배너 재생성 — 픽셀아트(스타일 불일치)→사실적 시네마틱(타 base 배너 톤 일치). 캐시버스트 v7273.
-const CACHE_NAME = 'mars-v78';
+// 2026-05-30 v79: v7.274 스프린트 검수 수정 — 자원판매 400버그(marketplace resourceCode 누락), 채굴 일일캡 동시성 우회(지갑 advisory lock), leader exit(1)+railway ALWAYS, ITEMS 탭 영구점멸, _smErr 번역/2GP 허위표기.
+const CACHE_NAME = 'mars-v79';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

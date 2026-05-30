@@ -70,14 +70,15 @@ router.get('/listings/:id', readLimiter, async (req, res) => {
 // POST /api/marketplace/list — create a new listing
 router.post('/list', requireAuth, writeLimiter, async (req, res) => {
   const w = (req.user.wallet_address || req.user.wallet || req.user.walletAddress || '').toLowerCase().trim();
-  const { type, price, currency, instanceId, claimId } = req.body;
+  const { type, price, currency, instanceId, claimId, resourceCode, resourceQuantity } = req.body;
   if (!w || !type || !price) return res.status(400).json({ error: 'Missing required fields' });
   if (!marketService) return res.status(503).json({ error: 'Marketplace service unavailable' });
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const listing = await marketService.createListing(client, w, type, { price, currency, instanceId, claimId });
+    // [v7.274] resourceCode/resourceQuantity 누락 시 자원 판매가 항상 'resourceCode required' 400으로 실패하던 버그 수정
+    const listing = await marketService.createListing(client, w, type, { price, currency, instanceId, claimId, resourceCode, resourceQuantity });
     await client.query('COMMIT');
 
     // Season tracking

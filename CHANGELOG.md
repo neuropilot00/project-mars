@@ -1,3 +1,14 @@
+## 2026-05-30 v7.274 — 스프린트 QA 검수 수정 (멀티에이전트 워크플로우 + Codex 확정 버그)
+
+Codex 독립 패스 + 5차원 멀티에이전트 워크플로우(적대적 검증) 결과 확정 버그 수정:
+- **[HIGH] 자원 판매 전부 실패**: `POST /api/marketplace/list`가 `resourceCode/resourceQuantity`를 destructure/forward 안 해 `createListing`이 'resourceCode required' 400 → 인벤토리 자원 SELL이 항상 실패. route에 두 필드 추가(`server/routes/marketplace.js`). 아이템/클레임/GP↔PP 통화 listing은 영향 없었음.
+- **[HIGH] 채굴 일일 GP상한 동시성 우회**(레드팀#1 무력화): `collectMining`이 단일 job row만 잠가, 같은 지갑의 ready job들을 동시 collect하면 같은 24h SUM을 읽어 상한을 ~Nx 초과. `pg_advisory_xact_lock(hashtext('ship_mining:'+wallet))`로 지갑 단위 직렬화(collect+launch 양쪽). launch의 max_per_wallet 동시 우회도 같이 차단.
+- **[MEDIUM] leader 페일오버**: 비리더 재경합 `process.exit(0)`은 Railway `ON_FAILURE`에서 재시작 안 돼 web replica가 영구 web-only로 남음 → `exit(1)`로 변경. `railway.json` `restartPolicyType: ALWAYS`(maxRetries 제거)로 exit-재경합 프리미티브에 무제한 재시작 보장(이전 maxRetries=10 소진 시 영구 다운 위험 해소). 하트비트는 소유권 상실 시 즉시 exit 유지(이중 스케줄러/입금 방지).
+- **[MEDIUM→FIX] ITEMS 탭 영구 점멸**: SHOP과 동일 클래스 — `clearBaseTabDot`에 items 스냅샷(`_items_cnt_seen = _pollDotState.items_cnt`) 누락 → 매 폴링 재점등. 스냅샷 추가.
+- **[LOW] UX**: 자원출항 `_smErr`에 `fleet_not_found`/`fleet_in_siege`/`job_not_found` 4언어 번역 추가(원시 코드 노출 방지). 마켓 listing 모달의 "등록 2GP"(백엔드 미과금) 허위 표기 제거 → "낙찰가의 5%"만 표기.
+- 검증: node --check(marketplace/shipMining/leader) + railway.json 유효 + 인라인 11/11 + advisory lock psql 동작 확인. SW v78→v79.
+- 검증 통과(버그 아님 확인): 매수 PP 비상환(USDT 누수 없음 ✅). 미수정 보류: auctionCombat의 ship_instances 참조(현 프론트에서 ship 경매 미생성 — 함선은 ship_market_listings 전용, 도달 불가 dead-path), buyout FOR UPDATE(다운스트림 방어됨), `/api/mining/my` 비인증 wallet(읽기전용).
+
 ## 2026-05-30 v7.273 — 자원 출항 배너 스타일 수정(픽셀아트→사실적 시네마틱)
 
 v7.272 배너가 캠페인용 픽셀아트 스타일이라 타 base 배너(territory/quests/rank 등 사실적 시네마틱 3D 렌더)와 톤 불일치. `gen_mining_banner.py` 프롬프트를 photorealistic cinematic(따뜻한 오렌지 조명, 중장갑 채광/화물 함선, 정제탑·콜로니 돔, Mars 먼지)로 교체 후 Imagen 재생성. 1600×680 유지. 캐시버스트 v7272→v7273, SW v77→v78.
