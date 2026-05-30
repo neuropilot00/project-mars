@@ -1,3 +1,26 @@
+# OCCUPY MARS — Audit (v7.229~v7.310 / 2026-05-30) — 함대전 + 합체(기동) 슈퍼유닛 풀스택
+
+## 합체(기동) 슈퍼유닛 스택 — v7.281~v7.310
+| 기능 | 상태 | 비고 |
+|---|---|---|
+| 파츠 수집·기동·해체 코어 (`assembly.js` + `/api/assembly/*`) | 🟢 | E2E 검증 |
+| 퍼펙트 가챠 박스(박스가챠+천장+조각, 크로스유닛 드롭) | 🟢 | 10연 E2E 검증 |
+| 유닛 카탈로그 프레임워크(`assembly_units`) — SQL 3 INSERT로 유닛 추가 | 🟢 | 데이터 추가 검증 후 제거 |
+| 유닛 10종(로봇6+외계4) role/무기 특화 | 🟢 | migration 284, battleEngine 매치업 |
+| 조각 교환비용 50파츠 전부 고유(30~128) | 🟢 | migration 286 |
+| 아트 portrait/top/parts (Imagen3, 외계=오리지널 생물함·저작권 안전) | 🟢 | ?v=ASSET_VER 캐시버스트 |
+| 합체 모달(대형 히어로+특성+전투미리보기+모바일 풀스크린) | 🟢 | preview 검증 |
+| P3 전투(assembled 매치업 + overdrive 필살기, PvP 투입) | 🟢 | node 검증. ⚠ 전술랩 overdrive 버튼 UI 별도 |
+| 세계관 lore 4언어 / 기동 리네임 / 게임가이드 / 초대 스텝 | 🟢 | |
+| 자동 퇴각(HP 임계 후퇴·함선 보존, mig 287) | 🟢 | Fleet Command 🛟 토글, 하이잭/전투 공통 |
+| 무기별 발사 색상(weaponColor 9종) | 🟢 | 합체유닛 fire_type 반영 |
+| 3단 추천 인원수(`/api/referral/stats`, 포트폴리오 모달) | 🟢 | |
+| 미사일 지렁이 탄막(wobble 곡선+꼬리) | 🟢 | 빔과 차별 |
+| 박스 오픈 영상(가로/세로) | 🟡 | 라이브 재생 사용자 확인 권장 |
+| Fleet Command SELECTED 표시(bigint id) | 🟢 | v7.280 수정 |
+
+---
+# (이하 v7.229~v7.238 이전 감사 기록)
 # OCCUPY MARS — Audit (v7.229~v7.238 / 2026-05-29) — 함대전 박력 + 가챠 영상 풀세트
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
