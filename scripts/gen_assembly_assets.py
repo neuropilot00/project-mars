@@ -99,9 +99,11 @@ def assets_for(unit_code):
             f"low heroic camera angle looking up, attacking stance, cinematic rim lighting, dramatic atmosphere, "
             f"character splash art key visual, full body in frame, {u['theme']}, {u['accent']} color scheme, {style_tail}")
         top_prompt = (
-            f"strict top-down orthographic view looking straight down from directly overhead at a giant {subj} "
-            f"seen from above, head/front pointing toward the top of the frame like a vertical game unit sprite, "
-            f"centered, isolated on solid pure black background, {u['theme']}, {u['accent']} color scheme, {style_tail}")
+            f"high-angle three-quarter view from above and slightly behind a giant {subj}, looking down at it from a "
+            f"steep overhead angle, dynamic attack pose lunging forward and firing its weapons with bright muzzle "
+            f"beams streaking ahead, we see the tops of its shoulders and head from above, like a top-down game unit "
+            f"sprite tilted in perspective, centered, isolated on solid pure black background, "
+            f"{u['theme']}, {u['accent']} color scheme, {style_tail}")
     out = [
         (f"assets/assembly/portrait/{u['ship_code']}.png", portrait_prompt),
         (f"assets/ships/top/{u['ship_code']}.png", top_prompt),
