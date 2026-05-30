@@ -432,7 +432,7 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
       SELECT s.id, s.fleet_id, s.is_flagship, s.is_alive,
              COALESCE(s.is_market_listed, false) AS is_market_listed,
              COALESCE(f.is_in_battle, false) AS is_in_battle,
-             st.faction_code AS ship_faction
+             st.faction_code AS ship_faction, st.size_class AS ship_size
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
       LEFT JOIN fleets f ON f.id = s.fleet_id

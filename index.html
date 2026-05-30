@@ -24771,7 +24771,9 @@ function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
   var myGP = Number((walletState && walletState.gameGP)||0);
   var insufficient = myGP < priceGp;
   var myFaction = (typeof shipyardState!=='undefined' && shipyardState.myFaction && (shipyardState.myFaction.code||'').toLowerCase()) || '';
-  var crossFaction = myFaction && shipFaction && (myFaction !== (shipFaction||'').toLowerCase());
+  // [v7.322] 합체 유닛(pilgrim/assembled)은 전 유저 공용 — cross-faction 경고 없음.
+  var _univBuy = ((shipFaction||'').toLowerCase() === 'pilgrim') || ((shipSize||'').toLowerCase() === 'assembled');
+  var crossFaction = !_univBuy && myFaction && shipFaction && (myFaction !== (shipFaction||'').toLowerCase());
 
   var info = [
     { k: tl('Price','가격','価格','价格'), v: priceGp.toLocaleString() + ' GP' },
@@ -50544,10 +50546,12 @@ function renderShips() {
   }
   var _myFac = (shipyardState.myFaction && (shipyardState.myFaction.code||'').toLowerCase()) || '';
   list.innerHTML = shipyardState.ships.map(function(s) {
-    var crossFaction = _myFac && s.faction_code && (s.faction_code.toLowerCase() !== _myFac);
+    // [v7.322] 합체 유닛(pilgrim/assembled)은 전 유저 공용 — 진영 잠금 없이 UNIVERSAL 배지.
+    var _universal = ((s.faction_code||'').toLowerCase() === 'pilgrim') || ((s.size_class||'').toLowerCase() === 'assembled');
+    var crossFaction = !_universal && _myFac && s.faction_code && (s.faction_code.toLowerCase() !== _myFac);
     var crossBadge = crossFaction
       ? '<span style="position:absolute;top:6px;left:6px;font-size:8px;font-weight:900;color:#aac4dc;background:rgba(20,28,40,.92);border:1px solid rgba(136,170,204,.6);padding:2px 6px;border-radius:5px;letter-spacing:.5px" title="'+tl('Other faction — cannot deploy, list on market','다른 진영 — 사용 불가, 마켓 판매 가능','他陣営 — 配置不可、市場で販売可','其他阵营 — 无法部署，可上架销售')+'">🔒 '+(s.faction_code||'').toUpperCase()+'</span>'
-      : '';
+      : (_universal ? '<span style="position:absolute;top:6px;left:6px;font-size:8px;font-weight:900;color:#b388ff;background:rgba(20,18,28,.92);border:1px solid rgba(179,136,255,.6);padding:2px 6px;border-radius:5px;letter-spacing:.5px" title="'+tl('Assembly super-unit — usable by any faction','합체 슈퍼유닛 — 모든 진영 사용 가능','合体スーパーユニット — 全陣営使用可','合体超级单位 — 全阵营可用')+'">🜲 '+tl('UNIVERSAL','공용','共用','通用')+'</span>' : '');
     // [v7.167] 각인 품질 배지 — common(없음) 외엔 별점으로 강화 함선 식별. 마켓 가치 직관 노출.
     var qm = (typeof _crateQualityMeta !== 'undefined' && s.quality) ? _crateQualityMeta[s.quality] : null;
     var qBadge = (qm && qm.stars > 0)
