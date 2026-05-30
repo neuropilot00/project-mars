@@ -49060,7 +49060,7 @@ function _bindPerfectGachaBoxCard(card) {
 function _playBoxOpenVideo() {
   return new Promise(function(resolve){
     try {
-      var portrait = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
+      var portrait = !(window.innerWidth > 768);
       var src = portrait ? 'assets/assembly/box_open_tall.mp4' : 'assets/assembly/box_open_wide.mp4';
       var ov = document.createElement('div');
       ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;cursor:pointer';
