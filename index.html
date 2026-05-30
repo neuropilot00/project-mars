@@ -49037,9 +49037,8 @@ function _perfectGachaBoxHtml(d, loading) {
   var status = loading ? tl('Loading…','로딩 중…','読み込み中…','加载中…') :
     (d.error === 'LOGIN_REQUIRED' ? tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录') :
     (d.error ? tl('Unavailable','이용 불가','利用不可','不可用') : (tl('Pity in','천장까지','天井まで','保底还需')+' '+pity+' '+tl('pulls','회','回','次')+' · Pool '+pool)));
-  return '<div style="position:relative;height:140px;background:radial-gradient(circle at 50% 28%,rgba(179,136,255,.42),transparent 72%),#0a0e1a;display:flex;align-items:center;justify-content:center;overflow:hidden">' +
-      _asmImg('assets/assembly/portrait/pilgrim_voltaris.png','🜲',120) +
-      '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(8,10,20,.94))"></div>' +
+  return '<div style="position:relative;height:140px;background-image:url(assets/banners/crate_perfect_assembly.png);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden">' +
+      '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(8,10,20,.94));box-shadow:inset 0 0 40px rgba(179,136,255,.25)"></div>' +
       '<div style="position:absolute;bottom:9px;left:12px;right:12px;font-size:14px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.5px">🜲 '+tl('PERFECT GACHA BOX','퍼펙트 가챠 박스','合体パーツBOX','合体零件宝箱')+'</div>' +
     '</div>' +
     '<div style="padding:12px;display:flex;flex-direction:column;flex:1;gap:8px">' +
@@ -49057,6 +49056,27 @@ function _bindPerfectGachaBoxCard(card) {
   card.dataset.delegated = '1';
   card.addEventListener('click', _onPerfectGachaBoxClick);
 }
+// 박스 오픈 영상 오버레이 — 모바일=세로(box_open_tall), 데스크탑=가로(box_open_wide). 탭/종료 시 닫힘, 10s 안전장치.
+function _playBoxOpenVideo() {
+  return new Promise(function(resolve){
+    try {
+      var portrait = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
+      var src = portrait ? 'assets/assembly/box_open_tall.mp4' : 'assets/assembly/box_open_wide.mp4';
+      var ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;cursor:pointer';
+      var v = document.createElement('video');
+      v.src = src; v.autoplay = true; v.muted = false; v.playsInline = true; v.setAttribute('playsinline','');
+      v.style.cssText = 'width:100%;height:100%;object-fit:' + (portrait ? 'cover' : 'contain');
+      var done = false;
+      function fin(){ if(done) return; done = true; clearTimeout(safety); try{ ov.remove(); }catch(_){} resolve(); }
+      var safety = setTimeout(fin, 10000);
+      v.onended = fin; v.onerror = fin; ov.onclick = fin;
+      ov.appendChild(v); document.body.appendChild(ov);
+      var p = v.play();
+      if (p && p.catch) p.catch(function(){ v.muted = true; var p2 = v.play(); if (p2 && p2.catch) p2.catch(fin); });
+    } catch(e){ resolve(); }
+  });
+}
 async function _onPerfectGachaBoxClick(ev) {
   var btn = ev.target.closest('button[data-action="gacha-box-pull"]');
   if (!btn || btn.disabled || _asmBoxBusy) return;
@@ -49070,7 +49090,9 @@ async function _onPerfectGachaBoxClick(ev) {
   var prev = btn.textContent;
   btn.disabled = true; btn.textContent = '…';
   try {
+    var _boxVid = _playBoxOpenVideo();
     var r = await _asmPost('/api/assembly/box/pull', w, { count: count });
+    try { await _boxVid; } catch(_){}
     if (r.error || r.success === false) {
       showFactionToast(_asmErr(r), 'error');
     } else {
