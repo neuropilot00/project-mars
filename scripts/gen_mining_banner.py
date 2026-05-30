@@ -19,16 +19,21 @@ OUT_PATH = os.path.join(
 TARGET_SIZE = (1600, 680)
 
 BG_STYLE = (
-    "32-bit pixel art game background, semi-realistic pixel art concept art, "
-    "retro RPG, dark moody sci-fi, Mars colony, red planet"
+    "photorealistic cinematic 3D render, highly detailed sci-fi concept art, "
+    "epic wide establishing shot, dramatic warm orange-red lighting, volumetric "
+    "dust atmosphere, golden hour on Mars, lens flare, depth of field, "
+    "ultra detailed, 8k, unreal engine 5 cinematic, ArtStation trending, "
+    "matte painting quality"
 )
 
 PROMPT = (
-    "a fleet of sci-fi mining ships and mining drones hovering over a glowing "
-    "Martian mineral ore field, extracting crystals and minerals, industrial "
-    "space-mining operation, asteroid-like ore deposits, cinematic wide shot, "
-    "dramatic lighting. NO text, logos, watermarks, or human characters in "
-    "foreground, "
+    "a fleet of massive realistic heavy industrial sci-fi mining cargo ships "
+    "flying low over the red Martian surface toward a glowing mineral ore "
+    "extraction site, rugged mining rigs and refinery towers and colony domes "
+    "in the background, rocky canyon with veins of glowing cyan and orange "
+    "minerals, engine thrusters glowing, swirling red dust, vast scale, "
+    "cinematic wide aerial banner composition. "
+    "NO text, NO logos, NO watermarks, no humans in foreground. "
     + BG_STYLE
 )
 

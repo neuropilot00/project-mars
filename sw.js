@@ -77,7 +77,8 @@
 // 2026-05-30 v75: v7.270 CRITICAL 핫픽스 — 리더선출 무한 재시작 루프(전 엔드포인트 502) 수정 + 채굴을 임무 독립 '채굴' 서브탭으로 이동(캠페인/퀘스트에서 분리).
 // 2026-05-30 v76: v7.271 함대 함선수 필드 버그 수정 — /api/fleets 의 ships_alive 를 잘못된 ship_count 로 읽어 채굴/월드이벤트(Void Raider) engage 함대선택이 "함대 없음"으로 비던 문제(10곳) 일괄 수정.
 // 2026-05-30 v77: v7.272 채굴→'자원 출항' 리네이밍(4언어, 영토채굴·원정과 구분) + SHOP 탭 영구 점멸 버그 수정(_pollDotState.shop_items 누락) + 새 채굴 배너(Imagen, 1600×680).
-const CACHE_NAME = 'mars-v77';
+// 2026-05-30 v78: v7.273 자원 출항 배너 재생성 — 픽셀아트(스타일 불일치)→사실적 시네마틱(타 base 배너 톤 일치). 캐시버스트 v7273.
+const CACHE_NAME = 'mars-v78';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
