@@ -80,7 +80,8 @@ async function joinTournament(wallet, tournamentId) {
     const tRow = await client.query('SELECT * FROM tournaments WHERE id=$1 FOR UPDATE', [tournamentId]);
     if (!tRow.rows.length) throw new Error('Tournament not found');
     const t = tRow.rows[0];
-    if (t.status !== 'open') throw new Error(`Tournament is ${t.status}, not open for registration`);
+    // 종료 상태만 거부 (열림 상태명이 배포마다 다름: open/registering/preparing/active 모두 허용)
+    if (['completed','cancelled','refunded','ended'].includes(t.status)) throw new Error(`Tournament is ${t.status}, not open for registration`);
 
     // [v7.60] Check for duplicate entry BEFORE GP deduction to prevent double-charge
     const dupCheck = await client.query(
@@ -89,9 +90,9 @@ async function joinTournament(wallet, tournamentId) {
     );
     if (dupCheck.rows.length) throw new Error('ALREADY_ENTERED');
 
-    if (t.max_players) {
+    if (t.max_participants) {
       const cnt = await client.query('SELECT COUNT(*) AS n FROM tournament_entries WHERE tournament_id=$1', [tournamentId]);
-      if (parseInt(cnt.rows[0].n, 10) >= t.max_players) throw new Error('Tournament is full');
+      if (parseInt(cnt.rows[0].n, 10) >= t.max_participants) throw new Error('Tournament is full');
     }
 
     const gpCost = t.entry_fee_gp;
@@ -136,11 +137,14 @@ async function joinTournament(wallet, tournamentId) {
 // ── ADMIN ──────────────────────────────────────────────────────────────────────
 
 async function adminCreateTournament(data) {
-  const { name, description, icon, entryFeeGp, maxPlayers, startsAt, endsAt } = data;
+  // [v7.317e] 실스키마(097): status/max_participants/start_at/completed_at/prize_pool_gp. icon/max_players/ends_at 없음.
+  const { name, description, entryFeeGp, maxPlayers, startsAt } = data;
   if (!name) throw new Error('name required');
+  // status는 INSERT에 지정 안 함 → DB 기본값 'registering' 사용 (status check 제약 위배 방지)
   const r = await pool.query(
-    'INSERT INTO tournaments(name,description,icon,entry_fee_gp,max_players,starts_at,ends_at) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *',
-    [name, description || null, icon || '🏆', parseInt(entryFeeGp,10)||50, maxPlayers||null, startsAt||null, endsAt||null]
+    `INSERT INTO tournaments(name, description, entry_fee_gp, max_participants, start_at)
+     VALUES($1,$2,$3,$4,$5) RETURNING *`,
+    [name, description || null, parseInt(entryFeeGp,10)||50, maxPlayers || 8, startsAt || null]
   );
   return r.rows[0];
 }
@@ -181,8 +185,8 @@ async function adminPickWinner(tournamentId, winnerWallet) {
       [winner, prize, `Won ${t.name} (#${t.id})`]
     );
     await client.query(
-      'UPDATE tournaments SET status=$1, winner_wallet=$2, winner_prize=$3 WHERE id=$4',
-      ['completed', winner, prize, t.id]
+      'UPDATE tournaments SET status=$1, winner_wallet=$2, completed_at=NOW() WHERE id=$3',
+      ['completed', winner, t.id]
     );
 
     await client.query('COMMIT');

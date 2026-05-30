@@ -1,3 +1,10 @@
+## 2026-05-31 v7.318+319 — 토너먼트 생성버그 최종수정 + 복권노출 + 월드이벤트 자동등장 + 진형표시
+
+- **토너먼트 자동화 실동작 완성**: `adminCreateTournament`가 INSERT에 status='open'을 박아 DB check 제약(registering/ready/running/completed/cancelled)에 위배돼 항상 실패하던 것 수정 — status를 INSERT에서 빼고 DB 기본값('registering') 사용. join은 종료상태(completed/cancelled)만 거부하도록 완화. winner_prize→completed_at, max_players→max_participants. 라이브DB E2E: 생성→참가(join=OK)→자동 승자선정(pick=OK)→연동 wager 정산 전 경로 통과.
+- **복권(GP LOTTERY) 노출**: 기본 펼침(display:block, _lotteryPanelOpen=true) + AUTO 배지. "위치를 못 찾는다" 해소.
+- **월드이벤트(Void Raider) 자동 등장**: migration 290 — void_raider_enabled/auto_spawn=true (기존 false라 한 번도 안 떴음).
+- **합체유닛 전투 진형 표시(v7.319)**: `_asmBattlePreview`에 역할별 권장 진형 배지(우상단) 추가 — 저격/폭격=후방포격🔻, 전자전=측면교란↔, 탱크=전열방패🛡, 러시=쐐기돌격▲, 밸런스=구형중심⬡. `_asmFormationInfo` 4언어.
+
 ## 2026-05-31 v7.317e — 토너먼트 스키마 버그 수정 (자동화 실동작 완성)
 
 - 토너먼트 자동화가 실제로 안 돌던 근본 원인: `adminCreateTournament`가 존재하지 않는 컬럼(icon/max_players/starts_at/ends_at)을 INSERT해 **항상 500**. 실 스키마(097: status/max_participants/start_at/completed_at/prize_pool_gp)로 수정.

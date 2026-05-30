@@ -6835,10 +6835,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- LOTTERY -->
         <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center" onclick="toggleLottery()">
-          <span>🎰 <span data-i18n="lottery_title">GP LOTTERY</span></span>
-          <span id="lotteryToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+          <span>🎰 <span data-i18n="lottery_title">GP LOTTERY</span> <span style="font-size:7px;color:var(--gold);background:rgba(255,204,2,.12);border:1px solid rgba(255,204,2,.3);border-radius:6px;padding:1px 5px;margin-left:4px">AUTO</span></span>
+          <span id="lotteryToggle" style="font-size:8px;color:var(--tx3)">▲</span>
         </div>
-        <div id="lotteryPanel" style="display:none;padding:0 0 8px">
+        <div id="lotteryPanel" style="display:block;padding:0 0 8px">
           <div id="lotteryContent" style="padding:8px 0"><div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div></div>
         </div>
 
@@ -31029,7 +31029,7 @@ async function sendGP() {
 }
 
 // ── LOTTERY (Migration 105) ─────────────────────────────────────────────────
-var _lotteryPanelOpen = false;
+var _lotteryPanelOpen = true; // [v7.318] 기본 펼침 — 자동 운영 컨텐츠 노출
 var _lotteryCountdownTimer = null;
 
 function toggleLottery() {
@@ -48803,6 +48803,18 @@ function _asmRoleInfo(role){
   };
   return m[(role||'dps').toLowerCase()] || m.dps;
 }
+// [v7.319] 역할 → 권장 전투 진형 (전투 미리보기 배지)
+function _asmFormationInfo(role){
+  var M={
+    sniper:{icon:'🔻',label:tl('Rear Artillery','후방 포격','後方砲撃','后方炮击')},
+    bomb:  {icon:'🔻',label:tl('Rear Bombard','후방 폭격','後方爆撃','后方轰炸')},
+    ewar:  {icon:'↔',label:tl('Flank Screen','측면 교란','側面攪乱','侧翼干扰')},
+    tank:  {icon:'🛡',label:tl('Vanguard Wall','전열 방패','前列の壁','前列盾墙')},
+    tackle:{icon:'▲',label:tl('Wedge Charge','쐐기 돌격','楔形突撃','楔形冲锋')},
+    dps:   {icon:'⬡',label:tl('Sphere Core','구형 중심','球形中心','球形核心')}
+  };
+  return M[(role||'dps').toLowerCase()] || M.dps;
+}
 function _asmWeaponLabel(ft){
   return ({ laser:tl('Laser Cannon','레이저포','レーザー','激光炮'), missile:tl('Missile Pods','미사일','ミサイル','导弹'),
     railgun:tl('Railgun','레일건','レールガン','轨道炮'), disruptor:tl('Disruptor','디스럽터','ディスラプター','干扰器'),
@@ -48811,14 +48823,19 @@ function _asmWeaponLabel(ft){
     torpedo:tl('Void Torpedo','보이드 어뢰','魚雷','虚空鱼雷') })[ft] || ft || '';
 }
 // 합체 모달 전투 미리보기: 전술랩 전투에서 쓰이는 탑뷰 스프라이트 + 우주 배경
-function _asmBattlePreview(d){
+function _asmBattlePreview(d, unit){
   var code = d.ship_type_code || d.unit_code || '';
+  var _fmRole = (unit && unit.role) || d.role || 'dps';
+  var _fm = _asmFormationInfo(_fmRole);
+  var _fmBadge = '<div style="position:absolute;right:8px;top:8px;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.55);border:1px solid rgba(125,211,252,.4);border-radius:20px;padding:3px 9px;z-index:6">'+
+    '<span style="font-size:12px">'+_fm.icon+'</span><span style="font-size:9px;font-weight:700;color:#7dd3fc">'+_fm.label+'</span></div>';
   return '<div style="padding:11px 13px;border:1px solid rgba(125,211,252,.22);border-radius:10px;background:rgba(125,211,252,.04)">' +
     '<div style="font-size:9px;letter-spacing:1px;color:#7dd3fc;margin-bottom:8px">⚔ '+tl('IN BATTLE (top-down)','전장에서의 모습 (탑뷰)','戦場での姿（トップビュー）','战场样貌（俯视）')+'</div>' +
     '<div style="position:relative;height:150px;border-radius:8px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,rgba(70,40,90,.5),#05060c 75%)">' +
       '<div style="position:absolute;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 70% 60%,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 40% 80%,rgba(255,255,255,.35),transparent),radial-gradient(1px 1px at 85% 25%,rgba(255,255,255,.45),transparent);opacity:.7"></div>' +
       '<img src="assets/ships/top/'+code+'.png?v='+ASSET_VER+'" alt="" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:128px;width:auto;object-fit:contain;filter:drop-shadow(0 0 14px rgba(179,136,255,.6))" onerror="this.style.display=\'none\';this.parentNode.querySelector(\'.asm-bp-fb\').style.display=\'flex\'">' +
       '<div class="asm-bp-fb" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:42px;color:rgba(255,255,255,.3)">'+(d.icon||'🜲')+'</div>' +
+      _fmBadge +
     '</div>' +
     '<div style="font-size:8px;color:rgba(255,255,255,.4);margin-top:6px">'+tl('This is how the unit appears on the tactical battlefield.','전술 전장에서 이 유닛이 실제로 보이는 모습입니다.','戦術戦場での実際の表示です。','这是战术战场上的实际显示。')+'</div>' +
   '</div>';
@@ -48963,7 +48980,7 @@ function _asmRenderUnitModal(d){
       '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px;position:relative">' +
         '<button type="button" class="shipyard-close" data-action="asm-modal-close" style="position:absolute;top:12px;right:14px">✕</button>' +
         _asmTraitPanel(d, unit) +
-        _asmBattlePreview(d) +
+        _asmBattlePreview(d, unit) +
         '<div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:13px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
         '<div class="asm-modal-parts" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+slots+'</div>' +
         actionHtml +
