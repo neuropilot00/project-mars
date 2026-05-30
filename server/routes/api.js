@@ -3858,23 +3858,30 @@ router.get('/quests', readLimiter, async (req, res) => {
     else if (poolBalance < minBal) poolMultiplier = multMin;
     else poolMultiplier = multMin + (multMax - multMin) * Math.min(poolBalance / 100, 1.0);
 
+    // [v7.275] 퀘스트 보상은 GP로 지급(경제v2 P2)되므로 GP 환산값을 함께 내려 UI가 'GP'로 정확히 표기하게 함.
+    const questRate = await getPPToGPRate();
     res.json({
-      quests: result.rows.map(r => ({
-        ...r,
-        reward_pp: parseFloat(r.reward_pp),
-        actual_reward: Math.min(
+      quests: result.rows.map(r => {
+        const ar = Math.min(
           Math.round(parseFloat(r.reward_pp) * poolMultiplier * 10000) / 10000,
           r.tier === 'free' ? (parseFloat(s.quest_max_reward_free) || 0.05) :
           r.tier === 'activity' ? (parseFloat(s.quest_max_reward_activity) || 0.3) :
           (parseFloat(s.quest_max_reward_spending) || 1.0)
-        ),
-        requirement_value: parseFloat(r.requirement_value),
-        current_progress: parseFloat(r.current_progress),
-        progress_pct: Math.min(100, Math.round((parseFloat(r.current_progress) / parseFloat(r.requirement_value)) * 100))
-      })),
+        );
+        return {
+          ...r,
+          reward_pp: parseFloat(r.reward_pp),
+          actual_reward: ar,
+          reward_gp: Math.round(ar * questRate * 1e6) / 1e6,
+          requirement_value: parseFloat(r.requirement_value),
+          current_progress: parseFloat(r.current_progress),
+          progress_pct: Math.min(100, Math.round((parseFloat(r.current_progress) / parseFloat(r.requirement_value)) * 100))
+        };
+      }),
       recentlyClaimed: claimed.rows.map(r => ({
         ...r,
-        reward_pp: parseFloat(r.reward_pp)
+        reward_pp: parseFloat(r.reward_pp),
+        reward_gp: Math.round(parseFloat(r.reward_pp) * questRate * 1e6) / 1e6
       })),
       pool: {
         balance: poolBalance,
@@ -4085,6 +4092,7 @@ router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => 
       success: true,
       questId,
       rewardPP: actualReward,
+      rewardGP: actualRewardGP,
       xpEarned: questXP,
       rankUp: questRankUp || null,
       baseReward,

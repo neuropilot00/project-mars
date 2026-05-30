@@ -15069,7 +15069,7 @@ function equipCosmetic(claimId,itemCode){
   var w=walletState.address;
   fetch('/api/cosmetic/equip',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,claimId:claimId,itemCode:itemCode})})
   .then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');return;}
+    if(d.error){showToast(srvErr(d.error),'error');return;}
     showToast('Cosmetic equipped!');
     // Update local claim data
     var cl=claims.find(function(c){return c.id===claimId});
@@ -15098,7 +15098,7 @@ function unequipCosmetic(claimId,cosmeticType){
   var w=walletState.address;
   fetch('/api/cosmetic/unequip',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,claimId:claimId,cosmeticType:cosmeticType})})
   .then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');return;}
+    if(d.error){showToast(srvErr(d.error),'error');return;}
     showToast('Cosmetic removed');
     var cl=claims.find(function(c){return c.id===claimId});
     if(cl&&cl.cosmetics) delete cl.cosmetics[cosmeticType];
@@ -15124,7 +15124,7 @@ function savePromoLink(){
     headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:w, linkUrl:normalizedLink||''})
   }).then(function(r){return r.json()}).then(function(d){
-    if(d.error) return showToast(d.error,'error');
+    if(d.error) return showToast(srvErr(d.error),'error');
     selectedPlot.link=normalizedLink||'';
     showToast('Link saved!');
     // Update link display
@@ -17801,7 +17801,7 @@ var I18N = {
     quests_expired: 'Expired',
     quests_remaining: 'remaining',
     quests_claim_failed: 'Claim failed',
-    quests_claim_success: '+{pp} PP from "{title}"!',
+    quests_claim_success: '+{gp} GP from "{title}"!',
     quests_network_error: 'Network error',
     quests_login_first: 'LOGIN FIRST',
     quests_completed_toast: 'Quest complete: "{title}" — Claim your reward!',
@@ -18658,7 +18658,7 @@ var I18N = {
     quests_expired: '만료됨',
     quests_remaining: '남음',
     quests_claim_failed: '수령에 실패했습니다',
-    quests_claim_success: '"{title}" 완료로 +{pp} PP 획득!',
+    quests_claim_success: '"{title}" 완료로 +{gp} GP 획득!',
     quests_network_error: '네트워크 오류',
     quests_login_first: '먼저 로그인하세요',
     quests_completed_toast: '퀘스트 완료: "{title}" — 보상을 수령하세요!',
@@ -19520,7 +19520,7 @@ var I18N = {
     quests_expired: '期限切れ',
     quests_remaining: '残り',
     quests_claim_failed: '受取に失敗',
-    quests_claim_success: '"{title}"完了で+{pp} PP獲得！',
+    quests_claim_success: '"{title}"完了で+{gp} GP獲得！',
     quests_network_error: 'ネットワークエラー',
     quests_login_first: 'まずログインしてください',
     quests_completed_toast: 'クエスト完了："{title}" — 報酬を受け取ろう！',
@@ -20380,7 +20380,7 @@ var I18N = {
     quests_expired: '已过期',
     quests_remaining: '剩余',
     quests_claim_failed: '领取失败',
-    quests_claim_success: '完成"{title}"获得 +{pp} PP！',
+    quests_claim_success: '完成"{title}"获得 +{gp} GP！',
     quests_network_error: '网络错误',
     quests_login_first: '请先登录',
     quests_completed_toast: '任务完成："{title}" — 领取奖励！',
@@ -21014,6 +21014,26 @@ function srvErr(code){
     OBJECTIVE_REQUIREMENTS_NOT_MET: ['Objective incomplete','목표 미달성','目標未達成','目标未完成'],
     MISSION_IN_PROGRESS: ['Mission still in progress','미션 진행 중','ミッション進行中','任务进行中'],
     CSRF_REQUIRED: ['Session expired — please refresh','세션 만료 — 새로고침 필요','セッション切れ — 更新してください','会话已过期'],
+    MARKET_DISABLED: ['Market is disabled','마켓 비활성화됨','マーケット無効','市场已禁用'],
+    AUCTION_EXPIRED: ['Auction has expired','경매가 만료됨','オークション終了','拍卖已过期'],
+    AUCTION_ENDED: ['Auction has ended','경매가 종료됨','オークション終了','拍卖已结束'],
+    AUCTION_NOT_FOUND: ['Auction not found','경매 없음','オークションが見つかりません','未找到拍卖'],
+    NOT_OWNER: ['Not the owner','소유자 아님','所有者ではない','非所有者'],
+    HAS_BIDS: ['Cannot cancel — bids exist','입찰이 있어 취소 불가','入札があり取消不可','已有出价，无法取消'],
+    BID_TOO_LOW: ['Bid too low','입찰가가 너무 낮음','入札額が低すぎる','出价过低'],
+    ALREADY_HIGHEST_BIDDER: ['You are already the highest bidder','이미 최고 입찰자','既に最高入札者','您已是最高出价者'],
+    PP_NOT_REDEEMABLE: ['This PP is not redeemable (deposited PP only)','상환 불가 PP (입금 PP만 가능)','償還不可のPP','不可赎回的PP'],
+    SELF_BID: ['Cannot bid on your own auction','본인 경매 입찰 불가','自分のオークションに入札不可','无法对自己的拍卖出价'],
+    CANNOT_BID_OWN: ['Cannot bid on your own auction','본인 경매 입찰 불가','自分のオークションに入札不可','无法对自己的拍卖出价'],
+    INSUFFICIENT_QUANTITY: ['Not enough quantity','수량 부족','数量不足','数量不足'],
+    UPGRADE_DISABLED: ['Upgrades are disabled','업그레이드 비활성화','アップグレード無効','升级已禁用'],
+    UNKNOWN_UPGRADE_TYPE: ['Unknown upgrade type','알 수 없는 업그레이드','不明なアップグレード','未知升级类型'],
+    P5_DISABLED: ['Territory upgrades are disabled','영토 업그레이드 비활성화','領土アップグレード無効','领地升级已禁用'],
+    TERRITORY_NOT_FOUND: ['Territory not found','영토를 찾을 수 없음','領土が見つかりません','未找到领地'],
+    MAX_LEVEL: ['Already at max level','이미 최대 레벨','既に最大レベル','已达最高等级'],
+    NO_COST_CONFIGURED: ['Cost not configured','비용 미설정','コスト未設定','未配置费用'],
+    USER_NOT_FOUND: ['User not found','유저를 찾을 수 없음','ユーザーが見つかりません','未找到用户'],
+    MAX_UPGRADES_PER_CLAIM: ['Max upgrades reached for this territory','이 영토 업그레이드 한도 도달','この領土のアップグレード上限','该领地升级已达上限'],
   };
   return (M[c] && (LANG==='ko'?M[c][1]:LANG==='ja'?M[c][2]:LANG==='zh'?M[c][3]:M[c][0])) || String(code);
 }
@@ -22898,7 +22918,7 @@ function buyShopItem(code,currency){
     fetch('/api/shop/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
     }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
+      if(d.error){showToast(srvErr(d.error),'error');try{_sfx.error()}catch(e){}return;}
       showToast('Purchased '+(_itemName(code)||item.name)+'!','success');
       try{trackQuestAction('buy_item',1)}catch(e){}
       try{_sfx.purchase()}catch(e){}
@@ -23044,7 +23064,7 @@ function _doUseItem(w,code,claimId){
   fetch('/api/shop/use',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:w,itemCode:code,claimId:claimId})
   }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
+    if(d.error){showToast(srvErr(d.error),'error');try{_sfx.error()}catch(e){}return;}
     showToast(d.item+' activated!','success');
     try{trackQuestAction('use_item',1)}catch(e){}
     try{code.indexOf('shield')===0?_sfx.shield():_sfx.purchase()}catch(e){}
@@ -23484,7 +23504,7 @@ function purchaseVipPass(tierId, name, cost) {
       headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, tierId: tierId })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('💫 ' + d.tierName + ' VIP activated! ' + (d.badge||''), 'success');
       loadVipView();
     }).catch(function(e){ showToast(e.message,'error'); });
@@ -24552,7 +24572,7 @@ function buyMarketListing(listingId,price,currency,name){
     if(!ok) return;
     fetch('/api/marketplace/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,listingId:listingId})})
     .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
+      if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('✅ '+(t('mkt_bought')||'Purchase successful!'),'success');
       refreshBalance(); loadMarketListings();
     }).catch(function(){showToast('Purchase failed','error')});
@@ -24569,7 +24589,7 @@ function cancelMarketListing(listingId){
     if(!ok) return;
     fetch('/api/marketplace/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,listingId:listingId})})
     .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
+      if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('✅ '+(t('mkt_cancelled')||'Listing cancelled'));
       loadMarketListings(); loadItemInstances();
     }).catch(function(){showToast('Cancel failed','error')});
@@ -24885,7 +24905,7 @@ function openListModal(type,idVal,name,icon,enhLv){
       if(type==='claim') body.claimId=idVal; else body.instanceId=idVal;
       fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
       .then(function(r){return r.json()}).then(function(d){
-        if(d.error){showToast(d.error,'error');return;}
+        if(d.error){showToast(srvErr(d.error),'error');return;}
         var _mktListedMsg=type==='claim'?(LANG==='ko'?'영토를 마켓에 등록했습니다!':LANG==='ja'?'領土をマーケットに登録しました!':LANG==='zh'?'领地已上架市场!':'Territory listed on market!'):(LANG==='ko'?'아이템을 마켓에 등록했습니다!':LANG==='ja'?'アイテムをマーケットに登録しました!':LANG==='zh'?'物品已上架市场!':'Item listed on market!');
         showToast('✅ '+_mktListedMsg);
         refreshBalance(); loadSellView();
@@ -24927,7 +24947,7 @@ function openResourceMarketListing(resourceCode){
     if(qty<1||qty>maxQty){showToast('Invalid quantity','error');return;}
     fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,type:'resource',resourceCode:resourceCode,resourceQuantity:qty,price:price,currency:curr})})
     .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
+      if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('✅ '+(qty)+'× '+(resItem.name||resItem.code)+' listed!');
       loadBaseInventory();
     }).catch(function(){showToast('Listing failed','error')});
@@ -25049,7 +25069,7 @@ window.govPlaceAuctionBid=function(auctionId,minBid,currency){
     if(!amt||amt<minBid){showToast((t('auc_too_low')||'Bid must be at least ')+minBid,'error');return;}
     fetch('/api/auctions/'+auctionId+'/bid',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({amount:amt})})
     .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
+      if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('🔨 '+(t('auc_bid_placed')||'Bid placed!'));
       refreshBalance();loadAuctions();
     }).catch(function(){showToast('Bid failed','error')});
@@ -25067,7 +25087,7 @@ window.govAuctionBuyout=function(auctionId,currency){
     if(!ok) return;
     fetch('/api/auctions/'+auctionId+'/buyout',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({})})
     .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
+      if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('⚡ '+(t('auc_bought')||'Item purchased!'));
       refreshBalance();loadAuctions();loadItemInstances();
     }).catch(function(){showToast('Buyout failed','error')});
@@ -25085,7 +25105,7 @@ window.govCancelAuction=function(auctionId){
     if(!ok) return;
     fetch('/api/auctions/'+auctionId+'/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({})})
     .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
+      if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('✅ '+(t('auc_cancelled')||'Auction cancelled'));
       refreshBalance();loadAuctions();
     }).catch(function(){showToast('Cancel failed','error')});
@@ -25134,7 +25154,7 @@ function materializeItem(itemTypeId){
   if(!w) return;
   fetch('/api/items/materialize',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,itemTypeId:itemTypeId})})
   .then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');return;}
+    if(d.error){showToast(srvErr(d.error),'error');return;}
     showToast(t('enh_materialized')||'Item ready for enhancement!');
     loadBaseInventory();
     loadItemInstances();
@@ -25146,7 +25166,7 @@ function dematerializeItem(instanceId){
   if(!w) return;
   fetch('/api/items/dematerialize',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,instanceId:instanceId})})
   .then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');return;}
+    if(d.error){showToast(srvErr(d.error),'error');return;}
     showToast(t('enh_returned')||'Item returned to inventory');
     loadBaseInventory();
     loadItemInstances();
@@ -25233,7 +25253,7 @@ function attemptEnhance(instanceId, opts){
   if (Array.isArray(opts.recipeIds) && opts.recipeIds.length) body.recipe_ids = opts.recipeIds;
   fetch('/api/enhance',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
   .then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');return;}
+    if(d.error){showToast(srvErr(d.error),'error');return;}
     // Refresh GP balance
     refreshBalance();
     loadItemInstances(function(){
@@ -26184,7 +26204,7 @@ function guildDonateGP(){
   fetch('/api/guild/donate',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address, guildId:_myGuildData.id, amount:amt})
   }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){ showToast(d.error,'error'); return; }
+    if(d.error){ showToast(srvErr(d.error),'error'); return; }
     walletState.gameGP = d.gpBalance!=null ? d.gpBalance : (walletState.gameGP - amt);
     refreshEmailBalances();
     document.getElementById('guildDonateAmt').value = '';
@@ -26367,7 +26387,7 @@ function confirmDeclareWar(){
     body:JSON.stringify(body)
   }).then(function(r){return r.json()}).then(function(d){
     btn.disabled=false; btn.textContent=t('war_declare_btn');
-    if(d.error){ showToast(d.error,'error'); return; }
+    if(d.error){ showToast(srvErr(d.error),'error'); return; }
     closeDeclareWarModal();
     var msg = '⚔️ '+(LANG==='ko'?'전쟁 선포 완료!':LANG==='ja'?'宣戦布告完了!':LANG==='zh'?'宣战完成!':'War declared!');
     if (stake > 0) msg += ' (+'+stake+' GP stake)';
@@ -26380,7 +26400,7 @@ async function viewWarScoreboard(warId){
   try{
     var resp = await fetch('/api/guild/war/'+warId+'/scores');
     var d = await resp.json();
-    if(d.error){ showToast(d.error,'error'); return; }
+    if(d.error){ showToast(srvErr(d.error),'error'); return; }
     var gs = d.guildScores||{};
     var atkName = gs.attacker?gs.attacker.name:'Attacker';
     var defName = gs.defender?gs.defender.name:'Defender';
@@ -26882,8 +26902,9 @@ function launchOpsMission(){
   fetch('/api/missions/launch',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
     .then(function(r){return r.json()})
     .then(function(d){
-      if(d.error){ showAlert(d.error); return; }
+      if(d.error){ showAlert(srvErr?srvErr(d.error):d.error); return; }
       showAlert(t('ops_mission_launched'),'success');
+      try{ if(typeof refreshBalance==='function') refreshBalance(); }catch(_){} // [v7.275] PP 연료 차감 후 잔액 갱신
       // Reset input fields
       document.getElementById('opsTargetLat').value = '';
       document.getElementById('opsTargetLng').value = '';
@@ -26933,7 +26954,7 @@ function cancelOpsMission(id){
     fetch('/api/missions/'+id+'/cancel',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:walletState.address})
     }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){ showToast(d.error,'error'); return; }
+      if(d.error){ showToast(srvErr(d.error),'error'); return; }
       showToast('Mission aborted · '+(d.refund||0).toFixed(2)+' PP refunded','success');
       loadOpsTab();
     }).catch(function(e){ showToast('Cancel failed: '+e.message,'error'); });
@@ -30740,13 +30761,13 @@ function renderQuests(quests, container){
     }
     var isComplete=q.status==='completed';
     var timeLeft=getTimeLeft(q.expires_at);
-    var displayReward=q.actual_reward!==undefined?q.actual_reward:q.reward_pp;
+    var displayReward=q.reward_gp!==undefined?q.reward_gp:(q.actual_reward!==undefined?q.actual_reward:q.reward_pp);
     html+='<div class="quest-card'+(isComplete?' completed':'')+'" data-qid="'+q.id+'">';
     html+='<div class="qc-header">';
     html+='<span class="quest-tier-label '+q.tier+'">'+q.tier.toUpperCase()+'</span>';
     html+='<span class="qc-title">'+_questTitle(q)+'</span>';
     if(displayReward>0){
-      html+='<span class="qc-reward">+'+displayReward.toFixed(4)+' PP</span>';
+      html+='<span class="qc-reward">+'+Math.round(displayReward).toLocaleString()+' GP</span>';
     }else{
       html+='<span class="qc-reward" style="color:var(--tx3)">—</span>';
     }
@@ -30757,7 +30778,7 @@ function renderQuests(quests, container){
     html+='<span class="qc-pct">'+q.progress_pct+'%</span>';
     html+='</div>';
     if(isComplete&&displayReward>0){
-      html+='<button class="qc-claim-btn" onclick="claimQuest('+q.id+')">'+t('quests_claim_prefix')+' +'+displayReward.toFixed(4)+' PP</button>';
+      html+='<button class="qc-claim-btn" onclick="claimQuest('+q.id+')">'+t('quests_claim_prefix')+' +'+Math.round(displayReward).toLocaleString()+' GP</button>';
     }else if(isComplete){
       html+='<div style="text-align:center;padding:6px;font-size:10px;color:var(--tx3)">'+t('quests_pool_empty_unavailable')+'</div>';
     }
@@ -30777,7 +30798,7 @@ function renderClaimedQuests(claimed, container){
     html+='<div class="quest-claimed-item">';
     html+='<span class="qci-check">✓</span>';
     html+='<span>'+_questTitle(c)+'</span>';
-    html+='<span class="qci-reward">+'+c.reward_pp.toFixed(1)+' PP</span>';
+    html+='<span class="qci-reward">+'+Math.round(c.reward_gp!=null?c.reward_gp:c.reward_pp).toLocaleString()+' GP</span>';
     html+='</div>';
   });
   container.innerHTML=html;
@@ -30807,7 +30828,7 @@ async function claimQuest(questId){
     });
     var d=await resp.json();
     if(!resp.ok){showToast(d.error||t('quests_claim_failed'));try{_sfx.error()}catch(e){}return}
-    showToast(t('quests_claim_success').replace('{pp}',d.rewardPP.toFixed(1)).replace('{title}',_questTitle(d)));
+    showToast(t('quests_claim_success').replace('{gp}',Math.round(d.rewardGP!=null?d.rewardGP:d.rewardPP).toLocaleString()).replace('{title}',_questTitle(d)));
     try{_sfx.harvest()}catch(e){}
     loadQuests(w); // Refresh
     try{refreshEmailBalances()}catch(e){}
@@ -36811,7 +36832,7 @@ window.addEventListener('resize', _debounce(function(){
           if(b.reason) bhtml += '<span style="font-size:8px;color:var(--tx3)">'+b.reason+'</span>';
           bhtml += '</div>';
           bhtml += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">';
-          bhtml += '<span style="font-size:10px;color:var(--gold);font-family:var(--fn)">'+parseFloat(b.pp_reward).toFixed(0)+' PP</span>';
+          bhtml += '<span style="font-size:10px;color:var(--gold);font-family:var(--fn)">'+parseFloat(b.gp_reward||b.pp_reward||0).toFixed(0)+' GP</span>';
           bhtml += '<span style="font-size:8px;color:var(--tx3)">'+daysLeft+'d left</span>';
           bhtml += '</div>';
           bhtml += '</div>';
@@ -36931,8 +36952,8 @@ window.addEventListener('resize', _debounce(function(){
       headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,targetNickname:target,gpAmount:amount})
     }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error);return}
-      showToast('Bounty placed: '+d.ppReward+' PP reward');
+      if(d.error){showToast(srvErr?srvErr(d.error):d.error,'error');return}
+      showToast('Bounty placed: '+(d.gpReward!=null?d.gpReward:d.ppReward||0)+' GP reward');
       document.getElementById('govBountyTarget').value='';
       document.getElementById('govBountyAmount').value='';
       loadGovernanceData();
@@ -38762,7 +38783,7 @@ function openListForRentModal() {
               headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
               body: JSON.stringify({ wallet: w, claimId: claimId, gpPerPeriod: gp, periodHours: periodHours })
             }).then(function(r){return r.json();}).then(function(d){
-              if (d.error) { showToast(d.error,'error'); return; }
+              if (d.error) { showToast(srvErr(d.error),'error'); return; }
               showToast('🏘️ Territory listed for rent!','success');
               loadRentalPanel();
             });
@@ -38781,7 +38802,7 @@ function cancelRentalListing(rentalId) {
     headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({ wallet: w, rentalId: rentalId })
   }).then(function(r){return r.json();}).then(function(d){
-    if (d.error) { showToast(d.error,'error'); return; }
+    if (d.error) { showToast(srvErr(d.error),'error'); return; }
     showToast(t('rental_cancelled')||'Listing cancelled','success');
     loadRentalPanel();
   }).catch(function(e){ showToast(e.message,'error'); });
@@ -38933,7 +38954,7 @@ function launchExpeditionAction() {
       headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimId: parseInt(claimId), expeditionType: _expSelectedType, durationH: _expSelectedDur })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast(d.icon + ' Expedition launched! Returns in ' + d.durationH + 'h', 'success');
       loadExpeditionPanel();
     }).catch(function(e){ showToast(e.message,'error'); });
@@ -38950,7 +38971,7 @@ function cancelActiveExpedition() {
       headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, expeditionId: _expActiveId })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('Expedition cancelled. Refunded: ' + d.refund.toFixed(2) + ' GP', 'success');
       loadExpeditionPanel();
     }).catch(function(e){ showToast(e.message,'error'); });
@@ -39203,7 +39224,7 @@ function castSpellAction(spellType) {
       fetch('/api/spells/cast', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({wallet:w,claimId:claimId,spellType:spellType}) })
         .then(function(r){return r.json();})
         .then(function(d){
-          if (d.error) return showToast(d.error,'error');
+          if (d.error) return showToast(srvErr(d.error),'error');
           showToast(d.icon+' '+d.label+' cast! -'+d.gpSpent+' GP','success');
           loadSpellsOnClaim();
           if (typeof loadBaseStats === 'function') loadBaseStats();
@@ -39286,7 +39307,7 @@ function joinTournamentAction(id, name, fee) {
       fetch('/api/tournaments/join', { method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()), body: JSON.stringify({wallet:w,tournamentId:id}) })
         .then(function(r){return r.json();})
         .then(function(d){
-          if (d.error) return showToast(d.error,'error');
+          if (d.error) return showToast(srvErr(d.error),'error');
           showToast('🏆 Joined '+d.tournamentName+'! -'+d.gpSpent+' GP','success');
           refreshTournaments();
           if (typeof loadBaseStats === 'function') loadBaseStats();
@@ -39418,7 +39439,7 @@ function activateTevt(eventType) {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimId: claimId, eventType: eventType })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast(evtInfo.icon+' '+evtInfo.label+' activated!','success');
       loadTevtForClaim();
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
@@ -39508,7 +39529,7 @@ function upgradeTierAction(claimId, currentTier) {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, claimId: claimId })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast(d.tierIcon+' Upgraded to '+d.tierName+'!','success');
       loadMyTiers();
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
@@ -39609,7 +39630,7 @@ function setMyStatus() {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, status: val })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('💬 Status set!','success');
       loadMyStatusDisplay();
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
@@ -39669,7 +39690,7 @@ function setMyVtag() {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, tag: val })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast((t('vtag_set_success')||'🏷️ Vanity tag set!'),'success');
       loadMyVtagDisplay();
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
@@ -39691,7 +39712,7 @@ function clearMyVtag() {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast((t('vtag_cleared')||'Tag removed'),'success');
       loadMyVtagDisplay();
       document.getElementById('vtagInput').value = '';
@@ -39717,7 +39738,7 @@ function saveProfileNickname() {
         method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, nickname: val })
       }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { showToast(d.error,'error'); return; }
+        if (d.error) { showToast(srvErr(d.error),'error'); return; }
         showToast('Nickname set! 👤','success');
         loadMyProfile();
         if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
@@ -39742,7 +39763,7 @@ function saveProfileMotto() {
         method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
         body: JSON.stringify({ wallet: w, motto: val })
       }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { showToast(d.error,'error'); return; }
+        if (d.error) { showToast(srvErr(d.error),'error'); return; }
         showToast('Motto saved! 📝','success');
         loadMyProfile();
       }).catch(function(e){ showToast(e.message,'error'); });
@@ -39761,7 +39782,7 @@ function saveProfileColor() {
         method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
         body: JSON.stringify({ wallet: w, color: val })
       }).then(function(r){return r.json();}).then(function(d){
-        if (d.error) { showToast(d.error,'error'); return; }
+        if (d.error) { showToast(srvErr(d.error),'error'); return; }
         showToast('Avatar color updated! 🎨','success');
         loadMyProfile();
       }).catch(function(e){ showToast(e.message,'error'); });
@@ -39905,7 +39926,7 @@ function buyPrestige() {
       method:'POST', headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       var msg = d.rankedUp ? (d.rankIcon+' Ranked up to '+d.rankName+'!') : ('⭐ +1 Prestige Point!');
       showToast(msg,'success');
       loadMyPrestige();
@@ -40003,7 +40024,7 @@ function placeBeacon() {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, x: x, y: y, message: msg, icon: _selectedBeaconIcon })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('📡 Beacon placed for '+d.durH+'h!','success');
       document.getElementById('beaconMsgInput').value = '';
       loadActiveBeacons();
@@ -40090,7 +40111,7 @@ function submitWagerBet() {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, poolId: _activeWagerPool.id, targetWallet: target, gpAmount: amount })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('🎯 Bet placed! Good luck!','success');
       closeWagerBetModal();
       refreshWagerPools();
@@ -40228,7 +40249,7 @@ function submitBuyTickets() {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, raffleId: _activeRaffle.id, count: count })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('🎟️ Got '+count+' ticket(s)! Total: '+d.totalTickets,'success');
       closeRaffleBuyModal();
       refreshRaffles();
@@ -40352,7 +40373,7 @@ function buryCapsule() {
       headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet, message: msg, revealInDays: days })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast(t('capsule_buried')||'⏳ Capsule buried!');
       document.getElementById('capsuleMsgInput').value = '';
       document.getElementById('capsuleCharCount').textContent = '0/280';
@@ -40410,7 +40431,7 @@ function submitDonation() {
       method:'POST', headers:Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
       body: JSON.stringify({ wallet: w, amount: amount, message: msg })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('🏛️ '+amount+' GP donated to Colony Fund!','success');
       document.getElementById('donationAmountInput').value = '';
       document.getElementById('donationMsgInput').value = '';
@@ -40768,7 +40789,7 @@ function votePoll(pollId, optionIdx) {
     method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: w, pollId: pollId, optionIdx: optionIdx })
   }).then(function(r){return r.json();}).then(function(d){
-    if (d.error) { showToast(d.error,'error'); return; }
+    if (d.error) { showToast(srvErr(d.error),'error'); return; }
     showToast('📊 Vote cast!','success');
     refreshPolls();
   }).catch(function(e){ showToast(e.message,'error'); });
@@ -40816,7 +40837,7 @@ function submitCreatePoll() {
       method: 'POST', headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, question: q, options: opts, durationH: dur })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('📊 Poll published!','success');
       closeCreatePollModal();
       refreshPolls();
@@ -40956,7 +40977,7 @@ async function saveTdescDescription() {
       body: JSON.stringify({ wallet, claimId, text })
     });
     var d = await r.json();
-    if (d.error) { showToast(d.error,'error'); return; }
+    if (d.error) { showToast(srvErr(d.error),'error'); return; }
     showToast(t('tdesc_saved')||'✅ Description saved!');
     loadMyTdescs();
     loadClaimDescriptionPreview();
@@ -41049,7 +41070,7 @@ async function submitSponsor() {
       body: JSON.stringify({ wallet, claimId, message })
     });
     var d = await r.json();
-    if (d.error) { showToast(d.error,'error'); return; }
+    if (d.error) { showToast(srvErr(d.error),'error'); return; }
     closeSponsorModal();
     showToast(t('sponsor_placed')||'🎗️ Sponsored!');
     loadSponsorsForInfo(claimId);
@@ -41141,7 +41162,7 @@ function submitBanner() {
       headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, emoji: _bannerSelectedEmoji, message })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       closeBannerModal();
       showToast(t('banner_planted')||'🚩 Banner planted!','success');
       loadBannersForInfo(claimId);
@@ -41377,7 +41398,7 @@ function submitRating(claimId, rating) {
       headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, rating })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast(t('rating_submitted')||'⭐ Rating submitted!','success');
       loadRatingForInfo(claimId);
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
@@ -41464,7 +41485,7 @@ function submitHighlight() {
       headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, color: _highlightSelectedColor })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       closeHighlightModal();
       showToast(t('highlight_activated')||'✨ Territory highlighted!','success');
       loadHighlightForInfo(claimId);
@@ -41538,7 +41559,7 @@ function submitGraffiti() {
       headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, text })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       closeGraffitiModal();
       showToast(t('graffiti_placed')||'✍️ Graffiti placed!','success');
       loadGraffitiForInfo(claimId);
@@ -41619,7 +41640,7 @@ function submitTribute() {
       headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({ wallet, claimId, amountGP, message })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       closeTributeModal();
       showToast(t('tribute_sent')||'🪙 Tribute sent!','success');
       loadTributesForInfo(claimId);
@@ -41819,7 +41840,7 @@ function joinAllianceAction(id, name) {
       headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, allianceId: id })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('🛡️ Joined ' + _escHtml(name) + '!', 'success');
       loadAlliancePanel();
     }).catch(function(e){ showToast(e.message,'error'); });
@@ -41843,7 +41864,7 @@ function createAllianceAction() {
       headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ wallet: w, name: name, tag: tag, emblem: emblem, description: desc })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('🛡️ Alliance created!','success');
       loadAlliancePanel();
     }).catch(function(e){ showToast(e.message,'error'); });
@@ -41862,7 +41883,7 @@ async function openAllianceDepositModal() {
     headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: w, amount: amt })
   }).then(function(r){return r.json();}).then(function(d){
-    if (d.error) { showToast(d.error,'error'); return; }
+    if (d.error) { showToast(srvErr(d.error),'error'); return; }
     showToast('💰 '+amt+' GP deposited to treasury!','success');
     loadAlliancePanel();
   }).catch(function(e){ showToast(e.message,'error'); });
@@ -41883,7 +41904,7 @@ async function openAllianceWithdrawModal() {
     headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body: JSON.stringify({ wallet: w, amount: amt, note: note })
   }).then(function(r){return r.json();}).then(function(d){
-    if (d.error) { showToast(d.error,'error'); return; }
+    if (d.error) { showToast(srvErr(d.error),'error'); return; }
     showToast('📤 Withdrew '+d.payout.toFixed(2)+' GP (fee: '+d.fee.toFixed(2)+')','success');
     loadAlliancePanel();
   }).catch(function(e){ showToast(e.message,'error'); });
@@ -41901,7 +41922,7 @@ function leaveAllianceConfirm() {
       headers: headers,
       body: JSON.stringify({ wallet: w })
     }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
+      if (d.error) { showToast(srvErr(d.error),'error'); return; }
       showToast('You left the alliance','success');
       loadAlliancePanel();
     }).catch(function(e){ showToast(e.message,'error'); });
@@ -48571,10 +48592,10 @@ async function _renderShipMining() {
       launchBtn.disabled = true; launchBtn.textContent = '...';
       fetch('/api/mining/launch',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({fleetId:fleetId,durationH:durationH,destination:_selDest})})
         .then(function(r){return r.json();}).then(function(d){
-          if (d.error){ showToast(_smErr(d.error),'error'); launchBtn.disabled=false; launchBtn.textContent='⛏'; return; }
+          if (d.error){ showToast(_smErr(d.error),'error'); launchBtn.disabled=false; launchBtn.textContent='⛏ '+tl('DEPLOY RESOURCE RUN','자원 출항','資源出航','资源出航'); return; }
           showToast('⛏ '+tl('Mining run launched!','채굴 출항 완료!','採掘出航!','采矿出航!'));
           _renderShipMining();
-        }).catch(function(){ showToast(tl('Launch failed','출항 실패','失敗','失败'),'error'); launchBtn.disabled=false; });
+        }).catch(function(){ showToast(tl('Launch failed','출항 실패','失敗','失败'),'error'); launchBtn.disabled=false; launchBtn.textContent='⛏ '+tl('DEPLOY RESOURCE RUN','자원 출항','資源出航','资源出航'); });
     });
     Array.prototype.forEach.call(c.querySelectorAll('.sm-collect'), function(btn){
       btn.addEventListener('click', function(){
@@ -50493,7 +50514,7 @@ async function syListShipForSale(shipId) {
       body:JSON.stringify({ price_gp: price })
     });
     var d = await r.json();
-    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'판매 등록 실패: ':LANG==='ja'?'出品失敗: ':LANG==='zh'?'上架失败: ':'Listing failed: ') + (d.error || 'UNKNOWN'), 'error'); return; }
+    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'판매 등록 실패: ':LANG==='ja'?'出品失敗: ':LANG==='zh'?'上架失败: ':'Listing failed: ') + srvErr(d.error), 'error'); return; }
     showFactionToast((LANG==='ko'?'판매 등록 완료: ':LANG==='ja'?'出品完了: ':LANG==='zh'?'上架完成: ':'Listed: ') + syFmt(d.price_gp) + ' GP', 'success');
     await refreshShipyard();
   } catch(e) { showFactionToast(LANG==='ko'?'판매 등록 요청 실패':LANG==='ja'?'出品リクエスト失敗':LANG==='zh'?'上架请求失败':'Listing request failed','error'); }
@@ -50509,7 +50530,7 @@ async function syCancelShipListing(listingId) {
       headers:getAuthHeaders()
     });
     var d = await r.json();
-    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'판매 취소 실패: ':LANG==='ja'?'出品キャンセル失敗: ':LANG==='zh'?'取消上架失败: ':'Cancel listing failed: ') + (d.error || 'UNKNOWN'), 'error'); return; }
+    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'판매 취소 실패: ':LANG==='ja'?'出品キャンセル失敗: ':LANG==='zh'?'取消上架失败: ':'Cancel listing failed: ') + srvErr(d.error), 'error'); return; }
     showFactionToast(LANG==='ko'?'판매 취소 완료':LANG==='ja'?'出品キャンセル完了':LANG==='zh'?'取消上架完成':'Listing cancelled','success');
     await refreshShipyard();
   } catch(e) { showFactionToast(LANG==='ko'?'판매 취소 요청 실패':LANG==='ja'?'キャンセルリクエスト失敗':LANG==='zh'?'取消请求失败':'Cancel request failed','error'); }
@@ -50533,7 +50554,7 @@ async function syBuyShipListing(listingId) {
       headers:getAuthHeaders()
     });
     var d = await r.json();
-    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'구매 실패: ':LANG==='ja'?'購入失敗: ':LANG==='zh'?'购买失败: ':'Purchase failed: ') + (d.error || 'UNKNOWN'), 'error'); return; }
+    if (!r.ok || d.error) { showFactionToast((LANG==='ko'?'구매 실패: ':LANG==='ja'?'購入失敗: ':LANG==='zh'?'购买失败: ':'Purchase failed: ') + srvErr(d.error), 'error'); return; }
     showFactionToast(LANG==='ko'?'구매 완료: 내 함대에 배치됨':LANG==='ja'?'購入完了: 艦隊に配備されました':LANG==='zh'?'购买完成：已加入我的舰队':'Purchase complete: added to fleet','success');
     refreshBalance();
     await refreshShipyard();

@@ -1,3 +1,14 @@
+## 2026-05-30 v7.275 — 전체 카테고리 검수 수정 #1 (통화 오표기 + 에러 4언어화)
+
+전체 게임 5대 카테고리 멀티에이전트 검수(확정 9 + medium/low 21) 중 경제연결·명확성 고영향 건 수정:
+- **[통화 오표기]** 거버넌스 현상금이 GP 지급인데 UI는 '0 PP'로 표기(board+toast) → 실제 `gp_reward`/`gpReward` + 'GP' 표기. 퀘스트 보상도 GP 지급인데 카드/버튼/완료목록/토스트가 전부 PP-환산값을 'PP'로 표기 → 리스트 응답에 `reward_gp` 추가(`api.js`, GP 환산), claim 응답에 `rewardGP`, 프론트 전부 'GP' 표기 + i18n `quests_claim_success` 4언어 PP→GP.
+- **[경제연결]** OPS 미션 출항 시 PP 연료 차감 후 잔액 미갱신 → `refreshBalance()` 추가.
+- **[명확성/4언어]** `showToast(d.error,'error')` **54곳**을 `srvErr()` 경유로 일괄 전환 — 경매/수리/해체/실드/강화/환전 등 다수 원시 에러코드가 4언어로 표시(미매핑 코드는 원본 반환=무회귀). 함선 마켓 등록/구매/취소 3곳도 srvErr. `srvErr` 맵에 MARKET_DISABLED/AUCTION_*/NOT_OWNER/HAS_BIDS/BID_TOO_LOW/PP_NOT_REDEEMABLE 등 21개 코드 추가.
+- **[명확성]** 영토 업그레이드 실패가 영어 문장으로 노출되던 문제 → `claimUpgrades.js` 11개 throw를 안정 코드(INSUFFICIENT_GP/NOT_OWNER/MAX_LEVEL/TERRITORY_NOT_FOUND/UPGRADE_DISABLED/P5_DISABLED/NO_COST_CONFIGURED/MAX_UPGRADES_PER_CLAIM 등)로 변경 + srvErr 4언어 매핑.
+- **[회귀수정]** 자원출항 DEPLOY 버튼이 에러 시 라벨이 '⛏'로 깨지던 문제(내 v7.272 회귀) → 정식 라벨 복구(성공/실패/catch 모두).
+- 검증: node --check(api/claimUpgrades) + 인라인 11/11. SW v79→v80.
+- 후속(다음 배치): TEND 비용 사전표시, 상점 구매 잔액확인, 조선소/강화 한국어전용 다이얼로그 4언어화, commander 보급드롭 403, war/event 하드코딩 비용 동기화, §19 잔여 inline concat.
+
 ## 2026-05-30 v7.274 — 스프린트 QA 검수 수정 (멀티에이전트 워크플로우 + Codex 확정 버그)
 
 Codex 독립 패스 + 5차원 멀티에이전트 워크플로우(적대적 검증) 결과 확정 버그 수정:

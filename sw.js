@@ -79,7 +79,8 @@
 // 2026-05-30 v77: v7.272 채굴→'자원 출항' 리네이밍(4언어, 영토채굴·원정과 구분) + SHOP 탭 영구 점멸 버그 수정(_pollDotState.shop_items 누락) + 새 채굴 배너(Imagen, 1600×680).
 // 2026-05-30 v78: v7.273 자원 출항 배너 재생성 — 픽셀아트(스타일 불일치)→사실적 시네마틱(타 base 배너 톤 일치). 캐시버스트 v7273.
 // 2026-05-30 v79: v7.274 스프린트 검수 수정 — 자원판매 400버그(marketplace resourceCode 누락), 채굴 일일캡 동시성 우회(지갑 advisory lock), leader exit(1)+railway ALWAYS, ITEMS 탭 영구점멸, _smErr 번역/2GP 허위표기.
-const CACHE_NAME = 'mars-v79';
+// 2026-05-30 v80: v7.275 카테고리 검수 수정1 — 현상금/퀘스트 통화 GP 오표기 수정, OPS 연료 잔액갱신, 에러토스트 54곳 srvErr 4언어화, 영토 업그레이드 에러 코드화, 자원출항 버튼 라벨.
+const CACHE_NAME = 'mars-v80';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

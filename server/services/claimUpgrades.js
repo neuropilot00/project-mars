@@ -221,21 +221,21 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
   const w = wallet.toLowerCase();
   const cfg = await getSettings();
 
-  if (!cfg.enabled) throw new Error('Territory upgrade system is currently disabled');
+  if (!cfg.enabled) throw new Error('UPGRADE_DISABLED');
   const typeDef = UPGRADE_TYPES[upgradeType];
-  if (!typeDef) throw new Error(`Unknown upgrade type: ${upgradeType}`);
+  if (!typeDef) throw new Error('UNKNOWN_UPGRADE_TYPE');
 
   // P5 tracks have an 'effect' field — check p5Enabled separately
   const isP5Track = !!typeDef.effect;
-  if (isP5Track && !cfg.p5Enabled) throw new Error('P5 territory upgrades are currently disabled');
+  if (isP5Track && !cfg.p5Enabled) throw new Error('P5_DISABLED');
 
   // Verify ownership — FOR UPDATE to prevent concurrent over-limit inserts on same claim
   const claimRes = await client.query(
     `SELECT id, owner FROM claims WHERE id = $1 AND deleted_at IS NULL FOR UPDATE`,
     [claimId]
   );
-  if (!claimRes.rows.length) throw new Error('Territory not found');
-  if (claimRes.rows[0].owner.toLowerCase() !== w) throw new Error('You do not own this territory');
+  if (!claimRes.rows.length) throw new Error('TERRITORY_NOT_FOUND');
+  if (claimRes.rows[0].owner.toLowerCase() !== w) throw new Error('NOT_OWNER');
 
   // Get existing upgrade (if any) for this type on this claim
   const existingRes = await client.query(
@@ -249,19 +249,19 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
 
   // Use p5MaxLevel for P5 tracks, maxLevel for classic tracks
   const effectiveMaxLevel = isP5Track ? cfg.p5MaxLevel : cfg.maxLevel;
-  if (nextLevel > effectiveMaxLevel) throw new Error(`Already at maximum level ${effectiveMaxLevel}`);
+  if (nextLevel > effectiveMaxLevel) throw new Error('MAX_LEVEL');
 
   const costs = cfg.costs[upgradeType] || [];
   const cost  = costs[currentLevel]; // index = current level (0-based → level 1 cost is costs[0])
-  if (!cost || cost <= 0) throw new Error(`No cost configured for ${upgradeType} level ${nextLevel}`);
+  if (!cost || cost <= 0) throw new Error('NO_COST_CONFIGURED');
 
   // Check wallet balance
   const userRes = await client.query(
     `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]
   );
-  if (!userRes.rows.length) throw new Error('User not found');
+  if (!userRes.rows.length) throw new Error('USER_NOT_FOUND');
   const balance = parseFloat(userRes.rows[0].gp_balance) || 0;
-  if (balance < cost) throw new Error(`Insufficient GP: need ${cost}, have ${balance.toFixed(2)}`);
+  if (balance < cost) throw new Error('INSUFFICIENT_GP');
 
   // Deduct GP (AND guard is the final concurrent-safety net; rowCount=0 means race condition or
   // balance changed between the SELECT FOR UPDATE and this UPDATE — treat as insufficient funds)
@@ -269,7 +269,7 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
     `UPDATE users SET gp_balance = gp_balance - $2 WHERE LOWER(wallet_address) = LOWER($1) AND gp_balance >= $2`,
     [w, cost]
   );
-  if (deductUpgrade.rowCount === 0) throw new Error(`Insufficient GP: need ${cost} (concurrent modification)`);
+  if (deductUpgrade.rowCount === 0) throw new Error('INSUFFICIENT_GP');
 
   // Upsert upgrade
   let upgradeId;
@@ -288,7 +288,7 @@ async function upgradeTerritory(client, wallet, claimId, upgradeType) {
       [claimId]
     );
     if (parseInt(countRes.rows[0]?.n) >= cfg.maxPerClaim) {
-      throw new Error(`Territory already has ${cfg.maxPerClaim} upgrades (maximum)`);
+      throw new Error('MAX_UPGRADES_PER_CLAIM');
     }
     const ins = await client.query(
       `INSERT INTO territory_upgrades (claim_id, owner, upgrade_type, level, gp_spent)
