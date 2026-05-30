@@ -49522,12 +49522,37 @@ function openPortfolioModal(){
     +     _p2oStep('🛸', tl('COLLECT','수집','収集','收集'), tl('Open crates · build · upgrade fleet','상자 개봉 · 함선 건조 · 강화','箱を開封 · 艦隊建造 · 強化','开箱 · 建造舰队 · 强化'))
     +     _p2oStep('🔁', tl('TRADE','거래','取引','交易'),   tl('Sell ships and assets on the on-chain market','함선·자산을 온체인 마켓에서 거래','艦船・資産をオンチェーン市場で取引','在链上市场交易舰船与资产'))
     +   '</div>'
+    // 추천 네트워크 (1/2/3단 인원수)
+    +   '<div style="margin-top:14px;padding:12px;border-radius:11px;background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.2)">'
+    +     '<div style="font-size:10px;font-weight:800;color:#7dd3fc;letter-spacing:1.2px;margin-bottom:8px">🤝 '+tl('REFERRAL NETWORK','추천 네트워크','リファラル','推荐网络')+'</div>'
+    +     '<div id="pfReferralTiers" style="display:flex;gap:6px">'
+    +       ['1','2','3'].map(function(n){ return '<div style="flex:1;text-align:center;padding:7px 4px;border-radius:7px;background:rgba(79,195,247,.08)"><div style="font-size:8px;color:rgba(255,255,255,.5)">'+n+tl('-tier','단계','次','级')+'</div><div style="font-size:15px;font-weight:800;color:#4fc3f7">-</div></div>'; }).join('')
+    +     '</div>'
+    +   '</div>'
     +   '<div style="margin-top:12px;font-size:8.5px;color:rgba(255,255,255,.42);text-align:center;line-height:1.5">'+tl('In-game assets only. No guaranteed earnings. See Terms.','게임 내 자산만 표시. 수익 보장 없음. 약관 참조.','ゲーム内資産のみ。収益保証なし。利用規約参照。','仅显示游戏内资产。无收益保证。详见条款。')+'</div>'
     +   '<button type="button" onclick="document.getElementById(\'portfolioModal\').remove()" style="margin-top:13px;width:100%;padding:12px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer">'+tl('CLOSE','닫기','閉じる','关闭')+'</button>'
     + '</div>';
   document.body.appendChild(el);
   // 함선·영토 정확 카운트 비동기 패치(로그인 직후 캐시 비어있어도 정확하게 표시)
   _portfolioFetchFresh(owner);
+  // 추천 네트워크 1/2/3단 인원수 비동기 로드
+  (function(){
+    var w = (owner || (typeof getMyWallet==='function'?getMyWallet():'') || '').toLowerCase();
+    if (!w) return;
+    fetch('/api/referral/stats/'+encodeURIComponent(w), { headers:{'x-wallet':w} })
+      .then(function(r){return r.json()})
+      .then(function(s){
+        var box=document.getElementById('pfReferralTiers'); if(!box||s.error) return;
+        box.innerHTML = ['1','2','3'].map(function(n){
+          return '<div style="flex:1;text-align:center;padding:7px 4px;border-radius:7px;background:rgba(79,195,247,.08)">'+
+            '<div style="font-size:8px;color:rgba(255,255,255,.5)">'+n+tl('-tier','단계','次','级')+'</div>'+
+            '<div style="font-size:15px;font-weight:800;color:#4fc3f7">'+(s['tier'+n]||0)+'</div></div>';
+        }).join('') +
+        '<div style="flex:1;text-align:center;padding:7px 4px;border-radius:7px;background:rgba(79,195,247,.14);border:1px solid rgba(79,195,247,.3)">'+
+          '<div style="font-size:8px;color:rgba(255,255,255,.5)">'+tl('total','총','合計','共')+'</div>'+
+          '<div style="font-size:15px;font-weight:800;color:#7dd3fc">'+(s.total||0)+'</div></div>';
+      }).catch(function(){});
+  })();
 }
 function _portfolioCard(icon,label,value,sub,color,valId){
   var idAttr = valId ? (' id="'+valId+'"') : '';
