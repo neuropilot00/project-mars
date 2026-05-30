@@ -39,11 +39,11 @@ PART_ROLES = {
 
 # 외계 유전자 파츠 스킴
 ALIEN_PART_ROLES = {
-    'cortex':  "alien neural cortex organ, glistening brain tissue, glowing synapses",
-    'heart':   "alien bio-heart organ, pulsing veins, bioluminescent core",
-    'claw':    "alien razor claw appendage, chitinous talon, dripping",
-    'hide':    "alien chitin carapace plate, armored shell scales",
-    'tendril': "alien tendril cluster, writhing tentacles, suckers",
+    'cortex':  "original alien organ, glowing crystalline core node, bioluminescent",
+    'heart':   "original alien bio-core organ, pulsing energy veins, soft glow",
+    'claw':    "original alien limb appendage, smooth coral-plated arm",
+    'hide':    "original alien shell plate, crystalline armored carapace scales",
+    'tendril': "original alien frond cluster, soft glowing filaments",
 }
 
 # 유닛 정의 — kind(robot/alien), prefix(파츠 코드 접두사), accent, theme
@@ -62,18 +62,20 @@ UNITS = {
     'pilgrim_tempest':  dict(ship_code='pilgrim_tempest', kind='robot', prefix='tempest', accent='electric blue and white lightning',
         theme="sleek high-speed vanguard super-mech with rapid swarm autocannons and crackling lightning thrusters"),
     # ── 외계 대형생명체 4종 (공격 특화) ──
-    'alien_devourer':   dict(ship_code='alien_devourer', kind='alien', prefix='devourer', accent='sickly acid green and violet',
-        theme="colossal acid-spewing alien predator beast, gaping maws and spitting glands, wide-area horror"),
-    'alien_leviathan':  dict(ship_code='alien_leviathan', kind='alien', prefix='leviathan', accent='deep abyssal blue and bioluminescent teal',
-        theme="gigantic abyssal alien leviathan with living bio-armor plating and crushing tentacles"),
-    'alien_hive':       dict(ship_code='alien_hive', kind='alien', prefix='hive', accent='amber orange and chitin brown',
-        theme="towering alien hive queen surrounded by swarming broodlings, egg sacs and spines"),
-    'alien_voidmaw':    dict(ship_code='alien_voidmaw', kind='alien', prefix='voidmaw', accent='void black and eldritch purple',
-        theme="nightmarish alien void maw, a colossal eye-and-mouth horror that devours capital ships whole"),
+    'alien_devourer':   dict(ship_code='alien_devourer', kind='alien', prefix='devourer', accent='acid green and violet',
+        theme="enormous manta-ray-shaped living creature-ship with wide membrane wings, rows of glowing acid pods along the body that spray wide energy bursts"),
+    'alien_leviathan':  dict(ship_code='alien_leviathan', kind='alien', prefix='leviathan', accent='deep blue and bioluminescent teal',
+        theme="colossal armored whale-shaped living creature-ship, thick crystalline carapace hull plating, slow and immensely tough"),
+    'alien_hive':       dict(ship_code='alien_hive', kind='alien', prefix='hive', accent='amber orange and shell brown',
+        theme="vast segmented coral-reef living creature-ship covered in glowing pods that release clouds of drifting swarm sparks"),
+    'alien_voidmaw':    dict(ship_code='alien_voidmaw', kind='alien', prefix='voidmaw', accent='void black and luminous purple',
+        theme="immense squid-shaped living creature-ship with a single huge glowing core eye that fires one concentrated energy lance"),
 }
 
-ALIEN_STYLE = ("biomechanical alien horror creature design, H.R. Giger inspired, organic exoskeleton, "
-               "menacing predator, NOT a robot, NOT mechanical, living monster")
+ALIEN_STYLE = ("original colossal spaceborne bio-organism the size of a battleship, living creature-ship, "
+               "drifting through space, NO arms, NO legs, NO humanoid body, NOT a person, NOT a monster standing up, "
+               "streamlined organic hull like a living whale/manta/squid, glowing bioluminescent membranes and veins, "
+               "crystalline carapace plating, completely original concept, NOT derivative of any movie")
 
 
 def assets_for(unit_code):
@@ -81,20 +83,29 @@ def assets_for(unit_code):
     prefix = u['prefix']
     is_alien = u.get('kind') == 'alien'
     style_tail = (ALIEN_STYLE + ", " + STYLE) if is_alien else (PILGRIM + ", " + STYLE)
-    subj = "monstrous alien lifeform creature" if is_alien else "massive humanoid super-mech robot"
-    out = [(
-        # 정면 히어로샷(역동적 포즈) — 합체 탭 카드/모달용
-        f"assets/assembly/portrait/{u['ship_code']}.png",
-        f"epic full-body hero shot of a {subj} in a dynamic dramatic menacing pose, "
-        f"low heroic camera angle looking up, attacking stance, cinematic rim lighting, dramatic atmosphere, "
-        f"character splash art key visual, full body in frame, {u['theme']}, {u['accent']} color scheme, {style_tail}",
-    ), (
-        # 진짜 탑다운 전투 스프라이트 — 전술랩 전투 렌더러용
-        f"assets/ships/top/{u['ship_code']}.png",
-        f"strict top-down orthographic view looking straight down from directly overhead at a giant {subj} "
-        f"seen from above, head/front pointing toward the top of the frame like a vertical game unit sprite, "
-        f"centered, isolated on solid pure black background, {u['theme']}, {u['accent']} color scheme, {style_tail}",
-    )]
+    subj = "gigantic living creature-ship bio-organism (battleship-sized, no limbs)" if is_alien else "massive humanoid super-mech robot"
+    if is_alien:
+        portrait_prompt = (
+            f"epic key-art of a {subj} floating in deep space, dramatic three-quarter side angle showing its huge "
+            f"streamlined organic hull, tiny fighter ships nearby for scale to show it is enormous, cinematic rim lighting, "
+            f"glowing energy, {u['theme']}, {u['accent']} color scheme, {style_tail}")
+        top_prompt = (
+            f"strict top-down view from directly overhead of a {subj}, the whole creature-ship seen from above floating "
+            f"in space, front/head pointing to the top of the frame like a vertical spaceship game sprite, symmetrical, "
+            f"centered, isolated on solid pure black background, {u['theme']}, {u['accent']} color scheme, {style_tail}")
+    else:
+        portrait_prompt = (
+            f"epic full-body hero shot of a {subj} in a dynamic dramatic menacing pose, "
+            f"low heroic camera angle looking up, attacking stance, cinematic rim lighting, dramatic atmosphere, "
+            f"character splash art key visual, full body in frame, {u['theme']}, {u['accent']} color scheme, {style_tail}")
+        top_prompt = (
+            f"strict top-down orthographic view looking straight down from directly overhead at a giant {subj} "
+            f"seen from above, head/front pointing toward the top of the frame like a vertical game unit sprite, "
+            f"centered, isolated on solid pure black background, {u['theme']}, {u['accent']} color scheme, {style_tail}")
+    out = [
+        (f"assets/assembly/portrait/{u['ship_code']}.png", portrait_prompt),
+        (f"assets/ships/top/{u['ship_code']}.png", top_prompt),
+    ]
     part_roles = ALIEN_PART_ROLES if is_alien else PART_ROLES
     for role, desc in part_roles.items():
         thing = desc if is_alien else f"mech {desc}"

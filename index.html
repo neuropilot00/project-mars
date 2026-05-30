@@ -48490,7 +48490,7 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
 </div>
 
 <div id="asmUnitModal" style="display:none;position:fixed;inset:0;z-index:100000;background:rgba(3,6,14,.78);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:18px">
-  <div style="width:min(720px,96vw);max-height:88vh;overflow:auto;background:#080d18;border:1px solid rgba(179,136,255,.32);border-radius:10px;box-shadow:0 18px 60px rgba(0,0,0,.55)">
+  <div style="width:min(900px,96vw);max-height:92vh;overflow:auto;background:#080d18;border:1px solid rgba(179,136,255,.32);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.55)">
     <div id="asmUnitModalContent"></div>
   </div>
 </div>
@@ -48757,6 +48757,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
+var ASSET_VER = '7300'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -48805,7 +48806,7 @@ function renderAssembly(units) {
     var complete = owned >= total && total > 0;
     return '<div class="bp-card" data-action="asm-unit-open" data-unit-code="'+escapeHtmlSafe(u.unit_code||'')+'" style="cursor:pointer;padding:0;overflow:hidden;border:1px solid '+(complete?'rgba(179,136,255,.55)':'rgba(179,136,255,.18)')+';border-radius:14px;background:#0a0e1a;position:relative;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 8px 28px rgba(179,136,255,.28)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'">' +
       '<div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:radial-gradient(circle at 50% 35%,rgba(179,136,255,.18),#05060c 72%)">' +
-        '<img src="assets/assembly/portrait/'+(u.unit_code||'')+'.png" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block" onerror="this.style.display=\'none\'">' +
+        '<img src="assets/assembly/portrait/'+(u.unit_code||'')+'.png?v='+ASSET_VER+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block" onerror="this.style.display=\'none\'">' +
         '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(5,6,12,.92))"></div>' +
         '<div style="position:absolute;top:9px;left:9px;display:flex;gap:5px">' +
           '<span style="font-size:8px;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);backdrop-filter:blur(4px)">'+escapeHtmlSafe(_asmKindLabel(u.kind||''))+'</span>' +
@@ -48883,32 +48884,42 @@ function _asmRenderUnitModal(d){
     var enough = (parseInt(d.shards,10)||0) >= (parseInt(d.shard_exchange_cost,10)||0);
     return '<button type="button" class="fd-btn" data-action="asm-exchange" data-part-code="'+escapeHtmlSafe(p.part_code||'')+'" '+(enough?'':'disabled')+' style="font-size:8px">'+(p.icon||'🜲')+' '+escapeHtmlSafe(_asmName(p)||p.part_code||'Part')+' · '+formatNum(d.shard_exchange_cost)+'</button>';
   }).join('');
-  c.innerHTML =
-    '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)">' +
-      '<div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center">'+_asmImg('assets/assembly/portrait/'+(d.unit_code||d.ship_type_code||'')+'.png', d.icon||'🜲', 54)+'</div>' +
-      '<div style="flex:1;min-width:0">' +
-        '<div style="font-family:Orbitron,monospace;font-size:15px;color:#e1bee7;letter-spacing:1px">'+escapeHtmlSafe(_asmName(unit)||d.unit_code||'Unit')+'</div>' +
-        '<div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:3px">'+escapeHtmlSafe(_asmKindLabel(d.kind||''))+' · '+_asmSeasonLabel(d.season)+(unit.base_hp?(' · HP '+formatNum(unit.base_hp)+' / ATK '+formatNum(unit.base_atk)+' / DEF '+formatNum(unit.base_def)):'')+'</div>' +
-      '</div>' +
-      '<button type="button" class="shipyard-close" data-action="asm-modal-close">✕</button>' +
-    '</div>' +
-    '<div style="padding:14px 16px">' +
-      _asmTraitPanel(d, unit) +
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:12px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
-      '<div style="display:grid;grid-template-columns:repeat(5,minmax(74px,1fr));gap:8px">'+slots+'</div>' +
-      (parseInt(d.built_count,10)>0
-        ? '<div style="margin-top:14px;padding:11px 13px;border:1px solid rgba(129,199,132,.32);border-radius:10px;background:rgba(129,199,132,.07)">' +
-            '<div style="font-size:10px;color:#a5d6a7;letter-spacing:.6px;margin-bottom:8px">✓ '+tl("ASSEMBLED — deployed in your fleet. Upgrade stats in MY FLEET.","합체 완료 — 함대에 배치됨. 스탯 강화는 내 함선 탭에서.","合体完了 — 艦隊配備済み。強化は自艦隊タブ。","已合体 — 已部署。强化在我的舰队页")+'</div>' +
-            '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-              '<button type="button" class="fd-btn primary" data-action="asm-upgrade" style="flex:1;min-width:150px">⬆ '+tl("Go to Upgrade","강화하러 가기","強化へ","前往强化")+'</button>' +
-              '<button type="button" class="fd-btn danger" data-action="asm-disassemble" style="flex:1;min-width:150px">🔧 '+tl("DISASSEMBLE","해체","分解","拆解")+'</button>' +
-            '</div></div>'
-        : '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
-            '<button type="button" class="fd-btn primary" data-action="asm-assemble" '+(d.can_assemble && !maxReached ? '' : 'disabled')+' style="flex:1;min-width:180px">🜲 '+(maxReached?tl('MAX OWNED','최대 보유','上限所持','已达上限'):tl('ASSEMBLE','합체','合体','合体'))+(d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'')+'</button>' +
-          '</div>') +
-      '<div style="margin-top:14px;padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025)">' +
+  var built = parseInt(d.built_count,10)>0;
+  var actionHtml = built
+    ? '<div style="padding:11px 13px;border:1px solid rgba(129,199,132,.32);border-radius:10px;background:rgba(129,199,132,.07)">' +
+        '<div style="font-size:10px;color:#a5d6a7;letter-spacing:.6px;margin-bottom:8px">✓ '+tl("ASSEMBLED — deployed in your fleet","합체 완료 — 함대에 배치됨","合体完了 — 艦隊配備","已合体 — 已部署")+'</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button type="button" class="fd-btn primary" data-action="asm-upgrade" style="flex:1;min-width:130px">⬆ '+tl("Go to Upgrade","강화하러 가기","強化へ","前往强化")+'</button>' +
+          '<button type="button" class="fd-btn danger" data-action="asm-disassemble" style="flex:1;min-width:130px">🔧 '+tl("DISASSEMBLE","해체","分解","拆解")+'</button>' +
+        '</div></div>'
+    : '<button type="button" class="fd-btn primary" data-action="asm-assemble" '+(d.can_assemble && !maxReached ? '' : 'disabled')+' style="width:100%;padding:13px;font-size:13px;letter-spacing:1px">🜲 '+(maxReached?tl('MAX OWNED','최대 보유','上限所持','已达上限'):tl('ASSEMBLE','합 체','合体','合体'))+(d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'')+'</button>';
+  var shardHtml = '<div style="padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025)">' +
         '<div style="font-size:9px;color:rgba(255,255,255,.58);letter-spacing:.8px">💎 '+tl('SHARDS','조각','シャード','碎片')+': <b style="color:#fff">'+formatNum(d.shards)+'</b> · '+tl('exchange cost','교환 비용','交換コスト','兑换消耗')+' <b style="color:#e1bee7">'+formatNum(d.shard_exchange_cost)+'</b></div>' +
         (exchangeBtns ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'+exchangeBtns+'</div>' : '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:8px">'+tl('All parts collected','모든 파츠 보유','全パーツ所持','已集齐')+'</div>') +
+      '</div>';
+  c.innerHTML =
+    '<div class="asm-modal-grid" style="display:grid;grid-template-columns:minmax(280px,42%) 1fr;gap:0">' +
+      // ── 좌: 대형 히어로샷 ──
+      '<div style="position:relative;min-height:520px;background:radial-gradient(circle at 50% 32%,rgba(179,136,255,.22),#05060c 72%);overflow:hidden;border-radius:14px 0 0 14px">' +
+        '<img src="assets/assembly/portrait/'+(d.unit_code||d.ship_type_code||'')+'.png?v='+ASSET_VER+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;position:absolute;inset:0" onerror="this.style.display=\'none\'">' +
+        '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,6,12,.96))"></div>' +
+        '<div style="position:absolute;top:12px;left:12px;display:flex;gap:6px">' +
+          '<span style="font-size:9px;padding:3px 9px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(4px)">'+escapeHtmlSafe(_asmKindLabel(d.kind||''))+'</span>' +
+          (d.season&&d.season!=='permanent'?'<span style="font-size:9px;padding:3px 9px;border-radius:999px;background:rgba(255,209,102,.2);border:1px solid #ffd166;color:#ffd166">'+tl('Limited','한정','限定','限定')+'</span>':'') +
+        '</div>' +
+        '<div style="position:absolute;bottom:14px;left:16px;right:16px">' +
+          '<div style="font-family:Orbitron,monospace;font-size:24px;font-weight:900;color:#fff;text-shadow:0 0 18px rgba(179,136,255,.9),0 2px 10px #000;letter-spacing:1px">'+escapeHtmlSafe(_asmName(unit)||d.unit_code||'Unit')+'</div>' +
+          (unit.base_hp?'<div style="font-size:10px;color:#e1bee7;margin-top:5px;text-shadow:0 1px 4px #000">HP '+formatNum(unit.base_hp)+' · ATK '+formatNum(unit.base_atk)+' · DEF '+formatNum(unit.base_def)+'</div>':'') +
+        '</div>' +
+      '</div>' +
+      // ── 우: 정보/파츠/액션 ──
+      '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px;position:relative">' +
+        '<button type="button" class="shipyard-close" data-action="asm-modal-close" style="position:absolute;top:12px;right:14px">✕</button>' +
+        _asmTraitPanel(d, unit) +
+        '<div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:13px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
+        '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+slots+'</div>' +
+        actionHtml +
+        shardHtml +
       '</div>' +
     '</div>';
 }
