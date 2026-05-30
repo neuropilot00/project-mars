@@ -1,3 +1,20 @@
+## 2026-05-30 v7.289~v7.310 — 합체 유닛 풀스택 + 전투/UI 보강 (종합)
+
+> 누락 복구: v7.289 이후 항목이 CHANGELOG에 반영되지 않아 일괄 정리.
+
+- **v7.289 P2 가챠 + 유닛 확장**: 퍼펙트 가챠 박스(박스가챠+하드천장+조각). 로봇 6종(볼타리스/이그니스/글라키우스/움브라/아우룸/템페스트) + 외계 거대생물함 4종(디바우러/레비아탄/하이브퀸/보이드모). migration 280~284.
+- **v7.290 유닛 프레임워크화**: `assembly_units` 카탈로그 — 새 한정 유닛을 SQL 3 INSERT만으로 추가. 유닛별 천장.
+- **v7.291~298 아트**: 정면 히어로샷(portrait) / 전투 탑뷰(top, 로봇=비스듬 공격포즈·외계=거대 생물함) / 파츠 아이콘 분리. 저작권 위험 용어(Giger/predator 등) 제거 — 외계는 오리지널 거대 우주생물 함선. ?v=ASSET_VER 캐시버스트.
+- **v7.299 세계관 설명**: 10유닛 lore(ship_types.description) 4언어.
+- **v7.300~303 모달/모바일**: 합체 모달 좌측 대형 히어로샷 + 우측 특성/파츠/액션. 모바일 풀스크린 세로 스택(잘림 수정).
+- **v7.304 전투 미리보기**: 모달에 "전장에서의 모습(탑뷰)" 섹션.
+- **v7.305 기동 리네임**: "합체"→"기동(Activate)" 4언어. 게임가이드 기동 슈퍼유닛 섹션. 영토 외곽선 얇게.
+- **v7.306 P3 전투통합**: assembled 매치업(저격/폭격/전자전 카운터, 중상위) + 합체 필살기(overdrive, 서버권위) — PvP 투입. battleEngine.
+- **v7.307 자동 퇴각**: fleets.auto_retreat_pct(migration 287). HP 임계 이하 시 함대 후퇴(함선 보존, 패배). Fleet Command 🛟 토글.
+- **v7.308 미사일 지렁이 탄막 + 3단 추천**: 미사일 wobble 곡선 궤적(빔과 차별). GET /api/referral/stats 1/2/3단 인원수.
+- **v7.309~310 추천/무기색**: 추천 1/2/3단 카운트를 내 자산(포트폴리오) 모달로 일원화 + 초대(INVITE) 스텝. 전술랩 무기별 발사 색상(weaponColor: laser/missile/railgun/disruptor/lance/swarm/spread/plasma/torpedo).
+- 조각 교환비용 50개 파츠 전부 고유(유닛 base 30~120 + 슬롯 오프셋).
+
 ## 2026-05-30 v7.288 — 합체 유닛 아트(Imagen 3) + UI 이미지 연결
 
 - 합체체/5파츠 PNG를 GCP Vertex AI Imagen 3로 생성(scripts/gen_assembly_assets.py): assets/ships/top/pilgrim_voltaris.png(탑뷰 메카) + assets/assembly/parts/voltaris_{scout,assault,artillery,shield,command}.png. 톤=기존 캠페인 아트(32-bit semi-realistic, Pilgrim Arms 보라 메카).
