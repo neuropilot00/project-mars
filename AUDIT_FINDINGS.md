@@ -2,6 +2,13 @@
 
 > 직전 세션 작업 요약. 상세는 `CHANGELOG.md` 참조.
 
+## 🟢 채굴→"자원 출항" 리네이밍 + SHOP 점멸 버그 + 새 배너 (v7.272, 2026-05-30)
+- ✅ [BUG] 경제 카테고리 빨간 점멸 안 꺼짐 — SHOP dot 폴링이 `_pollDotState.shop_items` 미설정 → clearBaseTabDot 스냅샷 undefined→0 → `cnt>0` 항상 참 → 영구 재점등. `_pollDotState.shop_items=cnt` 추가로 수정.
+- ✅ [UX] 함선 기반 자원획득 "채굴"→"자원 출항"(4언어). 영토 PP채굴/원정과 구분.
+- ✅ [ART] mining 배너 Imagen 재생성 800×340→1600×680(scripts/gen_mining_banner.py, ADC). 캐시버스트 v7272.
+- ⚠️ [SECURITY] scripts/gen_backgrounds_ai.py 에 Stability AI 키 평문 커밋 발견 — 회수 필요.
+- 검증: 인라인 11/11 + 배너 1600×680. SW v77.
+
 ## 🔴→🟢 함대 함선수 필드 버그(ship_count) = 채굴/Void Raider 함대선택 빈칸 (v7.271, 2026-05-30)
 - ✅ [BUG] `/api/fleets`는 `ships_alive`로 함선수 반환하는데 프론트 10곳이 없는 `f.ship_count`를 읽음 → 함선 많아도 0 → 채굴 출항 "함대 없음", 월드이벤트(Void Raider) engage 함대목록 빈칸.
 - ✅ 수정: `parseInt(f.ships_alive)||parseInt(f.ship_count)||0` 폴백으로 10곳 일괄 교체(채굴/_renderShipMining, we engage 24115·24200, 함대요약 35773·36205·53025 등). 프론트 전용.

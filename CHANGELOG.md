@@ -1,3 +1,11 @@
+## 2026-05-30 v7.272 — 채굴→"자원 출항" 리네이밍 + SHOP 탭 영구 점멸 버그 + 새 배너
+
+- **리네이밍**: 함선 기반 자원 획득 기능명을 "채굴"→**"자원 출항"**(EN Resource Run / JA·ZH 資源出航·资源出航)으로 변경. 영토 PP "채굴" 및 기존 "원정(Expedition)"과 혼동 제거. 탭/카드/버튼/단축명/모달 + 4언어 + HTML fallback 일괄 반영.
+- **SHOP 탭 영구 점멸 버그 수정**: 경제 카테고리에 빨간 점멸이 안 꺼지던 원인 — SHOP dot 폴링이 `_pollDotState.shop_items`를 설정하지 않아, 탭 오픈 시 `clearBaseTabDot` 스냅샷이 `undefined→0`이 되고 다음 폴링에서 `cnt>0` 항상 참 → 영구 재점등. 폴링에 `_pollDotState.shop_items = cnt` 추가로 수정(market/pvp와 동일 패턴). 다음 SHOP 오픈 시 자가 정상화.
+- **새 배너**: `assets/base/mining.png`를 Vertex Imagen 3로 신규 생성(800×340 저해상 → **1600×680**, 타 배너와 동일). Mars 협곡에서 채광 함선/드론이 청색 광맥 추출하는 픽셀아트. 생성 스크립트 `scripts/gen_mining_banner.py` 추가(ADC 인증). 캐시버스트 `?v=v7272`.
+- 검증: 인라인 스크립트 11/11 파싱 + 배너 1600×680 PNG 확인. SW v76→v77.
+- ⚠️ 보안 발견(별건): `scripts/gen_backgrounds_ai.py`에 Stability AI API 키 평문 커밋 — 회수/정리 필요(이번 변경엔 미포함).
+
 ## 2026-05-30 v7.271 — 함대 함선수 필드 버그(ship_count→ships_alive): 채굴/Void Raider 함대선택 "함대 없음" 수정
 
 함선이 많은데도 채굴 출항 함대 선택이 "함선 있는 함대 없음"으로 비는 버그. 근본: `/api/fleets`는 함선 수를 **`ships_alive`** 필드로 반환하는데(`fleet.js` listFleets), 프론트 10곳이 존재하지 않는 **`f.ship_count`**를 읽어 항상 0 처리.
