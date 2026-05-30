@@ -1675,6 +1675,11 @@ async function start() {
     // ── 워커 게이트 끝 ────────────────────────────────────────────
 
     // Start HTTP server
+    // [v7.314] 자동 게임 운영 — GP 래플 + 파벌 예측배팅 자동 생성/정산 (어드민 불필요)
+    try {
+      require('./services/gamblingAuto').start();
+    } catch (e) { console.warn('[gamblingAuto] start failed:', e.message); }
+
     const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);
       console.log(`║  OCCUPY MARS — Server Running             ║`);

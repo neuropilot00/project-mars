@@ -1,3 +1,14 @@
+## 2026-05-30 v7.314 — GP 래플 + 파벌 예측배팅 완전 자동화 (어드민 불필요)
+
+- **요청**: "gp 예측배팅도 알아서 자동으로 계속 되야지 어드민이 세팅하면 안됨". 모든 퀘스트/도박은 자동 운영.
+- **신규 `server/services/gamblingAuto.js`** + `server/index.js` 스케줄러 등록(5분 주기, 부팅+20s):
+  - **GP 래플**: 열린 래플이 없으면 24h "Mars Daily Jackpot" 자동 생성(`getOpenRaffles`→없으면 `adminCreateRaffle`). 마감 추첨/지급은 기존 [RAFFLE] autoDrawExpired(1분)가 처리. → 항상 1개 열려 있음.
+  - **GP 예측배팅**: 열린 "Faction Race"(MCC/FSP/CV, 24h) 이벤트가 없으면 자동 생성. 마감(close)은 기존 closeExpiredEvents(60s)가 처리하고, gamblingAuto가 **윈도우 동안 파벌별 신규 클레임 수 집계→자동 정산(resolveEvent)**. 무활동/동점이면 베팅 전액 환불(cancelled).
+  - 설정 키(getSetting, 기본값 내장): `raffle_auto_enabled`, `raffle_auto_ticket_gp`(20), `raffle_auto_house_cut_pct`(10), `raffle_auto_duration_hours`(24), `war_betting_auto_enabled`, `war_betting_auto_duration_hours`(24).
+- **검증**: 라이브 DB tick 1회 → 래플1+파벌배팅1 자동 생성, 2회차 tick 중복생성 0(idempotent), 에러 0.
+- 어드민 수동 생성 UI(v7.313)는 특별 이벤트용으로 유지. 평상시 운영은 전부 자동.
+- **GP 래플이란?**: GP로 티켓을 사면 마감 시 무작위 1명이 팟(티켓 합계 − 하우스컷)을 가져가는 추첨. **GP 예측배팅이란?**: 정해진 결과(파벌 영토경쟁 등)에 GP를 걸고, 맞춘 쪽이 진 쪽 판돈을 나눠 갖는 베팅.
+
 ## 2026-05-30 v7.313 — 영토 일괄 수확 + 어드민 배팅 이벤트 생성 UI
 
 - **영토 일괄 수확(⛏ HARVEST ALL)**: 내 영토 패널에 일괄 정비(🔧 TEND ALL) 옆 일괄 수확 버튼 추가. 검증된 단일 `/api/territory/:id/harvest`를 내 영토 전체에 순차 호출 → 풀 차감/일일 캡/자원 드롭/리퍼럴 로직 100% 재사용. 쿨다운 영토는 건너뛰고 수확 건수·총 PP·드롭을 토스트로 요약. 4언어 i18n(`harvest_all_btn`).
