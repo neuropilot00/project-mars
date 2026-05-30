@@ -1,3 +1,11 @@
+## 2026-05-31 v7.317e — 토너먼트 스키마 버그 수정 (자동화 실동작 완성)
+
+- 토너먼트 자동화가 실제로 안 돌던 근본 원인: `adminCreateTournament`가 존재하지 않는 컬럼(icon/max_players/starts_at/ends_at)을 INSERT해 **항상 500**. 실 스키마(097: status/max_participants/start_at/completed_at/prize_pool_gp)로 수정.
+  - 생성 status를 'open'으로(기존 'registering'이라 joinTournament이 거부) → 유저 참가 가능.
+  - `adminPickWinner`의 winner_prize(없는 컬럼)→completed_at. joinTournament max_players(없음)→max_participants 2곳.
+- 라이브 DB E2E: 자동 생성→유저 참가(join=OK)→마감→영토최다 자동 승자선정(completed, winner=yes)→연동 wager 동일 승자 정산 전 경로 통과.
+- 이로써 토너먼트+wager 완전 자동화 실동작 확인.
+
 ## 2026-05-30 v7.317b — 토너먼트+Wager 자동화 스키마 정합 재작성
 
 - v7.317 최초 구현이 실제 DB 스키마와 불일치(존재하지 않는 wager_pools.options 컬럼, tournaments status 'open' 가정)라 동작 안 함. 실 스키마 기준 재작성.
