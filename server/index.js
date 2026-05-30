@@ -408,6 +408,7 @@ app.use('/api', allianceRoutes);
 app.use('/api', vipRoutes);
 app.use('/api', expeditionRoutes);
 app.use('/api', require('./routes/shipMining')); // 경제 v2 P5 — 함선 채굴 런 (F2P 노가다)
+app.use('/api', require('./routes/assembly')); // 합체 슈퍼유닛 P1 — 파츠 수집/합체
 app.use('/api', brandingRoutes);
 app.use('/api', spellRoutes);
 app.use('/api', tournamentRoutes);

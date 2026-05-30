@@ -1,3 +1,12 @@
+## 2026-05-30 v7.281 — 합체 슈퍼유닛 P1 수집·합체 코어 (백엔드)
+
+볼트론형 합체 슈퍼유닛 기획서 결정(①가챠 유지 ②신규 함급 ③항시 오픈) 반영, P1 수집·합체 코어 백엔드 구현:
+- **마이그레이션 279**: `pilgrim` 세력(NPC, is_active=false — 조선소/크레이트 cross-faction 롤 비오염), 합체체 `ship_types.pilgrim_voltaris`(size_class=`assembled`, 중상위=타이탄 호각 HP180만/ATK820/DEF640, 단일 최고스탯 초과 금지). `assembly_parts`(5함급 변형 5종), `user_assembly_parts`, `user_assembly_shards`, `assembly_events`, settings 8종(§8 수치).
+- **service `assembly.js`**: getState(5파츠 보유/조각/합체가능·4언어) / assemble(5파츠+GP 소모→ships 인스턴스 생성, 기함 자동/상한 가드) / disassemble(해체→파츠 환원, 전투중·판매중 방어) / exchangeShards(조각 소프트천장 교환) / grantParts(어드민 테스트).
+- **route `assembly.js`** + index.js 마운트(`/api/assembly/*`).
+- **검증(로컬 E2E)**: STATE→ASSEMBLE(ship 생성/파츠소모/기함)→ships row→DISASSEMBLE(파츠환원) 라운드트립 + 음성경로(MISSING_PARTS/INSUFFICIENT_SHARDS/forbidden) 전부 통과.
+- P2(박스가챠+천장 30/조각 15·40)·P3(전투통합·PvP격리·필살기 신규 서버명령) 미착수. 기획서: docs/MECHA_ASSEMBLY_GACHA_PLAN_2026-05-30.md.
+
 ## 2026-05-30 v7.280 — Fleet Command 함선 SELECTED 표시 안 뜸 (bigint id 타입 불일치) 수정
 
 함대지휘에서 함선 카드를 클릭해도 cyan 선택 하이라이트/✓ 뱃지가 전혀 안 뜨던 버그 수정:
