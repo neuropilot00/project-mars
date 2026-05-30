@@ -909,7 +909,7 @@ function getShipMatchupMult(attacker, target) {
     if (tRole === 'ewar' || tRole === 'logi' || tSize === 'frigate') mult *= 1.22;
     if (tRole === 'tank' || tSize === 'battleship' || tSize === 'titan') mult *= 0.84;
   } else if (aRole === 'ewar') {
-    if (tRole === 'dps' || tRole === 'sniper' || tSize === 'battleship' || tSize === 'titan') mult *= 1.18;
+    if (tRole === 'dps' || tRole === 'sniper' || tSize === 'battleship' || tSize === 'titan' || tSize === 'assembled') mult *= 1.18;
     if (tRole === 'tackle' || tSize === 'frigate') mult *= 0.82;
   } else if (aRole === 'logi') {
     mult *= 0.72;
@@ -917,14 +917,21 @@ function getShipMatchupMult(attacker, target) {
     if (tRole === 'tackle' || tSize === 'frigate') mult *= 1.12;
     if (tRole === 'sniper' || tRole === 'bomb') mult *= 0.90;
   } else if (aRole === 'sniper') {
-    if (tRole === 'tank' || tSize === 'cruiser' || tSize === 'battleship' || tSize === 'titan') mult *= 1.25;
+    if (tRole === 'tank' || tSize === 'cruiser' || tSize === 'battleship' || tSize === 'titan' || tSize === 'assembled') mult *= 1.25;
     if (tRole === 'tackle' || tSize === 'frigate') mult *= 0.78;
   } else if (aRole === 'bomb' || attacker.fireType === 'stealth_bomb') {
-    if (tSize === 'battleship' || tSize === 'titan' || tRole === 'tank') mult *= 1.28;
+    if (tSize === 'battleship' || tSize === 'titan' || tSize === 'assembled' || tRole === 'tank') mult *= 1.28;
     if (tSize === 'frigate' || tRole === 'tackle') mult *= 0.68;
   } else if (aRole === 'dps') {
     if (tRole === 'ewar' || tRole === 'logi') mult *= 1.10;
     if (tRole === 'tank') mult *= 0.92;
+  }
+
+  // ── Assembled super-unit (Pilgrim Arms Voltaris) ──
+  // 중상위 generalist: 소형/스크린 정리에 강함(광역), 단 전자전에 교란됨. 카운터=저격/폭격/전자전(위 분기에서 처리).
+  if (aSize === 'assembled') {
+    if (tSize === 'frigate' || tRole === 'tackle') mult *= 1.14; // 광역으로 소형/스크린 처리
+    if (tRole === 'ewar') mult *= 0.90;                          // 전자전에 교란
   }
 
   // Faction doctrine: MCC precision, FSP attrition, CV raiding.
@@ -1294,6 +1301,7 @@ module.exports = {
   simulateBattleLive,
   applyLiveCommand,
   applyBattleResults,
+  getShipMatchupMult,
   TICK_MS,
   MAX_TICKS,
   FIELD_W,
