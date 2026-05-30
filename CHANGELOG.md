@@ -1,3 +1,9 @@
+## 2026-05-31 v7.320 — 수확 GP/PP 표시 수정 + 가챠 영상 건너뛰기 버튼
+
+- **수확이 PP로 표시되던 버그 수정(실제론 GP 지급)**: 서버는 경제v2 P2에서 즉시 수확을 GP로 지급(gp_balance += harvestedGP)하는데 영토별 수확 응답(`/territory/:id/harvest`)에 harvestedGP가 빠져 UI가 "+N PP"로 표시. 응답에 harvestedGP 추가 + 프론트 일괄수확(harvestAllTerritories)·전체수확(harvestInstant) 모두 "+N GP" 표시로 수정.
+- **가챠 박스 오픈 영상 건너뛰기 버튼 추가**: `_playBoxOpenVideo`에 우상단 SKIP 버튼(4언어) + 배경 탭으로도 건너뛰기. 영상 일시정지 후 결과로 즉시 이동.
+- **점검 결과(보고)**: GP 복권 구매는 로컬에서 정상 동작 확인(buy=OK) — 사용자 에러는 GP 부족 또는 운영 DB 상태로 추정. GP 스테이킹은 서비스+스케줄러만 있고 **라우트·프론트 UI가 전혀 없는 미완성 기능**(별도 구축 필요). 일괄수확은 이미 영토별로 `/territory/:id/harvest`를 순차 호출(per-territory).
+
 ## 2026-05-31 v7.318+319 — 토너먼트 생성버그 최종수정 + 복권노출 + 월드이벤트 자동등장 + 진형표시
 
 - **토너먼트 자동화 실동작 완성**: `adminCreateTournament`가 INSERT에 status='open'을 박아 DB check 제약(registering/ready/running/completed/cancelled)에 위배돼 항상 실패하던 것 수정 — status를 INSERT에서 빼고 DB 기본값('registering') 사용. join은 종료상태(completed/cancelled)만 거부하도록 완화. winner_prize→completed_at, max_players→max_participants. 라이브DB E2E: 생성→참가(join=OK)→자동 승자선정(pick=OK)→연동 wager 정산 전 경로 통과.

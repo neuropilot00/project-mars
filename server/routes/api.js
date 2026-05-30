@@ -3723,7 +3723,8 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     await client.query('COMMIT');
 
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
-    res.json({ success: true, harvestedPP, totalPixels, tier, intervalHours, nextHarvestAt, resources: resourceDrops });
+    // [v7.320] 즉시 수확은 GP로 지급되므로 harvestedGP를 함께 내려 UI가 "+N GP"로 표시하게 한다.
+    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, intervalHours, nextHarvestAt, resources: resourceDrops });
 
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
