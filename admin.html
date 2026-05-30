@@ -3106,6 +3106,69 @@ function adminConfirm(msg, title) {
 }
 var adminSecret = '';
 window.ADMIN_SECRET = '';
+
+// [v7.312] CSRF auto-wiring — server requires X-CSRF-Token on admin mutations (GET /admin/api/csrf-token).
+// admin.html historically never sent it, so every SAVE/POST/PUT/DELETE failed with "CSRF token missing".
+// Wrap fetch once to lazily fetch+cache the token and attach it to mutating /admin/api requests.
+(function(){
+  if (window.__adminCsrfWrapped) return;
+  window.__adminCsrfWrapped = true;
+  var _origFetch = window.fetch.bind(window);
+  var _csrfToken = null;
+  var _csrfFetching = null;
+
+  function isAdminMutation(url, method){
+    var m = (method || 'GET').toUpperCase();
+    if (m === 'GET' || m === 'HEAD' || m === 'OPTIONS') return false;
+    var u = '';
+    try { u = (typeof url === 'string') ? url : (url && url.url) || ''; } catch(_){ u = ''; }
+    return u.indexOf('/admin/api/') !== -1;
+  }
+  function authHeaders(){
+    var h = { 'Accept': 'application/json' };
+    if (adminSecret) h['x-admin-secret'] = adminSecret;
+    return h;
+  }
+  function fetchToken(){
+    if (_csrfFetching) return _csrfFetching;
+    _csrfFetching = _origFetch('/admin/api/csrf-token', { headers: authHeaders() })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ _csrfToken = (d && d.csrfToken) || null; _csrfFetching = null; return _csrfToken; })
+      .catch(function(){ _csrfFetching = null; return null; });
+    return _csrfFetching;
+  }
+  function withToken(opts, token){
+    opts = opts || {};
+    var h = opts.headers;
+    if (typeof Headers !== 'undefined' && h instanceof Headers) {
+      var plain = {}; try { h.forEach(function(v,k){ plain[k]=v; }); } catch(_){}
+      h = plain;
+    }
+    h = Object.assign({}, h || {});
+    if (token) h['X-CSRF-Token'] = token;
+    return Object.assign({}, opts, { headers: h });
+  }
+
+  window.fetch = function(url, opts){
+    if (!isAdminMutation(url, opts && opts.method)) return _origFetch(url, opts);
+    var run = function(token){
+      return _origFetch(url, withToken(opts, token)).then(function(res){
+        if (res.status !== 403) return res;
+        return res.clone().json().then(function(j){
+          var msg = (j && j.error) || '';
+          if (/csrf/i.test(msg)) {
+            _csrfToken = null;
+            return fetchToken().then(function(t2){ return t2 ? _origFetch(url, withToken(opts, t2)) : res; });
+          }
+          return res;
+        }).catch(function(){ return res; });
+      });
+    };
+    if (_csrfToken) return run(_csrfToken);
+    return fetchToken().then(function(t){ return run(t); });
+  };
+})();
+
 // Set language selector to stored value on load
 (function() {
   var stored = localStorage.getItem('adminLang') || 'en';
