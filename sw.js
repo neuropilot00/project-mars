@@ -82,7 +82,8 @@
 // 2026-05-30 v80: v7.275 카테고리 검수 수정1 — 현상금/퀘스트 통화 GP 오표기 수정, OPS 연료 잔액갱신, 에러토스트 54곳 srvErr 4언어화, 영토 업그레이드 에러 코드화, 자원출항 버튼 라벨.
 // 2026-05-30 v81: v7.276 게임 가이드(GUIDEBOOK) whatsnew 4언어 갱신 — 자원 출항 + GP 중심 경제 반영.
 // 2026-05-30 v82: v7.277 전술랩 로컬라이징 — 래퍼 헤더(戦術ラボ 등) 열 때 현 언어 재적용 + 캔버스 함대 라벨(formation/maneuver) tl() 4언어화.
-const CACHE_NAME = 'mars-v82';
+// 2026-05-30 v83: v7.278 TEND(영토 정비) 비용 사전표시 + 확인 모달 — GP 무고지 즉시 차감 수정(production 응답 tendCostGp).
+const CACHE_NAME = 'mars-v83';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

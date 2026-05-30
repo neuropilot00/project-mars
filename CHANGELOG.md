@@ -1,3 +1,10 @@
+## 2026-05-30 v7.278 — TEND(영토 정비) 비용 사전표시 + 확인 (백로그 #1)
+
+영토 정비(TEND)가 비용 안내·확인 없이 GP를 즉시 차감하던 문제(카테고리 검수 medium) 수정:
+- production 응답(`GET /api/territory/:claimId/production`)에 `tendCostGp`(설정 `territory_tend_cost_gp` 기본 50) 추가 → 프론트 `window._tendCostGp` 캐시.
+- `tendTerritory()`를 async로 전환, POST 전에 **비용을 표시하는 gameConfirm**로 게이트(3개 TEND 버튼 진입점 모두 이 함수 경유라 일괄 적용). 업그레이드/강화 흐름과 일관(§19 비용 사전표시 원칙).
+- 검증: node --check(api) + 인라인 11/11. SW v82→v83.
+
 ## 2026-05-30 v7.277 — 전술랩 로컬라이징 (헤더 + 캔버스 함대 라벨)
 
 전술랩 헤더가 한국어 세션에서도 일본어(戦術ラボ…)로 남고, 캔버스 함대 라벨의 진형/기동(Screen/Advance/Rally/Wedge/Scatter)이 영어로 표시되던 문제 수정:

@@ -14352,8 +14352,20 @@ function tendAllTerritories(){
     })
     .catch(function(e){ showToast('Error: '+e.message,'error'); });
 }
-function tendTerritory(claimId,wallet){
+async function tendTerritory(claimId,wallet){
   var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  // [v7.278] 비용 사전표시 + 확인 — GP가 무고지 즉시 차감되던 문제 수정.
+  var cost=(typeof window._tendCostGp==='number')?window._tendCostGp:50;
+  if(typeof gameConfirm==='function'){
+    var ok=await gameConfirm({
+      icon:'🔧',
+      title:(lang==='ko'?'영토 정비':lang==='ja'?'領土整備':lang==='zh'?'领地维护':'Tend Territory'),
+      body:(lang==='ko'?'영토 컨디션을 회복하고 등급을 올립니다.':lang==='ja'?'領土コンディションを回復し等級を上げます。':lang==='zh'?'恢复领地状态并提升等级。':'Restore territory condition and raise its grade.'),
+      info:[{k:(lang==='ko'?'비용':lang==='ja'?'費用':lang==='zh'?'费用':'Cost'), v:cost+' GP'}],
+      confirmText:(lang==='ko'?'정비하기':lang==='ja'?'整備する':lang==='zh'?'维护':'TEND')
+    });
+    if(!ok) return;
+  }
   var headers={'Content-Type':'application/json'};
   if(typeof emailAuth!=='undefined'&&emailAuth&&emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
   fetch('/api/territory/'+claimId+'/tend',{method:'POST',headers:headers})
@@ -14385,6 +14397,7 @@ function loadTerritoryProduction(claimId,wallet){
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.error){prodBody.textContent='—';return;}
+      if(d.tendCostGp!=null) window._tendCostGp=d.tendCostGp; // [v7.278] TEND 비용 사전표시용 캐시
       var lang=(typeof LANG!=='undefined'?LANG:'ko');
       var html='';
       // PP estimate

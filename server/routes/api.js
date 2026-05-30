@@ -5914,6 +5914,8 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
       condition: parseFloat(claim.condition != null ? claim.condition : 100),
       grade: claim.grade || 'B',
       lastTendedAt: claim.last_tended_at || null,
+      tendCostGp: parseInt(await getSetting('territory_tend_cost_gp', '50')) || 50, // [v7.278] 프론트 TEND 비용 사전표시용
+
       sector: {
         type: sectorType,
         name: claim.sector_name,
