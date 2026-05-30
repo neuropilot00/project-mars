@@ -49794,6 +49794,60 @@ function shipRoleInfo(role) {
   return map[(role || 'dps').toLowerCase()] || map.dps;
 }
 
+// ── 역할 상성(강함/약함) — server/services/battleEngine.js getShipMatchupMult 기준 ──
+var _ROLE_MATCHUP = {
+  tackle: { strong:['ewar','logi','small'], weak:['tank','capital'] },
+  ewar:   { strong:['dps','sniper','capital'], weak:['tackle','small'] },
+  logi:   { strong:['support'], weak:['direct'] },
+  tank:   { strong:['tackle','small'], weak:['sniper','bomb'] },
+  sniper: { strong:['tank','capital'], weak:['tackle','small'] },
+  bomb:   { strong:['capital','tank'], weak:['small','tackle'] },
+  dps:    { strong:['ewar','logi'], weak:['tank'] }
+};
+var _ROLE_TOKEN_I18N = {
+  en: { ewar:'EW', logi:'Logi', small:'Small/Screen', capital:'Capitals', tank:'Tank', sniper:'Sniper', bomb:'Bomber', dps:'DPS', tackle:'Tackle', support:'Support only', direct:'Direct combat' },
+  ko: { ewar:'전자전', logi:'로지', small:'소형/스크린', capital:'대형함', tank:'탱크', sniper:'저격', bomb:'폭격', dps:'DPS', tackle:'태클', support:'지원 전용', direct:'직접 전투' },
+  ja: { ewar:'電子戦', logi:'ロジ', small:'小型/スクリーン', capital:'大型艦', tank:'タンク', sniper:'狙撃', bomb:'爆撃', dps:'DPS', tackle:'タックル', support:'支援専用', direct:'直接戦闘' },
+  zh: { ewar:'电子战', logi:'后勤', small:'小型/拦截', capital:'大型舰', tank:'坦克', sniper:'狙击', bomb:'轰炸', dps:'DPS', tackle:'牵制', support:'仅支援', direct:'直接战斗' }
+};
+function shipRoleMatchupChips(role) {
+  var m = _ROLE_MATCHUP[(role || 'dps').toLowerCase()];
+  if (!m) return '';
+  var lang = _ROLE_TOKEN_I18N[LANG] ? LANG : 'en';
+  var t = _ROLE_TOKEN_I18N[lang];
+  function names(arr){ return (arr||[]).map(function(x){ return t[x]; }).filter(Boolean).join(', '); }
+  var s = names(m.strong), w = names(m.weak), chips = '';
+  if (s) chips += '<span style="display:inline-block;font-size:7px;letter-spacing:.3px;padding:1px 5px;border-radius:999px;margin:2px 3px 0 0;background:rgba(102,187,106,.14);border:1px solid rgba(102,187,106,.4);color:#81c784">▲ '+s+'</span>';
+  if (w) chips += '<span style="display:inline-block;font-size:7px;letter-spacing:.3px;padding:1px 5px;border-radius:999px;margin:2px 3px 0 0;background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.4);color:#e57373">▼ '+w+'</span>';
+  return chips ? '<div style="margin-top:4px;line-height:1.6">'+chips+'</div>' : '';
+}
+// 함대 역할 커버리지 + 빈칸(결핍) 안내 → 조선소 동선
+function fleetRoleGapHtml(f) {
+  var ships = (f && f.ships) || [];
+  if (!ships.length) return '';
+  var ROLES = ['tackle','ewar','dps','tank','sniper','logi','bomb'];
+  var have = {};
+  ships.forEach(function(s){ var r=(s.role||'dps').toLowerCase(); have[r]=(have[r]||0)+1; });
+  var chips = ROLES.map(function(r){
+    var n = have[r]||0, on = n>0, label = shipRoleInfo(r).label;
+    return '<span style="display:inline-block;font-size:8px;padding:2px 7px;border-radius:999px;margin:2px;'+(on?'background:rgba(79,195,247,.16);border:1px solid #4fc3f7;color:#cfeffd':'background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.2);color:rgba(255,255,255,.35)')+'">'+(on?'●':'○')+' '+label+(on?(' ×'+n):'')+'</span>';
+  }).join('');
+  var warns = [];
+  if (!have.sniper && !have.bomb) warns.push(tl('No anti-capital (Sniper/Bomber) → weak vs Battleship/Titan','대형함 카운터(저격/폭격) 부재 → 전함·타이탄에 취약','大型艦カウンター(狙撃/爆撃)不在 → 戦艦・タイタンに弱い','缺少反大型(狙击/轰炸) → 对战列/泰坦薄弱'));
+  if (!have.tank) warns.push(tl('No Tank → front line unprotected','탱크 부재 → 전열 보호 없음','タンク不在 → 前列が無防備','缺少坦克 → 前排无保护'));
+  if (!have.logi) warns.push(tl('No Logi → low sustain in long battles','로지 부재 → 장기전 생존력 낮음','ロジ不在 → 長期戦の生存力低下','缺少后勤 → 持久战生存力低'));
+  if (!have.tackle) warns.push(tl('No Tackle → cannot pin enemy flagship','태클 부재 → 적 기함 추격 불가','タックル不在 → 敵旗艦を追撃できない','缺少牵制 → 无法咬住敌旗舰'));
+  var warnHtml = warns.length ? '<div style="margin-top:6px;font-size:8px;line-height:1.6;color:#ffb74d">'+warns.map(function(x){return '⚠ '+x;}).join('<br>')+'</div>' +
+    '<button type="button" class="fd-btn" style="margin-top:6px;width:100%;font-size:9px" onclick="event.preventDefault();event.stopPropagation();fleetGapGoShipyard()">⚒ '+tl('Reinforce in Shipyard','조선소에서 보강','造船所で補強','在造船厂补强')+'</button>' : '';
+  return '<div style="margin-top:10px;padding:9px 11px;border:1px solid rgba(255,255,255,.08);border-radius:8px">' +
+    '<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:4px">'+tl('ROLE COVERAGE','역할 커버리지','ロールカバレッジ','角色覆盖')+'</div>' +
+    '<div>'+chips+'</div>'+warnHtml+'</div>';
+}
+function fleetGapGoShipyard() {
+  try { var m=document.getElementById('fleetCmdModal'); if(m) m.classList.remove('active'); } catch(_){}
+  try { openShipyard(); } catch(_){}
+}
+
 // class_label 다국어 변환 (DB는 영어로 저장)
 var _CLASS_LABEL_MAP = {
   ko: {
@@ -49945,6 +49999,7 @@ function renderBlueprintCard(s) {
     '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + syShipName(s) + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + syClassLabel(s.class_label || '') + '</div>' +
     '<div class="bp-role ' + roleKey + '"><span class="bp-role-badge">' + roleInfo.label + '</span><span class="bp-role-text">' + fcEsc((LANG==='ko' ? s.description_ko : LANG==='ja' ? (s.description_ja||s.description_en||null) : LANG==='zh' ? (s.description_zh||s.description_en||null) : s.description_en) || roleInfo.desc) + '</span></div>' +
+    shipRoleMatchupChips(s.role) +
     '<div class="bp-stats">' +
       '<div class="bp-stat"><div class="bp-stat-label">HP</div><div class="bp-stat-value">' + syFmt(s.base_hp) + '</div></div>' +
       '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + s.base_atk + '</div></div>' +
@@ -51019,6 +51074,7 @@ function renderFleetDetail() {
     '</div>' +
     renderSelectedShipPanel(f) +
     renderFleetPreview(f) +
+    fleetRoleGapHtml(f) +
     '<div class="fleet-ships-header">' +
       '<div class="fs-summary"><span>총 <b>' + f.ships_alive + '</b>'+(LANG==="ko"?"척":LANG==="ja"?"隻":LANG==="zh"?"艘":"ships")+'</span><span>HP <b>' + syFmt(f.total_hp) + ' / ' + syFmt(f.total_max_hp) + '</b></span><span>'+(LANG==="ko"?"전적 ":LANG==="ja"?"戦績 ":LANG==="zh"?"战绩 ":"Record ")+'<b>' + (f.battles_won || 0) + 'W / ' + (f.battles_lost || 0) + 'L</b></span></div>' +
       '<div class="fs-select-actions ' + (selCount > 0 ? 'active' : '') + '">' +
@@ -51182,6 +51238,7 @@ function renderFcShipCard(s, fleetInBattle) {
     '<div class="fs-card-name" style="color:' + color + '" title="' + fcEsc(s.name_ko) + '">' + fcEsc(s.name_ko) + '</div>' +
     '<div class="fs-card-class">' + fcEsc(s.class_label || '') + '</div>' +
     '<span class="fs-role">' + shipRoleInfo(s.role).label + '</span>' +
+    shipRoleMatchupChips(s.role) +
     '<div class="fs-card-stats"><span>ATK ' + (s.base_atk || '-') + '</span><span>DEF ' + (s.base_def || '-') + '</span><span>SPD ' + (s.base_speed || '-') + '</span></div>' +
     '<div class="fs-card-hp-bar"><div class="fs-card-hp-fill ' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +
     (!s.is_flagship && s.is_flagship_capable && !fleetInBattle

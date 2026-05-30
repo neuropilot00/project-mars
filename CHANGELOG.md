@@ -1,3 +1,14 @@
+## 2026-05-30 v7.284 — MVP-1 함선 역할 가독성 + 획득 동기
+
+22척의 역할/상성을 UI로 표면화 (데이터는 이미 존재 → 가독성만 보강):
+- **역할 상성 헬퍼** `shipRoleMatchupChips(role)` — `_ROLE_MATCHUP`(battleEngine getShipMatchupMult 기준 강함/약함) + `_ROLE_TOKEN_I18N`(4언어). ▲강함/▼약함 칩 생성.
+- **조선소 청사진 카드**: 역할 desc 아래 ▲/▼ 상성 칩 표시(이미 있던 역할 뱃지 + 신규 상성).
+- **Fleet Command 함선 카드**: 역할 라벨 아래 상성 칩 추가.
+- **함대 역할 빈칸** `fleetRoleGapHtml(f)`: 7역할 커버리지 칩(보유●/부재○) + 결핍 경고(대형함 카운터/탱크/로지/태클 부재 → 결과) + **「조선소에서 보강」 CTA**(Fleet Command→조선소 동선). renderFleetDetail에 삽입.
+- blueprints API는 이미 `role` 반환(services/ship.js) — 추가 작업 불필요.
+- 검증(preview): 상성칩 en/ko 정확(battleEngine 로직 일치), 카드/빈칸 렌더, 콘솔 에러 0.
+- ⚠️ 미적용(별도 결정 필요): role 데이터 dps 편중(22척 중 12척 dps) 재배정 — 전투 밸런스(상성표) 영향이라 자동 변경 보류, 후보 목록만 식별.
+
 ## 2026-05-30 v7.283 — 합체 슈퍼유닛 UI (조선소 ASSEMBLY 탭)
 
 조선소(SHIPYARD)에 🜲 ASSEMBLY 탭 추가 — P1/P2 백엔드를 UI로 연결:
