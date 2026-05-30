@@ -48917,7 +48917,7 @@ function _asmRenderUnitModal(d){
         '<button type="button" class="shipyard-close" data-action="asm-modal-close" style="position:absolute;top:12px;right:14px">✕</button>' +
         _asmTraitPanel(d, unit) +
         '<div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:13px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
-        '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+slots+'</div>' +
+        '<div class="asm-modal-parts" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+slots+'</div>' +
         actionHtml +
         shardHtml +
       '</div>' +
