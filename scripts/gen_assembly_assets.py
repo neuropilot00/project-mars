@@ -56,11 +56,12 @@ def assets_for(unit_code):
     u = UNITS[unit_code]
     short = unit_code.replace('pilgrim_', '')
     out = [(
-        # 정면 전신샷 — 합체 탭 카드/모달용
+        # 정면 히어로샷(역동적 포즈) — 합체 탭 카드/모달용
         f"assets/assembly/portrait/{u['ship_code']}.png",
-        f"full-body front view hero shot of a massive humanoid super-mech robot standing upright, "
-        f"facing the camera, dramatic dark studio background, {u['theme']}, {u['accent']} color scheme, "
-        f"{PILGRIM}, {STYLE}",
+        f"epic full-body hero shot of a massive humanoid super-mech robot in a dynamic dramatic action pose, "
+        f"low heroic camera angle looking up, one arm raised with glowing weapon, energy charging, "
+        f"cinematic rim lighting, dramatic atmosphere, character splash art key visual, full body in frame, "
+        f"{u['theme']}, {u['accent']} color scheme, {PILGRIM}, {STYLE}",
     ), (
         # 진짜 탑다운 전투 스프라이트 — 전술랩 전투 렌더러용(다른 22척 함선 탑뷰와 같은 규격)
         f"assets/ships/top/{u['ship_code']}.png",
