@@ -50933,9 +50933,9 @@ function fleetNormalizeSizeClass(ship) {
 
 function renderSelectedShipPanel(f) {
   var ships = f && Array.isArray(f.ships) ? f.ships : [];
-  var selected = ships.filter(function(s){ return fleetCmdState.selectedShipIds.has(s.id); });
+  var selected = ships.filter(function(s){ return fleetCmdState.selectedShipIds.has(String(s.id)); });
   if (!selected.length) return '';
-  var focused = ships.find(function(s){ return s.id === fleetCmdState.focusedShipId; }) || selected[selected.length - 1];
+  var focused = ships.find(function(s){ return String(s.id) === String(fleetCmdState.focusedShipId); }) || selected[selected.length - 1];
   var hpPct = focused.max_hp > 0 ? Math.round((focused.current_hp / focused.max_hp) * 100) : 0;
   var role = shipRoleInfo(focused.role);
   var _flagshipLabels = LANG==='ko'?['기함','기함 가능','기함 불가']:LANG==='ja'?['旗艦','旗艦可能','旗艦不可']:LANG==='zh'?['旗舰','可旗舰','不可旗舰']:['Flagship','Can be Flagship','Cannot be Flagship'];
@@ -51009,8 +51009,9 @@ function renderFleetPreview(f) {
 }
 
 function renderFcShipCard(s, fleetInBattle) {
-  var isSel = fleetCmdState.selectedShipIds.has(s.id);
-  var isFocused = fleetCmdState.focusedShipId === s.id;
+  var sid = String(s.id);
+  var isSel = fleetCmdState.selectedShipIds.has(sid);
+  var isFocused = String(fleetCmdState.focusedShipId) === sid;
   var hpPct = (s.current_hp / s.max_hp) * 100;
   var hpCls = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
   var color = s.faction_color || '#fff';
@@ -51029,15 +51030,16 @@ function renderFcShipCard(s, fleetInBattle) {
 
 function toggleShipSel(shipId, event) {
   if (event) event.stopPropagation();
-  if (fleetCmdState.selectedShipIds.has(shipId)) {
-    fleetCmdState.selectedShipIds.delete(shipId);
-    if (fleetCmdState.focusedShipId === shipId) {
+  var key = String(shipId); // ships.id는 bigint → API에서 문자열. Set 키를 문자열로 통일해야 .has() 매칭됨
+  if (fleetCmdState.selectedShipIds.has(key)) {
+    fleetCmdState.selectedShipIds.delete(key);
+    if (String(fleetCmdState.focusedShipId) === key) {
       var remaining = Array.from(fleetCmdState.selectedShipIds);
       fleetCmdState.focusedShipId = remaining.length ? remaining[remaining.length - 1] : null;
     }
   } else {
-    fleetCmdState.selectedShipIds.add(shipId);
-    fleetCmdState.focusedShipId = shipId;
+    fleetCmdState.selectedShipIds.add(key);
+    fleetCmdState.focusedShipId = key;
   }
   renderFleetDetail();
 }

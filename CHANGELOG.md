@@ -1,3 +1,11 @@
+## 2026-05-30 v7.280 — Fleet Command 함선 SELECTED 표시 안 뜸 (bigint id 타입 불일치) 수정
+
+함대지휘에서 함선 카드를 클릭해도 cyan 선택 하이라이트/✓ 뱃지가 전혀 안 뜨던 버그 수정:
+- 근본 원인: `ships.id`가 **bigint** → node `pg` 드라이버가 **문자열**로 반환. 그런데 카드 inline onclick `toggleShipSel(123,event)`는 **숫자** 리터럴을 Set에 넣음. 렌더 시 `selectedShipIds.has(s.id)`는 문자열 `"123"`로 조회 → 매칭 실패 → 'selected' 클래스 미부여(선택 상세 패널도 빈 채로 카운트만 증가).
+- 수정: `toggleShipSel`/`renderFcShipCard`/`renderSelectedShipPanel`/`focusedShipId` 비교를 전부 `String(id)`로 통일. Set 키를 문자열로 고정.
+- move-ships는 `ship_ids`가 문자열 배열로 전달돼도 서버 bigint 캐스팅으로 무영향.
+- 위치: `index.html` Fleet Command 함선 선택 로직.
+
 ## 2026-05-30 v7.279 — 전술랩 전투 콜아웃/플로팅 텍스트 4언어화
 
 일본어(또는 en/zh) 모드인데도 전투 콜아웃 배너("실드 재분배, 좌현 포격 대비!" 등)와 플로팅 텍스트가 한국어로 뜨던 문제 — 콜아웃이 한국어 하드코딩이었음. `assets/tactical-lab-v11.html`에 4언어 `CALLOUTS{en,ko,ja,zh}` 세트 추가 + `CO()=CALLOUTS[TLANG]` 헬퍼로 일괄 전환:
