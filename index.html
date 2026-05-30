@@ -48723,6 +48723,8 @@ function switchSyTab(tab) {
 // 아트 에셋(Codex 제작 예정): 합체체 assets/ships/top/pilgrim_voltaris.png,
 // 파츠 assets/assembly/parts/<part_code>.png. 없으면 이모지 아이콘 폴백.
 var _asmState = null;
+var _asmUnit = null;        // 현재 선택된 유닛 코드
+var _asmUnits = [];         // 활성 유닛 목록
 function _asmName(o){ return LANG==='ko'?(o.name_ko||o.name_en):LANG==='ja'?(o.name_ja||o.name_en):LANG==='zh'?(o.name_zh||o.name_en):o.name_en; }
 
 async function loadAssembly() {
@@ -48732,12 +48734,27 @@ async function loadAssembly() {
   if (!w) { wrap.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')+'</div>'; return; }
   wrap.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+tl('Loading…','로딩 중…','読み込み中…','加载中…')+'</div>';
   try {
-    var r = await fetch('/api/assembly/state?wallet=' + encodeURIComponent(w), { headers: Object.assign({'x-wallet':w}, getAuthHeaders()) });
+    // 1) 활성 유닛 목록 (다중 한정 유닛 지원)
+    var ur = await fetch('/api/assembly/units?wallet=' + encodeURIComponent(w), { headers: Object.assign({'x-wallet':w}, getAuthHeaders()) });
+    var ud = await ur.json();
+    _asmUnits = (ud && ud.units) || [];
+    if (!_asmUnits.length) { wrap.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+tl('No units available','이용 가능한 유닛이 없습니다','利用可能なユニットなし','无可用单位')+'</div>'; return; }
+    if (!_asmUnit || !_asmUnits.some(function(u){return u.unit_code===_asmUnit;})) _asmUnit = _asmUnits[0].unit_code;
+    // 2) 선택 유닛 상세
+    var r = await fetch('/api/assembly/state?wallet=' + encodeURIComponent(w) + '&unit_code=' + encodeURIComponent(_asmUnit), { headers: Object.assign({'x-wallet':w}, getAuthHeaders()) });
     var d = await r.json();
     if (d.error) { wrap.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+tl('Unavailable','이용 불가','利用不可','不可用')+' ('+d.error+')</div>'; return; }
     _asmState = d;
     renderAssembly(d);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
+}
+function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲')})[k]||k; }
+function _asmUnitSelectorHtml(){
+  if (!_asmUnits || _asmUnits.length < 2) return '';
+  return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' + _asmUnits.map(function(u){
+    var on = u.unit_code === _asmUnit;
+    return '<button type="button" class="fd-btn'+(on?' primary':'')+'" data-action="asmSelectUnit" data-unit="'+u.unit_code+'" style="font-size:9px">'+(u.icon||'🜲')+' '+escapeHtmlSafe(_asmName(u))+' <span style="opacity:.6">'+u.distinct_owned+'/'+u.total_parts+'</span></button>';
+  }).join('') + '</div>';
 }
 
 function renderAssembly(d) {
@@ -48785,11 +48802,12 @@ function renderAssembly(d) {
       (ready ? tl('ASSEMBLE','합체','合体','合体') : (d.distinct_owned+'/'+d.total_parts+' '+tl('parts','파츠','パーツ','零件'))) + (d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'') + '</button>';
   }
   wrap.innerHTML =
+    _asmUnitSelectorHtml() +
     '<div style="display:flex;gap:12px;align-items:center;padding:10px;border:1px solid rgba(179,136,255,.3);border-radius:10px;background:rgba(179,136,255,.06)">' +
-      '<div style="font-size:34px">🜲</div>' +
+      '<div style="font-size:34px">'+(d.icon||'🜲')+'</div>' +
       '<div style="flex:1">' +
         '<div style="font-family:Orbitron,monospace;font-size:13px;color:#e1bee7;letter-spacing:1px">'+escapeHtmlSafe(_asmName(unit)||'Voltaris')+'</div>' +
-        '<div style="font-size:8px;color:rgba(255,255,255,.45);margin-top:2px">'+tl('Pilgrim Arms · Assembled Unit','필그림 아머스 · 합체병기','ピルグリム・アームズ · 合体兵器','朝圣者军备 · 合体兵器')+(unit.base_hp?(' · HP '+formatNum(unit.base_hp)+' / ATK '+unit.base_atk+' / DEF '+unit.base_def):'')+'</div>' +
+        '<div style="font-size:8px;color:rgba(255,255,255,.45);margin-top:2px">'+_asmKindLabel(d.kind)+(d.season&&d.season!=='permanent'?(' · '+tl('Limited','한정','限定','限定')):'')+(unit.base_hp?(' · HP '+formatNum(unit.base_hp)+' / ATK '+unit.base_atk+' / DEF '+unit.base_def):'')+'</div>' +
         '<div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#b388ff,#e1bee7)"></div></div>' +
       '</div>' +
       '<div style="font-size:16px;font-weight:700;color:#b388ff">'+d.distinct_owned+'/'+d.total_parts+'</div>' +
@@ -48810,12 +48828,17 @@ async function _asmOnClick(ev) {
   var act = btn.getAttribute('data-action');
   var w = (typeof getMyWallet === 'function' ? getMyWallet() : '') || '';
   if (!w) return;
+  if (act === 'asmSelectUnit') {
+    _asmUnit = btn.getAttribute('data-unit') || _asmUnit;
+    await loadAssembly();
+    return;
+  }
   var prev = btn.textContent;
   btn.disabled = true; btn.textContent = '…';
   try {
     if (act === 'asmPull') {
       var count = parseInt(btn.getAttribute('data-count'),10)||1;
-      var r = await _asmPost('/api/assembly/pull', w, { count: count });
+      var r = await _asmPost('/api/assembly/pull', w, { unit_code: _asmUnit, count: count });
       if (r.error) { showFactionToast(_asmErr(r), 'error'); }
       else {
         var newCnt = (r.results||[]).filter(function(x){return x.is_new;}).length;
@@ -48823,7 +48846,7 @@ async function _asmOnClick(ev) {
         showFactionToast(tl('Pulled','뽑기','排出','抽取')+' ×'+r.count+' · '+tl('new','신규','新規','新')+' '+newCnt+' · '+tl('dup','중복','重複','重复')+' '+dupCnt+(r.shards_gained?(' · +'+r.shards_gained+' '+tl('shards','조각','シャード','碎片')):''), 'success');
       }
     } else if (act === 'asmAssemble') {
-      var r2 = await _asmPost('/api/assembly/assemble', w, {});
+      var r2 = await _asmPost('/api/assembly/assemble', w, { unit_code: _asmUnit });
       if (r2.error) showFactionToast(_asmErr(r2), 'error');
       else showFactionToast('🜲 '+tl('Assembled!','합체 완료!','合体完了！','合体完成！'), 'success');
     } else if (act === 'asmDisassemble') {
@@ -48835,7 +48858,7 @@ async function _asmOnClick(ev) {
       else showFactionToast(tl('Disassembled','해체 완료','分解完了','已拆解'), 'success');
     } else if (act === 'asmExchange') {
       var part = btn.getAttribute('data-part');
-      var r4 = await _asmPost('/api/assembly/exchange', w, { part_code: part });
+      var r4 = await _asmPost('/api/assembly/exchange', w, { unit_code: _asmUnit, part_code: part });
       if (r4.error) showFactionToast(_asmErr(r4), 'error');
       else showFactionToast(tl('Exchanged','교환 완료','交換完了','已兑换'), 'success');
     }
@@ -48853,8 +48876,8 @@ async function _asmDisassemble(w) {
     var r = await fetch('/api/ships/my?wallet='+encodeURIComponent(w), { headers: Object.assign({'x-wallet':w}, getAuthHeaders()) });
     var d = await r.json();
     var ships = d.ships || d || [];
-    var unitCode = (_asmState && _asmState.unit_code) || 'pilgrim_voltaris';
-    var found = (Array.isArray(ships)?ships:[]).find(function(s){ return s.ship_type_code === unitCode && (s.is_alive !== false); });
+    var shipTypeCode = (_asmState && (_asmState.ship_type_code || _asmState.unit_code)) || 'pilgrim_voltaris';
+    var found = (Array.isArray(ships)?ships:[]).find(function(s){ return s.ship_type_code === shipTypeCode && (s.is_alive !== false); });
     if (!found) return { error: 'SHIP_NOT_FOUND' };
     return await _asmPost('/api/assembly/disassemble', w, { ship_id: String(found.id) });
   } catch(e) { return { error: 'internal_error' }; }

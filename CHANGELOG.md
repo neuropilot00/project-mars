@@ -1,3 +1,14 @@
+## 2026-05-30 v7.287 — 합체 유닛 프레임워크화 + 전술랩 필살기 버튼
+
+한정 유닛(로봇/함선/우주인 등)을 코드 추가 없이 데이터만으로 늘리는 체계로 전환 + 필살기 발동 UI:
+- **마이그레이션 282**: `assembly_units` 카탈로그(유닛별 전 설정: ship_type_code/kind/시즌/가격/천장/조각/max 등). 기존 voltaris 이관. `user_assembly_gacha` PK → (wallet, unit_code) 유닛별 천장. `assembly_gacha_pulls.unit_code`.
+- **service 전면 unit-aware**: `listUnits`(활성 유닛+요약), `getState(w,unit)`, `pull(w,unit,n)`, `assemble(w,unit)`, `disassemble(shipId,w)`(함선→유닛 자동판별), `exchangeShards(w,unit,part)`. 모든 설정을 카탈로그 행에서 읽음.
+- **route**: `GET /api/assembly/units` 신규 + 전 엔드포인트 `unit_code` 파라미터.
+- **UI**: ASSEMBLY 탭에 유닛 **선택자**(2개 이상 시), kind/한정 뱃지, 전 액션에 unit_code 전달.
+- **전술랩 필살기 버튼**(Codex): `assets/tactical-lab-v11.html`에 `🜲 합체필살(COMBINE)` 버튼 + overdriveCharge 게이지(합체체 보유 시만) + `cmdOverdrive()`→서버 `{type:'overdrive'}` 전송 + 보라색 VFX. 4언어. (`fleet-assault-demo.html`은 이 체크아웃에 없음.)
+- **검증**: 데이터만으로 2번째 유닛(우주인) 추가 → `/units` 2개·UI 선택자 2개 자동 등장(preview, 콘솔에러0) 확인 후 데모 제거. unit_code 기반 pull/assemble E2E 통과. 전술랩 JS 파싱 OK.
+- 문서: 기획서 §10-B "새 유닛 추가법(SQL 3 INSERT)" 추가.
+
 ## 2026-05-30 v7.286 — 합체 필살기(overdrive) 서버 권위 구현
 
 합체 액티브 필살기 — 기존 beam/missile 수동스킬 시스템(server-authoritative charge/쿨다운) 패턴으로 추가:

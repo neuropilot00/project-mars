@@ -102,6 +102,7 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 .cb.p{border-color:rgba(206,147,216,.28);color:#ce93d8;background:rgba(206,147,216,.04);}
 .cb.charge{position:relative;overflow:hidden;}
 .cb.charge.ready{background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.62);color:#ffe082;box-shadow:0 0 14px rgba(255,193,7,.18);}
+#cmdOverdrive.ready{background:rgba(179,136,255,.2)!important;border-color:rgba(179,136,255,.72)!important;color:#b388ff!important;box-shadow:0 0 16px rgba(179,136,255,.26)!important;}
 .cb.charge:not(.ready){opacity:.55;}
 .cb.charge:disabled{opacity:.28;cursor:not-allowed;filter:grayscale(.7);}
 .sep{width:1px;height:20px;background:rgba(255,255,255,.06);}
@@ -332,6 +333,7 @@ body{padding:0;background:#03040b;}
   <button class="cb y charge" id="cmdEMP" onclick="cmdEMP()">💥 EMP 0%</button>
   <button class="cb y charge" id="cmdMissile" onclick="cmdMissileBarrage()">☄ 미사일 0%</button>
   <button class="cb y charge" id="cmdBeam" onclick="cmdBeamCannon()">☢ 빔포 0%</button>
+  <button class="cb y charge" id="cmdOverdrive" onclick="cmdOverdrive()" style="display:none;border-color:rgba(179,136,255,.5);color:#b388ff;background:rgba(179,136,255,.08)">합체필살 0%</button>
   <div class="sep"></div>
   <span class="clbl" id="uiFormationLabel">FORMATION</span>
   <button class="cb p" id="formationSphereBtn" onclick="cmdFormation('sphere')">⬢ Sphere</button>
@@ -443,6 +445,7 @@ const TL10N={
     emp:'💥 EMP',
     missile:'☄ MISSILE',
     beam:'☢ BEAM',
+    overdrive:'COMBINE',
     formation:'FORMATION',
     maneuver:'MANEUVER',
     speed:'SPEED',
@@ -489,6 +492,7 @@ const TL10N={
     emp:'💥 EMP',
     missile:'☄ 미사일',
     beam:'☢ 빔포',
+    overdrive:'합체필살',
     formation:'진형',
     maneuver:'기동',
     speed:'속도',
@@ -536,6 +540,7 @@ const TL10N={
     emp:'💥 EMP',
     missile:'☄ ミサイル',
     beam:'☢ ビーム砲',
+    overdrive:'合体必殺',
     formation:'陣形',
     maneuver:'機動',
     speed:'速度',
@@ -583,6 +588,7 @@ const TL10N={
     emp:'💥 EMP',
     missile:'☄ 导弹',
     beam:'☢ 光束炮',
+    overdrive:'合体必杀',
     formation:'阵型',
     maneuver:'机动',
     speed:'速度',
@@ -690,6 +696,7 @@ function localizeStaticUI(){
   setText('uiCmdLabel', tl('cmd'));
   setText('cmdFocusBtn', tl('focus'));
   setText('cmdEMP', tl('emp') + ' 0%');
+  setText('cmdOverdrive', tl('overdrive') + ' 0%');
   setText('uiFormationLabel', tl('formation'));
   setText('formationSphereBtn', '⬢ '+tl('sphere'));
   setText('formationWedgeBtn', '▶ '+tl('wedge'));
@@ -951,7 +958,7 @@ function trimShipSprite(img){
 let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[],muzzles=[];
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
-let beamCharge=0,missileCharge=0,empCharge=0;
+let beamCharge=0,missileCharge=0,empCharge=0,overdriveCharge=0;
 let lastPanicCallout=0,lastAmbientCallout=0;
 let audioCtx=null,audioOn=false,musicTimer=null,lastLaserSound=0,lastBulletSound=0,lastExplosionSound=0;
 // 플로팅 텍스트 (함선 위에 격침/피격 메시지)
@@ -1165,6 +1172,7 @@ function stopBattleMusic(){
 function updateChargeButtons(){
   const beamBtn=document.getElementById('cmdBeam');
   const missileBtn=document.getElementById('cmdMissile');
+  const overdriveBtn=document.getElementById('cmdOverdrive');
   if(beamBtn){
     beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
     beamBtn.classList.toggle('ready',beamCharge>=100);
@@ -1172,6 +1180,10 @@ function updateChargeButtons(){
   if(missileBtn){
     missileBtn.textContent=`${tl('missile')} ${Math.floor(missileCharge)}%`;
     missileBtn.classList.toggle('ready',missileCharge>=100);
+  }
+  if(overdriveBtn){
+    overdriveBtn.textContent=`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`;
+    overdriveBtn.classList.toggle('ready',overdriveCharge>=100);
   }
 }
 async function toggleBattleAudio(){
@@ -1334,7 +1346,7 @@ function centeredPos(n, side) {
 function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];muzzles=[];battleOver=false;
   _wsPrevShips = new Map();
-  beamCharge=0;missileCharge=20;empCharge=0;
+  beamCharge=0;missileCharge=20;empCharge=0;overdriveCharge=0;
   const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
   const defPos = centeredPos(DEF_FLEETS.length, 'def');
   ATK_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'atk',atkPos[i].cx,atkPos[i].cy)));
@@ -1704,12 +1716,33 @@ function findPriorityTarget(){
     (b.hp/b.maxHp)-(a.hp/a.maxHp)
   )[0];
 }
+function isAssembledShip(sh){
+  return sh&&(
+    sh.size_class==='assembled'||
+    sh.sizeClass==='assembled'||
+    sh.type?.size_class==='assembled'||
+    sh.type?.sizeClass==='assembled'||
+    sh.type?.size==='assembled'
+  );
+}
+function localAssembledShips(){
+  const localShips=(typeof myFleet!=='undefined'&&myFleet&&Array.isArray(myFleet.ships))?myFleet.ships:aliveAtkShips();
+  return localShips.filter(s=>!s.dead&&isAssembledShip(s));
+}
+function wsAssembledFrames(){
+  const frames=(_wsLastFrame&&Array.isArray(_wsLastFrame.fleets))?_wsLastFrame.fleets:[];
+  return frames.filter(f=>f.side==='atk'&&f.hasAssembled);
+}
 function updateSpecialCharge(dt){
   if(battleOver)return;
+  const _wsActive = _wsBattle && _wsBattle.readyState === 1;
   const atk=aliveAtkShips();
   const caps=atk.filter(isCapitalShip);
   const smalls=atk.filter(s=>['frigate','destroyer','cruiser'].includes(s.type.size));
   const ewars=atk.filter(s=>s.type.role==='ewar');
+  const assembledFrames=_wsActive?wsAssembledFrames():[];
+  const assembledShips=_wsActive?[]:localAssembledShips();
+  const hasAssembled=_wsActive?assembledFrames.length>0:assembledShips.length>0;
   beamCharge=Math.min(100,beamCharge+dt*(caps.length?0.0032+caps.length*0.00045:0.00045));
   // Missile: ~55% slower than before (was 0.0048+n*0.00016 base)
   missileCharge=Math.min(100,missileCharge+dt*(smalls.length?0.0021+smalls.length*0.00007:0.00016));
@@ -1717,9 +1750,18 @@ function updateSpecialCharge(dt){
   if(ewars.length>0){
     empCharge=Math.min(100,empCharge+dt*(0.0018+ewars.length*0.0006));
   }
+  if(_wsActive){
+    overdriveCharge=assembledFrames.reduce((max,f)=>{
+      const v=Number(f.overdriveCharge);
+      return Number.isFinite(v)?Math.max(max,Math.max(0,Math.min(100,v))):max;
+    },0);
+  } else if(hasAssembled){
+    overdriveCharge=Math.min(100,overdriveCharge+dt*(0.0018+assembledShips.length*0.0006));
+  }
   const beamBtn=document.getElementById('cmdBeam');
   const missileBtn=document.getElementById('cmdMissile');
   const empBtn=document.getElementById('cmdEMP');
+  const overdriveBtn=document.getElementById('cmdOverdrive');
   if(beamBtn){
     beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
     beamBtn.classList.toggle('ready',beamCharge>=100);
@@ -1738,6 +1780,11 @@ function updateSpecialCharge(dt){
       empBtn.textContent=`${tl('emp')} ${Math.floor(empCharge)}%`;
       empBtn.classList.toggle('ready',empCharge>=100);
     }
+  }
+  if(overdriveBtn){
+    overdriveBtn.style.display=hasAssembled?'':'none';
+    overdriveBtn.textContent=`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`;
+    overdriveBtn.classList.toggle('ready',overdriveCharge>=100);
   }
 }
 
@@ -2693,6 +2740,35 @@ function cmdMissileBarrage(){
   addLog('wn',`${tl('missile')} × ${Math.min(24,launchers.length)}`);
   battleCallout(`${tl('missile')}!`, 'order', 'top', 2600);
   _bridgeToParent('missile_barrage', { charge: 100, launcher_count: launchers.length });
+}
+function cmdOverdrive(){
+  if(overdriveCharge<100){addLog('wn',`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`);return;}
+  const _wsActive = _wsBattle && _wsBattle.readyState === 1;
+  const assembledFrames=_wsActive?wsAssembledFrames():[];
+  const assembledShips=localAssembledShips();
+  const cores=assembledShips.length?assembledShips:aliveAtkShips().filter(isCapitalShip);
+  const targets=aliveDefShips();
+  if((_wsActive?!assembledFrames.length:!assembledShips.length)||!cores.length||!targets.length){addLog('wn',`${tl('overdrive')} · ${tl('unavailable')}`);return;}
+  overdriveCharge=0;
+  cores.slice(0,8).forEach((sh,i)=>{
+    const tgt=targets[(i*5)%targets.length]||findPriorityTarget();
+    if(!tgt)return;
+    sh.aimX=tgt.x;sh.aimY=tgt.y;sh.aimTTL=1800;
+    mkShockwave(sh.x,sh.y,(sh.type?.r||4)*9);
+    mkShockwave(tgt.x,tgt.y,(tgt.type?.r||3)*8);
+    lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
+      color:'#b388ff',width:10,alpha:1.35,ttl:190,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,beamCannon:true});
+    lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
+      color:'#ede7ff',width:4,alpha:1.2,ttl:150,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,beamCannon:true});
+    addFloatText(sh.x,sh.y-18,tl('overdrive'),'order',2200);
+  });
+  for(let i=0;i<Math.min(16,targets.length);i++){
+    const tgt=targets[(i*3)%targets.length];
+    mkMuzzle(tgt.x,tgt.y,0,0,'#b388ff',2.2);
+  }
+  addLog('wn',`${tl('overdrive')} × ${cores.length}`);
+  battleCallout(`${tl('overdrive')}!`, 'order', 'top', 2900);
+  _bridgeToParent('overdrive', { type:'overdrive', charge: 100, assembled_count: cores.length });
 }
 function cmdForfeit(){
   document.getElementById('forfeit-overlay').classList.add('on');

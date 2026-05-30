@@ -1,10 +1,12 @@
 // server/routes/assembly.js
 // ═══════════════════════════════════════════════════════════════
-// 합체 슈퍼유닛 API — P1 수집·합체 코어
-// GET  /api/assembly/state            — 5파츠 보유/조각/합체 가능 여부
-// POST /api/assembly/assemble         — 합체 실행
+// 합체/수집형 한정 유닛 API (unit-aware)
+// GET  /api/assembly/units            — 활성 유닛 목록 + 유닛별 요약
+// GET  /api/assembly/state            — 단일 유닛 상세 (?unit_code, 미지정 시 첫 활성)
+// POST /api/assembly/pull             — 가챠 (body: unit_code, count)
+// POST /api/assembly/assemble         — 합체 (body: unit_code)
 // POST /api/assembly/disassemble      — 해체 (body: ship_id)
-// POST /api/assembly/exchange         — 조각으로 파츠 교환 (body: part_code)
+// POST /api/assembly/exchange         — 조각 교환 (body: unit_code, part_code)
 // POST /api/assembly/admin/grant      — 어드민 파츠 지급 (x-admin-secret)
 // ═══════════════════════════════════════════════════════════════
 
@@ -25,17 +27,36 @@ function requireAdmin(req, res) {
   if (!s || s !== process.env.ADMIN_SECRET) { res.status(403).json({ error: 'forbidden' }); return false; }
   return true;
 }
+function unitOf(req) { return req.body?.unit_code || req.query.unit_code || null; }
+
+router.get('/assembly/units', async (req, res) => {
+  const w = requireWallet(req, res); if (!w) return;
+  try { res.json(await assembly.listUnits(w)); }
+  catch (e) { console.error('[assembly/units]', e.message); res.status(500).json({ error: 'internal_error' }); }
+});
 
 router.get('/assembly/state', async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
-  try { res.json(await assembly.getState(w)); }
-  catch (e) { console.error('[assembly/state]', e.message); res.status(500).json({ error: 'internal_error' }); }
+  try {
+    const r = await assembly.getState(w, unitOf(req));
+    if (r.error) return res.status(r.error === 'UNIT_NOT_FOUND' ? 404 : 400).json(r);
+    res.json(r);
+  } catch (e) { console.error('[assembly/state]', e.message); res.status(500).json({ error: 'internal_error' }); }
+});
+
+router.post('/assembly/pull', async (req, res) => {
+  const w = requireWallet(req, res); if (!w) return;
+  try {
+    const r = await assembly.pull(w, unitOf(req), req.body?.count);
+    if (r.error) return res.status(400).json(r);
+    res.json(r);
+  } catch (e) { console.error('[assembly/pull]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
 router.post('/assembly/assemble', async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
-    const r = await assembly.assemble(w);
+    const r = await assembly.assemble(w, unitOf(req));
     if (r.error) return res.status(400).json(r);
     res.json(r);
   } catch (e) { console.error('[assembly/assemble]', e.message); res.status(500).json({ error: 'internal_error' }); }
@@ -53,19 +74,10 @@ router.post('/assembly/disassemble', async (req, res) => {
 router.post('/assembly/exchange', async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
-    const r = await assembly.exchangeShards(w, req.body?.part_code);
+    const r = await assembly.exchangeShards(w, unitOf(req), req.body?.part_code);
     if (r.error) return res.status(400).json(r);
     res.json(r);
   } catch (e) { console.error('[assembly/exchange]', e.message); res.status(500).json({ error: 'internal_error' }); }
-});
-
-router.post('/assembly/pull', async (req, res) => {
-  const w = requireWallet(req, res); if (!w) return;
-  try {
-    const r = await assembly.pull(w, req.body?.count);
-    if (r.error) return res.status(400).json(r);
-    res.json(r);
-  } catch (e) { console.error('[assembly/pull]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
 router.post('/assembly/admin/grant', async (req, res) => {

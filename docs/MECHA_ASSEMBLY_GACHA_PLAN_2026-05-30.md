@@ -180,6 +180,24 @@ gacha_assembly_repair_gp_cost              = <titan_repair_gp * 2.5>   # 지속 
 
 ---
 
+## 10-B. 프레임워크 — 새 한정 유닛 추가법 (코드 0줄, 데이터만)
+
+합체/수집형 한정 유닛은 `assembly_units` 카탈로그 기반으로 일반화됨(로봇·함선·우주인·메크 등 `kind` 자유). **새 유닛 추가 = SQL 3종 INSERT만**:
+
+```sql
+-- 1) 합체 결과 함선 (size_class='assembled', 중상위 스탯)
+INSERT INTO ship_types (code, faction_code, size_class, role, ..., is_active) VALUES ('<unit>', ...);
+-- 2) 유닛 카탈로그 (유닛별 전 설정: 가격/천장/조각/시즌/max 등)
+INSERT INTO assembly_units (unit_code, ship_type_code, kind, name_*, gacha_price_gp, hard_pity_pulls, season_code, ...) VALUES (...);
+-- 3) 파츠 N종
+INSERT INTO assembly_parts (part_code, unit_code, slot, name_*, icon_emoji) VALUES (...);
+```
+→ `/api/assembly/units`에 자동 노출, 조선소 ASSEMBLY 탭에 **유닛 선택자**로 자동 등장, 가챠/천장/조각/합체/해체/전투(assembled 매치업·overdrive 필살기) 전부 그대로 동작. 아트(`assets/ships/top/<ship>.png`, `assets/assembly/parts/<part>.png`)만 추가하면 이모지→이미지.
+
+- 유닛별 천장은 `user_assembly_gacha (wallet, unit_code)` 로 독립.
+- `season_code <> 'permanent'`면 UI에 '한정' 뱃지. 상시는 'permanent'.
+- 전투: `size_class='assembled'`면 자동으로 카운터 매치업(저격/폭격/전자전) + overdrive 충전 대상.
+
 ## 11. 미결 5건 — 팀 권고 (디자이너 기준, 확정 제안)
 - [x] **파츠 테마 → 5함급 변형**(스카우트/돌격/포격/방패/지휘). 부위(머리/팔)는 분리 시 비주얼 우스꽝, 5색은 정체성 얕음. 5함급은 "분리=5척 역할 함대"와 직결.
 - [x] **함대 슬롯 → 1슬롯 차지(별도 슬롯 금지)**. 별도 슬롯=공짜 추가전력=즉시 P2W. 1슬롯이라야 "타이탄 뺄까 합체체 넣을까" 기회비용 성립.
