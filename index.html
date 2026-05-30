@@ -48860,10 +48860,16 @@ function _asmRenderUnitModal(d){
     '<div style="padding:14px 16px">' +
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:12px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
       '<div style="display:grid;grid-template-columns:repeat(5,minmax(74px,1fr));gap:8px">'+slots+'</div>' +
-      '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
-        '<button type="button" class="fd-btn primary" data-action="asm-assemble" '+(d.can_assemble && !maxReached ? '' : 'disabled')+' style="flex:1;min-width:180px">🜲 '+(maxReached?tl('MAX OWNED','최대 보유','上限所持','已达上限'):tl('ASSEMBLE','합체','合体','合体'))+(d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'')+'</button>' +
-        (parseInt(d.built_count,10)>0 ? '<button type="button" class="fd-btn danger" data-action="asm-disassemble" style="flex:1;min-width:180px">🔧 '+tl('DISASSEMBLE','해체','分解','拆解')+'</button>' : '') +
-      '</div>' +
+      (parseInt(d.built_count,10)>0
+        ? '<div style="margin-top:14px;padding:11px 13px;border:1px solid rgba(129,199,132,.32);border-radius:10px;background:rgba(129,199,132,.07)">' +
+            '<div style="font-size:10px;color:#a5d6a7;letter-spacing:.6px;margin-bottom:8px">✓ '+tl("ASSEMBLED — deployed in your fleet. Upgrade stats in MY FLEET.","합체 완료 — 함대에 배치됨. 스탯 강화는 내 함선 탭에서.","合体完了 — 艦隊配備済み。強化は自艦隊タブ。","已合体 — 已部署。强化在我的舰队页")+'</div>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+              '<button type="button" class="fd-btn primary" data-action="asm-upgrade" style="flex:1;min-width:150px">⬆ '+tl("Go to Upgrade","강화하러 가기","強化へ","前往强化")+'</button>' +
+              '<button type="button" class="fd-btn danger" data-action="asm-disassemble" style="flex:1;min-width:150px">🔧 '+tl("DISASSEMBLE","해체","分解","拆解")+'</button>' +
+            '</div></div>'
+        : '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
+            '<button type="button" class="fd-btn primary" data-action="asm-assemble" '+(d.can_assemble && !maxReached ? '' : 'disabled')+' style="flex:1;min-width:180px">🜲 '+(maxReached?tl('MAX OWNED','최대 보유','上限所持','已达上限'):tl('ASSEMBLE','합체','合体','合体'))+(d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'')+'</button>' +
+          '</div>') +
       '<div style="margin-top:14px;padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025)">' +
         '<div style="font-size:9px;color:rgba(255,255,255,.58);letter-spacing:.8px">💎 '+tl('SHARDS','조각','シャード','碎片')+': <b style="color:#fff">'+formatNum(d.shards)+'</b> · '+tl('exchange cost','교환 비용','交換コスト','兑换消耗')+' <b style="color:#e1bee7">'+formatNum(d.shard_exchange_cost)+'</b></div>' +
         (exchangeBtns ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'+exchangeBtns+'</div>' : '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:8px">'+tl('All parts collected','모든 파츠 보유','全パーツ所持','已集齐')+'</div>') +
@@ -48877,6 +48883,7 @@ async function _asmOnModalClick(ev){
   if (!btn || btn.disabled) return;
   var act = btn.getAttribute('data-action');
   if (act === 'asm-modal-close') { _asmCloseUnitModal(); return; }
+  if (act === 'asm-upgrade') { _asmCloseUnitModal(); try { switchSyTab('fleet'); } catch(_){} return; }
   if (_asmBusy) return;
   ev.preventDefault(); ev.stopPropagation();
   console.log('[BTN] '+act+' triggered');
