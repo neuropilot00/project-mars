@@ -48778,6 +48778,19 @@ function _asmWeaponLabel(ft){
     spread:tl('Acid Spread','산성 분사','酸噴射','酸液'), plasma:tl('Plasma Burst','플라즈마','プラズマ','等离子'),
     torpedo:tl('Void Torpedo','보이드 어뢰','魚雷','虚空鱼雷') })[ft] || ft || '';
 }
+// 합체 모달 전투 미리보기: 전술랩 전투에서 쓰이는 탑뷰 스프라이트 + 우주 배경
+function _asmBattlePreview(d){
+  var code = d.ship_type_code || d.unit_code || '';
+  return '<div style="padding:11px 13px;border:1px solid rgba(125,211,252,.22);border-radius:10px;background:rgba(125,211,252,.04)">' +
+    '<div style="font-size:9px;letter-spacing:1px;color:#7dd3fc;margin-bottom:8px">⚔ '+tl('IN BATTLE (top-down)','전장에서의 모습 (탑뷰)','戦場での姿（トップビュー）','战场样貌（俯视）')+'</div>' +
+    '<div style="position:relative;height:150px;border-radius:8px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,rgba(70,40,90,.5),#05060c 75%)">' +
+      '<div style="position:absolute;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 70% 60%,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 40% 80%,rgba(255,255,255,.35),transparent),radial-gradient(1px 1px at 85% 25%,rgba(255,255,255,.45),transparent);opacity:.7"></div>' +
+      '<img src="assets/ships/top/'+code+'.png?v='+ASSET_VER+'" alt="" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:128px;width:auto;object-fit:contain;filter:drop-shadow(0 0 14px rgba(179,136,255,.6))" onerror="this.style.display=\'none\';this.parentNode.querySelector(\'.asm-bp-fb\').style.display=\'flex\'">' +
+      '<div class="asm-bp-fb" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:42px;color:rgba(255,255,255,.3)">'+(d.icon||'🜲')+'</div>' +
+    '</div>' +
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);margin-top:6px">'+tl('This is how the unit appears on the tactical battlefield.','전술 전장에서 이 유닛이 실제로 보이는 모습입니다.','戦術戦場での実際の表示です。','这是战术战场上的实际显示。')+'</div>' +
+  '</div>';
+}
 // 합체 모달 특성 패널: 역할 특성 + 무기 + 설명 + 상성 칩
 function _asmTraitPanel(d, unit){
   var role = (unit && unit.role) || 'dps';
@@ -48917,6 +48930,7 @@ function _asmRenderUnitModal(d){
       '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px;position:relative">' +
         '<button type="button" class="shipyard-close" data-action="asm-modal-close" style="position:absolute;top:12px;right:14px">✕</button>' +
         _asmTraitPanel(d, unit) +
+        _asmBattlePreview(d) +
         '<div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:13px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
         '<div class="asm-modal-parts" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+slots+'</div>' +
         actionHtml +
