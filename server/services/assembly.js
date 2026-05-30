@@ -15,7 +15,71 @@
 // grantParts(wallet, part, qty)   — 어드민/테스트 파츠 지급
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const crypto = require('crypto');
+const { pool, getSetting } = require('../db');
+
+// Assembly is a premium "perfect gacha" finish: no plain common, weighted high.
+// Admin override: settings.assembly_quality_weights JSON, e.g. {"rare":40,"epic":35,"legendary":20,"mythic":5}
+const ASSEMBLY_QUALITY_GRADES = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+const ASSEMBLY_QUALITY_WEIGHTS_DEFAULT = { uncommon: 8, rare: 42, epic: 32, legendary: 15, mythic: 3 };
+const ASSEMBLY_QUALITY = {
+  common:    { mult: 1.00, range: [0,    0],    stars: 0 },
+  uncommon:  { mult: 1.08, range: [0.05, 0.13], stars: 1 },
+  rare:      { mult: 1.20, range: [0.14, 0.27], stars: 2 },
+  epic:      { mult: 1.38, range: [0.28, 0.48], stars: 3 },
+  legendary: { mult: 1.65, range: [0.50, 0.85], stars: 4 },
+  mythic:    { mult: 2.00, range: [0.90, 1.25], stars: 5 },
+};
+
+function randFloat() {
+  return crypto.randomInt(0, 1e9) / 1e9;
+}
+
+function parseQualityWeights(raw) {
+  if (!raw) return null;
+  try {
+    const obj = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!obj || typeof obj !== 'object') return null;
+    const out = {};
+    for (const g of ASSEMBLY_QUALITY_GRADES) {
+      const n = Number(obj[g]);
+      if (Number.isFinite(n) && n > 0) out[g] = n;
+    }
+    return Object.keys(out).length ? out : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function rollAssemblyQuality() {
+  const weights = parseQualityWeights(await getSetting('assembly_quality_weights', null)) || ASSEMBLY_QUALITY_WEIGHTS_DEFAULT;
+  const entries = ASSEMBLY_QUALITY_GRADES.map(g => [g, Number(weights[g]) || 0]).filter(([, v]) => v > 0);
+  const total = entries.reduce((s, [, v]) => s + v, 0);
+  if (total <= 0) return 'rare';
+  let r = randFloat() * total;
+  for (const [g, v] of entries) {
+    r -= v;
+    if (r < 0) return g;
+  }
+  return entries[entries.length - 1][0];
+}
+
+function rollAssemblyBonusStats(quality, base) {
+  const meta = ASSEMBLY_QUALITY[quality] || ASSEMBLY_QUALITY.common;
+  const range = meta.range || [0, 0];
+  if (range[1] <= 0) return { atk: 0, def: 0, hp: 0, speed: 0 };
+  function pct() {
+    const p = range[0] + randFloat() * (range[1] - range[0]);
+    const variance = 0.7 + randFloat() * 0.6;
+    return p * variance;
+  }
+  return {
+    atk: Math.round((base.atk || 0) * pct()),
+    def: Math.round((base.def || 0) * pct()),
+    hp: Math.round((base.hp || 0) * pct()),
+    speed: Math.round((base.speed || 0) * pct() * 100) / 100,
+  };
+}
 
 // ── 유닛 카탈로그 조회 ──
 // 조각 교환비용: 유닛별 base(30~120, 10간격) + 슬롯별 오프셋(0/2/4/6/8).
@@ -288,29 +352,54 @@ async function assemble(wallet, unitCode) {
       await client.query(`UPDATE user_assembly_parts SET qty = qty - 1, updated_at = NOW() WHERE wallet = $1 AND part_code = $2`, [w, p.part_code]);
     }
 
-    const { rows: st } = await client.query(`SELECT base_hp, is_flagship_capable FROM ship_types WHERE code = $1`, [u.ship_type_code]);
-    const baseHp = parseInt(st[0]?.base_hp, 10) || 1;
+    const { rows: st } = await client.query(
+      `SELECT base_hp, base_atk, base_def, base_speed, is_flagship_capable FROM ship_types WHERE code = $1`,
+      [u.ship_type_code]
+    );
+    const baseStats = {
+      atk: parseInt(st[0]?.base_atk, 10) || 0,
+      def: parseInt(st[0]?.base_def, 10) || 0,
+      hp: parseInt(st[0]?.base_hp, 10) || 1,
+      speed: Number(st[0]?.base_speed) || 0,
+    };
+    const quality = await rollAssemblyQuality();
+    const qualityMeta = ASSEMBLY_QUALITY[quality] || ASSEMBLY_QUALITY.common;
+    const bonus = rollAssemblyBonusStats(quality, baseStats);
+    const fullHp = baseStats.hp + (bonus.hp || 0);
     const fleetId = await getOrCreateFleet(client, w);
     const { rows: flagRows } = await client.query(
       `SELECT COUNT(*) AS c FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`, [fleetId]
     );
     const isFlagship = parseInt(flagRows[0]?.c || 0, 10) === 0 && !!st[0]?.is_flagship_capable;
     const { rows: shipRows } = await client.query(
-      `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet)
-       VALUES ($1, $2, $3, $4, $4, $5, true, NOW(), $3) RETURNING id`,
-      [fleetId, u.ship_type_code, w, baseHp, isFlagship]
+      `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet,
+                          quality, quality_mult, bonus_atk, bonus_def, bonus_hp, bonus_speed)
+       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10, $11, $12) RETURNING id`,
+      [
+        fleetId, u.ship_type_code, w, fullHp, baseStats.hp, isFlagship,
+        quality, qualityMeta.mult, bonus.atk, bonus.def, bonus.hp, bonus.speed,
+      ]
     );
     const shipId = shipRows[0].id;
     await client.query(
       `INSERT INTO assembly_events (wallet, unit_code, action, ship_id, detail) VALUES ($1, $2, 'assemble', $3, $4)`,
-      [w, u.unit_code, shipId, JSON.stringify({ gpCost, parts: partRows.map(p => p.part_code) })]
+      [w, u.unit_code, shipId, JSON.stringify({ gpCost, parts: partRows.map(p => p.part_code), quality, quality_mult: qualityMeta.mult, bonus })]
     );
     await client.query('COMMIT');
     try {
       const { logGPActivity } = require('../db');
       if (gpCost > 0) logGPActivity(w, -gpCost, 'assembly_assemble', `${u.name_ko} 합체`).catch(() => {});
     } catch (_) {}
-    return { success: true, unit_code: u.unit_code, ship_id: String(shipId), is_flagship: isFlagship };
+    return {
+      success: true,
+      unit_code: u.unit_code,
+      ship_id: String(shipId),
+      is_flagship: isFlagship,
+      quality,
+      quality_mult: qualityMeta.mult,
+      quality_stars: qualityMeta.stars || 0,
+      bonus,
+    };
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[ASSEMBLY] assemble error:', err.message);
