@@ -1,3 +1,10 @@
+## 2026-05-30 v7.312 — 어드민 CSRF 클라이언트 배선 (SAVE CHANGES 403 수정)
+
+- **증상**: 어드민 유저 편집에서 `SAVE CHANGES` → `✗ CSRF token missing: send X-CSRF-Token header`. 모든 어드민 변경(POST/PUT/DELETE)이 막힘.
+- **원인**: 커밋 `164ddc4`(G-Crit-4)에서 서버에 CSRF 가드(`GET /admin/api/csrf-token` 발급 + `csrfGuard` 검증)를 넣었으나 **admin.html에는 CSRF 코드가 0줄** — 토큰을 받지도 보내지도 않았다. 비밀번호/시크릿과 무관(로그인 정상).
+- **수정**: admin.html에서 `window.fetch`를 1회 래핑(`__adminCsrfWrapped`). `/admin/api/*` 변경요청에 대해 `GET /admin/api/csrf-token`으로 토큰을 지연 발급·캐시하고 `X-CSRF-Token` 헤더를 자동 주입. 403+csrf 사유면 토큰 재발급 후 1회 재시도. 226개 인라인 fetch를 개별 수정하지 않고 중앙 일괄 처리.
+- 토큰 키는 `x-admin-secret` 기반(`secret:sha256(adminSecret)`)으로 발급/검증 동일 → 별도 설정 불필요.
+
 ## 2026-05-30 v7.311 — 게임가이드 기동 슈퍼유닛 섹션 JA/ZH 추가 (기존 KO만 → 4언어 완성)
 
 ## 2026-05-30 v7.289~v7.310 — 합체 유닛 풀스택 + 전투/UI 보강 (종합)
