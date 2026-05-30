@@ -48768,7 +48768,7 @@ function renderAssembly(units) {
     var owned = parseInt(u.distinct_owned,10) || 0;
     var pct = total ? Math.min(100, Math.round(owned / total * 100)) : 0;
     return '<div class="bp-card" data-action="asm-unit-open" data-unit-code="'+escapeHtmlSafe(u.unit_code||'')+'" style="cursor:pointer;border-color:rgba(179,136,255,.22);background:linear-gradient(180deg,rgba(179,136,255,.08),rgba(255,255,255,.02))">' +
-      '<div style="height:88px;display:flex;align-items:center;justify-content:center">'+_asmImg('assets/ships/top/'+(u.unit_code||'')+'.png', u.icon||'🜲', 80)+'</div>' +
+      '<div style="height:88px;display:flex;align-items:center;justify-content:center">'+_asmImg('assets/assembly/portrait/'+(u.unit_code||'')+'.png', u.icon||'🜲', 80)+'</div>' +
       '<div style="font-family:Orbitron,monospace;font-size:12px;color:#e1bee7;letter-spacing:.7px;margin-top:8px;min-height:30px">'+escapeHtmlSafe(_asmName(u)||u.unit_code||'Unit')+'</div>' +
       '<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:6px">' +
         '<span style="font-size:8px;padding:2px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.62)">'+escapeHtmlSafe(_asmKindLabel(u.kind||''))+'</span>' +
@@ -48844,7 +48844,7 @@ function _asmRenderUnitModal(d){
   }).join('');
   c.innerHTML =
     '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)">' +
-      '<div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center">'+_asmImg('assets/ships/top/'+(d.unit_code||d.ship_type_code||'')+'.png', d.icon||'🜲', 54)+'</div>' +
+      '<div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center">'+_asmImg('assets/assembly/portrait/'+(d.unit_code||d.ship_type_code||'')+'.png', d.icon||'🜲', 54)+'</div>' +
       '<div style="flex:1;min-width:0">' +
         '<div style="font-family:Orbitron,monospace;font-size:15px;color:#e1bee7;letter-spacing:1px">'+escapeHtmlSafe(_asmName(unit)||d.unit_code||'Unit')+'</div>' +
         '<div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:3px">'+escapeHtmlSafe(_asmKindLabel(d.kind||''))+' · '+_asmSeasonLabel(d.season)+(unit.base_hp?(' · HP '+formatNum(unit.base_hp)+' / ATK '+formatNum(unit.base_atk)+' / DEF '+formatNum(unit.base_def)):'')+'</div>' +
@@ -49038,7 +49038,7 @@ function _perfectGachaBoxHtml(d, loading) {
     (d.error === 'LOGIN_REQUIRED' ? tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录') :
     (d.error ? tl('Unavailable','이용 불가','利用不可','不可用') : (tl('Pity in','천장까지','天井まで','保底还需')+' '+pity+' '+tl('pulls','회','回','次')+' · Pool '+pool)));
   return '<div style="position:relative;height:140px;background:radial-gradient(circle at 50% 28%,rgba(179,136,255,.42),transparent 72%),#0a0e1a;display:flex;align-items:center;justify-content:center;overflow:hidden">' +
-      _asmImg('assets/ships/top/pilgrim_voltaris.png','🜲',120) +
+      _asmImg('assets/assembly/portrait/pilgrim_voltaris.png','🜲',120) +
       '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(8,10,20,.94))"></div>' +
       '<div style="position:absolute;bottom:9px;left:12px;right:12px;font-size:14px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.5px">🜲 '+tl('PERFECT GACHA BOX','퍼펙트 가챠 박스','合体パーツBOX','合体零件宝箱')+'</div>' +
     '</div>' +

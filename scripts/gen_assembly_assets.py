@@ -56,9 +56,18 @@ def assets_for(unit_code):
     u = UNITS[unit_code]
     short = unit_code.replace('pilgrim_', '')
     out = [(
+        # 정면 전신샷 — 합체 탭 카드/모달용
+        f"assets/assembly/portrait/{u['ship_code']}.png",
+        f"full-body front view hero shot of a massive humanoid super-mech robot standing upright, "
+        f"facing the camera, dramatic dark studio background, {u['theme']}, {u['accent']} color scheme, "
+        f"{PILGRIM}, {STYLE}",
+    ), (
+        # 진짜 탑다운 전투 스프라이트 — 전술랩 전투 렌더러용(다른 22척 함선 탑뷰와 같은 규격)
         f"assets/ships/top/{u['ship_code']}.png",
-        f"top-down view from directly above of a massive combined super-mech robot, "
-        f"pointing upward like a vertical spaceship sprite, centered full body on dark space background, "
+        f"strict top-down orthographic view looking straight down from directly overhead at a giant "
+        f"humanoid combat mech robot lying flat, seen from above so only the tops of its head, shoulders, "
+        f"arms and weapons are visible, nose/head pointing toward the top of the frame like a vertical "
+        f"game unit sprite, centered, isolated on solid pure black background, "
         f"{u['theme']}, {u['accent']} color scheme, {PILGRIM}, {STYLE}",
     )]
     for role, desc in PART_ROLES.items():
