@@ -161,9 +161,11 @@ async function createFleet(walletAddress, options = {}) {
   try {
     await client.query('BEGIN');
     
-    // Lock user row first — serializes concurrent createFleet calls so fleet count check is race-free
+    // Lock user row first — serializes concurrent createFleet calls so fleet count check is race-free.
+    // users PK is wallet_address (there is NO id column) — selecting "id" here threw
+    // `column "id" does not exist` → 500 on every fleet creation. [v7.316]
     await client.query(
-      `SELECT id FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      `SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [walletAddress]
     );
 
