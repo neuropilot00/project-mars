@@ -406,6 +406,28 @@ router.post('/referral/register', writeLimiter, async (req, res) => {
   }
 });
 
+// GET /api/referral/stats/:wallet — 3단 추천 인원수(트리 비노출, 카운트만). referred_by=추천인 wallet.
+router.get('/referral/stats/:wallet', async (req, res) => {
+  try {
+    const w = String(req.params.wallet||'').toLowerCase().trim();
+    if (!w) return res.status(400).json({ error: 'wallet_required' });
+    // tier1: 나를 추천인으로 둔 사람들
+    const t1 = await pool.query('SELECT wallet_address FROM users WHERE LOWER(referred_by)=LOWER($1)', [w]);
+    const t1w = t1.rows.map(r => r.wallet_address);
+    let tier2=0, tier3=0, t2w=[];
+    if (t1w.length) {
+      const t2 = await pool.query('SELECT wallet_address FROM users WHERE referred_by = ANY($1::text[])', [t1w]);
+      tier2 = t2.rowCount; t2w = t2.rows.map(r => r.wallet_address);
+    }
+    if (t2w.length) {
+      const t3 = await pool.query('SELECT COUNT(*)::int AS c FROM users WHERE referred_by = ANY($1::text[])', [t2w]);
+      tier3 = t3.rows[0] ? t3.rows[0].c : 0;
+    }
+    const tier1 = t1.rowCount;
+    res.json({ tier1, tier2, tier3, total: tier1+tier2+tier3 });
+  } catch (e) { console.error('[referral/stats]', e.message); res.status(500).json({ error: 'internal_error' }); }
+});
+
 // ══════════════════════════════════════════════════
 //  GET /api/referral/:wallet — Get referral info
 // ══════════════════════════════════════════════════

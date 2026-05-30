@@ -2249,21 +2249,40 @@ function drawShips2(){
 
 function drawBullets(_wsActive){
   bullets=bullets.filter(b=>{
-    // 호밍 미사일: 타깃 방향으로 서서히 조향
+    // 호밍 미사일: 타깃 방향 조향 + 지렁이 사인 웨이브(구불구불 탄막)
     if(b.homing&&!b.homing.dead&&b.age>8){
       const hdx=b.homing.x-b.x,hdy=b.homing.y-b.y;
       const hd=Math.hypot(hdx,hdy)||1;
       const spd=Math.hypot(b.vx,b.vy)||1;
-      const tx=hdx/hd*spd,ty=hdy/hd*spd;
-      const steer=0.045; // 조향 강도 (낮을수록 완만한 곡선)
+      let tdx=hdx/hd, tdy=hdy/hd;
+      // 진행방향 수직으로 사인 흔들림 추가 → 구불구불한 궤적
+      b.wob=(b.wob||(Math.random()*6.28))+0.5;
+      const perpX=-tdy, perpY=tdx, w=Math.sin(b.wob)*0.6;
+      tdx+=perpX*w; tdy+=perpY*w;
+      const dl=Math.hypot(tdx,tdy)||1; tdx/=dl; tdy/=dl;
+      const tx=tdx*spd,ty=tdy*spd;
+      const steer=0.08;
       b.vx+=(tx-b.vx)*steer;
       b.vy+=(ty-b.vy)*steer;
     }
     b.x+=b.vx;b.y+=b.vy;b.age++;
+    // 지렁이 꼬리: 미사일 궤적 히스토리(최근 12점)
+    if(b.kind==='missile'){ (b.htrail=b.htrail||[]).push({x:b.x,y:b.y}); if(b.htrail.length>12)b.htrail.shift(); }
     if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return false;
     const lifePct=1-b.age/b.ttl;
     const spd=Math.hypot(b.vx,b.vy);
     const ang=Math.atan2(b.vy,b.vx);
+    // 지렁이 꼬리(월드좌표, 회전 프레임 밖) — 머리→꼬리로 갈수록 얇고 투명
+    if(b.kind==='missile' && b.htrail && b.htrail.length>1){
+      CX.save(); CX.lineCap='round';
+      for(let ti=1; ti<b.htrail.length; ti++){
+        const a=ti/b.htrail.length;
+        CX.strokeStyle='rgba(255,'+(150+Math.round(80*a))+','+(60+Math.round(30*a))+','+(0.08+0.5*a*lifePct).toFixed(2)+')';
+        CX.lineWidth=(0.5+2.6*a);
+        CX.beginPath(); CX.moveTo(b.htrail[ti-1].x,b.htrail[ti-1].y); CX.lineTo(b.htrail[ti].x,b.htrail[ti].y); CX.stroke();
+      }
+      CX.restore();
+    }
     CX.save();CX.translate(b.x,b.y);CX.rotate(ang);
 
     if(b.kind==='missile'){
