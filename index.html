@@ -48758,6 +48758,41 @@ async function loadAssembly() {
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
+// 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
+function _asmRoleInfo(role){
+  var m = {
+    dps:    [tl('Striker','주력 화력','主力','主力'),     tl('Balanced damage dealer','균형 잡힌 주력 딜러','バランス型','均衡输出')],
+    tackle: [tl('Vanguard','고속 선봉','先鋒','先锋'),    tl('Fast, hunts small ships & flagships','빠르게 소형함·기함 사냥','小型・旗艦狩り','猎杀小型与旗舰')],
+    bomb:   [tl('Bomber','대형 폭격','爆撃','轰炸'),      tl('Crushes battleships & titans','전함·타이탄 특효','大型艦に特効','克制战列与泰坦')],
+    tank:   [tl('Fortress','요새 방어','要塞','要塞'),    tl('Soaks damage, anchors the line','피해 흡수, 전열 유지','耐久・前列','吸收伤害守前排')],
+    ewar:   [tl('Disruptor','전자전','電子戦','电子战'),  tl('Jams enemy fire & targeting','적 사격·조준 교란','妨害','干扰敌火力')],
+    sniper: [tl('Sniper','장거리 저격','狙撃','狙击'),    tl('Long-range, kills capitals','장거리에서 대형함 격파','遠距離','远程击杀大型')]
+  };
+  return m[(role||'dps').toLowerCase()] || m.dps;
+}
+function _asmWeaponLabel(ft){
+  return ({ laser:tl('Laser Cannon','레이저포','レーザー','激光炮'), missile:tl('Missile Pods','미사일','ミサイル','导弹'),
+    railgun:tl('Railgun','레일건','レールガン','轨道炮'), disruptor:tl('Disruptor','디스럽터','ディスラプター','干扰器'),
+    lance:tl('Precision Lance','정밀 랜스','ランス','精准枪'), swarm:tl('Swarm Autocannon','스웜 기관포','スウォーム','蜂群机炮'),
+    spread:tl('Acid Spread','산성 분사','酸噴射','酸液'), plasma:tl('Plasma Burst','플라즈마','プラズマ','等离子'),
+    torpedo:tl('Void Torpedo','보이드 어뢰','魚雷','虚空鱼雷') })[ft] || ft || '';
+}
+// 합체 모달 특성 패널: 역할 특성 + 무기 + 설명 + 상성 칩
+function _asmTraitPanel(d, unit){
+  var role = (unit && unit.role) || 'dps';
+  var ft = (unit && unit.fire_type) || '';
+  var ri = _asmRoleInfo(role);
+  var desc = (LANG==='ko' ? (unit&&unit.description_ko) : (unit&&unit.description_en)) || ri[1];
+  var matchup = (typeof shipRoleMatchupChips==='function') ? shipRoleMatchupChips(role) : '';
+  return '<div style="margin-bottom:14px;padding:11px 13px;border:1px solid rgba(179,136,255,.2);border-radius:10px;background:rgba(179,136,255,.05)">' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:7px">' +
+      '<span style="font-size:9px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(179,136,255,.18);border:1px solid #b388ff;color:#e1bee7">⚔ '+escapeHtmlSafe(ri[0])+'</span>' +
+      (ft ? '<span style="font-size:9px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.78)">🔫 '+escapeHtmlSafe(_asmWeaponLabel(ft))+'</span>' : '') +
+    '</div>' +
+    '<div style="font-size:9px;line-height:1.55;color:rgba(255,255,255,.66)">'+escapeHtmlSafe(desc)+'</div>' +
+    (matchup ? '<div style="margin-top:6px">'+matchup+'</div>' : '') +
+  '</div>';
+}
 function _asmSeasonLabel(s){ return !s || s === 'permanent' ? tl('Permanent','상시','常設','常驻') : escapeHtmlSafe(s); }
 function renderAssembly(units) {
   var wrap = document.getElementById('asmWrap');
@@ -48858,6 +48893,7 @@ function _asmRenderUnitModal(d){
       '<button type="button" class="shipyard-close" data-action="asm-modal-close">✕</button>' +
     '</div>' +
     '<div style="padding:14px 16px">' +
+      _asmTraitPanel(d, unit) +
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:12px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
       '<div style="display:grid;grid-template-columns:repeat(5,minmax(74px,1fr));gap:8px">'+slots+'</div>' +
       (parseInt(d.built_count,10)>0

@@ -100,7 +100,8 @@ async function getState(wallet, unitCode) {
   const shards = parseInt(shardRows[0]?.shards, 10) || 0;
 
   const { rows: unitInfo } = await pool.query(
-    `SELECT name_en, name_ko, name_ja, name_zh, class_label, base_hp, base_atk, base_def, base_speed
+    `SELECT name_en, name_ko, name_ja, name_zh, class_label, base_hp, base_atk, base_def, base_speed,
+            role, fire_type, description_en, description_ko
      FROM ship_types WHERE code = $1`, [u.ship_type_code]
   );
 
