@@ -1,3 +1,12 @@
+## 2026-05-31 v7.320 — 미사일 발사/일괄수확/단일수확/가챠스킵 수정 + 점검
+
+- **미사일이 레이저처럼 나가던 버그 수정**(tactical-lab): `fire()`에서 fireType='missile'/'torpedo'/'swarm' 함선이 최종 else로 빠져 일반 직선 탄으로 발사되던 것을, 지렁이 호밍 미사일(kind='missile')로 발사하도록 분기 추가. 이제 미사일 유닛(pilgrim_ignis 등)은 구불구불 탄막으로 보인다.
+- **일괄 수확 에러 수정**: `harvestAllTerritories`가 존재하지 않는 `/api/territory/harvest-all`를 호출해 항상 실패하던 것을, 내 영토를 영토별 `/territory/:id/harvest`로 순차 수확하도록 교체. 결과는 +N GP.
+- **단일(그룹) 수확 — 안 누른 영토 수확 안 되던 버그**: `_baseTerritoryHarvest`가 그룹의 `claims[0]`만 수확하던 것을, 그룹 내 모든 claim을 순회 수확하도록 수정. 표시도 PP→GP.
+- **수확 PP→GP 표시 통일**: 서버는 수확을 GP로 지급(gp_balance += harvestedGP)하는데 UI가 PP로 표시하던 것 수정. `/territory/:id/harvest` 응답에 harvestedGP 추가.
+- **가챠 박스오픈 영상 SKIP 버튼**: `_playBoxOpenVideo`에 우상단 건너뛰기(4언어)+배경 탭 스킵 추가.
+- **점검 결과(라이브 검증)**: GP 복권 구매 정상(lottery_buy=OK), GP 스테이킹 정상(staking_info/stake=OK). 사용자 복권 에러는 GP 부족/만료 라운드로 추정(서버 에러메시지가 그대로 토스트에 표시됨).
+
 ## 2026-05-31 v7.320 — 수확 GP/PP 표시 수정 + 가챠 영상 건너뛰기 버튼
 
 - **수확이 PP로 표시되던 버그 수정(실제론 GP 지급)**: 서버는 경제v2 P2에서 즉시 수확을 GP로 지급(gp_balance += harvestedGP)하는데 영토별 수확 응답(`/territory/:id/harvest`)에 harvestedGP가 빠져 UI가 "+N PP"로 표시. 응답에 harvestedGP 추가 + 프론트 일괄수확(harvestAllTerritories)·전체수확(harvestInstant) 모두 "+N GP" 표시로 수정.

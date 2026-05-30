@@ -1602,6 +1602,14 @@ function fire(sh,wsMode){
     // 폭격기: 호밍 미사일 1발, 강한 데미지
     const ts=tf.flagship&&!tf.flagship.dead?tf.flagship:tf.ships.filter(s=>!s.dead)[0];
     if(ts)spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,atkMult*1.5,wsMode,'missile',ts);
+  } else if(t.fireType==='missile'||t.fireType==='torpedo'||t.fireType==='swarm'){
+    // [v7.320] 미사일/어뢰/스웜 계열은 지렁이 호밍 미사일로 발사 (빔처럼 보이던 버그 수정).
+    const nShots=Math.max(1, t.shots||(t.fireType==='swarm'?3:1));
+    for(let k=0;k<nShots;k++){
+      const ts=targets[(k)%targets.length];
+      const sp=(Math.random()-.5)*.30;  // 퍼지는 탄막
+      spawnB(sh.x,sh.y,dx/len+sp,dy/len+sp,t,sh.side,atkMult/nShots,wsMode,'missile',ts);
+    }
   } else {
     for(let k=0;k<t.shots;k++){
       const sp=(Math.random()-.5)*.18;
