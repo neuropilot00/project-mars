@@ -1,3 +1,10 @@
+## 2026-05-31 v7.334 — 칸티나 CRASH 무한 WAITING/고아 라운드 수정
+
+- 증상: 칸티나(아레나) CRASH가 'WAITING… Starting in 5s'에서 멈추고 API 오류. 라이브 DB 확인 결과 crash_rounds에 status='running' 라운드 8개가 닫히지 않고 고아로 남아 누적.
+- 원인: /crash/start가 `WHERE status='waiting'`로 대기 라운드 전체를 한꺼번에 running 전환(라운드 id 미지정), /crash/tick은 최신 1개만 종료 → 나머지 running 영구 고아. 고아 정리 로직 부재.
+- 수정(server/routes/arena.js): CRASH_MAX_MS(60s) 도입. /crash/current·/crash/tick에서 60초 초과 running·대기 라운드 자동 종료(베팅 패배 정산) 공통 헬퍼. /crash/start는 최신 대기 라운드 1개만 id로 시작(이미 running이면 idempotent 반환). 미존재 시 500 없이 no_round.
+- Migration 291_crash_round_cleanup.sql: 기존 stuck waiting/running 라운드 일괄 종료. 로컬 적용 검증(running 8→0, crashed 589). node --check·require 로드 정상.
+
 ## 2026-05-31 v7.333 — 전술랩 멈춤 수정 (호밍 미사일 성능 가드)
 
 - v7.330 호밍 미사일이 대규모전(예: 220 vs 206)에서 대형함마다 4~6발씩 매 사격 발사 → 투사체/트레일 폭증으로 전투 화면 프리즈. 성능 가드 추가.

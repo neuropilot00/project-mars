@@ -61,6 +61,7 @@ async function getCantinaReferralBase(betAmount) {
 
 // Generate provably fair crash point
 const CRASH_MAX_MULT = 100; // Maximum multiplier cap
+const CRASH_MAX_MS = 60000;
 function generateCrashPoint(seed) {
   const hash = crypto.createHmac('sha256', seed).update('crash').digest('hex');
   const h = parseInt(hash.slice(0, 13), 16);
@@ -71,12 +72,52 @@ function generateCrashPoint(seed) {
   return Math.min(raw, CRASH_MAX_MULT); // Cap at 100x
 }
 
+async function settleCrashBetsLost(client, roundId) {
+  await client.query(
+    "UPDATE crash_bets SET status = 'busted' WHERE round_id = $1 AND status = 'active'",
+    [roundId]
+  );
+}
+
+async function closeStaleCrashRounds(client) {
+  const staleRunning = await client.query(
+    `UPDATE crash_rounds
+     SET status = 'crashed', crashed_at = NOW()
+     WHERE status = 'running'
+       AND started_at < NOW() - ($1 * interval '1 millisecond')
+     RETURNING id`,
+    [CRASH_MAX_MS]
+  );
+
+  for (const row of staleRunning.rows) {
+    await settleCrashBetsLost(client, row.id);
+  }
+
+  await client.query(
+    `UPDATE crash_rounds
+     SET status = 'crashed', crashed_at = NOW()
+     WHERE status = 'waiting'
+       AND created_at < NOW() - ($1 * interval '1 millisecond')`,
+    [CRASH_MAX_MS]
+  );
+}
+
 // GET /arena/crash/current — Get current round
 router.get('/crash/current', async (req, res) => {
+  const client = await pool.connect();
   try {
-    // Find active round or create one
-    let round = await pool.query(
-      "SELECT * FROM crash_rounds WHERE status IN ('waiting','running') ORDER BY id DESC LIMIT 1"
+    await client.query('BEGIN');
+    await closeStaleCrashRounds(client);
+
+    // Find active round or create one. Stale running rounds are never returned.
+    let round = await client.query(
+      `SELECT *
+       FROM crash_rounds
+       WHERE status = 'waiting'
+          OR (status = 'running' AND started_at >= NOW() - ($1 * interval '1 millisecond'))
+       ORDER BY id DESC
+       LIMIT 1`,
+      [CRASH_MAX_MS]
     );
 
     if (round.rows.length === 0) {
@@ -85,7 +126,7 @@ router.get('/crash/current', async (req, res) => {
       const crashPoint = generateCrashPoint(seed);
       const hash = crypto.createHash('sha256').update(seed).digest('hex');
 
-      const r = await pool.query(
+      const r = await client.query(
         `INSERT INTO crash_rounds (crash_point, hash, status)
          VALUES ($1, $2, 'waiting') RETURNING *`,
         [crashPoint, hash]
@@ -94,6 +135,7 @@ router.get('/crash/current', async (req, res) => {
     }
 
     const r = round.rows[0];
+    await client.query('COMMIT');
 
     // Get bets for this round
     const bets = await pool.query(
@@ -116,8 +158,11 @@ router.get('/crash/current', async (req, res) => {
       }))
     });
   } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('[Arena] crash current:', e.message);
     res.status(500).json({ error: 'Internal error' });
+  } finally {
+    client.release();
   }
 });
 
@@ -302,14 +347,44 @@ function calcMultiplier(elapsedMs) {
 
 // POST /arena/crash/start — Start a round (called by game loop)
 router.post('/crash/start', async (req, res) => {
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      "UPDATE crash_rounds SET status = 'running', started_at = NOW() WHERE status = 'waiting' RETURNING *"
+    await client.query('BEGIN');
+
+    const waiting = await client.query(
+      "SELECT id FROM crash_rounds WHERE status = 'waiting' ORDER BY id DESC LIMIT 1"
     );
-    if (result.rows.length === 0) return res.status(400).json({ error: 'No waiting round' });
-    res.json({ roundId: result.rows[0].id, started: true });
+
+    if (waiting.rows.length > 0) {
+      const result = await client.query(
+        "UPDATE crash_rounds SET status = 'running', started_at = NOW() WHERE id = $1 AND status = 'waiting' RETURNING *",
+        [waiting.rows[0].id]
+      );
+      await client.query('COMMIT');
+      if (result.rows.length === 0) return res.status(400).json({ error: 'No waiting round' });
+      return res.json({ roundId: result.rows[0].id, started: true });
+    }
+
+    const running = await client.query(
+      `SELECT *
+       FROM crash_rounds
+       WHERE status = 'running'
+         AND started_at >= NOW() - ($1 * interval '1 millisecond')
+       ORDER BY id DESC
+       LIMIT 1`,
+      [CRASH_MAX_MS]
+    );
+    await client.query('COMMIT');
+    if (running.rows.length > 0) {
+      return res.json({ roundId: running.rows[0].id, started: true });
+    }
+
+    return res.status(400).json({ error: 'No waiting round' });
   } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
     res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
   }
 });
 
@@ -337,6 +412,33 @@ router.get('/crash/tick', async (req, res) => {
     }
 
     const elapsed = Date.now() - new Date(round.started_at).getTime();
+    if (elapsed > CRASH_MAX_MS) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const stale = await client.query(
+          `UPDATE crash_rounds
+           SET status = 'crashed', crashed_at = NOW()
+           WHERE id = $1
+             AND status = 'running'
+             AND started_at < NOW() - ($2 * interval '1 millisecond')
+           RETURNING id`,
+          [round.id, CRASH_MAX_MS]
+        );
+        if (stale.rows.length > 0) {
+          await settleCrashBetsLost(client, round.id);
+        }
+        await client.query('COMMIT');
+      } catch (txErr) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw txErr;
+      } finally {
+        client.release();
+      }
+      _crashCache = null;
+      return res.json({ status: 'no_round' });
+    }
+
     const currentMult = calcMultiplier(elapsed);
     const crashPoint = parseFloat(round.crash_point);
 
@@ -359,9 +461,7 @@ router.get('/crash/tick', async (req, res) => {
         await client.query(
           "UPDATE crash_rounds SET status = 'crashed', crashed_at = NOW() WHERE id = $1", [round.id]
         );
-        await client.query(
-          "UPDATE crash_bets SET status = 'busted' WHERE round_id = $1 AND status = 'active'", [round.id]
-        );
+        await settleCrashBetsLost(client, round.id);
 
         // Create next round
         const seed = crypto.randomBytes(32).toString('hex');
