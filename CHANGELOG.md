@@ -1,3 +1,11 @@
+## 2026-05-31 v7.336 — gamblingAuto war_bet_events 누락 컬럼/제약 수정
+
+- 프로덕션 로그 반복 에러: [gamblingAuto] resolve loop: column "created_at" does not exist / betting create: column "title_ko" ... does not exist.
+- 원인: gamblingAuto(weekly_top 파벌 경쟁)가 title_ko/title_en/option_c_label/total_bet_c/created_at를 쓰는데 087 CREATE TABLE에 없음. 또 087은 event_id NOT NULL인데 weekly_top은 외부 참조 없이 event_id=NULL로 생성.
+- Migration 292_war_bet_events_weekly_columns.sql: 누락 5개 컬럼 ADD COLUMN IF NOT EXISTS + created_at 백필 + event_id DROP NOT NULL + weekly 인덱스.
+- Codex 교차검증: gamblingAuto/warBetting가 참조하는 전 컬럼 087+292로 100% 커버, status 값 CHECK 위반 없음 확인.
+- 라이브 검증: createEvent(weekly_top, event_ref_id:null) 정상 생성(id 발급) 후 정리.
+
 ## 2026-05-31 v7.335 — 전술랩 대규모전 멈춤 재수정 (O(n^2) 제거)
 
 - v7.333 가드에도 멈춤 지속. 진짜 병목: fire()의 호밍 분기가 호출마다 ships 전체를 2번 순회(생존수 filter + 적 전체 filter+정렬). 대형함/로봇 많은 대규모전에서 프레임당 O(대형함수×함선수×log) 폭주.
