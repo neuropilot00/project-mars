@@ -2813,9 +2813,8 @@ function cmdMissileBarrage(){
     const spread=(Math.random()-.5)*.35;
     const ang=Math.atan2(dy,dx)+spread;
     const vx=Math.cos(ang),vy=Math.sin(ang);
+    // [v7.338] 호밍 미사일만 발사. 직선 빔 트레일(lasers.push) 제거 — 미사일이 빔처럼 보이던 원인.
     spawnB(sh.x,sh.y,vx,vy,sh.type,sh.side,1.35,false,'missile',tgt);
-    lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
-      color:FACTIONS[sh.type.faction].color,width:1.4,alpha:.7,ttl:130,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,missileTrail:true});
   });
   addLog('wn',`${tl('missile')} × ${Math.min(24,launchers.length)}`);
   battleCallout(`${tl('missile')}!`, 'order', 'top', 2600);

@@ -1,3 +1,9 @@
+## 2026-05-31 v7.338 — 수동 미사일 버튼이 빔으로 보이던 문제 수정
+
+- 증상: ☄ 미사일 버튼(cmdMissileBarrage)을 눌러도 호밍 미사일이 아니라 직선 빔이 나감.
+- 원인: cmdMissileBarrage가 호밍 미사일(spawnB 'missile')과 동시에 lasers.push로 직선 빔 트레일(missileTrail)을 함께 그림 → 빔처럼 보임.
+- 수정: 직선 빔 트레일 제거. 호밍 미사일만 발사(미사일 자체 지렁이 트레일 보유). missileTrail 잔여 0건, 문법오류 0.
+
 ## 2026-05-31 v7.337 — 전술랩 1초 후 멈춤 핫픽스 (targets ReferenceError)
 
 - 증상: 전투 시작 ~1초 후 'Uncaught ReferenceError: targets is not defined' (fire @1634) → 루프 중단/멈춤.
