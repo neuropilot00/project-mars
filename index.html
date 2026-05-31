@@ -22790,13 +22790,17 @@ function renderActiveBuffs(){
   el.style.display='flex';
   el.innerHTML=_activeEffects.map(function(e){
     var cat=catMap[e.effect_type]||'utility';
-    var label=e.icon+' ';
-    if(e.uses_remaining!==null) label+=e.uses_remaining+'x';
+    var nm=_itemName(e.effect_type)||e.name||'';
+    // [v7.343] 남은시간 명확화: 'Nh Mm'(예 3h 12m) — 'h'를 'x'로 오인하던 문제. 효과명도 배지에 직접 표기(부모 pointer-events:none이라 title 호버 안 먹음).
+    var dur='';
+    if(e.uses_remaining!==null) dur=e.uses_remaining+(LANG==='ko'?'회':LANG==='ja'?'回':LANG==='zh'?'次':' uses');
     else if(e.expires_at){
       var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
-      label+=mins>60?Math.floor(mins/60)+'h':mins+'m';
+      var hh=Math.floor(mins/60), mm=mins%60;
+      dur=hh>0?(hh+'h'+(mm>0?(' '+mm+'m'):'')):(mins+'m');
     }
-    return '<div class="tb-buff '+cat+'" title="'+(_itemName(e.effect_type)||e.name)+'">'+label+'</div>';
+    var label=e.icon+' '+nm+(dur?(' · '+dur):'');
+    return '<div class="tb-buff '+cat+'" title="'+nm.replace(/"/g,'&quot;')+'">'+label+'</div>';
   }).join('');
 }
 
