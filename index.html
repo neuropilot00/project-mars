@@ -25349,6 +25349,23 @@ function attemptEnhance(instanceId, opts){
 // Load enhancement data on init
 setTimeout(function(){ loadEnhancementData(); },3000);
 
+// ── 진형/기동 현 언어 라벨 (서버 name_ko 대신 코드→LANG) ──────────────
+var _FC_FORMATION_I18N={
+  sphere:{ko:'구형 집결',en:'Sphere',ja:'球形集結',zh:'球形集结'},
+  wedge: {ko:'쐐기',en:'Wedge',ja:'楔形',zh:'楔形'},
+  screen:{ko:'방어막',en:'Screen',ja:'防御陣',zh:'防御阵'},
+  pincer:{ko:'협공',en:'Pincer',ja:'挟撃',zh:'夹击'}
+};
+var _FC_MOVEMENT_I18N={
+  advance:{ko:'전진',en:'Advance',ja:'前進',zh:'前进'},
+  retreat:{ko:'후퇴',en:'Retreat',ja:'後退',zh:'后退'},
+  flank:  {ko:'측면 우회',en:'Flank',ja:'側面迂回',zh:'侧翼迂回'},
+  scatter:{ko:'산개',en:'Scatter',ja:'散開',zh:'散开'},
+  rally:  {ko:'재집결',en:'Rally',ja:'再集結',zh:'再集结'}
+};
+function _fcFormationName(code){var m=_FC_FORMATION_I18N[code];return m?(m[LANG]||m.en):code;}
+function _fcMovementName(code){var m=_FC_MOVEMENT_I18N[code];return m?(m[LANG]||m.en):code;}
+
 // ── 함대 탭 요약 로드 ──────────────────────────────────────────────
 function _loadFleetTabSummary(){
   var w=(walletState&&walletState.address)||'';
@@ -25432,12 +25449,12 @@ function _loadFleetTabSummary(){
         if(f.frigate_count>0) html+='<span style="color:#4fc3f7">'+(LANG==='ko'?'프리깃':LANG==='ja'?'フリゲート':LANG==='zh'?'护卫':'FF')+'×'+f.frigate_count+'</span>';
         if(aliveCount===0) html+='<span style="color:var(--red)">'+(LANG==='ko'?'함선 없음':LANG==='ja'?'艦船なし':LANG==='zh'?'无舰船':'No ships')+'</span>';
         html+='</div>';
-        // 진형/기동
+        // 진형/기동 (현 언어로 — 서버 name_ko 대신 코드→LANG 라벨)
         if(f.formation||f.movement){
           html+='<div style="margin-top:2px;font-size:7px;color:var(--tx3)">';
-          if(f.formation) html+=(f.formation_info&&f.formation_info.name_ko)||f.formation;
+          if(f.formation) html+=_fcFormationName(f.formation);
           if(f.formation&&f.movement) html+=' · ';
-          if(f.movement) html+=(f.movement_info&&f.movement_info.name_ko)||f.movement;
+          if(f.movement) html+=_fcMovementName(f.movement);
           html+='</div>';
         }
         html+='</div>';
@@ -48816,7 +48833,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7331'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7342'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
