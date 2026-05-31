@@ -1,28 +1,43 @@
 # OCCUPY MARS — 오픈베타 체크리스트
 > 작성: 2026-05-31 | 코드베이스 실측 기반 점검. 항목별 상태: ✅ 완료 / ⚠️ 확인·작업 필요 / 🔴 차단(반드시 해결) / ⬜ 미확인
 
-이 문서는 "오픈베타 시작 전에 반드시 끝내야 할 것"을 우선순위로 정리한다. 각 항목은 현재 코드 상태를 실제로 확인한 결과를 반영한다.
+이 문서는 "오픈베타 시작 전에 반드시 끝내야 할 것"을 **실행 단위 체크리스트**로 정리한다.
+배경/전략은 기존 문서를 따른다 — 중복 작성하지 말고 아래를 선행 참조:
+- `docs/LAUNCH_ROADMAP_2026.md` — 상용 런칭 3단계 로드맵
+- `docs/COMMERCIAL_OPEN_READINESS_2026-05-11.md` — 보안·정산·운영 준비도 점검
+- `docs/LAUNCH_BLOCKER_EXECUTION_PLAN_2026-05-15.md` — 런칭 블로커 실행안
+- `docs/RELEASE_REGRESSION_CHECKLIST_2026-05-15.md` — 배포 회귀 테스트
+- `docs/OPS_MINIMUM_RUNBOOK_2026-05-15.md` — 최소 운영 런북
 
 ---
 
 ## 0. 한눈 요약 (실측 2026-05-31)
-- ✅ 서버 JS 전체 문법 정상 (routes/services 134개 `node --check` 통과)
+**이미 갖춰진 것 (실측 확인):**
+- ✅ 서버 JS 전체 문법 정상 (routes/services `node --check` 통과)
 - ✅ index.html / admin.html 인라인 스크립트 문법오류 0
-- ✅ 로컬 DB 미적용 마이그레이션 0건
-- ✅ 코드 내 하드코딩 시크릿/비밀번호 없음 (전부 `process.env`)
-- ✅ 배포 설정 존재 (`Procfile`, `railway.json`, `npm start` = `node server/index.js`)
+- ✅ 로컬 DB 미적용 마이그레이션 0건 (최신 292까지)
+- ✅ 하드코딩 시크릿/비밀번호 없음 (전부 `process.env`), `.env`는 .gitignore 처리됨
+- ✅ 배포 설정 존재 (`railway.json` — NIXPACKS, `cd server && node index.js`, restart ALWAYS)
 - ✅ 핵심 기능 토글 ON (`fleet_combat_enabled`, `cantina_enabled`, `vip_enabled`)
-- ⚠️ 헬스체크 엔드포인트 없음 (`/health` 류) → 배포 모니터링/오토힐 위해 추가 권장
-- ⚠️ DB 자동 백업 스케줄 코드 흔적 없음 → 운영 백업 정책 필요
-- ⚠️ 레이트리밋이 `index.js`/`arena.js`에만 → 인증/지갑/경제 라우트로 확대 권장
-- ⚠️ `package.json`에 `engines.node` 미지정 → 프로덕션 노드 버전 고정 권장
-- ⚠️ `AUDIT_FINDINGS.md`에 🔴 다수 → 베타 전 분류(차단/허용) 필요
+- ✅ **헬스체크 `GET /health` 존재** (DB ping 포함, index.js:224)
+- ✅ **`engines.node >=18.0.0` 지정됨** (package.json)
+- ✅ **DB 백업 스크립트 존재** (`server/scripts/backup.sh`, `server/tools/backup_verify.js`)
+- ✅ **레이트리밋 광범위 적용** (auth/api/arena/marketplace/staking/governance/lottery/dividends/claimUpgrades)
+- ✅ 버그 인박스/DB 미처리 0건
+
+**실제 갭 (베타 전 처리):**
+- ⚠️ **프로덕션 노드 버전이 로컬 v25** — `engines`는 `>=18`이라 통과하지만 프로덕션 노드 버전을 베타 기간 고정(예 20.x LTS) 권장
+- ⚠️ **server console.log 167개** — 프로덕션 로그 노이즈/민감정보 노출 가능, 정리 또는 로그레벨 가드 권장
+- ⚠️ DB 백업 스크립트는 있으나 **자동 스케줄·복구 리허설 확인 필요** (스크립트 ≠ 자동 실행)
+- 🔴 **법무/약관 부재** (COMMERCIAL_OPEN_READINESS 기준 🔴) — 약관·개인정보·환불 정책. 단, "법무는 패스" 방침이면 베타 한정 고지문으로 대체 가능
+- ⚠️ `AUDIT_FINDINGS.md` 잔여 🟡(저위험/도달불가 위주) — 베타 차단 아님, 모니터
 
 ---
 
 ## 1. 🔴 차단 — 베타 시작 전 반드시
 - [ ] **프로덕션 시크릿 강도 확인**: `JWT_SECRET`, `ADMIN_SECRET`이 추측 불가한 랜덤 32자+ 인지 (Railway 환경변수). 로컬 기본값/약한 값 금지.
-- [ ] **DB 백업·복구 리허설**: 프로덕션 Postgres 자동 백업 켜져 있는지(Railway 플러그인/스케줄), 복구를 한 번 실제로 테스트. 베타 중 데이터 날리면 신뢰 즉사.
+- [ ] **DB 백업·복구 리허설**: 백업 스크립트(`server/scripts/backup.sh`)는 존재 — **자동 스케줄(cron/Railway)로 실제 돌고 있는지** + 복구를 한 번 실제로 테스트. 베타 중 데이터 날리면 신뢰 즉사.
+- [ ] **베타 고지문**: 법무 정식 약관이 없으면(방침상 패스), 최소한 "오픈베타 — 데이터 초기화 가능/실험 단계" 고지 + 결제/환불 관련 한 줄 안내라도 노출. (정식 약관은 `COMMERCIAL_OPEN_READINESS` 🔴 항목 — 상용 오픈 시 필수)
 - [ ] **마이그레이션 프로덕션 적용 확인**: 배포 직후 `schema_migrations`에 최신(292까지) 전부 적용됐는지. 특히 최근 핫픽스:
   - `291_crash_round_cleanup.sql` (칸티나 크래시 고아 라운드)
   - `292_war_bet_events_weekly_columns.sql` (gamblingAuto 컬럼)
@@ -31,10 +46,11 @@
 - [ ] **회원가입→첫 플레이 풀 루프**: 신규 지갑으로 가입 → 영토 클레임 → 수확 → 함선 건조 → 전투 1회까지 막힘 없이 되는지 실제로 1회 완주.
 
 ## 2. ⚠️ 안정성/운영 (베타 중 사고 방지)
-- [ ] **헬스체크 엔드포인트 추가** (`GET /health` → 200 + DB ping). 현재 없음. Railway 헬스체크/업타임 모니터 연결.
-- [ ] **레이트리밋 확대**: 로그인/회원가입(`auth.js`), 지갑·경제·하이잭·마켓 라우트에 IP/계정 단위 제한. 현재 `arena.js`(betLimiter)와 글로벌만.
-- [ ] **`engines.node` 고정**: `package.json`에 베타 노드 버전 명시(예 `"engines": {"node": "20.x"}`). 로컬 v25와 프로덕션 불일치 방지.
-- [ ] **uncaughtException/unhandledRejection 핸들러**: 서버 크래시 시 로그 남기고 graceful 처리. (Railway는 ON_FAILURE 재시작이지만 로그가 중요)
+- [x] ~~헬스체크 엔드포인트~~ — `GET /health`(DB ping) 이미 존재. Railway 헬스체크 경로로 연결만 확인.
+- [x] ~~레이트리밋~~ — auth/api/arena/marketplace/staking/governance/lottery/dividends 적용됨. 신규 경제 라우트 추가 시 동일 적용 유지.
+- [ ] **프로덕션 노드 버전 고정**: `engines.node`는 `>=18`이라 통과하나, 베타 기간엔 Railway 노드 버전을 LTS(20.x/22.x)로 고정해 로컬 v25와의 미세 차이 방지.
+- [ ] **console.log 정리**: server 167개 → 민감정보(지갑/금액) 출력 점검 + 프로덕션 로그레벨 가드(또는 noisy 로그 제거).
+- [ ] **uncaughtException/unhandledRejection 핸들러** 존재 확인. 없으면 추가(크래시 로그 + graceful).
 - [ ] **스케줄러 중복 실행 방지**: 멀티 인스턴스로 늘릴 때 cron/스케줄러가 leader에서만 돌게(현재 numReplicas=1이면 OK, 늘리면 재점검).
 - [ ] **부하 테스트(가벼운)**: 동시 50~100명 가정 — 함대전 시뮬, 수확, 칸티나 라운드가 버티는지. (전술랩 대규모전 성능은 v7.335에서 1차 개선됨)
 
