@@ -1654,19 +1654,20 @@ const WEAPON_COLORS={
 function weaponColor(t){
   return (t && t.fireType && WEAPON_COLORS[t.fireType]) || (FACTIONS[t.faction]&&FACTIONS[t.faction].color) || '#fff';
 }
-function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget,countedHoming){
+function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget,countedHoming,big){
   if(PERF_MODE&&bullets.length>120)return false;
   const isMissile=kind==='missile';
   // 미사일은 느리게 (2~3초 비행), 일반탄은 빠르게
   const spd=isMissile?(0.85+Math.random()*.2):(1.55+Math.random()*.45);
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
-    r:isMissile?Math.min(t.r*.38+.6,2.8):Math.min(t.r*.3+.3,1.6),
-    col:weaponColor(t),
+    r:isMissile?(big?Math.min(t.r*.55+2.6,5.5):Math.min(t.r*.38+.6,2.8)):Math.min(t.r*.3+.3,1.6),
+    col:big?'#35d6ff':weaponColor(t),  // [v7.340] 수동 일제사는 시안으로 구별
     dmg:t.atk*dmgMult*2,attackerType:t,side,
     ttl:isMissile?240:190,  // 미사일 TTL 늘림 (더 긴 비행)
     age:0,visual:!!visual,kind,
     homing:isMissile?homingTarget:null,  // 유도 타깃
-    countedHoming:!!countedHoming
+    countedHoming:!!countedHoming,
+    big:!!big  // [v7.340] 수동 미사일 일제사 — 크고 밝은 시안+글로우로 자동 호밍과 구별
   });
   if(!isMissile) playBulletSound();
   return true;
@@ -2362,9 +2363,9 @@ function drawBullets(_wsActive){
         CX.fillStyle='rgba(255,120,20,.5)';
         CX.fillRect(-trailLen,-b.r*.4,trailLen,b.r*.8);
       }
-      // 몸통 (파벌 색)
+      // 몸통 (파벌 색 / 수동 일제사는 시안)
       CX.globalAlpha=al;
-      CX.shadowColor=b.col;CX.shadowBlur=PERF_MODE?0:10;
+      CX.shadowColor=b.col;CX.shadowBlur=PERF_MODE?0:(b.big?22:10);  // [v7.340] big은 강한 글로우
       CX.fillStyle=b.col;
       CX.fillRect(-b.r*.3,-b.r*.55,b.r*2.4,b.r*1.1);
       // 선두 흰 점광
@@ -2372,7 +2373,7 @@ function drawBullets(_wsActive){
       CX.beginPath();CX.arc(b.r*2,0,b.r*.55,0,Math.PI*2);CX.fill();
       // 글로우 테두리
       if(!PERF_MODE){
-        CX.strokeStyle='rgba(255,255,255,.35)';CX.lineWidth=.7;
+        CX.strokeStyle=b.big?'rgba(180,245,255,.9)':'rgba(255,255,255,.35)';CX.lineWidth=b.big?1.6:.7;
         CX.strokeRect(-b.r*.3,-b.r*.55,b.r*2.4,b.r*1.1);
       }
       CX.shadowBlur=0;
