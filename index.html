@@ -3611,9 +3611,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   height: 100%;
   filter: brightness(1.38) contrast(1.12) saturate(1.08) drop-shadow(0 0 8px rgba(120,210,255,.24));
 }
+.fleet-preview-ship.pilgrim-sprite {
+  width: 29px;
+  height: 45px;
+  filter: drop-shadow(0 0 4px rgba(79,195,247,.12));
+}
+.fleet-preview-ship.pilgrim-sprite .bp-ship-img {
+  filter: brightness(0.8) contrast(0.9) saturate(0.82);
+}
 .fleet-preview-ship.flagship {
   width: 58px; height: 88px; z-index: 4;
   filter: drop-shadow(0 0 12px rgba(255,215,0,.45));
+}
+.fleet-preview-ship.flagship.pilgrim-sprite {
+  width: 41px;
+  height: 62px;
+  filter: drop-shadow(0 0 5px rgba(255,215,0,.18));
 }
 .fleet-preview-more {
   position: absolute; right: 12px; bottom: 10px;
@@ -51594,7 +51607,8 @@ function renderFleetPreview(f) {
   }).join('');
   var boardShips = visible.map(function(s, i){
     var p = fleetPreviewPoint(i, visible.length, formation, !!s.is_flagship);
-    return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
+    var isPilgrim = String(s.ship_type_code || '').toLowerCase().indexOf('pilgrim_') === 0;
+    return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + (isPilgrim ? ' pilgrim-sprite' : '') + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
       '<div class="bp-visual no-svg-fallback">' + shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code }) + '</div>' +
     '</div>';
   }).join('');
