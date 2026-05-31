@@ -957,6 +957,7 @@ function trimShipSprite(img){
   return out;
 }
 let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[],muzzles=[];
+var _homingCount=0;
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
 let beamCharge=0,missileCharge=0,empCharge=0,overdriveCharge=0;
@@ -1346,6 +1347,7 @@ function centeredPos(n, side) {
 }
 function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];muzzles=[];battleOver=false;
+  _homingCount=0;
   _wsPrevShips = new Map();
   beamCharge=0;missileCharge=20;empCharge=0;overdriveCharge=0;
   const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
@@ -1581,17 +1583,23 @@ function fire(sh,wsMode){
   mkMuzzle(sh.x,sh.y,dx/len,dy/len,FACTIONS[sh.type.faction].color,_mzScale);
 
   if((t.code||'').startsWith('pilgrim_')||t.size==='battleship'||t.size==='titan'){
-    const nShots=(t.code||'').startsWith('pilgrim_')?6:t.size==='titan'?5:4;
+    const livingCount=ships.filter(s=>!s.dead).length;
+    const isPilgrim=(t.code||'').startsWith('pilgrim_');
+    let volley=livingCount>120?1:livingCount>60?(isPilgrim?2:1):(isPilgrim?3:2);
+    if(PERF_MODE)volley=1;
+    const homingCap=PERF_MODE?40:90;
+    if(_homingCount>=homingCap)return;
+    volley=Math.min(volley,homingCap-_homingCount);
     const targets=ships.filter(s=>s.side!==sh.side&&!s.dead)
       .sort((a,b)=>Math.hypot(a.x-sh.x,a.y-sh.y)-Math.hypot(b.x-sh.x,b.y-sh.y))
-      .slice(0,nShots);
-    for(let k=0;k<nShots&&targets.length;k++){
+      .slice(0,volley);
+    for(let k=0;k<volley&&targets.length;k++){
       const ts=targets[k%targets.length];
       const adx=ts.x-sh.x,ady=ts.y-sh.y,alen=Math.hypot(adx,ady)||1;
       const spread=Math.random()*1.2-0.6;
       const ca=Math.cos(spread),sa=Math.sin(spread);
       const ux=adx/alen,uy=ady/alen;
-      spawnB(sh.x,sh.y,ux*ca-uy*sa,ux*sa+uy*ca,t,sh.side,atkMult/nShots,wsMode,'missile',ts);
+      if(spawnB(sh.x,sh.y,ux*ca-uy*sa,ux*sa+uy*ca,t,sh.side,atkMult/volley,wsMode,'missile',ts,true))_homingCount++;
     }
     return;
   }
@@ -1643,8 +1651,8 @@ const WEAPON_COLORS={
 function weaponColor(t){
   return (t && t.fireType && WEAPON_COLORS[t.fireType]) || (FACTIONS[t.faction]&&FACTIONS[t.faction].color) || '#fff';
 }
-function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget){
-  if(PERF_MODE&&bullets.length>120)return;
+function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget,countedHoming){
+  if(PERF_MODE&&bullets.length>120)return false;
   const isMissile=kind==='missile';
   // 미사일은 느리게 (2~3초 비행), 일반탄은 빠르게
   const spd=isMissile?(0.85+Math.random()*.2):(1.55+Math.random()*.45);
@@ -1654,9 +1662,11 @@ function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget){
     dmg:t.atk*dmgMult*2,attackerType:t,side,
     ttl:isMissile?240:190,  // 미사일 TTL 늘림 (더 긴 비행)
     age:0,visual:!!visual,kind,
-    homing:isMissile?homingTarget:null  // 유도 타깃
+    homing:isMissile?homingTarget:null,  // 유도 타깃
+    countedHoming:!!countedHoming
   });
   if(!isMissile) playBulletSound();
+  return true;
 }
 
 function checkHit(b){
@@ -2285,6 +2295,10 @@ function drawShips2(){
 
 function drawBullets(_wsActive){
   bullets=bullets.filter(b=>{
+    const removeBullet=()=>{
+      if(b.kind==='missile'&&b.countedHoming)_homingCount=Math.max(0,_homingCount-1);
+      return false;
+    };
     // 호밍 미사일: 타깃 방향 조향 + 지렁이 사인 웨이브(구불구불 탄막)
     if(b.homing&&!b.homing.dead&&b.age>8){
       const hdx=b.homing.x-b.x,hdy=b.homing.y-b.y;
@@ -2304,7 +2318,7 @@ function drawBullets(_wsActive){
     b.x+=b.vx;b.y+=b.vy;b.age++;
     // 지렁이 꼬리: 미사일 궤적 히스토리(최근 8점)
     if(b.kind==='missile'){ (b.htrail=b.htrail||[]).push({x:b.x,y:b.y}); if(b.htrail.length>8)b.htrail.shift(); }
-    if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return false;
+    if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return removeBullet();
     const lifePct=1-b.age/b.ttl;
     const spd=Math.hypot(b.vx,b.vy);
     const ang=Math.atan2(b.vy,b.vx);
@@ -2368,7 +2382,7 @@ function drawBullets(_wsActive){
       CX.fillStyle='rgba(255,255,255,.65)';CX.fillRect(len*.5,-b.r/3,len*.18,b.r*.55);
     }
     CX.restore();CX.globalAlpha=1;
-    if(!b.visual&&!_wsActive){const hit=checkHit(b);if(hit){mkMuzzle(b.x,b.y,0,0,'#fff7d6',b.kind==='missile'?1.6:0.7);applyDmg(hit,b.dmg,false,b.attackerType);return false;}}
+    if(!b.visual&&!_wsActive){const hit=checkHit(b);if(hit){mkMuzzle(b.x,b.y,0,0,'#fff7d6',b.kind==='missile'?1.6:0.7);applyDmg(hit,b.dmg,false,b.attackerType);return removeBullet();}}
     return true;
   });
 }
@@ -2740,7 +2754,11 @@ function cmdEMP(){
   if(ewars.length===0){addLog('wn',`${tl('emp')}: ${tl('unavailable')}`);return;}
   if(empCharge<100){addLog('wn',`${tl('emp')} ${Math.floor(empCharge)}%`);return;}
   empCharge=0;
-  empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn',`${tl('emp')} 6s`);
+  empMs=6000;bullets=bullets.filter(b=>{
+    if(b.side==='atk')return true;
+    if(b.kind==='missile'&&b.countedHoming)_homingCount=Math.max(0,_homingCount-1);
+    return false;
+  });addLog('wn',`${tl('emp')} 6s`);
   battleCallout(`${tl('emp')}!`,'order','top',2400);
   // EMP flash on each ewar ship
   ewars.forEach(s=>addFloatText(s.x,s.y-14,'⚡ EMP','order',2000));
