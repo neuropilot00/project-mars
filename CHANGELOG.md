@@ -1,3 +1,10 @@
+## 2026-05-31 v7.337 — 전술랩 1초 후 멈춤 핫픽스 (targets ReferenceError)
+
+- 증상: 전투 시작 ~1초 후 'Uncaught ReferenceError: targets is not defined' (fire @1634) → 루프 중단/멈춤.
+- 원인: missile/torpedo/swarm 분기(1634)가 `targets`를 참조하는데, v7.335에서 호밍 분기를 고치며 `targets` 선언을 그 위 if 블록 안으로 옮겨 이 분기엔 미정의.
+- 수정: 해당 분기가 최근접 적 함대(tf)의 생존함을 직접(mTargets) 사용. nShots 루프에 빈 배열 가드 추가.
+- 인라인 스크립트 문법오류 0, fire() 내 잔여 targets 참조 0 확인.
+
 ## 2026-05-31 v7.336 — gamblingAuto war_bet_events 누락 컬럼/제약 수정
 
 - 프로덕션 로그 반복 에러: [gamblingAuto] resolve loop: column "created_at" does not exist / betting create: column "title_ko" ... does not exist.
