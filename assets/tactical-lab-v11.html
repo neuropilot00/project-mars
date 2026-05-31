@@ -958,6 +958,7 @@ function trimShipSprite(img){
 }
 let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[],muzzles=[];
 var _homingCount=0;
+var _frameLiving=0;  // [v7.335] 프레임당 생존 함선 수 캐시
 let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
 let beamCharge=0,missileCharge=0,empCharge=0,overdriveCharge=0;
@@ -1583,16 +1584,16 @@ function fire(sh,wsMode){
   mkMuzzle(sh.x,sh.y,dx/len,dy/len,FACTIONS[sh.type.faction].color,_mzScale);
 
   if((t.code||'').startsWith('pilgrim_')||t.size==='battleship'||t.size==='titan'){
-    const livingCount=ships.filter(s=>!s.dead).length;
+    // [v7.335 perf] 프레임당 1회 계산된 생존 함선 수 사용 (fire()마다 전체 순회 금지)
+    const livingCount=(typeof _frameLiving==='number'&&_frameLiving>0)?_frameLiving:ships.length;
     const isPilgrim=(t.code||'').startsWith('pilgrim_');
     let volley=livingCount>120?1:livingCount>60?(isPilgrim?2:1):(isPilgrim?3:2);
     if(PERF_MODE)volley=1;
     const homingCap=PERF_MODE?40:90;
     if(_homingCount>=homingCap)return;
     volley=Math.min(volley,homingCap-_homingCount);
-    const targets=ships.filter(s=>s.side!==sh.side&&!s.dead)
-      .sort((a,b)=>Math.hypot(a.x-sh.x,a.y-sh.y)-Math.hypot(b.x-sh.x,b.y-sh.y))
-      .slice(0,volley);
+    // [v7.335 perf] 전체 정렬 대신 이미 고른 가장 가까운 적 함대(tf)의 생존함만 사용 → O(작은수)
+    const targets=tf.ships.filter(s=>!s.dead).slice(0,volley);
     for(let k=0;k<volley&&targets.length;k++){
       const ts=targets[k%targets.length];
       const adx=ts.x-sh.x,ady=ts.y-sh.y,alen=Math.hypot(adx,ady)||1;
@@ -2572,7 +2573,10 @@ function loop(ts){
 
   updateFleets(dt);
   const _wsActive = _wsBattle && _wsBattle.readyState === 1;
-  let fireBudget=PERF_MODE?72:9999;
+  // [v7.335 perf] 프레임당 생존 함선 수 1회 계산 — fire()의 호밍 분기가 재사용 (전체 재순회 방지)
+  _frameLiving=0; for(let _i=0;_i<ships.length;_i++) if(!ships[_i].dead) _frameLiving++;
+  // [v7.335 perf] 대규모전에서 프레임당 발사 수 상한 (비-PERF도 무제한 금지)
+  let fireBudget=PERF_MODE?72:(_frameLiving>200?120:_frameLiving>100?180:9999);
   ships.forEach(sh=>{
     if(sh.dead)return;
     sh.shootT+=dt;
