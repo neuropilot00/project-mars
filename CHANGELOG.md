@@ -1,3 +1,10 @@
+## 2026-05-31 v7.339 — 전술랩 닫아도 전투 계속/리셋 안됨 수정
+
+- 증상: 전술랩을 닫았다 다시 열면 이전 전투가 그대로 이어짐(리셋 안 됨).
+- 원인: closeTacticalLab이 backdrop만 숨기고 iframe은 그대로 둬 내부 시뮬 루프(requestAnimationFrame)가 계속 돎. openTacticalLab은 !frame.src일 때만 로드해 두 번째부터 옛 전투 유지.
+- 수정: closeTacticalLab에서 iframe.src='about:blank'로 완전 언로드(루프 정지+상태 리셋). openTacticalLab은 매 오픈마다 새 URL로 로드.
+- index 인라인 스크립트 문법오류 0.
+
 ## 2026-05-31 v7.338 — 수동 미사일 버튼이 빔으로 보이던 문제 수정
 
 - 증상: ☄ 미사일 버튼(cmdMissileBarrage)을 눌러도 호밍 미사일이 아니라 직선 빔이 나감.
