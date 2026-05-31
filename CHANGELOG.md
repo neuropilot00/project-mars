@@ -1,3 +1,12 @@
+## 2026-05-31 v7.344b — 시즌 pp 보상 수령 실패 진짜 수정 (getPPToGPRate import 누락)
+
+- 증상: 시즌 '획득 보상'에서 reward_type='pp' 보상만 수령 실패('Failed to claim reward'). gp/xp/item은 정상이라 pp 4개만 막힘(유저 Woo, 0x7b9e).
+- 진짜 원인: season.js 1행 import가 pool/getSetting만 가져오고 getPPToGPRate를 빠뜨림. 386행(claimSeasonReward pp)·672행(claimPassTier pp)에서 호출 → 'getPPToGPRate is not a function' → /season/claim 500.
+- 수정: 두 호출부를 호출시점 lazy require('../db').getPPToGPRate(client)로 변경(순환 require 안전).
+- 라이브 검증: 미수령 pp 4개(id 75/79/83/86) 전부 claim 성공(gpReceived 0.5/0.4/0.4/0.3) 후 실유저 데이터 원복(미수령 4→4, GP 30 유지).
+- 정정: 직전 v7.344(getPPToGPRate '미정의'로 로컬함수 추가)는 진단/수정이 부정확해 revert(51d3ddc). import 누락이 실제 원인이었음.
+- 별도 발견(미수정): db.js에 getPPToGPRate 중복 정의(391·396행, 무해) + finalizeSeasonRewards 멱등성/season_rewards UNIQUE 부재로 보상 중복 누적 — 후속.
+
 ## 2026-05-31 v7.343b — 좌상단 부스트 배지(🔥) 실수정 (renderActiveBuffs)
 
 - 증상: 좌상단 🔥 배지가 '🔥 3h'를 '🔥 3x'로 오인, 효과명/끝나는 시점 불명. 클릭·호버 무반응(부모 pointer-events:none).

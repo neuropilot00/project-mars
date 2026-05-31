@@ -383,7 +383,7 @@ async function claimSeasonReward(wallet, rewardId) {
     let rewardLabel = '';
 
     if (reward.reward_type === 'pp') {
-      const rewardGP = Math.round(parseFloat(reward.reward_amount) * await getPPToGPRate(client) * 1000000) / 1000000;
+      const rewardGP = Math.round(parseFloat(reward.reward_amount) * await require('../db').getPPToGPRate(client) * 1000000) / 1000000;
       // [경제v2 P2] 시즌 reward_type='pp' 보상은 PP 발행 대신 가치 보존 GP로 지급.
       await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [rewardGP, wallet]);
@@ -669,7 +669,7 @@ async function claimPassTier(wallet, tier, isPremium) {
     // Give reward
     let label = '';
     if (t.reward_type === 'pp') {
-      const rewardGP = Math.round(parseFloat(t.reward_amount) * await getPPToGPRate(client) * 1000000) / 1000000;
+      const rewardGP = Math.round(parseFloat(t.reward_amount) * await require('../db').getPPToGPRate(client) * 1000000) / 1000000;
       // [경제v2 P2] 시즌패스 reward_type='pp' 보상은 PP 발행 대신 가치 보존 GP로 지급.
       await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGP, wallet]);
       label = t.reward_amount + ' PP equivalent (' + rewardGP + ' GP)';
