@@ -1580,6 +1580,22 @@ function fire(sh,wsMode){
   const _mzScale=t.size==='titan'?2.6:t.size==='battleship'?2.0:t.size==='cruiser'?1.4:t.size==='destroyer'?1.0:0.7;
   mkMuzzle(sh.x,sh.y,dx/len,dy/len,FACTIONS[sh.type.faction].color,_mzScale);
 
+  if((t.code||'').startsWith('pilgrim_')||t.size==='battleship'||t.size==='titan'){
+    const nShots=(t.code||'').startsWith('pilgrim_')?6:t.size==='titan'?5:4;
+    const targets=ships.filter(s=>s.side!==sh.side&&!s.dead)
+      .sort((a,b)=>Math.hypot(a.x-sh.x,a.y-sh.y)-Math.hypot(b.x-sh.x,b.y-sh.y))
+      .slice(0,nShots);
+    for(let k=0;k<nShots&&targets.length;k++){
+      const ts=targets[k%targets.length];
+      const adx=ts.x-sh.x,ady=ts.y-sh.y,alen=Math.hypot(adx,ady)||1;
+      const spread=Math.random()*1.2-0.6;
+      const ca=Math.cos(spread),sa=Math.sin(spread);
+      const ux=adx/alen,uy=ady/alen;
+      spawnB(sh.x,sh.y,ux*ca-uy*sa,ux*sa+uy*ca,t,sh.side,atkMult/nShots,wsMode,'missile',ts);
+    }
+    return;
+  }
+
   if(t.fireType==='laser'){
     const ts=tf.flagship&&!tf.flagship.dead?tf.flagship:tf.ships.find(s=>!s.dead);
     if(!ts)return;
@@ -2048,12 +2064,15 @@ function drawShipSprite(ctx,s){
   const finalLong={frigate:7,destroyer:11,cruiser:17,battleship:29,titan:43}[s.size]||14;
   const long=finalLong/({frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[s.size]||1);
   const ratio=img.width/Math.max(1,img.height);
-  const h=long;
+  const isPilgrim=(s.code||'').startsWith('pilgrim_');
+  const h=long*(isPilgrim?0.7:1);
   const w=h*ratio;
   ctx.save();
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   ctx.rotate(Math.PI/2);
+  if(isPilgrim)ctx.filter='brightness(0.8) contrast(0.9) saturate(0.82)';
   ctx.drawImage(img,-w/2,-h/2,w,h);
+  if(isPilgrim)ctx.filter='none';
   ctx.restore();
   return true;
 }
@@ -2283,8 +2302,8 @@ function drawBullets(_wsActive){
       b.vy+=(ty-b.vy)*steer;
     }
     b.x+=b.vx;b.y+=b.vy;b.age++;
-    // 지렁이 꼬리: 미사일 궤적 히스토리(최근 12점)
-    if(b.kind==='missile'){ (b.htrail=b.htrail||[]).push({x:b.x,y:b.y}); if(b.htrail.length>12)b.htrail.shift(); }
+    // 지렁이 꼬리: 미사일 궤적 히스토리(최근 8점)
+    if(b.kind==='missile'){ (b.htrail=b.htrail||[]).push({x:b.x,y:b.y}); if(b.htrail.length>8)b.htrail.shift(); }
     if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return false;
     const lifePct=1-b.age/b.ttl;
     const spd=Math.hypot(b.vx,b.vy);
