@@ -50621,7 +50621,9 @@ function renderShips() {
     var repairBtn = isDamaged && !listed
       ? '<button data-action="syRepairShip" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" data-current-hp="' + escapeHTML(s.current_hp) + '" data-effective-max-hp="' + escapeHTML(effectiveMaxHp) + '" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>'
       : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? '판매중' : '✅ 최대HP') + '</button>';
-    return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + (crossFaction ? ' cross-faction' : '') + '" style="position:relative">' +
+    // [v7.346] 좌상단 배지(공용/타진영/별점)가 절대배치(top:6px,left:6px)라 .ship-name과 겹쳐 함선 이름이 가려짐 → 배지 있으면 상단 패딩으로 이름을 아래로 민다.
+    var _hasTopBadge = !!(crossBadge || qBadge || listedSticker);
+    return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + (crossFaction ? ' cross-faction' : '') + '" style="position:relative' + (_hasTopBadge ? ';padding-top:28px' : '') + '">' +
       listedSticker +
       crossBadge +
       qBadge +
