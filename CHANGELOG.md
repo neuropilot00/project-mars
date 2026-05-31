@@ -1,3 +1,8 @@
+## 2026-05-31 v7.329 — 외계 4종 탑뷰 원복 (불필요 재생성 되돌림)
+
+- 포즈 문제(아래 보는 시점)는 로봇 6종만 해당. 외계 4종(devourer/leviathan/hive/voidmaw)은 원래 정탑다운으로 정상이었는데 v7.327에서 불필요하게 같이 재생성됨 → 재생성 직전(2f0e4f9) 버전으로 원복.
+- 로봇 6종 위 보는 포즈는 v7.327 유지. ASSET_VER 7328.
+
 ## 2026-05-31 v7.328 — 합체 500 실수정(quality_mult 컬럼 제거) + 품질등급 라이브 검증
 
 - **합체 전건 500 실수정(치명적)**: assemble()의 ships INSERT가 존재하지 않는 `quality_mult` 컬럼을 참조(376줄)해 모든 합체가 internal_error. DB 확인: ships에 quality_mult 컬럼 없음(quality/bonus_atk/def/hp/speed만 존재). INSERT 컬럼·플레이스홀더·파라미터에서 quality_mult만 제거. quality 컬럼과 bonus_* 는 유지. 반환/assembly_events JSON의 quality_mult는 컬럼이 아니라 그대로 둠.
