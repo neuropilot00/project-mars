@@ -25424,6 +25424,7 @@ function _loadFleetTabSummary(){
         html+='<div style="font-size:10px;font-weight:700;color:#5cbbff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">⚓ '+(f.name||(LANG==='ko'?'함대':LANG==='ja'?'艦隊':LANG==='zh'?'舰队':'Fleet'))+'</div>';
         // 함급 구성 칩
         html+='<div style="margin-top:3px;font-size:8px;display:flex;gap:5px;flex-wrap:wrap">';
+        if(f.assembled_count>0) html+='<span style="color:#b388ff">'+(LANG==='ko'?'합체':LANG==='ja'?'合体':LANG==='zh'?'合体':'MECH')+'×'+f.assembled_count+'</span>';
         if(f.titan_count>0) html+='<span style="color:#ba68c8">'+(LANG==='ko'?'타이탄':LANG==='ja'?'タイタン':LANG==='zh'?'泰坦':'Titan')+'×'+f.titan_count+'</span>';
         if(f.battleship_count>0) html+='<span style="color:#ef5350">'+(LANG==='ko'?'전함':LANG==='ja'?'戦艦':LANG==='zh'?'战舰':'BS')+'×'+f.battleship_count+'</span>';
         if(f.cruiser_count>0) html+='<span style="color:#ffd166">'+(LANG==='ko'?'순양':LANG==='ja'?'巡洋':LANG==='zh'?'巡洋':'CA')+'×'+f.cruiser_count+'</span>';

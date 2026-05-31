@@ -60,6 +60,7 @@ async function listMyFleets(walletAddress) {
       COUNT(s.id) FILTER (WHERE s.is_alive AND st.size_class='cruiser') AS cruiser_count,
       COUNT(s.id) FILTER (WHERE s.is_alive AND st.size_class='battleship') AS battleship_count,
       COUNT(s.id) FILTER (WHERE s.is_alive AND st.size_class='titan') AS titan_count,
+      COUNT(s.id) FILTER (WHERE s.is_alive AND st.size_class='assembled') AS assembled_count,
       
       -- 기함 정보
       (SELECT json_build_object(
@@ -93,6 +94,7 @@ async function listMyFleets(walletAddress) {
     cruiser_count:    parseInt(f.cruiser_count) || 0,
     battleship_count: parseInt(f.battleship_count) || 0,
     titan_count:      parseInt(f.titan_count) || 0,
+    assembled_count:  parseInt(f.assembled_count) || 0,
     has_flagship:     (parseInt(f.flagship_count) || 0) > 0,
     formation_info:   FORMATION_INFO[f.formation],
     movement_info:    MOVEMENT_INFO[f.movement],
