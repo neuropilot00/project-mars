@@ -1,3 +1,11 @@
+## 2026-05-31 v7.327 — 합체유닛 탑뷰 10종 Codex 재생성 (위 보는 포즈 교정)
+
+- **탑뷰 스프라이트 10종 전량 재생성(Codex image_gen)**: Imagen 3 쿼터(429)로 막혔던 포즈 교체를 Codex 런타임 이미지 생성기(image_gen.imagegen())로 해결. codex CLI엔 image 서브커맨드가 없어 헛돌았던 것 확인.
+  - 로봇 6종(voltaris/ignis/glacius/umbra/aurum/tempest): 세로 슈팅 플레이어 기준 **위를 보는** 포즈(등+머리 위쪽, 비스듬 오버헤드 틸트, 무기 위로 발사). 기존 아래 보는 포즈 폐기.
+  - 외계 4종(devourer/leviathan/hive/voidmaw): 머리 위 향한 정탑다운 크리처십.
+  - 피사체 색과 겹치지 않는 chroma-key(green/magenta) 생성 후 키잉 → 투명 RGBA. 전 종 corner_a=0/center_a=255, 1024 정사각 정규화.
+- ASSET_VER 7326→7327 (탑 스프라이트 캐시버스트). 직전 7d24224 커밋에서 Edit 툴 실패로 누락됐던 것 보강.
+
 ## 2026-05-31 v7.326 — 로봇/외계 탑뷰 배경 완전 제거(rembg) + 합체 500 수정
 
 - **합체 500 버그 수정(치명적)**: v7.323이 ships에 없는 quality_mult 컬럼을 INSERT해 합체가 전부 500 실패. 컬럼 제거. 라이브검증: assemble 3회 q=epic/rare/legendary, bonus_atk/hp 차등 정상.
