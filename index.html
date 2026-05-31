@@ -48802,7 +48802,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7324'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7325'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
