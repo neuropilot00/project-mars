@@ -3910,7 +3910,7 @@ router.get('/quests', readLimiter, async (req, res) => {
       recentlyClaimed: claimed.rows.map(r => ({
         ...r,
         reward_pp: parseFloat(r.reward_pp),
-        reward_gp: Math.round(parseFloat(r.reward_pp) * questRate * 1e6) / 1e6
+        reward_gp: Math.max(_qFloor[r.tier] || 0, Math.round(parseFloat(r.reward_pp) * questRate * 1e6) / 1e6)
       })),
       pool: {
         balance: poolBalance,
@@ -4086,7 +4086,13 @@ router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => 
     }
 
     const ppToGpRate = await getPPToGPRate(client);
-    const actualRewardGP = Math.round(actualReward * ppToGpRate * 1000000) / 1000000;
+    // [v7.325] 무료/활동 미션도 의미있는 GP 지급 — 티어별 최소 GP 바닥값(표시값과 동일 기준).
+    const _qFloorClaim = {
+      free:     parseInt(await getSetting('quest_min_gp_free', '3'), 10)     || 3,
+      activity: parseInt(await getSetting('quest_min_gp_activity', '8'), 10)  || 8,
+      spending: parseInt(await getSetting('quest_min_gp_spending', '20'), 10) || 20
+    };
+    const actualRewardGP = Math.max(_qFloorClaim[quest.tier] || 0, Math.round(actualReward * ppToGpRate * 1000000) / 1000000);
 
     // [경제v2 P2] 퀘스트 보상은 PP 발행 대신 가치 보존 GP로 지급.
     await client.query(
