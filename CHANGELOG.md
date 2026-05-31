@@ -1,3 +1,11 @@
+## 2026-05-31 v7.345 — 시즌 XP 보상 수령 실패 진짜 수정 (numeric→integer 타입 에러)
+
+- 증상: 시즌 '획득 보상'에서 일부(reward_type='xp') 수령 시 'Failed to claim reward'. 스샷의 안 받아지던 4개가 XP 보상.
+- 진짜 원인: claimSeasonReward의 xp 분기가 'UPDATE users SET xp = xp + $1'에 reward_amount(numeric '500.000000')를 그대로 전달 → users.xp는 integer 컬럼 → 'invalid input syntax for type integer' → /season/claim 500.
+- 수정: xp 보상 금액을 Math.round(parseFloat(reward_amount))로 정수화 후 가산.
+- 라이브 검증: 미수령 xp 보상(id=70, 500) claim 성공, xp 500→1000 정확히 증가 후 실유저 데이터 원복.
+- 정정: v7.344(getPPToGPRate '미정의')·v7.344b(import 누락)는 둘 다 오진이었음. getPPToGPRate는 db.js에서 정상 export/import됨. 실제 막힌 건 PP가 아니라 XP 타입. (344b의 lazy-require 변경은 무해해 유지)
+
 ## 2026-05-31 v7.344b — 시즌 pp 보상 수령 실패 진짜 수정 (getPPToGPRate import 누락)
 
 - 증상: 시즌 '획득 보상'에서 reward_type='pp' 보상만 수령 실패('Failed to claim reward'). gp/xp/item은 정상이라 pp 4개만 막힘(유저 Woo, 0x7b9e).

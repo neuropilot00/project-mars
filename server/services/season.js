@@ -393,9 +393,12 @@ async function claimSeasonReward(wallet, rewardId) {
         [reward.reward_amount, wallet]);
       rewardLabel = reward.reward_amount + ' GP';
     } else if (reward.reward_type === 'xp') {
+      // [v7.345 fix] users.xp는 integer인데 reward_amount는 numeric('500.000000') → 그대로 넣으면
+      //   "invalid input syntax for type integer" 로 xp 시즌보상 수령이 전부 실패했음. 정수로 반올림.
+      const xpAmt = Math.round(parseFloat(reward.reward_amount) || 0);
       await client.query('UPDATE users SET xp = xp + $1 WHERE LOWER(wallet_address) = LOWER($2)',
-        [reward.reward_amount, wallet]);
-      rewardLabel = reward.reward_amount + ' XP';
+        [xpAmt, wallet]);
+      rewardLabel = xpAmt + ' XP';
     } else if (reward.reward_type === 'item' && meta.item_code) {
       // Give item to user inventory
       const itemRes = await client.query('SELECT id FROM item_types WHERE code = $1 AND active = true', [meta.item_code]);
