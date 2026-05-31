@@ -373,11 +373,11 @@ async function assemble(wallet, unitCode) {
     const isFlagship = parseInt(flagRows[0]?.c || 0, 10) === 0 && !!st[0]?.is_flagship_capable;
     const { rows: shipRows } = await client.query(
       `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet,
-                          quality, quality_mult, bonus_atk, bonus_def, bonus_hp, bonus_speed)
-       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10, $11, $12) RETURNING id`,
+                          quality, bonus_atk, bonus_def, bonus_hp, bonus_speed)
+       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10, $11) RETURNING id`,
       [
         fleetId, u.ship_type_code, w, fullHp, baseStats.hp, isFlagship,
-        quality, qualityMeta.mult, bonus.atk, bonus.def, bonus.hp, bonus.speed,
+        quality, bonus.atk, bonus.def, bonus.hp, bonus.speed,
       ]
     );
     const shipId = shipRows[0].id;

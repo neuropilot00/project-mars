@@ -1,3 +1,10 @@
+## 2026-05-31 v7.328 — 합체 500 실수정(quality_mult 컬럼 제거) + 품질등급 라이브 검증
+
+- **합체 전건 500 실수정(치명적)**: assemble()의 ships INSERT가 존재하지 않는 `quality_mult` 컬럼을 참조(376줄)해 모든 합체가 internal_error. DB 확인: ships에 quality_mult 컬럼 없음(quality/bonus_atk/def/hp/speed만 존재). INSERT 컬럼·플레이스홀더·파라미터에서 quality_mult만 제거. quality 컬럼과 bonus_* 는 유지. 반환/assembly_events JSON의 quality_mult는 컬럼이 아니라 그대로 둠.
+- **라이브 DB 검증(실측)**: assemble 실행 시 정상 INSERT(ship_id 발급). 8회 반복(사이 삭제로 max_per_player=1 회피) 결과 품질 차등 확인 — common(★0)/uncommon(★1)/rare(★2)/epic(★3), bonus atk/def/hp/speed 등급별 스케일. current_hp=max_hp+bonus_hp(코드상 fullHp=base.hp+bonus.hp) 성립.
+- node --check assembly.js 통과, index.html 인라인 스크립트 16개 문법오류 0.
+- ⚠️ 정정: 직전 턴의 'v7.328 수정/푸시 완료' 보고는 잘못된 파일 가정에 기반한 오보였음. 실제 HEAD는 f378ae7(v7.327)였고 수정 미반영 상태였다. 이번 커밋이 실제 수정.
+
 ## 2026-05-31 v7.327 — 합체유닛 탑뷰 10종 Codex 재생성 (위 보는 포즈 교정)
 
 - **탑뷰 스프라이트 10종 전량 재생성(Codex image_gen)**: Imagen 3 쿼터(429)로 막혔던 포즈 교체를 Codex 런타임 이미지 생성기(image_gen.imagegen())로 해결. codex CLI엔 image 서브커맨드가 없어 헛돌았던 것 확인.

@@ -1,3 +1,7 @@
+## 2026-05-31 — 합체(assembly.assemble) quality_mult 컬럼 참조 500 RESOLVED
+
+- 증상: 모든 합체 internal_error. 원인: ships INSERT가 미존재 컬럼 quality_mult 참조. DB로 컬럼 부재 확인 후 INSERT에서 제거. 라이브 검증: 합체 성공 + 품질(common~epic)·bonus 차등 정상.
+
 # OCCUPY MARS — Audit (v7.229~v7.310 / 2026-05-30) — 함대전 + 합체(기동) 슈퍼유닛 풀스택
 
 ## 합체(기동) 슈퍼유닛 스택 — v7.281~v7.310
