@@ -2814,7 +2814,8 @@ function cmdMissileBarrage(){
     const ang=Math.atan2(dy,dx)+spread;
     const vx=Math.cos(ang),vy=Math.sin(ang);
     // [v7.338] 호밍 미사일만 발사. 직선 빔 트레일(lasers.push) 제거 — 미사일이 빔처럼 보이던 원인.
-    spawnB(sh.x,sh.y,vx,vy,sh.type,sh.side,1.35,false,'missile',tgt);
+    // [v7.340] big=true → 크고 밝은 시안 미사일로 자동 호밍과 구별.
+    spawnB(sh.x,sh.y,vx,vy,sh.type,sh.side,1.35,false,'missile',tgt,false,true);
   });
   addLog('wn',`${tl('missile')} × ${Math.min(24,launchers.length)}`);
   battleCallout(`${tl('missile')}!`, 'order', 'top', 2600);
