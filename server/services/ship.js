@@ -511,15 +511,34 @@ async function completeBuildJob(jobId) {
     const isFlagship = flagRows.length === 0 && st.is_flagship_capable;
     
     // 함선 생성 (트리거가 Titan/유저 한도 체크)
-    const { rows: shipRows } = await client.query(`
-      INSERT INTO ships (
-        fleet_id, ship_type_code, owner_wallet,
-        current_hp, max_hp, is_flagship, is_alive,
-        built_at, built_by_wallet
-      ) VALUES ($1, $2, $3, $4, $4, $5, true, NOW(), $3)
-      RETURNING id
-    `, [fleetId, job.ship_type_code, job.wallet_address, st.base_hp, isFlagship]);
-    
+    let shipRows;
+    try {
+      ({ rows: shipRows } = await client.query(`
+        INSERT INTO ships (
+          fleet_id, ship_type_code, owner_wallet,
+          current_hp, max_hp, is_flagship, is_alive,
+          built_at, built_by_wallet
+        ) VALUES ($1, $2, $3, $4, $4, $5, true, NOW(), $3)
+        RETURNING id
+      `, [fleetId, job.ship_type_code, job.wallet_address, st.base_hp, isFlagship]));
+    } catch (insErr) {
+      // 함선 생성 실패: Titan 서버 한도 / 유저 함선 한도 등 영구 조건 트리거.
+      // startBuild 시점에 GP/광물을 이미 차감했으므로, 현재 abort된 트랜잭션을
+      // ROLLBACK 한 뒤 별도 트랜잭션에서 전액 환불하고 작업을 'refunded'로 닫는다.
+      // (그대로 throw 하면 작업이 'building'으로 되돌아가 스케줄러가 영구 재시도 →
+      //  GP 영구 잠김.)
+      try { await client.query('ROLLBACK'); } catch {}
+      const refundRes = await refundFailedBuildJob(client, job, insErr);
+      return {
+        success: false,
+        completion_failed: true,
+        job_id: jobId,
+        error: 'BUILD_COMPLETION_FAILED',
+        reason: insErr.message,
+        refund: refundRes,
+      };
+    }
+
     const shipId = shipRows[0].id;
     
     // 작업 완료 처리
@@ -559,6 +578,103 @@ async function completeBuildJob(jobId) {
     throw err;
   } finally {
     client.release();
+  }
+}
+
+// ─── 건조 완성 실패 시 전액 환불 (시스템 장애 보상) ───
+//
+// completeBuildJob 의 함선 INSERT 가 영구 조건(Titan 서버 한도 / 유저 함선 한도
+// 트리거 등)으로 실패하면, startBuild 시점에 차감된 GP/광물이 영구 잠긴다.
+// 이 함수는 별도 트랜잭션에서 GP/광물을 전액(기본 100%) 환불하고 작업을
+// 'refunded' 로 닫아 스케줄러 재시도(좀비화)를 막는다.
+async function refundFailedBuildJob(client, job, cause) {
+  try {
+    await client.query('BEGIN');
+
+    // 작업 재락 — 여전히 building 인 경우에만 환불(동시 취소/완료 방어)
+    const { rows: lockRows } = await client.query(
+      `SELECT * FROM ship_build_jobs WHERE id = $1 FOR UPDATE`,
+      [job.id]
+    );
+    const cur = lockRows[0];
+    if (!cur || cur.status !== 'building') {
+      await client.query('ROLLBACK');
+      return { refunded: false, reason: 'NOT_BUILDING' };
+    }
+
+    const refundPct = await getSettingInt(client, 'ship_build_fail_refund_pct', 100);
+
+    // GP 환불
+    const refundedGp = Math.floor((cur.gp_cost || 0) * refundPct / 100);
+    if (refundedGp > 0) {
+      await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+        [refundedGp, cur.wallet_address]
+      );
+    }
+
+    // 광물 환불 (resource_id FK 기반 UPSERT)
+    const minerals = cur.minerals_used || {};
+    const refundedMinerals = {};
+    for (const [code, qty] of Object.entries(minerals)) {
+      const refundQty = Math.floor(qty * refundPct / 100);
+      if (refundQty > 0) {
+        refundedMinerals[code] = refundQty;
+        await client.query(`
+          INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+          SELECT $1, r.id, $2, NOW()
+          FROM resources r WHERE r.code = $3
+          ON CONFLICT (wallet_address, resource_id)
+          DO UPDATE SET
+            quantity   = user_resource_inventory.quantity + EXCLUDED.quantity,
+            updated_at = NOW()
+        `, [cur.wallet_address, refundQty, code]);
+      }
+    }
+
+    // 작업 'refunded' 처리 — 스케줄러 재시도 중단
+    await client.query(`
+      UPDATE ship_build_jobs
+      SET status = 'refunded', completed_at = NOW()
+      WHERE id = $1
+    `, [cur.id]);
+
+    // 로그
+    try {
+      await client.query(`
+        INSERT INTO ship_build_log (wallet_address, ship_type_code, gp_cost, minerals_used, result)
+        VALUES ($1, $2, $3, $4, 'refunded')
+      `, [cur.wallet_address, cur.ship_type_code, -refundedGp, JSON.stringify(refundedMinerals)]);
+    } catch (_le) {}
+
+    await client.query('COMMIT');
+
+    // ── fire-and-forget 로그/알림 ──
+    if (refundedGp > 0) {
+      logFleetGpActivity(cur.wallet_address, 'ship_build_fail_refund', refundedGp, {
+        job_id: cur.id,
+        refund_pct: refundPct,
+        reason: (cause && cause.message) ? cause.message : 'build_completion_failed',
+      });
+      try {
+        const { logGPActivity } = require('../db');
+        logGPActivity(cur.wallet_address, refundedGp, 'ship_build_fail_refund',
+          `건조 완성 실패 전액 환불 (${refundPct}%)`).catch(() => {});
+      } catch (_) {}
+    }
+    try {
+      const { notifyPlayer } = require('../db');
+      notifyPlayer(cur.wallet_address, 'ship_build_refund',
+        `⚠️ 함선 건조가 완료되지 못해 자원을 전액 환불했습니다 (${refundedGp} GP).`,
+        { jobId: cur.id, shipTypeCode: cur.ship_type_code, refundedGp }
+      ).catch(() => {});
+    } catch (_ne) {}
+
+    return { refunded: true, refunded_gp: refundedGp, refunded_minerals: refundedMinerals, refund_pct: refundPct };
+  } catch (refundErr) {
+    try { await client.query('ROLLBACK'); } catch {}
+    console.error(`[ship] refundFailedBuildJob ${job && job.id} failed:`, refundErr.message);
+    return { refunded: false, error: refundErr.message };
   }
 }
 

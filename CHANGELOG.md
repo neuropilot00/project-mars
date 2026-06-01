@@ -1,3 +1,11 @@
+## 2026-06-02 v7.349 — 건조 완성 실패 시 GP/광물 전액 환불 (잠복 버그 보강)
+
+- 배경: v7.348 재시뮬에서 발견한 잠복 버그. completeBuildJob()은 startBuild 시점에 이미 GP/광물을 차감한 큐 작업을 완성시키는데, 함선 INSERT가 영구 조건(Titan 서버 한도 / 유저 함선 한도 트리거)으로 throw 하면 트랜잭션이 ROLLBACK 되어 작업이 'building'으로 되돌아가 스케줄러가 매 틱 재시도(좀비화)하고 차감된 GP가 영구 잠겼다.
+- 조치(server/services/ship.js): completeBuildJob의 함선 INSERT를 try/catch로 감싸고, 실패 시 ROLLBACK 후 새 함수 refundFailedBuildJob()이 별도 트랜잭션에서 GP/광물을 전액(ship_build_fail_refund_pct, 기본 100%) 환불하고 작업을 'refunded'로 닫아 재시도를 중단한다. 환불은 작업이 여전히 'building'일 때만 수행(동시 취소/완료 방어) → 멱등.
+- mig 295: ship_build_jobs status CHECK 제약에 'refunded' 추가, settings에 ship_build_fail_refund_pct=100 시드. NOT_YET_COMPLETE 등 일시적 오류는 기존대로 throw 되어 재시도 유지(영구 실패만 환불).
+- 로그/알림: ship_build_log(result='refunded'), fleet_gp_activity/gp_activity_log('ship_build_fail_refund'), player_notifications(환불 안내).
+- 라이브 검증(격리): mcc_titan 플레이어 한도(1) 초과 강제 → completeBuildJob이 success:false/BUILD_COMPLETION_FAILED 반환, GP +50000·광물 +40 전액 환불, 작업 status='refunded', 2회 호출 시 이중환불 없음(멱등). 정상 건조 happy-path(alien_hive) 회귀 정상. 0xsim_ 전량 DELETE + 잔여 0.
+
 ## 2026-05-31 v7.348 — 경제 재시뮬(함대 포함) + 파우셋 절충 복구
 
 - 함대 소비(건조/가챠/합체/강화/수리/실드/하이잭) 포함 재시뮬 결과 경제는 **강한 디플레**(소각≫발행): 함대액티브 net -579k, 고래 -24.2M, 혼합 -282k. 1차의 '인플레' 결론은 함대 누락 탓 오결론.

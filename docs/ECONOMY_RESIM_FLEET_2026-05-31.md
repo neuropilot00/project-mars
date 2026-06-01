@@ -22,9 +22,11 @@
 - 무한증식·음수잔액·이중정산: 없음. GP 보존 무결성 검증(잔액변화 = 발행-소각 정확 일치).
 - 고래도 GP가 말라 INSUFFICIENT_GP로 막힘 = 무한머니 부재 증명.
 
-## 🔴 잠재 버그 (low, 후속)
-- completeBuildJob: status='completed' 먼저 쓰고 이후 단계 throw 시 ROLLBACK하나 **GP 환불 없음**.
-  큐된 건조가 완성 실패하면 GP만 소실 가능. 이번 시뮬엔 미발동(서버/플레이어 cap이 차감 전 차단).
+## ✅ 잠재 버그 (해소 — v7.349)
+- ~~completeBuildJob: status='completed' 먼저 쓰고 이후 단계 throw 시 ROLLBACK하나 **GP 환불 없음**.
+  큐된 건조가 완성 실패하면 GP만 소실 가능.~~
+  → **수정 완료(v7.349, mig 295)**: 함선 INSERT를 try/catch로 감싸 영구 실패 시 refundFailedBuildJob()이
+  GP/광물 전액 환불 + 작업 'refunded'로 닫아 좀비 재시도 차단. 라이브 격리 검증 통과(멱등 포함).
 
 ## 한계
 - 광물은 GP 격리 위해 무한 버퍼(미측정). 전투는 HP 손상만 재현(수리 GP는 실측).
@@ -37,4 +39,4 @@
 ## 오픈베타 결론
 - 안전성: 통과(무한증식/음수잔액/이중정산 없음).
 - 경제 방향: 디플레 — 인플레 위험은 없으나, 신규/F2P가 함대 굴릴 GP 확보가 관건. 파우셋 절충 유지.
-- 후속: completeBuildJob 환불 누락(잠재 GP 소실) 점검 권장.
+- 후속: completeBuildJob 환불 누락(잠재 GP 소실) → **v7.349에서 수정 완료**.
