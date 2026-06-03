@@ -38153,13 +38153,23 @@ function renderInlineCheckin(){
   }
   board.innerHTML = html;
 
-  // Streak label
+  // Streak label (도파민 #5: 🔥 연속일수 강조 — 길수록 뜨겁게)
   var label = document.getElementById('checkinStreakLabel');
-  if(label) label.textContent = t('daily_streak_days').replace('{n}',streak);
+  if(label){
+    var _flame = streak>=14?'🔥🔥🔥':streak>=7?'🔥🔥':streak>=2?'🔥':'';
+    label.textContent = (_flame?_flame+' ':'') + t('daily_streak_days').replace('{n}',streak);
+    label.style.color = streak>=7?'#ff7a45':'var(--mars)';
+  }
 
-  // Period label
+  // Period label + 손실회피 경고 (오늘 안 하면 streak 리셋)
   var periodEl = document.getElementById('checkinPeriodLabel');
-  if(periodEl) periodEl.textContent = t('daily_day_of').replace('{cur}',(claimed ? cycleDay : cycleDay+1)).replace('{total}',maxDays);
+  if(periodEl){
+    var _baseP = t('daily_day_of').replace('{cur}',(claimed ? cycleDay : cycleDay+1)).replace('{total}',maxDays);
+    if(!claimed && streak>=2){
+      _baseP += ' · <span style="color:#ff8a65;font-weight:700">⚠ ' + (LANG==='ko'?('오늘 놓치면 '+streak+'일 연속 리셋!'):LANG==='ja'?('今日逃すと'+streak+'日連続リセット!'):LANG==='zh'?('今天错过将重置'+streak+'日连续!'):('Miss today → lose '+streak+'-day streak!')) + '</span>';
+    }
+    periodEl.innerHTML = _baseP;
+  }
 
   // Reward text + button
   var rewardEl = document.getElementById('inlineCheckinReward');
@@ -49264,7 +49274,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7392'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7393'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
