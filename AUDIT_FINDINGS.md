@@ -1,3 +1,12 @@
+## 2026-06-04 — Codex 재스윕 반영: 도파민 코드 방어적 하드닝 (v7.395)
+
+Codex가 #1(feedPool — 이미 SAVEPOINT 수정)을 확인하고 방어적 하드닝 3건 권고 → 전부 반영:
+- [MED] killmail wreck 값 finite+범위 클램프(_mods≤100K, _value≤9e12 BIGINT) — 이상치가 SAVEPOINT _kb
+  롤백을 일으켜 전투 전체 wreck 유실되던 worst-case 차단.
+- [LOW] 승리슬롯 풀 가드 차감(`WHERE pool_gp>=$1`+rowCount) — FOR UPDATE+클램프에 더한 음수 방어.
+- [LOW] mig314: victory_slot_pool/claims/ship_wrecks 머니 컬럼 비음수 CHECK(NOT VALID, 미래 쓰기 강제).
+검증: 스모크 11/0, fresh 체인 280개 완주, CHECK 3종 적용 확인.
+
 ## 2026-06-04 — 도파민 신규 코드 적대검수 (팀+레드팀+Codex)
 
 v7.388~394 신규 코드(승리슬롯/킬메일/복귀브리핑/실드) 검수.

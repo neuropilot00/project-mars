@@ -1425,11 +1425,17 @@ async function applyBattleResults(battleId, result) {
           const kSide = vSide === 'atk' ? 'def' : vSide === 'def' ? 'atk' : null;
           const kWallet = _killerByShip[String(sid)] || (kSide ? (_sideWallet[kSide] || null) : null);
           // MOD 레벨(강화 투자 추정) = 각 보너스/스텝 합. 가치 = 건조비 + MOD당 건조비의 4%.
-          const _mods = Math.max(0, Math.round(
+          // (v7.395 하드닝) finite+범위 클램프 — 이상치가 INT/BIGINT 초과로 throw해 SAVEPOINT _kb가
+          // 롤백되며 전투 전체 wreck이 유실되는 worst-case 차단.
+          let _mods = Math.round(
             (parseFloat(sr[0].ba)||0)/1 + (parseFloat(sr[0].bd)||0)/1 +
-            (parseFloat(sr[0].bh)||0)/200 + (parseFloat(sr[0].bs)||0)/0.05));
-          const _baseVal = parseInt(sr[0].build_gp) || 0;
-          const _value = _baseVal + _mods * Math.round(_baseVal * 0.04);
+            (parseFloat(sr[0].bh)||0)/200 + (parseFloat(sr[0].bs)||0)/0.05);
+          if (!Number.isFinite(_mods)) _mods = 0;
+          _mods = Math.max(0, Math.min(100000, _mods)); // INT 안전
+          const _baseVal = Math.max(0, parseInt(sr[0].build_gp) || 0);
+          let _value = _baseVal + _mods * Math.round(_baseVal * 0.04);
+          if (!Number.isFinite(_value)) _value = _baseVal;
+          _value = Math.max(0, Math.min(9000000000000, _value)); // BIGINT 안전
           await client.query(
             `INSERT INTO ship_wrecks (battle_id, ship_instance_id, ship_type, ship_name, original_owner, victim_side, killer_wallet, killer_side, ship_value_gp, mods, expires_at)
              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, NOW() + ($11 || ' hours')::INTERVAL)`,

@@ -59,7 +59,9 @@ async function spin(wallet, battleId) {
     let payout = Math.max(0, Math.floor(base * mult));
     if (payout > poolGp) payout = Math.floor(poolGp);
     if (payout > 0) {
-      await client.query(`UPDATE victory_slot_pool SET pool_gp = pool_gp - $1 WHERE id=1`, [payout]);
+      // (v7.395 하드닝) 가드 차감 — FOR UPDATE+클램프에 더해 pool_gp>=payout 보장(음수 불가).
+      const ded = await client.query(`UPDATE victory_slot_pool SET pool_gp = pool_gp - $1 WHERE id=1 AND pool_gp >= $1`, [payout]);
+      if (ded.rowCount !== 1) { await client.query('ROLLBACK'); return { error: 'POOL_INSUFFICIENT' }; }
       await client.query(`UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address)=LOWER($2)`, [payout, w]);
     }
     await client.query(`UPDATE victory_slot_claims SET payout_gp=$1, multiplier=$2 WHERE battle_id=$3 AND wallet=$4`, [payout, mult, battleId, w]);
