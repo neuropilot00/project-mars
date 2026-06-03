@@ -1,3 +1,12 @@
+## 2026-06-03 v7.361 — 변절 현상금 금고 환불 + 배신자 낙인 유료 속죄 (mig 303)
+
+- 사용자 정책 반영(EVE식): (1) 훔친 돈은 영구 변절자 소유(회수 불가) 유지, (2) 낙인은 영구, (3) 낙인은 GP 소각으로만 제거.
+- 변절 현상금 금고 환불: bounty_listings.funded_from_guild_id 추가(mig303). 변절 자동 현상금은 금고 funding이므로 만료(index.js 스케줄러)/취소(bounty.js cancel) 시 리더 개인 GP가 아니라 **금고로 환불**. 일반 현상금은 기존대로 게시자 개인 GP.
+- 배신자 낙인 유료 제거(속죄): guild.js redeemBetrayalMark() — guild_betrayer 태그 보유 시 GP(guild_betrayer_redemption_gp=5000) 소각 후 영구 태그 제거. POST /api/guild/redeem-betrayal. GP 부족/낙인 없음 차단.
+- 프론트: 길드 패널 "길드 없음" 뷰에 배신자 낙인 배너 + ⚖ 속죄 버튼(낙인 보유 시만 표시, /api/tags로 체크). guildRedeemBetrayal()/_checkBetrayerMark(). i18n 3키×4개국어. ASSET_VER 7361.
+- 라이브 검증(격리 12/12): 현상금 funded_from_guild_id 기록, 취소→금고 환불(+4000, 리더 개인 불변), 속죄 GP부족 차단·5000 소각·낙인 제거·재제거 차단. 잔여 0.
+- 멀티플레이 통합(별도): 4명 배신 스토리 — 변절→정찰→격침→현상금청구 15/15, 시스템 GP 발행 0(sink만 감소).
+
 ## 2026-06-03 v7.360 — 배신 시스템 UI(킬보드+정찰) + Codex 검수 반영
 
 - 프론트(index.html): PVP 탭에 킬보드+정찰 섹션 추가. `kbSwitchTab`(board/scout), `loadKillboard`(글로벌 격침 + 내 K/D, 변절자 ⚑ 플래그), `kbScout`(POST /api/spy/scout → 인텔 카드: 구성/atk/def/hp), `loadScoutReports`. 4개국어 i18n(`kb_hub_title`/`kb_tab_board`/`kb_tab_scout` 키 + `_kbL()` 헬퍼). PVP 탭 열림 시 자동 로드. ASSET_VER 7360. 프리뷰로 함수 정의·렌더 검증.
