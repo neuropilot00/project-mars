@@ -1,3 +1,13 @@
+## 2026-06-03 v7.359 — 배신 Phase 3: PvP 스파이/정찰 (시스템2) (mig 302)
+
+- 그린필드 정보전: 적 함대 구성이 숨겨져 있던 것을 GP 소각 정찰로 노출. 배신 3시스템 완성.
+- POST /api/spy/scout: 표적 함대 인텔 스냅샷(살아있는 함선 집계 — ships_alive/fleet_count/클래스별 구성/total_atk/total_def/total_hp) 노출. GP 비용(기본 500) 소각 싱크. 탐지 롤(spy_detection_chance_pct=35%) 성공 시 표적에게 notifyPlayer 통보 → 보복→전투→파괴→싱크.
+- 이중첩자: 캠페인 스파이 태그(the_handler) 보유 시 정찰 비용 할인(50%) — 캠페인 태그를 PvP로 연결.
+- GET /api/spy/reports: 내 정찰 보고서(인텔 + stale 여부). 인텔 TTL 12h.
+- mig 302: spy_reports 테이블 + 설정 5종. services/spy.js, routes/spy.js, index.js 마운트.
+- 라이브 검증(격리 11/11): 자기정찰 차단·500 GP 소각·구성/전투력 노출(frigate2/bs1, atk409)·탐지 롤·이중첩자 할인 250·보고서 저장. 잔여 0.
+- 남은 UI(후속): 킬보드 패널, 정찰 버튼/인텔 카드.
+
 ## 2026-06-03 v7.358 — 배신 Phase 2: 킬보드(격침 귀속) (mig 301)
 
 - full-loss 전투에서 함선이 영구 파괴될 때 applyBattleResults(battleEngine.js)가 ship_wrecks에 격침 귀속 기록: victim(original_owner)/killer_wallet/victim_side/killer_side. fleet_battle_participants(fleet→side→wallet) 매핑으로 누가 누구 함선을 격침했는지 산출.
