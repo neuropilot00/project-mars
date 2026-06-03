@@ -697,14 +697,14 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 - Fleet Combat 전체 스택 활성화 (`fleet_combat_enabled = true` — DB 확인 완료)
 - 파벌 시드 데이터 (mcc/fsp/cv), 함선 22종, 광물 tier 0~3 (13종)
 - VIP 시스템 (migration 162)
-- **함대전 HP 보존** — hijack 전투 후 함선 HP 그대로 유지 (is_alive=true), 조선소 수리 연계
+- **함대전 손실 (⚠️ v7.354 갱신 — EVE식 full-loss)** — 라이브 플래그 `hijack_ship_loss_enabled=true`, `siege_full_loss_enabled=true`라 **하이잭/공성 모두 격침 함선 영구 소멸**(is_alive=false). 일반전(AI/토너먼트)도 영구 파괴. 생존함은 감소된 HP로 남아 조선소 수리 연계. (`commander_full_loss_enabled=false`만 예외 — 커맨더 공성은 손실 면제.) 과거 "HP 보존" 서술은 폐기됨.
 - **전투 무한전** — MAX_TICKS=54000 (실질 무제한), 타임아웃 결과=draw (HP비율 승자 제거)
 - **WS 스트리밍 8x** — battleScheduler.js `tickMs/8`
 - **후퇴 (forfeit)** — `POST /api/battles/:id/forfeit` 신규 endpoint
 - **전투 뷰어 fixes** — HP바 실시간 감소, 내 함대/적 함대 올바른 구분, "나" 배지
 - **속도 조절 버튼** — tactical-lab SPEED 패널 (×1/×2/×4/×8, WS 없는 로컬 시뮬 전용)
 - **브라우저 네이티브 다이얼로그 제거** — confirm() 전면 인게임 모달로 교체 (§18 참조)
-- **핵심 플레이 라인 검수 v5.12** — 함선 건조/수리 재료 차감, 자원 제작, 고급 강화 재료, 하이잭 Phase 1/HP 보존/영토 HIJACK 버튼 연결 수정
+- **핵심 플레이 라인 검수 v5.12** — 함선 건조/수리 재료 차감, 자원 제작, 고급 강화 재료, 하이잭 Phase 1/영토 HIJACK 버튼 연결 수정 (※ 당시의 "HP 보존"은 v7.354에서 full-loss로 대체됨 — 위 항목 참조)
 - 내 영토 금색 하이라이트 (compositeClaimsOnTexture)
 - 하이젝 auto_win 후 영토 즉시 금색 반영 (Railway 레이턴시 우회)
 
@@ -843,7 +843,7 @@ vip_enabled                = true
 4. 로컬 테스트 유저: `0xlainworld000000000000000000000000000000`.
 5. `idx_users_referred_by` 인덱스 존재 — referral COUNT(*) 쿼리 최적화됨.
 6. 새 fleet UI 진입점: `openShipyard()` (조선소), `openFleetCmd()` (함대 관리).
-7. **함대전 시스템 동작 흐름**: hijack 선언 → fleet_battles 생성 → battleScheduler.runBattle() → battleEngine 시뮬 → WS 8x 스트리밍 → applyBattleResults (HP 반영, hijack=함선보존) → battleRewards.
+7. **함대전 시스템 동작 흐름**: hijack 선언 → fleet_battles 생성 → battleScheduler.runBattle() → battleEngine 시뮬 → WS 8x 스트리밍 → applyBattleResults (감소 HP 영속 기록 + 격침함 is_alive=false 영구 소멸 — full-loss 플래그 ON) → battleRewards. (예외: commander_full_loss_enabled=false.)
 8. **forfeit endpoint**: `POST /api/battles/:id/forfeit` — 공격자(atk)만 가능. preparing이면 즉시 취소(winner=def), 이미 ended면 OK 반환. HP는 applyBattleResults에서 이미 적용됨.
 9. **네이티브 다이얼로그**: 전면 제거 완료 (2026-04-28). confirm/prompt/alert 0곳. §18 참조.
 
