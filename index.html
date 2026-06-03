@@ -3711,6 +3711,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   z-index: -1;
   pointer-events: none;
 }
+/* 함대 길드 배지 (소속 과시) — 보드 좌하단 */
+.fleet-guild-badge {
+  position: absolute; left: 12px; bottom: 10px; z-index: 6;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 999px;
+  background: rgba(0,0,0,.42); border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(2px);
+}
+.fleet-guild-badge .fgb-emblem { font-size: 12px; line-height: 1; }
+.fleet-guild-badge .fgb-tag {
+  font-size: 9px; font-weight: 800; letter-spacing: 1px;
+  color: rgba(255,255,255,.82);
+}
 /* 함대 리버리 색 스와치 */
 .livery-swatches { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 .livery-swatch {
@@ -49172,7 +49185,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7377'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7378'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -51990,6 +52003,7 @@ function renderFleetPreview(f) {
       '<div class="fleet-board-axis"></div>' +
       '<div class="fleet-board-label">' + ((f.formation_info && f.formation_info.icon) || '●') + ' ' + ((f.formation_info && f.formation_info.name_ko) || formation) + '</div>' +
       '<div class="fleet-move-vector">' + ((f.movement_info && f.movement_info.icon) || '→') + ' ' + movementName + '</div>' +
+      (f.guild_emblem || f.guild_tag ? '<div class="fleet-guild-badge"' + (_accent ? ' style="border-color:' + _accent + '88"' : '') + '>' + (f.guild_emblem ? '<span class="fgb-emblem">' + fcEsc(f.guild_emblem) + '</span>' : '') + (f.guild_tag ? '<span class="fgb-tag">' + fcEsc(f.guild_tag) + '</span>' : '') + '</div>' : '') +
       boardShips +
       (ships.length > visible.length ? '<div class="fleet-preview-more">+' + (ships.length - visible.length) + ' more</div>' : '') +
     '</div>' +

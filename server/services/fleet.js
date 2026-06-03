@@ -73,7 +73,10 @@ async function listMyFleets(walletAddress) {
        FROM ships fs
        LEFT JOIN ship_types fst ON fst.code = fs.ship_type_code
        WHERE fs.fleet_id = f.id AND fs.is_flagship AND fs.is_alive LIMIT 1
-      ) AS flagship
+      ) AS flagship,
+      -- 길드 소속 엠블럼/태그 (코스메틱: 함대에 소속 과시 — v7.378)
+      (SELECT g.emblem_emoji FROM guilds g WHERE g.id = f.guild_id) AS guild_emblem,
+      (SELECT g.tag FROM guilds g WHERE g.id = f.guild_id) AS guild_tag
     FROM fleets f
     LEFT JOIN ships s ON s.fleet_id = f.id
     LEFT JOIN ship_types st ON st.code = s.ship_type_code
