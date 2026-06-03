@@ -1,3 +1,14 @@
+## 2026-06-03 v7.365 — 검수 라운드4: 버그 7개 수정 (출금 P0 포함)
+
+- [P0] /api/withdraw debit rowCount 가드 — 조건부 UPDATE 0행(잔액부족/반올림)인데 서명·커밋되어 미차감 출금 가능했음. rowCount===1 확인.
+- [P1] expedition_enabled/spell_enabled JSONB boolean 'true' 비교 → 원정/주문 항상 disabled. String() 정규화(staking/monument/shield도 비활성화 가능하게).
+- [P1] 킬보드 AI-fight 제외 — is_ai_battle 전투는 ship_wrecks 미기록(약한 NPC 킬 펌핑 차단). 함선 파괴는 정상.
+- [P1] createGuild 변절 쿨다운 게이트 추가(새 길드로 우회 차단).
+- [P1] 정찰 같은표적 쿨다운(spy_target_cooldown_minutes=30) — 알림 폭주/실시간 안개제거 그리핑 차단.
+- [P2] 마켓/경매 수수료 최소 1 GP(소액 0원 수수료 누수).
+- 죽은버튼: 프론트 /api/dailyOps→/api/daily-ops(404 수정).
+- 검증 7/7. 죽은기능(sector_raid 미구현/고아테이블)·밸런스 권고는 AUDIT_FINDINGS에 기록(별도).
+
 ## 2026-06-03 v7.364 — 팀+레드팀+Codex 합동 검수: 버그 7개 수정 (P0 인증우회 포함)
 
 - **[P0] assembly.js 인증 우회**: 모든 /api/assembly/* mutation에 JWT 검증이 없고 wallet을 body/query/header(spoofable)에서 읽어 ?wallet=victim으로 타인 GP/조각/합체함선 차감·파괴 가능. requireAuth 추가 + JWT에서만 wallet 추출.

@@ -1676,7 +1676,8 @@ async function buyShipListing(walletAddress, listingId) {
       throw err;
     }
     const feePct = await getSettingNumber(client, 'ship_market_fee_pct', 5);
-    const fee = Math.max(0, Math.floor(price * feePct / 100)); // fixed: floor after full division to avoid float leak
+    // [v7.365] 소액(10~19 GP)에서 floor로 수수료 0이 되던 누수 방지 — feePct>0이면 최소 1 GP.
+    const fee = Math.max(price > 0 && feePct > 0 ? 1 : 0, Math.floor(price * feePct / 100));
     const sellerReceive = price - fee;
     // Cross-faction: 구매자 진영과 함선 진영이 다르면 함대 편입 X (fleet_id=NULL "창고"). 사용 불가, 다시 마켓 판매만 가능.
     const buyerFactionMatches = (buyerRows[0].faction_code || '').toLowerCase() === (listing.ship_faction || '').toLowerCase();

@@ -29,7 +29,7 @@ async function getCfg() {
   const m = {};
   res.rows.forEach(r => { m[r.key] = r.value; });
   return {
-    enabled:         (m.spell_enabled || 'true') === 'true',
+    enabled:         String(m.spell_enabled ?? 'true') === 'true',
     durationH:       parseInt(m.spell_duration_h || '2', 10),
     maxPerTarget:    parseInt(m.spell_max_per_target || '1', 10),
     selfCastAllowed: (m.spell_self_cast_allowed || 'true') === 'true',

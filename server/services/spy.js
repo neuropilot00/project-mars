@@ -26,6 +26,18 @@ async function scoutTarget(scoutWallet, targetWallet) {
     const tgt = await client.query('SELECT 1 FROM users WHERE LOWER(wallet_address) = LOWER($1)', [target]);
     if (!tgt.rows.length) { await client.query('ROLLBACK'); return { error: 'TARGET_NOT_FOUND' }; }
 
+    // [v7.365] 같은 표적 정찰 쿨다운 — 반복 정찰로 (a)피해자 탐지 통보 폭주(알림 50칸 밀어내기) (b)실시간
+    //   안개 제거(적 함대 실시간 추적) 그리핑 방지. GP만으로 무제한 가능하던 것을 시간 게이트로 제한.
+    const cooldownMin = parseInt(await getSetting('spy_target_cooldown_minutes', '30'), 10) || 0;
+    if (cooldownMin > 0) {
+      const recent = await client.query(
+        `SELECT 1 FROM spy_reports WHERE scout_wallet = $1 AND target_wallet = $2
+           AND created_at > NOW() - ($3 || ' minutes')::INTERVAL LIMIT 1`,
+        [scout, target, String(cooldownMin)]
+      );
+      if (recent.rows.length) { await client.query('ROLLBACK'); return { error: 'SCOUT_COOLDOWN', cooldownMinutes: cooldownMin }; }
+    }
+
     // 이중첩자 할인: 캠페인 스파이 태그(the_handler) 보유 시 정찰 비용 할인
     let cost = baseCost, doubleAgent = false;
     const da = await client.query(`SELECT 1 FROM player_tags WHERE wallet = $1 AND tag_id = 'the_handler'`, [scout]);

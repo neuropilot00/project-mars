@@ -330,7 +330,8 @@ async function buyout(buyerWallet, auctionId) {
     }
 
     // Platform fee + seller payout
-    const fee = Math.floor(buyoutAmt * auction.platform_fee_rate);
+    // [v7.365] 소액 경매에서 floor로 수수료 0이 되던 누수 방지 — fee_rate>0이면 최소 1 GP.
+    const fee = Math.max(buyoutAmt > 0 && auction.platform_fee_rate > 0 ? 1 : 0, Math.floor(buyoutAmt * auction.platform_fee_rate));
     const sellerPayout = buyoutAmt - fee;
     await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [sellerPayout, auction.seller_wallet]);
 

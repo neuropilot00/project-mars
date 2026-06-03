@@ -10,6 +10,10 @@ async function createGuild(wallet, name, tag, emoji, description) {
   if (tag.length < 2) return { error: 'Guild tag must be 2-4 characters (A-Z, 0-9)' };
   if (!name || name.trim().length < 2 || name.trim().length > 50) return { error: 'Guild name must be 2-50 characters' };
 
+  // [v7.365] 변절 재가입 쿨다운 — createGuild도 게이트(기존엔 join 경로만 막아, 변절자가 새 길드를 즉시 만들어 우회 가능했음)
+  const _cdC = await getDefectionCooldown(wallet);
+  if (_cdC > 0) return { error: 'DEFECTION_COOLDOWN', cooldownHours: _cdC };
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

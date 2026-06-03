@@ -32,7 +32,7 @@ async function getSettings() {
     .split(',').map(n => parseInt(n.trim())).filter(Boolean);
 
   return {
-    enabled:       (map.staking_enabled || 'true') !== 'false',
+    enabled:       String(map.staking_enabled ?? 'true') !== 'false',
     apyPct:        parseFloat(map.staking_apy_pct)     || 15.0,
     minAmount:     parseFloat(map.staking_min_amount)  || 100,
     maxAmount:     parseFloat(map.staking_max_amount)  || 10000,

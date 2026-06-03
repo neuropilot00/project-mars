@@ -31,7 +31,7 @@ async function getSettings() {
   });
 
   return {
-    enabled:      (map.shield_enabled || 'true') !== 'false',
+    enabled:      String(map.shield_enabled ?? 'true') !== 'false',
     options,
     costs,
     maxPerWallet: parseInt(map.shield_max_per_wallet) || 5,

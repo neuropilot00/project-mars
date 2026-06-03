@@ -2273,10 +2273,16 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
 
     // Deduct from DB, increment nonce, and update last_withdrawal_at
     // [v7.165] parsedAmount(6자리 정규화)을 사용 — 미세 float 누수 차단(원래 raw amount였음).
-    await client.query(
+    // [v7.365][P0] debit rowCount 가드 — 조건부 UPDATE(usdt_balance>=$1)가 0행이면(잔액부족/반올림 엣지)
+    //   차감 없이 서명·커밋되어 잔액 미차감 출금이 발생 가능했음. 정확히 1행 차감됐는지 확인.
+    const _wd = await client.query(
       'UPDATE users SET usdt_balance = usdt_balance - $1, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($2) AND usdt_balance >= $1',
       [parsedAmount, wallet.toLowerCase()]
     );
+    if (_wd.rowCount !== 1) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance' });
+    }
 
     // ✅ [솔벤시] 담보는 net(실제 체인 전송분)만큼만 차감 — fee 는 담보에 잔류해 불변식 강화.
     // [v7.189 fix] fail-CLOSED: 에러 시 throw → 호출자 catch 에서 ROLLBACK 으로 잔액 변경도 같이 취소.

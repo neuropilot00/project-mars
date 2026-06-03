@@ -21,7 +21,7 @@ const EXP_TYPES = {
 async function launchExpedition(wallet, claimId, expeditionType, durationH) {
   const wLower = wallet.toLowerCase();
   const enabled = await getSetting('expedition_enabled', 'true');
-  if (enabled !== 'true') throw new Error('Expedition system is disabled');
+  if (String(enabled) !== 'true') throw new Error('Expedition system is disabled');
 
   const expType = EXP_TYPES[expeditionType] || EXP_TYPES.salvage;
   const baseCost = parseFloat(await getSetting('expedition_base_cost_gp', '15'));
@@ -256,7 +256,7 @@ async function getExpeditionInfo() {
       cost: parseFloat((parseFloat(baseCost) * d * info.costMult).toFixed(2))
     }));
   }
-  return { enabled: enabled === 'true', types: EXP_TYPES, durations: durList, costs };
+  return { enabled: String(enabled) === 'true', types: EXP_TYPES, durations: durList, costs };
 }
 
 // ── Admin stats ───────────────────────────────────────────────────────────────

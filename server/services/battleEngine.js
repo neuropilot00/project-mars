@@ -1172,7 +1172,7 @@ async function applyBattleResults(battleId, result) {
 
     // [v7.63] 이중 적용 방지: FOR UPDATE로 전투 행 잠금 후 status 재확인
     const { rows: btRows } = await client.query(
-      `SELECT battle_type, status, governor_siege_id FROM fleet_battles WHERE id = $1 FOR UPDATE`, [battleId]
+      `SELECT battle_type, status, governor_siege_id, battle_summary FROM fleet_battles WHERE id = $1 FOR UPDATE`, [battleId]
     );
     if (!btRows[0] || btRows[0].status === 'ended') {
       await client.query('ROLLBACK');
@@ -1330,8 +1330,10 @@ async function applyBattleResults(battleId, result) {
     //   매핑해 기록. 보존 분기(hijack 비전사 등)는 파괴가 없으므로 wreck 없음.
     try {
       await client.query('SAVEPOINT _kb');  // 킬보드 로깅 실패가 전투 결과 트랜잭션을 오염시키지 않게 격리
+      // [v7.365] AI 연습전투(ai/fight)는 킬보드 집계 제외 — 약한 NPC 상대로 킬 인플레 방지(리더보드 오염).
+      const _isAiBattle = !!(btRows[0].battle_summary && btRows[0].battle_summary.is_ai_battle);
       const _lossBranch = isHijackBattle || (isSiegeBattle && !siegeShipLoss);
-      const _fullLoss = _lossBranch ? hijackShipLoss : true; // 일반전은 항상 영구파괴
+      const _fullLoss = (_lossBranch ? hijackShipLoss : true) && !_isAiBattle; // 일반전 영구파괴, 단 AI전은 wreck 미기록
       let _destroyedIds = [];
       if (_fullLoss && finalShips.length > 0) {
         _destroyedIds = finalShips

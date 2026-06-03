@@ -1,3 +1,20 @@
+## 2026-06-03 — 검수 라운드 4 (팀+레드팀+Codex): 버그 7개 수정 + 죽은기능 식별
+
+| 등급 | 버그 | 영향 | 수정 |
+|---|---|---|---|
+| **P0** | /api/withdraw가 조건부 debit UPDATE의 rowCount 미확인 | 잔액 차감 0인데 서명·커밋 → **미차감 출금**(실제 USDT) 가능 | rowCount===1 가드 |
+| **P1** | expedition_enabled/spell_enabled JSONB boolean을 'true' 비교 | **원정/주문 기능 항상 disabled** | String() 정규화 |
+| **P1** | 킬보드가 AI 연습전투(ai/fight, is_ai_battle) wreck 기록 | 약한 NPC로 K-카운트 펌핑 → 리더보드 오염 | AI전 wreck 미기록 |
+| **P1** | createGuild에 변절 쿨다운 게이트 없음 | 변절자가 새 길드 즉시 생성해 쿨다운 우회 | getDefectionCooldown 게이트 |
+| **P1** | 정찰 같은표적 쿨다운 없음 | 반복정찰로 피해자 알림 폭주(50칸)·실시간 안개제거 | spy_target_cooldown_minutes(30) |
+| **P2** | staking/monument/shield_enabled JSONB → 비활성화 불가(항상 on) | 어드민이 끌 수 없음 | String() 정규화 |
+| **P2** | 마켓/경매 수수료 floor → 소액(10~19GP) 수수료 0 | 미세 수수료 누수 | 최소 1 GP |
+| 죽은버튼 | 프론트 /api/dailyOps(camelCase) → 404 | 데일리 힌트 무음 실패 | /api/daily-ops |
+
+검증(격리 7/7): expedition/spell 활성, AI전 wreck 0(함선파괴는 정상), createGuild·정찰 쿨다운 차단.
+죽은기능(미구현, 별도): sector_raid_enabled=true인데 구현 전무(섹터 약탈 루프 미완 — 생산→약탈→방어sink EVE식 닫힌루프 후보). 고아테이블(ship_battles/mining_expeditions/citizen_rewards/guild_war_coalitions 등) — 미사용, 정리 후보.
+경제밸런스 권고(기억, 미적용): 무한강화 P2W 곡선, F2P faucet, 캐피탈 재료 병목.
+
 ## 2026-06-03 — 팀+레드팀+Codex 합동 검수: 버그 7개 발견·수정
 
 3종 병렬(경제분석/레드팀/무결성 + Codex)로 적대 검수. 발견·수정:
