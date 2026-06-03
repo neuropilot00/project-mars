@@ -1,3 +1,22 @@
+## 2026-06-03 — 자금유통/경제 적대검수 (팀+레드팀+Codex) 라운드 1: P0 카지노 솔벤시 외
+
+| 등급 | 버그 | 수정 |
+|---|---|---|
+| **P0** | 카지노(crash/mines/coinflip/dice/hilo) `req.body.currency='USDT'` 허용 → 당첨 시 house 뱅크롤/담보 없이 usdt_balance 발행 → SUM(usdt_balance)≤collateral 붕괴(페그). UI가 PP만 보여도 백엔드가 body 신뢰해 악용 (Codex+경제분석가) | 5개 게임 전부 **PP 전용**(USDT 베팅 400 거부). 라이브 검증: 3게임 거부, PP 정상 |
+| **P0** | crash `/cashout`이 crash_point 초과만 막고 **경과시간 기준 현재 배수 검증 없음** → 베팅 직후 임의 배수로 무위험 보장승 (레드팀) | calcMultiplier(elapsed) 기준 `cashoutAt > live+0.05` 거부 |
+| **M** | 만료 현상금 정리: UPDATE...RETURNING으로 status 일괄 확정 후 별도 pool.query 환불 → 사이 크래시 시 GP 영구 소실 (비판검토자) | 행별 BEGIN/COMMIT 원자화 + WHERE status='active' 중복환불 가드 |
+| **M** | 변절 현상금을 리더(=poster)가 cancel → 금고 환불받아 배신 처벌 무력화 (비판검토자) | funded_from_guild_id 현상금 cancel 403 차단(만료/claim만) |
+
+### 클린 판정(검수했으나 결함 0)
+- PP 게이팅 정상(채굴/가챠/추천 PP는 redeemable_pp 미가산 → USDT 직행 불가).
+- USDT 불변식 보호(입금 시 collateral 동시증액, 환매 시 redeemable_pp 동반차감, 시즌 USDT는 room 체크 fail-closed).
+- transactions.type CHECK(38종) ↔ 코드 emit 리터럴 완전일치, 유령컬럼 INSERT 0, mig304로 overflow 해소.
+- 핵심 머니경로(변절 carve→현상금, pp↔gp 교환, spy burn, dividends, staking 차감) 단일 BEGIN/COMMIT+FOR UPDATE+잔액가드+release로 원자적.
+- 마켓/함선마켓/crash·mines 베팅 차감: AND bal>=금액 + rowCount 가드 → double-spend 안전. 지갑 스푸핑: 자금이동 라우트 전부 requireAuth+JWT.
+
+### 🟡 경제 설계 이슈(보류 — 사용자 판단 필요, "발행=인플레" 철학 관련)
+복수 에이전트가 "GP 보상이 carve 아닌 mint"라 지적: battleRewards 승리 GP, harvest/quest GP, daily/mission/achievement/season GP, **staking yield(패시브 이자 발행)**, 추천 carve가 fee가 아닌 reward에서 호출되는 경우(api.js:3421/3693 harvest). 단, 게임플레이 보상 GP는 의도된 faucet일 수 있어(quest pool 폐지 후 "직접지급" 방침) 일률 버그로 단정 불가. 예외는 **staking yield**(무행동 패시브 발행)와 **harvest 추천 carve 출처**로, 이 둘은 인플레 누수 성격이 짙어 별도 검토 권장.
+
 ## 2026-06-03 — CLASS A 트랜잭션 오염 차단 (공유 헬퍼 격리)
 
 Codex가 짚은 34곳 중 **실 money 경로 24곳**을 공유 헬퍼 2개의 내부 SAVEPOINT 격리로 일괄 차단

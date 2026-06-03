@@ -305,6 +305,14 @@ router.post('/cancel/:id', requireAuth, async (req, res) => {
         return res.status(404).json({ error: 'BOUNTY_NOT_FOUND_OR_NOT_YOURS' });
       }
 
+      // (배신 무결성 v7.370) 변절 현상금(funded_from_guild_id)은 게시자=길드리더라도 취소 불가.
+      // 취소를 허용하면 리더가 변절자에 건 현상금을 즉시 거둬들여 배신 처벌(carve→현상금→사냥)이
+      // 무료로 되감기되어 EVE식 수요엔진이 무력화된다. 변절 현상금은 만료(금고 환불)/claim만 가능.
+      if (rows[0].funded_from_guild_id) {
+        await client.query('ROLLBACK');
+        return res.status(403).json({ error: 'DEFECTION_BOUNTY_NOT_CANCELLABLE' });
+      }
+
       const { reward_gp } = rows[0];
 
       await client.query(

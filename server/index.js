@@ -1567,28 +1567,42 @@ async function start() {
     try {
       setInterval(async () => {
         try {
+          // (원자성 v7.370) 과거엔 UPDATE...RETURNING으로 status를 일괄 확정한 뒤 별도
+          // pool.query로 환불 → 그 사이 크래시/풀오류 시 status는 expired인데 환불이 누락되어
+          // GP가 영구 소실됐다. 행별 BEGIN/COMMIT으로 status flip+환불을 원자화하고,
+          // WHERE status='active' 가드로 동시 claim과의 중복 환불을 막는다(0건이면 skip).
           const { rows } = await pool.query(
-            `UPDATE bounty_listings SET status = 'expired'
-             WHERE status = 'active' AND expires_at <= NOW()
-             RETURNING id, poster_wallet, reward_gp, funded_from_guild_id`
+            `SELECT id, poster_wallet, reward_gp, funded_from_guild_id
+             FROM bounty_listings WHERE status = 'active' AND expires_at <= NOW()`
           );
-          if (rows.length > 0) {
-            // 만료 환불 — 변절 현상금(금고 funding)은 금고로, 일반 현상금은 게시자 개인 GP로.
-            for (const b of rows) {
-              if (b.funded_from_guild_id) {
-                await pool.query(
-                  `UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id = $2`,
-                  [b.reward_gp, b.funded_from_guild_id]
-                );
-              } else {
-                await pool.query(
-                  `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
-                  [b.reward_gp, b.poster_wallet]
-                );
+          let refunded = 0;
+          for (const b of rows) {
+            const c = await pool.connect();
+            try {
+              await c.query('BEGIN');
+              const up = await c.query(
+                `UPDATE bounty_listings SET status = 'expired' WHERE id = $1 AND status = 'active'`,
+                [b.id]
+              );
+              if (up.rowCount === 1) {
+                if (b.funded_from_guild_id) {
+                  await c.query(`UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id = $2`,
+                    [b.reward_gp, b.funded_from_guild_id]);
+                } else {
+                  await c.query(`UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+                    [b.reward_gp, b.poster_wallet]);
+                }
+                refunded++;
               }
+              await c.query('COMMIT');
+            } catch (re) {
+              try { await c.query('ROLLBACK'); } catch (_) {}
+              console.warn('[BOUNTY] refund row error:', re.message);
+            } finally {
+              c.release();
             }
-            console.log(`[BOUNTY] Expired ${rows.length} bounties, refunded GP`);
           }
+          if (refunded > 0) console.log(`[BOUNTY] Expired & refunded ${refunded} bounties`);
         } catch(e) { console.warn('[BOUNTY] expiry cleanup error:', e.message); }
       }, 60 * 60 * 1000); // 1시간마다
       console.log('[BOUNTY] Expiry cleanup scheduler started (1h interval)');

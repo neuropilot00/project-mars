@@ -1,3 +1,11 @@
+## 2026-06-03 v7.370 — 자금유통 P0: 카지노 USDT 솔벤시 + crash 무위험승 + 현상금 원자성
+
+- [P0] 카지노 5종(crash/mines/coinflip/dice/hilo) PP 전용화 — USDT 당첨이 담보 없이 usdt_balance를
+  발행해 페그를 깨던 솔벤시 누수 차단. 라이브 검증.
+- [P0] crash 캐시아웃 경과시간 기반 현재배수 검증 추가 — 무위험 보장승 차단.
+- [M] 만료 현상금 환불 행별 트랜잭션 원자화(크래시 시 GP 소실 방지).
+- [M] 변절 현상금 리더 취소 차단(배신 처벌 무력화 방지).
+
 ## 2026-06-03 v7.369 — CLASS A 트랜잭션 오염 차단 (awardXP/creditReferralCommission)
 
 money 트랜잭션 안에서 호출되는 두 공유 헬퍼를 내부 SAVEPOINT로 격리. 기존엔 헬퍼 내부 쿼리가

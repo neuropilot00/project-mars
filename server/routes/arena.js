@@ -172,7 +172,11 @@ router.post('/crash/bet', requireAuth, betLimiter, async (req, res) => {
   try {
     const { amount, currency } = req.body;
     const w = getAuthWallet(req);
-    const cur = currency === 'USDT' ? 'USDT' : 'PP';
+    // (솔벤시 v7.370) 카지노는 PP 전용. USDT 당첨은 house 뱅크롤/담보 없이 usdt_balance를
+    // 발행해 SUM(usdt_balance) <= collateral 불변식(USDT 페그)을 깬다. UI가 PP만 노출해도
+    // 백엔드가 body.currency를 신뢰하면 악용 가능 → USDT 베팅 자체를 거부한다.
+    if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' });
+    const cur = 'PP';
     const bet = parseFloat(amount);
     const s = await cfg();
 
@@ -294,6 +298,15 @@ router.post('/crash/cashout', requireAuth, betLimiter, async (req, res) => {
     if (cashoutAt > parseFloat(round.crash_point)) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Too late! Already crashed.' });
+    }
+
+    // (보안 v7.370) 경과시간 기준 현재 배수 이하만 허용. 이 검증이 없으면 베팅 직후
+    // crash_point 직전 값을 임의로 보내 매 라운드 무위험 보장승으로 하우스 PP를 갈취할 수
+    // 있다(red-team P0). live 배수에 소량 허용오차(+0.05)만 둔다.
+    const _liveMult = calcMultiplier(Date.now() - new Date(round.started_at).getTime());
+    if (cashoutAt > _liveMult + 0.05) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Cashout exceeds current multiplier' });
     }
 
     // Find active bet
@@ -572,7 +585,9 @@ router.post('/mines/start', requireAuth, betLimiter, async (req, res) => {
   // Validate outside transaction
   const { amount, currency, mines } = req.body;
   const w = getAuthWallet(req);
-  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  // (솔벤시 v7.370) 카지노는 PP 전용 — USDT 당첨은 담보 없이 usdt_balance를 발행해 페그를 깬다.
+  if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' });
+  const cur = 'PP';
   const bet = parseFloat(amount);
   const mineCount = Math.max(1, Math.min(24, parseInt(mines) || 5));
 
@@ -822,7 +837,8 @@ router.get('/mines/active', async (req, res) => {
 router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
   const { amount, currency, choice } = req.body;
   const w = getAuthWallet(req);
-  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' }); // (솔벤시 v7.370) PP 전용
+  const cur = 'PP';
   const bet = parseFloat(amount);
   const pick = choice === 'perish' ? 'perish' : 'survive';
 
@@ -914,7 +930,8 @@ router.get('/coinflip/history', async (req, res) => {
 router.post('/dice/play', requireAuth, betLimiter, async (req, res) => {
   const { amount, currency, target, direction } = req.body;
   const w = getAuthWallet(req);
-  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' }); // (솔벤시 v7.370) PP 전용
+  const cur = 'PP';
   const bet = parseFloat(amount);
   const tgt = parseInt(target);
   const dir = direction === 'under' ? 'under' : 'over';
@@ -1003,7 +1020,8 @@ function cardName(v) {
 router.post('/hilo/start', requireAuth, betLimiter, async (req, res) => {
   const { amount, currency } = req.body;
   const w = getAuthWallet(req);
-  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' }); // (솔벤시 v7.370) PP 전용
+  const cur = 'PP';
   const bet = parseFloat(amount);
 
   if (!w) return res.status(400).json({ error: 'Wallet required' });
