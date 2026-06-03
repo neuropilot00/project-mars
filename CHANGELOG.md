@@ -1,3 +1,14 @@
+## 2026-06-03 v7.350 — 복권 추첨 깨짐 핫픽스 (프로덕션 런타임 에러)
+
+- 증상(프로덕션 로그): 매 추첨마다 `ERROR: column "is_winner" of relation "lottery_tickets" does not exist` → 추첨 트랜잭션 전체 ROLLBACK → 당첨금 미지급·라운드 미완료·다음 라운드 미생성, 라운드 #1이 영구히 안 닫히고 스케줄러가 매 틱 재시도. (로컬은 티켓 부족으로 항상 'cancelled' 경로만 타서 is_winner UPDATE에 도달 안 해 재현 안 됐음 — 티켓 충분한 프로덕션 라운드에서만 발동.)
+- 원인: `server/services/lottery.js`가 마이그레이션 179가 만든 실제 스키마와 다른 컬럼 4종을 참조. (a) `lottery_tickets.is_winner`(없음), (b) `lottery_rounds.winner_ticket`→실제 `winning_ticket_number`, (c) `lottery_tickets.purchased_at`→실제 `created_at`, (d) `SUM(house_gp)`(없음).
+- 조치:
+  - mig 296: `lottery_tickets.is_winner BOOLEAN NOT NULL DEFAULT false` 추가(코드 의도 컬럼).
+  - lottery.js: drawRound `winner_ticket`→`winning_ticket_number`, getMyTickets `r.winner_ticket`→`winning_ticket_number AS winner_ticket` + `t.purchased_at`→`t.created_at`, getAdminStats `SUM(house_gp)`→`0 AS total_house_gp`.
+- 프로덕션 자가복구: 배포→auto-migrate(296)→다음 스케줄러 틱에 멈춰있던 라운드가 정상 추첨·완료된다(수동 개입 불필요).
+- 라이브 검증(격리, 8/8 PASS): 당첨자 있는 라운드 추첨 → status='completed', winner/winning_ticket_number 기록, is_winner 티켓 정확히 1장, 당첨금 30GP 지급, getMyTickets/getAdminStats 무에러, 잔여 0.
+- 후속(이번 범위 외): 복권 house cut(houseCutPct)이 `house_gp` 컬럼 부재로 배당풀(dividends)에 실제 적립 안 됨(L292 `lockedRound.house_gp`는 항상 undefined→0). 에러는 아니나 하우스컷→배당 연결을 살리려면 별도 작업 필요.
+
 ## 2026-06-02 v7.349 — 건조 완성 실패 시 GP/광물 전액 환불 (잠복 버그 보강)
 
 - 배경: v7.348 재시뮬에서 발견한 잠복 버그. completeBuildJob()은 startBuild 시점에 이미 GP/광물을 차감한 큐 작업을 완성시키는데, 함선 INSERT가 영구 조건(Titan 서버 한도 / 유저 함선 한도 트리거)으로 throw 하면 트랜잭션이 ROLLBACK 되어 작업이 'building'으로 되돌아가 스케줄러가 매 틱 재시도(좀비화)하고 차감된 GP가 영구 잠겼다.

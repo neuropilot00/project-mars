@@ -279,7 +279,7 @@ async function drawRound(round, cfg) {
       // Complete round
       await client.query(
         `UPDATE lottery_rounds
-            SET status = 'completed', winner_wallet = $2, winner_ticket = $3, drawn_at = NOW()
+            SET status = 'completed', winner_wallet = $2, winning_ticket_number = $3, drawn_at = NOW()
           WHERE id = $1`,
         [lockedRound.id, winnerWallet || null, winnerTicket]
       );
@@ -346,11 +346,11 @@ async function getMyTickets(wallet, limit = 50) {
   const w = wallet.toLowerCase();
   const res = await pool.query(
     `SELECT t.*, r.round_number, r.status AS round_status,
-            r.prize_pool_gp, r.winner_ticket, r.winner_wallet, r.ends_at, r.ticket_price_gp
+            r.prize_pool_gp, r.winning_ticket_number AS winner_ticket, r.winner_wallet, r.ends_at, r.ticket_price_gp
        FROM lottery_tickets t
        JOIN lottery_rounds r ON r.id = t.round_id
       WHERE t.wallet = $1
-      ORDER BY t.purchased_at DESC
+      ORDER BY t.created_at DESC
       LIMIT $2`,
     [w, limit]
   );
@@ -363,7 +363,7 @@ async function getAdminStats() {
       SELECT COUNT(DISTINCT id)                      AS total_rounds,
              COALESCE(SUM(ticket_count), 0)          AS total_tickets,
              COALESCE(SUM(prize_pool_gp), 0)         AS total_prizes_given,
-             COALESCE(SUM(house_gp), 0)              AS total_house_gp,
+             0                                       AS total_house_gp,
              COUNT(*) FILTER (WHERE status='completed' AND winner_wallet IS NOT NULL) AS rounds_with_winner
         FROM lottery_rounds
     `).catch(() => ({ rows: [{}] })),
