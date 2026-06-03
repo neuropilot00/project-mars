@@ -1325,6 +1325,57 @@ async function applyBattleResults(battleId, result) {
       }
     }
     
+    // ─── [v7.358] 킬보드: 격침 함선 귀속 기록 (ship_wrecks) ───
+    //   full-loss로 영구파괴된 함선마다 victim/killer를 fleet_battle_participants(fleet→side→wallet)로
+    //   매핑해 기록. 보존 분기(hijack 비전사 등)는 파괴가 없으므로 wreck 없음.
+    try {
+      await client.query('SAVEPOINT _kb');  // 킬보드 로깅 실패가 전투 결과 트랜잭션을 오염시키지 않게 격리
+      const _lossBranch = isHijackBattle || (isSiegeBattle && !siegeShipLoss);
+      const _fullLoss = _lossBranch ? hijackShipLoss : true; // 일반전은 항상 영구파괴
+      let _destroyedIds = [];
+      if (_fullLoss && finalShips.length > 0) {
+        _destroyedIds = finalShips
+          .filter(s => Math.round(parseFloat(s.current_hp) || 0) <= 0 || (!_lossBranch && s.is_alive === false))
+          .map(s => parseInt(s.ship_id)).filter(id => id > 0);
+      } else if (_fullLoss) {
+        _destroyedIds = (result.events || [])
+          .filter(ev => (ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') && ev.ship_id)
+          .map(ev => parseInt(ev.ship_id)).filter(id => id > 0);
+      }
+      if (_destroyedIds.length > 0) {
+        const salvageHours = parseInt(await getSetting('ship_wreck_salvage_hours', '24'), 10) || 24;
+        const { rows: _parts } = await client.query(
+          `SELECT fleet_id, side, LOWER(wallet_address) AS wallet FROM fleet_battle_participants WHERE battle_id = $1`,
+          [battleId]
+        );
+        const _sideWallet = {}; const _fleetSide = {};
+        for (const p of _parts) {
+          _fleetSide[String(p.fleet_id)] = p.side;
+          if (!_sideWallet[p.side]) _sideWallet[p.side] = p.wallet; // 대표 1명(다중참여 시 첫 참가자)
+        }
+        const _seen = new Set();
+        for (const sid of _destroyedIds) {
+          if (_seen.has(sid)) continue; _seen.add(sid);
+          const { rows: sr } = await client.query(
+            `SELECT LOWER(owner_wallet) AS owner, fleet_id, ship_type_code FROM ships WHERE id = $1`, [sid]
+          );
+          if (!sr[0]) continue;
+          const vSide = _fleetSide[String(sr[0].fleet_id)] || null;
+          const kSide = vSide === 'atk' ? 'def' : vSide === 'def' ? 'atk' : null;
+          const kWallet = kSide ? (_sideWallet[kSide] || null) : null;
+          await client.query(
+            `INSERT INTO ship_wrecks (battle_id, ship_instance_id, ship_type, original_owner, victim_side, killer_wallet, killer_side, expires_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7, NOW() + ($8 || ' hours')::INTERVAL)`,
+            [battleId, sid, sr[0].ship_type_code, sr[0].owner, vSide, kWallet, kSide, String(salvageHours)]
+          );
+        }
+      }
+      await client.query('RELEASE SAVEPOINT _kb');
+    } catch (_wreckErr) {
+      try { await client.query('ROLLBACK TO SAVEPOINT _kb'); } catch (_) {}
+      console.warn('[battleEngine] killboard/wreck log failed:', _wreckErr.message);
+    }
+
     // 4. 전투 이벤트 로그
     for (const ev of result.events.slice(0, 1000)) {  // 최대 1000개
       await client.query(`

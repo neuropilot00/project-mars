@@ -394,6 +394,7 @@ app.use('/api', dividendRoutes);
 app.use('/api', monumentRoutes);
 app.use('/api', upgradeRoutes);
 app.use('/api/bounty', bountyRoutes);                         // Bounty Board
+app.use('/api/killboard', require('./routes/killboard'));     // Killboard (ship_wrecks 격침 귀속)
 app.use('/api/daily-ops', dailyOpsRoutes);                    // Daily OPS 미션
 app.use('/api/territory', territoryIdentityRoutes);           // 영토 정체성 (identity/FR)
 app.use('/api/sectors',   territoryIdentityRoutes);           // 섹터 갈등맵 (/api/sectors/conflict-map)

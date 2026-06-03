@@ -1,3 +1,12 @@
+## 2026-06-03 v7.358 — 배신 Phase 2: 킬보드(격침 귀속) (mig 301)
+
+- full-loss 전투에서 함선이 영구 파괴될 때 applyBattleResults(battleEngine.js)가 ship_wrecks에 격침 귀속 기록: victim(original_owner)/killer_wallet/victim_side/killer_side. fleet_battle_participants(fleet→side→wallet) 매핑으로 누가 누구 함선을 격침했는지 산출.
+- 기존 phantom ship_wrecks 테이블(잔해 회수용, 0행) 재사용 — killer 컬럼 3종 추가, 레거시 ship_battles FK 제거(현 시스템 fleet_battles). 잔해 만료(salvage_hours=24) 시드 → 향후 잔해 회수 기반.
+- SAVEPOINT 격리: 킬보드 로깅 실패가 전투 결과 트랜잭션을 오염시키지 않음.
+- 신규 라우트 /api/killboard (글로벌 최근 격침, 변절자 피해자 플래그), /api/killboard/:wallet (K/D 요약 + 최근 격침/피격). index.js 마운트.
+- 배신 루프 연결: 변절자(guild_betrayer) 현상금 사냥 → 격침 → ship_wrecks 귀속 → 킬보드/현상금.
+- 라이브 검증(격리 8/8): 실제 pvp_duel 전투 → 격침 귀속(피해자=패배측, 격침자=승리측, sides 정확, ship_type) + K/D 집계 + HTTP 엔드포인트 200. 잔여 0.
+
 ## 2026-06-03 v7.356 — 함선 수리비 적정화 (전투 손상 반복 GP 싱크) (mig 300)
 
 - ship_repair_gp_per_hp 0.01→0.03. 캡(건조비×60%) 유지. 현재 0.01은 사실상 공짜(대형함 30% 손상 수리가 건조비 ~10%)라 full-loss 전투의 "생존함 수리" 싱크가 무의미했음.
