@@ -76,7 +76,9 @@ async function listMyFleets(walletAddress) {
       ) AS flagship,
       -- 길드 소속 엠블럼/태그 (코스메틱: 함대에 소속 과시 — v7.378)
       (SELECT g.emblem_emoji FROM guilds g WHERE g.id = f.guild_id) AS guild_emblem,
-      (SELECT g.tag FROM guilds g WHERE g.id = f.guild_id) AS guild_tag
+      (SELECT g.tag FROM guilds g WHERE g.id = f.guild_id) AS guild_tag,
+      -- 계정 누적 격파(트로피 티어용) — 함선 격침과 무관하게 fleets.total_kills 누적, 지갑 단위 합산 = 계정 귀속
+      (SELECT COALESCE(SUM(af.total_kills),0) FROM fleets af WHERE LOWER(af.owner_wallet) = LOWER(f.owner_wallet)) AS account_kills
     FROM fleets f
     LEFT JOIN ships s ON s.fleet_id = f.id
     LEFT JOIN ship_types st ON st.code = s.ship_type_code
@@ -112,6 +114,7 @@ async function getFleetDetail(fleetId, walletAddress) {
     SELECT f.*,
       (SELECT g.emblem_emoji FROM guilds g WHERE g.id = f.guild_id) AS guild_emblem,
       (SELECT g.tag FROM guilds g WHERE g.id = f.guild_id) AS guild_tag,
+      (SELECT COALESCE(SUM(af.total_kills),0) FROM fleets af WHERE LOWER(af.owner_wallet) = LOWER(f.owner_wallet)) AS account_kills,
       COUNT(s.id) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false) AS ships_alive,
       COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_hp,
       COALESCE(SUM(s.max_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_max_hp

@@ -3711,6 +3711,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   z-index: -1;
   pointer-events: none;
 }
+/* 계정 킬 트로피 배지 (전적 과시) — 보드 하단 중앙(좌:길드, 우:+N more 회피) */
+.fleet-trophy-badge {
+  position: absolute; left: 50%; transform: translateX(-50%); bottom: 10px; z-index: 6;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 999px;
+  background: rgba(0,0,0,.42); border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(2px);
+}
+.fleet-trophy-badge .ftb-icon { font-size: 12px; line-height: 1; }
+.fleet-trophy-badge .ftb-label { font-size: 8px; font-weight: 800; letter-spacing: .5px; color: rgba(255,255,255,.82); }
+.fleet-trophy-badge.bronze { border-color: rgba(205,127,80,.55); }
+.fleet-trophy-badge.silver { border-color: rgba(200,210,220,.6); }
+.fleet-trophy-badge.gold   { border-color: rgba(255,205,70,.65); box-shadow: 0 0 8px rgba(255,205,70,.2); }
+.fleet-trophy-badge.plat   { border-color: rgba(120,230,255,.7); box-shadow: 0 0 9px rgba(120,230,255,.25); }
+.fleet-trophy-badge.legend { border-color: rgba(255,160,255,.75); box-shadow: 0 0 11px rgba(220,140,255,.35); }
+.fleet-trophy-badge.legend .ftb-label { color: #ffd6ff; }
 /* 함대 길드 배지 (소속 과시) — 보드 좌하단 */
 .fleet-guild-badge {
   position: absolute; left: 12px; bottom: 10px; z-index: 6;
@@ -49195,7 +49211,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7379'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7380'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -52019,6 +52035,7 @@ function renderFleetPreview(f) {
       '<div class="fleet-board-label">' + ((f.formation_info && f.formation_info.icon) || '●') + ' ' + ((f.formation_info && f.formation_info.name_ko) || formation) + '</div>' +
       '<div class="fleet-move-vector">' + ((f.movement_info && f.movement_info.icon) || '→') + ' ' + movementName + '</div>' +
       (f.guild_emblem || f.guild_tag ? '<div class="fleet-guild-badge"' + (_accent ? ' style="border-color:' + _accent + '88"' : '') + '>' + (f.guild_emblem ? '<span class="fgb-emblem">' + fcEsc(f.guild_emblem) + '</span>' : '') + (f.guild_tag ? '<span class="fgb-tag">' + fcEsc(f.guild_tag) + '</span>' : '') + '</div>' : '') +
+      _killTrophyBadge(f.account_kills) +
       boardShips +
       (ships.length > visible.length ? '<div class="fleet-preview-more">+' + (ships.length - visible.length) + ' more</div>' : '') +
     '</div>' +
@@ -52094,6 +52111,29 @@ async function setAutoRetreat(pct) {
     if (!res.ok || d.success === false) { showFactionToast(tl('Failed','설정 실패','失敗','失败'), 'error'); }
     else { showFactionToast(pct===0 ? tl('Auto-retreat off','자동 퇴각 끔','自動退却OFF','自动撤退关') : (tl('Auto-retreat at','자동 퇴각','自動退却','自动撤退')+' '+pct+'%'), 'success'); }
   } catch(e) { showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error'); }
+}
+// ── 계정 킬 트로피 (전적 과시, 계정 귀속 — 함선 격침과 무관) (v7.380) ──
+var _KILL_TROPHY_TIERS = [
+  { min: 500, icon: '👑', cls: 'legend', label: { en:'Legend', ko:'레전드', ja:'レジェンド', zh:'传奇' } },
+  { min: 150, icon: '🏆', cls: 'plat',   label: { en:'Ace',    ko:'에이스', ja:'エース',   zh:'王牌' } },
+  { min: 50,  icon: '🥇', cls: 'gold',   label: { en:'Gold',   ko:'골드',   ja:'ゴールド', zh:'黄金' } },
+  { min: 10,  icon: '🥈', cls: 'silver', label: { en:'Silver', ko:'실버',   ja:'シルバー', zh:'白银' } },
+  { min: 1,   icon: '🥉', cls: 'bronze', label: { en:'Bronze', ko:'브론즈', ja:'ブロンズ', zh:'青铜' } }
+];
+function _killTrophy(kills) {
+  var k = parseInt(kills || 0) || 0;
+  for (var i = 0; i < _KILL_TROPHY_TIERS.length; i++) {
+    if (k >= _KILL_TROPHY_TIERS[i].min) return _KILL_TROPHY_TIERS[i];
+  }
+  return null;
+}
+function _killTrophyBadge(kills) {
+  var t = _killTrophy(kills);
+  if (!t) return '';
+  var lbl = t.label[LANG] || t.label.en;
+  var k = parseInt(kills) || 0;
+  return '<div class="fleet-trophy-badge ' + t.cls + '" title="' + tl('Account kill rank','계정 격파 등급','アカウント撃破ランク','账号击破等级') + ': ' + k + '">' +
+    '<span class="ftb-icon">' + t.icon + '</span><span class="ftb-label">' + lbl + ' · ⊹' + k + '</span></div>';
 }
 // ── 함대 리버리(강조색) 코스메틱 — GP 싱크 (v7.377) ──
 var _FLEET_LIVERY_PALETTE = ['#4fc3f7','#ff7043','#7ee787','#ffd54f','#ba68c8','#f06292','#4dd0e1','#a1887f','#ff5252','#82b1ff'];
