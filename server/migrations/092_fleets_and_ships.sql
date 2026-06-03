@@ -162,8 +162,9 @@ BEGIN
     END IF;
   END IF;
   
-  -- 유저 전체 함선 한도
-  SELECT COALESCE(NULLIF(value,''),'200')::INTEGER INTO v_global_max
+  -- 유저 전체 함선 한도 (배포 안전 v7.368: value는 JSONB → '' 직접 비교 시
+  -- "invalid input syntax for type json". #>> '{}'로 안전 추출. 169_fix_ship_triggers와 동일)
+  SELECT COALESCE(NULLIF(value #>> '{}',''),'200')::INTEGER INTO v_global_max
   FROM settings WHERE category='fleet' AND key='max_ships_per_player';
   
   IF v_global_max IS NULL THEN v_global_max := 200; END IF;

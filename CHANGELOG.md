@@ -1,3 +1,9 @@
+## 2026-06-03 v7.368 — 배포 P0: fresh DB 마이그 체인 완주 (014/092/099/106)
+
+빈 DB 첫 배포 시 014에서 멈춰 014~305 전체가 미적용되던 문제 해소. 014(to_regclass 인덱스
+가드), 099(080 잔재 스키마 정합), 106(죽은 transactions 뷰 분기 우회), 092(트리거 JSONB
+value 안전추출 선반영) 수정. 빈 DB에 271개 마이그 완주 + fresh 부팅 검증. 기존 prod 무영향.
+
 ## 2026-06-03 v7.367 — 배포 안전: 고아 테이블 fresh-DB 생성 (mig 305)
 
 - 코드가 참조하지만 active 마이그가 안 만들던 고아 테이블 4종(weekly_chronicles/share_cards/ship_instances/enhancement_material_recipes)을 CREATE TABLE IF NOT EXISTS로 fresh 배포 대비(기존 prod no-op). 미적용 시 주간연대기/소셜카드/경매함선/고급강화가 fresh 배포에서 깨짐.

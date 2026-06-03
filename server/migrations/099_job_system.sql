@@ -25,6 +25,10 @@ CREATE TABLE IF NOT EXISTS jobs (
   sort_order          INT DEFAULT 0
 );
 
+-- (배포 안전 v7.368) 구버전 080_job_system이 jobs를 recommended_sector 없이 먼저
+-- 만들었으면 위 CREATE가 스킵되어 아래 INSERT(...recommended_sector...)가 깨진다 → 보강.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS recommended_sector VARCHAR(30);
+
 -- ─── 2. 직업별 버프 테이블 ───
 
 CREATE TABLE IF NOT EXISTS job_buffs (
@@ -56,6 +60,19 @@ CREATE TABLE IF NOT EXISTS job_change_log (
   gp_cost     INT DEFAULT 0,
   changed_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- (배포 안전 v7.368) 구버전 080_job_system이 job_change_log를 user_id 스키마로 먼저
+-- 만들었으면 위 CREATE IF NOT EXISTS가 스킵된다. 코드(services/job.js)와 prod는
+-- wallet_address를 쓰므로 컬럼을 보강하고, 구버전 user_id NOT NULL은 해제해
+-- 런타임 INSERT(wallet_address만 제공)가 깨지지 않게 한다.
+ALTER TABLE job_change_log ADD COLUMN IF NOT EXISTS wallet_address VARCHAR(100);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name='job_change_log' AND column_name='user_id') THEN
+    ALTER TABLE job_change_log ALTER COLUMN user_id DROP NOT NULL;
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_job_change_log_wallet ON job_change_log(wallet_address, changed_at DESC);
 

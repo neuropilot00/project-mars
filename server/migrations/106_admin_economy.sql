@@ -10,8 +10,13 @@ BEGIN;
 
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transactions') THEN
-    -- transactions 테이블 있으면 일별 집계 뷰
+  -- (배포 안전 v7.368) 아래 transactions 분기는 amount/currency/user_id 컬럼을 전제하지만
+  -- 실제 transactions 스키마는 usdt_amount/pp_amount/from_wallet이라 죽은 코드다. prod는
+  -- 과거 transactions 생성 전 이 마이그가 돌아 ELSE(users 기반) 뷰를 쓴다. fresh 배포도
+  -- 동일하게 fallback을 타도록 가드를 'amount 컬럼 존재'로 바꾼다(현 스키마에선 항상 false).
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'transactions' AND column_name = 'amount') THEN
+    -- transactions에 amount/currency 컬럼이 있으면 일별 집계 뷰
     EXECUTE $SQL$
       CREATE OR REPLACE VIEW economy_health AS
       SELECT

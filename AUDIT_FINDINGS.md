@@ -1,3 +1,20 @@
+## 2026-06-03 — 배포 P0 해소: fresh DB 마이그 체인 완주 (루프 검증)
+
+빈 스크래치 DB(pixelwar_fresh)에 마이그 001→305 전체를 반복 적용하며 첫 실패를
+하나씩 고치는 루프로 **체인 중단 4건 전부 해소**. 결과: 271개 전부 적용 + 서버 fresh
+부팅 OK + 캐피탈 레시피/스키마 invariant 통과. (4개 USER_NOT_FOUND는 빈 DB 테스트유저
+부재일 뿐 구조 무관.) 편집된 마이그는 prod에 이미 적용되어 fresh 배포에만 영향, 기존 무영향.
+
+| 마이그 | 증상(fresh) | 수정 |
+|---|---|---|
+| 014_arena_indexes | crash_rounds 등 후행(019+) 테이블을 인덱싱 → "relation does not exist" | to_regclass 가드로 테이블 존재 시에만 인덱스 |
+| 099_job_system | 구버전 080이 jobs/job_change_log를 다른 스키마(user_id)로 선생성 → IF NOT EXISTS 스킵 → recommended_sector/wallet_address 인덱스 실패 | jobs.recommended_sector·job_change_log.wallet_address ADD COLUMN IF NOT EXISTS + 080의 user_id NOT NULL 해제 |
+| 106_admin_economy | economy_health 뷰가 transactions의 없는 컬럼(amount/currency/user_id) 참조 — 죽은 분기 | 가드를 'amount 컬럼 존재'로 변경 → prod처럼 users 기반 fallback 뷰 사용 |
+| 092_fleets_and_ships | check_player_ship_limit 트리거가 JSONB value를 NULLIF(value,'')로 비교 → 168 NPC 함선 INSERT 시 "invalid input syntax for type json" (169가 고치지만 168보다 후행) | value #>> '{}' 안전 추출 선반영(169와 동일) |
+
+코드 미참조 dead 테이블 10종(ship_battles/ship_blueprints 등)은 fresh에 없어도 무해.
+fleet_battle_timelines는 서비스가 CREATE TABLE IF NOT EXISTS로 자체 생성 → 안전.
+
 ## 2026-06-03 — 검수 라운드 5 (팀+레드팀+Codex): 근본차단 + 신규 P0/P1
 
 | 등급 | 버그 | 수정 |
