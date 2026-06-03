@@ -27973,11 +27973,14 @@ async function loadKillboard(){
     ]);
     var board=results[0], mine=results[1];
     var html='';
+    var _kbGp=function(n){ n=parseInt(n)||0; return n>=1000?((n/1000).toFixed(n>=10000?0:1)+'K'):String(n); };
     if(mine){
-      html+='<div style="display:flex;gap:8px;margin-bottom:10px">'+
+      html+='<div style="display:flex;gap:8px;margin-bottom:8px">'+
         '<div style="flex:1;text-align:center;padding:6px;border-radius:6px;background:rgba(76,216,154,.08);border:1px solid rgba(76,216,154,.2)"><div style="font-size:14px;font-weight:800;color:#4cd89a">'+(mine.kills||0)+'</div><div style="font-size:8px;color:var(--tx3)">'+_kbL('KILLS','격침','撃沈','击沉')+'</div></div>'+
         '<div style="flex:1;text-align:center;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2)"><div style="font-size:14px;font-weight:800;color:#ff8a80">'+(mine.losses||0)+'</div><div style="font-size:8px;color:var(--tx3)">'+_kbL('LOSSES','피격','被撃','被击')+'</div></div>'+
-      '</div>';
+        '<div style="flex:1.5;text-align:center;padding:6px;border-radius:6px;background:rgba(255,209,102,.09);border:1px solid rgba(255,209,102,.28)"><div style="font-size:14px;font-weight:800;color:#ffd166">'+_kbGp(mine.destroyedValue)+'</div><div style="font-size:8px;color:var(--tx3)">'+_kbL('GP DESTROYED','격파 가치','撃破価値','击破价值')+'</div></div>'+
+      '</div>'+
+      ((mine.bestKillValue>0)?'<div style="text-align:center;font-size:8px;color:#ffd166;margin-bottom:8px">🏆 '+_kbL('Best kill','최고 격파','最高撃破','最佳击破')+': '+_kbGp(mine.bestKillValue)+' GP</div>':'');
     }
     var kills=(board&&board.kills)||[];
     if(!kills.length){
@@ -27985,11 +27988,16 @@ async function loadKillboard(){
     } else {
       html+=kills.map(function(k){
         var betr=k.victim_is_betrayer?' <span style="color:#FFD166;font-size:8px">⚑'+_kbL('TRAITOR','배신자','裏切り','叛徒')+'</span>':'';
-        return '<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px">'+
+        var val=parseInt(k.ship_value_gp)||0;
+        var big=val>=5000; // 고가치 격파 강조
+        var modsBadge=(k.mods>0)?'<span style="color:#7ee787;font-size:7px;font-weight:800"> +'+k.mods+'M</span>':'';
+        var valHtml=val>0?'<span style="color:'+(big?'#ffd166':'var(--tx3)')+';font-size:8px;font-weight:'+(big?'800':'400')+'">'+(big?'💥 ':'')+_kbGp(val)+' GP'+modsBadge+'</span>':'';
+        return '<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px'+(big?';background:rgba(255,209,102,.04)':'')+'">'+
           '<span style="color:#4cd89a;font-weight:700">'+_kbName(k.killer_nick,k.killer_wallet)+'</span>'+
           '<span style="color:var(--tx3)">⚔</span>'+
           '<span style="color:#ff8a80">'+_kbName(k.victim_nick,k.victim_wallet)+'</span>'+betr+
-          '<span style="margin-left:auto;color:var(--tx3);font-size:8px">'+(k.ship_type||'')+'</span>'+
+          '<span style="color:var(--tx3);font-size:7px">'+(k.ship_name||k.ship_type||'')+'</span>'+
+          '<span style="margin-left:auto">'+valHtml+'</span>'+
         '</div>';
       }).join('');
     }
@@ -49248,7 +49256,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7390'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7391'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){

@@ -8,7 +8,8 @@ router.get('/', async (req, res) => {
   try {
     const limit = Math.max(1, Math.min(parseInt(req.query.limit) || 30, 100));
     const { rows } = await pool.query(
-      `SELECT w.id, w.battle_id, w.ship_type, w.original_owner AS victim_wallet, w.killer_wallet,
+      `SELECT w.id, w.battle_id, w.ship_type, w.ship_name, w.ship_value_gp, w.mods,
+              w.original_owner AS victim_wallet, w.killer_wallet,
               w.killer_side, w.victim_side, w.created_at,
               uk.nickname AS killer_nick, uv.nickname AS victim_nick,
               EXISTS(SELECT 1 FROM player_tags pt WHERE pt.wallet = w.original_owner AND pt.tag_id = 'guild_betrayer') AS victim_is_betrayer
@@ -31,18 +32,24 @@ router.get('/:wallet', async (req, res) => {
     const [agg, kills, losses] = await Promise.all([
       pool.query(
         `SELECT (SELECT COUNT(*) FROM ship_wrecks WHERE killer_wallet = $1)  AS kills,
-                (SELECT COUNT(*) FROM ship_wrecks WHERE original_owner = $1) AS losses`, [w]),
+                (SELECT COUNT(*) FROM ship_wrecks WHERE original_owner = $1) AS losses,
+                (SELECT COALESCE(SUM(ship_value_gp),0) FROM ship_wrecks WHERE killer_wallet = $1)  AS destroyed_value,
+                (SELECT COALESCE(SUM(ship_value_gp),0) FROM ship_wrecks WHERE original_owner = $1) AS lost_value,
+                (SELECT COALESCE(MAX(ship_value_gp),0) FROM ship_wrecks WHERE killer_wallet = $1)  AS best_kill_value`, [w]),
       pool.query(
-        `SELECT battle_id, ship_type, original_owner AS victim_wallet, created_at
+        `SELECT battle_id, ship_type, ship_name, ship_value_gp, mods, original_owner AS victim_wallet, created_at
            FROM ship_wrecks WHERE killer_wallet = $1 ORDER BY created_at DESC LIMIT $2`, [w, limit]),
       pool.query(
-        `SELECT battle_id, ship_type, killer_wallet, created_at
+        `SELECT battle_id, ship_type, ship_name, ship_value_gp, mods, killer_wallet, created_at
            FROM ship_wrecks WHERE original_owner = $1 ORDER BY created_at DESC LIMIT $2`, [w, limit]),
     ]);
     res.json({
       wallet: w,
       kills: parseInt(agg.rows[0].kills) || 0,
       losses: parseInt(agg.rows[0].losses) || 0,
+      destroyedValue: parseInt(agg.rows[0].destroyed_value) || 0,
+      lostValue: parseInt(agg.rows[0].lost_value) || 0,
+      bestKillValue: parseInt(agg.rows[0].best_kill_value) || 0,
       recentKills: kills.rows,
       recentLosses: losses.rows,
     });

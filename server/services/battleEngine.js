@@ -1411,17 +1411,29 @@ async function applyBattleResults(battleId, result) {
         const _seen = new Set();
         for (const sid of _destroyedIds) {
           if (_seen.has(sid)) continue; _seen.add(sid);
+          // (킬메일 v7.391) 격침 함선 가치/MOD 박제 — full-loss로 데이터 소멸 전 캡처.
           const { rows: sr } = await client.query(
-            `SELECT LOWER(owner_wallet) AS owner, fleet_id, ship_type_code FROM ships WHERE id = $1`, [sid]
+            `SELECT LOWER(s.owner_wallet) AS owner, s.fleet_id, s.ship_type_code,
+                    COALESCE(s.bonus_atk,0) AS ba, COALESCE(s.bonus_def,0) AS bd,
+                    COALESCE(s.bonus_hp,0) AS bh, COALESCE(s.bonus_speed,0) AS bs,
+                    COALESCE(st.build_gp_cost,0) AS build_gp,
+                    COALESCE(st.name_ko, s.ship_type_code) AS sname
+               FROM ships s LEFT JOIN ship_types st ON st.code = s.ship_type_code WHERE s.id = $1`, [sid]
           );
           if (!sr[0]) continue;
           const vSide = _fleetSide[String(sr[0].fleet_id)] || null;
           const kSide = vSide === 'atk' ? 'def' : vSide === 'def' ? 'atk' : null;
           const kWallet = _killerByShip[String(sid)] || (kSide ? (_sideWallet[kSide] || null) : null);
+          // MOD 레벨(강화 투자 추정) = 각 보너스/스텝 합. 가치 = 건조비 + MOD당 건조비의 4%.
+          const _mods = Math.max(0, Math.round(
+            (parseFloat(sr[0].ba)||0)/1 + (parseFloat(sr[0].bd)||0)/1 +
+            (parseFloat(sr[0].bh)||0)/200 + (parseFloat(sr[0].bs)||0)/0.05));
+          const _baseVal = parseInt(sr[0].build_gp) || 0;
+          const _value = _baseVal + _mods * Math.round(_baseVal * 0.04);
           await client.query(
-            `INSERT INTO ship_wrecks (battle_id, ship_instance_id, ship_type, original_owner, victim_side, killer_wallet, killer_side, expires_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7, NOW() + ($8 || ' hours')::INTERVAL)`,
-            [battleId, sid, sr[0].ship_type_code, sr[0].owner, vSide, kWallet, kSide, String(salvageHours)]
+            `INSERT INTO ship_wrecks (battle_id, ship_instance_id, ship_type, ship_name, original_owner, victim_side, killer_wallet, killer_side, ship_value_gp, mods, expires_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, NOW() + ($11 || ' hours')::INTERVAL)`,
+            [battleId, sid, sr[0].ship_type_code, sr[0].sname, sr[0].owner, vSide, kWallet, kSide, _value, _mods, String(salvageHours)]
           );
         }
       }
