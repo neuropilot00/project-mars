@@ -1,3 +1,8 @@
+## 2026-06-03 v7.371 — staking 폐지 (무담보 yield 인플레 제거, mig306)
+
+GP staking yield(15% APY)가 sink 없이 순발행되던 인플레 누수를 제거. staking_enabled=false로
+신규 staking 차단(기존 잠긴 GP는 계속 출금 가능). 프론트 staking 섹션은 enabled일 때만 노출.
+
 ## 2026-06-03 v7.370 — 자금유통 P0: 카지노 USDT 솔벤시 + crash 무위험승 + 현상금 원자성
 
 - [P0] 카지노 5종(crash/mines/coinflip/dice/hilo) PP 전용화 — USDT 당첨이 담보 없이 usdt_balance를

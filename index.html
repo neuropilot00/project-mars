@@ -6901,13 +6901,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="lotteryContent" style="padding:8px 0"><div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div></div>
         </div>
 
-        <!-- STAKING -->
+        <!-- STAKING (v7.371: staking 폐지 — 무담보 yield 발행 인플레 제거. enabled일 때만 노출) -->
+        <div id="stakingSection" style="display:none">
         <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center" onclick="toggleStaking()">
           <span>💎 <span data-i18n="staking_title">GP STAKING</span></span>
           <span id="stakingToggle" style="font-size:8px;color:var(--tx3)">▼</span>
         </div>
         <div id="stakingPanel" style="display:none;padding:0 0 8px">
           <div id="stakingContent" style="padding:8px 0"><div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div></div>
+        </div>
         </div>
 
         <!-- GP BURN deprecated/hidden -->
@@ -23292,6 +23294,13 @@ var _baseUserData=null;
 function openBaseModal(){
   document.getElementById('baseModal').classList.add('open');
   try{trackQuestAction('visit_base',1)}catch(e){}
+  // (v7.371) staking 폐지 — enabled일 때만 섹션 노출(서버 staking_enabled=false면 숨김)
+  try{
+    fetch('/api/staking/info'+(typeof wallet!=='undefined'&&wallet?('?wallet='+wallet):''))
+      .then(function(r){return r.json();})
+      .then(function(d){ var sec=document.getElementById('stakingSection'); if(sec) sec.style.display=(d&&d.enabled)?'':'none'; })
+      .catch(function(){});
+  }catch(_){}
   // 초기 카테고리: 영토
   try{
     var cat=window._lastBaseCat||'territory';
@@ -49108,7 +49117,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7361'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7371'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){

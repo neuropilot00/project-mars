@@ -1,3 +1,14 @@
+## 2026-06-03 — staking 폐지 (확정 인플레 누수 제거, 사용자 결정)
+
+GP staking yield(15% APY + 최대 1.5배)가 stake 시 amount를 일시 lock할 뿐 어떤 sink/pool에서도
+carve되지 않는 **순발행**이었음(자금유통 검수에서 경제분석가·Codex·비판검토자 3중 확인). "모든 GP
+이동은 carve" 불변식 위반 = 게임 내 최대 인플레 면. 사용자 지시로 폐지.
+- 서버: settings staking_enabled=false (mig306 영구화). createStake는 게이트로 차단,
+  withdrawStake는 게이트 없어 기존 잠긴 stake 원금/약정 yield는 계속 출금(GP 갇힘 방지).
+- 프론트: openBaseModal에서 /api/staking/info enabled=false면 stakingSection 숨김. ASSET_VER 7371.
+- 검증: createStake "disabled" throw, getStakingInfo.enabled=false, /api/staking/info=false,
+  fresh 체인 272개 완주(306 포함). harvest 추천 carve는 referral_harvest_pct=0이라 죽은 경로(무해).
+
 ## 2026-06-03 — 자금유통/경제 적대검수 (팀+레드팀+Codex) 라운드 1: P0 카지노 솔벤시 외
 
 | 등급 | 버그 | 수정 |
