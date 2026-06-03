@@ -7846,6 +7846,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="pvpHubContent" style="padding:10px 12px;min-height:60px"></div>
         </div>
 
+        <!-- 🪦 KILLBOARD & 🛰 SCOUT (배신 시스템: 격침 귀속 + PvP 정찰) -->
+        <div style="margin-bottom:14px;border-radius:8px;background:rgba(120,120,140,.04);border:1px solid rgba(255,255,255,.08);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.06)">
+            <div style="font-size:11px;font-weight:700;color:#c9c9d6;font-family:var(--fn);letter-spacing:.8px">🪦 <span data-i18n="kb_hub_title">KILLBOARD &amp; INTEL</span></div>
+            <button type="button" onclick="kbRefresh()" style="font-size:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx3);padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+          </div>
+          <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.06)">
+            <button type="button" id="kbTab_board" onclick="kbSwitchTab('board')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(232,72,85,.08);border:none;border-bottom:2px solid var(--red);color:#ff8a80;cursor:pointer;letter-spacing:.4px">🪦 <span data-i18n="kb_tab_board">KILLBOARD</span></button>
+            <button type="button" id="kbTab_scout" onclick="kbSwitchTab('scout')" style="flex:1;padding:7px 4px;font-size:9px;font-family:var(--fn);font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--tx3);cursor:pointer;letter-spacing:.4px">🛰 <span data-i18n="kb_tab_scout">SCOUT</span></button>
+          </div>
+          <div id="kbContent" style="padding:10px 12px;min-height:50px"></div>
+        </div>
+
         <!-- Quick action grid -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
           <button onclick="openFleetCmd()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(92,187,255,.13),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🎖 FLEET COMMAND</button>
@@ -18478,6 +18491,7 @@ var I18N = {
     ops_board_title: '📋 Today\'s Ops Board', ops_legend_done: '🟢 Done', ops_legend_pending: '⚪ Pending', ops_legend_urgent: '🔴 Urgent',
     pvp_rewards_btn: '🏅 Reward History', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ Declare Battle', pvp_tab_rec: '🎯 Recommended', pvp_tab_bounty: '💰 Bounty', pvp_tab_conflict: '🔥 Sector Conflict',
+    kb_hub_title: 'KILLBOARD & INTEL', kb_tab_board: 'KILLBOARD', kb_tab_scout: 'SCOUT',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 Upgrading...',
     we_select_fleet: 'Select fleet...', we_fleet_min: 'At least 1 ship required',
     pvp_goto_tab: '⚔ PVP TAB →', pvp_from_tab: '⚔ IN PVP TAB →',
@@ -19351,6 +19365,7 @@ var I18N = {
     ops_board_title: '📋 오늘의 작전 보드', ops_legend_done: '🟢 완료', ops_legend_pending: '⚪ 미완료', ops_legend_urgent: '🔴 긴급',
     pvp_rewards_btn: '🏅 보상 이력', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 전투 선언', pvp_tab_rec: '🎯 추천 상대', pvp_tab_bounty: '💰 현상금', pvp_tab_conflict: '🔥 섹터 분쟁',
+    kb_hub_title: '킬보드 & 정보', kb_tab_board: '킬보드', kb_tab_scout: '정찰',
     wb_title: '🎯 WAR BETTING · 전쟁 베팅', forge_upgrading: '🔨 강화 중...',
     we_select_fleet: '함대 선택...', we_fleet_min: '최소 1척 이상의 함선이 있어야 합니다',
     pvp_goto_tab: '⚔ PVP 탭으로 →', pvp_from_tab: '⚔ PVP 탭에서 →',
@@ -20211,6 +20226,7 @@ var I18N = {
     ops_board_title: '📋 今日の作戦ボード', ops_legend_done: '🟢 完了', ops_legend_pending: '⚪ 未完了', ops_legend_urgent: '🔴 緊急',
     pvp_rewards_btn: '🏅 報酬履歴', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 戦闘宣言', pvp_tab_rec: '🎯 推薦相手', pvp_tab_bounty: '💰 賞金', pvp_tab_conflict: '🔥 セクター紛争',
+    kb_hub_title: 'キルボード & 情報', kb_tab_board: 'キルボード', kb_tab_scout: '偵察',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 強化中...',
     we_select_fleet: '艦隊選択...', we_fleet_min: '最低1隻の艦船が必要です',
     pvp_goto_tab: '⚔ PVPタブへ →', pvp_from_tab: '⚔ PVPタブで →',
@@ -21071,6 +21087,7 @@ var I18N = {
     ops_board_title: '📋 今日作战板', ops_legend_done: '🟢 完成', ops_legend_pending: '⚪ 未完成', ops_legend_urgent: '🔴 紧急',
     pvp_rewards_btn: '🏅 奖励记录', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 宣战', pvp_tab_rec: '🎯 推荐对手', pvp_tab_bounty: '💰 赏金', pvp_tab_conflict: '🔥 区域冲突',
+    kb_hub_title: '击杀榜 & 情报', kb_tab_board: '击杀榜', kb_tab_scout: '侦察',
     wb_title: '🎯 WAR BETTING · 战争下注', forge_upgrading: '🔨 强化中...',
     we_select_fleet: '选择舰队...', we_fleet_min: '至少需要1艘舰船',
     pvp_goto_tab: '⚔ PVP标签 →', pvp_from_tab: '⚔ 在PVP标签 →',
@@ -25671,7 +25688,7 @@ function switchBaseTab(tab,el){
   if(tab==='mining'){ try{ _renderShipMining(); }catch(_e){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
-  if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} }
+  if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} try{if(typeof kbSwitchTab==='function')kbSwitchTab('board');}catch(_e){} }
   if(tab==='fleet') { try{_loadFleetTabSummary();}catch(_e){} }
   try{ clearBaseTabDot(tab); }catch(_e){}
 }
@@ -27785,6 +27802,125 @@ async function guildDefect(){
     try{ if(typeof loadGPBalance==='function') loadGPBalance(); else if(typeof refreshGP==='function') refreshGP(); }catch(_){}
     loadGuildTab();
   }).catch(function(){showToast(t('guild_toast_generic_failed'),'error')});
+}
+
+// [v7.360] 킬보드 & PvP 정찰 UI (배신 시스템) — 4개국어 로컬라이징
+function _kbL(en,ko,ja,zh){return LANG==='ko'?ko:LANG==='ja'?ja:LANG==='zh'?zh:en;}
+var _kbTab='board';
+function kbSwitchTab(tab){
+  _kbTab=tab;
+  var b=document.getElementById('kbTab_board'), s=document.getElementById('kbTab_scout');
+  if(b&&s){
+    b.style.borderBottomColor=tab==='board'?'var(--red)':'transparent'; b.style.color=tab==='board'?'#ff8a80':'var(--tx3)'; b.style.background=tab==='board'?'rgba(232,72,85,.08)':'transparent';
+    s.style.borderBottomColor=tab==='scout'?'#5cbbff':'transparent'; s.style.color=tab==='scout'?'#5cbbff':'var(--tx3)'; s.style.background=tab==='scout'?'rgba(92,187,255,.08)':'transparent';
+  }
+  if(tab==='board') loadKillboard(); else renderScoutPanel();
+}
+function kbRefresh(){ if(_kbTab==='board') loadKillboard(); else { renderScoutPanel(); } }
+function _kbShort(w){ return w?(w.slice(0,6)+'…'+w.slice(-4)):'?'; }
+function _kbName(nick,w){ return nick||_kbShort(w); }
+
+async function loadKillboard(){
+  var el=document.getElementById('kbContent'); if(!el) return;
+  el.innerHTML='<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">'+_kbL('Loading…','로딩 중…','読み込み中…','加载中…')+'</div>';
+  var my=(walletState.address||'').toLowerCase();
+  try{
+    var results = await Promise.all([
+      fetch('/api/killboard?limit=15').then(function(r){return r.json()}),
+      my?fetch('/api/killboard/'+my).then(function(r){return r.json()}):Promise.resolve(null)
+    ]);
+    var board=results[0], mine=results[1];
+    var html='';
+    if(mine){
+      html+='<div style="display:flex;gap:8px;margin-bottom:10px">'+
+        '<div style="flex:1;text-align:center;padding:6px;border-radius:6px;background:rgba(76,216,154,.08);border:1px solid rgba(76,216,154,.2)"><div style="font-size:14px;font-weight:800;color:#4cd89a">'+(mine.kills||0)+'</div><div style="font-size:8px;color:var(--tx3)">'+_kbL('KILLS','격침','撃沈','击沉')+'</div></div>'+
+        '<div style="flex:1;text-align:center;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2)"><div style="font-size:14px;font-weight:800;color:#ff8a80">'+(mine.losses||0)+'</div><div style="font-size:8px;color:var(--tx3)">'+_kbL('LOSSES','피격','被撃','被击')+'</div></div>'+
+      '</div>';
+    }
+    var kills=(board&&board.kills)||[];
+    if(!kills.length){
+      html+='<div style="color:var(--tx3);font-size:10px;text-align:center;padding:10px">'+_kbL('No recent kills.','최근 격침 없음.','撃沈なし。','暂无击沉。')+'</div>';
+    } else {
+      html+=kills.map(function(k){
+        var betr=k.victim_is_betrayer?' <span style="color:#FFD166;font-size:8px">⚑'+_kbL('TRAITOR','배신자','裏切り','叛徒')+'</span>':'';
+        return '<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px">'+
+          '<span style="color:#4cd89a;font-weight:700">'+_kbName(k.killer_nick,k.killer_wallet)+'</span>'+
+          '<span style="color:var(--tx3)">⚔</span>'+
+          '<span style="color:#ff8a80">'+_kbName(k.victim_nick,k.victim_wallet)+'</span>'+betr+
+          '<span style="margin-left:auto;color:var(--tx3);font-size:8px">'+(k.ship_type||'')+'</span>'+
+        '</div>';
+      }).join('');
+    }
+    el.innerHTML=html;
+  }catch(e){ el.innerHTML='<div style="color:var(--red);font-size:10px;text-align:center;padding:10px">'+_kbL('Failed to load.','불러오기 실패.','読込失敗。','加载失败。')+'</div>'; }
+}
+
+function renderScoutPanel(){
+  var el=document.getElementById('kbContent'); if(!el) return;
+  el.innerHTML=
+    '<div style="font-size:9px;color:var(--tx3);line-height:1.6;margin-bottom:8px">'+_kbL(
+      'Scout an enemy to reveal their hidden fleet composition before you attack. Costs GP. The target may detect you.',
+      '공격 전 적 함대의 숨겨진 구성을 정찰로 노출합니다. GP가 들고, 표적이 탐지할 수 있습니다.',
+      '攻撃前に敵艦隊の隠れた構成を偵察で暴きます。GPが必要で、標的に探知される場合があります。',
+      '攻击前侦察敌方隐藏的舰队构成。消耗GP，可能被目标察觉。')+'</div>'+
+    '<div style="display:flex;gap:6px;margin-bottom:8px">'+
+      '<input id="kbScoutTarget" type="text" placeholder="'+_kbL('Target wallet','대상 지갑','対象ウォレット','目标钱包')+'" style="flex:1;font-size:10px;padding:7px 9px;border-radius:6px;background:rgba(0,0,0,.25);border:1px solid rgba(92,187,255,.25);color:var(--tx);font-family:var(--fn)">'+
+      '<button onclick="kbScout()" style="font-size:10px;padding:7px 12px;border-radius:6px;background:rgba(92,187,255,.15);border:1px solid rgba(92,187,255,.45);color:#5cbbff;font-weight:700;cursor:pointer;font-family:var(--fn)">🛰 '+_kbL('SCOUT','정찰','偵察','侦察')+'</button>'+
+    '</div>'+
+    '<div id="kbScoutResult"></div>'+
+    '<div id="kbScoutReports" style="margin-top:8px"></div>';
+  loadScoutReports();
+}
+
+function _kbIntelCard(intel,meta){
+  var c=intel.composition||{};
+  var chip=function(label,val,color){ return val>0?('<span style="display:inline-block;margin:2px 4px 2px 0;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:8px;color:'+(color||'var(--tx2)')+'">'+label+' '+val+'</span>'):''; };
+  return '<div style="border-radius:7px;background:rgba(92,187,255,.05);border:1px solid rgba(92,187,255,.22);padding:9px 11px;margin-bottom:6px">'+
+    (meta?('<div style="font-size:8px;color:var(--tx3);margin-bottom:4px">'+meta+'</div>'):'')+
+    '<div style="font-size:10px;font-weight:700;color:#5cbbff;margin-bottom:5px">'+_kbL('Fleet Intel','함대 정보','艦隊情報','舰队情报')+' — '+(intel.ships_alive||0)+' '+_kbL('ships','척','隻','艘')+' / '+(intel.fleet_count||0)+' '+_kbL('fleets','함대','艦隊','舰队')+'</div>'+
+    '<div>'+
+      chip(_kbL('Frig','프리','フリ','护'),c.frigate)+chip(_kbL('Dest','구축','駆','驱'),c.destroyer)+chip(_kbL('Cru','순양','巡','巡'),c.cruiser)+
+      chip('BS',c.battleship,'#ffd166')+chip('Titan',c.titan,'#ff8a80')+chip(_kbL('Unit','유닛','ユニ','单位'),c.assembled,'#bb86fc')+
+    '</div>'+
+    '<div style="display:flex;gap:10px;margin-top:5px;font-size:9px">'+
+      '<span style="color:#ff8a80">⚔ '+(intel.total_atk||0).toLocaleString()+'</span>'+
+      '<span style="color:#5cbbff">🛡 '+(intel.total_def||0).toLocaleString()+'</span>'+
+      '<span style="color:#4cd89a">❤ '+Math.round((intel.total_current_hp||0)/1000)+'k/'+Math.round((intel.total_max_hp||0)/1000)+'k</span>'+
+    '</div>'+
+  '</div>';
+}
+
+async function kbScout(){
+  var my=walletState.address; if(!my){ showToast(_kbL('Connect wallet','지갑 연결 필요','ウォレット接続','请连接钱包'),'error'); return; }
+  var tgtEl=document.getElementById('kbScoutTarget'); var target=(tgtEl&&tgtEl.value||'').trim();
+  if(!target){ showToast(_kbL('Enter a target','대상을 입력하세요','対象を入力','请输入目标'),'error'); return; }
+  var resEl=document.getElementById('kbScoutResult'); if(resEl) resEl.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:6px">'+_kbL('Scouting…','정찰 중…','偵察中…','侦察中…')+'</div>';
+  try{
+    var r=await fetch('/api/spy/scout',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({target_wallet:target})}).then(function(x){return x.json()});
+    if(r.error){
+      var msg=r.error==='INSUFFICIENT_GP'?_kbL('Not enough GP','GP 부족','GP不足','GP不足')
+        :r.error==='TARGET_NOT_FOUND'?_kbL('Target not found','대상 없음','対象なし','未找到目标')
+        :r.error==='CANNOT_SCOUT_SELF'?_kbL('Cannot scout yourself','자신은 정찰 불가','自分は偵察不可','无法侦察自己')
+        :r.error;
+      if(resEl) resEl.innerHTML='<div style="color:var(--red);font-size:10px;padding:6px">'+msg+'</div>';
+      return;
+    }
+    var meta=_kbL('Cost','비용','コスト','花费')+' '+(r.cost_gp||0)+' GP'+(r.double_agent?' · '+_kbL('double-agent discount','이중첩자 할인','二重スパイ割引','双面间谍折扣'):'')+(r.detected?' · ⚠ '+_kbL('DETECTED','탐지됨','探知された','已被察觉'):'');
+    if(resEl) resEl.innerHTML=_kbIntelCard(r.intel||{},meta);
+    try{ if(typeof loadGPBalance==='function') loadGPBalance(); else if(typeof refreshGP==='function') refreshGP(); }catch(_){}
+    loadScoutReports();
+  }catch(e){ if(resEl) resEl.innerHTML='<div style="color:var(--red);font-size:10px;padding:6px">'+_kbL('Scout failed','정찰 실패','偵察失敗','侦察失败')+'</div>'; }
+}
+
+async function loadScoutReports(){
+  var el=document.getElementById('kbScoutReports'); if(!el) return;
+  try{
+    var d=await fetch('/api/spy/reports?limit=5',{headers:getAuthHeaders()}).then(function(r){return r.json()});
+    var reps=(d&&d.reports)||[];
+    if(!reps.length){ el.innerHTML=''; return; }
+    el.innerHTML='<div style="font-size:8px;color:var(--tx3);letter-spacing:1px;margin:4px 0">'+_kbL('RECENT INTEL','최근 정보','最近の情報','最近情报')+'</div>'+
+      reps.map(function(rp){ return _kbIntelCard(rp.intel||{}, _kbShort(rp.target_wallet)+(rp.stale?' · '+_kbL('stale','만료','期限切れ','已过期'):'')); }).join('');
+  }catch(e){ el.innerHTML=''; }
 }
 
 async function guildKick(targetWallet){
@@ -48931,7 +49067,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7357'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7360'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
