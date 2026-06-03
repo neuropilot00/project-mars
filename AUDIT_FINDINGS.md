@@ -1,3 +1,30 @@
+## 2026-06-03 — CLASS A 트랜잭션 오염 차단 (공유 헬퍼 격리)
+
+Codex가 짚은 34곳 중 **실 money 경로 24곳**을 공유 헬퍼 2개의 내부 SAVEPOINT 격리로 일괄 차단
+(호출처 34곳 개별 수정의 회귀 위험 회피). 근거: Postgres는 트랜잭션 내 한 쿼리가 throw하면
+전체를 abort 상태로 만든다 → 기존 try/catch는 JS에러만 삼킬 뿐 aborted를 못 풀어, 호출측 COMMIT이
+실패하며 본 작업이 **silent 롤백**된다(보상/결제 유실).
+
+| 헬퍼 | 호출처 | 영향 경로 |
+|---|---|---|
+| db.js awardXP | 14곳 | battleRewards/ship build/exploration/chain/rocket/missions/arena×4/api harvest·quest·claim |
+| db.js creditReferralCommission | 10곳 | arena cantina×5/swap/harvest×2/shop/missions |
+
+수정: 두 헬퍼 진입 시 SAVEPOINT 생성 → 본문 throw 시 ROLLBACK TO SAVEPOINT로 격리 + best-effort
+반환(awardXP→null, referral→[]) + finally RELEASE. 호출처 반환 계약(null/[]) 불변이라 무회귀.
+검증: 런타임 — 정상경로 xp+3 OK, savepoint 에러 후 부모 트랜잭션 생존+COMMIT OK. 스모크 11/0.
+
+남은 CLASS A ~10곳(worldEvents/shipMining/siege/auth account_signups 등)은 optional-table probe로
+이미 "테이블 부재" 가드가 있고 대상 테이블이 prod/fresh 모두 존재 → latent-only 저위험.
+
+### 경제 밸런스 초안 — 적용 보류 사유(소스 기반 반대)
+무한강화 곡선의 현재값(base25×1.14^n, 성공 92%−1.8%/레벨 하한35%)을 분석하니: 레벨32+부터 전 강화가
+35% 성공 → GP·재료 65% 소각(깊은 sink, 반인플레), 비용은 레벨70쯤 폭발(고래 자연상한, 반P2W).
+초안의 "growth 1.14→1.09 / 하한 35→50 / decay 1.8→1.2"는 강화를 더 싸고 더 잘 되게 만들어
+**고래 진행 ↑ + sink ↓ = 인플레·P2W 증가** — "발행=인플레" 철학과 정반대. F2P faucet도 폐지한
+quest pool을 되살리는 방향. 따라서 초안 그대로 적용은 보류. 진짜 필요한 건 캐피탈 재료 공급/수요
+밸런싱(인플레 무관)이며, 적용하려면 fuzzy 초안이 아니라 정식 데이터 재도출이 선행되어야 한다.
+
 ## 2026-06-03 — 배포 P0 해소: fresh DB 마이그 체인 완주 (루프 검증)
 
 빈 스크래치 DB(pixelwar_fresh)에 마이그 001→305 전체를 반복 적용하며 첫 실패를

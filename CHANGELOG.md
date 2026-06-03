@@ -1,3 +1,9 @@
+## 2026-06-03 v7.369 — CLASS A 트랜잭션 오염 차단 (awardXP/creditReferralCommission)
+
+money 트랜잭션 안에서 호출되는 두 공유 헬퍼를 내부 SAVEPOINT로 격리. 기존엔 헬퍼 내부 쿼리가
+throw하면 PG가 트랜잭션을 abort → try/catch가 삼켜도 호출측 COMMIT 실패로 보상/결제가 silent
+롤백. 24개 호출처(전투보상/건조/클레임/퀘스트/채굴/아레나/swap/shop) 일괄 보호. 런타임+스모크 검증.
+
 ## 2026-06-03 v7.368 — 배포 P0: fresh DB 마이그 체인 완주 (014/092/099/106)
 
 빈 DB 첫 배포 시 014에서 멈춰 014~305 전체가 미적용되던 문제 해소. 014(to_regclass 인덱스

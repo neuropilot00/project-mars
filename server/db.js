@@ -440,6 +440,11 @@ async function getReferralChain(client, wallet) {
 // Returns the array of credited rewards (for logging/UI), [] if disabled or no chain.
 async function creditReferralCommission(client, fromWallet, triggerType, baseAmount, currency) {
   if (!fromWallet || !baseAmount || baseAmount <= 0) return [];
+  // (오염차단 v7.369) 내부 referral_rewards INSERT/UPDATE가 throw하면 PG가 트랜잭션 전체를
+  // abort → 호출측(arena cantina/swap/harvest/shop) COMMIT 실패로 본 결제가 silent 롤백된다.
+  // 내부 try/catch는 JS에러만 삼킬 뿐 aborted 상태를 못 푼다. SAVEPOINT로 격리(best-effort).
+  let _refSp = false;
+  try { await client.query('SAVEPOINT om_referral'); _refSp = true; } catch (_) { return []; }
   try {
     // Master switch
     const enabled = await getSetting('referral_enabled');
@@ -553,7 +558,10 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
     return credited;
   } catch (e) {
     console.warn('[REFERRAL] commission failed:', e.message);
+    if (_refSp) { try { await client.query('ROLLBACK TO SAVEPOINT om_referral'); } catch (_) {} }
     return [];
+  } finally {
+    if (_refSp) { try { await client.query('RELEASE SAVEPOINT om_referral'); } catch (_) {} }
   }
 }
 
@@ -620,6 +628,26 @@ async function checkBreakthroughCondition(client, wallet, condition) {
 // ── Award XP and check rank-up (shared across routes) ──
 async function awardXP(client, wallet, xpAmount) {
   if (!xpAmount || xpAmount <= 0) return null;
+  // (오염차단 v7.369) awardXP는 users/rank_definitions/user_breakthroughs/
+  // checkBreakthroughCondition 등 다수 테이블을 건드리고 레벨업 시 GP까지 지급한다.
+  // 모든 호출처(14곳)가 money 트랜잭션(BEGIN..COMMIT) 안이라, 한 쿼리라도 throw하면
+  // PG가 트랜잭션 전체를 abort → 호출측 COMMIT 실패로 본 작업(전투보상/건조/클레임/퀘스트
+  // /채굴/아레나 등)이 silent 롤백된다. SAVEPOINT로 격리해 XP/레벨업은 best-effort 처리.
+  let _xpSp = false;
+  try {
+    await client.query('SAVEPOINT om_award_xp');
+    _xpSp = true;
+    return await _awardXPInner(client, wallet, xpAmount);
+  } catch (e) {
+    if (_xpSp) { try { await client.query('ROLLBACK TO SAVEPOINT om_award_xp'); } catch (_) {} }
+    console.error('[awardXP] isolated failure:', e.message);
+    return null;
+  } finally {
+    if (_xpSp) { try { await client.query('RELEASE SAVEPOINT om_award_xp'); } catch (_) {} }
+  }
+}
+
+async function _awardXPInner(client, wallet, xpAmount) {
   const res = await client.query(
     'UPDATE users SET xp = xp + $1, total_actions = total_actions + 1 WHERE LOWER(wallet_address) = LOWER($2) RETURNING xp, rank_level',
     [xpAmount, wallet]
