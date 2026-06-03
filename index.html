@@ -27969,7 +27969,7 @@ function kbSwitchTab(tab){
 }
 function kbRefresh(){ if(_kbTab==='board') loadKillboard(); else { renderScoutPanel(); } }
 function _kbShort(w){ return w?(w.slice(0,6)+'…'+w.slice(-4)):'?'; }
-function _kbName(nick,w){ return nick||_kbShort(w); }
+function _kbName(nick,w){ return escapeHtmlSafe(String(nick||_kbShort(w))); } // (v7.396) 출력 이스케이프(방어선)
 
 async function loadKillboard(){
   var el=document.getElementById('kbContent'); if(!el) return;
@@ -28005,7 +28005,7 @@ async function loadKillboard(){
           '<span style="color:#4cd89a;font-weight:700">'+_kbName(k.killer_nick,k.killer_wallet)+'</span>'+
           '<span style="color:var(--tx3)">⚔</span>'+
           '<span style="color:#ff8a80">'+_kbName(k.victim_nick,k.victim_wallet)+'</span>'+betr+
-          '<span style="color:var(--tx3);font-size:7px">'+(k.ship_name||k.ship_type||'')+'</span>'+
+          '<span style="color:var(--tx3);font-size:7px">'+escapeHtmlSafe(String(k.ship_name||k.ship_type||''))+'</span>'+
           '<span style="margin-left:auto">'+valHtml+'</span>'+
         '</div>';
       }).join('');
@@ -49310,7 +49310,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7394'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7396'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){

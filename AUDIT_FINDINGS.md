@@ -1,3 +1,20 @@
+## 2026-06-04 — 도파민 코드 라운드2 적대검수 (팀+레드팀, Codex 진행중)
+
+라운드1 수정 회귀 + 새 각도(XSS/스푸핑/설정악용). **익스플로잇 0건 — 라운드1 수정 견고.**
+
+### 검증 통과
+- XSS: 킬보드가 닉네임/함선명을 innerHTML 렌더하나, 닉네임은 입력단 화이트리스트(<>"'' 차단,
+  auth/profile 정규식)로 막히고 ship_name은 고정 함급명(플레이어 커스텀 아님) → 현재 악용 불가.
+  away-briefing은 숫자만, rewardBurst는 textContent → 인젝션 없음.
+- 승리슬롯 경제: 가드 차감은 FOR UPDATE+선클램프로 항상 rowCount=1(dead branch, 무해), 실패시도
+  ROLLBACK이 claims 되돌려 double-pay 없음. mult=0/풀고갈은 스핀 정확히 소진. 시스템 net-de플레
+  (수리 80% 소각, ≤20% 환류 → 그룹 합산 net-negative 보장). E[mult]=1.59, E[payout]≈79.5/win.
+
+### 방어적 하드닝 적용(권고 반영, v7.396)
+- [방어선] 킬보드 출력 이스케이프: _kbName 출력 + ship_name을 escapeHtmlSafe로 감쌈(출력 이스케이프가
+  올바른 레이어 — 닉 화이트리스트가 미래에 깨져도 방어). 런타임: 음수 w 필터·쓰레기 폴백 확인.
+- [견고성] 승리슬롯 가중치 음수 w/m 클램프(admin 오타가 추첨 분포 왜곡 방지).
+
 ## 2026-06-04 — Codex 재스윕 반영: 도파민 코드 방어적 하드닝 (v7.395)
 
 Codex가 #1(feedPool — 이미 SAVEPOINT 수정)을 확인하고 방어적 하드닝 3건 권고 → 전부 반영:

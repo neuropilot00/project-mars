@@ -48,10 +48,15 @@ async function spin(wallet, battleId) {
     // 배수 추첨(가중치)
     let weights = [];
     try { weights = JSON.parse(await getSetting('victory_slot_weights', '[]')) || []; } catch (_) { weights = []; }
+    // (v7.396 하드닝) 음수 가중치/배수 클램프 — admin 오타가 추첨 분포를 왜곡하지 않게(w,m >= 0).
+    weights = (Array.isArray(weights) ? weights : []).map(x => ({
+      m: Math.max(0, parseFloat(x && x.m) || 0),
+      w: Math.max(0, parseFloat(x && x.w) || 0),
+    })).filter(x => x.w > 0);
     if (!weights.length) weights = [{ m: 1, w: 1 }];
-    const tot = weights.reduce((s, x) => s + (parseFloat(x.w) || 0), 0) || 1;
+    const tot = weights.reduce((s, x) => s + x.w, 0) || 1;
     let roll = Math.random() * tot, mult = 0;
-    for (const x of weights) { roll -= (parseFloat(x.w) || 0); if (roll <= 0) { mult = parseFloat(x.m) || 0; break; } }
+    for (const x of weights) { roll -= x.w; if (roll <= 0) { mult = x.m; break; } }
     const base = parseInt(await getSetting('victory_slot_base_gp', '50')) || 50;
     // 풀 잠금 + 상한 (carve — 풀에서만)
     const pr = await client.query(`SELECT pool_gp FROM victory_slot_pool WHERE id=1 FOR UPDATE`);
