@@ -1,3 +1,15 @@
+## 2026-06-03 — 카지노 하우스 엣지 15% 통일 (운영 방침: 하우스 우위)
+
+기존 카지노 엣지가 게임별 하드코딩 2~4%로 얇아 "하우스가 쉽게 이긴다"는 방침에 미달.
+casino_house_edge_pct 단일 설정(기본 15%, mig307)으로 통일하고 어드민 조절 가능화(하드코딩 제거).
+- coinflip: bet×1.96 → bet×2×_houseFactor()  (15%→1.70배)
+- dice: ×0.98 → ×_houseFactor()
+- hilo: ×0.98 → ×_houseFactor() (guess 본배수 + 모든 preview)
+- mines: minesMultiplier ×0.97 → ×_houseFactor() (엣지를 캐시 키에 포함)
+- crash: instant-crash 1/25 → 1/round(100/edge) (15%→약 1/7)
+검증: coinflip/dice/hilo/mines 유저 EV 정확히 -15%, crash -14.3%. 잔여 하드코딩 엣지 0,
+fresh 체인 완주, 스모크 11/0. (직전 HiLo +EV 버그 수정 위에 엣지 상향이 얹힌 형태.)
+
 ## 2026-06-03 — 자금유통 라운드 2: 카지노 결과 무결성 + HiLo +EV 수정
 
 레드팀이 5개 카지노 게임 결과 무결성을 검증: coinflip/dice/mines/crash 전부 **서버 권위적**

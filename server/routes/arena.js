@@ -47,6 +47,14 @@ async function cfg() {
   return _cfg;
 }
 
+// (v7.373) 카지노 공통 하우스 엣지. casino_house_edge_pct(기본 15%) 설정에서 읽어 배수에 곱한다.
+// 0~90% clamp. _cfg는 각 게임 핸들러가 cfg()를 먼저 호출해 갱신된 상태로 사용한다.
+function _houseEdgePct() {
+  const e = parseFloat(_cfg && _cfg.casino_house_edge_pct);
+  return Math.max(0, Math.min(90, isNaN(e) ? 15 : e));
+}
+function _houseFactor() { return 1 - _houseEdgePct() / 100; } // 당첨 배수에 곱하는 계수(예: 15%→0.85)
+
 async function getCantinaReferralBase(betAmount) {
   const settings = await cfg();
   const houseEdgePct = Math.max(0, parseFloat(settings.arena_house_edge) || 0);
@@ -66,8 +74,9 @@ function generateCrashPoint(seed) {
   const hash = crypto.createHmac('sha256', seed).update('crash').digest('hex');
   const h = parseInt(hash.slice(0, 13), 16);
   const e = Math.pow(2, 52);
-  // House edge 4%: 1 in 25 chance of instant crash (1.00x)
-  if (h % 25 === 0) return 1.00;
+  // (v7.373) 하우스 엣지 = instant crash(1.00x) 빈도 1/N. N=round(100/edge%) (기본 15%→약 1/7).
+  const _N = Math.max(2, Math.round(100 / _houseEdgePct()));
+  if (h % _N === 0) return 1.00;
   const raw = Math.max(1.00, Math.floor((100 * e - h) / (e - h)) / 100);
   return Math.min(raw, CRASH_MAX_MULT); // Cap at 100x
 }
@@ -568,14 +577,16 @@ function generateMinesGrid(mineCount) {
 // Pre-computed multiplier cache for instant lookup
 const _multCache = {};
 function minesMultiplier(revealed, mineCount) {
-  const key = revealed + '_' + mineCount;
+  // (v7.373) 하우스 엣지 설정 적용. 엣지가 캐시 키에 포함되어 어드민이 바꿔도 stale 안 됨.
+  const hf = _houseFactor();
+  const key = revealed + '_' + mineCount + '_' + hf;
   if (_multCache[key]) return _multCache[key];
   const safeTotal = 25 - mineCount;
   let mult = 1;
   for (let i = 0; i < revealed; i++) {
     mult *= (25 - i) / (safeTotal - i);
   }
-  const result = Math.round(mult * 0.97 * 10000) / 10000; // 3% house edge
+  const result = Math.round(mult * hf * 10000) / 10000;
   _multCache[key] = result;
   return result;
 }
@@ -854,7 +865,8 @@ router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
   const hash = crypto.createHmac('sha256', seed).update('coinflip').digest('hex');
   const result = parseInt(hash.slice(0, 8), 16) % 2 === 0 ? 'survive' : 'perish';
   const won = pick === result;
-  const payout = won ? Math.round(bet * 1.96 * 1000000) / 1000000 : 0;
+  // (v7.373) 공정 2배(50/50) × 하우스계수. 기본 15% 엣지 → 1.70배.
+  const payout = won ? Math.round(bet * 2 * _houseFactor() * 1000000) / 1000000 : 0;
 
   const client = await pool.connect();
   try {
@@ -950,7 +962,7 @@ router.post('/dice/play', requireAuth, betLimiter, async (req, res) => {
   const roll = parseInt(crypto.randomBytes(4).toString('hex'), 16) % 100; // 0-99
   const winChance = dir === 'over' ? (99 - tgt) : tgt;
   if (winChance <= 0) return res.status(400).json({ error: 'Invalid target' });
-  const multiplier = Math.round((99 / winChance) * 0.98 * 10000) / 10000; // 2% house edge
+  const multiplier = Math.round((99 / winChance) * _houseFactor() * 10000) / 10000; // (v7.373) 하우스 엣지 설정 적용
   const won = dir === 'over' ? roll > tgt : roll < tgt;
   const payout = won ? Math.round(bet * multiplier * 1000000) / 1000000 : 0;
 
@@ -1097,6 +1109,7 @@ router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
 
   if (!gameId) return res.status(400).json({ error: 'gameId required' });
 
+  await cfg(); // (v7.373) _houseFactor()가 최신 하우스엣지를 반영하도록 설정 캐시 갱신
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -1133,7 +1146,7 @@ router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
       const higherCards = 14 - lastCard.value; // strictly higher
       const lowerCards = lastCard.value - 2;   // strictly lower
       const winCards = (pick === 'high' ? higherCards : lowerCards) + 1; // +1 = 동점 랭크도 승리
-      const guessMult = Math.round((13 / winCards) * 0.98 * 10000) / 10000;
+      const guessMult = Math.round((13 / winCards) * _houseFactor() * 10000) / 10000;
       const newMult = Math.round(parseFloat(g.current_multiplier) * guessMult * 10000) / 10000;
 
       await client.query(
@@ -1142,8 +1155,8 @@ router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
       );
 
       // Next guess multiplier preview (동점 랭크 +1 포함 — guessMult와 동일 공식)
-      const nextHighMult = Math.round((13 / ((14 - newCard.value) + 1)) * 0.98 * 10000) / 10000;
-      const nextLowMult  = Math.round((13 / ((newCard.value - 2) + 1)) * 0.98 * 10000) / 10000;
+      const nextHighMult = Math.round((13 / ((14 - newCard.value) + 1)) * _houseFactor() * 10000) / 10000;
+      const nextLowMult  = Math.round((13 / ((newCard.value - 2) + 1)) * _houseFactor() * 10000) / 10000;
 
       await client.query('COMMIT');
       res.json({
@@ -1178,6 +1191,7 @@ router.post('/hilo/cashout', requireAuth, betLimiter, async (req, res) => {
   const callerWallet = getAuthWallet(req);
   if (!gameId) return res.status(400).json({ error: 'gameId required' });
 
+  await cfg(); // (v7.373) _houseFactor()가 최신 하우스엣지를 반영하도록 설정 캐시 갱신
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -1231,15 +1245,15 @@ router.get('/hilo/active', async (req, res) => {
     const g = r.rows[0];
     const cards = typeof g.cards === 'string' ? JSON.parse(g.cards) : g.cards;
     const lastCard = cards[cards.length - 1];
-    const nextHigher = 14 - lastCard.value;
-    const nextLower = lastCard.value - 2;
+    await cfg(); // (v7.373) 하우스엣지 freshness
     res.json({
       active: true, gameId: g.id, bet: parseFloat(g.bet_amount), currency: g.currency,
       cards: cards.map(c => ({ value: c.value, name: cardName(c.value), suit: c.suit })),
       multiplier: parseFloat(g.current_multiplier),
       potentialPayout: Math.round(parseFloat(g.bet_amount) * parseFloat(g.current_multiplier) * 10000) / 10000,
-      nextHighMult: nextHigher > 0 ? Math.round((13 / nextHigher) * 0.98 * 10000) / 10000 : 99,
-      nextLowMult: nextLower > 0 ? Math.round((13 / nextLower) * 0.98 * 10000) / 10000 : 99,
+      // (v7.373) guessMult와 동일 공식 — 동점 랭크(+1) 포함 + 하우스계수
+      nextHighMult: Math.round((13 / ((14 - lastCard.value) + 1)) * _houseFactor() * 10000) / 10000,
+      nextLowMult: Math.round((13 / ((lastCard.value - 2) + 1)) * _houseFactor() * 10000) / 10000,
       round: cards.length - 1
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
