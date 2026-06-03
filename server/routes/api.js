@@ -358,8 +358,11 @@ router.get('/config', readLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/referral/register — Register referral
 // ══════════════════════════════════════════════════
-router.post('/referral/register', writeLimiter, async (req, res) => {
-  const { wallet, referralCode } = req.body;
+router.post('/referral/register', requireAuth, writeLimiter, async (req, res) => {
+  // [v7.366][P0] wallet을 JWT에서만 — 기존엔 req.body.wallet를 신뢰해 공격자가 타인(고래)의
+  //   referred_by를 자기 코드로 설정 → 그 피해자의 실입금/스왑마다 영구 추천 수수료 갈취 가능했음.
+  const { referralCode } = req.body;
+  const wallet = getAuthWallet(req);
   if (!wallet || !referralCode) return res.status(400).json({ error: 'Missing wallet or referralCode' });
 
   try {
@@ -4759,12 +4762,17 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
     } else if (item.code === 'supply_crate') {
       // Supply crate — instant random PP grant
       const randomPP = +(Math.random() * 0.4 + 0.1).toFixed(4);
-      await client.query('UPDATE users SET game_pp = game_pp + $1 WHERE LOWER(wallet_address) = LOWER($2)', [randomPP, w]);
+      // [v7.366] 미존재 컬럼 game_pp → pp_balance (supply_crate가 항상 런타임 에러였음)
+      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [randomPP, w]);
       effectResult = { applied: true, code: item.code, ppGained: randomPP };
     } else if (item.code === 'recall_beacon') {
-      // Recall beacon — instantly complete oldest in-transit mission
+      // Recall beacon — instantly complete oldest traveling mission
+      // [v7.366] status 'in_transit'은 CHECK 미허용(allow: traveling) + UPDATE는 ORDER BY/LIMIT 불가 →
+      //   서브쿼리로 가장 오래된 traveling 미션 1건만 갱신.
       const missionRes = await client.query(
-        "UPDATE missions SET arrival_at = NOW() WHERE wallet = $1 AND status = 'in_transit' ORDER BY arrival_at ASC LIMIT 1 RETURNING id",
+        `UPDATE missions SET arrival_at = NOW()
+          WHERE id = (SELECT id FROM missions WHERE wallet = $1 AND status = 'traveling' ORDER BY arrival_at ASC LIMIT 1)
+          RETURNING id`,
         [w]
       );
       effectResult = { applied: true, code: item.code, missionRecalled: missionRes.rows.length > 0 };

@@ -36,7 +36,7 @@ async function getSettings() {
   ];
   const res = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
   const map = {};
-  res.rows.forEach(r => { map[r.key] = r.value; });
+  res.rows.forEach(r => { map[r.key] = String(r.value); });
   return {
     enabled:        String(map.monument_enabled ?? 'true') !== 'false',
     costBase:       parseFloat(map.monument_cost_base)       || 100,

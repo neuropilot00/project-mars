@@ -111,7 +111,7 @@ async function getSettings() {
   // Load all upgrade-related settings dynamically
   const res = await pool.query(`SELECT key, value FROM settings WHERE key LIKE 'upgrade_%'`);
   const map = {};
-  res.rows.forEach(r => { map[r.key] = r.value; });
+  res.rows.forEach(r => { map[r.key] = String(r.value); });
 
   const parseCosts = (str, def) =>
     (str || def || '').split(',').map(v => parseFloat(v.trim())).filter(n => !isNaN(n));

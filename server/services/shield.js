@@ -20,7 +20,7 @@ async function getSettings() {
   ];
   const res = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
   const map = {};
-  res.rows.forEach(r => { map[r.key] = r.value; });
+  res.rows.forEach(r => { map[r.key] = String(r.value); });
 
   const options = (map.shield_options || '6,12,24,48,72')
     .split(',').map(v => parseInt(v.trim())).filter(n => n > 0);

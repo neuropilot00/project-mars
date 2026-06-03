@@ -4,7 +4,7 @@ const { pool } = require('../db');
 async function getSetting(key, fallback) {
   try {
     const { rows } = await pool.query('SELECT value FROM game_settings WHERE key=$1', [key]);
-    if (rows.length) return rows[0].value;
+    if (rows.length) return String(rows[0].value);
   } catch (_) {}
   return String(fallback);
 }

@@ -31,7 +31,7 @@ async function getSettings() {
   ];
   const res = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
   const map = {};
-  res.rows.forEach(r => { map[r.key] = r.value; });
+  res.rows.forEach(r => { map[r.key] = String(r.value); });
   return {
     enabled:          (map.dividends_enabled || 'true') !== 'false',
     marketplacePct:   parseFloat(map.dividends_marketplace_pct) || 20,

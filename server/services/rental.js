@@ -4,7 +4,7 @@ const { pool } = require('../db');
 async function getSetting(key, fallback) {
   try {
     const { rows } = await pool.query('SELECT value FROM game_settings WHERE key=$1', [key]);
-    if (rows.length) return rows[0].value;
+    if (rows.length) return String(rows[0].value);
   } catch (_) {}
   return String(fallback);
 }
@@ -18,7 +18,7 @@ async function getSettings() {
   const { rows } = await pool.query(
     `SELECT key, value FROM game_settings WHERE key = ANY($1)`, [keys]);
   const m = {};
-  rows.forEach(r => { m[r.key] = r.value; });
+  rows.forEach(r => { m[r.key] = String(r.value); });
   return {
     enabled:       (m.rental_enabled || 'true') === 'true',
     minGp:         parseFloat(m.rental_min_gp          || '5'),

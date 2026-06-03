@@ -26,7 +26,7 @@ async function getSettings() {
     `SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]
   );
   const map = {};
-  res.rows.forEach(r => { map[r.key] = r.value; });
+  res.rows.forEach(r => { map[r.key] = String(r.value); });
 
   const lockDaysOptions = (map.staking_lock_days_options || '7,14,30')
     .split(',').map(n => parseInt(n.trim())).filter(Boolean);

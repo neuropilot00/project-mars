@@ -22,7 +22,7 @@ async function getSettings() {
                  'lottery_round_hours','lottery_house_cut_pct','lottery_min_tickets','lottery_jackpot_rollover'];
   const res = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
   const map = {};
-  res.rows.forEach(r => { map[r.key] = r.value; });
+  res.rows.forEach(r => { map[r.key] = String(r.value); });
   return {
     enabled:          (map.lottery_enabled || 'true') !== 'false',
     ticketPrice:      parseFloat(map.lottery_ticket_price_gp) || 10,

@@ -14,7 +14,7 @@ const { pool } = require('../db');
 async function getSetting(key, fallback) {
   try {
     const { rows } = await pool.query(`SELECT value FROM settings WHERE key = $1`, [key]);
-    return rows[0]?.value ?? fallback;
+    return rows[0] ? String(rows[0].value) : fallback;
   } catch { return fallback; }
 }
 async function getFloat(key, fallback) { return parseFloat(await getSetting(key, fallback)) || fallback; }
