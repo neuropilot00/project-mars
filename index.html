@@ -49216,7 +49216,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7384'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7385'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -52030,13 +52030,27 @@ function renderSelectedShipPanel(f) {
 
 function renderFleetPreview(f) {
   var ships = (f.ships || []).filter(function(s){ return s.is_alive !== false; });
-  var visible = ships.slice().sort(function(a,b){
-    if (!!a.is_flagship !== !!b.is_flagship) return a.is_flagship ? 1 : -1;
-    var sw = fleetPreviewSortWeight(a) - fleetPreviewSortWeight(b);
-    if (sw !== 0) return sw;
-    return Number(a.id || 0) - Number(b.id || 0);
-  }).slice(0, 28);
   var formation = f.formation || 'sphere';
+  // (v7.385) 진형별 배치 우선순위: 작고 싼 함선=앞/외곽(소모성 스크린), 크고 중요한 함선=중앙/기함 옆.
+  //   sphere/pincer/vanguard 는 low idx가 안쪽(중앙·기함 옆)이라 큰 함선 먼저(내림차순),
+  //   wedge/screen/line/echelon 은 low idx가 전방이라 작은 함선 먼저(오름차순).
+  var _bigFirst = (formation === 'sphere' || formation === 'pincer' || formation === 'vanguard');
+  var _flagArr = ships.filter(function(s){ return !!s.is_flagship; });
+  var _escorts = ships.filter(function(s){ return !s.is_flagship; });
+  // 표시 선택(28 캡): 초과 시 큰(중요한) 함선 우선 유지 — 타이탄/전함이 잘려나가지 않게.
+  _escorts.sort(function(a,b){
+    var w = fleetPreviewSortWeight(b) - fleetPreviewSortWeight(a);
+    return w !== 0 ? w : Number(a.id || 0) - Number(b.id || 0);
+  });
+  var _keepN = Math.max(0, 28 - _flagArr.length);
+  var _shown = _escorts.slice(0, _keepN);
+  // 위치 정렬: 진형 방향대로(앞=작은함 또는 안쪽=큰함)
+  _shown.sort(function(a,b){
+    var sw = fleetPreviewSortWeight(a) - fleetPreviewSortWeight(b);
+    if (sw !== 0) return _bigFirst ? -sw : sw;
+    return Number(a.id || 0) - Number(b.id || 0);
+  });
+  var visible = _shown.concat(_flagArr);   // 기함은 항상 마지막(진형 중심에 배치)
   var movementName = (f.movement_info && f.movement_info.name_ko) || f.movement || '-';
   var counts = { frigate:0, destroyer:0, cruiser:0, battleship:0, titan:0 };
   var roles = {};
