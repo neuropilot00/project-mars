@@ -47,7 +47,7 @@ async function listMyFleets(walletAddress) {
   const { rows } = await pool.query(`
     SELECT 
       f.id, f.name, f.sector_id, f.formation, f.movement,
-      f.is_in_battle, f.current_battle_id, f.accent_color,
+      f.is_in_battle, f.current_battle_id, f.accent_color, f.formation_spread,
       f.total_kills, f.battles_won, f.battles_lost,
       f.created_at, f.updated_at,
       
@@ -235,7 +235,13 @@ async function createFleet(walletAddress, options = {}) {
 
 async function updateFleet(fleetId, walletAddress, updates) {
   const { name, formation, movement } = updates;
-  
+  // 진형 밀집도(0.55~1.6 클램프) — 커스터마이징
+  let formationSpread;
+  if (updates.formation_spread !== undefined) {
+    const fs = parseFloat(updates.formation_spread);
+    formationSpread = Number.isFinite(fs) ? Math.max(0.55, Math.min(1.6, fs)) : undefined;
+  }
+
   // 유효성 체크
   if (formation && !VALID_FORMATIONS.includes(formation)) {
     throw new Error('INVALID_FORMATION');
@@ -265,7 +271,11 @@ async function updateFleet(fleetId, walletAddress, updates) {
     params.push(movement);
     sets.push(`movement = $${params.length}`);
   }
-  
+  if (formationSpread !== undefined) {
+    params.push(formationSpread);
+    sets.push(`formation_spread = $${params.length}`);
+  }
+
   if (sets.length === 0) return { no_changes: true };
 
   const client = await pool.connect();

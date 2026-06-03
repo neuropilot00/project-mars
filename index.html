@@ -49214,7 +49214,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7382'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7383'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -51876,6 +51876,7 @@ function renderFleetDetail() {
     (inBattle ? '<div style="color:#ef5350;font-size:10px;letter-spacing:1px;padding:6px 10px;background:rgba(239,83,80,.08);border-radius:4px">⚠ '+(LANG==="ko"?"전투 중 — 일부 기능 제한":LANG==="ja"?"戦闘中 — 一部機能制限":LANG==="zh"?"战斗中 — 部分功能受限":"In Battle — Limited")+'</div>' : '') +
     '<div class="tactics-panel">' +
       '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
+      _spreadRow(f) +
       '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
       _autoRetreatRow(f) +
       _liveryRow(f) +
@@ -52057,8 +52058,9 @@ function renderFleetPreview(f) {
     return '<span class="fleet-role-chip">' + ri.label + ' ×' + roles[role] + '</span>';
   }).join('');
   var _accent = (f.accent_color && /^#[0-9a-fA-F]{6}$/.test(f.accent_color)) ? f.accent_color : '';
+  var _spread = parseFloat(f.formation_spread) || 1;
   var boardShips = visible.map(function(s, i){
-    var p = fleetPreviewPoint(i, visible.length, formation, !!s.is_flagship);
+    var p = fleetPreviewPoint(i, visible.length, formation, !!s.is_flagship, _spread);
     var isPilgrim = String(s.ship_type_code || '').toLowerCase().indexOf('pilgrim_') === 0;
     var _kills = parseInt(s.total_kills || s.kills_dealt || 0) || 0;
     // 킬마크: 격파 전적을 함선에 자동으로 새김(무료). 5킬↑은 금색 에이스 표식. (코스메틱 v7.377)
@@ -52218,6 +52220,44 @@ async function setFleetLivery(color) {
     }
   } catch(e) {
     if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.accent_color = prev; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
+    showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error');
+  }
+}
+// ── 진형 밀집도(밀집↔분산) 커스터마이징 (v7.382) ──
+function _spreadRow(f) {
+  var cur = parseFloat(f && f.formation_spread) || 1;
+  var opts = [
+    { v: 0.75, label: tl('Tight','밀집','密集','密集') },
+    { v: 1.0,  label: tl('Standard','표준','標準','标准') },
+    { v: 1.3,  label: tl('Loose','분산','分散','分散') }
+  ];
+  var btns = opts.map(function(o){
+    var on = Math.abs(cur - o.v) < 0.06;
+    return '<button type="button" class="tactic-btn '+(on?'active':'')+'" onclick="event.preventDefault();event.stopPropagation();setFleetSpread('+o.v+')">'+o.label+'</button>';
+  }).join('');
+  return '<div class="tactics-group"><div class="tactics-label">📐 '+tl('FORMATION DENSITY','진형 밀집도','陣形密度','阵形密度')+'</div><div class="tactics-options">'+btns+'</div></div>';
+}
+async function setFleetSpread(val) {
+  var fleetId = fleetCmdState.selectedFleetId;
+  if (!fleetId) return;
+  var scrollTop = fleetCmdBodyScroll();
+  var prev = fleetCmdState.selectedFleet ? fleetCmdState.selectedFleet.formation_spread : null;
+  if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.formation_spread = val; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
+  try {
+    var res = await fetch('/api/fleets/' + fleetId, {
+      method: 'PUT',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ formation_spread: val })
+    });
+    var d = await res.json();
+    if (!res.ok || d.success === false) {
+      if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.formation_spread = prev; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
+      showFactionToast(tl('Failed','실패','失敗','失败'), 'error');
+    } else {
+      try { updateFleetListSnapshotFromSelected(); } catch(_){}
+    }
+  } catch(e) {
+    if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.formation_spread = prev; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
     showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error');
   }
 }
