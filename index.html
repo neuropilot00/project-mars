@@ -4725,6 +4725,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .reward-burst.t2 { font-size: 26px; }
 .reward-burst.t3 { font-size: 32px; }
 @keyframes rewardFlash { 0%{opacity:0} 22%{opacity:.42} 100%{opacity:0} }
+@keyframes pityPulse { 0%,100%{opacity:1;filter:brightness(1)} 50%{opacity:.85;filter:brightness(1.4)} }
 .reward-flash {
   position: fixed; inset: 0; z-index: 99998; pointer-events: none;
   background: radial-gradient(ellipse at 50% 42%, rgba(255,205,90,.55), rgba(255,150,60,.12) 55%, transparent 75%);
@@ -49247,7 +49248,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7389'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7390'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -49565,17 +49566,23 @@ async function loadShipCrates() {
         var m=_rarityMeta[cls]||{col:'#888',emoji:'•'};
         return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:'+m.col+';margin-right:8px">'+m.emoji+' '+_rarityLabel(cls)+' '+c.odds[cls]+'%</span>';
       }).join('');
-      // [v7.168] pity 카운터 — 사용자별 잔여 표시. pity_remaining 가 있으면 "X/Y 보장까지" 동적 표시.
+      // (도파민 #2 v7.390) pity 천장 게이지 — 텍스트만이던 것을 진행 바로 시각화(매몰비용 "한 번 더").
       var pityHtml = '';
       if (c.pity_pulls > 0) {
         var rem = (typeof c.pity_remaining === 'number') ? c.pity_remaining : c.pity_pulls;
         var since = c.pulls_since_rare || 0;
-        pityHtml = '<div style="font-size:8px;color:var(--gold);margin-top:2px">🎯 '
-          + (LANG==='ko' ? ('순양함+ 확정 — '+rem+'회 남음 ('+since+'/'+c.pity_pulls+')')
-          : LANG==='ja' ? ('巡洋艦+確定 — 残り'+rem+'回 ('+since+'/'+c.pity_pulls+')')
-          : LANG==='zh' ? ('巡洋舰+保底 — 剩'+rem+'次 ('+since+'/'+c.pity_pulls+')')
-          : ('Cruiser+ in '+rem+' more ('+since+'/'+c.pity_pulls+')'))
-          +'</div>';
+        var pPct = Math.min(100, Math.round(since / c.pity_pulls * 100));
+        var pHot = rem <= 2; // 천장 임박 → 펄스 강조
+        var pTop = (LANG==='ko'?'순양함+ 확정':LANG==='ja'?'巡洋艦+確定':LANG==='zh'?'巡洋舰+保底':'Cruiser+ guaranteed');
+        var pSoon = pHot ? ' '+(LANG==='ko'?'임박!':LANG==='ja'?'目前!':LANG==='zh'?'临近!':'SOON!') : '';
+        pityHtml = '<div style="margin-top:3px">'
+          + '<div style="font-size:8px;display:flex;justify-content:space-between;align-items:center">'
+          +   '<span style="color:var(--gold)">🎯 '+pTop+'</span>'
+          +   '<span style="color:'+(pHot?'#ffd166':'var(--gold)')+';font-weight:800">'+since+'/'+c.pity_pulls+pSoon+'</span>'
+          + '</div>'
+          + '<div style="height:5px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:2px'+(pHot?';box-shadow:0 0 8px rgba(255,209,102,.65)':'')+'">'
+          +   '<div style="height:100%;width:'+pPct+'%;border-radius:4px;background:linear-gradient(90deg,#ffb300,#ffd166)'+(pHot?';animation:pityPulse 1s ease-in-out infinite':'')+'"></div>'
+          + '</div></div>';
       }
       var isFree = !(c.price_gp>0);
       var dailyHtml = (c.daily_limit>0) ? '<div style="font-size:8px;color:#4fd1c5;margin-top:2px">🆓 '+(LANG==='ko'?('1일 '+c.daily_limit+'회 무료'):('Free · '+c.daily_limit+'/day'))+'</div>' : '';
