@@ -3724,6 +3724,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 9px; font-weight: 800; letter-spacing: 1px;
   color: rgba(255,255,255,.82);
 }
+/* 함대 카드 정체성 표식 (목록) */
+.fleet-card-name .fc-accent {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  margin-right: 5px; vertical-align: middle;
+  box-shadow: 0 0 5px currentColor;
+}
+.fleet-card-name .fc-guild { margin-right: 4px; font-size: 11px; vertical-align: middle; }
+.fleet-card-meta .fc-kills {
+  color: rgba(255,210,120,.9); font-weight: 800; font-size: 9px;
+}
 /* 함대 리버리 색 스와치 */
 .livery-swatches { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 .livery-swatch {
@@ -49185,7 +49195,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7378'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7379'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -51735,11 +51745,16 @@ function renderFleetList() {
     var hpCls = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
     var formIcon = (f.formation_info && f.formation_info.icon) || '●';
     var moveIcon = (f.movement_info && f.movement_info.icon) || '→';
+    var _fcAccent = (f.accent_color && /^#[0-9a-fA-F]{6}$/.test(f.accent_color)) ? f.accent_color : '';
+    var _fcKills = parseInt(f.total_kills || 0) || 0;
+    var _ident = (_fcAccent ? '<span class="fc-accent" style="background:' + _fcAccent + '"></span>' : '') +
+                 (f.guild_emblem ? '<span class="fc-guild">' + fcEsc(f.guild_emblem) + '</span>' : '');
     return '<div class="fleet-card ' + (isActive ? 'active' : '') + ' ' + (f.is_in_battle ? 'in-battle' : '') + '" onclick="event.preventDefault();event.stopPropagation();selectFleet(' + f.id + ')">' +
-      '<div class="fleet-card-name" title="' + fcEsc(f.name) + '">' + fcEsc(f.name || (LANG==='ko'?'이름없음':LANG==='ja'?'名前なし':LANG==='zh'?'无名称':'Unnamed')) + '</div>' +
+      '<div class="fleet-card-name" title="' + fcEsc(f.name) + '">' + _ident + fcEsc(f.name || (LANG==='ko'?'이름없음':LANG==='ja'?'名前なし':LANG==='zh'?'无名称':'Unnamed')) + '</div>' +
       '<div class="fleet-card-meta"><span>' + f.ships_alive + '척</span>' +
         '<span>' + formIcon + ' ' + ((f.formation_info && f.formation_info.name_ko) || '-') + '</span>' +
         '<span>' + moveIcon + ' ' + ((f.movement_info && f.movement_info.name_ko) || '-') + '</span>' +
+        (_fcKills > 0 ? '<span class="fc-kills" title="' + tl('Total kills','누적 격파','累計撃破','累计击破') + '">⊹' + (_fcKills > 999 ? '999+' : _fcKills) + '</span>' : '') +
         (f.is_in_battle ? '<span class="fleet-card-battle-tag">'+(LANG==='ko'?'전투중':LANG==='ja'?'戦闘中':LANG==='zh'?'战斗中':'In Battle')+'</span>' : '') +
       '</div>' +
       '<div class="fleet-card-bar"><div class="fleet-card-bar-fill ' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +

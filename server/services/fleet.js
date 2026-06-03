@@ -109,7 +109,9 @@ async function listMyFleets(walletAddress) {
 async function getFleetDetail(fleetId, walletAddress) {
   // 소유권 확인
   const { rows: fleetRows } = await pool.query(`
-    SELECT f.*, 
+    SELECT f.*,
+      (SELECT g.emblem_emoji FROM guilds g WHERE g.id = f.guild_id) AS guild_emblem,
+      (SELECT g.tag FROM guilds g WHERE g.id = f.guild_id) AS guild_tag,
       COUNT(s.id) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false) AS ships_alive,
       COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_hp,
       COALESCE(SUM(s.max_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_max_hp
