@@ -8012,6 +8012,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="guildContent">
           <!-- No guild state -->
           <div id="guildNoGuild">
+            <!-- 배신자 낙인 속죄 배너 (낙인 있을 때만 표시) -->
+            <div id="betrayerRedeemBanner" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:8px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.35)">
+              <div style="font-size:10px;font-weight:700;color:#ff8a80;margin-bottom:3px">⚑ <span data-i18n="betrayer_mark_title">BETRAYER MARK</span></div>
+              <div style="font-size:9px;color:var(--tx3);line-height:1.5;margin-bottom:8px" data-i18n="betrayer_mark_desc">You carry a betrayer mark. Clear your name by spending GP.</div>
+              <button onclick="guildRedeemBetrayal()" id="betrayerRedeemBtn" style="font-size:10px;padding:6px 12px;border-radius:6px;background:rgba(255,209,102,.14);border:1px solid rgba(255,209,102,.4);color:#ffd166;font-weight:700;cursor:pointer;font-family:var(--fn)">⚖ <span data-i18n="betrayer_redeem_btn">REDEEM</span></button>
+            </div>
             <div style="text-align:center;padding:20px 0">
               <div style="font-size:28px;margin-bottom:8px">⚔️</div>
               <div style="font-size:12px;color:var(--tx);margin-bottom:4px;font-weight:700" data-i18n="guild_join_or_create">JOIN OR CREATE A GUILD</div>
@@ -18492,6 +18498,7 @@ var I18N = {
     pvp_rewards_btn: '🏅 Reward History', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ Declare Battle', pvp_tab_rec: '🎯 Recommended', pvp_tab_bounty: '💰 Bounty', pvp_tab_conflict: '🔥 Sector Conflict',
     kb_hub_title: 'KILLBOARD & INTEL', kb_tab_board: 'KILLBOARD', kb_tab_scout: 'SCOUT',
+    betrayer_mark_title: 'BETRAYER MARK', betrayer_mark_desc: 'You carry a betrayer mark. Clear your name by spending GP.', betrayer_redeem_btn: 'REDEEM',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 Upgrading...',
     we_select_fleet: 'Select fleet...', we_fleet_min: 'At least 1 ship required',
     pvp_goto_tab: '⚔ PVP TAB →', pvp_from_tab: '⚔ IN PVP TAB →',
@@ -19366,6 +19373,7 @@ var I18N = {
     pvp_rewards_btn: '🏅 보상 이력', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 전투 선언', pvp_tab_rec: '🎯 추천 상대', pvp_tab_bounty: '💰 현상금', pvp_tab_conflict: '🔥 섹터 분쟁',
     kb_hub_title: '킬보드 & 정보', kb_tab_board: '킬보드', kb_tab_scout: '정찰',
+    betrayer_mark_title: '배신자 낙인', betrayer_mark_desc: '배신자 낙인이 찍혀 있습니다. GP를 지불해 평판을 회복하세요.', betrayer_redeem_btn: '속죄',
     wb_title: '🎯 WAR BETTING · 전쟁 베팅', forge_upgrading: '🔨 강화 중...',
     we_select_fleet: '함대 선택...', we_fleet_min: '최소 1척 이상의 함선이 있어야 합니다',
     pvp_goto_tab: '⚔ PVP 탭으로 →', pvp_from_tab: '⚔ PVP 탭에서 →',
@@ -20227,6 +20235,7 @@ var I18N = {
     pvp_rewards_btn: '🏅 報酬履歴', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 戦闘宣言', pvp_tab_rec: '🎯 推薦相手', pvp_tab_bounty: '💰 賞金', pvp_tab_conflict: '🔥 セクター紛争',
     kb_hub_title: 'キルボード & 情報', kb_tab_board: 'キルボード', kb_tab_scout: '偵察',
+    betrayer_mark_title: '裏切り者の烙印', betrayer_mark_desc: '裏切り者の烙印が付いています。GPを支払い評判を回復しましょう。', betrayer_redeem_btn: '贖罪',
     wb_title: '🎯 WAR BETTING', forge_upgrading: '🔨 強化中...',
     we_select_fleet: '艦隊選択...', we_fleet_min: '最低1隻の艦船が必要です',
     pvp_goto_tab: '⚔ PVPタブへ →', pvp_from_tab: '⚔ PVPタブで →',
@@ -21088,6 +21097,7 @@ var I18N = {
     pvp_rewards_btn: '🏅 奖励记录', // [i18n backfill v7.172]
     pvp_declare_btn: '⚔ 宣战', pvp_tab_rec: '🎯 推荐对手', pvp_tab_bounty: '💰 赏金', pvp_tab_conflict: '🔥 区域冲突',
     kb_hub_title: '击杀榜 & 情报', kb_tab_board: '击杀榜', kb_tab_scout: '侦察',
+    betrayer_mark_title: '叛徒烙印', betrayer_mark_desc: '你身负叛徒烙印。支付GP以恢复声誉。', betrayer_redeem_btn: '赎罪',
     wb_title: '🎯 WAR BETTING · 战争下注', forge_upgrading: '🔨 强化中...',
     we_select_fleet: '选择舰队...', we_fleet_min: '至少需要1艘舰船',
     pvp_goto_tab: '⚔ PVP标签 →', pvp_from_tab: '⚔ 在PVP标签 →',
@@ -25987,6 +25997,7 @@ function loadGuildTab(){
     renderGuildLeaderboard(lb);
     renderGuildInvites(invites);
     _syncGuildChatPoll();
+    try{ _checkBetrayerMark(w); }catch(_){}
   }).catch(function(e){console.warn('[GUILD] load error:',e)});
 }
 
@@ -27921,6 +27932,36 @@ async function loadScoutReports(){
     el.innerHTML='<div style="font-size:8px;color:var(--tx3);letter-spacing:1px;margin:4px 0">'+_kbL('RECENT INTEL','최근 정보','最近の情報','最近情报')+'</div>'+
       reps.map(function(rp){ return _kbIntelCard(rp.intel||{}, _kbShort(rp.target_wallet)+(rp.stale?' · '+_kbL('stale','만료','期限切れ','已过期'):'')); }).join('');
   }catch(e){ el.innerHTML=''; }
+}
+
+// [v7.361] 배신자 낙인 속죄(유료 제거)
+function _checkBetrayerMark(w){
+  var banner=document.getElementById('betrayerRedeemBanner'); if(!banner||!w) return;
+  fetch('/api/tags/'+encodeURIComponent(w), { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(d){
+    var tags=(d&&(d.tags||d))||[];
+    var has=Array.isArray(tags)&&tags.some(function(tg){ return (tg.tag_id||tg.id||tg)==='guild_betrayer'; });
+    banner.style.display = has ? '' : 'none';
+  }).catch(function(){});
+}
+async function guildRedeemBetrayal(){
+  var ok=await gameConfirm({
+    icon:'⚖',
+    title:LANG==='ko'?'배신자 낙인 제거':LANG==='ja'?'裏切り者の烙印を消す':LANG==='zh'?'清除叛徒烙印':'Clear Betrayer Mark',
+    body:LANG==='ko'?'GP를 지불해 배신자 낙인을 영구히 제거합니다. 지불한 GP는 소각됩니다.':LANG==='ja'?'GPを支払い裏切り者の烙印を永久に消します。支払ったGPは焼却されます。':LANG==='zh'?'支付GP永久清除叛徒烙印。支付的GP将被销毁。':'Pay GP to permanently clear your betrayer mark. The GP is burned.',
+    confirmText:LANG==='ko'?'속죄':LANG==='ja'?'贖罪':LANG==='zh'?'赎罪':'REDEEM'
+  });
+  if(!ok) return;
+  fetch('/api/guild/redeem-betrayal',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){
+      var msg=data.error==='INSUFFICIENT_GP'?(LANG==='ko'?('GP 부족 ('+(data.required||'')+' 필요)'):LANG==='ja'?'GP不足':LANG==='zh'?'GP不足':'Not enough GP')
+        :data.error==='NO_BETRAYER_MARK'?(LANG==='ko'?'낙인이 없습니다':LANG==='ja'?'烙印なし':LANG==='zh'?'无烙印':'No mark'):data.error;
+      showToast(msg,'error');return;
+    }
+    showToast(LANG==='ko'?('낙인 제거 — '+Math.round(data.cost_gp||0).toLocaleString()+' GP 소각'):LANG==='ja'?('烙印を消去 — '+Math.round(data.cost_gp||0).toLocaleString()+' GP'):LANG==='zh'?('烙印已清除 — '+Math.round(data.cost_gp||0).toLocaleString()+' GP'):('Mark cleared — '+Math.round(data.cost_gp||0).toLocaleString()+' GP burned'),'info');
+    var banner=document.getElementById('betrayerRedeemBanner'); if(banner) banner.style.display='none';
+    try{ if(typeof loadGPBalance==='function') loadGPBalance(); else if(typeof refreshGP==='function') refreshGP(); }catch(_){}
+  }).catch(function(){showToast(t('guild_toast_generic_failed'),'error')});
 }
 
 async function guildKick(targetWallet){
@@ -49067,7 +49108,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7360'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7361'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
