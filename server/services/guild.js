@@ -837,10 +837,10 @@ async function defectFromGuild(wallet) {
             [guildId, leaderWallet, -bountyGp, tAfter2, 'Auto-bounty on defector ' + w.slice(0, 8)]
           );
           const b = await client.query(
-            `INSERT INTO bounty_listings (poster_wallet, target_wallet, reward_gp, reason, expires_at)
-             VALUES ($1, $2, $3, $4, NOW() + ($5 || ' days')::INTERVAL)
+            `INSERT INTO bounty_listings (poster_wallet, target_wallet, reward_gp, reason, expires_at, funded_from_guild_id)
+             VALUES ($1, $2, $3, $4, NOW() + ($5 || ' days')::INTERVAL, $6)
              RETURNING id`,
-            [leaderWallet, w, bountyGp, 'Guild defection: ' + guildName, String(bountyExpiryDays)]
+            [leaderWallet, w, bountyGp, 'Guild defection: ' + guildName, String(bountyExpiryDays), guildId]
           );
           bountyId = b.rows[0].id;
         } else { bountyGp = 0; }
@@ -874,6 +874,38 @@ async function defectFromGuild(wallet) {
   } finally {
     client.release();
   }
+}
+
+// 배신자 낙인(guild_betrayer) 유료 제거 — GP 소각(sink)으로 평판 회복. 영구 태그를 의도적으로 우회.
+async function redeemBetrayalMark(wallet) {
+  const w = (wallet || '').toLowerCase().trim();
+  if (!w) return { error: 'INVALID_WALLET' };
+  const cost = parseInt(await getSetting('guild_betrayer_redemption_gp', '5000'), 10) || 5000;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const has = await client.query(`SELECT 1 FROM player_tags WHERE wallet = $1 AND tag_id = 'guild_betrayer'`, [w]);
+    if (!has.rows.length) { await client.query('ROLLBACK'); return { error: 'NO_BETRAYER_MARK' }; }
+    // GP 소각(sink)
+    const ded = await client.query(
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1 RETURNING gp_balance',
+      [cost, w]
+    );
+    if (!ded.rowCount) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: cost }; }
+    // 낙인 제거 (removable=false 영구 태그를 유료 경로로 우회 제거)
+    await client.query(`DELETE FROM player_tags WHERE wallet = $1 AND tag_id = 'guild_betrayer'`, [w]);
+    await client.query('COMMIT');
+    try {
+      const { logGPActivity } = require('../db');
+      logGPActivity(w, -cost, 'betrayer_redemption', `배신자 낙인 제거(속죄) ${cost} GP`).catch(() => {});
+    } catch (_) {}
+    console.log(`[GUILD] betrayer redemption: ${w} paid ${cost} GP to clear mark`);
+    return { success: true, cost_gp: cost };
+  } catch (e) {
+    try { await client.query('ROLLBACK'); } catch {}
+    console.error('[GUILD] redemption error:', e.message);
+    return { error: e.message };
+  } finally { client.release(); }
 }
 
 // 변절 후 재가입 쿨다운 잔여(시간). 0이면 가입 가능. (join 경로에서 게이트)
@@ -1952,8 +1984,8 @@ module.exports = {
   leaveGuild, kickMember,
   promoteToOfficer, demoteToMember, transferLeadership, disbandGuild,
   withdrawTreasury, disbandCleanup,
-  // Defection / 배신 (migration 299)
-  defectFromGuild, getDefectionCooldown,
+  // Defection / 배신 (migration 299, 303)
+  defectFromGuild, getDefectionCooldown, redeemBetrayalMark,
   getGuildLeaderboard, searchGuilds, refreshGuildPixelCount,
   updateGuildInfo,
   sendGuildMessage, getGuildMessages,

@@ -6896,6 +6896,21 @@ router.post('/guild/defect', requireAuth, writeLimiter, async (req, res) => {
   }
 });
 
+// [v7.361] 배신자 낙인 유료 제거(속죄) — GP 소각으로 평판 회복
+router.post('/guild/redeem-betrayal', requireAuth, writeLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!guildService || !guildService.redeemBetrayalMark) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.redeemBetrayalMark(w);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] redeem error:', e.message);
+    res.status(500).json({ error: 'Failed to redeem' });
+  }
+});
+
 // Kick member
 router.post('/guild/kick', requireAuth, writeLimiter, async (req, res) => {
   const { targetWallet, guildId } = req.body;

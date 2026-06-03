@@ -1570,15 +1570,22 @@ async function start() {
           const { rows } = await pool.query(
             `UPDATE bounty_listings SET status = 'expired'
              WHERE status = 'active' AND expires_at <= NOW()
-             RETURNING id, poster_wallet, reward_gp`
+             RETURNING id, poster_wallet, reward_gp, funded_from_guild_id`
           );
           if (rows.length > 0) {
-            // 만료 환불
+            // 만료 환불 — 변절 현상금(금고 funding)은 금고로, 일반 현상금은 게시자 개인 GP로.
             for (const b of rows) {
-              await pool.query(
-                `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
-                [b.reward_gp, b.poster_wallet]
-              );
+              if (b.funded_from_guild_id) {
+                await pool.query(
+                  `UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id = $2`,
+                  [b.reward_gp, b.funded_from_guild_id]
+                );
+              } else {
+                await pool.query(
+                  `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+                  [b.reward_gp, b.poster_wallet]
+                );
+              }
             }
             console.log(`[BOUNTY] Expired ${rows.length} bounties, refunded GP`);
           }

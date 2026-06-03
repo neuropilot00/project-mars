@@ -291,7 +291,7 @@ router.post('/cancel/:id', requireAuth, async (req, res) => {
       await client.query('BEGIN');
 
       const { rows } = await client.query(
-        `SELECT id, reward_gp, expires_at FROM bounty_listings
+        `SELECT id, reward_gp, expires_at, funded_from_guild_id FROM bounty_listings
          WHERE id = $1 AND poster_wallet = $2 AND status = 'active' FOR UPDATE`,
         [bountyId, wallet]
       );
@@ -305,10 +305,18 @@ router.post('/cancel/:id', requireAuth, async (req, res) => {
       await client.query(
         `UPDATE bounty_listings SET status = 'cancelled' WHERE id = $1`, [bountyId]
       );
-      await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
-        [reward_gp, wallet]
-      );
+      // 변절 현상금(금고 funding)은 금고로 환불, 일반은 게시자 개인 GP로.
+      if (rows[0].funded_from_guild_id) {
+        await client.query(
+          `UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id = $2`,
+          [reward_gp, rows[0].funded_from_guild_id]
+        );
+      } else {
+        await client.query(
+          `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+          [reward_gp, wallet]
+        );
+      }
 
       await client.query('COMMIT');
 
