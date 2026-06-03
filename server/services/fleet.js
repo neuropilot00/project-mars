@@ -18,7 +18,7 @@ const { pool, getSetting } = require('../db');
 // ─── 상수 ───
 
 const VALID_FORMATIONS = ['sphere', 'wedge', 'screen', 'pincer', 'line', 'echelon', 'vanguard'];
-const VALID_MOVEMENTS  = ['advance', 'retreat', 'flank', 'scatter', 'rally'];
+const VALID_MOVEMENTS  = ['advance', 'retreat', 'flank', 'flank_left', 'flank_right', 'scatter', 'rally'];
 
 const FORMATION_INFO = {
   sphere:   { name_ko: '구형 집결',  icon: '●', desc: '360° 동심원 방어 · 균형' },
@@ -30,12 +30,14 @@ const FORMATION_INFO = {
   echelon:  { name_ko: '사다리꼴',  icon: '◹', desc: '대각 계단 · 측면 사격각' },
   vanguard: { name_ko: '호위 방진',  icon: '◻', desc: '사각 호위 · 기함/대형함 중앙 보호' },
 };
+// 전후좌우 + 전술. flank(legacy)는 CHECK/VALID엔 남기되 메뉴엔 좌현/우현으로 분리.
 const MOVEMENT_INFO = {
-  advance: { name_ko: '전진',     icon: '↑', desc: '적 전열 위쪽으로 압박 전진 (기본)' },
-  retreat: { name_ko: '후퇴',     icon: '↓', desc: '아군 후방 아래쪽으로 거리 벌림' },
-  flank:   { name_ko: '측면 우회', icon: '↗', desc: '측면으로 돌아 접근' },
-  scatter: { name_ko: '산개',     icon: '✦', desc: '흩어짐 (AOE 회피)' },
-  rally:   { name_ko: '재집결',   icon: '◉', desc: '재편성 (속도↓ 방어↑)' },
+  advance:     { name_ko: '전진',     icon: '↑', desc: '적 전열 위쪽으로 압박 전진 (기본)' },
+  retreat:     { name_ko: '후퇴',     icon: '↓', desc: '아군 후방 아래쪽으로 거리 벌림' },
+  flank_left:  { name_ko: '좌현 기동', icon: '←', desc: '좌측으로 우회 접근' },
+  flank_right: { name_ko: '우현 기동', icon: '→', desc: '우측으로 우회 접근' },
+  scatter:     { name_ko: '산개',     icon: '✦', desc: '흩어짐 (AOE 회피)' },
+  rally:       { name_ko: '재집결',   icon: '◉', desc: '재편성 (속도↓ 방어↑)' },
 };
 
 // ─── 내 함대 목록 ───

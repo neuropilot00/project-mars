@@ -1,3 +1,10 @@
+## 2026-06-03 v7.384 — 기동 전후좌우 (좌현/우현 분리, mig311)
+
+단일 '측면 우회(flank)'를 좌현(flank_left ←)/우현(flank_right →)으로 분리해 전후좌우 기동 완성:
+전진↑/후퇴↓/좌현←/우현→ + 산개/재집결. battleEngine 측면기동 side 고정(좌=-1/우=+1),
+서버 VALID_MOVEMENTS+MOVEMENT_INFO, 프론트 i18n+아이콘. mig311로 legacy flank→flank_right
+이전 + movement CHECK 갱신. 6종 기동 라이브 변경(200)·잘못된 값 400 검증, fresh 체인 완주.
+
 ## 2026-06-03 v7.383 — 진형 밀집도 커스터마이징 (밀집/표준/분산, mig310)
 
 같은 진형도 밀집(0.75)/표준(1.0)/분산(1.3)으로 간격 조절. fleets.formation_spread(mig310) +

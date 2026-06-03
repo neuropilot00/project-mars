@@ -599,7 +599,7 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult =
 // ─── 함대 이동 로직 (v11 이식) ───
 
 const MOVEMENT_SPEED_MULT = {
-  advance: 1.0, retreat: 1.5, flank: 1.2, scatter: 1.8, rally: 0.6,
+  advance: 1.0, retreat: 1.5, flank: 1.2, flank_left: 1.2, flank_right: 1.2, scatter: 1.8, rally: 0.6,
 };
 
 function updateFleetPosition(fleet, state) {
@@ -626,9 +626,13 @@ function updateFleetPosition(fleet, state) {
   } else if (fleet.movement === 'scatter') {
     fleet.vcx += (Math.random() - 0.5) * 0.1 * spdMult;
     fleet.vcy += (Math.random() - 0.5) * 0.1 * spdMult;
-  } else if (fleet.movement === 'flank') {
+  } else if (fleet.movement === 'flank' || fleet.movement === 'flank_left' || fleet.movement === 'flank_right') {
+    // 측면 기동 — target 방향 수직(perp)으로 우회 접근. 좌현/우현은 side 고정, 'flank'(legacy)는 자동.
     const perpX = -dy/dist, perpY = dx/dist;
-    const side = Math.sign(perpY * ((FIELD_H/2 - fleet.cy) > 0 ? 1 : -1)) || 1;
+    let side;
+    if (fleet.movement === 'flank_left')  side = -1;   // 좌현(←)
+    else if (fleet.movement === 'flank_right') side = 1; // 우현(→)
+    else side = Math.sign(perpY * ((FIELD_H/2 - fleet.cy) > 0 ? 1 : -1)) || 1;
     fleet.vcx += (dx/dist) * 0.015 * spdMult + perpX * side * 0.02 * spdMult;
     fleet.vcy += (dy/dist) * 0.015 * spdMult + perpY * side * 0.02 * spdMult;
   } else if (fleet.movement === 'rally') {
