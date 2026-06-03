@@ -15,7 +15,8 @@ async function scoutTarget(scoutWallet, targetWallet) {
   const baseCost = parseInt(await getSetting('spy_scout_cost_gp', '500'), 10) || 500;
   const detectPct = parseFloat(await getSetting('spy_detection_chance_pct', '35')) || 0;
   const ttlHours = parseInt(await getSetting('spy_intel_ttl_hours', '12'), 10) || 12;
-  const daDiscount = parseFloat(await getSetting('spy_double_agent_discount_pct', '50')) || 0;
+  // [Codex P2] 할인 0~95% 클램프 — 100%+ 무료 정찰 스팸 방지(항상 최소 비용 발생).
+  const daDiscount = Math.max(0, Math.min(95, parseFloat(await getSetting('spy_double_agent_discount_pct', '50')) || 0));
 
   const client = await pool.connect();
   try {
@@ -130,7 +131,7 @@ async function getReports(scoutWallet, limit = 30) {
             (expires_at < NOW()) AS stale
        FROM spy_reports WHERE scout_wallet = $1
       ORDER BY created_at DESC LIMIT $2`,
-    [w, Math.min(parseInt(limit) || 30, 100)]
+    [w, Math.max(1, Math.min(parseInt(limit) || 30, 100))]
   );
   return rows;
 }

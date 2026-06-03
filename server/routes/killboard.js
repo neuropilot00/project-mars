@@ -6,7 +6,7 @@ const { pool } = require('../db');
 // GET /api/killboard — 최근 격침 (글로벌). 변절자(guild_betrayer) 피해자는 플래그.
 router.get('/', async (req, res) => {
   try {
-    const limit = Math.min(parseInt(req.query.limit) || 30, 100);
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit) || 30, 100));
     const { rows } = await pool.query(
       `SELECT w.id, w.battle_id, w.ship_type, w.original_owner AS victim_wallet, w.killer_wallet,
               w.killer_side, w.victim_side, w.created_at,

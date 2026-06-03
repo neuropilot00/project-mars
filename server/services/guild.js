@@ -533,6 +533,10 @@ async function approveJoinRequest(callerWallet, inviteId) {
     const uCheck = await client.query('SELECT guild_id FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [invited_wallet]);
     if (uCheck.rows[0]?.guild_id) { await client.query('ROLLBACK'); return { error: 'Player is already in a guild' }; }
 
+    // [Codex P1] 변절 재가입 쿨다운 — 신청자가 변절 쿨다운 중이면 승인 차단(다른 join 경로와 동일 게이트)
+    const _cdR = await getDefectionCooldown(invited_wallet);
+    if (_cdR > 0) { await client.query('ROLLBACK'); return { error: 'DEFECTION_COOLDOWN', cooldownHours: _cdR }; }
+
     // Guild not full
     const gCheck = await client.query('SELECT member_count FROM guilds WHERE id = $1 FOR UPDATE', [guild_id]);
     if (gCheck.rows[0]?.member_count >= maxMembers) { await client.query('ROLLBACK'); return { error: 'Guild is full' }; }

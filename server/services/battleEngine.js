@@ -1351,7 +1351,15 @@ async function applyBattleResults(battleId, result) {
         const _sideWallet = {}; const _fleetSide = {};
         for (const p of _parts) {
           _fleetSide[String(p.fleet_id)] = p.side;
-          if (!_sideWallet[p.side]) _sideWallet[p.side] = p.wallet; // 대표 1명(다중참여 시 첫 참가자)
+          if (!_sideWallet[p.side]) _sideWallet[p.side] = p.wallet; // 상대측 대표(소형함 폴백)
+        }
+        // [Codex P2] 대형함 격침 이벤트는 정확한 killer_wallet 보유 → 멀티함대 귀속 정확화.
+        //   소형함(이벤트 없음)은 상대측 대표로 폴백.
+        const _killerByShip = {};
+        for (const ev of (result.events || [])) {
+          if ((ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') && ev.ship_id && ev.payload && ev.payload.killer_wallet) {
+            _killerByShip[String(parseInt(ev.ship_id))] = String(ev.payload.killer_wallet).toLowerCase();
+          }
         }
         const _seen = new Set();
         for (const sid of _destroyedIds) {
@@ -1362,7 +1370,7 @@ async function applyBattleResults(battleId, result) {
           if (!sr[0]) continue;
           const vSide = _fleetSide[String(sr[0].fleet_id)] || null;
           const kSide = vSide === 'atk' ? 'def' : vSide === 'def' ? 'atk' : null;
-          const kWallet = kSide ? (_sideWallet[kSide] || null) : null;
+          const kWallet = _killerByShip[String(sid)] || (kSide ? (_sideWallet[kSide] || null) : null);
           await client.query(
             `INSERT INTO ship_wrecks (battle_id, ship_instance_id, ship_type, original_owner, victim_side, killer_wallet, killer_side, expires_at)
              VALUES ($1,$2,$3,$4,$5,$6,$7, NOW() + ($8 || ' hours')::INTERVAL)`,
