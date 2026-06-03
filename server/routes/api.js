@@ -7972,7 +7972,7 @@ router.get('/me/away-briefing', requireAuth, async (req, res) => {
       pool.query(
         `SELECT COUNT(*)::int AS ships_lost, COALESCE(SUM(ship_value_gp),0)::bigint AS lost_value,
                 MAX(created_at) AS last_loss
-           FROM ship_wrecks WHERE original_owner = $1 AND created_at > NOW() - INTERVAL '72 hours'`, [wallet]),
+           FROM ship_wrecks WHERE LOWER(original_owner) = LOWER($1) AND created_at > NOW() - INTERVAL '72 hours'`, [wallet]),
       pool.query(
         `SELECT COUNT(*)::int AS bounties, COALESCE(SUM(reward_gp),0)::bigint AS bounty_total
            FROM bounty_listings WHERE LOWER(target_wallet) = LOWER($1) AND status = 'active'`, [wallet]).catch(() => ({ rows: [{ bounties: 0, bounty_total: 0 }] })),

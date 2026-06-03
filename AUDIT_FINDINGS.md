@@ -1,3 +1,13 @@
+## 2026-06-04 — Codex 라운드2 반영: 슬롯 설정 인플레 가드 (v7.397)
+
+Codex 라운드2(XSS는 v7.396 이스케이프로 막힘 확인). 추가 발견 반영:
+- [HIGH] victory_slot_repair_feed_pct>100이면 풀에 소각보다 더 적립→phantom GP 발행(admin 오설정
+  인플레). feedPool에서 pct 0~100 클램프 + add≤repairGp. (100%=break-even carve, 초과 불가)
+- [MED/LOW] base_gp 0~1,000,000 클램프(음수=강제꽝/과도=풀 즉시고갈·overflow 방지).
+- [LOW] away-briefing WHERE LOWER(original_owner)=LOWER($1) — 레거시 mixed-case 손실 누락 방지.
+검증: pct=150→100·적립≤repair(phantom 없음), base=-5→0/9e9→1M, 스모크 11/0, fresh 체인 280.
+killmail value는 표시 전용(보상 미사용)·슬롯 payout은 서버 권위 — INFO 확인.
+
 ## 2026-06-04 — 도파민 코드 라운드2 적대검수 (팀+레드팀, Codex 진행중)
 
 라운드1 수정 회귀 + 새 각도(XSS/스푸핑/설정악용). **익스플로잇 0건 — 라운드1 수정 견고.**

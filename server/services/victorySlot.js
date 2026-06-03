@@ -4,9 +4,11 @@ const { pool, getSetting } = require('../db');
 // 수리 GP의 일부를 소각 대신 풀에 적립 (repairShip 트랜잭션 client로 호출)
 async function feedPool(client, repairGp) {
   try {
-    const pct = parseFloat(await getSetting('victory_slot_repair_feed_pct', '20')) || 0;
+    // (v7.397 하드닝) feed_pct를 0~100으로 클램프 — admin 오설정(>100)이 소각보다 더 적립해
+    //   phantom GP를 발행(인플레)하지 못하게. 100%면 break-even carve, 초과 불가.
+    const pct = Math.max(0, Math.min(100, parseFloat(await getSetting('victory_slot_repair_feed_pct', '20')) || 0));
     if (pct <= 0 || !(repairGp > 0)) return 0;
-    const add = +(repairGp * pct / 100).toFixed(6);
+    const add = +(Math.min(repairGp, repairGp * pct / 100)).toFixed(6);
     if (add <= 0) return 0;
     await client.query(`UPDATE victory_slot_pool SET pool_gp = pool_gp + $1 WHERE id = 1`, [add]);
     return add;
@@ -57,7 +59,8 @@ async function spin(wallet, battleId) {
     const tot = weights.reduce((s, x) => s + x.w, 0) || 1;
     let roll = Math.random() * tot, mult = 0;
     for (const x of weights) { roll -= x.w; if (roll <= 0) { mult = x.m; break; } }
-    const base = parseInt(await getSetting('victory_slot_base_gp', '50')) || 50;
+    // (v7.397 하드닝) base 0~1,000,000 클램프 — 음수(강제 꽝)·과도(풀 즉시 고갈/overflow) 방지.
+    const base = Math.max(0, Math.min(1000000, parseInt(await getSetting('victory_slot_base_gp', '50')) || 50));
     // 풀 잠금 + 상한 (carve — 풀에서만)
     const pr = await client.query(`SELECT pool_gp FROM victory_slot_pool WHERE id=1 FOR UPDATE`);
     const poolGp = parseFloat(pr.rows[0] && pr.rows[0].pool_gp) || 0;
