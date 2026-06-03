@@ -558,4 +558,29 @@ router.get('/recommended-opponents/:wallet', async (req, res) => {
   }
 });
 
+// ── 승리 슬롯 (v7.392) — Sink 기반 추가 GP. 승자만 전투당 1회 스핀, 풀에서만 carve 지급 ──
+router.get('/:id/victory-slot', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    const battleId = parseInt(req.params.id);
+    if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
+    const st = await require('../services/victorySlot').status(wallet, battleId);
+    res.json(st);
+  } catch (e) { res.status(500).json({ error: 'internal_error' }); }
+});
+router.post('/:id/victory-slot', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    const battleId = parseInt(req.params.id);
+    if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
+    const r = await require('../services/victorySlot').spin(wallet, battleId);
+    if (r.error) {
+      const code = r.error === 'NOT_WINNER' ? 403 : r.error === 'ALREADY_SPUN' ? 409 : r.error === 'DISABLED' ? 400 : 500;
+      return res.status(code).json(r);
+    }
+    res.json(r);
+  } catch (e) { res.status(500).json({ error: 'internal_error' }); }
+});
+
 module.exports = router;

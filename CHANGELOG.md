@@ -1,3 +1,11 @@
+## 2026-06-04 v7.392 — 승리 슬롯 Sink 기반 (도파민 #4, mig313)
+
+전투 승리 시 슬롯을 돌려 추가 GP — 단 순발행 0(반인플레). 풀(victory_slot_pool)은 함선 수리 GP의
+20%를 소각 대신 적립해 채우고, 스핀은 풀에서만 carve 지급(풀 잔액 상한). 승자만 전투당 1회
+(victory_slot_claims PK 중복방지). 가중치 배수(0/×1/×2/×3/×5/×10). 서비스 victorySlot.js +
+GET/POST /api/battles/:id/victory-slot + 보상토스트 슬롯 UI(릴 연출+rewardBurst). 가드 검증(비승자 403),
+fresh 체인 완주, 스모크 11/0.
+
 ## 2026-06-04 v7.391 — 킬메일: 격파 함선 가치 박제 (도파민 #3, mig312)
 
 full-loss로 소멸하는 격침 함선의 가치(건조비+MOD 투자 추정)와 MOD 레벨을 격침 시점에 ship_wrecks에

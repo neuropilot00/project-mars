@@ -1001,6 +1001,9 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       [targetHp, shipId]
     );
 
+    // 10. (승리 슬롯 v7.392) 수리 GP의 일부를 소각 대신 승리 슬롯 풀에 적립(carve 순환).
+    try { await require('./victorySlot').feedPool(client, gpCost); } catch (_) {}
+
     await client.query('COMMIT');
 
     // 10. GP 활동 로그 (fire-and-forget)

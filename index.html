@@ -4726,6 +4726,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .reward-burst.t3 { font-size: 32px; }
 @keyframes rewardFlash { 0%{opacity:0} 22%{opacity:.42} 100%{opacity:0} }
 @keyframes pityPulse { 0%,100%{opacity:1;filter:brightness(1)} 50%{opacity:.85;filter:brightness(1.4)} }
+.vslot-btn {
+  display:block; width:100%; margin-top:8px; padding:10px; border-radius:9px; cursor:pointer;
+  font-family:'Orbitron',var(--fn); font-size:12px; font-weight:900; letter-spacing:.5px; line-height:1.25;
+  color:#2a1800; background:linear-gradient(135deg,#ffd166,#ff9a55);
+  border:1px solid rgba(255,209,102,.8); box-shadow:0 0 16px rgba(255,180,80,.4);
+  text-shadow:0 1px 1px rgba(255,255,255,.3); animation:pityPulse 1.4s ease-in-out infinite;
+}
+.vslot-btn:disabled { cursor:default; animation:none; opacity:1; }
 .reward-flash {
   position: fixed; inset: 0; z-index: 99998; pointer-events: none;
   background: radial-gradient(ellipse at 50% 42%, rgba(255,205,90,.55), rgba(255,150,60,.12) 55%, transparent 75%);
@@ -49256,7 +49264,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7391'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7392'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -53789,8 +53797,45 @@ async function showRewardIfAny(battleId) {
     if (!myReward.gp_awarded && !Object.keys(myReward.minerals_awarded || {}).length) return;
 
     showRewardToast(myReward);
+    if (myReward.is_winner) { try { _showVictorySlot(battleId); } catch(_) {} }
   } catch (err) {
     console.warn('showRewardIfAny:', err);
+  }
+}
+// (도파민 #4 v7.392) 승리 슬롯 — Sink 풀에서 추가 GP. 승자만 전투당 1회.
+async function _showVictorySlot(battleId) {
+  try {
+    var st = await fetch('/api/battles/'+battleId+'/victory-slot', { headers: getAuthHeaders() }).then(function(r){ return r.json(); });
+    if (!st || !st.enabled || !st.eligible || st.spun || !(st.pool > 0)) return;
+    var items = document.getElementById('rewardToastItems');
+    if (!items) return;
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'vslot-btn';
+    btn.innerHTML = '🎰 ' + (LANG==='ko'?'승리 슬롯 — 스핀!':LANG==='ja'?'勝利スロット — スピン!':LANG==='zh'?'胜利老虎机 — 旋转!':'VICTORY SLOT — SPIN!') + '<span style="display:block;font-size:8px;opacity:.75;margin-top:1px">'+(LANG==='ko'?'풀':'Pool')+' ' + st.pool + ' GP</span>';
+    btn.onclick = function(){ _spinVictorySlot(battleId, btn); };
+    items.appendChild(btn);
+  } catch (_) {}
+}
+async function _spinVictorySlot(battleId, btn) {
+  if (btn.disabled) return; btn.disabled = true;
+  var reel = ['🍒','💎','⚡','🌟','7️⃣','💰'];
+  var spinner = setInterval(function(){ btn.textContent = '🎰 ' + reel[Math.floor(Math.random()*6)] + reel[Math.floor(Math.random()*6)] + reel[Math.floor(Math.random()*6)]; }, 80);
+  try { if (window._sfx) _sfx.crateCharge(); } catch(_) {}
+  var r = await fetch('/api/battles/'+battleId+'/victory-slot', { method:'POST', headers: getAuthHeaders() }).then(function(x){ return x.json(); }).catch(function(){ return {error:'net'}; });
+  await new Promise(function(res){ setTimeout(res, 1100); });
+  clearInterval(spinner);
+  if (r && r.success) {
+    var won = r.payout > 0;
+    btn.innerHTML = '🎰 ' + (won ? ('×'+r.multiplier+' → +'+r.payout+' GP!') : (LANG==='ko'?'꽝!':LANG==='ja'?'ハズレ!':LANG==='zh'?'未中!':'MISS!'));
+    btn.style.background = won ? 'linear-gradient(135deg,#ffd166,#ff9a55)' : 'rgba(255,255,255,.06)';
+    btn.style.color = won ? '#2a1800' : 'var(--tx3)';
+    if (won) {
+      rewardBurst({ text:'×'+r.multiplier+'  +'+r.payout+' GP', tier: r.multiplier>=5?3:r.multiplier>=2?2:1, sound: window._sfx && (r.multiplier>=5?_sfx.levelUp:_sfx.success) });
+      try { refreshBalance && refreshBalance(); } catch(_) {}
+      try { refreshEmailBalances && refreshEmailBalances(); } catch(_) {}
+    } else { try { if (window._sfx) _sfx.error(); } catch(_) {} }
+  } else {
+    btn.innerHTML = '🎰 ' + (LANG==='ko'?'스핀 실패':LANG==='ja'?'スピン失敗':LANG==='zh'?'旋转失败':'Spin failed');
   }
 }
 
