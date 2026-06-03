@@ -68,7 +68,7 @@
 - [ ] **지갑 위조/타인 자원 접근 불가**: 모든 경제·함대 액션이 서버에서 owner 검증(대소문자 무시) 하는지.
 - [ ] **도박(칸티나) 공정성·한도**: min/max 베팅, provably-fair, 잔액 음수 방지. 미성년/법무 고지 문구(필요 시).
 - [ ] **입력 검증/XSS**: 닉네임·영토 설명·그래피티·튜브 메시지 등 사용자 입력 escape(이미 escapeHtmlSafe 사용 중 — 신규 입력처 점검).
-- [ ] **버그 리포터 동작**: 인게임 🐛 제출 → `bug_reports` 저장 + inbox 미러링 정상.
+- [x] **버그 리포터 동작** ✅ (2026-06-03 라이브 E2E): `POST /api/bug-report` + 별칭 `/bug-report` 둘 다 `ok:true`, `bug_reports` DB 저장(recent_errors/viewport/lang/context 포함), inbox JSON 미러(`00000003_gameplay.json` 등 codex_hint 포함), 스크린샷 디스크 미러(`screenshots/00000003.png`), 어드민 조회 `GET /admin/api/bug-reports`는 시크릿 없으면 403·있으면 목록 반환. 격리 데이터 정리 완료.
 
 ## 5. ⚠️ 배포/인프라
 - [ ] **railway.json 정리**: `deploy` 키 중복 여부 확인(마지막 값만 적용됨 — 정리 권장).
