@@ -1,3 +1,9 @@
+## 2026-06-03 v7.362 — 마켓 등록 깨짐 핫픽스 + 생산자-소비자 경제 검수 (mig 304)
+
+- 🔴 버그 발견·수정: transactions.type가 varchar(20)인데 marketplace.js가 'marketplace_listing_fee'(23자) 등 더 긴 타입을 INSERT → "value too long" → /api/marketplace/list 전체 실패. 생산자-소비자 재료 순환의 핵심 링크(채굴자가 재료를 시장에 올림)가 막혀 있었음. mig304로 transactions.type→varchar(40), 라이브 재검증 후 정상.
+- 생산자-소비자 검수+시뮬(7/7): 재료 시장 E2E(채굴자→빌더 거래 정상, 채굴자 +475GP/빌더 +50재료/수수료 25 sink) + 생산/수요 밸런스. 채굴이 함선 재료 직접 산출, 티어 전문화(frontier→프리깃/mid→배틀십/core lv20+→타이탄). 배틀십 단독 자급 65일→시장 필수(전문화 강제). 수요 sink는 함선+무한강화+영토 전쟁아이템(기능성)+full-loss 재건. 코스메틱 미의존.
+- 근거 문서: docs/ECONOMY_PRODUCER_CONSUMER_2026-06-03.md.
+
 ## 2026-06-03 v7.361 — 변절 현상금 금고 환불 + 배신자 낙인 유료 속죄 (mig 303)
 
 - 사용자 정책 반영(EVE식): (1) 훔친 돈은 영구 변절자 소유(회수 불가) 유지, (2) 낙인은 영구, (3) 낙인은 GP 소각으로만 제거.
