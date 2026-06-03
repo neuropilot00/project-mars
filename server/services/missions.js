@@ -1025,24 +1025,8 @@ async function claimMission(wallet, missionId, minigameScore) {
     // ── PP + GP credit
     if ((reward.pp || 0) > 0) {
       // [경제v2 P2] PP-denominated rewards come from the quest reward pool where possible, then pay GP.
+      // [v7.354] quest_reward_pool 폐지 — 미션 보상은 GP로 전액 지급(풀 차감/throttle 없음).
       let ppPayout = parseFloat(reward.pp);
-      try {
-        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
-        const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].balance) : 0;
-        const capped = Math.min(ppPayout, poolBal);
-        if (capped > 0) {
-          await client.query(
-            `UPDATE quest_reward_pool
-               SET balance = balance - $1,
-                   total_paid = total_paid + $1,
-                   today_paid = today_paid + $1,
-                   updated_at = NOW()
-             WHERE id = 1 AND balance >= $1`,
-            [capped]
-          );
-          ppPayout = capped;
-        }
-      } catch (_e) { /* pool missing, fall through and mint */ }
       if (ppPayout > 0) {
         const gpPayout = Math.round(ppPayout * await getPPToGPRate(client) * 1000000) / 1000000;
         // [경제v2 P2] 미션 PP 보상은 PP 발행 대신 가치 보존 GP로 지급.

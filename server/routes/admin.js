@@ -899,52 +899,16 @@ router.put('/ranks/:level', async (req, res) => {
 //  Quest Reward Pool Management
 // ══════════════════════════════════
 
-// GET /admin/quest-pool — View pool status
-router.get('/quest-pool', async (req, res) => {
-  try {
-    const r = await pool.query('SELECT * FROM quest_reward_pool WHERE id = 1');
-    res.json(r.rows[0] || {});
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+// [v7.354] quest_reward_pool 폐지 — 게임플레이 보상은 GP 직접 지급, PP는 충전 전용.
+//   아래 3개 엔드포인트는 호환을 위해 남기되 풀을 더 이상 다루지 않는다(removed 응답).
+router.get('/quest-pool', (req, res) => {
+  res.json({ removed: true, note: 'quest_reward_pool 폐지(v7.354) — 게임플레이 보상은 GP 직접 지급' });
 });
-
-// POST /admin/quest-pool/fund — Add PP to the pool
-router.post('/quest-pool/fund', async (req, res) => {
-  try {
-    const { amount } = req.body;
-    const pp = parseFloat(amount);
-    if (!pp || pp <= 0) return res.status(400).json({ error: 'Invalid amount' });
-
-    await pool.query(`
-      UPDATE quest_reward_pool SET
-        balance = balance + $1,
-        total_funded = total_funded + $1,
-        updated_at = NOW()
-      WHERE id = 1
-    `, [pp]);
-
-    const r = await pool.query('SELECT * FROM quest_reward_pool WHERE id = 1');
-    res.json({ success: true, pool: r.rows[0] });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+router.post('/quest-pool/fund', (req, res) => {
+  res.json({ success: false, removed: true, note: 'quest_reward_pool 폐지(v7.354)' });
 });
-
-// POST /admin/quest-pool/set — Set pool balance directly
-router.post('/quest-pool/set', async (req, res) => {
-  try {
-    const { balance } = req.body;
-    const val = parseFloat(balance);
-    if (val === undefined || val < 0) return res.status(400).json({ error: 'Invalid balance' });
-
-    await pool.query('UPDATE quest_reward_pool SET balance = $1, updated_at = NOW() WHERE id = 1', [val]);
-
-    const r = await pool.query('SELECT * FROM quest_reward_pool WHERE id = 1');
-    res.json({ success: true, pool: r.rows[0] });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+router.post('/quest-pool/set', (req, res) => {
+  res.json({ success: false, removed: true, note: 'quest_reward_pool 폐지(v7.354)' });
 });
 
 // ── POST /admin/api/recalc-ranks — Recalculate all user ranks with breakthrough checks ──

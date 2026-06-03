@@ -1,3 +1,16 @@
+## 2026-06-03 v7.354 — quest_reward_pool 폐지: 게임플레이 보상 GP 직접 지급 (mig 298)
+
+- 배경: quest_reward_pool은 "퀘스트 상금 풀"이 아니라 게임플레이 PP 보상의 발행 throttle이었음(채굴/클레임/퀘스트/미션/탐험/로켓이 풀에서 PP 차감→GP 환산 지급, 풀 비면 429/GP폴백). PP가 상환가능이라 무제한 발행을 막던 장치.
+- 결정(사용자): 게임플레이 보상은 GP 직접 지급, PP는 충전(deposit) 전용으로 분리 — EVE/리니지처럼 보상 풀 없이. 따라서 풀 throttle 불필요.
+- 코드(8개 지점, 마이그 298):
+  - 소비 6곳에서 풀 read/deduct/multiplier/429 제거, GP 전액 지급으로 단순화: 채굴 수확, 클레임 수확, 퀘스트 보상(배율 1.0 고정), 미션, 탐험 POI, 로켓 룻.
+  - 적립 fundQuestPool() → no-op (수수료는 그대로 sink 유지, 디플레 보존).
+  - /api/quests 풀 배율 폐지(항상 1.0, active=true sentinel).
+  - admin /quest-pool 3개 엔드포인트 → removed 스텁.
+  - mig 298: quest_reward_pool 테이블 DROP + 풀 전용 설정 5개 제거(quest_pool_fee_rate/min_balance, quest_daily_budget, multiplier_min/max). tier 하드캡(quest_max_*, quest_min_gp_*)은 남용방지로 유지.
+- 라이브 검증(격리): 테이블 DROP 후 실제 /api/territory/:id/harvest 200·GP +0.614 정상(429/500 없음), 부팅 로그 풀 에러 0, 잔여 0.
+- 경제 영향: 퀘스트 보상이 변동배율(0.1~1.5)에서 1.0 고정으로, 보상이 더 이상 throttle/차단 안 됨 → GP faucet 소폭 증가. (GP 디플레 균형 재점검 권장 — 별도 시뮬.)
+
 ## 2026-06-03 v7.353 — 추천 수수료 인플레 제거: 교차통화 발행 폐지 + swap carve
 
 - 문제: 추천 수수료가 이벤트와 다른 통화로 "발행(mint)"돼 인플레 유발. 특히 swap/shop/cantina가 PP/USDT 이벤트인데 GP를 새로 찍어(db.js의 PP→GP 환산) 게임 경제(GP)에 인플레 압력. swap은 quest pool에 fee 반영 + 추천 별도 발행 = 이중.

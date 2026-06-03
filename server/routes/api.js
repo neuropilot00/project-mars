@@ -269,23 +269,10 @@ function getSectorPriceSync(lat, lng, fallback) {
 // awardXP is now imported from db.js
 
 // ── Quest Reward Pool: fund from fees ──
-async function fundQuestPool(client, feeAmount) {
-  if (!feeAmount || feeAmount <= 0) return;
-  try {
-    const s = await cfg();
-    const rate = parseFloat(s.quest_pool_fee_rate) || 0.20;
-    const contribution = Math.round(feeAmount * rate * 10000) / 10000;
-    if (contribution <= 0) return;
-    await client.query(`
-      UPDATE quest_reward_pool SET
-        balance = balance + $1,
-        total_funded = total_funded + $1,
-        updated_at = NOW()
-      WHERE id = 1
-    `, [contribution]);
-  } catch (e) {
-    console.warn('[QuestPool] fund error:', e.message);
-  }
+// [v7.354] quest_reward_pool 폐지 — no-op. 보상은 GP 직접 지급이라 풀 적립 불필요.
+//   수수료는 그대로 sink(소각) 처리되어 디플레 유지. 호출부는 무해하게 남겨둠.
+async function fundQuestPool(_client, _feeAmount) {
+  return;
 }
 
 function snapGrid(val) {
@@ -3331,35 +3318,12 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
       harvestedPP = Math.min(harvestedPP, dailyRemaining);
     }
 
-    // ── Deduct from reward pool ──
-    const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
-    const poolBalance = parseFloat(poolRes.rows[0].balance);
-
-    if (poolBalance <= 0) {
-      await client.query('ROLLBACK');
-      return res.status(429).json({ error: 'Mining reward pool depleted. Try again later.' });
-    }
-    harvestedPP = Math.min(harvestedPP, poolBalance);
+    // [v7.354] quest_reward_pool 제거 — 채굴 보상은 GP로 직접 지급(풀 throttle 없음).
+    //   PP는 충전(deposit) 전용. 일일 채굴 캡(dailyCap)은 위에서 이미 적용됨.
     harvestedPP = Math.round(harvestedPP * 10000) / 10000;
-
     if (harvestedPP <= 0) {
       await client.query('ROLLBACK');
       return res.status(429).json({ error: 'No rewards available' });
-    }
-
-    // Deduct pool
-    const poolUpdate = await client.query(`
-      UPDATE quest_reward_pool SET
-        balance = balance - $1,
-        total_paid = total_paid + $1,
-        today_paid = today_paid + $1,
-        updated_at = NOW()
-      WHERE id = 1 AND balance >= $1
-      RETURNING balance
-    `, [harvestedPP]);
-    if (poolUpdate.rows.length === 0) {
-      await client.query('ROLLBACK');
-      return res.status(429).json({ error: 'Mining reward pool depleted. Try again later.' });
     }
 
     // Update user_mining record
@@ -3661,22 +3625,10 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       }
     } catch (_) {}
 
-    // Reward pool 차감
-    const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
-    const poolBalance = parseFloat(poolRes.rows[0].balance);
-    if (poolBalance <= 0) { await client.query('ROLLBACK'); return res.status(429).json({ error: 'pool_depleted' }); }
-    harvestedPP = Math.min(harvestedPP, poolBalance);
+    // [v7.354] quest_reward_pool 제거 — 클레임 수확 보상은 GP로 직접 지급(풀 throttle 없음).
+    //   일일 PP 캡(ppDailyCap)은 위에서 이미 적용됨.
     harvestedPP = Math.round(harvestedPP * 10000) / 10000;
     if (harvestedPP <= 0) { await client.query('ROLLBACK'); return res.status(429).json({ error: 'no_rewards' }); }
-
-    const poolUpdate = await client.query(
-      'UPDATE quest_reward_pool SET balance=balance-$1, total_paid=total_paid+$1, today_paid=today_paid+$1, updated_at=NOW() WHERE id=1 AND balance >= $1 RETURNING balance',
-      [harvestedPP]
-    );
-    if (poolUpdate.rows.length === 0) {
-      await client.query('ROLLBACK');
-      return res.status(429).json({ error: 'pool_depleted' });
-    }
 
     // claims.last_harvest_at 갱신
     await client.query('UPDATE claims SET last_harvest_at = NOW() WHERE id = $1', [claimId]);
@@ -3871,18 +3823,10 @@ router.get('/quests', readLimiter, async (req, res) => {
       [w]
     );
 
-    // Get pool status for dynamic reward display
-    const poolRes = await pool.query('SELECT balance, today_paid, today_date FROM quest_reward_pool WHERE id = 1');
-    const poolRow = poolRes.rows[0] || { balance: 0 };
-    const poolBalance = parseFloat(poolRow.balance);
+    // [v7.354] quest_reward_pool 제거 — 풀 헬스 배율 폐지(항상 1.0). 보상은 GP 직접 지급.
     const s = await cfg();
-    const minBal = parseFloat(s.quest_pool_min_balance) || 1;
-    const multMin = parseFloat(s.quest_reward_multiplier_min) || 0.1;
-    const multMax = parseFloat(s.quest_reward_multiplier_max) || 1.5;
-    let poolMultiplier = 1.0;
-    if (poolBalance <= 0) poolMultiplier = 0;
-    else if (poolBalance < minBal) poolMultiplier = multMin;
-    else poolMultiplier = multMin + (multMax - multMin) * Math.min(poolBalance / 100, 1.0);
+    const poolBalance = 1;       // 호환용 sentinel (UI active=true 표기)
+    const poolMultiplier = 1.0;  // 풀 배율 폐지 — 항상 풀 보상
 
     // [v7.275] 퀘스트 보상은 GP로 지급(경제v2 P2)되므로 GP 환산값을 함께 내려 UI가 'GP'로 정확히 표기하게 함.
     const questRate = await getPPToGPRate();
@@ -4007,41 +3951,10 @@ router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => 
     const baseReward = parseFloat(quest.reward_pp);
     const s = await cfg();
 
-    // ── Pool-based reward calculation ──
-    const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
-    const poolRow = poolRes.rows[0];
-    let poolBalance = parseFloat(poolRow.balance);
-    const dailyBudget = parseFloat(s.quest_daily_budget) || 50;
-    const minBalance = parseFloat(s.quest_pool_min_balance) || 1;
-    const multMin = parseFloat(s.quest_reward_multiplier_min) || 0.1;
-    const multMax = parseFloat(s.quest_reward_multiplier_max) || 1.5;
-
-    // Reset daily counter if new day
-    const today = new Date().toISOString().slice(0, 10);
-    let todayPaid = parseFloat(poolRow.today_paid);
-    if (poolRow.today_date.toISOString().slice(0, 10) !== today) {
-      todayPaid = 0;
-      await client.query("UPDATE quest_reward_pool SET today_paid = 0, today_date = $1 WHERE id = 1", [today]);
-    }
-
-    // Dynamic multiplier based on pool health
-    // poolBalance low → multiplier shrinks toward multMin
-    // poolBalance high → multiplier grows toward multMax
-    let multiplier = 1.0;
-    if (poolBalance <= 0) {
-      multiplier = 0; // Pool empty = no rewards
-    } else if (poolBalance < minBalance) {
-      multiplier = multMin; // Below minimum = barely any reward
-    } else {
-      // Scale between multMin and multMax based on pool (cap at 100 PP pool for max)
-      const healthRatio = Math.min(poolBalance / 100, 1.0);
-      multiplier = multMin + (multMax - multMin) * healthRatio;
-    }
-
-    // Check daily budget
-    if (todayPaid >= dailyBudget) {
-      multiplier = 0; // Daily budget exhausted
-    }
+    // [v7.354] quest_reward_pool 제거 — 퀘스트 보상은 GP로 직접 지급(풀 배율/예산/차감 없음).
+    //   tier 하드캡 + 유저 일일캡은 남용 방지를 위해 유지. PP는 충전(deposit) 전용.
+    const multiplier = 1.0;   // 풀 헬스 배율 폐지 — 항상 1.0
+    const poolBalance = 0;    // 호환용 (아래 transaction meta 로그 참조)
 
     // Hard caps per tier — platform NEVER pays more than this
     const tierCaps = {
@@ -4052,7 +3965,7 @@ router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => 
     const tierCap = tierCaps[quest.tier] || 0.05;
     const userDailyCap = parseFloat(s.quest_max_daily_per_user) || 2.0;
 
-    // Check user's daily total claimed
+    // Check user's daily total claimed (유저 일일 한도 — 남용 방지)
     const userTodayRes = await client.query(
       "SELECT COALESCE(SUM(pp_amount),0) AS total FROM transactions WHERE type='quest' AND LOWER(from_wallet)=LOWER($1) AND created_at > CURRENT_DATE",
       [w]
@@ -4061,31 +3974,13 @@ router.post('/quests/:id/claim', requireAuth, writeLimiter, async (req, res) => 
     const userDailyRemaining = Math.max(0, userDailyCap - userTodayTotal);
 
     let actualReward = Math.round(baseReward * multiplier * 10000) / 10000;
-    actualReward = Math.min(actualReward, tierCap);          // tier hard cap
+    actualReward = Math.min(actualReward, tierCap);            // tier hard cap
     actualReward = Math.min(actualReward, userDailyRemaining); // user daily cap
-    actualReward = Math.min(actualReward, Math.max(0, dailyBudget - todayPaid)); // pool daily budget
-    actualReward = Math.min(actualReward, poolBalance);      // locked pool balance
     actualReward = Math.round(actualReward * 10000) / 10000;
 
     if (actualReward <= 0) {
       await client.query('ROLLBACK');
-      const reason = userDailyRemaining <= 0 ? 'Daily reward limit reached ($'+userDailyCap+'/day)' : 'Quest reward pool depleted. Try again later.';
-      return res.status(429).json({ error: reason });
-    }
-
-    // Deduct from pool
-    const poolUpdate = await client.query(`
-      UPDATE quest_reward_pool SET
-        balance = balance - $1,
-        total_paid = total_paid + $1,
-        today_paid = today_paid + $1,
-        updated_at = NOW()
-      WHERE id = 1 AND balance >= $1
-      RETURNING balance
-    `, [actualReward]);
-    if (poolUpdate.rows.length === 0) {
-      await client.query('ROLLBACK');
-      return res.status(429).json({ error: 'Quest reward pool depleted. Try again later.' });
+      return res.status(429).json({ error: 'Daily reward limit reached ($'+userDailyCap+'/day)' });
     }
 
     const ppToGpRate = await getPPToGPRate(client);

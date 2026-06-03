@@ -403,30 +403,8 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
         );
       }
     } else if (loot.type === 'pp') {
+      // [v7.354] quest_reward_pool 폐지 — 로켓 룻은 GP로 전액 지급(풀 차감/throttle 없음).
       let reward = loot.amount;
-      try {
-        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
-        const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].balance) : 0;
-        const capped = Math.min(reward, poolBal);
-        if (capped > 0) {
-          const poolDeductRes = await client.query(
-            'UPDATE quest_reward_pool SET balance = balance - $1, total_paid = total_paid + $1, today_paid = today_paid + $1, updated_at = NOW() WHERE id = 1 AND balance >= $1',
-            [capped]
-          );
-          // rowCount===0 means balance was depleted concurrently after our FOR UPDATE SELECT.
-          // Fall through to mint directly rather than crediting without deducting.
-          if (poolDeductRes.rowCount > 0) {
-            reward = capped;
-          } else {
-            console.warn('[ROCKET] quest_reward_pool depleted concurrently, paying GP equivalent');
-            // reward remains at original loot.amount (GP-equivalent payout)
-          }
-        } else {
-          console.warn('[ROCKET] quest_reward_pool empty, paying GP equivalent');
-        }
-      } catch (_poolErr) {
-        console.warn('[ROCKET] quest_reward_pool missing, paying GP equivalent:', _poolErr.message);
-      }
       if (reward > 0) {
         const rewardGP = Math.round(reward * await getPPToGPRate(client) * 1000000) / 1000000;
         // [경제v2 P2] 로켓 PP 룻은 PP 발행 대신 가치 보존 GP로 지급.

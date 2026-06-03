@@ -306,26 +306,8 @@ async function discoverPOI(wallet, poiId) {
         await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [15, wallet]);
       }
     } else if (poi.reward_type === 'pp') {
-      // PP-denominated reward — fund from quest_reward_pool.balance (singleton row id=1),
-      // then [경제v2 P2] pay GP at the configured PP→GP rate.
+      // [v7.354] quest_reward_pool 폐지 — POI PP 보상은 GP로 전액 지급(풀 차감/throttle 없음).
       let reward = rewardGiven.amount;
-      try {
-        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
-        const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].balance) : 0;
-        const capped = Math.min(reward, poolBal);
-        if (capped > 0) {
-          await client.query(
-            'UPDATE quest_reward_pool SET balance = balance - $1, total_paid = total_paid + $1, today_paid = today_paid + $1, updated_at = NOW() WHERE id = 1 AND balance >= $1',
-            [capped]
-          );
-          reward = capped;
-        } else {
-          // Pool empty — still pay the full GP-equivalent reward (bootstrap economy)
-          console.warn('[EXPLORE] quest_reward_pool empty, paying GP equivalent');
-        }
-      } catch (_poolErr) {
-        console.warn('[EXPLORE] quest_reward_pool missing, paying GP equivalent:', _poolErr.message);
-      }
       if (reward > 0) {
         const rewardGP = Math.round(reward * await getPPToGPRate(client) * 1000000) / 1000000;
         // [경제v2 P2] POI PP 보상은 PP 발행 대신 가치 보존 GP로 지급.
