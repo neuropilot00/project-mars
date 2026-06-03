@@ -105,32 +105,44 @@ async function craftItem(client, wallet, recipeId) {
   }
 
   // 4. Verify ingredients ownership & deduct
+  // [v7.364] recipe ingredients는 {qty, code}(자원 코드). 기존엔 item_type_id로 user_items를 조회해
+  //   항상 매칭 실패("Item #undefined")로 워아이템 크래프트가 깨져 있었음 → 자원 인벤토리에서 차감.
+  //   레거시 item_type_id 형식 레시피는 user_items 경로로 폴백.
   for (const ing of ingredients) {
-    const { rows: itemRows } = await client.query(
-      'SELECT quantity FROM user_items WHERE wallet=$1 AND item_type_id=$2 FOR UPDATE',
-      [walletLower, ing.item_type_id]
-    );
-    const owned = itemRows.length ? Number(itemRows[0].quantity) : 0;
-    if (owned < ing.qty) {
-      const { rows: typeRows } = await pool.query(
-        'SELECT name FROM item_types WHERE id=$1', [ing.item_type_id]);
-      const itemName = typeRows.length ? typeRows[0].name : `Item #${ing.item_type_id}`;
-      throw new Error(`Not enough ${itemName} (need ${ing.qty}, have ${owned})`);
+    const need = parseInt(ing.qty) || 0;
+    if (need <= 0) continue;
+    const code = ing.code || ing.resource_code;
+    if (code) {
+      // 자원(user_resource_inventory) 차감
+      const { rows: invRows } = await client.query(
+        `SELECT uri.quantity FROM user_resource_inventory uri
+           JOIN resources r ON r.id = uri.resource_id
+          WHERE uri.wallet_address = $1 AND r.code = $2 FOR UPDATE`,
+        [walletLower, code]
+      );
+      const owned = invRows.length ? Number(invRows[0].quantity) : 0;
+      if (owned < need) throw new Error(`Not enough ${code} (need ${need}, have ${owned})`);
+      const ded = await client.query(
+        `UPDATE user_resource_inventory SET quantity = quantity - $1, updated_at = NOW()
+          WHERE wallet_address = $2 AND resource_id = (SELECT id FROM resources WHERE code = $3) AND quantity >= $1`,
+        [need, walletLower, code]
+      );
+      if (ded.rowCount === 0) throw new Error(`Not enough ingredients (${code})`);
+    } else if (ing.item_type_id) {
+      // 레거시: 아이템(user_items) 차감
+      const { rows: itemRows } = await client.query(
+        'SELECT quantity FROM user_items WHERE wallet=$1 AND item_type_id=$2 FOR UPDATE',
+        [walletLower, ing.item_type_id]
+      );
+      const owned = itemRows.length ? Number(itemRows[0].quantity) : 0;
+      if (owned < need) throw new Error(`Not enough item #${ing.item_type_id} (need ${need}, have ${owned})`);
+      const ded = await client.query(
+        `UPDATE user_items SET quantity = quantity - $1 WHERE wallet=$2 AND item_type_id=$3 AND quantity >= $1`,
+        [need, walletLower, ing.item_type_id]
+      );
+      if (ded.rowCount === 0) throw new Error(`Not enough ingredients (item #${ing.item_type_id})`);
+      await client.query('DELETE FROM user_items WHERE wallet=$1 AND item_type_id=$2 AND quantity<=0', [walletLower, ing.item_type_id]);
     }
-    // Deduct ingredient (AND quantity >= $1 guard prevents negative on race)
-    const craftDeduct = await client.query(
-      `UPDATE user_items SET quantity = quantity - $1
-       WHERE wallet=$2 AND item_type_id=$3 AND quantity >= $1`,
-      [ing.qty, walletLower, ing.item_type_id]
-    );
-    if (craftDeduct.rowCount === 0) {
-      throw new Error(`Not enough ingredients (item #${ing.item_type_id})`);
-    }
-    // Clean up zero-quantity rows
-    await client.query(
-      'DELETE FROM user_items WHERE wallet=$1 AND item_type_id=$2 AND quantity<=0',
-      [walletLower, ing.item_type_id]
-    );
   }
 
   // 5. Deduct GP cost

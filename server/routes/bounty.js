@@ -215,15 +215,20 @@ router.post('/claim', requireAuth, async (req, res) => {
         return res.status(400).json({ error: 'NOT_WINNER' });
       }
 
-      // 상대가 target_wallet인지 확인
+      // 상대가 target_wallet인지 확인 + [v7.364] 셀프청구 방지: 대상은 반드시 패배(상대)측이어야 함.
+      //   기존엔 "전투에 있었는가"만 확인 → 같은 승리측 두 alt로 현상금 셀프 청구(워시) 가능했음.
       const { rows: opponentRows } = await client.query(
-        `SELECT fbp.wallet_address FROM fleet_battle_participants fbp
+        `SELECT fbp.side FROM fleet_battle_participants fbp
          WHERE fbp.battle_id = $1 AND LOWER(fbp.wallet_address) = $2`,
         [battle_id, target]
       );
       if (!opponentRows[0]) {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: 'TARGET_NOT_IN_BATTLE' });
+      }
+      if (opponentRows[0].side === battleRows[0].side) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'TARGET_SAME_SIDE' });
       }
 
       // 현상금 가져오기 (lock)

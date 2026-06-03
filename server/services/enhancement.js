@@ -87,7 +87,7 @@ async function getEnhancementCosts() {
 
 // ── Get success rates (optionally hidden by setting) ──
 async function getEnhancementRates() {
-  const showRates = (await getSetting('enhance_show_rates') || 'true') === 'true';
+  const showRates = String(await getSetting('enhance_show_rates') ?? 'true') !== 'false';
   if (!showRates) return null;
 
   const maxLevel = parseInt(await getSetting('enhance_max_level') || '10');

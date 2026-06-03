@@ -1512,9 +1512,13 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
       }
     }
 
-    // ── Governance: collect tax per sector + recalculate positions (safe: won't break claim if governance fails) ──
+    // ── Governance: collect tax per sector + recalculate positions ──
+    // [v7.364] SAVEPOINT 격리 — 기존 bare try/catch는 거버넌스 쿼리(collectTax/recalculate*)가 throw 시
+    //   외부 claim 트랜잭션을 오염(aborted)시켜 이후 monument/upgrade 블록과 COMMIT까지 전부 실패 →
+    //   성공한 claim이 통째로 롤백되던 위험. monument/upgrade 블록과 동일하게 SAVEPOINT로 감쌈.
     let totalTax = 0;
     try {
+      await client.query('SAVEPOINT gov_sp');
       const affectedSectors = new Set();
       for (const p of claimPixels) {
         const sId = findSectorForPixelSync(p.lat, p.lng);
@@ -1543,7 +1547,11 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
         const cNick = cNickRes.rows?.[0]?.nickname || null;
         govChanges.push({ type: 'commander', wallet: cmdResult.commander, nickname: cNick });
       }
-    } catch(ge) { console.warn('[GOV] governance post-claim failed:', ge.message); }
+      await client.query('RELEASE SAVEPOINT gov_sp');
+    } catch(ge) {
+      try { await client.query('ROLLBACK TO SAVEPOINT gov_sp'); } catch(_) {}
+      console.warn('[GOV] governance post-claim failed (rolled back to savepoint):', ge.message);
+    }
 
     // Consume pixel_doubler if used
     if (pixelDoublerEffectId) {

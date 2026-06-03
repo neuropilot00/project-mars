@@ -31,7 +31,7 @@ try { titleService = require('./title'); } catch (_) {}
 async function createAuction(sellerWallet, data) {
   const w = sellerWallet.toLowerCase();
 
-  const enabled = (await getSetting('auction_enabled') || 'true') === 'true';
+  const enabled = String(await getSetting('auction_enabled') ?? 'true') !== 'false';
   if (!enabled) return { success: false, error: 'auction_disabled' };
 
   const maxActive   = parseInt(await getSetting('auction_max_active') || '5');
@@ -339,7 +339,7 @@ async function buyout(buyerWallet, auctionId) {
 
     // Close auction
     await client.query(
-      "UPDATE auctions SET status = 'settled', current_bid = $1, current_bidder_wallet = $2, settled_at = NOW() WHERE id = $3",
+      "UPDATE auctions SET status = 'settled', current_bid = $1, current_bidder_wallet = $2, sold_at = NOW() WHERE id = $3",
       [buyoutAmt, w, id]
     );
 
@@ -463,7 +463,7 @@ async function settleAuction(auctionId) {
       // Transfer item to winner
       await _transferItem(client, auction, auction.current_bidder_wallet);
       await client.query(
-        "UPDATE auctions SET status = 'settled', settled_at = NOW() WHERE id = $1", [id]
+        "UPDATE auctions SET status = 'settled', sold_at = NOW() WHERE id = $1", [id]
       );
       await client.query('COMMIT');
 
@@ -514,7 +514,7 @@ async function settleAuction(auctionId) {
     } else {
       // 유찰: 에스크로 반환
       await _returnEscrow(client, auction, auction.seller_wallet);
-      await client.query("UPDATE auctions SET status = 'no_bids', settled_at = NOW() WHERE id = $1", [id]);
+      await client.query("UPDATE auctions SET status = 'no_bids', sold_at = NOW() WHERE id = $1", [id]);
       await client.query('COMMIT');
       console.log(`[AUCTION] #${id} expired with no bids`);
       return { success: true, settled: false, no_bids: true };

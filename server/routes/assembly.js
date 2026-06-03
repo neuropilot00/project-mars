@@ -12,10 +12,19 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const assembly = require('../services/assembly');
 
+// [v7.364][P0 보안] 지갑 액션은 반드시 JWT에서만 wallet 추출. 기존엔 body/query/header(spoofable)라
+//   ?wallet=victim 으로 타인 GP/조각/합체함선을 차감·파괴 가능한 인증 우회였음.
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
 function getWallet(req) {
-  return (req.body?.wallet || req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 function requireWallet(req, res) {
   const w = getWallet(req);
@@ -29,13 +38,13 @@ function requireAdmin(req, res) {
 }
 function unitOf(req) { return req.body?.unit_code || req.query.unit_code || null; }
 
-router.get('/assembly/units', async (req, res) => {
+router.get('/assembly/units', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try { res.json(await assembly.listUnits(w)); }
   catch (e) { console.error('[assembly/units]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
-router.get('/assembly/state', async (req, res) => {
+router.get('/assembly/state', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
     const r = await assembly.getState(w, unitOf(req));
@@ -44,7 +53,7 @@ router.get('/assembly/state', async (req, res) => {
   } catch (e) { console.error('[assembly/state]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
-router.post('/assembly/pull', async (req, res) => {
+router.post('/assembly/pull', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
     const r = await assembly.pull(w, unitOf(req), req.body?.count);
@@ -53,7 +62,7 @@ router.post('/assembly/pull', async (req, res) => {
   } catch (e) { console.error('[assembly/pull]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
-router.post('/assembly/assemble', async (req, res) => {
+router.post('/assembly/assemble', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
     const r = await assembly.assemble(w, unitOf(req));
@@ -62,7 +71,7 @@ router.post('/assembly/assemble', async (req, res) => {
   } catch (e) { console.error('[assembly/assemble]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
-router.post('/assembly/disassemble', async (req, res) => {
+router.post('/assembly/disassemble', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
     const r = await assembly.disassemble(req.body?.ship_id, w);
@@ -71,7 +80,7 @@ router.post('/assembly/disassemble', async (req, res) => {
   } catch (e) { console.error('[assembly/disassemble]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
-router.post('/assembly/exchange', async (req, res) => {
+router.post('/assembly/exchange', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
     const r = await assembly.exchangeShards(w, unitOf(req), req.body?.part_code);
@@ -80,13 +89,13 @@ router.post('/assembly/exchange', async (req, res) => {
   } catch (e) { console.error('[assembly/exchange]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
-router.get('/assembly/box', async (req, res) => {
+router.get('/assembly/box', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try { res.json(await assembly.boxState(w)); }
   catch (e) { console.error('[assembly/box]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
-router.post('/assembly/box/pull', async (req, res) => {
+router.post('/assembly/box/pull', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
     const r = await assembly.pullBox(w, req.body?.count);

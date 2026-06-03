@@ -1,3 +1,21 @@
+## 2026-06-03 — 팀+레드팀+Codex 합동 검수: 버그 7개 발견·수정
+
+3종 병렬(경제분석/레드팀/무결성 + Codex)로 적대 검수. 발견·수정:
+
+| 등급 | 버그 | 영향 | 수정 |
+|---|---|---|---|
+| **P0** | assembly.js 라우트 JWT 검증 전무, wallet을 body/query/header에서 읽음 | **타인 지갑 GP/조각/합체함선 차감·파괴**(인증 우회 도난) | 전 mutation에 requireAuth + JWT에서만 wallet |
+| **Critical** | claim 핸들러 거버넌스 블록 SAVEPOINT 없음(api.js:1516) | 거버넌스 에러 시 **성공한 claim 통째 롤백**(트랜잭션 오염) | SAVEPOINT gov_sp |
+| **High** | auction.js 미존재 컬럼 settled_at(live=sold_at) ×3 | 경매 낙찰/정산 스케줄러 깨짐 | sold_at |
+| **High** | auction_enabled JSONB boolean을 'true' 문자열 비교 | **경매 생성 항상 disabled** | String() 정규화 |
+| **P1** | bounty claim에 상대편 검증 없음 | 같은 승리측 alt 2개로 **현상금 셀프청구(워시)** | target.side ≠ claimer.side |
+| **P1** | crafting recipe {qty,code}인데 item_type_id 조회 | **워아이템 크래프트 깨짐**(재료 sink 죽음) | user_resource_inventory 차감 |
+| **P2** | enhancement.js enhance_show_rates JSONB 비교 | 강화 확률 표시 꺼짐 | String() |
+
+검증: assembly spoof차단/크래프트 자원차감(이제 동작)/현상금 같은편 차단 6/6 PASS. 잔여 0.
+경제밸런스 권고(별도, 미적용): 무한강화 P2W 곡선(p=100 시도당 12M GP), F2P GP faucet 빈약(일 ~120 vs cruiser 1700+), 캐피탈 재료 자급 160~800일 → mid drop율/강화곡선/환전캡 조정 후보.
+미변경: 길드 변절 금고 전액탈취(의도된 EVE 설계), siege ship_mining_jobs probe(테이블 존재, 무해).
+
 ## 2026-06-03 — 경제 재검수(2~3차): 버그 4개 발견·수정
 
 | 버그 | 영향 | 수정 |

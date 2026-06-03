@@ -1,3 +1,14 @@
+## 2026-06-03 v7.364 — 팀+레드팀+Codex 합동 검수: 버그 7개 수정 (P0 인증우회 포함)
+
+- **[P0] assembly.js 인증 우회**: 모든 /api/assembly/* mutation에 JWT 검증이 없고 wallet을 body/query/header(spoofable)에서 읽어 ?wallet=victim으로 타인 GP/조각/합체함선 차감·파괴 가능. requireAuth 추가 + JWT에서만 wallet 추출.
+- **[Critical] 거버넌스 SAVEPOINT 누락**(api.js): claim 핸들러의 거버넌스 블록이 SAVEPOINT 없이 bare try/catch라 collectTax/recalculate* throw 시 외부 트랜잭션 오염 → 성공 claim 롤백. SAVEPOINT gov_sp로 격리.
+- **[High] auction.js**: 미존재 컬럼 settled_at(live=sold_at) ×3 → 낙찰/정산 깨짐, sold_at으로 수정. auction_enabled JSONB boolean을 문자열 'true' 비교 → 경매 항상 disabled, String() 정규화.
+- **[P1] bounty 셀프청구**: 상대편 검증 없어 같은 승리측 alt로 현상금 워시 가능 → target.side≠claimer.side 검증 추가(TARGET_SAME_SIDE).
+- **[P1] crafting 재료 포맷**: recipe {qty,code}인데 item_type_id로 user_items 조회 → 워아이템 크래프트 깨짐. user_resource_inventory 차감으로 수정(재료 sink 부활).
+- **[P2] enhancement.js**: enhance_show_rates JSONB boolean 비교 → String() 수정.
+- 검증(격리 6/6): assembly spoof차단, 크래프트 자원차감 동작, 현상금 같은편 차단.
+- 경제밸런스 권고(미적용, 사용자 결정 대기): 무한강화 P2W 곡선/F2P faucet/캐피탈 재료 병목 — AUDIT_FINDINGS 참조.
+
 ## 2026-06-03 v7.363 — 경제 재검수 버그 3개 수정 (크래프트 enabled / 함선 해체)
 
 - 재검수(2~3차)에서 발견·수정:
