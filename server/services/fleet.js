@@ -17,14 +17,18 @@ const { pool, getSetting } = require('../db');
 
 // ─── 상수 ───
 
-const VALID_FORMATIONS = ['sphere', 'wedge', 'screen', 'pincer'];
+const VALID_FORMATIONS = ['sphere', 'wedge', 'screen', 'pincer', 'line', 'echelon', 'vanguard'];
 const VALID_MOVEMENTS  = ['advance', 'retreat', 'flank', 'scatter', 'rally'];
 
 const FORMATION_INFO = {
-  sphere:  { name_ko: '구형 집결', icon: '●', desc: '기본 원형 집결 · 균형잡힌 기본 진형' },
-  wedge:   { name_ko: '쐐기',     icon: '▶', desc: '소형함 선두 · 돌파 특화' },
-  screen:  { name_ko: '방어막',   icon: '⊟', desc: '소형함 앞 · 대형함 보호' },
-  pincer:  { name_ko: '협공',     icon: '⊕', desc: '상하 양익 포위' },
+  sphere:   { name_ko: '구형 집결',  icon: '●', desc: '360° 동심원 방어 · 균형' },
+  wedge:    { name_ko: '쐐기',      icon: '▶', desc: '삼각 스피어헤드 · 돌파 특화' },
+  screen:   { name_ko: '방어막',    icon: '⊟', desc: '전방 방패벽 · 대형함 보호' },
+  pincer:   { name_ko: '협공',      icon: '⊕', desc: '초승달 양익 · 포위' },
+  // v7.382 신규 진형(위치 배치 — 전투 밸런스 무영향)
+  line:     { name_ko: '전열 횡대',  icon: '▬', desc: '넓은 횡대 · 전방 화력 최대' },
+  echelon:  { name_ko: '사다리꼴',  icon: '◹', desc: '대각 계단 · 측면 사격각' },
+  vanguard: { name_ko: '호위 방진',  icon: '◻', desc: '사각 호위 · 기함/대형함 중앙 보호' },
 };
 const MOVEMENT_INFO = {
   advance: { name_ko: '전진',     icon: '↑', desc: '적 전열 위쪽으로 압박 전진 (기본)' },

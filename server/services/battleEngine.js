@@ -724,6 +724,39 @@ function assignFormationSlots(fleet) {
       s.slotY = side * (R * 0.5 + depth * 3);
       s.slotAssigned = true;
     });
+  } else if (fleet.formation === 'line') {
+    // 전열 횡대 — 넓은 횡대(slotY 분산), 얕은 다열(slotX)
+    const sorted = [...escorts].sort((a,b) => a.renderRadius - b.renderRadius);
+    const tot = sorted.length, perRow = 12;
+    sorted.forEach((s, i) => {
+      const r = Math.floor(i / perRow), c = i % perRow;
+      const cols = Math.min(perRow, tot - r * perRow);
+      s.slotX = R * 0.55 - r * 12;
+      s.slotY = (c - (cols - 1) / 2) * (R * 1.5 / Math.max(1, perRow - 1));
+      s.slotAssigned = true;
+    });
+  } else if (fleet.formation === 'echelon') {
+    // 사다리꼴 — 대각 계단(slotX/slotY 동반 증가)
+    const sorted = [...escorts].sort((a,b) => a.renderRadius - b.renderRadius);
+    sorted.forEach((s, i) => {
+      s.slotX = R * 0.6 - i * 4.5;
+      s.slotY = -R * 0.7 + i * 5.5;
+      s.slotAssigned = true;
+    });
+  } else if (fleet.formation === 'vanguard') {
+    // 호위 방진 — 대형함 안쪽, 사각 링으로 호위
+    const sorted = [...escorts].sort((a,b) => b.renderRadius - a.renderRadius);
+    sorted.forEach((s, i) => {
+      let ring = 1, seen = 0, cap = 8;
+      while (i >= seen + cap) { seen += cap; ring++; cap = ring * 8; }
+      const vs = i - seen, per = cap / 4, sideI = Math.floor(vs / per), t = (vs % per) / per, e = -1 + 2 * t;
+      const Rr = ring * (R * 0.32);
+      if (sideI === 0) { s.slotX = Rr; s.slotY = e * Rr; }
+      else if (sideI === 1) { s.slotX = e * Rr; s.slotY = Rr; }
+      else if (sideI === 2) { s.slotX = -Rr; s.slotY = -e * Rr; }
+      else { s.slotX = e * Rr; s.slotY = -Rr; }
+      s.slotAssigned = true;
+    });
   }
 }
 

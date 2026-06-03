@@ -1,3 +1,13 @@
+## 2026-06-03 v7.382 — 신규 진형 3종 (전열 횡대/사다리꼴/호위 방진) — 진형 커스터마이징 확장
+
+리서치 기반 진형 선택지 확장(전투는 위치 배치만 — 스탯 밸런스 무영향):
+- line(전열 횡대): 넓은 횡대, 전방 화력 최대
+- echelon(사다리꼴): 대각 계단, 측면 사격각
+- vanguard(호위 방진): 사각 링으로 기함/대형함 중앙 보호
+서버 VALID_FORMATIONS+FORMATION_INFO, battleEngine assignFormationSlots 위치 로직,
+프론트 fleetPreviewPoint 기하+i18n+아이콘. mig309로 fleets_formation_check 7종 갱신
+(신규 진형 변경 500 → 200). 4종 라이브 변경 검증, fresh 체인 완주.
+
 ## 2026-06-03 v7.380 — 계정 킬 트로피 (전적 과시, 계정 귀속)
 
 지갑 누적 격파(account_kills = 지갑 fleets.total_kills 합산, 함선 격침과 무관)를 트로피 티어로
