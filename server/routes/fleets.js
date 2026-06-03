@@ -263,4 +263,56 @@ router.post('/:id/flagship', requireAuth, async (req, res) => {
   }
 });
 
+// ── 함대 리버리(강조색) 설정 — GP 싱크 코스메틱 (v7.377) ──
+router.post('/:id/livery', requireAuth, async (req, res) => {
+  const { pool, getSetting } = require('../db');
+  const wallet = getWallet(req);
+  if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+  const fleetId = parsePositiveInt(req.params.id);
+  if (!fleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
+
+  // 빈 값 = 리버리 해제(무료). 색 지정 = 팔레트 검증 + GP 소각.
+  let color = (req.body && typeof req.body.color === 'string') ? req.body.color.trim() : '';
+  const clearing = !color;
+  let palette = [];
+  try { palette = JSON.parse(await getSetting('fleet_livery_palette', '[]')) || []; } catch (_) { palette = []; }
+  if (!clearing && !palette.includes(color)) {
+    return res.status(400).json({ error: 'INVALID_COLOR', allowed: palette });
+  }
+  const costGp = clearing ? 0 : (parseInt(await getSetting('fleet_livery_cost_gp', '200')) || 0);
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // 소유권 확인 + 잠금 (지갑 대소문자 무시)
+    const fr = await client.query(
+      `SELECT id, accent_color FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
+      [fleetId, wallet]
+    );
+    if (!fr.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'FLEET_NOT_FOUND' }); }
+    // 같은 색 재설정엔 과금 안 함
+    const same = !clearing && String(fr.rows[0].accent_color || '') === color;
+    if (costGp > 0 && !same) {
+      const ded = await client.query(
+        `UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1`,
+        [costGp, wallet]
+      );
+      if (ded.rowCount !== 1) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'INSUFFICIENT_GP', cost: costGp }); }
+    }
+    await client.query(`UPDATE fleets SET accent_color = $1, updated_at = NOW() WHERE id = $2`,
+      [clearing ? null : color, fleetId]);
+    await client.query('COMMIT');
+    // GP 소각 로그 (fire-and-forget)
+    if (costGp > 0 && !same) {
+      try { require('../db').logGPActivity(wallet, -costGp, 'fleet_livery', '함대 리버리 변경').catch(() => {}); } catch (_) {}
+    }
+    res.json({ success: true, accent_color: clearing ? null : color, charged: (costGp > 0 && !same) ? costGp : 0 });
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    handleError(res, err, 'livery');
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;

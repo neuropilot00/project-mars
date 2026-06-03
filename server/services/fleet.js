@@ -43,7 +43,7 @@ async function listMyFleets(walletAddress) {
   const { rows } = await pool.query(`
     SELECT 
       f.id, f.name, f.sector_id, f.formation, f.movement,
-      f.is_in_battle, f.current_battle_id,
+      f.is_in_battle, f.current_battle_id, f.accent_color,
       f.total_kills, f.battles_won, f.battles_lost,
       f.created_at, f.updated_at,
       

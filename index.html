@@ -3685,6 +3685,50 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   height: 62px;
   filter: drop-shadow(0 0 5px rgba(255,215,0,.18));
 }
+/* (코스메틱 v7.377) 킬마크 — 격파 전적 표식. 5킬↑ 금색 에이스. */
+.fleet-preview-ship .fp-killmark {
+  position: absolute; top: -6px; right: -6px;
+  font-size: 8px; font-weight: 800; line-height: 1; letter-spacing: -.3px;
+  padding: 2px 4px; border-radius: 6px; white-space: nowrap; z-index: 6;
+  color: #cfeaff; background: rgba(8,20,32,.82);
+  border: 1px solid rgba(120,200,255,.5);
+  text-shadow: 0 0 4px rgba(120,200,255,.6);
+  transform: scale(.92); pointer-events: none;
+}
+.fleet-preview-ship .fp-killmark.ace {
+  color: #ffe79a; background: rgba(40,28,4,.85);
+  border-color: rgba(255,210,90,.7);
+  text-shadow: 0 0 5px rgba(255,200,70,.75);
+}
+/* 함대 리버리 — 강조색 엔진 글로우(함선 본체 필터와 충돌 없이 뒤에 깔림) */
+.fleet-preview-ship .fp-trail {
+  position: absolute; left: 50%; bottom: -4%;
+  width: 55%; height: 38%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  filter: blur(5px);
+  opacity: .72;
+  z-index: -1;
+  pointer-events: none;
+}
+/* 함대 리버리 색 스와치 */
+.livery-swatches { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.livery-swatch {
+  width: 22px; height: 22px; border-radius: 6px; cursor: pointer; padding: 0;
+  border: 2px solid rgba(255,255,255,.15);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.4) inset;
+  transition: transform .1s, border-color .1s;
+}
+.livery-swatch:hover { transform: scale(1.12); }
+.livery-swatch.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,.5); }
+/* 기함 네임플레이트 */
+.fleet-preview-ship .fp-nameplate {
+  position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%);
+  font-size: 8px; font-weight: 700; letter-spacing: .3px; white-space: nowrap;
+  max-width: 110px; overflow: hidden; text-overflow: ellipsis;
+  color: rgba(255,225,150,.92); text-shadow: 0 1px 3px rgba(0,0,0,.9);
+  z-index: 6; pointer-events: none;
+}
 .fleet-preview-more {
   position: absolute; right: 12px; bottom: 10px;
   font-size: 9px; letter-spacing: 1px; color: rgba(255,255,255,.65);
@@ -49128,7 +49172,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7376'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7377'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -51787,6 +51831,7 @@ function renderFleetDetail() {
       '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
       '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
       _autoRetreatRow(f) +
+      _liveryRow(f) +
     '</div>' +
     renderSelectedShipPanel(f) +
     renderFleetPreview(f) +
@@ -51920,11 +51965,24 @@ function renderFleetPreview(f) {
     var ri = shipRoleInfo(role);
     return '<span class="fleet-role-chip">' + ri.label + ' ×' + roles[role] + '</span>';
   }).join('');
+  var _accent = (f.accent_color && /^#[0-9a-fA-F]{6}$/.test(f.accent_color)) ? f.accent_color : '';
   var boardShips = visible.map(function(s, i){
     var p = fleetPreviewPoint(i, visible.length, formation, !!s.is_flagship);
     var isPilgrim = String(s.ship_type_code || '').toLowerCase().indexOf('pilgrim_') === 0;
+    var _kills = parseInt(s.total_kills || s.kills_dealt || 0) || 0;
+    // 킬마크: 격파 전적을 함선에 자동으로 새김(무료). 5킬↑은 금색 에이스 표식. (코스메틱 v7.377)
+    var _killmark = _kills > 0
+      ? '<span class="fp-killmark' + (_kills >= 5 ? ' ace' : '') + '">⊹' + (_kills > 99 ? '99+' : _kills) + '</span>'
+      : '';
+    // 네임플레이트: 기함만 함명 노출(작은 함선까지 달면 난잡).
+    var _nameplate = s.is_flagship
+      ? '<span class="fp-nameplate">' + fcEsc(s.name_ko || '') + '</span>'
+      : '';
+    // 함대 리버리: 강조색을 엔진 글로우로 표시 → 멀리서도 "한 세력"으로 식별(함대 귀속). (v7.377)
+    var _trail = _accent ? '<span class="fp-trail" style="background:' + _accent + '"></span>' : '';
     return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + (isPilgrim ? ' pilgrim-sprite' : ' sc-' + fleetNormalizeSizeClass(s)) + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
       '<div class="bp-visual no-svg-fallback">' + shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code }) + '</div>' +
+      _trail + _killmark + _nameplate +
     '</div>';
   }).join('');
   return '<div class="fleet-preview">' +
@@ -52007,6 +52065,45 @@ async function setAutoRetreat(pct) {
     if (!res.ok || d.success === false) { showFactionToast(tl('Failed','설정 실패','失敗','失败'), 'error'); }
     else { showFactionToast(pct===0 ? tl('Auto-retreat off','자동 퇴각 끔','自動退却OFF','自动撤退关') : (tl('Auto-retreat at','자동 퇴각','自動退却','自动撤退')+' '+pct+'%'), 'success'); }
   } catch(e) { showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error'); }
+}
+// ── 함대 리버리(강조색) 코스메틱 — GP 싱크 (v7.377) ──
+var _FLEET_LIVERY_PALETTE = ['#4fc3f7','#ff7043','#7ee787','#ffd54f','#ba68c8','#f06292','#4dd0e1','#a1887f','#ff5252','#82b1ff'];
+function _liveryRow(f) {
+  var cur = String((f && f.accent_color) || '');
+  var swatches = _FLEET_LIVERY_PALETTE.map(function(c){
+    var on = cur.toLowerCase() === c.toLowerCase();
+    return '<button type="button" class="livery-swatch'+(on?' active':'')+'" style="background:'+c+'" onclick="event.preventDefault();event.stopPropagation();setFleetLivery(\''+c+'\')" title="'+c+'"></button>';
+  }).join('');
+  var offBtn = '<button type="button" class="tactic-btn'+(!cur?' active':'')+'" onclick="event.preventDefault();event.stopPropagation();setFleetLivery(\'\')">'+tl('OFF','끔','OFF','关')+'</button>';
+  return '<div class="tactics-group"><div class="tactics-label">🎨 '+tl('FLEET LIVERY (200 GP)','함대 리버리 (200 GP)','艦隊リバリー (200 GP)','舰队涂装 (200 GP)')+'</div>'+
+    '<div class="livery-swatches">'+swatches+offBtn+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);margin-top:4px">'+tl('Accent shown as engine glow — identify your fleet at a glance. Fleet-bound (survives ship loss).','강조색이 엔진 글로우로 표시돼 멀리서도 내 함대를 식별 — 함대 귀속(함선 격침과 무관).','エンジン光として表示。艦隊帰属。','作为引擎光显示。舰队归属。')+'</div></div>';
+}
+async function setFleetLivery(color) {
+  var fleetId = fleetCmdState.selectedFleetId;
+  if (!fleetId) return;
+  var scrollTop = fleetCmdBodyScroll();
+  var prev = fleetCmdState.selectedFleet ? fleetCmdState.selectedFleet.accent_color : null;
+  if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.accent_color = color || null; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
+  try {
+    var res = await fetch('/api/fleets/' + fleetId + '/livery', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ color: color })
+    });
+    var d = await res.json();
+    if (!res.ok || d.success === false) {
+      if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.accent_color = prev; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
+      showFactionToast(d.error === 'INSUFFICIENT_GP' ? tl('Not enough GP','GP 부족','GP不足','GP不足') : tl('Failed','실패','失敗','失败'), 'error');
+    } else {
+      try { updateFleetListSnapshotFromSelected(); } catch(_){}
+      renderFleetList();
+      showFactionToast(color ? tl('Livery applied','리버리 적용','リバリー適用','涂装应用') : tl('Livery cleared','리버리 해제','リバリー解除','涂装清除'), 'success');
+    }
+  } catch(e) {
+    if (fleetCmdState.selectedFleet) { fleetCmdState.selectedFleet.accent_color = prev; renderFleetDetail(); keepFleetCmdOpen(scrollTop); }
+    showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error');
+  }
 }
 async function setFleetTactic(type, value) {
   var fleetId = fleetCmdState.selectedFleetId;
