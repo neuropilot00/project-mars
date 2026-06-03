@@ -3665,9 +3665,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .fleet-preview-ship.pilgrim-sprite .bp-ship-img {
   filter: brightness(0.8) contrast(0.9) saturate(0.82);
 }
+/* (v7.376) size_class별 실제 함선 크기 — 프리깃은 작게, 타이탄은 거대하게.
+   pilgrim-sprite/flagship과 충돌하지 않게 비-pilgrim 함선에만 sc-* 부여. */
+.fleet-preview-ship.sc-frigate    { width: 28px; height: 42px; }
+.fleet-preview-ship.sc-destroyer  { width: 37px; height: 56px; }
+.fleet-preview-ship.sc-cruiser    { width: 47px; height: 70px; }
+.fleet-preview-ship.sc-battleship { width: 62px; height: 92px; z-index: 3; }
+.fleet-preview-ship.sc-titan      { width: 82px; height: 122px; z-index: 3;
+  filter: drop-shadow(0 0 12px rgba(120,210,255,.32)); }
+.fleet-preview-ship.sc-assembled  { width: 64px; height: 96px; z-index: 3; }
 .fleet-preview-ship.flagship {
-  width: 58px; height: 88px; z-index: 4;
-  filter: drop-shadow(0 0 12px rgba(255,215,0,.45));
+  z-index: 5;
+  /* 기함은 고정크기 대신 자기 함급 크기 + 강조 스케일 — 타이탄 기함은 거대, 프리깃 기함은 작지만 빛남 */
+  transform: translate(-50%, -50%) scale(1.22);
+  filter: drop-shadow(0 0 13px rgba(255,215,0,.5));
 }
 .fleet-preview-ship.flagship.pilgrim-sprite {
   width: 41px;
@@ -49117,7 +49128,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7371'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7376'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -51912,7 +51923,7 @@ function renderFleetPreview(f) {
   var boardShips = visible.map(function(s, i){
     var p = fleetPreviewPoint(i, visible.length, formation, !!s.is_flagship);
     var isPilgrim = String(s.ship_type_code || '').toLowerCase().indexOf('pilgrim_') === 0;
-    return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + (isPilgrim ? ' pilgrim-sprite' : '') + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
+    return '<div class="fleet-preview-ship ' + (s.is_flagship ? 'flagship' : '') + (isPilgrim ? ' pilgrim-sprite' : ' sc-' + fleetNormalizeSizeClass(s)) + '" title="' + fcEsc(s.name_ko || '') + '" style="left:' + p.x + '%;top:' + p.y + '%">' +
       '<div class="bp-visual no-svg-fallback">' + shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code }) + '</div>' +
     '</div>';
   }).join('');
