@@ -37,7 +37,7 @@
 ## 1. 🔴 차단 — 베타 시작 전 반드시
 - [ ] **프로덕션 시크릿 강도 확인**: `JWT_SECRET`, `ADMIN_SECRET`이 추측 불가한 랜덤 32자+ 인지 (Railway 환경변수). 로컬 기본값/약한 값 금지.
 - [ ] **DB 백업·복구 리허설**: 백업 스크립트(`server/scripts/backup.sh`)는 존재 — **자동 스케줄(cron/Railway)로 실제 돌고 있는지** + 복구를 한 번 실제로 테스트. 베타 중 데이터 날리면 신뢰 즉사.
-- [ ] **베타 고지문**: 법무 정식 약관이 없으면(방침상 패스), 최소한 "오픈베타 — 데이터 초기화 가능/실험 단계" 고지 + 결제/환불 관련 한 줄 안내라도 노출. (정식 약관은 `COMMERCIAL_OPEN_READINESS` 🔴 항목 — 상용 오픈 시 필수)
+- [x] **베타 고지문** ✅ (v7.351): 신규 진입 1회 노출 모달 구현(`index.html`, 반투명+화성 오렌지). 실험 단계/데이터 초기화 가능/게임 재화 현금가치·환불 없음/버그 신고 4줄, 4개국어. `localStorage 'pw_beta_notice_v1'` 1회 게이트. (정식 약관은 `COMMERCIAL_OPEN_READINESS` 🔴 — 상용 오픈 시 필수, 베타는 이 고지로 대체.)
 - [ ] **마이그레이션 프로덕션 적용 확인**: 배포 직후 `schema_migrations`에 최신(295까지) 전부 적용됐는지. 특히 최근 핫픽스:
   - `291_crash_round_cleanup.sql` (칸티나 크래시 고아 라운드)
   - `292_war_bet_events_weekly_columns.sql` (gamblingAuto 컬럼)

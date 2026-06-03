@@ -2254,6 +2254,52 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .gc-confirm:disabled{background:rgba(80,40,30,.3);border-color:rgba(120,60,40,.3);color:rgba(200,120,80,.4);
   cursor:not-allowed;box-shadow:none}
 
+/* ══ Open Beta Notice (first-entry, one-time) — 반투명 + 화성 오렌지 외곽 ══ */
+.beta-notice{display:none;position:fixed;inset:0;z-index:10800;
+  background:rgba(8,4,2,.55);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  align-items:center;justify-content:center;padding:20px}
+.beta-notice.open{display:flex;animation:bnFade .3s ease}
+@keyframes bnFade{from{opacity:0}to{opacity:1}}
+.bn-card{position:relative;max-width:440px;width:100%;
+  background:linear-gradient(160deg,rgba(30,17,11,.52),rgba(16,9,7,.6));
+  backdrop-filter:blur(16px) saturate(1.25);-webkit-backdrop-filter:blur(16px) saturate(1.25);
+  border:1.5px solid rgba(255,120,60,.55);border-radius:18px;overflow:hidden;
+  box-shadow:0 22px 70px rgba(0,0,0,.7),0 0 60px rgba(255,120,60,.28),
+             inset 0 0 32px rgba(255,120,60,.06),inset 0 1px 0 rgba(255,180,120,.25);
+  animation:bnPop .42s cubic-bezier(.34,1.4,.5,1)}
+@keyframes bnPop{from{opacity:0;transform:scale(.92) translateY(24px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.bn-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;z-index:2;
+  background:linear-gradient(90deg,transparent,var(--gold),var(--mars),var(--red),var(--mars),var(--gold),transparent);
+  background-size:200% 100%;animation:bnFlow 4s linear infinite}
+@keyframes bnFlow{from{background-position:0 0}to{background-position:-200% 0}}
+.bn-glow{position:absolute;top:-45%;left:50%;transform:translateX(-50%);width:130%;height:85%;
+  background:radial-gradient(ellipse at center,rgba(255,120,60,.20),transparent 70%);pointer-events:none}
+.bn-head{position:relative;padding:22px 24px 14px;text-align:center;z-index:1}
+.bn-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;
+  background:rgba(255,120,60,.14);border:1px solid rgba(255,120,60,.45);
+  font-family:var(--fn);font-size:10px;font-weight:800;letter-spacing:3px;color:var(--mars);
+  box-shadow:0 0 18px rgba(255,120,60,.25)}
+.bn-badge .bn-dot{width:7px;height:7px;border-radius:50%;background:var(--mars);
+  box-shadow:0 0 8px var(--mars);animation:bnBlink 1.6s ease-in-out infinite}
+@keyframes bnBlink{0%,100%{opacity:1}50%{opacity:.3}}
+.bn-title{margin-top:14px;font-family:var(--fn);font-size:16px;font-weight:900;letter-spacing:1px;
+  color:#fff;text-shadow:0 0 18px rgba(255,120,60,.4)}
+.bn-body{position:relative;padding:4px 26px 6px;font-family:var(--fn);z-index:1}
+.bn-row{display:flex;gap:11px;align-items:flex-start;padding:9px 0;font-size:11.5px;line-height:1.55;
+  border-bottom:1px solid rgba(255,120,60,.08)}
+.bn-row:last-child{border-bottom:none}
+.bn-row .bn-ic{flex-shrink:0;font-size:14px;filter:drop-shadow(0 0 6px rgba(255,120,60,.4))}
+.bn-row .bn-tx{color:var(--tx2)}
+.bn-row .bn-tx b{color:var(--gold);font-weight:800}
+.bn-foot{position:relative;padding:14px 24px 20px;z-index:1}
+.bn-agree{font-size:9.5px;color:var(--tx3);text-align:center;margin-bottom:12px;letter-spacing:.3px;line-height:1.5}
+.bn-btn{width:100%;padding:13px;border-radius:11px;font-family:var(--fn);font-size:12px;
+  font-weight:900;letter-spacing:2px;cursor:pointer;border:1px solid var(--mars);
+  background:linear-gradient(135deg,var(--mars),var(--red));color:#fff;
+  box-shadow:0 6px 26px rgba(255,120,60,.4),inset 0 1px 0 rgba(255,255,255,.25);transition:all .15s}
+.bn-btn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 10px 34px rgba(255,120,60,.55)}
+.bn-btn:active{transform:translateY(0)}
+
 /* ══════════════════════════════════════════════════
    Game-themed Picker (replaces native select popups)
    ══════════════════════════════════════════════════ */
@@ -9316,6 +9362,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="gc-actions">
       <button class="gc-btn gc-cancel" onclick="gameConfirmResolve(false)">CANCEL</button>
       <button class="gc-btn gc-confirm" id="gcConfirmBtn" onclick="gameConfirmResolve(true)">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OPEN BETA NOTICE (first-entry, one-time) ═══ -->
+<div id="betaNotice" class="beta-notice">
+  <div class="bn-card">
+    <div class="bn-glow"></div>
+    <div class="bn-head">
+      <span class="bn-badge"><span class="bn-dot"></span><span id="bnBadge">OPEN BETA</span></span>
+      <div class="bn-title" id="bnTitle"></div>
+    </div>
+    <div class="bn-body" id="bnBody"></div>
+    <div class="bn-foot">
+      <div class="bn-agree" id="bnAgree"></div>
+      <button type="button" class="bn-btn" id="bnBtn" onclick="acceptBetaNotice()">ENTER MARS</button>
     </div>
   </div>
 </div>
@@ -48837,7 +48899,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7346'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7351'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -55249,6 +55311,51 @@ function browseLanding() {
   if (el) el.classList.remove('active');
 }
 
+// ── Open Beta Notice (first-entry, one-time per browser) ──
+function showBetaNoticeOnce() {
+  try { if (localStorage.getItem('pw_beta_notice_v1')) return; } catch (_) {}
+  var el = document.getElementById('betaNotice'); if (!el) return;
+  var $ = function(id){ return document.getElementById(id); };
+  if ($('bnBadge')) $('bnBadge').textContent = tl('OPEN BETA','오픈베타','オープンベータ','公开测试');
+  if ($('bnTitle')) $('bnTitle').textContent = tl('Welcome, Commander','커맨더, 환영합니다','指揮官、ようこそ','指挥官，欢迎');
+  var rows = [
+    ['🧪', tl(
+      'This is an <b>experimental open beta</b> — things may break or change without notice.',
+      '현재 <b>오픈베타(시험 운영)</b> 단계입니다. 예고 없이 오류·변경·점검이 있을 수 있습니다.',
+      '現在<b>オープンベータ(試験運用)</b>です。予告なく不具合・変更・メンテナンスが発生する場合があります。',
+      '当前为<b>公开测试(实验运营)</b>阶段，可能在无预告的情况下出现错误、变更或维护。')],
+    ['🗂️', tl(
+      'Game data (territory, fleets, GP/PP) may be <b>reset</b> during balancing or seasons.',
+      '게임 데이터(영토·함대·GP/PP)는 밸런스 조정·시즌 개편으로 <b>초기화될 수 있습니다.</b>',
+      'ゲームデータ(領土・艦隊・GP/PP)はバランス調整やシーズンで<b>リセットされる場合があります。</b>',
+      '游戏数据(领地·舰队·GP/PP)可能因平衡调整或赛季而<b>被重置。</b>')],
+    ['💱', tl(
+      'In-game currencies (GP·PP) are for testing only and have <b>no cash value or refunds</b>.',
+      '게임 내 재화(GP·PP)는 시험 운영용으로 <b>현금 가치나 환불을 보장하지 않습니다.</b>',
+      'ゲーム内通貨(GP・PP)はテスト用で<b>現金価値や返金はありません。</b>',
+      '游戏内货币(GP·PP)仅供测试，<b>无现金价值且不可退款。</b>')],
+    ['🐛', tl(
+      'Found a bug? Report it via the in-game 🐛 button — it really helps.',
+      '버그를 발견하면 인게임 🐛 버튼으로 신고해 주세요. 큰 도움이 됩니다.',
+      'バグを見つけたらゲーム内の🐛ボタンから報告してください。とても助かります。',
+      '发现错误请通过游戏内🐛按钮反馈，非常感谢。')]
+  ];
+  if ($('bnBody')) $('bnBody').innerHTML = rows.map(function(r){
+    return '<div class="bn-row"><span class="bn-ic">'+r[0]+'</span><span class="bn-tx">'+r[1]+'</span></div>';
+  }).join('');
+  if ($('bnAgree')) $('bnAgree').textContent = tl(
+    'By continuing, you agree to these beta terms.',
+    '계속 진행하면 위 베타 안내에 동의하는 것으로 간주됩니다.',
+    '続行すると、上記のベータ規約に同意したものとみなされます。',
+    '继续即表示您同意上述测试条款。');
+  if ($('bnBtn')) $('bnBtn').textContent = tl('ENTER MARS','확인하고 시작','確認して開始','确认并开始');
+  el.classList.add('open');
+}
+function acceptBetaNotice() {
+  try { localStorage.setItem('pw_beta_notice_v1', '1'); } catch (_) {}
+  var el = document.getElementById('betaNotice'); if (el) el.classList.remove('open');
+}
+
 // ─── Onboarding v3 ───
 async function checkOnboarding() {
   try {
@@ -55845,6 +55952,7 @@ document.addEventListener('visibilitychange', function() {
 
 // ── DOMContentLoaded: 랜딩 + 온보딩 트리거 ──
 document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(showBetaNoticeOnce, 400);  // 첫 진입 1회 베타 고지 (랜딩 위에 먼저 노출)
   setTimeout(checkLandingOverlay, 800);
   // Delay chat/feed polling so Globe.GL WebGL initialisation gets the first
   // ~8 seconds of network+CPU budget without competing fetch requests.
