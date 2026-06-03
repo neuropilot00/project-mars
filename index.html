@@ -26137,6 +26137,7 @@ function loadGuildTab(){
     renderGuildInvites(invites);
     _syncGuildChatPoll();
     try{ _checkBetrayerMark(w); }catch(_){}
+    try{ _checkAwayBriefing(); }catch(_){}
   }).catch(function(e){console.warn('[GUILD] load error:',e)});
 }
 
@@ -28081,6 +28082,41 @@ async function loadScoutReports(){
   }catch(e){ el.innerHTML=''; }
 }
 
+// (도파민 #6 v7.394) 부재 중 손실 브리핑 — 복귀 시 손실회피 훅(D7/D30 리텐션).
+function _checkAwayBriefing(){
+  try{
+    fetch('/api/me/away-briefing', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }).then(function(d){
+      if(!d || !d.hasNews) return;
+      // 같은 손실을 매번 띄우지 않게 lastLoss 시점 기준 1회만
+      var key='away_briefing_seen_'+(walletState.address||'');
+      var seen=localStorage.getItem(key)||'';
+      var stamp=String(d.lastLoss||'')+'|'+d.bounties;
+      if(seen===stamp) return;
+      localStorage.setItem(key, stamp);
+      var parts=[];
+      if(d.shipsLost>0) parts.push((LANG==='ko'?('함선 '+d.shipsLost+'척 격침'):LANG==='ja'?(d.shipsLost+'隻撃沈'):LANG==='zh'?('损失'+d.shipsLost+'舰'):(d.shipsLost+' ships lost'))+(d.lostValue>0?(' ('+(d.lostValue>=1000?(d.lostValue/1000).toFixed(0)+'K':d.lostValue)+' GP)'):''));
+      if(d.bounties>0) parts.push((LANG==='ko'?('현상금 '+d.bounties+'건'):LANG==='ja'?('賞金'+d.bounties+'件'):LANG==='zh'?('悬赏'+d.bounties+'个'):(d.bounties+' bounties on you')));
+      if(!parts.length) return;
+      var title=(LANG==='ko'?'⚠ 부재 중 피해 보고':LANG==='ja'?'⚠ 不在中の被害':LANG==='zh'?'⚠ 离开期间损失':'⚠ While you were away');
+      var cta=(LANG==='ko'?'복수하러 가기 ⚔':LANG==='ja'?'反撃へ ⚔':LANG==='zh'?'去复仇 ⚔':'Strike back ⚔');
+      // 손실회피 배너 (토스트보다 강하게 — 클릭 시 킬보드/PVP로)
+      var b=document.createElement('div');
+      b.style.cssText='position:fixed;left:50%;bottom:74px;transform:translateX(-50%);z-index:99990;max-width:340px;width:calc(100% - 28px);background:linear-gradient(135deg,rgba(40,12,12,.97),rgba(20,8,10,.97));border:1px solid rgba(255,90,90,.5);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.6),0 0 18px rgba(255,70,70,.25);padding:13px 14px;font-family:var(--fn)';
+      b.innerHTML='<div style="font-size:11px;font-weight:900;color:#ff8a80;letter-spacing:1px;margin-bottom:5px">'+title+'</div>'
+        +'<div style="font-size:10px;color:rgba(255,255,255,.82);line-height:1.5;margin-bottom:9px">'+parts.join(' · ')+'</div>'
+        +'<div style="display:flex;gap:7px">'
+        +'<button type="button" id="_awayCta" style="flex:1;padding:8px;border-radius:8px;background:linear-gradient(135deg,#ff5a5a,#ff8a3d);border:none;color:#fff;font-weight:800;font-size:10px;cursor:pointer">'+cta+'</button>'
+        +'<button type="button" id="_awayClose" style="padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--tx3);font-size:10px;cursor:pointer">✕</button>'
+        +'</div>';
+      document.body.appendChild(b);
+      var _rm=function(){ try{ b.remove(); }catch(_){} };
+      b.querySelector('#_awayClose').onclick=_rm;
+      b.querySelector('#_awayCta').onclick=function(){ _rm(); try{ if(typeof openBaseModal==='function'){ openBaseModal(); setTimeout(function(){ try{ switchBaseTab('pvp', document.getElementById('baseTabPvp')); if(typeof clearBaseTabDot==='function') clearBaseTabDot('pvp'); }catch(_){} }, 250); } }catch(_){} };
+      try{ if(window._sfx) _sfx.error(); }catch(_){}
+      setTimeout(_rm, 15000);
+    }).catch(function(){});
+  }catch(_){}
+}
 // [v7.361] 배신자 낙인 속죄(유료 제거)
 function _checkBetrayerMark(w){
   var banner=document.getElementById('betrayerRedeemBanner'); if(!banner||!w) return;
@@ -49274,7 +49310,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7393'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7394'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){

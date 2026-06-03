@@ -7962,6 +7962,35 @@ router.post('/notifications/read-all', requireAuth, writeLimiter, async (req, re
   }
 });
 
+// GET /api/me/away-briefing — (도파민 #6 v7.394) 부재 중 손실 브리핑(손실회피 복귀 훅).
+//   최근 72h 함선 손실(가치 합산) + 나에게 걸린 활성 현상금을 모아 복귀 시 보여준다.
+router.get('/me/away-briefing', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  try {
+    const [lossRows, bountyRows] = await Promise.all([
+      pool.query(
+        `SELECT COUNT(*)::int AS ships_lost, COALESCE(SUM(ship_value_gp),0)::bigint AS lost_value,
+                MAX(created_at) AS last_loss
+           FROM ship_wrecks WHERE original_owner = $1 AND created_at > NOW() - INTERVAL '72 hours'`, [wallet]),
+      pool.query(
+        `SELECT COUNT(*)::int AS bounties, COALESCE(SUM(reward_gp),0)::bigint AS bounty_total
+           FROM bounty_listings WHERE LOWER(target_wallet) = LOWER($1) AND status = 'active'`, [wallet]).catch(() => ({ rows: [{ bounties: 0, bounty_total: 0 }] })),
+    ]);
+    const shipsLost = parseInt(lossRows.rows[0].ships_lost) || 0;
+    const lostValue = parseInt(lossRows.rows[0].lost_value) || 0;
+    const bounties = parseInt(bountyRows.rows[0].bounties) || 0;
+    const bountyTotal = parseInt(bountyRows.rows[0].bounty_total) || 0;
+    res.json({
+      shipsLost, lostValue, bounties, bountyTotal,
+      lastLoss: lossRows.rows[0].last_loss || null,
+      hasNews: (shipsLost > 0 || bounties > 0),
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
 // ═══════════════════════════════════════════════════════
 // GP ACTIVITY LOG (Migration 097)
 // ═══════════════════════════════════════════════════════
