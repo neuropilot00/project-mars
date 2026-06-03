@@ -1,3 +1,13 @@
+## 2026-06-03 v7.355 — 배신 시스템 Phase 1: 길드 변절(시스템1 + 시스템3 백본) (mig 299)
+
+- EVE식 배신 루프 백엔드 구현: 길드원 변절 → 금고 일부 탈취(carve, 발행 아님) → 제명 → 배신자 낙인 태그 → 남은 금고로 변절자에게 자동 현상금 → 재가입 쿨다운. 배신→낙인→현상금→사냥→함선파괴→GP싱크 한 바퀴 완성.
+- 기존 substrate 재사용: guilds.gp_treasury, guild_treasury_ledger, bounty_listings(완성된 현상금 보드+실전투 검증), player_tags, server_chronicles.
+- mig 299: guild_defections 로그 테이블, guild_betrayer 태그 정의, 설정 5종(cut_officer 40%/cut_member 15%/bounty 50% of stolen/cooldown 72h/enabled).
+- guild.js: defectFromGuild()(역할별 탈취율, 간부가 더 큼), getDefectionCooldown(). acceptInvite/createJoinRequest에 쿨다운 게이트.
+- 라우트: POST /api/guild/defect. 핵심: 캠페인 전용이던 grantTag를 PvP로 확장(guild_betrayer는 PvP발 첫 태그).
+- 라이브 검증(격리 13/13 PASS): 40% 탈취·자동현상금 2000·제명·태그·GP보존(금고 -6000 = 변절자 +4000 + 현상금 에스크로 +2000, 발행 0)·72h 재가입 차단. 잔여 0.
+- TODO: 프론트 DEFECT 버튼(길드 패널), Phase 2 킬보드(ship_wrecks 귀속), Phase 3 PvP 스파이.
+
 ## 2026-06-03 v7.354 — quest_reward_pool 폐지: 게임플레이 보상 GP 직접 지급 (mig 298)
 
 - 배경: quest_reward_pool은 "퀘스트 상금 풀"이 아니라 게임플레이 PP 보상의 발행 throttle이었음(채굴/클레임/퀘스트/미션/탐험/로켓이 풀에서 PP 차감→GP 환산 지급, 풀 비면 429/GP폴백). PP가 상환가능이라 무제한 발행을 막던 장치.

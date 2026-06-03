@@ -6881,6 +6881,21 @@ router.post('/guild/leave', requireAuth, writeLimiter, async (req, res) => {
   }
 });
 
+// [v7.355] 길드 변절(배신) — 금고 탈취 + 제명 + 배신자 낙인 + 자동 현상금 + 재가입 쿨다운
+router.post('/guild/defect', requireAuth, writeLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!guildService || !guildService.defectFromGuild) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.defectFromGuild(w);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] defect error:', e.message);
+    res.status(500).json({ error: 'Failed to defect' });
+  }
+});
+
 // Kick member
 router.post('/guild/kick', requireAuth, writeLimiter, async (req, res) => {
   const { targetWallet, guildId } = req.body;

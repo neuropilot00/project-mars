@@ -386,6 +386,10 @@ async function acceptInvite(wallet, inviteId) {
     const userCheck = await client.query('SELECT guild_id FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
     if (userCheck.rows[0]?.guild_id) { await client.query('ROLLBACK'); return { error: 'Already in a guild' }; }
 
+    // [v7.355] 변절 재가입 쿨다운
+    const _cdA = await getDefectionCooldown(wallet);
+    if (_cdA > 0) { await client.query('ROLLBACK'); return { error: 'DEFECTION_COOLDOWN', cooldownHours: _cdA }; }
+
     // Check guild not full
     const guildCheck = await client.query('SELECT member_count FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
     if (guildCheck.rows[0]?.member_count >= maxMembers) { await client.query('ROLLBACK'); return { error: 'Guild is full' }; }
@@ -451,6 +455,10 @@ async function createJoinRequest(wallet, guildId) {
   const u = await pool.query('SELECT guild_id FROM users WHERE wallet_address = $1', [wallet]);
   if (!u.rows.length) return { error: 'User not found' };
   if (u.rows[0].guild_id) return { error: 'You are already in a guild' };
+
+  // [v7.355] 변절 재가입 쿨다운
+  const _cdJ = await getDefectionCooldown(wallet);
+  if (_cdJ > 0) return { error: 'DEFECTION_COOLDOWN', cooldownHours: _cdJ };
 
   // Guild must exist and not be full
   const maxMembers = parseInt(await getSetting('guild_max_members') || '20');
@@ -740,6 +748,143 @@ async function withdrawTreasury(wallet, guildId, amount) {
     return { success: true, withdrawn: amt, treasuryRemaining: bal };
   } catch (e) { await client.query('ROLLBACK'); return { error: e.message }; }
   finally { client.release(); }
+}
+
+// ═══════════════════════════════════════
+//  GUILD DEFECTION (배신) — Phase 1
+// ═══════════════════════════════════════
+// 변절: 금고 일부 탈취(carve, 발행 아님) → 제명 → 배신자 낙인 태그 →
+//   남은 금고로 변절자에게 자동 현상금 → 재가입 쿨다운. 리더는 변절 불가.
+async function defectFromGuild(wallet) {
+  const enabled = String(await getSetting('guild_defect_enabled', 'true')).toLowerCase() !== 'false';
+  if (!enabled) return { error: 'DEFECTION_DISABLED' };
+  const w = (wallet || '').toLowerCase().trim();
+  if (!w) return { error: 'INVALID_WALLET' };
+
+  const cutOfficer = parseFloat(await getSetting('guild_defect_cut_officer_pct', '40')) || 40;
+  const cutMember  = parseFloat(await getSetting('guild_defect_cut_member_pct', '15')) || 15;
+  const bountyPct  = parseFloat(await getSetting('guild_defect_bounty_pct_of_stolen', '50')) || 50;
+  const cooldownH  = parseFloat(await getSetting('guild_defect_rejoin_cooldown_hours', '72')) || 72;
+  const bountyExpiryDays = parseInt(await getSetting('expiry_days', '7'), 10) || 7;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const mem = await client.query('SELECT guild_id, role FROM guild_members WHERE wallet = $1 FOR UPDATE', [w]);
+    if (!mem.rows.length) { await client.query('ROLLBACK'); return { error: 'NOT_IN_GUILD' }; }
+    const role = mem.rows[0].role;
+    if (role === 'leader') { await client.query('ROLLBACK'); return { error: 'LEADER_CANNOT_DEFECT' }; }
+    const guildId = mem.rows[0].guild_id;
+
+    const g = await client.query('SELECT gp_treasury, leader_wallet, name FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
+    if (!g.rows.length) { await client.query('ROLLBACK'); return { error: 'GUILD_NOT_FOUND' }; }
+    const treasury = parseFloat(g.rows[0].gp_treasury || 0);
+    const leaderWallet = (g.rows[0].leader_wallet || '').toLowerCase();
+    const guildName = g.rows[0].name;
+
+    // 1) 금고 탈취 (carve → 변절자 GP). 간부가 더 큼(금고 접근권).
+    const cutPct = role === 'officer' ? cutOfficer : cutMember;
+    const stolen = Math.floor(treasury * cutPct / 100);
+    let treasuryAfter = treasury;
+    if (stolen > 0) {
+      const ded = await client.query(
+        'UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2 AND gp_treasury >= $1 RETURNING gp_treasury',
+        [stolen, guildId]
+      );
+      if (!ded.rowCount) { await client.query('ROLLBACK'); return { error: 'TREASURY_RACE' }; }
+      treasuryAfter = parseFloat(ded.rows[0].gp_treasury || 0);
+      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [stolen, w]);
+      await client.query(
+        `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+         VALUES ($1, $2, 'defection_theft', 0, $3, $4, $5)`,
+        [guildId, w, -stolen, treasuryAfter, 'Defection theft by ' + w.slice(0, 8)]
+      );
+    }
+
+    // 2) 제명
+    await client.query('DELETE FROM guild_members WHERE wallet = $1', [w]);
+    await client.query('UPDATE guilds SET member_count = GREATEST(member_count - 1, 0) WHERE id = $1', [guildId]);
+    await client.query('UPDATE users SET guild_id = NULL WHERE LOWER(wallet_address) = LOWER($1)', [w]);
+
+    // 3) 배신자 낙인 태그 (캠페인 전용이던 태그 부여를 PvP로 확장)
+    await client.query(
+      `INSERT INTO player_tags (wallet, tag_id, source_quest_id, acquired_from, metadata)
+       VALUES ($1, 'guild_betrayer', 'guild_defection', 'guild_defection', $2)
+       ON CONFLICT (wallet, tag_id) DO NOTHING`,
+      [w, JSON.stringify({ guild_id: guildId, guild: guildName, stolen })]
+    );
+
+    // 4) 남은 금고로 자동 현상금 (poster=리더, target=변절자) — 발행 아닌 금고 carve
+    let bountyId = null, bountyGp = 0;
+    if (leaderWallet) {
+      const want = Math.floor(stolen * bountyPct / 100);
+      bountyGp = Math.min(want, Math.floor(treasuryAfter));
+      if (bountyGp > 0) {
+        const ded2 = await client.query(
+          'UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2 AND gp_treasury >= $1 RETURNING gp_treasury',
+          [bountyGp, guildId]
+        );
+        if (ded2.rowCount) {
+          const tAfter2 = parseFloat(ded2.rows[0].gp_treasury || 0);
+          await client.query(
+            `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+             VALUES ($1, $2, 'defection_bounty', 0, $3, $4, $5)`,
+            [guildId, leaderWallet, -bountyGp, tAfter2, 'Auto-bounty on defector ' + w.slice(0, 8)]
+          );
+          const b = await client.query(
+            `INSERT INTO bounty_listings (poster_wallet, target_wallet, reward_gp, reason, expires_at)
+             VALUES ($1, $2, $3, $4, NOW() + ($5 || ' days')::INTERVAL)
+             RETURNING id`,
+            [leaderWallet, w, bountyGp, 'Guild defection: ' + guildName, String(bountyExpiryDays)]
+          );
+          bountyId = b.rows[0].id;
+        } else { bountyGp = 0; }
+      } else { bountyGp = 0; }
+    }
+
+    // 5) 변절 로그 + 재가입 쿨다운
+    await client.query(
+      `INSERT INTO guild_defections (guild_id, wallet, role_at_defect, stolen_gp, bounty_id, bounty_gp, rejoin_allowed_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW() + ($7 || ' hours')::INTERVAL)`,
+      [guildId, w, role, stolen, bountyId, bountyGp, String(cooldownH)]
+    );
+
+    await client.query('COMMIT');
+
+    // 6) 크로니클 (fire-and-forget)
+    try {
+      const chronicle = require('./chronicle');
+      chronicle.record('guild_defection', {
+        actor_wallet: w, target_wallet: leaderWallet || null, guild_id: guildId,
+        value_gp: stolen, extra_data: { role, guild: guildName, stolen, bounty_gp: bountyGp, bounty_id: bountyId }
+      }).catch(() => {});
+    } catch (_) {}
+
+    console.log(`[GUILD] defection: ${w} from #${guildId} stole ${stolen} GP, bounty ${bountyGp} (id ${bountyId})`);
+    return { success: true, stolen, cut_pct: cutPct, bounty_gp: bountyGp, bounty_id: bountyId, rejoin_cooldown_hours: cooldownH };
+  } catch (e) {
+    try { await client.query('ROLLBACK'); } catch {}
+    console.error('[GUILD] defection error:', e.message);
+    return { error: e.message };
+  } finally {
+    client.release();
+  }
+}
+
+// 변절 후 재가입 쿨다운 잔여(시간). 0이면 가입 가능. (join 경로에서 게이트)
+async function getDefectionCooldown(wallet) {
+  const w = (wallet || '').toLowerCase().trim();
+  if (!w) return 0;
+  try {
+    const r = await pool.query(
+      `SELECT EXTRACT(EPOCH FROM (MAX(rejoin_allowed_at) - NOW()))/3600 AS hours
+         FROM guild_defections WHERE wallet = $1`,
+      [w]
+    );
+    const h = parseFloat(r.rows[0]?.hours || 0);
+    return h > 0 ? Math.ceil(h) : 0;
+  } catch (_) { return 0; }
 }
 
 // ═══════════════════════════════════════
@@ -1803,6 +1948,8 @@ module.exports = {
   leaveGuild, kickMember,
   promoteToOfficer, demoteToMember, transferLeadership, disbandGuild,
   withdrawTreasury, disbandCleanup,
+  // Defection / 배신 (migration 299)
+  defectFromGuild, getDefectionCooldown,
   getGuildLeaderboard, searchGuilds, refreshGuildPixelCount,
   updateGuildInfo,
   sendGuildMessage, getGuildMessages,
