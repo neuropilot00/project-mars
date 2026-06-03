@@ -1408,10 +1408,13 @@ function mkFleet(def,side,cx,cy){
 function mkShip(tid,side,x,y,fleet,isFlagship){
   const t=SHIPS[tid]||SHIPS.mcc_int;
   if(!t.code)t.code=tid;
+  // (실드 연출 v7.388) 함급별 실드풀 — 대형함일수록 두껍게. 미사일/레이저를 흡수(버블에 막힘).
+  const _shMax = t.hp * (t.size==='titan'?0.6 : t.size==='battleship'?0.45 : t.size==='cruiser'?0.3 : t.size==='destroyer'?0.2 : 0.12);
   return {tid,type:t,side,fleet,x,y,
     slotAngle:Math.atan2(y-fleet.cy,x-fleet.cx),
     slotDist:Math.hypot(x-fleet.cx,y-fleet.cy),
     hp:t.hp,maxHp:t.hp,isFlagship,dead:false,flash:0,
+    shieldMax:_shMax, shield:_shMax, shieldFlash:0,
     shootT:Math.random()*t.fireInt,engF:Math.random()*100,aimX:null,aimY:null,aimTTL:0,
     facing:side==='atk'?-Math.PI/2:Math.PI/2,pincerWing:0};
 }
@@ -1512,6 +1515,11 @@ function updateFleets(dt){
     f.ships.forEach(sh=>{
       if(sh.dead)return;
       sh.engF+=1;if(sh.flash>0)sh.flash-=dt;
+      // (실드 v7.388) 실드 천천히 재생 + 피격 리플 감쇠 (재생<교전 화력이라 집중사격엔 뚫림)
+      if(sh.shieldMax>0){
+        if(sh.shield<sh.shieldMax) sh.shield=Math.min(sh.shieldMax, sh.shield + sh.shieldMax*0.00009*dt);
+        if(sh.shieldFlash>0) sh.shieldFlash=Math.max(0, sh.shieldFlash - dt*0.004);
+      }
       let targetX,targetY;
       if(sh.isFlagship){
         const heavyDrift=Math.sin(btMs*.0007+f.driftSeed)*Math.min(10,f.radius*.12);
@@ -1687,6 +1695,12 @@ function checkHit(b){
 
 function applyDmg(sh,dmg,isLaser,attackerType){
   dmg*=combatModifier(attackerType,sh.type);
+  // (실드 v7.388) 실드가 먼저 흡수 — 미사일/레이저가 버블에 막힘. 초과분만 선체로.
+  if(sh.shield>0){
+    const _ab=Math.min(sh.shield,dmg);
+    sh.shield-=_ab; dmg-=_ab; sh.shieldFlash=1;
+    if(dmg<=0.0001) return; // 전부 흡수 — 선체/함대 HP 무피해(실드가 막아줌)
+  }
   sh.hp-=dmg;sh.flash=60;sh.fleet.hp-=dmg;
   if(isLaser){
     sh.fleet.laserHitCount+=1;
@@ -2274,6 +2288,18 @@ function drawShips2(){
       const ef=.6+.4*Math.sin(sh.engF*.18);
       drawEngineFlame(CX,sh.x,sh.y,sh.facing,t,ef);
     }
+    // (실드 v7.388) 실드 버블 — 미사일/레이저를 막는 배리어. 잔량 비례 알파, 피격 시 리플 강조.
+    if(drawn && sh.shieldMax>0 && sh.shield>0 && (!PERF_MODE||!isSmall(sh)||sh.isFlagship)){
+      const _sr=t.r*1.55*classScale, _sf=sh.shield/sh.shieldMax, _hit=sh.shieldFlash||0;
+      CX.save();
+      CX.globalAlpha=Math.min(.9, 0.15*_sf + 0.75*_hit);
+      CX.strokeStyle='#6fd6ff'; CX.lineWidth=(0.8+2.4*_hit)/camScale;
+      CX.shadowColor='#6fd6ff'; CX.shadowBlur=4+12*_hit;
+      CX.beginPath(); CX.arc(sh.x,sh.y,_sr,0,Math.PI*2); CX.stroke();
+      CX.shadowBlur=0;
+      if(_hit>0.05){ CX.globalAlpha=0.2*_hit; CX.fillStyle='#aee9ff'; CX.fill(); }
+      CX.restore();
+    }
     // HP바: 대형함 항상 표시 + 기함 항상 표시 + 소규모 전투(≤12척)에서 전체 표시
     const showHpBar = t.size==='cruiser'||t.size==='battleship'||t.size==='titan'
       || sh.isFlagship || ships.length<=12;
@@ -2286,6 +2312,12 @@ function drawShips2(){
       CX.fillStyle='rgba(0,0,0,.55)';CX.fillRect(sh.x-barW/2,barY,barW,barH);
       CX.fillStyle=hr>.5?'#4caf50':hr>.2?'#ff9800':'#f44336';
       CX.fillRect(sh.x-barW/2,barY,barW*hr,barH);
+      // (실드 v7.388) 실드 게이지 — HP바 바로 위 얇은 청록 바(잔량 표시).
+      if(sh.shieldMax>0){
+        const _shr=Math.max(0,sh.shield/sh.shieldMax), _shH=Math.max(1,barH*0.7), _shY=barY-(_shH+1);
+        CX.fillStyle='rgba(0,0,0,.5)';CX.fillRect(sh.x-barW/2,_shY,barW,_shH);
+        CX.fillStyle='#6fd6ff';CX.fillRect(sh.x-barW/2,_shY,barW*_shr,_shH);
+      }
       // 기함 HP% 경고 (HP 낮을 때만, 화면상 고정 크기)
       if(sh.isFlagship && hr < 0.5){
         CX.globalAlpha=.85;CX.font=`bold ${7/camScale}px Orbitron,monospace`;CX.textAlign='center';
