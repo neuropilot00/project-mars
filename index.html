@@ -4708,6 +4708,28 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   from { transform: translate(-50%, 20px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }
 }
+/* (도파민 v7.387) 공통 보상 버스트 — 숫자가 위로 튀며 페이드. tier별 색/강도. 경제중립(연출만). */
+@keyframes rewardBurstUp {
+  0%   { transform: translate(-50%, 0) scale(.5); opacity: 0; }
+  18%  { transform: translate(-50%, -10px) scale(1.25); opacity: 1; }
+  70%  { transform: translate(-50%, -38px) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -64px) scale(.92); opacity: 0; }
+}
+.reward-burst {
+  position: fixed; transform: translate(-50%, 0); pointer-events: none; z-index: 99999;
+  font-family: 'Orbitron', monospace; font-weight: 900; white-space: nowrap;
+  font-size: 22px; letter-spacing: 1px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.9), 0 0 14px currentColor;
+  animation: rewardBurstUp 1.35s cubic-bezier(.2,.7,.3,1) forwards;
+}
+.reward-burst.t2 { font-size: 26px; }
+.reward-burst.t3 { font-size: 32px; }
+@keyframes rewardFlash { 0%{opacity:0} 22%{opacity:.42} 100%{opacity:0} }
+.reward-flash {
+  position: fixed; inset: 0; z-index: 99998; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 42%, rgba(255,205,90,.55), rgba(255,150,60,.12) 55%, transparent 75%);
+  animation: rewardFlash .62s ease-out forwards;
+}
 .reward-title {
   font-family: 'Orbitron', monospace;
   font-size: 12px; font-weight: 900; letter-spacing: 3px;
@@ -31936,6 +31958,15 @@ async function harvestMining(){
         return icon+' +'+r.quantity+' '+name;
       }).join('  ');
       showToast('⛏ '+resMsg,'success');
+      // (도파민 v7.387) 희귀 드롭 잭팟 연출 — 드롭률/수량은 그대로, 레어/에픽/전설만 시각 강조.
+      var _maxTier=0, _topCode='';
+      d.resources.forEach(function(r){ var tt=_resourceTier(r.code); if(tt>_maxTier){_maxTier=tt;_topCode=r.code;} });
+      if(_maxTier>=2){
+        var _tn=_lang==='ko'?(_RNAMES_KO[_topCode]||_topCode):_topCode.replace(/_/g,' ');
+        var _msg=_maxTier>=3 ? (tl('MOTHERLODE!','대박 광맥!','大当たり鉱脈!','大矿脉!')+' '+(_RICONS[_topCode]||'🌟')+' '+_tn)
+                             : ((_RICONS[_topCode]||'🔷')+' '+_tn+' '+tl('rare!','희귀!','レア!','稀有!'));
+        rewardBurst({ text:_msg, tier:_maxTier, sound: window._sfx && (_maxTier>=3 ? _sfx.levelUp : _sfx.success) });
+      }
     }
     try{_sfx.harvest()}catch(e){}
     try{trackQuestAction('harvest',1)}catch(e){}
@@ -49216,7 +49247,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7385'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7387'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -53736,6 +53767,38 @@ async function showRewardIfAny(battleId) {
   }
 }
 
+// (도파민 v7.387) 공통 보상 연출 — 숫자 팝 + tier별 사운드/플래시. 경제중립(연출만, 보상량/드롭률 무변).
+//   reduced-motion이면 파티클·플래시 생략(사운드만). DOM 1개만 생성 후 자동 제거(repaint 절약).
+function rewardBurst(opts) {
+  opts = opts || {};
+  var tier = opts.tier || 0;
+  try { if (opts.sound) opts.sound(); } catch(_) {}
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var colors = ['#cfeaff', '#7ee787', '#ffd54f', '#ff9a55'];
+    var x = (typeof opts.x === 'number') ? opts.x : (window.innerWidth / 2);
+    var y = (typeof opts.y === 'number') ? opts.y : Math.round(window.innerHeight * 0.40);
+    var el = document.createElement('div');
+    el.className = 'reward-burst' + (tier >= 3 ? ' t3' : tier === 2 ? ' t2' : '');
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.color = colors[Math.min(3, tier)] || colors[0];
+    el.textContent = opts.text || '';
+    document.body.appendChild(el);
+    if (tier >= 3) {
+      var fl = document.createElement('div'); fl.className = 'reward-flash';
+      document.body.appendChild(fl);
+      setTimeout(function(){ try{ fl.remove(); }catch(_){} }, 640);
+    }
+    setTimeout(function(){ try{ el.remove(); }catch(_){} }, 1400);
+  } catch(_) {}
+}
+// 광물 희귀 tier(연출 등급) — 채굴 잭팟감용. 보상량과 무관(연출만).
+var _RESOURCE_TIER = {
+  dark_matter:3, quantum_core:3, exotic_alloy:3, ancient_metal:3, xenomatter:3, meteorite_fragment:3, plasma_dust:3,
+  titanium_alloy:2, plasma_crystal:2, nano_polymer:2,
+  ice_crystal:1, volcanic_shard:1, hull_plate:1, plasma_coil:1, alloy_frame:1
+};
+function _resourceTier(code){ return _RESOURCE_TIER[code] || 0; }
 function showRewardToast(reward) {
   const title = document.getElementById('rewardToastTitle');
   const items = document.getElementById('rewardToastItems');
@@ -53754,6 +53817,13 @@ function showRewardToast(reward) {
 
   items.innerHTML = html;
   document.getElementById('rewardToast').classList.add('show');
+  // (도파민 v7.387) 전투 보상에 사운드 + GP 숫자 버스트 — 밋밋하던 보상 순간에 juice.
+  if (reward.gp_awarded > 0) {
+    rewardBurst({ text: '+' + reward.gp_awarded + ' GP', tier: reward.is_winner ? 2 : 1,
+      sound: reward.is_winner ? (window._sfx && _sfx.hijackWin) : (window._sfx && _sfx.purchase) });
+  } else {
+    try { if (window._sfx) (reward.is_winner ? _sfx.hijackWin : _sfx.purchase)(); } catch(_) {}
+  }
   setTimeout(closeRewardToast, 10000);
 }
 
