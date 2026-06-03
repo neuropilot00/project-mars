@@ -38,12 +38,13 @@
 - [ ] **프로덕션 시크릿 강도 확인**: `JWT_SECRET`, `ADMIN_SECRET`이 추측 불가한 랜덤 32자+ 인지 (Railway 환경변수). 로컬 기본값/약한 값 금지.
 - [ ] **DB 백업·복구 리허설**: 백업 스크립트(`server/scripts/backup.sh`)는 존재 — **자동 스케줄(cron/Railway)로 실제 돌고 있는지** + 복구를 한 번 실제로 테스트. 베타 중 데이터 날리면 신뢰 즉사.
 - [ ] **베타 고지문**: 법무 정식 약관이 없으면(방침상 패스), 최소한 "오픈베타 — 데이터 초기화 가능/실험 단계" 고지 + 결제/환불 관련 한 줄 안내라도 노출. (정식 약관은 `COMMERCIAL_OPEN_READINESS` 🔴 항목 — 상용 오픈 시 필수)
-- [ ] **마이그레이션 프로덕션 적용 확인**: 배포 직후 `schema_migrations`에 최신(292까지) 전부 적용됐는지. 특히 최근 핫픽스:
+- [ ] **마이그레이션 프로덕션 적용 확인**: 배포 직후 `schema_migrations`에 최신(295까지) 전부 적용됐는지. 특히 최근 핫픽스:
   - `291_crash_round_cleanup.sql` (칸티나 크래시 고아 라운드)
   - `292_war_bet_events_weekly_columns.sql` (gamblingAuto 컬럼)
+  - `295_ship_build_refunded_status.sql` (건조 완성 실패 전액 환불, v7.349)
 - [ ] **에러 로그 0 확인**: 배포 후 1시간 로그에서 빨간 `ERROR:` / `does not exist` / `500`이 없는지. (정상: checkpoint/Saving 류 LOG는 무시)
-- [ ] **돈 흐름 정합성**: GP/PP/USDT 입출금·환전·도박(칸티나)·마켓 수수료가 음수잔액/이중차감 없는지 스모크 테스트. `transactions` 제약 위반 0.
-- [ ] **회원가입→첫 플레이 풀 루프**: 신규 지갑으로 가입 → 영토 클레임 → 수확 → 함선 건조 → 전투 1회까지 막힘 없이 되는지 실제로 1회 완주.
+- [x] **돈 흐름 정합성** ✅ (2026-06-03 라이브 검증): GP/PP/USDT 음수잔액 0(DB 제약 `chk_users_balances_nonneg`가 물리적 차단), 음수 자원재고 0, 좀비 건조잡 0, 칸티나 크래시 고아 라운드 0(전부 terminal), 환전/도박/마켓 음수금액 0, 수송 이중정산 0, 함대전 보상 중복 0, 함선 한도위반 0. **프로덕션 배포 후 동일 쿼리 재확인 권장**.
+- [x] **회원가입→첫 플레이 풀 루프** ✅ (2026-06-03 격리 검증, 13/13 PASS): 신규 지갑 → JWT → `POST /api/claim`(frontier Arabia Terra, 픽셀 4개) → `POST /api/territory/:id/harvest`(PP/GP/자원 지급) → `startBuild`+`completeBuildJob`(GP 차감·함선 생성·자동 기함) → `simulateBattle`(승부 결정, 1161틱) 전 구간 막힘 없음. 잔여 0. **주의**: 신규(레벨1)는 core 티어 섹터 클레임 불가(`level_too_low`) — 온보딩이 frontier 섹터로 유도해야 함(§3 온보딩 항목과 연결).
 
 ## 2. ⚠️ 안정성/운영 (베타 중 사고 방지)
 - [x] ~~헬스체크 엔드포인트~~ — `GET /health`(DB ping) 이미 존재. Railway 헬스체크 경로로 연결만 확인.
