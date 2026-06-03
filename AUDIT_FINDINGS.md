@@ -1,3 +1,16 @@
+## 2026-06-03 — 경제 재검수(2~3차): 버그 4개 발견·수정
+
+| 버그 | 영향 | 수정 |
+|---|---|---|
+| transactions.type varchar(20) < 'marketplace_listing_fee'(23) | **마켓 등록 전체 실패**(재료 순환 링크 차단) | mig304 varchar(40) |
+| crafting.js 로컬 getSetting이 JSONB boolean 반환 → `true!=='true'` | **워아이템 크래프트 항상 disabled** | String() 정규화 |
+| scrapShip이 미존재 `fleet_battle_participants.ship_id` 쿼리 | 트랜잭션 오염 → **함선 해체/환불 깨짐** | fbp.fleet_id + SAVEPOINT |
+| scrap 라우트가 `req.user.wallet`(undefined)만 읽음 | **함선 해체 항상 401** | getWallet(req) |
+
+검증: 마켓 E2E 7/7, 해체 E2E 4/4, 경제 쓰기 10플로우 런타임버그 0. Codex 적대검수(varchar/스키마/leak) 병행.
+
+🟡 잔여(미수정, 별도): 영토 워아이템 크래프트의 recipe ingredient가 `{qty,code}`(자원)인데 craftItem은 `item_type_id`(아이템) 참조 → enabled 고쳐도 "Item #undefined"로 완성 불가. territory 크래프트 시스템 깊은 설계 이슈(자원 소비로 통일 필요). 이차 sink라 분리.
+
 ## 2026-06-03 — 배신 시스템 3종 + 경제 튜닝 (v7.349~v7.360)
 
 | 기능 | 상태 | 비고 |

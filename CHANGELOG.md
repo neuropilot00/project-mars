@@ -1,3 +1,12 @@
+## 2026-06-03 v7.363 — 경제 재검수 버그 3개 수정 (크래프트 enabled / 함선 해체)
+
+- 재검수(2~3차)에서 발견·수정:
+  - crafting.js 로컬 getSetting이 game_settings JSONB를 boolean true로 반환 → `enabled!=='true'`가 항상 참 → 워아이템 크래프트 줄곧 disabled. String() 정규화로 수정.
+  - ship.js scrapShip이 미존재 컬럼 fleet_battle_participants.ship_id 쿼리 → 트랜잭션 오염으로 해체/환불 깨짐. 함선의 fleet_id로 전투참여 확인 + SAVEPOINT 격리.
+  - ships.js scrap 라우트가 req.user.wallet(표준 페이로드는 wallet_address)만 읽어 항상 401. getWallet(req)로 수정.
+- 검증: 함선 해체 E2E 4/4(gpRefunded·광물환불·해체·트랜잭션 정상), 크래프트 더 이상 disabled 아님.
+- 🟡 잔여: 워아이템 크래프트 ingredient 포맷({qty,code} vs item_type_id) 불일치로 완성 불가 — territory 크래프트 깊은 이슈로 분리(AUDIT_FINDINGS 참조).
+
 ## 2026-06-03 v7.362 — 마켓 등록 깨짐 핫픽스 + 생산자-소비자 경제 검수 (mig 304)
 
 - 🔴 버그 발견·수정: transactions.type가 varchar(20)인데 marketplace.js가 'marketplace_listing_fee'(23자) 등 더 긴 타입을 INSERT → "value too long" → /api/marketplace/list 전체 실패. 생산자-소비자 재료 순환의 핵심 링크(채굴자가 재료를 시장에 올림)가 막혀 있었음. mig304로 transactions.type→varchar(40), 라이브 재검증 후 정상.

@@ -77,8 +77,10 @@ async function craftItem(client, wallet, recipeId) {
   const walletLower = wallet.toLowerCase();
 
   // 1. Check global enabled
+  // [v7.363] 로컬 getSetting은 game_settings의 JSONB를 네이티브 타입(boolean true)으로 반환 →
+  //   문자열 'true'와 직접 비교 시 true!=='true'로 항상 disabled 되던 버그. String() 정규화.
   const enabled = await getSetting('crafting_enabled', 'true');
-  if (enabled !== 'true') throw new Error('Crafting is currently disabled');
+  if (String(enabled) !== 'true') throw new Error('Crafting is currently disabled');
 
   // 2. Load recipe
   const { rows: recipeRows } = await client.query(

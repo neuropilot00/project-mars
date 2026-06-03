@@ -1789,18 +1789,22 @@ async function scrapShip(walletAddress, shipId) {
     const ship = shipRows[0];
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
-    // 전투 중이거나 battle에 참여 중이면 해체 불가
+    // 전투 중이면 해체 불가 — fleet_battle_participants엔 ship_id가 없으므로 함선의 함대(fleet_id)로 확인.
+    // [v7.363] 기존 fbp.ship_id 쿼리는 미존재 컬럼이라 항상 throw → 트랜잭션 오염으로 해체/환불 깨짐(SAVEPOINT로 격리).
     try {
+      await client.query('SAVEPOINT _scrapchk');
       const { rows: battleRows } = await client.query(
         `SELECT 1 FROM fleet_battle_participants fbp
          JOIN fleet_battles fb ON fb.id = fbp.battle_id
-         WHERE fbp.ship_id = $1 AND fb.status IN ('active','pending')
-         LIMIT 1`, [shipId]
+         WHERE fbp.fleet_id = $1 AND fb.status IN ('active','preparing')
+         LIMIT 1`, [ship.fleet_id]
       );
+      await client.query('RELEASE SAVEPOINT _scrapchk');
       if (battleRows.length) throw new Error('SHIP_IN_BATTLE');
     } catch (e) {
       if (e.message === 'SHIP_IN_BATTLE') throw e;
-      // table may not exist — ignore
+      try { await client.query('ROLLBACK TO SAVEPOINT _scrapchk'); } catch (_) {}
+      // 스키마 차이 등 — 전투 체크만 건너뜀(해체 자체는 진행)
     }
 
     const refundPct = parseInt(await getSetting('ship_scrap_refund_pct', '40')) || 40;

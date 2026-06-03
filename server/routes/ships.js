@@ -564,7 +564,8 @@ router.post('/:id/repair', requireAuth, async (req, res) => {
  */
 router.post('/:id/scrap', requireAuth, async (req, res) => {
   try {
-    const wallet = (req.user?.wallet || '').toLowerCase();
+    // [v7.363] req.user.wallet만 읽어 항상 401이던 버그 — 표준 페이로드는 wallet_address. getWallet 사용.
+    const wallet = getWallet(req);
     const shipId = parseInt(req.params.id);
     if (!wallet) return res.status(401).json({ error: 'UNAUTHORIZED' });
     if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
