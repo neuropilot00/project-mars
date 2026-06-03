@@ -1,3 +1,19 @@
+## 2026-06-03 — 배신 시스템 3종 + 경제 튜닝 (v7.349~v7.360)
+
+| 기능 | 상태 | 비고 |
+|---|---|---|
+| 길드 변절(배신): 금고 carve 탈취+`guild_betrayer` 낙인+자동현상금+72h 쿨다운 | 🟢 | 백 13/13 + 프론트 DEFECT 버튼/경고모달(프리뷰 검증). mig299 |
+| 킬보드: `ship_wrecks` 격침 귀속(victim/killer/side) + SAVEPOINT 격리 | 🟢 | 8/8. mig301. killer-event로 멀티함대 귀속 정확화 |
+| PvP 스파이/정찰: 적 함대 구성 노출+GP 소각+탐지 통보+이중첩자(`the_handler`) 할인 | 🟢 | 11/11. mig302 |
+| 킬보드+정찰 UI(PVP 탭, 4개국어 i18n) | 🟢 | `kbSwitchTab`/`loadKillboard`/`kbScout`. 프리뷰 렌더 검증 |
+| Codex 적대 검수 P1×2 / P2×3 수정 | 🟢 | mig301 테이블 방어생성·approveJoinRequest 쿨다운·limit 음수클램프·할인 클램프·멀티함대 귀속 |
+| quest_reward_pool 폐지(게임플레이 GP 직접지급, PP 충전전용) | 🟢 | mig298. harvest 라이브 + 재시뮬 |
+| 추천 수수료 교차통화(PP→GP) 발행 폐지 → 인플레 제거 | 🟢 | v7.353. 3-tier 10/10. GP 비발행 |
+| 함선 수리비 0.01→0.03 GP/HP(반복 GP 싱크) | 🟢 | mig300 |
+| 베타 고지 모달 + 시크릿/자동백업 등 §1 차단 처리 | 🟢 | docs/OPEN_BETA_CHECKLIST |
+
+신규 자산: 서비스 `spy.js`, 라우트 `killboard.js`/`spy.js`, 테이블 `guild_defections`/`spy_reports`(+`ship_wrecks` killer 컬럼), 태그 `guild_betrayer`. 모든 GP 이동은 carve(발행 0) — 격리 검증 잔여 0.
+
 ## 2026-05-31 — 합체(assembly.assemble) quality_mult 컬럼 참조 500 RESOLVED
 
 - 증상: 모든 합체 internal_error. 원인: ships INSERT가 미존재 컬럼 quality_mult 참조. DB로 컬럼 부재 확인 후 INSERT에서 제거. 라이브 검증: 합체 성공 + 품질(common~epic)·bonus 차등 정상.

@@ -1,3 +1,15 @@
+## 2026-06-03 v7.360 — 배신 시스템 UI(킬보드+정찰) + Codex 검수 반영
+
+- 프론트(index.html): PVP 탭에 킬보드+정찰 섹션 추가. `kbSwitchTab`(board/scout), `loadKillboard`(글로벌 격침 + 내 K/D, 변절자 ⚑ 플래그), `kbScout`(POST /api/spy/scout → 인텔 카드: 구성/atk/def/hp), `loadScoutReports`. 4개국어 i18n(`kb_hub_title`/`kb_tab_board`/`kb_tab_scout` 키 + `_kbL()` 헬퍼). PVP 탭 열림 시 자동 로드. ASSET_VER 7360. 프리뷰로 함수 정의·렌더 검증.
+- Codex 적대 검수 반영(P1×2, P2×3):
+  - [P1] mig301: 신규 배포 대비 `CREATE TABLE IF NOT EXISTS ship_wrecks` 방어 추가(활성 마이그에 생성 없던 문제).
+  - [P1] guild.js `approveJoinRequest`에 변절 재가입 쿨다운 게이트 추가(누락된 join 경로).
+  - [P2] battleEngine 킬보드: 대형함 ship_destroyed 이벤트의 killer_wallet으로 멀티함대 귀속 정확화(소형함은 상대측 대표 폴백).
+  - [P2] spy.js: 이중첩자 할인 0~95% 클램프(100%+ 무료 정찰 스팸 방지).
+  - [P2] killboard.js/spy.js: limit 음수 클램프(`Math.max(1, …)`) — `?limit=-1` DB 에러→200.
+- 라이브 재검증: 대형함 전투 격침 귀속 정확(4/4), 음수 limit HTTP 200, 잔여 0.
+- 문서: CLAUDE.md v7.360 핸드오프 + AUDIT_FINDINGS 요약 추가.
+
 ## 2026-06-03 v7.359 — 배신 Phase 3: PvP 스파이/정찰 (시스템2) (mig 302)
 
 - 그린필드 정보전: 적 함대 구성이 숨겨져 있던 것을 GP 소각 정찰로 노출. 배신 3시스템 완성.

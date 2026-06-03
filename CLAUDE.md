@@ -18,6 +18,18 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
+### v7.360 최신 핸드오프 — 배신 시스템 3종 + 경제 튜닝 (EVE식 수요엔진)
+
+배신(treachery)이 갈등을 만들고 → 함선 파괴(full-loss) → 재건/수리 GP 싱크로 이어지는 EVE식 루프 구축. **모든 GP 이동은 carve(발행 0)**.
+
+- **시스템1 — 길드 변절(`/api/guild/defect`)**: 길드원 변절 시 금고 일부 탈취(carve), 제명, `guild_betrayer` 낙인(캠페인 전용이던 grantTag를 PvP로 확장), 남은 금고로 자동 현상금(기존 `bounty_listings` 재사용), 재가입 쿨다운. 서비스 `guild.js#defectFromGuild`/`getDefectionCooldown`. 프론트 길드패널 `⚔ DEFECT` 버튼+`guildDefect()`. mig299. 쿨다운 게이트: acceptInvite/createJoinRequest/approveJoinRequest.
+- **시스템3 — 킬보드(`/api/killboard`, `/:wallet`)**: full-loss 격침 시 `applyBattleResults`가 `ship_wrecks`에 victim/killer/side 귀속 기록(SAVEPOINT `_kb`로 격리 — 로깅 실패가 전투결과 오염 방지). 대형함 ship_destroyed 이벤트의 killer_wallet으로 멀티함대 귀속 정확화, 소형함은 상대측 대표 폴백. 라우트 `killboard.js`. mig301(`ship_wrecks` killer 컬럼 + 레거시 ship_battles FK 제거 + 방어적 CREATE).
+- **시스템2 — PvP 스파이/정찰(`/api/spy/scout`, `/reports`)**: 숨겨진 적 함대 구성/전투력을 GP 소각해 노출, 탐지 롤(notifyPlayer 통보 → 보복), 이중첩자(`the_handler` 캠페인 태그) 할인. 서비스 `spy.js`. 테이블 `spy_reports`. mig302.
+- **프론트**: PVP 탭에 킬보드+정찰 섹션(`kbSwitchTab`/`loadKillboard`/`kbScout`/`renderScoutPanel`/`_kbIntelCard`), 4개국어 i18n(`kb_*` 키 + `_kbL()` 헬퍼).
+- **Codex 적대 검수 반영**: mig301 테이블 방어생성, approveJoinRequest 쿨다운, killboard/spy limit 음수 클램프, 스파이 할인 0~95% 클램프, 멀티함대 killer 귀속.
+- **경제 동반 변경**: quest_reward_pool **폐지**(게임플레이 보상 GP 직접지급, PP는 충전 전용 — mig298), 추천 수수료 **교차통화 발행 폐지**(인플레 제거, v7.353), 함선 **수리비 0.01→0.03**(반복 GP 싱크, mig300). 함대전 손실은 **EVE식 full-loss**(hijack/siege `*_loss_enabled=true`) — §8/§13 참조.
+- **신규 자산**: 서비스 spy.js / 라우트 killboard.js·spy.js / 테이블 guild_defections·spy_reports·(ship_wrecks 확장) / 태그 guild_betrayer. 조정값 전부 admin settings(`guild_defect_*`, `spy_*`, `ship_repair_gp_per_hp`).
+
 ### v5.97 최신 핸드오프 — P5-3~7 Territory Full Utility Stack
 
 - **P5-3 Shipyard Connection**: `GET /api/ships/blueprints` 응답에 `materialSectorHints` 포함. 조선소 카드 재료 칩 옆에 ⛏ 섹터 뱃지 표시 (frontier/mid/core). `GET /api/ships/resource-sector-hints` 독립 엔드포인트 추가. `sySectorBadge(code)` 헬퍼 추가.
