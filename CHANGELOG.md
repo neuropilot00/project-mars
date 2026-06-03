@@ -1,3 +1,9 @@
+## 2026-06-03 v7.352 — 추천 시스템: 셀프-IP 허용 + 죽은 플래그 정리 (mig 297)
+
+- #1 referral_self_ip_block=false (운영자 추천 정책: 같은 IP 추천 허용). 이 플래그는 일회성 가입보너스(referral_signup_bonus_pp, 현재 0)만 게이트하며 지속 추천 수수료는 원래 IP 무관 — 실질 효과는 향후 가입보너스>0 설정 시에만.
+- #3 코드 미사용(grep 0) 죽은 설정 제거: referral_deposit_reward_enabled(chain.js가 무시), referral_gameplay_reward_enabled, referral_tier2_rate, referral_tier3_rate.
+- #2(추천 수수료 mint→수수료에서 carve) 별도 진행 — 5개 트리거(deposit/swap/shop/cantina/marketplace) 전부 현재 추가발행 확인. 설계 결정 후 구현.
+
 ## 2026-06-03 v7.351 — 오픈베타 첫 진입 고지 모달 (반투명 + 화성 오렌지)
 
 - 신규 진입 시 1회 노출되는 오픈베타 고지 모달 추가(`index.html`). 베타 정식 약관 대체용 고지(방침상 법무 패스).
