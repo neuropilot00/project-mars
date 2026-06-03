@@ -49247,7 +49247,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7388'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7389'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -51378,16 +51378,28 @@ async function syUpgradeShipStat(shipId, stat) {
       resultSub.style.display = 'block';
       resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  '+(LANG==='ko'?'확률':LANG==='ja'?'確率':LANG==='zh'?'概率':'Chance')+' ' + d.chance + '%  ·  '+(LANG==='ko'?'굴림':LANG==='ja'?'ロール':LANG==='zh'?'骰值':'Roll')+' ' + d.roll;
     } else {
-      glowBg.style.background = 'radial-gradient(circle, rgba(244,67,54,.18) 0%, transparent 70%)';
+      // (도파민 v7.389) near-miss — 굴림이 필요%를 근소하게(≤8%) 초과한 "아깝게 실패"는 긴장 연출.
+      var _gap = (Number(d.roll) - Number(d.chance));
+      var _nearMiss = (_gap > 0 && _gap <= 8);
+      glowBg.style.background = 'radial-gradient(circle, rgba(244,67,54,'+(_nearMiss?'.32':'.18')+') 0%, transparent 70%)';
       glowBg.style.opacity = '1';
       gauge.style.background = 'linear-gradient(90deg,#ff9800,#f44336)';
       gauge.style.boxShadow = '0 0 10px rgba(244,67,54,.45)';
-      _showForgeResultEmoji('💔', '#ef9a9a'); // [v7.192] 강화 실패 = 깨진 하트
-      titleEl.textContent = LANG==='ko'?'💔 강화 실패':LANG==='ja'?'💔 強化失敗':LANG==='zh'?'💔 强化失败':'💔 Upgrade Failed';
       resultEl.style.display = 'block';
-      resultEl.style.color = '#ffb3b3';
-      resultEl.textContent = LANG==='ko'?'재료와 GP는 소모되었습니다':LANG==='ja'?'素材とGPが消費されました':LANG==='zh'?'素材和GP已消耗':'Materials and GP were consumed';
       resultSub.style.display = 'block';
+      if (_nearMiss) {
+        _showForgeResultEmoji('😖', '#ffd166');
+        titleEl.textContent = LANG==='ko'?'😖 아깝다! 강화 실패':LANG==='ja'?'😖 惜しい！強化失敗':LANG==='zh'?'😖 差一点！强化失败':'😖 SO CLOSE!';
+        resultEl.style.color = '#ffd166';
+        resultEl.textContent = LANG==='ko'?('단 '+_gap.toFixed(1)+'% 차이로 실패!'):LANG==='ja'?('わずか'+_gap.toFixed(1)+'%差で失敗！'):LANG==='zh'?('仅差'+_gap.toFixed(1)+'%失败！'):('Missed by just '+_gap.toFixed(1)+'%!');
+        try{ if(window._sfx) _sfx.error(); }catch(_){}
+        try{ resultEl.animate([{transform:'translateX(0)'},{transform:'translateX(-7px)'},{transform:'translateX(7px)'},{transform:'translateX(-4px)'},{transform:'translateX(0)'}],{duration:300,easing:'ease-out'}); }catch(_){}
+      } else {
+        _showForgeResultEmoji('💔', '#ef9a9a');
+        titleEl.textContent = LANG==='ko'?'💔 강화 실패':LANG==='ja'?'💔 強化失敗':LANG==='zh'?'💔 强化失败':'💔 Upgrade Failed';
+        resultEl.style.color = '#ffb3b3';
+        resultEl.textContent = LANG==='ko'?'재료와 GP는 소모되었습니다':LANG==='ja'?'素材とGPが消費されました':LANG==='zh'?'素材和GP已消耗':'Materials and GP were consumed';
+      }
       resultSub.textContent = '-' + syFmt(d.gp_cost) + ' GP  ·  '+(LANG==='ko'?'확률':LANG==='ja'?'確率':LANG==='zh'?'概率':'Chance')+' ' + d.chance + '%  ·  '+(LANG==='ko'?'굴림':LANG==='ja'?'ロール':LANG==='zh'?'骰值':'Roll')+' ' + d.roll;
     }
   }
