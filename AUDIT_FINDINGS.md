@@ -1,3 +1,32 @@
+## 2026-06-03 — 자금유통/경제 /loop 수렴 (클린 판정)
+
+여러 라운드(팀+레드팀+Codex×2+나머지표면 스윕) 결과, 마지막 두 라운드가 **실 money-safety 버그
+0건**으로 수렴. 발견된 모든 문제는 수정·검증 완료, 잔여 지적은 전부 "검증 후 안전" 판정.
+
+### 수정 완료(라운드 누적)
+- [P0] 카지노 5종 USDT 발행 차단(PP 전용) — 솔벤시/페그 보호 (v7.370)
+- [P0] crash 캐시아웃 시간검증 — 무위험 보장승 차단 (v7.370)
+- [M] 만료 현상금 환불 행별 원자화 / 변절 현상금 리더취소 차단 (v7.370)
+- staking 폐지 — 무담보 yield 인플레 제거 (v7.371)
+- [M] HiLo +EV 누수(동점 미포함) 수정 (v7.372)
+- 카지노 하우스 엣지 15% 통일+어드민화 (v7.373)
+
+### Codex 라운드2 + 검증으로 "안전" 확정(수정 불요)
+- 카지노 outcome 무결성: coinflip/dice/hilo/mines/crash 전부 서버권위 RNG(crypto.randomBytes)+서버고정 배수+가드 차감. 클린.
+- 카지노 "뱅크롤 없음" HIGH: PP 전용+비상환(arena.js에 redeemable_pp 참조 0)이라 USDT 페그 무관, 15% 엣지로 net 디플레 = 표준 모델. 버그 아님.
+- season.js USDT 보상: lockRoom 담보 room 체크 후 fail-closed(:425-433). 안전.
+- cantina 추천 PP: bet×0.05×0.02≈0.1% 비상환 PP, 15% 디플레에 묻힘 = 실질 carve. 무시 가능.
+- lottery 하우스컷 라우팅(:292) 죽음: burn-on-buy/mint-on-draw 모델상 net 소각(디플레)이라 복구하면 오히려 mint — 의도적 유지.
+- lottery/dividends/길드금고/transport/sponsor/capsule/tdesc: 가드 차감+원자성+보존+중복방지 전부 확인. 클린.
+
+### 불변식 재확인(클린)
+- USDT: SUM(usdt_balance)<=collateral — 입금 시 담보 동시증액, 환매 시 redeemable_pp 동반차감, 카지노/시즌은 비상환/담보게이트. 페그 불변.
+- GP: 게임플레이 보상은 의도된 faucet, fleet/수리/카지노/현상금 sink가 압도 = net 디플레.
+- 동시성: 머니 차감 전부 AND bal>=amount + rowCount 가드. double-spend 불가.
+- 권한: 자금이동 라우트 전부 requireAuth+JWT(토큰 지갑). 스푸핑 불가.
+
+→ 자금유통 핵심 프로세스에서 소스 기반 money-safety 결함 미발견. /loop 종료.
+
 ## 2026-06-03 — 카지노 하우스 엣지 15% 통일 (운영 방침: 하우스 우위)
 
 기존 카지노 엣지가 게임별 하드코딩 2~4%로 얇아 "하우스가 쉽게 이긴다"는 방침에 미달.
