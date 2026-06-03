@@ -445,24 +445,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
   </div>
 
-  <!-- Quest Reward Pool -->
-  <div class="section cat-finance">
-    <div class="sec-header">
-      <span class="sec-title">QUEST REWARD POOL</span>
-      <button class="ev-btn" onclick="loadQuestPool()">REFRESH</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-      <div class="stat-card"><div class="sc-label">POOL BALANCE</div><div class="sc-value gn" id="qpBalance">--</div><div class="sc-sub">available PP</div></div>
-      <div class="stat-card"><div class="sc-label">TOTAL FUNDED</div><div class="sc-value" id="qpFunded">--</div><div class="sc-sub">lifetime in</div></div>
-      <div class="stat-card"><div class="sc-label">TOTAL PAID</div><div class="sc-value" id="qpPaid">--</div><div class="sc-sub">lifetime out</div></div>
-      <div class="stat-card"><div class="sc-label">TODAY PAID</div><div class="sc-value" id="qpToday">--</div><div class="sc-sub">daily spend</div></div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <input type="number" class="adm-input" id="qpFundAmount" placeholder="Amount (PP)" style="width:140px" step="1" min="1">
-      <button class="ev-btn" onclick="fundQuestPool()">FUND POOL</button>
-      <button class="ev-btn del" onclick="setQuestPool()">SET BALANCE</button>
-    </div>
-  </div>
+  <!-- [v7.354] QUEST REWARD POOL 위젯 제거 — quest_reward_pool 폐지(게임플레이 보상 GP 직접 지급) -->
 
   <!-- Users Table -->
   <div class="section cat-users">
@@ -3716,30 +3699,8 @@ function renderPagination(elId, current, total, count, loadFn) {
   el.appendChild(next);
 }
 
-// ── Quest Reward Pool ──
-function loadQuestPool() {
-  api('/admin/api/quest-pool').then(function(d) {
-    document.getElementById('qpBalance').textContent = parseFloat(d.balance).toFixed(2) + ' PP';
-    document.getElementById('qpFunded').textContent = parseFloat(d.total_funded).toFixed(2) + ' PP';
-    document.getElementById('qpPaid').textContent = parseFloat(d.total_paid).toFixed(2) + ' PP';
-    document.getElementById('qpToday').textContent = parseFloat(d.today_paid).toFixed(2) + ' PP';
-  });
-}
-function fundQuestPool() {
-  var amt = document.getElementById('qpFundAmount').value;
-  if (!amt || parseFloat(amt) <= 0) return showToast('Enter a valid amount');
-  api('/admin/api/quest-pool/fund', 'POST', { amount: parseFloat(amt) }).then(function(d) {
-    if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
-  });
-}
-async function setQuestPool() {
-  var amt = document.getElementById('qpFundAmount').value;
-  if (amt === '' || parseFloat(amt) < 0) return showToast('Enter a valid balance');
-  if (!await adminConfirm('Set pool balance to ' + amt + ' PP?')) return;
-  api('/admin/api/quest-pool/set', 'POST', { balance: parseFloat(amt) }).then(function(d) {
-    if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
-  });
-}
+// [v7.354] Quest Reward Pool 제거 — quest_reward_pool 폐지. loadQuestPool은 no-op 스텁(잔존 호출 방어).
+function loadQuestPool() {}
 
 // ── Revenue Chart ──
 function loadRevenue() {

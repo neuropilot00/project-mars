@@ -30897,12 +30897,7 @@ function renderQuests(quests, container){
     return;
   }
   var html='';
-  // Pool status indicator
-  if(!_questPoolData.active){
-    html+='<div style="text-align:center;padding:8px;margin-bottom:8px;background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.2);border-radius:6px;font-size:10px;color:#F66">'+t('quests_pool_depleted')+'</div>';
-  } else if(_questPoolData.multiplier<0.5){
-    html+='<div style="text-align:center;padding:8px;margin-bottom:8px;background:rgba(240,200,64,.08);border:1px solid rgba(240,200,64,.2);border-radius:6px;font-size:10px;color:var(--gold)">'+t('quests_pool_low').replace('{pct}',Math.round(_questPoolData.multiplier*100))+'</div>';
-  }
+  // [v7.354] quest_reward_pool 폐지 — 풀 상태 경고 제거(보상은 항상 GP 전액 지급).
   var currentTier='';
   var tierNames={free:t('quests_tier_free'),activity:t('quests_tier_activity'),spending:t('quests_tier_spending')};
   quests.forEach(function(q){
@@ -48899,7 +48894,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7351'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7354'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
