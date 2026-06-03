@@ -1,3 +1,14 @@
+## 2026-06-03 v7.353 — 추천 수수료 인플레 제거: 교차통화 발행 폐지 + swap carve
+
+- 문제: 추천 수수료가 이벤트와 다른 통화로 "발행(mint)"돼 인플레 유발. 특히 swap/shop/cantina가 PP/USDT 이벤트인데 GP를 새로 찍어(db.js의 PP→GP 환산) 게임 경제(GP)에 인플레 압력. swap은 quest pool에 fee 반영 + 추천 별도 발행 = 이중.
+- 진단: USDT는 담보(treasury_ledger collateral)로 묶여 USDT 발행 불가 → 그래서 게임통화로 우회 발행했던 것. 핵심 인플레원은 (1) PP→GP 교차통화 발행, (2) swap 이중적립.
+- 조치(코드 전용, 마이그레이션 없음):
+  - db.js creditReferralCommission: PP→GP 환산 폐지. 이벤트와 "같은 통화"로 지급. 게임통화 sink 수수료(cantina house-edge/marketplace fee)는 같은 통화 지급이 sink 상쇄라 net-zero. USDT 이벤트(deposit/shop)는 호출부가 'pp'를 넘겨 PP 지급(실입금 담보 기반, redeemable_pp 미증가라 비상환 → 페그/솔벤시 불변). GP는 더 이상 비-GP 이벤트에서 발행 안 됨.
+  - api.js swap: 추천 먼저 분배 후 quest pool 은 (fee - referral)만 적립 = 명시적 carve.
+- 사용자 결정 반영: deposit/shop 추천은 테더(USDT) 아닌 PP 지급. quest pool은 fee의 20%만 받던 구조라 80%는 원래 sink — 추천 PP가 그 sink에 흡수돼 net 디플레 유지.
+- 라이브 검증(격리 3-tier 체인, 10/10 PASS): swap/shop/deposit 추천 전부 PP, GP 발행 0, USDT 발행 0, tier 분배 7.5/5/2.5 정확, 잔여 0.
+- 후속(사용자 제기, 별도): quest pool 자체 폐지 여부 — EVE/리니지처럼 quest pool 없이 갈지는 별도 결정.
+
 ## 2026-06-03 v7.352 — 추천 시스템: 셀프-IP 허용 + 죽은 플래그 정리 (mig 297)
 
 - #1 referral_self_ip_block=false (운영자 추천 정책: 같은 IP 추천 허용). 이 플래그는 일회성 가입보너스(referral_signup_bonus_pp, 현재 0)만 게이트하며 지속 추천 수수료는 원래 IP 무관 — 실질 효과는 향후 가입보너스>0 설정 시에만.

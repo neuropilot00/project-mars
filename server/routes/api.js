@@ -2175,14 +2175,17 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
       [wallet.toLowerCase(), received, ppAmount, fee, JSON.stringify({ swapRate: 1, feePercent: s.swap_fee_percent || 5 })]
     );
 
-    // Fund quest pool from swap fees
-    await fundQuestPool(client, fee);
-
-    // Referral commission — swap fee is deducted from PP, so upline commission
-    // must be minted as PP too (crediting USDT here would mint USDT out of nothing).
+    // [v7.353] 추천 수수료를 swap fee 에서 carve(추가발행 0): 먼저 PP 추천 분배 후
+    //   quest pool 은 잔여분(fee - referral)만 적립. (예전엔 quest pool 에 fee 전액 기반
+    //   + 추천을 GP로 별도 발행 = 교차통화 인플레.)
+    let _refTotal = 0;
     try {
-      await creditReferralCommission(client, wallet, 'swap', fee, 'pp');
+      const credited = await creditReferralCommission(client, wallet, 'swap', fee, 'pp');
+      _refTotal = (credited || []).reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
     } catch (_e) { /* non-critical */ }
+
+    // Fund quest pool from the remaining swap fee (referral 몫 제외)
+    await fundQuestPool(client, Math.max(0, fee - _refTotal));
 
     await client.query('COMMIT');
     res.json({ success: true, received, fee, ppDeducted: ppAmount });

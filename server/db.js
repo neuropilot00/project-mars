@@ -463,14 +463,18 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
     const chain = await getReferralChain(client, fromWallet.toLowerCase());
     if (!chain.length) return [];
 
+    // [v7.353] 추천 수수료 인플레 제거: PP→GP 교차통화 환산(발행) 폐지.
+    //   이벤트/수수료와 "같은 통화"로 지급한다 — 이유:
+    //   · 게임통화 수수료(swap PP, cantina PP house-edge, marketplace fee)는 대부분 sink라
+    //     같은 통화 지급이 sink 상쇄 → net-zero(추가발행 없음). swap은 추가로 호출부에서
+    //     quest pool 을 (fee - referral)로 줄여 명시적 carve.
+    //   · USDT 이벤트(deposit/shop)는 호출부가 'pp'를 넘겨 PP 지급. 실입금 USDT 담보 유입에
+    //     기반하고, referral PP는 redeemable_pp를 올리지 않아(비상환) USDT 페그/솔벤시 불변.
+    //   · GP는 더 이상 비-GP 이벤트에서 발행되지 않음(게임 경제 디플레 유지).
     const requestedCur = (currency || 'pp').toLowerCase();
-    // [경제v2 P2] PP 발행은 chain.js 입금 경로만 허용. 그 외 PP-denominated referral은 GP로 환산 지급.
-    const cur = requestedCur === 'pp' && triggerType !== 'deposit' && triggerType !== 'hijack' ? 'gp' : requestedCur;
-    // ✅ Fix (Migration 099): correctly map currency to the right balance column
+    const cur = requestedCur;
     const balCol = cur === 'usdt' ? 'usdt_balance' : cur === 'gp' ? 'gp_balance' : 'pp_balance';
-
-    // Pool that the tree shares for this event
-    const commissionBase = cur === 'gp' && requestedCur === 'pp' ? baseAmount * await getPPToGPRate(client) : baseAmount;
+    const commissionBase = baseAmount;
     const commissionPool = commissionBase * (triggerPct / 100);
     // [v7.190 fix] tier 합계가 100 초과해도 pool 초과 분배 차단 — 누적 trackingPool 로 cap.
     //   기존엔 각 tier 가 independently pool*(pct/100) → t1+t2+t3>100 시 pool 초과 mint.
