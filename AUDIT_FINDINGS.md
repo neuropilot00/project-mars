@@ -1,3 +1,17 @@
+## 2026-06-04 — 도파민 신규 코드 적대검수 (팀+레드팀+Codex)
+
+v7.388~394 신규 코드(승리슬롯/킬메일/복귀브리핑/실드) 검수.
+
+| 등급 | 항목 | 결과 |
+|---|---|---|
+| **CLASS A(잠재)** | repairShip의 feedPool이 SAVEPOINT 미격리 → fresh/부분 배포에서 mig313 전 실행 시 풀 UPDATE throw가 수리 트랜잭션 오염→수리 silent 롤백 | ✅ 수정(SAVEPOINT _vsfeed). 런타임 검증: feedPool 오류 격리 후 부모 txn 생존+COMMIT |
+
+### 검증 통과(안전 확정)
+- 승리 슬롯: **carve-safe, 완전 가드**. 승자=JWT+서버산정(스푸핑 불가), double-spin=claims PK+ON CONFLICT(race-safe), 풀 음수/드레인=FOR UPDATE+선클램프, self-feed=80% 소각 순손실(인플레 불가). draw는 winner 행 미생성→스핀 불가. 유일 흠은 dust 누적(보수적, 누수 아님).
+- 킬메일 wreck 값: 컬럼 전부 존재(bonus_*/build_gp_cost)+COALESCE+LEFT JOIN+BIGINT 범위내, SAVEPOINT _kb 격리 → 최악도 빈 wreck(전투결과 오염 없음).
+- away-briefing: 읽기전용, wallet=JWT only, 무인증 401.
+- 스키마-코드 정합(victory_slot_pool/claims).
+
 ## 2026-06-03 — 함대전·경제 적대검수 (팀+레드팀+Codex): P0 격침회피 외 다수
 
 검수 종합. JSONB 플래그(7종)·전투해소 exactly-once·재료/GP 보존·P2W곡선(180pt cap)·캐피탈 게이팅·

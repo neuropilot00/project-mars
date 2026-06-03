@@ -1002,7 +1002,15 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     );
 
     // 10. (승리 슬롯 v7.392) 수리 GP의 일부를 소각 대신 승리 슬롯 풀에 적립(carve 순환).
-    try { await require('./victorySlot').feedPool(client, gpCost); } catch (_) {}
+    //   (v7.395) SAVEPOINT 격리 — 풀 테이블 미존재/오류(fresh·부분 배포)가 수리 트랜잭션을
+    //   오염시켜 수리 자체가 silent 롤백되지 않게 한다(CLASS A 차단, _kb 패턴 동일).
+    try {
+      await client.query('SAVEPOINT _vsfeed');
+      await require('./victorySlot').feedPool(client, gpCost);
+      await client.query('RELEASE SAVEPOINT _vsfeed');
+    } catch (_) {
+      try { await client.query('ROLLBACK TO SAVEPOINT _vsfeed'); } catch (_2) {}
+    }
 
     await client.query('COMMIT');
 
