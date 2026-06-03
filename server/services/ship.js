@@ -879,7 +879,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
 
     // 1. 함선 조회 (소유권 + 생존 확인 + build_gp_cost)
     const { rows: shipRows } = await client.query(`
-      SELECT s.id, s.current_hp, s.max_hp, s.bonus_hp,
+      SELECT s.id, s.fleet_id, s.current_hp, s.max_hp, s.bonus_hp,
              COALESCE(s.is_market_listed, false) AS is_market_listed,
              st.name_ko, st.build_gp_cost
       FROM ships s
@@ -894,6 +894,9 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     }
     const ship = shipRows[0];
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
+    // (격침회피/조작 차단 v7.374) 전투(preparing/active) 중인 함대의 함선은 수리 불가 —
+    // 전투 직전/도중 HP를 채워 full-loss 손실을 줄이는 조작 방지.
+    await assertShipNotInBattle(client, ship.fleet_id);
 
     // 2. 이미 풀체력이면 에러
     const effectiveMax = parseInt(ship.max_hp) + parseInt(ship.bonus_hp || 0);
@@ -1045,7 +1048,7 @@ async function chargeShield(walletAddress, shipId, units) {
 
     // 1. 함선 조회
     const { rows: shipRows } = await client.query(`
-      SELECT s.id, s.max_hp, s.bonus_hp, s.shield_hp, s.shield_max,
+      SELECT s.id, s.fleet_id, s.max_hp, s.bonus_hp, s.shield_hp, s.shield_max,
              COALESCE(s.is_market_listed, false) AS is_market_listed
       FROM ships s
       WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
@@ -1055,6 +1058,8 @@ async function chargeShield(walletAddress, shipId, units) {
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     const ship = shipRows[0];
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
+    // (조작 차단 v7.374) 전투(preparing/active) 중인 함대의 함선엔 실드 충전 불가.
+    await assertShipNotInBattle(client, ship.fleet_id);
 
     // 2. 실드 최대치 계산
     const shieldMaxRatio = parseInt(await getSetting('shield_max_ratio', '50')) || 50;
@@ -1328,15 +1333,9 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     const ship = shipRows[0];
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
-    // SHIP_IN_BATTLE 체크 — DB 오류가 체크를 우회하지 않도록 명시적으로 re-throw
-    const { rows: battleRows } = await client.query(`
-      SELECT 1
-      FROM fleet_battle_participants fbp
-      JOIN fleet_battles fb ON fb.id = fbp.battle_id
-      WHERE fbp.fleet_id = $1 AND fb.status IN ('pending', 'active')
-      LIMIT 1
-    `, [ship.fleet_id]);
-    if (battleRows.length) throw new Error('SHIP_IN_BATTLE');
+    // (v7.374) 전투(preparing/active) 중 강화 차단 — 공유 헬퍼 사용(유령 'pending'→실제
+    // 'preparing'/'active' + SAVEPOINT 격리). 전투 직전 스탯 강화로 결과를 흔드는 조작 방지.
+    await assertShipNotInBattle(client, ship.fleet_id);
 
     const { rows: userRows } = await client.query(
       `SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
@@ -1540,17 +1539,24 @@ async function getShipForMarketLock(client, walletAddress, shipId) {
 
 async function assertShipNotInBattle(client, fleetId) {
   if (!fleetId) return;
+  // (격침회피 차단 v7.374) 기존엔 미사용 유령상태 'pending'을 보고 실제 전투-대기 상태인
+  // 'preparing'(hijack declare가 fbp 행을 만드는 10초 윈도)을 빠뜨려, 그 사이 함선을 마켓에
+  // 등록(fleet_id=NULL)해 full-loss를 회피할 수 있었다. 'preparing','active' 둘 다 차단.
+  // SELECT 실패가 상위 트랜잭션을 오염시키지 않도록 SAVEPOINT로 격리.
   try {
+    await client.query('SAVEPOINT _shipbattlechk');
     const { rows } = await client.query(`
       SELECT 1
       FROM fleet_battle_participants fbp
       JOIN fleet_battles fb ON fb.id = fbp.battle_id
-      WHERE fbp.fleet_id = $1 AND fb.status IN ('pending', 'active')
+      WHERE fbp.fleet_id = $1 AND fb.status IN ('preparing', 'active')
       LIMIT 1
     `, [fleetId]);
+    await client.query('RELEASE SAVEPOINT _shipbattlechk');
     if (rows.length) throw new Error('SHIP_IN_BATTLE');
   } catch (err) {
     if (err.message === 'SHIP_IN_BATTLE') throw err;
+    try { await client.query('ROLLBACK TO SAVEPOINT _shipbattlechk'); } catch (_) {}
   }
 }
 
@@ -1777,7 +1783,7 @@ async function scrapShip(walletAddress, shipId) {
     await client.query('BEGIN');
 
     const { rows: shipRows } = await client.query(`
-      SELECT s.id, s.owner_wallet, s.ship_type_code, s.is_alive,
+      SELECT s.id, s.owner_wallet, s.ship_type_code, s.is_alive, s.fleet_id,
              COALESCE(s.is_market_listed, false) AS is_market_listed,
              st.name_ko, st.build_gp_cost, st.recipe_minerals
       FROM ships s
