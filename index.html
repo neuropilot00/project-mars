@@ -8158,7 +8158,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
           <!-- Leave button (non-leader) — bottom -->
           <div id="guildLeaveSection" style="display:none;margin-top:16px;padding-top:12px;border-top:1px solid var(--bdr)">
-            <button onclick="guildLeave()" style="padding:6px 12px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)" data-i18n="guild_leave_btn">LEAVE GUILD</button>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button onclick="guildLeave()" style="padding:6px 12px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)" data-i18n="guild_leave_btn">LEAVE GUILD</button>
+              <button onclick="guildDefect()" title="Betray the guild" style="padding:6px 12px;border-radius:4px;background:rgba(232,72,85,.10);border:1px solid rgba(232,72,85,.45);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:1px">⚔ DEFECT</button>
+            </div>
           </div>
 
           <!-- Guild management (leader only) — bottom, destructive -->
@@ -27746,6 +27749,40 @@ async function guildLeave(){
     if(data.error){showToast(data.error,'error');return;}
     showToast(t('guild_toast_left'),'info');
     _myGuildData=null;
+    loadGuildTab();
+  }).catch(function(){showToast(t('guild_toast_generic_failed'),'error')});
+}
+
+// [v7.357] 길드 변절(배신) — 금고 탈취 + 배신자 낙인 + 자동 현상금 + 쿨다운
+async function guildDefect(){
+  var body=LANG==='ko'?'길드 금고의 일부를 들고 변절합니다.<br><br>• 금고 일부를 탈취해 내 GP로<br>• <b style="color:#E84855">배신자 낙인</b>이 영구히 찍힘<br>• 남은 금고로 당신에게 <b style="color:#FFD166">현상금</b>이 걸림 (다른 플레이어가 사냥)<br>• 일정 시간 길드 재가입 불가<br><br>돌이킬 수 없습니다.'
+    :LANG==='ja'?'ギルド金庫の一部を持って裏切ります。<br><br>• 金庫の一部を奪取して自分のGPに<br>• <b style="color:#E84855">裏切り者の烙印</b>が永久に付く<br>• 残った金庫からあなたに<b style="color:#FFD166">賞金</b>がかかる(他プレイヤーが狩る)<br>• 一定時間ギルド再加入不可<br><br>取り消せません。'
+    :LANG==='zh'?'带走部分公会金库后叛变。<br><br>• 夺取部分金库为个人GP<br>• 永久打上<b style="color:#E84855">叛徒烙印</b><br>• 用剩余金库对你发布<b style="color:#FFD166">悬赏</b>(其他玩家追杀)<br>• 一段时间内无法重新加入公会<br><br>不可撤销。'
+    :'Defect, taking a cut of the guild treasury.<br><br>• Steal part of the treasury as your GP<br>• Permanent <b style="color:#E84855">betrayer mark</b><br>• A <b style="color:#FFD166">bounty</b> is placed on you from the remaining treasury (others will hunt you)<br>• Cannot rejoin a guild during a cooldown<br><br>This cannot be undone.';
+  var ok=await gameConfirm({
+    icon:'⚔',
+    title:LANG==='ko'?'길드 변절 (배신)':LANG==='ja'?'ギルド裏切り':LANG==='zh'?'公会叛变':'Defect (Betray Guild)',
+    body:body,
+    confirmText:LANG==='ko'?'변절한다':LANG==='ja'?'裏切る':LANG==='zh'?'叛变':'DEFECT'
+  });
+  if(!ok) return;
+  var w=walletState.address;
+  fetch('/api/guild/defect',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){
+      var msg=data.error==='DEFECTION_COOLDOWN'?(LANG==='ko'?('재가입 쿨다운 중 ('+(data.cooldownHours||'')+'h)'):LANG==='ja'?'再加入クールダウン中':LANG==='zh'?'重新加入冷却中':'Rejoin cooldown active')
+        :data.error==='LEADER_CANNOT_DEFECT'?(LANG==='ko'?'리더는 변절할 수 없습니다 (해산/위임 필요)':LANG==='ja'?'リーダーは裏切れません':LANG==='zh'?'会长无法叛变':'Leader cannot defect')
+        :data.error==='NOT_IN_GUILD'?(LANG==='ko'?'길드에 속해있지 않습니다':'Not in a guild')
+        :data.error;
+      showToast(msg,'error');return;
+    }
+    var done=LANG==='ko'?('변절 완료 — '+Math.round(data.stolen||0).toLocaleString()+' GP 탈취, 당신에게 '+Math.round(data.bounty_gp||0).toLocaleString()+' GP 현상금')
+      :LANG==='ja'?('裏切り完了 — '+Math.round(data.stolen||0).toLocaleString()+' GP奪取、賞金'+Math.round(data.bounty_gp||0).toLocaleString()+' GP')
+      :LANG==='zh'?('叛变完成 — 夺取 '+Math.round(data.stolen||0).toLocaleString()+' GP，被悬赏 '+Math.round(data.bounty_gp||0).toLocaleString()+' GP')
+      :('Defected — stole '+Math.round(data.stolen||0).toLocaleString()+' GP, '+Math.round(data.bounty_gp||0).toLocaleString()+' GP bounty on you');
+    showToast(done,'info');
+    _myGuildData=null;
+    try{ if(typeof loadGPBalance==='function') loadGPBalance(); else if(typeof refreshGP==='function') refreshGP(); }catch(_){}
     loadGuildTab();
   }).catch(function(){showToast(t('guild_toast_generic_failed'),'error')});
 }
@@ -48894,7 +48931,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7354'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
+var ASSET_VER = '7357'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
