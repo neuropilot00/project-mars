@@ -1,3 +1,16 @@
+## 2026-06-03 — 자금유통 라운드 2: 카지노 결과 무결성 + HiLo +EV 수정
+
+레드팀이 5개 카지노 게임 결과 무결성을 검증: coinflip/dice/mines/crash 전부 **서버 권위적**
+(crypto.randomBytes 서버 RNG + 서버고정 배수 + AND bal>=amount/rowCount 가드 차감 + 베팅 min/max 검증)
+= 클린. 단 **HiLo 배수 오산정**(arena.js:1129-1132).
+
+- **HiLo +EV 누수(확정, 하우스 PP 손실)**: push(동점)=자동승인데 `winCards=14-v`가 동점 랭크를
+  빼고 `13/winCards`로 배수 산정 → 모든 high/low 추측이 +EV. 수치검증: King-high **+96%**, 8-high
+  +14.3% (벽쪽일수록 큼). (레드팀은 winCards===0의 1.5 폴백만 +EV로 봤으나 그건 반대로 -88% EV —
+  방향 오판. 본질은 동점 미포함이라 전 구간 +EV였음.)
+- 수정: winCards에 동점 랭크 +1 포함 → `13/(winCards+1)*0.98`. preview/폴백(1.5/99)도 제거.
+  검증: 전 카드값×방향 EV = 정확히 -2% 하우스엣지. arena syntax OK, 스모크 11/0.
+
 ## 2026-06-03 — staking 폐지 (확정 인플레 누수 제거, 사용자 결정)
 
 GP staking yield(15% APY + 최대 1.5배)가 stake 시 amount를 일시 lock할 뿐 어떤 sink/pool에서도

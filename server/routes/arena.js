@@ -1125,11 +1125,15 @@ router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
     }
 
     if (correct) {
-      // Calculate multiplier for this guess
-      const higherCards = 14 - lastCard.value; // cards strictly higher
-      const lowerCards = lastCard.value - 2; // cards strictly lower
-      const winCards = pick === 'high' ? higherCards : lowerCards;
-      const guessMult = winCards > 0 ? Math.round((13 / Math.max(winCards, 1)) * 0.98 * 10000) / 10000 : 1.5;
+      // Calculate multiplier for this guess.
+      // (밸런스 v7.372) push(동점)도 승리(위 line의 correct=true)이므로 승리확률 =
+      // (해당 방향 strictly 카드 + 동점 1랭크)/13. 기존 winCards=14-v는 동점을 빼고 13/winCards로
+      // 과지급 → 모든 추측이 +EV(하우스 손실, 벽 카드 +96%)였다. 동점 랭크(+1)를 포함해 정확히
+      // 2% 하우스엣지로 보정하고, winCards가 항상 ≥1이라 1.5 폴백도 제거.
+      const higherCards = 14 - lastCard.value; // strictly higher
+      const lowerCards = lastCard.value - 2;   // strictly lower
+      const winCards = (pick === 'high' ? higherCards : lowerCards) + 1; // +1 = 동점 랭크도 승리
+      const guessMult = Math.round((13 / winCards) * 0.98 * 10000) / 10000;
       const newMult = Math.round(parseFloat(g.current_multiplier) * guessMult * 10000) / 10000;
 
       await client.query(
@@ -1137,11 +1141,9 @@ router.post('/hilo/guess', requireAuth, betLimiter, async (req, res) => {
         [JSON.stringify(cards), newMult, gameId]
       );
 
-      // Next guess multiplier preview
-      const nextHigher = 14 - newCard.value;
-      const nextLower = newCard.value - 2;
-      const nextHighMult = nextHigher > 0 ? Math.round((13 / nextHigher) * 0.98 * 10000) / 10000 : 99;
-      const nextLowMult = nextLower > 0 ? Math.round((13 / nextLower) * 0.98 * 10000) / 10000 : 99;
+      // Next guess multiplier preview (동점 랭크 +1 포함 — guessMult와 동일 공식)
+      const nextHighMult = Math.round((13 / ((14 - newCard.value) + 1)) * 0.98 * 10000) / 10000;
+      const nextLowMult  = Math.round((13 / ((newCard.value - 2) + 1)) * 0.98 * 10000) / 10000;
 
       await client.query('COMMIT');
       res.json({

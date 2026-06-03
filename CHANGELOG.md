@@ -1,3 +1,8 @@
+## 2026-06-03 v7.372 — HiLo +EV 누수 수정 (동점 배수 보정)
+
+HiLo에서 push(동점)가 승리인데 배수 공식이 동점 랭크를 빼 모든 추측이 +EV(하우스 PP 손실,
+벽 카드 +96%)였다. winCards에 동점(+1) 포함해 전 구간 정확히 2% 하우스엣지로 보정. 수치 검증.
+
 ## 2026-06-03 v7.371 — staking 폐지 (무담보 yield 인플레 제거, mig306)
 
 GP staking yield(15% APY)가 sink 없이 순발행되던 인플레 누수를 제거. staking_enabled=false로
