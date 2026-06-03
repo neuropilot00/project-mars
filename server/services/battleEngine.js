@@ -682,14 +682,18 @@ function assignFormationSlots(fleet) {
   const R = fleet.radius;
   
   if (fleet.formation === 'sphere') {
-    // 기본 - 이미 초기화됐으면 놔두기
-    for (const s of escorts) {
+    // (v7.386) 큰/중요한 함선은 안쪽 코어(기함 옆), 작은 함선은 바깥 궤도(소모성 스크린).
+    //   orbitDist를 함급 기반으로 — renderRadius 내림차순(큰함 먼저) → 안쪽부터 채움.
+    const sorted = [...escorts].sort((a, b) => b.renderRadius - a.renderRadius);
+    const total = sorted.length;
+    sorted.forEach((s, i) => {
       if (!s.slotAssigned) {
-        s.orbitAngle = Math.random() * Math.PI * 2;
-        s.orbitDist = 15 + Math.random() * (R - 15);
+        const frac = total <= 1 ? 0 : i / (total - 1);      // 0(안쪽)..1(바깥)
+        s.orbitAngle = (i / Math.max(1, total)) * Math.PI * 2 + Math.random() * 0.35;
+        s.orbitDist = 15 + frac * (R - 15);                 // 큰함=안쪽, 작은함=바깥
         s.slotAssigned = true;
       }
-    }
+    });
   } else if (fleet.formation === 'wedge') {
     const sorted = [...escorts].sort((a,b) => a.renderRadius - b.renderRadius);
     const total = sorted.length;
