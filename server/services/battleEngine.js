@@ -1108,6 +1108,7 @@ function computeBattleStats(state) {
         side: fleet.side,
         is_alive: !!s.isAlive,
         current_hp: Math.max(0, Math.round(parseFloat(s.hp) || 0)),
+        shield_hp: Math.max(0, Math.round(parseFloat(s.shield_hp) || 0)), // (v7.375) 전투 후 소모된 실드 영속용
         max_hp: s.maxHp,
         bonus_atk: s.bonus_atk || 0,
         bonus_def: s.bonus_def || 0,
@@ -1281,16 +1282,18 @@ async function applyBattleResults(battleId, result) {
           } else {
             await client.query(`
               UPDATE ships
-              SET current_hp = GREATEST(1, ROUND((max_hp + COALESCE(bonus_hp, 0)) * 0.15))
+              SET current_hp = GREATEST(1, ROUND((max_hp + COALESCE(bonus_hp, 0)) * 0.15)),
+                  shield_hp = 0
               WHERE id = $1 AND is_alive = true
             `, [sid]);
           }
         } else {
           await client.query(`
             UPDATE ships
-            SET current_hp = LEAST(current_hp, max_hp + COALESCE(bonus_hp, 0), $1)
+            SET current_hp = LEAST(current_hp, max_hp + COALESCE(bonus_hp, 0), $1),
+                shield_hp = GREATEST(0, $3)
             WHERE id = $2 AND is_alive = true
-          `, [simHp, sid]);
+          `, [simHp, sid, Math.round(parseFloat(s.shield_hp) || 0)]);
         }
       }
     } else {
@@ -1307,9 +1310,10 @@ async function applyBattleResults(battleId, result) {
           } else {
             await client.query(`
               UPDATE ships
-              SET current_hp = LEAST(current_hp, max_hp + COALESCE(bonus_hp, 0), $1)
+              SET current_hp = LEAST(current_hp, max_hp + COALESCE(bonus_hp, 0), $1),
+                  shield_hp = GREATEST(0, $3)
               WHERE id = $2 AND is_alive = true
-            `, [hp, sid]);
+            `, [hp, sid, Math.round(parseFloat(s.shield_hp) || 0)]);
           }
         }
       } else {

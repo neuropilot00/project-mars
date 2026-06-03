@@ -1,3 +1,28 @@
+## 2026-06-03 — 함대전·경제 적대검수 (팀+레드팀+Codex): P0 격침회피 외 다수
+
+검수 종합. JSONB 플래그(7종)·전투해소 exactly-once·재료/GP 보존·P2W곡선(180pt cap)·캐피탈 게이팅·
+AI함대 무발행·repair dust 없음은 전부 **안전 확정**(검토자 오탐 차단). 수정한 실버그:
+
+| 등급 | 버그 | 수정 |
+|---|---|---|
+| **P0** | scrapShip SELECT에 fleet_id 누락 → SHIP_IN_BATTLE 가드 항상 무력화 → preparing 10초 윈도에 함선 해체로 격침회피+40% 환수 (full-loss 붕괴) | fleet_id 추가 (v7.374) |
+| **P1** | assertShipNotInBattle 유령상태 'pending'→실제 'preparing' 누락 → 마켓등록으로 격침회피 | 'preparing'/'active'+SAVEPOINT |
+| **H** | repairShip/chargeShield 전투가드 부재, upgradeStat 유령 'pending' → 전투 중 HP/실드/스탯 조작 | 공유 헬퍼 통일 |
+| **H** | battleEngine: 실드가 sim에서 소모되나 applyBattleResults가 shield_hp 미영속 → 매전투 풀실드 재사용(GP싱크 무력화) | by_ship에 shield_hp + 생존/보존 UPDATE에 영속 (v7.375) |
+| **H** | Titan 서버캡(3/종) cross-wallet TOCTOU → 동시 건조로 캡 초과 | pg_advisory_xact_lock(종별 직렬화) |
+| **H** | 하이잭 픽셀 이전(phase2/auto-win)이 lat/lng만으로 UPDATE → 선언 후 소유권 바뀐 픽셀을 stale 덮어쓰기(제3자 영토 탈취) | LOWER(owner) IS NOT DISTINCT FROM prevOwner 술어 |
+
+### 검증된 안전(수정 불요)
+- applyBattleResults exactly-once: 단일 호출+FOR UPDATE+status WHERE rowCount+rewards 존재검사.
+- full-loss 플래그 7종 전부 String()=== 'true' 정상 판독(JSONB flip 없음). 커맨더 공성 분리게이트.
+- 재료/GP 차감 전부 AND qty/bal>=needed+rowCount. upgrade 실패도 비용소모. buy/forfeit/wallet JWT 안전.
+- 경제: full-loss 재건 sink >> 전투보상 = 디플레. 캐피탈 Core/Mid 섹터게이팅 실효. 마켓수수료 소각.
+
+### 🟡 잔여(별도, 저빈도)
+- api.js:1820 하이잭 declare가 픽셀을 서비스 트랜잭션 밖에서 FOR UPDATE 없이 읽음(stale enemy_pixels) — 전송 단계의 expected-owner 술어로 실제 탈취는 차단됨. 선언 자체의 원자화는 후속.
+- battleEngine:1175 applyBattleResults가 참가 함선 row FOR UPDATE 미적용(MEDIUM race) — 스케줄러 직렬화로 실질 위험 낮음.
+- 킬보드 멀티함대 소형함 귀속(LOW, SAVEPOINT 격리, stats만).
+
 ## 2026-06-03 — 자금유통/경제 /loop 수렴 (클린 판정)
 
 여러 라운드(팀+레드팀+Codex×2+나머지표면 스윕) 결과, 마지막 두 라운드가 **실 money-safety 버그

@@ -243,6 +243,10 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     
     // 5. 서버 한도 체크 (Titan)
     if (st.max_per_server) {
+      // (TOCTOU 차단 v7.375) 유저 row FOR UPDATE는 서로 다른 지갑을 직렬화하지 못해, 두 유저가
+      // 동시에 마지막 슬롯을 통과하면 서버 캡(3/종)을 초과한다. 종(種) 단위 advisory 트랜잭션
+      // 락으로 같은 ship_type의 동시 건조를 직렬화한다(COMMIT/ROLLBACK 시 자동 해제).
+      await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, ['shipbuild:' + shipTypeCode]);
       const { rows: cntRows } = await client.query(
         `SELECT COUNT(*) AS c FROM ships WHERE ship_type_code = $1 AND is_alive = true`,
         [shipTypeCode]

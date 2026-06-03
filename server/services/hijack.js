@@ -412,12 +412,23 @@ async function handlePhase2Complete(phase2BattleId) {
         }
 
         // 픽셀 소유권 이전
+        // (stale 덮어쓰기 차단 v7.375) 선언 이후 소유권이 제3자로 바뀐 픽셀은 덮어쓰지 않는다.
+        // prev_owner가 있으면 현재 owner가 선언시점과 같을 때만 이전(case·null-safe).
+        // prev_owner 미상 픽셀은 기존 동작 유지(이전 자체가 깨지지 않도록).
         let newClaimId = hijack.new_claim_id;
         for (const px of pixels) {
-          await client.query(
-            `UPDATE pixels SET owner = $1, claim_id = $2 WHERE lat = $3 AND lng = $4`,
-            [attackerWallet, newClaimId || null, px.lat, px.lng]
-          );
+          if (px.prev_owner) {
+            await client.query(
+              `UPDATE pixels SET owner = $1, claim_id = $2
+               WHERE lat = $3 AND lng = $4 AND LOWER(owner) IS NOT DISTINCT FROM LOWER($5)`,
+              [attackerWallet, newClaimId || null, px.lat, px.lng, px.prev_owner]
+            );
+          } else {
+            await client.query(
+              `UPDATE pixels SET owner = $1, claim_id = $2 WHERE lat = $3 AND lng = $4`,
+              [attackerWallet, newClaimId || null, px.lat, px.lng]
+            );
+          }
         }
 
         // 새 claim이 없으면 생성
@@ -672,11 +683,20 @@ async function declareHijackWithPP(params) {
           newClaimId = cr[0].id;
         }
 
+        // (stale 덮어쓰기 차단 v7.375) auto-win도 동일 — 선언 이후 제3자로 바뀐 픽셀 보호.
         for (const px of enemy_pixels) {
-          await client.query(
-            `UPDATE pixels SET owner = $1, claim_id = $2 WHERE lat = $3 AND lng = $4`,
-            [attacker_wallet, newClaimId, px.lat, px.lng]
-          );
+          if (px.prevOwner) {
+            await client.query(
+              `UPDATE pixels SET owner = $1, claim_id = $2
+               WHERE lat = $3 AND lng = $4 AND LOWER(owner) IS NOT DISTINCT FROM LOWER($5)`,
+              [attacker_wallet, newClaimId, px.lat, px.lng, px.prevOwner]
+            );
+          } else {
+            await client.query(
+              `UPDATE pixels SET owner = $1, claim_id = $2 WHERE lat = $3 AND lng = $4`,
+              [attacker_wallet, newClaimId, px.lat, px.lng]
+            );
+          }
         }
 
         // 원 소유자 claim은 보존 — 픽셀만 이전됐을 뿐, 클레임 레코드는 유지

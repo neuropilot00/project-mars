@@ -1,3 +1,11 @@
+## 2026-06-03 v7.375 — 함대전 무결성: 실드 영속 + Titan TOCTOU + 하이잭 픽셀 stale 차단
+
+- 실드가 전투에서 소모돼도 shield_hp가 영속되지 않아 무한 재사용되던 버그 수정(by_ship에 shield_hp
+  추가 + 생존/보존 UPDATE에 영속) → 실드 GP 싱크 복원.
+- Titan 서버캡 cross-wallet TOCTOU를 pg_advisory_xact_lock(종별)으로 직렬화.
+- 하이잭 픽셀 이전(phase2/auto-win)에 expected-owner 술어 추가 — 선언 후 소유권 바뀐 픽셀 stale
+  덮어쓰기(제3자 영토 탈취) 차단. (v7.374 격침회피 가드에 이은 후속.)
+
 ## 2026-06-03 v7.373 — 카지노 하우스 엣지 15% 통일 (mig307, 어드민 조절)
 
 5개 게임(coinflip/dice/hilo/mines/crash) 하우스 엣지를 casino_house_edge_pct(기본 15%) 단일
