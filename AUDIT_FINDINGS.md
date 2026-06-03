@@ -1,3 +1,20 @@
+## 2026-06-03 — 검수 라운드 5 (팀+레드팀+Codex): 근본차단 + 신규 P0/P1
+
+| 등급 | 버그 | 수정 |
+|---|---|---|
+| **근본** | 로컬 getSetting/getSettings 다수가 raw JSONB(native bool/num) 반환 → ===  'true' 비교 실패(crafting/auction/expedition/spell… 풍토병) | 10곳 String() 정규화(contest/expedition/rental/territoryVisual + claimUpgrades/dividends/monuments/lottery/shield/staking). 호출부 String() 래핑된 것(auctionCombat/autoContent/shipMining/gamblingAuto/governanceExpire)은 이미 안전 |
+| **P0** | /referral/register 무인증+body.wallet 신뢰 | 타인(고래) referred_by 갈취 → requireAuth+getAuthWallet (Codex+레드팀) |
+| **P1** | supply_crate 미존재 컬럼 game_pp | → pp_balance |
+| **P2** | recall_beacon status 'in_transit'(CHECK 미허용)+UPDATE ORDER BY/LIMIT 불가 | 서브쿼리+'traveling' |
+| 배포 | 코드 참조 고아 테이블 4종(weekly_chronicles/share_cards/ship_instances/enhancement_material_recipes) fresh 배포에 없음 | mig305 CREATE IF NOT EXISTS |
+
+검증: referral 무인증 401·스푸핑 차단, expedition enabled=true, mig305 적용.
+
+### 🟡 남은 항목 (별도 진행 필요 — 결정/대규모)
+- **CLASS A 트랜잭션 오염 34곳(Codex)**: BEGIN..COMMIT 안 fire-and-forget(awardXP/referral/log) + optional-table probe가 SAVEPOINT 없이 try/catch. 대부분 latent(쿼리가 throw해야만 발동, 테이블 존재하면 무해). 확정 발동분(governance/scrap/killboard)은 R3/R4에서 수정됨. 나머지는 하드닝 백로그 — 일괄 수정은 회귀 위험이라 fire-and-forget을 post-COMMIT으로 옮기는 정책 통일 권장.
+- **배포 P0 — fresh 마이그 체인 중단**: 014_arena_indexes가 019에서 만드는 crash_rounds를 인덱싱 → fresh DB 첫 실패로 014~304 전체 미적용(로컬은 과거 out-of-order 적용으로 우회). 099/106/168도 fresh 실패. 기존 prod는 정상. 베타 fresh 배포 전 014/099/106/168 idempotent 수정 + fresh DB 리허설 필수.
+- **경제 밸런스(권고, 보류)**: 무한강화 P2W 곡선(growth 1.14→1.09 등), F2P faucet, 캐피탈 재료 — mig 초안(305_economy_balance_pass) 준비됨. 사용자 "기억해두고" 지시로 미적용. faucet+곡선 동시배포 인플레 경고.
+
 ## 2026-06-03 — 검수 라운드 4 (팀+레드팀+Codex): 버그 7개 수정 + 죽은기능 식별
 
 | 등급 | 버그 | 영향 | 수정 |

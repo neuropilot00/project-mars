@@ -1,3 +1,7 @@
+## 2026-06-03 v7.367 — 배포 안전: 고아 테이블 fresh-DB 생성 (mig 305)
+
+- 코드가 참조하지만 active 마이그가 안 만들던 고아 테이블 4종(weekly_chronicles/share_cards/ship_instances/enhancement_material_recipes)을 CREATE TABLE IF NOT EXISTS로 fresh 배포 대비(기존 prod no-op). 미적용 시 주간연대기/소셜카드/경매함선/고급강화가 fresh 배포에서 깨짐.
+
 ## 2026-06-03 v7.365 — 검수 라운드4: 버그 7개 수정 (출금 P0 포함)
 
 - [P0] /api/withdraw debit rowCount 가드 — 조건부 UPDATE 0행(잔액부족/반올림)인데 서명·커밋되어 미차감 출금 가능했음. rowCount===1 확인.
