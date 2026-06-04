@@ -1,3 +1,28 @@
+## 2026-06-05 v7.402 — Base 출금 정산 P0 수정 (예약 모델 + 온체인 nonce, mig316)
+
+적대 검수(Codex+컨트랙트감사관+서버무결성 만장일치 P0) 반영. 실자금 출금 경로 desync 차단.
+
+- **P0 — 출금 nonce/정산 desync (CRITICAL)**: 기존 `/withdraw`는 DB 잔액 차감 + DB
+  `withdrawal_nonce++` 후 서명만 반환. 컨트랙트 `withdrawNonce`는 유저가 온체인 제출에 성공해야만
+  증가 → 미제출/만료/revert 시 (1)DB 잔액 증발(환불 경로 없음) (2)DB↔컨트랙트 nonce 영구 desync로
+  이후 모든 출금 revert. **해법(예약 모델)**:
+  - 서명 nonce를 DB가 아닌 **온체인 `withdrawNonce`(eth_call)**에서 읽음 → desync 구조적 불가
+    (signer.js `getOnchainWithdrawNonce`, ABI에 getter 추가).
+  - `pending_withdrawals` 예약 테이블(mig316): reserve 시 잔액(gross)+담보(net) 차감, pending 기록.
+  - **미만료 pending 있으면 새 서명 발급 금지 → 기존 서명 재발급**(중복 차감 방지).
+  - `Withdrawn` 이벤트 리스너 → `settled`(차감 확정).
+  - **만료 미청구분 자동 환불 리코실리어**(chain.js `reconcilePendingWithdrawals`, 60s):
+    deadline+grace 경과 & **온체인 nonce 미증가(=미실행) 확인 시에만** 잔액/담보 환불 →
+    실행된 출금 이중환불 차단. 라우트 진입 시에도 본인 만료 pending 인라인 정리(유니크 충돌 방지).
+  - 동시 출금: 다른 미만료 pending의 net을 유동성에서 예약 차감 → 과다배정 차단.
+- **P0-b — fee 필드 덮어쓰기 (HIGH)**: 응답이 서명된 `fee`(0)를 표시용 `feeAmount`로 덮어써,
+  프론트가 그 값으로 온체인 호출 시 서명 불일치→revert→잔액 잠김 위험. 온체인 파라미터
+  (`amount`/`contractFee:"0"`/`nonce`/`deadline`/`signature`)와 표시용(`feeDeducted`/`net`) 분리.
+- 검증: 3파일 node -c OK, mig316 적용(테이블/유니크부분인덱스/CHECK), 모듈 로드+리코실리어 무계약
+  안전 실행 확인. 온체인 경로는 컨트랙트 배포 후 통합 검증 필요(현재 Base 미배포).
+- 남은 권장(별도): 입금 N-confirmation(reorg), collectRevenue 수익cap, signer 멀티시그, deposits
+  (tx_hash,log_index) 유니크 — AUDIT_FINDINGS 참조.
+
 ## 2026-06-04 v7.401 — 전투 최소 5초 관전 보장
 
 1척 AI처럼 즉시 끝나는 전투가 "로딩 전에 끝나" 보이던 것 수정: 전투 뷰어 재생 시작부터 최소 5초가

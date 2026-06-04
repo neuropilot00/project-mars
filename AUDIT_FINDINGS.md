@@ -1,3 +1,32 @@
+## 2026-06-05 — Base 체인 자금경로 적대검수 (Codex+컨트랙트감사관+서버무결성) → P0/P0-b 수정 (v7.402)
+
+검수 3주체 만장일치 P0 = **출금 nonce/정산 desync**. 컨트랙트 코어(재진입 CEI·SafeERC20·서명
+리플레이 방지)는 건전 확인. 입금 멱등성·솔벤시 원자성·decimals·referral PP 페그는 통과.
+
+### 🔴 수정 완료 (v7.402, mig316)
+- **[CRITICAL] 출금 nonce/정산 desync** (api.js /withdraw + MarsDeposit.sol:131,149): DB 차감+DB
+  nonce++ 후 서명만 반환 → 미제출/만료/revert 시 잔액 증발 + nonce 영구 desync(이후 출금 전부 마비).
+  → 예약(pending_withdrawals) 모델 + 온체인 nonce eth_call + Withdrawn 정산 + 만료 자동환불
+  (온체인 nonce 미증가 확인 후에만 → 이중환불 차단). signer.js `getOnchainWithdrawNonce`.
+- **[HIGH] fee 필드 덮어쓰기** (api.js:2331): 응답 fee가 서명된 fee(0)를 덮어써 온체인 호출 시
+  서명 불일치 revert → 잔액 잠김. → 온체인 파라미터(`contractFee:"0"`)와 표시용(`feeDeducted`) 분리.
+
+### 🟠 잔여 권장 (실자금 전 별도 작업 — 미수정)
+- **[HIGH] 입금 무confirmation/reorg** (chain.js live listener): 1-conf 즉시 크레딧 → Base reorg 시
+  담보 없는 USDT. → N-confirmation 후 크레딧(멱등 가드 있어 지연 안전).
+- **[HIGH] collectRevenue 무제한** (MarsDeposit.sol:170): owner가 유저 원금까지 인출 가능.
+  → fee 수익 별도 회계 + 그 한도로 cap.
+- **[CRITICAL-운영] signer 키 유출 = 풀 드레인** (per-user cap 온체인 부재): hot-wallet 유동성
+  최소화 + 멀티시그/HSM + 일일 한도.
+- **[MED] deposits tx_hash 단독 UNIQUE** (log_index 미수집): 한 tx 다중 Deposited 시 2번째 silent
+  누락. → `UNIQUE(chain,tx_hash,log_index)`.
+- **[MED] 서명 malleability** (MarsDeposit.sol _recoverSigner): s high-half 미차단. nonce가 실질
+  방어하나 OZ ECDSA.recover 권장.
+
+### 검증
+3파일 node -c OK. mig316 적용(유니크 부분인덱스 `(chain,wallet,nonce) WHERE pending`, status/gross/net
+CHECK). 모듈 로드 + 리코실리어 무계약 안전 실행 확인. 온체인 통합검증은 컨트랙트 배포 후(현재 미배포).
+
 ## 2026-06-04 — Codex 라운드2 반영: 슬롯 설정 인플레 가드 (v7.397)
 
 Codex 라운드2(XSS는 v7.396 이스케이프로 막힘 확인). 추가 발견 반영:

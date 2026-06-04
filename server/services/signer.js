@@ -11,7 +11,8 @@ const CHAINS = {
 };
 
 const DEPOSIT_ABI = [
-  'function getContractBalance() view returns (uint256)'
+  'function getContractBalance() view returns (uint256)',
+  'function withdrawNonce(address) view returns (uint256)'
 ];
 
 let signerWallet = null;
@@ -106,4 +107,15 @@ function getSignerAddress() {
   return signerWallet ? signerWallet.address : null;
 }
 
-module.exports = { init, generateWithdrawSignature, getAvailableLiquidity, getDepositAddress, getSignerAddress, CHAINS };
+// [P0] 출금 서명 nonce 의 진실 원천 = 컨트랙트 withdrawNonce(user). DB nonce 와의 desync 를
+//   구조적으로 제거하기 위해 매 출금 요청마다 온체인 값을 읽어 그대로 서명한다.
+//   컨트랙트가 미배포/RPC 부재면 throw → 호출자가 503 으로 막고 잔액을 건드리지 않음(fail-CLOSED).
+async function getOnchainWithdrawNonce(userAddress, chainKey) {
+  const provider = getProvider(chainKey);
+  const contractAddress = getDepositAddress(chainKey);
+  const contract = new ethers.Contract(contractAddress, DEPOSIT_ABI, provider);
+  const n = await contract.withdrawNonce(userAddress);
+  return ethers.BigNumber.from(n).toNumber();
+}
+
+module.exports = { init, generateWithdrawSignature, getAvailableLiquidity, getOnchainWithdrawNonce, getDepositAddress, getSignerAddress, CHAINS };

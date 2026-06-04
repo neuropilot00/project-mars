@@ -2258,45 +2258,79 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
     }
 
     const bal = parseFloat(userRes.rows[0].usdt_balance);
-    if (bal < amount) {
+    if (bal < parsedAmount) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Insufficient balance', balance: bal });
     }
 
-    // Read and increment nonce
-    const nonce = userRes.rows[0].withdrawal_nonce || 0;
+    // ── [P0] 미만료 pending 출금이 있으면 새 서명 발급 금지 → 기존 서명 재발급(중복 차감 방지) ──
+    //   기존 버그: 서명만 받고 온체인 미제출 시 DB 잔액이 증발 + DB/컨트랙트 nonce desync 로
+    //   이후 모든 출금이 revert. 예약(pending) 모델로 차단한다.
+    const _openPend = await client.query(
+      `SELECT amount_units, gross, net, fee, nonce, deadline, signature, chain
+         FROM pending_withdrawals
+        WHERE LOWER(wallet_address) = LOWER($1) AND status = 'pending'
+              AND deadline > EXTRACT(EPOCH FROM NOW())::bigint
+        ORDER BY id DESC LIMIT 1 FOR UPDATE`,
+      [wallet]
+    );
+    if (_openPend.rows.length) {
+      const p = _openPend.rows[0];
+      await client.query('COMMIT'); // 변경 없음 — 락만 해제
+      return res.json({
+        success: true, reissued: true, chain: p.chain,
+        amount: p.amount_units, contractFee: '0', nonce: Number(p.nonce),
+        deadline: Number(p.deadline), signature: p.signature,
+        requested: Number(p.gross), feeDeducted: Number(p.fee), net: Number(p.net),
+        message: '기존 출금 서명을 재발급했습니다. 만료 전 온체인 제출하세요.'
+      });
+    }
 
-    // [v7.217 ECON-005] 출금 수수료 — swap(5%) vs withdraw(0%) 비대칭으로 담보 무수수료 유출되던 구조 차단.
-    //   유저 잔액에서는 요청액 전액(parsedAmount) 차감, on-chain 으로는 net(=요청액-fee) 만 전송.
-    //   fee 만큼은 담보(collateral)에 남겨 페그 강화. 0~20% clamp.
+    // ── [P0] 서명 nonce = 온체인 withdrawNonce (DB nonce 미사용 → desync 구조적 불가) ──
+    let onchainNonce;
+    try {
+      onchainNonce = await require('../services/signer').getOnchainWithdrawNonce(wallet, chainKey);
+    } catch (nerr) {
+      await client.query('ROLLBACK');
+      console.error('[API] withdraw onchain-nonce error:', nerr.message);
+      return res.status(503).json({ error: 'On-chain state unavailable. Try again shortly.' });
+    }
+
+    // ── 이 유저의 만료(미정산) pending 정리 — 같은 nonce 유니크 충돌 방지 + 미청구 자금 환불 ──
+    //   온체인 nonce 가 row.nonce 보다 크면 = 이미 실행됨 → settled(환불 금지, 이중환불 차단).
+    //   아니면(미실행 + 만료) → reserve 했던 잔액/담보를 환불.
+    const _expired = await client.query(
+      `SELECT id, nonce, gross, net FROM pending_withdrawals
+        WHERE LOWER(wallet_address) = LOWER($1) AND chain = $2 AND status = 'pending'
+              AND deadline <= EXTRACT(EPOCH FROM NOW())::bigint
+        FOR UPDATE`,
+      [wallet, chainKey]
+    );
+    for (const er of _expired.rows) {
+      if (onchainNonce > Number(er.nonce)) {
+        await client.query(`UPDATE pending_withdrawals SET status='settled', settled_at=NOW() WHERE id=$1`, [er.id]);
+      } else {
+        await client.query('UPDATE users SET usdt_balance = usdt_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [er.gross, wallet.toLowerCase()]);
+        await require('../services/treasury').adjustCollateral(client, Number(er.net));
+        await client.query(`UPDATE pending_withdrawals SET status='expired', settled_at=NOW() WHERE id=$1`, [er.id]);
+        await client.query(
+          `INSERT INTO transactions (type, from_wallet, usdt_amount, meta) VALUES ('withdraw_refund', $1, $2, $3)`,
+          [wallet.toLowerCase(), er.gross, JSON.stringify({ chain: chainKey, nonce: Number(er.nonce), reason: 'expired_unclaimed' })]
+        );
+      }
+    }
+
+    // ── 출금 수수료 — 유저 잔액에서는 요청 전액(parsedAmount) 차감, 온체인은 net(=요청액-fee) 전송.
+    //   fee 만큼은 담보(collateral)에 잔류해 페그 강화. 0~20% clamp. (v7.217 ECON-005)
     const _wfPctRaw = (s && (s.withdraw_fee_percent ?? s.withdrawFeePercent));
     const withdrawFeePct = Math.max(0, Math.min(20, parseFloat(_wfPctRaw) || 0));
     const feeAmount = Math.round(parsedAmount * (withdrawFeePct / 100) * 1000000) / 1000000;
     const netAmount = Math.round((parsedAmount - feeAmount) * 1000000) / 1000000;
 
-    // Deduct from DB, increment nonce, and update last_withdrawal_at
-    // [v7.165] parsedAmount(6자리 정규화)을 사용 — 미세 float 누수 차단(원래 raw amount였음).
-    // [v7.365][P0] debit rowCount 가드 — 조건부 UPDATE(usdt_balance>=$1)가 0행이면(잔액부족/반올림 엣지)
-    //   차감 없이 서명·커밋되어 잔액 미차감 출금이 발생 가능했음. 정확히 1행 차감됐는지 확인.
-    const _wd = await client.query(
-      'UPDATE users SET usdt_balance = usdt_balance - $1, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($2) AND usdt_balance >= $1',
-      [parsedAmount, wallet.toLowerCase()]
-    );
-    if (_wd.rowCount !== 1) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Insufficient balance' });
-    }
-
-    // ✅ [솔벤시] 담보는 net(실제 체인 전송분)만큼만 차감 — fee 는 담보에 잔류해 불변식 강화.
-    // [v7.189 fix] fail-CLOSED: 에러 시 throw → 호출자 catch 에서 ROLLBACK 으로 잔액 변경도 같이 취소.
-    // [v7.217] 이전엔 -parsedAmount(전액) → 이제 -netAmount.
-    await require('../services/treasury').adjustCollateral(client, -netAmount);
-
-    // Generate on-chain withdrawal signature — net 만 전송 (fee 는 체인에 안 나감).
     const amountBN = ethers.utils.parseUnits(netAmount.toString(), chainCfg.decimals);
-    const feeBN = ethers.BigNumber.from(0); // fee 는 DB 차감으로 처리, on-chain feeBN 은 0 유지
+    const feeBN = ethers.BigNumber.from(0); // 온체인 fee=0 (수수료는 DB 차감으로 처리)
 
-    // [v7.74] Liquidity check — wrap separately to avoid leaking env-var names in error messages
+    // ── 유동성 체크 — 다른 미만료 pending 의 net 을 예약분으로 차감해 동시 출금 과다배정 차단 ──
     let availableLiquidity;
     try {
       availableLiquidity = await getAvailableLiquidity(chainKey);
@@ -2305,30 +2339,67 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
       console.error('[API] withdraw liquidity check error:', liquidityErr.message);
       return res.status(503).json({ error: 'On-chain liquidity check unavailable. Try again shortly.' });
     }
-    if (availableLiquidity.lt(amountBN.add(feeBN))) {
+    const _resv = await client.query(
+      `SELECT COALESCE(SUM(net), 0) AS s FROM pending_withdrawals WHERE chain = $1 AND status = 'pending'`,
+      [chainKey]
+    );
+    const reservedUnits = ethers.utils.parseUnits(
+      (Math.round((parseFloat(_resv.rows[0].s) || 0) * 1000000) / 1000000).toString(), chainCfg.decimals
+    );
+    const effectiveLiquidity = availableLiquidity.sub(reservedUnits);
+    if (effectiveLiquidity.lt(amountBN)) {
       await client.query('ROLLBACK');
       return res.status(409).json({
         error: 'Insufficient on-chain liquidity',
-        available: ethers.utils.formatUnits(availableLiquidity, chainCfg.decimals),
-        required: ethers.utils.formatUnits(amountBN.add(feeBN), chainCfg.decimals),
+        available: ethers.utils.formatUnits(effectiveLiquidity.gt(0) ? effectiveLiquidity : ethers.constants.Zero, chainCfg.decimals),
+        required: ethers.utils.formatUnits(amountBN, chainCfg.decimals),
         chain: chainKey
       });
     }
 
+    // ── reserve: 잔액 차감(gross) + 담보 차감(net). withdrawal_nonce 는 더 이상 건드리지 않음 ──
+    // [v7.365][P0] rowCount 가드 — 조건부 UPDATE 가 0행이면 차감 없이 서명되던 결함 방지.
+    const _wd = await client.query(
+      'UPDATE users SET usdt_balance = usdt_balance - $1, last_withdrawal_at = NOW() WHERE LOWER(wallet_address) = LOWER($2) AND usdt_balance >= $1',
+      [parsedAmount, wallet.toLowerCase()]
+    );
+    if (_wd.rowCount !== 1) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient balance' });
+    }
+    // ✅ [솔벤시] 담보는 net 만큼만 차감 — fee 는 담보 잔류. fail-CLOSED: throw 시 catch 에서 ROLLBACK.
+    await require('../services/treasury').adjustCollateral(client, -netAmount);
+
     const sigData = await generateWithdrawSignature(
-      wallet, amountBN, feeBN, nonce, chainKey
+      wallet, amountBN, feeBN, onchainNonce, chainKey
     );
 
-    // [v7.217] fee 컬럼 + meta 에 net/fee 기록 (회계 정확성).
+    // pending 예약 기록 (재발급/정산/만료환불의 근거)
+    await client.query(
+      `INSERT INTO pending_withdrawals (wallet_address, chain, nonce, gross, net, fee, amount_units, deadline, signature, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending')`,
+      [wallet.toLowerCase(), chainKey, onchainNonce, parsedAmount, netAmount, feeAmount, amountBN.toString(), sigData.deadline, sigData.signature]
+    );
+
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, fee, meta)
        VALUES ('withdraw', $1, $2, $3, $4)`,
-      [wallet.toLowerCase(), parsedAmount, feeAmount, JSON.stringify({ chain: chainKey, nonce, deadline: sigData.deadline, net: netAmount, fee: feeAmount, feePct: withdrawFeePct })]
+      [wallet.toLowerCase(), parsedAmount, feeAmount, JSON.stringify({ chain: chainKey, nonce: onchainNonce, deadline: sigData.deadline, net: netAmount, fee: feeAmount, feePct: withdrawFeePct, pending: true })]
     );
 
     await client.query('COMMIT');
-    // [v7.217] 프론트에 fee/net 노출 — 유저가 실수령액 확인 가능.
-    res.json({ success: true, ...sigData, requested: parsedAmount, fee: feeAmount, feePct: withdrawFeePct, net: netAmount });
+    // [P0-b] 온체인 호출 파라미터(서명된 값)와 표시용을 분리. 기존엔 응답 fee 가 서명된 fee(0)를
+    //   덮어써 프론트가 그 fee 로 온체인 호출 시 서명 불일치 → revert → 잔액 잠김 위험이 있었음.
+    res.json({
+      success: true, chain: chainKey,
+      amount: amountBN.toString(),  // 컨트랙트 amount 인자(net, base-unit)
+      contractFee: '0',             // 컨트랙트 fee 인자(서명된 값) — 절대 덮어쓰지 말 것
+      nonce: onchainNonce,
+      deadline: sigData.deadline,
+      chainId: sigData.chainId,
+      signature: sigData.signature,
+      requested: parsedAmount, feeDeducted: feeAmount, feePct: withdrawFeePct, net: netAmount
+    });
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] withdraw error:', e.message);

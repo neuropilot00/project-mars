@@ -2,7 +2,8 @@ const { ethers } = require('ethers');
 const { pool, ensureUser, awardXP, creditReferralCommission } = require('../db');
 
 const DEPOSIT_ABI = [
-  'event Deposited(address indexed user, uint256 amount, uint256 timestamp, uint256 chainId)'
+  'event Deposited(address indexed user, uint256 amount, uint256 timestamp, uint256 chainId)',
+  'event Withdrawn(address indexed user, uint256 amount, uint256 fee, uint256 nonce, uint256 chainId)'
 ];
 
 const CHAIN_CONFIGS = {
@@ -98,6 +99,19 @@ async function connectChain(key, cfg) {
       }
     });
 
+    // [P0] Listen for on-chain Withdrawn — pending 예약을 정산(settled) 처리.
+    contract.on('Withdrawn', async (user, amount, fee, nonce, chainId, event) => {
+      try {
+        await settleWithdrawal({
+          wallet: user.toLowerCase(),
+          nonce: ethers.BigNumber.from(nonce).toNumber(),
+          chain: key
+        });
+      } catch (e) {
+        console.error(`[Chain] ${cfg.name} withdrawal settle error:`, e.message);
+      }
+    });
+
     // Listen for provider errors to trigger reconnection
     provider.on('error', (error) => {
       console.error(`[Chain] ${cfg.name} provider error:`, error.message);
@@ -177,11 +191,87 @@ function startHealthCheck() {
 
 // ── Start all listeners ──
 
+let reconcileTimer = null;
+
 async function startListeners() {
   for (const [key, cfg] of Object.entries(CHAIN_CONFIGS)) {
     await connectChain(key, cfg);
   }
   startHealthCheck();
+  // [P0] 만료 미청구 출금 자동 환불 — 리더에서만(startListeners 자체가 리더 게이트됨) 주기 실행.
+  if (!reconcileTimer) {
+    const everyMs = parseInt(process.env.WITHDRAW_RECONCILE_MS || '60000', 10) || 60000;
+    reconcileTimer = setInterval(() => {
+      reconcilePendingWithdrawals().catch(e => console.error('[Chain] withdraw reconcile error:', e.message));
+    }, everyMs);
+  }
+}
+
+// ── [P0] 출금 예약 정산/환불 ──
+
+// Withdrawn 이벤트로 pending → settled (차감 확정, 환불 없음).
+async function settleWithdrawal({ wallet, nonce, chain }) {
+  await pool.query(
+    `UPDATE pending_withdrawals SET status='settled', settled_at=NOW()
+      WHERE chain=$1 AND LOWER(wallet_address)=LOWER($2) AND nonce=$3 AND status='pending'`,
+    [chain, wallet, nonce]
+  );
+}
+
+// deadline+grace 경과한 pending 을 점검: 온체인 nonce 가 미증가(=미실행)면 reserve 환불, 증가했으면 settled.
+//   이벤트 누락(워커 다운 등) 보완 + 미청구 자금 자동 복구. 온체인 조회 실패 시 절대 환불하지 않음(이중환불 차단).
+async function reconcilePendingWithdrawals() {
+  const grace = parseInt(process.env.WITHDRAW_RECONCILE_GRACE_SEC || '120', 10) || 120;
+  let rows;
+  try {
+    rows = (await pool.query(
+      `SELECT id, wallet_address, chain, nonce, gross, net FROM pending_withdrawals
+        WHERE status='pending' AND deadline + $1 < EXTRACT(EPOCH FROM NOW())::bigint
+        ORDER BY id ASC LIMIT 100`,
+      [grace]
+    )).rows;
+  } catch (e) {
+    // 테이블 미생성(마이그 전) 등 — 조용히 패스.
+    return;
+  }
+  if (!rows.length) return;
+
+  const signer = require('./signer');
+  for (const r of rows) {
+    let onchainNonce;
+    try {
+      onchainNonce = await signer.getOnchainWithdrawNonce(r.wallet_address, r.chain);
+    } catch (_) {
+      continue; // RPC/컨트랙트 조회 불가 → 다음 주기에 재시도. 환불 금지.
+    }
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const cur = await client.query(`SELECT status FROM pending_withdrawals WHERE id=$1 FOR UPDATE`, [r.id]);
+      if (!cur.rows.length || cur.rows[0].status !== 'pending') { await client.query('ROLLBACK'); client.release(); continue; }
+      if (onchainNonce > Number(r.nonce)) {
+        // 이미 실행됨 → 정산만(환불 금지).
+        await client.query(`UPDATE pending_withdrawals SET status='settled', settled_at=NOW() WHERE id=$1`, [r.id]);
+      } else {
+        // 미실행 + 만료 → reserve 환불.
+        await client.query(`SELECT 1 FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE`, [r.wallet_address]);
+        await client.query(`UPDATE users SET usdt_balance = usdt_balance + $1 WHERE LOWER(wallet_address)=LOWER($2)`, [r.gross, r.wallet_address]);
+        await require('./treasury').adjustCollateral(client, Number(r.net));
+        await client.query(`UPDATE pending_withdrawals SET status='expired', settled_at=NOW() WHERE id=$1`, [r.id]);
+        await client.query(
+          `INSERT INTO transactions (type, from_wallet, usdt_amount, meta) VALUES ('withdraw_refund', $1, $2, $3)`,
+          [String(r.wallet_address).toLowerCase(), r.gross, JSON.stringify({ chain: r.chain, nonce: Number(r.nonce), reason: 'expired_unclaimed_reconciler' })]
+        );
+        console.log(`[Chain] withdraw refund (expired): ${String(r.wallet_address).slice(0,8)}… +${r.gross} USDT (${r.chain} nonce ${r.nonce})`);
+      }
+      await client.query('COMMIT');
+    } catch (e) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+      console.error('[Chain] reconcile refund error:', e.message);
+    } finally {
+      client.release();
+    }
+  }
 }
 
 async function backfillEvents(chainKey, contract, provider, decimals) {
@@ -334,4 +424,4 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
   }
 }
 
-module.exports = { startListeners, processDeposit };
+module.exports = { startListeners, processDeposit, settleWithdrawal, reconcilePendingWithdrawals };
