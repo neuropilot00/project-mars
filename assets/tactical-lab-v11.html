@@ -344,7 +344,8 @@ body{padding:0;background:#03040b;}
 <div class="ctrl">
   <span class="clbl" id="uiManeuverLabel">MANEUVER</span>
   <button class="cb g" id="maneuverAdvanceBtn" onclick="cmdManeuver('advance')">↑ Advance</button>
-  <button class="cb g" id="maneuverFlankBtn" onclick="cmdManeuver('flank')">↗ Flank</button>
+  <button class="cb g" id="maneuverFlankLeftBtn" onclick="cmdManeuver('flank_left')">← Port</button>
+  <button class="cb g" id="maneuverFlankRightBtn" onclick="cmdManeuver('flank_right')">→ Starboard</button>
   <button class="cb g" id="maneuverRetreatBtn" onclick="cmdManeuver('retreat')">↓ Retreat</button>
   <button class="cb g" id="maneuverScatterBtn" onclick="cmdManeuver('scatter')">✦ Scatter</button>
   <button class="cb g" id="maneuverRallyBtn" onclick="cmdManeuver('rally')">◉ Rally</button>
@@ -458,7 +459,7 @@ const TL10N={
     doctrinesTitle:'// FLEET DOCTRINES',
     factionCompareTitle:'// FACTION COMPARISON',
     sphere:'Sphere', wedge:'Wedge', screen:'Screen', pincer:'Pincer',
-    advance:'Advance', flank:'Flank', retreatMove:'Retreat', scatter:'Scatter', rally:'Rally',
+    advance:'Advance', flank:'Flank', flank_left:'Port', flank_right:'Starboard', retreatMove:'Retreat', scatter:'Scatter', rally:'Rally',
     ships:'ships', fleets:'fleets', wiped:'Wiped Out', build:'BUILD',
     design:'Design', specialty:'Specialty', naming:'Naming',
     unavailable:'Unavailable',
@@ -505,7 +506,7 @@ const TL10N={
     doctrinesTitle:'// FLEET DOCTRINES',
     factionCompareTitle:'// FACTION COMPARISON',
     sphere:'구형 집결', wedge:'쐐기', screen:'방어막', pincer:'협공',
-    advance:'전진', flank:'측면 우회', retreatMove:'후퇴', scatter:'산개', rally:'재집결',
+    advance:'전진', flank:'측면 우회', flank_left:'좌현 기동', flank_right:'우현 기동', retreatMove:'후퇴', scatter:'산개', rally:'재집결',
     ships:'척', fleets:'함대', wiped:'괴멸',
     build:'건조',
     design:'디자인', specialty:'특기', naming:'네이밍',
@@ -553,7 +554,7 @@ const TL10N={
     doctrinesTitle:'// FLEET DOCTRINES',
     factionCompareTitle:'// FACTION COMPARISON',
     sphere:'球形集結', wedge:'楔形', screen:'防壁', pincer:'挟撃',
-    advance:'前進', flank:'側面機動', retreatMove:'後退', scatter:'散開', rally:'再集結',
+    advance:'前進', flank:'側面機動', flank_left:'左舷機動', flank_right:'右舷機動', retreatMove:'後退', scatter:'散開', rally:'再集結',
     ships:'隻', fleets:'艦隊', wiped:'壊滅',
     build:'建造',
     design:'デザイン', specialty:'特性', naming:'命名',
@@ -601,7 +602,7 @@ const TL10N={
     doctrinesTitle:'// FLEET DOCTRINES',
     factionCompareTitle:'// FACTION COMPARISON',
     sphere:'球形集结', wedge:'楔形', screen:'屏障', pincer:'钳击',
-    advance:'前进', flank:'侧翼', retreatMove:'后退', scatter:'分散', rally:'集结',
+    advance:'前进', flank:'侧翼', flank_left:'左舷机动', flank_right:'右舷机动', retreatMove:'后退', scatter:'分散', rally:'集结',
     ships:'艘', fleets:'舰队', wiped:'覆灭',
     build:'建造',
     design:'设计', specialty:'特长', naming:'命名',
@@ -704,7 +705,8 @@ function localizeStaticUI(){
   setText('formationPincerBtn', '◀▶ '+tl('pincer'));
   setText('uiManeuverLabel', tl('maneuver'));
   setText('maneuverAdvanceBtn', '↑ '+tl('advance'));
-  setText('maneuverFlankBtn', '↗ '+tl('flank'));
+  setText('maneuverFlankLeftBtn', '← '+tl('flank_left'));
+  setText('maneuverFlankRightBtn', '→ '+tl('flank_right'));
   setText('maneuverRetreatBtn', '↓ '+tl('retreatMove'));
   setText('maneuverScatterBtn', '✦ '+tl('scatter'));
   setText('maneuverRallyBtn', '◉ '+tl('rally'));
@@ -812,6 +814,8 @@ const FORMATIONS={
 const MANEUVERS={
   advance:{name:'Advance',icon:'↑',spdMult:1.0,atkMult:1.0},
   flank:{name:'Flank',icon:'↗',spdMult:1.3,atkMult:0.9},
+  flank_left:{name:'Port',icon:'←',spdMult:1.25,atkMult:0.92},
+  flank_right:{name:'Starboard',icon:'→',spdMult:1.25,atkMult:0.92},
   retreat:{name:'Retreat',icon:'↓',spdMult:1.5,atkMult:0.6},
   scatter:{name:'Scatter',icon:'✦',spdMult:1.8,atkMult:0.5},
   rally:{name:'Rally',icon:'◉',spdMult:0.6,atkMult:0.9},
@@ -1471,6 +1475,11 @@ function updateFleets(dt){
       f.vcy+=(Math.random()-.5)*.07+perpY*f.orbitDir*.018;
     } else if(f.maneuver==='flank'){
       const flankDir=(f.userId.charCodeAt(0)%2===0)?1:-1;
+      f.vcx+=(perpX*flankDir*0.052+nx*0.012)*spdMult;
+      f.vcy+=(perpY*flankDir*0.052+ny*0.012)*spdMult;
+    } else if(f.maneuver==='flank_left'||f.maneuver==='flank_right'){
+      // (v7.400) 좌현/우현 고정 측면 기동 — 서버와 동일(좌=-1/우=+1)
+      const flankDir=f.maneuver==='flank_left'?-1:1;
       f.vcx+=(perpX*flankDir*0.052+nx*0.012)*spdMult;
       f.vcy+=(perpY*flankDir*0.052+ny*0.012)*spdMult;
     } else if(f.maneuver==='rally'){
@@ -2288,16 +2297,16 @@ function drawShips2(){
       const ef=.6+.4*Math.sin(sh.engF*.18);
       drawEngineFlame(CX,sh.x,sh.y,sh.facing,t,ef);
     }
-    // (실드 v7.388) 실드 버블 — 미사일/레이저를 막는 배리어. 잔량 비례 알파, 피격 시 리플 강조.
+    // (실드 v7.400) 실드 버블 — 선체에 밀착(너무 컸음 1.55→1.08). 평소 은은, 피격 시만 번쩍.
     if(drawn && sh.shieldMax>0 && sh.shield>0 && (!PERF_MODE||!isSmall(sh)||sh.isFlagship)){
-      const _sr=t.r*1.55*classScale, _sf=sh.shield/sh.shieldMax, _hit=sh.shieldFlash||0;
+      const _sr=t.r*1.08*classScale, _sf=sh.shield/sh.shieldMax, _hit=sh.shieldFlash||0;
       CX.save();
-      CX.globalAlpha=Math.min(.9, 0.15*_sf + 0.75*_hit);
-      CX.strokeStyle='#6fd6ff'; CX.lineWidth=(0.8+2.4*_hit)/camScale;
-      CX.shadowColor='#6fd6ff'; CX.shadowBlur=4+12*_hit;
+      CX.globalAlpha=Math.min(.7, 0.08*_sf + 0.6*_hit);
+      CX.strokeStyle='#6fd6ff'; CX.lineWidth=(0.6+2.0*_hit)/camScale;
+      CX.shadowColor='#6fd6ff'; CX.shadowBlur=2+9*_hit;
       CX.beginPath(); CX.arc(sh.x,sh.y,_sr,0,Math.PI*2); CX.stroke();
       CX.shadowBlur=0;
-      if(_hit>0.05){ CX.globalAlpha=0.2*_hit; CX.fillStyle='#aee9ff'; CX.fill(); }
+      if(_hit>0.05){ CX.globalAlpha=0.16*_hit; CX.fillStyle='#aee9ff'; CX.fill(); }
       CX.restore();
     }
     // HP바: 대형함 항상 표시 + 기함 항상 표시 + 소규모 전투(≤12척)에서 전체 표시

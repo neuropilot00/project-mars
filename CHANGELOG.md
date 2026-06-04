@@ -1,3 +1,10 @@
+## 2026-06-04 v7.400 — 전투화면 실드 축소 + 기동 좌현/우현 추가
+
+- 실드 버블 너무 컸던 것 축소(1.55→1.08 선체 밀착) + 평소 알파 낮춤(피격 시만 번쩍).
+- 전투 화면(tactical-lab) 기동에 좌현(←)/우현(→) 추가 — Fleet Command(v7.384)에 이어 전투 화면도
+  측면 우회를 좌현/우현으로 분리. MANEUVERS맵+버튼+4개국어 i18n+로컬sim 분기(서버와 동일 좌=-1/우=+1)+
+  _bridgeToParent로 서버 전달. 스크립트 파싱 OK.
+
 ## 2026-06-04 v7.399 — AI 지갑 소문자화 패턴 전수 수정 (참가자 FK 정규화 트리거, mig315)
 
 여러 전투 경로(phaseC ai/fight, alliance 연합전, tournament, siegeFleetBridge, worldEvents, hijack)가
