@@ -1,4 +1,19 @@
-## 2026-06-05 v7.403 — AI 연습전 "함선 안 보임" 수정 (스프라이트 로딩 게이트)
+## 2026-06-05 v7.404 — AI 연습전 함선 안 보임 진짜 원인: faction 미존재 크래시
+
+브라우저 콘솔로 실제 원인 포착: 매 프레임 `Uncaught TypeError: Cannot read properties of
+undefined (reading 'color')` at drawFleets(2247) → loop. **렌더 루프가 drawShips2 전에 죽어
+함선이 아예 안 그려짐**(v7.403 스프라이트 게이트는 부차적이었음).
+
+원인: tactical-lab 카탈로그(`/api/tactical-lab/catalog`)는 factions를 mcc/fsp/cv 3종만 반환하는데,
+ship_types엔 **pilgrim faction** 함선이 존재. 플레이어(LAINWORLD) 함대에 pilgrim 기함/함선이 있어
+`FACTIONS['pilgrim']` undefined → `.color` 접근이 drawFleets/drawShips2/mkMuzzle 등에서 throw.
+
+수정: 안전 접근자 `facOf(code)`/`facColor(code)` 추가(미존재 faction은 mcc로 폴백). 가드 없던 5개
+사이트(drawFleets 2247, drawShips2 2290, mkMuzzle 1609, fire muzzle 1640, registry 3049) 전부 교체.
+pilgrim 함선은 PNG 스프라이트는 정상 렌더되고 라벨/글로우 색만 mcc 폴백. 검증: 메인 스크립트
+node -c OK, 카탈로그 factions=[mcc,fsp,cv]·pilgrim 함선 존재 DB 확인, 브라우저 재현.
+
+## 2026-06-05 v7.403 — AI 연습전 "함선 안 보임" 수정 (스프라이트 로딩 게이트, 부차적)
 
 증상: AI 연습전 전투 화면이 화성 배경만 뜨고 함선이 안 그려짐(살아있는 ATK 함선조차). 풀HP·00:01 상태.
 

@@ -1606,7 +1606,7 @@ function fire(sh,wsMode){
   sh.aimX=tx;sh.aimY=ty;sh.aimTTL=900;
   // [v7.229 VFX] 발사 머즐 플래시 — 함급이 클수록 큰 섬광
   const _mzScale=t.size==='titan'?2.6:t.size==='battleship'?2.0:t.size==='cruiser'?1.4:t.size==='destroyer'?1.0:0.7;
-  mkMuzzle(sh.x,sh.y,dx/len,dy/len,FACTIONS[sh.type.faction].color,_mzScale);
+  mkMuzzle(sh.x,sh.y,dx/len,dy/len,facColor(sh.type.faction),_mzScale);
 
   if((t.code||'').startsWith('pilgrim_')||t.size==='battleship'||t.size==='titan'){
     // [v7.335 perf] 프레임당 1회 계산된 생존 함선 수 사용 (fire()마다 전체 순회 금지)
@@ -1637,7 +1637,7 @@ function fire(sh,wsMode){
     const laserTTL=t.size==='titan'?120:t.size==='battleship'?100:t.size==='cruiser'?78:48;
     const laserW=t.size==='titan'?4.2:t.size==='battleship'?3.2:t.size==='cruiser'?2.6:2.2;
     lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
-      color:FACTIONS[sh.type.faction].color,
+      color:facColor(sh.type.faction),
       width:laserW,
       alpha:1,ttl:laserTTL,age:0,dmg:t.atk*4*atkMult,target:ts,attackerType:t,applied:false,side:sh.side,visual:wsMode});
     playLaserSound();
@@ -2131,6 +2131,11 @@ function shipVisualLength(s){
   return {frigate:7,destroyer:11,cruiser:17,battleship:29,titan:43}[s.size]||14;
 }
 
+// [v7.404] FACTIONS 안전 접근 — 기함/함선 faction 이 카탈로그(mcc/fsp/cv)에 없는 경우
+//   (pilgrim/alien 등 비표준 faction) FACTIONS[x] 가 undefined → .color 접근이 drawFleets/
+//   drawShips2 에서 매 프레임 throw → 루프가 죽어 함선이 아예 안 그려지던 크래시 방지.
+function facOf(code){ return FACTIONS[code] || FACTIONS.mcc || {color:'#4fc3f7',colorDark:'#0277bd',colorBright:'#81d4fa'}; }
+function facColor(code){ return facOf(code).color || '#4fc3f7'; }
 function drawEngineFlame(ctx,x,y,facing,type,pulse=1){
   const len=shipVisualLength(type);
   const size=Math.max(2.4,len*.16);
@@ -2244,7 +2249,7 @@ function drawFleets(){
   }
   fleets.forEach(f=>{
     if(f.dead)return;
-    const fc=f.flagship?FACTIONS[f.flagship.type.faction].color:'#4fc3f7';
+    const fc=f.flagship?facColor(f.flagship.type.faction):'#4fc3f7';
     // 함대 영역 원(그라디언트 디스크) 제거 — 난잡함 원인 (사용자 요청). 라벨/HP바만 유지.
 
     const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
@@ -2287,7 +2292,7 @@ function drawShips2(){
     if(sh.dead)return;
     const t=sh.type;
     if(PERF_MODE&&isSmall(sh)&&!sh.isFlagship&&idx%2===1)return;
-    const F=FACTIONS[t.faction];
+    const F=facOf(t.faction);
 
     // 팀 식별 링(함선 주변 원) 제거 — 난잡함 원인 (사용자 요청).
     // 팀 구분은 함선 색/엔진 플레임/HP바 색으로 유지된다.
@@ -3046,7 +3051,7 @@ function renderRegistry(){
     cx.translate(canvas.width/2,canvas.height/2);
     const scale=Math.min(2.8,42/s.r);
     cx.scale(scale,scale);
-    cx.shadowColor=FACTIONS[s.faction].color;cx.shadowBlur=10;
+    cx.shadowColor=facColor(s.faction);cx.shadowBlur=10;
     cx.rotate(-Math.PI/2);
     const drawn=drawShipByFaction(cx,s);
     if(drawn)drawEngineFlame(cx,0,0,-Math.PI/2,s,.8);
