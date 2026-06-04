@@ -1,3 +1,12 @@
+## 2026-06-04 v7.399 — AI 지갑 소문자화 패턴 전수 수정 (참가자 FK 정규화 트리거, mig315)
+
+여러 전투 경로(phaseC ai/fight, alliance 연합전, tournament, siegeFleetBridge, worldEvents, hijack)가
+참가자 지갑을 .toLowerCase()해 INSERT → AI/NPC 계정 일부가 users에 mixed-case(0xAI00cvH...)로 저장돼
+wallet_address FK 위반→500. users PK는 NO ACTION FK 68개라 데이터 일괄 소문자화 불가.
+해법: fleet_battle_participants BEFORE INSERT 트리거로 정확 일치 users 행이 없으면 LOWER() 일치하는
+users 케이스로 정규화 → 전 경로+미래 코드를 한 곳에서 커버. 트리거 검증(소문자 AI INSERT→FK 통과),
+fresh 체인 완주, 스모크 11/0. (v7.398 phaseC 코드 수정도 유지 — 이중 방어.)
+
 ## 2026-06-04 v7.398 — AI 연습전 500 수정 (참가자 FK 대소문자)
 
 POST /api/ai/fight가 AI 함대 owner를 .toLowerCase()해 fleet_battle_participants에 INSERT했는데,
