@@ -1,3 +1,10 @@
+## 2026-06-04 v7.398 — AI 연습전 500 수정 (참가자 FK 대소문자)
+
+POST /api/ai/fight가 AI 함대 owner를 .toLowerCase()해 fleet_battle_participants에 INSERT했는데,
+일부 AI 함대 owner가 users에 mixed-case(예: 0xAI000cvH...)로 저장돼 있어 wallet_address FK 위반→
+500 SERVER_ERROR. users에 저장된 그대로(fleet.owner_wallet) 사용하도록 수정(다운스트림은 LOWER() 비교라 안전).
+재현→수정→200 검증. (도파민 작업과 무관한 기존 데이터 케이스 버그.)
+
 ## 2026-06-04 v7.394 — 부재 중 손실 브리핑 (도파민 #6, 손실회피 리텐션)
 
 복귀 시 최근 72h 함선 손실(가치 합산) + 나에게 걸린 활성 현상금을 브리핑하는 손실회피 훅(진짜

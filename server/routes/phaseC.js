@@ -136,7 +136,10 @@ router.post('/ai/fight', requireAuth, async (req, res) => {
     const { rows: aiFleet } = await client.query(
       `SELECT owner_wallet FROM fleets WHERE id = $1`, [ai_fleet_id]
     );
-    const aiWallet = (aiFleet[0].owner_wallet || '').toLowerCase();
+    // (버그수정 v7.398) fleet_battle_participants.wallet_address는 users.wallet_address FK(대소문자 구분).
+    //   AI 함대 owner가 mixed-case(예: 0xAI000cvH...)인데 소문자화하면 FK 불일치로 INSERT 실패→500.
+    //   users에 저장된 그대로(fleet.owner_wallet) 사용. 다운스트림(전투/보상/킬보드)은 LOWER() 비교라 안전.
+    const aiWallet = aiFleet[0].owner_wallet || '';
 
     const { rows: battleRows } = await client.query(`
       INSERT INTO fleet_battles (battle_type, status, phase, prepare_started_at, scheduled_start_at, battle_summary)
