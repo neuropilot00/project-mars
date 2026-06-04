@@ -1,3 +1,16 @@
+## 2026-06-05 v7.405 — pilgrim 파벌 고유색(보라 #b388ff) 전투 렌더 활성화
+
+v7.404의 mcc 파랑 폴백 대신 pilgrim(Pilgrim Arms) 고유색을 살림. factions 테이블엔 이미
+pilgrim 색(primary #b388ff / dark #6a1b9a / bright #e1bee7)이 있으나 `is_active=false`(NPC 무기상
+파벌, 플레이어 선택 불가)라 tactical-lab 카탈로그가 안 내려줬다.
+
+수정: `server/routes/tacticalLab.js` 카탈로그 factions 쿼리에서만 `WHERE is_active=true` 제거(색/이름
+표시 전용이라 inactive 포함 안전). **`is_active` 자체는 유지** → faction.js 선택 검증·shipCrate 랜덤
+뽑기는 그대로 pilgrim 미노출(플레이어가 못 고름). v7.404의 facOf/facColor 방어가드는 백스톱으로 유지.
+
+검증: 카탈로그가 pilgrim #b388ff 반환, 브라우저 FACTIONS=[mcc,fsp,cv,pilgrim]·facColor('pilgrim')=
+#b388ff 확인(서버 재기동 반영).
+
 ## 2026-06-05 v7.404 — AI 연습전 함선 안 보임 진짜 원인: faction 미존재 크래시
 
 브라우저 콘솔로 실제 원인 포착: 매 프레임 `Uncaught TypeError: Cannot read properties of

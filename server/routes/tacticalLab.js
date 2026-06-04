@@ -40,6 +40,9 @@ router.get('/catalog', async (_req, res) => {
          WHERE is_active = true
          ORDER BY tier, code
       `),
+      // [v7.405] is_active 필터 제거 — pilgrim(Pilgrim Arms, is_active=false) 등 NPC 파벌도
+      //   시뮬레이터 렌더 색을 알아야 함선이 고유색으로 그려진다. 이 쿼리는 색/이름 표시 전용이라
+      //   inactive 파벌을 포함해도 안전(플레이어 선택 검증은 faction.js 의 is_active 게이트가 별도로 막음).
       pool.query(`
         SELECT code, name_en, name_ko, name_ja, name_zh,
                description_en, description_ko,
@@ -47,7 +50,6 @@ router.get('/catalog', async (_req, res) => {
                visual_style, icon_emoji,
                specialty_en, specialty_ko, naming_scheme
           FROM factions
-         WHERE is_active = true
          ORDER BY sort_order, code
       `),
     ]);
