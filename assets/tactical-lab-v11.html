@@ -895,6 +895,10 @@ const SHIP_SPRITE_CODES=[
 ];
 const SHIP_SPRITES={};
 const SHIP_SPRITE_STATUS={};
+// [v7.403] 스프라이트 로딩 그레이스 — 32개 PNG(~2MB)+화성 텍스처가 iframe마다 새로 동시 로드되어
+//   로딩 윈도우 동안 함선이 전부 투명해지던("AI 연습전 안 보임") 버그 방지. 이 시간 이후엔 PNG가
+//   아직 로딩 중이어도 벡터 폴백을 그려 항상 보이게 한다(로딩 빠르면 기존처럼 PNG 직행).
+const _SPRITE_GATE_UNTIL_MS = 700;
 SHIP_SPRITE_CODES.forEach(code=>{
   const img=new Image();
   img.decoding='async';
@@ -2156,7 +2160,9 @@ function drawEngineFlame(ctx,x,y,facing,type,pulse=1){
 
 function drawShipByFaction(ctx,s){
   if(drawShipSprite(ctx,s))return true;
-  if(hasShipSpriteAsset(s.code)&&SHIP_SPRITE_STATUS[s.code]!=='failed')return false;
+  // [v7.403] PNG 로딩 중이면 그레이스 기간(700ms)에만 벡터를 숨겨 실루엣 깜빡임 방지.
+  //   그 이후엔(로딩 지연/스톨) 빈 화면 대신 벡터 폴백을 그려 함선이 항상 보이게 한다.
+  if(hasShipSpriteAsset(s.code)&&SHIP_SPRITE_STATUS[s.code]!=='failed'&&performance.now()<_SPRITE_GATE_UNTIL_MS)return false;
   if(s.faction==='mcc')drawMCCShip(ctx,s);
   else if(s.faction==='fsp')drawFSPShip(ctx,s);
   else drawCVShip(ctx,s);
