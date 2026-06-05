@@ -54716,7 +54716,14 @@ function closeBattleViewer() {
   bv.playing = false;
   if (bv.animHandle) cancelAnimationFrame(bv.animHandle);
   window.removeEventListener('resize', resizeCanvas);
-  
+  // [v7.410] tactical-lab iframe 완전 언로드 — 닫아도 WebAudio/시뮬 루프가 살아 사운드가 계속
+  //   들리던 버그. src 를 about:blank 으로 바꿔 iframe 문서를 파기(사운드+rAF+WS 종료).
+  try {
+    var _tf = document.getElementById('bvTacticalFrame');
+    if (_tf) _tf.src = 'about:blank';
+  } catch (_) {}
+  if (bv._finalFallback) { try { clearTimeout(bv._finalFallback); } catch(_){} bv._finalFallback = null; }
+
   // 배틀 허브 다시 열기 (있으면 리프레시)
   if (document.getElementById('battleHubModal').classList.contains('active')) {
     bhLoad();
