@@ -54352,6 +54352,17 @@ const bv = {
 
 // tactical-lab iframe 의 컨트롤 클릭 → postMessage → 실제 commanderActions API 호출
 // hijack 한정 유저 컨트롤 (Phase 3-A)
+// [v7.406] 결과 카드 표시(멱등) — iframe 로컬 시뮬 전멸 연출 완료(battle_final_done) 또는 fallback 에서 호출.
+function bvFinalizeResult() {
+  try {
+    if (typeof bv === 'undefined') return;
+    if (bv._finalShown) return;
+    bv._finalShown = true;
+    if (bv._finalFallback) { clearTimeout(bv._finalFallback); bv._finalFallback = null; }
+    if (typeof showBattleResult === 'function') showBattleResult();
+  } catch (_) {}
+}
+
 window.addEventListener('message', function(ev) {
   // [v7.189 fix] origin 검증 — 외부 iframe / XSS 가 source:'tactical-lab' 위조해 forfeit 트리거 못 하도록 차단.
   //   tactical-lab 은 같은 도메인 iframe 이므로 ev.origin === location.origin.
@@ -54376,27 +54387,39 @@ window.addEventListener('message', function(ev) {
     return;
   }
 
-  // ws_end / battle_final_done: 전투 종료 → 결과 카드 표시
-  // battle_final_done: tactical-lab 슬로우모션 연출 완료 후 전송 (1.8s 딜레이)
+  // 전투 종료 → 결과 카드.
+  // [v7.406] iframe 로컬 시뮬이 "보이는 전투"이므로 결과는 패배측이 전멸하고 슬로모 연출이 끝난 뒤
+  //   오는 battle_final_done 에 맞춰 표시한다. ws_end(서버 즉시 종료신호)는 서버 승자/통계만 반영하고
+  //   즉시 표시하지 않는다 — 그러지 않으면 AI전(서버 2틱 해결)에서 함선이 살아있는 채 결과가 떠버린다.
+  //   battle_final_done 이 안 오는 경우만 fallback(25s)으로 강제 표시.
   if (d.cmd === 'ws_end' || d.cmd === 'battle_final_done') {
     try {
-      // bv.battle 갱신 후 showBattleResult
       if (typeof bv !== 'undefined') {
         bv.battle = bv.battle || {};
         if (d.payload) {
-          bv.battle.winner_side = d.payload.winner_side || bv.battle.winner_side;
-          bv.battle.duration_seconds = d.payload.duration_seconds;
-          if (d.payload.stats) {
-            bv.battle.atk_ships_total = d.payload.stats.atk?.ships_total || bv.battle.atk_ships_total;
-            bv.battle.atk_ships_lost  = d.payload.stats.atk?.ships_lost  || 0;
-            bv.battle.def_ships_total = d.payload.stats.def?.ships_total || bv.battle.def_ships_total;
-            bv.battle.def_ships_lost  = d.payload.stats.def?.ships_lost  || 0;
-            bv.battle.battle_summary = { atk: d.payload.stats.atk, def: d.payload.stats.def };
+          if (d.cmd === 'ws_end') {
+            // 서버가 승자/통계의 권위 — ws_end 에서만 덮어쓴다.
+            bv.battle.winner_side = d.payload.winner_side || bv.battle.winner_side;
+            bv.battle.duration_seconds = d.payload.duration_seconds;
+            if (d.payload.stats) {
+              bv.battle.atk_ships_total = d.payload.stats.atk?.ships_total || bv.battle.atk_ships_total;
+              bv.battle.atk_ships_lost  = d.payload.stats.atk?.ships_lost  || 0;
+              bv.battle.def_ships_total = d.payload.stats.def?.ships_total || bv.battle.def_ships_total;
+              bv.battle.def_ships_lost  = d.payload.stats.def?.ships_lost  || 0;
+              bv.battle.battle_summary = { atk: d.payload.stats.atk, def: d.payload.stats.def };
+            }
+          } else if (!bv.battle.winner_side && d.payload.winner_side) {
+            // 데모/무서버 경로: 서버 결과가 없을 때만 로컬 승자 사용.
+            bv.battle.winner_side = d.payload.winner_side;
           }
         }
       }
-      if (typeof showBattleResult === 'function') showBattleResult();
     } catch (_) {}
+    if (d.cmd === 'battle_final_done') {
+      bvFinalizeResult();                    // 로컬 시뮬 전멸 연출 완료 → 결과 표시
+    } else if (typeof bv !== 'undefined' && !bv._finalShown && !bv._finalFallback) {
+      bv._finalFallback = setTimeout(bvFinalizeResult, 25000);  // 안전장치
+    }
     return;
   }
 
@@ -54566,6 +54589,11 @@ async function openBattleViewer(battleId, startTick) {
   }
   var viewerWallet = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : '';
   bv.wallet = viewerWallet;
+
+  // [v7.406] 결과표시 게이트 리셋 — iframe 로컬 시뮬 완료(battle_final_done)에 맞춰 결과를 띄운다.
+  bv._finalShown = false;
+  bv._iframeActive = true;
+  if (bv._finalFallback) { clearTimeout(bv._finalFallback); bv._finalFallback = null; }
 
   // 준비 중이면 잠시 대기
   document.getElementById('battleViewer').classList.add('active');
@@ -54766,7 +54794,13 @@ function bvAnimLoop(now) {
     }
     bv.playing = false;
     document.getElementById('bvPlayBtn').textContent = '⏵';
-    showBattleResult();
+    // [v7.406] iframe 로컬 시뮬이 활성이면 결과는 battle_final_done(패배측 전멸 후)에 맞춘다 —
+    //   레거시 타임라인(2프레임 AI전)이 먼저 결과를 띄워 보이는 전투를 자르지 않도록. fallback 만 건다.
+    if (bv._iframeActive) {
+      if (!bv._finalShown && !bv._finalFallback) bv._finalFallback = setTimeout(bvFinalizeResult, 25000);
+    } else {
+      showBattleResult();
+    }
     return;
   }
 
