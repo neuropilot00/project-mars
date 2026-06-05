@@ -1,3 +1,19 @@
+## 2026-06-05 v7.407 — 로봇 검은 박스 진짜 원인: tactical-lab 스프라이트 캐시버스트 누락
+
+전투에서 합체 슈퍼유닛(로봇/외계)이 "검은 박스 안에 유닛" = 구버전(검정배경) 이미지로 보이던 문제.
+
+원인: 로봇/합체 top 스프라이트는 v7.324~v7.331에 걸쳐 여러 번 재생성(검정/마젠타 크로마키 → 투명배경)
+됐는데, tactical-lab 의 sprite 로드(`img.src=ships/top/${code}.png`)에는 캐시버스트 ?v= 가 없었다.
+→ 브라우저가 초기 검정배경 버전을 영구 캐시해 계속 사용. (index.html battle 캔버스는 ?v=ASSET_VER 로
+버스트하고 있었음 — tactical-lab 만 누락.)
+
+수정: tactical-lab sprite src 에 `?v=` 캐시버스트 추가(_SPR_VER = 부모 ASSET_VER 우선/상수 폴백).
+ASSET_VER 7401→7407 bump. 다음 전투 진입 시(tactical-lab 은 &t= 로 항상 새로 로드) ?v=7407 로
+새 투명 스프라이트를 강제 재요청 → 검은 박스 사라짐.
+
+조사 부산물: assets/assembly/parts·portrait 의 원본 아트는 불투명 검정배경(이건 합체 UI 표시용,
+별개). 전투 sprite 와 무관 확인. 함선 색 외곽선/PNG 알파블리드 시도는 오진이라 전부 원복함.
+
 ## 2026-06-05 v7.405 — pilgrim 파벌 고유색(보라 #b388ff) 전투 렌더 활성화
 
 v7.404의 mcc 파랑 폴백 대신 pilgrim(Pilgrim Arms) 고유색을 살림. factions 테이블엔 이미

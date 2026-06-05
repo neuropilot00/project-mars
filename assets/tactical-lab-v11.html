@@ -895,6 +895,10 @@ const SHIP_SPRITE_CODES=[
 ];
 const SHIP_SPRITES={};
 const SHIP_SPRITE_STATUS={};
+// [v7.407] 스프라이트 캐시버스트 — 로봇/합체유닛 top 스프라이트가 v7.324~v7.331 여러 번 재생성(투명배경)
+//   됐는데 여기엔 ?v= 가 없어 브라우저가 초기 "검정배경 구버전"을 영구 캐시 → 전투에서 검은 박스로
+//   보이던 버그. index.html(ASSET_VER)과 동일하게 버스트. 부모 ASSET_VER 우선, 없으면 상수.
+const _SPR_VER=(function(){try{if(window.parent&&window.parent!==window&&window.parent.ASSET_VER)return window.parent.ASSET_VER;}catch(_){}return '7407';})();
 // [v7.403] 스프라이트 로딩 그레이스 — 32개 PNG(~2MB)+화성 텍스처가 iframe마다 새로 동시 로드되어
 //   로딩 윈도우 동안 함선이 전부 투명해지던("AI 연습전 안 보임") 버그 방지. 이 시간 이후엔 PNG가
 //   아직 로딩 중이어도 벡터 폴백을 그려 항상 보이게 한다(로딩 빠르면 기존처럼 PNG 직행).
@@ -905,7 +909,7 @@ SHIP_SPRITE_CODES.forEach(code=>{
   SHIP_SPRITE_STATUS[code]='loading';
   img.onload=()=>{SHIP_SPRITES[code]=trimShipSprite(img);SHIP_SPRITE_STATUS[code]='ready';};
   img.onerror=()=>{SHIP_SPRITE_STATUS[code]='failed';};
-  img.src=`ships/top/${code}.png`;
+  img.src=`ships/top/${code}.png?v=${_SPR_VER}`;
 });
 const MARS_BATTLE_BG=new Image();
 let marsBattleBgReady=false;
