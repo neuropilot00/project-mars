@@ -18,6 +18,15 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
+### v7.412 최신 핸드오프 — MMO 경제/영토/함대 거래 흐름 하드닝
+
+- **옥션 스키마 정합**: `server/services/auction.js`를 현재 DB 스키마(`listing_type`, `resource_id`, `amount`, `current_price`, `fee_pct`, `sold/expired`) 기준으로 재정렬. 예전 `item_type/resource_code/bid_amount/settled/no_bids` 경로로 인한 런타임 실패를 차단.
+- **영토 거래 잠금 보강**: 옥션/마켓/하이젝 흐름이 `claims.auction_locked`, `marketplace_locked`, `claim_id` 기준으로 충돌하지 않게 유지. 관련 migration: `221_transactions_type_length.sql`, `222_claims_auction_lock.sql`.
+- **실자금/게임머니 입력 하드닝**: `/swap`, `/withdraw`, `/withdraw-all`, `/exchange/pp-to-gp`, `/gp/transfer`의 수치 입력을 finite positive number로 정규화하고, 체인 allowlist를 유지.
+- **Cantina 악용 차단**: Crash round start는 인증된 호출만 허용. Cantina bet/target/tile 입력은 `strictNumber`/`strictInteger`로 검증해 `"1abc"`류 부분 파싱을 차단.
+- **캠페인 에디터 보호**: 챕터 API와 레이아웃 저장이 동일한 `x-admin-secret` 흐름을 사용한다. `/api/campaign/editor-layout` POST는 admin secret 없는 외부 쓰기를 거부한다.
+- **검증 기준**: 변경 후 `node --check` 대상 서버 파일, `git diff --check`, `index.html`/`assets/campaign-editor.html` inline script parse를 통과해야 한다.
+
 ### v7.360 최신 핸드오프 — 배신 시스템 3종 + 경제 튜닝 (EVE식 수요엔진)
 
 배신(treachery)이 갈등을 만들고 → 함선 파괴(full-loss) → 재건/수리 GP 싱크로 이어지는 EVE식 루프 구축. **모든 GP 이동은 carve(발행 0)**.

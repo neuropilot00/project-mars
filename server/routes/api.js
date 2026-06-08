@@ -2085,7 +2085,7 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
 
     const ppBal = parseFloat(userRes.rows[0].pp_balance);
     const redeemablePP = parseFloat(userRes.rows[0].redeemable_pp || 0) || 0;
-    if (ppBal < ppAmount) {
+    if (ppBal < parsedPP) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Insufficient PP', balance: ppBal });
     }
@@ -2094,12 +2094,12 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     //   채굴/가챠/추천 PP 는 redeemable_pp 에 안 잡혀 → GP 환전(/exchange/pp-to-gp)만 가능.
     try {
       const _t = require('../services/treasury');
-      if (await _t.redeemableGatingEnabled(getSetting) && ppAmount > redeemablePP + 1e-9) {
+      if (await _t.redeemableGatingEnabled(getSetting) && parsedPP > redeemablePP + 1e-9) {
         await client.query('ROLLBACK');
         return res.status(400).json({
           error: 'pp_not_redeemable',
           message: 'Only deposit-linked PP can be redeemed to USDT. Mined/gacha PP can be converted to GP instead.',
-          redeemable: redeemablePP, requested: ppAmount
+          redeemable: redeemablePP, requested: parsedPP
         });
       }
     } catch (e) {
@@ -2110,8 +2110,8 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
 
     const s = await cfg();
     const SWAP_FEE = (s.swap_fee_percent || 5) / 100;
-    const fee = Math.round(ppAmount * SWAP_FEE * 1000000) / 1000000;
-    const received = Math.round((ppAmount - fee) * 1000000) / 1000000;
+    const fee = Math.round(parsedPP * SWAP_FEE * 1000000) / 1000000;
+    const received = Math.round((parsedPP - fee) * 1000000) / 1000000;
 
     // ✅ [솔벤시 가드] PP→USDT 환금은 담보(collateral) 여유분(room) 이내만 허용 — 뱅크런 차단.
     try {
@@ -2160,7 +2160,7 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     // [경제정책 W2-4] redeemable_pp 도 함께 차감(환매한 PP 는 redeemable 소진). 트리거가 ≤pp_balance 보강.
     const deductSwap = await client.query(
       'UPDATE users SET pp_balance = pp_balance - $1, redeemable_pp = GREATEST(redeemable_pp - $1, 0), usdt_balance = usdt_balance + $2 WHERE LOWER(wallet_address) = LOWER($3) AND pp_balance >= $1',
-      [ppAmount, received, wallet.toLowerCase()]
+      [parsedPP, received, wallet.toLowerCase()]
     );
     if (deductSwap.rowCount === 0) {
       await client.query('ROLLBACK');
@@ -2170,7 +2170,7 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
        VALUES ('swap', $1, $2, $3, $4, $5)`,
-      [wallet.toLowerCase(), received, ppAmount, fee, JSON.stringify({ swapRate: 1, feePercent: s.swap_fee_percent || 5 })]
+      [wallet.toLowerCase(), received, parsedPP, fee, JSON.stringify({ swapRate: 1, feePercent: s.swap_fee_percent || 5 })]
     );
 
     // [v7.353] 추천 수수료를 swap fee 에서 carve(추가발행 0): 먼저 PP 추천 분배 후
@@ -2186,7 +2186,7 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
     await fundQuestPool(client, Math.max(0, fee - _refTotal));
 
     await client.query('COMMIT');
-    res.json({ success: true, received, fee, ppDeducted: ppAmount });
+    res.json({ success: true, received, fee, ppDeducted: parsedPP });
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] swap error:', e.message);
@@ -4183,6 +4183,7 @@ router.get('/campaign/editor-layout', async (req, res) => {
 });
 router.post('/campaign/editor-layout', writeLimiter, async (req, res) => {
   try {
+    if (!isInternalRequest(req)) return res.status(403).json({ error: 'forbidden' });
     const payload = req.body;
     if (!payload || typeof payload !== 'object') return res.status(400).json({ error: 'invalid payload' });
     await pool.query(
@@ -7635,8 +7636,8 @@ router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) =>
   const w = getAuthWallet(req);
   if (!w || !amount) return res.status(400).json({ error: 'Missing wallet or amount' });
 
-  const ppAmount = parseFloat(amount);
-  if (isNaN(ppAmount) || ppAmount <= 0) return res.status(400).json({ error: 'Invalid amount' });
+  const ppAmount = Number(amount);
+  if (!Number.isFinite(ppAmount) || ppAmount <= 0) return res.status(400).json({ error: 'Invalid amount' });
 
   const client = await pool.connect();
   try {
@@ -8129,14 +8130,14 @@ router.post('/gp/transfer', requireAuth, writeLimiter, async (req, res) => {
 
   const { toWallet: rawTo, amount: rawAmount, note: rawNote } = req.body || {};
   const toWallet = (rawTo || '').toLowerCase().trim();
-  const amount   = parseFloat(rawAmount);
+  const amount   = Number(rawAmount);
   const note     = (rawNote || '').slice(0, 200).trim();
 
   if (!toWallet || toWallet.length < 10)
     return res.status(400).json({ error: 'to_wallet_required' });
   if (toWallet === fromWallet)
     return res.status(400).json({ error: 'cannot_send_to_self' });
-  if (!amount || amount <= 0 || isNaN(amount))
+  if (!Number.isFinite(amount) || amount <= 0)
     return res.status(400).json({ error: 'invalid_amount' });
 
   try {

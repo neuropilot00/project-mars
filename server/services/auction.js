@@ -34,16 +34,22 @@ async function createAuction(sellerWallet, data) {
   const enabled = String(await getSetting('auction_enabled') ?? 'true') !== 'false';
   if (!enabled) return { success: false, error: 'auction_disabled' };
 
-  const maxActive   = parseInt(await getSetting('auction_max_active') || '5');
+  const maxActive   = parseInt(await getSetting('auction_max_active') ?? await getSetting('auction_max_per_user') ?? '5');
   const minHours    = parseInt(await getSetting('auction_min_duration_hours') || '1');
   const maxHours    = parseInt(await getSetting('auction_max_duration_hours') || '168');
-  const feePct      = parseFloat(await getSetting('auction_platform_fee_pct') || '5') / 100;
+  const feeRaw      = await getSetting('auction_platform_fee_pct') ?? await getSetting('auction_fee_pct') ?? '0.05';
+  const feeNum      = parseFloat(feeRaw);
+  const feePct      = feeNum > 1 ? feeNum / 100 : feeNum;
 
   let listingFee = parseInt(await getSetting('auction_listing_fee_gp') || '5');
   // Job: Merchant listing fee discount
   try { if (jobService) listingFee = Math.max(0, Math.floor(listingFee * await jobService.getJobBuff(w, 'merchant_fee_discount', 1.0))); } catch (_) {}
 
-  const { itemType, startPrice, currency = 'GP', buyoutPrice, durationHours } = data;
+  const itemType = data.itemType || data.listingType;
+  const startPrice = data.startPrice ?? data.start_price;
+  const currency = data.currency || 'GP';
+  const buyoutPrice = data.buyoutPrice ?? data.buyout_price;
+  const durationHours = data.durationHours ?? data.duration_hours;
   if (!['cosmetic', 'item', 'claim', 'resource'].includes(itemType)) {
     return { success: false, error: 'invalid_item_type' };
   }
@@ -92,7 +98,7 @@ async function createAuction(sellerWallet, data) {
 
     if (itemType === 'cosmetic' || itemType === 'item') {
       // Verify instance ownership + escrow
-      const instId = parseInt(data.instanceId);
+      const instId = parseInt(data.instanceId || data.itemInstanceId);
       if (!instId) { await client.query('ROLLBACK'); return { success: false, error: 'instanceId_required' }; }
       const instRes = await client.query(
         "SELECT id FROM item_instances WHERE id = $1 AND wallet = $2",
@@ -146,19 +152,29 @@ async function createAuction(sellerWallet, data) {
     }
 
     const endsAt = new Date(Date.now() + hours * 3600000);
-    const snipeMin = parseInt(await getSetting('auction_snipe_extension_min') || '5');
+    const snipeMin = parseInt(
+      await getSetting('auction_snipe_extension_min')
+        ?? await getSetting('auction_anti_snipe_min')
+        ?? '5'
+    );
+    const snipeExtendMin = parseInt(
+      await getSetting('auction_anti_snipe_extend')
+        ?? await getSetting('auction_snipe_extension_min')
+        ?? await getSetting('auction_anti_snipe_min')
+        ?? '5'
+    );
 
     const auctionRes = await client.query(
       `INSERT INTO auctions
-         (seller_wallet, item_type, item_instance_id, resource_code, resource_quantity,
-          claim_id, start_price, currency, current_bid, buyout_price,
-          listing_fee, platform_fee_rate, ends_at, snipe_extension_min)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+         (seller_wallet, listing_type, item_instance_id, resource_id, resource_quantity,
+          claim_id, start_price, currency, current_price, current_bid, buyout_price,
+          fee_pct, ends_at, anti_snipe_min, anti_snipe_extend_min)
+       VALUES ($1,$2,$3,(SELECT id FROM resources WHERE code = $4),$5,$6,$7,$8,$9,0,$10,$11,$12,$13,$14)
        RETURNING *`,
       [w, itemType, itemInstanceId, resourceCode, resourceQty,
        claimId, parseInt(startPrice), currency, parseInt(startPrice),
        buyoutPrice ? parseInt(buyoutPrice) : null,
-       listingFee, feePct, endsAt, snipeMin]
+       feePct, endsAt, snipeMin, snipeExtendMin]
     );
 
     await client.query('COMMIT');
@@ -237,7 +253,7 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
     }
 
     // Refund previous bidder
-    if (auction.current_bidder_wallet && auction.current_bid > auction.start_price) {
+    if (auction.current_bidder_wallet && auction.current_bid > 0) {
       await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [auction.current_bid, auction.current_bidder_wallet]);
       await client.query(
@@ -248,19 +264,21 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
 
     // Insert bid
     await client.query(
-      'INSERT INTO bids (auction_id, bidder_wallet, bid_amount, is_winning) VALUES ($1,$2,$3,TRUE)',
+      'INSERT INTO bids (auction_id, bidder_wallet, amount, is_winning) VALUES ($1,$2,$3,TRUE)',
       [id, w, amt]
     );
 
     // Snipe protection: if within snipe_extension_min of end, extend
     const minsRemaining = (new Date(auction.ends_at) - new Date()) / 60000;
     let newEndsAt = auction.ends_at;
-    if (minsRemaining < auction.snipe_extension_min) {
-      newEndsAt = new Date(Date.now() + auction.snipe_extension_min * 60000);
-      await client.query('UPDATE auctions SET current_bid = $1, current_bidder_wallet = $2, ends_at = $3 WHERE id = $4',
+    const snipeMin = Number(auction.anti_snipe_min || 5);
+    const snipeExtendMin = Number(auction.anti_snipe_extend_min || snipeMin);
+    if (minsRemaining < snipeMin) {
+      newEndsAt = new Date(Date.now() + snipeExtendMin * 60000);
+      await client.query('UPDATE auctions SET current_bid = $1, current_price = $1, current_bidder_wallet = $2, ends_at = $3 WHERE id = $4',
         [amt, w, newEndsAt, id]);
     } else {
-      await client.query('UPDATE auctions SET current_bid = $1, current_bidder_wallet = $2 WHERE id = $3',
+      await client.query('UPDATE auctions SET current_bid = $1, current_price = $1, current_bidder_wallet = $2 WHERE id = $3',
         [amt, w, id]);
     }
 
@@ -324,14 +342,15 @@ async function buyout(buyerWallet, auctionId) {
     }
 
     // Refund current highest bidder
-    if (auction.current_bidder_wallet && auction.current_bid > auction.start_price) {
+    if (auction.current_bidder_wallet && auction.current_bid > 0) {
       await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
         [auction.current_bid, auction.current_bidder_wallet]);
     }
 
     // Platform fee + seller payout
     // [v7.365] 소액 경매에서 floor로 수수료 0이 되던 누수 방지 — fee_rate>0이면 최소 1 GP.
-    const fee = Math.max(buyoutAmt > 0 && auction.platform_fee_rate > 0 ? 1 : 0, Math.floor(buyoutAmt * auction.platform_fee_rate));
+    const feePct = Number(auction.fee_pct || 0);
+    const fee = Math.max(buyoutAmt > 0 && feePct > 0 ? 1 : 0, Math.floor(buyoutAmt * feePct));
     const sellerPayout = buyoutAmt - fee;
     await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [sellerPayout, auction.seller_wallet]);
 
@@ -340,7 +359,7 @@ async function buyout(buyerWallet, auctionId) {
 
     // Close auction
     await client.query(
-      "UPDATE auctions SET status = 'settled', current_bid = $1, current_bidder_wallet = $2, sold_at = NOW() WHERE id = $3",
+      "UPDATE auctions SET status = 'sold', current_bid = $1, current_price = $1, current_bidder_wallet = $2, winner_wallet = $2, final_price = $1, sold_at = NOW() WHERE id = $3",
       [buyoutAmt, w, id]
     );
 
@@ -458,13 +477,14 @@ async function settleAuction(auctionId) {
 
     if (auction.current_bidder_wallet && auction.current_bid > 0) {
       // 낙찰: 판매자에게 입금 (플랫폼 수수료 차감)
-      const fee = Math.floor(auction.current_bid * auction.platform_fee_rate);
+      const fee = Math.floor(auction.current_bid * Number(auction.fee_pct || 0));
       const payout = auction.current_bid - fee;
       await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)', [payout, auction.seller_wallet]);
       // Transfer item to winner
       await _transferItem(client, auction, auction.current_bidder_wallet);
       await client.query(
-        "UPDATE auctions SET status = 'settled', sold_at = NOW() WHERE id = $1", [id]
+        "UPDATE auctions SET status = 'sold', winner_wallet = $2, final_price = $3, sold_at = NOW() WHERE id = $1",
+        [id, auction.current_bidder_wallet, auction.current_bid]
       );
       await client.query('COMMIT');
 
@@ -515,7 +535,7 @@ async function settleAuction(auctionId) {
     } else {
       // 유찰: 에스크로 반환
       await _returnEscrow(client, auction, auction.seller_wallet);
-      await client.query("UPDATE auctions SET status = 'no_bids', sold_at = NOW() WHERE id = $1", [id]);
+      await client.query("UPDATE auctions SET status = 'expired' WHERE id = $1", [id]);
       await client.query('COMMIT');
       console.log(`[AUCTION] #${id} expired with no bids`);
       return { success: true, settled: false, no_bids: true };
@@ -550,19 +570,23 @@ async function getAuctions(filters = {}) {
   const params = [status, parseInt(limit), parseInt(offset)];
   let where = 'a.status = $1';
   if (itemType) {
-    where += ' AND a.item_type = $4';
+    where += ' AND a.listing_type = $4';
     params.push(itemType);
   }
   const res = await pool.query(
     `SELECT a.*,
+            a.listing_type AS item_type,
+            CASE WHEN a.current_bidder_wallet IS NULL THEN 0 ELSE COALESCE(a.current_bid, a.current_price) END AS current_bid,
             us.nickname AS seller_nickname,
             ub.nickname AS bidder_nickname,
-            it.name AS item_name, it.icon AS item_icon, it.code AS item_code
+            it.name AS item_name, it.icon AS item_icon, it.code AS item_code,
+            r.code AS resource_code
      FROM auctions a
      LEFT JOIN users us ON us.wallet_address = a.seller_wallet
      LEFT JOIN users ub ON ub.wallet_address = a.current_bidder_wallet
      LEFT JOIN item_instances ii ON ii.id = a.item_instance_id
      LEFT JOIN item_types it ON it.id = ii.item_type_id
+     LEFT JOIN resources r ON r.id = a.resource_id
      WHERE ${where}
      ORDER BY a.ends_at ASC
      LIMIT $2 OFFSET $3`,
@@ -575,26 +599,30 @@ async function getAuction(auctionId) {
   const [aRes, bRes] = await Promise.all([
     pool.query(
       `SELECT a.*,
+              a.listing_type AS item_type,
+              CASE WHEN a.current_bidder_wallet IS NULL THEN 0 ELSE COALESCE(a.current_bid, a.current_price) END AS current_bid,
               us.nickname AS seller_nickname,
               ub.nickname AS bidder_nickname,
               it.name AS item_name, it.icon AS item_icon, it.code AS item_code,
+              r.code AS resource_code,
               c.width, c.height, c.sector_code AS claim_sector
        FROM auctions a
        LEFT JOIN users us ON us.wallet_address = a.seller_wallet
        LEFT JOIN users ub ON ub.wallet_address = a.current_bidder_wallet
        LEFT JOIN item_instances ii ON ii.id = a.item_instance_id
        LEFT JOIN item_types it ON it.id = ii.item_type_id
+       LEFT JOIN resources r ON r.id = a.resource_id
        LEFT JOIN claims c ON c.id = a.claim_id
        WHERE a.id = $1`,
       [parseInt(auctionId)]
     ),
     pool.query(
-      `SELECT b.bid_amount, b.bidder_wallet, b.bid_at, b.is_winning,
+      `SELECT b.amount AS bid_amount, b.bidder_wallet, b.created_at AS bid_at, b.is_winning,
               u.nickname AS bidder_nickname
        FROM bids b
        LEFT JOIN users u ON u.wallet_address = b.bidder_wallet
        WHERE b.auction_id = $1
-       ORDER BY b.bid_at DESC LIMIT 20`,
+       ORDER BY b.created_at DESC LIMIT 20`,
       [parseInt(auctionId)]
     )
   ]);
@@ -629,13 +657,13 @@ async function _transferItem(client, auction, buyerWallet) {
   } else if (auction.claim_id) {
     await client.query('UPDATE claims SET owner = $1, auction_locked = FALSE WHERE id = $2', [w, auction.claim_id]);
     await client.query('UPDATE pixels SET owner = $1 WHERE claim_id = $2', [w, auction.claim_id]);
-  } else if (auction.resource_code) {
+  } else if (auction.resource_id) {
     await client.query(
       `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
-       VALUES ($1, (SELECT id FROM resources WHERE code = $2), $3)
+       VALUES ($1, $2, $3)
        ON CONFLICT (wallet_address, resource_id)
        DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
-      [w, auction.resource_code, auction.resource_quantity]
+      [w, auction.resource_id, auction.resource_quantity]
     );
   }
 }
@@ -646,13 +674,13 @@ async function _returnEscrow(client, auction, ownerWallet) {
     await client.query('UPDATE item_instances SET wallet = $1 WHERE id = $2', [w, auction.item_instance_id]);
   } else if (auction.claim_id) {
     await client.query('UPDATE claims SET auction_locked = FALSE WHERE id = $1', [auction.claim_id]);
-  } else if (auction.resource_code) {
+  } else if (auction.resource_id) {
     await client.query(
       `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
-       VALUES ($1, (SELECT id FROM resources WHERE code = $2), $3)
+       VALUES ($1, $2, $3)
        ON CONFLICT (wallet_address, resource_id)
        DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
-      [w, auction.resource_code, auction.resource_quantity]
+      [w, auction.resource_id, auction.resource_quantity]
     );
   }
 }
@@ -660,7 +688,7 @@ async function _returnEscrow(client, auction, ownerWallet) {
 async function _checkMarketplaceSalesTitle(sellerWallet) {
   if (!titleService) return;
   const res = await pool.query(
-    "SELECT COUNT(*) AS cnt FROM auctions WHERE seller_wallet = $1 AND status = 'settled'",
+    "SELECT COUNT(*) AS cnt FROM auctions WHERE seller_wallet = $1 AND status = 'sold'",
     [sellerWallet.toLowerCase()]
   );
   const count = parseInt(res.rows[0]?.cnt ?? 0);

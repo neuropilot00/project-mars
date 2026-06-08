@@ -1,3 +1,11 @@
+## 2026-06-09 v7.412 — MMO 경제/영토/함대 거래 흐름 하드닝
+
+- 옥션 서비스를 현재 DB 스키마에 맞게 정렬했다: `listing_type`, `resource_id`, `amount`, `current_price`, `fee_pct`, `sold/expired`.
+- 캠페인 에디터 레이아웃 저장 API에 admin secret 보호를 적용하고, 에디터 자동 저장도 같은 관리자 헤더를 사용한다.
+- Cantina 입력 검증을 strict number/integer로 바꿔 부분 파싱 악용을 막고, Crash round start를 인증 호출로 제한했다.
+- PP/GP/withdraw 계열 수치 입력과 chain allowlist를 보강했다.
+- audit/changelog/CLAUDE 핸드오프를 같은 커밋에 포함한다.
+
 ## 2026-06-05 v7.411 — MCC 함선 내부 비침 완전 제거 (이진 솔리드 + AA)
 
 v7.410 게인/erosion 방식이 mcc_frg 같은 얇은 피처 많은 함선에서 가장자리가 너덜거리고 일부 비침이
@@ -2403,6 +2411,107 @@ Codex 독립 검토가 v7.125 에서 찾은 결함 3개 보강(현재 USDT=0 이
 - 데스크탑 사이드 FAB `col-fab items` 도 동일한 옛 onclick 을 쓰고 있어 같이 수정. v7.73 1차 패치는 `mn-items` 만 고쳐서 데스크탑/사이드바 사용자에게는 그대로 안 통했음.
 - BASE 모달은 이미 `baseTabItems`(내 아이템) 탭을 별도 카테고리로 가지고 있음. nav 버튼이 `loadBaseInventory()` 를 거쳐 그 탭으로 직접 이동하도록 `openMyItems()` 헬퍼 추가하고 `mn-items` + `col-fab items` onclick 을 교체.
 - `sw.js` CACHE_NAME `mars-v8` → `mars-v9`. HTML 은 이미 network-first 라 영향 없지만, 옛 빌드의 정적 캐시(JS bundle 같은 부수 자원) 를 강제로 비워서 재발 방지.
+
+---
+
+## 2026-06-08 v7.76 — Crash 라운드 시작 인증 보강
+
+**수정 (MEDIUM — cash-like game timing integrity):**
+
+- `server/routes/arena.js` — `POST /api/arena/crash/start`에 `requireAuth + betLimiter` 적용.
+  - 외부 비로그인 요청이 Crash 라운드의 waiting/running 전환 타이밍을 조작할 수 있던 공백 차단.
+- `index.html` — `startRoundOnServer()` 호출에 `arenaAuthHeaders()` 첨부.
+  - 서버 인증 적용 후에도 로그인한 정상 플레이어의 Crash 게임 루프는 유지.
+
+**검증:**
+
+- `node --check server/services/auction.js server/routes/api.js server/routes/ships.js server/index.js server/routes/arena.js server/routes/fleetBattles.js server/services/battleScheduler.js server/services/battleEngine.js server/services/battleRewards.js server/services/marketplace.js server/services/ship.js`
+- `git diff --check`
+- `index.html` + `assets/campaign-editor.html` 인라인 `<script>` 파싱 통과
+
+---
+
+## 2026-06-08 v7.75 — 관리자 에디터 보호 + 아레나 현금성 입력 보강
+
+**수정 (HIGH — admin/content integrity):**
+
+- `server/index.js` — `/admin/api/campaign-editor/*` 경로에 `x-admin-secret`/`x-admin-key` 검사를 추가.
+  - 캠페인 JSON 파일 목록/읽기/저장과 에셋 목록 API가 공개 접근되던 상태를 차단.
+- `server/routes/api.js` — `POST /api/campaign/editor-layout`에 내부/관리자 헤더 검사를 추가.
+  - 인게임은 GET으로 레이아웃을 읽고, 저장은 관리자 에디터만 수행하도록 분리.
+- `assets/campaign-editor.html` — 관리자 시크릿을 최초 1회 입력받아 에디터 API와 레이아웃 저장 요청에 자동 첨부.
+
+**수정 (MEDIUM — cash-like transaction safety):**
+
+- `server/routes/arena.js` — Crash/Mines/Coinflip/Dice/Hi-Lo 입력 검증 보강.
+  - 베팅 금액, 캐시아웃 배율, 지뢰 위치, 다이스 목표값을 `strictNumber()`/`strictInteger()`로 검증.
+  - `10abc` 같은 malformed numeric input이 부분 파싱되어 처리되는 문제 차단.
+
+**검증:**
+
+- `node --check server/routes/arena.js`
+- 최종 통합 검증은 v7.76에서 재수행
+
+---
+
+## 2026-06-08 v7.74 — MMO 경제/영토/함대 감사 + 현금성 거래 경로 보강
+
+**수정 (HIGH — economy/territory):**
+
+- `server/index.js` — canonical 경매 라우트(`/api/auctions`, `/api/auction/*`)가 auxiliary `/api/auctions` 라우트보다 먼저 처리되도록 mount 순서 조정.
+- `server/services/auction.js` — 현재 auction DB 스키마와 서비스 로직 불일치 수정.
+  - `listingType/itemType`, `itemInstanceId/instanceId`, snake/camel 입력 alias 허용.
+  - `listing_type`, `resource_id`, `amount`, `created_at`, `fee_pct`, `anti_snipe_min`, `anti_snipe_extend_min` 컬럼 기준으로 정렬.
+  - 경매 상태값을 현재 CHECK 제약과 맞는 `sold`/`expired`로 정리.
+  - 목록 응답은 기존 프론트 호환을 위해 `item_type`, `current_bid`, `resource_code`, bid history alias를 제공.
+- `server/routes/api.js` `/api/claim` — 기존 클레임 조회에 `claim_id`를 포함해 marketplace lock/shield 보호가 실제로 작동하도록 수정.
+- `server/migrations/222_claims_auction_lock.sql` — `claims.auction_locked` 컬럼/인덱스를 활성 migration에 추가. 기존에는 archived migration에만 있어 fresh DB에서 영토 경매 등록이 깨질 수 있었음.
+
+**수정 (MEDIUM — cash-like transaction safety):**
+
+- `server/routes/api.js` `/api/swap`, `/api/withdraw`, `/api/exchange/pp-to-gp`, `/api/gp/transfer` — 금액 검증을 `Number()` + `Number.isFinite()` 기반으로 통일해 malformed amount를 차단.
+- `server/routes/api.js` `/api/withdraw-all` — 지원 chain을 `base/bnb/eth` allowlist로 검증.
+- `server/migrations/221_transactions_type_length.sql` — `transactions.type`을 `VARCHAR(64)`로 확장해 marketplace/economy ledger type 길이 오류 방지.
+
+**수정 (LOW — fleet UX/auth consistency):**
+
+- `server/routes/ships.js` `/api/ships/:id/scrap` — JWT wallet 필드 추출을 다른 ship mutation과 같은 `getWallet(req)`로 통일.
+
+**감사 결과:**
+
+- 조선소/함선 강화/함선 마켓/일반 마켓/하이젝/전투 실행/전투 보상 경로는 ownership, transaction, row lock, balance/resource guard 중심으로 점검했다.
+- `POST /api/campaign/editor-layout` 공개 쓰기 리스크는 v7.75에서 admin secret 보호로 해소.
+
+**검증:**
+- `node --check server/services/auction.js server/routes/api.js server/routes/ships.js server/index.js server/routes/fleetBattles.js server/services/battleScheduler.js server/services/battleEngine.js server/services/battleRewards.js server/services/marketplace.js server/services/ship.js`
+- `git diff --check`
+- `index.html` 인라인 `<script>` 10개 `new Function()` 파싱 통과
+
+---
+
+## 2026-06-08 v7.73 — 내 영토 작전보드 내 아이템 이동/완료등 회귀 수정 + 광물명 표시 보강
+
+**수정 (MEDIUM — UX regression):**
+
+- `index.html` `openOpsRewardInventory()` — 내 영토 탭 `#opsCommandBoard`의 주간 보상/아이템 진입 버튼이 `BASE > 내 아이템` 탭이 아니라 `SHOP` 내부 인벤토리 뷰로 이동하던 회귀 수정.
+  - 베이스 모달 오픈 후 `economy` 카테고리로 전환하고 `baseTabItems`를 직접 활성화.
+  - `loadBaseInventory()`와 `clearBaseTabDot('items')`를 함께 실행.
+- `index.html` `loadOpsCommandBoard()` — 내 영토 탭 작전보드에서 완료됐지만 보상 미수령인 미션이 흰색 상태등으로 남던 표시 오류 수정.
+  - `completed || reward_claimed` 상태면 초록 상태등/초록 라벨로 표시.
+  - 미수령 완료 항목은 기존처럼 `+GP 수령` 버튼 유지.
+- `index.html` `loadOpsCommandBoard()` — 내 영토 탭 작전보드의 주간 보상 안내가 텍스트만 표시되어 내 아이템으로 이동할 수 없던 UX 공백 수정.
+  - 주간 보상 줄을 `openOpsRewardInventory()` 버튼으로 변경.
+- `index.html` `#dailyOpsBoardPanel` — 퀘스트 탭에 남아 있던 구형/중복 작전보드를 숨김 처리.
+  - 현재 사용 기준은 `BASE > 내 영토 > #opsCommandBoard` 하나로 고정.
+- `index.html` `openMineralsPanel()` — `/api/resources/my` 응답의 `name_ko/name_en/resource_code`를 읽지 못해 광물명이 `?`로 표시될 수 있는 폴백 보강.
+
+**검증:**
+- `git diff --check`
+- `node --check server/index.js`
+- `node --check server/routes/dailyOps.js`
+- `node --check server/routes/resources.js`
+- `node --check server/routes/resource.js`
+- `index.html` 인라인 `<script>` 10개 `new Function()` 파싱 통과
 
 ---
 

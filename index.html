@@ -34738,7 +34738,7 @@ function pollCrashRound() {
 }
 
 function startRoundOnServer() {
-  fetch(ARENA_API + '/crash/start', { method: 'POST' }).then(function(){
+  fetch(ARENA_API + '/crash/start', { method: 'POST', headers: arenaAuthHeaders() }).then(function(){
     crashCountdown = 0;
     pollCrashRound();
   }).catch(function(){

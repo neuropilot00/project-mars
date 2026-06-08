@@ -1,3 +1,17 @@
+## 2026-06-09 — MMO 경제/영토/함대 거래 흐름 재검수 반영 (v7.412)
+
+### ✅ 수정 완료
+- **[HIGH] 옥션 서비스 스키마 불일치**: `server/services/auction.js`가 레거시 `item_type/resource_code/bid_amount/settled/no_bids` 컬럼을 사용하던 경로를 현재 스키마(`listing_type/resource_id/amount/sold/expired`)로 정렬했다. 즉구/낙찰/유찰/자원 에스크로/입찰 이력이 모두 같은 스키마를 사용한다.
+- **[HIGH] 캠페인 에디터 레이아웃 무권한 쓰기**: `/api/campaign/editor-layout` POST에 admin secret 검사를 추가하고, 에디터 자동 저장도 같은 `x-admin-secret` 헤더를 사용하게 했다.
+- **[MED] Cantina 부분 숫자 파싱**: bet/target/tile 입력에서 `parseFloat`/`parseInt` 부분 파싱을 제거하고 strict finite number/integer 검증으로 바꿨다. Crash round start는 인증+rate limit을 요구한다.
+- **[MED] PP/GP/withdraw 수치 정규화**: swap, withdraw, withdraw-all, PP→GP, GP transfer 경로에서 finite positive number와 체인 allowlist를 유지하도록 보강했다.
+- **[MED] 함선 scrap 인증 일관성**: scrap은 표준 JWT wallet helper를 사용한다. 원격 최신에도 이미 반영되어 있었고 재검수에서 유지 확인했다.
+
+### 검증 예정/필수
+- `node --check` 서버 파일군
+- `git diff --check`
+- `index.html`, `assets/campaign-editor.html` inline script parse
+
 ## 2026-06-05 — Base 체인 자금경로 적대검수 (Codex+컨트랙트감사관+서버무결성) → P0/P0-b 수정 (v7.402)
 
 검수 3주체 만장일치 P0 = **출금 nonce/정산 desync**. 컨트랙트 코어(재진입 CEI·SafeERC20·서명

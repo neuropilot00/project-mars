@@ -522,7 +522,7 @@ function applyLayoutPayload(payload) {
 }
 
 function syncToServerNow() {
-  return fetch('/api/campaign/editor-layout?t=' + Date.now(), {
+  return adminFetch('/api/campaign/editor-layout?t=' + Date.now(), {
     method: 'POST',
     cache: 'no-store',
     headers: { 'Content-Type': 'application/json' },

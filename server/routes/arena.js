@@ -47,6 +47,24 @@ async function cfg() {
   return _cfg;
 }
 
+function strictNumber(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
+  if (typeof value !== 'string') return NaN;
+  const trimmed = value.trim();
+  if (!trimmed || !/^-?(?:\d+|\d*\.\d+)$/.test(trimmed)) return NaN;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : NaN;
+}
+
+function strictInteger(value) {
+  if (typeof value === 'number') return Number.isInteger(value) ? value : NaN;
+  if (typeof value !== 'string') return NaN;
+  const trimmed = value.trim();
+  if (!trimmed || !/^-?\d+$/.test(trimmed)) return NaN;
+  const parsed = Number(trimmed);
+  return Number.isSafeInteger(parsed) ? parsed : NaN;
+}
+
 // (v7.373) 카지노 공통 하우스 엣지. casino_house_edge_pct(기본 15%) 설정에서 읽어 배수에 곱한다.
 // 0~90% clamp. _cfg는 각 게임 핸들러가 cfg()를 먼저 호출해 갱신된 상태로 사용한다.
 function _houseEdgePct() {
@@ -186,13 +204,13 @@ router.post('/crash/bet', requireAuth, betLimiter, async (req, res) => {
     // 백엔드가 body.currency를 신뢰하면 악용 가능 → USDT 베팅 자체를 거부한다.
     if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' });
     const cur = 'PP';
-    const bet = parseFloat(amount);
+    const bet = strictNumber(amount);
     const s = await cfg();
 
     if (!w) return res.status(400).json({ error: 'Wallet required' });
     const minBet = parseFloat(s.crash_min_bet) || 0.1;
     const maxBet = parseFloat(s.crash_max_bet) || 50;
-    if (!bet || bet < minBet || bet > maxBet) {
+    if (!Number.isFinite(bet) || bet <= 0 || bet < minBet || bet > maxBet) {
       return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
     }
 
@@ -285,9 +303,9 @@ router.post('/crash/cashout', requireAuth, betLimiter, async (req, res) => {
   try {
     const { multiplier } = req.body;
     const w = getAuthWallet(req);
-    const cashoutAt = parseFloat(multiplier);
+    const cashoutAt = strictNumber(multiplier);
 
-    if (!w || !cashoutAt || cashoutAt < 1.01) {
+    if (!w || !Number.isFinite(cashoutAt) || cashoutAt < 1.01) {
       return res.status(400).json({ error: 'Invalid cashout' });
     }
 
@@ -367,8 +385,8 @@ function calcMultiplier(elapsedMs) {
   return Math.floor(Math.pow(Math.E, 0.00006 * elapsedMs) * 100) / 100;
 }
 
-// POST /arena/crash/start — Start a round (called by game loop)
-router.post('/crash/start', async (req, res) => {
+// POST /arena/crash/start — Start a round (called by authenticated game loop)
+router.post('/crash/start', requireAuth, betLimiter, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -599,14 +617,15 @@ router.post('/mines/start', requireAuth, betLimiter, async (req, res) => {
   // (솔벤시 v7.370) 카지노는 PP 전용 — USDT 당첨은 담보 없이 usdt_balance를 발행해 페그를 깬다.
   if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' });
   const cur = 'PP';
-  const bet = parseFloat(amount);
-  const mineCount = Math.max(1, Math.min(24, parseInt(mines) || 5));
+  const bet = strictNumber(amount);
+  const requestedMines = strictInteger(mines);
+  const mineCount = Math.max(1, Math.min(24, Number.isInteger(requestedMines) ? requestedMines : 5));
 
   if (!w) return res.status(400).json({ error: 'Wallet required' });
   const s = await cfg();
   const minBet = parseFloat(s.mines_min_bet) || 0.1;
   const maxBet = parseFloat(s.mines_max_bet) || 1000;
-  if (!bet || bet < minBet || bet > maxBet) {
+  if (!Number.isFinite(bet) || bet <= 0 || bet < minBet || bet > maxBet) {
     return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
   }
 
@@ -688,8 +707,8 @@ router.post('/mines/reveal', requireAuth, betLimiter, async (req, res) => {
   // Validate outside transaction
   const { gameId, position } = req.body;
   const w = getAuthWallet(req);
-  const pos = parseInt(position);
-  if (!w || !gameId || pos < 0 || pos > 24) {
+  const pos = strictInteger(position);
+  if (!w || !gameId || !Number.isInteger(pos) || pos < 0 || pos > 24) {
     return res.status(400).json({ error: 'Invalid params' });
   }
 
@@ -850,14 +869,14 @@ router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
   const w = getAuthWallet(req);
   if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' }); // (솔벤시 v7.370) PP 전용
   const cur = 'PP';
-  const bet = parseFloat(amount);
+  const bet = strictNumber(amount);
   const pick = choice === 'perish' ? 'perish' : 'survive';
 
   if (!w) return res.status(400).json({ error: 'Wallet required' });
   const s = await cfg();
   const minBet = parseFloat(s.coinflip_min_bet) || 0.1;
   const maxBet = parseFloat(s.coinflip_max_bet) || 500;
-  if (!bet || bet < minBet || bet > maxBet) {
+  if (!Number.isFinite(bet) || bet <= 0 || bet < minBet || bet > maxBet) {
     return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
   }
 
@@ -944,17 +963,17 @@ router.post('/dice/play', requireAuth, betLimiter, async (req, res) => {
   const w = getAuthWallet(req);
   if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' }); // (솔벤시 v7.370) PP 전용
   const cur = 'PP';
-  const bet = parseFloat(amount);
-  const tgt = parseInt(target);
+  const bet = strictNumber(amount);
+  const tgt = strictInteger(target);
   const dir = direction === 'under' ? 'under' : 'over';
 
   if (!w) return res.status(400).json({ error: 'Wallet required' });
-  if (isNaN(tgt) || tgt < 1 || tgt > 98) return res.status(400).json({ error: 'Target must be 1-98' });
+  if (!Number.isInteger(tgt) || tgt < 1 || tgt > 98) return res.status(400).json({ error: 'Target must be 1-98' });
 
   const s = await cfg();
   const minBet = parseFloat(s.dice_min_bet) || 0.1;
   const maxBet = parseFloat(s.dice_max_bet) || 500;
-  if (!bet || bet < minBet || bet > maxBet) {
+  if (!Number.isFinite(bet) || bet <= 0 || bet < minBet || bet > maxBet) {
     return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
   }
 
@@ -1034,13 +1053,13 @@ router.post('/hilo/start', requireAuth, betLimiter, async (req, res) => {
   const w = getAuthWallet(req);
   if (currency === 'USDT') return res.status(400).json({ error: 'Casino accepts PP only' }); // (솔벤시 v7.370) PP 전용
   const cur = 'PP';
-  const bet = parseFloat(amount);
+  const bet = strictNumber(amount);
 
   if (!w) return res.status(400).json({ error: 'Wallet required' });
   const s = await cfg();
   const minBet = parseFloat(s.hilo_min_bet) || 0.1;
   const maxBet = parseFloat(s.hilo_max_bet) || 500;
-  if (!bet || bet < minBet || bet > maxBet) {
+  if (!Number.isFinite(bet) || bet <= 0 || bet < minBet || bet > maxBet) {
     return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
   }
 
