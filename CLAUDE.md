@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-10 v7.418 (Daily OPS Legacy Removal + Campaign Layout Source Fix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-10 v7.419 (Item Resource Visibility + Campaign Transform Stability) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,14 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.419 최신 핸드오프 — 내 아이템 재료 표시 + 캠페인 캐릭터 transform 안정화
+
+- `BASE > 내 영토 > 오늘의 작전 보드`의 재료/아이템 계열 GO는 `내 아이템` 탭으로 이동한다. 이때 `renderBaseInventory()`가 아이템 인벤토리만 비어 있으면 즉시 empty return 하던 문제를 고쳤다.
+- 이제 상점 아이템이 0개여도 `resource_inventory` 보유 재료가 있으면 `내 아이템` 탭에 `⚒ 광물 자원` 섹션이 표시된다. 작전보드에서 아이템을 눌렀는데 “내 아이템에 아무것도 없는 것처럼 보이는” 회귀를 막는다.
+- 특정 카테고리에 장비 아이템이 없어도 재료 보유분은 같은 탭 하단에 계속 표시한다. 카테고리 empty 안내가 재료 렌더를 막지 않는다.
+- 캠페인 캐릭터 레이아웃 적용 시 transform origin을 명시했다. 에디터와 동일한 중심점 좌표 모델을 유지하되, scale/transition이 섞일 때 캐릭터 위치가 흔들리는 위험을 줄인다.
+- 검증 기준: `index.html`/`assets/tactical-lab-v11.html`/`assets/campaign-editor.html` inline script parse, Daily OPS 레거시 참조 `rg` 0건, `git diff --check`.
 
 ### v7.418 최신 핸드오프 — Daily OPS 레거시 보드 제거 + 캠페인 에디터 레이아웃 서버 기준화
 

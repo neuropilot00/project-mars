@@ -1,3 +1,9 @@
+## 2026-06-10 v7.419 — 내 아이템 재료 표시 + 캠페인 transform 안정화
+
+- `renderBaseInventory()`가 상점/장비 아이템 인벤토리만 기준으로 empty return 하던 문제를 수정했다. 이제 상점 아이템이 없어도 재료 인벤토리에 보유량이 있으면 `내 아이템` 탭에 광물 자원이 표시된다.
+- 특정 아이템 카테고리에 보유 아이템이 없더라도 재료 섹션 렌더를 중단하지 않는다. 오늘의 작전 보드에서 아이템/재료 GO를 눌렀을 때 실제 보유 재료 확인 흐름이 끊기지 않는다.
+- 캠페인 스토리 캐릭터 레이아웃 적용 시 transform origin을 명시해, 에디터 중심점 좌표와 인게임 scale/transition 조합이 어긋날 위험을 줄였다.
+
 ## 2026-06-10 v7.418 — Daily OPS 레거시 제거 + 캠페인 레이아웃 서버 기준화
 
 - `renderDailyOpsBoard()`/`openDailyOpsRoute()` 레거시 보드 코드를 제거했다. Daily OPS는 `BASE > 내 영토`의 `#opsCommandBoard` 한 곳만 사용한다.

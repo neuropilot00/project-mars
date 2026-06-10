@@ -24067,28 +24067,30 @@ function renderBaseInventory(){
     }).join('');
     parts.push('<div style="grid-column:1/-1;padding:6px;background:rgba(255,255,255,.02);border-radius:6px"><div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px">ACTIVE EFFECTS</div>'+effHTML+'</div>');
   }
-  if(!_baseInventory||_baseInventory.length===0){
-    parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">No items yet. Buy some from the SHOP tab!</div>');
-    grid.innerHTML=parts.join('');
+  var resWithQty=(_resourceInventory||[]).filter(function(r){return r.quantity>0});
+  if((!_baseInventory||_baseInventory.length===0)&&!resWithQty.length){
+    parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+tl('No items or resources yet. Harvest territory or buy items from the shop.','아직 보유 아이템/재료가 없습니다. 영토를 채굴하거나 상점에서 아이템을 구매하세요.','アイテム/素材がまだありません。領地採掘またはショップ購入を行ってください。','暂无物品或资源。请采集领地或在商店购买。')+'</div>');
+    var emptyHtml=parts.join('');
+    if(grid)grid.innerHTML=emptyHtml;
+    if(grid2)grid2.innerHTML=emptyHtml;
     return;
   }
   var catColors={defense:'var(--cyan)',attack:'var(--red)',utility:'var(--pp)',cosmetic:'#c088e0',boost:'var(--gold)'};
   var catLabels={defense:'🛡 DEFENSE',attack:'⚔ ATTACK',utility:'🔧 UTILITY',boost:'⚡ BOOST',cosmetic:'🎨 COSMETIC'};
   var catOrder=['defense','attack','utility','boost','cosmetic'];
   var grouped={};
-  _baseInventory.forEach(function(it){
+  (_baseInventory||[]).forEach(function(it){
     var cat=(it.category||'utility').toLowerCase();
     if(!grouped[cat]) grouped[cat]=[];
     grouped[cat].push(it);
   });
-  // 선택 카테고리가 없으면 안내
+  // 선택 카테고리가 없으면 안내. 단, 리소스 보유분은 같은 탭에서 계속 보여줘야 하므로
+  // 여기서 return 하지 않는다.
   var catFilter=_baseInvCat||'all';
   var visibleCats=catFilter==='all'?catOrder:[catFilter];
   var hasAny=visibleCats.some(function(c){return grouped[c]&&grouped[c].length;});
   if(!hasAny){
     parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(LANG==='ko'?'이 카테고리에 보유 아이템이 없습니다':LANG==='ja'?'このカテゴリにアイテムがありません':LANG==='zh'?'此分类下没有物品':'No items in this category')+'</div>');
-    grid.innerHTML=parts.join('');
-    return;
   }
   visibleCats.forEach(function(cat){
     var items=grouped[cat]; if(!items||!items.length) return;
@@ -24148,7 +24150,6 @@ function renderBaseInventory(){
   });
 
   // ── RESOURCES section (Phase 2) ──
-  var resWithQty=(_resourceInventory||[]).filter(function(r){return r.quantity>0});
   var rarityColor={common:'var(--tx2)',rare:'var(--cyan)',special:'var(--gold)'};
   var rarityLabel={common:'⚪ COMMON',rare:'🔵 RARE',special:'⭐ SPECIAL'};
   if(resWithQty.length>0){
@@ -30628,6 +30629,7 @@ function _campaignApplyCharacterLayout(el,box){
   var hasX=_campaignLayoutPick(box,['x','left'])!==null||hasCenter;
   if(hasCenter){
     _campaignApplyRectLayout(el,box,{transform:'translate(-50%,-50%)'});
+    el.style.transformOrigin='50% 50%';
   }else if(hasX&&hasY){
     // Campaign editor stores character boxes as center-point percent + width.
     // Keep the game renderer on the same coordinate model so editor previews
@@ -30637,14 +30639,17 @@ function _campaignApplyCharacterLayout(el,box){
     el.style.right='auto';
     el.style.bottom='auto';
     el.style.transform=(box.anchor==='top-left'||box.origin==='top-left')?'none':'translate(-50%,-50%)';
+    el.style.transformOrigin=(box.anchor==='top-left'||box.origin==='top-left')?'0 0':'50% 50%';
   }else if(hasX&&!hasY){
     el.style.left=_campaignLayoutUnit(_campaignLayoutPick(box,['x','left','cx','centerX']),'50%');
     el.style.right='auto';
     el.style.top='auto';
     el.style.bottom='0';
     el.style.transform='translateX(-50%)';
+    el.style.transformOrigin='50% 100%';
   }else{
     _campaignApplyRectLayout(el,box,{transform:'translate(-50%,-50%)'});
+    el.style.transformOrigin='50% 50%';
   }
   var w=_campaignLayoutPick(box,['w','width']);
   var h=_campaignLayoutPick(box,['h','height']);

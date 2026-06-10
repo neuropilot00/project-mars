@@ -1,3 +1,15 @@
+## 2026-06-10 — 내 아이템/캠페인 레이아웃 추가 감사 반영 (v7.419)
+
+### ✅ 수정 완료
+- **[MED] 내 아이템 탭에서 재료 보유분이 숨겨짐**: `renderBaseInventory()`가 `_baseInventory`만 보고 비어 있으면 즉시 반환했다. 그래서 상점 아이템은 없고 재료만 있는 계정은 작전보드 GO로 `내 아이템`에 진입해도 재료가 보이지 않았다. 아이템과 재료가 모두 없을 때만 empty 안내를 띄우도록 수정했다.
+- **[LOW] 카테고리 empty 안내가 재료 섹션 렌더를 막음**: 선택된 아이템 카테고리에 장비가 없으면 함수가 반환되어 보유 재료도 같이 사라질 수 있었다. 카테고리 empty 안내는 표시하되 재료 섹션은 계속 렌더한다.
+- **[LOW] 캠페인 캐릭터 scale/transition 위치 흔들림 위험**: 에디터/인게임은 같은 중심점 좌표 모델을 쓰지만 transform origin이 명시되지 않았다. 캐릭터 scale 적용 시 기준점을 고정해 에디터 배치와 인게임 표시가 흔들릴 여지를 줄였다.
+
+### 검증 완료
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/campaign-editor.html` inline script parse
+- Daily OPS 레거시 참조 `rg` 0건
+- `git diff --check`
+
 ## 2026-06-10 — Daily OPS 레거시/캠페인 레이아웃 감사 반영 (v7.418)
 
 ### ✅ 수정 완료
