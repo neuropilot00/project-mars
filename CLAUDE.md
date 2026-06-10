@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-10 v7.422 (Tactical Lab Viewer Module Contract) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.423 (Tactical Lab Sandbox Modal Fit) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.423 최신 핸드오프 — 전술랩 sandbox 모달 PC 높이 클리핑 보정
+
+- 메인 실전 전투 뷰어는 기존처럼 큰 전투 화면을 유지한다. 이번 변경은 `openTacticalLab()`로 여는 sandbox 전술 실험실에 한정한다.
+- 데스크탑 sandbox 전술랩은 전체화면 고정 대신 중앙 모달로 열린다. 모달은 `1120px x 880px` 상한과 `calc(100vh - 36px)` 높이 제한을 가져 작은 브라우저 창에서 하단 버튼이 브라우저 밖으로 밀리지 않는다.
+- 모바일 `<=720px`에서는 기존처럼 전체화면을 유지한다. 조작 면적을 줄이지 않기 위한 정책이다.
+- `assets/tactical-lab-v11.html`은 `data-tl-mode="sandbox|battle"`를 HTML 루트에 표시한다. sandbox 모드에서만 캔버스 행을 축소 가능하게 만들고 짧은 데스크탑 높이에서는 버튼/로그 영역을 압축한다.
+- 실전 `mode=battle` 레이아웃 정책은 유지한다. 전술랩 실험 모달의 PC 클리핑만 보정한 변경이다.
+- UI/JS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v89`로 올렸다.
 
 ### v7.422 최신 핸드오프 — Tactical Lab 독립 전투 뷰어 모듈 계약 정리
 

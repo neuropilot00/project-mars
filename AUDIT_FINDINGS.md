@@ -1,3 +1,16 @@
+## 2026-06-11 — Tactical Lab sandbox PC 높이 클리핑 감사 반영 (v7.423)
+
+### ✅ 수정 완료
+- **[MED] 작은 PC 브라우저 창에서 전술랩 하단 조작부가 잘림**: sandbox 전술랩이 데스크탑에서도 전체화면 iframe + 내부 `height:100svh/overflow:hidden` 구조라, 브라우저 높이가 낮으면 하단 버튼이 화면 밖으로 밀릴 수 있었다. 데스크탑 sandbox 전술랩을 중앙 모달로 바꾸고 모달 높이를 `calc(100vh - 36px)`로 제한했다.
+- **[LOW] 실전 전투와 실험실 레이아웃 정책 혼재 위험**: `assets/tactical-lab-v11.html`에 `data-tl-mode`를 추가해 sandbox 모드에서만 캔버스/버튼 압축 CSS가 적용되게 했다. `mode=battle` 실전 전투 뷰어의 대형 화면 정책은 유지한다.
+- **[LOW] 모바일 조작 면적 축소 위험**: 모바일 `<=720px`에서는 기존 전체화면 전술랩을 유지한다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v89`로 갱신했다.
+
+### 검증 완료
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/campaign-editor.html` inline script parse
+- `node --check sw.js`
+- `git diff --check`
+
 ## 2026-06-10 — Tactical Lab 모듈화 계약 감사 반영 (v7.422)
 
 ### ✅ 수정 완료

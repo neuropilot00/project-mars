@@ -1,3 +1,11 @@
+## 2026-06-11 v7.423 — Tactical Lab sandbox 모달 높이 보정
+
+- `openTacticalLab()`로 여는 전술랩 sandbox 화면을 데스크탑에서 중앙 모달로 표시하도록 바꿨다.
+- 데스크탑 모달은 `1120px x 880px` 상한과 `calc(100vh - 36px)` 제한을 사용해, 작은 브라우저 창에서도 하단 버튼/HP 영역이 브라우저 밖으로 잘리지 않게 했다.
+- 모바일 `<=720px`에서는 기존 전체화면 전술랩을 유지한다.
+- `assets/tactical-lab-v11.html`에 `data-tl-mode`를 추가하고 sandbox 모드에서만 캔버스/버튼 레이아웃을 짧은 높이에 맞춰 압축한다.
+- UI/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v89`로 갱신했다.
+
 ## 2026-06-10 v7.422 — Tactical Lab 독립 전투 뷰어 모듈 계약 정리
 
 - 실전 전투 뷰어와 전술 실험실이 tactical-lab iframe URL을 각각 하드코딩하던 경로를 `buildTacticalLabUrl()`로 통합했다.
