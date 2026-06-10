@@ -44,7 +44,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const rateLimit = require('express-rate-limit');
+const { makeRateLimiter } = require('./utils/rateLimiters');
+const { safeInitScheduler, scheduleTask } = require('./utils/scheduler');
 
 // ── Ensure logs directory exists ──
 const logsDir = path.join(__dirname, '..', 'logs');
@@ -252,31 +253,25 @@ app.get('/health', async (req, res) => {
 const isDev = process.env.NODE_ENV !== 'production';
 // 멀티 인스턴스 전역 레이트리밋: REDIS_URL 있으면 Redis 공유 스토어, 없으면 메모리 폴백.
 const { makeLimiterStore } = require('./services/rateLimitStore');
-const globalLimiter = rateLimit({
+const globalLimiter = makeRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: isDev ? 5000 : 3000,
-  standardHeaders: true,
-  legacyHeaders: false,
   store: makeLimiterStore('global'),
   passOnStoreError: true,
   message: { error: 'Too many requests, please try again later.' }
 });
 
-const authLimiter = rateLimit({
+const authLimiter = makeRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: isDev ? 50 : 10,
-  standardHeaders: true,
-  legacyHeaders: false,
   store: makeLimiterStore('auth'),
   passOnStoreError: true,
   message: { error: 'Too many authentication attempts, please try again later.' }
 });
 
-const apiLimiter = rateLimit({
+const apiLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
   max: isDev ? 300 : 200,
-  standardHeaders: true,
-  legacyHeaders: false,
   store: makeLimiterStore('api'),
   passOnStoreError: true,
   message: { error: 'Too many API requests, please try again later.' }
@@ -284,11 +279,9 @@ const apiLimiter = rateLimit({
 
 // API write limiter — applies to all POST/PUT/PATCH/DELETE under /api
 // Covers GP-consuming endpoints that don't have their own writeLimiter
-const apiWriteLimiter = rateLimit({
+const apiWriteLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
   max: isDev ? 300 : 60,
-  standardHeaders: true,
-  legacyHeaders: false,
   store: makeLimiterStore('apiwrite'),
   passOnStoreError: true,
   skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS',
@@ -1084,25 +1077,31 @@ async function start() {
 
     // Removed: betting.js v1 scheduler — warBetting v2가 동일 작업 60초마다 수행
     // ── War Betting v2: Close Expired Events (every 60 seconds) ──
-    try {
+    safeInitScheduler('warBetting', () => {
       const warBettingSvc = require('./services/warBetting');
-      setInterval(() => warBettingSvc.closeExpiredEvents().catch(() => {}), 60000);
-      console.log('[warBetting] closeExpiredEvents scheduler started (60s interval)');
-    } catch(e) { console.warn('[warBetting] Could not init scheduler:', e.message); }
+      scheduleTask('warBetting', 60 * 1000, () => warBettingSvc.closeExpiredEvents(), {
+        silent: true,
+        startedMessage: '[warBetting] closeExpiredEvents scheduler started (60s interval)',
+      });
+    });
 
     // ── 동적 PP↔GP 환율 재계산 (every 1 hour, 기본 OFF) [v7.128] ──
-    try {
+    safeInitScheduler('exchangeRate', () => {
       const { recomputeRate } = require('./services/exchangeRate');
-      setInterval(() => recomputeRate().catch((e) => console.warn('[exchangeRate] recompute error:', e.message)), 60 * 60 * 1000);
-      console.log('[exchangeRate] dynamic PP→GP rate scheduler started (1h interval, default OFF)');
-    } catch(e) { console.warn('[exchangeRate] Could not init scheduler:', e.message); }
+      scheduleTask('exchangeRate', 60 * 60 * 1000, recomputeRate, {
+        phase: 'recompute',
+        startedMessage: '[exchangeRate] dynamic PP→GP rate scheduler started (1h interval, default OFF)',
+      });
+    });
 
     // ── 영토 컨디션 일일 감쇠 (every 24h) [v7.135] ──
-    try {
+    safeInitScheduler('territoryCondition', () => {
       const { applyDailyDecay } = require('./services/territoryCondition');
-      setInterval(() => applyDailyDecay().catch((e) => console.warn('[territoryCondition] decay error:', e.message)), 24 * 60 * 60 * 1000);
-      console.log('[territoryCondition] daily decay scheduler started (24h interval)');
-    } catch(e) { console.warn('[territoryCondition] Could not init scheduler:', e.message); }
+      scheduleTask('territoryCondition', 24 * 60 * 60 * 1000, applyDailyDecay, {
+        phase: 'decay',
+        startedMessage: '[territoryCondition] daily decay scheduler started (24h interval)',
+      });
+    });
 
     // ── Auction: Settle Expired Auctions (every 5 minutes) ──
     try {
@@ -1286,49 +1285,49 @@ async function start() {
     // Removed: Bounty scheduler (phantom tables — gp_bounties)
 
     // ── Shield: Expire expired shields (every 5 minutes) ──
-    try {
+    safeInitScheduler('SHIELD', () => {
       const { expireShields } = require('./services/shield');
-      setInterval(async () => {
-        try { await expireShields(); } catch(e) { console.warn('[SHIELD] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[SHIELD] Expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[SHIELD] Could not init expiry scheduler:', e.message); }
+      scheduleTask('SHIELD', 5 * 60 * 1000, expireShields, {
+        phase: 'expire',
+        startedMessage: '[SHIELD] Expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Contest: Advance statuses + auto-finalize (every 5 minutes) ──
-    try {
+    safeInitScheduler('CONTEST', () => {
       const { advanceContestStatuses } = require('./services/contest');
-      setInterval(async () => {
-        try { await advanceContestStatuses(); } catch(e) { console.warn('[CONTEST] advance error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[CONTEST] Status scheduler started (5min interval)');
-    } catch(e) { console.warn('[CONTEST] Could not init scheduler:', e.message); }
+      scheduleTask('CONTEST', 5 * 60 * 1000, advanceContestStatuses, {
+        phase: 'advance',
+        startedMessage: '[CONTEST] Status scheduler started (5min interval)',
+      });
+    });
 
     // ── Rental: Expire ended rentals (every 5 minutes) ──
-    try {
+    safeInitScheduler('RENTAL', () => {
       const { expireRentals } = require('./services/rental');
-      setInterval(async () => {
-        try { await expireRentals(); } catch(e) { console.warn('[RENTAL] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[RENTAL] Expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[RENTAL] Could not init expiry scheduler:', e.message); }
+      scheduleTask('RENTAL', 5 * 60 * 1000, expireRentals, {
+        phase: 'expire',
+        startedMessage: '[RENTAL] Expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Duel: Expire pending duels (every 5 minutes) ──
-    try {
+    safeInitScheduler('DUEL', () => {
       const { expireDuels } = require('./services/duel');
-      setInterval(async () => {
-        try { await expireDuels(); } catch(e) { console.warn('[DUEL] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[DUEL] Expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[DUEL] Could not init expiry scheduler:', e.message); }
+      scheduleTask('DUEL', 5 * 60 * 1000, expireDuels, {
+        phase: 'expire',
+        startedMessage: '[DUEL] Expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Expedition: Resolve completed expeditions (every 2 minutes) ──
-    try {
+    safeInitScheduler('EXPEDITION', () => {
       const { resolveExpeditions } = require('./services/expedition');
-      setInterval(async () => {
-        try { await resolveExpeditions(); } catch(e) { console.warn('[EXPEDITION] resolve error:', e.message); }
-      }, 2 * 60 * 1000);
-      console.log('[EXPEDITION] Resolution scheduler started (2min interval)');
-    } catch(e) { console.warn('[EXPEDITION] Could not init scheduler:', e.message); }
+      scheduleTask('EXPEDITION', 2 * 60 * 1000, resolveExpeditions, {
+        phase: 'resolve',
+        startedMessage: '[EXPEDITION] Resolution scheduler started (2min interval)',
+      });
+    });
 
     // ── Auction: Settle expired auctions (every 1 minute) — M-090 ──
     try {
@@ -1347,130 +1346,130 @@ async function start() {
     } catch(e) { console.warn('[TERRITORY] Could not init scheduler:', e.message); }
 
     // ── VIP: Expire stale passes (every 15 minutes) ──
-    try {
+    safeInitScheduler('VIP', () => {
       const { expireOldPasses } = require('./services/vip');
-      setInterval(async () => {
-        try { await expireOldPasses(); } catch(e) { console.warn('[VIP] expire error:', e.message); }
-      }, 15 * 60 * 1000);
-      console.log('[VIP] Pass expiry scheduler started (15min interval)');
-    } catch(e) { console.warn('[VIP] Could not init expiry scheduler:', e.message); }
+      scheduleTask('VIP', 15 * 60 * 1000, expireOldPasses, {
+        phase: 'expire',
+        startedMessage: '[VIP] Pass expiry scheduler started (15min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Spells: Expire old spells (every 5 minutes) ──
-    try {
+    safeInitScheduler('SPELLS', () => {
       const { expireSpells } = require('./services/spells');
-      setInterval(async () => {
-        try { await expireSpells(); } catch(e) { console.warn('[SPELLS] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[SPELLS] Spell expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[SPELLS] Could not init expiry scheduler:', e.message); }
+      scheduleTask('SPELLS', 5 * 60 * 1000, expireSpells, {
+        phase: 'expire',
+        startedMessage: '[SPELLS] Spell expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Broadcasts: Expire old broadcasts (every 5 minutes) ──
-    try {
+    safeInitScheduler('BROADCASTS', () => {
       const { expireBroadcasts } = require('./services/broadcasts');
-      setInterval(async () => {
-        try { await expireBroadcasts(); } catch(e) { console.warn('[BROADCASTS] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[BROADCASTS] Expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[BROADCASTS] Could not init expiry scheduler:', e.message); }
+      scheduleTask('BROADCASTS', 5 * 60 * 1000, expireBroadcasts, {
+        phase: 'expire',
+        startedMessage: '[BROADCASTS] Expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Raffle: Auto-draw expired rounds (every 1 minute) ──
-    try {
+    safeInitScheduler('RAFFLE', () => {
       const { autoDrawExpired } = require('./services/raffle');
-      setInterval(async () => {
-        try { await autoDrawExpired(); } catch(e) { console.warn('[RAFFLE] draw error:', e.message); }
-      }, 60 * 1000); // every 1 min
-      console.log('[RAFFLE] Auto-draw scheduler started (1min interval)');
-    } catch(e) { console.warn('[RAFFLE] Could not init draw scheduler:', e.message); }
+      scheduleTask('RAFFLE', 60 * 1000, autoDrawExpired, {
+        phase: 'draw',
+        startedMessage: '[RAFFLE] Auto-draw scheduler started (1min interval)',
+      });
+    }, 'Could not init draw scheduler');
 
     // ── Wager: Lock expired wagers (every 1 minute) ──
-    try {
+    safeInitScheduler('WAGER', () => {
       const { autoLockExpired } = require('./services/wager');
-      setInterval(async () => {
-        try { await autoLockExpired(); } catch(e) { console.warn('[WAGER] lock error:', e.message); }
-      }, 60 * 1000);
-      console.log('[WAGER] Auto-lock scheduler started (1min interval)');
-    } catch(e) { console.warn('[WAGER] Could not init lock scheduler:', e.message); }
+      scheduleTask('WAGER', 60 * 1000, autoLockExpired, {
+        phase: 'lock',
+        startedMessage: '[WAGER] Auto-lock scheduler started (1min interval)',
+      });
+    }, 'Could not init lock scheduler');
 
     // ── Territory Events (tevt): Expire old events (every 5 minutes) ──
-    try {
+    safeInitScheduler('TEVT', () => {
       const { expireEvents } = require('./services/tevt');
-      setInterval(async () => {
-        try { await expireEvents(); } catch(e) { console.warn('[TEVT] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[TEVT] Event expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[TEVT] Could not init expiry scheduler:', e.message); }
+      scheduleTask('TEVT', 5 * 60 * 1000, expireEvents, {
+        phase: 'expire',
+        startedMessage: '[TEVT] Event expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Beacon: Expire old beacons (every 5 minutes) ──
-    try {
+    safeInitScheduler('BEACON', () => {
       const { expireBeacons } = require('./services/beacon');
-      setInterval(async () => {
-        try { await expireBeacons(); } catch(e) { console.warn('[BEACON] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[BEACON] Beacon expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[BEACON] Could not init expiry scheduler:', e.message); }
+      scheduleTask('BEACON', 5 * 60 * 1000, expireBeacons, {
+        phase: 'expire',
+        startedMessage: '[BEACON] Beacon expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Polls: Expire ended polls (every 5 minutes) ──
-    try {
+    safeInitScheduler('POLLS', () => {
       const { expirePolls } = require('./services/polls');
-      setInterval(async () => {
-        try { await expirePolls(); } catch(e) { console.warn('[POLLS] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[POLLS] Poll expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[POLLS] Could not init expiry scheduler:', e.message); }
+      scheduleTask('POLLS', 5 * 60 * 1000, expirePolls, {
+        phase: 'expire',
+        startedMessage: '[POLLS] Poll expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Status: Expire player statuses (every 5 minutes) ──
-    try {
+    safeInitScheduler('STATUS', () => {
       const { expireStatuses } = require('./services/status');
-      setInterval(async () => {
-        try { await expireStatuses(); } catch(e) { console.warn('[STATUS] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[STATUS] Status expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[STATUS] Could not init expiry scheduler:', e.message); }
+      scheduleTask('STATUS', 5 * 60 * 1000, expireStatuses, {
+        phase: 'expire',
+        startedMessage: '[STATUS] Status expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Sponsor: Expire territory sponsors (every 5 minutes) ──
-    try {
+    safeInitScheduler('SPONSOR', () => {
       const { expireSponsors } = require('./services/sponsor');
-      setInterval(async () => {
-        try { await expireSponsors(); } catch(e) { console.warn('[SPONSOR] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[SPONSOR] Sponsor expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[SPONSOR] Could not init expiry scheduler:', e.message); }
+      scheduleTask('SPONSOR', 5 * 60 * 1000, expireSponsors, {
+        phase: 'expire',
+        startedMessage: '[SPONSOR] Sponsor expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Banner: Expire territory banners (every 5 minutes) ──
-    try {
+    safeInitScheduler('BANNER', () => {
       const { expireBanners } = require('./services/banner');
-      setInterval(async () => {
-        try { await expireBanners(); } catch(e) { console.warn('[BANNER] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[BANNER] Expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[BANNER] Could not init expiry scheduler:', e.message); }
+      scheduleTask('BANNER', 5 * 60 * 1000, expireBanners, {
+        phase: 'expire',
+        startedMessage: '[BANNER] Expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Highlight: Expire territory highlights (every 5 minutes) ──
-    try {
+    safeInitScheduler('HIGHLIGHT', () => {
       const { expireHighlights } = require('./services/highlight');
-      setInterval(async () => {
-        try { await expireHighlights(); } catch(e) { console.warn('[HIGHLIGHT] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[HIGHLIGHT] Expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[HIGHLIGHT] Could not init expiry scheduler:', e.message); }
+      scheduleTask('HIGHLIGHT', 5 * 60 * 1000, expireHighlights, {
+        phase: 'expire',
+        startedMessage: '[HIGHLIGHT] Expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Graffiti: Expire territory graffiti (every 5 minutes) ──
-    try {
+    safeInitScheduler('GRAFFITI', () => {
       const { expireGraffiti } = require('./services/graffiti');
-      setInterval(async () => {
-        try { await expireGraffiti(); } catch(e) { console.warn('[GRAFFITI] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[GRAFFITI] Expiry scheduler started (5min interval)');
-    } catch(e) { console.warn('[GRAFFITI] Could not init expiry scheduler:', e.message); }
+      scheduleTask('GRAFFITI', 5 * 60 * 1000, expireGraffiti, {
+        phase: 'expire',
+        startedMessage: '[GRAFFITI] Expiry scheduler started (5min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Announcement: Expire old announcements (every 2 minutes) ──
-    try {
+    safeInitScheduler('ANNOUNCE', () => {
       const { expireAnnouncements } = require('./services/announcement');
-      setInterval(async () => {
-        try { await expireAnnouncements(); } catch(e) { console.warn('[ANNOUNCE] expire error:', e.message); }
-      }, 2 * 60 * 1000);
-      console.log('[ANNOUNCE] Expiry scheduler started (2min interval)');
-    } catch(e) { console.warn('[ANNOUNCE] Could not init expiry scheduler:', e.message); }
+      scheduleTask('ANNOUNCE', 2 * 60 * 1000, expireAnnouncements, {
+        phase: 'expire',
+        startedMessage: '[ANNOUNCE] Expiry scheduler started (2min interval)',
+      });
+    }, 'Could not init expiry scheduler');
 
     // ── Ship Build Scheduler: Complete finished build jobs (every 30s) ──
     try {

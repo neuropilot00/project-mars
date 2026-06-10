@@ -1,3 +1,21 @@
+## 2026-06-11 — 시스템 공통부 스파게티 정리 1차 감사 반영 (v7.425)
+
+### ✅ 수정 완료
+- **[MED] rate limiter 생성 옵션이 서버 진입점/대형 API 라우트에 중복됨**: `server/utils/rateLimiters.js`의 `makeRateLimiter()`로 표준 헤더, legacy header 비활성화, store error policy, 메시지 포맷을 일원화했다. 기존 제한값/메시지/API 동작은 유지했다.
+- **[MED] `server/index.js`에 단순 스케줄러 `setInterval + try/catch` 패턴이 대량 반복됨**: `server/utils/scheduler.js`를 추가하고, 단순 expiry/cleanup 계열 일부를 `safeInitScheduler()`/`scheduleTask()`로 전환했다.
+- **[LOW] 스케줄러 추가 시 로그/에러 처리 방식이 계속 달라질 위험**: 새 helper가 init 실패, tick 실패, startup delay, started log를 같은 형태로 처리한다.
+
+### 남은 정리 범위
+- `index.html`은 여전히 거대 단일 파일이다. 기능별 모듈 분리 없이는 프론트 전체 스파게티 제거 완료로 볼 수 없다.
+- `server/routes/api.js`는 아직 8천 줄대 대형 라우트다. 영토/경제/탐사/관리성 API를 도메인 라우트로 분리해야 한다.
+- 오토리뉴얼/현상금 환불/전투 정산 같은 경제 영향 블록은 이번 1차에서 무리하게 변경하지 않았다. 별도 테스트와 함께 분리해야 한다.
+
+### 검증 완료
+- `node --check server/index.js`
+- `node --check server/routes/api.js`
+- `node --check server/utils/rateLimiters.js && node --check server/utils/scheduler.js`
+- `git diff --check`
+
 ## 2026-06-11 — Tactical Lab 모달 코드 정리 감사 반영 (v7.424)
 
 ### ✅ 수정 완료

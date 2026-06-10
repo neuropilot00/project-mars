@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.424 (Tactical Lab Modal Cleanup) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.425 (System Cleanup Pass 1) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -18,7 +18,16 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
-### v7.424 최신 핸드오프 — 전술랩 모달 CSS/JS 1차 정리
+### v7.425 최신 핸드오프 — 시스템 공통부 스파게티 정리 1차
+
+- `server/utils/rateLimiters.js`를 추가했다. `express-rate-limit`의 `standardHeaders`, `legacyHeaders`, Redis store error policy, string/object message 변환을 한 곳에서 처리한다.
+- `server/index.js`와 `server/routes/api.js`의 rate limiter 생성은 `makeRateLimiter()`를 사용한다. API 계약과 제한값은 유지했다.
+- `server/utils/scheduler.js`를 추가했다. 반복되는 `setInterval + try/catch + console.warn` 패턴을 `scheduleTask()`와 `safeInitScheduler()`로 묶었다.
+- `server/index.js`의 단순 expiry/cleanup 계열 스케줄러 일부를 공통 helper로 이전했다. 전투 정산, GP 환불, 복잡한 트랜잭션 블록은 동작 위험 때문에 이번 1차에서 무리하게 접지 않았다.
+- 이번 변경은 전체 스파게티 제거 완료가 아니다. 1차 완료 범위는 서버 공통부 중복 제거다. 남은 큰 작업은 `index.html` 기능별 모듈 분리와 `server/routes/api.js` 도메인별 라우트 분해다.
+- 검증 기준: `node --check server/index.js`, `node --check server/routes/api.js`, `node --check server/utils/rateLimiters.js`, `node --check server/utils/scheduler.js`, `git diff --check`.
+
+### v7.424 핸드오프 — 전술랩 모달 CSS/JS 1차 정리
 
 - 전술랩 sandbox 모달 스타일을 `index.html` 인라인 `<style>`에서 `assets/tactical-lab-modal.css`로 분리했다. 모달 크기/모바일 전체화면 정책은 이 CSS 파일에서 관리한다.
 - `openTacticalLab()`/`closeTacticalLab()` 주변 DOM 조회, 헤더 i18n 갱신, ESC 닫기 로직을 `getTacticalLabModalElements()`, `syncTacticalLabModalText()`, `handleTacticalLabEscape()`로 분리했다.

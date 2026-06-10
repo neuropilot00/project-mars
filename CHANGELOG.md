@@ -1,3 +1,11 @@
+## 2026-06-11 v7.425 — 시스템 공통부 스파게티 정리 1차
+
+- 서버 rate limiter 생성 로직을 `server/utils/rateLimiters.js`로 일원화했다.
+- `server/index.js`와 `server/routes/api.js`가 공통 `makeRateLimiter()`를 사용하게 했다. 제한값과 메시지 계약은 그대로 유지했다.
+- 반복 스케줄러 공통 유틸 `server/utils/scheduler.js`를 추가했다.
+- `server/index.js`의 단순 expiry/cleanup 계열 스케줄러 일부를 `safeInitScheduler()`/`scheduleTask()` 기반으로 정리했다.
+- 전투 정산, 현상금 환불, 오토리뉴얼처럼 트랜잭션/경제 영향이 큰 긴 블록은 이번 1차에서 동작 변경 없이 남겼다. 다음 정리 대상은 `index.html` 기능별 모듈 분리와 `server/routes/api.js` 도메인 라우트 분해다.
+
 ## 2026-06-11 v7.424 — Tactical Lab 모달 코드 1차 정리
 
 - 전술랩 sandbox 모달 CSS를 `index.html` 하단 인라인 스타일에서 `assets/tactical-lab-modal.css`로 분리했다.

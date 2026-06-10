@@ -3,7 +3,7 @@ const { ethers } = require('ethers');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const rateLimit = require('express-rate-limit');
+const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool, ensureUser, getSettings, getSetting, getPPToGPRate, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer } = require('../db');
 const { generateWithdrawSignature, getAvailableLiquidity, CHAINS } = require('../services/signer');
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
@@ -58,24 +58,20 @@ const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
 
 // ── Rate Limiters ──
-const readLimiter = rateLimit({
+const readLimiter = makeRateLimiter({
   windowMs: 60 * 1000, max: 120,
-  standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many requests. Please slow down.' }
 });
-const writeLimiter = rateLimit({
+const writeLimiter = makeRateLimiter({
   windowMs: 60 * 1000, max: 30,
-  standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many write requests. Please wait.' }
 });
-const authLimiter = rateLimit({
+const authLimiter = makeRateLimiter({
   windowMs: 15 * 60 * 1000, max: 20,
-  standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many login attempts. Try again later.' }
 });
-const harvestLimiter = rateLimit({
+const harvestLimiter = makeRateLimiter({
   windowMs: 60 * 60 * 1000, max: 10,
-  standardHeaders: true, legacyHeaders: false,
   message: { error: 'Harvest rate limit exceeded.' }
 });
 
