@@ -1,3 +1,17 @@
+## 2026-06-10 — SEA 로컬라이징/전술랩 i18n 감사 반영 (v7.421)
+
+### ✅ 수정 완료
+- **[MED] 동남아 타깃 언어 코드 미지원**: 기존 언어 시스템은 EN/KO/JA/ZH만 전제로 했다. 인도네시아/베트남/태국 커뮤니티 확장에 필요한 `id`/`vi`/`th` 슬롯과 코드 정규화를 추가했다.
+- **[MED] 독립 전술랩 언어 불일치 위험**: 전술랩은 별도 HTML이라 메인 앱 i18n과 자동 동기화되지 않는다. `lang` query, parent `LANG`, `localStorage.pw_lang`을 읽는 독립 i18n 경로와 ID/VI/TH 번역을 추가했다.
+- **[LOW] 미번역 키 노출 위험**: SEA 언어 seed dictionary는 영어 fallback 기반으로 구성했다. 아직 번역 범위 밖 문장은 키 대신 영어 문구로 표시된다.
+- **[LOW] 음성/텍스트 언어 정책 혼재 위험**: UI 언어는 다국어로 확장하되 캠페인/게임 음성은 영어 베이스로 고정하는 `GAME_VOICE_LANG='en'` 정책을 명시했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v87`로 갱신했다.
+
+### 검증 완료
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/campaign-editor.html` inline script parse
+- `node --check sw.js`
+- `git diff --check`
+
 ## 2026-06-10 — Daily OPS 완료 표시 레이스/미션명 호환 감사 반영 (v7.420)
 
 ### ✅ 수정 완료

@@ -5891,6 +5891,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <button class="lang-btn" onclick="setLang('ko')">KO</button>
       <button class="lang-btn" onclick="setLang('ja')">JA</button>
       <button class="lang-btn" onclick="setLang('zh')">ZH</button>
+      <button class="lang-btn" onclick="setLang('id')">ID</button>
+      <button class="lang-btn" onclick="setLang('vi')">VI</button>
+      <button class="lang-btn" onclick="setLang('th')">TH</button>
     </div>
     <div class="lang-dropdown" id="langDropdown" data-action="toggleLangDropdown">
       <div class="lang-current" id="langCurrent">EN</div>
@@ -5899,6 +5902,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="lang-menu-item" onclick="setLang('ko');closeLangDropdown()">KO 한국어</div>
         <div class="lang-menu-item" onclick="setLang('ja');closeLangDropdown()">JA 日本語</div>
         <div class="lang-menu-item" onclick="setLang('zh');closeLangDropdown()">ZH 中文</div>
+        <div class="lang-menu-item" onclick="setLang('id');closeLangDropdown()">ID Indonesia</div>
+        <div class="lang-menu-item" onclick="setLang('vi');closeLangDropdown()">VI Tiếng Việt</div>
+        <div class="lang-menu-item" onclick="setLang('th');closeLangDropdown()">TH ไทย</div>
       </div>
     </div>
     <!-- [v7.184] MY ASSETS — 체인 인디케이터(BASE) 왼쪽으로 이동. -->
@@ -7936,7 +7942,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               style="width:100%;background:rgba(255,204,128,.06);border:1px solid rgba(255,204,128,.2);color:var(--tx);padding:7px 9px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box;margin-bottom:6px"
               oninput="document.getElementById('gpAnnounceCharCount').textContent=this.value.length+'/80'">
             <div style="font-size:8px;color:var(--tx3);text-align:right;margin-bottom:6px" id="gpAnnounceCharCount">0/80</div>
-            <div style="display:flex;gap:6px;margin-bottom:6px">
+            <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">
               <div style="flex:1">
                 <div style="font-size:8px;color:#ffcc80;font-family:var(--fn);font-weight:700;margin-bottom:3px" data-i18n="gpannounce_dur_label">DURATION (min)</div>
                 <input id="gpAnnounceDurInput" type="number" min="30" max="180" step="30" value="30"
@@ -9368,6 +9374,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <button class="sz-btn prof-lang-btn" data-plang="ko" onclick="setLang('ko');_syncProfileLangBtns()" style="flex:1;font-size:9px">한국어</button>
               <button class="sz-btn prof-lang-btn" data-plang="ja" onclick="setLang('ja');_syncProfileLangBtns()" style="flex:1;font-size:9px">日本語</button>
               <button class="sz-btn prof-lang-btn" data-plang="zh" onclick="setLang('zh');_syncProfileLangBtns()" style="flex:1;font-size:9px">中文</button>
+              <button class="sz-btn prof-lang-btn" data-plang="id" onclick="setLang('id');_syncProfileLangBtns()" style="flex:1;font-size:9px">ID</button>
+              <button class="sz-btn prof-lang-btn" data-plang="vi" onclick="setLang('vi');_syncProfileLangBtns()" style="flex:1;font-size:9px">VI</button>
+              <button class="sz-btn prof-lang-btn" data-plang="th" onclick="setLang('th');_syncProfileLangBtns()" style="flex:1;font-size:9px">TH</button>
             </div>
           </div>
         </div>
@@ -17801,7 +17810,17 @@ async function confirmSwap(){
 /* ══════════════════════════════════════════════════
    i18n — Internationalization
    ══════════════════════════════════════════════════ */
-var LANG = localStorage.getItem('pw_lang') || 'en';
+var SUPPORTED_LANGS = ['en','ko','ja','zh','id','vi','th'];
+var GAME_VOICE_LANG = 'en';
+window.GAME_VOICE_LANG = GAME_VOICE_LANG;
+function normalizeLang(lang){
+  lang = String(lang || 'en').toLowerCase();
+  if (lang === 'in') lang = 'id';
+  if (lang === 'vn') lang = 'vi';
+  if (lang === 'thai') lang = 'th';
+  return SUPPORTED_LANGS.indexOf(lang) >= 0 ? lang : 'en';
+}
+var LANG = normalizeLang(localStorage.getItem('pw_lang') || 'en');
 var I18N = {
   en: {
     login: 'LOGIN', register: 'REGISTER', logout: 'LOGOUT', account: 'ACCOUNT',
@@ -21282,8 +21301,75 @@ var I18N = {
   }
 };
 
-function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
-function tl(en,ko,ja,zh){ return LANG==='ko'?ko:LANG==='ja'?ja:LANG==='zh'?zh:en; }
+I18N.id = Object.assign({}, I18N.en, {
+  login:'MASUK', logout:'KELUAR', email_login:'MASUK / DAFTAR EMAIL', my_wallet:'DOMPET SAYA',
+  profile_language:'BAHASA', profile_prefs:'PREFERENSI', tut_howto:'CARA BERMAIN',
+  my_assets_btn:'ASET SAYA', global_stats:'STATISTIK GLOBAL', leaderboard:'PAPAN PERINGKAT',
+  search_owner:'CARI PEMILIK', territory_info:'INFO WILAYAH', my_alerts:'ALERT SAYA',
+  live_feed:'LIVE FEED', claim_territory:'KLAIM WILAYAH', confirm_claim:'KONFIRMASI KLAIM',
+  cancel:'BATAL', apply:'TERAPKAN', copy:'SALIN', click_mars:'KLIK MARS UNTUK PILIH WILAYAH',
+  base_tab_territory:'WILAYAH SAYA', base_tab_sectors:'SEKTOR', base_tab_shop:'TOKO',
+  base_tab_market:'MARKET', base_tab_items:'ITEM SAYA', base_tab_quests_full:'KAMPANYE/QUEST',
+  base_tab_mining:'⛏ RESOURCE RUN', base_tab_ops:'⚔ OPS CONSOLE', bcat_territory:'Wilayah',
+  bcat_fleet:'Armada', bcat_economy:'Ekonomi', bcat_mission:'Misi', bcat_community:'Komunitas',
+  ops_board_title:'📋 Papan Operasi Hari Ini', ops_legend_done:'🟢 Selesai',
+  ops_legend_pending:'⚪ Belum selesai', ops_legend_urgent:'🔴 Darurat',
+  fcmd_open_shipyard_short:'Galangan', fcmd_my_fleets_short:'Armada Saya',
+  fcmd_tactical_lab_short:'Lab Taktik', fleet_status_label:'Status Armada',
+  btn_refresh:'↻ Muat ulang', shop_tab_inv:'📦 ITEM SAYA', shop_cat_material:'⛏ MATERIAL',
+  pvp_declare_btn:'⚔ Nyatakan Perang', pvp_tab_rec:'🎯 Lawan Rekomendasi',
+  pvp_tab_bounty:'💰 Bounty', pvp_tab_conflict:'🔥 Konflik Sektor',
+  bug_report_label:'BUG', bug_report_title:'LAPORKAN BUG', bug_report_submit:'KIRIM LAPORAN'
+});
+I18N.vi = Object.assign({}, I18N.en, {
+  login:'ĐĂNG NHẬP', logout:'ĐĂNG XUẤT', email_login:'ĐĂNG NHẬP / ĐĂNG KÝ EMAIL', my_wallet:'VÍ CỦA TÔI',
+  profile_language:'NGÔN NGỮ', profile_prefs:'TÙY CHỌN', tut_howto:'CÁCH CHƠI',
+  my_assets_btn:'TÀI SẢN CỦA TÔI', global_stats:'THỐNG KÊ TOÀN CẦU', leaderboard:'BẢNG XẾP HẠNG',
+  search_owner:'TÌM CHỦ SỞ HỮU', territory_info:'THÔNG TIN LÃNH THỔ', my_alerts:'THÔNG BÁO CỦA TÔI',
+  live_feed:'DÒNG SỰ KIỆN', claim_territory:'CHIẾM LÃNH THỔ', confirm_claim:'XÁC NHẬN CHIẾM',
+  cancel:'HỦY', apply:'ÁP DỤNG', copy:'SAO CHÉP', click_mars:'NHẤN VÀO MARS ĐỂ CHỌN LÃNH THỔ',
+  base_tab_territory:'LÃNH THỔ CỦA TÔI', base_tab_sectors:'KHU VỰC', base_tab_shop:'CỬA HÀNG',
+  base_tab_market:'CHỢ', base_tab_items:'ITEM CỦA TÔI', base_tab_quests_full:'CHIẾN DỊCH/NHIỆM VỤ',
+  base_tab_mining:'⛏ RESOURCE RUN', base_tab_ops:'⚔ OPS CONSOLE', bcat_territory:'Lãnh thổ',
+  bcat_fleet:'Hạm đội', bcat_economy:'Kinh tế', bcat_mission:'Nhiệm vụ', bcat_community:'Cộng đồng',
+  ops_board_title:'📋 Bảng Tác Chiến Hôm Nay', ops_legend_done:'🟢 Hoàn thành',
+  ops_legend_pending:'⚪ Chưa xong', ops_legend_urgent:'🔴 Khẩn cấp',
+  fcmd_open_shipyard_short:'Xưởng tàu', fcmd_my_fleets_short:'Hạm đội của tôi',
+  fcmd_tactical_lab_short:'Phòng chiến thuật', fleet_status_label:'Trạng thái hạm đội',
+  btn_refresh:'↻ Làm mới', shop_tab_inv:'📦 ITEM CỦA TÔI', shop_cat_material:'⛏ VẬT LIỆU',
+  pvp_declare_btn:'⚔ Tuyên chiến', pvp_tab_rec:'🎯 Đối thủ đề xuất',
+  pvp_tab_bounty:'💰 Truy nã', pvp_tab_conflict:'🔥 Tranh chấp khu vực',
+  bug_report_label:'BUG', bug_report_title:'BÁO LỖI', bug_report_submit:'GỬI BÁO CÁO'
+});
+I18N.th = Object.assign({}, I18N.en, {
+  login:'เข้าสู่ระบบ', logout:'ออกจากระบบ', email_login:'เข้าสู่ระบบ / สมัครด้วยอีเมล', my_wallet:'กระเป๋าของฉัน',
+  profile_language:'ภาษา', profile_prefs:'การตั้งค่า', tut_howto:'วิธีเล่น',
+  my_assets_btn:'ทรัพย์สินของฉัน', global_stats:'สถิติรวม', leaderboard:'อันดับ',
+  search_owner:'ค้นหาเจ้าของ', territory_info:'ข้อมูลอาณาเขต', my_alerts:'การแจ้งเตือน',
+  live_feed:'ฟีดสด', claim_territory:'ยึดอาณาเขต', confirm_claim:'ยืนยันการยึด',
+  cancel:'ยกเลิก', apply:'ใช้', copy:'คัดลอก', click_mars:'แตะดาวอังคารเพื่อเลือกอาณาเขต',
+  base_tab_territory:'อาณาเขตของฉัน', base_tab_sectors:'เซกเตอร์', base_tab_shop:'ร้านค้า',
+  base_tab_market:'ตลาด', base_tab_items:'ไอเทมของฉัน', base_tab_quests_full:'แคมเปญ/เควสต์',
+  base_tab_mining:'⛏ RESOURCE RUN', base_tab_ops:'⚔ OPS CONSOLE', bcat_territory:'อาณาเขต',
+  bcat_fleet:'กองยาน', bcat_economy:'เศรษฐกิจ', bcat_mission:'ภารกิจ', bcat_community:'ชุมชน',
+  ops_board_title:'📋 กระดานปฏิบัติการวันนี้', ops_legend_done:'🟢 เสร็จแล้ว',
+  ops_legend_pending:'⚪ ยังไม่เสร็จ', ops_legend_urgent:'🔴 ด่วน',
+  fcmd_open_shipyard_short:'อู่ต่อเรือ', fcmd_my_fleets_short:'กองยานของฉัน',
+  fcmd_tactical_lab_short:'ห้องแล็บยุทธวิธี', fleet_status_label:'สถานะกองยาน',
+  btn_refresh:'↻ รีเฟรช', shop_tab_inv:'📦 ไอเทมของฉัน', shop_cat_material:'⛏ วัสดุ',
+  pvp_declare_btn:'⚔ ประกาศสงคราม', pvp_tab_rec:'🎯 คู่ต่อสู้แนะนำ',
+  pvp_tab_bounty:'💰 ค่าหัว', pvp_tab_conflict:'🔥 ความขัดแย้งเซกเตอร์',
+  bug_report_label:'BUG', bug_report_title:'รายงานบั๊ก', bug_report_submit:'ส่งรายงาน'
+});
+
+function t(key){
+  var lang = normalizeLang(LANG);
+  return (I18N[lang]&&I18N[lang][key]) || I18N.en[key] || key;
+}
+function tl(en,ko,ja,zh,id,vi,th){
+  var map = { en:en, ko:ko, ja:ja, zh:zh, id:id, vi:vi, th:th };
+  return map[normalizeLang(LANG)] || en;
+}
 // [v7.215] iOS phantom-click 가드 — backdrop close 함수 wrapper.
 //   모달 open 직후 (modal.dataset.openedAt 기록) 350ms 안의 backdrop click 은 무시.
 //   iOS Safari 의 touchstart→touchend→click 합성 이벤트로 인한 false close 차단.
@@ -21787,8 +21873,10 @@ function _questDesc(q){
 }
 
 function setLang(lang){
+  lang = normalizeLang(lang);
   LANG=lang;
   localStorage.setItem('pw_lang',lang);
+  document.documentElement.lang=lang;
   // Update desktop buttons
   document.querySelectorAll('.lang-btn').forEach(function(btn){
     btn.classList.toggle('active',btn.textContent.trim()===lang.toUpperCase());
@@ -21842,6 +21930,8 @@ function closeLangDropdown(){
 document.addEventListener('click',function(){closeLangDropdown()});
 
 function applyI18n(){
+  LANG = normalizeLang(LANG);
+  document.documentElement.lang=LANG;
   // Text content
   document.querySelectorAll('[data-i18n]').forEach(function(el){
     var key=el.getAttribute('data-i18n');

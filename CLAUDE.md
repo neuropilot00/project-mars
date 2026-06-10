@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-10 v7.420 (Daily OPS Completion Sync) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-10 v7.421 (SEA Localization Bootstrap + Tactical Lab i18n) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,16 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.421 최신 핸드오프 — SEA 로컬라이징 슬롯 + 전술랩 번역 부트스트랩
+
+- `index.html`은 언어 코드를 `en/ko/ja/zh/id/vi/th`로 정규화한다. `in`은 `id`, `vn`은 `vi`, `thai`는 `th`로 흡수한다.
+- 상단/드롭다운/프로필 언어 UI에 ID/VI/TH 슬롯을 추가했다. 현재 프로필 언어 버튼이 가장 확실한 사용자 진입점이다.
+- `I18N.id/vi/th`는 영어 fallback 기반 seed dictionary다. 핵심 메뉴/BASE/오늘의 작전 보드/함대/상점/버그 리포트 문구부터 현지화했다.
+- `tl()`은 7언어 인자를 받을 수 있다. 기존 4언어 호출은 SEA 언어에서 영어로 안전 fallback된다.
+- `assets/tactical-lab-v11.html`은 독립 HTML이므로 별도 i18n을 가진다. `lang` query, parent `LANG`, `localStorage.pw_lang` 순서로 언어를 읽고 ID/VI/TH UI/기동/콜아웃 번역을 적용한다.
+- 게임 음성은 UI 언어와 분리한다. `GAME_VOICE_LANG='en'`을 기본 정책으로 유지해 캠페인 보이스는 영어 베이스로 제작한다.
+- UI/JS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v87`로 올렸다.
 
 ### v7.420 최신 핸드오프 — Daily OPS 완료 반영 레이스/미션명 호환 보정
 

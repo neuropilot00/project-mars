@@ -1,3 +1,13 @@
+## 2026-06-10 v7.421 — SEA 로컬라이징 부트스트랩 + 전술랩 i18n
+
+- 메인 앱 언어 시스템에 인도네시아어(`id`), 베트남어(`vi`), 태국어(`th`) 슬롯을 추가했다.
+- 언어 코드를 정규화해 `in`/`vn`/`thai` 같은 비표준 입력도 지원 언어로 흡수한다.
+- 핵심 메뉴, BASE, 오늘의 작전 보드, 함대/상점/버그 리포트 계열 문구에 ID/VI/TH seed 번역을 추가했다.
+- `tl()` fallback을 7언어 대응으로 확장했다. 아직 번역되지 않은 문장은 영어로 떨어져 깨진 키가 노출되지 않는다.
+- 독립 HTML인 전술랩도 `lang` query/parent/localStorage를 읽어 ID/VI/TH UI, 기동 안내, 무전 콜아웃 번역을 표시한다.
+- 캠페인/게임 음성은 현지 UI 언어와 분리해 영어 베이스(`GAME_VOICE_LANG='en'`) 정책으로 고정했다.
+- UI/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v87`로 갱신했다.
+
 ## 2026-06-10 v7.420 — Daily OPS 완료 반영 레이스/미션명 호환 보정
 
 - `markDailyOpsAction()`이 예전 로컬 미션명(`ship_upgrade`, `territory_harvest`, `ai_practice`)만 갱신하던 문제를 현재 서버 Daily OPS 미션명(`upgrade_ship`, `harvest_pp`, `ai_battle`) 그룹으로 매핑했다.

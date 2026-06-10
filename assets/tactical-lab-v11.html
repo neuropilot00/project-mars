@@ -406,22 +406,30 @@ body{padding:0;background:#03040b;}
 <script>
 'use strict';
 
+const TL_SUPPORTED_LANGS=['en','ko','ja','zh','id','vi','th'];
+function normalizeBattleLang(lang){
+  lang=String(lang||'en').toLowerCase();
+  if(lang==='in') lang='id';
+  if(lang==='vn') lang='vi';
+  if(lang==='thai') lang='th';
+  return TL_SUPPORTED_LANGS.includes(lang)?lang:'en';
+}
 const TLANG=(function resolveBattleLang(){
   try{
     const qs=new URLSearchParams(location.search);
     const qLang=(qs.get('lang')||'').toLowerCase();
-    if(qLang) return qLang;
+    if(qLang) return normalizeBattleLang(qLang);
   }catch(_){}
   try{
     if(window.parent&&window.parent!==window){
-      if(window.parent.LANG) return String(window.parent.LANG).toLowerCase();
+      if(window.parent.LANG) return normalizeBattleLang(window.parent.LANG);
       const pLang=window.parent.localStorage&&window.parent.localStorage.getItem('pw_lang');
-      if(pLang) return String(pLang).toLowerCase();
+      if(pLang) return normalizeBattleLang(pLang);
     }
   }catch(_){}
   try{
     const localLang=localStorage.getItem('pw_lang');
-    if(localLang) return String(localLang).toLowerCase();
+    if(localLang) return normalizeBattleLang(localLang);
   }catch(_){}
   return 'en';
 })();
@@ -617,6 +625,81 @@ const TL10N={
     ttl3:'TIER 3 — 中间部件 (制作)',
     size_frigate:'护卫舰', size_destroyer:'驱逐舰', size_cruiser:'巡洋舰', size_battleship:'战列舰', size_titan:'泰坦',
     role_tackle:'拦截', role_dps:'输出', role_ewar:'电子战', role_logi:'后勤', role_tank:'坦克'
+  },
+  id:{
+    docTitle:'OCCUPY MARS — Perang Koalisi v11.1 Vertikal',
+    uiTitle:'OCCUPY MARS — FLEET WAR v11.1 + VFX v7.229',
+    uiSubtitle:'// FORMASI + MANUVER · LAYOUT TAKTIS NYATA //',
+    sound:'SUARA', soundOn:'SUARA ON', retreat:'MUNDUR',
+    forfeitDesc:'Mundur dari pertempuran.<br>Kapal bertahan dengan HP saat ini.',
+    cancel:'BATAL', confirmRetreat:'KONFIRMASI MUNDUR',
+    atkCoalition:'KOALISI ATK', defCoalition:'KOALISI DEF', hp:'HP', turn:'GILIRAN', cmd:'CMD',
+    focus:'⚡ FOKUS TEMBAK', emp:'💥 EMP', missile:'☄ MISIL', beam:'☢ MERIAM BEAM', overdrive:'GABUNG',
+    formation:'FORMASI', maneuver:'MANUVER', speed:'KECEPATAN',
+    fleetStatus:'📊 STATUS ARMADA', shipRegistry:'🚀 REGISTRI KAPAL', factionLabel:'FAKSI:',
+    minerals:'💎 MINERAL', doctrines:'📈 DOKTRIN',
+    fleetPanelTitle:'// FLEET STATUS — STATUS ARMADA LIVE',
+    doctrinesTitle:'// DOKTRIN ARMADA', factionCompareTitle:'// PERBANDINGAN FAKSI',
+    sphere:'Sphere', wedge:'Wedge', screen:'Screen', pincer:'Pincer',
+    advance:'Maju', flank:'Flank', flank_left:'Kiri', flank_right:'Kanan', retreatMove:'Mundur', scatter:'Menyebar', rally:'Berkumpul',
+    ships:'kapal', fleets:'armada', wiped:'Hancur', build:'BANGUN',
+    design:'Desain', specialty:'Spesialisasi', naming:'Penamaan',
+    unavailable:'Tidak tersedia', noTarget:'Tidak ada target', missingBattleId:'battleId hilang', retreatFailed:'mundur gagal',
+    fleetStatusMeta:'{alive}/{total} kapal · HP {hp}% · {formation}/{maneuver}{suffix}',
+    ttl0:'TIER 0 — Mineral Dasar (Semua Sektor)', ttl1:'TIER 1 — Mineral Langka (Mid/Frontier)',
+    ttl2:'TIER 2 — Material Spesial (Frontier/Event)', ttl3:'TIER 3 — Komponen (Crafted)',
+    size_frigate:'Frigate', size_destroyer:'Destroyer', size_cruiser:'Cruiser', size_battleship:'Battleship', size_titan:'Titan',
+    role_tackle:'Tackle', role_dps:'DPS', role_ewar:'EW', role_logi:'Logi', role_tank:'Tank'
+  },
+  vi:{
+    docTitle:'OCCUPY MARS — Chiến Tranh Liên Minh v11.1 Dọc',
+    uiTitle:'OCCUPY MARS — FLEET WAR v11.1 + VFX v7.229',
+    uiSubtitle:'// ĐỘI HÌNH + CƠ ĐỘNG · BỐ CỤC CHIẾN THUẬT //',
+    sound:'ÂM THANH', soundOn:'ÂM THANH ON', retreat:'RÚT LUI',
+    forfeitDesc:'Rút khỏi trận chiến.<br>Tàu sống sót với HP hiện tại.',
+    cancel:'HỦY', confirmRetreat:'XÁC NHẬN RÚT LUI',
+    atkCoalition:'LIÊN MINH TẤN CÔNG', defCoalition:'LIÊN MINH PHÒNG THỦ', hp:'HP', turn:'LƯỢT', cmd:'LỆNH',
+    focus:'⚡ TẬP TRUNG HỎA LỰC', emp:'💥 EMP', missile:'☄ TÊN LỬA', beam:'☢ PHÁO BEAM', overdrive:'HỢP KÍCH',
+    formation:'ĐỘI HÌNH', maneuver:'CƠ ĐỘNG', speed:'TỐC ĐỘ',
+    fleetStatus:'📊 TRẠNG THÁI HẠM ĐỘI', shipRegistry:'🚀 DANH BẠ TÀU', factionLabel:'PHE:',
+    minerals:'💎 KHOÁNG SẢN', doctrines:'📈 HỌC THUYẾT',
+    fleetPanelTitle:'// FLEET STATUS — TRẠNG THÁI HẠM ĐỘI LIVE',
+    doctrinesTitle:'// HỌC THUYẾT HẠM ĐỘI', factionCompareTitle:'// SO SÁNH PHE',
+    sphere:'Cầu', wedge:'Mũi nhọn', screen:'Màn chắn', pincer:'Gọng kìm',
+    advance:'Tiến lên', flank:'Đánh sườn', flank_left:'Mạn trái', flank_right:'Mạn phải', retreatMove:'Rút lui', scatter:'Tản ra', rally:'Tập hợp',
+    ships:'tàu', fleets:'hạm đội', wiped:'Bị quét sạch', build:'ĐÓNG TÀU',
+    design:'Thiết kế', specialty:'Sở trường', naming:'Đặt tên',
+    unavailable:'Không khả dụng', noTarget:'Không có mục tiêu', missingBattleId:'thiếu battleId', retreatFailed:'rút lui thất bại',
+    fleetStatusMeta:'{alive}/{total} tàu · HP {hp}% · {formation}/{maneuver}{suffix}',
+    ttl0:'TIER 0 — Khoáng cơ bản (Mọi khu vực)', ttl1:'TIER 1 — Khoáng hiếm (Mid/Frontier)',
+    ttl2:'TIER 2 — Vật liệu đặc biệt (Frontier/Sự kiện)', ttl3:'TIER 3 — Linh kiện (Chế tạo)',
+    size_frigate:'Frigate', size_destroyer:'Destroyer', size_cruiser:'Cruiser', size_battleship:'Battleship', size_titan:'Titan',
+    role_tackle:'Tackle', role_dps:'DPS', role_ewar:'EW', role_logi:'Logi', role_tank:'Tank'
+  },
+  th:{
+    docTitle:'OCCUPY MARS — สงครามพันธมิตร v11.1 แนวตั้ง',
+    uiTitle:'OCCUPY MARS — FLEET WAR v11.1 + VFX v7.229',
+    uiSubtitle:'// รูปขบวน + การเคลื่อนที่ · แผนยุทธวิธีจริง //',
+    sound:'เสียง', soundOn:'เปิดเสียง', retreat:'ถอยทัพ',
+    forfeitDesc:'ถอยออกจากการรบ<br>ยานจะรอดพร้อม HP ปัจจุบัน',
+    cancel:'ยกเลิก', confirmRetreat:'ยืนยันถอยทัพ',
+    atkCoalition:'ฝ่ายโจมตี', defCoalition:'ฝ่ายป้องกัน', hp:'HP', turn:'เทิร์น', cmd:'คำสั่ง',
+    focus:'⚡ ยิงเป้าหมายเดียว', emp:'💥 EMP', missile:'☄ มิสไซล์', beam:'☢ ปืนบีม', overdrive:'รวมพลัง',
+    formation:'รูปขบวน', maneuver:'การเคลื่อนที่', speed:'ความเร็ว',
+    fleetStatus:'📊 สถานะกองยาน', shipRegistry:'🚀 ทะเบียนยาน', factionLabel:'ฝ่าย:',
+    minerals:'💎 แร่', doctrines:'📈 หลักนิยม',
+    fleetPanelTitle:'// FLEET STATUS — สถานะกองยานสด',
+    doctrinesTitle:'// หลักนิยมกองยาน', factionCompareTitle:'// เปรียบเทียบฝ่าย',
+    sphere:'ทรงกลม', wedge:'ลิ่ม', screen:'กำแพง', pincer:'บีบล้อม',
+    advance:'เดินหน้า', flank:'ตีด้านข้าง', flank_left:'กราบซ้าย', flank_right:'กราบขวา', retreatMove:'ถอย', scatter:'กระจาย', rally:'รวมตัว',
+    ships:'ลำ', fleets:'กองยาน', wiped:'ถูกทำลาย', build:'สร้าง',
+    design:'ดีไซน์', specialty:'จุดเด่น', naming:'การตั้งชื่อ',
+    unavailable:'ใช้ไม่ได้', noTarget:'ไม่มีเป้าหมาย', missingBattleId:'ไม่มี battleId', retreatFailed:'ถอยทัพล้มเหลว',
+    fleetStatusMeta:'{alive}/{total} ลำ · HP {hp}% · {formation}/{maneuver}{suffix}',
+    ttl0:'TIER 0 — แร่พื้นฐาน (ทุกเซกเตอร์)', ttl1:'TIER 1 — แร่หายาก (Mid/Frontier)',
+    ttl2:'TIER 2 — วัสดุพิเศษ (Frontier/Event)', ttl3:'TIER 3 — ชิ้นส่วน (Crafted)',
+    size_frigate:'Frigate', size_destroyer:'Destroyer', size_cruiser:'Cruiser', size_battleship:'Battleship', size_titan:'Titan',
+    role_tackle:'Tackle', role_dps:'DPS', role_ewar:'EW', role_logi:'Logi', role_tank:'Tank'
   }
 };
 
@@ -638,7 +721,7 @@ function shipNameValue(v){
 function shipTextValue(v){
   if(!v) return '';
   if(typeof v==='string') return v;
-  return v[TLANG] || v.ko || v.en || Object.values(v)[0] || '';
+  return v[TLANG] || v.en || v.ko || Object.values(v)[0] || '';
 }
 function localizedClassLabel(ship){
   if(ship.classI18n&&ship.classI18n[TLANG]) return ship.classI18n[TLANG];
@@ -677,6 +760,33 @@ function tlManeuverLine(mv){
       retreat:'后撤，重新整队！',
       scatter:'散开，脱离光束轨道！',
       rally:'重新集结，重建防线！'
+    },
+    id:{
+      advance:'Semua armada maju dan serang!',
+      flank:'Putar ke sisi mereka!',
+      flank_left:'Manuver ke kiri, hajar sisi kiri!',
+      flank_right:'Manuver ke kanan, hajar sisi kanan!',
+      retreat:'Mundur dan susun ulang garis tempur!',
+      scatter:'Menyebar, putus kunci beam!',
+      rally:'Berkumpul, bentuk dinding perisai!'
+    },
+    vi:{
+      advance:'Toàn hạm đội tiến lên và tấn công!',
+      flank:'Vòng sang sườn địch!',
+      flank_left:'Đánh sang mạn trái!',
+      flank_right:'Đánh sang mạn phải!',
+      retreat:'Rút lui và tái lập đội hình!',
+      scatter:'Tản ra, phá khóa beam!',
+      rally:'Tập hợp, dựng lại tuyến phòng thủ!'
+    },
+    th:{
+      advance:'ทุกกองยานเดินหน้าโจมตี!',
+      flank:'อ้อมเข้าด้านข้าง!',
+      flank_left:'ตีเข้ากราบซ้าย!',
+      flank_right:'ตีเข้ากราบขวา!',
+      retreat:'ถอยและตั้งแนวรบใหม่!',
+      scatter:'กระจายตัว หลบแนวบีม!',
+      rally:'รวมตัว สร้างแนวป้องกัน!'
     }
   };
   return (lines[TLANG]&&lines[TLANG][mv]) || (lines.en&&lines.en[mv]) || mv;
@@ -1047,6 +1157,16 @@ const CALLOUTS={
   zh:{ ambient:['全舰队，保持射击线！','拉开距离！别站在光束轨道上！','敌方阵线动摇了，继续推进！','重新分配护盾，准备左舷炮击！','小型舰从侧翼包抄！'],
        sunkSuffix:' 击沉！', hull:'船体崩溃！', flag:'旗舰爆炸！', pLight:['击沉！','弃舰！','引擎受损！','脱离阵线！'],
        focusFloat:'🎯 集中！', focus:'集中火力攻击[{u}]！', flagFloat:'💥 旗舰击沉！', flagDown:'[{u}] 旗舰沉没！残余舰只继续交战！', victory:'{w} COALITION 胜利！战场已控制！', lastShip:'最后一舰被击沉！' }
+  ,
+  id:{ ambient:['Semua armada, tahan garis tembak!','Buka jarak! Hindari jalur beam!','Garis musuh goyah, terus tekan!','Redistribusi perisai, siap tembakan sisi kiri!','Kapal kecil, serang dari samping!'],
+       sunkSuffix:' hancur!', hull:'Lambung runtuh!', flag:'Flagship meledak!', pLight:['Jatuh!','Eject!','Mesin kena!','Mundur dari garis!'],
+       focusFloat:'🎯 Fokus!', focus:'Fokus tembak ke [{u}]!', flagFloat:'💥 Flagship jatuh!', flagDown:'Flagship [{u}] hancur! Kapal tersisa tetap bertarung!', victory:'KOALISI {w} menang! Area aman!', lastShip:'Kapal terakhir hancur!' },
+  vi:{ ambient:['Toàn hạm đội, giữ tuyến bắn!','Giãn cách! Tránh đường beam!','Tuyến địch đang dao động, tiếp tục ép!','Phân bổ lại khiên, chuẩn bị hỏa lực mạn trái!','Tàu nhỏ, đánh sườn!'],
+       sunkSuffix:' bị hạ!', hull:'Thân tàu vỡ!', flag:'Kỳ hạm nổ tung!', pLight:['Hạ rồi!','Thoát hiểm!','Trúng động cơ!','Rời đội hình!'],
+       focusFloat:'🎯 Tập trung!', focus:'Tập trung hỏa lực vào [{u}]!', flagFloat:'💥 Kỳ hạm bị hạ!', flagDown:'Kỳ hạm [{u}] bị đánh chìm! Tàu còn lại tiếp tục chiến đấu!', victory:'LIÊN MINH {w} thắng! Đã kiểm soát chiến trường!', lastShip:'Tàu cuối cùng bị hạ!' },
+  th:{ ambient:['ทุกกองยาน รักษาแนวยิง!','ถ่างระยะ อย่าอยู่ในแนวบีม!','แนวศัตรูเริ่มสั่น คลื่นบุกต่อ!','กระจายโล่ใหม่ เตรียมรับไฟกราบซ้าย!','ยานเล็ก อ้อมตีด้านข้าง!'],
+       sunkSuffix:' ถูกทำลาย!', hull:'ลำตัวแตก!', flag:'เรือธงระเบิด!', pLight:['ร่วงแล้ว!','ดีดตัว!','เครื่องยนต์โดนยิง!','หลุดจากแนว!'],
+       focusFloat:'🎯 ยิงเป้าเดียว!', focus:'ยิงรวมไปที่ [{u}]!', flagFloat:'💥 เรือธงล่ม!', flagDown:'เรือธง [{u}] ล่มแล้ว! ยานที่เหลือยังสู้ต่อ!', victory:'ฝ่าย {w} ชนะ! ควบคุมสนามรบแล้ว!', lastShip:'ยานลำสุดท้ายถูกทำลาย!' }
 };
 function CO(){ return CALLOUTS[TLANG]||CALLOUTS.en; }
 function panicCallout(sh){
