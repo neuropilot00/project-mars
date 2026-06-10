@@ -73,6 +73,7 @@ async function simulateBattle(battleId) {
   };
   
   const events = [];
+  state.events = events;
   let winnerSide = null;
   
   // 시뮬레이션 (fullTicks)
@@ -91,7 +92,7 @@ async function simulateBattle(battleId) {
 
     // 함선 위치 갱신 (진형 적용)
     for (const fleet of state.fleets) {
-      if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet);
+      if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet, state);
     }
     
     // 전투 처리 (발사 + 데미지)
@@ -161,19 +162,19 @@ function applyLiveCommand(state, cmd) {
   // [Phase 3 실시간] 수동 스킬 — 서버 권위 충전/쿨다운(레드팀: 클라 게이지 신뢰 금지). 충전 100% 일 때만 발동, 발동 후 0 리셋.
   if (cmd.action === 'beam') {
     if ((fleet.beamCharge || 0) < 100) return false;
-    if (_applySkill(state, fleet, 'beam')) { fleet.beamCharge = 0; return true; }
+    if (_applySkill(state, fleet, 'beam', state.events || [])) { fleet.beamCharge = 0; return true; }
     return false;
   }
   if (cmd.action === 'missile') {
     if ((fleet.missileCharge || 0) < 100) return false;
-    if (_applySkill(state, fleet, 'missile')) { fleet.missileCharge = 0; return true; }
+    if (_applySkill(state, fleet, 'missile', state.events || [])) { fleet.missileCharge = 0; return true; }
     return false;
   }
   // 합체 필살기 — 충전 100% + 살아있는 합체체 보유 시에만 발동(서버 권위)
   if (cmd.action === 'overdrive') {
     if ((fleet.overdriveCharge || 0) < 100) return false;
     if (!fleet.ships.some(s => s.isAlive && s.size_class === 'assembled')) return false;
-    if (_applySkill(state, fleet, 'overdrive')) { fleet.overdriveCharge = 0; return true; }
+    if (_applySkill(state, fleet, 'overdrive', state.events || [])) { fleet.overdriveCharge = 0; return true; }
     return false;
   }
   return false;
@@ -181,36 +182,78 @@ function applyLiveCommand(state, cmd) {
 
 // [Phase 3] 수동 스킬 데미지 적용 — beam: 우선순위 적함(기함/최대HP) 단일 강타, missile: 다수 분산.
 //   데미지 = 발동 함대 살아있는 ATK 합 × 배율(state.skillMult). 서버 권위 — 클라가 데미지를 정하지 않음.
-function _applySkill(state, fleet, kind) {
-  const myAtk = fleet.ships.filter(s => s.isAlive && (s.atk || 0) > 0).reduce((a, s) => a + (s.atk || 0), 0);
+function _applySkill(state, fleet, kind, events) {
+  events = events || [];
+  const attackers = fleet.ships.filter(s => s.isAlive && !s.withdrawn && (s.atk || 0) > 0);
+  const myAtk = attackers.reduce((a, s) => a + (s.atk || 0), 0);
   if (myAtk <= 0) return false;
-  const enemies = state.fleets.filter(e => e.side !== fleet.side).flatMap(e => e.ships.filter(s => s.isAlive));
+  const sourceShip = attackers
+    .slice()
+    .sort((a, b) => ((b.size_class === 'titan') - (a.size_class === 'titan')) || ((b.atk || 0) - (a.atk || 0)))[0];
+  const enemies = state.fleets
+    .filter(e => e.side !== fleet.side && !e.retreated)
+    .flatMap(e => e.ships.filter(s => s.isAlive && !s.withdrawn).map(s => ({ fleet: e, ship: s })));
   if (!enemies.length) return false;
   const beamMult = (state.skillMult && state.skillMult.beam) || 8;
   const missileMult = (state.skillMult && state.skillMult.missile) || 4;
+  const hitTargets = [];
+  let totalDamage = 0;
   if (kind === 'overdrive') {
     // 합체 필살기 — 광역 강타(미사일보다 강하고 더 많은 표적). assembled의 atk 비중이 클수록 강함.
     const odMult = (state.skillMult && state.skillMult.overdrive) || 5;
     const dmgEach = Math.round(myAtk * odMult);
-    for (const t of enemies.slice(0, Math.min(10, enemies.length))) {
-      t.hp -= dmgEach;
-      if (t.hp <= 0) { t.hp = 0; t.isAlive = false; }
+    const targets = enemies
+      .slice()
+      .sort((a, b) => (b.ship.maxHp || 0) - (a.ship.maxHp || 0))
+      .slice(0, Math.min(10, enemies.length));
+    for (const t of targets) {
+      applyDamage(t.ship, t.fleet, dmgEach, sourceShip, fleet, state, events);
+      hitTargets.push(t.ship.id);
+      totalDamage += dmgEach;
     }
+    events.push({
+      tick: state.tick || 0,
+      type: 'manual_skill',
+      fleet_id: fleet.id,
+      ship_id: sourceShip.id,
+      payload: { side: fleet.side, skill: kind, target_count: hitTargets.length, target_ship_ids: hitTargets, total_damage: totalDamage, duration_ticks: 15 }
+    });
     return true;
   }
   if (kind === 'beam') {
-    enemies.sort((a, b) => ((b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)) || ((b.maxHp || 0) - (a.maxHp || 0)));
+    enemies.sort((a, b) => ((b.ship.isFlagship ? 1 : 0) - (a.ship.isFlagship ? 1 : 0)) || ((b.ship.maxHp || 0) - (a.ship.maxHp || 0)));
     const t = enemies[0];
-    t.hp -= Math.round(myAtk * beamMult);
-    if (t.hp <= 0) { t.hp = 0; t.isAlive = false; }
+    const damage = Math.round(myAtk * beamMult);
+    applyDamage(t.ship, t.fleet, damage, sourceShip, fleet, state, events);
+    hitTargets.push(t.ship.id);
+    totalDamage += damage;
+    events.push({
+      tick: state.tick || 0,
+      type: 'manual_skill',
+      fleet_id: fleet.id,
+      ship_id: sourceShip.id,
+      payload: { side: fleet.side, skill: kind, target_count: 1, target_ship_ids: hitTargets, total_damage: totalDamage, duration_ticks: 15 }
+    });
     return true;
   }
   // missile — 최대 6척 분산
   const dmgEach = Math.round(myAtk * missileMult);
-  for (const t of enemies.slice(0, Math.min(6, enemies.length))) {
-    t.hp -= dmgEach;
-    if (t.hp <= 0) { t.hp = 0; t.isAlive = false; }
+  const targets = enemies
+    .slice()
+    .sort((a, b) => ((b.ship.size_class === 'frigate') - (a.ship.size_class === 'frigate')) || ((a.ship.hp || 0) - (b.ship.hp || 0)))
+    .slice(0, Math.min(6, enemies.length));
+  for (const t of targets) {
+    applyDamage(t.ship, t.fleet, dmgEach, sourceShip, fleet, state, events);
+    hitTargets.push(t.ship.id);
+    totalDamage += dmgEach;
   }
+  events.push({
+    tick: state.tick || 0,
+    type: 'manual_skill',
+    fleet_id: fleet.id,
+    ship_id: sourceShip.id,
+    payload: { side: fleet.side, skill: kind, target_count: hitTargets.length, target_ship_ids: hitTargets, total_damage: totalDamage, duration_ticks: 12 }
+  });
   return true;
 }
 
@@ -239,6 +282,7 @@ async function simulateBattleLive(battleId, hooks) {
     frames: [],
   };
   const events = [];
+  state.events = events;
   let winnerSide = null;
   const started = Date.now();
   const wallClockMs = hooks.wallClockMs || (10 * 60 * 1000);
@@ -253,7 +297,7 @@ async function simulateBattleLive(battleId, hooks) {
     }
     for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) tacticsAI.evaluate(fleet, state, events);
     for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateFleetPosition(fleet, state);
-    for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet);
+    for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet, state);
     processCombat(state, events);
 
     // [Phase 3] 수동 스킬 충전 — 살아있는 ATK 함선 수 비례(서버 권위). 100% 에서 beam/missile 발동 가능.
@@ -770,7 +814,7 @@ function assignFormationSlots(fleet) {
 
 // ─── 함선 위치 갱신 ───
 
-function updateShipPositions(fleet) {
+function updateShipPositions(fleet, state) {
   const cos = Math.cos(fleet.facingAngle);
   const sin = Math.sin(fleet.facingAngle);
   
@@ -811,10 +855,27 @@ function updateShipPositions(fleet) {
       ship.y += (worldY - ship.y) * 0.12;
     }
     
-    // facing: 가장 가까운 적 방향
-    // (계산 절약을 위해 함대 facing 기본 + 미세 조정)
-    ship.facing = fleet.facingAngle;
+    const nearestEnemy = findNearestEnemyShip(ship, fleet, state);
+    ship.facing = nearestEnemy ? Math.atan2(nearestEnemy.y - ship.y, nearestEnemy.x - ship.x) : fleet.facingAngle;
   }
+}
+
+function findNearestEnemyShip(ship, fleet, state) {
+  if (!state || !Array.isArray(state.fleets)) return null;
+  let best = null;
+  let bestD = Infinity;
+  for (const enemyFleet of state.fleets) {
+    if (enemyFleet.side === fleet.side || enemyFleet.retreated) continue;
+    for (const enemy of enemyFleet.ships || []) {
+      if (!enemy.isAlive || enemy.withdrawn) continue;
+      const d = Math.hypot(enemy.x - ship.x, enemy.y - ship.y);
+      if (d < bestD) {
+        bestD = d;
+        best = enemy;
+      }
+    }
+  }
+  return best;
 }
 
 // ─── 전투 처리 (발사 + 데미지) ───
@@ -863,7 +924,7 @@ function processCombat(state, events) {
 
       // Repair는 아군 체력 회복
       if (ship.fireType === 'repair') {
-        processRepair(fleet, ship);
+        processRepair(fleet, ship, state, events);
         continue;
       }
 
@@ -900,8 +961,8 @@ function processCombat(state, events) {
         continue;
       }
 
-      // 데미지 계산 (focus_fire 보너스 포함)
-      let damage = computeDamage(ship, target);
+      // 데미지 계산 (전술/상성/focus_fire 보너스 포함)
+      let damage = computeDamage(ship, target, fleet, targetFleet);
       if (fleet.ewUntilTick && state.tick <= fleet.ewUntilTick && fleet.ewAtkMult) {
         damage = Math.max(1, Math.floor(damage * fleet.ewAtkMult));
       }
@@ -946,7 +1007,7 @@ function processElectronicWarfare(targetFleet, ewShip, attackerFleet, state, eve
   }
 }
 
-function processRepair(fleet, repairerShip) {
+function processRepair(fleet, repairerShip, state, events) {
   // 가장 피해 입은 아군 찾기
   const hurtAllies = fleet.ships.filter(s => 
     s.isAlive && s !== repairerShip && s.hp < s.maxHp
@@ -956,14 +1017,34 @@ function processRepair(fleet, repairerShip) {
   hurtAllies.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
   const target = hurtAllies[0];
   
-  const healAmount = repairerShip.atk * 15;
+  const rallyMult = fleet.movement === 'rally' ? 1.18 : 1.0;
+  const screenMult = fleet.formation === 'screen' ? 1.10 : 1.0;
+  const healAmount = repairerShip.atk * 15 * rallyMult * screenMult;
+  const before = target.hp;
   target.hp = Math.min(target.maxHp, target.hp + healAmount);
+  const healed = Math.max(0, target.hp - before);
+  repairerShip.healingDone = (repairerShip.healingDone || 0) + healed;
   
   // 함대 총 HP 재계산
   fleet.hp = fleet.ships.reduce((sum, s) => sum + (s.isAlive ? s.hp : 0), 0);
+
+  if (healed > 0 && (!fleet._lastRepairEventTick || state.tick - fleet._lastRepairEventTick > 15)) {
+    events.push({
+      tick: state.tick,
+      type: 'repair_pulse',
+      fleet_id: fleet.id,
+      ship_id: repairerShip.id,
+      payload: {
+        side: fleet.side,
+        target_ship_id: target.id,
+        amount: Math.round(healed),
+      }
+    });
+    fleet._lastRepairEventTick = state.tick;
+  }
 }
 
-function computeDamage(attacker, target) {
+function computeDamage(attacker, target, attackerFleet, targetFleet) {
   // 기본 공식: (attack - defense*0.5) + random(0.8~1.2)
   const baseDamage = attacker.atk;
   const defenseReduction = target.def * 0.5;
@@ -977,7 +1058,97 @@ function computeDamage(attacker, target) {
   else if (attacker.fireType === 'stealth_bomb') typeMult = 1.5; // 폭격 (ATK 너프로 2.5→1.5)
   else if (attacker.fireType === 'ew') typeMult = 0.3; // EW는 낮은 딜
 
-  return Math.max(1, Math.floor(raw * variance * typeMult * getShipMatchupMult(attacker, target)));
+  return Math.max(1, Math.floor(
+    raw
+    * variance
+    * typeMult
+    * getShipMatchupMult(attacker, target)
+    * getFleetTacticDamageMult(attackerFleet, targetFleet, attacker, target)
+  ));
+}
+
+function clampMult(value, min = 0.65, max = 1.45) {
+  if (!Number.isFinite(value)) return 1.0;
+  return Math.max(min, Math.min(max, value));
+}
+
+function hasAliveFlagship(fleet) {
+  return !!(fleet && Array.isArray(fleet.ships) && fleet.ships.some(s =>
+    s.isAlive && !s.withdrawn && s.isFlagship
+  ));
+}
+
+function getFleetTacticDamageMult(attackerFleet, targetFleet, attacker, target) {
+  if (!attackerFleet || !targetFleet) return 1.0;
+
+  const atkFormation = String(attackerFleet.formation || 'sphere').toLowerCase();
+  const defFormation = String(targetFleet.formation || 'sphere').toLowerCase();
+  const atkMove = String(attackerFleet.movement || 'advance').toLowerCase();
+  const defMove = String(targetFleet.movement || 'advance').toLowerCase();
+  const aRole = String(attacker.role || 'dps').toLowerCase();
+  const tSize = String(target.size_class || '').toLowerCase();
+  const isCapitalTarget = tSize === 'battleship' || tSize === 'titan' || tSize === 'assembled';
+  let mult = 1.0;
+
+  // Attacker doctrine: each formation has a clear tactical reason and risk.
+  if (atkFormation === 'wedge') {
+    mult *= target.isFlagship ? 1.16 : 1.08;
+    if (aRole === 'tackle') mult *= 1.06;
+  } else if (atkFormation === 'pincer') {
+    mult *= defMove === 'scatter' ? 0.96 : 1.10;
+    if (aRole === 'sniper' || aRole === 'bomb') mult *= 1.06;
+  } else if (atkFormation === 'line') {
+    mult *= 1.08;
+    if (atkMove === 'flank' || atkMove === 'flank_left' || atkMove === 'flank_right') mult *= 0.96;
+  } else if (atkFormation === 'screen') {
+    mult *= 0.92;
+  } else if (atkFormation === 'sphere') {
+    mult *= 0.98;
+  } else if (atkFormation === 'vanguard') {
+    mult *= target.isFlagship ? 1.04 : 0.96;
+  }
+
+  // Movement doctrine.
+  if (atkMove === 'advance') mult *= 1.06;
+  else if (atkMove === 'retreat') mult *= 0.90;
+  else if (atkMove === 'scatter') mult *= 0.90;
+  else if (atkMove === 'rally') mult *= 0.94;
+  else if (atkMove === 'flank' || atkMove === 'flank_left' || atkMove === 'flank_right') {
+    mult *= 1.05;
+    if (defFormation === 'line' || defFormation === 'wedge') mult *= 1.08;
+  }
+
+  // Defender doctrine.
+  if (defFormation === 'screen') {
+    mult *= isCapitalTarget ? 0.82 : 0.90;
+  } else if (defFormation === 'sphere') {
+    mult *= target.isFlagship ? 0.88 : 0.94;
+  } else if (defFormation === 'vanguard') {
+    mult *= target.isFlagship ? 0.84 : 0.92;
+  } else if (defFormation === 'wedge') {
+    if (aRole === 'bomb' || aRole === 'sniper' || attacker.fireType === 'stealth_bomb') mult *= 1.12;
+    else mult *= 1.04;
+  } else if (defFormation === 'line') {
+    if (atkMove === 'flank' || atkMove === 'flank_left' || atkMove === 'flank_right') mult *= 1.12;
+  } else if (defFormation === 'pincer') {
+    if (atkMove === 'advance') mult *= 1.04;
+  }
+
+  if (defMove === 'scatter') {
+    mult *= (aRole === 'sniper' || attacker.fireType === 'laser') ? 0.96 : 0.90;
+  } else if (defMove === 'retreat') {
+    mult *= 0.95;
+  } else if (defMove === 'rally') {
+    mult *= 0.94;
+  } else if (defMove === 'advance') {
+    mult *= 1.03;
+  }
+
+  // Flagship command aura: losing a flagship should be visible in combat quality.
+  if (!hasAliveFlagship(attackerFleet)) mult *= 0.94;
+  if (!hasAliveFlagship(targetFleet)) mult *= 1.06;
+
+  return clampMult(mult);
 }
 
 function getShipMatchupMult(attacker, target) {
@@ -1053,19 +1224,23 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
     target.isAlive = false;
     attacker.killsDealt++;
     
-    // 대형함 격침은 이벤트 기록
-    if (['cruiser','battleship','titan'].includes(target.size_class)) {
-      events.push({
-        tick: state.tick, type: 'ship_destroyed',
-        fleet_id: targetFleet.id, ship_id: target.id,
-        payload: {
-          ship_type: target.ship_type_code,
-          size_class: target.size_class,
-          killer_fleet_id: attackerFleet.id,
-          killer_wallet: attackerFleet.owner_wallet,
-        }
-      });
-    }
+    events.push({
+      tick: state.tick, type: 'ship_destroyed',
+      fleet_id: targetFleet.id, ship_id: target.id,
+      payload: {
+        ship_type: target.ship_type_code,
+        size_class: target.size_class,
+        target_side: targetFleet.side,
+        killer_fleet_id: attackerFleet.id,
+        killer_wallet: attackerFleet.owner_wallet,
+        killer_side: attackerFleet.side,
+        killer_ship_id: attacker.id,
+        killer_ship_type: attacker.ship_type_code,
+        killer_size_class: attacker.size_class,
+        damage,
+        is_major: ['cruiser','battleship','titan','assembled'].includes(target.size_class),
+      }
+    });
     
     // 기함 격침 → 기함만 사망 처리 (나머지 함선은 계속 전투)
     // 전투는 HP(함선 전멸) 또는 항복으로만 끝남
@@ -1075,10 +1250,12 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
         tick: state.tick, type: 'flagship_destroyed',
         fleet_id: targetFleet.id,
         payload: {
-          fleet_name: targetFleet.name,
-          killer_fleet_id: attackerFleet.id,
-        }
-      });
+        fleet_name: targetFleet.name,
+        killer_fleet_id: attackerFleet.id,
+        killer_side: attackerFleet.side,
+        killer_wallet: attackerFleet.owner_wallet,
+      }
+    });
       // 기함이 죽어도 나머지 함선은 계속 싸움 — 전멸할 때까지 전투 지속
     }
   }
@@ -1115,6 +1292,7 @@ function captureFrame(state, tick) {
         hp: s.hp,
         ff: s.isFlagship ? 1 : 0,
         code: s.ship_type_code,
+        facing: Math.round((s.facing || 0) * 100) / 100,
       }))
     ),
   };

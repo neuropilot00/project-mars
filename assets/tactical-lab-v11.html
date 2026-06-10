@@ -1692,7 +1692,7 @@ function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual,kind,homingTarget,countedHom
     r:isMissile?(big?Math.min(t.r*.55+2.6,5.5):Math.min(t.r*.38+.6,2.8)):Math.min(t.r*.3+.3,1.6),
     col:big?'#35d6ff':weaponColor(t),  // [v7.340] 수동 일제사는 시안으로 구별
     dmg:t.atk*dmgMult*2,attackerType:t,side,
-    ttl:isMissile?240:190,  // 미사일 TTL 늘림 (더 긴 비행)
+    ttl:isMissile?(big?320:260):190,  // 미사일 TTL 늘림 (수동 일제사는 2~3초 체감)
     age:0,visual:!!visual,kind,
     homing:isMissile?homingTarget:null,  // 유도 타깃
     countedHoming:!!countedHoming,
@@ -2188,17 +2188,17 @@ function drawBG(){
     const drift=(t*.006)%dw;
     const y=-(dh-H)*.48+Math.sin(t*.00008)*H*.025;
     CX.save();
-    CX.globalAlpha=.58;
+    CX.globalAlpha=.72;
     for(let x=-drift-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y,dw,dh);
-    CX.globalAlpha=.28;
+    CX.globalAlpha=.34;
     CX.globalCompositeOperation='screen';
     for(let x=-drift*.55-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y+H*.035,dw,dh);
     CX.restore();
   }
   const veil=CX.createLinearGradient(0,0,0,H);
-  veil.addColorStop(0,'rgba(2,3,10,.30)');
-  veil.addColorStop(.46,'rgba(2,3,10,.48)');
-  veil.addColorStop(1,'rgba(2,3,10,.62)');
+  veil.addColorStop(0,'rgba(2,3,10,.18)');
+  veil.addColorStop(.46,'rgba(2,3,10,.34)');
+  veil.addColorStop(1,'rgba(2,3,10,.48)');
   CX.fillStyle=veil;CX.fillRect(0,0,W,H);
   const gp=CX.createRadialGradient(W*.85,H*.12,0,W*.85,H*.12,W*.28);
   gp.addColorStop(0,'rgba(180,82,34,.34)');gp.addColorStop(1,'transparent');
@@ -2852,7 +2852,7 @@ function cmdBeamCannon(){
     const dmg=gun.type.atk*(gun.type.size==='titan'?16:10);
     lasers.push({x1:gun.x,y1:gun.y,x2:tgt.x,y2:tgt.y,
       color:gun.type.faction==='cv'?'#ff3d2e':gun.type.faction==='fsp'?'#8cffb0':'#79dfff',
-      width,alpha:1.25,ttl:160,age:0,dmg,target:tgt,attackerType:gun.type,applied:false,side:'atk',visual:false,beamCannon:true});
+      width,alpha:1.25,ttl:190,age:0,dmg,target:tgt,attackerType:gun.type,applied:false,side:'atk',visual:false,beamCannon:true});
     mkShockwave(gun.x,gun.y,gun.type.r*5);
   });
   addLog('wn',`${tl('beam')} × ${guns.length}`);
@@ -2898,9 +2898,9 @@ function cmdOverdrive(){
     mkShockwave(sh.x,sh.y,(sh.type?.r||4)*9);
     mkShockwave(tgt.x,tgt.y,(tgt.type?.r||3)*8);
     lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
-      color:'#b388ff',width:10,alpha:1.35,ttl:190,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,beamCannon:true});
+      color:'#b388ff',width:10,alpha:1.35,ttl:220,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,beamCannon:true});
     lasers.push({x1:sh.x,y1:sh.y,x2:tgt.x,y2:tgt.y,
-      color:'#ede7ff',width:4,alpha:1.2,ttl:150,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,beamCannon:true});
+      color:'#ede7ff',width:4,alpha:1.2,ttl:190,age:0,dmg:0,target:tgt,attackerType:sh.type,applied:true,side:sh.side,visual:true,beamCannon:true});
     addFloatText(sh.x,sh.y-18,tl('overdrive'),'order',2200);
   });
   for(let i=0;i<Math.min(16,targets.length);i++){

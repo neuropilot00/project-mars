@@ -146,6 +146,9 @@ router.get('/:wallet', async (req, res) => {
 
     const missions = rows.map(r => {
       const def = missionDefs.find(m => m.type === r.mission_type) || {};
+      const current = Number(r.current_count) || 0;
+      const target = Math.max(1, Number(r.target_count) || 1);
+      const completed = !!r.completed || current >= target;
       return {
         id: r.id,
         type: r.mission_type,
@@ -153,11 +156,11 @@ router.get('/:wallet', async (req, res) => {
         label_ko: def.label_ko || r.mission_type,
         dest_ko: def.dest_ko || '',
         dest_en: def.dest_en || '',
-        target: r.target_count,
-        current: r.current_count,
-        progress_pct: Math.min(100, Math.round((r.current_count / r.target_count) * 100)),
+        target,
+        current,
+        progress_pct: Math.min(100, Math.round((current / target) * 100)),
         reward_gp: r.reward_gp,
-        completed: r.completed,
+        completed,
         completed_at: r.completed_at,
         reward_claimed: r.reward_claimed,
         claimed_at: r.claimed_at
@@ -321,13 +324,13 @@ router.post('/claim', requireAuth, async (req, res) => {
       if (mission_id) {
         query = `SELECT id, reward_gp FROM daily_ops
                  WHERE id = $1 AND wallet_address = $2 AND ops_date = $3
-                   AND completed = TRUE AND reward_claimed = FALSE
+                   AND (completed = TRUE OR current_count >= target_count) AND reward_claimed = FALSE
                  FOR UPDATE`;
         params = [mission_id, wallet, today];
       } else {
         query = `SELECT id, reward_gp FROM daily_ops
                  WHERE wallet_address = $1 AND ops_date = $2
-                   AND completed = TRUE AND reward_claimed = FALSE
+                   AND (completed = TRUE OR current_count >= target_count) AND reward_claimed = FALSE
                  FOR UPDATE`;
         params = [wallet, today];
       }
@@ -343,7 +346,10 @@ router.post('/claim', requireAuth, async (req, res) => {
 
       // 미션 수령 처리
       await client.query(
-        `UPDATE daily_ops SET reward_claimed = TRUE, claimed_at = NOW()
+        `UPDATE daily_ops SET completed = TRUE,
+                              completed_at = COALESCE(completed_at, NOW()),
+                              reward_claimed = TRUE,
+                              claimed_at = NOW()
          WHERE id = ANY($1)`,
         [ids]
       );

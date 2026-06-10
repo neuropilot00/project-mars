@@ -101,6 +101,34 @@ function getShipClass(ship) {
   return size || (code.split('_')[1] || code.split('-')[1]) || 'unknown';
 }
 
+function getShipRole(ship) {
+  const role = String(ship.role || ship.ship_role || '').toLowerCase();
+  const code = String(ship.type_code || ship.ship_type_code || ship.code || '').toLowerCase();
+  if (role) return role;
+  if (code.includes('ewar') || code.includes('jam')) return 'ewar';
+  if (code.includes('logi') || code.includes('repair')) return 'logi';
+  if (code.includes('snp') || code.includes('sniper')) return 'sniper';
+  if (code.includes('bomb')) return 'bomb';
+  if (code.includes('int')) return 'tackle';
+  return 'dps';
+}
+
+function inc(map, key, by = 1) {
+  const k = key || 'unknown';
+  map[k] = (map[k] || 0) + by;
+  return map[k];
+}
+
+function countShipsBy(ships, getter) {
+  const out = {};
+  for (const s of ships || []) inc(out, getter(s));
+  return out;
+}
+
+function sumCounts(counts, keys) {
+  return keys.reduce((sum, key) => sum + (counts[key] || 0), 0);
+}
+
 // ── 클래스별 성과 집계 ────────────────────────────────────────
 function buildClassBreakdown(ships, shipsLost, damageByClass = {}) {
   if (!ships || ships.length === 0) return [];
@@ -123,6 +151,224 @@ function buildClassBreakdown(ships, shipsLost, damageByClass = {}) {
                     : '데미지 낮음';
   });
   return classes;
+}
+
+function buildEventStats(events, participants) {
+  const stats = {
+    ewarHitsTaken: { atk: 0, def: 0 },
+    flagshipDestroyed: { atk: false, def: false },
+    destroyedBySide: { atk: 0, def: 0 },
+    skillsUsed: {
+      atk: { beam: 0, missile: 0, overdrive: 0, emp: 0 },
+      def: { beam: 0, missile: 0, overdrive: 0, emp: 0 }
+    },
+    repairDone: { atk: 0, def: 0 },
+    manualSkillDamage: { atk: 0, def: 0 }
+  };
+  for (const ev of events || []) {
+    const payload = ev.payload || ev.data || {};
+    const targetSide = getSideByFleetId(participants, ev.fleet_id || payload.target_fleet_id);
+    if (ev.event_type === 'electronic_warfare' && (targetSide === 'atk' || targetSide === 'def')) {
+      stats.ewarHitsTaken[targetSide] += 1;
+    }
+    if (ev.event_type === 'flagship_destroyed' && (targetSide === 'atk' || targetSide === 'def')) {
+      stats.flagshipDestroyed[targetSide] = true;
+    }
+    if (ev.event_type === 'ship_destroyed' && (targetSide === 'atk' || targetSide === 'def')) {
+      stats.destroyedBySide[targetSide] += 1;
+    }
+    if (ev.event_type === 'manual_skill') {
+      const side = payload.side || getSideByFleetId(participants, ev.fleet_id);
+      const skill = String(payload.skill || '').toLowerCase();
+      if ((side === 'atk' || side === 'def') && stats.skillsUsed[side][skill] !== undefined) {
+        stats.skillsUsed[side][skill] += 1;
+        stats.manualSkillDamage[side] += toInt(payload.total_damage);
+      }
+    }
+    if (ev.event_type === 'commander_emp_activated') {
+      const side = payload.actor_side || (payload.target_side === 'atk' ? 'def' : payload.target_side === 'def' ? 'atk' : null);
+      if (side === 'atk' || side === 'def') stats.skillsUsed[side].emp += 1;
+    }
+    if (ev.event_type === 'repair_pulse') {
+      const side = payload.side || getSideByFleetId(participants, ev.fleet_id);
+      if (side === 'atk' || side === 'def') stats.repairDone[side] += toInt(payload.amount);
+    }
+  }
+  return stats;
+}
+
+function addAnalysis(list, code, severity, text, recs = []) {
+  list.push({ code, severity, text, recs });
+}
+
+function buildBattleAnalysis(atk, def, result, eventStats) {
+  const analysis = [];
+  const recs = [];
+  const loserSide = result === 'attacker_win' ? 'def' : result === 'defender_win' ? 'atk' : null;
+  const winnerSide = result === 'attacker_win' ? 'atk' : result === 'defender_win' ? 'def' : null;
+  const loser = loserSide === 'atk' ? atk : loserSide === 'def' ? def : null;
+  const winner = winnerSide === 'atk' ? atk : winnerSide === 'def' ? def : null;
+
+  const addCompositionWarnings = (sideData, enemyData, sideLabel) => {
+    if (!sideData || !enemyData) return;
+    const roles = sideData.role_counts || {};
+    const sizes = sideData.size_counts || {};
+    const enemyRoles = enemyData.role_counts || {};
+    const enemySizes = enemyData.size_counts || {};
+    const total = sideData.shipsDeployed || 0;
+    if (total <= 0) return;
+    const support = sumCounts(roles, ['ewar', 'logi']);
+    const capitals = sumCounts(sizes, ['battleship', 'titan', 'assembled']);
+    const smalls = sumCounts(sizes, ['frigate']);
+    const enemyBombSniper = sumCounts(enemyRoles, ['bomb', 'sniper']);
+    const enemySmallRush = sumCounts(enemySizes, ['frigate']);
+    if (capitals > 0 && enemyBombSniper >= Math.max(1, capitals) && sumCounts(roles, ['tackle']) < Math.max(1, capitals)) {
+      addAnalysis(analysis, `${sideLabel}_counter_warning_capital`, 'warning', `${sideLabel === 'atk' ? '공격군' : '수비군'} 대형함이 상대 저격/폭격 조합에 노출되어 있습니다.`, [
+        '대형함 주변에 태클/구축함 호위를 추가',
+        '상대 폭격/저격 함선을 집중공격 1순위로 지정'
+      ]);
+    }
+    if (enemySmallRush >= 4 && sumCounts(roles, ['tank']) + sumCounts(sizes, ['destroyer']) === 0) {
+      addAnalysis(analysis, `${sideLabel}_counter_warning_small`, 'info', `${sideLabel === 'atk' ? '공격군' : '수비군'}은 소형 러시를 받아낼 구축함/탱커가 부족합니다.`, [
+        '구축함 또는 탱커 역할 함선을 최소 1척 이상 배치',
+        '스크린 진형으로 초반 소형함 손실을 줄이기'
+      ]);
+    }
+    if (total >= 5 && support === 0) {
+      addAnalysis(analysis, `${sideLabel}_support_missing`, 'info', `${sideLabel === 'atk' ? '공격군' : '수비군'}은 지원함 없이 순수 화력으로만 편성되어 장기전에 약합니다.`, [
+        '로지/전자전 함선 중 하나를 섞어 지속 교전력 확보'
+      ]);
+    }
+    if (smalls >= total * 0.65 && sumCounts(roles, ['dps', 'bomb', 'sniper']) <= 1) {
+      addAnalysis(analysis, `${sideLabel}_low_finish_power`, 'info', `${sideLabel === 'atk' ? '공격군' : '수비군'}은 소형함 비율이 높아 대형함을 끝낼 결정력이 부족할 수 있습니다.`, [
+        '순양함 이상 DPS 또는 폭격 함선 추가'
+      ]);
+    }
+  };
+
+  if (!loser || !winner) {
+    addAnalysis(analysis, 'draw_attrition', 'info', '양쪽 모두 결정타를 만들지 못했습니다. 화력 집중 또는 기동 명령이 부족했습니다.', [
+      '집중공격으로 먼저 녹일 목표를 지정',
+      '장기전이면 로지/탱커 비율을 높이고, 단기전이면 폭격/저격 화력을 추가'
+    ]);
+  } else {
+    const loserDamageRatio = winner.totalDamage > 0 ? loser.totalDamage / winner.totalDamage : 1;
+    const loserLossRate = loser.shipsDeployed > 0 ? loser.shipsDestroyed / loser.shipsDeployed : 0;
+    const winnerLossRate = winner.shipsDeployed > 0 ? winner.shipsDestroyed / winner.shipsDeployed : 0;
+    const loserRoles = loser.role_counts || {};
+    const winnerRoles = winner.role_counts || {};
+    const loserSizes = loser.size_counts || {};
+    const winnerSizes = winner.size_counts || {};
+    const loserSupport = sumCounts(loserRoles, ['ewar', 'logi']);
+    const winnerSupport = sumCounts(winnerRoles, ['ewar', 'logi']);
+    const loserCapital = sumCounts(loserSizes, ['battleship', 'titan', 'assembled']);
+    const winnerCapitalKillers = sumCounts(winnerRoles, ['sniper', 'bomb']);
+    const loserSmall = sumCounts(loserSizes, ['frigate']);
+    const winnerAntiSmall = sumCounts(winnerSizes, ['destroyer']) + sumCounts(winnerRoles, ['tank']);
+    const loserEwHits = eventStats.ewarHitsTaken[loserSide] || 0;
+    const loserSkillUses = Object.values(eventStats.skillsUsed?.[loserSide] || {}).reduce((a, n) => a + (n || 0), 0);
+    const winnerSkillUses = Object.values(eventStats.skillsUsed?.[winnerSide] || {}).reduce((a, n) => a + (n || 0), 0);
+    const loserManualDmg = eventStats.manualSkillDamage?.[loserSide] || 0;
+    const winnerManualDmg = eventStats.manualSkillDamage?.[winnerSide] || 0;
+    const loserRepair = eventStats.repairDone?.[loserSide] || 0;
+    const winnerRepair = eventStats.repairDone?.[winnerSide] || 0;
+    const loserLossValue = toInt(loser.loss_value_gp);
+    const winnerLossValue = toInt(winner.loss_value_gp);
+
+    if (loserDamageRatio < 0.55) {
+      addAnalysis(analysis, 'damage_gap', 'critical', '화력 교환에서 크게 밀렸습니다. 상대가 훨씬 많은 유효 데미지를 만들었습니다.', [
+        '주력 DPS 함선 추가 또는 ATK 강화',
+        '집중공격으로 한 함대씩 끊어 데미지 분산을 줄이기'
+      ]);
+    }
+    if (loserLossRate - winnerLossRate > 0.25) {
+      addAnalysis(analysis, 'survival_gap', 'warning', '손실률 차이가 큽니다. 전선 유지력이나 방어 진형이 부족했습니다.', [
+        '탱커/로지 함선을 섞어 전선 유지력 확보',
+        '스크린/핀서 진형으로 소형함 손실을 줄이기'
+      ]);
+    }
+    if (loserCapital > 0 && winnerCapitalKillers >= Math.max(1, loserCapital)) {
+      addAnalysis(analysis, 'capital_countered', 'warning', '대형함이 저격/폭격 카운터에 노출됐습니다. 비싼 함선이 먼저 녹으면 전투가 급격히 기웁니다.', [
+        '프리깃/디스트로이어 스크린으로 폭격기와 저격함을 먼저 제거',
+        '대형함 단독 투입보다 호위 비율을 늘리기'
+      ]);
+    }
+    if (loserSmall >= Math.max(4, loser.shipsDeployed * 0.5) && winnerAntiSmall > 0) {
+      addAnalysis(analysis, 'small_screen_countered', 'warning', '소형함 비중이 높은데 상대가 구축함/탱커로 받아쳤습니다.', [
+        '크루저 이상 중형 화력을 추가',
+        '프리깃 러시는 CV식 폭딜 또는 전자전 지원과 함께 운용'
+      ]);
+    }
+    if (loserEwHits > 0 && (loserRoles.tackle || 0) === 0) {
+      addAnalysis(analysis, 'ewar_no_counter', 'warning', '전자전에 맞았지만 태클/소형 추격 전력이 부족해 교란 함선을 빨리 끊지 못했습니다.', [
+        '태클 프리깃을 추가해 전자전/로지 함선을 먼저 물기',
+        'EMP와 집중공격을 전자전 함대에 우선 사용'
+      ]);
+    }
+    if (winnerSupport > loserSupport + 1) {
+      addAnalysis(analysis, 'support_gap', 'info', '상대 지원함 비율이 더 높아 장기 교전에서 효율이 벌어졌습니다.', [
+        '로지 또는 전자전 함선을 최소 1~2척 편성',
+        '지원함을 보호하는 스크린 진형 사용'
+      ]);
+    }
+    if (winnerSkillUses > 0 && loserSkillUses === 0) {
+      addAnalysis(analysis, 'manual_skill_gap', 'warning', '상대는 전술 스킬을 사용했지만 내 함대는 결정타 스킬을 쓰지 못했습니다.', [
+        '빔포/미사일 게이지가 100%가 되면 대형함 또는 밀집 함대에 바로 사용',
+        'EMP는 상대 주력 화력이 발사 타이밍에 들어오기 직전에 사용'
+      ]);
+    } else if (winnerManualDmg > loserManualDmg * 1.8 && winnerManualDmg > 0) {
+      addAnalysis(analysis, 'skill_damage_gap', 'info', '수동 스킬 데미지 차이가 컸습니다. 전투 중 게이지 운용에서 손해를 봤습니다.', [
+        '빔포는 기함/타이탄, 미사일은 소형 다수 편성에 사용',
+        '스킬을 아끼기보다 첫 교전 구간에 써서 수적 우위를 먼저 만들기'
+      ]);
+    }
+    if (winnerRepair > loserRepair + 500) {
+      addAnalysis(analysis, 'repair_sustain_gap', 'info', '상대 수리 지원이 누적 피해를 되돌리면서 장기전 효율이 벌어졌습니다.', [
+        '로지 함선을 먼저 집중공격하거나 태클 프리깃으로 물기',
+        '내 함대에도 수리/탱커 조합을 넣어 장기전 대비'
+      ]);
+    }
+    if (loserLossValue > 0 && loserLossValue >= Math.max(500, winnerLossValue * 1.5)) {
+      addAnalysis(analysis, 'loss_value_gap', 'warning', '손실 가치가 상대보다 크게 높습니다. 비싼 함선이 보호 없이 교환된 전투입니다.', [
+        '고강화/대형함은 방어막·구형·선봉방어 진형으로 보호',
+        '전투 전 상대 저격/폭격 비율을 확인하고 호위함을 추가',
+        '풀로스 위험 전투에는 예비 함대와 재건 재료를 확보'
+      ]);
+    }
+    if (eventStats.flagshipDestroyed[loserSide]) {
+      addAnalysis(analysis, 'flagship_lost', 'critical', '기함이 격침되며 전투 통제력이 무너졌습니다.', [
+        '기함은 후방 중심에 두고 방어막/로지 보호',
+        '기함 지정 전 HP/DEF가 높은 함선을 우선 선택'
+      ]);
+    }
+    if (!analysis.length) {
+      addAnalysis(analysis, 'doctrine_gap', 'info', '전력 차이는 크지 않았지만 진형, 역할 조합, 타겟 지정에서 상대가 더 좋은 교환을 만들었습니다.', [
+        '상대 대형함에는 저격/폭격, 상대 소형 러시에는 구축함/탱커를 준비',
+        '전투 중 집중공격과 EMP를 게이지가 찼을 때 바로 사용'
+      ]);
+    }
+  }
+
+  addCompositionWarnings(atk, def, 'atk');
+  addCompositionWarnings(def, atk, 'def');
+
+  for (const item of analysis) {
+    for (const rec of item.recs || []) {
+      if (!recs.includes(rec)) recs.push(rec);
+      if (recs.length >= 4) break;
+    }
+    if (recs.length >= 4) break;
+  }
+
+  const severityRank = { critical: 0, warning: 1, info: 2 };
+  analysis.sort((a, b) => (severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9));
+
+  return {
+    analysis_items: analysis.slice(0, 3).map(({ code, severity, text }) => ({ code, severity, text })),
+    recommendation_items: recs.slice(0, 4).map((text, idx) => ({ code: `rec_${idx + 1}`, text })),
+    analysis_ko: analysis[0] ? analysis[0].text : '',
+    recommendations_ko: recs.slice(0, 4)
+  };
 }
 
 // ── 전투 리포트 생성 ──────────────────────────────────────────
@@ -217,7 +463,8 @@ async function generateBattleReport(battleId, wallet) {
         const { rows: shipRows } = await pool.query(
           `SELECT s.id, s.fleet_id, s.ship_type_code, s.is_alive, s.is_flagship,
                   s.current_hp, s.max_hp, s.bonus_atk, s.bonus_def, s.bonus_hp,
-                  st.size_class, st.class_label, st.faction_code AS ship_faction
+                  st.size_class, st.class_label, st.role, st.name_ko,
+                  st.faction_code AS ship_faction
              FROM ships s
              LEFT JOIN ship_types st ON st.code = s.ship_type_code
             WHERE s.fleet_id = $1`,
@@ -241,6 +488,27 @@ async function generateBattleReport(battleId, wallet) {
       events = [];
     }
 
+    const wreckLossBySide = { atk: { ships: 0, value: 0 }, def: { ships: 0, value: 0 } };
+    try {
+      const { rows } = await pool.query(
+        `SELECT victim_side,
+                COUNT(*) AS ships_lost,
+                COALESCE(SUM(ship_value_gp), 0) AS value_lost_gp
+           FROM ship_wrecks
+          WHERE battle_id = $1
+          GROUP BY victim_side`,
+        [id]
+      );
+      for (const row of rows || []) {
+        const side = row.victim_side === 'atk' ? 'atk' : row.victim_side === 'def' ? 'def' : null;
+        if (!side) continue;
+        wreckLossBySide[side] = {
+          ships: toInt(row.ships_lost),
+          value: toInt(row.value_lost_gp)
+        };
+      }
+    } catch (_) {}
+
     const participantBySide = {
       atk: participants.find(p => p.side === 'atk') || {},
       def: participants.find(p => p.side === 'def') || {}
@@ -260,7 +528,7 @@ async function generateBattleReport(battleId, wallet) {
           const cls = getShipClass({ size_class: p.attacker_size_class, ship_type_code: p.attacker_ship_type });
           damageByClass[side][cls] = (damageByClass[side][cls] || 0) + amount;
         }
-      } else if (ev.event_type === 'ship_destroyed' || ev.event_type === 'flagship_destroyed') {
+      } else if (ev.event_type === 'ship_destroyed') {
         const targetSide = getSideByFleetId(participants, ev.fleet_id || p.target_fleet_id);
         const attackerSide = p.attacker_side || p.killer_side || getSideByFleetId(participants, p.killer_fleet_id);
         const side = attackerSide || (targetSide === 'atk' ? 'def' : targetSide === 'def' ? 'atk' : null);
@@ -289,6 +557,8 @@ async function generateBattleReport(battleId, wallet) {
       const survived = Math.max(0, toInt(p.ships_alive) || (deployed - destroyed));
       const breakdown = buildClassBreakdown(ships, destroyed, damageByClass[side]);
       const shipFaction = ships.find(s => s.ship_faction)?.ship_faction;
+      const roleCounts = countShipsBy(ships, getShipRole);
+      const sizeCounts = countShipsBy(ships, getShipClass);
       return {
         wallet: p.wallet_address || p.owner_wallet || null,
         fleetName: p.fleet_name || (side === 'atk' ? 'ATK Fleet' : 'DEF Fleet'),
@@ -302,39 +572,24 @@ async function generateBattleReport(battleId, wallet) {
         ships_lost: Math.min(deployed, destroyed),
         ships_survived: survived,
         total_damage_dealt: Math.round(damage[side] || 0),
-        class_breakdown: breakdown
+        class_breakdown: breakdown,
+        role_counts: roleCounts,
+        size_counts: sizeCounts,
+        full_loss_ships: wreckLossBySide[side]?.ships || 0,
+        loss_value_gp: wreckLossBySide[side]?.value || 0
       };
     };
 
     const atk = buildSide('atk');
     const def = buildSide('def');
     const result = resultFromWinner(battle.winner_side);
+    const eventStats = buildEventStats(events, participants);
     const w = normalizeWallet(wallet);
     const perspective = w && w === normalizeWallet(atk.wallet) ? 'attacker'
       : w && w === normalizeWallet(def.wallet) ? 'defender'
       : 'observer';
 
-    let analysis_ko = '';
-    const recommendations_ko = [];
-    const loser = battle.winner_side === 'atk' ? def : battle.winner_side === 'def' ? atk : null;
-    const winner = battle.winner_side === 'atk' ? atk : battle.winner_side === 'def' ? def : null;
-    if (loser && winner) {
-      const dmgRatio = winner.totalDamage > 0 ? loser.totalDamage / winner.totalDamage : 1;
-      const lossRate = loser.shipsDeployed > 0 ? loser.shipsDestroyed / loser.shipsDeployed : 0;
-      if (dmgRatio < 0.5) {
-        analysis_ko = '화력 차이가 결정적이었습니다. 상대 함대가 2배 이상의 데미지를 입혔습니다. 공격력 강화가 우선입니다.';
-        recommendations_ko.push('공격형 함선 또는 상위 등급 함선 추가');
-        recommendations_ko.push('함선 ATK 스탯 업그레이드 (조선소 → 강화)');
-      } else if (lossRate > 0.6) {
-        analysis_ko = '함선 집중 손실이 패인입니다. 전선이 무너지면서 연쇄 격침이 발생했습니다.';
-        recommendations_ko.push('방어형(탱크) 함선을 전선에 배치하세요');
-        recommendations_ko.push('진형 변경 고려 (핀서 또는 방어 대형)');
-      } else {
-        analysis_ko = '전략적 우위를 내줬습니다. 함선 구성과 진형이 상대 전술에 불리했습니다.';
-        recommendations_ko.push('상대 파벌 상성 분석 후 함선 구성 조정');
-        recommendations_ko.push('기동 방식 (Advance/Retreat/Hold) 재검토');
-      }
-    }
+    const battleAnalysis = buildBattleAnalysis(atk, def, result, eventStats);
     const highlights = generateHighlights(events, battle.winner_side);
     atk.rating = calcPerformanceRating(
       atk.totalDamage,
@@ -366,13 +621,16 @@ async function generateBattleReport(battleId, wallet) {
       atk,
       def,
       hints: buildHints(atk, def, result),
+      event_stats: eventStats,
       battle_id: toInt(battle.id),
       battle_type: battle.battle_type || 'pvp_duel',
       winner_side: battle.winner_side,
       ended_at: battle.ended_at,
       duration_ticks: battle.duration_seconds || events.length,
-      analysis_ko,
-      recommendations_ko,
+      analysis_ko: battleAnalysis.analysis_ko,
+      recommendations_ko: battleAnalysis.recommendations_ko,
+      analysis_items: battleAnalysis.analysis_items,
+      recommendation_items: battleAnalysis.recommendation_items,
       highlights,
       performance_rating: {
         atk: atk.rating || null,

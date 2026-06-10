@@ -1,3 +1,85 @@
+## 2026-06-10 — Daily OPS 레거시/캠페인 레이아웃 감사 반영 (v7.418)
+
+### ✅ 수정 완료
+- **[MED] Daily OPS 레거시 보드가 다시 살아날 위험**: `BASE > 내 영토` 단일 보드와 별개로 예전 `renderDailyOpsBoard()`/`openDailyOpsRoute()` 구현이 남아 있었다. DOM이 없어 대부분 inert였지만 언어 변경/체크인/미션 진행에서 계속 호출되어 중복 보드 회귀 위험이 있었다. 레거시 구현과 호출을 제거하고 `loadOpsCommandBoard()`로 통일했다.
+- **[HIGH] 캠페인 에디터 위치와 인게임 위치 불일치**: 인게임 스토리 렌더러가 같은 브라우저의 에디터 `localStorage` 좌표를 서버 저장 레이아웃보다 우선할 수 있었다. 오래된 로컬 좌표가 남으면 에디터 저장값과 다른 위치가 인게임에 표시된다. 인게임은 서버 저장 레이아웃/서버 캐시만 사용하도록 변경했다.
+- **[MED] 캠페인 첫 프레임 레이아웃/전환 흔들림**: 서버 레이아웃을 불러오기 전 로컬 좌표로 먼저 렌더한 뒤 다시 서버 좌표로 렌더할 수 있었다. 마지막 서버 레이아웃 캐시를 첫 프레임에 적용하고, 서버 응답이 실제로 바뀐 경우에만 재렌더하도록 했다.
+- **[LOW] 강화 확인 모달의 보유/부족 상태 가시성 부족**: GP/재료 행이 텍스트 색만 달라져 부족 자원을 놓치기 쉬웠다. OK/부족 상태에 배경과 테두리를 추가해 강화 버튼을 누른 순간 현재 보유량과 부족 자원이 명확히 보이게 했다.
+
+### 검증 완료
+- Daily OPS 레거시 참조 `rg` 0건
+- `node --check server/routes/dailyOps.js`
+- `node --check server/services/battleEngine.js`
+- `node --check server/services/battleReport.js`
+- `node --check sw.js`
+- `find server -name '*.js' -not -path '*/node_modules/*' -print0 | xargs -0 -n1 node --check`
+- `index.html`, `assets/tactical-lab-v11.html` inline script parse
+- `git diff --check`
+
+### 로컬 런타임 참고
+- `JWT_SECRET=local-dev-secret-please-change ADMIN_SECRET=admin-local RUN_SCHEDULERS=false PORT=3100 npm start`는 로컬 DB `jongho`가 없어 `database "jongho" does not exist`에서 중단된다. 코드 문법 문제가 아니라 로컬 DB 환경 문제다.
+
+## 2026-06-10 — Daily OPS 작전보드 라우팅/완료 상태 감사 반영 (v7.417)
+
+### ✅ 수정 완료
+- **[MED] 아이템/재료 계열 GO가 내 아이템으로 연결되지 않음**: 내 영토 탭의 오늘의 작전 보드에서 재료 제작 계열이 마켓 탭으로 이동해 사용자가 보유 아이템/재료를 확인할 수 없었다. 해당 계열은 `baseTabItems`로 이동하고 `loadBaseInventory()`를 즉시 호출하도록 보강했다.
+- **[MED] 완료 항목 녹색 표시 누락 가능성**: 프론트가 `completed` boolean만 신뢰해 `current >= target` 상태인 항목이 미완료처럼 보일 수 있었다. 내 영토 작전보드에서 진행도 기반 완료 판정을 같이 사용한다.
+- **[LOW] 오늘의 작전 보드 중복 표시 위험**: `OPS CONSOLE` 탭까지 Daily OPS 보드를 미러링하면 같은 보드가 두 군데서 살아나는 문제가 생긴다. Daily OPS는 `BASE > 내 영토` 단일 소스로 고정하고 OPS 콘솔 미러링을 제거했다.
+- **[MED] Daily OPS stale row 보상 수령 실패 가능성**: 서버 claim 쿼리가 `completed = TRUE`만 허용해 진행도는 목표치에 도달했지만 boolean이 stale인 행은 수령할 수 없었다. `current_count >= target_count`도 수령 가능하게 하고 수령 시 `completed`를 확정한다.
+- **[LOW] UI 변경 캐시 잔존 위험**: Service Worker 캐시를 `mars-v86`으로 올려 작전보드 라우팅 변경이 구버전 캐시에 막히지 않게 했다.
+
+### 검증 예정/필수
+- `node --check server/routes/dailyOps.js`
+- `node --check server/services/battleEngine.js`
+- `node --check server/services/battleReport.js`
+- `node --check sw.js`
+- `index.html`, `assets/tactical-lab-v11.html` inline script parse
+- `git diff --check`
+
+## 2026-06-10 — 전술 계산/손실가치 리포트 감사 반영 (v7.416)
+
+### ✅ 수정 완료
+- **[HIGH] 전술 버튼이 승패 계산에 충분히 연결되지 않음**: 진형/기동 UI는 있었지만 일반 포격 데미지 계산에서 선택의 의미가 약했다. `computeDamage()`에 진형/기동/기함 생존 배율을 연결해 쐐기, 핀서, 방어막, 구형, 선봉방어, 전진, 후퇴, 측면, 산개, 재집결이 실제 교환비를 바꾸게 했다.
+- **[MED] 기함 시스템의 전투 영향 부족**: 기함 격침 이벤트는 있었지만 전투 품질 변화가 약했다. 기함 생존 여부가 공격/방어 배율에 반영되도록 했다.
+- **[MED] 재집결/방어막의 장기전 의미 부족**: 수리함 효율에 `rally`/`screen` 보너스를 부여해 방어적 기동이 장기전 선택지로 기능하게 했다.
+- **[MED] 전투 결과에서 경제 손실 체감 부족**: full-loss로 기록된 `ship_wrecks`가 리포트 카드에 노출되지 않았다. 리포트 응답에 `full_loss_ships`, `loss_value_gp`를 추가하고 결과 모달에 `자산 손실` 비교 블록을 표시한다.
+- **[LOW] 패배 분석이 경제 손실을 읽지 못함**: 손실 가치 격차가 큰 전투를 감지해 고강화/대형함 보호, 상대 저격/폭격 확인, 재건 재료 확보 추천을 추가했다.
+
+### 검증 예정/필수
+- `node --check server/services/battleEngine.js`
+- `node --check server/services/battleReport.js`
+- `node --check sw.js`
+- `index.html`, `assets/tactical-lab-v11.html` inline script parse
+- `git diff --check`
+
+## 2026-06-10 — 함대 지휘/전투 리포트 UX 감사 반영 (v7.415)
+
+### ✅ 수정 완료
+- **[MED] 전술 버튼의 효과/리스크가 숨겨짐**: Fleet Command의 진형/기동 버튼은 눌러도 무엇이 강해지고 무엇이 약해지는지 즉시 알기 어려웠다. 현재 선택된 진형/기동 설명을 버튼 아래에 고정 표시한다.
+- **[MED] 출격 전 편성 약점 파악 부족**: 함선 수량만 보이고 기함 미지정, 지원함 부재, 대형함 호위 부족, 대형함 카운터 부재 같은 실전 약점이 보이지 않았다. `DOCTRINE CHECK`를 추가해 현재 함대 기준 경고를 표시한다.
+- **[LOW] 결과 리포트에서 역할 구도 비교 부족**: 패인 문장은 나오지만 내 역할 조합과 상대 역할 조합이 직접 비교되지 않았다. 전투 리포트에 태클/전자전/DPS/탱커/저격/폭격/로지 비교표를 추가했다.
+- **[LOW] UI 변경 캐시 잔존 위험**: 프론트/CSS 변경이 서비스워커 캐시에 묶일 수 있어 `sw.js` 캐시 버전을 `mars-v85`로 갱신했다.
+
+### 검증 예정/필수
+- `node --check server/services/battleEngine.js`
+- `node --check server/services/battleReport.js`
+- `index.html`, `assets/tactical-lab-v11.html` inline script parse
+- `git diff --check`
+
+## 2026-06-09 — 함대전 스킬/리포트/연출 정합 감사 (v7.414)
+
+### ✅ 수정 완료
+- **[HIGH] 기함 격침 데미지 중복 집계**: 모든 격침이 `ship_destroyed`로 기록되고 기함은 추가 `flagship_destroyed`도 남기므로, 리포트 데미지 집계가 두 이벤트를 모두 더하면 기함 피해가 과대 표시될 수 있었다. 데미지 집계는 `ship_destroyed`만 사용하도록 제한했다.
+- **[MED] 미사일 표적 우선순위 역전**: 수동 미사일 정렬 방향을 보정해 프리깃/저HP 다수 타격 역할이 실제로 반영되게 했다.
+- **[MED] 수동 스킬/수리 이벤트 가시성 부족**: `manual_skill`, `repair_pulse`, `event_stats`를 통해 빔포/미사일/EMP/수리 사용량이 결과 리포트에 표시되게 했다.
+- **[MED] 전술랩 연출 체감 부족**: 화성 배경 밝기를 올리고 수동 빔/미사일 TTL을 늘려 스킬 사용 순간이 더 오래 보이게 했다.
+
+### 검증 예정/필수
+- `node --check server/services/battleEngine.js`
+- `node --check server/services/battleReport.js`
+- `index.html`, `assets/tactical-lab-v11.html` inline script parse
+- `git diff --check`
+
 ## 2026-06-09 — MMO 경제/영토/함대 거래 흐름 재검수 반영 (v7.412)
 
 ### ✅ 수정 완료
@@ -5598,6 +5680,17 @@ cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
 - 플레이어: status, beacons, capsules, banners, graffiti, vtag, journals, milestones, highlights, ratings, tombstones
 - 경제: stakes, polls, wagers, contests, donations, broadcasts, expeditions, raffles
 - 미니게임: lottery, dividends, news, crafting
+
+## 2026-06-09 v7.413 — P1 전투 피드백 검수
+
+### 🟢 수정 완료
+- 전투 결과 리포트가 단순 화력/손실률만 보던 상태에서 role/함급/전자전/기함 이벤트까지 분석하도록 확장됨.
+- 결과 모달은 `analysis_items`를 여러 줄 카드로 표시해 유저가 "왜 졌는지"를 더 구체적으로 읽을 수 있음.
+- 패배/무승부 시 `recommendation_items` 기반 개선 추천을 표시함.
+
+### 🟡 남은 검수 포인트
+- 실제 운영 DB의 과거 전투는 이벤트 payload가 부족할 수 있으므로, 리포트는 기존 `analysis_ko` fallback을 유지한다.
+- 다음 단계는 `docs/CLAUDE_COMPETITIVE_LOOP_IMPLEMENTATION_ORDER_2026-05-05.md` 기준 Daily OPS/Field Rating/Battle Hub 순서로 진행한다.
 
 ## 🟢 의도된 레이어드 아키텍처 (병합 불필요)
 - chronicle + chronicleEnhanced (base + Discord wrapper)

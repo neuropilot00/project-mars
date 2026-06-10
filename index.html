@@ -2238,11 +2238,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .gc-body{padding:16px 20px 12px;color:var(--tx);font-size:12px;line-height:1.6;font-family:var(--fn)}
 .gc-info{margin:0 20px 16px;padding:10px 12px;border-radius:8px;
   background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.18)}
-.gc-info .gc-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:10px;font-family:var(--fn)}
+.gc-info .gc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 8px;margin:3px 0;border-radius:6px;font-size:10px;font-family:var(--fn);border:1px solid transparent}
 .gc-info .gc-row .gc-k{color:var(--tx3);letter-spacing:1px}
 .gc-info .gc-row .gc-v{font-weight:700}
-.gc-info .gc-row.gc-insufficient .gc-v{color:var(--red)}
-.gc-info .gc-row.gc-ok .gc-v{color:var(--gn)}
+.gc-info .gc-row.gc-insufficient{background:rgba(239,83,80,.12);border-color:rgba(239,83,80,.34)}
+.gc-info .gc-row.gc-insufficient .gc-k,.gc-info .gc-row.gc-insufficient .gc-v{color:#ffb3b3}
+.gc-info .gc-row.gc-ok{background:rgba(76,175,80,.10);border-color:rgba(129,199,132,.30)}
+.gc-info .gc-row.gc-ok .gc-k,.gc-info .gc-row.gc-ok .gc-v{color:#9be7a0}
 .gc-actions{display:flex;gap:8px;padding:0 20px 18px}
 .gc-btn{flex:1;padding:11px 14px;border-radius:8px;font-family:var(--fn);font-size:11px;
   letter-spacing:1.5px;cursor:pointer;font-weight:700;transition:all .15s;border:1px solid}
@@ -3600,6 +3602,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .tactic-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
 .tactic-btn.active { background: rgba(79,195,247,.15); border-color: rgba(79,195,247,.5); color: #4fc3f7; }
 .tactic-btn[disabled] { opacity: .4; cursor: not-allowed; }
+.tactic-desc {
+  max-width: 430px;
+  padding: 5px 7px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 5px;
+  background: rgba(255,255,255,.025);
+  color: rgba(255,255,255,.58);
+  font-size: 8px;
+  line-height: 1.45;
+}
 .fleet-ships-header {
   display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
 }
@@ -3796,6 +3808,38 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background: rgba(79,195,247,.07); border: 1px solid rgba(79,195,247,.15);
   font-size: 9px; line-height: 1.45; color: rgba(223,244,255,.78);
 }
+.fleet-advice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+}
+.fleet-advice {
+  padding: 6px 7px;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.025);
+}
+.fleet-advice strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 8px;
+  letter-spacing: .8px;
+}
+.fleet-advice span {
+  display: block;
+  color: rgba(255,255,255,.62);
+  font-size: 8px;
+  line-height: 1.45;
+}
+.fleet-advice.good { border-color: rgba(102,187,106,.35); background: rgba(102,187,106,.06); }
+.fleet-advice.good strong { color: #9be99b; }
+.fleet-advice.info { border-color: rgba(79,195,247,.26); background: rgba(79,195,247,.055); }
+.fleet-advice.info strong { color: #8fdcff; }
+.fleet-advice.warning { border-color: rgba(255,211,106,.35); background: rgba(255,211,106,.06); }
+.fleet-advice.warning strong { color: #ffd36a; }
+.fleet-advice.danger { border-color: rgba(239,83,80,.38); background: rgba(239,83,80,.065); }
+.fleet-advice.danger strong { color: #ff8a80; }
 .fs-card {
   background: rgba(255,255,255,.02); border: 2px solid rgba(255,255,255,.06);
   border-radius: 6px; padding: 7px 9px; cursor: pointer; position: relative; transition: background .1s, border-color .1s, box-shadow .1s;
@@ -21762,7 +21806,7 @@ function setLang(lang){
   try{ if(typeof showSeasonGuide==='function' && _seasonData) showSeasonGuide(_seasonData); }catch(_e){}
   try{ if(typeof loadSeasonLeaderboard==='function') loadSeasonLeaderboard(); }catch(_e){}
   try{ if(typeof renderInlineCheckin==='function') renderInlineCheckin(); }catch(_e){}
-  try{ if(typeof renderDailyOpsBoard==='function') renderDailyOpsBoard(); }catch(_e){}
+  try{ if(typeof loadOpsCommandBoard==='function') loadOpsCommandBoard(); }catch(_e){}
   try{ if(typeof renderDailyMissions==='function' && _dailyState && _dailyState.missions.length) renderDailyMissions(); }catch(_e){}
   try{ if(typeof loadQuests==='function' && walletState && walletState.address) loadQuests(walletState.address); }catch(_e){}
   // Re-render locale-sensitive dynamic content
@@ -27319,6 +27363,15 @@ function _opsClickTab(tabId) {
   if (btn) { btn.click(); return true; }
   return false;
 }
+function _opsOpenBaseTab(tabId, afterOpen) {
+  try { openBaseModal(); } catch(_) {}
+  setTimeout(function(){
+    var clicked = _opsClickTab(tabId);
+    if (clicked && typeof afterOpen === 'function') {
+      try { afterOpen(); } catch(_) {}
+    }
+  }, 120);
+}
 window.opsMissionGo = function(type) {
   try {
     // ─ 영토 채굴/업그레이드/이미지: 실제 동작은 화성 지도(글로브)에서 한다.
@@ -27346,9 +27399,9 @@ window.opsMissionGo = function(type) {
       }, 280);
     // ─ 전투 계열 → PvP 탭 (.click 으로 로더 포함 발동) ─
     } else if (['battle_participate','battle_win','battle_participate_3','battle_win_3','battle_forfeit'].includes(type)) {
-      _opsClickTab('baseTabPvp');
+      _opsOpenBaseTab('baseTabPvp');
     } else if (['ai_battle','ai_battle_3'].includes(type)) {
-      _opsClickTab('baseTabPvp');
+      _opsOpenBaseTab('baseTabPvp');
       try { setTimeout(function(){ if (typeof openAiFight === 'function') openAiFight(); }, 450); } catch(_) {}
     // ─ 함선/함대 계열 → 조선소 / 함대지휘 ─
     } else if (['upgrade_ship','upgrade_ship_3','upgrade_ship_5','build_ship','repair_ship','repair_ship_3'].includes(type)) {
@@ -27356,12 +27409,17 @@ window.opsMissionGo = function(type) {
     } else if (type === 'fleet_formation') {
       try { openFleetCmd(); } catch(_) {}
     // ─ 경제 계열 → 마켓 탭 ─
-    } else if (['craft_resource','craft_resource_3','craft_resource_5','market_list','market_buy','market_activity'].includes(type)) {
-      _opsClickTab('baseTabMarket');
+    } else if (['craft_resource','craft_resource_3','craft_resource_5'].includes(type)) {
+      _opsOpenBaseTab('baseTabItems', function(){
+        try { if (typeof loadBaseInventory === 'function') loadBaseInventory(); } catch(_) {}
+        try { showToast(tl('Check your resource inventory here','보유 재료는 여기서 확인하세요','所持素材はここで確認できます','在这里查看你的资源库存'), 'info'); } catch(_) {}
+      });
+    } else if (['market_list','market_buy','market_activity'].includes(type)) {
+      _opsOpenBaseTab('baseTabMarket', function(){ try { if (typeof loadMarketTab === 'function') loadMarketTab(); } catch(_) {} });
     // ─ 캠페인 계열 → CAMPAIGN/QUESTS 탭. (이전엔 존재하지 않는 'quests' 카테고리를
     //   switchBaseCat 에 넘겨 모든 탭이 숨겨지며 이동이 깨졌다. 실제 탭 data-cat 은 'mission'.) ─
     } else if (['campaign_progress','campaign_complete'].includes(type)) {
-      _opsClickTab('baseTabQuests');
+      _opsOpenBaseTab('baseTabQuests');
     // ─ 자동 완료 (로그인 확인 등) ─
     } else if (type === 'daily_login') {
       showToast(LANG==='ko'?'오늘 로그인 확인! 자동 완료됩니다.':LANG==='ja'?'今日のログイン確認！自動完了します。':LANG==='zh'?'今日登录确认！自动完成。':'Daily login confirmed! Auto-completing.');
@@ -27417,8 +27475,11 @@ async function loadOpsCommandBoard() {
     missions.forEach(function(m, idx) {
       var label = LANG==='ko' ? m.label_ko : m.label_en;
       var dest = LANG==='ko' ? (m.dest_ko || '') : (m.dest_en || '');
-      var dot = (m.completed || m.reward_claimed) ? '🟢' : '⚪';
-      var labelColor = m.reward_claimed ? 'var(--gn)' : (m.completed ? 'var(--gold)' : 'var(--tx)');
+      var target = Math.max(1, parseInt(m.target, 10) || 1);
+      var current = parseInt(m.current, 10) || 0;
+      var done = !!(m.completed || m.reward_claimed || current >= target || Number(m.progress_pct) >= 100);
+      var dot = done ? '🟢' : '⚪';
+      var labelColor = m.reward_claimed ? 'var(--gn)' : (done ? 'var(--gold)' : 'var(--tx)');
 
       var rewardStr;
       if (m.type === 'harvest_pp' && expectedPP > 0) {
@@ -27432,7 +27493,7 @@ async function loadOpsCommandBoard() {
       var rightBtn;
       if (m.reward_claimed) {
         rightBtn = '<span style="font-size:9px;color:var(--gn)">✓ '+(LANG==='ko'?'수령완료':LANG==='ja'?'受取済':LANG==='zh'?'已领取':'Claimed')+'</span>';
-      } else if (m.completed) {
+      } else if (done) {
         rightBtn = '<button type="button" onclick="claimDailyOps(' + m.id + ')" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.45);color:var(--gn);cursor:pointer;font-family:var(--fn)">+' + m.reward_gp + ' GP '+(LANG==='ko'?'수령':LANG==='ja'?'受取':LANG==='zh'?'领取':'Claim')+'</button>';
       } else {
         rightBtn = '<button type="button" onclick="opsMissionGo(\'' + m.type + '\')" style="font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx2);cursor:pointer;font-family:var(--fn)">GO →</button>';
@@ -27497,93 +27558,18 @@ async function loadOpsCommandBoard() {
 
     if (weeklyEl) weeklyEl.innerHTML = weeklyHtml;
 
-    // 수령 가능한 미션 있으면 OPS 탭 dot
-    var hasClaimable = missions.some(function(m){ return m.completed && !m.reward_claimed; });
-    if (hasClaimable) { try { setBaseTabDot('ops', true); } catch(_){} }
-
-    // OPS 탭 기존 보드도 갱신
-    try { _refreshOpsTabBoard(data); } catch(_) {}
+    // Daily OPS board is single-source in BASE > 내 영토.
+    // Put claimable status on the territory tab, not the separate OPS mission console.
+    var hasClaimable = missions.some(function(m){
+      var target = Math.max(1, parseInt(m.target, 10) || 1);
+      var current = parseInt(m.current, 10) || 0;
+      return (m.completed || current >= target || Number(m.progress_pct) >= 100) && !m.reward_claimed;
+    });
+    if (hasClaimable) { try { setBaseTabDot('territory', true); } catch(_){} }
 
   } catch(err) {
     if (el) el.innerHTML = '<div style="font-size:10px;color:var(--tx3)">'+(LANG==='ko'?'OPS Board 로딩 실패':LANG==='ja'?'OPS Boardの読み込み失敗':LANG==='zh'?'OPS Board加载失败':'OPS Board failed to load')+'</div>';
   }
-}
-
-function _refreshOpsTabBoard(data) {
-  // OPS 탭의 기존 dailyOpsBoard도 같은 데이터로 갱신
-  var el = document.getElementById('dailyOpsMissions');
-  var claimAllBtn = document.getElementById('dailyOpsClaimAll');
-  var weeklyEl = document.getElementById('dailyOpsWeeklyEvent');
-  if (!el) return;
-
-  var missions = data.missions || [];
-  var we = data.weekly_event;
-
-  if (we && weeklyEl) {
-    weeklyEl.innerHTML = '<span style="font-size:14px">' + (we.icon||'') + '</span> <span style="color:var(--gold)">' + (LANG==='ko' ? we.label_ko : we.label_en) + '</span>';
-  }
-
-  // ✅ 7일 이벤트 캘린더 스트립
-  var calEl = document.getElementById('dailyOpsWeekCalendar');
-  if (calEl && !calEl._loaded) {
-    fetch('/api/daily-ops/weekly-events').then(function(r){ return r.json(); }).then(function(wd){
-      if (!wd.success || !wd.week) return;
-      var todayDow = wd.today_dow;
-      calEl.innerHTML = wd.week.map(function(ev){
-        var isToday = ev.day === todayDow;
-        var hasEvent = ev.type !== null;
-        var bg = isToday
-          ? 'linear-gradient(135deg,rgba(91,184,232,.22),rgba(91,184,232,.12))'
-          : hasEvent ? 'rgba(255,215,0,.06)' : 'rgba(255,255,255,.03)';
-        var border = isToday ? '1px solid rgba(91,184,232,.6)' : hasEvent ? '1px solid rgba(255,215,0,.25)' : '1px solid rgba(255,255,255,.08)';
-        var iconSize = hasEvent ? '13px' : '10px';
-        return '<div style="flex:1;min-width:0;border-radius:5px;background:' + bg + ';border:' + border + ';padding:4px 2px;text-align:center;position:relative">'
-          + (isToday ? '<div style="position:absolute;top:1px;right:2px;width:4px;height:4px;background:var(--cyan);border-radius:50%"></div>' : '')
-          + '<div style="font-size:' + iconSize + ';line-height:1.4">' + (ev.icon || '—') + '</div>'
-          + (hasEvent ? '<div style="font-size:6px;color:rgba(255,215,0,.8);line-height:1.1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 1px">' + (LANG==='ko'?ev.label_ko:ev.label_en).replace(/[-–]\s*/g,'').split(' ').slice(0,2).join(' ') + '</div>' : '')
-          + '</div>';
-      }).join('');
-      calEl._loaded = true;
-    }).catch(function(){});
-  }
-
-  if (missions.length === 0) {
-    el.innerHTML = '<div style="color:var(--tx3);font-size:10px">' + t('daily_ops_no_missions') + '</div>';
-    return;
-  }
-
-  var hasClaimable = missions.some(function(m){ return m.completed && !m.reward_claimed; });
-  var allClaimed = missions.every(function(m){ return m.reward_claimed; });
-
-  if (allClaimed) {
-    el.innerHTML = '<div style="color:var(--gn);font-size:10px;text-align:center;padding:8px">' + t('daily_ops_all_claimed') + '</div>';
-    if (claimAllBtn) claimAllBtn.style.display = 'none';
-    return;
-  }
-
-  el.innerHTML = missions.map(function(m) {
-    var label = LANG==='ko' ? m.label_ko : m.label_en;
-    var pct = m.progress_pct;
-    var barCol = m.completed ? 'var(--gn)' : 'var(--cyan)';
-    var statusLabel = m.reward_claimed
-      ? '<span style="color:var(--tx3);font-size:9px">' + t('daily_ops_claimed') + '</span>'
-      : m.completed
-        ? '<button onclick="claimDailyOps(' + m.id + ')" style="padding:3px 10px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.4);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn)">' + t('daily_ops_claim') + ' +' + m.reward_gp + ' GP</button>'
-        : '<span style="color:var(--gold);font-size:9px">+' + m.reward_gp + ' GP</span>';
-    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
-      + '<div style="flex:1">'
-      + '<div style="font-size:10px;color:' + (m.completed ? 'var(--gn)' : 'var(--tx)') + ';margin-bottom:3px">'
-      + (m.completed ? '✓ ' : '') + label + '</div>'
-      + '<div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden">'
-      + '<div style="height:100%;width:' + pct + '%;background:' + barCol + ';transition:width .4s;border-radius:2px"></div>'
-      + '</div>'
-      + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">' + m.current + '/' + m.target + '</div>'
-      + '</div>'
-      + '<div style="flex:0 0 auto">' + statusLabel + '</div>'
-      + '</div>';
-  }).join('');
-
-  if (claimAllBtn) claimAllBtn.style.display = hasClaimable ? '' : 'none';
 }
 
 async function loadDailyOpsBoard() {
@@ -30391,14 +30377,16 @@ function showCampaignStory(chapter){
     ev.stopPropagation();
     abandonCampaignFromStory();
   });
-  // 즉시 렌더하되, 로컬 에디터 레이아웃이 있으면 첫 프레임부터 적용한다.
-  var localLayout=_campaignLocalEditorLayout();
-  if(localLayout) _campaignEditorLayout=_campaignComposeEditorLayout(_campaignEditorLayout,localLayout);
+  // 인게임은 서버에 저장된 에디터 레이아웃만 신뢰한다. 에디터 localStorage는
+  // 같은 브라우저의 오래된 좌표를 되살릴 수 있어 게임 화면에서는 사용하지 않는다.
+  var cachedServerLayout=_campaignCachedServerEditorLayout();
+  if(cachedServerLayout) _campaignEditorLayout=_campaignComposeEditorLayout(cachedServerLayout,null);
   renderCampaignScene();
   fetch('/api/campaign/editor-layout?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
     if(d&&typeof d==='object'){
       var before=JSON.stringify(_campaignEditorLayout||{});
-      _campaignEditorLayout=_campaignComposeEditorLayout(d,_campaignLocalEditorLayout());
+      _campaignStoreServerEditorLayout(d);
+      _campaignEditorLayout=_campaignComposeEditorLayout(d,null);
       if(document.querySelector('.story-overlay')&&JSON.stringify(_campaignEditorLayout||{})!==before){
         renderCampaignScene();
       }
@@ -30521,6 +30509,25 @@ function _campaignLocalEditorLayout(){
     if(updatedAt) payload.updatedAt=updatedAt;
     return Object.keys(payload).length?payload:null;
   }catch(_){return null;}
+}
+
+function _campaignCachedServerEditorLayout(){
+  try{
+    var raw=sessionStorage.getItem('campaignEditorServerLayout')||localStorage.getItem('campaignEditorServerLayout')||'';
+    if(!raw) return null;
+    var parsed=JSON.parse(raw);
+    return parsed&&typeof parsed==='object'?parsed:null;
+  }catch(_){return null;}
+}
+
+function _campaignStoreServerEditorLayout(layout){
+  try{
+    if(layout&&typeof layout==='object'){
+      var raw=JSON.stringify(layout);
+      sessionStorage.setItem('campaignEditorServerLayout',raw);
+      localStorage.setItem('campaignEditorServerLayout',raw);
+    }
+  }catch(_){}
 }
 
 function _campaignLayoutPick(obj,names){
@@ -38302,7 +38309,7 @@ function markDailyOpsAction(type, amount){
   if (type === 'login_check') task.current = 1;
   _saveDailyOpsState(state);
   _syncDailyOpsWeekProgress(state);
-  renderDailyOpsBoard();
+  try{ loadOpsCommandBoard(); }catch(_e){}
 }
 function openOpsRewardInventory(){
   openBaseModal();
@@ -38323,94 +38330,6 @@ function openOpsRewardInventory(){
     } catch(_e) {}
   }, 80);
 }
-function openDailyOpsRoute(route){
-  if (route === 'ai_practice') {
-    openBaseModal();
-    switchBaseTab('pvp', document.getElementById('baseTabPvp'));
-    setTimeout(function(){ try { openAiFight(); } catch(_e) {} }, 50);
-    return;
-  }
-  if (route === 'territory_harvest') {
-    openBaseModal();
-    switchBaseTab('mining', document.getElementById('baseTabMining'));
-    return;
-  }
-  if (route === 'ship_upgrade') {
-    openShipyard();
-    return;
-  }
-  if (route === 'my_items') {
-    openOpsRewardInventory();
-    return;
-  }
-}
-function renderDailyOpsBoard(){
-  var panel = document.getElementById('dailyOpsBoardPanel');
-  if (!panel) return;
-  var state = _loadDailyOpsState();
-  _saveDailyOpsState(state);
-  var week = _syncDailyOpsWeekProgress(state);
-  var weekCount = Object.keys(week.completedDates || {}).length;
-  var now = new Date();
-  var nextReset = new Date();
-  nextReset.setHours(24, 0, 0, 0);
-  var diff = Math.max(0, nextReset.getTime() - now.getTime());
-  var hh = String(Math.floor(diff / 3600000)).padStart(2, '0');
-  var mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-  var ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-  var tasks = [
-    { key:'ai_practice', title:'AI 연습전 참여 1회', hint:'→ PvP → AI 연습전', route:'ai_practice', button:'GO →' },
-    { key:'login_check', title:'오늘 로그인 확인', hint:'→ 자동 완료' },
-    { key:'territory_harvest', title:'영토 채굴 1회', hint:'→ 내 영토 → 채굴', route:'territory_harvest', button:'GO →' },
-    { key:'ship_upgrade', title:'함선 강화 1회', hint:'→ 조선소', route:'ship_upgrade', button:'GO →' }
-  ];
-  var rows = tasks.map(function(item){
-    var task = state.tasks[item.key];
-    var done = _isDailyOpsTaskComplete(task);
-    var circleBg = done ? 'radial-gradient(circle at 30% 30%, #79ff9e, #0db44d 70%)' : '#f1f3f5';
-    var circleGlow = done ? '0 0 10px rgba(76,216,154,.45)' : 'none';
-    var buttonHtml = item.route
-      ? '<button onclick="openDailyOpsRoute(\''+item.route+'\')" style="min-width:94px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);color:'+(done?'#9be7a0':'#d3b48a')+';font-family:var(--fn);font-size:10px;font-weight:800;letter-spacing:.6px;cursor:pointer">'+item.button+'</button>'
-      : '<div style="font-size:10px;color:'+(done?'#9be7a0':'var(--tx3)')+';font-family:var(--fn);font-weight:700">'+(done?'완료':'대기')+'</div>';
-    return '<div style="display:flex;align-items:center;gap:12px;padding:14px 8px;border-top:1px solid rgba(255,255,255,.06)">' +
-      '<span style="width:22px;height:22px;border-radius:50%;display:inline-block;background:'+circleBg+';box-shadow:'+circleGlow+';flex:0 0 22px"></span>' +
-      '<div style="flex:1;min-width:0">' +
-        '<div style="font-size:14px;color:var(--tx);font-weight:800;line-height:1.2">'+item.title+'</div>' +
-        '<div style="font-size:10px;color:var(--tx3);margin-top:4px">'+item.hint+'</div>' +
-      '</div>' +
-      '<div style="display:flex;align-items:center;justify-content:flex-end">'+buttonHtml+'</div>' +
-    '</div>';
-  }).join('');
-  var weekBars = '';
-  for (var i = 0; i < 7; i++) {
-    var filled = i < weekCount;
-    weekBars += '<div style="height:16px;border-radius:3px;background:'+(filled?'linear-gradient(90deg,#30d86e,#1eb656)':'rgba(255,255,255,.08)')+';border:'+(filled?'1px solid rgba(76,216,154,.45)':'1px solid rgba(255,209,102,.22)')+'"></div>';
-  }
-  panel.innerHTML =
-    '<div style="border:1px solid rgba(91,184,232,.35);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,rgba(9,18,32,.92),rgba(8,12,22,.96));box-shadow:0 12px 30px rgba(0,0,0,.22)">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(91,184,232,.26)">' +
-        '<div style="font-size:14px;color:var(--cyan);font-weight:900;letter-spacing:.4px">📋 오늘의 작전 보드</div>' +
-        '<div style="font-size:10px;color:var(--gold);font-family:var(--fn);font-weight:800">리셋까지 '+hh+':'+mm+':'+ss+'</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:18px;padding:10px 18px 2px;color:var(--tx2);font-size:10px;font-family:var(--fn)">' +
-        '<span><span style="display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;background:radial-gradient(circle at 30% 30%, #79ff9e, #0db44d 70%);box-shadow:0 0 8px rgba(76,216,154,.45);margin-right:6px"></span>완료</span>' +
-        '<span><span style="display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;background:#f1f3f5;margin-right:6px"></span>미완료</span>' +
-        '<span><span style="display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;background:radial-gradient(circle at 30% 30%, #ff8a8a, #df2626 70%);box-shadow:0 0 8px rgba(232,72,85,.35);margin-right:6px"></span>긴급</span>' +
-      '</div>' +
-      '<div style="padding:0 18px 6px">' + rows + '</div>' +
-      '<div style="border-top:1px solid rgba(255,255,255,.06);padding:12px 18px 16px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-          '<div style="font-size:10px;color:var(--tx3)">이번 주 완료일</div>' +
-          '<div style="font-size:12px;color:var(--cyan);font-family:var(--fn);font-weight:800">'+weekCount+' / 7일</div>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:10px">' + weekBars + '</div>' +
-        '<button onclick="openDailyOpsRoute(\'my_items\')" style="width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.22);color:var(--gold);font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer;text-align:left">' +
-          '<span style="font-size:16px">🎁</span><span>이번 주 보상: 주간 OPS 보상 팩</span>' +
-        '</button>' +
-      '</div>' +
-    '</div>';
-}
-
 // ── Claim Daily Login ──
 function claimDailyLogin(){
   if(!emailAuth.token || !walletState.address) { showToast(t('daily_login_required')); return; }
@@ -38449,7 +38368,6 @@ function claimDailyLogin(){
     try{_sfx.harvest()}catch(e){}
     renderInlineCheckin();
     updateDailyHudDot();
-    renderDailyOpsBoard();
     try{ loadOpsCommandBoard(); }catch(_ops){}
     try{ loadDailyOpsBoard(); }catch(_dops){}
     try{ refreshEmailBalances(); }catch(_rb){}
@@ -38468,7 +38386,6 @@ var _defaultMissions = [
 ];
 
 function loadDailyMissions(){
-  try{ renderDailyOpsBoard(); }catch(_e){}
   if(!emailAuth.token) return;
   document.getElementById('dailyMissionsPanel').style.display = '';
 
@@ -50747,6 +50664,78 @@ function fleetGapGoShipyard() {
   try { openShipyard(); } catch(_){}
 }
 
+function fleetTacticBrief(type, code, info) {
+  var c = String(code || '').toLowerCase();
+  var formation = {
+    wedge: tl('Breakthrough damage up, but side exposure is high. Use with escorts.', '돌파 화력은 강하지만 측면이 비기 쉽습니다. 호위함과 같이 써야 합니다.', '突破火力は高いが側面が空きます。護衛と併用。', '突破火力强，但侧翼容易空。需要护卫。'),
+    screen: tl('Protects flagship/support ships. Damage is spread and kills are slower.', '기함/지원함 보호에 좋습니다. 대신 화력이 분산되어 처치 속도는 느립니다.', '旗艦/支援艦保護向き。火力は分散します。', '适合保护旗舰/支援舰，但火力会分散。'),
+    pincer: tl('Good for surrounding slow fleets. Weak while spreading out.', '느린 함대를 포위하기 좋습니다. 전개 중에는 빈틈이 생깁니다.', '低速艦隊包囲向き。展開中に隙が出ます。', '适合包围慢速舰队，展开时有破绽。'),
+    sphere: tl('Balanced flagship protection. Low finishing pressure.', '기함 보호와 균형은 좋지만 결정타 압박이 낮습니다.', '旗艦保護と均衡重視。決定力は低め。', '旗舰保护和均衡较好，但终结能力较低。'),
+    line: tl('Strong front volley. Vulnerable to flank and splash pressure.', '전방 일제사격이 강합니다. 측면/광역 압박에 취약합니다.', '正面斉射が強い。側面/範囲攻撃に弱い。', '正面齐射强，怕侧翼/范围压制。'),
+    echelon: tl('Creates side angle. Center protection is weaker.', '측면 사격각을 만들지만 중앙 보호가 약합니다.', '側面射角を作るが中央保護が弱い。', '能制造侧翼角度，但中央保护弱。'),
+    vanguard: tl('Box guard for valuable ships. Slower to reposition.', '비싼 함선을 감싸기 좋습니다. 재배치 속도는 느립니다.', '高価値艦保護向き。再配置は遅い。', '适合保护高价值舰，重新部署较慢。')
+  };
+  var movement = {
+    advance: tl('Closes distance and forces trades. Higher loss risk.', '거리를 좁혀 교전을 강제합니다. 손실 위험이 커집니다.', '距離を詰めて交戦強制。損失リスク増。', '拉近距离强制交战，损失风险上升。'),
+    retreat: tl('Preserves ships and kites. Lower pressure.', '함선을 보존하며 거리를 벌립니다. 압박은 낮아집니다.', '艦船保全と距離確保。圧力は低下。', '保船并拉开距离，压制力下降。'),
+    flank: tl('Seeks side angle. Formation can stretch.', '측면각을 노립니다. 진형이 길게 늘어질 수 있습니다.', '側面角を狙う。陣形が伸びやすい。', '寻求侧翼角度，阵型可能拉长。'),
+    flank_left: tl('Left flank pressure. Watch isolated small ships.', '좌측 우회 압박입니다. 고립되는 소형함을 봐야 합니다.', '左翼圧力。孤立小型艦に注意。', '左翼压制，注意孤立小船。'),
+    flank_right: tl('Right flank pressure. Watch isolated small ships.', '우측 우회 압박입니다. 고립되는 소형함을 봐야 합니다.', '右翼圧力。孤立小型艦に注意。', '右翼压制，注意孤立小船。'),
+    scatter: tl('Reduces splash/beam value. Focus fire becomes weaker.', '광역/빔 피해를 줄입니다. 집중화력은 약해집니다.', '範囲/ビーム被害を抑える。集中火力は低下。', '降低范围/光束收益，但集火变弱。'),
+    rally: tl('Regroups damaged formation. Gives up tempo while gathering.', '흩어진 진형을 재집결합니다. 모이는 동안 템포를 내줍니다.', '崩れた陣形を再集結。集合中はテンポを失う。', '重新集结阵型，集结期间会丢节奏。')
+  };
+  var text = (type === 'formation' ? formation[c] : movement[c]);
+  return text || (info && (info.desc_ko || info.desc || info.name_ko)) || '-';
+}
+
+function fleetDoctrineAdviceHtml(f, counts, roles) {
+  var ships = (f && f.ships) || [];
+  var total = ships.length;
+  var adv = [];
+  function push(level, title, text) {
+    adv.push({ level: level, title: title, text: text });
+  }
+  var support = (roles.ewar || 0) + (roles.logi || 0);
+  var finishers = (roles.dps || 0) + (roles.sniper || 0) + (roles.bomb || 0);
+  var antiCapital = (roles.sniper || 0) + (roles.bomb || 0);
+  var capitals = (counts.battleship || 0) + (counts.titan || 0);
+  var smalls = counts.frigate || 0;
+  var hasFlagship = ships.some(function(s){ return !!s.is_flagship; });
+  var formation = String((f && f.formation) || '').toLowerCase();
+  var movement = String((f && f.movement) || '').toLowerCase();
+
+  if (!total) {
+    push('danger', tl('No ships', '함선 없음', '艦船なし', '无舰船'), tl('Add ships before deployment.', '출격 전에 함선을 편입해야 합니다.', '出撃前に艦船を追加してください。', '部署前需要加入舰船。'));
+  }
+  if (total && !hasFlagship) {
+    push('danger', tl('No flagship', '기함 미지정', '旗艦未指定', '未指定旗舰'), tl('Pick a durable flagship. Losing command early breaks the fleet.', '튼튼한 함선을 기함으로 지정하세요. 지휘축이 먼저 무너지면 전투가 급격히 기웁니다.', '耐久力のある旗艦を指定してください。', '请选择耐久旗舰，指挥核心早倒会快速崩盘。'));
+  }
+  if (total >= 5 && support === 0) {
+    push('warning', tl('No support layer', '지원층 없음', '支援層なし', '无支援层'), tl('No EW/Logi means long fights are inefficient.', '전자전/로지가 없어서 장기전 교환 효율이 낮습니다.', '電子戦/ロジなしでは長期戦効率が落ちます。', '没有电战/后勤，持久战效率低。'));
+  }
+  if (capitals > 0 && (roles.tackle || 0) < Math.max(1, capitals)) {
+    push('warning', tl('Capital escort low', '대형함 호위 부족', '大型艦護衛不足', '大型舰护卫不足'), tl('Add tackle/screen ships so expensive ships are not isolated.', '태클/스크린 함선을 붙여 비싼 함선이 고립되지 않게 해야 합니다.', 'タックル/スクリーン艦を追加してください。', '需要牵制/掩护舰，避免高价值舰孤立。'));
+  }
+  if (antiCapital === 0 && total >= 4) {
+    push('info', tl('Weak vs capitals', '대형함 카운터 약함', '大型艦対策弱い', '反大型较弱'), tl('Sniper or bomber roles are needed against battleships and titans.', '전함/타이탄 상대로는 저격 또는 폭격 역할이 필요합니다.', '戦艦/タイタンには狙撃または爆撃が必要です。', '对战列/泰坦需要狙击或轰炸角色。'));
+  }
+  if (smalls >= total * 0.65 && finishers <= 1) {
+    push('warning', tl('Low finishing power', '결정력 부족', '決定力不足', '终结能力不足'), tl('Small ships can catch targets, but need cruiser+ damage to finish.', '소형함은 붙잡을 수 있지만 마무리할 중형 이상 화력이 필요합니다.', '小型艦は捕捉向きだが中型以上の火力が必要。', '小船能抓目标，但需要巡洋级以上输出收割。'));
+  }
+  if (movement === 'advance' && !roles.tank && !roles.logi && total >= 4) {
+    push('warning', tl('Advance is risky', '전진 리스크 큼', '前進リスク高', '前进风险高'), tl('Advance without tank/logi can trade ships too fast.', '탱커/로지 없이 전진하면 손실 교환이 너무 빨라질 수 있습니다.', 'タンク/ロジなし前進は損失が早まります。', '无坦克/后勤前进会过快换损。'));
+  }
+  if (formation === 'wedge' && !roles.tackle && total >= 4) {
+    push('info', tl('Wedge needs pinning', '쐐기는 고정력이 필요', '楔形には拘束力が必要', '楔形需要牵制'), tl('Wedge breaks lines best when tackle keeps targets from slipping out.', '쐐기는 태클이 목표를 묶어줄 때 돌파력이 가장 좋습니다.', 'タックルで敵を固定すると楔形が活きます。', '牵制锁住目标时楔形突破最好。'));
+  }
+  if (!adv.length) {
+    push('good', tl('Doctrine looks stable', '편성 균형 양호', '編成バランス良好', '编成较均衡'), tl('Role coverage is usable. Adjust formation based on enemy composition.', '역할 커버리지는 사용 가능합니다. 상대 조합에 맞춰 진형만 바꾸면 됩니다.', 'ロールは実用範囲です。敵編成に合わせて陣形調整。', '角色覆盖可用，按敌方阵容调整阵型。'));
+  }
+  return '<div class="fleet-advice-list">' + adv.slice(0, 4).map(function(a){
+    return '<div class="fleet-advice ' + a.level + '"><strong>' + fcEsc(a.title) + '</strong><span>' + fcEsc(a.text) + '</span></div>';
+  }).join('') + '</div>';
+}
+
 // class_label 다국어 변환 (DB는 영어로 저장)
 var _CLASS_LABEL_MAP = {
   ko: {
@@ -51976,6 +51965,8 @@ function renderFleetDetail() {
   var moveBtns = movements.map(function(mv) {
     return '<button type="button" class="tactic-btn ' + (f.movement === mv.code ? 'active' : '') + '" onclick="event.preventDefault();event.stopPropagation();setFleetTactic(\'movement\',\'' + mv.code + '\')" title="' + fcEsc(mv.desc) + '">' + mv.icon + ' ' + mv.name_ko + '</button>';
   }).join('');
+  var activeFormation = formations.find(function(fm){ return fm.code === f.formation; }) || null;
+  var activeMovement = movements.find(function(mv){ return mv.code === f.movement; }) || null;
   var shipCards = (f.ships || []).length === 0
     ? '<div class="fs-empty" style="grid-column:1/-1">'+(LANG==='ko'?'이 함대에 함선이 없습니다':LANG==='ja'?'この艦隊に艦船がありません':LANG==='zh'?'此舰队没有舰船':'No ships in this fleet')+'</div>'
     : (f.ships || []).map(function(s){ return renderFcShipCard(s, inBattle); }).join('');
@@ -51989,9 +51980,9 @@ function renderFleetDetail() {
     '</div>' +
     (inBattle ? '<div style="color:#ef5350;font-size:10px;letter-spacing:1px;padding:6px 10px;background:rgba(239,83,80,.08);border-radius:4px">⚠ '+(LANG==="ko"?"전투 중 — 일부 기능 제한":LANG==="ja"?"戦闘中 — 一部機能制限":LANG==="zh"?"战斗中 — 部分功能受限":"In Battle — Limited")+'</div>' : '') +
     '<div class="tactics-panel">' +
-      '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
+      '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div><div class="tactic-desc">' + fcEsc(fleetTacticBrief('formation', f.formation, activeFormation)) + '</div></div>' +
       _spreadRow(f) +
-      '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
+      '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div><div class="tactic-desc">' + fcEsc(fleetTacticBrief('movement', f.movement, activeMovement)) + '</div></div>' +
       _autoRetreatRow(f) +
       _liveryRow(f) +
     '</div>' +
@@ -52185,6 +52176,7 @@ function renderFleetPreview(f) {
     var ri = shipRoleInfo(role);
     return '<span class="fleet-role-chip">' + ri.label + ' ×' + roles[role] + '</span>';
   }).join('');
+  var adviceHtml = fleetDoctrineAdviceHtml(f, counts, roles);
   var _accent = (f.accent_color && /^#[0-9a-fA-F]{6}$/.test(f.accent_color)) ? f.accent_color : '';
   var _spread = parseFloat(f.formation_spread) || 1;
   var boardShips = visible.map(function(s, i){
@@ -52219,6 +52211,7 @@ function renderFleetPreview(f) {
     '<div class="fleet-comp-panel">' +
       '<div class="fleet-comp-title">COMPOSITION</div>' + rows +
       '<div class="fleet-comp-title" style="margin-top:4px">ROLES</div><div class="fleet-role-strip">' + roleChips + '</div>' +
+      '<div class="fleet-comp-title" style="margin-top:4px">DOCTRINE CHECK</div>' + adviceHtml +
       '<div class="fleet-doctrine">진형과 기동을 바꾸면 왼쪽 미리보기 배치가 즉시 바뀝니다. 작은 함선은 전열, 대형함/기함은 중심축으로 읽히게 표시됩니다.</div>' +
     '</div>' +
   '</div>';
@@ -55468,28 +55461,132 @@ async function _loadBattleReport(battleId, mySide) {
         </div>`;
     }
 
-    // 🔍 패인 분석
-    let analysisHtml = '';
-    if (r.analysis_ko && mySide) {
-      const iLost = mySide && r.winner_side && mySide !== r.winner_side;
-      if (iLost) {
-        analysisHtml = `
-          <div style="margin-bottom:10px;padding:8px 10px;background:rgba(239,83,80,.06);border-left:3px solid rgba(239,83,80,.4);border-radius:0 4px 4px 0">
-            <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
-              <span>🔍</span><span>패인 분석</span>
+    // ⚡ 전술 사용 요약
+    let skillHtml = '';
+    if (mySide && r.event_stats) {
+      const es = r.event_stats || {};
+      const mine = (es.skillsUsed && es.skillsUsed[mySide]) || {};
+      const oppSide = mySide === 'atk' ? 'def' : 'atk';
+      const opp = (es.skillsUsed && es.skillsUsed[oppSide]) || {};
+      const mineRepair = Math.round((es.repairDone && es.repairDone[mySide]) || 0);
+      const oppRepair = Math.round((es.repairDone && es.repairDone[oppSide]) || 0);
+      const skillRows = [
+        ['빔포', mine.beam || 0, opp.beam || 0],
+        ['미사일', mine.missile || 0, opp.missile || 0],
+        ['EMP', mine.emp || 0, opp.emp || 0],
+        ['수리', mineRepair, oppRepair],
+      ].map(row => `<div style="display:grid;grid-template-columns:56px 1fr 1fr;gap:6px;align-items:center;font-size:10px;padding:2px 0">
+        <span style="color:rgba(255,255,255,.42)">${row[0]}</span>
+        <span style="color:#4fc3f7;text-align:right">${formatNum(row[1])}</span>
+        <span style="color:#ff8a80;text-align:right">${formatNum(row[2])}</span>
+      </div>`).join('');
+      skillHtml = `
+        <div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:5px">
+          <div style="display:grid;grid-template-columns:56px 1fr 1fr;gap:6px;font-size:9px;color:rgba(255,255,255,.36);letter-spacing:1px;margin-bottom:4px">
+            <span>⚡ 전술</span><span style="text-align:right">내 함대</span><span style="text-align:right">상대</span>
+          </div>
+          ${skillRows}
+        </div>`;
+    }
+
+    // 🧩 역할/상성 구도
+    let roleHtml = '';
+    if (mySide && r.atk && r.def) {
+      const mineSideData = mySide === 'atk' ? r.atk : r.def;
+      const oppSideData = mySide === 'atk' ? r.def : r.atk;
+      const myRoles = mineSideData.role_counts || {};
+      const oppRoles = oppSideData.role_counts || {};
+      const roleOrder = ['tackle', 'ewar', 'dps', 'tank', 'sniper', 'bomb', 'logi'];
+      const roleRows = roleOrder.filter(role => (myRoles[role] || 0) || (oppRoles[role] || 0)).map(role => {
+        const info = (typeof shipRoleInfo === 'function') ? shipRoleInfo(role) : { label: role.toUpperCase() };
+        const mineN = myRoles[role] || 0;
+        const oppN = oppRoles[role] || 0;
+        const color = mineN > oppN ? '#66bb6a' : mineN < oppN ? '#ff8a80' : 'rgba(255,255,255,.68)';
+        return `<div style="display:grid;grid-template-columns:70px 1fr 1fr;gap:6px;align-items:center;font-size:10px;padding:2px 0">
+          <span style="color:rgba(255,255,255,.42)">${escapeHtml(info.label || role)}</span>
+          <span style="color:${color};text-align:right">${mineN}</span>
+          <span style="color:rgba(255,138,128,.86);text-align:right">${oppN}</span>
+        </div>`;
+      }).join('');
+      if (roleRows) {
+        roleHtml = `
+          <div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:5px">
+            <div style="display:grid;grid-template-columns:70px 1fr 1fr;gap:6px;font-size:9px;color:rgba(255,255,255,.36);letter-spacing:1px;margin-bottom:4px">
+              <span>🧩 역할</span><span style="text-align:right">내 함대</span><span style="text-align:right">상대</span>
             </div>
-            <div style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.5">"${r.analysis_ko}"</div>
+            ${roleRows}
           </div>`;
       }
     }
 
+    // 💸 영구 손실 / 손실 가치
+    let lossValueHtml = '';
+    if (mySide && r.atk && r.def) {
+      const mineSideData = mySide === 'atk' ? r.atk : r.def;
+      const oppSideData = mySide === 'atk' ? r.def : r.atk;
+      const mineLossShips = Number(mineSideData.full_loss_ships || 0);
+      const oppLossShips = Number(oppSideData.full_loss_ships || 0);
+      const mineLossValue = Number(mineSideData.loss_value_gp || 0);
+      const oppLossValue = Number(oppSideData.loss_value_gp || 0);
+      if (mineLossShips || oppLossShips || mineLossValue || oppLossValue) {
+        lossValueHtml = `
+          <div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,213,79,.045);border:1px solid rgba(255,213,79,.18);border-radius:5px">
+            <div style="display:grid;grid-template-columns:86px 1fr 1fr;gap:6px;font-size:9px;color:rgba(255,255,255,.36);letter-spacing:1px;margin-bottom:4px">
+              <span>💸 자산 손실</span><span style="text-align:right">내 함대</span><span style="text-align:right">상대</span>
+            </div>
+            <div style="display:grid;grid-template-columns:86px 1fr 1fr;gap:6px;align-items:center;font-size:10px;padding:2px 0">
+              <span style="color:rgba(255,255,255,.42)">영구 손실</span>
+              <span style="color:${mineLossShips ? '#ff8a80' : 'rgba(255,255,255,.45)'};text-align:right">${mineLossShips}척</span>
+              <span style="color:${oppLossShips ? '#66bb6a' : 'rgba(255,255,255,.45)'};text-align:right">${oppLossShips}척</span>
+            </div>
+            <div style="display:grid;grid-template-columns:86px 1fr 1fr;gap:6px;align-items:center;font-size:10px;padding:2px 0">
+              <span style="color:rgba(255,255,255,.42)">손실 가치</span>
+              <span style="color:${mineLossValue ? '#ff8a80' : 'rgba(255,255,255,.45)'};text-align:right">${formatNum(mineLossValue)} GP</span>
+              <span style="color:${oppLossValue ? '#66bb6a' : 'rgba(255,255,255,.45)'};text-align:right">${formatNum(oppLossValue)} GP</span>
+            </div>
+          </div>`;
+      }
+    }
+
+    // 🔍 전투 분석 / 패인 분석
+    let analysisHtml = '';
+    const analysisItems = Array.isArray(r.analysis_items) && r.analysis_items.length
+      ? r.analysis_items
+      : (r.analysis_ko ? [{ severity:'info', text:r.analysis_ko }] : []);
+    if (analysisItems.length > 0 && mySide) {
+      const iLost = mySide && r.winner_side && mySide !== r.winner_side;
+      const titleText = iLost
+        ? (LANG==='ko'?'패인 분석':LANG==='ja'?'敗因分析':LANG==='zh'?'败因分析':'Loss Analysis')
+        : (LANG==='ko'?'전투 해석':LANG==='ja'?'戦闘分析':LANG==='zh'?'战斗分析':'Battle Read');
+      const borderColor = iLost ? 'rgba(239,83,80,.4)' : 'rgba(79,195,247,.4)';
+      const bgColor = iLost ? 'rgba(239,83,80,.06)' : 'rgba(79,195,247,.06)';
+      const rows = analysisItems.slice(0, 3).map(item => {
+        const sev = item.severity || 'info';
+        const dot = sev === 'critical' ? '#ef5350' : sev === 'warning' ? '#ffd54f' : '#4fc3f7';
+        return `<div style="display:flex;gap:6px;align-items:flex-start;margin-top:4px">
+          <span style="width:6px;height:6px;border-radius:50%;background:${dot};margin-top:6px;flex-shrink:0"></span>
+          <span style="font-size:10px;color:rgba(255,255,255,.72);line-height:1.5">${escapeHtml(item.text || '')}</span>
+        </div>`;
+      }).join('');
+        analysisHtml = `
+          <div style="margin-bottom:10px;padding:8px 10px;background:${bgColor};border-left:3px solid ${borderColor};border-radius:0 4px 4px 0">
+            <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
+              <span>🔍</span><span>${titleText}</span>
+            </div>
+            ${rows}
+          </div>`;
+    }
+
     // 💡 추천 개선
     let recHtml = '';
-    if (r.recommendations_ko && r.recommendations_ko.length > 0 && mySide) {
+    const recommendationItems = Array.isArray(r.recommendation_items) && r.recommendation_items.length
+      ? r.recommendation_items.map(x => x.text || '')
+      : (r.recommendations_ko || []);
+    if (recommendationItems.length > 0 && mySide) {
       const iLost = mySide && r.winner_side && mySide !== r.winner_side;
-      if (iLost) {
-        const recRows = r.recommendations_ko.map(rec =>
-          `<div style="font-size:10px;color:rgba(255,255,255,.65);padding:2px 0">→ ${rec}</div>`
+      if (iLost || r.winner_side === 'draw') {
+        const recRows = recommendationItems.slice(0, 4).map(rec =>
+          `<div style="font-size:10px;color:rgba(255,255,255,.65);padding:2px 0">→ ${escapeHtml(rec)}</div>`
         ).join('');
         recHtml = `
           <div style="margin-bottom:10px">
@@ -55546,7 +55643,7 @@ async function _loadBattleReport(battleId, mySide) {
       <button type="button" onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;padding:5px 14px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--fn)">📈 ${t('bv_my_stats')}</button>
     </div>`;
 
-    section.innerHTML = classHtml + analysisHtml + recHtml + highlightHtml + statsBtn;
+    section.innerHTML = classHtml + skillHtml + roleHtml + lossValueHtml + analysisHtml + recHtml + highlightHtml + statsBtn;
 
   } catch (_) {
     if (section) section.innerHTML = `

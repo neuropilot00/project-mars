@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-08 v5.97 (P5 Territory Stack + Daily OPS / Tactical Lab Hotfix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-10 v7.418 (Daily OPS Legacy Removal + Campaign Layout Source Fix) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,63 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.418 최신 핸드오프 — Daily OPS 레거시 보드 제거 + 캠페인 에디터 레이아웃 서버 기준화
+
+- `index.html`에서 예전 `renderDailyOpsBoard()`/`openDailyOpsRoute()` 레거시 Daily OPS 보드 구현을 제거했다. 이제 Daily OPS는 `BASE > 내 영토`의 `#opsCommandBoard`만 사용한다.
+- 언어 변경, 체크인, 미션 진행 갱신은 레거시 보드 대신 `loadOpsCommandBoard()`를 호출한다. `OPS CONSOLE`은 침공/탐사 콘솔로만 유지된다.
+- 캠페인 인게임 스토리 렌더러가 에디터 `localStorage`를 서버 저장 레이아웃보다 우선하던 경로를 제거했다. 같은 브라우저의 오래된 에디터 좌표가 인게임 위치를 덮어쓰지 않는다.
+- 인게임은 `/api/campaign/editor-layout` 서버 응답을 기준으로 캐시하고, 첫 프레임에는 마지막 서버 레이아웃 캐시만 적용한다. 서버 응답이 도착하면 캐시를 갱신하고 필요한 경우에만 다시 렌더한다.
+- `gameConfirm()` 정보 행의 OK/부족 상태를 배경/테두리까지 다르게 표시한다. 함선 강화 확인 시 GP/재료 보유량과 부족 자원이 더 명확히 보인다.
+- 검증 기준: Daily OPS 레거시 참조 `rg` 0건, `node --check` 서버 파일군, `sw.js`, `index.html`/`assets/tactical-lab-v11.html` inline script parse, `git diff --check`.
+
+### v7.417 최신 핸드오프 — 내 영토 작전보드 GO 라우팅/완료 상태 보강
+
+- `index.html` 내 영토 탭의 오늘의 작전 보드에서 재료/아이템 계열 GO가 마켓으로 빠지던 경로를 `내 아이템` 탭으로 보냈다. 보유 재료/아이템 확인은 `loadBaseInventory()`를 통해 같은 화면에서 갱신된다.
+- 작전보드 GO는 이제 필요한 경우 BASE 모달을 열고 대상 탭을 클릭한다. 숨겨진 카테고리 탭도 `switchBaseTab()`이 카테고리 표시를 동기화하므로 직접 진입 가능하다.
+- 오늘의 작전 보드는 `BASE > 내 영토`의 `#opsCommandBoard`만 단일 소스로 사용한다. `OPS CONSOLE` 탭은 침공/탐사 미션 발사 콘솔이므로 Daily OPS 보드를 미러링하지 않는다.
+- 완료 표시/수령 버튼 판정을 `completed` boolean뿐 아니라 `current >= target` 또는 `progress_pct >= 100`도 인정하도록 보강했다. 서버/프론트 상태가 잠깐 어긋나도 완료 항목에 녹색 표시와 수령 버튼이 나온다.
+- `server/routes/dailyOps.js` GET 응답도 진행도 기반 완료를 계산한다. claim 경로는 기존 stale row를 위해 `completed=true`뿐 아니라 `current_count >= target_count`도 수령 가능하게 하고, 수령 시 `completed`를 확정한다.
+- UI 변경 캐시 반영을 위해 `sw.js` 캐시를 `mars-v86`으로 올렸다.
+- 검증 기준: `node --check server/routes/dailyOps.js`, `node --check server/services/battleEngine.js`, `node --check server/services/battleReport.js`, `node --check sw.js`, `index.html`/`assets/tactical-lab-v11.html` inline script parse, `git diff --check`.
+
+### v7.416 최신 핸드오프 — 전술 버튼 실제 전투 계산 반영 + 영구 손실가치 리포트
+
+- `server/services/battleEngine.js` 일반 포격 데미지 계산에 진형/기동/기함 생존 상태 배율을 연결했다.
+  - 쐐기: 기함/돌파 압박 증가, 폭격/저격에 더 취약.
+  - 핀서/측면 기동: 산개하지 않은 상대와 라인/쐐기 상대에게 더 강함.
+  - 방어막/구형/선봉방어: 기함/대형함 보호가 좋아지지만 화력 압박은 낮아짐.
+  - 산개/후퇴/재집결: 피해 감소 또는 회복 강화 대신 화력/압박 손실.
+  - 기함이 살아 있으면 지휘 보너스를 유지하고, 기함이 죽으면 공격/방어 교환 품질이 떨어진다.
+- `processRepair()`는 `rally`와 `screen` 상태에서 수리 효율을 높인다. 기동 버튼이 단순 알림이 아니라 장기전 운영 선택이 된다.
+- `server/services/battleReport.js`가 `ship_wrecks`를 집계해 `full_loss_ships`, `loss_value_gp`를 ATK/DEF 리포트에 포함한다.
+- 패배 분석은 손실 가치 격차가 큰 전투를 별도 감지해 고강화/대형함 보호, 저격/폭격 카운터 확인, 재건 재료 확보를 추천한다.
+- `index.html` 전투 결과 리포트에 `자산 손실` 블록을 추가했다. 내 함대와 상대의 영구 손실 척수/GP 가치를 비교 표시한다.
+- 검증 기준: `node --check server/services/battleEngine.js`, `node --check server/services/battleReport.js`, `node --check sw.js`, `index.html`/`assets/tactical-lab-v11.html` inline script parse, `git diff --check`.
+
+### v7.415 최신 핸드오프 — 함대 지휘 사전 상성 경고/전술 설명 보강
+
+- `index.html` Fleet Command 모달에 현재 진형/기동의 효과와 리스크를 직접 표시한다. 버튼 tooltip에 묻히지 않고 선택 즉시 설명이 바뀐다.
+- 함대 미리보기 우측 `DOCTRINE CHECK`가 기함 미지정, 지원함 부재, 대형함 호위 부족, 대형함 카운터 부재, 소형 편중, 전진 리스크를 사전 경고한다.
+- 전투 결과 리포트에 역할 구도(태클/전자전/DPS/탱커/저격/폭격/로지)를 내 함대와 상대 함대로 비교 표시한다.
+- UI/CSS 변경이므로 `sw.js` 캐시를 `mars-v85`로 올렸다. 배포 후 구버전 화면이 남으면 브라우저 새로고침/다음 navigation에서 새 캐시가 잡힌다.
+- 검증 기준: `node --check server/services/battleEngine.js`, `node --check server/services/battleReport.js`, `index.html`/`assets/tactical-lab-v11.html` inline script parse, `git diff --check`.
+
+### v7.414 핸드오프 — 전투 스킬 이벤트/연출 정합 보강
+
+- `server/services/battleEngine.js` 수동 스킬이 실제 격침 이벤트를 남긴다. 빔포는 기함/대형함 우선, 미사일은 프리깃/저HP 다수 분산, 합체 필살은 대형 목표 광역 타격으로 분리했다.
+- 전투 프레임의 함선 `facing`을 실제 최근접 적 방향으로 기록해 전술랩/리플레이가 공격 대상 방향을 알 수 있게 했다.
+- 수리함은 `repair_pulse` 이벤트를 남기며, 전투 리포트의 스킬 요약에 수리량이 반영된다.
+- `flagship_destroyed`는 기함 경고용 이벤트로 유지하고, 데미지 집계는 `ship_destroyed`만 사용해 기함 격침 중복 데미지를 막았다.
+- `assets/tactical-lab-v11.html`은 화성 배경 밝기와 수동 빔/미사일 TTL을 보강했다. 빔포/미사일을 눌렀는지 2~3초 체감되도록 지속시간을 늘렸다.
+
+### v7.413 최신 핸드오프 — 함대전 결과 리포트 전술 분석 강화
+
+- `server/services/battleReport.js`가 전투 이벤트/함선 role/함급 분포를 합산해 패인과 개선 추천을 만든다.
+- 분석 신호: 데미지 교환 격차, 손실률 격차, 대형함이 저격/폭격에 카운터된 경우, 소형 러시가 구축함/탱커에 막힌 경우, 전자전 피격 후 태클 부재, 지원함 격차, 기함 격침.
+- `/api/battles/:id/report` 응답은 기존 `analysis_ko`/`recommendations_ko`를 유지하면서 `analysis_items`, `recommendation_items`, `role_counts`, `size_counts`, `event_stats`를 추가로 내려준다.
+- `index.html` 전투 결과 모달은 새 분석 항목을 3줄 카드로 표시한다. 패배/무승부 시에는 추천 개선도 함께 표시한다.
+- 구현 범위는 P1 전투 피드백 강화에 한정했다. Daily OPS, Field Rating, 현상금, 섹터 캘린더는 이번 변경에서 건드리지 않았다.
 
 ### v7.412 최신 핸드오프 — MMO 경제/영토/함대 거래 흐름 하드닝
 
