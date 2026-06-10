@@ -1,3 +1,17 @@
+## 2026-06-11 — Tactical Lab 모달 코드 정리 감사 반영 (v7.424)
+
+### ✅ 수정 완료
+- **[LOW] 전술랩 모달 스타일이 `index.html` 하단 인라인 CSS로 남아 관리 지점이 흐림**: sandbox 모달 CSS를 `assets/tactical-lab-modal.css`로 분리했다. 모달 크기/모바일 전체화면 정책은 새 CSS 파일이 단일 관리 지점이다.
+- **[LOW] 전술랩 열기/닫기 함수가 DOM 조회, 번역 갱신, iframe 생명주기를 한 함수 안에서 처리함**: `getTacticalLabModalElements()`, `syncTacticalLabModalText()`, `handleTacticalLabEscape()`로 분리해 읽기 쉬운 단위로 정리했다.
+- **[LOW] 전술랩 iframe 메시지 핸들러가 후퇴/종료/명령 API를 한 함수에서 모두 처리함**: `handleTacticalLabForfeitMessage()`, `handleTacticalLabBattleEndMessage()`, `submitTacticalLabCommanderAction()`로 분리했다. API 계약과 payload는 유지했다.
+- **[LOW] 운영 콘솔 로그 잡음**: iframe `ready` 메시지의 상시 `console.log`를 제거했다. tactical-lab catalog/preset 로드 로그는 `debug=1` query에서만 출력한다. 실패/경고 로그는 유지했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS/CSS 변경 반영을 위해 Service Worker 캐시를 `mars-v90`으로 갱신했다.
+
+### 검증 완료
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/campaign-editor.html` inline script parse
+- `node --check sw.js`
+- `git diff --check`
+
 ## 2026-06-11 — Tactical Lab sandbox PC 높이 클리핑 감사 반영 (v7.423)
 
 ### ✅ 수정 완료

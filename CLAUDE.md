@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.423 (Tactical Lab Sandbox Modal Fit) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.424 (Tactical Lab Modal Cleanup) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.424 최신 핸드오프 — 전술랩 모달 CSS/JS 1차 정리
+
+- 전술랩 sandbox 모달 스타일을 `index.html` 인라인 `<style>`에서 `assets/tactical-lab-modal.css`로 분리했다. 모달 크기/모바일 전체화면 정책은 이 CSS 파일에서 관리한다.
+- `openTacticalLab()`/`closeTacticalLab()` 주변 DOM 조회, 헤더 i18n 갱신, ESC 닫기 로직을 `getTacticalLabModalElements()`, `syncTacticalLabModalText()`, `handleTacticalLabEscape()`로 분리했다.
+- tactical-lab iframe `postMessage` 핸들러를 후퇴/전투종료/커맨더 명령 헬퍼로 분리했다. 서버 명령 API 계약은 그대로 유지한다.
+- 전술랩 iframe `ready` 메시지의 운영 콘솔 로그를 제거했다. tactical-lab 내부 catalog/preset 로드 로그는 `debug=1` query에서만 출력한다. 실패/경고 로그는 유지한다.
+- 동작 계약은 유지한다. sandbox는 `mode=sandbox`, 실전 전투는 `mode=battle` 경로를 계속 사용한다.
+- UI/JS/CSS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v90`으로 올렸다.
 
 ### v7.423 최신 핸드오프 — 전술랩 sandbox 모달 PC 높이 클리핑 보정
 

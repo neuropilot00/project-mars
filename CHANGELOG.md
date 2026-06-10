@@ -1,3 +1,12 @@
+## 2026-06-11 v7.424 — Tactical Lab 모달 코드 1차 정리
+
+- 전술랩 sandbox 모달 CSS를 `index.html` 하단 인라인 스타일에서 `assets/tactical-lab-modal.css`로 분리했다.
+- `openTacticalLab()`/`closeTacticalLab()`의 DOM 조회, 헤더 번역 갱신, ESC 닫기 처리를 작은 헬퍼 함수로 정리했다.
+- tactical-lab iframe `postMessage` 처리를 후퇴/전투종료/커맨더 명령 헬퍼로 분리했다.
+- 전술랩 iframe `ready` 메시지와 tactical-lab catalog/preset 로드 로그가 운영 콘솔에 상시 출력되지 않게 정리했다. 로드 로그는 `debug=1`에서만 출력한다.
+- sandbox/battle iframe 계약과 모달 동작은 유지했다.
+- UI/JS/CSS 캐시 반영을 위해 Service Worker 캐시를 `mars-v90`으로 갱신했다.
+
 ## 2026-06-11 v7.423 — Tactical Lab sandbox 모달 높이 보정
 
 - `openTacticalLab()`로 여는 전술랩 sandbox 화면을 데스크탑에서 중앙 모달로 표시하도록 바꿨다.

@@ -425,6 +425,7 @@ const TL_QUERY=(function(){
   try{ return new URLSearchParams(location.search); }catch(_){ return new URLSearchParams(); }
 })();
 const TL_MODE=(TL_QUERY.get('mode')||'sandbox').toLowerCase()==='battle'?'battle':'sandbox';
+const TL_DEBUG=TL_QUERY.get('debug')==='1';
 try{ document.documentElement.dataset.tlMode=TL_MODE; }catch(_){}
 function normalizeBattleLang(lang){
   lang=String(lang||'en').toLowerCase();
@@ -3389,7 +3390,7 @@ async function loadCatalog(){
         }
         SHIPS = s;
       }
-      console.log('[TacticalLab] catalog loaded:', cat.counts);
+      if (TL_DEBUG) console.log('[TacticalLab] catalog loaded:', cat.counts);
     } else {
       console.warn('[TacticalLab] catalog fetch !ok:', catRes.status);
     }
@@ -3397,7 +3398,7 @@ async function loadCatalog(){
       const flt = await fltRes.json();
       if (flt.atk && flt.atk.length) ATK_FLEETS = flt.atk;
       if (flt.def && flt.def.length) DEF_FLEETS = flt.def;
-      console.log('[TacticalLab] fleet presets loaded:', {atk: ATK_FLEETS.length, def: DEF_FLEETS.length});
+      if (TL_DEBUG) console.log('[TacticalLab] fleet presets loaded:', {atk: ATK_FLEETS.length, def: DEF_FLEETS.length});
     }
   } catch (e) {
     console.warn('[TacticalLab] catalog fetch failed, using hardcoded fallback:', e && e.message);

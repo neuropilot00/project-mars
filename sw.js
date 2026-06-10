@@ -84,7 +84,8 @@
 // 2026-05-30 v82: v7.277 전술랩 로컬라이징 — 래퍼 헤더(戦術ラボ 등) 열 때 현 언어 재적용 + 캔버스 함대 라벨(formation/maneuver) tl() 4언어화.
 // 2026-05-30 v83: v7.278 TEND(영토 정비) 비용 사전표시 + 확인 모달 — GP 무고지 즉시 차감 수정(production 응답 tendCostGp).
 // 2026-05-30 v84: v7.279 전술랩 전투 콜아웃/플로팅 텍스트 4언어화 — ambient/panic/집중포화/기함침몰/승리/마지막함선이 한국어 하드코딩이라 ja/en/zh 모드서도 한국어로 뜨던 문제 수정.
-const CACHE_NAME = 'mars-v89';
+// 2026-06-11 v90: v7.424 전술랩 모달 CSS 외부화 + wrapper JS 헬퍼 정리.
+const CACHE_NAME = 'mars-v90';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

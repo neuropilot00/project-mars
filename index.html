@@ -19,6 +19,7 @@
 <title>OCCUPY MARS — Claim Your Territory</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<link href="/assets/tactical-lab-modal.css?v=7424" rel="stylesheet">
 <script src="/assets/lib/globe.gl.min.js"></script>
 <script src="/public/js/minigame-invaders.js?v=11"></script>
 <script src="/public/js/minigame-runner.js?v=11"></script>
@@ -54528,80 +54529,68 @@ function bvFinalizeResult() {
   } catch (_) {}
 }
 
-window.addEventListener('message', function(ev) {
-  // [v7.189 fix] origin 검증 — 외부 iframe / XSS 가 source:'tactical-lab' 위조해 forfeit 트리거 못 하도록 차단.
-  //   tactical-lab 은 같은 도메인 iframe 이므로 ev.origin === location.origin.
-  if (ev.origin !== location.origin) return;
-  var d = ev && ev.data;
-  if (!d || d.source !== 'tactical-lab') return;
-  if (d.cmd === 'ready') {
-    console.log('[tactical-lab] ready', d.payload || {});
+function handleTacticalLabForfeitMessage(d) {
+  if (!d.payload || d.payload.success !== true) {
+    var forfeitErr = (d.payload && d.payload.error) || 'FORFEIT_FAILED';
+    showFactionToast((LANG==='ko'?'후퇴 실패: ':LANG==='ja'?'撤退失敗: ':LANG==='zh'?'撤退失败: ':'Retreat failed: ') + forfeitErr, 'error');
+    console.warn('[battle] forfeit failed:', d);
     return;
   }
-  if (!d.battleId) return;
+  closeBattleViewer();
+  showFactionToast(LANG==='ko'?'🏳 후퇴 완료 — 조선소에서 함선을 수리하세요':LANG==='ja'?'🏳 撤退完了 — 造船所で艦船を修理してください':LANG==='zh'?'🏳 撤退完成 — 请在船坞修理舰船':'🏳 Retreat complete — repair ships at shipyard', 'info');
+  setTimeout(function(){
+    if(typeof openShipyard==='function') openShipyard();
+    setTimeout(function(){ if(typeof switchSyTab==='function') switchSyTab('fleet'); }, 200);
+  }, 800);
+}
 
-  // forfeit: 후퇴 → 뷰어 닫고 조선소로 안내
-  if (d.cmd === 'forfeit') {
-    if (!d.payload || d.payload.success !== true) {
-      var forfeitErr = (d.payload && d.payload.error) || 'FORFEIT_FAILED';
-      showFactionToast((LANG==='ko'?'후퇴 실패: ':LANG==='ja'?'撤退失敗: ':LANG==='zh'?'撤退失败: ':'Retreat failed: ') + forfeitErr, 'error');
-      console.warn('[battle] forfeit failed:', d);
-      return;
-    }
-    closeBattleViewer();
-    showFactionToast(LANG==='ko'?'🏳 후퇴 완료 — 조선소에서 함선을 수리하세요':LANG==='ja'?'🏳 撤退完了 — 造船所で艦船を修理してください':LANG==='zh'?'🏳 撤退完成 — 请在船坞修理舰船':'🏳 Retreat complete — repair ships at shipyard', 'info');
-    setTimeout(function(){
-      if(typeof openShipyard==='function') openShipyard();
-      setTimeout(function(){ if(typeof switchSyTab==='function') switchSyTab('fleet'); }, 200);
-    }, 800);
-    return;
-  }
-
-  // 전투 종료 → 결과 카드.
-  // [v7.406] iframe 로컬 시뮬이 "보이는 전투"이므로 결과는 패배측이 전멸하고 슬로모 연출이 끝난 뒤
-  //   오는 battle_final_done 에 맞춰 표시한다. ws_end(서버 즉시 종료신호)는 서버 승자/통계만 반영하고
-  //   즉시 표시하지 않는다 — 그러지 않으면 AI전(서버 2틱 해결)에서 함선이 살아있는 채 결과가 떠버린다.
-  //   battle_final_done 이 안 오는 경우만 fallback(25s)으로 강제 표시.
-  if (d.cmd === 'ws_end' || d.cmd === 'battle_final_done') {
-    try {
-      if (typeof bv !== 'undefined') {
-        bv.battle = bv.battle || {};
-        if (d.payload) {
-          if (d.cmd === 'ws_end') {
-            // 서버가 승자/통계의 권위 — ws_end 에서만 덮어쓴다.
-            bv.battle.winner_side = d.payload.winner_side || bv.battle.winner_side;
-            bv.battle.duration_seconds = d.payload.duration_seconds;
-            if (d.payload.stats) {
-              bv.battle.atk_ships_total = d.payload.stats.atk?.ships_total || bv.battle.atk_ships_total;
-              bv.battle.atk_ships_lost  = d.payload.stats.atk?.ships_lost  || 0;
-              bv.battle.def_ships_total = d.payload.stats.def?.ships_total || bv.battle.def_ships_total;
-              bv.battle.def_ships_lost  = d.payload.stats.def?.ships_lost  || 0;
-              bv.battle.battle_summary = { atk: d.payload.stats.atk, def: d.payload.stats.def };
-            }
-          } else if (!bv.battle.winner_side && d.payload.winner_side) {
-            // 데모/무서버 경로: 서버 결과가 없을 때만 로컬 승자 사용.
-            bv.battle.winner_side = d.payload.winner_side;
-          }
-        }
+function applyTacticalLabBattleEndPayload(d) {
+  try {
+    if (typeof bv === 'undefined') return;
+    bv.battle = bv.battle || {};
+    if (!d.payload) return;
+    if (d.cmd === 'ws_end') {
+      bv.battle.winner_side = d.payload.winner_side || bv.battle.winner_side;
+      bv.battle.duration_seconds = d.payload.duration_seconds;
+      if (d.payload.stats) {
+        bv.battle.atk_ships_total = d.payload.stats.atk?.ships_total || bv.battle.atk_ships_total;
+        bv.battle.atk_ships_lost  = d.payload.stats.atk?.ships_lost  || 0;
+        bv.battle.def_ships_total = d.payload.stats.def?.ships_total || bv.battle.def_ships_total;
+        bv.battle.def_ships_lost  = d.payload.stats.def?.ships_lost  || 0;
+        bv.battle.battle_summary = { atk: d.payload.stats.atk, def: d.payload.stats.def };
       }
-    } catch (_) {}
-    if (d.cmd === 'battle_final_done') {
-      bvFinalizeResult();                    // 로컬 시뮬 전멸 연출 완료 → 결과 표시
-    } else if (typeof bv !== 'undefined' && !bv._finalShown && !bv._finalFallback) {
-      bv._finalFallback = setTimeout(bvFinalizeResult, 25000);  // 안전장치
+    } else if (!bv.battle.winner_side && d.payload.winner_side) {
+      bv.battle.winner_side = d.payload.winner_side;
     }
-    return;
-  }
+  } catch (_) {}
+}
 
-  // 명령 → API
-  // commanderActions.js 의 POST /api/battles/:id/commander-action 사용
-  // payload 형식: { actionType, params }
+function handleTacticalLabBattleEndMessage(d) {
+  applyTacticalLabBattleEndPayload(d);
+  if (d.cmd === 'battle_final_done') {
+    bvFinalizeResult();
+  } else if (typeof bv !== 'undefined' && !bv._finalShown && !bv._finalFallback) {
+    bv._finalFallback = setTimeout(bvFinalizeResult, 25000);
+  }
+}
+
+function getTacticalLabCommandLabel(cmd) {
+  var labels = {
+    formation: LANG==='ko'?'🛡 진형':LANG==='ja'?'🛡 陣形':LANG==='zh'?'🛡 阵型':'🛡 Formation',
+    maneuver: LANG==='ko'?'→ 기동':LANG==='ja'?'→ 機動':LANG==='zh'?'→ 机动':'→ Maneuver',
+    focus: LANG==='ko'?'⚡ 집중공격':LANG==='ja'?'⚡ 集中攻撃':LANG==='zh'?'⚡ 集中攻击':'⚡ Focus Fire',
+    emp: '💥 EMP'
+  };
+  return labels[cmd] || cmd;
+}
+
+function submitTacticalLabCommanderAction(d) {
   var actionMap = {
     formation: { actionType: 'formation_change', params: { formation: d.payload && d.payload.formation } },
     maneuver:  { actionType: 'maneuver_change',  params: { maneuver:  d.payload && d.payload.maneuver  } },
     focus:     { actionType: 'focus_fire',       params: { targetFleetId: d.payload && (d.payload.targetFleetId || d.payload.target) } },
     emp:       { actionType: 'emp',              params: { startTick: d.payload && d.payload.startTick } },
-    beam_cannon:     { actionType: 'beam',    params: {} },   // [Phase 3] 수동 스킬 — 서버 권위 충전/데미지 (tactical-lab _bridgeToParent('beam_cannon'))
+    beam_cannon:     { actionType: 'beam',    params: {} },
     missile_barrage: { actionType: 'missile', params: {} }
   };
   var mapped = actionMap[d.cmd];
@@ -54614,8 +54603,7 @@ window.addEventListener('message', function(ev) {
       params: mapped.params || {}
     })
   }).then(function(r) {
-    var _cmdLabels = { formation: LANG==='ko'?'🛡 진형':LANG==='ja'?'🛡 陣形':LANG==='zh'?'🛡 阵型':'🛡 Formation', maneuver: LANG==='ko'?'→ 기동':LANG==='ja'?'→ 機動':LANG==='zh'?'→ 机动':'→ Maneuver', focus: LANG==='ko'?'⚡ 집중공격':LANG==='ja'?'⚡ 集中攻撃':LANG==='zh'?'⚡ 集中攻击':'⚡ Focus Fire', emp: '💥 EMP' };
-    var label = _cmdLabels[d.cmd] || d.cmd;
+    var label = getTacticalLabCommandLabel(d.cmd);
     if (r.ok) {
       if (typeof showFactionToast === 'function') showFactionToast(label + (LANG==='ko'?' 명령 적용':LANG==='ja'?' コマンド適用':LANG==='zh'?' 命令已执行':' applied'), 'success');
     } else if (r.status === 401 || r.status === 403) {
@@ -54625,6 +54613,15 @@ window.addEventListener('message', function(ev) {
       console.warn('[battle-cmd] API failed:', r.status, d);
     }
   }).catch(function(e) { console.warn('[battle-cmd] fetch error:', e.message); });
+}
+
+window.addEventListener('message', function(ev) {
+  if (ev.origin !== location.origin) return;
+  var d = ev && ev.data;
+  if (!d || d.source !== 'tactical-lab' || d.cmd === 'ready' || !d.battleId) return;
+  if (d.cmd === 'forfeit') return handleTacticalLabForfeitMessage(d);
+  if (d.cmd === 'ws_end' || d.cmd === 'battle_final_done') return handleTacticalLabBattleEndMessage(d);
+  submitTacticalLabCommanderAction(d);
 });
 
 async function forfeitBattle(battleId) {
@@ -57189,68 +57186,49 @@ async function wbPlaceBet(eventId) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   Tactical Lab (v11.2 Formation/Maneuver Simulator)
-   — 참조 구현을 iframe으로 격리 로드해 v10 UI를 그대로 보존
-   ═══════════════════════════════════════════════════════════ */
-function openTacticalLab(){
-  var bd = document.getElementById('tacticalLabBackdrop');
-  if (!bd) return;
-  var frame = document.getElementById('tacticalLabFrame');
-  if (frame) {
-    // Sandbox mode uses the same official viewer module without a battle id.
-    frame.src = buildTacticalLabUrl({ mode: 'sandbox' });
-  }
-  // [v7.277] 헤더 i18n 명시 재적용 — 이 모달은 문서 하단에 있어 초기 applyI18n 시점(파싱 전)에 누락될 수 있어
-  //   열 때마다 현재 LANG으로 강제 갱신(일본어 등 엉뚱한 언어로 남는 문제 방지).
+function getTacticalLabModalElements() {
+  var backdrop = document.getElementById('tacticalLabBackdrop');
+  return {
+    backdrop: backdrop,
+    frame: document.getElementById('tacticalLabFrame'),
+    title: backdrop && backdrop.querySelector('.tlab-title'),
+    sub: backdrop && backdrop.querySelector('.tlab-sub'),
+    close: backdrop && backdrop.querySelector('.tlab-close')
+  };
+}
+
+function syncTacticalLabModalText(elements) {
   try {
-    var _tt=bd.querySelector('.tlab-title'); if(_tt) _tt.textContent=t('tlab_title');
-    var _ts=bd.querySelector('.tlab-sub');   if(_ts) _ts.textContent=t('tlab_sub');
-    var _tc=bd.querySelector('.tlab-close');  if(_tc) _tc.textContent=t('tlab_close');
-  } catch(_e){}
-  bd.classList.add('active');
+    if (elements.title) elements.title.textContent = t('tlab_title');
+    if (elements.sub) elements.sub.textContent = t('tlab_sub');
+    if (elements.close) elements.close.textContent = t('tlab_close');
+  } catch (_) {}
+}
+
+function openTacticalLab(){
+  var elements = getTacticalLabModalElements();
+  if (!elements.backdrop) return;
+  if (elements.frame) elements.frame.src = buildTacticalLabUrl({ mode: 'sandbox' });
+  syncTacticalLabModalText(elements);
+  elements.backdrop.classList.add('active');
 }
 function closeTacticalLab(){
-  var bd = document.getElementById('tacticalLabBackdrop');
-  if (!bd) return;
-  bd.classList.remove('active');
-  // [v7.339] iframe을 완전히 언로드 → 시뮬 루프(requestAnimationFrame) 정지 + 상태 리셋.
-  //   비우지 않으면 닫아도 백그라운드에서 계속 싸우다가 다시 열 때 이어짐.
-  var frame = document.getElementById('tacticalLabFrame');
-  unloadTacticalLabFrame(frame);
+  var elements = getTacticalLabModalElements();
+  if (!elements.backdrop) return;
+  elements.backdrop.classList.remove('active');
+  unloadTacticalLabFrame(elements.frame);
 }
-// ESC로 닫기
-document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') {
-    var bd = document.getElementById('tacticalLabBackdrop');
-    if (bd && bd.classList.contains('active')) closeTacticalLab();
-  }
-});
+function handleTacticalLabEscape(e) {
+  var elements = getTacticalLabModalElements();
+  if (e.key === 'Escape' && elements.backdrop && elements.backdrop.classList.contains('active')) closeTacticalLab();
+}
+document.addEventListener('keydown', handleTacticalLabEscape);
 window.openTacticalLab = openTacticalLab;
 window.closeTacticalLab = closeTacticalLab;
 
 </script>
 
 <!-- Tactical Lab Modal (v11.2 Formation/Maneuver) ================================ -->
-<style>
-.tlab-backdrop{position:fixed;inset:0;background:rgba(3,4,11,.84);z-index:10500;display:none;align-items:center;justify-content:center;padding:18px;}
-.tlab-backdrop.active{display:flex;}
-.tlab-modal{width:min(1120px,calc(100vw - 36px));height:min(880px,calc(100vh - 36px));max-height:calc(100vh - 36px);display:flex;flex-direction:column;background:#03040b;border:1px solid rgba(79,195,247,.28);border-radius:14px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.65);}
-.tlab-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(135deg,rgba(206,147,216,.16),rgba(79,195,247,.06));border-bottom:1px solid rgba(206,147,216,.25);flex-shrink:0;}
-.tlab-title{font-family:'Orbitron',var(--fn);font-size:13px;font-weight:900;letter-spacing:2.5px;color:#ce93d8;}
-.tlab-sub{font-size:8px;letter-spacing:2px;color:rgba(255,255,255,.35);margin-left:10px;}
-.tlab-close{background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.45);color:#ef5350;font-family:var(--fn);font-size:11px;font-weight:800;padding:6px 14px;border-radius:6px;cursor:pointer;letter-spacing:1px;}
-.tlab-close:hover{background:rgba(239,83,80,.22);}
-.tlab-frame-wrap{flex:1;min-height:0;overflow:hidden;background:#03040b;}
-.tlab-frame{width:100%;height:100%;border:0;display:block;}
-@media (max-width:720px){
-  .tlab-backdrop{align-items:stretch;justify-content:stretch;padding:0;background:#03040b;}
-  .tlab-modal{width:100%;height:100%;max-height:100%;border:0;border-radius:0;box-shadow:none;}
-  .tlab-header{padding:8px 10px;}
-  .tlab-sub{display:none;}
-}
-</style>
-
 <div class="tlab-backdrop" id="tacticalLabBackdrop">
   <div class="tlab-modal">
     <div class="tlab-header">
