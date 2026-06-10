@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-10 v7.419 (Item Resource Visibility + Campaign Transform Stability) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-10 v7.420 (Daily OPS Completion Sync) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.420 최신 핸드오프 — Daily OPS 완료 반영 레이스/미션명 호환 보정
+
+- `BASE > 내 영토 > 오늘의 작전 보드`는 여전히 단일 소스다. 별도 Daily OPS 보드를 되살리지 않는다.
+- 일부 프론트 성공 훅은 예전 로컬 미션명(`ship_upgrade`, `territory_harvest`, `ai_practice`)을 호출한다. `markDailyOpsAction()`은 이를 서버 미션명 그룹(`upgrade_ship*`, `harvest_*`, `ai_battle*`)으로 매핑한다.
+- 서버의 실제 진행도 원천은 `server/routes/dailyOps.js`의 `notifyMissionProgress()`와 `daily_ops` 테이블이다. 프론트 로컬 진행도는 성공 직후 녹색 완료 표시를 늦지 않게 보여주는 보조 피드백이다.
+- 함선 강화/영토 채굴/AI 연습전처럼 서버가 성공 후 비동기 훅을 돌리는 액션은 `loadOpsCommandBoard()`를 즉시 1회, 450ms/1300ms 지연 2회 재조회한다. 완료 항목 녹색불 누락 신고가 있으면 이 레이스를 먼저 의심한다.
+- 보상 수령/GP 지급은 `/api/daily-ops/claim`만 사용한다. 프론트에서 임의 보상 지급 API를 만들지 않는다.
+- 검증 기준: `index.html`/`assets/tactical-lab-v11.html`/`assets/campaign-editor.html` inline script parse, `node -c server/routes/dailyOps.js && node -c server/routes/ships.js && node -c server/routes/api.js`, `git diff --check`.
 
 ### v7.419 최신 핸드오프 — 내 아이템 재료 표시 + 캠페인 캐릭터 transform 안정화
 

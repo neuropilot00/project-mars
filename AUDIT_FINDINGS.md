@@ -1,3 +1,15 @@
+## 2026-06-10 — Daily OPS 완료 표시 레이스/미션명 호환 감사 반영 (v7.420)
+
+### ✅ 수정 완료
+- **[MED] 성공 액션 후 완료 항목에 녹색불이 늦거나 안 들어올 수 있음**: 실제 서버 Daily OPS 미션 타입은 `upgrade_ship`/`harvest_pp`/`ai_battle`인데, 프론트 성공 훅 일부가 예전 로컬 타입 `ship_upgrade`/`territory_harvest`/`ai_practice`를 갱신했다. 현재 서버 미션명 그룹으로 매핑해 완료 표시가 같은 작전보드에 반영되게 했다.
+- **[LOW] 서버 비동기 훅과 프론트 재조회 레이스**: 함선 강화/채굴/AI 연습전 성공 직후 프론트가 바로 작전보드를 다시 읽으면, 서버의 `notifyMissionProgress()`가 아직 끝나지 않아 미완료처럼 보일 수 있었다. 즉시 재조회 후 450ms/1300ms 지연 재조회를 추가해 서버 상태가 따라오는 구간을 흡수한다.
+- **[LOW] 로컬 피드백과 서버 원천 분리**: 작전보드 렌더는 서버 응답을 기본으로 유지하되, 방금 성공한 로컬 액션 진행도만 표시 판정에 보조로 사용한다. 보상 수령과 GP 지급은 계속 서버 `/api/daily-ops/claim`에서만 수행된다.
+
+### 검증 완료
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/campaign-editor.html` inline script parse
+- `node -c server/routes/dailyOps.js && node -c server/routes/ships.js && node -c server/routes/api.js`
+- `git diff --check`
+
 ## 2026-06-10 — 내 아이템/캠페인 레이아웃 추가 감사 반영 (v7.419)
 
 ### ✅ 수정 완료

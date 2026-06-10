@@ -27473,11 +27473,15 @@ async function loadOpsCommandBoard() {
     });
 
     // ⚪/🟢 미션 행
+    var localOpsState = null;
+    try { localOpsState = _loadDailyOpsState(); } catch(_) {}
     missions.forEach(function(m, idx) {
       var label = LANG==='ko' ? m.label_ko : m.label_en;
       var dest = LANG==='ko' ? (m.dest_ko || '') : (m.dest_en || '');
       var target = Math.max(1, parseInt(m.target, 10) || 1);
       var current = parseInt(m.current, 10) || 0;
+      var localTask = localOpsState && localOpsState.tasks ? localOpsState.tasks[m.type] : null;
+      if (localTask) current = Math.min(target, Math.max(current, parseInt(localTask.current, 10) || 0));
       var done = !!(m.completed || m.reward_claimed || current >= target || Number(m.progress_pct) >= 100);
       var dot = done ? '🟢' : '⚪';
       var labelColor = m.reward_claimed ? 'var(--gn)' : (done ? 'var(--gold)' : 'var(--tx)');
@@ -38254,19 +38258,60 @@ function _dailyOpsWeekStorageKey(){
   var w = (walletState && walletState.address ? walletState.address : 'guest').toLowerCase();
   return 'daily_ops_week_' + w + '_' + _dailyOpsWeekStartKey();
 }
+function _dailyOpsCanonicalTypes(type){
+  var map = {
+    login_check: ['daily_login'],
+    territory_harvest: ['harvest_pp','harvest_3','harvest_5'],
+    harvest_pp: ['harvest_pp','harvest_3','harvest_5'],
+    ship_upgrade: ['upgrade_ship','upgrade_ship_3','upgrade_ship_5'],
+    upgrade_ship: ['upgrade_ship','upgrade_ship_3','upgrade_ship_5'],
+    ai_practice: ['ai_battle','ai_battle_3'],
+    ai_battle: ['ai_battle','ai_battle_3'],
+    build_ship: ['build_ship'],
+    repair_ship: ['repair_ship','repair_ship_3'],
+    fleet_formation: ['fleet_formation'],
+    craft_resource: ['craft_resource','craft_resource_3','craft_resource_5'],
+    market_list: ['market_list','market_activity'],
+    market_buy: ['market_buy','market_activity'],
+    territory_claim: ['territory_claim'],
+    territory_art: ['territory_art'],
+    territory_upgrade: ['territory_upgrade','territory_upgrade_3'],
+    campaign_progress: ['campaign_progress'],
+    campaign_complete: ['campaign_complete'],
+    battle_participate: ['battle_participate','battle_participate_3'],
+    battle_win: ['battle_win','battle_win_3'],
+    battle_forfeit: ['battle_forfeit']
+  };
+  return map[type] || [type];
+}
+function _dailyOpsKnownTasks(){
+  return [
+    'daily_login',
+    'harvest_pp','harvest_3','harvest_5',
+    'territory_art','territory_upgrade','territory_upgrade_3','territory_claim',
+    'battle_participate','battle_participate_3','battle_win','battle_win_3','battle_forfeit',
+    'ai_battle','ai_battle_3',
+    'upgrade_ship','upgrade_ship_3','upgrade_ship_5','build_ship','repair_ship','repair_ship_3','fleet_formation',
+    'craft_resource','craft_resource_3','craft_resource_5','market_list','market_buy','market_activity',
+    'campaign_progress','campaign_complete',
+    'login_check','territory_harvest','ship_upgrade','ai_practice'
+  ];
+}
+function _scheduleOpsBoardRefresh(){
+  try { loadOpsCommandBoard(); } catch(_e) {}
+  [450, 1300].forEach(function(ms){
+    setTimeout(function(){ try { loadOpsCommandBoard(); } catch(_e) {} }, ms);
+  });
+}
 function _loadDailyOpsState(){
   var raw = null;
   try { raw = JSON.parse(localStorage.getItem(_dailyOpsStorageKey()) || 'null'); } catch(_e) {}
   var base = {
     date: _dailyOpsTodayKey(),
     loginRewardClaimed: false,
-    tasks: {
-      ai_practice: { current: 0, target: 1 },
-      login_check: { current: 0, target: 1 },
-      territory_harvest: { current: 0, target: 1 },
-      ship_upgrade: { current: 0, target: 1 }
-    }
+    tasks: {}
   };
+  _dailyOpsKnownTasks().forEach(function(k){ base.tasks[k] = { current: 0, target: 1 }; });
   if (raw && raw.tasks) {
     Object.keys(base.tasks).forEach(function(k){
       var cur = raw.tasks[k] || {};
@@ -38308,13 +38353,17 @@ function _syncDailyOpsWeekProgress(state){
 }
 function markDailyOpsAction(type, amount){
   var state = _loadDailyOpsState();
-  var task = state.tasks[type];
-  if (!task) return;
-  task.current = Math.min(Number(task.target || 1), Number(task.current || 0) + Math.max(1, Number(amount || 1)));
-  if (type === 'login_check') task.current = 1;
+  var types = _dailyOpsCanonicalTypes(type);
+  var delta = Math.max(1, Number(amount || 1));
+  types.forEach(function(t){
+    if (!state.tasks[t]) state.tasks[t] = { current: 0, target: 1 };
+    var task = state.tasks[t];
+    task.current = Math.min(Number(task.target || 1), Number(task.current || 0) + delta);
+    if (type === 'login_check' || t === 'daily_login') task.current = 1;
+  });
   _saveDailyOpsState(state);
   _syncDailyOpsWeekProgress(state);
-  try{ loadOpsCommandBoard(); }catch(_e){}
+  _scheduleOpsBoardRefresh();
 }
 function openOpsRewardInventory(){
   openBaseModal();

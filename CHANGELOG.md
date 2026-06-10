@@ -1,3 +1,10 @@
+## 2026-06-10 v7.420 — Daily OPS 완료 반영 레이스/미션명 호환 보정
+
+- `markDailyOpsAction()`이 예전 로컬 미션명(`ship_upgrade`, `territory_harvest`, `ai_practice`)만 갱신하던 문제를 현재 서버 Daily OPS 미션명(`upgrade_ship`, `harvest_pp`, `ai_battle`) 그룹으로 매핑했다.
+- 함선 강화, 영토 채굴, AI 연습전처럼 서버가 성공 후 비동기 Daily OPS 훅을 실행하는 액션은 즉시 재조회 + 지연 재조회로 완료 녹색 표시가 늦게 들어오는 레이스를 흡수한다.
+- `loadOpsCommandBoard()`가 서버 진행도와 방금 성공한 로컬 액션 진행도를 함께 판정해, 성공 직후 `current_count`가 아직 반영되지 않은 짧은 구간에도 완료 표시가 맞게 보인다.
+- 보상 수령과 최종 상태 원천은 계속 서버 `/api/daily-ops/claim`과 `daily_ops` 테이블이 담당한다. 프론트 보정은 표시/피드백용이며 GP 지급 경로를 새로 만들지 않았다.
+
 ## 2026-06-10 v7.419 — 내 아이템 재료 표시 + 캠페인 transform 안정화
 
 - `renderBaseInventory()`가 상점/장비 아이템 인벤토리만 기준으로 empty return 하던 문제를 수정했다. 이제 상점 아이템이 없어도 재료 인벤토리에 보유량이 있으면 `내 아이템` 탭에 광물 자원이 표시된다.
