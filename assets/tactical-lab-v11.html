@@ -4,7 +4,8 @@
  OCCUPY MARS — Tactical Lab v11.1 (Vertical) + VFX patches v7.179~v7.191
 ================================================================================
  이 파일은 함대전 시각화 + 클라이언트 시뮬레이션 엔진. 본 서버 함대전이 시작되면
- index.html 에서 iframe 으로 임베드 (PVP > Battle Hub > 🧪 TACTICAL LAB).
+ index.html 이 공식 iframe 전투 뷰어 모듈로 임베드한다. 독립 HTML 파일이지만
+ 실험용 외부 페이지가 아니라 메인 게임에서 mode=battle/sandbox 계약으로 호출되는 모듈이다.
 
  ▶ 함대전 메카닉 버전: v11.1 (세로 전장, 22 종 함선 PNG, 상성/진영 밸런스)
  ▶ VFX 누적 패치:
@@ -407,6 +408,10 @@ body{padding:0;background:#03040b;}
 'use strict';
 
 const TL_SUPPORTED_LANGS=['en','ko','ja','zh','id','vi','th'];
+const TL_QUERY=(function(){
+  try{ return new URLSearchParams(location.search); }catch(_){ return new URLSearchParams(); }
+})();
+const TL_MODE=(TL_QUERY.get('mode')||'sandbox').toLowerCase()==='battle'?'battle':'sandbox';
 function normalizeBattleLang(lang){
   lang=String(lang||'en').toLowerCase();
   if(lang==='in') lang='id';
@@ -416,8 +421,7 @@ function normalizeBattleLang(lang){
 }
 const TLANG=(function resolveBattleLang(){
   try{
-    const qs=new URLSearchParams(location.search);
-    const qLang=(qs.get('lang')||'').toLowerCase();
+    const qLang=(TL_QUERY.get('lang')||'').toLowerCase();
     if(qLang) return normalizeBattleLang(qLang);
   }catch(_){}
   try{
@@ -433,6 +437,14 @@ const TLANG=(function resolveBattleLang(){
   }catch(_){}
   return 'en';
 })();
+function tlQuery(name){ return TL_QUERY.get(name); }
+function notifyParent(cmd,payload,battleIdOverride){
+  if(!(window.parent&&window.parent!==window)) return;
+  const rawBattleId = battleIdOverride || tlQuery('bid');
+  const msg = { source:'tactical-lab', cmd, payload:payload||{} };
+  if(rawBattleId) msg.battleId = parseInt(rawBattleId);
+  window.parent.postMessage(msg, '*');
+}
 
 const TL10N={
   en:{
@@ -2886,10 +2898,8 @@ function loop(ts){
       setSimSpeed(_prevSpeed);
       _slowmoActive=false;
       // ws 결과 화면 트리거 (부모 프레임에 알림)
-      const bid2=new URLSearchParams(location.search).get('bid');
-      if(bid2&&window.parent&&window.parent!==window){
-        window.parent.postMessage({source:'tactical-lab',battleId:parseInt(bid2),cmd:'battle_final_done',payload:{winner_side:winner==='ATK'?'atk':'def'}}, '*');
-      }
+      const bid2=tlQuery('bid');
+      if(bid2) notifyParent('battle_final_done',{winner_side:winner==='ATK'?'atk':'def'},bid2);
       // ws 없는 데모 모드: 자동 재시작
       if(!_wsBattle||_wsBattle.readyState!==1){
         setTimeout(()=>{initBattle();battleOver=false;},3000);
@@ -2919,10 +2929,8 @@ function reinforce(tid,n){
 // 부모 (battle viewer) 에게 명령 전달 — 실제 commanderActions API 호출 트리거
 function _bridgeToParent(cmd, payload) {
   try {
-    const bid = new URLSearchParams(location.search).get('bid');
-    if (window.parent && window.parent !== window && bid) {
-      window.parent.postMessage({ source:'tactical-lab', battleId: parseInt(bid), cmd, payload }, '*');
-    }
+    const bid = tlQuery('bid');
+    if (bid) notifyParent(cmd, payload, bid);
   } catch (_) {}
 }
 function cmdFocus(){
@@ -3040,7 +3048,7 @@ function closeForfeitOverlay(){
 }
 async function confirmForfeit(){
   closeForfeitOverlay();
-  const bid = new URLSearchParams(location.search).get('bid');
+  const bid = tlQuery('bid');
   if (!bid) { addLog('kl','⚠ '+tl('missingBattleId')); return; }
   try {
     const token = (window.parent && window.parent.localStorage && window.parent.localStorage.getItem('pw_token')) || '';
@@ -3051,11 +3059,7 @@ async function confirmForfeit(){
     });
     const d = await r.json();
     addLog('kl',`🏳 ${tl('retreat')}`);
-    try {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ source:'tactical-lab', battleId:parseInt(bid), cmd:'forfeit', payload:d }, '*');
-      }
-    } catch(_){}
+    try { notifyParent('forfeit', d, bid); } catch(_){}
   } catch(e){ addLog('kl','⚠ '+tl('retreatFailed')+': '+e.message); }
 }
 function cmdFormation(form){
@@ -3262,7 +3266,7 @@ function renderAnalysis(){
 async function loadCatalog(){
   try {
     // ?bid={battleId} 쿼리스트링 전달 → 그 battle 의 실제 함대 구성으로 시뮬
-    const bid = new URLSearchParams(location.search).get('bid');
+    const bid = tlQuery('bid');
     const fleetUrl = '/api/tactical-lab/fleet-presets' + (bid ? ('?bid=' + encodeURIComponent(bid)) : '');
     const [catRes, fltRes] = await Promise.all([
       fetch('/api/tactical-lab/catalog', { cache: 'no-cache' }),
@@ -3396,7 +3400,7 @@ let _wsEndPayload = null;
 let _wsMaxHpCalibrated = false;
 function connectBattleWs() {
   try {
-    const bid = new URLSearchParams(location.search).get('bid');
+    const bid = tlQuery('bid');
     if (!bid) return;
     const token = (window.parent && window.parent.localStorage && window.parent.localStorage.getItem('pw_token')) || '';
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
@@ -3474,11 +3478,7 @@ function connectBattleWs() {
       } else if (m.type === 'end') {
         _wsEndPayload = m;
         addLog('wn', '🏁 실시간 종료 수신: ' + (m.winner_side || '?'));
-        try {
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ source: 'tactical-lab', battleId: parseInt(bid), cmd: 'ws_end', payload: m }, '*');
-          }
-        } catch (_) {}
+        try { notifyParent('ws_end', m, bid); } catch (_) {}
       } else if (m.type === 'cmd_ok') {
         addLog('tc', '✅ ' + m.cmd + ' 명령 적용');
       } else if (m.type === 'cmd_err') {
@@ -3491,6 +3491,7 @@ function connectBattleWs() {
 }
 
 async function boot(){
+  notifyParent('ready',{ mode:TL_MODE, lang:TLANG });
   localizeStaticUI();
   await loadCatalog();
   localizeStaticUI();
@@ -3505,7 +3506,7 @@ async function boot(){
   connectBattleWs();
 
   // ✅ [리플레이 하이라이트] startTick 파라미터로 자동 패스트포워드
-  const _startTick = parseInt(new URLSearchParams(location.search).get('startTick') || '0');
+  const _startTick = parseInt(tlQuery('startTick') || '0');
   if (_startTick > 0) {
     // 서버 tick × 200ms/tick ÷ 8 배속 = 패스트포워드 필요 시간(ms)
     const _ffDuration = Math.min(_startTick * 200 / 8, 12000);

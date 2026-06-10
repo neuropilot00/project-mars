@@ -1,3 +1,17 @@
+## 2026-06-10 — Tactical Lab 모듈화 계약 감사 반영 (v7.422)
+
+### ✅ 수정 완료
+- **[MED] 전술랩 호출 경로가 실전 전투/실험실에서 따로 관리됨**: battle viewer와 standalone tactical lab이 서로 다른 iframe URL 하드코딩을 사용했다. `buildTacticalLabUrl()`로 URL 생성 경로를 통합했다.
+- **[MED] 전술랩이 실험 HTML처럼 보이는 구조적 혼선**: 파일은 독립 HTML로 유지하되 `mode=battle`/`mode=sandbox` 계약을 추가해 메인 게임의 공식 전투 뷰어 모듈로 동작하게 했다.
+- **[LOW] iframe 종료 누락 회귀 위험**: 전투 뷰어와 전술 실험실 닫기 모두 `unloadTacticalLabFrame()`을 사용하게 정리했다. 닫힌 iframe의 WebAudio/rAF/WS 잔존 위험을 줄인다.
+- **[LOW] 부모 통신 경로 중복**: tactical-lab 내부의 `postMessage` 직접 호출을 `notifyParent()`로 정리하고 `ready` 메시지를 추가했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v88`로 갱신했다.
+
+### 검증 완료
+- `index.html`, `assets/tactical-lab-v11.html`, `assets/campaign-editor.html` inline script parse
+- `node --check sw.js`
+- `git diff --check`
+
 ## 2026-06-10 — SEA 로컬라이징/전술랩 i18n 감사 반영 (v7.421)
 
 ### ✅ 수정 완료

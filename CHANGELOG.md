@@ -1,3 +1,12 @@
+## 2026-06-10 v7.422 — Tactical Lab 독립 전투 뷰어 모듈 계약 정리
+
+- 실전 전투 뷰어와 전술 실험실이 tactical-lab iframe URL을 각각 하드코딩하던 경로를 `buildTacticalLabUrl()`로 통합했다.
+- 전술랩 호출 계약을 `mode=battle` / `mode=sandbox`로 분리했다. 실전 전투는 `bid`, `wallet`, `startTick`, `lang`을 명시적으로 전달한다.
+- iframe 닫기/언로드를 `unloadTacticalLabFrame()`으로 통일해 닫힌 전술랩의 WebAudio, requestAnimationFrame, WebSocket이 살아남는 회귀를 줄였다.
+- `assets/tactical-lab-v11.html` 내부 query 파싱과 부모 통신을 `TL_QUERY`, `TL_MODE`, `tlQuery()`, `notifyParent()`로 정리했다.
+- tactical-lab이 로드되면 부모에 `ready` 메시지를 보내 모듈 생명주기를 추적할 수 있게 했다.
+- UI/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v88`로 갱신했다.
+
 ## 2026-06-10 v7.421 — SEA 로컬라이징 부트스트랩 + 전술랩 i18n
 
 - 메인 앱 언어 시스템에 인도네시아어(`id`), 베트남어(`vi`), 태국어(`th`) 슬롯을 추가했다.

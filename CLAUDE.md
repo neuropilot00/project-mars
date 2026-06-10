@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-10 v7.421 (SEA Localization Bootstrap + Tactical Lab i18n) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-10 v7.422 (Tactical Lab Viewer Module Contract) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.422 최신 핸드오프 — Tactical Lab 독립 전투 뷰어 모듈 계약 정리
+
+- `assets/tactical-lab-v11.html`은 계속 독립 iframe으로 유지한다. 메인 `index.html`에 병합하지 않는다.
+- 메인 게임의 실전 전투 뷰어와 전술 실험실은 모두 `buildTacticalLabUrl()`을 통해 같은 모듈 URL을 만든다.
+- 실전 전투는 `mode=battle&bid=...&wallet=...&lang=...`, 전술 실험은 `mode=sandbox&lang=...` 계약을 사용한다.
+- iframe unload는 `unloadTacticalLabFrame()`으로 통일했다. 닫힌 뒤 WebAudio/rAF/WS가 살아남는 회귀를 막는다.
+- tactical-lab 내부는 `TL_QUERY`, `TL_MODE`, `tlQuery()`, `notifyParent()`를 사용한다. 부모 통신은 `ready`, `ws_end`, `battle_final_done`, `forfeit`, commander command로 정리한다.
+- UI/JS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v88`로 올렸다.
 
 ### v7.421 최신 핸드오프 — SEA 로컬라이징 슬롯 + 전술랩 번역 부트스트랩
 
@@ -1143,7 +1152,22 @@ async function doSomething(id) {
 
 > ✅ `admin.html` `prompt()` / `alert()` 전부 제거 완료 (2026-04-28). `adminInput()` + `showToast()` 구현됨.
 
-### assets/tactical-lab-v11.html — 독립 iframe
+### assets/tactical-lab-v11.html — 독립 iframe 전투 뷰어 모듈
+
+메인 게임은 `buildTacticalLabUrl()`로만 tactical-lab URL을 만든다.
+```javascript
+// 실전 전투
+buildTacticalLabUrl({ mode:'battle', battleId, wallet, startTick });
+
+// 전술 실험
+buildTacticalLabUrl({ mode:'sandbox' });
+```
+
+URL 계약:
+```text
+/assets/tactical-lab-v11.html?mode=battle&bid={battleId}&wallet={wallet}&lang={lang}&v={ASSET_VER}&t={Date.now()}
+/assets/tactical-lab-v11.html?mode=sandbox&lang={lang}&v={ASSET_VER}&t={Date.now()}
+```
 
 tactical-lab은 iframe으로 실행되므로 부모의 `gameConfirm`에 접근 불가. 인라인 오버레이 방식 사용:
 ```javascript
@@ -1163,7 +1187,7 @@ async function confirmForfeit() {
 
 부모(index.html)와 통신은 postMessage:
 ```javascript
-window.parent.postMessage({ source:'tactical-lab', battleId, cmd:'forfeit', payload:d }, '*');
+notifyParent('forfeit', d, battleId);
 // 부모에서: window.addEventListener('message', function(e) { if (e.data.cmd==='forfeit') ... })
 ```
 
