@@ -1,3 +1,10 @@
+## 2026-06-11 v7.461 — Guild 라우트 분리
+
+- 길드 생성/가입/초대/권한/채팅/기여/연구/길드전 라우트를 `server/routes/guildRoutes.js`로 분리했다.
+- 기존 `/api/guild/*` URL 계약과 라우트 순서를 유지했다.
+- `server/routes/api.js`에는 영토/하베스트/경제 core만 남기고 길드 HTTP 엔드포인트 책임을 제거했다.
+- `guildService`, `seasonService`, `pool`, `getSetting` 의존성을 새 라우터에 명시해 길드 기능의 변경 위치를 단일화했다.
+
 ## 2026-06-11 v7.460 — Sector Control 라우트 분리
 
 - 섹터 영향력/컨트롤 조회 라우트를 `server/routes/sectorControlRoutes.js`로 분리했다.

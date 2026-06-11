@@ -1,3 +1,19 @@
+## 2026-06-11 — Guild 라우트 분리 감사 반영 (v7.461)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 길드 HTTP 라우트가 대량 혼재됨**: `server/routes/guildRoutes.js`로 분리했다.
+- **[LOW] 길드/길드전 유지보수 위치 불명확**: 생성, 초대, 가입 요청, 권한 변경, 채팅, 기여, 연구, 길드전, 미니게임 continue 비용 조회를 한 라우터로 단일화했다.
+- **[LOW] `/api/guild/:id` 라우트 순서 회귀 위험**: 기존 정적 라우트/동적 라우트 순서를 그대로 보존했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 claim/hijack/withdraw/harvest/territory core가 남아 있어 다음 분리 후보는 territory economy 또는 harvest core다.
+
+### 검증 완료
+- `node --check server/routes/guildRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Sector Control 라우트 분리 감사 반영 (v7.460)
 
 ### ✅ 수정 완료
