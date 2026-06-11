@@ -1,3 +1,19 @@
+## 2026-06-11 — Notification/Away Briefing 라우트 분리 감사 반영 (v7.448)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 알림/부재 브리핑 라우트가 남아 있어 플레이어 상태 API 책임이 분산됨**: 알림 조회/읽음 처리와 부재 중 손실 브리핑을 `server/routes/notificationRoutes.js`로 분리했다.
+- **[LOW] 알림 읽음 처리 인증 회귀 위험**: `/api/notifications/read`, `/api/notifications/read-all`, `/api/me/away-briefing`의 `requireAuth` 정책을 유지했다.
+- **[LOW] bounty 테이블 미존재 환경 회귀 위험**: 부재 브리핑의 bounty 조회 fallback을 새 라우터에서도 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/notificationRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — 실사용 Title/Hall-of-Fame 라우트 분리 감사 반영 (v7.447)
 
 ### ✅ 수정 완료

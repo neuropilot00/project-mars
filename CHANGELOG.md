@@ -1,3 +1,10 @@
+## 2026-06-11 v7.448 — Notification/Away Briefing 라우트 분리
+
+- 플레이어 알림 조회/읽음 처리와 부재 중 손실 브리핑 라우트를 `server/routes/notificationRoutes.js`로 분리했다.
+- 기존 `/api/notifications`, `/api/notifications/read`, `/api/notifications/read-all`, `/api/me/away-briefing` URL 계약은 유지했다.
+- 알림 조회의 wallet 입력 방식, 읽음 처리 인증, bounty 테이블 부재 시 fallback 정책은 기존 흐름 그대로 유지했다.
+- `server/index.js`에 `notificationRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
+
 ## 2026-06-11 v7.447 — 실사용 Title/Hall-of-Fame 라우트 분리
 
 - 프론트가 실제 호출하는 title 목록/장착과 명예의 전당 조회 라우트를 `server/routes/titleRoutes.js`로 분리했다.

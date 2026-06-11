@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.447 (System Cleanup Pass 23) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.448 (System Cleanup Pass 24) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.448 최신 핸드오프 — Notification/Away Briefing 라우트 분리
+
+- `server/routes/notificationRoutes.js`를 추가했다. 플레이어 알림 조회/읽음 처리와 부재 중 브리핑 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 `/api/notifications`, `/api/notifications/read`, `/api/notifications/read-all`, `/api/me/away-briefing` 호출은 동일하게 동작한다.
+- 알림 조회의 `x-wallet`/query wallet 허용, 읽음 처리의 `requireAuth`, 부재 브리핑의 bounty fallback 정책은 기존 그대로 유지했다.
+- `server/index.js`는 `notificationRoutes`를 `/api` 아래에 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트한다.
+- 이번 변경은 서버 스파게티 정리 10차다. 다음 후보는 `api.js` 내 guild 또는 territory/harvest core 계열 분리다.
+- 검증 기준: `node --check server/routes/notificationRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.447 최신 핸드오프 — 실사용 Title/Hall-of-Fame 라우트 분리
 
