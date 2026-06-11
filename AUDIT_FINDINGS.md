@@ -1,3 +1,26 @@
+## 2026-06-11 — War Betting 모달 CSS 외부화 감사 반영 (v7.436)
+
+### ✅ 수정 완료
+- **[LOW] War Betting 스타일이 `index.html` 메인 `<style>`에 남아 UI 책임이 단일화되지 않음**: War Betting 모달, 이벤트 카드, 옵션 버튼, 베팅 입력, 내 베팅 내역 스타일을 `assets/war-betting-modal.css`로 분리했다.
+- **[LOW] 인접 채팅/온보딩 스타일까지 함께 이동할 경우 범위가 섞일 위험**: `.wb-*` 계열 War Betting 전용 스타일만 이동하고 채팅 오버레이/온보딩 힌트는 기존 위치에 유지했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/CSS 변경 반영을 위해 Service Worker 캐시를 `mars-v101`로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. 채팅/온보딩 CSS, Daily OPS 스타일/렌더 정리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/shipyard-modal.js`
+- `node --check assets/fleet-command-modal.js`
+- `node --check assets/game-dialogs.js`
+- `node --check assets/ship-catalog-modals.js`
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/war-betting-modal.css` load
+- `git diff --check`
+
 ## 2026-06-11 — Battle Hub/Viewer 모달 CSS 외부화 감사 반영 (v7.435)
 
 ### ✅ 수정 완료

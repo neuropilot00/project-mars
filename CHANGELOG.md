@@ -1,3 +1,9 @@
+## 2026-06-11 v7.436 — War Betting 모달 CSS 외부화
+
+- War Betting 모달, 이벤트 카드, 옵션 버튼, 베팅 입력, 내 베팅 내역 스타일을 `assets/war-betting-modal.css`로 분리했다.
+- `index.html`은 War Betting 전용 CSS 링크만 남기고, 채팅 오버레이/온보딩 힌트 스타일은 기존 위치에 유지했다.
+- UI/CSS 캐시 반영을 위해 Service Worker 캐시를 `mars-v101`로 갱신했다.
+
 ## 2026-06-11 v7.435 — Battle Hub/Viewer 모달 CSS 외부화
 
 - Battle Hub, Battle Declare, Commander Actions, Battle Renderer/Viewer, Battle Result/Report, AI Practice, Tournament, Hijack 핵심 스타일을 `assets/battle-hub-modal.css`로 분리했다.
