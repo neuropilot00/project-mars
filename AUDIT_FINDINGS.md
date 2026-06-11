@@ -1,3 +1,19 @@
+## 2026-06-11 — Economy Utility 라우트 분리 감사 반영 (v7.459)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js` 하단에 판매 오버레이/GP activity/송금/내 판매 영토 조회 책임이 섞여 있음**: `server/routes/economyUtilityRoutes.js`로 분리했다.
+- **[MEDIUM] GP 송금 회귀 위험**: 송신자 `FOR UPDATE` 잠금, 일일 한도, 수수료, 잔액 동시성 검증, 수신자 알림/로그 정책을 유지했다.
+- **[LOW] `/api/user/my-territories` 정적 경로 shadowing 위험**: 기존 `mapQueryRoutes`의 `next()` 정책을 유지하고 `economyUtilityRoutes`를 `apiRoutes`보다 앞에 마운트했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 harvest/territory/guild/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/economyUtilityRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Legacy Quest 라우트 분리 감사 반영 (v7.458)
 
 ### ✅ 수정 완료

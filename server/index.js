@@ -158,6 +158,7 @@ const sectorQueryRoutes    = require('./routes/sectorQueryRoutes');   // Legacy 
 const playerStatusRoutes   = require('./routes/playerStatusRoutes');  // Achievements/news/onboarding/activity feed
 const cosmeticRoutes       = require('./routes/cosmeticRoutes');      // Territory cosmetic equip/unequip routes
 const questRoutes          = require('./routes/questRoutes');         // Legacy random quest routes
+const economyUtilityRoutes = require('./routes/economyUtilityRoutes'); // Marketplace overlay + GP utility routes
 const territoryIdentityRoutes = require('./routes/territoryIdentity'); // 영토 정체성 + 섹터 갈등맵
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
@@ -430,6 +431,7 @@ app.use('/api', apiLimiter, sectorQueryRoutes);               // Legacy sector m
 app.use('/api', apiLimiter, playerStatusRoutes);              // Achievements/news/onboarding/activity feed
 app.use('/api', apiLimiter, cosmeticRoutes);                  // Territory cosmetic equip/unequip routes
 app.use('/api', apiLimiter, questRoutes);                     // Legacy random quest routes
+app.use('/api', apiLimiter, economyUtilityRoutes);            // Marketplace overlay + GP utility routes
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);

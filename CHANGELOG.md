@@ -1,3 +1,10 @@
+## 2026-06-11 v7.459 — Economy Utility 라우트 분리
+
+- 판매 영토 오버레이, GP activity, 내 판매 가능 영토 목록, GP 송금/송금 이력을 `server/routes/economyUtilityRoutes.js`로 분리했다.
+- 기존 `/api/for-sale-territories`, `/api/gp/activity`, `/api/user/my-territories`, `/api/gp/transfer`, `/api/gp/transfers` URL 계약과 응답 구조는 유지했다.
+- GP 송금의 송신자 row lock, 일일 한도, 수수료, 수신자 검증, 활동 로그/알림/news side-effect 정책은 유지했다.
+- `server/routes/api.js`에서 하단 경제 보조 라우트 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.458 — Legacy Quest 라우트 분리
 
 - 랜덤 퀘스트 조회/진행/수령/트래킹 라우트를 `server/routes/questRoutes.js`로 분리했다.
