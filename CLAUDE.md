@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.425 (System Cleanup Pass 1) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.426 (System Cleanup Pass 2) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -18,7 +18,16 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
-### v7.425 최신 핸드오프 — 시스템 공통부 스파게티 정리 1차
+### v7.426 최신 핸드오프 — 전술랩 모달 JS 외부화
+
+- `assets/tactical-lab-modal.js`를 추가했다. 전술랩 iframe URL 생성, iframe unload, sandbox 모달 열기/닫기, ESC 닫기, postMessage 처리, 후퇴/전투종료/커맨더 명령 API 호출을 이 파일로 이동했다.
+- `index.html`은 전술랩 모달 마크업과 외부 스크립트 로드만 남긴다. 전술랩 wrapper 로직은 더 이상 거대 인라인 스크립트 안에 섞이지 않는다.
+- 실전 전투 뷰어의 `openBattleViewer()`/`closeBattleViewer()`는 기존처럼 `buildTacticalLabUrl()`/`unloadTacticalLabFrame()`을 호출한다. 함수는 외부 파일에서 전역으로 제공한다.
+- UI/JS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v91`로 올렸다.
+- 이번 변경은 프론트 스파게티 정리 2차다. `index.html` 전체 분해 완료가 아니다. 다음 저위험 후보는 Daily OPS/Shipyard/Fleet Command처럼 DOM id와 API 경계가 명확한 블록을 파일 단위로 분리하는 것이다.
+- 검증 기준: `node --check assets/tactical-lab-modal.js`, `node --check sw.js`, `index.html` inline script parse, `git diff --check`.
+
+### v7.425 핸드오프 — 시스템 공통부 스파게티 정리 1차
 
 - `server/utils/rateLimiters.js`를 추가했다. `express-rate-limit`의 `standardHeaders`, `legacyHeaders`, Redis store error policy, string/object message 변환을 한 곳에서 처리한다.
 - `server/index.js`와 `server/routes/api.js`의 rate limiter 생성은 `makeRateLimiter()`를 사용한다. API 계약과 제한값은 유지했다.

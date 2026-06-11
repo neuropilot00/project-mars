@@ -1,3 +1,11 @@
+## 2026-06-11 v7.426 — Tactical Lab 모달 JS 외부화
+
+- 전술랩 iframe URL 생성, iframe unload, sandbox 모달 열기/닫기, ESC 닫기 로직을 `assets/tactical-lab-modal.js`로 분리했다.
+- tactical-lab iframe `postMessage` 처리와 후퇴/전투종료/커맨더 명령 API 호출도 같은 파일로 이동했다.
+- `index.html`은 전술랩 모달 마크업과 외부 스크립트 로드만 남기도록 정리했다.
+- 기존 sandbox/battle iframe 계약과 서버 commander-action API payload는 유지했다.
+- UI/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v91`로 갱신했다.
+
 ## 2026-06-11 v7.425 — 시스템 공통부 스파게티 정리 1차
 
 - 서버 rate limiter 생성 로직을 `server/utils/rateLimiters.js`로 일원화했다.

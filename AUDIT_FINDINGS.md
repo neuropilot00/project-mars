@@ -1,3 +1,20 @@
+## 2026-06-11 — Tactical Lab 모달 JS 외부화 감사 반영 (v7.426)
+
+### ✅ 수정 완료
+- **[LOW] 전술랩 wrapper JS가 `index.html` 거대 인라인 스크립트에 섞여 있음**: 전술랩 URL 생성, iframe unload, sandbox 모달 열기/닫기, ESC 닫기, postMessage 처리, 후퇴/전투종료/커맨더 명령 API 호출을 `assets/tactical-lab-modal.js`로 분리했다.
+- **[LOW] 전술랩 생명주기 관리 지점이 CSS/JS/HTML에 흩어질 위험**: `index.html`에는 모달 마크업과 외부 스크립트 로드만 남겼다. 전술랩 wrapper 동작은 새 JS 파일이 단일 관리 지점이다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v91`로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Daily OPS, Shipyard, Fleet Command처럼 API/DOM 경계가 분명한 블록을 다음 단위로 분리해야 한다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- `git diff --check`
+
 ## 2026-06-11 — 시스템 공통부 스파게티 정리 1차 감사 반영 (v7.425)
 
 ### ✅ 수정 완료
