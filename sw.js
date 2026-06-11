@@ -97,7 +97,8 @@
 // 2026-06-11 v100: v7.435 Battle Hub/Viewer 모달 CSS 외부화.
 // 2026-06-11 v101: v7.436 War Betting 모달 CSS 외부화.
 // 2026-06-11 v102: v7.437 채팅/온보딩 오버레이 CSS 외부화.
-const CACHE_NAME = 'mars-v102';
+// 2026-06-11 v103: v7.438 Faction 모달 CSS 외부화.
+const CACHE_NAME = 'mars-v103';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

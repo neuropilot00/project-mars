@@ -1,3 +1,9 @@
+## 2026-06-11 v7.438 — Faction 모달 CSS 외부화
+
+- Faction Selection 모달, 파벌 카드, 파벌 밸런스 바, 파벌 토스트 스타일을 `assets/faction-modal.css`로 분리했다.
+- `index.html`은 Faction 전용 CSS 링크만 남기고, 공통 모바일 모달 safe-area 규칙은 기존 위치에 유지했다.
+- UI/CSS 캐시 반영을 위해 Service Worker 캐시를 `mars-v103`으로 갱신했다.
+
 ## 2026-06-11 v7.437 — 채팅/온보딩 오버레이 CSS 외부화
 
 - 우하단 채팅 오버레이와 온보딩 힌트 스타일을 `assets/utility-overlays.css`로 분리했다.
