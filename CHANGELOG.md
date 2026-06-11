@@ -1,3 +1,10 @@
+## 2026-06-11 v7.454 — User BASE Summary 라우트 분리
+
+- BASE 탭 통합 조회 `/api/user/:wallet/base`를 `server/routes/userBaseRoutes.js`로 분리했다.
+- 기존 URL 계약과 응답 구조는 유지했다.
+- lazy rank recalculation, 채굴 interval/rate 계산, 영토 요약, 수확 가능 여부, rank breakthrough 표시 정책은 기존 동작 그대로 유지했다.
+- `server/routes/api.js`에서 BASE 조회 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.453 — Public Stats/Rank 라우트 분리
 
 - 공개 리더보드, 글로벌 통계, 클라이언트 에러 리포트, 랭크 정의, 돌파 진행 조회를 `server/routes/statsRoutes.js`로 분리했다.
