@@ -1,3 +1,10 @@
+## 2026-06-11 v7.441 — Mission 라우트 분리
+
+- 단일 플레이 OPS 미션의 패드 조회, 프리뷰, 발사, 활성 목록, 보상 수령, 취소 라우트를 `server/routes/missionRoutes.js`로 분리했다.
+- 기존 `/api/missions/*` URL 계약과 보상 수령 후 시즌 점수 best-effort 반영은 유지했다.
+- `server/index.js`에 `missionRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
+- `server/routes/api.js`에서 이동 후 불필요해진 `missionService` require를 제거했다.
+
 ## 2026-06-11 v7.440 — Item Economy 라우트 단일화
 
 - 아이템 상점, 아이템 인스턴스, 강화 비용/확률/실행, 자동 갱신, 보호 주문서 라우트를 `server/routes/itemEconomyRoutes.js`로 분리했다.

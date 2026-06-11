@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.440 (System Cleanup Pass 16) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.441 (System Cleanup Pass 17) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.441 최신 핸드오프 — Mission 라우트 분리
+
+- `server/routes/missionRoutes.js`를 추가했다. 단일 플레이 OPS 미션의 패드 조회, 프리뷰, 발사, 활성 목록, 보상 수령, 취소 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 `/api/missions/pads`, `/api/missions/preview`, `/api/missions/launch`, `/api/missions/active`, `/api/missions/:id/claim`, `/api/missions/:id/cancel` 호출은 동일하게 동작한다.
+- 미션 보상 수령 후 시즌 점수 best-effort 반영은 새 라우터 안으로 함께 이동했다. `missionRoutes`는 `missionService`와 `seasonService`만 직접 참조한다.
+- `server/index.js`는 `missionRoutes`를 `/api` 아래에 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트한다.
+- 이번 변경은 서버 스파게티 정리 3차다. 다음 후보는 `api.js` 내 guild/season/exploration/rocket/territory 계열 분리다.
+- 검증 기준: `node --check server/routes/missionRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.440 최신 핸드오프 — Item Economy 라우트 단일화
 
