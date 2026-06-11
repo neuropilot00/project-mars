@@ -5601,116 +5601,8 @@ router.get('/rockets/priority', readLimiter, async (req, res) => {
 
 // Shop auto-renew routes live in routes/itemEconomyRoutes.js.
 
-// ══════════════════════════════════════════════════════════════
-//  SEASON SYSTEM
-// ══════════════════════════════════════════════════════════════
-
-// Get active season info
-router.get('/season/active', readLimiter, async (req, res) => {
-  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
-  try {
-    const season = await seasonService.getActiveSeason();
-    res.json({ season });
-  } catch (e) {
-    console.error('[SEASON] active error:', e.message);
-    res.status(500).json({ error: 'Failed to get season' });
-  }
-});
-
-// Get season leaderboard
-router.get('/season/leaderboard', readLimiter, async (req, res) => {
-  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
-  try {
-    const seasonId = req.query.seasonId ? parseInt(req.query.seasonId) : null;
-    const lb = await seasonService.getSeasonLeaderboard(seasonId, parseInt(req.query.limit) || 20);
-    res.json({ leaderboard: lb });
-  } catch (e) {
-    console.error('[SEASON] leaderboard error:', e.message);
-    res.status(500).json({ error: 'Failed to get leaderboard' });
-  }
-});
-
-// GET /api/season/category/:key — top players for a specific season category (Migration 098)
-router.get('/season/category/:key', readLimiter, async (req, res) => {
-  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
-  try {
-    const result = await seasonService.getCategoryLeaderboard(req.params.key, parseInt(req.query.limit) || 10);
-    if (!result) return res.status(404).json({ error: 'Category not found' });
-    res.json(result);
-  } catch (e) {
-    console.error('[SEASON] category lb error:', e.message);
-    res.status(500).json({ error: 'internal_error' });
-  }
-});
-
-// GET /api/stats/career?wallet= — career lifetime stats (Migration 098)
-router.get('/stats/career', readLimiter, async (req, res) => {
-  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
-  const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
-  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
-  try {
-    const stats = await seasonService.getCareerStats(wallet);
-    res.json(stats);
-  } catch (e) {
-    console.error('[STATS] career error:', e.message);
-    res.status(500).json({ error: 'internal_error' });
-  }
-});
-
-// Get my season rewards
-router.get('/season/rewards', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
-  if (!w) return res.status(400).json({ error: 'Missing wallet' });
-  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
-  try {
-    const rewards = await seasonService.getMyRewards(w);
-    res.json({ rewards });
-  } catch (e) {
-    console.error('[SEASON] rewards error:', e.message);
-    res.status(500).json({ error: 'Failed to get rewards' });
-  }
-});
-
-// Claim season reward
-router.post('/season/claim', requireAuth, writeLimiter, async (req, res) => {
-  const { rewardId } = req.body;
-  const w = getAuthWallet(req);
-  if (!w || !rewardId) return res.status(400).json({ error: 'Missing fields' });
-  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
-  try {
-    const result = await seasonService.claimSeasonReward(w, parseInt(rewardId));
-    if (result.error) return res.status(400).json(result);
-    res.json(result);
-  } catch (e) {
-    console.error('[SEASON] claim error:', e.message);
-    res.status(500).json({ error: 'Failed to claim reward' });
-  }
-});
-
-// Track share action for "Influencer" season category
-router.post('/season/share', requireAuth, writeLimiter, async (req, res) => {
-  try {
-    const w = getAuthWallet(req);
-    if (!w) return res.json({ ok: true });
-    if (seasonService) { seasonService.addSeasonScore(w, 'share', 1).catch(() => {}); }
-    res.json({ ok: true });
-  } catch (e) { res.json({ ok: true }); }
-});
-
-// Track taps/clicks for "Most Active" season category (batched from frontend)
-router.post('/season/taps', requireAuth, writeLimiter, async (req, res) => {
-  try {
-    const { count } = req.body;
-    const w = getAuthWallet(req);
-    if (!w || !count || count < 1) return res.json({ ok: true });
-    // Cap at 500 per batch to prevent abuse
-    const taps = Math.min(parseInt(count) || 0, 500);
-    if (taps > 0) {
-      seasonService.addSeasonScore(w, 'tap', taps).catch(() => {});
-    }
-    res.json({ ok: true, recorded: taps });
-  } catch (e) { res.json({ ok: true }); }
-});
+// Season routes live in routes/seasonRoutes.js. Season score hooks remain inline
+// in gameplay routes so existing non-blocking side effects stay close to actions.
 
 // ══════════════════════════════════════════════════════════════
 //  GUILD SYSTEM
@@ -6436,44 +6328,7 @@ router.get('/guild/research-bonuses', readLimiter, async (req, res) => {
   } catch (e) { res.json({ bonuses: {} }); }
 });
 
-// ═══════════════════════════════════════
-//  SEASON PASS
-// ═══════════════════════════════════════
-
-router.get('/season/pass', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
-  if (!w) return res.status(400).json({ error: 'Missing wallet' });
-  try {
-    const seasonService = require('../services/season');
-    const pass = await seasonService.getSeasonPass(w);
-    if (pass.error) return res.status(400).json(pass);
-    pass.premiumCost = parseInt(await getSetting('season_pass_premium_cost_gp') || '500');
-    res.json(pass);
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-router.post('/season/pass/purchase', requireAuth, writeLimiter, async (req, res) => {
-  const w = getAuthWallet(req);
-  if (!w) return res.status(400).json({ error: 'Missing wallet' });
-  try {
-    const seasonService = require('../services/season');
-    const r = await seasonService.purchasePremiumPass(w);
-    if (r.error) return res.status(400).json(r);
-    res.json(r);
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-router.post('/season/pass/claim', requireAuth, writeLimiter, async (req, res) => {
-  const { tier, isPremium } = req.body || {};
-  const w = getAuthWallet(req);
-  if (!w || tier === undefined) return res.status(400).json({ error: 'Missing fields' });
-  try {
-    const seasonService = require('../services/season');
-    const r = await seasonService.claimPassTier(w, parseInt(tier), !!isPremium);
-    if (r.error) return res.status(400).json(r);
-    res.json(r);
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
+// Season pass routes live in routes/seasonRoutes.js.
 
 // ═══════════════════════════════════════
 //  GUILD WAR MINIGAMES

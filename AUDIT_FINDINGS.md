@@ -1,3 +1,19 @@
+## 2026-06-11 — Season 라우트 분리 감사 반영 (v7.442)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 시즌 상태/보상/패스 라우트가 남아 있어 시즌 API 책임이 단일화되지 않음**: 시즌 상태, 리더보드, 카테고리, 커리어 통계, 보상, 공유/탭, 시즌패스 라우트를 `server/routes/seasonRoutes.js`로 분리했다.
+- **[LOW] 시즌 점수 훅을 함께 이동할 경우 게임 액션 side-effect 회귀 위험**: claim/hijack/harvest/weather/exploration/guild 액션의 best-effort 점수 기록은 기존 위치에 유지했다.
+- **[LOW] 기존 `/api/season/*`와 `/api/stats/career` URL 계약 회귀 위험**: `server/index.js`에서 `seasonRoutes`를 기존 `apiRoutes`보다 앞에 `/api` + `apiLimiter`로 마운트했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/exploration/rocket/territory/harvest 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/seasonRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Mission 라우트 분리 감사 반영 (v7.441)
 
 ### ✅ 수정 완료

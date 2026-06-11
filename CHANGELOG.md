@@ -1,3 +1,10 @@
+## 2026-06-11 v7.442 — Season 라우트 분리
+
+- 시즌 상태, 리더보드, 카테고리 리더보드, 커리어 통계, 보상 조회/수령, 공유/탭 기록, 시즌패스 조회/구매/수령 라우트를 `server/routes/seasonRoutes.js`로 분리했다.
+- 기존 `/api/season/*`와 `/api/stats/career` URL 계약은 유지했다.
+- `server/index.js`에 `seasonRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
+- `api.js`의 시즌 점수 best-effort 훅은 기존 게임 액션 라우트에 유지했다.
+
 ## 2026-06-11 v7.441 — Mission 라우트 분리
 
 - 단일 플레이 OPS 미션의 패드 조회, 프리뷰, 발사, 활성 목록, 보상 수령, 취소 라우트를 `server/routes/missionRoutes.js`로 분리했다.
