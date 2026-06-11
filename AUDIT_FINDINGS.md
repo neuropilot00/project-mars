@@ -1,3 +1,22 @@
+## 2026-06-11 — 버그 리포터 CSS 외부화 감사 반영 (v7.428)
+
+### ✅ 수정 완료
+- **[LOW] 버그 리포터 스타일이 `index.html` 하단 인라인 CSS로 남아 관리 지점이 흐림**: FAB, 모바일 위치 규칙, 모달 카드, 스크린샷 드롭존, 제출 버튼 스타일을 `assets/bug-reporter.css`로 분리했다.
+- **[LOW] 버그 리포터 UI/동작 책임이 한 파일에 섞일 위험**: 스타일은 `assets/bug-reporter.css`, 동작은 `assets/bug-reporter.js`, 마크업은 `index.html`로 역할을 분리했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/CSS 변경 반영을 위해 Service Worker 캐시를 `mars-v93`으로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Daily OPS, Shipyard, Fleet Command 분리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/bug-reporter.css` / `/assets/bug-reporter.js` load
+- `git diff --check`
+
 ## 2026-06-11 — 버그 리포터 JS 외부화 감사 반영 (v7.427)
 
 ### ✅ 수정 완료

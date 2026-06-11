@@ -87,7 +87,8 @@
 // 2026-06-11 v90: v7.424 전술랩 모달 CSS 외부화 + wrapper JS 헬퍼 정리.
 // 2026-06-11 v91: v7.426 전술랩 모달 wrapper JS 외부화.
 // 2026-06-11 v92: v7.427 버그 리포터 JS 외부화.
-const CACHE_NAME = 'mars-v92';
+// 2026-06-11 v93: v7.428 버그 리포터 CSS 외부화.
+const CACHE_NAME = 'mars-v93';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
