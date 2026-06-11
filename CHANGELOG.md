@@ -1,3 +1,11 @@
+## 2026-06-11 v7.458 — Legacy Quest 라우트 분리
+
+- 랜덤 퀘스트 조회/진행/수령/트래킹 라우트를 `server/routes/questRoutes.js`로 분리했다.
+- 기존 `/api/quests`, `/api/quests/:id/progress`, `/api/quests/:id/claim`, `/api/quests/track` URL 계약과 응답 구조는 유지했다.
+- 퀘스트 자동 생성, 만료 처리, GP 보상 환산, 일일 보상 캡, XP 지급 정책은 기존 동작 그대로 유지했다.
+- `/api/quests/:id/progress` 완료 알림에서 존재하지 않는 `wallet` 변수를 참조하던 오류를 `w` 기준으로 수정했다.
+- `server/routes/api.js`에서 quest generation/progress 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.457 — Territory Cosmetic 라우트 분리
 
 - 영토 코스메틱 장착/해제/조회 라우트를 `server/routes/cosmeticRoutes.js`로 분리했다.

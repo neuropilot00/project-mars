@@ -1,3 +1,19 @@
+## 2026-06-11 — Legacy Quest 라우트 분리 감사 반영 (v7.458)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 랜덤 퀘스트 생성/진행/수령 책임이 섞여 있음**: `server/routes/questRoutes.js`로 분리했다.
+- **[MEDIUM] 퀘스트 완료 알림 ReferenceError 위험**: `/api/quests/:id/progress` 완료 시 존재하지 않는 `wallet` 변수 대신 인증 wallet `w`를 사용하도록 수정했다.
+- **[LOW] 퀘스트 보상 경제 회귀 위험**: GP 직접 지급, tier cap, user daily cap, XP 지급, 최근 수령 목록 응답 정책을 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 harvest/territory/guild/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/questRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Territory Cosmetic 라우트 분리 감사 반영 (v7.457)
 
 ### ✅ 수정 완료
