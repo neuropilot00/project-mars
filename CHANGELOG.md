@@ -1,3 +1,9 @@
+## 2026-06-11 v7.437 — 채팅/온보딩 오버레이 CSS 외부화
+
+- 우하단 채팅 오버레이와 온보딩 힌트 스타일을 `assets/utility-overlays.css`로 분리했다.
+- `index.html`은 오버레이 CSS 링크만 남기고, 초기 로딩 오버레이/비디오 스타일은 기존 위치에 유지했다.
+- UI/CSS 캐시 반영을 위해 Service Worker 캐시를 `mars-v102`로 갱신했다.
+
 ## 2026-06-11 v7.436 — War Betting 모달 CSS 외부화
 
 - War Betting 모달, 이벤트 카드, 옵션 버튼, 베팅 입력, 내 베팅 내역 스타일을 `assets/war-betting-modal.css`로 분리했다.

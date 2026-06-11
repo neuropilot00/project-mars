@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.436 (System Cleanup Pass 12) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.437 (System Cleanup Pass 13) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -18,7 +18,16 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
-### v7.436 최신 핸드오프 — War Betting 모달 CSS 외부화
+### v7.437 최신 핸드오프 — 채팅/온보딩 오버레이 CSS 외부화
+
+- `assets/utility-overlays.css`를 추가했다. 우하단 채팅 오버레이와 온보딩 힌트 스타일을 `index.html` 메인 `<style>`에서 분리했다.
+- 로딩 오버레이/비디오 스타일은 초기 렌더와 강하게 묶여 있어 `index.html`에 유지했다. 이번 변경은 채팅/온보딩 오버레이 전용 스타일만 단일화한다.
+- `index.html`에는 `assets/utility-overlays.css?v=7437` 로드만 남긴다.
+- UI/CSS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v102`로 올렸다.
+- 이번 변경은 프론트 스파게티 정리 13차다. 다음 후보는 Daily OPS 스타일/렌더, 랜딩/로딩 CSS, `server/routes/api.js` 도메인 라우트 분해다.
+- 검증 기준: `node --check assets/shipyard-modal.js`, `node --check assets/fleet-command-modal.js`, `node --check assets/game-dialogs.js`, `node --check assets/ship-catalog-modals.js`, `node --check assets/bug-reporter.js`, `node --check assets/tactical-lab-modal.js`, `node --check sw.js`, `index.html` inline script parse, static `/assets/utility-overlays.css` load, `git diff --check`.
+
+### v7.436 핸드오프 — War Betting 모달 CSS 외부화
 
 - `assets/war-betting-modal.css`를 추가했다. War Betting 모달, 이벤트 카드, 옵션 버튼, 베팅 입력, 내 베팅 내역 스타일을 `index.html` 메인 `<style>`에서 분리했다.
 - 바로 뒤에 붙어 있던 채팅 오버레이/온보딩 힌트 스타일은 별도 시스템이라 `index.html`에 유지했다. 이번 변경은 `.wb-*` 계열 War Betting 전용 스타일만 단일화한다.
