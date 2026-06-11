@@ -1,3 +1,10 @@
+## 2026-06-11 v7.457 — Territory Cosmetic 라우트 분리
+
+- 영토 코스메틱 장착/해제/조회 라우트를 `server/routes/cosmeticRoutes.js`로 분리했다.
+- 기존 `/api/cosmetic/equip`, `/api/cosmetic/unequip`, `/api/cosmetic/equipped` URL 계약과 응답 구조는 유지했다.
+- claim ownership 검증, 코스메틱 수량 차감/환수, PP equip fee 차감, `user_cosmetics` upsert, daily/season side-effect 정책은 기존 동작 그대로 유지했다.
+- `server/routes/api.js`에서 cosmetic 트랜잭션 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.456 — Player Status/Feed 라우트 분리
 
 - 업적 조회, 공개 뉴스, 온보딩 상태/닫기, 글로벌 activity feed를 `server/routes/playerStatusRoutes.js`로 분리했다.

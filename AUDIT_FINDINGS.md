@@ -1,3 +1,19 @@
+## 2026-06-11 — Territory Cosmetic 라우트 분리 감사 반영 (v7.457)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 코스메틱 장착/해제 트랜잭션 책임이 섞여 있음**: `server/routes/cosmeticRoutes.js`로 분리했다.
+- **[MEDIUM] 코스메틱 무한 장착/환수 회귀 위험**: 기존 `user_items` quantity 차감/환수와 `user_cosmetics` upsert 정책을 유지했다.
+- **[LOW] 코스메틱 장착 side-effect 회귀 위험**: PP fee 차감, daily mission, season score best-effort 반영을 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 quest/harvest/territory/guild/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/cosmeticRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Player Status/Feed 라우트 분리 감사 반영 (v7.456)
 
 ### ✅ 수정 완료
