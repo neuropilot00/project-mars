@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.449 (System Cleanup Pass 25) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.450 (System Cleanup Pass 26) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -34,6 +34,14 @@
 - URL 계약은 유지한다. 기존 프론트 설정/스왑/입금 보너스 조회 호출은 동일하게 동작한다.
 - `api.js`의 기존 게임 액션 라우트는 같은 `cfg()` 유틸을 import해서 설정 조회 방식만 단일화했다.
 - 검증 기준: `node --check server/utils/settingsCache.js`, `node --check server/routes/configRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
+
+### v7.450 최신 핸드오프 — DYNASTY Referral 라우트 분리
+
+- `server/routes/referralRoutes.js`를 추가했다. 추천 등록, 추천 통계, 추천 코드/수익 조회, DYNASTY 리더보드, 추천 트리 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 `/api/referral/register`, `/api/referral/stats/:wallet`, `/api/referral/:wallet`, `/api/referral/leaderboard/top`, `/api/referral/tree/:wallet` 호출은 동일하게 동작한다.
+- 등록 라우트의 JWT wallet 신뢰 정책, 자기추천 방지, season/achievement best-effort side-effect는 유지했다.
+- 하이잭/스왑/수확의 referral commission side-effect는 돈 흐름과 직접 연결되어 있어 기존 게임 액션 라우트에 남겨뒀다.
+- 검증 기준: `node --check server/routes/referralRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.447 최신 핸드오프 — 실사용 Title/Hall-of-Fame 라우트 분리
 

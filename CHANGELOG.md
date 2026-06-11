@@ -1,3 +1,10 @@
+## 2026-06-11 v7.450 — DYNASTY Referral 라우트 분리
+
+- 추천 등록, 추천 통계, 추천 코드/수익 조회, DYNASTY 리더보드, 추천 트리를 `server/routes/referralRoutes.js`로 분리했다.
+- 기존 `/api/referral/*` URL 계약과 JWT wallet 기반 등록 정책은 유지했다.
+- 추천 등록 후 시즌 점수/업적 반영은 best-effort로 유지했다.
+- 하이잭/스왑/수확 referral commission 지급 훅은 기존 게임 액션 라우트에 남겨 경제 루프 회귀 범위를 줄였다.
+
 ## 2026-06-11 v7.449 — Config/Deposit Bonus 라우트와 설정 캐시 단일화
 
 - `server/utils/settingsCache.js`를 추가해 기존 `api.js` 내부 설정 캐시와 입금 보너스 계산을 공통 유틸로 분리했다.

@@ -1,3 +1,19 @@
+## 2026-06-11 — DYNASTY Referral 라우트 분리 감사 반영 (v7.450)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 추천 조회/등록 라우트가 남아 있어 referral API 책임이 분산됨**: `server/routes/referralRoutes.js`로 분리했다.
+- **[MEDIUM] 추천 등록 보안 정책 회귀 위험**: 등록 라우트는 기존처럼 body wallet을 신뢰하지 않고 `getAuthWallet(req)`만 사용한다.
+- **[LOW] 추천 커미션 지급 side-effect 이동 중 경제 회귀 위험**: 하이잭/스왑/수확의 referral commission 지급 훅은 기존 게임 액션 안에 남겨뒀다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/referralRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Config/Deposit Bonus 라우트와 설정 캐시 단일화 감사 반영 (v7.449)
 
 ### ✅ 수정 완료
