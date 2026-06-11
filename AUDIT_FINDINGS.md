@@ -1,3 +1,19 @@
+## 2026-06-11 — 실사용 Title/Hall-of-Fame 라우트 분리 감사 반영 (v7.447)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 title/hall-of-fame 라우트가 남아 있어 칭호 API 책임이 분산됨**: 실사용 `/api/user/titles`, `/api/user/titles/equip`, `/api/hall-of-fame`, `/api/hall-of-fame/categories` 라우트를 `server/routes/titleRoutes.js`로 분리했다.
+- **[LOW] 레거시 `hallOfFameRoutes.js`와 실사용 경로 혼동 위험**: 기존 비활성 `/api/titles`/`/api/hof` 라우터는 건드리지 않고, 프론트가 실제 호출하는 경로만 분리했다.
+- **[LOW] title award side-effect 회귀 위험**: 영토 점령 등 게임 액션에서 발생하는 titleService/titleExt award 훅은 기존 위치에 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/titleRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Public Lore 라우트 Campaign 단일화 감사 반영 (v7.446)
 
 ### ✅ 수정 완료

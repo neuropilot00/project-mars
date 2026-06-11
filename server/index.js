@@ -146,6 +146,7 @@ const seasonRoutes         = require('./routes/seasonRoutes');      // Season st
 const worldOpsRoutes       = require('./routes/worldOpsRoutes');    // Weather/exploration/rocket routes
 const dailyRoutes          = require('./routes/dailyRoutes');       // Daily login/streak/mission routes
 const exchangeRoutes       = require('./routes/exchangeRoutes');    // PP to GP exchange routes
+const titleRoutes          = require('./routes/titleRoutes');       // User titles + hall-of-fame routes
 const territoryIdentityRoutes = require('./routes/territoryIdentity'); // 영토 정체성 + 섹터 갈등맵
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
@@ -404,6 +405,7 @@ app.use('/api', apiLimiter, seasonRoutes);                    // Season status/r
 app.use('/api', apiLimiter, worldOpsRoutes);                  // Weather/exploration/rocket routes
 app.use('/api', apiLimiter, dailyRoutes);                     // Daily login/streak/mission routes
 app.use('/api', apiLimiter, exchangeRoutes);                  // PP to GP exchange routes
+app.use('/api', apiLimiter, titleRoutes);                     // User titles + hall-of-fame routes
 app.use('/api/territory', territoryIdentityRoutes);           // 영토 정체성 (identity/FR)
 app.use('/api/sectors',   territoryIdentityRoutes);           // 섹터 갈등맵 (/api/sectors/conflict-map)
 app.use('/api', shieldRoutes);

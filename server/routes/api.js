@@ -5969,67 +5969,7 @@ router.get('/guild/war/continue-cost', readLimiter, async (req, res) => {
 
 // Protection scroll routes live in routes/itemEconomyRoutes.js.
 
-// ─────────────────────────────────────────────────────────────
-// TITLES & HALL OF FAME (Migration 088)
-// ─────────────────────────────────────────────────────────────
-
-// GET /api/user/titles?wallet=
-router.get('/user/titles', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase().trim();
-  if (!wallet) return res.status(400).json({ error: 'wallet_required' });
-  try {
-    if (!titleService) return res.json({ titles: [] });
-    const titles = await titleService.getUserTitles(wallet);
-    const equipped = titles.find(t => t.is_equipped) || null;
-    res.json({ titles, equipped });
-  } catch (e) {
-    console.error('[TITLE] GET /user/titles error:', e.message);
-    res.status(500).json({ error: 'internal_error' });
-  }
-});
-
-// POST /api/user/titles/equip — 칭호 장착
-// body: { wallet, titleCode }
-router.post('/user/titles/equip', requireAuth, writeLimiter, async (req, res) => {
-  const { titleCode } = req.body;
-  const wallet = getAuthWallet(req);
-  if (!wallet || !titleCode) return res.status(400).json({ error: 'missing_fields' });
-  try {
-    if (!titleService) return res.status(503).json({ error: 'title_service_unavailable' });
-    const result = await titleService.equipTitle(wallet, titleCode);
-    if (!result.success) return res.status(400).json(result);
-    res.json(result);
-  } catch (e) {
-    console.error('[TITLE] POST /user/titles/equip error:', e.message);
-    res.status(500).json({ error: 'internal_error' });
-  }
-});
-
-// GET /api/hall-of-fame?category=&limit=
-router.get('/hall-of-fame', readLimiter, async (req, res) => {
-  const category = req.query.category || null;
-  const limit = Math.min(parseInt(req.query.limit ?? '50'), 100);
-  try {
-    if (!titleService) return res.json({ entries: [] });
-    const entries = await titleService.getHallOfFame(category, limit);
-    res.json({ entries });
-  } catch (e) {
-    console.error('[TITLE] GET /hall-of-fame error:', e.message);
-    res.status(500).json({ error: 'internal_error' });
-  }
-});
-
-// GET /api/hall-of-fame/categories — 카테고리 목록
-router.get('/hall-of-fame/categories', readLimiter, async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT DISTINCT category, COUNT(*) AS cnt FROM hall_of_fame GROUP BY category ORDER BY category'
-    );
-    res.json({ categories: result.rows });
-  } catch (e) {
-    res.status(500).json({ error: 'internal_error' });
-  }
-});
+// User title and hall-of-fame routes live in routes/titleRoutes.js.
 
 // ── GET /api/for-sale-territories ──
 // Returns territories currently listed on marketplace or in active auction

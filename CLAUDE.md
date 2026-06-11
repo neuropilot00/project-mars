@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.446 (System Cleanup Pass 22) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.447 (System Cleanup Pass 23) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,14 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.447 최신 핸드오프 — 실사용 Title/Hall-of-Fame 라우트 분리
+
+- `server/routes/titleRoutes.js`를 추가했다. 프론트가 실제 호출하는 `/api/user/titles`, `/api/user/titles/equip`, `/api/hall-of-fame`, `/api/hall-of-fame/categories` 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 title 목록/장착과 명예의 전당 조회 호출은 동일하게 동작한다.
+- 기존 `server/routes/hallOfFameRoutes.js`는 `/api/titles`/`/api/hof`용 레거시 라우터이며 현재 `server/index.js`에서 비활성 상태다. 이번 변경은 실사용 경로만 대상으로 했다.
+- `api.js`의 `titleService`/`titleExt` 로드는 유지한다. 영토 점령 등 게임 액션에서 title award side-effect가 아직 해당 파일에 남아 있기 때문이다.
+- 검증 기준: `node --check server/routes/titleRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.446 최신 핸드오프 — Public Lore 라우트 Campaign 단일화
 

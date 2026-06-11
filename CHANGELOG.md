@@ -1,3 +1,10 @@
+## 2026-06-11 v7.447 — 실사용 Title/Hall-of-Fame 라우트 분리
+
+- 프론트가 실제 호출하는 title 목록/장착과 명예의 전당 조회 라우트를 `server/routes/titleRoutes.js`로 분리했다.
+- 기존 `/api/user/titles`, `/api/user/titles/equip`, `/api/hall-of-fame`, `/api/hall-of-fame/categories` URL 계약은 유지했다.
+- 비활성 레거시 `hallOfFameRoutes.js`와 혼동되지 않도록 실사용 경로 기준으로만 정리했다.
+- `api.js`의 title award side-effect 훅은 기존 게임 액션 라우트에 유지했다.
+
 ## 2026-06-11 v7.446 — Public Lore 라우트 Campaign 단일화
 
 - 로딩 화면용 `GET /api/lore`를 `server/routes/campaignRoutes.js`로 이동했다.
