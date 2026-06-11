@@ -1,3 +1,10 @@
+## 2026-06-11 v7.443 — World OPS 라우트 분리
+
+- 날씨 조회, POI/Starlink 탐사, POI 힌트, 로켓 이벤트/루트/트리거/우선권 라우트를 `server/routes/worldOpsRoutes.js`로 분리했다.
+- 기존 `/api/weather`, `/api/exploration/*`, `/api/rockets/*` URL 계약은 유지했다.
+- `server/index.js`에 `worldOpsRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
+- `api.js`의 날씨/탐사 서비스 로드는 생산 계산용으로 유지하고, 로켓 서비스 로드는 새 라우터로 이동했다.
+
 ## 2026-06-11 v7.442 — Season 라우트 분리
 
 - 시즌 상태, 리더보드, 카테고리 리더보드, 커리어 통계, 보상 조회/수령, 공유/탭 기록, 시즌패스 조회/구매/수령 라우트를 `server/routes/seasonRoutes.js`로 분리했다.

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.442 (System Cleanup Pass 18) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.443 (System Cleanup Pass 19) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,16 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.443 최신 핸드오프 — World OPS 라우트 분리
+
+- `server/routes/worldOpsRoutes.js`를 추가했다. 날씨 조회, POI/Starlink 탐사, POI 힌트, 로켓 이벤트/루트/트리거/우선권 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 `/api/weather`, `/api/exploration/*`, `/api/rockets/*` 호출은 동일하게 동작한다.
+- `api.js`의 `weatherService`/`explorationService` 로드는 유지한다. 영토 생산/수확 계산에서 날씨 modifier와 Starlink boost를 아직 직접 참조하기 때문이다.
+- `rocketService`는 엔드포인트 전용이어서 `api.js`에서 제거하고 새 라우터로 이동했다.
+- `server/index.js`는 `worldOpsRoutes`를 `/api` 아래에 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트한다.
+- 이번 변경은 서버 스파게티 정리 5차다. 다음 후보는 `api.js` 내 guild/territory/harvest 계열 분리다.
+- 검증 기준: `node --check server/routes/worldOpsRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.442 최신 핸드오프 — Season 라우트 분리
 

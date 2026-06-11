@@ -1,3 +1,19 @@
+## 2026-06-11 — World OPS 라우트 분리 감사 반영 (v7.443)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 날씨/탐사/로켓 라우트가 섞여 있어 월드 이벤트 책임이 단일화되지 않음**: 날씨, POI/Starlink, POI 힌트, 로켓 이벤트/루트/트리거/우선권 라우트를 `server/routes/worldOpsRoutes.js`로 분리했다.
+- **[LOW] 날씨/탐사 서비스를 완전히 제거할 경우 생산 계산 회귀 위험**: `api.js`의 `weatherService`/`explorationService` 로드는 영토 생산/수확 modifier 계산용으로 유지했다.
+- **[LOW] 기존 `/api/weather`, `/api/exploration/*`, `/api/rockets/*` URL 계약 회귀 위험**: `server/index.js`에서 `worldOpsRoutes`를 기존 `apiRoutes`보다 앞에 `/api` + `apiLimiter`로 마운트했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/worldOpsRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Season 라우트 분리 감사 반영 (v7.442)
 
 ### ✅ 수정 완료
