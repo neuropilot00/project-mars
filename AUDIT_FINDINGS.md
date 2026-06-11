@@ -1,3 +1,20 @@
+## 2026-06-11 — Config/Deposit Bonus 라우트와 설정 캐시 단일화 감사 반영 (v7.449)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js` 내부에 공개 설정/입금 보너스 라우트와 설정 캐시가 섞여 있음**: `server/routes/configRoutes.js`와 `server/utils/settingsCache.js`로 분리했다.
+- **[LOW] 설정 캐시 중복 생성 위험**: `api.js` 게임 액션 라우트와 config 라우트가 같은 `cfg()` 유틸을 사용하도록 단일화했다.
+- **[LOW] `/api/config` governance 조회 실패가 전체 config 실패로 번질 위험**: 기존 governance fallback 정책을 새 라우터에서도 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/utils/settingsCache.js`
+- `node --check server/routes/configRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Notification/Away Briefing 라우트 분리 감사 반영 (v7.448)
 
 ### ✅ 수정 완료

@@ -1,3 +1,10 @@
+## 2026-06-11 v7.449 — Config/Deposit Bonus 라우트와 설정 캐시 단일화
+
+- `server/utils/settingsCache.js`를 추가해 기존 `api.js` 내부 설정 캐시와 입금 보너스 계산을 공통 유틸로 분리했다.
+- `/api/public/swap-info`, `/api/wallet/deposit-bonus-info`, `/api/config` 라우트를 `server/routes/configRoutes.js`로 분리했다.
+- 기존 설정/스왑/입금 보너스 URL 계약과 governance fallback 정책은 유지했다.
+- `api.js`의 게임 액션 라우트도 같은 `cfg()` 유틸을 사용하도록 정리했다.
+
 ## 2026-06-11 v7.448 — Notification/Away Briefing 라우트 분리
 
 - 플레이어 알림 조회/읽음 처리와 부재 중 손실 브리핑 라우트를 `server/routes/notificationRoutes.js`로 분리했다.

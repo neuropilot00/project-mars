@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.448 (System Cleanup Pass 24) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.449 (System Cleanup Pass 25) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -26,6 +26,14 @@
 - `server/index.js`는 `notificationRoutes`를 `/api` 아래에 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트한다.
 - 이번 변경은 서버 스파게티 정리 10차다. 다음 후보는 `api.js` 내 guild 또는 territory/harvest core 계열 분리다.
 - 검증 기준: `node --check server/routes/notificationRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
+
+### v7.449 최신 핸드오프 — Config/Deposit Bonus 라우트와 설정 캐시 단일화
+
+- `server/utils/settingsCache.js`를 추가했다. 기존 `api.js` 로컬 `cfg()` 캐시와 입금 보너스 계산을 공통 유틸로 분리했다.
+- `server/routes/configRoutes.js`를 추가했다. `/api/public/swap-info`, `/api/wallet/deposit-bonus-info`, `/api/config` 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 프론트 설정/스왑/입금 보너스 조회 호출은 동일하게 동작한다.
+- `api.js`의 기존 게임 액션 라우트는 같은 `cfg()` 유틸을 import해서 설정 조회 방식만 단일화했다.
+- 검증 기준: `node --check server/utils/settingsCache.js`, `node --check server/routes/configRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.447 최신 핸드오프 — 실사용 Title/Hall-of-Fame 라우트 분리
 

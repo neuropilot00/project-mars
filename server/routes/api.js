@@ -4,10 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { makeRateLimiter } = require('../utils/rateLimiters');
-const { pool, ensureUser, getSettings, getSetting, getPPToGPRate, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer } = require('../db');
+const { pool, ensureUser, getSetting, getPPToGPRate, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer } = require('../db');
 const { generateWithdrawSignature, getAvailableLiquidity, CHAINS } = require('../services/signer');
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
 const { requireAuth, getAuthWallet, sanitize, isInternalRequest } = require('../utils/apiHelpers');
+const { cfg } = require('../utils/settingsCache');
 let weatherService;
 try { weatherService = require('../services/weather'); } catch (_e) { /* weather service not available */ }
 let explorationService;
@@ -79,69 +80,7 @@ function sanitizeUrl(url, allowData) {
   return null;
 }
 
-// ── Dynamic settings (cached, refreshed every 30s) ──
-let cachedSettings = null;
-let settingsLastFetch = 0;
-async function cfg() {
-  if (!cachedSettings || Date.now() - settingsLastFetch > 30000) {
-    cachedSettings = await getSettings();
-    settingsLastFetch = Date.now();
-  }
-  return cachedSettings;
-}
-
-// [v7.168] GET /api/public/swap-info — swap 모달 fee % 동적 표시(이전 5% 하드코딩 제거)
-router.get('/public/swap-info', async (req, res) => {
-  try {
-    const s = await cfg();
-    res.json({
-      fee_percent: parseFloat(s.swap_fee_percent) || 5,
-      guard_enabled: String(s.swap_solvency_guard_enabled || 'true').toLowerCase() === 'true'
-    });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// [v7.167] GET /api/wallet/deposit-bonus-info — 입금 모달에 첫입금 보너스 강조 표시용
-router.get('/wallet/deposit-bonus-info', requireAuth, async (req, res) => {
-  try {
-    const wallet = getAuthWallet(req).toLowerCase();
-    const basePct = await getDepositBonusPercent();
-    let firstPct = 0;
-    let eligible = false;
-    try {
-      const fr = await pool.query("SELECT value FROM settings WHERE key='first_deposit_bonus_pct'");
-      firstPct = parseFloat(String(fr.rows[0]?.value || '0').replace(/"/g,'')) || 0;
-    } catch (_) {}
-    if (firstPct > 0) {
-      try {
-        const prior = await pool.query('SELECT 1 FROM deposits WHERE LOWER(wallet_address) = LOWER($1) LIMIT 1', [wallet]);
-        eligible = prior.rows.length === 0;
-      } catch (_) {}
-    }
-    res.json({
-      base_bonus_pct: basePct,
-      first_deposit_bonus_pct: firstPct,
-      first_deposit_eligible: eligible,
-      total_bonus_pct_if_first: basePct + (eligible ? firstPct : 0)
-    });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── Active events with bonus calculation ──
-async function getDepositBonusPercent() {
-  const s = await cfg();
-  let bonus = s.deposit_pp_bonus || 10;
-  // Check active events for bonus boost
-  const events = await getActiveEvents();
-  for (const ev of events) {
-    if (ev.type === 'deposit_bonus' && ev.config && ev.config.extra_pp_percent) {
-      bonus += ev.config.extra_pp_percent;
-    }
-  }
-  return bonus;
-}
+// Public config and wallet deposit bonus routes live in routes/configRoutes.js.
 
 // ── Helpers ──
 
@@ -265,60 +204,7 @@ function getClaimPixels(lat, lng, w, h) {
   return pixels;
 }
 
-// ══════════════════════════════════════════════════
-//  GET /api/config — public game config + active events
-// ══════════════════════════════════════════════════
-router.get('/config', readLimiter, async (req, res) => {
-  try {
-    const s = await cfg();
-    const events = await getActiveEvents();
-    const bonusPct = await getDepositBonusPercent();
-
-    // Governance data for frontend (wrapped to prevent config endpoint failure)
-    let govData = { commander: null, commanderAnnouncement: '', activeGovEvents: [], activeBounties: 0 };
-    try {
-      const { getActiveGovEvents, getCommanderInfo } = require('../services/governance');
-      const govEvents = await getActiveGovEvents();
-      const cmdInfo = await getCommanderInfo();
-      govData = {
-        commander: cmdInfo.commander,
-        commanderAnnouncement: cmdInfo.announcement,
-        activeGovEvents: govEvents.map(e => ({ type: e.event_type, endsAt: e.ends_at })),
-        activeBounties: (cmdInfo.activeBounties || []).length
-      };
-    } catch (ge) { console.warn('[GOV] config governance data failed:', ge.message); }
-
-    res.json({
-      pixelBasePrice: s.pixel_base_price || 0.1,
-      sectorPrices: {
-        core: s.price_pixel_core || 0.15,
-        mid: s.price_pixel_mid || 0.05,
-        frontier: s.price_pixel_frontier || 0.02
-      },
-      hijackMultiplier: s.hijack_multiplier || 1.2,
-      depositPPBonus: bonusPct,
-      swapFeePercent: s.swap_fee_percent || 5,
-      withdrawFeePercent: s.withdraw_fee_percent || 0,
-      minDeposit: s.min_deposit || 1,
-      maxDeposit: s.max_deposit || 100000,
-      maxClaimWidth: s.max_claim_width || 500,
-      maxClaimHeight: s.max_claim_height || 500,
-      minWithdraw: Number(s.withdraw_min_amount ?? s.min_withdraw ?? 10),
-      announcement: s.announcement || '',
-      maintenanceMode: s.maintenance_mode || false,
-      activeEvents: events.map(e => ({
-        id: e.id, name: e.name, type: e.type,
-        config: e.config,
-        startsAt: e.starts_at, endsAt: e.ends_at
-      })),
-      governance: govData,
-      telegram_group_url: s.telegram_group_url || ''
-    });
-  } catch (e) {
-    console.error('[API] config error:', e.message);
-    res.status(500).json({ error: 'Internal error' });
-  }
-});
+// Public /api/config lives in routes/configRoutes.js.
 
 // ══════════════════════════════════════════════════
 //  POST /api/referral/register — Register referral
