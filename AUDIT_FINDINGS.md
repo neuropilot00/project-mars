@@ -1,3 +1,26 @@
+## 2026-06-11 — Battle Hub/Viewer 모달 CSS 외부화 감사 반영 (v7.435)
+
+### ✅ 수정 완료
+- **[LOW] Battle Hub/Viewer 계열 스타일이 `index.html` 메인 `<style>`에 1천 라인 이상 남아 UI 책임이 단일화되지 않음**: Battle Hub, Battle Declare, Commander Actions, Battle Renderer/Viewer, Battle Result/Report, AI Practice, Tournament, Hijack 핵심 스타일을 `assets/battle-hub-modal.css`로 분리했다.
+- **[LOW] 공통 모바일/온보딩 규칙까지 함께 이동할 경우 다른 화면 회귀 위험**: 공통 모바일 모달 safe-area, 온보딩, 랜딩, 모바일 성능 규칙은 기존 위치에 유지하고 Battle Hub/Viewer 계열 핵심 블록만 이동했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/CSS 변경 반영을 위해 Service Worker 캐시를 `mars-v100`으로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Daily OPS, War Betting, onboarding/landing CSS 정리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/shipyard-modal.js`
+- `node --check assets/fleet-command-modal.js`
+- `node --check assets/game-dialogs.js`
+- `node --check assets/ship-catalog-modals.js`
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/battle-hub-modal.css` load
+- `git diff --check`
+
 ## 2026-06-11 — Fleet Command 모달 CSS 외부화 감사 반영 (v7.434)
 
 ### ✅ 수정 완료

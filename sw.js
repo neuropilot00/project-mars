@@ -94,7 +94,8 @@
 // 2026-06-11 v97: v7.432 Shipyard 모달 JS 외부화.
 // 2026-06-11 v98: v7.433 Shipyard 모달 CSS 외부화.
 // 2026-06-11 v99: v7.434 Fleet Command 모달 CSS 외부화.
-const CACHE_NAME = 'mars-v99';
+// 2026-06-11 v100: v7.435 Battle Hub/Viewer 모달 CSS 외부화.
+const CACHE_NAME = 'mars-v100';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
