@@ -22,6 +22,7 @@
 <link href="/assets/tactical-lab-modal.css?v=7424" rel="stylesheet">
 <link href="/assets/bug-reporter.css?v=7428" rel="stylesheet">
 <link href="/assets/ship-catalog-modals.css?v=7429" rel="stylesheet">
+<script src="/assets/game-dialogs.js?v=7430"></script>
 <script src="/assets/lib/globe.gl.min.js"></script>
 <script src="/public/js/minigame-invaders.js?v=11"></script>
 <script src="/public/js/minigame-runner.js?v=11"></script>
@@ -33624,112 +33625,6 @@ function openMyShipRegistry(){
 // Alias: legacy callers (OPS, guild upgrades) use showAlert(msg[,type]).
 // Route them through the toast so they don't ReferenceError.
 window.showAlert=function(m){return showToast(m);};
-
-// ══════ Game-themed confirm dialog (Mars HUD style) ══════
-var _gcResolver=null;
-function gameConfirm(opts){
-  // opts: { title, icon, body, info:[{k,v,insufficient}], confirmText, disabled }
-  return new Promise(function(resolve){
-    _gcResolver=resolve;
-    var dlg=document.getElementById('gameConfirm');
-    if(!dlg) return resolve(false);
-    document.getElementById('gcTitle').textContent=opts.title||'CONFIRM';
-    document.getElementById('gcIcon').textContent=opts.icon||'⚠';
-    document.getElementById('gcBody').innerHTML=opts.body||'';
-    var info=document.getElementById('gcInfo');
-    if(opts.info && opts.info.length){
-      info.innerHTML=opts.info.map(function(r){
-        var cls=r.insufficient?'gc-insufficient':(r.ok?'gc-ok':'');
-        return '<div class="gc-row '+cls+'"><span class="gc-k">'+escapeHTML(r.k)+'</span><span class="gc-v">'+escapeHTML(r.v)+'</span></div>';
-      }).join('');
-      info.style.display='';
-    }else{
-      info.style.display='none';
-    }
-    var btn=document.getElementById('gcConfirmBtn');
-    btn.textContent=opts.confirmText||'CONFIRM';
-    btn.disabled=!!opts.disabled;
-    dlg.classList.add('open');
-  });
-}
-function gameConfirmResolve(val){
-  var dlg=document.getElementById('gameConfirm');
-  if(dlg) dlg.classList.remove('open');
-  var r=_gcResolver; _gcResolver=null;
-  if(r) r(val);
-}
-// escapeHTML may already exist; safe fallback if not
-if(typeof escapeHTML!=='function'){
-  window.escapeHTML=function(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});};
-}
-
-// ══════ Game-themed input (replaces native prompt) ══════
-var _giResolver=null;
-function gameInput(opts){
-  // opts: { title, label, placeholder, defaultValue, maxLength }
-  return new Promise(function(resolve){
-    _giResolver=resolve;
-    var dlg=document.getElementById('gameInput');
-    if(!dlg) return resolve(null);
-    document.getElementById('giTitle').textContent=opts.title||'INPUT';
-    document.getElementById('giLabel').textContent=opts.label||'';
-    var inp=document.getElementById('giInput');
-    inp.placeholder=opts.placeholder||'';
-    inp.maxLength=opts.maxLength||200;
-    inp.value=opts.defaultValue||'';
-    dlg.classList.add('open');
-    setTimeout(function(){ inp.focus(); inp.select(); }, 80);
-  });
-}
-function _giSubmit(){
-  var inp=document.getElementById('giInput');
-  var val=inp?inp.value:null;
-  closeGameInput(val);
-}
-function closeGameInput(val){
-  var dlg=document.getElementById('gameInput');
-  if(dlg) dlg.classList.remove('open');
-  var r=_giResolver; _giResolver=null;
-  // val===undefined means cancel (backdrop/button)
-  if(r) r(val===undefined ? null : val);
-}
-
-// ══════ Game-themed picker (replaces native <select>) ══════
-var _gpResolver=null;
-function gamePicker(opts){
-  // opts: { title, items:[{value,label,icon}], selected }
-  return new Promise(function(resolve){
-    _gpResolver=resolve;
-    var dlg=document.getElementById('gamePicker');
-    if(!dlg) return resolve(null);
-    document.getElementById('gpTitle').textContent=opts.title||'SELECT';
-    var list=document.getElementById('gpList');
-    if(!opts.items || !opts.items.length){
-      list.innerHTML='<div class="gp-empty">No options available</div>';
-    }else{
-      list.innerHTML=opts.items.map(function(it){
-        var sel=(it.value==opts.selected)?' selected':'';
-        var icon=it.icon?('<span style="margin-right:6px">'+it.icon+'</span>'):'';
-        return '<div class="gp-item'+sel+'" data-val="'+escapeHTML(String(it.value))+'">'+icon+escapeHTML(it.label)+'</div>';
-      }).join('');
-      Array.prototype.forEach.call(list.querySelectorAll('.gp-item'),function(el){
-        el.addEventListener('click',function(){
-          var v=el.getAttribute('data-val');
-          var r=_gpResolver; _gpResolver=null;
-          dlg.classList.remove('open');
-          if(r) r(v);
-        });
-      });
-    }
-    dlg.classList.add('open');
-  });
-}
-function closeGamePicker(){
-  var dlg=document.getElementById('gamePicker');
-  if(dlg) dlg.classList.remove('open');
-  var r=_gpResolver; _gpResolver=null;
-  if(r) r(null);
-}
 
 // ═══════ NOTIFICATION SYSTEM ═══════
 var _notifTypes={

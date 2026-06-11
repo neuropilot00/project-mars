@@ -1,3 +1,25 @@
+## 2026-06-11 — 공통 게임 다이얼로그 외부화 감사 반영 (v7.430)
+
+### ✅ 수정 완료
+- **[MED] `gameConfirm()`/`gameInput()`/`gamePicker()` 공통 UI 로직이 `index.html` 인라인 스크립트에 남아 다수 시스템과 섞임**: 확인/입력/선택 다이얼로그 공통 로직을 `assets/game-dialogs.js`로 분리했다.
+- **[LOW] 공통 다이얼로그 함수 계약 변경 위험**: 기존 전역 함수명과 HTML onclick 계약은 유지했다. 호출부는 변경하지 않고 구현 위치만 단일화했다.
+- **[LOW] `escapeHTML` fallback 중복 위험**: 새 파일에서 fallback을 제공하되 기존 전역 함수가 있으면 덮어쓰지 않게 했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v95`로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Daily OPS, Shipyard, Fleet Command 분리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/game-dialogs.js`
+- `node --check assets/ship-catalog-modals.js`
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/game-dialogs.js` load
+- `git diff --check`
+
 ## 2026-06-11 — 함선/광물 도감 모달 외부화 감사 반영 (v7.429)
 
 ### ✅ 수정 완료

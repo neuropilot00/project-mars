@@ -1,3 +1,10 @@
+## 2026-06-11 v7.430 — 공통 게임 다이얼로그 JS 외부화
+
+- 확인/입력/선택 다이얼로그 공통 로직을 `assets/game-dialogs.js`로 분리했다.
+- `gameConfirm()`, `gameConfirmResolve()`, `gameInput()`, `_giSubmit()`, `closeGameInput()`, `gamePicker()`, `closeGamePicker()` 호출 계약은 유지했다.
+- `index.html` 중간의 공통 다이얼로그 인라인 JS 블록을 제거하고 외부 스크립트 로드로 대체했다.
+- UI/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v95`로 갱신했다.
+
 ## 2026-06-11 v7.429 — 함선/광물 도감 모달 외부화
 
 - Ship Registry와 Mineral Catalog 모달 스타일을 `assets/ship-catalog-modals.css`로 분리했다.
