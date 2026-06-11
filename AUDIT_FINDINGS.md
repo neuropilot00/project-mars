@@ -1,3 +1,19 @@
+## 2026-06-11 — Territory Management 라우트 분리 감사 반영 (v7.462)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 영토 관리 라우트가 core 경제/수확 라우트와 혼재됨**: `server/routes/territoryManagementRoutes.js`로 분리했다.
+- **[LOW] 영토 정비/생산/업그레이드 변경 위치 불명확**: rename, tend, production, merge, upgrades 조회/실행을 한 라우터로 단일화했다.
+- **[LOW] `/api/territory/tend-all`과 `/api/territory/:claimId/*` 순서 회귀 위험**: 기존 라우트 순서를 보존해 정적 경로 우선 매칭을 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 claim purchase, hijack, swap/withdraw, harvest core가 남아 있다. 다음 후보는 harvest core 또는 withdrawal economy 분리다.
+
+### 검증 완료
+- `node --check server/routes/territoryManagementRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Guild 라우트 분리 감사 반영 (v7.461)
 
 ### ✅ 수정 완료

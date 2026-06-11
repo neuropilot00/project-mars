@@ -160,6 +160,7 @@ const cosmeticRoutes       = require('./routes/cosmeticRoutes');      // Territo
 const questRoutes          = require('./routes/questRoutes');         // Legacy random quest routes
 const economyUtilityRoutes = require('./routes/economyUtilityRoutes'); // Marketplace overlay + GP utility routes
 const sectorControlRoutes  = require('./routes/sectorControlRoutes'); // Sector influence/control routes
+const territoryManagementRoutes = require('./routes/territoryManagementRoutes'); // Territory rename/tend/production/merge/upgrade routes
 const guildRoutes          = require('./routes/guildRoutes');         // Guild, guild chat, guild war routes
 const territoryIdentityRoutes = require('./routes/territoryIdentity'); // 영토 정체성 + 섹터 갈등맵
 const shieldRoutes      = require('./routes/shield');
@@ -435,6 +436,7 @@ app.use('/api', apiLimiter, cosmeticRoutes);                  // Territory cosme
 app.use('/api', apiLimiter, questRoutes);                     // Legacy random quest routes
 app.use('/api', apiLimiter, economyUtilityRoutes);            // Marketplace overlay + GP utility routes
 app.use('/api', apiLimiter, sectorControlRoutes);             // Sector influence/control routes
+app.use('/api', apiLimiter, territoryManagementRoutes);       // Territory rename/tend/production/merge/upgrade routes
 app.use('/api', apiLimiter, guildRoutes);                     // Guild, guild chat, guild war routes
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.461 (System Cleanup Pass 37) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.462 (System Cleanup Pass 38) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,14 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.462 최신 핸드오프 — Territory Management 라우트 분리
+
+- `server/routes/territoryManagementRoutes.js`를 추가했다. 영토 이름 변경, 정비, 생산 조회, 병합, 업그레이드 조회/실행 라우트를 `server/routes/api.js`에서 분리했다.
+- 기존 `/api/claims/:id/rename`, `/api/territory/tend-all`, `/api/territory/:claimId/tend`, `/api/territory/:claimId/production`, `/api/territory/merge`, `/api/territory/:claimId/upgrades`, `/api/territory/:claimId/upgrade` URL 계약은 유지한다.
+- 정적 `/api/territory/tend-all` 라우트가 동적 `:claimId` 라우트보다 먼저 등록되는 기존 순서를 보존했다.
+- 이번 변경은 서버 스파게티 정리 24차다. 다음 후보는 harvest core 또는 withdrawal economy 분리다.
+- 검증 기준: `node --check server/routes/territoryManagementRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.461 최신 핸드오프 — Guild 라우트 분리
 

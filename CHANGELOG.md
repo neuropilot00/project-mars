@@ -1,3 +1,10 @@
+## 2026-06-11 v7.462 — Territory Management 라우트 분리
+
+- 영토 이름 변경, 정비, 생산 조회, 병합, 업그레이드 조회/실행 라우트를 `server/routes/territoryManagementRoutes.js`로 분리했다.
+- 기존 `/api/claims/:id/rename`, `/api/territory/tend-all`, `/api/territory/:claimId/tend`, `/api/territory/:claimId/production`, `/api/territory/merge`, `/api/territory/:claimId/upgrades`, `/api/territory/:claimId/upgrade` URL 계약을 유지했다.
+- `seasonService`, `upgradeSvc`, `cfg`, `pool/getSetting` 의존성을 새 라우터에 명시해 영토 관리 기능의 변경 위치를 단일화했다.
+- `server/routes/api.js`에는 claim/hijack/withdraw/harvest core 중심의 라우트만 남겼다.
+
 ## 2026-06-11 v7.461 — Guild 라우트 분리
 
 - 길드 생성/가입/초대/권한/채팅/기여/연구/길드전 라우트를 `server/routes/guildRoutes.js`로 분리했다.
