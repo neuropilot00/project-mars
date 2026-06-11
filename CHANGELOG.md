@@ -1,3 +1,10 @@
+## 2026-06-11 v7.456 — Player Status/Feed 라우트 분리
+
+- 업적 조회, 공개 뉴스, 온보딩 상태/닫기, 글로벌 activity feed를 `server/routes/playerStatusRoutes.js`로 분리했다.
+- 기존 `/api/achievements`, `/api/news`, `/api/onboarding/status`, `/api/onboarding/dismiss`, `/api/activity/feed` URL 계약과 응답 구조는 유지했다.
+- activity feed의 5초 캐시와 source별 best-effort fallback, 온보딩 JWT wallet 정책은 유지했다.
+- `server/routes/api.js`에서 상태/피드성 하단 라우트 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.455 — Legacy Sector Query 라우트 분리
 
 - 맵 렌더링용 legacy sector 목록/상세 조회를 `server/routes/sectorQueryRoutes.js`로 분리했다.

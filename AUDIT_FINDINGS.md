@@ -1,3 +1,19 @@
+## 2026-06-11 — Player Status/Feed 라우트 분리 감사 반영 (v7.456)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js` 끝단에 업적/뉴스/온보딩/activity feed 라우트가 섞여 있음**: `server/routes/playerStatusRoutes.js`로 분리했다.
+- **[LOW] activity feed DB 부하 방지 정책 회귀 위험**: 기존 5초 in-memory cache와 source별 best-effort fallback을 유지했다.
+- **[LOW] 온보딩 wallet 신뢰 정책 회귀 위험**: 기존처럼 `requireAuth`와 JWT wallet 추출 정책을 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 quest/cosmetic/harvest/territory/guild/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/playerStatusRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Legacy Sector Query 라우트 분리 감사 반영 (v7.455)
 
 ### ✅ 수정 완료

@@ -155,6 +155,7 @@ const mapQueryRoutes       = require('./routes/mapQueryRoutes');     // Map/user
 const statsRoutes          = require('./routes/statsRoutes');        // Public stats/rank routes
 const userBaseRoutes       = require('./routes/userBaseRoutes');      // BASE unified user summary route
 const sectorQueryRoutes    = require('./routes/sectorQueryRoutes');   // Legacy sectors map query routes
+const playerStatusRoutes   = require('./routes/playerStatusRoutes');  // Achievements/news/onboarding/activity feed
 const territoryIdentityRoutes = require('./routes/territoryIdentity'); // 영토 정체성 + 섹터 갈등맵
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
@@ -424,6 +425,7 @@ app.use('/api', apiLimiter, userBaseRoutes);                  // BASE unified us
 app.use('/api/territory', territoryIdentityRoutes);           // 영토 정체성 (identity/FR)
 app.use('/api/sectors',   territoryIdentityRoutes);           // 섹터 갈등맵 (/api/sectors/conflict-map)
 app.use('/api', apiLimiter, sectorQueryRoutes);               // Legacy sector map query routes
+app.use('/api', apiLimiter, playerStatusRoutes);              // Achievements/news/onboarding/activity feed
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
