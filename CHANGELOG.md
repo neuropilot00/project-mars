@@ -1,3 +1,10 @@
+## 2026-06-11 v7.453 — Public Stats/Rank 라우트 분리
+
+- 공개 리더보드, 글로벌 통계, 클라이언트 에러 리포트, 랭크 정의, 돌파 진행 조회를 `server/routes/statsRoutes.js`로 분리했다.
+- 기존 `/api/leaderboard`, `/api/stats`, `/api/error-report`, `/api/ranks`, `/api/breakthrough/:wallet` URL 계약은 유지했다.
+- 리더보드 픽셀 수 계산, 에러 리포트 truncation, rank breakthrough 표시 정책은 기존 동작 그대로 유지했다.
+- `server/routes/api.js`에서 공개 통계/랭크 조회 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.452 — Map/User/Claim 조회 라우트 분리
 
 - 지도 초기화/픽셀/클레임/소유자 검색/방어자 미리보기/내 영토 목록 조회를 `server/routes/mapQueryRoutes.js`로 분리했다.

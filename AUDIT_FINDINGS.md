@@ -1,3 +1,19 @@
+## 2026-06-11 — Public Stats/Rank 라우트 분리 감사 반영 (v7.453)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 공개 통계/랭크/클라이언트 에러 리포트 책임이 섞여 있음**: `server/routes/statsRoutes.js`로 분리했다.
+- **[LOW] 리더보드 계산 정책 회귀 위험**: claim 사각형 면적이 아니라 실제 `pixels` 테이블 기준 pixel count 정책을 유지했다.
+- **[LOW] 클라이언트 에러 로그 저장 정책 회귀 위험**: message 필수 검증, 필드 길이 제한, IP 저장, `client_errors` insert 정책을 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/statsRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Map/User/Claim 조회 라우트 분리 감사 반영 (v7.452)
 
 ### ✅ 수정 완료
