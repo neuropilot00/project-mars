@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.438 (System Cleanup Pass 14) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.439 (System Cleanup Pass 15) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -18,7 +18,16 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
-### v7.438 최신 핸드오프 — Faction 모달 CSS 외부화
+### v7.439 최신 핸드오프 — Campaign 라우트 분리 + API 공통 헬퍼 단일화
+
+- `server/routes/campaignRoutes.js`를 추가했다. 캠페인 진행, 에디터 레이아웃, 평판, 태그, 로어 플래그, 브랜치 modifier 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 `/api/campaign/*`, `/api/reputation/*`, `/api/tags/*`, `/api/lore/*`, `/api/branch/*` 호출은 동일하게 동작한다.
+- `server/utils/apiHelpers.js`를 추가해 `requireAuth`, `getAuthWallet`, `sanitize`, `isInternalRequest` 공통 헬퍼를 단일화했다. `server/routes/api.js`는 기존 로컬 정의 대신 이 헬퍼를 사용한다.
+- `server/index.js`는 `campaignRoutes`를 `/api` 아래에 `apiLimiter`와 함께 마운트한다. 기존 `apiRoutes` 마운트 앞에 위치해 `api.js`의 넓은 와일드카드 라우트와 충돌하지 않게 했다.
+- 이번 변경은 서버 스파게티 정리 1차다. 다음 후보는 `server/routes/api.js` 내 shop/item/quest/harvest 계열 라우트 또는 `server/routes/admin.js` 도메인별 분리다.
+- 검증 기준: `node --check server/utils/apiHelpers.js`, `node --check server/routes/campaignRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
+
+### v7.438 핸드오프 — Faction 모달 CSS 외부화
 
 - `assets/faction-modal.css`를 추가했다. Faction Selection 모달, 파벌 카드, 파벌 밸런스 바, 파벌 토스트 스타일을 `index.html` 메인 `<style>`에서 분리했다.
 - 공통 모바일 모달 safe-area 규칙은 다른 모달과 묶여 있어 `index.html`에 유지했다. 이번 변경은 Faction 기본 모달 스타일만 단일화한다.

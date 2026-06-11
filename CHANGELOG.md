@@ -1,3 +1,10 @@
+## 2026-06-11 v7.439 — Campaign 라우트 분리 + API 공통 헬퍼 단일화
+
+- 캠페인 진행, 에디터 레이아웃, 평판, 태그, 로어 플래그, 브랜치 modifier 라우트를 `server/routes/campaignRoutes.js`로 분리했다.
+- `server/routes/api.js`의 로컬 인증/입력 헬퍼를 `server/utils/apiHelpers.js`로 단일화했다.
+- 기존 `/api/campaign/*`, `/api/reputation/*`, `/api/tags/*`, `/api/lore/*`, `/api/branch/*` URL 계약은 유지했다.
+- `server/index.js`에 `campaignRoutes`를 `apiLimiter`와 함께 마운트했다.
+
 ## 2026-06-11 v7.438 — Faction 모달 CSS 외부화
 
 - Faction Selection 모달, 파벌 카드, 파벌 밸런스 바, 파벌 토스트 스타일을 `assets/faction-modal.css`로 분리했다.

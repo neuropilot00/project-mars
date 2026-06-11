@@ -1,3 +1,21 @@
+## 2026-06-11 — Campaign 라우트 분리 + API 공통 헬퍼 단일화 감사 반영 (v7.439)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 캠페인/평판/태그/로어 라우트가 섞여 있어 서버 라우트 책임이 단일화되지 않음**: 해당 라우트를 `server/routes/campaignRoutes.js`로 분리했다.
+- **[LOW] 인증/지갑/입력 sanitize/Internal request 헬퍼가 `api.js` 내부에 고립되어 다른 라우트와 재사용하기 어려움**: `server/utils/apiHelpers.js`로 단일화하고 `api.js`와 새 캠페인 라우트가 동일 헬퍼를 사용하게 했다.
+- **[LOW] 기존 URL 계약 회귀 위험**: `server/index.js`에서 `campaignRoutes`를 `/api` 아래에 `apiLimiter`와 함께 마운트하고 기존 `/api/campaign/*`, `/api/reputation/*`, `/api/tags/*`, `/api/lore/*`, `/api/branch/*` 경로를 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 여전히 8천 라인 이상이다. 다음 후보는 shop/item/quest/harvest 계열 라우트 분리다.
+- `server/routes/admin.js`, `server/services/campaign.js`, `index.html`도 큰 파일 상태라 기능 단위별 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/utils/apiHelpers.js`
+- `node --check server/routes/campaignRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Faction 모달 CSS 외부화 감사 반영 (v7.438)
 
 ### ✅ 수정 완료
