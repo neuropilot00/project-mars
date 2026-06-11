@@ -1,3 +1,19 @@
+## 2026-06-11 — Redemption/Withdrawal 라우트 분리 감사 반영 (v7.463)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 출금 서명/담보/유동성 가드가 gameplay core와 혼재됨**: `server/routes/redemptionRoutes.js`로 분리했다.
+- **[LOW] signer/treasury 의존성 위치 불명확**: `ethers`, `generateWithdrawSignature`, `getAvailableLiquidity`, `CHAINS`, redemption limit, pending withdrawal 처리를 새 라우터로 단일화했다.
+- **[LOW] 경제 핵심 라우터 import 오염**: `api.js`에서 더 이상 쓰지 않는 signer/ethers import를 제거했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 claim purchase, hijack, claim image update, harvest core가 남아 있다.
+
+### 검증 완료
+- `node --check server/routes/redemptionRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Territory Management 라우트 분리 감사 반영 (v7.462)
 
 ### ✅ 수정 완료

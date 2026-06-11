@@ -1,3 +1,10 @@
+## 2026-06-11 v7.463 — Redemption/Withdrawal 라우트 분리
+
+- PP→USDT swap, USDT withdraw, withdraw-all 라우트를 `server/routes/redemptionRoutes.js`로 분리했다.
+- 기존 `/api/swap`, `/api/withdraw`, `/api/withdraw-all` URL 계약과 pending withdrawal, solvency guard, redemption limit, liquidity check 흐름은 유지했다.
+- signer/ethers/treasury 의존성을 새 라우터로 이동해 `server/routes/api.js`의 경제 core와 출금 서명 책임을 분리했다.
+- `api.js`에서 더 이상 쓰지 않는 signer/ethers import를 제거했다.
+
 ## 2026-06-11 v7.462 — Territory Management 라우트 분리
 
 - 영토 이름 변경, 정비, 생산 조회, 병합, 업그레이드 조회/실행 라우트를 `server/routes/territoryManagementRoutes.js`로 분리했다.
