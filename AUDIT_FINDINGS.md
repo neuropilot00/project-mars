@@ -1,3 +1,19 @@
+## 2026-06-11 — Map/User/Claim 조회 라우트 분리 감사 반영 (v7.452)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 지도 초기화/픽셀/클레임 조회 라우트가 섞여 있음**: `server/routes/mapQueryRoutes.js`로 분리했다.
+- **[MEDIUM] `/api/user/:wallet` 와일드카드가 정적 user 하위 라우트를 가릴 위험**: `titles`, `my-territories` next 처리와 기존 마운트 순서를 유지했다.
+- **[LOW] 지도 조회와 claim 결제/점령 트랜잭션 책임이 한 파일에 혼재**: 읽기 전용 조회 라우트만 분리하고 `POST /api/claim` 등 결제 경로는 기존 파일에 남겼다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/mapQueryRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Data Image Upload 라우트 분리 감사 반영 (v7.451)
 
 ### ✅ 수정 완료

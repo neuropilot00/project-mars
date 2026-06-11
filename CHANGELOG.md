@@ -1,3 +1,10 @@
+## 2026-06-11 v7.452 — Map/User/Claim 조회 라우트 분리
+
+- 지도 초기화/픽셀/클레임/소유자 검색/방어자 미리보기/내 영토 목록 조회를 `server/routes/mapQueryRoutes.js`로 분리했다.
+- 기존 `/api/user/:wallet`, `/api/pixel/:lat/:lng`, `/api/search/owner/:query`, `/api/pixels`, `/api/claims`, `/api/hijack/defender-info`, `/api/claims/my` URL 계약은 유지했다.
+- `/api/user/titles`, `/api/user/my-territories` 계열 정적 라우트가 `:wallet` 조회에 잡히지 않도록 기존 next 정책을 유지했다.
+- `server/routes/api.js`에서 읽기 전용 지도/클레임 조회 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.451 — Data Image Upload 라우트 분리
 
 - data:image 업로드 라우트를 `server/routes/uploadRoutes.js`로 분리했다.

@@ -151,6 +151,7 @@ const notificationRoutes   = require('./routes/notificationRoutes'); // Player n
 const configRoutes         = require('./routes/configRoutes');       // Public config + wallet bonus routes
 const referralRoutes       = require('./routes/referralRoutes');     // DYNASTY referral routes
 const uploadRoutes         = require('./routes/uploadRoutes');       // Data image upload route
+const mapQueryRoutes       = require('./routes/mapQueryRoutes');     // Map/user/claim read routes
 const territoryIdentityRoutes = require('./routes/territoryIdentity'); // 영토 정체성 + 섹터 갈등맵
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
@@ -414,6 +415,7 @@ app.use('/api', apiLimiter, notificationRoutes);              // Player notifica
 app.use('/api', apiLimiter, configRoutes);                    // Public config + wallet bonus routes
 app.use('/api', apiLimiter, referralRoutes);                  // DYNASTY referral routes
 app.use('/api', apiLimiter, uploadRoutes);                    // Data image upload route
+app.use('/api', apiLimiter, mapQueryRoutes);                  // Map/user/claim read routes
 app.use('/api/territory', territoryIdentityRoutes);           // 영토 정체성 (identity/FR)
 app.use('/api/sectors',   territoryIdentityRoutes);           // 섹터 갈등맵 (/api/sectors/conflict-map)
 app.use('/api', shieldRoutes);
