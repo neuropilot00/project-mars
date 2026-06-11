@@ -1,3 +1,19 @@
+## 2026-06-11 — Sector Control 라우트 분리 감사 반영 (v7.460)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 P5 섹터 영향력/컨트롤 조회 책임이 섞여 있음**: `server/routes/sectorControlRoutes.js`로 분리했다.
+- **[LOW] 섹터 컨트롤 계산 회귀 위험**: pixel area, upgrade score, 최근 harvest score, guild id 매핑, influence tier 응답 정책을 유지했다.
+- **[LOW] `/api/sectors/:id` 계열 라우트 충돌 위험**: `sectorControlRoutes`를 legacy `sectorQueryRoutes`와 `apiRoutes`보다 앞에 마운트해 `/api/sectors/control` 및 `/api/sectors/:sectorId/control`을 명시 처리한다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 harvest/territory/guild/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/sectorControlRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Economy Utility 라우트 분리 감사 반영 (v7.459)
 
 ### ✅ 수정 완료

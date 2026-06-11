@@ -1,3 +1,10 @@
+## 2026-06-11 v7.460 — Sector Control 라우트 분리
+
+- 섹터 영향력/컨트롤 조회 라우트를 `server/routes/sectorControlRoutes.js`로 분리했다.
+- 기존 `/api/sectors/control`, `/api/sectors/:sectorId/control` URL 계약과 응답 구조는 유지했다.
+- 컨트롤 점수 계산 기준인 pixel area, upgrade score, 최근 harvest score, guild id 매핑 정책은 유지했다.
+- `server/routes/api.js`에서 P5 sector control 조회 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.459 — Economy Utility 라우트 분리
 
 - 판매 영토 오버레이, GP activity, 내 판매 가능 영토 목록, GP 송금/송금 이력을 `server/routes/economyUtilityRoutes.js`로 분리했다.

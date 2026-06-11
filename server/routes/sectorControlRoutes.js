@@ -1,0 +1,185 @@
+const express = require('express');
+const { makeRateLimiter } = require('../utils/rateLimiters');
+const { pool } = require('../db');
+
+const router = express.Router();
+
+const readLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: { error: 'Too many requests. Please slow down.' }
+});
+
+const INFLUENCE_TIERS = [
+  { id: 'governor', threshold: 0.75, bonus: '+20% production/defense', bonusKo: '+20% 생산/방어' },
+  { id: 'dominant', threshold: 0.50, bonus: '+12% production/defense', bonusKo: '+12% 생산/방어' },
+  { id: 'stakeholder', threshold: 0.25, bonus: '+5% production', bonusKo: '+5% 생산' },
+  { id: 'presence', threshold: 0.10, bonus: 'Sector influence list', bonusKo: '섹터 영향력 목록' },
+];
+
+router.get('/sectors/control', readLimiter, async (req, res) => {
+  try {
+    const sectorsRes = await pool.query(`
+      SELECT id, name, tier FROM sectors ORDER BY tier, name
+    `);
+    if (!sectorsRes.rows.length) return res.json({ sectors: [] });
+
+    const controlRes = await pool.query(`
+      SELECT
+        p.sector_id,
+        c.owner AS wallet,
+        COUNT(p.lat) AS pixel_area,
+        COALESCE(SUM(u.level), 0) AS upgrade_levels
+      FROM pixels p
+      JOIN claims c ON c.id = p.claim_id AND c.deleted_at IS NULL
+      LEFT JOIN territory_upgrades u ON u.claim_id = c.id AND u.is_active = true
+        AND u.upgrade_type IN ('extractor','refinery','shield_grid','relay_tower','art_beacon','mine_booster')
+      WHERE p.sector_id IS NOT NULL AND c.owner IS NOT NULL
+      GROUP BY p.sector_id, c.owner
+    `);
+
+    const activityRes = await pool.query(`
+      SELECT from_wallet AS wallet, COUNT(*) AS harvest_count
+      FROM transactions
+      WHERE type IN ('mining','instant_harvest')
+        AND created_at > NOW() - INTERVAL '7 days'
+      GROUP BY from_wallet
+    `);
+    const activityMap = {};
+    activityRes.rows.forEach(r => { activityMap[r.wallet] = parseInt(r.harvest_count); });
+
+    let guildMap = {};
+    try {
+      const guildRes = await pool.query(`
+        SELECT wallet_address, guild_id FROM guild_members WHERE status = 'active'
+      `);
+      guildRes.rows.forEach(r => { guildMap[r.wallet_address] = r.guild_id; });
+    } catch (_) {}
+
+    const sectorDataMap = {};
+    for (const row of controlRes.rows) {
+      const sId = row.sector_id;
+      if (!sectorDataMap[sId]) sectorDataMap[sId] = {};
+      const wallet = row.wallet.toLowerCase();
+      const pixelArea = parseInt(row.pixel_area) || 0;
+      const upgradeScore = parseInt(row.upgrade_levels) * 5;
+      const harvestScore = (activityMap[wallet] || 0) * 3;
+      const totalScore = pixelArea + upgradeScore + harvestScore;
+
+      if (!sectorDataMap[sId][wallet]) {
+        sectorDataMap[sId][wallet] = { wallet, pixelArea: 0, upgradeScore: 0, harvestScore: 0, totalScore: 0 };
+      }
+      sectorDataMap[sId][wallet].pixelArea += pixelArea;
+      sectorDataMap[sId][wallet].upgradeScore += upgradeScore;
+      sectorDataMap[sId][wallet].harvestScore += harvestScore;
+      sectorDataMap[sId][wallet].totalScore += totalScore;
+    }
+
+    const sectors = sectorsRes.rows.map(s => {
+      const ownerMap = sectorDataMap[s.id] || {};
+      const ownerArr = Object.values(ownerMap).sort((a, b) => b.totalScore - a.totalScore);
+      const totalSectorScore = ownerArr.reduce((acc, o) => acc + o.totalScore, 0);
+      const top3 = ownerArr.slice(0, 3).map(o => {
+        const pct = totalSectorScore > 0 ? o.totalScore / totalSectorScore : 0;
+        const tier = INFLUENCE_TIERS.find(t => pct >= t.threshold) || null;
+        return {
+          wallet: o.wallet,
+          shortWallet: o.wallet.slice(0, 6) + '…' + o.wallet.slice(-4),
+          pixelArea: o.pixelArea,
+          totalScore: o.totalScore,
+          controlPct: Math.round(pct * 100),
+          influenceTier: tier ? tier.id : null,
+          influenceBonus: tier ? tier.bonus : null,
+          influenceBonusKo: tier ? tier.bonusKo : null,
+          guildId: guildMap[o.wallet] || null,
+        };
+      });
+      return {
+        id: s.id,
+        name: s.name,
+        tier: s.tier,
+        totalScore: totalSectorScore,
+        topOwners: top3,
+        ownerCount: ownerArr.length,
+      };
+    });
+
+    res.json({ sectors, influenceTiers: INFLUENCE_TIERS });
+  } catch (e) {
+    console.error('[SECTOR CONTROL] error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
+  const sectorId = parseInt(req.params.sectorId);
+  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  if (!sectorId) return res.status(400).json({ error: 'sectorId required' });
+
+  try {
+    const sectorRes = await pool.query(`SELECT id, name, tier FROM sectors WHERE id = $1`, [sectorId]);
+    if (!sectorRes.rows.length) return res.status(404).json({ error: 'Sector not found' });
+    const sector = sectorRes.rows[0];
+
+    const ownerRes = await pool.query(`
+      SELECT c.owner AS wallet,
+             COUNT(p.lat) AS pixel_area,
+             COALESCE(SUM(u.level), 0) AS upgrade_levels
+      FROM pixels p
+      JOIN claims c ON c.id = p.claim_id AND c.deleted_at IS NULL
+      LEFT JOIN territory_upgrades u ON u.claim_id = c.id AND u.is_active = true
+        AND u.upgrade_type IN ('extractor','refinery','shield_grid','relay_tower','art_beacon','mine_booster')
+      WHERE p.sector_id = $1 AND c.owner IS NOT NULL
+      GROUP BY c.owner
+      ORDER BY COUNT(p.lat) DESC
+      LIMIT 20
+    `, [sectorId]);
+
+    const wallets = ownerRes.rows.map(r => r.wallet.toLowerCase());
+    let activityMap = {};
+    if (wallets.length) {
+      const actRes = await pool.query(`
+        SELECT from_wallet AS wallet, COUNT(*) AS harvest_count
+        FROM transactions
+        WHERE type IN ('mining','instant_harvest')
+          AND created_at > NOW() - INTERVAL '7 days'
+          AND from_wallet = ANY($1)
+        GROUP BY from_wallet
+      `, [wallets]);
+      actRes.rows.forEach(r => { activityMap[r.wallet] = parseInt(r.harvest_count); });
+    }
+
+    const owners = ownerRes.rows.map(r => {
+      const w = r.wallet.toLowerCase();
+      return {
+        wallet: w,
+        pixelArea: parseInt(r.pixel_area),
+        upgradeScore: parseInt(r.upgrade_levels) * 5,
+        harvestScore: (activityMap[w] || 0) * 3,
+      };
+    });
+    owners.forEach(o => { o.totalScore = o.pixelArea + o.upgradeScore + o.harvestScore; });
+    const totalSectorScore = owners.reduce((a, o) => a + o.totalScore, 0);
+    owners.forEach(o => {
+      const pct = totalSectorScore > 0 ? o.totalScore / totalSectorScore : 0;
+      o.controlPct = Math.round(pct * 100);
+      o.influenceTier = (INFLUENCE_TIERS.find(t => pct >= t.threshold) || {}).id || null;
+    });
+    owners.sort((a, b) => b.totalScore - a.totalScore);
+
+    let myEntry = null;
+    if (wallet) {
+      myEntry = owners.find(o => o.wallet === wallet) || null;
+      if (!myEntry) {
+        myEntry = { wallet, pixelArea: 0, upgradeScore: 0, harvestScore: 0, totalScore: 0, controlPct: 0, influenceTier: null };
+      }
+    }
+
+    res.json({ sector, owners: owners.slice(0, 10), totalScore: totalSectorScore, myEntry });
+  } catch (e) {
+    console.error('[SECTOR CONTROL] sector error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+module.exports = router;
