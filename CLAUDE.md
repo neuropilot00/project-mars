@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.433 (System Cleanup Pass 9) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.434 (System Cleanup Pass 10) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -18,7 +18,16 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
-### v7.433 최신 핸드오프 — Shipyard 모달 CSS 외부화
+### v7.434 최신 핸드오프 — Fleet Command 모달 CSS 외부화
+
+- `assets/fleet-command-modal.css`를 추가했다. Fleet Command 모달, 함대 목록/상세, 전술 패널, 세로 편성 프리뷰, 함선 선택 카드 핵심 스타일을 `index.html` 메인 `<style>`에서 분리했다.
+- 공통 모바일 모달 safe-area 규칙은 Shipyard/Battle Hub 등 여러 모달과 묶여 있어 `index.html`에 유지했다. 이번 변경은 Fleet Command 전용 핵심 스타일만 단일화한다.
+- `index.html`에는 `assets/fleet-command-modal.css?v=7434` 로드만 남긴다.
+- UI/CSS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v99`로 올렸다.
+- 이번 변경은 프론트 스파게티 정리 10차다. 다음 후보는 Daily OPS, Battle Hub처럼 아직 `index.html` 안에 남은 대형 기능 블록과 `server/routes/api.js` 도메인 라우트 분해다.
+- 검증 기준: `node --check assets/shipyard-modal.js`, `node --check assets/fleet-command-modal.js`, `node --check assets/game-dialogs.js`, `node --check assets/ship-catalog-modals.js`, `node --check assets/bug-reporter.js`, `node --check assets/tactical-lab-modal.js`, `node --check sw.js`, `index.html` inline script parse, static `/assets/fleet-command-modal.css` load, `git diff --check`.
+
+### v7.433 핸드오프 — Shipyard 모달 CSS 외부화
 
 - `assets/shipyard-modal.css`를 추가했다. Shipyard 모달, 청사진 카드, 건조큐, 보유함, 강화, 함선 마켓, 모바일 반응형 핵심 스타일을 `index.html` 메인 `<style>`에서 분리했다.
 - 공통 모바일 모달 safe-area 규칙은 Fleet Command/Battle Hub 등 여러 모달과 묶여 있어 `index.html`에 유지했다. 이번 변경은 Shipyard 전용 핵심 스타일만 단일화한다.

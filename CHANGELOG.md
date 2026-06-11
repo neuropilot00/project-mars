@@ -1,3 +1,9 @@
+## 2026-06-11 v7.434 — Fleet Command 모달 CSS 외부화
+
+- Fleet Command 모달, 함대 목록/상세, 전술 패널, 세로 편성 프리뷰, 함선 선택 카드 핵심 스타일을 `assets/fleet-command-modal.css`로 분리했다.
+- `index.html`은 Fleet Command 전용 CSS 링크만 남기고, 공통 모바일 모달 safe-area 규칙은 기존 위치에 유지했다.
+- UI/CSS 캐시 반영을 위해 Service Worker 캐시를 `mars-v99`로 갱신했다.
+
 ## 2026-06-11 v7.433 — Shipyard 모달 CSS 외부화
 
 - Shipyard 모달, 청사진 카드, 건조큐, 보유함, 강화, 함선 마켓, 모바일 반응형 핵심 스타일을 `assets/shipyard-modal.css`로 분리했다.
