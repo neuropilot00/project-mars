@@ -1,3 +1,20 @@
+## 2026-06-11 — Item Economy 라우트 분리 감사 반영 (v7.440)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 아이템 상점/강화 라우트가 섞여 있어 경제 기능 책임이 단일화되지 않음**: 상점 구매/사용, 아이템 인스턴스, 강화 비용/확률/실행 라우트를 `server/routes/itemEconomyRoutes.js`로 분리했다.
+- **[LOW] 아이템 경제 URL 계약 회귀 위험**: `server/index.js`에서 `itemEconomyRoutes`를 기존 `apiRoutes`보다 앞에 `/api` + `apiLimiter`로 마운트해 기존 `/api/shop/*`, `/api/items/*`, `/api/enhance/*` 호출을 유지했다.
+- **[LOW] 이동 후 불필요한 의존성 잔존**: `server/routes/api.js`에서 더 이상 사용하지 않는 `enhancementService` 로드를 제거했다.
+
+### 남은 정리 범위
+- `/api/shop/auto-renew`, `/api/items/scrolls`는 아직 `server/routes/api.js`의 떨어진 위치에 남아 있다. 다음 패스에서 Item Economy 라우트로 이동할 후보다.
+- `server/routes/api.js`는 아직 harvest/territory/mission/season 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/itemEconomyRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Campaign 라우트 분리 + API 공통 헬퍼 단일화 감사 반영 (v7.439)
 
 ### ✅ 수정 완료
