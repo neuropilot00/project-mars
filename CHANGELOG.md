@@ -1,3 +1,10 @@
+## 2026-06-11 v7.444 — Daily 라우트 분리
+
+- 일일 로그인 상태/수령, 일일 미션 조회/수령, 스트릭 조회 라우트를 `server/routes/dailyRoutes.js`로 분리했다.
+- 기존 `/api/daily/status`, `/api/daily/login`, `/api/daily/missions`, `/api/daily/missions/:id/claim`, `/api/daily/streak` URL 계약은 유지했다.
+- `server/index.js`에 `dailyRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
+- `api.js`의 일일 미션 progress 훅은 기존 게임 액션 라우트에 유지했다.
+
 ## 2026-06-11 v7.443 — World OPS 라우트 분리
 
 - 날씨 조회, POI/Starlink 탐사, POI 힌트, 로켓 이벤트/루트/트리거/우선권 라우트를 `server/routes/worldOpsRoutes.js`로 분리했다.

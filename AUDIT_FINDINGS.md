@@ -1,3 +1,19 @@
+## 2026-06-11 — Daily 라우트 분리 감사 반영 (v7.444)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 일일 로그인/미션 라우트가 남아 있어 daily API 책임이 단일화되지 않음**: 일일 로그인 상태/수령, 일일 미션 조회/수령, 스트릭 조회 라우트를 `server/routes/dailyRoutes.js`로 분리했다.
+- **[LOW] daily progress 훅을 함께 이동할 경우 게임 액션 side-effect 회귀 위험**: 영토 클레임/하이잭/수확/코스메틱 등 기존 게임 액션의 일일 미션 progress 훅은 기존 위치에 유지했다.
+- **[LOW] 기존 `/api/daily/*` URL 계약 회귀 위험**: `server/index.js`에서 `dailyRoutes`를 기존 `apiRoutes`보다 앞에 `/api` + `apiLimiter`로 마운트했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/dailyRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — World OPS 라우트 분리 감사 반영 (v7.443)
 
 ### ✅ 수정 완료
