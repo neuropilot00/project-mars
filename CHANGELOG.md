@@ -1,3 +1,10 @@
+## 2026-06-11 v7.451 — Data Image Upload 라우트 분리
+
+- data:image 업로드 라우트를 `server/routes/uploadRoutes.js`로 분리했다.
+- 기존 `POST /api/upload` URL 계약, 허용 이미지 포맷, 5MB 제한, `/uploads/` 반환 정책은 유지했다.
+- `server/routes/api.js`에서 업로드 전용 `fs/path/crypto` 의존성을 제거해 대형 API 파일의 책임을 줄였다.
+- `server/index.js`에 `uploadRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
+
 ## 2026-06-11 v7.450 — DYNASTY Referral 라우트 분리
 
 - 추천 등록, 추천 통계, 추천 코드/수익 조회, DYNASTY 리더보드, 추천 트리를 `server/routes/referralRoutes.js`로 분리했다.

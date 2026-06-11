@@ -1,3 +1,19 @@
+## 2026-06-11 — Data Image Upload 라우트 분리 감사 반영 (v7.451)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 업로드 처리와 파일시스템 책임이 남아 있음**: `server/routes/uploadRoutes.js`로 분리했다.
+- **[LOW] 업로드 정책 회귀 위험**: 기존 data:image 포맷 제한, 5MB 제한, 랜덤 파일명, `/uploads/` URL 반환 정책을 유지했다.
+- **[LOW] API 대형 파일 의존성 과다**: 업로드 전용 `fs/path/crypto` import를 `api.js`에서 제거했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/uploadRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — DYNASTY Referral 라우트 분리 감사 반영 (v7.450)
 
 ### ✅ 수정 완료

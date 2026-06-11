@@ -1,8 +1,5 @@
 const express = require('express');
 const { ethers } = require('ethers');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool, ensureUser, getSetting, getPPToGPRate, getReferralChain, creditReferralCommission, awardXP, notifyPlayer } = require('../db');
 const { generateWithdrawSignature, getAvailableLiquidity, CHAINS } = require('../services/signer');
@@ -48,7 +45,6 @@ try { titleService = require('../services/title'); } catch (_e) { /* title servi
 let titleExt;
 try { titleExt = require('../services/titleExtended'); } catch (_e) { /* titleExtended not available */ }
 const router = express.Router();
-const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
 
 // ── Rate Limiters ──
 const readLimiter = makeRateLimiter({
@@ -504,45 +500,7 @@ router.get('/claims/my', async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  POST /api/upload — save data:image to file, return URL
-// ══════════════════════════════════════════════════
-router.post('/upload', writeLimiter, async (req, res) => {
-  const { dataUrl } = req.body;
-  if (!dataUrl || typeof dataUrl !== 'string') {
-    return res.status(400).json({ error: 'Missing dataUrl' });
-  }
-
-  // Validate data URL format
-  const match = dataUrl.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,(.+)$/);
-  if (!match) {
-    return res.status(400).json({ error: 'Invalid data URL format' });
-  }
-
-  const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
-  const base64Data = match[2];
-  const buffer = Buffer.from(base64Data, 'base64');
-
-  // Max 5MB
-  if (buffer.length > 5 * 1024 * 1024) {
-    return res.status(400).json({ error: 'Image too large (max 5MB)' });
-  }
-
-  try {
-    // Ensure uploads dir exists
-    if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-
-    const filename = crypto.randomBytes(16).toString('hex') + '.' + ext;
-    const filepath = path.join(UPLOADS_DIR, filename);
-    fs.writeFileSync(filepath, buffer);
-
-    const url = '/uploads/' + filename;
-    res.json({ success: true, url });
-  } catch (e) {
-    console.error('[API] upload error:', e.message);
-    res.status(500).json({ error: 'Upload failed' });
-  }
-});
+// Upload route lives in routes/uploadRoutes.js.
 
 // ══════════════════════════════════════════════════
 //  POST /api/claim
