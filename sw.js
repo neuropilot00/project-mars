@@ -86,7 +86,8 @@
 // 2026-05-30 v84: v7.279 전술랩 전투 콜아웃/플로팅 텍스트 4언어화 — ambient/panic/집중포화/기함침몰/승리/마지막함선이 한국어 하드코딩이라 ja/en/zh 모드서도 한국어로 뜨던 문제 수정.
 // 2026-06-11 v90: v7.424 전술랩 모달 CSS 외부화 + wrapper JS 헬퍼 정리.
 // 2026-06-11 v91: v7.426 전술랩 모달 wrapper JS 외부화.
-const CACHE_NAME = 'mars-v91';
+// 2026-06-11 v92: v7.427 버그 리포터 JS 외부화.
+const CACHE_NAME = 'mars-v92';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

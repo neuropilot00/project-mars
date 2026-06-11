@@ -1,3 +1,10 @@
+## 2026-06-11 v7.427 — 버그 리포터 JS 외부화
+
+- 버그 신고 모달 열기/닫기, 자동 스크린샷 캡처, 이미지 업로드/드롭/붙여넣기, `/api/bug-report` 제출 로직을 `assets/bug-reporter.js`로 분리했다.
+- `index.html`은 버그 리포터 마크업과 외부 스크립트 로드만 남기도록 정리했다.
+- 기존 인라인 핸들러 함수명과 `/api/bug-report` → `/bug-report` fallback 계약은 유지했다.
+- UI/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v92`로 갱신했다.
+
 ## 2026-06-11 v7.426 — Tactical Lab 모달 JS 외부화
 
 - 전술랩 iframe URL 생성, iframe unload, sandbox 모달 열기/닫기, ESC 닫기 로직을 `assets/tactical-lab-modal.js`로 분리했다.

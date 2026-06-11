@@ -1,3 +1,21 @@
+## 2026-06-11 — 버그 리포터 JS 외부화 감사 반영 (v7.427)
+
+### ✅ 수정 완료
+- **[LOW] 버그 리포터 동작 로직이 `index.html` 하단 거대 인라인 스크립트에 섞여 있음**: 모달 열기/닫기, 자동 캡처, 이미지 업로드/붙여넣기/드롭, 제출/fallback 처리를 `assets/bug-reporter.js`로 분리했다.
+- **[LOW] 버그 리포터 API/DOM 계약 관리 지점이 흐려질 위험**: `openBugReporter`, `closeBugReporter`, `submitBugReport`, `bugClearSs`, `bugSsZoneClick`, `bugSsFileChosen`, `bugSsDrop` 전역 계약은 유지하면서 구현 파일만 단일화했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v92`로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. 버그 리포터 CSS 외부화, Daily OPS, Shipyard, Fleet Command 분리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- `git diff --check`
+
 ## 2026-06-11 — Tactical Lab 모달 JS 외부화 감사 반영 (v7.426)
 
 ### ✅ 수정 완료
