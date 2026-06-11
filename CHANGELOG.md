@@ -1,3 +1,9 @@
+## 2026-06-11 v7.446 — Public Lore 라우트 Campaign 단일화
+
+- 로딩 화면용 `GET /api/lore`를 `server/routes/campaignRoutes.js`로 이동했다.
+- 기존 `/api/lore` URL 계약과 실패 시 빈 lore/crawl 배열 fallback은 유지했다.
+- lore flags/set/check 라우트와 public lore 라우트가 같은 Campaign 라우터에 모이도록 정리했다.
+
 ## 2026-06-11 v7.445 — PP→GP Exchange 라우트 분리
 
 - PP→GP 교환 실행과 교환 정보 조회 라우트를 `server/routes/exchangeRoutes.js`로 분리했다.

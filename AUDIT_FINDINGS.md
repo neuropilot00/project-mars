@@ -1,3 +1,19 @@
+## 2026-06-11 — Public Lore 라우트 Campaign 단일화 감사 반영 (v7.446)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 로딩 lore 라우트가 남아 Campaign/Lore API 책임이 분산됨**: `GET /api/lore`를 `server/routes/campaignRoutes.js`로 이동했다.
+- **[LOW] 로딩 화면 fallback 회귀 위험**: DB 조회 실패 시 `{ lore: [], crawl: [] }`를 반환하는 기존 계약을 유지했다.
+- **[LOW] 기존 `/api/lore` URL 계약 회귀 위험**: `campaignRoutes`가 이미 기존 `apiRoutes`보다 앞에 `/api` + `apiLimiter`로 마운트되어 있어 별도 URL 변경 없이 동일하게 동작한다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/campaignRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — PP→GP Exchange 라우트 분리 감사 반영 (v7.445)
 
 ### ✅ 수정 완료

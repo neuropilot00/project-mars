@@ -4309,19 +4309,7 @@ router.get('/cosmetic/equipped', readLimiter, async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════
-//  PUBLIC LORE API (for loading screen)
-// ═══════════════════════════════════════
-
-router.get('/lore', async (req, res) => {
-  try {
-    const lore = await pool.query('SELECT year, text_en, text_ko, text_ja, text_zh FROM loading_lore WHERE active=true ORDER BY sort_order ASC');
-    const crawl = await pool.query('SELECT lang, era_text, title_text, body_html, tagline, close_text FROM lore_crawl WHERE active=true');
-    res.json({ lore: lore.rows, crawl: crawl.rows });
-  } catch (e) {
-    res.json({ lore: [], crawl: [] });
-  }
-});
+// Public loading lore and lore flag routes live in routes/campaignRoutes.js.
 
 // ══════════════════════════════════════
 // MICRO-TRANSACTIONS (Drizzle Revenue)

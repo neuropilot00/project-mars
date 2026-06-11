@@ -266,6 +266,16 @@ router.post('/tags/set-active-title', requireAuth, writeLimiter, async (req, res
   }
 });
 
+router.get('/lore', async (req, res) => {
+  try {
+    const lore = await pool.query('SELECT year, text_en, text_ko, text_ja, text_zh FROM loading_lore WHERE active=true ORDER BY sort_order ASC');
+    const crawl = await pool.query('SELECT lang, era_text, title_text, body_html, tagline, close_text FROM lore_crawl WHERE active=true');
+    res.json({ lore: lore.rows, crawl: crawl.rows });
+  } catch (_e) {
+    res.json({ lore: [], crawl: [] });
+  }
+});
+
 router.get('/lore/flags/:wallet', readLimiter, async (req, res) => {
   try {
     if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
