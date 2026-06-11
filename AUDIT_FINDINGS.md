@@ -1,3 +1,26 @@
+## 2026-06-11 — Shipyard 모달 외부화 감사 반영 (v7.432)
+
+### ✅ 수정 완료
+- **[MED] Shipyard 청사진/건조큐/강화/마켓/상자/조립 로직이 `index.html` 인라인 스크립트에 2천 라인 이상 남아 있음**: Shipyard 동작 로직을 `assets/shipyard-modal.js`로 분리했다.
+- **[LOW] Shipyard onclick 및 광물 전역 계약 변경 위험**: 기존 전역 함수명과 `MINERAL_ICONS`/`MINERAL_KO`/`MINERAL_EN` 참조 순서는 유지했다. HTML 마크업은 변경하지 않고 구현 위치만 단일화했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v97`로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Shipyard CSS, Daily OPS, Battle Hub 분리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/shipyard-modal.js`
+- `node --check assets/fleet-command-modal.js`
+- `node --check assets/game-dialogs.js`
+- `node --check assets/ship-catalog-modals.js`
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/shipyard-modal.js` load
+- `git diff --check`
+
 ## 2026-06-11 — Fleet Command 모달 외부화 감사 반영 (v7.431)
 
 ### ✅ 수정 완료
