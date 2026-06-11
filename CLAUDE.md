@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.454 (System Cleanup Pass 30) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.455 (System Cleanup Pass 31) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.455 최신 핸드오프 — Legacy Sector Query 라우트 분리
+
+- `server/routes/sectorQueryRoutes.js`를 추가했다. 맵 렌더링용 legacy sector 조회 `/api/sectors`, `/api/sectors/:id`를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 sector 목록/상세 조회 호출은 동일하게 동작한다.
+- `/api/sectors/conflict-map`은 `territoryIdentityRoutes`가 먼저 처리하도록 마운트 순서를 유지했고, `/api/sectors/control`은 기존 control 라우트로 넘기도록 `next()` 정책을 유지했다.
+- dynamic price, top holder, wallet별 myPixels, season sector_enter best-effort score 반영은 유지했다.
+- 이번 변경은 서버 스파게티 정리 17차다. 다음 후보는 `api.js` 내 harvest/territory core 또는 guild 계열 분리다.
+- 검증 기준: `node --check server/routes/sectorQueryRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.454 최신 핸드오프 — User BASE Summary 라우트 분리
 

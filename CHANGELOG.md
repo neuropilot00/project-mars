@@ -1,3 +1,11 @@
+## 2026-06-11 v7.455 — Legacy Sector Query 라우트 분리
+
+- 맵 렌더링용 legacy sector 목록/상세 조회를 `server/routes/sectorQueryRoutes.js`로 분리했다.
+- 기존 `/api/sectors`, `/api/sectors/:id` URL 계약과 응답 구조는 유지했다.
+- `/api/sectors/conflict-map`은 territory identity 라우터가 먼저 처리하고, `/api/sectors/control`은 기존 control 라우트로 넘기는 순서를 유지했다.
+- dynamic price, top holder, myPixels, sector_enter 시즌 점수 side-effect 정책은 기존 동작 그대로 유지했다.
+- `server/routes/api.js`에서 sector query 책임을 제거해 대형 라우터 크기를 줄였다.
+
 ## 2026-06-11 v7.454 — User BASE Summary 라우트 분리
 
 - BASE 탭 통합 조회 `/api/user/:wallet/base`를 `server/routes/userBaseRoutes.js`로 분리했다.

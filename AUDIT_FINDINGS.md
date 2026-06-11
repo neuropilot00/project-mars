@@ -1,3 +1,19 @@
+## 2026-06-11 — Legacy Sector Query 라우트 분리 감사 반영 (v7.455)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 맵 렌더링용 sector 조회 책임이 섞여 있음**: `server/routes/sectorQueryRoutes.js`로 분리했다.
+- **[MEDIUM] `/api/sectors/:id`가 `/api/sectors/conflict-map` 또는 `/api/sectors/control`을 가릴 위험**: `territoryIdentityRoutes`를 먼저 마운트하고 `control`은 `next()`로 넘기는 정책을 유지했다.
+- **[LOW] sector 조회 계산 회귀 위험**: dynamic price, top holder, wallet별 myPixels, season sector_enter best-effort score 반영을 유지했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 harvest/territory/guild/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/sectorQueryRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — User BASE Summary 라우트 분리 감사 반영 (v7.454)
 
 ### ✅ 수정 완료
