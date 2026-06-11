@@ -1,3 +1,19 @@
+## 2026-06-11 — PP→GP Exchange 라우트 분리 감사 반영 (v7.445)
+
+### ✅ 수정 완료
+- **[LOW] `server/routes/api.js`에 PP→GP 교환 라우트가 남아 있어 경제 API 책임이 단일화되지 않음**: 교환 실행과 교환 정보 조회 라우트를 `server/routes/exchangeRoutes.js`로 분리했다.
+- **[MEDIUM] 경제 교환 로직 이동 중 보안 정책 회귀 위험**: enable fail-closed, rate/fee 검증, 일일 한도, row lock, 조건부 차감, 거래 로그 기록은 기존 흐름과 동일하게 유지했다.
+- **[LOW] 기존 `/api/exchange/*` URL 계약 회귀 위험**: `server/index.js`에서 `exchangeRoutes`를 기존 `apiRoutes`보다 앞에 `/api` + `apiLimiter`로 마운트했다.
+
+### 남은 정리 범위
+- `server/routes/api.js`는 아직 guild/territory/harvest/economy core 등 여러 도메인이 섞여 있어 추가 분리가 필요하다.
+
+### 검증 완료
+- `node --check server/routes/exchangeRoutes.js`
+- `node --check server/routes/api.js`
+- `node --check server/index.js`
+- `git diff --check`
+
 ## 2026-06-11 — Daily 라우트 분리 감사 반영 (v7.444)
 
 ### ✅ 수정 완료

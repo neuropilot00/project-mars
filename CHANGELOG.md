@@ -1,3 +1,10 @@
+## 2026-06-11 v7.445 — PP→GP Exchange 라우트 분리
+
+- PP→GP 교환 실행과 교환 정보 조회 라우트를 `server/routes/exchangeRoutes.js`로 분리했다.
+- 기존 `/api/exchange/pp-to-gp`, `/api/exchange/pp-to-gp/info` URL 계약은 유지했다.
+- 교환 enable fail-closed, rate/fee 검증, 일일 한도, 잔액 row lock, 조건부 차감, 거래 로그 기록 정책은 유지했다.
+- `server/index.js`에 `exchangeRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
+
 ## 2026-06-11 v7.444 — Daily 라우트 분리
 
 - 일일 로그인 상태/수령, 일일 미션 조회/수령, 스트릭 조회 라우트를 `server/routes/dailyRoutes.js`로 분리했다.

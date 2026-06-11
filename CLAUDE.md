@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.444 (System Cleanup Pass 20) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.445 (System Cleanup Pass 21) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +17,15 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.445 최신 핸드오프 — PP→GP Exchange 라우트 분리
+
+- `server/routes/exchangeRoutes.js`를 추가했다. PP→GP 교환 실행과 교환 정보 조회 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 `/api/exchange/pp-to-gp`, `/api/exchange/pp-to-gp/info` 호출은 동일하게 동작한다.
+- 교환 라우트의 fail-closed enable 체크, rate/fee 검증, 일일 한도, row lock, 잔액 차감 조건부 UPDATE, 거래 로그 기록은 기존 정책 그대로 유지했다.
+- `server/index.js`는 `exchangeRoutes`를 `/api` 아래에 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트한다.
+- 이번 변경은 서버 스파게티 정리 7차다. 다음 후보는 `api.js` 내 guild 또는 harvest/territory core 계열 분리다.
+- 검증 기준: `node --check server/routes/exchangeRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.444 최신 핸드오프 — Daily 라우트 분리
 
