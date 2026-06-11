@@ -1,3 +1,10 @@
+## 2026-06-11 v7.431 — Fleet Command 모달 JS 외부화
+
+- Fleet Command 상태, 함대 목록/상세 렌더, 진형/기동/기함/분리/삭제 액션 로직을 `assets/fleet-command-modal.js`로 분리했다.
+- `index.html`은 Fleet Command 모달 마크업과 외부 스크립트 로드만 남기도록 정리했다.
+- 기존 전역 함수명과 HTML onclick 계약은 유지했다.
+- UI/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v96`으로 갱신했다.
+
 ## 2026-06-11 v7.430 — 공통 게임 다이얼로그 JS 외부화
 
 - 확인/입력/선택 다이얼로그 공통 로직을 `assets/game-dialogs.js`로 분리했다.

@@ -1,3 +1,25 @@
+## 2026-06-11 — Fleet Command 모달 외부화 감사 반영 (v7.431)
+
+### ✅ 수정 완료
+- **[MED] Fleet Command 상태/렌더/액션 로직이 `index.html` 인라인 스크립트에 남아 모달 마크업, Battle Hub HTML과 강하게 붙어 있음**: Fleet Command 동작 로직을 `assets/fleet-command-modal.js`로 분리했다.
+- **[LOW] Fleet Command onclick 계약 변경 위험**: 기존 전역 함수명과 DOM id 계약은 유지했다. HTML 마크업은 변경하지 않고 구현 위치만 단일화했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v96`으로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Shipyard, Daily OPS, Battle Hub 분리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/fleet-command-modal.js`
+- `node --check assets/game-dialogs.js`
+- `node --check assets/ship-catalog-modals.js`
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/fleet-command-modal.js` load
+- `git diff --check`
+
 ## 2026-06-11 — 공통 게임 다이얼로그 외부화 감사 반영 (v7.430)
 
 ### ✅ 수정 완료
