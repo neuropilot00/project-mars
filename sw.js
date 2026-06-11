@@ -92,7 +92,8 @@
 // 2026-06-11 v95: v7.430 공통 게임 다이얼로그 JS 외부화.
 // 2026-06-11 v96: v7.431 Fleet Command 모달 JS 외부화.
 // 2026-06-11 v97: v7.432 Shipyard 모달 JS 외부화.
-const CACHE_NAME = 'mars-v97';
+// 2026-06-11 v98: v7.433 Shipyard 모달 CSS 외부화.
+const CACHE_NAME = 'mars-v98';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

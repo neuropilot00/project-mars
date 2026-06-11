@@ -1,3 +1,23 @@
+## 2026-06-11 — Shipyard 모달 CSS 외부화 감사 반영 (v7.433)
+
+### ✅ 수정 완료
+- **[LOW] Shipyard 핵심 스타일이 `index.html` 메인 `<style>`에 남아 JS 분리 후에도 UI 책임이 단일화되지 않음**: Shipyard 전용 핵심 스타일을 `assets/shipyard-modal.css`로 분리했다.
+- **[LOW] 공통 모바일 모달 규칙까지 함께 이동할 경우 다른 모달 회귀 위험**: Fleet Command/Battle Hub 등과 묶인 safe-area 규칙은 기존 위치에 유지하고 Shipyard 전용 블록만 이동했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/CSS 변경 반영을 위해 Service Worker 캐시를 `mars-v98`로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Daily OPS, Battle Hub, Fleet Command CSS 분리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/shipyard-modal.js`
+- `node --check assets/fleet-command-modal.js`
+- `node --check assets/game-dialogs.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/shipyard-modal.css` load
+- `git diff --check`
+
 ## 2026-06-11 — Shipyard 모달 외부화 감사 반영 (v7.432)
 
 ### ✅ 수정 완료
