@@ -1,7 +1,7 @@
-## 2026-06-11 v7.440 — Item Economy 라우트 분리
+## 2026-06-11 v7.440 — Item Economy 라우트 단일화
 
-- 아이템 상점, 아이템 인스턴스, 강화 비용/확률/실행 라우트를 `server/routes/itemEconomyRoutes.js`로 분리했다.
-- 기존 `/api/shop/*`, `/api/items/instances`, `/api/items/materialize`, `/api/items/dematerialize`, `/api/enhance/*` URL 계약은 유지했다.
+- 아이템 상점, 아이템 인스턴스, 강화 비용/확률/실행, 자동 갱신, 보호 주문서 라우트를 `server/routes/itemEconomyRoutes.js`로 분리했다.
+- 기존 `/api/shop/*`, `/api/items/instances`, `/api/items/materialize`, `/api/items/dematerialize`, `/api/items/scrolls`, `/api/enhance/*` URL 계약은 유지했다.
 - `server/index.js`에 `itemEconomyRoutes`를 `apiLimiter`와 함께 기존 `apiRoutes`보다 앞에 마운트했다.
 - `server/routes/api.js`에서 이동 후 불필요해진 `enhancementService` require를 제거했다.
 

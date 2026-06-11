@@ -646,4 +646,75 @@ router.post('/enhance', requireAuth, writeLimiter, async (req, res) => {
   }
 });
 
+// POST /api/shop/auto-renew — toggle auto-renewal for shield or active effect
+router.post('/shop/auto-renew', requireAuth, writeLimiter, async (req, res) => {
+  const { effectId, shieldId, enabled } = req.body;
+  const w = getAuthWallet(req);
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!effectId && !shieldId) return res.status(400).json({ error: 'Missing effectId or shieldId' });
+
+  try {
+    const autoRenew = enabled === true || enabled === 'true';
+
+    if (shieldId) {
+      // Toggle auto_renew on shield
+      const result = await pool.query(
+        'UPDATE pixel_shields SET auto_renew = $1 WHERE id = $2 AND owner = $3 RETURNING id',
+        [autoRenew, shieldId, w]
+      );
+      if (!result.rows.length) return res.status(404).json({ error: 'Shield not found or not yours' });
+    } else {
+      // Toggle auto_renew on active effect
+      const result = await pool.query(
+        'UPDATE user_active_effects SET auto_renew = $1 WHERE id = $2 AND wallet = $3 RETURNING id',
+        [autoRenew, effectId, w]
+      );
+      if (!result.rows.length) return res.status(404).json({ error: 'Effect not found or not yours' });
+    }
+
+    res.json({ success: true, autoRenew });
+  } catch (e) {
+    console.error('[MICRO] auto-renew toggle error:', e.message);
+    res.status(500).json({ error: 'Failed to toggle auto-renew' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// PROTECTION SCROLLS (Migration 089)
+// ─────────────────────────────────────────────────────────────
+
+// GET /api/items/scrolls?wallet=
+router.get('/items/scrolls', readLimiter, async (req, res) => {
+  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  try {
+    // Scroll item definitions
+    const scrollsRes = await pool.query(
+      `SELECT id, code, name, description, price_gp, price_usdt, icon, effect_value
+       FROM item_types WHERE code IN ('protect_scroll','blessed_scroll') AND active = true`
+    );
+    // User inventory quantities (if wallet provided)
+    let inventory = {};
+    if (wallet) {
+      const invRes = await pool.query(
+        `SELECT it.code, ui.quantity
+         FROM user_items ui
+         JOIN item_types it ON it.id = ui.item_type_id
+         WHERE ui.wallet = $1 AND it.code IN ('protect_scroll','blessed_scroll')`,
+        [wallet]
+      );
+      invRes.rows.forEach(r => { inventory[r.code] = parseInt(r.quantity) || 0; });
+    }
+    const scrolls = scrollsRes.rows.map(s => ({
+      ...s,
+      price_gp:   s.price_gp   ? parseFloat(s.price_gp)   : null,
+      price_usdt: s.price_usdt ? parseFloat(s.price_usdt) : null,
+      owned: inventory[s.code] || 0
+    }));
+    res.json({ scrolls });
+  } catch (e) {
+    console.error('[SCROLLS] GET error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
 module.exports = router;

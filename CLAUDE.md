@@ -18,12 +18,12 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
-### v7.440 최신 핸드오프 — Item Economy 라우트 분리
+### v7.440 최신 핸드오프 — Item Economy 라우트 단일화
 
-- `server/routes/itemEconomyRoutes.js`를 추가했다. 아이템 상점, 아이템 인스턴스, 강화 비용/확률/실행 라우트를 `server/routes/api.js`에서 분리했다.
-- URL 계약은 유지한다. 기존 `/api/shop/items`, `/api/shop/inventory`, `/api/shop/buy`, `/api/shop/use`, `/api/shop/shields`, `/api/shop/active-effects`, `/api/items/instances`, `/api/items/materialize`, `/api/items/dematerialize`, `/api/enhance/*` 호출은 동일하게 동작한다.
+- `server/routes/itemEconomyRoutes.js`를 추가했다. 아이템 상점, 아이템 인스턴스, 강화 비용/확률/실행, 자동 갱신, 보호 주문서 라우트를 `server/routes/api.js`에서 분리했다.
+- URL 계약은 유지한다. 기존 `/api/shop/items`, `/api/shop/inventory`, `/api/shop/buy`, `/api/shop/use`, `/api/shop/shields`, `/api/shop/active-effects`, `/api/shop/auto-renew`, `/api/items/instances`, `/api/items/materialize`, `/api/items/dematerialize`, `/api/items/scrolls`, `/api/enhance/*` 호출은 동일하게 동작한다.
 - `server/index.js`는 `itemEconomyRoutes`를 `/api` 아래에 `apiLimiter`와 함께 마운트한다. 기존 `apiRoutes` 마운트 앞에 위치해 `api.js`의 넓은 라우트와 충돌하지 않게 했다.
-- 이번 변경은 서버 스파게티 정리 2차다. 떨어져 있는 `/api/shop/auto-renew`, `/api/items/scrolls`는 다음 패스에서 별도 이동 후보로 남긴다.
+- 이번 변경은 서버 스파게티 정리 2차다. Item Economy 계열의 흩어진 라우트는 새 파일로 모았다. 다음 후보는 `api.js` 내 mission/season/territory/harvest 계열 분리다.
 - 검증 기준: `node --check server/routes/itemEconomyRoutes.js`, `node --check server/routes/api.js`, `node --check server/index.js`, `git diff --check`.
 
 ### v7.439 최신 핸드오프 — Campaign 라우트 분리 + API 공통 헬퍼 단일화
