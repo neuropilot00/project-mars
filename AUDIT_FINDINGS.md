@@ -1,3 +1,23 @@
+## 2026-06-11 — 함선/광물 도감 모달 외부화 감사 반영 (v7.429)
+
+### ✅ 수정 완료
+- **[LOW] Ship Registry/Mineral Catalog 스타일과 렌더 로직이 `index.html` 하단에 섞여 있음**: 도감 모달 CSS를 `assets/ship-catalog-modals.css`, fetch/render/open-close 로직을 `assets/ship-catalog-modals.js`로 분리했다.
+- **[MED] `openShipRegistry()`/`openMineralsPanel()` 이름이 보유 목록과 도감 모달에서 중복 사용됨**: 보유 패널 함수는 `openMyShipRegistry()`/`openMyMineralsPanel()`, 도감 함수는 `openShipCatalog()`/`openMineralCatalog()`로 분리해 전역 덮어쓰기 위험을 제거했다.
+- **[LOW] 구 캐시 잔존 위험**: UI/CSS/JS 변경 반영을 위해 Service Worker 캐시를 `mars-v94`로 갱신했다.
+
+### 남은 정리 범위
+- `index.html` 전체 기능 분해는 아직 완료가 아니다. Daily OPS, Shipyard, Fleet Command 분리가 다음 후보로 남아 있다.
+- `server/routes/api.js` 도메인별 라우트 분해는 별도 작업으로 남아 있다.
+
+### 검증 완료
+- `node --check assets/ship-catalog-modals.js`
+- `node --check assets/bug-reporter.js`
+- `node --check assets/tactical-lab-modal.js`
+- `node --check sw.js`
+- `index.html` inline script parse
+- static `/assets/ship-catalog-modals.css` / `/assets/ship-catalog-modals.js` load
+- `git diff --check`
+
 ## 2026-06-11 — 버그 리포터 CSS 외부화 감사 반영 (v7.428)
 
 ### ✅ 수정 완료

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.428 (System Cleanup Pass 4) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-06-11 v7.429 (System Cleanup Pass 5) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -18,7 +18,17 @@
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
 
-### v7.428 최신 핸드오프 — 버그 리포터 CSS 외부화
+### v7.429 최신 핸드오프 — 함선/광물 도감 모달 CSS/JS 외부화
+
+- `assets/ship-catalog-modals.css`를 추가했다. Ship Registry와 Mineral Catalog 모달 스타일을 `index.html` 하단 인라인 CSS에서 분리했다.
+- `assets/ship-catalog-modals.js`를 추가했다. `/api/tactical-lab/catalog` 함선 도감 fetch/render, `/api/resources/catalog` 광물 도감 fetch/render, 파벌 탭 전환, 모달 open/close 동작을 이 파일로 이동했다.
+- `index.html`에는 도감 모달 마크업과 외부 CSS/JS 로드만 남긴다. 도감 UI의 단일 관리 지점은 `assets/ship-catalog-modals.*`다.
+- 기존 `openShipRegistry()`/`openMineralsPanel()` 이름은 보유 함선/보유 광물 패널 의미로 이미 쓰이고 있어 도감 함수와 충돌했다. 보유 패널은 `openMyShipRegistry()`/`openMyMineralsPanel()`, 도감은 `openShipCatalog()`/`openMineralCatalog()`로 분리했다.
+- UI/CSS/JS 캐시 반영을 위해 `sw.js` 캐시를 `mars-v94`로 올렸다.
+- 이번 변경은 프론트 스파게티 정리 5차다. 다음 후보는 Daily OPS, Shipyard, Fleet Command처럼 아직 `index.html` 안에 남은 대형 기능 블록이다.
+- 검증 기준: `node --check assets/ship-catalog-modals.js`, `node --check assets/bug-reporter.js`, `node --check assets/tactical-lab-modal.js`, `node --check sw.js`, `index.html` inline script parse, static `/assets/ship-catalog-modals.css`/`.js` load, `git diff --check`.
+
+### v7.428 핸드오프 — 버그 리포터 CSS 외부화
 
 - `assets/bug-reporter.css`를 추가했다. 버그 신고 FAB, 모바일 위치 복구 규칙, 모달 카드, 스크린샷 드롭존, 제출/삭제 버튼 스타일을 이 파일로 이동했다.
 - `index.html`은 버그 리포터 모달 마크업과 `assets/bug-reporter.css`/`assets/bug-reporter.js` 로드만 남긴다. 버그 리포터 UI/동작의 단일 관리 지점은 각각 CSS/JS 파일이다.

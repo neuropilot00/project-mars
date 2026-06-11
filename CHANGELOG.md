@@ -1,3 +1,11 @@
+## 2026-06-11 v7.429 — 함선/광물 도감 모달 외부화
+
+- Ship Registry와 Mineral Catalog 모달 스타일을 `assets/ship-catalog-modals.css`로 분리했다.
+- 함선/광물 도감 fetch/render, 파벌 탭 전환, 모달 open/close 동작을 `assets/ship-catalog-modals.js`로 분리했다.
+- `index.html`은 도감 모달 마크업과 외부 CSS/JS 로드만 남기도록 정리했다.
+- 보유 함선/보유 광물 패널과 도감 모달이 `openShipRegistry()`/`openMineralsPanel()` 전역 이름을 같이 쓰던 충돌을 제거했다. 보유 패널은 `openMyShipRegistry()`/`openMyMineralsPanel()`, 도감은 `openShipCatalog()`/`openMineralCatalog()`로 분리했다.
+- UI/CSS/JS 캐시 반영을 위해 Service Worker 캐시를 `mars-v94`로 갱신했다.
+
 ## 2026-06-11 v7.428 — 버그 리포터 CSS 외부화
 
 - 버그 신고 버튼, 모바일 위치 규칙, 모달, 스크린샷 드롭존, 제출 버튼 스타일을 `assets/bug-reporter.css`로 분리했다.

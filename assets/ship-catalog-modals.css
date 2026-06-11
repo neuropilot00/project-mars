@@ -1,0 +1,380 @@
+/* Ship Registry modal */
+.reg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .82);
+  backdrop-filter: blur(6px);
+  display: none;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.reg-modal-backdrop.active {
+  display: flex;
+}
+
+.reg-modal {
+  background: #05060e;
+  border: 1px solid rgba(92, 187, 255, .25);
+  border-radius: 10px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  color: #d8e0f0;
+  font-family: var(--fn);
+}
+
+.reg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(92, 187, 255, .12);
+}
+
+.reg-title {
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #5cbbff;
+  font-size: 13px;
+}
+
+.reg-close {
+  background: transparent;
+  border: none;
+  color: #a0aac0;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px 8px;
+}
+
+.reg-close:hover {
+  color: #fff;
+}
+
+.reg-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 18px 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.reg-tab {
+  padding: 5px 12px;
+  font-family: var(--fn);
+  font-size: 10px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border: 1px solid;
+  background: transparent;
+  transition: all .15s;
+  border-radius: 3px;
+}
+
+.reg-tab.mcc {
+  border-color: rgba(79, 195, 247, .35);
+  color: #4fc3f7;
+}
+
+.reg-tab.mcc.on {
+  background: rgba(79, 195, 247, .15);
+}
+
+.reg-tab.fsp {
+  border-color: rgba(129, 199, 132, .35);
+  color: #81c784;
+}
+
+.reg-tab.fsp.on {
+  background: rgba(129, 199, 132, .15);
+}
+
+.reg-tab.cv {
+  border-color: rgba(239, 83, 80, .35);
+  color: #ef5350;
+}
+
+.reg-tab.cv.on {
+  background: rgba(239, 83, 80, .15);
+}
+
+.reg-desc {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, .35);
+  margin-left: auto;
+}
+
+.reg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  padding: 10px 18px 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.reg-card {
+  background: rgba(255, 255, 255, .025);
+  border: 1px solid rgba(255, 255, 255, .07);
+  padding: 10px;
+  border-radius: 6px;
+  transition: all .15s;
+}
+
+.reg-card:hover {
+  background: rgba(255, 255, 255, .05);
+}
+
+.reg-card.mcc {
+  border-left: 2px solid rgba(79, 195, 247, .55);
+}
+
+.reg-card.fsp {
+  border-left: 2px solid rgba(129, 199, 132, .55);
+}
+
+.reg-card.cv {
+  border-left: 2px solid rgba(239, 83, 80, .55);
+}
+
+.reg-sname {
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  margin-bottom: 2px;
+}
+
+.reg-scls {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, .4);
+  margin-bottom: 5px;
+}
+
+.reg-srole {
+  display: inline-block;
+  font-size: 8px;
+  letter-spacing: .5px;
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  margin-bottom: 6px;
+  border-radius: 2px;
+}
+
+.reg-srole.dps {
+  border-color: rgba(239, 83, 80, .35);
+  color: #ef9a9a;
+}
+
+.reg-srole.tank {
+  border-color: rgba(79, 195, 247, .35);
+  color: #4fc3f7;
+}
+
+.reg-srole.ewar {
+  border-color: rgba(206, 147, 216, .35);
+  color: #ce93d8;
+}
+
+.reg-srole.logi {
+  border-color: rgba(129, 199, 132, .35);
+  color: #a5d6a7;
+}
+
+.reg-srole.tackle,
+.reg-srole.scout {
+  border-color: rgba(255, 180, 77, .35);
+  color: #ffb74d;
+}
+
+.reg-srole.bomber {
+  border-color: rgba(255, 109, 0, .35);
+  color: #ff8a65;
+}
+
+.reg-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+  font-size: 9px;
+}
+
+.reg-stat-row {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, .5);
+}
+
+.reg-stat-row span:last-child {
+  color: rgba(255, 255, 255, .85);
+}
+
+.reg-recipe {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+  font-size: 8px;
+  color: rgba(255, 255, 255, .45);
+  line-height: 1.6;
+}
+
+.reg-recipe b {
+  color: #ffb74d;
+  font-weight: 700;
+}
+
+.reg-lock {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 8px;
+  color: #ef5350;
+  letter-spacing: 1px;
+}
+
+.reg-cap {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 8px;
+  color: #ffd700;
+  letter-spacing: 1px;
+}
+
+.reg-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: var(--tx3);
+}
+
+/* Minerals panel modal */
+.min-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .82);
+  backdrop-filter: blur(6px);
+  display: none;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.min-modal-backdrop.active {
+  display: flex;
+}
+
+.min-modal {
+  background: #05060e;
+  border: 1px solid rgba(129, 199, 132, .25);
+  border-radius: 10px;
+  max-width: 820px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  color: #d8e0f0;
+  font-family: var(--fn);
+}
+
+.min-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(129, 199, 132, .12);
+}
+
+.min-title {
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #81c784;
+  font-size: 13px;
+}
+
+.min-body {
+  padding: 14px 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.min-section {
+  margin-bottom: 18px;
+}
+
+.min-sect-title {
+  font-weight: 800;
+  letter-spacing: 3px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, .5);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.min-sect-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, .06);
+}
+
+.min-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 6px;
+}
+
+.min-card {
+  background: rgba(255, 255, 255, .025);
+  border: 1px solid rgba(255, 255, 255, .08);
+  padding: 9px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.min-card-icon {
+  font-size: 22px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.min-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.min-card-name {
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  margin-bottom: 1px;
+}
+
+.min-card-en {
+  font-size: 8px;
+  letter-spacing: .5px;
+  color: rgba(255, 255, 255, .35);
+}
+
+.min-card-src {
+  font-size: 8px;
+  letter-spacing: .5px;
+  color: rgba(255, 180, 77, .65);
+  margin-top: 2px;
+}
+
+.min-card-recipe {
+  font-size: 8px;
+  letter-spacing: .5px;
+  color: rgba(92, 187, 255, .65);
+  margin-top: 2px;
+}
