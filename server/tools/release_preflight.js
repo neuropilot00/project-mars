@@ -60,6 +60,22 @@ async function main() {
     log('/api/config responds', false, error.message);
   }
 
+  try {
+    const adminStats = await fetchJson(`${baseUrl}/admin/api/stats`);
+    const ok = adminStats.statusCode === 401 || adminStats.statusCode === 403;
+    log('/admin/api/stats blocks unauthenticated access', ok, `status=${adminStats.statusCode}`);
+  } catch (error) {
+    log('/admin/api/stats blocks unauthenticated access', false, error.message);
+  }
+
+  try {
+    const campaignEditor = await fetchJson(`${baseUrl}/admin/api/campaign-editor/chapters`);
+    const ok = campaignEditor.statusCode === 401 || campaignEditor.statusCode === 403;
+    log('/admin/api/campaign-editor/chapters blocks unauthenticated access', ok, `status=${campaignEditor.statusCode}`);
+  } catch (error) {
+    log('/admin/api/campaign-editor/chapters blocks unauthenticated access', false, error.message);
+  }
+
   console.log(`\n📊  ${pass} passed / ${fail} failed`);
   process.exit(fail > 0 ? 1 : 0);
 }

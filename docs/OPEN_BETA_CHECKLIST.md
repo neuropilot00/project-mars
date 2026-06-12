@@ -64,7 +64,7 @@
 - [ ] **4개국어 로컬라이징 누락 점검**: ko/en/ja/zh — 최근 진형/기동(v7.342)·부스트 배지(v7.343) 외 잔여 한글 하드코딩 스윕.
 
 ## 4. ⚠️ 보안/남용 방지
-- [ ] **어드민 패널 접근 차단**: `admin.html` / `/admin/api`가 `ADMIN_SECRET` 없이는 완전 차단되는지.
+- [x] **어드민 패널 접근 차단**: `/admin/api/stats`, `/admin/api/campaign-editor/chapters` 무인증 차단을 release preflight에 추가.
 - [ ] **지갑 위조/타인 자원 접근 불가**: 모든 경제·함대 액션이 서버에서 owner 검증(대소문자 무시) 하는지.
 - [ ] **도박(칸티나) 공정성·한도**: min/max 베팅, provably-fair, 잔액 음수 방지. 미성년/법무 고지 문구(필요 시).
 - [ ] **입력 검증/XSS**: 닉네임·영토 설명·그래피티·튜브 메시지 등 사용자 입력 escape(이미 escapeHtmlSafe 사용 중 — 신규 입력처 점검).
