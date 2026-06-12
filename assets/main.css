@@ -1253,6 +1253,33 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 /* Sector list in BASE */
 .sector-list{display:flex;flex-direction:column;gap:8px}
+.sector-war-map{position:relative;overflow:hidden;border:1px solid rgba(255,120,60,.24);border-radius:10px;
+  background:linear-gradient(180deg,rgba(30,12,8,.78),rgba(7,7,15,.92));box-shadow:inset 0 0 34px rgba(255,92,32,.08);
+  padding:10px 10px 8px;margin-bottom:2px}
+.sector-war-map::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.34;
+  background:linear-gradient(100deg,transparent 0 36%,rgba(255,176,96,.13) 50%,transparent 64%),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 46px)}
+.swm-copy{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.swm-copy span{display:block;font-size:10px;color:var(--mars);font-weight:900;letter-spacing:.9px}
+.swm-copy small{display:block;margin-top:2px;font-size:8px;color:var(--tx3);letter-spacing:0;line-height:1.35}
+.swm-metrics{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.swm-metrics b,.swm-metrics span{font-size:8px;color:var(--tx2);border:1px solid rgba(255,255,255,.1);
+  border-radius:999px;background:rgba(0,0,0,.2);padding:2px 5px;white-space:nowrap}
+.swm-metrics b{color:var(--gold);border-color:rgba(255,209,102,.25)}
+.swm-svg{position:relative;z-index:1;width:100%;display:block;aspect-ratio:660/206;border-radius:8px}
+.swm-links line{stroke:rgba(255,188,112,.42);stroke-width:1.1;stroke-dasharray:7 5;filter:drop-shadow(0 0 3px rgba(255,120,60,.38))}
+.swm-node{cursor:pointer;transition:opacity .15s,filter .15s}
+.swm-node.dimmed{opacity:.18;filter:saturate(.25)}
+.swm-node .swm-halo{fill:none;stroke-width:1.4;opacity:.52;filter:drop-shadow(0 0 6px currentColor)}
+.swm-node .swm-core{stroke-width:2;fill-opacity:.72;filter:drop-shadow(0 0 7px rgba(255,130,70,.7))}
+.swm-node.hot .swm-halo{stroke-width:2.2;opacity:.88}
+.swm-node.mine .swm-core{fill-opacity:.95;filter:drop-shadow(0 0 10px rgba(91,184,232,.9))}
+.swm-node text{font-size:8px;font-family:var(--fn);font-weight:900;fill:#100b09;text-anchor:middle;pointer-events:none}
+.swm-legend{position:relative;z-index:1;display:flex;gap:7px;flex-wrap:wrap;margin-top:5px}
+.swm-legend span{display:inline-flex;align-items:center;gap:4px;font-size:7.5px;color:var(--tx3);letter-spacing:.4px}
+.swm-legend i{width:7px;height:7px;border-radius:50%;display:inline-block;box-shadow:0 0 7px currentColor}
+.swm-legend .core{background:#ff8a3d;color:#ff8a3d}.swm-legend .mid{background:#ffd166;color:#ffd166}
+.swm-legend .frontier{background:#4cd89a;color:#4cd89a}.swm-legend .mine{background:#5bb8e8;color:#5bb8e8}
 .sector-card{background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:10px;
   padding:10px 12px;cursor:pointer;transition:all .2s}
 .sector-card:hover{background:rgba(255,120,60,.06);border-color:var(--bdr2)}
@@ -2707,6 +2734,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .quest-card .qc-title{font-size:9px}
   .quest-card .qc-desc{font-size:9px}
   .sector-card{padding:8px 10px}
+  .sector-war-map{padding:8px}
+  .swm-copy{flex-direction:column;gap:5px}
+  .swm-svg{aspect-ratio:660/230}
   .sector-card .sc-name{font-size:9px}
   .sector-card .sc-economy{grid-template-columns:1fr 1fr}
   .shop-grid{gap:6px}

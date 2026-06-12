@@ -1357,6 +1357,80 @@ function renderSectorList(sectors){
       + '<div class="ssi-advice">'+scTxt(advice)+'</div>'
       + '</div>';
   }
+  function tierMapColor(tier, occ, mine) {
+    if (mine) return '#5bb8e8';
+    if (tier === 'core') return occ >= 70 ? '#ff5f46' : '#ff8a3d';
+    if (tier === 'mid') return occ >= 45 ? '#ffd166' : '#f6a94a';
+    return occ >= 35 ? '#4cd89a' : '#63e6be';
+  }
+  function renderSectorWarMap(items) {
+    var cols = 8;
+    var cellW = 82;
+    var cellH = 58;
+    var nodeR = 13;
+    var nodes = items.map(function(s, i) {
+      var row = Math.floor(i / cols);
+      var col = i % cols;
+      var stagger = row % 2 ? cellW * 0.5 : 0;
+      var occ = s.stats ? (parseFloat(s.stats.occupancyRate) || 0) : 0;
+      var mine = (parseInt(s.myPixels, 10) || 0) > 0;
+      var tier = String(s.tier || 'frontier').toLowerCase();
+      return {
+        id: s.id,
+        name: s.name || ('Sector ' + s.id),
+        tier: tier,
+        mine: mine,
+        occ: occ,
+        activity: s.stats ? (parseInt(s.stats.activity24h, 10) || 0) : 0,
+        color: tierMapColor(tier, occ, mine),
+        x: 43 + col * cellW + stagger,
+        y: 44 + row * cellH
+      };
+    });
+    var lines = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      var next = nodes[i + 1];
+      var down = nodes[i + cols];
+      if (next && Math.floor((i + 1) / cols) === Math.floor(i / cols)) lines.push([n, next]);
+      if (down) lines.push([n, down]);
+      if ((i % cols) < cols - 1 && nodes[i + cols + (Math.floor(i / cols) % 2 ? 1 : 0)]) {
+        lines.push([n, nodes[i + cols + (Math.floor(i / cols) % 2 ? 1 : 0)]]);
+      }
+    }
+    var owned = nodes.filter(function(n){ return n.mine; }).length;
+    var hot = nodes.filter(function(n){ return n.occ >= 60 || n.activity >= 5; }).length;
+    var avgOcc = nodes.length ? Math.round(nodes.reduce(function(sum,n){ return sum+n.occ; }, 0) / nodes.length) : 0;
+    var mapTitle = LANG==='ko'?'화성 영토 전술망':LANG==='ja'?'火星領土戦術網':LANG==='zh'?'火星领地战术网':'Mars Territory Grid';
+    var sub = LANG==='ko'?'점령률, 전쟁 압력, 내 거점을 한눈에 확인':LANG==='ja'?'占有率、戦争圧力、自拠点を俯瞰':LANG==='zh'?'总览占领率、战争压力与我的据点':'Occupancy, war pressure, and your footholds at a glance';
+    return '<div class="sector-war-map">'
+      + '<div class="swm-copy"><div><span>'+mapTitle+'</span><small>'+sub+'</small></div>'
+      + '<div class="swm-metrics"><b>'+avgOcc+'%</b><span>'+owned+' MY</span><span>'+hot+' HOT</span></div></div>'
+      + '<svg class="swm-svg" viewBox="0 0 660 206" role="img" aria-label="'+scTxt(mapTitle)+'">'
+      + '<defs><radialGradient id="swmMarsGlow" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#b24624" stop-opacity=".72"/><stop offset="58%" stop-color="#461910" stop-opacity=".42"/><stop offset="100%" stop-color="#090712" stop-opacity="0"/></radialGradient></defs>'
+      + '<rect x="0" y="0" width="660" height="206" rx="12" fill="url(#swmMarsGlow)"/>'
+      + '<path d="M0 160 C130 112 244 97 358 110 C470 122 574 102 660 58" fill="none" stroke="rgba(255,185,110,.2)" stroke-width="28"/>'
+      + '<g class="swm-links">'+lines.map(function(pair){
+          var a = pair[0], b = pair[1];
+          return '<line x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'"/>';
+        }).join('')+'</g>'
+      + '<g class="swm-nodes">'+nodes.map(function(n){
+          var r = nodeR + Math.min(7, Math.round(n.occ / 16));
+          var hotCls = n.occ >= 60 || n.activity >= 5 ? ' hot' : '';
+          var mineCls = n.mine ? ' mine' : '';
+          var title = scTxt(n.name)+' · '+n.tier.toUpperCase()+' · '+Math.round(n.occ)+'%';
+          return '<g class="swm-node '+n.tier+hotCls+mineCls+'" data-tier="'+n.tier+'" data-owned="'+(n.mine?'1':'0')+'" onclick="focusSector('+parseInt(n.id,10)+')">'
+            + '<title>'+title+'</title>'
+            + '<circle class="swm-halo" cx="'+n.x+'" cy="'+n.y+'" r="'+(r+8)+'" style="stroke:'+n.color+'"/>'
+            + '<circle class="swm-core" cx="'+n.x+'" cy="'+n.y+'" r="'+r+'" style="fill:'+n.color+';stroke:'+n.color+'"/>'
+            + '<text x="'+n.x+'" y="'+(n.y+3)+'">'+scTxt(String(n.id).replace(/^S/i,''))+'</text>'
+            + '</g>';
+        }).join('')+'</g>'
+      + '</svg>'
+      + '<div class="swm-legend"><span><i class="core"></i>CORE</span><span><i class="mid"></i>MID</span><span><i class="frontier"></i>FRONTIER</span><span><i class="mine"></i>MY BASE</span></div>'
+      + '</div>';
+  }
+  html += renderSectorWarMap(sectors);
   sectors.forEach(function(s){
     var occ=s.stats.occupancyRate;
     var occPx=s.stats.occupiedPixels;
@@ -1543,6 +1617,13 @@ function filterSectors(tier,el){
     else match=item.dataset.tier===tier;
     item.style.display=match?'':'none';
     if(match) shown++;
+  });
+  document.querySelectorAll('#baseSectorList .swm-node').forEach(function(item){
+    var match=false;
+    if(tier==='all') match=true;
+    else if(tier==='mine') match=item.dataset.owned==='1';
+    else match=item.dataset.tier===tier;
+    item.classList.toggle('dimmed', !match);
   });
   // Empty-state hint for MY SECTORS
   var list=document.getElementById('baseSectorList');
