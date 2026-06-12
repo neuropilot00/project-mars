@@ -20,8 +20,8 @@ const readLimiter = makeRateLimiter({
 let feedCache = null;
 let feedCacheAt = 0;
 
-router.get('/achievements', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
+router.get('/achievements', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet required' });
 
   try {

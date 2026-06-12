@@ -15,10 +15,10 @@ function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
-// GET /api/profile?wallet=
-router.get('/profile', async (req, res) => {
+// GET /api/profile
+router.get('/profile', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const profile = await profileSvc.getProfile(wallet);
     if (!profile) return res.status(404).json({ error: 'User not found' });
@@ -34,10 +34,11 @@ router.get('/profile/costs', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/profile/history?wallet=&field=
-router.get('/profile/history', async (req, res) => {
+// GET /api/profile/history?field=
+router.get('/profile/history', requireAuth, async (req, res) => {
   try {
-    const { wallet, field } = req.query;
+    const wallet = getAuthWallet(req);
+    const { field } = req.query;
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const history = await profileSvc.getHistory(wallet, field || null);
     res.json(history);

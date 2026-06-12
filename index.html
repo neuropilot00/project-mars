@@ -38021,7 +38021,7 @@ function loadMyProfile() {
 
   if (!w) return;
 
-  fetch('/api/profile?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}).then(function(p){
+  fetch('/api/profile', { headers: getAuthHeaders() }).then(function(r){return r.json();}).then(function(p){
     if (!p || p.error) return;
     if (nickDisp) nickDisp.textContent = p.nickname || '(no nickname)';
     if (mottoDisp) mottoDisp.textContent = p.motto || (t('profile_no_motto')||'No motto set');
@@ -38099,7 +38099,7 @@ function loadMyVtagDisplay() {
   var el = document.getElementById('myVtagDisplay');
   var clearBtn = document.getElementById('vtagClearBtn');
   if (!el) return;
-  fetch('/api/vtag/get?wallet='+encodeURIComponent(w))
+  fetch('/api/vtag/get', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       if (!d || !d.tag) {
@@ -38284,7 +38284,7 @@ function loadProfileHistory() {
   var el = document.getElementById('profileHistoryPanel');
   if (!el || !w) return;
   el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading…</div>';
-  fetch('/api/profile/history?wallet='+encodeURIComponent(w))
+  fetch('/api/profile/history', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(rows){
       if (!rows || !rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">No changes yet</div>'; return; }
@@ -40727,7 +40727,7 @@ function loadAchievements() {
   }
   grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Loading...</div>';
 
-  fetch('/api/achievements?wallet=' + walletState.address)
+  fetch('/api/achievements', { headers: getAuthHeaders() })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       _achievements = data.achievements || [];

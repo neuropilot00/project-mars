@@ -21,9 +21,9 @@ router.get('/vtag/config', async (req, res) => {
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/vtag/get?wallet=
-router.get('/vtag/get', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/vtag/get
+router.get('/vtag/get', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getTag(wallet)); }
   catch(e) { res.status(500).json({ error: e.message }); }
