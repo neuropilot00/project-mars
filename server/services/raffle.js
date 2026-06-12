@@ -74,6 +74,11 @@ async function buyTickets(wallet, raffleId, count) {
     const rf = rfRes.rows[0];
     if (new Date(rf.ends_at) <= new Date()) throw new Error('Raffle has ended');
 
+    const ticketCostGp = Number(rf.ticket_cost_gp);
+    if (!Number.isFinite(ticketCostGp) || ticketCostGp < cfg.minCostGp) {
+      throw new Error(`Raffle ticket cost must be at least ${cfg.minCostGp} GP`);
+    }
+
     // Max tickets check
     const existRes = await client.query(
       `SELECT COALESCE(SUM(tickets),0) AS total FROM raffle_entries WHERE raffle_id=$1 AND LOWER(wallet)=LOWER($2)`,
@@ -90,8 +95,9 @@ async function buyTickets(wallet, raffleId, count) {
       throw new Error(`Only ${avail} ticket(s) remaining`);
     }
 
-    const gpCost = rf.ticket_cost_gp * count;
-    const houseCut = Math.floor(gpCost * cfg.houseCutPct / 100);
+    const gpCost = ticketCostGp * count;
+    const safeHouseCutPct = Math.max(0, Math.min(100, cfg.houseCutPct));
+    const houseCut = Math.floor(gpCost * safeHouseCutPct / 100);
     const toPrize = gpCost - houseCut;
 
     // User balance
@@ -179,15 +185,26 @@ async function drawWinner(raffleId) {
       return { drawn: false, reason: 'No tickets sold' };
     }
 
-    // Build weighted pool
-    let pool2 = [];
-    entries.forEach(function(e) {
-      for (let i = 0; i < e.tickets; i++) pool2.push(e.wallet);
-    });
+    const totalTickets = entries.reduce((sum, e) => sum + (parseInt(e.tickets, 10) || 0), 0);
+    if (totalTickets < 1) {
+      await client.query(`UPDATE raffles SET status='cancelled' WHERE id=$1`, [raffleId]);
+      await client.query('COMMIT');
+      return { drawn: false, reason: 'No tickets sold' };
+    }
 
-    // Draw random winner
-    const winnerIdx = Math.floor(Math.random() * pool2.length);
-    const winnerWallet = pool2[winnerIdx];
+    // Draw without expanding every ticket into memory.
+    const { randomInt } = require('crypto');
+    const winningTicket = randomInt(1, totalTickets + 1);
+    let cursor = 0;
+    let winnerWallet = null;
+    for (const entry of entries) {
+      cursor += parseInt(entry.tickets, 10) || 0;
+      if (winningTicket <= cursor) {
+        winnerWallet = entry.wallet;
+        break;
+      }
+    }
+    if (!winnerWallet) throw new Error('WINNER_SELECTION_FAILED');
     const prizeGp = rf.prize_pool_gp;
 
     // Award prize
@@ -205,7 +222,7 @@ async function drawWinner(raffleId) {
 
     await client.query(
       `UPDATE raffles SET status='completed', winner_wallet=$1, winner_ticket=$2 WHERE id=$3`,
-      [winnerWallet, winnerIdx + 1, raffleId]
+      [winnerWallet, winningTicket, raffleId]
     );
 
     await client.query('COMMIT');
