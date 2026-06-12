@@ -1021,6 +1021,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
         `함선 수리 (ID:${shipId}) +${healAmount}HP`).catch(() => {});
     } catch (_) {}
     try { const _dOps = require('../routes/dailyOps'); _dOps.notifyMissionProgress(walletLower, 'repair_ship').catch(()=>{}); _dOps.notifyMissionProgress(walletLower, 'repair_ship_3').catch(()=>{}); } catch(_) {}
+    try { const seasonSvc = require('./season'); seasonSvc.addSeasonScore(walletLower, 'gp_spend', gpCost).catch(() => {}); } catch (_) {}
 
     return {
       success:  true,

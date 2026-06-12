@@ -530,14 +530,6 @@ router.post('/:id/repair', requireAuth, async (req, res) => {
     }
 
     const result = await shipService.repairShip(wallet, shipId, targetHpPct);
-    // Daily OPS mission progress (fire-and-forget)
-    if (result.success) {
-      try {
-        const _dOps = require('./dailyOps');
-        _dOps.notifyMissionProgress(wallet, 'repair_ship').catch(() => {});
-        _dOps.notifyMissionProgress(wallet, 'repair_ship_3').catch(() => {});
-      } catch (_) {}
-    }
     res.json(result);
   } catch (err) {
     const errorMap = {
