@@ -1103,7 +1103,7 @@ async function loadActivityFeed() {
     // Skip when the tab is hidden — keeps the render loop smooth.
     if (!_pageIsActive()) return;
     var url = '/api/activity/feed?limit=15' + (_feedSince ? '&since=' + encodeURIComponent(_feedSince) : '');
-    var data = await _guardedJsonFetch('activity-feed', url, {minGap:5000, backoffMs:60000});
+    var data = await _guardedJsonFetch('activity-feed', url, {minGap:20000, backoffMs:120000});
     if (!data) return;
     var events = data.events || [];
     if (!events.length) return;

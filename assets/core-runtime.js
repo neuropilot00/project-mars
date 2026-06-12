@@ -173,6 +173,16 @@ function _activeSleep(ms){
   return new Promise(function(resolve){ _setActiveTimeout(resolve, ms); });
 }
 var _apiFetchGuards = {};
+var _apiEndpointGuards = {};
+function _guardedFetchEndpointKey(url, fetchOptions) {
+  try {
+    var u = new URL(url, location.origin);
+    var method = (fetchOptions && fetchOptions.method ? fetchOptions.method : 'GET').toUpperCase();
+    return method + ' ' + u.pathname;
+  } catch (_) {
+    return null;
+  }
+}
 function _guardedJsonFetch(key, url, options) {
   options = options || {};
   var now = Date.now();
@@ -181,15 +191,26 @@ function _guardedJsonFetch(key, url, options) {
     lastAt: 0,
     backoffUntil: 0
   });
+  var fetchOptions = options.fetchOptions || {};
+  var endpointKey = options.shareEndpoint === false ? null : (options.endpointKey || _guardedFetchEndpointKey(url, fetchOptions));
+  var eg = endpointKey ? (_apiEndpointGuards[endpointKey] || (_apiEndpointGuards[endpointKey] = {
+    inFlight: false,
+    backoffUntil: 0
+  })) : null;
   var minGap = options.minGap || 0;
-  if (g.inFlight || now < g.backoffUntil || (minGap && now - g.lastAt < minGap)) {
+  if (g.inFlight || now < g.backoffUntil || (minGap && now - g.lastAt < minGap) || (eg && (eg.inFlight || now < eg.backoffUntil))) {
     return Promise.resolve(null);
   }
   g.inFlight = true;
+  if (eg) eg.inFlight = true;
   g.lastAt = now;
-  return fetch(url, options.fetchOptions || {}).then(function(r){
+  return fetch(url, fetchOptions).then(function(r){
     if (r.status === 429) {
-      g.backoffUntil = Date.now() + (options.backoffMs || 60000);
+      var retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10);
+      var backoffMs = retryAfter > 0 ? retryAfter * 1000 : (options.backoffMs || 60000);
+      var until = Date.now() + backoffMs;
+      g.backoffUntil = until;
+      if (eg) eg.backoffUntil = until;
       return null;
     }
     if (!r.ok) return null;
@@ -198,6 +219,7 @@ function _guardedJsonFetch(key, url, options) {
     return null;
   }).finally(function(){
     g.inFlight = false;
+    if (eg) eg.inFlight = false;
   });
 }
 function _clearActiveTimeout(id){
