@@ -183,11 +183,11 @@ router.get('/search/owner/:query', async (req, res) => {
 router.get('/pixels', async (req, res) => {
   try {
     const viewerWallet = getOptionalAuthWallet(req);
-    const visibleOwner = visibleOwnerPredicate('owner', 1);
+    const visibleOwner = visibleOwnerPredicate('p.owner', 1);
     const result = await pool.query(
-      `SELECT lat, lng, owner, claim_id, price
-       FROM pixels
-       WHERE owner IS NOT NULL
+      `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
+       FROM pixels p
+       WHERE p.owner IS NOT NULL
          AND ${visibleOwner}`,
       [viewerWallet]
     );
