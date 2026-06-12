@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process');
+const fs = require('fs');
+const { execSync, execFileSync } = require('child_process');
 const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
+const backupDir = path.join(repoRoot, 'server', 'backups');
 const providedDatabaseUrl = process.env.DATABASE_URL || '';
 process.env.DATABASE_URL = providedDatabaseUrl || 'postgresql://jongho@localhost:5432/pixelwar';
 let pass = 0;
@@ -23,6 +25,18 @@ function run(command, options = {}) {
   }).trim();
 }
 
+function latestBackupFile() {
+  if (!fs.existsSync(backupDir)) return null;
+  const files = fs.readdirSync(backupDir)
+    .filter(name => /^backup_\d{8}_\d{6}\.sql\.gz$/.test(name))
+    .map(name => {
+      const fullPath = path.join(backupDir, name);
+      return { name, fullPath, mtimeMs: fs.statSync(fullPath).mtimeMs };
+    })
+    .sort((a, b) => b.mtimeMs - a.mtimeMs);
+  return files[0] || null;
+}
+
 async function main() {
   log('DATABASE_URL resolved', !!process.env.DATABASE_URL, providedDatabaseUrl ? 'env' : 'fallback:local-pixelwar');
 
@@ -31,6 +45,32 @@ async function main() {
     log('pg_dump available', !!version, version);
   } catch (error) {
     log('pg_dump available', false, 'command not found');
+  }
+
+  try {
+    const version = run('psql --version');
+    log('psql available for restore rehearsal', !!version, version);
+  } catch (error) {
+    log('psql available for restore rehearsal', false, 'command not found');
+  }
+
+  try {
+    const latest = latestBackupFile();
+    if (!latest) {
+      log('latest backup artifact exists', false, `missing in ${backupDir}`);
+    } else {
+      log('latest backup artifact exists', true, latest.name);
+      execFileSync('gzip', ['-t', latest.fullPath], { stdio: 'ignore' });
+      log('latest backup gzip integrity', true, latest.name);
+      const header = execFileSync('sh', ['-c', 'gzip -cd "$1" | head -n 30', 'sh', latest.fullPath], {
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024,
+      });
+      const looksRestorable = /PostgreSQL database dump|CREATE TABLE|COPY public\.|INSERT INTO/i.test(header);
+      log('latest backup looks restorable SQL', looksRestorable, latest.name);
+    }
+  } catch (error) {
+    log('latest backup artifact verification', false, error.message);
   }
 
   try {
