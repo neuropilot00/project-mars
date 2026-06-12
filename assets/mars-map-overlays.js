@@ -1,5 +1,18 @@
 var _showSectorBounds=false;
 
+function mapOverlayReadJson(key, url, minGap, auth) {
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  var fetchOptions = auth === false ? {} : { headers: getAuthHeaders() };
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('map-overlay:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: fetchOptions
+    });
+  }
+  return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
+
 function drawSectorBoundaries(){
   if(!_sectorsData.length) return;
   compositeClaimsOnTexture();
@@ -1254,9 +1267,9 @@ function openMyMineralsPanel(){
   var w = walletState.address;
   if(!w){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
   _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#81c784');
-  fetch('/api/resources/my', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();})
+  mapOverlayReadJson('resources-my', '/api/resources/my', 10000)
     .then(function(d){
+      if(!d) return;
       var items = d.resources || d.inventory || d || [];
       if(!Array.isArray(items)) items = items.resources || [];
       var body = '';
@@ -1285,9 +1298,9 @@ function openMyShipRegistry(){
   var w = walletState.address;
   if(!w){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
   _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#5cbbff');
-  fetch('/api/ships/my', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();})
+  mapOverlayReadJson('ships-my', '/api/ships/my', 10000)
     .then(function(d){
+      if(!d) return;
       var ships = (d && d.ships) || [];
       var summary = (d && d.summary) || null;
       var body = '';
