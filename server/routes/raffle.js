@@ -21,10 +21,10 @@ router.get('/raffles', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/raffles/my?wallet=  — must be BEFORE /:id to avoid shadow match
-router.get('/raffles/my', async (req, res) => {
+// GET /api/raffles/my  — must be BEFORE /:id to avoid shadow match
+router.get('/raffles/my', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     res.json(await raffleSvc.getMyEntries(wallet));
   } catch (e) { res.status(500).json({ error: e.message }); }
