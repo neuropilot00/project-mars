@@ -2826,12 +2826,21 @@ var _claimsPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?20000:10
 _setActiveInterval(function(){
   _pixelPollCount++;
   var fetchPixels=(_pixelPollCount%3===0); // every 30s desktop / 60s mobile
-  var fetches=[_guardedJsonFetch('claims-delta', '/api/claims?since='+_claimsSince, {minGap:Math.max(5000,_claimsPollMs-500), backoffMs:60000, fetchOptions:{headers:getAuthHeaders()}})];
+  var fetchFullClaims=(_pixelPollCount%9===0); // reconcile hidden/expired cloak state without adding a new loop
+  var claimsUrl=fetchFullClaims?'/api/claims':('/api/claims?since='+_claimsSince);
+  var fetches=[_guardedJsonFetch(fetchFullClaims?'claims-full':'claims-delta', claimsUrl, {minGap:Math.max(5000,_claimsPollMs-500), backoffMs:60000, fetchOptions:{headers:getAuthHeaders()}})];
   if(fetchPixels) fetches.push(_guardedJsonFetch('pixels-full', '/api/pixels', {minGap:Math.max(15000,_claimsPollMs*3-500), backoffMs:90000, fetchOptions:{headers:getAuthHeaders()}}));
   Promise.all(fetches).then(function(results){
     var newClaims=results[0], serverPixels=results[1];
     var added=0;
-    if(newClaims&&newClaims.length){
+    if(fetchFullClaims&&Array.isArray(newClaims)){
+      claims.length=0;
+      newClaims.forEach(function(sc){
+        if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts;
+        claims.push(sc);
+      });
+      added=newClaims.length;
+    }else if(newClaims&&newClaims.length){
       var existingIds={};
       claims.forEach(function(c){if(c.id) existingIds[c.id]=true;});
       newClaims.forEach(function(sc){
