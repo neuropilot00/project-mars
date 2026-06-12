@@ -176,6 +176,7 @@ var _apiFetchGuards = {};
 var _apiEndpointGuards = {};
 var _apiPublicHudBackoffUntil = 0;
 var _apiPublicHudQuietUntil = 0;
+var _apiPublicHudDefaultBackoffMs = 300000;
 var _apiPublicHudBackoffPaths = {
   '/api/stats': true,
   '/api/leaderboard': true,
@@ -253,7 +254,7 @@ function _clearPublicHudFetchBackoff() {
     return nativeFetch.apply(this, arguments).then(function(resp) {
       if (resp && resp.status === 429 && url && method === 'GET' && _isPublicHudFetchPath(url)) {
         var retryAfter = parseInt(resp.headers.get('Retry-After') || '0', 10);
-        var backoffMs = retryAfter > 0 ? retryAfter * 1000 : 120000;
+        var backoffMs = retryAfter > 0 ? retryAfter * 1000 : _apiPublicHudDefaultBackoffMs;
         _apiPublicHudBackoffUntil = Math.max(_apiPublicHudBackoffUntil, Date.now() + backoffMs);
       }
       return resp;
@@ -297,7 +298,7 @@ function _guardedJsonFetch(key, url, options) {
   return fetch(url, fetchOptions).then(function(r){
     if (r.status === 429) {
       var retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10);
-      var backoffMs = retryAfter > 0 ? retryAfter * 1000 : (options.backoffMs || 60000);
+      var backoffMs = retryAfter > 0 ? retryAfter * 1000 : Math.max(options.backoffMs || 60000, isPublicHud ? _apiPublicHudDefaultBackoffMs : 0);
       var until = Date.now() + backoffMs;
       g.backoffUntil = until;
       if (eg) eg.backoffUntil = until;

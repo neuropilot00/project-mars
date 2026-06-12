@@ -301,15 +301,6 @@ const globalLimiter = makeRateLimiter({
   message: { error: 'Too many requests, please try again later.' }
 });
 
-const authLimiter = makeRateLimiter({
-  windowMs: 15 * 60 * 1000,
-  max: isDev ? 50 : 10,
-  store: makeLimiterStore('auth'),
-  passOnStoreError: true,
-  skipSuccessfulRequests: true,
-  message: { error: 'Too many authentication attempts, please try again later.' }
-});
-
 const apiLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
   max: isDev ? 300 : 200,

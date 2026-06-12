@@ -35,6 +35,7 @@ function _applyAuthMeBalances(d){
 // Auto-login: restore session from saved token, or re-login with saved credentials
 (function autoLoginInit(){
   if(emailAuth.token){
+    _authQuietPublicReads(300000);
     fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
       .then(function(r){if(!r.ok) throw new Error('expired'); return r.json()})
       .then(function(d){
@@ -45,6 +46,7 @@ function _applyAuthMeBalances(d){
         walletState.chain='base';
         try{_applyAuthMeBalances(d)}catch(e){}
         try{updateWalletUI();updateEmailVerifyBanner();}catch(e){}
+        try{ if(typeof _clearPublicHudFetchBackoff==='function') _clearPublicHudFetchBackoff(); }catch(e){}
         try{updateChainUI()}catch(e){}
         try{updateTopbarAvatar(true)}catch(e){}
         try{loadReferralInfo()}catch(e){}
@@ -77,6 +79,7 @@ function _applyAuthMeBalances(d){
         emailAuth.token=null;
         try{localStorage.removeItem('pw_token')}catch(e){}
         console.log('[Auth] Token expired, trying saved credentials...');
+        _authQuietPublicReads(300000);
         _tryCredentialAutoLogin();
       });
   } else {
