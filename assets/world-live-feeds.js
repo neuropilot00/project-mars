@@ -640,6 +640,8 @@
   // ─────────────────────────────────────────────────────────
   var _siegeSectorCode = null;
   var _siegeSectorDefs = null; // cached from /api/sector-defs
+  var _baseSectorRows = null;
+  var _baseSectorFilter = 'all';
 
   function _loadSectorDefs(cb) {
     if (_siegeSectorDefs) { cb(_siegeSectorDefs); return; }
@@ -648,6 +650,96 @@
       cb(_siegeSectorDefs);
     }).catch(function(){ cb([]); });
   }
+
+  function _sectorDisplayName(s) {
+    return (LANG==='ko'?s.name_ko:LANG==='ja'?s.name_ja:LANG==='zh'?s.name_zh:(s.name_en || s.name)) || s.name || s.code;
+  }
+
+  function _sectorFmtMult(v) {
+    var n = parseFloat(v);
+    if (!Number.isFinite(n)) n = 1;
+    return n.toFixed(2).replace(/\.00$/, '') + 'x';
+  }
+
+  function _sectorEconomyLine(s) {
+    var mining = s.miningMultiplier != null ? s.miningMultiplier : s.mining_multiplier;
+    var price = s.priceMultiplier != null ? s.priceMultiplier : s.price_multiplier;
+    var tax = s.taxRate != null ? s.taxRate : s.tax_rate;
+    var parts = [
+      '⛏ ' + _sectorFmtMult(mining),
+      '🏷 ' + _sectorFmtMult(price)
+    ];
+    if (tax != null) parts.push('세율 ' + (parseFloat(tax) || 0).toFixed(1) + '%');
+    return parts.join(' · ');
+  }
+
+  function _renderBaseSectorList() {
+    var list = document.getElementById('baseSectorList');
+    if (!list) return;
+    var rows = _baseSectorRows || [];
+    if (_baseSectorFilter !== 'all') {
+      rows = rows.filter(function(s) {
+        if (_baseSectorFilter === 'mine') {
+          var w = walletState.address ? walletState.address.toLowerCase() : '';
+          var mineByWallet = !!(w && s.governor && s.governor.wallet && s.governor.wallet.toLowerCase() === w);
+          var gid = (typeof _myGuildData !== 'undefined' && _myGuildData && _myGuildData.id) ? String(_myGuildData.id) : '';
+          var mineByGuild = !!(gid && s.governorGuild && String(s.governorGuild.id) === gid);
+          return mineByWallet || mineByGuild;
+        }
+        return (s.tier || s.sector_type) === _baseSectorFilter;
+      });
+    }
+    if (!rows.length) {
+      list.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">No sectors found.</div>';
+      return;
+    }
+    var tierCol = { core:'var(--gold)', mid:'var(--cyan)', frontier:'var(--gn)' };
+    list.innerHTML = rows.map(function(s) {
+      var tier = s.tier || s.sector_type || 'frontier';
+      var owner = s.governorGuild ? ((s.governorGuild.emblem||'🔴')+' ['+escapeHtml(s.governorGuild.tag||'')+'] '+escapeHtml(s.governorGuild.name||''))
+        : (s.governor ? ('👤 '+escapeHtml(s.governor.nickname||'')) : '<span style="color:var(--tx3)">Vacant</span>');
+      var policy = s.sectorPolicy || s.sector_policy;
+      return '<div style="padding:9px 10px;margin-bottom:7px;border-radius:8px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-left:3px solid '+(tierCol[tier]||'var(--tx3)')+'">'
+        + '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">'
+        + '<div style="min-width:0"><div style="font-size:11px;color:var(--tx);font-weight:800;letter-spacing:.3px">'+escapeHtml(_sectorDisplayName(s))+'</div>'
+        + '<div style="font-size:9px;color:var(--tx3);margin-top:3px;font-family:var(--fn)">'+escapeHtml(String(s.code||'').toUpperCase())+' · '+escapeHtml(tier.toUpperCase())+'</div></div>'
+        + '<div style="font-size:9px;color:'+(tierCol[tier]||'var(--tx3)')+';font-weight:800;text-transform:uppercase">'+escapeHtml(tier)+'</div></div>'
+        + '<div style="font-size:9px;color:var(--tx2);margin-top:7px">'+owner+'</div>'
+        + '<div style="font-size:9px;color:var(--gold);margin-top:5px">'+escapeHtml(_sectorEconomyLine(s))+'</div>'
+        + (policy ? '<div style="font-size:8px;color:var(--tx3);margin-top:4px">Policy: '+escapeHtml(_siegePolicyLabel(policy))+'</div>' : '')
+        + '</div>';
+    }).join('');
+  }
+
+  window.loadBaseSectorList = function(force) {
+    var list = document.getElementById('baseSectorList');
+    if (!list) return;
+    if (_baseSectorRows && !force) { _renderBaseSectorList(); return; }
+    list.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">Loading sectors...</div>';
+    Promise.all([
+      fetch('/api/sector-defs').then(function(r){return r.json()}).catch(function(){return {sectors:[]};}),
+      fetch('/api/sector-defs/sov-map').then(function(r){return r.json()}).catch(function(){return {sectors:[]};})
+    ]).then(function(res) {
+      var defs = res[0].sectors || [];
+      var sovByCode = {};
+      (res[1].sectors || []).forEach(function(s){ sovByCode[s.code] = s; });
+      _baseSectorRows = defs.map(function(s) {
+        var sov = sovByCode[s.code] || {};
+        return Object.assign({}, s, sov, { tier: sov.tier || s.sector_type });
+      });
+      _renderBaseSectorList();
+    }).catch(function() {
+      list.innerHTML = '<div style="font-size:10px;color:var(--red);padding:20px;text-align:center">Sector load failed.</div>';
+    });
+  };
+
+  window.filterSectors = function(filter, btn) {
+    _baseSectorFilter = filter || 'all';
+    document.querySelectorAll('.base-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    if (!_baseSectorRows) window.loadBaseSectorList();
+    else _renderBaseSectorList();
+  };
 
   window.toggleSiegeSection = function() {
     var el = document.getElementById('govSiegeSection');
@@ -1801,7 +1893,7 @@
         secs.forEach(function(s){
           var gov = s.governorGuild ? ((s.governorGuild.emblem||"🔴")+' ['+escapeHtml(s.governorGuild.tag||"")+']')
             : (s.governor ? ('👤 '+escapeHtml(s.governor.nickname||"")) : ('<span style="color:var(--tx3)">'+tl("Vacant","무주공산","空白","空白")+'</span>'));
-          h += '<div style="padding:6px 8px;background:rgba(255,255,255,.03);border-radius:6px;border-left:3px solid '+tierCol[tier]+'"><div style="font-size:10px;color:var(--tx);font-weight:600">'+escapeHtml(L(s))+'</div><div style="font-size:9px;color:var(--tx2);margin-top:2px">'+gov+'</div></div>';
+          h += '<div style="padding:6px 8px;background:rgba(255,255,255,.03);border-radius:6px;border-left:3px solid '+tierCol[tier]+'"><div style="font-size:10px;color:var(--tx);font-weight:600">'+escapeHtml(L(s))+'</div><div style="font-size:9px;color:var(--tx2);margin-top:2px">'+gov+'</div><div style="font-size:8px;color:var(--gold);margin-top:3px">'+escapeHtml(_sectorEconomyLine(s))+'</div></div>';
         });
         h += '</div>';
       });

@@ -282,7 +282,7 @@ function switchBaseTab(tab,el){
   var pane = document.getElementById('basePane_'+tab);
   if(pane) pane.classList.add('active');
   // Quest tracking for tab views
-  if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
+  if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} try{ if(typeof loadBaseSectorList==='function') loadBaseSectorList(); }catch(e){} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
   if(tab==='mining'){ try{ _renderShipMining(); }catch(_e){} }

@@ -404,7 +404,9 @@ async function computeSectorTariff(sectorId, payerWallet, grossAmount) {
 async function getSovMap() {
   const { rows } = await pool.query(`
     SELECT sd.id, sd.code, sd.name_en, sd.name_ko, sd.name_ja, sd.name_zh, sd.sector_type,
+           sd.price_multiplier, sd.mining_multiplier,
            sg.governor_wallet, sg.governor_guild_id,
+           sg.tax_rate, sg.sector_policy,
            g.name AS guild_name, g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
            u.nickname AS governor_nickname
       FROM sector_definitions sd
@@ -416,6 +418,10 @@ async function getSovMap() {
   const sectors = rows.map(r => ({
     code: r.code, name_en: r.name_en, name_ko: r.name_ko, name_ja: r.name_ja, name_zh: r.name_zh,
     tier: r.sector_type,
+    priceMultiplier: parseFloat(r.price_multiplier) || 1,
+    miningMultiplier: parseFloat(r.mining_multiplier) || 1,
+    taxRate: r.tax_rate == null ? null : (parseFloat(r.tax_rate) || 0),
+    sectorPolicy: r.sector_policy || null,
     governorGuild: r.governor_guild_id ? { id: r.governor_guild_id, name: r.guild_name, tag: r.guild_tag, emblem: r.guild_emblem } : null,
     governor: r.governor_wallet ? { wallet: r.governor_wallet, nickname: r.governor_nickname || r.governor_wallet.slice(0, 8) } : null,
   }));
