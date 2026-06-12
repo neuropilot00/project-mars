@@ -71,6 +71,21 @@ router.post('/chat/send', requireAuth, async (req, res) => {
     if (!isValidChannel(channel)) return res.status(400).json({ error: 'invalid_channel' });
     if (!message || message.length > 200) return res.status(400).json({ error: 'invalid_message' });
 
+    const duplicate = await pool.query(
+      `SELECT id, wallet, nickname, channel, message, created_at
+       FROM chat_messages
+       WHERE wallet = $1
+         AND channel = $2
+         AND message = $3
+         AND created_at > NOW() - INTERVAL '3 seconds'
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [wallet, channel, message]
+    );
+    if (duplicate.rows[0]) {
+      return res.json({ success: true, duplicate: true, message: duplicate.rows[0] });
+    }
+
     const recent = await pool.query(
       `SELECT COUNT(*)::int AS count
        FROM chat_messages

@@ -20862,17 +20862,45 @@ function _shopConfirmResolve(val){
 }
 
 var _activeEffects=[];
+var _activeEffectsRefreshTimer=null;
+function _filterLiveEffects(effects){
+  var now=Date.now();
+  return (Array.isArray(effects)?effects:[]).filter(function(e){
+    if(!e||e.active===false)return false;
+    if(e.uses_remaining!=null&&Number(e.uses_remaining)<=0)return false;
+    if(e.expires_at&&new Date(e.expires_at).getTime()<=now)return false;
+    return true;
+  });
+}
+function _scheduleActiveEffectsRefresh(){
+  if(_activeEffectsRefreshTimer)_clearActiveTimeout(_activeEffectsRefreshTimer);
+  var nextAt=null, now=Date.now();
+  (_activeEffects||[]).forEach(function(e){
+    if(!e||!e.expires_at)return;
+    var t=new Date(e.expires_at).getTime();
+    if(t>now&&(nextAt===null||t<nextAt))nextAt=t;
+  });
+  if(nextAt!==null){
+    _activeEffectsRefreshTimer=_setActiveTimeout(function(){
+      loadActiveEffects();
+      try{ if(typeof loadBaseInventory==='function')loadBaseInventory(); }catch(_){}
+    }, Math.max(1000, nextAt-now+500));
+  }
+}
 function loadActiveEffects(){
   var w=(walletState&&walletState.address)||'';
-  if(!w)return;
-  fetch('/api/shop/active-effects?wallet='+w).then(function(r){return r.json()}).then(function(effects){
-    _activeEffects=effects||[];
+  if(!w)return Promise.resolve([]);
+  return fetch('/api/shop/active-effects?wallet='+w).then(function(r){return r.json()}).then(function(effects){
+    _activeEffects=_filterLiveEffects(effects);
     renderActiveBuffs();
+    _scheduleActiveEffectsRefresh();
+    return _activeEffects;
   }).catch(function(){});
 }
 function renderActiveBuffs(){
   var el=document.getElementById('tbActiveBuffs');
   if(!el)return;
+  _activeEffects=_filterLiveEffects(_activeEffects);
   if(_activeEffects.length===0){el.style.display='none';return;}
   var catMap={attack_boost:'attack',stealth_cloak:'utility',mining_boost:'boost',pixel_doubler:'boost',radar_scan:'utility'};
   el.style.display='flex';
@@ -21032,6 +21060,7 @@ function renderShopInventory(){
   // Render active effects in inventory view (with auto-renew toggles)
   var actSec=document.getElementById('shopActiveSection');
   var actList=document.getElementById('shopActiveList');
+  _activeEffects=_filterLiveEffects(_activeEffects);
   if(_activeEffects.length>0){
     actSec.style.display='';
     actList.innerHTML=_activeEffects.map(function(e){
@@ -21245,8 +21274,10 @@ function _doUseItem(w,code,claimId){
     else if(code==='territory_scan') _showItemEffect('radar',null);
     else if(code==='decoy_beacon') _showItemEffect('stealth',null);
     else if(code==='shield_regen'&&claimId) _showItemEffect('shield',claimId);
-    renderShopInventory();
-    loadActiveEffects();
+    Promise.resolve(loadActiveEffects()).then(function(){
+      renderShopInventory();
+      try{ if(typeof loadBaseInventory==='function')loadBaseInventory(); }catch(_){}
+    });
     // Refresh claims to update shield status on globe
     _setActiveTimeout(function(){
       claimsSnapshot=null;
@@ -21867,7 +21898,7 @@ function loadBaseInventory(){
     fetch('/api/user/resources?wallet='+encodeURIComponent(w)+'&lang='+(window._lang||'en')).then(function(r){return r.json()}).catch(function(){return {inventory:[]}})
   ]).then(function(results){
     _baseInventory=results[0]||[];
-    _activeEffects=results[1]||[];
+    _activeEffects=_filterLiveEffects(results[1]||[]);
     _enhInstances=results[2]||[];
     _resourceInventory=(results[3]&&results[3].inventory)||[];
     renderBaseInventory();
@@ -21880,6 +21911,7 @@ function renderBaseInventory(){
   var grid=document.getElementById('baseInvGrid');
   var grid2=document.getElementById('baseInvGrid2');
   var parts=[];
+  _activeEffects=_filterLiveEffects(_activeEffects);
   // Active effects bar
   if(_activeEffects&&_activeEffects.length>0){
     var effHTML=_activeEffects.map(function(e){
@@ -50580,6 +50612,8 @@ let _chatExpanded = false;
 let _chatLoading = false;
 let _chatLoadQueued = false;
 let _chatSeenIds = new Set();
+let _chatSeenContent = new Map();
+let _chatSending = false;
 
 function toggleChat() {
   const el = document.getElementById('chatOverlay');
@@ -50600,6 +50634,7 @@ function switchChatChannel(ch) {
   _chatChannel = ch === 'sector' ? (window._chatCurrentSector || 'global') : 'global';
   _chatSince = null;
   _chatSeenIds = new Set();
+  _chatSeenContent = new Map();
   document.getElementById('chatMessages').innerHTML = '';
   document.querySelectorAll('.chat-ch').forEach(b => b.classList.remove('active'));
   const idx = ch === 'sector' ? 1 : 0;
@@ -50609,12 +50644,17 @@ function switchChatChannel(ch) {
 }
 
 async function sendChatMessage() {
+  if (_chatSending) return;
   const input = document.getElementById('chatInput');
   const msg = (input?.value || '').trim();
   if (!msg) return;
   const wallet = window._walletAddress || (window.walletState && walletState.address) || localStorage.getItem('wallet') || '';
   if (!wallet) { if(typeof showToast === 'function') showToast('로그인이 필요합니다'); return; }
   const token = localStorage.getItem('pw_token') || localStorage.getItem('token') || localStorage.getItem('jwt') || '';
+  _chatSending = true;
+  const sendBtn = document.getElementById('chatSendBtn');
+  if (input) input.disabled = true;
+  if (sendBtn) sendBtn.disabled = true;
   try {
     const r = await fetch('/api/chat/send', {
       method: 'POST',
@@ -50626,6 +50666,12 @@ async function sendChatMessage() {
     input.value = '';
     await loadChatMessages();
   } catch(e) { if(typeof showToast === 'function') showToast('전송 오류'); }
+  finally {
+    _chatSending = false;
+    if (input) input.disabled = false;
+    if (sendBtn) sendBtn.disabled = false;
+    if (input) input.focus();
+  }
 }
 
 async function loadChatMessages() {
@@ -50649,7 +50695,15 @@ async function loadChatMessages() {
     msgs.forEach(m => {
       const msgKey = m.id != null ? String(m.id) : [m.channel, m.created_at, m.wallet, m.message].join('|');
       if (_chatSeenIds.has(msgKey)) return;
+      const contentKey = [m.channel || _chatChannel, (m.wallet || '').toLowerCase(), m.message || ''].join('|');
+      const msgTime = new Date(m.created_at).getTime() || Date.now();
+      const lastSame = _chatSeenContent.get(contentKey);
+      if (lastSame && Math.abs(msgTime - lastSame) < 3000) {
+        _chatSeenIds.add(msgKey);
+        return;
+      }
       _chatSeenIds.add(msgKey);
+      _chatSeenContent.set(contentKey, msgTime);
       const div = document.createElement('div');
       div.className = 'chat-msg';
       div.dataset.msgId = msgKey;
@@ -51119,7 +51173,7 @@ async function wbPlaceBet(eventId) {
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-row">
       <input id="chatInput" type="text" maxlength="200" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter')sendChatMessage()">
-      <button onclick="sendChatMessage()">▶</button>
+      <button id="chatSendBtn" onclick="sendChatMessage()">▶</button>
     </div>
   </div>
 </div>

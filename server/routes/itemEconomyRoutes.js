@@ -472,13 +472,20 @@ router.get('/shop/active-effects', readLimiter, async (req, res) => {
   const w = (req.query.wallet || '').toLowerCase();
   if (!w) return res.status(400).json({ error: 'wallet required' });
   try {
-    // Auto-expire duration-based effects
+    // Auto-expire duration/uses based effects before returning UI state.
     await pool.query(
-      `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND active = true AND expires_at IS NOT NULL AND expires_at < NOW()`, [w]
+      `UPDATE user_active_effects
+       SET active = false
+       WHERE wallet = $1
+         AND active = true
+         AND (
+           (expires_at IS NOT NULL AND expires_at <= NOW())
+           OR (uses_remaining IS NOT NULL AND uses_remaining <= 0)
+         )`, [w]
     );
     const result = await pool.query(
       `SELECT e.*, t.name, t.icon, t.code, t.price_pp FROM user_active_effects e
-       JOIN item_types t ON t.code = e.effect_type
+       LEFT JOIN item_types t ON t.code = COALESCE(e.source_item_code, e.effect_type)
        WHERE e.wallet = $1 AND e.active = true
          AND (e.expires_at IS NULL OR e.expires_at > NOW())
          AND (e.uses_remaining IS NULL OR e.uses_remaining > 0)
