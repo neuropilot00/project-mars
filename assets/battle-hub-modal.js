@@ -64,9 +64,19 @@ function loadBattleRewardsHistory() {
           var keys = Object.keys(mo || {});
           if (keys.length) minerals = ' · ' + keys.map(function(k){ return k + '×' + mo[k]; }).join(' ');
         } catch(_e) {}
+        var bonus = '';
+        try {
+          var br = (typeof rw.breakdown === 'string') ? JSON.parse(rw.breakdown) : (rw.breakdown || {});
+          if (br && br.sector_conflict_bonus) {
+            bonus = ' <span style="color:#ffab40;border:1px solid rgba(255,171,64,.25);border-radius:3px;padding:1px 4px">'
+              + tl('SECTOR +','섹터 +','セクター +','区 +') + Math.round(parseFloat(br.sector_conflict_bonus) || 0) + ' GP'
+              + (br.sector_code ? ' · ' + escapeHtml(br.sector_code) : '')
+              + '</span>';
+          }
+        } catch(_e2) {}
         var resultTag = won ? '<span style="color:var(--gold)">🏆 ' + tl('WIN','승','勝','胜') + '</span>' : '<span style="color:var(--tx3)">' + tl('LOSS','패','敗','败') + '</span>';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.05);padding:2px 0">'
-          + '<span>' + resultTag + ' <span style="color:var(--tx3)">' + bt + (when ? ' · ' + when : '') + '</span></span>'
+          + '<span>' + resultTag + ' <span style="color:var(--tx3)">' + bt + (when ? ' · ' + when : '') + '</span>' + bonus + '</span>'
           + '<span style="color:var(--gold)">+' + gp + ' GP' + '<span style="color:var(--cyan)">' + minerals + '</span></span></div>';
       });
       html += '</div>';
@@ -996,6 +1006,12 @@ function showRewardToast(reward) {
   if (reward.gp_awarded > 0) {
     html += `<div class="reward-item gp"><span>💰 Galactic Points</span><b>+${reward.gp_awarded}</b></div>`;
   }
+  try {
+    const breakdown = (typeof reward.breakdown === 'string') ? JSON.parse(reward.breakdown) : (reward.breakdown || {});
+    if (breakdown.sector_conflict_bonus) {
+      html += `<div class="reward-item gp"><span>⚔ ${LANG==='ko'?'분쟁 섹터 보너스':LANG==='ja'?'紛争セクター報酬':LANG==='zh'?'争端区奖励':'Conflict Sector Bonus'}</span><b>+${breakdown.sector_conflict_bonus}</b></div>`;
+    }
+  } catch (_) {}
   for (const [code, qty] of Object.entries(reward.minerals_awarded || {})) {
     const icon = (typeof MINERAL_ICONS !== 'undefined' && MINERAL_ICONS[code]) || '🟫';
     const name = (typeof MINERAL_KO !== 'undefined' && MINERAL_KO[code]) || code;
@@ -2385,12 +2401,18 @@ async function _injectRewardIntoResult(battleId) {
     );
     if (!myReward) return;
 
+    const breakdown = (typeof myReward.breakdown === 'string') ? JSON.parse(myReward.breakdown) : (myReward.breakdown || {});
+    const mineralsAwarded = (typeof myReward.minerals_awarded === 'string') ? JSON.parse(myReward.minerals_awarded || '{}') : (myReward.minerals_awarded || {});
+
     // 보상 행 HTML
     let html = '';
     if (myReward.gp_awarded > 0) {
       html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>💰 Galactic Points</span><b style="color:#ffd54f">+${myReward.gp_awarded}</b></div>`;
     }
-    for (const [code, qty] of Object.entries(myReward.minerals_awarded || {})) {
+    if (breakdown.sector_conflict_bonus) {
+      html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>⚔ ${LANG==='ko'?'분쟁 섹터 보너스':LANG==='ja'?'紛争セクター報酬':LANG==='zh'?'争端区奖励':'Conflict Sector Bonus'}</span><b style="color:#ffab40">+${breakdown.sector_conflict_bonus} GP</b></div>`;
+    }
+    for (const [code, qty] of Object.entries(mineralsAwarded || {})) {
       if (!qty) continue;
       const icon = (typeof MINERAL_ICONS !== 'undefined' && MINERAL_ICONS[code]) || '🟫';
       const name = (typeof MINERAL_KO !== 'undefined' && MINERAL_KO[code]) || code;

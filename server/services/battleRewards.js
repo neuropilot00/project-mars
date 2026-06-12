@@ -30,7 +30,7 @@ const MINERAL_DROP_POOL = {
 async function distributeRewards(battleId) {
   // 전투 정보 + 참가자 데이터
   const { rows: battleRows } = await pool.query(`
-    SELECT id, battle_type, winner_side, atk_ships_lost, def_ships_lost, battle_summary
+    SELECT id, battle_type, sector_id, winner_side, atk_ships_lost, def_ships_lost, battle_summary
     FROM fleet_battles WHERE id = $1 AND status = 'ended'
   `, [battleId]);
 
@@ -233,6 +233,19 @@ async function computeReward(participant, battle, settings, isWinner) {
       breakdown.weekly_event = 'battle_gp_boost';
     }
   } catch (_) {}
+
+  if (isWinner && battle.sector_id && battle.battle_type === 'pvp_duel') {
+    const bonusPct = Math.max(0, Math.min(50, parseInt(settings.reward_sector_conflict_bonus_pct, 10) || 15));
+    const bonusGp = Math.floor(totalGp * bonusPct / 100);
+    if (bonusGp > 0) {
+      totalGp += bonusGp;
+      breakdown.sector_conflict_bonus = bonusGp;
+      breakdown.sector_conflict_bonus_pct = bonusPct;
+      if (battle.battle_summary && battle.battle_summary.sector_code) {
+        breakdown.sector_code = battle.battle_summary.sector_code;
+      }
+    }
+  }
   
   return {
     gp_awarded: totalGp,
@@ -334,6 +347,7 @@ async function loadBattleSettings() {
     reward_per_ship_destroyed: 10,
     reward_loser_consolation: 20,
     reward_mineral_drop_chance: 40,
+    reward_sector_conflict_bonus_pct: 15,
   };
   
   for (const row of rows) {

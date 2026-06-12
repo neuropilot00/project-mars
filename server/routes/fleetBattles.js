@@ -150,13 +150,34 @@ router.post('/declare-pvp', requireAuth, async (req, res) => {
         if (e.code !== '42P01') throw e;
       }
 
+      const { rows: sectorRows } = await client.query(
+        `SELECT c.id AS claim_id, c.sector_code, sd.id AS sector_id
+           FROM claims c
+           LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
+          WHERE LOWER(c.owner) = LOWER($1)
+            AND c.deleted_at IS NULL
+            AND c.sector_code IS NOT NULL
+          ORDER BY (c.width * c.height) DESC, c.id ASC
+          LIMIT 1`,
+        [targetFleet[0].owner_wallet]
+      );
+      const sectorContext = sectorRows[0] || {};
+
       const { rows: battleRows } = await client.query(`
         INSERT INTO fleet_battles (
           battle_type, status, phase,
-          prepare_started_at, scheduled_start_at
-        ) VALUES ('pvp_duel', 'preparing', 'main', NOW(), NOW())
+          sector_id, claim_id,
+          prepare_started_at, scheduled_start_at, battle_summary
+        ) VALUES ('pvp_duel', 'preparing', 'main', $1, $2, NOW(), NOW(), $3::jsonb)
         RETURNING id
-      `);
+      `, [
+        sectorContext.sector_id || null,
+        sectorContext.claim_id || null,
+        JSON.stringify({
+          sector_code: sectorContext.sector_code || null,
+          sector_conflict: !!sectorContext.sector_code
+        })
+      ]);
       battleId = battleRows[0].id;
 
       // Mark both fleets as in_battle before COMMIT (prevents duplicate scheduling)
