@@ -341,7 +341,14 @@ router.post('/claim', requireAuth, async (req, res) => {
         return res.status(400).json({ error: 'NO_CLAIMABLE_MISSIONS' });
       }
 
-      const totalGP = claimable.reduce((s, r) => s + r.reward_gp, 0);
+      const totalGP = claimable.reduce((s, r) => {
+        const reward = Number(r.reward_gp);
+        return s + (Number.isFinite(reward) && reward > 0 ? reward : 0);
+      }, 0);
+      if (totalGP <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'INVALID_REWARD_TOTAL' });
+      }
       const ids = claimable.map(r => r.id);
 
       // 미션 수령 처리
@@ -355,10 +362,11 @@ router.post('/claim', requireAuth, async (req, res) => {
       );
 
       // GP 지급
-      await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+      const payoutRes = await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [totalGP, wallet]
       );
+      if (payoutRes.rowCount === 0) throw new Error('USER_NOT_FOUND');
 
       await client.query('COMMIT');
 
