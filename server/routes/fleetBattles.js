@@ -265,9 +265,16 @@ router.get('/list/recent', async (req, res) => {
              sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
              atk_ships_total, def_ships_total,
              atk_ships_lost, def_ships_lost,
-             duration_seconds, ended_at
+             duration_seconds, ended_at,
+             COALESCE(r.reward_total_gp, 0) AS reward_total_gp,
+             COALESCE(r.reward_count, 0) AS reward_count
       FROM fleet_battles fb
       LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
+      LEFT JOIN (
+        SELECT battle_id, SUM(gp_awarded) AS reward_total_gp, COUNT(*)::int AS reward_count
+          FROM fleet_battle_rewards
+         GROUP BY battle_id
+      ) r ON r.battle_id = fb.id
       WHERE fb.status = 'ended'
       ORDER BY ended_at DESC NULLS LAST
       LIMIT $1

@@ -485,6 +485,13 @@ function renderBattleCard(b, tab) {
                    isPreparing ? `${t('bc_scheduled')||'Scheduled'}: ${formatShortTime(b.scheduled_start_at)}` :
                    formatShortTime(b.ended_at);
   const sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
+  const rewardGp = Math.round(parseFloat(b.my_reward_gp != null ? b.my_reward_gp : b.reward_total_gp) || 0);
+  const rewardCount = parseInt(b.reward_count, 10) || 0;
+  const rewardLabel = rewardGp > 0
+    ? `<span style="color:var(--gold)">🏅 ${LANG==='ko'?'보상':LANG==='ja'?'報酬':LANG==='zh'?'奖励':'Reward'} +${formatNum(rewardGp)} GP</span>`
+    : rewardCount > 0
+      ? `<span style="color:var(--tx3)">🏅 ${LANG==='ko'?'보상 지급':LANG==='ja'?'報酬済み':LANG==='zh'?'已发奖励':'Rewarded'}</span>`
+      : '';
   
   return `
     <div class="battle-card ${isLive ? 'active-battle' : ''} ${resultClass}">
@@ -498,6 +505,7 @@ function renderBattleCard(b, tab) {
           <span>⚔ <b>${b.atk_ships_total || b.atk_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
           <span>vs <b>${b.def_ships_total || b.def_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
           ${sectorLabel ? `<span style="color:#ffab40">⌖ ${escapeHtml(sectorLabel)}</span>` : ''}
+          ${rewardLabel}
           ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}</b>${LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'min'}</span>` : ''}
           <span>${timeInfo}</span>
         </div>

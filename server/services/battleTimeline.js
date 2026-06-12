@@ -124,6 +124,9 @@ async function getUserBattleHistory(walletAddress, limit = 20) {
       p.fleet_id AS my_fleet_id,
       p.ships_lost AS my_ships_lost,
       p.damage_dealt AS my_damage,
+      COALESCE(r.gp_awarded, 0) AS my_reward_gp,
+      r.minerals_awarded AS my_reward_minerals,
+      r.breakdown AS my_reward_breakdown,
       f.name AS my_fleet_name,
       CASE WHEN p.side = fb.winner_side THEN 'win'
            WHEN fb.winner_side = 'draw' THEN 'draw'
@@ -132,6 +135,8 @@ async function getUserBattleHistory(walletAddress, limit = 20) {
     JOIN fleet_battles fb ON fb.id = p.battle_id
     LEFT JOIN fleets f ON f.id = p.fleet_id
     LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
+    LEFT JOIN fleet_battle_rewards r
+      ON r.battle_id = fb.id AND LOWER(r.wallet_address) = LOWER(p.wallet_address)
     WHERE LOWER(p.wallet_address) = LOWER($1) AND fb.status = 'ended'
     ORDER BY fb.ended_at DESC NULLS LAST
     LIMIT $2
