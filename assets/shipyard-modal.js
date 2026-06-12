@@ -55,6 +55,17 @@ function _smResourceSummary(v){
   return arr.slice(0, 3).map(function(x){ return escapeHtmlSafe(x.code || 'mat') + ' ×' + (Number(x.quantity) || 0); }).join(' · ')
     + (arr.length > 3 ? ' +' + (arr.length - 3) : '');
 }
+function _smReadJson(key, url, minGap) {
+  var headers = (typeof getAuthHeaders === 'function') ? getAuthHeaders() : {};
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('shipyard-mining:' + key, url, {
+      minGap: minGap || 10000,
+      backoffMs: 90000,
+      fetchOptions: { headers: headers, cache: 'no-store' }
+    });
+  }
+  return fetch(url, { headers: headers, cache: 'no-store' }).then(function(r){ return r.json(); });
+}
 
 // ⛏ 함선 채굴 런 (경제 v2 P5) — 땅 없는 F2P 노가다. 함대를 보내 재료+GP 수급.
 // 채굴은 임무 > ⛏ MINING 서브탭으로 통합(모달 폐기). 외부 진입점은 BASE 열고 해당 탭으로 라우팅.
@@ -69,9 +80,9 @@ async function _renderShipMining() {
   var c = document.getElementById('smContent'); if (!c) return;
   try {
     var res = await Promise.all([
-      fetch('/api/mining/info').then(function(r){return r.json();}),
-      fetch('/api/mining/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}),
-      fetch('/api/fleets', {headers:getAuthHeaders()}).then(function(r){return r.json();})
+      _smReadJson('info:' + (w || 'public'), '/api/mining/info', 15000),
+      _smReadJson('my:' + (w || 'public'), '/api/mining/my?wallet='+encodeURIComponent(w), 10000),
+      _smReadJson('fleets:' + (w || 'public'), '/api/fleets', 10000)
     ]);
     var info = res[0]||{}, my = (res[1]&&res[1].jobs)||[], fleets = (res[2]&&res[2].fleets)||[];
     if (info.enabled === false) { c.innerHTML = '<div style="color:var(--tx3);text-align:center;padding:16px 0">'+tl('Mining is disabled.','채굴이 비활성화됨.','採掘は無効です。','采矿已禁用。')+'</div>'; return; }
