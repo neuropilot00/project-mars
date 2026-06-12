@@ -2678,6 +2678,7 @@ async function _loadBattleReport(battleId, mySide) {
 
     const myData = mySide === 'atk' ? r.atk : mySide === 'def' ? r.def : null;
     const classBD = myData ? (myData.class_breakdown || []) : [];
+    const allianceHtml = renderBattleReportAllianceBanner(r);
 
     // 📊 클래스별 성과
     let classHtml = '';
@@ -2886,7 +2887,7 @@ async function _loadBattleReport(battleId, mySide) {
       <button type="button" onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;padding:5px 14px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--fn)">📈 ${t('bv_my_stats')}</button>
     </div>`;
 
-    section.innerHTML = classHtml + skillHtml + roleHtml + lossValueHtml + analysisHtml + recHtml + highlightHtml + statsBtn;
+    section.innerHTML = allianceHtml + classHtml + skillHtml + roleHtml + lossValueHtml + analysisHtml + recHtml + highlightHtml + statsBtn;
 
   } catch (_) {
     if (section) section.innerHTML = `
@@ -2895,6 +2896,33 @@ async function _loadBattleReport(battleId, mySide) {
         <button type="button" onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px">${t('bv_my_stats')}</button>
       </div>`;
   }
+}
+
+function renderBattleReportAllianceBanner(report) {
+  const atk = report && report.atk;
+  const def = report && report.def;
+  if (!((atk && (atk.alliance_tag || atk.alliance_name)) || (def && (def.alliance_tag || def.alliance_name)))) return '';
+  return `<div style="margin-bottom:10px;padding:8px 10px;background:rgba(128,203,196,.045);border:1px solid rgba(128,203,196,.16);border-radius:5px">
+    <div style="font-size:9px;color:rgba(255,255,255,.38);letter-spacing:1px;margin-bottom:6px">🛡 ${LANG==='ko'?'동맹 교전':LANG==='ja'?'同盟交戦':LANG==='zh'?'联盟交战':'Alliance Clash'}</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;font-size:10px">
+      ${renderBattleReportAllianceSide(atk, 'ATK', '#4fc3f7')}
+      <span style="color:rgba(255,255,255,.32);font-size:9px">VS</span>
+      ${renderBattleReportAllianceSide(def, 'DEF', '#ff8a80')}
+    </div>
+  </div>`;
+}
+
+function renderBattleReportAllianceSide(side, fallback, sideColor) {
+  const colorRaw = String((side && side.alliance_color) || sideColor || '#80cbc4');
+  const color = /^#[0-9a-f]{3,8}$/i.test(colorRaw) ? colorRaw : (sideColor || '#80cbc4');
+  const name = side && (side.alliance_name || side.alliance_tag);
+  const tag = side && side.alliance_tag;
+  const label = tag ? '[' + escapeHtml(tag) + '] ' + escapeHtml(name || '') : escapeHtml(name || fallback);
+  const fleet = side && side.fleet_name ? escapeHtml(side.fleet_name) : fallback;
+  return `<div style="min-width:0;text-align:${fallback === 'ATK' ? 'left' : 'right'}">
+    <div title="${escapeAttr(name || fallback)}" style="color:${color};font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</div>
+    <div style="color:rgba(255,255,255,.38);font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fleet}</div>
+  </div>`;
 }
 
 // 내 전투 기록 모달

@@ -448,10 +448,16 @@ async function generateBattleReport(battleId, wallet) {
       `SELECT fbp.side, fbp.fleet_id, fbp.wallet_address,
               fbp.ships_at_start, fbp.ships_alive, fbp.ships_lost, fbp.damage_dealt,
               f.name AS fleet_name, f.owner_wallet,
-              COALESCE(u.faction_code, 'unknown') AS faction
+              COALESCE(u.faction_code, 'unknown') AS faction,
+              al.id AS alliance_id,
+              al.tag AS alliance_tag,
+              al.name AS alliance_name,
+              al.color_primary AS alliance_color
          FROM fleet_battle_participants fbp
          LEFT JOIN fleets f ON f.id = fbp.fleet_id
          LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(COALESCE(fbp.wallet_address, f.owner_wallet))
+         LEFT JOIN alliance_members am ON LOWER(am.wallet_address) = LOWER(COALESCE(fbp.wallet_address, f.owner_wallet)) AND am.left_at IS NULL
+         LEFT JOIN alliances al ON al.id = am.alliance_id AND al.disbanded_at IS NULL
         WHERE fbp.battle_id = $1
         ORDER BY CASE WHEN fbp.side = 'atk' THEN 0 ELSE 1 END, fbp.fleet_id`,
       [id]
@@ -564,6 +570,10 @@ async function generateBattleReport(battleId, wallet) {
         fleetName: p.fleet_name || (side === 'atk' ? 'ATK Fleet' : 'DEF Fleet'),
         fleet_name: p.fleet_name || (side === 'atk' ? 'ATK Fleet' : 'DEF Fleet'),
         faction: p.faction === 'unknown' && shipFaction ? shipFaction : (p.faction || shipFaction || 'unknown'),
+        alliance_id: p.alliance_id || null,
+        alliance_tag: p.alliance_tag || null,
+        alliance_name: p.alliance_name || null,
+        alliance_color: p.alliance_color || null,
         shipsDeployed: deployed,
         shipsDestroyed: Math.min(deployed, destroyed),
         shipsSurvived: survived,
