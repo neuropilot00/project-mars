@@ -161,6 +161,15 @@
     return allianceBonusFor(key) * territoryBonusFor(key);
   }
 
+  function estimateRunGp(capacity, durationH, dest) {
+    var cap = Number(capacity) || 0;
+    var h = Number(durationH) || 0;
+    var gpPerCapH = Number(state.info && state.info.gpPerCapacityHour) || 0;
+    var yieldMult = Number(dest && dest.yieldMult) || 1;
+    var routeBonus = routeControlBonusFor(dest && dest.key);
+    return Math.round(cap * h * gpPerCapH * yieldMult * routeBonus);
+  }
+
   function fleetCount(f) {
     return parseInt(f.ships_alive || f.ship_count || 0, 10) || 0;
   }
@@ -292,11 +301,21 @@
       html += '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">';
       html += '<div style="min-width:0"><div style="font-size:10px;color:var(--tx);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + txt(j.fleet_name || ('Fleet #' + j.fleet_id)) + '</div>';
       var jobDest = (state.info && state.info.destinations || []).find(function (d) { return String(d.key) === String(j.sector_type); }) || {};
-      html += '<div style="font-size:8px;color:var(--tx3);margin-top:3px">' + routeName(j.sector_type) + ' · ' + routeDifficultyLabel(jobDest) + ' · ' + txt(j.duration_h) + 'h · CAP ' + txt(j.capacity || j.ship_count || 0) + '</div></div>';
+      var jobCap = Number(j.capacity || j.ship_count || 0) || 0;
+      var projectedGp = estimateRunGp(jobCap, j.duration_h, jobDest);
+      var routeBonus = routeControlBonusFor(jobDest.key);
+      var riskColor = routeRiskColor(jobDest);
+      html += '<div style="font-size:8px;color:var(--tx3);margin-top:3px">' + routeName(j.sector_type) + ' · ' + routeDifficultyLabel(jobDest) + ' · ' + txt(j.duration_h) + 'h · CAP ' + txt(jobCap) + '</div></div>';
       html += '<div style="text-align:right;flex-shrink:0">';
       if (ready) html += '<button type="button" onclick="smCollectMining(' + Number(j.id) + ')" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(255,209,102,.16);border:1px solid rgba(255,209,102,.45);color:var(--gold);font-family:var(--fn);font-weight:800;cursor:pointer">COLLECT</button>';
       else html += '<div style="font-size:10px;color:' + (done ? '#64dc82' : 'var(--gold)') + ';font-weight:800">' + (done ? 'DONE' : eta) + '</div>';
       html += '</div></div>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;font-size:8px">';
+      html += '<span style="color:' + riskColor + ';border:1px solid ' + riskColor + '55;border-radius:999px;padding:2px 6px">' + txt(routeDifficultyLabel(jobDest) + ' ' + routeRiskLabel(jobDest)) + '</span>';
+      html += '<span style="color:var(--gold);border:1px solid rgba(255,209,102,.25);border-radius:999px;padding:2px 6px">' + lang('Projected', '예상', '予想', '预计') + ' +' + txt(projectedGp) + ' GP</span>';
+      if (routeBonus > 1) html += '<span style="color:#64dc82;border:1px solid rgba(100,220,130,.25);border-radius:999px;padding:2px 6px">' + lang('Control', '통제', '支配', '控制') + ' x' + routeBonus.toFixed(2) + '</span>';
+      html += '<span style="color:var(--tx3);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:2px 6px">' + lang('Wear', '마모', '摩耗', '损耗') + ' x' + Number(jobDest.wearMult || 1).toFixed(1) + ' · ' + lang('Raid', '약탈', '襲撃', '袭击') + ' ' + pct(jobDest.raidPct) + '%</span>';
+      html += '</div>';
       if (done) html += '<div style="font-size:8px;color:var(--tx3);margin-top:6px">+' + txt(j.reward_gp || 0) + ' GP' + (j.raided ? ' · <span style="color:var(--red)">RAIDED</span>' : '') + (drops ? ' · ' + drops : '') + '</div>';
       else html += '<div style="font-size:8px;color:var(--tx3);margin-top:6px">' + txt(routeRoleText(jobDest)) + ' · ' + txt(routeUseText(jobDest)) + '</div>';
       html += '</div>';
