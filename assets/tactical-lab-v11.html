@@ -1238,10 +1238,15 @@ function ensureAudio(){
 }
 // 페이지 이탈/숨김 시 오디오 자동 정지
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden&&audioOn){stopBattleMusic();if(audioCtx)audioCtx.suspend();}
-  else if(!document.hidden&&audioOn&&audioCtx&&audioCtx.state==='suspended'){audioCtx.resume();startBattleMusic();}
+  if(document.hidden){
+    stopBattleLoop();
+    if(audioOn){stopBattleMusic();if(audioCtx)audioCtx.suspend();}
+  }else{
+    resumeBattleLoop();
+    if(audioOn&&audioCtx&&audioCtx.state==='suspended'){audioCtx.resume();startBattleMusic();}
+  }
 });
-window.addEventListener('pagehide',()=>{stopBattleMusic();if(audioCtx)audioCtx.close();audioCtx=null;});
+window.addEventListener('pagehide',()=>{tlDisposed=true;stopBattleLoop();stopBattleMusic();if(audioCtx)audioCtx.close();audioCtx=null;});
 
 // ── 캔버스 탭/클릭 → 적 함선 집중공격 대상 지정 ──────────────────
 function _canvasToWorld(clientX,clientY){
@@ -2737,6 +2742,7 @@ function drawRepairBeams(){
    메인 루프
    ═══════════════════════════════════════════════════════════ */
 let lt=0,turnT=0,panelT=0,battleOver=false;
+let loopFrame=null,tlDisposed=false;
 let simSpeed=1; // 기본 1x — WS 없는 로컬 시뮬 전용
 let _slowmoActive=false,_slowmoTimer=0; // 마지막 함선 폭발 슬로우모션
 // [v7.179 VFX] 격침 화면 흔들림 + 미니 슬로모 (대형함 전용)
@@ -2772,7 +2778,21 @@ function cycleSimSpeed(){
   const idx=speeds.indexOf(simSpeed);
   setSimSpeed(speeds[(idx+1)%speeds.length]);
 }
+function requestBattleLoop(){
+  if(tlDisposed||loopFrame!==null||document.hidden)return;
+  loopFrame=requestAnimationFrame(loop);
+}
+function stopBattleLoop(){
+  if(loopFrame!==null){cancelAnimationFrame(loopFrame);loopFrame=null;}
+}
+function resumeBattleLoop(){
+  if(tlDisposed)return;
+  lt=performance.now();
+  requestBattleLoop();
+}
 function loop(ts){
+  loopFrame=null;
+  if(tlDisposed||document.hidden)return;
   const rawDt=ts-lt;lt=ts;
   // WS 모드엔 서버가 8x 속도로 frame을 쏘므로 로컬 speed 배수 미적용
   const _wsOn = _wsBattle && _wsBattle.readyState === 1;
@@ -2936,7 +2956,7 @@ function loop(ts){
     },1800);
   }
   maybeAmbientCallout();
-  requestAnimationFrame(loop);
+  requestBattleLoop();
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3530,7 +3550,7 @@ async function boot(){
   renderFleetStatus();
   initBattle();
   setSimSpeed(1); // 버튼 초기 하이라이트
-  requestAnimationFrame(loop);
+  requestBattleLoop();
   // ws 연결 — battle 페이지인 경우만 (iframe 안에서 호출됨)
   connectBattleWs();
 
