@@ -51,7 +51,7 @@
 - [x] ~~레이트리밋~~ — auth/api/arena/marketplace/staking/governance/lottery/dividends 적용됨. 신규 경제 라우트 추가 시 동일 적용 유지.
 - [x] **프로덕션 노드 버전 고정**: root/server `package.json` 모두 `engines.node=22.x`로 고정해 로컬 v25와의 미세 차이 방지.
 - [ ] **console.log 정리**: server 167개 → 민감정보(지갑/금액) 출력 점검 + 프로덕션 로그레벨 가드(또는 noisy 로그 제거).
-- [ ] **uncaughtException/unhandledRejection 핸들러** 존재 확인. 없으면 추가(크래시 로그 + graceful).
+- [x] **uncaughtException/unhandledRejection 핸들러** 존재 확인. `server/index.js`에서 크래시 로그 + graceful shutdown 경로 적용.
 - [x] **스케줄러 중복 실행 방지**: Redis leader gate + scheduler start guard/`unref()` 적용. 멀티 인스턴스 확장 시에도 leader 인스턴스 1개만 실행.
 - [ ] **부하 테스트(가벼운)**: 동시 50~100명 가정 — 함대전 시뮬, 수확, 칸티나 라운드가 버티는지. (전술랩 대규모전 성능은 v7.335에서 1차 개선됨)
 

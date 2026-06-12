@@ -1795,19 +1795,30 @@ async function start() {
     }
 
     // ── Graceful Shutdown ──
-    function gracefulShutdown() {
+    let isShuttingDown = false;
+    function gracefulShutdown(exitCode = 0) {
+      if (isShuttingDown) return;
+      isShuttingDown = true;
       console.log('[Server] Shutting down gracefully...');
       server.close(() => {
         pool.end(() => {
           console.log('[Server] Closed all connections');
-          process.exit(0);
+          process.exit(exitCode);
         });
       });
-      setTimeout(() => { process.exit(1); }, 10000);
+      const forceTimer = setTimeout(() => { process.exit(1); }, 10000);
+      if (forceTimer.unref) forceTimer.unref();
     }
 
-    process.on('SIGTERM', gracefulShutdown);
-    process.on('SIGINT', gracefulShutdown);
+    process.on('SIGTERM', () => gracefulShutdown(0));
+    process.on('SIGINT', () => gracefulShutdown(0));
+    process.on('uncaughtException', (err) => {
+      console.error('[Server] uncaughtException:', err && err.stack ? err.stack : err);
+      gracefulShutdown(1);
+    });
+    process.on('unhandledRejection', (reason) => {
+      console.error('[Server] unhandledRejection:', reason && reason.stack ? reason.stack : reason);
+    });
   } catch (e) {
     console.error('[Server] Failed to start:', e.message);
     process.exit(1);
