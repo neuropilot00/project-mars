@@ -120,6 +120,11 @@ async function bhLoad() {
   container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
   
   try {
+    if (tab === 'killboard') {
+      await bhLoadKillboard(container);
+      return;
+    }
+
     let url = '';
     if (tab === 'active') url = '/api/battles/list/active';
     else if (tab === 'recent') url = '/api/battles/list/recent?limit=30';
@@ -143,6 +148,54 @@ async function bhLoad() {
     console.error('bhLoad error:', err);
     container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
   }
+}
+
+async function bhLoadKillboard(container) {
+  const res = await fetch('/api/killboard?limit=40', { headers: getAuthHeaders() });
+  const data = await res.json();
+  const kills = data.kills || [];
+  if (!kills.length) {
+    container.innerHTML = '<div class="bh-empty">' + tl('No kills recorded yet','아직 격침 기록이 없습니다','撃沈記録はまだありません','暂无击毁记录') + '</div>';
+    return;
+  }
+  container.innerHTML = '<div class="killboard-list">' + kills.map(renderKillmailCard).join('') + '</div>';
+}
+
+function renderKillmailCard(k) {
+  const killer = k.killer_nick || shortWallet(k.killer_wallet);
+  const victim = k.victim_nick || shortWallet(k.victim_wallet);
+  const value = Math.max(0, parseInt(k.ship_value_gp, 10) || 0);
+  const mods = Math.max(0, parseInt(k.mods, 10) || 0);
+  const ship = k.ship_name || k.ship_type || 'Ship';
+  const when = formatShortTime(k.created_at);
+  return `
+    <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}">
+      <div class="killmail-skull">☠</div>
+      <div class="killmail-main">
+        <div class="killmail-title">
+          <b>${escapeHtml(killer)}</b>
+          <span>${LANG==='ko'?'격침':LANG==='ja'?'撃沈':LANG==='zh'?'击毁':'destroyed'}</span>
+          <b>${escapeHtml(victim)}</b>
+        </div>
+        <div class="killmail-meta">
+          <span>🚀 ${escapeHtml(ship)}</span>
+          ${mods ? `<span>MOD +${mods}</span>` : ''}
+          ${k.victim_is_betrayer ? `<span class="traitor-tag">${LANG==='ko'?'변절자':LANG==='ja'?'裏切り者':LANG==='zh'?'叛徒':'BETRAYER'}</span>` : ''}
+          <span>${when}</span>
+        </div>
+      </div>
+      <div class="killmail-value">
+        <b>${formatNum(value)}</b>
+        <span>GP ${LANG==='ko'?'파괴가치':LANG==='ja'?'破壊価値':LANG==='zh'?'摧毁价值':'destroyed'}</span>
+        ${k.battle_id ? `<button class="bc-btn primary" onclick="openBattleViewer(${parseInt(k.battle_id, 10)})">${LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay'}</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function shortWallet(w) {
+  w = String(w || '').trim();
+  return w ? w.slice(0, 6) + '...' + w.slice(-4) : 'Unknown';
 }
 
 function renderBattleCard(b, tab) {
