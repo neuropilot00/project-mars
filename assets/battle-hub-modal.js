@@ -203,7 +203,7 @@ function renderKillmailCard(k) {
   const salvaged = !!k.salvaged_by;
   const bountyGp = Math.max(0, Math.floor(Number(k.active_bounty_gp) || 0));
   const canClaimBounty = myWallet && String(k.killer_wallet || '').toLowerCase() === myWallet && bountyGp > 0 && k.battle_id && k.victim_wallet;
-  const canHunt = myWallet && String(k.victim_wallet || '').toLowerCase() !== myWallet;
+  const canHunt = myWallet && k.victim_wallet && String(k.victim_wallet).toLowerCase() !== myWallet;
   return `
     <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}" data-wreck-id="${parseInt(k.id, 10) || 0}">
       <div class="killmail-skull">☠</div>
