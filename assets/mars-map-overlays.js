@@ -1,8 +1,16 @@
 var _showSectorBounds=false;
 
+function mapOverlayAuthHeaders(){
+  try{
+    return (window.getAuthHeaders && window.getAuthHeaders()) || {};
+  }catch(_){
+    return {};
+  }
+}
+
 function mapOverlayReadJson(key, url, minGap, auth) {
   var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
-  var fetchOptions = auth === false ? {} : { headers: getAuthHeaders() };
+  var fetchOptions = auth === false ? {} : { headers: mapOverlayAuthHeaders() };
   if (typeof _guardedJsonFetch === 'function') {
     return _guardedJsonFetch('map-overlay:' + key + ':' + walletKey, url, {
       minGap: minGap || 10000,
@@ -110,6 +118,38 @@ function _drawSectorOverlay(ctx,w,h){
     ctx.shadowBlur=0;
     ctx.restore();
   }
+  function drawSectorDistrictCells(m, color, seed){
+    var baseR=Math.max(42,Math.min(118,Math.min(m.w,m.h)/3.2));
+    var count=Math.max(3,Math.min(5,Math.round(Math.min(m.w,m.h)/baseR)+2));
+    ctx.save();
+    tracePts(m.pts);
+    ctx.clip();
+    for(var d=0;d<count;d++){
+      var ox=(prand(seed+d*13)-0.5)*m.w*0.54;
+      var oy=(prand(seed+d*29)-0.5)*m.h*0.48;
+      var x=m.cx+ox;
+      var y=m.cy+oy;
+      var radius=baseR*(0.82+prand(seed+d*7)*0.32);
+      ctx.beginPath();
+      for(var k=0;k<6;k++){
+        var a=(Math.PI/180)*(60*k-30);
+        var px=x+radius*Math.cos(a);
+        var py=y+radius*Math.sin(a);
+        if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.closePath();
+      ctx.globalAlpha=0.055;
+      ctx.fillStyle=color;
+      ctx.fill();
+      ctx.globalAlpha=0.22;
+      ctx.strokeStyle=color;
+      ctx.lineWidth=Math.max(1.1,Math.min(2.6,radius*0.026));
+      ctx.shadowColor=color;
+      ctx.shadowBlur=10;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 
   // 1) Fill polygons (차단된 섹터는 붉고 어둡게)
   var _myLvl=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
@@ -120,7 +160,7 @@ function _drawSectorOverlay(ctx,w,h){
     var _entryBlocked=(s.entryCheckActive!==false)&&(s.entryMinLevel||0)>0&&_myLvl<(s.entryMinLevel||0);
     tracePts(m.pts);
     if(_entryBlocked){
-      ctx.globalAlpha=0.17;
+      ctx.globalAlpha=0.11;
       var blockGrad=ctx.createLinearGradient(m.minX,m.minY,m.maxX,m.maxY);
       blockGrad.addColorStop(0,'rgba(120,38,22,1)');
       blockGrad.addColorStop(0.55,'rgba(168,58,32,1)');
@@ -138,6 +178,7 @@ function _drawSectorOverlay(ctx,w,h){
     ctx.fill();
     if(!_entryBlocked){
       var st2=sectorStyle(s.tier);
+      drawSectorDistrictCells(m, st2.color, (s.id||0)*41+9);
       drawHexCellPattern(m, st2.color, 0.13, (s.id||0)*7+3);
       drawHexCellPattern(m, 'rgba(255,232,190,.82)', 0.045, (s.id||0)*11+17);
     }
@@ -195,6 +236,7 @@ function _drawSectorOverlay(ctx,w,h){
       var c=[m.cx,m.cy];
       var polyW2=m.w;
       var polyH2=m.h;
+      drawSectorDistrictCells(m, 'rgba(255,112,67,.92)', (s.id||0)*31+2);
       drawHexCellPattern(m, 'rgba(255,158,76,.92)', 0.17, (s.id||0)*13+5);
 
       var lvFont=Math.max(9,Math.min(18,polyW2*0.04));

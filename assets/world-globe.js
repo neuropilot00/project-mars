@@ -1124,17 +1124,21 @@ function compositeClaimsOnTexture(previewOnly){
       function _drawStampPreview(px,py,pw,ph){
         if(_stampBlocked){
           // 붉은 반투명 영역
-          ctx.globalAlpha=0.35;
+          ctx.globalAlpha=0.22;
           ctx.fillStyle='rgba(180,0,0,1)';
           ctx.fillRect(px,py,pw,ph);
           ctx.globalAlpha=1;
           // 빨간 점선 테두리
           ctx.strokeStyle='rgba(255,60,60,0.9)';ctx.lineWidth=2;ctx.setLineDash([6,4]);
           ctx.strokeRect(px,py,pw,ph);ctx.setLineDash([]);
-          // X 표시
-          ctx.strokeStyle='rgba(255,60,60,0.9)';ctx.lineWidth=Math.max(2,Math.min(pw,ph)*0.05);ctx.setLineDash([]);
-          ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+pw,py+ph);ctx.stroke();
-          ctx.beginPath();ctx.moveTo(px+pw,py);ctx.lineTo(px,py+ph);ctx.stroke();
+          ctx.globalAlpha=0.55;
+          ctx.strokeStyle='rgba(255,158,76,0.78)';
+          ctx.lineWidth=Math.max(1,Math.min(pw,ph)*0.018);
+          ctx.setLineDash([]);
+          for(var hx=px-pw;hx<px+pw*2;hx+=Math.max(8,Math.min(pw,ph)*0.16)){
+            ctx.beginPath();ctx.moveTo(hx,py+ph);ctx.lineTo(hx+pw,py);ctx.stroke();
+          }
+          ctx.globalAlpha=1;
         }else{
           ctx.globalAlpha=0.45;
           ctx.drawImage(simg,px,py,pw,ph);
