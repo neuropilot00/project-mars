@@ -86,12 +86,22 @@ function resetLoginAttempts(email) {
   loginAttempts.delete(email);
 }
 
+function authRateLimitKey(req) {
+  const ip = (req.ip || req.headers['x-forwarded-for'] || 'unknown').toString().split(',')[0].trim() || 'unknown';
+  const path = (req.baseUrl || '') + (req.path || '');
+  const email = req.body && typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  if (!email) return `${ip}:${path}`;
+  const emailHash = crypto.createHash('sha256').update(email).digest('hex').slice(0, 16);
+  return `${ip}:${path}:${emailHash}`;
+}
+
 // ── Auth Rate Limiters ──
 const authLimiter = makeRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: process.env.NODE_ENV === 'production' ? 120 : 600,
   store: makeLimiterStore('auth-route'),
   passOnStoreError: true,
+  keyGenerator: authRateLimitKey,
   skipSuccessfulRequests: true,
   requestWasSuccessful: (_req, res) => res.statusCode < 400 || res.statusCode === 429,
   message: { error: 'Too many attempts. Try again later.' }
@@ -387,6 +397,7 @@ router.post('/login', authLimiter, async (req, res) => {
   // ── Check login lockout ──
   const lockout = checkLoginLockout(normalizedEmail);
   if (lockout && lockout.locked) {
+    res.set('Retry-After', String(lockout.remainingSeconds));
     return res.status(429).json({
       error: `Account temporarily locked due to too many failed login attempts. Try again after ${lockout.lockedUntil}`,
       lockedUntil: lockout.lockedUntil,
