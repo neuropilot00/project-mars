@@ -15,6 +15,16 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user.wallet_address || user.wallet || user.walletAddress || '').toLowerCase().trim();
+  } catch (_e) {
+    return '';
+  }
+}
 
 const router = express.Router();
 
@@ -220,7 +230,7 @@ router.get('/price-stats', readLimiter, async (req, res) => {
     return res.status(400).json({ error: 'itemTypeId or claimId required' });
 
   // ✅ [Job] Merchant 가격 히스토리 기간 확장 (merchant_price_history_days = 60일)
-  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+  const wallet = getOptionalAuthWallet(req);
   let historyDays = 30; // 기본 30일
   try {
     const jobSvc = require('../services/job');

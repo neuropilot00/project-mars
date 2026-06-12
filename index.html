@@ -26704,7 +26704,7 @@ function loadBaseData(){
   }).catch(function(){});
 
   // Load ranks
-  fetch('/api/ranks').then(function(r){return r.json()}).then(function(data){
+  fetch('/api/ranks', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
     _ranksData=data;
     renderRankTable(data);
   }).catch(function(){});

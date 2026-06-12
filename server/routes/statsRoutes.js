@@ -1,6 +1,7 @@
 const express = require('express');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
@@ -14,6 +15,17 @@ const writeLimiter = makeRateLimiter({
   max: 30,
   message: { error: 'Too many write requests. Please wait.' },
 });
+
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user.wallet_address || user.wallet || user.walletAddress || '').toLowerCase().trim();
+  } catch (_e) {
+    return '';
+  }
+}
 
 router.get('/leaderboard', readLimiter, async (req, res) => {
   try {
@@ -138,7 +150,7 @@ router.post('/error-report', writeLimiter, async (req, res) => {
 router.get('/ranks', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM rank_definitions ORDER BY level');
-    const wallet = req.query.wallet ? req.query.wallet.toLowerCase() : null;
+    const wallet = getOptionalAuthWallet(req);
 
     let userBreakthroughs = [];
     if (wallet) {
