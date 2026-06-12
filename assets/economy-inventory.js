@@ -69,6 +69,22 @@ function _filterLiveEffects(effects){
     return true;
   });
 }
+function _formatEffectTimeLeft(e){
+  if(!e||!e.expires_at)return '';
+  var exp=new Date(e.expires_at).getTime();
+  if(!Number.isFinite(exp))return '';
+  var mins=Math.max(0,Math.round((exp-Date.now())/60000));
+  var hh=Math.floor(mins/60), mm=mins%60;
+  return hh>0?(hh+'h'+(mm>0?(' '+mm+'m'):'')):(mins+'m');
+}
+function _formatEffectRemaining(e){
+  if(!e)return '';
+  var parts=[];
+  if(e.uses_remaining!=null) parts.push(e.uses_remaining+(LANG==='ko'?'회':LANG==='ja'?'回':LANG==='zh'?'次':' uses'));
+  var timeLeft=_formatEffectTimeLeft(e);
+  if(timeLeft) parts.push(timeLeft);
+  return parts.join(' · ');
+}
 function _fetchActiveEffects(){
   var w=(walletState&&walletState.address)||'';
   if(!w)return Promise.resolve([]);
@@ -125,13 +141,7 @@ function renderActiveBuffs(){
     var cat=catMap[e.effect_type]||'utility';
     var nm=_itemName(e.effect_type)||e.name||'';
     // [v7.343] 남은시간 명확화: 'Nh Mm'(예 3h 12m) — 'h'를 'x'로 오인하던 문제. 효과명도 배지에 직접 표기(부모 pointer-events:none이라 title 호버 안 먹음).
-    var dur='';
-    if(e.uses_remaining!==null) dur=e.uses_remaining+(LANG==='ko'?'회':LANG==='ja'?'回':LANG==='zh'?'次':' uses');
-    else if(e.expires_at){
-      var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
-      var hh=Math.floor(mins/60), mm=mins%60;
-      dur=hh>0?(hh+'h'+(mm>0?(' '+mm+'m'):'')):(mins+'m');
-    }
+    var dur=_formatEffectRemaining(e);
     var label=e.icon+' '+nm+(dur?(' · '+dur):'');
     return '<div class="tb-buff '+cat+'" title="'+nm.replace(/"/g,'&quot;')+'">'+label+'</div>';
   }).join('');
@@ -1184,11 +1194,8 @@ function renderBaseInventory(){
   if(_activeEffects&&_activeEffects.length>0){
     var effHTML=_activeEffects.map(function(e){
       var info=e.icon+' <b>'+(_itemName(e.effect_type)||e.name)+'</b>';
-      if(e.uses_remaining!=null) info+=' · '+e.uses_remaining+' uses';
-      else if(e.expires_at){
-        var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
-        info+=' · '+(mins>60?Math.floor(mins/60)+'h '+mins%60+'m':mins+'m');
-      }
+      var remaining=_formatEffectRemaining(e);
+      if(remaining) info+=' · '+remaining;
       return '<span style="display:inline-block;padding:4px 8px;margin:0 4px 4px 0;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.25);border-radius:6px;font-size:9px;color:var(--gold);font-family:var(--fn)">'+info+'</span>';
     }).join('');
     parts.push('<div style="grid-column:1/-1;padding:6px;background:rgba(255,255,255,.02);border-radius:6px"><div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px">ACTIVE EFFECTS</div>'+effHTML+'</div>');
