@@ -888,6 +888,7 @@ const CHAT_MAX_BACKOFF_MS = 120000;
 
 function toggleChat() {
   const el = document.getElementById('chatOverlay');
+  if (!el) return;
   _chatExpanded = !_chatExpanded;
   el.classList.toggle('collapsed', !_chatExpanded);
   if (_chatExpanded) {
@@ -901,6 +902,7 @@ function toggleChat() {
     }, 50);
   }
 }
+window.toggleChat = toggleChat;
 
 function switchChatChannel(ch) {
   _chatChannel = ch === 'sector' ? (window._chatCurrentSector || 'global') : 'global';
@@ -915,6 +917,7 @@ function switchChatChannel(ch) {
   requestChatMessages(0);
   try { _liveWSSubscribe(); } catch(_) {}  // 새 채널 실시간 구독 갱신
 }
+window.switchChatChannel = switchChatChannel;
 
 async function sendChatMessage() {
   if (_chatSending) return;
@@ -946,6 +949,17 @@ async function sendChatMessage() {
     if (sendBtn) sendBtn.disabled = false;
     if (input) input.focus();
   }
+}
+window.sendChatMessage = sendChatMessage;
+
+function syncChatExpandedState(){
+  var el = document.getElementById('chatOverlay');
+  if (el) _chatExpanded = !el.classList.contains('collapsed');
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', syncChatExpandedState, { once:true });
+} else {
+  syncChatExpandedState();
 }
 
 function requestChatMessages(delay) {

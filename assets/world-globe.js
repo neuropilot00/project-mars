@@ -1941,6 +1941,24 @@ function toggleSectorOverlay(){
     repaintSectors(null);
   }
 }
+window.toggleSectorOverlay = toggleSectorOverlay;
+function bindSectorToggleButton(){
+  var btn = document.getElementById('sectorToggleBtn');
+  if (!btn || btn.dataset.sectorToggleBound === '1') return;
+  btn.dataset.sectorToggleBound = '1';
+  btn.onclick = null;
+  btn.removeAttribute('onclick');
+  btn.addEventListener('click', function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    toggleSectorOverlay();
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bindSectorToggleButton, { once:true });
+} else {
+  bindSectorToggleButton();
+}
 
 var _myLandMode=false;
 var _myLandIdx=-1; // current territory GROUP index for cycling

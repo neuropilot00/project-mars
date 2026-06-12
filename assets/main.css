@@ -272,8 +272,8 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 @keyframes feedIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 
 /* COMMS chat overlay */
-.chat-overlay{position:fixed;left:34px;bottom:28px;width:min(640px,calc(100vw - 68px));max-height:min(78vh,790px);z-index:90;background:rgba(3,4,14,.92);border:1px solid rgba(91,184,232,.5);border-radius:14px;box-shadow:0 14px 50px rgba(0,0,0,.45);overflow:hidden;display:flex;flex-direction:column}
-.chat-overlay.collapsed{width:min(260px,calc(100vw - 68px));max-height:56px}
+.chat-overlay{position:fixed;left:34px;bottom:28px;width:min(640px,calc(100vw - 68px));max-height:min(78vh,790px);z-index:230;background:rgba(3,4,14,.92);border:1px solid rgba(91,184,232,.5);border-radius:14px;box-shadow:0 14px 50px rgba(0,0,0,.45);overflow:hidden;display:flex;flex-direction:column}
+.chat-overlay.collapsed{width:min(260px,calc(100vw - 68px));height:56px;max-height:56px}
 .chat-header{height:56px;flex:0 0 56px;display:flex;align-items:center;gap:10px;padding:0 24px;color:#4fc3f7;font-size:19px;font-weight:900;letter-spacing:2px;cursor:pointer;border-bottom:1px solid rgba(91,184,232,.22)}
 .chat-header .chat-toggle-icon{margin-left:auto;font-size:12px}
 .chat-overlay.collapsed .chat-toggle-icon{transform:rotate(180deg)}
@@ -293,7 +293,7 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .chat-input-row input{flex:1;min-width:0;height:56px;border-radius:7px;border:1px solid #4fc3f7;background:rgba(255,255,255,.04);color:var(--tx);font-size:17px;padding:0 16px}
 .chat-input-row button{width:64px;height:56px;border:0;border-radius:7px;background:#1976d2;color:white;font-size:24px;cursor:pointer}
 @media(max-width:768px){
-  .chat-overlay{left:12px;right:12px;bottom:14px;width:auto;max-height:72vh}
+  .chat-overlay{left:12px;right:12px;bottom:86px;width:auto;max-height:calc(72vh - 72px)}
   .chat-overlay.collapsed{right:auto;width:min(260px,calc(100vw - 24px));max-height:56px}
   .chat-messages{height:360px;max-height:calc(72vh - 146px)}
   .chat-msg{grid-template-columns:minmax(72px,34%) 1fr auto;font-size:12px}
