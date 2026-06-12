@@ -201,6 +201,8 @@ function renderKillmailCard(k) {
   const expired = k.expires_at && new Date(k.expires_at).getTime() <= Date.now();
   const canSalvage = myWallet && String(k.killer_wallet || '').toLowerCase() === myWallet && !k.salvaged_by && !expired;
   const salvaged = !!k.salvaged_by;
+  const bountyGp = Math.max(0, Math.floor(Number(k.active_bounty_gp) || 0));
+  const canClaimBounty = myWallet && String(k.killer_wallet || '').toLowerCase() === myWallet && bountyGp > 0 && k.battle_id && k.victim_wallet;
   return `
     <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}" data-wreck-id="${parseInt(k.id, 10) || 0}">
       <div class="killmail-skull">☠</div>
@@ -213,6 +215,7 @@ function renderKillmailCard(k) {
         <div class="killmail-meta">
           <span>🚀 ${escapeHtml(ship)}</span>
           ${mods ? `<span>MOD +${mods}</span>` : ''}
+          ${bountyGp ? `<span class="bounty-tag">💰 ${formatNum(bountyGp)} GP</span>` : ''}
           ${k.victim_is_betrayer ? `<span class="traitor-tag">${LANG==='ko'?'변절자':LANG==='ja'?'裏切り者':LANG==='zh'?'叛徒':'BETRAYER'}</span>` : ''}
           ${salvaged ? `<span>${LANG==='ko'?'회수완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'SALVAGED'}</span>` : expired ? `<span>${LANG==='ko'?'잔해소멸':LANG==='ja'?'残骸消滅':LANG==='zh'?'残骸消失':'EXPIRED'}</span>` : ''}
           <span>${when}</span>
@@ -221,12 +224,39 @@ function renderKillmailCard(k) {
       <div class="killmail-value">
         <b>${formatNum(value)}</b>
         <span>GP ${LANG==='ko'?'파괴가치':LANG==='ja'?'破壊価値':LANG==='zh'?'摧毁价值':'destroyed'}</span>
+        ${canClaimBounty ? `<button class="bc-btn bounty" onclick="claimKillmailBounty(${parseInt(k.battle_id, 10) || 0},'${escapeAttr(k.victim_wallet)}',this)">${LANG==='ko'?'현상금 청구':LANG==='ja'?'賞金請求':LANG==='zh'?'领取悬赏':'Claim Bounty'}</button>` : ''}
         ${canSalvage ? `<button class="bc-btn salvage" onclick="salvageKillmail(${parseInt(k.id, 10) || 0},this)">${LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'}</button>` : ''}
         ${k.battle_id ? `<button class="bc-btn primary" onclick="openBattleViewer(${parseInt(k.battle_id, 10)})">${LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay'}</button>` : ''}
       </div>
     </div>
   `;
 }
+
+async function claimKillmailBounty(battleId, targetWallet, btn) {
+  if (!battleId || !targetWallet || (btn && btn.disabled)) return;
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const res = await fetch('/api/bounty/claim', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
+      body: JSON.stringify({ battle_id: battleId, target_wallet: targetWallet }),
+    });
+    const data = await res.json().catch(function(){ return {}; });
+    if (!res.ok || data.error) {
+      if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'청구 실패':LANG==='ja'?'請求失敗':LANG==='zh'?'领取失败':'Failed'; }
+      if (typeof showFactionToast === 'function') showFactionToast(data.error || 'BOUNTY_CLAIM_FAILED', 'error');
+      return;
+    }
+    const gp = Math.floor(Number(data.net_gp || data.total_gp) || 0);
+    if (btn) { btn.classList.add('done'); btn.textContent = LANG==='ko'?'청구완료':LANG==='ja'?'請求済':LANG==='zh'?'已领取':'Claimed'; }
+    if (typeof rewardBurst === 'function') rewardBurst({ text: '+' + formatNum(gp) + ' GP', tier: 2, sound: window._sfx && _sfx.hijackWin });
+    if (typeof showFactionToast === 'function') showFactionToast('+' + formatNum(gp) + ' GP', 'success');
+    try { if (typeof refreshBalance === 'function') refreshBalance(); } catch(_) {}
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'현상금 청구':LANG==='ja'?'賞金請求':LANG==='zh'?'领取悬赏':'Claim Bounty'; }
+  }
+}
+window.claimKillmailBounty = claimKillmailBounty;
 
 async function salvageKillmail(wreckId, btn) {
   if (!wreckId || (btn && btn.disabled)) return;
@@ -262,6 +292,9 @@ window.salvageKillmail = salvageKillmail;
 function shortWallet(w) {
   w = String(w || '').trim();
   return w ? w.slice(0, 6) + '...' + w.slice(-4) : 'Unknown';
+}
+function escapeAttr(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function renderBattleCard(b, tab) {

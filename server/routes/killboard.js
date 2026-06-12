@@ -53,6 +53,8 @@ router.get('/', async (req, res) => {
               w.original_owner AS victim_wallet, w.killer_wallet,
               w.killer_side, w.victim_side, w.resources, w.salvaged_by, w.salvaged_at, w.expires_at, w.created_at,
               uk.nickname AS killer_nick, uv.nickname AS victim_nick,
+              (SELECT COALESCE(SUM(bl.reward_gp), 0) FROM bounty_listings bl
+                WHERE bl.target_wallet = w.original_owner AND bl.status = 'active' AND bl.expires_at > NOW()) AS active_bounty_gp,
               EXISTS(SELECT 1 FROM player_tags pt WHERE pt.wallet = w.original_owner AND pt.tag_id = 'guild_betrayer') AS victim_is_betrayer
          FROM ship_wrecks w
          LEFT JOIN users uk ON LOWER(uk.wallet_address) = w.killer_wallet
