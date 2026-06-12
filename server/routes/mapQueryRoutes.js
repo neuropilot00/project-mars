@@ -6,6 +6,13 @@ const { getAuthWallet, requireAuth, sanitize } = require('../utils/apiHelpers');
 const { cfg } = require('../utils/settingsCache');
 
 const router = express.Router();
+const PIXELS_CACHE_MS = 15 * 1000;
+const CLAIMS_FULL_CACHE_MS = 10 * 1000;
+const CLAIMS_DELTA_CACHE_MS = 5 * 1000;
+const pixelsCache = new Map();
+const pixelsInFlight = new Map();
+const claimsCache = new Map();
+const claimsInFlight = new Map();
 
 const readLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
@@ -63,6 +70,32 @@ function buildClaimsFallbackSql(hasSince) {
          FROM claims c LEFT JOIN users u ON LOWER(c.owner) = LOWER(u.wallet_address)
          WHERE c.deleted_at IS NULL${hasSince ? ' AND c.created_at > $1' : ''}
          ORDER BY c.created_at DESC LIMIT 5000`;
+}
+
+async function cachedSnapshot(cache, inFlight, key, ttlMs, builder) {
+  const now = Date.now();
+  const cached = cache.get(key);
+  if (cached && now - cached.at < ttlMs) return cached.data;
+
+  if (!inFlight.has(key)) {
+    inFlight.set(key, builder()
+      .then((data) => {
+        cache.set(key, { data, at: Date.now() });
+        if (cache.size > 200) {
+          const first = cache.keys().next().value;
+          if (first !== undefined) cache.delete(first);
+        }
+        return data;
+      })
+      .finally(() => { inFlight.delete(key); }));
+  }
+
+  try {
+    return await inFlight.get(key);
+  } catch (err) {
+    if (cached) return cached.data;
+    throw err;
+  }
 }
 
 router.get('/user/:wallet', async (req, res, next) => {
@@ -211,29 +244,33 @@ router.get('/search/owner/:query', async (req, res) => {
 router.get('/pixels', async (req, res) => {
   try {
     const viewerWallet = getOptionalAuthWallet(req);
-    const visibleOwner = visibleOwnerPredicate('p.owner', 1);
-    let result;
-    try {
-      result = await pool.query(
-        `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
-         FROM pixels p
-         WHERE p.owner IS NOT NULL
-           AND ${visibleOwner}`,
-        [viewerWallet]
-      );
-    } catch (visErr) {
-      if (!isOptionalVisibilityError(visErr)) throw visErr;
-      result = await pool.query(
-        `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
-         FROM pixels p
-         WHERE p.owner IS NOT NULL`
-      );
-    }
-    const byOwner = {};
-    for (const row of result.rows) {
-      if (!byOwner[row.owner]) byOwner[row.owner] = [];
-      byOwner[row.owner].push([parseFloat(row.lat), parseFloat(row.lng), row.claim_id, parseFloat(row.price)]);
-    }
+    const cacheKey = `pixels:${viewerWallet || 'public'}`;
+    const byOwner = await cachedSnapshot(pixelsCache, pixelsInFlight, cacheKey, PIXELS_CACHE_MS, async () => {
+      const visibleOwner = visibleOwnerPredicate('p.owner', 1);
+      let result;
+      try {
+        result = await pool.query(
+          `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
+           FROM pixels p
+           WHERE p.owner IS NOT NULL
+             AND ${visibleOwner}`,
+          [viewerWallet]
+        );
+      } catch (visErr) {
+        if (!isOptionalVisibilityError(visErr)) throw visErr;
+        result = await pool.query(
+          `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
+           FROM pixels p
+           WHERE p.owner IS NOT NULL`
+        );
+      }
+      const nextByOwner = {};
+      for (const row of result.rows) {
+        if (!nextByOwner[row.owner]) nextByOwner[row.owner] = [];
+        nextByOwner[row.owner].push([parseFloat(row.lat), parseFloat(row.lng), row.claim_id, parseFloat(row.price)]);
+      }
+      return nextByOwner;
+    });
     res.json(byOwner);
   } catch (err) {
     console.error('[API] pixels error:', err.message);
@@ -246,6 +283,9 @@ router.get('/claims', async (req, res) => {
     const since = req.query.since;
     const viewerWallet = getOptionalAuthWallet(req);
     const visibleOwner = visibleOwnerPredicate('c.owner', since ? 2 : 1);
+    const cacheKey = `claims:${since ? 'delta:' + since : 'full'}:${viewerWallet || 'public'}`;
+    const cacheTtl = since ? CLAIMS_DELTA_CACHE_MS : CLAIMS_FULL_CACHE_MS;
+    const claims = await cachedSnapshot(claimsCache, claimsInFlight, cacheKey, cacheTtl, async () => {
     let result;
     if (since) {
       const sql = `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
@@ -321,7 +361,7 @@ router.get('/claims', async (req, res) => {
       } catch (_err) { /* hijack_count column may not exist yet */ }
     }
 
-    res.json(result.rows.map((row) => ({
+    return result.rows.map((row) => ({
       id: row.id,
       owner: row.owner,
       lat: parseFloat(row.center_lat),
@@ -355,7 +395,9 @@ router.get('/claims', async (req, res) => {
       guildTag: row.guild_tag || null,
       guildEmblem: row.guild_emblem || null,
       guildEmblemImage: row.guild_emblem_image || null,
-    })));
+    }));
+    });
+    res.json(claims);
   } catch (err) {
     console.error('[API] claims error:', err.message);
     res.status(500).json({ error: 'Internal error' });
