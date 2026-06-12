@@ -178,6 +178,7 @@ var _apiPublicHudBackoffUntil = 0;
 var _apiPublicHudQuietUntil = 0;
 var _apiPublicHudBootQuietUntil = Date.now() + 30000;
 var _apiPublicHudDefaultBackoffMs = 300000;
+var _apiPublicHudBackoffStoreKey = 'om_public_hud_backoff_until';
 var _apiPublicHudBackoffPaths = {
   '/api/stats': true,
   '/api/leaderboard': true,
@@ -194,6 +195,18 @@ var _apiPublicHudBackoffPaths = {
   '/api/journal/feed': true,
   '/api/milestone/feed': true
 };
+function _loadPublicHudBackoff() {
+  try {
+    var saved = parseInt(sessionStorage.getItem(_apiPublicHudBackoffStoreKey) || '0', 10);
+    if (saved > Date.now()) _apiPublicHudBackoffUntil = Math.max(_apiPublicHudBackoffUntil, saved);
+  } catch (_) {}
+}
+function _storePublicHudBackoff(until) {
+  try {
+    if (until > Date.now()) sessionStorage.setItem(_apiPublicHudBackoffStoreKey, String(until));
+  } catch (_) {}
+}
+_loadPublicHudBackoff();
 function _isPublicHudFetchPath(url) {
   try {
     return !!_apiPublicHudBackoffPaths[new URL(url, location.origin).pathname];
@@ -238,6 +251,7 @@ function _clearPublicHudFetchBackoff() {
   _apiPublicHudBackoffUntil = 0;
   _apiPublicHudQuietUntil = 0;
   _apiPublicHudBootQuietUntil = 0;
+  try { sessionStorage.removeItem(_apiPublicHudBackoffStoreKey); } catch (_) {}
   Object.keys(_apiEndpointGuards).forEach(function(key) {
     if (key.indexOf('GET /api/') !== 0) return;
     var path = key.replace(/^GET\s+/, '');
@@ -260,6 +274,7 @@ function _clearPublicHudFetchBackoff() {
         var retryAfter = parseInt(resp.headers.get('Retry-After') || '0', 10);
         var backoffMs = retryAfter > 0 ? retryAfter * 1000 : _apiPublicHudDefaultBackoffMs;
         _apiPublicHudBackoffUntil = Math.max(_apiPublicHudBackoffUntil, Date.now() + backoffMs);
+        _storePublicHudBackoff(_apiPublicHudBackoffUntil);
       }
       return resp;
     });
@@ -307,6 +322,7 @@ function _guardedJsonFetch(key, url, options) {
       g.backoffUntil = until;
       if (eg) eg.backoffUntil = until;
       if (isPublicHud) _apiPublicHudBackoffUntil = Math.max(_apiPublicHudBackoffUntil, until);
+      if (isPublicHud) _storePublicHudBackoff(_apiPublicHudBackoffUntil);
       return null;
     }
     if (!r.ok) return null;
