@@ -49494,9 +49494,7 @@ async function _loadBattleReport(battleId, mySide) {
   const section = document.getElementById('bvReportContent');
   if (!section) return;
   try {
-    const reportWallet = (bv && bv.wallet) || ((walletState && walletState.address) ? String(walletState.address).toLowerCase() : '');
-    const reportUrl = `/api/battles/${battleId}/report` + (reportWallet ? `?wallet=${encodeURIComponent(reportWallet)}` : '');
-    const res = await fetch(reportUrl);
+    const res = await fetch(`/api/battles/${battleId}/report`, { headers: getAuthHeaders() });
     if (!res.ok) throw new Error('fetch failed');
     const data = await res.json();
     const r = data.report;

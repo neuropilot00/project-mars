@@ -36,6 +36,16 @@ const requireAuth = (req, res, next) => {
 function getWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════
 
@@ -268,7 +278,7 @@ router.get('/list/history', requireAuth, async (req, res) => {
  */
 router.get('/active', async (req, res) => {
   try {
-    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    const wallet = getOptionalWallet(req);
     const params = [];
     let participantWhere = '';
     if (wallet) {
@@ -305,12 +315,11 @@ router.get('/active', async (req, res) => {
 /**
  * GET /api/battles/history
  * Legacy smoke/API alias for 내 전투 기록.
- * Query: ?wallet=0x...
  */
-router.get('/history', async (req, res) => {
+router.get('/history', requireAuth, async (req, res) => {
   try {
-    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
-    if (!wallet) return res.status(400).json({ error: 'WALLET_REQUIRED' });
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const history = await battleTimeline.getUserBattleHistory(wallet, limit);
@@ -515,7 +524,7 @@ router.get('/:id/report', async (req, res) => {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
 
-    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    const wallet = getOptionalWallet(req);
     const report = await battleReport.generateBattleReport(battleId, wallet);
     if (!report) return res.status(404).json({ error: 'BATTLE_NOT_FOUND' });
 
