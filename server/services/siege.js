@@ -445,6 +445,9 @@ async function resolveSiege(siegeId, opts = {}) {
     if (titleService && winnerWallet) {
       titleService.checkAndAwardTitles(winnerWallet, 'siege_win', { sector_code: code }).catch(() => {});
     }
+    recordSiegeSeasonProgress(winnerWallet, {
+      changedGovernor: winnerWallet && winnerWallet !== siege.defender_wallet,
+    });
 
     // Chronicle 기록 (non-blocking)
     _recordChronicle('governor_overthrown', {
@@ -952,9 +955,15 @@ async function resolveCommanderSiege(siegeId, opts = {}) {
     }
     await client.query('COMMIT');
     // 칭호(non-blocking)
-    if (titleService && winnerGuildId) {
-      const lw = (await pool.query('SELECT leader_wallet FROM guilds WHERE id=$1', [winnerGuildId])).rows[0]?.leader_wallet;
-      if (lw) titleService.checkAndAwardTitles(lw, 'commander_win', { guild_id: winnerGuildId }).catch(() => {});
+    if (winnerGuildId) {
+      pool.query('SELECT leader_wallet FROM guilds WHERE id=$1', [winnerGuildId])
+        .then(({ rows }) => {
+          const lw = rows[0]?.leader_wallet;
+          if (!lw) return;
+          if (titleService) titleService.checkAndAwardTitles(lw, 'commander_win', { guild_id: winnerGuildId }).catch(() => {});
+          recordSiegeSeasonProgress(lw, { changedGovernor: winnerSide === 'atk' });
+        })
+        .catch(() => {});
     }
     console.log(`[COMMANDER] siege ${siegeId} resolved — commander guild=${winnerGuildId} (winnerSide=${winnerSide})`);
     return { success: true, commanderGuildId: winnerGuildId };
@@ -962,6 +971,11 @@ async function resolveCommanderSiege(siegeId, opts = {}) {
     await client.query('ROLLBACK'); console.error('[COMMANDER] resolveCommanderSiege error:', e.message);
     return { success: false, error: 'internal_error' };
   } finally { client.release(); }
+}
+
+function recordSiegeSeasonProgress(wallet, opts = {}) {
+  if (!wallet) return;
+  addSeasonScore(wallet, 'guild_contrib', opts.changedGovernor ? 2 : 1);
 }
 
 // [Phase 3] 월간 자동 커맨더 공성 — 스케줄러 tick 에서 호출. 매월 dom일 hourUtc시(UTC) 슬롯 1회.
