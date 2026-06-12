@@ -4324,8 +4324,8 @@ function renderMyAlliance(a, wallet) {
 
 function renderAllianceLogRow(row) {
   var type = String(row.event_type || '').toLowerCase();
-  var color = type === 'deposit' ? '#80cbc4' : type === 'withdraw' ? 'var(--gold)' : type === 'join' ? 'var(--gn)' : type === 'leave' ? 'var(--red)' : 'var(--tx2)';
-  var icon = { create:'🛡️', join:'➕', leave:'🚪', deposit:'💰', withdraw:'📤', kicked:'⚠️' }[type] || '•';
+  var color = type === 'deposit' ? '#80cbc4' : type === 'withdraw' ? 'var(--gold)' : type === 'battle' ? '#ff8a80' : type === 'join' ? 'var(--gn)' : type === 'leave' ? 'var(--red)' : 'var(--tx2)';
+  var icon = { create:'🛡️', join:'➕', leave:'🚪', deposit:'💰', withdraw:'📤', battle:'⚔️', kicked:'⚠️' }[type] || '•';
   var nick = row.nickname || (row.wallet ? String(row.wallet).slice(0, 8) + '…' : 'System');
   var amt = Number(row.amount_gp || 0);
   var amountText = amt ? ' · ' + (amt > 0 ? '+' : '') + amt + ' GP' : '';

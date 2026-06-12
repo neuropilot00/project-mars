@@ -146,6 +146,14 @@ async function distributeRewards(battleId) {
       // [코어행동 XP] 전투 결과로 XP 부여 → 레벨/진행감을 전투와 연결
       try { const xp = isWinner ? _winXp : _lossXp; if (xp > 0) await _db.awardXP(client, p.wallet_address, xp); } catch (_) {}
 
+      if (isWinner && reward.gp_awarded > 0) {
+        const allianceDividend = await awardAllianceBattleDividend(client, p.wallet_address, battleId, reward, settings);
+        if (allianceDividend > 0) {
+          reward.breakdown.alliance_treasury_bonus = allianceDividend;
+          reward.breakdown.alliance_treasury_pct = settings.reward_alliance_treasury_pct;
+        }
+      }
+
       // 보상 로그
       await client.query(`
         INSERT INTO fleet_battle_rewards (
@@ -204,6 +212,50 @@ function recordBattleProgress(events) {
       if (ev.gpAwarded > 0) seasonService.addSeasonScore(w, 'gp_earn', Math.round(ev.gpAwarded)).catch(() => {});
     }
   }
+}
+
+async function awardAllianceBattleDividend(client, walletAddress, battleId, reward, settings) {
+  const pct = Math.max(0, Math.min(25, parseInt(settings.reward_alliance_treasury_pct, 10) || 0));
+  if (pct <= 0) return 0;
+
+  const cap = Math.max(0, parseInt(settings.reward_alliance_treasury_cap_gp, 10) || 0);
+  let amount = Math.floor((Number(reward.gp_awarded) || 0) * pct / 100);
+  if (cap > 0) amount = Math.min(amount, cap);
+  if (amount <= 0) return 0;
+
+  const { rows } = await client.query(`
+    SELECT am.alliance_id, u.wallet_address AS canonical_wallet
+      FROM alliance_members am
+      JOIN alliances a ON a.id = am.alliance_id
+      JOIN users u ON LOWER(u.wallet_address) = LOWER(am.wallet_address)
+     WHERE LOWER(am.wallet_address) = LOWER($1)
+       AND am.left_at IS NULL
+       AND a.disbanded_at IS NULL
+     LIMIT 1
+     FOR UPDATE OF am, a
+  `, [walletAddress]);
+  const member = rows[0];
+  if (!member) return 0;
+
+  await client.query(
+    `UPDATE alliances
+        SET alliance_gp = COALESCE(alliance_gp, 0) + $1
+      WHERE id = $2`,
+    [amount, member.alliance_id]
+  );
+  await client.query(
+    `UPDATE alliance_members
+        SET contribution = COALESCE(contribution, 0) + $1
+      WHERE alliance_id = $2
+        AND LOWER(wallet_address) = LOWER($3)`,
+    [amount, member.alliance_id, walletAddress]
+  );
+  await client.query(`
+    INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
+    VALUES ($1, $2, 'battle', $3, $4)
+  `, [member.alliance_id, member.canonical_wallet || walletAddress, amount, `Battle #${battleId} war dividend`]);
+
+  return amount;
 }
 
 /**
@@ -394,6 +446,8 @@ async function loadBattleSettings() {
     reward_loser_consolation: 20,
     reward_mineral_drop_chance: 40,
     reward_sector_conflict_bonus_pct: 15,
+    reward_alliance_treasury_pct: 5,
+    reward_alliance_treasury_cap_gp: 100,
   };
   
   for (const row of rows) {
