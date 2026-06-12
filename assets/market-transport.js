@@ -446,11 +446,27 @@ function loadRaidTargets() {
       if (!list) return;
       var rows = d.targets || [];
       if (!rows.length) { list.innerHTML = '<div style="color:var(--tx3);padding:10px;text-align:center" data-i18n="transport_raid_empty">No raidable shipments right now.</div>'; return; }
-      list.innerHTML = rows.map(function(t) {
-        var prog = parseInt(t.progress_pct)||0;
+      rows = rows.map(function(t) {
         var lootEstimate = parseInt(t.raid_loot_estimate_gp, 10) || Math.floor((parseInt(t.cargo_value, 10)||0) * ((parseFloat(_tspSettings&&_tspSettings.raidLootPct)||30) / 100));
         var successPct = parseFloat(t.raid_success_base_pct);
         if (!Number.isFinite(successPct)) successPct = parseFloat(_tspSettings&&_tspSettings.raidSuccessBase) || 35;
+        var progress = parseInt(t.progress_pct, 10) || 0;
+        var progressWindow = progress >= (parseInt(_tspSettings&&_tspSettings.raidMinProg,10)||20) && progress <= (parseInt(_tspSettings&&_tspSettings.raidMaxProg,10)||90);
+        var expectedGp = Math.round(lootEstimate * (successPct / 100));
+        var priorityScore = expectedGp + (progressWindow ? 12 : -20);
+        return Object.assign({}, t, {
+          _raidLootEstimate: lootEstimate,
+          _raidSuccessPct: successPct,
+          _raidExpectedGp: expectedGp,
+          _raidProgressWindow: progressWindow,
+          _raidPriorityScore: priorityScore
+        });
+      }).sort(function(a,b){ return (b._raidPriorityScore||0) - (a._raidPriorityScore||0); });
+      list.innerHTML = rows.map(function(t) {
+        var prog = parseInt(t.progress_pct)||0;
+        var lootEstimate = t._raidLootEstimate || 0;
+        var successPct = t._raidSuccessPct || 0;
+        var expectedGp = t._raidExpectedGp || 0;
         var threat = String(t.raid_threat_level || '').toLowerCase();
         var threatLabel = threat === 'hardened'
           ? (LANG==='ko'?'요새화 수송':LANG==='ja'?'堅固な輸送':LANG==='zh'?'强化运输':'Hardened convoy')
@@ -458,6 +474,15 @@ function loadRaidTargets() {
             ? (LANG==='ko'?'분쟁 수송':LANG==='ja'?'紛争輸送':LANG==='zh'?'争夺运输':'Contested convoy')
             : (LANG==='ko'?'개척 수송':LANG==='ja'?'開拓輸送':LANG==='zh'?'边境运输':'Frontier convoy');
         var threatColor = threat === 'hardened' ? '#FF6B6B' : (threat === 'contested' ? '#FFB347' : 'var(--gn)');
+        var priorityLabel = t._raidExpectedGp >= 80
+          ? (LANG==='ko'?'고가치 표적':LANG==='ja'?'高価値標的':LANG==='zh'?'高价值目标':'High-value target')
+          : t._raidExpectedGp >= 35
+            ? (LANG==='ko'?'실속 표적':LANG==='ja'?'堅実標的':LANG==='zh'?'稳健目标':'Efficient target')
+            : (LANG==='ko'?'저수익 표적':LANG==='ja'?'低収益標的':LANG==='zh'?'低收益目标':'Low-yield target');
+        var windowLabel = t._raidProgressWindow
+          ? (LANG==='ko'?'약탈 가능 구간':LANG==='ja'?'略奪可能帯':LANG==='zh'?'可掠夺窗口':'Raid window')
+          : (LANG==='ko'?'타이밍 주의':LANG==='ja'?'タイミング注意':LANG==='zh'?'注意时机':'Watch timing');
+        var windowColor = t._raidProgressWindow ? 'var(--gn)' : '#FFB347';
         var bar = '<div style="width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:4px">'
           + '<div style="width:'+prog+'%;height:100%;background:linear-gradient(90deg,#FF6B6B,#cc2020)"></div></div>';
         var laneContext = renderTransportLaneContext(t.origin_sector_id, t.dest_sector_id);
@@ -465,10 +490,14 @@ function loadRaidTargets() {
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
           + '<div><div style="font-size:10px;color:var(--tx);font-weight:700">#'+t.id+' · '+escapeHtml(t.origin_name||('S'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('S'+t.dest_sector_id))+'</div>'
           + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">Carrier: '+escapeHtml(t.carrier_nick||(t.carrier_wallet||'').slice(0,8))+(t.merchant_bonus?' <span style="color:#FFB347">★MRC</span>':'')+'</div>'
-          + '<div style="font-size:8px;color:var(--gold);margin-top:2px">Cargo: '+(t.cargo_value||0)+' GP · Loot ~'+lootEstimate+' GP · '+successPct.toFixed(1)+'% odds</div>'
+          + '<div style="font-size:8px;color:var(--gold);margin-top:2px">Cargo: '+(t.cargo_value||0)+' GP · Loot ~'+lootEstimate+' GP · '+successPct.toFixed(1)+'% odds · EV +'+expectedGp+' GP</div>'
           + '<div style="font-size:8px;color:'+threatColor+';font-weight:700;margin-top:2px">'+threatLabel+' · Progress '+prog+'%</div></div>'
           + '<button onclick="submitRaidAttempt('+t.id+','+((t.cargo_value||0))+')" style="padding:8px 12px;font-size:10px;border-radius:5px;background:linear-gradient(135deg,#FF6B6B,#cc2020);border:none;color:#fff;font-weight:700;cursor:pointer" data-i18n="transport_raid_btn">🏴 RAID</button>'
-          + '</div>' + bar + laneContext
+          + '</div>' + bar
+          + '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;font-size:8px;font-weight:800;font-family:var(--fn)">'
+          + '<span style="color:#FFB347;border:1px solid rgba(255,179,71,.25);border-radius:999px;padding:2px 6px;background:rgba(255,179,71,.06)">'+priorityLabel+'</span>'
+          + '<span style="color:'+windowColor+';border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:2px 6px;background:rgba(255,255,255,.035)">'+windowLabel+'</span>'
+          + '</div>' + laneContext
           + '</div>';
       }).join('');
     }).catch(function(){});
