@@ -568,7 +568,7 @@
   // Governance leaderboard (sidebar + BASE > SEASON mirror)
   function loadGovLeaderboard() {
     if (!_pageIsActive()) return;
-    fetch('/api/governance/leaderboard?sort=tax').then(function(r){return r.json()}).then(function(rows){
+    wlfReadFetch('gov-leaderboard', '/api/governance/leaderboard?sort=tax', 30000, false).then(function(rows){
       var el = document.getElementById('govLeaderboardList');
       var bsEl = document.getElementById('bsGovLeaderboardList');
       if (!rows || !rows.length) {
@@ -819,8 +819,8 @@
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
 
     Promise.all([
-      fetch('/api/sector-defs/' + encodeURIComponent(code) + '/governance').then(function(r){return r.json()}).catch(function(){return null}),
-      fetch('/api/siege/' + encodeURIComponent(code)).then(function(r){return r.json()}).catch(function(){return {active:false}})
+      wlfReadFetch('sector-governance:' + code, '/api/sector-defs/' + encodeURIComponent(code) + '/governance', 15000, false).catch(function(){return null}),
+      wlfReadFetch('siege-info:' + code, '/api/siege/' + encodeURIComponent(code), 10000, false).catch(function(){return {active:false}})
     ]).then(function(results) {
       var gov = results[0];
       var siegeData = results[1];
@@ -1097,8 +1097,8 @@
     if (!container) return;
 
     Promise.all([
-      fetch('/api/betting/events/'+betEventId+'/odds').then(function(r){return r.json()}).catch(function(){return null}),
-      w ? fetch('/api/betting/mine', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return {bets:[]}}) : Promise.resolve({bets:[]})
+      wlfReadFetch('betting-odds:' + betEventId, '/api/betting/events/'+betEventId+'/odds', 10000, false).catch(function(){return null}),
+      w ? wlfReadFetch('betting-mine', '/api/betting/mine', 10000, true).catch(function(){return {bets:[]}}) : Promise.resolve({bets:[]})
     ]).then(function(res) {
       var odds = res[0];
       var userBets = (res[1] && res[1].bets) || [];
@@ -1347,8 +1347,9 @@
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
     var lang = window._currentLang || 'en';
 
-    fetch('/api/user/titles', { headers: getAuthHeaders() })
-      .then(function(r){return r.json()}).then(function(d) {
+    wlfReadFetch('user-titles', '/api/user/titles', 15000, true)
+      .then(function(d) {
+        if (!d) { panel.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:6px 0">Please wait a moment.</div>'; return; }
         var titles = d.titles || [];
         if (!titles.length) {
           panel.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:6px 0">No titles yet. Complete achievements to earn them!</div>';
@@ -1529,7 +1530,7 @@
     var sectorId = _hofSelectedSectorId;
     if (!sectorId) { list.innerHTML = '<div style="padding:4px 0">Select a sector to view history.</div>'; return; }
     list.innerHTML = '<div style="padding:4px 0">Loading...</div>';
-    fetch('/api/governance/history/' + sectorId).then(function(r){return r.json()}).then(function(rows){
+    wlfReadFetch('governance-history:' + sectorId, '/api/governance/history/' + sectorId, 30000, false).then(function(rows){
       if (!rows || !rows.length) { list.innerHTML = '<div style="padding:4px 0">No governor history for this sector.</div>'; return; }
       list.innerHTML = rows.map(function(r) {
         var name = r.nickname || (r.wallet.slice(0,6)+'...'+r.wallet.slice(-4));
@@ -1599,8 +1600,11 @@
     try {
       var recUrl = '/api/battles/recommended-opponents/' + encodeURIComponent(wallet)
         + (_pvpHubSectorFilter ? ('?sector=' + encodeURIComponent(_pvpHubSectorFilter)) : '');
-      var res = await fetch(recUrl);
-      var data = await res.json();
+      var data = await wlfReadFetch('pvp-rec:' + wallet + ':' + (_pvpHubSectorFilter || 'all'), recUrl, 15000, false);
+      if (!data) {
+        if (content && _pvpHubTab === 'rec') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">'+(LANG==='ko'?'잠시 후 다시 시도하세요':LANG==='ja'?'少し待って再試行してください':LANG==='zh'?'请稍后重试':'Please wait a moment and retry')+'</div>';
+        return;
+      }
       var opponents = data.opponents || [];
       if (!content || _pvpHubTab !== 'rec') return;
       if (opponents.length === 0) {
@@ -1677,8 +1681,11 @@
     var content = document.getElementById('pvpHubContent');
     if (!content) return;
     try {
-      var res = await fetch('/api/sectors/conflict-map');
-      var data = await res.json();
+      var data = await wlfReadFetch('pvp-conflict-map', '/api/sectors/conflict-map', 15000, false);
+      if (!data) {
+        if (_pvpHubTab === 'conflict') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">'+(LANG==='ko'?'잠시 후 다시 시도하세요':LANG==='ja'?'少し待って再試行してください':LANG==='zh'?'请稍后重试':'Please wait a moment and retry')+'</div>';
+        return;
+      }
       var sectors = (data.sectors || []).filter(function(s){ return s.heat > 0; })
         .sort(function(a,b){ return b.heat - a.heat; }).slice(0,8);
       if (!content || _pvpHubTab !== 'conflict') return;
@@ -1790,8 +1797,8 @@
       var url = tab === 'on-me' ? '/api/bounty/on-me'
               : tab === 'mine' ? '/api/bounty/my-bounties'
               : '/api/bounty/list';
-      var res = await fetch(url, { headers: getAuthHeaders() });
-      var data = await res.json();
+      var data = await wlfReadFetch('bounty:' + tab, url, 15000, true);
+      if (!data) { list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Please wait a moment.</div>'; return; }
       var bounties = data.bounties || [];
       if (bounties.length === 0) { list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">' + t('bounty_no_bounties') + '</div>'; return; }
 
@@ -1976,10 +1983,10 @@
 
     // Fetch all in parallel
     Promise.all([
-      fetch('/api/governance/my-positions/'+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
-      fetch('/api/governance/commander', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return {}}),
-      fetch('/api/governance/events').then(function(r){return r.json()}).catch(function(){return []}),
-      fetch('/api/governance/bounties').then(function(r){return r.json()}).catch(function(){return []})
+      wlfReadFetch('gov-my-positions:' + w, '/api/governance/my-positions/'+encodeURIComponent(w), 15000, false).catch(function(){return []}),
+      wlfReadFetch('gov-commander', '/api/governance/commander', 15000, true).catch(function(){return {}}),
+      wlfReadFetch('gov-events', '/api/governance/events', 15000, false).catch(function(){return []}),
+      wlfReadFetch('gov-bounties', '/api/governance/bounties', 15000, false).catch(function(){return []})
     ]).then(function(results){
       var positions = results[0];
       var cmdInfo = results[1];
@@ -2360,7 +2367,8 @@
 
   function fetchAnnounce(){
     if (!_pageIsActive()) return;
-    fetch('/api/config').then(function(r){return r.json()}).then(function(cfg){
+    wlfReadFetch('config', '/api/config', 120000, false).then(function(cfg){
+      if (!cfg) return;
       if(cfg && cfg.announcement) showAnnounce(cfg.announcement);
       else {
         var banner = document.getElementById('announceBanner');
