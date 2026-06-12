@@ -90,8 +90,9 @@ function pickBattlefieldKey(battleId) {
   if (type === 'siege' && SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'siege') return 'garrison';
   if (type === 'hijack') return 'orbit_territory';
-  if (type === 'raid' || type === 'event') return 'crater_relay';
   if (SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
+  if (type === 'raid') return 'mining_site';
+  if (type === 'event') return 'crater_relay';
   if (/ice|polar|borealis|phlegra|빙|얼음/.test(sectorName)) return 'polar_ice';
   if (/forge|arsia|lava|volcan|용암|화산|대장간/.test(sectorName)) return 'lava_tube';
   if (/storm|dust|waste|arcadia|elysium|폭풍|먼지|황무지/.test(sectorName)) return 'dust_storm';
