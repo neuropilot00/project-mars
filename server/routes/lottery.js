@@ -72,8 +72,8 @@ router.get('/lottery/history', readLimiter, async (req, res) => {
 });
 
 // GET /api/lottery/my-tickets — user's own tickets
-router.get('/lottery/my-tickets', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase();
+router.get('/lottery/my-tickets', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try {
     if (!lotteryService) return res.status(503).json({ error: 'Lottery service unavailable' });

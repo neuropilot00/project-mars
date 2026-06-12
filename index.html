@@ -29654,7 +29654,7 @@ function loadLotteryHistory() {
   var wallet = walletState.address || '';
   var reqs = [fetch('/api/lottery/history?limit=10').then(function(r){ return r.json(); }).catch(function(){ return { history: [] }; })];
   reqs.push(wallet
-    ? fetch('/api/lottery/my-tickets?wallet=' + wallet).then(function(r){ return r.json(); }).catch(function(){ return { tickets: [] }; })
+    ? fetch('/api/lottery/my-tickets', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }).catch(function(){ return { tickets: [] }; })
     : Promise.resolve({ tickets: [] }));
   Promise.all(reqs).then(function(res) {
     var history = (res[0] && res[0].history) || [];
