@@ -17,10 +17,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/manifest.json">
 <title>OCCUPY MARS — Claim Your Territory</title>
-<script>
-var ASSET_VER = '7440';
-window.ASSET_VER = ASSET_VER;
-</script>
+<script src="/assets/app-config.js?v=7441"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <link href="/assets/tactical-lab-modal.css?v=7424" rel="stylesheet">
@@ -39,41 +36,7 @@ window.ASSET_VER = ASSET_VER;
 <script src="/public/js/minigame-invaders.js?v=11"></script>
 <script src="/public/js/minigame-runner.js?v=11"></script>
 <script src="/public/js/minigame-digger.js?v=11"></script>
-<script>
-// Render game sprites as icons
-document.addEventListener('DOMContentLoaded', function() {
-  // Safety: on tablet/mobile (≤1024px) ensure panels start CLOSED so the globe is visible.
-  // Defends against any auto-open path or stale .open class from previous sessions.
-  try {
-    if (window.innerWidth <= 1024) {
-      var pL = document.getElementById('panelL');
-      var pR = document.getElementById('panelR');
-      if (pL) pL.classList.remove('open');
-      if (pR) pR.classList.remove('open');
-    }
-  } catch(_) {}
-  try {
-    var el = document.getElementById('mgShipIcon');
-    if (el && window.MarsInvaders && MarsInvaders.getShipIcon) {
-      var img = new Image(); img.src = MarsInvaders.getShipIcon(36);
-      img.style.cssText = 'width:32px;height:32px;image-rendering:pixelated';
-      el.textContent = ''; el.appendChild(img);
-    }
-    var el2 = document.getElementById('mgRunnerIcon');
-    if (el2 && window.MarsRunner && MarsRunner.getAstronautIcon) {
-      var img2 = new Image(); img2.src = MarsRunner.getAstronautIcon(36);
-      img2.style.cssText = 'width:32px;height:32px;image-rendering:pixelated';
-      el2.textContent = ''; el2.appendChild(img2);
-    }
-    var el3 = document.getElementById('mgDiggerIcon');
-    if (el3 && window.MarsDigger && MarsDigger.getPickaxeIcon) {
-      var img3 = new Image(); img3.src = MarsDigger.getPickaxeIcon(36);
-      img3.style.cssText = 'width:32px;height:32px;image-rendering:pixelated';
-      el3.textContent = ''; el3.appendChild(img3);
-    }
-  } catch(e) {}
-});
-</script>
+<script src="/assets/minigame-icons.js?v=7441"></script>
 
 </head>
 <body>
@@ -93,34 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div id="loadQuote" style="position:relative;font-family:var(--fn);font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
   <div id="loadMsg" style="position:relative;font-family:var(--fn);font-size:11px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
 </div>
-<script>
-// [v7.175 Task 3a] 로딩 배경 6종 중 랜덤 1장 — 이미지 로드 성공 시에만 fade-in (실패 시 단색 폴백 유지).
-(function(){
-  try {
-    var n = 1 + Math.floor(Math.random()*6);
-    var pad = (n < 10 ? '0' : '') + n;
-    var img = new Image();
-    img.onload = function(){
-      var bg = document.getElementById('loadBg');
-      if (bg) { bg.style.backgroundImage = 'url("/assets/loading/load_'+pad+'.jpg")'; bg.style.opacity = '0.55'; }
-    };
-    img.src = '/assets/loading/load_'+pad+'.jpg';
-    // [v7.230] 로딩 배경 영상 — 3종 콘텐츠(deep_space/drift/frozen_mars)를 비율별로. 데스크탑 가로 3종, 모바일 세로 3종.
-    var vid = document.getElementById('loadVideo');
-    if (vid) {
-      if (window.innerWidth > 768) {
-        var vn = 1 + Math.floor(Math.random()*3); // 가로 load_loop_01~03
-        vid.src = '/assets/loading/load_loop_0'+vn+'.mp4';
-      } else {
-        var vvn = 1 + Math.floor(Math.random()*3); // 세로 load_loop_v01~03
-        vid.src = '/assets/loading/load_loop_v0'+vvn+'.mp4';
-      }
-      vid.addEventListener('canplay', function(){ vid.style.opacity = '0.6'; }, { once:true });
-      var pp = vid.play(); if (pp && pp.catch) pp.catch(function(){});
-    }
-  } catch(_) {}
-})();
-</script>
+<script src="/assets/loading-background.js?v=7441"></script>
 
 <!-- Globe Container -->
 <div id="globe-wrap"></div>
@@ -5270,22 +5206,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script src="/assets/service-worker-registration.js?v=7441"></script>
 <script src="/assets/social-live-modal.js?v=7441"></script>
-<script>
-// ── DOMContentLoaded: 랜딩 + 온보딩 트리거 ──
-document.addEventListener('DOMContentLoaded', function() {
-  _setActiveTimeout(showBetaNoticeOnce, 400);  // 첫 진입 1회 베타 고지 (랜딩 위에 먼저 노출)
-  _setActiveTimeout(checkLandingOverlay, 800);
-  // Delay chat/feed polling so Globe.GL WebGL initialisation gets the first
-  // ~8 seconds of network+CPU budget without competing fetch requests.
-  // Chat: 8s cold start, then every 5s. Feed: 12s cold start, then every 10s.
-  _setActiveTimeout(startChatPolling, 8000);
-  _setActiveTimeout(startFeedPolling, 12000);
-  _setActiveTimeout(connectLiveWS, 9000);  // 실시간 푸시 (채팅/피드) — 폴링과 병행, 끊겨도 폴링 폴백
-  if (typeof isLoggedIn === 'function' && isLoggedIn()) {
-    _setActiveTimeout(runOnboardingCheck, 2000);
-  }
-});
-</script>
+<script src="/assets/app-startup.js?v=7441"></script>
 <script src="/assets/war-betting-modal.js?v=7441"></script>
 <script src="/assets/tactical-lab-modal.js?v=7440"></script>
 

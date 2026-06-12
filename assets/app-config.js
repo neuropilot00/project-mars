@@ -1,0 +1,2 @@
+var ASSET_VER = '7440';
+window.ASSET_VER = ASSET_VER;
