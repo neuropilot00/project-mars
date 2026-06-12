@@ -36,6 +36,14 @@ var CRATERS=[];
 })();
 setLoadProgress(10,'Generating craters...');
 
+function marsAuthHeaders(){
+  try{
+    return (window.getAuthHeaders && window.getAuthHeaders()) || {};
+  }catch(_){
+    return {};
+  }
+}
+
 function craterAt(u,v){
   var val=0;
   // cosine correction + 2:1 aspect ratio: make craters circular on sphere
@@ -1889,18 +1897,44 @@ function toggleSectorOverlay(){
   _showSectorBounds=!_showSectorBounds;
   var btn=document.getElementById('sectorToggleBtn');
   if(btn) btn.style.background=_showSectorBounds?'rgba(90,180,230,0.25)':'';
-  // 토글 ON/OFF 어느 쪽이든 fresh sector data 가져온 후 텍스처 재합성.
-  // 이렇게 해야 admin 의 governor/공지/tier 변경이 즉시 반영됨.
-  if (typeof refreshSectors === 'function') {
-    refreshSectors().finally(function(){
+  var label = document.getElementById('sectorToggleLabel');
+  if(label && _showSectorBounds) {
+    label.dataset.prevText = label.textContent || label.dataset.prevText || 'SECTORS';
+    label.textContent = '...';
+  }
+  function repaintSectors(data){
+    if(label && label.dataset.prevText) label.textContent = label.dataset.prevText;
+    if (Array.isArray(data) && data.length) {
+      _sectorsData = data;
+      try { window._sectorsData = data; } catch(_) {}
+    }
+    try {
       marsCanvasTexture = null;
       claimsSnapshot = null;
       compositeClaimsOnTexture();
-    });
+    } catch(_) {}
+    if(_showSectorBounds && (!_sectorsData || !_sectorsData.length)){
+      try{ showToast(tl('Sector data not loaded yet','섹터 데이터를 아직 불러오지 못했습니다','セクターデータ未読込','扇区数据尚未加载'), 'warn'); }catch(_){}
+    }
+  }
+  // 토글 ON/OFF 어느 쪽이든 fresh sector data 가져온 후 텍스처 재합성.
+  // 이렇게 해야 admin 의 governor/공지/tier 변경이 즉시 반영됨.
+  if (_showSectorBounds) {
+    fetch('/api/sectors?ui_toggle=' + Date.now(), { headers: marsAuthHeaders(), cache:'no-store' })
+      .then(function(r){
+        if(!r.ok) throw new Error('HTTP_'+r.status);
+        return r.json();
+      })
+      .then(repaintSectors)
+      .catch(function(){
+        if (typeof refreshSectors === 'function') {
+          refreshSectors().then(repaintSectors).catch(function(){ repaintSectors(null); });
+        } else {
+          repaintSectors(null);
+        }
+      });
   } else {
-    marsCanvasTexture = null;
-    claimsSnapshot = null;
-    compositeClaimsOnTexture();
+    repaintSectors(null);
   }
 }
 
@@ -2157,7 +2191,7 @@ function _bterrLoadProd(idx,g){
   var claimId=g.claims[0]&&g.claims[0].id;
   if(!claimId||!wallet){prodEl.textContent='—';return;}
   prodEl.textContent=LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…';
-  fetch('/api/territory/'+claimId+'/production', { headers: getAuthHeaders() })
+  fetch('/api/territory/'+claimId+'/production', { headers: marsAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       if(!document.getElementById('bterrProd'+idx)) return; // 이미 닫힘
@@ -2814,8 +2848,8 @@ function _scheduleServerClaimsBootRetry(){
 }
 function loadServerClaims(){
   Promise.all([
-    _guardedJsonFetch('claims-initial', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}),
-    _guardedJsonFetch('pixels-initial', '/api/pixels', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}})
+    _guardedJsonFetch('claims-initial', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:marsAuthHeaders()}}),
+    _guardedJsonFetch('pixels-initial', '/api/pixels', {minGap:30000, backoffMs:120000, fetchOptions:{headers:marsAuthHeaders()}})
   ]).then(function(results){
     var serverClaims=results[0], serverPixels=results[1];
     if(serverClaims===null&&serverPixels===null){
@@ -2857,8 +2891,8 @@ _setActiveInterval(function(){
   var fetchPixels=(_pixelPollCount%3===0); // every 30s desktop / 60s mobile
   var fetchFullClaims=(_pixelPollCount%9===0); // reconcile hidden/expired cloak state without adding a new loop
   var claimsUrl=fetchFullClaims?'/api/claims':('/api/claims?since='+_claimsSince);
-  var fetches=[_guardedJsonFetch(fetchFullClaims?'claims-full':'claims-delta', claimsUrl, {minGap:Math.max(5000,_claimsPollMs-500), backoffMs:60000, fetchOptions:{headers:getAuthHeaders()}})];
-  if(fetchPixels) fetches.push(_guardedJsonFetch('pixels-full', '/api/pixels', {minGap:Math.max(15000,_claimsPollMs*3-500), backoffMs:90000, fetchOptions:{headers:getAuthHeaders()}}));
+  var fetches=[_guardedJsonFetch(fetchFullClaims?'claims-full':'claims-delta', claimsUrl, {minGap:Math.max(5000,_claimsPollMs-500), backoffMs:60000, fetchOptions:{headers:marsAuthHeaders()}})];
+  if(fetchPixels) fetches.push(_guardedJsonFetch('pixels-full', '/api/pixels', {minGap:Math.max(15000,_claimsPollMs*3-500), backoffMs:90000, fetchOptions:{headers:marsAuthHeaders()}}));
   Promise.all(fetches).then(function(results){
     var newClaims=results[0], serverPixels=results[1];
     var added=0;
@@ -2904,7 +2938,7 @@ _setActiveInterval(function(){
 // admin 이 sector tier/price/entry-level 을 변경한 뒤 즉시 반영되도록
 // 1) boot 시 1회 로드  2) 60초마다 polling refresh  3) 페이지 가시화 시 즉시 refresh
 window.refreshSectors = function(){
-  return _guardedJsonFetch('sectors-refresh', '/api/sectors', {minGap:10000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(data){
+  return _guardedJsonFetch('sectors-refresh', '/api/sectors', {minGap:10000, backoffMs:120000, fetchOptions:{headers:marsAuthHeaders()}}).then(function(data){
     if (!data) return null;
     // Diff check — sector overlay 데이터가 변경됐는지 비교 (변경 있을 때만 텍스처 재렌더)
     var prev = _sectorsData || [];

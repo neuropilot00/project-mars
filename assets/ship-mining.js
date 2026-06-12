@@ -145,6 +145,29 @@
     );
   }
 
+  function routeWarEconomyPlan(dest, cap, durationH) {
+    var gross = estimateRunGp(cap, durationH, dest);
+    var launchCost = Number(state.info && state.info.launchCostGp) || 0;
+    var raid = Number(dest && dest.raidPct) || 0;
+    var wearMult = Number(dest && dest.wearMult) || 1;
+    var resourceMult = Number(dest && (dest.resourceMult || dest.yieldMult)) || 1;
+    var rareMult = Number(dest && dest.rareMult) || 1;
+    var expectedAfterRaid = Math.round(gross * (1 - raid * 0.5));
+    var netExpected = expectedAfterRaid - launchCost;
+    var doctrine = raid >= 0.12 || wearMult >= 2.2
+      ? lang('Escort first', '호위 우선', '護衛優先', '优先护航')
+      : resourceMult >= 1.5 || rareMult >= 1.15
+        ? lang('Growth push', '성장 압박', '成長圧力', '成长推进')
+        : lang('Safe grind', '안전 파밍', '安全周回', '安全刷取');
+    return {
+      gross: gross,
+      expectedAfterRaid: expectedAfterRaid,
+      netExpected: netExpected,
+      doctrine: doctrine,
+      pressure: routePressureLabel(dest),
+    };
+  }
+
   function allianceBonusFor(key) {
     var bonuses = (state.info && state.info.allianceSectorBonuses) || {};
     var mult = Number(bonuses[key]) || 1;
@@ -356,15 +379,16 @@
         '<span style="font-size:9px;color:#64dc82;font-family:var(--fn);font-weight:900;letter-spacing:.8px">▸ ' + title + '</span>' +
         '<span style="font-size:7.5px;color:var(--tx3);font-family:var(--fn)">' + hint + '</span>' +
       '</div>' +
-      ranked.map(function (row) {
+      ranked.map(function (row, idx) {
         var d = row.dest;
         var i = row.info;
         var active = String(selectedDestKey || '') === String(d.key);
         var riskColor = routeRiskColor(d);
+        var plan = routeWarEconomyPlan(d, cap, durationH);
         return '<button type="button" onclick="smSelectMiningRoute(\'' + txt(d.key) + '\')" style="width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;text-align:left;margin-bottom:5px;padding:7px 8px;border-radius:7px;border:1px solid ' + (active ? riskColor : 'rgba(100,220,130,.18)') + ';background:' + (active ? 'rgba(100,220,130,.08)' : 'rgba(100,220,130,.035)') + ';cursor:pointer;color:var(--tx);font-family:var(--fn)">' +
           '<span style="min-width:0"><span style="display:block;font-size:9px;font-weight:900;color:' + riskColor + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + txt(routeName(d.key)) + '</span>' +
-          '<span style="display:block;font-size:7.5px;color:var(--tx3);margin-top:2px">' + txt(routeDifficultyLabel(d) + ' · ' + routePressureLabel(d)) + ' · score ' + txt(i.score) + '</span></span>' +
-          '<span style="font-size:8px;color:var(--gold);font-weight:900;white-space:nowrap">+' + txt(i.gross) + ' GP</span>' +
+          '<span style="display:block;font-size:7.5px;color:var(--tx3);margin-top:2px">' + (idx === 0 ? '<b style="color:#64dc82">BEST</b> · ' : '') + txt(routeDifficultyLabel(d) + ' · ' + plan.pressure) + ' · score ' + txt(i.score) + '</span></span>' +
+          '<span style="font-size:8px;color:var(--gold);font-weight:900;white-space:nowrap">+' + txt(i.gross) + ' GP<br><span style="color:var(--tx3);font-size:7px">EV +' + txt(plan.expectedAfterRaid) + '</span></span>' +
           '<span style="font-size:7.5px;color:' + riskColor + ';font-weight:900;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:2px 5px;white-space:nowrap">' + txt(routeRiskLabel(d)) + '</span>' +
         '</button>';
       }).join('');
@@ -391,6 +415,7 @@
     var raidWearPct = wearPct * 1.5;
     var resourceMult = Number(dest.resourceMult || dest.yieldMult || 1) * routeControlBonus;
     var rareMult = Number(dest.rareMult || 1);
+    var plan = routeWarEconomyPlan(dest, cap, h);
     var capLine = Number(state.info.gpCapPerDay) > 0 ? ' · ' + lang('daily cap', '일일 상한', '日次上限', '每日上限') + ' ' + state.info.gpCapPerDay + ' GP' : '';
     var allianceLine = allianceBonus > 1
       ? '<br><span style="color:#80cbc4;font-weight:800">Alliance sector +' + Math.round((allianceBonus - 1) * 100) + '%</span> · ' +
@@ -433,6 +458,7 @@
           '</div>' +
           '<div style="border:1px solid rgba(129,212,250,.24);background:rgba(129,212,250,.04);border-radius:7px;padding:7px">' +
             '<div style="font-size:7px;color:var(--tx3);letter-spacing:.8px">' + lang('COMMAND DECISION', '지휘 판단', '指揮判断', '指挥判断') + '</div>' +
+            '<div style="font-size:10px;color:#b3e5fc;font-weight:900;margin:1px 0 3px">' + txt(plan.doctrine) + ' · EV ' + (plan.netExpected >= 0 ? '+' : '') + txt(plan.netExpected) + ' GP</div>' +
             '<div style="font-size:8.5px;color:#b3e5fc;line-height:1.45;margin-top:2px">' + txt(routeDoctrineText(dest)) + '</div>' +
           '</div>' +
         '</div>';
