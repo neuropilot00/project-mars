@@ -22,6 +22,41 @@ let battleHubState = {
   pollTimer: null,
 };
 
+const BATTLEFIELD_KEYS = ['orbit_territory','garrison','mining_site','canyon_outpost','polar_ice','lava_tube','crater_relay','refinery_yard'];
+const battleContextById = Object.create(null);
+
+function rememberBattleContext(battle) {
+  const id = parseInt(battle && battle.id, 10);
+  if (!id) return;
+  battleContextById[id] = {
+    battle_type: battle.battle_type || '',
+    sector_code: battle.sector_code || '',
+    sector_name: battle.sector_name || '',
+  };
+}
+
+function _stableBattlefieldIndex(seed) {
+  seed = String(seed || '');
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
+  return Math.abs(hash) % BATTLEFIELD_KEYS.length;
+}
+
+function pickBattlefieldKey(battleId) {
+  const ctx = battleContextById[parseInt(battleId, 10)] || {};
+  const type = String(ctx.battle_type || '').toLowerCase();
+  const sector = String(ctx.sector_code || '').toUpperCase();
+  if (type === 'siege') return 'garrison';
+  if (type === 'hijack') return 'orbit_territory';
+  if (type === 'raid' || type === 'event') return 'crater_relay';
+  if (sector) {
+    const match = sector.match(/\d+/);
+    if (match) return BATTLEFIELD_KEYS[parseInt(match[0], 10) % BATTLEFIELD_KEYS.length];
+    return BATTLEFIELD_KEYS[_stableBattlefieldIndex(sector)];
+  }
+  return BATTLEFIELD_KEYS[_stableBattlefieldIndex(battleId)];
+}
+
 var _battleRewardsHistoryOpen = false;
 function toggleBattleRewardsHistory() {
   _battleRewardsHistoryOpen = !_battleRewardsHistoryOpen;
@@ -143,6 +178,7 @@ async function bhLoad() {
     const res = await fetch(url, { headers: getAuthHeaders() });
     const data = await res.json();
     const battles = data.battles || [];
+    battles.forEach(rememberBattleContext);
     
     if (battles.length === 0) {
       container.innerHTML = `<div class="bh-empty">
@@ -1553,6 +1589,7 @@ async function loadBvSidePanels(battleId) {
   var statsEl = document.getElementById('bvSideBattleStats');
   if (statsEl && battleInfo && battleInfo.battle) {
     var b = battleInfo.battle;
+    rememberBattleContext(b);
     var sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
     statsEl.innerHTML =
       `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전투 ID':LANG==='ja'?'戦闘ID':LANG==='zh'?'战斗ID':'Battle ID'}</span><b>#` + b.id + '</b></div>'
