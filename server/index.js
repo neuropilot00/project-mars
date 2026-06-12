@@ -39,6 +39,7 @@ const _envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.e
 require('dotenv').config({ path: _path.join(__dirname, '..', _envFile) });
 // Fallback: also load .env for any unset vars
 require('dotenv').config({ path: _path.join(__dirname, '..', '.env') });
+require('./utils/consoleGuard').installConsoleGuard();
 
 const express = require('express');
 const cors = require('cors');
