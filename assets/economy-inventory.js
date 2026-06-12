@@ -888,9 +888,9 @@ function loadVipView() {
   var w = walletState && walletState.address;
   // Load current pass status
   if (w) {
-    fetch('/api/vip/my', { headers: getAuthHeaders() })
-      .then(function(r){return r.json();})
+    _economyReadFetch('vip-my', '/api/vip/my', true, 15000)
       .then(function(pass){
+        if (!pass) return;
         var statusEl = document.getElementById('myVipStatus');
         if (pass && pass.tier_id) {
           statusEl && (statusEl.style.display = '');
@@ -915,7 +915,8 @@ function loadVipView() {
   var el = document.getElementById('vipTierList');
   if (!el) return;
   el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">Loading…</div>';
-  fetch('/api/vip/tiers').then(function(r){return r.json();}).then(function(tiers){
+  _economyReadFetch('vip-tiers', '/api/vip/tiers', false, 30000).then(function(tiers){
+    tiers = Array.isArray(tiers) ? tiers : [];
     if (!tiers.length) {
       el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">No VIP tiers available</div>';
       return;
@@ -973,7 +974,11 @@ function loadCraftingView(){
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px" data-i18n="loading">Loading…</div>';
   var url='/api/crafting/recipes';
   if(_craftingCatFilter&&_craftingCatFilter!=='all') url+='?category='+encodeURIComponent(_craftingCatFilter);
-  fetch(url,{headers:getAuthHeaders()}).then(function(r){return r.json();}).then(function(recipes){
+  _economyReadFetch('crafting-recipes:' + (_craftingCatFilter || 'all'), url, true, 15000).then(function(recipes){
+    if (!recipes) {
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Please wait a moment.</div>';
+      return;
+    }
     _craftingRecipes=Array.isArray(recipes)?recipes:[];
     renderCraftingGrid();
   }).catch(function(){
@@ -1093,8 +1098,11 @@ function loadCraftHistory(){
   var w=(walletState&&walletState.address)||'';
   if(!w){ panel.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px">Connect wallet</div>'; return; }
   panel.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px">Loading…</div>';
-  fetch('/api/crafting/log?limit=20', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();}).then(function(log){
+  _economyReadFetch('crafting-log', '/api/crafting/log?limit=20', true, 15000).then(function(log){
+      if (!log) {
+        panel.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px">Please wait a moment.</div>';
+        return;
+      }
       if(!log.length){
         panel.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px" data-i18n="craft_no_history">No crafting history</div>';
         return;
