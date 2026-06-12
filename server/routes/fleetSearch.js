@@ -125,9 +125,11 @@ router.get('/search/opponents', requireAuth, async (req, res) => {
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
     const limit = Math.min(parseInt(req.query.limit, 10) || 10, 12);
-    const results = await battleReport.getRecommendedOpponents(wallet, limit);
+    const sector = String(req.query.sector || '').trim();
+    const results = await battleReport.getRecommendedOpponents(wallet, limit, { sector });
 
     res.json({
+      sector: sector || null,
       results: results.map(r => ({
         ...r,
         can_attack: true,

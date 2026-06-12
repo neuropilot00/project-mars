@@ -1775,11 +1775,22 @@ function openSectorOperation(kind,sectorId){
   if(!s) return;
   var tier=String(s.tier||'frontier');
   var name=s.name||('Sector '+sectorId);
+  var code=String(s.code||s.sector_code||s.sectorCode||'').trim();
   var toastText=name+' · '+tier.toUpperCase();
   if(kind==='battle'){
     try{ switchBaseTab('pvp',document.getElementById('baseTabPvp')); }catch(_){}
     try{ showToast((LANG==='ko'?'전투 목표: ':LANG==='ja'?'戦闘目標: ':LANG==='zh'?'战斗目标: ':'Battle target: ')+toastText); }catch(_){}
-    setTimeout(function(){ try{ if(typeof openBattleHub==='function') openBattleHub(); }catch(_){} },120);
+    setTimeout(function(){
+      try{
+        if(typeof openDeclareBattleForSector==='function') {
+          openDeclareBattleForSector({ id:sectorId, code:code, name:name, tier:tier });
+        } else if(typeof openDeclareBattle==='function') {
+          openDeclareBattle();
+        } else if(typeof openBattleHub==='function') {
+          openBattleHub();
+        }
+      }catch(_){}
+    },160);
     return;
   }
   if(kind==='mining'){

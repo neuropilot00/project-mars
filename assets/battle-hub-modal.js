@@ -740,11 +740,41 @@ let declareState = {
   myFleets: [],
   targetFleets: [],
   selectedTargetFleetId: null,
+  sectorCode: '',
+  sectorName: '',
+  sectorTier: '',
 };
 
 // ─── Phase B: openDeclareBattle (추천 상대 + 실시간 검색) ───
 
-async function openDeclareBattle() {
+function clearDeclareSectorContext() {
+  declareState.sectorCode = '';
+  declareState.sectorName = '';
+  declareState.sectorTier = '';
+  const el = document.getElementById('declareSectorContext');
+  if (el) {
+    el.style.display = 'none';
+    el.innerHTML = '';
+  }
+}
+
+function setDeclareSectorContext(sector) {
+  const code = String((sector && (sector.code || sector.sector_code)) || '').trim();
+  const name = String((sector && sector.name) || code || '').trim();
+  const tier = String((sector && sector.tier) || '').trim();
+  declareState.sectorCode = code;
+  declareState.sectorName = name;
+  declareState.sectorTier = tier;
+  const el = document.getElementById('declareSectorContext');
+  if (!el || !code) return;
+  const title = LANG==='ko'?'섹터 작전':LANG==='ja'?'セクター作戦':LANG==='zh'?'区域行动':'Sector operation';
+  const hint = LANG==='ko'?'해당 섹터 보유 함대를 우선 추천합니다':LANG==='ja'?'該当セクター保有艦隊を優先表示':LANG==='zh'?'优先推荐该区域舰队':'Prioritizing fleets tied to this sector';
+  el.style.display = '';
+  el.innerHTML = '<span>'+title+'</span><b>'+escapeHtml(name || code)+'</b><em>'+escapeHtml(code)+(tier ? ' · '+escapeHtml(tier.toUpperCase()) : '')+'</em><small>'+hint+'</small>';
+}
+
+async function openDeclareBattle(opts) {
+  opts = opts || {};
   closeBattleHub();
 
   // 내 함대 로드
@@ -768,6 +798,8 @@ async function openDeclareBattle() {
     `<div class="bd-search-hint">${LANG==='ko'?'2자 이상 입력하면 검색됩니다':LANG==='ja'?'2文字以上入力すると検索されます':LANG==='zh'?'输入2字以上开始搜索':'Enter 2+ chars to search'}</div>`;
   declareState.selectedTargetFleetId = null;
   document.getElementById('declareConfirmBtn').disabled = true;
+  if (opts.sector) setDeclareSectorContext(opts.sector);
+  else clearDeclareSectorContext();
 
   document.getElementById('declareBattleModal').classList.add('active');
 
@@ -775,8 +807,12 @@ async function openDeclareBattle() {
   loadRecommendedOpponents();
 }
 
+window.openDeclareBattleForSector = async function(sector) {
+  return openDeclareBattle({ sector: sector || {} });
+};
+
 window.openDeclareBattleWithFleet = async function(targetFleetId, nickname, shipsAlive, sectorCode, bountyGp, cpi) {
-  await openDeclareBattle();
+  await openDeclareBattle(sectorCode ? { sector: { code: sectorCode, name: sectorCode } } : {});
   const id = parseInt(targetFleetId, 10);
   if (!id) return;
 
@@ -806,7 +842,10 @@ function closeDeclareBattle() {
 
 async function loadRecommendedOpponents() {
   try {
-    const data = await battleHubReadKeyed('opponent-recommendations', '/api/fleets/search/opponents', 10000);
+    const sector = String(declareState.sectorCode || '').trim();
+    const url = '/api/fleets/search/opponents' + (sector ? ('?sector=' + encodeURIComponent(sector)) : '');
+    const cacheKey = 'opponent-recommendations' + (sector ? (':' + sector) : '');
+    const data = await battleHubReadKeyed(cacheKey, url, 10000);
     if (!data) return;
     const chips = document.getElementById('declareOpponentChips');
     if (!chips) return;
