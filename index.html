@@ -11160,9 +11160,7 @@ _setActiveInterval(function(){
 // admin 이 sector tier/price/entry-level 을 변경한 뒤 즉시 반영되도록
 // 1) boot 시 1회 로드  2) 60초마다 polling refresh  3) 페이지 가시화 시 즉시 refresh
 window.refreshSectors = function(){
-  var w = (typeof walletState !== 'undefined' && walletState && walletState.address) ? walletState.address : '';
-  var sUrl = w ? '/api/sectors?wallet=' + encodeURIComponent(w) : '/api/sectors';
-  return _guardedJsonFetch('sectors-refresh', sUrl, {minGap:10000, backoffMs:120000}).then(function(data){
+  return _guardedJsonFetch('sectors-refresh', '/api/sectors', {minGap:10000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(data){
     if (!data) return null;
     // Diff check — sector overlay 데이터가 변경됐는지 비교 (변경 있을 때만 텍스처 재렌더)
     var prev = _sectorsData || [];
@@ -12602,7 +12600,7 @@ function loadTerritoryProduction(claimId,wallet){
 }
 
 function _appendSectorControl(container, sectorId, wallet, lang) {
-  fetch('/api/sectors/'+sectorId+'/control?wallet='+encodeURIComponent(wallet))
+  fetch('/api/sectors/'+sectorId+'/control', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.error||!d.sector) return;
@@ -26706,8 +26704,7 @@ function loadBaseData(){
   }
 
   // Load sectors (with wallet for "my pixels" count)
-  var sUrl=w?'/api/sectors?wallet='+encodeURIComponent(w):'/api/sectors';
-  fetch(sUrl).then(function(r){return r.json()}).then(function(data){
+  fetch('/api/sectors', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
     _sectorsData=data;
     renderSectorList(data);
     drawSectorBoundaries();

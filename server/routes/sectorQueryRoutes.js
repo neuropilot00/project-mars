@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
 const { cfg } = require('../utils/settingsCache');
@@ -15,10 +16,21 @@ const readLimiter = makeRateLimiter({
   message: { error: 'Too many requests. Please slow down.' }
 });
 
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
+
 // GET /api/sectors — all sectors with live stats.
 router.get('/sectors', readLimiter, async (req, res) => {
   try {
-    const wallet = (req.query.wallet || '').toLowerCase();
+    const wallet = getOptionalAuthWallet(req);
     const result = await pool.query(`
       SELECT s.*,
         (SELECT COUNT(*) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS occupied_count,

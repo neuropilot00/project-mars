@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
 
@@ -9,6 +10,17 @@ const readLimiter = makeRateLimiter({
   max: 120,
   message: { error: 'Too many requests. Please slow down.' }
 });
+
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 const INFLUENCE_TIERS = [
   { id: 'governor', threshold: 0.75, bonus: '+20% production/defense', bonusKo: '+20% 생산/방어' },
@@ -113,7 +125,7 @@ router.get('/sectors/control', readLimiter, async (req, res) => {
 
 router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
   const sectorId = parseInt(req.params.sectorId);
-  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  const wallet = getOptionalAuthWallet(req);
   if (!sectorId) return res.status(400).json({ error: 'sectorId required' });
 
   try {
