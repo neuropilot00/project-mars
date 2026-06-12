@@ -131,9 +131,9 @@ router.post('/auction/:id/cancel', requireAuth, async (req, res) => {
 });
 
 // ── GET /api/user/auctions ──
-router.get('/user/auctions', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.get('/user/auctions', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   try {
     const auctions = await auctionService.getUserAuctions(wallet);
     res.json({ auctions });

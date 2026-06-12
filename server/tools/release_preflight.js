@@ -116,6 +116,7 @@ async function main() {
     method: 'POST',
     body: {}
   });
+  await expectBlocked('/api/user/auctions blocks unauthenticated access', '/api/user/auctions?wallet=0x0000000000000000000000000000000000000000');
 
   console.log(`\n📊  ${pass} passed / ${fail} failed`);
   process.exit(fail > 0 ? 1 : 0);
