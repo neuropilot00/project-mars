@@ -1405,6 +1405,9 @@ function distanceFleet(ship, fleet) {
  */
 async function applyBattleResults(battleId, result) {
   const client = await pool.connect();
+  let progressParticipants = [];
+  let progressWinnerSide = null;
+  let progressIsAiBattle = false;
   try {
     await client.query('BEGIN');
 
@@ -1417,6 +1420,8 @@ async function applyBattleResults(battleId, result) {
       console.warn(`[battleEngine] applyBattleResults: battle ${battleId} already ended, skipping`);
       return { skipped: true };
     }
+    progressWinnerSide = result.winner_side;
+    progressIsAiBattle = !!(btRows[0].battle_summary && btRows[0].battle_summary.is_ai_battle);
     const isHijackBattle = (btRows[0].battle_type || '').startsWith('hijack');
     // [v7.127][EVE 수요엔진] 하이젝에서도 함선 영구파괴 옵션(기본 OFF=현행 HP 보존).
     // 켜면 격침(sim HP≤0) 함선은 is_alive=false 로 영구 파괴 → 재건조 수요 발생(EVE full-loss).
@@ -1654,13 +1659,51 @@ async function applyBattleResults(battleId, result) {
       `, [battleId, ev.type, ev.fleet_id || null, ev.ship_id || null, 
           JSON.stringify(ev.payload || {}), ev.tick]);
     }
+
+    const { rows: progressRows } = await client.query(
+      `SELECT DISTINCT LOWER(wallet_address) AS wallet, side
+         FROM fleet_battle_participants
+        WHERE battle_id = $1 AND wallet_address IS NOT NULL`,
+      [battleId]
+    );
+    progressParticipants = progressRows;
     
     await client.query('COMMIT');
+    try {
+      recordBattleProgress(progressParticipants, progressWinnerSide, { isAiBattle: progressIsAiBattle });
+    } catch (_) {}
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
   } finally {
     client.release();
+  }
+}
+
+function recordBattleProgress(participants, winnerSide, opts) {
+  if (!Array.isArray(participants) || !participants.length) return;
+  if (opts && opts.isAiBattle) return;
+  let dailyOps;
+  let seasonSvc;
+  try { dailyOps = require('../routes/dailyOps'); } catch (_) {}
+  try { seasonSvc = require('./season'); } catch (_) {}
+
+  const seen = new Set();
+  for (const p of participants) {
+    const wallet = String(p.wallet || '').toLowerCase();
+    if (!wallet || seen.has(wallet)) continue;
+    seen.add(wallet);
+    if (dailyOps && typeof dailyOps.notifyMissionProgress === 'function') {
+      dailyOps.notifyMissionProgress(wallet, 'battle_participate').catch(() => {});
+      dailyOps.notifyMissionProgress(wallet, 'battle_participate_3').catch(() => {});
+      if (p.side === winnerSide) {
+        dailyOps.notifyMissionProgress(wallet, 'battle_win').catch(() => {});
+        dailyOps.notifyMissionProgress(wallet, 'battle_win_3').catch(() => {});
+      }
+    }
+    if (seasonSvc && typeof seasonSvc.addSeasonScore === 'function' && p.side === winnerSide) {
+      seasonSvc.addSeasonScore(wallet, 'naval_win', 1).catch(() => {});
+    }
   }
 }
 
