@@ -9,6 +9,10 @@ try { seasonService = require('../services/season'); } catch (_e) { /* season se
 
 const router = express.Router();
 const GRID_SIZE = 0.22;
+const SECTOR_LIST_CACHE_MS = 15 * 1000;
+const SECTOR_LIST_CACHE_MAX = 500;
+const sectorListCache = new Map();
+const sectorListInFlight = new Map();
 
 const readLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
@@ -40,10 +44,22 @@ function visibleOwnerPredicate(ownerExpr, paramIndex) {
   )`;
 }
 
-// GET /api/sectors — all sectors with live stats.
-router.get('/sectors', readLimiter, async (req, res) => {
-  try {
-    const wallet = getOptionalAuthWallet(req);
+function sectorListCacheKey(wallet) {
+  return wallet ? `wallet:${wallet}` : 'public';
+}
+
+function pruneSectorListCache(now = Date.now()) {
+  for (const [key, entry] of sectorListCache) {
+    if (!entry || now - entry.at >= SECTOR_LIST_CACHE_MS) sectorListCache.delete(key);
+  }
+  while (sectorListCache.size > SECTOR_LIST_CACHE_MAX) {
+    const oldestKey = sectorListCache.keys().next().value;
+    if (oldestKey == null) break;
+    sectorListCache.delete(oldestKey);
+  }
+}
+
+async function buildSectorListSnapshot(wallet) {
     const result = await pool.query(`
       SELECT s.*,
         (SELECT COUNT(*) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS occupied_count,
@@ -220,12 +236,43 @@ router.get('/sectors', readLimiter, async (req, res) => {
       };
     });
 
+    return rows;
+}
+
+// GET /api/sectors — all sectors with live stats.
+router.get('/sectors', readLimiter, async (req, res) => {
+  const wallet = getOptionalAuthWallet(req);
+  const cacheKey = sectorListCacheKey(wallet);
+  try {
+    pruneSectorListCache();
+    const cached = sectorListCache.get(cacheKey);
+    if (cached && Date.now() - cached.at < SECTOR_LIST_CACHE_MS) {
+      res.json(cached.rows);
+      if (wallet && seasonService) {
+        seasonService.addSeasonScore(wallet, 'sector_enter', 1).catch(() => {});
+      }
+      return;
+    }
+
+    if (!sectorListInFlight.has(cacheKey)) {
+      sectorListInFlight.set(cacheKey, buildSectorListSnapshot(wallet)
+        .then(rows => {
+          sectorListCache.set(cacheKey, { rows, at: Date.now() });
+          pruneSectorListCache();
+          return rows;
+        })
+        .finally(() => { sectorListInFlight.delete(cacheKey); }));
+    }
+
+    const rows = await sectorListInFlight.get(cacheKey);
     res.json(rows);
     if (wallet && seasonService) {
       seasonService.addSeasonScore(wallet, 'sector_enter', 1).catch(() => {});
     }
   } catch (err) {
     console.error('[API] sectors error:', err.message);
+    const cached = sectorListCache.get(cacheKey);
+    if (cached) return res.json(cached.rows);
     res.status(500).json({ error: 'Internal error' });
   }
 });
