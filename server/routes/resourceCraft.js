@@ -78,13 +78,6 @@ router.post('/start', requireAuth, async (req, res) => {
   const qty = parseInt(quantity) || 1;
   try {
     const job = await craftSvc.startCraft(wallet, code, qty);
-    // Daily OPS mission progress (fire-and-forget)
-    try {
-      const _dOps = require('./dailyOps');
-      _dOps.notifyMissionProgress(wallet, 'craft_resource').catch(() => {});
-      _dOps.notifyMissionProgress(wallet, 'craft_resource_3').catch(() => {});
-      _dOps.notifyMissionProgress(wallet, 'craft_resource_5').catch(() => {});
-    } catch (_) {}
     res.json({ success: true, job });
   } catch (err) { sendErr(res, err); }
 });
