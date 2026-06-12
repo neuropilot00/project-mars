@@ -352,6 +352,54 @@ var _guildResearchCatalog = [
   {key:'logistics',     labelKey:'research_logistics',     cost:2000, desc:{ko:'비용 -10%',ja:'コスト -10%',zh:'费用 -10%',en:'Cost -10%'}, icon:'📦'},
   {key:'mars_dominion', labelKey:'research_mars_dominion', cost:5000,  desc:{ko:'전체 +5% 중첩',ja:'全体 +5% スタック',zh:'全体 +5% 叠加',en:'All +5% stack'}, icon:'👑'}
 ];
+function guildStrategyIntel(guild, treasury, lvl, researchSlots, flags, activeWars){
+  var nextCost = _guildLevelCosts[lvl+1] || 0;
+  var openResearch = _guildResearchCatalog.filter(function(r, idx){
+    return idx < researchSlots && !flags[r.key];
+  }).sort(function(a,b){ return a.cost - b.cost; });
+  var nextResearch = openResearch[0] || null;
+  var warCount = (activeWars || []).length;
+  var title, advice, color, detail;
+  if(warCount > 0){
+    title = LANG==='ko'?'전쟁 집중':LANG==='ja'?'戦争集中':LANG==='zh'?'战争优先':'War focus';
+    advice = LANG==='ko'?'금고를 함대전/방어 비용으로 보존하고, 기여율을 올려 전쟁 중 GP 수급을 유지하세요.'
+      : LANG==='ja'?'金庫を艦隊戦/防衛費用に温存し、貢献率を上げて戦時GP供給を維持。'
+      : LANG==='zh'?'保留金库用于舰队战/防御费用，并提高贡献率维持战时GP供给。'
+      : 'Preserve treasury for fleet battles and defense, and raise contribution to keep wartime GP flowing.';
+    color = '#ff8a80';
+    detail = warCount + ' ' + (LANG==='ko'?'활성 전쟁':LANG==='ja'?'進行中戦争':LANG==='zh'?'进行中战争':'active war');
+  }else if(nextCost && treasury >= nextCost){
+    title = LANG==='ko'?'레벨업 가능':LANG==='ja'?'レベルアップ可能':LANG==='zh'?'可升级':'Level-up ready';
+    advice = LANG==='ko'?'지금 레벨업하면 멤버 한도와 연구 슬롯이 늘어납니다. 길드 확장 효율이 가장 큽니다.'
+      : LANG==='ja'?'今レベルアップするとメンバー上限と研究枠が増えます。拡張効率が最も高いです。'
+      : LANG==='zh'?'现在升级可提高成员上限与研究槽，扩张效率最高。'
+      : 'Level now to increase member cap and research slots; this is the best expansion use.';
+    color = 'var(--pp)';
+    detail = 'Lv.' + lvl + ' → Lv.' + (lvl+1) + ' · ' + nextCost + ' GP';
+  }else if(nextResearch && treasury >= nextResearch.cost){
+    title = LANG==='ko'?'연구 해금 가능':LANG==='ja'?'研究解放可能':LANG==='zh'?'可解锁研究':'Research ready';
+    advice = LANG==='ko'?'즉시 적용되는 길드 보너스입니다. 반복 채굴/전투 전에 먼저 해금하면 누적 효율이 커집니다.'
+      : LANG==='ja'?'即時適用のギルドボーナスです。周回前に解放すると累積効率が上がります。'
+      : LANG==='zh'?'这是即时生效的公会加成，刷采矿/战斗前解锁可提高长期效率。'
+      : 'This guild bonus applies immediately. Unlock it before repeated mining or battles for better compounding.';
+    color = '#80cbc4';
+    detail = t(nextResearch.labelKey) + ' · ' + nextResearch.cost + ' GP';
+  }else{
+    var target = nextResearch ? nextResearch.cost : nextCost;
+    var missing = Math.max(0, (target || 0) - treasury);
+    title = LANG==='ko'?'금고 축적':LANG==='ja'?'金庫蓄積':LANG==='zh'?'积累金库':'Treasury build';
+    advice = LANG==='ko'?'기부와 수확 기여율을 올려 다음 성장 비용을 먼저 맞추세요. 채굴/운송 수익을 길드 금고로 연결하면 좋습니다.'
+      : LANG==='ja'?'寄付と収穫貢献率を上げ、次の成長費用を先に満たしましょう。採掘/輸送収益を金庫へ。'
+      : LANG==='zh'?'提高捐赠与采收贡献率，先补齐下一项成长费用。把采矿/运输收益接入公会金库。'
+      : 'Raise donations and harvest contribution to fund the next growth step. Route mining and transport profit into treasury.';
+    color = 'var(--gn)';
+    detail = missing > 0 ? ((LANG==='ko'?'부족 ':LANG==='ja'?'不足 ':LANG==='zh'?'还差 ':'Need ') + Math.ceil(missing) + ' GP') : (LANG==='ko'?'다음 목표 대기':LANG==='ja'?'次目標待機':LANG==='zh'?'等待下一目标':'Waiting for next target');
+  }
+  return '<div style="padding:7px 8px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);font-family:var(--fn);line-height:1.45">'
+    + '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b style="font-size:9px;color:'+color+'">▸ '+title+'</b><span style="font-size:8px;color:var(--tx3);text-align:right">'+detail+'</span></div>'
+    + '<div style="font-size:8.5px;color:var(--tx2);margin-top:3px">'+advice+'</div>'
+    + '</div>';
+}
 function renderGuildUpgrades(guild, myRole){
   var lvl = parseInt(guild.level||1);
   var treasury = parseFloat(guild.gpTreasury||guild.gp_treasury||0);
@@ -393,6 +441,11 @@ function renderGuildUpgrades(guild, myRole){
   if(donateGPEl) donateGPEl.textContent = (LANG==='ko'?'내 GP: ':LANG==='ja'?'自分のGP: ':LANG==='zh'?'我的GP: ':'My GP: ')+Math.floor(myGP);
   // Research grid — slot-locked based on guild level
   var flags = guild.researchFlags || guild.research_flags || {};
+  var intelEl = document.getElementById('guildStrategyIntel');
+  if(intelEl){
+    intelEl.style.display = '';
+    intelEl.innerHTML = guildStrategyIntel(guild, treasury, lvl, researchSlots, flags, guild.activeWars || guild.wars || []);
+  }
   var canSpend = (myRole==='leader'||myRole==='officer');
   var grid = document.getElementById('guildResearchGrid');
   grid.innerHTML = _guildResearchCatalog.map(function(r, idx){
