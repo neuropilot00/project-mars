@@ -894,6 +894,7 @@ function toggleChat() {
     _chatUnread = 0;
     const badge = document.getElementById('chatUnreadBadge');
     if (badge) { badge.style.display = 'none'; badge.textContent = '0'; }
+    requestChatMessages(0);
     _setActiveTimeout(() => {
       const msgs = document.getElementById('chatMessages');
       if (msgs) msgs.scrollTop = msgs.scrollHeight;
@@ -948,6 +949,7 @@ async function sendChatMessage() {
 }
 
 function requestChatMessages(delay) {
+  if (!_chatExpanded && _liveWSIsOpen()) return;
   if (_chatFetchTimer) _clearActiveTimeout(_chatFetchTimer);
   _chatFetchTimer = _setActiveTimeout(function(){
     _chatFetchTimer = null;
@@ -1092,7 +1094,10 @@ function startChatPolling() {
   if (_chatPollTimer) _clearActiveInterval(_chatPollTimer);
   requestChatMessages(0);
   // WebSocket(/ws/live)이 실시간 푸시를 담당 → 폴링은 느린 폴백만 유지.
-  _chatPollTimer = _setActiveInterval(() => { requestChatMessages(0); }, CHAT_POLL_FALLBACK_MS);
+  _chatPollTimer = _setActiveInterval(() => {
+    if (_liveWSIsOpen() && !_chatExpanded) return;
+    requestChatMessages(0);
+  }, CHAT_POLL_FALLBACK_MS);
 }
 
 var _feedSince = null;
@@ -1138,13 +1143,19 @@ function startFeedPolling() {
   if (_feedTimer) _clearActiveInterval(_feedTimer);
   loadActivityFeed();
   // WebSocket 푸시(broadcastFeed)가 즉시 갱신 → 폴링은 폴백 15s (소스 일부만 WS 연결됨).
-  _feedTimer = _setActiveInterval(loadActivityFeed, 15000);
+  _feedTimer = _setActiveInterval(function(){
+    if (_liveWSIsOpen()) return;
+    loadActivityFeed();
+  }, 15000);
 }
 
 // ── 실시간 라이브 WebSocket (/ws/live) — 채팅/피드 즉시 갱신 ──
 // WS 메시지는 "즉시 fetch 트리거(poke)"로만 쓴다 → 기존 렌더/커서 중복제거 로직 재사용.
 // 연결 실패/끊김 시 위 폴링 폴백이 계속 동작하므로 안전.
 var _liveWS = null, _liveWSRetry = 0, _liveWSTimer = null;
+function _liveWSIsOpen() {
+  return !!(_liveWS && _liveWS.readyState === 1);
+}
 function _liveWSSubscribe() {
   if (!_liveWS || _liveWS.readyState !== 1) return;
   try {
