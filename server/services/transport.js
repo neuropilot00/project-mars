@@ -118,15 +118,56 @@ async function sameGuild(client, walletA, walletB) {
   const bLc = String(walletB || '').toLowerCase();
   if (!aLc || !bLc) return false;
   // guild_members.wallet column is the member identifier
-  const r = await client.query(
-    `SELECT LOWER(wallet) AS wallet_lc, guild_id
-       FROM guild_members
-      WHERE LOWER(wallet) = ANY($1::text[])`,
-    [[aLc, bLc]]
-  );
-  const a = r.rows.find(x => x.wallet_lc === aLc);
-  const b = r.rows.find(x => x.wallet_lc === bLc);
-  return !!(a && b && a.guild_id && b.guild_id && a.guild_id === b.guild_id);
+  try {
+    const r = await client.query(
+      `SELECT LOWER(wallet) AS wallet_lc, guild_id
+         FROM guild_members
+        WHERE LOWER(wallet) = ANY($1::text[])`,
+      [[aLc, bLc]]
+    );
+    const a = r.rows.find(x => x.wallet_lc === aLc);
+    const b = r.rows.find(x => x.wallet_lc === bLc);
+    return !!(a && b && a.guild_id && b.guild_id && a.guild_id === b.guild_id);
+  } catch (e) {
+    if (e.code === '42P01' || e.code === '42703') return false;
+    throw e;
+  }
+}
+
+async function getWalletGuildId(wallet) {
+  const w = String(wallet || '').toLowerCase().trim();
+  if (!w) return null;
+  try {
+    const { rows } = await pool.query(
+      `SELECT guild_id FROM guild_members WHERE LOWER(wallet) = LOWER($1) LIMIT 1`,
+      [w]
+    );
+    return rows[0]?.guild_id || null;
+  } catch (e) {
+    if (e.code === '42P01' || e.code === '42703') return null;
+    throw e;
+  }
+}
+
+function raidIntelForTarget(row, cfg) {
+  const cargo = Math.max(0, parseInt(row.cargo_value, 10) || 0);
+  const progress = Math.max(0, Math.min(100, parseInt(row.progress_pct, 10) || 0));
+  const loot = Math.floor(cargo * cfg.raidLootPct / 100);
+  const success = Math.max(1, Math.min(95, Number(cfg.raidSuccessBase) || 35));
+  const destTier = String(row.dest_tier || '').toLowerCase();
+  const valueBand = cargo >= 3000 ? 'rich' : cargo >= 1000 ? 'valuable' : 'light';
+  let threat = 'frontier';
+  if (row.merchant_bonus || destTier === 'core' || cargo >= 3000) threat = 'hardened';
+  else if (destTier === 'mid' || cargo >= 1000 || progress >= 70) threat = 'contested';
+  return Object.assign({}, row, {
+    raid_loot_estimate_gp: loot,
+    raid_success_base_pct: Math.round(success * 10) / 10,
+    raid_window_min_pct: cfg.raidMinProg,
+    raid_window_max_pct: cfg.raidMaxProg,
+    raid_value_band: valueBand,
+    raid_threat_level: threat,
+    raid_window_state: progress < cfg.raidMinProg ? 'early' : progress > cfg.raidMaxProg ? 'late' : 'open'
+  });
 }
 
 // ── main API ────────────────────────────────────────────────────
@@ -331,12 +372,17 @@ async function getMyTransports(wallet, limit = 20) {
 async function getActiveRaidTargets(excludeWallet, limit = 30) {
   const cfg = await getCfg();
   if (!cfg.raidEnabled) return [];
+  const excludeGuildId = cfg.raidGuildExempt && excludeWallet
+    ? await getWalletGuildId(excludeWallet)
+    : null;
 
   const { rows } = await pool.query(
     `SELECT t.id, t.carrier_wallet, t.origin_sector_id, t.dest_sector_id,
             t.cargo_value, t.started_at, t.arrives_at, t.merchant_bonus,
             uc.nickname AS carrier_nick,
             so.name AS origin_name, sd.name AS dest_name,
+            so.tier AS origin_tier, sd.tier AS dest_tier,
+            gm.guild_id AS carrier_guild_id,
             GREATEST(0, LEAST(100,
               ROUND(EXTRACT(EPOCH FROM (NOW() - t.started_at)) * 100.0
                   / NULLIF(EXTRACT(EPOCH FROM (t.arrives_at - t.started_at)), 0))
@@ -345,26 +391,44 @@ async function getActiveRaidTargets(excludeWallet, limit = 30) {
        LEFT JOIN users uc ON LOWER(uc.wallet_address) = LOWER(t.carrier_wallet)
        LEFT JOIN sectors so ON so.id = t.origin_sector_id
        LEFT JOIN sectors sd ON sd.id = t.dest_sector_id
+       LEFT JOIN guild_members gm ON LOWER(gm.wallet) = LOWER(t.carrier_wallet)
       WHERE t.status = 'in_transit'
         AND ($1::text IS NULL OR LOWER(t.carrier_wallet) <> LOWER($1))
+        AND ($2::text IS NULL OR gm.guild_id IS NULL OR gm.guild_id::text <> $2::text)
         AND t.arrives_at > NOW()
       ORDER BY t.cargo_value DESC, t.arrives_at ASC
-      LIMIT $2`,
-    [excludeWallet || null, Math.min(100, Math.max(1, parseInt(limit) || 30))]
-  );
+      LIMIT $3`,
+    [excludeWallet || null, excludeGuildId, Math.min(100, Math.max(1, parseInt(limit) || 30))]
+  ).catch(async (e) => {
+    if (e.code !== '42P01' && e.code !== '42703') throw e;
+    return pool.query(
+      `SELECT t.id, t.carrier_wallet, t.origin_sector_id, t.dest_sector_id,
+              t.cargo_value, t.started_at, t.arrives_at, t.merchant_bonus,
+              uc.nickname AS carrier_nick,
+              so.name AS origin_name, sd.name AS dest_name,
+              so.tier AS origin_tier, sd.tier AS dest_tier,
+              GREATEST(0, LEAST(100,
+                ROUND(EXTRACT(EPOCH FROM (NOW() - t.started_at)) * 100.0
+                    / NULLIF(EXTRACT(EPOCH FROM (t.arrives_at - t.started_at)), 0))
+              )) AS progress_pct
+         FROM transport_jobs t
+         LEFT JOIN users uc ON LOWER(uc.wallet_address) = LOWER(t.carrier_wallet)
+         LEFT JOIN sectors so ON so.id = t.origin_sector_id
+         LEFT JOIN sectors sd ON sd.id = t.dest_sector_id
+        WHERE t.status = 'in_transit'
+          AND ($1::text IS NULL OR LOWER(t.carrier_wallet) <> LOWER($1))
+          AND t.arrives_at > NOW()
+        ORDER BY t.cargo_value DESC, t.arrives_at ASC
+        LIMIT $2`,
+      [excludeWallet || null, Math.min(100, Math.max(1, parseInt(limit) || 30))]
+    );
+  });
 
-  // Filter by min/max progress + same-guild exemption
   const raidables = [];
   for (const r of rows) {
     const p = parseInt(r.progress_pct) || 0;
     if (p < cfg.raidMinProg || p > cfg.raidMaxProg) continue;
-    if (cfg.raidGuildExempt && excludeWallet) {
-      const client = await pool.connect();
-      try {
-        if (await sameGuild(client, excludeWallet, r.carrier_wallet)) { continue; }
-      } finally { client.release(); }
-    }
-    raidables.push(r);
+    raidables.push(raidIntelForTarget(r, cfg));
   }
   return raidables;
 }
