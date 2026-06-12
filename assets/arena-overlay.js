@@ -16,6 +16,19 @@ function arenaAuthHeaders() {
            : { 'Content-Type': 'application/json' };
 }
 
+function arenaReadJson(key, url, minGap, auth) {
+  var walletKey = arenaWallet || ((window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public');
+  var fetchOptions = auth === false ? {} : { headers: getAuthHeaders() };
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('arena:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 90000,
+      fetchOptions: fetchOptions
+    });
+  }
+  return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
+
 // ── Arena Toast ──
 function arenaToast(msg, isErr) {
   var t = document.getElementById('arenaToast');
@@ -84,7 +97,8 @@ function arenaTryAutoConnect() {
 
 function arenaLoadBalance() {
   if (!arenaWallet) return;
-  fetch('/api/user/' + arenaWallet + '/base').then(function(r){ return r.json(); }).then(function(d){
+  arenaReadJson('balance:' + arenaWallet, '/api/user/' + arenaWallet + '/base', 10000, false).then(function(d){
+    if (!d) return;
     var u = d.user || d;
     arenaPpBal = parseFloat(u.pp) || parseFloat(u.pp_balance) || 0;
     arenaUsdtBal = parseFloat(u.usdt) || parseFloat(u.usdt_balance) || 0;
@@ -342,7 +356,8 @@ function _scheduleCrash(fn, ms){
 
 function pollCrashRound() {
   if (!_pageIsActive() || !_arenaIsActive()) return; // stop if hidden/closed
-  fetch(ARENA_API + '/crash/current').then(function(r){ return r.json(); }).then(function(d){
+  arenaReadJson('crash-current', ARENA_API + '/crash/current', 800, false).then(function(d){
+    if (!d) { _scheduleCrash(pollCrashRound, 1500); return; }
     crashRoundId = d.roundId;
     crashBets = d.bets || [];
     renderCrashBets();
@@ -392,7 +407,8 @@ function startRoundOnServer() {
 function tickCrashRound() {
   if (crashState !== 'running') return;
   if (!_pageIsActive() || !_arenaIsActive()) return;
-  fetch(ARENA_API + '/crash/tick').then(function(r){ return r.json(); }).then(function(d){
+  arenaReadJson('crash-tick', ARENA_API + '/crash/tick', 400, false).then(function(d){
+    if (!d) { _scheduleCrash(tickCrashRound, 1000); return; }
     if (d.status === 'crashed') {
       stopCrashAnimation(d.crashPoint);
       loadCrashHistory();
@@ -447,7 +463,8 @@ function renderCrashBets() {
 }
 
 function loadCrashHistory() {
-  fetch(ARENA_API + '/crash/history').then(function(r){ return r.json(); }).then(function(d){
+  arenaReadJson('crash-history', ARENA_API + '/crash/history', 10000, false).then(function(d){
+    if (!d) return;
     var el = document.getElementById('crashHistory');
     if (!el) return;
     if (!Array.isArray(d)) d = [];
@@ -641,8 +658,9 @@ function cashoutMines() {
 
 function arenaCheckActiveMines() {
   if (!arenaWallet) return;
-  fetch(ARENA_API + '/mines/active', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
+  arenaReadJson('mines-active', ARENA_API + '/mines/active', 10000)
   .then(function(d){
+    if (!d) return;
     if (d.active) {
       minesGameId = d.gameId;
       minesActive = true;
@@ -687,8 +705,9 @@ function initCoinflip() {
 
 function loadCoinflipHistory() {
   if (!arenaWallet) return;
-  fetch(ARENA_API + '/coinflip/history', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
+  arenaReadJson('coinflip-history', ARENA_API + '/coinflip/history', 10000)
   .then(function(data){
+    if (!data) return;
     var el = document.getElementById('cfHistory');
     if (!el) return;
     el.innerHTML = '';
@@ -950,8 +969,9 @@ function updateHiloDisplay() {
 
 function checkActiveHilo() {
   if (!arenaWallet) return;
-  fetch(ARENA_API + '/hilo/active', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
+  arenaReadJson('hilo-active', ARENA_API + '/hilo/active', 10000)
   .then(function(d){
+    if (!d) return;
     if (d.active || d.gameId) {
       hiloGameId = d.gameId;
       hiloActive = true;
