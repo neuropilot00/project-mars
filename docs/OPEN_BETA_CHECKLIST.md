@@ -65,7 +65,7 @@
 
 ## 4. ⚠️ 보안/남용 방지
 - [x] **어드민 패널 접근 차단**: `/admin/api/stats`, `/admin/api/campaign-editor/chapters` 무인증 차단을 release preflight에 추가.
-- [ ] **지갑 위조/타인 자원 접근 불가**: 대표 경제·함대 mutation 라우트(`/api/fleets`, `/api/transport/start`, `/api/gp/transfer`, `/api/shop/use`, `/api/territory/:id/harvest`) 및 내 옥션/현상금 read(`/api/user/auctions`, `/api/bounty/my-bounties`, `/api/bounty/on-me`) 무인증 차단을 release preflight에 추가. 전체 owner 검증 감사는 계속 필요.
+- [ ] **지갑 위조/타인 자원 접근 불가**: 대표 경제·함대 mutation 라우트(`/api/fleets`, `/api/transport/start`, `/api/gp/transfer`, `/api/shop/use`, `/api/territory/:id/harvest`) 및 내 옥션/현상금/베팅 read(`/api/user/auctions`, `/api/bounty/my-bounties`, `/api/bounty/on-me`, `/api/betting/mine`) 무인증 차단을 release preflight에 추가. 전체 owner 검증 감사는 계속 필요.
 - [ ] **도박(칸티나) 공정성·한도**: 래플 티켓 단가/house cut 경계 및 메모리 폭증 없는 crypto 추첨 적용. war betting/lottery min/max·잔액 음수 방지는 일부 확인됐지만 provably-fair 공개성·법무 고지는 별도 필요.
 - [x] **입력 검증/XSS**: 신규 입력처 스윕 중 영토 owner/guild 표시의 `innerHTML` 렌더링 escape 및 guild emblem URL scheme guard 적용.
 - [x] **버그 리포터 동작** ✅ (2026-06-03 라이브 E2E): `POST /api/bug-report` + 별칭 `/bug-report` 둘 다 `ok:true`, `bug_reports` DB 저장(recent_errors/viewport/lang/context 포함), inbox JSON 미러(`00000003_gameplay.json` 등 codex_hint 포함), 스크린샷 디스크 미러(`screenshots/00000003.png`), 어드민 조회 `GET /admin/api/bug-reports`는 시크릿 없으면 403·있으면 목록 반환. 격리 데이터 정리 완료.

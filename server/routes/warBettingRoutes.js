@@ -138,7 +138,7 @@ router.post('/bet', requireAuth, async (req, res) => {
 
 /**
  * GET /api/betting/mine
- * 내 베팅 기록 — JWT 또는 ?wallet= query 모두 허용 (legacy /api/user/bets 통합)
+ * 내 베팅 기록 — JWT 지갑 기준 (legacy ?wallet= query 무시)
  */
 router.get('/mine', async (req, res) => {
   try {
