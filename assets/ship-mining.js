@@ -117,6 +117,34 @@
     return difficulty + ' · ' + risk + ' · ' + pressure + ' · ' + loot;
   }
 
+  function routeDoctrineText(d) {
+    var raid = Number(d && d.raidPct) || 0;
+    var wear = Number(d && d.wearMult) || 1;
+    var rare = Number(d && d.rareMult) || 1;
+    if (raid >= 0.12 || wear >= 2.2) {
+      return lang(
+        'War economy route: bring healthy escorts, use alliance or owned-sector bonuses, and expect hull repair costs.',
+        '전시 경제 항로: 건전한 호위 함대를 붙이고 동맹/내 영토 보너스를 활용하세요. 수리비를 감안해야 합니다.',
+        '戦時経済航路: 健全な護衛艦隊と同盟/自領ボーナス前提。修理費を見込んでください。',
+        '战时经济航线：带健康护航舰队，利用联盟/自有领地加成，并预留维修成本。'
+      );
+    }
+    if (raid >= 0.04 || wear >= 1.4 || rare > 1.1) {
+      return lang(
+        'Contested growth route: best for combat-ready fleets that can trade more wear for better materials.',
+        '분쟁 성장 항로: 전투 준비가 된 함대가 더 높은 마모를 감수하고 재료 수율을 올릴 때 좋습니다.',
+        '係争成長航路: 戦闘準備済み艦隊が摩耗増と引き換えに素材収率を上げる時に有効。',
+        '争夺成长航线：适合战备舰队用更高损耗换取更好材料。'
+      );
+    }
+    return lang(
+      'Safe grind route: low-risk income for new, damaged, or reserve fleets.',
+      '안전 파밍 항로: 신규/손상/예비 함대의 저위험 수급에 적합합니다.',
+      '安全周回航路: 新規・損傷・予備艦隊の低リスク収入向き。',
+      '安全刷取航线：适合新手、受损或预备舰队的低风险收益。'
+    );
+  }
+
   function allianceBonusFor(key) {
     var bonuses = (state.info && state.info.allianceSectorBonuses) || {};
     var mult = Number(bonuses[key]) || 1;
@@ -335,6 +363,10 @@
             '<div style="font-size:7px;color:var(--tx3);letter-spacing:.8px">' + lang('CONTROL BONUS', '통제 보너스', '支配ボーナス', '控制加成') + '</div>' +
             '<div style="font-size:10px;color:#64dc82;font-weight:900">' + txt(routeBonus) + '</div>' +
             '<div style="font-size:8px;color:var(--tx3);margin-top:2px">' + txt(routeRecommendedText(dest)) + '</div>' +
+          '</div>' +
+          '<div style="border:1px solid rgba(129,212,250,.24);background:rgba(129,212,250,.04);border-radius:7px;padding:7px">' +
+            '<div style="font-size:7px;color:var(--tx3);letter-spacing:.8px">' + lang('COMMAND DECISION', '지휘 판단', '指揮判断', '指挥判断') + '</div>' +
+            '<div style="font-size:8.5px;color:#b3e5fc;line-height:1.45;margin-top:2px">' + txt(routeDoctrineText(dest)) + '</div>' +
           '</div>' +
         '</div>';
     }
