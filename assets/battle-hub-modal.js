@@ -655,14 +655,29 @@ async function loadRecommendedOpponents() {
       return;
     }
 
-    chips.innerHTML = data.results.slice(0, 6).map(r => `
+    chips.innerHTML = data.results.slice(0, 6).map(r => {
+      const alliance = renderDeclareOpponentAlliance(r);
+      const fleetName = r.fleet_name && r.fleet_name !== r.nickname
+        ? `<span style="opacity:.55;font-size:8px;margin-left:4px">${escapeHtml(r.fleet_name)}</span>`
+        : '';
+      return `
       <div class="bd-opponent-chip" data-action="selectTargetFleet" data-fleet-id="${escapeHTML(r.fleet_id)}" data-nickname="${escapeHTML(r.nickname || 'Unknown')}" data-ships-alive="${escapeHTML(r.ships_alive)}">
-        ${escapeHtml(r.nickname || 'Unknown')} (${r.ships_alive}척)
-      </div>
-    `).join('');
+        ${escapeHtml(r.nickname || 'Unknown')}${alliance}${fleetName} (${r.ships_alive}척)
+      </div>`;
+    }).join('');
   } catch (err) {
     console.warn('loadRecommendedOpponents:', err);
   }
+}
+
+function renderDeclareOpponentAlliance(r) {
+  const tag = r && r.alliance_tag;
+  const name = r && r.alliance_name;
+  if (!tag && !name) return '';
+  const colorRaw = String((r && r.alliance_color) || '#80cbc4');
+  const color = /^#[0-9a-f]{3,8}$/i.test(colorRaw) ? colorRaw : '#80cbc4';
+  const label = tag ? '[' + escapeHtml(tag) + ']' : escapeHtml(name || 'Alliance');
+  return `<span title="${escapeAttr(name || tag || 'Alliance')}" style="margin-left:4px;color:${color};font-size:8px;font-weight:800">🛡 ${label}</span>`;
 }
 
 // 검색 (디바운스)
