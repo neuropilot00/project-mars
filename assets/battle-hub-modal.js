@@ -24,7 +24,7 @@ let battleHubState = {
   killboardCache: null,
 };
 
-const BATTLEFIELD_KEYS = ['orbit_territory','garrison','mining_site','canyon_outpost','polar_ice','lava_tube','crater_relay','refinery_yard','colony_dome','excavation_grid','dust_storm','occupied_airspace','shipyard_drydock','convoy_route','ancient_ruins','orbital_blockade','garrison_rooftop','deep_mine','settlement_airspace'];
+const BATTLEFIELD_KEYS = ['orbit_territory','garrison','mining_site','canyon_outpost','polar_ice','lava_tube','crater_relay','refinery_yard','colony_dome','excavation_grid','dust_storm','occupied_airspace','shipyard_drydock','convoy_route','ancient_ruins','orbital_blockade','garrison_rooftop','deep_mine','settlement_airspace','occupation_grid_airspace','minehead_trench','dome_defense_line','orbital_minefield'];
 const BATTLEFIELD_LABELS = {
   orbit_territory: 'Orbit Territory',
   garrison: 'Garrison Airspace',
@@ -44,7 +44,11 @@ const BATTLEFIELD_LABELS = {
   orbital_blockade: 'Orbital Blockade',
   garrison_rooftop: 'Garrison Rooftop',
   deep_mine: 'Deep Mine Pit',
-  settlement_airspace: 'Settlement Airspace'
+  settlement_airspace: 'Settlement Airspace',
+  occupation_grid_airspace: 'Occupation Grid Airspace',
+  minehead_trench: 'Minehead Trench',
+  dome_defense_line: 'Dome Defense Line',
+  orbital_minefield: 'Orbital Minefield'
 };
 const BATTLEFIELD_BACKGROUNDS = {
   orbit_territory: '/assets/textures/battlefields/mars_orbit_territory.png',
@@ -65,20 +69,24 @@ const BATTLEFIELD_BACKGROUNDS = {
   orbital_blockade: '/assets/textures/battlefields/mars_orbital_blockade_topdown.png',
   garrison_rooftop: '/assets/textures/battlefields/mars_garrison_rooftop_topdown.png',
   deep_mine: '/assets/textures/battlefields/mars_deep_mine_topdown.png',
-  settlement_airspace: '/assets/textures/battlefields/mars_settlement_airspace_topdown.png'
+  settlement_airspace: '/assets/textures/battlefields/mars_settlement_airspace_topdown.png',
+  occupation_grid_airspace: '/assets/textures/battlefields/mars_occupation_grid_airspace.svg',
+  minehead_trench: '/assets/textures/battlefields/mars_minehead_trench.svg',
+  dome_defense_line: '/assets/textures/battlefields/mars_dome_defense_line.svg',
+  orbital_minefield: '/assets/textures/battlefields/mars_orbital_minefield.svg'
 };
 const SECTOR_BATTLEFIELD_BY_CODE = {
   olympus_crown: 'garrison_rooftop',
   tharsis_citadel: 'garrison_rooftop',
-  pavonis_gate: 'orbital_blockade',
+  pavonis_gate: 'orbital_minefield',
   ascraeus_vault: 'refinery_yard',
   arsia_forge: 'lava_tube',
   noctis_prime: 'canyon_outpost',
   marineris_east: 'canyon_outpost',
   marineris_west: 'canyon_outpost',
-  candor_fields: 'deep_mine',
+  candor_fields: 'minehead_trench',
   ophir_station: 'shipyard_drydock',
-  hebes_crossing: 'colony_dome',
+  hebes_crossing: 'dome_defense_line',
   coprates_ridge: 'canyon_outpost',
   eos_plateau: 'crater_relay',
   melas_basin: 'canyon_outpost',
@@ -86,11 +94,11 @@ const SECTOR_BATTLEFIELD_BY_CODE = {
   syria_planum: 'excavation_grid',
   hellas_abyss: 'crater_relay',
   elysium_wastes: 'dust_storm',
-  utopia_flats: 'settlement_airspace',
+  utopia_flats: 'dome_defense_line',
   arcadia_ridge: 'dust_storm',
   cerberus_scars: 'lava_tube',
   phlegra_deep: 'polar_ice',
-  amazonis_sink: 'deep_mine',
+  amazonis_sink: 'minehead_trench',
   borealis_edge: 'polar_ice'
 };
 const battleContextById = Object.create(null);
@@ -199,12 +207,12 @@ function pickBattlefieldKey(battleId) {
   if (summary.arena || mods.arena || type === 'arena') return 'shipyard_drydock';
   if (summary.is_world_event || mods.is_world_event) return 'convoy_route';
   if (summary.active_bounty_gp || summary.bounty_gp || mods.bounty_gp || type === 'bounty') return 'orbital_blockade';
-  if (/guild|alliance/.test(type)) return 'occupied_airspace';
+  if (/guild|alliance/.test(type)) return 'occupation_grid_airspace';
   if (/tournament|bracket/.test(type)) return 'colony_dome';
   if (/transport|convoy/.test(type)) return 'convoy_route';
   if (type === 'siege' && SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'siege') return 'settlement_airspace';
-  if (type === 'hijack') return 'orbital_blockade';
+  if (type === 'hijack') return 'occupation_grid_airspace';
   if (SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'pvp_duel') return 'shipyard_drydock';
   if (type === 'raid') return 'mining_site';

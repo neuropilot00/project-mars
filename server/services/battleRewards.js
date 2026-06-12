@@ -49,6 +49,10 @@ const BATTLEFIELD_SALVAGE_POOL = {
   colony_dome: ['red_sand', 'ice_crystal'],
   orbit_territory: ['meteorite_fragment', 'iron_dust'],
   garrison: ['basalt_chip', 'iron_dust'],
+  occupation_grid_airspace: ['plasma_dust', 'iron_dust'],
+  minehead_trench: ['regolith_ore', 'iron_dust'],
+  dome_defense_line: ['ice_crystal', 'basalt_chip'],
+  orbital_minefield: ['meteorite_fragment', 'plasma_dust'],
 };
 
 /**

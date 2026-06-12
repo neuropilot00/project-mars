@@ -5,7 +5,8 @@ const BATTLEFIELD_KEYS = [
   'lava_tube', 'crater_relay', 'refinery_yard', 'colony_dome',
   'excavation_grid', 'dust_storm', 'occupied_airspace', 'shipyard_drydock',
   'convoy_route', 'ancient_ruins', 'orbital_blockade', 'garrison_rooftop',
-  'deep_mine', 'settlement_airspace'
+  'deep_mine', 'settlement_airspace', 'occupation_grid_airspace',
+  'minehead_trench', 'dome_defense_line', 'orbital_minefield'
 ];
 
 const BATTLEFIELD_LABELS = {
@@ -27,21 +28,25 @@ const BATTLEFIELD_LABELS = {
   orbital_blockade: 'Orbital Blockade',
   garrison_rooftop: 'Garrison Rooftop',
   deep_mine: 'Deep Mine Pit',
-  settlement_airspace: 'Settlement Airspace'
+  settlement_airspace: 'Settlement Airspace',
+  occupation_grid_airspace: 'Occupation Grid Airspace',
+  minehead_trench: 'Minehead Trench',
+  dome_defense_line: 'Dome Defense Line',
+  orbital_minefield: 'Orbital Minefield'
 };
 
 const SECTOR_BATTLEFIELD_BY_CODE = {
   olympus_crown: 'garrison_rooftop',
   tharsis_citadel: 'garrison_rooftop',
-  pavonis_gate: 'orbital_blockade',
+  pavonis_gate: 'orbital_minefield',
   ascraeus_vault: 'refinery_yard',
   arsia_forge: 'lava_tube',
   noctis_prime: 'canyon_outpost',
   marineris_east: 'canyon_outpost',
   marineris_west: 'canyon_outpost',
-  candor_fields: 'deep_mine',
+  candor_fields: 'minehead_trench',
   ophir_station: 'shipyard_drydock',
-  hebes_crossing: 'colony_dome',
+  hebes_crossing: 'dome_defense_line',
   coprates_ridge: 'canyon_outpost',
   eos_plateau: 'crater_relay',
   melas_basin: 'canyon_outpost',
@@ -49,11 +54,11 @@ const SECTOR_BATTLEFIELD_BY_CODE = {
   syria_planum: 'excavation_grid',
   hellas_abyss: 'crater_relay',
   elysium_wastes: 'dust_storm',
-  utopia_flats: 'settlement_airspace',
+  utopia_flats: 'dome_defense_line',
   arcadia_ridge: 'dust_storm',
   cerberus_scars: 'lava_tube',
   phlegra_deep: 'polar_ice',
-  amazonis_sink: 'deep_mine',
+  amazonis_sink: 'minehead_trench',
   borealis_edge: 'polar_ice'
 };
 
@@ -76,7 +81,11 @@ const FIELD_TAGS = {
   orbital_blockade: ['orbital', 'blockade'],
   garrison_rooftop: ['defended', 'urban'],
   deep_mine: ['mining', 'hazard'],
-  settlement_airspace: ['colony', 'airspace']
+  settlement_airspace: ['colony', 'airspace'],
+  occupation_grid_airspace: ['occupation', 'grid', 'airspace'],
+  minehead_trench: ['mining', 'trench', 'resource'],
+  dome_defense_line: ['colony', 'defense-line', 'civilian-risk'],
+  orbital_minefield: ['orbital', 'minefield', 'hazard']
 };
 
 const BATTLEFIELD_MODIFIERS = {
@@ -98,7 +107,11 @@ const BATTLEFIELD_MODIFIERS = {
   orbital_blockade: { atk: 1.04, def: 1.04, speed: 0.98, note: 'Blockade geometry forces close, punishing trades.' },
   garrison_rooftop: { atk: 0.98, def: 1.08, speed: 0.95, note: 'Fortified rooftops grant defenders hard cover.' },
   deep_mine: { atk: 1.07, def: 0.95, speed: 0.90, note: 'Confined mine shafts amplify burst damage.' },
-  settlement_airspace: { atk: 0.99, def: 1.04, speed: 0.97, note: 'Settlement traffic favors coordinated defense.' }
+  settlement_airspace: { atk: 0.99, def: 1.04, speed: 0.97, note: 'Settlement traffic favors coordinated defense.' },
+  occupation_grid_airspace: { atk: 1.04, def: 1.02, speed: 0.99, note: 'Occupation grids expose weak borders but keep defenders organized.' },
+  minehead_trench: { atk: 1.05, def: 0.98, speed: 0.91, note: 'Minehead trenches make flanks valuable and retreats slow.' },
+  dome_defense_line: { atk: 0.97, def: 1.08, speed: 0.94, note: 'Dome shields and civilian corridors heavily favor prepared defenders.' },
+  orbital_minefield: { atk: 1.06, def: 1.02, speed: 0.88, note: 'Minefields punish direct routes and reward hardened assault fleets.' }
 };
 
 const BATTLEFIELD_OBJECTIVES = {
@@ -120,7 +133,11 @@ const BATTLEFIELD_OBJECTIVES = {
   orbital_blockade: 'Crack the blockade in close, punishing trades.',
   garrison_rooftop: 'Dislodge fortified rooftops before defenders entrench.',
   deep_mine: 'Exploit confined shafts for high-risk burst damage.',
-  settlement_airspace: 'Control settlement traffic without losing formation.'
+  settlement_airspace: 'Control settlement traffic without losing formation.',
+  occupation_grid_airspace: 'Break the occupation grid before border guns overlap.',
+  minehead_trench: 'Seize trench junctions and extract ore caches under fire.',
+  dome_defense_line: 'Punch through the dome defense line without collapsing shields.',
+  orbital_minefield: 'Thread the minefield and force the enemy into bad vectors.'
 };
 
 const BATTLEFIELD_SALVAGE_HINTS = {
@@ -142,7 +159,11 @@ const BATTLEFIELD_SALVAGE_HINTS = {
   orbital_blockade: ['plasma_dust', 'meteorite_fragment'],
   garrison_rooftop: ['basalt_chip', 'iron_dust'],
   deep_mine: ['regolith_ore', 'basalt_chip'],
-  settlement_airspace: ['red_sand', 'iron_dust']
+  settlement_airspace: ['red_sand', 'iron_dust'],
+  occupation_grid_airspace: ['plasma_dust', 'iron_dust'],
+  minehead_trench: ['regolith_ore', 'iron_dust'],
+  dome_defense_line: ['ice_crystal', 'basalt_chip'],
+  orbital_minefield: ['meteorite_fragment', 'plasma_dust']
 };
 
 function stableIndex(seed) {
@@ -170,12 +191,12 @@ function pickBattlefieldKey(battle) {
   if (summary.arena || type === 'arena') return 'shipyard_drydock';
   if (summary.is_world_event) return 'convoy_route';
   if (summary.active_bounty_gp || summary.bounty_gp || type === 'bounty') return 'orbital_blockade';
-  if (/guild|alliance/.test(type)) return 'occupied_airspace';
+  if (/guild|alliance/.test(type)) return 'occupation_grid_airspace';
   if (/tournament|bracket/.test(type)) return 'colony_dome';
   if (/transport|convoy/.test(type)) return 'convoy_route';
   if (type === 'siege' && SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'siege') return 'settlement_airspace';
-  if (type === 'hijack') return 'orbital_blockade';
+  if (type === 'hijack') return 'occupation_grid_airspace';
   if (SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'pvp_duel') return 'shipyard_drydock';
   if (type === 'raid') return 'mining_site';

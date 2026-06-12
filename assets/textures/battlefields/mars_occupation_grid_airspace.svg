@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b0c0a"/>
+      <stop offset="0.55" stop-color="#6d2b19"/>
+      <stop offset="1" stop-color="#120b12"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <path d="M0 410 C180 350 330 425 520 350 C700 280 820 330 960 260 L960 540 L0 540 Z" fill="#2a120f" opacity=".75"/>
+  <g stroke="#ff9a38" stroke-width="2" fill="none" opacity=".62">
+    <path d="M92 80 210 50 322 95 350 205 260 295 130 275 55 180Z"/>
+    <path d="M328 96 482 72 588 160 560 285 410 320 350 205Z"/>
+    <path d="M590 160 738 120 850 212 805 345 650 365 560 285Z"/>
+    <path d="M132 276 260 296 410 320 390 455 205 485 72 392Z"/>
+    <path d="M410 320 650 366 704 486 500 508 390 455Z"/>
+  </g>
+  <g stroke="#ffcf70" stroke-width="1" opacity=".25">
+    <path d="M0 150 H960M0 270 H960M0 390 H960M120 0 V540M300 0 V540M480 0 V540M660 0 V540M840 0 V540"/>
+  </g>
+  <g filter="url(#glow)">
+    <circle cx="482" cy="244" r="34" fill="#ff4b2e" opacity=".24"/>
+    <circle cx="482" cy="244" r="6" fill="#ffd27c"/>
+    <circle cx="742" cy="252" r="5" fill="#5df3ff"/>
+    <circle cx="208" cy="182" r="5" fill="#5df3ff"/>
+  </g>
+  <g fill="#0b1118" stroke="#ff9a38" stroke-width="2" opacity=".85">
+    <rect x="445" y="218" width="74" height="45" rx="4"/>
+    <rect x="710" y="236" width="64" height="34" rx="4"/>
+    <rect x="174" y="166" width="68" height="36" rx="4"/>
+  </g>
+</svg>
