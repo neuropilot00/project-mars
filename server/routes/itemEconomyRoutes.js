@@ -38,9 +38,9 @@ router.get('/shop/items', readLimiter, async (req, res) => {
   }
 });
 
-// GET /api/shop/inventory?wallet= — get user's items
-router.get('/shop/inventory', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
+// GET /api/shop/inventory — get authenticated user's items
+router.get('/shop/inventory', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   try {
     const result = await pool.query(
@@ -467,9 +467,9 @@ router.get('/shop/shields', readLimiter, async (req, res) => {
   }
 });
 
-// GET /api/shop/active-effects?wallet= — get user's active item effects
-router.get('/shop/active-effects', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+// GET /api/shop/active-effects — get authenticated user's active item effects
+router.get('/shop/active-effects', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'wallet required' });
   try {
     // Auto-expire duration/uses based effects before returning UI state.
@@ -502,9 +502,9 @@ router.get('/shop/active-effects', readLimiter, async (req, res) => {
 // ITEM INSTANCES & ENHANCEMENT
 // ══════════════════════════════════════
 
-// GET /api/items/instances?wallet= — get user's materialized item instances
-router.get('/items/instances', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
+// GET /api/items/instances — get authenticated user's materialized item instances
+router.get('/items/instances', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   try {
     if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });

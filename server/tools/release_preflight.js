@@ -139,6 +139,9 @@ async function main() {
   await expectBlocked('/api/user/resources blocks unauthenticated access', '/api/user/resources?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job blocks unauthenticated access', '/api/user/job?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job/change-status blocks unauthenticated access', '/api/user/job/change-status?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/shop/inventory blocks unauthenticated access', '/api/shop/inventory?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/shop/active-effects blocks unauthenticated access', '/api/shop/active-effects?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/items/instances blocks unauthenticated access', '/api/items/instances?wallet=0x0000000000000000000000000000000000000000');
 
   await expectStaticOk('/assets/tactical-lab-v11.html serves', '/assets/tactical-lab-v11.html?v=preflight');
   await expectStaticOk('/assets/ships/top/mcc_frg.png serves', '/assets/ships/top/mcc_frg.png?v=preflight');

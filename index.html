@@ -13112,7 +13112,7 @@ function _renderCosmeticSlotsInto(slotsId, plot){
   var cos=plot.cosmetics||{};
   var w=walletState.address;
   slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">Loading…</div>';
-  fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(inv){
+  fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(inv){
     var html='';
     ['border','glow','terrain'].forEach(function(type){
       var typeLabel=type.toUpperCase();
@@ -20925,7 +20925,7 @@ function _scheduleActiveEffectsRefresh(){
 function loadActiveEffects(){
   var w=(walletState&&walletState.address)||'';
   if(!w)return Promise.resolve([]);
-  return fetch('/api/shop/active-effects?wallet='+w).then(function(r){return r.json()}).then(function(effects){
+  return fetch('/api/shop/active-effects', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(effects){
     _activeEffects=_filterLiveEffects(effects);
     renderActiveBuffs();
     _scheduleActiveEffectsRefresh();
@@ -21008,7 +21008,7 @@ function loadShopData(){
   });
   // Load inventory
   if(w){
-    fetch('/api/shop/inventory?wallet='+w).then(function(r){return r.json()}).then(function(inv){
+    fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(inv){
       _shopInventory=inv;
     }).catch(function(){});
   }
@@ -21066,7 +21066,7 @@ function renderShopInventory(){
   var list=document.getElementById('shopInventoryList');
   var w=(walletState&&walletState.address)||'';
   if(!w){list.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx3);font-size:var(--fs-sm)">Connect wallet first</div>';return;}
-  fetch('/api/shop/inventory?wallet='+w).then(function(r){return r.json()}).then(function(inv){
+  fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(inv){
     _shopInventory=inv;
     var badge=document.getElementById('shopInvCount');
     var total=inv.reduce(function(s,i){return s+i.quantity},0);
@@ -21927,9 +21927,9 @@ function loadBaseInventory(){
   if(grid2)grid2.innerHTML=loadMsg;
   // Load inventory + active effects + instances + resources in parallel
   Promise.all([
-    fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}),
-    fetch('/api/shop/active-effects?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
-    fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
+    fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}),
+    fetch('/api/shop/active-effects', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return []}),
+    fetch('/api/items/instances', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return []}),
     fetch('/api/resources/my', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return {inventory:[]}})
   ]).then(function(results){
     _baseInventory=results[0]||[];
@@ -22836,7 +22836,7 @@ function loadSellView(){
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
 
   // ── 아이템만 API에서, 영토는 이미 로컬에 있는 _ownerGroups 사용 ──
-  fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}).then(function(instances){
+  fetch('/api/items/instances', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return []}).then(function(instances){
     instances=Array.isArray(instances)?instances:(instances||[]);
     var html='';
 
@@ -23378,7 +23378,7 @@ function loadEnhancementData(){
 function loadItemInstances(cb){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  fetch('/api/items/instances', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(d){
     _enhInstances=d||[];
     if(cb) cb();
   }).catch(function(){ _enhInstances=[]; if(cb) cb(); });
@@ -24069,7 +24069,7 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // ITEMS: 새 아이템 인스턴스 개수 변화 감지
-  _guardedJsonFetch('dot-item-instances', '/api/items/instances?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+  _guardedJsonFetch('dot-item-instances', '/api/items/instances', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
     if (!d) return;
     try{
       var items = Array.isArray(d) ? d : (d.instances||d.items||[]);
