@@ -1,6 +1,22 @@
 #!/usr/bin/env node
 process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://jongho@localhost:5432/pixelwar';
 
+const fs = require('fs');
+const path = require('path');
+
+const migrationsDir = path.join(__dirname, '..', 'migrations');
+const requiredHotfixMigrations = [
+  '291_crash_round_cleanup.sql',
+  '292_war_bet_events_weekly_columns.sql',
+  '295_ship_build_refunded_status.sql',
+];
+
+function getRootMigrationFiles() {
+  return fs.readdirSync(migrationsDir)
+    .filter(name => /^\d+_.*\.sql$/.test(name))
+    .sort();
+}
+
 async function main() {
   const { pool } = require('../db');
   let pass = 0;
@@ -60,6 +76,27 @@ async function main() {
     check('core economy settings exist', missing.length === 0, missing.length ? `missing=${missing.join(',')}` : found.join(','));
   } catch (error) {
     check('core economy settings exist', false, error.message);
+  }
+
+  try {
+    const migrationFiles = getRootMigrationFiles();
+    const latestMigration = migrationFiles[migrationFiles.length - 1];
+    const requiredMigrations = Array.from(new Set([
+      ...requiredHotfixMigrations,
+      latestMigration,
+    ].filter(Boolean)));
+    const { rows } = await pool.query(
+      `SELECT filename
+         FROM schema_migrations
+        WHERE filename = ANY($1::text[])
+        ORDER BY filename`,
+      [requiredMigrations]
+    );
+    const applied = rows.map(row => row.filename);
+    const missing = requiredMigrations.filter(name => !applied.includes(name));
+    check('required migrations applied', missing.length === 0, missing.length ? `missing=${missing.join(',')}` : `latest=${latestMigration}`);
+  } catch (error) {
+    check('required migrations applied', false, error.message);
   }
 
   console.log(`\n📊  ${pass} passed / ${fail} failed`);
