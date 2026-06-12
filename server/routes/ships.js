@@ -77,10 +77,9 @@ const optionalAuth = (req, res, next) => {
 function getWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
-// optionalAuth 라우트용 — JWT 없을 때만 query/header 폴백 허용
+// optionalAuth 라우트용 — JWT가 있을 때만 개인화 정보를 붙임
 function getWalletOptional(req) {
-  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress ||
-    req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -626,10 +625,10 @@ router.post('/:id/shield', requireAuth, async (req, res) => {
 // GET  /api/ships/crates           — 상자 목록 + 공개 확률(odds)
 // POST /api/ships/crates/:code/open — 상자 개봉(GP 차감 → 함선 획득). JWT 필요.
 const shipCrate = require('../services/shipCrate');
-router.get('/crates', async (req, res) => {
+router.get('/crates', optionalAuth, async (req, res) => {
   // [v7.168] wallet 전달 시 pity_remaining 포함 — 사용자별 천장 잔여 표시
   try {
-    const w = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+    const w = getWalletOptional(req);
     res.json(await shipCrate.listCrates(w || null));
   }
   catch (e) { console.error('[ships] crates list error:', e.message); res.status(500).json({ error: 'SERVER_ERROR' }); }

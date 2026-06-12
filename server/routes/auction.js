@@ -30,14 +30,6 @@ function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
-function getWallet(req) {
-  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
-}
-function requireWallet(req, res) {
-  const w = getWallet(req);
-  if (!w || w.length < 10) { res.status(400).json({ error: 'wallet_required' }); return null; }
-  return w;
-}
 function requireAdmin(req, res) {
   const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
   if (!s || s !== process.env.ADMIN_SECRET) { res.status(403).json({ error: 'forbidden' }); return false; }

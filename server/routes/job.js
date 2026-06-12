@@ -27,11 +27,6 @@ function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
-// ── 미들웨어: wallet 추출 헬퍼 ──
-function getWallet(req) {
-  return (req.query.wallet || req.body.wallet || req.headers['x-wallet'] || '').toLowerCase();
-}
-
 function requireAdmin(req, res) {
   const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
   if (!s || s !== process.env.ADMIN_SECRET) { res.status(403).json({ error: 'FORBIDDEN' }); return false; }

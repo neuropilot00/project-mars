@@ -23,9 +23,6 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
-function getWallet(req) {
-  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
-}
 
 // ── 오늘의 미션 타입 정의 (전체 목록 — 30종) ────────────────
 const ALL_MISSION_TYPES = [
@@ -267,7 +264,7 @@ router.post('/progress', (req, res, next) => {
   next();
 }, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = (req.body?.wallet || '').toLowerCase().trim();
     const { mission_type } = req.body || {};
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
     if (!mission_type) return res.status(400).json({ error: 'MISSION_TYPE_REQUIRED' });

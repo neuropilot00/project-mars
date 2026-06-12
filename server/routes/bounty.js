@@ -26,9 +26,6 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
-function getWallet(req) {
-  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
-}
 function sumPositiveNumbers(rows, key) {
   return rows.reduce((sum, row) => {
     const value = Number(row[key]);
