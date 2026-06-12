@@ -171,10 +171,24 @@ router.get('/conflict-map', async (req, res) => {
     let battles = [];
     try {
       const { rows } = await pool.query(
-        `SELECT hb.target_claim_sector AS sector_code, COUNT(*) AS active_battles
-         FROM hijack_battles hb
-         WHERE hb.status IN ('active','pending')
-         GROUP BY sector_code`
+        `SELECT sector_code, SUM(active_battles)::int AS active_battles
+           FROM (
+             SELECT c.sector_code, COUNT(*) AS active_battles
+               FROM hijack_battles hb
+               JOIN claims c ON c.id = hb.target_claim_id
+              WHERE hb.phase IN ('phase1','phase2')
+                AND c.deleted_at IS NULL
+                AND c.sector_code IS NOT NULL
+              GROUP BY c.sector_code
+             UNION ALL
+             SELECT sd.code AS sector_code, COUNT(*) AS active_battles
+               FROM fleet_battles fb
+               JOIN sector_definitions sd ON sd.id = fb.sector_id
+              WHERE fb.status IN ('preparing','active')
+                AND fb.sector_id IS NOT NULL
+              GROUP BY sd.code
+           ) x
+          GROUP BY sector_code`
       );
       battles = rows;
     } catch (_) {}
@@ -183,13 +197,16 @@ router.get('/conflict-map', async (req, res) => {
     let bounties = [];
     try {
       const { rows } = await pool.query(
-        `SELECT SUBSTRING(c.sector_code FROM 1 FOR 3) AS sector_code,
+        `SELECT c.sector_code,
                 COUNT(bl.id) AS active_bounties,
                 SUM(bl.reward_gp) AS total_bounty_gp
          FROM bounty_listings bl
-         JOIN claims c ON LOWER(c.owner) = bl.target_wallet
-         WHERE bl.status = 'active' AND bl.expires_at > NOW()
-         GROUP BY SUBSTRING(c.sector_code FROM 1 FOR 3)`
+         JOIN claims c ON LOWER(c.owner) = LOWER(bl.target_wallet)
+         WHERE bl.status = 'active'
+           AND (bl.expires_at IS NULL OR bl.expires_at > NOW())
+           AND c.deleted_at IS NULL
+           AND c.sector_code IS NOT NULL
+         GROUP BY c.sector_code`
       );
       bounties = rows;
     } catch (_) {}
@@ -199,7 +216,9 @@ router.get('/conflict-map', async (req, res) => {
       `SELECT sector_code,
               COUNT(*) AS claim_count,
               COUNT(DISTINCT owner) AS owner_count
-       FROM claims GROUP BY sector_code ORDER BY claim_count DESC`
+       FROM claims
+       WHERE deleted_at IS NULL AND sector_code IS NOT NULL
+       GROUP BY sector_code ORDER BY claim_count DESC`
     );
 
     // 병합
