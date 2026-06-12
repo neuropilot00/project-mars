@@ -206,9 +206,16 @@ async function _renderShipMining() {
     var capWeights = info.capacityWeights || {};
     var gpPerCapH = info.gpPerCapacityHour || 3;
     function _smFleetCapacity(fleetId){
-      // 클라 추정(함급 미상 시 ship_count 근사). 정확값은 서버가 계산.
+      // 클라 추정. 함급별 weight 를 반영하고, tier 보정 등 최종값은 서버가 계산한다.
       var f = usable.find(function(x){ return String(x.id)===String(fleetId); });
-      return f ? (parseInt(f.ships_alive)||parseInt(f.ship_count)||1) : 1; // 근사(서버가 함급 weight 정밀 반영)
+      if (!f) return 1;
+      var total = 0;
+      ['frigate','destroyer','cruiser','battleship','titan','assembled'].forEach(function(size){
+        var count = parseInt(f[size + '_count'], 10) || 0;
+        if (!count) return;
+        total += count * (Number(capWeights[size]) || 1);
+      });
+      return total > 0 ? Math.round(total * 100) / 100 : (parseInt(f.ships_alive)||parseInt(f.ship_count)||1);
     }
     function _smUpdatePreview(){
       var pv = document.getElementById('smPreview'); if(!pv) return;
