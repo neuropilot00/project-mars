@@ -287,6 +287,10 @@ function renderKillmailCard(k) {
   const canClaimBounty = myWallet && String(k.killer_wallet || '').toLowerCase() === myWallet && bountyGp > 0 && k.battle_id && k.victim_wallet;
   const canHunt = myWallet && k.victim_wallet && String(k.victim_wallet).toLowerCase() !== myWallet;
   const salvageHint = formatKillmailSalvage(k.resources);
+  const salvageTime = !salvaged && !expired ? formatWreckExpires(k.expires_at) : '';
+  const salvageCta = salvageHint
+    ? (LANG==='ko'?'회수':LANG==='ja'?'回収':LANG==='zh'?'回收':'Salvage') + ' · ' + salvageHint
+    : (LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage');
   return `
     <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}" data-wreck-id="${parseInt(k.id, 10) || 0}">
       <div class="killmail-skull">☠</div>
@@ -302,6 +306,7 @@ function renderKillmailCard(k) {
           ${bountyGp ? `<span class="bounty-tag">💰 ${formatNum(bountyGp)} GP</span>` : ''}
           ${k.victim_is_betrayer ? `<span class="traitor-tag">${LANG==='ko'?'변절자':LANG==='ja'?'裏切り者':LANG==='zh'?'叛徒':'BETRAYER'}</span>` : ''}
           ${salvaged ? `<span>${LANG==='ko'?'회수완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'SALVAGED'}</span>` : expired ? `<span>${LANG==='ko'?'잔해소멸':LANG==='ja'?'残骸消滅':LANG==='zh'?'残骸消失':'EXPIRED'}</span>` : ''}
+          ${canSalvage ? `<span style="color:var(--gold)">🧲 ${LANG==='ko'?'회수 가능':LANG==='ja'?'回収可能':LANG==='zh'?'可回收':'SALVAGEABLE'}${salvageTime ? ' · ' + salvageTime : ''}</span>` : ''}
           ${salvageHint ? `<span>🧩 ${salvageHint}</span>` : ''}
           <span>${when}</span>
         </div>
@@ -311,7 +316,7 @@ function renderKillmailCard(k) {
         <span>GP ${LANG==='ko'?'파괴가치':LANG==='ja'?'破壊価値':LANG==='zh'?'摧毁价值':'destroyed'}</span>
         ${canHunt ? `<button class="bc-btn hunt" onclick="huntKillmailTarget('${escapeAttr(k.victim_wallet)}','${escapeAttr(victim)}')">${LANG==='ko'?'추격':LANG==='ja'?'追撃':LANG==='zh'?'追猎':'Hunt'}</button>` : ''}
         ${canClaimBounty ? `<button class="bc-btn bounty" onclick="claimKillmailBounty(${parseInt(k.battle_id, 10) || 0},'${escapeAttr(k.victim_wallet)}',this)">${LANG==='ko'?'현상금 청구':LANG==='ja'?'賞金請求':LANG==='zh'?'领取悬赏':'Claim Bounty'}</button>` : ''}
-        ${canSalvage ? `<button class="bc-btn salvage" onclick="salvageKillmail(${parseInt(k.id, 10) || 0},this)">${LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'}</button>` : ''}
+        ${canSalvage ? `<button class="bc-btn salvage" title="${escapeAttr(salvageHint || '')}" onclick="salvageKillmail(${parseInt(k.id, 10) || 0},this)">${salvageCta}</button>` : ''}
         ${k.battle_id ? `<button class="bc-btn primary" onclick="openBattleViewer(${parseInt(k.battle_id, 10)})">${LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay'}</button>` : ''}
       </div>
     </div>
@@ -331,6 +336,16 @@ function formatKillmailSalvage(resources) {
     .slice(0, 3)
     .map(function(x){ return escapeHtml(x.code) + '×' + x.qty; });
   return parts.join(' · ');
+}
+
+function formatWreckExpires(isoStr) {
+  if (!isoStr) return '';
+  const t = new Date(isoStr).getTime();
+  if (!Number.isFinite(t)) return '';
+  const diffMin = Math.max(0, Math.ceil((t - Date.now()) / 60000));
+  if (diffMin <= 0) return LANG==='ko'?'곧 만료':LANG==='ja'?'まもなく期限切れ':LANG==='zh'?'即将过期':'expires soon';
+  if (diffMin < 60) return (LANG==='ko'?'만료 ':LANG==='ja'?'期限 ':LANG==='zh'?'到期 ':'expires in ') + diffMin + (LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分钟':'m');
+  return (LANG==='ko'?'만료 ':LANG==='ja'?'期限 ':LANG==='zh'?'到期 ':'expires in ') + Math.floor(diffMin / 60) + 'h ' + (diffMin % 60) + 'm';
 }
 
 async function huntKillmailTarget(targetWallet, targetLabel) {
