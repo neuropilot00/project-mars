@@ -5,6 +5,10 @@
 //   땅 불필요. PP는 안 줌(무료 PP 폐지 정책). 격리 테이블(ship_mining_jobs) — 기존 흐름 무영향.
 // ════════════════════════════════════════════════════════════════
 const { pool } = require('../db');
+let seasonService;
+try { seasonService = require('./season'); } catch (_) { /* optional season service */ }
+let dailyOps;
+try { dailyOps = require('../routes/dailyOps'); } catch (_) { /* optional daily ops route helper */ }
 
 async function getSetting(key, fb) {
   try { const r = await pool.query('SELECT value FROM settings WHERE key=$1', [key]); return r.rows.length ? r.rows[0].value : fb; }
@@ -296,6 +300,7 @@ async function collectMining(wallet, jobId) {
 
     // 활동 로그(fire-and-forget)
     try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGp, 'ship_mining', `Ship mining run #${jobId} collected`).catch(() => {}); } catch (_) {}
+    recordMiningProgress(w, rewardGp);
 
     return { success: true, rewardGp, resources: drops, destination: job.sector_type, raided: raided };
   } catch (e) {
@@ -303,6 +308,19 @@ async function collectMining(wallet, jobId) {
     throw e;
   } finally {
     client.release();
+  }
+}
+
+function recordMiningProgress(wallet, rewardGp) {
+  const w = String(wallet || '').toLowerCase();
+  if (!w) return;
+  if (dailyOps && typeof dailyOps.notifyMissionProgress === 'function') {
+    dailyOps.notifyMissionProgress(w, 'resource_run').catch(() => {});
+    dailyOps.notifyMissionProgress(w, 'resource_run_3').catch(() => {});
+  }
+  if (seasonService && typeof seasonService.addSeasonScore === 'function') {
+    seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {});
+    if (rewardGp > 0) seasonService.addSeasonScore(w, 'gp_earn', Math.round(rewardGp)).catch(() => {});
   }
 }
 
