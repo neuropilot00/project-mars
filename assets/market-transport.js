@@ -408,33 +408,30 @@ async function loadFleetCommandCard(){
 
   // 2) 활성 World Events (Void Raider 등)
   try {
-    var wr = await fetch('/api/world-events');
-    if (wr.ok) {
-      var wd = await wr.json();
-      var list = document.getElementById('fcmdWorldEventsList');
-      if (list && wd.events) {
-        if (wd.events.length === 0) {
-          list.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:6px">' + (t('we_none_active')||'활성 이벤트가 없습니다') + '</div>';
-        } else {
-          list.innerHTML = wd.events.map(function(ev){
-            var sec = parseInt(ev.seconds_remaining)||0;
-            var hRem = Math.floor(sec/3600), mRem = Math.floor((sec%3600)/60);
-            var pct = parseFloat(ev.hp_pct)||0;
-            return '<div style="padding:8px 10px;border-radius:7px;background:linear-gradient(135deg,rgba(232,72,85,.10),rgba(232,72,85,.02));border:1px solid rgba(232,72,85,.25)">' +
-              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-                '<div style="font-size:10px;font-weight:800;color:#ff6b6b">⚠ ' + (ev.event_code||'EVENT') + '</div>' +
-                '<div style="font-size:8px;color:var(--tx3)">' + (ev.sector_name||'?') + ' · ' + hRem + 'h ' + mRem + 'm</div>' +
-              '</div>' +
-              '<div style="height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-bottom:4px">' +
-                '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#ff6b6b,#ff3030);transition:width .3s"></div>' +
-              '</div>' +
-              '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">' +
-                '<div style="font-size:8px;color:var(--tx3)">HP ' + ev.hp_current + '/' + ev.hp_max + ' · ' + (ev.participant_count||0) + ' fighters</div>' +
-                '<button onclick="openWorldEventDetail(' + ev.id + ')" style="font-size:9px;padding:3px 9px;border-radius:6px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff6b6b;cursor:pointer;font-family:var(--fn);font-weight:700" data-i18n="we_engage">⚔ ENGAGE</button>' +
-              '</div>' +
-            '</div>';
-          }).join('');
-        }
+    var wd = await mtReadFetch('world-events-active', '/api/world-events', 15000, false);
+    var list = document.getElementById('fcmdWorldEventsList');
+    if (list && wd && wd.events) {
+      if (wd.events.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:6px">' + (t('we_none_active')||'활성 이벤트가 없습니다') + '</div>';
+      } else {
+        list.innerHTML = wd.events.map(function(ev){
+          var sec = parseInt(ev.seconds_remaining)||0;
+          var hRem = Math.floor(sec/3600), mRem = Math.floor((sec%3600)/60);
+          var pct = parseFloat(ev.hp_pct)||0;
+          return '<div style="padding:8px 10px;border-radius:7px;background:linear-gradient(135deg,rgba(232,72,85,.10),rgba(232,72,85,.02));border:1px solid rgba(232,72,85,.25)">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+              '<div style="font-size:10px;font-weight:800;color:#ff6b6b">⚠ ' + (ev.event_code||'EVENT') + '</div>' +
+              '<div style="font-size:8px;color:var(--tx3)">' + (ev.sector_name||'?') + ' · ' + hRem + 'h ' + mRem + 'm</div>' +
+            '</div>' +
+            '<div style="height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-bottom:4px">' +
+              '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#ff6b6b,#ff3030);transition:width .3s"></div>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">' +
+              '<div style="font-size:8px;color:var(--tx3)">HP ' + ev.hp_current + '/' + ev.hp_max + ' · ' + (ev.participant_count||0) + ' fighters</div>' +
+              '<button onclick="openWorldEventDetail(' + ev.id + ')" style="font-size:9px;padding:3px 9px;border-radius:6px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff6b6b;cursor:pointer;font-family:var(--fn);font-weight:700" data-i18n="we_engage">⚔ ENGAGE</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
       }
     }
   } catch(e) { console.warn('[fcmd] world events error:', e); }
@@ -456,9 +453,8 @@ window.openWorldEventDetail = async function(eventId) {
 
   // 이벤트 상세 로드
   try {
-    var r = await fetch('/api/world-events/' + eventId);
-    if (!r.ok) throw new Error('fetch fail');
-    var ev = await r.json();
+    var ev = await mtReadFetch('world-event-detail:' + eventId, '/api/world-events/' + eventId, 5000, false);
+    if (!ev) throw new Error('fetch fail');
 
     document.getElementById('weEventCode').textContent = '⚠ ' + (ev.event_code || 'EVENT');
     var sec = parseInt(ev.seconds_remaining) || 0;
