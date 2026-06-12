@@ -9,6 +9,19 @@ var fleetCmdState = {
   movements: [],
 };
 
+function fleetCmdReadJson(key, url, minGap, auth) {
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  var fetchOptions = auth === false ? {} : { headers: getAuthHeaders() };
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('fleet-cmd:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: fetchOptions
+    });
+  }
+  return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
+
 function openFleetCmd() {
   if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   // Update i18n text for static HTML spans
@@ -44,8 +57,8 @@ function keepFleetCmdOpen(scrollTop) {
 async function loadFleetOptions() {
   if (fleetCmdState.formations.length > 0) return;
   try {
-    var res = await fetch('/api/fleets/options');
-    var data = await res.json();
+    var data = await fleetCmdReadJson('options', '/api/fleets/options', 60000, false);
+    if (!data) return;
     fleetCmdState.formations = data.formations || [];
     fleetCmdState.movements  = data.movements  || [];
   } catch(e) { console.error('loadFleetOptions error:', e); }
@@ -53,8 +66,8 @@ async function loadFleetOptions() {
 
 async function refreshFleetList() {
   try {
-    var res = await fetch('/api/fleets', { headers: getAuthHeaders() });
-    var data = await res.json();
+    var data = await fleetCmdReadJson('list', '/api/fleets', 8000);
+    if (!data) return;
     fleetCmdState.fleets = data.fleets || [];
     document.getElementById('fleetCountLabel').textContent = fleetCmdState.fleets.length;
     renderFleetList();
@@ -105,9 +118,9 @@ async function selectFleet(fleetId) {
 
 async function loadFleetDetail(fleetId) {
   try {
-    var res = await fetch('/api/fleets/' + fleetId, { headers: getAuthHeaders() });
-    var data = await res.json();
-    if (!res.ok || !data.fleet) {
+    var data = await fleetCmdReadJson('detail:' + fleetId, '/api/fleets/' + fleetId, 5000);
+    if (!data) return;
+    if (!data.fleet) {
       showFactionToast((LANG==='ko'?'함대 로드 실패: ':LANG==='ja'?'艦隊ロード失敗: ':LANG==='zh'?'舰队加载失败: ':'Fleet load failed: ') + fleetCmdErrorMessage(data.error, data), 'error');
       return;
     }
