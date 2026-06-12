@@ -18,14 +18,26 @@ function scheduleTask(label, intervalMs, task, options = {}) {
     startPhase = 'startup',
     startedMessage,
     unref = false,
+    preventOverlap = true,
   } = options;
+  let running = false;
+
+  function runScheduled(phaseName) {
+    if (preventOverlap && running) {
+      if (options.logSkipped) console.warn(`[${label}] ${phaseName} skipped: previous run still active`);
+      return Promise.resolve();
+    }
+    running = true;
+    return runManagedTask(label, phaseName, task, options)
+      .finally(() => { running = false; });
+  }
 
   if (typeof startDelayMs === 'number') {
-    const startupTimer = setTimeout(() => runManagedTask(label, startPhase, task, options), startDelayMs);
+    const startupTimer = setTimeout(() => runScheduled(startPhase), startDelayMs);
     if (unref && startupTimer.unref) startupTimer.unref();
   }
 
-  const timer = setInterval(() => runManagedTask(label, phase, task, options), intervalMs);
+  const timer = setInterval(() => runScheduled(phase), intervalMs);
   if (unref && timer.unref) timer.unref();
   if (startedMessage) console.log(startedMessage);
   return timer;

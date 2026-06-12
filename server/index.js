@@ -867,8 +867,9 @@ async function start() {
       setTimeout(async () => {
         try { await spawnWeatherEvents(); } catch(e) { console.warn('[WEATHER] initial spawn error:', e.message); }
       }, 30 * 1000);
-      // Activate strategic forecasts every 1 minute
-      setInterval(() => activateForecasts().catch(console.error), 60 * 1000);
+      scheduleTask('WEATHER', 60 * 1000, activateForecasts, {
+        phase: 'activateForecasts',
+      });
       console.log('[WEATHER] Scheduled tasks initialized (expire: 5min, spawn: 6h, activateForecasts: 1min)');
     } catch(e) { console.warn('[WEATHER] Could not init scheduled tasks:', e.message); }
 
@@ -897,31 +898,30 @@ async function start() {
     // ── Missions Scheduler (resolves elapsed missions) ──
     try {
       const { tickMissions } = require('./services/missions');
-      // Resolve due missions every 30 seconds
-      setInterval(async () => {
-        try { await tickMissions(); } catch(e) { console.warn('[MISSION] tick error:', e.message); }
-      }, 30 * 1000);
+      scheduleTask('MISSION', 30 * 1000, tickMissions, {
+        phase: 'tick',
+      });
       console.log('[MISSION] Scheduled tasks initialized (tick: 30s)');
     } catch(e) { console.warn('[MISSION] Could not init scheduled tasks:', e.message); }
 
     // ── Guild War Resolution ──
     try {
       const guildService = require('./services/guild');
-      setInterval(async () => {
-        try { await guildService.resolveExpiredWars(); } catch(e) { console.warn('[GUILD WAR] resolve error:', e.message); }
-      }, 60 * 1000); // check every minute
+      scheduleTask('GUILD WAR', 60 * 1000, () => guildService.resolveExpiredWars(), {
+        phase: 'resolve',
+      });
       console.log('[GUILD WAR] War resolution timer initialized (60s)');
     } catch(e) { console.warn('[GUILD WAR] Could not init:', e.message); }
 
     // ── Transport (M-158) — settle arrived shipments every 60s ──
     try {
       const transportSvc = require('./services/transport');
-      setInterval(async () => {
-        try {
-          const r = await transportSvc.settleArrivedTransports();
-          if (r && r.settled > 0) console.log('[TRANSPORT] Settled ' + r.settled + ' shipment(s)');
-        } catch(e) { console.warn('[TRANSPORT] settle error:', e.message); }
-      }, 60 * 1000);
+      scheduleTask('TRANSPORT', 60 * 1000, async () => {
+        const r = await transportSvc.settleArrivedTransports();
+        if (r && r.settled > 0) console.log('[TRANSPORT] Settled ' + r.settled + ' shipment(s)');
+      }, {
+        phase: 'settle',
+      });
       console.log('[TRANSPORT] Arrival-settlement timer initialized (60s)');
     } catch(e) { console.warn('[TRANSPORT] Could not init:', e.message); }
 
@@ -951,10 +951,12 @@ async function start() {
     // ── Rocket Scheduled Tasks ──
     try {
       const { autoScheduleRocket, processRocketLanding, processRocketCompletion } = require('./services/rocket');
-      // Process landings + completions every minute
-      setInterval(async () => {
-        try { await processRocketLanding(); await processRocketCompletion(); } catch(e) { console.warn('[ROCKET] process error:', e.message); }
-      }, 60 * 1000);
+      scheduleTask('ROCKET', 60 * 1000, async () => {
+        await processRocketLanding();
+        await processRocketCompletion();
+      }, {
+        phase: 'process',
+      });
       // Auto-schedule every 12 hours
       setInterval(async () => {
         try { await autoScheduleRocket(); } catch(e) { console.warn('[ROCKET] schedule error:', e.message); }
