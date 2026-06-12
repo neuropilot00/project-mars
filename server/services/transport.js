@@ -275,8 +275,8 @@ async function settleArrivedTransports() {
       try { logGPActivity(t.carrier_wallet, payout, 'transport_arrived', `Transport #${t.id} arrived at sector ${t.dest_sector_id}`).catch(()=>{}); } catch(_){}
       try {
         const seasonSvc = require('./season');
-        seasonSvc.addSeasonScore(t.carrier_wallet, 'transport_completed', 1).catch(()=>{});
-        seasonSvc.addSeasonScore(t.carrier_wallet, 'gp_earned', parseInt(t.reward_gp) || 0).catch(()=>{});
+        seasonSvc.addSeasonScore(t.carrier_wallet, 'trade', 1).catch(()=>{});
+        seasonSvc.addSeasonScore(t.carrier_wallet, 'gp_earn', parseInt(t.reward_gp) || 0).catch(()=>{});
       } catch(_) {}
     }
     await client.query('COMMIT');
@@ -482,11 +482,11 @@ async function attemptRaid(raiderWallet, transportId) {
       if (succeeded) {
         logGPActivity(raiderWallet, lootGp, 'raid_loot', `Raided transport #${transportId}`).catch(()=>{});
         const seasonSvc = require('./season');
-        seasonSvc.addSeasonScore(raiderWallet, 'raid_success', 1).catch(()=>{});
-        seasonSvc.addSeasonScore(raiderWallet, 'gp_earned', lootGp).catch(()=>{});
+        seasonSvc.addSeasonScore(raiderWallet, 'hijack', 1).catch(()=>{});
+        seasonSvc.addSeasonScore(raiderWallet, 'gp_earn', lootGp).catch(()=>{});
       } else {
         const seasonSvc = require('./season');
-        seasonSvc.addSeasonScore(raiderWallet, 'raid_failed', 1).catch(()=>{});
+        seasonSvc.addSeasonScore(raiderWallet, 'hijack_loss', 1).catch(()=>{});
       }
     } catch(_){}
 
