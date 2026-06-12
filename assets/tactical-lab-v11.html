@@ -1329,7 +1329,7 @@ function noiseHit(dur,gain,lowpass=900,highpass=0,when=0){
 
 // ── BGM: 전투 드럼+베이스 루프 ──
 function startBattleMusic(){
-  if(musicTimer)return;
+  if(musicTimer||tlDisposed||document.hidden)return;
   let step=0;
   // 4/4박자 @ 140bpm ≒ 428ms per beat, 16 steps = 1 bar
   const bpm=138,stepMs=60000/bpm/4;
@@ -1339,6 +1339,7 @@ function startBattleMusic(){
   const snarePat=[0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0];
   const hihatPat=[1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0];
   musicTimer=setInterval(()=>{
+    if(tlDisposed||document.hidden){stopBattleMusic();return;}
     if(!audioOn)return;
     const s=step%16;
     // bass サイン+锯齿
@@ -1383,7 +1384,7 @@ async function toggleBattleAudio(){
   audioOn=!audioOn;
   btn.classList.toggle('on',audioOn);
   btn.textContent=audioOn?tl('soundOn'):tl('sound');
-  if(audioOn){startBattleMusic();tone(220,.12,.03,'triangle');}
+  if(audioOn&&!document.hidden&&!tlDisposed){startBattleMusic();tone(220,.12,.03,'triangle');}
   else stopBattleMusic();
 }
 
