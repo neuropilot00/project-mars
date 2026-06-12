@@ -17,8 +17,8 @@ const writeLimiter = makeRateLimiter({
   message: { error: 'Too many write requests. Please wait.' }
 });
 
-router.get('/user/titles', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase().trim();
+router.get('/user/titles', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet_required' });
   try {
     if (!titleService) return res.json({ titles: [] });

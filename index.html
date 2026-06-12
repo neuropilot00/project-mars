@@ -15009,7 +15009,7 @@ function updateWalletUI(){
   try{ updateDailyHint(); }catch(_){}
   // Load equipped title badge
   if (walletState.address) {
-    fetch('/api/user/titles?wallet='+encodeURIComponent(walletState.address))
+    fetch('/api/user/titles', { headers: getAuthHeaders() })
       .then(function(r){return r.json()}).then(function(d) {
         var badge = document.getElementById('equippedTitleBadge');
         if (!badge) return;
@@ -34612,7 +34612,7 @@ window.addEventListener('resize', _debounce(function(){
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
     var lang = window._currentLang || 'en';
 
-    fetch('/api/user/titles?wallet='+encodeURIComponent(w))
+    fetch('/api/user/titles', { headers: getAuthHeaders() })
       .then(function(r){return r.json()}).then(function(d) {
         var titles = d.titles || [];
         if (!titles.length) {
