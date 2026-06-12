@@ -127,19 +127,20 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
      WHERE p.sector_id = $1 AND c.owner IS NOT NULL
      GROUP BY LOWER(c.owner)
   `, [sid]);
-  if (!ownerRes.rows.length) return _cacheSectorInfluenceBonus(cacheKey, null);
 
-  const wallets = ownerRes.rows.map(r => r.wallet);
+  const landWallets = ownerRes.rows.map(r => r.wallet);
   const activityMap = {};
-  const activityRes = await client.query(`
-    SELECT LOWER(from_wallet) AS wallet, COUNT(*)::int AS harvest_count
-      FROM transactions
-     WHERE type IN ('mining','instant_harvest')
-       AND created_at > NOW() - INTERVAL '7 days'
-       AND LOWER(from_wallet) = ANY($1)
-     GROUP BY LOWER(from_wallet)
-  `, [wallets]);
-  activityRes.rows.forEach(r => { activityMap[r.wallet] = parseInt(r.harvest_count, 10) || 0; });
+  if (landWallets.length) {
+    const activityRes = await client.query(`
+      SELECT LOWER(from_wallet) AS wallet, COUNT(*)::int AS harvest_count
+        FROM transactions
+       WHERE type IN ('mining','instant_harvest')
+         AND created_at > NOW() - INTERVAL '7 days'
+         AND LOWER(from_wallet) = ANY($1)
+       GROUP BY LOWER(from_wallet)
+    `, [landWallets]);
+    activityRes.rows.forEach(r => { activityMap[r.wallet] = parseInt(r.harvest_count, 10) || 0; });
+  }
 
   const battleMap = {};
   const battleRes = await client.query(`
@@ -151,9 +152,8 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
        AND fb.winner_side IN ('atk','def')
        AND fb.battle_type IN ('pvp_duel','hijack','siege')
        AND fb.ended_at > NOW() - INTERVAL '7 days'
-       AND LOWER(p.wallet_address) = ANY($2)
      GROUP BY LOWER(p.wallet_address)
-  `, [sid, wallets]);
+  `, [sid]);
   battleRes.rows.forEach(r => { battleMap[r.wallet] = parseInt(r.win_count, 10) || 0; });
 
   const scores = ownerRes.rows.map(r => {
@@ -163,6 +163,11 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
     const harvestScore = (activityMap[owner] || 0) * 3;
     const battleScore = (battleMap[owner] || 0) * SECTOR_BATTLE_WIN_CONTROL_SCORE;
     return { wallet: owner, totalScore: pixelArea + upgradeScore + harvestScore + battleScore };
+  });
+  Object.keys(battleMap).forEach(wallet => {
+    if (scores.some(row => row.wallet === wallet)) return;
+    const battleScore = (battleMap[wallet] || 0) * SECTOR_BATTLE_WIN_CONTROL_SCORE;
+    if (battleScore > 0) scores.push({ wallet, totalScore: battleScore });
   });
   const totalScore = scores.reduce((sum, row) => sum + row.totalScore, 0);
   if (totalScore <= 0) return _cacheSectorInfluenceBonus(cacheKey, null);
@@ -178,7 +183,7 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
         FROM guild_members
        WHERE status = 'active'
          AND LOWER(wallet) = ANY($1)
-    `, [wallets]);
+    `, [scores.map(row => row.wallet)]);
     const guildByWallet = {};
     guildRes.rows.forEach(r => { guildByWallet[r.wallet] = r.guild_id; });
     const myGuildId = guildByWallet[w];
