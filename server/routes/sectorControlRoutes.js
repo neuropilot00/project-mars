@@ -23,8 +23,8 @@ function getOptionalAuthWallet(req) {
 }
 
 const INFLUENCE_TIERS = [
-  { id: 'governor', threshold: 0.75, bonus: '+20% production/defense', bonusKo: '+20% 생산/방어' },
-  { id: 'dominant', threshold: 0.50, bonus: '+12% production/defense', bonusKo: '+12% 생산/방어' },
+  { id: 'governor', threshold: 0.75, bonus: '+20% production', bonusKo: '+20% 생산' },
+  { id: 'dominant', threshold: 0.50, bonus: '+12% production', bonusKo: '+12% 생산' },
   { id: 'stakeholder', threshold: 0.25, bonus: '+5% production', bonusKo: '+5% 생산' },
   { id: 'presence', threshold: 0.10, bonus: 'Sector influence list', bonusKo: '섹터 영향력 목록' },
 ];
