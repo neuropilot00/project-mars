@@ -2001,6 +2001,32 @@ function syBuildRequirementInfo(ship) {
   return rows;
 }
 
+function syMissingMaterialPlan(recipe) {
+  var missing = Object.entries(recipe || {}).map(function(e) {
+    var code = e[0], need = Number(e[1] || 0), have = syOwnedResourceQty(code);
+    return { code: code, need: need, have: have, short: Math.max(0, need - have), hint: shipyardState.materialSectorHints[code] || '' };
+  }).filter(function(m) { return m.short > 0; });
+  if (!missing.length) return '';
+  var byHint = {};
+  missing.forEach(function(m) {
+    var key = m.hint || 'frontier';
+    (byHint[key] || (byHint[key] = [])).push(m);
+  });
+  var priority = ['core', 'mid', 'frontier'];
+  var first = priority.concat(Object.keys(byHint)).find(function(k) { return byHint[k] && byHint[k].length; }) || 'frontier';
+  var label = _SECTOR_BADGE_LABEL[first] || first;
+  var top = byHint[first].slice(0, 2).map(function(m) {
+    return syResourceName(m.code) + ' ' + syFmt(m.have) + '/' + syFmt(m.need);
+  }).join(' · ');
+  var shown = Math.min(2, byHint[first].length);
+  var more = missing.length > shown ? ' +' + (missing.length - shown) : '';
+  var action = LANG==='ko'?'RESOURCE RUN 추천':LANG==='ja'?'推奨RESOURCE RUN':LANG==='zh'?'推荐资源航线':'Recommended resource run';
+  return '<div style="margin-top:5px;padding:5px 6px;border-radius:6px;border:1px solid rgba(100,220,130,.18);background:rgba(100,220,130,.045);font-size:8.5px;line-height:1.45;color:var(--tx2)">'
+    + '<b style="color:#64dc82">▸ ' + action + '</b> <span style="color:var(--gold)">' + fcEsc(label) + '</span><br>'
+    + '<span>' + top + more + '</span>'
+    + '</div>';
+}
+
 function renderBlueprintCard(s) {
   var recipe = s.recipe_minerals || {};
   var mineralCheck = Object.entries(recipe).map(function(e) {
@@ -2029,6 +2055,7 @@ function renderBlueprintCard(s) {
   var canAfford = !gpShort && !mineralShort;
   var buildDisabled = !s.can_build || !canAfford;
   var buildLabel = !s.can_build ? (lockMsg || '불가') : (!canAfford ? '재료 확인' : '⚒ 건조 시작');
+  var materialPlan = mineralShort ? syMissingMaterialPlan(recipe) : '';
 
   var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.code });
   var accent = shipFactionAccent(s.faction_code);
@@ -2048,6 +2075,7 @@ function renderBlueprintCard(s) {
     '</div>' +
     '<div class="bp-cost"><div class="bp-cost-line">' + syNeedChip('💰 GP', gpHave, s.build_gp_cost) + '</div>' +
       (mineralCheck ? '<div class="bp-cost-line" style="margin-top:4px">' + mineralCheck + '</div>' : '') +
+      materialPlan +
       '<div class="bp-build-time">⏱ 건조: ' + buildTime + '</div></div>' +
     (limitsText ? '<div class="bp-limits">' + limitsText + '</div>' : '') +
     '<button type="button" class="bp-build-btn ' + (buildDisabled ? 'locked-detail' : '') + '" onclick="buildShip(\'' + s.code + '\')">' +
