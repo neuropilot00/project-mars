@@ -353,6 +353,7 @@ function renderBattleCard(b, tab) {
   const timeInfo = isLive ? (t('bc_in_progress')||'In Progress') :
                    isPreparing ? `${t('bc_scheduled')||'Scheduled'}: ${formatShortTime(b.scheduled_start_at)}` :
                    formatShortTime(b.ended_at);
+  const sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
   
   return `
     <div class="battle-card ${isLive ? 'active-battle' : ''} ${resultClass}">
@@ -365,6 +366,7 @@ function renderBattleCard(b, tab) {
         <div class="bc-info-meta">
           <span>⚔ <b>${b.atk_ships_total || b.atk_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
           <span>vs <b>${b.def_ships_total || b.def_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
+          ${sectorLabel ? `<span style="color:#ffab40">⌖ ${escapeHtml(sectorLabel)}</span>` : ''}
           ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}</b>${LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'min'}</span>` : ''}
           <span>${timeInfo}</span>
         </div>

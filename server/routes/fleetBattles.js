@@ -231,11 +231,13 @@ router.get('/list/active', async (req, res) => {
     const { rows } = await pool.query(`
       SELECT id, battle_type, status, phase,
              sector_id, claim_id,
+             sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
              atk_ships_total, def_ships_total,
              battle_started_at, scheduled_start_at,
              (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='atk') AS atk_fleets,
              (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='def') AS def_fleets
       FROM fleet_battles fb
+      LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
       WHERE status IN ('preparing','active')
       ORDER BY
         CASE status WHEN 'active' THEN 1 ELSE 2 END,
@@ -259,11 +261,13 @@ router.get('/list/recent', async (req, res) => {
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const { rows } = await pool.query(`
       SELECT id, battle_type, status, winner_side,
+             sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
              atk_ships_total, def_ships_total,
              atk_ships_lost, def_ships_lost,
              duration_seconds, ended_at
-      FROM fleet_battles
-      WHERE status = 'ended'
+      FROM fleet_battles fb
+      LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
+      WHERE fb.status = 'ended'
       ORDER BY ended_at DESC NULLS LAST
       LIMIT $1
     `, [limit]);
