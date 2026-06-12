@@ -1261,6 +1261,17 @@ window.opsMissionGo = function(type) {
       });
     } else if (['market_list','market_buy','market_activity'].includes(type)) {
       _opsOpenBaseTab('baseTabMarket', function(){ try { if (typeof loadMarketTab === 'function') loadMarketTab(); } catch(_) {} });
+    } else if (['transport_launch','transport_collect','transport_raid'].includes(type)) {
+      _opsOpenBaseTab('baseTabTransport', function(){
+        try { if (typeof loadTransportTab === 'function') loadTransportTab(); } catch(_) {}
+        try {
+          if (typeof switchTransportSub === 'function') {
+            setTimeout(function(){
+              switchTransportSub(type === 'transport_raid' ? 'raid' : (type === 'transport_collect' ? 'my' : 'launch'));
+            }, 150);
+          }
+        } catch(_) {}
+      });
     // ─ 캠페인 계열 → CAMPAIGN/QUESTS 탭. (이전엔 존재하지 않는 'quests' 카테고리를
     //   switchBaseCat 에 넘겨 모든 탭이 숨겨지며 이동이 깨졌다. 실제 탭 data-cat 은 'mission'.) ─
     } else if (['campaign_progress','campaign_complete'].includes(type)) {

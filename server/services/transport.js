@@ -66,6 +66,16 @@ async function getCfg() {
   };
 }
 
+function notifyOpsProgress(wallet, missionTypes) {
+  if (!wallet || !Array.isArray(missionTypes)) return;
+  try {
+    const dailyOps = require('../routes/dailyOps');
+    missionTypes.forEach(type => {
+      try { dailyOps.notifyMissionProgress(wallet, type).catch(()=>{}); } catch(_) {}
+    });
+  } catch (_) {}
+}
+
 // Great-circle-ish distance in "units" (degrees) between two sector centers
 async function sectorDistance(client, aId, bId) {
   const { rows } = await client.query(
@@ -221,6 +231,7 @@ async function startTransport(wallet, originSectorId, destSectorId, cargoGp) {
       const seasonSvc = require('./season');
       seasonSvc.addSeasonScore(wallet, 'transport_started', 1).catch(()=>{});
     } catch(_) {}
+    notifyOpsProgress(wallet, ['transport_launch']);
 
     const row = ins.rows[0];
     return {
@@ -278,6 +289,7 @@ async function settleArrivedTransports() {
         seasonSvc.addSeasonScore(t.carrier_wallet, 'trade', 1).catch(()=>{});
         seasonSvc.addSeasonScore(t.carrier_wallet, 'gp_earn', parseInt(t.reward_gp) || 0).catch(()=>{});
       } catch(_) {}
+      notifyOpsProgress(t.carrier_wallet, ['transport_collect']);
     }
     await client.query('COMMIT');
     return { settled: rows.length };
@@ -489,6 +501,7 @@ async function attemptRaid(raiderWallet, transportId) {
         seasonSvc.addSeasonScore(raiderWallet, 'hijack_loss', 1).catch(()=>{});
       }
     } catch(_){}
+    notifyOpsProgress(raiderWallet, ['transport_raid']);
 
     return {
       success: true,
