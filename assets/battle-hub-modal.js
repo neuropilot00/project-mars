@@ -678,8 +678,7 @@ async function openDeclareBattle() {
 
   // 내 함대 로드
   try {
-    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
-    const data = await res.json();
+    const data = await battleHubReadKeyed('declare-fleets', '/api/fleets', 8000);
     declareState.myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
   } catch { declareState.myFleets = []; }
 
@@ -736,9 +735,8 @@ function closeDeclareBattle() {
 
 async function loadRecommendedOpponents() {
   try {
-    const res = await fetch('/api/fleets/search/opponents', { headers: getAuthHeaders() });
-    if (!res.ok) return;
-    const data = await res.json();
+    const data = await battleHubReadKeyed('opponent-recommendations', '/api/fleets/search/opponents', 10000);
+    if (!data) return;
     const chips = document.getElementById('declareOpponentChips');
     if (!chips) return;
 
@@ -954,9 +952,8 @@ async function openCmdActionsModal(battleId, targetFleetId){
   const sel = document.getElementById('caReinforceShip');
   if (sel && !caState.shipTypes) {
     try {
-      const r = await fetch('/api/ships/blueprints', { headers: getAuthHeaders() });
-      const j = await r.json();
-      caState.shipTypes = Array.isArray(j.ships) ? j.ships : [];
+      const j = await battleHubReadKeyed('commander-ship-blueprints', '/api/ships/blueprints', 30000);
+      caState.shipTypes = Array.isArray(j && j.ships) ? j.ships : [];
     } catch(_) { caState.shipTypes = []; }
   }
   if (sel) {
@@ -1371,8 +1368,8 @@ async function loadAiFleets() {
   grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
 
   try {
-    const res = await fetch('/api/ai/fleets', { headers: getAuthHeaders() });
-    const data = await res.json();
+    const data = await battleHubReadKeyed('ai-fleets', '/api/ai/fleets', 15000);
+    if (!data) return;
     const fleets = data.fleets || [];
 
     if (fleets.length === 0) {
@@ -1411,8 +1408,8 @@ async function loadAiFleets() {
 
 async function challengeAi(aiFleetId, aiName) {
   try {
-    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
-    const data = await res.json();
+    const data = await battleHubReadKeyed('ai-challenge-fleets', '/api/fleets', 8000);
+    if (!data) return;
     const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
 
     if (myFleets.length === 0) {
@@ -1491,8 +1488,8 @@ async function tnLoad() {
     else if (tab === 'running') statusParam = '?status=running';
     else statusParam = '?status=completed';
 
-    const res = await fetch('/api/tournaments' + statusParam);
-    const data = await res.json();
+    const data = await battleHubReadKeyed('tournaments:' + tab, '/api/tournaments' + statusParam, 30000);
+    if (!data) return;
     const list = data.tournaments || [];
 
     if (list.length === 0) {
@@ -1537,8 +1534,8 @@ function renderTournamentCard(t) {
 
 async function registerTournament(tournamentId) {
   try {
-    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
-    const data = await res.json();
+    const data = await battleHubReadKeyed('tournament-fleets', '/api/fleets', 8000);
+    if (!data) return;
     const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
 
     if (myFleets.length === 0) {
