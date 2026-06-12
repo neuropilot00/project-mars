@@ -300,6 +300,9 @@ async function distributeMinimalRewards(battleId) {
   
   const settings = await loadBattleSettings();
   const results = [];
+  const progressEvents = [];
+  const _db = require('../db');
+  const _drawXp = parseInt(await _db.getSetting('battle_loss_xp', '5')) || 5;
   
   const client = await pool.connect();
   try {
@@ -342,6 +345,8 @@ async function distributeMinimalRewards(battleId) {
           [gp, p.wallet_address]
         );
       }
+
+      try { if (_drawXp > 0) await _db.awardXP(client, p.wallet_address, _drawXp); } catch (_) {}
       
       await client.query(`
         INSERT INTO fleet_battle_rewards (
@@ -356,9 +361,15 @@ async function distributeMinimalRewards(battleId) {
         gp_awarded: gp,
         minerals_awarded: {},
       });
+      progressEvents.push({
+        wallet: p.wallet_address,
+        isWinner: false,
+        gpAwarded: gp,
+      });
     }
     
     await client.query('COMMIT');
+    recordBattleProgress(progressEvents);
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
