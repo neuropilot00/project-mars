@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool, getSetting } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 // ─── 상수 ───
 
@@ -335,6 +336,7 @@ async function deleteFleet(fleetId, walletAddress) {
     );
     if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
     if (fleetRows[0].is_in_battle) throw new Error('FLEET_IN_BATTLE');
+    await assertFleetsNotMining(client, [fleetId], 'FLEET_MINING');
     
     // Lock user row — serializes concurrent deleteFleet calls so last-fleet check is race-free
     await client.query(
@@ -452,6 +454,7 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     );
     if (!targetRows[0]) throw new Error('TARGET_FLEET_NOT_FOUND');
     if (targetRows[0].is_in_battle) throw new Error('TARGET_FLEET_IN_BATTLE');
+    await assertFleetsNotMining(client, [targetFleetId], 'TARGET_FLEET_MINING');
     
     // 함선 소유권 확인 + 전투중 함대에서 빼낼 수 없음 + 진영 일치 확인(cross-faction 차단)
     const { rows: shipRows } = await client.query(`
@@ -479,6 +482,9 @@ async function moveShips(walletAddress, shipIds, targetFleetId) {
     if (inBattle.length > 0) {
       throw new Error('SHIPS_IN_BATTLE');
     }
+
+    const sourceFleetIdsForMining = [...new Set(shipRows.map(s => s.fleet_id).filter(Boolean))];
+    await assertFleetsNotMining(client, sourceFleetIdsForMining, 'SOURCE_FLEET_MINING');
 
     // Cross-faction 차단: 본인 진영과 다른 함선은 함대에 못 넣음(창고 전용·마켓 판매만)
     // [v7.322] 단, 합체 유닛(pilgrim 진영 또는 size_class='assembled')은 전 유저 공용 — 진영 무관 편입 허용.

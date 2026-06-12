@@ -111,6 +111,8 @@ router.post('/siege/create', (req, res, next) => {
       'DEF_FLEET_NOT_FOUND':  404,
       'ATK_FLEET_IN_BATTLE':  409,
       'DEF_FLEET_IN_BATTLE':  409,
+      'ATK_FLEET_MINING':     409,
+      'DEF_FLEET_MINING':     409,
     };
     const status = msgMap[err.message];
     if (status) return res.status(status).json({ error: err.message });

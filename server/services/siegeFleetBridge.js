@@ -7,6 +7,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 /**
  * Siege를 fleet_battle로 연결
@@ -56,6 +57,13 @@ async function createSiegeBattle(params) {
     );
     if (!defFleet[0]) { await client.query('ROLLBACK'); throw new Error('DEF_FLEET_NOT_FOUND'); }
     if (defFleet[0].is_in_battle) { await client.query('ROLLBACK'); throw new Error('DEF_FLEET_IN_BATTLE'); }
+    try {
+      await assertFleetsNotMining(client, [atk_fleet_id], 'ATK_FLEET_MINING');
+      await assertFleetsNotMining(client, [def_fleet_id], 'DEF_FLEET_MINING');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    }
 
     // Migration 096의 헬퍼 함수 사용
     const { rows } = await client.query(`
@@ -99,6 +107,12 @@ async function createSiegeBattleMulti(params) {
     if (!atk.length || !def.length) { await client.query('ROLLBACK'); throw new Error('NEED_BOTH_SIDES'); }
     for (const c of commits) {
       if (c.is_in_battle) { await client.query('ROLLBACK'); throw new Error('FLEET_IN_BATTLE'); }
+    }
+    try {
+      await assertFleetsNotMining(client, commits.map(c => c.fleet_id), 'FLEET_MINING');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
     }
     const b = await client.query(
       `INSERT INTO fleet_battles (battle_type, status, phase, sector_id, claim_id, governor_siege_id, prepare_started_at, scheduled_start_at)

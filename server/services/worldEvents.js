@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 const { pool, getSetting, ensureUser } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 const NPC_WALLET = '0xnpc0000000000000000000000000000000000000';
 
@@ -298,6 +299,7 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
     const atkFleet = atkFleetRows[0];
     if (atkFleet.is_npc) throw new Error('NPC_CANNOT_ENGAGE');
     if (atkFleet.is_in_battle) throw new Error('FLEET_BUSY');
+    await assertFleetsNotMining(client, [attackerFleetId], 'FLEET_MINING');
     if (parseInt(atkFleet.alive_ships) < minShips) {
       const err = new Error('INSUFFICIENT_SHIPS');
       err.meta = { required: minShips, have: parseInt(atkFleet.alive_ships) };

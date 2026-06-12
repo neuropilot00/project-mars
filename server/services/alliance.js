@@ -4,6 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 const ROLE_LEADER = 'leader';
 const ROLE_OFFICER = 'officer';
@@ -269,6 +270,28 @@ async function createTeamBattle(params) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    const fleetIds = participants.map(p => Number(p.fleet_id)).filter(Number.isFinite);
+    if (fleetIds.length !== participants.length) throw new Error('INVALID_FLEET');
+
+    const { rows: fleetRows } = await client.query(
+      `SELECT id, owner_wallet, is_in_battle
+         FROM fleets
+        WHERE id = ANY($1::bigint[])
+        FOR UPDATE`,
+      [fleetIds]
+    );
+    if (fleetRows.length !== fleetIds.length) throw new Error('FLEET_NOT_FOUND');
+
+    const fleetsById = new Map(fleetRows.map(row => [Number(row.id), row]));
+    for (const p of participants) {
+      const fleet = fleetsById.get(Number(p.fleet_id));
+      if (!fleet || (fleet.owner_wallet || '').toLowerCase() !== String(p.wallet || '').toLowerCase()) {
+        throw new Error('FLEET_OWNER_MISMATCH');
+      }
+      if (fleet.is_in_battle) throw new Error('FLEET_IN_BATTLE');
+    }
+    await assertFleetsNotMining(client, fleetIds, 'FLEET_MINING');
     
     // 전투 생성
     const { rows: bRows } = await client.query(`

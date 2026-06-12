@@ -1306,6 +1306,8 @@ router.post('/hijack/declare-with-pp', requireAuth, writeLimiter, async (req, re
       'DEF_FLEET_NOT_FOUND': 404,
       'ATK_FLEET_IN_BATTLE': 409,
       'DEF_FLEET_IN_BATTLE': 409,
+      'ATK_FLEET_MINING': 409,
+      'DEF_FLEET_MINING': 409,
       'NO_PHASE1_SHIPS': 409,
       'TOO_MANY_PHASE1_SHIPS': 409,
       'DEFENDER_PROTECTED': 403,

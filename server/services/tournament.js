@@ -14,6 +14,7 @@
 
 const { pool, logGPActivity } = require('../db');
 const siegeFleetBridge = require('./siegeFleetBridge'); // 재사용: battle 생성 유틸
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 // ─── 토너먼트 생성 ───
 
@@ -29,7 +30,7 @@ async function createTournament(params) {
     registration_deadline_hours = 24,
     start_delay_hours = 1,
   } = params;
-  
+
   if (!name) throw new Error('NAME_REQUIRED');
   if (![4, 8, 16].includes(max_participants)) {
     throw new Error('INVALID_SIZE'); // 2^n만 허용
@@ -102,6 +103,7 @@ async function registerParticipant(tournamentId, walletAddress, fleetId) {
     `, [fleetId, walletLower]);
     if (!fleetRows[0]) throw new Error('FLEET_NOT_FOUND');
     if (fleetRows[0].is_in_battle) throw new Error('FLEET_IN_BATTLE');
+    await assertFleetsNotMining(client, [fleetId], 'FLEET_MINING');
     if (parseInt(fleetRows[0].ships_alive) === 0) throw new Error('FLEET_EMPTY');
     const participantWallet = (fleetRows[0].owner_wallet || walletLower).toLowerCase();
     
@@ -348,42 +350,53 @@ async function runSingleMatch(match) {
   try {
     await client.query('BEGIN');
 
-  // fleet_battle 생성
-  const { rows: battleRows } = await client.query(`
-    INSERT INTO fleet_battles (
-      battle_type, status, phase,
-      prepare_started_at, scheduled_start_at
-    ) VALUES ('event', 'preparing', 'main', NOW(), NOW())
-    RETURNING id
-  `);
-  battleId = battleRows[0].id;
-  
-  await client.query(`
-    INSERT INTO fleet_battle_participants (battle_id, fleet_id, wallet_address, side)
-    VALUES ($1, $2, $3, 'atk'), ($1, $4, $5, 'def')
-  `, [battleId, match.p1_fleet_id, match.p1_wallet, match.p2_fleet_id, match.p2_wallet]);
-  
-  // 매치에 battle_id 연결
-  await client.query(`
-    UPDATE tournament_matches 
-    SET battle_id = $1, status = 'running', started_at = NOW()
-    WHERE id = $2
-  `, [battleId, match.id]);
-
-  await client.query('COMMIT');
-  
-  // 즉시 실행
-  const battleScheduler = require('./battleScheduler');
-  battleScheduler.runBattle(battleId).then(() => {
-    // 전투 완료 → 매치 완료 처리 (비동기)
-    completeMatch(match.id).catch(err => 
-      console.error(`[tournament] completeMatch ${match.id} error:`, err)
+    const { rows: fleets } = await client.query(
+      `SELECT id, is_in_battle
+         FROM fleets
+        WHERE id = ANY($1::bigint[])
+        FOR UPDATE`,
+      [[match.p1_fleet_id, match.p2_fleet_id]]
     );
-  }).catch(err => {
-    console.error(`[tournament] runBattle ${battleId} error:`, err);
-  });
+    if (fleets.length !== 2) throw new Error('FLEET_NOT_FOUND');
+    if (fleets.some(f => f.is_in_battle)) throw new Error('FLEET_IN_BATTLE');
+    await assertFleetsNotMining(client, [match.p1_fleet_id, match.p2_fleet_id], 'FLEET_MINING');
+
+    // fleet_battle 생성
+    const { rows: battleRows } = await client.query(`
+      INSERT INTO fleet_battles (
+        battle_type, status, phase,
+        prepare_started_at, scheduled_start_at
+      ) VALUES ('event', 'preparing', 'main', NOW(), NOW())
+      RETURNING id
+    `);
+    battleId = battleRows[0].id;
   
-  return battleId;
+    await client.query(`
+      INSERT INTO fleet_battle_participants (battle_id, fleet_id, wallet_address, side)
+      VALUES ($1, $2, $3, 'atk'), ($1, $4, $5, 'def')
+    `, [battleId, match.p1_fleet_id, match.p1_wallet, match.p2_fleet_id, match.p2_wallet]);
+
+    // 매치에 battle_id 연결
+    await client.query(`
+      UPDATE tournament_matches
+      SET battle_id = $1, status = 'running', started_at = NOW()
+      WHERE id = $2
+    `, [battleId, match.id]);
+
+    await client.query('COMMIT');
+
+    // 즉시 실행
+    const battleScheduler = require('./battleScheduler');
+    battleScheduler.runBattle(battleId).then(() => {
+      // 전투 완료 → 매치 완료 처리 (비동기)
+      completeMatch(match.id).catch(err =>
+        console.error(`[tournament] completeMatch ${match.id} error:`, err)
+      );
+    }).catch(err => {
+      console.error(`[tournament] runBattle ${battleId} error:`, err);
+    });
+
+    return battleId;
   } catch (err) {
     try { await client.query('ROLLBACK'); } catch (_) {}
     throw err;

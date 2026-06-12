@@ -249,6 +249,7 @@ router.post('/tournaments/:id/register', requireAuth, async (req, res) => {
       'TOURNAMENT_FULL': 409, 'DEADLINE_PASSED': 409,
       'ALREADY_REGISTERED': 409, 'FLEET_NOT_FOUND': 404,
       'FLEET_IN_BATTLE': 409, 'FLEET_EMPTY': 409,
+      'FLEET_MINING': 409,
       'INSUFFICIENT_GP': 402,
     };
     const status = errorMap[err.message];

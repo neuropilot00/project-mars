@@ -40,6 +40,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool, getSetting } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 const PHASE1_ALLOWED_SIZES = ['frigate', 'destroyer'];
 const PHASE1_MAX_SHIPS = 20;
@@ -78,6 +79,8 @@ async function declareHijack(params) {
     );
     if (!defFleet[0]) throw new Error('DEF_FLEET_NOT_FOUND');
     if (defFleet[0].is_in_battle) throw new Error('DEF_FLEET_IN_BATTLE');
+    await assertFleetsNotMining(client, [atk_fleet_id], 'ATK_FLEET_MINING');
+    await assertFleetsNotMining(client, [def_fleet_id], 'DEF_FLEET_MINING');
     
     // Phase 1 함선 조건 체크 (크기 + 수)
     const { rows: atkShips } = await client.query(`
@@ -745,6 +748,8 @@ async function declareHijackWithPP(params) {
         );
         if (!defFleet[0]) throw new Error('DEF_FLEET_NOT_FOUND');
         if (defFleet[0].is_in_battle) throw new Error('DEF_FLEET_IN_BATTLE');
+        await assertFleetsNotMining(client, [atk_fleet_id], 'ATK_FLEET_MINING');
+        await assertFleetsNotMining(client, [primary_def_fleet_id], 'DEF_FLEET_MINING');
 
         // 🛡 [상용화 stop-ship] 신규 유저 hijack 면역 — full-loss ON 상태에서 고인물의 신규 학살 방지.
         //    가입 N일 미만 또는 레벨 N 미만 수비자는 hijack 대상에서 제외(설정으로 조정/해제 가능).
