@@ -1586,6 +1586,8 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     const pixelFactor = Math.min(Math.sqrt(totalPixels) / 10, 3.0); // cap at 3x
     const baseRandom = rewardMin + Math.random() * (rewardMax - rewardMin);
     let harvestedPP = Math.round(baseRandom * pixelFactor * 10000) / 10000;
+    let harvestSurgeEffectId = null;
+    let harvestSurgeApplied = false;
 
     // ✅ [P1-1 FIX] Apply hard cap to BASE here (before multipliers).
     // 이전엔 모든 multiplier 적용 후 cap 을 씌워 VIP/buff/governor 등 누적 보너스가
@@ -1753,6 +1755,23 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
 
     // (구버전 전역 harvest — 채굴 탭 제거 후 미사용. 보너스는 /territory/:id/harvest에만 적용)
 
+    // Harvest Surge: next successful harvest gets a one-use multiplier.
+    try {
+      const hsRes = await client.query(
+        `SELECT id, effect_value FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'harvest_surge' AND active = true
+           AND uses_remaining > 0
+           AND (expires_at IS NULL OR expires_at > NOW())
+         ORDER BY id DESC LIMIT 1`, [w]
+      );
+      if (hsRes.rows.length > 0) {
+        const mult = Math.max(1, parseFloat(hsRes.rows[0].effect_value) || 3);
+        harvestSurgeEffectId = hsRes.rows[0].id;
+        harvestSurgeApplied = true;
+        harvestedPP = Math.round(harvestedPP * mult * 10000) / 10000;
+      }
+    } catch (_hs) { /* item system unavailable */ }
+
     // (P1-1) cap 은 위에서 base 에 이미 적용됨 — 여기선 multipliers 누적 후 추가 cap 적용 안 함.
 
     // Apply daily cap (0=unlimited)
@@ -1776,6 +1795,15 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     if (harvestedPP <= 0) {
       await client.query('ROLLBACK');
       return res.status(429).json({ error: 'No rewards available' });
+    }
+
+    if (harvestSurgeEffectId) {
+      await client.query(
+        `UPDATE user_active_effects
+         SET uses_remaining = 0, active = false
+         WHERE id = $1`,
+        [harvestSurgeEffectId]
+      );
     }
 
     // Update user_mining record
@@ -1870,6 +1898,7 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
       isGovernor,
       intervalHours,
       nextHarvestAt,
+      itemEffects: harvestSurgeApplied ? { harvestSurge: true } : {},
       resources: resourceDrops
     });
 
@@ -1984,6 +2013,8 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     const pixelFactor = Math.min(Math.sqrt(totalPixels) / 10, 3.0);
     const baseRandom = rewardMin + Math.random() * (rewardMax - rewardMin);
     let harvestedPP = Math.round(baseRandom * pixelFactor * 10000) / 10000;
+    let harvestSurgeEffectId = null;
+    let harvestSurgeApplied = false;
     if (harvestCap > 0) harvestedPP = Math.min(harvestedPP, harvestCap);
 
     // Governor bonus
@@ -2061,6 +2092,23 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
     } catch (_) {}
 
+    // Harvest Surge: next successful territory harvest gets a one-use multiplier.
+    try {
+      const hsRes = await client.query(
+        `SELECT id, effect_value FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'harvest_surge' AND active = true
+           AND uses_remaining > 0
+           AND (expires_at IS NULL OR expires_at > NOW())
+         ORDER BY id DESC LIMIT 1`, [w]
+      );
+      if (hsRes.rows.length > 0) {
+        const mult = Math.max(1, parseFloat(hsRes.rows[0].effect_value) || 3);
+        harvestSurgeEffectId = hsRes.rows[0].id;
+        harvestSurgeApplied = true;
+        harvestedPP = Math.round(harvestedPP * mult * 10000) / 10000;
+      }
+    } catch (_) {}
+
     // ✅ [PP 일일 채굴 상한] pp_daily_earn_cap_per_user (0=무제한) — 무제한 farm/봇 파밍 방지
     // user_mining.today_mined_pp(오늘 누적)을 기준으로 남은 한도만큼만 지급한다.
     const _ppCapDate = now.toISOString().slice(0, 10);
@@ -2089,6 +2137,15 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     //   일일 PP 캡(ppDailyCap)은 위에서 이미 적용됨.
     harvestedPP = Math.round(harvestedPP * 10000) / 10000;
     if (harvestedPP <= 0) { await client.query('ROLLBACK'); return res.status(429).json({ error: 'no_rewards' }); }
+
+    if (harvestSurgeEffectId) {
+      await client.query(
+        `UPDATE user_active_effects
+         SET uses_remaining = 0, active = false
+         WHERE id = $1`,
+        [harvestSurgeEffectId]
+      );
+    }
 
     // claims.last_harvest_at 갱신
     await client.query('UPDATE claims SET last_harvest_at = NOW() WHERE id = $1', [claimId]);
@@ -2139,7 +2196,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
 
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
     // [v7.320] 즉시 수확은 GP로 지급되므로 harvestedGP를 함께 내려 UI가 "+N GP"로 표시하게 한다.
-    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, intervalHours, nextHarvestAt, sectorInfluenceBonus, resources: resourceDrops });
+    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, intervalHours, nextHarvestAt, sectorInfluenceBonus, itemEffects: harvestSurgeApplied ? { harvestSurge: true } : {}, resources: resourceDrops });
 
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
