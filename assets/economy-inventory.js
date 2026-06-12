@@ -37,6 +37,11 @@ function _shopConfirmResolve(val){
 
 var _activeEffects=[];
 var _activeEffectsRefreshTimer=null;
+function _clearActiveEffectsRefresh(){
+  if(!_activeEffectsRefreshTimer)return;
+  _clearActiveTimeout(_activeEffectsRefreshTimer);
+  _activeEffectsRefreshTimer=null;
+}
 function _filterLiveEffects(effects){
   var now=Date.now();
   return (Array.isArray(effects)?effects:[]).filter(function(e){
@@ -47,7 +52,7 @@ function _filterLiveEffects(effects){
   });
 }
 function _scheduleActiveEffectsRefresh(){
-  if(_activeEffectsRefreshTimer)_clearActiveTimeout(_activeEffectsRefreshTimer);
+  _clearActiveEffectsRefresh();
   var nextAt=null, now=Date.now();
   (_activeEffects||[]).forEach(function(e){
     if(!e||!e.expires_at)return;
@@ -63,7 +68,12 @@ function _scheduleActiveEffectsRefresh(){
 }
 function loadActiveEffects(){
   var w=(walletState&&walletState.address)||'';
-  if(!w)return Promise.resolve([]);
+  if(!w){
+    _activeEffects=[];
+    _clearActiveEffectsRefresh();
+    renderActiveBuffs();
+    return Promise.resolve([]);
+  }
   return fetch('/api/shop/active-effects', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(effects){
     _activeEffects=_filterLiveEffects(effects);
     renderActiveBuffs();
@@ -1056,6 +1066,9 @@ function loadBaseInventory(){
   var grid2=document.getElementById('baseInvGrid2');
   var loadMsg='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading...</div>';
   if(!w){
+    _activeEffects=[];
+    _clearActiveEffectsRefresh();
+    renderActiveBuffs();
     var noWalletMsg='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Connect wallet first</div>';
     if(grid)grid.innerHTML=noWalletMsg;
     if(grid2)grid2.innerHTML=noWalletMsg;
@@ -1074,6 +1087,8 @@ function loadBaseInventory(){
     _activeEffects=_filterLiveEffects(results[1]||[]);
     _enhInstances=results[2]||[];
     _resourceInventory=(results[3]&&results[3].inventory)||[];
+    renderActiveBuffs();
+    _scheduleActiveEffectsRefresh();
     renderBaseInventory();
   }).catch(function(){
     grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);padding:20px 0;font-size:10px">'+tl('Failed to load inventory','인벤토리를 불러오지 못했습니다','インベントリを読み込めませんでした','无法加载背包')+'</div>';
