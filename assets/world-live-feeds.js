@@ -1579,6 +1579,7 @@
           var agoStr = o.last_battle_ago || (o.wins > 0 ? (LANG==='ko'?'오늘 활동':LANG==='ja'?'本日活動':LANG==='zh'?'今日活动':'Active today') : '');
           var sub = [sectorStr, agoStr].filter(Boolean).join(' · ');
           var displayName = o.fleet_name || (o.wallet.slice(0,6) + '…' + o.wallet.slice(-4));
+          var allianceBadge = renderPvpAllianceBadge(o);
           var reasons = o.recommendation_reasons || [];
           var tags = [];
           var bountyGp = Math.max(0, parseInt(o.active_bounty_gp, 10) || 0);
@@ -1598,6 +1599,7 @@
             + '<div style="font-size:10px;color:var(--tx);font-weight:700;font-family:var(--fn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
             + escapeHtml(displayName)
             + ' <span style="font-size:8px;color:' + col + ';background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;font-weight:400">' + fName + '</span>'
+            + allianceBadge
             + '\u00a0' + onlineDot
             + '</div>'
             + '<div style="font-size:9px;color:var(--tx3);margin-top:2px">CPI <b style="color:#ffd700">' + Math.round(o.cpi||0) + '</b>'
@@ -1612,6 +1614,16 @@
     } catch(err) {
       if (content && _pvpHubTab === 'rec') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">' + t('pvp_rec_no_opponents') + '</div>';
     }
+  }
+
+  function renderPvpAllianceBadge(o) {
+    var tag = o && o.alliance_tag;
+    var name = o && o.alliance_name;
+    if (!tag && !name) return '';
+    var rawColor = String((o && o.alliance_color) || '#80cbc4');
+    var color = /^#[0-9a-f]{3,8}$/i.test(rawColor) ? rawColor : '#80cbc4';
+    var label = tag ? '[' + escapeHtml(tag) + ']' : escapeHtml(name || 'Alliance');
+    return ' <span title="' + escapeHtml(name || tag || 'Alliance') + '" style="font-size:8px;color:' + color + ';border:1px solid ' + color + '66;background:' + color + '16;border-radius:3px;padding:1px 5px;font-weight:700">🛡 ' + label + '</span>';
   }
 
   async function _loadPvpConflictTab() {

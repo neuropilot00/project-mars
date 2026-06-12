@@ -790,6 +790,10 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
          u.nickname,
          u.faction_code,
          fa.color_primary AS faction_color,
+         al.id AS alliance_id,
+         al.tag AS alliance_tag,
+         al.name AS alliance_name,
+         al.color_primary AS alliance_color,
          ABS(f.cpi - $2) AS cpi_diff,
          COUNT(s.id) FILTER (WHERE s.is_alive) AS ship_count,
          (SELECT COUNT(*) FROM fleet_battle_participants fbp2
@@ -816,6 +820,8 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
        FROM fleets f
        JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
        LEFT JOIN factions fa ON fa.code = u.faction_code
+       LEFT JOIN alliance_members am ON LOWER(am.wallet_address) = LOWER(f.owner_wallet) AND am.left_at IS NULL
+       LEFT JOIN alliances al ON al.id = am.alliance_id AND al.disbanded_at IS NULL
        LEFT JOIN ships s ON s.fleet_id = f.id
        WHERE LOWER(f.owner_wallet) != $1
          AND f.is_in_battle = FALSE
@@ -826,7 +832,8 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
               AND sc.deleted_at IS NULL
               AND sc.sector_code = $4
          ))
-       GROUP BY f.id, f.name, f.cpi, f.owner_wallet, u.nickname, u.faction_code, fa.color_primary
+       GROUP BY f.id, f.name, f.cpi, f.owner_wallet, u.nickname, u.faction_code, fa.color_primary,
+                al.id, al.tag, al.name, al.color_primary
        ORDER BY ABS(f.cpi - $2) ASC
        LIMIT $3`,
       [w, myCPI, limit * 3, sectorFilter]
@@ -880,6 +887,10 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
         nickname: r.nickname || null,
         faction_code: r.faction_code,
         faction_color: r.faction_color || null,
+        alliance_id: r.alliance_id || null,
+        alliance_tag: r.alliance_tag || null,
+        alliance_name: r.alliance_name || null,
+        alliance_color: r.alliance_color || null,
         cpi: parseFloat(r.cpi) || 0,
         my_cpi: myCPI,
         cpi_diff: cpiDiff,
