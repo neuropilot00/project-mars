@@ -509,6 +509,51 @@ router.post('/:id/upgrade-stat', requireAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/ships/:id/repair-quote
+ * 함선 수리 예상 비용
+ * Query: target_hp_pct? — 생략 시 100
+ */
+router.get('/:id/repair-quote', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const shipId = parseInt(req.params.id);
+    if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
+
+    const targetHpPct = req.query.target_hp_pct !== undefined
+      ? parseInt(req.query.target_hp_pct)
+      : 100;
+
+    if (isNaN(targetHpPct) || targetHpPct < 1 || targetHpPct > 100) {
+      return res.status(400).json({ error: 'INVALID_TARGET_HP_PCT', meta: { valid_range: '1-100' } });
+    }
+
+    const quote = await shipService.getRepairQuote(wallet, shipId, targetHpPct);
+    res.json({
+      success: true,
+      current_hp: quote.current_hp,
+      max_hp: quote.max_hp,
+      target_hp: quote.target_hp,
+      healed: quote.healed,
+      gp_cost: quote.gp_cost,
+      iron_used: quote.iron_used,
+      cap_pct: quote.cap_pct,
+    });
+  } catch (err) {
+    const errorMap = {
+      'SHIP_NOT_FOUND':   404,
+      'ALREADY_FULL':     409,
+      'SHIP_LISTED_FOR_SALE': 409,
+    };
+    const status = errorMap[err.message];
+    if (status) return res.status(status).json({ error: err.message, meta: err.meta || undefined });
+    console.error('[ships] repair quote error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
  * POST /api/ships/:id/repair
  * 함선 수리
  * Body: { target_hp_pct? }  — 생략 시 100 (풀회복)

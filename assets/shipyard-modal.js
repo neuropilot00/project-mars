@@ -2531,12 +2531,23 @@ async function syUpgradeShipStat(shipId, stat) {
 
 async function syRepairShip(shipId, name, currentHp, maxHp) {
   var missing = maxHp - currentHp;
-  var gpCost  = Math.ceil(missing * 0.01);
-  var ironNeed = Math.ceil(missing / 10 * 0.2);
+  var quote = null;
+  try {
+    var qr = await fetch('/api/ships/' + shipId + '/repair-quote?target_hp_pct=100', {
+      headers: getAuthHeaders()
+    });
+    var qd = await qr.json();
+    if (qr.ok && !qd.error) quote = qd;
+  } catch(_e) {}
+  var gpCost  = quote ? quote.gp_cost : Math.ceil(missing * 0.03);
+  var ironNeed = quote ? quote.iron_used : Math.ceil(missing / 10 * 0.2);
+  var targetHp = quote ? quote.target_hp : maxHp;
+  var healed = quote ? quote.healed : missing;
   var ok = await gameConfirm({
     title: LANG==='ko'?'🔧 함선 수리':LANG==='ja'?'🔧 艦船修理':LANG==='zh'?'🔧 修复舰船':'🔧 Repair Ship', icon: '🔧',
     body: '<div style="font-size:11px;color:#81c784;font-weight:700;margin-bottom:5px">' + name + '</div>'
-      + '<div style="font-size:10px;color:var(--tx3)">HP ' + syFmt(currentHp) + ' → ' + syFmt(maxHp) + ' (+' + syFmt(missing) + ')</div>',
+      + '<div style="font-size:10px;color:var(--tx3)">HP ' + syFmt(currentHp) + ' → ' + syFmt(targetHp) + ' (+' + syFmt(healed) + ')</div>'
+      + (!quote ? '<div style="font-size:9px;color:var(--gold);margin-top:4px">'+(LANG==='ko'?'견적 API 실패 — 기본 공식으로 표시합니다.':LANG==='ja'?'見積API失敗 — 基本式で表示します。':LANG==='zh'?'报价接口失败 — 使用默认公式显示。':'Quote unavailable — showing default estimate.')+'</div>' : ''),
     info: [
       { k: LANG==='ko'?'GP 비용':LANG==='ja'?'GP費用':LANG==='zh'?'GP费用':'GP Cost', v: gpCost + ' GP' },
       { k: '🪨 iron_ore', v: ironNeed + (LANG==='ko'?'개':LANG==='ja'?'個':LANG==='zh'?'个':'x') }
@@ -2553,6 +2564,7 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
     var d = await r.json();
     if (d.error) { showFactionToast((LANG==='ko'?'수리 실패: ':LANG==='ja'?'修理失敗: ':LANG==='zh'?'修复失败: ':'Repair failed: ') + d.error, 'error'); return; }
     showFactionToast('🔧 수리 완료! +' + syFmt(d.healed) + ' HP (-' + d.gp_cost + ' GP)', 'success');
+    try{ markDailyOpsAction('repair_ship', 1); }catch(_e){}
     refreshBalance();
     await refreshShipyard();
   } catch(e) { showFactionToast(LANG==='ko'?'수리 요청 실패':LANG==='ja'?'修理リクエスト失敗':LANG==='zh'?'修复请求失败':'Repair request failed','error'); }

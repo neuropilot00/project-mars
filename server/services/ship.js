@@ -867,8 +867,7 @@ async function getFleetSummary(walletAddress) {
  * @param {number} targetHpPct  - 수리 목표 HP% (기본 100 = 풀회복)
  * @returns {{ success, healed, new_hp, gp_cost, iron_used }}
  */
-async function repairShip(walletAddress, shipId, targetHpPct = 100) {
-  const { getSetting } = require('../db');
+async function getRepairQuote(walletAddress, shipId, targetHpPct = 100, clientOverride = null, lockShip = false) {
   const walletLower = String(walletAddress || '').toLowerCase();
   const targetPct = Number(targetHpPct);
   if (!Number.isFinite(targetPct) || targetPct <= 0) {
@@ -877,11 +876,9 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     throw err;
   }
 
-  const client = await pool.connect();
+  const client = clientOverride || await pool.connect();
   try {
-    await client.query('BEGIN');
-
-    // 1. 함선 조회 (소유권 + 생존 확인 + build_gp_cost)
+    // 함선 조회 (소유권 + 생존 확인 + build_gp_cost)
     const { rows: shipRows } = await client.query(`
       SELECT s.id, s.fleet_id, s.current_hp, s.max_hp, s.bonus_hp,
              COALESCE(s.is_market_listed, false) AS is_market_listed,
@@ -889,7 +886,7 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
       WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
-      FOR UPDATE OF s
+      ${lockShip ? 'FOR UPDATE OF s' : ''}
     `, [shipId, walletLower]);
 
     if (!shipRows[0]) {
@@ -922,7 +919,6 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       throw err;
     }
 
-    // 4. 비용 계산 + 신조 대비 경제성 캡 (Migration 173)
     const gpPerHpRaw = Number(await getSetting('ship_repair_gp_per_hp', '2'));
     const ironPer10hpRaw = Number(await getSetting('ship_repair_iron_per_10hp', '1'));
     const gpPerHp = Number.isFinite(gpPerHpRaw) && gpPerHpRaw > 0 ? gpPerHpRaw : 2;
@@ -938,6 +934,37 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       const maxRepairGp = Math.floor(buildCost * capPct / 100);
       if (gpCost > maxRepairGp) gpCost = maxRepairGp;
     }
+
+    return {
+      ship,
+      current_hp: parseInt(ship.current_hp),
+      max_hp: effectiveMax,
+      target_hp: targetHp,
+      healed: healAmount,
+      gp_cost: gpCost,
+      iron_used: ironNeed,
+      gp_per_hp: gpPerHp,
+      iron_per_10hp: ironPer10hp,
+      cap_pct: capPct,
+    };
+  } finally {
+    if (!clientOverride) client.release();
+  }
+}
+
+async function repairShip(walletAddress, shipId, targetHpPct = 100) {
+  const walletLower = String(walletAddress || '').toLowerCase();
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const quote = await getRepairQuote(walletLower, shipId, targetHpPct, client, true);
+    const gpCost = quote.gp_cost;
+    const ironNeed = quote.iron_used;
+    const healAmount = quote.healed;
+    const targetHp = quote.target_hp;
+    const ship = quote.ship;
 
     // 5. GP 확인
     const { rows: userRows } = await client.query(
@@ -1917,6 +1944,7 @@ module.exports = {
   processCompletedJobs,
   cancelBuildJob,
   getFleetSummary,
+  getRepairQuote,
   repairShip,
   chargeShield,
   upgradeShipStat,
