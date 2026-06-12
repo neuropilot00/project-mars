@@ -970,7 +970,7 @@ async function start() {
 
     // ── Auto-Renewal Micro-Transaction Cron (every 5 minutes) ──
     try {
-      setInterval(async () => {
+      scheduleTask('AUTO-RENEW', 5 * 60 * 1000, async () => {
         try {
           // Auto-renew expired shields
           const expiredShields = await pool.query(
@@ -1087,7 +1087,9 @@ async function start() {
             }
           }
         } catch (e) { console.warn('[AUTO-RENEW] cron error:', e.message); }
-      }, 5 * 60 * 1000);
+      }, {
+        phase: 'renew',
+      });
       console.log('[AUTO-RENEW] Scheduled tasks initialized (check: 5min)');
     } catch(e) { console.warn('[AUTO-RENEW] Could not init scheduled tasks:', e.message); }
 
@@ -1171,12 +1173,14 @@ async function start() {
     // ── Auction: Settle Expired Auctions (every 5 minutes) ──
     try {
       const { settleExpiredAuctions } = require('./services/auction');
-      setInterval(async () => {
+      scheduleTask('AUCTION', 5 * 60 * 1000, async () => {
         try {
           const n = await settleExpiredAuctions();
           if (n > 0) console.log(`[AUCTION] Auto-settled ${n} expired auction(s)`);
         } catch(e) { console.warn('[AUCTION] settle error:', e.message); }
-      }, 5 * 60 * 1000);
+      }, {
+        phase: 'settle',
+      });
       console.log('[AUCTION] Auto-settle scheduler started (5min interval)');
     } catch(e) { console.warn('[AUCTION] Could not init auto-settle scheduler:', e.message); }
 
@@ -1186,9 +1190,11 @@ async function start() {
     // ── Marketplace Listing Expiry ──
     try {
       const { expireListings } = require('./services/marketplace');
-      setInterval(async () => {
+      scheduleTask('MARKET', 5 * 60 * 1000, async () => {
         try { const n = await expireListings(); if (n > 0) console.log(`[MARKET] Expired ${n} listings`); } catch(e) { console.warn('[MARKET] expiry error:', e.message); }
-      }, 5 * 60 * 1000); // every 5 minutes
+      }, {
+        phase: 'expire',
+      });
       console.log('[MARKET] Listing expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[MARKET] Could not init expiry scheduler:', e.message); }
 
@@ -1261,37 +1267,43 @@ async function start() {
     // ── Lottery: Draw expired rounds (every 1 minute) ──
     try {
       const { drawExpiredRounds } = require('./services/lottery');
-      setInterval(async () => {
+      scheduleTask('LOTTERY', 60 * 1000, async () => {
         try {
           const n = await drawExpiredRounds();
           if (n > 0) console.log(`[LOTTERY] Drew ${n} round(s)`);
         } catch(e) { console.warn('[LOTTERY] draw error:', e.message); }
-      }, 60 * 1000);
+      }, {
+        phase: 'draw',
+      });
       console.log('[LOTTERY] Draw scheduler started (1min interval)');
     } catch(e) { console.warn('[LOTTERY] Could not init draw scheduler:', e.message); }
 
     // ── Resource Crafting: Auto-claim completed jobs (every 1 minute) — M-091 ──
     try {
       const { processCompletedJobs } = require('./services/resourceCraft');
-      setInterval(async () => {
+      scheduleTask('CRAFT', 60 * 1000, async () => {
         try {
           const r = await processCompletedJobs();
           if (r.success > 0) console.log(`[CRAFT] Auto-claimed ${r.success} job(s)`);
         } catch(e) { console.warn('[CRAFT] processCompletedJobs error:', e.message); }
-      }, 60 * 1000);
+      }, {
+        phase: 'processCompletedJobs',
+      });
       console.log('[CRAFT] Auto-claim scheduler started (1min interval)');
     } catch(e) { console.warn('[CRAFT] Could not init scheduler:', e.message); }
 
     // ── World Events: Settle expired + maybe auto-spawn (every 2 minutes) — M-154 ──
     try {
       const we = require('./services/worldEvents');
-      setInterval(async () => {
+      scheduleTask('WORLD EVENTS', 2 * 60 * 1000, async () => {
         try { await we.settleExpiredEvents(); } catch(e) { console.warn('[WE] settle error:', e.message); }
         try {
           const s = await we.maybeAutoSpawn();
           if (s?.spawned) console.log(`[WE] Auto-spawned Void Raider ${s.event_code}`);
         } catch(e) { console.warn('[WE] auto-spawn error:', e.message); }
-      }, 2 * 60 * 1000);
+      }, {
+        phase: 'settle',
+      });
       console.log('[WE] World Events scheduler started (2min interval)');
     } catch(e) { console.warn('[WE] Could not init scheduler:', e.message); }
 
@@ -1300,12 +1312,14 @@ async function start() {
     // ── Staking: Mark matured stakes as ready (every 5 minutes) ──
     try {
       const { markReadyStakes } = require('./services/staking');
-      setInterval(async () => {
+      scheduleTask('STAKING', 5 * 60 * 1000, async () => {
         try {
           const rows = await markReadyStakes();
           if (rows.length > 0) console.log(`[STAKING] Marked ${rows.length} stake(s) as ready`);
         } catch(e) { console.warn('[STAKING] markReady error:', e.message); }
-      }, 5 * 60 * 1000);
+      }, {
+        phase: 'markReady',
+      });
       console.log('[STAKING] Ready-check scheduler started (5min interval)');
     } catch(e) { console.warn('[STAKING] Could not init scheduler:', e.message); }
 
@@ -1397,9 +1411,11 @@ async function start() {
     // ── Auction: Settle expired auctions (every 1 minute) — M-090 ──
     try {
       const auctionCombat = require('./services/auctionCombat');
-      setInterval(async () => {
+      scheduleTask('AUCTION COMBAT', 60 * 1000, async () => {
         await auctionCombat.processAllAuctions().catch(console.error);
-      }, 60 * 1000);
+      }, {
+        phase: 'processAll',
+      });
       console.log('[AUCTION] Scheduler started (1min interval)');
     } catch(e) { console.warn('[AUCTION] Could not init scheduler:', e.message); }
 
