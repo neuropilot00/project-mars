@@ -1362,7 +1362,8 @@ function loadExpeditionPanel() {
   if (!w) return;
 
   // Load expedition info (types, costs)
-  fetch('/api/expeditions/info').then(function(r){return r.json();}).then(function(info){
+  _engagementRead('expedition-info', '/api/expeditions/info', false).then(function(info){
+    if (!info) return;
     _expeditionInfo = info;
     renderExpeditionTypes(info);
     renderExpeditionDurations(info);
@@ -1373,8 +1374,12 @@ function loadExpeditionPanel() {
   var select = document.getElementById('expClaimSelect');
   if (select) {
     select.innerHTML = '<option value="">Loading…</option>';
-    fetch('/api/claims/my', { headers: getAuthHeaders() })
-      .then(function(r){return r.json();}).then(function(claims){
+    _engagementRead('expedition-claims', '/api/claims/my', true)
+      .then(function(claims){
+        if (!claims) {
+          select.innerHTML = '<option value="">Refresh cooling down</option>';
+          return;
+        }
         if (!Array.isArray(claims) || !claims.length) {
           select.innerHTML = '<option value="">No territories owned</option>';
           return;
@@ -1386,9 +1391,9 @@ function loadExpeditionPanel() {
   }
 
   // Load active expedition
-  fetch('/api/expeditions/my', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();})
+  _engagementRead('expedition-active', '/api/expeditions/my', true)
     .then(function(exps){
+      if (!exps) return;
       var active = (exps||[]).find(function(e){ return e.status === 'active'; });
       var activeEl = document.getElementById('expeditionActive');
       var launchEl = document.getElementById('expeditionLauncher');
@@ -1524,9 +1529,9 @@ function loadExpeditionHistory() {
   var w = walletState && walletState.address;
   if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
   el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
-  fetch('/api/expeditions/my', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();})
+  _engagementRead('expedition-history', '/api/expeditions/my', true)
     .then(function(rows){
+      if (!rows) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Refresh cooling down</div>'; return; }
       if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No expeditions yet</div>'; return; }
       el.innerHTML = rows.map(function(e) {
         var statusColor = {active:'#ffb74d',completed:'#a0e8a0',cancelled:'#888'}[e.status]||'#888';
