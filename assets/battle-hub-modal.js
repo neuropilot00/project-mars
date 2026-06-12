@@ -20,6 +20,8 @@ if (typeof escapeHtml === 'undefined') {
 let battleHubState = {
   currentTab: 'active',
   pollTimer: null,
+  listCache: Object.create(null),
+  killboardCache: null,
 };
 
 const BATTLEFIELD_KEYS = ['orbit_territory','garrison','mining_site','canyon_outpost','polar_ice','lava_tube','crater_relay','refinery_yard','colony_dome','excavation_grid','dust_storm','occupied_airspace','shipyard_drydock','convoy_route','ancient_ruins','orbital_blockade','garrison_rooftop','deep_mine','settlement_airspace'];
@@ -92,6 +94,18 @@ const SECTOR_BATTLEFIELD_BY_CODE = {
   borealis_edge: 'polar_ice'
 };
 const battleContextById = Object.create(null);
+
+function battleHubReadFetch(key, url, minGap) {
+  const walletKey = (typeof getMyWallet === 'function' && getMyWallet()) || 'public';
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('battle-hub:' + key + ':' + String(walletKey).toLowerCase(), url, {
+      minGap: minGap || 10000,
+      backoffMs: 90000,
+      fetchOptions: { headers: getAuthHeaders() }
+    });
+  }
+  return fetch(url, { headers: getAuthHeaders() }).then(function(r){ return r.json(); });
+}
 
 function rememberBattleContext(battle) {
   const id = parseInt(battle && battle.id, 10);
@@ -277,7 +291,10 @@ function bhSwitchTab(tab) {
 async function bhLoad() {
   const tab = battleHubState.currentTab;
   const container = document.getElementById('battleListContent');
-  container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
+  const cacheKey = 'list:' + tab;
+  if (!battleHubState.listCache[cacheKey]) {
+    container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
+  }
   
   try {
     if (tab === 'killboard') {
@@ -290,8 +307,10 @@ async function bhLoad() {
     else if (tab === 'recent') url = '/api/battles/list/recent?limit=30';
     else url = '/api/battles/list/history?limit=30';
     
-    const res = await fetch(url, { headers: getAuthHeaders() });
-    const data = await res.json();
+    let data = await battleHubReadFetch(cacheKey, url, tab === 'active' ? 10000 : 30000);
+    if (!data && battleHubState.listCache[cacheKey]) data = battleHubState.listCache[cacheKey];
+    if (!data) throw new Error('battle_list_unavailable');
+    battleHubState.listCache[cacheKey] = data;
     const battles = data.battles || [];
     battles.forEach(rememberBattleContext);
     
@@ -313,15 +332,16 @@ async function bhLoad() {
 
 async function bhLoadKillboard(container) {
   const myWallet = getMyWallet();
+  const cache = battleHubState.killboardCache || {};
+  if (!cache.data) container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
   const calls = [
-    fetch('/api/killboard?limit=40', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
+    battleHubReadFetch('killboard-global', '/api/killboard?limit=40', 30000)
   ];
-  if (myWallet) {
-    calls.push(fetch('/api/killboard/' + encodeURIComponent(myWallet) + '?limit=5').then(function(r){ return r.ok ? r.json() : null; }));
-  }
+  if (myWallet) calls.push(battleHubReadFetch('killboard-mine', '/api/killboard/' + encodeURIComponent(myWallet) + '?limit=5', 30000));
   const results = await Promise.all(calls);
-  const data = results[0] || {};
-  const mine = results[1] || null;
+  const data = results[0] || cache.data || {};
+  const mine = results[1] || cache.mine || null;
+  battleHubState.killboardCache = { data: data, mine: mine };
   const kills = data.kills || [];
   const header = mine ? renderMyKillboardSummary(mine) : '';
   if (!kills.length) {
