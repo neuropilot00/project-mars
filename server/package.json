@@ -11,6 +11,9 @@
     "rollback:plan": "node tools/rollback_helper.js",
     "backup:verify": "node tools/backup_verify.js"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",

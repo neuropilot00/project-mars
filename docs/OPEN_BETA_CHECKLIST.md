@@ -20,13 +20,13 @@
 - ✅ 배포 설정 존재 (`railway.json` — NIXPACKS, `cd server && node index.js`, restart ALWAYS)
 - ✅ 핵심 기능 토글 ON (`fleet_combat_enabled`, `cantina_enabled`, `vip_enabled`)
 - ✅ **헬스체크 `GET /health` 존재** (DB ping 포함, index.js:224)
-- ✅ **`engines.node >=18.0.0` 지정됨** (package.json)
+- ✅ **`engines.node 22.x`로 고정됨** (root/server package.json)
 - ✅ **DB 백업 스크립트 존재** (`server/scripts/backup.sh`, `server/tools/backup_verify.js`)
 - ✅ **레이트리밋 광범위 적용** (auth/api/arena/marketplace/staking/governance/lottery/dividends/claimUpgrades)
 - ✅ 버그 인박스/DB 미처리 0건
 
 **실제 갭 (베타 전 처리):**
-- ⚠️ **프로덕션 노드 버전이 로컬 v25** — `engines`는 `>=18`이라 통과하지만 프로덕션 노드 버전을 베타 기간 고정(예 20.x LTS) 권장
+- ✅ **프로덕션 노드 버전 고정** — root/server `package.json` 모두 `engines.node=22.x`
 - ⚠️ **server console.log 167개** — 프로덕션 로그 노이즈/민감정보 노출 가능, 정리 또는 로그레벨 가드 권장
 - ⚠️ DB 백업 스크립트는 있으나 **자동 스케줄·복구 리허설 확인 필요** (스크립트 ≠ 자동 실행)
 - 🔴 **법무/약관 부재** (COMMERCIAL_OPEN_READINESS 기준 🔴) — 약관·개인정보·환불 정책. 단, "법무는 패스" 방침이면 베타 한정 고지문으로 대체 가능
@@ -49,10 +49,10 @@
 ## 2. ⚠️ 안정성/운영 (베타 중 사고 방지)
 - [x] ~~헬스체크 엔드포인트~~ — `GET /health`(DB ping) 이미 존재. Railway 헬스체크 경로로 연결만 확인.
 - [x] ~~레이트리밋~~ — auth/api/arena/marketplace/staking/governance/lottery/dividends 적용됨. 신규 경제 라우트 추가 시 동일 적용 유지.
-- [ ] **프로덕션 노드 버전 고정**: `engines.node`는 `>=18`이라 통과하나, 베타 기간엔 Railway 노드 버전을 LTS(20.x/22.x)로 고정해 로컬 v25와의 미세 차이 방지.
+- [x] **프로덕션 노드 버전 고정**: root/server `package.json` 모두 `engines.node=22.x`로 고정해 로컬 v25와의 미세 차이 방지.
 - [ ] **console.log 정리**: server 167개 → 민감정보(지갑/금액) 출력 점검 + 프로덕션 로그레벨 가드(또는 noisy 로그 제거).
 - [ ] **uncaughtException/unhandledRejection 핸들러** 존재 확인. 없으면 추가(크래시 로그 + graceful).
-- [ ] **스케줄러 중복 실행 방지**: 멀티 인스턴스로 늘릴 때 cron/스케줄러가 leader에서만 돌게(현재 numReplicas=1이면 OK, 늘리면 재점검).
+- [x] **스케줄러 중복 실행 방지**: Redis leader gate + scheduler start guard/`unref()` 적용. 멀티 인스턴스 확장 시에도 leader 인스턴스 1개만 실행.
 - [ ] **부하 테스트(가벼운)**: 동시 50~100명 가정 — 함대전 시뮬, 수확, 칸티나 라운드가 버티는지. (전술랩 대규모전 성능은 v7.335에서 1차 개선됨)
 
 ## 3. ⚠️ 콘텐츠/밸런스 (베타 경험)
