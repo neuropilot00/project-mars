@@ -2192,9 +2192,10 @@ function _bterrLoadProd(idx,g){
       }
       if(d.sector&&d.sector.type){
         var sLabel=LANG==='ko'?{core:'코어',mid:'미드',frontier:'프론티어'}:LANG==='ja'?{core:'コア',mid:'ミッド',frontier:'フロンティア'}:LANG==='zh'?{core:'核心',mid:'中域',frontier:'边疆'}:{core:'Core',mid:'Mid',frontier:'Frontier'};
+        var sectorMult=d.production&&d.production.sectorMult?parseFloat(d.production.sectorMult):0;
         html+='<div style="display:flex;justify-content:space-between">';
         html+='<span style="color:var(--tx3)">'+(LANG==='ko'?'섹터':LANG==='ja'?'セクター':LANG==='zh'?'扇区':'Sector')+'</span>';
-        html+='<span style="color:var(--tx2)">'+(sLabel[d.sector.type]||d.sector.type)+'</span>';
+        html+='<span style="color:var(--tx2)">'+(sLabel[d.sector.type]||d.sector.type)+(sectorMult?(' ×'+sectorMult.toFixed(2)):'')+'</span>';
         html+='</div>';
       }
       if(d.lastHarvest&&d.lastHarvest.at){

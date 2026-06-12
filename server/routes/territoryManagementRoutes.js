@@ -319,6 +319,7 @@ router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
         pixelCount,
         ppMin,
         ppMax,
+        sectorMult,
         modifiers,
         nextHarvestAt,
         holdBonusPct: holdBonusPct || 0,

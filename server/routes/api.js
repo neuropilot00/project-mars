@@ -1619,6 +1619,18 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     // cap 에 흡수되어 무용해졌음. 이제 base 만 cap 하고 그 위에 multiplier 들이 곱해진다.
     if (harvestCap > 0) harvestedPP = Math.min(harvestedPP, harvestCap);
 
+    const miningBonusMap = {
+      core: parseFloat(s.mining_core_mult) || 1.5,
+      mid: parseFloat(s.mining_mid_mult) || 1.2,
+      frontier: parseFloat(s.mining_frontier_mult) || 1.0
+    };
+    const sectorWeightedMult = totalPixels > 0
+      ? ((tierCounts.core || 0) * miningBonusMap.core + (tierCounts.mid || 0) * miningBonusMap.mid + (tierCounts.frontier || 0) * miningBonusMap.frontier) / totalPixels
+      : 1.0;
+    if (sectorWeightedMult > 0 && sectorWeightedMult !== 1) {
+      harvestedPP = Math.round(harvestedPP * sectorWeightedMult * 10000) / 10000;
+    }
+
     // Governor bonus
     const govRes = await client.query(
       'SELECT COUNT(*) AS cnt FROM sectors WHERE governor_wallet = $1', [w]
@@ -1912,7 +1924,7 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
        VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100, guildContrib, resourceDrops })]
+      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, totalPixels, bestTier, tierCounts, sectorWeightedMult: Math.round(sectorWeightedMult * 1000) / 1000, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100, guildContrib, resourceDrops })]
     );
 
     // Award XP for harvesting (5 XP per harvest)
@@ -2055,6 +2067,16 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     let harvestSurgeEffectId = null;
     let harvestSurgeApplied = false;
     if (harvestCap > 0) harvestedPP = Math.min(harvestedPP, harvestCap);
+
+    const miningBonusMap = {
+      core: parseFloat(s.mining_core_mult) || 1.5,
+      mid: parseFloat(s.mining_mid_mult) || 1.2,
+      frontier: parseFloat(s.mining_frontier_mult) || 1.0
+    };
+    const sectorMult = miningBonusMap[tier] || 1.0;
+    if (sectorMult > 0 && sectorMult !== 1) {
+      harvestedPP = Math.round(harvestedPP * sectorMult * 10000) / 10000;
+    }
 
     // Governor bonus
     try {
@@ -2238,7 +2260,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     // 트랜잭션 로그
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, resourceDrops })]
+      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, sectorMult, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, resourceDrops })]
     );
 
     await awardXP(client, w, 5).catch(() => {});
@@ -2249,7 +2271,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
 
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
     // [v7.320] 즉시 수확은 GP로 지급되므로 harvestedGP를 함께 내려 UI가 "+N GP"로 표시하게 한다.
-    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, intervalHours, nextHarvestAt, sectorInfluenceBonus, itemEffects: harvestSurgeApplied ? { harvestSurge: true } : {}, resources: resourceDrops });
+    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, sectorMult, intervalHours, nextHarvestAt, sectorInfluenceBonus, itemEffects: harvestSurgeApplied ? { harvestSurge: true } : {}, resources: resourceDrops });
 
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
