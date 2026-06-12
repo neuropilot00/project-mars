@@ -276,11 +276,30 @@ app.get('/health', async (req, res) => {
 const isDev = process.env.NODE_ENV !== 'production';
 // 멀티 인스턴스 전역 레이트리밋: REDIS_URL 있으면 Redis 공유 스토어, 없으면 메모리 폴백.
 const { makeLimiterStore } = require('./services/rateLimitStore');
+function isAuthApiPath(req) {
+  return req.path === '/api/auth' || req.path.startsWith('/api/auth/');
+}
+function isPublicHudRead(req) {
+  if (req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') return false;
+  return [
+    '/api/stats',
+    '/api/leaderboard',
+    '/api/sectors',
+    '/api/weather',
+    '/api/claims',
+    '/api/pixels',
+    '/api/exploration/starlink',
+    '/api/rockets',
+    '/api/announce/active',
+    '/api/activity/feed'
+  ].includes(req.path);
+}
 const globalLimiter = makeRateLimiter({
   windowMs: 15 * 60 * 1000,
   max: isDev ? 5000 : 3000,
   store: makeLimiterStore('global'),
   passOnStoreError: true,
+  skip: (req) => isPublicHudRead(req) || isAuthApiPath(req),
   message: { error: 'Too many requests, please try again later.' }
 });
 
@@ -297,6 +316,7 @@ const apiLimiter = makeRateLimiter({
   max: isDev ? 300 : 200,
   store: makeLimiterStore('api'),
   passOnStoreError: true,
+  skip: (req) => isPublicHudRead(req) || isAuthApiPath(req),
   message: { error: 'Too many API requests, please try again later.' }
 });
 
@@ -307,7 +327,7 @@ const apiWriteLimiter = makeRateLimiter({
   max: isDev ? 300 : 60,
   store: makeLimiterStore('apiwrite'),
   passOnStoreError: true,
-  skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS',
+  skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || isAuthApiPath(req),
   message: { error: 'Too many write requests, please try again later.' }
 });
 
@@ -371,6 +391,9 @@ app.use((req, res, next) => {
 });
 
 // ── API Routes ──
+// Auth must bypass the general /api router stack; otherwise login/register can
+// be blocked by broad gameplay API limiters before authRoutes sees the request.
+app.use('/api/auth', authRoutes);
 app.use('/api', apiWriteLimiter); // Write rate limit for all POST/PUT/PATCH/DELETE under /api
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
@@ -479,7 +502,6 @@ app.use('/api', announceRoutes);
 app.use('/api', tombstoneRoutes);
 app.use('/api', milestoneRoutes);
 app.use('/api', apiLimiter, apiRoutes);
-app.use('/api/auth', authRoutes);
 try { app.use('/', require('./routes/bugReport')); } catch (e) { console.warn('[mount] bugReport skipped:', e.message); } // M-192: bug report submit + admin
 app.use('/api/admin', require('./routes/adminEconomyRoutes'));
 app.use('/api/arena', arenaRoutes);
