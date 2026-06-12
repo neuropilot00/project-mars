@@ -285,6 +285,11 @@ function isPublicHudRead(req) {
     '/api/milestone/feed'
   ].includes(path);
 }
+function isLowPriorityTelemetryWrite(req) {
+  if (req.method !== 'POST') return false;
+  const path = limiterPath(req);
+  return path === '/api/season/taps' || path === '/api/error-report';
+}
 const publicHudLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
   max: isDev ? 1200 : 600,
@@ -319,7 +324,7 @@ const apiWriteLimiter = makeRateLimiter({
   max: isDev ? 300 : 60,
   store: makeLimiterStore('apiwrite'),
   passOnStoreError: true,
-  skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || isAuthApiPath(req),
+  skip: (req) => req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || isAuthApiPath(req) || isLowPriorityTelemetryWrite(req),
   message: { error: 'Too many write requests, please try again later.' }
 });
 

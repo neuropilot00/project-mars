@@ -35,23 +35,29 @@ function loadSeasonData(){
 // ── Tap/Click tracking for "Most Active" season category ──
 var _tapCount=0;
 var _tapTimer=null;
+function flushSeasonTaps(keepalive){
+  if(_tapCount<=0||!walletState.address||window._authSubmitInFlight) return;
+  var count=_tapCount;
+  _tapCount=0;
+  fetch('/api/season/taps',{
+    method:'POST',
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
+    body:JSON.stringify({wallet:walletState.address,count:count}),
+    keepalive:!!keepalive
+  }).catch(function(){});
+}
 document.addEventListener('click',function(){
   _tapCount++;
   if(!_tapTimer){
     _tapTimer=_setActiveTimeout(function(){
-      if(_tapCount>0&&walletState.address){
-        fetch('/api/season/taps',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
-          body:JSON.stringify({wallet:walletState.address,count:_tapCount})}).catch(function(){});
-      }
-      _tapCount=0;_tapTimer=null;
+      flushSeasonTaps(false);
+      _tapTimer=null;
     },30000); // batch every 30s
   }
 });
 // Flush taps on page unload
 window.addEventListener('beforeunload',function(){
-  if(_tapCount>0&&walletState.address){
-    navigator.sendBeacon('/api/season/taps',JSON.stringify({wallet:walletState.address,count:_tapCount}));
-  }
+  flushSeasonTaps(true);
 });
 
 // [v7.264 CRITICAL fix] 네비/UI data-action 위임 디스패처 — 누락 회귀 복구.
