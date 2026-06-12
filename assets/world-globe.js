@@ -2790,8 +2790,8 @@ preCacheAndComposite();
 // Load server claims + authoritative pixel ownership
 (function loadServerClaims(){
   Promise.all([
-    fetch('/api/claims', {headers:getAuthHeaders()}).then(function(r){return r.json()}),
-    fetch('/api/pixels', {headers:getAuthHeaders()}).then(function(r){return r.json()})
+    _guardedJsonFetch('claims-initial', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}),
+    _guardedJsonFetch('pixels-initial', '/api/pixels', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}})
   ]).then(function(results){
     var serverClaims=results[0], serverPixels=results[1];
     if(serverClaims&&serverClaims.length){

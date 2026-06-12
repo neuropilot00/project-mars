@@ -7,6 +7,10 @@ function makeRateLimiter(options = {}) {
     message,
     store,
     skip,
+    keyGenerator,
+    skipSuccessfulRequests,
+    skipFailedRequests,
+    requestWasSuccessful,
     passOnStoreError,
   } = options;
 
@@ -17,6 +21,10 @@ function makeRateLimiter(options = {}) {
     legacyHeaders: false,
     ...(store ? { store } : {}),
     ...(skip ? { skip } : {}),
+    ...(keyGenerator ? { keyGenerator } : {}),
+    ...(skipSuccessfulRequests != null ? { skipSuccessfulRequests } : {}),
+    ...(skipFailedRequests != null ? { skipFailedRequests } : {}),
+    ...(requestWasSuccessful ? { requestWasSuccessful } : {}),
     passOnStoreError: passOnStoreError ?? Boolean(store),
     message: typeof message === 'string' ? { error: message } : message,
   });

@@ -287,6 +287,7 @@ const publicHudLimiter = makeRateLimiter({
   store: makeLimiterStore('publichud'),
   passOnStoreError: true,
   skip: (req) => !isPublicHudRead(req),
+  keyGenerator: (req) => `${req.ip}:${limiterPath(req)}`,
   message: { error: 'Too many public refresh requests, please try again later.' }
 });
 const globalLimiter = makeRateLimiter({
@@ -303,6 +304,7 @@ const authLimiter = makeRateLimiter({
   max: isDev ? 50 : 10,
   store: makeLimiterStore('auth'),
   passOnStoreError: true,
+  skipSuccessfulRequests: true,
   message: { error: 'Too many authentication attempts, please try again later.' }
 });
 

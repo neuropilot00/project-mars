@@ -89,6 +89,7 @@ function resetLoginAttempts(email) {
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 60,
   standardHeaders: true, legacyHeaders: false,
+  skipSuccessfulRequests: true,
   message: { error: 'Too many attempts. Try again later.' }
 });
 const passwordResetLimiter = rateLimit({
