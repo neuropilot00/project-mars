@@ -1565,9 +1565,25 @@ function renderSectorList(sectors){
     if(s.myPixels>0){
       html+='<div class="sc-my"><span class="sc-my-label">'+t('sector_my_px')+'</span><span class="sc-my-val">'+s.myPixels+'</span></div>';
     }
+    html+=renderSectorOps(s, entryBlocked);
     html+='</div>';
   });
   document.getElementById('baseSectorList').innerHTML=html;
+}
+
+function renderSectorOps(s, entryBlocked){
+  var id=parseInt(s&&s.id,10)||0;
+  function opTxt(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch]});}
+  var tier=opTxt(String((s&&s.tier)||'frontier'));
+  var lockText=entryBlocked
+    ? (LANG==='ko'?'진입 제한':LANG==='ja'?'進入制限':LANG==='zh'?'进入受限':'Entry gated')
+    : (LANG==='ko'?'작전 가능':LANG==='ja'?'作戦可能':LANG==='zh'?'可执行行动':'Ops ready');
+  return '<div class="sc-ops" data-sector-tier="'+tier+'">'
+    + '<button type="button" class="sc-op war" onclick="openSectorOperation(\'battle\','+id+')">'+(LANG==='ko'?'⚔ 전투':LANG==='ja'?'⚔ 戦闘':LANG==='zh'?'⚔ 战斗':'⚔ Battle')+'</button>'
+    + '<button type="button" class="sc-op mine" onclick="openSectorOperation(\'mining\','+id+')">'+(LANG==='ko'?'⛏ 채굴':LANG==='ja'?'⛏ 採掘':LANG==='zh'?'⛏ 采矿':'⛏ Mine')+'</button>'
+    + '<button type="button" class="sc-op haul" onclick="openSectorOperation(\'transport\','+id+')">'+(LANG==='ko'?'⇄ 운송':LANG==='ja'?'⇄ 輸送':LANG==='zh'?'⇄ 运输':'⇄ Haul')+'</button>'
+    + '<span>'+lockText+'</span>'
+    + '</div>';
 }
 
 // ── PLANET NEWS (Migration 106) ─────────────────────────────────────────────
@@ -1751,5 +1767,41 @@ function focusSector(sectorId,opts){
     setTimeout(restoreFocusedSectorCard,80);
     setTimeout(restoreFocusedSectorCard,360);
     setTimeout(restoreFocusedSectorCard,900);
+  }
+}
+
+function openSectorOperation(kind,sectorId){
+  var s=(_sectorsData||[]).find(function(x){return String(x.id)===String(sectorId)});
+  if(!s) return;
+  var tier=String(s.tier||'frontier');
+  var name=s.name||('Sector '+sectorId);
+  var toastText=name+' · '+tier.toUpperCase();
+  if(kind==='battle'){
+    try{ switchBaseTab('pvp',document.getElementById('baseTabPvp')); }catch(_){}
+    try{ showToast((LANG==='ko'?'전투 목표: ':LANG==='ja'?'戦闘目標: ':LANG==='zh'?'战斗目标: ':'Battle target: ')+toastText); }catch(_){}
+    setTimeout(function(){ try{ if(typeof openBattleHub==='function') openBattleHub(); }catch(_){} },120);
+    return;
+  }
+  if(kind==='mining'){
+    try{ switchBaseTab('mining',document.getElementById('baseTabMining')); }catch(_){}
+    try{ showToast((LANG==='ko'?'채굴 루트: ':LANG==='ja'?'採掘ルート: ':LANG==='zh'?'采矿航线: ':'Mining route: ')+toastText); }catch(_){}
+    setTimeout(function(){
+      try{
+        if(typeof smSelectMiningRoute==='function') smSelectMiningRoute(tier);
+        else if(typeof _renderShipMining==='function') _renderShipMining();
+      }catch(_){}
+    },220);
+    return;
+  }
+  if(kind==='transport'){
+    try{ switchBaseTab('transport',document.getElementById('baseTabTransport')); }catch(_){}
+    try{ showToast((LANG==='ko'?'운송 목적지: ':LANG==='ja'?'輸送目的地: ':LANG==='zh'?'运输目的地: ':'Haul destination: ')+toastText); }catch(_){}
+    setTimeout(function(){
+      try{
+        if(typeof loadTransportTab==='function') loadTransportTab();
+        var dest=document.getElementById('tspDestSector');
+        if(dest){ dest.value=String(sectorId); dest.dispatchEvent(new Event('change')); }
+      }catch(_){}
+    },260);
   }
 }

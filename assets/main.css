@@ -1329,6 +1329,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sector-card .ssi-meta span{font-size:8px;color:var(--tx3);padding:2px 5px;border:1px solid rgba(255,255,255,.08);
   border-radius:999px;background:rgba(0,0,0,.16)}
 .sector-card .ssi-advice{font-size:8.5px;color:var(--tx2);margin-top:4px}
+.sc-ops{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:8px;align-items:center}
+.sc-ops .sc-op{height:28px;border-radius:5px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--tx2);font-size:8.5px;font-family:var(--fn);font-weight:900;cursor:pointer;white-space:nowrap}
+.sc-ops .sc-op:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.sc-ops .sc-op.war{border-color:rgba(255,112,67,.35);color:#ff8a80;background:rgba(255,112,67,.08)}
+.sc-ops .sc-op.mine{border-color:rgba(100,220,130,.35);color:#64dc82;background:rgba(100,220,130,.08)}
+.sc-ops .sc-op.haul{border-color:rgba(91,184,232,.35);color:#81d4fa;background:rgba(91,184,232,.08)}
+.sc-ops span{grid-column:1/-1;font-size:7.5px;color:var(--tx3);font-family:var(--fn);letter-spacing:.5px;text-align:right}
 /* Occupancy bar */
 .sc-occ-wrap{margin-bottom:8px}
 .sc-occ-bar{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-top:3px}
