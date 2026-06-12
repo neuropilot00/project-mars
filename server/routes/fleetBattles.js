@@ -22,6 +22,7 @@ const battleEngine = require('../services/battleEngine');
 const battleScheduler = require('../services/battleScheduler');
 const battleTimeline = require('../services/battleTimeline');
 const battleReport = require('../services/battleReport');
+const battleRewards = require('../services/battleRewards');
 
 // ── 인증 (inline JWT) ──
 const requireAuth = (req, res, next) => {
@@ -351,6 +352,55 @@ router.get('/history', requireAuth, async (req, res) => {
     res.json({ battles: history });
   } catch (err) {
     console.error('[battle] history alias error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * GET /api/battles/rewards/mine
+ * Authenticated player's battle reward history for the Battle Hub panel.
+ */
+router.get('/rewards/mine', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const limit = Math.min(50, parseInt(req.query.limit, 10) || 20);
+    const rewards = await battleRewards.getUserRewardHistory(wallet, limit);
+    const totalGp = rewards.reduce((sum, row) => sum + (parseFloat(row.gp_awarded) || 0), 0);
+    res.json({
+      success: true,
+      rewards,
+      total_gp: Math.round(totalGp * 1000000) / 1000000
+    });
+  } catch (err) {
+    console.error('[battle] rewards/mine error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * GET /api/battles/:id/rewards
+ * Reward rows for a completed battle. Used by result toasts and reports.
+ */
+router.get('/:id/rewards', async (req, res) => {
+  try {
+    const battleId = parseInt(req.params.id, 10);
+    if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
+
+    const { rows } = await pool.query(`
+      SELECT r.battle_id, r.wallet_address, r.side, r.is_winner,
+             r.gp_awarded, r.minerals_awarded, r.breakdown, r.created_at,
+             fb.battle_type, fb.winner_side, fb.ended_at
+        FROM fleet_battle_rewards r
+        JOIN fleet_battles fb ON fb.id = r.battle_id
+       WHERE r.battle_id = $1
+       ORDER BY r.gp_awarded DESC, r.id ASC
+    `, [battleId]);
+
+    res.json({ success: true, battle_id: battleId, rewards: rows });
+  } catch (err) {
+    console.error('[battle] rewards error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
   }
 });
