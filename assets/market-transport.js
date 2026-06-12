@@ -120,6 +120,27 @@ function transportLaneAllianceStatus(originSector, destSector) {
   return '<span style="color:var(--tx3);font-size:8px">Origin governed by ' + transportAllianceLabel(originSector) + '</span>';
 }
 
+function getTransportSectorById(id) {
+  if (!_tspSectors || !id) return null;
+  return _tspSectors.find(function(s) { return String(s.id || s.sector_id) === String(id); }) || null;
+}
+
+function renderTransportLaneContext(originId, destId) {
+  var origin = getTransportSectorById(originId);
+  var dest = getTransportSectorById(destId);
+  if (!origin || !dest) return '';
+  var dLat = parseFloat(origin.centerLat||origin.center_lat||0) - parseFloat(dest.centerLat||dest.center_lat||0);
+  var dLng = parseFloat(origin.centerLng||origin.center_lng||0) - parseFloat(dest.centerLng||dest.center_lng||0);
+  var dist = Math.sqrt(dLat*dLat + dLng*dLng);
+  var risk = getTransportLaneRisk(origin, dest, dist);
+  var allianceLine = transportLaneAllianceStatus(origin, dest);
+  return '<div style="font-size:8px;color:var(--tx3);margin-top:3px">'
+    + '<span style="color:'+risk.color+';font-weight:700">'+risk.label+'</span>'
+    + ' · '+dist.toFixed(1)+'° · '+formatTransportTier(dest.tier)+''
+    + '</div>'
+    + (allianceLine ? '<div style="margin-top:2px">'+allianceLine+'</div>' : '');
+}
+
 function getTransportLaneRisk(originSector, destSector, distance) {
   var destTier = String((destSector && destSector.tier) || '').toLowerCase();
   var originTier = String((originSector && originSector.tier) || '').toLowerCase();
@@ -236,6 +257,7 @@ function loadMyTransports() {
         if (t.status==='raided') {
           raidLine = '<div style="font-size:9px;color:#FF6B6B;margin-top:3px">🏴 Raided by '+escapeHtml(t.raider_nick||(t.raided_by||'').slice(0,8))+' · Lost '+(t.raid_loot_gp||0)+' GP</div>';
         }
+        var laneContext = renderTransportLaneContext(t.origin_sector_id, t.dest_sector_id);
         return '<div style="padding:10px;border-radius:7px;border:1px solid rgba(255,179,71,.18);background:rgba(255,179,71,.02);margin-bottom:8px">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
           + '<div><div style="font-size:10px;color:var(--tx);font-weight:700">#'+t.id+' · '+escapeHtml(t.origin_name||('S'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('S'+t.dest_sector_id))+'</div>'
@@ -244,6 +266,7 @@ function loadMyTransports() {
           + '<div style="font-size:8px;color:var(--tx3)">'+timeLine+'</div></div>'
           + '</div>'
           + bar
+          + laneContext
           + raidLine
           + actions
           + '</div>';
@@ -284,13 +307,14 @@ function loadRaidTargets() {
         var prog = parseInt(t.progress_pct)||0;
         var bar = '<div style="width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:4px">'
           + '<div style="width:'+prog+'%;height:100%;background:linear-gradient(90deg,#FF6B6B,#cc2020)"></div></div>';
+        var laneContext = renderTransportLaneContext(t.origin_sector_id, t.dest_sector_id);
         return '<div style="padding:10px;border-radius:7px;border:1px solid rgba(255,107,107,.22);background:rgba(255,107,107,.03);margin-bottom:8px">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
           + '<div><div style="font-size:10px;color:var(--tx);font-weight:700">#'+t.id+' · '+escapeHtml(t.origin_name||('S'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('S'+t.dest_sector_id))+'</div>'
           + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">Carrier: '+escapeHtml(t.carrier_nick||(t.carrier_wallet||'').slice(0,8))+(t.merchant_bonus?' <span style="color:#FFB347">★MRC</span>':'')+'</div>'
           + '<div style="font-size:8px;color:var(--gold);margin-top:2px">Cargo: '+(t.cargo_value||0)+' GP · Progress '+prog+'%</div></div>'
           + '<button onclick="submitRaidAttempt('+t.id+','+((t.cargo_value||0))+')" style="padding:8px 12px;font-size:10px;border-radius:5px;background:linear-gradient(135deg,#FF6B6B,#cc2020);border:none;color:#fff;font-weight:700;cursor:pointer" data-i18n="transport_raid_btn">🏴 RAID</button>'
-          + '</div>' + bar
+          + '</div>' + bar + laneContext
           + '</div>';
       }).join('');
     }).catch(function(){});
