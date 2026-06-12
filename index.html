@@ -22481,15 +22481,10 @@ async function confirmWeEngage() {
   btn.textContent = LANG==='ko'?'출전 중...':LANG==='ja'?'出撃中...':LANG==='zh'?'出击中...':'Deploying...';
 
   try {
-    var tok = localStorage.getItem('pw_token');
-    var weWallet = (walletState && walletState.address) || '';
     var r = await fetch('/api/world-events/' + eventId + '/engage', {
       method: 'POST',
-      headers: Object.assign({
-        'Content-Type': 'application/json',
-        'Authorization': tok ? 'Bearer ' + tok : ''
-      }, weWallet ? { 'x-wallet': weWallet } : {}),
-      body: JSON.stringify({ fleet_id: parseInt(fleetId), wallet: weWallet })
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
+      body: JSON.stringify({ fleet_id: parseInt(fleetId) })
     });
     var d = await r.json();
     if (!r.ok || d.error) {
