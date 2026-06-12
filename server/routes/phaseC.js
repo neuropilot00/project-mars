@@ -333,11 +333,11 @@ router.post('/hijack/:id(\\d+)/phase2', requireAuth, async (req, res) => {
   }
 });
 
-// ── GET /api/fleet-battles?wallet= ──
+// ── GET /api/fleet-battles ──
 // 프론트의 PVP 탭 dot 표시용 — 진행 중인 함대 전투 요약
-router.get('/fleet-battles', async (req, res) => {
+router.get('/fleet-battles', requireAuth, async (req, res) => {
   try {
-    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    const wallet = getWallet(req);
     if (!wallet || wallet.length < 10) return res.json({ battles: [] });
     let rows = [];
     try {

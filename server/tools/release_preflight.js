@@ -188,6 +188,7 @@ async function main() {
   await expectBlocked('/api/shop/active-effects blocks unauthenticated access', '/api/shop/active-effects?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/items/instances blocks unauthenticated access', '/api/items/instances?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/marketplace/my-listings blocks unauthenticated access', '/api/marketplace/my-listings?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/fleet-battles blocks unauthenticated access', '/api/fleet-battles?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/titles blocks unauthenticated access', '/api/user/titles?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/daily/status blocks unauthenticated access', '/api/daily/status?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/daily/missions blocks unauthenticated access', '/api/daily/missions?wallet=0x0000000000000000000000000000000000000000');

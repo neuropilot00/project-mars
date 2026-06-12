@@ -24023,7 +24023,7 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // PVP: 진행중인 함대전 있으면 dot
-  _guardedJsonFetch('dot-fleet-battles', '/api/fleet-battles?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+  _guardedJsonFetch('dot-fleet-battles', '/api/fleet-battles', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
     if (!d) return;
     try{
       var battles = Array.isArray(d) ? d : (d.battles||[]);
