@@ -3,6 +3,19 @@ var emailAuth = {
   user: null
 };
 
+function accountReadJson(key, url, minGap, auth) {
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  var fetchOptions = auth === false ? {} : { headers: getAuthHeaders() };
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('account:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: fetchOptions
+    });
+  }
+  return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
+
 function _applyAuthMeBalances(d){
   if(!d) return;
   walletState.gameUsdt=d.usdtBalance||0;
@@ -43,7 +56,7 @@ function _applyAuthMeBalances(d){
         // 모든 high-tier 섹터를 entry-blocked 로 그렸음 ("처음 로딩하고 섹터 누르면 반영 안됨" 신고).
         // 미리 fetch 해서 profileLevel DOM 채우고 sector 텍스처 재합성 트리거.
         try {
-          fetch('/api/user/' + encodeURIComponent(d.wallet) + '/base').then(function(r){return r.json()}).then(function(u){
+          accountReadJson('base-user:' + d.wallet, '/api/user/' + encodeURIComponent(d.wallet) + '/base', 15000, false).then(function(u){
             if (!u || !u.user) return;
             window._baseUserData = u;
             var pl = document.getElementById('profileLevel');
@@ -658,8 +671,8 @@ async function loadReferralInfo(){
   if(!walletState.connected||!walletState.address) return;
   var refSec=document.getElementById('referralSection'); if(refSec) refSec.style.display='';
   try{
-    var resp=await fetch('/api/referral/'+walletState.address);
-    var d=await resp.json();
+    var d=await accountReadJson('referral-info:' + walletState.address, '/api/referral/'+walletState.address, 30000, false);
+    if(!d) return;
     var code=d.code||'--';
     var refs=d.referrals||0;
     var earnedPP=(d.totalEarned||0).toFixed(2);
@@ -836,8 +849,8 @@ async function loadDynastyLb(){
             failed:{ko:'불러오기 실패',en:'Load failed',ja:'読み込み失敗',zh:'加载失败'}};
   el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.loading[lang]||msgs.loading.en)+'</div>';
   try{
-    var r=await fetch('/api/referral/leaderboard/top?limit=20');
-    var d=await r.json();
+    var d=await accountReadJson('referral-leaderboard', '/api/referral/leaderboard/top?limit=20', 30000, false);
+    if(!d) return;
     var rows=d.leaderboard||[];
     if(!rows.length){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.empty[lang]||msgs.empty.en)+'</div>';return}
     var me=(walletState.address||'').toLowerCase();
@@ -868,8 +881,8 @@ async function loadDynastyTree(){
   if(!walletState.address){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.needLogin[lang]||msgs.needLogin.en)+'</div>';return}
   el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.loading[lang]||msgs.loading.en)+'</div>';
   try{
-    var r=await fetch('/api/referral/tree/'+walletState.address);
-    var d=await r.json();
+    var d=await accountReadJson('referral-tree:' + walletState.address, '/api/referral/tree/'+walletState.address, 30000, false);
+    if(!d) return;
     var direct=d.directReferrals||[];
     var byTrig=d.byTrigger||[];
     var html='';
