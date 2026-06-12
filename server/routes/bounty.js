@@ -29,6 +29,12 @@ function getAuthWallet(req) {
 function getWallet(req) {
   return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
 }
+function sumPositiveNumbers(rows, key) {
+  return rows.reduce((sum, row) => {
+    const value = Number(row[key]);
+    return sum + (Number.isFinite(value) && value > 0 ? value : 0);
+  }, 0);
+}
 
 // ── GET /api/bounty/list ──────────────────────────────────────
 router.get('/list', async (req, res) => {
@@ -86,11 +92,11 @@ router.get('/on-me', async (req, res) => {
     const { rows } = await pool.query(
       `SELECT id, poster_wallet, reward_gp, reason, status, expires_at, created_at
        FROM bounty_listings
-       WHERE target_wallet = $1 AND status = 'active' AND expires_at > NOW()
-       ORDER BY reward_gp DESC`,
+      WHERE target_wallet = $1 AND status = 'active' AND expires_at > NOW()
+      ORDER BY reward_gp DESC`,
       [wallet]
     );
-    const total = rows.reduce((s, r) => s + r.reward_gp, 0);
+    const total = sumPositiveNumbers(rows, 'reward_gp');
     res.json({ success: true, bounties: rows, total_on_me: total });
   } catch (err) {
     res.status(500).json({ error: 'SERVER_ERROR' });
@@ -111,7 +117,7 @@ router.post('/post', requireAuth, async (req, res) => {
     const minGP  = parseInt(await getSetting('min_bounty_gp',  '100'))  || 100;
     const maxGP  = parseInt(await getSetting('max_bounty_gp',  '10000'))|| 10000;
     const maxBounties = parseInt(await getSetting('max_bounties_per_poster', '3')) || 3;
-    const feePct = parseFloat(await getSetting('platform_fee_pct', '5')) || 5;
+    const feePct = Math.max(0, Math.min(100, parseFloat(await getSetting('platform_fee_pct', '5')) || 5));
     const expiryDays = parseInt(await getSetting('expiry_days', '7')) || 7;
 
     const gp = parseInt(reward_gp);
@@ -244,7 +250,11 @@ router.post('/claim', requireAuth, async (req, res) => {
       }
 
       // 전체 현상금 합산
-      const totalGP = bounties.reduce((s, b) => s + b.reward_gp, 0);
+      const totalGP = sumPositiveNumbers(bounties, 'reward_gp');
+      if (totalGP <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'INVALID_BOUNTY_TOTAL' });
+      }
       const feeGP  = Math.floor(totalGP * feePct / 100);
       const netGP  = totalGP - feeGP;
       const ids    = bounties.map(b => b.id);
@@ -258,10 +268,11 @@ router.post('/claim', requireAuth, async (req, res) => {
       );
 
       // GP 지급
-      await client.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+      const payoutRes = await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
         [netGP, wallet]
       );
+      if (payoutRes.rowCount === 0) throw new Error('USER_NOT_FOUND');
 
       await client.query('COMMIT');
 
