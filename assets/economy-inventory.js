@@ -433,6 +433,39 @@ function _showClaimPicker(claimList,itemCode,title){
   mdl.querySelector('._cp-cancel').addEventListener('click',function(){bg.remove();});
   document.body.appendChild(bg);
 }
+function _scanEsc(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+  });
+}
+function _showTerritoryScanResult(scan){
+  if(!scan||!scan.holders){return;}
+  document.querySelectorAll('.mbg.territory-scan-report').forEach(function(el){el.remove();});
+  var bg=document.createElement('div');
+  bg.className='mbg open territory-scan-report';
+  bg.style.cssText='z-index:1250;display:flex';
+  var mdl=document.createElement('div');
+  mdl.className='mdl';
+  mdl.style.cssText='max-width:420px;padding:16px';
+  mdl.addEventListener('click',function(e){e.stopPropagation();});
+  var rows=scan.holders.map(function(h,i){
+    var label=h.nickname||((h.wallet||'').slice(0,6)+'...'+(h.wallet||'').slice(-4));
+    var cloak=h.cloaked?' <span style="color:var(--mars);font-size:9px">CLOAKED</span>':'';
+    return '<div style="display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+      +'<span style="color:var(--tx3);font-size:10px">#'+(i+1)+'</span>'
+      +'<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx1);font-size:11px">'+_scanEsc(label)+cloak+'</span>'
+      +'<span style="color:var(--gold);font-size:10px">'+(h.pixels||0)+' px · '+(h.sharePct||0)+'%</span>'
+      +'</div>';
+  }).join('');
+  mdl.innerHTML='<div style="font-size:15px;font-weight:800;color:var(--cyan);letter-spacing:1px;margin-bottom:4px">TERRITORY SCAN</div>'
+    +'<div style="font-size:11px;color:var(--tx2);margin-bottom:12px">'+_scanEsc(scan.sectorName||'Sector')+' · '+_scanEsc(scan.tier||'')+' · my '+(scan.myPixels||0)+' px</div>'
+    +'<div style="max-height:45vh;overflow-y:auto">'+(rows||'<div style="color:var(--tx3);font-size:11px;padding:12px">No holders found</div>')+'</div>'
+    +'<button class="_scan-close" style="margin-top:12px;width:100%;padding:10px;background:rgba(91,184,232,.10);border:1px solid rgba(91,184,232,.35);border-radius:8px;color:var(--cyan);cursor:pointer;font-size:12px;font-weight:700">CLOSE</button>';
+  bg.appendChild(mdl);
+  bg.addEventListener('click',function(e){if(e.target===bg) bg.remove();});
+  mdl.querySelector('._scan-close').addEventListener('click',function(){bg.remove();});
+  document.body.appendChild(bg);
+}
 function _doUseItem(w,code,claimId){
   fetch('/api/shop/use',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:w,itemCode:code,claimId:claimId})
@@ -458,7 +491,7 @@ function _doUseItem(w,code,claimId){
     else if(code==='gp_generator') _showItemEffect('boost',null);
     else if(code==='lucky_charm') _showItemEffect('boost',null);
     else if(code==='recall_beacon') _showItemEffect('radar',null);
-    else if(code==='territory_scan') _showItemEffect('radar',null);
+    else if(code==='territory_scan'){ _showItemEffect('radar',null); _showTerritoryScanResult(d.effect&&d.effect.scan); }
     else if(code==='decoy_beacon') _showItemEffect('stealth',null);
     else if(code==='shield_regen'&&claimId) _showItemEffect('shield',claimId);
     Promise.resolve(loadActiveEffects()).then(function(){

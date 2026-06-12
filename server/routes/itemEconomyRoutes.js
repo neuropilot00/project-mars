@@ -467,8 +467,65 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       );
       effectResult = { applied: true, code: item.code, missionRecalled: missionRes.rows.length > 0 };
     } else if (item.code === 'territory_scan') {
-      // Territory scan — instant effect (like radar_scan)
-      effectResult = { applied: true, code: item.code, instant: true };
+      // Territory scan — one-shot intel report for the user's strongest sector.
+      const sectorRes = await client.query(
+        `SELECT p.sector_id, s.name, s.tier, COUNT(*)::int AS my_pixels
+           FROM pixels p
+           JOIN sectors s ON s.id = p.sector_id
+          WHERE LOWER(p.owner) = LOWER($1)
+            AND p.sector_id IS NOT NULL
+          GROUP BY p.sector_id, s.name, s.tier
+          ORDER BY my_pixels DESC
+          LIMIT 1`,
+        [w]
+      );
+      if (!sectorRes.rows.length) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No owned sector to scan' });
+      }
+      const sector = sectorRes.rows[0];
+      const holdersRes = await client.query(
+        `SELECT p.owner,
+                COALESCE(u.nickname, '') AS nickname,
+                COUNT(*)::int AS pixels,
+                EXISTS (
+                  SELECT 1 FROM user_active_effects sae
+                   WHERE LOWER(sae.wallet) = LOWER(p.owner)
+                     AND sae.effect_type = 'stealth_cloak'
+                     AND sae.active = true
+                     AND sae.expires_at > NOW()
+                ) AS cloaked
+           FROM pixels p
+           LEFT JOIN users u ON u.wallet_address = p.owner
+          WHERE p.sector_id = $1
+            AND p.owner IS NOT NULL
+          GROUP BY p.owner, u.nickname
+          ORDER BY pixels DESC
+          LIMIT 12`,
+        [sector.sector_id]
+      );
+      const totalPixels = holdersRes.rows.reduce((sum, row) => sum + (parseInt(row.pixels) || 0), 0);
+      effectResult = {
+        applied: true,
+        code: item.code,
+        instant: true,
+        scan: {
+          sectorId: sector.sector_id,
+          sectorName: sector.name,
+          tier: sector.tier,
+          myPixels: parseInt(sector.my_pixels) || 0,
+          holders: holdersRes.rows.map(row => {
+            const pixels = parseInt(row.pixels) || 0;
+            return {
+              wallet: row.owner,
+              nickname: row.nickname || null,
+              pixels,
+              sharePct: totalPixels > 0 ? Math.round((pixels / totalPixels) * 10000) / 100 : 0,
+              cloaked: row.cloaked === true
+            };
+          })
+        }
+      };
     } else if (item.code === 'harvest_surge') {
       // Harvest surge — 3x PP on next harvest (1 use, like pixel_doubler)
       const expiresAt = getUseEffectExpiry(item);
