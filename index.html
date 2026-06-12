@@ -35002,10 +35002,10 @@ window.addEventListener('resize', _debounce(function(){
     if (!list) return;
     list.innerHTML = '<span style="color:var(--tx3);font-size:10px">Loading…</span>';
     try {
-      var url = tab === 'on-me' ? '/api/bounty/on-me?wallet=' + encodeURIComponent(wallet||'')
-              : tab === 'mine' ? '/api/bounty/my-bounties?wallet=' + encodeURIComponent(wallet||'')
+      var url = tab === 'on-me' ? '/api/bounty/on-me'
+              : tab === 'mine' ? '/api/bounty/my-bounties'
               : '/api/bounty/list';
-      var res = await fetch(url);
+      var res = await fetch(url, { headers: getAuthHeaders() });
       var data = await res.json();
       var bounties = data.bounties || [];
       if (bounties.length === 0) { list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">' + t('bounty_no_bounties') + '</div>'; return; }
@@ -36504,10 +36504,10 @@ function loadBountyBoard() {
   el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading...</div>';
 
   var url = '/api/bounty/list';
-  if (_bountyTab === 'mine') url = '/api/bounty/my-bounties?wallet=' + encodeURIComponent(walletState.address||'');
-  else if (_bountyTab === 'onme') url = '/api/bounty/on-me?wallet=' + encodeURIComponent(walletState.address||'');
+  if (_bountyTab === 'mine') url = '/api/bounty/my-bounties';
+  else if (_bountyTab === 'onme') url = '/api/bounty/on-me';
 
-  fetch(url)
+  fetch(url, { headers: getAuthHeaders() })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var list = data.bounties || [];

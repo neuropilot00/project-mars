@@ -65,9 +65,9 @@ router.get('/list', async (req, res) => {
 });
 
 // ── GET /api/bounty/my-bounties ───────────────────────────────
-router.get('/my-bounties', async (req, res) => {
+router.get('/my-bounties', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = getAuthWallet(req);
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
 
     const { rows } = await pool.query(
@@ -84,9 +84,9 @@ router.get('/my-bounties', async (req, res) => {
 });
 
 // ── GET /api/bounty/on-me ─────────────────────────────────────
-router.get('/on-me', async (req, res) => {
+router.get('/on-me', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
+    const wallet = getAuthWallet(req);
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
 
     const { rows } = await pool.query(
