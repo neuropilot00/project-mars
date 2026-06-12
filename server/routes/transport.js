@@ -22,13 +22,15 @@ const requireAuth = (req, res, next) => {
 function getWalletFromToken(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
-function getWallet(req) {
-  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
-}
-function requireWallet(req, res) {
-  const w = getWallet(req);
-  if (!w || w.length < 10) { res.status(400).json({ error: 'wallet_required' }); return null; }
-  return w;
+function getOptionalWalletFromToken(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
 }
 
 // ── Public settings (UI consumes this for pricing preview) ──
@@ -68,7 +70,7 @@ router.get('/transport/my', requireAuth, async (req, res) => {
 
 // ── List raidable targets ──
 router.get('/transport/raids/targets', async (req, res) => {
-  const wallet = getWallet(req); // may be empty (anonymous preview)
+  const wallet = getOptionalWalletFromToken(req); // may be empty (anonymous preview)
   const limit = parseInt(req.query.limit) || 30;
   try {
     const rows = await transportSvc.getActiveRaidTargets(wallet || null, limit);

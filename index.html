@@ -22218,7 +22218,7 @@ function submitTransportLaunch() {
   var doSubmit = function() {
     fetch('/api/transport/start', {
       method: 'POST',
-      headers: Object.assign({'Content-Type':'application/json', 'x-wallet': w},getAuthHeaders()),
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ originSectorId: origin, destSectorId: dest, cargoGp: cargo })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
@@ -22284,7 +22284,7 @@ function cancelMyTransport(tid) {
   var doIt = function() {
     fetch('/api/transport/cancel', {
       method: 'POST',
-      headers: Object.assign({'Content-Type':'application/json', 'x-wallet': w},getAuthHeaders()),
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ transportId: tid })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
@@ -22300,7 +22300,7 @@ function cancelMyTransport(tid) {
 function loadRaidTargets() {
   var w = (walletState && walletState.address) || '';
   if (!w) return;
-  fetch('/api/transport/raids/targets?wallet=' + encodeURIComponent(w) + '&limit=30')
+  fetch('/api/transport/raids/targets?limit=30', { headers: getAuthHeaders() })
     .then(function(r){ return r.json(); })
     .then(function(d) {
       var list = document.getElementById('tspRaidList');
@@ -22329,7 +22329,7 @@ function submitRaidAttempt(tid, cargo) {
   var doIt = function() {
     fetch('/api/transport/raid', {
       method: 'POST',
-      headers: Object.assign({'Content-Type':'application/json', 'x-wallet': w},getAuthHeaders()),
+      headers: Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body: JSON.stringify({ transportId: tid })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
