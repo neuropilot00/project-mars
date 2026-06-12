@@ -7,8 +7,21 @@ var _baseSectorsCacheAt=0;
 var _baseSectorsCacheKey='';
 var BASE_SECTORS_CACHE_MS=30000;
 
+function _seasonReadFetch(key, url, auth, minGap) {
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('season:' + key + ':' + walletKey, url, {
+      minGap: minGap || 15000,
+      backoffMs: 120000,
+      fetchOptions: auth ? { headers: getAuthHeaders() } : {}
+    });
+  }
+  return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
+}
+
 function loadSeasonData(){
-  fetch('/api/season/active').then(function(r){return r.json()}).then(function(d){
+  _seasonReadFetch('active', '/api/season/active', false, 30000).then(function(d){
+    if (!d) return;
     _seasonData=d.season;
     if(_seasonData){
       showSeasonBanner(_seasonData);
@@ -157,7 +170,8 @@ function showSeasonTint(season){
 
 function loadSeasonPass(){
   if(!walletState.address) return;
-  fetch('/api/season/pass', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(d){
+  _seasonReadFetch('pass', '/api/season/pass', true, 15000).then(function(d){
+    if (!d) return;
     if(d.error) return;
     if(d.premiumCost) window._seasonPassCost=d.premiumCost;
     renderSeasonPass(d);
@@ -306,8 +320,8 @@ async function loadCareerStats() {
   if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px" data-i18n="gp_activity_login">Login to view.</div>'; applyI18n(el); return; }
   el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">...</div>';
   try {
-    var r = await fetch('/api/stats/career', { headers: getAuthHeaders() });
-    var d = await r.json();
+    var d = await _seasonReadFetch('career-stats', '/api/stats/career', true, 30000);
+    if (!d) return;
     var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
     var rows = [
       ['⚓ ' + (t('cat_naval') || 'Naval Wins'), d.battles.wins + ' W / ' + d.battles.losses + ' L', d.battles.wins > 0 ? 'var(--cyan)' : 'var(--tx3)'],
@@ -336,8 +350,9 @@ function loadSeasonLeaderboard(){
 
   if(_currentCatLb!=='overall'){
     // Category leaderboard
-    fetch('/api/season/category/'+encodeURIComponent(_currentCatLb)+'?limit=10')
-      .then(function(r){return r.json()}).then(function(d){
+    _seasonReadFetch('category-lb:' + _currentCatLb, '/api/season/category/'+encodeURIComponent(_currentCatLb)+'?limit=10', false, 30000)
+      .then(function(d){
+        if (!d) return;
         if(labelEl && d.category) labelEl.textContent = d.category.icon + ' ' + d.category.desc;
         document.getElementById('mySeasonRank').style.display='none';
         var entries=d.entries||[];
@@ -357,7 +372,8 @@ function loadSeasonLeaderboard(){
   }
 
   if(labelEl) labelEl.textContent='';
-  fetch('/api/season/leaderboard?limit=20').then(function(r){return r.json()}).then(function(d){
+  _seasonReadFetch('leaderboard', '/api/season/leaderboard?limit=20', false, 30000).then(function(d){
+    if (!d) return;
     var lb=d.leaderboard||[];
     if(!lb.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:10px">'+t('season_no_scores')+'</div>';document.getElementById('mySeasonRank').style.display='none';return;}
 
@@ -385,7 +401,8 @@ function loadSeasonLeaderboard(){
 
   // Load my rewards
   if(w){
-    fetch('/api/season/rewards', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(d){
+    _seasonReadFetch('rewards', '/api/season/rewards', true, 30000).then(function(d){
+      if (!d) return;
       var rewards=d.rewards||[];
       var sec=document.getElementById('seasonRewardsSection');
       var list=document.getElementById('seasonRewardsList');
@@ -477,7 +494,8 @@ function loadBaseData(){
   _loadBaseSectorsStable();
 
   // Load ranks
-  fetch('/api/ranks', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
+  _seasonReadFetch('ranks', '/api/ranks', true, 30000).then(function(data){
+    if (!data) return;
     _ranksData=data;
     renderRankTable(data);
   }).catch(function(){});
@@ -487,7 +505,8 @@ function loadBaseData(){
 
   // Load user data if logged in
   if(w){
-    fetch('/api/user/'+encodeURIComponent(w)+'/base').then(function(r){return r.json()}).then(function(data){
+    _seasonReadFetch('base-user:' + w, '/api/user/'+encodeURIComponent(w)+'/base', false, 15000).then(function(data){
+      if (!data) return;
       _baseUserData=data;
       renderBaseUser(data);
     }).catch(function(e){console.error('[BASE] Failed to load user data:', e)});
@@ -1400,9 +1419,9 @@ function toggleNewsPanel() {
 function loadNewsFeed() {
   var el = document.getElementById('newsFeed');
   if (!el) return;
-  fetch('/api/news?limit=30')
-    .then(function(r){ return r.json(); })
+  _seasonReadFetch('news', '/api/news?limit=30', false, 30000)
     .then(function(data) {
+      if (!data) return;
       var items = data.news || [];
       if (!items.length) {
         el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:12px;font-size:9px">No events yet — play more to generate news!</div>';
@@ -1493,7 +1512,8 @@ function renderRankTable(ranks){
 function renderNextBreakthrough(ranks, userRank){
   var w=walletState.address;
   if(!w){document.getElementById('breakthroughPanel').style.display='none';return}
-  fetch('/api/breakthrough/'+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  _seasonReadFetch('breakthrough:' + w, '/api/breakthrough/'+encodeURIComponent(w), false, 30000).then(function(d){
+    if (!d) return;
     var panel=document.getElementById('breakthroughPanel');
     if(!d.nextGate){panel.style.display='none';return}
     panel.style.display='block';
