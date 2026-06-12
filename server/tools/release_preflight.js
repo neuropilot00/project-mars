@@ -209,6 +209,7 @@ async function main() {
   await expectStaticOk('/assets/tactical-lab-v11.html serves', '/assets/tactical-lab-v11.html?v=preflight');
   await expectStaticOk('/assets/ships/top/mcc_frg.png serves', '/assets/ships/top/mcc_frg.png?v=preflight');
   await expectStaticOk('/assets/textures/battlefields/mars_mining_site_topdown.png serves', '/assets/textures/battlefields/mars_mining_site_topdown.png?v=preflight');
+  await expectStaticOk('/assets/textures/battlefields/mars_orbital_blockade_topdown.png serves', '/assets/textures/battlefields/mars_orbital_blockade_topdown.png?v=preflight');
 
   console.log(`\n📊  ${pass} passed / ${fail} failed`);
   process.exit(fail > 0 ? 1 : 0);
