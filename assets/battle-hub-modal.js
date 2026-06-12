@@ -1433,6 +1433,7 @@ const bv = {
   currentTick: 0,
   animHandle: null,
   lastFrameTime: 0,
+  _viewerSeq: 0,
   
   // 쇼한 이벤트 추적
   shownEvents: new Set(),
@@ -1572,6 +1573,9 @@ async function openBattleViewer(battleId, startTick) {
     console.error('[battle] openBattleViewer called with invalid battleId:', battleId);
     return;
   }
+  const viewerSeq = ++bv._viewerSeq;
+  if (bv.animHandle) { cancelAnimationFrame(bv.animHandle); bv.animHandle = null; }
+  bv.playing = false;
   var viewerWallet = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : '';
   bv.wallet = viewerWallet;
 
@@ -1609,11 +1613,14 @@ async function openBattleViewer(battleId, startTick) {
   let lastErr = null;
   let battleDone = false;
   for (let i = 0; i < 30; i++) {
+    if (viewerSeq !== bv._viewerSeq) return;
     if (!_pageIsActive()) { await _activeSleep(2000); i--; continue; }
+    if (viewerSeq !== bv._viewerSeq) return;
     if (!document.getElementById('battleViewer')?.classList.contains('active')) return;
     try {
       // 전투 정보
       const infoRes = await fetch(`/api/battles/${battleId}`);
+      if (viewerSeq !== bv._viewerSeq) return;
       const infoData = await infoRes.json().catch(() => ({}));
       if (!infoRes.ok) { lastErr = 'info: ' + (infoData.error || infoRes.status); break; }
       bv.battle = infoData.battle;
@@ -1623,8 +1630,10 @@ async function openBattleViewer(battleId, startTick) {
 
       // 타임라인
       const tlRes = await fetch(`/api/battles/${battleId}/timeline`);
+      if (viewerSeq !== bv._viewerSeq) return;
       if (tlRes.ok) {
         const tlData = await tlRes.json();
+        if (viewerSeq !== bv._viewerSeq) return;
         bv.timeline = tlData.timeline;
         loaded = true;
         break;
@@ -1641,6 +1650,7 @@ async function openBattleViewer(battleId, startTick) {
     }
     await _activeSleep(2000);
   }
+  if (viewerSeq !== bv._viewerSeq) return;
 
   if (!loaded) {
     if (battleDone) {
@@ -1701,6 +1711,7 @@ async function openBattleViewer(battleId, startTick) {
 }
 
 function closeBattleViewer() {
+  bv._viewerSeq++;
   document.getElementById('battleViewer').classList.remove('active');
   bv.playing = false;
   if (bv.animHandle) { cancelAnimationFrame(bv.animHandle); bv.animHandle = null; }
@@ -2365,7 +2376,8 @@ function showBattleResult() {
   } catch(_) {}
 
   // 시각 시뮬이 충분히 재생되도록 2초 후 결과 카드 표시 (Bug2: HP 감소 전 승리 방지)
-  setTimeout(() => {
+  _setActiveTimeout(() => {
+    if (!document.getElementById('battleViewer')?.classList.contains('active')) return;
     overlay.classList.add('active');
     // 결과 카드 표시 시 보상 토스트 숨김 (Bug4: 창 중복 방지)
     document.getElementById('rewardToast')?.classList.remove('show');
@@ -2392,7 +2404,7 @@ function bvRematch(){
   var la = window._lastAiChallenge;
   if (!la || la.aiFleetId == null) { showFactionToast(tl('No rematch target','리매치 상대 없음','再戦相手なし','无对手'),'error'); return; }
   try { closeBattleViewer(); } catch(_){}
-  setTimeout(function(){ try { challengeAi(la.aiFleetId, la.aiName || 'AI'); } catch(e){ console.error('bvRematch:', e); } }, 300);
+  _setActiveTimeout(function(){ try { challengeAi(la.aiFleetId, la.aiName || 'AI'); } catch(e){ console.error('bvRematch:', e); } }, 300);
 }
 
 // Bug4: 전투 결과 카드에 보상 인라인 표시 (별도 토스트 대체)
