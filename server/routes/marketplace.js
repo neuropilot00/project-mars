@@ -12,6 +12,9 @@ const requireAuth = (req, res, next) => {
     next();
   } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
 };
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 const router = express.Router();
 
@@ -165,8 +168,8 @@ router.post('/buy', requireAuth, writeLimiter, async (req, res) => {
 });
 
 // GET /api/marketplace/my-listings — user's own listings
-router.get('/my-listings', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
+router.get('/my-listings', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   try {
     if (!marketService) return res.status(503).json({ error: 'Marketplace service unavailable' });

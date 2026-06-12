@@ -23194,7 +23194,7 @@ function loadMyListings(){
   var w=(walletState&&walletState.address)||'';
   if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
-  fetch('/api/marketplace/my-listings?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(listings){
+  fetch('/api/marketplace/my-listings', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(listings){
     if(!listings||!listings.length){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_no_listings')||'No listings yet')+'</div>';
       return;
@@ -24011,7 +24011,7 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // MARKET: 내 리스팅 중 판매된 건 있으면 dot
-  _guardedJsonFetch('dot-market-listings', '/api/marketplace/my-listings?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+  _guardedJsonFetch('dot-market-listings', '/api/marketplace/my-listings', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
     if (!d) return;
     try{
       var listings = Array.isArray(d) ? d : (d.listings||[]);
