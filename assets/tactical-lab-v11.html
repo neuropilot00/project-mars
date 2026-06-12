@@ -1129,6 +1129,7 @@ let btMs=0,turn=0,empMs=0,focusFleet=null;
 let beamCharge=0,missileCharge=0,empCharge=0,overdriveCharge=0;
 let lastPanicCallout=0,lastAmbientCallout=0;
 let audioCtx=null,audioOn=false,musicTimer=null,lastLaserSound=0,lastBulletSound=0,lastExplosionSound=0;
+let loopFrame=null,tlDisposed=false;
 // 플로팅 텍스트 (함선 위에 격침/피격 메시지)
 let _floatTexts=[];
 // ws 함선 추적: 이전 프레임 생존 함선 맵 (id → {x,y,code})
@@ -1240,13 +1241,15 @@ function ensureAudio(){
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
     stopBattleLoop();
+    closeBattleWs('hidden');
     if(audioOn){stopBattleMusic();if(audioCtx)audioCtx.suspend();}
   }else{
     resumeBattleLoop();
+    connectBattleWs();
     if(audioOn&&audioCtx&&audioCtx.state==='suspended'){audioCtx.resume();startBattleMusic();}
   }
 });
-window.addEventListener('pagehide',()=>{tlDisposed=true;stopBattleLoop();stopBattleMusic();if(audioCtx)audioCtx.close();audioCtx=null;});
+window.addEventListener('pagehide',()=>{tlDisposed=true;stopBattleLoop();closeBattleWs('pagehide');stopBattleMusic();if(audioCtx)audioCtx.close();audioCtx=null;});
 
 // ── 캔버스 탭/클릭 → 적 함선 집중공격 대상 지정 ──────────────────
 function _canvasToWorld(clientX,clientY){
@@ -2742,7 +2745,6 @@ function drawRepairBeams(){
    메인 루프
    ═══════════════════════════════════════════════════════════ */
 let lt=0,turnT=0,panelT=0,battleOver=false;
-let loopFrame=null,tlDisposed=false;
 let simSpeed=1; // 기본 1x — WS 없는 로컬 시뮬 전용
 let _slowmoActive=false,_slowmoTimer=0; // 마지막 함선 폭발 슬로우모션
 // [v7.179 VFX] 격침 화면 흔들림 + 미니 슬로모 (대형함 전용)
@@ -3449,8 +3451,10 @@ let _wsEndPayload = null;
 let _wsMaxHpCalibrated = false;
 function connectBattleWs() {
   try {
+    if (tlDisposed || document.hidden) return;
     const bid = tlQuery('bid');
     if (!bid) return;
+    if (_wsBattle && (_wsBattle.readyState === 0 || _wsBattle.readyState === 1)) return;
     const token = (window.parent && window.parent.localStorage && window.parent.localStorage.getItem('pw_token')) || '';
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     const url = proto + '://' + location.host + '/ws/battle/' + encodeURIComponent(bid) + (token ? ('?token=' + encodeURIComponent(token)) : '');
@@ -3537,6 +3541,15 @@ function connectBattleWs() {
     _wsBattle.onclose = () => { addLog('ev', '🔌 실시간 연결 끊김'); _wsBattle = null; };
     _wsBattle.onerror = (err) => { console.warn('[ws] error:', err); };
   } catch (e) { console.warn('[ws] connect failed:', e.message); }
+}
+
+function closeBattleWs(reason) {
+  if (!_wsBattle) return;
+  try {
+    _wsBattle.onclose = null;
+    _wsBattle.close(1000, reason || 'closing');
+  } catch (_) {}
+  _wsBattle = null;
 }
 
 async function boot(){
