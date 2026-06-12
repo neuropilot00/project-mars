@@ -11,6 +11,17 @@ function _questReadFetch(wallet){
   }
   return fetch('/api/quests', { headers: getAuthHeaders() }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
 }
+function _questEconomyReadJson(key, url, minGap, auth) {
+  var walletKey = ((walletState && walletState.address) || 'public').toLowerCase();
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('quest-economy:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: auth === false ? {} : { headers: getAuthHeaders() }
+    });
+  }
+  return fetch(url, auth === false ? {} : { headers: getAuthHeaders() }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
 function loadQuests(wallet){
   var container=document.getElementById('questsList');
   var loading=document.getElementById('questsLoading');
@@ -168,8 +179,8 @@ async function loadGpActivity(){
   var el=document.getElementById('gpActivityList');
   if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_login">Login to view GP activity.</div>';applyI18n(el);return;}
   try{
-    var r=await fetch('/api/gp/activity?limit=15',{headers:getAuthHeaders()});
-    var d=await r.json();
+    var d=await _questEconomyReadJson('gp-activity', '/api/gp/activity?limit=15', 15000);
+    if(!d){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Please wait a moment.</div>';return;}
     if(!d.entries||!d.entries.length){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_empty">No GP activity yet.</div>';applyI18n(el);
       _gpActivityLoaded=true;return;
@@ -212,8 +223,8 @@ async function loadGPTransfers() {
   if (!el) return;
   if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Connect wallet to view.</div>'; return; }
   try {
-    var r = await fetch('/api/gp/transfers', { headers: getAuthHeaders() });
-    var d = await r.json();
+    var d = await _questEconomyReadJson('gp-transfers', '/api/gp/transfers', 15000);
+    if (!d) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Please wait a moment.</div>'; return; }
     var transfers = d.transfers || [];
     if (!transfers.length) {
       el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">' + (t('gp_transfer_empty') || 'No transfers yet.') + '</div>';
@@ -297,9 +308,12 @@ function loadLottery() {
   el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
   var wallet = walletState.address || '';
 
-  fetch('/api/lottery/current', { headers: getAuthHeaders() })
-    .then(function(r){ return r.json(); })
+  _questEconomyReadJson('lottery-current', '/api/lottery/current', 10000)
     .then(function(data) {
+      if (!data) {
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Please wait a moment.</div>';
+        return;
+      }
       var round = data.round;
       if (!round) {
         el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="lottery_disabled">Lottery is currently disabled</div>';
@@ -421,9 +435,9 @@ function loadLotteryHistory() {
   if (!c) return;
   c.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:8px">Loading...</div>';
   var wallet = walletState.address || '';
-  var reqs = [fetch('/api/lottery/history?limit=10').then(function(r){ return r.json(); }).catch(function(){ return { history: [] }; })];
+  var reqs = [_questEconomyReadJson('lottery-history', '/api/lottery/history?limit=10', 15000, false).then(function(d){ return d || { history: [] }; })];
   reqs.push(wallet
-    ? fetch('/api/lottery/my-tickets', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }).catch(function(){ return { tickets: [] }; })
+    ? _questEconomyReadJson('lottery-my-tickets', '/api/lottery/my-tickets', 15000).then(function(d){ return d || { tickets: [] }; })
     : Promise.resolve({ tickets: [] }));
   Promise.all(reqs).then(function(res) {
     var history = (res[0] && res[0].history) || [];
@@ -490,13 +504,17 @@ function loadStakingPanel() {
   var wallet = walletState.address || '';
 
   Promise.all([
-    fetch('/api/staking/info', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }),
-    wallet ? fetch('/api/staking/my-stakes', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }) : Promise.resolve({ stakes: [] }),
-    fetch('/api/dividends/info', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }).catch(function(){ return null; })
+    _questEconomyReadJson('staking-info', '/api/staking/info', 15000),
+    wallet ? _questEconomyReadJson('staking-my-stakes', '/api/staking/my-stakes', 15000) : Promise.resolve({ stakes: [] }),
+    _questEconomyReadJson('dividends-info', '/api/dividends/info', 15000).catch(function(){ return null; })
   ])
     .then(function(results) {
       _stakingInfo = results[0];
-      var stakes = results[1].stakes || [];
+      if (!_stakingInfo) {
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Please wait a moment.</div>';
+        return;
+      }
+      var stakes = (results[1] && results[1].stakes) || [];
       var divInfo = results[2];
       if (!_stakingInfo.enabled) {
         el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Staking currently disabled</div>';
