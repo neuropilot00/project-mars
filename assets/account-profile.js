@@ -16,6 +16,35 @@ function accountReadJson(key, url, minGap, auth) {
   return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
 }
 
+var _authMeInFlight = null;
+var _authMeLastToken = '';
+var _authMeLastAt = 0;
+var _authMeLastData = null;
+var AUTH_ME_MIN_GAP_MS = 12000;
+
+function fetchAuthMe(force) {
+  var token = emailAuth && emailAuth.token;
+  if (!token) return Promise.resolve(null);
+  var now = Date.now();
+  if (!force && _authMeLastData && _authMeLastToken === token && now - _authMeLastAt < AUTH_ME_MIN_GAP_MS) {
+    return Promise.resolve(_authMeLastData);
+  }
+  if (_authMeInFlight) return _authMeInFlight;
+  _authMeInFlight = fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(function(r){
+      if (!r.ok) throw new Error('auth_me_' + r.status);
+      return r.json();
+    })
+    .then(function(d){
+      _authMeLastToken = token;
+      _authMeLastAt = Date.now();
+      _authMeLastData = d;
+      return d;
+    })
+    .finally(function(){ _authMeInFlight = null; });
+  return _authMeInFlight;
+}
+
 function _authRankCacheKey(wallet){
   return wallet ? 'om_rank_' + String(wallet).toLowerCase() : '';
 }
@@ -71,9 +100,9 @@ function _applyAuthMeBalances(d){
 (function autoLoginInit(){
   if(emailAuth.token){
     _authQuietPublicReads(300000);
-    fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
-      .then(function(r){if(!r.ok) throw new Error('expired'); return r.json()})
+    fetchAuthMe(true)
       .then(function(d){
+        if (!d) throw new Error('expired');
         // [v7.174 A-C3] emailVerified 추적 — 미인증 시 verify 배너 노출
         emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,rank:d.rank||1,referralCode:d.referralCode,emailVerified:!!d.emailVerified};
         walletState.connected=true;
@@ -707,9 +736,8 @@ function logoutEmail(){
 async function refreshEmailBalances(){
   if(!emailAuth.token) return;
   try{
-    var resp=await fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}});
-    var d=await resp.json();
-    if(resp.ok){
+    var d=await fetchAuthMe(false);
+    if(d){
       _applyAuthMeBalances(d);
     }
   }catch(e){}
