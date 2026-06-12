@@ -29,9 +29,9 @@ router.get('/spells/claim/:claimId', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/spells/my?wallet= — my cast history
-router.get('/spells/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/spells/my — my cast history
+router.get('/spells/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMySpells(wallet)); }
   catch (e) { res.status(500).json({ error: e.message }); }

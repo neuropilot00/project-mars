@@ -37689,7 +37689,7 @@ function loadMySpellsHistory() {
   var w = walletState && walletState.address;
   if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
   el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
-  fetch('/api/spells/my?wallet=' + encodeURIComponent(w))
+  fetch('/api/spells/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(rows){
       if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No spells cast yet</div>'; return; }
