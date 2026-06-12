@@ -87,12 +87,24 @@ async function _renderShipMining() {
         var ready = j.status==='mining' && (j.seconds_remaining||0) <= 0;
         var done = j.status==='collected';
         var mins = Math.ceil((j.seconds_remaining||0)/60);
-        var dm = _smDestMeta(j.sector_type || j.destination || 'frontier');
+        var destKey = j.sector_type || j.destination || 'frontier';
+        var dm = _smDestMeta(destKey);
+        var destCfg = dests.find(function(d){ return d.key===destKey; }) || { yieldMult:1, wearMult:1, raidPct:0 };
+        var allianceBonus = _smAllianceBonus(info, destKey);
+        var risk = _smRiskLabel(destCfg);
+        var raidPct = Math.round((Number(destCfg.raidPct)||0)*100);
+        var routeTags = '<span style="font-size:8px;color:'+dm.c+'">'+dm.ico+' '+dm.label+'</span>'
+          + ' <span style="font-size:8px;color:var(--tx3)">· '+risk+' · '+tl('Hull','내구','耐久','耐久')+' ×'+(Number(destCfg.wearMult)||1)+'</span>'
+          + (raidPct>0 ? ' <span style="font-size:8px;color:#d9483b">· ⚠ '+raidPct+'%</span>' : '')
+          + (allianceBonus>1 ? ' <span style="font-size:8px;color:#80cbc4">· 🛡 +'+Math.round((allianceBonus-1)*100)+'%</span>' : '');
         var mats = _smResourceSummary(j.reward_resources);
+        var doneLine = '✅ '+tl('Collected','수령완료','受取済','已领取')+': '+_fmtGp(j.reward_gp)+' GP'
+          + (j.raided ? ' · <span style="color:#d9483b">⚠ '+tl('raided','약탈 피해','襲撃被害','遭袭')+'</span>' : '')
+          + (mats?(' · '+mats):'');
         h += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(100,220,130,.18);border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px">'
           + '<div style="flex:1;font-size:10px"><b style="color:#fff">'+escapeHtmlSafe(j.fleet_name||('Fleet #'+j.fleet_id))+'</b> <span style="color:var(--tx3)">· '+j.ship_count+'🛸 · '+j.duration_h+'h</span><br>'
-          + '<span style="font-size:8px;color:'+dm.c+'">'+dm.ico+' '+dm.label+'</span> '
-          + '<span style="font-size:8.5px;color:var(--tx3)">'+(done?('✅ '+tl('Collected','수령완료','受取済','已领取')+': '+_fmtGp(j.reward_gp)+' GP'+(mats?(' · '+mats):'')):(ready?('⛏ '+tl('Ready to collect','수령 가능','受取可能','可领取')):('⏳ '+mins+tl('m left','분 남음','分残り','分钟')))) + '</span></div>'
+          + routeTags + '<br>'
+          + '<span style="font-size:8.5px;color:var(--tx3)">'+(done?doneLine:(ready?('⛏ '+tl('Ready to collect','수령 가능','受取可能','可领取')):('⏳ '+mins+tl('m left','분 남음','分残り','分钟')))) + '</span></div>'
           + (ready?'<button type="button" class="sm-collect" data-job="'+j.id+'" style="font-size:9px;font-weight:700;padding:6px 10px;border-radius:6px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;cursor:pointer;font-family:var(--fn)">'+tl('COLLECT','수령','受取','领取')+'</button>':'')
           + '</div>';
       });
