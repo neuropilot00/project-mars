@@ -20,8 +20,8 @@ router.get('/status/config', async (req, res) => {
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/status/my', async (req, res) => {
-  const { wallet } = req.query;
+router.get('/status/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMyStatus(wallet)); }
   catch(e) { res.status(500).json({ error: e.message }); }

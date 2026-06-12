@@ -38048,7 +38048,7 @@ function loadMyStatusDisplay() {
   if (!w) return;
   var el = document.getElementById('myStatusDisplay');
   if (!el) return;
-  fetch('/api/status/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}).then(function(s){
+  fetch('/api/status/my',{headers:getAuthHeaders()}).then(function(r){return r.json();}).then(function(s){
     if (!s || !s.isActive) { el.textContent = t('status_none')||'No active status'; el.style.color = 'var(--tx3)'; return; }
     var expMs = new Date(s.expiresAt) - Date.now();
     var expStr = expMs > 0 ? Math.ceil(expMs/3600000)+'h left' : 'expired';
