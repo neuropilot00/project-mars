@@ -99,6 +99,24 @@
     return d && d.recommendedFor ? String(d.recommendedFor) : lang('available fleets', '가용 함대', '利用可能な艦隊', '可用舰队');
   }
 
+  function routePressureLabel(d) {
+    var p = d && d.pressure ? String(d.pressure) : '';
+    var map = {
+      low: lang('LOW PRESSURE', '저압 지역', '低圧地域', '低压区域'),
+      contested: lang('CONTESTED', '분쟁 압력', '係争圧力', '争夺压力'),
+      warzone: lang('WAR ECONOMY', '전시 경제권', '戦時経済圏', '战时经济区')
+    };
+    return map[p] || p || routeRiskLabel(d);
+  }
+
+  function routeEconomySummary(d) {
+    var risk = routeRiskLabel(d);
+    var difficulty = routeDifficultyLabel(d);
+    var loot = routeLootText(d);
+    var pressure = routePressureLabel(d);
+    return difficulty + ' · ' + risk + ' · ' + pressure + ' · ' + loot;
+  }
+
   function allianceBonusFor(key) {
     var bonuses = (state.info && state.info.allianceSectorBonuses) || {};
     var mult = Number(bonuses[key]) || 1;
@@ -216,6 +234,7 @@
       html += '</select>';
 
       html += '<div id="smPreview" style="font-size:9px;color:var(--tx3);line-height:1.7;margin-bottom:8px"></div>';
+      html += '<div id="smRouteIntel" style="margin-bottom:8px"></div>';
       html += '<button id="smLaunchBtn" type="button" onclick="smLaunchMining()" style="width:100%;padding:10px;border-radius:8px;background:linear-gradient(135deg,#64dc82,#35a85b);border:none;color:#001;font-family:var(--fn);font-size:11px;font-weight:900;letter-spacing:1px;cursor:pointer">' + lang('LAUNCH RESOURCE RUN', '채굴 출항', '採掘へ出航', '启动采矿航线') + '</button>';
     }
     html += '</div>';
@@ -260,6 +279,7 @@
   window.smUpdatePreview = function () {
     var el = document.getElementById('smPreview');
     if (!el || !state.info) return;
+    var intelEl = document.getElementById('smRouteIntel');
     var picks = currentSelections();
     var fleet = (state.fleets || []).find(function (f) { return String(f.id) === String(picks.fleetId); }) || (state.fleets || [])[0];
     var dest = (state.info.destinations || []).find(function (d) { return String(d.key) === String(picks.destination); }) || (state.info.destinations || [])[0] || {};
@@ -298,6 +318,26 @@
       '<br><span style="color:var(--tx3)">' + lang('Recommended', '추천', '推奨', '推荐') + ': ' + txt(routeRecommendedText(dest)) + '</span>' +
       '<br><span style="color:var(--tx3)">' + txt(routeLootText(dest)) + '</span>' +
       allianceLine + territoryLine;
+    if (intelEl) {
+      var riskColor = routeRiskColor(dest);
+      var routeBonus = routeControlBonus > 1 ? (' x' + routeControlBonus.toFixed(2)) : ' x1.00';
+      intelEl.innerHTML =
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:6px">' +
+          '<div style="border:1px solid ' + riskColor + '55;background:rgba(255,255,255,.03);border-radius:7px;padding:7px">' +
+            '<div style="font-size:7px;color:var(--tx3);letter-spacing:.8px">' + lang('ROUTE RISK', '항로 위험', '航路リスク', '航线风险') + '</div>' +
+            '<div style="font-size:10px;color:' + riskColor + ';font-weight:900">' + txt(routeEconomySummary(dest)) + '</div>' +
+          '</div>' +
+          '<div style="border:1px solid rgba(255,209,102,.24);background:rgba(255,209,102,.04);border-radius:7px;padding:7px">' +
+            '<div style="font-size:7px;color:var(--tx3);letter-spacing:.8px">' + lang('ECONOMY USE', '경제 용도', '経済用途', '经济用途') + '</div>' +
+            '<div style="font-size:10px;color:var(--gold);font-weight:800">' + txt(routeUseText(dest)) + '</div>' +
+          '</div>' +
+          '<div style="border:1px solid rgba(100,220,130,.24);background:rgba(100,220,130,.04);border-radius:7px;padding:7px">' +
+            '<div style="font-size:7px;color:var(--tx3);letter-spacing:.8px">' + lang('CONTROL BONUS', '통제 보너스', '支配ボーナス', '控制加成') + '</div>' +
+            '<div style="font-size:10px;color:#64dc82;font-weight:900">' + txt(routeBonus) + '</div>' +
+            '<div style="font-size:8px;color:var(--tx3);margin-top:2px">' + txt(routeRecommendedText(dest)) + '</div>' +
+          '</div>' +
+        '</div>';
+    }
   };
 
   window._renderShipMining = function () {
