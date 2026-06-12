@@ -178,9 +178,9 @@ router.post('/cosmetic/unequip', requireAuth, writeLimiter, async (req, res) => 
   }
 });
 
-router.get('/cosmetic/equipped', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
-  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+router.get('/cosmetic/equipped', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet) return res.status(401).json({ error: 'Auth required' });
 
   try {
     const result = await pool.query(
