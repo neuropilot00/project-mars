@@ -28,34 +28,94 @@ function _drawSectorOverlay(ctx,w,h){
     for(var i=0;i<pts.length;i++){var p=toXY(pts[i]);cx+=p[0];cy+=p[1]}
     return[cx/pts.length,cy/pts.length];
   }
+  function sectorStyle(tier){
+    var c=_sectorColor(tier);
+    return {
+      color:c,
+      fillAlpha:tier==='core'?0.18:tier==='mid'?0.14:0.11,
+      edgeAlpha:tier==='core'?0.86:tier==='mid'?0.76:0.66,
+      glow:tier==='core'?18:tier==='mid'?13:9
+    };
+  }
+  function polyMetrics(poly){
+    var pts=poly.map(toXY);
+    var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,cx=0,cy=0;
+    pts.forEach(function(p){
+      minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0]);
+      minY=Math.min(minY,p[1]);maxY=Math.max(maxY,p[1]);
+      cx+=p[0];cy+=p[1];
+    });
+    return {pts:pts,minX:minX,minY:minY,maxX:maxX,maxY:maxY,cx:cx/pts.length,cy:cy/pts.length,w:maxX-minX,h:maxY-minY};
+  }
+  function tracePts(pts){
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0],pts[0][1]);
+    for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+    ctx.closePath();
+  }
+  function roundRect(x,y,wid,hei,r){
+    var rr=Math.min(r,wid/2,hei/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.lineTo(x+wid-rr,y);
+    ctx.quadraticCurveTo(x+wid,y,x+wid,y+rr);
+    ctx.lineTo(x+wid,y+hei-rr);
+    ctx.quadraticCurveTo(x+wid,y+hei,x+wid-rr,y+hei);
+    ctx.lineTo(x+rr,y+hei);
+    ctx.quadraticCurveTo(x,y+hei,x,y+hei-rr);
+    ctx.lineTo(x,y+rr);
+    ctx.quadraticCurveTo(x,y,x+rr,y);
+    ctx.closePath();
+  }
 
   // 1) Fill polygons (차단된 섹터는 붉고 어둡게)
   var _myLvl=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
   _sectorsData.forEach(function(s){
     var poly=s.polygon;
     if(!poly||poly.length<3) return;
+    var m=polyMetrics(poly);
     var _entryBlocked=(s.entryCheckActive!==false)&&(s.entryMinLevel||0)>0&&_myLvl<(s.entryMinLevel||0);
+    tracePts(m.pts);
     if(_entryBlocked){
-      // 어두운 붉은 반투명 오버레이
-      ctx.globalAlpha=0.38;
-      ctx.fillStyle='rgba(80,0,0,1)';
+      ctx.globalAlpha=0.36;
+      var blockGrad=ctx.createLinearGradient(m.minX,m.minY,m.maxX,m.maxY);
+      blockGrad.addColorStop(0,'rgba(80,0,0,1)');
+      blockGrad.addColorStop(0.55,'rgba(120,20,20,1)');
+      blockGrad.addColorStop(1,'rgba(20,0,0,1)');
+      ctx.fillStyle=blockGrad;
     }else{
-      ctx.globalAlpha=0.12;
-      ctx.fillStyle=_sectorColor(s.tier);
+      var st=sectorStyle(s.tier);
+      var grad=ctx.createLinearGradient(m.minX,m.minY,m.maxX,m.maxY);
+      grad.addColorStop(0,'rgba(255,255,255,.08)');
+      grad.addColorStop(0.28,st.color);
+      grad.addColorStop(1,'rgba(0,0,0,.12)');
+      ctx.globalAlpha=st.fillAlpha;
+      ctx.fillStyle=grad;
     }
-    ctx.beginPath();
-    var p0=toXY(poly[0]);
-    ctx.moveTo(p0[0],p0[1]);
-    for(var i=1;i<poly.length;i++){var p=toXY(poly[i]);ctx.lineTo(p[0],p[1])}
-    ctx.closePath();
     ctx.fill();
+    if(!_entryBlocked){
+      ctx.save();
+      tracePts(m.pts);
+      ctx.clip();
+      var st2=sectorStyle(s.tier);
+      ctx.globalAlpha=0.12;
+      ctx.strokeStyle='rgba(255,255,255,.8)';
+      ctx.lineWidth=Math.max(1,Math.min(3,m.w*0.006));
+      for(var gx=m.minX;gx<m.maxX;gx+=Math.max(28,m.w/8)){
+        ctx.beginPath();ctx.moveTo(gx,m.minY);ctx.lineTo(gx+m.h*0.35,m.maxY);ctx.stroke();
+      }
+      ctx.globalAlpha=0.1;
+      ctx.strokeStyle=st2.color;
+      for(var gy=m.minY;gy<m.maxY;gy+=Math.max(24,m.h/5)){
+        ctx.beginPath();ctx.moveTo(m.minX,gy);ctx.lineTo(m.maxX,gy-m.w*0.08);ctx.stroke();
+      }
+      ctx.restore();
+    }
     // 차단된 섹터: 큰 X 표시
     if(_entryBlocked){
-      var c=centroid(poly);
-      var xs=poly.map(function(v){return toXY(v)[0]});
-      var ys=poly.map(function(v){return toXY(v)[1]});
-      var polyW2=Math.max.apply(null,xs)-Math.min.apply(null,xs);
-      var polyH2=Math.max.apply(null,ys)-Math.min.apply(null,ys);
+      var c=[m.cx,m.cy];
+      var polyW2=m.w;
+      var polyH2=m.h;
       var half=Math.min(polyW2,polyH2)*0.3;
       ctx.globalAlpha=0.55;
       ctx.strokeStyle='rgba(255,60,60,1)';
@@ -92,12 +152,24 @@ function _drawSectorOverlay(ctx,w,h){
       }
     }
   });
-  ctx.globalAlpha=0.7;
-  ctx.lineWidth=2;
   ctx.setLineDash([]);
   edges.forEach(function(e){
     var pa=toXY(e.a), pb=toXY(e.b);
-    ctx.strokeStyle=_sectorColor(e.tier);
+    var st=sectorStyle(e.tier);
+    ctx.globalAlpha=0.24;
+    ctx.strokeStyle=st.color;
+    ctx.lineWidth=7;
+    ctx.shadowColor=st.color;
+    ctx.shadowBlur=st.glow;
+    ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
+  });
+  ctx.shadowBlur=0;
+  edges.forEach(function(e){
+    var pa=toXY(e.a), pb=toXY(e.b);
+    var st=sectorStyle(e.tier);
+    ctx.globalAlpha=st.edgeAlpha;
+    ctx.strokeStyle=st.color;
+    ctx.lineWidth=2.2;
     ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
   });
 
@@ -105,10 +177,10 @@ function _drawSectorOverlay(ctx,w,h){
   _sectorsData.forEach(function(s){
     var poly=s.polygon;
     if(!poly||poly.length<3) return;
-    var c=centroid(poly);
-    var cx=c[0],cy=c[1];
-    var xs=poly.map(function(v){return toXY(v)[0]});
-    var polyW=Math.max.apply(null,xs)-Math.min.apply(null,xs);
+    var m=polyMetrics(poly);
+    var cx=m.cx,cy=m.cy;
+    var polyW=m.w;
+    var st=sectorStyle(s.tier);
 
     // Responsive font size — smaller on mobile canvas to avoid overlap
     var _isMobTex=(w<=2560);
@@ -128,19 +200,31 @@ function _drawSectorOverlay(ctx,w,h){
     }
     if(nameText!==s.name) nameText=nameText+'…';
 
+    var labelW=Math.min(polyW*0.82,Math.max(ctx.measureText(nameText).width+fontSize*1.25,fontSize*5.5));
+    var labelH=fontSize*1.7;
+    ctx.shadowColor='transparent';ctx.shadowBlur=0;
+    ctx.globalAlpha=0.58;
+    ctx.fillStyle='rgba(2,6,14,.86)';
+    roundRect(cx-labelW/2,cy-labelH/2,labelW,labelH,Math.max(6,fontSize*0.22));
+    ctx.fill();
+    ctx.globalAlpha=0.34;
+    ctx.strokeStyle=st.color;
+    ctx.lineWidth=Math.max(1,fontSize*0.06);
+    ctx.stroke();
+
     // Text shadow for readability
     ctx.globalAlpha=0.95;
     ctx.shadowColor='rgba(0,0,0,0.9)';
     ctx.shadowBlur=6;
     ctx.shadowOffsetX=1;ctx.shadowOffsetY=1;
-    ctx.fillStyle=_sectorColor(s.tier);
-    ctx.fillText(nameText,cx,cy);
+    ctx.fillStyle=st.color;
+    ctx.fillText(nameText,cx,cy-fontSize*0.13);
 
     // Tier label below (smaller)
     var tierSize=Math.max(_isMobTex?10:14,fontSize*0.38);
     ctx.font='bold '+tierSize+'px monospace';
     ctx.globalAlpha=0.75;
-    ctx.fillText(s.tier.toUpperCase(),cx,cy+fontSize*0.55+tierSize*0.2);
+    ctx.fillText(s.tier.toUpperCase(),cx,cy+fontSize*0.48);
 
     // Governor name below tier
     var govName=s.governor?s.governor.nickname:null;
