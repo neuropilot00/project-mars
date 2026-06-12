@@ -59,7 +59,7 @@ router.get('/recipes', async (_req, res) => {
 });
 
 // ─── GET /api/resource-craft/jobs ───
-router.get('/jobs', async (req, res) => {
+router.get('/jobs', requireAuth, async (req, res) => {
   const wallet = getWallet(req);
   if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   try {

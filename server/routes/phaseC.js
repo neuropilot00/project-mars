@@ -133,6 +133,23 @@ router.post('/ai/fight', requireAuth, async (req, res) => {
       return res.status(409).json({ error: 'MY_FLEET_EMPTY' });
     }
 
+    try {
+      const { rows: miningLocks } = await client.query(
+        `SELECT fleet_id
+           FROM ship_mining_jobs
+          WHERE fleet_id = $1
+            AND status = 'mining'
+          LIMIT 1`,
+        [my_fleet_id]
+      );
+      if (miningLocks.length) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: 'MY_FLEET_MINING' });
+      }
+    } catch (e) {
+      if (e.code !== '42P01') throw e;
+    }
+
     const { rows: aiFleet } = await client.query(
       `SELECT owner_wallet FROM fleets WHERE id = $1`, [ai_fleet_id]
     );

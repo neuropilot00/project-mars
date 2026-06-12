@@ -267,7 +267,7 @@ router.post('/progress', (req, res, next) => {
   next();
 }, async (req, res) => {
   try {
-    const wallet = getAuthWallet(req);
+    const wallet = getWallet(req);
     const { mission_type } = req.body || {};
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
     if (!mission_type) return res.status(400).json({ error: 'MISSION_TYPE_REQUIRED' });

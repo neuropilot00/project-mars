@@ -172,6 +172,23 @@ async function runArenaTick() {
       return { skipped: 'fleet_locked' };
     }
 
+    try {
+      const { rows: miningLocks } = await client.query(
+        `SELECT fleet_id
+           FROM ship_mining_jobs
+          WHERE fleet_id = ANY($1::int[])
+            AND status = 'mining'
+          LIMIT 1`,
+        [[atk.fleet_id, def.fleet_id]]
+      );
+      if (miningLocks.length) {
+        await client.query('ROLLBACK');
+        return { skipped: 'fleet_mining' };
+      }
+    } catch (e) {
+      if (e.code !== '42P01') throw e;
+    }
+
     const { rows: battleRows } = await client.query(`
       INSERT INTO fleet_battles (
         battle_type, status, phase,
