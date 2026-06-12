@@ -13,7 +13,7 @@ const express = require('express');
 const router = express.Router();
 const craftSvc = require('../services/resourceCraft');
 
-// ── wallet 추출 (JWT Bearer 또는 x-wallet 헤더) ──
+// ── wallet 추출 (JWT Bearer only) ──
 const jwt = require('jsonwebtoken');
 // ✅ [v7.44] JWT 인증 미들웨어 — fallback 제거
 const requireAuth = (req, res, next) => {

@@ -34717,7 +34717,7 @@ window.addEventListener('resize', _debounce(function(){
         panel.innerHTML = html;
       });
   }
-  // Legacy /api/ships?wallet= UI는 제거됨. loadFleetPanel은 신 /api/fleets API 사용.
+  // Legacy wallet-query ships UI는 제거됨. loadFleetPanel은 신 /api/fleets API 사용.
   // govBuildShip/govRepairShip/govUpgradeShip은 openShipyard()/openFleetCmd() 모달로 redirect.
   window.govBuildShip = function(_shipType) {
     showToast('🔨 ' + (t('use_shipyard')||'Use Shipyard'), 'info');

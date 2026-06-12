@@ -15,8 +15,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const assembly = require('../services/assembly');
 
-// [v7.364][P0 보안] 지갑 액션은 반드시 JWT에서만 wallet 추출. 기존엔 body/query/header(spoofable)라
-//   ?wallet=victim 으로 타인 GP/조각/합체함선을 차감·파괴 가능한 인증 우회였음.
+// [v7.364][P0 보안] 지갑 액션은 반드시 JWT에서만 wallet 추출.
+// 기존엔 spoofable client wallet으로 타인 GP/조각/합체함선을 차감·파괴 가능한 인증 우회였음.
 const requireAuth = (req, res, next) => {
   const token = (req.headers.authorization || '').replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });

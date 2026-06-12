@@ -73,7 +73,7 @@ const optionalAuth = (req, res, next) => {
 
 // ── 유저 지갑 헬퍼 ──
 // [v7.67] requireAuth 라우트는 반드시 JWT 페이로드에서만 wallet 추출 — query/header 폴백 제거
-// (폴백이 있으면 인증된 유저가 ?wallet=victim으로 타인 계정 GP 차감 가능)
+// (폴백이 있으면 인증된 유저가 타인 계정 GP를 차감 가능)
 function getWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }

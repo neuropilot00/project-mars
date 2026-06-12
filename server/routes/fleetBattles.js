@@ -274,7 +274,7 @@ router.get('/list/history', requireAuth, async (req, res) => {
 /**
  * GET /api/battles/active
  * Legacy smoke/API alias for 진행 중 전투 목록.
- * Query: ?wallet=0x... filters to battles where the wallet participates.
+ * Optional JWT filters to battles where the authenticated wallet participates.
  */
 router.get('/active', async (req, res) => {
   try {

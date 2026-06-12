@@ -138,11 +138,11 @@ router.post('/bet', requireAuth, async (req, res) => {
 
 /**
  * GET /api/betting/mine
- * 내 베팅 기록 — JWT 지갑 기준 (legacy ?wallet= query 무시)
+ * 내 베팅 기록 — JWT 지갑 기준 (legacy wallet query 무시)
  */
 router.get('/mine', async (req, res) => {
   try {
-    // Require JWT — unauthenticated ?wallet= fallback was a data-privacy leak
+    // Require JWT — unauthenticated wallet fallback was a data-privacy leak
     // (anyone could query any player's bet history without auth)
     const token = (req.headers.authorization || '').replace('Bearer ', '');
     if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
