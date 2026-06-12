@@ -838,17 +838,17 @@ async function start() {
     try {
       const { expireGovernanceItems, applyDailyMaintenance, distributeCommanderPool } = require('./services/governance');
       // Expire buffs/events/bounties every 5 minutes
-      setInterval(async () => {
-        try { await expireGovernanceItems(); } catch(e) { console.warn('[GOV] expire task error:', e.message); }
-      }, 5 * 60 * 1000);
+      scheduleTask('GOV', 5 * 60 * 1000, expireGovernanceItems, {
+        phase: 'expire',
+      });
       // Daily maintenance + pool distribution every 24 hours
-      setInterval(async () => {
-        try {
-          await applyDailyMaintenance();
-          await distributeCommanderPool();
-          console.log('[GOV] Daily maintenance + pool distribution completed');
-        } catch(e) { console.warn('[GOV] daily task error:', e.message); }
-      }, 24 * 60 * 60 * 1000);
+      scheduleTask('GOV', 24 * 60 * 60 * 1000, async () => {
+        await applyDailyMaintenance();
+        await distributeCommanderPool();
+        console.log('[GOV] Daily maintenance + pool distribution completed');
+      }, {
+        phase: 'daily',
+      });
       console.log('[GOV] Scheduled tasks initialized (expire: 5min, maintenance: 24h)');
     } catch(e) { console.warn('[GOV] Could not init scheduled tasks:', e.message); }
 
@@ -1096,14 +1096,11 @@ async function start() {
     // ── Season Auto-Rotation ──
     try {
       const { autoRotateSeason } = require('./services/season');
-      // Check on startup (after 2 min delay to let DB settle)
-      setTimeout(async () => {
-        try { await autoRotateSeason(); } catch(e) { console.warn('[SEASON] startup rotation error:', e.message); }
-      }, 120 * 1000);
-      // Check every 1 hour
-      setInterval(async () => {
-        try { await autoRotateSeason(); } catch(e) { console.warn('[SEASON] rotation error:', e.message); }
-      }, 60 * 60 * 1000);
+      scheduleTask('SEASON', 60 * 60 * 1000, autoRotateSeason, {
+        phase: 'rotation',
+        startDelayMs: 120 * 1000,
+        startPhase: 'startup rotation',
+      });
       console.log('[SEASON] Auto-rotation scheduled (check: startup+2min, then 1h)');
     } catch(e) { console.warn('[SEASON] Could not init auto-rotation:', e.message); }
 
@@ -1125,7 +1122,7 @@ async function start() {
     // ── Siege Auto-Resolve (every 5 minutes) ──
     try {
       const { resolveExpiredSieges, prepareSiegeBattles, maybeOpenCommanderSiege } = require('./services/siege');
-      setInterval(async () => {
+      scheduleTask('SIEGE', 5 * 60 * 1000, async () => {
         try {
           const n = await resolveExpiredSieges(); // pending→active 전환 + 만료 siege 해결(픽셀 폴백)
           if (n > 0) console.log(`[SIEGE] Auto-resolved ${n} expired siege(s)`);
@@ -1138,7 +1135,9 @@ async function start() {
         try {
           if (typeof maybeOpenCommanderSiege === 'function') await maybeOpenCommanderSiege();
         } catch(e) { console.warn('[SIEGE] maybeOpenCommanderSiege error:', e.message); }
-      }, 5 * 60 * 1000); // every 5 minutes
+      }, {
+        phase: 'resolve',
+      });
       console.log('[SIEGE] Auto-resolve scheduler started (5min interval)');
     } catch(e) { console.warn('[SIEGE] Could not init auto-resolve scheduler:', e.message); }
 
@@ -1224,12 +1223,11 @@ async function start() {
     // 비활성/탈퇴 governor 와 commander 자동 자리 비움. admin 이 매번 수동 클리어 안 해도 됨.
     try {
       const { expireStaleGovernance } = require('./services/governanceExpire');
-      setTimeout(async () => {
-        try { await expireStaleGovernance(); } catch(e) { console.warn('[GOV-EXPIRE] startup error:', e.message); }
-      }, 30 * 1000);
-      setInterval(async () => {
-        try { await expireStaleGovernance(); } catch(e) { console.warn('[GOV-EXPIRE] error:', e.message); }
-      }, 60 * 60 * 1000);
+      scheduleTask('GOV-EXPIRE', 60 * 60 * 1000, expireStaleGovernance, {
+        phase: 'expire',
+        startDelayMs: 30 * 1000,
+        startPhase: 'startup',
+      });
       console.log('[GOV-EXPIRE] Auto-expire scheduler started (1h interval, boot+30s)');
     } catch(e) { console.warn('[GOV-EXPIRE] Could not init scheduler:', e.message); }
 
@@ -1240,18 +1238,19 @@ async function start() {
       const { recalcRecentlyActive } = require('./services/rank');
       const { getSetting } = require('./db');
       const intervalSec = parseInt(await getSetting('rank_recalc_interval_seconds', '300')) || 300;
-      setTimeout(async () => {
-        try {
-          const r = await recalcRecentlyActive();
-          if (r && !r.skipped) console.log(`[RANK] startup batch: processed=${r.processed} leveledUp=${r.leveledUp}`);
-        } catch(e) { console.warn('[RANK] startup batch error:', e.message); }
-      }, 60 * 1000);
-      setInterval(async () => {
-        try {
-          const r = await recalcRecentlyActive();
-          if (r && !r.skipped && r.leveledUp > 0) console.log(`[RANK] batch: ${r.leveledUp} users leveled up (of ${r.processed})`);
-        } catch(e) { console.warn('[RANK] batch error:', e.message); }
-      }, intervalSec * 1000);
+      let rankFirstRun = true;
+      scheduleTask('RANK', intervalSec * 1000, async () => {
+        const r = await recalcRecentlyActive();
+        if (r && !r.skipped) {
+          if (rankFirstRun) console.log(`[RANK] startup batch: processed=${r.processed} leveledUp=${r.leveledUp}`);
+          else if (r.leveledUp > 0) console.log(`[RANK] batch: ${r.leveledUp} users leveled up (of ${r.processed})`);
+        }
+        rankFirstRun = false;
+      }, {
+        phase: 'batch',
+        startDelayMs: 60 * 1000,
+        startPhase: 'startup',
+      });
       console.log(`[RANK] Auto-recalc scheduler started (${intervalSec}s interval, boot+60s)`);
     } catch(e) { console.warn('[RANK] Could not init scheduler:', e.message); }
 
@@ -1326,21 +1325,19 @@ async function start() {
     // ── GP Dividends: Distribute last week's pool (every Monday, checked hourly) ──
     try {
       const { distributeLastWeek, ensureCurrentPool } = require('./services/dividends');
-      // Ensure pool exists on startup
-      setTimeout(async () => {
-        try { await ensureCurrentPool(); } catch(e) { console.warn('[DIV] startup pool error:', e.message); }
-      }, 30 * 1000);
       // Check every 6 hours; distribute if Monday
-      setInterval(async () => {
-        try {
-          const now = new Date();
-          if (now.getUTCDay() === 1) { // Monday
-            const n = await distributeLastWeek();
-            if (n > 0) console.log(`[DIV] Distributed to ${n} stakers`);
-          }
-          await ensureCurrentPool();
-        } catch(e) { console.warn('[DIV] hourly task error:', e.message); }
-      }, 6 * 60 * 60 * 1000);
+      scheduleTask('DIV', 6 * 60 * 60 * 1000, async () => {
+        const now = new Date();
+        if (now.getUTCDay() === 1) { // Monday
+          const n = await distributeLastWeek();
+          if (n > 0) console.log(`[DIV] Distributed to ${n} stakers`);
+        }
+        await ensureCurrentPool();
+      }, {
+        phase: 'distribute',
+        startDelayMs: 30 * 1000,
+        startPhase: 'startup pool',
+      });
       console.log('[DIV] Dividend scheduler started (6h check, distributes on Monday)');
     } catch(e) { console.warn('[DIV] Could not init dividend scheduler:', e.message); }
 
