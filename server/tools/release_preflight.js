@@ -14,6 +14,17 @@ function log(label, ok, extra = '') {
 }
 
 function requestJson(url, options = {}) {
+  return requestRaw(url, options).then((res) => {
+    try {
+      const json = res.body ? JSON.parse(res.body) : null;
+      return { ...res, json };
+    } catch (error) {
+      throw new Error(`invalid JSON from ${url}: ${error.message}`);
+    }
+  });
+}
+
+function requestRaw(url, options = {}) {
   const client = url.startsWith('https://') ? https : http;
   return new Promise((resolve, reject) => {
     const body = options.body ? JSON.stringify(options.body) : null;
@@ -27,12 +38,7 @@ function requestJson(url, options = {}) {
       let body = '';
       res.on('data', chunk => { body += chunk; });
       res.on('end', () => {
-        try {
-          const json = body ? JSON.parse(body) : null;
-          resolve({ statusCode: res.statusCode, json, body });
-        } catch (error) {
-          reject(new Error(`invalid JSON from ${url}: ${error.message}`));
-        }
+        resolve({ statusCode: res.statusCode, headers: res.headers, body });
       });
     });
     req.on('error', reject);
@@ -51,6 +57,16 @@ async function expectBlocked(label, path, options = {}) {
     const res = await requestJson(`${baseUrl}${path}`, options);
     const ok = res.statusCode === 401 || res.statusCode === 403;
     log(label, ok, `status=${res.statusCode}`);
+  } catch (error) {
+    log(label, false, error.message);
+  }
+}
+
+async function expectStaticOk(label, path) {
+  try {
+    const res = await requestRaw(`${baseUrl}${path}`);
+    const ok = res.statusCode === 200 && res.body.length > 0;
+    log(label, ok, `status=${res.statusCode} bytes=${res.body.length}`);
   } catch (error) {
     log(label, false, error.message);
   }
@@ -117,6 +133,10 @@ async function main() {
     body: {}
   });
   await expectBlocked('/api/user/auctions blocks unauthenticated access', '/api/user/auctions?wallet=0x0000000000000000000000000000000000000000');
+
+  await expectStaticOk('/assets/tactical-lab-v11.html serves', '/assets/tactical-lab-v11.html?v=preflight');
+  await expectStaticOk('/assets/ships/top/mcc_frg.png serves', '/assets/ships/top/mcc_frg.png?v=preflight');
+  await expectStaticOk('/assets/textures/battlefields/mars_mining_site_topdown.png serves', '/assets/textures/battlefields/mars_mining_site_topdown.png?v=preflight');
 
   console.log(`\n📊  ${pass} passed / ${fail} failed`);
   process.exit(fail > 0 ? 1 : 0);
