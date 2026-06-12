@@ -1381,6 +1381,48 @@ var _RESOURCE_TIER = {
   ice_crystal:1, volcanic_shard:1, hull_plate:1, plasma_coil:1, alloy_frame:1
 };
 function _resourceTier(code){ return _RESOURCE_TIER[code] || 0; }
+function battleRewardNextStep(reward, breakdown, mineralsAwarded) {
+  const minerals = mineralsAwarded || {};
+  const hasMinerals = Object.keys(minerals).some(code => !!minerals[code]);
+  const gp = Math.round(parseFloat(reward && reward.gp_awarded) || 0);
+  if (breakdown && breakdown.sector_conflict_bonus) {
+    const code = breakdown.sector_code ? (' · ' + escapeHtml(breakdown.sector_code)) : '';
+    return LANG==='ko'?'분쟁 섹터 보너스가 붙었습니다'+code+'. 같은 섹터의 현상금/공성 표적을 이어서 치면 GP 효율이 좋습니다.'
+      : LANG==='ja'?'紛争セクターボーナスが付きました'+code+'。同セクターの賞金/攻城標的を続けるとGP効率が良いです。'
+      : LANG==='zh'?'获得争端区奖励'+code+'。继续攻击同区悬赏/攻城目标可提高GP效率。'
+      : 'Conflict sector bonus landed'+code+'. Keep hitting bounty or siege targets in this sector for better GP efficiency.';
+  }
+  if (breakdown && breakdown.environment_salvage) {
+    const salvage = breakdown.environment_salvage || {};
+    const res = salvage.resource_code ? escapeHtml(salvage.resource_code) : '';
+    return LANG==='ko'?'이 전장은 회수 자원이 나옵니다'+(res?' ('+res+')':'')+'. 같은 배경 전투를 반복해 제작 재료를 모으세요.'
+      : LANG==='ja'?'この戦場は回収資源があります'+(res?' ('+res+')':'')+'。同系統の戦場を周回して素材を集めましょう。'
+      : LANG==='zh'?'该战场会掉落回收资源'+(res?' ('+res+')':'')+'。重复同类战场收集制造材料。'
+      : 'This battlefield drops salvage'+(res?' ('+res+')':'')+'. Repeat this battlefield type to farm crafting materials.';
+  }
+  if (breakdown && breakdown.alliance_treasury_bonus) {
+    return LANG==='ko'?'동맹 금고 보너스가 발생했습니다. 길드/동맹 전투에 묶어서 반복하면 집단 성장 효율이 큽니다.'
+      : LANG==='ja'?'同盟金庫ボーナスが発生しました。ギルド/同盟戦と連動して周回すると集団成長効率が高いです。'
+      : LANG==='zh'?'触发联盟金库分红。配合公会/联盟战重复作战可提升集体成长效率。'
+      : 'Alliance treasury bonus triggered. Chain these fights with guild/alliance wars for stronger group progression.';
+  }
+  if (hasMinerals) {
+    return LANG==='ko'?'광물을 획득했습니다. 조선소에서 부족 재료를 확인하고 다음 채굴/전투 목표를 맞추세요.'
+      : LANG==='ja'?'鉱物を獲得しました。造船所で不足素材を確認し、次の採掘/戦闘目標を合わせましょう。'
+      : LANG==='zh'?'获得矿物。去船坞确认缺口，再选择下个采矿/战斗目标。'
+      : 'Minerals acquired. Check shipyard material gaps and pick the next mining or battle target.';
+  }
+  if (reward && reward.is_winner && gp > 0) {
+    return LANG==='ko'?'승리 GP를 확보했습니다. 바로 수리/보급 후 고가치 표적으로 연승을 이어가세요.'
+      : LANG==='ja'?'勝利GPを獲得。修理/補給後すぐ高価値標的へ連勝を狙いましょう。'
+      : LANG==='zh'?'已获得胜利GP。修理补给后继续挑战高价值目标。'
+      : 'Victory GP secured. Repair and resupply, then chain into higher-value targets.';
+  }
+  return LANG==='ko'?'참가 보상이 누적됩니다. 낮은 위험 표적으로 함대 생존율을 올린 뒤 상위 전장에 진입하세요.'
+    : LANG==='ja'?'参加報酬は積み上がります。低リスク標的で艦隊生存率を上げて上位戦場へ。'
+    : LANG==='zh'?'参与奖励可累积。先用低风险目标提高舰队存活率，再进入高阶战场。'
+    : 'Participation rewards stack. Build fleet survival on lower-risk targets, then move into higher-tier battlefields.';
+}
 function showRewardToast(reward) {
   const title = document.getElementById('rewardToastTitle');
   const items = document.getElementById('rewardToastItems');
@@ -1388,11 +1430,12 @@ function showRewardToast(reward) {
   title.textContent = reward.is_winner ? (LANG==='ko'?'🏆 승리 보상!':LANG==='ja'?'🏆 勝利報酬!':LANG==='zh'?'🏆 胜利奖励!':'🏆 Victory Reward!') : (LANG==='ko'?'🎖 참가 보상':LANG==='ja'?'🎖 参加報酬':LANG==='zh'?'🎖 参与奖励':'🎖 Participation Reward');
 
   let html = '';
+  let breakdown = {};
   if (reward.gp_awarded > 0) {
     html += `<div class="reward-item gp"><span>💰 Galactic Points</span><b>+${reward.gp_awarded}</b></div>`;
   }
   try {
-    const breakdown = (typeof reward.breakdown === 'string') ? JSON.parse(reward.breakdown) : (reward.breakdown || {});
+    breakdown = (typeof reward.breakdown === 'string') ? JSON.parse(reward.breakdown) : (reward.breakdown || {});
     if (breakdown.sector_conflict_bonus) {
       html += `<div class="reward-item gp"><span>⚔ ${LANG==='ko'?'분쟁 섹터 보너스':LANG==='ja'?'紛争セクター報酬':LANG==='zh'?'争端区奖励':'Conflict Sector Bonus'}</span><b>+${breakdown.sector_conflict_bonus}</b></div>`;
     }
@@ -1409,6 +1452,7 @@ function showRewardToast(reward) {
     const name = (typeof MINERAL_KO !== 'undefined' && MINERAL_KO[code]) || code;
     html += `<div class="reward-item mineral"><span>${icon} ${name}</span><b>+${qty}</b></div>`;
   }
+  html += `<div class="reward-item" style="border-color:rgba(91,184,232,.22);background:rgba(91,184,232,.055)"><span>▸ ${LANG==='ko'?'다음 행동':LANG==='ja'?'次の行動':LANG==='zh'?'下一步':'Next move'}</span><b style="color:var(--cyan);text-align:right;font-size:10px;line-height:1.35">${battleRewardNextStep(reward, breakdown, reward.minerals_awarded || {})}</b></div>`;
 
   items.innerHTML = html;
   document.getElementById('rewardToast').classList.add('show');
@@ -2893,6 +2937,7 @@ async function _injectRewardIntoResult(battleId) {
       const name = (typeof MINERAL_KO !== 'undefined' && MINERAL_KO[code]) || code;
       html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>${icon} ${name}</span><b style="color:#81c784">+${qty}</b></div>`;
     }
+    html += `<div style="margin-top:6px;padding:6px 8px;border-radius:6px;border:1px solid rgba(91,184,232,.22);background:rgba(91,184,232,.055);font-size:10px;line-height:1.45;color:var(--tx2)"><b style="color:var(--cyan)">▸ ${LANG==='ko'?'다음 행동':LANG==='ja'?'次の行動':LANG==='zh'?'下一步':'Next move'}</b><br>${battleRewardNextStep(myReward, breakdown, mineralsAwarded)}</div>`;
     if (!html) return;
 
     // 결과 카드 actions 앞에 보상 섹션 삽입
