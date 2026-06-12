@@ -957,6 +957,23 @@
 .bd-risk-tag.low { color: #66bb6a; background: rgba(102,187,106,.12); border: 1px solid rgba(102,187,106,.22); }
 .bd-risk-tag.mid { color: #ffb74d; background: rgba(255,183,77,.12); border: 1px solid rgba(255,183,77,.22); }
 .bd-risk-tag.high { color: #ef5350; background: rgba(239,83,80,.12); border: 1px solid rgba(239,83,80,.24); }
+.bd-matchup-intel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+  color: rgba(255,255,255,.46);
+  font-size: 8px;
+  letter-spacing: .45px;
+}
+.bd-matchup-intel span {
+  padding: 2px 5px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 4px;
+  background: rgba(0,0,0,.16);
+  white-space: nowrap;
+}
+.bd-matchup-intel .bd-risk-tag { margin-top: 0; }
 .bd-search-hint {
   text-align: center;
   font-size: 9px;

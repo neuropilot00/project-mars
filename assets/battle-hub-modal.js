@@ -821,6 +821,53 @@ function renderDeclareOpponentAlliance(r) {
   return `<span title="${escapeAttr(name || tag || 'Alliance')}" style="margin-left:4px;color:${color};font-size:8px;font-weight:800">🛡 ${label}</span>`;
 }
 
+function getSelectedDeclareFleet() {
+  const sel = document.getElementById('declareMyFleet');
+  const id = sel && sel.value;
+  return (declareState.myFleets || []).find(function(f){ return String(f.id) === String(id); }) || (declareState.myFleets || [])[0] || null;
+}
+
+function fleetPowerEstimate(fleet) {
+  if (!fleet) return 0;
+  const direct = Number(fleet.combat_power || fleet.power || fleet.fleet_power || fleet.cpi);
+  if (Number.isFinite(direct) && direct > 0) return Math.round(direct);
+  const ships = Math.max(0, parseInt(fleet.ships_alive || fleet.ship_count || fleet.alive_ships, 10) || 0);
+  const mods = Math.max(0, parseInt(fleet.total_mod_level || fleet.mods || fleet.mod_level, 10) || 0);
+  return Math.round(ships * 90 + mods * 18);
+}
+
+function renderTargetMatchupIntel(r, targetPower, bountyGp, danger) {
+  const myFleet = getSelectedDeclareFleet();
+  const myPower = fleetPowerEstimate(myFleet);
+  const targetShips = Math.max(0, parseInt(r.ships_alive, 10) || 0);
+  const targetFallbackPower = targetPower || Math.round(targetShips * 90);
+  const ratio = myPower > 0 ? targetFallbackPower / myPower : 0;
+  let matchup = LANG==='ko'?'정보 부족':LANG==='ja'?'情報不足':LANG==='zh'?'信息不足':'UNKNOWN';
+  let cls = 'mid';
+  if (ratio > 0) {
+    if (ratio >= 1.35) { matchup = LANG==='ko'?'불리':LANG==='ja'?'不利':LANG==='zh'?'劣势':'OUTGUNNED'; cls = 'high'; }
+    else if (ratio >= 0.82) { matchup = LANG==='ko'?'동급':LANG==='ja'?'同格':LANG==='zh'?'同级':'EVEN MATCH'; cls = 'mid'; }
+    else { matchup = LANG==='ko'?'우세':LANG==='ja'?'優勢':LANG==='zh'?'优势':'FAVORABLE'; cls = 'low'; }
+  } else if (danger) {
+    cls = danger;
+  }
+  const rewardMotive = bountyGp > 0
+    ? (LANG==='ko'?'현상금 사냥':LANG==='ja'?'賞金狩り':LANG==='zh'?'悬赏狩猎':'Bounty hunt')
+    : (r.sector_code
+      ? (LANG==='ko'?'섹터 압박':LANG==='ja'?'セクター圧力':LANG==='zh'?'区域压制':'Sector pressure')
+      : (LANG==='ko'?'전투 경험':LANG==='ja'?'戦闘経験':LANG==='zh'?'战斗经验':'Combat XP'));
+  const myText = myPower > 0 ? formatNum(myPower) : '-';
+  const targetText = targetFallbackPower > 0 ? formatNum(targetFallbackPower) : '-';
+  return `
+    <div class="bd-matchup-intel">
+      <span class="bd-risk-tag ${cls}">⚖ ${matchup}</span>
+      <span>${LANG==='ko'?'내 전력':LANG==='ja'?'自戦力':LANG==='zh'?'我方战力':'My power'} ${myText}</span>
+      <span>${LANG==='ko'?'표적':LANG==='ja'?'標的':LANG==='zh'?'目标':'Target'} ${targetText}</span>
+      <span>${rewardMotive}</span>
+    </div>
+  `;
+}
+
 // 검색 (디바운스)
 let searchTimer;
 function searchTargets() {
@@ -889,6 +936,7 @@ function renderSearchResult(r) {
           ${escapeHtml(r.fleet_name || (LANG==='ko'?'함대':LANG==='ja'?'艦隊':LANG==='zh'?'舰队':'Fleet'))} · ${LANG==='ko'?'전적':LANG==='ja'?'戦績':LANG==='zh'?'战绩':'Record'} ${r.battles_won || 0}W ${r.battles_lost || 0}L
           ${sectorCode ? ` · ${escapeHtml(sectorCode)}` : ''}
         </div>
+        ${renderTargetMatchupIntel(r, power, bountyGp, danger)}
       </div>
       <div>
         <div class="bd-search-ships">${r.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>
