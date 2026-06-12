@@ -7829,6 +7829,123 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   };
 })();
 
+/* ── Page lifecycle helpers ────────────────────────
+   Keep background-loop guards consistent without changing foreground cadence. */
+function _pageIsActive(){ return document.visibilityState !== 'hidden'; }
+var _pageVisibleHandlers = [];
+var _pageHiddenHandlers = [];
+var _pageFocusHandlers = [];
+var _pageShowHandlers = [];
+var _pageLifecycleActive = _pageIsActive();
+var _pageHiddenByPagehide = false;
+function _runPageLifecycleHandlers(list){
+  list.slice().forEach(function(fn){ try{ fn(); }catch(_){} });
+}
+function _dispatchPageLifecycle(active){
+  if(_pageLifecycleActive===active) return;
+  _pageLifecycleActive = active;
+  _runPageLifecycleHandlers(active ? _pageVisibleHandlers : _pageHiddenHandlers);
+}
+document.addEventListener('visibilitychange', function(){
+  _dispatchPageLifecycle(_pageIsActive());
+});
+window.addEventListener('pagehide', function(){
+  _pageHiddenByPagehide = true;
+  _dispatchPageLifecycle(false);
+});
+window.addEventListener('pageshow', function(e){
+  _runPageLifecycleHandlers(_pageShowHandlers);
+  if(!_pageIsActive()||(!_pageHiddenByPagehide&&!e.persisted)) return;
+  _pageHiddenByPagehide = false;
+  _dispatchPageLifecycle(true);
+});
+window.addEventListener('focus', function(){
+  if(_pageIsActive()) _runPageLifecycleHandlers(_pageFocusHandlers);
+});
+function _onPageVisible(fn){ if(typeof fn==='function') _pageVisibleHandlers.push(fn); }
+function _onPageHidden(fn){ if(typeof fn==='function') _pageHiddenHandlers.push(fn); }
+function _onPageFocus(fn){ if(typeof fn==='function') _pageFocusHandlers.push(fn); }
+function _onPageShow(fn){ if(typeof fn==='function') _pageShowHandlers.push(fn); }
+function _removePageVisibleHandler(fn){
+  for(var i=_pageVisibleHandlers.length-1;i>=0;i--){
+    if(_pageVisibleHandlers[i]===fn) _pageVisibleHandlers.splice(i,1);
+  }
+}
+function _onPageVisibleOnce(fn){
+  if(typeof fn!=='function') return;
+  var wrapped=function(){
+    _removePageVisibleHandler(wrapped);
+    fn();
+  };
+  _onPageVisible(wrapped);
+  return wrapped;
+}
+var _activeIntervals = [];
+var _activeIntervalSeq = 0;
+var _activeTimeouts = [];
+var _activeTimeoutSeq = 0;
+function _startActiveInterval(entry){
+  if(!entry||entry.cleared||entry.nativeId||!_pageIsActive()) return;
+  entry.nativeId = setInterval(function(){ if(_pageIsActive()) entry.fn(); }, entry.ms);
+}
+function _pauseActiveIntervals(){
+  _activeIntervals.forEach(function(entry){
+    if(entry.nativeId){ clearInterval(entry.nativeId); entry.nativeId=null; }
+  });
+}
+function _resumeActiveIntervals(){
+  _activeIntervals.forEach(_startActiveInterval);
+}
+function _setActiveInterval(fn, ms){
+  var entry = { key: ++_activeIntervalSeq, nativeId: null, fn: fn, ms: ms, cleared: false };
+  _activeIntervals.push(entry);
+  _startActiveInterval(entry);
+  return entry.key;
+}
+function _setActiveTimeout(fn, ms){
+  var entry = { key: ++_activeTimeoutSeq, nativeId: null, visibleHandler: null, fn: fn, cleared: false };
+  _activeTimeouts.push(entry);
+  entry.nativeId = setTimeout(function(){
+    entry.nativeId = null;
+    if(entry.cleared) return;
+    if(_pageIsActive()) { _clearActiveTimeout(entry.key); fn(); return; }
+    entry.visibleHandler = _onPageVisibleOnce(function(){
+      if(entry.cleared) return;
+      _clearActiveTimeout(entry.key);
+      fn();
+    });
+  }, ms);
+  return entry.key;
+}
+function _activeSleep(ms){
+  return new Promise(function(resolve){ _setActiveTimeout(resolve, ms); });
+}
+function _clearActiveTimeout(id){
+  if(id===null||id===undefined) return;
+  for(var i=_activeTimeouts.length-1;i>=0;i--){
+    var entry=_activeTimeouts[i];
+    if(entry.key===id||(entry.nativeId!==null&&entry.nativeId===id)){
+      entry.cleared=true;
+      if(entry.nativeId) clearTimeout(entry.nativeId);
+      if(entry.visibleHandler) _removePageVisibleHandler(entry.visibleHandler);
+      _activeTimeouts.splice(i,1);
+    }
+  }
+}
+function _clearActiveInterval(id){
+  if(id===null||id===undefined) return;
+  for(var i=_activeIntervals.length-1;i>=0;i--){
+    var entry=_activeIntervals[i];
+    if(entry.key===id||(entry.nativeId!==null&&entry.nativeId===id)){
+      entry.cleared=true;
+      if(entry.nativeId) clearInterval(entry.nativeId);
+      _activeIntervals.splice(i,1);
+    }
+  }
+}
+_onPageHidden(_pauseActiveIntervals);
+_onPageVisible(_resumeActiveIntervals);
+
 /* ═══════ BUG REPORT BUTTON ALIGNMENT ═══════
    Position the legacy #bugReportBtn 🐛 button (defined near the bottom of
    this file) just to the LEFT of the SECTORS button in the zoom column,
@@ -7864,7 +7981,7 @@ function _scheduleBugFabAlign(){
 window.addEventListener('resize', _scheduleBugFabAlign, { passive: true });
 window.addEventListener('load',   _scheduleBugFabAlign);
 document.addEventListener('DOMContentLoaded', _scheduleBugFabAlign);
-setInterval(_scheduleBugFabAlign, 1500);
+_setActiveInterval(_scheduleBugFabAlign, 1500);
 
 /* ═══════ SOUND EFFECTS ENGINE (Web Audio API) ═══════ */
 var _audioCtx=null;
@@ -8049,7 +8166,7 @@ var _loadLore=[
 (function(){for(var i=_loadLore.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=_loadLore[i];_loadLore[i]=_loadLore[j];_loadLore[j]=tmp;}})();
 var _loadQuotes=_loadLore.map(function(e){return e.y==='TIP'?'TIP: '+e.t:'[ '+e.y+' ]  '+e.t;});
 var _loadQuoteIdx=Math.floor(Math.random()*_loadQuotes.length);
-var _loadQuoteTimer=setInterval(function(){
+var _loadQuoteTimer=_setActiveInterval(function(){
   var el=document.getElementById('loadQuote');
   if(!el) return;
   _loadQuoteIdx=(_loadQuoteIdx+1)%_loadQuotes.length;
@@ -8088,7 +8205,7 @@ function setLoadProgress(pct,msg){
 function dismissLoader(){
   var el=document.getElementById('loadOverlay');
   if(!el)return;
-  clearInterval(_loadQuoteTimer);
+  _clearActiveInterval(_loadQuoteTimer);
   setLoadProgress(100,'READY');
   setTimeout(function(){
     el.style.opacity='0';
@@ -9526,11 +9643,12 @@ let _vrPollTimer = null;
 
 async function _initVoidRaiderLayer() {
   await _vrRefresh();
-  if (_vrPollTimer) clearInterval(_vrPollTimer);
-  _vrPollTimer = setInterval(_vrRefresh, 30000);
+  if (_vrPollTimer) _clearActiveInterval(_vrPollTimer);
+  _vrPollTimer = _setActiveInterval(_vrRefresh, 30000);
 }
 
 async function _vrRefresh() {
+  if (!_pageIsActive()) return;
   try {
     const r = await fetch('/api/world-events');
     if (!r.ok) return;
@@ -9697,6 +9815,10 @@ function _vrLatLngToScreen(lat, lng) {
 }
 
 function _vrUpdateOverlay() {
+  if (!_pageIsActive()) {
+    _vrRafId = null;
+    return;
+  }
   _vrRafId = requestAnimationFrame(_vrUpdateOverlay);
   if (!_vrOverlayEl || !_vrEvents.length) return;
   // 너무 줌인되면 전체 숨김 (표면 기울기와 안 맞아서 이상하게 보임)
@@ -9736,6 +9858,17 @@ function _vrBuildOverlay() {
   });
   if (!_vrRafId) _vrUpdateOverlay();
 }
+
+_onPageVisible(function(){
+  if (_vrEvents.length) _vrRefresh();
+  if (_vrOverlayEl && !_vrRafId) _vrUpdateOverlay();
+});
+_onPageHidden(function(){
+  if (_vrRafId) {
+    cancelAnimationFrame(_vrRafId);
+    _vrRafId = null;
+  }
+});
 
 function _vrRenderLayer() {
   var g = window.globe || globe;
@@ -9812,10 +9945,10 @@ function _initStep3(){
     if(typeof Globe==='undefined'){
       setLoadProgress(85,'Loading globe library...');
       var _retryCount=0;
-      var _waitForGlobe=setInterval(function(){
+      var _waitForGlobe=_setActiveInterval(function(){
         _retryCount++;
-        if(typeof Globe!=='undefined'){clearInterval(_waitForGlobe);_doInitGlobe();}
-        else if(_retryCount>30){clearInterval(_waitForGlobe);setLoadProgress(90,'Globe library failed. Please refresh.');}
+        if(typeof Globe!=='undefined'){_clearActiveInterval(_waitForGlobe);_doInitGlobe();}
+        else if(_retryCount>30){_clearActiveInterval(_waitForGlobe);setLoadProgress(90,'Globe library failed. Please refresh.');}
       },1000);
       return;
     }
@@ -9910,7 +10043,7 @@ function _initStep3(){
       }, 12000);
     } else {
       // Desktop: progressive load 8K NASA texture in background
-      setTimeout(loadNasa8k, 2000);
+      _setActiveTimeout(loadNasa8k, 2000);
     }
 
     // Auto-rotation
@@ -10522,16 +10655,21 @@ function cacheImage(url,cb){
     var rc=(_imgRetry[url]||0)+1;
     _imgRetry[url]=rc;
     if(rc<=3){
-      setTimeout(function(){
+      function retryImage(){
         var r=new Image();
         _setImageCrossOriginIfNeeded(r,url);
         r.onload=function(){
           if(!r.width||!r.height){return;}
           imgCache[url]=r;delete _imgRetry[url];delete _imgFailed[url];claimsSnapshot=null;compositeClaimsOnTexture();
         };
-        r.onerror=function(){if(_imgRetry[url]<3){_imgRetry[url]++;setTimeout(arguments.callee,rc*2000)}};
+        r.onerror=function(){
+          var next=(_imgRetry[url]||0)+1;
+          _imgRetry[url]=next;
+          if(next<=3) _setActiveTimeout(retryImage,next*2000);
+        };
         r.src=url+'?retry='+rc;
-      },rc*1500);
+      }
+      _setActiveTimeout(retryImage,rc*1500);
     }
     cb&&cb(null);
   };
@@ -10918,7 +11056,7 @@ preCacheAndComposite();
 var _claimsSince=Date.now();
 var _pixelPollCount=0;
 var _claimsPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?20000:10000;
-setInterval(function(){
+_setActiveInterval(function(){
   _pixelPollCount++;
   var fetchPixels=(_pixelPollCount%3===0); // every 30s desktop / 60s mobile
   var fetches=[fetch('/api/claims?since='+_claimsSince).then(function(r){return r.json()})];
@@ -10996,15 +11134,13 @@ window.refreshSectors = function(){
 };
 (function loadSectorsOnBoot(){
   refreshSectors().then(function(){
-    setTimeout(function(){claimsSnapshot=null;compositeClaimsOnTexture()},1000);
+    _setActiveTimeout(function(){claimsSnapshot=null;compositeClaimsOnTexture()},1000);
   });
   // Periodic refresh — admin 변경이 최대 60초 안에 자동 반영 (서버 캐시 TTL 과 동일)
-  setInterval(function(){ refreshSectors(); }, 60000);
+  _setActiveInterval(refreshSectors, 60000);
   // Tab focus / visibility — 사용자가 다른 탭/창에서 돌아올 때 즉시 fresh 데이터로
-  document.addEventListener('visibilitychange', function(){
-    if (document.visibilityState === 'visible') refreshSectors();
-  });
-  window.addEventListener('focus', function(){ refreshSectors(); });
+  _onPageVisible(refreshSectors);
+  _onPageFocus(refreshSectors);
 })();
 
 /* ── Globe Click → Select Territory ──────────────── */
@@ -11188,7 +11324,8 @@ function _updateMobLabels(){
     var rect=wrap.getBoundingClientRect();
     cx=rect.left+rect.width/2;
     cy=rect.top+rect.height/2;
-    moveInterval=setInterval(function(){
+    if(moveInterval) _clearActiveInterval(moveInterval);
+    moveInterval=_setActiveInterval(function(){
       if(!active) return;
       // Joystick controls territory size: right=W+, left=W-, up=H+, down=H-
       var dw=0, dh=0;
@@ -11221,9 +11358,10 @@ function _updateMobLabels(){
   }
   function onEnd(){
     active=false; dx=0; dy=0;
-    if(moveInterval){clearInterval(moveInterval);moveInterval=null;}
+    if(moveInterval){_clearActiveInterval(moveInterval);moveInterval=null;}
     if(knob){knob.style.left='50%';knob.style.top='50%';}
   }
+  _onPageHidden(onEnd);
   wrap.addEventListener('touchstart',onStart,{passive:false});
   wrap.addEventListener('touchmove',onMove,{passive:false});
   wrap.addEventListener('touchend',onEnd);
@@ -11752,6 +11890,7 @@ function startMobilePreview(){
 }
 function updateMobPreviewSize(){
   if(!mobileStampPlacing){_mobPreviewRAF=null;return}
+  if(!_pageIsActive()){_mobPreviewRAF=null;return}
   var pov=globe.pointOfView();
   // 화면 중앙 좌표를 스탬프 미리보기 위치로 설정 (데스크톱 mousemove처럼)
   var lat=Math.round(Math.max(-70,Math.min(70,pov.lat))/GRID_SIZE)*GRID_SIZE;
@@ -11764,6 +11903,12 @@ function updateMobPreviewSize(){
   document.getElementById('mobStampCenterSize').textContent=stampW+'×'+stampH+'px';
   _mobPreviewRAF=requestAnimationFrame(updateMobPreviewSize);
 }
+_onPageVisible(function(){
+  if(mobileStampPlacing&&!_mobPreviewRAF) updateMobPreviewSize();
+});
+_onPageHidden(function(){
+  if(_mobPreviewRAF){cancelAnimationFrame(_mobPreviewRAF);_mobPreviewRAF=null}
+});
 function updateMobPreviewScale(v){
   var pct=Math.round(_sliderToPct(v));
   updateStampScale(pct);
@@ -14024,6 +14169,10 @@ function _showBattleAnimation(result){
     }
 
     function animate(){
+      if(!_pageIsActive()){
+        _onPageVisibleOnce(function(){ requestAnimationFrame(animate); });
+        return;
+      }
       frame++;
       var elapsed=(Date.now()-startTime)/1000;
       ctx.clearRect(0,0,400,300);
@@ -14355,8 +14504,8 @@ async function confirmClaim(){
             }
           }).then(function(){claimsSnapshot=null;compositeClaimsOnTexture();}).catch(function(){});
         }
-        setTimeout(_refreshPixelsAfterHijack, 2000);
-        setTimeout(_refreshPixelsAfterHijack, 6000);
+        _setActiveTimeout(_refreshPixelsAfterHijack, 2000);
+        _setActiveTimeout(_refreshPixelsAfterHijack, 6000);
       }else{
         // 함대전 진행 중 — 배틀 뷰어 자동 오픈
         showNotification('hijack',LANG==='ko'?'⚔ 함대전 진행 중':LANG==='ja'?'⚔ 艦隊戦進行中':LANG==='zh'?'⚔ 舰队战进行中':'⚔ Fleet Battle',LANG==='ko'?'Phase 1 전투 시작!':LANG==='ja'?'Phase 1 開始!':LANG==='zh'?'Phase 1 开始!':'Phase 1 started!');
@@ -19707,8 +19856,9 @@ function showLorePopup(){
   title.style.animation = 'none'; void title.offsetWidth; title.style.animation = '';
   crawl.style.animation = 'none'; void crawl.offsetWidth; crawl.style.animation = '';
   // Show ENTER MARS button after crawl finishes (~50s)
-  if(_loreTimer) clearTimeout(_loreTimer);
-  _loreTimer = setTimeout(function(){
+  if(_loreTimer) _clearActiveTimeout(_loreTimer);
+  _loreTimer = _setActiveTimeout(function(){
+    _loreTimer = null;
     _showLoreFinale();
   }, 55000);
 }
@@ -19726,7 +19876,8 @@ function _showLoreFinale(){
   document.getElementById('loreSkipBtn').style.display = 'none';
 }
 function closeLorePopup(){
-  if(_loreTimer) clearTimeout(_loreTimer);
+  if(_loreTimer) _clearActiveTimeout(_loreTimer);
+  _loreTimer = null;
   var bg = document.getElementById('loreBg');
   bg.classList.remove('open');
   bg.style.display = 'none';
@@ -21068,7 +21219,7 @@ function _doUseItem(w,code,claimId){
     renderShopInventory();
     loadActiveEffects();
     // Refresh claims to update shield status on globe
-    setTimeout(function(){
+    _setActiveTimeout(function(){
       claimsSnapshot=null;
       fetch('/api/claims').then(function(r){return r.json()}).then(function(sc){
         if(!sc||!sc.length)return;
@@ -21128,8 +21279,8 @@ function openBaseModal(){
   }
   loadBaseData();
   try{ _updateBaseTerritoryGroupList(); }catch(_){}
-  setTimeout(loadNotifCount, 500);
-  setTimeout(function(){ try{ loadOpsCommandBoard(); }catch(_){} }, 200);
+  _setActiveTimeout(loadNotifCount, 500);
+  _setActiveTimeout(function(){ try{ loadOpsCommandBoard(); }catch(_){} }, 200);
   // [v7.137] 레벨 게이트 잠금 표시 (레벨 DOM 채워진 뒤)
   try{ applyBaseTabLocks(); }catch(_){}
   setTimeout(function(){ try{ applyBaseTabLocks(); }catch(_){} }, 600);
@@ -22287,7 +22438,7 @@ async function confirmWeEngage() {
     else result = (LANG==='ko'?'전투 완료! 데미지 ':LANG==='ja'?'戦闘完了！ダメージ ':LANG==='zh'?'战斗完成！伤害 ':'Combat complete! Damage ')+(d.damage_dealt||0).toLocaleString()+(LANG==='ko'?' · HP '+(d.hp_pct||0)+'% 잔여':LANG==='ja'?' · HP '+(d.hp_pct||0)+'% 残存':LANG==='zh'?' · HP '+(d.hp_pct||0)+'% 剩余':' · HP '+(d.hp_pct||0)+'% remaining');
     showToast(result, d.status === 'defeated' ? 'success' : 'info');
     // 함대 지휘부 카드 갱신
-    if (typeof loadFleetCommandCard === 'function') setTimeout(loadFleetCommandCard, 800);
+    if (typeof loadFleetCommandCard === 'function') _setActiveTimeout(loadFleetCommandCard, 800);
   } catch(e) {
     showToast(e.message || (LANG==='ko'?'교전 실패':LANG==='ja'?'交戦失敗':LANG==='zh'?'交战失败':'Engage failed'), 'error');
   } finally {
@@ -23024,15 +23175,15 @@ function loadAuctions(){
     html+='</div>';
     el.innerHTML=html;
     // live timers
-    _auctionTimers.forEach(function(id){clearInterval(id)});
+    _auctionTimers.forEach(function(id){_clearActiveInterval(id)});
     _auctionTimers=[];
     auctions.forEach(function(a){
       // Cache span ref once — avoids querySelector on every tick
       var span=el.querySelector('.auc-timer-'+a.id);
       if(!span) return;
-      var tid=setInterval(function(){
+      var tid=_setActiveInterval(function(){
         if(span.isConnected) span.textContent='⏱ '+_auctionTimeLeft(a.ends_at);
-        else { clearInterval(tid); }
+        else { _clearActiveInterval(tid); }
       },1000);
       _auctionTimers.push(tid);
     });
@@ -23268,7 +23419,7 @@ function attemptEnhance(instanceId, opts){
 }
 
 // Load enhancement data on init
-setTimeout(function(){ loadEnhancementData(); },3000);
+_setActiveTimeout(function(){ loadEnhancementData(); },3000);
 
 // ── 진형/기동 현 언어 라벨 (서버 name_ko 대신 코드→LANG) ──────────────
 var _FC_FORMATION_I18N={
@@ -23491,32 +23642,32 @@ function stopBaseTransientWork(nextTab){
   if(nextTab!=='guild') try{ stopGuildChatPoll(); }catch(_e){}
   if(nextTab!=='ops'){
     try{
-      if(window._opsTimer){ clearInterval(window._opsTimer); window._opsTimer=null; }
-      if(typeof _opsPreviewTimer!=='undefined' && _opsPreviewTimer){ clearTimeout(_opsPreviewTimer); _opsPreviewTimer=null; }
+      if(window._opsTimer){ _clearActiveInterval(window._opsTimer); window._opsTimer=null; }
+      if(typeof _opsPreviewTimer!=='undefined' && _opsPreviewTimer){ _clearActiveTimeout(_opsPreviewTimer); _opsPreviewTimer=null; }
     }catch(_e){}
   }
   if(nextTab!=='territory'){
     try{
-      if(typeof _opsBoardCountdownTimer!=='undefined' && _opsBoardCountdownTimer){ clearInterval(_opsBoardCountdownTimer); _opsBoardCountdownTimer=null; }
+      if(typeof _opsBoardCountdownTimer!=='undefined' && _opsBoardCountdownTimer){ _clearActiveInterval(_opsBoardCountdownTimer); _opsBoardCountdownTimer=null; }
     }catch(_e){}
   }
   if(nextTab!=='market'){
     try{
       if(typeof _auctionTimers!=='undefined' && _auctionTimers.length){
-        _auctionTimers.forEach(function(id){ clearInterval(id); });
+        _auctionTimers.forEach(function(id){ _clearActiveInterval(id); });
         _auctionTimers=[];
       }
     }catch(_e){}
   }
   if(nextTab!=='rank'){
     try{
-      if(typeof _lotteryCountdownTimer!=='undefined' && _lotteryCountdownTimer){ clearInterval(_lotteryCountdownTimer); _lotteryCountdownTimer=null; }
+      if(typeof _lotteryCountdownTimer!=='undefined' && _lotteryCountdownTimer){ _clearActiveInterval(_lotteryCountdownTimer); _lotteryCountdownTimer=null; }
     }catch(_e){}
   }
   if(nextTab!=='quests'){
     try{
-      if(typeof _dailyTimerInterval!=='undefined' && _dailyTimerInterval){ clearInterval(_dailyTimerInterval); _dailyTimerInterval=null; }
-      if(typeof _missionRefreshTimer!=='undefined' && _missionRefreshTimer){ clearTimeout(_missionRefreshTimer); _missionRefreshTimer=null; }
+      if(typeof _dailyTimerInterval!=='undefined' && _dailyTimerInterval){ _clearActiveInterval(_dailyTimerInterval); _dailyTimerInterval=null; }
+      if(typeof _missionRefreshTimer!=='undefined' && _missionRefreshTimer){ _clearActiveTimeout(_missionRefreshTimer); _missionRefreshTimer=null; }
     }catch(_e){}
   }
 }
@@ -23639,6 +23790,7 @@ window.setBaseTabDot = function(tab, on){
 // _pollDotState tracks latest counts; clearBaseTabDot snapshots them
 // so the same state won't re-trigger a dot.
 function _pollBaseTabDots(){
+  if (!_pageIsActive()) return;
   var w = walletState.address; if(!w) return;
   var seen = window._baseDotSeen || {};
   // TERRITORY: commander announcement OR commander changed
@@ -23836,8 +23988,8 @@ function _pollBaseTabDots(){
     }
   }catch(_e){}
 }
-setTimeout(_pollBaseTabDots, 8000);
-setInterval(_pollBaseTabDots, 60000);
+_setActiveTimeout(_pollBaseTabDots, 8000);
+_setActiveInterval(_pollBaseTabDots, 60000);
 
 // ── Guild System ──────────────────────────────────
 var _myGuildData=null;
@@ -24815,7 +24967,7 @@ function updateOpsLaunchPreview(){
   el.classList.add('locked');
   el.innerHTML='<span class="ops-prev-coord">⌖ PAD #'+window._opsSelectedPad.id+' → '+lat.toFixed(1)+'°, '+lng.toFixed(1)+'°</span>'
     +'<span class="ops-prev-eta scanning">…computing trajectory</span>';
-  if(_opsPreviewTimer) clearTimeout(_opsPreviewTimer);
+  if(_opsPreviewTimer) _clearActiveTimeout(_opsPreviewTimer);
   var seq=++_opsPreviewSeq;
   var padId = window._opsSelectedPad.id;
   // For invasion, pass the target wallet so the preview can include the
@@ -24826,7 +24978,8 @@ function updateOpsLaunchPreview(){
     var tw = twEl ? (twEl.value||'').trim() : '';
     if(/^0x[a-fA-F0-9]{40}$/.test(tw)) tgtParam = '&targetWallet='+encodeURIComponent(tw.toLowerCase());
   }
-  _opsPreviewTimer=setTimeout(function(){
+  _opsPreviewTimer=_setActiveTimeout(function(){
+    _opsPreviewTimer=null;
     var w=walletState&&walletState.address; if(!w) return;
     fetch('/api/missions/preview?wallet='+encodeURIComponent(w)
       +'&type='+encodeURIComponent(window._opsType||'invasion')
@@ -24880,7 +25033,7 @@ function loadOpsTab(){
       if(typeof requestRedraw==='function') requestRedraw();
     })
     .catch(function(){ document.getElementById('opsMissionList').innerHTML='Failed to load missions.'; });
-  if(!_opsTimer) _opsTimer = setInterval(renderOpsMissionList, 1000);
+  if(!_opsTimer) _opsTimer = _setActiveInterval(renderOpsMissionList, 1000);
 }
 
 function renderOpsMissionList(){
@@ -25012,7 +25165,7 @@ function cancelOpsMission(id){
 var _opsBoardCountdownTimer = null;
 
 function _startOpsBoardCountdown() {
-  if (_opsBoardCountdownTimer) clearInterval(_opsBoardCountdownTimer);
+  if (_opsBoardCountdownTimer) _clearActiveInterval(_opsBoardCountdownTimer);
   function _tick() {
     var now = new Date();
     var msUntilReset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)) - now;
@@ -25024,7 +25177,7 @@ function _startOpsBoardCountdown() {
     if (el) el.textContent = str;
   }
   _tick();
-  _opsBoardCountdownTimer = setInterval(_tick, 1000);
+  _opsBoardCountdownTimer = _setActiveInterval(_tick, 1000);
 }
 
 function _fmtDuration(sec) {
@@ -25388,10 +25541,10 @@ function startGuildChatPoll(){
   var box=document.getElementById('guildChatBox');
   if(box) box.innerHTML='<div data-placeholder style="color:var(--tx3);text-align:center;font-size:9px;margin:auto">'+t('guild_chat_loading')+'</div>';
   refreshGuildChat();
-  _guildChatPoll=setInterval(refreshGuildChat, 5000);
+  _guildChatPoll=_setActiveInterval(refreshGuildChat, 5000);
 }
 function stopGuildChatPoll(){
-  if(_guildChatPoll){ clearInterval(_guildChatPoll); _guildChatPoll=null; }
+  if(_guildChatPoll){ _clearActiveInterval(_guildChatPoll); _guildChatPoll=null; }
 }
 
 function createGuild(){
@@ -25430,8 +25583,11 @@ function guildInviteMember(targetOverride){
 // ── Live search for invite candidates (debounced) ──
 var _guildInviteSearchTimer=null;
 function onGuildInviteSearchInput(){
-  if(_guildInviteSearchTimer) clearTimeout(_guildInviteSearchTimer);
-  _guildInviteSearchTimer=setTimeout(runGuildInviteSearch,200);
+  if(_guildInviteSearchTimer) _clearActiveTimeout(_guildInviteSearchTimer);
+  _guildInviteSearchTimer=_setActiveTimeout(function(){
+    _guildInviteSearchTimer=null;
+    runGuildInviteSearch();
+  },200);
 }
 function runGuildInviteSearch(){
   var inp=document.getElementById('guildInviteInput');
@@ -26043,7 +26199,7 @@ var _tapTimer=null;
 document.addEventListener('click',function(){
   _tapCount++;
   if(!_tapTimer){
-    _tapTimer=setTimeout(function(){
+    _tapTimer=_setActiveTimeout(function(){
       if(_tapCount>0&&walletState.address){
         fetch('/api/season/taps',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
           body:JSON.stringify({wallet:walletState.address,count:_tapCount})}).catch(function(){});
@@ -26149,17 +26305,17 @@ function showSeasonBanner(season){
   document.getElementById('seasonBannerIcon').textContent=themeIcons[season.theme]||'🌋';
   document.getElementById('seasonBannerName').textContent=season.name;
   // Start countdown timer
-  if(_seasonTimerInterval) clearInterval(_seasonTimerInterval);
+  if(_seasonTimerInterval) _clearActiveInterval(_seasonTimerInterval);
   function updateTimer(){
     var remaining=new Date(season.endsAt).getTime()-Date.now();
-    if(remaining<=0){document.getElementById('seasonBannerTimer').textContent=t('season_ended');clearInterval(_seasonTimerInterval);return;}
+    if(remaining<=0){document.getElementById('seasonBannerTimer').textContent=t('season_ended');_clearActiveInterval(_seasonTimerInterval);return;}
     var d=Math.floor(remaining/86400000);
     var h=Math.floor((remaining%86400000)/3600000);
     var m=Math.floor((remaining%3600000)/60000);
     document.getElementById('seasonBannerTimer').textContent=d+'d '+h+'h '+m+'m';
   }
   updateTimer();
-  _seasonTimerInterval=setInterval(updateTimer,60000);
+  _seasonTimerInterval=_setActiveInterval(updateTimer,60000);
 }
 
 function showSeasonTint(season){
@@ -27282,10 +27438,10 @@ function toggleNewsPanel() {
   if (_newsPanelOpen) {
     loadNewsFeed();
     // Auto-refresh every 30s while panel is open
-    if (_newsRefreshTimer) clearInterval(_newsRefreshTimer);
-    _newsRefreshTimer = setInterval(loadNewsFeed, 30000);
+    if (_newsRefreshTimer) _clearActiveInterval(_newsRefreshTimer);
+    _newsRefreshTimer = _setActiveInterval(loadNewsFeed, 30000);
   } else {
-    if (_newsRefreshTimer) { clearInterval(_newsRefreshTimer); _newsRefreshTimer = null; }
+    if (_newsRefreshTimer) { _clearActiveInterval(_newsRefreshTimer); _newsRefreshTimer = null; }
   }
 }
 
@@ -27930,8 +28086,19 @@ function handleCampaignObjectiveAction(ev,action){
   }
 }
 function _campaignClearSimTimer(){
-  if(_campaignSimTimer) clearTimeout(_campaignSimTimer);
+  if(_campaignSimTimer) _clearActiveTimeout(_campaignSimTimer);
   _campaignSimTimer=null;
+}
+function _campaignSimIsOpen(){
+  var m=document.getElementById('campaignModal');
+  return !!(m&&m.style.display==='flex');
+}
+function _scheduleCampaignProgress(ms){
+  _campaignClearSimTimer();
+  _campaignSimTimer=_setActiveTimeout(function(){
+    _campaignSimTimer=null;
+    if(_pageIsActive()) pollCampaignProgress(false);
+  },ms);
 }
 function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';_campaignClearSimTimer();}
 function _setCampaignModal(ch, html){
@@ -28547,6 +28714,13 @@ function typeText(element,text,onComplete){
   var lastLen=0;
   var cps=48;
   function step(now){
+    if(!_pageIsActive()){
+      _campaignTypingFrame=null;
+      _onPageVisibleOnce(function(){
+        if(!_campaignTypingDone&&_campaignTypingElement===element) _campaignTypingFrame=requestAnimationFrame(step);
+      });
+      return;
+    }
     var len=Math.min(_campaignTypingFullText.length,Math.floor((now-start)/1000*cps));
     if(len!==lastLen){
       element.textContent=_campaignTypingFullText.slice(0,len);
@@ -28568,7 +28742,7 @@ function renderCampaignScene(){
   var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
   if(!overlay||!scene){closeCampaignStory();return;}
   _campaignClearTypingTimer();
-  if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
+  if(_campaignBattleTimer) _clearActiveTimeout(_campaignBattleTimer);
   _campaignBattleTimer=null; _campaignTypingDone=true;
   var currentLine=null;
   if(scene.type==='dialogue'||scene.type==='narration'||scene.type==='ending'){
@@ -28696,7 +28870,7 @@ function renderCampaignScene(){
     card.innerHTML=escapeHtmlSafe(_campaignStoryText(scene.title))+'<small>'+escapeHtmlSafe(_campaignStoryText(scene.subtitle))+'</small>';
     overlay.appendChild(card);
     _campaignTypingDone=true;
-    _campaignBattleTimer=setTimeout(function(){advanceCampaignScene();},3000);
+    _campaignBattleTimer=_setActiveTimeout(function(){advanceCampaignScene();},3000);
     return;
   }
 
@@ -28759,7 +28933,7 @@ function closeCampaignStory(){
   var overlay=document.querySelector('.story-overlay');
   if(overlay) overlay.remove();
   _campaignClearTypingTimer();
-  if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
+  if(_campaignBattleTimer) _clearActiveTimeout(_campaignBattleTimer);
   _campaignBattleTimer=null;
   _campaignTypingDone=false;
   _campaignTypingElement=null;
@@ -28880,6 +29054,7 @@ async function pollCampaignProgress(immediate){
   _campaignClearSimTimer();
   var w=walletState.address, a=_campaignActive;
   if(!w||!a||!a.sessionId) return;
+  if(!_pageIsActive()||!_campaignSimIsOpen()) return;
   try{
     var r=await fetch('/api/campaign/progress',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId})});
     var d=await r.json();
@@ -28910,14 +29085,20 @@ async function pollCampaignProgress(immediate){
     if(pct>=100&&missing.length){
       if(status) status.textContent=t('campaign_objectives_gate');
       if(detail) detail.textContent=missing[0]?(_campaignStoryText(missing[0].label)||missing[0].labelKo||t('campaign_objectives_gate_sub')):t('campaign_objectives_gate_sub');
-      _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},5000);
+      _scheduleCampaignProgress(5000);
       return;
     }
-    _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},immediate?1200:3000);
+    _scheduleCampaignProgress(immediate?1200:3000);
   }catch(e){
-    _campaignSimTimer=setTimeout(function(){pollCampaignProgress(false);},5000);
+    _scheduleCampaignProgress(5000);
   }
 }
+
+_onPageVisible(function(){
+  if(_campaignSimIsOpen()&&_campaignActive&&_campaignActive.sessionId&&!_campaignSimTimer){
+    pollCampaignProgress(true);
+  }
+});
 
 async function completeCampaignMission(){
   var w=walletState.address, a=_campaignActive;
@@ -29261,7 +29442,7 @@ function renderLotteryPanel(round) {
   if (!el) return;
 
   // Clear existing timer
-  if (_lotteryCountdownTimer) { clearInterval(_lotteryCountdownTimer); _lotteryCountdownTimer = null; }
+  if (_lotteryCountdownTimer) { _clearActiveInterval(_lotteryCountdownTimer); _lotteryCountdownTimer = null; }
 
   var endsAt = new Date(round.ends_at);
   var prize = parseFloat(round.prize_pool_gp) || 0;
@@ -29315,14 +29496,14 @@ function renderLotteryPanel(round) {
     var cdEl = document.getElementById('lotteryCountdown');
     if (cdEl) cdEl.textContent = (h > 0 ? h + 'h ' : '') + m + 'm ' + s + 's';
     if (rem <= 0) {
-      clearInterval(_lotteryCountdownTimer);
+      _clearActiveInterval(_lotteryCountdownTimer);
       _lotteryCountdownTimer = null;
       // Auto-reload after draw
-      setTimeout(loadLottery, 5000);
+      _setActiveTimeout(loadLottery, 5000);
     }
   }
   updateCountdown();
-  _lotteryCountdownTimer = setInterval(updateCountdown, 1000);
+  _lotteryCountdownTimer = _setActiveInterval(updateCountdown, 1000);
 }
 
 function quickBuyTickets(count) {
@@ -29758,7 +29939,7 @@ async function instantHarvest(){
     showToast(tl('Cooldown skipped! Harvest now.','쿨다운을 건너뛰었습니다! 지금 수확하세요.','クールダウンをスキップしました！今すぐ採掘できます。','已跳过冷却！现在即可收获。'),'success');
     btn.style.display='none';
     document.getElementById('baseMineTimer').textContent='Harvest available now!';
-    if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
+    if(window._mineTimerInterval) _clearActiveInterval(window._mineTimerInterval);
     try{refreshEmailBalances()}catch(e){}
   }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
   finally{btn.disabled=false;var ic=window._instantHarvestCost||0.5;btn.innerHTML='<span>HARVEST NOW ('+ic+' PP)</span>'}
@@ -29861,14 +30042,14 @@ async function toggleAutoRenew(type,id,currentState){
 function startMineTimer(nextAt){
   var el=document.getElementById('baseMineTimer');
   var instantBtn=document.getElementById('baseInstantHarvestBtn');
-  if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
+  if(window._mineTimerInterval) _clearActiveInterval(window._mineTimerInterval);
   // Show instant harvest button if on cooldown
   if(nextAt&&nextAt>Date.now()){
     instantBtn.style.display='';
   }else{
     instantBtn.style.display='none';
   }
-  window._mineTimerInterval=setInterval(function(){
+  window._mineTimerInterval=_setActiveInterval(function(){
     var diff=nextAt-Date.now();
     if(diff<=0){
       el.textContent=t('harvest_available');
@@ -29881,7 +30062,8 @@ function startMineTimer(nextAt){
         var rng='';if(window._miningEstMin>0) rng=' ('+window._miningEstMin.toFixed(2)+'~'+window._miningEstMax.toFixed(2)+' PP + 🪨)';
         hBtn.innerHTML='<span>'+t('harvest_pp')+rng+'</span>';
       }
-      clearInterval(window._mineTimerInterval);
+      _clearActiveInterval(window._mineTimerInterval);
+      window._mineTimerInterval=null;
       return;
     }
     var h=Math.floor(diff/3600000);var m=Math.floor((diff%3600000)/60000);var s=Math.floor((diff%60000)/1000);
@@ -30315,6 +30497,7 @@ var _poiDefs = {
 var _forSaleMap={}; // {claimId: {price, currency, saleType, endsAt, sellerNick}}
 
 function loadForSaleTerritories(){
+  if (!_pageIsActive()) return;
   fetch('/api/for-sale-territories').then(function(r){return r.json()}).then(function(rows){
     var map={};
     if(Array.isArray(rows)) rows.forEach(function(r){
@@ -30326,9 +30509,9 @@ function loadForSaleTerritories(){
 }
 
 // Poll every 60s
-setInterval(loadForSaleTerritories, 60000);
+_setActiveInterval(loadForSaleTerritories, 60000);
 // Initial load after claims are ready
-setTimeout(loadForSaleTerritories, 3000);
+_setActiveTimeout(loadForSaleTerritories, 3000);
 
 function _drawForSaleOverlay(ctx,w,h){
   if(!Object.keys(_forSaleMap).length) return;
@@ -30754,6 +30937,7 @@ var _satOrbits = [
 ];
 var _slDots = []; // DOM elements
 var _slAlt = 0.35; // orbit altitude above globe surface
+var _slRafId = null;
 
 function _initStarlinkOrbit() {
   if (_slDots.length || !globe) return;
@@ -30768,15 +30952,19 @@ function _initStarlinkOrbit() {
     container.appendChild(dot);
     _slDots.push({ el: dot, orb: orb });
   });
-  requestAnimationFrame(_animateStarlinkOrbit);
+  if (!_slRafId) _slRafId = requestAnimationFrame(_animateStarlinkOrbit);
 }
 
 var _slLastFrame=0;
 var _slFrameInterval=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?100:33;
 function _animateStarlinkOrbit() {
-  if (!globe || !_slDots.length) { requestAnimationFrame(_animateStarlinkOrbit); return; }
+  if (!_pageIsActive()) {
+    _slRafId = null;
+    return;
+  }
+  if (!globe || !_slDots.length) { _slRafId = requestAnimationFrame(_animateStarlinkOrbit); return; }
   var t = Date.now();
-  if(t-_slLastFrame<_slFrameInterval){requestAnimationFrame(_animateStarlinkOrbit);return;}
+  if(t-_slLastFrame<_slFrameInterval){_slRafId = requestAnimationFrame(_animateStarlinkOrbit);return;}
   _slLastFrame=t;
   _slDots.forEach(function(sd) {
     var orb = sd.orb;
@@ -30819,8 +31007,18 @@ function _animateStarlinkOrbit() {
       sd.el.style.opacity = '0';
     }
   });
-  requestAnimationFrame(_animateStarlinkOrbit);
+  _slRafId = requestAnimationFrame(_animateStarlinkOrbit);
 }
+
+_onPageVisible(function(){
+  if (_slDots.length && !_slRafId) _slRafId = requestAnimationFrame(_animateStarlinkOrbit);
+});
+_onPageHidden(function(){
+  if (_slRafId) {
+    cancelAnimationFrame(_slRafId);
+    _slRafId = null;
+  }
+});
 
 // Texture trail stub (no longer used)
 function _drawStarlinkTrails() {}
@@ -31517,7 +31715,7 @@ function forceCloseMobilePanels(){
   if(pR) pR.classList.remove('open');
   try{updateMobToggles()}catch(_){}
 }
-window.addEventListener('pageshow', forceCloseMobilePanels);
+_onPageShow(forceCloseMobilePanels);
 window.addEventListener('load', forceCloseMobilePanels);
 window.addEventListener('orientationchange', function(){setTimeout(forceCloseMobilePanels, 80)});
 // Mobile: tapping outside an open status/live panel auto-closes it
@@ -31874,6 +32072,7 @@ function refreshProfileAlerts(){ renderAlerts(); }
 function fmtNum(n){return Number(n).toLocaleString();}
 
 function loadPublicStats(){
+  if (!_pageIsActive()) return;
   fetch('/api/stats').then(function(r){return r.json();}).then(function(d){
     var setT=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
     if(d.totalPixels!=null){ setT('statTotalPx',fmtNum(d.totalPixels)); setT('bsStatTotalPx',fmtNum(d.totalPixels)); }
@@ -31885,6 +32084,7 @@ function loadPublicStats(){
 }
 
 function loadLeaderboard(){
+  if (!_pageIsActive()) return;
   fetch('/api/leaderboard?sort=pixels&limit=10').then(function(r){return r.json();}).then(function(arr){
     var container=document.getElementById('leaderboardList');
     var bsContainer=document.getElementById('bsLeaderboardList');
@@ -31936,10 +32136,10 @@ function toggleLeaderboard(){
 setLoadProgress(95,'Loading stats...');
 loadPublicStats();
 loadLeaderboard();
-setInterval(loadPublicStats,30000);
-setInterval(loadLeaderboard,60000);
+_setActiveInterval(loadPublicStats,30000);
+_setActiveInterval(loadLeaderboard,60000);
 // Poll referral info periodically so commission toasts fire in real time
-setInterval(function(){
+_setActiveInterval(function(){
   if(walletState.connected && walletState.address){
     try{ loadReferralInfo(); }catch(e){}
   }
@@ -32145,7 +32345,7 @@ function startCrashAnimation() {
 function stopCrashAnimation(crashPoint) {
   crashState = 'crashed';
   crashMultiplier = crashPoint;
-  clearTimeout(crashPollTimer);
+  _clearActiveTimeout(crashPollTimer);
   if (crashStartTime) crashPoints.push({ t: Date.now() - crashStartTime, m: crashPoint });
   updateCrashDisplay();
   drawCrashChart();
@@ -32284,8 +32484,20 @@ var crashPollTimer = null;
 var crashCountdown = 0;
 var countdownInterval = null;
 
+function _arenaIsActive(){
+  var overlay=document.getElementById('arenaOverlay');
+  return !!(overlay&&overlay.classList.contains('active'));
+}
+function _scheduleCrash(fn, ms){
+  _clearActiveTimeout(crashPollTimer);
+  crashPollTimer = _setActiveTimeout(function(){
+    crashPollTimer = null;
+    if(_pageIsActive()) fn();
+  }, ms);
+}
+
 function pollCrashRound() {
-  if (!document.getElementById('arenaOverlay').classList.contains('active')) return; // stop if closed
+  if (!_pageIsActive() || !_arenaIsActive()) return; // stop if hidden/closed
   fetch(ARENA_API + '/crash/current').then(function(r){ return r.json(); }).then(function(d){
     crashRoundId = d.roundId;
     crashBets = d.bets || [];
@@ -32296,13 +32508,13 @@ function pollCrashRound() {
       updateCrashBtn();
       if (!crashCountdown) {
         crashCountdown = 8;
-        if (countdownInterval) clearInterval(countdownInterval);
-        countdownInterval = setInterval(function(){
+        if (countdownInterval) _clearActiveInterval(countdownInterval);
+        countdownInterval = _setActiveInterval(function(){
           crashCountdown--;
           var st = document.getElementById('crashStatusText');
           if (st) st.textContent = 'Starting in ' + crashCountdown + 's...';
           if (crashCountdown <= 0) {
-            clearInterval(countdownInterval);
+            _clearActiveInterval(countdownInterval);
             countdownInterval = null;
             startRoundOnServer();
           }
@@ -32310,8 +32522,7 @@ function pollCrashRound() {
       }
     } else if (d.status === 'running') {
       if (crashState !== 'running') startCrashAnimation();
-      clearTimeout(crashPollTimer);
-      crashPollTimer = setTimeout(tickCrashRound, 500);
+      _scheduleCrash(tickCrashRound, 500);
     } else if (d.status === 'crashed') {
       if (crashState !== 'crashed') {
         stopCrashAnimation(d.crashPoint);
@@ -32319,8 +32530,8 @@ function pollCrashRound() {
       }
     }
   }).catch(function(){
-    if (document.getElementById('arenaOverlay').classList.contains('active')) {
-      setTimeout(pollCrashRound, 3000);
+    if (_arenaIsActive()) {
+      _scheduleCrash(pollCrashRound, 3000);
     }
   });
 }
@@ -32330,13 +32541,13 @@ function startRoundOnServer() {
     crashCountdown = 0;
     pollCrashRound();
   }).catch(function(){
-    setTimeout(pollCrashRound, 2000);
+    _scheduleCrash(pollCrashRound, 2000);
   });
 }
 
 function tickCrashRound() {
   if (crashState !== 'running') return;
-  if (!document.getElementById('arenaOverlay').classList.contains('active')) return;
+  if (!_pageIsActive() || !_arenaIsActive()) return;
   fetch(ARENA_API + '/crash/tick').then(function(r){ return r.json(); }).then(function(d){
     if (d.status === 'crashed') {
       stopCrashAnimation(d.crashPoint);
@@ -32366,9 +32577,17 @@ function tickCrashRound() {
     }
   }).catch(function(){});
   if (crashState === 'running') {
-    crashPollTimer = setTimeout(tickCrashRound, 150);
+    _scheduleCrash(tickCrashRound, 150);
   }
 }
+
+_onPageVisible(function(){
+  if(_arenaIsActive()&&!crashPollTimer) pollCrashRound();
+});
+_onPageHidden(function(){
+  if(crashPollTimer){ _clearActiveTimeout(crashPollTimer); crashPollTimer=null; }
+  if(countdownInterval){ _clearActiveInterval(countdownInterval); countdownInterval=null; }
+});
 
 function renderCrashBets() {
   var el = document.getElementById('crashBetsList');
@@ -33004,8 +33223,8 @@ window.cashoutHilo = function() {
 
 // ═══ OPEN / CLOSE ARENA ═══
 function stopAllArenaTimers() {
-  clearTimeout(crashPollTimer); crashPollTimer = null;
-  clearInterval(countdownInterval); countdownInterval = null;
+  _clearActiveTimeout(crashPollTimer); crashPollTimer = null;
+  if(countdownInterval){ _clearActiveInterval(countdownInterval); countdownInterval = null; }
   crashCountdown = 0;
 }
 
@@ -33170,19 +33389,18 @@ window.addEventListener('resize', _debounce(function(){
   }
   // Load on boot + poll every 60s + refresh on tab visibility/focus.
   // 커맨더 임기 종료 / announcement 변경이 즉시 반영되도록 다층 트리거.
-  setTimeout(loadCommanderBanner, 2000);
-  setInterval(loadCommanderBanner, 60000);
+  _setActiveTimeout(loadCommanderBanner, 2000);
+  _setActiveInterval(loadCommanderBanner, 60000);
   // 탭 복귀 / 창 포커스 시 즉시 fresh 데이터 (사용자가 admin 에서 변경하고 게임 탭 돌아왔을 때)
-  document.addEventListener('visibilitychange', function(){
-    if (document.visibilityState === 'visible') loadCommanderBanner();
-  });
-  window.addEventListener('focus', function(){ loadCommanderBanner(); });
+  _onPageVisible(loadCommanderBanner);
+  _onPageFocus(loadCommanderBanner);
   // 외부에서 호출 가능 (예: admin 변경 직후)
   window.refreshCommander = loadCommanderBanner;
 
   // ── GP Colony Announcements polling ──
   var _gpAnnounceIdx = 0;
   function pollGPAnnouncements() {
+    if (!_pageIsActive()) return;
     fetch('/api/announce/active').then(function(r){return r.json();}).then(function(items){
       if (!items || !items.length) return;
       // Cycle through active announcements round-robin
@@ -33194,11 +33412,12 @@ window.addEventListener('resize', _debounce(function(){
       }
     }).catch(function(){});
   }
-  setTimeout(pollGPAnnouncements, 5000);
-  setInterval(pollGPAnnouncements, 120000);
+  _setActiveTimeout(pollGPAnnouncements, 5000);
+  _setActiveInterval(pollGPAnnouncements, 120000);
 
   // ═══════ WEATHER POLLING + BANNER ═══════
   function loadWeatherData() {
+    if (!_pageIsActive()) return;
     var wxUrl = '/api/weather';
     if(walletState.address) wxUrl += '?wallet=' + encodeURIComponent(walletState.address);
     fetch(wxUrl).then(function(r){return r.json()}).then(function(data){
@@ -33332,12 +33551,12 @@ window.addEventListener('resize', _debounce(function(){
       }
     }
   });
-  setTimeout(loadWeatherData, 4000);
-  setInterval(loadWeatherData, 60000);
-  setInterval(updateWeatherBanner, 30000);
+  _setActiveTimeout(loadWeatherData, 4000);
+  _setActiveInterval(loadWeatherData, 60000);
+  _setActiveInterval(updateWeatherBanner, 30000);
   // Animate weather/POI/starlink overlay texture (throttled — mobile much slower)
   var _compositeInterval = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 30000 : 8000;
-  setInterval(function() {
+  _setActiveInterval(function() {
     var passes = (_starlinkData && Array.isArray(_starlinkData.passes)) ? _starlinkData.passes : [];
     if (_weatherData.length > 0 || _poiData.length > 0 || passes.length > 0) compositeClaimsOnTexture();
   }, _compositeInterval);
@@ -33347,6 +33566,7 @@ window.addEventListener('resize', _debounce(function(){
   window._explorationFee = 0;
   window._userPP = 0;
   function loadExplorationData() {
+    if (!_pageIsActive()) return;
     var url = '/api/exploration/pois';
     if(walletState.address) url += '?wallet=' + encodeURIComponent(walletState.address);
     fetch(url).then(function(r){return r.json()}).then(function(data){
@@ -33367,6 +33587,7 @@ window.addEventListener('resize', _debounce(function(){
   }
   window.loadExplorationData = loadExplorationData;
   function loadStarlinkData() {
+    if (!_pageIsActive()) return;
     fetch('/api/exploration/starlink').then(function(r){return r.json()}).then(function(data){
       _starlinkData = {
         satellites: Array.isArray(data && data.satellites) ? data.satellites : [],
@@ -33376,22 +33597,23 @@ window.addEventListener('resize', _debounce(function(){
       _updateStarlinkPositions();
     }).catch(function(){});
   }
-  setTimeout(loadExplorationData, 5000);
-  setInterval(loadExplorationData, 60000);
-  setTimeout(loadStarlinkData, 6000);
+  _setActiveTimeout(loadExplorationData, 5000);
+  _setActiveInterval(loadExplorationData, 60000);
+  _setActiveTimeout(loadStarlinkData, 6000);
   // Starlink position updates: 30s desktop, 60s mobile (3D mesh update is heavy)
-  setInterval(loadStarlinkData, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 60000 : 30000);
+  _setActiveInterval(loadStarlinkData, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 60000 : 30000);
   // Init Starlink 3D orbit around globe
   function _tryInitStarlinkOrbit() {
     if (_slDots.length) return;
     _initStarlinkOrbit();
-    if (!_slDots.length) setTimeout(_tryInitStarlinkOrbit, 2000);
+    if (!_slDots.length) _setActiveTimeout(_tryInitStarlinkOrbit, 2000);
   }
-  setTimeout(_tryInitStarlinkOrbit, 3000);
+  _setActiveTimeout(_tryInitStarlinkOrbit, 3000);
   // Starlink position updates handled by _animateStarlink RAF loop
 
   // ═══════ ROCKET EVENT POLLING ═══════
   function loadRocketData() {
+    if (!_pageIsActive()) return;
     fetch('/api/rockets').then(function(r){return r.json()}).then(function(data){
       _rocketData = data;
       updateRocketBanner();
@@ -33453,15 +33675,16 @@ window.addEventListener('resize', _debounce(function(){
       el.classList.add('show');
     }
   }
-  setTimeout(loadRocketData, 7000);
-  setInterval(loadRocketData, 30000);
-  setInterval(updateRocketBanner, 15000);
-  setTimeout(_initRocketMesh, 3500);
+  _setActiveTimeout(loadRocketData, 7000);
+  _setActiveInterval(loadRocketData, 30000);
+  _setActiveInterval(updateRocketBanner, 15000);
+  _setActiveTimeout(_initRocketMesh, 3500);
   // Rocket 3D mesh: 2s desktop, 5s mobile (reduces WebGL draw calls)
-  setInterval(_updateRocketMesh, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 5000 : 2000);
+  _setActiveInterval(_updateRocketMesh, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 5000 : 2000);
 
   // Keep mission routes visible on the map even when OPS tab isn't open.
   function _refreshOpsMissionsGlobal(){
+    if (!_pageIsActive()) return;
     var w = walletState && walletState.address; if(!w) return;
     fetch('/api/missions/active?wallet='+encodeURIComponent(w))
       .then(function(r){return r.json()})
@@ -33470,8 +33693,8 @@ window.addEventListener('resize', _debounce(function(){
         if(typeof requestRedraw==='function') requestRedraw();
       }).catch(function(){});
   }
-  setTimeout(_refreshOpsMissionsGlobal, 4000);
-  setInterval(_refreshOpsMissionsGlobal, 30000);
+  _setActiveTimeout(_refreshOpsMissionsGlobal, 4000);
+  _setActiveInterval(_refreshOpsMissionsGlobal, 30000);
 
   // ═══════ GENERIC MOBILE-FRIENDLY MODAL ═══════
   // Works on both mobile and desktop — uses the .mbg/.mdl pattern, z-index above HUD.
@@ -33622,6 +33845,7 @@ window.addEventListener('resize', _debounce(function(){
 
   // Governance leaderboard (sidebar + BASE > SEASON mirror)
   function loadGovLeaderboard() {
+    if (!_pageIsActive()) return;
     fetch('/api/governance/leaderboard?sort=tax').then(function(r){return r.json()}).then(function(rows){
       var el = document.getElementById('govLeaderboardList');
       var bsEl = document.getElementById('bsGovLeaderboardList');
@@ -33665,8 +33889,8 @@ window.addEventListener('resize', _debounce(function(){
       }
     }).catch(function(){});
   }
-  setTimeout(loadGovLeaderboard, 3000);
-  setInterval(loadGovLeaderboard, 120000);
+  _setActiveTimeout(loadGovLeaderboard, 3000);
+  _setActiveInterval(loadGovLeaderboard, 120000);
 
   // Sector announcements — hidden from main screen; visible inside BASE sector list.
   window.updateSectorAnnounces = function() {
@@ -35228,6 +35452,7 @@ window.addEventListener('resize', _debounce(function(){
   })();
 
   function fetchAnnounce(){
+    if (!_pageIsActive()) return;
     fetch('/api/config').then(function(r){return r.json()}).then(function(cfg){
       if(cfg && cfg.announcement) showAnnounce(cfg.announcement);
       else {
@@ -35244,8 +35469,8 @@ window.addEventListener('resize', _debounce(function(){
   }
 
   // 초기 로드 + 주기적 갱신
-  setTimeout(fetchAnnounce, 1500);
-  setInterval(fetchAnnounce, POLL_INTERVAL);
+  _setActiveTimeout(fetchAnnounce, 1500);
+  _setActiveInterval(fetchAnnounce, POLL_INTERVAL);
 })();
 
 // ═══════ SHARE FUNCTIONALITY ═══════
@@ -35872,7 +36097,7 @@ function _dailyOpsKnownTasks(){
 function _scheduleOpsBoardRefresh(){
   try { loadOpsCommandBoard(); } catch(_e) {}
   [450, 1300].forEach(function(ms){
-    setTimeout(function(){ try { loadOpsCommandBoard(); } catch(_e) {} }, ms);
+    _setActiveTimeout(function(){ try { loadOpsCommandBoard(); } catch(_e) {} }, ms);
   });
 }
 function _loadDailyOpsState(){
@@ -40782,9 +41007,10 @@ var _actionToMissionType = {
 // debounced mission refresh (avoid spamming /api/daily/missions on rapid actions)
 var _missionRefreshTimer = null;
 function _scheduleMissionRefresh(){
-  clearTimeout(_missionRefreshTimer);
-  _missionRefreshTimer = setTimeout(function(){
-    if(emailAuth && emailAuth.token) loadDailyMissions();
+  _clearActiveTimeout(_missionRefreshTimer);
+  _missionRefreshTimer = _setActiveTimeout(function(){
+    _missionRefreshTimer = null;
+    if(_pageIsActive() && emailAuth && emailAuth.token) loadDailyMissions();
   }, 3000);
 }
 
@@ -40854,7 +41080,7 @@ window.renderShipList = function(){ try { renderShips(); } catch(_){} };
 // ── Daily Reset Timer ──
 var _dailyTimerInterval = null;
 function startDailyTimer(){
-  if(_dailyTimerInterval) clearInterval(_dailyTimerInterval);
+  if(_dailyTimerInterval) _clearActiveInterval(_dailyTimerInterval);
   function tick(){
     var now = new Date();
     var utcMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()+1, 0, 0, 0));
@@ -40866,7 +41092,7 @@ function startDailyTimer(){
     if(timerEl) timerEl.textContent = t('daily_resets_prefix')+' '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   }
   tick();
-  _dailyTimerInterval = setInterval(tick, 1000);
+  _dailyTimerInterval = _setActiveInterval(tick, 1000);
 }
 
 // ── Notification Dots (OPEN BASE button + QUESTS tab) ──
@@ -47044,15 +47270,15 @@ async function openBattleHub() {
   document.getElementById('battleHubModal').classList.add('active');
   await bhLoad();
   // 5초마다 active 탭 polling
-  if (battleHubState.pollTimer) clearInterval(battleHubState.pollTimer);
-  battleHubState.pollTimer = setInterval(() => {
-    if (battleHubState.currentTab === 'active') bhLoad();
+  if (battleHubState.pollTimer) _clearActiveInterval(battleHubState.pollTimer);
+  battleHubState.pollTimer = _setActiveInterval(() => {
+    if (_pageIsActive() && battleHubState.currentTab === 'active' && document.getElementById('battleHubModal').classList.contains('active')) bhLoad();
   }, 5000);
 }
 
 function closeBattleHub() {
   document.getElementById('battleHubModal').classList.remove('active');
-  if (battleHubState.pollTimer) { clearInterval(battleHubState.pollTimer); battleHubState.pollTimer = null; }
+  if (battleHubState.pollTimer) { _clearActiveInterval(battleHubState.pollTimer); battleHubState.pollTimer = null; }
 }
 
 function bhSwitchTab(tab) {
@@ -47155,7 +47381,7 @@ async function bhRunBattle(battleId) {
     const data = await res.json();
     if (!res.ok) { showFactionToast((LANG==='ko'?'실패: ':LANG==='ja'?'失敗: ':LANG==='zh'?'失败: ':'Failed: ') + (data.error || 'UNKNOWN'), 'error'); return; }
     showFactionToast(LANG==='ko'?'전투 시작됨':LANG==='ja'?'戦闘開始':LANG==='zh'?'战斗已开始':'Battle started', 'success');
-    setTimeout(bhLoad, 1500);
+    _setActiveTimeout(bhLoad, 1500);
   } catch (err) {
     showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
@@ -47247,8 +47473,11 @@ async function loadRecommendedOpponents() {
 // 검색 (디바운스)
 let searchTimer;
 function searchTargets() {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(doSearchTargets, 400);
+  _clearActiveTimeout(searchTimer);
+  searchTimer = _setActiveTimeout(function(){
+    searchTimer = null;
+    doSearchTargets();
+  }, 400);
 }
 
 async function doSearchTargets() {
@@ -47623,8 +47852,8 @@ async function caStartBattle(battleId){
       return;
     }
     showFactionToast(LANG==='ko'?'전투 시작 · 잠시 후 관전 창이 열립니다':LANG==='ja'?'戦闘開始 · まもなく観戦画面が開きます':LANG==='zh'?'战斗开始 · 稍后将打开观战窗口':'Battle started · Spectator view will open shortly','success');
-    setTimeout(() => openBattleViewer(battleId), 3000);
-    setTimeout(() => showRewardIfAny(battleId), 8000);
+    _setActiveTimeout(() => openBattleViewer(battleId), 3000);
+    _setActiveTimeout(() => showRewardIfAny(battleId), 8000);
   } catch (err) {
     console.error('caStartBattle error:', err);
     showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
@@ -47677,11 +47906,11 @@ async function _showVictorySlot(battleId) {
 async function _spinVictorySlot(battleId, btn) {
   if (btn.disabled) return; btn.disabled = true;
   var reel = ['🍒','💎','⚡','🌟','7️⃣','💰'];
-  var spinner = setInterval(function(){ btn.textContent = '🎰 ' + reel[Math.floor(Math.random()*6)] + reel[Math.floor(Math.random()*6)] + reel[Math.floor(Math.random()*6)]; }, 80);
+  var spinner = _setActiveInterval(function(){ btn.textContent = '🎰 ' + reel[Math.floor(Math.random()*6)] + reel[Math.floor(Math.random()*6)] + reel[Math.floor(Math.random()*6)]; }, 80);
   try { if (window._sfx) _sfx.crateCharge(); } catch(_) {}
   var r = await fetch('/api/battles/'+battleId+'/victory-slot', { method:'POST', headers: getAuthHeaders() }).then(function(x){ return x.json(); }).catch(function(){ return {error:'net'}; });
-  await new Promise(function(res){ setTimeout(res, 1100); });
-  clearInterval(spinner);
+  await _activeSleep(1100);
+  _clearActiveInterval(spinner);
   if (r && r.success) {
     var won = r.payout > 0;
     btn.innerHTML = '🎰 ' + (won ? ('×'+r.multiplier+' → +'+r.payout+' GP!') : (LANG==='ko'?'꽝!':LANG==='ja'?'ハズレ!':LANG==='zh'?'未中!':'MISS!'));
@@ -47877,7 +48106,7 @@ async function challengeAi(aiFleetId, aiName) {
     window._lastAiChallenge = { aiFleetId: aiFleetId, aiName: aiName, battleId: data2.battle_id };
     closeAiFight();
     if (data2.battle_id) {
-      setTimeout(() => openBattleViewer(data2.battle_id), 3000);
+      _setActiveTimeout(() => openBattleViewer(data2.battle_id), 3000);
       // Bug4: showRewardIfAny 별도 토스트 제거 — 결과 카드에 보상 인라인 표시
     } else console.warn('[ai] battle_id missing in response:', data2);
   } catch (err) {
@@ -48298,7 +48527,7 @@ async function openBattleViewer(battleId, startTick) {
   // [v7.406] 결과표시 게이트 리셋 — iframe 로컬 시뮬 완료(battle_final_done)에 맞춰 결과를 띄운다.
   bv._finalShown = false;
   bv._iframeActive = true;
-  if (bv._finalFallback) { clearTimeout(bv._finalFallback); bv._finalFallback = null; }
+  if (bv._finalFallback) { _clearActiveTimeout(bv._finalFallback); bv._finalFallback = null; }
 
   // 준비 중이면 잠시 대기
   document.getElementById('battleViewer').classList.add('active');
@@ -48328,6 +48557,8 @@ async function openBattleViewer(battleId, startTick) {
   let lastErr = null;
   let battleDone = false;
   for (let i = 0; i < 30; i++) {
+    if (!_pageIsActive()) { await _activeSleep(2000); i--; continue; }
+    if (!document.getElementById('battleViewer')?.classList.contains('active')) return;
     try {
       // 전투 정보
       const infoRes = await fetch(`/api/battles/${battleId}`);
@@ -48349,14 +48580,14 @@ async function openBattleViewer(battleId, startTick) {
         const tlBody = await tlRes.json().catch(() => ({}));
         lastErr = 'timeline: ' + (tlBody.error || tlRes.status);
         // 전투가 아직 진행 중이면 에러 아님 — 계속 대기
-        if (!battleDone) { await new Promise(r => setTimeout(r, 2000)); continue; }
+        if (!battleDone) { await _activeSleep(2000); continue; }
         // 전투 끝났는데 타임라인 없으면 진짜 에러
         break;
       }
     } catch (err) {
       lastErr = lastErr || err.message;
     }
-    await new Promise(r => setTimeout(r, 2000));
+    await _activeSleep(2000);
   }
 
   if (!loaded) {
@@ -48413,20 +48644,21 @@ async function openBattleViewer(battleId, startTick) {
   bv.lastFrameTime = performance.now();
   bv._playStartMs = performance.now(); // (v7.401) 최소 5초 관전 보장 기준
   document.getElementById('bvPlayBtn').textContent = '⏸';
+  if (bv.animHandle) cancelAnimationFrame(bv.animHandle);
   bv.animHandle = requestAnimationFrame(bvAnimLoop);
 }
 
 function closeBattleViewer() {
   document.getElementById('battleViewer').classList.remove('active');
   bv.playing = false;
-  if (bv.animHandle) cancelAnimationFrame(bv.animHandle);
+  if (bv.animHandle) { cancelAnimationFrame(bv.animHandle); bv.animHandle = null; }
   window.removeEventListener('resize', resizeCanvas);
   // [v7.410] tactical-lab iframe 완전 언로드 — 닫아도 WebAudio/시뮬 루프가 살아 사운드가 계속
   //   들리던 버그. src 를 about:blank 으로 바꿔 iframe 문서를 파기(사운드+rAF+WS 종료).
   try {
     unloadTacticalLabFrame(document.getElementById('bvTacticalFrame'));
   } catch (_) {}
-  if (bv._finalFallback) { try { clearTimeout(bv._finalFallback); } catch(_){} bv._finalFallback = null; }
+  if (bv._finalFallback) { try { _clearActiveTimeout(bv._finalFallback); } catch(_){} bv._finalFallback = null; }
 
   // 배틀 허브 다시 열기 (있으면 리프레시)
   if (document.getElementById('battleHubModal').classList.contains('active')) {
@@ -48447,6 +48679,7 @@ function togglePlayback() {
   document.getElementById('bvPlayBtn').textContent = bv.playing ? '⏸' : '⏵';
   if (bv.playing) {
     bv.lastFrameTime = performance.now();
+    if (bv.animHandle) cancelAnimationFrame(bv.animHandle);
     bv.animHandle = requestAnimationFrame(bvAnimLoop);
   }
 }
@@ -48485,6 +48718,11 @@ function getLastTick() {
 
 function bvAnimLoop(now) {
   if (!bv.playing) return;
+  if (!_pageIsActive()) {
+    bv.animHandle = null;
+    return;
+  }
+  bv.animHandle = null;
   
   const dt = Math.min(100, now - bv.lastFrameTime);
   bv.lastFrameTime = now;
@@ -48508,7 +48746,7 @@ function bvAnimLoop(now) {
     // [v7.406] iframe 로컬 시뮬이 활성이면 결과는 battle_final_done(패배측 전멸 후)에 맞춘다 —
     //   레거시 타임라인(2프레임 AI전)이 먼저 결과를 띄워 보이는 전투를 자르지 않도록. fallback 만 건다.
     if (bv._iframeActive) {
-      if (!bv._finalShown && !bv._finalFallback) bv._finalFallback = setTimeout(bvFinalizeResult, 25000);
+      if (!bv._finalShown && !bv._finalFallback) bv._finalFallback = _setActiveTimeout(bvFinalizeResult, 25000);
     } else {
       showBattleResult();
     }
@@ -48521,6 +48759,19 @@ function bvAnimLoop(now) {
     bv.animHandle = requestAnimationFrame(bvAnimLoop);
   }
 }
+
+_onPageVisible(function(){
+  if (bv.playing && document.getElementById('battleViewer')?.classList.contains('active') && !bv.animHandle) {
+    bv.lastFrameTime = performance.now();
+    bv.animHandle = requestAnimationFrame(bvAnimLoop);
+  }
+});
+_onPageHidden(function(){
+  if (bv.animHandle) {
+    cancelAnimationFrame(bv.animHandle);
+    bv.animHandle = null;
+  }
+});
 
 function redrawCurrentFrame() {
   // 보간할 프레임 찾기
@@ -49073,7 +49324,7 @@ function showBattleResult() {
   if (bv.battle?.id) _injectRewardIntoResult(bv.battle.id);
 
   // 내 전투 기록 갱신 (배틀허브 열려 있으면 history 탭도 새로고침)
-  setTimeout(function() {
+  _setActiveTimeout(function() {
     try {
       if (document.getElementById('battleHubModal')?.classList.contains('active')) {
         battleHubState.currentTab = 'history';
@@ -49415,7 +49666,7 @@ if ('serviceWorker' in navigator) {
       });
     });
     // 1시간마다 SW update 체크 (긴 세션 사용자 대응 — 새 sw.js 가 있으면 다음 nav 시 적용)
-    setInterval(function(){ try { reg.update(); } catch(_) {} }, 60 * 60 * 1000);
+    _setActiveInterval(function(){ try { reg.update(); } catch(_) {} }, 60 * 60 * 1000);
   }).catch(function(){});
   // [v7.263 fix] 완전 silent 업데이트 — controllerchange 시 강제 reload 안 함.
   //   기존엔 새 sw.js 배포 시 복귀 유저에게 controllerchange→location.reload() 가 발생해
@@ -50214,6 +50465,7 @@ function getOnboardingWallet() {
 }
 
 async function runOnboardingCheck() {
+  if (!_pageIsActive()) return;
   if (typeof isLoggedIn === 'function' && !isLoggedIn()) return;
   var wallet = getOnboardingWallet();
   if (!wallet) return;
@@ -50287,7 +50539,7 @@ function onboardingAction() {
 // ── override: old initOnboarding → v3 ──
 async function initOnboarding(wallet) {
   browseLanding();
-  setTimeout(runOnboardingCheck, 1500);
+  _setActiveTimeout(runOnboardingCheck, 1500);
 }
 
 // ── CHAT SYSTEM ──────────────────────────────────────────────
@@ -50347,7 +50599,7 @@ async function loadChatMessages() {
   try {
     // Skip polling when page is hidden (tab not visible) AND chat is collapsed —
     // avoids competing with the Globe.GL render loop for network/CPU bandwidth.
-    if (document.hidden && !_chatExpanded) return;
+    if (!_pageIsActive() && !_chatExpanded) return;
     const url = '/api/chat/messages?channel=' + encodeURIComponent(_chatChannel) + (_chatSince ? '&since=' + encodeURIComponent(_chatSince) : '');
     const r = await fetch(url);
     if (!r.ok) return;
@@ -50382,10 +50634,10 @@ function _escapeHtml(s) {
 }
 
 function startChatPolling() {
-  if (_chatPollTimer) clearInterval(_chatPollTimer);
+  if (_chatPollTimer) _clearActiveInterval(_chatPollTimer);
   loadChatMessages();
   // WebSocket(/ws/live)이 실시간 푸시를 담당 → 폴링은 폴백으로 간격을 늘림(5s→15s, 부하 감소).
-  _chatPollTimer = setInterval(() => { loadChatMessages(); }, 15000);
+  _chatPollTimer = _setActiveInterval(() => { loadChatMessages(); }, 15000);
 }
 
 var _feedSince = null;
@@ -50394,7 +50646,7 @@ var _feedTimer = null;
 async function loadActivityFeed() {
   try {
     // Skip when the tab is hidden — keeps the render loop smooth.
-    if (document.hidden) return;
+    if (!_pageIsActive()) return;
     var url = '/api/activity/feed?limit=15' + (_feedSince ? '&since=' + encodeURIComponent(_feedSince) : '');
     var r = await fetch(url);
     if (!r.ok) return;
@@ -50429,10 +50681,10 @@ async function loadActivityFeed() {
 }
 
 function startFeedPolling() {
-  if (_feedTimer) clearInterval(_feedTimer);
+  if (_feedTimer) _clearActiveInterval(_feedTimer);
   loadActivityFeed();
   // WebSocket 푸시(broadcastFeed)가 즉시 갱신 → 폴링은 폴백 15s (소스 일부만 WS 연결됨).
-  _feedTimer = setInterval(loadActivityFeed, 15000);
+  _feedTimer = _setActiveInterval(loadActivityFeed, 15000);
 }
 
 // ── 실시간 라이브 WebSocket (/ws/live) — 채팅/피드 즉시 갱신 ──
@@ -50446,6 +50698,7 @@ function _liveWSSubscribe() {
   } catch (_) {}
 }
 function connectLiveWS() {
+  if (!_pageIsActive()) return;
   try {
     if (_liveWS && (_liveWS.readyState === 0 || _liveWS.readyState === 1)) return;
     var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -50475,37 +50728,43 @@ function connectLiveWS() {
       }
     };
     _liveWS.onclose = function(){
+      if (!_pageIsActive()) return;
       // 지수 백오프 재연결 (최대 30s)
       _liveWSRetry = Math.min(_liveWSRetry + 1, 6);
-      if (_liveWSTimer) clearTimeout(_liveWSTimer);
-      _liveWSTimer = setTimeout(connectLiveWS, Math.min(1000 * Math.pow(2, _liveWSRetry), 30000));
+      if (_liveWSTimer) _clearActiveTimeout(_liveWSTimer);
+      _liveWSTimer = _setActiveTimeout(function(){
+        _liveWSTimer = null;
+        if (_pageIsActive()) connectLiveWS();
+      }, Math.min(1000 * Math.pow(2, _liveWSRetry), 30000));
     };
     _liveWS.onerror = function(){ try { _liveWS.close(); } catch(_){} };
   } catch (_) {}
 }
-// When the tab becomes visible again after being hidden, immediately fetch
-// fresh messages/feed so the user sees up-to-date content.
-document.addEventListener('visibilitychange', function() {
-  if (!document.hidden) {
-    try { loadChatMessages(); } catch(_) {}
-    try { loadActivityFeed(); } catch(_) {}
-  }
+_onPageVisible(function() {
+  try { if (_chatPollTimer) loadChatMessages(); else startChatPolling(); } catch(_) {}
+  try { if (_feedTimer) loadActivityFeed(); else startFeedPolling(); } catch(_) {}
+  try { connectLiveWS(); } catch(_) {}
+});
+_onPageHidden(function() {
+  if (_liveWSTimer) { _clearActiveTimeout(_liveWSTimer); _liveWSTimer = null; }
+  try { if (_liveWS) _liveWS.close(1000, 'hidden'); } catch(_) {}
+  _liveWS = null;
 });
 
 // ── END CHAT SYSTEM ───────────────────────────────────────────
 
 // ── DOMContentLoaded: 랜딩 + 온보딩 트리거 ──
 document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(showBetaNoticeOnce, 400);  // 첫 진입 1회 베타 고지 (랜딩 위에 먼저 노출)
-  setTimeout(checkLandingOverlay, 800);
+  _setActiveTimeout(showBetaNoticeOnce, 400);  // 첫 진입 1회 베타 고지 (랜딩 위에 먼저 노출)
+  _setActiveTimeout(checkLandingOverlay, 800);
   // Delay chat/feed polling so Globe.GL WebGL initialisation gets the first
   // ~8 seconds of network+CPU budget without competing fetch requests.
   // Chat: 8s cold start, then every 5s. Feed: 12s cold start, then every 10s.
-  setTimeout(startChatPolling, 8000);
-  setTimeout(startFeedPolling, 12000);
-  setTimeout(connectLiveWS, 9000);  // 실시간 푸시 (채팅/피드) — 폴링과 병행, 끊겨도 폴링 폴백
+  _setActiveTimeout(startChatPolling, 8000);
+  _setActiveTimeout(startFeedPolling, 12000);
+  _setActiveTimeout(connectLiveWS, 9000);  // 실시간 푸시 (채팅/피드) — 폴링과 병행, 끊겨도 폴링 폴백
   if (typeof isLoggedIn === 'function' && isLoggedIn()) {
-    setTimeout(runOnboardingCheck, 2000);
+    _setActiveTimeout(runOnboardingCheck, 2000);
   }
 });
 
