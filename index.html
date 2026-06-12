@@ -21747,11 +21747,10 @@ var _craftingCatFilter='all';
 function loadCraftingView(){
   var grid=document.getElementById('craftingGrid');
   if(!grid) return;
-  var w=(walletState&&walletState.address)||'';
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px" data-i18n="loading">Loading…</div>';
-  var url='/api/crafting/recipes?wallet='+encodeURIComponent(w);
-  if(_craftingCatFilter&&_craftingCatFilter!=='all') url+='&category='+_craftingCatFilter;
-  fetch(url).then(function(r){return r.json();}).then(function(recipes){
+  var url='/api/crafting/recipes';
+  if(_craftingCatFilter&&_craftingCatFilter!=='all') url+='?category='+encodeURIComponent(_craftingCatFilter);
+  fetch(url,{headers:getAuthHeaders()}).then(function(r){return r.json();}).then(function(recipes){
     _craftingRecipes=Array.isArray(recipes)?recipes:[];
     renderCraftingGrid();
   }).catch(function(){
@@ -23424,8 +23423,7 @@ function openEnhanceModal(instanceId){
   }
 
   // 스크롤·레시피 정보 비동기 fetch — 폴백: 정보 없으면 기존 흐름 그대로 동작
-  var w=(walletState&&walletState.address)||'';
-  var infoUrl='/api/enhance/info/'+instanceId+(w?('?wallet='+encodeURIComponent(w)):'');
+  var infoUrl='/api/enhance/info/'+instanceId;
   fetch(infoUrl,{headers:getAuthHeaders()}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}).then(function(info){
     _showEnhanceModalWithInfo(inst, lv, gpCost, myGP, insufficient, rate, info);
   });

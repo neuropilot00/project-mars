@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool, creditReferralCommission } = require('../db');
 const { requireAuth, getAuthWallet } = require('../utils/apiHelpers');
@@ -22,6 +23,17 @@ const writeLimiter = makeRateLimiter({
   windowMs: 60 * 1000, max: 30,
   message: { error: 'Too many write requests. Please wait.' }
 });
+
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 // ══════════════════════════════════════
 // ITEM SHOP
@@ -587,8 +599,8 @@ router.get('/enhance/rates', readLimiter, async (req, res) => {
 
 // POST /api/enhance — attempt enhancement on an item instance
 // GET /api/enhance/info/:instanceId — 강화 전 정보 (레시피 + 주문서 현황)
-router.get('/enhance/info/:instanceId', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
+router.get('/enhance/info/:instanceId', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
   try {
@@ -690,9 +702,9 @@ router.post('/shop/auto-renew', requireAuth, writeLimiter, async (req, res) => {
 // PROTECTION SCROLLS (Migration 089)
 // ─────────────────────────────────────────────────────────────
 
-// GET /api/items/scrolls?wallet=
+// GET /api/items/scrolls
 router.get('/items/scrolls', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  const wallet = getOptionalAuthWallet(req);
   try {
     // Scroll item definitions
     const scrollsRes = await pool.query(

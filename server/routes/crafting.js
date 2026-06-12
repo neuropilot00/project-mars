@@ -21,12 +21,23 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 // ── GET /api/crafting/recipes ─────────────────────────────────────────────────
-// Query: ?category=general&wallet=0x...
+// Query: ?category=general
 router.get('/crafting/recipes', async (req, res) => {
   try {
-    const { category, wallet } = req.query;
+    const { category } = req.query;
+    const wallet = getOptionalAuthWallet(req);
     const recipes = await craftingSvc.getRecipes(category, wallet);
     res.json(recipes);
   } catch (err) {
@@ -39,7 +50,7 @@ router.get('/crafting/recipes', async (req, res) => {
 router.get('/crafting/recipe/:id', async (req, res) => {
   try {
     const recipe = await craftingSvc.getRecipe(
-      parseInt(req.params.id, 10), req.query.wallet || null
+      parseInt(req.params.id, 10), getOptionalAuthWallet(req) || null
     );
     if (!recipe) return res.status(404).json({ error: 'Recipe not found' });
     res.json(recipe);
