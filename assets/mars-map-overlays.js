@@ -26,6 +26,27 @@ function drawSectorBoundaries(){
   compositeClaimsOnTexture();
 }
 
+function findSectorAtLatLng(lat,lng){
+  if(!_sectorsData||!_sectorsData.length) return null;
+  for(var si=0;si<_sectorsData.length;si++){
+    var s=_sectorsData[si];
+    var b=s.bounds;
+    if(b && (lat<b.latMin||lat>b.latMax||lng<b.lngMin||lng>b.lngMax)) continue;
+    var poly=s.polygon;
+    if(poly&&poly.length>=3){
+      var inside=false;
+      for(var pi=0,pj=poly.length-1;pi<poly.length;pj=pi++){
+        var xi=poly[pi][0],yi=poly[pi][1],xj=poly[pj][0],yj=poly[pj][1];
+        if((yi>lat)!==(yj>lat)&&lng<(xj-xi)*(lat-yi)/(yj-yi)+xi) inside=!inside;
+      }
+      if(inside) return s;
+    }else if(b){
+      return s;
+    }
+  }
+  return null;
+}
+
 function _drawSectorOverlay(ctx,w,h){
   if(!_showSectorBounds||!_sectorsData.length) return;
   ctx.save();

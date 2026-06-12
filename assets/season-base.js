@@ -465,7 +465,7 @@ function _loadBaseSectorsStable() {
     _guardedJsonFetch('base-sectors-' + (key || 'public'), '/api/sectors', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}),
     _guardedJsonFetch('base-sectors-control', '/api/sectors/control', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}})
   ]).then(function(res){
-    var data = Array.isArray(res[0]) ? res[0] : null;
+    var data = (Array.isArray(res[0]) && res[0].length) ? res[0] : null;
     var control = res[1] || (_baseSectorsCacheKey === key ? _baseSectorsControlCache : null);
     if (!data && _baseSectorsCache && _baseSectorsCacheKey === key) {
       _renderBaseSectorsFromData(_baseSectorsCache, _baseSectorsControlCache);
@@ -1469,7 +1469,7 @@ function renderSectorList(sectors){
     var entryMin = s.entryMinLevel || 0;
     var entryMidReq = s.entryRequiredMidOwns || 0;
     var entryBlocked = entryActive && (myLevel < entryMin);
-    html+='<div class="sector-card" data-tier="'+s.tier+'" data-owned="'+(s.myPixels>0?'1':'0')+'" data-entry-blocked="'+(entryBlocked?'1':'0')+'">';
+    html+='<div class="sector-card" data-sector-id="'+s.id+'" data-tier="'+s.tier+'" data-owned="'+(s.myPixels>0?'1':'0')+'" data-entry-blocked="'+(entryBlocked?'1':'0')+'">';
     // Header
     html+='<div class="sc-header">';
     html+='<span class="sc-tier '+s.tier+'">'+s.tier+'</span>';
@@ -1722,9 +1722,34 @@ function renderNextBreakthrough(ranks, userRank){
   }).catch(function(){});
 }
 
-function focusSector(sectorId){
+function focusSector(sectorId,opts){
+  opts=opts||{};
   var s=_sectorsData.find(function(x){return x.id===sectorId});
   if(!s) return;
-  closeBaseModal();
-  globe.pointOfView({lat:s.centerLat,lng:s.centerLng-180,altitude:1.2},1000);
+  var focusSectors=(_sectorsData&&_sectorsData.length)?_sectorsData.slice():[s];
+  if(!opts.openPanel) closeBaseModal();
+  if(globe) globe.pointOfView({lat:s.centerLat,lng:s.centerLng-180,altitude:1.2},1000);
+  var stats=s.stats||{};
+  var occ=Math.round(parseFloat(stats.occupancyRate)||0);
+  var price=parseFloat(s.currentPrice)||parseFloat(stats.avgPrice)||0;
+  var intel=s.tier.toUpperCase()+' · OCC '+occ+'% · $'+price.toFixed(4)+' · x'+(parseFloat(s.miningBonus)||1).toFixed(2);
+  try{ showToast(s.name+' — '+intel); }catch(_){}
+  if(opts.openPanel){
+    try{ openBaseModal(); }catch(_){}
+    try{ switchBaseTab('sectors',document.getElementById('baseTabSectors')); }catch(_){}
+    try{ if(typeof clearBaseTabDot==='function') clearBaseTabDot('sectors'); }catch(_){}
+    function restoreFocusedSectorCard(){
+      try{
+        if(focusSectors&&focusSectors.length&&typeof renderSectorList==='function') renderSectorList(focusSectors);
+      }catch(_){}
+      var card=document.querySelector('#baseSectorList .sector-card[data-sector-id="'+sectorId+'"]');
+      if(!card) return;
+      card.scrollIntoView({block:'center',behavior:'smooth'});
+      card.classList.add('sector-card-focus');
+      setTimeout(function(){card.classList.remove('sector-card-focus')},1800);
+    }
+    setTimeout(restoreFocusedSectorCard,80);
+    setTimeout(restoreFocusedSectorCard,360);
+    setTimeout(restoreFocusedSectorCard,900);
+  }
 }

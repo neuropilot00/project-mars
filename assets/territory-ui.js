@@ -550,6 +550,13 @@ function _attachGlobeClick(){
       showMobInfoBtn(existing, {clientX:_lastTapX,clientY:_lastTapY});
       compositeClaimsOnTexture();
     }else{
+      if(window._showSectorBounds && typeof findSectorAtLatLng==='function'){
+        var focusedSector=findSectorAtLatLng(lat,lng);
+        if(focusedSector && typeof focusSector==='function'){
+          focusSector(focusedSector.id,{openPanel:true,fromGlobe:true});
+          return;
+        }
+      }
       selectedPlot=null;
       hideMobInfoBtn();
       var _deskInfo=document.getElementById('territoryInfo');

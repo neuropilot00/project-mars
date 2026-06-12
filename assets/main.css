@@ -1288,6 +1288,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sector-card{background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:10px;
   padding:10px 12px;cursor:pointer;transition:all .2s}
 .sector-card:hover{background:rgba(255,120,60,.06);border-color:var(--bdr2)}
+.sector-card.sector-card-focus{border-color:rgba(255,209,102,.8);box-shadow:0 0 0 1px rgba(255,209,102,.28),0 0 22px rgba(255,148,64,.28);background:rgba(255,120,60,.1)}
 .sector-card .sc-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .sector-card .sc-tier{font-size:9px;padding:2px 6px;border-radius:4px;font-family:var(--fn);
   letter-spacing:.5px;font-weight:bold;text-transform:uppercase}
