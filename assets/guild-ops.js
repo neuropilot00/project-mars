@@ -1238,6 +1238,13 @@ window.opsMissionGo = function(type) {
     // ─ 전투 계열 → PvP 탭 (.click 으로 로더 포함 발동) ─
     } else if (['battle_participate','battle_win','battle_participate_3','battle_win_3','battle_forfeit'].includes(type)) {
       _opsOpenBaseTab('baseTabPvp');
+    } else if (['salvage_wreck','salvage_wreck_3'].includes(type)) {
+      _opsOpenBaseTab('baseTabPvp', function(){
+        try {
+          if (typeof openBattleHub === 'function') openBattleHub();
+          if (typeof bhSwitchTab === 'function') setTimeout(function(){ bhSwitchTab('killboard'); }, 120);
+        } catch(_) {}
+      });
     } else if (['ai_battle','ai_battle_3'].includes(type)) {
       _opsOpenBaseTab('baseTabPvp');
       try { setTimeout(function(){ if (typeof openAiFight === 'function') openAiFight(); }, 450); } catch(_) {}
