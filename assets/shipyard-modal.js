@@ -2123,7 +2123,8 @@ function renderShips() {
     return;
   }
   var _myFac = (shipyardState.myFaction && (shipyardState.myFaction.code||'').toLowerCase()) || '';
-  list.innerHTML = shipyardState.ships.map(function(s) {
+  var repairSummary = renderShipRepairSummary(shipyardState.ships);
+  list.innerHTML = repairSummary + shipyardState.ships.map(function(s) {
     // [v7.322] 합체 유닛(pilgrim/assembled)은 전 유저 공용 — 진영 잠금 없이 UNIVERSAL 배지.
     var _universal = ((s.faction_code||'').toLowerCase() === 'pilgrim') || ((s.size_class||'').toLowerCase() === 'assembled');
     var crossFaction = !_universal && _myFac && s.faction_code && (s.faction_code.toLowerCase() !== _myFac);
@@ -2186,6 +2187,44 @@ function renderShips() {
       '</div>' +
     '</div>';
   }).join('');
+}
+
+function renderShipRepairSummary(ships) {
+  var damaged = 0;
+  var listedDamaged = 0;
+  var missingHp = 0;
+  var lowestPct = 100;
+  (ships || []).forEach(function(s) {
+    var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
+    var currentHp = parseFloat(s.current_hp || 0);
+    var miss = Math.max(0, effectiveMaxHp - currentHp);
+    if (miss <= 0) return;
+    if (s.is_market_listed) listedDamaged++;
+    else damaged++;
+    missingHp += miss;
+    lowestPct = Math.min(lowestPct, Math.max(0, Math.min(100, currentHp / effectiveMaxHp * 100)));
+  });
+  var color = damaged > 0 ? (lowestPct < 30 ? '#ff8a80' : lowestPct < 60 ? '#ffb74d' : '#81c784') : '#80cbc4';
+  var title = LANG==='ko'?'FLEET MAINTENANCE':LANG==='ja'?'FLEET MAINTENANCE':LANG==='zh'?'FLEET MAINTENANCE':'FLEET MAINTENANCE';
+  var status = damaged > 0
+    ? (LANG==='ko'?'정비 필요':LANG==='ja'?'整備必要':LANG==='zh'?'需要维护':'Repair Needed')
+    : (LANG==='ko'?'출격 가능':LANG==='ja'?'出撃可能':LANG==='zh'?'可出击':'Ready');
+  var hint = damaged > 0
+    ? (LANG==='ko'?'전투와 채굴로 깎인 내구도는 조선소 수리에서 GP와 iron_ore를 소모합니다.':LANG==='ja'?'戦闘と採掘で削れた耐久は造船所修理でGPとiron_oreを消費します。':LANG==='zh'?'战斗和采矿造成的耐久损耗会在船坞维修中消耗GP和iron_ore。':'Battle and resource runs damage hulls. Repairs spend GP and iron_ore.')
+    : (LANG==='ko'?'손상된 비판매 함선이 없습니다.':LANG==='ja'?'損傷した非売却艦はありません。':LANG==='zh'?'没有受损的非在售舰船。':'No damaged unlisted ships.');
+  return '<div style="grid-column:1/-1;border:1px solid '+color+'55;background:linear-gradient(135deg,'+color+'18,rgba(255,255,255,.025));border-radius:7px;padding:8px 10px;margin-bottom:2px">'
+    + '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">'
+    + '<div style="font-size:9px;color:'+color+';font-family:var(--fn);font-weight:900;letter-spacing:1px">🔧 '+title+'</div>'
+    + '<div style="font-size:9px;color:'+color+';font-family:var(--fn);font-weight:800">'+status+'</div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:5px;margin-top:7px">'
+    + '<div style="padding:5px;border:1px solid rgba(255,255,255,.08);border-radius:5px;background:rgba(0,0,0,.18)"><div style="font-size:7px;color:var(--tx3)">DAMAGED</div><div style="font-size:11px;color:var(--tx);font-weight:800">'+damaged+'</div></div>'
+    + '<div style="padding:5px;border:1px solid rgba(255,255,255,.08);border-radius:5px;background:rgba(0,0,0,.18)"><div style="font-size:7px;color:var(--tx3)">MISSING HP</div><div style="font-size:11px;color:var(--gold);font-weight:800">'+syFmt(missingHp)+'</div></div>'
+    + '<div style="padding:5px;border:1px solid rgba(255,255,255,.08);border-radius:5px;background:rgba(0,0,0,.18)"><div style="font-size:7px;color:var(--tx3)">LOWEST HULL</div><div style="font-size:11px;color:'+color+';font-weight:800">'+Math.round(lowestPct)+'%</div></div>'
+    + (listedDamaged > 0 ? '<div style="padding:5px;border:1px solid rgba(255,209,102,.16);border-radius:5px;background:rgba(255,209,102,.06)"><div style="font-size:7px;color:var(--tx3)">LISTED DAMAGED</div><div style="font-size:11px;color:var(--gold);font-weight:800">'+listedDamaged+'</div></div>' : '')
+    + '</div>'
+    + '<div style="font-size:8px;color:var(--tx3);line-height:1.4;margin-top:6px">'+hint+'</div>'
+    + '</div>';
 }
 
 function syStatValue(base, bonus, decimals) {
