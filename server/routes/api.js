@@ -1689,6 +1689,20 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
       }
     } catch(me) { /* item system unavailable */ }
 
+    // Virus Payload: enemy-applied mining penalty for its active duration.
+    try {
+      const vpRes = await client.query(
+        `SELECT effect_value FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'virus_payload' AND active = true
+           AND expires_at > NOW()
+         ORDER BY id DESC LIMIT 1`, [w]
+      );
+      if (vpRes.rows.length > 0) {
+        const penalty = Math.max(0, Math.min(0.95, (parseFloat(vpRes.rows[0].effect_value) || 0) / 100));
+        harvestedPP = Math.round(harvestedPP * (1 - penalty) * 10000) / 10000;
+      }
+    } catch (_vp) { /* item system unavailable */ }
+
     // ── Guild research: mining_eff_1 bonus ──
     try {
       if (guildService && guildService.getResearchBonuses) {
@@ -2063,6 +2077,20 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       if (weatherService && claim.sector_id) {
         const wMods = await weatherService.getWeatherModifiers(claim.sector_id);
         if (wMods.miningMod > 0) harvestedPP = Math.round(harvestedPP * (1 + wMods.miningMod / 100) * 10000) / 10000;
+      }
+    } catch (_) {}
+
+    // Virus Payload: enemy-applied mining penalty for its active duration.
+    try {
+      const vpRes = await client.query(
+        `SELECT effect_value FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'virus_payload' AND active = true
+           AND expires_at > NOW()
+         ORDER BY id DESC LIMIT 1`, [w]
+      );
+      if (vpRes.rows.length > 0) {
+        const penalty = Math.max(0, Math.min(0.95, (parseFloat(vpRes.rows[0].effect_value) || 0) / 100));
+        harvestedPP = Math.round(harvestedPP * (1 - penalty) * 10000) / 10000;
       }
     } catch (_) {}
 
