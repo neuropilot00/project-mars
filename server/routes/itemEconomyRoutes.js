@@ -36,8 +36,13 @@ function getOptionalAuthWallet(req) {
   }
 }
 
+function getUseEffectHours(item) {
+  const hours = Number(item?.duration_hours);
+  return Number.isFinite(hours) && hours > 0 ? hours : USE_EFFECT_DEFAULT_HOURS;
+}
+
 function getUseEffectExpiry(item) {
-  const hours = Number(item?.duration_hours) > 0 ? Number(item.duration_hours) : USE_EFFECT_DEFAULT_HOURS;
+  const hours = getUseEffectHours(item);
   return new Date(Date.now() + hours * 3600000);
 }
 
@@ -51,7 +56,7 @@ async function settleGpGenerators(wallet) {
     const effects = await client.query(
       `SELECT id, effect_value, activated_at, expires_at, COALESCE(last_settled_at, activated_at) AS last_settled_at
        FROM user_active_effects
-       WHERE wallet = $1
+       WHERE LOWER(wallet) = LOWER($1)
          AND effect_type = 'gp_generator'
          AND active = true
          AND expires_at IS NOT NULL
@@ -100,6 +105,23 @@ async function settleGpGenerators(wallet) {
   } finally {
     client.release();
   }
+}
+
+async function expireStaleActiveEffects(wallet) {
+  const w = String(wallet || '').toLowerCase().trim();
+  if (!w) return 0;
+  const result = await pool.query(
+    `UPDATE user_active_effects
+     SET active = false
+     WHERE LOWER(wallet) = LOWER($1)
+       AND active = true
+       AND (
+         (expires_at IS NOT NULL AND expires_at <= NOW())
+         OR (uses_remaining IS NOT NULL AND uses_remaining <= 0)
+       )`,
+    [w]
+  );
+  return result.rowCount || 0;
 }
 
 // ══════════════════════════════════════
@@ -292,7 +314,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       } catch (_e) { /* fall back to single claim */ }
 
       const hp = item.effect_value;
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       // Remove old shields on every member, then re-shield each one
       await client.query('DELETE FROM pixel_shields WHERE claim_id = ANY($1::int[])', [groupIds]);
       for (const cid of groupIds) {
@@ -342,7 +364,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, uses: 1, expiresAt, value: 2 };
     } else if (item.code === 'mining_boost') {
       // +mining speed for duration_hours (duration-based)
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'mining_boost' AND active = true`, [w]
       );
@@ -353,7 +375,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
     } else if (item.code === 'stealth_cloak') {
       // Hide territory for duration_hours
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'stealth_cloak' AND active = true`, [w]
       );
@@ -380,7 +402,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
         }
       } catch (_e) { /* fall back to single claim */ }
       const hp = item.effect_value;
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query('DELETE FROM pixel_shields WHERE claim_id = ANY($1::int[])', [groupIds]);
       for (const cid of groupIds) {
         await client.query(
@@ -396,7 +418,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       if (claimRes.rows.length === 0 || (claimRes.rows[0].owner || '').toLowerCase() !== w) {
         await client.query('ROLLBACK'); return res.status(403).json({ error: 'Not your territory' });
       }
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'decoy_beacon' AND active = true`, [w]
       );
@@ -428,7 +450,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       if (tgtOwnerRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Target claim not found' }); }
       const tgtOwner = (tgtOwnerRes.rows[0].owner || '').toLowerCase();
       if (tgtOwner === w) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Cannot target your own territory' }); }
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'virus_payload' AND active = true`, [tgtOwner]
       );
@@ -540,7 +562,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, uses: 1, expiresAt, value: item.effect_value };
     } else if (item.code === 'xp_amplifier') {
       // XP amplifier — 2x XP for 4h (duration-based, like mining_boost)
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'xp_amplifier' AND active = true`, [w]
       );
@@ -551,7 +573,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
     } else if (item.code === 'gp_generator') {
       // GP generator — 5 GP/hr for 12h (duration-based, like mining_boost)
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'gp_generator' AND active = true`, [w]
       );
@@ -562,7 +584,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
     } else if (item.code === 'lucky_charm') {
       // Lucky charm — +15% cantina win rate for 3h (duration-based)
-      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'lucky_charm' AND active = true`, [w]
       );
@@ -617,21 +639,11 @@ router.get('/shop/active-effects', requireAuth, readLimiter, async (req, res) =>
   if (!w) return res.status(400).json({ error: 'wallet required' });
   try {
     await settleGpGenerators(w);
-    // Auto-expire duration/uses based effects before returning UI state.
-    await pool.query(
-      `UPDATE user_active_effects
-       SET active = false
-       WHERE wallet = $1
-         AND active = true
-         AND (
-           (expires_at IS NOT NULL AND expires_at <= NOW())
-           OR (uses_remaining IS NOT NULL AND uses_remaining <= 0)
-         )`, [w]
-    );
+    await expireStaleActiveEffects(w);
     const result = await pool.query(
       `SELECT e.*, t.name, t.icon, t.code, t.price_pp FROM user_active_effects e
        LEFT JOIN item_types t ON t.code = COALESCE(e.source_item_code, e.effect_type)
-       WHERE e.wallet = $1 AND e.active = true
+       WHERE LOWER(e.wallet) = LOWER($1) AND e.active = true
          AND (e.expires_at IS NULL OR e.expires_at > NOW())
          AND (e.uses_remaining IS NULL OR e.uses_remaining > 0)
        ORDER BY e.activated_at DESC`, [w]
