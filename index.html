@@ -37080,7 +37080,7 @@ function loadRentalPanel() {
 
   Promise.all([
     fetch('/api/rental/listings').then(function(r){return r.json();}).catch(function(){return [];}),
-    w ? fetch('/api/rental/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}).catch(function(){return [];}) : Promise.resolve([]),
+    w ? fetch('/api/rental/my', { headers: getAuthHeaders() }).then(function(r){return r.json();}).catch(function(){return [];}) : Promise.resolve([]),
     fetch('/api/rental/settings').then(function(r){return r.json();}).catch(function(){return {};})
   ]).then(function(results) {
     var listings = Array.isArray(results[0]) ? results[0] : [];

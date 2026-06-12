@@ -27,10 +27,10 @@ router.get('/rental/listings', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/rental/my?wallet=
-router.get('/rental/my', async (req, res) => {
+// GET /api/rental/my
+router.get('/rental/my', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     res.json(await rentalSvc.getMyRentals(wallet));
   } catch (e) { res.status(500).json({ error: e.message }); }
