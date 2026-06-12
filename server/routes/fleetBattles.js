@@ -36,6 +36,45 @@ const writeLimiter = makeRateLimiter({
   max: 20,
   message: { error: 'Too many battle actions. Please wait.' }
 });
+const BATTLE_LIST_CACHE_MAX = 500;
+const battleListCache = new Map();
+const battleListInFlight = new Map();
+
+function pruneBattleListCache(now = Date.now()) {
+  for (const [key, entry] of battleListCache) {
+    if (!entry || now - entry.at >= entry.ttlMs) battleListCache.delete(key);
+  }
+  while (battleListCache.size > BATTLE_LIST_CACHE_MAX) {
+    const oldestKey = battleListCache.keys().next().value;
+    if (oldestKey == null) break;
+    battleListCache.delete(oldestKey);
+  }
+}
+
+async function cachedBattleList(key, ttlMs, builder) {
+  const now = Date.now();
+  pruneBattleListCache(now);
+  const cached = battleListCache.get(key);
+  if (cached && now - cached.at < cached.ttlMs) return cached.data;
+
+  if (!battleListInFlight.has(key)) {
+    battleListInFlight.set(key, builder()
+      .then(data => {
+        battleListCache.set(key, { data, ttlMs, at: Date.now() });
+        pruneBattleListCache();
+        return data;
+      })
+      .finally(() => { battleListInFlight.delete(key); }));
+  }
+
+  try {
+    return await battleListInFlight.get(key);
+  } catch (err) {
+    const stale = battleListCache.get(key);
+    if (stale) return stale.data;
+    throw err;
+  }
+}
 
 // ── 인증 (inline JWT) ──
 const requireAuth = (req, res, next) => {
@@ -242,24 +281,27 @@ router.post('/declare-pvp', requireAuth, writeLimiter, async (req, res) => {
  */
 router.get('/list/active', readLimiter, async (req, res) => {
   try {
-    const { rows } = await pool.query(`
-      SELECT id, battle_type, status, phase,
-             sector_id, claim_id,
-             sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
-             atk_ships_total, def_ships_total,
-             battle_started_at, scheduled_start_at,
-             (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='atk') AS atk_fleets,
-             (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='def') AS def_fleets
-      FROM fleet_battles fb
-      LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
-      WHERE status IN ('preparing','active')
-      ORDER BY
-        CASE status WHEN 'active' THEN 1 ELSE 2 END,
-        battle_started_at DESC NULLS LAST,
-        scheduled_start_at ASC
-      LIMIT 50
-    `);
-    res.json({ battles: battleEnvironment.decorateBattles(rows) });
+    const data = await cachedBattleList('list:active', 5000, async () => {
+      const { rows } = await pool.query(`
+        SELECT id, battle_type, status, phase,
+               sector_id, claim_id,
+               sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
+               atk_ships_total, def_ships_total,
+               battle_started_at, scheduled_start_at,
+               (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='atk') AS atk_fleets,
+               (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='def') AS def_fleets
+        FROM fleet_battles fb
+        LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
+        WHERE status IN ('preparing','active')
+        ORDER BY
+          CASE status WHEN 'active' THEN 1 ELSE 2 END,
+          battle_started_at DESC NULLS LAST,
+          scheduled_start_at ASC
+        LIMIT 50
+      `);
+      return { battles: battleEnvironment.decorateBattles(rows) };
+    });
+    res.json(data);
   } catch (err) {
     console.error('[battle] active error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
@@ -273,26 +315,29 @@ router.get('/list/active', readLimiter, async (req, res) => {
 router.get('/list/recent', readLimiter, async (req, res) => {
   try {
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
-    const { rows } = await pool.query(`
-      SELECT id, battle_type, status, winner_side,
-             sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
-             atk_ships_total, def_ships_total,
-             atk_ships_lost, def_ships_lost,
-             duration_seconds, ended_at,
-             COALESCE(r.reward_total_gp, 0) AS reward_total_gp,
-             COALESCE(r.reward_count, 0) AS reward_count
-      FROM fleet_battles fb
-      LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
-      LEFT JOIN (
-        SELECT battle_id, SUM(gp_awarded) AS reward_total_gp, COUNT(*)::int AS reward_count
-          FROM fleet_battle_rewards
-         GROUP BY battle_id
-      ) r ON r.battle_id = fb.id
-      WHERE fb.status = 'ended'
-      ORDER BY ended_at DESC NULLS LAST
-      LIMIT $1
-    `, [limit]);
-    res.json({ battles: battleEnvironment.decorateBattles(rows) });
+    const data = await cachedBattleList('list:recent:' + limit, 15000, async () => {
+      const { rows } = await pool.query(`
+        SELECT id, battle_type, status, winner_side,
+               sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
+               atk_ships_total, def_ships_total,
+               atk_ships_lost, def_ships_lost,
+               duration_seconds, ended_at,
+               COALESCE(r.reward_total_gp, 0) AS reward_total_gp,
+               COALESCE(r.reward_count, 0) AS reward_count
+        FROM fleet_battles fb
+        LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
+        LEFT JOIN (
+          SELECT battle_id, SUM(gp_awarded) AS reward_total_gp, COUNT(*)::int AS reward_count
+            FROM fleet_battle_rewards
+           GROUP BY battle_id
+        ) r ON r.battle_id = fb.id
+        WHERE fb.status = 'ended'
+        ORDER BY ended_at DESC NULLS LAST
+        LIMIT $1
+      `, [limit]);
+      return { battles: battleEnvironment.decorateBattles(rows) };
+    });
+    res.json(data);
   } catch (err) {
     console.error('[battle] recent error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
@@ -309,8 +354,11 @@ router.get('/list/history', requireAuth, readLimiter, async (req, res) => {
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
-    const history = await battleTimeline.getUserBattleHistory(wallet, limit);
-    res.json({ battles: history });
+    const data = await cachedBattleList('list:history:' + wallet + ':' + limit, 15000, async () => {
+      const history = await battleTimeline.getUserBattleHistory(wallet, limit);
+      return { battles: history };
+    });
+    res.json(data);
   } catch (err) {
     console.error('[battle] history error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
