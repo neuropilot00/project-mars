@@ -26,9 +26,9 @@ router.get('/expeditions/info', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/expeditions/my?wallet= — player's expedition history
-router.get('/expeditions/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/expeditions/my — player's expedition history
+router.get('/expeditions/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await expSvc.getMyExpeditions(wallet)); }
   catch (e) { res.status(500).json({ error: e.message }); }

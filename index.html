@@ -37297,7 +37297,7 @@ function loadExpeditionPanel() {
   }
 
   // Load active expedition
-  fetch('/api/expeditions/my?wallet=' + encodeURIComponent(w))
+  fetch('/api/expeditions/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(exps){
       var active = (exps||[]).find(function(e){ return e.status === 'active'; });
@@ -37435,7 +37435,7 @@ function loadExpeditionHistory() {
   var w = walletState && walletState.address;
   if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
   el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
-  fetch('/api/expeditions/my?wallet=' + encodeURIComponent(w))
+  fetch('/api/expeditions/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(rows){
       if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No expeditions yet</div>'; return; }
