@@ -221,64 +221,10 @@ async function cancelListing(client, listingId, wallet) {
   return { success: true };
 }
 
-// ── Buy a listing (instant purchase) ──
-async function buyListing(client, listingId, buyer) {
-  const b = buyer.toLowerCase();
-
-  // FOR UPDATE: serializes concurrent buyers — second buyer blocks until first commits,
-  // then re-evaluates WHERE status='active' and gets 0 rows (already sold)
-  const res = await client.query(
-    "SELECT * FROM marketplace_listings WHERE id = $1 AND status = 'active' FOR UPDATE", [listingId]
-  );
-  if (!res.rows.length) throw new Error('Listing not found or no longer available');
-  const listing = res.rows[0];
-
-  if (listing.seller === b) throw new Error('Cannot buy your own listing');
-
-  // [지역 마켓 v7.130] 동일 섹터 매수 제한(옵션, 기본 OFF).
-  // 켜면 구매자 거점 섹터 ≠ 매물 섹터 → 차단 → 물류(운송) 강제 + 섹터간 차익거래 유발(EVE 허브화).
-  if (listing.sector_id != null) {
-    try {
-      const restrict = String(await getSetting('marketplace_sector_restricted_buy', 'false')) === 'true';
-      if (restrict) {
-        const bs = await client.query(
-          `SELECT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL
-            GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [b]);
-        const buyerSector = bs.rows[0]?.sector_id ?? null;
-        if (buyerSector !== listing.sector_id) {
-          throw new Error('SECTOR_RESTRICTED: different sector — 같은 섹터에서만 구매할 수 있습니다.');
-        }
-      }
-    } catch (e) { if (String(e.message || '').startsWith('SECTOR_RESTRICTED')) throw e; /* 설정/쿼리 실패는 미제한 */ }
-  }
-
-  // Check expiry
-  if (new Date(listing.expires_at) < new Date()) {
-    await client.query("UPDATE marketplace_listings SET status = 'expired' WHERE id = $1", [listingId]);
-    throw new Error('This listing has expired');
-  }
-
+async function computePurchaseSettlement(listing, buyer) {
+  const b = String(buyer || '').toLowerCase();
   const price = parseFloat(listing.price);
   const currency = listing.currency;
-  const balCol = currency === 'PP' ? 'pp_balance' : 'gp_balance';
-
-  // Check buyer balance — FOR UPDATE to prevent concurrent double-spend
-  const balRes = await client.query(`SELECT ${balCol} AS bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [b]);
-  if (!balRes.rows.length) throw new Error('User not found');
-  if (parseFloat(balRes.rows[0].bal) < price) throw new Error(`Insufficient ${currency}. Need ${price}`);
-
-  // Deduct buyer balance (AND balance >= $1 guard prevents negative balance)
-  await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [price, b]);
-
-  // ✅ Referral commission + season score (GP purchases only)
-  // (레퍼럴 커미션은 fee 계산 후로 이동 — Migration 173: 마켓 수수료 연동)
-  try {
-    const seasonSvc = require('./season');
-    if (currency === 'GP') {
-      seasonSvc.addSeasonScore(b, 'gp_spend', price).catch(() => {});
-    }
-    seasonSvc.addSeasonScore(b, 'trade', 1).catch(() => {});
-  } catch (_re) {}
 
   // Calculate fee
   let feePct = parseFloat(await getSetting('marketplace_fee_pct') || '5');
@@ -321,6 +267,111 @@ async function buyListing(client, listingId, buyer) {
   }
 
   const sellerReceives = price - fee - tariffAmount;
+  return {
+    price,
+    currency,
+    buyerPays: price,
+    feePct,
+    fee,
+    sellerReceives,
+    sectorId: listing.sector_id || null,
+    tariffPct,
+    tariffAmount,
+    tariffGovernor,
+    tariffExempted,
+    tariffReason
+  };
+}
+
+async function ensureSectorPurchaseAllowed(queryable, listing, buyer) {
+  if (listing.sector_id == null) return;
+  try {
+    const restrict = String(await getSetting('marketplace_sector_restricted_buy', 'false')) === 'true';
+    if (!restrict) return;
+    const bs = await queryable.query(
+      `SELECT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL
+        GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [buyer]);
+    const buyerSector = bs.rows[0]?.sector_id ?? null;
+    if (buyerSector !== listing.sector_id) {
+      throw new Error('SECTOR_RESTRICTED: different sector — 같은 섹터에서만 구매할 수 있습니다.');
+    }
+  } catch (e) {
+    if (String(e.message || '').startsWith('SECTOR_RESTRICTED')) throw e;
+    // 설정/쿼리 실패는 기존 구매 흐름과 동일하게 미제한 처리
+  }
+}
+
+async function quotePurchase(listingId, buyer) {
+  const b = buyer.toLowerCase();
+  const res = await pool.query(
+    "SELECT * FROM marketplace_listings WHERE id = $1 AND status = 'active'", [listingId]
+  );
+  if (!res.rows.length) throw new Error('Listing not found or no longer available');
+  const listing = res.rows[0];
+  if (listing.seller === b) throw new Error('Cannot buy your own listing');
+  if (new Date(listing.expires_at) < new Date()) throw new Error('This listing has expired');
+  await ensureSectorPurchaseAllowed(pool, listing, b);
+
+  const settlement = await computePurchaseSettlement(listing, b);
+  return {
+    ...settlement,
+    listingId,
+    listingType: listing.listing_type,
+    seller: listing.seller
+  };
+}
+
+// ── Buy a listing (instant purchase) ──
+async function buyListing(client, listingId, buyer) {
+  const b = buyer.toLowerCase();
+
+  // FOR UPDATE: serializes concurrent buyers — second buyer blocks until first commits,
+  // then re-evaluates WHERE status='active' and gets 0 rows (already sold)
+  const res = await client.query(
+    "SELECT * FROM marketplace_listings WHERE id = $1 AND status = 'active' FOR UPDATE", [listingId]
+  );
+  if (!res.rows.length) throw new Error('Listing not found or no longer available');
+  const listing = res.rows[0];
+
+  if (listing.seller === b) throw new Error('Cannot buy your own listing');
+
+  // [지역 마켓 v7.130] 동일 섹터 매수 제한(옵션, 기본 OFF).
+  // 켜면 구매자 거점 섹터 ≠ 매물 섹터 → 차단 → 물류(운송) 강제 + 섹터간 차익거래 유발(EVE 허브화).
+  await ensureSectorPurchaseAllowed(client, listing, b);
+
+  // Check expiry
+  if (new Date(listing.expires_at) < new Date()) {
+    await client.query("UPDATE marketplace_listings SET status = 'expired' WHERE id = $1", [listingId]);
+    throw new Error('This listing has expired');
+  }
+
+  const settlement = await computePurchaseSettlement(listing, b);
+  const { price, currency, feePct, fee, sellerReceives } = settlement;
+  const balCol = currency === 'PP' ? 'pp_balance' : 'gp_balance';
+
+  // Check buyer balance — FOR UPDATE to prevent concurrent double-spend
+  const balRes = await client.query(`SELECT ${balCol} AS bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [b]);
+  if (!balRes.rows.length) throw new Error('User not found');
+  if (parseFloat(balRes.rows[0].bal) < price) throw new Error(`Insufficient ${currency}. Need ${price}`);
+
+  // Deduct buyer balance (AND balance >= $1 guard prevents negative balance)
+  await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [price, b]);
+
+  // ✅ Referral commission + season score (GP purchases only)
+  // (레퍼럴 커미션은 fee 계산 후로 이동 — Migration 173: 마켓 수수료 연동)
+  try {
+    const seasonSvc = require('./season');
+    if (currency === 'GP') {
+      seasonSvc.addSeasonScore(b, 'gp_spend', price).catch(() => {});
+    }
+    seasonSvc.addSeasonScore(b, 'trade', 1).catch(() => {});
+  } catch (_re) {}
+
+  const tariffAmount = settlement.tariffAmount;
+  const tariffPct = settlement.tariffPct;
+  const tariffGovernor = settlement.tariffGovernor;
+  const tariffExempted = settlement.tariffExempted;
+  const tariffReason = settlement.tariffReason;
 
   // Credit seller
   await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [sellerReceives, listing.seller]);
@@ -638,6 +689,7 @@ module.exports = {
   createListing,
   cancelListing,
   buyListing,
+  quotePurchase,
   getListings,
   getListingDetail,
   getMyListings,

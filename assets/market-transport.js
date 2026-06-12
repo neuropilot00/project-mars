@@ -702,23 +702,48 @@ function buyMarketListing(listingId,price,currency,name){
   if(!w){showToast('Connect wallet first','error');return;}
   var myBal=currency==='GP'?(walletState.gameGP||0):(walletState.gamePP||0);
   var insufficient=myBal<price;
-  gameConfirm({
-    title:t('mkt_buy_title')||'Purchase Item', icon:'🛒',
-    body:name,
-    info:[
-      {k:t('mkt_price')||'Price',v:price+' '+currency},
-      {k:t('mkt_your_balance')||'Your Balance',v:Math.floor(myBal)+' '+currency,insufficient:insufficient}
-    ],
-    confirmText:t('mkt_buy_confirm')||'BUY NOW', disabled:insufficient
-  }).then(function(ok){
-    if(!ok) return;
-    fetch('/api/marketplace/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,listingId:listingId})})
-    .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(srvErr(d.error),'error');return;}
-      showToast('✅ '+(t('mkt_bought')||'Purchase successful!'),'success');
-      refreshBalance(); loadMarketListings();
-    }).catch(function(){showToast('Purchase failed','error')});
-  });
+  function fmt(v){
+    var n=parseFloat(v);
+    if(!isFinite(n)) n=0;
+    return n.toLocaleString(undefined,{maximumFractionDigits:2});
+  }
+  function openConfirm(quote){
+    var info=[
+      {k:t('mkt_price')||'Price',v:fmt(price)+' '+currency},
+      {k:t('mkt_your_balance')||'Your Balance',v:Math.floor(myBal).toLocaleString()+' '+currency,insufficient:insufficient}
+    ];
+    if(quote){
+      info.push({k:'Buyer pays',v:fmt(quote.buyerPays||price)+' '+currency});
+      info.push({k:'Sale fee',v:fmt(quote.fee)+' '+currency});
+      if(quote.sectorId){
+        var tariffLabel=quote.tariffAmount>0
+          ? fmt(quote.tariffAmount)+' '+currency+' → Sector #'+quote.sectorId
+          : (quote.tariffExempted?'Exempted':'None');
+        info.push({k:'Sector tariff',v:tariffLabel});
+      }
+      info.push({k:'Seller receives',v:fmt(quote.sellerReceives)+' '+currency});
+    } else {
+      info.push({k:'Settlement',v:'Server quote unavailable'});
+    }
+    gameConfirm({
+      title:t('mkt_buy_title')||'Purchase Item', icon:'🛒',
+      body:name,
+      info:info,
+      confirmText:t('mkt_buy_confirm')||'BUY NOW', disabled:insufficient
+    }).then(function(ok){
+      if(!ok) return;
+      fetch('/api/marketplace/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,listingId:listingId})})
+      .then(function(r){return r.json()}).then(function(d){
+        if(d.error){showToast(srvErr(d.error),'error');return;}
+        showToast('✅ '+(t('mkt_bought')||'Purchase successful!'),'success');
+        refreshBalance(); loadMarketListings();
+      }).catch(function(){showToast('Purchase failed','error')});
+    });
+  }
+  fetch('/api/marketplace/listings/'+encodeURIComponent(listingId)+'/purchase-quote',{headers:getAuthHeaders()})
+    .then(function(r){return r.ok?r.json():null})
+    .then(openConfirm)
+    .catch(function(){openConfirm(null)});
 }
 
 function cancelMarketListing(listingId){

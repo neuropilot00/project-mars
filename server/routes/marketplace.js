@@ -65,6 +65,22 @@ router.get('/listings', readLimiter, async (req, res) => {
   }
 });
 
+// GET /api/marketplace/listings/:id/purchase-quote — preview sale settlement
+router.get('/listings/:id/purchase-quote', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+  try {
+    if (!marketService) return res.status(503).json({ error: 'Marketplace service unavailable' });
+    const listingId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(listingId)) return res.status(400).json({ error: 'Invalid listing id' });
+    const quote = await marketService.quotePurchase(listingId, wallet);
+    res.json(quote);
+  } catch (e) {
+    console.error('[MARKET] purchase quote error:', e.message);
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // GET /api/marketplace/listings/:id — single listing detail
 router.get('/listings/:id', readLimiter, async (req, res) => {
   try {
