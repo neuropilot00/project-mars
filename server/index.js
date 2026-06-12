@@ -855,18 +855,14 @@ async function start() {
     // ── Weather Scheduled Tasks ──
     try {
       const { spawnWeatherEvents, expireWeather, activateForecasts } = require('./services/weather');
-      // Expire weather every 5 minutes
-      setInterval(async () => {
-        try { await expireWeather(); } catch(e) { console.warn('[WEATHER] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      // Spawn weather events every 6 hours (no-op when weather_random_enabled=false)
-      setInterval(async () => {
-        try { await spawnWeatherEvents(); } catch(e) { console.warn('[WEATHER] spawn error:', e.message); }
-      }, 6 * 60 * 60 * 1000);
-      // Initial spawn on startup (after 30s delay)
-      setTimeout(async () => {
-        try { await spawnWeatherEvents(); } catch(e) { console.warn('[WEATHER] initial spawn error:', e.message); }
-      }, 30 * 1000);
+      scheduleTask('WEATHER', 5 * 60 * 1000, expireWeather, {
+        phase: 'expire',
+      });
+      scheduleTask('WEATHER', 6 * 60 * 60 * 1000, spawnWeatherEvents, {
+        phase: 'spawn',
+        startDelayMs: 30 * 1000,
+        startPhase: 'initial spawn',
+      });
       scheduleTask('WEATHER', 60 * 1000, activateForecasts, {
         phase: 'activateForecasts',
       });
@@ -876,22 +872,22 @@ async function start() {
     // ── Exploration Scheduled Tasks ──
     try {
       const { spawnPOIs, expirePOIs, updateStarlinkPasses, expireStarlinkPasses } = require('./services/exploration');
-      // Expire POIs every 5 minutes
-      setInterval(async () => {
-        try { await expirePOIs(); await expireStarlinkPasses(); } catch(e) { console.warn('[EXPLORE] expire error:', e.message); }
-      }, 5 * 60 * 1000);
-      // Spawn POIs every 4 hours
-      setInterval(async () => {
-        try { await spawnPOIs(); } catch(e) { console.warn('[EXPLORE] spawn error:', e.message); }
-      }, 4 * 60 * 60 * 1000);
-      // Update starlink passes every 10 minutes
-      setInterval(async () => {
-        try { await updateStarlinkPasses(); } catch(e) { console.warn('[STARLINK] update error:', e.message); }
-      }, 10 * 60 * 1000);
-      // Initial spawn on startup (after 45s delay)
-      setTimeout(async () => {
-        try { await spawnPOIs(); await updateStarlinkPasses(); } catch(e) { console.warn('[EXPLORE] initial spawn error:', e.message); }
-      }, 45 * 1000);
+      scheduleTask('EXPLORE', 5 * 60 * 1000, async () => {
+        await expirePOIs();
+        await expireStarlinkPasses();
+      }, {
+        phase: 'expire',
+      });
+      scheduleTask('EXPLORE', 4 * 60 * 60 * 1000, spawnPOIs, {
+        phase: 'spawn',
+        startDelayMs: 45 * 1000,
+        startPhase: 'initial spawn',
+      });
+      scheduleTask('STARLINK', 10 * 60 * 1000, updateStarlinkPasses, {
+        phase: 'update',
+        startDelayMs: 45 * 1000,
+        startPhase: 'initial update',
+      });
       console.log('[EXPLORE] Scheduled tasks initialized (expire: 5min, POI spawn: 4h, starlink: 10min)');
     } catch(e) { console.warn('[EXPLORE] Could not init scheduled tasks:', e.message); }
 
@@ -928,25 +924,13 @@ async function start() {
     // ── Maintenance Fee Scheduled Tasks ──
     try {
       const { processMaintenanceFees } = require('./services/maintenance');
-      // Check daily if weekly maintenance fees are due
-      setInterval(async () => {
-        try { await processMaintenanceFees(); } catch(e) { console.warn('[MAINTENANCE] process error:', e.message); }
-      }, 24 * 60 * 60 * 1000);
-      // Initial check on startup (after 90s delay)
-      setTimeout(async () => {
-        try { await processMaintenanceFees(); } catch(e) { console.warn('[MAINTENANCE] initial check error:', e.message); }
-      }, 90 * 1000);
+      scheduleTask('MAINTENANCE', 24 * 60 * 60 * 1000, processMaintenanceFees, {
+        phase: 'process',
+        startDelayMs: 90 * 1000,
+        startPhase: 'initial check',
+      });
       console.log('[MAINTENANCE] Scheduled tasks initialized (check: 24h, runs weekly)');
     } catch(e) { console.warn('[MAINTENANCE] Could not init scheduled tasks:', e.message); }
-
-    // ── VIP Pass Expiry Check (every hour) ──
-    try {
-      const vipSvc = require('./services/vip');
-      setInterval(async () => {
-        try { await vipSvc.expireOldPasses(); } catch(e) { console.warn('[VIP] expire check error:', e.message); }
-      }, 60 * 60 * 1000);
-      console.log('[VIP] Expiry check scheduled (every 1h)');
-    } catch(e) { console.warn('[VIP] Could not init expiry check:', e.message); }
 
     // ── Rocket Scheduled Tasks ──
     try {
@@ -957,14 +941,11 @@ async function start() {
       }, {
         phase: 'process',
       });
-      // Auto-schedule every 12 hours
-      setInterval(async () => {
-        try { await autoScheduleRocket(); } catch(e) { console.warn('[ROCKET] schedule error:', e.message); }
-      }, 12 * 60 * 60 * 1000);
-      // Initial schedule on startup (after 60s delay)
-      setTimeout(async () => {
-        try { await autoScheduleRocket(); } catch(e) { console.warn('[ROCKET] initial schedule error:', e.message); }
-      }, 60 * 1000);
+      scheduleTask('ROCKET', 12 * 60 * 60 * 1000, autoScheduleRocket, {
+        phase: 'schedule',
+        startDelayMs: 60 * 1000,
+        startPhase: 'initial schedule',
+      });
       console.log('[ROCKET] Scheduled tasks initialized (process: 1min, auto-schedule: 12h)');
     } catch(e) { console.warn('[ROCKET] Could not init scheduled tasks:', e.message); }
 
@@ -1107,15 +1088,15 @@ async function start() {
     // ── Weekly Job Change Count Reset (every Monday UTC 00:00) ──
     try {
       const { resetWeeklyJobChangeCounts } = require('./services/job');
-      setInterval(async () => {
-        try {
-          const now = new Date();
-          if (now.getUTCDay() === 1 && now.getUTCHours() === 0) {
-            await resetWeeklyJobChangeCounts();
-            console.log('[JOB] Weekly job change counts reset');
-          }
-        } catch(e) { console.warn('[JOB] weekly reset error:', e.message); }
-      }, 60 * 60 * 1000); // Check every hour
+      scheduleTask('JOB', 60 * 60 * 1000, async () => {
+        const now = new Date();
+        if (now.getUTCDay() === 1 && now.getUTCHours() === 0) {
+          await resetWeeklyJobChangeCounts();
+          console.log('[JOB] Weekly job change counts reset');
+        }
+      }, {
+        phase: 'weekly reset',
+      });
       console.log('[JOB] Weekly reset scheduler started (check: 1h)');
     } catch(e) { console.warn('[JOB] Could not init weekly reset scheduler:', e.message); }
 
@@ -1199,23 +1180,22 @@ async function start() {
 
     // ── Daily Engagement Cleanup ──
     try {
-      // Daily cleanup - remove old mission data
-      setInterval(async () => {
-        try {
-          await pool.query("DELETE FROM daily_missions WHERE mission_date < CURRENT_DATE - INTERVAL '7 days'");
-          await pool.query("DELETE FROM daily_logins WHERE login_date < CURRENT_DATE - INTERVAL '90 days'");
-          console.log('[DAILY] Cleanup completed');
-        } catch(e) { console.error('[DAILY] cleanup error:', e.message); }
-      }, 24 * 60 * 60 * 1000);
+      scheduleTask('DAILY', 24 * 60 * 60 * 1000, async () => {
+        await pool.query("DELETE FROM daily_missions WHERE mission_date < CURRENT_DATE - INTERVAL '7 days'");
+        await pool.query("DELETE FROM daily_logins WHERE login_date < CURRENT_DATE - INTERVAL '90 days'");
+        console.log('[DAILY] Cleanup completed');
+      }, {
+        phase: 'cleanup',
+      });
       console.log('[DAILY] Scheduled tasks initialized (cleanup: 24h)');
     } catch(e) { console.warn('[DAILY] Could not init scheduled tasks:', e.message); }
 
     // ── Title: Governor Milestone Check (every 6 hours) ──
     try {
       const { checkGovernorTitleMilestones } = require('./services/title');
-      setInterval(async () => {
-        try { await checkGovernorTitleMilestones(); } catch(e) { console.warn('[TITLE] governor milestone error:', e.message); }
-      }, 6 * 60 * 60 * 1000);
+      scheduleTask('TITLE', 6 * 60 * 60 * 1000, checkGovernorTitleMilestones, {
+        phase: 'governor milestone',
+      });
       console.log('[TITLE] Governor milestone scheduler started (6h interval)');
     } catch(e) { console.warn('[TITLE] Could not init governor milestone scheduler:', e.message); }
 
@@ -1257,9 +1237,12 @@ async function start() {
     // ── Planet News: Clean old news (every 24 hours) ──
     try {
       const { cleanOldNews } = require('./services/news');
-      setInterval(async () => {
-        try { const n = await cleanOldNews(); if (n > 0) console.log(`[NEWS] Cleaned ${n} old items`); } catch(e) { console.warn('[NEWS] cleanup error:', e.message); }
-      }, 24 * 60 * 60 * 1000);
+      scheduleTask('NEWS', 24 * 60 * 60 * 1000, async () => {
+        const n = await cleanOldNews();
+        if (n > 0) console.log(`[NEWS] Cleaned ${n} old items`);
+      }, {
+        phase: 'cleanup',
+      });
       console.log('[NEWS] Cleanup scheduler started (24h interval)');
     } catch(e) { console.warn('[NEWS] Could not init cleanup scheduler:', e.message); }
 
@@ -1346,15 +1329,15 @@ async function start() {
     // ── Chronicle: Weekly Report (every Monday UTC 00:00) ──
     try {
       const { sendWeeklyReport } = require('./services/chronicle');
-      setInterval(async () => {
-        try {
-          const now = new Date();
-          if (now.getUTCDay() === 1 && now.getUTCHours() === 0) {
-            await sendWeeklyReport();
-            console.log('[CHRONICLE] Weekly report sent');
-          }
-        } catch(e) { console.warn('[CHRONICLE] weekly report error:', e.message); }
-      }, 60 * 60 * 1000); // Check every hour
+      scheduleTask('CHRONICLE', 60 * 60 * 1000, async () => {
+        const now = new Date();
+        if (now.getUTCDay() === 1 && now.getUTCHours() === 0) {
+          await sendWeeklyReport();
+          console.log('[CHRONICLE] Weekly report sent');
+        }
+      }, {
+        phase: 'weekly report',
+      });
       console.log('[CHRONICLE] Weekly report scheduler started (check: 1h)');
     } catch(e) { console.warn('[CHRONICLE] Could not init weekly report scheduler:', e.message); }
 
@@ -1419,7 +1402,9 @@ async function start() {
     // ── Territory: Update adjacency bonuses (every 10 minutes) — M-091 ──
     try {
       const tv = require('./services/territoryVisual');
-      setInterval(() => tv.updateAdjacencyBonuses().catch(console.error), 600000);
+      scheduleTask('TERRITORY', 10 * 60 * 1000, () => tv.updateAdjacencyBonuses(), {
+        phase: 'adjacency',
+      });
       console.log('[TERRITORY] Adjacency bonus scheduler started (10min interval)');
     } catch(e) { console.warn('[TERRITORY] Could not init scheduler:', e.message); }
 
@@ -1567,156 +1552,156 @@ async function start() {
     // ── Time Capsule: Reveal due capsules (every 5 minutes) ──
     try {
       const { revealDueCapsules } = require('./services/capsule');
-      setInterval(async () => {
-        try {
-          const revealed = await revealDueCapsules();
-          if (revealed.length > 0) console.log(`[CAPSULE] Revealed ${revealed.length} time capsule(s)`);
-        } catch(e) { console.warn('[CAPSULE] reveal error:', e.message); }
-      }, 5 * 60 * 1000);
+      scheduleTask('CAPSULE', 5 * 60 * 1000, async () => {
+        const revealed = await revealDueCapsules();
+        if (revealed.length > 0) console.log(`[CAPSULE] Revealed ${revealed.length} time capsule(s)`);
+      }, {
+        phase: 'reveal',
+      });
       console.log('[CAPSULE] Reveal scheduler started (5min interval)');
     } catch(e) { console.warn('[CAPSULE] Could not init reveal scheduler:', e.message); }
 
     // ── Veteran Titles: 매일 UTC 00:xx 체크 ──
     try {
       const titleExt = require('./services/titleExtended');
-      setInterval(async () => {
-        try {
-          const now = new Date();
-          if (now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
-            const count = await titleExt.checkVeteranTitles();
-            if (count > 0) console.log(`[TITLES] ${count} veteran title(s) awarded`);
-          }
-        } catch(e) { console.warn('[TITLES] veteran check error:', e.message); }
-      }, 5 * 60 * 1000);
+      scheduleTask('TITLES', 5 * 60 * 1000, async () => {
+        const now = new Date();
+        if (now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
+          const count = await titleExt.checkVeteranTitles();
+          if (count > 0) console.log(`[TITLES] ${count} veteran title(s) awarded`);
+        }
+      }, {
+        phase: 'veteran check',
+      });
       console.log('[TITLES] Veteran scheduler started (5min interval)');
     } catch(e) { console.warn('[TITLES] Could not init veteran scheduler:', e.message); }
 
     // ── Weekly Chronicle (매주 월요일 UTC 00:00 생성) ──
     try {
       const ce = require('./services/chronicleEnhanced');
-      setInterval(async () => {
-        try {
-          const now = new Date();
-          if (now.getUTCDay() === 1 && now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
-            await ce.generateWeeklyChronicle();
-          }
-        } catch(e) { console.warn('[CHRONICLE] weekly error:', e.message); }
-      }, 5 * 60 * 1000);
+      scheduleTask('CHRONICLE', 5 * 60 * 1000, async () => {
+        const now = new Date();
+        if (now.getUTCDay() === 1 && now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
+          await ce.generateWeeklyChronicle();
+        }
+      }, {
+        phase: 'weekly enhanced',
+      });
       console.log('[CHRONICLE] Weekly scheduler started (5min interval)');
     } catch(e) { console.warn('[CHRONICLE] Could not init weekly scheduler:', e.message); }
 
     // ── Shield Decay: 시간당 3% 자연 감소 (매 30분마다 1.5% 차감) ──
     try {
       const { pool: dbPool, getSetting: dbGetSetting } = require('./db');
-      setInterval(async () => {
-        try {
-          const enabled = await dbGetSetting('shield_enabled', 'true');
-          if (String(enabled) === 'false') return;
-          const decayPctPerHour = parseFloat(await dbGetSetting('shield_decay_pct_per_hour', '3')) || 3;
-          const decayThisInterval = decayPctPerHour / 2; // 30분 = 절반 감소
-          const { rowCount } = await dbPool.query(`
-            UPDATE ships
-            SET shield_hp = GREATEST(0, FLOOR(shield_hp - shield_max * $1 / 100))
-            WHERE shield_hp > 0 AND is_alive = true
-          `, [decayThisInterval]);
-          if (rowCount > 0) console.log(`[SHIELD] Decay applied to ${rowCount} ships (-${decayThisInterval.toFixed(1)}%/tick)`);
-        } catch(e) { console.warn('[SHIELD] decay error:', e.message); }
-      }, 30 * 60 * 1000); // 30분마다
+      scheduleTask('SHIELD', 30 * 60 * 1000, async () => {
+        const enabled = await dbGetSetting('shield_enabled', 'true');
+        if (String(enabled) === 'false') return;
+        const decayPctPerHour = parseFloat(await dbGetSetting('shield_decay_pct_per_hour', '3')) || 3;
+        const decayThisInterval = decayPctPerHour / 2; // 30분 = 절반 감소
+        const { rowCount } = await dbPool.query(`
+          UPDATE ships
+          SET shield_hp = GREATEST(0, FLOOR(shield_hp - shield_max * $1 / 100))
+          WHERE shield_hp > 0 AND is_alive = true
+        `, [decayThisInterval]);
+        if (rowCount > 0) console.log(`[SHIELD] Decay applied to ${rowCount} ships (-${decayThisInterval.toFixed(1)}%/tick)`);
+      }, {
+        phase: 'decay',
+      });
       console.log('[SHIELD] Decay scheduler started (30min interval)');
     } catch(e) { console.warn('[SHIELD] Could not init decay scheduler:', e.message); }
 
     // ── Territory Field Rating + Badge Update (매일 00:00 UTC) ──
     try {
       const { updateFieldRatings } = require('./routes/territoryIdentity');
-      setInterval(async () => {
-        try {
-          const now = new Date();
-          if (now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
-            await updateFieldRatings();
-            console.log('[TERRITORY] Field ratings + badges updated');
-          }
-        } catch(e) { console.warn('[TERRITORY] field rating update error:', e.message); }
-      }, 5 * 60 * 1000); // 5분마다 체크
+      scheduleTask('TERRITORY', 5 * 60 * 1000, async () => {
+        const now = new Date();
+        if (now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
+          await updateFieldRatings();
+          console.log('[TERRITORY] Field ratings + badges updated');
+        }
+      }, {
+        phase: 'field rating',
+      });
       console.log('[TERRITORY] Field rating scheduler started (5min check)');
     } catch(e) { console.warn('[TERRITORY] Could not init field rating scheduler:', e.message); }
 
     // ── Bounty Board: 만료 현상금 정리 (매 1시간) ──
     try {
-      setInterval(async () => {
-        try {
-          // (원자성 v7.370) 과거엔 UPDATE...RETURNING으로 status를 일괄 확정한 뒤 별도
-          // pool.query로 환불 → 그 사이 크래시/풀오류 시 status는 expired인데 환불이 누락되어
-          // GP가 영구 소실됐다. 행별 BEGIN/COMMIT으로 status flip+환불을 원자화하고,
-          // WHERE status='active' 가드로 동시 claim과의 중복 환불을 막는다(0건이면 skip).
-          const { rows } = await pool.query(
-            `SELECT id, poster_wallet, reward_gp, funded_from_guild_id
-             FROM bounty_listings WHERE status = 'active' AND expires_at <= NOW()`
-          );
-          let refunded = 0;
-          for (const b of rows) {
-            const c = await pool.connect();
-            try {
-              await c.query('BEGIN');
-              const up = await c.query(
-                `UPDATE bounty_listings SET status = 'expired' WHERE id = $1 AND status = 'active'`,
-                [b.id]
-              );
-              if (up.rowCount === 1) {
-                if (b.funded_from_guild_id) {
-                  await c.query(`UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id = $2`,
-                    [b.reward_gp, b.funded_from_guild_id]);
-                } else {
-                  await c.query(`UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
-                    [b.reward_gp, b.poster_wallet]);
-                }
-                refunded++;
+      scheduleTask('BOUNTY', 60 * 60 * 1000, async () => {
+        // (원자성 v7.370) 과거엔 UPDATE...RETURNING으로 status를 일괄 확정한 뒤 별도
+        // pool.query로 환불 → 그 사이 크래시/풀오류 시 status는 expired인데 환불이 누락되어
+        // GP가 영구 소실됐다. 행별 BEGIN/COMMIT으로 status flip+환불을 원자화하고,
+        // WHERE status='active' 가드로 동시 claim과의 중복 환불을 막는다(0건이면 skip).
+        const { rows } = await pool.query(
+          `SELECT id, poster_wallet, reward_gp, funded_from_guild_id
+           FROM bounty_listings WHERE status = 'active' AND expires_at <= NOW()`
+        );
+        let refunded = 0;
+        for (const b of rows) {
+          const c = await pool.connect();
+          try {
+            await c.query('BEGIN');
+            const up = await c.query(
+              `UPDATE bounty_listings SET status = 'expired' WHERE id = $1 AND status = 'active'`,
+              [b.id]
+            );
+            if (up.rowCount === 1) {
+              if (b.funded_from_guild_id) {
+                await c.query(`UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id = $2`,
+                  [b.reward_gp, b.funded_from_guild_id]);
+              } else {
+                await c.query(`UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = $2`,
+                  [b.reward_gp, b.poster_wallet]);
               }
-              await c.query('COMMIT');
-            } catch (re) {
-              try { await c.query('ROLLBACK'); } catch (_) {}
-              console.warn('[BOUNTY] refund row error:', re.message);
-            } finally {
-              c.release();
+              refunded++;
             }
+            await c.query('COMMIT');
+          } catch (re) {
+            try { await c.query('ROLLBACK'); } catch (_) {}
+            console.warn('[BOUNTY] refund row error:', re.message);
+          } finally {
+            c.release();
           }
-          if (refunded > 0) console.log(`[BOUNTY] Expired & refunded ${refunded} bounties`);
-        } catch(e) { console.warn('[BOUNTY] expiry cleanup error:', e.message); }
-      }, 60 * 60 * 1000); // 1시간마다
+        }
+        if (refunded > 0) console.log(`[BOUNTY] Expired & refunded ${refunded} bounties`);
+      }, {
+        phase: 'expiry cleanup',
+      });
       console.log('[BOUNTY] Expiry cleanup scheduler started (1h interval)');
     } catch(e) { console.warn('[BOUNTY] Could not init expiry scheduler:', e.message); }
 
     // ── 비활성 유저 복귀 훅: 7일 이상 미접속 유저에게 알림 (매일 UTC 09:00 체크) ──
     try {
       const { notifyPlayer } = require('./db');
-      setInterval(async () => {
-        try {
-          const now = new Date();
-          // UTC 09:00 근처에만 실행 (1시간 윈도우)
-          if (now.getUTCHours() !== 9) return;
-          const { rows } = await pool.query(`
-            SELECT wallet_address FROM users
-            WHERE last_login_at IS NOT NULL
-              AND last_login_at < NOW() - INTERVAL '7 days'
-              AND last_login_at > NOW() - INTERVAL '30 days'
-              AND NOT EXISTS (
-                SELECT 1 FROM player_notifications
-                WHERE wallet_address = LOWER(users.wallet_address)
-                  AND type = 'return_reminder'
-                  AND created_at > NOW() - INTERVAL '7 days'
-              )
-            LIMIT 200
-          `);
-          for (const row of rows) {
-            notifyPlayer(
-              row.wallet_address.toLowerCase(),
-              'return_reminder',
-              '화성이 당신을 기다립니다! 오래 비운 사이 영토 수확을 챙기고 함대를 정비하세요.',
-              { days_absent: 7 }
-            ).catch(() => {});
-          }
-          if (rows.length > 0) console.log(`[RETURN-HOOK] Sent return reminder to ${rows.length} inactive users`);
-        } catch(e) { console.warn('[RETURN-HOOK] error:', e.message); }
-      }, 60 * 60 * 1000); // 매 1시간마다 UTC 체크
+      scheduleTask('RETURN-HOOK', 60 * 60 * 1000, async () => {
+        const now = new Date();
+        // UTC 09:00 근처에만 실행 (1시간 윈도우)
+        if (now.getUTCHours() !== 9) return;
+        const { rows } = await pool.query(`
+          SELECT wallet_address FROM users
+          WHERE last_login_at IS NOT NULL
+            AND last_login_at < NOW() - INTERVAL '7 days'
+            AND last_login_at > NOW() - INTERVAL '30 days'
+            AND NOT EXISTS (
+              SELECT 1 FROM player_notifications
+              WHERE wallet_address = LOWER(users.wallet_address)
+                AND type = 'return_reminder'
+                AND created_at > NOW() - INTERVAL '7 days'
+            )
+          LIMIT 200
+        `);
+        for (const row of rows) {
+          notifyPlayer(
+            row.wallet_address.toLowerCase(),
+            'return_reminder',
+            '화성이 당신을 기다립니다! 오래 비운 사이 영토 수확을 챙기고 함대를 정비하세요.',
+            { days_absent: 7 }
+          ).catch(() => {});
+        }
+        if (rows.length > 0) console.log(`[RETURN-HOOK] Sent return reminder to ${rows.length} inactive users`);
+      }, {
+        phase: 'inactive reminder',
+      });
       console.log('[RETURN-HOOK] Inactive user reminder scheduler started (1h check)');
     } catch(e) { console.warn('[RETURN-HOOK] Could not init scheduler:', e.message); }
 
@@ -1725,33 +1710,29 @@ async function start() {
     //  기본 OFF (npc_arena_enabled). leader 인스턴스에서만 도는 _runSchedulers 블록 내부.
     try {
       const npcArena = require('./services/npcArena');
-      // 함대전 생성 tick (설정 주기, 기본 120s) — DB 설정으로 게이팅되므로 interval 은 보수적으로 잡고 내부에서 enabled 체크
-      setInterval(async () => {
-        try {
-          const r = await npcArena.runArenaTick();
-          if (r && r.spawned) console.log(`[npcArena] tick: spawned battle ${r.battle_id}`);
-        } catch(e) { console.warn('[npcArena] arena tick error:', e.message); }
-      }, 120 * 1000);
-      // 밀도 보충 tick (5분마다 활성 NPC 함대 수 확인 후 부족분 보충)
-      setInterval(async () => {
-        try {
-          await npcArena.ensureNpcDensity();
-        } catch(e) { console.warn('[npcArena] density tick error:', e.message); }
-      }, 5 * 60 * 1000);
+      scheduleTask('npcArena', 120 * 1000, async () => {
+        const r = await npcArena.runArenaTick();
+        if (r && r.spawned) console.log(`[npcArena] tick: spawned battle ${r.battle_id}`);
+      }, {
+        phase: 'arena tick',
+      });
+      scheduleTask('npcArena', 5 * 60 * 1000, () => npcArena.ensureNpcDensity(), {
+        phase: 'density tick',
+      });
       console.log('[npcArena] NPC arena scheduler started (arena 120s, density 5min — gated by npc_arena_enabled)');
     } catch(e) { console.warn('[npcArena] Could not init scheduler:', e.message); }
 
     // ── [v7.166] Sybil chain 감지 (6h마다 자기거래 chain 분석 → suspicious_wallet_flags 적립) ──
     try {
       const sybilDetect = require('./services/sybilDetect');
-      setInterval(async () => {
-        try {
-          const r = await sybilDetect.detectSelfTradeChains();
-          if (r && !r.skipped) console.log('[sybilDetect]', JSON.stringify(r));
-        } catch(e) { console.warn('[sybilDetect] tick error:', e.message); }
-      }, 6 * 60 * 60 * 1000);
-      // 시작 직후 1회 즉시 실행(부팅 후 즉시 감지)
-      setTimeout(() => sybilDetect.detectSelfTradeChains().catch(()=>{}), 60 * 1000);
+      scheduleTask('sybilDetect', 6 * 60 * 60 * 1000, async () => {
+        const r = await sybilDetect.detectSelfTradeChains();
+        if (r && !r.skipped) console.log('[sybilDetect]', JSON.stringify(r));
+      }, {
+        phase: 'tick',
+        startDelayMs: 60 * 1000,
+        startPhase: 'startup',
+      });
       console.log('[sybilDetect] sybil chain scheduler started (every 6h, gated by sybil_detect_enabled)');
     } catch(e) { console.warn('[sybilDetect] Could not init scheduler:', e.message); }
 
@@ -1759,13 +1740,14 @@ async function start() {
     //   단발은 점수 낮아 통과해도 5회+ 누적되면 의심 플래그. sybilDetect 와 별개 (다른 패턴).
     try {
       const washSvc = require('./services/washTradeDetect');
-      setInterval(async () => {
-        try {
-          const r = await washSvc.sweepRecentObservations();
-          if (r && r.flagged > 0) console.log('[washTrade] sweep', JSON.stringify(r));
-        } catch(e) { console.warn('[washTrade] sweep tick error:', e.message); }
-      }, 6 * 60 * 60 * 1000);
-      setTimeout(() => washSvc.sweepRecentObservations().catch(()=>{}), 90 * 1000);
+      scheduleTask('washTrade', 6 * 60 * 60 * 1000, async () => {
+        const r = await washSvc.sweepRecentObservations();
+        if (r && r.flagged > 0) console.log('[washTrade] sweep', JSON.stringify(r));
+      }, {
+        phase: 'sweep',
+        startDelayMs: 90 * 1000,
+        startPhase: 'startup',
+      });
       console.log('[washTrade] sweep scheduler started (every 6h)');
     } catch(e) { console.warn('[washTrade] Could not init scheduler:', e.message); }
 
