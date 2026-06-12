@@ -1417,9 +1417,10 @@ async function _initVoidRaiderLayer() {
 async function _vrRefresh() {
   if (!_pageIsActive()) return;
   try {
-    const r = await fetch('/api/world-events');
-    if (!r.ok) return;
-    const data = await r.json();
+    const data = (typeof _guardedJsonFetch === 'function')
+      ? await _guardedJsonFetch('void-raider-world-events', '/api/world-events', {minGap:25000, backoffMs:120000})
+      : await fetch('/api/world-events').then(function(r){ return r.ok ? r.json() : null; });
+    if (!data) return;
     const events = Array.isArray(data) ? data : (data.events || []);
     _vrEvents = events.filter(e => e.lat != null && e.lng != null);
     _vrRenderLayer();

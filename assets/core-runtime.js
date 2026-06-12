@@ -181,6 +181,7 @@ var _apiPublicHudBackoffPaths = {
   '/api/leaderboard': true,
   '/api/sectors': true,
   '/api/weather': true,
+  '/api/world-events': true,
   '/api/claims': true,
   '/api/pixels': true,
   '/api/exploration/pois': true,
