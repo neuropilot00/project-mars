@@ -1410,6 +1410,7 @@
   // ══ PVP HUB — spec 4-2 ════════════════════════════════════════
 
   var _pvpHubTab = 'rec'; // current active tab
+  var _pvpHubSectorFilter = '';
 
   window.pvpHubSwitchTab = function(tab) {
     _pvpHubTab = tab;
@@ -1457,7 +1458,9 @@
       return;
     }
     try {
-      var res = await fetch('/api/battles/recommended-opponents/' + encodeURIComponent(wallet));
+      var recUrl = '/api/battles/recommended-opponents/' + encodeURIComponent(wallet)
+        + (_pvpHubSectorFilter ? ('?sector=' + encodeURIComponent(_pvpHubSectorFilter)) : '');
+      var res = await fetch(recUrl);
       var data = await res.json();
       var opponents = data.opponents || [];
       if (!content || _pvpHubTab !== 'rec') return;
@@ -1467,7 +1470,13 @@
       }
       var factionColors = { mcc: '#4fc3f7', fsp: '#66bb6a', cv: '#ff7043' };
       var factionNames  = { mcc: 'MCC',     fsp: 'FSP',     cv: 'CV' };
-      content.innerHTML = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px">'+(LANG==='ko'?'추천 상대 (내 CPI 기준 ±20%)':LANG==='ja'?'推奨対戦相手（自分のCPI ±20%）':LANG==='zh'?'推荐对手（我的CPI ±20%）':'Recommended opponents (±20% of your CPI)')+'</div>'
+      var recTitle = _pvpHubSectorFilter
+        ? ((LANG==='ko'?'분쟁 섹터 타깃: ':LANG==='ja'?'紛争セクター標的: ':LANG==='zh'?'争端区目标: ':'Conflict targets: ') + escapeHtml(_pvpHubSectorFilter))
+        : (LANG==='ko'?'추천 상대 (내 CPI 기준 ±20%)':LANG==='ja'?'推奨対戦相手（自分のCPI ±20%）':LANG==='zh'?'推荐对手（我的CPI ±20%）':'Recommended opponents (±20% of your CPI)');
+      content.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">'
+        + '<div style="font-size:9px;color:var(--tx3)">' + recTitle + '</div>'
+        + (_pvpHubSectorFilter ? '<button type="button" onclick="clearPvpSectorFilter()" style="font-size:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx3);padding:3px 8px;border-radius:4px;cursor:pointer">'+(LANG==='ko'?'필터 해제':LANG==='ja'?'解除':LANG==='zh'?'清除':'Clear')+'</button>' : '')
+        + '</div>'
         + opponents.map(function(o) {
           var col   = factionColors[o.faction_code] || '#aaa';
           var fName = factionNames[o.faction_code]  || (o.faction_code||'').toUpperCase();
@@ -1526,12 +1535,24 @@
             + (s.active_bounties ? '<span style="color:#ffab40">💰 '+(LANG==='ko'?'현상금 ':LANG==='ja'?'賞金 ':LANG==='zh'?'悬赏 ':'Bounties ') + s.active_bounties + '</span>' : '')
             + '<span>'+(LANG==='ko'?'클레임 ':LANG==='ja'?'クレーム ':LANG==='zh'?'领地 ':'Claims ') + s.claim_count + '</span>'
             + '</div>'
+            + '<button type="button" data-sector="' + escapeHtml(s.sector_code) + '" onclick="huntPvpSector(this.dataset.sector)" style="margin-top:6px;width:100%;font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.32);color:#ff8a80;padding:5px 8px;border-radius:4px;cursor:pointer;font-family:var(--fn);font-weight:700">'
+            + (LANG==='ko'?'이 섹터 타깃 찾기':LANG==='ja'?'このセクターの標的':LANG==='zh'?'寻找本区目标':'Find Sector Targets')
+            + '</button>'
             + '</div>';
         }).join('');
     } catch(err) {
       if (content && _pvpHubTab === 'conflict') content.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:14px">'+(LANG==='ko'?'로딩 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>';
     }
   }
+
+  window.clearPvpSectorFilter = function() {
+    _pvpHubSectorFilter = '';
+    pvpHubSwitchTab('rec');
+  };
+  window.huntPvpSector = function(sectorCode) {
+    _pvpHubSectorFilter = String(sectorCode || '').trim();
+    pvpHubSwitchTab('rec');
+  };
 
   function _pvpHubBountyHtml() {
     return '<div style="padding:8px;border-radius:6px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.15);margin-bottom:8px">'
@@ -1612,7 +1633,7 @@
           + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
           + '<div>'
           + '<div style="font-size:10px;color:var(--tx)">🎯 ' + (b.target_wallet || '').slice(0,8) + '…</div>'
-          + (b.reason ? '<div style="font-size:9px;color:var(--tx3)">' + _esc(b.reason) + '</div>' : '')
+          + (b.reason ? '<div style="font-size:9px;color:var(--tx3)">' + escapeHtml(b.reason) + '</div>' : '')
           + '</div>'
           + '<div style="text-align:right"><div style="font-size:12px;color:#ffab40;font-weight:700">+' + (b.reward_gp||0).toLocaleString() + ' GP</div>'
           + (expDate ? '<div style="font-size:8px;color:var(--tx3)">' + t('bounty_expires') + ': ' + expDate + '</div>' : '')

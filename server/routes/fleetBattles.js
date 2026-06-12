@@ -582,8 +582,9 @@ router.get('/recommended-opponents/:wallet', async (req, res) => {
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
 
     const limit = Math.min(parseInt(req.query.limit) || 10, 20);
-    const opponents = await battleReport.getRecommendedOpponents(wallet, limit);
-    res.json({ success: true, opponents });
+    const sector = String(req.query.sector || '').trim();
+    const opponents = await battleReport.getRecommendedOpponents(wallet, limit, { sector });
+    res.json({ success: true, opponents, sector: sector || null });
   } catch (err) {
     console.error('[battle] recommended-opponents error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });

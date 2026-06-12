@@ -766,8 +766,9 @@ async function updateFleetCPI(fleetId) {
 }
 
 // ── 추천 상대 목록 ─────────────────────────────────────────────
-async function getRecommendedOpponents(wallet, limit = 10) {
+async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
   const w = wallet.toLowerCase().trim();
+  const sectorFilter = String(opts.sector || '').trim();
   try {
     const { rows: myRows } = await pool.query(
       `SELECT
@@ -811,10 +812,15 @@ async function getRecommendedOpponents(wallet, limit = 10) {
        WHERE LOWER(f.owner_wallet) != $1
          AND f.is_in_battle = FALSE
          AND f.cpi > 0
+         AND ($4::text = '' OR EXISTS (
+           SELECT 1 FROM claims sc
+            WHERE LOWER(sc.owner) = LOWER(f.owner_wallet)
+              AND sc.sector_code = $4
+         ))
        GROUP BY f.id, f.name, f.cpi, f.owner_wallet, u.nickname, u.faction_code, fa.color_primary
        ORDER BY ABS(f.cpi - $2) ASC
        LIMIT $3`,
-      [w, myCPI, limit * 3]
+      [w, myCPI, limit * 3, sectorFilter]
     );
 
     const now = Date.now();
