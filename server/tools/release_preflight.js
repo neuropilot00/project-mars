@@ -136,6 +136,7 @@ async function main() {
   await expectBlocked('/api/bounty/my-bounties blocks unauthenticated access', '/api/bounty/my-bounties?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/bounty/on-me blocks unauthenticated access', '/api/bounty/on-me?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/betting/mine blocks unauthenticated access', '/api/betting/mine?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/gp/activity blocks unauthenticated access', '/api/gp/activity?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/resources blocks unauthenticated access', '/api/user/resources?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job blocks unauthenticated access', '/api/user/job?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job/change-status blocks unauthenticated access', '/api/user/job/change-status?wallet=0x0000000000000000000000000000000000000000');

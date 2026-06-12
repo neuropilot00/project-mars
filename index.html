@@ -29399,7 +29399,7 @@ async function loadGpActivity(){
   var el=document.getElementById('gpActivityList');
   if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_login">Login to view GP activity.</div>';applyI18n(el);return;}
   try{
-    var r=await fetch('/api/gp/activity?wallet='+encodeURIComponent(w)+'&limit=15',{headers:{'x-wallet':w}});
+    var r=await fetch('/api/gp/activity?limit=15',{headers:getAuthHeaders()});
     var d=await r.json();
     if(!d.entries||!d.entries.length){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_empty">No GP activity yet.</div>';applyI18n(el);
