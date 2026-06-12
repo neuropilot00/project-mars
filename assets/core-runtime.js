@@ -175,6 +175,7 @@ function _activeSleep(ms){
 var _apiFetchGuards = {};
 var _apiEndpointGuards = {};
 var _apiPublicHudBackoffUntil = 0;
+var _apiPublicHudQuietUntil = 0;
 var _apiPublicHudBackoffPaths = {
   '/api/stats': true,
   '/api/leaderboard': true,
@@ -198,12 +199,18 @@ function _authModalIsOpen() {
   var modal = document.getElementById('authModal');
   return !!(modal && modal.classList && modal.classList.contains('open'));
 }
+function _quietPublicHudFetches(ms) {
+  _apiPublicHudQuietUntil = Math.max(_apiPublicHudQuietUntil, Date.now() + (ms || 0));
+}
 function _shouldDeferPublicHudFetch(url, fetchOptions) {
   var method = (fetchOptions && fetchOptions.method ? fetchOptions.method : 'GET').toUpperCase();
-  return method === 'GET' && _isPublicHudFetchPath(url) && _authModalIsOpen();
+  if (method !== 'GET' || !_isPublicHudFetchPath(url)) return false;
+  if (Date.now() < _apiPublicHudQuietUntil) return true;
+  return _authModalIsOpen();
 }
 function _clearPublicHudFetchBackoff() {
   _apiPublicHudBackoffUntil = 0;
+  _apiPublicHudQuietUntil = 0;
   Object.keys(_apiEndpointGuards).forEach(function(key) {
     if (key.indexOf('GET /api/') !== 0) return;
     var path = key.replace(/^GET\s+/, '');

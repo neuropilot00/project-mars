@@ -3383,11 +3383,11 @@ async function confirmClaim(){
         }
         // 맵 새로고침 — Railway DB 레이턴시 감안해 2s+6s 두 번 시도 (백업)
         function _refreshPixelsAfterHijack(){
-          fetch('/api/pixels').then(function(r){return r.json();}).then(function(sp){
+          _guardedJsonFetch('hijack-pixels-refresh', '/api/pixels', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(sp){
             if(sp&&typeof sp==='object'&&Object.keys(sp).length>0){
               initPixelGridFromServer(sp);
               // claims도 재로드
-              return fetch('/api/claims').then(function(r2){return r2.json()}).then(function(sc){
+              return _guardedJsonFetch('hijack-claims-refresh', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(sc){
                 if(sc&&sc.length){
                   var existIds={};
                   claims.forEach(function(c){if(c.id)existIds[c.id]=true;});
@@ -3588,7 +3588,7 @@ async function confirmClaim(){
 
     // After battles, fetch authoritative pixel data to ensure sync
     if(hasBattle){
-      fetch('/api/pixels').then(function(r){return r.json()}).then(function(sp){
+      _guardedJsonFetch('claim-battle-pixels-refresh', '/api/pixels', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(sp){
         if(sp&&typeof sp==='object'&&Object.keys(sp).length>0){
           initPixelGridFromServer(sp);
           claimsSnapshot=null;compositeClaimsOnTexture();

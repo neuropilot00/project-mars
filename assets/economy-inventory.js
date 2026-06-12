@@ -505,7 +505,7 @@ function _doUseItem(w,code,claimId){
     // Refresh claims to update shield status on globe
     _setActiveTimeout(function(){
       claimsSnapshot=null;
-      fetch('/api/claims').then(function(r){return r.json()}).then(function(sc){
+      _guardedJsonFetch('shop-use-claims-refresh', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(sc){
         if(!sc||!sc.length)return;
         // Replace claims array with fresh data
         claims.length=0;

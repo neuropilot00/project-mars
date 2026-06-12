@@ -121,6 +121,7 @@ function togglePassField(id,btn){
 
 function openAuthModal(){
   document.getElementById('authModal').classList.add('open');
+  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(30000); }catch(_){}
   if(emailAuth.token && emailAuth.user){
     showAuthLoggedIn();
   } else {
@@ -293,6 +294,7 @@ async function submitAuth(){
 
   var btn=document.getElementById('authSubmitBtn');
   _authSubmitInFlight=true;
+  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(75000); }catch(_){}
   btn.disabled=true;btn.textContent='...';
 
   try{
@@ -332,6 +334,7 @@ async function submitAuth(){
         var retryAfter=parseInt(resp.headers.get('Retry-After')||'0',10);
         var waitMs=(retryAfter>0?retryAfter*1000:60000);
         _authSubmitCooldownUntil=Date.now()+waitMs;
+        try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(waitMs); }catch(_){}
       }
       errEl.textContent=d.error||'Failed';
       return;
