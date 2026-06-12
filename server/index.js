@@ -376,8 +376,6 @@ app.use((req, res, next) => {
 
 // ── API Routes ──
 app.use('/api', apiWriteLimiter); // Write rate limit for all POST/PUT/PATCH/DELETE under /api
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
 // ⚠️ job/resource/onboarding/sector routes must come BEFORE apiRoutes to avoid /user/:wallet wildcard conflict
 app.use('/api', jobRoutes);
 app.use('/api', resourceRoutes);

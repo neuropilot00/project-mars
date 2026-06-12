@@ -45,6 +45,26 @@ function isOptionalVisibilityError(err) {
   return err && ['42P01', '42703', '42P10'].includes(err.code);
 }
 
+function isOptionalClaimDecorationError(err) {
+  return err && ['42P01', '42703', '42P10'].includes(err.code);
+}
+
+function buildClaimsFallbackSql(hasSince) {
+  return `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
+                c.image_url, NULL::text AS original_image_url, c.link_url, c.total_paid, c.created_at,
+                100::numeric AS img_scale, 0::numeric AS img_rotate, 0::numeric AS img_offset_x, 0::numeric AS img_offset_y,
+                NULL::text AS custom_name,
+                false AS marketplace_locked,
+                u.nickname, NULL::int AS guild_id, NULL::text AS guild_name,
+                NULL::text AS guild_tag, NULL::text AS guild_emblem,
+                NULL::text AS guild_emblem_image,
+                NULL::int AS shield_id, NULL::text AS shield_type, NULL::int AS shield_hp,
+                NULL::int AS shield_max_hp, NULL::timestamptz AS shield_expires, false AS shield_auto_renew
+         FROM claims c LEFT JOIN users u ON LOWER(c.owner) = LOWER(u.wallet_address)
+         WHERE c.deleted_at IS NULL${hasSince ? ' AND c.created_at > $1' : ''}
+         ORDER BY c.created_at DESC LIMIT 5000`;
+}
+
 router.get('/user/:wallet', async (req, res, next) => {
   const staticSubs = ['titles', 'my-territories'];
   if (staticSubs.includes(req.params.wallet)) return next();
@@ -107,19 +127,23 @@ router.get('/pixel/:lat/:lng', async (req, res) => {
 
     const px = pxRes.rows[0];
     if (px.owner) {
-      const stealthRes = await pool.query(
-        `SELECT 1 FROM user_active_effects
-         WHERE LOWER(wallet) = LOWER($1)
-           AND LOWER(wallet) <> LOWER($2)
-           AND effect_type = 'stealth_cloak'
-           AND active = true
-           AND expires_at > NOW()
-         LIMIT 1`,
-        [px.owner, viewerWallet]
-      );
-      if (stealthRes.rows.length) {
-        const settings = await cfg();
-        return res.json({ owner: null, price: settings.pixel_base_price || 0.1, claimId: null, imageUrl: null, linkUrl: null });
+      try {
+        const stealthRes = await pool.query(
+          `SELECT 1 FROM user_active_effects
+           WHERE LOWER(wallet) = LOWER($1)
+             AND LOWER(wallet) <> LOWER($2)
+             AND effect_type = 'stealth_cloak'
+             AND active = true
+             AND expires_at > NOW()
+           LIMIT 1`,
+          [px.owner, viewerWallet]
+        );
+        if (stealthRes.rows.length) {
+          const settings = await cfg();
+          return res.json({ owner: null, price: settings.pixel_base_price || 0.1, claimId: null, imageUrl: null, linkUrl: null });
+        }
+      } catch (visErr) {
+        if (!isOptionalVisibilityError(visErr)) throw visErr;
       }
     }
     let imageUrl = null;
@@ -242,8 +266,8 @@ router.get('/claims', async (req, res) => {
       try {
         result = await pool.query(sql, [new Date(parseInt(since)), viewerWallet]);
       } catch (visErr) {
-        if (!isOptionalVisibilityError(visErr)) throw visErr;
-        result = await pool.query(sql.replace(`\n           AND ${visibleOwner}`, ''), [new Date(parseInt(since))]);
+        if (!isOptionalClaimDecorationError(visErr)) throw visErr;
+        result = await pool.query(buildClaimsFallbackSql(true), [new Date(parseInt(since))]);
       }
     } else {
       const sql = `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
@@ -264,8 +288,8 @@ router.get('/claims', async (req, res) => {
       try {
         result = await pool.query(sql, [viewerWallet]);
       } catch (visErr) {
-        if (!isOptionalVisibilityError(visErr)) throw visErr;
-        result = await pool.query(sql.replace(`\n           AND ${visibleOwner}`, ''));
+        if (!isOptionalClaimDecorationError(visErr)) throw visErr;
+        result = await pool.query(buildClaimsFallbackSql(false));
       }
     }
 
@@ -378,7 +402,7 @@ router.get('/claims/my', requireAuth, async (req, res) => {
               c.custom_name AS name, c.image_url, c.created_at,
               (c.width * c.height) AS pixel_count
          FROM claims c
-        WHERE c.owner = $1 AND c.deleted_at IS NULL
+        WHERE LOWER(c.owner) = LOWER($1) AND c.deleted_at IS NULL
         ORDER BY c.created_at DESC`,
       [wallet]
     );

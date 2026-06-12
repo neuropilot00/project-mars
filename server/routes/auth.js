@@ -455,13 +455,13 @@ router.get('/me', async (req, res) => {
     let result;
     try {
       result = await pool.query(
-        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code, COALESCE(email_verified,false) AS email_verified FROM users WHERE wallet_address = $1',
+        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code, COALESCE(email_verified,false) AS email_verified FROM users WHERE LOWER(wallet_address) = LOWER($1)',
         [decoded.wallet]
       );
     } catch (userErr) {
       if (userErr.code !== '42703') throw userErr;
       result = await pool.query(
-        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, 0 AS gp_balance, referral_code, false AS email_verified FROM users WHERE wallet_address = $1',
+        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, 0 AS gp_balance, referral_code, false AS email_verified FROM users WHERE LOWER(wallet_address) = LOWER($1)',
         [decoded.wallet]
       );
     }
