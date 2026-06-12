@@ -276,11 +276,16 @@ app.get('/health', async (req, res) => {
 const isDev = process.env.NODE_ENV !== 'production';
 // 멀티 인스턴스 전역 레이트리밋: REDIS_URL 있으면 Redis 공유 스토어, 없으면 메모리 폴백.
 const { makeLimiterStore } = require('./services/rateLimitStore');
+function limiterPath(req) {
+  return String(req.originalUrl || req.url || req.path || '').split('?')[0];
+}
 function isAuthApiPath(req) {
-  return req.path === '/api/auth' || req.path.startsWith('/api/auth/');
+  const path = limiterPath(req);
+  return path === '/api/auth' || path.startsWith('/api/auth/');
 }
 function isPublicHudRead(req) {
   if (req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') return false;
+  const path = limiterPath(req);
   return [
     '/api/stats',
     '/api/leaderboard',
@@ -292,7 +297,7 @@ function isPublicHudRead(req) {
     '/api/rockets',
     '/api/announce/active',
     '/api/activity/feed'
-  ].includes(req.path);
+  ].includes(path);
 }
 const globalLimiter = makeRateLimiter({
   windowMs: 15 * 60 * 1000,
