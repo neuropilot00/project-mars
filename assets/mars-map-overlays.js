@@ -37,6 +37,17 @@ function _drawSectorOverlay(ctx,w,h){
       glow:tier==='core'?18:tier==='mid'?13:9
     };
   }
+  function sectorIntel(s){
+    var stats=s.stats||{};
+    var occ=Math.max(0,Math.min(100,parseFloat(stats.occupancyRate)||0));
+    var mining=parseFloat(s.miningBonus)||1;
+    var price=parseFloat(s.currentPrice)||parseFloat(stats.avgPrice)||0;
+    var priceWeight=price>0?Math.max(0.35,Math.min(1.6,0.04/price)):1;
+    var scarcityWeight=1+Math.min(0.75,occ/140);
+    var eco=Math.max(10,Math.round(mining*priceWeight*scarcityWeight*100));
+    var pressure=occ>=75?'WAR':occ>=40?'CONTEST':'OPEN';
+    return {occ:occ,mining:mining,price:price,eco:eco,pressure:pressure};
+  }
   function polyMetrics(poly){
     var pts=poly.map(toXY);
     var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,cx=0,cy=0;
@@ -111,6 +122,42 @@ function _drawSectorOverlay(ctx,w,h){
       }
       ctx.restore();
     }
+
+    if(!_entryBlocked){
+      var intel=sectorIntel(s);
+      ctx.save();
+      tracePts(m.pts);
+      ctx.clip();
+      var rim=sectorStyle(s.tier);
+      var sweepY=m.minY+m.h*(1-Math.max(0.08,intel.occ/100));
+      var occGrad=ctx.createLinearGradient(m.minX,sweepY,m.maxX,m.maxY);
+      occGrad.addColorStop(0,'rgba(255,255,255,.02)');
+      occGrad.addColorStop(0.45,rim.color);
+      occGrad.addColorStop(1,'rgba(0,0,0,.05)');
+      ctx.globalAlpha=Math.min(0.16,0.04+intel.occ/700);
+      ctx.fillStyle=occGrad;
+      ctx.fillRect(m.minX,sweepY,m.w,m.maxY-sweepY);
+
+      var nodeCount=Math.max(2,Math.min(8,Math.round(intel.occ/14)));
+      ctx.globalAlpha=0.42;
+      ctx.strokeStyle=rim.color;
+      ctx.fillStyle=rim.color;
+      for(var ni=0;ni<nodeCount;ni++){
+        var nx=m.minX+m.w*(0.18+((ni*0.31)%0.68));
+        var ny=m.minY+m.h*(0.22+((ni*0.47)%0.56));
+        var nr=Math.max(2,Math.min(5,m.w*0.011));
+        ctx.beginPath();ctx.arc(nx,ny,nr,0,Math.PI*2);ctx.fill();
+        if(ni>0){
+          var px=m.minX+m.w*(0.18+(((ni-1)*0.31)%0.68));
+          var py=m.minY+m.h*(0.22+(((ni-1)*0.47)%0.56));
+          ctx.globalAlpha=0.16;
+          ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(nx,ny);ctx.stroke();
+          ctx.globalAlpha=0.42;
+        }
+      }
+      ctx.restore();
+    }
+
     // 차단된 섹터: 큰 X 표시
     if(_entryBlocked){
       var c=[m.cx,m.cy];
@@ -202,6 +249,9 @@ function _drawSectorOverlay(ctx,w,h){
 
     var labelW=Math.min(polyW*0.82,Math.max(ctx.measureText(nameText).width+fontSize*1.25,fontSize*5.5));
     var labelH=fontSize*1.7;
+    var intel2=sectorIntel(s);
+    var extraH=fontSize*0.88;
+    if(polyW>fontSize*7) labelH+=extraH;
     ctx.shadowColor='transparent';ctx.shadowBlur=0;
     ctx.globalAlpha=0.58;
     ctx.fillStyle='rgba(2,6,14,.86)';
@@ -225,6 +275,43 @@ function _drawSectorOverlay(ctx,w,h){
     ctx.font='bold '+tierSize+'px monospace';
     ctx.globalAlpha=0.75;
     ctx.fillText(s.tier.toUpperCase(),cx,cy+fontSize*0.48);
+
+    if(polyW>fontSize*7){
+      var badgeY=cy+fontSize*0.88;
+      var badgeSize=Math.max(_isMobTex?8:11,tierSize*0.62);
+      var badges=[
+        {text:'ECO '+intel2.eco,color:intel2.eco>=180?'#FFD166':intel2.eco>=115?'#64D8FF':'#4CD89A'},
+        {text:'OCC '+Math.round(intel2.occ)+'%',color:intel2.occ>=75?'#FF7043':intel2.occ>=40?'#FFD166':'#4CD89A'},
+        {text:'x'+intel2.mining.toFixed(2),color:'#B888E0'}
+      ];
+      var totalW=0;
+      ctx.font='bold '+badgeSize+'px monospace';
+      badges.forEach(function(b){ b.w=ctx.measureText(b.text).width+badgeSize*1.2; totalW+=b.w+badgeSize*0.32; });
+      totalW-=badgeSize*0.32;
+      var bx=cx-totalW/2;
+      badges.forEach(function(b){
+        ctx.globalAlpha=0.58;
+        ctx.fillStyle='rgba(0,0,0,.62)';
+        roundRect(bx,badgeY-badgeSize*0.82,b.w,badgeSize*1.35,Math.max(4,badgeSize*0.28));
+        ctx.fill();
+        ctx.globalAlpha=0.38;
+        ctx.strokeStyle=b.color;
+        ctx.lineWidth=1;
+        ctx.stroke();
+        ctx.globalAlpha=0.92;
+        ctx.fillStyle=b.color;
+        ctx.shadowColor='rgba(0,0,0,.9)';
+        ctx.shadowBlur=3;
+        ctx.fillText(b.text,bx+b.w/2,badgeY-badgeSize*0.13);
+        bx+=b.w+badgeSize*0.32;
+      });
+      if(intel2.pressure!=='OPEN'){
+        ctx.font='bold '+Math.max(8,badgeSize*0.86)+'px monospace';
+        ctx.globalAlpha=0.82;
+        ctx.fillStyle=intel2.pressure==='WAR'?'#FF7043':'#FFD166';
+        ctx.fillText(intel2.pressure,cx,cy+fontSize*1.32);
+      }
+    }
 
     // Governor name below tier
     var govName=s.governor?s.governor.nickname:null;
