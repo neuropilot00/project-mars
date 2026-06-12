@@ -27,7 +27,16 @@
   }
 
   function pickBattlefieldKey(battleId) {
-    var keys = ['orbit_territory', 'garrison', 'mining_site', 'canyon_outpost'];
+    var keys = [
+      'orbit_territory',
+      'garrison',
+      'mining_site',
+      'canyon_outpost',
+      'polar_ice',
+      'lava_tube',
+      'crater_relay',
+      'refinery_yard'
+    ];
     var n = Math.abs(parseInt(battleId, 10) || 0);
     return keys[n % keys.length];
   }
@@ -178,7 +187,7 @@
   function openTacticalLab() {
     var elements = getTacticalLabModalElements();
     if (!elements.backdrop) return;
-    if (elements.frame) elements.frame.src = buildTacticalLabUrl({ mode: 'sandbox' });
+    if (elements.frame) elements.frame.src = buildTacticalLabUrl({ mode: 'sandbox', bg: pickBattlefieldKey(Date.now()) });
     syncTacticalLabModalText(elements);
     elements.backdrop.classList.add('active');
   }
