@@ -122,9 +122,10 @@
     html += '<div style="font-size:10px;color:#64dc82;font-weight:900;letter-spacing:1px">' + lang('MINING ROUTE', '채굴 항로', '採掘航路', '采矿航线') + '</div>';
     html += '<button type="button" onclick="_renderShipMining()" style="font-size:8px;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx3);font-family:var(--fn);cursor:pointer">REFRESH</button>';
     html += '</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:9px">';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:5px;margin-bottom:9px">';
     html += '<div style="padding:6px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:var(--tx3)">ACTIVE LIMIT</div><div style="font-size:10px;color:var(--tx);font-weight:800">' + txt(info.maxPerWallet || 0) + '</div></div>';
     html += '<div style="padding:6px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:var(--tx3)">DAILY CAP</div><div style="font-size:10px;color:var(--gold);font-weight:800">' + (Number(info.gpCapPerDay) > 0 ? txt(info.gpCapPerDay) + ' GP' : 'OPEN') + '</div></div>';
+    html += '<div style="padding:6px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:var(--tx3)">LAUNCH COST</div><div style="font-size:10px;color:' + (Number(info.launchCostGp) > 0 ? 'var(--red)' : '#64dc82') + ';font-weight:800">' + (Number(info.launchCostGp) > 0 ? txt(info.launchCostGp) + ' GP' : 'FREE') + '</div></div>';
     html += '<div style="padding:6px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:var(--tx3)">MIN HULL</div><div style="font-size:10px;color:#64dc82;font-weight:800">' + pct(info.minHpPct) + '%</div></div>';
     html += '</div>';
 
@@ -204,12 +205,18 @@
     if (!fleet) { el.textContent = ''; return; }
     var cap = fleetCapacityEstimate(fleet);
     var gp = Math.round(cap * h * (Number(state.info.gpPerCapacityHour) || 0) * (Number(dest.yieldMult) || 1));
+    var launchCost = Number(state.info.launchCostGp) || 0;
+    var netGp = gp - launchCost;
+    var wearPct = (Number(state.info.hullWearPctPerHour) || 0) * (Number(dest.wearMult) || 1) * h;
+    var raidWearPct = wearPct * 1.5;
     var capLine = Number(state.info.gpCapPerDay) > 0 ? ' · ' + lang('daily cap', '일일 상한', '日次上限', '每日上限') + ' ' + state.info.gpCapPerDay + ' GP' : '';
     el.innerHTML = '<span style="color:' + routeRiskColor(dest) + ';font-weight:900">' + txt(routeRiskLabel(dest)) + '</span> · ' +
-      lang('Projected', '예상', '予測', '预计') + ': <b style="color:var(--gold)">+' + gp + ' GP</b> · CAP ' + txt(cap) + capLine + '<br>' +
+      lang('Gross', '총 보상', '総報酬', '总收益') + ': <b style="color:var(--gold)">+' + gp + ' GP</b> · ' +
+      lang('Net', '순익', '純益', '净收益') + ': <b style="color:' + (netGp >= 0 ? '#64dc82' : 'var(--red)') + '">' + (netGp >= 0 ? '+' : '') + netGp + ' GP</b> · CAP ' + txt(cap) + capLine + '<br>' +
       lang('hull wear', '선체 마모', '船体摩耗', '船体损耗') + ' x' + Number(dest.wearMult || 1).toFixed(1) + ' · ' +
       lang('raid risk', '약탈 위험', '襲撃リスク', '袭击风险') + ' ' + pct(dest.raidPct) + '% · ' +
-      lang('base wear', '기본 마모', '基本摩耗', '基础损耗') + ' ' + pct(state.info.hullWearPctPerHour) + '%/h';
+      lang('expected wear', '예상 마모', '予想摩耗', '预计损耗') + ' ' + pct(wearPct) + '%' +
+      (Number(dest.raidPct) > 0 ? ' (' + lang('raided', '약탈 시', '襲撃時', '被袭时') + ' ' + pct(raidWearPct) + '%)' : '');
   };
 
   window._renderShipMining = function () {
