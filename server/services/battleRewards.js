@@ -13,6 +13,12 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
+let dailyService;
+try { dailyService = require('./daily'); } catch (_) { /* optional daily service */ }
+let seasonService;
+try { seasonService = require('./season'); } catch (_) { /* optional season service */ }
+let dailyOps;
+try { dailyOps = require('../routes/dailyOps'); } catch (_) { /* optional daily ops route helper */ }
 
 // 광물 드랍 풀 (전투 타입별로 다름)
 const MINERAL_DROP_POOL = {
@@ -69,6 +75,7 @@ async function distributeRewards(battleId) {
   const settings = await loadBattleSettings();
   
   const results = [];
+  const progressEvents = [];
 
   const client = await pool.connect();
   try {
@@ -157,9 +164,15 @@ async function distributeRewards(battleId) {
         is_winner: isWinner,
         ...reward,
       });
+      progressEvents.push({
+        wallet: p.wallet_address,
+        isWinner,
+        gpAwarded: reward.gp_awarded,
+      });
     }
     
     await client.query('COMMIT');
+    recordBattleProgress(progressEvents);
     console.log(`[rewards] battle ${battleId} distributed to ${results.length} participants`);
     
     return results;
@@ -168,6 +181,28 @@ async function distributeRewards(battleId) {
     throw err;
   } finally {
     client.release();
+  }
+}
+
+function recordBattleProgress(events) {
+  for (const ev of events || []) {
+    const w = String(ev.wallet || '').toLowerCase();
+    if (!w) continue;
+    if (dailyOps && typeof dailyOps.notifyMissionProgress === 'function') {
+      dailyOps.notifyMissionProgress(w, 'battle_participate').catch(() => {});
+      dailyOps.notifyMissionProgress(w, 'battle_participate_3').catch(() => {});
+      if (ev.isWinner) {
+        dailyOps.notifyMissionProgress(w, 'battle_win').catch(() => {});
+        dailyOps.notifyMissionProgress(w, 'battle_win_3').catch(() => {});
+      }
+    }
+    if (dailyService && typeof dailyService.updateMissionProgress === 'function' && ev.isWinner) {
+      dailyService.updateMissionProgress(w, 'win_naval_battle', 1).catch(() => {});
+    }
+    if (seasonService && typeof seasonService.addSeasonScore === 'function') {
+      if (ev.isWinner) seasonService.addSeasonScore(w, 'naval_win', 1).catch(() => {});
+      if (ev.gpAwarded > 0) seasonService.addSeasonScore(w, 'gp_earn', Math.round(ev.gpAwarded)).catch(() => {});
+    }
   }
 }
 
