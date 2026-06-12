@@ -1414,6 +1414,7 @@ function _appendSectorControl(container, sectorId, wallet, lang) {
           html+='<div style="display:flex;justify-content:space-between;align-items:center">';
           html+='<span style="font-size:8px;color:'+(isMe?'#69f0ae':'var(--tx2)')+(isMe?';font-weight:700':'')+'">'+['🥇','🥈','🥉'][i]+' '+(isMe?'('+(lang==='ko'?'나':lang==='ja'?'自分':lang==='zh'?'我':'me')+') ':'')+wShort+'</span>';
           html+='<span style="font-size:8px">';
+          if(o.battleScore>0) html+='<span style="color:#ff7043;margin-right:4px">⚔+'+o.battleScore+'</span>';
           if(tierLabel) html+='<span style="color:'+tierColor+';margin-right:3px">'+tierLabel+'</span>';
           html+='<span style="color:var(--tx3)">'+o.controlPct+'%</span></span>';
           html+='</div>';
@@ -1428,7 +1429,7 @@ function _appendSectorControl(container, sectorId, wallet, lang) {
           var myTierLabel = d.myEntry.influenceTier ? (TIER_LABELS[d.myEntry.influenceTier]||d.myEntry.influenceTier) : (lang==='ko'?'영향력 없음':lang==='ja'?'影響力なし':lang==='zh'?'无影响力':'No influence');
           html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 4px;background:rgba(105,240,174,.06);border:1px solid rgba(105,240,174,.15);border-radius:4px">';
           html+='<span style="font-size:8px;color:#69f0ae;font-weight:700">'+(lang==='ko'?'내 위치':lang==='ja'?'自分の位置':lang==='zh'?'我的位置':'My position')+'</span>';
-          html+='<span style="font-size:8px;color:'+myTierColor+'">'+myTierLabel+' · '+d.myEntry.controlPct+'%</span>';
+          html+='<span style="font-size:8px;color:'+myTierColor+'">'+(d.myEntry.battleScore>0?('⚔+'+d.myEntry.battleScore+' · '):'')+myTierLabel+' · '+d.myEntry.controlPct+'%</span>';
           html+='</div>';
         }
       }

@@ -29,6 +29,8 @@ const INFLUENCE_TIERS = [
   { id: 'presence', threshold: 0.10, bonus: 'Sector influence list', bonusKo: '섹터 영향력 목록' },
 ];
 
+const BATTLE_WIN_CONTROL_SCORE = 20;
+
 router.get('/sectors/control', readLimiter, async (req, res) => {
   try {
     const sectorsRes = await pool.query(`
@@ -60,6 +62,27 @@ router.get('/sectors/control', readLimiter, async (req, res) => {
     const activityMap = {};
     activityRes.rows.forEach(r => { activityMap[r.wallet] = parseInt(r.harvest_count); });
 
+    const battleRes = await pool.query(`
+      SELECT
+        fb.sector_id,
+        LOWER(p.wallet_address) AS wallet,
+        COUNT(*)::int AS win_count
+      FROM fleet_battles fb
+      JOIN fleet_battle_participants p ON p.battle_id = fb.id AND p.side = fb.winner_side
+      WHERE fb.status = 'ended'
+        AND fb.sector_id IS NOT NULL
+        AND fb.winner_side IN ('atk','def')
+        AND fb.battle_type IN ('pvp_duel','hijack','siege')
+        AND fb.ended_at > NOW() - INTERVAL '7 days'
+      GROUP BY fb.sector_id, LOWER(p.wallet_address)
+    `);
+    const battleMap = {};
+    battleRes.rows.forEach(r => {
+      const sid = r.sector_id;
+      if (!battleMap[sid]) battleMap[sid] = {};
+      battleMap[sid][r.wallet] = parseInt(r.win_count, 10) || 0;
+    });
+
     let guildMap = {};
     try {
       const guildRes = await pool.query(`
@@ -76,14 +99,16 @@ router.get('/sectors/control', readLimiter, async (req, res) => {
       const pixelArea = parseInt(row.pixel_area) || 0;
       const upgradeScore = parseInt(row.upgrade_levels) * 5;
       const harvestScore = (activityMap[wallet] || 0) * 3;
-      const totalScore = pixelArea + upgradeScore + harvestScore;
+      const battleScore = ((battleMap[sId] && battleMap[sId][wallet]) || 0) * BATTLE_WIN_CONTROL_SCORE;
+      const totalScore = pixelArea + upgradeScore + harvestScore + battleScore;
 
       if (!sectorDataMap[sId][wallet]) {
-        sectorDataMap[sId][wallet] = { wallet, pixelArea: 0, upgradeScore: 0, harvestScore: 0, totalScore: 0 };
+        sectorDataMap[sId][wallet] = { wallet, pixelArea: 0, upgradeScore: 0, harvestScore: 0, battleScore: 0, totalScore: 0 };
       }
       sectorDataMap[sId][wallet].pixelArea += pixelArea;
       sectorDataMap[sId][wallet].upgradeScore += upgradeScore;
       sectorDataMap[sId][wallet].harvestScore += harvestScore;
+      sectorDataMap[sId][wallet].battleScore += battleScore;
       sectorDataMap[sId][wallet].totalScore += totalScore;
     }
 
@@ -98,6 +123,7 @@ router.get('/sectors/control', readLimiter, async (req, res) => {
           wallet: o.wallet,
           shortWallet: o.wallet.slice(0, 6) + '…' + o.wallet.slice(-4),
           pixelArea: o.pixelArea,
+          battleScore: o.battleScore,
           totalScore: o.totalScore,
           controlPct: Math.round(pct * 100),
           influenceTier: tier ? tier.id : null,
@@ -161,6 +187,23 @@ router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
       actRes.rows.forEach(r => { activityMap[r.wallet] = parseInt(r.harvest_count); });
     }
 
+    let battleMap = {};
+    if (wallets.length) {
+      const battleRes = await pool.query(`
+        SELECT LOWER(p.wallet_address) AS wallet, COUNT(*)::int AS win_count
+        FROM fleet_battles fb
+        JOIN fleet_battle_participants p ON p.battle_id = fb.id AND p.side = fb.winner_side
+        WHERE fb.status = 'ended'
+          AND fb.sector_id = $1
+          AND fb.winner_side IN ('atk','def')
+          AND fb.battle_type IN ('pvp_duel','hijack','siege')
+          AND fb.ended_at > NOW() - INTERVAL '7 days'
+          AND LOWER(p.wallet_address) = ANY($2)
+        GROUP BY LOWER(p.wallet_address)
+      `, [sectorId, wallets]);
+      battleRes.rows.forEach(r => { battleMap[r.wallet] = parseInt(r.win_count, 10) || 0; });
+    }
+
     const owners = ownerRes.rows.map(r => {
       const w = r.wallet.toLowerCase();
       return {
@@ -168,9 +211,10 @@ router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
         pixelArea: parseInt(r.pixel_area),
         upgradeScore: parseInt(r.upgrade_levels) * 5,
         harvestScore: (activityMap[w] || 0) * 3,
+        battleScore: (battleMap[w] || 0) * BATTLE_WIN_CONTROL_SCORE,
       };
     });
-    owners.forEach(o => { o.totalScore = o.pixelArea + o.upgradeScore + o.harvestScore; });
+    owners.forEach(o => { o.totalScore = o.pixelArea + o.upgradeScore + o.harvestScore + o.battleScore; });
     const totalSectorScore = owners.reduce((a, o) => a + o.totalScore, 0);
     owners.forEach(o => {
       const pct = totalSectorScore > 0 ? o.totalScore / totalSectorScore : 0;
@@ -183,7 +227,7 @@ router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
     if (wallet) {
       myEntry = owners.find(o => o.wallet === wallet) || null;
       if (!myEntry) {
-        myEntry = { wallet, pixelArea: 0, upgradeScore: 0, harvestScore: 0, totalScore: 0, controlPct: 0, influenceTier: null };
+        myEntry = { wallet, pixelArea: 0, upgradeScore: 0, harvestScore: 0, battleScore: 0, totalScore: 0, controlPct: 0, influenceTier: null };
       }
     }
 
