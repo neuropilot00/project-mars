@@ -169,6 +169,11 @@ function loadBattleRewardsHistory() {
               + (br.sector_code ? ' · ' + escapeHtml(br.sector_code) : '')
               + '</span>';
           }
+          if (br && br.alliance_treasury_bonus) {
+            bonus += ' <span style="color:#80cbc4;border:1px solid rgba(128,203,196,.28);border-radius:3px;padding:1px 4px">'
+              + tl('ALLY BANK +','동맹 금고 +','同盟金庫 +','联盟金库 +') + Math.round(parseFloat(br.alliance_treasury_bonus) || 0) + ' GP'
+              + '</span>';
+          }
         } catch(_e2) {}
         var resultTag = won ? '<span style="color:var(--gold)">🏆 ' + tl('WIN','승','勝','胜') + '</span>' : '<span style="color:var(--tx3)">' + tl('LOSS','패','敗','败') + '</span>';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.05);padding:2px 0">'
@@ -1208,6 +1213,9 @@ function showRewardToast(reward) {
     const breakdown = (typeof reward.breakdown === 'string') ? JSON.parse(reward.breakdown) : (reward.breakdown || {});
     if (breakdown.sector_conflict_bonus) {
       html += `<div class="reward-item gp"><span>⚔ ${LANG==='ko'?'분쟁 섹터 보너스':LANG==='ja'?'紛争セクター報酬':LANG==='zh'?'争端区奖励':'Conflict Sector Bonus'}</span><b>+${breakdown.sector_conflict_bonus}</b></div>`;
+    }
+    if (breakdown.alliance_treasury_bonus) {
+      html += `<div class="reward-item gp"><span>🛡 ${LANG==='ko'?'동맹 금고 배당':LANG==='ja'?'同盟金庫配当':LANG==='zh'?'联盟金库分红':'Alliance Treasury'}</span><b>+${breakdown.alliance_treasury_bonus}</b></div>`;
     }
   } catch (_) {}
   for (const [code, qty] of Object.entries(reward.minerals_awarded || {})) {
@@ -2643,6 +2651,9 @@ async function _injectRewardIntoResult(battleId) {
     }
     if (breakdown.sector_conflict_bonus) {
       html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>⚔ ${LANG==='ko'?'분쟁 섹터 보너스':LANG==='ja'?'紛争セクター報酬':LANG==='zh'?'争端区奖励':'Conflict Sector Bonus'}</span><b style="color:#ffab40">+${breakdown.sector_conflict_bonus} GP</b></div>`;
+    }
+    if (breakdown.alliance_treasury_bonus) {
+      html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>🛡 ${LANG==='ko'?'동맹 금고 배당':LANG==='ja'?'同盟金庫配当':LANG==='zh'?'联盟金库分红':'Alliance Treasury'}</span><b style="color:#80cbc4">+${breakdown.alliance_treasury_bonus} GP</b></div>`;
     }
     for (const [code, qty] of Object.entries(mineralsAwarded || {})) {
       if (!qty) continue;
