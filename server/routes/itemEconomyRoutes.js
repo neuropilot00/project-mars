@@ -14,6 +14,7 @@ let enhancementService;
 try { enhancementService = require('../services/enhancement'); } catch (_e) { /* enhancement service not available */ }
 
 const router = express.Router();
+const USE_EFFECT_DEFAULT_HOURS = 24;
 
 const readLimiter = makeRateLimiter({
   windowMs: 60 * 1000, max: 120,
@@ -33,6 +34,11 @@ function getOptionalAuthWallet(req) {
   } catch (_) {
     return '';
   }
+}
+
+function getUseEffectExpiry(item) {
+  const hours = Number(item?.duration_hours) > 0 ? Number(item.duration_hours) : USE_EFFECT_DEFAULT_HOURS;
+  return new Date(Date.now() + hours * 3600000);
 }
 
 // ══════════════════════════════════════
@@ -251,24 +257,28 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { empApplied: true, targetClaim: claimId, claimsHit: groupIds.length };
     } else if (item.code === 'attack_boost') {
       // +20% attack success for next 3 attacks (uses-based)
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'attack_boost' AND active = true`, [w]
       );
       await client.query(
-        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'attack_boost', $2, 3)`,
-        [w, item.effect_value]
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining, expires_at, source_item_code)
+         VALUES ($1, 'attack_boost', $2, 3, $3, $4)`,
+        [w, item.effect_value, expiresAt, item.code]
       );
-      effectResult = { applied: true, code: item.code, uses: 3, value: item.effect_value };
+      effectResult = { applied: true, code: item.code, uses: 3, expiresAt, value: item.effect_value };
     } else if (item.code === 'pixel_doubler') {
       // 2x pixels on next claim (1 use)
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'pixel_doubler' AND active = true`, [w]
       );
       await client.query(
-        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'pixel_doubler', 2, 1)`,
-        [w]
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining, expires_at, source_item_code)
+         VALUES ($1, 'pixel_doubler', 2, 1, $2, $3)`,
+        [w, expiresAt, item.code]
       );
-      effectResult = { applied: true, code: item.code, uses: 1, value: 2 };
+      effectResult = { applied: true, code: item.code, uses: 1, expiresAt, value: 2 };
     } else if (item.code === 'mining_boost') {
       // +mining speed for duration_hours (duration-based)
       const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
@@ -368,14 +378,16 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, targetClaim: claimId, expiresAt };
     } else if (item.code === 'siege_ram') {
       // Siege ram — +40% attack for next claim (1 use, like attack_boost)
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'siege_ram' AND active = true`, [w]
       );
       await client.query(
-        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'siege_ram', $2, 1)`,
-        [w, item.effect_value]
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining, expires_at, source_item_code)
+         VALUES ($1, 'siege_ram', $2, 1, $3, $4)`,
+        [w, item.effect_value, expiresAt, item.code]
       );
-      effectResult = { applied: true, code: item.code, uses: 1, value: item.effect_value };
+      effectResult = { applied: true, code: item.code, uses: 1, expiresAt, value: item.effect_value };
     } else if (item.code === 'supply_crate') {
       // Supply crate — instant random PP grant
       const randomPP = +(Math.random() * 0.4 + 0.1).toFixed(4);
@@ -398,14 +410,16 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, instant: true };
     } else if (item.code === 'harvest_surge') {
       // Harvest surge — 3x PP on next harvest (1 use, like pixel_doubler)
+      const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'harvest_surge' AND active = true`, [w]
       );
       await client.query(
-        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'harvest_surge', $2, 1)`,
-        [w, item.effect_value]
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining, expires_at, source_item_code)
+         VALUES ($1, 'harvest_surge', $2, 1, $3, $4)`,
+        [w, item.effect_value, expiresAt, item.code]
       );
-      effectResult = { applied: true, code: item.code, uses: 1, value: item.effect_value };
+      effectResult = { applied: true, code: item.code, uses: 1, expiresAt, value: item.effect_value };
     } else if (item.code === 'xp_amplifier') {
       // XP amplifier — 2x XP for 4h (duration-based, like mining_boost)
       const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);

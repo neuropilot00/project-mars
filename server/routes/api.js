@@ -533,6 +533,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
         `SELECT id FROM user_active_effects
          WHERE wallet = $1 AND effect_type = 'pixel_doubler' AND active = true
            AND uses_remaining > 0
+           AND (expires_at IS NULL OR expires_at > NOW())
          ORDER BY id DESC LIMIT 1`, [walletLower]
       );
       if (pdRes.rows.length > 0) {
@@ -588,6 +589,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
         `SELECT id, effect_value, uses_remaining FROM user_active_effects
          WHERE wallet = $1 AND effect_type = 'attack_boost' AND active = true
            AND (uses_remaining > 0 OR uses_remaining IS NULL)
+           AND (expires_at IS NULL OR expires_at > NOW())
          ORDER BY id DESC LIMIT 1`, [wallet.toLowerCase()]
       );
       if (boostRes.rows.length > 0) {
