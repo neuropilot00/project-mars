@@ -2,6 +2,13 @@ const { pool, getSetting } = require('../db');
 let jobService; try { jobService = require('./job'); } catch (_e) {}
 let resourceService; try { resourceService = require('./resource'); } catch (_e) {}
 
+function notifyOpsProgress(wallet, types) {
+  try {
+    const dailyOps = require('../routes/dailyOps');
+    types.forEach(type => dailyOps.notifyMissionProgress(wallet, type).catch(() => {}));
+  } catch (_) {}
+}
+
 // ── Create a listing (item/cosmetic or claim) ──
 async function createListing(client, seller, type, params) {
   const w = seller.toLowerCase();
@@ -186,6 +193,7 @@ async function createListing(client, seller, type, params) {
       : [w, type, itemInstanceId, claimId, price, currency, expiresAt, JSON.stringify(meta), sectorId]
   );
 
+  notifyOpsProgress(w, ['market_list', 'market_activity']);
   return listRes.rows[0];
 }
 
@@ -486,6 +494,7 @@ async function buyListing(client, listingId, buyer) {
     const dailySvc = require('./daily');
     dailySvc.updateMissionProgress(b, 'marketplace_trade', 1).catch(() => {});
   } catch (_de) {}
+  notifyOpsProgress(b, ['market_buy', 'market_activity']);
 
   // ✅ GP Activity log (buyer spent, seller received)
   try {
