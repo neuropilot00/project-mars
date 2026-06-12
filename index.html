@@ -39354,7 +39354,7 @@ function loadMyTdescs() {
   var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
   if (!wallet) { listEl.textContent = '—'; return; }
   listEl.innerHTML = '<span style="color:var(--tx3)">Loading…</span>';
-  fetch('/api/tdesc/my?wallet='+encodeURIComponent(wallet)).then(function(r){return r.json();}).then(function(rows){
+  fetch('/api/tdesc/my', { headers: getAuthHeaders() }).then(function(r){return r.json();}).then(function(rows){
     if (!rows.length) { listEl.innerHTML = '<span style="color:var(--tx3)" data-i18n="tdesc_none">No descriptions set yet.</span>'; return; }
     // [v7.214 fix] description text 인라인 onclick 안에 들어가 escape 깨짐 위험.
     //   index-based cache + data-action + delegated listener.

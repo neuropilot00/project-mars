@@ -31,9 +31,9 @@ router.get('/tdesc/claim/:claimId', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/tdesc/my?wallet=
-router.get('/tdesc/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/tdesc/my
+router.get('/tdesc/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMyDescriptions(wallet)); }
   catch(e) { res.status(500).json({ error: e.message }); }
