@@ -68,6 +68,9 @@ const SECTOR_INFLUENCE_PRODUCTION_BONUS = [
   { id: 'stakeholder', threshold: 0.25, multiplier: 1.05 },
 ];
 const SECTOR_BATTLE_WIN_CONTROL_SCORE = 20;
+const SECTOR_INFLUENCE_CACHE_TTL_MS = 15000;
+const SECTOR_INFLUENCE_CACHE_MAX = 500;
+const _sectorInfluenceBonusCache = new Map();
 
 const GRID_SIZE = 0.22;
 
@@ -102,6 +105,9 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
   const w = String(wallet || '').toLowerCase().trim();
   const sid = parseInt(sectorId, 10);
   if (!w || !sid) return null;
+  const cacheKey = sid + ':' + w;
+  const cached = _sectorInfluenceBonusCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < SECTOR_INFLUENCE_CACHE_TTL_MS) return cached.value;
 
   const ownerRes = await client.query(`
     SELECT LOWER(c.owner) AS wallet,
@@ -114,7 +120,7 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
      WHERE p.sector_id = $1 AND c.owner IS NOT NULL
      GROUP BY LOWER(c.owner)
   `, [sid]);
-  if (!ownerRes.rows.length) return null;
+  if (!ownerRes.rows.length) return _cacheSectorInfluenceBonus(cacheKey, null);
 
   const wallets = ownerRes.rows.map(r => r.wallet);
   const activityMap = {};
@@ -152,13 +158,23 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
     return { wallet: owner, totalScore: pixelArea + upgradeScore + harvestScore + battleScore };
   });
   const totalScore = scores.reduce((sum, row) => sum + row.totalScore, 0);
-  if (totalScore <= 0) return null;
+  if (totalScore <= 0) return _cacheSectorInfluenceBonus(cacheKey, null);
   const mine = scores.find(row => row.wallet === w);
-  if (!mine || mine.totalScore <= 0) return null;
+  if (!mine || mine.totalScore <= 0) return _cacheSectorInfluenceBonus(cacheKey, null);
   const controlPct = mine.totalScore / totalScore;
   const tier = SECTOR_INFLUENCE_PRODUCTION_BONUS.find(t => controlPct >= t.threshold);
-  if (!tier) return null;
-  return { tier: tier.id, multiplier: tier.multiplier, controlPct: Math.round(controlPct * 100) };
+  if (!tier) return _cacheSectorInfluenceBonus(cacheKey, null);
+  return _cacheSectorInfluenceBonus(cacheKey, { tier: tier.id, multiplier: tier.multiplier, controlPct: Math.round(controlPct * 100) });
+}
+
+function _cacheSectorInfluenceBonus(cacheKey, value) {
+  _sectorInfluenceBonusCache.set(cacheKey, { at: Date.now(), value });
+  while (_sectorInfluenceBonusCache.size > SECTOR_INFLUENCE_CACHE_MAX) {
+    const first = _sectorInfluenceBonusCache.keys().next().value;
+    if (first == null) break;
+    _sectorInfluenceBonusCache.delete(first);
+  }
+  return value;
 }
 
 // Cached sectors for sector lookup
