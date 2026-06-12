@@ -29,14 +29,15 @@ function _drawSectorOverlay(ctx,w,h){
     return[cx/pts.length,cy/pts.length];
   }
   function sectorStyle(tier){
-    var c=_sectorColor(tier);
+    var c=tier==='frontier'?'#5EC8FF':(tier==='mid'?'#FFD166':'#FF8A30');
     return {
       color:c,
-      fillAlpha:tier==='core'?0.18:tier==='mid'?0.14:0.11,
-      edgeAlpha:tier==='core'?0.86:tier==='mid'?0.76:0.66,
-      glow:tier==='core'?18:tier==='mid'?13:9
+      fillAlpha:tier==='core'?0.095:tier==='mid'?0.072:0.058,
+      edgeAlpha:tier==='core'?0.98:tier==='mid'?0.9:0.84,
+      glow:tier==='core'?26:tier==='mid'?21:18
     };
   }
+  function prand(seed){var x=Math.sin(seed*12.9898+78.233)*43758.5453;return x-Math.floor(x);}
   function sectorIntel(s){
     var stats=s.stats||{};
     var occ=Math.max(0,Math.min(100,parseFloat(stats.occupancyRate)||0));
@@ -109,16 +110,22 @@ function _drawSectorOverlay(ctx,w,h){
       tracePts(m.pts);
       ctx.clip();
       var st2=sectorStyle(s.tier);
-      ctx.globalAlpha=0.12;
-      ctx.strokeStyle='rgba(255,255,255,.8)';
-      ctx.lineWidth=Math.max(1,Math.min(3,m.w*0.006));
+      ctx.globalAlpha=0.09;
+      ctx.strokeStyle='rgba(255,235,205,.72)';
+      ctx.lineWidth=Math.max(0.7,Math.min(1.6,m.w*0.0035));
       for(var gx=m.minX;gx<m.maxX;gx+=Math.max(28,m.w/8)){
         ctx.beginPath();ctx.moveTo(gx,m.minY);ctx.lineTo(gx+m.h*0.35,m.maxY);ctx.stroke();
       }
-      ctx.globalAlpha=0.1;
+      ctx.globalAlpha=0.12;
       ctx.strokeStyle=st2.color;
       for(var gy=m.minY;gy<m.maxY;gy+=Math.max(24,m.h/5)){
         ctx.beginPath();ctx.moveTo(m.minX,gy);ctx.lineTo(m.maxX,gy-m.w*0.08);ctx.stroke();
+      }
+      ctx.globalAlpha=0.09;
+      ctx.strokeStyle='rgba(255,170,80,.85)';
+      for(var hx=m.minX-m.w*0.15;hx<m.maxX;hx+=Math.max(34,m.w/7)){
+        ctx.beginPath();ctx.moveTo(hx,m.minY);ctx.lineTo(hx+m.h*0.72,m.maxY);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(hx+m.h*0.38,m.minY);ctx.lineTo(hx-m.h*0.28,m.maxY);ctx.stroke();
       }
       ctx.restore();
     }
@@ -138,21 +145,34 @@ function _drawSectorOverlay(ctx,w,h){
       ctx.fillStyle=occGrad;
       ctx.fillRect(m.minX,sweepY,m.w,m.maxY-sweepY);
 
-      var nodeCount=Math.max(2,Math.min(8,Math.round(intel.occ/14)));
-      ctx.globalAlpha=0.42;
+      var nodeCount=Math.max(3,Math.min(10,Math.round(intel.occ/12)+Math.round(intel.eco/120)));
+      ctx.globalAlpha=0.48;
       ctx.strokeStyle=rim.color;
       ctx.fillStyle=rim.color;
       for(var ni=0;ni<nodeCount;ni++){
-        var nx=m.minX+m.w*(0.18+((ni*0.31)%0.68));
-        var ny=m.minY+m.h*(0.22+((ni*0.47)%0.56));
+        var nx=m.minX+m.w*(0.14+prand((s.id||0)*19+ni*5)*0.72);
+        var ny=m.minY+m.h*(0.18+prand((s.id||0)*31+ni*7)*0.62);
         var nr=Math.max(2,Math.min(5,m.w*0.011));
+        var halo=ctx.createRadialGradient(nx,ny,0,nx,ny,nr*5.5);
+        halo.addColorStop(0,rim.color+'cc');
+        halo.addColorStop(0.38,rim.color+'44');
+        halo.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.globalAlpha=0.5;
+        ctx.fillStyle=halo;
+        ctx.fillRect(nx-nr*5.5,ny-nr*5.5,nr*11, nr*11);
+        ctx.globalAlpha=0.92;
+        ctx.fillStyle=rim.color;
         ctx.beginPath();ctx.arc(nx,ny,nr,0,Math.PI*2);ctx.fill();
         if(ni>0){
-          var px=m.minX+m.w*(0.18+(((ni-1)*0.31)%0.68));
-          var py=m.minY+m.h*(0.22+(((ni-1)*0.47)%0.56));
-          ctx.globalAlpha=0.16;
+          var px=m.minX+m.w*(0.14+prand((s.id||0)*19+(ni-1)*5)*0.72);
+          var py=m.minY+m.h*(0.18+prand((s.id||0)*31+(ni-1)*7)*0.62);
+          ctx.globalAlpha=0.22;
+          ctx.strokeStyle=rim.color;
+          ctx.lineWidth=Math.max(0.8,Math.min(2,m.w*0.004));
+          ctx.shadowColor=rim.color;
+          ctx.shadowBlur=8;
           ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(nx,ny);ctx.stroke();
-          ctx.globalAlpha=0.42;
+          ctx.shadowBlur=0;
         }
       }
       ctx.restore();
@@ -203,9 +223,9 @@ function _drawSectorOverlay(ctx,w,h){
   edges.forEach(function(e){
     var pa=toXY(e.a), pb=toXY(e.b);
     var st=sectorStyle(e.tier);
-    ctx.globalAlpha=0.24;
+    ctx.globalAlpha=0.34;
     ctx.strokeStyle=st.color;
-    ctx.lineWidth=7;
+    ctx.lineWidth=11;
     ctx.shadowColor=st.color;
     ctx.shadowBlur=st.glow;
     ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
@@ -214,9 +234,17 @@ function _drawSectorOverlay(ctx,w,h){
   edges.forEach(function(e){
     var pa=toXY(e.a), pb=toXY(e.b);
     var st=sectorStyle(e.tier);
+    ctx.globalAlpha=0.5;
+    ctx.strokeStyle=st.color;
+    ctx.lineWidth=4.2;
+    ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
     ctx.globalAlpha=st.edgeAlpha;
     ctx.strokeStyle=st.color;
-    ctx.lineWidth=2.2;
+    ctx.lineWidth=1.45;
+    ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
+    ctx.globalAlpha=0.74;
+    ctx.strokeStyle='rgba(255,245,220,.82)';
+    ctx.lineWidth=0.65;
     ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
   });
 
@@ -253,11 +281,11 @@ function _drawSectorOverlay(ctx,w,h){
     var extraH=fontSize*0.88;
     if(polyW>fontSize*7) labelH+=extraH;
     ctx.shadowColor='transparent';ctx.shadowBlur=0;
-    ctx.globalAlpha=0.58;
+    ctx.globalAlpha=0.32;
     ctx.fillStyle='rgba(2,6,14,.86)';
     roundRect(cx-labelW/2,cy-labelH/2,labelW,labelH,Math.max(6,fontSize*0.22));
     ctx.fill();
-    ctx.globalAlpha=0.34;
+    ctx.globalAlpha=0.52;
     ctx.strokeStyle=st.color;
     ctx.lineWidth=Math.max(1,fontSize*0.06);
     ctx.stroke();
