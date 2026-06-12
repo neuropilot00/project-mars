@@ -62,6 +62,13 @@ const harvestLimiter = makeRateLimiter({
   message: { error: 'Harvest rate limit exceeded.' }
 });
 
+const SECTOR_INFLUENCE_PRODUCTION_BONUS = [
+  { id: 'governor', threshold: 0.75, multiplier: 1.20 },
+  { id: 'dominant', threshold: 0.50, multiplier: 1.12 },
+  { id: 'stakeholder', threshold: 0.25, multiplier: 1.05 },
+];
+const SECTOR_BATTLE_WIN_CONTROL_SCORE = 20;
+
 const GRID_SIZE = 0.22;
 
 // ── URL sanitization ──
@@ -89,6 +96,69 @@ function pointInPolygon(lng, lat, polygon) {
     }
   }
   return inside;
+}
+
+async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
+  const w = String(wallet || '').toLowerCase().trim();
+  const sid = parseInt(sectorId, 10);
+  if (!w || !sid) return null;
+
+  const ownerRes = await client.query(`
+    SELECT LOWER(c.owner) AS wallet,
+           COUNT(p.lat)::int AS pixel_area,
+           COALESCE(SUM(u.level), 0)::int AS upgrade_levels
+      FROM pixels p
+      JOIN claims c ON c.id = p.claim_id AND c.deleted_at IS NULL
+      LEFT JOIN territory_upgrades u ON u.claim_id = c.id AND u.is_active = true
+        AND u.upgrade_type IN ('extractor','refinery','shield_grid','relay_tower','art_beacon','mine_booster')
+     WHERE p.sector_id = $1 AND c.owner IS NOT NULL
+     GROUP BY LOWER(c.owner)
+  `, [sid]);
+  if (!ownerRes.rows.length) return null;
+
+  const wallets = ownerRes.rows.map(r => r.wallet);
+  const activityMap = {};
+  const activityRes = await client.query(`
+    SELECT LOWER(from_wallet) AS wallet, COUNT(*)::int AS harvest_count
+      FROM transactions
+     WHERE type IN ('mining','instant_harvest')
+       AND created_at > NOW() - INTERVAL '7 days'
+       AND LOWER(from_wallet) = ANY($1)
+     GROUP BY LOWER(from_wallet)
+  `, [wallets]);
+  activityRes.rows.forEach(r => { activityMap[r.wallet] = parseInt(r.harvest_count, 10) || 0; });
+
+  const battleMap = {};
+  const battleRes = await client.query(`
+    SELECT LOWER(p.wallet_address) AS wallet, COUNT(*)::int AS win_count
+      FROM fleet_battles fb
+      JOIN fleet_battle_participants p ON p.battle_id = fb.id AND p.side = fb.winner_side
+     WHERE fb.status = 'ended'
+       AND fb.sector_id = $1
+       AND fb.winner_side IN ('atk','def')
+       AND fb.battle_type IN ('pvp_duel','hijack','siege')
+       AND fb.ended_at > NOW() - INTERVAL '7 days'
+       AND LOWER(p.wallet_address) = ANY($2)
+     GROUP BY LOWER(p.wallet_address)
+  `, [sid, wallets]);
+  battleRes.rows.forEach(r => { battleMap[r.wallet] = parseInt(r.win_count, 10) || 0; });
+
+  const scores = ownerRes.rows.map(r => {
+    const owner = r.wallet;
+    const pixelArea = parseInt(r.pixel_area, 10) || 0;
+    const upgradeScore = (parseInt(r.upgrade_levels, 10) || 0) * 5;
+    const harvestScore = (activityMap[owner] || 0) * 3;
+    const battleScore = (battleMap[owner] || 0) * SECTOR_BATTLE_WIN_CONTROL_SCORE;
+    return { wallet: owner, totalScore: pixelArea + upgradeScore + harvestScore + battleScore };
+  });
+  const totalScore = scores.reduce((sum, row) => sum + row.totalScore, 0);
+  if (totalScore <= 0) return null;
+  const mine = scores.find(row => row.wallet === w);
+  if (!mine || mine.totalScore <= 0) return null;
+  const controlPct = mine.totalScore / totalScore;
+  const tier = SECTOR_INFLUENCE_PRODUCTION_BONUS.find(t => controlPct >= t.threshold);
+  if (!tier) return null;
+  return { tier: tier.id, multiplier: tier.multiplier, controlPct: Math.round(controlPct * 100) };
 }
 
 // Cached sectors for sector lookup
@@ -1932,6 +2002,14 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       if (gm && gm !== 1) harvestedPP = Math.round(harvestedPP * gm * 10000) / 10000;
     } catch (_) {}
 
+    let sectorInfluenceBonus = null;
+    try {
+      sectorInfluenceBonus = await getSectorInfluenceProductionBonus(client, w, claim.sector_id);
+      if (sectorInfluenceBonus && sectorInfluenceBonus.multiplier > 1) {
+        harvestedPP = Math.round(harvestedPP * sectorInfluenceBonus.multiplier * 10000) / 10000;
+      }
+    } catch (_) { sectorInfluenceBonus = null; }
+
     // ✅ [주간 이벤트] 월요일 채굴 +50%
     try {
       if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
@@ -2004,7 +2082,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     // 트랜잭션 로그
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, pixelFactor: Math.round(pixelFactor*100)/100, resourceDrops })]
+      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, resourceDrops })]
     );
 
     await awardXP(client, w, 5).catch(() => {});
@@ -2015,7 +2093,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
 
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
     // [v7.320] 즉시 수확은 GP로 지급되므로 harvestedGP를 함께 내려 UI가 "+N GP"로 표시하게 한다.
-    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, intervalHours, nextHarvestAt, resources: resourceDrops });
+    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, intervalHours, nextHarvestAt, sectorInfluenceBonus, resources: resourceDrops });
 
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
