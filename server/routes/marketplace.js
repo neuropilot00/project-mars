@@ -164,13 +164,6 @@ router.post('/buy', requireAuth, writeLimiter, async (req, res) => {
     const result = await marketService.buyListing(client, parsedListingId, w);
     await client.query('COMMIT');
 
-    // Season tracking
-    if (seasonService) {
-      const spent = Math.round(result.price);
-      if (result.currency === 'GP') seasonService.addSeasonScore(w, 'gp_spend', spent).catch(() => {});
-      else seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
-    }
-
     res.json({ success: true, price: result.price, fee: result.fee, currency: result.currency });
     // Achievement check: marketplace purchase + gp balance
     if (achSvc) {

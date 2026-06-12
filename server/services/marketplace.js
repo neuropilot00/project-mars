@@ -365,14 +365,18 @@ async function buyListing(client, listingId, buyer) {
   // Deduct buyer balance (AND balance >= $1 guard prevents negative balance)
   await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE LOWER(wallet_address) = LOWER($2) AND ${balCol} >= $1`, [price, b]);
 
-  // ✅ Referral commission + season score (GP purchases only)
+  // ✅ Referral commission + season score
   // (레퍼럴 커미션은 fee 계산 후로 이동 — Migration 173: 마켓 수수료 연동)
   try {
     const seasonSvc = require('./season');
     if (currency === 'GP') {
       seasonSvc.addSeasonScore(b, 'gp_spend', price).catch(() => {});
+      seasonSvc.addSeasonScore(listing.seller, 'gp_earn', Math.round(sellerReceives)).catch(() => {});
+    } else {
+      seasonSvc.addSeasonScore(b, 'pp_spend', 1).catch(() => {});
     }
     seasonSvc.addSeasonScore(b, 'trade', 1).catch(() => {});
+    seasonSvc.addSeasonScore(listing.seller, 'trade', 1).catch(() => {});
   } catch (_re) {}
 
   const tariffAmount = settlement.tariffAmount;
@@ -495,13 +499,14 @@ async function buyListing(client, listingId, buyer) {
     dailySvc.updateMissionProgress(b, 'marketplace_trade', 1).catch(() => {});
   } catch (_de) {}
   notifyOpsProgress(b, ['market_buy', 'market_activity']);
+  notifyOpsProgress(listing.seller, ['market_activity']);
 
   // ✅ GP Activity log (buyer spent, seller received)
+  const meta2 = listing.meta || {};
+  const itemLabel = meta2.itemName || meta2.resourceName || (listing.listing_type === 'claim' ? 'Territory' : 'Item');
   try {
     const { logGPActivity } = require('../db');
     if (currency === 'GP') {
-      const meta2 = listing.meta || {};
-      const itemLabel = meta2.itemName || (listing.listing_type === 'claim' ? 'Territory' : 'Item');
       logGPActivity(b, -price, 'marketplace_buy', `"${itemLabel}"`).catch(()=>{});
       logGPActivity(listing.seller, sellerReceives, 'marketplace_sell', `"${itemLabel}"`).catch(()=>{});
     }
@@ -510,8 +515,6 @@ async function buyListing(client, listingId, buyer) {
   // ✅ Notify seller
   try {
     const { notifyPlayer } = require('../db');
-    const meta2 = listing.meta || {};
-    const itemLabel = meta2.itemName || (listing.listing_type === 'claim' ? '영토' : '아이템');
     notifyPlayer(listing.seller, 'listing_sold',
       `💰 "${itemLabel}" 판매 완료! +${sellerReceives.toFixed(0)} ${currency} 지급됨`,
       { listingId, price, fee, sellerReceives, currency, buyer: b }
@@ -543,7 +546,7 @@ async function buyListing(client, listingId, buyer) {
     }).catch(()=>{});
   } catch (_) {}
 
-  return { success: true, price, fee, sellerReceives, currency, listing };
+  return { success: true, price, fee, sellerReceives, currency, listing, seller: listing.seller, itemName: itemLabel };
 }
 
 // ── Get listings (with filters, pagination) ──
