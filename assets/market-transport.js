@@ -49,6 +49,28 @@ function mtReadFetch(key, url, minGap, auth) {
 function mtReadArray(key, url, minGap, auth) {
   return mtReadFetch(key, url, minGap, auth).then(function(data){ return data || []; });
 }
+function weRewardText(ev) {
+  var rp = (ev && ev.reward_preview) || {};
+  var p = rp.participant || {};
+  var top = rp.top || {};
+  var parts = [];
+  if (p.gp) parts.push('+' + Number(p.gp).toLocaleString() + ' GP');
+  if (p.xp) parts.push('+' + Number(p.xp).toLocaleString() + ' XP');
+  if (p.iron_dust) parts.push('iron_dust ×' + p.iron_dust);
+  if (p.ice_crystal) parts.push('ice_crystal ×' + p.ice_crystal);
+  if (top.ancient_metal || top.title) {
+    parts.push('TOP ' + (top.ancient_metal ? ('ancient_metal ×' + top.ancient_metal) : top.title));
+  }
+  return parts.join(' · ');
+}
+function weEngageRuleText(ev) {
+  var e = ((ev && ev.reward_preview) || {}).engage || {};
+  var minShips = Number(e.min_ships) || 1;
+  var cooldown = Number(e.cooldown_min) || 0;
+  return (LANG==='ko'?'최소 ':LANG==='ja'?'最低 ':LANG==='zh'?'至少 ':'Min ') + minShips +
+    (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships') +
+    (cooldown ? (' · ' + cooldown + (LANG==='ko'?'분 쿨다운':LANG==='ja'?'分CD':LANG==='zh'?'分钟冷却':'m cooldown')) : '');
+}
 
 function switchTransportSub(sub) {
   _tspCurrentSub = sub;
@@ -418,6 +440,8 @@ async function loadFleetCommandCard(){
           var sec = parseInt(ev.seconds_remaining)||0;
           var hRem = Math.floor(sec/3600), mRem = Math.floor((sec%3600)/60);
           var pct = parseFloat(ev.hp_pct)||0;
+          var reward = weRewardText(ev);
+          var rule = weEngageRuleText(ev);
           return '<div style="padding:8px 10px;border-radius:7px;background:linear-gradient(135deg,rgba(232,72,85,.10),rgba(232,72,85,.02));border:1px solid rgba(232,72,85,.25)">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
               '<div style="font-size:10px;font-weight:800;color:#ff6b6b">⚠ ' + (ev.event_code||'EVENT') + '</div>' +
@@ -430,6 +454,8 @@ async function loadFleetCommandCard(){
               '<div style="font-size:8px;color:var(--tx3)">HP ' + ev.hp_current + '/' + ev.hp_max + ' · ' + (ev.participant_count||0) + ' fighters</div>' +
               '<button onclick="openWorldEventDetail(' + ev.id + ')" style="font-size:9px;padding:3px 9px;border-radius:6px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff6b6b;cursor:pointer;font-family:var(--fn);font-weight:700" data-i18n="we_engage">⚔ ENGAGE</button>' +
             '</div>' +
+            '<div style="font-size:8px;color:var(--gold);margin-top:5px;line-height:1.45">' + escapeHtml(reward || rule) + '</div>' +
+            '<div style="font-size:7.5px;color:var(--tx3);margin-top:2px">' + escapeHtml(rule) + '</div>' +
           '</div>';
         }).join('');
       }
@@ -464,7 +490,11 @@ window.openWorldEventDetail = async function(eventId) {
     document.getElementById('weHpText').textContent = 'HP ' + Number(ev.hp_current).toLocaleString() + '/' + Number(ev.hp_max).toLocaleString();
     document.getElementById('weParticipants').textContent = (ev.participant_count || 0) + ' fighters';
     var meta = ev.meta || {};
-    document.getElementById('weEventMeta').textContent = (ev.sector_name || '?') + ' · ' + (ev.sector_tier || '') + ' · ' + (meta.ship_count || '?') + '× ' + (meta.ship_name_ko || meta.ship_type_code || '?');
+    var rewardLine = weRewardText(ev);
+    var ruleLine = weEngageRuleText(ev);
+    document.getElementById('weEventMeta').innerHTML = escapeHtml((ev.sector_name || '?') + ' · ' + (ev.sector_tier || '') + ' · ' + (meta.ship_count || '?') + '× ' + (meta.ship_name_ko || meta.ship_type_code || '?'))
+      + (rewardLine ? '<br><span style="color:var(--gold)">' + escapeHtml(rewardLine) + '</span>' : '')
+      + '<br><span style="color:var(--tx3)">' + escapeHtml(ruleLine) + '</span>';
   } catch(e) {
     document.getElementById('weEventCode').textContent = '⚠ EVENT #' + eventId;
     document.getElementById('weEventMeta').textContent = LANG==='ko'?'정보를 불러올 수 없습니다':LANG==='ja'?'情報を読み込めません':LANG==='zh'?'无法加载信息':'Failed to load info';

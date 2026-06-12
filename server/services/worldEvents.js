@@ -52,6 +52,24 @@ async function getSetB(key, fallback) {
   return Boolean(v);
 }
 
+async function getVoidRaiderRewardPreview() {
+  const [ironDust, iceCrystal, xp, gp, topMetal, topTitle, minShips, cooldownMin] = await Promise.all([
+    getSetN('void_raider_reward_iron_dust', 100),
+    getSetN('void_raider_reward_ice_crystal', 10),
+    getSetN('void_raider_reward_xp', 500),
+    getSetN('void_raider_reward_gp', 200),
+    getSetN('void_raider_reward_top_metal', 5),
+    getSetS('void_raider_reward_top_title', 'Void Hunter'),
+    getSetN('void_raider_engage_min_ships', 5),
+    getSetN('void_raider_engage_cooldown_min', 30),
+  ]);
+  return {
+    participant: { gp, xp, iron_dust: ironDust, ice_crystal: iceCrystal },
+    top: { ancient_metal: topMetal, title: topTitle },
+    engage: { min_ships: minShips, cooldown_min: cooldownMin },
+  };
+}
+
 function getVoidRaiderBossLoadout(shipTypeCode, shipCount) {
   const count = parseInt(shipCount, 10) || 0;
   let bossTier = 'raider';
@@ -214,7 +232,8 @@ async function listActiveEvents() {
       WHERE we.status IN ('active', 'engaged')
       ORDER BY we.ends_at ASC`
   );
-  return rows;
+  const rewardPreview = await getVoidRaiderRewardPreview();
+  return rows.map(row => ({ ...row, reward_preview: rewardPreview }));
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -238,6 +257,7 @@ async function getEventDetail(eventId) {
   );
   if (!evRows.length) return null;
   const event = evRows[0];
+  event.reward_preview = await getVoidRaiderRewardPreview();
 
   const { rows: participants } = await pool.query(
     `SELECT wep.wallet, COALESCE(u.nickname, '') AS nickname,
