@@ -343,6 +343,18 @@ function closeBattleHub() {
   if (battleHubState.pollTimer) { _clearActiveInterval(battleHubState.pollTimer); battleHubState.pollTimer = null; }
 }
 
+function stopBattleTransientWork() {
+  try {
+    var hub = document.getElementById('battleHubModal');
+    if (hub && hub.classList.contains('active')) closeBattleHub();
+  } catch (_) {}
+  try {
+    var viewer = document.getElementById('battleViewer');
+    if (viewer && viewer.classList.contains('active')) closeBattleViewer();
+  } catch (_) {}
+}
+window.stopBattleTransientWork = stopBattleTransientWork;
+
 function bhSwitchTab(tab) {
   battleHubState.currentTab = tab;
   document.querySelectorAll('.bh-tab').forEach(t => {

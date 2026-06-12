@@ -267,6 +267,7 @@ function _scheduleQuestAuxLoads(){
 }
 function stopBaseTransientWork(nextTab){
   if(nextTab!=='guild') try{ stopGuildChatPoll(); }catch(_e){}
+  if(nextTab!=='pvp') try{ if(typeof stopBattleTransientWork==='function') stopBattleTransientWork(); }catch(_e){}
   if(nextTab!=='ops'){
     try{
       if(window._opsTimer){ _clearActiveInterval(window._opsTimer); window._opsTimer=null; }
