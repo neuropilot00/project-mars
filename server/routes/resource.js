@@ -10,8 +10,20 @@
 
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const resourceService = require('../services/resource');
 const { pool } = require('../db');
+
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 function getWallet(req) {
   return (req.query.wallet || req.body.wallet || req.headers['x-wallet'] || '').toLowerCase();
@@ -42,8 +54,8 @@ router.get('/resources', async (req, res) => {
 // GET /api/user/resources
 // 유저 자원 인벤토리 (보유 수량 포함)
 // ─────────────────────────────────────────
-router.get('/user/resources', async (req, res) => {
-  const wallet = getWallet(req);
+router.get('/user/resources', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   try {
     const lang = ['en','ko','ja','zh'].includes(req.query.lang) ? req.query.lang : 'en';

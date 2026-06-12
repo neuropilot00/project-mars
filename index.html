@@ -21930,7 +21930,7 @@ function loadBaseInventory(){
     fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}),
     fetch('/api/shop/active-effects?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
     fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
-    fetch('/api/user/resources?wallet='+encodeURIComponent(w)+'&lang='+(window._lang||'en')).then(function(r){return r.json()}).catch(function(){return {inventory:[]}})
+    fetch('/api/resources/my', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return {inventory:[]}})
   ]).then(function(results){
     _baseInventory=results[0]||[];
     _activeEffects=_filterLiveEffects(results[1]||[]);
