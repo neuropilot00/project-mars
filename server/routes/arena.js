@@ -831,9 +831,9 @@ router.post('/mines/cashout', requireAuth, betLimiter, async (req, res) => {
 });
 
 // GET /arena/mines/active — Get active game
-router.get('/mines/active', async (req, res) => {
+router.get('/mines/active', requireAuth, async (req, res) => {
   try {
-    const w = (req.query.wallet || '').toLowerCase().trim();
+    const w = getAuthWallet(req);
     if (!w) return res.status(400).json({ error: 'Wallet required' });
 
     const r = await pool.query(
@@ -939,9 +939,9 @@ router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
 });
 
 // GET /arena/coinflip/history
-router.get('/coinflip/history', async (req, res) => {
+router.get('/coinflip/history', requireAuth, async (req, res) => {
   try {
-    const w = (req.query.wallet || '').toLowerCase().trim();
+    const w = getAuthWallet(req);
     if (!w) return res.json([]);
     const r = await pool.query(
       'SELECT id, choice, result, bet_amount, currency, payout, created_at FROM coinflip_games WHERE LOWER(wallet) = LOWER($1) ORDER BY id DESC LIMIT 20', [w]
@@ -1253,9 +1253,9 @@ router.post('/hilo/cashout', requireAuth, betLimiter, async (req, res) => {
 });
 
 // GET /arena/hilo/active
-router.get('/hilo/active', async (req, res) => {
+router.get('/hilo/active', requireAuth, async (req, res) => {
   try {
-    const w = (req.query.wallet || '').toLowerCase().trim();
+    const w = getAuthWallet(req);
     if (!w) return res.json({ active: false });
     const r = await pool.query(
       "SELECT * FROM hilo_games WHERE LOWER(wallet) = LOWER($1) AND status = 'active' ORDER BY id DESC LIMIT 1", [w]

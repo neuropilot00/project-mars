@@ -32901,7 +32901,7 @@ function cashoutMines() {
 
 function arenaCheckActiveMines() {
   if (!arenaWallet) return;
-  fetch(ARENA_API + '/mines/active?wallet=' + arenaWallet).then(function(r){ return r.json(); })
+  fetch(ARENA_API + '/mines/active', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
   .then(function(d){
     if (d.active) {
       minesGameId = d.gameId;
@@ -32947,7 +32947,7 @@ function initCoinflip() {
 
 function loadCoinflipHistory() {
   if (!arenaWallet) return;
-  fetch(ARENA_API + '/coinflip/history?wallet=' + arenaWallet).then(function(r){ return r.json(); })
+  fetch(ARENA_API + '/coinflip/history', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
   .then(function(data){
     var el = document.getElementById('cfHistory');
     if (!el) return;
@@ -33210,7 +33210,7 @@ function updateHiloDisplay() {
 
 function checkActiveHilo() {
   if (!arenaWallet) return;
-  fetch(ARENA_API + '/hilo/active?wallet=' + arenaWallet).then(function(r){ return r.json(); })
+  fetch(ARENA_API + '/hilo/active', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
   .then(function(d){
     if (d.active || d.gameId) {
       hiloGameId = d.gameId;
