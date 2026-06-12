@@ -183,6 +183,7 @@ var _apiPublicHudBackoffPaths = {
   '/api/weather': true,
   '/api/claims': true,
   '/api/pixels': true,
+  '/api/exploration/pois': true,
   '/api/exploration/starlink': true,
   '/api/rockets': true,
   '/api/announce/active': true,
@@ -210,6 +211,7 @@ function _publicHudQuietRemainingMs() {
 function _shouldDeferPublicHudFetch(url, fetchOptions) {
   var method = (fetchOptions && fetchOptions.method ? fetchOptions.method : 'GET').toUpperCase();
   if (method !== 'GET' || !_isPublicHudFetchPath(url)) return false;
+  if (window._authSubmitInFlight) return true;
   if (Date.now() < _apiPublicHudQuietUntil) return true;
   return _authModalIsOpen();
 }

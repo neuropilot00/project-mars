@@ -88,6 +88,18 @@ function _smReadJson(key, url, minGap) {
   }
   return fetch(url, { headers: headers, cache: 'no-store' }).then(function(r){ return r.json(); });
 }
+function _syReadJson(key, url, minGap) {
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  var headers = (typeof getAuthHeaders === 'function') ? getAuthHeaders() : {};
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('shipyard:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: { headers: headers, cache: 'no-store' }
+    });
+  }
+  return fetch(url, { headers: headers, cache: 'no-store' }).then(function(r){ return r.json(); });
+}
 
 // ⛏ 함선 채굴 런 (경제 v2 P5) — 땅 없는 F2P 노가다. 함대를 보내 재료+GP 수급.
 // 채굴은 임무 > ⛏ MINING 서브탭으로 통합(모달 폐기). 외부 진입점은 BASE 열고 해당 탭으로 라우팅.
@@ -1218,11 +1230,9 @@ function _portfolioCard(icon,label,value,sub,color,valId){
 }
 async function _portfolioFetchFresh(owner){
   // 함선·영토 fresh fetch — 캐시가 없거나 부정확할 때 정확한 카운트로 패치.
-  var headers = (typeof getAuthHeaders==='function') ? getAuthHeaders() : {};
   try {
-    var shipsResp = await fetch('/api/ships/my', { headers: headers });
-    if (shipsResp.ok) {
-      var sd = await shipsResp.json();
+    var sd = await _syReadJson('portfolio-ships', '/api/ships/my', 10000);
+    if (sd) {
       var alive = (sd.ships||[]).filter(function(s){ return s.is_alive!==false; }).length;
       var el = document.getElementById('pfShipsVal');
       if (el) el.textContent = alive;
@@ -1232,9 +1242,8 @@ async function _portfolioFetchFresh(owner){
     var w = (owner||'').toLowerCase();
     if (!w) return;
     var qs = '?wallet=' + encodeURIComponent(w);
-    var terrResp = await fetch('/api/claims/my' + qs, { headers: headers });
-    if (terrResp.ok) {
-      var td = await terrResp.json();
+    var td = await _syReadJson('portfolio-claims:' + w, '/api/claims/my' + qs, 15000);
+    if (td) {
       var count = Array.isArray(td) ? td.length : ((td && td.length) || 0);
       var el2 = document.getElementById('pfTerrVal');
       if (el2) el2.textContent = count;
@@ -1349,28 +1358,23 @@ function filterBySize(size) {
 
 async function refreshShipyard() {
   try {
-    var headers = getAuthHeaders();
-    var [bpRes, jobsRes, shipsRes, marketRes, summaryRes, factionRes] = await Promise.all([
-      fetch('/api/ships/blueprints?includeLocked=1', { headers: headers }),
-      fetch('/api/ships/build-jobs', { headers: headers }),
-      fetch('/api/ships/my', { headers: headers }),
-      fetch('/api/ships/market/listings', { headers: headers }),
-      fetch('/api/ships/summary', { headers: headers }),
-      fetch('/api/factions/mine', { headers: headers }),
+    var [bpData, jobsData, shipsData, marketData, summaryData, factionData] = await Promise.all([
+      _syReadJson('blueprints', '/api/ships/blueprints?includeLocked=1', 30000),
+      _syReadJson('build-jobs', '/api/ships/build-jobs', 10000),
+      _syReadJson('ships-my', '/api/ships/my', 10000),
+      _syReadJson('market-listings', '/api/ships/market/listings', 15000),
+      _syReadJson('summary', '/api/ships/summary', 15000),
+      _syReadJson('faction-mine', '/api/factions/mine', 30000),
     ]);
-    var bpData      = await bpRes.json();
-    var jobsData    = await jobsRes.json();
-    var shipsData   = await shipsRes.json();
-    var marketData  = await marketRes.json();
-    var summaryData = await summaryRes.json();
-    var factionData = await factionRes.json();
-    shipyardState.blueprints = bpData.ships || [];
-    shipyardState.materialSectorHints = bpData.materialSectorHints || {};
-    shipyardState.queue      = jobsData.jobs || [];
-    shipyardState.ships      = shipsData.ships || [];
-    shipyardState.marketListings = marketData.listings || [];
-    shipyardState.summary    = summaryData;
-    shipyardState.myFaction  = factionData.faction;
+    if (bpData) {
+      shipyardState.blueprints = bpData.ships || [];
+      shipyardState.materialSectorHints = bpData.materialSectorHints || {};
+    }
+    if (jobsData) shipyardState.queue = jobsData.jobs || [];
+    if (shipsData) shipyardState.ships = shipsData.ships || [];
+    if (marketData) shipyardState.marketListings = marketData.listings || [];
+    if (summaryData) shipyardState.summary = summaryData;
+    if (factionData) shipyardState.myFaction = factionData.faction;
     await loadMyInventory();
     var badge = document.getElementById('syQueueBadge');
     if (shipyardState.queue.length > 0) {
@@ -1391,9 +1395,8 @@ async function refreshShipyard() {
 
 async function loadMyInventory() {
   try {
-    var res = await fetch('/api/resources/my', { headers: getAuthHeaders() });
-    if (res.ok) {
-      var data = await res.json();
+    var data = await _syReadJson('resources-my', '/api/resources/my', 10000);
+    if (data) {
       shipyardState.myInventory = {};
       for (var item of (data.inventory || [])) {
         var invCode = String(item.resource_code || item.code || '').toLowerCase();
@@ -2083,9 +2086,8 @@ async function buildShip(shipTypeCode) {
   // [v7.72] Fetch fleets so multi-fleet players can choose destination fleet
   var buildFleets = [];
   try {
-    var fleetRes = await fetch('/api/fleets', { headers: getAuthHeaders() });
-    if (fleetRes.ok) {
-      var fleetData = await fleetRes.json();
+    var fleetData = await _syReadJson('build-fleets', '/api/fleets', 8000);
+    if (fleetData) {
       buildFleets = (fleetData.fleets || []).filter(function(f){ return !f.is_in_battle; });
     }
   } catch(_) {}
@@ -2652,11 +2654,8 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
   var missing = maxHp - currentHp;
   var quote = null;
   try {
-    var qr = await fetch('/api/ships/' + shipId + '/repair-quote?target_hp_pct=100', {
-      headers: getAuthHeaders()
-    });
-    var qd = await qr.json();
-    if (qr.ok && !qd.error) quote = qd;
+    var qd = await _syReadJson('repair-quote:' + shipId, '/api/ships/' + shipId + '/repair-quote?target_hp_pct=100', 5000);
+    if (qd && !qd.error) quote = qd;
   } catch(_e) {}
   var gpCost  = quote ? quote.gp_cost : Math.ceil(missing * 0.03);
   var ironNeed = quote ? quote.iron_used : Math.ceil(missing / 10 * 0.2);

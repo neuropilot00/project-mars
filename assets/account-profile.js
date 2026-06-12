@@ -119,9 +119,15 @@ function togglePassField(id,btn){
   else{inp.type='password';btn.classList.remove('active');}
 }
 
+function _authQuietPublicReads(ms){
+  var quietMs = Math.max(ms || 0, 300000);
+  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(quietMs); }catch(_){}
+  window._authSubmitInFlight = !!_authSubmitInFlight;
+}
+
 function openAuthModal(){
   document.getElementById('authModal').classList.add('open');
-  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(120000); }catch(_){}
+  _authQuietPublicReads(300000);
   if(emailAuth.token && emailAuth.user){
     showAuthLoggedIn();
   } else {
@@ -294,7 +300,7 @@ async function submitAuth(){
 
   var btn=document.getElementById('authSubmitBtn');
   _authSubmitInFlight=true;
-  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(120000); }catch(_){}
+  _authQuietPublicReads(300000);
   btn.disabled=true;btn.textContent='...';
 
   try{
@@ -332,9 +338,9 @@ async function submitAuth(){
     if(!resp.ok){
       if(resp.status===429){
         var retryAfter=parseInt(resp.headers.get('Retry-After')||'0',10);
-        var waitMs=(retryAfter>0?retryAfter*1000:60000);
+        var waitMs=(retryAfter>0?retryAfter*1000:300000);
         _authSubmitCooldownUntil=Date.now()+waitMs;
-        try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(waitMs); }catch(_){}
+        _authQuietPublicReads(waitMs);
       }
       errEl.textContent=d.error||'Failed';
       return;
@@ -389,6 +395,7 @@ async function submitAuth(){
     errEl.textContent=(e.message||'Unknown error')+' ('+e.name+')';
   }finally{
     _authSubmitInFlight=false;
+    window._authSubmitInFlight = false;
     btn.disabled=false;
     btn.textContent=t(authTab);
   }
