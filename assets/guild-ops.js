@@ -495,7 +495,8 @@ function guildWarIntel(myScore, theirScore, hrs, mins){
 function renderGuildWars(guildId){
   var warBox = document.getElementById('guildWarSection');
   if(!warBox) return;
-  fetch('/api/guild/war/active?guildId='+guildId).then(function(r){return r.json()}).then(function(d){
+  _guildReadJson('war-active:' + guildId, '/api/guild/war/active?guildId='+guildId, 15000, false).then(function(d){
+    if(!d) return;
     var wars = d.wars||[];
     if(!wars.length){
       warBox.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+
@@ -557,7 +558,12 @@ function showDeclareWarModal(){
   if(inp) inp.value = '';
   document.getElementById('declareWarModal').style.display='flex';
   // Auto-load all guilds
-  fetch('/api/guild/leaderboard?limit=50').then(function(r){return r.json()}).then(function(d){
+  _guildReadJson('war-targets', '/api/guild/leaderboard?limit=50', 30000, false).then(function(d){
+    if(!d) {
+      if(_warAllGuilds.length) _renderWarGuildList(_warAllGuilds);
+      else document.getElementById('warTargetList').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">'+(LANG==='ko'?'요청이 식는 중입니다. 잠시 후 다시 시도하세요.':LANG==='ja'?'リクエスト待機中です。少し後に再試行してください。':LANG==='zh'?'请求正在冷却，请稍后再试。':'Request is cooling down. Try again in a moment.')+'</div>';
+      return;
+    }
     _warAllGuilds = (d.guilds||[]).filter(function(g){return g.id!==_myGuildData.id});
     _renderWarGuildList(_warAllGuilds);
   }).catch(function(){ document.getElementById('warTargetList').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">'+(LANG==='ko'?'길드 목록을 불러올 수 없습니다':LANG==='ja'?'ギルドリストを読み込めません':LANG==='zh'?'无法加载公会列表':'Failed to load guild list')+'</div>'; });
