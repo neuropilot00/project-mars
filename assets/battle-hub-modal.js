@@ -23,6 +23,19 @@ let battleHubState = {
 };
 
 const BATTLEFIELD_KEYS = ['orbit_territory','garrison','mining_site','canyon_outpost','polar_ice','lava_tube','crater_relay','refinery_yard','colony_dome','excavation_grid','dust_storm'];
+const BATTLEFIELD_LABELS = {
+  orbit_territory: 'Orbit Territory',
+  garrison: 'Garrison Airspace',
+  mining_site: 'Mining Site',
+  canyon_outpost: 'Canyon Outpost',
+  polar_ice: 'Polar Ice Field',
+  lava_tube: 'Lava Tube',
+  crater_relay: 'Crater Relay',
+  refinery_yard: 'Refinery Yard',
+  colony_dome: 'Colony Dome',
+  excavation_grid: 'Excavation Grid',
+  dust_storm: 'Dust Storm'
+};
 const SECTOR_BATTLEFIELD_BY_CODE = {
   olympus_crown: 'garrison',
   tharsis_citadel: 'garrison',
@@ -1675,11 +1688,14 @@ async function loadBvSidePanels(battleId) {
     var b = battleInfo.battle;
     rememberBattleContext(b);
     var sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
+    var battlefieldKey = pickBattlefieldKey(b.id);
+    var battlefieldLabel = BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey || '';
     statsEl.innerHTML =
       `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전투 ID':LANG==='ja'?'戦闘ID':LANG==='zh'?'战斗ID':'Battle ID'}</span><b>#` + b.id + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'타입':LANG==='ja'?'タイプ':LANG==='zh'?'类型':'Type'}</span><b>` + (b.battle_type || '?') + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'상태':LANG==='ja'?'状態':LANG==='zh'?'状态':'Status'}</span><b>` + (b.status || '?') + '</b></div>'
       + (sectorLabel ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'섹터':LANG==='ja'?'セクター':LANG==='zh'?'区':'Sector'}</span><b style="color:#ffab40">` + escapeHtmlSafe(sectorLabel) + '</b></div>' : '')
+      + (battlefieldLabel ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전장':LANG==='ja'?'戦場':LANG==='zh'?'战场':'Field'}</span><b style="color:#81d4fa">` + escapeHtmlSafe(battlefieldLabel) + '</b></div>' : '')
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'ATK 함선':LANG==='ja'?'ATK 艦船':LANG==='zh'?'ATK 舰船':'ATK Ships'}</span><b>` + (b.atk_ships_total || 0) + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'DEF 함선':LANG==='ja'?'DEF 艦船':LANG==='zh'?'DEF 舰船':'DEF Ships'}</span><b>` + (b.def_ships_total || 0) + '</b></div>';
   }
@@ -1715,12 +1731,13 @@ async function openBattleViewer(battleId, startTick) {
 
   // tactical-lab iframe module load
   var tf = document.getElementById('bvTacticalFrame');
+  var viewerBgKey = typeof pickBattlefieldKey === 'function' ? pickBattlefieldKey(battleId) : null;
   if (tf) {
     tf.src = buildTacticalLabUrl({
       mode: 'battle',
       battleId: battleId,
       wallet: viewerWallet,
-      bg: typeof pickBattlefieldKey === 'function' ? pickBattlefieldKey(battleId) : null,
+      bg: viewerBgKey,
       startTick: startTick
     });
   }
@@ -1749,6 +1766,20 @@ async function openBattleViewer(battleId, startTick) {
       const infoData = await infoRes.json().catch(() => ({}));
       if (!infoRes.ok) { lastErr = 'info: ' + (infoData.error || infoRes.status); break; }
       bv.battle = infoData.battle;
+      if (infoData.battle) {
+        rememberBattleContext(infoData.battle);
+        const contextualBgKey = typeof pickBattlefieldKey === 'function' ? pickBattlefieldKey(battleId) : viewerBgKey;
+        if (tf && contextualBgKey && contextualBgKey !== viewerBgKey) {
+          viewerBgKey = contextualBgKey;
+          tf.src = buildTacticalLabUrl({
+            mode: 'battle',
+            battleId: battleId,
+            wallet: viewerWallet,
+            bg: viewerBgKey,
+            startTick: startTick
+          });
+        }
+      }
       bv.events = infoData.events || [];
       const bStatus = infoData.battle && (infoData.battle.status || '');
       battleDone = (bStatus === 'ended' || bStatus === 'done');

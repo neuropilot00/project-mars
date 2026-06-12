@@ -35,7 +35,10 @@
       'polar_ice',
       'lava_tube',
       'crater_relay',
-      'refinery_yard'
+      'refinery_yard',
+      'colony_dome',
+      'excavation_grid',
+      'dust_storm'
     ];
     var n = Math.abs(parseInt(battleId, 10) || 0);
     return keys[n % keys.length];
