@@ -23942,7 +23942,7 @@ function _pollBaseTabDots(){
     }catch(_e){}
   }).catch(function(){});
   // GUILD: NEW invites (count must increase) + new chat messages
-  _guardedJsonFetch('dot-guild-invites', '/api/guild/invites?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+  _guardedJsonFetch('dot-guild-invites', '/api/guild/invites', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
     if (!d) return;
     try{
       var invites = (d && d.invites) || [];
@@ -24106,9 +24106,9 @@ function loadGuildTab(){
   if(!w) return;
   // Load my guild + leaderboard in parallel
   Promise.all([
-    fetch('/api/guild/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}),
+    fetch('/api/guild/my', { headers: getAuthHeaders() }).then(function(r){return r.json()}),
     fetch('/api/guild/leaderboard').then(function(r){return r.json()}),
-    fetch('/api/guild/invites?wallet='+encodeURIComponent(w)).then(function(r){return r.json()})
+    fetch('/api/guild/invites', { headers: getAuthHeaders() }).then(function(r){return r.json()})
   ]).then(function(results){
     var myGuild=results[0].guild;
     var lb=results[1].guilds||[];

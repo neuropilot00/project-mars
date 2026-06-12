@@ -43,8 +43,8 @@ router.post('/guild/create', requireAuth, writeLimiter, async (req, res) => {
 });
 
 // Get my guild
-router.get('/guild/my', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+router.get('/guild/my', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
@@ -62,8 +62,8 @@ router.get('/guild/my', readLimiter, async (req, res) => {
 });
 
 // Get my invites (must be before /guild/:id)
-router.get('/guild/invites', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+router.get('/guild/invites', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
