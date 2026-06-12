@@ -278,7 +278,9 @@ function isPublicHudRead(req) {
     '/api/exploration/starlink',
     '/api/rockets',
     '/api/announce/active',
-    '/api/activity/feed'
+    '/api/activity/feed',
+    '/api/journal/feed',
+    '/api/milestone/feed'
   ].includes(path);
 }
 const publicHudLimiter = makeRateLimiter({

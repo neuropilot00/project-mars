@@ -186,7 +186,9 @@ var _apiPublicHudBackoffPaths = {
   '/api/exploration/starlink': true,
   '/api/rockets': true,
   '/api/announce/active': true,
-  '/api/activity/feed': true
+  '/api/activity/feed': true,
+  '/api/journal/feed': true,
+  '/api/milestone/feed': true
 };
 function _isPublicHudFetchPath(url) {
   try {
@@ -208,6 +210,19 @@ function _shouldDeferPublicHudFetch(url, fetchOptions) {
   if (Date.now() < _apiPublicHudQuietUntil) return true;
   return _authModalIsOpen();
 }
+function _emptyPublicHudPayload(url) {
+  var path = '';
+  try { path = new URL(url, location.origin).pathname; } catch (_) {}
+  if (path === '/api/pixels' || path === '/api/stats') return {};
+  if (path === '/api/activity/feed') return { events: [] };
+  return [];
+}
+function _publicHudEmptyResponse(url) {
+  return new Response(JSON.stringify(_emptyPublicHudPayload(url)), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', 'X-OM-Deferred': 'public-hud' }
+  });
+}
 function _clearPublicHudFetchBackoff() {
   _apiPublicHudBackoffUntil = 0;
   _apiPublicHudQuietUntil = 0;
@@ -217,6 +232,27 @@ function _clearPublicHudFetchBackoff() {
     if (_apiPublicHudBackoffPaths[path]) _apiEndpointGuards[key].backoffUntil = 0;
   });
 }
+(function installPublicHudFetchGate(){
+  if (window.__omPublicHudFetchGateInstalled) return;
+  window.__omPublicHudFetchGateInstalled = true;
+  var nativeFetch = window.fetch;
+  window.fetch = function(input, init) {
+    var url = (typeof input === 'string') ? input : (input && input.url);
+    var fetchOptions = init || {};
+    var method = (fetchOptions.method || (input && input.method) || 'GET').toUpperCase();
+    if (url && method === 'GET' && _shouldDeferPublicHudFetch(url, fetchOptions)) {
+      return Promise.resolve(_publicHudEmptyResponse(url));
+    }
+    return nativeFetch.apply(this, arguments).then(function(resp) {
+      if (resp && resp.status === 429 && url && method === 'GET' && _isPublicHudFetchPath(url)) {
+        var retryAfter = parseInt(resp.headers.get('Retry-After') || '0', 10);
+        var backoffMs = retryAfter > 0 ? retryAfter * 1000 : 120000;
+        _apiPublicHudBackoffUntil = Math.max(_apiPublicHudBackoffUntil, Date.now() + backoffMs);
+      }
+      return resp;
+    });
+  };
+})();
 function _guardedFetchEndpointKey(url, fetchOptions) {
   try {
     var u = new URL(url, location.origin);
