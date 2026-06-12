@@ -189,7 +189,7 @@
       if (ready) html += '<button type="button" onclick="smCollectMining(' + Number(j.id) + ')" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(255,209,102,.16);border:1px solid rgba(255,209,102,.45);color:var(--gold);font-family:var(--fn);font-weight:800;cursor:pointer">COLLECT</button>';
       else html += '<div style="font-size:10px;color:' + (done ? '#64dc82' : 'var(--gold)') + ';font-weight:800">' + (done ? 'DONE' : eta) + '</div>';
       html += '</div></div>';
-      if (done) html += '<div style="font-size:8px;color:var(--tx3);margin-top:6px">+' + txt(j.reward_gp || 0) + ' GP' + (drops ? ' · ' + drops : '') + '</div>';
+      if (done) html += '<div style="font-size:8px;color:var(--tx3);margin-top:6px">+' + txt(j.reward_gp || 0) + ' GP' + (j.raided ? ' · <span style="color:var(--red)">RAIDED</span>' : '') + (drops ? ' · ' + drops : '') + '</div>';
       html += '</div>';
       return html;
     }).join('');

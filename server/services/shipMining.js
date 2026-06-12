@@ -299,8 +299,14 @@ async function collectMining(wallet, jobId) {
     }
 
     await client.query(
-      `UPDATE ship_mining_jobs SET status = 'collected', reward_gp = $2, reward_resources = $3, collected_at = NOW() WHERE id = $1`,
-      [jobId, rewardGp, JSON.stringify(drops)]
+      `UPDATE ship_mining_jobs
+          SET status = 'collected',
+              reward_gp = $2,
+              reward_resources = $3,
+              raided = $4,
+              collected_at = NOW()
+        WHERE id = $1`,
+      [jobId, rewardGp, JSON.stringify(drops), raided]
     );
 
     await client.query('COMMIT');
