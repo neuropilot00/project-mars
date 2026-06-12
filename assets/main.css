@@ -1280,6 +1280,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sector-card .sc-profile span{font-size:8px;font-family:var(--fn);letter-spacing:.4px;
   padding:2px 6px;border:1px solid rgba(255,255,255,.12);border-radius:999px;
   background:rgba(255,255,255,.035);white-space:nowrap}
+.sector-card .sc-economy{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:5px;
+  align-items:center;margin:0 0 7px;font-size:8px;font-family:var(--fn);color:var(--tx3)}
+.sector-card .sc-economy span{padding:3px 6px;border:1px solid rgba(255,255,255,.08);
+  border-radius:4px;background:rgba(0,0,0,.18);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sector-card .sc-strategy{font-size:8.5px;color:var(--tx3);line-height:1.45;margin:-1px 0 7px;
   padding:5px 6px;border:1px solid rgba(91,184,232,.14);border-radius:6px;
   background:rgba(91,184,232,.035);font-family:var(--fn)}
@@ -2695,6 +2699,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .quest-card .qc-desc{font-size:9px}
   .sector-card{padding:8px 10px}
   .sector-card .sc-name{font-size:9px}
+  .sector-card .sc-economy{grid-template-columns:1fr 1fr}
   .shop-grid{gap:6px}
   .shop-item-card{padding:10px}
   .shop-item-card .si-name{font-size:9px}

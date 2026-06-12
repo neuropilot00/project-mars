@@ -1259,7 +1259,11 @@ function renderSectorList(sectors){
     var difficulty = tier === 'core' || occ >= 70 ? 'high' : (tier === 'mid' || occ >= 35 ? 'mid' : 'low');
     var yieldRank = mining >= 1.45 ? 'rich' : (mining >= 1.15 ? 'good' : 'plain');
     var pressure = occ >= 75 ? 'hot' : (occ >= 40 ? 'contested' : 'open');
-    return { difficulty:difficulty, yieldRank:yieldRank, pressure:pressure, mining:mining, price:price };
+    var priceWeight = price > 0 ? Math.max(0.35, Math.min(1.6, 0.04 / price)) : 1;
+    var scarcityWeight = 1 + Math.min(0.75, occ / 140);
+    var economyScore = Math.max(10, Math.round(mining * priceWeight * scarcityWeight * 100));
+    var economyBand = economyScore >= 180 ? 'prime' : economyScore >= 115 ? 'solid' : 'cheap';
+    return { difficulty:difficulty, yieldRank:yieldRank, pressure:pressure, mining:mining, price:price, economyScore:economyScore, economyBand:economyBand };
   }
   function sectorProfileLabel(profile, kind) {
     var labels = {
@@ -1277,6 +1281,11 @@ function renderSectorList(sectors){
         hot: LANG==='ko'?'전쟁권':LANG==='ja'?'戦争圏':LANG==='zh'?'战区':'War Zone',
         contested: LANG==='ko'?'분쟁 중':LANG==='ja'?'紛争中':LANG==='zh'?'争夺中':'Contested',
         open: LANG==='ko'?'진입 여지':LANG==='ja'?'参入余地':LANG==='zh'?'可进入':'Open'
+      },
+      economyBand: {
+        prime: LANG==='ko'?'핵심 경제권':LANG==='ja'?'中核経済圏':LANG==='zh'?'核心经济区':'Prime Economy',
+        solid: LANG==='ko'?'균형 수익권':LANG==='ja'?'均衡収益圏':LANG==='zh'?'均衡收益区':'Solid ROI',
+        cheap: LANG==='ko'?'저비용 확장':LANG==='ja'?'低コスト拡張':LANG==='zh'?'低成本扩张':'Low-Cost Expansion'
       }
     };
     return labels[kind][profile[kind]] || profile[kind];
@@ -1297,6 +1306,15 @@ function renderSectorList(sectors){
     if (profile.yieldRank === 'rich') return LANG==='ko'?'채굴·수리 경제 핵심지: 자원 수율과 통제 보너스를 노리기 좋습니다.':LANG==='ja'?'採掘・修理経済の要所: 資源収率と支配ボーナス狙い。':LANG==='zh'?'采矿与维修经济要地：适合追求资源产出与控制加成。':'Mining and repair economy hub: strong resource yield and control bonus target.';
     if (profile.pressure === 'contested') return LANG==='ko'?'성장 분쟁지: 가격/수익 균형이 좋아 소규모 전투와 확장에 적합합니다.':LANG==='ja'?'成長係争地: 価格/収益のバランスがよく小規模戦と拡張向き。':LANG==='zh'?'成长争夺区：价格/收益平衡，适合小规模战斗与扩张。':'Growth contest: balanced price and yield for skirmishes and expansion.';
     return LANG==='ko'?'초기 확장지: 진입 부담이 낮아 영토 기반과 반복 수급을 만들기 좋습니다.':LANG==='ja'?'初期拡張地: 参入負担が低く領土基盤と周回収入作り向き。':LANG==='zh'?'初期扩张区：进入负担低，适合建立领地基础和循环收益。':'Starter expansion zone: low-friction territory base and repeat income.';
+  }
+  function renderSectorEconomy(profile, occ) {
+    var bandColor = profile.economyBand === 'prime' ? '#ffd166' : profile.economyBand === 'solid' ? '#64d8ff' : '#4cd89a';
+    return '<div class="sc-economy">'
+      + '<span><b style="color:'+bandColor+'">'+sectorProfileLabel(profile,'economyBand')+'</b></span>'
+      + '<span>ECO '+profile.economyScore+'</span>'
+      + '<span>$'+profile.price.toFixed(4)+'/px</span>'
+      + '<span>'+occ+'% '+(LANG==='ko'?'점유':LANG==='ja'?'占有':LANG==='zh'?'占用':'occupied')+'</span>'
+      + '</div>';
   }
   sectors.forEach(function(s){
     var occ=s.stats.occupancyRate;
@@ -1333,6 +1351,7 @@ function renderSectorList(sectors){
     if(s.stats.activity24h>0) html+='<div class="sc-activity"><span class="sc-activity-dot"></span>'+t('sector_claims_24h').replace('{n}',s.stats.activity24h)+'</div>';
     var profile = sectorProfile(s, occ);
     html+=renderSectorProfile(profile);
+    html+=renderSectorEconomy(profile, occ);
     html+='<div class="sc-strategy">▸ '+scTxt(sectorStrategyText(profile, entryBlocked))+'</div>';
     // Occupancy bar
     html+='<div class="sc-occ-wrap">';
