@@ -29722,7 +29722,7 @@ function loadStakingPanel() {
 
   Promise.all([
     fetch('/api/staking/info?wallet=' + wallet).then(function(r){ return r.json(); }),
-    wallet ? fetch('/api/staking/my-stakes?wallet=' + wallet).then(function(r){ return r.json(); }) : Promise.resolve({ stakes: [] }),
+    wallet ? fetch('/api/staking/my-stakes', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }) : Promise.resolve({ stakes: [] }),
     fetch('/api/dividends/info?wallet=' + wallet).then(function(r){ return r.json(); }).catch(function(){ return null; })
   ])
     .then(function(results) {

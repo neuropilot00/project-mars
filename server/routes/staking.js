@@ -45,8 +45,8 @@ router.get('/staking/info', readLimiter, async (req, res) => {
 });
 
 // GET /api/staking/my-stakes — list user's stakes
-router.get('/staking/my-stakes', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
+router.get('/staking/my-stakes', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try {
     if (!stakingService) return res.status(503).json({ error: 'Staking service unavailable' });
