@@ -1,22 +1,39 @@
 // ═══ QUEST SYSTEM ═══
 var _questPoolData={active:true,multiplier:1};
+function _questReadFetch(wallet){
+  var walletKey = (wallet || (walletState && walletState.address) || 'anon').toLowerCase();
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('quests-list:' + walletKey, '/api/quests', {
+      minGap: 15000,
+      backoffMs: 120000,
+      fetchOptions: { headers: getAuthHeaders() }
+    });
+  }
+  return fetch('/api/quests', { headers: getAuthHeaders() }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
 function loadQuests(wallet){
   var container=document.getElementById('questsList');
   var loading=document.getElementById('questsLoading');
   var claimedDiv=document.getElementById('questsClaimed');
   if(!container) return;
-  loading.style.display='block';
-  fetch('/api/quests', { headers: getAuthHeaders() })
-    .then(function(r){return r.json()})
+  var hadContent = !!container.innerHTML.trim();
+  if(loading) loading.style.display='block';
+  _questReadFetch(wallet)
     .then(function(data){
-      loading.style.display='none';
+      if(loading) loading.style.display='none';
+      if(!data){
+        if(!hadContent){
+          container.innerHTML='<div style="text-align:center;padding:16px;color:var(--tx3);font-size:var(--fs-xs)">Refreshing too often. Please wait a moment.</div>';
+        }
+        return;
+      }
       if(data.pool) _questPoolData=data.pool;
       loadCampaignStatus();
       renderQuests(data.quests||[], container);
       renderClaimedQuests(data.recentlyClaimed||[], claimedDiv);
     })
     .catch(function(){
-      loading.style.display='none';
+      if(loading) loading.style.display='none';
       container.innerHTML='<div style="text-align:center;padding:16px;color:var(--tx3);font-size:var(--fs-xs)">'+t('quests_failed')+'</div>';
     });
 }
