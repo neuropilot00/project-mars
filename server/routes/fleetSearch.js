@@ -62,6 +62,16 @@ router.get('/search', requireAuth, async (req, res) => {
         u.faction_code,
         fa.name_ko AS faction_name,
         fa.color_primary AS faction_color,
+        (SELECT c.sector_code FROM claims c
+          WHERE LOWER(c.owner) = LOWER(f.owner_wallet)
+            AND c.deleted_at IS NULL
+            AND c.sector_code IS NOT NULL
+          ORDER BY (c.width * c.height) DESC
+          LIMIT 1) AS sector_code,
+        (SELECT COALESCE(SUM(bl.reward_gp), 0) FROM bounty_listings bl
+          WHERE LOWER(bl.target_wallet) = LOWER(f.owner_wallet)
+            AND bl.status = 'active'
+            AND (bl.expires_at IS NULL OR bl.expires_at > NOW())) AS active_bounty_gp,
         COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive,
         COALESCE(SUM(
           CASE WHEN s.is_alive THEN
@@ -95,6 +105,7 @@ router.get('/search', requireAuth, async (req, res) => {
         ...r,
         ships_alive: parseInt(r.ships_alive) || 0,
         combat_power: Math.round(parseFloat(r.combat_power) || 0),
+        active_bounty_gp: parseInt(r.active_bounty_gp, 10) || 0,
         can_attack: !r.is_in_battle && parseInt(r.ships_alive) > 0,
       }))
     });

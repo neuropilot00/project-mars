@@ -1513,7 +1513,7 @@
             + '</div>'
             + tagHtml
             + '</div>'
-            + '<button type="button" data-fleet="' + escapeHtml(o.fleet_id) + '" data-name="' + escapeHtml(displayName) + '" data-ships="' + escapeHtml(o.ships_alive || 0) + '" onclick="openBattleHubWithFleet(this.dataset.fleet,this.dataset.name,this.dataset.ships)" style="flex-shrink:0;font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn);white-space:nowrap">'+(LANG==='ko'?'도전장 보내기':LANG==='ja'?'対戦申込':LANG==='zh'?'发出挑战':'Challenge')+'</button>'
+            + '<button type="button" data-fleet="' + escapeHtml(o.fleet_id) + '" data-name="' + escapeHtml(displayName) + '" data-ships="' + escapeHtml(o.ships_alive || 0) + '" data-sector="' + escapeHtml(o.sector_code || '') + '" data-bounty="' + escapeHtml(o.active_bounty_gp || 0) + '" data-cpi="' + escapeHtml(Math.round(o.cpi || 0)) + '" onclick="openBattleHubWithFleet(this.dataset.fleet,this.dataset.name,this.dataset.ships,this.dataset.sector,this.dataset.bounty,this.dataset.cpi)" style="flex-shrink:0;font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn);white-space:nowrap">'+(LANG==='ko'?'도전장 보내기':LANG==='ja'?'対戦申込':LANG==='zh'?'发出挑战':'Challenge')+'</button>'
             + '</div>'
             + '</div>';
         }).join('');
@@ -1595,9 +1595,9 @@
   // legacy compat
   window.toggleRecommendedSection = function() { pvpHubSwitchTab('rec'); };
   window.loadRecommendedOpponents = function() { _pvpHubTab = 'rec'; _loadPvpRecTab(); };
-  window.openBattleHubWithFleet = function(targetFleetId, targetName, shipsAlive) {
+  window.openBattleHubWithFleet = function(targetFleetId, targetName, shipsAlive, sectorCode, bountyGp, cpi) {
     if (typeof openDeclareBattleWithFleet === 'function') {
-      openDeclareBattleWithFleet(targetFleetId, targetName, shipsAlive);
+      openDeclareBattleWithFleet(targetFleetId, targetName, shipsAlive, sectorCode, bountyGp, cpi);
       return;
     }
     if (typeof openDeclareBattle === 'function') openDeclareBattle();

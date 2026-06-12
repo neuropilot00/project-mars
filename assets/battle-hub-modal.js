@@ -451,7 +451,7 @@ async function openDeclareBattle() {
   loadRecommendedOpponents();
 }
 
-window.openDeclareBattleWithFleet = async function(targetFleetId, nickname, shipsAlive) {
+window.openDeclareBattleWithFleet = async function(targetFleetId, nickname, shipsAlive, sectorCode, bountyGp, cpi) {
   await openDeclareBattle();
   const id = parseInt(targetFleetId, 10);
   if (!id) return;
@@ -465,6 +465,9 @@ window.openDeclareBattleWithFleet = async function(targetFleetId, nickname, ship
       nickname: label,
       fleet_name: LANG==='ko'?'분쟁 추천 함대':LANG==='ja'?'紛争推奨艦隊':LANG==='zh'?'争端推荐舰队':'Conflict Recommended Fleet',
       ships_alive: alive,
+      sector_code: sectorCode || '',
+      active_bounty_gp: Math.max(0, parseInt(bountyGp, 10) || 0),
+      combat_power: Math.max(0, parseInt(cpi, 10) || 0),
       can_attack: true,
       battles_won: 0,
       battles_lost: 0
@@ -549,6 +552,8 @@ function renderSearchResult(r) {
   const color = r.faction_color || '#fff';
   const isSelected = declareState.selectedTargetFleetId === r.fleet_id;
   const power = Math.max(0, parseInt(r.combat_power, 10) || 0);
+  const bountyGp = Math.max(0, parseInt(r.active_bounty_gp, 10) || 0);
+  const sectorCode = r.sector_code || '';
   const danger = power >= 1200 ? 'high' : power >= 450 ? 'mid' : 'low';
   const dangerLabel = danger === 'high'
     ? (LANG==='ko'?'고위험':LANG==='ja'?'高危険':LANG==='zh'?'高风险':'HIGH RISK')
@@ -564,11 +569,13 @@ function renderSearchResult(r) {
         <div class="bd-search-nick">${escapeHtml(r.nickname || 'Unknown')}</div>
         <div class="bd-search-meta">
           ${escapeHtml(r.fleet_name || (LANG==='ko'?'함대':LANG==='ja'?'艦隊':LANG==='zh'?'舰队':'Fleet'))} · ${LANG==='ko'?'전적':LANG==='ja'?'戦績':LANG==='zh'?'战绩':'Record'} ${r.battles_won || 0}W ${r.battles_lost || 0}L
+          ${sectorCode ? ` · ${escapeHtml(sectorCode)}` : ''}
         </div>
       </div>
       <div>
         <div class="bd-search-ships">${r.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>
         ${power ? `<div class="bd-risk-tag ${danger}">⚡ ${formatNum(power)} · ${dangerLabel}</div>` : ''}
+        ${bountyGp ? `<div class="bd-risk-tag mid">💰 ${formatNum(bountyGp)} GP</div>` : ''}
         ${r.is_in_battle ? `<div class="bd-search-battle-tag">${LANG==='ko'?'전투중':LANG==='ja'?'戦闘中':LANG==='zh'?'战斗中':'In Battle'}</div>` : ''}
       </div>
     </div>
