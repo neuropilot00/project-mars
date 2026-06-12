@@ -420,8 +420,16 @@ function loadBaseData(){
     }catch(e){}
   }
 
-  // Load sectors (with wallet for "my pixels" count)
-  fetch('/api/sectors', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
+  // Load sectors (with wallet for "my pixels" count) + influence scores for MMO territory pressure.
+  Promise.all([
+    fetch('/api/sectors', { headers: getAuthHeaders() }).then(function(r){return r.json()}),
+    fetch('/api/sectors/control', { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null}).catch(function(){return null;})
+  ]).then(function(res){
+    var data=res[0]||[];
+    var control=(res[1]&&res[1].sectors)||[];
+    window._sectorControlMap={};
+    control.forEach(function(c){ window._sectorControlMap[c.id]=c; });
+    data.forEach(function(s){ if(window._sectorControlMap[s.id]) s.control=window._sectorControlMap[s.id]; });
     _sectorsData=data;
     renderSectorList(data);
     drawSectorBoundaries();
@@ -1158,10 +1166,13 @@ function confirmJobSelect(){
 function renderSectorList(sectors){
   var html='';
   var myLevel = parseInt((document.getElementById('profileLevel')||{}).textContent || '1') || 1;
+  var TIER_LABELS = LANG==='ko'?{ governor:'총독', dominant:'지배', stakeholder:'이해관계자', presence:'존재감' }:LANG==='ja'?{ governor:'総督', dominant:'支配', stakeholder:'利害関係者', presence:'プレゼンス' }:LANG==='zh'?{ governor:'总督', dominant:'主导', stakeholder:'利益相关者', presence:'存在感' }:{ governor:'Governor', dominant:'Dominant', stakeholder:'Stakeholder', presence:'Presence' };
+  var TIER_COLORS = { governor:'#ffd700', dominant:'#ff6b6b', stakeholder:'#ffc140', presence:'#64dc82' };
   sectors.forEach(function(s){
     var occ=s.stats.occupancyRate;
     var occPx=s.stats.occupiedPixels;
     var totPx=s.stats.totalPixels||1;
+    var ctrl = s.control || (window._sectorControlMap && window._sectorControlMap[s.id]) || null;
     // Entry requirement evaluation
     var entryActive = (s.entryCheckActive !== false);
     var entryMin = s.entryMinLevel || 0;
@@ -1227,6 +1238,22 @@ function renderSectorList(sectors){
     // Sector announcement from governor (visible to everyone in BASE tab) — governor 가 없으면 잔존 공지 무시
     if(s.announcement && s.governor){
       html+='<div style="font-size:9px;color:var(--gold);margin-top:4px;font-style:italic;font-family:var(--fn)">📢 "'+s.announcement+'"</div>';
+    }
+    // Influence pressure: battles, upgrades, harvests and land all push sector control.
+    if(ctrl && ctrl.topOwners && ctrl.topOwners.length){
+      var lead = ctrl.topOwners[0];
+      var tierColor = lead.influenceTier ? (TIER_COLORS[lead.influenceTier]||'var(--tx2)') : 'var(--tx3)';
+      var tierLabel = lead.influenceTier ? (TIER_LABELS[lead.influenceTier]||lead.influenceTier) : (LANG==='ko'?'영향력':LANG==='ja'?'影響力':LANG==='zh'?'影响力':'Influence');
+      var bonus = LANG==='ko' ? (lead.influenceBonusKo || lead.influenceBonus || '') : (lead.influenceBonus || lead.influenceBonusKo || '');
+      html+='<div style="margin-top:5px;padding:5px 6px;border:1px solid rgba(255,255,255,.08);border-radius:6px;background:rgba(0,0,0,.18)">';
+      html+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">';
+      html+='<span style="font-size:8px;color:var(--tx3);font-family:var(--fn)">⚔ '+(LANG==='ko'?'섹터 영향력':LANG==='ja'?'セクター影響':LANG==='zh'?'区域影响力':'Sector Influence')+'</span>';
+      html+='<span style="font-size:8px;color:'+tierColor+';font-family:var(--fn);font-weight:700">'+tierLabel+' '+lead.controlPct+'%</span>';
+      html+='</div>';
+      html+='<div style="display:flex;justify-content:space-between;gap:8px;margin-top:2px">';
+      html+='<span style="font-size:8px;color:var(--tx2)" title="'+(lead.wallet||'')+'">'+(lead.shortWallet||'--')+(lead.battleScore>0?' · ⚔+'+lead.battleScore:'')+'</span>';
+      html+='<span style="font-size:8px;color:var(--gold);text-align:right">'+bonus+'</span>';
+      html+='</div></div>';
     }
     // My holdings
     if(s.myPixels>0){
