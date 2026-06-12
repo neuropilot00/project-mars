@@ -5,6 +5,7 @@ var _mktView='browse';
 
 function switchMarketView(view,el){
   _mktView=view;
+  if(view!=='auction') clearAuctionTimers();
   document.querySelectorAll('.mkt-view-btn').forEach(function(b){
     b.style.borderColor='rgba(255,255,255,.1)'; b.style.background='rgba(255,255,255,.03)'; b.style.color='var(--tx3)';
   });
@@ -1283,6 +1284,12 @@ function loadMyListings(){
 // ══════════════════════════════════════
 var _auctionTimers=[];
 
+function clearAuctionTimers(){
+  if(!_auctionTimers.length) return;
+  _auctionTimers.forEach(function(id){ _clearActiveInterval(id); });
+  _auctionTimers=[];
+}
+
 function _auctionTimeLeft(endsAt){
   var diff=Math.max(0,new Date(endsAt)-Date.now());
   if(!diff) return t('auc_ended')||'ENDED';
@@ -1299,7 +1306,11 @@ function loadAuctions(){
   var typeFilter=document.getElementById('auctFilterType');
   var typeVal=typeFilter?typeFilter.value:'';
   var url='/api/auctions?status=active&limit=30'+(typeVal?'&listing_type='+encodeURIComponent(typeVal):'');
-  fetch(url).then(function(r){return r.json()}).then(function(d){
+  mtReadFetch('auctions:'+typeVal, url, 15000, false).then(function(d){
+    if(!d){
+      el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">'+tl('Refreshing too fast. Please wait.','새로고침이 너무 빠릅니다. 잠시만 기다리세요.','更新が速すぎます。少しお待ちください。','刷新过快。请稍等。')+'</div>';
+      return;
+    }
     var auctions=d.auctions||[];
     if(!auctions.length){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('auc_none')||'No active auctions')+'</div>';
@@ -1333,8 +1344,7 @@ function loadAuctions(){
     html+='</div>';
     el.innerHTML=html;
     // live timers
-    _auctionTimers.forEach(function(id){_clearActiveInterval(id)});
-    _auctionTimers=[];
+    clearAuctionTimers();
     auctions.forEach(function(a){
       // Cache span ref once — avoids querySelector on every tick
       var span=el.querySelector('.auc-timer-'+a.id);
