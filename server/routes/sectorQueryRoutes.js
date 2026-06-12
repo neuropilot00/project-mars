@@ -27,6 +27,19 @@ function getOptionalAuthWallet(req) {
   }
 }
 
+function visibleOwnerPredicate(ownerExpr, paramIndex) {
+  return `(
+    LOWER(${ownerExpr}) = LOWER($${paramIndex})
+    OR NOT EXISTS (
+      SELECT 1 FROM user_active_effects sae
+       WHERE LOWER(sae.wallet) = LOWER(${ownerExpr})
+         AND sae.effect_type = 'stealth_cloak'
+         AND sae.active = true
+         AND sae.expires_at > NOW()
+    )
+  )`;
+}
+
 // GET /api/sectors — all sectors with live stats.
 router.get('/sectors', readLimiter, async (req, res) => {
   try {
@@ -45,16 +58,20 @@ router.get('/sectors', readLimiter, async (req, res) => {
       ORDER BY s.tier, s.name
     `);
 
+    const visibleOwner = visibleOwnerPredicate('owner', 1);
     const topRes = await pool.query(`
       SELECT t.sector_id, t.owner, t.cnt, u.nickname
       FROM (
         SELECT DISTINCT ON (sector_id) sector_id, owner, COUNT(*) AS cnt
-        FROM pixels WHERE owner IS NOT NULL AND sector_id IS NOT NULL
+        FROM pixels
+        WHERE owner IS NOT NULL
+          AND sector_id IS NOT NULL
+          AND ${visibleOwner}
         GROUP BY sector_id, owner
         ORDER BY sector_id, cnt DESC
       ) t
       LEFT JOIN users u ON u.wallet_address = t.owner
-    `);
+    `, [wallet]);
     const topMap = {};
     topRes.rows.forEach(row => {
       topMap[row.sector_id] = {
@@ -167,15 +184,18 @@ router.get('/sectors/:id', async (req, res, next) => {
     if (!sectorRes.rows.length) return res.status(404).json({ error: 'Sector not found' });
 
     const sector = sectorRes.rows[0];
+    const wallet = getOptionalAuthWallet(req);
+    const visibleOwner = visibleOwnerPredicate('p.owner', 2);
     const holdersRes = await pool.query(`
       SELECT p.owner, u.nickname, COUNT(*) AS pixel_count
       FROM pixels p
       LEFT JOIN users u ON u.wallet_address = p.owner
       WHERE p.sector_id = $1 AND p.owner IS NOT NULL
+        AND ${visibleOwner}
       GROUP BY p.owner, u.nickname
       ORDER BY pixel_count DESC
       LIMIT 20
-    `, [sectorId]);
+    `, [sectorId, wallet]);
 
     const txRes = await pool.query(`
       SELECT t.type, t.from_wallet, t.usdt_amount, t.pp_amount, t.created_at
