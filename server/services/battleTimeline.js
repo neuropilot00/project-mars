@@ -142,7 +142,9 @@ async function getUserBattleHistory(walletAddress, limit = 20) {
 async function getBattleInfo(battleId) {
   const { rows } = await pool.query(`
     SELECT 
-      fb.*, 
+      fb.*,
+      sd.code AS sector_code,
+      COALESCE(sd.name_ko, sd.name_en) AS sector_name,
       array_agg(json_build_object(
         'fleet_id', p.fleet_id,
         'wallet', p.wallet_address,
@@ -158,8 +160,9 @@ async function getBattleInfo(battleId) {
     LEFT JOIN fleet_battle_participants p ON p.battle_id = fb.id
     LEFT JOIN fleets f ON f.id = p.fleet_id
     LEFT JOIN users u ON u.wallet_address = p.wallet_address
+    LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
     WHERE fb.id = $1
-    GROUP BY fb.id
+    GROUP BY fb.id, sd.code, sd.name_ko, sd.name_en
   `, [battleId]);
   
   return rows[0] || null;

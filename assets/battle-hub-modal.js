@@ -1551,10 +1551,12 @@ async function loadBvSidePanels(battleId) {
   var statsEl = document.getElementById('bvSideBattleStats');
   if (statsEl && battleInfo && battleInfo.battle) {
     var b = battleInfo.battle;
+    var sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
     statsEl.innerHTML =
       `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전투 ID':LANG==='ja'?'戦闘ID':LANG==='zh'?'战斗ID':'Battle ID'}</span><b>#` + b.id + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'타입':LANG==='ja'?'タイプ':LANG==='zh'?'类型':'Type'}</span><b>` + (b.battle_type || '?') + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'상태':LANG==='ja'?'状態':LANG==='zh'?'状态':'Status'}</span><b>` + (b.status || '?') + '</b></div>'
+      + (sectorLabel ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'섹터':LANG==='ja'?'セクター':LANG==='zh'?'区':'Sector'}</span><b style="color:#ffab40">` + escapeHtmlSafe(sectorLabel) + '</b></div>' : '')
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'ATK 함선':LANG==='ja'?'ATK 艦船':LANG==='zh'?'ATK 舰船':'ATK Ships'}</span><b>` + (b.atk_ships_total || 0) + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'DEF 함선':LANG==='ja'?'DEF 艦船':LANG==='zh'?'DEF 舰船':'DEF Ships'}</span><b>` + (b.def_ships_total || 0) + '</b></div>';
   }
