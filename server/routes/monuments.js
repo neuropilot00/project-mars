@@ -42,11 +42,11 @@ router.get('/monuments/claim/:claimId', async (req, res) => {
   }
 });
 
-// ── GET /api/monuments/my-monuments?wallet= ───────────────────────────────────
-router.get('/monuments/my-monuments', async (req, res) => {
+// ── GET /api/monuments/my-monuments ──────────────────────────────────────────
+router.get('/monuments/my-monuments', requireAuth, async (req, res) => {
   try {
     if (!monumentSvc) return res.status(503).json({ error: 'Service unavailable' });
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const monuments = await monumentSvc.getMyMonuments(wallet);
     res.json({ monuments });
