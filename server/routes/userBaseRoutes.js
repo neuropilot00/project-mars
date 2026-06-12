@@ -48,6 +48,16 @@ router.get('/user/:wallet/base', async (req, res) => {
     const intervalCore = parseInt(settings.mining_interval_core) || 24;
     const intervalMid = parseInt(settings.mining_interval_mid) || 48;
     const intervalFrontier = parseInt(settings.mining_interval_frontier) || 72;
+    const miningMultByTier = {
+      core: parseFloat(settings.mining_core_mult) || 1.5,
+      mid: parseFloat(settings.mining_mid_mult) || 1.2,
+      frontier: parseFloat(settings.mining_frontier_mult) || 1.0
+    };
+    const miningIntervalByTier = {
+      core: intervalCore,
+      mid: intervalMid,
+      frontier: intervalFrontier
+    };
     let bestInterval = intervalFrontier;
     if (tierCounts.core > 0) bestInterval = intervalCore;
     else if (tierCounts.mid > 0) bestInterval = intervalMid;
@@ -87,9 +97,9 @@ router.get('/user/:wallet/base', async (req, res) => {
       miningRates: {
         rewardMin,
         rewardMax,
-        coreMult: parseFloat(settings.mining_core_mult) || 1.5,
-        midMult: parseFloat(settings.mining_mid_mult) || 1.2,
-        frontierMult: parseFloat(settings.mining_frontier_mult) || 1.0
+        coreMult: miningMultByTier.core,
+        midMult: miningMultByTier.mid,
+        frontierMult: miningMultByTier.frontier
       },
       territory: {
         totalPixels,
@@ -98,7 +108,10 @@ router.get('/user/:wallet/base', async (req, res) => {
           sectorId: row.sector_id,
           sectorName: row.sector_name,
           tier: row.tier,
-          pixels: parseInt(row.pixel_count)
+          pixels: parseInt(row.pixel_count),
+          miningBonus: miningMultByTier[row.tier] || miningMultByTier.frontier,
+          harvestIntervalH: miningIntervalByTier[row.tier] || intervalFrontier,
+          role: row.tier === 'core' ? 'core_industry' : row.tier === 'mid' ? 'contested_growth' : 'frontier_foothold'
         }))
       },
       mining: mining ? {

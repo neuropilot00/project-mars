@@ -595,12 +595,30 @@ function renderBaseUser(data){
   if(data.territory.bySector.length===0){
     mySec.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px 0">'+t('no_sectors_yet')+'</div>';
   }else{
+    function sectorRoleText(role,tier){
+      var lang=(typeof LANG==='string'?LANG:'en');
+      var labels={
+        core_industry:{en:'Core industry hub',ko:'핵심 산업 거점',ja:'中核産業拠点',zh:'核心工业据点'},
+        contested_growth:{en:'Contested growth zone',ko:'분쟁 성장 지대',ja:'係争成長地帯',zh:'争夺成长区'},
+        frontier_foothold:{en:'Frontier foothold',ko:'전초 거점',ja:'辺境足場',zh:'边境据点'}
+      };
+      var item=labels[role]||labels[tier==='core'?'core_industry':tier==='mid'?'contested_growth':'frontier_foothold'];
+      return item[lang]||item.en;
+    }
+    function sectorEsc(v){
+      return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+    }
     var html='<div class="sector-list">';
     data.territory.bySector.forEach(function(s){
-      html+='<div class="sector-item" onclick="focusSector('+s.sectorId+')">';
-      html+='<span class="si-tier '+s.tier+'">'+s.tier.toUpperCase()+'</span>';
-      html+='<span class="si-name">'+s.sectorName+'</span>';
-      html+='<span class="si-price" style="color:var(--gold)">'+s.pixels+' px</span>';
+      var tier=s.tier||'frontier';
+      var sid=parseInt(s.sectorId,10)||0;
+      var bonus=parseFloat(s.miningBonus||1);
+      var interval=parseInt(s.harvestIntervalH,10)||0;
+      html+='<div class="sector-item"'+(sid?' onclick="focusSector('+sid+')"':'')+'>';
+      html+='<span class="si-tier '+sectorEsc(tier)+'">'+sectorEsc(tier.toUpperCase())+'</span>';
+      html+='<span class="si-name">'+sectorEsc(s.sectorName)+'</span>';
+      html+='<span class="si-price" style="color:var(--gold)">'+(parseInt(s.pixels,10)||0)+' px</span>';
+      html+='<div style="width:100%;font-size:8px;color:var(--tx3);margin-top:3px;line-height:1.45">⛏ x'+bonus.toFixed(2)+' · ⏱ '+(interval||'--')+'h · '+sectorEsc(sectorRoleText(s.role,tier))+'</div>';
       html+='</div>';
     });
     html+='</div>';
