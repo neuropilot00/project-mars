@@ -19,6 +19,16 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 // GET /api/contests?status=open
 router.get('/contests', async (req, res) => {
@@ -36,11 +46,11 @@ router.get('/contests/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/contests/:id/entries?wallet=
+// GET /api/contests/:id/entries
 router.get('/contests/:id/entries', async (req, res) => {
   try {
     res.json(await contestSvc.getEntries(
-      parseInt(req.params.id, 10), req.query.wallet || null));
+      parseInt(req.params.id, 10), getOptionalAuthWallet(req) || null));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

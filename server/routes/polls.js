@@ -14,6 +14,16 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 router.get('/polls/config', async (req, res) => {
   try { res.json(await svc.getCfg()); }
@@ -21,7 +31,7 @@ router.get('/polls/config', async (req, res) => {
 });
 
 router.get('/polls', async (req, res) => {
-  const wallet = req.query.wallet ? req.query.wallet.toLowerCase().trim() : null;
+  const wallet = getOptionalAuthWallet(req) || null;
   try { res.json(await svc.getActivePolls(wallet)); }
   catch(e) { res.status(500).json({ error: e.message }); }
 });

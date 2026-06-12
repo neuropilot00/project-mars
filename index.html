@@ -36979,7 +36979,7 @@ function _loadContestEntries(contestId, wallet) {
   container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading…</div>';
   Promise.all([
     fetch('/api/contests/'+contestId).then(function(r){return r.json();}),
-    fetch('/api/contests/'+contestId+'/entries'+(wallet?'?wallet='+encodeURIComponent(wallet):'')).then(function(r){return r.json();})
+    fetch('/api/contests/'+contestId+'/entries', { headers: getAuthHeaders() }).then(function(r){return r.json();})
   ]).then(function(res) {
     var contest = res[0] || {};
     var entries = Array.isArray(res[1]) ? res[1] : [];
@@ -39181,9 +39181,7 @@ function refreshPolls() {
   var el = document.getElementById('activePollsPanel');
   if (!el) return;
   el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading polls…</div>';
-  var w = walletState && walletState.address;
-  var url = '/api/polls' + (w ? '?wallet='+encodeURIComponent(w) : '');
-  fetch(url).then(function(r){return r.json();}).then(function(polls){
+  fetch('/api/polls', { headers: getAuthHeaders() }).then(function(r){return r.json();}).then(function(polls){
     if (!polls.length) {
       el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px" data-i18n="poll_none">'+t('poll_none')+'</div>';
       return;
