@@ -375,6 +375,9 @@ app.use((req, res, next) => {
 });
 
 // ── API Routes ──
+// Auth must bypass the general /api router stack; otherwise login/register can
+// be blocked by broad gameplay API limiters before authRoutes sees the request.
+app.use('/api/auth', authRoutes);
 app.use('/api', apiWriteLimiter); // Write rate limit for all POST/PUT/PATCH/DELETE under /api
 // ⚠️ job/resource/onboarding/sector routes must come BEFORE apiRoutes to avoid /user/:wallet wildcard conflict
 app.use('/api', jobRoutes);
@@ -482,7 +485,6 @@ app.use('/api', announceRoutes);
 app.use('/api', tombstoneRoutes);
 app.use('/api', milestoneRoutes);
 app.use('/api', apiLimiter, apiRoutes);
-app.use('/api/auth', authRoutes);
 try { app.use('/', require('./routes/bugReport')); } catch (e) { console.warn('[mount] bugReport skipped:', e.message); } // M-192: bug report submit + admin
 app.use('/api/admin', require('./routes/adminEconomyRoutes'));
 app.use('/api/arena', arenaRoutes);
