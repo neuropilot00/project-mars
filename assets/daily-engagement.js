@@ -3038,8 +3038,13 @@ function openJournalWrite() {
 function loadJournalFeed() {
   var el = document.getElementById('journalFeedList');
   if (!el) return;
+  if (typeof _publicHudQuietRemainingMs === 'function' && _publicHudQuietRemainingMs() > 0) return;
   el.innerHTML = '<span style="color:#555;font-size:9px">Loading…</span>';
-  fetch('/api/journal/feed').then(function(r){return r.json();}).then(function(entries){
+  var req = typeof _guardedJsonFetch === 'function'
+    ? _guardedJsonFetch('journal-feed', '/api/journal/feed', {minGap:30000, backoffMs:120000})
+    : fetch('/api/journal/feed').then(function(r){return r.json();});
+  req.then(function(entries){
+    if (!entries) return;
     if (!entries.length) {
       el.innerHTML = '<span style="color:#555;font-size:9px">'+t('journal_empty')+'</span>';
       return;
@@ -3147,10 +3152,15 @@ function openMilestoneWrite() {
 function loadMilestoneFeed() {
   var el = document.getElementById('milestoneFeedList');
   if (!el) return;
+  if (typeof _publicHudQuietRemainingMs === 'function' && _publicHudQuietRemainingMs() > 0) return;
   el.innerHTML = '<span style="color:#555;font-size:9px">Loading…</span>';
   var url = '/api/milestone/feed?limit=20';
   if (_milestoneFilter) url += '&category='+encodeURIComponent(_milestoneFilter);
-  fetch(url).then(function(r){return r.json();}).then(function(items){
+  var req = typeof _guardedJsonFetch === 'function'
+    ? _guardedJsonFetch('milestone-feed' + (_milestoneFilter || ''), url, {minGap:30000, backoffMs:120000})
+    : fetch(url).then(function(r){return r.json();});
+  req.then(function(items){
+    if (!items) return;
     if (!items.length) {
       el.innerHTML = '<span style="color:#555;font-size:9px">'+t('milestone_empty')+'</span>';
       return;

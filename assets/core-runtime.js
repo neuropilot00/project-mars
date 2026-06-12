@@ -204,6 +204,9 @@ function _authModalIsOpen() {
 function _quietPublicHudFetches(ms) {
   _apiPublicHudQuietUntil = Math.max(_apiPublicHudQuietUntil, Date.now() + (ms || 0));
 }
+function _publicHudQuietRemainingMs() {
+  return Math.max(0, _apiPublicHudQuietUntil - Date.now());
+}
 function _shouldDeferPublicHudFetch(url, fetchOptions) {
   var method = (fetchOptions && fetchOptions.method ? fetchOptions.method : 'GET').toUpperCase();
   if (method !== 'GET' || !_isPublicHudFetchPath(url)) return false;

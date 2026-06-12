@@ -121,7 +121,7 @@ function togglePassField(id,btn){
 
 function openAuthModal(){
   document.getElementById('authModal').classList.add('open');
-  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(30000); }catch(_){}
+  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(120000); }catch(_){}
   if(emailAuth.token && emailAuth.user){
     showAuthLoggedIn();
   } else {
@@ -294,7 +294,7 @@ async function submitAuth(){
 
   var btn=document.getElementById('authSubmitBtn');
   _authSubmitInFlight=true;
-  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(75000); }catch(_){}
+  try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(120000); }catch(_){}
   btn.disabled=true;btn.textContent='...';
 
   try{
