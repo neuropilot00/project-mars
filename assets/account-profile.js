@@ -263,6 +263,8 @@ async function doResetStep2(){
 }
 
 var authTab='login';
+var _authSubmitInFlight = false;
+var _authSubmitCooldownUntil = 0;
 function switchAuthTab(tab){
   authTab=tab;
   document.getElementById('tabLogin').classList.toggle('active',tab==='login');
@@ -274,14 +276,23 @@ function switchAuthTab(tab){
 }
 
 async function submitAuth(){
+  if(_authSubmitInFlight) return;
   var email=document.getElementById('authEmailInput').value.trim();
   var pass=document.getElementById('authPassInput').value;
   var errEl=document.getElementById('authErrMsg');
   errEl.textContent='';
 
+  var now=Date.now();
+  if(now<_authSubmitCooldownUntil){
+    var waitSec=Math.ceil((_authSubmitCooldownUntil-now)/1000);
+    errEl.textContent=LANG==='ko'?'요청이 너무 많습니다. '+waitSec+'초 후 다시 시도하세요.':LANG==='ja'?'リクエストが多すぎます。'+waitSec+'秒後に再試行してください。':LANG==='zh'?'请求过多。请在 '+waitSec+' 秒后重试。':'Too many attempts. Try again in '+waitSec+'s.';
+    return;
+  }
+
   if(!email||!pass){errEl.textContent='Email and password required';return}
 
   var btn=document.getElementById('authSubmitBtn');
+  _authSubmitInFlight=true;
   btn.disabled=true;btn.textContent='...';
 
   try{
@@ -316,7 +327,15 @@ async function submitAuth(){
       return;
     }
 
-    if(!resp.ok){errEl.textContent=d.error||'Failed';return}
+    if(!resp.ok){
+      if(resp.status===429){
+        var retryAfter=parseInt(resp.headers.get('Retry-After')||'0',10);
+        var waitMs=(retryAfter>0?retryAfter*1000:60000);
+        _authSubmitCooldownUntil=Date.now()+waitMs;
+      }
+      errEl.textContent=d.error||'Failed';
+      return;
+    }
 
     // Success — wrap each step so we can see which one breaks on mobile
     emailAuth.token=d.token;
@@ -365,6 +384,7 @@ async function submitAuth(){
     console.error('[Auth] submitAuth error:', e);
     errEl.textContent=(e.message||'Unknown error')+' ('+e.name+')';
   }finally{
+    _authSubmitInFlight=false;
     btn.disabled=false;
     btn.textContent=t(authTab);
   }

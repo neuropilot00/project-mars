@@ -93,6 +93,7 @@ const authLimiter = makeRateLimiter({
   store: makeLimiterStore('auth-route'),
   passOnStoreError: true,
   skipSuccessfulRequests: true,
+  requestWasSuccessful: (_req, res) => res.statusCode < 400 || res.statusCode === 429,
   message: { error: 'Too many attempts. Try again later.' }
 });
 const passwordResetLimiter = makeRateLimiter({

@@ -31,6 +31,20 @@ function loadMarketTab(){ switchMarketView('browse',document.querySelectorAll('.
 var _tspSectors = null;
 var _tspSettings = null;
 var _tspCurrentSub = 'launch';
+var _tspMyCache = null;
+var _tspRaidCache = null;
+
+function mtReadFetch(key, url, minGap, auth) {
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('market-transport:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 90000,
+      fetchOptions: auth ? { headers: getAuthHeaders() } : {}
+    });
+  }
+  return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
+}
 
 function switchTransportSub(sub) {
   _tspCurrentSub = sub;
@@ -49,14 +63,15 @@ function loadTransportTab() {
   if (!w) return;
   // Fetch settings + sectors in parallel
   Promise.all([
-    fetch('/api/transport/settings').then(function(r){ return r.json(); }).catch(function(){ return null; }),
-    fetch('/api/sectors').then(function(r){ return r.json(); }).catch(function(){ return null; })
+    mtReadFetch('settings', '/api/transport/settings', 30000, false).catch(function(){ return null; }),
+    mtReadFetch('sectors', '/api/sectors', 15000, false).catch(function(){ return null; })
   ]).then(function(res) {
-    _tspSettings = res[0] || {};
+    _tspSettings = res[0] || _tspSettings || {};
     var sectorsData = res[1];
-    _tspSectors = Array.isArray(sectorsData)
+    var nextSectors = Array.isArray(sectorsData)
       ? sectorsData
       : (sectorsData && Array.isArray(sectorsData.sectors) ? sectorsData.sectors : []);
+    if (nextSectors.length) _tspSectors = nextSectors;
     if (!_tspSectors.length) {
       var origin = document.getElementById('tspOriginSector');
       var dest = document.getElementById('tspDestSector');
@@ -245,9 +260,10 @@ function submitTransportLaunch() {
 function loadMyTransports() {
   var w = (walletState && walletState.address) || '';
   if (!w) return;
-  fetch('/api/transport/my?limit=30', { headers: getAuthHeaders() })
-    .then(function(r){ return r.json(); })
+  mtReadFetch('my', '/api/transport/my?limit=30', 10000, true)
     .then(function(d) {
+      d = d || _tspMyCache || { transports: [] };
+      if (d.transports) _tspMyCache = d;
       var list = document.getElementById('tspMyList');
       if (!list) return;
       var rows = d.transports || [];
@@ -307,9 +323,10 @@ function cancelMyTransport(tid) {
 function loadRaidTargets() {
   var w = (walletState && walletState.address) || '';
   if (!w) return;
-  fetch('/api/transport/raids/targets?limit=30', { headers: getAuthHeaders() })
-    .then(function(r){ return r.json(); })
+  mtReadFetch('raid-targets', '/api/transport/raids/targets?limit=30', 10000, true)
     .then(function(d) {
+      d = d || _tspRaidCache || { targets: [] };
+      if (d.targets) _tspRaidCache = d;
       var list = document.getElementById('tspRaidList');
       if (!list) return;
       var rows = d.targets || [];
