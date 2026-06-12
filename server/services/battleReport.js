@@ -804,7 +804,11 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
          (SELECT COUNT(*) FROM bounty_listings bl
           WHERE LOWER(bl.target_wallet) = LOWER(f.owner_wallet)
             AND bl.status = 'active'
-            AND (bl.expires_at IS NULL OR bl.expires_at > NOW())) AS active_bounties
+            AND (bl.expires_at IS NULL OR bl.expires_at > NOW())) AS active_bounties,
+         (SELECT COALESCE(SUM(bl.reward_gp), 0) FROM bounty_listings bl
+          WHERE LOWER(bl.target_wallet) = LOWER(f.owner_wallet)
+            AND bl.status = 'active'
+            AND (bl.expires_at IS NULL OR bl.expires_at > NOW())) AS active_bounty_gp
        FROM fleets f
        JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
        LEFT JOIN factions fa ON fa.code = u.faction_code
@@ -858,8 +862,9 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
         reasons.push('same_sector_pressure');
       }
 
+      const activeBountyGp = parseInt(r.active_bounty_gp, 10) || 0;
       if ((parseInt(r.active_bounties, 10) || 0) > 0) {
-        score += 20;
+        score += 14 + Math.min(16, Math.floor(activeBountyGp / 500));
         reasons.push('bounty_target');
       }
 
@@ -878,6 +883,7 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
         wins: parseInt(r.wins, 10) || 0,
         sector_code: r.sector_code || null,
         active_bounties: parseInt(r.active_bounties, 10) || 0,
+        active_bounty_gp: activeBountyGp,
         last_battle_ago: fmtAgo(r.last_battle_at),
         is_online: isOnline,
         recommendation_score: Math.round(score * 10) / 10,

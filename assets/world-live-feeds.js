@@ -1489,8 +1489,13 @@
           var displayName = o.fleet_name || (o.wallet.slice(0,6) + '…' + o.wallet.slice(-4));
           var reasons = o.recommendation_reasons || [];
           var tags = [];
+          var bountyGp = Math.max(0, parseInt(o.active_bounty_gp, 10) || 0);
           if (reasons.indexOf('same_sector_pressure') >= 0 || (_pvpHubSectorFilter && o.sector_code === _pvpHubSectorFilter)) tags.push(LANG==='ko'?'섹터 압박':LANG==='ja'?'セクター圧力':LANG==='zh'?'区压制':'Sector pressure');
-          if (reasons.indexOf('bounty_target') >= 0 || o.active_bounties > 0) tags.push((LANG==='ko'?'현상금 ':LANG==='ja'?'賞金 ':LANG==='zh'?'悬赏 ':'Bounty ') + (o.active_bounties || ''));
+          if (reasons.indexOf('bounty_target') >= 0 || o.active_bounties > 0) {
+            tags.push(bountyGp
+              ? ((LANG==='ko'?'현상금 ':LANG==='ja'?'賞金 ':LANG==='zh'?'悬赏 ':'Bounty ') + bountyGp.toLocaleString() + ' GP')
+              : ((LANG==='ko'?'현상금 ':LANG==='ja'?'賞金 ':LANG==='zh'?'悬赏 ':'Bounty ') + (o.active_bounties || '')));
+          }
           if (reasons.indexOf('active_recently') >= 0) tags.push(LANG==='ko'?'최근 교전':LANG==='ja'?'最近交戦':LANG==='zh'?'近期交战':'Recent combat');
           var tagHtml = tags.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">' + tags.slice(0,3).map(function(tag) {
             return '<span style="font-size:8px;color:#ffab40;border:1px solid rgba(255,171,64,.28);background:rgba(255,171,64,.08);border-radius:3px;padding:1px 5px">' + escapeHtml(tag) + '</span>';
