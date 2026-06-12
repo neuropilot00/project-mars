@@ -117,6 +117,29 @@ router.post('/declare-pvp', requireAuth, async (req, res) => {
         return res.status(409).json({ error: 'TARGET_IN_BATTLE' });
       }
 
+      // Mining jobs also occupy fleets. Siege already blocks mining fleets;
+      // PvP declarations need the same guard to prevent double-use.
+      try {
+        const { rows: miningLocks } = await client.query(
+          `SELECT fleet_id
+             FROM ship_mining_jobs
+            WHERE fleet_id = ANY($1::int[])
+              AND status = 'mining'
+            LIMIT 1`,
+          [[my_fleet_id, target_fleet_id]]
+        );
+        if (miningLocks.length) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({
+            error: miningLocks[0].fleet_id === parseInt(my_fleet_id, 10)
+              ? 'MY_FLEET_MINING'
+              : 'TARGET_FLEET_MINING'
+          });
+        }
+      } catch (e) {
+        if (e.code !== '42P01') throw e;
+      }
+
       const { rows: battleRows } = await client.query(`
         INSERT INTO fleet_battles (
           battle_type, status, phase,

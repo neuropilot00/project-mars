@@ -7949,6 +7949,34 @@ function _setActiveTimeout(fn, ms){
 function _activeSleep(ms){
   return new Promise(function(resolve){ _setActiveTimeout(resolve, ms); });
 }
+var _apiFetchGuards = {};
+function _guardedJsonFetch(key, url, options) {
+  options = options || {};
+  var now = Date.now();
+  var g = _apiFetchGuards[key] || (_apiFetchGuards[key] = {
+    inFlight: false,
+    lastAt: 0,
+    backoffUntil: 0
+  });
+  var minGap = options.minGap || 0;
+  if (g.inFlight || now < g.backoffUntil || (minGap && now - g.lastAt < minGap)) {
+    return Promise.resolve(null);
+  }
+  g.inFlight = true;
+  g.lastAt = now;
+  return fetch(url, options.fetchOptions || {}).then(function(r){
+    if (r.status === 429) {
+      g.backoffUntil = Date.now() + (options.backoffMs || 60000);
+      return null;
+    }
+    if (!r.ok) return null;
+    return r.json();
+  }).catch(function(){
+    return null;
+  }).finally(function(){
+    g.inFlight = false;
+  });
+}
 function _clearActiveTimeout(id){
   if(id===null||id===undefined) return;
   for(var i=_activeTimeouts.length-1;i>=0;i--){
@@ -11088,8 +11116,8 @@ var _claimsPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?20000:10
 _setActiveInterval(function(){
   _pixelPollCount++;
   var fetchPixels=(_pixelPollCount%3===0); // every 30s desktop / 60s mobile
-  var fetches=[fetch('/api/claims?since='+_claimsSince).then(function(r){return r.json()})];
-  if(fetchPixels) fetches.push(fetch('/api/pixels').then(function(r){return r.json()}));
+  var fetches=[_guardedJsonFetch('claims-delta', '/api/claims?since='+_claimsSince, {minGap:Math.max(5000,_claimsPollMs-500), backoffMs:60000})];
+  if(fetchPixels) fetches.push(_guardedJsonFetch('pixels-full', '/api/pixels', {minGap:Math.max(15000,_claimsPollMs*3-500), backoffMs:90000}));
   Promise.all(fetches).then(function(results){
     var newClaims=results[0], serverPixels=results[1];
     var added=0;
@@ -11130,7 +11158,8 @@ _setActiveInterval(function(){
 window.refreshSectors = function(){
   var w = (typeof walletState !== 'undefined' && walletState && walletState.address) ? walletState.address : '';
   var sUrl = w ? '/api/sectors?wallet=' + encodeURIComponent(w) : '/api/sectors';
-  return fetch(sUrl).then(function(r){return r.json()}).then(function(data){
+  return _guardedJsonFetch('sectors-refresh', sUrl, {minGap:10000, backoffMs:120000}).then(function(data){
+    if (!data) return null;
     // Diff check — sector overlay 데이터가 변경됐는지 비교 (변경 있을 때만 텍스처 재렌더)
     var prev = _sectorsData || [];
     var changed = prev.length !== data.length;
@@ -23890,7 +23919,8 @@ function _pollBaseTabDots(){
     }
   }
   // SEASON: new season or NEW unclaimed rewards (count must increase)
-  fetch('/api/season/active').then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-season-active', '/api/season/active', {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var s = d && d.season;
       if(s){
@@ -23906,7 +23936,8 @@ function _pollBaseTabDots(){
     }catch(_e){}
   }).catch(function(){});
   // GUILD: NEW invites (count must increase) + new chat messages
-  fetch('/api/guild/invites?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-guild-invites', '/api/guild/invites?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var invites = (d && d.invites) || [];
       _pollDotState.guild_invites = invites.length;
@@ -23919,7 +23950,8 @@ function _pollBaseTabDots(){
   // Guild chat: new messages since last seen
   try{
     if(window._myGuildData && _myGuildData.id){
-      fetch('/api/guild/chat/'+_myGuildData.id+'?limit=1').then(function(r){return r.json()}).then(function(d){
+      _guardedJsonFetch('dot-guild-chat', '/api/guild/chat/'+_myGuildData.id+'?limit=1', {minGap:55000, backoffMs:180000}).then(function(d){
+        if (!d) return;
         try{
           var msgs = d && d.messages || [];
           if(msgs.length){
@@ -23932,7 +23964,8 @@ function _pollBaseTabDots(){
   }catch(_e){}
   // MINING: REMOVED from poll — startMineTimer already shows dot when cooldown expires
   // QUESTS: only dot if claimable count INCREASED since user last viewed
-  fetch('/api/quests?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-quests', '/api/quests?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var quests = d && d.quests || [];
       var claimable = quests.filter(function(q){ return q.status==='completed'; }).length;
@@ -23942,7 +23975,8 @@ function _pollBaseTabDots(){
     }catch(_e){}
   }).catch(function(){});
   // OPS: only dot if claimable count INCREASED since user last viewed
-  fetch('/api/missions/active?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-ops-missions', '/api/missions/active?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var missions = d && d.missions || [];
       var claimable = missions.filter(function(m){ return m.status==='complete'; }).length;
@@ -23953,8 +23987,8 @@ function _pollBaseTabDots(){
   }).catch(function(){});
   // GOVERN: only dot if active bounty/event count INCREASED since user last viewed
   Promise.all([
-    fetch('/api/governance/bounties').then(function(r){return r.json()}).catch(function(){return []}),
-    fetch('/api/governance/events').then(function(r){return r.json()}).catch(function(){return []})
+    _guardedJsonFetch('dot-govern-bounties', '/api/governance/bounties', {minGap:55000, backoffMs:180000}).then(function(d){return d || [];}),
+    _guardedJsonFetch('dot-govern-events', '/api/governance/events', {minGap:55000, backoffMs:180000}).then(function(d){return d || [];})
   ]).then(function(results){
     try{
       var bounties = Array.isArray(results[0]) ? results[0] : [];
@@ -23971,7 +24005,8 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // MARKET: 내 리스팅 중 판매된 건 있으면 dot
-  fetch('/api/marketplace/my-listings?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-market-listings', '/api/marketplace/my-listings?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var listings = Array.isArray(d) ? d : (d.listings||[]);
       var soldCount = listings.filter(function(l){ return l.status==='sold'; }).length;
@@ -23982,7 +24017,8 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // PVP: 진행중인 함대전 있으면 dot
-  fetch('/api/fleet-battles?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-fleet-battles', '/api/fleet-battles?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var battles = Array.isArray(d) ? d : (d.battles||[]);
       var active = battles.filter(function(b){ return b.status==='active'||b.status==='pending'; }).length;
@@ -23993,7 +24029,8 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // SHOP: 새 아이템(미확인) 있으면 dot — 아이템 총 개수 변화로 감지
-  fetch('/api/shop/items').then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-shop-items', '/api/shop/items', {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var items = Array.isArray(d) ? d : (d.items||[]);
       var cnt = items.length;
@@ -24004,7 +24041,8 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // FLEET: 건조 완료된 함선 있으면 dot
-  fetch('/api/ships/build-jobs', {headers:getAuthHeaders()}).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-ship-build-jobs', '/api/ships/build-jobs', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
+    if (!d) return;
     try{
       var jobs = Array.isArray(d) ? d : (d.jobs||d.build_jobs||[]);
       var done = jobs.filter(function(j){ return j.status==='completed'||j.status==='ready'; }).length;
@@ -24013,7 +24051,8 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // TRANSPORT: 도착한 수송 있으면 dot
-  fetch('/api/transport/my?limit=30', {headers:{'x-wallet':w}}).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-transport-my', '/api/transport/my?limit=30', {minGap:55000, backoffMs:180000, fetchOptions:{headers:{'x-wallet':w}}}).then(function(d){
+    if (!d) return;
     try{
       var list = Array.isArray(d) ? d : (d.shipments||d.transports||[]);
       var arrived = list.filter(function(s){
@@ -24024,7 +24063,8 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // ITEMS: 새 아이템 인스턴스 개수 변화 감지
-  fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+  _guardedJsonFetch('dot-item-instances', '/api/items/instances?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+    if (!d) return;
     try{
       var items = Array.isArray(d) ? d : (d.instances||d.items||[]);
       var cnt = items.length;
@@ -30559,7 +30599,8 @@ var _forSaleMap={}; // {claimId: {price, currency, saleType, endsAt, sellerNick}
 
 function loadForSaleTerritories(){
   if (!_pageIsActive()) return;
-  fetch('/api/for-sale-territories').then(function(r){return r.json()}).then(function(rows){
+  _guardedJsonFetch('for-sale-territories', '/api/for-sale-territories', {minGap:30000, backoffMs:120000}).then(function(rows){
+    if (!rows) return;
     var map={};
     if(Array.isArray(rows)) rows.forEach(function(r){
       map[r.claim_id]={price:r.price,currency:r.currency,saleType:r.sale_type,endsAt:r.ends_at,sellerNick:r.seller_nick};
@@ -32134,7 +32175,8 @@ function fmtNum(n){return Number(n).toLocaleString();}
 
 function loadPublicStats(){
   if (!_pageIsActive()) return;
-  fetch('/api/stats').then(function(r){return r.json();}).then(function(d){
+  _guardedJsonFetch('public-stats', '/api/stats', {minGap:25000, backoffMs:90000}).then(function(d){
+    if (!d) return;
     var setT=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
     if(d.totalPixels!=null){ setT('statTotalPx',fmtNum(d.totalPixels)); setT('bsStatTotalPx',fmtNum(d.totalPixels)); }
     if(d.totalPixelsSold!=null){ setT('statPlots',fmtNum(d.totalPixelsSold)); setT('bsStatPlots',fmtNum(d.totalPixelsSold)); }
@@ -32146,7 +32188,8 @@ function loadPublicStats(){
 
 function loadLeaderboard(){
   if (!_pageIsActive()) return;
-  fetch('/api/leaderboard?sort=pixels&limit=10').then(function(r){return r.json();}).then(function(arr){
+  _guardedJsonFetch('leaderboard-pixels', '/api/leaderboard?sort=pixels&limit=10', {minGap:30000, backoffMs:90000}).then(function(arr){
+    if (!arr) return;
     var container=document.getElementById('leaderboardList');
     var bsContainer=document.getElementById('bsLeaderboardList');
     if(!Array.isArray(arr)||arr.length===0){
@@ -33409,7 +33452,8 @@ window.addEventListener('resize', _debounce(function(){
     if (nameEl) nameEl.textContent = '';
   }
   function loadCommanderBanner() {
-    fetch('/api/governance/commander').then(function(r){return r.json()}).then(function(info){
+    _guardedJsonFetch('commander-banner', '/api/governance/commander', {minGap:15000, backoffMs:120000}).then(function(info){
+      if (!info) return;
       _cmdInfo = info;
       // commander 가 비어있으면 즉시 모든 UI 숨김 (orphan 방어)
       if (!info || !info.commander) { _hideCommanderUI(); return; }
@@ -33462,7 +33506,7 @@ window.addEventListener('resize', _debounce(function(){
   var _gpAnnounceIdx = 0;
   function pollGPAnnouncements() {
     if (!_pageIsActive()) return;
-    fetch('/api/announce/active').then(function(r){return r.json();}).then(function(items){
+    _guardedJsonFetch('gp-announcements', '/api/announce/active', {minGap:30000, backoffMs:120000}).then(function(items){
       if (!items || !items.length) return;
       // Cycle through active announcements round-robin
       var item = items[_gpAnnounceIdx % items.length];
@@ -33481,12 +33525,13 @@ window.addEventListener('resize', _debounce(function(){
     if (!_pageIsActive()) return;
     var wxUrl = '/api/weather';
     if(walletState.address) wxUrl += '?wallet=' + encodeURIComponent(walletState.address);
-    fetch(wxUrl).then(function(r){return r.json()}).then(function(data){
+    _guardedJsonFetch('weather-data', wxUrl, {minGap:30000, backoffMs:120000}).then(function(data){
+      if (!data) return;
       _weatherData = data.active || [];
       updateWeatherBanner();
       // Trigger texture refresh if weather changed
       if (_weatherData.length > 0) compositeClaimsOnTexture();
-    }).catch(function(){ _weatherData = []; });
+    }).catch(function(){});
   }
   // Collapsed state persists in localStorage
   window._toggleWeatherBar = function(){
@@ -33630,7 +33675,8 @@ window.addEventListener('resize', _debounce(function(){
     if (!_pageIsActive()) return;
     var url = '/api/exploration/pois';
     if(walletState.address) url += '?wallet=' + encodeURIComponent(walletState.address);
-    fetch(url).then(function(r){return r.json()}).then(function(data){
+    _guardedJsonFetch('exploration-pois', url, {minGap:30000, backoffMs:120000}).then(function(data){
+      if (!data) return;
       var now = new Date().getTime();
       // Filter out expired POIs client-side too
       _poiData = (data.pois || []).filter(function(p){
@@ -33644,12 +33690,13 @@ window.addEventListener('resize', _debounce(function(){
         console.log('[POI] Active:', _poiData.filter(function(p){return !p.discovered}).length, '/', _poiData.length, 'total, fee:', window._explorationFee, 'PP, userPP:', window._userPP);
         compositeClaimsOnTexture();
       }
-    }).catch(function(){ _poiData = []; });
+    }).catch(function(){});
   }
   window.loadExplorationData = loadExplorationData;
   function loadStarlinkData() {
     if (!_pageIsActive()) return;
-    fetch('/api/exploration/starlink').then(function(r){return r.json()}).then(function(data){
+    _guardedJsonFetch('exploration-starlink', '/api/exploration/starlink', {minGap:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 60000 : 30000, backoffMs:120000}).then(function(data){
+      if (!data) return;
       _starlinkData = {
         satellites: Array.isArray(data && data.satellites) ? data.satellites : [],
         passes: Array.isArray(data && data.passes) ? data.passes : [],
@@ -33675,12 +33722,13 @@ window.addEventListener('resize', _debounce(function(){
   // ═══════ ROCKET EVENT POLLING ═══════
   function loadRocketData() {
     if (!_pageIsActive()) return;
-    fetch('/api/rockets').then(function(r){return r.json()}).then(function(data){
+    _guardedJsonFetch('rockets-active', '/api/rockets', {minGap:25000, backoffMs:120000}).then(function(data){
+      if (!data) return;
       _rocketData = data;
       updateRocketBanner();
       _updateRocketMesh();
       if (_rocketData.events && _rocketData.events.length > 0) compositeClaimsOnTexture();
-    }).catch(function(){ _rocketData = { events: [] }; });
+    }).catch(function(){});
   }
   function updateRocketBanner() {
     var el = document.getElementById('rocketBanner');
@@ -33747,9 +33795,9 @@ window.addEventListener('resize', _debounce(function(){
   function _refreshOpsMissionsGlobal(){
     if (!_pageIsActive()) return;
     var w = walletState && walletState.address; if(!w) return;
-    fetch('/api/missions/active?wallet='+encodeURIComponent(w))
-      .then(function(r){return r.json()})
+    _guardedJsonFetch('ops-missions-global', '/api/missions/active?wallet='+encodeURIComponent(w), {minGap:25000, backoffMs:120000})
       .then(function(d){
+        if (!d) return;
         window._opsMissions = d.missions || [];
         if(typeof requestRedraw==='function') requestRedraw();
       }).catch(function(){});
@@ -50799,9 +50847,8 @@ async function loadActivityFeed() {
     // Skip when the tab is hidden — keeps the render loop smooth.
     if (!_pageIsActive()) return;
     var url = '/api/activity/feed?limit=15' + (_feedSince ? '&since=' + encodeURIComponent(_feedSince) : '');
-    var r = await fetch(url);
-    if (!r.ok) return;
-    var data = await r.json();
+    var data = await _guardedJsonFetch('activity-feed', url, {minGap:5000, backoffMs:60000});
+    if (!data) return;
     var events = data.events || [];
     if (!events.length) return;
     _feedSince = events[0].created_at;
