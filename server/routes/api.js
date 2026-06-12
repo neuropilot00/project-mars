@@ -584,6 +584,8 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     // Check attacker's attack_boost item effect
     let attackBoostValue = 0;
     let attackBoostEffectId = null;
+    let siegeRamValue = 0;
+    let siegeRamEffectId = null;
     try {
       const boostRes = await client.query(
         `SELECT id, effect_value, uses_remaining FROM user_active_effects
@@ -597,10 +599,23 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
         attackBoostEffectId = boostRes.rows[0].id;
       }
     } catch(be) { /* item system unavailable */ }
+    try {
+      const siegeRes = await client.query(
+        `SELECT id, effect_value, uses_remaining FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'siege_ram' AND active = true
+           AND uses_remaining > 0
+           AND (expires_at IS NULL OR expires_at > NOW())
+         ORDER BY id DESC LIMIT 1`, [wallet.toLowerCase()]
+      );
+      if (siegeRes.rows.length > 0) {
+        siegeRamValue = parseFloat(siegeRes.rows[0].effect_value) || 0;
+        siegeRamEffectId = siegeRes.rows[0].id;
+      }
+    } catch(be) { /* item system unavailable */ }
 
     for (const [prevOwner, ownerPixels] of Object.entries(enemyByOwner)) {
       // Defense bonus buff: check if defender's sector has defense_bonus active
-      let effectiveSuccessRate = ATTACK_SUCCESS_RATE + attackBoostValue;
+      let effectiveSuccessRate = ATTACK_SUCCESS_RATE + attackBoostValue + siegeRamValue;
       try {
         const defSectorId = ownerPixels[0] && ownerPixels[0].existing ? findSectorForPixelSync(ownerPixels[0].lat, ownerPixels[0].lng) : null;
         if (defSectorId) {
@@ -692,6 +707,16 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
         );
         await client.query(
           `UPDATE user_active_effects SET active = false WHERE id = $1 AND uses_remaining <= 0`, [attackBoostEffectId]
+        );
+      } catch(be) { /* non-critical */ }
+    }
+    if (siegeRamEffectId && (attackWon > 0 || attackLost > 0)) {
+      try {
+        await client.query(
+          `UPDATE user_active_effects SET uses_remaining = uses_remaining - 1 WHERE id = $1 AND uses_remaining > 0`, [siegeRamEffectId]
+        );
+        await client.query(
+          `UPDATE user_active_effects SET active = false WHERE id = $1 AND uses_remaining <= 0`, [siegeRamEffectId]
         );
       } catch(be) { /* non-critical */ }
     }
