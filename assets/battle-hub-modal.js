@@ -1004,6 +1004,7 @@ async function caStartBattle(battleId){
       return;
     }
     showFactionToast(LANG==='ko'?'전투 시작 · 잠시 후 관전 창이 열립니다':LANG==='ja'?'戦闘開始 · まもなく観戦画面が開きます':LANG==='zh'?'战斗开始 · 稍后将打开观战窗口':'Battle started · Spectator view will open shortly','success');
+    markBattleDailyOpsOnce(battleId, 'battle_participate');
     _setActiveTimeout(() => openBattleViewer(battleId), 3000);
     _setActiveTimeout(() => showRewardIfAny(battleId), 8000);
   } catch (err) {
@@ -1035,11 +1036,24 @@ async function showRewardIfAny(battleId) {
     if (!myReward) return;
     if (!myReward.gp_awarded && !Object.keys(myReward.minerals_awarded || {}).length) return;
 
+    markBattleDailyOpsOnce(battleId, 'battle_participate');
+    if (myReward.is_winner) markBattleDailyOpsOnce(battleId, 'battle_win');
     showRewardToast(myReward);
     if (myReward.is_winner) { try { _showVictorySlot(battleId); } catch(_) {} }
   } catch (err) {
     console.warn('showRewardIfAny:', err);
   }
+}
+
+function markBattleDailyOpsOnce(battleId, type) {
+  if (!battleId || !type || typeof markDailyOpsAction !== 'function') return;
+  try {
+    var w = (getMyWallet() || 'guest').toLowerCase();
+    var key = 'battle_ops_marked_' + w + '_' + battleId + '_' + type;
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, '1');
+    markDailyOpsAction(type, 1);
+  } catch(_) {}
 }
 // (도파민 #4 v7.392) 승리 슬롯 — Sink 풀에서 추가 GP. 승자만 전투당 1회.
 async function _showVictorySlot(battleId) {
@@ -1259,7 +1273,8 @@ async function challengeAi(aiFleetId, aiName) {
     }
 
     showFactionToast(`🤖 ${aiName} ${LANG==='ko'?'와의 전투 시작!':LANG==='ja'?'との戦闘開始!':LANG==='zh'?'战斗开始!':'- Battle started!'}`, 'success');
-    try{ markDailyOpsAction('ai_practice', 1); }catch(_e){}
+    if (data2.battle_id) markBattleDailyOpsOnce(data2.battle_id, 'ai_practice');
+    else { try{ markDailyOpsAction('ai_practice', 1); }catch(_e){} }
     // [v7.221 upgrade #3] 마지막 AI 상대 저장 — 전투 결과 카드의 '리매치' 버튼이 재사용 (battleId 일치 시만 표시).
     window._lastAiChallenge = { aiFleetId: aiFleetId, aiName: aiName, battleId: data2.battle_id };
     closeAiFight();
