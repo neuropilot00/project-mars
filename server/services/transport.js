@@ -227,10 +227,6 @@ async function startTransport(wallet, originSectorId, destSectorId, cargoGp) {
 
     // Fire-and-forget logging
     try { logGPActivity(wallet, -cargoGp, 'transport_hold', `Transport to sector ${destSectorId}`).catch(()=>{}); } catch(_){}
-    try {
-      const seasonSvc = require('./season');
-      seasonSvc.addSeasonScore(wallet, 'transport_started', 1).catch(()=>{});
-    } catch(_) {}
     notifyOpsProgress(wallet, ['transport_launch']);
 
     const row = ins.rows[0];

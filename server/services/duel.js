@@ -257,9 +257,21 @@ async function acceptDuel(duelId, defender) {
     // 시즌 점수 (fire-and-forget)
     try {
       const seasonSvc = require('./season');
-      seasonSvc.addSeasonScore(d.challenger, 'duel', 1).catch(() => {});
-      seasonSvc.addSeasonScore(dLower, 'duel', 1).catch(() => {});
-      if (result.winner) seasonSvc.addSeasonScore(result.winner, 'duel_win', 1).catch(() => {});
+      seasonSvc.addSeasonScore(d.challenger, 'gp_spend', d.wager_gp).catch(() => {});
+      seasonSvc.addSeasonScore(dLower, 'gp_spend', d.wager_gp).catch(() => {});
+      if (result.winner) {
+        seasonSvc.addSeasonScore(result.winner, 'gp_earn', winnerTake).catch(() => {});
+        if (loserTake > 0) {
+          const loser = result.winner === d.challenger ? dLower : d.challenger;
+          seasonSvc.addSeasonScore(loser, 'gp_earn', loserTake).catch(() => {});
+        }
+      } else {
+        const half = Math.floor((totalPot - fee) / 2);
+        if (half > 0) {
+          seasonSvc.addSeasonScore(d.challenger, 'gp_earn', half).catch(() => {});
+          seasonSvc.addSeasonScore(dLower, 'gp_earn', half).catch(() => {});
+        }
+      }
     } catch(_){}
 
     return {
