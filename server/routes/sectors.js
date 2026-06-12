@@ -16,6 +16,7 @@
 const express = require('express');
 const router = express.Router();
 const sectorService = require('../services/sector');
+const { requireAuth, getAuthWallet } = require('../utils/apiHelpers');
 
 function requireAdmin(req, res) {
   const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
@@ -87,12 +88,11 @@ router.get('/sector-defs/:code/governance', async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────
 // GET /api/sector-defs/:code/entry-check  — 진입 요건 체크
-// query: wallet
 // ─────────────────────────────────────────────────────────────
-router.get('/sector-defs/:code/entry-check', async (req, res) => {
+router.get('/sector-defs/:code/entry-check', requireAuth, async (req, res) => {
   const code   = req.params.code.toLowerCase();
-  const wallet = (req.query.wallet || '').toLowerCase();
-  if (!wallet) return res.status(400).json({ error: 'wallet required' });
+  const wallet = getAuthWallet(req);
+  if (!wallet) return res.status(401).json({ error: 'auth required' });
   try {
     const result = await sectorService.checkEntryRequirement(wallet, code);
     res.json(result);

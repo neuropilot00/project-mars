@@ -203,6 +203,7 @@ async function main() {
   await expectBlocked('/api/arena/coinflip/history blocks unauthenticated access', '/api/arena/coinflip/history?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/arena/hilo/active blocks unauthenticated access', '/api/arena/hilo/active?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/battles/history blocks unauthenticated access', '/api/battles/history?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/sector-defs/:code/entry-check blocks unauthenticated access', '/api/sector-defs/alpha/entry-check?wallet=0x0000000000000000000000000000000000000000');
 
   await expectStaticOk('/assets/tactical-lab-v11.html serves', '/assets/tactical-lab-v11.html?v=preflight');
   await expectStaticOk('/assets/ships/top/mcc_frg.png serves', '/assets/ships/top/mcc_frg.png?v=preflight');
