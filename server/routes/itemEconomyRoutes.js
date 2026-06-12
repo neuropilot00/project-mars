@@ -118,8 +118,13 @@ async function expireStaleActiveEffects(wallet) {
        AND (
          (expires_at IS NOT NULL AND expires_at <= NOW())
          OR (uses_remaining IS NOT NULL AND uses_remaining <= 0)
+         OR (
+           uses_remaining IS NOT NULL
+           AND expires_at IS NULL
+           AND COALESCE(activated_at, NOW()) + ($2 * INTERVAL '1 hour') <= NOW()
+         )
        )`,
-    [w]
+    [w, USE_EFFECT_DEFAULT_HOURS]
   );
   return result.rowCount || 0;
 }

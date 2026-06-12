@@ -37,6 +37,7 @@ function _shopConfirmResolve(val){
 
 var _activeEffects=[];
 var _activeEffectsRefreshTimer=null;
+var ACTIVE_EFFECT_LEGACY_MAX_MS=24*60*60*1000;
 function _clearActiveEffectsRefresh(){
   if(!_activeEffectsRefreshTimer)return;
   _clearActiveTimeout(_activeEffectsRefreshTimer);
@@ -50,6 +51,9 @@ function _filterLiveEffects(effects){
     if(e.expires_at){
       var exp=new Date(e.expires_at).getTime();
       if(!Number.isFinite(exp)||exp<=now)return false;
+    }else if(e.uses_remaining!=null&&e.activated_at){
+      var activatedAt=new Date(e.activated_at).getTime();
+      if(Number.isFinite(activatedAt)&&activatedAt+ACTIVE_EFFECT_LEGACY_MAX_MS<=now)return false;
     }
     return true;
   });
