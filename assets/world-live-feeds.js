@@ -1534,14 +1534,18 @@
         + sectors.map(function(s) {
           var heat = Math.min(100, s.heat);
           var heatCol = heat >= 70 ? '#ff5252' : heat >= 40 ? '#ffd700' : '#66bb6a';
+          var bountyGp = Math.max(0, parseInt(s.total_bounty_gp, 10) || 0);
+          var owners = Math.max(0, parseInt(s.owner_count, 10) || 0);
           return '<div style="padding:7px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px;margin-bottom:5px">'
             + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'
-            + '<div style="font-size:10px;color:var(--tx);font-weight:700;font-family:var(--fn)">' + s.sector_code + '</div>'
+            + '<div style="font-size:10px;color:var(--tx);font-weight:700;font-family:var(--fn)">' + escapeHtml(s.sector_code) + '</div>'
             + '<div style="font-size:9px;color:' + heatCol + ';font-weight:700">🔥 Heat ' + heat + '</div>'
             + '</div>'
-            + '<div style="display:flex;gap:10px;font-size:9px;color:var(--tx3)">'
+            + '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:9px;color:var(--tx3)">'
             + (s.active_battles  ? '<span style="color:#ff8a80">⚔ '+(LANG==='ko'?'전투 ':LANG==='ja'?'戦闘 ':LANG==='zh'?'战斗 ':'Battles ')  + s.active_battles  + '</span>' : '')
             + (s.active_bounties ? '<span style="color:#ffab40">💰 '+(LANG==='ko'?'현상금 ':LANG==='ja'?'賞金 ':LANG==='zh'?'悬赏 ':'Bounties ') + s.active_bounties + '</span>' : '')
+            + (bountyGp ? '<span style="color:#ffd54f">+' + bountyGp.toLocaleString() + ' GP</span>' : '')
+            + (owners ? '<span>'+(LANG==='ko'?'소유자 ':LANG==='ja'?'所有者 ':LANG==='zh'?'所有者 ':'Owners ') + owners + '</span>' : '')
             + '<span>'+(LANG==='ko'?'클레임 ':LANG==='ja'?'クレーム ':LANG==='zh'?'领地 ':'Claims ') + s.claim_count + '</span>'
             + '</div>'
             + '<button type="button" data-sector="' + escapeHtml(s.sector_code) + '" onclick="huntPvpSector(this.dataset.sector)" style="margin-top:6px;width:100%;font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.32);color:#ff8a80;padding:5px 8px;border-radius:4px;cursor:pointer;font-family:var(--fn);font-weight:700">'

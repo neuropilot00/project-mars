@@ -235,19 +235,23 @@ router.get('/conflict-map', async (req, res) => {
       };
     }
     for (const b of battles) {
-      if (map[b.sector_code]) map[b.sector_code].active_battles = parseInt(b.active_battles);
+      if (map[b.sector_code]) map[b.sector_code].active_battles = parseInt(b.active_battles, 10) || 0;
     }
     for (const b of bounties) {
       if (map[b.sector_code]) {
-        map[b.sector_code].active_bounties = parseInt(b.active_bounties);
-        map[b.sector_code].total_bounty_gp = parseInt(b.total_bounty_gp);
+        map[b.sector_code].active_bounties = parseInt(b.active_bounties, 10) || 0;
+        map[b.sector_code].total_bounty_gp = parseInt(b.total_bounty_gp, 10) || 0;
       }
     }
 
-    // heat score: 전투×10 + 현상금×3 + 클레임밀도
+    // heat score: active war + bounty value + owner density, capped for map stability.
     for (const k in map) {
       const s = map[k];
-      s.heat = Math.min(100, (s.active_battles * 10) + (s.active_bounties * 3) + Math.min(10, s.claim_count));
+      const battleHeat = s.active_battles * 12;
+      const bountyHeat = (s.active_bounties * 3) + Math.min(20, Math.floor((s.total_bounty_gp || 0) / 250));
+      const densityHeat = Math.min(12, (s.owner_count || 0) + Math.floor((s.claim_count || 0) / 3));
+      s.heat_breakdown = { battles: battleHeat, bounties: bountyHeat, density: densityHeat };
+      s.heat = Math.min(100, battleHeat + bountyHeat + densityHeat);
     }
 
     res.json({
