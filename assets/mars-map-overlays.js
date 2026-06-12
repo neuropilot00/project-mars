@@ -89,11 +89,11 @@ function _drawSectorOverlay(ctx,w,h){
     var _entryBlocked=(s.entryCheckActive!==false)&&(s.entryMinLevel||0)>0&&_myLvl<(s.entryMinLevel||0);
     tracePts(m.pts);
     if(_entryBlocked){
-      ctx.globalAlpha=0.36;
+      ctx.globalAlpha=0.17;
       var blockGrad=ctx.createLinearGradient(m.minX,m.minY,m.maxX,m.maxY);
-      blockGrad.addColorStop(0,'rgba(80,0,0,1)');
-      blockGrad.addColorStop(0.55,'rgba(120,20,20,1)');
-      blockGrad.addColorStop(1,'rgba(20,0,0,1)');
+      blockGrad.addColorStop(0,'rgba(120,38,22,1)');
+      blockGrad.addColorStop(0.55,'rgba(168,58,32,1)');
+      blockGrad.addColorStop(1,'rgba(38,8,6,1)');
       ctx.fillStyle=blockGrad;
     }else{
       var st=sectorStyle(s.tier);
@@ -178,27 +178,38 @@ function _drawSectorOverlay(ctx,w,h){
       ctx.restore();
     }
 
-    // 차단된 섹터: 큰 X 표시
+    // 차단된 섹터: 큰 X 대신 낮은 강도의 스캔 패턴과 작은 잠금 배지만 표시.
     if(_entryBlocked){
       var c=[m.cx,m.cy];
       var polyW2=m.w;
       var polyH2=m.h;
-      var half=Math.min(polyW2,polyH2)*0.3;
-      ctx.globalAlpha=0.55;
-      ctx.strokeStyle='rgba(255,60,60,1)';
-      ctx.lineWidth=Math.max(3,half*0.08);
-      ctx.setLineDash([]);
-      ctx.beginPath();ctx.moveTo(c[0]-half,c[1]-half);ctx.lineTo(c[0]+half,c[1]+half);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(c[0]+half,c[1]-half);ctx.lineTo(c[0]-half,c[1]+half);ctx.stroke();
-      ctx.globalAlpha=1;
-      // 레벨 요구사항 텍스트
-      var lvFont=Math.max(12,Math.min(28,polyW2*0.06));
+      ctx.save();
+      tracePts(m.pts);
+      ctx.clip();
+      ctx.globalAlpha=0.16;
+      ctx.strokeStyle='rgba(255,170,80,.85)';
+      ctx.lineWidth=Math.max(0.8,Math.min(2.2,polyW2*0.004));
+      var step=Math.max(30,Math.min(58,polyW2/6));
+      for(var hx=m.minX-step;hx<m.maxX+step;hx+=step){
+        ctx.beginPath();ctx.moveTo(hx,m.minY);ctx.lineTo(hx+m.h*0.62,m.maxY);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(hx+m.h*0.36,m.minY);ctx.lineTo(hx-m.h*0.26,m.maxY);ctx.stroke();
+      }
+      ctx.globalAlpha=0.08;
+      ctx.fillStyle='rgba(255,210,130,1)';
+      for(var gy=m.minY+step*0.5;gy<m.maxY;gy+=step){
+        for(var gx=m.minX+step*0.5;gx<m.maxX;gx+=step){
+          ctx.beginPath();ctx.arc(gx,gy,Math.max(1.5,step*0.045),0,Math.PI*2);ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      var lvFont=Math.max(9,Math.min(18,polyW2*0.04));
       ctx.font='bold '+lvFont+'px monospace';
       ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.shadowColor='rgba(0,0,0,0.9)';ctx.shadowBlur=6;
-      ctx.fillStyle='rgba(255,120,120,1)';
-      ctx.globalAlpha=0.9;
-      ctx.fillText('🔒 Lv '+s.entryMinLevel,c[0],c[1]+half*0.6);
+      ctx.shadowColor='rgba(0,0,0,0.85)';ctx.shadowBlur=5;
+      ctx.fillStyle='rgba(255,198,120,.9)';
+      ctx.globalAlpha=0.82;
+      ctx.fillText('🔒 Lv '+s.entryMinLevel,c[0],c[1]+Math.min(polyH2,polyW2)*0.18);
       ctx.shadowBlur=0;ctx.globalAlpha=1;
     }
   });

@@ -86,6 +86,7 @@ function _applyAuthMeBalances(d){
         try{updateChainUI()}catch(e){}
         try{updateTopbarAvatar(true)}catch(e){}
         try{loadReferralInfo()}catch(e){}
+        try{ if(typeof startSocialLive === 'function') startSocialLive(); }catch(e){}
         try{trackQuestAction('login',1)}catch(e){}
         try{checkDailyLogin();}catch(e){}
         try{initOnboarding(d.wallet)}catch(e){}
@@ -444,6 +445,7 @@ async function submitAuth(){
     showToast(t(authTab==='register'?'registered':'login_success'));
 
     try{ loadReferralInfo(); }catch(e2){ console.error('[Auth] loadReferralInfo:',e2); }
+    try{ if(typeof startSocialLive === 'function') startSocialLive(); }catch(e2){ console.error('[Auth] startSocialLive:',e2); }
     if(window._pendingRefCode){delete window._pendingRefCode}
     try{ refreshEmailBalances(); }catch(e2){ console.error('[Auth] refreshEmailBalances:',e2); }
     try{ trackQuestAction('login',1); }catch(e2){}

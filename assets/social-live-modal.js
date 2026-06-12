@@ -1090,11 +1090,22 @@ function _escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function _socialLiveHasSession() {
+  if (window.walletState && walletState.connected && walletState.address) return true;
+  try { return !!localStorage.getItem('pw_token'); } catch (_) { return false; }
+}
+
+function _socialLiveShouldRun() {
+  return _pageIsActive() && _socialLiveHasSession();
+}
+
 function startChatPolling() {
+  if (!_socialLiveShouldRun()) return;
   if (_chatPollTimer) _clearActiveInterval(_chatPollTimer);
   requestChatMessages(0);
   // WebSocket(/ws/live)이 실시간 푸시를 담당 → 폴링은 느린 폴백만 유지.
   _chatPollTimer = _setActiveInterval(() => {
+    if (!_socialLiveShouldRun()) return;
     if (_liveWSIsOpen() && !_chatExpanded) return;
     requestChatMessages(0);
   }, CHAT_POLL_FALLBACK_MS);
@@ -1106,7 +1117,7 @@ var _feedTimer = null;
 async function loadActivityFeed() {
   try {
     // Skip when the tab is hidden — keeps the render loop smooth.
-    if (!_pageIsActive()) return;
+    if (!_socialLiveShouldRun()) return;
     var url = '/api/activity/feed?limit=15' + (_feedSince ? '&since=' + encodeURIComponent(_feedSince) : '');
     var data = await _guardedJsonFetch('activity-feed', url, {minGap:20000, backoffMs:120000});
     if (!data) return;
@@ -1140,13 +1151,22 @@ async function loadActivityFeed() {
 }
 
 function startFeedPolling() {
+  if (!_socialLiveShouldRun()) return;
   if (_feedTimer) _clearActiveInterval(_feedTimer);
   loadActivityFeed();
   // WebSocket 푸시(broadcastFeed)가 즉시 갱신 → 폴링은 폴백 15s (소스 일부만 WS 연결됨).
   _feedTimer = _setActiveInterval(function(){
+    if (!_socialLiveShouldRun()) return;
     if (_liveWSIsOpen()) return;
     loadActivityFeed();
   }, 15000);
+}
+
+function startSocialLive() {
+  if (!_socialLiveShouldRun()) return;
+  try { if (_chatPollTimer) requestChatMessages(0); else startChatPolling(); } catch (_) {}
+  try { if (_feedTimer) loadActivityFeed(); else startFeedPolling(); } catch (_) {}
+  try { connectLiveWS(); } catch (_) {}
 }
 
 // ── 실시간 라이브 WebSocket (/ws/live) — 채팅/피드 즉시 갱신 ──
@@ -1163,7 +1183,7 @@ function _liveWSSubscribe() {
   } catch (_) {}
 }
 function connectLiveWS() {
-  if (!_pageIsActive()) return;
+  if (!_socialLiveShouldRun()) return;
   try {
     if (_liveWS && (_liveWS.readyState === 0 || _liveWS.readyState === 1)) return;
     var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -1193,19 +1213,20 @@ function connectLiveWS() {
       }
     };
     _liveWS.onclose = function(){
-      if (!_pageIsActive()) return;
+      if (!_socialLiveShouldRun()) return;
       // 지수 백오프 재연결 (최대 30s)
       _liveWSRetry = Math.min(_liveWSRetry + 1, 6);
       if (_liveWSTimer) _clearActiveTimeout(_liveWSTimer);
       _liveWSTimer = _setActiveTimeout(function(){
         _liveWSTimer = null;
-        if (_pageIsActive()) connectLiveWS();
+        if (_socialLiveShouldRun()) connectLiveWS();
       }, Math.min(1000 * Math.pow(2, _liveWSRetry), 30000));
     };
     _liveWS.onerror = function(){ try { _liveWS.close(); } catch(_){} };
   } catch (_) {}
 }
 _onPageVisible(function() {
+  if (!_socialLiveShouldRun()) return;
   try { if (_chatPollTimer) requestChatMessages(0); else startChatPolling(); } catch(_) {}
   try { if (_feedTimer) loadActivityFeed(); else startFeedPolling(); } catch(_) {}
   try { connectLiveWS(); } catch(_) {}
