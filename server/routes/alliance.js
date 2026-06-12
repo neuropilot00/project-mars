@@ -28,10 +28,10 @@ router.get('/alliances', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/alliances/my?wallet=
-router.get('/alliances/my', async (req, res) => {
+// GET /api/alliances/my
+router.get('/alliances/my', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     res.json(await allianceSvc.getMyAlliance(wallet));
   } catch (e) { res.status(500).json({ error: e.message }); }

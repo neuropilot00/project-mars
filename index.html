@@ -40205,7 +40205,7 @@ function loadAlliancePanel() {
     document.getElementById('noAlliancePanel')  && (document.getElementById('noAlliancePanel').style.display = '');
     return;
   }
-  fetch('/api/alliances/my?wallet=' + encodeURIComponent(w))
+  fetch('/api/alliances/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       if (!d || !d.id) {
