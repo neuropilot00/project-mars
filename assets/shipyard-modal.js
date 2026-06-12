@@ -16,6 +16,12 @@ var shipyardState = {
   materialSectorHints: {},  // resource_code → primary sector_type (frontier/mid/core)
 };
 
+var SM_DEFAULT_DESTINATIONS = [
+  { key: 'frontier', yieldMult: 1.0, wearMult: 1.0, raidPct: 0.0 },
+  { key: 'mid', yieldMult: 1.5, wearMult: 1.5, raidPct: 0.05 },
+  { key: 'core', yieldMult: 2.2, wearMult: 2.5, raidPct: 0.15 }
+];
+
 // ⛏ 함선 채굴 런 (경제 v2 P5) — 땅 없는 F2P 노가다. 함대를 보내 재료+GP 수급.
 // 채굴은 임무 > ⛏ MINING 서브탭으로 통합(모달 폐기). 외부 진입점은 BASE 열고 해당 탭으로 라우팅.
 async function openShipMining() {
@@ -38,6 +44,7 @@ async function _renderShipMining() {
     // 함선 보유 함대만 (ship_count>0)
     var usable = fleets.filter(function(f){ return (parseInt(f.ships_alive)||parseInt(f.ship_count)||0) > 0; });
     var durs = info.durationsH || [1,4,8];
+    var dests = (info.destinations && info.destinations.length) ? info.destinations : SM_DEFAULT_DESTINATIONS;
     var h = '';
     // 진행/완료 런
     if (my.length) {
@@ -72,7 +79,6 @@ async function _renderShipMining() {
         mid:      { ko:'중거리', label:tl('MID','중거리','中距離','中'), c:'#e0a93b', ico:'⚒' },
         core:     { ko:'원거리', label:tl('FAR','원거리','遠距離','远'), c:'#d9483b', ico:'☢' }
       };
-      var dests = info.destinations || [{key:'frontier',yieldMult:1,raidPct:0}];
       h += '<div style="font-size:8px;color:var(--tx3);margin-bottom:3px">'+tl('DESTINATION','목적지','目的地','目的地')+'</div>';
       h += '<div id="smDests" style="display:flex;gap:5px;margin-bottom:8px">';
       dests.forEach(function(d, i){
@@ -93,7 +99,7 @@ async function _renderShipMining() {
     c.innerHTML = h;
 
     // 목적지 카드 선택 + 미리보기 갱신 (§19: addEventListener)
-    var _selDest = (info.destinations && info.destinations[0] && info.destinations[0].key) || 'frontier';
+    var _selDest = (dests[0] && dests[0].key) || 'frontier';
     var capWeights = info.capacityWeights || {};
     var gpPerCapH = info.gpPerCapacityHour || 3;
     function _smFleetCapacity(fleetId){
@@ -105,7 +111,7 @@ async function _renderShipMining() {
       var pv = document.getElementById('smPreview'); if(!pv) return;
       var fleetId = document.getElementById('smFleet') && document.getElementById('smFleet').value;
       var durEl = document.getElementById('smDur'); var dur = durEl ? parseFloat(durEl.value) : (durs[0]||1);
-      var dest = (info.destinations||[]).find(function(d){ return d.key===_selDest; }) || {yieldMult:1,raidPct:0};
+      var dest = dests.find(function(d){ return d.key===_selDest; }) || {yieldMult:1,raidPct:0};
       var approxCap = _smFleetCapacity(fleetId);
       var estGp = Math.round(approxCap * dur * gpPerCapH * (Number(dest.yieldMult)||1));
       var raid = Math.round((Number(dest.raidPct)||0)*100);

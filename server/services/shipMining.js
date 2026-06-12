@@ -11,6 +11,30 @@ async function getSetting(key, fb) {
   catch (_) { return fb; }
 }
 function _num(v, fb) { const n = parseFloat(typeof v === 'string' ? v.replace(/^"|"$/g, '') : v); return isFinite(n) ? n : fb; }
+const DEFAULT_MINING_DESTINATIONS = [
+  { key: 'frontier', yieldMult: 1.0, wearMult: 1.0, raidPct: 0.0 },
+  { key: 'mid', yieldMult: 1.5, wearMult: 1.5, raidPct: 0.05 },
+  { key: 'core', yieldMult: 2.2, wearMult: 2.5, raidPct: 0.15 },
+];
+
+function _defaultDestinations() {
+  return DEFAULT_MINING_DESTINATIONS.map(function (d) { return Object.assign({}, d); });
+}
+function _clamp(n, min, max, fb) {
+  n = Number(n);
+  if (!isFinite(n)) return fb;
+  return Math.min(max, Math.max(min, n));
+}
+function _normalizeDestination(d) {
+  const key = String(d && d.key || '').trim();
+  if (!key) return null;
+  return {
+    key: key,
+    yieldMult: _clamp(d.yieldMult, 0.1, 10, 1),
+    wearMult: _clamp(d.wearMult, 0, 10, 1),
+    raidPct: _clamp(d.raidPct, 0, 0.95, 0),
+  };
+}
 async function _enabled() { return String(await getSetting('ship_mining_enabled', 'true')).replace(/"/g, '') === 'true'; }
 async function _durations() {
   try { const v = await getSetting('ship_mining_durations_h', '[1,4,8]'); const a = typeof v === 'string' ? JSON.parse(v) : v; return Array.isArray(a) && a.length ? a : [1, 4, 8]; }
@@ -22,8 +46,14 @@ async function _capacityWeights() {
   catch (_) { return {}; }
 }
 async function _destinations() {
-  try { var v = await getSetting('ship_mining_destinations', '[]'); var a = typeof v === 'string' ? JSON.parse(v) : v; return Array.isArray(a) && a.length ? a : [{ key: 'frontier', yieldMult: 1, wearMult: 1, raidPct: 0 }]; }
-  catch (_) { return [{ key: 'frontier', yieldMult: 1, wearMult: 1, raidPct: 0 }]; }
+  try {
+    var v = await getSetting('ship_mining_destinations', JSON.stringify(DEFAULT_MINING_DESTINATIONS));
+    var a = typeof v === 'string' ? JSON.parse(v) : v;
+    if (!Array.isArray(a)) return _defaultDestinations();
+    var normalized = a.map(_normalizeDestination).filter(Boolean);
+    return normalized.length ? normalized : _defaultDestinations();
+  }
+  catch (_) { return _defaultDestinations(); }
 }
 
 async function getMiningInfo() {
