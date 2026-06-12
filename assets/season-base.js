@@ -1253,6 +1253,13 @@ function renderSectorList(sectors){
       + '<span style="border-color:'+pressureColor+'55;color:'+pressureColor+'">⚔ '+sectorProfileLabel(profile,'pressure')+'</span>'
       + '</div>';
   }
+  function sectorStrategyText(profile, entryBlocked) {
+    if (entryBlocked) return LANG==='ko'?'레벨을 올린 뒤 진입 가능한 고가치 섹터입니다.':LANG==='ja'?'レベルを上げると参入できる高価値セクターです。':LANG==='zh'?'升级后可进入的高价值区域。':'High-value sector gated by level progression.';
+    if (profile.pressure === 'hot') return LANG==='ko'?'전쟁/총독 경쟁 중심지: 보상은 높지만 방어와 함대 준비가 필요합니다.':LANG==='ja'?'戦争/総督競争の中心: 報酬は高いが防衛と艦隊準備が必要。':LANG==='zh'?'战争/总督竞争中心：收益高，但需要防御与舰队准备。':'War and governor contest zone: high upside, but bring defenses and fleets.';
+    if (profile.yieldRank === 'rich') return LANG==='ko'?'채굴·수리 경제 핵심지: 자원 수율과 통제 보너스를 노리기 좋습니다.':LANG==='ja'?'採掘・修理経済の要所: 資源収率と支配ボーナス狙い。':LANG==='zh'?'采矿与维修经济要地：适合追求资源产出与控制加成。':'Mining and repair economy hub: strong resource yield and control bonus target.';
+    if (profile.pressure === 'contested') return LANG==='ko'?'성장 분쟁지: 가격/수익 균형이 좋아 소규모 전투와 확장에 적합합니다.':LANG==='ja'?'成長係争地: 価格/収益のバランスがよく小規模戦と拡張向き。':LANG==='zh'?'成长争夺区：价格/收益平衡，适合小规模战斗与扩张。':'Growth contest: balanced price and yield for skirmishes and expansion.';
+    return LANG==='ko'?'초기 확장지: 진입 부담이 낮아 영토 기반과 반복 수급을 만들기 좋습니다.':LANG==='ja'?'初期拡張地: 参入負担が低く領土基盤と周回収入作り向き。':LANG==='zh'?'初期扩张区：进入负担低，适合建立领地基础和循环收益。':'Starter expansion zone: low-friction territory base and repeat income.';
+  }
   sectors.forEach(function(s){
     var occ=s.stats.occupancyRate;
     var occPx=s.stats.occupiedPixels;
@@ -1286,7 +1293,9 @@ function renderSectorList(sectors){
     html+='</div>';
     // Activity badge (inline, below header)
     if(s.stats.activity24h>0) html+='<div class="sc-activity"><span class="sc-activity-dot"></span>'+t('sector_claims_24h').replace('{n}',s.stats.activity24h)+'</div>';
-    html+=renderSectorProfile(sectorProfile(s, occ));
+    var profile = sectorProfile(s, occ);
+    html+=renderSectorProfile(profile);
+    html+='<div class="sc-strategy">▸ '+scTxt(sectorStrategyText(profile, entryBlocked))+'</div>';
     // Occupancy bar
     html+='<div class="sc-occ-wrap">';
     html+='<div class="sc-occ-labels"><span>'+t('sector_occupied')+'</span><span>'+occPx.toLocaleString()+' / '+totPx.toLocaleString()+' ('+occ+'%)</span></div>';

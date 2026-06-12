@@ -1276,6 +1276,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sector-card .sc-entry.satisfied{background:rgba(76,216,154,.08);color:var(--gn);border-color:rgba(76,216,154,.25)}
 .sector-card .sc-entry.inactive{background:rgba(255,255,255,.03);color:var(--tx3);border-color:rgba(255,255,255,.08)}
 .sector-card[data-entry-blocked="1"]{border-left:3px solid var(--red)}
+.sector-card .sc-profile{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 6px}
+.sector-card .sc-profile span{font-size:8px;font-family:var(--fn);letter-spacing:.4px;
+  padding:2px 6px;border:1px solid rgba(255,255,255,.12);border-radius:999px;
+  background:rgba(255,255,255,.035);white-space:nowrap}
+.sector-card .sc-strategy{font-size:8.5px;color:var(--tx3);line-height:1.45;margin:-1px 0 7px;
+  padding:5px 6px;border:1px solid rgba(91,184,232,.14);border-radius:6px;
+  background:rgba(91,184,232,.035);font-family:var(--fn)}
 /* Occupancy bar */
 .sc-occ-wrap{margin-bottom:8px}
 .sc-occ-bar{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-top:3px}
