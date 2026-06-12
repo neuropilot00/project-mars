@@ -13077,8 +13077,8 @@ async function openTerritoryIdentityEdit() {
   try {
     var res = await fetch('/api/territory/' + claimId + '/identity', {
       method: 'PATCH',
-      headers: Object.assign({ 'Content-Type': 'application/json', 'x-wallet': wallet }, getAuthHeaders()),
-      body: JSON.stringify({ wallet: wallet, nickname: nickname.trim(), bio: bio.trim() })
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
+      body: JSON.stringify({ nickname: nickname.trim(), bio: bio.trim() })
     });
     var resp = await res.json();
     if (!resp.success) { showToast(resp.error || 'Update failed', 'error'); return; }

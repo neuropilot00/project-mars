@@ -22,9 +22,6 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
-function getWallet(req) {
-  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
-}
 
 // ── Field Rating 계산 헬퍼 ────────────────────────────────────
 function calcFieldRating(claim, upgradeLevel = 0) {
