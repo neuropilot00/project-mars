@@ -354,6 +354,26 @@ window._baseDotSeen = (function(){
 function _saveDotSeen(){ try{ localStorage.setItem('base_tab_seen', JSON.stringify(window._baseDotSeen)); }catch(_e){} }
 // Tracks latest polled counts so clearBaseTabDot can snapshot them
 var _pollDotState = {};
+var BASE_DOT_CLOSED_POLL_MS = 300000;
+var _lastBaseDotClosedPollAt = 0;
+function _baseModalIsOpen(){
+  var el = document.getElementById('baseModal');
+  return !!(el && el.classList.contains('open'));
+}
+function _shouldRunBaseDotPoll(force){
+  if (!_pageIsActive()) return false;
+  if (!(window.walletState && walletState.address)) return false;
+  if (window._authSubmitInFlight) return false;
+  if (force || _baseModalIsOpen()) return true;
+  var now = Date.now();
+  if (now - _lastBaseDotClosedPollAt < BASE_DOT_CLOSED_POLL_MS) return false;
+  _lastBaseDotClosedPollAt = now;
+  return true;
+}
+function requestBaseDotPoll(force){
+  try{ _pollBaseTabDots(!!force); }catch(_e){}
+}
+window.requestBaseDotPoll = requestBaseDotPoll;
 // [v7.183] 카테고리 dot 동기화 — 어느 sub-tab 이라도 dot 켜져 있으면 부모 .bcat 에 .has-dot 부여.
 // setBaseTabDot / clearBaseTabDot / _pollBaseTabDots 직후 항상 호출돼야 함.
 function _syncBcatDots(){
@@ -417,9 +437,8 @@ window.setBaseTabDot = function(tab, on){
 // Key principle: dots only appear for CHANGES since user last viewed.
 // _pollDotState tracks latest counts; clearBaseTabDot snapshots them
 // so the same state won't re-trigger a dot.
-function _pollBaseTabDots(){
-  if (!_pageIsActive()) return;
-  var w = walletState.address; if(!w) return;
+function _pollBaseTabDots(force){
+  if (!_shouldRunBaseDotPoll(force)) return;
   var seen = window._baseDotSeen || {};
   // TERRITORY: commander announcement OR commander changed
   try{

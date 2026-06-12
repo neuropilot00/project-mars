@@ -584,6 +584,7 @@ var _baseUserData=null;
 
 function openBaseModal(){
   document.getElementById('baseModal').classList.add('open');
+  try{ if(typeof requestBaseDotPoll==='function') requestBaseDotPoll(true); }catch(_){}
   try{trackQuestAction('visit_base',1)}catch(e){}
   // (v7.371) staking 폐지 — enabled일 때만 섹션 노출(서버 staking_enabled=false면 숨김)
   try{
