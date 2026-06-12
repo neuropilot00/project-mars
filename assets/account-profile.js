@@ -47,6 +47,7 @@ function _applyAuthMeBalances(d){
         try{_applyAuthMeBalances(d)}catch(e){}
         try{updateWalletUI();updateEmailVerifyBanner();}catch(e){}
         try{ if(typeof _clearPublicHudFetchBackoff==='function') _clearPublicHudFetchBackoff(); }catch(e){}
+        _refreshWorldAfterAuth();
         try{updateChainUI()}catch(e){}
         try{updateTopbarAvatar(true)}catch(e){}
         try{loadReferralInfo()}catch(e){}
@@ -139,6 +140,12 @@ function _authQuietPublicReads(ms){
   var quietMs = Math.max(ms || 0, 300000);
   try{ if(typeof _quietPublicHudFetches==='function') _quietPublicHudFetches(quietMs); }catch(_){}
   window._authSubmitInFlight = !!_authSubmitInFlight;
+}
+function _refreshWorldAfterAuth(){
+  try{
+    if(typeof loadServerClaims==='function' && (!window.claims || !window.claims.length)) loadServerClaims();
+  }catch(_){}
+  try{ if(typeof refreshSectors==='function') refreshSectors(); }catch(_){}
 }
 
 function openAuthModal(){
@@ -393,6 +400,7 @@ async function submitAuth(){
     walletState.address=d.user.wallet;
     walletState.chain='base';
     try{ if(typeof _clearPublicHudFetchBackoff==='function') _clearPublicHudFetchBackoff(); }catch(e2){}
+    _refreshWorldAfterAuth();
     try{ updateWalletUI(); }catch(e2){ console.error('[Auth] updateWalletUI:',e2); }
     try{ updateChainUI(); }catch(e2){ console.error('[Auth] updateChainUI:',e2); }
     try{ updateTopbarAvatar(true); }catch(e2){ console.error('[Auth] updateTopbarAvatar:',e2); }
