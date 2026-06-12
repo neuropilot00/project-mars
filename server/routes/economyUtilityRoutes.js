@@ -81,8 +81,8 @@ router.get('/gp/activity', readLimiter, async (req, res) => {
   }
 });
 
-router.get('/user/my-territories', readLimiter, async (req, res) => {
-  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+router.get('/user/my-territories', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
 
   try {

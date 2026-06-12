@@ -147,6 +147,7 @@ async function main() {
   await expectBlocked('/api/daily/status blocks unauthenticated access', '/api/daily/status?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/daily/missions blocks unauthenticated access', '/api/daily/missions?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/daily/streak blocks unauthenticated access', '/api/daily/streak?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/user/my-territories blocks unauthenticated access', '/api/user/my-territories?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/missions/pads blocks unauthenticated access', '/api/missions/pads?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/missions/preview blocks unauthenticated access', '/api/missions/preview?wallet=0x0000000000000000000000000000000000000000&type=exploration&originClaimId=1&lat=0&lng=0');
   await expectBlocked('/api/missions/active blocks unauthenticated access', '/api/missions/active?wallet=0x0000000000000000000000000000000000000000');

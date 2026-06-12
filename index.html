@@ -12244,7 +12244,7 @@ async function openTerritoryMergePanel() {
   if (!myClaims || myClaims.length < 2) {
     // Try fetching from API
     try {
-      var data = await fetch('/api/user/my-territories?wallet=' + encodeURIComponent(w)).then(function(r){return r.json();});
+      var data = await fetch('/api/user/my-territories', { headers: getAuthHeaders() }).then(function(r){return r.json();});
       myClaims = (data && data.territories) ? data.territories : (Array.isArray(data) ? data : []);
     } catch(_) {}
   }
@@ -37196,7 +37196,7 @@ function openListForRentModal() {
   var w = walletState && walletState.address;
   if (!w) { gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
   // Reuse territory picker pattern
-  fetch('/api/user/my-territories?wallet='+encodeURIComponent(w))
+  fetch('/api/user/my-territories', { headers: getAuthHeaders() })
     .then(function(r){return r.json();}).then(function(data){
       // API returns { territories: [...] } wrapper
       var territories = (data && data.territories) ? data.territories : (Array.isArray(data) ? data : []);
