@@ -84,6 +84,7 @@ router.get('/chat/messages', async (req, res) => {
 });
 
 router.post('/chat/send', requireAuth, async (req, res) => {
+  let client;
   try {
     const wallet = String(req.user?.wallet_address || req.user?.wallet || '').trim();
     const channel = String(req.body?.channel || 'global').trim();
@@ -93,7 +94,14 @@ router.post('/chat/send', requireAuth, async (req, res) => {
     if (!isValidChannel(channel)) return res.status(400).json({ error: 'invalid_channel' });
     if (!message || message.length > 200) return res.status(400).json({ error: 'invalid_message' });
 
-    const duplicate = await pool.query(
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query(
+      'SELECT pg_advisory_xact_lock(hashtext(LOWER($1)), hashtext($2 || $3))',
+      [wallet, channel, message]
+    );
+
+    const duplicate = await client.query(
       `SELECT id, wallet, nickname, channel, message, created_at
        FROM chat_messages
          WHERE wallet = $1
@@ -105,38 +113,48 @@ router.post('/chat/send', requireAuth, async (req, res) => {
       [wallet, channel, message]
     );
     if (duplicate.rows[0]) {
+      await client.query('COMMIT');
       return res.json({ success: true, duplicate: true, message: duplicate.rows[0] });
     }
 
-    const recent = await pool.query(
+    const recent = await client.query(
       `SELECT COUNT(*)::int AS count
        FROM chat_messages
        WHERE wallet = $1
          AND created_at > NOW() - INTERVAL '10 seconds'`,
       [wallet]
     );
-    if ((recent.rows[0]?.count || 0) >= 3) return res.status(429).json({ error: 'rate_limit' });
+    if ((recent.rows[0]?.count || 0) >= 3) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'rate_limit' });
+    }
 
-    const user = await pool.query(
+    const user = await client.query(
       'SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1) LIMIT 1',
       [wallet]
     );
     const nickname = user.rows[0]?.nickname || wallet.slice(0, 8);
 
-    const { rows } = await pool.query(
+    const { rows } = await client.query(
       `INSERT INTO chat_messages (wallet, nickname, channel, message)
        VALUES ($1, $2, $3, $4)
        RETURNING id, wallet, nickname, channel, message, created_at`,
       [wallet, nickname, channel, message]
     );
+    await client.query('COMMIT');
 
     // WebSocket 실시간 푸시 (구독자에게 즉시 전달 — 채팅 폴링 부하 감소)
     try { require('../wsServer').broadcastChat(channel, rows[0]); } catch (_) {}
 
     return res.json({ success: true, message: rows[0] });
   } catch (err) {
+    if (client) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+    }
     console.error('[chat] send error:', err);
     return res.status(500).json({ error: 'server_error' });
+  } finally {
+    if (client) client.release();
   }
 });
 

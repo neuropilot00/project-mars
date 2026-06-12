@@ -50620,7 +50620,7 @@ let _chatFetchTimer = null;
 let _chatLastFetchAt = 0;
 let _chatBackoffUntil = 0;
 const CHAT_FETCH_MIN_GAP_MS = 1500;
-const CHAT_DUP_WINDOW_MS = 120000;
+const CHAT_DUP_WINDOW_MS = 600000;
 
 function toggleChat() {
   const el = document.getElementById('chatOverlay');
@@ -50729,19 +50729,22 @@ async function loadChatMessages() {
     msgs.forEach(m => {
       const msgKey = m.id != null ? String(m.id) : [m.channel, m.created_at, m.wallet, m.message].join('|');
       if (_chatSeenIds.has(msgKey)) return;
-      const contentKey = [m.channel || _chatChannel, (m.wallet || '').toLowerCase(), m.message || ''].join('|');
+      const nick = m.nickname || (m.wallet || '').substring(0, 8);
+      const contentKeys = _chatContentKeys(m, nick);
       const msgTime = new Date(m.created_at).getTime() || Date.now();
-      const lastSame = _chatSeenContent.get(contentKey);
-      if (lastSame && Math.abs(msgTime - lastSame) < CHAT_DUP_WINDOW_MS) {
+      const isDuplicateContent = contentKeys.some(key => {
+        const lastSame = _chatSeenContent.get(key);
+        return lastSame && Math.abs(msgTime - lastSame) < CHAT_DUP_WINDOW_MS;
+      });
+      if (isDuplicateContent) {
         _chatSeenIds.add(msgKey);
         return;
       }
       _chatSeenIds.add(msgKey);
-      _chatSeenContent.set(contentKey, msgTime);
+      contentKeys.forEach(key => _chatSeenContent.set(key, msgTime));
       const div = document.createElement('div');
       div.className = 'chat-msg';
       div.dataset.msgId = msgKey;
-      const nick = m.nickname || (m.wallet || '').substring(0, 8);
       const t = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
       div.innerHTML = '<span class="chat-msg-nick">' + _escapeHtml(nick) + '</span><span class="chat-msg-text">' + _escapeHtml(m.message) + '</span><span class="chat-msg-time">' + t + '</span>';
       container.appendChild(div);
@@ -50764,6 +50767,17 @@ async function loadChatMessages() {
       requestChatMessages(CHAT_FETCH_MIN_GAP_MS);
     }
   }
+}
+
+function _chatContentKeys(m, nick) {
+  const channel = String(m.channel || _chatChannel || 'global').trim();
+  const message = String(m.message || '').trim().replace(/\s+/g, ' ');
+  const wallet = String(m.wallet || '').trim().toLowerCase();
+  const display = String(nick || '').trim().toLowerCase();
+  return [
+    wallet ? [channel, 'wallet', wallet, message].join('|') : '',
+    display ? [channel, 'display', display, message].join('|') : ''
+  ].filter(Boolean);
 }
 
 function _escapeHtml(s) {
