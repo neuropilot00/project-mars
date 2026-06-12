@@ -160,11 +160,39 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
   const totalScore = scores.reduce((sum, row) => sum + row.totalScore, 0);
   if (totalScore <= 0) return _cacheSectorInfluenceBonus(cacheKey, null);
   const mine = scores.find(row => row.wallet === w);
-  if (!mine || mine.totalScore <= 0) return _cacheSectorInfluenceBonus(cacheKey, null);
-  const controlPct = mine.totalScore / totalScore;
+  let best = null;
+  if (mine && mine.totalScore > 0) {
+    best = _sectorInfluenceTierForScore(mine.totalScore, totalScore, 'personal');
+  }
+
+  try {
+    const guildRes = await client.query(`
+      SELECT LOWER(wallet) AS wallet, guild_id
+        FROM guild_members
+       WHERE status = 'active'
+         AND LOWER(wallet) = ANY($1)
+    `, [wallets]);
+    const guildByWallet = {};
+    guildRes.rows.forEach(r => { guildByWallet[r.wallet] = r.guild_id; });
+    const myGuildId = guildByWallet[w];
+    if (myGuildId) {
+      const guildScore = scores.reduce((sum, row) => (
+        guildByWallet[row.wallet] === myGuildId ? sum + row.totalScore : sum
+      ), 0);
+      const guildBonus = _sectorInfluenceTierForScore(guildScore, totalScore, 'guild');
+      if (guildBonus && (!best || guildBonus.multiplier > best.multiplier)) best = guildBonus;
+    }
+  } catch (_) {}
+
+  return _cacheSectorInfluenceBonus(cacheKey, best);
+}
+
+function _sectorInfluenceTierForScore(score, totalScore, source) {
+  if (!score || !totalScore || score <= 0 || totalScore <= 0) return null;
+  const controlPct = score / totalScore;
   const tier = SECTOR_INFLUENCE_PRODUCTION_BONUS.find(t => controlPct >= t.threshold);
-  if (!tier) return _cacheSectorInfluenceBonus(cacheKey, null);
-  return _cacheSectorInfluenceBonus(cacheKey, { tier: tier.id, multiplier: tier.multiplier, controlPct: Math.round(controlPct * 100) });
+  if (!tier) return null;
+  return { tier: tier.id, source, multiplier: tier.multiplier, controlPct: Math.round(controlPct * 100) };
 }
 
 function _cacheSectorInfluenceBonus(cacheKey, value) {

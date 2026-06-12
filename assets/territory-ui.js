@@ -1182,7 +1182,7 @@ async function harvestAllTerritories(){
   var btn=(typeof event!=='undefined'&&event&&event.target)?event.target:null;
   var _prev=btn?btn.textContent:'';
   if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent='...'; }
-  var harvested=0, cooldown=0, totalGP=0, drops={}, influenceHits=0, bestInfluenceMult=1;
+  var harvested=0, cooldown=0, totalGP=0, drops={}, influenceHits=0, guildInfluenceHits=0, bestInfluenceMult=1;
   for(var i=0;i<mine.length;i++){
     try{
       var r=await fetch('/api/territory/'+mine[i].id+'/harvest',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token}});
@@ -1192,6 +1192,7 @@ async function harvestAllTerritories(){
         totalGP+=(d.harvestedGP||0);
         if(d.sectorInfluenceBonus&&d.sectorInfluenceBonus.multiplier>1){
           influenceHits++;
+          if(d.sectorInfluenceBonus.source==='guild') guildInfluenceHits++;
           bestInfluenceMult=Math.max(bestInfluenceMult,d.sectorInfluenceBonus.multiplier);
         }
         if(d.resources){ d.resources.forEach(function(x){ drops[x.code]=(drops[x.code]||0)+x.quantity; }); }
@@ -1203,7 +1204,10 @@ async function harvestAllTerritories(){
   if(harvested>0){
     totalGP=Math.round(totalGP*10000)/10000;
     var dk=Object.keys(drops); var dropTxt=dk.length?(' · '+dk.map(function(c){return c+'×'+drops[c];}).join(', ')):'';
-    var infTxt=influenceHits>0?(' · '+(lang==='ko'?'섹터 영향력':lang==='ja'?'セクター影響':lang==='zh'?'区域影响力':'sector influence')+' ×'+bestInfluenceMult.toFixed(2)+' ('+influenceHits+')'):'';
+    var infLabel=guildInfluenceHits>0
+      ? (lang==='ko'?'길드 영향력':lang==='ja'?'ギルド影響':lang==='zh'?'公会影响力':'guild influence')
+      : (lang==='ko'?'섹터 영향력':lang==='ja'?'セクター影響':lang==='zh'?'区域影响力':'sector influence');
+    var infTxt=influenceHits>0?(' · '+infLabel+' ×'+bestInfluenceMult.toFixed(2)+' ('+influenceHits+')'):'';
     showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+harvested+(lang==='ko'?'건 (+'+totalGP+' GP)':lang==='ja'?'件 (+'+totalGP+' GP)':lang==='zh'?'个 (+'+totalGP+' GP)':' (+'+totalGP+' GP)')+infTxt+(cooldown>0?' · '+cooldown+(lang==='ko'?' 쿨다운':' cd'):'')+dropTxt,'success');
     try{ if(typeof loadGPBalance==='function') loadGPBalance(); }catch(_){}
     try{ if(typeof refreshGP==='function') refreshGP(); }catch(_){}
