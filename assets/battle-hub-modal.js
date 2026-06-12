@@ -213,11 +213,11 @@ async function openBattleHub() {
   if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   document.getElementById('battleHubModal').classList.add('active');
   await bhLoad();
-  // 5초마다 active 탭 polling
+  // Active battle list polling while the modal is open.
   if (battleHubState.pollTimer) _clearActiveInterval(battleHubState.pollTimer);
   battleHubState.pollTimer = _setActiveInterval(() => {
     if (_pageIsActive() && battleHubState.currentTab === 'active' && document.getElementById('battleHubModal').classList.contains('active')) bhLoad();
-  }, 5000);
+  }, 15000);
 }
 
 function closeBattleHub() {
