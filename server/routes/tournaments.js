@@ -21,9 +21,9 @@ router.get('/tournaments', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/tournaments/my?wallet=  — must be BEFORE /:id to avoid shadow match
-router.get('/tournaments/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/tournaments/my  — must be BEFORE /:id to avoid shadow match
+router.get('/tournaments/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMyTournaments(wallet)); }
   catch (e) { res.status(500).json({ error: e.message }); }
