@@ -881,6 +881,8 @@ let _chatLastFetchAt = 0;
 let _chatBackoffUntil = 0;
 const CHAT_FETCH_MIN_GAP_MS = 1500;
 const CHAT_DUP_WINDOW_MS = 600000;
+const CHAT_POLL_FALLBACK_MS = 30000;
+const CHAT_SEEN_ID_LIMIT = 250;
 
 function toggleChat() {
   const el = document.getElementById('chatOverlay');
@@ -1002,6 +1004,7 @@ async function loadChatMessages() {
       }
       _chatSeenIds.add(msgKey);
       contentKeys.forEach(key => _chatSeenContent.set(key, msgTime));
+      _pruneChatDedupe(msgTime);
       const div = document.createElement('div');
       div.className = 'chat-msg';
       div.dataset.msgId = msgKey;
@@ -1040,6 +1043,18 @@ function _chatContentKeys(m, nick) {
   ].filter(Boolean);
 }
 
+function _pruneChatDedupe(now) {
+  const cutoff = (now || Date.now()) - CHAT_DUP_WINDOW_MS;
+  _chatSeenContent.forEach((ts, key) => {
+    if (!ts || ts < cutoff) _chatSeenContent.delete(key);
+  });
+  while (_chatSeenIds.size > CHAT_SEEN_ID_LIMIT) {
+    const first = _chatSeenIds.values().next().value;
+    if (first == null) break;
+    _chatSeenIds.delete(first);
+  }
+}
+
 function _escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -1047,8 +1062,8 @@ function _escapeHtml(s) {
 function startChatPolling() {
   if (_chatPollTimer) _clearActiveInterval(_chatPollTimer);
   requestChatMessages(0);
-  // WebSocket(/ws/live)이 실시간 푸시를 담당 → 폴링은 폴백으로 간격을 늘림(5s→15s, 부하 감소).
-  _chatPollTimer = _setActiveInterval(() => { requestChatMessages(0); }, 15000);
+  // WebSocket(/ws/live)이 실시간 푸시를 담당 → 폴링은 느린 폴백만 유지.
+  _chatPollTimer = _setActiveInterval(() => { requestChatMessages(0); }, CHAT_POLL_FALLBACK_MS);
 }
 
 var _feedSince = null;

@@ -107,7 +107,7 @@ router.post('/chat/send', requireAuth, async (req, res) => {
          WHERE wallet = $1
            AND channel = $2
            AND message = $3
-         AND created_at > NOW() - INTERVAL '60 seconds'
+         AND created_at > NOW() - INTERVAL '10 minutes'
        ORDER BY created_at DESC
        LIMIT 1`,
       [wallet, channel, message]

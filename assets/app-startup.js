@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   _setActiveTimeout(checkLandingOverlay, 800);
   // Delay chat/feed polling so Globe.GL WebGL initialisation gets the first
   // ~8 seconds of network+CPU budget without competing fetch requests.
-  // Chat: 8s cold start, then every 5s. Feed: 12s cold start, then every 10s.
+  // Chat/feed use WebSocket push first, with slow polling as fallback.
   _setActiveTimeout(startChatPolling, 8000);
   _setActiveTimeout(startFeedPolling, 12000);
   _setActiveTimeout(connectLiveWS, 9000);  // 실시간 푸시 (채팅/피드) — 폴링과 병행, 끊겨도 폴링 폴백
