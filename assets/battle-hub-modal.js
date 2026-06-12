@@ -237,6 +237,12 @@ function loadBattleRewardsHistory() {
               + tl('ALLY BANK +','동맹 금고 +','同盟金庫 +','联盟金库 +') + Math.round(parseFloat(br.alliance_treasury_bonus) || 0) + ' GP'
               + '</span>';
           }
+          if (br && br.environment_salvage) {
+            bonus += ' <span style="color:#7dd3fc;border:1px solid rgba(125,211,252,.28);border-radius:3px;padding:1px 4px">'
+              + tl('FIELD SALVAGE','전장 회수','戦場回収','战场回收')
+              + (br.battlefield_label ? ' · ' + escapeHtml(br.battlefield_label) : '')
+              + '</span>';
+          }
         } catch(_e2) {}
         var resultTag = won ? '<span style="color:var(--gold)">🏆 ' + tl('WIN','승','勝','胜') + '</span>' : '<span style="color:var(--tx3)">' + tl('LOSS','패','敗','败') + '</span>';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.05);padding:2px 0">'
@@ -1292,6 +1298,10 @@ function showRewardToast(reward) {
     }
     if (breakdown.alliance_treasury_bonus) {
       html += `<div class="reward-item gp"><span>🛡 ${LANG==='ko'?'동맹 금고 배당':LANG==='ja'?'同盟金庫配当':LANG==='zh'?'联盟金库分红':'Alliance Treasury'}</span><b>+${breakdown.alliance_treasury_bonus}</b></div>`;
+    }
+    if (breakdown.environment_salvage) {
+      const salvage = breakdown.environment_salvage || {};
+      html += `<div class="reward-item mineral"><span>🧲 ${LANG==='ko'?'전장 회수':LANG==='ja'?'戦場回収':LANG==='zh'?'战场回收':'Field Salvage'}${breakdown.battlefield_label ? ' · ' + escapeHtml(breakdown.battlefield_label) : ''}</span><b>${escapeHtml(salvage.resource_code || '')} ×${salvage.quantity || 0}</b></div>`;
     }
   } catch (_) {}
   for (const [code, qty] of Object.entries(reward.minerals_awarded || {})) {
@@ -2734,6 +2744,10 @@ async function _injectRewardIntoResult(battleId) {
     }
     if (breakdown.alliance_treasury_bonus) {
       html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>🛡 ${LANG==='ko'?'동맹 금고 배당':LANG==='ja'?'同盟金庫配当':LANG==='zh'?'联盟金库分红':'Alliance Treasury'}</span><b style="color:#80cbc4">+${breakdown.alliance_treasury_bonus} GP</b></div>`;
+    }
+    if (breakdown.environment_salvage) {
+      const salvage = breakdown.environment_salvage || {};
+      html += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0"><span>🧲 ${LANG==='ko'?'전장 회수':LANG==='ja'?'戦場回収':LANG==='zh'?'战场回收':'Field Salvage'}${breakdown.battlefield_label ? ' · ' + escapeHtml(breakdown.battlefield_label) : ''}</span><b style="color:#7dd3fc">${escapeHtml(salvage.resource_code || '')} ×${salvage.quantity || 0}</b></div>`;
     }
     for (const [code, qty] of Object.entries(mineralsAwarded || {})) {
       if (!qty) continue;

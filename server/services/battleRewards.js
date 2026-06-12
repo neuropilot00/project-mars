@@ -19,6 +19,8 @@ let seasonService;
 try { seasonService = require('./season'); } catch (_) { /* optional season service */ }
 let dailyOps;
 try { dailyOps = require('../routes/dailyOps'); } catch (_) { /* optional daily ops route helper */ }
+let battleEnvironment;
+try { battleEnvironment = require('./battleEnvironment'); } catch (_) { battleEnvironment = null; }
 
 // 광물 드랍 풀 (전투 타입별로 다름)
 const MINERAL_DROP_POOL = {
@@ -26,6 +28,27 @@ const MINERAL_DROP_POOL = {
   siege:    ['iron_dust', 'regolith_ore', 'basalt_chip', 'ice_crystal', 'volcanic_shard'],
   hijack:   ['iron_dust', 'plasma_dust', 'ancient_metal'],
   raid:     ['iron_dust', 'volcanic_shard', 'meteorite_fragment'],
+};
+const BATTLEFIELD_SALVAGE_POOL = {
+  mining_site: ['iron_dust', 'regolith_ore'],
+  deep_mine: ['regolith_ore', 'basalt_chip'],
+  excavation_grid: ['iron_dust', 'basalt_chip'],
+  refinery_yard: ['basalt_chip', 'volcanic_shard'],
+  polar_ice: ['ice_crystal'],
+  lava_tube: ['volcanic_shard', 'basalt_chip'],
+  crater_relay: ['iron_dust', 'plasma_dust'],
+  orbital_blockade: ['plasma_dust', 'meteorite_fragment'],
+  shipyard_drydock: ['iron_dust', 'basalt_chip'],
+  convoy_route: ['red_sand', 'meteorite_fragment'],
+  ancient_ruins: ['ancient_metal', 'plasma_dust'],
+  garrison_rooftop: ['basalt_chip', 'iron_dust'],
+  settlement_airspace: ['red_sand', 'iron_dust'],
+  dust_storm: ['red_sand', 'regolith_ore'],
+  canyon_outpost: ['basalt_chip', 'red_sand'],
+  occupied_airspace: ['plasma_dust', 'iron_dust'],
+  colony_dome: ['red_sand', 'ice_crystal'],
+  orbit_territory: ['meteorite_fragment', 'iron_dust'],
+  garrison: ['basalt_chip', 'iron_dust'],
 };
 
 /**
@@ -311,6 +334,7 @@ async function computeReward(participant, battle, settings, isWinner) {
         minerals[mineralCode] = (minerals[mineralCode] || 0) + qty;
       }
     }
+    applyEnvironmentSalvage(minerals, breakdown, battle, damageMult);
   }
 
   // ✅ [주간 이벤트] 수요일 전투 GP +30%
@@ -339,6 +363,20 @@ async function computeReward(participant, battle, settings, isWinner) {
     minerals_awarded: minerals,
     breakdown,
   };
+}
+
+function applyEnvironmentSalvage(minerals, breakdown, battle, damageMult) {
+  if (!battleEnvironment || typeof battleEnvironment.decorateBattle !== 'function') return;
+  const decorated = battleEnvironment.decorateBattle(battle);
+  const key = decorated && decorated.battlefield_key;
+  const pool = BATTLEFIELD_SALVAGE_POOL[key];
+  if (!pool || !pool.length) return;
+  const idxSeed = parseInt(battle.id, 10) || 0;
+  const pick = pool[Math.abs(idxSeed) % pool.length];
+  const qty = Math.max(1, Math.floor((2 + Math.random() * 5) * Math.max(0.5, Math.min(1.5, damageMult || 1))));
+  minerals[pick] = (minerals[pick] || 0) + qty;
+  breakdown.environment_salvage = { battlefield_key: key, resource_code: pick, quantity: qty };
+  breakdown.battlefield_label = decorated.battlefield_label || key;
 }
 
 /**
