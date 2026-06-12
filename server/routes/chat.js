@@ -104,7 +104,7 @@ router.post('/chat/send', requireAuth, async (req, res) => {
     const duplicate = await client.query(
       `SELECT id, wallet, nickname, channel, message, created_at
        FROM chat_messages
-         WHERE wallet = $1
+         WHERE LOWER(wallet) = LOWER($1)
            AND channel = $2
            AND message = $3
          AND created_at > NOW() - INTERVAL '10 minutes'
@@ -120,7 +120,7 @@ router.post('/chat/send', requireAuth, async (req, res) => {
     const recent = await client.query(
       `SELECT COUNT(*)::int AS count
        FROM chat_messages
-       WHERE wallet = $1
+       WHERE LOWER(wallet) = LOWER($1)
          AND created_at > NOW() - INTERVAL '10 seconds'`,
       [wallet]
     );
