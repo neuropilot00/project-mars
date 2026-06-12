@@ -4297,7 +4297,7 @@ function renderMyAlliance(a, wallet) {
   document.getElementById('myAllianceTag').textContent     = '[' + a.tag + ']';
   document.getElementById('myAllianceDesc').textContent    = a.description || '';
   document.getElementById('myAllianceMembers').textContent = (a.member_count || 0) + '/' + (a.max_members || 5);
-  document.getElementById('myAllianceTreasury').textContent = parseFloat(a.treasury_gp||0).toFixed(2) + ' GP';
+  document.getElementById('myAllianceTreasury').textContent = parseFloat(a.treasury_gp || a.alliance_gp || 0).toFixed(2) + ' GP';
   document.getElementById('myAllianceDefense').textContent = '+' + (a.defense_bonus||5) + '%';
 
   // Show withdraw button for leader/officer
@@ -4305,10 +4305,11 @@ function renderMyAlliance(a, wallet) {
   var memberList = document.getElementById('myAllianceMemberList');
   var members = a.members || [];
   memberList.innerHTML = members.map(function(m) {
-    var isMe = m.wallet === wallet.toLowerCase();
+    var memberWallet = String(m.wallet || m.wallet_address || '').toLowerCase();
+    var isMe = memberWallet === String(wallet || '').toLowerCase();
     if (isMe && (m.role === 'leader' || m.role === 'officer')) isLeader = true;
     var roleColor = {leader:'var(--gold)',officer:'#80cbc4',member:'var(--tx3)'}[m.role] || 'var(--tx3)';
-    var nick = m.nick || (m.wallet.slice(0,8) + '…');
+    var nick = m.nick || m.nickname || (memberWallet ? memberWallet.slice(0,8) + '…' : 'Member');
     return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
       + '<span style="font-size:10px;color:var(--tx);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _escHtml(nick) + (isMe?' <span style="color:var(--tx3);font-size:8px">(you)</span>':'') + '</span>'
       + '<span style="font-size:8px;color:'+roleColor+';font-family:var(--fn);font-weight:700">' + m.role.toUpperCase() + '</span>'

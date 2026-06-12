@@ -221,7 +221,12 @@ async function getMyAlliance(walletAddress) {
   
   return {
     ...rows[0],
-    members,
+    treasury_gp: rows[0].alliance_gp,
+    members: members.map(m => ({
+      ...m,
+      wallet: m.wallet_address,
+      nick: m.nickname,
+    })),
   };
 }
 
@@ -334,6 +339,96 @@ async function depositTreasury(walletAddress, amount) {
       amount_gp: amountGp,
       alliance: allianceRows[0],
       contribution: contributionRows[0]?.contribution || amountGp,
+      log: logRows[0],
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function withdrawTreasury(walletAddress, amount, note = '') {
+  const amountGp = Math.floor(Number(amount));
+  if (!Number.isFinite(amountGp) || amountGp <= 0) throw new Error('INVALID_AMOUNT');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const minRaw = await _getSetting(client, 'alliance_withdraw_min_gp', '10');
+    const feeRaw = await _getSetting(client, 'alliance_withdraw_fee_pct', '5');
+    const minGp = Math.max(1, Math.floor(Number(minRaw) || 10));
+    const feePct = Math.max(0, Math.min(Number(feeRaw) || 0, 50));
+    if (amountGp < minGp) {
+      const err = new Error('BELOW_MIN_WITHDRAW');
+      err.meta = { min: minGp };
+      throw err;
+    }
+
+    const { rows: userRows } = await client.query(
+      `SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      [walletAddress]
+    );
+    const user = userRows[0];
+    if (!user) throw new Error('USER_NOT_FOUND');
+    const canonicalWallet = user.wallet_address || walletAddress;
+
+    const { rows: memberRows } = await client.query(`
+      SELECT am.alliance_id, am.role, a.name, a.tag, a.alliance_gp
+        FROM alliance_members am
+        JOIN alliances a ON a.id = am.alliance_id
+       WHERE LOWER(am.wallet_address) = LOWER($1)
+         AND am.left_at IS NULL
+         AND a.disbanded_at IS NULL
+       FOR UPDATE OF am, a
+    `, [walletAddress]);
+    const member = memberRows[0];
+    if (!member) throw new Error('NOT_IN_ALLIANCE');
+    if (![ROLE_LEADER, ROLE_OFFICER].includes(member.role)) throw new Error('NOT_AUTHORIZED');
+    if (Number(member.alliance_gp || 0) < amountGp) {
+      const err = new Error('INSUFFICIENT_TREASURY');
+      err.meta = { required: amountGp, balance: member.alliance_gp };
+      throw err;
+    }
+
+    const fee = Math.round(amountGp * feePct * 10000) / 1000000;
+    const payout = Math.round((amountGp - fee) * 1000000) / 1000000;
+    if (payout <= 0) throw new Error('FEE_EXCEEDS_AMOUNT');
+
+    const { rows: allianceRows } = await client.query(`
+      UPDATE alliances
+         SET alliance_gp = COALESCE(alliance_gp, 0) - $1
+       WHERE id = $2
+         AND COALESCE(alliance_gp, 0) >= $1
+       RETURNING id, name, tag, alliance_gp
+    `, [amountGp, member.alliance_id]);
+    if (!allianceRows[0]) throw new Error('INSUFFICIENT_TREASURY');
+
+    await client.query(
+      `UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
+      [payout, canonicalWallet]
+    );
+
+    const cleanNote = String(note || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    const memo = cleanNote
+      ? `Treasury withdraw: ${cleanNote} (payout ${payout} GP, fee ${fee} GP)`
+      : `Treasury withdraw (payout ${payout} GP, fee ${fee} GP)`;
+    const { rows: logRows } = await client.query(`
+      INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
+      VALUES ($1, $2, 'withdraw', $3, $4)
+      RETURNING id, created_at
+    `, [member.alliance_id, canonicalWallet, -amountGp, memo]);
+
+    await client.query('COMMIT');
+    return {
+      success: true,
+      amount_gp: amountGp,
+      payout,
+      fee,
+      fee_pct: feePct,
+      alliance: allianceRows[0],
       log: logRows[0],
     };
   } catch (err) {
@@ -762,6 +857,7 @@ module.exports = {
   getAlliance,
   getAllianceLog,
   depositTreasury,
+  withdrawTreasury,
   createTeamBattle,
   // Phase D — guild-level alliance
   addGuildToAlliance,

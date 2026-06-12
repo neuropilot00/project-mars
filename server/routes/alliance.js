@@ -42,7 +42,9 @@ router.get('/alliances/settings', async (req, res) => {
   // [v7.61] getSettings not in service — read from DB settings directly
   try {
     const createCost = parseInt(await getSetting?.('alliance_creation_fee_gp', '5000') || '5000', 10);
-    res.json({ createCost });
+    const withdrawMin = parseInt(await getSetting?.('alliance_withdraw_min_gp', '10') || '10', 10);
+    const withdrawFeePct = parseFloat(await getSetting?.('alliance_withdraw_fee_pct', '5') || '5');
+    res.json({ createCost, withdrawMin, withdrawFeePct });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -105,9 +107,17 @@ router.post('/alliances/deposit', requireAuth, async (req, res) => {
 });
 
 // POST /api/alliances/withdraw — { amount, note }
-// [v7.61] withdrawTreasury not implemented in service yet
 router.post('/alliances/withdraw', requireAuth, async (req, res) => {
-  res.status(501).json({ error: 'TREASURY_NOT_IMPLEMENTED' });
+  const wallet = getAuthWallet(req);
+  const { amount, note } = req.body || {};
+  if (!wallet) return res.status(400).json({ error: 'wallet required' });
+  try {
+    const result = await allianceSvc.withdrawTreasury(wallet, amount, note);
+    if (logGPActivity) {
+      logGPActivity(wallet, result.payout, 'alliance_withdraw', 'Alliance treasury withdrawal').catch(() => {});
+    }
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message, meta: e.meta }); }
 });
 
 module.exports = router;
