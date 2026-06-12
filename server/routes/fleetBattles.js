@@ -287,7 +287,7 @@ router.get('/list/active', readLimiter, async (req, res) => {
                sector_id, claim_id,
                sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
                atk_ships_total, def_ships_total,
-               battle_started_at, scheduled_start_at,
+               battle_started_at, scheduled_start_at, battle_summary,
                (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='atk') AS atk_fleets,
                (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='def') AS def_fleets
         FROM fleet_battles fb
@@ -321,7 +321,7 @@ router.get('/list/recent', readLimiter, async (req, res) => {
                sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
                atk_ships_total, def_ships_total,
                atk_ships_lost, def_ships_lost,
-               duration_seconds, ended_at,
+               duration_seconds, ended_at, battle_summary,
                COALESCE(r.reward_total_gp, 0) AS reward_total_gp,
                COALESCE(r.reward_count, 0) AS reward_count
         FROM fleet_battles fb
@@ -387,7 +387,7 @@ router.get('/active', readLimiter, async (req, res) => {
       SELECT fb.id, fb.battle_type, fb.status, fb.phase,
              fb.sector_id, fb.claim_id,
              fb.atk_ships_total, fb.def_ships_total,
-             fb.battle_started_at, fb.scheduled_start_at,
+             fb.battle_started_at, fb.scheduled_start_at, fb.battle_summary,
              (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='atk') AS atk_fleets,
              (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='def') AS def_fleets
       FROM fleet_battles fb

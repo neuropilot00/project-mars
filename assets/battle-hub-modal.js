@@ -111,10 +111,16 @@ function battleHubReadKeyed(key, url, minGap) {
   return battleHubReadFetch(key, url, minGap).then(function(data){ return data || null; });
 }
 
+function normalizeBattleSummary(summary) {
+  if (!summary) return {};
+  if (typeof summary === 'object') return summary;
+  try { return JSON.parse(summary); } catch (_) { return {}; }
+}
+
 function rememberBattleContext(battle) {
   const id = parseInt(battle && battle.id, 10);
   if (!id) return;
-  const summary = battle.battle_summary || {};
+  const summary = normalizeBattleSummary(battle.battle_summary);
   battleContextById[id] = {
     battle_type: battle.battle_type || '',
     sector_code: battle.sector_code || summary.sector_code || '',
@@ -141,6 +147,23 @@ function formatBattlefieldModifiers(mods) {
   return parts.join(' · ');
 }
 
+function renderBattleEconomyTags(b, battlefieldKey) {
+  const summary = normalizeBattleSummary(b && b.battle_summary);
+  const tags = [];
+  const bountyGp = Math.max(0, Math.round(Number(b && b.active_bounty_gp) || Number(summary.active_bounty_gp) || Number(summary.bounty_gp) || 0));
+  if (bountyGp > 0) {
+    tags.push(`<span style="color:var(--gold)">💰 ${LANG==='ko'?'현상금':LANG==='ja'?'賞金':LANG==='zh'?'悬赏':'Bounty'} +${formatNum(bountyGp)} GP</span>`);
+  }
+  if (summary.sector_conflict || (b && b.sector_code && ['pvp_duel','hijack','siege'].includes(String(b.battle_type || '')))) {
+    tags.push(`<span style="color:#ffab40">⚔ ${LANG==='ko'?'분쟁 보너스':LANG==='ja'?'紛争ボーナス':LANG==='zh'?'争端加成':'Conflict bonus'}</span>`);
+  }
+  const type = String((b && b.battle_type) || '').toLowerCase();
+  if (!summary.is_ai_battle && type !== 'ai_practice' && battlefieldKey) {
+    tags.push(`<span style="color:#7dd3fc">🧲 ${LANG==='ko'?'전장 회수':LANG==='ja'?'戦場回収':LANG==='zh'?'战场回收':'Field salvage'}</span>`);
+  }
+  return tags.slice(0, 3).join('');
+}
+
 function battlefieldImageUrl(key) {
   return BATTLEFIELD_BACKGROUNDS[key] || '/assets/textures/mars_nasa_2k.jpg';
 }
@@ -159,7 +182,7 @@ function pickBattlefieldKey(battleId) {
   const sectorCode = String(ctx.sector_code || '').toLowerCase();
   const sectorName = String(ctx.sector_name || '').toLowerCase();
   const mods = ctx.environment_modifiers || {};
-  const summary = (ctx.battle_summary && typeof ctx.battle_summary === 'object') ? ctx.battle_summary : {};
+  const summary = normalizeBattleSummary(ctx.battle_summary);
   if (sectorCode === '__commander__' || type === 'commander_siege') return 'occupied_airspace';
   if (summary.is_ai_battle || mods.is_ai_battle || type === 'ai_practice') return 'garrison';
   if (summary.arena || mods.arena || type === 'arena') return 'shipyard_drydock';
@@ -606,6 +629,7 @@ function renderBattleCard(b, tab) {
   const battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || '';
   const battlefieldMods = formatBattlefieldModifiers(b.environment_modifiers);
   const battlefieldImage = battlefieldImageUrl(battlefieldKey);
+  const economyTags = renderBattleEconomyTags(b, battlefieldKey);
   const rewardGp = Math.round(parseFloat(b.my_reward_gp != null ? b.my_reward_gp : b.reward_total_gp) || 0);
   const rewardCount = parseInt(b.reward_count, 10) || 0;
   const rewardLabel = rewardGp > 0
@@ -629,6 +653,7 @@ function renderBattleCard(b, tab) {
           ${sectorLabel ? `<span style="color:#ffab40">⌖ ${escapeHtml(sectorLabel)}</span>` : ''}
           ${battlefieldLabel ? `<span style="color:#81d4fa">▣ ${escapeHtml(battlefieldLabel)}</span>` : ''}
           ${battlefieldMods ? `<span style="color:#a5d6a7">◇ ${escapeHtml(battlefieldMods)}</span>` : ''}
+          ${economyTags}
           ${rewardLabel}
           ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}</b>${LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'min'}</span>` : ''}
           <span>${timeInfo}</span>
