@@ -23,6 +23,7 @@ const battleScheduler = require('../services/battleScheduler');
 const battleTimeline = require('../services/battleTimeline');
 const battleReport = require('../services/battleReport');
 const battleRewards = require('../services/battleRewards');
+const battleEnvironment = require('../services/battleEnvironment');
 
 // ── 인증 (inline JWT) ──
 const requireAuth = (req, res, next) => {
@@ -246,7 +247,7 @@ router.get('/list/active', async (req, res) => {
         scheduled_start_at ASC
       LIMIT 50
     `);
-    res.json({ battles: rows });
+    res.json({ battles: battleEnvironment.decorateBattles(rows) });
   } catch (err) {
     console.error('[battle] active error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
@@ -279,7 +280,7 @@ router.get('/list/recent', async (req, res) => {
       ORDER BY ended_at DESC NULLS LAST
       LIMIT $1
     `, [limit]);
-    res.json({ battles: rows });
+    res.json({ battles: battleEnvironment.decorateBattles(rows) });
   } catch (err) {
     console.error('[battle] recent error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
@@ -338,7 +339,7 @@ router.get('/active', async (req, res) => {
         fb.scheduled_start_at ASC
       LIMIT 50
     `, params);
-    res.json({ battles: rows });
+    res.json({ battles: battleEnvironment.decorateBattles(rows) });
   } catch (err) {
     console.error('[battle] active alias error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
@@ -434,7 +435,7 @@ router.get('/:id', async (req, res) => {
     `, [battleId]);
 
     res.json({
-      battle: info,
+      battle: battleEnvironment.decorateBattle(info),
       events
     });
   } catch (err) {

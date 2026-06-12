@@ -76,6 +76,8 @@ function rememberBattleContext(battle) {
     battle_type: battle.battle_type || '',
     sector_code: battle.sector_code || summary.sector_code || '',
     sector_name: battle.sector_name || '',
+    battlefield_key: battle.battlefield_key || '',
+    battlefield_label: battle.battlefield_label || '',
   };
 }
 
@@ -88,6 +90,7 @@ function _stableBattlefieldIndex(seed) {
 
 function pickBattlefieldKey(battleId) {
   const ctx = battleContextById[parseInt(battleId, 10)] || {};
+  if (ctx.battlefield_key && BATTLEFIELD_LABELS[ctx.battlefield_key]) return ctx.battlefield_key;
   const type = String(ctx.battle_type || '').toLowerCase();
   const sectorCode = String(ctx.sector_code || '').toLowerCase();
   const sectorName = String(ctx.sector_name || '').toLowerCase();
@@ -511,6 +514,8 @@ function renderBattleCard(b, tab) {
                    isPreparing ? `${t('bc_scheduled')||'Scheduled'}: ${formatShortTime(b.scheduled_start_at)}` :
                    formatShortTime(b.ended_at);
   const sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
+  const battlefieldKey = b.battlefield_key || pickBattlefieldKey(b.id);
+  const battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || '';
   const rewardGp = Math.round(parseFloat(b.my_reward_gp != null ? b.my_reward_gp : b.reward_total_gp) || 0);
   const rewardCount = parseInt(b.reward_count, 10) || 0;
   const rewardLabel = rewardGp > 0
@@ -531,6 +536,7 @@ function renderBattleCard(b, tab) {
           <span>⚔ <b>${b.atk_ships_total || b.atk_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
           <span>vs <b>${b.def_ships_total || b.def_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
           ${sectorLabel ? `<span style="color:#ffab40">⌖ ${escapeHtml(sectorLabel)}</span>` : ''}
+          ${battlefieldLabel ? `<span style="color:#81d4fa">▣ ${escapeHtml(battlefieldLabel)}</span>` : ''}
           ${rewardLabel}
           ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}</b>${LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'min'}</span>` : ''}
           <span>${timeInfo}</span>
@@ -1753,8 +1759,8 @@ async function loadBvSidePanels(battleId) {
     var b = battleInfo.battle;
     rememberBattleContext(b);
     var sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
-    var battlefieldKey = pickBattlefieldKey(b.id);
-    var battlefieldLabel = BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey || '';
+    var battlefieldKey = b.battlefield_key || pickBattlefieldKey(b.id);
+    var battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey || '';
     statsEl.innerHTML =
       `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전투 ID':LANG==='ja'?'戦闘ID':LANG==='zh'?'战斗ID':'Battle ID'}</span><b>#` + b.id + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'타입':LANG==='ja'?'タイプ':LANG==='zh'?'类型':'Type'}</span><b>` + (b.battle_type || '?') + '</b></div>'

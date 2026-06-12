@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
+const battleEnvironment = require('./battleEnvironment');
 
 const INLINE_SIZE_LIMIT = 500 * 1024;   // 500KB 이하면 battle_summary에 inline
 const MAX_SIZE_LIMIT = 10 * 1024 * 1024;// 10MB 이상은 거부
@@ -142,7 +143,7 @@ async function getUserBattleHistory(walletAddress, limit = 20) {
     LIMIT $2
   `, [walletAddress, limit]);
   
-  return rows;
+  return battleEnvironment.decorateBattles(rows);
 }
 
 // ─── 전투 상세 정보 ───
@@ -173,7 +174,7 @@ async function getBattleInfo(battleId) {
     GROUP BY fb.id, sd.code, sd.name_ko, sd.name_en
   `, [battleId]);
   
-  return rows[0] || null;
+  return rows[0] ? battleEnvironment.decorateBattle(rows[0]) : null;
 }
 
 // ─── 테이블 생성 (최초 1회) ───
