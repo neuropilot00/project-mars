@@ -3,6 +3,22 @@ var emailAuth = {
   user: null
 };
 
+function _applyAuthMeBalances(d){
+  if(!d) return;
+  walletState.gameUsdt=d.usdtBalance||0;
+  walletState.gamePP=d.ppBalance||0;
+  var setText=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
+  setText('walletUsdt',(d.usdtBalance||0).toFixed(2));
+  setText('walletPP',(d.ppBalance||0).toFixed(2));
+  setText('authUsdtBal',(d.usdtBalance||0).toFixed(2));
+  setText('authPPBal',(d.ppBalance||0).toFixed(2));
+  if(d.gpBalance !== undefined){
+    if(window._dailyState) window._dailyState.gpBalance = parseFloat(d.gpBalance)||0;
+    walletState.gameGP = parseFloat(d.gpBalance)||0;
+    if(typeof updateGPDisplay==='function') updateGPDisplay();
+  }
+}
+
 // Auto-login: restore session from saved token, or re-login with saved credentials
 (function autoLoginInit(){
   if(emailAuth.token){
@@ -14,12 +30,13 @@ var emailAuth = {
         walletState.connected=true;
         walletState.address=d.wallet;
         walletState.chain='base';
+        try{_applyAuthMeBalances(d)}catch(e){}
         try{updateWalletUI();updateEmailVerifyBanner();}catch(e){}
         try{updateChainUI()}catch(e){}
         try{updateTopbarAvatar(true)}catch(e){}
-        try{refreshEmailBalances()}catch(e){}
         try{loadReferralInfo()}catch(e){}
         try{trackQuestAction('login',1)}catch(e){}
+        try{checkDailyLogin();}catch(e){}
         try{initOnboarding(d.wallet)}catch(e){}
         // ── 부트 시점에 user level 미리 로드 ──
         // 이전엔 BASE 모달 열어야 profileLevel DOM 채워졌음 → 그 전엔 sector overlay 가 myLevel=1 로
@@ -33,6 +50,7 @@ var emailAuth = {
             var plb = document.getElementById('profileLevelBadge');
             if (pl)  pl.textContent  = u.user.rank;
             if (plb) plb.textContent = u.user.rank;
+            try{ applyBaseTabLocks(); }catch(_){}
             // 텍스처 캐시 무효화 + 재합성 → 정확한 entry-blocked 판정으로 다시 그림
             if (typeof marsCanvasTexture !== 'undefined') marsCanvasTexture = null;
             if (typeof claimsSnapshot !== 'undefined') claimsSnapshot = null;
@@ -599,64 +617,10 @@ async function refreshEmailBalances(){
     var resp=await fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}});
     var d=await resp.json();
     if(resp.ok){
-      walletState.gameUsdt=d.usdtBalance||0;
-      walletState.gamePP=d.ppBalance||0;
-      document.getElementById('walletUsdt').textContent=(d.usdtBalance||0).toFixed(2);
-      document.getElementById('walletPP').textContent=(d.ppBalance||0).toFixed(2);
-      document.getElementById('authUsdtBal').textContent=(d.usdtBalance||0).toFixed(2);
-      document.getElementById('authPPBal').textContent=(d.ppBalance||0).toFixed(2);
-      // GP balance from server
-      if(d.gpBalance !== undefined){
-        _dailyState.gpBalance = parseFloat(d.gpBalance)||0;
-        walletState.gameGP = parseFloat(d.gpBalance)||0;
-        updateGPDisplay();
-      }
+      _applyAuthMeBalances(d);
     }
   }catch(e){}
 }
-
-// Auto-login on page load
-(function(){
-  if(emailAuth.token){
-    fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
-      .then(function(r){return r.json()})
-      .then(function(d){
-        if(d.wallet){
-          emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode};
-          walletState.connected=true;
-          walletState.address=d.wallet;
-          walletState.chain='base';
-          walletState.gameUsdt=d.usdtBalance||0;
-          walletState.gamePP=d.ppBalance||0;
-          updateWalletUI();
-          updateChainUI();
-          updateTopbarAvatar(true);
-          loadReferralInfo();
-          refreshEmailBalances();
-          try{ checkDailyLogin(); }catch(e){}
-          // ── boot 시점 user level 미리 로드 → sector overlay entry-block 정확히 ──
-          try {
-            fetch('/api/user/' + encodeURIComponent(d.wallet) + '/base').then(function(r){return r.json()}).then(function(u){
-              if (!u || !u.user) return;
-              window._baseUserData = u;
-              var pl = document.getElementById('profileLevel');
-              var plb = document.getElementById('profileLevelBadge');
-              if (pl)  pl.textContent  = u.user.rank;
-              if (plb) plb.textContent = u.user.rank;
-              try{ applyBaseTabLocks(); }catch(_){}
-              if (typeof marsCanvasTexture !== 'undefined') marsCanvasTexture = null;
-              if (typeof claimsSnapshot !== 'undefined') claimsSnapshot = null;
-              if (typeof compositeClaimsOnTexture === 'function') compositeClaimsOnTexture();
-            }).catch(function(){});
-          } catch(_) {}
-        }
-      })
-      .catch(function(){
-        localStorage.removeItem('pw_token');
-        emailAuth.token=null;
-      });
-  }
-})();
 
 /* ── Referral System ─────────────────────────────── */
 async function loadReferralInfo(){
