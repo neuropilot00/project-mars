@@ -401,6 +401,11 @@ async function claimKillmailBounty(battleId, targetWallet, btn) {
     if (typeof rewardBurst === 'function') rewardBurst({ text: '+' + formatNum(gp) + ' GP', tier: 2, sound: window._sfx && _sfx.hijackWin });
     if (typeof showFactionToast === 'function') showFactionToast('+' + formatNum(gp) + ' GP', 'success');
     try { if (typeof refreshBalance === 'function') refreshBalance(); } catch(_) {}
+    try {
+      if (battleHubState.currentTab === 'killboard' && document.getElementById('battleHubModal')?.classList.contains('active')) {
+        _setActiveTimeout(bhLoad, 350);
+      }
+    } catch(_) {}
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'현상금 청구':LANG==='ja'?'賞金請求':LANG==='zh'?'领取悬赏':'Claim Bounty'; }
   }
@@ -433,6 +438,11 @@ async function salvageKillmail(wreckId, btn) {
     if (typeof showFactionToast === 'function') showFactionToast(label, 'success');
     try { if (typeof markDailyOpsAction === 'function') markDailyOpsAction('salvage_wreck'); } catch(_) {}
     try { if (typeof loadBaseInventory === 'function') loadBaseInventory(); } catch(_) {}
+    try {
+      if (battleHubState.currentTab === 'killboard' && document.getElementById('battleHubModal')?.classList.contains('active')) {
+        _setActiveTimeout(bhLoad, 350);
+      }
+    } catch(_) {}
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'; }
   }
