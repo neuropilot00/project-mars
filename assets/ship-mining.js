@@ -75,6 +75,18 @@
         : lang('baseline ore table', '기본 광석 테이블', '基本鉱石テーブル', '基础矿石表'));
   }
 
+  function routeRoleText(d) {
+    return d && d.routeRole ? String(d.routeRole) : lang('general resource run', '범용 채굴 런', '汎用採掘ラン', '通用采矿航线');
+  }
+
+  function routeUseText(d) {
+    return d && d.targetUse ? String(d.targetUse) : lang('mixed economy supply', '복합 경제 보급', '複合経済補給', '综合经济补给');
+  }
+
+  function routeRecommendedText(d) {
+    return d && d.recommendedFor ? String(d.recommendedFor) : lang('available fleets', '가용 함대', '利用可能な艦隊', '可用舰队');
+  }
+
   function allianceBonusFor(key) {
     var bonuses = (state.info && state.info.allianceSectorBonuses) || {};
     var mult = Number(bonuses[key]) || 1;
@@ -173,7 +185,7 @@
       dests.forEach(function (d) {
         var allianceBonus = allianceBonusFor(d.key);
         var allianceText = allianceBonus > 1 ? ' · Alliance +' + Math.round((allianceBonus - 1) * 100) + '%' : '';
-        var line = routeName(d.key) + ' · ' + routeDifficultyLabel(d) + ' · ' + routeRiskLabel(d) + ' · x' + Number((d.yieldMult || 1) * allianceBonus).toFixed(1) + ' GP · x' + Number((d.resourceMult || d.yieldMult || 1) * allianceBonus).toFixed(1) + ' resource · x' + Number(d.rareMult || 1).toFixed(2) + ' rare' + allianceText + ' · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
+        var line = routeName(d.key) + ' · ' + routeDifficultyLabel(d) + ' · ' + routeRiskLabel(d) + ' · ' + routeRoleText(d) + ' · x' + Number((d.yieldMult || 1) * allianceBonus).toFixed(1) + ' GP · x' + Number((d.resourceMult || d.yieldMult || 1) * allianceBonus).toFixed(1) + ' resource · x' + Number(d.rareMult || 1).toFixed(2) + ' rare' + allianceText + ' · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
         html += '<option value="' + txt(d.key) + '"' + (String(picks.destination || '') === String(d.key) ? ' selected' : '') + '>' + txt(line) + '</option>';
       });
       html += '</select>';
@@ -214,6 +226,7 @@
       else html += '<div style="font-size:10px;color:' + (done ? '#64dc82' : 'var(--gold)') + ';font-weight:800">' + (done ? 'DONE' : eta) + '</div>';
       html += '</div></div>';
       if (done) html += '<div style="font-size:8px;color:var(--tx3);margin-top:6px">+' + txt(j.reward_gp || 0) + ' GP' + (j.raided ? ' · <span style="color:var(--red)">RAIDED</span>' : '') + (drops ? ' · ' + drops : '') + '</div>';
+      else html += '<div style="font-size:8px;color:var(--tx3);margin-top:6px">' + txt(routeRoleText(jobDest)) + ' · ' + txt(routeUseText(jobDest)) + '</div>';
       html += '</div>';
       return html;
     }).join('');
@@ -250,6 +263,8 @@
       lang('raid risk', '약탈 위험', '襲撃リスク', '袭击风险') + ' ' + pct(dest.raidPct) + '% · ' +
       lang('expected wear', '예상 마모', '予想摩耗', '预计损耗') + ' ' + pct(wearPct) + '%' +
       (Number(dest.raidPct) > 0 ? ' (' + lang('raided', '약탈 시', '襲撃時', '被袭时') + ' ' + pct(raidWearPct) + '%)' : '') +
+      '<br><span style="color:#80cbc4;font-weight:800">' + txt(routeRoleText(dest)) + '</span> · ' + txt(routeUseText(dest)) +
+      '<br><span style="color:var(--tx3)">' + lang('Recommended', '추천', '推奨', '推荐') + ': ' + txt(routeRecommendedText(dest)) + '</span>' +
       '<br><span style="color:var(--tx3)">' + txt(routeLootText(dest)) + '</span>' +
       allianceLine;
   };

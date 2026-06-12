@@ -27,6 +27,9 @@ const MINING_ROUTE_PROFILES = {
     rareMult: 1.0,
     riskLabel: 'SAFE BELT',
     lootProfile: 'common ore and baseline parts',
+    routeRole: 'starter industry',
+    targetUse: 'repair stockpile and low-risk ship parts',
+    recommendedFor: 'new fleets and damaged fleets',
     pressure: 'low',
   },
   mid: {
@@ -34,6 +37,9 @@ const MINING_ROUTE_PROFILES = {
     rareMult: 1.15,
     riskLabel: 'CONTESTED BELT',
     lootProfile: 'improved minerals and rare part pressure',
+    routeRole: 'growth route',
+    targetUse: 'ship upgrades and balanced GP/material gain',
+    recommendedFor: 'combat-ready patrol fleets',
     pressure: 'contested',
   },
   core: {
@@ -41,6 +47,9 @@ const MINING_ROUTE_PROFILES = {
     rareMult: 1.35,
     riskLabel: 'WARZONE CORE',
     lootProfile: 'highest rare-material pressure',
+    routeRole: 'high-risk war industry',
+    targetUse: 'rare parts for capital preparation',
+    recommendedFor: 'escorted fleets and alliance-backed miners',
     pressure: 'warzone',
   },
 };
@@ -68,6 +77,9 @@ function _normalizeDestination(d) {
     difficulty: _clamp(d.difficulty == null ? profile.difficulty : d.difficulty, 1, 5, profile.difficulty || 1),
     riskLabel: String(d.riskLabel || profile.riskLabel || 'UNKNOWN ROUTE'),
     lootProfile: String(d.lootProfile || profile.lootProfile || 'mixed resources'),
+    routeRole: String(d.routeRole || profile.routeRole || 'general resource run'),
+    targetUse: String(d.targetUse || profile.targetUse || 'mixed economy supply'),
+    recommendedFor: String(d.recommendedFor || profile.recommendedFor || 'available fleets'),
     pressure: String(d.pressure || profile.pressure || 'unknown'),
   };
 }
