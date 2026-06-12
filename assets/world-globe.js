@@ -2908,7 +2908,17 @@ loadServerClaims();
 // Delta claims polling (10s desktop / 20s mobile for claims, 30s/60s for full pixel refresh)
 var _pixelPollCount=0;
 var _claimsPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?20000:10000;
+var _claimsAnonPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?60000:30000;
+var _claimsLastPollAt=0;
+function _hasClaimLiveSession(){
+  if(window.walletState&&walletState.connected&&walletState.address) return true;
+  try{return !!localStorage.getItem('pw_token');}catch(_){return false;}
+}
 _setActiveInterval(function(){
+  var now=Date.now();
+  var effectivePollMs=_hasClaimLiveSession()?_claimsPollMs:_claimsAnonPollMs;
+  if(_claimsLastPollAt&&now-_claimsLastPollAt<effectivePollMs) return;
+  _claimsLastPollAt=now;
   _pixelPollCount++;
   var fetchPixels=(_pixelPollCount%3===0); // every 30s desktop / 60s mobile
   var fetchFullClaims=(_pixelPollCount%9===0); // reconcile hidden/expired cloak state without adding a new loop
