@@ -32,6 +32,18 @@
     });
   }
 
+  function miningReadFetch(key, url, minGap) {
+    var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+    if (typeof _guardedJsonFetch === 'function') {
+      return _guardedJsonFetch(key + ':' + walletKey, url, {
+        minGap: minGap || 10000,
+        backoffMs: 90000,
+        fetchOptions: { headers: authHeaders(false), cache: 'no-store' }
+      });
+    }
+    return jsonFetch(url, { headers: authHeaders(false), cache: 'no-store' });
+  }
+
   function routeName(key) {
     return {
       frontier: lang('Frontier Belt', '외곽 벨트', '辺境ベルト', '边境带'),
@@ -279,16 +291,20 @@
     state.loading = true;
     renderShell('Loading resource routes...');
     Promise.all([
-      jsonFetch('/api/mining/info', { headers: authHeaders(false), cache: 'no-store' }),
-      jsonFetch('/api/mining/my', { headers: authHeaders(false), cache: 'no-store' }),
-      jsonFetch('/api/fleets', { headers: authHeaders(false), cache: 'no-store' })
+      miningReadFetch('ship-mining-info', '/api/mining/info', 15000),
+      miningReadFetch('ship-mining-my', '/api/mining/my', 10000),
+      miningReadFetch('ship-mining-fleets', '/api/fleets', 10000)
     ]).then(function (rows) {
-      state.info = rows[0] || {};
-      state.jobs = (rows[1] && rows[1].jobs) || [];
-      state.fleets = (rows[2] && rows[2].fleets) || [];
+      state.info = rows[0] || state.info || {};
+      state.jobs = rows[1] && rows[1].jobs ? rows[1].jobs : (state.jobs || []);
+      state.fleets = rows[2] && rows[2].fleets ? rows[2].fleets : (state.fleets || []);
       renderMining();
     }).catch(function (e) {
-      renderShell(lang('Failed to load resource runs: ', '채굴 런 로드 실패: ', '採掘ランの読み込み失敗: ', '采矿航线加载失败: ') + (e.message || e));
+      if (state.info) {
+        renderMining();
+      } else {
+        renderShell(lang('Failed to load resource runs: ', '채굴 런 로드 실패: ', '採掘ランの読み込み失敗: ', '采矿航线加载失败: ') + (e.message || e));
+      }
     }).finally(function () {
       state.loading = false;
     });
