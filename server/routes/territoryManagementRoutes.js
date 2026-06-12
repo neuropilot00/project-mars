@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool, getSetting } = require('../db');
 const { requireAuth, getAuthWallet, sanitize } = require('../utils/apiHelpers');
@@ -21,6 +22,17 @@ let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
 let upgradeSvc;
 try { upgradeSvc = require('../services/claimUpgrades'); } catch (_e) { /* upgrade service not available */ }
+
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 // POST /api/claims/:id/rename — rename territory for 0.3 PP
 router.post('/claims/:id/rename', requireAuth, writeLimiter, async (req, res) => {
@@ -130,12 +142,12 @@ router.post('/territory/:claimId/tend', requireAuth, writeLimiter, async (req, r
 });
 
 // ══════════════════════════════════════════════════
-// GET /api/territory/:claimId/production?wallet=...
+// GET /api/territory/:claimId/production
 // 영토 생산 요약 — 소유 여부, 섹터 유형, 예상 PP, 드롭 재료 목록, 모디파이어, 마지막 수확
 // ══════════════════════════════════════════════════
 router.get('/territory/:claimId/production', readLimiter, async (req, res) => {
   const claimId = parseInt(req.params.claimId);
-  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  const wallet = getOptionalAuthWallet(req);
   if (!claimId) return res.status(400).json({ error: 'claimId required' });
 
   try {
@@ -477,12 +489,12 @@ router.post('/territory/merge', requireAuth, writeLimiter, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
-// GET /api/territory/:claimId/upgrades?wallet=...
+// GET /api/territory/:claimId/upgrades
 // 영토 업그레이드 현황 + 카탈로그 (소유자 전용 업그레이드 버튼)
 // ══════════════════════════════════════════════════
 router.get('/territory/:claimId/upgrades', readLimiter, async (req, res) => {
   const claimId = parseInt(req.params.claimId);
-  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  const wallet = getOptionalAuthWallet(req);
   if (!claimId) return res.status(400).json({ error: 'claimId required' });
   try {
     // Ownership check

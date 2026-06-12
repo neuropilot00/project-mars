@@ -10450,7 +10450,7 @@ function _bterrLoadProd(idx,g){
   var claimId=g.claims[0]&&g.claims[0].id;
   if(!claimId||!wallet){prodEl.textContent='—';return;}
   prodEl.textContent=LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…';
-  fetch('/api/territory/'+claimId+'/production?wallet='+encodeURIComponent(wallet))
+  fetch('/api/territory/'+claimId+'/production', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       if(!document.getElementById('bterrProd'+idx)) return; // 이미 닫힘
@@ -12473,7 +12473,7 @@ function loadTerritoryProduction(claimId,wallet){
   if(!prodRow||!prodBody) return;
   prodBody.textContent='Loading…';
   prodRow.style.display='';
-  fetch('/api/territory/'+claimId+'/production?wallet='+encodeURIComponent(wallet))
+  fetch('/api/territory/'+claimId+'/production', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.error){prodBody.textContent='—';return;}
@@ -12756,7 +12756,7 @@ function loadTerritoryUpgrades(claimId, targetBodyId) {
   }
   body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
   _territoryUpgradeState.loading = true;
-  fetch('/api/territory/' + claimId + '/upgrades?wallet=' + encodeURIComponent(wallet))
+  fetch('/api/territory/' + claimId + '/upgrades', { headers: getAuthHeaders() })
     .then(function(r){ return r.json(); })
     .then(function(d){
       _territoryUpgradeState.loading = false;
@@ -13861,7 +13861,7 @@ function _loadMobTerritoryProdInfo(claimId, plot){
   box.style.display = '';
   box.innerHTML = '<div style="color:var(--tx3);font-size:9px">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
   var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
-  fetch('/api/territory/'+claimId+'/production'+(wallet?('?wallet='+encodeURIComponent(wallet)):''))
+  fetch('/api/territory/'+claimId+'/production', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(d){
       if (!d || d.error) { box.style.display='none'; return; }
