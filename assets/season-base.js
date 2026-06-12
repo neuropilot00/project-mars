@@ -1173,6 +1173,45 @@ function renderSectorList(sectors){
       return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];
     });
   }
+  function sectorProfile(s, occ) {
+    var tier = String(s.tier || 'frontier').toLowerCase();
+    var mining = parseFloat(s.miningBonus) || 1;
+    var price = parseFloat(s.currentPrice) || 0;
+    var difficulty = tier === 'core' || occ >= 70 ? 'high' : (tier === 'mid' || occ >= 35 ? 'mid' : 'low');
+    var yieldRank = mining >= 1.45 ? 'rich' : (mining >= 1.15 ? 'good' : 'plain');
+    var pressure = occ >= 75 ? 'hot' : (occ >= 40 ? 'contested' : 'open');
+    return { difficulty:difficulty, yieldRank:yieldRank, pressure:pressure, mining:mining, price:price };
+  }
+  function sectorProfileLabel(profile, kind) {
+    var labels = {
+      difficulty: {
+        high: LANG==='ko'?'고난도':LANG==='ja'?'高難度':LANG==='zh'?'高难度':'Hard',
+        mid: LANG==='ko'?'중간':LANG==='ja'?'中級':LANG==='zh'?'中等':'Medium',
+        low: LANG==='ko'?'개척':LANG==='ja'?'開拓':LANG==='zh'?'开拓':'Frontier'
+      },
+      yieldRank: {
+        rich: LANG==='ko'?'고수익':LANG==='ja'?'高収益':LANG==='zh'?'高收益':'Rich',
+        good: LANG==='ko'?'안정 수익':LANG==='ja'?'安定収益':LANG==='zh'?'稳定收益':'Good Yield',
+        plain: LANG==='ko'?'기본 수익':LANG==='ja'?'基本収益':LANG==='zh'?'基础收益':'Base Yield'
+      },
+      pressure: {
+        hot: LANG==='ko'?'전쟁권':LANG==='ja'?'戦争圏':LANG==='zh'?'战区':'War Zone',
+        contested: LANG==='ko'?'분쟁 중':LANG==='ja'?'紛争中':LANG==='zh'?'争夺中':'Contested',
+        open: LANG==='ko'?'진입 여지':LANG==='ja'?'参入余地':LANG==='zh'?'可进入':'Open'
+      }
+    };
+    return labels[kind][profile[kind]] || profile[kind];
+  }
+  function renderSectorProfile(profile) {
+    var diffColor = profile.difficulty === 'high' ? '#ff6b6b' : profile.difficulty === 'mid' ? '#ffd166' : '#4cd89a';
+    var yieldColor = profile.yieldRank === 'rich' ? '#ffd166' : profile.yieldRank === 'good' ? '#64d8ff' : 'var(--tx2)';
+    var pressureColor = profile.pressure === 'hot' ? '#ff7043' : profile.pressure === 'contested' ? '#ffd166' : '#4cd89a';
+    return '<div class="sc-profile">'
+      + '<span style="border-color:'+diffColor+'55;color:'+diffColor+'">⚙ '+sectorProfileLabel(profile,'difficulty')+'</span>'
+      + '<span style="border-color:'+yieldColor+'55;color:'+yieldColor+'">⛏ '+sectorProfileLabel(profile,'yieldRank')+' ×'+profile.mining.toFixed(2)+'</span>'
+      + '<span style="border-color:'+pressureColor+'55;color:'+pressureColor+'">⚔ '+sectorProfileLabel(profile,'pressure')+'</span>'
+      + '</div>';
+  }
   sectors.forEach(function(s){
     var occ=s.stats.occupancyRate;
     var occPx=s.stats.occupiedPixels;
@@ -1206,6 +1245,7 @@ function renderSectorList(sectors){
     html+='</div>';
     // Activity badge (inline, below header)
     if(s.stats.activity24h>0) html+='<div class="sc-activity"><span class="sc-activity-dot"></span>'+t('sector_claims_24h').replace('{n}',s.stats.activity24h)+'</div>';
+    html+=renderSectorProfile(sectorProfile(s, occ));
     // Occupancy bar
     html+='<div class="sc-occ-wrap">';
     html+='<div class="sc-occ-labels"><span>'+t('sector_occupied')+'</span><span>'+occPx.toLocaleString()+' / '+totPx.toLocaleString()+' ('+occ+'%)</span></div>';

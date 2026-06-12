@@ -1298,6 +1298,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sc-activity{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--mars);font-family:var(--fn);
   margin-bottom:6px}
 .sc-activity-dot{width:5px;height:5px;border-radius:50%;background:var(--mars);animation:pulse-dot 1.5s infinite}
+.sc-profile{display:flex;flex-wrap:wrap;gap:4px;margin:-1px 0 7px}
+.sc-profile span{font-size:8px;font-family:var(--fn);font-weight:700;padding:2px 5px;border:1px solid rgba(255,255,255,.12);border-radius:4px;background:rgba(0,0,0,.18);white-space:nowrap}
 @keyframes pulse-dot{0%,100%{opacity:.4}50%{opacity:1}}
 @keyframes seasonPulse{0%,100%{box-shadow:0 4px 20px rgba(255,80,30,0.15)}50%{box-shadow:0 4px 30px rgba(255,80,30,0.35)}}
 
