@@ -21,6 +21,28 @@ var SM_DEFAULT_DESTINATIONS = [
   { key: 'mid', yieldMult: 1.5, wearMult: 1.5, raidPct: 0.05 },
   { key: 'core', yieldMult: 2.2, wearMult: 2.5, raidPct: 0.15 }
 ];
+function _smDestMeta(key){
+  var map = {
+    frontier: { label:tl('NEAR','근거리','近距離','近'), c:'#3fb6a8', ico:'🏳' },
+    mid:      { label:tl('MID','중거리','中距離','中'), c:'#e0a93b', ico:'⚒' },
+    core:     { label:tl('FAR','원거리','遠距離','远'), c:'#d9483b', ico:'☢' }
+  };
+  return map[key] || { label:key || 'UNKNOWN', c:'#888', ico:'•' };
+}
+function _smParseResources(v){
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  try {
+    var parsed = typeof v === 'string' ? JSON.parse(v) : v;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_) { return []; }
+}
+function _smResourceSummary(v){
+  var arr = _smParseResources(v).filter(function(x){ return x && Number(x.quantity) > 0; });
+  if (!arr.length) return '';
+  return arr.slice(0, 3).map(function(x){ return escapeHtmlSafe(x.code || 'mat') + ' ×' + (Number(x.quantity) || 0); }).join(' · ')
+    + (arr.length > 3 ? ' +' + (arr.length - 3) : '');
+}
 
 // ⛏ 함선 채굴 런 (경제 v2 P5) — 땅 없는 F2P 노가다. 함대를 보내 재료+GP 수급.
 // 채굴은 임무 > ⛏ MINING 서브탭으로 통합(모달 폐기). 외부 진입점은 BASE 열고 해당 탭으로 라우팅.
@@ -53,9 +75,12 @@ async function _renderShipMining() {
         var ready = j.status==='mining' && (j.seconds_remaining||0) <= 0;
         var done = j.status==='collected';
         var mins = Math.ceil((j.seconds_remaining||0)/60);
+        var dm = _smDestMeta(j.sector_type || j.destination || 'frontier');
+        var mats = _smResourceSummary(j.reward_resources);
         h += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(100,220,130,.18);border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px">'
           + '<div style="flex:1;font-size:10px"><b style="color:#fff">'+escapeHtmlSafe(j.fleet_name||('Fleet #'+j.fleet_id))+'</b> <span style="color:var(--tx3)">· '+j.ship_count+'🛸 · '+j.duration_h+'h</span><br>'
-          + '<span style="font-size:8.5px;color:var(--tx3)">'+(done?('✅ '+tl('Collected','수령완료','受取済','已领取')+': '+_fmtGp(j.reward_gp)+' GP'):(ready?('⛏ '+tl('Ready to collect','수령 가능','受取可能','可领取')):('⏳ '+mins+tl('m left','분 남음','分残り','分钟')))) + '</span></div>'
+          + '<span style="font-size:8px;color:'+dm.c+'">'+dm.ico+' '+dm.label+'</span> '
+          + '<span style="font-size:8.5px;color:var(--tx3)">'+(done?('✅ '+tl('Collected','수령완료','受取済','已领取')+': '+_fmtGp(j.reward_gp)+' GP'+(mats?(' · '+mats):'')):(ready?('⛏ '+tl('Ready to collect','수령 가능','受取可能','可领取')):('⏳ '+mins+tl('m left','분 남음','分残り','分钟')))) + '</span></div>'
           + (ready?'<button type="button" class="sm-collect" data-job="'+j.id+'" style="font-size:9px;font-weight:700;padding:6px 10px;border-radius:6px;border:1px solid rgba(100,220,130,.5);background:rgba(100,220,130,.15);color:#64dc82;cursor:pointer;font-family:var(--fn)">'+tl('COLLECT','수령','受取','领取')+'</button>':'')
           + '</div>';
       });
@@ -74,15 +99,10 @@ async function _renderShipMining() {
         + durs.map(function(d){ return '<option value="'+d+'">'+d+'h</option>'; }).join('')
         + '</select></div>';
       // ② 목적지(거리) 카드 — near/mid/core. 멀수록 고수율·희귀재료·마모↑·약탈위험.
-      var destMeta = {
-        frontier: { ko:'근거리', label:tl('NEAR','근거리','近距離','近'), c:'#3fb6a8', ico:'🏳' },
-        mid:      { ko:'중거리', label:tl('MID','중거리','中距離','中'), c:'#e0a93b', ico:'⚒' },
-        core:     { ko:'원거리', label:tl('FAR','원거리','遠距離','远'), c:'#d9483b', ico:'☢' }
-      };
       h += '<div style="font-size:8px;color:var(--tx3);margin-bottom:3px">'+tl('DESTINATION','목적지','目的地','目的地')+'</div>';
       h += '<div id="smDests" style="display:flex;gap:5px;margin-bottom:8px">';
       dests.forEach(function(d, i){
-        var m = destMeta[d.key] || { label:d.key, c:'#888', ico:'•' };
+        var m = _smDestMeta(d.key);
         var raid = Math.round((Number(d.raidPct)||0)*100);
         var wear = Number(d.wearMult)||1;
         h += '<div class="sm-dest" data-dest="'+d.key+'" data-sel="'+(i===0?'1':'0')+'" style="flex:1;cursor:pointer;border:1.5px solid '+(i===0?m.c:'rgba(255,255,255,.12)')+';border-radius:8px;padding:7px 4px;text-align:center;background:'+(i===0?(m.c+'22'):'rgba(0,0,0,.2)')+';transition:all .15s">'
