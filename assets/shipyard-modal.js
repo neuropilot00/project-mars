@@ -29,6 +29,18 @@ function _smDestMeta(key){
   };
   return map[key] || { label:key || 'UNKNOWN', c:'#888', ico:'•' };
 }
+function _smAllianceBonus(info, key){
+  var bonuses = (info && info.allianceSectorBonuses) || {};
+  var mult = Number(bonuses[key]) || 1;
+  return mult > 1 ? mult : 1;
+}
+function _smRiskLabel(d){
+  var raid = Number(d && d.raidPct) || 0;
+  var wear = Number(d && d.wearMult) || 1;
+  if (raid >= 0.12 || wear >= 2.2) return tl('HIGH RISK','고위험','高リスク','高风险');
+  if (raid >= 0.04 || wear >= 1.4) return tl('CONTESTED','분쟁권','係争圏','争夺区');
+  return tl('SAFE','안전권','安全圏','安全区');
+}
 function _smParseResources(v){
   if (!v) return [];
   if (Array.isArray(v)) return v;
@@ -105,10 +117,14 @@ async function _renderShipMining() {
         var m = _smDestMeta(d.key);
         var raid = Math.round((Number(d.raidPct)||0)*100);
         var wear = Number(d.wearMult)||1;
+        var allianceBonus = _smAllianceBonus(info, d.key);
+        var yieldMult = (Number(d.yieldMult)||1) * allianceBonus;
+        var allyLine = allianceBonus > 1 ? '<div style="font-size:7.5px;color:#80cbc4;margin-top:1px">🛡 +'+Math.round((allianceBonus-1)*100)+'% '+tl('alliance','동맹','同盟','联盟')+'</div>' : '';
         h += '<div class="sm-dest" data-dest="'+d.key+'" data-sel="'+(i===0?'1':'0')+'" style="flex:1;cursor:pointer;border:1.5px solid '+(i===0?m.c:'rgba(255,255,255,.12)')+';border-radius:8px;padding:7px 4px;text-align:center;background:'+(i===0?(m.c+'22'):'rgba(0,0,0,.2)')+';transition:all .15s">'
           + '<div style="font-size:15px;line-height:1">'+m.ico+'</div>'
           + '<div style="font-size:9px;font-weight:700;color:'+m.c+';margin-top:2px">'+m.label+'</div>'
-          + '<div style="font-size:7.5px;color:var(--tx3);margin-top:1px">×'+(Number(d.yieldMult)||1)+(raid>0?(' · ⚠'+raid+'%'):'')+'</div>'
+          + '<div style="font-size:7.5px;color:var(--tx3);margin-top:1px">'+_smRiskLabel(d)+' · ×'+yieldMult.toFixed(1)+(raid>0?(' · ⚠'+raid+'%'):'')+'</div>'
+          + allyLine
           + '<div style="font-size:7.5px;color:#ffab40;margin-top:1px">'+tl('Hull','내구','耐久','耐久')+' ×'+wear+'</div>'
           + '</div>';
       });
@@ -135,12 +151,14 @@ async function _renderShipMining() {
       var durEl = document.getElementById('smDur'); var dur = durEl ? parseFloat(durEl.value) : (durs[0]||1);
       var dest = dests.find(function(d){ return d.key===_selDest; }) || {yieldMult:1,raidPct:0};
       var approxCap = _smFleetCapacity(fleetId);
-      var estGp = Math.round(approxCap * dur * gpPerCapH * (Number(dest.yieldMult)||1));
+      var allianceBonus = _smAllianceBonus(info, dest.key);
+      var estGp = Math.round(approxCap * dur * gpPerCapH * (Number(dest.yieldMult)||1) * allianceBonus);
       var raid = Math.round((Number(dest.raidPct)||0)*100);
       var wear = Number(dest.wearMult)||1;
       pv.innerHTML = tl('Est.','예상','推定','预计')+' ~'+estGp.toLocaleString()+' GP · '+tl('materials','재료','素材','素材')+' 🪨'
         + ' · <span style="color:#ffab40">'+tl('hull wear','내구 마모','耐久摩耗','耐久损耗')+' ×'+wear+'</span>'
         + (raid>0 ? (' · <span style="color:#d9483b">⚠ '+tl('raid','약탈','襲撃','袭击')+' '+raid+'%</span>') : '')
+        + (allianceBonus>1 ? (' · <span style="color:#80cbc4">🛡 '+tl('alliance','동맹','同盟','联盟')+' +'+Math.round((allianceBonus-1)*100)+'%</span>') : '')
         + ' <span style="color:var(--tx3)">('+tl('exact yield uses ship class','정확 수율은 함급 반영','正確な収率は艦級反映','精确产量按舰级')+')</span>';
     }
     Array.prototype.forEach.call(c.querySelectorAll('.sm-dest'), function(card){
@@ -180,7 +198,10 @@ async function _renderShipMining() {
           .then(function(r){return r.json();}).then(function(d){
             if (d.error){ showToast(_smErr(d.error),'error'); btn.disabled=false; btn.textContent=tl('COLLECT','수령','受取','领取'); return; }
             var matN = (d.resources||[]).reduce(function(a,x){return a+(x.quantity||0);},0);
-            showToast('⛏ +'+_fmtGp(d.rewardGp)+' GP'+(matN>0?(' · +'+matN+' '+tl('materials','재료','素材','素材')):''));
+            var msg = '⛏ +'+_fmtGp(d.rewardGp)+' GP'+(matN>0?(' · +'+matN+' '+tl('materials','재료','素材','素材')):'');
+            if (Number(d.allianceSectorBonus) > 1) msg += ' · 🛡 '+tl('alliance','동맹','同盟','联盟')+' +'+Math.round((Number(d.allianceSectorBonus)-1)*100)+'%';
+            if (d.raided) msg += ' · ⚠ '+tl('raided','약탈 피해','襲撃被害','遭袭');
+            showToast(msg, d.raided ? 'warn' : 'success');
             try{ refreshBalance(); }catch(_){}
             _renderShipMining();
           }).catch(function(){ showToast(tl('Collect failed','수령 실패','失敗','失败'),'error'); btn.disabled=false; });
