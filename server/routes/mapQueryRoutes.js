@@ -1,7 +1,7 @@
 const express = require('express');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
-const { sanitize } = require('../utils/apiHelpers');
+const { getAuthWallet, requireAuth, sanitize } = require('../utils/apiHelpers');
 const { cfg } = require('../utils/settingsCache');
 
 const router = express.Router();
@@ -291,9 +291,9 @@ router.get('/hijack/defender-info', readLimiter, async (req, res) => {
   }
 });
 
-router.get('/claims/my', async (req, res) => {
+router.get('/claims/my', requireAuth, async (req, res) => {
   try {
-    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    const wallet = getAuthWallet(req);
     if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
     const result = await pool.query(
       `SELECT c.id, c.center_lat, c.center_lng, c.width, c.height,

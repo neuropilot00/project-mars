@@ -37284,7 +37284,7 @@ function loadExpeditionPanel() {
   var select = document.getElementById('expClaimSelect');
   if (select) {
     select.innerHTML = '<option value="">Loading…</option>';
-    fetch('/api/claims/my?wallet=' + encodeURIComponent(w))
+    fetch('/api/claims/my', { headers: getAuthHeaders() })
       .then(function(r){return r.json();}).then(function(claims){
         if (!Array.isArray(claims) || !claims.length) {
           select.innerHTML = '<option value="">No territories owned</option>';
