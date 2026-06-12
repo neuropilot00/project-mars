@@ -82,12 +82,33 @@ function populateTransportSectorSelects() {
   var dest = document.getElementById('tspDestSector');
   if (!origin || !dest || !_tspSectors) return;
   var opts = _tspSectors.map(function(s) {
-    var tier = s.tier ? (' T'+s.tier) : '';
+    var tier = s.tier ? (' · '+formatTransportTier(s.tier)) : '';
     var lv = (s.entryMinLevel||0) > 0 ? (' Lv'+s.entryMinLevel) : '';
     return '<option value="'+(s.id||s.sector_id||'')+'">#'+(s.id||s.sector_id||'')+' '+escapeHtml(s.name||'')+tier+lv+'</option>';
   }).join('');
   origin.innerHTML = '<option value="">— Select origin —</option>' + opts;
   dest.innerHTML = '<option value="">— Select destination —</option>' + opts;
+}
+
+function formatTransportTier(tier) {
+  var t = String(tier || '').toLowerCase();
+  if (t === 'core') return 'CORE';
+  if (t === 'mid') return 'MID';
+  if (t === 'frontier') return 'FRONTIER';
+  return 'T'+escapeHtml(String(tier || ''));
+}
+
+function getTransportLaneRisk(originSector, destSector, distance) {
+  var destTier = String((destSector && destSector.tier) || '').toLowerCase();
+  var originTier = String((originSector && originSector.tier) || '').toLowerCase();
+  var levelGate = parseInt((destSector && destSector.entryMinLevel) || 0) || 0;
+  if (destTier === 'core' || originTier === 'core' || distance >= 80 || levelGate >= 20) {
+    return { label: LANG==='ko'?'고위험 항로':LANG==='ja'?'高リスク航路':LANG==='zh'?'高风险航线':'High-risk lane', color: '#FF6B6B' };
+  }
+  if (destTier === 'mid' || originTier === 'mid' || distance >= 40 || levelGate >= 10) {
+    return { label: LANG==='ko'?'분쟁 항로':LANG==='ja'?'紛争航路':LANG==='zh'?'争夺航线':'Contested lane', color: '#FFB347' };
+  }
+  return { label: LANG==='ko'?'개척 항로':LANG==='ja'?'開拓航路':LANG==='zh'?'边境航线':'Frontier lane', color: 'var(--gn)' };
 }
 
 function updateTransportPreview() {
@@ -116,11 +137,22 @@ function updateTransportPreview() {
   var rewardPct = parseFloat(_tspSettings.rewardPct)||10;
   var distBonusPct = parseFloat(_tspSettings.distBonusPct)||5;
   var reward = Math.round(cargo * (rewardPct/100) * (1 + (distBonusPct * dist)/100));
+  var raidMin = parseInt(_tspSettings.raidMinProg)||20;
+  var raidMax = parseInt(_tspSettings.raidMaxProg)||90;
+  var raidLootPct = parseFloat(_tspSettings.raidLootPct)||30;
+  var lootAtRisk = Math.floor(cargo * raidLootPct / 100);
+  var risk = getTransportLaneRisk(o, d, dist);
+  var destLv = parseInt(d.entryMinLevel || 0) || 0;
+  var destTax = Number.isFinite(parseFloat(d.taxRate)) ? parseFloat(d.taxRate).toFixed(1) + '%' : '-';
   el.innerHTML =
     '<span style="color:var(--tx2)">Distance: <b style="color:#FFB347">'+dist.toFixed(1)+'°</b></span> · '
     + '<span style="color:var(--tx2)">ETA: <b style="color:#FFB347">~'+duration+' min</b></span> · '
     + '<span style="color:var(--tx2)">Reward: <b style="color:var(--gold)">+'+reward+' GP</b></span>'
-    + '<br><span style="color:var(--tx3);font-size:8px">Merchants get faster ETA + bigger rewards + raid resistance.</span>';
+    + '<br><span style="color:'+risk.color+';font-size:8px;font-weight:700">'+risk.label+'</span>'
+    + '<span style="color:var(--tx3);font-size:8px"> · '+formatTransportTier(d.tier)+' destination'
+    + (destLv > 0 ? ' · Lv '+destLv+' gate' : '')
+    + ' · Tax '+destTax+'</span>'
+    + '<br><span style="color:var(--tx3);font-size:8px">Raid window '+raidMin+'-'+raidMax+'% progress · loot at risk ~'+lootAtRisk+' GP. Merchants get faster ETA + bigger rewards + raid resistance.</span>';
 }
 
 function submitTransportLaunch() {
