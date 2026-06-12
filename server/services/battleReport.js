@@ -773,7 +773,9 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
     const { rows: myRows } = await pool.query(
       `SELECT
          COALESCE((SELECT cpi FROM fleets WHERE LOWER(owner_wallet) = $1 ORDER BY cpi DESC LIMIT 1), 0) AS my_cpi,
-         (SELECT sector_code FROM claims WHERE LOWER(owner) = $1 ORDER BY (width * height) DESC LIMIT 1) AS my_sector_code`,
+         (SELECT sector_code FROM claims
+           WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND sector_code IS NOT NULL
+           ORDER BY (width * height) DESC LIMIT 1) AS my_sector_code`,
       [w]
     );
     const myCPI = parseFloat(myRows[0]?.my_cpi) || 0;
@@ -796,6 +798,8 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
             AND fb2.winner_side = fbp2.side AND fb2.status = 'ended') AS wins,
          (SELECT sector_code FROM claims
           WHERE LOWER(owner) = LOWER(f.owner_wallet)
+            AND deleted_at IS NULL
+            AND sector_code IS NOT NULL
           ORDER BY (width*height) DESC LIMIT 1) AS sector_code,
          (SELECT MAX(fb3.ended_at) FROM fleet_battles fb3
           JOIN fleet_battle_participants fbp3 ON fbp3.battle_id = fb3.id
@@ -818,7 +822,8 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
          AND f.cpi > 0
          AND ($4::text = '' OR EXISTS (
            SELECT 1 FROM claims sc
-            WHERE LOWER(sc.owner) = LOWER(f.owner_wallet)
+           WHERE LOWER(sc.owner) = LOWER(f.owner_wallet)
+              AND sc.deleted_at IS NULL
               AND sc.sector_code = $4
          ))
        GROUP BY f.id, f.name, f.cpi, f.owner_wallet, u.nickname, u.faction_code, fa.color_primary
