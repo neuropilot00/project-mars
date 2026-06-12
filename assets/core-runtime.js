@@ -212,6 +212,7 @@ function _publicHudQuietRemainingMs() {
 function _shouldDeferPublicHudFetch(url, fetchOptions) {
   var method = (fetchOptions && fetchOptions.method ? fetchOptions.method : 'GET').toUpperCase();
   if (method !== 'GET' || !_isPublicHudFetchPath(url)) return false;
+  if (Date.now() < _apiPublicHudBackoffUntil) return true;
   if (window._authSubmitInFlight) return true;
   if (Date.now() < _apiPublicHudQuietUntil) return true;
   return _authModalIsOpen();
