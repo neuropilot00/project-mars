@@ -174,6 +174,42 @@ function _activeSleep(ms){
 }
 var _apiFetchGuards = {};
 var _apiEndpointGuards = {};
+var _apiPublicHudBackoffUntil = 0;
+var _apiPublicHudBackoffPaths = {
+  '/api/stats': true,
+  '/api/leaderboard': true,
+  '/api/sectors': true,
+  '/api/weather': true,
+  '/api/claims': true,
+  '/api/pixels': true,
+  '/api/exploration/starlink': true,
+  '/api/rockets': true,
+  '/api/announce/active': true,
+  '/api/activity/feed': true
+};
+function _isPublicHudFetchPath(url) {
+  try {
+    return !!_apiPublicHudBackoffPaths[new URL(url, location.origin).pathname];
+  } catch (_) {
+    return false;
+  }
+}
+function _authModalIsOpen() {
+  var modal = document.getElementById('authModal');
+  return !!(modal && modal.classList && modal.classList.contains('open'));
+}
+function _shouldDeferPublicHudFetch(url, fetchOptions) {
+  var method = (fetchOptions && fetchOptions.method ? fetchOptions.method : 'GET').toUpperCase();
+  return method === 'GET' && _isPublicHudFetchPath(url) && _authModalIsOpen();
+}
+function _clearPublicHudFetchBackoff() {
+  _apiPublicHudBackoffUntil = 0;
+  Object.keys(_apiEndpointGuards).forEach(function(key) {
+    if (key.indexOf('GET /api/') !== 0) return;
+    var path = key.replace(/^GET\s+/, '');
+    if (_apiPublicHudBackoffPaths[path]) _apiEndpointGuards[key].backoffUntil = 0;
+  });
+}
 function _guardedFetchEndpointKey(url, fetchOptions) {
   try {
     var u = new URL(url, location.origin);
@@ -192,6 +228,10 @@ function _guardedJsonFetch(key, url, options) {
     backoffUntil: 0
   });
   var fetchOptions = options.fetchOptions || {};
+  var isPublicHud = _isPublicHudFetchPath(url);
+  if (isPublicHud && (now < _apiPublicHudBackoffUntil || _shouldDeferPublicHudFetch(url, fetchOptions))) {
+    return Promise.resolve(null);
+  }
   var endpointKey = options.shareEndpoint === false ? null : (options.endpointKey || _guardedFetchEndpointKey(url, fetchOptions));
   var eg = endpointKey ? (_apiEndpointGuards[endpointKey] || (_apiEndpointGuards[endpointKey] = {
     inFlight: false,
@@ -211,6 +251,7 @@ function _guardedJsonFetch(key, url, options) {
       var until = Date.now() + backoffMs;
       g.backoffUntil = until;
       if (eg) eg.backoffUntil = until;
+      if (isPublicHud) _apiPublicHudBackoffUntil = Math.max(_apiPublicHudBackoffUntil, until);
       return null;
     }
     if (!r.ok) return null;

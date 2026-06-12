@@ -367,6 +367,7 @@ async function submitAuth(){
     walletState.connected=true;
     walletState.address=d.user.wallet;
     walletState.chain='base';
+    try{ if(typeof _clearPublicHudFetchBackoff==='function') _clearPublicHudFetchBackoff(); }catch(e2){}
     try{ updateWalletUI(); }catch(e2){ console.error('[Auth] updateWalletUI:',e2); }
     try{ updateChainUI(); }catch(e2){ console.error('[Auth] updateChainUI:',e2); }
     try{ updateTopbarAvatar(true); }catch(e2){ console.error('[Auth] updateTopbarAvatar:',e2); }
