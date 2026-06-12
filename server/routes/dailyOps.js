@@ -24,7 +24,7 @@ function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
-// ── 오늘의 미션 타입 정의 (전체 목록 — 37종) ────────────────
+// ── 오늘의 미션 타입 정의 (전체 목록 — 38종) ────────────────
 const ALL_MISSION_TYPES = [
   // ─ 영토 (0~6) ─
   { type: 'harvest_pp',           label_ko: '영토 채굴 1회',            label_en: 'Harvest territory ×1',         target: 1,  default_gp: 50,  dest_ko: '내 영토 → 채굴',         dest_en: 'Territory → Harvest'   },
@@ -68,6 +68,7 @@ const ALL_MISSION_TYPES = [
   { type: 'transport_launch',       label_ko: '섹터 수송 출항 1회',        label_en: 'Launch sector transport ×1',   target: 1,  default_gp: 80,  dest_ko: '수송 → 출항',            dest_en: 'Transport → Launch'    },
   { type: 'transport_collect',      label_ko: '섹터 수송 도착 1회',        label_en: 'Complete sector transport ×1', target: 1,  default_gp: 120, dest_ko: '수송 → 내 화물',          dest_en: 'Transport → My Shipments' },
   { type: 'transport_raid',         label_ko: '수송 약탈 시도 1회',        label_en: 'Attempt transport raid ×1',    target: 1,  default_gp: 110, dest_ko: '수송 → 약탈 대상',        dest_en: 'Transport → Raid Targets' },
+  { type: 'siege_fleet_commit',      label_ko: '공성 함대 배치 1회',        label_en: 'Commit a siege fleet ×1',      target: 1,  default_gp: 180, dest_ko: '거버넌스 → 섹터 공성',     dest_en: 'Governance → Sector Siege' },
 ];
 
 // 요일별 미션 조합 (하루 4개: 영토1 + 전투1 + 함선/경제1 + 캠페인/로그인1)
@@ -80,7 +81,7 @@ function getTodayMissions(date) {
     3: [1,  9, 22, 27],   // Wed:  채굴3, 전투3회, 재료3, 캠페인
     4: [0, 11, 25, 29],   // Thu:  채굴, AI연습전3, 마켓구매, 로그인
     5: [4,  8, 36, 28],   // Fri:  업그레이드, 전투승리, 수송약탈, 캠페인완료
-    6: [35,10, 33, 27],   // Sat:  수송도착, 전투3승, 잔해회수3, 캠페인
+    6: [35,37, 33, 27],   // Sat:  수송도착, 공성함대배치, 잔해회수3, 캠페인
   };
   // 인덱스 범위 보정 (없는 인덱스는 0번으로 대체)
   const len = ALL_MISSION_TYPES.length;

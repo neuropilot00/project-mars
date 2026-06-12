@@ -1272,6 +1272,14 @@ window.opsMissionGo = function(type) {
           }
         } catch(_) {}
       });
+    } else if (type === 'siege_fleet_commit') {
+      _opsOpenBaseTab('baseTabGovern', function(){
+        try {
+          var sec = document.getElementById('siegeSection');
+          if (sec && sec.style.display === 'none' && typeof toggleSiegeSection === 'function') toggleSiegeSection();
+        } catch(_) {}
+        try { showToast(tl('Pick an active sector siege and commit a fleet','진행 중인 섹터 공성을 골라 함대를 배치하세요','進行中のセクター攻城を選んで艦隊を配置','选择进行中的扇区攻城并部署舰队'), 'info'); } catch(_) {}
+      });
     // ─ 캠페인 계열 → CAMPAIGN/QUESTS 탭. (이전엔 존재하지 않는 'quests' 카테고리를
     //   switchBaseCat 에 넘겨 모든 탭이 숨겨지며 이동이 깨졌다. 실제 탭 data-cat 은 'mission'.) ─
     } else if (['campaign_progress','campaign_complete'].includes(type)) {

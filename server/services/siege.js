@@ -16,6 +16,24 @@
 
 const { pool, getSetting } = require('../db');
 
+function notifyOpsProgress(wallet, missionTypes) {
+  if (!wallet || !Array.isArray(missionTypes)) return;
+  try {
+    const dailyOps = require('../routes/dailyOps');
+    missionTypes.forEach(type => {
+      try { dailyOps.notifyMissionProgress(wallet, type).catch(()=>{}); } catch(_) {}
+    });
+  } catch (_) {}
+}
+
+function addSeasonScore(wallet, category, amount) {
+  if (!wallet || !category || !amount) return;
+  try {
+    const seasonSvc = require('./season');
+    seasonSvc.addSeasonScore(wallet, category, amount).catch(()=>{});
+  } catch (_) {}
+}
+
 // Chronicle 서비스 (없으면 콘솔 로그로 대체)
 let chronicleService;
 try { chronicleService = require('./chronicle'); } catch (_) {}
@@ -764,6 +782,8 @@ async function commitSiegeFleet(siegeId, wallet, fleetId) {
     const col = side === 'challenger' ? 'challenger_fleet_id' : 'defender_fleet_id';
     await client.query(`UPDATE governor_sieges SET ${col} = COALESCE(${col}, $1) WHERE id = $2`, [fleetId, siegeId]);
     await client.query('COMMIT');
+    notifyOpsProgress(w, ['siege_fleet_commit']);
+    addSeasonScore(w, 'guild_contrib', 1);
     return { success: true, side: battleSide, fleetId };
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
