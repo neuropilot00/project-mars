@@ -21,9 +21,9 @@ router.get('/branding/claim/:claimId', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/branding/my?wallet=
-router.get('/branding/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/branding/my
+router.get('/branding/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMyBranding(wallet)); }
   catch (e) { res.status(500).json({ error: e.message }); }

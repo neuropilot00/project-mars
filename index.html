@@ -37487,7 +37487,7 @@ function loadBrandingPanel() {
     sel.innerHTML = '<option value="">— no territories —</option>';
   }
   // Load existing branding for display
-  fetch('/api/branding/my?wallet=' + encodeURIComponent(w))
+  fetch('/api/branding/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();}).then(function(){}).catch(function(){});
 }
 
