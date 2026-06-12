@@ -22243,7 +22243,7 @@ function submitTransportLaunch() {
 function loadMyTransports() {
   var w = (walletState && walletState.address) || '';
   if (!w) return;
-  fetch('/api/transport/my?limit=30', { headers: {'x-wallet': w} })
+  fetch('/api/transport/my?limit=30', { headers: getAuthHeaders() })
     .then(function(r){ return r.json(); })
     .then(function(d) {
       var list = document.getElementById('tspMyList');
@@ -24057,7 +24057,7 @@ function _pollBaseTabDots(){
   }).catch(function(){});
 
   // TRANSPORT: 도착한 수송 있으면 dot
-  _guardedJsonFetch('dot-transport-my', '/api/transport/my?limit=30', {minGap:55000, backoffMs:180000, fetchOptions:{headers:{'x-wallet':w}}}).then(function(d){
+  _guardedJsonFetch('dot-transport-my', '/api/transport/my?limit=30', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
     if (!d) return;
     try{
       var list = Array.isArray(d) ? d : (d.shipments||d.transports||[]);

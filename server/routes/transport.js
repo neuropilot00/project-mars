@@ -56,9 +56,9 @@ router.post('/transport/start', requireAuth, async (req, res) => {
 });
 
 // ── My shipments ──
-router.get('/transport/my', async (req, res) => {
-  const wallet = requireWallet(req, res);
-  if (!wallet) return;
+router.get('/transport/my', requireAuth, async (req, res) => {
+  const wallet = getWalletFromToken(req);
+  if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const limit = parseInt(req.query.limit) || 20;
   try {
     const rows = await transportSvc.getMyTransports(wallet, limit);
