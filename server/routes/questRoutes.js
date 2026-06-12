@@ -97,9 +97,9 @@ async function generateQuestsForUser(wallet) {
   }
 }
 
-router.get('/quests', readLimiter, async (req, res) => {
+router.get('/quests', requireAuth, readLimiter, async (req, res) => {
   try {
-    const w = sanitize(req.query.wallet, 255).toLowerCase();
+    const w = getAuthWallet(req);
     if (!w) return res.status(400).json({ error: 'wallet required' });
 
     await generateQuestsForUser(w);

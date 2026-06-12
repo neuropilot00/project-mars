@@ -166,6 +166,7 @@ async function main() {
   await expectBlocked('/api/guild/:id/search-users blocks unauthenticated access', '/api/guild/1/search-users?wallet=0x0000000000000000000000000000000000000000&q=test');
   await expectBlocked('/api/guild/chat/:guildId blocks unauthenticated access', '/api/guild/chat/1?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/transport/my blocks unauthenticated access', '/api/transport/my?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/quests blocks unauthenticated access', '/api/quests?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/resources blocks unauthenticated access', '/api/user/resources?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job blocks unauthenticated access', '/api/user/job?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job/change-status blocks unauthenticated access', '/api/user/job/change-status?wallet=0x0000000000000000000000000000000000000000');

@@ -23970,7 +23970,7 @@ function _pollBaseTabDots(){
   }catch(_e){}
   // MINING: REMOVED from poll — startMineTimer already shows dot when cooldown expires
   // QUESTS: only dot if claimable count INCREASED since user last viewed
-  _guardedJsonFetch('dot-quests', '/api/quests?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+  _guardedJsonFetch('dot-quests', '/api/quests', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
     if (!d) return;
     try{
       var quests = d && d.quests || [];
@@ -29254,7 +29254,7 @@ function loadQuests(wallet){
   var claimedDiv=document.getElementById('questsClaimed');
   if(!container) return;
   loading.style.display='block';
-  fetch('/api/quests?wallet='+encodeURIComponent(wallet))
+  fetch('/api/quests', { headers: getAuthHeaders() })
     .then(function(r){return r.json()})
     .then(function(data){
       loading.style.display='none';
