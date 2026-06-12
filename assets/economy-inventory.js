@@ -20,6 +20,17 @@ var _shopInventory=[];
 var _shopCurFilter='all';
 var _shopShowingInventory=false;
 var _shopConfirmCb=null;
+function _economyReadFetch(key, url, auth, minGap) {
+  var walletKey = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('economy:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: auth ? { headers: getAuthHeaders() } : {}
+    });
+  }
+  return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
+}
 function shopConfirm(icon,title,msg,btnText){
   return new Promise(function(resolve){
     _shopConfirmCb=resolve;
@@ -169,7 +180,8 @@ function loadShopData(){
     if(gpEl) gpEl.textContent=Math.floor((walletState&&walletState.gameGP)||(_dailyState&&_dailyState.gpBalance)||0)+' GP';
   }
   // Load items
-  fetch('/api/shop/items').then(function(r){return r.json()}).then(function(items){
+  _economyReadFetch('shop-items', '/api/shop/items', false, 15000).then(function(items){
+    if (!items) return;
     if(!items||!Array.isArray(items)){console.error('Shop items: invalid response');return;}
     _shopItems=items;
     renderShopItems();
@@ -179,7 +191,8 @@ function loadShopData(){
   });
   // Load inventory
   if(w){
-    fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(inv){
+    _economyReadFetch('shop-inventory', '/api/shop/inventory', true, 10000).then(function(inv){
+      if (!inv) return;
       _shopInventory=inv;
     }).catch(function(){});
   }
@@ -237,7 +250,8 @@ function renderShopInventory(){
   var list=document.getElementById('shopInventoryList');
   var w=(walletState&&walletState.address)||'';
   if(!w){list.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx3);font-size:var(--fs-sm)">Connect wallet first</div>';return;}
-  fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(inv){
+  _economyReadFetch('shop-inventory-view', '/api/shop/inventory', true, 5000).then(function(inv){
+    if (!inv) return;
     _shopInventory=inv;
     var badge=document.getElementById('shopInvCount');
     var total=inv.reduce(function(s,i){return s+i.quantity},0);
@@ -563,8 +577,7 @@ function openBaseModal(){
   try{trackQuestAction('visit_base',1)}catch(e){}
   // (v7.371) staking 폐지 — enabled일 때만 섹션 노출(서버 staking_enabled=false면 숨김)
   try{
-    fetch('/api/staking/info', { headers: getAuthHeaders() })
-      .then(function(r){return r.json();})
+    _economyReadFetch('staking-info', '/api/staking/info', true, 30000)
       .then(function(d){ var sec=document.getElementById('stakingSection'); if(sec) sec.style.display=(d&&d.enabled)?'':'none'; })
       .catch(function(){});
   }catch(_){}
@@ -630,9 +643,9 @@ function _notifOutsideClick(e){
 function loadNotifCount(){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/notifications?limit=1',{headers:getAuthHeaders()})
-    .then(function(r){return r.json()})
+  _economyReadFetch('notifications-count', '/api/notifications?limit=1', true, 5000)
     .then(function(d){
+      if (!d) return;
       var badge=document.getElementById('notifUnreadBadge');
       if(!badge) return;
       var cnt=d.unread||0;
@@ -645,9 +658,9 @@ function loadNotifications(){
   var el=document.getElementById('notifList');
   if(!el||!w) return;
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(t('notif_loading')||'Loading...')+'</div>';
-  fetch('/api/notifications?limit=30',{headers:getAuthHeaders()})
-    .then(function(r){return r.json()})
+  _economyReadFetch('notifications-list', '/api/notifications?limit=30', true, 5000)
     .then(function(d){
+      if (!d) return;
       var notifs=d.notifications||[];
       if(!notifs.length){
         el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(t('notif_empty')||'No notifications yet')+'</div>';
@@ -686,7 +699,8 @@ function loadBaseShopItems(){
   // Refresh balances (PP/USDT/GP)
   try{ if(typeof refreshEmailBalances==='function') refreshEmailBalances(); }catch(_){}
   _updateBaseShopBalances();
-  fetch('/api/shop/items').then(function(r){return r.json()}).then(function(data){
+  _economyReadFetch('base-shop-items', '/api/shop/items', false, 15000).then(function(data){
+    if (!data) return;
     _baseShopItems = (data.items||data||[]).filter(function(i){return i.active !== false});
     renderBaseShop();
   }).catch(function(){
@@ -1136,12 +1150,12 @@ function loadBaseInventory(){
   if(grid2)grid2.innerHTML=loadMsg;
   // Load inventory + active effects + instances + resources in parallel
   Promise.all([
-    fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}),
+    _economyReadFetch('base-shop-inventory', '/api/shop/inventory', true, 8000),
     _fetchActiveEffects(),
-    fetch('/api/items/instances', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return []}),
-    fetch('/api/resources/my', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return {inventory:[]}})
+    _economyReadFetch('item-instances', '/api/items/instances', true, 10000).catch(function(){return []}),
+    _economyReadFetch('resources-my', '/api/resources/my', true, 10000).catch(function(){return {inventory:[]}})
   ]).then(function(results){
-    _baseInventory=results[0]||[];
+    _baseInventory=results[0]||_baseInventory||[];
     _activeEffects=_filterLiveEffects(results[1]||[]);
     _enhInstances=results[2]||[];
     _resourceInventory=(results[3]&&results[3].inventory)||[];
