@@ -181,9 +181,9 @@ router.post('/guild/join-request', requireAuth, writeLimiter, async (req, res) =
   }
 });
 
-router.get('/guild/:id/requests', readLimiter, async (req, res) => {
+router.get('/guild/:id/requests', requireAuth, readLimiter, async (req, res) => {
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
-  const w = (req.query.wallet || '').toLowerCase();
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   try {
     const requests = await guildService.getGuildJoinRequests(w, parseInt(req.params.id));
@@ -196,9 +196,9 @@ router.get('/guild/:id/requests', readLimiter, async (req, res) => {
 
 // Search free users (not in any guild) by nickname or wallet, for invite UI.
 // Caller must be leader/officer of the guild.
-router.get('/guild/:id/search-users', readLimiter, async (req, res) => {
+router.get('/guild/:id/search-users', requireAuth, readLimiter, async (req, res) => {
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
-  const w = (req.query.wallet || '').toLowerCase();
+  const w = getAuthWallet(req);
   const q = req.query.q || '';
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   try {
@@ -443,9 +443,9 @@ router.post('/guild/chat', requireAuth, writeLimiter, async (req, res) => {
   }
 });
 
-router.get('/guild/chat/:guildId', readLimiter, async (req, res) => {
-  const { wallet, sinceId } = req.query;
-  const w = (wallet || '').toLowerCase();
+router.get('/guild/chat/:guildId', requireAuth, readLimiter, async (req, res) => {
+  const { sinceId } = req.query;
+  const w = getAuthWallet(req);
   const guildId = parseInt(req.params.guildId);
   if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });

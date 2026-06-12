@@ -23956,7 +23956,7 @@ function _pollBaseTabDots(){
   // Guild chat: new messages since last seen
   try{
     if(window._myGuildData && _myGuildData.id){
-      _guardedJsonFetch('dot-guild-chat', '/api/guild/chat/'+_myGuildData.id+'?limit=1', {minGap:55000, backoffMs:180000}).then(function(d){
+      _guardedJsonFetch('dot-guild-chat', '/api/guild/chat/'+_myGuildData.id+'?limit=1', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
         if (!d) return;
         try{
           var msgs = d && d.messages || [];
@@ -25616,8 +25616,8 @@ function appendGuildChatMsgs(msgs){
 function refreshGuildChat(){
   var w=walletState.address;
   if(!w||!_myGuildData) return;
-  var url='/api/guild/chat/'+_myGuildData.id+'?wallet='+encodeURIComponent(w)+(_lastGuildMsgId?('&sinceId='+_lastGuildMsgId):'');
-  fetch(url).then(function(r){return r.json()}).then(function(data){
+  var url='/api/guild/chat/'+_myGuildData.id+(_lastGuildMsgId?('?sinceId='+_lastGuildMsgId):'');
+  fetch(url, { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
     if(data.error) return;
     appendGuildChatMsgs(data.messages||[]);
   }).catch(function(){});
@@ -25702,7 +25702,7 @@ function runGuildInviteSearch(){
   var q=(inp.value||'').trim();
   if(!q){ box.innerHTML=''; return; }
   var w=walletState&&walletState.address; if(!w) return;
-  fetch('/api/guild/'+_myGuildData.id+'/search-users?wallet='+encodeURIComponent(w)+'&q='+encodeURIComponent(q))
+  fetch('/api/guild/'+_myGuildData.id+'/search-users?q='+encodeURIComponent(q), { headers: getAuthHeaders() })
     .then(function(r){return r.json()})
     .then(function(d){
       var users=(d&&d.users)||[];
@@ -25774,7 +25774,7 @@ function searchGuildsQuery(){
 function loadGuildJoinRequests(guildId){
   var w=walletState.address;
   if(!w||!guildId) return;
-  fetch('/api/guild/'+guildId+'/requests?wallet='+encodeURIComponent(w))
+  fetch('/api/guild/'+guildId+'/requests', { headers: getAuthHeaders() })
     .then(function(r){return r.json()})
     .then(function(data){
       var list=(data&&data.requests)||[];
