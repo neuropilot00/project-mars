@@ -13,10 +13,17 @@ function log(label, ok, extra = '') {
   else fail += 1;
 }
 
-function fetchJson(url) {
+function requestJson(url, options = {}) {
   const client = url.startsWith('https://') ? https : http;
   return new Promise((resolve, reject) => {
-    const req = client.get(url, (res) => {
+    const body = options.body ? JSON.stringify(options.body) : null;
+    const req = client.request(url, {
+      method: options.method || 'GET',
+      headers: {
+        ...(body ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) } : {}),
+        ...(options.headers || {})
+      }
+    }, (res) => {
       let body = '';
       res.on('data', chunk => { body += chunk; });
       res.on('end', () => {
@@ -30,7 +37,23 @@ function fetchJson(url) {
     });
     req.on('error', reject);
     req.setTimeout(10000, () => req.destroy(new Error(`timeout fetching ${url}`)));
+    if (body) req.write(body);
+    req.end();
   });
+}
+
+function fetchJson(url) {
+  return requestJson(url);
+}
+
+async function expectBlocked(label, path, options = {}) {
+  try {
+    const res = await requestJson(`${baseUrl}${path}`, options);
+    const ok = res.statusCode === 401 || res.statusCode === 403;
+    log(label, ok, `status=${res.statusCode}`);
+  } catch (error) {
+    log(label, false, error.message);
+  }
 }
 
 async function main() {
@@ -75,6 +98,24 @@ async function main() {
   } catch (error) {
     log('/admin/api/campaign-editor/chapters blocks unauthenticated access', false, error.message);
   }
+
+  await expectBlocked('/api/fleets blocks unauthenticated access', '/api/fleets');
+  await expectBlocked('/api/transport/start blocks unauthenticated access', '/api/transport/start', {
+    method: 'POST',
+    body: { originSectorId: 1, destSectorId: 2, cargoGp: 1 }
+  });
+  await expectBlocked('/api/gp/transfer blocks unauthenticated access', '/api/gp/transfer', {
+    method: 'POST',
+    body: { to: '0x0000000000000000000000000000000000000000', amount: 1 }
+  });
+  await expectBlocked('/api/shop/use blocks unauthenticated access', '/api/shop/use', {
+    method: 'POST',
+    body: { itemCode: 'test' }
+  });
+  await expectBlocked('/api/territory/:id/harvest blocks unauthenticated access', '/api/territory/1/harvest', {
+    method: 'POST',
+    body: {}
+  });
 
   console.log(`\n📊  ${pass} passed / ${fail} failed`);
   process.exit(fail > 0 ? 1 : 0);
