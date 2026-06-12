@@ -565,6 +565,7 @@ function escapeAttr(s) {
 }
 
 function renderBattleCard(b, tab) {
+  rememberBattleContext(b);
   const isLive = b.status === 'active';
   const isPreparing = b.status === 'preparing';
   const statusCls = isLive ? 'active' : isPreparing ? 'preparing' : 'ended';
