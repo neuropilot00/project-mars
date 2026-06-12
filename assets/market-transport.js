@@ -139,6 +139,19 @@ function formatTransportTier(tier) {
   return 'T'+escapeHtml(String(tier || ''));
 }
 
+function getTransportDistance(originSector, destSector) {
+  var dLat = parseFloat(originSector.centerLat||originSector.center_lat||0) - parseFloat(destSector.centerLat||destSector.center_lat||0);
+  var dLng = parseFloat(originSector.centerLng||originSector.center_lng||0) - parseFloat(destSector.centerLng||destSector.center_lng||0);
+  return Math.sqrt(dLat*dLat + dLng*dLng);
+}
+
+function transportTierWeight(tier) {
+  tier = String(tier || 'frontier').toLowerCase();
+  if (tier === 'core') return 1.35;
+  if (tier === 'mid') return 1.15;
+  return 1;
+}
+
 function transportAllianceLabel(sector) {
   var alliance = sector && sector.governor && sector.governor.alliance;
   if (!alliance) return '';
@@ -170,9 +183,7 @@ function renderTransportLaneContext(originId, destId) {
   var origin = getTransportSectorById(originId);
   var dest = getTransportSectorById(destId);
   if (!origin || !dest) return '';
-  var dLat = parseFloat(origin.centerLat||origin.center_lat||0) - parseFloat(dest.centerLat||dest.center_lat||0);
-  var dLng = parseFloat(origin.centerLng||origin.center_lng||0) - parseFloat(dest.centerLng||dest.center_lng||0);
-  var dist = Math.sqrt(dLat*dLat + dLng*dLng);
+  var dist = getTransportDistance(origin, dest);
   var risk = getTransportLaneRisk(origin, dest, dist);
   var allianceLine = transportLaneAllianceStatus(origin, dest);
   return '<div style="font-size:8px;color:var(--tx3);margin-top:3px">'
@@ -195,6 +206,85 @@ function getTransportLaneRisk(originSector, destSector, distance) {
   return { label: LANG==='ko'?'개척 항로':LANG==='ja'?'開拓航路':LANG==='zh'?'边境航线':'Frontier lane', color: 'var(--gn)' };
 }
 
+function transportRiskKey(risk) {
+  var label = String((risk && risk.label) || '').toLowerCase();
+  if (label.indexOf('high') >= 0 || label.indexOf('고위험') >= 0 || label.indexOf('高') >= 0 || label.indexOf('高风') >= 0) return 'high';
+  if (label.indexOf('contested') >= 0 || label.indexOf('분쟁') >= 0 || label.indexOf('紛争') >= 0 || label.indexOf('争夺') >= 0) return 'contested';
+  return 'frontier';
+}
+
+function transportLaneScore(origin, dest, cargo) {
+  var dist = getTransportDistance(origin, dest);
+  var risk = getTransportLaneRisk(origin, dest, dist);
+  var riskKey = transportRiskKey(risk);
+  var tierBonusPct = getTransportTierRewardBonusPct(dest.tier);
+  var rewardPct = parseFloat(_tspSettings && _tspSettings.rewardPct) || 10;
+  var distBonusPct = parseFloat(_tspSettings && _tspSettings.distBonusPct) || 5;
+  var reward = Math.round(cargo * (rewardPct/100) * (1 + (distBonusPct * dist)/100) * (1 + tierBonusPct/100));
+  var riskPenalty = riskKey === 'high' ? 0.78 : riskKey === 'contested' ? 0.92 : 1;
+  var score = Math.round((reward + dist * 0.8) * transportTierWeight(dest.tier) * riskPenalty);
+  return { dist:dist, risk:risk, riskKey:riskKey, reward:reward, tierBonusPct:tierBonusPct, score:score };
+}
+
+function renderTransportLaneIntel() {
+  var wrap = document.getElementById('tspLaneIntel');
+  if (!wrap) return;
+  if (!_tspSectors || _tspSectors.length < 2 || !_tspSettings) {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
+  }
+  var cargo = parseInt((document.getElementById('tspCargoGp')||{}).value || '200') || 200;
+  var minC = parseInt(_tspSettings.minCargo)||50;
+  var maxC = parseInt(_tspSettings.maxCargo)||5000;
+  cargo = Math.max(minC, Math.min(maxC, cargo));
+  var lanes = [];
+  _tspSectors.forEach(function(o){
+    _tspSectors.forEach(function(d){
+      var oid = o.id || o.sector_id;
+      var did = d.id || d.sector_id;
+      if (!oid || !did || String(oid) === String(did)) return;
+      lanes.push({origin:o,dest:d,originId:oid,destId:did,info:transportLaneScore(o, d, cargo)});
+    });
+  });
+  lanes.sort(function(a,b){ return b.info.score - a.info.score; });
+  lanes = lanes.slice(0, 3);
+  if (!lanes.length) {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
+  }
+  var title = LANG==='ko'?'추천 항로':LANG==='ja'?'おすすめ航路':LANG==='zh'?'推荐航线':'Recommended lanes';
+  var hint = LANG==='ko'?'화물 GP 기준 수익/위험':LANG==='ja'?'貨物GP基準の収益/リスク':LANG==='zh'?'按货物GP计算收益/风险':'Cargo-based reward/risk';
+  wrap.style.display = '';
+  wrap.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin:2px 0 5px">'
+      + '<span style="font-size:9px;color:#FFB347;font-family:var(--fn);font-weight:800;letter-spacing:.8px">▸ '+title+'</span>'
+      + '<span style="font-size:7.5px;color:var(--tx3);font-family:var(--fn)">'+hint+'</span>'
+    + '</div>'
+    + lanes.map(function(lane){
+      var i = lane.info;
+      var oName = escapeHtml(lane.origin.name || ('S'+lane.originId));
+      var dName = escapeHtml(lane.dest.name || ('S'+lane.destId));
+      var riskTag = i.riskKey === 'high' ? 'HIGH' : i.riskKey === 'contested' ? 'PVP' : 'SAFE';
+      var riskBorder = i.riskKey === 'frontier' ? 'rgba(76,216,154,.42)' : i.risk.color + '66';
+      return '<button type="button" onclick="selectTransportLane('+lane.originId+','+lane.destId+')" style="width:100%;display:flex;align-items:center;gap:7px;text-align:left;margin-bottom:5px;padding:7px 8px;border-radius:7px;border:1px solid rgba(255,179,71,.20);background:rgba(255,179,71,.045);cursor:pointer;color:var(--tx);font-family:var(--fn)">'
+        + '<span style="flex:1;min-width:0"><span style="display:block;font-size:9px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">#'+lane.originId+' '+oName+' → #'+lane.destId+' '+dName+'</span>'
+        + '<span style="display:block;font-size:7.5px;color:var(--tx3);margin-top:2px">'+formatTransportTier(lane.dest.tier)+' · '+i.dist.toFixed(1)+'° · score '+i.score+'</span></span>'
+        + '<span style="font-size:8px;color:var(--gold);font-weight:800;white-space:nowrap">+'+i.reward+' GP</span>'
+        + '<span style="font-size:7.5px;color:'+i.risk.color+';font-weight:900;border:1px solid '+riskBorder+';border-radius:999px;padding:2px 5px;white-space:nowrap">'+riskTag+'</span>'
+      + '</button>';
+    }).join('');
+}
+
+function selectTransportLane(originId, destId) {
+  var origin = document.getElementById('tspOriginSector');
+  var dest = document.getElementById('tspDestSector');
+  if (origin) origin.value = String(originId);
+  if (dest) dest.value = String(destId);
+  updateTransportPreview();
+}
+
 function getTransportTierRewardBonusPct(tier) {
   tier = String(tier || 'frontier').toLowerCase();
   if (tier === 'core') return parseFloat((_tspSettings && _tspSettings.coreTierBonusPct) || 12) || 0;
@@ -205,6 +295,7 @@ function getTransportTierRewardBonusPct(tier) {
 function updateTransportPreview() {
   var el = document.getElementById('tspLaunchPreview');
   if (!el) return;
+  renderTransportLaneIntel();
   if (!_tspSettings || !_tspSectors) { el.textContent = ''; return; }
   var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
   var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
@@ -219,9 +310,7 @@ function updateTransportPreview() {
   var o = _tspSectors.find(function(x){ return (x.id||x.sector_id) == origin; });
   var d = _tspSectors.find(function(x){ return (x.id||x.sector_id) == dest; });
   if (!o || !d) { el.textContent = ''; return; }
-  var dLat = parseFloat(o.centerLat||o.center_lat||0) - parseFloat(d.centerLat||d.center_lat||0);
-  var dLng = parseFloat(o.centerLng||o.center_lng||0) - parseFloat(d.centerLng||d.center_lng||0);
-  var dist = Math.sqrt(dLat*dLat + dLng*dLng);
+  var dist = getTransportDistance(o, d);
   var baseDur = parseFloat(_tspSettings.baseDur)||15;
   var distMul = parseFloat(_tspSettings.distMul)||0.25;
   var duration = Math.max(1, Math.round(baseDur + dist * distMul));
