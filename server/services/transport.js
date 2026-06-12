@@ -24,6 +24,7 @@ async function getCfg() {
   const [
     enabled, baseDur, distMul, rewardPct, distBonusPct,
     minCargo, maxCargo, maxConcurrent, entryLvCheck,
+    midTierBonusPct, coreTierBonusPct,
     raidEnabled, raidSuccessBase, raidLootPct, raidCooldown,
     raidMinProg, raidMaxProg, raidSelfExempt, raidGuildExempt
   ] = await Promise.all([
@@ -36,6 +37,8 @@ async function getCfg() {
     getSetting('transport_max_cargo_gp', '5000'),
     getSetting('transport_max_concurrent_per_user', '3'),
     getSetting('transport_entry_level_check', 'true'),
+    getSetting('transport_mid_tier_reward_bonus_pct', '5'),
+    getSetting('transport_core_tier_reward_bonus_pct', '12'),
     getSetting('transport_raid_enabled', 'true'),
     getSetting('transport_raid_success_base_pct', '35'),
     getSetting('transport_raid_loot_pct', '30'),
@@ -55,6 +58,8 @@ async function getCfg() {
     maxCargo: parseInt(maxCargo) || 5000,
     maxConcurrent: parseInt(maxConcurrent) || 3,
     entryLvCheck: String(entryLvCheck) !== 'false',
+    midTierBonusPct: parseFloat(midTierBonusPct) || 0,
+    coreTierBonusPct: parseFloat(coreTierBonusPct) || 0,
     raidEnabled: String(raidEnabled) !== 'false',
     raidSuccessBase: parseFloat(raidSuccessBase) || 35,
     raidLootPct: parseFloat(raidLootPct) || 30,
@@ -90,6 +95,17 @@ async function sectorDistance(client, aId, bId) {
   const dLng = parseFloat(a.center_lng) - parseFloat(b.center_lng);
   // Distance unit = degrees (roughly 0-180 scale)
   return Math.sqrt(dLat * dLat + dLng * dLng);
+}
+
+async function getSectorTier(client, sectorId) {
+  const { rows } = await client.query('SELECT tier FROM sectors WHERE id = $1', [sectorId]);
+  return String(rows[0]?.tier || 'frontier').toLowerCase();
+}
+
+function tierRewardBonusPct(cfg, tier) {
+  if (tier === 'core') return Math.max(0, Number(cfg.coreTierBonusPct) || 0);
+  if (tier === 'mid') return Math.max(0, Number(cfg.midTierBonusPct) || 0);
+  return 0;
 }
 
 async function isMerchant(client, wallet) {
@@ -236,6 +252,8 @@ async function startTransport(wallet, originSectorId, destSectorId, cargoGp) {
 
     // Distance & duration
     const dist = await sectorDistance(client, originSectorId, destSectorId);
+    const destTier = await getSectorTier(client, destSectorId);
+    const tierBonusPct = tierRewardBonusPct(cfg, destTier);
     const isMrc = await isMerchant(client, wallet);
     const speedBuff = isMrc ? await getJobBuff(client, wallet, 'merchant_transport_speed', 1.0) : 1.0;
     const rewardBuff = isMrc ? await getJobBuff(client, wallet, 'merchant_transport_reward', 1.0) : 1.0;
@@ -243,10 +261,11 @@ async function startTransport(wallet, originSectorId, destSectorId, cargoGp) {
     // Duration (minutes) = (base + dist * distMul) * speedBuff
     const durationMin = Math.max(1, Math.round((cfg.baseDur + dist * cfg.distMul) * speedBuff));
 
-    // Reward = cargo * (rewardPct% + distBonusPct% * dist_units) * rewardBuff
+    // Reward = cargo * distance premium * destination-tier risk premium * job reward buff.
     const distBonusFactor = 1 + (cfg.distBonusPct * dist) / 100;
+    const tierBonusFactor = 1 + tierBonusPct / 100;
     const rewardBase = (cargoGp * cfg.rewardPct / 100) * distBonusFactor;
-    const rewardGp = Math.max(0, Math.round(rewardBase * rewardBuff));
+    const rewardGp = Math.max(0, Math.round(rewardBase * tierBonusFactor * rewardBuff));
 
     // Deduct cargo from wallet (held in transit) — use DB's exact-case wallet for FK integrity
     const deductTransport = await client.query(
@@ -281,6 +300,8 @@ async function startTransport(wallet, originSectorId, destSectorId, cargoGp) {
         distance: Math.round(dist * 100) / 100,
         rewardGp: row.reward_gp,
         merchantBonus: isMrc,
+        destinationTier: destTier,
+        tierRewardBonusPct: tierBonusPct,
         cargoGp
       }
     };

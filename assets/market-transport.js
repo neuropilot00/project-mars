@@ -154,6 +154,13 @@ function getTransportLaneRisk(originSector, destSector, distance) {
   return { label: LANG==='ko'?'개척 항로':LANG==='ja'?'開拓航路':LANG==='zh'?'边境航线':'Frontier lane', color: 'var(--gn)' };
 }
 
+function getTransportTierRewardBonusPct(tier) {
+  tier = String(tier || 'frontier').toLowerCase();
+  if (tier === 'core') return parseFloat((_tspSettings && _tspSettings.coreTierBonusPct) || 12) || 0;
+  if (tier === 'mid') return parseFloat((_tspSettings && _tspSettings.midTierBonusPct) || 5) || 0;
+  return 0;
+}
+
 function updateTransportPreview() {
   var el = document.getElementById('tspLaunchPreview');
   if (!el) return;
@@ -179,7 +186,8 @@ function updateTransportPreview() {
   var duration = Math.max(1, Math.round(baseDur + dist * distMul));
   var rewardPct = parseFloat(_tspSettings.rewardPct)||10;
   var distBonusPct = parseFloat(_tspSettings.distBonusPct)||5;
-  var reward = Math.round(cargo * (rewardPct/100) * (1 + (distBonusPct * dist)/100));
+  var tierBonusPct = getTransportTierRewardBonusPct(d.tier);
+  var reward = Math.round(cargo * (rewardPct/100) * (1 + (distBonusPct * dist)/100) * (1 + tierBonusPct/100));
   var raidMin = parseInt(_tspSettings.raidMinProg)||20;
   var raidMax = parseInt(_tspSettings.raidMaxProg)||90;
   var raidLootPct = parseFloat(_tspSettings.raidLootPct)||30;
@@ -194,6 +202,7 @@ function updateTransportPreview() {
     + '<span style="color:var(--tx2)">Reward: <b style="color:var(--gold)">+'+reward+' GP</b></span>'
     + '<br><span style="color:'+risk.color+';font-size:8px;font-weight:700">'+risk.label+'</span>'
     + '<span style="color:var(--tx3);font-size:8px"> · '+formatTransportTier(d.tier)+' destination'
+    + (tierBonusPct > 0 ? ' · +' + tierBonusPct + '% risk premium' : '')
     + (destLv > 0 ? ' · Lv '+destLv+' gate' : '')
     + ' · Tax '+destTax+'</span>'
     + (allianceLine ? '<br>'+allianceLine : '')
@@ -217,7 +226,9 @@ function submitTransportLaunch() {
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
         var _etaUnit = LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分钟':'min';
-        showFactionToast('🚚 '+(LANG==='ko'?'수송 출발! ETA ':LANG==='ja'?'出発! ETA ':LANG==='zh'?'发车! ETA ':'Launched! ETA ')+d.transport.durationMin+_etaUnit+' · +'+d.transport.rewardGp+' GP', 'success');
+        var tierBonus = parseFloat(d.transport.tierRewardBonusPct || 0) || 0;
+        var tierText = tierBonus > 0 ? ' · +' + tierBonus + '% ' + (LANG==='ko'?'위험 보너스':LANG==='ja'?'リスク報酬':LANG==='zh'?'风险奖励':'risk premium') : '';
+        showFactionToast('🚚 '+(LANG==='ko'?'수송 출발! ETA ':LANG==='ja'?'出発! ETA ':LANG==='zh'?'发车! ETA ':'Launched! ETA ')+d.transport.durationMin+_etaUnit+' · +'+d.transport.rewardGp+' GP'+tierText, 'success');
         switchTransportSub('my');
         if (typeof refreshGP === 'function') refreshGP();
       } else {
