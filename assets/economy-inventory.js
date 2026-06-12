@@ -49,6 +49,24 @@ function _shopConfirmResolve(val){
 var _activeEffects=[];
 var _activeEffectsRefreshTimer=null;
 var ACTIVE_EFFECT_LEGACY_MAX_MS=24*60*60*1000;
+function _effectExpiryMs(e){
+  if(!e)return null;
+  var raw=e.expires_at||e.expiresAt||e.ends_at||e.endsAt||e.expires;
+  if(!raw)return null;
+  var t=new Date(raw).getTime();
+  return Number.isFinite(t)?t:null;
+}
+function _effectIcon(e){
+  if(e&&e.icon)return e.icon;
+  var type=e&&e.effect_type;
+  if(type==='attack_boost'||type==='siege_ram')return '🔥';
+  if(type==='mining_boost'||type==='harvest_surge')return '⛏️';
+  if(type==='pixel_doubler'||type==='xp_amplifier')return '✨';
+  if(type==='stealth_cloak'||type==='decoy_beacon')return '👻';
+  if(type==='radar_scan'||type==='territory_scan'||type==='recall_beacon')return '📡';
+  if(type==='gp_generator'||type==='lucky_charm')return '🪙';
+  return '⚡';
+}
 function _clearActiveEffectsRefresh(){
   if(!_activeEffectsRefreshTimer)return;
   _clearActiveTimeout(_activeEffectsRefreshTimer);
@@ -59,9 +77,9 @@ function _filterLiveEffects(effects){
   return (Array.isArray(effects)?effects:[]).filter(function(e){
     if(!e||e.active===false)return false;
     if(e.uses_remaining!=null&&Number(e.uses_remaining)<=0)return false;
-    if(e.expires_at){
-      var exp=new Date(e.expires_at).getTime();
-      if(!Number.isFinite(exp)||exp<=now)return false;
+    var exp=_effectExpiryMs(e);
+    if(exp!=null){
+      if(exp<=now)return false;
     }else if(e.uses_remaining!=null&&e.activated_at){
       var activatedAt=new Date(e.activated_at).getTime();
       if(Number.isFinite(activatedAt)&&activatedAt+ACTIVE_EFFECT_LEGACY_MAX_MS<=now)return false;
@@ -70,9 +88,8 @@ function _filterLiveEffects(effects){
   });
 }
 function _formatEffectTimeLeft(e){
-  if(!e||!e.expires_at)return '';
-  var exp=new Date(e.expires_at).getTime();
-  if(!Number.isFinite(exp))return '';
+  var exp=_effectExpiryMs(e);
+  if(exp==null)return '';
   var mins=Math.max(0,Math.round((exp-Date.now())/60000));
   var hh=Math.floor(mins/60), mm=mins%60;
   return hh>0?(hh+'h'+(mm>0?(' '+mm+'m'):'')):(mins+'m');
@@ -104,8 +121,7 @@ function _scheduleActiveEffectsRefresh(){
   _clearActiveEffectsRefresh();
   var nextAt=null, now=Date.now();
   (_activeEffects||[]).forEach(function(e){
-    if(!e||!e.expires_at)return;
-    var t=new Date(e.expires_at).getTime();
+    var t=_effectExpiryMs(e);
     if(t>now&&(nextAt===null||t<nextAt))nextAt=t;
   });
   if(nextAt!==null){
@@ -142,7 +158,7 @@ function renderActiveBuffs(){
     var nm=_itemName(e.effect_type)||e.name||'';
     // [v7.343] 남은시간 명확화: 'Nh Mm'(예 3h 12m) — 'h'를 'x'로 오인하던 문제. 효과명도 배지에 직접 표기(부모 pointer-events:none이라 title 호버 안 먹음).
     var dur=_formatEffectRemaining(e);
-    var label=e.icon+' '+nm+(dur?(' · '+dur):'');
+    var label=_effectIcon(e)+' '+nm+(dur?(' · '+dur):'');
     return '<div class="tb-buff '+cat+'" title="'+nm.replace(/"/g,'&quot;')+'">'+label+'</div>';
   }).join('');
 }
@@ -294,15 +310,15 @@ function renderShopInventory(){
   if(_activeEffects.length>0){
     actSec.style.display='';
     actList.innerHTML=_activeEffects.map(function(e){
-      var info=e.icon+' <b>'+(_itemName(e.effect_type)||e.name)+'</b> — ';
+      var info=_effectIcon(e)+' <b>'+(_itemName(e.effect_type)||e.name)+'</b> — ';
       if(e.uses_remaining!==null) info+=e.uses_remaining+' uses left';
-      else if(e.expires_at){
-        var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
+      else if(_effectExpiryMs(e)!=null){
+        var mins=Math.max(0,Math.round((_effectExpiryMs(e)-Date.now())/60000));
         info+=mins>60?Math.floor(mins/60)+'h '+mins%60+'m left':mins+'m left';
       }
       // Auto-renew toggle for duration-based effects
       var renewHTML='';
-      if(e.expires_at&&e.price_pp){
+      if(_effectExpiryMs(e)!=null&&e.price_pp){
         var isOn=e.auto_renew===true;
         renewHTML='<div style="margin-top:4px;display:flex;align-items:center;gap:6px">'
           +'<span style="font-size:8px;color:var(--tx3)">AUTO-RENEW ('+parseFloat(e.price_pp).toFixed(1)+' PP)</span>'
@@ -1194,7 +1210,7 @@ function renderBaseInventory(){
   // Active effects bar
   if(_activeEffects&&_activeEffects.length>0){
     var effHTML=_activeEffects.map(function(e){
-      var info=e.icon+' <b>'+(_itemName(e.effect_type)||e.name)+'</b>';
+      var info=_effectIcon(e)+' <b>'+(_itemName(e.effect_type)||e.name)+'</b>';
       var remaining=_formatEffectRemaining(e);
       if(remaining) info+=' · '+remaining;
       return '<span style="display:inline-block;padding:4px 8px;margin:0 4px 4px 0;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.25);border-radius:6px;font-size:9px;color:var(--gold);font-family:var(--fn)">'+info+'</span>';
