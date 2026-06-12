@@ -33523,9 +33523,7 @@ window.addEventListener('resize', _debounce(function(){
   // ═══════ WEATHER POLLING + BANNER ═══════
   function loadWeatherData() {
     if (!_pageIsActive()) return;
-    var wxUrl = '/api/weather';
-    if(walletState.address) wxUrl += '?wallet=' + encodeURIComponent(walletState.address);
-    _guardedJsonFetch('weather-data', wxUrl, {minGap:30000, backoffMs:120000}).then(function(data){
+    _guardedJsonFetch('weather-data', '/api/weather', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(data){
       if (!data) return;
       _weatherData = data.active || [];
       updateWeatherBanner();
@@ -33673,9 +33671,7 @@ window.addEventListener('resize', _debounce(function(){
   window._userPP = 0;
   function loadExplorationData() {
     if (!_pageIsActive()) return;
-    var url = '/api/exploration/pois';
-    if(walletState.address) url += '?wallet=' + encodeURIComponent(walletState.address);
-    _guardedJsonFetch('exploration-pois', url, {minGap:30000, backoffMs:120000}).then(function(data){
+    _guardedJsonFetch('exploration-pois', '/api/exploration/pois', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(data){
       if (!data) return;
       var now = new Date().getTime();
       // Filter out expired POIs client-side too

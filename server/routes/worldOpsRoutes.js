@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool, getSetting } = require('../db');
 const { requireAuth, getAuthWallet } = require('../utils/apiHelpers');
@@ -25,6 +26,17 @@ const writeLimiter = makeRateLimiter({
   message: { error: 'Too many write requests. Please wait.' }
 });
 
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
+
 // ══════════════════════════════════════
 // MARS WEATHER
 // ══════════════════════════════════════
@@ -35,7 +47,7 @@ router.get('/weather', readLimiter, async (req, res) => {
     if (!weatherService) return res.json({ active: [] });
     const active = await weatherService.getActiveWeather();
     // Daily mission + Season tracking: weather check (non-blocking, needs wallet)
-    const ww = (req.query.wallet || '').toLowerCase();
+    const ww = getOptionalAuthWallet(req);
     if (ww) {
       if (dailyService) dailyService.updateMissionProgress(ww, 'view_weather', 1).catch(() => {});
       if (seasonService) seasonService.addSeasonScore(ww, 'weather', 1).catch(() => {});
@@ -52,7 +64,7 @@ router.get('/weather', readLimiter, async (req, res) => {
 // ══════════════════════════════════════
 
 // GET /api/exploration/pois — active POIs
-// Accepts ?wallet=... to also return the user's owned sector IDs so the client
+// Uses optional auth to also return the user's owned sector IDs so the client
 // can show whether a POI is discoverable without a round-trip.
 router.get('/exploration/pois', readLimiter, async (req, res) => {
   try {
@@ -60,7 +72,7 @@ router.get('/exploration/pois', readLimiter, async (req, res) => {
     const pois = await explorationService.getActivePOIs();
     let ownedSectorIds = [];
     let userPP = 0;
-    const w = (req.query.wallet || '').toLowerCase();
+    const w = getOptionalAuthWallet(req);
     if (w) {
       try {
         // Use LOWER(owner) to match the discovery check's case-insensitive
@@ -360,9 +372,9 @@ router.post('/rockets/priority', requireAuth, writeLimiter, async (req, res) => 
   }
 });
 
-// GET /api/rockets/priority?wallet=&rocketEventId= — check priority status
+// GET /api/rockets/priority?rocketEventId= — check priority status
 router.get('/rockets/priority', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+  const w = getOptionalAuthWallet(req);
   const rocketEventId = req.query.rocketEventId;
   if (!w || !rocketEventId) return res.json({ hasPriority: false });
   try {
