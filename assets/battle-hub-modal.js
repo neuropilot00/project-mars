@@ -203,6 +203,7 @@ function renderKillmailCard(k) {
   const salvaged = !!k.salvaged_by;
   const bountyGp = Math.max(0, Math.floor(Number(k.active_bounty_gp) || 0));
   const canClaimBounty = myWallet && String(k.killer_wallet || '').toLowerCase() === myWallet && bountyGp > 0 && k.battle_id && k.victim_wallet;
+  const canHunt = myWallet && String(k.victim_wallet || '').toLowerCase() !== myWallet;
   return `
     <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}" data-wreck-id="${parseInt(k.id, 10) || 0}">
       <div class="killmail-skull">☠</div>
@@ -224,6 +225,7 @@ function renderKillmailCard(k) {
       <div class="killmail-value">
         <b>${formatNum(value)}</b>
         <span>GP ${LANG==='ko'?'파괴가치':LANG==='ja'?'破壊価値':LANG==='zh'?'摧毁价值':'destroyed'}</span>
+        ${canHunt ? `<button class="bc-btn hunt" onclick="huntKillmailTarget('${escapeAttr(k.victim_wallet)}','${escapeAttr(victim)}')">${LANG==='ko'?'추격':LANG==='ja'?'追撃':LANG==='zh'?'追猎':'Hunt'}</button>` : ''}
         ${canClaimBounty ? `<button class="bc-btn bounty" onclick="claimKillmailBounty(${parseInt(k.battle_id, 10) || 0},'${escapeAttr(k.victim_wallet)}',this)">${LANG==='ko'?'현상금 청구':LANG==='ja'?'賞金請求':LANG==='zh'?'领取悬赏':'Claim Bounty'}</button>` : ''}
         ${canSalvage ? `<button class="bc-btn salvage" onclick="salvageKillmail(${parseInt(k.id, 10) || 0},this)">${LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'}</button>` : ''}
         ${k.battle_id ? `<button class="bc-btn primary" onclick="openBattleViewer(${parseInt(k.battle_id, 10)})">${LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay'}</button>` : ''}
@@ -231,6 +233,25 @@ function renderKillmailCard(k) {
     </div>
   `;
 }
+
+async function huntKillmailTarget(targetWallet, targetLabel) {
+  targetWallet = String(targetWallet || '').trim();
+  if (!targetWallet) return;
+  if (!isLoggedIn()) {
+    if (typeof showFactionToast === 'function') showFactionToast(tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'), 'error');
+    return;
+  }
+  await openDeclareBattle();
+  const modal = document.getElementById('declareBattleModal');
+  if (!modal || !modal.classList.contains('active')) return;
+  const input = document.getElementById('declareTargetSearch');
+  if (input) input.value = targetWallet;
+  await doSearchTargets();
+  if (typeof showFactionToast === 'function') {
+    showFactionToast((targetLabel || shortWallet(targetWallet)) + ' ' + (LANG==='ko'?'추격 검색':LANG==='ja'?'追撃検索':LANG==='zh'?'追猎搜索':'hunt search'), 'success');
+  }
+}
+window.huntKillmailTarget = huntKillmailTarget;
 
 async function claimKillmailBounty(battleId, targetWallet, btn) {
   if (!battleId || !targetWallet || (btn && btn.disabled)) return;
