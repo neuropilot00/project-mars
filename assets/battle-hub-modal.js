@@ -86,6 +86,7 @@ function pickBattlefieldKey(battleId) {
   const type = String(ctx.battle_type || '').toLowerCase();
   const sectorCode = String(ctx.sector_code || '').toLowerCase();
   const sectorName = String(ctx.sector_name || '').toLowerCase();
+  if (type === 'siege' && SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'siege') return 'garrison';
   if (type === 'hijack') return 'orbit_territory';
   if (type === 'raid' || type === 'event') return 'crater_relay';
