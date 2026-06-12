@@ -1168,6 +1168,11 @@ function renderSectorList(sectors){
   var myLevel = parseInt((document.getElementById('profileLevel')||{}).textContent || '1') || 1;
   var TIER_LABELS = LANG==='ko'?{ governor:'총독', dominant:'지배', stakeholder:'이해관계자', presence:'존재감' }:LANG==='ja'?{ governor:'総督', dominant:'支配', stakeholder:'利害関係者', presence:'プレゼンス' }:LANG==='zh'?{ governor:'总督', dominant:'主导', stakeholder:'利益相关者', presence:'存在感' }:{ governor:'Governor', dominant:'Dominant', stakeholder:'Stakeholder', presence:'Presence' };
   var TIER_COLORS = { governor:'#ffd700', dominant:'#ff6b6b', stakeholder:'#ffc140', presence:'#64dc82' };
+  function scTxt(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];
+    });
+  }
   sectors.forEach(function(s){
     var occ=s.stats.occupancyRate;
     var occPx=s.stats.occupiedPixels;
@@ -1224,6 +1229,16 @@ function renderSectorList(sectors){
       html+='<div class="sc-stat"><span class="sc-stat-label">'+t('sector_tax')+'</span><span class="sc-stat-val" style="color:var(--cyan)">'+(s.taxRate||2)+'%</span></div>';
       if(govName && (!s.topHolder.fullWallet || (s.governor.fullWallet||'').toLowerCase()!==(s.topHolder.fullWallet||'').toLowerCase())){
         html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">'+t('sector_gov')+'</span><span class="sc-stat-val" style="font-size:10px;color:var(--cyan)" title="'+(s.governor.fullWallet||'')+'">🏛️ '+govName+'</span></div>';
+      }
+      if(s.governor && s.governor.alliance){
+        var ga = s.governor.alliance;
+        var tag = ga.tag ? '['+scTxt(ga.tag)+'] ' : '';
+        var governed = parseInt(ga.governedSectors,10)||0;
+        var tierGoverned = parseInt(ga.governedTierSectors,10)||0;
+        var color = /^#[0-9a-f]{3,8}$/i.test(ga.color||'') ? ga.color : '#80cbc4';
+        var label = LANG==='ko'?'총독 동맹':LANG==='ja'?'総督同盟':LANG==='zh'?'总督联盟':'Governor Alliance';
+        var spanText = (LANG==='ko'?'섹터 ':'Sectors ') + governed + (tierGoverned>0 ? ' · '+s.tier.toUpperCase()+' '+tierGoverned : '');
+        html+='<div class="sc-stat" style="grid-column:span 2;border-color:'+color+'55;background:'+color+'12"><span class="sc-stat-label">'+label+'</span><span class="sc-stat-val" style="font-size:10px;color:'+color+'" title="'+scTxt(ga.name||'')+'">🛡️ '+tag+scTxt(ga.name||'Alliance')+' · '+spanText+'</span></div>';
       }
       if(s.viceGovernor) html+='<div class="sc-stat"><span class="sc-stat-label">'+t('sector_vice_gov')+'</span><span class="sc-stat-val" style="font-size:10px">'+(s.viceGovernor.nickname||s.viceGovernor.wallet||s.viceGovernor)+'</span></div>';
       html+='</div>';

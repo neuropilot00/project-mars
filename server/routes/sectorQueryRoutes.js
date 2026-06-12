@@ -81,6 +81,56 @@ router.get('/sectors', readLimiter, async (req, res) => {
       };
     });
 
+    const governorWallets = Array.from(new Set(result.rows
+      .map(row => String(row.governor_wallet || '').toLowerCase().trim())
+      .filter(Boolean)));
+    const allianceMap = {};
+    const allianceTierMap = {};
+    if (governorWallets.length) {
+      const allianceRes = await pool.query(`
+        SELECT LOWER(am.wallet_address) AS governor_wallet,
+               a.id, a.name, a.tag, a.color_primary
+          FROM alliance_members am
+          JOIN alliances a ON a.id = am.alliance_id
+         WHERE LOWER(am.wallet_address) = ANY($1::text[])
+           AND am.left_at IS NULL
+           AND a.disbanded_at IS NULL
+      `, [governorWallets]);
+      allianceRes.rows.forEach(row => {
+        allianceMap[row.governor_wallet] = {
+          id: row.id,
+          name: row.name,
+          tag: row.tag,
+          color: row.color_primary || '#80cbc4',
+          governedSectors: 0,
+          governedTierSectors: 0
+        };
+      });
+
+      const allianceIds = Array.from(new Set(allianceRes.rows.map(row => String(row.id))));
+      if (allianceIds.length) {
+        const countsRes = await pool.query(`
+          SELECT a.id AS alliance_id, s.tier, COUNT(DISTINCT s.id)::int AS governed_count
+            FROM alliances a
+            JOIN alliance_members am
+              ON am.alliance_id = a.id
+             AND am.left_at IS NULL
+            JOIN sectors s
+              ON LOWER(s.governor_wallet) = LOWER(am.wallet_address)
+           WHERE a.id = ANY($1::bigint[])
+             AND a.disbanded_at IS NULL
+           GROUP BY a.id, s.tier
+        `, [allianceIds]);
+        countsRes.rows.forEach(row => {
+          const id = String(row.alliance_id);
+          if (!allianceTierMap[id]) allianceTierMap[id] = { total: 0, byTier: {} };
+          const count = parseInt(row.governed_count, 10) || 0;
+          allianceTierMap[id].total += count;
+          allianceTierMap[id].byTier[row.tier] = count;
+        });
+      }
+    }
+
     let myMap = {};
     if (wallet) {
       const myRes = await pool.query(
@@ -116,6 +166,13 @@ router.get('/sectors', readLimiter, async (req, res) => {
         : parseFloat(row.base_price);
 
       const top = topMap[row.id] || null;
+      const baseAlliance = allianceMap[String(row.governor_wallet || '').toLowerCase()] || null;
+      const governorAlliance = baseAlliance ? Object.assign({}, baseAlliance) : null;
+      if (governorAlliance) {
+        const counts = allianceTierMap[String(governorAlliance.id)] || { total: 0, byTier: {} };
+        governorAlliance.governedSectors = counts.total || 0;
+        governorAlliance.governedTierSectors = counts.byTier[row.tier] || 0;
+      }
 
       return {
         id: row.id,
@@ -137,7 +194,8 @@ router.get('/sectors', readLimiter, async (req, res) => {
           wallet: row.governor_wallet.slice(0, 6) + '...' + row.governor_wallet.slice(-4),
           fullWallet: row.governor_wallet,
           nickname: row.governor_nickname || null,
-          since: row.governor_since
+          since: row.governor_since,
+          alliance: governorAlliance
         } : null,
         taxRate: parseFloat(row.tax_rate) || 2,
         announcement: row.announcement || null,
