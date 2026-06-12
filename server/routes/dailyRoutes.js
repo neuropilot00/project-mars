@@ -24,9 +24,9 @@ const writeLimiter = makeRateLimiter({
 });
 
 // GET /api/daily/status — check today's check-in status without claiming
-router.get('/daily/status', readLimiter, async (req, res) => {
+router.get('/daily/status', requireAuth, readLimiter, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
     const w = wallet.toLowerCase();
     const existing = await pool.query(
@@ -98,10 +98,10 @@ router.post('/daily/login', requireAuth, writeLimiter, async (req, res) => {
 });
 
 // GET /api/daily/missions — get today's missions (auto-generates if needed)
-router.get('/daily/missions', readLimiter, async (req, res) => {
+router.get('/daily/missions', requireAuth, readLimiter, async (req, res) => {
   try {
     if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
     const missions = await dailyService.getDailyMissions(wallet);
     res.json({ missions });
@@ -133,10 +133,10 @@ router.post('/daily/missions/:id/claim', requireAuth, writeLimiter, async (req, 
 });
 
 // GET /api/daily/streak — get streak info
-router.get('/daily/streak', readLimiter, async (req, res) => {
+router.get('/daily/streak', requireAuth, readLimiter, async (req, res) => {
   try {
     if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
     const info = await dailyService.getStreakInfo(wallet);
     res.json(info);

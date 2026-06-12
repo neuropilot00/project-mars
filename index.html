@@ -35956,7 +35956,7 @@ function checkDailyLogin(){
   // The previous "localStorage fast-path" returned before loading the streak,
   // which left streak=0 while todayClaimed=true → entire 14-day row shows locked.
   // Just check status, don't auto-claim
-  fetch('/api/daily/status?wallet='+encodeURIComponent(walletState.address),{
+  fetch('/api/daily/status',{
     headers:{'Authorization':'Bearer '+emailAuth.token}
   }).then(function(r){return r.json()}).then(function(d){
     _dailyState.streak = d.streak || 0;
@@ -36355,8 +36355,7 @@ function loadDailyMissions(){
   if(!emailAuth.token) return;
   document.getElementById('dailyMissionsPanel').style.display = '';
 
-  var _dmw = walletState.address || '';
-  fetch('/api/daily/missions?wallet='+encodeURIComponent(_dmw),{
+  fetch('/api/daily/missions',{
     headers:{'Authorization':'Bearer '+emailAuth.token}
   }).then(function(r){return r.json()}).then(function(d){
     if(d.missions && d.missions.length){
