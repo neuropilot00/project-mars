@@ -7,7 +7,19 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { makeRateLimiter } = require('../utils/rateLimiters');
 const transportSvc = require('../services/transport');
+
+const readLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 90,
+  message: { error: 'Too many transport requests. Please slow down.' }
+});
+const writeLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: 'Too many transport actions. Please wait.' }
+});
 
 // JWT 인증 미들웨어 — wallet body 신뢰 없음
 const requireAuth = (req, res, next) => {
@@ -34,7 +46,7 @@ function getOptionalWalletFromToken(req) {
 }
 
 // ── Public settings (UI consumes this for pricing preview) ──
-router.get('/transport/settings', async (req, res) => {
+router.get('/transport/settings', readLimiter, async (req, res) => {
   try {
     const s = await transportSvc.getSettings();
     res.json(s);
@@ -42,7 +54,7 @@ router.get('/transport/settings', async (req, res) => {
 });
 
 // ── Start a shipment ──
-router.post('/transport/start', requireAuth, async (req, res) => {
+router.post('/transport/start', requireAuth, writeLimiter, async (req, res) => {
   const wallet = getWalletFromToken(req);
   if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const { originSectorId, destSectorId, cargoGp } = req.body || {};
@@ -58,7 +70,7 @@ router.post('/transport/start', requireAuth, async (req, res) => {
 });
 
 // ── My shipments ──
-router.get('/transport/my', requireAuth, async (req, res) => {
+router.get('/transport/my', requireAuth, readLimiter, async (req, res) => {
   const wallet = getWalletFromToken(req);
   if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const limit = parseInt(req.query.limit) || 20;
@@ -69,7 +81,7 @@ router.get('/transport/my', requireAuth, async (req, res) => {
 });
 
 // ── List raidable targets ──
-router.get('/transport/raids/targets', async (req, res) => {
+router.get('/transport/raids/targets', readLimiter, async (req, res) => {
   const wallet = getOptionalWalletFromToken(req); // may be empty (anonymous preview)
   const limit = parseInt(req.query.limit) || 30;
   try {
@@ -79,7 +91,7 @@ router.get('/transport/raids/targets', async (req, res) => {
 });
 
 // ── Attempt a raid ──
-router.post('/transport/raid', requireAuth, async (req, res) => {
+router.post('/transport/raid', requireAuth, writeLimiter, async (req, res) => {
   const wallet = getWalletFromToken(req);
   if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const transportId = parseInt(req.body?.transportId);
@@ -91,7 +103,7 @@ router.post('/transport/raid', requireAuth, async (req, res) => {
 });
 
 // ── Cancel shipment ──
-router.post('/transport/cancel', requireAuth, async (req, res) => {
+router.post('/transport/cancel', requireAuth, writeLimiter, async (req, res) => {
   const wallet = getWalletFromToken(req);
   if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'wallet_required' });
   const transportId = parseInt(req.body?.transportId);
