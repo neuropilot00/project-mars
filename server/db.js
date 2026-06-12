@@ -648,9 +648,31 @@ async function awardXP(client, wallet, xpAmount) {
 }
 
 async function _awardXPInner(client, wallet, xpAmount) {
+  let effectiveXpAmount = xpAmount;
+  try {
+    await client.query('SAVEPOINT om_xp_amplifier');
+    const ampRes = await client.query(
+      `SELECT effect_value FROM user_active_effects
+       WHERE LOWER(wallet) = LOWER($1)
+         AND effect_type = 'xp_amplifier'
+         AND active = true
+         AND expires_at > NOW()
+       ORDER BY id DESC LIMIT 1`,
+      [wallet]
+    );
+    if (ampRes.rows.length > 0) {
+      const mult = Math.max(1, parseFloat(ampRes.rows[0].effect_value) || 1);
+      effectiveXpAmount = Math.max(1, Math.round(xpAmount * mult));
+    }
+    await client.query('RELEASE SAVEPOINT om_xp_amplifier');
+  } catch (_ampErr) {
+    try { await client.query('ROLLBACK TO SAVEPOINT om_xp_amplifier'); } catch (_) {}
+    try { await client.query('RELEASE SAVEPOINT om_xp_amplifier'); } catch (_) {}
+  }
+
   const res = await client.query(
     'UPDATE users SET xp = xp + $1, total_actions = total_actions + 1 WHERE LOWER(wallet_address) = LOWER($2) RETURNING xp, rank_level',
-    [xpAmount, wallet]
+    [effectiveXpAmount, wallet]
   );
   if (!res.rows.length) return null;
   const { xp, rank_level } = res.rows[0];
