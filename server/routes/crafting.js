@@ -50,10 +50,10 @@ router.get('/crafting/recipe/:id', async (req, res) => {
 });
 
 // ── GET /api/crafting/log ─────────────────────────────────────────────────────
-// Query: ?wallet=0x...&limit=30
-router.get('/crafting/log', async (req, res) => {
+router.get('/crafting/log', requireAuth, async (req, res) => {
   try {
-    const { wallet, limit } = req.query;
+    const wallet = getAuthWallet(req);
+    const { limit } = req.query;
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const log = await craftingSvc.getMyCraftingLog(wallet, parseInt(limit || '30', 10));
     res.json(log);
