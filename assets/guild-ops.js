@@ -1,22 +1,36 @@
 // ── Guild System ──────────────────────────────────
 var _myGuildData=null;
 
+function _guildReadJson(key, url, minGap, auth){
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  var fetchOptions = auth === false ? {} : { headers: getAuthHeaders() };
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('guild-ops:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: fetchOptions
+    });
+  }
+  return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
+
 function loadGuildTab(){
   var w=walletState.address;
   if(!w) return;
   // Load my guild + leaderboard in parallel
   Promise.all([
-    fetch('/api/guild/my', { headers: getAuthHeaders() }).then(function(r){return r.json()}),
-    fetch('/api/guild/leaderboard').then(function(r){return r.json()}),
-    fetch('/api/guild/invites', { headers: getAuthHeaders() }).then(function(r){return r.json()})
+    _guildReadJson('my', '/api/guild/my', 10000),
+    _guildReadJson('leaderboard', '/api/guild/leaderboard', 30000, false),
+    _guildReadJson('invites', '/api/guild/invites', 15000)
   ]).then(function(results){
-    var myGuild=results[0].guild;
-    var lb=results[1].guilds||[];
-    var invites=results[2].invites||[];
+    if(!results[0]&&!results[1]&&!results[2]) return;
+    var myGuild=results[0] ? results[0].guild : _myGuildData;
+    var lb=results[1] ? (results[1].guilds||[]) : [];
+    var invites=results[2] ? (results[2].invites||[]) : [];
     _myGuildData=myGuild;
     renderGuildState(myGuild, w);
-    renderGuildLeaderboard(lb);
-    renderGuildInvites(invites);
+    if(results[1]) renderGuildLeaderboard(lb);
+    if(results[2]) renderGuildInvites(invites);
     _syncGuildChatPoll();
     try{ _checkBetrayerMark(w); }catch(_){}
     try{ _checkAwayBriefing(); }catch(_){}
@@ -652,12 +666,11 @@ async function openGuildWarFight(warId, guildId){
   if(!walletState||!walletState.address){ showToast(LANG==='ko'?'로그인이 필요합니다':LANG==='ja'?'ログインが必要です':LANG==='zh'?'请先登录':'Login required','error'); return; }
   showToast(LANG==='ko'?'적 길드 정보 불러오는 중...':LANG==='ja'?'敵ギルド情報を読込中...':LANG==='zh'?'正在加载敌方公会信息...':'Loading enemy guild data...','info');
   try{
-    var [myRes, enemyRes] = await Promise.all([
-      fetch('/api/fleets', {headers:getAuthHeaders()}),
-      fetch('/api/guild/war/enemies?guildId='+guildId+'&warId='+warId, {headers:getAuthHeaders()})
+    var [myData, enemyData] = await Promise.all([
+      _guildReadJson('war-fleets', '/api/fleets', 8000),
+      _guildReadJson('war-enemies:' + guildId + ':' + warId, '/api/guild/war/enemies?guildId='+guildId+'&warId='+warId, 10000)
     ]);
-    var myData = await myRes.json();
-    var enemyData = await enemyRes.json();
+    if(!myData || !enemyData){ showToast(LANG==='ko'?'잠시 후 다시 시도하세요':LANG==='ja'?'少し後に再試行してください':LANG==='zh'?'请稍后重试':'Try again shortly','error'); return; }
     if(enemyData.error){ showToast(enemyData.error,'error'); return; }
 
     var myFleets = (myData.fleets||[]).filter(function(f){ return f.ships_alive>0 && !f.is_in_battle; });
@@ -872,9 +885,9 @@ window._opsPreviewTarget = null;      // { lat, lng } pair the preview is for
 
 function loadOpsPads(){
   var w=walletState&&walletState.address; if(!w) return Promise.resolve();
-  return fetch('/api/missions/pads', { headers: getAuthHeaders() })
-    .then(function(r){return r.json()})
+  return _guildReadJson('mission-pads', '/api/missions/pads', 10000)
     .then(function(d){
+      if(!d) return;
       window._opsPads = d.pads || [];
       // Drop selection if the pad is now busy or gone
       if(window._opsSelectedPad){
@@ -1034,9 +1047,9 @@ document.addEventListener('input', function(e){
 function loadOpsTab(){
   var w = walletState.address; if(!w) return;
   loadOpsPads();
-  fetch('/api/missions/active', { headers: getAuthHeaders() })
-    .then(function(r){return r.json()})
+  _guildReadJson('missions-active', '/api/missions/active', 10000)
     .then(function(d){
+      if(!d) return;
       window._opsMissions = d.missions || [];
       renderOpsMissionList();
       // Set OPS dot if any mission is claimable
@@ -1550,7 +1563,8 @@ function refreshGuildChat(){
   if(!w||!_myGuildData) return;
   if(!_isGuildChatVisible()) { stopGuildChatPoll(); return; }
   var url='/api/guild/chat/'+_myGuildData.id+(_lastGuildMsgId?('?sinceId='+_lastGuildMsgId):'');
-  fetch(url, { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
+  _guildReadJson('chat:' + _myGuildData.id + ':' + (_lastGuildMsgId || 0), url, 12000).then(function(data){
+    if(!data) return;
     if(data.error) return;
     appendGuildChatMsgs(data.messages||[]);
   }).catch(function(){});
@@ -1842,9 +1856,10 @@ async function loadKillboard(){
   var my=(walletState.address||'').toLowerCase();
   try{
     var results = await Promise.all([
-      fetch('/api/killboard?limit=15').then(function(r){return r.json()}),
-      my?fetch('/api/killboard/'+my).then(function(r){return r.json()}):Promise.resolve(null)
+      _guildReadJson('killboard-global', '/api/killboard?limit=15', 30000, false),
+      my?_guildReadJson('killboard-mine:' + my, '/api/killboard/'+my, 30000, false):Promise.resolve(null)
     ]);
+    if(!results[0]&&!results[1]) return;
     var board=results[0], mine=results[1];
     var html='';
     var _kbGp=function(n){ n=parseInt(n)||0; return n>=1000?((n/1000).toFixed(n>=10000?0:1)+'K'):String(n); };
@@ -1939,7 +1954,8 @@ async function kbScout(){
 async function loadScoutReports(){
   var el=document.getElementById('kbScoutReports'); if(!el) return;
   try{
-    var d=await fetch('/api/spy/reports?limit=5',{headers:getAuthHeaders()}).then(function(r){return r.json()});
+    var d=await _guildReadJson('spy-reports', '/api/spy/reports?limit=5', 15000);
+    if(!d) return;
     var reps=(d&&d.reports)||[];
     if(!reps.length){ el.innerHTML=''; return; }
     el.innerHTML='<div style="font-size:8px;color:var(--tx3);letter-spacing:1px;margin:4px 0">'+_kbL('RECENT INTEL','최근 정보','最近の情報','最近情报')+'</div>'+
@@ -1950,7 +1966,7 @@ async function loadScoutReports(){
 // (도파민 #6 v7.394) 부재 중 손실 브리핑 — 복귀 시 손실회피 훅(D7/D30 리텐션).
 function _checkAwayBriefing(){
   try{
-    fetch('/api/me/away-briefing', { headers: getAuthHeaders() }).then(function(r){ return r.json(); }).then(function(d){
+    _guildReadJson('away-briefing', '/api/me/away-briefing', 30000).then(function(d){
       if(!d || !d.hasNews) return;
       // 같은 손실을 매번 띄우지 않게 lastLoss 시점 기준 1회만
       var key='away_briefing_seen_'+(walletState.address||'');
