@@ -50584,8 +50584,8 @@ async function runOnboardingCheck() {
   var wallet = getOnboardingWallet();
   if (!wallet) return;
   try {
-    var res = await fetch('/api/onboarding/status?wallet=' + encodeURIComponent(wallet), {
-      headers: Object.assign({ 'x-wallet': wallet }, getAuthHeaders())
+    var res = await fetch('/api/onboarding/status', {
+      headers: getAuthHeaders()
     });
     if (!res.ok) return;
     var status = await res.json();
