@@ -2790,6 +2790,19 @@ preCacheAndComposite();
 
 // Load server claims + authoritative pixel ownership
 var _serverClaimsBootRetryId = null;
+var _claimsSince=Date.now();
+var CLAIMS_CURSOR_FUTURE_SKEW_MS = 60000;
+function _normalizeClaimsCursor(ts){
+  var n = Number(ts);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  var max = Date.now() + CLAIMS_CURSOR_FUTURE_SKEW_MS;
+  return Math.min(n, max);
+}
+function _rememberClaimsCursor(claim){
+  if (!claim || claim.ts == null) return;
+  var ts = _normalizeClaimsCursor(claim.ts);
+  if (ts != null && ts > _claimsSince) _claimsSince = ts;
+}
 function _scheduleServerClaimsBootRetry(){
   if(_serverClaimsBootRetryId) return;
   _serverClaimsBootRetryId = _setActiveTimeout(function(){
@@ -2829,13 +2842,12 @@ function loadServerClaims(){
       }
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
-    if(serverClaims) serverClaims.forEach(function(sc){ if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts; });
+    if(serverClaims) serverClaims.forEach(_rememberClaimsCursor);
   }).catch(function(e){console.warn('[Claims] Failed to load:',e)});
 }
 loadServerClaims();
 
 // Delta claims polling (10s desktop / 20s mobile for claims, 30s/60s for full pixel refresh)
-var _claimsSince=Date.now();
 var _pixelPollCount=0;
 var _claimsPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?20000:10000;
 _setActiveInterval(function(){
@@ -2851,7 +2863,7 @@ _setActiveInterval(function(){
     if(fetchFullClaims&&Array.isArray(newClaims)){
       claims.length=0;
       newClaims.forEach(function(sc){
-        if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts;
+        _rememberClaimsCursor(sc);
         claims.push(sc);
       });
       added=newClaims.length;
@@ -2859,7 +2871,7 @@ _setActiveInterval(function(){
       var existingIds={};
       claims.forEach(function(c){if(c.id) existingIds[c.id]=true;});
       newClaims.forEach(function(sc){
-        if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts;
+        _rememberClaimsCursor(sc);
         if(existingIds[sc.id]) return;
         claims.push(sc);
         added++;

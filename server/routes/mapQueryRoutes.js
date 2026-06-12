@@ -280,7 +280,14 @@ router.get('/pixels', async (req, res) => {
 
 router.get('/claims', async (req, res) => {
   try {
-    const since = req.query.since;
+    const rawSince = req.query.since;
+    let since = null;
+    if (rawSince !== undefined) {
+      const parsedSince = Number.parseInt(String(rawSince), 10);
+      if (Number.isFinite(parsedSince) && parsedSince > 0) {
+        since = Math.min(parsedSince, Date.now() + 60 * 1000);
+      }
+    }
     const viewerWallet = getOptionalAuthWallet(req);
     const visibleOwner = visibleOwnerPredicate('c.owner', since ? 2 : 1);
     const cacheKey = `claims:${since ? 'delta:' + since : 'full'}:${viewerWallet || 'public'}`;
