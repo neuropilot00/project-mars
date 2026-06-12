@@ -441,6 +441,28 @@ async function openDeclareBattle() {
   loadRecommendedOpponents();
 }
 
+window.openDeclareBattleWithFleet = async function(targetFleetId, nickname, shipsAlive) {
+  await openDeclareBattle();
+  const id = parseInt(targetFleetId, 10);
+  if (!id) return;
+
+  const label = nickname || (LANG==='ko'?'추천 타깃':LANG==='ja'?'推奨標的':LANG==='zh'?'推荐目标':'Recommended Target');
+  const alive = Math.max(0, parseInt(shipsAlive, 10) || 0);
+  const listEl = document.getElementById('declareTargetList');
+  if (listEl) {
+    listEl.innerHTML = renderSearchResult({
+      fleet_id: id,
+      nickname: label,
+      fleet_name: LANG==='ko'?'분쟁 추천 함대':LANG==='ja'?'紛争推奨艦隊':LANG==='zh'?'争端推荐舰队':'Conflict Recommended Fleet',
+      ships_alive: alive,
+      can_attack: true,
+      battles_won: 0,
+      battles_lost: 0
+    });
+  }
+  selectTargetFleet(id, label, alive);
+};
+
 function closeDeclareBattle() {
   document.getElementById('declareBattleModal').classList.remove('active');
 }

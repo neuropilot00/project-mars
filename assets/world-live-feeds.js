@@ -1487,19 +1487,28 @@
           var agoStr = o.last_battle_ago || (o.wins > 0 ? (LANG==='ko'?'오늘 활동':LANG==='ja'?'本日活動':LANG==='zh'?'今日活动':'Active today') : '');
           var sub = [sectorStr, agoStr].filter(Boolean).join(' · ');
           var displayName = o.fleet_name || (o.wallet.slice(0,6) + '…' + o.wallet.slice(-4));
+          var reasons = o.recommendation_reasons || [];
+          var tags = [];
+          if (reasons.indexOf('same_sector_pressure') >= 0 || (_pvpHubSectorFilter && o.sector_code === _pvpHubSectorFilter)) tags.push(LANG==='ko'?'섹터 압박':LANG==='ja'?'セクター圧力':LANG==='zh'?'区压制':'Sector pressure');
+          if (reasons.indexOf('bounty_target') >= 0 || o.active_bounties > 0) tags.push((LANG==='ko'?'현상금 ':LANG==='ja'?'賞金 ':LANG==='zh'?'悬赏 ':'Bounty ') + (o.active_bounties || ''));
+          if (reasons.indexOf('active_recently') >= 0) tags.push(LANG==='ko'?'최근 교전':LANG==='ja'?'最近交戦':LANG==='zh'?'近期交战':'Recent combat');
+          var tagHtml = tags.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">' + tags.slice(0,3).map(function(tag) {
+            return '<span style="font-size:8px;color:#ffab40;border:1px solid rgba(255,171,64,.28);background:rgba(255,171,64,.08);border-radius:3px;padding:1px 5px">' + escapeHtml(tag) + '</span>';
+          }).join('') + '</div>' : '';
           return '<div style="padding:9px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px;margin-bottom:6px">'
             + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
             + '<div style="flex:1;min-width:0">'
             + '<div style="font-size:10px;color:var(--tx);font-weight:700;font-family:var(--fn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
-            + displayName
+            + escapeHtml(displayName)
             + ' <span style="font-size:8px;color:' + col + ';background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;font-weight:400">' + fName + '</span>'
             + '\u00a0' + onlineDot
             + '</div>'
             + '<div style="font-size:9px;color:var(--tx3);margin-top:2px">CPI <b style="color:#ffd700">' + Math.round(o.cpi||0) + '</b>'
             + (sub ? '\u00a0\u00a0' + sub : '')
             + '</div>'
+            + tagHtml
             + '</div>'
-            + '<button type="button" onclick="openBattleHubWithFleet(\'' + o.fleet_id + '\',\'' + o.wallet + '\')" style="flex-shrink:0;font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn);white-space:nowrap">'+(LANG==='ko'?'도전장 보내기':LANG==='ja'?'対戦申込':LANG==='zh'?'发出挑战':'Challenge')+'</button>'
+            + '<button type="button" data-fleet="' + escapeHtml(o.fleet_id) + '" data-name="' + escapeHtml(displayName) + '" data-ships="' + escapeHtml(o.ships_alive || 0) + '" onclick="openBattleHubWithFleet(this.dataset.fleet,this.dataset.name,this.dataset.ships)" style="flex-shrink:0;font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn);white-space:nowrap">'+(LANG==='ko'?'도전장 보내기':LANG==='ja'?'対戦申込':LANG==='zh'?'发出挑战':'Challenge')+'</button>'
             + '</div>'
             + '</div>';
         }).join('');
@@ -1577,12 +1586,12 @@
   // legacy compat
   window.toggleRecommendedSection = function() { pvpHubSwitchTab('rec'); };
   window.loadRecommendedOpponents = function() { _pvpHubTab = 'rec'; _loadPvpRecTab(); };
-  window.openBattleHubWithFleet = function(targetFleetId, targetWallet) {
-    openBattleHub();
-    setTimeout(function() {
-      var el = document.getElementById('bhTargetFleetId') || document.getElementById('bh-target-fleet');
-      if (el) el.value = targetFleetId;
-    }, 500);
+  window.openBattleHubWithFleet = function(targetFleetId, targetName, shipsAlive) {
+    if (typeof openDeclareBattleWithFleet === 'function') {
+      openDeclareBattleWithFleet(targetFleetId, targetName, shipsAlive);
+      return;
+    }
+    if (typeof openDeclareBattle === 'function') openDeclareBattle();
   };
 
   // ══ BOUNTY BOARD ═══════════════════════════════════════════════
