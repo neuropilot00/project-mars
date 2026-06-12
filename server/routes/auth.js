@@ -407,7 +407,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT wallet_address, email, password_hash, nickname, referral_code FROM users WHERE email = $1',
+      'SELECT wallet_address, email, password_hash, nickname, referral_code, COALESCE(rank_level,1) AS rank_level FROM users WHERE email = $1',
       [normalizedEmail]
     );
 
@@ -448,6 +448,7 @@ router.post('/login', authLimiter, async (req, res) => {
         wallet: user.wallet_address,
         email: user.email,
         nickname: user.nickname,
+        rank: parseInt(user.rank_level, 10) || 1,
         referralCode: user.referral_code
       }
     });
@@ -473,13 +474,13 @@ router.get('/me', async (req, res) => {
     let result;
     try {
       result = await pool.query(
-        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code, COALESCE(email_verified,false) AS email_verified FROM users WHERE LOWER(wallet_address) = LOWER($1)',
+        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, COALESCE(rank_level,1) AS rank_level, referral_code, COALESCE(email_verified,false) AS email_verified FROM users WHERE LOWER(wallet_address) = LOWER($1)',
         [decoded.wallet]
       );
     } catch (userErr) {
       if (userErr.code !== '42703') throw userErr;
       result = await pool.query(
-        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, 0 AS gp_balance, referral_code, false AS email_verified FROM users WHERE LOWER(wallet_address) = LOWER($1)',
+        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, 0 AS gp_balance, COALESCE(rank_level,1) AS rank_level, referral_code, false AS email_verified FROM users WHERE LOWER(wallet_address) = LOWER($1)',
         [decoded.wallet]
       );
     }
@@ -512,6 +513,7 @@ router.get('/me', async (req, res) => {
       usdtBalance: parseFloat(u.usdt_balance),
       ppBalance: parseFloat(u.pp_balance),
       gpBalance: parseFloat(u.gp_balance) + govGP,
+      rank: parseInt(u.rank_level, 10) || 1,
       referralCode: u.referral_code,
       emailVerified: !!u.email_verified  // [v7.174 A-C3]
     });

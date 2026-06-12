@@ -550,6 +550,7 @@ function renderBaseUser(data){
   // Profile level card (MY TERRITORY tab)
   var plb=document.getElementById('profileLevelBadge');if(plb)plb.textContent=u.rank;
   var pl=document.getElementById('profileLevel');if(pl)pl.textContent=u.rank;
+  try{ if(typeof _rememberAuthRank==='function') _rememberAuthRank(u.wallet, u.rank); }catch(_){}
   var pn=document.getElementById('profileNickname');if(pn)pn.textContent=u.nickname||u.wallet.slice(0,8)+'...';
   var prn=document.getElementById('profileRankName');if(prn)prn.textContent=rank.name;
   var pxc=document.getElementById('profileXpCurrent');if(pxc)pxc.textContent=u.xp+' XP';

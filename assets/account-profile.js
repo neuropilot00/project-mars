@@ -16,6 +16,40 @@ function accountReadJson(key, url, minGap, auth) {
   return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
 }
 
+function _authRankCacheKey(wallet){
+  return wallet ? 'om_rank_' + String(wallet).toLowerCase() : '';
+}
+function _setAuthRankDisplays(rank){
+  var n = parseInt(rank, 10);
+  if (!Number.isFinite(n) || n <= 0) return false;
+  var ids = ['profileLevel', 'profileLevelBadge', 'baseRankLevel', 'profileXpLv'];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.textContent = n;
+  });
+  try{ if(typeof applyBaseTabLocks === 'function') applyBaseTabLocks(); }catch(_){}
+  return true;
+}
+function _rememberAuthRank(wallet, rank){
+  var n = parseInt(rank, 10);
+  var key = _authRankCacheKey(wallet);
+  if (!key || !Number.isFinite(n) || n <= 0) return;
+  try{ localStorage.setItem(key, String(n)); }catch(_){}
+}
+function _applyAuthRank(data){
+  data = data || {};
+  var user = data.user || {};
+  var wallet = data.wallet || user.wallet || (walletState && walletState.address) || '';
+  var rank = parseInt(data.rank || data.rankLevel || user.rank || user.rankLevel, 10);
+  if (!Number.isFinite(rank) || rank <= 0) {
+    try{ rank = parseInt(localStorage.getItem(_authRankCacheKey(wallet)) || '0', 10); }catch(_){}
+  }
+  if (_setAuthRankDisplays(rank)) {
+    _rememberAuthRank(wallet, rank);
+    window._authRankLevel = rank;
+  }
+}
+
 function _applyAuthMeBalances(d){
   if(!d) return;
   walletState.gameUsdt=d.usdtBalance||0;
@@ -30,6 +64,7 @@ function _applyAuthMeBalances(d){
     walletState.gameGP = parseFloat(d.gpBalance)||0;
     if(typeof updateGPDisplay==='function') updateGPDisplay();
   }
+  _applyAuthRank(d);
 }
 
 // Auto-login: restore session from saved token, or re-login with saved credentials
@@ -40,7 +75,7 @@ function _applyAuthMeBalances(d){
       .then(function(r){if(!r.ok) throw new Error('expired'); return r.json()})
       .then(function(d){
         // [v7.174 A-C3] emailVerified 추적 — 미인증 시 verify 배너 노출
-        emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode,emailVerified:!!d.emailVerified};
+        emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,rank:d.rank||1,referralCode:d.referralCode,emailVerified:!!d.emailVerified};
         walletState.connected=true;
         walletState.address=d.wallet;
         walletState.chain='base';
@@ -399,6 +434,7 @@ async function submitAuth(){
     walletState.connected=true;
     walletState.address=d.user.wallet;
     walletState.chain='base';
+    _applyAuthRank(d);
     try{ if(typeof _clearPublicHudFetchBackoff==='function') _clearPublicHudFetchBackoff(); }catch(e2){}
     _refreshWorldAfterAuth();
     try{ updateWalletUI(); }catch(e2){ console.error('[Auth] updateWalletUI:',e2); }
