@@ -4318,6 +4318,53 @@ function renderMyAlliance(a, wallet) {
 
   var wBtn = document.getElementById('allianceWithdrawBtn');
   if (wBtn) wBtn.style.display = isLeader ? '' : 'none';
+
+  loadAllianceLog(a.id);
+}
+
+function renderAllianceLogRow(row) {
+  var type = String(row.event_type || '').toLowerCase();
+  var color = type === 'deposit' ? '#80cbc4' : type === 'withdraw' ? 'var(--gold)' : type === 'join' ? 'var(--gn)' : type === 'leave' ? 'var(--red)' : 'var(--tx2)';
+  var icon = { create:'🛡️', join:'➕', leave:'🚪', deposit:'💰', withdraw:'📤', kicked:'⚠️' }[type] || '•';
+  var nick = row.nickname || (row.wallet ? String(row.wallet).slice(0, 8) + '…' : 'System');
+  var amt = Number(row.amount_gp || 0);
+  var amountText = amt ? ' · ' + (amt > 0 ? '+' : '') + amt + ' GP' : '';
+  var at = row.created_at ? allianceTimeAgo(new Date(row.created_at)) : '';
+  var note = row.note ? '<div style="font-size:8px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _escHtml(row.note) + '</div>' : '';
+  return '<div style="padding:4px 5px;border-bottom:1px solid rgba(255,255,255,.04)">'
+    + '<div style="display:flex;justify-content:space-between;gap:6px;align-items:center">'
+    + '<span style="min-width:0;font-size:9px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:'+color+'">'+icon+' '+type.toUpperCase()+'</span> · '+_escHtml(nick)+_escHtml(amountText)+'</span>'
+    + '<span style="font-size:8px;color:var(--tx3);white-space:nowrap">'+_escHtml(at)+'</span>'
+    + '</div>'
+    + note
+    + '</div>';
+}
+
+function allianceTimeAgo(date) {
+  var diff = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+  if (diff < 60) return diff + 's';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h';
+  return Math.floor(diff / 86400) + 'd';
+}
+
+function loadAllianceLog(allianceId) {
+  var el = document.getElementById('myAllianceLog');
+  if (!el || !allianceId) return;
+  el.innerHTML = '<div style="font-size:9px;color:var(--tx3)">Loading…</div>';
+  fetch('/api/alliances/' + encodeURIComponent(allianceId) + '/log?limit=12')
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!document.getElementById('myAllianceLog')) return;
+      if (!Array.isArray(rows) || rows.length === 0) {
+        el.innerHTML = '<div style="font-size:9px;color:var(--tx3)">No activity yet</div>';
+        return;
+      }
+      el.innerHTML = rows.map(renderAllianceLogRow).join('');
+    })
+    .catch(function(){
+      if (el) el.innerHTML = '<div style="font-size:9px;color:var(--red)">Log unavailable</div>';
+    });
 }
 
 function searchAlliances() {

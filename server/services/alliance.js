@@ -82,6 +82,11 @@ async function createAlliance(walletAddress, params) {
       INSERT INTO alliance_members (alliance_id, wallet_address, role)
       VALUES ($1, $2, 'leader')
     `, [allianceId, walletAddress]);
+
+    await client.query(`
+      INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
+      VALUES ($1, $2, 'create', 0, $3)
+    `, [allianceId, walletAddress, `Alliance created [${aRows[0].tag || ''}]`]);
     
     await client.query('COMMIT');
     return aRows[0];
@@ -129,6 +134,11 @@ async function joinAlliance(walletAddress, allianceId) {
       `UPDATE alliances SET member_count = member_count + 1 WHERE id = $1`,
       [allianceId]
     );
+
+    await client.query(`
+      INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
+      VALUES ($1, $2, 'join', 0, 'Member joined')
+    `, [allianceId, walletAddress]);
     
     await client.query('COMMIT');
     return { success: true, alliance_id: allianceId };
@@ -180,6 +190,11 @@ async function leaveAlliance(walletAddress) {
       `UPDATE alliances SET member_count = member_count - 1 WHERE id = $1`,
       [alliance_id]
     );
+
+    await client.query(`
+      INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
+      VALUES ($1, $2, 'leave', 0, 'Member left')
+    `, [alliance_id, walletAddress]);
     
     await client.query('COMMIT');
     return { success: true };
