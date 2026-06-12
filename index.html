@@ -23981,7 +23981,7 @@ function _pollBaseTabDots(){
     }catch(_e){}
   }).catch(function(){});
   // OPS: only dot if claimable count INCREASED since user last viewed
-  _guardedJsonFetch('dot-ops-missions', '/api/missions/active?wallet='+encodeURIComponent(w), {minGap:55000, backoffMs:180000}).then(function(d){
+  _guardedJsonFetch('dot-ops-missions', '/api/missions/active', {minGap:55000, backoffMs:180000, fetchOptions:{headers:getAuthHeaders()}}).then(function(d){
     if (!d) return;
     try{
       var missions = d && d.missions || [];
@@ -24966,7 +24966,7 @@ window._opsPreviewTarget = null;      // { lat, lng } pair the preview is for
 
 function loadOpsPads(){
   var w=walletState&&walletState.address; if(!w) return Promise.resolve();
-  return fetch('/api/missions/pads?wallet='+encodeURIComponent(w))
+  return fetch('/api/missions/pads', { headers: getAuthHeaders() })
     .then(function(r){return r.json()})
     .then(function(d){
       window._opsPads = d.pads || [];
@@ -25088,10 +25088,9 @@ function updateOpsLaunchPreview(){
   _opsPreviewTimer=_setActiveTimeout(function(){
     _opsPreviewTimer=null;
     var w=walletState&&walletState.address; if(!w) return;
-    fetch('/api/missions/preview?wallet='+encodeURIComponent(w)
-      +'&type='+encodeURIComponent(window._opsType||'invasion')
+    fetch('/api/missions/preview?type='+encodeURIComponent(window._opsType||'invasion')
       +'&originClaimId='+encodeURIComponent(padId)
-      +'&lat='+encodeURIComponent(lat)+'&lng='+encodeURIComponent(lng)+tgtParam)
+      +'&lat='+encodeURIComponent(lat)+'&lng='+encodeURIComponent(lng)+tgtParam, { headers: getAuthHeaders() })
       .then(function(r){return r.json()})
       .then(function(d){
         if(seq!==_opsPreviewSeq) return;
@@ -25129,7 +25128,7 @@ document.addEventListener('input', function(e){
 function loadOpsTab(){
   var w = walletState.address; if(!w) return;
   loadOpsPads();
-  fetch('/api/missions/active?wallet='+encodeURIComponent(w))
+  fetch('/api/missions/active', { headers: getAuthHeaders() })
     .then(function(r){return r.json()})
     .then(function(d){
       window._opsMissions = d.missions || [];
@@ -33801,7 +33800,7 @@ window.addEventListener('resize', _debounce(function(){
   function _refreshOpsMissionsGlobal(){
     if (!_pageIsActive()) return;
     var w = walletState && walletState.address; if(!w) return;
-    _guardedJsonFetch('ops-missions-global', '/api/missions/active?wallet='+encodeURIComponent(w), {minGap:25000, backoffMs:120000})
+    _guardedJsonFetch('ops-missions-global', '/api/missions/active', {minGap:25000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}})
       .then(function(d){
         if (!d) return;
         window._opsMissions = d.missions || [];

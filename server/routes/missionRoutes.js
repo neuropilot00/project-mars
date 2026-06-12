@@ -23,8 +23,8 @@ const writeLimiter = makeRateLimiter({
 // ══════════════════════════════════════════════════
 
 // List the player's launch pads (claims) with active-mission status
-router.get('/missions/pads', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+router.get('/missions/pads', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
   try {
@@ -37,8 +37,8 @@ router.get('/missions/pads', readLimiter, async (req, res) => {
 });
 
 // Preview a mission (distance, tier, duration, cost, multiplier) without committing
-router.get('/missions/preview', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+router.get('/missions/preview', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   const type = req.query.type;
   const originClaimId = parseInt(req.query.originClaimId);
   const lat = parseFloat(req.query.lat);
@@ -82,8 +82,8 @@ router.post('/missions/launch', requireAuth, writeLimiter, async (req, res) => {
 });
 
 // List active + completed missions for a wallet (private to caller)
-router.get('/missions/active', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+router.get('/missions/active', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
   try {
