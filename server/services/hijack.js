@@ -45,6 +45,22 @@ const { assertFleetsNotMining } = require('./fleetOccupancy');
 const PHASE1_ALLOWED_SIZES = ['frigate', 'destroyer'];
 const PHASE1_MAX_SHIPS = 20;
 
+async function getClaimBattleContext(client, claimId) {
+  if (!claimId) return { sectorId: null, sectorCode: null };
+  const { rows } = await client.query(
+    `SELECT c.sector_code, sd.id AS sector_id
+       FROM claims c
+       LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
+      WHERE c.id = $1
+      LIMIT 1`,
+    [claimId]
+  );
+  return {
+    sectorId: rows[0]?.sector_id || null,
+    sectorCode: rows[0]?.sector_code || null
+  };
+}
+
 // ─── Hijack 선언 ───
 
 /**
@@ -117,13 +133,18 @@ async function declareHijack(params) {
     // 간단화: 플레이어에게 Phase 1 전용 함대 추천
     // 여기서는 주어진 함대 그대로 사용
     
+    const battleContext = await getClaimBattleContext(client, target_claim_id);
     const { rows: bRows } = await client.query(`
       INSERT INTO fleet_battles (
         battle_type, status, phase,
-        claim_id, prepare_started_at, scheduled_start_at
-      ) VALUES ('hijack', 'preparing', 'hijack_phase1', $1, NOW(), NOW() + INTERVAL '10 seconds')
+        sector_id, claim_id, prepare_started_at, scheduled_start_at, battle_summary
+      ) VALUES ('hijack', 'preparing', 'hijack_phase1', $1, $2, NOW(), NOW() + INTERVAL '10 seconds', $3::jsonb)
       RETURNING id
-    `, [target_claim_id]);
+    `, [
+      battleContext.sectorId,
+      target_claim_id,
+      JSON.stringify({ sector_code: battleContext.sectorCode || null, territory_conflict: true })
+    ]);
     const phase1BattleId = bRows[0].id;
     
     await client.query(`
@@ -285,13 +306,19 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
     }
 
     // Phase 2 battle 생성
+    const battleContext = await getClaimBattleContext(client, hijack.target_claim_id);
     const { rows: bRows } = await client.query(`
       INSERT INTO fleet_battles (
         battle_type, status, phase, parent_battle_id,
-        claim_id, prepare_started_at, scheduled_start_at
-      ) VALUES ('hijack', 'preparing', 'hijack_phase2', $1, $2, NOW(), NOW())
+        sector_id, claim_id, prepare_started_at, scheduled_start_at, battle_summary
+      ) VALUES ('hijack', 'preparing', 'hijack_phase2', $1, $2, $3, NOW(), NOW(), $4::jsonb)
       RETURNING id
-    `, [hijack.phase1_battle_id, hijack.target_claim_id]);
+    `, [
+      hijack.phase1_battle_id,
+      battleContext.sectorId,
+      hijack.target_claim_id,
+      JSON.stringify({ sector_code: battleContext.sectorCode || null, territory_conflict: true })
+    ]);
     const phase2BattleId = bRows[0].id;
     
     // 방어자 찾기 (phase1 수비자)
@@ -786,13 +813,18 @@ async function declareHijackWithPP(params) {
         hijackId = hjRows[0].id;
 
         // Phase 1 fleet_battle 생성
+        const battleContext = await getClaimBattleContext(client, resolvedTargetClaimId);
         const { rows: bRows } = await client.query(`
           INSERT INTO fleet_battles (
             battle_type, status, phase,
-            prepare_started_at, scheduled_start_at
-          ) VALUES ('hijack', 'preparing', 'hijack_phase1', NOW(), NOW() + INTERVAL '10 seconds')
+            sector_id, claim_id, prepare_started_at, scheduled_start_at, battle_summary
+          ) VALUES ('hijack', 'preparing', 'hijack_phase1', $1, $2, NOW(), NOW() + INTERVAL '10 seconds', $3::jsonb)
           RETURNING id
-        `);
+        `, [
+          battleContext.sectorId,
+          resolvedTargetClaimId,
+          JSON.stringify({ sector_code: battleContext.sectorCode || null, territory_conflict: true })
+        ]);
         phase1BattleId = bRows[0].id;
 
         await client.query(`
