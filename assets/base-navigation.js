@@ -19,6 +19,17 @@ var _FC_MOVEMENT_I18N={
 };
 function _fcFormationName(code){var m=_FC_FORMATION_I18N[code];return m?(m[LANG]||m.en):code;}
 function _fcMovementName(code){var m=_FC_MOVEMENT_I18N[code];return m?(m[LANG]||m.en):code;}
+function _fleetSummaryRead(key,url,wallet){
+  var walletKey=String(wallet||'anon').toLowerCase();
+  if(typeof _guardedJsonFetch==='function'){
+    return _guardedJsonFetch('fleet-summary:'+key+':'+walletKey, url, {
+      minGap:15000,
+      backoffMs:120000,
+      fetchOptions:{headers:getAuthHeaders()}
+    });
+  }
+  return fetch(url,{headers:getAuthHeaders()}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
 
 // ── 함대 탭 요약 로드 ──────────────────────────────────────────────
 function _loadFleetTabSummary(){
@@ -27,17 +38,22 @@ function _loadFleetTabSummary(){
   var evEl=document.getElementById('fleetTabWorldEvents');
   if(!w){if(sumEl)sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">'+(LANG==='ko'?'로그인하면 함대 현황이 표시됩니다':LANG==='ja'?'ログインすると艦隊状況が表示されます':LANG==='zh'?'登录后将显示舰队状况':'Login to see fleet status')+'</div>';return;}
   if(!sumEl) return;
-  sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">Loading...</div>';
+  var hadContent=!!sumEl.innerHTML.trim();
+  if(!hadContent) sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">Loading...</div>';
 
   // 월드이벤트 복사 (기존)
   if(evEl){try{var srcEl=document.getElementById('fcmdWorldEventsList');if(srcEl)evEl.innerHTML=srcEl.innerHTML;}catch(_){}}
 
   // 병렬로 함대 + 함선 + 건조큐 로드
   Promise.all([
-    fetch('/api/fleets',{headers:getAuthHeaders()}).then(function(r){return r.json();}),
-    fetch('/api/ships/my',{headers:getAuthHeaders()}).then(function(r){return r.json();}),
-    fetch('/api/ships/build-jobs',{headers:getAuthHeaders()}).then(function(r){return r.json();})
+    _fleetSummaryRead('fleets','/api/fleets',w),
+    _fleetSummaryRead('ships','/api/ships/my',w),
+    _fleetSummaryRead('build-jobs','/api/ships/build-jobs',w)
   ]).then(function(results){
+    if(!results[0]&&!results[1]&&!results[2]){
+      if(!hadContent) sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">'+(LANG==='ko'?'함대 정보를 새로고침 중입니다':LANG==='ja'?'艦隊情報を更新中です':LANG==='zh'?'正在刷新舰队信息':'Refreshing fleet data')+'</div>';
+      return;
+    }
     var fleets=(results[0]&&results[0].fleets)||[];
     var ships=(results[1]&&results[1].ships)||[];
     var jobs=(results[2]&&results[2].jobs)||[];
