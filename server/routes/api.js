@@ -84,6 +84,13 @@ function sanitizeUrl(url, allowData) {
   return null;
 }
 
+function sameDateKey(value, dateKey) {
+  if (!value || !dateKey) return false;
+  if (typeof value === 'string') return value.slice(0, 10) === dateKey;
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString().slice(0, 10) === dateKey;
+  return String(value).slice(0, 10) === dateKey;
+}
+
 // Public config and wallet deposit bonus routes live in routes/configRoutes.js.
 
 // ── Helpers ──
@@ -1828,7 +1835,7 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     // Apply daily cap (0=unlimited)
     const todayDate = now.toISOString().slice(0, 10);
     let todayMined = 0;
-    if (miningRes.rows.length && miningRes.rows[0].today_date === todayDate) {
+    if (miningRes.rows.length && sameDateKey(miningRes.rows[0].today_date, todayDate)) {
       todayMined = parseFloat(miningRes.rows[0].today_mined_pp) || 0;
     }
     if (dailyCap > 0) {
@@ -2023,7 +2030,7 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
       `SELECT today_date, today_mined_pp FROM user_mining WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
       [w]
     );
-    const minedToday = miningRes.rows[0]?.today_date === todayDate
+    const minedToday = sameDateKey(miningRes.rows[0]?.today_date, todayDate)
       ? (parseFloat(miningRes.rows[0]?.today_mined_pp) || 0)
       : 0;
     let dailyRemaining = ppDailyCap > 0 ? Math.max(0, ppDailyCap - minedToday) : Infinity;
