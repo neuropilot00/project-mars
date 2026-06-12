@@ -177,18 +177,28 @@ function scheduleRetry(key, cfg) {
 // ── Health check ──
 
 let healthCheckTimer = null;
+let healthCheckInProgress = false;
 
 function startHealthCheck() {
   if (healthCheckTimer) return;
   healthCheckTimer = setInterval(async () => {
-    for (const [key, { provider }] of Object.entries(listeners)) {
-      try {
-        const blockNumber = await provider.getBlockNumber();
-        console.log(`[Chain] Health: ${CHAIN_CONFIGS[key].name} latest block #${blockNumber}`);
-      } catch (e) {
-        console.error(`[Chain] Health: ${CHAIN_CONFIGS[key].name} unreachable — ${e.message}`);
-        handleDisconnect(key, CHAIN_CONFIGS[key]);
+    if (healthCheckInProgress) {
+      console.warn('[Chain] Health check skipped: previous check still active');
+      return;
+    }
+    healthCheckInProgress = true;
+    try {
+      for (const [key, { provider }] of Object.entries(listeners)) {
+        try {
+          const blockNumber = await provider.getBlockNumber();
+          console.log(`[Chain] Health: ${CHAIN_CONFIGS[key].name} latest block #${blockNumber}`);
+        } catch (e) {
+          console.error(`[Chain] Health: ${CHAIN_CONFIGS[key].name} unreachable — ${e.message}`);
+          handleDisconnect(key, CHAIN_CONFIGS[key]);
+        }
       }
+    } finally {
+      healthCheckInProgress = false;
     }
   }, HEALTH_CHECK_INTERVAL_MS);
   if (healthCheckTimer.unref) healthCheckTimer.unref();
@@ -197,6 +207,7 @@ function startHealthCheck() {
 // ── Start all listeners ──
 
 let reconcileTimer = null;
+let reconcileInProgress = false;
 
 async function startListeners() {
   if (listenersStarted) {
@@ -212,8 +223,19 @@ async function startListeners() {
   // [P0] 만료 미청구 출금 자동 환불 — 리더에서만(startListeners 자체가 리더 게이트됨) 주기 실행.
   if (!reconcileTimer) {
     const everyMs = parseInt(process.env.WITHDRAW_RECONCILE_MS || '60000', 10) || 60000;
-    reconcileTimer = setInterval(() => {
-      reconcilePendingWithdrawals().catch(e => console.error('[Chain] withdraw reconcile error:', e.message));
+    reconcileTimer = setInterval(async () => {
+      if (reconcileInProgress) {
+        console.warn('[Chain] withdraw reconcile skipped: previous run still active');
+        return;
+      }
+      reconcileInProgress = true;
+      try {
+        await reconcilePendingWithdrawals();
+      } catch (e) {
+        console.error('[Chain] withdraw reconcile error:', e.message);
+      } finally {
+        reconcileInProgress = false;
+      }
     }, everyMs);
     if (reconcileTimer.unref) reconcileTimer.unref();
   }
