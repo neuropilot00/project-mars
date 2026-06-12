@@ -68,6 +68,7 @@ function start() {
     if (typeof _hj.recoverOrphanedPhase2 === 'function') _hj.recoverOrphanedPhase2().catch(() => {});
   } catch (_) {}
   intervalHandle = setInterval(runOnce, CHECK_INTERVAL_MS);
+  if (intervalHandle.unref) intervalHandle.unref();
 }
 
 function stop() {

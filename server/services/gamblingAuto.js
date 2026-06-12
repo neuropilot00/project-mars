@@ -175,11 +175,27 @@ async function tick() {
   await tickBetting();
 }
 
+let startTimer = null;
+let intervalTimer = null;
+
 function start() {
+  if (intervalTimer) {
+    console.log('[gamblingAuto] scheduler already running');
+    return;
+  }
   const RUN_MS = 5 * 60 * 1000; // 5분마다
-  setTimeout(() => { tick().catch(e => console.warn('[gamblingAuto] initial tick:', e.message)); }, 20 * 1000);
-  setInterval(() => { tick().catch(e => console.warn('[gamblingAuto] tick:', e.message)); }, RUN_MS);
+  startTimer = setTimeout(() => { tick().catch(e => console.warn('[gamblingAuto] initial tick:', e.message)); }, 20 * 1000);
+  intervalTimer = setInterval(() => { tick().catch(e => console.warn('[gamblingAuto] tick:', e.message)); }, RUN_MS);
+  if (startTimer.unref) startTimer.unref();
+  if (intervalTimer.unref) intervalTimer.unref();
   console.log('[gamblingAuto] auto raffle + betting scheduler started (every 5min)');
 }
 
-module.exports = { start, tick, tickRaffle, tickBetting, decideFactionWinner };
+function stop() {
+  if (startTimer) clearTimeout(startTimer);
+  if (intervalTimer) clearInterval(intervalTimer);
+  startTimer = null;
+  intervalTimer = null;
+}
+
+module.exports = { start, stop, tick, tickRaffle, tickBetting, decideFactionWinner };

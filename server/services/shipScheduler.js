@@ -28,6 +28,7 @@ function start() {
   
   // 주기 실행
   intervalHandle = setInterval(runOnce, CHECK_INTERVAL_MS);
+  if (intervalHandle.unref) intervalHandle.unref();
 }
 
 /**

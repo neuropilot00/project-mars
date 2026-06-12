@@ -195,11 +195,27 @@ async function tick() {
   await tickTournament();
 }
 
+let startTimer = null;
+let intervalTimer = null;
+
 function start() {
+  if (intervalTimer) {
+    console.log('[autoContent] scheduler already running');
+    return;
+  }
   const RUN_MS = 10 * 60 * 1000; // 10분마다
-  setTimeout(() => { tick().catch(e => console.warn('[autoContent] initial tick:', e.message)); }, 30 * 1000);
-  setInterval(() => { tick().catch(e => console.warn('[autoContent] tick:', e.message)); }, RUN_MS);
+  startTimer = setTimeout(() => { tick().catch(e => console.warn('[autoContent] initial tick:', e.message)); }, 30 * 1000);
+  intervalTimer = setInterval(() => { tick().catch(e => console.warn('[autoContent] tick:', e.message)); }, RUN_MS);
+  if (startTimer.unref) startTimer.unref();
+  if (intervalTimer.unref) intervalTimer.unref();
   console.log('[autoContent] auto contest + tournament + wager scheduler started (every 10min)');
 }
 
-module.exports = { start, tick, tickContest, tickTournament, createLinkedWager, settleLinkedWager };
+function stop() {
+  if (startTimer) clearTimeout(startTimer);
+  if (intervalTimer) clearInterval(intervalTimer);
+  startTimer = null;
+  intervalTimer = null;
+}
+
+module.exports = { start, stop, tick, tickContest, tickTournament, createLinkedWager, settleLinkedWager };

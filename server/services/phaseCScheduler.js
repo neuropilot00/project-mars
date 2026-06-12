@@ -8,6 +8,7 @@ const tournament = require('./tournament');
 const { pool } = require('../db');
 
 let intervalHandle = null;
+let initialTimeoutHandle = null;
 const CHECK_INTERVAL_MS = 60 * 1000;  // 1분
 
 function start() {
@@ -15,16 +16,19 @@ function start() {
   console.log(`[phaseCScheduler] starting (every ${CHECK_INTERVAL_MS/1000}s)`);
   
   // 즉시 실행 (AI 함대 확보)
-  setTimeout(() => {
+  initialTimeoutHandle = setTimeout(() => {
     aiFleetManager.ensureAiFleets()
       .then(r => console.log(`[phaseCScheduler] initial AI fleets: ${r.created} created`))
       .catch(err => console.error('[phaseCScheduler] AI init error:', err));
   }, 5000);
+  if (initialTimeoutHandle.unref) initialTimeoutHandle.unref();
   
   intervalHandle = setInterval(runOnce, CHECK_INTERVAL_MS);
+  if (intervalHandle.unref) intervalHandle.unref();
 }
 
 function stop() {
+  if (initialTimeoutHandle) { clearTimeout(initialTimeoutHandle); initialTimeoutHandle = null; }
   if (intervalHandle) { clearInterval(intervalHandle); intervalHandle = null; }
 }
 

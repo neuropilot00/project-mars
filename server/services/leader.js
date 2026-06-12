@@ -92,7 +92,7 @@ async function shouldRunSchedulers() {
       //    재시작된 프로세스(새 ID)는 그 락을 자기 것으로 인식 못 해 SET NX 실패 → 또 web-only →
       //    재경합 → 획득 → exit … 무한 재시작 루프(전 엔드포인트 502)가 발생했다.
       //    → 락이 진짜 공석(GET null)일 때만 exit. 락 획득은 재시작 후 부팅 path 가 단독 수행한다.
-      setInterval(async () => {
+      const retryInterval = setInterval(async () => {
         try {
           const holder = await redis.get(LOCK_KEY);
           if (!holder) {
@@ -103,6 +103,7 @@ async function shouldRunSchedulers() {
           }
         } catch (_) {}
       }, RENEW_MS);
+      if (retryInterval.unref) retryInterval.unref();
       return false;
     }
     // 리더 획득
@@ -112,7 +113,7 @@ async function shouldRunSchedulers() {
     //   renewed!==1 = Redis가 응답했으나 락이 내 것이 아님 = 다른 인스턴스가 이미 인수 → 중복 스케줄러/입금
     //   이중처리를 막기 위해 즉시 exit. (일시 Redis 장애는 throw → catch에서 재시도하므로 여기 안 옴.)
     //   restartPolicyMaxRetries 소진 우려는 railway.json restartPolicyType=ALWAYS(무제한)로 해소.
-    setInterval(async () => {
+    const heartbeatInterval = setInterval(async () => {
       try {
         const renewed = await redis.eval(LUA_RENEW, 1, LOCK_KEY, INSTANCE_ID, String(TTL_MS));
         if (Number(renewed) !== 1) {
@@ -124,6 +125,7 @@ async function shouldRunSchedulers() {
         console.warn('[leader] 하트비트 갱신 실패(재시도):', e.message);
       }
     }, RENEW_MS);
+    if (heartbeatInterval.unref) heartbeatInterval.unref();
     return true;
   } catch (e) {
     // 락 시도 자체 실패 → 안전하게 미실행(중복 위험 회피). 단일 워커 보장 우선.

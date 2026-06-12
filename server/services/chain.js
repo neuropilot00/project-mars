@@ -29,6 +29,7 @@ const CHAIN_CONFIGS = {
 
 const listeners = {};
 const retryState = {}; // { [chainKey]: { delay, timer } }
+let listenersStarted = false;
 
 const RETRY_INITIAL_MS = 1000;
 const RETRY_MAX_MS = 60000;
@@ -68,6 +69,8 @@ async function getPpBonusPct() {
 // ── Connection with retry ──
 
 async function connectChain(key, cfg) {
+  if (listeners[key]) return;
+
   const rpcUrl = process.env[cfg.rpcEnv];
   const contractAddr = process.env[cfg.addrEnv];
 
@@ -166,6 +169,7 @@ function scheduleRetry(key, cfg) {
     retryState[key] = { delay: delay * 2 }; // exponential backoff for next failure
     connectChain(key, cfg);
   }, delay);
+  if (timer.unref) timer.unref();
 
   retryState[key] = { delay, timer };
 }
@@ -187,6 +191,7 @@ function startHealthCheck() {
       }
     }
   }, HEALTH_CHECK_INTERVAL_MS);
+  if (healthCheckTimer.unref) healthCheckTimer.unref();
 }
 
 // ── Start all listeners ──
@@ -194,6 +199,12 @@ function startHealthCheck() {
 let reconcileTimer = null;
 
 async function startListeners() {
+  if (listenersStarted) {
+    console.log('[Chain] listeners already started');
+    return;
+  }
+  listenersStarted = true;
+
   for (const [key, cfg] of Object.entries(CHAIN_CONFIGS)) {
     await connectChain(key, cfg);
   }
@@ -204,6 +215,7 @@ async function startListeners() {
     reconcileTimer = setInterval(() => {
       reconcilePendingWithdrawals().catch(e => console.error('[Chain] withdraw reconcile error:', e.message));
     }, everyMs);
+    if (reconcileTimer.unref) reconcileTimer.unref();
   }
 }
 
