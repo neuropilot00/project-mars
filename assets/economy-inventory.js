@@ -58,6 +58,21 @@ function _filterLiveEffects(effects){
     return true;
   });
 }
+function _fetchActiveEffects(){
+  var w=(walletState&&walletState.address)||'';
+  if(!w)return Promise.resolve([]);
+  var walletKey=String(w).toLowerCase();
+  if(typeof _guardedJsonFetch==='function'){
+    return _guardedJsonFetch('shop-active-effects:'+walletKey, '/api/shop/active-effects', {
+      minGap: 3000,
+      backoffMs: 120000,
+      fetchOptions: { headers: getAuthHeaders() }
+    }).then(function(effects){
+      return effects===null ? _activeEffects : effects;
+    }).catch(function(){return _activeEffects||[];});
+  }
+  return fetch('/api/shop/active-effects', { headers: getAuthHeaders() }).then(function(r){return r.json()});
+}
 function _scheduleActiveEffectsRefresh(){
   _clearActiveEffectsRefresh();
   var nextAt=null, now=Date.now();
@@ -81,7 +96,7 @@ function loadActiveEffects(){
     renderActiveBuffs();
     return Promise.resolve([]);
   }
-  return fetch('/api/shop/active-effects', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(effects){
+  return _fetchActiveEffects().then(function(effects){
     _activeEffects=_filterLiveEffects(effects);
     renderActiveBuffs();
     _scheduleActiveEffectsRefresh();
@@ -1122,7 +1137,7 @@ function loadBaseInventory(){
   // Load inventory + active effects + instances + resources in parallel
   Promise.all([
     fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}),
-    fetch('/api/shop/active-effects', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return []}),
+    _fetchActiveEffects(),
     fetch('/api/items/instances', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return []}),
     fetch('/api/resources/my', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return {inventory:[]}})
   ]).then(function(results){
