@@ -399,6 +399,7 @@ async function salvageKillmail(wreckId, btn) {
     }
     if (typeof rewardBurst === 'function') rewardBurst({ text: label, tier: drops.length > 2 ? 2 : 1, sound: window._sfx && _sfx.success });
     if (typeof showFactionToast === 'function') showFactionToast(label, 'success');
+    try { if (typeof markDailyOpsAction === 'function') markDailyOpsAction('salvage_wreck'); } catch(_) {}
     try { if (typeof loadBaseInventory === 'function') loadBaseInventory(); } catch(_) {}
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'; }

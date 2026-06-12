@@ -263,7 +263,8 @@ function _dailyOpsCanonicalTypes(type){
     campaign_complete: ['campaign_complete'],
     battle_participate: ['battle_participate','battle_participate_3'],
     battle_win: ['battle_win','battle_win_3'],
-    battle_forfeit: ['battle_forfeit']
+    battle_forfeit: ['battle_forfeit'],
+    salvage_wreck: ['salvage_wreck','salvage_wreck_3']
   };
   return map[type] || [type];
 }
@@ -273,6 +274,7 @@ function _dailyOpsKnownTasks(){
     'harvest_pp','harvest_3','harvest_5',
     'territory_art','territory_upgrade','territory_upgrade_3','territory_claim',
     'battle_participate','battle_participate_3','battle_win','battle_win_3','battle_forfeit',
+    'salvage_wreck','salvage_wreck_3',
     'ai_battle','ai_battle_3',
     'upgrade_ship','upgrade_ship_3','upgrade_ship_5','build_ship','repair_ship','repair_ship_3','fleet_formation',
     'craft_resource','craft_resource_3','craft_resource_5','market_list','market_buy','market_activity',

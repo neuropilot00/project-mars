@@ -4,6 +4,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
 const resourceService = require('../services/resource');
+let dailyOps;
+try { dailyOps = require('./dailyOps'); } catch (_) { /* optional daily ops route helper */ }
 
 const requireAuth = (req, res, next) => {
   const token = (req.headers.authorization || '').replace('Bearer ', '');
@@ -103,6 +105,10 @@ router.post('/:id/salvage', requireAuth, async (req, res) => {
       [wallet, JSON.stringify(Object.fromEntries(drops.map(d => [d.code, d.quantity]))), id]
     );
     await client.query('COMMIT');
+    if (dailyOps && typeof dailyOps.notifyMissionProgress === 'function') {
+      dailyOps.notifyMissionProgress(wallet, 'salvage_wreck').catch(() => {});
+      dailyOps.notifyMissionProgress(wallet, 'salvage_wreck_3').catch(() => {});
+    }
     res.json({ success: true, drops });
   } catch (e) {
     try { await client.query('ROLLBACK'); } catch (_) {}

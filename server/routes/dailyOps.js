@@ -24,7 +24,7 @@ function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
-// ── 오늘의 미션 타입 정의 (전체 목록 — 32종) ────────────────
+// ── 오늘의 미션 타입 정의 (전체 목록 — 34종) ────────────────
 const ALL_MISSION_TYPES = [
   // ─ 영토 (0~6) ─
   { type: 'harvest_pp',           label_ko: '영토 채굴 1회',            label_en: 'Harvest territory ×1',         target: 1,  default_gp: 50,  dest_ko: '내 영토 → 채굴',         dest_en: 'Territory → Harvest'   },
@@ -63,6 +63,8 @@ const ALL_MISSION_TYPES = [
   { type: 'daily_login',          label_ko: '오늘 로그인 확인',          label_en: 'Daily login check-in',         target: 1,  default_gp: 30,  dest_ko: '자동 완료',              dest_en: 'Auto-complete'         },
   { type: 'resource_run',          label_ko: '자원 출항 수령 1회',        label_en: 'Collect Resource Run ×1',      target: 1,  default_gp: 90,  dest_ko: '임무 → 자원 출항',       dest_en: 'Mission → Resource Run'},
   { type: 'resource_run_3',        label_ko: '자원 출항 수령 3회',        label_en: 'Collect Resource Run ×3',      target: 3,  default_gp: 220, dest_ko: '임무 → 자원 출항',       dest_en: 'Mission → Resource Run'},
+  { type: 'salvage_wreck',         label_ko: '전투 잔해 회수 1회',        label_en: 'Salvage battle wreck ×1',      target: 1,  default_gp: 90,  dest_ko: 'PvP → 킬보드',           dest_en: 'PvP → Killboard'       },
+  { type: 'salvage_wreck_3',       label_ko: '전투 잔해 회수 3회',        label_en: 'Salvage battle wreck ×3',      target: 3,  default_gp: 230, dest_ko: 'PvP → 킬보드',           dest_en: 'PvP → Killboard'       },
 ];
 
 // 요일별 미션 조합 (하루 4개: 영토1 + 전투1 + 함선/경제1 + 캠페인/로그인1)
@@ -74,8 +76,8 @@ function getTodayMissions(date) {
     2: [3,  7, 17, 29],   // Tue:  이미지등록, 전투참여, 함선건조, 로그인
     3: [1,  9, 22, 27],   // Wed:  채굴3, 전투3회, 재료3, 캠페인
     4: [0, 11, 14, 29],   // Thu:  채굴, AI연습전3, 함선강화, 로그인
-    5: [4,  8, 24, 28],   // Fri:  업그레이드, 전투승리, 마켓등록, 캠페인완료
-    6: [31,10, 15, 27],   // Sat:  자원출항3, AI연습전, 강화3, 캠페인
+    5: [4,  8, 32, 28],   // Fri:  업그레이드, 전투승리, 잔해회수, 캠페인완료
+    6: [31,10, 33, 27],   // Sat:  자원출항3, AI연습전, 잔해회수3, 캠페인
   };
   // 인덱스 범위 보정 (없는 인덱스는 0번으로 대체)
   const len = ALL_MISSION_TYPES.length;
