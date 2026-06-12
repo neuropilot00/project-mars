@@ -468,6 +468,30 @@ function guildUnlockResearch(key){
 //  GUILD WARS UI
 // ═══════════════════════════════════════
 
+function guildWarIntel(myScore, theirScore, hrs, mins){
+  var diff = (parseInt(myScore,10)||0) - (parseInt(theirScore,10)||0);
+  var totalMin = Math.max(0, (parseInt(hrs,10)||0)*60 + (parseInt(mins,10)||0));
+  var close = Math.abs(diff) <= 10;
+  var late = totalMin <= 180;
+  var color = diff > 0 ? 'var(--gn)' : diff < 0 ? 'var(--red)' : 'var(--gold)';
+  var status = diff > 0
+    ? (LANG==='ko'?'우세':LANG==='ja'?'優勢':LANG==='zh'?'优势':'ADVANTAGE')
+    : diff < 0
+      ? (LANG==='ko'?'열세':LANG==='ja'?'劣勢':LANG==='zh'?'劣势':'BEHIND')
+      : (LANG==='ko'?'동점':LANG==='ja'?'同点':LANG==='zh'?'平分':'EVEN');
+  var advice;
+  if(late && diff > 0) advice = LANG==='ko'?'종반 방어: 적 주력 함대를 묶고 무리한 추가 교전은 줄이세요.':LANG==='ja'?'終盤防衛: 敵主力を拘束し、無理な追加交戦は抑える。':LANG==='zh'?'终局防守：牵制敌方主力，减少冒险交战。':'Endgame defense: pin enemy main fleets and avoid unnecessary extra fights.';
+  else if(late && diff <= 0) advice = LANG==='ko'?'종반 역전: 준비된 함대로 즉시 함대전을 걸어 점수차를 줄이세요.':LANG==='ja'?'終盤逆転: 準備済み艦隊で即時交戦し点差を縮める。':LANG==='zh'?'终局翻盘：用可战舰队立即交战缩小分差。':'Endgame comeback: use ready fleets now to cut the score gap.';
+  else if(close) advice = LANG==='ko'?'접전: 승률 높은 표적을 골라 안정적으로 +10점을 쌓으세요.':LANG==='ja'?'接戦: 勝率の高い標的を選び安定して+10点を積む。':LANG==='zh'?'胶着：选择胜率高的目标稳定拿+10分。':'Close war: pick favorable targets and stack reliable +10 point wins.';
+  else if(diff > 0) advice = LANG==='ko'?'리드 유지: 적 준비 함대 수를 확인하고 반격 타이밍을 막으세요.':LANG==='ja'?'リード維持: 敵の準備艦隊数を見て反撃タイミングを潰す。':LANG==='zh'?'保持领先：观察敌方可战舰队，压制反击窗口。':'Hold the lead: watch enemy ready fleets and deny their counter window.';
+  else advice = LANG==='ko'?'추격 필요: 고위험 표적보다 이길 수 있는 적 함대를 우선 치세요.':LANG==='ja'?'追撃必要: 高リスク標的より勝てる敵艦隊を優先。':LANG==='zh'?'需要追分：优先攻击能赢的敌舰队，而非高风险目标。':'Chase points: prioritize beatable enemy fleets over high-risk targets.';
+  return '<div style="margin:6px 0;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);font-size:8.5px;line-height:1.55">'
+    + '<span style="color:'+color+';font-weight:900">'+status+' '+(diff>0?'+':'')+diff+' pts</span>'
+    + '<span style="color:var(--tx3)"> · '+(late?(LANG==='ko'?'종반':LANG==='ja'?'終盤':LANG==='zh'?'终局':'endgame'):(LANG==='ko'?'진행중':LANG==='ja'?'進行中':LANG==='zh'?'进行中':'active'))+'</span><br>'
+    + '<span style="color:var(--tx2)">'+advice+'</span>'
+    + '</div>';
+}
+
 function renderGuildWars(guildId){
   var warBox = document.getElementById('guildWarSection');
   if(!warBox) return;
@@ -503,7 +527,8 @@ function renderGuildWars(guildId){
           '</div>'+
           '<span style="font-size:12px;font-weight:700;color:var(--red)">'+theirScore+'</span>'+
         '</div>'+
-        '<div style="font-size:8px;color:var(--tx3);margin:4px 0 5px;line-height:1.5">'+(LANG==='ko'?'⚔️ 적 길드 멤버에게 <b style="color:#ff8a80">함대전</b>을 선포하여 길드전 포인트를 획득하세요! (승리 시 <b style="color:var(--gold)">+10 pts</b>)':LANG==='ja'?'⚔️ 敵ギルドメンバーに<b style="color:#ff8a80">艦隊戦</b>を宣戦してギルド戦ポイントを獲得！(勝利で<b style="color:var(--gold)">+10 pts</b>)':LANG==='zh'?'⚔️ 向敌方公会成员宣战<b style="color:#ff8a80">舰队战</b>获取公会战积分！(胜利<b style="color:var(--gold)">+10 pts</b>)':'⚔️ Declare fleet battle vs enemy guild members to earn points! (Win: <b style="color:var(--gold)">+10 pts</b>)')+'</div>'+
+          '<div style="font-size:8px;color:var(--tx3);margin:4px 0 5px;line-height:1.5">'+(LANG==='ko'?'⚔️ 적 길드 멤버에게 <b style="color:#ff8a80">함대전</b>을 선포하여 길드전 포인트를 획득하세요! (승리 시 <b style="color:var(--gold)">+10 pts</b>)':LANG==='ja'?'⚔️ 敵ギルドメンバーに<b style="color:#ff8a80">艦隊戦</b>を宣戦してギルド戦ポイントを獲得！(勝利で<b style="color:var(--gold)">+10 pts</b>)':LANG==='zh'?'⚔️ 向敌方公会成员宣战<b style="color:#ff8a80">舰队战</b>获取公会战积分！(胜利<b style="color:var(--gold)">+10 pts</b>)':'⚔️ Declare fleet battle vs enemy guild members to earn points! (Win: <b style="color:var(--gold)">+10 pts</b>)')+'</div>'+
+        guildWarIntel(myScore, theirScore, hrs, mins)+
         '<div style="display:flex;gap:4px;margin-top:2px">'+
           '<button onclick="openGuildWarFight('+w.id+','+guildId+')" style="flex:2;padding:6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.28),rgba(200,40,40,.12));border:1px solid rgba(232,72,85,.5);color:#ff8a80;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚔️ '+(LANG==='ko'?'함대전 선포':LANG==='ja'?'艦隊戦宣戦':LANG==='zh'?'宣战舰队战':'Declare Battle')+'</button>'+
           '<button onclick="viewWarScoreboard('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--gn);font-size:9px;cursor:pointer">📊 SCORES</button>'+
