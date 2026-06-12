@@ -7,6 +7,18 @@ function stopRotation(){if(globe&&globe.controls)globe.controls().autoRotate=fal
 document.getElementById('globe-wrap').addEventListener('mousedown',stopRotation);
 document.getElementById('globe-wrap').addEventListener('touchstart',stopRotation);
 
+function _territoryReadJson(key, url, minGap) {
+  var walletKey = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('territory:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: { headers: getAuthHeaders() }
+    });
+  }
+  return fetch(url, { headers: getAuthHeaders() }).then(function(r){return r.ok ? r.json() : null;}).catch(function(){return null;});
+}
+
 function goBack(){
   selectedPlot=null;isZoomedIn=false;
   document.getElementById('territoryInfo').style.display='none';
@@ -1037,7 +1049,7 @@ async function openTerritoryMergePanel() {
   if (!myClaims || myClaims.length < 2) {
     // Try fetching from API
     try {
-      var data = await fetch('/api/user/my-territories', { headers: getAuthHeaders() }).then(function(r){return r.json();});
+      var data = await _territoryReadJson('my-territories', '/api/user/my-territories', 15000);
       myClaims = (data && data.territories) ? data.territories : (Array.isArray(data) ? data : []);
     } catch(_) {}
   }
@@ -1303,9 +1315,9 @@ function loadTerritoryProduction(claimId,wallet){
   if(!prodRow||!prodBody) return;
   prodBody.textContent='Loading…';
   prodRow.style.display='';
-  fetch('/api/territory/'+claimId+'/production', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();})
+  _territoryReadJson('production:'+claimId, '/api/territory/'+claimId+'/production', 8000)
     .then(function(d){
+      if(!d){prodRow.style.display='none';return;}
       if(d.error){prodBody.textContent='—';return;}
       if(d.tendCostGp!=null) window._tendCostGp=d.tendCostGp; // [v7.278] TEND 비용 사전표시용 캐시
       var lang=(typeof LANG!=='undefined'?LANG:'ko');
@@ -1432,9 +1444,9 @@ function loadTerritoryProduction(claimId,wallet){
 }
 
 function _appendSectorControl(container, sectorId, wallet, lang) {
-  fetch('/api/sectors/'+sectorId+'/control', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();})
+  _territoryReadJson('sector-control:'+sectorId, '/api/sectors/'+sectorId+'/control', 15000)
     .then(function(d){
+      if(!d) return;
       if(d.error||!d.sector) return;
       var TIER_LABELS = lang==='ko'?{ governor:'총독', dominant:'지배', stakeholder:'이해관계자', presence:'존재감' }:lang==='ja'?{ governor:'総督', dominant:'支配', stakeholder:'利害関係者', presence:'プレゼンス' }:lang==='zh'?{ governor:'总督', dominant:'主导', stakeholder:'利益相关者', presence:'存在感' }:{ governor:'Governor', dominant:'Dominant', stakeholder:'Stakeholder', presence:'Presence' };
       var TIER_COLORS = { governor:'#ffd700', dominant:'#ff6b6b', stakeholder:'#ffc140', presence:'#64dc82' };
@@ -1587,10 +1599,13 @@ function loadTerritoryUpgrades(claimId, targetBodyId) {
   }
   body.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
   _territoryUpgradeState.loading = true;
-  fetch('/api/territory/' + claimId + '/upgrades', { headers: getAuthHeaders() })
-    .then(function(r){ return r.json(); })
+  _territoryReadJson('upgrades:' + claimId, '/api/territory/' + claimId + '/upgrades', 10000)
     .then(function(d){
       _territoryUpgradeState.loading = false;
+      if (!d) {
+        body.innerHTML = '<div style="font-size:9px;color:var(--tx3)">'+(LANG==='ko'?'잠시 후 다시 시도하세요':LANG==='ja'?'少し待って再試行してください':LANG==='zh'?'请稍后重试':'Please wait a moment and retry')+'</div>';
+        return;
+      }
       _territoryUpgradeState.data = d;
       renderTerritoryUpgradeBody(d, claimId, wallet, targetBodyId);
     })
@@ -1943,7 +1958,8 @@ function _renderCosmeticSlotsInto(slotsId, plot){
   var cos=plot.cosmetics||{};
   var w=walletState.address;
   slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">Loading…</div>';
-  fetch('/api/shop/inventory', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(inv){
+  _territoryReadJson('cosmetic-inventory', '/api/shop/inventory', 10000).then(function(inv){
+    if (!inv) inv = [];
     var html='';
     ['border','glow','terrain'].forEach(function(type){
       var typeLabel=type.toUpperCase();
@@ -2692,8 +2708,7 @@ function _loadMobTerritoryProdInfo(claimId, plot){
   box.style.display = '';
   box.innerHTML = '<div style="color:var(--tx3);font-size:9px">'+(LANG==='ko'?'로딩 중…':LANG==='ja'?'読込中…':LANG==='zh'?'加载中…':'Loading…')+'</div>';
   var wallet = ((walletState&&walletState.address)||getMyWallet()||'').toLowerCase();
-  fetch('/api/territory/'+claimId+'/production', { headers: getAuthHeaders() })
-    .then(function(r){return r.json();})
+  _territoryReadJson('mob-production:'+claimId, '/api/territory/'+claimId+'/production', 8000)
     .then(function(d){
       if (!d || d.error) { box.style.display='none'; return; }
       var lang = LANG;
