@@ -270,6 +270,7 @@
       });
       html += '</select>';
 
+      html += '<div id="smRouteChoices" style="margin-bottom:8px"></div>';
       html += '<div id="smPreview" style="font-size:9px;color:var(--tx3);line-height:1.7;margin-bottom:8px"></div>';
       html += '<div id="smRouteIntel" style="margin-bottom:8px"></div>';
       html += '<button id="smLaunchBtn" type="button" onclick="smLaunchMining()" style="width:100%;padding:10px;border-radius:8px;background:linear-gradient(135deg,#64dc82,#35a85b);border:none;color:#001;font-family:var(--fn);font-size:11px;font-weight:900;letter-spacing:1px;cursor:pointer">' + lang('LAUNCH RESOURCE RUN', '채굴 출항', '採掘へ出航', '启动采矿航线') + '</button>';
@@ -323,6 +324,52 @@
     }).join('');
   }
 
+  function routeChoiceScore(dest, cap, h) {
+    var routeControlBonus = routeControlBonusFor(dest && dest.key);
+    var gross = estimateRunGp(cap, h, dest);
+    var launchCost = Number(state.info && state.info.launchCostGp) || 0;
+    var wearMult = Number(dest && dest.wearMult) || 1;
+    var raid = Number(dest && dest.raidPct) || 0;
+    var rare = Number(dest && dest.rareMult) || 1;
+    var resource = Number(dest && (dest.resourceMult || dest.yieldMult)) || 1;
+    var riskPenalty = raid >= 0.12 || wearMult >= 2.2 ? 0.76 : (raid >= 0.04 || wearMult >= 1.4 ? 0.9 : 1);
+    var score = Math.round(((gross - launchCost) + cap * h * resource * 1.4 + rare * 12) * routeControlBonus * riskPenalty);
+    return { gross:gross, net:gross - launchCost, score:score, riskPenalty:riskPenalty, control:routeControlBonus };
+  }
+
+  function renderRouteChoices(fleet, durationH, selectedDestKey) {
+    var wrap = document.getElementById('smRouteChoices');
+    if (!wrap || !state.info) return;
+    var dests = state.info.destinations || [];
+    if (!dests.length || !fleet) {
+      wrap.innerHTML = '';
+      return;
+    }
+    var cap = fleetCapacityEstimate(fleet);
+    var ranked = dests.map(function (d) {
+      return { dest:d, info:routeChoiceScore(d, cap, durationH) };
+    }).sort(function (a, b) { return b.info.score - a.info.score; });
+    var title = lang('Recommended belts', '추천 채굴권', 'おすすめ採掘圏', '推荐采矿区');
+    var hint = lang('based on fleet capacity and duration', '함대 적재량/시간 기준', '艦隊容量と時間基準', '按舰队容量和时长计算');
+    wrap.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 5px">' +
+        '<span style="font-size:9px;color:#64dc82;font-family:var(--fn);font-weight:900;letter-spacing:.8px">▸ ' + title + '</span>' +
+        '<span style="font-size:7.5px;color:var(--tx3);font-family:var(--fn)">' + hint + '</span>' +
+      '</div>' +
+      ranked.map(function (row) {
+        var d = row.dest;
+        var i = row.info;
+        var active = String(selectedDestKey || '') === String(d.key);
+        var riskColor = routeRiskColor(d);
+        return '<button type="button" onclick="smSelectMiningRoute(\'' + txt(d.key) + '\')" style="width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;text-align:left;margin-bottom:5px;padding:7px 8px;border-radius:7px;border:1px solid ' + (active ? riskColor : 'rgba(100,220,130,.18)') + ';background:' + (active ? 'rgba(100,220,130,.08)' : 'rgba(100,220,130,.035)') + ';cursor:pointer;color:var(--tx);font-family:var(--fn)">' +
+          '<span style="min-width:0"><span style="display:block;font-size:9px;font-weight:900;color:' + riskColor + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + txt(routeName(d.key)) + '</span>' +
+          '<span style="display:block;font-size:7.5px;color:var(--tx3);margin-top:2px">' + txt(routeDifficultyLabel(d) + ' · ' + routePressureLabel(d)) + ' · score ' + txt(i.score) + '</span></span>' +
+          '<span style="font-size:8px;color:var(--gold);font-weight:900;white-space:nowrap">+' + txt(i.gross) + ' GP</span>' +
+          '<span style="font-size:7.5px;color:' + riskColor + ';font-weight:900;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:2px 5px;white-space:nowrap">' + txt(routeRiskLabel(d)) + '</span>' +
+        '</button>';
+      }).join('');
+  }
+
   window.smUpdatePreview = function () {
     var el = document.getElementById('smPreview');
     if (!el || !state.info) return;
@@ -333,6 +380,7 @@
     var h = Number(picks.durationH || (state.info.durationsH || [1])[0]) || 1;
     if (!fleet) { el.textContent = ''; return; }
     var cap = fleetCapacityEstimate(fleet);
+    renderRouteChoices(fleet, h, dest.key);
     var allianceBonus = allianceBonusFor(dest.key);
     var territoryBonus = territoryBonusFor(dest.key);
     var routeControlBonus = routeControlBonusFor(dest.key);
@@ -389,6 +437,12 @@
           '</div>' +
         '</div>';
     }
+  };
+
+  window.smSelectMiningRoute = function (key) {
+    var dest = document.getElementById('smDestinationSelect');
+    if (dest) dest.value = String(key || '');
+    window.smUpdatePreview();
   };
 
   window._renderShipMining = function () {
