@@ -32,9 +32,11 @@ function _clamp(n, min, max, fb) {
 function _normalizeDestination(d) {
   const key = String(d && d.key || '').trim();
   if (!key) return null;
+  const yieldMult = _clamp(d.yieldMult, 0.1, 10, 1);
   return {
     key: key,
-    yieldMult: _clamp(d.yieldMult, 0.1, 10, 1),
+    yieldMult: yieldMult,
+    resourceMult: _clamp(d.resourceMult == null ? yieldMult : d.resourceMult, 0.1, 10, yieldMult),
     wearMult: _clamp(d.wearMult, 0, 10, 1),
     raidPct: _clamp(d.raidPct, 0, 0.95, 0),
   };
@@ -235,8 +237,9 @@ async function collectMining(wallet, jobId) {
     if (new Date(job.ends_at).getTime() > Date.now()) { await client.query('ROLLBACK'); throw new Error('not_ready'); }
 
     // 목적지(거리) 설정 + 약탈 판정 — 멀수록 수율↑·마모↑·약탈위험↑.
-    const destCfg = dests.find(function (d) { return d.key === (job.sector_type || 'frontier'); }) || { yieldMult: 1, wearMult: 1, raidPct: 0 };
+    const destCfg = dests.find(function (d) { return d.key === (job.sector_type || 'frontier'); }) || { yieldMult: 1, resourceMult: 1, wearMult: 1, raidPct: 0 };
     const yieldMult = Number(destCfg.yieldMult) || 1;
+    const resourceMult = Number(destCfg.resourceMult) || yieldMult;
     const wearMult = Number(destCfg.wearMult) || 1;
     const raided = (Number(destCfg.raidPct) || 0) > 0 && Math.random() < Number(destCfg.raidPct);
     const raidYieldFactor = raided ? 0.5 : 1;
@@ -261,7 +264,7 @@ async function collectMining(wallet, jobId) {
     // 재료 드롭 — capacity·시간 비례 roll, 목적지 드롭테이블(원거리=희귀). 약탈 시 roll 절반.
     let drops = [];
     if (resourceSvc && resourceSvc.rollResourceDrop && resourceSvc.addResourcesToInventory) {
-      let rolls = Math.max(1, Math.round((cap / 2) * (Number(job.duration_h) / 4) * rollsPer4h));
+      let rolls = Math.max(1, Math.round((cap / 2) * (Number(job.duration_h) / 4) * rollsPer4h * resourceMult));
       if (raided) rolls = Math.max(1, Math.floor(rolls / 2));
       const merged = {};
       for (let i = 0; i < rolls; i++) {

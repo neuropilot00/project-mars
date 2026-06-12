@@ -150,7 +150,7 @@
 
       html += '<select id="smDestinationSelect" onchange="smUpdatePreview()" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;padding:8px;font-family:var(--fn);font-size:10px;margin-bottom:8px">';
       dests.forEach(function (d) {
-        var line = routeName(d.key) + ' · ' + routeRiskLabel(d) + ' · x' + Number(d.yieldMult || 1).toFixed(1) + ' yield · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
+        var line = routeName(d.key) + ' · ' + routeRiskLabel(d) + ' · x' + Number(d.yieldMult || 1).toFixed(1) + ' GP · x' + Number(d.resourceMult || d.yieldMult || 1).toFixed(1) + ' resource · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
         html += '<option value="' + txt(d.key) + '"' + (String(picks.destination || '') === String(d.key) ? ' selected' : '') + '>' + txt(line) + '</option>';
       });
       html += '</select>';
@@ -209,10 +209,12 @@
     var netGp = gp - launchCost;
     var wearPct = (Number(state.info.hullWearPctPerHour) || 0) * (Number(dest.wearMult) || 1) * h;
     var raidWearPct = wearPct * 1.5;
+    var resourceMult = Number(dest.resourceMult || dest.yieldMult || 1);
     var capLine = Number(state.info.gpCapPerDay) > 0 ? ' · ' + lang('daily cap', '일일 상한', '日次上限', '每日上限') + ' ' + state.info.gpCapPerDay + ' GP' : '';
     el.innerHTML = '<span style="color:' + routeRiskColor(dest) + ';font-weight:900">' + txt(routeRiskLabel(dest)) + '</span> · ' +
       lang('Gross', '총 보상', '総報酬', '总收益') + ': <b style="color:var(--gold)">+' + gp + ' GP</b> · ' +
       lang('Net', '순익', '純益', '净收益') + ': <b style="color:' + (netGp >= 0 ? '#64dc82' : 'var(--red)') + '">' + (netGp >= 0 ? '+' : '') + netGp + ' GP</b> · CAP ' + txt(cap) + capLine + '<br>' +
+      lang('resource yield', '재료 수율', '資源収率', '资源产出') + ' x' + resourceMult.toFixed(1) + ' · ' +
       lang('hull wear', '선체 마모', '船体摩耗', '船体损耗') + ' x' + Number(dest.wearMult || 1).toFixed(1) + ' · ' +
       lang('raid risk', '약탈 위험', '襲撃リスク', '袭击风险') + ' ' + pct(dest.raidPct) + '% · ' +
       lang('expected wear', '예상 마모', '予想摩耗', '预计损耗') + ' ' + pct(wearPct) + '%' +
