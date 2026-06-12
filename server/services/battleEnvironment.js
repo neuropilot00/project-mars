@@ -101,6 +101,50 @@ const BATTLEFIELD_MODIFIERS = {
   settlement_airspace: { atk: 0.99, def: 1.04, speed: 0.97, note: 'Settlement traffic favors coordinated defense.' }
 };
 
+const BATTLEFIELD_OBJECTIVES = {
+  orbit_territory: 'Control orbital approach lanes before reinforcements arrive.',
+  garrison: 'Break layered air defenses or let the defender grind you down.',
+  mining_site: 'Strike exposed mining machinery and recover raw ore.',
+  canyon_outpost: 'Use canyon cover to ambush slow fleets.',
+  polar_ice: 'Hold sensor lock through glare and low visibility.',
+  lava_tube: 'Force burst trades before thermal hazards peak.',
+  crater_relay: 'Capture the relay ridge to deny defensive targeting.',
+  refinery_yard: 'Breach refinery cover and loot volatile industrial parts.',
+  colony_dome: 'Protect civilian infrastructure while securing the dome.',
+  excavation_grid: 'Exploit survey lanes and harvest exposed dig sites.',
+  dust_storm: 'Win through degraded visibility and low-speed pursuit.',
+  occupied_airspace: 'Apply decisive pressure over contested occupation zones.',
+  shipyard_drydock: 'Break dockside cover before repair crews stabilize defense.',
+  convoy_route: 'Intercept logistics columns and seize cargo remnants.',
+  ancient_ruins: 'Fight around unstable relic structures for rare salvage.',
+  orbital_blockade: 'Crack the blockade in close, punishing trades.',
+  garrison_rooftop: 'Dislodge fortified rooftops before defenders entrench.',
+  deep_mine: 'Exploit confined shafts for high-risk burst damage.',
+  settlement_airspace: 'Control settlement traffic without losing formation.'
+};
+
+const BATTLEFIELD_SALVAGE_HINTS = {
+  orbit_territory: ['meteorite_fragment', 'iron_dust'],
+  garrison: ['basalt_chip', 'iron_dust'],
+  mining_site: ['iron_dust', 'regolith_ore'],
+  canyon_outpost: ['basalt_chip', 'red_sand'],
+  polar_ice: ['ice_crystal'],
+  lava_tube: ['volcanic_shard', 'basalt_chip'],
+  crater_relay: ['iron_dust', 'plasma_dust'],
+  refinery_yard: ['basalt_chip', 'volcanic_shard'],
+  colony_dome: ['red_sand', 'ice_crystal'],
+  excavation_grid: ['iron_dust', 'basalt_chip'],
+  dust_storm: ['red_sand', 'regolith_ore'],
+  occupied_airspace: ['plasma_dust', 'iron_dust'],
+  shipyard_drydock: ['iron_dust', 'basalt_chip'],
+  convoy_route: ['red_sand', 'meteorite_fragment'],
+  ancient_ruins: ['ancient_metal', 'plasma_dust'],
+  orbital_blockade: ['plasma_dust', 'meteorite_fragment'],
+  garrison_rooftop: ['basalt_chip', 'iron_dust'],
+  deep_mine: ['regolith_ore', 'basalt_chip'],
+  settlement_airspace: ['red_sand', 'iron_dust']
+};
+
 function stableIndex(seed) {
   seed = String(seed || '');
   let hash = 0;
@@ -164,7 +208,9 @@ function decorateBattle(row) {
     battlefield_key: battlefieldKey,
     battlefield_label: BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey,
     environment_tags: FIELD_TAGS[battlefieldKey] || [],
-    environment_modifiers: BATTLEFIELD_MODIFIERS[battlefieldKey] || {}
+    environment_modifiers: BATTLEFIELD_MODIFIERS[battlefieldKey] || {},
+    environment_objective: BATTLEFIELD_OBJECTIVES[battlefieldKey] || '',
+    environment_salvage_hint: BATTLEFIELD_SALVAGE_HINTS[battlefieldKey] || []
   });
 }
 
@@ -176,6 +222,8 @@ module.exports = {
   BATTLEFIELD_KEYS,
   BATTLEFIELD_LABELS,
   BATTLEFIELD_MODIFIERS,
+  BATTLEFIELD_OBJECTIVES,
+  BATTLEFIELD_SALVAGE_HINTS,
   FIELD_TAGS,
   pickBattlefieldKey,
   decorateBattle,
