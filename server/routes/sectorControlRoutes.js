@@ -114,6 +114,22 @@ async function buildSectorControlSnapshot() {
       sectorDataMap[sId][wallet].battleScore += battleScore;
       sectorDataMap[sId][wallet].totalScore += totalScore;
     }
+    Object.keys(battleMap).forEach(sId => {
+      if (!sectorDataMap[sId]) sectorDataMap[sId] = {};
+      Object.keys(battleMap[sId] || {}).forEach(wallet => {
+        if (sectorDataMap[sId][wallet]) return;
+        const battleScore = (battleMap[sId][wallet] || 0) * BATTLE_WIN_CONTROL_SCORE;
+        if (battleScore <= 0) return;
+        sectorDataMap[sId][wallet] = {
+          wallet,
+          pixelArea: 0,
+          upgradeScore: 0,
+          harvestScore: 0,
+          battleScore,
+          totalScore: battleScore
+        };
+      });
+    });
 
     const sectors = sectorsRes.rows.map(s => {
       const ownerMap = sectorDataMap[s.id] || {};
@@ -211,21 +227,18 @@ router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
     }
 
     let battleMap = {};
-    if (wallets.length) {
-      const battleRes = await pool.query(`
-        SELECT LOWER(p.wallet_address) AS wallet, COUNT(*)::int AS win_count
-        FROM fleet_battles fb
-        JOIN fleet_battle_participants p ON p.battle_id = fb.id AND p.side = fb.winner_side
-        WHERE fb.status = 'ended'
-          AND fb.sector_id = $1
-          AND fb.winner_side IN ('atk','def')
-          AND fb.battle_type IN ('pvp_duel','hijack','siege')
-          AND fb.ended_at > NOW() - INTERVAL '7 days'
-          AND LOWER(p.wallet_address) = ANY($2)
-        GROUP BY LOWER(p.wallet_address)
-      `, [sectorId, wallets]);
-      battleRes.rows.forEach(r => { battleMap[r.wallet] = parseInt(r.win_count, 10) || 0; });
-    }
+    const battleRes = await pool.query(`
+      SELECT LOWER(p.wallet_address) AS wallet, COUNT(*)::int AS win_count
+      FROM fleet_battles fb
+      JOIN fleet_battle_participants p ON p.battle_id = fb.id AND p.side = fb.winner_side
+      WHERE fb.status = 'ended'
+        AND fb.sector_id = $1
+        AND fb.winner_side IN ('atk','def')
+        AND fb.battle_type IN ('pvp_duel','hijack','siege')
+        AND fb.ended_at > NOW() - INTERVAL '7 days'
+      GROUP BY LOWER(p.wallet_address)
+    `, [sectorId]);
+    battleRes.rows.forEach(r => { battleMap[r.wallet] = parseInt(r.win_count, 10) || 0; });
 
     const owners = ownerRes.rows.map(r => {
       const w = r.wallet.toLowerCase();
@@ -236,6 +249,18 @@ router.get('/sectors/:sectorId/control', readLimiter, async (req, res) => {
         harvestScore: (activityMap[w] || 0) * 3,
         battleScore: (battleMap[w] || 0) * BATTLE_WIN_CONTROL_SCORE,
       };
+    });
+    Object.keys(battleMap).forEach(w => {
+      if (owners.some(o => o.wallet === w)) return;
+      const battleScore = (battleMap[w] || 0) * BATTLE_WIN_CONTROL_SCORE;
+      if (battleScore <= 0) return;
+      owners.push({
+        wallet: w,
+        pixelArea: 0,
+        upgradeScore: 0,
+        harvestScore: 0,
+        battleScore,
+      });
     });
     owners.forEach(o => { o.totalScore = o.pixelArea + o.upgradeScore + o.harvestScore + o.battleScore; });
     const totalSectorScore = owners.reduce((a, o) => a + o.totalScore, 0);
