@@ -36834,7 +36834,7 @@ function loadShieldPanel() {
   el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
   Promise.all([
     fetch('/api/shield/catalog').then(function(r){ return r.json(); }),
-    fetch('/api/shield/my-shields?wallet=' + walletState.address).then(function(r){ return r.json(); })
+    fetch('/api/shield/my-shields', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
   ]).then(function(results) {
     _shieldCatalog = results[0];
     renderShieldPanel(_shieldCatalog, results[1].shields || []);

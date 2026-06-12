@@ -40,11 +40,11 @@ router.get('/shield/catalog', async (req, res) => {
   }
 });
 
-// ── GET /api/shield/my-shields?wallet= ───────────────────────────────────────
-router.get('/shield/my-shields', async (req, res) => {
+// ── GET /api/shield/my-shields ───────────────────────────────────────────────
+router.get('/shield/my-shields', requireAuth, async (req, res) => {
   try {
     if (!shieldSvc) return res.status(503).json({ error: 'Service unavailable' });
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const shields = await shieldSvc.getMyShields(wallet);
     res.json({ shields });
