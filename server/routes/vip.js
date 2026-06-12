@@ -13,6 +13,9 @@ const requireAuth = (req, res, next) => {
     next();
   } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
 };
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 let logGPActivity, seasonService, weeklySvc;
 try { ({ logGPActivity } = require('../db')); } catch (_) {}
@@ -25,9 +28,9 @@ router.get('/vip/tiers', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/vip/my?wallet= — get player's active VIP pass
-router.get('/vip/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/vip/my — get player's active VIP pass
+router.get('/vip/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await vipSvc.getMyPass(wallet)); }
   catch (e) { res.status(500).json({ error: e.message }); }
@@ -35,7 +38,7 @@ router.get('/vip/my', async (req, res) => {
 
 // POST /api/vip/purchase — { tierId }
 router.post('/vip/purchase', requireAuth, async (req, res) => {
-  const wallet = (req.user.wallet_address || req.user.wallet || req.user.walletAddress || '').toLowerCase().trim();
+  const wallet = getAuthWallet(req);
   const { tierId } = req.body || {};
   if (!wallet || !tierId) return res.status(400).json({ error: 'tierId required' });
   try {

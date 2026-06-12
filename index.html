@@ -21667,7 +21667,7 @@ function loadVipView() {
   var w = walletState && walletState.address;
   // Load current pass status
   if (w) {
-    fetch('/api/vip/my?wallet=' + encodeURIComponent(w))
+    fetch('/api/vip/my', { headers: getAuthHeaders() })
       .then(function(r){return r.json();})
       .then(function(pass){
         var statusEl = document.getElementById('myVipStatus');
