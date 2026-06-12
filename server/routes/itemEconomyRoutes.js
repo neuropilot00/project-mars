@@ -828,17 +828,34 @@ router.post('/shop/auto-renew', requireAuth, writeLimiter, async (req, res) => {
     if (shieldId) {
       // Toggle auto_renew on shield
       const result = await pool.query(
-        'UPDATE pixel_shields SET auto_renew = $1 WHERE id = $2 AND owner = $3 RETURNING id',
+        `UPDATE pixel_shields
+         SET auto_renew = $1
+         WHERE id = $2
+           AND owner = $3
+           AND ($1 = false OR expires_at > NOW())
+         RETURNING id`,
         [autoRenew, shieldId, w]
       );
-      if (!result.rows.length) return res.status(404).json({ error: 'Shield not found or not yours' });
+      if (!result.rows.length) return res.status(404).json({ error: 'Shield not found, expired, or not yours' });
     } else {
       // Toggle auto_renew on active effect
       const result = await pool.query(
-        'UPDATE user_active_effects SET auto_renew = $1 WHERE id = $2 AND wallet = $3 RETURNING id',
+        `UPDATE user_active_effects
+         SET auto_renew = $1
+         WHERE id = $2
+           AND wallet = $3
+           AND (
+             $1 = false
+             OR (
+               active = true
+               AND (expires_at IS NULL OR expires_at > NOW())
+               AND (uses_remaining IS NULL OR uses_remaining > 0)
+             )
+           )
+         RETURNING id`,
         [autoRenew, effectId, w]
       );
-      if (!result.rows.length) return res.status(404).json({ error: 'Effect not found or not yours' });
+      if (!result.rows.length) return res.status(404).json({ error: 'Effect not found, expired, depleted, or not yours' });
     }
 
     res.json({ success: true, autoRenew });
