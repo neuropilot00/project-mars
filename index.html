@@ -26991,7 +26991,7 @@ function _transformJobData(raw, lang){
 function loadUserJob(wallet, rank){
   if(!wallet) return;
   var lang = (window.LANG || window._lang || 'en');
-  fetch('/api/user/job?wallet='+encodeURIComponent(wallet)+'&lang='+lang)
+  fetch('/api/user/job?lang='+lang, { headers: getAuthHeaders() })
     .then(function(r){return r.json()})
     .then(function(raw){
       var data = _transformJobData(raw, lang);

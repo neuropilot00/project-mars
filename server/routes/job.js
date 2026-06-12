@@ -57,8 +57,8 @@ router.get('/jobs', async (req, res) => {
 // GET /api/user/job
 // 내 현재 직업 + 버프 목록 + 변경 상태
 // ─────────────────────────────────────────
-router.get('/user/job', async (req, res) => {
-  const wallet = getWallet(req);
+router.get('/user/job', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   try {
     const lang = ['en','ko','ja','zh'].includes(req.query.lang) ? req.query.lang : 'en';
@@ -94,8 +94,8 @@ router.post('/user/job', requireAuth, async (req, res) => {
 // GET /api/user/job/change-status
 // 직업 변경 가능 여부 상세 조회
 // ─────────────────────────────────────────
-router.get('/user/job/change-status', async (req, res) => {
-  const wallet = getWallet(req);
+router.get('/user/job/change-status', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
   try {
     const data = await jobService.getUserJob(wallet, 'en');
