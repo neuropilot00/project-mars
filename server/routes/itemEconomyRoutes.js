@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { makeRateLimiter } = require('../utils/rateLimiters');
-const { pool, creditReferralCommission } = require('../db');
+const { pool, creditReferralCommission, logGPActivity } = require('../db');
 const { requireAuth, getAuthWallet } = require('../utils/apiHelpers');
 
 let seasonService;
@@ -39,6 +39,67 @@ function getOptionalAuthWallet(req) {
 function getUseEffectExpiry(item) {
   const hours = Number(item?.duration_hours) > 0 ? Number(item.duration_hours) : USE_EFFECT_DEFAULT_HOURS;
   return new Date(Date.now() + hours * 3600000);
+}
+
+async function settleGpGenerators(wallet) {
+  const w = String(wallet || '').toLowerCase().trim();
+  if (!w) return 0;
+  const client = await pool.connect();
+  let totalGp = 0;
+  try {
+    await client.query('BEGIN');
+    const effects = await client.query(
+      `SELECT id, effect_value, activated_at, expires_at, COALESCE(last_settled_at, activated_at) AS last_settled_at
+       FROM user_active_effects
+       WHERE wallet = $1
+         AND effect_type = 'gp_generator'
+         AND active = true
+         AND expires_at IS NOT NULL
+         AND COALESCE(last_settled_at, activated_at) < expires_at
+       FOR UPDATE`,
+      [w]
+    );
+    const now = Date.now();
+    for (const effect of effects.rows) {
+      const lastAt = new Date(effect.last_settled_at || effect.activated_at).getTime();
+      const expiresAt = new Date(effect.expires_at).getTime();
+      if (!Number.isFinite(lastAt) || !Number.isFinite(expiresAt)) continue;
+      const settleAt = Math.min(now, expiresAt);
+      const elapsedMs = settleAt - lastAt;
+      const expired = expiresAt <= now;
+      if (elapsedMs < 60000) {
+        if (expired) await client.query('UPDATE user_active_effects SET active = false WHERE id = $1', [effect.id]);
+        continue;
+      }
+      const gpPerHour = Math.max(0, parseFloat(effect.effect_value) || 0);
+      const gpEarned = Math.round(gpPerHour * (elapsedMs / 3600000) * 1000000) / 1000000;
+      if (gpEarned > 0) {
+        await client.query(
+          'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+          [gpEarned, w]
+        );
+        totalGp += gpEarned;
+      }
+      await client.query(
+        `UPDATE user_active_effects
+         SET last_settled_at = to_timestamp($2 / 1000.0),
+             active = CASE WHEN expires_at <= NOW() THEN false ELSE active END
+         WHERE id = $1`,
+        [effect.id, settleAt]
+      );
+    }
+    await client.query('COMMIT');
+    if (totalGp > 0 && logGPActivity) {
+      logGPActivity(w, Math.round(totalGp * 1000000) / 1000000, 'gp_generator', 'GP Generator settlement').catch(() => {});
+    }
+    return Math.round(totalGp * 1000000) / 1000000;
+  } catch (e) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    console.warn('[SHOP] gp_generator settlement skipped:', e.message);
+    return 0;
+  } finally {
+    client.release();
+  }
 }
 
 // ══════════════════════════════════════
@@ -498,6 +559,7 @@ router.get('/shop/active-effects', requireAuth, readLimiter, async (req, res) =>
   const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'wallet required' });
   try {
+    await settleGpGenerators(w);
     // Auto-expire duration/uses based effects before returning UI state.
     await pool.query(
       `UPDATE user_active_effects
