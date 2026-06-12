@@ -44,6 +44,27 @@ const BATTLEFIELD_LABELS = {
   deep_mine: 'Deep Mine Pit',
   settlement_airspace: 'Settlement Airspace'
 };
+const BATTLEFIELD_BACKGROUNDS = {
+  orbit_territory: '/assets/textures/battlefields/mars_orbit_territory.png',
+  garrison: '/assets/textures/battlefields/mars_garrison_topdown.png',
+  mining_site: '/assets/textures/battlefields/mars_mining_site_topdown.png',
+  canyon_outpost: '/assets/textures/battlefields/mars_canyon_outpost_topdown.png',
+  polar_ice: '/assets/textures/battlefields/mars_polar_ice_topdown.png',
+  lava_tube: '/assets/textures/battlefields/mars_lava_tube_topdown.png',
+  crater_relay: '/assets/textures/battlefields/mars_crater_relay_topdown.png',
+  refinery_yard: '/assets/textures/battlefields/mars_refinery_yard_topdown.png',
+  colony_dome: '/assets/textures/battlefields/mars_colony_dome_topdown.png',
+  excavation_grid: '/assets/textures/battlefields/mars_excavation_grid_topdown.png',
+  dust_storm: '/assets/textures/battlefields/mars_dust_storm_topdown.png',
+  occupied_airspace: '/assets/textures/battlefields/mars_occupied_airspace_topdown.png',
+  shipyard_drydock: '/assets/textures/battlefields/mars_shipyard_drydock_topdown.png',
+  convoy_route: '/assets/textures/battlefields/mars_convoy_route_topdown.png',
+  ancient_ruins: '/assets/textures/battlefields/mars_ancient_ruins_topdown.png',
+  orbital_blockade: '/assets/textures/battlefields/mars_orbital_blockade_topdown.png',
+  garrison_rooftop: '/assets/textures/battlefields/mars_garrison_rooftop_topdown.png',
+  deep_mine: '/assets/textures/battlefields/mars_deep_mine_topdown.png',
+  settlement_airspace: '/assets/textures/battlefields/mars_settlement_airspace_topdown.png'
+};
 const SECTOR_BATTLEFIELD_BY_CODE = {
   olympus_crown: 'garrison_rooftop',
   tharsis_citadel: 'garrison_rooftop',
@@ -99,6 +120,10 @@ function formatBattlefieldModifiers(mods) {
   add('DEF', mods.def);
   add('SPD', mods.speed);
   return parts.join(' · ');
+}
+
+function battlefieldImageUrl(key) {
+  return BATTLEFIELD_BACKGROUNDS[key] || '/assets/textures/mars_nasa_2k.jpg';
 }
 
 function _stableBattlefieldIndex(seed) {
@@ -538,6 +563,7 @@ function renderBattleCard(b, tab) {
   const battlefieldKey = b.battlefield_key || pickBattlefieldKey(b.id);
   const battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || '';
   const battlefieldMods = formatBattlefieldModifiers(b.environment_modifiers);
+  const battlefieldImage = battlefieldImageUrl(battlefieldKey);
   const rewardGp = Math.round(parseFloat(b.my_reward_gp != null ? b.my_reward_gp : b.reward_total_gp) || 0);
   const rewardCount = parseInt(b.reward_count, 10) || 0;
   const rewardLabel = rewardGp > 0
@@ -548,6 +574,7 @@ function renderBattleCard(b, tab) {
   
   return `
     <div class="battle-card ${isLive ? 'active-battle' : ''} ${resultClass}">
+      <div class="bc-field-thumb" style="background-image:url('${escapeAttr(battlefieldImage)}')" title="${escapeAttr(battlefieldLabel || battlefieldKey)}"></div>
       <div class="bc-status ${statusCls}">${statusLabel}</div>
       <div class="bc-info">
         <div class="bc-info-title">

@@ -38,7 +38,15 @@
       'refinery_yard',
       'colony_dome',
       'excavation_grid',
-      'dust_storm'
+      'dust_storm',
+      'occupied_airspace',
+      'shipyard_drydock',
+      'convoy_route',
+      'ancient_ruins',
+      'orbital_blockade',
+      'garrison_rooftop',
+      'deep_mine',
+      'settlement_airspace'
     ];
     var n = Math.abs(parseInt(battleId, 10) || 0);
     return keys[n % keys.length];
