@@ -23,6 +23,32 @@ let battleHubState = {
 };
 
 const BATTLEFIELD_KEYS = ['orbit_territory','garrison','mining_site','canyon_outpost','polar_ice','lava_tube','crater_relay','refinery_yard'];
+const SECTOR_BATTLEFIELD_BY_CODE = {
+  olympus_crown: 'garrison',
+  tharsis_citadel: 'garrison',
+  pavonis_gate: 'orbit_territory',
+  ascraeus_vault: 'refinery_yard',
+  arsia_forge: 'lava_tube',
+  noctis_prime: 'canyon_outpost',
+  marineris_east: 'canyon_outpost',
+  marineris_west: 'canyon_outpost',
+  candor_fields: 'mining_site',
+  ophir_station: 'garrison',
+  hebes_crossing: 'orbit_territory',
+  coprates_ridge: 'canyon_outpost',
+  eos_plateau: 'crater_relay',
+  melas_basin: 'canyon_outpost',
+  tithonium_scars: 'crater_relay',
+  syria_planum: 'mining_site',
+  hellas_abyss: 'crater_relay',
+  elysium_wastes: 'crater_relay',
+  utopia_flats: 'mining_site',
+  arcadia_ridge: 'canyon_outpost',
+  cerberus_scars: 'lava_tube',
+  phlegra_deep: 'polar_ice',
+  amazonis_sink: 'mining_site',
+  borealis_edge: 'polar_ice'
+};
 const battleContextById = Object.create(null);
 
 function rememberBattleContext(battle) {
@@ -45,14 +71,21 @@ function _stableBattlefieldIndex(seed) {
 function pickBattlefieldKey(battleId) {
   const ctx = battleContextById[parseInt(battleId, 10)] || {};
   const type = String(ctx.battle_type || '').toLowerCase();
-  const sector = String(ctx.sector_code || '').toUpperCase();
+  const sectorCode = String(ctx.sector_code || '').toLowerCase();
+  const sectorName = String(ctx.sector_name || '').toLowerCase();
   if (type === 'siege') return 'garrison';
   if (type === 'hijack') return 'orbit_territory';
   if (type === 'raid' || type === 'event') return 'crater_relay';
-  if (sector) {
-    const match = sector.match(/\d+/);
+  if (SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
+  if (/ice|polar|borealis|phlegra|빙|얼음/.test(sectorName)) return 'polar_ice';
+  if (/forge|arsia|lava|volcan|용암|화산|대장간/.test(sectorName)) return 'lava_tube';
+  if (/crater|abyss|hellas|elysium|scar|relay|분화구|심연|상흔/.test(sectorName)) return 'crater_relay';
+  if (/canyon|marineris|noctis|ridge|basin|협곡|능선|분지/.test(sectorName)) return 'canyon_outpost';
+  if (/field|plain|flat|sink|candor|syria|utopia|amazonis|평원|평지|함몰/.test(sectorName)) return 'mining_site';
+  if (sectorCode) {
+    const match = sectorCode.match(/\d+/);
     if (match) return BATTLEFIELD_KEYS[parseInt(match[0], 10) % BATTLEFIELD_KEYS.length];
-    return BATTLEFIELD_KEYS[_stableBattlefieldIndex(sector)];
+    return BATTLEFIELD_KEYS[_stableBattlefieldIndex(sectorCode)];
   }
   return BATTLEFIELD_KEYS[_stableBattlefieldIndex(battleId)];
 }
