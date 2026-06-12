@@ -16,6 +16,10 @@
     }
     return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
   }
+  function wlfHasPlayerSession() {
+    if (window.walletState && walletState.connected && walletState.address) return true;
+    try { return !!localStorage.getItem('pw_token'); } catch (_) { return false; }
+  }
 
   function showAnnounce(text){
     if(!text || _announceDismissed === text) return;
@@ -288,6 +292,15 @@
   window._userPP = 0;
   function loadExplorationData() {
     if (!_pageIsActive()) return;
+    if (!wlfHasPlayerSession()) {
+      var hadPoi = Array.isArray(_poiData) && _poiData.length > 0;
+      _poiData = [];
+      window._myOwnedSectors = [];
+      window._explorationFee = 0;
+      window._userPP = 0;
+      if (hadPoi && typeof compositeClaimsOnTexture === 'function') compositeClaimsOnTexture();
+      return;
+    }
     _guardedJsonFetch('exploration-pois', '/api/exploration/pois', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(data){
       if (!data) return;
       var now = new Date().getTime();
