@@ -2788,12 +2788,24 @@ function preCacheAndComposite(){
 preCacheAndComposite();
 
 // Load server claims + authoritative pixel ownership
-(function loadServerClaims(){
+var _serverClaimsBootRetryId = null;
+function _scheduleServerClaimsBootRetry(){
+  if(_serverClaimsBootRetryId) return;
+  _serverClaimsBootRetryId = _setActiveTimeout(function(){
+    _serverClaimsBootRetryId = null;
+    loadServerClaims();
+  }, 3000);
+}
+function loadServerClaims(){
   Promise.all([
     _guardedJsonFetch('claims-initial', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}),
     _guardedJsonFetch('pixels-initial', '/api/pixels', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}})
   ]).then(function(results){
     var serverClaims=results[0], serverPixels=results[1];
+    if(serverClaims===null&&serverPixels===null){
+      _scheduleServerClaimsBootRetry();
+      return;
+    }
     if(serverClaims&&serverClaims.length){
       serverClaims.forEach(function(sc){ claims.push(sc); });
     }
@@ -2818,7 +2830,8 @@ preCacheAndComposite();
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
     if(serverClaims) serverClaims.forEach(function(sc){ if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts; });
   }).catch(function(e){console.warn('[Claims] Failed to load:',e)});
-})();
+}
+loadServerClaims();
 
 // Delta claims polling (10s desktop / 20s mobile for claims, 30s/60s for full pixel refresh)
 var _claimsSince=Date.now();
