@@ -645,7 +645,8 @@
 
   function _loadSectorDefs(cb) {
     if (_siegeSectorDefs) { cb(_siegeSectorDefs); return; }
-    fetch('/api/sector-defs').then(function(r){return r.json()}).then(function(d){
+    _guardedJsonFetch('sector-defs-governance', '/api/sector-defs', {minGap:30000, backoffMs:120000}).then(function(d){
+      d = d || { sectors: [] };
       _siegeSectorDefs = (d.sectors || []);
       cb(_siegeSectorDefs);
     }).catch(function(){ cb([]); });
@@ -670,6 +671,24 @@
       '🏷 ' + _sectorFmtMult(price)
     ];
     if (tax != null) parts.push('세율 ' + (parseFloat(tax) || 0).toFixed(1) + '%');
+    return parts.join(' · ');
+  }
+
+  function _sectorPressureLine(s) {
+    var battles = parseInt(s.activeBattles || s.active_battles || 0, 10) || 0;
+    var bounties = parseInt(s.activeBounties || s.active_bounties || 0, 10) || 0;
+    var bountyGp = parseFloat(s.bountyGp || s.total_bounty_gp || 0) || 0;
+    var level = s.pressureLevel || s.pressure_level || 'quiet';
+    var labels = {
+      warzone: tl('WARZONE', '전쟁구역', '戦争区域', '战区'),
+      contested: tl('CONTESTED', '분쟁중', '係争中', '争夺中'),
+      active: tl('ACTIVE', '활성', '活性', '活跃'),
+      quiet: tl('QUIET', '조용함', '静穏', '安静')
+    };
+    var parts = [labels[level] || labels.quiet];
+    if (battles) parts.push('⚔ ' + battles);
+    if (bounties) parts.push('🎯 ' + bounties);
+    if (bountyGp) parts.push(Math.round(bountyGp) + ' GP');
     return parts.join(' · ');
   }
 
@@ -717,8 +736,8 @@
     if (_baseSectorRows && !force) { _renderBaseSectorList(); return; }
     list.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">Loading sectors...</div>';
     Promise.all([
-      fetch('/api/sector-defs').then(function(r){return r.json()}).catch(function(){return {sectors:[]};}),
-      fetch('/api/sector-defs/sov-map').then(function(r){return r.json()}).catch(function(){return {sectors:[]};})
+      _guardedJsonFetch('sector-defs-list', '/api/sector-defs', {minGap:30000, backoffMs:120000}).then(function(d){ return d || {sectors:[]}; }),
+      _guardedJsonFetch('sector-defs-sov-map-base', '/api/sector-defs/sov-map', {minGap:30000, backoffMs:120000}).then(function(d){ return d || {sectors:[]}; })
     ]).then(function(res) {
       var defs = res[0].sectors || [];
       var sovByCode = {};
@@ -1867,8 +1886,8 @@
     ov.addEventListener('click', function(e){ if(e.target===ov) ov.remove(); });
     var cb = document.getElementById('sovMapClose'); if(cb) cb.addEventListener('click', function(){ ov.remove(); });
     Promise.all([
-      fetch('/api/sector-defs/sov-map').then(function(r){return r.json()}),
-      fetch('/api/siege/schedule?count=3').then(function(r){return r.json()}).catch(function(){return null})
+      _guardedJsonFetch('sector-defs-sov-map-modal', '/api/sector-defs/sov-map', {minGap:10000, backoffMs:120000}).then(function(d){ return d || {sectors:[], leaderboard:[]}; }),
+      _guardedJsonFetch('siege-schedule-sov-modal', '/api/siege/schedule?count=3', {minGap:30000, backoffMs:120000}).then(function(d){ return d || null; })
     ]).then(function(res){
       var d = res[0]; var sched = res[1];
       var body = document.getElementById('sovMapBody'); if(!body) return;
@@ -1882,7 +1901,13 @@
           + '<div style="font-size:13px;color:var(--gold);font-weight:900;margin-top:3px">'+(d.commander.emblem||"🔴")+' ['+escapeHtml(d.commander.tag||"")+'] '+escapeHtml(d.commander.name||"")+'</div>'
           + '<div style="font-size:9px;color:var(--tx3);margin-top:2px">'+d.commander.sectors+' '+tl("sectors","섹터","セクター","区域")+' · core '+d.commander.core+'</div></div>';
       }
+      var ps = d.pressureSummary || {};
       h += '<div style="margin-bottom:8px;color:var(--tx2)">'+tl("Held","점령","占領","占领")+' '+d.claimed+' / '+d.total+' · '+tl("Vacant","무주공산","空白","空白")+' '+d.vacant+'</div>';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">'
+        + '<span style="font-size:9px;color:#ff8a80;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);border-radius:10px;padding:3px 8px">⚔ '+(ps.activeBattles||0)+'</span>'
+        + '<span style="font-size:9px;color:#ffd166;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.25);border-radius:10px;padding:3px 8px">🎯 '+(ps.activeBounties||0)+' · '+Math.round(ps.bountyGp||0)+' GP</span>'
+        + '<span style="font-size:9px;color:var(--cyan);background:rgba(64,196,255,.08);border:1px solid rgba(64,196,255,.25);border-radius:10px;padding:3px 8px">'+tl("Hot sectors","압력 섹터","高圧セクター","热点区域")+' '+(ps.hotSectors||0)+'</span>'
+        + '</div>';
       // [Phase 3] 맹주 공성 선언 (sov1위 vs sov2위 결전)
       h += '<button type="button" onclick="declareCommanderSiegeUI()" style="width:100%;padding:8px;margin-bottom:12px;border-radius:8px;background:linear-gradient(135deg,rgba(232,72,85,.16),rgba(255,109,0,.05));border:1px solid rgba(232,72,85,.4);color:#ff8a80;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer">👑 '+tl("DECLARE COMMANDER SIEGE","맹주 공성 선언","攻城戦宣言","宣战统帅")+'</button>';
       // [Phase 3] 다가오는 공성 결전 일정
@@ -1905,7 +1930,8 @@
         secs.forEach(function(s){
           var gov = s.governorGuild ? ((s.governorGuild.emblem||"🔴")+' ['+escapeHtml(s.governorGuild.tag||"")+']')
             : (s.governor ? ('👤 '+escapeHtml(s.governor.nickname||"")) : ('<span style="color:var(--tx3)">'+tl("Vacant","무주공산","空白","空白")+'</span>'));
-          h += '<div style="padding:6px 8px;background:rgba(255,255,255,.03);border-radius:6px;border-left:3px solid '+tierCol[tier]+'"><div style="font-size:10px;color:var(--tx);font-weight:600">'+escapeHtml(L(s))+'</div><div style="font-size:9px;color:var(--tx2);margin-top:2px">'+gov+'</div><div style="font-size:8px;color:var(--gold);margin-top:3px">'+escapeHtml(_sectorEconomyLine(s))+'</div></div>';
+          var pressureColor = s.pressureLevel === 'warzone' ? '#ff5c6c' : (s.pressureLevel === 'contested' ? '#ffb74d' : (s.pressureLevel === 'active' ? 'var(--cyan)' : 'var(--tx3)'));
+          h += '<div style="padding:6px 8px;background:rgba(255,255,255,.03);border-radius:6px;border-left:3px solid '+tierCol[tier]+'"><div style="font-size:10px;color:var(--tx);font-weight:600">'+escapeHtml(L(s))+'</div><div style="font-size:9px;color:var(--tx2);margin-top:2px">'+gov+'</div><div style="font-size:8px;color:var(--gold);margin-top:3px">'+escapeHtml(_sectorEconomyLine(s))+'</div><div style="font-size:8px;color:'+pressureColor+';margin-top:3px">'+escapeHtml(_sectorPressureLine(s))+'</div></div>';
         });
         h += '</div>';
       });

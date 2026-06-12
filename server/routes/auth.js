@@ -5,9 +5,10 @@ const bcrypt = require('bcryptjs');
 const BCRYPT_COST = 12;
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const rateLimit = require('express-rate-limit');
 const { pool, ensureUser, generateReferralCode, getPPToGPRate } = require('../db');
 const { sendResetCode, isSmtpConfigured } = require('../services/email');
+const { makeRateLimiter } = require('../utils/rateLimiters');
+const { makeLimiterStore } = require('../services/rateLimitStore');
 
 const router = express.Router();
 
@@ -86,15 +87,19 @@ function resetLoginAttempts(email) {
 }
 
 // ── Auth Rate Limiters ──
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 60,
-  standardHeaders: true, legacyHeaders: false,
+const authLimiter = makeRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 120 : 600,
+  store: makeLimiterStore('auth-route'),
+  passOnStoreError: true,
   skipSuccessfulRequests: true,
   message: { error: 'Too many attempts. Try again later.' }
 });
-const passwordResetLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, max: 5,
-  standardHeaders: true, legacyHeaders: false,
+const passwordResetLimiter = makeRateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  store: makeLimiterStore('password-reset'),
+  passOnStoreError: true,
   message: { error: 'Too many password reset attempts. Try again in 1 hour.' }
 });
 

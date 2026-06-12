@@ -401,6 +401,109 @@ async function computeSectorTariff(sectorId, payerWallet, grossAmount) {
 //   sector_definitions(코드/이름/티어) + sector_governance(거버너 길드/개인) + guilds 조인.
 //   sectors 배열(티어순) + 길드별 점유 leaderboard 반환.
 // ─────────────────────────────────────────────────────────────
+function _int(v) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function _num(v) {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function _sectorPressureLevel(score) {
+  if (score >= 40) return 'warzone';
+  if (score >= 20) return 'contested';
+  if (score >= 8) return 'active';
+  return 'quiet';
+}
+
+async function _loadSovPressureBySector() {
+  const pressure = {};
+  function ensure(code) {
+    if (!code) return null;
+    const key = String(code);
+    if (!pressure[key]) {
+      pressure[key] = {
+        activeBattles: 0,
+        activeBounties: 0,
+        bountyGp: 0,
+        claimCount: 0,
+        ownerCount: 0
+      };
+    }
+    return pressure[key];
+  }
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT sector_code, SUM(active_battles)::int AS active_battles
+         FROM (
+           SELECT c.sector_code, COUNT(*) AS active_battles
+             FROM hijack_battles hb
+             JOIN claims c ON c.id = hb.target_claim_id
+            WHERE hb.phase IN ('phase1','phase2')
+              AND c.deleted_at IS NULL
+              AND c.sector_code IS NOT NULL
+            GROUP BY c.sector_code
+           UNION ALL
+           SELECT sd.code AS sector_code, COUNT(*) AS active_battles
+             FROM fleet_battles fb
+             JOIN sector_definitions sd ON sd.id = fb.sector_id
+            WHERE fb.status IN ('preparing','active','in_progress')
+              AND fb.sector_id IS NOT NULL
+            GROUP BY sd.code
+         ) x
+        GROUP BY sector_code`
+    );
+    for (const r of rows) {
+      const p = ensure(r.sector_code);
+      if (p) p.activeBattles = _int(r.active_battles);
+    }
+  } catch (_) {}
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT c.sector_code,
+              COUNT(bl.id)::int AS active_bounties,
+              COALESCE(SUM(bl.reward_gp), 0) AS total_bounty_gp
+         FROM bounty_listings bl
+         JOIN claims c ON LOWER(c.owner) = LOWER(bl.target_wallet)
+        WHERE bl.status = 'active'
+          AND (bl.expires_at IS NULL OR bl.expires_at > NOW())
+          AND c.deleted_at IS NULL
+          AND c.sector_code IS NOT NULL
+        GROUP BY c.sector_code`
+    );
+    for (const r of rows) {
+      const p = ensure(r.sector_code);
+      if (!p) continue;
+      p.activeBounties = _int(r.active_bounties);
+      p.bountyGp = _num(r.total_bounty_gp);
+    }
+  } catch (_) {}
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT sector_code,
+              COUNT(*)::int AS claim_count,
+              COUNT(DISTINCT owner)::int AS owner_count
+         FROM claims
+        WHERE deleted_at IS NULL
+          AND sector_code IS NOT NULL
+        GROUP BY sector_code`
+    );
+    for (const r of rows) {
+      const p = ensure(r.sector_code);
+      if (!p) continue;
+      p.claimCount = _int(r.claim_count);
+      p.ownerCount = _int(r.owner_count);
+    }
+  } catch (_) {}
+
+  return pressure;
+}
+
 async function getSovMap() {
   const { rows } = await pool.query(`
     SELECT sd.id, sd.code, sd.name_en, sd.name_ko, sd.name_ja, sd.name_zh, sd.sector_type,
@@ -415,16 +518,33 @@ async function getSovMap() {
       LEFT JOIN users u ON u.wallet_address = sg.governor_wallet
      ORDER BY CASE sd.sector_type WHEN 'core' THEN 0 WHEN 'mid' THEN 1 ELSE 2 END, sd.id
   `);
-  const sectors = rows.map(r => ({
-    code: r.code, name_en: r.name_en, name_ko: r.name_ko, name_ja: r.name_ja, name_zh: r.name_zh,
-    tier: r.sector_type,
-    priceMultiplier: parseFloat(r.price_multiplier) || 1,
-    miningMultiplier: parseFloat(r.mining_multiplier) || 1,
-    taxRate: r.tax_rate == null ? null : (parseFloat(r.tax_rate) || 0),
-    sectorPolicy: r.sector_policy || null,
-    governorGuild: r.governor_guild_id ? { id: r.governor_guild_id, name: r.guild_name, tag: r.guild_tag, emblem: r.guild_emblem } : null,
-    governor: r.governor_wallet ? { wallet: r.governor_wallet, nickname: r.governor_nickname || r.governor_wallet.slice(0, 8) } : null,
-  }));
+  const pressureBySector = await _loadSovPressureBySector();
+  const sectors = rows.map(r => {
+    const pressure = pressureBySector[r.code] || {};
+    const pressureScore = Math.min(100,
+      (_int(pressure.activeBattles) * 12) +
+      (_int(pressure.activeBounties) * 3) +
+      Math.min(20, Math.floor(_num(pressure.bountyGp) / 250)) +
+      Math.min(12, _int(pressure.ownerCount) + Math.floor(_int(pressure.claimCount) / 3))
+    );
+    return {
+      code: r.code, name_en: r.name_en, name_ko: r.name_ko, name_ja: r.name_ja, name_zh: r.name_zh,
+      tier: r.sector_type,
+      priceMultiplier: parseFloat(r.price_multiplier) || 1,
+      miningMultiplier: parseFloat(r.mining_multiplier) || 1,
+      taxRate: r.tax_rate == null ? null : (parseFloat(r.tax_rate) || 0),
+      sectorPolicy: r.sector_policy || null,
+      activeBattles: _int(pressure.activeBattles),
+      activeBounties: _int(pressure.activeBounties),
+      bountyGp: _num(pressure.bountyGp),
+      claimCount: _int(pressure.claimCount),
+      ownerCount: _int(pressure.ownerCount),
+      pressureScore,
+      pressureLevel: _sectorPressureLevel(pressureScore),
+      governorGuild: r.governor_guild_id ? { id: r.governor_guild_id, name: r.guild_name, tag: r.guild_tag, emblem: r.guild_emblem } : null,
+      governor: r.governor_wallet ? { wallet: r.governor_wallet, nickname: r.governor_nickname || r.governor_wallet.slice(0, 8) } : null,
+    };
+  });
   const byGuild = {};
   for (const s of sectors) {
     if (!s.governorGuild) continue;
@@ -454,7 +574,16 @@ async function getSovMap() {
       }
     }
   } catch (_) {}
-  return { sectors, leaderboard, total, claimed, vacant: total - claimed, commander };
+  const pressureSummary = sectors.reduce((acc, s) => {
+    acc.activeBattles += s.activeBattles || 0;
+    acc.activeBounties += s.activeBounties || 0;
+    acc.bountyGp += s.bountyGp || 0;
+    acc.hotSectors += s.pressureLevel === 'warzone' || s.pressureLevel === 'contested' ? 1 : 0;
+    return acc;
+  }, { activeBattles: 0, activeBounties: 0, bountyGp: 0, hotSectors: 0 });
+  pressureSummary.bountyGp = Math.round(pressureSummary.bountyGp * 100) / 100;
+
+  return { sectors, leaderboard, total, claimed, vacant: total - claimed, commander, pressureSummary };
 }
 
 module.exports = {
