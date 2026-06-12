@@ -72,7 +72,7 @@
 
 ## 5. ⚠️ 배포/인프라
 - [x] **railway.json 정리**: `deploy` 키 단일 정의 확인(중복 없음).
-- [ ] **정적 에셋 캐시버스트**: 배포 시 `ASSET_VER` / iframe `?v=` 갱신 흐름 확인(스프라이트·전술랩).
+- [x] **정적 에셋 캐시버스트**: `index.html` 전역 `ASSET_VER=7440` 정의. 함선 top sprite와 tactical-lab iframe URL이 해당 버전을 사용하고, tactical-lab modal script 태그도 `?v=7440`으로 갱신.
 - [ ] **CDN/정적 파일 서빙**: assets(이미지 다수, 합체 PNG 등) 응답 속도.
 - [ ] **롤백 플랜**: 베타 중 치명 버그 시 직전 커밋으로 즉시 롤백 가능한지(태그/배포 이력).
 - [ ] **도메인/SSL**: 프로덕션 도메인 HTTPS 정상.
