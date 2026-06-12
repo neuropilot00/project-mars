@@ -21462,13 +21462,13 @@ function loadNotifications(){
 function markNotifRead(id,el){
   var w=(walletState&&walletState.address)||'';
   if(!w||!id) return;
-  fetch('/api/notifications/read',{method:'POST',headers:Object.assign({'Content-Type':'application/json','x-wallet':w},getAuthHeaders()),body:JSON.stringify({wallet:w,id:id})})
+  fetch('/api/notifications/read',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({id:id})})
     .then(function(){if(el)el.style.opacity='.5';loadNotifCount();}).catch(function(){});
 }
 function markAllNotifsRead(){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/notifications/read-all',{method:'POST',headers:Object.assign({'Content-Type':'application/json','x-wallet':w},getAuthHeaders()),body:JSON.stringify({wallet:w})})
+  fetch('/api/notifications/read-all',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({})})
     .then(function(){loadNotifications();loadNotifCount();}).catch(function(){});
 }
 
@@ -50629,8 +50629,8 @@ async function dismissOnboardingHint() {
   try {
     await fetch('/api/onboarding/dismiss', {
       method: 'POST',
-      headers: Object.assign({ 'Content-Type': 'application/json', 'x-wallet': wallet }, getAuthHeaders()),
-      body: JSON.stringify({ wallet: wallet })
+      headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
+      body: JSON.stringify({})
     });
   } catch (_) {}
 }
