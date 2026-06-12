@@ -55,6 +55,8 @@ router.get('/', async (req, res) => {
               w.original_owner AS victim_wallet, w.killer_wallet,
               w.killer_side, w.victim_side, w.resources, w.salvaged_by, w.salvaged_at, w.expires_at, w.created_at,
               uk.nickname AS killer_nick, uv.nickname AS victim_nick,
+              ak.id AS killer_alliance_id, ak.tag AS killer_alliance_tag, ak.name AS killer_alliance_name, ak.color_primary AS killer_alliance_color,
+              av.id AS victim_alliance_id, av.tag AS victim_alliance_tag, av.name AS victim_alliance_name, av.color_primary AS victim_alliance_color,
               (SELECT COALESCE(SUM(bl.reward_gp), 0) FROM bounty_listings bl
                 WHERE LOWER(bl.target_wallet) = LOWER(w.original_owner)
                   AND bl.status = 'active'
@@ -63,6 +65,10 @@ router.get('/', async (req, res) => {
          FROM ship_wrecks w
          LEFT JOIN users uk ON LOWER(uk.wallet_address) = w.killer_wallet
          LEFT JOIN users uv ON LOWER(uv.wallet_address) = w.original_owner
+         LEFT JOIN alliance_members amk ON LOWER(amk.wallet_address) = w.killer_wallet AND amk.left_at IS NULL
+         LEFT JOIN alliances ak ON ak.id = amk.alliance_id AND ak.disbanded_at IS NULL
+         LEFT JOIN alliance_members amv ON LOWER(amv.wallet_address) = LOWER(w.original_owner) AND amv.left_at IS NULL
+         LEFT JOIN alliances av ON av.id = amv.alliance_id AND av.disbanded_at IS NULL
         WHERE w.killer_wallet IS NOT NULL
         ORDER BY w.created_at DESC
         LIMIT $1`, [limit]);

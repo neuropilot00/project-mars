@@ -301,6 +301,8 @@ function renderKillmailCard(k) {
   const myWallet = (getMyWallet() || '').toLowerCase();
   const killer = k.killer_nick || shortWallet(k.killer_wallet);
   const victim = k.victim_nick || shortWallet(k.victim_wallet);
+  const killerAlliance = renderKillmailAllianceTag(k, 'killer');
+  const victimAlliance = renderKillmailAllianceTag(k, 'victim');
   const value = Math.max(0, parseInt(k.ship_value_gp, 10) || 0);
   const mods = Math.max(0, parseInt(k.mods, 10) || 0);
   const ship = k.ship_name || k.ship_type || 'Ship';
@@ -321,9 +323,9 @@ function renderKillmailCard(k) {
       <div class="killmail-skull">☠</div>
       <div class="killmail-main">
         <div class="killmail-title">
-          <b>${escapeHtml(killer)}</b>
+          <b>${escapeHtml(killer)}</b>${killerAlliance}
           <span>${LANG==='ko'?'격침':LANG==='ja'?'撃沈':LANG==='zh'?'击毁':'destroyed'}</span>
-          <b>${escapeHtml(victim)}</b>
+          <b>${escapeHtml(victim)}</b>${victimAlliance}
         </div>
         <div class="killmail-meta">
           <span>🚀 ${escapeHtml(ship)}</span>
@@ -346,6 +348,16 @@ function renderKillmailCard(k) {
       </div>
     </div>
   `;
+}
+
+function renderKillmailAllianceTag(k, side) {
+  const tag = k && k[side + '_alliance_tag'];
+  const name = k && k[side + '_alliance_name'];
+  if (!tag && !name) return '';
+  const colorRaw = String((k && k[side + '_alliance_color']) || '#80cbc4');
+  const color = /^#[0-9a-f]{3,8}$/i.test(colorRaw) ? colorRaw : '#80cbc4';
+  const label = tag ? '[' + escapeHtml(tag) + ']' : escapeHtml(name || 'Alliance');
+  return `<span title="${escapeAttr(name || tag || 'Alliance')}" style="margin-left:4px;font-size:8px;color:${color};border:1px solid ${color}66;background:${color}16;border-radius:4px;padding:1px 4px;font-family:var(--fn);font-weight:800">🛡 ${label}</span>`;
 }
 
 function formatKillmailSalvage(resources) {
