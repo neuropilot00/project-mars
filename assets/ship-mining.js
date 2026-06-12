@@ -44,6 +44,22 @@
     return Math.round((Number(v) || 0) * 100);
   }
 
+  function routeRiskLabel(d) {
+    var raid = Number(d && d.raidPct) || 0;
+    var wear = Number(d && d.wearMult) || 1;
+    if (raid >= 0.12 || wear >= 2.2) return lang('HIGH RISK', '고위험', '高リスク', '高风险');
+    if (raid >= 0.04 || wear >= 1.4) return lang('CONTESTED', '분쟁권', '係争圏', '争夺区');
+    return lang('SAFE', '안전권', '安全圏', '安全区');
+  }
+
+  function routeRiskColor(d) {
+    var raid = Number(d && d.raidPct) || 0;
+    var wear = Number(d && d.wearMult) || 1;
+    if (raid >= 0.12 || wear >= 2.2) return '#ff8a80';
+    if (raid >= 0.04 || wear >= 1.4) return 'var(--gold)';
+    return '#64dc82';
+  }
+
   function fleetCount(f) {
     return parseInt(f.ships_alive || f.ship_count || 0, 10) || 0;
   }
@@ -106,6 +122,11 @@
     html += '<div style="font-size:10px;color:#64dc82;font-weight:900;letter-spacing:1px">' + lang('MINING ROUTE', '채굴 항로', '採掘航路', '采矿航线') + '</div>';
     html += '<button type="button" onclick="_renderShipMining()" style="font-size:8px;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--tx3);font-family:var(--fn);cursor:pointer">REFRESH</button>';
     html += '</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:9px">';
+    html += '<div style="padding:6px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:var(--tx3)">ACTIVE LIMIT</div><div style="font-size:10px;color:var(--tx);font-weight:800">' + txt(info.maxPerWallet || 0) + '</div></div>';
+    html += '<div style="padding:6px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:var(--tx3)">DAILY CAP</div><div style="font-size:10px;color:var(--gold);font-weight:800">' + (Number(info.gpCapPerDay) > 0 ? txt(info.gpCapPerDay) + ' GP' : 'OPEN') + '</div></div>';
+    html += '<div style="padding:6px;border-radius:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:var(--tx3)">MIN HULL</div><div style="font-size:10px;color:#64dc82;font-weight:800">' + pct(info.minHpPct) + '%</div></div>';
+    html += '</div>';
 
     if (!readyFleets.length) {
       html += '<div style="font-size:10px;color:var(--tx3);line-height:1.6">' + lang('Build or assign ships to a fleet first.', '먼저 함선을 건조하거나 함대에 배치해야 합니다.', '先に艦船を建造または艦隊へ配置してください。', '请先建造舰船或编入舰队。') + '</div>';
@@ -128,7 +149,7 @@
 
       html += '<select id="smDestinationSelect" onchange="smUpdatePreview()" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;padding:8px;font-family:var(--fn);font-size:10px;margin-bottom:8px">';
       dests.forEach(function (d) {
-        var line = routeName(d.key) + ' · x' + Number(d.yieldMult || 1).toFixed(1) + ' yield · ' + pct(d.raidPct) + '% raid';
+        var line = routeName(d.key) + ' · ' + routeRiskLabel(d) + ' · x' + Number(d.yieldMult || 1).toFixed(1) + ' yield · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
         html += '<option value="' + txt(d.key) + '"' + (String(picks.destination || '') === String(d.key) ? ' selected' : '') + '>' + txt(line) + '</option>';
       });
       html += '</select>';
@@ -183,9 +204,12 @@
     if (!fleet) { el.textContent = ''; return; }
     var cap = fleetCapacityEstimate(fleet);
     var gp = Math.round(cap * h * (Number(state.info.gpPerCapacityHour) || 0) * (Number(dest.yieldMult) || 1));
-    el.innerHTML = lang('Projected', '예상', '予測', '预计') + ': <b style="color:var(--gold)">+' + gp + ' GP</b> · ' +
+    var capLine = Number(state.info.gpCapPerDay) > 0 ? ' · ' + lang('daily cap', '일일 상한', '日次上限', '每日上限') + ' ' + state.info.gpCapPerDay + ' GP' : '';
+    el.innerHTML = '<span style="color:' + routeRiskColor(dest) + ';font-weight:900">' + txt(routeRiskLabel(dest)) + '</span> · ' +
+      lang('Projected', '예상', '予測', '预计') + ': <b style="color:var(--gold)">+' + gp + ' GP</b> · CAP ' + txt(cap) + capLine + '<br>' +
       lang('hull wear', '선체 마모', '船体摩耗', '船体损耗') + ' x' + Number(dest.wearMult || 1).toFixed(1) + ' · ' +
-      lang('raid risk', '약탈 위험', '襲撃リスク', '袭击风险') + ' ' + pct(dest.raidPct) + '%';
+      lang('raid risk', '약탈 위험', '襲撃リスク', '袭击风险') + ' ' + pct(dest.raidPct) + '% · ' +
+      lang('base wear', '기본 마모', '基本摩耗', '基础损耗') + ' ' + pct(state.info.hullWearPctPerHour) + '%/h';
   };
 
   window._renderShipMining = function () {
@@ -237,7 +261,10 @@
       headers: authHeaders(true),
       body: JSON.stringify({ jobId: jobId })
     }).then(function (d) {
-      toast('+' + (d.rewardGp || 0) + ' GP', 'success');
+      var msg = '+' + (d.rewardGp || 0) + ' GP';
+      if (d.raided) msg += ' · ' + lang('raided', '약탈 피해', '襲撃被害', '遭袭');
+      if (d.resources && d.resources.length) msg += ' · ' + d.resources.map(function (r) { return r.code + ' x' + r.quantity; }).join(', ');
+      toast(msg, d.raided ? 'warn' : 'success');
       window._renderShipMining();
     }).catch(function (e) {
       toast((typeof srvErr === 'function' ? srvErr(e.message) : e.message) || 'COLLECT_FAILED', 'error');

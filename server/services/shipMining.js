@@ -66,8 +66,12 @@ async function getMiningInfo() {
     enabled: await _enabled(),
     durationsH: await _durations(),
     gpPerCapacityHour: _num(await getSetting('ship_mining_gp_per_capacity_h', '5'), 5),
+    gpCapPerDay: _num(await getSetting('ship_mining_gp_cap_per_day', '0'), 0),
     maxPerWallet: _num(await getSetting('ship_mining_max_per_wallet', '3'), 3),
     launchCostGp: _num(await getSetting('ship_mining_launch_cost_gp', '0'), 0),
+    minHpPct: _num(await getSetting('ship_mining_min_hp_pct', '0.15'), 0.15),
+    hullWearPctPerHour: _num(await getSetting('ship_mining_hull_wear_pct_per_hour', '0.02'), 0.02),
+    resourceRollsPer4h: _num(await getSetting('ship_mining_resource_rolls_per_4h', '1'), 1),
     capacityWeights: weights,
     destinations: await _destinations(),
   };
