@@ -134,7 +134,7 @@ router.get('/sectors', readLimiter, async (req, res) => {
     let myMap = {};
     if (wallet) {
       const myRes = await pool.query(
-        'SELECT sector_id, COUNT(*) AS cnt FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL GROUP BY sector_id',
+        'SELECT sector_id, COUNT(*) AS cnt FROM pixels WHERE LOWER(owner) = LOWER($1) AND sector_id IS NOT NULL GROUP BY sector_id',
         [wallet]
       );
       myRes.rows.forEach(row => { myMap[row.sector_id] = parseInt(row.cnt); });

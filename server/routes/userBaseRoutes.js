@@ -18,18 +18,18 @@ router.get('/user/:wallet/base', async (req, res) => {
 
     const [userRes, pixelRes, miningRes, rankRes] = await Promise.all([
       pool.query(
-        'SELECT wallet_address, nickname, usdt_balance, pp_balance, xp, rank_level, referral_code, created_at FROM users WHERE wallet_address = $1',
+        'SELECT wallet_address, nickname, usdt_balance, pp_balance, xp, rank_level, referral_code, created_at FROM users WHERE LOWER(wallet_address) = LOWER($1)',
         [wallet]
       ),
       pool.query(`
         SELECT s.id AS sector_id, COALESCE(s.name, 'Uncharted') AS sector_name, COALESCE(s.tier, 'frontier') AS tier, COUNT(*) AS pixel_count
         FROM pixels p
         LEFT JOIN sectors s ON s.id = p.sector_id
-        WHERE p.owner = $1
+        WHERE LOWER(p.owner) = LOWER($1)
         GROUP BY s.id, s.name, s.tier
         ORDER BY pixel_count DESC
       `, [wallet]),
-      pool.query('SELECT * FROM user_mining WHERE wallet_address = $1', [wallet]),
+      pool.query('SELECT * FROM user_mining WHERE LOWER(wallet_address) = LOWER($1)', [wallet]),
       pool.query('SELECT * FROM rank_definitions ORDER BY level')
     ]);
 

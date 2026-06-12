@@ -71,7 +71,7 @@ router.get('/user/:wallet', async (req, res, next) => {
 
   try {
     const wallet = req.params.wallet.toLowerCase();
-    const userRes = await pool.query('SELECT * FROM users WHERE wallet_address = $1', [wallet]);
+    const userRes = await pool.query('SELECT * FROM users WHERE LOWER(wallet_address) = LOWER($1)', [wallet]);
     if (!userRes.rows.length) {
       return res.json({ usdtBalance: 0, ppBalance: 0, plots: [], totalDeposited: 0 });
     }
@@ -79,12 +79,12 @@ router.get('/user/:wallet', async (req, res, next) => {
 
     const claimsRes = await pool.query(
       `SELECT center_lat, center_lng, width, height, image_url, link_url, total_paid
-       FROM claims WHERE owner = $1 AND deleted_at IS NULL ORDER BY created_at DESC`,
+       FROM claims WHERE LOWER(owner) = LOWER($1) AND deleted_at IS NULL ORDER BY created_at DESC`,
       [wallet]
     );
 
     const depRes = await pool.query(
-      'SELECT COALESCE(SUM(amount), 0) as total FROM deposits WHERE wallet_address = $1',
+      'SELECT COALESCE(SUM(amount), 0) as total FROM deposits WHERE LOWER(wallet_address) = LOWER($1)',
       [wallet]
     );
 
