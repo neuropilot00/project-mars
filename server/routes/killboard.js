@@ -1,7 +1,48 @@
 // 킬보드 — 함선 격침 귀속 조회 (ship_wrecks). 배신 시스템 Phase 2 / 시스템3.
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
+const resourceService = require('../services/resource');
+
+const requireAuth = (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
+  catch (_) { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
+};
+function authWallet(req) {
+  return String(req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
+function fallbackWreckResources(shipValueGp, mods) {
+  const value = Math.max(0, Number(shipValueGp) || 0);
+  const modLevel = Math.max(0, Number(mods) || 0);
+  const out = {};
+  const add = (code, qty) => {
+    qty = Math.floor(Number(qty) || 0);
+    if (qty > 0) out[code] = (out[code] || 0) + qty;
+  };
+  add('iron_dust', Math.min(180, Math.max(1, Math.floor(value / 160))));
+  add('hull_plate', Math.min(60, Math.floor(value / 800)));
+  add('alloy_frame', Math.min(28, Math.floor(value / 2400)));
+  add('plasma_coil', Math.min(12, Math.floor((value / 7000) + (modLevel / 5))));
+  add('rare_metal', Math.min(8, Math.floor(value / 16000)));
+  return out;
+}
+function dropsFromResourceMap(resources, shipValueGp, mods) {
+  const src = resources && typeof resources === 'object' && !Array.isArray(resources)
+    ? resources
+    : fallbackWreckResources(shipValueGp, mods);
+  let drops = Object.keys(src || {}).map(code => ({
+    code,
+    quantity: Math.max(0, Math.floor(Number(src[code]) || 0)),
+  })).filter(d => d.quantity > 0);
+  if (!drops.length) {
+    const fb = fallbackWreckResources(shipValueGp, mods);
+    drops = Object.keys(fb).map(code => ({ code, quantity: fb[code] })).filter(d => d.quantity > 0);
+  }
+  return drops;
+}
 
 // GET /api/killboard — 최근 격침 (글로벌). 변절자(guild_betrayer) 피해자는 플래그.
 router.get('/', async (req, res) => {
@@ -10,7 +51,7 @@ router.get('/', async (req, res) => {
     const { rows } = await pool.query(
       `SELECT w.id, w.battle_id, w.ship_type, w.ship_name, w.ship_value_gp, w.mods,
               w.original_owner AS victim_wallet, w.killer_wallet,
-              w.killer_side, w.victim_side, w.created_at,
+              w.killer_side, w.victim_side, w.resources, w.salvaged_by, w.salvaged_at, w.expires_at, w.created_at,
               uk.nickname AS killer_nick, uv.nickname AS victim_nick,
               EXISTS(SELECT 1 FROM player_tags pt WHERE pt.wallet = w.original_owner AND pt.tag_id = 'guild_betrayer') AS victim_is_betrayer
          FROM ship_wrecks w
@@ -21,6 +62,51 @@ router.get('/', async (req, res) => {
         LIMIT $1`, [limit]);
     res.json({ kills: rows });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/killboard/:id/salvage — killer can recover one wreck once before expiry.
+router.post('/:id/salvage', requireAuth, async (req, res) => {
+  const wallet = authWallet(req);
+  const id = parseInt(req.params.id, 10);
+  if (!wallet || wallet.length < 5) return res.status(401).json({ error: 'NO_WALLET' });
+  if (!id) return res.status(400).json({ error: 'INVALID_ID' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(
+      `SELECT id, killer_wallet, resources, ship_value_gp, mods, salvaged_by, expires_at
+         FROM ship_wrecks WHERE id = $1 FOR UPDATE`,
+      [id]
+    );
+    const wreck = rows[0];
+    if (!wreck) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'WRECK_NOT_FOUND' }); }
+    if (String(wreck.killer_wallet || '').toLowerCase() !== wallet) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'NOT_KILLER' });
+    }
+    if (wreck.salvaged_by) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'ALREADY_SALVAGED' });
+    }
+    if (wreck.expires_at && new Date(wreck.expires_at).getTime() <= Date.now()) {
+      await client.query('ROLLBACK');
+      return res.status(410).json({ error: 'WRECK_EXPIRED' });
+    }
+    const drops = dropsFromResourceMap(wreck.resources, wreck.ship_value_gp, wreck.mods);
+    if (drops.length) await resourceService.addResourcesToInventory(client, wallet, drops);
+    await client.query(
+      `UPDATE ship_wrecks SET salvaged_by = $1, salvaged_at = NOW(), resources = $2::jsonb WHERE id = $3`,
+      [wallet, JSON.stringify(Object.fromEntries(drops.map(d => [d.code, d.quantity]))), id]
+    );
+    await client.query('COMMIT');
+    res.json({ success: true, drops });
+  } catch (e) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    console.error('[killboard] salvage error:', e.message);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  } finally {
+    client.release();
+  }
 });
 
 // GET /api/killboard/:wallet — 특정 지갑 K/D 요약 + 최근 격침/피격

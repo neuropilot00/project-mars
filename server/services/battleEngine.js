@@ -34,6 +34,22 @@ const HIJACK_PHASE1_SIZE_CLASSES = ['frigate', 'destroyer'];
 // 1000척 개별 처리는 무리. 같은 type의 함선 N척을 1개 단위로 처리.
 const CLUSTER_SIZE = 5;  // 5척씩 묶어서 시뮬레이션 (렌더 시 분리)
 
+function buildWreckResources(shipValueGp, mods) {
+  const value = Math.max(0, Math.min(9000000000000, Number(shipValueGp) || 0));
+  const modLevel = Math.max(0, Math.min(100000, Number(mods) || 0));
+  const salvage = {};
+  const add = (code, qty) => {
+    qty = Math.floor(Number(qty) || 0);
+    if (qty > 0) salvage[code] = (salvage[code] || 0) + qty;
+  };
+  add('iron_dust', Math.min(240, Math.max(1, Math.floor(value / 120))));
+  add('hull_plate', Math.min(80, Math.floor(value / 600)));
+  add('alloy_frame', Math.min(40, Math.floor(value / 1800)));
+  add('plasma_coil', Math.min(18, Math.floor((value / 5000) + (modLevel / 4))));
+  add('rare_metal', Math.min(12, Math.floor(value / 12000)));
+  return salvage;
+}
+
 // ─── Entry Point: 전투 시뮬레이션 ───
 
 /**
@@ -1616,10 +1632,11 @@ async function applyBattleResults(battleId, result) {
           let _value = _baseVal + _mods * Math.round(_baseVal * 0.04);
           if (!Number.isFinite(_value)) _value = _baseVal;
           _value = Math.max(0, Math.min(9000000000000, _value)); // BIGINT 안전
+          const _resources = buildWreckResources(_value, _mods);
           await client.query(
-            `INSERT INTO ship_wrecks (battle_id, ship_instance_id, ship_type, ship_name, original_owner, victim_side, killer_wallet, killer_side, ship_value_gp, mods, expires_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, NOW() + ($11 || ' hours')::INTERVAL)`,
-            [battleId, sid, sr[0].ship_type_code, sr[0].sname, sr[0].owner, vSide, kWallet, kSide, _value, _mods, String(salvageHours)]
+            `INSERT INTO ship_wrecks (battle_id, ship_instance_id, ship_type, ship_name, original_owner, victim_side, killer_wallet, killer_side, ship_value_gp, mods, resources, expires_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb, NOW() + ($12 || ' hours')::INTERVAL)`,
+            [battleId, sid, sr[0].ship_type_code, sr[0].sname, sr[0].owner, vSide, kWallet, kSide, _value, _mods, JSON.stringify(_resources), String(salvageHours)]
           );
         }
       }

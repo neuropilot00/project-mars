@@ -191,14 +191,18 @@ function renderMyKillboardSummary(m) {
 }
 
 function renderKillmailCard(k) {
+  const myWallet = (getMyWallet() || '').toLowerCase();
   const killer = k.killer_nick || shortWallet(k.killer_wallet);
   const victim = k.victim_nick || shortWallet(k.victim_wallet);
   const value = Math.max(0, parseInt(k.ship_value_gp, 10) || 0);
   const mods = Math.max(0, parseInt(k.mods, 10) || 0);
   const ship = k.ship_name || k.ship_type || 'Ship';
   const when = formatShortTime(k.created_at);
+  const expired = k.expires_at && new Date(k.expires_at).getTime() <= Date.now();
+  const canSalvage = myWallet && String(k.killer_wallet || '').toLowerCase() === myWallet && !k.salvaged_by && !expired;
+  const salvaged = !!k.salvaged_by;
   return `
-    <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}">
+    <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}" data-wreck-id="${parseInt(k.id, 10) || 0}">
       <div class="killmail-skull">☠</div>
       <div class="killmail-main">
         <div class="killmail-title">
@@ -210,17 +214,50 @@ function renderKillmailCard(k) {
           <span>🚀 ${escapeHtml(ship)}</span>
           ${mods ? `<span>MOD +${mods}</span>` : ''}
           ${k.victim_is_betrayer ? `<span class="traitor-tag">${LANG==='ko'?'변절자':LANG==='ja'?'裏切り者':LANG==='zh'?'叛徒':'BETRAYER'}</span>` : ''}
+          ${salvaged ? `<span>${LANG==='ko'?'회수완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'SALVAGED'}</span>` : expired ? `<span>${LANG==='ko'?'잔해소멸':LANG==='ja'?'残骸消滅':LANG==='zh'?'残骸消失':'EXPIRED'}</span>` : ''}
           <span>${when}</span>
         </div>
       </div>
       <div class="killmail-value">
         <b>${formatNum(value)}</b>
         <span>GP ${LANG==='ko'?'파괴가치':LANG==='ja'?'破壊価値':LANG==='zh'?'摧毁价值':'destroyed'}</span>
+        ${canSalvage ? `<button class="bc-btn salvage" onclick="salvageKillmail(${parseInt(k.id, 10) || 0},this)">${LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'}</button>` : ''}
         ${k.battle_id ? `<button class="bc-btn primary" onclick="openBattleViewer(${parseInt(k.battle_id, 10)})">${LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay'}</button>` : ''}
       </div>
     </div>
   `;
 }
+
+async function salvageKillmail(wreckId, btn) {
+  if (!wreckId || (btn && btn.disabled)) return;
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const res = await fetch('/api/killboard/' + encodeURIComponent(wreckId) + '/salvage', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    const data = await res.json().catch(function(){ return {}; });
+    if (!res.ok || data.error) {
+      if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'회수 실패':LANG==='ja'?'回収失敗':LANG==='zh'?'回收失败':'Failed'; }
+      if (typeof showFactionToast === 'function') showFactionToast(data.error || 'SALVAGE_FAILED', 'error');
+      return;
+    }
+    const drops = data.drops || [];
+    const label = drops.length
+      ? drops.map(function(d){ return d.code + '×' + d.quantity; }).join(' · ')
+      : (LANG==='ko'?'회수 완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'Salvaged');
+    if (btn) {
+      btn.classList.add('done');
+      btn.textContent = LANG==='ko'?'회수완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'Salvaged';
+    }
+    if (typeof rewardBurst === 'function') rewardBurst({ text: label, tier: drops.length > 2 ? 2 : 1, sound: window._sfx && _sfx.success });
+    if (typeof showFactionToast === 'function') showFactionToast(label, 'success');
+    try { if (typeof loadBaseInventory === 'function') loadBaseInventory(); } catch(_) {}
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'; }
+  }
+}
+window.salvageKillmail = salvageKillmail;
 
 function shortWallet(w) {
   w = String(w || '').trim();
