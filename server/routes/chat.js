@@ -26,6 +26,21 @@ router.get('/chat/messages', async (req, res) => {
 
     const params = [channel];
     let where = 'WHERE channel = $1';
+    if (req.query.since_id || req.query.sinceId) {
+      const sinceId = parseInt(req.query.since_id || req.query.sinceId, 10);
+      if (!Number.isFinite(sinceId) || sinceId < 0) return res.status(400).json({ error: 'invalid_since_id' });
+      params.push(sinceId);
+      where += ' AND id > $2';
+      const { rows } = await pool.query(
+        `SELECT id, wallet, nickname, channel, message, created_at
+         FROM chat_messages
+         ${where}
+         ORDER BY id ASC
+         LIMIT 50`,
+        params
+      );
+      return res.json({ messages: rows });
+    }
     if (req.query.since) {
       // incremental poll: only new messages after cursor, ASC order
       params.push(req.query.since);
@@ -41,17 +56,24 @@ router.get('/chat/messages', async (req, res) => {
       return res.json({ messages: rows });
     }
 
-    // [Gemini review fix] initial load — fetch newest 50, return in ASC order for display
+    // Initial load: fetch recent rows, collapse repeated same-user same-message spam,
+    // then return the latest 50 in ASC order for display.
     const { rows } = await pool.query(
       `SELECT id, wallet, nickname, channel, message, created_at
        FROM (
-         SELECT id, wallet, nickname, channel, message, created_at
-         FROM chat_messages
-         WHERE channel = $1
-         ORDER BY created_at DESC
-         LIMIT 50
+         SELECT DISTINCT ON (LOWER(wallet), message)
+                id, wallet, nickname, channel, message, created_at
+           FROM (
+             SELECT id, wallet, nickname, channel, message, created_at
+             FROM chat_messages
+             WHERE channel = $1
+             ORDER BY id DESC
+             LIMIT 150
+           ) recent
+          ORDER BY LOWER(wallet), message, id DESC
        ) sub
-       ORDER BY created_at ASC`,
+       ORDER BY id ASC
+       LIMIT 50`,
       params
     );
     return res.json({ messages: rows });
@@ -74,10 +96,10 @@ router.post('/chat/send', requireAuth, async (req, res) => {
     const duplicate = await pool.query(
       `SELECT id, wallet, nickname, channel, message, created_at
        FROM chat_messages
-       WHERE wallet = $1
-         AND channel = $2
-         AND message = $3
-         AND created_at > NOW() - INTERVAL '3 seconds'
+         WHERE wallet = $1
+           AND channel = $2
+           AND message = $3
+         AND created_at > NOW() - INTERVAL '60 seconds'
        ORDER BY created_at DESC
        LIMIT 1`,
       [wallet, channel, message]

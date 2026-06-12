@@ -50607,6 +50607,7 @@ async function initOnboarding(wallet) {
 // ── CHAT SYSTEM ──────────────────────────────────────────────
 let _chatChannel = 'global';
 let _chatSince = null;
+let _chatSinceId = null;
 let _chatPollTimer = null;
 let _chatUnread = 0;
 let _chatExpanded = false;
@@ -50615,6 +50616,11 @@ let _chatLoadQueued = false;
 let _chatSeenIds = new Set();
 let _chatSeenContent = new Map();
 let _chatSending = false;
+let _chatFetchTimer = null;
+let _chatLastFetchAt = 0;
+let _chatBackoffUntil = 0;
+const CHAT_FETCH_MIN_GAP_MS = 1500;
+const CHAT_DUP_WINDOW_MS = 120000;
 
 function toggleChat() {
   const el = document.getElementById('chatOverlay');
@@ -50634,13 +50640,14 @@ function toggleChat() {
 function switchChatChannel(ch) {
   _chatChannel = ch === 'sector' ? (window._chatCurrentSector || 'global') : 'global';
   _chatSince = null;
+  _chatSinceId = null;
   _chatSeenIds = new Set();
   _chatSeenContent = new Map();
   document.getElementById('chatMessages').innerHTML = '';
   document.querySelectorAll('.chat-ch').forEach(b => b.classList.remove('active'));
   const idx = ch === 'sector' ? 1 : 0;
   document.querySelectorAll('.chat-ch')[idx]?.classList.add('active');
-  loadChatMessages();
+  requestChatMessages(0);
   try { _liveWSSubscribe(); } catch(_) {}  // 새 채널 실시간 구독 갱신
 }
 
@@ -50665,7 +50672,7 @@ async function sendChatMessage() {
     if (r.status === 429) { if(typeof showToast === 'function') showToast('메시지를 너무 빠르게 전송하고 있습니다'); return; }
     if (!r.ok) { if(typeof showToast === 'function') showToast('전송 실패'); return; }
     input.value = '';
-    await loadChatMessages();
+    requestChatMessages(250);
   } catch(e) { if(typeof showToast === 'function') showToast('전송 오류'); }
   finally {
     _chatSending = false;
@@ -50675,20 +50682,46 @@ async function sendChatMessage() {
   }
 }
 
+function requestChatMessages(delay) {
+  if (_chatFetchTimer) _clearActiveTimeout(_chatFetchTimer);
+  _chatFetchTimer = _setActiveTimeout(function(){
+    _chatFetchTimer = null;
+    loadChatMessages();
+  }, Math.max(0, delay || 0));
+}
+
 async function loadChatMessages() {
   if (_chatLoading) { _chatLoadQueued = true; return; }
+  const now = Date.now();
+  if (now < _chatBackoffUntil) {
+    requestChatMessages(_chatBackoffUntil - now + 250);
+    return;
+  }
+  const gap = now - _chatLastFetchAt;
+  if (gap < CHAT_FETCH_MIN_GAP_MS) {
+    requestChatMessages(CHAT_FETCH_MIN_GAP_MS - gap);
+    return;
+  }
   _chatLoading = true;
+  _chatLastFetchAt = now;
   try {
     // Skip polling when page is hidden (tab not visible) AND chat is collapsed —
     // avoids competing with the Globe.GL render loop for network/CPU bandwidth.
     if (!_pageIsActive() && !_chatExpanded) return;
-    const url = '/api/chat/messages?channel=' + encodeURIComponent(_chatChannel) + (_chatSince ? '&since=' + encodeURIComponent(_chatSince) : '');
+    const url = '/api/chat/messages?channel=' + encodeURIComponent(_chatChannel)
+      + (_chatSinceId != null ? '&since_id=' + encodeURIComponent(_chatSinceId) : (_chatSince ? '&since=' + encodeURIComponent(_chatSince) : ''));
     const r = await fetch(url);
+    if (r.status === 429) {
+      _chatBackoffUntil = Date.now() + 30000;
+      return;
+    }
     if (!r.ok) return;
     const data = await r.json();
     const msgs = data.messages || [];
     if (!msgs.length) return;
     _chatSince = msgs[msgs.length - 1].created_at;
+    const lastId = msgs.reduce((max, m) => Math.max(max, parseInt(m.id, 10) || 0), _chatSinceId || 0);
+    if (lastId > 0) _chatSinceId = lastId;
     const container = document.getElementById('chatMessages');
     if (!container) return;
     const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 40;
@@ -50699,7 +50732,7 @@ async function loadChatMessages() {
       const contentKey = [m.channel || _chatChannel, (m.wallet || '').toLowerCase(), m.message || ''].join('|');
       const msgTime = new Date(m.created_at).getTime() || Date.now();
       const lastSame = _chatSeenContent.get(contentKey);
-      if (lastSame && Math.abs(msgTime - lastSame) < 3000) {
+      if (lastSame && Math.abs(msgTime - lastSame) < CHAT_DUP_WINDOW_MS) {
         _chatSeenIds.add(msgKey);
         return;
       }
@@ -50728,7 +50761,7 @@ async function loadChatMessages() {
     _chatLoading = false;
     if (_chatLoadQueued) {
       _chatLoadQueued = false;
-      loadChatMessages();
+      requestChatMessages(CHAT_FETCH_MIN_GAP_MS);
     }
   }
 }
@@ -50739,9 +50772,9 @@ function _escapeHtml(s) {
 
 function startChatPolling() {
   if (_chatPollTimer) _clearActiveInterval(_chatPollTimer);
-  loadChatMessages();
+  requestChatMessages(0);
   // WebSocket(/ws/live)이 실시간 푸시를 담당 → 폴링은 폴백으로 간격을 늘림(5s→15s, 부하 감소).
-  _chatPollTimer = _setActiveInterval(() => { loadChatMessages(); }, 15000);
+  _chatPollTimer = _setActiveInterval(() => { requestChatMessages(0); }, 15000);
 }
 
 var _feedSince = null;
@@ -50818,7 +50851,7 @@ function connectLiveWS() {
       if (!d || !d.type) return;
       if (d.type === 'chat') {
         // 현재 보고 있는 채널이면 즉시 증분 로드
-        if (d.channel === (typeof _chatChannel!=='undefined'?_chatChannel:'global')) { try { loadChatMessages(); } catch(_){} }
+        if (d.channel === (typeof _chatChannel!=='undefined'?_chatChannel:'global')) { try { requestChatMessages(250); } catch(_){} }
       } else if (d.type === 'feed') {
         try { loadActivityFeed(); } catch(_){}
       } else if (d.type === 'cmd_err' || d.type === 'error') {
@@ -50845,7 +50878,7 @@ function connectLiveWS() {
   } catch (_) {}
 }
 _onPageVisible(function() {
-  try { if (_chatPollTimer) loadChatMessages(); else startChatPolling(); } catch(_) {}
+  try { if (_chatPollTimer) requestChatMessages(0); else startChatPolling(); } catch(_) {}
   try { if (_feedTimer) loadActivityFeed(); else startFeedPolling(); } catch(_) {}
   try { connectLiveWS(); } catch(_) {}
 });
