@@ -933,8 +933,9 @@ async function sendChatMessage() {
     });
     if (r.status === 429) { if(typeof showToast === 'function') showToast('메시지를 너무 빠르게 전송하고 있습니다'); return; }
     if (!r.ok) { if(typeof showToast === 'function') showToast('전송 실패'); return; }
+    const sent = await r.json().catch(() => null);
     input.value = '';
-    requestChatMessages(250);
+    if (sent && sent.message) _appendChatMessages([sent.message]);
   } catch(e) { if(typeof showToast === 'function') showToast('전송 오류'); }
   finally {
     _chatSending = false;
@@ -984,44 +985,7 @@ async function loadChatMessages() {
     _chatSince = msgs[msgs.length - 1].created_at;
     const lastId = msgs.reduce((max, m) => Math.max(max, parseInt(m.id, 10) || 0), _chatSinceId || 0);
     if (lastId > 0) _chatSinceId = lastId;
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
-    const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 40;
-    let appended = 0;
-    msgs.forEach(m => {
-      const msgKey = m.id != null ? String(m.id) : [m.channel, m.created_at, m.wallet, m.message].join('|');
-      if (_chatSeenIds.has(msgKey)) return;
-      const nick = m.nickname || (m.wallet || '').substring(0, 8);
-      const contentKeys = _chatContentKeys(m, nick);
-      const msgTime = new Date(m.created_at).getTime() || Date.now();
-      const isDuplicateContent = contentKeys.some(key => {
-        const lastSame = _chatSeenContent.get(key);
-        return lastSame && Math.abs(msgTime - lastSame) < CHAT_DUP_WINDOW_MS;
-      });
-      if (isDuplicateContent) {
-        _chatSeenIds.add(msgKey);
-        return;
-      }
-      _chatSeenIds.add(msgKey);
-      contentKeys.forEach(key => _chatSeenContent.set(key, msgTime));
-      _pruneChatDedupe(msgTime);
-      const div = document.createElement('div');
-      div.className = 'chat-msg';
-      div.dataset.msgId = msgKey;
-      const t = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      div.innerHTML = '<span class="chat-msg-nick">' + _escapeHtml(nick) + '</span><span class="chat-msg-text">' + _escapeHtml(m.message) + '</span><span class="chat-msg-time">' + t + '</span>';
-      container.appendChild(div);
-      appended++;
-    });
-    if (!appended) return;
-    if (wasAtBottom || !_chatExpanded) {
-      container.scrollTop = container.scrollHeight;
-    }
-    if (!_chatExpanded && appended > 0) {
-      _chatUnread += appended;
-      const badge = document.getElementById('chatUnreadBadge');
-      if (badge) { badge.style.display = 'inline'; badge.textContent = _chatUnread > 99 ? '99+' : String(_chatUnread); }
-    }
+    _appendChatMessages(msgs);
   } catch(e) { /* silent */ }
   finally {
     _chatLoading = false;
@@ -1029,6 +993,52 @@ async function loadChatMessages() {
       _chatLoadQueued = false;
       requestChatMessages(CHAT_FETCH_MIN_GAP_MS);
     }
+  }
+}
+
+function _appendChatMessages(msgs) {
+  if (!msgs || !msgs.length) return;
+  const last = msgs[msgs.length - 1];
+  if (last && last.created_at) _chatSince = last.created_at;
+  const lastId = msgs.reduce((max, m) => Math.max(max, parseInt(m.id, 10) || 0), _chatSinceId || 0);
+  if (lastId > 0) _chatSinceId = lastId;
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+  const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 40;
+  let appended = 0;
+  msgs.forEach(m => {
+    const msgKey = m.id != null ? String(m.id) : [m.channel, m.created_at, m.wallet, m.message].join('|');
+    if (_chatSeenIds.has(msgKey)) return;
+    const nick = m.nickname || (m.wallet || '').substring(0, 8);
+    const contentKeys = _chatContentKeys(m, nick);
+    const msgTime = new Date(m.created_at).getTime() || Date.now();
+    const isDuplicateContent = contentKeys.some(key => {
+      const lastSame = _chatSeenContent.get(key);
+      return lastSame && Math.abs(msgTime - lastSame) < CHAT_DUP_WINDOW_MS;
+    });
+    if (isDuplicateContent) {
+      _chatSeenIds.add(msgKey);
+      return;
+    }
+    _chatSeenIds.add(msgKey);
+    contentKeys.forEach(key => _chatSeenContent.set(key, msgTime));
+    _pruneChatDedupe(msgTime);
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.dataset.msgId = msgKey;
+    const t = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    div.innerHTML = '<span class="chat-msg-nick">' + _escapeHtml(nick) + '</span><span class="chat-msg-text">' + _escapeHtml(m.message) + '</span><span class="chat-msg-time">' + t + '</span>';
+    container.appendChild(div);
+    appended++;
+  });
+  if (!appended) return;
+  if (wasAtBottom || !_chatExpanded) {
+    container.scrollTop = container.scrollHeight;
+  }
+  if (!_chatExpanded && appended > 0) {
+    _chatUnread += appended;
+    const badge = document.getElementById('chatUnreadBadge');
+    if (badge) { badge.style.display = 'inline'; badge.textContent = _chatUnread > 99 ? '99+' : String(_chatUnread); }
   }
 }
 
@@ -1138,8 +1148,8 @@ function connectLiveWS() {
       var d = null; try { d = JSON.parse(ev.data); } catch(_) { return; }
       if (!d || !d.type) return;
       if (d.type === 'chat') {
-        // 현재 보고 있는 채널이면 즉시 증분 로드
-        if (d.channel === (typeof _chatChannel!=='undefined'?_chatChannel:'global')) { try { requestChatMessages(250); } catch(_){} }
+        // 서버 push payload를 바로 렌더한다. GET 재호출은 30s fallback poll에 맡겨 429 위험을 낮춘다.
+        if (d.channel === (typeof _chatChannel!=='undefined'?_chatChannel:'global') && d.message) { try { _appendChatMessages([d.message]); } catch(_){} }
       } else if (d.type === 'feed') {
         try { loadActivityFeed(); } catch(_){}
       } else if (d.type === 'cmd_err' || d.type === 'error') {
