@@ -107,6 +107,10 @@ function battleHubReadFetch(key, url, minGap) {
   return fetch(url, { headers: getAuthHeaders() }).then(function(r){ return r.json(); });
 }
 
+function battleHubReadKeyed(key, url, minGap) {
+  return battleHubReadFetch(key, url, minGap).then(function(data){ return data || null; });
+}
+
 function rememberBattleContext(battle) {
   const id = parseInt(battle && battle.id, 10);
   if (!id) return;
@@ -198,9 +202,9 @@ function loadBattleRewardsHistory() {
     return;
   }
   el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">Loading...</div>';
-  fetch('/api/battles/rewards/mine?limit=20', { headers: getAuthHeaders() })
-    .then(function(r){ return r.json(); })
+  battleHubReadKeyed('rewards-mine', '/api/battles/rewards/mine?limit=20', 30000)
     .then(function(data) {
+      if (!data) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">' + tl('Please wait before refreshing.','잠시 후 다시 새로고침하세요.','少し待ってから更新してください。','请稍后再刷新。') + '</div>'; return; }
       if (data && data.error) { el.innerHTML = '<div style="text-align:center;color:var(--mars);padding:6px">' + data.error + '</div>'; return; }
       var rewards = (data && data.rewards) || [];
       var totalGp = (data && data.total_gp) || 0;
@@ -1180,9 +1184,8 @@ window.closeCmdActionsModal = closeCmdActionsModal;
 
 async function showRewardIfAny(battleId) {
   try {
-    const res = await fetch(`/api/battles/${battleId}/rewards`);
-    if (!res.ok) return;
-    const data = await res.json();
+    const data = await battleHubReadKeyed('battle-rewards:' + battleId, `/api/battles/${battleId}/rewards`, 10000);
+    if (!data) return;
 
     const myWallet = getMyWallet();
     if (!myWallet) return;
@@ -1215,7 +1218,7 @@ function markBattleDailyOpsOnce(battleId, type) {
 // (도파민 #4 v7.392) 승리 슬롯 — Sink 풀에서 추가 GP. 승자만 전투당 1회.
 async function _showVictorySlot(battleId) {
   try {
-    var st = await fetch('/api/battles/'+battleId+'/victory-slot', { headers: getAuthHeaders() }).then(function(r){ return r.json(); });
+    var st = await battleHubReadKeyed('victory-slot:' + battleId, '/api/battles/'+battleId+'/victory-slot', 10000);
     if (!st || !st.enabled || !st.eligible || st.spun || !(st.pool > 0)) return;
     var items = document.getElementById('rewardToastItems');
     if (!items) return;
@@ -1761,10 +1764,10 @@ async function loadBvSidePanels(battleId) {
   var preset = null, my = null, mineral = null, battleInfo = null;
   try {
     [preset, my, mineral, battleInfo] = await Promise.all([
-      fetch('/api/tactical-lab/fleet-presets?bid=' + battleId).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('/api/fleets/my', { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('/api/resources/my', { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('/api/battles/' + battleId).then(r => r.ok ? r.json() : null).catch(() => null)
+      battleHubReadKeyed('tactical-presets:' + battleId, '/api/tactical-lab/fleet-presets?bid=' + battleId, 30000),
+      battleHubReadKeyed('fleets-my-sidepanel', '/api/fleets/my', 15000),
+      battleHubReadKeyed('resources-my-sidepanel', '/api/resources/my', 15000),
+      battleHubReadKeyed('battle-info:' + battleId, '/api/battles/' + battleId, 1500)
     ]);
   } catch (_) {}
 
@@ -1916,10 +1919,10 @@ async function openBattleViewer(battleId, startTick) {
     if (!document.getElementById('battleViewer')?.classList.contains('active')) return;
     try {
       // 전투 정보
-      const infoRes = await fetch(`/api/battles/${battleId}`);
+      const infoData = await battleHubReadKeyed('battle-info:' + battleId, `/api/battles/${battleId}`, 1500);
       if (viewerSeq !== bv._viewerSeq) return;
-      const infoData = await infoRes.json().catch(() => ({}));
-      if (!infoRes.ok) { lastErr = 'info: ' + (infoData.error || infoRes.status); break; }
+      if (!infoData) { await _activeSleep(2000); continue; }
+      if (infoData.error) { lastErr = 'info: ' + infoData.error; break; }
       bv.battle = infoData.battle;
       if (infoData.battle) {
         rememberBattleContext(infoData.battle);
@@ -1940,17 +1943,15 @@ async function openBattleViewer(battleId, startTick) {
       battleDone = (bStatus === 'ended' || bStatus === 'done');
 
       // 타임라인
-      const tlRes = await fetch(`/api/battles/${battleId}/timeline`);
+      const tlData = await battleHubReadKeyed('battle-timeline:' + battleId, `/api/battles/${battleId}/timeline`, 1500);
       if (viewerSeq !== bv._viewerSeq) return;
-      if (tlRes.ok) {
-        const tlData = await tlRes.json();
+      if (tlData && !tlData.error) {
         if (viewerSeq !== bv._viewerSeq) return;
         bv.timeline = tlData.timeline;
         loaded = true;
         break;
       } else {
-        const tlBody = await tlRes.json().catch(() => ({}));
-        lastErr = 'timeline: ' + (tlBody.error || tlRes.status);
+        lastErr = 'timeline: ' + ((tlData && tlData.error) || 'pending');
         // 전투가 아직 진행 중이면 에러 아님 — 계속 대기
         if (!battleDone) { await _activeSleep(2000); continue; }
         // 전투 끝났는데 타임라인 없으면 진짜 에러
@@ -1993,9 +1994,8 @@ async function openBattleViewer(battleId, startTick) {
 
   // Commander actions 뱃지 로드
   try {
-    const caRes = await fetch(`/api/battles/${battleId}/commander-actions`);
-    if (caRes.ok) {
-      const caJ = await caRes.json();
+    const caJ = await battleHubReadKeyed('commander-actions:' + battleId, `/api/battles/${battleId}/commander-actions`, 10000);
+    if (caJ) {
       renderBvCmdBanner(caJ.actions || []);
     } else {
       renderBvCmdBanner([]);
@@ -2723,9 +2723,8 @@ async function _injectRewardIntoResult(battleId) {
   try {
     const myWallet = getMyWallet();
     if (!myWallet) return;
-    const res = await fetch(`/api/battles/${battleId}/rewards`);
-    if (!res.ok) return;
-    const data = await res.json();
+    const data = await battleHubReadKeyed('battle-rewards:' + battleId, `/api/battles/${battleId}/rewards`, 10000);
+    if (!data) return;
     const myReward = (data.rewards || []).find(r =>
       r.wallet_address.toLowerCase() === myWallet.toLowerCase()
     );
@@ -2775,9 +2774,8 @@ async function _loadBattleReport(battleId, mySide) {
   const section = document.getElementById('bvReportContent');
   if (!section) return;
   try {
-    const res = await fetch(`/api/battles/${battleId}/report`, { headers: getAuthHeaders() });
-    if (!res.ok) throw new Error('fetch failed');
-    const data = await res.json();
+    const data = await battleHubReadKeyed('battle-report:' + battleId, `/api/battles/${battleId}/report`, 15000);
+    if (!data) throw new Error('fetch deferred');
     const r = data.report;
     if (!r) throw new Error('no report');
 
@@ -2950,9 +2948,8 @@ async function _loadBattleReport(battleId, mySide) {
     // ✅ 리플레이 하이라이트 3장면
     let highlightHtml = '';
     try {
-      const hlRes = await fetch(`/api/battles/${battleId}/highlights`);
-      if (hlRes.ok) {
-        const hlData = await hlRes.json();
+      const hlData = await battleHubReadKeyed('battle-highlights:' + battleId, `/api/battles/${battleId}/highlights`, 15000);
+      if (hlData) {
         const hl = (hlData.highlights || []).filter(h => h.type !== 'battle_end').slice(0, 3);
         if (hl.length > 0) {
           const hlIconMap = {
@@ -3035,8 +3032,8 @@ async function _showMyBattleStats() {
   const wallet = walletState?.address;
   if (!wallet) return;
   try {
-    const res = await fetch(`/api/battles/my-stats/${wallet}`);
-    const data = await res.json();
+    const data = await battleHubReadKeyed('my-stats:' + wallet, `/api/battles/my-stats/${wallet}`, 30000);
+    if (!data) throw new Error('fetch deferred');
     const s = data.stats || {};
     const _ratingColor = { S:'#ffd700', A:'#66bb6a', B:'#4fc3f7', C:'#ffa726', D:'#ef5350' };
     const bestCol = _ratingColor[s.best_rating] || '#aaa';
