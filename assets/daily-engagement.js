@@ -3281,11 +3281,30 @@ function postGPAnnouncement() {
 
 var _pollsCfg = null;
 
+function _pollEsc(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+    return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[ch];
+  });
+}
+
+function _pollReadFetch(key, url, auth) {
+  var walletKey = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('polls:' + key + ':' + walletKey, url, {
+      minGap: 15000,
+      backoffMs: 120000,
+      fetchOptions: auth ? { headers: getAuthHeaders() } : {}
+    });
+  }
+  return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
+}
+
 function refreshPolls() {
   var el = document.getElementById('activePollsPanel');
   if (!el) return;
   el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading polls…</div>';
-  fetch('/api/polls', { headers: getAuthHeaders() }).then(function(r){return r.json();}).then(function(polls){
+  _pollReadFetch('list', '/api/polls', true).then(function(polls){
+    if (!polls) return;
     if (!polls.length) {
       el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px" data-i18n="poll_none">'+t('poll_none')+'</div>';
       return;
@@ -3298,15 +3317,15 @@ function refreshPolls() {
       var myVote = p.my_vote;
       return '<div style="background:rgba(165,214,167,.05);border:1px solid rgba(165,214,167,.15);border-radius:8px;padding:10px">'
         +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'
-          +'<div style="font-size:10px;color:var(--tx);font-weight:700;flex:1">'+p.question+'</div>'
+          +'<div style="font-size:10px;color:var(--tx);font-weight:700;flex:1">'+_pollEsc(p.question)+'</div>'
           +'<span style="font-size:8px;color:#a5d6a7;white-space:nowrap;margin-left:6px">'+expStr+'</span>'
         +'</div>'
-        +'<div style="font-size:8px;color:var(--tx3);margin-bottom:8px">by '+(p.nickname||p.wallet.slice(0,10)+'…')+' · '+total+' votes</div>'
+        +'<div style="font-size:8px;color:var(--tx3);margin-bottom:8px">by '+_pollEsc(p.nickname || (p.wallet ? p.wallet.slice(0,10)+'…' : '?'))+' · '+total+' votes</div>'
         + opts.map(function(opt, i) {
             var pct = total > 0 ? 0 : 0;
             var isMyVote = myVote === i;
             return '<button onclick="votePoll('+p.id+','+i+')" style="width:100%;margin-bottom:3px;padding:6px 10px;text-align:left;background:'+(isMyVote?'rgba(165,214,167,.2)':'rgba(255,255,255,.04)')+';border:1px solid '+(isMyVote?'rgba(165,214,167,.5)':'rgba(255,255,255,.1)')+';border-radius:6px;color:var(--tx);cursor:pointer;font-family:var(--fn);font-size:9px">'
-              +'<span>'+(isMyVote?'✓ ':'')+opt+'</span>'
+              +'<span>'+(isMyVote?'✓ ':'')+_pollEsc(opt)+'</span>'
               +'</button>';
           }).join('')
         +'</div>';
@@ -3314,7 +3333,8 @@ function refreshPolls() {
   }).catch(function(){ el.innerHTML = ''; });
   // Load config for cost display
   if (!_pollsCfg) {
-    fetch('/api/polls/config').then(function(r){return r.json();}).then(function(cfg){
+    _pollReadFetch('config', '/api/polls/config', false).then(function(cfg){
+      if (!cfg) return;
       _pollsCfg = cfg;
       var hint = document.getElementById('pollCostHint');
       if (hint) hint.textContent = cfg.costGP + ' GP';
