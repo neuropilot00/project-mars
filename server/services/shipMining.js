@@ -16,10 +16,34 @@ async function getSetting(key, fb) {
 }
 function _num(v, fb) { const n = parseFloat(typeof v === 'string' ? v.replace(/^"|"$/g, '') : v); return isFinite(n) ? n : fb; }
 const DEFAULT_MINING_DESTINATIONS = [
-  { key: 'frontier', yieldMult: 1.0, wearMult: 1.0, raidPct: 0.0 },
-  { key: 'mid', yieldMult: 1.5, wearMult: 1.5, raidPct: 0.05 },
-  { key: 'core', yieldMult: 2.2, wearMult: 2.5, raidPct: 0.15 },
+  { key: 'frontier', yieldMult: 1.0, resourceMult: 1.0, rareMult: 1.0, wearMult: 1.0, raidPct: 0.0 },
+  { key: 'mid', yieldMult: 1.5, resourceMult: 1.5, rareMult: 1.15, wearMult: 1.5, raidPct: 0.05 },
+  { key: 'core', yieldMult: 2.2, resourceMult: 2.2, rareMult: 1.35, wearMult: 2.5, raidPct: 0.15 },
 ];
+
+const MINING_ROUTE_PROFILES = {
+  frontier: {
+    difficulty: 1,
+    rareMult: 1.0,
+    riskLabel: 'SAFE BELT',
+    lootProfile: 'common ore and baseline parts',
+    pressure: 'low',
+  },
+  mid: {
+    difficulty: 3,
+    rareMult: 1.15,
+    riskLabel: 'CONTESTED BELT',
+    lootProfile: 'improved minerals and rare part pressure',
+    pressure: 'contested',
+  },
+  core: {
+    difficulty: 5,
+    rareMult: 1.35,
+    riskLabel: 'WARZONE CORE',
+    lootProfile: 'highest rare-material pressure',
+    pressure: 'warzone',
+  },
+};
 
 function _defaultDestinations() {
   return DEFAULT_MINING_DESTINATIONS.map(function (d) { return Object.assign({}, d); });
@@ -33,12 +57,18 @@ function _normalizeDestination(d) {
   const key = String(d && d.key || '').trim();
   if (!key) return null;
   const yieldMult = _clamp(d.yieldMult, 0.1, 10, 1);
+  const profile = MINING_ROUTE_PROFILES[key] || {};
   return {
     key: key,
     yieldMult: yieldMult,
     resourceMult: _clamp(d.resourceMult == null ? yieldMult : d.resourceMult, 0.1, 10, yieldMult),
+    rareMult: _clamp(d.rareMult == null ? profile.rareMult : d.rareMult, 0.1, 5, profile.rareMult || 1),
     wearMult: _clamp(d.wearMult, 0, 10, 1),
     raidPct: _clamp(d.raidPct, 0, 0.95, 0),
+    difficulty: _clamp(d.difficulty == null ? profile.difficulty : d.difficulty, 1, 5, profile.difficulty || 1),
+    riskLabel: String(d.riskLabel || profile.riskLabel || 'UNKNOWN ROUTE'),
+    lootProfile: String(d.lootProfile || profile.lootProfile || 'mixed resources'),
+    pressure: String(d.pressure || profile.pressure || 'unknown'),
   };
 }
 async function _enabled() { return String(await getSetting('ship_mining_enabled', 'true')).replace(/"/g, '') === 'true'; }
@@ -286,6 +316,7 @@ async function collectMining(wallet, jobId) {
     const baseYieldMult = Number(destCfg.yieldMult) || 1;
     const yieldMult = baseYieldMult * allianceSectorBonus;
     const resourceMult = (Number(destCfg.resourceMult) || baseYieldMult) * allianceSectorBonus;
+    const rareMult = Number(destCfg.rareMult) || 1;
     const wearMult = Number(destCfg.wearMult) || 1;
     const raided = (Number(destCfg.raidPct) || 0) > 0 && Math.random() < Number(destCfg.raidPct);
     const raidYieldFactor = raided ? 0.5 : 1;
@@ -315,7 +346,7 @@ async function collectMining(wallet, jobId) {
       const merged = {};
       for (let i = 0; i < rolls; i++) {
         try {
-          const d = await resourceSvc.rollResourceDrop(w, job.sector_type || 'frontier');
+          const d = await resourceSvc.rollResourceDrop(w, job.sector_type || 'frontier', { gradeRareMult: rareMult });
           for (const x of (d || [])) merged[x.code] = (merged[x.code] || 0) + x.quantity;
         } catch (_) {}
       }

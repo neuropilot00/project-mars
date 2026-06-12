@@ -60,6 +60,21 @@
     return '#64dc82';
   }
 
+  function routeDifficultyLabel(d) {
+    var lv = Math.max(1, Math.min(5, parseInt(d && d.difficulty, 10) || 1));
+    return 'D' + lv;
+  }
+
+  function routeLootText(d) {
+    var rare = Number(d && d.rareMult) || 1;
+    var profile = d && d.lootProfile ? String(d.lootProfile) : '';
+    return profile || (rare > 1.2
+      ? lang('rare-material pressure', '희귀 재료 확률 높음', 'レア素材圧力高', '稀有材料压力高')
+      : rare > 1
+        ? lang('improved mineral table', '개선된 광물 테이블', '改善鉱物テーブル', '强化矿物表')
+        : lang('baseline ore table', '기본 광석 테이블', '基本鉱石テーブル', '基础矿石表'));
+  }
+
   function allianceBonusFor(key) {
     var bonuses = (state.info && state.info.allianceSectorBonuses) || {};
     var mult = Number(bonuses[key]) || 1;
@@ -158,7 +173,7 @@
       dests.forEach(function (d) {
         var allianceBonus = allianceBonusFor(d.key);
         var allianceText = allianceBonus > 1 ? ' · Alliance +' + Math.round((allianceBonus - 1) * 100) + '%' : '';
-        var line = routeName(d.key) + ' · ' + routeRiskLabel(d) + ' · x' + Number((d.yieldMult || 1) * allianceBonus).toFixed(1) + ' GP · x' + Number((d.resourceMult || d.yieldMult || 1) * allianceBonus).toFixed(1) + ' resource' + allianceText + ' · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
+        var line = routeName(d.key) + ' · ' + routeDifficultyLabel(d) + ' · ' + routeRiskLabel(d) + ' · x' + Number((d.yieldMult || 1) * allianceBonus).toFixed(1) + ' GP · x' + Number((d.resourceMult || d.yieldMult || 1) * allianceBonus).toFixed(1) + ' resource · x' + Number(d.rareMult || 1).toFixed(2) + ' rare' + allianceText + ' · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
         html += '<option value="' + txt(d.key) + '"' + (String(picks.destination || '') === String(d.key) ? ' selected' : '') + '>' + txt(line) + '</option>';
       });
       html += '</select>';
@@ -192,7 +207,8 @@
       var html = '<div style="border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(0,0,0,.18);padding:9px;margin-bottom:7px">';
       html += '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">';
       html += '<div style="min-width:0"><div style="font-size:10px;color:var(--tx);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + txt(j.fleet_name || ('Fleet #' + j.fleet_id)) + '</div>';
-      html += '<div style="font-size:8px;color:var(--tx3);margin-top:3px">' + routeName(j.sector_type) + ' · ' + txt(j.duration_h) + 'h · CAP ' + txt(j.capacity || j.ship_count || 0) + '</div></div>';
+      var jobDest = (state.info && state.info.destinations || []).find(function (d) { return String(d.key) === String(j.sector_type); }) || {};
+      html += '<div style="font-size:8px;color:var(--tx3);margin-top:3px">' + routeName(j.sector_type) + ' · ' + routeDifficultyLabel(jobDest) + ' · ' + txt(j.duration_h) + 'h · CAP ' + txt(j.capacity || j.ship_count || 0) + '</div></div>';
       html += '<div style="text-align:right;flex-shrink:0">';
       if (ready) html += '<button type="button" onclick="smCollectMining(' + Number(j.id) + ')" style="font-size:9px;padding:5px 10px;border-radius:6px;background:rgba(255,209,102,.16);border:1px solid rgba(255,209,102,.45);color:var(--gold);font-family:var(--fn);font-weight:800;cursor:pointer">COLLECT</button>';
       else html += '<div style="font-size:10px;color:' + (done ? '#64dc82' : 'var(--gold)') + ';font-weight:800">' + (done ? 'DONE' : eta) + '</div>';
@@ -219,19 +235,22 @@
     var wearPct = (Number(state.info.hullWearPctPerHour) || 0) * (Number(dest.wearMult) || 1) * h;
     var raidWearPct = wearPct * 1.5;
     var resourceMult = Number(dest.resourceMult || dest.yieldMult || 1) * allianceBonus;
+    var rareMult = Number(dest.rareMult || 1);
     var capLine = Number(state.info.gpCapPerDay) > 0 ? ' · ' + lang('daily cap', '일일 상한', '日次上限', '每日上限') + ' ' + state.info.gpCapPerDay + ' GP' : '';
     var allianceLine = allianceBonus > 1
       ? '<br><span style="color:#80cbc4;font-weight:800">Alliance sector +' + Math.round((allianceBonus - 1) * 100) + '%</span> · ' +
         lang('same-tier governed space', '동맹이 통치 중인 같은 티어 섹터', '同盟統治中の同ティア宙域', '同盟治理的同阶区域')
       : '';
-    el.innerHTML = '<span style="color:' + routeRiskColor(dest) + ';font-weight:900">' + txt(routeRiskLabel(dest)) + '</span> · ' +
+    el.innerHTML = '<span style="color:' + routeRiskColor(dest) + ';font-weight:900">' + txt(routeDifficultyLabel(dest) + ' ' + routeRiskLabel(dest)) + '</span> · ' +
       lang('Gross', '총 보상', '総報酬', '总收益') + ': <b style="color:var(--gold)">+' + gp + ' GP</b> · ' +
       lang('Net', '순익', '純益', '净收益') + ': <b style="color:' + (netGp >= 0 ? '#64dc82' : 'var(--red)') + '">' + (netGp >= 0 ? '+' : '') + netGp + ' GP</b> · CAP ' + txt(cap) + capLine + '<br>' +
       lang('resource yield', '재료 수율', '資源収率', '资源产出') + ' x' + resourceMult.toFixed(1) + ' · ' +
+      lang('rare pressure', '희귀 압력', 'レア圧力', '稀有压力') + ' x' + rareMult.toFixed(2) + ' · ' +
       lang('hull wear', '선체 마모', '船体摩耗', '船体损耗') + ' x' + Number(dest.wearMult || 1).toFixed(1) + ' · ' +
       lang('raid risk', '약탈 위험', '襲撃リスク', '袭击风险') + ' ' + pct(dest.raidPct) + '% · ' +
       lang('expected wear', '예상 마모', '予想摩耗', '预计损耗') + ' ' + pct(wearPct) + '%' +
       (Number(dest.raidPct) > 0 ? ' (' + lang('raided', '약탈 시', '襲撃時', '被袭时') + ' ' + pct(raidWearPct) + '%)' : '') +
+      '<br><span style="color:var(--tx3)">' + txt(routeLootText(dest)) + '</span>' +
       allianceLine;
   };
 
