@@ -54,8 +54,8 @@ const ALL_MISSION_TYPES = [
   { type: 'craft_resource',       label_ko: '재료 제작 1회',             label_en: 'Craft a resource ×1',          target: 1,  default_gp: 60,  dest_ko: '경제 → 재료 제작',       dest_en: 'Economy → Craft'       },
   { type: 'craft_resource_3',     label_ko: '재료 제작 3회',             label_en: 'Craft a resource ×3',          target: 3,  default_gp: 150, dest_ko: '경제 → 재료 제작',       dest_en: 'Economy → Craft'       },
   { type: 'craft_resource_5',     label_ko: '재료 제작 5회',             label_en: 'Craft a resource ×5',          target: 5,  default_gp: 230, dest_ko: '경제 → 재료 제작',       dest_en: 'Economy → Craft'       },
-  { type: 'market_list',          label_ko: '마켓에 함선 등록 1회',      label_en: 'List ship on market ×1',       target: 1,  default_gp: 70,  dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
-  { type: 'market_buy',           label_ko: '마켓 함선 구매 1회',        label_en: 'Buy ship on market ×1',        target: 1,  default_gp: 90,  dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
+  { type: 'market_list',          label_ko: '마켓 매물 등록 1회',        label_en: 'List on market ×1',            target: 1,  default_gp: 70,  dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
+  { type: 'market_buy',           label_ko: '마켓 구매 1회',             label_en: 'Buy on market ×1',             target: 1,  default_gp: 90,  dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
   { type: 'market_activity',      label_ko: '마켓 거래 3회',             label_en: 'Market transactions ×3',       target: 3,  default_gp: 200, dest_ko: '경제 → 마켓',            dest_en: 'Economy → Market'      },
   // ─ 캠페인/퀘스트 (27~29) ─
   { type: 'campaign_progress',    label_ko: '캠페인 챕터 진행 1회',      label_en: 'Progress campaign ×1',         target: 1,  default_gp: 80,  dest_ko: '임무 → 캠페인',          dest_en: 'Mission → Campaign'    },
@@ -71,11 +71,11 @@ const ALL_MISSION_TYPES = [
 function getTodayMissions(date) {
   const dow = date.getUTCDay(); // 0=Sun ... 6=Sat
   const combos = {
-    0: [30, 7, 14, 29],   // Sun:  자원출항, 전투참여, 함선강화, 로그인
+    0: [30, 7, 26, 29],   // Sun:  자원출항, 전투참여, 마켓활동, 로그인
     1: [0,  8, 21, 27],   // Mon:  채굴, 전투승리, 재료제작, 캠페인
-    2: [3,  7, 17, 29],   // Tue:  이미지등록, 전투참여, 함선건조, 로그인
+    2: [3,  7, 24, 29],   // Tue:  이미지등록, 전투참여, 마켓등록, 로그인
     3: [1,  9, 22, 27],   // Wed:  채굴3, 전투3회, 재료3, 캠페인
-    4: [0, 11, 14, 29],   // Thu:  채굴, AI연습전3, 함선강화, 로그인
+    4: [0, 11, 25, 29],   // Thu:  채굴, AI연습전3, 마켓구매, 로그인
     5: [4,  8, 32, 28],   // Fri:  업그레이드, 전투승리, 잔해회수, 캠페인완료
     6: [31,10, 33, 27],   // Sat:  자원출항3, AI연습전, 잔해회수3, 캠페인
   };
