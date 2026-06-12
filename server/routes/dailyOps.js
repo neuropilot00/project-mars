@@ -191,23 +191,33 @@ router.get('/:wallet', async (req, res) => {
     let weeklyRewardLabel = '';
     try { weeklyRewardLabel = await getSetting('weekly_ops_reward_label', '주간 OPS 보상 팩'); } catch (_) {}
 
-    // 긴급 이벤트: 활성 공성전 중 내 영토 섹터
+    // 긴급 이벤트: 내 영토 섹터의 현재 Governor Siege.
+    // 기존 siege_battles 조회는 현재 공성 시스템(governor_sieges)과 어긋나
+    // 실제 섹터 공성이 Daily OPS에 표시되지 않을 수 있었다.
     let urgentEvents = [];
     try {
       const { rows: siegeRows } = await pool.query(
-        `SELECT sb.sector_code,
-           GREATEST(0, EXTRACT(EPOCH FROM (sb.updated_at + INTERVAL '24 hours' - NOW()))::int) AS time_remaining_sec
-         FROM siege_battles sb
-         JOIN claims c ON LOWER(c.sector_code) = LOWER(sb.sector_code) AND LOWER(c.owner) = $1
-         WHERE sb.status = 'active'
+        `SELECT DISTINCT ON (gs.sector_code)
+            gs.id, gs.sector_code, gs.status, gs.siege_starts_at, gs.siege_ends_at,
+            GREATEST(0, EXTRACT(EPOCH FROM (
+              CASE WHEN gs.status = 'pending' THEN gs.siege_starts_at ELSE gs.siege_ends_at END
+              - NOW()
+            ))::int) AS time_remaining_sec
+         FROM governor_sieges gs
+         JOIN claims c ON LOWER(c.sector_code) = LOWER(gs.sector_code)
+          AND LOWER(c.owner) = $1
+          AND c.deleted_at IS NULL
+         WHERE gs.status IN ('pending', 'active')
+           AND COALESCE(gs.siege_kind, 'sector') = 'sector'
+         ORDER BY gs.sector_code, gs.status = 'active' DESC, gs.siege_ends_at ASC
          LIMIT 2`,
         [wallet]
       );
       urgentEvents = siegeRows.map(r => ({
-        label_ko: r.sector_code + ' 섹터 공성전 진행 중!',
-        label_en: r.sector_code + ' Sector siege active!',
+        label_ko: r.sector_code + (r.status === 'pending' ? ' 섹터 공성전 예고!' : ' 섹터 공성전 진행 중!'),
+        label_en: r.sector_code + (r.status === 'pending' ? ' Sector siege incoming!' : ' Sector siege active!'),
         time_remaining_sec: r.time_remaining_sec,
-        action: "openSiege && openSiege('" + r.sector_code + "')"
+        action: "typeof openSiegeSectorPicker === 'function' && openSiegeSectorPicker()"
       }));
     } catch (_) {}
 
