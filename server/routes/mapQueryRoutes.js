@@ -41,6 +41,10 @@ function visibleOwnerPredicate(ownerExpr, paramIndex) {
   )`;
 }
 
+function isOptionalVisibilityError(err) {
+  return err && ['42P01', '42703', '42P10'].includes(err.code);
+}
+
 router.get('/user/:wallet', async (req, res, next) => {
   const staticSubs = ['titles', 'my-territories'];
   if (staticSubs.includes(req.params.wallet)) return next();
@@ -184,13 +188,23 @@ router.get('/pixels', async (req, res) => {
   try {
     const viewerWallet = getOptionalAuthWallet(req);
     const visibleOwner = visibleOwnerPredicate('p.owner', 1);
-    const result = await pool.query(
-      `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
-       FROM pixels p
-       WHERE p.owner IS NOT NULL
-         AND ${visibleOwner}`,
-      [viewerWallet]
-    );
+    let result;
+    try {
+      result = await pool.query(
+        `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
+         FROM pixels p
+         WHERE p.owner IS NOT NULL
+           AND ${visibleOwner}`,
+        [viewerWallet]
+      );
+    } catch (visErr) {
+      if (!isOptionalVisibilityError(visErr)) throw visErr;
+      result = await pool.query(
+        `SELECT p.lat, p.lng, p.owner, p.claim_id, p.price
+         FROM pixels p
+         WHERE p.owner IS NOT NULL`
+      );
+    }
     const byOwner = {};
     for (const row of result.rows) {
       if (!byOwner[row.owner]) byOwner[row.owner] = [];
@@ -210,8 +224,7 @@ router.get('/claims', async (req, res) => {
     const visibleOwner = visibleOwnerPredicate('c.owner', since ? 2 : 1);
     let result;
     if (since) {
-      result = await pool.query(
-        `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
+      const sql = `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
@@ -225,12 +238,15 @@ router.get('/claims', async (req, res) => {
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL AND c.created_at > $1
            AND ${visibleOwner}
-         ORDER BY c.created_at DESC LIMIT 5000`,
-        [new Date(parseInt(since)), viewerWallet]
-      );
+         ORDER BY c.created_at DESC LIMIT 5000`;
+      try {
+        result = await pool.query(sql, [new Date(parseInt(since)), viewerWallet]);
+      } catch (visErr) {
+        if (!isOptionalVisibilityError(visErr)) throw visErr;
+        result = await pool.query(sql.replace(`\n           AND ${visibleOwner}`, ''), [new Date(parseInt(since))]);
+      }
     } else {
-      result = await pool.query(
-        `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
+      const sql = `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
@@ -244,10 +260,13 @@ router.get('/claims', async (req, res) => {
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL
            AND ${visibleOwner}
-         ORDER BY c.created_at DESC LIMIT 5000`
-        ,
-        [viewerWallet]
-      );
+         ORDER BY c.created_at DESC LIMIT 5000`;
+      try {
+        result = await pool.query(sql, [viewerWallet]);
+      } catch (visErr) {
+        if (!isOptionalVisibilityError(visErr)) throw visErr;
+        result = await pool.query(sql.replace(`\n           AND ${visibleOwner}`, ''));
+      }
     }
 
     const claimIds = result.rows.map((row) => row.id);

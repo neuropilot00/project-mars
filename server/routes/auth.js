@@ -450,11 +450,21 @@ router.get('/me', async (req, res) => {
 
   try {
     const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
-    // [v7.174 A-C3] email_verified 포함 — 프론트 verify 배너 표시용
-    const result = await pool.query(
-      'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code, COALESCE(email_verified,false) AS email_verified FROM users WHERE wallet_address = $1',
-      [decoded.wallet]
-    );
+    // [v7.174 A-C3] email_verified 포함 — 프론트 verify 배너 표시용.
+    // Optional economy/profile columns may lag on a deployed DB; keep auth usable.
+    let result;
+    try {
+      result = await pool.query(
+        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code, COALESCE(email_verified,false) AS email_verified FROM users WHERE wallet_address = $1',
+        [decoded.wallet]
+      );
+    } catch (userErr) {
+      if (userErr.code !== '42703') throw userErr;
+      result = await pool.query(
+        'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, 0 AS gp_balance, referral_code, false AS email_verified FROM users WHERE wallet_address = $1',
+        [decoded.wallet]
+      );
+    }
 
     if (!result.rows.length) {
       return res.status(404).json({ error: 'User not found' });
@@ -464,12 +474,18 @@ router.get('/me', async (req, res) => {
     // /api/auth/me 호출 = 유저가 최근에 활성화된 증거. last_login_at 갱신 (fire-and-forget)
     try { pool.query('UPDATE users SET last_login_at = NOW() WHERE wallet_address = $1', [u.wallet_address]).catch(()=>{}); } catch(_) {}
 
-    // Sum governance GP from all positions
-    const govGPRes = await pool.query(
-      'SELECT COALESCE(SUM(gp_balance),0)::numeric AS total FROM governance_positions WHERE wallet = $1',
-      [u.wallet_address]
-    );
-    const govGP = parseFloat(govGPRes.rows[0]?.total || 0);
+    // Sum governance GP from all positions. Governance is optional on older/staged DBs;
+    // auth must not fail just because that economy table is not migrated yet.
+    let govGP = 0;
+    try {
+      const govGPRes = await pool.query(
+        'SELECT COALESCE(SUM(gp_balance),0)::numeric AS total FROM governance_positions WHERE wallet = $1',
+        [u.wallet_address]
+      );
+      govGP = parseFloat(govGPRes.rows[0]?.total || 0);
+    } catch (govErr) {
+      if (!['42P01', '42703'].includes(govErr.code)) throw govErr;
+    }
 
     res.json({
       wallet: u.wallet_address,
