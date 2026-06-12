@@ -29,9 +29,9 @@ router.get('/tribute/claim/:claimId', async (req, res) => {
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/tribute/my?wallet=
-router.get('/tribute/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/tribute/my
+router.get('/tribute/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMyTributes(wallet)); }
   catch(e) { res.status(500).json({ error: e.message }); }

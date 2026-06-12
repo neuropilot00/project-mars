@@ -170,6 +170,11 @@ async function main() {
   await expectBlocked('/api/stats/career blocks unauthenticated access', '/api/stats/career?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/season/rewards blocks unauthenticated access', '/api/season/rewards?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/season/pass blocks unauthenticated access', '/api/season/pass?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/mining/my blocks unauthenticated access', '/api/mining/my?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/capsule/my blocks unauthenticated access', '/api/capsule/my?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/tribute/my blocks unauthenticated access', '/api/tribute/my?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/broadcasts/my blocks unauthenticated access', '/api/broadcasts/my?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/tevt/my blocks unauthenticated access', '/api/tevt/my?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/resources blocks unauthenticated access', '/api/user/resources?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job blocks unauthenticated access', '/api/user/job?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job/change-status blocks unauthenticated access', '/api/user/job/change-status?wallet=0x0000000000000000000000000000000000000000');

@@ -21,9 +21,9 @@ router.get('/mining/info', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/mining/my?wallet=
-router.get('/mining/my', async (req, res) => {
-  const wallet = (req.query.wallet || '').toString();
+// GET /api/mining/my
+router.get('/mining/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await mining.getMyMining(wallet)); }
   catch (e) { res.status(500).json({ error: e.message }); }

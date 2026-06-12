@@ -21,9 +21,9 @@ router.get('/broadcasts/active', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/broadcasts/my?wallet=
-router.get('/broadcasts/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/broadcasts/my
+router.get('/broadcasts/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMyBroadcasts(wallet)); }
   catch (e) { res.status(500).json({ error: e.message }); }

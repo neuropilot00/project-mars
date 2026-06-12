@@ -27,10 +27,10 @@ router.get('/tevt/claim/:claimId', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/tevt/my?wallet=
-router.get('/tevt/my', async (req, res) => {
+// GET /api/tevt/my
+router.get('/tevt/my', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     res.json(await tevtSvc.getMyEvents(wallet));
   } catch (e) { res.status(500).json({ error: e.message }); }

@@ -33,9 +33,9 @@ router.get('/capsule/upcoming', async (req, res) => {
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/capsule/my?wallet=  — player's own capsules
-router.get('/capsule/my', async (req, res) => {
-  const { wallet } = req.query;
+// GET /api/capsule/my  — player's own capsules
+router.get('/capsule/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getMyCapsules(wallet)); }
   catch(e) { res.status(500).json({ error: e.message }); }
