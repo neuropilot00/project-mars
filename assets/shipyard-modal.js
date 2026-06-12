@@ -215,8 +215,8 @@ function openShipyard() {
   document.getElementById('shipyardModal').classList.add('active');
   switchSyTab('blueprints');
   refreshShipyard();
-  if (shipyardState.queueTimer) clearInterval(shipyardState.queueTimer);
-  shipyardState.queueTimer = setInterval(updateQueueProgress, 1000);
+  if (shipyardState.queueTimer) _clearActiveInterval(shipyardState.queueTimer);
+  shipyardState.queueTimer = _setActiveInterval(updateQueueProgress, 1000);
 }
 
 // 메인 화면 → 가챠(상자) 바로 진입
@@ -232,7 +232,7 @@ function openGacha() {
 function closeShipyard() {
   document.getElementById('shipyardModal').classList.remove('active');
   if (shipyardState.queueTimer) {
-    clearInterval(shipyardState.queueTimer);
+    _clearActiveInterval(shipyardState.queueTimer);
     shipyardState.queueTimer = null;
   }
 }
