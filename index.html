@@ -37910,7 +37910,7 @@ function loadMyTiers() {
   if (!el) return;
   if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center">Connect wallet to view</div>'; return; }
   el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading…</div>';
-  fetch('/api/tiers/my?wallet='+encodeURIComponent(w))
+  fetch('/api/tiers/my', { headers: getAuthHeaders() })
     .then(function(r){return r.json();})
     .then(function(rows){
       if (!rows || !rows.length) {

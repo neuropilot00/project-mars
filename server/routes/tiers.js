@@ -31,10 +31,10 @@ router.get('/tiers/claim/:claimId', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/tiers/my?wallet=
-router.get('/tiers/my', async (req, res) => {
+// GET /api/tiers/my
+router.get('/tiers/my', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const tiers = await tiersSvc.getMyTiers(wallet);
     res.json(tiers);
