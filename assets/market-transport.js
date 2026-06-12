@@ -601,7 +601,8 @@ function populateMktSectorFilter(){
   var sel=document.getElementById('mktFilterSector');
   if(!sel) return;
   _mktSectorsPopulated=true;
-  fetch('/api/sectors/control').then(function(r){return r.json()}).then(function(d){
+  mtReadFetch('market-sector-control', '/api/sectors/control', 30000, false).then(function(d){
+    if (!d) return;
     var secs=(d&&d.sectors)||[];
     if(!secs.length) return;
     // tier 순(frontier→mid→core)으로 정렬해 보기 좋게
@@ -632,8 +633,8 @@ function loadMarketListings(){
   if (type === 'ship') {
     // [v7.178 Phase 3] 마켓 stats chip + 검색 통합 + sparkline 인프라
     Promise.all([
-      fetch('/api/ships/market/listings', { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
-      fetch('/api/ships/market/stats').then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+      mtReadFetch('ship-market-listings', '/api/ships/market/listings', 10000, true).catch(function(){return null;}),
+      mtReadFetch('ship-market-stats', '/api/ships/market/stats', 30000, false).catch(function(){return null;})
     ]).then(function(results){
       var d = results[0], stats = results[1];
       var ships = (d && d.listings) || [];
@@ -1000,7 +1001,8 @@ function loadSellView(){
     el.innerHTML=html;
 
     // 함선 비동기 로드 — listed=false & alive=true 만 등록 가능
-    fetch('/api/ships/my', { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    mtReadFetch('market-sell-ships', '/api/ships/my', 10000, true).then(function(d){
+      if (!d) return;
       var pane=document.getElementById('mktSellShipsPane'); if(!pane) return;
       var ships=((d&&d.ships)||[]).filter(function(s){ return s.is_alive!==false && !s.is_market_listed; });
       if(!ships.length){
@@ -1048,8 +1050,7 @@ function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
   // [v7.190] race 가드 토큰 — gameConfirm 모달에 listingId 기록. 응답 도착 시 토큰 일치할 때만 append.
   try {
     var _gcEl = document.getElementById('gameConfirm'); if (_gcEl) _gcEl.dataset.sparkToken = String(listingId);
-    fetch('/api/ships/market/price-history/' + encodeURIComponent(shipTypeCode))
-      .then(function(r){return r.ok?r.json():null;})
+    mtReadFetch('ship-price-history:' + shipTypeCode, '/api/ships/market/price-history/' + encodeURIComponent(shipTypeCode), 30000, false)
       .then(function(h){
         if (!h || !h.points || !h.points.length) return;
         var prices = h.points.map(function(p){return Number(p.price)||0;}).filter(function(v){return v>0;});
