@@ -28,6 +28,19 @@ var walletState={
   gamePP:0
 };
 
+function walletReadJson(key, url, minGap, auth) {
+  var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+  var fetchOptions = auth === false ? {} : { headers: getAuthHeaders() };
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('wallet:' + key + ':' + walletKey, url, {
+      minGap: minGap || 10000,
+      backoffMs: 120000,
+      fetchOptions: fetchOptions
+    });
+  }
+  return fetch(url, fetchOptions).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+}
+
 function shortAddr(addr){
   return addr?addr.slice(0,6)+'...'+addr.slice(-4):'--';
 }
@@ -100,7 +113,7 @@ function updateDailyHint(){
   _setDailyHint('📅', tl("TODAY'S OPS","오늘의 추천","今日のオプス",'今日推荐'), tl('Open a Ship Crate','상자 개봉하기','艦船ボックスを開ける','开启舰船宝箱'), tl('Free Recruit daily','매일 무료 상자','毎日無料','每日免费'), 'openGacha');
   // 1) 미완료 일일 미션 — dailyOps 또는 daily missions 사용
   try {
-    fetch('/api/daily-ops/'+encodeURIComponent(walletState.address), { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    walletReadJson('daily-ops', '/api/daily-ops/'+encodeURIComponent(walletState.address), 30000).then(function(d){
       if (!d) return;
       var pending = (d.missions||[]).find(function(m){ return m && !m.completed && !m.claimed; });
       if (pending) {
@@ -108,7 +121,7 @@ function updateDailyHint(){
         return;
       }
       // 2) 진행중 캠페인 fallback
-      fetch('/api/campaign/status/'+encodeURIComponent(walletState.address), { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null;}).then(function(c){
+      walletReadJson('campaign-status', '/api/campaign/status/'+encodeURIComponent(walletState.address), 30000).then(function(c){
         if (!c) return;
         var active = (c.chapters||[]).find(function(ch){ return ch && ch.progress && ch.progress.status && ch.progress.status !== 'completed' && ch.progress.status !== 'claimed'; });
         if (active) {
@@ -154,8 +167,9 @@ function updateWalletUI(){
   try{ updateDailyHint(); }catch(_){}
   // Load equipped title badge
   if (walletState.address) {
-    fetch('/api/user/titles', { headers: getAuthHeaders() })
-      .then(function(r){return r.json()}).then(function(d) {
+    walletReadJson('user-titles', '/api/user/titles', 30000)
+      .then(function(d) {
+        if (!d) return;
         var badge = document.getElementById('equippedTitleBadge');
         if (!badge) return;
         if (d.equipped) {
@@ -215,8 +229,7 @@ function openDepositModal(){
   try {
     var banner = document.getElementById('depFirstBonusBanner');
     if (banner) banner.style.display = 'none'; // reset (혹시 이전 호출 잔여)
-    fetch('/api/wallet/deposit-bonus-info', { headers: getAuthHeaders() })
-      .then(function(r){ return r.json(); })
+    walletReadJson('deposit-bonus-info', '/api/wallet/deposit-bonus-info', 30000)
       .then(function(d){
         if (!d || !banner) return;
         if (d.first_deposit_eligible && d.first_deposit_bonus_pct > 0) {
@@ -339,8 +352,7 @@ var _exchInfo = { rate:10, min:0.1, max:5, fee:5, dailyLimit:50, enabled:true };
 async function openExchangeModal(){
   if(!walletState.connected){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
   try{
-    var r = await fetch('/api/exchange/pp-to-gp/info');
-    var d = await r.json();
+    var d = await walletReadJson('pp-to-gp-info', '/api/exchange/pp-to-gp/info', 30000, false);
     if(d.rate) _exchInfo = d;
   }catch(e){}
   document.getElementById('exchPPBal').textContent = (walletState.gamePP||0).toFixed(2)+' PP';
@@ -404,7 +416,7 @@ function openMinigameOverlay(warId){
   document.getElementById('mgContinueOverlay').style.display = 'none';
   document.getElementById('mgWarInfo').textContent = 'War #'+warId+' — Play games to earn points for your guild!';
   // Load continue costs
-  fetch('/api/guild/war/continue-cost').then(function(r){return r.json()}).then(function(d){
+  walletReadJson('war-continue-cost', '/api/guild/war/continue-cost', 30000, false).then(function(d){
     if(d.gpCosts) _mgContinueCosts = d;
   }).catch(function(){});
   document.getElementById('minigameOverlay').classList.add('active');
@@ -660,10 +672,10 @@ function openSwapModal(){
   document.getElementById('swapModal').classList.add('open');
   // [v7.168] swap fee % 동적 표시 — admin 변경 즉시 반영 (이전엔 5% 하드코딩)
   try {
-    fetch('/api/exchange/pp-to-gp/info').then(function(r){return r.json();}).then(function(d){
+    walletReadJson('pp-to-gp-info-swap', '/api/exchange/pp-to-gp/info', 30000, false).then(function(d){
       // pp-to-gp/info 는 GP 환전 정보 — swap 은 별도. 차라리 swap 전용 info 가 없으니 cfg 노출 안 함.
     }).catch(function(){});
-    fetch('/api/public/swap-info').then(function(r){return r.json();}).then(function(d){
+    walletReadJson('public-swap-info', '/api/public/swap-info', 30000, false).then(function(d){
       if (d && typeof d.fee_percent === 'number') {
         _swpFeePct = d.fee_percent / 100;
         var el = document.getElementById('swpFeePctDisplay'); if (el) el.textContent = d.fee_percent + '%';
