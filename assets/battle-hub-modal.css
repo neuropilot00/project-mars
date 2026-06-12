@@ -901,6 +901,19 @@
   border-radius: 2px;
   letter-spacing: 1px;
 }
+.bd-risk-tag {
+  margin-top: 3px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-align: right;
+  white-space: nowrap;
+}
+.bd-risk-tag.low { color: #66bb6a; background: rgba(102,187,106,.12); border: 1px solid rgba(102,187,106,.22); }
+.bd-risk-tag.mid { color: #ffb74d; background: rgba(255,183,77,.12); border: 1px solid rgba(255,183,77,.22); }
+.bd-risk-tag.high { color: #ef5350; background: rgba(239,83,80,.12); border: 1px solid rgba(239,83,80,.24); }
 .bd-search-hint {
   text-align: center;
   font-size: 9px;

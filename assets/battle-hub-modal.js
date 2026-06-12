@@ -425,6 +425,13 @@ function renderSearchResult(r) {
   const factionIcon = { mcc:'⬢', fsp:'◉', cv:'▲' }[r.faction_code] || '?';
   const color = r.faction_color || '#fff';
   const isSelected = declareState.selectedTargetFleetId === r.fleet_id;
+  const power = Math.max(0, parseInt(r.combat_power, 10) || 0);
+  const danger = power >= 1200 ? 'high' : power >= 450 ? 'mid' : 'low';
+  const dangerLabel = danger === 'high'
+    ? (LANG==='ko'?'고위험':LANG==='ja'?'高危険':LANG==='zh'?'高风险':'HIGH RISK')
+    : danger === 'mid'
+      ? (LANG==='ko'?'교전권':LANG==='ja'?'交戦圏':LANG==='zh'?'交战区':'CONTESTED')
+      : (LANG==='ko'?'사냥감':LANG==='ja'?'獲物':LANG==='zh'?'猎物':'PREY');
 
   return `
     <div class="bd-search-card ${isSelected ? 'selected' : ''} ${!r.can_attack ? 'in-battle' : ''}"
@@ -438,6 +445,7 @@ function renderSearchResult(r) {
       </div>
       <div>
         <div class="bd-search-ships">${r.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>
+        ${power ? `<div class="bd-risk-tag ${danger}">⚡ ${formatNum(power)} · ${dangerLabel}</div>` : ''}
         ${r.is_in_battle ? `<div class="bd-search-battle-tag">${LANG==='ko'?'전투중':LANG==='ja'?'戦闘中':LANG==='zh'?'战斗中':'In Battle'}</div>` : ''}
       </div>
     </div>

@@ -62,11 +62,19 @@ router.get('/search', requireAuth, async (req, res) => {
         u.faction_code,
         fa.name_ko AS faction_name,
         fa.color_primary AS faction_color,
-        COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive
+        COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive,
+        COALESCE(SUM(
+          CASE WHEN s.is_alive THEN
+            (COALESCE(s.max_hp, st.max_hp, 0) + COALESCE(s.bonus_hp, 0)) / 100
+            + (COALESCE(st.base_atk, 0) + COALESCE(s.bonus_atk, 0)) * 8
+            + (COALESCE(st.base_def, 0) + COALESCE(s.bonus_def, 0)) * 4
+          ELSE 0 END
+        ), 0) AS combat_power
       FROM fleets f
       JOIN users u ON u.wallet_address = f.owner_wallet
       LEFT JOIN factions fa ON fa.code = u.faction_code
       LEFT JOIN ships s ON s.fleet_id = f.id
+      LEFT JOIN ship_types st ON st.code = s.ship_type_code
       WHERE f.owner_wallet != $1
         AND (
           LOWER(u.nickname) LIKE $2 OR
@@ -86,6 +94,7 @@ router.get('/search', requireAuth, async (req, res) => {
       results: rows.map(r => ({
         ...r,
         ships_alive: parseInt(r.ships_alive) || 0,
+        combat_power: Math.round(parseFloat(r.combat_power) || 0),
         can_attack: !r.is_in_battle && parseInt(r.ships_alive) > 0,
       }))
     });
