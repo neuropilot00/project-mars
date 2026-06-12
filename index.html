@@ -38314,7 +38314,7 @@ function loadMyPrestige() {
     if (btn) btn.disabled = !cfg.enabled;
   }).catch(function(){});
   if (w) {
-    fetch('/api/prestige/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}).then(function(d){
+    fetch('/api/prestige/my', { headers: getAuthHeaders() }).then(function(r){return r.json();}).then(function(d){
       var icon = document.getElementById('prestigeIconCircle');
       var name = document.getElementById('prestigeRankName');
       var pts  = document.getElementById('prestigePointsLabel');

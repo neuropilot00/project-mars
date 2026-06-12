@@ -13,14 +13,17 @@ const requireAuth = (req, res, next) => {
     next();
   } catch { return res.status(401).json({ error: 'INVALID_TOKEN' }); }
 };
+function getAuthWallet(req) {
+  return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+}
 
 router.get('/prestige/config', async (req, res) => {
   try { res.json(await svc.getCfg()); }
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/prestige/my', async (req, res) => {
-  const { wallet } = req.query;
+router.get('/prestige/my', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   try { res.json(await svc.getPrestige(wallet)); }
   catch(e) { res.status(500).json({ error: e.message }); }
@@ -34,7 +37,7 @@ router.get('/prestige/leaderboard', async (req, res) => {
 router.post('/prestige/buy', requireAuth, async (req, res) => {
   // wallet은 검증된 JWT에서 추출 — body.wallet을 신뢰하지 않음
   // [v7.61] toLowerCase/trim 추가
-  const wallet = (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
+  const wallet = getAuthWallet(req);
   if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
   try { res.json(await svc.buyPrestige(wallet)); }
   catch(e) { res.status(400).json({ error: e.message }); }
