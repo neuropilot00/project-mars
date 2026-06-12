@@ -153,6 +153,7 @@ async function main() {
   await expectBlocked('/api/staking/my-stakes blocks unauthenticated access', '/api/staking/my-stakes?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/duels/my blocks unauthenticated access', '/api/duels/my?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/duels/pending blocks unauthenticated access', '/api/duels/pending?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/wager/my blocks unauthenticated access', '/api/wager/my?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/resources blocks unauthenticated access', '/api/user/resources?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job blocks unauthenticated access', '/api/user/job?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/user/job/change-status blocks unauthenticated access', '/api/user/job/change-status?wallet=0x0000000000000000000000000000000000000000');

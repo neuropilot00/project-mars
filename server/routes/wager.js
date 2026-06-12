@@ -27,10 +27,10 @@ router.get('/wager/pools/:id/bets', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/wager/my?wallet=
-router.get('/wager/my', async (req, res) => {
+// GET /api/wager/my
+router.get('/wager/my', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     res.json(await wagerSvc.getMyBets(wallet));
   } catch (e) { res.status(500).json({ error: e.message }); }
