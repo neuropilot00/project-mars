@@ -4,6 +4,10 @@ const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
 
 const router = express.Router();
+const CONTROL_CACHE_MS = 15 * 1000;
+let controlCache = null;
+let controlCacheAt = 0;
+let controlInFlight = null;
 
 const readLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
@@ -31,12 +35,11 @@ const INFLUENCE_TIERS = [
 
 const BATTLE_WIN_CONTROL_SCORE = 20;
 
-router.get('/sectors/control', readLimiter, async (req, res) => {
-  try {
+async function buildSectorControlSnapshot() {
     const sectorsRes = await pool.query(`
       SELECT id, name, tier FROM sectors ORDER BY tier, name
     `);
-    if (!sectorsRes.rows.length) return res.json({ sectors: [] });
+    if (!sectorsRes.rows.length) return { sectors: [], influenceTiers: INFLUENCE_TIERS };
 
     const controlRes = await pool.query(`
       SELECT
@@ -142,9 +145,29 @@ router.get('/sectors/control', readLimiter, async (req, res) => {
       };
     });
 
-    res.json({ sectors, influenceTiers: INFLUENCE_TIERS });
+    return { sectors, influenceTiers: INFLUENCE_TIERS };
+}
+
+router.get('/sectors/control', readLimiter, async (req, res) => {
+  try {
+    const now = Date.now();
+    if (controlCache && now - controlCacheAt < CONTROL_CACHE_MS) {
+      return res.json(controlCache);
+    }
+    if (!controlInFlight) {
+      controlInFlight = buildSectorControlSnapshot()
+        .then(data => {
+          controlCache = data;
+          controlCacheAt = Date.now();
+          return data;
+        })
+        .finally(() => { controlInFlight = null; });
+    }
+    const data = await controlInFlight;
+    res.json(data);
   } catch (e) {
     console.error('[SECTOR CONTROL] error:', e.message);
+    if (controlCache) return res.json(controlCache);
     res.status(500).json({ error: 'Internal error' });
   }
 });
