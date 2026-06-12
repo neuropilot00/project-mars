@@ -60,11 +60,11 @@ router.get('/upgrades/claim/:claimId', async (req, res) => {
   }
 });
 
-// ── GET /api/upgrades/my-upgrades?wallet= ────────────────────────────────────
-router.get('/upgrades/my-upgrades', async (req, res) => {
+// ── GET /api/upgrades/my-upgrades ────────────────────────────────────────────
+router.get('/upgrades/my-upgrades', requireAuth, async (req, res) => {
   try {
     if (!upgradeSvc) return res.status(503).json({ error: 'Service unavailable' });
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const upgrades = await upgradeSvc.getMyUpgrades(wallet);
     res.json({ upgrades });

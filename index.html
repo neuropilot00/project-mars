@@ -40397,7 +40397,7 @@ function _loadBaseUpgradesPanel() {
   el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
   Promise.all([
     fetch('/api/upgrades/catalog').then(function(r){ return r.json(); }),
-    fetch('/api/upgrades/my-upgrades?wallet=' + walletState.address).then(function(r){ return r.json(); })
+    fetch('/api/upgrades/my-upgrades', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
   ]).then(function(results) {
     _upgradeCatalog = results[0].catalog || [];
     _upgradeMyList  = results[1].upgrades || [];
