@@ -215,6 +215,40 @@ function applyBaseTabLocks(){
     } else { el.style.opacity=''; }
   });
 }
+var _questAuxLoadTimers=[];
+function _cancelQuestAuxLoads(){
+  if(!_questAuxLoadTimers.length) return;
+  _questAuxLoadTimers.forEach(function(id){ try{ _clearActiveTimeout(id); }catch(_e){} });
+  _questAuxLoadTimers=[];
+}
+function _scheduleQuestAuxLoads(){
+  _cancelQuestAuxLoads();
+  [
+    'loadAchievements',
+    'loadWeeklyChallenges',
+    'loadBountyBoard',
+    'loadContestSection',
+    'loadDuelPanel',
+    'loadAlliancePanel',
+    'refreshTournaments',
+    'loadActiveBroadcasts',
+    'refreshWagerPools',
+    'refreshRaffles',
+    'refreshPolls',
+    'loadDonationWall',
+    'loadCapsuleUpcoming'
+  ].forEach(function(fnName,idx){
+    var id=_setActiveTimeout(function(){
+      _questAuxLoadTimers=_questAuxLoadTimers.filter(function(tid){return tid!==id;});
+      var pane=document.getElementById('basePane_quests');
+      if(!pane||!pane.classList.contains('active')) return;
+      var fn=window[fnName];
+      if(typeof fn!=='function') return;
+      try{ fn(); }catch(_e){}
+    }, 120*(idx+1));
+    _questAuxLoadTimers.push(id);
+  });
+}
 function stopBaseTransientWork(nextTab){
   if(nextTab!=='guild') try{ stopGuildChatPoll(); }catch(_e){}
   if(nextTab!=='ops'){
@@ -242,6 +276,7 @@ function stopBaseTransientWork(nextTab){
     }catch(_e){}
   }
   if(nextTab!=='quests'){
+    _cancelQuestAuxLoads();
     try{
       if(typeof _dailyTimerInterval!=='undefined' && _dailyTimerInterval){ _clearActiveInterval(_dailyTimerInterval); _dailyTimerInterval=null; }
       if(typeof _missionRefreshTimer!=='undefined' && _missionRefreshTimer){ _clearActiveTimeout(_missionRefreshTimer); _missionRefreshTimer=null; }
@@ -284,7 +319,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} try{ if(typeof loadBaseSectorList==='function') loadBaseSectorList(); }catch(e){} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); _scheduleQuestAuxLoads(); }
   if(tab==='mining'){ try{ _renderShipMining(); }catch(_e){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
