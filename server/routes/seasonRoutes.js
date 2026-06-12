@@ -61,10 +61,10 @@ router.get('/season/category/:key', readLimiter, async (req, res) => {
   }
 });
 
-// GET /api/stats/career?wallet= — career lifetime stats (Migration 098)
-router.get('/stats/career', readLimiter, async (req, res) => {
+// GET /api/stats/career — authenticated career lifetime stats (Migration 098)
+router.get('/stats/career', requireAuth, readLimiter, async (req, res) => {
   if (!requireSeasonService(res)) return;
-  const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+  const wallet = getAuthWallet(req);
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
   try {
     const stats = await seasonService.getCareerStats(wallet);
@@ -76,8 +76,8 @@ router.get('/stats/career', readLimiter, async (req, res) => {
 });
 
 // Get my season rewards
-router.get('/season/rewards', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+router.get('/season/rewards', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!requireSeasonService(res)) return;
   try {
@@ -130,8 +130,8 @@ router.post('/season/taps', requireAuth, writeLimiter, async (req, res) => {
   } catch (e) { res.json({ ok: true }); }
 });
 
-router.get('/season/pass', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
+router.get('/season/pass', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!requireSeasonService(res)) return;
   try {

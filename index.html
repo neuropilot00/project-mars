@@ -26437,7 +26437,7 @@ function showSeasonTint(season){
 
 function loadSeasonPass(){
   if(!walletState.address) return;
-  fetch('/api/season/pass?wallet='+walletState.address).then(function(r){return r.json()}).then(function(d){
+  fetch('/api/season/pass', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(d){
     if(d.error) return;
     if(d.premiumCost) window._seasonPassCost=d.premiumCost;
     renderSeasonPass(d);
@@ -26586,7 +26586,7 @@ async function loadCareerStats() {
   if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px" data-i18n="gp_activity_login">Login to view.</div>'; applyI18n(el); return; }
   el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">...</div>';
   try {
-    var r = await fetch('/api/stats/career?wallet=' + encodeURIComponent(w));
+    var r = await fetch('/api/stats/career', { headers: getAuthHeaders() });
     var d = await r.json();
     var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
     var rows = [
@@ -26665,7 +26665,7 @@ function loadSeasonLeaderboard(){
 
   // Load my rewards
   if(w){
-    fetch('/api/season/rewards?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+    fetch('/api/season/rewards', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(d){
       var rewards=d.rewards||[];
       var sec=document.getElementById('seasonRewardsSection');
       var list=document.getElementById('seasonRewardsList');
