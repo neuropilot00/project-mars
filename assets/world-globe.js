@@ -2789,8 +2789,8 @@ preCacheAndComposite();
 // Load server claims + authoritative pixel ownership
 (function loadServerClaims(){
   Promise.all([
-    fetch('/api/claims').then(function(r){return r.json()}),
-    fetch('/api/pixels').then(function(r){return r.json()})
+    fetch('/api/claims', {headers:getAuthHeaders()}).then(function(r){return r.json()}),
+    fetch('/api/pixels', {headers:getAuthHeaders()}).then(function(r){return r.json()})
   ]).then(function(results){
     var serverClaims=results[0], serverPixels=results[1];
     if(serverClaims&&serverClaims.length){
@@ -2826,8 +2826,8 @@ var _claimsPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?20000:10
 _setActiveInterval(function(){
   _pixelPollCount++;
   var fetchPixels=(_pixelPollCount%3===0); // every 30s desktop / 60s mobile
-  var fetches=[_guardedJsonFetch('claims-delta', '/api/claims?since='+_claimsSince, {minGap:Math.max(5000,_claimsPollMs-500), backoffMs:60000})];
-  if(fetchPixels) fetches.push(_guardedJsonFetch('pixels-full', '/api/pixels', {minGap:Math.max(15000,_claimsPollMs*3-500), backoffMs:90000}));
+  var fetches=[_guardedJsonFetch('claims-delta', '/api/claims?since='+_claimsSince, {minGap:Math.max(5000,_claimsPollMs-500), backoffMs:60000, fetchOptions:{headers:getAuthHeaders()}})];
+  if(fetchPixels) fetches.push(_guardedJsonFetch('pixels-full', '/api/pixels', {minGap:Math.max(15000,_claimsPollMs*3-500), backoffMs:90000, fetchOptions:{headers:getAuthHeaders()}}));
   Promise.all(fetches).then(function(results){
     var newClaims=results[0], serverPixels=results[1];
     var added=0;

@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
 const { getAuthWallet, requireAuth, sanitize } = require('../utils/apiHelpers');
@@ -14,6 +15,30 @@ const readLimiter = makeRateLimiter({
 
 function snapGrid(val) {
   return Math.round(parseFloat(val) * 100) / 100;
+}
+
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
+
+function visibleOwnerPredicate(ownerExpr, paramIndex) {
+  return `(
+    LOWER(${ownerExpr}) = LOWER($${paramIndex})
+    OR NOT EXISTS (
+      SELECT 1 FROM user_active_effects sae
+       WHERE LOWER(sae.wallet) = LOWER(${ownerExpr})
+         AND sae.effect_type = 'stealth_cloak'
+         AND sae.active = true
+         AND sae.expires_at > NOW()
+    )
+  )`;
 }
 
 router.get('/user/:wallet', async (req, res, next) => {
@@ -64,6 +89,7 @@ router.get('/pixel/:lat/:lng', async (req, res) => {
   try {
     const lat = snapGrid(req.params.lat);
     const lng = snapGrid(req.params.lng);
+    const viewerWallet = getOptionalAuthWallet(req);
 
     const pxRes = await pool.query(
       'SELECT owner, price, claim_id FROM pixels WHERE lat = $1 AND lng = $2',
@@ -76,6 +102,22 @@ router.get('/pixel/:lat/:lng', async (req, res) => {
     }
 
     const px = pxRes.rows[0];
+    if (px.owner) {
+      const stealthRes = await pool.query(
+        `SELECT 1 FROM user_active_effects
+         WHERE LOWER(wallet) = LOWER($1)
+           AND LOWER(wallet) <> LOWER($2)
+           AND effect_type = 'stealth_cloak'
+           AND active = true
+           AND expires_at > NOW()
+         LIMIT 1`,
+        [px.owner, viewerWallet]
+      );
+      if (stealthRes.rows.length) {
+        const settings = await cfg();
+        return res.json({ owner: null, price: settings.pixel_base_price || 0.1, claimId: null, imageUrl: null, linkUrl: null });
+      }
+    }
     let imageUrl = null;
     let originalImageUrl = null;
     let linkUrl = null;
@@ -105,9 +147,11 @@ router.get('/pixel/:lat/:lng', async (req, res) => {
 router.get('/search/owner/:query', async (req, res) => {
   try {
     const q = sanitize(req.params.query, 100).toLowerCase();
+    const viewerWallet = getOptionalAuthWallet(req);
     if (!q) {
       return res.status(400).json({ error: 'Search query is required (max 100 chars)' });
     }
+    const visibleOwner = visibleOwnerPredicate('c.owner', 2);
     const result = await pool.query(
       `SELECT c.center_lat, c.center_lng, c.width, c.height, c.image_url, c.total_paid, c.owner,
               u.nickname
@@ -115,8 +159,9 @@ router.get('/search/owner/:query', async (req, res) => {
        LEFT JOIN users u ON u.wallet_address = c.owner
        WHERE (LOWER(c.owner) LIKE $1 OR LOWER(COALESCE(u.nickname,'')) LIKE $1)
          AND c.deleted_at IS NULL
+         AND ${visibleOwner}
        ORDER BY c.created_at DESC LIMIT 50`,
-      [`%${q}%`]
+      [`%${q}%`, viewerWallet]
     );
 
     res.json(result.rows.map((row) => ({
@@ -135,9 +180,17 @@ router.get('/search/owner/:query', async (req, res) => {
   }
 });
 
-router.get('/pixels', async (_req, res) => {
+router.get('/pixels', async (req, res) => {
   try {
-    const result = await pool.query('SELECT lat, lng, owner, claim_id, price FROM pixels WHERE owner IS NOT NULL');
+    const viewerWallet = getOptionalAuthWallet(req);
+    const visibleOwner = visibleOwnerPredicate('owner', 1);
+    const result = await pool.query(
+      `SELECT lat, lng, owner, claim_id, price
+       FROM pixels
+       WHERE owner IS NOT NULL
+         AND ${visibleOwner}`,
+      [viewerWallet]
+    );
     const byOwner = {};
     for (const row of result.rows) {
       if (!byOwner[row.owner]) byOwner[row.owner] = [];
@@ -153,6 +206,8 @@ router.get('/pixels', async (_req, res) => {
 router.get('/claims', async (req, res) => {
   try {
     const since = req.query.since;
+    const viewerWallet = getOptionalAuthWallet(req);
+    const visibleOwner = visibleOwnerPredicate('c.owner', since ? 2 : 1);
     let result;
     if (since) {
       result = await pool.query(
@@ -169,8 +224,9 @@ router.get('/claims', async (req, res) => {
          LEFT JOIN guilds g ON g.id = u.guild_id
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL AND c.created_at > $1
+           AND ${visibleOwner}
          ORDER BY c.created_at DESC LIMIT 5000`,
-        [new Date(parseInt(since))]
+        [new Date(parseInt(since)), viewerWallet]
       );
     } else {
       result = await pool.query(
@@ -187,7 +243,10 @@ router.get('/claims', async (req, res) => {
          LEFT JOIN guilds g ON g.id = u.guild_id
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL
+           AND ${visibleOwner}
          ORDER BY c.created_at DESC LIMIT 5000`
+        ,
+        [viewerWallet]
       );
     }
 
