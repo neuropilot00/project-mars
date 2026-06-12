@@ -7,19 +7,40 @@ var factionState = {
   stats: [],       // 파벌별 점유율/인원 통계
 };
 
+function _factionEsc(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+    return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[ch];
+  });
+}
+
+function _factionSafeCode(value) {
+  return String(value == null ? '' : value).replace(/[^a-z0-9_-]/gi, '');
+}
+
+function _factionReadFetch(key, url, auth) {
+  var walletKey = _factionIsLoggedIn() && window.walletState && walletState.address ? String(walletState.address).toLowerCase() : 'public';
+  if (typeof _guardedJsonFetch === 'function') {
+    return _guardedJsonFetch('faction:' + key + ':' + walletKey, url, {
+      minGap: 30000,
+      backoffMs: 120000,
+      fetchOptions: auth ? { headers: _factionAuthHeaders() } : {}
+    });
+  }
+  return fetch(url, auth ? { headers: _factionAuthHeaders() } : {}).then(function(r){ return r.json(); });
+}
+
 async function loadFactions() {
   try {
-    var listRes = await fetch('/api/factions');
-    var listData = await listRes.json();
+    var listData = await _factionReadFetch('list', '/api/factions', false);
+    if (!listData) return;
     factionState.list = listData.factions || [];
     try {
-      var statsRes = await fetch('/api/factions/stats');
-      var statsData = await statsRes.json();
-      factionState.stats = statsData.stats || [];
+      var statsData = await _factionReadFetch('stats', '/api/factions/stats', false);
+      factionState.stats = statsData ? (statsData.stats || []) : factionState.stats;
     } catch(_e) { factionState.stats = []; }
     if (_factionIsLoggedIn()) {
-      var myRes = await fetch('/api/factions/mine', { headers: _factionAuthHeaders() });
-      var myData = await myRes.json();
+      var myData = await _factionReadFetch('mine', '/api/factions/mine', true);
+      if (!myData) return;
       factionState.current = myData.faction;
       _updateFactionBadge();
     }
@@ -72,11 +93,12 @@ function openFactionModal() {
         + (isUnderdog ? '<div class="faction-balance-underdog">★ ' + underdogTxt + '</div>' : '')
       + '</div>'
       : '';
-    return '<div class="faction-card ' + f.code + (isCurrent ? ' current' : '') + '" data-code="' + f.code + '" onclick="selectFaction(\'' + f.code + '\')">'
-      + '<div class="faction-icon">' + (f.icon_emoji||'⬢') + '</div>'
-      + '<div class="faction-name ' + f.code + '">' + f.name_ko + '</div>'
-      + '<div class="faction-desc">' + (f.description_ko||'') + '</div>'
-      + '<div class="faction-specialty">' + (f.specialty_ko||'') + '</div>'
+    var code = _factionSafeCode(f.code);
+    return '<div class="faction-card ' + code + (isCurrent ? ' current' : '') + '" data-code="' + code + '" onclick="selectFaction(\'' + code + '\')">'
+      + '<div class="faction-icon">' + _factionEsc(f.icon_emoji||'⬢') + '</div>'
+      + '<div class="faction-name ' + code + '">' + _factionEsc(f.name_ko) + '</div>'
+      + '<div class="faction-desc">' + _factionEsc(f.description_ko||'') + '</div>'
+      + '<div class="faction-specialty">' + _factionEsc(f.specialty_ko||'') + '</div>'
       + '<div class="faction-stats"><span>공격<b>' + f.atk_multiplier + '</b></span><span>방어<b>' + f.def_multiplier + '</b></span><span>속도<b>' + f.spd_multiplier + '</b></span></div>'
       + statHtml
       + '</div>';
