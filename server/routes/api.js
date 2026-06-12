@@ -1985,6 +1985,289 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════
+//  POST /api/territory/harvest-all — owned territory bulk harvest
+//  Single request, bounded server-side loop, claim-level cooldowns preserved.
+// ══════════════════════════════════════════════════════════
+router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  if (!w || w.length < 10) return res.status(401).json({ error: 'wallet_required' });
+
+  const client = await pool.connect();
+  try {
+    const s = await cfg();
+    if (s.mining_enabled === false) return res.status(403).json({ error: 'Mining is disabled' });
+
+    const maxClaims = Math.max(1, Math.min(100, parseInt(await getSetting('territory_harvest_all_max_claims', '50'), 10) || 50));
+    const now = new Date();
+    const todayDate = now.toISOString().slice(0, 10);
+    const intervalCore = parseInt(s.mining_interval_core) || 24;
+    const intervalMid = parseInt(s.mining_interval_mid) || 48;
+    const intervalFrontier = parseInt(s.mining_interval_frontier) || 72;
+    const rewardMin = parseFloat(s.mining_reward_min) || 0.01;
+    const rewardMax = parseFloat(s.mining_reward_max) || 0.5;
+    const harvestCap = parseFloat(s.mining_reward_cap_per_harvest) || 1.0;
+    const miningBonusMap = {
+      core: parseFloat(s.mining_core_mult) || 1.5,
+      mid: parseFloat(s.mining_mid_mult) || 1.2,
+      frontier: parseFloat(s.mining_frontier_mult) || 1.0
+    };
+    const _capA = parseFloat(await getSetting('pp_daily_earn_cap_per_user', '0')) || 0;
+    const _capB = parseFloat(await getSetting('mining_daily_cap_per_user', '0')) || 0;
+    const ppDailyCap = (_capA > 0 && _capB > 0) ? Math.min(_capA, _capB) : (_capA || _capB);
+    let minerCooldownMult = 1;
+    try { if (jobService) minerCooldownMult = await jobService.getJobBuff(w, 'miner_harvest_cooldown', 1.0); } catch (_) {}
+
+    await client.query('BEGIN');
+    await client.query(`INSERT INTO user_mining (wallet_address) VALUES ($1) ON CONFLICT (wallet_address) DO NOTHING`, [w]);
+    const miningRes = await client.query(
+      `SELECT today_date, today_mined_pp FROM user_mining WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      [w]
+    );
+    const minedToday = miningRes.rows[0]?.today_date === todayDate
+      ? (parseFloat(miningRes.rows[0]?.today_mined_pp) || 0)
+      : 0;
+    let dailyRemaining = ppDailyCap > 0 ? Math.max(0, ppDailyCap - minedToday) : Infinity;
+    if (ppDailyCap > 0 && dailyRemaining <= 0) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'daily_pp_cap_reached', cap: ppDailyCap, minedToday });
+    }
+
+    const { rows: claims } = await client.query(`
+      SELECT c.id, c.owner, c.sector_code, c.last_harvest_at,
+             COALESCE(c.hold_bonus_pct, 0) AS hold_bonus_pct,
+             COALESCE(c.grade, 'B') AS grade,
+             ps.sector_id,
+             COALESCE(sd.sector_type, 'frontier') AS sector_tier,
+             COALESCE(ps.pixel_cnt, 0) AS pixel_cnt
+        FROM claims c
+        JOIN (
+          SELECT claim_id, COUNT(*) AS pixel_cnt, MIN(sector_id) AS sector_id
+            FROM pixels
+           WHERE LOWER(owner) = LOWER($1)
+           GROUP BY claim_id
+        ) ps ON ps.claim_id = c.id
+        LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
+       WHERE LOWER(c.owner) = LOWER($1)
+         AND c.deleted_at IS NULL
+       ORDER BY c.last_harvest_at ASC NULLS FIRST, c.id ASC
+       LIMIT $2
+       FOR UPDATE OF c
+    `, [w, maxClaims]);
+
+    if (!claims.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'no_territory' });
+    }
+
+    let isGovernor = false;
+    try {
+      const govRes = await client.query('SELECT COUNT(*) AS cnt FROM sectors WHERE LOWER(governor_wallet) = LOWER($1)', [w]);
+      isGovernor = parseInt(govRes.rows[0]?.cnt, 10) > 0;
+    } catch (_) {}
+    let isDoubleMining = false;
+    try { isDoubleMining = await hasActiveEvent('double_mining'); } catch (_) {}
+    let virusPenalty = 0;
+    try {
+      const vpRes = await client.query(
+        `SELECT effect_value FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'virus_payload' AND active = true
+           AND expires_at > NOW()
+         ORDER BY id DESC LIMIT 1`, [w]
+      );
+      if (vpRes.rows.length > 0) virusPenalty = Math.max(0, Math.min(0.95, (parseFloat(vpRes.rows[0].effect_value) || 0) / 100));
+    } catch (_) {}
+    let vipBoost = 1;
+    try { const v = require('../services/vip'); vipBoost = await v.getMiningBoost(w); } catch (_) {}
+    let prestigeBoost = 1;
+    try { const p = require('../services/prestige'); prestigeBoost = await p.getMiningBonus(w); } catch (_) {}
+    let bestTierBoost = 1;
+    try {
+      const t = require('../services/tiers'); const tc = await t.getCfg();
+      if (tc && tc.enabled) {
+        const tRes = await client.query(`SELECT MAX(tt.tier) AS max_tier FROM territory_tiers tt JOIN claims c2 ON c2.id = tt.claim_id WHERE LOWER(tt.wallet) = $1 AND c2.deleted_at IS NULL`, [w]);
+        const maxTier = parseInt(tRes.rows[0]?.max_tier || 0);
+        if (maxTier > 0) {
+          const td = (tc.tiers || [])[maxTier - 1];
+          const bp = parseFloat(td?.miningBonusPct || 0);
+          if (bp > 0) bestTierBoost = 1 + bp / 100;
+        }
+      }
+    } catch (_) {}
+
+    let harvestSurge = null;
+    try {
+      const hsRes = await client.query(
+        `SELECT id, effect_value FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'harvest_surge' AND active = true
+           AND uses_remaining > 0
+           AND (expires_at IS NULL OR expires_at > NOW())
+         ORDER BY id DESC LIMIT 1`, [w]
+      );
+      if (hsRes.rows.length > 0) harvestSurge = { id: hsRes.rows[0].id, mult: Math.max(1, parseFloat(hsRes.rows[0].effect_value) || 3) };
+    } catch (_) {}
+
+    const ppToGpRate = await getPPToGPRate(client);
+    const harvested = [];
+    const cooldown = [];
+    const resourceTotals = {};
+    let totalPP = 0;
+    let totalGP = 0;
+    let influenceHits = 0;
+    let guildInfluenceHits = 0;
+    let bestInfluenceMult = 1;
+    let surgeApplied = false;
+
+    for (const claim of claims) {
+      if (ppDailyCap > 0 && dailyRemaining <= 0) break;
+      const claimId = parseInt(claim.id, 10);
+      const totalPixels = parseInt(claim.pixel_cnt, 10) || 0;
+      if (!claimId || totalPixels <= 0) continue;
+      const tier = String(claim.sector_tier || 'frontier').toLowerCase();
+      let intervalHours = tier === 'core' ? intervalCore : tier === 'mid' ? intervalMid : intervalFrontier;
+      intervalHours = Math.max(1, intervalHours * minerCooldownMult);
+      if (claim.last_harvest_at) {
+        const elapsed = (now - new Date(claim.last_harvest_at)) / 3600000;
+        if (elapsed < intervalHours) {
+          cooldown.push({ claimId, nextHarvestAt: new Date(new Date(claim.last_harvest_at).getTime() + intervalHours * 3600000), intervalHours });
+          continue;
+        }
+      }
+
+      const pixelFactor = Math.min(Math.sqrt(totalPixels) / 10, 3.0);
+      const baseRandom = rewardMin + Math.random() * (rewardMax - rewardMin);
+      let harvestedPP = Math.round(baseRandom * pixelFactor * 10000) / 10000;
+      if (harvestCap > 0) harvestedPP = Math.min(harvestedPP, harvestCap);
+      const sectorMult = miningBonusMap[tier] || 1.0;
+      if (sectorMult > 0 && sectorMult !== 1) harvestedPP = Math.round(harvestedPP * sectorMult * 10000) / 10000;
+      if (isGovernor) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
+      try {
+        if (claim.sector_id) {
+          const buffs = await getActiveSectorBuffs(claim.sector_id);
+          if (buffs.some(b => b.buff_type === 'mining_boost')) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
+        }
+        if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
+      } catch (_) {}
+      try {
+        if (weatherService && claim.sector_id) {
+          const wMods = await weatherService.getWeatherModifiers(claim.sector_id);
+          if (wMods.miningMod > 0) harvestedPP = Math.round(harvestedPP * (1 + wMods.miningMod / 100) * 10000) / 10000;
+        }
+      } catch (_) {}
+      if (virusPenalty > 0) harvestedPP = Math.round(harvestedPP * (1 - virusPenalty) * 10000) / 10000;
+      if (vipBoost > 1) harvestedPP = Math.round(harvestedPP * vipBoost * 10000) / 10000;
+      if (prestigeBoost > 1) harvestedPP = Math.round(harvestedPP * prestigeBoost * 10000) / 10000;
+      if (bestTierBoost > 1) harvestedPP = Math.round(harvestedPP * bestTierBoost * 10000) / 10000;
+      try {
+        const extRes = await client.query(`SELECT MAX(u.level) AS max_level FROM territory_upgrades u WHERE u.claim_id = $1 AND u.upgrade_type = 'extractor' AND u.is_active = true`, [claimId]);
+        const lvl = parseInt(extRes.rows[0]?.max_level || 0);
+        if (lvl > 0) { const bmap = {1:0.15,2:0.30,3:0.50,4:0.75,5:1.00}; const b = bmap[lvl]||0; if (b>0) harvestedPP = Math.round(harvestedPP*(1+b)*10000)/10000; }
+      } catch (_) {}
+      const holdBonus = parseFloat(claim.hold_bonus_pct || 0);
+      if (holdBonus > 0) harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
+      let gradeRareMult = 1;
+      try {
+        const tc = require('../services/territoryCondition');
+        const gm = await tc.harvestMultiplier(claim.grade || 'B');
+        gradeRareMult = await tc.rareMultiplier(claim.grade || 'B');
+        if (gm && gm !== 1) harvestedPP = Math.round(harvestedPP * gm * 10000) / 10000;
+      } catch (_) {}
+      let sectorInfluenceBonus = null;
+      try {
+        sectorInfluenceBonus = await getSectorInfluenceProductionBonus(client, w, claim.sector_id);
+        if (sectorInfluenceBonus && sectorInfluenceBonus.multiplier > 1) {
+          harvestedPP = Math.round(harvestedPP * sectorInfluenceBonus.multiplier * 10000) / 10000;
+          influenceHits++;
+          if (sectorInfluenceBonus.source === 'guild') guildInfluenceHits++;
+          bestInfluenceMult = Math.max(bestInfluenceMult, sectorInfluenceBonus.multiplier);
+        }
+      } catch (_) { sectorInfluenceBonus = null; }
+      try { if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000; } catch (_) {}
+      if (harvestSurge && !surgeApplied) {
+        harvestedPP = Math.round(harvestedPP * harvestSurge.mult * 10000) / 10000;
+        surgeApplied = true;
+      }
+      if (ppDailyCap > 0 && harvestedPP > dailyRemaining) harvestedPP = Math.round(dailyRemaining * 10000) / 10000;
+      harvestedPP = Math.round(harvestedPP * 10000) / 10000;
+      if (harvestedPP <= 0) break;
+
+      const harvestedGP = Math.round(harvestedPP * ppToGpRate * 1000000) / 1000000;
+      let resourceDrops = [];
+      try {
+        if (resourceService) {
+          const drops = await resourceService.rollResourceDrop(w, tier, { gradeRareMult });
+          const merged = {};
+          for (const d of drops) merged[d.code] = (merged[d.code] || 0) + d.quantity;
+          resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
+          if (resourceDrops.length > 0) await resourceService.addResourcesToInventory(client, w, resourceDrops);
+          for (const d of resourceDrops) resourceTotals[d.code] = (resourceTotals[d.code] || 0) + d.quantity;
+        }
+      } catch (_) {}
+
+      await client.query('UPDATE claims SET last_harvest_at = NOW() WHERE id = $1', [claimId]);
+      await client.query(
+        `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('mining', $1, $2, 0, $3)`,
+        [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, sectorMult, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, resourceDrops, source: 'harvest_all' })]
+      );
+      harvested.push({ claimId, harvestedPP, harvestedGP, totalPixels, tier, sectorMult, intervalHours, nextHarvestAt: new Date(now.getTime() + intervalHours * 3600000), sectorInfluenceBonus, resources: resourceDrops });
+      totalPP = Math.round((totalPP + harvestedPP) * 10000) / 10000;
+      totalGP = Math.round((totalGP + harvestedGP) * 1000000) / 1000000;
+      if (ppDailyCap > 0) dailyRemaining = Math.round((dailyRemaining - harvestedPP) * 10000) / 10000;
+    }
+
+    if (!harvested.length) {
+      await client.query('ROLLBACK');
+      return res.status(cooldown.length ? 429 : 409).json({ error: cooldown.length ? 'harvest_on_cooldown' : 'no_rewards', cooldownCount: cooldown.length, cooldown });
+    }
+
+    if (surgeApplied && harvestSurge?.id) {
+      await client.query(`UPDATE user_active_effects SET uses_remaining = 0, active = false WHERE id = $1`, [harvestSurge.id]).catch(() => {});
+    }
+    await client.query(`
+      INSERT INTO user_mining (wallet_address, last_harvest_at, total_mined_pp, today_mined_pp, today_date)
+      VALUES ($1, NOW(), $2, $2, $3)
+      ON CONFLICT (wallet_address) DO UPDATE SET
+        last_harvest_at = NOW(),
+        total_mined_pp = user_mining.total_mined_pp + $2,
+        today_mined_pp = CASE WHEN user_mining.today_date = $3 THEN user_mining.today_mined_pp + $2 ELSE $2 END,
+        today_date = $3
+    `, [w, totalPP, todayDate]);
+    await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [totalGP, w]);
+    await awardXP(client, w, harvested.length * 5).catch(() => {});
+    try { await creditReferralCommission(client, w, 'harvest', totalGP, 'gp'); } catch (_) {}
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      harvested: harvested.length,
+      cooldown: cooldown.length,
+      skipped: Math.max(0, claims.length - harvested.length - cooldown.length),
+      limit: maxClaims,
+      totalPP,
+      totalGP,
+      harvestedGP: totalGP,
+      resources: Object.keys(resourceTotals).map(code => ({ code, quantity: resourceTotals[code] })),
+      influenceHits,
+      guildInfluenceHits,
+      bestInfluenceMult,
+      itemEffects: surgeApplied ? { harvestSurge: true } : {},
+      results: harvested
+    });
+
+    try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', harvested.length).catch(() => {}); } catch (_) {}
+    try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(w, 'harvest_pp').catch(()=>{}); _dOps.notifyMissionProgress(w, 'harvest_3').catch(()=>{}); _dOps.notifyMissionProgress(w, 'harvest_5').catch(()=>{}); } catch (_) {}
+    try { if (weeklySvc) weeklySvc.trackProgress(w, 'harvest_pp', harvested.length).catch(() => {}); } catch (_) {}
+    try { if (seasonService) { seasonService.addSeasonScore(w, 'harvest', harvested.length).catch(() => {}); if (totalGP > 0) seasonService.addSeasonScore(w, 'gp_earn', Math.round(totalGP)).catch(() => {}); } } catch (_) {}
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[API] territory harvest-all error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  } finally {
+    client.release();
+  }
+});
+
+// ══════════════════════════════════════════════════════════
 //  POST /api/territory/:claimId/harvest — 영토별 개별 수확
 //  각 claim 에 독립 cooldown (claims.last_harvest_at)
 // ══════════════════════════════════════════════════════════
