@@ -1,6 +1,11 @@
 // ── Season System ──────────────────────────────────
 var _seasonData=null;
 var _seasonTimerInterval=null;
+var _baseSectorsCache=null;
+var _baseSectorsControlCache=null;
+var _baseSectorsCacheAt=0;
+var _baseSectorsCacheKey='';
+var BASE_SECTORS_CACHE_MS=30000;
 
 function loadSeasonData(){
   fetch('/api/season/active').then(function(r){return r.json()}).then(function(d){
@@ -410,6 +415,54 @@ function claimSeasonReward(rewardId){
   }).catch(function(){showToast(t('season_claim_failed'),'error')});
 }
 
+function _baseSectorWalletKey() {
+  return String(walletState.address || '').toLowerCase();
+}
+
+function _renderBaseSectorsFromData(sectors, controlData) {
+  var data = Array.isArray(sectors) ? sectors : [];
+  var control = (controlData && controlData.sectors) || [];
+  window._sectorControlMap = {};
+  control.forEach(function(c){ window._sectorControlMap[c.id] = c; });
+  data.forEach(function(s){ if(window._sectorControlMap[s.id]) s.control = window._sectorControlMap[s.id]; });
+  _sectorsData = data;
+  renderSectorList(data);
+  drawSectorBoundaries();
+}
+
+function _loadBaseSectorsStable() {
+  var key = _baseSectorWalletKey();
+  var now = Date.now();
+  if (_baseSectorsCache && _baseSectorsCacheKey === key && now - _baseSectorsCacheAt < BASE_SECTORS_CACHE_MS) {
+    _renderBaseSectorsFromData(_baseSectorsCache, _baseSectorsControlCache);
+    return;
+  }
+
+  Promise.all([
+    _guardedJsonFetch('base-sectors-' + (key || 'public'), '/api/sectors', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}),
+    _guardedJsonFetch('base-sectors-control', '/api/sectors/control', {minGap:30000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}})
+  ]).then(function(res){
+    var data = Array.isArray(res[0]) ? res[0] : null;
+    var control = res[1] || (_baseSectorsCacheKey === key ? _baseSectorsControlCache : null);
+    if (!data && _baseSectorsCache && _baseSectorsCacheKey === key) {
+      _renderBaseSectorsFromData(_baseSectorsCache, _baseSectorsControlCache);
+      return;
+    }
+    if (!data) {
+      var list = document.getElementById('baseSectorList');
+      if (list) list.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">Sector data is cooling down. Try again in a moment.</div>';
+      return;
+    }
+    _baseSectorsCache = data;
+    _baseSectorsControlCache = control;
+    _baseSectorsCacheAt = Date.now();
+    _baseSectorsCacheKey = key;
+    _renderBaseSectorsFromData(data, control);
+  }).catch(function(){
+    if (_baseSectorsCache && _baseSectorsCacheKey === key) _renderBaseSectorsFromData(_baseSectorsCache, _baseSectorsControlCache);
+  });
+}
+
 function loadBaseData(){
   // Use walletState.address, fallback to JWT token wallet
   var w=walletState.address||null;
@@ -421,19 +474,7 @@ function loadBaseData(){
   }
 
   // Load sectors (with wallet for "my pixels" count) + influence scores for MMO territory pressure.
-  Promise.all([
-    fetch('/api/sectors', { headers: getAuthHeaders() }).then(function(r){return r.json()}),
-    fetch('/api/sectors/control', { headers: getAuthHeaders() }).then(function(r){return r.ok?r.json():null}).catch(function(){return null;})
-  ]).then(function(res){
-    var data=res[0]||[];
-    var control=(res[1]&&res[1].sectors)||[];
-    window._sectorControlMap={};
-    control.forEach(function(c){ window._sectorControlMap[c.id]=c; });
-    data.forEach(function(s){ if(window._sectorControlMap[s.id]) s.control=window._sectorControlMap[s.id]; });
-    _sectorsData=data;
-    renderSectorList(data);
-    drawSectorBoundaries();
-  }).catch(function(){});
+  _loadBaseSectorsStable();
 
   // Load ranks
   fetch('/api/ranks', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
