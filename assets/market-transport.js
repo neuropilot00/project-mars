@@ -98,6 +98,28 @@ function formatTransportTier(tier) {
   return 'T'+escapeHtml(String(tier || ''));
 }
 
+function transportAllianceLabel(sector) {
+  var alliance = sector && sector.governor && sector.governor.alliance;
+  if (!alliance) return '';
+  var tag = alliance.tag ? '[' + escapeHtml(alliance.tag) + '] ' : '';
+  var governed = parseInt(alliance.governedSectors, 10) || 0;
+  var name = escapeHtml(alliance.name || 'Alliance');
+  return tag + name + (governed > 0 ? ' · ' + governed + ' sectors' : '');
+}
+
+function transportLaneAllianceStatus(originSector, destSector) {
+  var oa = originSector && originSector.governor && originSector.governor.alliance;
+  var da = destSector && destSector.governor && destSector.governor.alliance;
+  if (!oa && !da) return '';
+  if (oa && da && String(oa.id) === String(da.id)) {
+    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🛡 Alliance lane · ' + transportAllianceLabel(destSector) + '</span>';
+  }
+  if (da) {
+    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🏛 Destination governed by ' + transportAllianceLabel(destSector) + '</span>';
+  }
+  return '<span style="color:var(--tx3);font-size:8px">Origin governed by ' + transportAllianceLabel(originSector) + '</span>';
+}
+
 function getTransportLaneRisk(originSector, destSector, distance) {
   var destTier = String((destSector && destSector.tier) || '').toLowerCase();
   var originTier = String((originSector && originSector.tier) || '').toLowerCase();
@@ -144,6 +166,7 @@ function updateTransportPreview() {
   var risk = getTransportLaneRisk(o, d, dist);
   var destLv = parseInt(d.entryMinLevel || 0) || 0;
   var destTax = Number.isFinite(parseFloat(d.taxRate)) ? parseFloat(d.taxRate).toFixed(1) + '%' : '-';
+  var allianceLine = transportLaneAllianceStatus(o, d);
   el.innerHTML =
     '<span style="color:var(--tx2)">Distance: <b style="color:#FFB347">'+dist.toFixed(1)+'°</b></span> · '
     + '<span style="color:var(--tx2)">ETA: <b style="color:#FFB347">~'+duration+' min</b></span> · '
@@ -152,6 +175,7 @@ function updateTransportPreview() {
     + '<span style="color:var(--tx3);font-size:8px"> · '+formatTransportTier(d.tier)+' destination'
     + (destLv > 0 ? ' · Lv '+destLv+' gate' : '')
     + ' · Tax '+destTax+'</span>'
+    + (allianceLine ? '<br>'+allianceLine : '')
     + '<br><span style="color:var(--tx3);font-size:8px">Raid window '+raidMin+'-'+raidMax+'% progress · loot at risk ~'+lootAtRisk+' GP. Merchants get faster ETA + bigger rewards + raid resistance.</span>';
 }
 
