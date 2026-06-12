@@ -71,7 +71,7 @@
 - [x] **버그 리포터 동작** ✅ (2026-06-03 라이브 E2E): `POST /api/bug-report` + 별칭 `/bug-report` 둘 다 `ok:true`, `bug_reports` DB 저장(recent_errors/viewport/lang/context 포함), inbox JSON 미러(`00000003_gameplay.json` 등 codex_hint 포함), 스크린샷 디스크 미러(`screenshots/00000003.png`), 어드민 조회 `GET /admin/api/bug-reports`는 시크릿 없으면 403·있으면 목록 반환. 격리 데이터 정리 완료.
 
 ## 5. ⚠️ 배포/인프라
-- [ ] **railway.json 정리**: `deploy` 키 중복 여부 확인(마지막 값만 적용됨 — 정리 권장).
+- [x] **railway.json 정리**: `deploy` 키 단일 정의 확인(중복 없음).
 - [ ] **정적 에셋 캐시버스트**: 배포 시 `ASSET_VER` / iframe `?v=` 갱신 흐름 확인(스프라이트·전술랩).
 - [ ] **CDN/정적 파일 서빙**: assets(이미지 다수, 합체 PNG 등) 응답 속도.
 - [ ] **롤백 플랜**: 베타 중 치명 버그 시 직전 커밋으로 즉시 롤백 가능한지(태그/배포 이력).
