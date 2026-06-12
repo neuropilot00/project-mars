@@ -9,6 +9,7 @@ const { pool } = require('../db');
 
 let intervalHandle = null;
 let initialTimeoutHandle = null;
+let runInProgress = false;
 const CHECK_INTERVAL_MS = 60 * 1000;  // 1분
 
 function start() {
@@ -33,6 +34,12 @@ function stop() {
 }
 
 async function runOnce() {
+  if (runInProgress) {
+    console.warn('[phaseCScheduler] skipped: previous run still active');
+    return { skipped: true };
+  }
+  runInProgress = true;
+  try {
   // 1. AI 함대 유지
   try {
     const r = await aiFleetManager.ensureAiFleets();
@@ -99,6 +106,9 @@ async function runOnce() {
     `);
   } catch (err) {
     console.error('[phaseCScheduler] deadline scan error:', err);
+  }
+  } finally {
+    runInProgress = false;
   }
 }
 

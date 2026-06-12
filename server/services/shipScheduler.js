@@ -10,6 +10,7 @@
 const shipService = require('./ship');
 
 let intervalHandle = null;
+let runInProgress = false;
 const CHECK_INTERVAL_MS = 30 * 1000; // 30초마다 체크
 
 /**
@@ -46,6 +47,11 @@ function stop() {
  * 완료 작업 1회 처리
  */
 async function runOnce() {
+  if (runInProgress) {
+    console.warn('[shipScheduler] skipped: previous run still active');
+    return { success: 0, failed: 0, skipped: true };
+  }
+  runInProgress = true;
   try {
     const result = await shipService.processCompletedJobs();
     if (result.success > 0 || result.failed > 0) {
@@ -54,8 +60,12 @@ async function runOnce() {
         console.warn('[shipScheduler] errors:', result.errors.slice(0, 5));
       }
     }
+    return result;
   } catch (err) {
     console.error('[shipScheduler] run error:', err);
+    return { success: 0, failed: 1, error: err.message };
+  } finally {
+    runInProgress = false;
   }
 }
 

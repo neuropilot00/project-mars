@@ -18,6 +18,7 @@ const CHECK_INTERVAL_MS = 30 * 1000;
 // [v7.188 fix] 이전엔 MAX_CONCURRENT 가 하드코딩 2 였음 — settings.battle_max_concurrent 무시. 이제 매 tick 마다 읽음.
 let MAX_CONCURRENT_CACHE = 3; // settings 미존재 시 폴백
 let currentlyRunning = 0;
+let scanInProgress = false;
 async function _readMaxConcurrent() {
   try {
     const { rows } = await pool.query(`SELECT value FROM settings WHERE key = 'battle_max_concurrent'`);
@@ -76,11 +77,16 @@ function stop() {
 }
 
 async function runOnce() {
+  if (scanInProgress) {
+    console.warn('[battleScheduler] scan skipped: previous scan still active');
+    return { skipped: true };
+  }
+  scanInProgress = true;
+  try {
   // [v7.188 fix] 매 tick 마다 settings 재조회 — admin 이 런타임에 바꿔도 반영.
   const maxC = await _readMaxConcurrent();
-  if (currentlyRunning >= maxC) return;
+  if (currentlyRunning >= maxC) return { skipped: true, reason: 'concurrent_cap' };
 
-  try {
     const { rows } = await pool.query(`
       SELECT id FROM fleet_battles
       WHERE status = 'preparing'
@@ -95,8 +101,12 @@ async function runOnce() {
         console.error(`[battleScheduler] battle ${row.id} failed:`, err);
       });
     }
+    return { dispatched: rows.length };
   } catch (err) {
     console.error('[battleScheduler] runOnce error:', err);
+    return { error: err.message };
+  } finally {
+    scanInProgress = false;
   }
 }
 
