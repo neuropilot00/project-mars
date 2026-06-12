@@ -16,6 +16,7 @@ window.MarsRunner = (function () {
   let touchStart = null;
   let continueCount = 0;
   let particles = [];
+  let pausedByHidden = false, hiddenAt = 0, lifecycleBound = false;
 
   function init(canvasId, cb) {
     canvas = typeof canvasId === 'string' ? document.getElementById(canvasId) : canvasId;
@@ -35,6 +36,46 @@ window.MarsRunner = (function () {
       }
       touchStart = null; e.preventDefault();
     }, { passive: false });
+    bindLifecycle();
+  }
+
+  function pageHidden() {
+    return typeof document !== 'undefined' && document.visibilityState === 'hidden';
+  }
+
+  function bindLifecycle() {
+    if (lifecycleBound || typeof document === 'undefined') return;
+    lifecycleBound = true;
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') pauseForHidden();
+      else resumeFromHidden();
+    });
+    window.addEventListener('pagehide', pauseForHidden);
+    window.addEventListener('pageshow', resumeFromHidden);
+  }
+
+  function scheduleLoop() {
+    if (!running || gameOver) return;
+    if (pageHidden()) { pauseForHidden(); return; }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function pauseForHidden() {
+    if (!running || pausedByHidden) return;
+    pausedByHidden = true;
+    hiddenAt = Date.now();
+    cancelAnimationFrame(rafId);
+  }
+
+  function resumeFromHidden() {
+    if (!pausedByHidden) return;
+    var now = Date.now(), delta = Math.max(0, now - hiddenAt);
+    if (startTime) startTime += delta;
+    if (pwrEnd > hiddenAt) pwrEnd += delta;
+    lastTime = now;
+    hiddenAt = 0;
+    pausedByHidden = false;
+    scheduleLoop();
   }
 
   function spawnParticles(x, y, color, count) {
@@ -91,11 +132,12 @@ window.MarsRunner = (function () {
     ];
     enemies.forEach(function (e) { e.px = OX + e.c * CELL + CELL / 2; e.py = OY + e.r * CELL + CELL / 2; });
     score = 0; lives = MAX_LIVES; pwrEnd = 0; gameOver = false; running = true; continueCount = 0;
+    pausedByHidden = false; hiddenAt = 0;
     startTime = Date.now(); lastTime = startTime;
-    rafId = requestAnimationFrame(loop);
+    scheduleLoop();
   }
 
-  function stop() { running = false; cancelAnimationFrame(rafId); }
+  function stop() { running = false; pausedByHidden = false; hiddenAt = 0; cancelAnimationFrame(rafId); }
   function getScore() { return score; }
   function canMove(r, c) { return r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] === 0; }
 
@@ -170,11 +212,13 @@ window.MarsRunner = (function () {
     continueCount++; lives = MAX_LIVES; gameOver = false; running = true;
     player.r = 0; player.c = 0; player.px = OX + CELL / 2; player.py = OY + CELL / 2;
     player.dir = [0, 0]; player.next = [0, 0]; lastTime = Date.now();
-    rafId = requestAnimationFrame(loop);
+    pausedByHidden = false; hiddenAt = 0;
+    scheduleLoop();
   }
 
   function loop(ts) {
     if (!running) return;
+    if (pausedByHidden || pageHidden()) { pauseForHidden(); return; }
     var now = Date.now(), dt = Math.min((now - lastTime) / 1000, 0.05); lastTime = now;
     var elapsed = (now - startTime) / 1000;
     if (elapsed >= TIME_LIMIT || (dots.length === 0 && powers.length === 0)) { endGame(); return; }
@@ -185,7 +229,7 @@ window.MarsRunner = (function () {
       if (pt.life <= 0) particles.splice(p, 1);
     }
     draw(elapsed, now);
-    rafId = requestAnimationFrame(loop);
+    scheduleLoop();
   }
 
   function draw(elapsed, now) {

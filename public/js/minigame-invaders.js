@@ -25,6 +25,7 @@ window.MarsInvaders = (function () {
   let keys = {}, touchX = null, firePressed = false;
   let continueCount = 0, particles = [], stars = [];
   let frameCount = 0;
+  let pausedByHidden = false, hiddenAt = 0, lifecycleBound = false;
 
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
@@ -187,6 +188,45 @@ window.MarsInvaders = (function () {
       touchX = (e.touches[0].clientX - rect.left) / rect.width * W;
     }, { passive: false });
     canvas.addEventListener('touchend', function () { touchX = null; });
+    bindLifecycle();
+  }
+
+  function pageHidden() {
+    return typeof document !== 'undefined' && document.visibilityState === 'hidden';
+  }
+
+  function bindLifecycle() {
+    if (lifecycleBound || typeof document === 'undefined') return;
+    lifecycleBound = true;
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') pauseForHidden();
+      else resumeFromHidden();
+    });
+    window.addEventListener('pagehide', pauseForHidden);
+    window.addEventListener('pageshow', resumeFromHidden);
+  }
+
+  function scheduleLoop() {
+    if (!running || gameOver) return;
+    if (pageHidden()) { pauseForHidden(); return; }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function pauseForHidden() {
+    if (!running || pausedByHidden) return;
+    pausedByHidden = true;
+    hiddenAt = performance.now();
+    cancelAnimationFrame(rafId);
+  }
+
+  function resumeFromHidden() {
+    if (!pausedByHidden) return;
+    var now = performance.now(), delta = Math.max(0, now - hiddenAt);
+    if (startTime) startTime += delta;
+    if (lastAlienStep) lastAlienStep += delta;
+    hiddenAt = 0;
+    pausedByHidden = false;
+    scheduleLoop();
   }
 
   function resize() {
@@ -228,20 +268,22 @@ window.MarsInvaders = (function () {
     gameOver = false; running = true; frameCount = 0;
     startTime = performance.now();
     keys = {}; touchX = null; firePressed = false;
+    pausedByHidden = false; hiddenAt = 0;
     initStars(); createShields(); spawnWave();
-    rafId = requestAnimationFrame(loop);
+    scheduleLoop();
   }
 
   function stop() {
-    running = false; cancelAnimationFrame(rafId);
+    running = false; pausedByHidden = false; hiddenAt = 0; cancelAnimationFrame(rafId);
   }
   function getScore() { return score; }
 
   function loop(ts) {
     if (!running) return;
+    if (pausedByHidden || pageHidden()) { pauseForHidden(); return; }
     frameCount++;
     update(ts); draw(ts);
-    rafId = requestAnimationFrame(loop);
+    scheduleLoop();
   }
 
   function update(ts) {
@@ -370,8 +412,9 @@ window.MarsInvaders = (function () {
   function continueGame() {
     continueCount++; lives = MAX_LIVES; gameOver = false; running = true;
     alienBullets = [];
+    pausedByHidden = false; hiddenAt = 0;
     if (aliens.length === 0) { createShields(); spawnWave(); }
-    rafId = requestAnimationFrame(loop);
+    scheduleLoop();
   }
 
   function draw(ts) {

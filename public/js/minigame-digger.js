@@ -14,6 +14,7 @@ window.MarsDigger = (function () {
   let sparkles, particles;
   let continueCount = 0;
   let playerMoveCD = 0;
+  let pausedByHidden = false, hiddenAt = 0, lifecycleBound = false;
 
   /* ── Pixel-art palettes & sprites ── */
   var DIG_PAL = {
@@ -169,6 +170,47 @@ window.MarsDigger = (function () {
       touchStart = null;
     });
     canvas.tabIndex = 0; canvas.focus();
+    bindLifecycle();
+  }
+
+  function pageHidden() {
+    return typeof document !== 'undefined' && document.visibilityState === 'hidden';
+  }
+
+  function bindLifecycle() {
+    if (lifecycleBound || typeof document === 'undefined') return;
+    lifecycleBound = true;
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') pauseForHidden();
+      else resumeFromHidden();
+    });
+    window.addEventListener('pagehide', pauseForHidden);
+    window.addEventListener('pageshow', resumeFromHidden);
+  }
+
+  function scheduleLoop() {
+    if (!running || gameOver) return;
+    if (pageHidden()) { pauseForHidden(); return; }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function pauseForHidden() {
+    if (!running || pausedByHidden) return;
+    pausedByHidden = true;
+    hiddenAt = Date.now();
+    cancelAnimationFrame(rafId);
+  }
+
+  function resumeFromHidden() {
+    if (!pausedByHidden) return;
+    var now = Date.now(), delta = Math.max(0, now - hiddenAt);
+    if (startTime) startTime += delta;
+    if (worms) {
+      for (var i = 0; i < worms.length; i++) if (worms[i].lastPump) worms[i].lastPump += delta;
+    }
+    hiddenAt = 0;
+    pausedByHidden = false;
+    scheduleLoop();
   }
 
   function spawnParticles(x, y, color, count) {
@@ -208,14 +250,19 @@ window.MarsDigger = (function () {
 
   function rand(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
 
-  function start() { buildLevel(); running = true; startTime = Date.now(); gameOver = false; pumpPressed = false; moveDir = null; continueCount = 0; loop(); }
-  function stop() { running = false; cancelAnimationFrame(rafId); }
+  function start() {
+    buildLevel(); running = true; startTime = Date.now(); gameOver = false; pumpPressed = false; moveDir = null; continueCount = 0;
+    pausedByHidden = false; hiddenAt = 0;
+    scheduleLoop();
+  }
+  function stop() { running = false; pausedByHidden = false; hiddenAt = 0; cancelAnimationFrame(rafId); }
   function getScore() { return score; }
 
   function loop() {
     if (!running) return;
+    if (pausedByHidden || pageHidden()) { pauseForHidden(); return; }
     update(); draw();
-    rafId = requestAnimationFrame(loop);
+    scheduleLoop();
   }
 
   function update() {
@@ -537,7 +584,8 @@ window.MarsDigger = (function () {
 
   function continueGame() {
     continueCount++; lives = MAX_LIVES; gameOver = false; running = true;
-    respawn(); rafId = requestAnimationFrame(loop);
+    pausedByHidden = false; hiddenAt = 0;
+    respawn(); scheduleLoop();
   }
 
   /* Pickaxe icon sprite for selection panel */
