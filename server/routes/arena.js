@@ -81,6 +81,28 @@ async function getCantinaReferralBase(betAmount) {
   return Math.round((bet * houseEdgePct / 100) * 1000000) / 1000000;
 }
 
+async function applyLuckyCharmPayout(client, wallet, payout, currency) {
+  const basePayout = parseFloat(payout) || 0;
+  if (basePayout <= 0 || currency !== 'PP') return { payout: basePayout, luckyCharmBonus: 0 };
+  try {
+    const charmRes = await client.query(
+      `SELECT effect_value FROM user_active_effects
+       WHERE LOWER(wallet) = LOWER($1)
+         AND effect_type = 'lucky_charm'
+         AND active = true
+         AND expires_at > NOW()
+       ORDER BY id DESC LIMIT 1`,
+      [wallet]
+    );
+    if (!charmRes.rows.length) return { payout: basePayout, luckyCharmBonus: 0 };
+    const bonusPct = Math.max(0, Math.min(50, parseFloat(charmRes.rows[0].effect_value) || 0));
+    const boosted = Math.round(basePayout * (1 + bonusPct / 100) * 1000000) / 1000000;
+    return { payout: boosted, luckyCharmBonus: Math.round((boosted - basePayout) * 1000000) / 1000000 };
+  } catch (_e) {
+    return { payout: basePayout, luckyCharmBonus: 0 };
+  }
+}
+
 // ══════════════════════════════════
 //  CRASH GAME
 // ══════════════════════════════════
@@ -347,7 +369,9 @@ router.post('/crash/cashout', requireAuth, betLimiter, async (req, res) => {
     }
 
     const bet = betRes.rows[0];
-    const payout = Math.round(parseFloat(bet.bet_amount) * cashoutAt * 10000) / 10000;
+    const basePayout = Math.round(parseFloat(bet.bet_amount) * cashoutAt * 10000) / 10000;
+    const luckyPayout = await applyLuckyCharmPayout(client, w, basePayout, bet.currency);
+    const payout = luckyPayout.payout;
     const balCol = bet.currency === 'USDT' ? 'usdt_balance' : 'pp_balance';
 
     // Update bet
@@ -365,11 +389,11 @@ router.post('/crash/cashout', requireAuth, betLimiter, async (req, res) => {
     await client.query(
       `INSERT INTO transactions (type, from_wallet, ${bet.currency === 'USDT' ? 'usdt_amount' : 'pp_amount'}, fee, meta)
        VALUES ('crash_win', $1, $2, 0, $3)`,
-      [w, payout, JSON.stringify({ roundId: round.id, multiplier: cashoutAt, bet: parseFloat(bet.bet_amount) })]
+      [w, payout, JSON.stringify({ roundId: round.id, multiplier: cashoutAt, bet: parseFloat(bet.bet_amount), luckyCharmBonus: luckyPayout.luckyCharmBonus })]
     );
 
     await client.query('COMMIT');
-    res.json({ success: true, cashoutAt, payout, currency: bet.currency });
+    res.json({ success: true, cashoutAt, payout, luckyCharmBonus: luckyPayout.luckyCharmBonus, currency: bet.currency });
     if (dailyService) { try { await dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
   } catch (e) {
     await client.query('ROLLBACK');
@@ -799,7 +823,9 @@ router.post('/mines/cashout', requireAuth, betLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Reveal at least one tile first' });
     }
 
-    const payout = Math.round(parseFloat(game.bet_amount) * parseFloat(game.current_multiplier) * 10000) / 10000;
+    const basePayout = Math.round(parseFloat(game.bet_amount) * parseFloat(game.current_multiplier) * 10000) / 10000;
+    const luckyPayout = await applyLuckyCharmPayout(client, w, basePayout, game.currency);
+    const payout = luckyPayout.payout;
     const balCol = game.currency === 'USDT' ? 'usdt_balance' : 'pp_balance';
 
     // Credit + Update game + Transaction log in parallel
@@ -809,14 +835,14 @@ router.post('/mines/cashout', requireAuth, betLimiter, async (req, res) => {
       client.query(
         `INSERT INTO transactions (type, from_wallet, ${game.currency === 'USDT' ? 'usdt_amount' : 'pp_amount'}, fee, meta)
          VALUES ('mines_win', $1, $2, 0, $3)`,
-        [w, payout, JSON.stringify({ gameId, multiplier: parseFloat(game.current_multiplier), tilesRevealed: revealed.length })]
+        [w, payout, JSON.stringify({ gameId, multiplier: parseFloat(game.current_multiplier), tilesRevealed: revealed.length, luckyCharmBonus: luckyPayout.luckyCharmBonus })]
       )
     ]);
 
     await client.query('COMMIT');
     if (dailyService) { try { await dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
     res.json({
-      success: true, payout,
+      success: true, payout, luckyCharmBonus: luckyPayout.luckyCharmBonus,
       multiplier: parseFloat(game.current_multiplier),
       currency: game.currency,
       grid: JSON.parse(game.grid)
@@ -885,11 +911,13 @@ router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
   const result = parseInt(hash.slice(0, 8), 16) % 2 === 0 ? 'survive' : 'perish';
   const won = pick === result;
   // (v7.373) 공정 2배(50/50) × 하우스계수. 기본 15% 엣지 → 1.70배.
-  const payout = won ? Math.round(bet * 2 * _houseFactor() * 1000000) / 1000000 : 0;
+  const basePayout = won ? Math.round(bet * 2 * _houseFactor() * 1000000) / 1000000 : 0;
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    const luckyPayout = await applyLuckyCharmPayout(client, w, basePayout, cur);
+    const payout = luckyPayout.payout;
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
     const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
@@ -924,7 +952,7 @@ router.post('/coinflip/play', requireAuth, betLimiter, async (req, res) => {
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
     await client.query('COMMIT');
 
-    res.json({ result, won, choice: pick, payout, balance: parseFloat(balRes.rows[0].bal), hash: hash.slice(0, 16), seed });
+    res.json({ result, won, choice: pick, payout, luckyCharmBonus: luckyPayout.luckyCharmBonus, balance: parseFloat(balRes.rows[0].bal), hash: hash.slice(0, 16), seed });
     if (dailyService) { try { dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
     if (seasonService) {
       seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
@@ -983,11 +1011,13 @@ router.post('/dice/play', requireAuth, betLimiter, async (req, res) => {
   if (winChance <= 0) return res.status(400).json({ error: 'Invalid target' });
   const multiplier = Math.round((99 / winChance) * _houseFactor() * 10000) / 10000; // (v7.373) 하우스 엣지 설정 적용
   const won = dir === 'over' ? roll > tgt : roll < tgt;
-  const payout = won ? Math.round(bet * multiplier * 1000000) / 1000000 : 0;
+  const basePayout = won ? Math.round(bet * multiplier * 1000000) / 1000000 : 0;
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    const luckyPayout = await applyLuckyCharmPayout(client, w, basePayout, cur);
+    const payout = luckyPayout.payout;
     const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
     const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
     if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
@@ -1019,7 +1049,7 @@ router.post('/dice/play', requireAuth, betLimiter, async (req, res) => {
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [w]);
     await client.query('COMMIT');
 
-    res.json({ roll, target: tgt, direction: dir, won, multiplier, payout, balance: parseFloat(balRes.rows[0].bal) });
+    res.json({ roll, target: tgt, direction: dir, won, multiplier, payout, luckyCharmBonus: luckyPayout.luckyCharmBonus, balance: parseFloat(balRes.rows[0].bal) });
     if (dailyService) { try { dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
     if (seasonService) {
       seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
@@ -1227,7 +1257,9 @@ router.post('/hilo/cashout', requireAuth, betLimiter, async (req, res) => {
     const cards = typeof g.cards === 'string' ? JSON.parse(g.cards) : g.cards;
     if (cards.length < 2) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Must guess at least once' }); }
 
-    const payout = Math.round(parseFloat(g.bet_amount) * parseFloat(g.current_multiplier) * 1000000) / 1000000;
+    const basePayout = Math.round(parseFloat(g.bet_amount) * parseFloat(g.current_multiplier) * 1000000) / 1000000;
+    const luckyPayout = await applyLuckyCharmPayout(client, g.wallet, basePayout, g.currency);
+    const payout = luckyPayout.payout;
     const balCol = g.currency === 'USDT' ? 'usdt_balance' : 'pp_balance';
 
     await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE LOWER(wallet_address) = LOWER($2)`, [payout, g.wallet]);
@@ -1240,7 +1272,7 @@ router.post('/hilo/cashout', requireAuth, betLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     res.json({
-      payout, multiplier: parseFloat(g.current_multiplier),
+      payout, luckyCharmBonus: luckyPayout.luckyCharmBonus, multiplier: parseFloat(g.current_multiplier),
       balance: parseFloat(balRes.rows[0].bal), rounds: cards.length - 1
     });
     if (dailyService) { try { dailyService.updateMissionProgress(g.wallet, 'play_cantina', 1); } catch (_de) {} }

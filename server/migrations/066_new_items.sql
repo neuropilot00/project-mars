@@ -20,5 +20,5 @@ INSERT INTO item_types (code, name, description, category, price_pp, price_usdt,
   ('harvest_surge',  'Harvest Surge',        'Next harvest gives 3× PP. Single use.',                      'boost',    3.5,  2.80,  NULL, 3,   '🌾', 5),
   ('xp_amplifier',   'XP Amplifier',         'Doubles XP from all sources for 4h.',                        'boost',    2.0,  1.60,  4,  2,    '📈', 5),
   ('gp_generator',   'GP Generator',         'Generates 5 GP per hour for 12h.',                           'boost',    4.0,  3.20,  12, 5,    '🏛', 5),
-  ('lucky_charm',    'Lucky Charm',          '+15% cantina win rate for 3h.',                               'boost',    2.5,  2.00,  3,  15,   '🍀', 5)
+  ('lucky_charm',    'Lucky Charm',          '+15% cantina winnings for 3h.',                               'boost',    2.5,  2.00,  3,  15,   '🍀', 5)
 ON CONFLICT (code) DO NOTHING;
