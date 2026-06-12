@@ -36643,11 +36643,11 @@ function loadDuelPanel() {
   container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading…</div>';
 
   var url;
-  if (_duelTab === 'pending') url = '/api/duels/pending?wallet=' + encodeURIComponent(w);
-  else if (_duelTab === 'my')  url = '/api/duels/my?wallet='    + encodeURIComponent(w) + '&limit=20';
+  if (_duelTab === 'pending') url = '/api/duels/pending';
+  else if (_duelTab === 'my')  url = '/api/duels/my?limit=20';
   else                          url = '/api/duels/recent?limit=20';
 
-  fetch(url).then(function(r){ return r.json(); }).then(function(data) {
+  fetch(url, _duelTab === 'recent' ? undefined : { headers: getAuthHeaders() }).then(function(r){ return r.json(); }).then(function(data) {
     if (!Array.isArray(data)) { container.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Error loading duels</div>'; return; }
     if (!data.length) {
       var emptyMsg = _duelTab === 'pending' ? (t('duel_no_pending') || 'No incoming challenges') :

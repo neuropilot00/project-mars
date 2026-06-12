@@ -20,10 +20,11 @@ function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
-// ── GET /api/duels/my?wallet= ─────────────────────────────────────────────────
-router.get('/duels/my', async (req, res) => {
+// ── GET /api/duels/my ─────────────────────────────────────────────────────────
+router.get('/duels/my', requireAuth, async (req, res) => {
   try {
-    const { wallet, limit } = req.query;
+    const wallet = getAuthWallet(req);
+    const { limit } = req.query;
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const duels = await duelSvc.getMyDuels(wallet, parseInt(limit || '30', 10));
     res.json(duels);
@@ -32,10 +33,10 @@ router.get('/duels/my', async (req, res) => {
   }
 });
 
-// ── GET /api/duels/pending?wallet= ───────────────────────────────────────────
-router.get('/duels/pending', async (req, res) => {
+// ── GET /api/duels/pending ────────────────────────────────────────────────────
+router.get('/duels/pending', requireAuth, async (req, res) => {
   try {
-    const { wallet } = req.query;
+    const wallet = getAuthWallet(req);
     if (!wallet) return res.status(400).json({ error: 'wallet required' });
     const duels = await duelSvc.getPendingForMe(wallet);
     res.json(duels);
