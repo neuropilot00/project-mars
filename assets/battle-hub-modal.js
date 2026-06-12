@@ -283,6 +283,7 @@ function renderKillmailCard(k) {
   const bountyGp = Math.max(0, Math.floor(Number(k.active_bounty_gp) || 0));
   const canClaimBounty = myWallet && String(k.killer_wallet || '').toLowerCase() === myWallet && bountyGp > 0 && k.battle_id && k.victim_wallet;
   const canHunt = myWallet && k.victim_wallet && String(k.victim_wallet).toLowerCase() !== myWallet;
+  const salvageHint = formatKillmailSalvage(k.resources);
   return `
     <div class="killmail-card ${k.victim_is_betrayer ? 'betrayer' : ''}" data-wreck-id="${parseInt(k.id, 10) || 0}">
       <div class="killmail-skull">☠</div>
@@ -298,6 +299,7 @@ function renderKillmailCard(k) {
           ${bountyGp ? `<span class="bounty-tag">💰 ${formatNum(bountyGp)} GP</span>` : ''}
           ${k.victim_is_betrayer ? `<span class="traitor-tag">${LANG==='ko'?'변절자':LANG==='ja'?'裏切り者':LANG==='zh'?'叛徒':'BETRAYER'}</span>` : ''}
           ${salvaged ? `<span>${LANG==='ko'?'회수완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'SALVAGED'}</span>` : expired ? `<span>${LANG==='ko'?'잔해소멸':LANG==='ja'?'残骸消滅':LANG==='zh'?'残骸消失':'EXPIRED'}</span>` : ''}
+          ${salvageHint ? `<span>🧩 ${salvageHint}</span>` : ''}
           <span>${when}</span>
         </div>
       </div>
@@ -311,6 +313,21 @@ function renderKillmailCard(k) {
       </div>
     </div>
   `;
+}
+
+function formatKillmailSalvage(resources) {
+  let src = resources;
+  if (!src) return '';
+  if (typeof src === 'string') {
+    try { src = JSON.parse(src); } catch (_) { return ''; }
+  }
+  if (!src || typeof src !== 'object' || Array.isArray(src)) return '';
+  const parts = Object.keys(src)
+    .map(function(code){ return { code: code, qty: Math.floor(Number(src[code]) || 0) }; })
+    .filter(function(x){ return x.qty > 0; })
+    .slice(0, 3)
+    .map(function(x){ return escapeHtml(x.code) + '×' + x.qty; });
+  return parts.join(' · ');
 }
 
 async function huntKillmailTarget(targetWallet, targetLabel) {
