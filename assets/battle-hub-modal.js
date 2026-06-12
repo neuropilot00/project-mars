@@ -67,9 +67,10 @@ const battleContextById = Object.create(null);
 function rememberBattleContext(battle) {
   const id = parseInt(battle && battle.id, 10);
   if (!id) return;
+  const summary = battle.battle_summary || {};
   battleContextById[id] = {
     battle_type: battle.battle_type || '',
-    sector_code: battle.sector_code || '',
+    sector_code: battle.sector_code || summary.sector_code || '',
     sector_name: battle.sector_name || '',
   };
 }

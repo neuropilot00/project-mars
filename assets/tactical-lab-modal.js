@@ -210,7 +210,10 @@
   window.addEventListener('message', handleTacticalLabMessage);
   document.addEventListener('keydown', handleTacticalLabEscape);
   window.buildTacticalLabUrl = buildTacticalLabUrl;
-  window.pickBattlefieldKey = pickBattlefieldKey;
+  if (typeof window.pickBattlefieldKey !== 'function') {
+    window.pickBattlefieldKey = pickBattlefieldKey;
+  }
+  window.pickSandboxBattlefieldKey = pickBattlefieldKey;
   window.unloadTacticalLabFrame = unloadTacticalLabFrame;
   window.openTacticalLab = openTacticalLab;
   window.closeTacticalLab = closeTacticalLab;
