@@ -342,6 +342,35 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 #liveFeedList{display:flex;flex-direction:column;gap:1px}
 @keyframes feedIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 
+/* COMMS chat overlay */
+.chat-overlay{position:fixed;left:34px;bottom:28px;width:min(640px,calc(100vw - 68px));max-height:min(78vh,790px);z-index:90;background:rgba(3,4,14,.92);border:1px solid rgba(91,184,232,.5);border-radius:14px;box-shadow:0 14px 50px rgba(0,0,0,.45);overflow:hidden;display:flex;flex-direction:column}
+.chat-overlay.collapsed{max-height:56px}
+.chat-header{height:56px;flex:0 0 56px;display:flex;align-items:center;gap:10px;padding:0 24px;color:#4fc3f7;font-size:19px;font-weight:900;letter-spacing:2px;cursor:pointer;border-bottom:1px solid rgba(91,184,232,.22)}
+.chat-header .chat-toggle-icon{margin-left:auto;font-size:12px}
+.chat-overlay.collapsed .chat-toggle-icon{transform:rotate(180deg)}
+.chat-unread{min-width:18px;height:18px;padding:2px 6px;border-radius:9px;background:var(--red);color:white;font-size:9px;line-height:14px;text-align:center;letter-spacing:0}
+.chat-body{min-height:0;display:flex;flex-direction:column}
+.chat-overlay.collapsed .chat-body{display:none}
+.chat-channel-row{flex:0 0 auto;display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(91,184,232,.18)}
+.chat-ch{height:34px;padding:0 14px;border-radius:7px;border:1px solid rgba(91,184,232,.32);background:rgba(91,184,232,.06);color:var(--tx2);font-size:12px;font-weight:700;cursor:pointer}
+.chat-ch.active{background:rgba(79,195,247,.16);border-color:#4fc3f7;color:#8fe5ff}
+.chat-messages{height:558px;max-height:calc(78vh - 150px);min-height:180px;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{display:grid;grid-template-columns:minmax(80px,180px) 1fr auto;align-items:baseline;gap:8px;font-size:13px;line-height:1.35;color:var(--tx);min-width:0}
+.chat-msg-nick{color:#4fc3f7;font-weight:900;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-msg-text{min-width:0;overflow-wrap:anywhere;color:#f0edf0;font-family:'Pretendard Variable','Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+.chat-msg-time{color:#60798b;font-size:11px;white-space:nowrap}
+.chat-input-row{flex:0 0 auto;display:flex;gap:12px;padding:16px;border-top:1px solid rgba(91,184,232,.18)}
+.chat-input-row input{flex:1;min-width:0;height:56px;border-radius:7px;border:1px solid #4fc3f7;background:rgba(255,255,255,.04);color:var(--tx);font-size:17px;padding:0 16px}
+.chat-input-row button{width:64px;height:56px;border:0;border-radius:7px;background:#1976d2;color:white;font-size:24px;cursor:pointer}
+@media(max-width:768px){
+  .chat-overlay{left:12px;right:12px;bottom:14px;width:auto;max-height:72vh}
+  .chat-messages{height:360px;max-height:calc(72vh - 146px)}
+  .chat-msg{grid-template-columns:minmax(72px,34%) 1fr auto;font-size:12px}
+  .chat-header{font-size:16px;padding:0 18px}
+  .chat-input-row input{height:48px;font-size:14px}
+  .chat-input-row button{width:54px;height:48px;font-size:20px}
+}
+
 /* Territory Info */
 .action-btn{width:100%;padding:10px;margin-top:8px;
   background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,120,60,.03));
@@ -50548,6 +50577,9 @@ let _chatSince = null;
 let _chatPollTimer = null;
 let _chatUnread = 0;
 let _chatExpanded = false;
+let _chatLoading = false;
+let _chatLoadQueued = false;
+let _chatSeenIds = new Set();
 
 function toggleChat() {
   const el = document.getElementById('chatOverlay');
@@ -50557,7 +50589,7 @@ function toggleChat() {
     _chatUnread = 0;
     const badge = document.getElementById('chatUnreadBadge');
     if (badge) { badge.style.display = 'none'; badge.textContent = '0'; }
-    setTimeout(() => {
+    _setActiveTimeout(() => {
       const msgs = document.getElementById('chatMessages');
       if (msgs) msgs.scrollTop = msgs.scrollHeight;
     }, 50);
@@ -50567,6 +50599,7 @@ function toggleChat() {
 function switchChatChannel(ch) {
   _chatChannel = ch === 'sector' ? (window._chatCurrentSector || 'global') : 'global';
   _chatSince = null;
+  _chatSeenIds = new Set();
   document.getElementById('chatMessages').innerHTML = '';
   document.querySelectorAll('.chat-ch').forEach(b => b.classList.remove('active'));
   const idx = ch === 'sector' ? 1 : 0;
@@ -50596,6 +50629,8 @@ async function sendChatMessage() {
 }
 
 async function loadChatMessages() {
+  if (_chatLoading) { _chatLoadQueued = true; return; }
+  _chatLoading = true;
   try {
     // Skip polling when page is hidden (tab not visible) AND chat is collapsed —
     // avoids competing with the Globe.GL render loop for network/CPU bandwidth.
@@ -50610,23 +50645,37 @@ async function loadChatMessages() {
     const container = document.getElementById('chatMessages');
     if (!container) return;
     const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 40;
+    let appended = 0;
     msgs.forEach(m => {
+      const msgKey = m.id != null ? String(m.id) : [m.channel, m.created_at, m.wallet, m.message].join('|');
+      if (_chatSeenIds.has(msgKey)) return;
+      _chatSeenIds.add(msgKey);
       const div = document.createElement('div');
       div.className = 'chat-msg';
+      div.dataset.msgId = msgKey;
       const nick = m.nickname || (m.wallet || '').substring(0, 8);
       const t = new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
       div.innerHTML = '<span class="chat-msg-nick">' + _escapeHtml(nick) + '</span><span class="chat-msg-text">' + _escapeHtml(m.message) + '</span><span class="chat-msg-time">' + t + '</span>';
       container.appendChild(div);
+      appended++;
     });
+    if (!appended) return;
     if (wasAtBottom || !_chatExpanded) {
       container.scrollTop = container.scrollHeight;
     }
-    if (!_chatExpanded && msgs.length > 0) {
-      _chatUnread += msgs.length;
+    if (!_chatExpanded && appended > 0) {
+      _chatUnread += appended;
       const badge = document.getElementById('chatUnreadBadge');
       if (badge) { badge.style.display = 'inline'; badge.textContent = _chatUnread > 99 ? '99+' : String(_chatUnread); }
     }
   } catch(e) { /* silent */ }
+  finally {
+    _chatLoading = false;
+    if (_chatLoadQueued) {
+      _chatLoadQueued = false;
+      loadChatMessages();
+    }
+  }
 }
 
 function _escapeHtml(s) {
