@@ -121,6 +121,14 @@ function pickBattlefieldKey(battle) {
   const sectorCode = String(b.sector_code || summary.sector_code || '').toLowerCase();
   const sectorName = String(b.sector_name || '').toLowerCase();
 
+  if (sectorCode === '__commander__' || type === 'commander_siege') return 'occupied_airspace';
+  if (summary.is_ai_battle || type === 'ai_practice') return 'garrison';
+  if (summary.arena || type === 'arena') return 'shipyard_drydock';
+  if (summary.is_world_event) return 'convoy_route';
+  if (summary.active_bounty_gp || summary.bounty_gp || type === 'bounty') return 'orbital_blockade';
+  if (/guild|alliance/.test(type)) return 'occupied_airspace';
+  if (/tournament|bracket/.test(type)) return 'colony_dome';
+  if (/transport|convoy/.test(type)) return 'convoy_route';
   if (type === 'siege' && SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'siege') return 'settlement_airspace';
   if (type === 'hijack') return 'orbital_blockade';

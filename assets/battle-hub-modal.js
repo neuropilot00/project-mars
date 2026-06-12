@@ -122,6 +122,7 @@ function rememberBattleContext(battle) {
     battlefield_key: battle.battlefield_key || '',
     battlefield_label: battle.battlefield_label || '',
     environment_modifiers: battle.environment_modifiers || {},
+    battle_summary: summary || {},
   };
 }
 
@@ -157,6 +158,16 @@ function pickBattlefieldKey(battleId) {
   const type = String(ctx.battle_type || '').toLowerCase();
   const sectorCode = String(ctx.sector_code || '').toLowerCase();
   const sectorName = String(ctx.sector_name || '').toLowerCase();
+  const mods = ctx.environment_modifiers || {};
+  const summary = (ctx.battle_summary && typeof ctx.battle_summary === 'object') ? ctx.battle_summary : {};
+  if (sectorCode === '__commander__' || type === 'commander_siege') return 'occupied_airspace';
+  if (summary.is_ai_battle || mods.is_ai_battle || type === 'ai_practice') return 'garrison';
+  if (summary.arena || mods.arena || type === 'arena') return 'shipyard_drydock';
+  if (summary.is_world_event || mods.is_world_event) return 'convoy_route';
+  if (summary.active_bounty_gp || summary.bounty_gp || mods.bounty_gp || type === 'bounty') return 'orbital_blockade';
+  if (/guild|alliance/.test(type)) return 'occupied_airspace';
+  if (/tournament|bracket/.test(type)) return 'colony_dome';
+  if (/transport|convoy/.test(type)) return 'convoy_route';
   if (type === 'siege' && SECTOR_BATTLEFIELD_BY_CODE[sectorCode]) return SECTOR_BATTLEFIELD_BY_CODE[sectorCode];
   if (type === 'siege') return 'settlement_airspace';
   if (type === 'hijack') return 'orbital_blockade';
