@@ -1287,6 +1287,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sector-card .sc-strategy{font-size:8.5px;color:var(--tx3);line-height:1.45;margin:-1px 0 7px;
   padding:5px 6px;border:1px solid rgba(91,184,232,.14);border-radius:6px;
   background:rgba(91,184,232,.035);font-family:var(--fn)}
+.sector-card .sc-siege-intel{margin:-1px 0 8px;padding:6px 7px;border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;font-family:var(--fn);line-height:1.45}
+.sector-card .ssi-head{display:flex;justify-content:space-between;gap:8px;font-size:8.5px;font-weight:900;
+  letter-spacing:.5px}
+.sector-card .ssi-head span:last-child{color:var(--tx3);font-weight:700;white-space:nowrap}
+.sector-card .ssi-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.sector-card .ssi-meta span{font-size:8px;color:var(--tx3);padding:2px 5px;border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;background:rgba(0,0,0,.16)}
+.sector-card .ssi-advice{font-size:8.5px;color:var(--tx2);margin-top:4px}
 /* Occupancy bar */
 .sc-occ-wrap{margin-bottom:8px}
 .sc-occ-bar{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-top:3px}

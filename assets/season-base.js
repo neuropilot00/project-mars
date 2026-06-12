@@ -1322,6 +1322,41 @@ function renderSectorList(sectors){
       + '<span>'+occ+'% '+(LANG==='ko'?'점유':LANG==='ja'?'占有':LANG==='zh'?'占用':'occupied')+'</span>'
       + '</div>';
   }
+  function renderSectorSiegeIntel(s, profile, ctrl, occ, entryBlocked) {
+    var owners = (ctrl && ctrl.topOwners) || [];
+    var lead = owners[0] || null;
+    var second = owners[1] || null;
+    var leadPct = lead ? (parseFloat(lead.controlPct) || 0) : 0;
+    var secondPct = second ? (parseFloat(second.controlPct) || 0) : 0;
+    var gap = Math.max(0, Math.round((leadPct - secondPct) * 10) / 10);
+    var activity = s.stats ? (parseInt(s.stats.activity24h,10) || 0) : 0;
+    var myPx = parseInt(s.myPixels,10) || 0;
+    var hot = profile.pressure === 'hot' || activity >= 6;
+    var open = !lead || leadPct < 35 || gap <= 8;
+    var defensive = lead && (leadPct >= 55 || gap >= 18);
+    var color = entryBlocked ? '#e84855' : open ? '#4cd89a' : hot ? '#ff7043' : defensive ? '#64d8ff' : '#ffd166';
+    var status = entryBlocked
+      ? (LANG==='ko'?'진입 잠김':LANG==='ja'?'参入ロック':LANG==='zh'?'进入锁定':'LOCKED')
+      : open
+        ? (LANG==='ko'?'공성 기회':LANG==='ja'?'攻城機会':LANG==='zh'?'攻城机会':'SIEGE OPENING')
+        : hot
+          ? (LANG==='ko'?'전쟁 압력':LANG==='ja'?'戦争圧力':LANG==='zh'?'战争压力':'WAR PRESSURE')
+          : defensive
+            ? (LANG==='ko'?'방어 우위':LANG==='ja'?'防衛優位':LANG==='zh'?'防守优势':'DEFENDER EDGE')
+            : (LANG==='ko'?'감시 대상':LANG==='ja'?'監視対象':LANG==='zh'?'监视目标':'WATCHLIST');
+    var advice;
+    if (entryBlocked) advice = LANG==='ko'?'레벨 조건을 먼저 맞춘 뒤 전초 영토를 확보하세요.':LANG==='ja'?'レベル条件を満たしてから前哨領土を確保。':LANG==='zh'?'先满足等级条件，再确保前哨领地。':'Meet the level gate first, then establish a foothold.';
+    else if (myPx > 0 && open) advice = LANG==='ko'?'이미 발판이 있습니다. 길드 공성 후보로 지정하고 함대 집결을 걸 만합니다.':LANG==='ja'?'足場あり。ギルド攻城候補に指定し艦隊集結を狙える。':LANG==='zh'?'已有前哨领地，可列为公会攻城候选并集结舰队。':'You have a foothold here. Mark it as a guild siege candidate and rally fleets.';
+    else if (open) advice = LANG==='ko'?'지배 격차가 작습니다. 소형 영토로 진입한 뒤 영향력을 쌓기 좋은 섹터입니다.':LANG==='ja'?'支配差が小さい。小領土で参入して影響力を積みやすい。':LANG==='zh'?'控制差距小，适合先占小地再累积影响力。':'Control gap is small. Claim a small foothold and build influence.';
+    else if (hot) advice = LANG==='ko'?'활동/충돌이 높습니다. 수익은 크지만 실드와 함대 방어를 먼저 준비하세요.':LANG==='ja'?'活動/衝突が高い。収益は大きいがシールドと防衛艦隊を先に準備。':LANG==='zh'?'活动/冲突高，收益大，但先准备护盾与防守舰队。':'High activity and conflict. Prepare shields and defensive fleets before expanding.';
+    else if (defensive) advice = LANG==='ko'?'선두가 단단합니다. 정면 공성보다 보급로/채굴/운송 압박부터 누적하세요.':LANG==='ja'?'首位が堅い。正面攻城より補給路/採掘/輸送圧力を蓄積。':LANG==='zh'?'领先方稳固，先施加补给/采矿/运输压力。':'Leader is entrenched. Pressure logistics, mining, and routes before a direct siege.';
+    else advice = LANG==='ko'?'가격과 영향력 변동을 감시하세요. 2위와 격차가 줄면 공성 후보입니다.':LANG==='ja'?'価格と影響力の変動を監視。2位との差が縮めば攻城候補。':LANG==='zh'?'监控价格与影响力变化，差距缩小时就是攻城候选。':'Watch price and influence shifts. If the runner-up closes the gap, it becomes a siege target.';
+    return '<div class="sc-siege-intel" style="border-color:'+color+'55;background:'+color+'0f">'
+      + '<div class="ssi-head"><span style="color:'+color+'">'+status+'</span><span>'+ (lead ? (lead.controlPct+'% / '+(second ? second.controlPct+'%' : '0%')) : (LANG==='ko'?'미개척':LANG==='ja'?'未開拓':LANG==='zh'?'未开拓':'Unclaimed')) +'</span></div>'
+      + '<div class="ssi-meta"><span>Δ '+gap+'%</span><span>'+activity+' '+(LANG==='ko'?'활동':LANG==='ja'?'活動':LANG==='zh'?'活动':'activity')+'</span><span>'+myPx+' '+(LANG==='ko'?'내 px':LANG==='ja'?'自分px':LANG==='zh'?'我的px':'my px')+'</span></div>'
+      + '<div class="ssi-advice">'+scTxt(advice)+'</div>'
+      + '</div>';
+  }
   sectors.forEach(function(s){
     var occ=s.stats.occupancyRate;
     var occPx=s.stats.occupiedPixels;
@@ -1359,6 +1394,7 @@ function renderSectorList(sectors){
     html+=renderSectorProfile(profile);
     html+=renderSectorEconomy(profile, occ);
     html+='<div class="sc-strategy">▸ '+scTxt(sectorStrategyText(profile, entryBlocked))+'</div>';
+    html+=renderSectorSiegeIntel(s, profile, ctrl, occ, entryBlocked);
     // Occupancy bar
     html+='<div class="sc-occ-wrap">';
     html+='<div class="sc-occ-labels"><span>'+t('sector_occupied')+'</span><span>'+occPx.toLocaleString()+' / '+totPx.toLocaleString()+' ('+occ+'%)</span></div>';
