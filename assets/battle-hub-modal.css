@@ -1091,6 +1091,7 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all .15s;
+  min-height: 132px;
 }
 .ai-card:hover { background: rgba(79,195,247,.08); border-color: rgba(79,195,247,.4); }
 .ai-card.difficulty-easy   { border-left: 3px solid #81c784; }
@@ -1101,9 +1102,50 @@
   font-family: 'Orbitron', monospace;
   font-weight: 700; letter-spacing: 1px; font-size: 11px;
   margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .ai-card-meta { font-size: 9px; color: rgba(255,255,255,.5); letter-spacing: 1px; }
 .ai-card-ships { margin-top: 6px; font-size: 10px; color: #4fc3f7; font-weight: 700; }
+.ai-card-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+.ai-card-intel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 9px;
+  color: rgba(255,255,255,.72);
+}
+.ai-card-intel span,
+.ai-card-role,
+.ai-card-reward {
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.18);
+  border-radius: 4px;
+}
+.ai-card-intel span { padding: 3px 6px; }
+.ai-threat.low { color: #81c784; }
+.ai-threat.high { color: #ffb74d; }
+.ai-threat.critical { color: #ef5350; }
+.ai-card-role {
+  margin-top: 8px;
+  padding: 6px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,.84);
+}
+.ai-card-reward {
+  margin-top: 6px;
+  padding: 5px 7px;
+  font-size: 9px;
+  color: #ffd166;
+}
 .difficulty-badge {
   display: inline-block;
   padding: 1px 5px;

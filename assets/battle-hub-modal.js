@@ -1414,6 +1414,28 @@ function closeAiFight() {
   document.getElementById('aiFightModal').classList.remove('active');
 }
 
+function aiDifficultyProfile(f) {
+  const diff = String((f && f.ai_difficulty) || 'normal').toLowerCase();
+  const ships = Math.max(0, parseInt(f && f.ships_alive, 10) || 0);
+  const mult = diff === 'elite' ? 2.2 : diff === 'hard' ? 1.55 : diff === 'easy' ? 0.75 : 1;
+  const threat = Math.max(1, Math.round(ships * mult));
+  const role = diff === 'elite'
+    ? tl('Boss raid', '보스 레이드', 'ボスレイド', '首领突袭')
+    : diff === 'hard'
+      ? tl('High-risk duel', '고위험 결투', '高リスク決闘', '高风险决斗')
+      : diff === 'easy'
+        ? tl('Training target', '훈련 표적', '訓練目標', '训练目标')
+        : tl('Live-fire drill', '실전 훈련', '実戦訓練', '实战演练');
+  const reward = diff === 'elite'
+    ? tl('High salvage odds', '회수 기대 높음', '回収期待 高', '高回收期望')
+    : diff === 'hard'
+      ? tl('Bonus practice value', '훈련 가치 보너스', '訓練価値ボーナス', '训练价值加成')
+      : diff === 'easy'
+        ? tl('Low repair risk', '수리 위험 낮음', '修理リスク低', '低维修风险')
+        : tl('Balanced reward', '균형 보상', '均衡報酬', '均衡奖励');
+  return { diff: diff, ships: ships, threat: threat, role: role, reward: reward };
+}
+
 async function loadAiFleets() {
   const grid = document.getElementById('aiFightGrid');
   grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
@@ -1430,15 +1452,27 @@ async function loadAiFleets() {
 
     // [v7.214 fix] nickname 인라인 onclick escape 위험 — index cache + delegated listener.
     window._aiFightFleets = fleets.slice();
-    grid.innerHTML = fleets.map((f, idx) => `
+    grid.innerHTML = fleets.map((f, idx) => {
+      const p = aiDifficultyProfile(f);
+      const threatLabel = p.threat >= 70 ? 'critical' : p.threat >= 35 ? 'high' : 'low';
+      return `
       <div class="ai-card difficulty-${f.ai_difficulty || 'normal'}"
            data-action="challengeAi" data-idx="${idx}">
-        <div class="ai-card-nick">${escapeHtml(f.nickname || 'AI')}</div>
-        <div class="ai-card-meta">${escapeHtml(f.faction_name || '')}</div>
-        <span class="difficulty-badge ${f.ai_difficulty || 'normal'}">${(f.ai_difficulty || 'normal').toUpperCase()}</span>
-        <div class="ai-card-ships">⚔ ${f.ships_alive}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</div>
+        <div class="ai-card-top">
+          <div>
+            <div class="ai-card-nick">${escapeHtml(f.nickname || 'AI')}</div>
+            <div class="ai-card-meta">${escapeHtml(f.faction_name || '')}</div>
+          </div>
+          <span class="difficulty-badge ${p.diff}">${p.diff.toUpperCase()}</span>
+        </div>
+        <div class="ai-card-intel">
+          <span>⚔ ${p.ships}${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships'}</span>
+          <span class="ai-threat ${threatLabel}">${LANG==='ko'?'위협':LANG==='ja'?'脅威':LANG==='zh'?'威胁':'Threat'} ${p.threat}</span>
+        </div>
+        <div class="ai-card-role">${escapeHtml(p.role)}</div>
+        <div class="ai-card-reward">${escapeHtml(p.reward)}</div>
       </div>
-    `).join('');
+    `; }).join('');
     if (!grid.dataset.delegated) {
       grid.dataset.delegated = '1';
       grid.addEventListener('click', function(ev){
