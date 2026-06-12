@@ -1,8 +1,22 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
+const { makeRateLimiter } = require('../utils/rateLimiters');
 
 const router = express.Router();
+const CHAT_DEFAULT_LIMIT = 50;
+const CHAT_MAX_LIMIT = 50;
+
+const readLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 90,
+  message: { error: 'Too many chat refresh requests. Please slow down.' }
+});
+const writeLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: 'Too many chat messages. Please wait.' }
+});
 
 const requireAuth = (req, res, next) => {
   const token = (req.headers.authorization || '').replace('Bearer ', '');
@@ -19,10 +33,17 @@ function isValidChannel(channel) {
   return channel === 'global' || /^sector:[a-z0-9_]+$/.test(channel);
 }
 
-router.get('/chat/messages', async (req, res) => {
+function getLimit(req) {
+  const raw = parseInt(req.query.limit, 10);
+  if (!Number.isFinite(raw) || raw <= 0) return CHAT_DEFAULT_LIMIT;
+  return Math.min(CHAT_MAX_LIMIT, raw);
+}
+
+router.get('/chat/messages', readLimiter, async (req, res) => {
   try {
     const channel = String(req.query.channel || 'global').trim();
     if (!isValidChannel(channel)) return res.status(400).json({ error: 'invalid_channel' });
+    const limit = getLimit(req);
 
     const params = [channel];
     let where = 'WHERE channel = $1';
@@ -30,13 +51,14 @@ router.get('/chat/messages', async (req, res) => {
       const sinceId = parseInt(req.query.since_id || req.query.sinceId, 10);
       if (!Number.isFinite(sinceId) || sinceId < 0) return res.status(400).json({ error: 'invalid_since_id' });
       params.push(sinceId);
+      params.push(limit);
       where += ' AND id > $2';
       const { rows } = await pool.query(
         `SELECT id, wallet, nickname, channel, message, created_at
          FROM chat_messages
          ${where}
          ORDER BY id ASC
-         LIMIT 50`,
+         LIMIT $3`,
         params
       );
       return res.json({ messages: rows });
@@ -44,13 +66,14 @@ router.get('/chat/messages', async (req, res) => {
     if (req.query.since) {
       // incremental poll: only new messages after cursor, ASC order
       params.push(req.query.since);
+      params.push(limit);
       where += ' AND created_at > $2';
       const { rows } = await pool.query(
         `SELECT id, wallet, nickname, channel, message, created_at
          FROM chat_messages
          ${where}
          ORDER BY created_at ASC
-         LIMIT 50`,
+         LIMIT $3`,
         params
       );
       return res.json({ messages: rows });
@@ -73,8 +96,8 @@ router.get('/chat/messages', async (req, res) => {
           ORDER BY LOWER(wallet), message, id DESC
        ) sub
        ORDER BY id ASC
-       LIMIT 50`,
-      params
+       LIMIT $2`,
+      [channel, limit]
     );
     return res.json({ messages: rows });
   } catch (err) {
@@ -83,7 +106,7 @@ router.get('/chat/messages', async (req, res) => {
   }
 });
 
-router.post('/chat/send', requireAuth, async (req, res) => {
+router.post('/chat/send', requireAuth, writeLimiter, async (req, res) => {
   let client;
   try {
     const wallet = String(req.user?.wallet_address || req.user?.wallet || '').trim();
@@ -158,7 +181,7 @@ router.post('/chat/send', requireAuth, async (req, res) => {
   }
 });
 
-router.get('/chat/channels', async (_req, res) => {
+router.get('/chat/channels', readLimiter, async (_req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT DISTINCT channel

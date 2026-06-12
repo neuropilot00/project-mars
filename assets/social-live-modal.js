@@ -879,10 +879,12 @@ let _chatSending = false;
 let _chatFetchTimer = null;
 let _chatLastFetchAt = 0;
 let _chatBackoffUntil = 0;
+let _chatErrorStreak = 0;
 const CHAT_FETCH_MIN_GAP_MS = 1500;
 const CHAT_DUP_WINDOW_MS = 600000;
 const CHAT_POLL_FALLBACK_MS = 30000;
 const CHAT_SEEN_ID_LIMIT = 250;
+const CHAT_MAX_BACKOFF_MS = 120000;
 
 function toggleChat() {
   const el = document.getElementById('chatOverlay');
@@ -975,18 +977,28 @@ async function loadChatMessages() {
       + (_chatSinceId != null ? '&since_id=' + encodeURIComponent(_chatSinceId) : (_chatSince ? '&since=' + encodeURIComponent(_chatSince) : ''));
     const r = await fetch(url);
     if (r.status === 429) {
-      _chatBackoffUntil = Date.now() + 30000;
+      _chatErrorStreak = Math.min(_chatErrorStreak + 1, 6);
+      _chatBackoffUntil = Date.now() + _chatRetryDelay(r, _chatErrorStreak);
       return;
     }
-    if (!r.ok) return;
+    if (!r.ok) {
+      _chatErrorStreak = Math.min(_chatErrorStreak + 1, 6);
+      _chatBackoffUntil = Date.now() + _chatRetryDelay(r, _chatErrorStreak);
+      return;
+    }
     const data = await r.json();
+    _chatErrorStreak = 0;
+    _chatBackoffUntil = 0;
     const msgs = data.messages || [];
     if (!msgs.length) return;
     _chatSince = msgs[msgs.length - 1].created_at;
     const lastId = msgs.reduce((max, m) => Math.max(max, parseInt(m.id, 10) || 0), _chatSinceId || 0);
     if (lastId > 0) _chatSinceId = lastId;
     _appendChatMessages(msgs);
-  } catch(e) { /* silent */ }
+  } catch(e) {
+    _chatErrorStreak = Math.min(_chatErrorStreak + 1, 6);
+    _chatBackoffUntil = Date.now() + _chatRetryDelay(null, _chatErrorStreak);
+  }
   finally {
     _chatLoading = false;
     if (_chatLoadQueued) {
@@ -994,6 +1006,13 @@ async function loadChatMessages() {
       requestChatMessages(CHAT_FETCH_MIN_GAP_MS);
     }
   }
+}
+
+function _chatRetryDelay(resp, streak) {
+  var retryAfter = 0;
+  try { retryAfter = parseInt(resp && resp.headers && resp.headers.get('Retry-After'), 10) || 0; } catch(_) {}
+  if (retryAfter > 0) return Math.min(CHAT_MAX_BACKOFF_MS, retryAfter * 1000);
+  return Math.min(CHAT_MAX_BACKOFF_MS, 5000 * Math.pow(2, Math.max(0, (streak || 1) - 1)));
 }
 
 function _appendChatMessages(msgs) {

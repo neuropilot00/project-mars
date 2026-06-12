@@ -25,8 +25,14 @@ function loadGuildTab(){
 
 // Start/stop chat poll based on whether user is in a guild
 function _syncGuildChatPoll(){
-  if(_myGuildData) startGuildChatPoll();
+  if(_myGuildData && _isGuildChatVisible()) startGuildChatPoll();
   else stopGuildChatPoll();
+}
+
+function _isGuildChatVisible(){
+  if(!_pageIsActive()) return false;
+  var pane=document.getElementById('basePane_guild');
+  return !!(pane&&pane.classList&&pane.classList.contains('active'));
 }
 
 function renderGuildState(guild, wallet){
@@ -1542,6 +1548,7 @@ function appendGuildChatMsgs(msgs){
 function refreshGuildChat(){
   var w=walletState.address;
   if(!w||!_myGuildData) return;
+  if(!_isGuildChatVisible()) { stopGuildChatPoll(); return; }
   var url='/api/guild/chat/'+_myGuildData.id+(_lastGuildMsgId?('?sinceId='+_lastGuildMsgId):'');
   fetch(url, { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(data){
     if(data.error) return;
@@ -1568,12 +1575,13 @@ function sendGuildChat(){
 }
 function startGuildChatPoll(){
   if(_guildChatPoll) return;
+  if(!_isGuildChatVisible()) return;
   _lastGuildMsgId=0;
   // Reset chat box
   var box=document.getElementById('guildChatBox');
   if(box) box.innerHTML='<div data-placeholder style="color:var(--tx3);text-align:center;font-size:9px;margin:auto">'+t('guild_chat_loading')+'</div>';
   refreshGuildChat();
-  _guildChatPoll=_setActiveInterval(refreshGuildChat, 5000);
+  _guildChatPoll=_setActiveInterval(refreshGuildChat, 15000);
 }
 function stopGuildChatPoll(){
   if(_guildChatPoll){ _clearActiveInterval(_guildChatPoll); _guildChatPoll=null; }
