@@ -979,12 +979,25 @@
       side_full:'이 진영 합류 함대가 가득 찼습니다' };
     return m[code] || ('합류 실패' + (code ? (': ' + code) : ''));
   }
+  function _siegeParticipationIntel(roster, atkN, defN) {
+    var fleetMode = roster && roster.resolution_mode === 'fleet_battle';
+    var battleMade = !!(roster && roster.fleet_battle_id);
+    var pressure = atkN === defN ? '전력 균형' : (atkN > defN ? '공격 우세' : '수비 우세');
+    if (fleetMode || battleMade) {
+      return '승리 시 거버너/세율/섹터 권한 장악 · 결전 함대는 패배 시 손실 위험 · 현재 ' + pressure;
+    }
+    return '함대 미배치 시 영토 점유율로 판정 · 함선 손실 없음 · 현재 ' + pressure;
+  }
+  function _siegeRewardIntel(roster) {
+    var code = roster && roster.sector_code ? String(roster.sector_code).toUpperCase() : 'SECTOR';
+    return code + ' 지배권, 세율 정책, 선언문, 길드 금고 세수 흐름이 이 전투 결과로 바뀝니다.';
+  }
   async function _loadSiegeFleetPanel(siege, code, w) {
     var el = document.getElementById('siegeFleetPanel_' + siege.id);
     if (!el) return;
     if (!w) { el.innerHTML = ''; return; }
     try {
-      var rosterResp = await fetch('/api/siege/' + siege.id + '/roster').then(function(r){return r.json()}).catch(function(){return null});
+      var rosterResp = await wlfReadFetch('siege-roster-' + siege.id, '/api/siege/' + siege.id + '/roster', 5000, false).catch(function(){return null});
       var roster = rosterResp && rosterResp.roster ? rosterResp.roster : null;
       if (!roster) { el.innerHTML = ''; return; }
       var myFleets = [];
@@ -1001,6 +1014,10 @@
       var _atkN = roster.atk_count || _commits.filter(function(c){return c.side==='atk';}).length;
       var _defN = roster.def_count || _commits.filter(function(c){return c.side==='def';}).length;
       h += '<div style="font-size:9px;color:var(--gold);font-family:var(--fn);font-weight:700;margin-bottom:6px">⚔ 결전 함대 ('+_atkN+' vs '+_defN+')<span style="float:right;color:var(--tx3)">'+modeBadge+'</span></div>';
+      h += '<div style="font-size:8px;color:var(--tx2);line-height:1.45;margin-bottom:6px;padding:5px 6px;border-radius:5px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)">'
+        + escapeHtml(_siegeParticipationIntel(roster, _atkN, _defN)) + '<br>'
+        + '<span style="color:var(--tx3)">'+escapeHtml(_siegeRewardIntel(roster))+'</span>'
+        + '</div>';
       h += _siegeSideList('attack', '⚔ 공격', _commits.filter(function(c){return c.side==='atk';}));
       h += _siegeSideList('defense', '🛡 수비', _commits.filter(function(c){return c.side==='def';}));
 
