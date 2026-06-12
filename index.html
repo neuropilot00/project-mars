@@ -35179,7 +35179,7 @@ window.addEventListener('resize', _debounce(function(){
     // Fetch all in parallel
     Promise.all([
       fetch('/api/governance/my-positions/'+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
-      fetch('/api/governance/commander?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {}}),
+      fetch('/api/governance/commander', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return {}}),
       fetch('/api/governance/events').then(function(r){return r.json()}).catch(function(){return []}),
       fetch('/api/governance/bounties').then(function(r){return r.json()}).catch(function(){return []})
     ]).then(function(results){

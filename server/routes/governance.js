@@ -23,6 +23,16 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 const readLimiter = rateLimit({ windowMs: 60000, max: 120, message: { error: 'Too many requests' } });
 const writeLimiter = rateLimit({ windowMs: 60000, max: 20, message: { error: 'Too many requests' } });
@@ -51,7 +61,7 @@ router.get('/sector/:id', readLimiter, async (req, res) => {
     const info = await getSectorGovernance(parseInt(req.params.id));
     if (!info) return res.status(404).json({ error: 'Sector not found' });
     // Hide GP balances unless requester is governor/vice
-    const w = (req.query.wallet || '').toLowerCase();
+    const w = getOptionalAuthWallet(req);
     if (w !== (info.governor || '').toLowerCase()) delete info.governorGP;
     if (w !== (info.vice || '').toLowerCase()) delete info.viceGP;
     res.json(info);
@@ -67,7 +77,7 @@ router.get('/sector/:id', readLimiter, async (req, res) => {
 router.get('/commander', readLimiter, async (req, res) => {
   try {
     const info = await getCommanderInfo();
-    const w = (req.query.wallet || '').toLowerCase();
+    const w = getOptionalAuthWallet(req);
     if (w !== (info.commander || '').toLowerCase()) delete info.commanderGP;
     if (w !== (info.vice || '').toLowerCase()) delete info.viceGP;
     if (w !== (info.commander || '').toLowerCase()) delete info.poolGP;
