@@ -251,6 +251,99 @@ async function getAlliance(allianceId) {
   return { ...rows[0], members };
 }
 
+async function getAllianceLog(allianceId, limit = 30) {
+  const safeLimit = Math.max(1, Math.min(parseInt(limit, 10) || 30, 100));
+  const { rows } = await pool.query(`
+    SELECT l.id, l.alliance_id, l.wallet, l.event_type, l.amount_gp, l.note, l.created_at,
+           u.nickname
+      FROM alliance_log l
+      LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(l.wallet)
+     WHERE l.alliance_id = $1
+     ORDER BY l.created_at DESC
+     LIMIT $2
+  `, [allianceId, safeLimit]);
+  return rows;
+}
+
+async function depositTreasury(walletAddress, amount) {
+  const amountGp = Math.floor(Number(amount));
+  if (!Number.isFinite(amountGp) || amountGp <= 0) throw new Error('INVALID_AMOUNT');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: userRows } = await client.query(
+      `SELECT wallet_address, gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
+      [walletAddress]
+    );
+    const user = userRows[0];
+    if (!user) throw new Error('USER_NOT_FOUND');
+    if (Number(user.gp_balance || 0) < amountGp) {
+      const err = new Error('INSUFFICIENT_GP');
+      err.meta = { required: amountGp, balance: user.gp_balance };
+      throw err;
+    }
+    const canonicalWallet = user.wallet_address || walletAddress;
+
+    const { rows: memberRows } = await client.query(`
+      SELECT am.alliance_id, a.name, a.tag
+        FROM alliance_members am
+        JOIN alliances a ON a.id = am.alliance_id
+       WHERE LOWER(am.wallet_address) = LOWER($1)
+         AND am.left_at IS NULL
+         AND a.disbanded_at IS NULL
+       FOR UPDATE OF am, a
+    `, [walletAddress]);
+    const member = memberRows[0];
+    if (!member) throw new Error('NOT_IN_ALLIANCE');
+
+    const debit = await client.query(
+      `UPDATE users
+          SET gp_balance = gp_balance - $1
+        WHERE LOWER(wallet_address) = LOWER($2)
+          AND gp_balance >= $1`,
+      [amountGp, walletAddress]
+    );
+    if (debit.rowCount === 0) throw new Error('INSUFFICIENT_GP');
+
+    const { rows: allianceRows } = await client.query(`
+      UPDATE alliances
+         SET alliance_gp = COALESCE(alliance_gp, 0) + $1
+       WHERE id = $2
+       RETURNING id, name, tag, alliance_gp
+    `, [amountGp, member.alliance_id]);
+
+    const { rows: contributionRows } = await client.query(`
+      UPDATE alliance_members
+         SET contribution = COALESCE(contribution, 0) + $1
+       WHERE alliance_id = $2
+         AND LOWER(wallet_address) = LOWER($3)
+       RETURNING contribution
+    `, [amountGp, member.alliance_id, walletAddress]);
+
+    const { rows: logRows } = await client.query(`
+      INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
+      VALUES ($1, $2, 'deposit', $3, 'Treasury deposit')
+      RETURNING id, created_at
+    `, [member.alliance_id, canonicalWallet, amountGp]);
+
+    await client.query('COMMIT');
+    return {
+      success: true,
+      amount_gp: amountGp,
+      alliance: allianceRows[0],
+      contribution: contributionRows[0]?.contribution || amountGp,
+      log: logRows[0],
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // ─── 팀전 생성 ───
 
 /**
@@ -667,6 +760,8 @@ module.exports = {
   getMyAlliance,
   listAlliances,
   getAlliance,
+  getAllianceLog,
+  depositTreasury,
   createTeamBattle,
   // Phase D — guild-level alliance
   addGuildToAlliance,

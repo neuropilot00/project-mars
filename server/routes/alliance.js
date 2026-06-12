@@ -41,26 +41,30 @@ router.get('/alliances/my', requireAuth, async (req, res) => {
 router.get('/alliances/settings', async (req, res) => {
   // [v7.61] getSettings not in service — read from DB settings directly
   try {
-    const createCost = parseInt(await getSetting?.('alliance_create_cost_gp', '1000') || '1000', 10);
+    const createCost = parseInt(await getSetting?.('alliance_creation_fee_gp', '5000') || '5000', 10);
     res.json({ createCost });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // GET /api/alliances/:id/log
 router.get('/alliances/:id/log', async (req, res) => {
-  // [v7.61] getAllianceLog not implemented in service — return empty array
-  res.json([]);
+  try {
+    const id = parseInt(req.params.id, 10);
+    const limit = parseInt(req.query.limit, 10) || 30;
+    if (!id) return res.status(400).json({ error: 'alliance id required' });
+    res.json(await allianceSvc.getAllianceLog(id, limit));
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // POST /api/alliances/create — { name, tag, description, emblem }
 router.post('/alliances/create', requireAuth, async (req, res) => {
   const wallet = getAuthWallet(req);
-  const { name, tag, description, emblem } = req.body || {};
+  const { name, tag, description, faction_code } = req.body || {};
   if (!wallet || !name || !tag) return res.status(400).json({ error: 'wallet, name, tag required' });
   try {
-    const alliance = await allianceSvc.createAlliance(wallet, name, tag, description, emblem);
+    const alliance = await allianceSvc.createAlliance(wallet, { name, tag, description, faction_code });
     // [v7.61] getSettings replaced with direct getSetting call
-    const cost = parseInt(await getSetting?.('alliance_create_cost_gp', '1000') || '1000', 10);
+    const cost = parseInt(await getSetting?.('alliance_creation_fee_gp', '5000') || '5000', 10);
     if (logGPActivity) logGPActivity(wallet, -cost, 'alliance_create', `Created alliance [${tag}]`).catch(() => {});
     if (seasonService && seasonService.trackGPSpend) seasonService.trackGPSpend(wallet, cost).catch(() => {});
     res.json(alliance);
@@ -87,9 +91,17 @@ router.post('/alliances/leave', requireAuth, async (req, res) => {
 });
 
 // POST /api/alliances/deposit — { amount }
-// [v7.61] depositTreasury not implemented in service yet
 router.post('/alliances/deposit', requireAuth, async (req, res) => {
-  res.status(501).json({ error: 'TREASURY_NOT_IMPLEMENTED' });
+  const wallet = getAuthWallet(req);
+  const { amount } = req.body || {};
+  if (!wallet) return res.status(400).json({ error: 'wallet required' });
+  try {
+    const result = await allianceSvc.depositTreasury(wallet, amount);
+    if (logGPActivity) {
+      logGPActivity(wallet, -result.amount_gp, 'alliance_deposit', 'Alliance treasury deposit').catch(() => {});
+    }
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message, meta: e.meta }); }
 });
 
 // POST /api/alliances/withdraw — { amount, note }
