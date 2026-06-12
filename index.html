@@ -14017,7 +14017,7 @@ function openClaimModal(){
       _di.style.border='1px solid rgba(91,184,232,.25)';
       _di.style.color='#bfe2f5';
       if(_dic) _dic.textContent='⏳';
-      fetch('/api/hijack/defender-info?wallet='+encodeURIComponent(_primaryDef))
+      fetch('/api/hijack/defender-info?targetWallet='+encodeURIComponent(_primaryDef))
         .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
         .then(function(d){
           if(!d || typeof d !== 'object') throw new Error('bad response');

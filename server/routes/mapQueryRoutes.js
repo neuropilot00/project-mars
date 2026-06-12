@@ -262,8 +262,8 @@ router.get('/claims', async (req, res) => {
 
 router.get('/hijack/defender-info', readLimiter, async (req, res) => {
   try {
-    const wallet = (req.query.wallet || '').toLowerCase().trim();
-    if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+    const targetWallet = (req.query.targetWallet || '').toLowerCase().trim();
+    if (!targetWallet || targetWallet.length < 10) return res.status(400).json({ error: 'target_wallet_required' });
     const result = await pool.query(
       `SELECT COUNT(DISTINCT f.id)::int AS fleet_count,
               COUNT(DISTINCT s.id) FILTER (WHERE s.is_alive = true)::int AS alive_ships,
@@ -271,7 +271,7 @@ router.get('/hijack/defender-info', readLimiter, async (req, res) => {
          FROM fleets f
          LEFT JOIN ships s ON s.fleet_id = f.id
         WHERE f.owner_wallet = $1`,
-      [wallet]
+      [targetWallet]
     );
     const row = result.rows[0] || {};
     const fleetCount = parseInt(row.fleet_count) || 0;

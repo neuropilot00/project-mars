@@ -727,12 +727,12 @@ router.get('/guild/war/:id/leaderboard', readLimiter, async (req, res) => {
 });
 
 // ═══════════════════════════════════════
-//  GUILD RESEARCH BONUSES (public query)
+//  GUILD RESEARCH BONUSES
 // ═══════════════════════════════════════
 
-router.get('/guild/research-bonuses', readLimiter, async (req, res) => {
-  const w = (req.query.wallet || '').toLowerCase();
-  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+router.get('/guild/research-bonuses', requireAuth, readLimiter, async (req, res) => {
+  const w = getAuthWallet(req);
+  if (!w) return res.status(401).json({ error: 'Auth required' });
   if (!guildService) return res.json({ bonuses: {} });
   try {
     const bonuses = await guildService.getResearchBonuses(w);

@@ -162,6 +162,7 @@ async function main() {
   await expectBlocked('/api/monuments/my-monuments blocks unauthenticated access', '/api/monuments/my-monuments?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/guild/my blocks unauthenticated access', '/api/guild/my?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/guild/invites blocks unauthenticated access', '/api/guild/invites?wallet=0x0000000000000000000000000000000000000000');
+  await expectBlocked('/api/guild/research-bonuses blocks unauthenticated access', '/api/guild/research-bonuses?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/guild/:id/requests blocks unauthenticated access', '/api/guild/1/requests?wallet=0x0000000000000000000000000000000000000000');
   await expectBlocked('/api/guild/:id/search-users blocks unauthenticated access', '/api/guild/1/search-users?wallet=0x0000000000000000000000000000000000000000&q=test');
   await expectBlocked('/api/guild/chat/:guildId blocks unauthenticated access', '/api/guild/chat/1?wallet=0x0000000000000000000000000000000000000000');
