@@ -151,14 +151,43 @@ async function bhLoad() {
 }
 
 async function bhLoadKillboard(container) {
-  const res = await fetch('/api/killboard?limit=40', { headers: getAuthHeaders() });
-  const data = await res.json();
+  const myWallet = getMyWallet();
+  const calls = [
+    fetch('/api/killboard?limit=40', { headers: getAuthHeaders() }).then(function(r){ return r.json(); })
+  ];
+  if (myWallet) {
+    calls.push(fetch('/api/killboard/' + encodeURIComponent(myWallet) + '?limit=5').then(function(r){ return r.ok ? r.json() : null; }));
+  }
+  const results = await Promise.all(calls);
+  const data = results[0] || {};
+  const mine = results[1] || null;
   const kills = data.kills || [];
+  const header = mine ? renderMyKillboardSummary(mine) : '';
   if (!kills.length) {
-    container.innerHTML = '<div class="bh-empty">' + tl('No kills recorded yet','아직 격침 기록이 없습니다','撃沈記録はまだありません','暂无击毁记录') + '</div>';
+    container.innerHTML = header + '<div class="bh-empty">' + tl('No kills recorded yet','아직 격침 기록이 없습니다','撃沈記録はまだありません','暂无击毁记录') + '</div>';
     return;
   }
-  container.innerHTML = '<div class="killboard-list">' + kills.map(renderKillmailCard).join('') + '</div>';
+  container.innerHTML = header + '<div class="killboard-list">' + kills.map(renderKillmailCard).join('') + '</div>';
+}
+
+function renderMyKillboardSummary(m) {
+  const kills = parseInt(m.kills, 10) || 0;
+  const losses = parseInt(m.losses, 10) || 0;
+  const destroyed = parseInt(m.destroyedValue, 10) || 0;
+  const lost = parseInt(m.lostValue, 10) || 0;
+  const best = parseInt(m.bestKillValue, 10) || 0;
+  const kd = losses > 0 ? (kills / losses).toFixed(2) : (kills ? String(kills) : '0');
+  return `
+    <div class="my-killboard-summary">
+      <div class="mks-title">${LANG==='ko'?'내 킬보드 전적':LANG==='ja'?'自分のキルボード':LANG==='zh'?'我的击毁榜':'MY KILLBOARD'}</div>
+      <div class="mks-stat"><b>${kills}</b><span>KILLS</span></div>
+      <div class="mks-stat"><b>${losses}</b><span>LOSSES</span></div>
+      <div class="mks-stat"><b>${kd}</b><span>K/D</span></div>
+      <div class="mks-stat"><b>${formatNum(destroyed)}</b><span>${LANG==='ko'?'파괴가치':LANG==='ja'?'破壊価値':LANG==='zh'?'摧毁价值':'DESTROYED'}</span></div>
+      <div class="mks-stat"><b>${formatNum(lost)}</b><span>${LANG==='ko'?'손실가치':LANG==='ja'?'損失価値':LANG==='zh'?'损失价值':'LOST'}</span></div>
+      <div class="mks-stat"><b>${formatNum(best)}</b><span>${LANG==='ko'?'최고 킬':LANG==='ja'?'最高キル':LANG==='zh'?'最高击毁':'BEST KILL'}</span></div>
+    </div>
+  `;
 }
 
 function renderKillmailCard(k) {
