@@ -145,6 +145,37 @@ async function _allianceSectorBonuses(client, wallet) {
   }
 }
 
+async function _territorySectorBonuses(client, wallet) {
+  const w = String(wallet || '').toLowerCase().trim();
+  const empty = { frontier: 1, mid: 1, core: 1 };
+  if (!w) return empty;
+
+  const pct = _clamp(_num(await getSetting('ship_mining_owned_sector_bonus_pct', '2'), 2), 0, 25, 2);
+  const capPct = _clamp(_num(await getSetting('ship_mining_owned_sector_bonus_cap_pct', '20'), 20), 0, 100, 20);
+  if (pct <= 0 || capPct <= 0) return empty;
+
+  try {
+    const r = await client.query(
+      `SELECT s.tier, COUNT(DISTINCT p.sector_id)::int AS owned_sector_count
+         FROM pixels p
+         JOIN sectors s ON s.id = p.sector_id
+        WHERE LOWER(p.owner) = LOWER($1)
+          AND p.sector_id IS NOT NULL
+        GROUP BY s.tier`,
+      [w]
+    );
+    const out = Object.assign({}, empty);
+    r.rows.forEach(function (row) {
+      const tier = String(row.tier || '');
+      const count = Math.max(0, parseInt(row.owned_sector_count, 10) || 0);
+      if (out[tier] != null) out[tier] = Math.round((1 + Math.min(capPct, count * pct) / 100) * 10000) / 10000;
+    });
+    return out;
+  } catch (_) {
+    return empty;
+  }
+}
+
 function _miningInfoCacheKey(wallet) {
   const w = String(wallet || '').toLowerCase().trim();
   return w ? `wallet:${w}` : 'public';
@@ -166,6 +197,7 @@ async function _buildMiningInfo(wallet) {
   const client = await pool.connect();
   try {
     var allianceSectorBonuses = await _allianceSectorBonuses(client, wallet);
+    var territorySectorBonuses = await _territorySectorBonuses(client, wallet);
   } finally {
     client.release();
   }
@@ -182,6 +214,7 @@ async function _buildMiningInfo(wallet) {
     capacityWeights: weights,
     destinations: await _destinations(),
     allianceSectorBonuses: allianceSectorBonuses,
+    territorySectorBonuses: territorySectorBonuses,
   };
 }
 
@@ -371,10 +404,13 @@ async function collectMining(wallet, jobId) {
     // 목적지(거리) 설정 + 약탈 판정 — 멀수록 수율↑·마모↑·약탈위험↑.
     const destCfg = dests.find(function (d) { return d.key === (job.sector_type || 'frontier'); }) || { yieldMult: 1, resourceMult: 1, wearMult: 1, raidPct: 0 };
     const allianceSectorBonuses = await _allianceSectorBonuses(client, w);
+    const territorySectorBonuses = await _territorySectorBonuses(client, w);
     const allianceSectorBonus = Number(allianceSectorBonuses[job.sector_type || 'frontier']) || 1;
+    const territorySectorBonus = Number(territorySectorBonuses[job.sector_type || 'frontier']) || 1;
     const baseYieldMult = Number(destCfg.yieldMult) || 1;
-    const yieldMult = baseYieldMult * allianceSectorBonus;
-    const resourceMult = (Number(destCfg.resourceMult) || baseYieldMult) * allianceSectorBonus;
+    const routeControlBonus = allianceSectorBonus * territorySectorBonus;
+    const yieldMult = baseYieldMult * routeControlBonus;
+    const resourceMult = (Number(destCfg.resourceMult) || baseYieldMult) * routeControlBonus;
     const rareMult = Number(destCfg.rareMult) || 1;
     const wearMult = Number(destCfg.wearMult) || 1;
     const raided = (Number(destCfg.raidPct) || 0) > 0 && Math.random() < Number(destCfg.raidPct);
@@ -451,7 +487,7 @@ async function collectMining(wallet, jobId) {
     try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGp, 'ship_mining', `Ship mining run #${jobId} collected`).catch(() => {}); } catch (_) {}
     recordMiningProgress(w, rewardGp);
 
-    return { success: true, rewardGp, resources: drops, destination: job.sector_type, raided: raided, allianceSectorBonus };
+    return { success: true, rewardGp, resources: drops, destination: job.sector_type, raided: raided, allianceSectorBonus, territorySectorBonus };
   } catch (e) {
     await client.query('ROLLBACK').catch(() => {});
     throw e;
