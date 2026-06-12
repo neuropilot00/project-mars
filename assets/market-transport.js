@@ -45,6 +45,9 @@ function mtReadFetch(key, url, minGap, auth) {
   }
   return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
 }
+function mtReadArray(key, url, minGap, auth) {
+  return mtReadFetch(key, url, minGap, auth).then(function(data){ return data || []; });
+}
 
 function switchTransportSub(sub) {
   _tspCurrentSub = sub;
@@ -657,7 +660,11 @@ function loadMarketListings(){
   if(type) url+='&type='+type;
   if(sector) url+='&sectorId='+encodeURIComponent(sector);
   if(search) url+='&search='+encodeURIComponent(search);
-  fetch(url).then(function(r){return r.json()}).then(function(d){
+  mtReadFetch('market-listings:'+sort+':'+(type||'all')+':'+(sector||'all')+':'+(search||''), url, 10000, false).then(function(d){
+    if(!d){
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:24px 0;font-size:10px">'+tl('Refreshing too fast. Please wait.','새로고침이 너무 빠릅니다. 잠시만 기다리세요.','更新が速すぎます。少しお待ちください。','刷新过快。请稍等。')+'</div>';
+      return;
+    }
     var items=d.listings||[];
     if(!items.length){
       grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_empty')||'No listings found')+'</div>';
@@ -670,9 +677,9 @@ function loadMarketListings(){
 function loadRecentSales(){
   var el=document.getElementById('mktRecentSalesGrid');
   if(!el) return;
-  fetch('/api/marketplace/recent-sales?limit=10')
-    .then(function(r){return r.json()})
+  mtReadFetch('market-recent-sales', '/api/marketplace/recent-sales?limit=10', 30000, false)
     .then(function(d){
+      if(!d) return;
       var sales=(d.sales||d.recent||[]);
       if(!sales.length){
         el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">'+(t('mkt_no_sales')||'No recent sales')+'</div>';
@@ -786,12 +793,15 @@ function showMarketDetail(listingId, chartParam, name){
   document.body.appendChild(dlg);
   dlg.onclick=function(e){if(e.target===dlg) dlg.remove();};
 
-  fetch('/api/marketplace/price-stats?'+chartParam+'&points=20')
-    .then(function(r){return r.json()})
+  mtReadFetch('market-price-stats:'+chartParam, '/api/marketplace/price-stats?'+chartParam+'&points=20', 30000, false)
     .then(function(d){
       var chartEl=document.getElementById('mktDetailChart');
       var statsEl=document.getElementById('mktDetailStats');
       if(!chartEl||!statsEl) return;
+      if(!d){
+        chartEl.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:12px;text-align:center">Please wait before refreshing.</div>';
+        return;
+      }
       if(!d.points||!d.points.length){
         chartEl.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:12px;text-align:center">No sales history yet.</div>';
       } else {
@@ -859,8 +869,7 @@ function buyMarketListing(listingId,price,currency,name){
       }).catch(function(){showToast('Purchase failed','error')});
     });
   }
-  fetch('/api/marketplace/listings/'+encodeURIComponent(listingId)+'/purchase-quote',{headers:getAuthHeaders()})
-    .then(function(r){return r.ok?r.json():null})
+  mtReadFetch('market-purchase-quote:'+listingId, '/api/marketplace/listings/'+encodeURIComponent(listingId)+'/purchase-quote', 5000, true)
     .then(openConfirm)
     .catch(function(){openConfirm(null)});
 }
@@ -889,7 +898,7 @@ function loadSellView(){
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
 
   // ── 아이템만 API에서, 영토는 이미 로컬에 있는 _ownerGroups 사용 ──
-  fetch('/api/items/instances', { headers: getAuthHeaders() }).then(function(r){return r.json()}).catch(function(){return []}).then(function(instances){
+  mtReadArray('market-sell-items', '/api/items/instances', 10000, true).catch(function(){return []}).then(function(instances){
     instances=Array.isArray(instances)?instances:(instances||[]);
     var html='';
 
@@ -1247,7 +1256,7 @@ function loadMyListings(){
   var w=(walletState&&walletState.address)||'';
   if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
-  fetch('/api/marketplace/my-listings', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(listings){
+  mtReadArray('market-my-listings', '/api/marketplace/my-listings', 10000, true).then(function(listings){
     if(!listings||!listings.length){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_no_listings')||'No listings yet')+'</div>';
       return;
@@ -1421,17 +1430,17 @@ function _enhLevelColor(lv){
 
 function loadEnhancementData(){
   Promise.all([
-    fetch('/api/enhance/costs').then(function(r){return r.json()}).catch(function(){return null}),
-    fetch('/api/enhance/rates').then(function(r){return r.json()}).catch(function(){return null})
+    mtReadFetch('enhance-costs', '/api/enhance/costs', 30000, false).catch(function(){return null}),
+    mtReadFetch('enhance-rates', '/api/enhance/rates', 30000, false).catch(function(){return null})
   ]).then(function(res){
-    _enhCosts=res[0]; _enhRates=res[1];
+    _enhCosts=res[0] || _enhCosts; _enhRates=res[1] || _enhRates;
   });
 }
 
 function loadItemInstances(cb){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/items/instances', { headers: getAuthHeaders() }).then(function(r){return r.json()}).then(function(d){
+  mtReadArray('enhance-items', '/api/items/instances', 10000, true).then(function(d){
     _enhInstances=d||[];
     if(cb) cb();
   }).catch(function(){ _enhInstances=[]; if(cb) cb(); });
@@ -1480,7 +1489,7 @@ function openEnhanceModal(instanceId){
 
   // 스크롤·레시피 정보 비동기 fetch — 폴백: 정보 없으면 기존 흐름 그대로 동작
   var infoUrl='/api/enhance/info/'+instanceId;
-  fetch(infoUrl,{headers:getAuthHeaders()}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}).then(function(info){
+  mtReadFetch('enhance-info:'+instanceId, infoUrl, 10000, true).catch(function(){return null;}).then(function(info){
     _showEnhanceModalWithInfo(inst, lv, gpCost, myGP, insufficient, rate, info);
   });
 }
