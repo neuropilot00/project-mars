@@ -1075,6 +1075,7 @@ const BATTLEFIELD_BACKGROUNDS={
 };
 const _bgKey=String(tlQuery('bg')||'').toLowerCase();
 const CURRENT_BATTLEFIELD_BG=BATTLEFIELD_BACKGROUNDS[_bgKey]||'';
+const CURRENT_BATTLEFIELD_LABEL=String(tlQuery('bgLabel')||_bgKey||'Mars Orbit').replace(/[_-]+/g,' ').slice(0,40);
 MARS_BATTLE_BG.src=CURRENT_BATTLEFIELD_BG||'textures/mars_nasa_2k.jpg';
 
 // [v7.180 VFX] 폭발 8장 + 임팩트 4종 스프라이트 프리로드 — 로드 실패해도 기존 캔버스 폭발로 fallback.
@@ -2387,6 +2388,22 @@ function drawBG(){
   const gl=CX.createRadialGradient(W*.12,H*.5,0,W*.12,H*.5,W*.38);
   gl.addColorStop(0,'rgba(10,30,90,.14)');gl.addColorStop(1,'transparent');
   CX.fillStyle=gl;CX.fillRect(0,0,W,H);
+  if(CURRENT_BATTLEFIELD_LABEL){
+    CX.save();
+    CX.font='900 10px Orbitron, monospace';
+    CX.textAlign='left';
+    CX.textBaseline='top';
+    const label='FIELD // '+CURRENT_BATTLEFIELD_LABEL.toUpperCase();
+    const tw=Math.min(W-28,CX.measureText(label).width+18);
+    CX.fillStyle='rgba(2,4,10,.58)';
+    CX.strokeStyle='rgba(129,212,250,.24)';
+    CX.lineWidth=1;
+    CX.fillRect(10,10,tw,24);
+    CX.strokeRect(10,10,tw,24);
+    CX.fillStyle='rgba(184,233,255,.82)';
+    CX.fillText(label,19,17);
+    CX.restore();
+  }
   const dustOffset=(performance.now()*.012)%96;
   CX.save();
   CX.globalAlpha=.11;

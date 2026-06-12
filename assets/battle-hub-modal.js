@@ -1890,12 +1890,14 @@ async function openBattleViewer(battleId, startTick) {
   // tactical-lab iframe module load
   var tf = document.getElementById('bvTacticalFrame');
   var viewerBgKey = typeof pickBattlefieldKey === 'function' ? pickBattlefieldKey(battleId) : null;
+  var viewerBgLabel = viewerBgKey ? (BATTLEFIELD_LABELS[viewerBgKey] || viewerBgKey) : '';
   if (tf) {
     tf.src = buildTacticalLabUrl({
       mode: 'battle',
       battleId: battleId,
       wallet: viewerWallet,
       bg: viewerBgKey,
+      bgLabel: viewerBgLabel,
       startTick: startTick
     });
   }
@@ -1929,11 +1931,13 @@ async function openBattleViewer(battleId, startTick) {
         const contextualBgKey = typeof pickBattlefieldKey === 'function' ? pickBattlefieldKey(battleId) : viewerBgKey;
         if (tf && contextualBgKey && contextualBgKey !== viewerBgKey) {
           viewerBgKey = contextualBgKey;
+          viewerBgLabel = BATTLEFIELD_LABELS[viewerBgKey] || viewerBgKey;
           tf.src = buildTacticalLabUrl({
             mode: 'battle',
             battleId: battleId,
             wallet: viewerWallet,
             bg: viewerBgKey,
+            bgLabel: viewerBgLabel,
             startTick: startTick
           });
         }

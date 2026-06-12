@@ -20,6 +20,7 @@
     if (opts.battleId) params.set('bid', String(parseInt(opts.battleId)));
     if (opts.wallet) params.set('wallet', String(opts.wallet).toLowerCase());
     if (opts.bg) params.set('bg', String(opts.bg));
+    if (opts.bgLabel) params.set('bgLabel', String(opts.bgLabel));
     if (opts.startTick && Number.isFinite(Number(opts.startTick)) && Number(opts.startTick) > 0) {
       params.set('startTick', String(Math.floor(Number(opts.startTick))));
     }
