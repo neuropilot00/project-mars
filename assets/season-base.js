@@ -1364,17 +1364,44 @@ function renderSectorList(sectors){
     return occ >= 35 ? '#4cd89a' : '#63e6be';
   }
   function renderSectorWarMap(items) {
-    var cols = 8;
-    var cellW = 82;
-    var cellH = 58;
-    var nodeR = 13;
+    var clusterOrigins = [
+      { x: 112, y: 72 },
+      { x: 262, y: 58 },
+      { x: 416, y: 82 },
+      { x: 532, y: 142 }
+    ];
+    var localHex = [
+      { q: 0, r: 0 }, { q: 1, r: 0 }, { q: 0, r: 1 },
+      { q: -1, r: 1 }, { q: 1, r: 1 }, { q: 0, r: 2 }
+    ];
+    var hexR = 27;
+    var districtR = 13;
+    var hexW = Math.sqrt(3) * hexR;
+    var hexH = 1.5 * hexR;
+    var districtLayouts = [
+      [ { dx: 0, dy: -12 }, { dx: 12, dy: 9 }, { dx: -12, dy: 9 } ],
+      [ { dx: -13, dy: -10 }, { dx: 13, dy: -10 }, { dx: 0, dy: 12 } ],
+      [ { dx: 0, dy: -14 }, { dx: 14, dy: 6 }, { dx: -14, dy: 6 }, { dx: 0, dy: 26 } ],
+      [ { dx: -12, dy: -12 }, { dx: 12, dy: -12 }, { dx: -12, dy: 10 }, { dx: 12, dy: 10 } ]
+    ];
+    function hexPoint(cx, cy, radius, k) {
+      var angle = (Math.PI / 180) * (60 * k - 30);
+      return [Math.round((cx + radius * Math.cos(angle)) * 10) / 10, Math.round((cy + radius * Math.sin(angle)) * 10) / 10];
+    }
+    function hexPoints(cx, cy, radius) {
+      var pts = [];
+      for (var p = 0; p < 6; p++) pts.push(hexPoint(cx, cy, radius, p).join(','));
+      return pts.join(' ');
+    }
     var nodes = items.map(function(s, i) {
-      var row = Math.floor(i / cols);
-      var col = i % cols;
-      var stagger = row % 2 ? cellW * 0.5 : 0;
+      var cluster = Math.min(clusterOrigins.length - 1, Math.floor(i / 6));
+      var local = localHex[i % localHex.length];
+      var origin = clusterOrigins[cluster];
       var occ = s.stats ? (parseFloat(s.stats.occupancyRate) || 0) : 0;
       var mine = (parseInt(s.myPixels, 10) || 0) > 0;
       var tier = String(s.tier || 'frontier').toLowerCase();
+      var x = origin.x + hexW * (local.q + local.r / 2);
+      var y = origin.y + hexH * local.r;
       return {
         id: s.id,
         name: s.name || ('Sector ' + s.id),
@@ -1383,46 +1410,47 @@ function renderSectorList(sectors){
         occ: occ,
         activity: s.stats ? (parseInt(s.stats.activity24h, 10) || 0) : 0,
         color: tierMapColor(tier, occ, mine),
-        x: 43 + col * cellW + stagger,
-        y: 44 + row * cellH
+        x: Math.round(x),
+        y: Math.round(y),
+        districts: districtLayouts[i % districtLayouts.length].map(function(d, di) {
+          var jitter = ((i + di) % 3 - 1) * 1.5;
+          var cx = x + d.dx + jitter;
+          var cy = y + d.dy - jitter;
+          return {
+            cx: Math.round(cx),
+            cy: Math.round(cy),
+            points: hexPoints(cx, cy, districtR + (di === 0 ? 1 : 0))
+          };
+        })
       };
     });
-    var lines = [];
-    for (var i = 0; i < nodes.length; i++) {
-      var n = nodes[i];
-      var next = nodes[i + 1];
-      var down = nodes[i + cols];
-      if (next && Math.floor((i + 1) / cols) === Math.floor(i / cols)) lines.push([n, next]);
-      if (down) lines.push([n, down]);
-      if ((i % cols) < cols - 1 && nodes[i + cols + (Math.floor(i / cols) % 2 ? 1 : 0)]) {
-        lines.push([n, nodes[i + cols + (Math.floor(i / cols) % 2 ? 1 : 0)]]);
-      }
-    }
     var owned = nodes.filter(function(n){ return n.mine; }).length;
     var hot = nodes.filter(function(n){ return n.occ >= 60 || n.activity >= 5; }).length;
+    var districts = nodes.reduce(function(sum,n){ return sum + n.districts.length; }, 0);
     var avgOcc = nodes.length ? Math.round(nodes.reduce(function(sum,n){ return sum+n.occ; }, 0) / nodes.length) : 0;
     var mapTitle = LANG==='ko'?'화성 영토 전술망':LANG==='ja'?'火星領土戦術網':LANG==='zh'?'火星领地战术网':'Mars Territory Grid';
-    var sub = LANG==='ko'?'점령률, 전쟁 압력, 내 거점을 한눈에 확인':LANG==='ja'?'占有率、戦争圧力、自拠点を俯瞰':LANG==='zh'?'总览占领率、战争压力与我的据点':'Occupancy, war pressure, and your footholds at a glance';
+    var sub = LANG==='ko'?'24개 매크로 섹터, 각 3-4개 하위 구역 기반':LANG==='ja'?'24マクロセクター、各3-4下位区域':LANG==='zh'?'24个宏观区域，每个含3-4个子区':'24 macro sectors, each built from 3-4 districts';
     return '<div class="sector-war-map">'
       + '<div class="swm-copy"><div><span>'+mapTitle+'</span><small>'+sub+'</small></div>'
-      + '<div class="swm-metrics"><b>'+avgOcc+'%</b><span>'+owned+' MY</span><span>'+hot+' HOT</span></div></div>'
+      + '<div class="swm-metrics"><b>'+avgOcc+'%</b><span>'+nodes.length+' MACRO</span><span>'+districts+' HEX</span><span>'+owned+' MY</span><span>'+hot+' HOT</span></div></div>'
       + '<svg class="swm-svg" viewBox="0 0 660 206" role="img" aria-label="'+scTxt(mapTitle)+'">'
       + '<defs><radialGradient id="swmMarsGlow" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#b24624" stop-opacity=".72"/><stop offset="58%" stop-color="#461910" stop-opacity=".42"/><stop offset="100%" stop-color="#090712" stop-opacity="0"/></radialGradient></defs>'
       + '<rect x="0" y="0" width="660" height="206" rx="12" fill="url(#swmMarsGlow)"/>'
       + '<path d="M0 160 C130 112 244 97 358 110 C470 122 574 102 660 58" fill="none" stroke="rgba(255,185,110,.2)" stroke-width="28"/>'
-      + '<g class="swm-links">'+lines.map(function(pair){
-          var a = pair[0], b = pair[1];
-          return '<line x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'"/>';
+      + '<g class="swm-cluster-washes">'+clusterOrigins.map(function(o, idx){
+          var c = idx === 0 ? '#ff8a3d' : idx === 1 ? '#ffd166' : idx === 2 ? '#4cd89a' : '#5bb8e8';
+          return '<ellipse cx="'+o.x+'" cy="'+(o.y+34)+'" rx="112" ry="70" style="fill:'+c+';opacity:.08"/>';
         }).join('')+'</g>'
       + '<g class="swm-nodes">'+nodes.map(function(n){
-          var r = nodeR + Math.min(7, Math.round(n.occ / 16));
           var hotCls = n.occ >= 60 || n.activity >= 5 ? ' hot' : '';
           var mineCls = n.mine ? ' mine' : '';
+          var fillOpacity = Math.max(.24, Math.min(.82, .24 + n.occ / 130));
           var title = scTxt(n.name)+' · '+n.tier.toUpperCase()+' · '+Math.round(n.occ)+'%';
           return '<g class="swm-node '+n.tier+hotCls+mineCls+'" data-tier="'+n.tier+'" data-owned="'+(n.mine?'1':'0')+'" onclick="focusSector('+parseInt(n.id,10)+')">'
             + '<title>'+title+'</title>'
-            + '<circle class="swm-halo" cx="'+n.x+'" cy="'+n.y+'" r="'+(r+8)+'" style="stroke:'+n.color+'"/>'
-            + '<circle class="swm-core" cx="'+n.x+'" cy="'+n.y+'" r="'+r+'" style="fill:'+n.color+';stroke:'+n.color+'"/>'
+            + n.districts.map(function(d){
+                return '<polygon class="swm-core swm-district" points="'+d.points+'" style="fill:'+n.color+';stroke:'+n.color+';fill-opacity:'+fillOpacity.toFixed(2)+'"/>';
+              }).join('')
             + '<text x="'+n.x+'" y="'+(n.y+3)+'">'+scTxt(String(n.id).replace(/^S/i,''))+'</text>'
             + '</g>';
         }).join('')+'</g>'

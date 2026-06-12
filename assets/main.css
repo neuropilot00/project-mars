@@ -1272,9 +1272,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .swm-node.dimmed{opacity:.18;filter:saturate(.25)}
 .swm-node .swm-halo{fill:none;stroke-width:1.4;opacity:.52;filter:drop-shadow(0 0 6px currentColor)}
 .swm-node .swm-core{stroke-width:2;fill-opacity:.72;filter:drop-shadow(0 0 7px rgba(255,130,70,.7))}
+.swm-node .swm-district{stroke-width:1.4;transition:fill-opacity .15s,filter .15s}
+.swm-node:hover .swm-district{filter:drop-shadow(0 0 9px rgba(255,185,112,.8));fill-opacity:.9!important}
 .swm-node.hot .swm-halo{stroke-width:2.2;opacity:.88}
 .swm-node.mine .swm-core{fill-opacity:.95;filter:drop-shadow(0 0 10px rgba(91,184,232,.9))}
-.swm-node text{font-size:8px;font-family:var(--fn);font-weight:900;fill:#100b09;text-anchor:middle;pointer-events:none}
+.swm-node text{font-size:8px;font-family:var(--fn);font-weight:900;fill:#100b09;text-anchor:middle;pointer-events:none;
+  paint-order:stroke;stroke:rgba(255,232,198,.78);stroke-width:2px}
 .swm-legend{position:relative;z-index:1;display:flex;gap:7px;flex-wrap:wrap;margin-top:5px}
 .swm-legend span{display:inline-flex;align-items:center;gap:4px;font-size:7.5px;color:var(--tx3);letter-spacing:.4px}
 .swm-legend i{width:7px;height:7px;border-radius:50%;display:inline-block;box-shadow:0 0 7px currentColor}
