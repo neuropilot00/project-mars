@@ -12058,7 +12058,7 @@ function showTerritoryInfo(plot){
   document.getElementById('infoCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
   var _ownerName=plot.nickname||plot.label||shortAddr(plot.owner);
   var _ownerBadge=typeof govBadgeHTML==='function'?govBadgeHTML(plot.owner):'';
-  document.getElementById('infoOwner').innerHTML=_ownerName+(_ownerBadge?' '+_ownerBadge:'');
+  document.getElementById('infoOwner').innerHTML=escapeHtmlSafe(_ownerName)+(_ownerBadge?' '+_ownerBadge:'');
   // Guild tag + emblem (custom pixel-art or emoji) — respects display toggles
   var guildRow=document.getElementById('infoGuildRow');
   var _showGEm=(typeof getDisplaySetting==='function')?getDisplaySetting('guildEmblem'):true;
@@ -12068,12 +12068,14 @@ function showTerritoryInfo(plot){
     var _gCell=document.getElementById('infoGuild');
     var _gEmblem='';
     if(_showGEm){
-      _gEmblem=plot.guildEmblemImage
-        ? '<img src="'+plot.guildEmblemImage+'" style="width:14px;height:14px;image-rendering:pixelated;image-rendering:crisp-edges;vertical-align:middle;margin-right:4px;border-radius:2px">'
-        : '<span style="margin-right:4px">'+(plot.guildEmblem||'')+'</span>';
+      var _gImg=String(plot.guildEmblemImage||'').trim();
+      var _gImgSafe=/^(https?:|data:image\/|blob:)/i.test(_gImg)?_gImg:'';
+      _gEmblem=_gImgSafe
+        ? '<img src="'+escapeHtmlSafe(_gImgSafe)+'" style="width:14px;height:14px;image-rendering:pixelated;image-rendering:crisp-edges;vertical-align:middle;margin-right:4px;border-radius:2px">'
+        : '<span style="margin-right:4px">'+escapeHtmlSafe(plot.guildEmblem||'')+'</span>';
     }
     var _gTagHtml=_showGTag
-      ? ('<span style="color:var(--mars)">['+plot.guildTag+']</span>'+(plot.guildName?' <span style="color:var(--tx3);font-size:9px">'+(plot.guildName).replace(/[<>]/g,'')+'</span>':''))
+      ? ('<span style="color:var(--mars)">['+escapeHtmlSafe(plot.guildTag)+']</span>'+(plot.guildName?' <span style="color:var(--tx3);font-size:9px">'+escapeHtmlSafe(plot.guildName)+'</span>':''))
       : '';
     _gCell.innerHTML=_gEmblem+_gTagHtml;
   }else{ guildRow.style.display='none'; }
