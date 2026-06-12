@@ -46,6 +46,7 @@ const path = require('path');
 const fs = require('fs');
 const { makeRateLimiter } = require('./utils/rateLimiters');
 const { safeInitScheduler, scheduleTask } = require('./utils/scheduler');
+const { validateProductionEnv, validateStrongSecret } = require('./utils/productionEnv');
 
 // ── Ensure logs directory exists ──
 const logsDir = path.join(__dirname, '..', 'logs');
@@ -55,28 +56,7 @@ if (!fs.existsSync(logsDir)) {
 
 // ── Production environment validation ──
 if (process.env.NODE_ENV === 'production') {
-  const fatal = [];
-
-  // JWT_SECRET: required and must not contain weak patterns
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    fatal.push('JWT_SECRET is not set');
-  } else if (/dev|test|change-me/i.test(jwtSecret)) {
-    fatal.push('JWT_SECRET contains a weak default (dev/test/change-me)');
-  }
-
-  // ADMIN_SECRET: required and must not be the default
-  const adminSecret = process.env.ADMIN_SECRET;
-  if (!adminSecret) {
-    fatal.push('ADMIN_SECRET is not set');
-  } else if (adminSecret === 'admin1234') {
-    fatal.push('ADMIN_SECRET is set to the insecure default "admin1234"');
-  }
-
-  // DATABASE_URL: required
-  if (!process.env.DATABASE_URL) {
-    fatal.push('DATABASE_URL is not set');
-  }
+  const fatal = validateProductionEnv(process.env);
 
   // SIGNER_PRIVATE_KEY: warn but don't crash
   if (!process.env.SIGNER_PRIVATE_KEY) {
@@ -91,8 +71,8 @@ if (process.env.NODE_ENV === 'production') {
   }
 } else {
   // Development mode warnings
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret || /dev-secret|change-me/i.test(jwtSecret)) {
+  const weakDevSecret = validateStrongSecret('JWT_SECRET', process.env.JWT_SECRET).length > 0;
+  if (weakDevSecret) {
     console.warn('[SECURITY] Using weak JWT_SECRET — set a strong secret before deploying!');
   }
 }
