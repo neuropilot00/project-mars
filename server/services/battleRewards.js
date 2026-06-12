@@ -234,7 +234,7 @@ async function computeReward(participant, battle, settings, isWinner) {
     }
   } catch (_) {}
 
-  if (isWinner && battle.sector_id && battle.battle_type === 'pvp_duel') {
+  if (isWinner && battle.sector_id && ['pvp_duel', 'hijack'].includes(battle.battle_type)) {
     const bonusPct = Math.max(0, Math.min(50, parseInt(settings.reward_sector_conflict_bonus_pct, 10) || 15));
     const bonusGp = Math.floor(totalGp * bonusPct / 100);
     if (bonusGp > 0) {
