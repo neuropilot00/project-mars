@@ -176,6 +176,7 @@ var _apiFetchGuards = {};
 var _apiEndpointGuards = {};
 var _apiPublicHudBackoffUntil = 0;
 var _apiPublicHudQuietUntil = 0;
+var _apiPublicHudBootQuietUntil = Date.now() + 30000;
 var _apiPublicHudDefaultBackoffMs = 300000;
 var _apiPublicHudBackoffPaths = {
   '/api/stats': true,
@@ -208,12 +209,14 @@ function _quietPublicHudFetches(ms) {
   _apiPublicHudQuietUntil = Math.max(_apiPublicHudQuietUntil, Date.now() + (ms || 0));
 }
 function _publicHudQuietRemainingMs() {
-  return Math.max(0, _apiPublicHudQuietUntil - Date.now());
+  var now = Date.now();
+  return Math.max(0, _apiPublicHudQuietUntil - now, _apiPublicHudBootQuietUntil - now);
 }
 function _shouldDeferPublicHudFetch(url, fetchOptions) {
   var method = (fetchOptions && fetchOptions.method ? fetchOptions.method : 'GET').toUpperCase();
   if (method !== 'GET' || !_isPublicHudFetchPath(url)) return false;
   if (Date.now() < _apiPublicHudBackoffUntil) return true;
+  if (Date.now() < _apiPublicHudBootQuietUntil && !(window.walletState && walletState.connected)) return true;
   if (window._authSubmitInFlight) return true;
   if (Date.now() < _apiPublicHudQuietUntil) return true;
   return _authModalIsOpen();
@@ -234,6 +237,7 @@ function _publicHudEmptyResponse(url) {
 function _clearPublicHudFetchBackoff() {
   _apiPublicHudBackoffUntil = 0;
   _apiPublicHudQuietUntil = 0;
+  _apiPublicHudBootQuietUntil = 0;
   Object.keys(_apiEndpointGuards).forEach(function(key) {
     if (key.indexOf('GET /api/') !== 0) return;
     var path = key.replace(/^GET\s+/, '');

@@ -2805,10 +2805,12 @@ function _rememberClaimsCursor(claim){
 }
 function _scheduleServerClaimsBootRetry(){
   if(_serverClaimsBootRetryId) return;
+  var quietMs = (typeof _publicHudQuietRemainingMs === 'function') ? _publicHudQuietRemainingMs() : 0;
+  var retryMs = quietMs > 0 ? Math.min(quietMs + 1000, 30000) : 3000;
   _serverClaimsBootRetryId = _setActiveTimeout(function(){
     _serverClaimsBootRetryId = null;
     loadServerClaims();
-  }, 3000);
+  }, retryMs);
 }
 function loadServerClaims(){
   Promise.all([

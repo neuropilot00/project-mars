@@ -98,7 +98,7 @@ function authRateLimitKey(req) {
 // ── Auth Rate Limiters ──
 const authLimiter = makeRateLimiter({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 120 : 600,
+  max: process.env.NODE_ENV === 'production' ? 240 : 600,
   store: makeLimiterStore('auth-route'),
   passOnStoreError: true,
   keyGenerator: authRateLimitKey,
