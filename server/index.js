@@ -268,6 +268,10 @@ function isPublicHudRead(req) {
     '/api/leaderboard',
     '/api/sectors',
     '/api/weather',
+    '/api/claims',
+    '/api/pixels',
+    '/api/exploration/starlink',
+    '/api/rockets',
     '/api/announce/active',
     '/api/activity/feed'
   ].includes(req.path);
