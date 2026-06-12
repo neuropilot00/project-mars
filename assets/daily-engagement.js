@@ -475,6 +475,17 @@ var ACH_RARITY_GLOW = {
   epic:      '0 0 10px rgba(160,100,220,.5)',
   legendary: '0 0 14px rgba(255,209,102,.6)'
 };
+function _engagementRead(key,url,auth){
+  var walletKey = String((walletState&&walletState.address)||'public').toLowerCase();
+  if(typeof _guardedJsonFetch==='function'){
+    return _guardedJsonFetch('engagement:'+key+':'+walletKey, url, {
+      minGap:15000,
+      backoffMs:120000,
+      fetchOptions: auth ? { headers:getAuthHeaders() } : {}
+    });
+  }
+  return fetch(url, auth ? { headers:getAuthHeaders() } : {}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
 
 // ── WEEKLY CHALLENGES (Migration 109) ────────────────────────────────────────
 var WEEKLY_DIFF_COLOR = { easy: '#4cd89a', normal: 'var(--cyan)', hard: 'var(--gold)', epic: 'var(--mars)' };
@@ -573,15 +584,19 @@ function loadBountyBoard() {
     el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Connect wallet to view</div>';
     return;
   }
-  el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading...</div>';
+  var hadContent = !!el.innerHTML.trim();
+  if(!hadContent) el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading...</div>';
 
   var url = '/api/bounty/list';
   if (_bountyTab === 'mine') url = '/api/bounty/my-bounties';
   else if (_bountyTab === 'onme') url = '/api/bounty/on-me';
 
-  fetch(url, { headers: getAuthHeaders() })
-    .then(function(r){ return r.json(); })
+  _engagementRead('bounty-' + _bountyTab, url, true)
     .then(function(data) {
+      if(!data){
+        if(!hadContent) el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Refreshing bounty board...</div>';
+        return;
+      }
       var list = data.bounties || [];
       if (!list.length) {
         el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">No bounties</div>';
@@ -4845,11 +4860,15 @@ function loadAchievements() {
     grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Connect wallet to view achievements</div>';
     return;
   }
-  grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Loading...</div>';
+  var hadContent = !!grid.innerHTML.trim();
+  if(!hadContent) grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Loading...</div>';
 
-  fetch('/api/achievements', { headers: getAuthHeaders() })
-    .then(function(r){ return r.json(); })
+  _engagementRead('achievements', '/api/achievements', true)
     .then(function(data) {
+      if(!data){
+        if(!hadContent) grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Refreshing achievements...</div>';
+        return;
+      }
       _achievements = data.achievements || [];
       renderAchievementCards();
     })
