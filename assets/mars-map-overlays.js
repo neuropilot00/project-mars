@@ -79,6 +79,37 @@ function _drawSectorOverlay(ctx,w,h){
     ctx.quadraticCurveTo(x,y,x+rr,y);
     ctx.closePath();
   }
+  function drawHexCellPattern(m, color, alpha, seed){
+    var radius=Math.max(22,Math.min(58,Math.min(m.w,m.h)/5.2));
+    var dx=Math.sqrt(3)*radius;
+    var dy=1.5*radius;
+    var offsetX=(prand(seed||1)-0.5)*dx*0.45;
+    var offsetY=(prand((seed||1)+11)-0.5)*dy*0.45;
+    ctx.save();
+    tracePts(m.pts);
+    ctx.clip();
+    ctx.globalAlpha=alpha;
+    ctx.strokeStyle=color;
+    ctx.lineWidth=Math.max(0.8,Math.min(2.2,radius*0.045));
+    ctx.shadowColor=color;
+    ctx.shadowBlur=Math.max(3,radius*0.16);
+    for(var row=-1,y=m.minY-radius+offsetY; y<m.maxY+radius; row++,y+=dy){
+      var rowOffset=(row%2?dx/2:0)+offsetX;
+      for(var x=m.minX-radius+rowOffset; x<m.maxX+radius; x+=dx){
+        ctx.beginPath();
+        for(var k=0;k<6;k++){
+          var a=(Math.PI/180)*(60*k-30);
+          var px=x+radius*Math.cos(a);
+          var py=y+radius*Math.sin(a);
+          if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+    ctx.shadowBlur=0;
+    ctx.restore();
+  }
 
   // 1) Fill polygons (차단된 섹터는 붉고 어둡게)
   var _myLvl=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
@@ -106,28 +137,9 @@ function _drawSectorOverlay(ctx,w,h){
     }
     ctx.fill();
     if(!_entryBlocked){
-      ctx.save();
-      tracePts(m.pts);
-      ctx.clip();
       var st2=sectorStyle(s.tier);
-      ctx.globalAlpha=0.09;
-      ctx.strokeStyle='rgba(255,235,205,.72)';
-      ctx.lineWidth=Math.max(0.7,Math.min(1.6,m.w*0.0035));
-      for(var gx=m.minX;gx<m.maxX;gx+=Math.max(28,m.w/8)){
-        ctx.beginPath();ctx.moveTo(gx,m.minY);ctx.lineTo(gx+m.h*0.35,m.maxY);ctx.stroke();
-      }
-      ctx.globalAlpha=0.12;
-      ctx.strokeStyle=st2.color;
-      for(var gy=m.minY;gy<m.maxY;gy+=Math.max(24,m.h/5)){
-        ctx.beginPath();ctx.moveTo(m.minX,gy);ctx.lineTo(m.maxX,gy-m.w*0.08);ctx.stroke();
-      }
-      ctx.globalAlpha=0.09;
-      ctx.strokeStyle='rgba(255,170,80,.85)';
-      for(var hx=m.minX-m.w*0.15;hx<m.maxX;hx+=Math.max(34,m.w/7)){
-        ctx.beginPath();ctx.moveTo(hx,m.minY);ctx.lineTo(hx+m.h*0.72,m.maxY);ctx.stroke();
-        ctx.beginPath();ctx.moveTo(hx+m.h*0.38,m.minY);ctx.lineTo(hx-m.h*0.28,m.maxY);ctx.stroke();
-      }
-      ctx.restore();
+      drawHexCellPattern(m, st2.color, 0.13, (s.id||0)*7+3);
+      drawHexCellPattern(m, 'rgba(255,232,190,.82)', 0.045, (s.id||0)*11+17);
     }
 
     if(!_entryBlocked){
@@ -183,25 +195,7 @@ function _drawSectorOverlay(ctx,w,h){
       var c=[m.cx,m.cy];
       var polyW2=m.w;
       var polyH2=m.h;
-      ctx.save();
-      tracePts(m.pts);
-      ctx.clip();
-      ctx.globalAlpha=0.16;
-      ctx.strokeStyle='rgba(255,170,80,.85)';
-      ctx.lineWidth=Math.max(0.8,Math.min(2.2,polyW2*0.004));
-      var step=Math.max(30,Math.min(58,polyW2/6));
-      for(var hx=m.minX-step;hx<m.maxX+step;hx+=step){
-        ctx.beginPath();ctx.moveTo(hx,m.minY);ctx.lineTo(hx+m.h*0.62,m.maxY);ctx.stroke();
-        ctx.beginPath();ctx.moveTo(hx+m.h*0.36,m.minY);ctx.lineTo(hx-m.h*0.26,m.maxY);ctx.stroke();
-      }
-      ctx.globalAlpha=0.08;
-      ctx.fillStyle='rgba(255,210,130,1)';
-      for(var gy=m.minY+step*0.5;gy<m.maxY;gy+=step){
-        for(var gx=m.minX+step*0.5;gx<m.maxX;gx+=step){
-          ctx.beginPath();ctx.arc(gx,gy,Math.max(1.5,step*0.045),0,Math.PI*2);ctx.fill();
-        }
-      }
-      ctx.restore();
+      drawHexCellPattern(m, 'rgba(255,158,76,.92)', 0.17, (s.id||0)*13+5);
 
       var lvFont=Math.max(9,Math.min(18,polyW2*0.04));
       ctx.font='bold '+lvFont+'px monospace';
