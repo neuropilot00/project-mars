@@ -201,7 +201,7 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
     } catch (_) {}
     try {
       const seasonSvc = require('./season');
-      seasonSvc.addSeasonScore(walletAddress, 'fleet_action', 1).catch(() => {});
+      seasonSvc.addSeasonScore(walletAddress, 'guild_contrib', 1).catch(() => {});
       if (gpCost > 0) seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(() => {});
     } catch (_) {}
 

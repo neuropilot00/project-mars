@@ -417,7 +417,7 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     try {
       const seasonSvc = require('./season');
       if (gpCost > 0) seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(()=>{});
-      seasonSvc.addSeasonScore(walletAddress, 'fleet_action', 1).catch(()=>{});
+      seasonSvc.addSeasonScore(walletAddress, 'ship_build', 1).catch(()=>{});
     } catch (_) {}
 
     return {
