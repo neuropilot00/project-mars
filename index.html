@@ -21423,7 +21423,7 @@ function _notifOutsideClick(e){
 function loadNotifCount(){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  fetch('/api/notifications?limit=1&wallet='+w,{headers:{'x-wallet':w}})
+  fetch('/api/notifications?limit=1',{headers:getAuthHeaders()})
     .then(function(r){return r.json()})
     .then(function(d){
       var badge=document.getElementById('notifUnreadBadge');
@@ -21438,7 +21438,7 @@ function loadNotifications(){
   var el=document.getElementById('notifList');
   if(!el||!w) return;
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(t('notif_loading')||'Loading...')+'</div>';
-  fetch('/api/notifications?limit=30&wallet='+w,{headers:{'x-wallet':w}})
+  fetch('/api/notifications?limit=30',{headers:getAuthHeaders()})
     .then(function(r){return r.json()})
     .then(function(d){
       var notifs=d.notifications||[];
