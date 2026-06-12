@@ -190,13 +190,24 @@ async function settleLinkedWager(tournamentId, winnerWallet) {
   }
 }
 
-async function tick() {
-  await tickContest();
-  await tickTournament();
-}
-
 let startTimer = null;
 let intervalTimer = null;
+let tickInProgress = false;
+
+async function tick() {
+  if (tickInProgress) {
+    console.warn('[autoContent] tick skipped: previous tick still active');
+    return { skipped: true };
+  }
+  tickInProgress = true;
+  try {
+    const contestResult = await tickContest();
+    const tournamentResult = await tickTournament();
+    return { contest: contestResult, tournament: tournamentResult };
+  } finally {
+    tickInProgress = false;
+  }
+}
 
 function start() {
   if (intervalTimer) {

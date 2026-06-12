@@ -170,13 +170,24 @@ async function refundEventBets(eventId) {
   }
 }
 
-async function tick() {
-  await tickRaffle();
-  await tickBetting();
-}
-
 let startTimer = null;
 let intervalTimer = null;
+let tickInProgress = false;
+
+async function tick() {
+  if (tickInProgress) {
+    console.warn('[gamblingAuto] tick skipped: previous tick still active');
+    return { skipped: true };
+  }
+  tickInProgress = true;
+  try {
+    const raffleResult = await tickRaffle();
+    const bettingResult = await tickBetting();
+    return { raffle: raffleResult, betting: bettingResult };
+  } finally {
+    tickInProgress = false;
+  }
+}
 
 function start() {
   if (intervalTimer) {
