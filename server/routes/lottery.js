@@ -22,10 +22,20 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 // GET /api/lottery/current — current open round + user ticket count
 router.get('/lottery/current', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase();
+  const wallet = getOptionalAuthWallet(req);
   try {
     if (!lotteryService) return res.status(503).json({ error: 'Lottery service unavailable' });
     const round = await lotteryService.getCurrentRound(wallet);

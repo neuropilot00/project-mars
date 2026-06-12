@@ -15,6 +15,16 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 let stakingService;
 try { stakingService = require('../services/staking'); } catch (_e) {}
@@ -33,7 +43,7 @@ const writeLimiter = rateLimit({ windowMs: 60 * 1000, max: isDev ? 100 : 20,  me
 
 // GET /api/staking/info — config + yield examples for the UI
 router.get('/staking/info', readLimiter, async (req, res) => {
-  const wallet = (req.query.wallet || '').toLowerCase();
+  const wallet = getOptionalAuthWallet(req);
   try {
     if (!stakingService) return res.status(503).json({ error: 'Staking service unavailable' });
     const info = await stakingService.getStakingInfo(wallet || null);
