@@ -1,10 +1,38 @@
 /* ── Live Stats & Leaderboard from API ───────────── */
 function fmtNum(n){return Number(n).toLocaleString();}
 
+var _publicStatsRetryTimer = null;
+var _leaderboardRetryTimer = null;
+
+function _publicHudDelay(extraMs) {
+  var quietMs = (typeof _publicHudQuietRemainingMs === 'function') ? _publicHudQuietRemainingMs() : 0;
+  return Math.max(0, quietMs) + (extraMs || 0);
+}
+
+function _schedulePublicStatsRetry(delay) {
+  if (_publicStatsRetryTimer) return;
+  _publicStatsRetryTimer = _setActiveTimeout(function(){
+    _publicStatsRetryTimer = null;
+    loadPublicStats();
+  }, _publicHudDelay(delay == null ? 5000 : delay));
+}
+
+function _scheduleLeaderboardRetry(delay) {
+  if (_leaderboardRetryTimer) return;
+  _leaderboardRetryTimer = _setActiveTimeout(function(){
+    _leaderboardRetryTimer = null;
+    loadLeaderboard();
+  }, _publicHudDelay(delay == null ? 7000 : delay));
+}
+
 function loadPublicStats(){
   if (!_pageIsActive()) return;
+  if (typeof _publicHudQuietRemainingMs === 'function' && _publicHudQuietRemainingMs() > 0) {
+    _schedulePublicStatsRetry(250);
+    return;
+  }
   _guardedJsonFetch('public-stats', '/api/stats', {minGap:25000, backoffMs:90000}).then(function(d){
-    if (!d) return;
+    if (!d) { _schedulePublicStatsRetry(15000); return; }
     var setT=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
     if(d.totalPixels!=null){ setT('statTotalPx',fmtNum(d.totalPixels)); setT('bsStatTotalPx',fmtNum(d.totalPixels)); }
     if(d.totalPixelsSold!=null){ setT('statPlots',fmtNum(d.totalPixelsSold)); setT('bsStatPlots',fmtNum(d.totalPixelsSold)); }
@@ -16,8 +44,12 @@ function loadPublicStats(){
 
 function loadLeaderboard(){
   if (!_pageIsActive()) return;
+  if (typeof _publicHudQuietRemainingMs === 'function' && _publicHudQuietRemainingMs() > 0) {
+    _scheduleLeaderboardRetry(750);
+    return;
+  }
   _guardedJsonFetch('leaderboard-pixels', '/api/leaderboard?sort=pixels&limit=10', {minGap:30000, backoffMs:90000}).then(function(arr){
-    if (!arr) return;
+    if (!arr) { _scheduleLeaderboardRetry(20000); return; }
     var container=document.getElementById('leaderboardList');
     var bsContainer=document.getElementById('bsLeaderboardList');
     if(!Array.isArray(arr)||arr.length===0){
@@ -66,8 +98,8 @@ function toggleLeaderboard(){
 }
 
 setLoadProgress(95,'Loading stats...');
-loadPublicStats();
-loadLeaderboard();
+_schedulePublicStatsRetry(1000);
+_scheduleLeaderboardRetry(2200);
 _setActiveInterval(loadPublicStats,30000);
 _setActiveInterval(loadLeaderboard,60000);
 // Poll referral info periodically so commission toasts fire in real time
