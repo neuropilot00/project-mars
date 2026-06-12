@@ -1837,7 +1837,7 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
     if (seasonService) {
       try {
         seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {});
-        if (harvestedPP > 0) seasonService.addSeasonScore(w, 'pp_earn', 1).catch(() => {});
+        if (harvestedGP > 0) seasonService.addSeasonScore(w, 'gp_earn', Math.round(harvestedGP)).catch(() => {});
         // Season pass XP
         if (seasonService.addPassXP) seasonService.addPassXP(w, 'harvest').catch(() => {});
       } catch (_se) { /* non-critical */ }
@@ -2098,7 +2098,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
     try { const _dOps = require('./dailyOps'); _dOps.notifyMissionProgress(w, 'harvest_pp').catch(()=>{}); _dOps.notifyMissionProgress(w, 'harvest_3').catch(()=>{}); _dOps.notifyMissionProgress(w, 'harvest_5').catch(()=>{}); } catch(_) {}
-    try { if (seasonService) { seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {}); if (harvestedPP > 0) seasonService.addSeasonScore(w, 'pp_earn', 1).catch(() => {}); } } catch (_) {}
+    try { if (seasonService) { seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {}); if (harvestedGP > 0) seasonService.addSeasonScore(w, 'gp_earn', Math.round(harvestedGP)).catch(() => {}); } } catch (_) {}
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] territory harvest error:', e.message);
