@@ -396,15 +396,12 @@ async function loadFleetCommandCard(){
   try {
     var w = (walletState && walletState.address) || '';
     if (w) {
-      var r = await fetch('/api/fleets', { headers: getAuthHeaders() });
-      if (r.ok) {
-        var d = await r.json();
-        var summary = document.getElementById('fcmdSummary');
-        if (summary && d.fleets) {
-          var total = d.fleets.length;
-          var ships = d.fleets.reduce(function(s,f){ return s + (parseInt(f.ships_alive)||parseInt(f.ship_count)||0); }, 0);
-          summary.textContent = total + ' fleets · ' + ships + ' ships';
-        }
+      var d = await mtReadFetch('fleet-command-card', '/api/fleets', 8000, true);
+      var summary = document.getElementById('fcmdSummary');
+      if (summary && d && d.fleets) {
+        var total = d.fleets.length;
+        var ships = d.fleets.reduce(function(s,f){ return s + (parseInt(f.ships_alive)||parseInt(f.ship_count)||0); }, 0);
+        summary.textContent = total + ' fleets · ' + ships + ' ships';
       }
     }
   } catch(_) {}
@@ -483,21 +480,18 @@ window.openWorldEventDetail = async function(eventId) {
   try {
     var w = (walletState && walletState.address) || '';
     if (w) {
-      var fr = await fetch('/api/fleets', { headers: getAuthHeaders() });
-      if (fr.ok) {
-        var fd = await fr.json();
-        (fd.fleets || []).forEach(function(f) {
-          var ships = parseInt(f.ships_alive) || parseInt(f.ship_count) || parseInt(f.alive_ships) || 0;
-          if (ships < 1) return; // 함선 없는 함대 제외
-          var opt = document.createElement('option');
-          opt.value = f.id;
-          opt.textContent = (f.name || (LANG==='ko'?'함대 #':LANG==='ja'?'艦隊 #':LANG==='zh'?'舰队 #':'Fleet #') + f.id) + ' · ' + ships + (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships');
-          sel.appendChild(opt);
-        });
-        document.getElementById('weFleetNote').textContent = sel.options.length <= 1
-          ? (LANG==='ko'?'출전 가능한 함대가 없습니다 (함선 1척 이상 필요)':LANG==='ja'?'出撃可能な艦隊がありません（艦船1隻以上必要）':LANG==='zh'?'没有可出击的舰队（需要至少1艘舰船）':'No deployable fleet (need at least 1 ship)')
-          : (LANG==='ko'?'선택한 함대를 Void Raider에 출전시킵니다':LANG==='ja'?'選択した艦隊をVoid Raiderに出撃させます':LANG==='zh'?'将选定舰队出击至Void Raider':'Deploy selected fleet against the Void Raider');
-      }
+      var fd = await mtReadFetch('world-event-fleets', '/api/fleets', 8000, true);
+      ((fd && fd.fleets) || []).forEach(function(f) {
+        var ships = parseInt(f.ships_alive) || parseInt(f.ship_count) || parseInt(f.alive_ships) || 0;
+        if (ships < 1) return; // 함선 없는 함대 제외
+        var opt = document.createElement('option');
+        opt.value = f.id;
+        opt.textContent = (f.name || (LANG==='ko'?'함대 #':LANG==='ja'?'艦隊 #':LANG==='zh'?'舰队 #':'Fleet #') + f.id) + ' · ' + ships + (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships');
+        sel.appendChild(opt);
+      });
+      document.getElementById('weFleetNote').textContent = sel.options.length <= 1
+        ? (LANG==='ko'?'출전 가능한 함대가 없습니다 (함선 1척 이상 필요)':LANG==='ja'?'出撃可能な艦隊がありません（艦船1隻以上必要）':LANG==='zh'?'没有可出击的舰队（需要至少1艘舰船）':'No deployable fleet (need at least 1 ship)')
+        : (LANG==='ko'?'선택한 함대를 Void Raider에 출전시킵니다':LANG==='ja'?'選択した艦隊をVoid Raiderに出撃させます':LANG==='zh'?'将选定舰队出击至Void Raider':'Deploy selected fleet against the Void Raider');
     }
   } catch(e) {}
 

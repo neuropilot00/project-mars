@@ -5,6 +5,18 @@
   var _announceDismissed = sessionStorage.getItem('announce_dismissed');
   var POLL_INTERVAL = 120000; // 2분마다 갱신
 
+  function wlfReadFetch(key, url, minGap, auth) {
+    var walletKey = (window.walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
+    if (typeof _guardedJsonFetch === 'function') {
+      return _guardedJsonFetch('world-live:' + key + ':' + walletKey, url, {
+        minGap: minGap || 10000,
+        backoffMs: 90000,
+        fetchOptions: auth ? { headers: getAuthHeaders() } : {}
+      });
+    }
+    return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
+  }
+
   function showAnnounce(text){
     if(!text || _announceDismissed === text) return;
     var banner = document.getElementById('announceBanner');
@@ -977,8 +989,8 @@
       if (!roster) { el.innerHTML = ''; return; }
       var myFleets = [];
       try {
-        var fr = await fetch('/api/fleets', { headers: getAuthHeaders() });
-        if (fr.ok) { var fd = await fr.json(); myFleets = (fd.fleets || []).filter(function(f){ return (parseInt(f.ships_alive)||parseInt(f.ship_count)||0) > 0; }); }
+        var fd = await wlfReadFetch('siege-fleets', '/api/fleets', 8000, true);
+        myFleets = ((fd && fd.fleets) || []).filter(function(f){ return (parseInt(f.ships_alive)||parseInt(f.ship_count)||0) > 0; });
       } catch(_) {}
 
       var battleMade = !!roster.fleet_battle_id;
@@ -1404,8 +1416,7 @@
     // 새 fleet 시스템 (/api/fleets) 사용 — 기존 /api/ships 직접 ship 목록 호출 제거.
     // 함선 관리는 SHIPYARD 모달, 함대 관리는 FLEET COMMAND 모달에서 진행.
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
-    fetch('/api/fleets', { headers: getAuthHeaders() })
-      .then(function(r){ return r.json() })
+    wlfReadFetch('fleet-panel', '/api/fleets', 8000, true)
       .catch(function(){ return { fleets: [] } })
       .then(function(data) {
         var fleets = data.fleets || data || [];
