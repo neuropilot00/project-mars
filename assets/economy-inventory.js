@@ -47,7 +47,10 @@ function _filterLiveEffects(effects){
   return (Array.isArray(effects)?effects:[]).filter(function(e){
     if(!e||e.active===false)return false;
     if(e.uses_remaining!=null&&Number(e.uses_remaining)<=0)return false;
-    if(e.expires_at&&new Date(e.expires_at).getTime()<=now)return false;
+    if(e.expires_at){
+      var exp=new Date(e.expires_at).getTime();
+      if(!Number.isFinite(exp)||exp<=now)return false;
+    }
     return true;
   });
 }
@@ -477,6 +480,7 @@ function _doUseItem(w,code,claimId){
 }
 // Visual effect overlay when using items
 function _showItemEffect(type,claimId){
+  document.querySelectorAll('.item-effect-overlay').forEach(function(el){el.remove();});
   var overlay=document.createElement('div');
   overlay.className='item-effect-overlay';
   var icon='',color='',label='';
@@ -491,8 +495,10 @@ function _showItemEffect(type,claimId){
   overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);pointer-events:none;animation:effectFadeOut 1.8s ease-out forwards';
   overlay.querySelector('.effect-icon').style.cssText='font-size:64px;animation:effectPop 0.4s ease-out';
   overlay.querySelector('.effect-label').style.cssText='font-size:24px;font-weight:800;letter-spacing:2px;margin-top:12px;color:'+color+';text-shadow:0 0 20px '+color;
+  function removeOverlay(){ if(overlay&&overlay.parentNode) overlay.remove(); }
+  overlay.addEventListener('animationend', removeOverlay, { once:true });
   document.body.appendChild(overlay);
-  setTimeout(function(){overlay.remove()},2000);
+  _setActiveTimeout(removeOverlay,2200);
 }
 
 /* ── BASE Modal ──────────────────────────────────── */
