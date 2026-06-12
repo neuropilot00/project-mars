@@ -48601,6 +48601,7 @@ async function openBattleViewer(battleId, startTick) {
       mode: 'battle',
       battleId: battleId,
       wallet: viewerWallet,
+      bg: typeof pickBattlefieldKey === 'function' ? pickBattlefieldKey(battleId) : null,
       startTick: startTick
     });
   }

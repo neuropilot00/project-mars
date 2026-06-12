@@ -1052,7 +1052,15 @@ const MARS_BATTLE_BG=new Image();
 let marsBattleBgReady=false;
 MARS_BATTLE_BG.decoding='async';
 MARS_BATTLE_BG.onload=()=>{marsBattleBgReady=true;};
-MARS_BATTLE_BG.src='textures/mars_nasa_2k.jpg';
+const BATTLEFIELD_BACKGROUNDS={
+  orbit_territory:'textures/battlefields/mars_orbit_territory.png',
+  garrison:'textures/battlefields/mars_garrison_topdown.png',
+  mining_site:'textures/battlefields/mars_mining_site_topdown.png',
+  canyon_outpost:'textures/battlefields/mars_canyon_outpost_topdown.png',
+};
+const _bgKey=String(tlQuery('bg')||'').toLowerCase();
+const CURRENT_BATTLEFIELD_BG=BATTLEFIELD_BACKGROUNDS[_bgKey]||'';
+MARS_BATTLE_BG.src=CURRENT_BATTLEFIELD_BG||'textures/mars_nasa_2k.jpg';
 
 // [v7.180 VFX] 폭발 8장 + 임팩트 4종 스프라이트 프리로드 — 로드 실패해도 기존 캔버스 폭발로 fallback.
 const VFX_EXPLOSION_FRAMES=[]; // [Image, Image, ...] 8장
@@ -2332,14 +2340,16 @@ function drawBG(){
     const scale=Math.max(W/iw,H/ih)*1.22;
     const dw=iw*scale,dh=ih*scale;
     const t=performance.now();
-    const drift=(t*.006)%dw;
+    const drift=CURRENT_BATTLEFIELD_BG?0:(t*.006)%dw;
     const y=-(dh-H)*.48+Math.sin(t*.00008)*H*.025;
     CX.save();
-    CX.globalAlpha=.72;
+    CX.globalAlpha=CURRENT_BATTLEFIELD_BG?.86:.72;
     for(let x=-drift-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y,dw,dh);
-    CX.globalAlpha=.34;
-    CX.globalCompositeOperation='screen';
-    for(let x=-drift*.55-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y+H*.035,dw,dh);
+    if(!CURRENT_BATTLEFIELD_BG){
+      CX.globalAlpha=.34;
+      CX.globalCompositeOperation='screen';
+      for(let x=-drift*.55-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y+H*.035,dw,dh);
+    }
     CX.restore();
   }
   const veil=CX.createLinearGradient(0,0,0,H);

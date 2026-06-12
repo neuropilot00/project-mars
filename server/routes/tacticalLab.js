@@ -129,7 +129,7 @@ router.get('/fleet-presets', async (req, res) => {
                     SUM(CASE WHEN is_flagship THEN 1 ELSE 0 END)::int AS flagship_cnt,
                     (ARRAY_AGG(ship_type_code) FILTER (WHERE is_flagship))[1] AS flagship_code
              FROM ships
-             WHERE fleet_id = $1
+             WHERE fleet_id = $1 AND is_alive = true
              GROUP BY ship_type_code`,
             [p.fleet_id]
           );

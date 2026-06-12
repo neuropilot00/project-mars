@@ -25,6 +25,7 @@ try { jobService = require('./job'); } catch (_) { jobService = null; }
 
 const TICK_MS = 200;                    // 5 tick/sec
 const MAX_TICKS = 54000;                // 3시간 한도 — 실질적으로 HP 소진 전에 끝남
+const PRECOMPUTE_YIELD_EVERY_TICKS = 250; // keep Node responsive during large offline simulations
 const FIELD_W = 1000;
 const FIELD_H = 440;
 const HIJACK_PHASE1_SIZE_CLASSES = ['frigate', 'destroyer'];
@@ -78,6 +79,7 @@ async function simulateBattle(battleId) {
   
   // 시뮬레이션 (fullTicks)
   for (let tick = 0; tick < MAX_TICKS; tick++) {
+    if (tick > 0 && tick % PRECOMPUTE_YIELD_EVERY_TICKS === 0) await _sleep(0);
     state.tick = tick;
     
     // 전술 AI 평가

@@ -122,7 +122,7 @@ function attachWsServer(httpServer) {
         //   소유권(participant 함대) 검증 + rate limit(기본 3/s). 단일 인스턴스: 권위 워커=WS 워커 동일.
         try {
           const liveBattle = require('./services/liveBattle');
-          if (liveBattle.isActive(bid)) {
+          if (liveBattle.isActive(bid) || _redisReady) {
             const now = Date.now();
             ws._cmdTimes = (ws._cmdTimes || []).filter((t) => now - t < 1000);
             if (ws._cmdTimes.length >= 3) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'rate_limited' })); return; }
@@ -134,12 +134,33 @@ function attachWsServer(httpServer) {
             if (!action) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'unsupported_live_cmd' })); return; }
             const { pool } = require('./db');
             pool.query(
-              'SELECT 1 FROM fleet_battle_participants WHERE battle_id = $1 AND fleet_id = $2 AND LOWER(wallet_address) = LOWER($3)',
+              `SELECT fb.status
+                 FROM fleet_battle_participants p
+                 JOIN fleet_battles fb ON fb.id = p.battle_id
+                WHERE p.battle_id = $1
+                  AND p.fleet_id = $2
+                  AND LOWER(p.wallet_address) = LOWER($3)
+                LIMIT 1`,
               [bid, fleetId, ws.wallet]
             ).then((r) => {
               if (!r.rows.length) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'not_your_fleet' })); return; }
+              if (r.rows[0].status !== 'active' && !liveBattle.isActive(bid)) {
+                const cmdSvc = require('./services/commanderActions');
+                const preBattleMap = {
+                  formation: { actionType: 'formation_change', params: { formation: msg.payload && msg.payload.formation } },
+                  maneuver: { actionType: 'maneuver_change', params: { maneuver: msg.payload && msg.payload.maneuver } },
+                  focus: { actionType: 'focus_fire', params: { targetFleetId: msg.payload && msg.payload.targetFleetId } },
+                  emp: { actionType: 'emp', params: { startTick: msg.payload && msg.payload.startTick } },
+                };
+                const mapped = preBattleMap[msg.cmd];
+                if (!mapped) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'battle_not_live' })); return; }
+                cmdSvc.declareAction(bid, ws.wallet, mapped.actionType, mapped.params)
+                  .then((result) => ws.send(JSON.stringify({ type: 'cmd_ok', cmd: msg.cmd, result })))
+                  .catch((err) => ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: err.message })));
+                return;
+              }
               const p = msg.payload || {};
-              const ok = liveBattle.enqueueCommand(bid, {
+              const ok = routeBattleCommand(bid, {
                 fleetId, wallet: ws.wallet, action,
                 params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId },
               });
@@ -190,6 +211,14 @@ function attachWsServer(httpServer) {
 //    멀티 인스턴스에서 battle frame 도 반드시 pub/sub 로 팬아웃돼야 한다.
 const _PUB_CH = 'om:ws';
 let _pub = null, _sub = null, _redisReady = false;
+function _enqueueLocalBattleCommand(battleId, command) {
+  try {
+    const liveBattle = require('./services/liveBattle');
+    return liveBattle.enqueueCommand(battleId, command);
+  } catch (_) {
+    return false;
+  }
+}
 function _initRedisPubSub() {
   if (!process.env.REDIS_URL) { console.log('[WS] broadcast: 로컬 전용 (REDIS_URL 미설정)'); return; }
   let Redis;
@@ -212,6 +241,7 @@ function _initRedisPubSub() {
       else if (m.kind === 'feed') _localFeed(m.event);
       else if (m.kind === 'battleFrame') _localBattleFrame(m.battleId, m.frame);
       else if (m.kind === 'battleEnd') _localBattleEnd(m.battleId, m.summary);
+      else if (m.kind === 'battleCmd') _enqueueLocalBattleCommand(m.battleId, m.command);
     });
   } catch (e) { console.warn('[WS] Redis pub/sub init 실패 — 로컬 폴백:', e.message); _pub = null; _sub = null; _redisReady = false; }
 }
@@ -221,6 +251,17 @@ function _publishOrLocal(kind, payload, localFn) {
     try { _pub.publish(_PUB_CH, JSON.stringify(Object.assign({ kind }, payload))); return; } catch (_) {}
   }
   localFn();
+}
+function routeBattleCommand(battleId, command) {
+  if (!battleId || !command) return false;
+  if (_enqueueLocalBattleCommand(battleId, command)) return true;
+  if (_redisReady && _pub) {
+    try {
+      _pub.publish(_PUB_CH, JSON.stringify({ kind: 'battleCmd', battleId, command }));
+      return true;
+    } catch (_) {}
+  }
+  return false;
 }
 
 // ── Battle frame/end ──────────────────────────────────────────
@@ -322,4 +363,4 @@ function channelStats() {
   return out;
 }
 
-module.exports = { attachWsServer, broadcastBattleFrame, broadcastBattleEnd, broadcastChat, broadcastFeed, channelStats };
+module.exports = { attachWsServer, broadcastBattleFrame, broadcastBattleEnd, broadcastChat, broadcastFeed, channelStats, routeBattleCommand };

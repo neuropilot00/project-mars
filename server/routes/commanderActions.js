@@ -51,8 +51,13 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
   //   클라 postMessage 핸들러는 변경 없음 — 동일 라우트가 라이브/pre-battle 자동 분기.
   try {
     const liveBattle = require('../services/liveBattle');
-    if (liveBattle.isActive(battleId)) {
-      const { pool } = require('../db');
+    const { pool } = require('../db');
+    let shouldTryLive = liveBattle.isActive(battleId);
+    if (!shouldTryLive) {
+      const br = await pool.query('SELECT status FROM fleet_battles WHERE id = $1 LIMIT 1', [battleId]);
+      shouldTryLive = br.rows[0]?.status === 'active';
+    }
+    if (shouldTryLive) {
       const pr = await pool.query(
         'SELECT fleet_id FROM fleet_battle_participants WHERE battle_id = $1 AND LOWER(wallet_address) = LOWER($2) LIMIT 1',
         [battleId, wallet]
@@ -67,7 +72,7 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
         : (type === 'missile' || type === 'missile_barrage') ? 'missile'
         : (type === 'overdrive' || type === 'combine_ultimate') ? 'overdrive' : null;
       if (!liveAction) return res.status(400).json({ error: 'UNSUPPORTED_LIVE_ACTION' });
-      const ok = liveBattle.enqueueCommand(battleId, {
+      const ok = require('../wsServer').routeBattleCommand(battleId, {
         fleetId, wallet, action: liveAction,
         params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId },
       });

@@ -19,10 +19,17 @@
     params.set('t', Date.now());
     if (opts.battleId) params.set('bid', String(parseInt(opts.battleId)));
     if (opts.wallet) params.set('wallet', String(opts.wallet).toLowerCase());
+    if (opts.bg) params.set('bg', String(opts.bg));
     if (opts.startTick && Number.isFinite(Number(opts.startTick)) && Number(opts.startTick) > 0) {
       params.set('startTick', String(Math.floor(Number(opts.startTick))));
     }
     return '/assets/tactical-lab-v11.html?' + params.toString();
+  }
+
+  function pickBattlefieldKey(battleId) {
+    var keys = ['orbit_territory', 'garrison', 'mining_site', 'canyon_outpost'];
+    var n = Math.abs(parseInt(battleId, 10) || 0);
+    return keys[n % keys.length];
   }
 
   function unloadTacticalLabFrame(frame) {
@@ -191,6 +198,7 @@
   window.addEventListener('message', handleTacticalLabMessage);
   document.addEventListener('keydown', handleTacticalLabEscape);
   window.buildTacticalLabUrl = buildTacticalLabUrl;
+  window.pickBattlefieldKey = pickBattlefieldKey;
   window.unloadTacticalLabFrame = unloadTacticalLabFrame;
   window.openTacticalLab = openTacticalLab;
   window.closeTacticalLab = closeTacticalLab;
