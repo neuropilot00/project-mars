@@ -10,6 +10,11 @@ try { seasonService = require('./season'); } catch (_) { /* optional season serv
 let dailyOps;
 try { dailyOps = require('../routes/dailyOps'); } catch (_) { /* optional daily ops route helper */ }
 
+const MINING_INFO_CACHE_MS = 15 * 1000;
+const MINING_INFO_CACHE_MAX = 500;
+const miningInfoCache = new Map();
+const miningInfoInFlight = new Map();
+
 async function getSetting(key, fb) {
   try { const r = await pool.query('SELECT value FROM settings WHERE key=$1', [key]); return r.rows.length ? r.rows[0].value : fb; }
   catch (_) { return fb; }
@@ -140,7 +145,23 @@ async function _allianceSectorBonuses(client, wallet) {
   }
 }
 
-async function getMiningInfo(wallet) {
+function _miningInfoCacheKey(wallet) {
+  const w = String(wallet || '').toLowerCase().trim();
+  return w ? `wallet:${w}` : 'public';
+}
+
+function _pruneMiningInfoCache(now = Date.now()) {
+  for (const [key, entry] of miningInfoCache) {
+    if (!entry || now - entry.at >= MINING_INFO_CACHE_MS) miningInfoCache.delete(key);
+  }
+  while (miningInfoCache.size > MINING_INFO_CACHE_MAX) {
+    const oldestKey = miningInfoCache.keys().next().value;
+    if (oldestKey == null) break;
+    miningInfoCache.delete(oldestKey);
+  }
+}
+
+async function _buildMiningInfo(wallet) {
   var weights = await _capacityWeights();
   const client = await pool.connect();
   try {
@@ -162,6 +183,32 @@ async function getMiningInfo(wallet) {
     destinations: await _destinations(),
     allianceSectorBonuses: allianceSectorBonuses,
   };
+}
+
+async function getMiningInfo(wallet) {
+  const cacheKey = _miningInfoCacheKey(wallet);
+  const now = Date.now();
+  _pruneMiningInfoCache(now);
+  const cached = miningInfoCache.get(cacheKey);
+  if (cached && now - cached.at < MINING_INFO_CACHE_MS) return cached.info;
+
+  if (!miningInfoInFlight.has(cacheKey)) {
+    miningInfoInFlight.set(cacheKey, _buildMiningInfo(wallet)
+      .then(info => {
+        miningInfoCache.set(cacheKey, { info, at: Date.now() });
+        _pruneMiningInfoCache();
+        return info;
+      })
+      .finally(() => { miningInfoInFlight.delete(cacheKey); }));
+  }
+
+  try {
+    return await miningInfoInFlight.get(cacheKey);
+  } catch (err) {
+    const stale = miningInfoCache.get(cacheKey);
+    if (stale) return stale.info;
+    throw err;
+  }
 }
 
 // 채굴 출항 가능 최소 내구도 비율(이하면 수리 필요 — repair sink 게이트).
