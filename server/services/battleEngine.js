@@ -15,6 +15,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool, getSetting } = require('../db');
+const battleEnvironment = require('./battleEnvironment');
 const tacticsAI = require('./tacticsAI');
 let commanderActions;
 try { commanderActions = require('./commanderActions'); } catch (_) { commanderActions = null; }
@@ -78,6 +79,7 @@ async function simulateBattle(battleId) {
     field_w: FIELD_W,
     field_h: FIELD_H,
     battle_id: battleId,
+    battlefield: state.battlefield,
     fleets_meta: state.fleets.map(f => ({
       id: f.id, 
       name: f.name,
@@ -296,6 +298,7 @@ async function simulateBattleLive(battleId, hooks) {
 
   const timeline = {
     tick_ms: TICK_MS, field_w: FIELD_W, field_h: FIELD_H, battle_id: battleId, live: true,
+    battlefield: state.battlefield,
     fleets_meta: state.fleets.map(f => ({ id: f.id, name: f.name, side: f.side, faction_code: f.faction_code, owner_wallet: f.owner_wallet, ships_total: f.ships.length })),
     frames: [],
   };
@@ -504,6 +507,8 @@ async function loadBattleData(battleId) {
 
 function initBattleState(battleData) {
   const { battle, fleets, commanderActions: cmdActions } = battleData;
+  const decoratedBattle = battleEnvironment.decorateBattle(battle);
+  const envMods = normalizeEnvironmentModifiers(decoratedBattle.environment_modifiers);
   
   const atkPositions = [
     { cx: FIELD_W * 0.11, cy: FIELD_H * 0.15 },
@@ -559,7 +564,7 @@ function initBattleState(battleData) {
       focusFireTargetId: null,
       wedgeForced: false,
 
-      ships: f.ships.map((s, idx) => initShip(s, pos, idx, f.ships.length, radius, f.combatPowerMult || 1.0)),
+      ships: f.ships.map((s, idx) => initShip(s, pos, idx, f.ships.length, radius, f.combatPowerMult || 1.0, envMods)),
     };
   });
 
@@ -591,6 +596,13 @@ function initBattleState(battleData) {
   return {
     battle_id: battle.id,
     battle_type: battle.battle_type,
+    battlefield: {
+      key: decoratedBattle.battlefield_key,
+      label: decoratedBattle.battlefield_label,
+      tags: decoratedBattle.environment_tags || [],
+      modifiers: envMods,
+      note: envMods.note || ''
+    },
     tick: 0,
     fleets: stateFleets,
     // EMP 일정 (engine 이 tick 마다 체크)
@@ -600,7 +612,22 @@ function initBattleState(battleData) {
   };
 }
 
-function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult = 1.0) {
+function normalizeEnvironmentModifiers(mods) {
+  const src = mods || {};
+  const clamp = (value, fallback) => {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n <= 0) return fallback;
+    return Math.max(0.85, Math.min(1.15, n));
+  };
+  return {
+    atk: clamp(src.atk, 1),
+    def: clamp(src.def, 1),
+    speed: clamp(src.speed, 1),
+    note: typeof src.note === 'string' ? src.note : ''
+  };
+}
+
+function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult = 1.0, envMods = null) {
   // 초기 배치: 랜덤 오비탈
   const orbitAngle = (idx / total) * Math.PI * 2 + Math.random() * 0.3;
   const orbitDist = 15 + Math.random() * (fleetRadius - 15);
@@ -617,9 +644,9 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult =
     role: shipData.role,
     
     // 스탯 (전투력 배율 적용: warrior +30%, miner/crafter/merchant 패널티)
-    atk: Math.max(1, Math.round((parseInt(shipData.base_atk) + bonusAtk) * combatPowerMult)),
-    def: parseInt(shipData.base_def) + bonusDef,
-    speed: Math.max(0.05, parseFloat(shipData.base_speed) + bonusSpeed),
+    atk: Math.max(1, Math.round((parseInt(shipData.base_atk) + bonusAtk) * combatPowerMult * ((envMods && envMods.atk) || 1))),
+    def: Math.max(0, Math.round((parseInt(shipData.base_def) + bonusDef) * ((envMods && envMods.def) || 1))),
+    speed: Math.max(0.05, (parseFloat(shipData.base_speed) + bonusSpeed) * ((envMods && envMods.speed) || 1)),
     fireInterval: parseInt(shipData.fire_interval),
     fireType: shipData.fire_type,
     shots: parseInt(shipData.shots) || 1,

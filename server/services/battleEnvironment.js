@@ -79,6 +79,28 @@ const FIELD_TAGS = {
   settlement_airspace: ['colony', 'airspace']
 };
 
+const BATTLEFIELD_MODIFIERS = {
+  orbit_territory: { atk: 1.03, def: 1.00, speed: 1.04, note: 'Open orbital lanes favor fast assault craft.' },
+  garrison: { atk: 0.98, def: 1.06, speed: 0.98, note: 'Layered air defense favors defenders.' },
+  mining_site: { atk: 1.02, def: 0.98, speed: 0.96, note: 'Loose regolith slows maneuvers but exposes armor seams.' },
+  canyon_outpost: { atk: 1.04, def: 1.02, speed: 0.94, note: 'Canyon walls reward ambushes and punish wide turns.' },
+  polar_ice: { atk: 0.97, def: 1.03, speed: 0.92, note: 'Ice glare and low visibility slow target acquisition.' },
+  lava_tube: { atk: 1.06, def: 0.96, speed: 0.93, note: 'Thermal hazards turn every exchange volatile.' },
+  crater_relay: { atk: 1.01, def: 1.03, speed: 0.97, note: 'Relay cover improves defensive fire discipline.' },
+  refinery_yard: { atk: 1.05, def: 0.98, speed: 0.95, note: 'Industrial clutter creates dangerous breach angles.' },
+  colony_dome: { atk: 0.97, def: 1.05, speed: 0.96, note: 'Civilian infrastructure constrains aggressive fire lanes.' },
+  excavation_grid: { atk: 1.03, def: 1.00, speed: 0.97, note: 'Survey grids make flanking routes easier to read.' },
+  dust_storm: { atk: 0.95, def: 0.99, speed: 0.90, note: 'Dust interference reduces visibility and velocity.' },
+  occupied_airspace: { atk: 1.04, def: 1.01, speed: 1.01, note: 'Contested airspace rewards decisive pressure.' },
+  shipyard_drydock: { atk: 1.01, def: 1.07, speed: 0.94, note: 'Dock structures provide strong repair-side cover.' },
+  convoy_route: { atk: 1.05, def: 0.97, speed: 1.06, note: 'Open logistics lanes favor raiders and interceptors.' },
+  ancient_ruins: { atk: 1.00, def: 1.00, speed: 0.95, note: 'Unknown structures disrupt clean fleet formations.' },
+  orbital_blockade: { atk: 1.04, def: 1.04, speed: 0.98, note: 'Blockade geometry forces close, punishing trades.' },
+  garrison_rooftop: { atk: 0.98, def: 1.08, speed: 0.95, note: 'Fortified rooftops grant defenders hard cover.' },
+  deep_mine: { atk: 1.07, def: 0.95, speed: 0.90, note: 'Confined mine shafts amplify burst damage.' },
+  settlement_airspace: { atk: 0.99, def: 1.04, speed: 0.97, note: 'Settlement traffic favors coordinated defense.' }
+};
+
 function stableIndex(seed) {
   seed = String(seed || '');
   let hash = 0;
@@ -133,7 +155,8 @@ function decorateBattle(row) {
   return Object.assign({}, row, {
     battlefield_key: battlefieldKey,
     battlefield_label: BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey,
-    environment_tags: FIELD_TAGS[battlefieldKey] || []
+    environment_tags: FIELD_TAGS[battlefieldKey] || [],
+    environment_modifiers: BATTLEFIELD_MODIFIERS[battlefieldKey] || {}
   });
 }
 
@@ -144,6 +167,8 @@ function decorateBattles(rows) {
 module.exports = {
   BATTLEFIELD_KEYS,
   BATTLEFIELD_LABELS,
+  BATTLEFIELD_MODIFIERS,
+  FIELD_TAGS,
   pickBattlefieldKey,
   decorateBattle,
   decorateBattles

@@ -82,7 +82,23 @@ function rememberBattleContext(battle) {
     sector_name: battle.sector_name || '',
     battlefield_key: battle.battlefield_key || '',
     battlefield_label: battle.battlefield_label || '',
+    environment_modifiers: battle.environment_modifiers || {},
   };
+}
+
+function formatBattlefieldModifiers(mods) {
+  mods = mods || {};
+  const parts = [];
+  const add = (label, value) => {
+    const n = Number(value);
+    if (!Number.isFinite(n) || Math.abs(n - 1) < 0.005) return;
+    const pct = Math.round((n - 1) * 100);
+    parts.push(label + ' ' + (pct > 0 ? '+' : '') + pct + '%');
+  };
+  add('ATK', mods.atk);
+  add('DEF', mods.def);
+  add('SPD', mods.speed);
+  return parts.join(' · ');
 }
 
 function _stableBattlefieldIndex(seed) {
@@ -521,6 +537,7 @@ function renderBattleCard(b, tab) {
   const sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
   const battlefieldKey = b.battlefield_key || pickBattlefieldKey(b.id);
   const battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || '';
+  const battlefieldMods = formatBattlefieldModifiers(b.environment_modifiers);
   const rewardGp = Math.round(parseFloat(b.my_reward_gp != null ? b.my_reward_gp : b.reward_total_gp) || 0);
   const rewardCount = parseInt(b.reward_count, 10) || 0;
   const rewardLabel = rewardGp > 0
@@ -542,6 +559,7 @@ function renderBattleCard(b, tab) {
           <span>vs <b>${b.def_ships_total || b.def_fleets || 0}</b>${LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':'ships'}</span>
           ${sectorLabel ? `<span style="color:#ffab40">⌖ ${escapeHtml(sectorLabel)}</span>` : ''}
           ${battlefieldLabel ? `<span style="color:#81d4fa">▣ ${escapeHtml(battlefieldLabel)}</span>` : ''}
+          ${battlefieldMods ? `<span style="color:#a5d6a7">◇ ${escapeHtml(battlefieldMods)}</span>` : ''}
           ${rewardLabel}
           ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}</b>${LANG==='ko'?'분':LANG==='ja'?'分':LANG==='zh'?'分':'min'}</span>` : ''}
           <span>${timeInfo}</span>
@@ -1766,12 +1784,16 @@ async function loadBvSidePanels(battleId) {
     var sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
     var battlefieldKey = b.battlefield_key || pickBattlefieldKey(b.id);
     var battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey || '';
+    var battlefieldMods = formatBattlefieldModifiers(b.environment_modifiers);
+    var battlefieldNote = b.environment_modifiers && b.environment_modifiers.note ? String(b.environment_modifiers.note) : '';
     statsEl.innerHTML =
       `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전투 ID':LANG==='ja'?'戦闘ID':LANG==='zh'?'战斗ID':'Battle ID'}</span><b>#` + b.id + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'타입':LANG==='ja'?'タイプ':LANG==='zh'?'类型':'Type'}</span><b>` + (b.battle_type || '?') + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'상태':LANG==='ja'?'状態':LANG==='zh'?'状态':'Status'}</span><b>` + (b.status || '?') + '</b></div>'
       + (sectorLabel ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'섹터':LANG==='ja'?'セクター':LANG==='zh'?'区':'Sector'}</span><b style="color:#ffab40">` + escapeHtmlSafe(sectorLabel) + '</b></div>' : '')
       + (battlefieldLabel ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전장':LANG==='ja'?'戦場':LANG==='zh'?'战场':'Field'}</span><b style="color:#81d4fa">` + escapeHtmlSafe(battlefieldLabel) + '</b></div>' : '')
+      + (battlefieldMods ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'전장 효과':LANG==='ja'?'戦場効果':LANG==='zh'?'战场效果':'Field Mods'}</span><b style="color:#a5d6a7">` + escapeHtmlSafe(battlefieldMods) + '</b></div>' : '')
+      + (battlefieldNote ? `<div style="padding:5px 0 3px;color:rgba(255,255,255,.5);font-size:9px;line-height:1.35">` + escapeHtmlSafe(battlefieldNote) + '</div>' : '')
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'ATK 함선':LANG==='ja'?'ATK 艦船':LANG==='zh'?'ATK 舰船':'ATK Ships'}</span><b>` + (b.atk_ships_total || 0) + '</b></div>'
       + `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${LANG==='ko'?'DEF 함선':LANG==='ja'?'DEF 艦船':LANG==='zh'?'DEF 舰船':'DEF Ships'}</span><b>` + (b.def_ships_total || 0) + '</b></div>';
   }
