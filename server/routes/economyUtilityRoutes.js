@@ -245,8 +245,8 @@ router.post('/gp/transfer', requireAuth, writeLimiter, async (req, res) => {
   }
 });
 
-router.get('/gp/transfers', readLimiter, async (req, res) => {
-  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+router.get('/gp/transfers', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getAuthWallet(req);
   if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
 
   try {

@@ -29443,7 +29443,7 @@ async function loadGPTransfers() {
   if (!el) return;
   if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Connect wallet to view.</div>'; return; }
   try {
-    var r = await fetch('/api/gp/transfers?wallet=' + encodeURIComponent(w), { headers: {'x-wallet': w} });
+    var r = await fetch('/api/gp/transfers', { headers: getAuthHeaders() });
     var d = await r.json();
     var transfers = d.transfers || [];
     if (!transfers.length) {
