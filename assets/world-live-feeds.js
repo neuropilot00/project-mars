@@ -339,7 +339,7 @@
       if (!data) return;
       _rocketData = data;
       updateRocketBanner();
-      _updateRocketMesh();
+      if (typeof _updateRocketMesh === 'function') _updateRocketMesh();
       if (_rocketData.events && _rocketData.events.length > 0) compositeClaimsOnTexture();
     }).catch(function(){});
   }
@@ -400,9 +400,14 @@
   _setActiveTimeout(loadRocketData, 7000);
   _setActiveInterval(loadRocketData, 30000);
   _setActiveInterval(updateRocketBanner, 15000);
-  _setActiveTimeout(_initRocketMesh, 3500);
+  _setActiveTimeout(function(){ if (typeof _initRocketMesh === 'function') _initRocketMesh(); }, 3500);
   // Rocket 3D mesh: 2s desktop, 5s mobile (reduces WebGL draw calls)
-  _setActiveInterval(_updateRocketMesh, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 5000 : 2000);
+  _setActiveInterval(function(){
+    if (typeof _updateRocketMesh !== 'function') return;
+    var events = (_rocketData && _rocketData.events || []).filter(function(e){ return e.status !== 'completed'; });
+    if (!events.length) return;
+    _updateRocketMesh();
+  }, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 5000 : 2000);
 
   // Keep mission routes visible on the map even when OPS tab isn't open.
   function _refreshOpsMissionsGlobal(){
