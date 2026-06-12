@@ -17,6 +17,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
 const battleEngine = require('../services/battleEngine');
 const battleScheduler = require('../services/battleScheduler');
@@ -24,6 +25,17 @@ const battleTimeline = require('../services/battleTimeline');
 const battleReport = require('../services/battleReport');
 const battleRewards = require('../services/battleRewards');
 const battleEnvironment = require('../services/battleEnvironment');
+
+const readLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: { error: 'Too many battle requests. Please slow down.' }
+});
+const writeLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: 'Too many battle actions. Please wait.' }
+});
 
 // ── 인증 (inline JWT) ──
 const requireAuth = (req, res, next) => {
@@ -61,7 +73,7 @@ function getOptionalWallet(req) {
  *   run_immediately: true    // true면 즉시 시뮬레이션
  * }
  */
-router.post('/declare-pvp', requireAuth, async (req, res) => {
+router.post('/declare-pvp', requireAuth, writeLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -228,7 +240,7 @@ router.post('/declare-pvp', requireAuth, async (req, res) => {
  * GET /api/battles/list/active
  * 진행 중인 전투 목록
  */
-router.get('/list/active', async (req, res) => {
+router.get('/list/active', readLimiter, async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT id, battle_type, status, phase,
@@ -258,7 +270,7 @@ router.get('/list/active', async (req, res) => {
  * GET /api/battles/list/recent
  * 최근 종료된 전투 (서버 전체)
  */
-router.get('/list/recent', async (req, res) => {
+router.get('/list/recent', readLimiter, async (req, res) => {
   try {
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const { rows } = await pool.query(`
@@ -291,7 +303,7 @@ router.get('/list/recent', async (req, res) => {
  * GET /api/battles/list/history
  * 내 전투 기록
  */
-router.get('/list/history', requireAuth, async (req, res) => {
+router.get('/list/history', requireAuth, readLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -310,7 +322,7 @@ router.get('/list/history', requireAuth, async (req, res) => {
  * Legacy smoke/API alias for 진행 중 전투 목록.
  * Optional JWT filters to battles where the authenticated wallet participates.
  */
-router.get('/active', async (req, res) => {
+router.get('/active', readLimiter, async (req, res) => {
   try {
     const wallet = getOptionalWallet(req);
     const params = [];
@@ -350,7 +362,7 @@ router.get('/active', async (req, res) => {
  * GET /api/battles/history
  * Legacy smoke/API alias for 내 전투 기록.
  */
-router.get('/history', requireAuth, async (req, res) => {
+router.get('/history', requireAuth, readLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -368,7 +380,7 @@ router.get('/history', requireAuth, async (req, res) => {
  * GET /api/battles/rewards/mine
  * Authenticated player's battle reward history for the Battle Hub panel.
  */
-router.get('/rewards/mine', requireAuth, async (req, res) => {
+router.get('/rewards/mine', requireAuth, readLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -391,7 +403,7 @@ router.get('/rewards/mine', requireAuth, async (req, res) => {
  * GET /api/battles/:id/rewards
  * Reward rows for a completed battle. Used by result toasts and reports.
  */
-router.get('/:id/rewards', async (req, res) => {
+router.get('/:id/rewards', readLimiter, async (req, res) => {
   try {
     const battleId = parseInt(req.params.id, 10);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
@@ -417,7 +429,7 @@ router.get('/:id/rewards', async (req, res) => {
  * GET /api/battles/:id
  * 전투 상세 정보 (타임라인 제외)
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', readLimiter, async (req, res) => {
   try {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
@@ -448,7 +460,7 @@ router.get('/:id', async (req, res) => {
  * GET /api/battles/:id/timeline
  * 전투 타임라인 JSON (재생용)
  */
-router.get('/:id/timeline', async (req, res) => {
+router.get('/:id/timeline', readLimiter, async (req, res) => {
   try {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
@@ -468,7 +480,7 @@ router.get('/:id/timeline', async (req, res) => {
  * 전투 즉시 시작 (관리자/테스트 목적)
  * 대기 중인 전투를 즉시 시뮬레이션
  */
-router.post('/:id/run', requireAuth, async (req, res) => {
+router.post('/:id/run', requireAuth, writeLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -511,7 +523,7 @@ router.post('/:id/run', requireAuth, async (req, res) => {
  * 공격자 전투 포기 — preparing 중이면 취소, 이미 끝났으면 그냥 OK 반환.
  * 어떤 경우든 함선 HP는 서버에서 이미 applyBattleResults로 처리됨.
  */
-router.post('/:id/forfeit', requireAuth, async (req, res) => {
+router.post('/:id/forfeit', requireAuth, writeLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -602,7 +614,7 @@ router.post('/:id/forfeit', requireAuth, async (req, res) => {
  * GET /api/battles/:id/report
  * 전투 결과 리포트 카드 (상세 통계, 하이라이트, 퍼포먼스 레이팅)
  */
-router.get('/:id/report', async (req, res) => {
+router.get('/:id/report', readLimiter, async (req, res) => {
   try {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
@@ -622,7 +634,7 @@ router.get('/:id/report', async (req, res) => {
  * GET /api/battles/:id/highlights
  * 전투 하이라이트 3장면 (리플레이 점프용 tick 반환)
  */
-router.get('/:id/highlights', async (req, res) => {
+router.get('/:id/highlights', readLimiter, async (req, res) => {
   try {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
@@ -642,7 +654,7 @@ router.get('/:id/highlights', async (req, res) => {
  * GET /api/battles/my-stats/:wallet
  * 플레이어 전투 통계 집계 (승률, KD, 연승, 파벌별 승률)
  */
-router.get('/my-stats/:wallet', async (req, res) => {
+router.get('/my-stats/:wallet', readLimiter, async (req, res) => {
   try {
     const wallet = req.params.wallet.toLowerCase().trim();
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
@@ -659,7 +671,7 @@ router.get('/my-stats/:wallet', async (req, res) => {
  * GET /api/battles/recommended-opponents/:wallet
  * CPI 기준 추천 상대 목록 (매칭 시스템)
  */
-router.get('/recommended-opponents/:wallet', async (req, res) => {
+router.get('/recommended-opponents/:wallet', readLimiter, async (req, res) => {
   try {
     const wallet = req.params.wallet.toLowerCase().trim();
     if (!wallet || wallet.length < 5) return res.status(400).json({ error: 'INVALID_WALLET' });
@@ -675,7 +687,7 @@ router.get('/recommended-opponents/:wallet', async (req, res) => {
 });
 
 // ── 승리 슬롯 (v7.392) — Sink 기반 추가 GP. 승자만 전투당 1회 스핀, 풀에서만 carve 지급 ──
-router.get('/:id/victory-slot', requireAuth, async (req, res) => {
+router.get('/:id/victory-slot', requireAuth, readLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     const battleId = parseInt(req.params.id);
@@ -684,7 +696,7 @@ router.get('/:id/victory-slot', requireAuth, async (req, res) => {
     res.json(st);
   } catch (e) { res.status(500).json({ error: 'internal_error' }); }
 });
-router.post('/:id/victory-slot', requireAuth, async (req, res) => {
+router.post('/:id/victory-slot', requireAuth, writeLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });

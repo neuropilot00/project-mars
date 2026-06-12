@@ -12,9 +12,21 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
 const battleRewards = require('../services/battleRewards');
 const siegeFleetBridge = require('../services/siegeFleetBridge');
+
+const readLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: { error: 'Too many battle requests. Please slow down.' }
+});
+const writeLimiter = makeRateLimiter({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: 'Too many battle actions. Please wait.' }
+});
 
 // ── 인증 (inline JWT) ──
 const requireAuth = (req, res, next) => {
@@ -35,7 +47,7 @@ function getWallet(req) {
  * 내 보상 이력 전체
  * ⚠ 반드시 /:id/rewards 보다 먼저 등록 (Express 라우트 우선순위)
  */
-router.get('/rewards/mine', requireAuth, async (req, res) => {
+router.get('/rewards/mine', requireAuth, readLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -60,7 +72,7 @@ router.get('/rewards/mine', requireAuth, async (req, res) => {
  * GET /api/battles/siege/mine
  * 내가 참여한 진행 중 siege 전투들
  */
-router.get('/siege/mine', requireAuth, async (req, res) => {
+router.get('/siege/mine', requireAuth, readLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -82,7 +94,7 @@ router.post('/siege/create', (req, res, next) => {
   const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
   if (!s || s !== process.env.ADMIN_SECRET) return res.status(403).json({ error: 'FORBIDDEN' });
   next();
-}, requireAuth, async (req, res) => {
+}, requireAuth, writeLimiter, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
@@ -125,7 +137,7 @@ router.post('/siege/create', (req, res, next) => {
  * GET /api/battles/:id/rewards
  * 특정 전투의 보상 내역 (참가자별)
  */
-router.get('/:id/rewards', async (req, res) => {
+router.get('/:id/rewards', readLimiter, async (req, res) => {
   try {
     const battleId = parseInt(req.params.id);
     if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
