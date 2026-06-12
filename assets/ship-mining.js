@@ -60,6 +60,12 @@
     return '#64dc82';
   }
 
+  function allianceBonusFor(key) {
+    var bonuses = (state.info && state.info.allianceSectorBonuses) || {};
+    var mult = Number(bonuses[key]) || 1;
+    return mult > 1 ? mult : 1;
+  }
+
   function fleetCount(f) {
     return parseInt(f.ships_alive || f.ship_count || 0, 10) || 0;
   }
@@ -150,7 +156,9 @@
 
       html += '<select id="smDestinationSelect" onchange="smUpdatePreview()" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;padding:8px;font-family:var(--fn);font-size:10px;margin-bottom:8px">';
       dests.forEach(function (d) {
-        var line = routeName(d.key) + ' · ' + routeRiskLabel(d) + ' · x' + Number(d.yieldMult || 1).toFixed(1) + ' GP · x' + Number(d.resourceMult || d.yieldMult || 1).toFixed(1) + ' resource · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
+        var allianceBonus = allianceBonusFor(d.key);
+        var allianceText = allianceBonus > 1 ? ' · Alliance +' + Math.round((allianceBonus - 1) * 100) + '%' : '';
+        var line = routeName(d.key) + ' · ' + routeRiskLabel(d) + ' · x' + Number((d.yieldMult || 1) * allianceBonus).toFixed(1) + ' GP · x' + Number((d.resourceMult || d.yieldMult || 1) * allianceBonus).toFixed(1) + ' resource' + allianceText + ' · x' + Number(d.wearMult || 1).toFixed(1) + ' wear · ' + pct(d.raidPct) + '% raid';
         html += '<option value="' + txt(d.key) + '"' + (String(picks.destination || '') === String(d.key) ? ' selected' : '') + '>' + txt(line) + '</option>';
       });
       html += '</select>';
@@ -204,13 +212,18 @@
     var h = Number(picks.durationH || (state.info.durationsH || [1])[0]) || 1;
     if (!fleet) { el.textContent = ''; return; }
     var cap = fleetCapacityEstimate(fleet);
-    var gp = Math.round(cap * h * (Number(state.info.gpPerCapacityHour) || 0) * (Number(dest.yieldMult) || 1));
+    var allianceBonus = allianceBonusFor(dest.key);
+    var gp = Math.round(cap * h * (Number(state.info.gpPerCapacityHour) || 0) * (Number(dest.yieldMult) || 1) * allianceBonus);
     var launchCost = Number(state.info.launchCostGp) || 0;
     var netGp = gp - launchCost;
     var wearPct = (Number(state.info.hullWearPctPerHour) || 0) * (Number(dest.wearMult) || 1) * h;
     var raidWearPct = wearPct * 1.5;
-    var resourceMult = Number(dest.resourceMult || dest.yieldMult || 1);
+    var resourceMult = Number(dest.resourceMult || dest.yieldMult || 1) * allianceBonus;
     var capLine = Number(state.info.gpCapPerDay) > 0 ? ' · ' + lang('daily cap', '일일 상한', '日次上限', '每日上限') + ' ' + state.info.gpCapPerDay + ' GP' : '';
+    var allianceLine = allianceBonus > 1
+      ? '<br><span style="color:#80cbc4;font-weight:800">Alliance sector +' + Math.round((allianceBonus - 1) * 100) + '%</span> · ' +
+        lang('same-tier governed space', '동맹이 통치 중인 같은 티어 섹터', '同盟統治中の同ティア宙域', '同盟治理的同阶区域')
+      : '';
     el.innerHTML = '<span style="color:' + routeRiskColor(dest) + ';font-weight:900">' + txt(routeRiskLabel(dest)) + '</span> · ' +
       lang('Gross', '총 보상', '総報酬', '总收益') + ': <b style="color:var(--gold)">+' + gp + ' GP</b> · ' +
       lang('Net', '순익', '純益', '净收益') + ': <b style="color:' + (netGp >= 0 ? '#64dc82' : 'var(--red)') + '">' + (netGp >= 0 ? '+' : '') + netGp + ' GP</b> · CAP ' + txt(cap) + capLine + '<br>' +
@@ -218,7 +231,8 @@
       lang('hull wear', '선체 마모', '船体摩耗', '船体损耗') + ' x' + Number(dest.wearMult || 1).toFixed(1) + ' · ' +
       lang('raid risk', '약탈 위험', '襲撃リスク', '袭击风险') + ' ' + pct(dest.raidPct) + '% · ' +
       lang('expected wear', '예상 마모', '予想摩耗', '预计损耗') + ' ' + pct(wearPct) + '%' +
-      (Number(dest.raidPct) > 0 ? ' (' + lang('raided', '약탈 시', '襲撃時', '被袭时') + ' ' + pct(raidWearPct) + '%)' : '');
+      (Number(dest.raidPct) > 0 ? ' (' + lang('raided', '약탈 시', '襲撃時', '被袭时') + ' ' + pct(raidWearPct) + '%)' : '') +
+      allianceLine;
   };
 
   window._renderShipMining = function () {
@@ -231,7 +245,7 @@
     state.loading = true;
     renderShell('Loading resource routes...');
     Promise.all([
-      jsonFetch('/api/mining/info', { cache: 'no-store' }),
+      jsonFetch('/api/mining/info', { headers: authHeaders(false), cache: 'no-store' }),
       jsonFetch('/api/mining/my', { headers: authHeaders(false), cache: 'no-store' }),
       jsonFetch('/api/fleets', { headers: authHeaders(false), cache: 'no-store' })
     ]).then(function (rows) {
@@ -271,6 +285,7 @@
       body: JSON.stringify({ jobId: jobId })
     }).then(function (d) {
       var msg = '+' + (d.rewardGp || 0) + ' GP';
+      if (Number(d.allianceSectorBonus) > 1) msg += ' · Alliance +' + Math.round((Number(d.allianceSectorBonus) - 1) * 100) + '%';
       if (d.raided) msg += ' · ' + lang('raided', '약탈 피해', '襲撃被害', '遭袭');
       if (d.resources && d.resources.length) msg += ' · ' + d.resources.map(function (r) { return r.code + ' x' + r.quantity; }).join(', ');
       toast(msg, d.raided ? 'warn' : 'success');

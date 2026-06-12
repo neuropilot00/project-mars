@@ -14,10 +14,20 @@ const requireAuth = (req, res, next) => {
 function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
+function getOptionalAuthWallet(req) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return '';
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    return (user?.wallet_address || user?.wallet || user?.walletAddress || '').toLowerCase().trim();
+  } catch (_) {
+    return '';
+  }
+}
 
 // GET /api/mining/info
 router.get('/mining/info', async (req, res) => {
-  try { res.json(await mining.getMiningInfo()); }
+  try { res.json(await mining.getMiningInfo(getOptionalAuthWallet(req))); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
