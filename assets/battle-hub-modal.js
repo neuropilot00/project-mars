@@ -70,10 +70,10 @@ const BATTLEFIELD_BACKGROUNDS = {
   garrison_rooftop: '/assets/textures/battlefields/mars_garrison_rooftop_topdown.png',
   deep_mine: '/assets/textures/battlefields/mars_deep_mine_topdown.png',
   settlement_airspace: '/assets/textures/battlefields/mars_settlement_airspace_topdown.png',
-  occupation_grid_airspace: '/assets/textures/battlefields/mars_occupation_grid_airspace.svg',
-  minehead_trench: '/assets/textures/battlefields/mars_minehead_trench.svg',
-  dome_defense_line: '/assets/textures/battlefields/mars_dome_defense_line.svg',
-  orbital_minefield: '/assets/textures/battlefields/mars_orbital_minefield.svg'
+  occupation_grid_airspace: '/assets/textures/battlefields/mars_occupation_grid_airspace_topdown.png',
+  minehead_trench: '/assets/textures/battlefields/mars_minehead_trench_topdown.png',
+  dome_defense_line: '/assets/textures/battlefields/mars_dome_defense_line_topdown.png',
+  orbital_minefield: '/assets/textures/battlefields/mars_orbital_blockade_topdown.png'
 };
 const SECTOR_BATTLEFIELD_BY_CODE = {
   olympus_crown: 'garrison_rooftop',
