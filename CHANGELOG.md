@@ -1,3 +1,15 @@
+## 2026-06-05 v7.415 — 동적 PP→GP 환율 자가보정 (무인 EVE 운영, mig327)
+
+유저 요청: target/min_activity 를 사람이 안 잡아도 알아서 굴러가게. exchangeRate.js 에 자가보정 추가 +
+동적 재활성(mig326 임시OFF → 327 안전 재ON).
+
+- 부트스트랩 게이트: 최근 14일 중 활동일<5면 실시장 없음으로 보고 환율을 base(10) 중립 유지 →
+  저볼륨 천장 드리프트(GP 인플레) 로직 차원 영구 차단.
+- 실데이터 충분 시: target=일별 환전량 중앙값(스파이크 강건), min_activity=target×0.25 자동 산출 후
+  [floor5,ceil20] ±2% 양방향 밴딩(EVE식). 산출 target/min_activity 는 settings 기록(어드민 가시).
+- 운영자 개입 0: 볼륨 생기면 자동 가동, 없으면 중립. mig327 이 auto_calibrate/rate_base/window/
+  min_active_days/min_activity_frac 시드 + dynamic_enabled=true 재활성.
+- 검증: node -c OK, psql 적용, recomputeRate() 런타임 = {bootstrapping, heldRate:10}(볼륨0 중립 확인).
 ## 2026-06-05 v7.414 — 동적 PP→GP 환율 런칭 전 중립 보류 (EVE 충실, mig326)
 
 방향 결정: EVE식 양방향 수급 밴드(mig233/234)는 유지하되, target=1000 PP/24h 가 실볼륨과 안 맞아
