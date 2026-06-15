@@ -9,7 +9,8 @@
     "smoke:db": "node tools/db_smoke.js",
     "release:check": "node tools/release_preflight.js",
     "rollback:plan": "node tools/rollback_helper.js",
-    "backup:verify": "node tools/backup_verify.js"
+    "backup:verify": "node tools/backup_verify.js",
+    "backup:rehearse": "node tools/backup_verify.js --restore-rehearsal"
   },
   "engines": {
     "node": "22.x"

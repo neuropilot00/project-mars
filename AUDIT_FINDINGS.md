@@ -1,3 +1,23 @@
+## 2026-06-15 — Backup Restore 리허설 감사 반영 (v7.464)
+
+### ✅ 수정 완료
+- **[MEDIUM] 백업 검증이 파일 무결성/SQL 신호 확인에 그침**: `server/tools/backup_verify.js`에 `--restore-rehearsal` 모드를 추가해 최신 `server/backups/backup_*.sql.gz`를 격리 DB에 실제 복원한다.
+- **[MEDIUM] 복원 후 스키마 사용 가능성 증거 부족**: 복원 DB에서 `users`, `settings`, `transactions`, `admin_audit_log` 존재와 `SELECT COUNT(*)` 가능 여부, 핵심 경제 설정 3종 조회를 확인한다.
+- **[LOW] 운영자가 실수로 운영 DB에 복원할 위험**: `RESTORE_DATABASE_URL`이 없거나 `DATABASE_URL`과 같으면 리허설을 실패시킨다.
+- **[LOW] 비어 있지 않은 리허설 DB에 재복원할 위험**: 복원 전 public schema의 relation/enum 존재 여부를 확인해 빈 DB가 아니면 실패시킨다.
+- **[LOW] 오픈베타 체크리스트의 남은 운영 증거 범위 불명확**: 로컬/격리 리허설이 증명하는 범위와 운영 환경에서만 확인 가능한 자동 스케줄·보관·L1 스모크 범위를 문서에 분리했다.
+
+### 남은 운영 확인 범위
+- Railway/cron 자동 백업이 운영 DB 대상으로 실제 실행 중인지 확인 필요.
+- 운영 백업 보관 위치/보존 주기와 접근 권한 확인 필요.
+- 운영 백업 파일을 운영과 같은 PostgreSQL 버전/권한 모델의 격리 DB에 복원하고, 복원 DB로 서버 L1 스모크를 실행해야 한다.
+
+### 검증 완료
+- `node --check server/tools/backup_verify.js`
+- `DATABASE_URL=postgresql://jongho@localhost:5432/pixelwar server/scripts/backup.sh`
+- `DATABASE_URL=postgresql://jongho@localhost:5432/pixelwar RESTORE_DATABASE_URL=postgresql://jongho@localhost:5432/pixelwar_restore_rehearsal_20260615_140100 npm --prefix server run backup:rehearse` → `25 passed / 0 failed`
+- `DATABASE_URL=postgresql://jongho@localhost:5432/pixelwar npm --prefix server run backup:verify` → `14 passed / 0 failed`
+
 ## 2026-06-11 — Redemption/Withdrawal 라우트 분리 감사 반영 (v7.463)
 
 ### ✅ 수정 완료

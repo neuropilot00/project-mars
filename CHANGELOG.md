@@ -1,3 +1,12 @@
+## 2026-06-15 v7.464 — Backup Restore 리허설
+
+- `server/tools/backup_verify.js`에 `--restore-rehearsal` 모드를 추가했다.
+- `RESTORE_DATABASE_URL=<빈 격리 DB> npm run backup:rehearse`가 최신 `server/backups/backup_*.sql.gz`를 실제 `psql`로 복원하고, 핵심 테이블/설정 조회까지 확인한다.
+- `RESTORE_DATABASE_URL`이 없거나 `DATABASE_URL`과 같거나, 대상 DB public schema가 비어 있지 않으면 실패하도록 해 운영 DB 오복원/재복원 위험을 줄였다.
+- `backup:verify`도 기존 `../db` 풀 로드 대신 독립 `pg.Client` 검증으로 정리했다.
+- 오픈베타 체크리스트와 백업/복구 baseline에 리허설이 자동으로 증명하는 범위와 운영 환경에서만 남는 확인 범위를 분리해 문서화했다.
+- 로컬 리허설 증거: `backup_20260615_134956.sql.gz`를 임시 DB `pixelwar_restore_rehearsal_20260615_140100`에 복원, `25 passed / 0 failed`.
+
 ## 2026-06-11 v7.463 — Redemption/Withdrawal 라우트 분리
 
 - PP→USDT swap, USDT withdraw, withdraw-all 라우트를 `server/routes/redemptionRoutes.js`로 분리했다.

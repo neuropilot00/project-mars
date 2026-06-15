@@ -28,7 +28,7 @@
 **실제 갭 (베타 전 처리):**
 - ✅ **프로덕션 노드 버전 고정** — root/server `package.json` 모두 `engines.node=22.x`
 - ⚠️ **server console.log 167개** — 프로덕션 로그 노이즈/민감정보 노출 가능, 정리 또는 로그레벨 가드 권장
-- ⚠️ DB 백업 스크립트는 있으나 **자동 스케줄·복구 리허설 확인 필요** (스크립트 ≠ 자동 실행)
+- ⚠️ DB 백업 스크립트와 **격리 DB 복구 리허설 모드**는 있으나, 자동 스케줄과 운영 백업 대상 리허설 증거는 운영 환경에서 확인 필요
 - 🔴 **법무/약관 부재** (COMMERCIAL_OPEN_READINESS 기준 🔴) — 약관·개인정보·환불 정책. 단, "법무는 패스" 방침이면 베타 한정 고지문으로 대체 가능
 - ⚠️ `AUDIT_FINDINGS.md` 잔여 🟡(저위험/도달불가 위주) — 베타 차단 아님, 모니터
 
@@ -36,7 +36,7 @@
 
 ## 1. 🔴 차단 — 베타 시작 전 반드시
 - [ ] **프로덕션 시크릿 강도 확인**: `JWT_SECRET`, `ADMIN_SECRET`은 production 부팅 시 32자 미만/기본값 패턴/반복문자면 즉시 실패하도록 서버 가드 적용. Railway 실제 값 자체의 랜덤성은 배포 전 운영자가 환경변수 화면에서 최종 확인.
-- [ ] **DB 백업·복구 리허설**: 백업 스크립트(`server/scripts/backup.sh`)와 검증 도구(`npm run backup:verify`)는 최신 백업 파일 존재/gzip 무결성/복구 가능한 SQL 신호까지 확인. **자동 스케줄(cron/Railway)로 실제 돌고 있는지** + 격리 DB 복구 테스트 증거는 운영 환경에서 필요.
+- [ ] **DB 백업·복구 리허설**: 백업 스크립트(`server/scripts/backup.sh`)와 검증 도구(`npm run backup:verify`)는 최신 백업 파일 존재/gzip 무결성/SQL 신호를 확인한다. `RESTORE_DATABASE_URL=<빈 격리 DB> npm run backup:rehearse`는 최신 백업을 실제 복원하고 핵심 테이블/설정을 조회한다. **자동 스케줄(cron/Railway)로 운영 백업이 실제 생성되는지**, 운영 백업 보관/권한/동일 PostgreSQL 버전에서의 격리 복원, 복원 DB로 서버 L1 스모크까지는 운영 환경 실행 증거가 필요.
 - [x] **베타 고지문** ✅ (v7.351): 신규 진입 1회 노출 모달 구현(`index.html`, 반투명+화성 오렌지). 실험 단계/데이터 초기화 가능/게임 재화 현금가치·환불 없음/버그 신고 4줄, 4개국어. `localStorage 'pw_beta_notice_v1'` 1회 게이트. (정식 약관은 `COMMERCIAL_OPEN_READINESS` 🔴 — 상용 오픈 시 필수, 베타는 이 고지로 대체.)
 - [ ] **마이그레이션 프로덕션 적용 확인**: release preflight의 DB smoke가 `schema_migrations`에 현재 repo 최신 migration 및 핵심 핫픽스가 적용됐는지 확인하도록 보강. 배포 직후 프로덕션 `DATABASE_URL`로 실행해 통과 증거 필요. 특히 최근 핫픽스:
   - `291_crash_round_cleanup.sql` (칸티나 크래시 고아 라운드)
