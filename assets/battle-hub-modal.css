@@ -207,6 +207,11 @@
   background: rgba(239,83,80,.035);
 }
 .killmail-card.betrayer { border-color: rgba(255,209,102,.35); border-left-color: #ffd166; background: rgba(255,209,102,.045); }
+/* [v7.412] YOUR LOSSES 피드 — 손실회피→재건/복수 */
+.my-losses-feed { margin: 10px 0 14px; display: flex; flex-direction: column; gap: 6px; }
+.mlf-title { font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 800; letter-spacing: .5px; color: #ff8a80; margin-bottom: 2px; }
+.killmail-card.loss { border-color: rgba(255,138,128,.22); border-left-color: #ff8a80; background: rgba(239,83,80,.06); }
+.killmail-card.loss .bc-btn.primary { background: rgba(126,231,135,.16); border-color: rgba(126,231,135,.45); color: #7ee787; }
 .killmail-skull { font-size: 18px; filter: drop-shadow(0 0 8px rgba(239,83,80,.45)); }
 .killmail-title {
   display: flex;

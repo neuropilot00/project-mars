@@ -419,11 +419,48 @@ async function bhLoadKillboard(container) {
   battleHubState.killboardCache = { data: data, mine: mine };
   const kills = data.kills || [];
   const header = mine ? renderMyKillboardSummary(mine) : '';
+  // [v7.412] YOUR LOSSES 피드 — killboard.js(/:wallet)가 recentLosses 를 이미 반환하는데 렌더 안 하던 것.
+  //   손실회피→재건/복수 carve 루프 봉합(울트라코드 rank1). 백엔드 0변경·GP 0영향.
+  const lossesFeed = mine ? renderMyLossesFeed(mine) : '';
   if (!kills.length) {
-    container.innerHTML = header + '<div class="bh-empty">' + tl('No kills recorded yet','아직 격침 기록이 없습니다','撃沈記録はまだありません','暂无击毁记录') + '</div>';
+    container.innerHTML = header + lossesFeed + '<div class="bh-empty">' + tl('No kills recorded yet','아직 격침 기록이 없습니다','撃沈記録はまだありません','暂无击毁记录') + '</div>';
     return;
   }
-  container.innerHTML = header + '<div class="killboard-list">' + kills.map(renderKillmailCard).join('') + '</div>';
+  container.innerHTML = header + lossesFeed + '<div class="killboard-list">' + kills.map(renderKillmailCard).join('') + '</div>';
+}
+
+// [v7.412] 내 최근 피격 함선 + 재건/복수 CTA. 이 파일의 inline onclick + escapeAttr 패턴에 맞춤.
+function renderMyLossesFeed(m) {
+  const losses = (m && m.recentLosses) || [];
+  if (!losses.length) return '';
+  const myWallet = (getMyWallet() || '').toLowerCase();
+  const title = LANG==='ko'?'내 피해 — 재건 / 복수':LANG==='ja'?'被害記録 — 再建 / 報復':LANG==='zh'?'我的损失 — 重建 / 复仇':'YOUR LOSSES — Rebuild / Revenge';
+  const destroyedWord = LANG==='ko'?'격침 by':LANG==='ja'?'撃沈 by':LANG==='zh'?'击毁 by':'lost to';
+  const rebuildWord = LANG==='ko'?'⚒ 재건':LANG==='ja'?'⚒ 再建':LANG==='zh'?'⚒ 重建':'⚒ Rebuild';
+  const revengeWord = LANG==='ko'?'⚔ 복수':LANG==='ja'?'⚔ 報復':LANG==='zh'?'⚔ 复仇':'⚔ Revenge';
+  const unknownWord = LANG==='ko'?'불명':LANG==='ja'?'不明':LANG==='zh'?'未知':'unknown';
+  const rows = losses.map(function(l){
+    const ship = escapeHtml(l.ship_name || l.ship_type || 'Ship');
+    const val = Math.max(0, parseInt(l.ship_value_gp, 10) || 0);
+    const mods = Math.max(0, parseInt(l.mods, 10) || 0);
+    const killerName = l.killer_wallet ? shortWallet(l.killer_wallet) : unknownWord;
+    const when = formatShortTime(l.created_at);
+    const canHunt = l.killer_wallet && String(l.killer_wallet).toLowerCase() !== myWallet;
+    return '<div class="killmail-card loss">'
+      + '<div class="killmail-skull">💥</div>'
+      + '<div class="killmail-main"><div class="killmail-title"><b>' + ship + '</b> <span>' + destroyedWord + '</span> <b>' + escapeHtml(killerName) + '</b></div>'
+      + '<div class="killmail-meta">' + (val ? '<span>' + formatNum(val) + ' GP</span>' : '') + (mods ? '<span>MOD +' + mods + '</span>' : '') + '<span>' + when + '</span></div></div>'
+      + '<div class="killmail-value">'
+      + '<button class="bc-btn primary" onclick="rebuildLostShip(\'' + escapeAttr(l.ship_type || '') + '\')">' + rebuildWord + '</button>'
+      + (canHunt ? '<button class="bc-btn hunt" onclick="huntKillmailTarget(\'' + escapeAttr(l.killer_wallet) + '\',\'' + escapeAttr(killerName) + '\')">' + revengeWord + '</button>' : '')
+      + '</div></div>';
+  }).join('');
+  return '<div class="my-losses-feed"><div class="mlf-title">🛡 ' + title + '</div>' + rows + '</div>';
+}
+
+// 재건: 잃은 함선 종류를 들고 조선소로(현재는 조선소 열기 — shipType 은 향후 사전선택용).
+function rebuildLostShip(shipType) {
+  try { if (typeof openShipyard === 'function') openShipyard(); } catch (_) {}
 }
 
 function renderMyKillboardSummary(m) {
