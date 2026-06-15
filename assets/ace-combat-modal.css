@@ -1,0 +1,90 @@
+/* ACE Combat fullscreen overlay — mirrors tactical-lab modal pattern.
+   ACE is a real-time flight game, so the frame is always fullscreen
+   (no windowed desktop variant) for input/field-of-view fidelity. */
+.ace-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10600;
+  display: none;
+  flex-direction: column;
+  background: #02040a;
+}
+
+.ace-backdrop.active {
+  display: flex;
+}
+
+.ace-modal {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #02040a;
+}
+
+.ace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(0, 255, 190, .14), rgba(0, 126, 255, .06));
+  border-bottom: 1px solid rgba(0, 255, 190, .22);
+}
+
+.ace-title {
+  font-family: 'Orbitron', var(--fn);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 2.5px;
+  color: #66ffd5;
+}
+
+.ace-sub {
+  margin-left: 10px;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, .35);
+}
+
+.ace-close {
+  padding: 6px 14px;
+  color: #ef5350;
+  font-family: var(--fn);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: rgba(239, 83, 80, .12);
+  border: 1px solid rgba(239, 83, 80, .45);
+  border-radius: 6px;
+}
+
+.ace-close:hover {
+  background: rgba(239, 83, 80, .22);
+}
+
+.ace-frame-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #02040a;
+}
+
+.ace-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .ace-header {
+    padding: 6px 10px;
+  }
+
+  .ace-sub {
+    display: none;
+  }
+}

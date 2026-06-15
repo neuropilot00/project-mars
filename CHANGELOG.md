@@ -1,3 +1,18 @@
+## 2026-06-06 v7.416 — ACE 모드 프레임워크 (스타폭스식 1인칭/후면 슈팅, 울트라코드)
+
+방향: 2D 빌보드 + 카메라 통제(추격/제한아크/뱅킹, 자유궤도 X = 영화식 합성 원리) + 기함급별 뷰 차별.
+울트라코드(설계→구현 2병렬→적대검증, verdict clean). 신규 아트 0(기존 함선 PNG 빌보드), 경제 무변경.
+
+- 엔진(assets/ace-combat.html): URL ?mode/bid/wallet/lang 부트스트랩. bid면 read-only /api/tactical-lab/
+  fleet-presets 로 내 기함 size_class+faction 역산 → 적 함대 스폰. bid 없으면 데모 폴백(기존 동작 보존).
+- 기함급 뷰 프로파일 6종(frigate 1인칭콕핏 고속 ↔ titan 포격지휘): camDist/fov/speed/turn/plasmaCool/
+  lockRange/lockTime/hull + 파벌 flavor(mcc정밀/fsp탱킹/cv러시/pilgrim하이브리드). 카메라 통제(추격
+  lerp + 기체 up 뱅킹 + 제한아크, 자유궤도 금지). 텍스처 onError→mcc_dst 폴백.
+- 진입(신규 assets/ace-combat-modal.js/.css, tactical-lab 미러): openAceCombat(bid?) 풀스크린 오버레이,
+  닫을 때 iframe about:blank 언로드(WebGL/사운드 종료). Battle Hub 카드 + BASE OPS 'ACE 모드' 버튼.
+  텍스처 경로 ../ships→/assets/ships 교정. i18n ace_* 키. sw mars-v105, ?v=7465.
+- 검증: 4파일 node -c OK, Chrome 실구동 확인(Three.js 렌더·HUD·DESTROYER 프로파일·게임시작·에러0).
+- 스코프 밖(다음 단계): FLEET↔ACE TAB 상태공유, ACE 점수→함대전황 반영, 3/4후면 전용 아트.
 ## 2026-06-05 v7.415 — 동적 PP→GP 환율 자가보정 (무인 EVE 운영, mig327)
 
 유저 요청: target/min_activity 를 사람이 안 잡아도 알아서 굴러가게. exchangeRate.js 에 자가보정 추가 +

@@ -98,7 +98,9 @@
 // 2026-06-11 v101: v7.436 War Betting 모달 CSS 외부화.
 // 2026-06-11 v102: v7.437 채팅/온보딩 오버레이 CSS 외부화.
 // 2026-06-11 v103: v7.438 Faction 모달 CSS 외부화.
-const CACHE_NAME = 'mars-v103';
+// 2026-06-16 v104: v7.464 ACE 모드 진입점 (ace-combat-modal.js/.css + 진입 버튼).
+// 2026-06-16 v105: ACE 엔진 구현 — ace-combat.html size_class 뷰 프로파일/fleet-presets/postMessage 훅.
+const CACHE_NAME = 'mars-v105';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

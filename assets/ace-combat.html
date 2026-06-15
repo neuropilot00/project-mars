@@ -265,22 +265,198 @@
       const BASE_SPEED = 40;
       const BOOST_MULT = 1.8;
       const BRAKE_MULT = 0.3;
-      const TURN_LERP = 0.06;
+      const TURN_LERP = 0.06;       // demo default; overridden by profile
       const CAMERA_LERP = 0.08;
       const ENEMY_COUNT = 12;
       const PLAYER_SHOT_SPEED = 300;
       const ENEMY_SHOT_SPEED = 155;
       const MISSILE_SPEED = 175;
       const MISSILE_TURN = 0.105;
-      const LOCK_RANGE = 300;
-      const LOCK_TIME = 1.5;
+      const LOCK_RANGE = 300;       // demo default; overridden by profile
+      const LOCK_TIME = 1.5;        // demo default; overridden by profile
+
+      // ── Asset path (this file is served from /assets/, so use absolute /assets/ships/) ──
+      const SHIP_TEX_BASE = "/assets/ships/";
+      const DEMO_ENEMY_CODES = ["mcc_int", "mcc_frg", "fsp_int", "fsp_dst"];
+      const DEMO_PLAYER_CODE = "mcc_dst";
+
+      // ── URL bootstrap (mirrors tactical-lab contract) ──
+      const QS = new URLSearchParams(location.search);
+      const BOOT = {
+        mode: (QS.get("mode") || "demo").toLowerCase(),
+        bid: (function () { var n = parseInt(QS.get("bid"), 10); return n > 0 ? n : 0; })(),
+        wallet: (QS.get("wallet") || "").toLowerCase(),
+        lang: QS.get("lang") || "en"
+      };
+      // bid invalid/<=0 → demote to demo
+      if (BOOT.mode === "battle" && !BOOT.bid) BOOT.mode = "demo";
+      if (BOOT.bid) BOOT.mode = "battle";
+
+      // ── size_class derivation from ship_type_code ──
+      // Suffix → size_class table. Pilgrim assembled hulls handled separately.
+      function sizeClassFromCode(code) {
+        if (!code) return "destroyer";
+        var c = String(code).toLowerCase();
+        if (c.indexOf("pilgrim_") === 0) return "assembled";
+        if (/_titan$/.test(c)) return "titan";
+        if (/_bs$/.test(c)) return "battleship";
+        if (/_crs$/.test(c) || /_snp$/.test(c) || /_logi_crs$/.test(c)) return "cruiser";
+        if (/_dst$/.test(c)) return "destroyer";
+        if (/_int$/.test(c) || /_frg$/.test(c) || /_ewar$/.test(c) || /_logi$/.test(c) || /_bomb$/.test(c)) return "frigate";
+        return "destroyer";
+      }
+
+      function factionFromCode(code) {
+        if (!code) return "mcc";
+        var c = String(code).toLowerCase();
+        var p = c.split("_")[0];
+        if (p === "mcc" || p === "fsp" || p === "cv" || p === "pilgrim") return p;
+        return "mcc";
+      }
+
+      // ── size_class view profiles (camera/FOV/speed/turn/weapon/control) ──
+      const VIEW_PROFILES = {
+        frigate: {
+          camDist: 12, camHeight: 5, fov: 82, speedMult: 1.6, boostMult: 1.85,
+          turnLerp: 0.10, pitchRate: 1.5, yawRate: 1.4, rollBank: 0.7,
+          plasmaCool: 0.10, plasmaDmg: 1, plasmaOffset: 3.2, missileCool: 3.0,
+          lockTime: 1.2, lockRange: 280, missileDmg: 3, playerHull: 100,
+          beam: false, label: "FRIGATE / COCKPIT"
+        },
+        destroyer: {
+          camDist: 46, camHeight: 14, fov: 74, speedMult: 1.15, boostMult: 1.8,
+          turnLerp: 0.07, pitchRate: 1.18, yawRate: 1.08, rollBank: 0.62,
+          plasmaCool: 0.15, plasmaDmg: 1, plasmaOffset: 4.6, missileCool: 4.0,
+          lockTime: 1.5, lockRange: 320, missileDmg: 3, playerHull: 110,
+          beam: false, label: "DESTROYER / CHASE"
+        },
+        cruiser: {
+          camDist: 68, camHeight: 21, fov: 70, speedMult: 0.95, boostMult: 1.6,
+          turnLerp: 0.05, pitchRate: 0.95, yawRate: 0.85, rollBank: 0.5,
+          plasmaCool: 0.22, plasmaDmg: 2, plasmaOffset: 6, missileCool: 4.5,
+          lockTime: 1.6, lockRange: 430, missileDmg: 4, playerHull: 140,
+          beam: false, label: "CRUISER / LONG CHASE"
+        },
+        battleship: {
+          camDist: 100, camHeight: 32, fov: 66, speedMult: 0.8, boostMult: 1.45,
+          turnLerp: 0.035, pitchRate: 0.7, yawRate: 0.6, rollBank: 0.34,
+          plasmaCool: 0.30, plasmaDmg: 3, plasmaOffset: 8, missileCool: 5.0,
+          lockTime: 1.8, lockRange: 480, missileDmg: 5, playerHull: 200,
+          beam: true, beamCharge: 1.1, label: "BATTLESHIP / WIDE CHASE"
+        },
+        titan: {
+          camDist: 145, camHeight: 95, fov: 60, speedMult: 0.6, boostMult: 1.25,
+          turnLerp: 0.025, pitchRate: 0.5, yawRate: 0.45, rollBank: 0.22,
+          plasmaCool: 0.35, plasmaDmg: 4, plasmaOffset: 10, missileCool: 5.5,
+          lockTime: 2.0, lockRange: 600, missileDmg: 6, playerHull: 280,
+          beam: true, beamCharge: 1.0, label: "TITAN / COMMAND"
+        },
+        assembled: {
+          camDist: 108, camHeight: 36, fov: 64, speedMult: 0.78, boostMult: 1.4,
+          turnLerp: 0.04, pitchRate: 0.75, yawRate: 0.65, rollBank: 0.34,
+          plasmaCool: 0.26, plasmaDmg: 3, plasmaOffset: 8, missileCool: 5.0,
+          lockTime: 1.7, lockRange: 500, missileDmg: 5, playerHull: 210,
+          beam: true, beamCharge: 1.05, label: "ASSEMBLED / WIDE CHASE"
+        }
+      };
+
+      // ── faction flavor (small, balance-preserving nudges) ──
+      const FACTION_FLAVOR = {
+        mcc: { lockTimeMult: 0.85, lockRangeMult: 1.12, hullMult: 1.0, shieldRegenMult: 1.0, plasmaCoolMult: 1.0 },
+        fsp: { lockTimeMult: 1.05, lockRangeMult: 1.0, hullMult: 1.2, shieldRegenMult: 1.5, plasmaCoolMult: 1.0 },
+        cv:  { lockTimeMult: 1.0, lockRangeMult: 1.0, hullMult: 0.85, shieldRegenMult: 1.0, plasmaCoolMult: 0.7 },
+        pilgrim: { lockTimeMult: 0.95, lockRangeMult: 1.05, hullMult: 1.05, shieldRegenMult: 1.1, plasmaCoolMult: 0.9 }
+      };
+
+      // Active profile — defaults to demo (destroyer / mcc). Resolved before init() runs in battle mode.
+      let PROFILE = Object.assign({}, VIEW_PROFILES.destroyer);
+      let PLAYER_CODE = DEMO_PLAYER_CODE;
+      let ENEMY_CODES = DEMO_ENEMY_CODES.slice();
+      let ENEMY_SPAWN_COUNT = ENEMY_COUNT;
+
+      function applyFlavor(profile, faction) {
+        var fl = FACTION_FLAVOR[faction] || FACTION_FLAVOR.mcc;
+        var p = Object.assign({}, profile);
+        p.lockTime = profile.lockTime * fl.lockTimeMult;
+        p.lockRange = profile.lockRange * fl.lockRangeMult;
+        p.playerHull = Math.round(profile.playerHull * fl.hullMult);
+        p.shieldRegenMult = fl.shieldRegenMult;
+        p.plasmaCool = profile.plasmaCool * fl.plasmaCoolMult;
+        return p;
+      }
+
+      function resolveProfile(playerCode) {
+        var sc = sizeClassFromCode(playerCode);
+        var fac = factionFromCode(playerCode);
+        var base = VIEW_PROFILES[sc] || VIEW_PROFILES.destroyer;
+        PROFILE = applyFlavor(base, fac);
+        PLAYER_CODE = playerCode;
+      }
+
+      // ── parent postMessage stub (mirrors tactical-lab pattern) ──
+      function notifyParent(cmd, payload) {
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              source: "ace-combat",
+              cmd: cmd,
+              battleId: BOOT.bid || null,
+              wallet: BOOT.wallet || null,
+              payload: payload || {}
+            }, location.origin);
+          }
+        } catch (_) {}
+      }
+
+      // ── fleet-presets fetch (read-only; battle mode only) ──
+      // Resolves player code + enemy codes from the real battle composition, then boots.
+      function bootstrapAndStart() {
+        if (BOOT.mode !== "battle" || !BOOT.bid) {
+          // demo: keep existing behavior
+          notifyParent("ready", { mode: "demo" });
+          init();
+          return;
+        }
+        fetch("/api/tactical-lab/fleet-presets?bid=" + BOOT.bid, { headers: { "Accept": "application/json" } })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            try {
+              if (data && (data.atk || data.def)) {
+                var atk = data.atk || [];
+                var def = data.def || [];
+                // Player = atk[0] flagship (the battle's primary attacker fleet).
+                var myFlag = atk[0] && atk[0].flagship;
+                if (myFlag) resolveProfile(myFlag);
+                // Enemy = def side composition (flagship + escort codes). Fallback to atk overflow.
+                var enemyCodes = [];
+                var src = def.length ? def : atk.slice(1);
+                src.forEach(function (f) {
+                  if (f.flagship) enemyCodes.push(f.flagship);
+                  if (f.escort) Object.keys(f.escort).forEach(function (c) { enemyCodes.push(c); });
+                });
+                if (enemyCodes.length) {
+                  ENEMY_CODES = enemyCodes;
+                  // scale spawn count with composition breadth (clamped)
+                  ENEMY_SPAWN_COUNT = Math.max(6, Math.min(18, enemyCodes.length + 4));
+                }
+              }
+            } catch (_) {}
+            notifyParent("ready", { mode: "battle", bid: BOOT.bid, playerCode: PLAYER_CODE });
+            init();
+          })
+          .catch(function () {
+            // network/parse failure → fall back to demo enemies but keep mode tag
+            notifyParent("ready", { mode: "battle", bid: BOOT.bid, fallback: true });
+            init();
+          });
+      }
 
       function init() {
         try {
       const scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2(0x02040a, 0.00075);
 
-      const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 2400);
+      const camera = new THREE.PerspectiveCamera(PROFILE.fov || 70, window.innerWidth / window.innerHeight, 0.1, 2400);
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -381,18 +557,33 @@
         scene.add(new THREE.Mesh(geo, mat));
       }
 
-      const ENEMY_SHIP_TEXTURES = ["../ships/mcc_int.png", "../ships/mcc_frg.png", "../ships/fsp_int.png", "../ships/fsp_dst.png"];
       let _enemyTexCache = {};
 
+      function shipTexPath(code) {
+        return SHIP_TEX_BASE + code + ".png";
+      }
+
+      // 텍스처 로드 실패(assembled/pilgrim 등 PNG 부재) 시 투명 평면 대신 기본 함선으로 폴백.
+      function loadShipTex(path) {
+        const loader = new THREE.TextureLoader();
+        const tex = loader.load(path, undefined, undefined, function () {
+          loader.load(SHIP_TEX_BASE + "mcc_dst.png", function (fb) {
+            tex.image = fb.image; tex.needsUpdate = true;
+          });
+        });
+        return tex;
+      }
+
       function getEnemyTex(index) {
-        const path = ENEMY_SHIP_TEXTURES[index % ENEMY_SHIP_TEXTURES.length];
-        if (!_enemyTexCache[path]) _enemyTexCache[path] = new THREE.TextureLoader().load(path);
+        const codes = (ENEMY_CODES && ENEMY_CODES.length) ? ENEMY_CODES : DEMO_ENEMY_CODES;
+        const path = shipTexPath(codes[index % codes.length]);
+        if (!_enemyTexCache[path]) _enemyTexCache[path] = loadShipTex(path);
         return _enemyTexCache[path];
       }
 
       function makePlayer() {
         const root = new THREE.Group();
-        const tex = new THREE.TextureLoader().load("../ships/mcc_dst.png");
+        const tex = loadShipTex(shipTexPath(PLAYER_CODE));
         const geo = new THREE.PlaneGeometry(28, 36);
         const mat = new THREE.MeshBasicMaterial({
           map: tex,
@@ -410,7 +601,8 @@
           hp: 3,
           velocity: new THREE.Vector3(0, 0, -BASE_SPEED),
           shield: 100,
-          hull: 100,
+          hull: PROFILE.playerHull || 100,
+          hullMax: PROFILE.playerHull || 100,
           boost: 100,
           lastDamage: -99,
           invincible: 0,
@@ -471,7 +663,7 @@
         player.mesh.quaternion.identity();
         camera.position.set(0, 22, 78);
         camera.lookAt(player.mesh.position);
-        for (let i = 0; i < ENEMY_COUNT; i += 1) {
+        for (let i = 0; i < ENEMY_SPAWN_COUNT; i += 1) {
           enemies.push(makeEnemy(i));
         }
         lastShotTime = -99;
@@ -489,18 +681,22 @@
         if (nextState === "titleScreen") {
           hud.centerMessage.classList.remove("hidden");
           hud.centerMessage.onclick = resetGame;
-          hud.messageTitle.textContent = "ACE COMBAT DEMO";
-          hud.messageSub.innerHTML = "PRESS ENTER TO START<br>CLICK OR TAP TO START";
+          hud.messageTitle.textContent = BOOT.mode === "battle" ? "ACE COMBAT" : "ACE COMBAT DEMO";
+          hud.messageSub.innerHTML = (PROFILE.label || "DESTROYER / CHASE") +
+            "<br>PRESS ENTER TO START<br>CLICK OR TAP TO START";
         } else if (nextState === "missionComplete") {
           hud.centerMessage.classList.remove("hidden");
           hud.centerMessage.onclick = null;
           hud.messageTitle.textContent = "MISSION COMPLETE";
           hud.messageSub.textContent = "PRESS ENTER TO RESTART";
+          // Result hook (stub — score wiring is a later step; read-only, writes nothing to server).
+          notifyParent("ace_result", { outcome: "win", playerCode: PLAYER_CODE });
         } else if (nextState === "gameOver") {
           hud.centerMessage.classList.remove("hidden");
           hud.centerMessage.onclick = null;
           hud.messageTitle.textContent = "GAME OVER";
           hud.messageSub.textContent = "PRESS R TO RESTART";
+          notifyParent("ace_result", { outcome: "loss", playerCode: PLAYER_CODE });
         } else {
           hud.centerMessage.classList.add("hidden");
           hud.centerMessage.onclick = null;
@@ -524,12 +720,13 @@
       }
 
       function firePlasma(time) {
-        if (time - lastShotTime < 0.15 || state !== "gameplay") return;
+        if (time - lastShotTime < PROFILE.plasmaCool || state !== "gameplay") return;
         lastShotTime = time;
         const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
         const right = new THREE.Vector3(1, 0, 0).applyQuaternion(player.mesh.quaternion).normalize();
         const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(-11));
-        for (const offset of [-4.6, 4.6]) {
+        const off = PROFILE.plasmaOffset;
+        for (const offset of [-off, off]) {
           const pos = origin.clone().add(right.clone().multiplyScalar(offset));
           const shot = makeProjectile(pos, forward, 0x32fff1, PLAYER_SHOT_SPEED, "player");
           playerShots.push(shot);
@@ -538,7 +735,7 @@
 
       function findNearestLockTarget() {
         let nearest = null;
-        let nearestDist = LOCK_RANGE;
+        let nearestDist = PROFILE.lockRange;
         for (const enemy of enemies) {
           if (!enemy.alive) continue;
           const dist = enemy.mesh.position.distanceTo(player.mesh.position);
@@ -564,7 +761,7 @@
           velocity: forward.multiplyScalar(MISSILE_SPEED),
           life: 5
         });
-        missileCooldown = 4;
+        missileCooldown = PROFILE.missileCool;
         lockTimer = 0;
         lockTarget = null;
       }
@@ -658,9 +855,9 @@
 
         const pitchInput = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
         const yawInput = (keys.KeyA || keys.ArrowLeft ? 1 : 0) - (keys.KeyD || keys.ArrowRight ? 1 : 0);
-        const rollBank = yawInput * 0.62;
-        const pitchRate = pitchInput * 1.18;
-        const yawRate = yawInput * 1.08;
+        const rollBank = yawInput * PROFILE.rollBank;
+        const pitchRate = pitchInput * PROFILE.pitchRate;
+        const yawRate = yawInput * PROFILE.yawRate;
 
         const deltaQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(
           pitchRate * dt,
@@ -669,7 +866,7 @@
           "XYZ"
         ));
         tempQuat.copy(player.mesh.quaternion).multiply(deltaQuat).normalize();
-        player.mesh.quaternion.slerp(tempQuat, TURN_LERP);
+        player.mesh.quaternion.slerp(tempQuat, PROFILE.turnLerp);
 
         if (player.rollTime > 0) {
           player.rollTime -= dt;
@@ -683,9 +880,9 @@
 
         const boosting = (keys.ShiftLeft || keys.ShiftRight) && player.boost > 0;
         const braking = keys.ControlLeft || keys.ControlRight;
-        let speed = BASE_SPEED;
+        let speed = BASE_SPEED * PROFILE.speedMult;
         if (boosting) {
-          speed *= BOOST_MULT;
+          speed *= PROFILE.boostMult;
           player.boost = Math.max(0, player.boost - 50 * dt);
         } else {
           player.boost = Math.min(100, player.boost + 20 * dt);
@@ -706,7 +903,7 @@
 
         if (player.invincible > 0) player.invincible -= dt;
         if (clock.elapsedTime - player.lastDamage > 3) {
-          player.shield = Math.min(100, player.shield + 10 * dt);
+          player.shield = Math.min(100, player.shield + 10 * dt * (PROFILE.shieldRegenMult || 1));
         }
       }
 
@@ -724,8 +921,8 @@
         const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
         const up = upVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
         const desired = player.mesh.position.clone()
-          .add(forward.clone().multiplyScalar(-64))
-          .add(up.clone().multiplyScalar(20));
+          .add(forward.clone().multiplyScalar(-PROFILE.camDist))
+          .add(up.clone().multiplyScalar(PROFILE.camHeight));
         camera.position.lerp(desired, CAMERA_LERP);
         const lookAt = player.mesh.position.clone()
           .add(forward.clone().multiplyScalar(55))
@@ -808,7 +1005,7 @@
           spawnTrail(missile.mesh.position.clone(), 0xffe65a, 3.1);
 
           if (missile.mesh.position.distanceTo(missile.target.mesh.position) < 13) {
-            missile.target.hp -= 3;
+            missile.target.hp -= PROFILE.missileDmg;
             if (missile.target.hp <= 0) destroyEnemy(missile.target);
             spawnExplosion(missile.mesh.position, 12, 0xfff57a, 0xff8a28, 0.8);
             scene.remove(missile.mesh);
@@ -856,7 +1053,7 @@
           for (const enemy of enemies) {
             if (!enemy.alive) continue;
             if (shot.mesh.position.distanceTo(enemy.mesh.position) < 8) {
-              enemy.hp -= 1;
+              enemy.hp -= PROFILE.plasmaDmg;
               if (enemy.hp <= 0) destroyEnemy(enemy);
               hit = true;
               break;
@@ -902,7 +1099,7 @@
         }
         lockTimer += dt;
         hud.lockWrap.style.opacity = "1";
-        if (lockTimer >= LOCK_TIME) {
+        if (lockTimer >= PROFILE.lockTime) {
           fireMissile(lockTarget);
         }
       }
@@ -916,17 +1113,18 @@
         hud.hullText.textContent = String(hull);
         hud.boostText.textContent = String(boost);
         hud.enemyText.textContent = String(aliveEnemies);
+        const hullMax = (player && player.hullMax) || 100;
         hud.shieldFill.style.width = clamp(shield, 0, 100) + "%";
-        hud.hullFill.style.width = clamp(hull, 0, 100) + "%";
+        hud.hullFill.style.width = clamp((hull / hullMax) * 100, 0, 100) + "%";
         hud.boostFill.style.width = clamp(boost, 0, 100) + "%";
 
-        const plasmaReady = time - lastShotTime >= 0.15;
+        const plasmaReady = time - lastShotTime >= PROFILE.plasmaCool;
         hud.plasmaText.textContent = plasmaReady ? "READY" : "COOLING";
         hud.plasmaText.style.color = plasmaReady ? "#7dffe8" : "#ffd66b";
         hud.missileText.textContent = missileCooldown <= 0 ? "READY" : missileCooldown.toFixed(1) + "s";
         hud.missileText.style.color = missileCooldown <= 0 ? "#7dffe8" : "#ffd66b";
 
-        const progress = clamp(lockTimer / LOCK_TIME, 0, 1);
+        const progress = clamp(lockTimer / PROFILE.lockTime, 0, 1);
         hud.lockProgress.style.background =
           "conic-gradient(rgba(255, 220, 64, 0.95) 0deg, rgba(255, 220, 64, 0.95) " +
           Math.floor(progress * 360) +
@@ -1030,7 +1228,7 @@
       player.mesh.position.set(0, 0, 0);
       camera.position.set(0, 28, 88);
       camera.lookAt(0, 0, 0);
-      for (let i = 0; i < ENEMY_COUNT; i += 1) {
+      for (let i = 0; i < ENEMY_SPAWN_COUNT; i += 1) {
         enemies.push(makeEnemy(i));
       }
       setState("titleScreen");
@@ -1039,7 +1237,7 @@
           document.body.innerHTML = '<div style="color:#f55;padding:40px;font-family:monospace;font-size:18px">ERROR: ' + e.message + '<br><br>' + e.stack + '</div>';
         }
       }
-      window.addEventListener('load', init);
+      window.addEventListener('load', bootstrapAndStart);
     }());
   </script>
 </body>

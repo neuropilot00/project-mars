@@ -21,6 +21,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <link href="/assets/tactical-lab-modal.css?v=7424" rel="stylesheet">
+<link href="/assets/ace-combat-modal.css?v=7465" rel="stylesheet">
 <link href="/assets/bug-reporter.css?v=7428" rel="stylesheet">
 <link href="/assets/ship-catalog-modals.css?v=7429" rel="stylesheet">
 <link href="/assets/shipyard-modal.css?v=7433" rel="stylesheet">
@@ -1290,7 +1291,7 @@
       <div class="base-pane" id="basePane_fleet">
         <div class="base-banner" id="bannerFleet"><img src="/assets/base/fleet.jpg?v=v7160" alt="Fleet Command" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;border-radius:inherit"></div>
         <!-- 빠른 액션 버튼 (크고 사각형) -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px">
           <button type="button" onclick="openShipyard()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">🔨</span>
             <span data-i18n="fcmd_open_shipyard_short">Shipyard</span>
@@ -1302,6 +1303,10 @@
           <button type="button" onclick="openTacticalLab()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.4);color:#ce93d8;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">🧪</span>
             <span data-i18n="fcmd_tactical_lab_short">Tactical Lab</span>
+          </button>
+          <button type="button" onclick="openAceCombat()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(0,255,190,.12);border:1px solid rgba(0,255,190,.4);color:#5fffd5;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
+            <span style="font-size:22px;line-height:1">✈</span>
+            <span data-i18n="fcmd_ace_mode_short">ACE Mode</span>
           </button>
         </div>
         <!-- 함대 현황 요약 -->
@@ -5229,7 +5234,7 @@
 <!-- 섹션 3: JavaScript                                               -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 
-<script src="/assets/battle-hub-modal.js?v=7463"></script>
+<script src="/assets/battle-hub-modal.js?v=7464"></script>
 
 
 <script src="/assets/service-worker-registration.js?v=7441"></script>
@@ -5237,6 +5242,7 @@
 <script src="/assets/app-startup.js?v=7442"></script>
 <script src="/assets/war-betting-modal.js?v=7441"></script>
 <script src="/assets/tactical-lab-modal.js?v=7450"></script>
+<script src="/assets/ace-combat-modal.js?v=7465"></script>
 
 <!-- Tactical Lab Modal (v11.2 Formation/Maneuver) ================================ -->
 <div class="tlab-backdrop" id="tacticalLabBackdrop">
@@ -5250,6 +5256,22 @@
     </div>
     <div class="tlab-frame-wrap">
       <iframe class="tlab-frame" id="tacticalLabFrame" title="Tactical Lab v11.2" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ACE Combat fullscreen overlay (logic in assets/ace-combat-modal.js) -->
+<div class="ace-backdrop" id="aceCombatBackdrop">
+  <div class="ace-modal">
+    <div class="ace-header">
+      <div>
+        <span class="ace-title" data-i18n="ace_title">✈ ACE MODE</span>
+        <span class="ace-sub" data-i18n="ace_sub">DIRECT PILOT — CONTROLLED CHASE CAM</span>
+      </div>
+      <button class="ace-close" onclick="closeAceCombat()" data-i18n="ace_close">✕ CLOSE</button>
+    </div>
+    <div class="ace-frame-wrap">
+      <iframe class="ace-frame" id="aceCombatFrame" title="ACE Combat" loading="lazy"></iframe>
     </div>
   </div>
 </div>

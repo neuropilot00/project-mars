@@ -732,8 +732,9 @@ function renderBattleCard(b, tab) {
         </div>
       </div>
       <div class="bc-actions">
-        ${(b.status === 'ended' || b.status === 'active') 
-          ? `<button class="bc-btn primary" onclick="openBattleViewer(${b.id})">${isLive ? (LANG==='ko'?'관전':LANG==='ja'?'観戦':LANG==='zh'?'观战':'Watch') : (LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay')}</button>`
+        ${(b.status === 'ended' || b.status === 'active')
+          ? `<button class="bc-btn primary" onclick="openBattleViewer(${b.id})">${isLive ? (LANG==='ko'?'관전':LANG==='ja'?'観戦':LANG==='zh'?'观战':'Watch') : (LANG==='ko'?'리플레이':LANG==='ja'?'リプレイ':LANG==='zh'?'回放':'Replay')}</button>
+             <button class="bc-btn" onclick="openAceCombat(${b.id})" title="ACE MODE">✈ ${LANG==='ko'?'에이스':LANG==='ja'?'エース':LANG==='zh'?'王牌':'ACE'}</button>`
           : `<button class="bc-btn" onclick="bhRunBattle(${b.id})">${LANG==='ko'?'즉시 시작':LANG==='ja'?'即時開始':LANG==='zh'?'立即开始':'Start Now'}</button>`
         }
       </div>
