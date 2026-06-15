@@ -457,10 +457,30 @@ function campaignObjectivesHtml(ch,limit){
     var attrs=actionable?' actionable" onclick="handleCampaignObjectiveAction(event,\''+action+'\')"':'"';
     var actionHtml=actionable?'<span class="co-action">'+campaignObjectiveActionLabel(action)+'</span>':'';
     var _oLabel=_campaignStoryText(o.label)||o.labelKo||o.label||o.id||'Objective';
-    html+='<div class="campaign-objective '+state+attrs+'><span class="co-dot">'+icon+'</span><span class="co-label">'+escapeHtmlSafe(_oLabel)+'</span>'+count+actionHtml+'</div>';
+    // [depth #B] 완료된 objective 에 서버가 reputation/reward 메타를 줄 때만 '★ 평판 +N' 미니 라벨.
+    // 서버 메타가 없으면 라벨 생략 — 임의 수치 날조 금지.
+    var repHtml=(state==='done')?_campaignObjectiveRepLabel(o):'';
+    html+='<div class="campaign-objective '+state+attrs+'><span class="co-dot">'+icon+'</span><span class="co-label">'+escapeHtmlSafe(_oLabel)+'</span>'+count+repHtml+actionHtml+'</div>';
   });
   html+='</div>';
   return html;
+}
+// [depth #B] objective 에 서버가 내려준 평판 보상 수치가 있을 때만 미니 라벨을 만든다.
+// 지원 필드(읽기 전용): o.reputation / o.reputationReward / o.repReward / o.reward.reputation (숫자).
+// 어떤 필드도 숫자가 아니면 빈 문자열을 반환 — 수치를 만들어내지 않는다.
+function _campaignObjectiveRepLabel(o){
+  if(!o||typeof o!=='object') return '';
+  var v=null;
+  var cand=[o.reputation,o.reputationReward,o.repReward,(o.reward&&o.reward.reputation)];
+  for(var i=0;i<cand.length;i++){
+    var n=cand[i];
+    if(typeof n==='number'&&isFinite(n)&&n!==0){ v=n; break; }
+  }
+  if(v==null) return '';
+  var lang=(typeof LANG!=='undefined'?LANG:'ko');
+  var word=lang==='ko'?'평판':lang==='ja'?'評判':lang==='zh'?'声望':'REP';
+  var sign=v>0?'+':'';
+  return '<span class="co-rep" style="margin-left:6px;font-size:8px;font-weight:800;color:#ffd166;white-space:nowrap">★ '+escapeHtmlSafe(word)+' '+sign+escapeHtmlSafe(String(v))+'</span>';
 }
 function campaignObjectiveActionTarget(action){
   var map={territory:'territory',territory_art:'territory',shipyard:'shipyard',fleet:'fleet',fleet_battle:'battle',market:'market'};
@@ -1460,9 +1480,58 @@ async function chooseCampaignOption(choiceId){
     var d=await r.json();
     if(!r.ok){showToast(srvErr(d.error)||'Choice failed','error');return;}
     a.progress=d.progress||a.progress;
+    // [depth #A] 서버가 선택을 확정한 직후에만 "YOU CHOSE" 1회성 강조 팝업을 띄운다.
+    try{ _campaignChoiceMadePopup(a.chapter,choiceId); }catch(_){}
     try{loadCampaignStatus();}catch(_){}
     showCampaignSim(a.chapter,a.progress);
   }catch(e){showToast('Choice failed');}
+}
+
+// [depth #A] 분기 선택 영구성 강조 — 'YOU CHOSE [route]' 1회성 팝업 (sessionStorage 중복 억제).
+// 서버가 choice 를 확정한 직후에만 호출된다. 표시 전용 — 진행/보상 로직 무변경.
+function _campaignChoiceMadePopup(ch,choiceId){
+  if(!ch) return;
+  var sid=(_campaignActive&&_campaignActive.sessionId)||'';
+  var key='campaignChoiceShown:'+sid+':'+choiceId;
+  try{ if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key,'1'); }catch(_){}
+  // 라우트/파벌 라벨 — _setCampaignModal 과 동일 규칙으로 챕터에서 파생 (날조 없음).
+  var route=((ch.campaignId||'').replace('_route','')||ch.faction||'mcc').toUpperCase();
+  var choiceLabel='';
+  try{
+    var list=(ch.choices||[]);
+    for(var i=0;i<list.length;i++){ if(list[i]&&list[i].id===choiceId){ choiceLabel=_campaignStoryText(list[i].label)||list[i].labelKo||''; break; } }
+  }catch(_){}
+  var titleTxt=tl('YOU CHOSE','선택했습니다','選択しました','你已选择');
+  var routeTxt=tl('Route','루트','ルート','路线');
+  var permTxt=tl('This choice is permanent. It shapes the chapters ahead.',
+                 '이 선택은 영구적입니다. 앞으로의 챕터에 영향을 줍니다.',
+                 'この選択は永続的です。今後の章に影響します。',
+                 '此选择是永久的，将影响后续章节。');
+  var okTxt=tl('CONTINUE','계속','続ける','继续');
+  var old=document.getElementById('campaignChoiceMadeModal'); if(old) old.remove();
+  var el=document.createElement('div');
+  el.id='campaignChoiceMadeModal';
+  el.style.cssText='position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.82);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
+  el.dataset.openedAt=String(Date.now());
+  el.onclick=function(e){
+    if(e.target!==el) return;
+    if(Date.now()-parseInt(el.dataset.openedAt||'0',10)<350) return;
+    el.remove();
+  };
+  el.innerHTML='<div style="max-width:340px;width:100%;background:linear-gradient(180deg,rgba(20,16,32,.98),rgba(12,9,20,.98));border:1px solid rgba(255,209,102,.45);border-radius:14px;padding:22px 20px;box-shadow:0 12px 40px rgba(0,0,0,.6);text-align:center">'
+    +'<div style="font-size:11px;font-weight:900;letter-spacing:2px;color:#ffd166">'+escapeHtmlSafe(titleTxt)+'</div>'
+    +'<div style="font-size:9px;letter-spacing:1px;color:var(--tx3);margin-top:4px">'+escapeHtmlSafe(route+' '+routeTxt)+'</div>'
+    +(choiceLabel?('<div style="font-size:14px;font-weight:800;color:#fff;margin:14px 4px 4px;line-height:1.35">"'+escapeHtmlSafe(choiceLabel)+'"</div>'):'')
+    +'<div style="font-size:10px;color:#ffab40;margin:14px 0 16px;line-height:1.5">🔒 '+escapeHtmlSafe(permTxt)+'</div>'
+    +'<button type="button" data-action="closeChoiceMade" style="width:100%;padding:11px;border-radius:9px;background:linear-gradient(90deg,#ffd166,#ff9030);border:0;color:#1a1208;font-family:var(--fn);font-size:12px;font-weight:900;letter-spacing:1px;cursor:pointer">'+escapeHtmlSafe(okTxt)+'</button>'
+    +'</div>';
+  el.addEventListener('click',function(ev){
+    var btn=ev.target.closest&&ev.target.closest('button[data-action="closeChoiceMade"]');
+    if(!btn) return;
+    ev.stopPropagation();
+    el.remove();
+  });
+  document.body.appendChild(el);
 }
 
 function showCampaignSim(ch,p){

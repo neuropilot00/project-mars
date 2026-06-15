@@ -1,3 +1,13 @@
+## 2026-06-05 v7.413 — 리텐션 개선 4종 (울트라코드 병렬 구현 + 적대 검증)
+
+울트라코드 워크플로우(파일소유권 분리 3에이전트 병렬 구현 → 적대 검증). 전부 표시/클라 전용, 경제 무변경.
+
+- 일일 미션 진행 바(daily-engagement.js): completed/total 요약 바 + 5초 폴링 갱신(패널 표시+활성탭+로그인 게이트), 변화 시 color-flash. 서버 무변경.
+- 골든패스 온보딩 너지(daily-engagement.js): 신규 플레이어에게 영토→함선→전투 단계 토스트. 기존 #onboardingHint active면 양보, sessionStorage 1회성. [적대검증 fix] 실제 라우트 GET /api/onboarding({onboarding:{completed,current_step}})로 교정 + FAIL-CLOSED(서버 미완료 명시할 때만 — streak 끊긴 복귀 베테랑 오발 차단).
+- 캠페인 분기 영구성(campaign-system.js): choice 확정 직후 'YOU CHOSE [루트]' 1회 팝업(§19 data-action), objective 평판 라벨(서버가 reputation 메타 줄 때만 — 날조 가드, 현재 no-op). 진행/보상 로직 무변경.
+- 길드 신규멤버 환영(guildRoutes.js + guild-ops.js): GET /api/guild/:id 응답에 read-only is_new_member(joined_at 48h, settings 게이트) 1필드 + 환영 배너/CTA(첫 길드전 유도). ⚠ 실제 보상 배수 미적용 — 문구/유도만(인플레 0).
+
+검증: 4파일 node -c OK, 경제/발행 적색어 0건, 길드 라우트 read-only 확인, ?v=7464 버스트.
 ## 2026-06-11 v7.463 — Redemption/Withdrawal 라우트 분리
 
 - PP→USDT swap, USDT withdraw, withdraw-all 라우트를 `server/routes/redemptionRoutes.js`로 분리했다.

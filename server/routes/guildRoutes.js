@@ -109,7 +109,26 @@ router.get('/guild/:id', readLimiter, async (req, res, next) => {
   try {
     const guild = await guildService.getGuild(parseInt(req.params.id));
     if (!guild) return res.status(404).json({ error: 'Guild not found' });
-    res.json({ guild });
+    // Read-only derived field: is the requester a recently-joined member?
+    // Pure display flag for the welcome CTA. No economy/reward effect.
+    let isNewMember = false;
+    try {
+      const reqWallet = (
+        getAuthWallet(req) ||
+        req.headers['x-wallet'] ||
+        req.query.wallet ||
+        ''
+      ).toLowerCase().trim();
+      if (reqWallet) {
+        const windowHours = parseInt(await getSetting('guild_new_member_window_hours') || '48') || 48;
+        const me = (guild.members || []).find(m => (m.wallet || '').toLowerCase() === reqWallet);
+        if (me && me.joinedAt) {
+          const ageMs = Date.now() - new Date(me.joinedAt).getTime();
+          isNewMember = ageMs >= 0 && ageMs <= windowHours * 3600 * 1000;
+        }
+      }
+    } catch (_) { /* derive flag best-effort; never block guild fetch */ }
+    res.json({ guild, is_new_member: isNewMember });
   } catch (e) {
     console.error('[GUILD] get error:', e.message);
     res.status(500).json({ error: 'Failed to get guild' });

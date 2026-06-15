@@ -34,7 +34,95 @@ function loadGuildTab(){
     _syncGuildChatPoll();
     try{ _checkBetrayerMark(w); }catch(_){}
     try{ _checkAwayBriefing(); }catch(_){}
+    try{ if(myGuild && myGuild.id) _checkGuildNewMember(myGuild.id, w); }catch(_){}
   }).catch(function(e){console.warn('[GUILD] load error:',e)});
+}
+
+// ── New-member welcome CTA (display only — no reward/economy effect) ──
+// Reads the read-only is_new_member flag from GET /api/guild/:id and shows a
+// one-time-per-open welcome banner + toast nudging the first guild battle.
+var _guildWelcomeShownFor = null;
+function _checkGuildNewMember(guildId, wallet){
+  if(!wallet || !guildId) return;
+  // Pass wallet explicitly: /api/guild/:id has no auth middleware, so it
+  // derives the requester from ?wallet= (or x-wallet header).
+  _guildReadJson('newmember:'+guildId, '/api/guild/'+guildId+'?wallet='+encodeURIComponent(wallet), 60000)
+    .then(function(d){
+      if(!d) return;
+      _renderGuildWelcomeBanner(!!d.is_new_member, guildId);
+      if(d.is_new_member && _guildWelcomeShownFor !== String(guildId)){
+        _guildWelcomeShownFor = String(guildId);
+        try{
+          if(typeof showToast==='function'){
+            showToast('🎉 '+tl(
+              'Welcome to the guild! Join your first guild battle.',
+              '길드 입단 환영! 첫 길드전에 참여해보세요.',
+              'ギルド加入おめでとう!初のギルド戦に参加しよう。',
+              '欢迎加入公会!参与你的首场公会战吧。'
+            ),'success');
+          }
+        }catch(_){}
+      }
+    }).catch(function(){});
+}
+
+function _renderGuildWelcomeBanner(isNew, guildId){
+  var host=document.getElementById('guildMyGuild');
+  if(!host) return;
+  var el=document.getElementById('guildWelcomeBanner');
+  if(!isNew){ if(el) el.style.display='none'; return; }
+  if(!el){
+    el=document.createElement('div');
+    el.id='guildWelcomeBanner';
+    el.style.cssText='margin-bottom:8px';
+    host.insertBefore(el, host.firstChild);
+  }
+  el.style.display='';
+  var title=tl('Welcome aboard, recruit!','신규 단원 환영합니다!','新メンバーようこそ!','欢迎新成员!');
+  var body=tl('Jump into your first guild battle to start contributing.',
+    '첫 길드전에 참여해 길드에 기여를 시작하세요.',
+    '初のギルド戦に参加して貢献を始めましょう。',
+    '参与你的首场公会战,开始为公会贡献。');
+  var cta=tl('Join first guild battle','첫 길드전 참여','初のギルド戦に参加','参与首场公会战');
+  el.innerHTML='<div style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(91,184,232,.14),rgba(91,184,232,.04));border:1px solid rgba(91,184,232,.32);border-radius:6px;padding:8px 10px">'
+    +'<span style="font-size:16px">🎉</span>'
+    +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--cyan)">'+_esc(title)+'</div>'
+      +'<div style="font-size:9px;color:var(--tx3);margin-top:1px">'+_esc(body)+'</div>'
+    +'</div>'
+    +'<button type="button" data-action="guildWelcomeCta" style="font-size:8px;font-weight:700;padding:4px 8px;border-radius:4px;background:rgba(91,184,232,.18);border:1px solid rgba(91,184,232,.4);color:var(--cyan);cursor:pointer;white-space:nowrap">'+_esc(cta)+'</button>'
+  +'</div>';
+  if(!el.dataset.delegated){
+    el.dataset.delegated='1';
+    el.addEventListener('click', function(ev){
+      var btn=ev.target.closest('button[data-action="guildWelcomeCta"]');
+      if(!btn) return;
+      ev.stopPropagation();
+      console.log('[BTN] guildWelcomeCta triggered');
+      _guildGotoFirstBattle();
+    });
+  }
+}
+
+// Navigate to the PVP / Battle Hub flow so the new member can play their
+// first guild battle (mirrors the campaign fleet_battle objective routing).
+function _guildGotoFirstBattle(){
+  try{
+    if(typeof switchBaseTab==='function'){
+      switchBaseTab('pvp', document.getElementById('baseTabPvp'));
+    }
+  }catch(_){}
+  try{
+    if(typeof openBattleHub==='function'){ openBattleHub(); return; }
+  }catch(_){}
+  if(typeof showToast==='function'){
+    showToast(tl(
+      'Open Battle Hub and start your first guild battle.',
+      '배틀 허브를 열어 첫 길드전을 시작하세요.',
+      'バトルハブを開いて初のギルド戦を始めましょう。',
+      '打开战斗中心,开始你的首场公会战。'
+    ),'info');
+  }
 }
 
 // Start/stop chat poll based on whether user is in a guild

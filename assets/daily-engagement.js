@@ -56,6 +56,8 @@ function checkDailyLogin(){
     updateDailyHudDot();
     renderInlineCheckin();
     loadDailyMissions();
+    // [Retention B] golden-path nudge for brand-new accounts (streak 0, never claimed)
+    try { _maybeGoldenPathNudge({ streak: _dailyState.streak, todayClaimed: !!d.todayClaimed }); } catch(_e){}
   }).catch(function(e){
     console.log('[Daily] Status endpoint not available, using local defaults');
     _dayRewardDefs = _dayRewardDefaults;
@@ -68,6 +70,84 @@ function checkDailyLogin(){
     renderInlineCheckin();
     loadDailyMissions();
   });
+}
+
+// ── [Retention B] Golden-path onboarding nudge (territory → ship → battle) ─────
+//   Self-contained, additive nudge for *new* accounts only. The richer,
+//   server-driven golden-path hint lives in social-live-modal.js (#onboardingHint,
+//   /api/onboarding/status). To avoid duplicate UI we DEFER to it: if that hint is
+//   already showing, or the server says onboarding is complete, we stay silent.
+//   New-account signal: streak === 0 (never claimed a daily). We also consult
+//   /api/onboarding/status read-only when available; fall back to streak otherwise.
+//   sessionStorage one-shot so it shows at most once per browser session, and only
+//   the next un-done step (territory → ship → battle).
+function _goldenPathSteps(){
+  // [step key, toast text]. tl(en,ko,ja,zh)
+  return [
+    { key:'territory', text: tl(
+        '⛏ Next: claim your first Mars territory in BASE.',
+        '⛏ 다음 단계: BASE에서 첫 화성 영토를 점령하세요.',
+        '⛏ 次の一歩: BASEで最初の火星領土を獲得しよう。',
+        '⛏ 下一步：在 BASE 占领你的第一块火星领土。') },
+    { key:'ship', text: tl(
+        '🚀 Next: build your first ship in BASE → Shipyard.',
+        '🚀 다음 단계: BASE → 조선소에서 첫 함선을 건조하세요.',
+        '🚀 次の一歩: BASE → 造船所で最初の艦船を建造しよう。',
+        '🚀 下一步：在 BASE → 船坞建造你的第一艘舰船。') },
+    { key:'battle', text: tl(
+        '⚔ Next: take your fleet into its first battle (PVP).',
+        '⚔ 다음 단계: 함대로 첫 전투(PVP)에 도전하세요.',
+        '⚔ 次の一歩: 艦隊で最初の戦闘(PVP)に挑もう。',
+        '⚔ 下一步：率领舰队进行第一场战斗（PVP）。') }
+  ];
+}
+
+function _maybeGoldenPathNudge(opts){
+  opts = opts || {};
+  if(!walletState || !walletState.address) return;
+  // Defer to the existing server-driven onboarding hint if it's on screen.
+  var existing = document.getElementById('onboardingHint');
+  if(existing && existing.classList && existing.classList.contains('active')) return;
+
+  // New-account gate: streak 0 (never claimed a daily) is our primary signal.
+  var streak = Number(opts.streak || 0);
+  var isNew = streak === 0 && !opts.todayClaimed;
+  if(!isNew) return;
+
+  // One-shot per session.
+  var sessKey = 'gp_nudge_shown_' + (walletState.address || '').toLowerCase();
+  try { if(sessionStorage.getItem(sessKey)) return; } catch(_e){}
+
+  // [v7.413 verify-fix] 실제 라우트는 GET /api/onboarding → {onboarding:{completed,current_step}}.
+  //   FAIL-CLOSED: 서버가 온보딩 "미완료"를 명시할 때만 너지. 404/에러/완료/불명 → 침묵.
+  //   (streak===0 단독은 연속출석 끊긴 복귀 베테랑을 오발하므로 서버 미완료를 필수 조건으로.)
+  try {
+    fetch('/api/onboarding', {
+      headers: (typeof getAuthHeaders === 'function')
+        ? getAuthHeaders()
+        : (emailAuth.token ? { 'Authorization':'Bearer '+emailAuth.token } : {})
+    }).then(function(r){ return r.ok ? r.json() : null; }).then(function(st){
+      var ob = st && st.onboarding;
+      if(!ob || ob.completed === true) return;   // 신규 플레이어 아님(또는 불명) → 침묵
+      var step = Number(ob.current_step) || 0;
+      _showGoldenPathNudge(step, sessKey);
+    }).catch(function(){ /* fail-closed: 너지 안 띄움 */ });
+  } catch(_e){ /* fail-closed */ }
+}
+
+function _showGoldenPathNudge(step, sessKey){
+  var steps = _goldenPathSteps();
+  var s = steps[Math.max(0, Math.min(step, steps.length - 1))];
+  if(!s) return;
+  try { sessionStorage.setItem(sessKey, '1'); } catch(_e){}
+  // Use the shared in-game toast (no native dialogs). Slight delay so it doesn't
+  // collide with the daily check-in toast on first load.
+  setTimeout(function(){
+    try {
+      if(typeof showToast === 'function') showToast(s.text);
+      else if(typeof showFactionToast === 'function') showFactionToast(s.text);
+    } catch(_e){}
+  }, 2500);
 }
 
 // ── Render 14-day stamp board ──
@@ -450,6 +530,7 @@ function loadDailyMissions(){
   });
 
   startDailyTimer();
+  _startDailyMissionSummaryPoll();   // [Retention A] keep completed/total bar fresh
 }
 
 // ── ACHIEVEMENTS (Migration 104) ────────────────────────────────────────────────
@@ -5148,6 +5229,85 @@ function showAchievementDetail(key) {
 }
 
 
+// ── [Retention A] Daily mission completion summary bar (display-only) ──────────
+//   Shows completed/total as a qc-bar-style progress bar above the mission cards.
+//   No server change: derives "completed" purely from already-loaded mission data
+//   (claimed OR current>=target). Polls every 5s via _startDailyMissionSummaryPoll();
+//   on a value change the bar briefly color-flashes.
+var _dmSummaryLast = null;            // last completed count (to detect change)
+var _dmSummaryPollTimer = null;
+
+function _dmSummaryLabel(key, completed, total){
+  switch(key){
+    case 'title':
+      return LANG==='ja' ? 'デイリー進捗' : LANG==='zh' ? '每日进度' : LANG==='ko' ? '일일 미션 진행' : 'Daily Progress';
+    case 'done':
+      return LANG==='ja' ? '全ミッション達成！' : LANG==='zh' ? '全部任务完成！' : LANG==='ko' ? '모든 미션 완료!' : 'All missions done!';
+    default:
+      return '';
+  }
+}
+
+function renderDailyMissionSummary(){
+  var host = document.getElementById('dailyMissionCards');
+  if(!host || !host.parentNode) return;
+  var missions = (_dailyState && _dailyState.missions) || [];
+  var total = missions.length;
+  var bar = document.getElementById('dailyMissionSummary');
+  if(!total){ if(bar) bar.style.display = 'none'; return; }
+
+  var completed = 0;
+  missions.forEach(function(m){
+    var target = m.target != null ? m.target : m.targetValue;
+    var current = m.current != null ? m.current : m.currentValue;
+    if(m.claimed || (Number(current) >= Number(target))) completed++;
+  });
+  var pct = total ? Math.min((completed/total)*100, 100) : 0;
+  var allDone = completed >= total;
+
+  // Create the summary bar once, just before the mission cards container.
+  if(!bar){
+    bar = document.createElement('div');
+    bar.id = 'dailyMissionSummary';
+    bar.style.cssText = 'margin:0 0 8px;transition:box-shadow .35s ease';
+    host.parentNode.insertBefore(bar, host);
+  }
+  bar.style.display = '';
+
+  var fillColor = allDone ? '#7cd7a4' : 'var(--gold)';
+  bar.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-family:var(--fn)">'
+    +   '<span style="font-size:8px;letter-spacing:1px;color:var(--tx3)">'+_dmSummaryLabel('title')+'</span>'
+    +   '<span style="font-size:9px;font-weight:700;color:'+(allDone?'#7cd7a4':'var(--gold)')+'">'
+    +     completed+' / '+total+(allDone?(' · '+_dmSummaryLabel('done')):'')
+    +   '</span>'
+    + '</div>'
+    + '<div style="height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden">'
+    +   '<div style="height:100%;width:'+pct+'%;border-radius:4px;background:'+fillColor+';transition:width .4s ease"></div>'
+    + '</div>';
+
+  // color-flash on change (skip the very first render so it doesn't flash on load)
+  if(_dmSummaryLast !== null && completed !== _dmSummaryLast){
+    bar.style.boxShadow = '0 0 0 2px ' + (allDone ? 'rgba(124,215,164,.85)' : 'rgba(255,200,80,.85)');
+    setTimeout(function(){ try{ bar.style.boxShadow = 'none'; }catch(_e){} }, 600);
+  }
+  _dmSummaryLast = completed;
+}
+
+// 5s poll: re-fetch missions while the daily panel is visible so the summary
+// (and underlying cards) stay fresh; color-flash fires on completion changes.
+function _startDailyMissionSummaryPoll(){
+  if(_dmSummaryPollTimer) return;
+  _dmSummaryPollTimer = setInterval(function(){
+    var panel = document.getElementById('dailyMissionsPanel');
+    var visible = panel && panel.style.display !== 'none' && panel.offsetParent !== null;
+    var active = (typeof _pageIsActive !== 'function') || _pageIsActive();
+    if(visible && active && emailAuth && emailAuth.token){
+      loadDailyMissions();   // re-renders cards + summary; flash on change
+    }
+  }, 5000);
+}
+
 function renderDailyMissions(){
   var container = document.getElementById('dailyMissionCards');
   var html = '';
@@ -5202,6 +5362,7 @@ function renderDailyMissions(){
   } else {
     bonusEl.style.display = 'none';
   }
+  renderDailyMissionSummary();
   updateDailyHudDot();
 }
 
