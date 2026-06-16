@@ -370,7 +370,7 @@
     (function () {
       "use strict";
 
-      const WORLD_RADIUS = 800;
+      const WORLD_RADIUS = 1600; // big arena; player is kept near origin via recenterWorld (infinite space)
       const BASE_SPEED = 40;
       const BOOST_MULT = 1.8;
       const BRAKE_MULT = 0.3;
@@ -869,6 +869,36 @@
           sizeAttenuation: true
         });
         scene.add(new THREE.Points(geo, mat));
+        _starField = { positions: positions, geo: geo, count: starCount };
+      }
+
+      // ── infinite-space recenter: keep the player near the origin by translating the WHOLE scene back
+      // when it drifts out. Relative positions are identical (zero visual pop) so the player never reaches
+      // the boundary wall — no auto-rotate, no bounce, no getting stuck. Full manual control is preserved.
+      let _starField = null;
+      function shiftPositions(field, ox, oy, oz) {
+        if (!field) return;
+        const p = field.positions;
+        for (let i = 0; i < field.count; i += 1) { p[i * 3] -= ox; p[i * 3 + 1] -= oy; p[i * 3 + 2] -= oz; }
+        field.geo.attributes.position.needsUpdate = true;
+      }
+      function recenterWorld() {
+        if (!player) return;
+        const o = player.mesh.position;
+        if (o.lengthSq() < 350 * 350) return; // only recenter once drifted enough (avoid per-frame churn)
+        const ox = o.x, oy = o.y, oz = o.z;
+        player.mesh.position.set(0, 0, 0);
+        const shiftMesh = function (m) { if (m) { m.position.x -= ox; m.position.y -= oy; m.position.z -= oz; } };
+        for (const e of enemies) shiftMesh(e.mesh);
+        for (const s of playerShots) shiftMesh(s.mesh);
+        for (const s of enemyShots) shiftMesh(s.mesh);
+        for (const m of missiles) shiftMesh(m.mesh);
+        for (const t of trails) shiftMesh(t.mesh);
+        for (const ex of explosions) shiftMesh(ex.points);
+        for (const mf of muzzleFlashes) shiftMesh(mf.mesh);
+        shiftPositions(_dustField, ox, oy, oz);
+        shiftPositions(_starField, ox, oy, oz);
+        if (camera) { camera.position.x -= ox; camera.position.y -= oy; camera.position.z -= oz; }
       }
 
       function addBoundaryShell() {
@@ -1546,28 +1576,8 @@
         player.velocity.lerp(desiredVelocity, 0.075);
         player.mesh.position.add(player.velocity.clone().multiplyScalar(dt));
 
-        // ── soft boundary turn-back: as we near the edge, gently STEER the heading toward center so we
-        // bank back into the arena instead of ramming the invisible wall and bouncing forward/back
-        // (which froze the player in place and killed the sense of forward motion). No energetic bounce.
-        const dist = player.mesh.position.length();
-        if (dist > WORLD_RADIUS * 0.5) {
-          const curFwd = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
-          const toCenter = player.mesh.position.clone().negate().normalize();
-          if (curFwd.dot(toCenter) < 0.985) {
-            const tgt = new THREE.Quaternion().setFromUnitVectors(curFwd, toCenter).multiply(player.mesh.quaternion);
-            // ramps from 0 at half-radius to a firm 0.22/frame near the cap → curves well back into center.
-            const k = Math.min(0.22, ((dist - WORLD_RADIUS * 0.5) / (WORLD_RADIUS * 0.4)) * 0.22);
-            player.mesh.quaternion.slerp(tgt, Math.max(0, k));
-          }
-        }
-        // hard cap well INSIDE the dome (0.92R) so the player never reaches the visible boundary wall and
-        // the chase camera never ends up outside looking back through it. Shed only outward speed (no bounce).
-        if (dist > WORLD_RADIUS * 0.92) {
-          player.mesh.position.setLength(WORLD_RADIUS * 0.92);
-          const n = player.mesh.position.clone().normalize();
-          const outward = player.velocity.dot(n);
-          if (outward > 0) player.velocity.addScaledVector(n, -outward);
-        }
+        // NO boundary auto-rotate. The world recenters on the player each frame (recenterWorld in animate),
+        // so the player never approaches the wall — full manual control, no self-steering.
 
         if (player.invincible > 0) player.invincible -= dt;
         if (clock.elapsedTime - player.lastDamage > 3) {
@@ -1628,8 +1638,6 @@
             .add(forward.clone().multiplyScalar(55))
             .add(up.clone().multiplyScalar(3));
         }
-        // safety: never let the camera exit the boundary dome (would frame the wall from outside).
-        if (camera.position.length() > WORLD_RADIUS * 0.97) camera.position.setLength(WORLD_RADIUS * 0.97);
         camera.lookAt(lookAt);
 
         if (shakeTimer > 0) {
@@ -1967,6 +1975,7 @@
           updateMissiles(dt);
           updateChargeBeam(dt, time); // feature 4: titan continuous beam (no-op for other tiers)
           updateCollisions();
+          recenterWorld();            // infinite space: translate scene back so the player stays centered
           updateCamera(dt);
           checkVictory();
         } else {
