@@ -1546,11 +1546,24 @@
         player.velocity.lerp(desiredVelocity, 0.075);
         player.mesh.position.add(player.velocity.clone().multiplyScalar(dt));
 
+        // ── soft boundary turn-back: as we near the edge, gently STEER the heading toward center so we
+        // bank back into the arena instead of ramming the invisible wall and bouncing forward/back
+        // (which froze the player in place and killed the sense of forward motion). No energetic bounce.
         const dist = player.mesh.position.length();
+        if (dist > WORLD_RADIUS * 0.82) {
+          const curFwd = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
+          const toCenter = player.mesh.position.clone().negate().normalize();
+          if (curFwd.dot(toCenter) < 0.97) {
+            const tgt = new THREE.Quaternion().setFromUnitVectors(curFwd, toCenter).multiply(player.mesh.quaternion);
+            const k = Math.min(0.07, ((dist - WORLD_RADIUS * 0.82) / (WORLD_RADIUS * 0.18)) * 0.07);
+            player.mesh.quaternion.slerp(tgt, Math.max(0, k));
+          }
+        }
         if (dist > WORLD_RADIUS) {
-          const normal = player.mesh.position.clone().normalize();
-          player.mesh.position.copy(normal.multiplyScalar(WORLD_RADIUS - 3));
-          player.velocity.add(normal.multiplyScalar(-player.velocity.dot(normal) * 1.55));
+          player.mesh.position.setLength(WORLD_RADIUS - 3);
+          const n = player.mesh.position.clone().normalize();
+          const outward = player.velocity.dot(n);
+          if (outward > 0) player.velocity.addScaledVector(n, -outward); // shed only outward speed, no bounce
         }
 
         if (player.invincible > 0) player.invincible -= dt;
