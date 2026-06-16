@@ -799,10 +799,28 @@
 
       // ── plasma muzzle flash: short-lived additive sprite at the muzzle ──
       let muzzleFlashes = [];
+      // soft radial glow texture (cached) — turns flat additive quads into round glows, not hard squares.
+      let _glowTexCache = null;
+      function glowTex() {
+        if (_glowTexCache) return _glowTexCache;
+        const cv = document.createElement("canvas");
+        cv.width = cv.height = 64;
+        const g = cv.getContext("2d");
+        const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grd.addColorStop(0, "rgba(255,255,255,1)");
+        grd.addColorStop(0.4, "rgba(255,255,255,0.55)");
+        grd.addColorStop(1, "rgba(255,255,255,0)");
+        g.fillStyle = grd;
+        g.fillRect(0, 0, 64, 64);
+        _glowTexCache = new THREE.CanvasTexture(cv);
+        return _glowTexCache;
+      }
+
       function spawnMuzzleFlash(position, color) {
         const geo = new THREE.PlaneGeometry(7, 7);
         const mat = new THREE.MeshBasicMaterial({
           color: color || 0x7dfff0,
+          map: glowTex(),
           transparent: true,
           opacity: 0.9,
           depthWrite: false,
@@ -862,6 +880,44 @@
           opacity: 0.035
         });
         scene.add(new THREE.Mesh(geo, mat));
+      }
+
+      // ── streaming dust: the primary SPACE depth cue. A cloud of points kept in a cube AROUND the
+      // player that recycles (exits behind → wraps ahead). As the player flies forward the dust streams
+      // past with size-attenuation (near = big, far = small) → unmistakable forward-motion perspective.
+      const DUST_BOX = 520;          // half-extent of the cube centered on the player
+      const DUST_SPAN = DUST_BOX * 2;
+      let _dustField = null;         // { positions: Float32Array, geo, count }
+      function createDust() {
+        const count = PERF ? 280 : 680;
+        const positions = new Float32Array(count * 3);
+        const c = player ? player.mesh.position : { x: 0, y: 0, z: 0 };
+        for (let i = 0; i < count; i += 1) {
+          positions[i * 3] = c.x + rand(-DUST_BOX, DUST_BOX);
+          positions[i * 3 + 1] = c.y + rand(-DUST_BOX, DUST_BOX);
+          positions[i * 3 + 2] = c.z + rand(-DUST_BOX, DUST_BOX);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        const mat = new THREE.PointsMaterial({
+          color: 0x9fdcff, size: 3.4, sizeAttenuation: true, map: glowTex(),
+          transparent: true, opacity: 0.85, depthWrite: false, blending: THREE.AdditiveBlending
+        });
+        _dustField = { positions: positions, geo: geo, count: count };
+        scene.add(new THREE.Points(geo, mat));
+      }
+      function updateDust() {
+        if (!_dustField || !player) return;
+        const p = player.mesh.position;
+        const pos = _dustField.positions;
+        for (let i = 0; i < _dustField.count; i += 1) {
+          const ix = i * 3;
+          let dx = pos[ix] - p.x, dy = pos[ix + 1] - p.y, dz = pos[ix + 2] - p.z;
+          if (dx > DUST_BOX) pos[ix] -= DUST_SPAN; else if (dx < -DUST_BOX) pos[ix] += DUST_SPAN;
+          if (dy > DUST_BOX) pos[ix + 1] -= DUST_SPAN; else if (dy < -DUST_BOX) pos[ix + 1] += DUST_SPAN;
+          if (dz > DUST_BOX) pos[ix + 2] -= DUST_SPAN; else if (dz < -DUST_BOX) pos[ix + 2] += DUST_SPAN;
+        }
+        _dustField.geo.attributes.position.needsUpdate = true;
       }
 
       let _enemyTexCache = {};
@@ -980,10 +1036,10 @@
         const code = codes[index % codes.length];
         const scl = classScale(code);
         mesh.scale.setScalar(scl);
-        // spawn in the player's FORWARD cone (player starts at origin facing -Z) so enemies appear
-        // ahead, not behind — a forward-flight shooter shouldn't blindside you from the rear at spawn.
-        const dir = new THREE.Vector3(rand(-0.85, 0.85), rand(-0.5, 0.5), rand(-1, -0.35)).normalize();
-        const dist = rand(200, 500);
+        // TomyTronic depth: spawn FAR ahead in a tight forward cone (near the vanishing point) so each
+        // enemy starts as a small dot at screen center and scales up dramatically as it rushes in.
+        const dir = new THREE.Vector3(rand(-0.5, 0.5), rand(-0.32, 0.32), rand(-1, -0.6)).normalize();
+        const dist = rand(620, 1050);
         mesh.position.copy(dir.multiplyScalar(dist));
         scene.add(mesh);
         return {
@@ -993,7 +1049,7 @@
           cooldown: rand(2, 3),
           strafe: rand(0, Math.PI * 2),
           wobble: rand(0.7, 1.5),
-          speed: rand(29, 44),
+          speed: rand(50, 76),
           bankZ: 0,
           bob: rand(0, Math.PI * 2),
           prevPos: mesh.position.clone(),
@@ -1103,9 +1159,10 @@
         };
       }
 
-      // feature 4: tiered player bolt. Star-Wars additive billboard streak (camera-billboarded each
-      // frame in updateProjectiles via shot.billboard), faction-tinted, with an oriented core cylinder.
-      // tier ∈ blaster | heavy_bolt | turbolaser | hybrid. (titan charge_beam is a separate beam mesh.)
+      // feature 4: tiered player bolt. World-oriented 3D tracer laid ALONG its travel direction (NOT a
+      // camera-billboard) so it foreshortens toward the vanishing point — real perspective, not a flat
+      // stick. Faction-tinted core + additive glow sleeve. tier ∈ blaster | heavy_bolt | turbolaser |
+      // hybrid. (titan charge_beam is a separate continuous beam mesh.)
       const TIER_BOLT = {
         blaster:    { len: 9,  width: 1.3, coreR: 0.5,  glow: false, life: 1.9 },
         heavy_bolt: { len: 16, width: 2.0, coreR: 0.75, glow: true,  life: 2.1 },
@@ -1116,39 +1173,28 @@
         const spec = TIER_BOLT[tier] || TIER_BOLT.blaster;
         const dir = direction.clone().normalize();
         const grp = new THREE.Group();
+        // REAL perspective tracer: a long 3D bolt laid ALONG its travel direction in world space
+        // (NOT a camera-billboard). Viewed from behind the ship it foreshortens toward the vanishing
+        // point — short/thin in the distance, long/fat up close — instead of a flat screen-aligned stick.
+        const tracerLen = spec.len * 3.2;
 
-        // oriented core cylinder (bright lerped color, solid)
-        const coreGeo = new THREE.CylinderBufferGeometry(spec.coreR, spec.coreR, spec.len * 0.55, 8);
+        // bright solid core along dir
+        const coreGeo = new THREE.CylinderBufferGeometry(spec.coreR, spec.coreR, tracerLen, 8);
         coreGeo.rotateX(Math.PI / 2);
         const coreMesh = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: boltCoreColor(color) }));
         coreMesh.quaternion.setFromUnitVectors(forwardVec, dir);
         grp.add(coreMesh);
 
-        // additive billboard streak (faction-tinted, camera-facing, depthWrite off)
-        const streakGeo = new THREE.PlaneGeometry(spec.width, spec.len);
-        const streakMat = new THREE.MeshBasicMaterial({
-          color: color,
-          transparent: true,
-          opacity: 0.95,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending,
-          side: THREE.DoubleSide
-        });
-        const streak = new THREE.Mesh(streakGeo, streakMat);
-        grp.add(streak);
-
-        // optional outer glow plane (heavy/turbolaser/hybrid) — skipped on PERF
+        // additive glow sleeve along dir (faction-tinted, soft) — skipped on PERF
         let glow = null;
-        if (spec.glow && FX.vfxGlow) {
-          const glowMat = new THREE.MeshBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.4,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            side: THREE.DoubleSide
-          });
-          glow = new THREE.Mesh(new THREE.PlaneGeometry(spec.width * 2.4, spec.len * 1.15), glowMat);
+        if (FX.vfxGlow) {
+          const glowGeo = new THREE.CylinderBufferGeometry(spec.width * 0.7, spec.width * 0.7, tracerLen * 0.96, 6);
+          glowGeo.rotateX(Math.PI / 2);
+          glow = new THREE.Mesh(glowGeo, new THREE.MeshBasicMaterial({
+            color: color, transparent: true, opacity: 0.5, depthWrite: false,
+            blending: THREE.AdditiveBlending
+          }));
+          glow.quaternion.setFromUnitVectors(forwardVec, dir);
           grp.add(glow);
         }
 
@@ -1159,10 +1205,7 @@
           velocity: dir.multiplyScalar(speed),
           life: spec.life * FX.boltLifeMult,
           owner: "player",
-          billboard: true,
-          streak: streak,
-          glow: glow,
-          streakLen: spec.len,
+          billboard: false, // world-oriented tracer; updateProjectiles must NOT re-billboard it
           dir: dir.clone()
         };
       }
@@ -1175,7 +1218,9 @@
         lastShotTime = time;
         const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
         const right = new THREE.Vector3(1, 0, 0).applyQuaternion(player.mesh.quaternion).normalize();
-        const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(-11));
+        // muzzle AHEAD of the ship (at the nose, into the screen) — not behind it. Scaled by hull size.
+        const noseAhead = 18 + 16 * classScale(PLAYER_CODE);
+        const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(noseAhead));
         const off = PROFILE.plasmaOffset;
         const tier = PROFILE.tier || "blaster";
         const color = PROFILE.boltColor || 0x33ffe0;
@@ -1184,9 +1229,15 @@
         const offsets = (tier === "turbolaser") ? [0] : [-off, off];
         // hybrid: intermittent short beam pulse alongside heavy bolts.
         const hybridPulse = (tier === "hybrid") && (Math.random() < 0.4);
+        // Star-Fox depth: twin bolts CONVERGE toward an aim point far ahead (or the lock target) instead
+        // of flying parallel — the converging diagonals read as perspective, not two flat sticks.
+        const aimPoint = (lockTarget && lockTarget.alive)
+          ? lockTarget.mesh.position.clone()
+          : player.mesh.position.clone().add(forward.clone().multiplyScalar(720));
         for (const offset of offsets) {
           const pos = origin.clone().add(right.clone().multiplyScalar(offset));
-          const shot = makeBolt(hybridPulse ? "turbolaser" : tier, color, pos, forward, PLAYER_SHOT_SPEED);
+          const bdir = aimPoint.clone().sub(pos).normalize();
+          const shot = makeBolt(hybridPulse ? "turbolaser" : tier, color, pos, bdir, PLAYER_SHOT_SPEED);
           playerShots.push(shot);
           spawnMuzzleFlash(pos, muzzleColor);
         }
@@ -1231,7 +1282,7 @@
         if (!firing) { hideBeam(); return; }
         const beam = ensureBeam();
         const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
-        const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(-11));
+        const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(18 + 16 * classScale(PLAYER_CODE)));
         const maxLen = PERF ? 520 : 760; // PERF-capped beam reach
         const beamW = 4.5;
         // segment-distance hit detection + find effective beam end (first hit or max range)
@@ -1627,10 +1678,11 @@
             const right = new THREE.Vector3(1, 0, 0).applyQuaternion(player.mesh.quaternion);
             const up = upVec.clone().applyQuaternion(player.mesh.quaternion);
             const newDir = pForward.clone()
-              .add(right.multiplyScalar(rand(-0.7, 0.7)))
-              .add(up.multiplyScalar(rand(-0.35, 0.35)))
+              .add(right.multiplyScalar(rand(-0.5, 0.5)))
+              .add(up.multiplyScalar(rand(-0.3, 0.3)))
               .normalize();
-            enemy.mesh.position.copy(player.mesh.position).add(newDir.multiplyScalar(rand(330, 480)));
+            // re-emerge FAR (near the vanishing point) so they grow back in, not pop in mid-size.
+            enemy.mesh.position.copy(player.mesh.position).add(newDir.multiplyScalar(rand(640, 1000)));
             enemy.bankZ = 0;
           }
 
@@ -1877,6 +1929,7 @@
         requestAnimationFrame(animate);
         const dt = Math.min(clock.getDelta(), 0.033);
         const time = clock.elapsedTime;
+        updateDust(); // streaming space depth — recycle dust around the player every frame
 
         if (state === "gameplay") {
           if (keys.Space || touchKeys.fire) firePlasma(time);
@@ -2029,6 +2082,7 @@
       addBoundaryShell();
       player = makePlayer();
       player.mesh.position.set(0, 0, 0);
+      createDust();
       camera.position.set(0, 28, 88);
       camera.lookAt(0, 0, 0);
       for (let i = 0; i < ENEMY_SPAWN_COUNT; i += 1) {
