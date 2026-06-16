@@ -1049,7 +1049,7 @@
           cooldown: rand(2, 3),
           strafe: rand(0, Math.PI * 2),
           wobble: rand(0.7, 1.5),
-          speed: rand(50, 76),
+          speed: rand(36, 54),
           bankZ: 0,
           bob: rand(0, Math.PI * 2),
           prevPos: mesh.position.clone(),
@@ -1373,6 +1373,9 @@
       function enemyFire(enemy) {
         if (!enemy.alive) return;
         const dir = player.mesh.position.clone().sub(enemy.mesh.position).normalize();
+        // aim spread so shots are dodgeable (not pinpoint hitscan-feeling at the player's exact spot).
+        dir.x += rand(-0.07, 0.07); dir.y += rand(-0.07, 0.07); dir.z += rand(-0.07, 0.07);
+        dir.normalize();
         const pos = enemy.mesh.position.clone().add(dir.clone().multiplyScalar(12 * (enemy.scale || 1)));
         // feature 4: enemy bolts tinted by the firing enemy's own faction.
         const color = FACTION_COLOR[enemy.faction] || 0xff2c25;
@@ -1637,13 +1640,18 @@
           const dir = toPlayer.clone().normalize();
           const side = new THREE.Vector3().crossVectors(dir, upVec).normalize();
           if (side.lengthSq() < 0.01) side.set(1, 0, 0);
-          const strafe = side.clone().multiplyScalar(Math.sin(now * enemy.wobble + enemy.strafe) * 24);
-          const vel = dir.clone().multiplyScalar(enemy.speed).add(strafe); // units/sec
+          // STAND-OFF combat band: approach to a readable firing range, then hover + weave instead of
+          // ramming to point-blank (point-blank = undodgeable fire + a giant hull filling the screen).
+          const standOff = 170 + enemy.scale * 34;     // bigger hulls keep more distance
+          const inBand = distance < standOff + 170;
+          let approach;
+          if (distance > standOff + 130) approach = 1;       // far → close in
+          else if (distance > standOff) approach = 0.22;     // entering band → ease in
+          else approach = -0.55;                              // too close → back off
+          const strafeAmt = inBand ? 42 : 16;                 // weave hard once in combat range
+          const strafe = side.clone().multiplyScalar(Math.sin(now * enemy.wobble + enemy.strafe) * strafeAmt);
+          const vel = dir.clone().multiplyScalar(enemy.speed * approach).add(strafe); // units/sec
           enemy.mesh.position.add(vel.clone().multiplyScalar(dt));
-
-          if (distance < 90) {
-            enemy.mesh.position.add(dir.clone().multiplyScalar(-32 * dt));
-          }
 
           // ── anti-paper orientation: camera-billboard + bank into lateral motion + 3/4 tilt + idle micro-roll.
           // Reads as a banking craft instead of a flat card flipping to face you (no per-frame lookAt snap).
