@@ -1,3 +1,28 @@
+## 2026-06-16 v7.419 — ACE 풀패스: 비행모델/모바일터치/함급크기/함급별 무기VFX/1·3인칭/텍스처폴백 (울트라코드)
+
+ACE 모드 "다 해버려" 풀패스. 울트라코드(설계→제어층∥렌더층 순차구현→적대검증, verdict clean).
+assets/ace-combat.html 단일파일, 경제·서버 0 접촉, 신규 이미지 에셋 0(폴백 구조만), 카메라 통제·기함급
+프로파일·URL 부트스트랩·ace_result postMessage·jsdelivr r128 CDN 전부 보존.
+
+- 비행모델: 함급별 선회율 상향, ↓↓ 더블탭 U턴/공중제비(0.6s 피치스윕+무적, repeat 가드), 브레이크턴
+  (Ctrl/버튼+조향=turnLerp 타이트), 동적 뱅킹(좌우→롤·상하→틸트·정지→수평복원, 코스메틱 child로 적용해
+  카메라가 trail하는 root 헤딩은 청결 유지). 배럴롤(Q/E) 유지. 카메라는 updateCamera 안에서만 분기 — 자유궤도 금지.
+- 모바일 터치: TOUCH(coarse/touch) 게이트 #aceTouch — 좌 아날로그 스틱(조향) + 우 액션버튼 7종
+  (FIRE홀드/LOCK/BOOST/U-TURN/ROLL/BRAKE/3RD). pointer-events 격리, weaponPanel을 상단중앙으로 reflow해
+  컨트롤 비충돌. 데스크탑 키보드와 공존(touchActive일 때만 스틱 우선).
+- 함급별 표시크기: CLASS_SCALE(frigate 1.0~titan 5.0/assembled 3.0) 플레이어·적 빌보드 + 적 히트반경 동반 스케일.
+- 함급별 무기 VFX(스타워즈식 additive 빌보드 스트릭·파벌색 mcc청록/fsp녹/cv적/pilgrim보라): 소형 블래스터 트윈,
+  순양 중볼트, 전함 터보레이저(굵은 단발), 타이탄 차지빔(연속 빔메시+세그먼트 충돌), assembled 하이브리드,
+  미사일 프로톤토피도(파벌틴트 코어/트레일). PERF 분기(글로우/스트릭수명/빔사거리/머즐 스로틀).
+- 1·3인칭 토글(V키/버튼): 1인칭=내 함체 숨김+카메라 기수(프레임리스, 콕핏아트 0), 양쪽 모두 헤딩락(통제 유지).
+- 텍스처 폴백 체인: 플레이어 ace/CODE_rear→ships/CODE→mcc_dst, 적 ace/CODE_front→ships/CODE→mcc_dst.
+  재귀 tryNext onError(콘솔 스팸 0), 캐시키=첫 path. 신규 아트 없어도 기존 sprite로 동일 동작, 아트 추가 시 자동 업그레이드.
+- [적대검증 후속 fix] centerMessage가 pointer-events:none #hud 안이라 탭 시작 불가 → pointer-events:auto+cursor.
+  gameOver/missionComplete onclick=resetGame 추가로 모바일 탭 재시작 지원(키 없는 기기 필수).
+- 검증: 인라인 <script> 추출 node --check PASS, git diff --check 클린, Chrome 실구동(데모 부팅·destroyer 렌더·
+  녹색 additive 볼트·격침/사망·터치레이어 7버튼·1/3토글키·탭시작 정상, 콘솔 에러 0). sw mars-v109, ?v=7451.
+- 스코프 밖(이미지젠 측): rear(플레이어)/front(적) 전용 아트 세트 — 특히 로봇/assembled 3·4뷰. 엔진은 폴백으로 즉시 동작.
+
 ## 2026-06-06 v7.418 — ACE 명예 시스템 + ACE 함선 아트 세트 완성 (울트라코드)
 
 ACE 명예 시스템(코스메틱 전용, 경제·전투결과 0 영향). 울트라코드(설계→서버∥클라→적대검증).

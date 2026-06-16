@@ -165,6 +165,8 @@
       display: grid;
       place-items: center;
       padding: 26px;
+      pointer-events: auto;
+      cursor: pointer;
       background: radial-gradient(circle at center, rgba(0, 35, 46, 0.18), rgba(0, 0, 0, 0.28) 58%, rgba(0, 0, 0, 0.62));
       text-align: center;
       color: #ffffff;
@@ -212,6 +214,75 @@
       mask-image: radial-gradient(circle at 50% 50%, transparent 34%, #000 78%);
     }
 
+    /* ── on-screen touch controls (feature 2): pointer-events isolated; HUD root stays none ── */
+    #aceTouch {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      display: none;            /* shown only on touch devices (JS sets display:block) */
+    }
+
+    #aceTouch.on {
+      display: block;
+    }
+
+    #ace-stick {
+      position: absolute;
+      left: 20px;
+      bottom: 20px;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      border: 2px solid rgba(102, 255, 213, 0.4);
+      background: rgba(0, 14, 22, 0.42);
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    #ace-stick-knob {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 56px;
+      height: 56px;
+      margin: -28px 0 0 -28px;
+      border-radius: 50%;
+      background: rgba(102, 255, 213, 0.55);
+      box-shadow: 0 0 16px rgba(0, 255, 206, 0.5);
+      pointer-events: none;
+    }
+
+    .ace-btn {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(102, 255, 213, 0.45);
+      background: rgba(0, 14, 22, 0.5);
+      color: #d8fff6;
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 0;
+      pointer-events: auto;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .ace-btn:active {
+      background: rgba(102, 255, 213, 0.3);
+    }
+
+    /* right action cluster — kept clear of #weaponPanel (which shrinks/raises in the media query below) */
+    #ace-fire   { right: 24px;  bottom: 150px; width: 78px; height: 78px; }
+    #ace-lock   { right: 110px; bottom: 96px; }
+    #ace-boost  { right: 24px;  bottom: 246px; }
+    #ace-uturn  { right: 110px; bottom: 178px; }
+    #ace-roll   { right: 196px; bottom: 96px; }
+    #ace-brake  { right: 196px; bottom: 178px; }
+    #ace-view   { top: 18px; left: 50%; margin-left: -32px; }
+
     @media (max-width: 720px) {
       .panel {
         min-width: 170px;
@@ -222,9 +293,21 @@
         width: 150px;
       }
 
+      /* on mobile the bottom corners host the stick (left) + action cluster (right);
+         move the weapon readout to top-center so nothing overlaps the controls. */
       #weaponPanel {
-        width: 230px;
-        font-size: 12px;
+        width: auto;
+        min-width: 0;
+        max-width: 60vw;
+        font-size: 10px;
+        line-height: 1.35;
+        padding: 5px 8px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        top: 90px;
+        bottom: auto;
+        text-align: center;
       }
     }
   </style>
@@ -269,6 +352,16 @@
       </div>
     </div>
   </div>
+  <div id="aceTouch">
+    <div id="ace-stick"><div id="ace-stick-knob"></div></div>
+    <button type="button" id="ace-fire"  class="ace-btn" data-act="fire">FIRE</button>
+    <button type="button" id="ace-lock"  class="ace-btn" data-act="lock">LOCK</button>
+    <button type="button" id="ace-boost" class="ace-btn" data-act="boost">BOOST</button>
+    <button type="button" id="ace-uturn" class="ace-btn" data-act="uturn">U-TURN</button>
+    <button type="button" id="ace-roll"  class="ace-btn" data-act="roll">ROLL</button>
+    <button type="button" id="ace-brake" class="ace-btn" data-act="brake">BRAKE</button>
+    <button type="button" id="ace-view"  class="ace-btn" data-act="view">3RD</button>
+  </div>
   <div id="speedLines"></div>
   <div id="flash"></div>
 
@@ -305,8 +398,18 @@
         starCount: PERF ? 900 : 2000,
         explosionMult: PERF ? 0.5 : 1,
         trailDensity: PERF ? 0.35 : 1,   // probability scale for cosmetic enemy trails
-        enemyTrailMax: PERF ? 1 : 3      // cosmetic enemy trail segments per frame
+        enemyTrailMax: PERF ? 1 : 3,     // cosmetic enemy trail segments per frame
+        vfxGlow: !PERF,                  // feature 4: outer glow planes on heavy/turbolaser bolts (off on PERF)
+        boltLifeMult: PERF ? 0.7 : 1     // feature 4: shorten additive streak lifetime on PERF
       };
+      // ── TOUCH: coarse-pointer / touch device gate for the on-screen control layer ──
+      const TOUCH = (function () {
+        try {
+          var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+          var touch = ("ontouchstart" in window) || (navigator.maxTouchPoints || 0) > 0;
+          return !!(coarse || touch);
+        } catch (_) { return false; }
+      })();
 
       // ── Asset path (this file is served from /assets/, so use absolute /assets/ships/) ──
       const SHIP_TEX_BASE = "/assets/ships/";
@@ -393,6 +496,45 @@
         }
       };
 
+      // ── per-size_class billboard scale (shared by player + enemy; feature 3) ──
+      const CLASS_SCALE = {
+        frigate: 1.0, destroyer: 1.4, cruiser: 2.0,
+        battleship: 3.2, titan: 5.0, assembled: 3.0
+      };
+      function classScale(code) {
+        return CLASS_SCALE[sizeClassFromCode(code)] || 1.4;
+      }
+
+      // ── faction → projectile/beam color (feature 4; cosmetic only) ──
+      const FACTION_COLOR = {
+        mcc: 0x33ffe0,      // cyan-teal
+        fsp: 0x39ff83,      // green
+        cv:  0xff3322,      // red
+        pilgrim: 0xb060ff   // violet
+      };
+      function factionColor(code) {
+        return FACTION_COLOR[factionFromCode(code)] || FACTION_COLOR.mcc;
+      }
+      // brighter core companion for a given faction bolt (lerp toward white)
+      function boltCoreColor(baseColor) {
+        return new THREE.Color(baseColor).lerp(new THREE.Color(0xffffff), 0.55).getHex();
+      }
+
+      // ── size_class → weapon tier (feature 4): drives bolt geometry / streak / beam ──
+      // blaster (frigate), heavy_bolt (cruiser), turbolaser (battleship),
+      // charge_beam (titan), hybrid (assembled). destroyer keeps a mid blaster.
+      const WEAPON_TIER = {
+        frigate: "blaster",
+        destroyer: "blaster",
+        cruiser: "heavy_bolt",
+        battleship: "turbolaser",
+        titan: "charge_beam",
+        assembled: "hybrid"
+      };
+      function weaponTier(code) {
+        return WEAPON_TIER[sizeClassFromCode(code)] || "blaster";
+      }
+
       // ── faction flavor (small, balance-preserving nudges) ──
       const FACTION_FLAVOR = {
         mcc: { lockTimeMult: 0.85, lockRangeMult: 1.12, hullMult: 1.0, shieldRegenMult: 1.0, plasmaCoolMult: 1.0 },
@@ -403,6 +545,10 @@
 
       // Active profile — defaults to demo (destroyer / mcc). Resolved before init() runs in battle mode.
       let PROFILE = Object.assign({}, VIEW_PROFILES.destroyer);
+      // feature 4: demo-default weapon VFX descriptors (overwritten by resolveProfile in battle mode).
+      PROFILE.tier = weaponTier(DEMO_PLAYER_CODE);
+      PROFILE.boltColor = factionColor(DEMO_PLAYER_CODE);
+      PROFILE.beamColor = boltCoreColor(PROFILE.boltColor);
       let PLAYER_CODE = DEMO_PLAYER_CODE;
       let ENEMY_CODES = DEMO_ENEMY_CODES.slice();
       let ENEMY_SPAWN_COUNT = ENEMY_COUNT;
@@ -424,6 +570,10 @@
         var base = VIEW_PROFILES[sc] || VIEW_PROFILES.destroyer;
         PROFILE = applyFlavor(base, fac);
         PLAYER_CODE = playerCode;
+        // feature 4: cache weapon VFX descriptors on the active profile (cosmetic only).
+        PROFILE.tier = weaponTier(playerCode);
+        PROFILE.boltColor = factionColor(playerCode);
+        PROFILE.beamColor = boltCoreColor(PROFILE.boltColor);
       }
 
       // ── parent postMessage stub (mirrors tactical-lab pattern) ──
@@ -549,6 +699,15 @@
       // ── ACE honor stats (cosmetic only; server clamps these — see aceCombatRoutes) ──
       let aceKills = 0;                   // confirmed enemy destroys this run
       let aceStart = 0;                   // run start timestamp (Date.now) for duration
+
+      // ── view mode (feature 5): "third" (chase, default) | "first" (nose cam) ──
+      let viewMode = "third";
+
+      // ── touch control state (feature 2): analog stick + action flags ──
+      // stick: normalized {-1..1} dx/dy while a pointer drags the left stick.
+      // touchKeys mirror keyboard intents so updatePlayer/updateLock/animate read one merged source.
+      const touchStick = { active: false, dx: 0, dy: 0 };
+      const touchKeys = Object.create(null);
 
       function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
@@ -708,27 +867,60 @@
         return SHIP_TEX_BASE + code + ".png";
       }
 
-      // 텍스처 로드 실패(assembled/pilgrim 등 PNG 부재) 시 투명 평면 대신 기본 함선으로 폴백.
-      function loadShipTex(path) {
+      // feature 6: per-view texture chains. 0 NEW ASSETS — ace/*_rear & ace/*_front need NOT exist;
+      // the chain transparently falls through to ships/CODE.png today, auto-upgrading if art is added.
+      function playerTexPaths(code) {
+        // REAR view (3rd person shows our tail): ace rear → ships/CODE → mcc_dst.
+        return [
+          SHIP_TEX_BASE + "ace/" + code + "_rear.png",
+          shipTexPath(code),
+          SHIP_TEX_BASE + "mcc_dst.png"
+        ];
+      }
+      function enemyTexPaths(code) {
+        // FRONT view (enemies fly toward us / lookAt player): ace front → ships/CODE → mcc_dst.
+        return [
+          SHIP_TEX_BASE + "ace/" + code + "_front.png",
+          shipTexPath(code),
+          SHIP_TEX_BASE + "mcc_dst.png"
+        ];
+      }
+
+      // 멀티스테이지 폴백 로더: paths 순서대로 시도, onError마다 다음 후보로. 마지막까지 실패해도 조용히 멈춤.
+      // 콘솔 스팸 방지: 실패는 onError 콜백에서만 처리, 해상된 텍스처는 첫 path 키로 캐시(아래 getEnemyTex).
+      function loadShipTexChain(paths) {
         const loader = new THREE.TextureLoader();
-        const tex = loader.load(path, undefined, undefined, function () {
-          loader.load(SHIP_TEX_BASE + "mcc_dst.png", function (fb) {
-            tex.image = fb.image; tex.needsUpdate = true;
-          });
-        });
+        const list = (paths && paths.length) ? paths.slice() : [SHIP_TEX_BASE + "mcc_dst.png"];
+        // first stage loads into `tex`; later stages copy their image into the same texture object.
+        const tex = new THREE.Texture();
+        function tryNext(i) {
+          if (i >= list.length) return; // exhausted — leave last successful image (or empty) silently
+          loader.load(
+            list[i],
+            function (loaded) {
+              tex.image = loaded.image;
+              tex.needsUpdate = true;
+            },
+            undefined,
+            function () { tryNext(i + 1); }
+          );
+        }
+        tryNext(0);
         return tex;
       }
 
       function getEnemyTex(index) {
         const codes = (ENEMY_CODES && ENEMY_CODES.length) ? ENEMY_CODES : DEMO_ENEMY_CODES;
-        const path = shipTexPath(codes[index % codes.length]);
-        if (!_enemyTexCache[path]) _enemyTexCache[path] = loadShipTex(path);
-        return _enemyTexCache[path];
+        const code = codes[index % codes.length];
+        const paths = enemyTexPaths(code);
+        const key = paths[0]; // cache by first-path key so the 404 chain runs once per code, not per enemy
+        if (!_enemyTexCache[key]) _enemyTexCache[key] = loadShipTexChain(paths);
+        return _enemyTexCache[key];
       }
 
       function makePlayer() {
         const root = new THREE.Group();
-        const tex = loadShipTex(shipTexPath(PLAYER_CODE));
+        const tex = loadShipTexChain(playerTexPaths(PLAYER_CODE));
         const geo = new THREE.PlaneGeometry(28, 36);
         const mat = new THREE.MeshBasicMaterial({
           map: tex,
@@ -739,10 +931,13 @@
         const mesh = new THREE.Mesh(geo, mat);
         mesh.rotation.x = -Math.PI / 2;
         root.add(mesh);
+        // feature 3: scale own hull by size_class (camera camDist already grows per class).
+        root.scale.setScalar(classScale(PLAYER_CODE));
         root.userData.hp = 3;
         scene.add(root);
         return {
           mesh: root,
+          hullMesh: mesh,
           hp: 3,
           velocity: new THREE.Vector3(0, 0, -BASE_SPEED),
           shield: 100,
@@ -753,6 +948,10 @@
           invincible: 0,
           rollTime: 0,
           rollDir: 0,
+          maneuverTime: 0,
+          maneuverTotal: 0,
+          bankZ: 0,
+          tiltX: 0,
           alive: true
         };
       }
@@ -769,6 +968,11 @@
         const sprite = new THREE.Mesh(geo, mat);
         sprite.rotation.x = -Math.PI / 2;
         mesh.add(sprite);
+        // feature 3: resolve this enemy's code (same indexing as getEnemyTex) → scale hull + hit radius.
+        const codes = (ENEMY_CODES && ENEMY_CODES.length) ? ENEMY_CODES : DEMO_ENEMY_CODES;
+        const code = codes[index % codes.length];
+        const scl = classScale(code);
+        mesh.scale.setScalar(scl);
         const dir = randomDirection();
         const dist = rand(200, 500);
         mesh.position.copy(dir.multiplyScalar(dist));
@@ -782,6 +986,9 @@
           wobble: rand(0.7, 1.5),
           speed: rand(29, 44),
           alive: true,
+          code: code,
+          faction: factionFromCode(code),
+          scale: scl,
           index
         };
       }
@@ -807,6 +1014,7 @@
         player = makePlayer();
         player.mesh.position.set(0, 0, 0);
         player.mesh.quaternion.identity();
+        player.mesh.visible = (viewMode !== "first"); // keep cockpit view consistent across restarts
         camera.position.set(0, 22, 78);
         camera.lookAt(player.mesh.position);
         for (let i = 0; i < ENEMY_SPAWN_COUNT; i += 1) {
@@ -850,16 +1058,16 @@
             "<br>PRESS ENTER TO START<br>CLICK OR TAP TO START";
         } else if (nextState === "missionComplete") {
           hud.centerMessage.classList.remove("hidden");
-          hud.centerMessage.onclick = null;
+          hud.centerMessage.onclick = resetGame;
           hud.messageTitle.textContent = "MISSION COMPLETE";
-          hud.messageSub.textContent = "PRESS ENTER TO RESTART";
+          hud.messageSub.innerHTML = "PRESS ENTER TO RESTART<br>CLICK OR TAP TO RESTART";
           // Result hook — cosmetic honor stats only. Server clamps + JWT-gates; no economy.
           notifyParent("ace_result", aceResultPayload("win"));
         } else if (nextState === "gameOver") {
           hud.centerMessage.classList.remove("hidden");
-          hud.centerMessage.onclick = null;
+          hud.centerMessage.onclick = resetGame;
           hud.messageTitle.textContent = "GAME OVER";
-          hud.messageSub.textContent = "PRESS R TO RESTART";
+          hud.messageSub.innerHTML = "PRESS R TO RESTART<br>CLICK OR TAP TO RESTART";
           notifyParent("ace_result", aceResultPayload("loss"));
         } else {
           hud.centerMessage.classList.add("hidden");
@@ -883,20 +1091,178 @@
         };
       }
 
+      // feature 4: tiered player bolt. Star-Wars additive billboard streak (camera-billboarded each
+      // frame in updateProjectiles via shot.billboard), faction-tinted, with an oriented core cylinder.
+      // tier ∈ blaster | heavy_bolt | turbolaser | hybrid. (titan charge_beam is a separate beam mesh.)
+      const TIER_BOLT = {
+        blaster:    { len: 9,  width: 1.3, coreR: 0.5,  glow: false, life: 1.9 },
+        heavy_bolt: { len: 16, width: 2.0, coreR: 0.75, glow: true,  life: 2.1 },
+        turbolaser: { len: 30, width: 3.2, coreR: 1.1,  glow: true,  life: 2.4 },
+        hybrid:     { len: 18, width: 2.2, coreR: 0.85, glow: true,  life: 2.1 }
+      };
+      function makeBolt(tier, color, position, direction, speed) {
+        const spec = TIER_BOLT[tier] || TIER_BOLT.blaster;
+        const dir = direction.clone().normalize();
+        const grp = new THREE.Group();
+
+        // oriented core cylinder (bright lerped color, solid)
+        const coreGeo = new THREE.CylinderBufferGeometry(spec.coreR, spec.coreR, spec.len * 0.55, 8);
+        coreGeo.rotateX(Math.PI / 2);
+        const coreMesh = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: boltCoreColor(color) }));
+        coreMesh.quaternion.setFromUnitVectors(forwardVec, dir);
+        grp.add(coreMesh);
+
+        // additive billboard streak (faction-tinted, camera-facing, depthWrite off)
+        const streakGeo = new THREE.PlaneGeometry(spec.width, spec.len);
+        const streakMat = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.95,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide
+        });
+        const streak = new THREE.Mesh(streakGeo, streakMat);
+        grp.add(streak);
+
+        // optional outer glow plane (heavy/turbolaser/hybrid) — skipped on PERF
+        let glow = null;
+        if (spec.glow && FX.vfxGlow) {
+          const glowMat = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.4,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide
+          });
+          glow = new THREE.Mesh(new THREE.PlaneGeometry(spec.width * 2.4, spec.len * 1.15), glowMat);
+          grp.add(glow);
+        }
+
+        grp.position.copy(position);
+        scene.add(grp);
+        return {
+          mesh: grp,
+          velocity: dir.multiplyScalar(speed),
+          life: spec.life * FX.boltLifeMult,
+          owner: "player",
+          billboard: true,
+          streak: streak,
+          glow: glow,
+          streakLen: spec.len,
+          dir: dir.clone()
+        };
+      }
+
       function firePlasma(time) {
-        if (time - lastShotTime < PROFILE.plasmaCool || state !== "gameplay") return;
+        if (state !== "gameplay") return;
+        // titan charge_beam fires as a continuous beam (driven in updateChargeBeam while held), not bolts.
+        if (PROFILE.tier === "charge_beam") return;
+        if (time - lastShotTime < PROFILE.plasmaCool) return;
         lastShotTime = time;
         const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
         const right = new THREE.Vector3(1, 0, 0).applyQuaternion(player.mesh.quaternion).normalize();
         const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(-11));
         const off = PROFILE.plasmaOffset;
-        for (const offset of [-off, off]) {
+        const tier = PROFILE.tier || "blaster";
+        const color = PROFILE.boltColor || 0x33ffe0;
+        const muzzleColor = boltCoreColor(color);
+        // small classes keep twin emitters; turbolaser fires one fat central streak (Star-Wars look).
+        const offsets = (tier === "turbolaser") ? [0] : [-off, off];
+        // hybrid: intermittent short beam pulse alongside heavy bolts.
+        const hybridPulse = (tier === "hybrid") && (Math.random() < 0.4);
+        for (const offset of offsets) {
           const pos = origin.clone().add(right.clone().multiplyScalar(offset));
-          const shot = makeProjectile(pos, forward, 0x32fff1, PLAYER_SHOT_SPEED, "player");
+          const shot = makeBolt(hybridPulse ? "turbolaser" : tier, color, pos, forward, PLAYER_SHOT_SPEED);
           playerShots.push(shot);
-          spawnMuzzleFlash(pos, 0x7dfff0);
+          spawnMuzzleFlash(pos, muzzleColor);
         }
-        playTone(660, 0.06, "square", 0.035);
+        const toneHz = (tier === "turbolaser") ? 420 : (tier === "heavy_bolt" || tier === "hybrid") ? 520 : 660;
+        playTone(toneHz, 0.06, "square", 0.035);
+      }
+
+      // ── feature 4: titan charge beam. Continuous additive quad nose→range while fire held + beam class.
+      // Damage via segment-distance against enemies (the one new collision path; PERF-capped length/glow).
+      let _beam = null; // { core, glow }
+      function ensureBeam() {
+        if (_beam) return _beam;
+        const color = PROFILE.boltColor || 0x33ffe0;
+        const coreMat = new THREE.MeshBasicMaterial({
+          color: boltCoreColor(color), transparent: true, opacity: 0.95,
+          depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide
+        });
+        const core = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), coreMat);
+        core.visible = false;
+        scene.add(core);
+        let glow = null;
+        if (FX.vfxGlow) {
+          const glowMat = new THREE.MeshBasicMaterial({
+            color: color, transparent: true, opacity: 0.45,
+            depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide
+          });
+          glow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), glowMat);
+          glow.visible = false;
+          scene.add(glow);
+        }
+        _beam = { core: core, glow: glow };
+        return _beam;
+      }
+      function hideBeam() {
+        if (!_beam) return;
+        _beam.core.visible = false;
+        if (_beam.glow) _beam.glow.visible = false;
+      }
+      function updateChargeBeam(dt, time) {
+        if (PROFILE.tier !== "charge_beam") { hideBeam(); return; }
+        const firing = (state === "gameplay") && (keys.Space || touchKeys.fire) && player && player.alive;
+        if (!firing) { hideBeam(); return; }
+        const beam = ensureBeam();
+        const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
+        const origin = player.mesh.position.clone().add(forward.clone().multiplyScalar(-11));
+        const maxLen = PERF ? 520 : 760; // PERF-capped beam reach
+        const beamW = 4.5;
+        // segment-distance hit detection + find effective beam end (first hit or max range)
+        let endDist = maxLen;
+        let didHit = false;
+        for (const enemy of enemies) {
+          if (!enemy.alive) continue;
+          const toE = enemy.mesh.position.clone().sub(origin);
+          const along = toE.dot(forward);
+          if (along < 0 || along > maxLen) continue;
+          const perp = toE.clone().sub(forward.clone().multiplyScalar(along)).length();
+          const hitR = 10 * (enemy.scale || 1);
+          if (perp < hitR) {
+            // continuous DPS while beam dwells on target
+            enemy.hp -= (PROFILE.plasmaDmg * 4) * dt;
+            if (enemy.hp <= 0) destroyEnemy(enemy);
+            didHit = true;
+            if (along < endDist) endDist = along;
+          }
+        }
+        const mid = origin.clone().add(forward.clone().multiplyScalar(endDist / 2));
+        function orientQuad(q, w) {
+          q.visible = true;
+          q.position.copy(mid);
+          q.scale.set(w, endDist, 1);
+          // billboard toward camera, long axis (local +Y) along forward in screen space
+          const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+          const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+          const roll = Math.atan2(forward.dot(camRight), forward.dot(camUp));
+          q.quaternion.copy(camera.quaternion);
+          q.rotateZ(-roll);
+        }
+        orientQuad(beam.core, beamW);
+        if (beam.glow) orientQuad(beam.glow, beamW * 2.6);
+        // throttle per-frame flashes (esp. on PERF) so the continuous beam stays cheap.
+        const flashChance = PERF ? 0.25 : 0.6;
+        if (didHit) {
+          if (Math.random() < flashChance) {
+            spawnMuzzleFlash(origin.clone().add(forward.clone().multiplyScalar(endDist)), PROFILE.beamColor || 0xffffff);
+          }
+          showHitMarker();
+        }
+        if (Math.random() < flashChance) spawnMuzzleFlash(origin, PROFILE.beamColor || 0xffffff);
       }
 
       function findNearestLockTarget() {
@@ -915,8 +1281,16 @@
 
       function fireMissile(target) {
         if (!target || missileCooldown > 0) return;
-        const geo = new THREE.SphereBufferGeometry(2.1, 16, 12);
-        const mat = new THREE.MeshBasicMaterial({ color: 0xffe65a });
+        // feature 4: proton torpedo — brighter additive core sphere, faction-tinted, slightly enlarged.
+        const torpColor = PROFILE.boltColor || 0xffe65a;
+        const geo = new THREE.SphereBufferGeometry(2.6, 16, 12);
+        const mat = new THREE.MeshBasicMaterial({
+          color: boltCoreColor(torpColor),
+          transparent: true,
+          opacity: 0.98,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        });
         const mesh = new THREE.Mesh(geo, mat);
         const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
         mesh.position.copy(player.mesh.position).add(forward.clone().multiplyScalar(-13));
@@ -925,7 +1299,8 @@
           mesh,
           target,
           velocity: forward.multiplyScalar(MISSILE_SPEED),
-          life: 5
+          life: 5,
+          trailColor: torpColor
         });
         missileCooldown = PROFILE.missileCool;
         lockTimer = 0;
@@ -935,8 +1310,10 @@
       function enemyFire(enemy) {
         if (!enemy.alive) return;
         const dir = player.mesh.position.clone().sub(enemy.mesh.position).normalize();
-        const pos = enemy.mesh.position.clone().add(dir.clone().multiplyScalar(12));
-        enemyShots.push(makeProjectile(pos, dir, 0xff2c25, ENEMY_SHOT_SPEED, "enemy"));
+        const pos = enemy.mesh.position.clone().add(dir.clone().multiplyScalar(12 * (enemy.scale || 1)));
+        // feature 4: enemy bolts tinted by the firing enemy's own faction.
+        const color = FACTION_COLOR[enemy.faction] || 0xff2c25;
+        enemyShots.push(makeProjectile(pos, dir, color, ENEMY_SHOT_SPEED, "enemy"));
       }
 
       function spawnTrail(position, color, size) {
@@ -1023,11 +1400,32 @@
       function updatePlayer(dt) {
         if (!player.alive) return;
 
-        const pitchInput = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
-        const yawInput = (keys.KeyA || keys.ArrowLeft ? 1 : 0) - (keys.KeyD || keys.ArrowRight ? 1 : 0);
+        // ── input source: analog touch stick overrides binary keys only while a finger drags it (feature 2) ──
+        let pitchInput, yawInput, inputMag;
+        if (touchStick.active) {
+          // stick dy>0 (drag down) = pitch down, matching keyboard S/Down sign.
+          pitchInput = clamp(touchStick.dy, -1, 1);
+          yawInput = clamp(-touchStick.dx, -1, 1); // drag right = yaw right (negative, matches A-D sign below)
+          inputMag = Math.min(1, Math.hypot(pitchInput, yawInput));
+        } else {
+          pitchInput = (keys.KeyS || keys.ArrowDown || touchKeys.pitchDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp || touchKeys.pitchUp ? 1 : 0);
+          yawInput = (keys.KeyA || keys.ArrowLeft || touchKeys.yawLeft ? 1 : 0) - (keys.KeyD || keys.ArrowRight || touchKeys.yawRight ? 1 : 0);
+          inputMag = Math.min(1, Math.hypot(pitchInput, yawInput));
+        }
+
+        const boosting = ((keys.ShiftLeft || keys.ShiftRight || touchKeys.boost)) && player.boost > 0;
+        player.boosting = boosting;
+        const braking = !!(keys.ControlLeft || keys.ControlRight || touchKeys.brake);
+
+        // ── flight model (feature 1) ──
+        // 1a: analog magnitude scales turn authority; high stick deflection turns tighter.
+        // 1d: brake-turn — while braking AND steering, tighten yaw/pitch rate and raise turnLerp this frame.
+        const brakeTurn = braking && inputMag > 0.05;
+        const turnBoost = 1 + 0.55 * inputMag + (brakeTurn ? 0.6 : 0);   // up to ~1.6x in a brake-turn pivot
         const rollBank = yawInput * PROFILE.rollBank;
-        const pitchRate = pitchInput * PROFILE.pitchRate;
-        const yawRate = yawInput * PROFILE.yawRate;
+        const pitchRate = pitchInput * PROFILE.pitchRate * turnBoost;
+        const yawRate = yawInput * PROFILE.yawRate * turnBoost;
+        const turnLerp = Math.min(0.22, PROFILE.turnLerp * (brakeTurn ? 1.7 : 1));
 
         const deltaQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(
           pitchRate * dt,
@@ -1036,7 +1434,27 @@
           "XYZ"
         ));
         tempQuat.copy(player.mesh.quaternion).multiply(deltaQuat).normalize();
-        player.mesh.quaternion.slerp(tempQuat, PROFILE.turnLerp);
+        player.mesh.quaternion.slerp(tempQuat, turnLerp);
+
+        // 1b: cosmetic visual bank/tilt on the hull child only (root heading stays clean for the camera).
+        // hullMesh lies flat (rot.x=-PI/2); bank = roll about its local Y, pitch-tilt = its local X delta.
+        if (player.hullMesh) {
+          const targetBank = -yawInput * 0.5;     // lean into the turn
+          const targetTilt = -pitchInput * 0.28;  // nose tilt cue
+          player.bankZ = (player.bankZ || 0) + (targetBank - (player.bankZ || 0)) * Math.min(1, dt * 6);
+          player.tiltX = (player.tiltX || 0) + (targetTilt - (player.tiltX || 0)) * Math.min(1, dt * 6);
+          player.hullMesh.rotation.set(-Math.PI / 2 + player.tiltX, player.bankZ, 0);
+        }
+
+        // 1c: scripted U-turn / flip maneuver — timed pitch sweep on the ROOT (camera trails automatically).
+        if (player.maneuverTime > 0) {
+          player.maneuverTime -= dt;
+          const total = player.maneuverTotal || 0.6;
+          // sweep PI over the maneuver duration about the local pitch (X) axis.
+          player.mesh.rotateX((Math.PI / total) * dt);
+          player.invincible = Math.max(player.invincible, 0.05);
+          if (player.maneuverTime <= 0) player.maneuverTime = 0;
+        }
 
         if (player.rollTime > 0) {
           player.rollTime -= dt;
@@ -1048,9 +1466,6 @@
           }
         }
 
-        const boosting = (keys.ShiftLeft || keys.ShiftRight) && player.boost > 0;
-        player.boosting = boosting;
-        const braking = keys.ControlLeft || keys.ControlRight;
         let speed = BASE_SPEED * PROFILE.speedMult;
         if (boosting) {
           speed *= PROFILE.boostMult;
@@ -1087,17 +1502,50 @@
         window.setTimeout(() => setFlash(0), 90);
       }
 
+      // ── U-turn / Immelmann flip (feature 1c): scripted 180° pitch sweep, brief invuln.
+      function startManeuver() {
+        if (state !== "gameplay" || !player.alive) return;
+        if (player.maneuverTime > 0 || player.rollTime > 0) return; // block while another maneuver runs
+        player.maneuverTotal = 0.6;
+        player.maneuverTime = 0.6;
+        player.invincible = Math.max(player.invincible, 0.7);
+        setFlash(0.18);
+        window.setTimeout(() => setFlash(0), 110);
+      }
+      // double-tap ↓↓ detection timestamp (gated on non-repeat in onKeyDown).
+      let _lastDownTap = 0;
+
+      // ── 1st/3rd person toggle (feature 5): cosmetic, heading-locked in both modes ──
+      function toggleView() {
+        viewMode = (viewMode === "third") ? "first" : "third";
+        if (player && player.mesh) player.mesh.visible = (viewMode !== "first"); // hide own hull in cockpit view
+        var b = document.getElementById("ace-view");
+        if (b) b.textContent = (viewMode === "first") ? "1ST" : "3RD";
+      }
+
       function updateCamera(dt) {
         if (!player || !player.mesh.parent) return;
         const forward = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
         const up = upVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
-        const desired = player.mesh.position.clone()
-          .add(forward.clone().multiplyScalar(-PROFILE.camDist))
-          .add(up.clone().multiplyScalar(PROFILE.camHeight));
-        camera.position.lerp(desired, CAMERA_LERP);
-        const lookAt = player.mesh.position.clone()
-          .add(forward.clone().multiplyScalar(55))
-          .add(up.clone().multiplyScalar(3));
+        let desired, lookAt;
+        if (viewMode === "first") {
+          // FIRST: camera at the nose, heading-locked (derives from player quaternion → still "controlled", no orbit).
+          const noseOffset = 6 + PROFILE.camHeight * 0.05;
+          desired = player.mesh.position.clone()
+            .add(forward.clone().multiplyScalar(noseOffset))
+            .add(up.clone().multiplyScalar(2));
+          camera.position.lerp(desired, CAMERA_LERP);
+          lookAt = player.mesh.position.clone().add(forward.clone().multiplyScalar(55));
+        } else {
+          // THIRD: existing controlled chase (preserved exactly).
+          desired = player.mesh.position.clone()
+            .add(forward.clone().multiplyScalar(-PROFILE.camDist))
+            .add(up.clone().multiplyScalar(PROFILE.camHeight));
+          camera.position.lerp(desired, CAMERA_LERP);
+          lookAt = player.mesh.position.clone()
+            .add(forward.clone().multiplyScalar(55))
+            .add(up.clone().multiplyScalar(3));
+        }
         camera.lookAt(lookAt);
 
         if (shakeTimer > 0) {
@@ -1161,6 +1609,20 @@
           const shot = list[i];
           shot.life -= dt;
           shot.mesh.position.add(shot.velocity.clone().multiplyScalar(dt));
+          // feature 4: billboard additive streak toward camera, long-axis along travel dir (screen-space).
+          if (shot.billboard && shot.streak && camera) {
+            const planes = shot.glow ? [shot.streak, shot.glow] : [shot.streak];
+            // screen-space angle of travel direction → roll so plane's local Y follows the streak.
+            const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+            const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+            const dx = shot.dir.dot(camRight);
+            const dy = shot.dir.dot(camUp);
+            const roll = Math.atan2(dx, dy); // plane local +Y is its length axis
+            for (let p = 0; p < planes.length; p += 1) {
+              planes[p].quaternion.copy(camera.quaternion);
+              planes[p].rotateZ(-roll);
+            }
+          }
           if (shot.life <= 0 || shot.mesh.position.length() > WORLD_RADIUS + 160) {
             scene.remove(shot.mesh);
             list.splice(i, 1);
@@ -1182,9 +1644,9 @@
           missile.velocity.lerp(desired, MISSILE_TURN).normalize().multiplyScalar(MISSILE_SPEED);
           missile.mesh.position.add(missile.velocity.clone().multiplyScalar(dt));
           missile.mesh.scale.setScalar(1 + Math.sin(clock.elapsedTime * 32) * 0.16);
-          spawnTrail(missile.mesh.position.clone(), 0xffe65a, 3.1);
+          spawnTrail(missile.mesh.position.clone(), missile.trailColor || 0xffe65a, 3.6);
 
-          if (missile.mesh.position.distanceTo(missile.target.mesh.position) < 13) {
+          if (missile.mesh.position.distanceTo(missile.target.mesh.position) < 13 * (missile.target.scale || 1)) {
             missile.target.hp -= PROFILE.missileDmg;
             if (missile.target.hp <= 0) destroyEnemy(missile.target);
             spawnExplosion(missile.mesh.position, 12, 0xfff57a, 0xff8a28, 0.8);
@@ -1232,7 +1694,8 @@
           let hit = false;
           for (const enemy of enemies) {
             if (!enemy.alive) continue;
-            if (shot.mesh.position.distanceTo(enemy.mesh.position) < 8) {
+            // hit radius scales with hull size_class so large hulls stay hittable (feature 3).
+            if (shot.mesh.position.distanceTo(enemy.mesh.position) < 8 * (enemy.scale || 1)) {
               enemy.hp -= PROFILE.plasmaDmg;
               if (enemy.hp <= 0) destroyEnemy(enemy);
               hit = true;
@@ -1260,7 +1723,7 @@
       function updateLock(dt) {
         if (missileCooldown > 0) missileCooldown = Math.max(0, missileCooldown - dt);
 
-        if (!keys.KeyZ || missileCooldown > 0 || state !== "gameplay") {
+        if ((!keys.KeyZ && !touchKeys.lock) || missileCooldown > 0 || state !== "gameplay") {
           lockTimer = 0;
           lockTarget = null;
           lockWasConfirmed = false;
@@ -1373,13 +1836,14 @@
         const time = clock.elapsedTime;
 
         if (state === "gameplay") {
-          if (keys.Space) firePlasma(time);
+          if (keys.Space || touchKeys.fire) firePlasma(time);
           updatePlayer(dt);
           updateEnemies(dt);
           updateLock(dt);
           updateProjectiles(playerShots, dt);
           updateProjectiles(enemyShots, dt);
           updateMissiles(dt);
+          updateChargeBeam(dt, time); // feature 4: titan continuous beam (no-op for other tiers)
           updateCollisions();
           updateCamera(dt);
           checkVictory();
@@ -1388,6 +1852,7 @@
           updateProjectiles(playerShots, dt);
           updateProjectiles(enemyShots, dt);
           updateMissiles(dt);
+          hideBeam(); // feature 4: never leave the charge beam visible outside gameplay
           if (hud.speedLines && hud.speedLines.style.opacity !== "0") hud.speedLines.style.opacity = "0";
         }
 
@@ -1414,6 +1879,17 @@
           startBarrelRoll(-1);
         } else if (event.code === "KeyE") {
           startBarrelRoll(1);
+        } else if (event.code === "KeyV" && !event.repeat) {
+          toggleView();
+        } else if ((event.code === "ArrowDown" || event.code === "KeyS") && !event.repeat && state === "gameplay") {
+          // double-tap down → U-turn flip (1c). repeat-gated to avoid auto-repeat misfire.
+          const nowMs = (typeof performance !== "undefined" ? performance.now() : Date.now());
+          if (nowMs - _lastDownTap < 280) {
+            startManeuver();
+            _lastDownTap = 0;
+          } else {
+            _lastDownTap = nowMs;
+          }
         }
       }
 
@@ -1430,6 +1906,81 @@
       window.addEventListener("keydown", onKeyDown);
       window.addEventListener("keyup", onKeyUp);
       window.addEventListener("resize", onResize);
+
+      // ── touch control layer (feature 2): built only on touch devices; desktop unaffected ──
+      function setupTouchControls() {
+        if (!TOUCH) return;
+        const root = document.getElementById("aceTouch");
+        const stick = document.getElementById("ace-stick");
+        const knob = document.getElementById("ace-stick-knob");
+        if (!root || !stick || !knob) return;
+        root.classList.add("on");
+
+        // virtual stick → normalized touchStick.dx/dy
+        let stickId = null;
+        const maxR = 50; // px travel for full deflection
+        function setKnob(nx, ny) {
+          knob.style.transform = "translate(" + (nx * maxR) + "px," + (ny * maxR) + "px)";
+        }
+        function stickMove(ev, t) {
+          const rect = stick.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          let dx = (t.clientX - cx) / maxR;
+          let dy = (t.clientY - cy) / maxR;
+          const mag = Math.hypot(dx, dy);
+          if (mag > 1) { dx /= mag; dy /= mag; }
+          touchStick.dx = dx;
+          touchStick.dy = dy;
+          setKnob(dx, dy);
+        }
+        stick.addEventListener("pointerdown", function (ev) {
+          ev.preventDefault();
+          stickId = ev.pointerId;
+          touchStick.active = true;
+          try { stick.setPointerCapture(ev.pointerId); } catch (_) {}
+          stickMove(ev, ev);
+        });
+        stick.addEventListener("pointermove", function (ev) {
+          if (stickId !== ev.pointerId) return;
+          ev.preventDefault();
+          stickMove(ev, ev);
+        });
+        function stickEnd(ev) {
+          if (stickId !== ev.pointerId) return;
+          stickId = null;
+          touchStick.active = false;
+          touchStick.dx = 0; touchStick.dy = 0;
+          setKnob(0, 0);
+        }
+        stick.addEventListener("pointerup", stickEnd);
+        stick.addEventListener("pointercancel", stickEnd);
+        stick.addEventListener("lostpointercapture", stickEnd);
+
+        // action buttons via delegated-style binding (addEventListener per button; §19 — no inline onclick)
+        function bindHold(id, flag) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener("pointerdown", function (ev) { ev.preventDefault(); touchKeys[flag] = true; });
+          const off = function (ev) { ev.preventDefault(); touchKeys[flag] = false; };
+          el.addEventListener("pointerup", off);
+          el.addEventListener("pointercancel", off);
+          el.addEventListener("pointerleave", off);
+        }
+        function bindTap(id, fn) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener("pointerdown", function (ev) { ev.preventDefault(); fn(); });
+        }
+        bindHold("ace-fire", "fire");
+        bindHold("ace-lock", "lock");
+        bindHold("ace-boost", "boost");
+        bindHold("ace-brake", "brake");
+        bindTap("ace-uturn", startManeuver);
+        bindTap("ace-roll", function () { startBarrelRoll(1); });
+        bindTap("ace-view", toggleView);
+      }
+      setupTouchControls();
 
       createStarfield();
       addBoundaryShell();
