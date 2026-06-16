@@ -504,6 +504,9 @@
       function classScale(code) {
         return CLASS_SCALE[sizeClassFromCode(code)] || 1.4;
       }
+      // anti-paper: constant tilt away from dead-on camera-facing so flat sprites read as a 3/4 view
+      // (perspective foreshortening = depth cue) and never collapse to an edge-on line.
+      const ENEMY_VIEW_TILT = 0.42;
 
       // ── faction → projectile/beam color (feature 4; cosmetic only) ──
       const FACTION_COLOR = {
@@ -966,7 +969,9 @@
           side: THREE.DoubleSide
         });
         const sprite = new THREE.Mesh(geo, mat);
-        sprite.rotation.x = -Math.PI / 2;
+        // anti-paper: sprite is a true camera-billboard (normal +Z faces camera). Orientation
+        // (bank/tilt) is driven each frame in updateEnemies so it reads as a banking craft, not a
+        // horizontal card seen edge-on. No baked rotation here.
         mesh.add(sprite);
         // feature 3: resolve this enemy's code (same indexing as getEnemyTex) → scale hull + hit radius.
         const codes = (ENEMY_CODES && ENEMY_CODES.length) ? ENEMY_CODES : DEMO_ENEMY_CODES;
@@ -976,15 +981,18 @@
         const dir = randomDirection();
         const dist = rand(200, 500);
         mesh.position.copy(dir.multiplyScalar(dist));
-        mesh.lookAt(0, 0, 0);
         scene.add(mesh);
         return {
           mesh,
+          sprite,
           hp: 3,
           cooldown: rand(2, 3),
           strafe: rand(0, Math.PI * 2),
           wobble: rand(0.7, 1.5),
           speed: rand(29, 44),
+          bankZ: 0,
+          bob: rand(0, Math.PI * 2),
+          prevPos: mesh.position.clone(),
           alive: true,
           code: code,
           faction: factionFromCode(code),
@@ -1571,24 +1579,34 @@
           if (!enemy.alive) continue;
           const toPlayer = player.mesh.position.clone().sub(enemy.mesh.position);
           const distance = toPlayer.length();
-          const dir = toPlayer.normalize();
+          const dir = toPlayer.clone().normalize();
           const side = new THREE.Vector3().crossVectors(dir, upVec).normalize();
           if (side.lengthSq() < 0.01) side.set(1, 0, 0);
-          const strafe = side.multiplyScalar(Math.sin(now * enemy.wobble + enemy.strafe) * 24);
-          const desired = dir.multiplyScalar(enemy.speed).add(strafe);
-          enemy.mesh.position.add(desired.multiplyScalar(dt));
+          const strafe = side.clone().multiplyScalar(Math.sin(now * enemy.wobble + enemy.strafe) * 24);
+          const vel = dir.clone().multiplyScalar(enemy.speed).add(strafe); // units/sec
+          enemy.mesh.position.add(vel.clone().multiplyScalar(dt));
 
           if (distance < 90) {
-            enemy.mesh.position.add(player.mesh.position.clone().sub(enemy.mesh.position).normalize().multiplyScalar(-32 * dt));
+            enemy.mesh.position.add(dir.clone().multiplyScalar(-32 * dt));
           }
 
-          const targetLook = player.mesh.position.clone().add(strafe.clone().multiplyScalar(0.1));
-          enemy.mesh.lookAt(targetLook);
+          // ── anti-paper orientation: camera-billboard + bank into lateral motion + 3/4 tilt + idle micro-roll.
+          // Reads as a banking craft instead of a flat card flipping to face you (no per-frame lookAt snap).
+          const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+          const lateral = vel.dot(camRight);
+          const targetBank = Math.max(-0.7, Math.min(0.7, -lateral * 0.014));
+          enemy.bankZ += (targetBank - enemy.bankZ) * Math.min(1, dt * 4);
+          const bob = Math.sin(now * 1.7 + enemy.bob) * 0.05;
+          enemy.mesh.quaternion.copy(camera.quaternion);
+          enemy.mesh.rotateX(ENEMY_VIEW_TILT);
+          enemy.mesh.rotateZ(enemy.bankZ + bob);
+          enemy.prevPos.copy(enemy.mesh.position);
 
-          const back = new THREE.Vector3(0, 0, 1).applyQuaternion(enemy.mesh.quaternion).normalize();
+          // engine trail follows the actual travel direction → anchors the billboard in 3D space.
+          const back = vel.clone().normalize().multiplyScalar(-1);
           for (let i = 0; i < FX.enemyTrailMax; i += 1) {
             if (Math.random() < 0.65 * FX.trailDensity) {
-              spawnTrail(enemy.mesh.position.clone().add(back.clone().multiplyScalar(9 + i * 2)), 0xff5b31, 1.7 + i * 0.4);
+              spawnTrail(enemy.mesh.position.clone().add(back.clone().multiplyScalar((9 + i * 2) * enemy.scale)), 0xff5b31, 1.7 + i * 0.4);
             }
           }
 
