@@ -980,7 +980,9 @@
         const code = codes[index % codes.length];
         const scl = classScale(code);
         mesh.scale.setScalar(scl);
-        const dir = randomDirection();
+        // spawn in the player's FORWARD cone (player starts at origin facing -Z) so enemies appear
+        // ahead, not behind — a forward-flight shooter shouldn't blindside you from the rear at spawn.
+        const dir = new THREE.Vector3(rand(-0.85, 0.85), rand(-0.5, 0.5), rand(-1, -0.35)).normalize();
         const dist = rand(200, 500);
         mesh.position.copy(dir.multiplyScalar(dist));
         scene.add(mesh);
@@ -1612,8 +1614,12 @@
             }
           }
 
+          // fire only when this enemy is inside the player's forward arc (~75°): no blind-spot snipes
+          // from directly behind. Rear enemies chase + hold fire until you turn (U-turn/brake-turn) to face them.
           enemy.cooldown -= dt;
-          if (enemy.cooldown <= 0 && distance < 520 && state === "gameplay") {
+          const pForward = forwardVec.clone().applyQuaternion(player.mesh.quaternion);
+          const inFrontArc = pForward.dot(dir.clone().multiplyScalar(-1)) > 0.25;
+          if (enemy.cooldown <= 0 && distance < 520 && inFrontArc && state === "gameplay") {
             enemyFire(enemy);
             enemy.cooldown = rand(2, 3);
           }
