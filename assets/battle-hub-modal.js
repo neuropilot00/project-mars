@@ -376,6 +376,10 @@ async function bhLoad() {
       await bhLoadKillboard(container);
       return;
     }
+    if (tab === 'ace') {
+      await bhLoadAce(container);
+      return;
+    }
 
     let url = '';
     if (tab === 'active') url = '/api/battles/list/active';
@@ -427,6 +431,90 @@ async function bhLoadKillboard(container) {
     return;
   }
   container.innerHTML = header + lossesFeed + '<div class="killboard-list">' + kills.map(renderKillmailCard).join('') + '</div>';
+}
+
+// ═══ ACE Pilot leaderboard (cosmetic honor ranking — GET /api/ace/leaderboard) ═══
+var ACE_TITLE_LABELS_BH = {
+  ace_recruit: { en: 'ACE RECRUIT', ko: '에이스 신병', ja: 'エース新兵', zh: '王牌新兵' },
+  ace_pilot:   { en: 'ACE PILOT', ko: '에이스 파일럿', ja: 'エースパイロット', zh: '王牌飞行员' },
+  ace_veteran: { en: 'ACE VETERAN', ko: '에이스 베테랑', ja: 'エースベテラン', zh: '王牌老兵' },
+  top_gun:     { en: 'TOP GUN', ko: '톱건', ja: 'トップガン', zh: '头号王牌' },
+  ace_ace:     { en: 'DOUBLE ACE', ko: '더블 에이스', ja: 'ダブルエース', zh: '双料王牌' }
+};
+function aceTitleLabelBH(code) {
+  var m = ACE_TITLE_LABELS_BH[code];
+  if (!m) return String(code || '').toUpperCase();
+  return m[LANG] || m.en;
+}
+
+async function bhLoadAce(container) {
+  const myWallet = getMyWallet();
+  const calls = [ battleHubReadFetch('ace-leaderboard', '/api/ace/leaderboard?metric=kills&limit=40', 30000) ];
+  if (myWallet) calls.push(battleHubReadFetch('ace-me', '/api/ace/me', 30000));
+  let lb = null, me = null;
+  try {
+    const results = await Promise.all(calls);
+    lb = results[0] || null;
+    me = results[1] || null;
+  } catch (_) { /* keep nulls → empty render */ }
+  const rows = (lb && (lb.leaderboard || lb.rows || lb.pilots)) || [];
+  const header = me ? renderAceMeSummary(me) : '';
+  if (!rows.length) {
+    container.innerHTML = header + '<div class="bh-empty">' + tl('No ACE pilots ranked yet','아직 에이스 파일럿 기록이 없습니다','エースパイロットの記録はまだありません','暂无王牌飞行员记录') + '</div>';
+    return;
+  }
+  container.innerHTML = header + '<div class="killboard-list">' + rows.map(renderAcePilotRow).join('') + '</div>';
+}
+
+function renderAceMeSummary(me) {
+  const s = (me && me.stats) || me || {};
+  const rank = parseInt(me && me.rank, 10) || 0;
+  const totalKills = parseInt(s.totalKills, 10) || parseInt(s.total_kills, 10) || 0;
+  const totalWins = parseInt(s.totalWins, 10) || parseInt(s.total_wins, 10) || 0;
+  const bestKills = parseInt(s.bestKills, 10) || parseInt(s.best_kills, 10) || 0;
+  const runs = parseInt(s.totalRuns, 10) || parseInt(s.total_runs, 10) || 0;
+  let nextHtml = '';
+  const nt = me && me.nextTitle;
+  if (nt && nt.code) {
+    const cur = parseInt(nt.current, 10) || 0;
+    const tgt = parseInt(nt.target, 10) || 0;
+    const pct = tgt > 0 ? Math.max(0, Math.min(100, Math.round((cur / tgt) * 100))) : 0;
+    nextHtml = '<div class="ace-next-title">'
+      + '<div class="ace-next-row"><span>' + tl('Next title','다음 칭호','次の称号','下个称号') + '</span>'
+      + '<b>✦ ' + escapeHtml(aceTitleLabelBH(nt.code)) + '</b><span>' + cur + ' / ' + tgt + '</span></div>'
+      + '<div class="ace-next-bar"><div class="ace-next-fill" style="width:' + pct + '%"></div></div></div>';
+  }
+  return ''
+    + '<div class="my-killboard-summary">'
+    + '<div class="mks-title">✈ ' + (LANG==='ko'?'내 에이스 전적':LANG==='ja'?'自分のエース戦績':LANG==='zh'?'我的王牌战绩':'MY ACE RECORD') + '</div>'
+    + '<div class="mks-stat"><b>' + (rank ? '#' + rank : '-') + '</b><span>RANK</span></div>'
+    + '<div class="mks-stat"><b>' + formatNum(totalKills) + '</b><span>' + (LANG==='ko'?'누적 격추':LANG==='ja'?'通算撃墜':LANG==='zh'?'累计击落':'KILLS') + '</span></div>'
+    + '<div class="mks-stat"><b>' + totalWins + '</b><span>' + (LANG==='ko'?'승':LANG==='ja'?'勝':LANG==='zh'?'胜':'WINS') + '</span></div>'
+    + '<div class="mks-stat"><b>' + bestKills + '</b><span>' + (LANG==='ko'?'최고 격추':LANG==='ja'?'最高撃墜':LANG==='zh'?'最高击落':'BEST') + '</span></div>'
+    + '<div class="mks-stat"><b>' + runs + '</b><span>' + (LANG==='ko'?'출격':LANG==='ja'?'出撃':LANG==='zh'?'出击':'RUNS') + '</span></div>'
+    + '</div>'
+    + nextHtml;
+}
+
+function renderAcePilotRow(p, idx) {
+  const rank = parseInt(p && p.rank, 10) || (idx + 1);
+  const name = p && (p.nickname || p.nick) ? (p.nickname || p.nick) : shortWallet(p && p.wallet);
+  const kills = formatNum(parseInt(p && p.totalKills, 10) || parseInt(p && p.total_kills, 10) || 0);
+  const wins = parseInt(p && p.totalWins, 10) || parseInt(p && p.total_wins, 10) || 0;
+  const best = parseInt(p && p.bestKills, 10) || parseInt(p && p.best_kills, 10) || 0;
+  const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : ('#' + rank);
+  return ''
+    + '<div class="killmail-card">'
+    + '<div class="killmail-skull">' + medal + '</div>'
+    + '<div class="killmail-main">'
+    + '<div class="killmail-title"><b>' + escapeHtml(name) + '</b></div>'
+    + '<div class="killmail-meta">'
+    + '<span>✈ ' + (LANG==='ko'?'격추':LANG==='ja'?'撃墜':LANG==='zh'?'击落':'Kills') + ' ' + kills + '</span>'
+    + '<span>🏆 ' + (LANG==='ko'?'승':LANG==='ja'?'勝':LANG==='zh'?'胜':'Wins') + ' ' + wins + '</span>'
+    + (best ? '<span>★ ' + (LANG==='ko'?'최고':LANG==='ja'?'最高':LANG==='zh'?'最高':'Best') + ' ' + best + '</span>' : '')
+    + '</div></div>'
+    + '<div class="killmail-value"><b>' + kills + '</b><span>' + (LANG==='ko'?'격추':LANG==='ja'?'撃墜':LANG==='zh'?'击落':'KILLS') + '</span></div>'
+    + '</div>';
 }
 
 // [v7.412] 내 최근 피격 함선 + 재건/복수 CTA. 이 파일의 inline onclick + escapeAttr 패턴에 맞춤.

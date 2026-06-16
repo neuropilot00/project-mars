@@ -1,3 +1,17 @@
+## 2026-06-06 v7.418 — ACE 명예 시스템 + ACE 함선 아트 세트 완성 (울트라코드)
+
+ACE 명예 시스템(코스메틱 전용, 경제·전투결과 0 영향). 울트라코드(설계→서버∥클라→적대검증).
++ ACE 함선 아트 세트 완성: assets/ships/ 에 누락됐던 assembled 10종(alien/pilgrim)을 top/에서 채워 전 32종 커버.
+
+- 서버: mig328(ace_runs/ace_pilot_stats + settings 클램프/임계값), aceCombatRoutes.js(POST /api/ace/result
+  — JWT wallet·kills/duration CLAMP·트랜잭션+칭호 fire-and-forget, GET /leaderboard 15s캐시, GET /me),
+  title.js 에 ace_recruit/ace_pilot/ace_veteran/top_gun/ace_ace 칭호(누적 기반=위조내성). 경제 0 접촉.
+- 클라: ace-combat.html 종료 시 kills/duration postMessage, ace-combat-modal.js 가 /api/ace/result POST +
+  획득 칭호 표시, battle-hub-modal.js 'ACE' 탭(리더보드+내 전적).
+- [적대검증 fix] 리더보드/내전적 표시 0 버그: 서버 camelCase(totalKills..) vs 클라 snake_case 불일치 →
+  클라 렌더러 camelCase 정정(snake 폴백 유지).
+- 검증: 서버/클라 node -c OK, mig328 적용, 경제 적색어 0(무접촉 확인). sw v108, ?v=7467.
+- 다음 ACE 패스(예정): 비행모델(선회/U턴/브레이크턴/동적뱅킹) + 함급별 볼트/빔 무기VFX + 1·3인칭 토글.
 ## 2026-06-06 v7.417 — ACE 모드 폴리시 (모바일 perf + 전투 손맛, 울트라코드)
 
 울트라코드(구현+적대검증 clean). assets/ace-combat.html 단일파일, 경제·서버 무변경, 신규 에셋 0.

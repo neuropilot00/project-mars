@@ -431,6 +431,7 @@ app.use('/api', upgradeRoutes);
 app.use('/api/bounty', bountyRoutes);                         // Bounty Board
 app.use('/api/killboard', require('./routes/killboard'));     // Killboard (ship_wrecks 격침 귀속)
 app.use('/api/spy', require('./routes/spy'));                 // PvP 스파이/정찰 (적 함대 구성 노출)
+app.use('/api/ace', require('./routes/aceCombatRoutes'));     // ACE 명예 (런 기록/리더보드/칭호 — 코스메틱 전용)
 app.use('/api/daily-ops', dailyOpsRoutes);                    // Daily OPS 미션
 app.use('/api', apiLimiter, campaignRoutes);                  // Campaign + reputation/tag/lore routes
 app.use('/api', apiLimiter, itemEconomyRoutes);               // Shop + item instances + enhancement routes

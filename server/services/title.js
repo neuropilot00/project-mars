@@ -43,7 +43,13 @@ const TITLE_DEFINITIONS = {
   // 길드
   guild_master:     { en: 'Guild Master',     ko: '길드 마스터',  ja: 'ギルドマスター', zh: '公会长' },
   // 시즌
-  season_champion:  { en: 'Season Champion',  ko: '시즌 챔피언',  ja: 'シーズン王者', zh: '赛季冠军' }
+  season_champion:  { en: 'Season Champion',  ko: '시즌 챔피언',  ja: 'シーズン王者', zh: '赛季冠军' },
+  // ACE 명예 (클라 ACE 미니게임 — 코스메틱 전용, 이미지 에셋 0)
+  ace_recruit:      { en: 'Ace Recruit',      ko: '에이스 신병',  ja: 'エース新兵',   zh: '王牌新兵' },
+  ace_pilot:        { en: 'Ace Pilot',        ko: '에이스 파일럿', ja: 'エースパイロット', zh: '王牌飞行员' },
+  ace_veteran:      { en: 'Ace Veteran',      ko: '에이스 베테랑', ja: 'エースベテラン', zh: '王牌老兵' },
+  top_gun:          { en: 'Top Gun',          ko: '톱건',         ja: 'トップガン',   zh: '头号王牌' },
+  ace_ace:          { en: 'Double Ace',       ko: '더블 에이스',  ja: 'ダブルエース', zh: '双料王牌' }
 };
 
 // ── 중요 칭호 (Chronicle 기록 대상) ──

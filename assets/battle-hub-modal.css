@@ -1481,3 +1481,25 @@
   word-break: break-all;
   margin: 10px 0;
 }
+
+/* ── ACE pilot leaderboard: next-title progress (cosmetic) ── */
+.ace-next-title {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 225, 93, 0.28);
+  border-radius: 6px;
+  background: rgba(255, 225, 93, 0.06);
+}
+.ace-next-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; font-size: 11px; color: #cfe9e0; margin-bottom: 6px;
+}
+.ace-next-row b { color: #ffe15d; }
+.ace-next-bar {
+  height: 6px; border-radius: 4px; overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+}
+.ace-next-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, #39ff83, #ffe15d);
+}
