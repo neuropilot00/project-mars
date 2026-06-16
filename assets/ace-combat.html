@@ -1614,12 +1614,29 @@
             }
           }
 
-          // fire only when this enemy is inside the player's forward arc (~75°): no blind-spot snipes
-          // from directly behind. Rear enemies chase + hold fire until you turn (U-turn/brake-turn) to face them.
-          enemy.cooldown -= dt;
+          // ── forward-flight discipline: keep the fight AHEAD of an advancing player ──
+          // relative bearing of this enemy vs the player's heading (+1 dead ahead, -1 dead behind).
           const pForward = forwardVec.clone().applyQuaternion(player.mesh.quaternion);
-          const inFrontArc = pForward.dot(dir.clone().multiplyScalar(-1)) > 0.25;
-          if (enemy.cooldown <= 0 && distance < 520 && inFrontArc && state === "gameplay") {
+          const rel = enemy.mesh.position.clone().sub(player.mesh.position);
+          const relDist = rel.length() || 0.001;
+          const facing = pForward.dot(rel.clone().multiplyScalar(1 / relDist));
+
+          // Wrap far-behind enemies back into the forward cone (offscreen behind the player, so no
+          // pop-in) → an advancing player always faces oncoming enemies instead of towing a rear tail.
+          if (facing < -0.2 && relDist > 280) {
+            const right = new THREE.Vector3(1, 0, 0).applyQuaternion(player.mesh.quaternion);
+            const up = upVec.clone().applyQuaternion(player.mesh.quaternion);
+            const newDir = pForward.clone()
+              .add(right.multiplyScalar(rand(-0.7, 0.7)))
+              .add(up.multiplyScalar(rand(-0.35, 0.35)))
+              .normalize();
+            enemy.mesh.position.copy(player.mesh.position).add(newDir.multiplyScalar(rand(330, 480)));
+            enemy.bankZ = 0;
+          }
+
+          // fire only when inside the player's forward arc (~75°): no blind-spot snipes from the rear.
+          enemy.cooldown -= dt;
+          if (enemy.cooldown <= 0 && relDist < 520 && facing > 0.25 && state === "gameplay") {
             enemyFire(enemy);
             enemy.cooldown = rand(2, 3);
           }
