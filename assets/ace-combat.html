@@ -971,7 +971,9 @@
         const sprite = new THREE.Mesh(geo, mat);
         // anti-paper: sprite is a true camera-billboard (normal +Z faces camera). Orientation
         // (bank/tilt) is driven each frame in updateEnemies so it reads as a banking craft, not a
-        // horizontal card seen edge-on. No baked rotation here.
+        // horizontal card seen edge-on. Top-view art has its nose at texture +Y (screen-up when
+        // billboarded) — flip 180° in-plane so the enemy nose points toward the player, not away.
+        sprite.rotation.z = Math.PI;
         mesh.add(sprite);
         // feature 3: resolve this enemy's code (same indexing as getEnemyTex) → scale hull + hit radius.
         const codes = (ENEMY_CODES && ENEMY_CODES.length) ? ENEMY_CODES : DEMO_ENEMY_CODES;
