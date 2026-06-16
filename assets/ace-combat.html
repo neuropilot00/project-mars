@@ -1550,20 +1550,23 @@
         // bank back into the arena instead of ramming the invisible wall and bouncing forward/back
         // (which froze the player in place and killed the sense of forward motion). No energetic bounce.
         const dist = player.mesh.position.length();
-        if (dist > WORLD_RADIUS * 0.82) {
+        if (dist > WORLD_RADIUS * 0.5) {
           const curFwd = forwardVec.clone().applyQuaternion(player.mesh.quaternion).normalize();
           const toCenter = player.mesh.position.clone().negate().normalize();
-          if (curFwd.dot(toCenter) < 0.97) {
+          if (curFwd.dot(toCenter) < 0.985) {
             const tgt = new THREE.Quaternion().setFromUnitVectors(curFwd, toCenter).multiply(player.mesh.quaternion);
-            const k = Math.min(0.07, ((dist - WORLD_RADIUS * 0.82) / (WORLD_RADIUS * 0.18)) * 0.07);
+            // ramps from 0 at half-radius to a firm 0.22/frame near the cap → curves well back into center.
+            const k = Math.min(0.22, ((dist - WORLD_RADIUS * 0.5) / (WORLD_RADIUS * 0.4)) * 0.22);
             player.mesh.quaternion.slerp(tgt, Math.max(0, k));
           }
         }
-        if (dist > WORLD_RADIUS) {
-          player.mesh.position.setLength(WORLD_RADIUS - 3);
+        // hard cap well INSIDE the dome (0.92R) so the player never reaches the visible boundary wall and
+        // the chase camera never ends up outside looking back through it. Shed only outward speed (no bounce).
+        if (dist > WORLD_RADIUS * 0.92) {
+          player.mesh.position.setLength(WORLD_RADIUS * 0.92);
           const n = player.mesh.position.clone().normalize();
           const outward = player.velocity.dot(n);
-          if (outward > 0) player.velocity.addScaledVector(n, -outward); // shed only outward speed, no bounce
+          if (outward > 0) player.velocity.addScaledVector(n, -outward);
         }
 
         if (player.invincible > 0) player.invincible -= dt;
@@ -1625,6 +1628,8 @@
             .add(forward.clone().multiplyScalar(55))
             .add(up.clone().multiplyScalar(3));
         }
+        // safety: never let the camera exit the boundary dome (would frame the wall from outside).
+        if (camera.position.length() > WORLD_RADIUS * 0.97) camera.position.setLength(WORLD_RADIUS * 0.97);
         camera.lookAt(lookAt);
 
         if (shakeTimer > 0) {
