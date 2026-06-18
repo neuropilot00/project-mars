@@ -1499,12 +1499,13 @@
         // ── input source: analog touch stick overrides binary keys only while a finger drags it (feature 2) ──
         let pitchInput, yawInput, inputMag;
         if (touchStick.active) {
-          // stick dy>0 (drag down) = pitch down, matching keyboard S/Down sign.
-          pitchInput = clamp(touchStick.dy, -1, 1);
+          // DIRECT (non-inverted) pitch: drag DOWN (dy>0) = nose down = go down. Not Star-Fox inverted.
+          pitchInput = clamp(-touchStick.dy, -1, 1);
           yawInput = clamp(-touchStick.dx, -1, 1); // drag right = yaw right (negative, matches A-D sign below)
           inputMag = Math.min(1, Math.hypot(pitchInput, yawInput));
         } else {
-          pitchInput = (keys.KeyS || keys.ArrowDown || touchKeys.pitchDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp || touchKeys.pitchUp ? 1 : 0);
+          // DIRECT pitch: Down/S = go down. (up - down) so Down→-1→nose down, Up→+1→nose up.
+          pitchInput = (keys.KeyW || keys.ArrowUp || touchKeys.pitchUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown || touchKeys.pitchDown ? 1 : 0);
           yawInput = (keys.KeyA || keys.ArrowLeft || touchKeys.yawLeft ? 1 : 0) - (keys.KeyD || keys.ArrowRight || touchKeys.yawRight ? 1 : 0);
           inputMag = Math.min(1, Math.hypot(pitchInput, yawInput));
         }

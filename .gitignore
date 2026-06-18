@@ -72,3 +72,4 @@ deploy/node_modules
 deploy/cache
 deploy/artifacts
 deploy/.env
+.gstack/
