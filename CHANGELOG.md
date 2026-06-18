@@ -1,3 +1,16 @@
+## 2026-06-17 v7.430 — ACE 플레이어 기체 진짜 3D 메시 (평면 빌보드 폐기)
+
+피드백: "기체가 평면이라 재미없어". 빌보드 방식의 근본 한계. 방향 결정: 절차적 로우폴리 3D(에셋 0).
+
+- buildShipMesh(sizeClass, accent): Three.js 프리미티브로 함선 조립 — 동체(box)+노즈콘+콕핏(글로우)+
+  후퇴익+엔진 나셀 2+후미 배기 additive 글로우+수직 미익. nose=-Z, up=+Y. 함급별 치수(frigate~titan).
+  MeshStandardMaterial라 씬 ambient+sun 조명으로 음영=진짜 입체. 파벌색 accent.
+- makePlayer가 PlaneGeometry 빌보드 대신 buildShipMesh 사용. 뱅킹/틸트를 3D 기준으로 수정
+  (hullMesh.rotation: 롤=forward축 Z, 피치틸트=X). 플레이어 텍스처 폴백 로드 제거(404 사라짐).
+- 검증: node --check PASS, Chrome 실구동 — 추격뷰 입체 전투기(후퇴익/콕핏/엔진광), 우선회 시 롤 뱅킹 확인, 에러0.
+  sw mars-v120, ?v=7462.
+- 스코프: 이번엔 플레이어 기체만 3D. 적은 아직 빌보드(원거리 stand-off라 허용) — 다음 패스 후보.
+
 ## 2026-06-17 v7.429 — ACE 피치 직관화 (아래=아래, 스타폭스 반전 해제)
 
 피드백: "밑으로 누르면 밑으로 가야지". ACE가 스타폭스식 반전 피치(Down→기수 위)였음.

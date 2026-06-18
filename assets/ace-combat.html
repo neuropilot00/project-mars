@@ -1007,18 +1007,57 @@
         return _enemyTexCache[key];
       }
 
+      // ── procedural low-poly 3D ship (real volume, lit by scene ambient+sun) — nose toward -Z (forward),
+      // up +Y, wings along X. Replaces the flat billboard so the player hull reads as a 3D craft.
+      function buildShipMesh(sizeClass, accent) {
+        const g = new THREE.Group();
+        const hullMat = new THREE.MeshStandardMaterial({ color: 0x3b4452, metalness: 0.6, roughness: 0.5 });
+        const accentMat = new THREE.MeshStandardMaterial({ color: accent, metalness: 0.4, roughness: 0.4, emissive: accent, emissiveIntensity: 0.3 });
+        const glowMat = new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false });
+        const cockpitMat = new THREE.MeshStandardMaterial({ color: 0x0a1822, metalness: 0.3, roughness: 0.1, emissive: 0x123a4a, emissiveIntensity: 0.5 });
+        let L = 14, W = 3.0, H = 2.0;
+        if (sizeClass === "destroyer") { L = 16; W = 3.4; H = 2.2; }
+        else if (sizeClass === "cruiser") { L = 18; W = 4.2; H = 2.6; }
+        else if (sizeClass === "battleship") { L = 24; W = 6; H = 3.4; }
+        else if (sizeClass === "titan") { L = 30; W = 8; H = 4.2; }
+        else if (sizeClass === "assembled") { L = 20; W = 7; H = 3.2; }
+        // fuselage
+        const body = new THREE.Mesh(new THREE.BoxGeometry(W, H, L * 0.62), hullMat);
+        g.add(body);
+        // nose cone (points -Z)
+        const noseGeo = new THREE.ConeGeometry(W * 0.5, L * 0.42, 10); noseGeo.rotateX(-Math.PI / 2);
+        const nose = new THREE.Mesh(noseGeo, hullMat);
+        nose.position.z = -(L * 0.62 / 2) - (L * 0.42 / 2) + 0.6;
+        g.add(nose);
+        // cockpit (top front)
+        const cockpit = new THREE.Mesh(new THREE.SphereGeometry(W * 0.34, 10, 8), cockpitMat);
+        cockpit.scale.set(1, 0.55, 1.5); cockpit.position.set(0, H * 0.45, -L * 0.12);
+        g.add(cockpit);
+        // swept wings + accent tips
+        for (let si = 0; si < 2; si += 1) {
+          const s = si === 0 ? -1 : 1;
+          const wing = new THREE.Mesh(new THREE.BoxGeometry(W * 1.9, 0.35 * H, L * 0.34), hullMat);
+          wing.position.set(s * (W * 0.95), -H * 0.1, L * 0.05); wing.rotation.y = s * 0.18; wing.rotation.z = -s * 0.12;
+          g.add(wing);
+          const tip = new THREE.Mesh(new THREE.BoxGeometry(W * 0.5, 0.4 * H, L * 0.12), accentMat);
+          tip.position.set(s * (W * 1.7), -H * 0.1, L * 0.12); tip.rotation.y = s * 0.18;
+          g.add(tip);
+          // engine nacelle + additive exhaust glow at rear (+Z, toward chase cam)
+          const engGeo = new THREE.CylinderGeometry(H * 0.34, H * 0.34, L * 0.3, 10); engGeo.rotateX(Math.PI / 2);
+          const eng = new THREE.Mesh(engGeo, hullMat);
+          eng.position.set(s * (W * 0.5), -H * 0.05, L * 0.3); g.add(eng);
+          const ex = new THREE.Mesh(new THREE.CircleGeometry(H * 0.3, 12), glowMat);
+          ex.position.set(s * (W * 0.5), -H * 0.05, L * 0.3 + L * 0.16); g.add(ex);
+        }
+        // vertical tail fin
+        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.4 * W, H * 1.1, L * 0.18), accentMat);
+        fin.position.set(0, H * 0.6, L * 0.24); g.add(fin);
+        return g;
+      }
+
       function makePlayer() {
         const root = new THREE.Group();
-        const tex = loadShipTexChain(playerTexPaths(PLAYER_CODE));
-        const geo = new THREE.PlaneGeometry(28, 36);
-        const mat = new THREE.MeshBasicMaterial({
-          map: tex,
-          transparent: true,
-          depthWrite: false,
-          side: THREE.DoubleSide
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.rotation.x = -Math.PI / 2;
+        const mesh = buildShipMesh(sizeClassFromCode(PLAYER_CODE), PROFILE.boltColor || 0x33ffe0);
         root.add(mesh);
         // feature 3: scale own hull by size_class (camera camDist already grows per class).
         root.scale.setScalar(classScale(PLAYER_CODE));
@@ -1534,13 +1573,13 @@
         player.mesh.quaternion.slerp(tempQuat, turnLerp);
 
         // 1b: cosmetic visual bank/tilt on the hull child only (root heading stays clean for the camera).
-        // hullMesh lies flat (rot.x=-PI/2); bank = roll about its local Y, pitch-tilt = its local X delta.
+        // 3D hull (nose -Z, up +Y): bank = roll about forward (Z), pitch-tilt cue about X.
         if (player.hullMesh) {
           const targetBank = -yawInput * 0.5;     // lean into the turn
-          const targetTilt = -pitchInput * 0.28;  // nose tilt cue
+          const targetTilt = pitchInput * 0.22;   // subtle nose tilt cue
           player.bankZ = (player.bankZ || 0) + (targetBank - (player.bankZ || 0)) * Math.min(1, dt * 6);
           player.tiltX = (player.tiltX || 0) + (targetTilt - (player.tiltX || 0)) * Math.min(1, dt * 6);
-          player.hullMesh.rotation.set(-Math.PI / 2 + player.tiltX, player.bankZ, 0);
+          player.hullMesh.rotation.set(player.tiltX, 0, player.bankZ);
         }
 
         // 1c: scripted U-turn / flip maneuver — timed pitch sweep on the ROOT (camera trails automatically).
