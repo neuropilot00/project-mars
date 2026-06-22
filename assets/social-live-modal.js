@@ -566,6 +566,7 @@ function renderObStep1(el) {
     <button class="ob-btn-primary" id="obJobConfirmBtn" onclick="advanceStep(1)" ${ob.selectedJob?'':'disabled'}>
       ${ob.selectedJob ? (obGetJobName(ob.selectedJob)+' — '+t('ob_confirm')) : t('ob_step1_choose')}
     </button>
+    <button class="ob-btn-skip" onclick="advanceStep(1)">${tl('Decide later','나중에 결정','後で決める','稍后决定')}</button>
   `;
 }
 function obSelectJob(code) { ob.selectedJob = code; renderStep(1); }
