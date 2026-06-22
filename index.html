@@ -1304,7 +1304,8 @@
             <span style="font-size:22px;line-height:1">🧪</span>
             <span data-i18n="fcmd_tactical_lab_short">Tactical Lab</span>
           </button>
-          <button type="button" onclick="openAceCombat()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(0,255,190,.12);border:1px solid rgba(0,255,190,.4);color:#5fffd5;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
+          <!-- ACE 모드 미완성 — 진입점 일시 비활성(v7.431). 완성 시 display:none 제거. -->
+          <button type="button" onclick="openAceCombat()" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 8px;border-radius:8px;background:rgba(0,255,190,.12);border:1px solid rgba(0,255,190,.4);color:#5fffd5;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px;line-height:1">
             <span style="font-size:22px;line-height:1">✈</span>
             <span data-i18n="fcmd_ace_mode_short">ACE Mode</span>
           </button>
@@ -4916,7 +4917,7 @@
       <button class="bh-tab" data-tab="recent" onclick="bhSwitchTab('recent')">📜 <span data-i18n="bh_tab_recent">최근</span></button>
       <button class="bh-tab" data-tab="history" onclick="bhSwitchTab('history')">🏆 <span data-i18n="bh_tab_history">내 기록</span></button>
       <button class="bh-tab" data-tab="killboard" onclick="bhSwitchTab('killboard')">☠ KILLBOARD</button>
-      <button class="bh-tab" data-tab="ace" onclick="bhSwitchTab('ace')">✈ ACE</button>
+      <button class="bh-tab" data-tab="ace" onclick="bhSwitchTab('ace')" style="display:none">✈ ACE</button><!-- ACE 미완성 — 탭 일시 비활성(v7.431) -->
     </div>
     <div class="bh-body">
       <div class="battle-list" id="battleListContent"></div>

@@ -1,3 +1,18 @@
+## 2026-06-22 v7.431 — ACE 진입점 일시 비활성 (미완성 — 빼놓기) + QA 결론
+
+본게임 deep QA(gstack, 로그인 실계정) 결과: **백엔드·경제·API·UI 무결성 전부 양호, 실버그 0건.**
+QA에서 의심한 2건 모두 close-read 결과 이미 올바르게 처리되는 비이슈로 확정:
+- 함선 건조 버튼: 서버 `can_build`는 rank/faction/limit 게이트지만, UI(shipyard-modal.js:2055-56)가
+  클라에서 affordability(GP+재료)로 버튼을 게이트('재료 확인' 라벨)함 → 잘못 활성화된 버튼 안 보임.
+- 0픽셀 클레임: claim 코어(api.js:856-858)가 `claimPixels.length===0`이면 row를 즉시 DELETE → 정크 row 없음(DB 확인: claim 489 부재).
+→ 성급히 손댔던 ship.js getBlueprints 변경은 원복(불필요).
+
+ACE 모드는 미완성이라 진입점 일시 비활성("빼놔"). 코드/에셋은 보존, display:none/주석 처리라 재활성 쉬움:
+- index.html: Fleet Command 'ACE Mode' 버튼 display:none, Battle Hub 'ACE' 탭 display:none.
+- battle-hub-modal.js: 전투카드 '✈ ACE' 버튼 템플릿에서 제거.
+- openAceCombat()/ace-combat-modal.js/ace-combat.html은 그대로 유지(완성 시 위 3곳만 되돌리면 부활).
+- 검증: node --check battle-hub-modal.js OK, git diff --check 클린. sw mars-v121, ?v=7463.
+
 ## 2026-06-17 v7.430 — ACE 플레이어 기체 진짜 3D 메시 (평면 빌보드 폐기)
 
 피드백: "기체가 평면이라 재미없어". 빌보드 방식의 근본 한계. 방향 결정: 절차적 로우폴리 3D(에셋 0).
