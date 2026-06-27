@@ -291,6 +291,29 @@ router.post('/register', authLimiter, async (req, res) => {
       console.log(`[Auth] Gifted ${signupBonusGP} GP (${signupBonus} PP equivalent) to new user ${walletAddress}`);
     }
 
+    // ── 스타터 광물 — 첫 세션 안에 "첫 함선 건조" aha 도달용 ──
+    //   무료 첫 클레임(땅) + 스타터 GP + 이 광물로 신규가 어느 파벌이든 최저 프리깃을 즉시 건조 가능.
+    //   채굴→건조 루프는 2번째 함선부터. 광물은 환금 불가(비-인플레), 계정당 1회 bounded seed.
+    //   admin 설정 signup_starter_minerals(JSON)로 조절. 기본은 cv/mcc/fsp 최저 인터셉터 전부 커버.
+    try {
+      const smRes = await client.query("SELECT value FROM settings WHERE key = 'signup_starter_minerals'");
+      const pack = (smRes.rows.length && smRes.rows[0].value && typeof smRes.rows[0].value === 'object')
+        ? smRes.rows[0].value
+        : { iron_ore: 6, carbon_fiber: 6, silicon_chip: 3 };
+      for (const code of Object.keys(pack)) {
+        const qty = parseInt(pack[code]) || 0;
+        if (qty <= 0) continue;
+        await client.query(
+          `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+           SELECT $1, id, $3, NOW() FROM resources WHERE code = $2
+           ON CONFLICT (wallet_address, resource_id)
+             DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity, updated_at = NOW()`,
+          [walletAddress, code, qty]
+        );
+      }
+      console.log(`[Auth] Granted starter minerals to new user ${walletAddress}`);
+    } catch (e) { console.warn('[Auth] starter minerals grant failed:', e.message); }
+
     // 양면 추천 보상(invitee side): 추천 코드로 가입한 신규 유저에게 추가 PP 보너스.
     // 추천인만 보상받던 단방향 구조 → 초대받은 사람도 즉시 이득 → 가입 전환율 상승.
     // 금액은 admin 설정 referral_signup_bonus_pp 로 조정(기본은 migration 227에서 시드).

@@ -1,3 +1,15 @@
+## 2026-06-27 v7.434 — Phase 1: 신규 첫 세션에 코어 루프 닫기 (스타터 광물)
+
+팀/레드팀 진단의 "코어 루프가 첫 세션 안에 안 닫힌다 → 리텐션 훅 미작동" 해결. 신규는 무료 첫 클레임(땅)은
+받지만 첫 함선까지 며칠(채굴 드롭 RNG + 24~72h 쿨다운)이라 aha가 너무 늦었음.
+
+- server/routes/auth.js: 가입 시 스타터 광물 지급(iron_ore6/carbon_fiber6/silicon_chip3). 무료클레임 + 스타터
+  GP(signup_pp_bonus=10→100GP) + 이 광물 → 어느 파벌이든 최저 인터셉터(cv20/mcc25/fsp35 GP)를 첫 세션에 즉시 건조.
+  채굴→건조 루프는 2번째 함선부터. 광물=환금불가(비인플레), 계정당 1회. admin 설정 signup_starter_minerals(JSON)로 조절.
+- mig330: signup_starter_minerals 설정 시드.
+- 검증: node --check OK. 스타터 팩으로 cv_int/mcc_int/fsp_int 전부 BUILDABLE 확인(DB 시뮬, 테스트계정 복구).
+- 로드맵: Phase1 잔여(캠페인 CH1~3 행동게이트) → Phase2(첫세션 핸즈온) → Phase3(손맛/리텐션, full-loss완화는 네 콜).
+
 ## 2026-06-27 v7.433 — NPC 경제 운영자: 콜드스타트(죽은 시장) 방지
 
 레드팀/팀 평가의 콜드스타트 P0("신규가 텅 빈 MARKET/킬보드를 보면 망한 줄 안다") 대응. ⚠️ 재미검증 아님 —
