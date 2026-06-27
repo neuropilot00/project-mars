@@ -1,3 +1,18 @@
+## 2026-06-27 v7.433 — NPC 경제 운영자: 콜드스타트(죽은 시장) 방지
+
+레드팀/팀 평가의 콜드스타트 P0("신규가 텅 빈 MARKET/킬보드를 보면 망한 줄 안다") 대응. ⚠️ 재미검증 아님 —
+세계를 "살아있게 보이게" 하는 장치(AI는 시킨 대로 돌 뿐 지루해서 안 끈다 → 리텐션은 여전히 실유저 몫).
+
+- server/services/npcEconomy.js(신규): runMarketTick() — 활성 NPC 마켓 리스팅을 target(10) 이상 유지.
+  기존 29 AI(is_ai)가 자원(iron_ore/carbon_fiber/silicon_chip/titanium_alloy/plasma_crystal)을 마켓에 등록.
+  검증된 marketplace.createListing 재사용(에스크로·수수료·is_tradeable 검증 그대로). carve-safe: 팔리면 GP 구매자→NPC.
+  NPC 재고/수수료 GP 는 콜드스타트 스캐폴딩으로 bounded seed(자원=환금불가, GREATEST로 과지급 방지).
+- server/index.js: npcEconomy 스케줄러(10분, leader, 게이트=npc_economy_enabled) — npcArena 옆.
+- mig329: npc_economy_enabled/target/per_tick 시드 + npc_arena_enabled=true(NPC↔NPC 전투로 killboard/피드 채움).
+- 검증: node --check OK. getListings 직접호출 count:10(완전 데이터·seller_name·rarity) — 신규가 MARKET 열면 10거래 노출 확인.
+  설정 OFF(admin)로 즉시 중단 가능.
+- 한계 명시: 맵(256클레임)·전투는 채워지나, 재미·30일 리텐션은 실유저 테스트 필요(레드팀 P0 미해소).
+
 ## 2026-06-22 v7.432 — 신규 첫 세션 마찰 제거 (직업 강제 커밋 벽 + 스타터 GP)
 
 프리런치 퍼널(실유저 n=2~3, 나머지 AI/테스트) 진단 결과 신규 첫 세션 두 마찰을 제거:

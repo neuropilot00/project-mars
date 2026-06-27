@@ -1725,6 +1725,20 @@ async function start() {
       console.log('[npcArena] NPC arena scheduler started (arena 120s, density 5min — gated by npc_arena_enabled)');
     } catch(e) { console.warn('[npcArena] Could not init scheduler:', e.message); }
 
+    // ── NPC Economy: 콜드스타트(죽은 시장) 방지 — AI 가 마켓에 자원을 주기적 등록 ──
+    //  신규가 MARKET 열었을 때 "텅 빔" 대신 살아있는 거래를 보게 한다. 게이트 npc_economy_enabled.
+    //  carve-safe: 팔리면 GP 구매자→NPC. 재미검증 아님(세계를 살아있게 보이게 하는 장치).
+    try {
+      const npcEconomy = require('./services/npcEconomy');
+      scheduleTask('npcEconomy', 10 * 60 * 1000, async () => {
+        const r = await npcEconomy.runMarketTick();
+        if (r && r.created) console.log(`[npcEconomy] market tick: created ${r.created} listing(s) (have→${r.have+r.created}/${r.target})`);
+      }, {
+        phase: 'npc market tick',
+      });
+      console.log('[npcEconomy] NPC economy scheduler started (market 10min — gated by npc_economy_enabled)');
+    } catch(e) { console.warn('[npcEconomy] Could not init scheduler:', e.message); }
+
     // ── [v7.166] Sybil chain 감지 (6h마다 자기거래 chain 분석 → suspicious_wallet_flags 적립) ──
     try {
       const sybilDetect = require('./services/sybilDetect');
