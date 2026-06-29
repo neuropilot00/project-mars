@@ -1450,10 +1450,44 @@ async function applyBattleResults(battleId, result) {
     progressWinnerSide = result.winner_side;
     progressIsAiBattle = !!(btRows[0].battle_summary && btRows[0].battle_summary.is_ai_battle);
     const isHijackBattle = (btRows[0].battle_type || '').startsWith('hijack');
+
+    // [v7.438] full-loss 마스터 모드 — 영구 함선손실 정책을 단일 설정으로 통제(전부 되돌림 가능, 기본=현행 always).
+    //   always: 현행(하이잭/공성 플래그 + 일반전 영구파괴 그대로)
+    //   off: 어디서도 영구파괴 없음(전 격침함 비파괴 — 15% HP 보존, 수리 연계)
+    //   seasonal: full_loss_season_active=true 동안만 영구파괴. 비활성=off
+    //   optin: 실유저 양측 모두 full_loss_optin=true 인 PvP 에서만. AI/판별불가=비파괴(캐주얼 안전)
+    //   permanentLossActive 가 false 면 아래 모든 영구파괴 분기가 비파괴(15% 보존)로 전환된다.
+    let permanentLossActive = true;
+    try {
+      const _flMode = String(await getSetting('full_loss_mode', 'always')).toLowerCase();
+      const _isAiFL = !!(btRows[0].battle_summary && btRows[0].battle_summary.is_ai_battle);
+      if (_flMode === 'off') {
+        permanentLossActive = false;
+      } else if (_flMode === 'seasonal') {
+        permanentLossActive = String(await getSetting('full_loss_season_active', 'false')) === 'true';
+      } else if (_flMode === 'optin') {
+        permanentLossActive = false; // 기본 비파괴 — 양측 동의 확인 시에만 true
+        if (!_isAiFL) {
+          try {
+            const { rows: _opt } = await client.query(
+              `SELECT COUNT(*)::int AS total,
+                      COUNT(*) FILTER (WHERE COALESCE(u.full_loss_optin, false))::int AS opted
+                 FROM (SELECT DISTINCT wallet_address FROM fleet_battle_participants
+                        WHERE battle_id = $1 AND wallet_address IS NOT NULL) p
+                 JOIN users u ON LOWER(u.wallet_address) = LOWER(p.wallet_address)`,
+              [battleId]);
+            permanentLossActive = !!(_opt[0] && _opt[0].total >= 2 && _opt[0].opted === _opt[0].total);
+          } catch (_optErr) { permanentLossActive = false; /* 컬럼/조회 실패 = 비파괴(안전) */ }
+        }
+      } else {
+        permanentLossActive = true; // 'always'(기본)
+      }
+    } catch (_flErr) { permanentLossActive = true; /* 설정 조회 실패 시 현행 유지 */ }
+
     // [v7.127][EVE 수요엔진] 하이젝에서도 함선 영구파괴 옵션(기본 OFF=현행 HP 보존).
     // 켜면 격침(sim HP≤0) 함선은 is_alive=false 로 영구 파괴 → 재건조 수요 발생(EVE full-loss).
-    // 일반 전투(AI/토너먼트 등)는 원래부터 영구파괴이므로 영향 없음.
-    const hijackShipLoss = isHijackBattle &&
+    // 일반 전투(AI/토너먼트 등)는 원래부터 영구파괴이므로 영향 없음. (단 full_loss_mode 마스터 게이트 우선.)
+    const hijackShipLoss = isHijackBattle && permanentLossActive &&
       String(await getSetting('hijack_ship_loss_enabled', 'false')) === 'true';
     // [v7.243][레드팀 수정] 공성(siege) 전투도 함선 영구전사를 siege_full_loss_enabled 플래그로 게이트.
     //   이전엔 siege 가 일반 전투 분기로 빠져 플래그(기본 false)를 무시하고 무조건 영구파괴 → 설계상
@@ -1468,7 +1502,7 @@ async function applyBattleResults(battleId, result) {
         _isCommanderSiege = gk.rows[0] && gk.rows[0].siege_kind === 'commander';
       } catch (_) { /* 컬럼 미존재 — 일반 siege 취급 */ }
     }
-    const siegeShipLoss = isSiegeBattle &&
+    const siegeShipLoss = isSiegeBattle && permanentLossActive &&
       String(await getSetting(_isCommanderSiege ? 'commander_full_loss_enabled' : 'siege_full_loss_enabled', 'false')) === 'true';
 
     // 1. fleet_battles 업데이트 — AND status != 'ended' 이중 UPDATE 방지 [v7.63]
@@ -1572,10 +1606,20 @@ async function applyBattleResults(battleId, result) {
           const sid = parseInt(s.ship_id);
           const hp = Math.max(0, Math.round(parseFloat(s.current_hp) || 0));
           if (!s.is_alive || hp <= 0) {
-            await client.query(`
-              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
-              WHERE id = $1 AND is_alive = true
-            `, [sid]);
+            if (permanentLossActive) {
+              await client.query(`
+                UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+                WHERE id = $1 AND is_alive = true
+              `, [sid]);
+            } else {
+              // [v7.438] full_loss_mode 가 비파괴 모드 — 격침함도 영구소멸 대신 15% HP 보존(수리 연계).
+              await client.query(`
+                UPDATE ships
+                SET current_hp = GREATEST(1, ROUND((max_hp + COALESCE(bonus_hp, 0)) * 0.15)),
+                    shield_hp = 0
+                WHERE id = $1 AND is_alive = true
+              `, [sid]);
+            }
           } else {
             await client.query(`
               UPDATE ships
@@ -1586,13 +1630,21 @@ async function applyBattleResults(battleId, result) {
           }
         }
       } else {
-        // 구형 결과 객체 방어: 이벤트만 있더라도 격침 처리는 유지
+        // 구형 결과 객체 방어: 이벤트만 있더라도 격침 처리는 유지 (단 full_loss_mode 비파괴면 15% 보존)
         for (const ev of result.events) {
           if ((ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') && ev.ship_id) {
-            await client.query(`
-              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
-              WHERE id = $1
-            `, [ev.ship_id]);
+            if (permanentLossActive) {
+              await client.query(`
+                UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+                WHERE id = $1
+              `, [ev.ship_id]);
+            } else {
+              await client.query(`
+                UPDATE ships
+                SET current_hp = GREATEST(1, ROUND((max_hp + COALESCE(bonus_hp, 0)) * 0.15)), shield_hp = 0
+                WHERE id = $1 AND is_alive = true
+              `, [ev.ship_id]);
+            }
           }
         }
       }
@@ -1606,7 +1658,7 @@ async function applyBattleResults(battleId, result) {
       // [v7.365] AI 연습전투(ai/fight)는 킬보드 집계 제외 — 약한 NPC 상대로 킬 인플레 방지(리더보드 오염).
       const _isAiBattle = !!(btRows[0].battle_summary && btRows[0].battle_summary.is_ai_battle);
       const _lossBranch = isHijackBattle || (isSiegeBattle && !siegeShipLoss);
-      const _fullLoss = (_lossBranch ? hijackShipLoss : true) && !_isAiBattle; // 일반전 영구파괴, 단 AI전은 wreck 미기록
+      const _fullLoss = (_lossBranch ? hijackShipLoss : permanentLossActive) && !_isAiBattle; // 영구파괴 시에만 wreck, AI전 제외
       let _destroyedIds = [];
       if (_fullLoss && finalShips.length > 0) {
         _destroyedIds = finalShips

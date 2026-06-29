@@ -1,3 +1,25 @@
+## 2026-06-30 v7.438 — full-loss 마스터 모드 (시즌제/옵트인 — 오너 결정 #1)
+
+레드팀 "정체성 방향" 결정 1/3. 격침 함선 영구소멸(EVE full-loss)을 전역 제거하지 않고, 단일 마스터 설정으로
+always/off/seasonal/optin 을 통제 가능하게 함. 기본 always=현행이라 이 변경만으로는 동작 불변(정체성 보존).
+
+[서버] full_loss_mode 마스터 게이트 (server/services/battleEngine.js, migration 333)
+- applyBattleResults 진입부에서 permanentLossActive 를 단일 계산해 하이잭/공성/커맨더/일반전 영구파괴 분기를 모두 게이트.
+  - always(기본): 현행 — 기존 hijack_ship_loss/siege_full_loss 플래그 + 일반전 영구파괴 그대로.
+  - off: 어디서도 영구파괴 없음 — 격침함은 비파괴(15% HP 보존 → 조선소 수리 연계).
+  - seasonal: full_loss_season_active=true 인 동안만 영구파괴(전쟁 시즌). 비활성=off.
+  - optin: 실유저 양측 모두 users.full_loss_optin=true 인 PvP 에서만. AI/판별불가/단독=비파괴(캐주얼 안전).
+- permanentLossActive=false 면 하이잭 비전사 분기와 동일한 15% 보존 경로로 전환. 킬보드 wreck 도 영구파괴 시에만 기록.
+- 설정 조회/컬럼 실패 시 always(현행)로 안전 폴백.
+- migration 333: users.full_loss_optin BOOLEAN DEFAULT false + full_loss_mode("always")·full_loss_season_active(false) 시드.
+
+검증(메인): node --check OK, migration 333 로컬 적용 확인(설정+컬럼). 결정 로직 node 하니스 9케이스 전수 PASS
+(always→파괴 / off→보존 / seasonal 토글 / optin: AI·부분동의·단독=보존, 양측동의=파괴 / unknown→always 폴백).
+optin SQL 실 스키마 검증(participant→users join 정상), 서버 클린 부팅.
+
+⚠️ 후속: full_loss_mode=optin 을 실사용하려면 플레이어가 full_loss_optin 을 켜는 UI 토글이 필요(현재 기본 always 라 dormant).
+seasonal 경로는 admin 이 full_loss_season_active 토글만으로 즉시 사용 가능.
+
 ## 2026-06-30 v7.437 — 전투 능동성: 교전 직전 전술 브리프 (combat agency)
 
 레드팀 #4 "전투에 능동성 부족"의 마지막 조각. 진형·기동이 결과 배율에 실제 반영되는 건 이미 구현됨
