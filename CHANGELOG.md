@@ -1,3 +1,34 @@
+## 2026-06-29 v7.436 — 리텐션 훅 실제 적용·노출 (서지 배율 채굴 반영 + 주간챌린지/서지/전투결과 UI)
+
+v7.435 백엔드를 "실제 효과 + 유저 가시화"로 마감. ultracode 워크플로(서버/클라 2도메인 병렬구현→도메인별 적대검증)
++ 메인 전수 재검증. 정체성 삭제 없음(추가/보정만).
+
+[서버] 정시 섹터 서지 배율을 실제 채굴 수확 PP 에 적용 (server/routes/api.js)
+- weeklyChallenge.getActiveSurge() (deterministic: period 6h / window 2h, UTC epoch 기준 인스턴스 무관) 를
+  per-claim 단일 harvest(/territory/:claimId/harvest)·일괄(/territory/harvest-all) 에 배선. claim 거점 tier 가
+  활성 서지 섹터면 수확 PP × multiplier. 일일 PP 캡 이전에 곱해 faucet 튜닝만, 캡 우회 없음.
+- [추가 하드닝] 레거시 글로벌 /api/harvest(채굴탭 제거로 미사용·버튼 hidden, 단 엔드포인트는 live)에도 동일
+  서지를 tier 픽셀 비중 가중(weighted=1+frac*(mult-1))으로 적용 — 직접 POST 우회 시에도 일관. 응답에
+  surgeApplied/surgeMultiplier 추가(가산적, 기존 계약 보존).
+- 경제: 수확량 조정→carve GP 지급, redeemable_pp 발행 0, 가산 mint 아님. weekly_surge_enabled=false 면 무효.
+
+[클라] 리텐션 훅 3종 + 온보딩 가시화 (base-navigation.js / battle-hub-modal.js / index.html)
+- (A) 주간 챌린지 보드: BASE>내 영토 상단. /api/weekly/status lazy 로드, 3메트릭 진행바/보상/수령버튼.
+  수령은 POST /api/weekly/claim(멱등 — TARGET_NOT_REACHED/ALREADY_CLAIMED 처리), 성공 시 showToast+잔액갱신.
+  §19 data-action+delegated+in-flight 가드, §18 준수. 미로그인/미활성/빈목록 숨김.
+- (B) 섹터 서지 배너: /api/weekly/surge 의 active/섹터/배율/남은시간 표시(인증 불필요, active만 노출).
+- (C) 전투 결과 부각: 결과 모달에 battleReport analysis_items/recommendation 을 승(초록)/패(빨강)/무(시안)
+  헤드라인 카드로 또렷이 노출(KO·JA / EN·ZH 어순 분리). API 계약 유지.
+- (D) 골든패스 수정: GOLDEN_PATH_TARGET_BY_STEP step2 'quests'→'fleet'(서버 onboarding step2=함선 미보유와 1:1 정합).
+
+검증(메인 재검증): node --check 전수 OK, git diff --check 클린. 서버 클린 부팅, GET /api/weekly/surge 라이브·정상
+응답, status 미인증 400(정상). getActiveSurge active 경로 실증(강제 window=period → active:true/sector/mult).
+신규 ?v=7468 자산 200 서빙, sw mars-v124. 적대검증 2건 needs_fix 는 (1)도메인경계 부기(단일 커밋이라 무관),
+(2)글로벌 /api/harvest 서지 누락 — 본 커밋에서 가중 적용으로 해소.
+
+⚠️ 한계: 주간 보드/전투결과 모달의 in-browser 육안 렌더는 로그인 게이트라 정적검증만(코드·계약·부팅·엔드포인트는 실증).
+재미·리텐션 효과는 실유저 측정 몫. full-loss 전역/스코프/Web3 = 오너 결정으로 보류.
+
 ## 2026-06-29 v7.435 — 재미 로드맵 4도메인 (캠페인 행동게이트·리텐션 훅·전투 피드백/신규유예·첫세션 핸즈온)
 
 팀/레드팀 진단을 ultracode 워크플로(설계→4도메인 병렬구현→도메인별 적대검증)로 구현. 정체성 삭제(full-loss

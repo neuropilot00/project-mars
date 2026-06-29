@@ -3270,13 +3270,38 @@ async function _loadBattleReport(battleId, mySide) {
       ? r.analysis_items
       : (r.analysis_ko ? [{ severity:'info', text:r.analysis_ko }] : []);
     if (analysisItems.length > 0 && mySide) {
-      const iLost = mySide && r.winner_side && mySide !== r.winner_side;
+      const iWon = mySide && r.winner_side && mySide === r.winner_side;
+      const isDraw = r.winner_side === 'draw';
+      const iLost = mySide && r.winner_side && !iWon && !isDraw;
       const titleText = iLost
         ? (LANG==='ko'?'패인 분석':LANG==='ja'?'敗因分析':LANG==='zh'?'败因分析':'Loss Analysis')
         : (LANG==='ko'?'전투 해석':LANG==='ja'?'戦闘分析':LANG==='zh'?'战斗分析':'Battle Read');
-      const borderColor = iLost ? 'rgba(239,83,80,.4)' : 'rgba(79,195,247,.4)';
-      const bgColor = iLost ? 'rgba(239,83,80,.06)' : 'rgba(79,195,247,.06)';
-      const rows = analysisItems.slice(0, 3).map(item => {
+      const borderColor = iLost ? 'rgba(239,83,80,.4)' : iWon ? 'rgba(76,216,154,.45)' : 'rgba(79,195,247,.4)';
+      const bgColor = iLost ? 'rgba(239,83,80,.06)' : iWon ? 'rgba(76,216,154,.07)' : 'rgba(79,195,247,.06)';
+      // 🎯 결과 부각 헤드라인 — "이 전투에서 ___ 때문에 이겼다/졌다"
+      const topReason = (analysisItems[0] && analysisItems[0].text) ? analysisItems[0].text : '';
+      const verdictWord = iLost
+        ? (LANG==='ko'?'졌다':LANG==='ja'?'敗北':LANG==='zh'?'失败':'lost')
+        : iWon
+          ? (LANG==='ko'?'이겼다':LANG==='ja'?'勝利':LANG==='zh'?'胜利':'won')
+          : (LANG==='ko'?'비겼다':LANG==='ja'?'引分':LANG==='zh'?'平局':'drew');
+      const becauseWord = LANG==='ko'?'때문에':LANG==='ja'?'のため':LANG==='zh'?'因为':'because';
+      let verdictHtml = '';
+      if (topReason) {
+        const verdictColor = iLost ? '#ef5350' : iWon ? '#4cd89a' : '#4fc3f7';
+        const reasonHtml = escapeHtml(topReason);
+        // KO/JA 어순: "[이유] 때문에 [졌다]"  /  EN/ZH: "[Won] because [reason]"
+        let phrase;
+        if (LANG==='ko' || LANG==='ja') {
+          phrase = `${reasonHtml} <span style="color:rgba(255,255,255,.45)">${becauseWord}</span> <b style="color:${verdictColor}">${verdictWord}</b>`;
+        } else {
+          const v = verdictWord.charAt(0).toUpperCase() + verdictWord.slice(1);
+          phrase = `<b style="color:${verdictColor}">${v}</b> <span style="color:rgba(255,255,255,.45)">${becauseWord}</span> ${reasonHtml}`;
+        }
+        verdictHtml = `<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.45;margin-bottom:6px">${phrase}</div>`;
+      }
+      // 나머지 보조 분석은 불릿으로
+      const rows = analysisItems.slice(topReason ? 1 : 0, 3).map(item => {
         const sev = item.severity || 'info';
         const dot = sev === 'critical' ? '#ef5350' : sev === 'warning' ? '#ffd54f' : '#4fc3f7';
         return `<div style="display:flex;gap:6px;align-items:flex-start;margin-top:4px">
@@ -3285,33 +3310,32 @@ async function _loadBattleReport(battleId, mySide) {
         </div>`;
       }).join('');
         analysisHtml = `
-          <div style="margin-bottom:10px;padding:8px 10px;background:${bgColor};border-left:3px solid ${borderColor};border-radius:0 4px 4px 0">
+          <div style="margin-bottom:10px;padding:9px 11px;background:${bgColor};border-left:3px solid ${borderColor};border-radius:0 4px 4px 0">
             <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
               <span>🔍</span><span>${titleText}</span>
             </div>
+            ${verdictHtml}
             ${rows}
           </div>`;
     }
 
-    // 💡 추천 개선
+    // 💡 추천 개선 — 승/패/무 모두 노출(이긴 전투도 "유지할 강점" 안내)
     let recHtml = '';
     const recommendationItems = Array.isArray(r.recommendation_items) && r.recommendation_items.length
       ? r.recommendation_items.map(x => x.text || '')
       : (r.recommendations_ko || []);
     if (recommendationItems.length > 0 && mySide) {
-      const iLost = mySide && r.winner_side && mySide !== r.winner_side;
-      if (iLost || r.winner_side === 'draw') {
-        const recRows = recommendationItems.slice(0, 4).map(rec =>
-          `<div style="font-size:10px;color:rgba(255,255,255,.65);padding:2px 0">→ ${escapeHtml(rec)}</div>`
-        ).join('');
-        recHtml = `
-          <div style="margin-bottom:10px">
-            <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
-              <span>💡</span><span>추천 개선</span>
-            </div>
-            ${recRows}
-          </div>`;
-      }
+      const recTitle = LANG==='ko'?'추천':LANG==='ja'?'おすすめ':LANG==='zh'?'建议':'Recommended';
+      const recRows = recommendationItems.slice(0, 4).map(rec =>
+        `<div style="font-size:10px;color:rgba(255,255,255,.72);padding:2px 0">→ ${escapeHtml(rec)}</div>`
+      ).join('');
+      recHtml = `
+        <div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,213,79,.05);border-left:3px solid rgba(255,213,79,.4);border-radius:0 4px 4px 0">
+          <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
+            <span>💡</span><span>${recTitle}</span>
+          </div>
+          ${recRows}
+        </div>`;
     }
 
     // ✅ 리플레이 하이라이트 3장면

@@ -186,6 +186,185 @@ function _loadFleetTabSummary(){
   });
 }
 
+// ══════════════════════════════════════════════════════════════════
+// [Phase3 리텐션] 주간 챌린지 보드 (A) + 섹터 서지 배너 (B)
+//   - 백엔드 /api/weekly/{status,surge,claim} 를 유저가 보고 쓰게 노출.
+//   - territory 탭 상단에 렌더. 비활성/미로그인 시 섹션 자체를 숨긴다.
+//   - 보상은 carve GP. 수령은 멱등(서버가 TARGET_NOT_REACHED/ALREADY_CLAIMED 반환).
+// ══════════════════════════════════════════════════════════════════
+
+// metric → 아이콘/라벨(현 언어). 서버 label_ko/en 도 있지만 4개국어 일관 위해 코드→tl.
+var _WEEKLY_METRIC_META = {
+  claim:   { icon:'🏴', label:function(){return tl('Weekly Claims','이번 주 클레임','今週の占領','本周占领','Klaim Mingguan','Klaim Mingguan','การยึดครองสัปดาห์นี้');} },
+  harvest: { icon:'⛏', label:function(){return tl('Weekly Harvests','이번 주 채굴','今週の採掘','本周采矿','Panen Mingguan','Panen Mingguan','การขุดสัปดาห์นี้');} },
+  kill:    { icon:'💥', label:function(){return tl('Weekly Kills','이번 주 격침','今週の撃沈','本周击沉','Pembunuhan Mingguan','Pembunuhan Mingguan','การจมเรือสัปดาห์นี้');} }
+};
+function _weeklyMetricMeta(metric){
+  return _WEEKLY_METRIC_META[metric] || { icon:'🎯', label:function(){return metric;} };
+}
+
+// force=true 면 fetch 가드를 우회하고 직접 조회(수령 직후 즉시 최신 상태 반영용).
+function _weeklyChallengeRead(force){
+  var w=(walletState&&walletState.address)||'';
+  var url='/api/weekly/status?wallet='+encodeURIComponent(w);
+  if(!force && typeof _guardedJsonFetch==='function'){
+    return _guardedJsonFetch('weekly-status:'+String(w).toLowerCase(), url, {
+      minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}
+    });
+  }
+  return fetch(url,{headers:getAuthHeaders()}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
+
+// 주간 챌린지 보드 로드/렌더. (territory 탭 진입 시 호출)
+function loadWeeklyChallengesV2(force){
+  var sec=document.getElementById('weeklyChallengeBoard');
+  var body=document.getElementById('weeklyChallengeBody');
+  if(!sec||!body) return;
+  // 미로그인이면 숨김(소음 방지)
+  try{ if(typeof isLoggedIn==='function' && !isLoggedIn()){ sec.style.display='none'; return; } }catch(_e){}
+  var w=(walletState&&walletState.address)||'';
+  if(!w){ sec.style.display='none'; return; }
+
+  _weeklyChallengeRead(force).then(function(data){
+    if(!data){ return; } // fetch deferred — 기존 표시 유지
+    if(data.enabled===false){ sec.style.display='none'; return; }
+    var challenges=(data&&data.challenges)||[];
+    if(!challenges.length){ sec.style.display='none'; return; }
+    sec.style.display='';
+    _renderWeeklyChallenges(challenges);
+  }).catch(function(){ /* keep prior content */ });
+}
+
+function _renderWeeklyChallenges(challenges){
+  var body=document.getElementById('weeklyChallengeBody');
+  if(!body) return;
+  window._weeklyChallenges=challenges.slice();
+  var html='';
+  challenges.forEach(function(c,idx){
+    var meta=_weeklyMetricMeta(c.metric);
+    var cur=Math.max(0,parseInt(c.current,10)||0);
+    var tgt=Math.max(1,parseInt(c.target,10)||1);
+    var pct=Math.min(100,Math.round(cur/tgt*100));
+    var reward=parseInt(c.reward_gp,10)||0;
+    var barC=c.claimed?'#4cd89a':c.reached?'var(--gold)':'var(--cyan)';
+    html+='<div style="padding:8px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:6px;border:1px solid '
+      +(c.claimed?'rgba(76,216,154,.3)':c.reached?'rgba(255,209,102,.3)':'rgba(255,255,255,.06)')+'">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">';
+    html+='<div style="flex:1;min-width:0"><div style="font-size:10px;color:var(--tx);font-weight:700">'+meta.icon+' '+meta.label()+'</div></div>';
+    html+='<div style="font-size:9px;color:var(--gold);flex-shrink:0">+'+reward+' GP</div>';
+    html+='</div>';
+    // 진행바
+    html+='<div style="background:rgba(255,255,255,.06);border-radius:3px;height:4px;margin-bottom:5px;overflow:hidden">';
+    html+='<div style="background:'+barC+';width:'+pct+'%;height:4px;border-radius:3px;transition:width .3s"></div>';
+    html+='</div>';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    html+='<span style="font-size:9px;color:var(--tx3)">'+cur+' / '+tgt+'</span>';
+    if(c.claimed){
+      html+='<span style="font-size:9px;color:#4cd89a;font-weight:700">✅ '+tl('Claimed','수령 완료','受取済','已领取','Diklaim','Diklaim','รับแล้ว')+'</span>';
+    } else if(c.claimable){
+      html+='<button type="button" data-action="weeklyClaim" data-metric="'+c.metric+'" data-idx="'+idx
+        +'" style="font-size:9px;padding:4px 12px;background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.4);color:#4cd89a;border-radius:4px;cursor:pointer;font-weight:700;font-family:var(--fn)">'
+        +tl('CLAIM','수령','受取','领取','KLAIM','KLAIM','รับ')+' +'+reward+' GP</button>';
+    } else {
+      html+='<span style="font-size:9px;color:var(--tx3)">'+tl('In progress','진행 중','進行中','进行中','Berlangsung','Berlangsung','กำลังดำเนิน')+'</span>';
+    }
+    html+='</div></div>';
+  });
+  body.innerHTML=html;
+
+  // §19 delegated listener (동적 onclick concat 금지)
+  if(!body.dataset.delegated){
+    body.dataset.delegated='1';
+    body.addEventListener('click',function(ev){
+      var btn=ev.target.closest('button[data-action="weeklyClaim"]');
+      if(!btn) return;
+      ev.stopPropagation();
+      if(btn.disabled) return;
+      var metric=btn.getAttribute('data-metric');
+      if(!metric) return;
+      var prev=btn.textContent;
+      btn.disabled=true; btn.textContent='...';
+      _claimWeeklyChallenge(metric).finally(function(){
+        try{ if(btn){ btn.disabled=false; btn.textContent=prev; } }catch(_e){}
+      });
+    });
+  }
+}
+
+function _claimWeeklyChallenge(metric){
+  return fetch('/api/weekly/claim',{
+    method:'POST',
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
+    body:JSON.stringify({metric:metric})
+  }).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});}).then(function(res){
+    var d=res.d||{};
+    if(!res.ok||d.success===false||d.error){
+      var code=d.error||'SERVER_ERROR';
+      var msg;
+      if(code==='TARGET_NOT_REACHED') msg=tl('Target not reached yet','아직 목표에 도달하지 않았습니다','まだ目標に達していません','尚未达到目标','Target belum tercapai','Target belum tercapai','ยังไม่ถึงเป้าหมาย');
+      else if(code==='ALREADY_CLAIMED') msg=tl('Already claimed','이미 수령했습니다','すでに受け取り済みです','已经领取过了','Sudah diklaim','Sudah diklaim','รับไปแล้ว');
+      else if(typeof srvErr==='function') msg=srvErr(code);
+      else msg=code;
+      if(typeof showToast==='function') showToast(msg,'error');
+      // 멱등: 이미 수령/도달 실패 시 최신 상태로 재동기화(가드 우회)
+      loadWeeklyChallengesV2(true);
+      return;
+    }
+    var reward=parseInt(d.reward_gp,10)||0;
+    if(typeof showToast==='function') showToast('🎯 +'+reward+' GP','success');
+    if(typeof refreshWalletInfo==='function') refreshWalletInfo();
+    loadWeeklyChallengesV2(true);
+  }).catch(function(e){
+    if(typeof showToast==='function') showToast((e&&e.message)||'error','error');
+  });
+}
+
+// ── (B) 섹터 서지 배너 ─────────────────────────────────────────
+//   활성 서지(active=true)만 작은 배너로 노출. 없으면 숨김. 인증 불필요(공개).
+function _surgeBannerRead(){
+  var url='/api/weekly/surge';
+  if(typeof _guardedJsonFetch==='function'){
+    return _guardedJsonFetch('weekly-surge', url, { minGap:20000, backoffMs:120000 });
+  }
+  return fetch(url).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
+function _surgeSectorLabel(sector){
+  var s=String(sector||'').toLowerCase();
+  if(s==='frontier') return tl('Frontier','프론티어','フロンティア','边境','Perbatasan','Perbatasan','ชายแดน');
+  if(s==='mid')      return tl('Mid Belt','중부','ミッド','中部','Tengah','Tengah','ตอนกลาง');
+  if(s==='core')     return tl('Core','코어','コア','核心','Inti','Inti','แกนกลาง');
+  return sector||'';
+}
+function _fmtSurgeRemain(sec){
+  sec=Math.max(0,parseInt(sec,10)||0);
+  if(sec>=3600) return Math.floor(sec/3600)+'h '+Math.floor((sec%3600)/60)+'m';
+  if(sec>=60)   return Math.floor(sec/60)+'m '+(sec%60)+'s';
+  return sec+'s';
+}
+function loadSectorSurgeBanner(){
+  var el=document.getElementById('sectorSurgeBanner');
+  if(!el) return;
+  _surgeBannerRead().then(function(d){
+    if(!d){ return; } // deferred — keep prior
+    if(d.enabled===false || d.active!==true){ el.style.display='none'; return; }
+    var mult=d.multiplier?(Math.round(d.multiplier*10)/10):2.5;
+    var sectorLabel=_surgeSectorLabel(d.sector);
+    var remain=_fmtSurgeRemain(d.seconds_remaining);
+    var endsLabel=tl('ends in','종료까지','終了まで','结束剩余','berakhir dalam','berakhir dalam','สิ้นสุดใน');
+    el.innerHTML=''
+      +'<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;'
+      +'background:linear-gradient(135deg,rgba(255,170,64,.16),rgba(255,80,30,.05));border:1px solid rgba(255,170,64,.4)">'
+      +'<span style="font-size:16px">⚡</span>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:10px;color:var(--gold);font-weight:700;font-family:var(--fn)">'
+      +tl('SECTOR SURGE','섹터 서지','セクターサージ','区域激增','LONJAKAN SEKTOR','LONJAKAN SEKTOR','เซกเตอร์เซิร์จ')
+      +' · '+sectorLabel+' ×'+mult+'</div>'
+      +'<div style="font-size:8px;color:var(--tx3)">'+endsLabel+' '+remain+'</div>'
+      +'</div></div>';
+    el.style.display='';
+  }).catch(function(){});
+}
+
 // ── 대카테고리 전환 ──────────────────────────────────────────────────
 function switchBaseCat(cat, el) {
   window._lastBaseCat = cat;
@@ -342,6 +521,7 @@ function switchBaseTab(tab,el){
   if(tab==='guild') loadGuildTab();
   if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} try{if(typeof kbSwitchTab==='function')kbSwitchTab('board');}catch(_e){} }
   if(tab==='fleet') { try{_loadFleetTabSummary();}catch(_e){} }
+  if(tab==='territory'){ try{loadWeeklyChallengesV2();}catch(_e){} try{loadSectorSurgeBanner();}catch(_e){} }
   try{ clearBaseTabDot(tab); }catch(_e){}
   try{ applyGoldenPathGlow(); }catch(_e){}
 }
@@ -349,8 +529,11 @@ function switchBaseTab(tab,el){
 // ── [first-session] BASE 골든패스 글로우/딤 ──────────────────
 // 온보딩 미완료 유저가 BASE를 열면 "지금 가야 할 탭"만 글로우+배지로 강조하고
 // 나머지 탭은 dim 처리한다. 온보딩 완료 시 전부 해제. 추가 CSS 클래스만 사용한다.
-// 단계→목표 탭 매핑: 0=첫 영토(territory), 1=채굴(mining), 2=캠페인 메인스토리(quests).
-var GOLDEN_PATH_TARGET_BY_STEP = { 0: 'territory', 1: 'mining', 2: 'quests' };
+// 단계→목표 탭 매핑 — 서버 /api/onboarding/status step 의미와 1:1 정합.
+//   step 0 = 첫 영토 미보유 → territory
+//   step 1 = 첫 채굴 미수행 → mining
+//   step 2 = 첫 함선 미보유 → fleet(조선소). (기존 'quests' 는 step 의미와 어긋난 버그였음)
+var GOLDEN_PATH_TARGET_BY_STEP = { 0: 'territory', 1: 'mining', 2: 'fleet' };
 window._goldenPathState = window._goldenPathState || { fetched: false, completed: null, step: 0, ts: 0 };
 function _goldenPathTargetTab(){
   var st = window._goldenPathState || {};

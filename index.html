@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/manifest.json">
 <title>OCCUPY MARS — Claim Your Territory</title>
-<script src="/assets/app-config.js?v=7465"></script>
+<script src="/assets/app-config.js?v=7468"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <link href="/assets/tactical-lab-modal.css?v=7424" rel="stylesheet">
@@ -1059,6 +1059,20 @@
           </div>
           <!-- Weekly progress -->
           <div id="opsBoardWeekly" style="padding:7px 12px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.15)"></div>
+        </div>
+
+        <!-- ⚡ SECTOR SURGE BANNER (active surge only; hidden otherwise) -->
+        <div id="sectorSurgeBanner" style="display:none;margin-bottom:12px"></div>
+
+        <!-- 🎯 WEEKLY CHALLENGES (lazy /api/weekly/status; hidden when disabled/no wallet) -->
+        <div id="weeklyChallengeBoard" style="display:none;margin-bottom:14px;border-radius:8px;background:rgba(10,15,25,.85);border:1px solid rgba(91,184,232,.2);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(91,184,232,.06);border-bottom:1px solid rgba(91,184,232,.15)">
+            <span style="font-size:11px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:.5px">🎯 <span data-i18n="weekly_title">WEEKLY CHALLENGES</span></span>
+            <button type="button" onclick="loadWeeklyChallengesV2()" style="font-size:9px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);color:var(--cyan);padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+          </div>
+          <div id="weeklyChallengeBody" style="padding:8px 12px">
+            <span style="font-size:10px;color:var(--tx3)" data-i18n="loading_dots">로딩 중…</span>
+          </div>
         </div>
 
         <!-- Commander's Message (global broadcast) -->
@@ -4398,7 +4412,7 @@
 <script src="/assets/economy-inventory.js?v=7456"></script>
 <script src="/assets/market-transport.js?v=7456"></script>
 <script src="/assets/ship-mining.js?v=7454"></script>
-<script src="/assets/base-navigation.js?v=7465"></script>
+<script src="/assets/base-navigation.js?v=7468"></script>
 <script src="/assets/guild-ops.js?v=7464"></script>
 <script src="/assets/season-base.js?v=7461"></script>
 <script src="/assets/campaign-system.js?v=7464"></script>
@@ -5236,7 +5250,7 @@
 <!-- 섹션 3: JavaScript                                               -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 
-<script src="/assets/battle-hub-modal.js?v=7467"></script>
+<script src="/assets/battle-hub-modal.js?v=7468"></script>
 
 
 <script src="/assets/service-worker-registration.js?v=7441"></script>

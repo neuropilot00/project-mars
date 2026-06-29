@@ -20,6 +20,10 @@ let achSvc;
 try { achSvc = require('../services/achievements'); } catch (_e) {}
 let weeklySvc;
 try { weeklySvc = require('../services/weeklyChallenges'); } catch (_e) {}
+// 정시 섹터 서지(weeklyChallenge.js) — getActiveSurge() 로 현재 활성 서지 섹터/배율 조회.
+// 위 weeklySvc(복수형 trackProgress 전용)와 다른 파일이므로 별도 핸들로 로드한다.
+let surgeSvc;
+try { surgeSvc = require('../services/weeklyChallenge'); } catch (_e) {}
 let monumentSvc;
 try { monumentSvc = require('../services/monuments'); } catch (_e) {}
 let upgradeSvc;
@@ -1643,6 +1647,30 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
       harvestedPP = Math.round(harvestedPP * sectorWeightedMult * 10000) / 10000;
     }
 
+    // ── 정시 섹터 서지(weeklyChallenge.js): 활성 서지 tier 보유 픽셀 비중만큼 가중 배율 ──
+    //   per-claim harvest 는 claim tier 매칭 시 통배율을 곱하지만, 이 글로벌 harvest 는 전 픽셀
+    //   집계라 surge tier 픽셀 비중(frac)으로 가중한다: weighted = 1 + frac*(mult-1).
+    //   (구버전 전역 harvest 채널이지만 직접 POST 우회 시에도 surge 가 일관 적용되도록 하드닝.)
+    //   weekly_surge_enabled=false 면 getActiveSurge가 active:false → 무효.
+    let sectorSurgeApplied = false;
+    let sectorSurgeMult = 1;
+    try {
+      if (surgeSvc && surgeSvc.getActiveSurge && totalPixels > 0) {
+        const surge = await surgeSvc.getActiveSurge();
+        if (surge && surge.active) {
+          const sSector = (surge.sector || '').toLowerCase();
+          const m = parseFloat(surge.multiplier);
+          const surgedPixels = tierCounts[sSector] || 0;
+          if (Number.isFinite(m) && m > 1 && surgedPixels > 0) {
+            const weighted = 1 + (surgedPixels / totalPixels) * (m - 1);
+            harvestedPP = Math.round(harvestedPP * weighted * 10000) / 10000;
+            sectorSurgeApplied = true;
+            sectorSurgeMult = Math.round(weighted * 10000) / 10000;
+          }
+        }
+      }
+    } catch (_ss) { /* surge service unavailable — non-critical */ }
+
     // Governor bonus
     const govRes = await client.query(
       'SELECT COUNT(*) AS cnt FROM sectors WHERE governor_wallet = $1', [w]
@@ -1961,6 +1989,8 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
       isGovernor,
       intervalHours,
       nextHarvestAt,
+      surgeApplied: sectorSurgeApplied,
+      surgeMultiplier: sectorSurgeMult,
       itemEffects: harvestSurgeApplied ? { harvestSurge: true } : {},
       resources: resourceDrops
     });
@@ -2118,6 +2148,20 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
       if (hsRes.rows.length > 0) harvestSurge = { id: hsRes.rows[0].id, mult: Math.max(1, parseFloat(hsRes.rows[0].effect_value) || 3) };
     } catch (_) {}
 
+    // ✅ [정시 섹터 서지] 요청당 1회만 활성 서지를 조회(시간창 값이라 루프 내 불변). 각 claim 의 거점 섹터(tier)가
+    //    활성 서지 섹터와 일치하면 그 claim 수확 PP 에 배율. weekly_surge_enabled=false 면 active:false → 무효.
+    let sectorSurge = null;
+    try {
+      if (surgeSvc && surgeSvc.getActiveSurge) {
+        const sv = await surgeSvc.getActiveSurge();
+        if (sv && sv.active) {
+          const m = parseFloat(sv.multiplier);
+          if (Number.isFinite(m) && m > 1) sectorSurge = { sector: (sv.sector || '').toLowerCase(), mult: m };
+        }
+      }
+    } catch (_) { /* surge service unavailable — non-critical */ }
+    let sectorSurgeHits = 0;
+
     const ppToGpRate = await getPPToGPRate(client);
     const harvested = [];
     const cooldown = [];
@@ -2194,6 +2238,13 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
         }
       } catch (_) { sectorInfluenceBonus = null; }
       try { if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000; } catch (_) {}
+      // 정시 섹터 서지: 이 claim 의 거점 섹터가 활성 서지 섹터와 일치할 때만 배율(수확량 자체 조정).
+      let claimSurgeApplied = false;
+      if (sectorSurge && sectorSurge.sector === tier) {
+        harvestedPP = Math.round(harvestedPP * sectorSurge.mult * 10000) / 10000;
+        claimSurgeApplied = true;
+        sectorSurgeHits++;
+      }
       if (harvestSurge && !surgeApplied) {
         harvestedPP = Math.round(harvestedPP * harvestSurge.mult * 10000) / 10000;
         surgeApplied = true;
@@ -2218,9 +2269,9 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
       await client.query('UPDATE claims SET last_harvest_at = NOW() WHERE id = $1', [claimId]);
       await client.query(
         `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('mining', $1, $2, 0, $3)`,
-        [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, sectorMult, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, resourceDrops, source: 'harvest_all' })]
+        [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, sectorMult, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, surgeApplied: claimSurgeApplied, surgeMultiplier: claimSurgeApplied ? sectorSurge.mult : 1, resourceDrops, source: 'harvest_all' })]
       );
-      harvested.push({ claimId, harvestedPP, harvestedGP, totalPixels, tier, sectorMult, intervalHours, nextHarvestAt: new Date(now.getTime() + intervalHours * 3600000), sectorInfluenceBonus, resources: resourceDrops });
+      harvested.push({ claimId, harvestedPP, harvestedGP, totalPixels, tier, sectorMult, intervalHours, nextHarvestAt: new Date(now.getTime() + intervalHours * 3600000), sectorInfluenceBonus, surgeApplied: claimSurgeApplied, surgeMultiplier: claimSurgeApplied ? sectorSurge.mult : 1, resources: resourceDrops });
       totalPP = Math.round((totalPP + harvestedPP) * 10000) / 10000;
       totalGP = Math.round((totalGP + harvestedGP) * 1000000) / 1000000;
       if (ppDailyCap > 0) dailyRemaining = Math.round((dailyRemaining - harvestedPP) * 10000) / 10000;
@@ -2262,6 +2313,9 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
       influenceHits,
       guildInfluenceHits,
       bestInfluenceMult,
+      surgeApplied: sectorSurgeHits > 0,
+      surgeMultiplier: (sectorSurgeHits > 0 && sectorSurge) ? sectorSurge.mult : 1,
+      surgeHits: sectorSurgeHits,
       itemEffects: surgeApplied ? { harvestSurge: true } : {},
       results: harvested
     });
@@ -2462,6 +2516,25 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000;
     } catch (_) {}
 
+    // ✅ [정시 섹터 서지] 현재 활성 서지 섹터(tier)가 이 클레임의 거점 섹터와 일치하면 수확 PP에 배율.
+    //    가산 mint 가 아니라 수확량 자체 조정(채굴 faucet 튜닝) → 인플레 정책 위반 아님.
+    //    weekly_surge_enabled=false 면 getActiveSurge가 active:false → 무효. 자원 드롭/시즌 점수는 범위 밖이라 미적용.
+    let surgeApplied = false;
+    let surgeMultiplier = 1;
+    try {
+      if (surgeSvc && surgeSvc.getActiveSurge) {
+        const surge = await surgeSvc.getActiveSurge();
+        if (surge && surge.active && (surge.sector || '').toLowerCase() === tier) {
+          const m = parseFloat(surge.multiplier);
+          if (Number.isFinite(m) && m > 1) {
+            harvestedPP = Math.round(harvestedPP * m * 10000) / 10000;
+            surgeApplied = true;
+            surgeMultiplier = m;
+          }
+        }
+      }
+    } catch (_) { /* surge service unavailable — non-critical */ }
+
     // Harvest Surge: next successful territory harvest gets a one-use multiplier.
     try {
       const hsRes = await client.query(
@@ -2555,7 +2628,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
     // 트랜잭션 로그
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, sectorMult, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, resourceDrops })]
+      [w, harvestedPP, JSON.stringify({ currency: 'gp', gpAmount: harvestedGP, ppEquivalent: harvestedPP, claimId, totalPixels, tier, sectorMult, pixelFactor: Math.round(pixelFactor*100)/100, sectorInfluenceBonus, surgeApplied, surgeMultiplier, resourceDrops })]
     );
 
     await awardXP(client, w, 5).catch(() => {});
@@ -2566,7 +2639,7 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
 
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
     // [v7.320] 즉시 수확은 GP로 지급되므로 harvestedGP를 함께 내려 UI가 "+N GP"로 표시하게 한다.
-    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, sectorMult, intervalHours, nextHarvestAt, sectorInfluenceBonus, itemEffects: harvestSurgeApplied ? { harvestSurge: true } : {}, resources: resourceDrops });
+    res.json({ success: true, harvestedPP, harvestedGP, totalPixels, tier, sectorMult, intervalHours, nextHarvestAt, sectorInfluenceBonus, surgeApplied, surgeMultiplier, itemEffects: harvestSurgeApplied ? { harvestSurge: true } : {}, resources: resourceDrops });
 
     // Non-blocking hooks
     try { if (dailyService) dailyService.updateMissionProgress(w, 'harvest', 1).catch(() => {}); } catch (_) {}
