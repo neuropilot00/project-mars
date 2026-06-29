@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/manifest.json">
 <title>OCCUPY MARS — Claim Your Territory</title>
-<script src="/assets/app-config.js?v=7470"></script>
+<script src="/assets/app-config.js?v=7471"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <link href="/assets/tactical-lab-modal.css?v=7424" rel="stylesheet">
@@ -248,19 +248,19 @@
         <span style="font-size:var(--fs-xs);color:var(--tx2)" id="walletChain">--</span>
       </div>
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
-      <div class="wallet-bal"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
-      <div class="wallet-bal"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
+      <div class="wallet-bal web3-rail"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
+      <div class="wallet-bal web3-rail"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
       <div class="wallet-bal" id="walletGPRow"><span class="lbl" style="color:var(--gold)">GP</span><span class="val" style="color:var(--gold)" id="walletGP">0</span></div>
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-actions">
         <!-- [v7.174 F-Crit-2 fix] aria-label 추가 -->
-        <button class="wa-btn dep" onclick="openDepositModal()" aria-label="Deposit USDT" data-i18n="deposit_btn">DEPOSIT</button>
-        <button class="wa-btn wdr" onclick="openWithdrawModal()" aria-label="Withdraw USDT" data-i18n="withdraw_btn">WITHDRAW</button>
-        <button class="wa-btn" onclick="openExportKeyModal()" aria-label="Export wallet private key" style="background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--gold)" data-i18n="export_key_btn">🔑 KEY</button>
+        <button class="wa-btn dep web3-rail" onclick="openDepositModal()" aria-label="Deposit USDT" data-i18n="deposit_btn">DEPOSIT</button>
+        <button class="wa-btn wdr web3-rail" onclick="openWithdrawModal()" aria-label="Withdraw USDT" data-i18n="withdraw_btn">WITHDRAW</button>
+        <button class="wa-btn web3-rail" onclick="openExportKeyModal()" aria-label="Export wallet private key" style="background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--gold)" data-i18n="export_key_btn">🔑 KEY</button>
       </div>
       <div class="wallet-actions">
-        <button class="wa-btn swp" onclick="openSwapModal()" aria-label="Swap PP to USDT">PP→USDT</button>
-        <button class="wa-btn swp" onclick="openExchangeModal()" aria-label="Exchange PP to GP" style="color:var(--gn);border-color:rgba(0,230,118,.3)">PP→GP</button>
+        <button class="wa-btn swp web3-rail" onclick="openSwapModal()" aria-label="Swap PP to USDT">PP→USDT</button>
+        <button class="wa-btn swp web3-rail" onclick="openExchangeModal()" aria-label="Exchange PP to GP" style="color:var(--gn);border-color:rgba(0,230,118,.3)">PP→GP</button>
         <button class="wa-btn dis" onclick="logoutEmail()" aria-label="Logout" data-i18n="logout_btn">LOGOUT</button>
       </div>
       <!-- [v7.186] 사이드 패널용 — i18n 라벨엔 🪐 빠졌으니 여기 인라인으로 보강. -->
@@ -3372,11 +3372,11 @@
 
         <!-- ═══ Quick action buttons ═══ -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-          <button class="prof-cta" onclick="openExchangeModal()" style="margin:0;background:linear-gradient(135deg,rgba(0,230,118,.12),rgba(255,215,0,.08));border:1px solid rgba(0,230,118,.3)">
+          <button class="prof-cta web3-rail" onclick="openExchangeModal()" style="margin:0;background:linear-gradient(135deg,rgba(0,230,118,.12),rgba(255,215,0,.08));border:1px solid rgba(0,230,118,.3)">
             <span class="cta-icon">💱</span>
             <span>PP → GP</span>
           </button>
-          <button class="prof-cta" onclick="openSwapModal()" style="margin:0;background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,180,60,.06));border:1px solid rgba(255,120,60,.25)">
+          <button class="prof-cta web3-rail" onclick="openSwapModal()" style="margin:0;background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,180,60,.06));border:1px solid rgba(255,120,60,.25)">
             <span class="cta-icon">🔄</span>
             <span>PP → USDT</span>
           </button>
@@ -4421,7 +4421,7 @@
 <script src="/assets/public-stats.js?v=7462"></script>
 <script src="/assets/arena-overlay.js?v=7442"></script>
 <script src="/assets/world-live-feeds.js?v=7455"></script>
-<script src="/assets/main-game.js?v=7470"></script>
+<script src="/assets/main-game.js?v=7471"></script>
 <!-- ══════════════════════════════════════════════════════════ -->
 <!--  LEGAL: Terms of Service Modal                          -->
 <!-- ══════════════════════════════════════════════════════════ -->

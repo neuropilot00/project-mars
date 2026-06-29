@@ -1,3 +1,26 @@
+## 2026-06-30 v7.440 — Web3 분리: 캐주얼 모드 (오너 결정 #3)
+
+레드팀 "정체성 방향" 결정 3/3 — 마지막. 모바일 캐주얼 유저의 크립토 진입장벽 제거. 계정은 이미 signup 시
+합성/커스터디 월렛(crypto.randomBytes)을 받아 외부 지갑 없이 플레이 가능 → "Web3 분리"는 그 위에서
+실자금 레일(입금/출금/PP↔USDT swap/PP→GP)을 분리/차단해 순수 클로즈드루프 GP 게임으로 제시하는 것.
+
+[서버] 실자금 엔드포인트 차단 + config 노출 (redemptionRoutes / exchangeRoutes / configRoutes, migration 335)
+- casual_mode_enabled=true 면 /swap, /withdraw, /withdraw-all, /exchange/pp-to-gp 가 403 CASUAL_MODE(방어선 — UI 숨김과 별개로 직접 API 호출도 차단).
+- /api/config 가 casualMode 노출. 설정 조회 실패 시 차단 안 함(현행 유지).
+- migration 335: casual_mode_enabled(false) 시드. 기본 false=동작 불변(현행 Web3 풀노출).
+
+[클라] 레일 UI 숨김 (index.html / main-game.js)
+- 실자금 레일 요소 9곳에 .web3-rail 클래스(USDT/PP 잔액, DEPOSIT/WITHDRAW/KEY, PP→USDT, PP→GP ×2).
+- /api/config.casualMode=true → body.casual-mode + CSS(`.web3-rail{display:none}`) 1회 주입으로 숨김. GP 잔액/플레이 동선은 유지.
+- 클로즈드루프 검증: GP 는 채굴(harvest→GP)·전투·퀘스트·주간챌린지로 획득되어 PP 없이도 완전 플레이 가능.
+
+검증(메인): node --check 전수 OK, git diff --check 클린, migration 335 적용. 서버 클린 부팅 + /api/config casualMode:false 확인.
+가드 로직 node 하니스 PASS(casual=true→403 CASUAL_MODE / false→통과). web3-rail 9곳 마크 확인. sw v127, ?v=7471.
+
+⚠️ 한계: 캐주얼 모드 in-browser 육안(.web3-rail 숨김)은 로그인 게이트라 정적검증(클래스+CSS+토글 코드 확인). CSS 룰은 단순.
+실 입금 존재 환경에서 켜면 출금 UI/엔드포인트가 막히므로 실자금 발생 전/별도 배포 권장(마이그레이션 주석 명시).
+후속(소): 캐주얼 모드에서 지갑 주소/체인 라벨도 숨기면 더 깔끔(현재는 핵심 레일만 분리).
+
 ## 2026-06-30 v7.439 — 스코프 축소: BASE 탭 게이팅 서버 튜닝화 (오너 결정 #2)
 
 레드팀 "정체성 방향" 결정 2/3. 신규 유저 퍼널 집중을 위한 고급 탭 점진 공개를 오너가 라이브 통제 가능하게.

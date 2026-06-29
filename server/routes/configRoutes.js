@@ -125,6 +125,8 @@ router.get('/config', readLimiter, async (_req, res) => {
       //   클라(base-navigation.js)는 이 값으로 BASE_TAB_MIN_LEVEL / LEVEL_GATING_ENABLED 를 덮어쓴다.
       levelGatingEnabled: String(settings.level_gating_enabled ?? 'true').toLowerCase() !== 'false',
       baseTabMinLevels: _parseTabLevels(settings.base_tab_min_levels),
+      // [v7.440 Web3 분리] 캐주얼 모드 — true 면 클라가 실자금 레일 UI(.web3-rail)를 숨김(서버도 해당 엔드포인트 차단).
+      casualMode: String(settings.casual_mode_enabled ?? 'false').toLowerCase() === 'true',
     });
   } catch (err) {
     console.error('[API] config error:', err.message);

@@ -1604,5 +1604,19 @@ function openTelegramGroup(){
       }
       if (typeof applyBaseTabLocks === 'function') applyBaseTabLocks();
     } catch (_e) { /* 게이팅 적용 실패 — 기본값 유지 */ }
+    // [v7.440 Web3 분리] 캐주얼 모드 — 실자금 레일 UI(.web3-rail)를 숨겨 클로즈드루프 GP 게임으로 표시.
+    //   기본 false=현행(전 레일 노출). body.casual-mode 클래스 + CSS 1회 주입으로 토글(되돌림 안전).
+    try {
+      if (cfg && typeof cfg.casualMode === 'boolean') {
+        window.CASUAL_MODE = cfg.casualMode;
+        if (!document.getElementById('casualModeStyles')) {
+          var st = document.createElement('style');
+          st.id = 'casualModeStyles';
+          st.textContent = 'body.casual-mode .web3-rail{display:none!important}';
+          document.head.appendChild(st);
+        }
+        document.body.classList.toggle('casual-mode', !!cfg.casualMode);
+      }
+    } catch (_e2) { /* 캐주얼 모드 적용 실패 — 현행 유지 */ }
   }).catch(function(){});
 })();

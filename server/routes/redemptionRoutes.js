@@ -8,6 +8,18 @@ const { cfg } = require('../utils/settingsCache');
 
 const router = express.Router();
 
+// [v7.440 Web3 분리] 캐주얼 모드 ON 이면 실자금 레일(PP→USDT swap / withdraw)을 서버에서 차단(방어선).
+//   기본 false 라 동작 불변. 클라 UI 숨김과 별개로 직접 API 호출도 막는다(되돌림: 설정 false).
+async function _casualBlocked(res) {
+  try {
+    if (String(await getSetting('casual_mode_enabled', 'false')) === 'true') {
+      res.status(403).json({ error: 'CASUAL_MODE', message: 'Real-money rails are disabled in casual mode.' });
+      return true;
+    }
+  } catch (_) { /* 설정 조회 실패 — 차단 안 함(현행 유지) */ }
+  return false;
+}
+
 const writeLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
   max: 30,
@@ -22,6 +34,7 @@ async function fundQuestPool(_client, _feeAmount) {
 //  POST /api/swap — PP → USDT
 // ══════════════════════════════════════════════════
 router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
+  if (await _casualBlocked(res)) return;
   const wallet = getAuthWallet(req);
   const { ppAmount } = req.body;
   if (!wallet || !ppAmount || ppAmount <= 0) return res.status(400).json({ error: 'Invalid input' });
@@ -158,6 +171,7 @@ router.post('/swap', requireAuth, writeLimiter, async (req, res) => {
 //  POST /api/withdraw — USDT withdrawal (server signs)
 // ══════════════════════════════════════════════════
 router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
+  if (await _casualBlocked(res)) return;
   const wallet = getAuthWallet(req);
   const { amount, chain } = req.body;
   if (!wallet || !amount || amount <= 0) return res.status(400).json({ error: 'Invalid input' });
@@ -371,6 +385,7 @@ router.post('/withdraw', requireAuth, writeLimiter, async (req, res) => {
 //  POST /api/withdraw-all — full withdrawal + pixel reset
 // ══════════════════════════════════════════════════
 router.post('/withdraw-all', requireAuth, writeLimiter, async (req, res) => {
+  if (await _casualBlocked(res)) return;
   const wallet = getAuthWallet(req);
   const { chain } = req.body;
   if (!wallet) return res.status(400).json({ error: 'Missing wallet' });

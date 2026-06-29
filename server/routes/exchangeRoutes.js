@@ -15,6 +15,12 @@ const writeLimiter = makeRateLimiter({
 });
 
 router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) => {
+  // [v7.440 Web3 분리] 캐주얼 모드 ON 이면 PP(충전 통화)→GP 변환도 차단(클로즈드루프 GP 만). 기본 false=동작 불변.
+  try {
+    if (String(await getSetting('casual_mode_enabled', 'false')) === 'true') {
+      return res.status(403).json({ error: 'CASUAL_MODE', message: 'Real-money rails are disabled in casual mode.' });
+    }
+  } catch (_) { /* 설정 조회 실패 — 현행 유지 */ }
   const { amount } = req.body || {};
   const w = getAuthWallet(req);
   if (!w || !amount) return res.status(400).json({ error: 'Missing wallet or amount' });
