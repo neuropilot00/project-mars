@@ -341,6 +341,30 @@ function buildBattleAnalysis(atk, def, result, eventStats) {
         '기함 지정 전 HP/DEF가 높은 함선을 우선 선택'
       ]);
     }
+
+    // ── [내 선택이 결과를 바꿨다] 진형/기동 선택 사후 분석 ──
+    //   loser.formation/maneuver는 fleets.formation/movement(현재 함대 교리)에서 채워진다.
+    //   엔진 상성(getFormationMatchupMult)과 일치하는 방향으로 "그 선택이 손해였다"를 짚어준다.
+    const loserFormation = String(loser.formation || '').toLowerCase();
+    const loserManeuver = String(loser.maneuver || '').toLowerCase();
+    const protectiveForms = ['screen', 'sphere', 'vanguard'];
+    if (loserFormation && loserCapital > 0 && loserLossRate >= 0.5 && !protectiveForms.includes(loserFormation)) {
+      addAnalysis(analysis, 'formation_choice_capital', 'info', `대형함을 보유했지만 '${loserFormation}' 진형은 대형함 보호 효과가 약합니다. 진형 선택이 손실을 키웠습니다.`, [
+        '대형함이 핵심이면 스크린/구형/선봉방어 진형으로 피해를 분산',
+        '돌격 진형(쐐기/라인)은 호위·화력 우위가 확실할 때만 사용'
+      ]);
+    } else if ((loserManeuver === 'retreat' || loserManeuver === 'scatter') && loserDamageRatio < 0.8) {
+      addAnalysis(analysis, 'maneuver_choice_passive', 'info', `'${loserManeuver}' 기동은 피해를 줄이는 대신 내 화력도 깎습니다. 화력에서 밀린 전투라 더 불리해졌습니다.`, [
+        '화력 우위가 필요할 땐 전진/측면 기동으로 유효타를 늘리기',
+        '후퇴/산개는 수리·로지로 버티며 시간을 벌 수 있을 때만 사용'
+      ]);
+    } else if (loserManeuver === 'advance' && loserLossRate - winnerLossRate > 0.2 && loserDamageRatio < 0.9) {
+      addAnalysis(analysis, 'maneuver_choice_overextend', 'info', `'전진' 기동으로 교전 거리를 좁혔지만 화력/생존에서 모두 밀려 손실만 커졌습니다.`, [
+        '상대 화력이 더 강하면 전진보다 스크린 진형으로 거리·피해를 통제',
+        '전진은 집중공격·기동 우위로 먼저 끊을 자신이 있을 때 사용'
+      ]);
+    }
+
     if (!analysis.length) {
       addAnalysis(analysis, 'doctrine_gap', 'info', '전력 차이는 크지 않았지만 진형, 역할 조합, 타겟 지정에서 상대가 더 좋은 교환을 만들었습니다.', [
         '상대 대형함에는 저격/폭격, 상대 소형 러시에는 구축함/탱커를 준비',
@@ -448,6 +472,7 @@ async function generateBattleReport(battleId, wallet) {
       `SELECT fbp.side, fbp.fleet_id, fbp.wallet_address,
               fbp.ships_at_start, fbp.ships_alive, fbp.ships_lost, fbp.damage_dealt,
               f.name AS fleet_name, f.owner_wallet,
+              f.formation, f.movement,
               COALESCE(u.faction_code, 'unknown') AS faction,
               al.id AS alliance_id,
               al.tag AS alliance_tag,
@@ -574,6 +599,8 @@ async function generateBattleReport(battleId, wallet) {
         alliance_tag: p.alliance_tag || null,
         alliance_name: p.alliance_name || null,
         alliance_color: p.alliance_color || null,
+        formation: p.formation || null,
+        maneuver: p.movement || null,
         shipsDeployed: deployed,
         shipsDestroyed: Math.min(deployed, destroyed),
         shipsSurvived: survived,
@@ -601,6 +628,11 @@ async function generateBattleReport(battleId, wallet) {
 
     const battleAnalysis = buildBattleAnalysis(atk, def, result, eventStats);
     const highlights = generateHighlights(events, battle.winner_side);
+
+    // 요청자 시점(perspective) 기준 "내 함대" / "상대 함대" 요약 — 클라가 사이드를 몰라도
+    //   내 편성/진형/기동을 바로 읽을 수 있게 top-level로도 노출(기존 atk/def 중첩은 유지).
+    const mySide = perspective === 'attacker' ? atk : perspective === 'defender' ? def : null;
+    const enemySide = perspective === 'attacker' ? def : perspective === 'defender' ? atk : null;
     atk.rating = calcPerformanceRating(
       atk.totalDamage,
       atk.shipsDestroyed,
@@ -641,6 +673,13 @@ async function generateBattleReport(battleId, wallet) {
       recommendations_ko: battleAnalysis.recommendations_ko,
       analysis_items: battleAnalysis.analysis_items,
       recommendation_items: battleAnalysis.recommendation_items,
+      // top-level 시점 요약 — "내 선택(편성/진형/기동)이 결과를 바꿨다"를 클라가 바로 표시 가능.
+      role_counts: mySide ? mySide.role_counts : null,
+      size_counts: mySide ? mySide.size_counts : null,
+      enemy_role_counts: enemySide ? enemySide.role_counts : null,
+      enemy_size_counts: enemySide ? enemySide.size_counts : null,
+      my_formation: mySide ? mySide.formation : null,
+      my_maneuver: mySide ? mySide.maneuver : null,
       highlights,
       performance_rating: {
         atk: atk.rating || null,

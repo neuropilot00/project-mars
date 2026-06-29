@@ -1,3 +1,37 @@
+## 2026-06-29 v7.435 — 재미 로드맵 4도메인 (캠페인 행동게이트·리텐션 훅·전투 피드백/신규유예·첫세션 핸즈온)
+
+팀/레드팀 진단을 ultracode 워크플로(설계→4도메인 병렬구현→도메인별 적대검증)로 구현. 정체성 삭제(full-loss
+전역제거/기능숨김/Web3 off)는 오너 결정이라 미수행 — 되돌릴 수 있는 개선만. 메인이 전 도메인 재검증 후 커밋.
+
+[Phase1] 캠페인 행동 게이트 (server/services/campaign.js)
+- FSP·CV CH1에 first_claim(영토1)+first_harvest(채굴1) 필수 objective 추가(기존 stat 재사용). 초반 캠페인이
+  타이머만으로 클리어되던 것 → 실제 행동해야 진행. 기존 hard gate(OBJECTIVE_REQUIREMENTS_NOT_MET)에 자동 연결.
+
+[Phase3] 리텐션 훅 (신규 weeklyChallenge.js / weeklyRoutes.js / index.js 마운트 / mig331)
+- 주간 누적 챌린지: 이번 주(월~) 클레임/채굴/격침 lazy 카운트(claims/transactions/ship_wrecks 집계),
+  목표 도달 시 GP 수령. carve(환금불가, redeemable 미발행). FOR UPDATE+UNIQUE(wallet,week_start,metric)+claimed 플래그로
+  이중수령 차단. GET /api/weekly/status, POST /api/weekly/claim, GET /api/weekly/surge.
+- 정시 섹터 서지: 설정 기반 활성 서지 조회(GET). ⚠️ 한계 — 실제 채굴/시즌 배율 적용은 다른 도메인 파일이라
+  이번 범위 밖(현재는 advisory 데이터만; UI/배율 wiring은 후속).
+
+[Phase3] 전투 피드백 + 신규 유예 (battleReport.js / battleRewards.js / mig332)
+- battleReport: "내 선택이 결과를 바꿈" 사후 분석(analysis_items/role_counts) 보강.
+- 신규 full-loss 유예: 보호 대상(온보딩 미완료 OR 계정 ≤3일)의 격침함은 영구소멸 대신 "대파"(current_hp=1)로
+  생존+킬보드 유령킬 제거. 보상 트랜잭션과 원자적, 멱등. ⚠️ [검증 후 수정] max_rank 기본 5→0: rank_level
+  기본=1이라 ≤5면 전 유저가 보호돼 full-loss 정체성이 무력화됐음 → 0(비활성)으로 내려 베테랑은 full-loss 유지(검증:
+  Woo=full-loss, 신규=보호). 베테랑 영구소멸 EVE 정체성 보존.
+
+[Phase2] 첫 세션 핸즈온 (territory-ui.js / base-navigation.js / social-live-modal.js / index.html; 추가만)
+- 첫 클레임 성공 연출(카메라 줌인+금색 하이라이트+단발 축하), BASE 골든패스(온보딩 미완료 시 현재 목표 탭 강조/나머지 dim),
+  globe 첫클릭 가이드 오버레이(추천 영역 펄스+화살표, 첫 클레임 후 제거). §18/§19 준수. step 재배치는 검증불가라 미실시.
+
+검증(메인 재검증): node --check 전 파일 OK, index.html 인라인 OK, git diff --check 클린, weeklyRoutes 단일 마운트.
+DB 실증 — 주간 챌린지 멱등(claim1 +500GP / claim2 ALREADY_CLAIMED / GP delta 500 1회), grace 스코프(베테랑 full-loss·신규 보호),
+스타터로 cv/mcc/fsp 인터셉터 BUILDABLE. sw mars-v123, ?v=7465. mig331/332 로컬 적용 완료.
+
+⚠️ 솔직한 한계: 재미·리텐션은 여전히 실유저 테스트로만 측정 가능(이 변경은 개선이지 검증 아님). 서지 배율 wiring,
+전투 전 전술 베팅 UI는 후속. 정체성 결정(full-loss 전역/스코프 축소/Web3 분리)은 오너 콜로 보류.
+
 ## 2026-06-27 v7.434 — Phase 1: 신규 첫 세션에 코어 루프 닫기 (스타터 광물)
 
 팀/레드팀 진단의 "코어 루프가 첫 세션 안에 안 닫힌다 → 리텐션 훅 미작동" 해결. 신규는 무료 첫 클레임(땅)은

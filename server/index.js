@@ -144,6 +144,7 @@ const sectorControlRoutes  = require('./routes/sectorControlRoutes'); // Sector 
 const territoryManagementRoutes = require('./routes/territoryManagementRoutes'); // Territory rename/tend/production/merge/upgrade routes
 const redemptionRoutes     = require('./routes/redemptionRoutes');    // PP redemption and USDT withdrawal routes
 const guildRoutes          = require('./routes/guildRoutes');         // Guild, guild chat, guild war routes
+const weeklyRoutes         = require('./routes/weeklyRoutes');        // Phase3 리텐션 훅: 주간 챌린지 + 섹터 서지
 const territoryIdentityRoutes = require('./routes/territoryIdentity'); // 영토 정체성 + 섹터 갈등맵
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
@@ -459,6 +460,7 @@ app.use('/api', apiLimiter, sectorControlRoutes);             // Sector influenc
 app.use('/api', apiLimiter, territoryManagementRoutes);       // Territory rename/tend/production/merge/upgrade routes
 app.use('/api', apiLimiter, redemptionRoutes);                // PP redemption and USDT withdrawal routes
 app.use('/api', apiLimiter, guildRoutes);                     // Guild, guild chat, guild war routes
+app.use('/api', apiLimiter, weeklyRoutes);                    // Phase3 리텐션 훅: 주간 챌린지 + 섹터 서지
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
@@ -1767,6 +1769,22 @@ async function start() {
       });
       console.log('[washTrade] sweep scheduler started (every 6h)');
     } catch(e) { console.warn('[washTrade] Could not init scheduler:', e.message); }
+
+    // [v7.464 Phase3] 주간 챌린지 ledger 정리 — 24h 마다 8주 이상 지난 행 삭제.
+    //   진행 카운트는 lazy 집계라 주간 리셋 스케줄러는 불필요(week_start 필터가 롤오버 처리).
+    //   이 스케줄러는 ledger 무한 누적만 방지하는 정리 작업이다.
+    try {
+      const weeklyChallengeSvc = require('./services/weeklyChallenge');
+      scheduleTask('WEEKLY', 24 * 60 * 60 * 1000, async () => {
+        const n = await weeklyChallengeSvc.pruneOldProgress();
+        if (n > 0) console.log(`[weeklyChallenge] pruned ${n} stale ledger row(s)`);
+      }, {
+        phase: 'prune',
+        startDelayMs: 120 * 1000,
+        startPhase: 'startup',
+      });
+      console.log('[weeklyChallenge] ledger prune scheduler started (24h interval)');
+    } catch(e) { console.warn('[weeklyChallenge] Could not init prune scheduler:', e.message); }
 
     } else {
       console.log('[WORKER-GATE] 비리더(web 인스턴스 모드) — 스케줄러/온체인 리스너 스킵');

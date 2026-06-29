@@ -3515,6 +3515,15 @@ async function confirmClaim(){
     try{
     var myAddr=walletState.address||'';
     var myLabel=walletState.address?shortAddr(walletState.address):'YOU';
+    // [first-session] 첫 클레임 여부 — 반드시 claims.push 전에 판정해야 함.
+    // (push 이후 세면 항상 1 이상이 되어 첫 클레임 연출이 안 뜸)
+    var _isFirstClaim=false;
+    try{
+      var _mineBefore=(claims||[]).filter(function(c){
+        return c&&c.owner&&myAddr&&c.owner.toLowerCase()===myAddr.toLowerCase();
+      }).length;
+      _isFirstClaim=(_mineBefore===0);
+    }catch(_fc){ _isFirstClaim=false; }
     // Compute actual claimed pixel bounds (may be smaller than requested if battle lost)
     var allConfirmed=[];
     if(d.newPixels) d.newPixels.forEach(function(p){allConfirmed.push(p)});
@@ -3632,6 +3641,22 @@ async function confirmClaim(){
     }
     claimsSnapshot=null;
     compositeClaimsOnTexture();
+    // [first-session] 첫 클레임 핸즈온 연출: 카메라 줌인 + 금색 영토 강조(이미 compositeClaimsOnTexture가 칠함) + 단발 축하.
+    // 추가 연출만 — 기존 클레임 로직/상태는 건드리지 않는다. 첫 globe 가이드 오버레이도 함께 제거.
+    if(_isFirstClaim){
+      try{ _removeFirstClaimGuide(); }catch(_g){}
+      try{
+        var _g=window.globe||globe;
+        if(_g&&typeof _g.pointOfView==='function'){
+          _g.pointOfView({lat:nc.lat,lng:nc.lng,altitude:0.12},900);
+        }
+      }catch(_zo){}
+      try{
+        var _celebMsg=tl('🎉 First territory secured! It is yours.','🎉 첫 영토 확보! 이제 당신의 땅입니다.','🎉 最初の領土を確保！あなたの土地です。','🎉 首块领地到手！这片土地属于你了。');
+        if(typeof showFactionToast==='function') showFactionToast(_celebMsg,'success');
+        else if(typeof showToast==='function') showToast(_celebMsg,'success');
+      }catch(_ct){}
+    }
     if(d.totalPixelsSold!=null) document.getElementById('statPlots').textContent=fmtNum(d.totalPixelsSold);
     if(d.totalVolume!=null) document.getElementById('statTVL').textContent='$'+fmtNum(d.totalVolume);
 
@@ -3705,3 +3730,91 @@ function clearUpload(){
   document.getElementById('imgFileInput').value='';
   document.getElementById('imgUrlInput').value='';
 }
+
+/* ── [first-session] Globe 첫 클릭 가이드 오버레이 ──────────────────
+ * 온보딩 미완료 + 보유 클레임 0인 신규 유저에게 "여기를 클릭해 첫 영토를 점령" 펄스 링 + 화살표를 띄운다.
+ * 순수 추가 오버레이다. 기존 globe.onGlobeClick / 클릭 핸들러는 절대 건드리지 않는다.
+ * 제거 조건: 첫 globe 클릭(별도 capture 리스너) 또는 첫 클레임 성공(confirmClaim 성공 tail). */
+var _firstClaimGuideShown=false;
+var _firstClaimGuideClickListener=null;
+function _removeFirstClaimGuide(){
+  try{
+    var el=document.getElementById('firstClaimGuide');
+    if(el&&el.parentNode) el.parentNode.removeChild(el);
+  }catch(_e){}
+  try{
+    if(_firstClaimGuideClickListener){
+      var gw=document.getElementById('globe-wrap');
+      if(gw) gw.removeEventListener('pointerdown',_firstClaimGuideClickListener,true);
+      _firstClaimGuideClickListener=null;
+    }
+  }catch(_e2){}
+}
+function _injectFirstClaimGuideStyles(){
+  if(document.getElementById('firstClaimGuideStyles')) return;
+  var css=''+
+    '#firstClaimGuide{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:10px;}'+
+    '#firstClaimGuide .fcg-ring{position:relative;width:84px;height:84px;}'+
+    '#firstClaimGuide .fcg-ring::before,#firstClaimGuide .fcg-ring::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,170,64,.9);box-shadow:0 0 14px rgba(255,140,66,.55);animation:fcgPulse 1.8s ease-out infinite;}'+
+    '#firstClaimGuide .fcg-ring::after{animation-delay:.9s;}'+
+    '#firstClaimGuide .fcg-dot{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#ffaa40;box-shadow:0 0 10px rgba(255,140,66,.9);}'+
+    '#firstClaimGuide .fcg-arrow{font-size:22px;color:#ffb74d;animation:fcgBounce 1.2s ease-in-out infinite;text-shadow:0 0 8px rgba(255,140,66,.7);}'+
+    '#firstClaimGuide .fcg-label{font-family:var(--fn,"monospace");font-size:11px;font-weight:800;letter-spacing:1px;color:#ffd9a8;text-align:center;background:rgba(10,8,14,.72);border:1px solid rgba(255,140,66,.4);border-radius:8px;padding:6px 12px;max-width:240px;text-shadow:0 1px 2px rgba(0,0,0,.8);}'+
+    '@keyframes fcgPulse{0%{transform:scale(.55);opacity:.95}100%{transform:scale(1.25);opacity:0}}'+
+    '@keyframes fcgBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}'+
+    '@media(max-width:600px){#firstClaimGuide{top:42%;}#firstClaimGuide .fcg-ring{width:70px;height:70px;}}';
+  var st=document.createElement('style');
+  st.id='firstClaimGuideStyles';
+  st.textContent=css;
+  document.head.appendChild(st);
+}
+function showFirstClaimGuide(){
+  if(_firstClaimGuideShown) return;
+  if(document.getElementById('firstClaimGuide')) return;
+  _injectFirstClaimGuideStyles();
+  var wrap=document.createElement('div');
+  wrap.id='firstClaimGuide';
+  var ringHtml='<div class="fcg-ring"><span class="fcg-dot"></span></div>';
+  var arrowHtml='<div class="fcg-arrow">▼</div>';
+  var label=tl('Click an empty area to claim your first territory',
+               '빈 영역을 클릭해 첫 영토를 점령하세요',
+               '空いているエリアをクリックして最初の領土を確保しよう',
+               '点击空白区域占领你的第一块领地');
+  wrap.innerHTML=ringHtml+arrowHtml+'<div class="fcg-label"></div>';
+  var lbl=wrap.querySelector('.fcg-label');
+  if(lbl) lbl.textContent=label;
+  document.body.appendChild(wrap);
+  _firstClaimGuideShown=true;
+  // 별도 capture 리스너 — 기존 globe 클릭 핸들러를 바꾸지 않고, 첫 클릭에 오버레이만 제거.
+  _firstClaimGuideClickListener=function(){ _removeFirstClaimGuide(); };
+  var gw=document.getElementById('globe-wrap');
+  if(gw) gw.addEventListener('pointerdown',_firstClaimGuideClickListener,true);
+}
+// 온보딩 미완료 + 클레임 0 확인 후에만 노출. 상태 미확정/로그인 전이면 노출하지 않는다(기본 off).
+function maybeShowFirstClaimGuide(){
+  try{
+    if(_firstClaimGuideShown) return;
+    if(typeof isLoggedIn==='function' && !isLoggedIn()) return;
+    var w=(walletState&&walletState.address)?walletState.address:'';
+    if(!w) return;
+    var mine=(claims||[]).filter(function(c){
+      return c&&c.owner&&c.owner.toLowerCase()===w.toLowerCase();
+    }).length;
+    if(mine>0) return;
+    var headers=(typeof getAuthHeaders==='function')?getAuthHeaders():{};
+    fetch('/api/onboarding/status',{headers:headers}).then(function(res){
+      if(!res.ok) return null; return res.json();
+    }).then(function(status){
+      if(!status||status.completed) return;
+      // 비동기 응답 사이 클레임이 생겼을 수 있으니 다시 확인.
+      var mine2=(claims||[]).filter(function(c){
+        return c&&c.owner&&c.owner.toLowerCase()===w.toLowerCase();
+      }).length;
+      if(mine2>0) return;
+      showFirstClaimGuide();
+    }).catch(function(){});
+  }catch(_e){}
+}
+// 초기 로드 후 globe/claims/지갑 상태가 자리잡을 시간을 주고 1회 시도.
+try{ setTimeout(maybeShowFirstClaimGuide, 4500); }catch(_e){}
+try{ window.maybeShowFirstClaimGuide=maybeShowFirstClaimGuide; window._removeFirstClaimGuide=_removeFirstClaimGuide; }catch(_e){}

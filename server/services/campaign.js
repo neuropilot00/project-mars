@@ -1297,12 +1297,18 @@ const OBJECTIVE_PRESETS = {
   ],
   fsp_campaign_ch1: [
     { id: 'briefing', labelKo: 'FSP 첫 작전 브리핑을 확인한다.', labelEn: 'Review the FSP first operation briefing.', action: 'story' },
+    // [campaign-gates] FSP 초반도 영토 확보/채굴을 거쳐야 진행 — 타이머만으로 통과 불가.
+    { id: 'first_claim', labelKo: '정착지로 삼을 내 영토 1개를 확보한다.', labelEn: 'Claim 1 territory to settle.', action: 'territory', stat: 'ownedClaims', target: 1 },
+    { id: 'first_harvest', labelKo: '영토에서 PP 채굴을 1회 수확한다.', labelEn: 'Harvest PP from your territory once.', action: 'territory', stat: 'territoryHarvests', target: 1 },
     { id: 'first_ship', labelKo: '작전에 투입할 함선 1척을 보유한다.', labelEn: 'Own 1 ship for the operation.', action: 'shipyard', stat: 'ownedShips', target: 1 },
     { id: 'operation_timer', labelKo: '정착지 보호 작전 진행률 100%를 달성한다.', labelEn: 'Reach 100% progress in the settlement protection operation.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 FSP 작전을 연다.', labelEn: 'Check results and unlock the next FSP operation.', action: 'claim_result' },
   ],
   cv_campaign_ch1: [
     { id: 'briefing', labelKo: 'CV 첫 습격 브리핑을 확인한다.', labelEn: 'Review the CV first raid briefing.', action: 'story' },
+    // [campaign-gates] CV 초반도 거점 영토 확보/채굴을 거쳐야 진행 — 타이머만으로 통과 불가.
+    { id: 'first_claim', labelKo: '습격 거점이 될 내 영토 1개를 확보한다.', labelEn: 'Claim 1 territory as a raid foothold.', action: 'territory', stat: 'ownedClaims', target: 1 },
+    { id: 'first_harvest', labelKo: '영토에서 PP 채굴을 1회 수확한다.', labelEn: 'Harvest PP from your territory once.', action: 'territory', stat: 'territoryHarvests', target: 1 },
     { id: 'first_ship', labelKo: '습격에 투입할 함선 1척을 보유한다.', labelEn: 'Own 1 ship for the raid.', action: 'shipyard', stat: 'ownedShips', target: 1 },
     { id: 'operation_timer', labelKo: '습격 작전 진행률 100%를 달성한다.', labelEn: 'Reach 100% progress in the raid operation.', action: 'campaign_progress' },
     { id: 'unlock_next', labelKo: '결과를 확인하고 다음 CV 작전을 연다.', labelEn: 'Check results and unlock the next CV operation.', action: 'claim_result' },

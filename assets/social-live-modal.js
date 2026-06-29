@@ -798,8 +798,19 @@ async function runOnboardingCheck() {
     });
     if (!res.ok) return;
     var status = await res.json();
-    if (!status || status.completed) return;
+    // [first-session] 골든패스 글로우 캐시를 같은 응답으로 갱신(완료 시 자동 해제).
+    try {
+      window._goldenPathState = { fetched: true, completed: !!status.completed, step: (status && status.step) || 0, ts: Date.now() };
+      if (typeof applyGoldenPathGlow === 'function') applyGoldenPathGlow();
+    } catch (_gp) {}
+    if (!status || status.completed) {
+      // 온보딩 완료면 globe 첫클릭 가이드도 정리.
+      try { if (typeof window._removeFirstClaimGuide === 'function') window._removeFirstClaimGuide(); } catch (_rg) {}
+      return;
+    }
     showOnboardingHint(status.step || 0);
+    // [first-session] 클레임 0인 신규 유저에게 globe 첫 클릭 가이드 시도(순수 추가 오버레이).
+    try { if (typeof window.maybeShowFirstClaimGuide === 'function') window.maybeShowFirstClaimGuide(); } catch (_fg) {}
   } catch (err) {
     console.warn('[onboarding] status failed:', err);
   }

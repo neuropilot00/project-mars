@@ -100,7 +100,8 @@
 // 2026-06-11 v103: v7.438 Faction 모달 CSS 외부화.
 // 2026-06-16 v104: v7.464 ACE 모드 진입점 (ace-combat-modal.js/.css + 진입 버튼).
 // 2026-06-16 v105: ACE 엔진 구현 — ace-combat.html size_class 뷰 프로파일/fleet-presets/postMessage 훅.
-const CACHE_NAME = 'mars-v122';
+// 2026-06-29 v123: v7.465 first-session 핸즈온 — 첫 클레임 연출 + BASE 골든패스 글로우 + globe 첫클릭 가이드.
+const CACHE_NAME = 'mars-v123';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

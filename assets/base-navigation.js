@@ -343,7 +343,71 @@ function switchBaseTab(tab,el){
   if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} try{if(typeof kbSwitchTab==='function')kbSwitchTab('board');}catch(_e){} }
   if(tab==='fleet') { try{_loadFleetTabSummary();}catch(_e){} }
   try{ clearBaseTabDot(tab); }catch(_e){}
+  try{ applyGoldenPathGlow(); }catch(_e){}
 }
+
+// ── [first-session] BASE 골든패스 글로우/딤 ──────────────────
+// 온보딩 미완료 유저가 BASE를 열면 "지금 가야 할 탭"만 글로우+배지로 강조하고
+// 나머지 탭은 dim 처리한다. 온보딩 완료 시 전부 해제. 추가 CSS 클래스만 사용한다.
+// 단계→목표 탭 매핑: 0=첫 영토(territory), 1=채굴(mining), 2=캠페인 메인스토리(quests).
+var GOLDEN_PATH_TARGET_BY_STEP = { 0: 'territory', 1: 'mining', 2: 'quests' };
+window._goldenPathState = window._goldenPathState || { fetched: false, completed: null, step: 0, ts: 0 };
+function _goldenPathTargetTab(){
+  var st = window._goldenPathState || {};
+  var step = parseInt(st.step, 10); if(isNaN(step)) step = 0;
+  return GOLDEN_PATH_TARGET_BY_STEP[Math.max(0, Math.min(step, 2))] || 'territory';
+}
+function _clearGoldenPathDecor(){
+  document.querySelectorAll('.base-tab.gp-glow, .base-tab.gp-dim').forEach(function(t){
+    t.classList.remove('gp-glow'); t.classList.remove('gp-dim');
+  });
+}
+function _injectGoldenPathStyles(){
+  if(document.getElementById('goldenPathStyles')) return;
+  var css=''+
+    '.base-tab.gp-dim{opacity:.42;filter:grayscale(.35);transition:opacity .25s ease;}'+
+    '.base-tab.gp-glow{position:relative;animation:gpGlow 1.8s ease-in-out infinite;border-radius:6px;}'+
+    '.base-tab.gp-glow::after{content:"●";position:absolute;top:-2px;right:-2px;font-size:7px;color:#ffd54f;text-shadow:0 0 6px rgba(255,170,64,.9);}'+
+    '@keyframes gpGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,170,64,0);}50%{box-shadow:0 0 10px 1px rgba(255,170,64,.7);}}';
+  var st=document.createElement('style');
+  st.id='goldenPathStyles';
+  st.textContent=css;
+  document.head.appendChild(st);
+}
+// 현재 캐시된 온보딩 상태로 글로우/딤 적용. 완료/미확정이면 장식 제거(기본 off).
+function _renderGoldenPath(){
+  var st = window._goldenPathState || {};
+  // 미확정 또는 완료 → 어떤 강조도 하지 않는다.
+  if(!st.fetched || st.completed !== false){ _clearGoldenPathDecor(); return; }
+  _injectGoldenPathStyles();
+  var target = _goldenPathTargetTab();
+  var any=false;
+  document.querySelectorAll('.base-tabs .base-tab').forEach(function(t){
+    if(t.id==='baseTab'+target.charAt(0).toUpperCase()+target.slice(1)){
+      t.classList.add('gp-glow'); t.classList.remove('gp-dim'); any=true;
+    } else {
+      t.classList.add('gp-dim'); t.classList.remove('gp-glow');
+    }
+  });
+  if(!any) _clearGoldenPathDecor();
+}
+function applyGoldenPathGlow(){
+  // 캐시가 신선하면(60s) 바로 렌더, 아니면 1회 fetch 후 렌더. 로그인 전엔 아무것도 안 함.
+  try{ if(typeof isLoggedIn==='function' && !isLoggedIn()){ _clearGoldenPathDecor(); return; } }catch(_e){}
+  var st = window._goldenPathState;
+  var fresh = st.fetched && (Date.now() - st.ts < 60000);
+  if(fresh){ _renderGoldenPath(); return; }
+  var headers={};
+  try{ if(typeof getAuthHeaders==='function') headers=getAuthHeaders(); }catch(_e){}
+  fetch('/api/onboarding/status',{headers:headers}).then(function(res){
+    if(!res.ok) return null; return res.json();
+  }).then(function(status){
+    if(!status){ return; }
+    window._goldenPathState = { fetched: true, completed: !!status.completed, step: status.step || 0, ts: Date.now() };
+    _renderGoldenPath();
+  }).catch(function(){});
+}
+try{ window.applyGoldenPathGlow=applyGoldenPathGlow; }catch(_e){}
 
 // ── BASE tab "new info" blink dots ──────────────────
 // Each dot turns on when a tab has new info since user last opened it, and
