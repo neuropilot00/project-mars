@@ -6,6 +6,24 @@ const { cfg, getDepositBonusPercent } = require('../utils/settingsCache');
 
 const router = express.Router();
 
+// [v7.439] base_tab_min_levels 설정 정규화 — JSONB object/문자열 모두 허용, 실패 시 현행 기본값.
+const DEFAULT_TAB_MIN_LEVELS = { fleet: 3, transport: 4, pvp: 6, guild: 8, govern: 10 };
+function _parseTabLevels(raw) {
+  try {
+    let v = raw;
+    if (typeof v === 'string') v = JSON.parse(v);
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      const out = {};
+      for (const k of Object.keys(v)) {
+        const n = parseInt(v[k], 10);
+        if (Number.isFinite(n) && n > 0) out[k] = n;
+      }
+      if (Object.keys(out).length) return out;
+    }
+  } catch (_) { /* fall through to default */ }
+  return DEFAULT_TAB_MIN_LEVELS;
+}
+
 const readLimiter = makeRateLimiter({
   windowMs: 60 * 1000,
   max: 120,
@@ -103,6 +121,10 @@ router.get('/config', readLimiter, async (_req, res) => {
       })),
       governance: govData,
       telegram_group_url: settings.telegram_group_url || '',
+      // [v7.439 scope reduction] BASE 고급 탭 레벨 게이팅을 서버에서 튜닝 가능하게 노출(되돌림: enabled=false).
+      //   클라(base-navigation.js)는 이 값으로 BASE_TAB_MIN_LEVEL / LEVEL_GATING_ENABLED 를 덮어쓴다.
+      levelGatingEnabled: String(settings.level_gating_enabled ?? 'true').toLowerCase() !== 'false',
+      baseTabMinLevels: _parseTabLevels(settings.base_tab_min_levels),
     });
   } catch (err) {
     console.error('[API] config error:', err.message);

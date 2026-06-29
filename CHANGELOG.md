@@ -1,3 +1,25 @@
+## 2026-06-30 v7.439 — 스코프 축소: BASE 탭 게이팅 서버 튜닝화 (오너 결정 #2)
+
+레드팀 "정체성 방향" 결정 2/3. 신규 유저 퍼널 집중을 위한 고급 탭 점진 공개를 오너가 라이브 통제 가능하게.
+BASE 레벨 게이팅(fleet/transport/pvp/guild/govern)은 이미 존재했으나 base-navigation.js 에 하드코딩이라
+오너가 못 바꿨다. 이제 서버 설정으로 노출/튜닝/OFF 가능(기본값=현행이라 동작 불변, 되돌림 안전).
+
+[서버] /api/config 에 게이팅 노출 (server/routes/configRoutes.js, migration 334)
+- levelGatingEnabled(level_gating_enabled, 기본 true) + baseTabMinLevels(base_tab_min_levels, 기본 현행 맵) 추가.
+- _parseTabLevels()로 JSONB object/문자열 모두 정규화, 형식 오류 시 현행 기본값 폴백.
+- migration 334: level_gating_enabled(true) + base_tab_min_levels({"fleet":3,"transport":4,"pvp":6,"guild":8,"govern":10}) 시드.
+
+[클라] 서버 게이팅 적용 (assets/main-game.js)
+- /api/config 응답의 levelGatingEnabled→window.LEVEL_GATING_ENABLED, baseTabMinLevels→BASE_TAB_MIN_LEVEL(참조 유지 교체).
+- 적용 후 applyBaseTabLocks() 재호출. 값 부재/오류 시 base-navigation.js 하드코딩 기본값 유지(되돌림 안전).
+- 기존 락 UX(🔒Lv N 배지 + 잠금 토스트 + switchBaseTab 차단)는 그대로 재사용.
+
+오너 사용법: admin 에서 base_tab_min_levels 에 탭 키 추가(예: market:5)로 신규 노출 범위 좁히거나,
+level_gating_enabled=false 로 전 탭 즉시 개방. 신규는 핵심 루프(영토/채굴/함선/캠페인)부터, 경쟁 시스템은 레벨업으로 해금.
+
+검증(메인): node --check OK, migration 334 적용 확인, /api/config 새 키 반영 확인(levelGatingEnabled/baseTabMinLevels),
+게이트 로직 node 하니스 9케이스 전수 PASS(레벨별 락/코어 항상개방/lv0 fail-open/게이팅 OFF/오너 튜닝 확장). sw v126, ?v=7470.
+
 ## 2026-06-30 v7.438 — full-loss 마스터 모드 (시즌제/옵트인 — 오너 결정 #1)
 
 레드팀 "정체성 방향" 결정 1/3. 격침 함선 영구소멸(EVE full-loss)을 전역 제거하지 않고, 단일 마스터 설정으로

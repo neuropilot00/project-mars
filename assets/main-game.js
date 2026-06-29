@@ -1586,5 +1586,23 @@ function openTelegramGroup(){
     if(cfg&&cfg.telegram_group_url){
       _telegramGroupUrl=cfg.telegram_group_url;
     }
+    // [v7.439 scope reduction] 서버가 내려준 BASE 탭 레벨 게이팅을 적용(오너 라이브 튜닝).
+    //   값 부재/형식 오류 시 base-navigation.js 의 하드코딩 기본값 유지(되돌림 안전).
+    try {
+      if (cfg && typeof cfg.levelGatingEnabled === 'boolean') {
+        window.LEVEL_GATING_ENABLED = cfg.levelGatingEnabled;
+      }
+      if (cfg && cfg.baseTabMinLevels && typeof cfg.baseTabMinLevels === 'object'
+          && typeof BASE_TAB_MIN_LEVEL !== 'undefined') {
+        var src = cfg.baseTabMinLevels, clean = {};
+        Object.keys(src).forEach(function(k){ var n = parseInt(src[k], 10); if (n > 0) clean[k] = n; });
+        if (Object.keys(clean).length) {
+          // 전역 BASE_TAB_MIN_LEVEL 객체 내용을 교체(참조 유지).
+          Object.keys(BASE_TAB_MIN_LEVEL).forEach(function(k){ delete BASE_TAB_MIN_LEVEL[k]; });
+          Object.keys(clean).forEach(function(k){ BASE_TAB_MIN_LEVEL[k] = clean[k]; });
+        }
+      }
+      if (typeof applyBaseTabLocks === 'function') applyBaseTabLocks();
+    } catch (_e) { /* 게이팅 적용 실패 — 기본값 유지 */ }
   }).catch(function(){});
 })();
