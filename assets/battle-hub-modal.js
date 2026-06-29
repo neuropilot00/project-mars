@@ -1713,6 +1713,100 @@ function aiDifficultyProfile(f) {
   return { diff: diff, ships: ships, threat: threat, role: role, reward: reward };
 }
 
+// [v7.437 combat agency] 교전 직전 전술 브리프 — 적 편성 + 내 진형/기동/편성/매치업을 결정 순간에 가시화하고
+//   의식적으로 커밋하게 한다. 진형·기동은 이미 실제 서버 전투 배율에 반영됨(battleEngine v7.416).
+//   여기서는 "내 전술 선택이 결과를 바꾼다"를 교전 직전에 보여주는 것이 목적이다.
+var AI_BRIEF_FORMATION = {
+  sphere:   { i:'●', name: tl('Sphere','구형 집결','球形集結','球形集结'),  tip: tl('360° balanced defense','360° 균형 방어','360°均衡防御','360°均衡防御') },
+  wedge:    { i:'▶', name: tl('Wedge','쐐기','楔形','楔形'),                tip: tl('Breakthrough & flagship pressure↑, weak to snipe/bomb','돌파·기함 압박↑, 저격/폭격에 취약','突破・旗艦圧力↑、狙撃/爆撃に弱い','突破·旗舰压制↑，怕狙击/轰炸') },
+  screen:   { i:'⊟', name: tl('Screen','방어막','防御幕','防御幕'),          tip: tl('Capital protection↑, firepower↓','대형함 보호↑, 화력↓','大型艦保護↑、火力↓','大型舰保护↑，火力↓') },
+  pincer:   { i:'⊕', name: tl('Pincer','협공','挟撃','夹击'),               tip: tl('Envelop — strong vs unscattered foe','포위 — 산개 안 한 적에 강함','包囲 — 散開しない敵に強い','包围 — 对未散开之敌强') },
+  line:     { i:'▬', name: tl('Line','전열 횡대','戦列横隊','战列横队'),     tip: tl('Max frontal firepower','전방 화력 최대','前方火力 最大','前方火力最大') },
+  echelon:  { i:'◹', name: tl('Echelon','사다리꼴','梯形','梯形'),          tip: tl('Diagonal — side firing angles','대각 — 측면 사격각','斜め — 側面射角','斜列 — 侧面射角') },
+  vanguard: { i:'◻', name: tl('Vanguard','호위 방진','護衛方陣','护卫方阵'), tip: tl('Box escort — protects flagship','사각 호위 — 기함 보호','方形護衛 — 旗艦保護','方形护卫 — 保护旗舰') },
+};
+var AI_BRIEF_MOVEMENT = {
+  advance:     { i:'↑', name: tl('Advance','전진','前進','前进') },
+  retreat:     { i:'↓', name: tl('Retreat','후퇴','後退','后退') },
+  flank:       { i:'↔', name: tl('Flank','측면 기동','側面機動','侧翼机动') },
+  flank_left:  { i:'←', name: tl('Flank L','좌현 기동','左舷機動','左舷机动') },
+  flank_right: { i:'→', name: tl('Flank R','우현 기동','右舷機動','右舷机动') },
+  scatter:     { i:'✦', name: tl('Scatter','산개','散開','散开') },
+  rally:       { i:'◉', name: tl('Rally','재집결','再集結','再集结') },
+};
+function _aiFleetCompLine(f) {
+  var L = (LANG==='ko'); var seg=[];
+  function add(n, ko, en){ n=parseInt(n,10)||0; if(n>0) seg.push(n+(L?ko:en)); }
+  add(f.frigate_count,    '프','F');
+  add(f.destroyer_count,  '구','D');
+  add(f.cruiser_count,    '순','C');
+  add(f.battleship_count, '전','B');
+  add(f.titan_count,      '타','T');
+  add(f.assembled_count,  '합','A');
+  return seg.length ? seg.join('·') : (L?'편성 정보 없음':'no composition');
+}
+// 내 진형 + 적 위협을 기반으로 한 줄 교리 경고(없으면 빈 배열).
+function _aiBriefWarnings(myFleet, enemyProfile) {
+  var w = [];
+  var hasFlag = (parseInt(myFleet.flagship_count,10)||0) > 0;
+  if (!hasFlag) w.push(tl('No flagship → command bonus lost','기함 없음 → 지휘 보너스 상실','旗艦なし → 指揮ボーナス喪失','无旗舰 → 失去指挥加成'));
+  var small = (parseInt(myFleet.frigate_count,10)||0) + (parseInt(myFleet.destroyer_count,10)||0);
+  var big   = (parseInt(myFleet.battleship_count,10)||0) + (parseInt(myFleet.titan_count,10)||0);
+  var alive = parseInt(myFleet.ships_alive,10)||0;
+  var diff = enemyProfile ? enemyProfile.diff : 'normal';
+  if ((diff==='elite'||diff==='hard') && big===0 && alive>0)
+    w.push(tl('All-light vs heavy foe — bring capitals','경량 편중 + 강적 — 대형함 필요','軽量偏重+強敵 — 大型艦が必要','轻型偏重+强敌 — 需大型舰'));
+  if (myFleet.movement==='scatter')
+    w.push(tl('Scatter lowers your firepower','산개는 화력을 낮춘다','散開は火力を下げる','散开会降低火力'));
+  return w;
+}
+// 교전 직전 브리프. true=교전 진행, false=취소. 실패 시 throw → 호출부에서 fallthrough.
+async function aiPreBattleBrief(myFleet, enemyProfile, enemyName) {
+  var fm = AI_BRIEF_FORMATION[myFleet.formation] || { i:'·', name: myFleet.formation||'-', tip:'' };
+  var mv = AI_BRIEF_MOVEMENT[myFleet.movement]   || { i:'·', name: myFleet.movement||'-' };
+  var hasFlag = (parseInt(myFleet.flagship_count,10)||0) > 0;
+  var warns = _aiBriefWarnings(myFleet, enemyProfile);
+  var diffU = enemyProfile ? String(enemyProfile.diff||'normal').toUpperCase() : 'NORMAL';
+  var enemyShips = enemyProfile ? enemyProfile.ships : '?';
+  var enemyThreat = enemyProfile ? enemyProfile.threat : '?';
+  var lblEnemy = tl('Enemy','적 함대','敵艦隊','敌舰队');
+  var lblMine  = tl('Your fleet','내 함대','自艦隊','我方舰队');
+  var lblForm  = tl('Formation','진형','陣形','阵形');
+  var lblMove  = tl('Maneuver','기동','機動','机动');
+  var lblComp  = tl('Composition','편성','編成','编成');
+  var lblThreat= tl('Threat','위협','脅威','威胁');
+  var shipU = (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships');
+  var flagTxt = hasFlag ? '· '+tl('Flagship ✓','기함 ✓','旗艦 ✓','旗舰 ✓') : '· '+tl('No flagship','기함 ✕','旗艦 ✕','无旗舰');
+  var note = tl('Formation & maneuver affect the battle. Change them in Fleet Command.',
+                '진형·기동은 전투 결과 배율에 반영됩니다. 변경은 [함대 지휘]에서.',
+                '陣形・機動は戦闘結果に反映されます。変更は[艦隊指揮]で。',
+                '阵形·机动会影响战斗结果。可在[舰队指挥]中更改。');
+  var warnHtml = warns.length
+    ? '<div style="margin-top:8px;padding:7px 9px;border-radius:7px;background:rgba(255,120,60,.12);border:1px solid rgba(255,120,60,.35);font-size:12px;line-height:1.5">⚠ '
+        + warns.map(function(x){ return escapeHtml(x); }).join('<br>⚠ ') + '</div>'
+    : '';
+  var body =
+    '<div style="text-align:left;font-size:13px;line-height:1.55">'
+    + '<div style="color:#ff8a6a;font-weight:700">'+escapeHtml(lblEnemy)+': '+escapeHtml(enemyName||'AI')+'</div>'
+    + '<div style="opacity:.85">'+enemyShips+shipU+' · '+escapeHtml(lblThreat)+' '+enemyThreat+' · '+escapeHtml(diffU)+'</div>'
+    + '<div style="height:1px;background:rgba(255,255,255,.12);margin:9px 0"></div>'
+    + '<div style="color:#7fe0ff;font-weight:700">'+escapeHtml(lblMine)+': '+escapeHtml(myFleet.name||'-')+'</div>'
+    + '<div style="opacity:.85">'+(parseInt(myFleet.ships_alive,10)||0)+shipU+' '+escapeHtml(flagTxt)+'</div>'
+    + '<div style="margin-top:5px">'+fm.i+' '+escapeHtml(lblForm)+': <b>'+escapeHtml(fm.name)+'</b>'
+        + (fm.tip ? ' <span style="opacity:.7">— '+escapeHtml(fm.tip)+'</span>' : '') + '</div>'
+    + '<div>'+mv.i+' '+escapeHtml(lblMove)+': <b>'+escapeHtml(mv.name)+'</b></div>'
+    + '<div style="opacity:.8">'+escapeHtml(lblComp)+': '+escapeHtml(_aiFleetCompLine(myFleet))+'</div>'
+    + warnHtml
+    + '<div style="margin-top:9px;font-size:11.5px;opacity:.65">💡 '+escapeHtml(note)+'</div>'
+    + '</div>';
+  return await gameConfirm({
+    icon: '⚔',
+    title: tl('Tactical brief','전술 브리핑','戦術ブリーフィング','战术简报'),
+    body: body,
+    confirmText: tl('ENGAGE','교전 시작','交戦開始','开始交战')
+  });
+}
+
 async function loadAiFleets() {
   const grid = document.getElementById('aiFightGrid');
   grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
@@ -1786,6 +1880,15 @@ async function challengeAi(aiFleetId, aiName) {
     if (!fleetId) return;
     const chosenFleet = myFleets.find(f => String(f.id) === fleetId);
     if (!chosenFleet) { showFactionToast(LANG==='ko'?'잘못된 선택':LANG==='ja'?'無効な選択':LANG==='zh'?'无效选择':'Invalid selection','error'); return; }
+
+    // [v7.437 combat agency] 교전 직전 전술 브리프 — 매치업/내 진형·기동을 보고 의식적으로 커밋.
+    //   실패해도 교전을 막지 않도록 try/catch fallthrough(브리프 미표시 시 기존처럼 바로 교전).
+    try {
+      const aiF = (window._aiFightFleets || []).find(x => String(x.fleet_id) === String(aiFleetId));
+      const ep = aiF ? aiDifficultyProfile(aiF) : null;
+      const proceed = await aiPreBattleBrief(chosenFleet, ep, aiName);
+      if (proceed === false) return; // 유저가 백아웃 — 교전 취소
+    } catch (_brief) { /* 브리프 실패 시 기존 흐름대로 교전 진행 */ }
 
     const res2 = await fetch('/api/ai/fight', {
       method: 'POST',
