@@ -1618,5 +1618,9 @@ function openTelegramGroup(){
         document.body.classList.toggle('casual-mode', !!cfg.casualMode);
       }
     } catch (_e2) { /* 캐주얼 모드 적용 실패 — 현행 유지 */ }
+    // [v7.441] full-loss opt-in 토글 노출 — full_loss_mode=optin 일 때만(자가 게이팅).
+    try {
+      if (cfg && typeof _applyFullLossOptinUI === 'function') _applyFullLossOptinUI(cfg.fullLossMode);
+    } catch (_e3) { /* optin UI 적용 실패 — 행 숨김 유지 */ }
   }).catch(function(){});
 })();

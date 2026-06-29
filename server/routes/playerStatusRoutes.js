@@ -98,6 +98,37 @@ router.post('/onboarding/dismiss', requireAuth, async (req, res) => {
   return res.json({ success: true });
 });
 
+// [v7.441] full-loss opt-in 토글 — full_loss_mode=optin 일 때 PvP 영구손실에 동의한 유저만 영구파괴 대상.
+//   battleEngine 은 users.full_loss_optin 을 읽어 양측 동의 시에만 영구파괴(333/v7.438).
+router.get('/me/full-loss-optin', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+  try {
+    const { getSetting } = require('../db');
+    const mode = String(await getSetting('full_loss_mode', 'always')).toLowerCase();
+    const { rows } = await pool.query(
+      'SELECT COALESCE(full_loss_optin, false) AS optin FROM users WHERE LOWER(wallet_address) = LOWER($1)', [wallet]
+    );
+    return res.json({ optin: !!(rows[0] && rows[0].optin), mode });
+  } catch (e) {
+    return res.json({ optin: false, mode: 'always' });
+  }
+});
+
+router.post('/me/full-loss-optin', requireAuth, async (req, res) => {
+  const wallet = getAuthWallet(req);
+  if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+  const enabled = !!(req.body && (req.body.enabled === true || req.body.enabled === 'true'));
+  try {
+    await pool.query(
+      'UPDATE users SET full_loss_optin = $2 WHERE LOWER(wallet_address) = LOWER($1)', [wallet, enabled]
+    );
+    return res.json({ success: true, optin: enabled });
+  } catch (e) {
+    return res.status(500).json({ error: 'UPDATE_FAILED' });
+  }
+});
+
 router.get('/activity/feed', async (req, res) => {
   const sinceParam = req.query.since ? String(req.query.since) : '';
   const sinceDate = sinceParam ? new Date(sinceParam) : null;

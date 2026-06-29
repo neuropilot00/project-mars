@@ -987,3 +987,28 @@ async function loadDynastyTree(){
     el.innerHTML=html;
   }catch(e){el.innerHTML='<div style="font-size:8px;color:var(--red);text-align:center;padding:8px">'+(msgs.failed[lang]||msgs.failed.en)+'</div>'}
 }
+
+// [v7.441] full-loss opt-in 토글 — full_loss_mode=optin 일 때만 노출(자가 게이팅).
+//   양측 동의 PvP 에서만 격침 함선 영구 소멸(battleEngine v7.438). 기본 always 모드면 행 숨김.
+function _applyFullLossOptinUI(mode){
+  try{
+    var row=document.getElementById('fullLossOptinRow');
+    if(!row) return;
+    if(String(mode||'always').toLowerCase()!=='optin'){ row.style.display='none'; return; }
+    row.style.display='';
+    var hdrs=(typeof getAuthHeaders==='function')?getAuthHeaders():{};
+    fetch('/api/me/full-loss-optin',{headers:hdrs}).then(function(r){return r.json()}).then(function(d){
+      var chk=document.getElementById('fullLossOptinChk'); if(chk) chk.checked=!!(d&&d.optin);
+    }).catch(function(){});
+  }catch(_e){}
+}
+function toggleFullLossOptin(enabled){
+  try{
+    var hdrs=Object.assign({'Content-Type':'application/json'},(typeof getAuthHeaders==='function')?getAuthHeaders():{});
+    fetch('/api/me/full-loss-optin',{method:'POST',headers:hdrs,body:JSON.stringify({enabled:!!enabled})})
+      .then(function(r){return r.json()}).then(function(d){
+        if(d&&d.success){ if(typeof showToast==='function') showToast(enabled?(typeof tl==='function'?tl('Full-loss opt-in ON','영구손실 동의 ON','フルロス同意 ON','永久损失同意 ON'):'ON'):(typeof tl==='function'?tl('Full-loss opt-in OFF','영구손실 동의 OFF','フルロス同意 OFF','永久损失同意 OFF'):'OFF')); }
+        else { if(typeof showToast==='function') showToast((typeof tl==='function'?tl('Update failed','변경 실패','変更失敗','变更失败'):'fail'),'error'); var chk=document.getElementById('fullLossOptinChk'); if(chk) chk.checked=!enabled; }
+      }).catch(function(){ if(typeof showToast==='function') showToast((typeof tl==='function'?tl('Network error','네트워크 오류','ネットワークエラー','网络错误'):'err'),'error'); var chk=document.getElementById('fullLossOptinChk'); if(chk) chk.checked=!enabled; });
+  }catch(_e){}
+}

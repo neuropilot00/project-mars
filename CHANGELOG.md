@@ -1,3 +1,31 @@
+## 2026-06-30 v7.441 — full-loss opt-in 플레이어 토글 (optin 모드 사용 가능화)
+
+v7.438 의 full_loss_mode=optin 을 유저가 실제로 쓸 수 있게 마감. optin 모드는 양측이 동의한 PvP 에서만
+영구파괴되는데, 동의를 켜는 플레이어 UI 가 없어 dormant 였다. 이제 끝.
+
+[서버] opt-in 조회/설정 엔드포인트 (server/routes/playerStatusRoutes.js, configRoutes.js)
+- GET/POST /api/me/full-loss-optin (requireAuth) — users.full_loss_optin 조회/토글. battleEngine 이 이 값으로 양측 동의 판정(v7.438).
+- 경로는 /me/* 사용 — /api/user/:wallet 와이드 라우트의 shadowing 회피(GET 이 :wallet 로 잡히던 충돌 수정).
+- /api/config 에 fullLossMode 추가 — 클라가 optin 일 때만 토글 노출하도록.
+
+[클라] 자가 게이팅 토글 (index.html, account-profile.js, main-game.js, i18n.js)
+- walletSection 에 fullLossOptinRow(기본 숨김). _applyFullLossOptinUI(mode)가 fullLossMode==='optin' 일 때만 표시 + 현재값 로드.
+- toggleFullLossOptin() 이 POST 로 동의 갱신, showToast 피드백, 실패 시 체크박스 롤백. §18/§19 준수(정적 onchange).
+- full_loss_optin_label i18n 키 4개국어(EN/KO/JA/ZH) 추가. always/off/seasonal 모드에선 행이 보이지 않음(자가 게이팅).
+
+검증(메인): node --check 전수 OK(서버/클라/i18n), git diff --check 클린. 서버 클린 부팅, /api/config fullLossMode 노출 확인.
+엔드포인트 마운트 검증 — GET/POST /api/me/full-loss-optin 둘 다 인증 없이 401(shadowing 해소 전엔 GET 200 이던 것 수정). sw v128, ?v=7472.
+
+=== 이번 세션 요약: 재미 로드맵 + 정체성 3결정 전부 완료 ===
+- v7.435 캠페인 행동게이트 / 주간챌린지 / 신규 combat grace / 첫세션 핸즈온
+- v7.436 서지 배율 실제 채굴 반영 / 주간챌린지·서지·전투결과 UI / 골든패스 수정
+- v7.437 전투 능동성(교전 직전 전술 브리프)
+- v7.438 full-loss 마스터 모드(always/off/seasonal/optin) [오너 결정 #1]
+- v7.439 스코프 축소(BASE 탭 게이팅 서버 튜닝화) [오너 결정 #2]
+- v7.440 Web3 분리(캐주얼 모드) [오너 결정 #3]
+- v7.441 full-loss opt-in 플레이어 토글(optin 사용 가능화)
+전부 기본값=현행이라 동작 불변, admin 설정으로 켜는 reversible 구조. 재미·리텐션 효과는 실유저 측정 몫.
+
 ## 2026-06-30 v7.440 — Web3 분리: 캐주얼 모드 (오너 결정 #3)
 
 레드팀 "정체성 방향" 결정 3/3 — 마지막. 모바일 캐주얼 유저의 크립토 진입장벽 제거. 계정은 이미 signup 시
