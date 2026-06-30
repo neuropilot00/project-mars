@@ -139,7 +139,7 @@ function _cpSetActiveTitle(tagId){
     .then(function(r){return r.json();})
     .then(function(d){
       if (!d || d.error) { showToast(d&&d.error || tl('Failed','실패','失敗','失败'), 'error'); return; }
-      showToast(tagId?tl('Title equipped','칭호 장착됨','称号装着','称号已装备'):tl('Title removed','칭호 해제됨','称号解除','称号已卸下'),'success');
+      showToast(tagId?tl('Title equipped','칭호 장착됨','称号を装着しました','称号已装备'):tl('Title removed','칭호 해제됨','称号を解除しました','称号已卸下'),'success');
       var w = (walletState && walletState.address) || ''; if (w) _cpLoadTitles(w);
     })
     .catch(function(){ showToast(tl('Failed','실패','失敗','失败'),'error'); });

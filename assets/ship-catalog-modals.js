@@ -99,7 +99,7 @@
       const size = (ship.size_class || '').toUpperCase();
       const role = (ship.role || 'dps').toLowerCase();
       const lockBadge = ship.can_build ? '' : '<div class="reg-lock">🔒 ' + (ship.locks || []).join(' · ') + '</div>';
-      const capBadge = isCap ? '<span class="reg-cap">👑 ' + tl('CAPITAL', '캐피털', 'キャピタル', '主力舰') + '</span>' : '';
+      const capBadge = isCap ? '<span class="reg-cap">👑 ' + tl('CAPITAL', '캐피털', '主力艦', '主力舰') + '</span>' : '';
       const serverCount = ship.max_per_server ? ' · ' + (ship.server_alive_count || 0) + '/' + ship.max_per_server : '';
       return `
         <div class="reg-card ${faction}">

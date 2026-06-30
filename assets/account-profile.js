@@ -979,7 +979,7 @@ async function loadDynastyTree(){
       direct.forEach(function(r){
         html+='<div style="display:flex;align-items:center;gap:6px;padding:6px;border-bottom:1px solid var(--bdr);font-size:10px;min-height:34px">'+
           '<span style="flex:1;min-width:0;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
-          (r.subCount>0?'<span style="color:var(--tx3);font-size:9px;flex-shrink:0">+'+r.subCount+tl(' sub','명 하위',' サブ',' 下线')+'</span>':'')+
+          (r.subCount>0?'<span style="color:var(--tx3);font-size:9px;flex-shrink:0">+'+r.subCount+tl(' sub','명 하위',' 人ダウンライン',' 下线')+'</span>':'')+
           '<span style="color:var(--pp);min-width:64px;text-align:right;flex-shrink:0">'+r.earnedFrom.toFixed(2)+' PP</span>'+
           '</div>';
       });

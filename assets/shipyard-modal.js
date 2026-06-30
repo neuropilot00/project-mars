@@ -1121,7 +1121,7 @@ function showCrateReveal(d, code, priceGp){
     +   (enhanced?'<div style="font-size:10px;color:'+qm.col+';font-weight:800;margin-top:5px">⚡ '+tl('ENHANCED SHIP — bonus stats rolled!','강화된 함선 — 추가 능력치 획득!','強化艦 — ボーナス能力獲得！','强化舰 — 获得额外属性！')+'</div>':'')
     +   (crossFaction?'<div style="margin-top:9px;padding:9px 12px;border-radius:9px;background:rgba(136,170,204,.12);border:1px solid rgba(136,170,204,.55);text-align:left">'
     +     '<div style="font-size:10px;font-weight:900;color:#aac4dc;letter-spacing:.8px">🔒 '+tl('OTHER FACTION SHIP','다른 진영 함선','他陣営の艦船','其他阵营舰船')+' ('+(s.faction||'').toUpperCase()+')</div>'
-    +     '<div style="font-size:9px;color:rgba(204,220,236,.78);margin-top:3px;line-height:1.4">'+tl('You cannot deploy this ship. List it on the ship market — others in this faction can buy it.','이 함선은 직접 사용할 수 없습니다. 마켓에 등록하면 해당 진영 유저가 구매 가능합니다 — 거래로 가치 실현.','このフレットには配置できません。マーケットに出品すれば該当陣営のユーザーが購入可能です。','无法直接部署。在市场上架后,该阵营玩家可购买 — 通过交易实现价值。')+'</div>'
+    +     '<div style="font-size:9px;color:rgba(204,220,236,.78);margin-top:3px;line-height:1.4">'+tl('You cannot deploy this ship. List it on the ship market — others in this faction can buy it.','이 함선은 직접 사용할 수 없습니다. 마켓에 등록하면 해당 진영 유저가 구매 가능합니다 — 거래로 가치 실현.','この艦船は配置できません。マーケットに出品すれば該当陣営のユーザーが購入可能です。','无法直接部署。在市场上架后,该阵营玩家可购买 — 通过交易实现价值。')+'</div>'
     +   '</div>':'')
     +   '<div style="margin-top:13px;display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:left">'
     +     _statRow('⚔', tl('ATK','공격','攻撃','攻击'),   st.atk,   bonus.atk)

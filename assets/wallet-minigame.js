@@ -110,14 +110,14 @@ function updateDailyHint(){
   var btn = document.getElementById('dailyHintBtn'); */
   // 폴백 기본값 (캠페인/미션 로드 실패 시)
   // [v7.185] 폴백 아이콘 🎲 → 📅 (달력) — 가챠보다 "오늘의 추천 행동" 정체성에 맞게.
-  _setDailyHint('📅', tl("TODAY'S OPS","오늘의 추천","今日のオプス",'今日推荐'), tl('Open a Ship Crate','상자 개봉하기','艦船ボックスを開ける','开启舰船宝箱'), tl('Free Recruit daily','매일 무료 상자','毎日無料','每日免费'), 'openGacha');
+  _setDailyHint('📅', tl("TODAY'S OPS","오늘의 추천","今日の作戦",'今日推荐'), tl('Open a Ship Crate','상자 개봉하기','艦船ボックスを開ける','开启舰船宝箱'), tl('Free Recruit daily','매일 무료 상자','毎日無料','每日免费'), 'openGacha');
   // 1) 미완료 일일 미션 — dailyOps 또는 daily missions 사용
   try {
     walletReadJson('daily-ops', '/api/daily-ops/'+encodeURIComponent(walletState.address), 30000).then(function(d){
       if (!d) return;
       var pending = (d.missions||[]).find(function(m){ return m && !m.completed && !m.claimed; });
       if (pending) {
-        _setDailyHint('🎯', tl("TODAY'S OPS","오늘의 작전","今日のオプス",'今日作战'), pending.title || pending.id, (pending.progress!=null && pending.target ? (pending.progress+'/'+pending.target) : tl('In progress','진행 중','進行中','进行中')), 'openBaseQuests');
+        _setDailyHint('🎯', tl("TODAY'S OPS","오늘의 작전","今日の作戦",'今日作战'), pending.title || pending.id, (pending.progress!=null && pending.target ? (pending.progress+'/'+pending.target) : tl('In progress','진행 중','進行中','进行中')), 'openBaseQuests');
         return;
       }
       // 2) 진행중 캠페인 fallback

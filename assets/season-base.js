@@ -192,7 +192,7 @@ function renderSeasonPass(data){
   if(!xpLabel) return;
 
   xpLabel.textContent=data.xp+' XP';
-  tierLabel.textContent=tl('Tier','티어','ティア','阶级')+' '+data.currentTier+(data.isPremium?' ⭐':'');
+  tierLabel.textContent=tl('Tier','티어','ティア','等级')+' '+data.currentTier+(data.isPremium?' ⭐':'');
   premBtn.style.display=data.isPremium?'none':'';
 
   // Find next tier XP requirement
@@ -231,7 +231,7 @@ function renderSeasonPass(data){
     var bdr=unlocked?(freeClaimed?'rgba(76,216,154,.3)':'rgba(255,209,102,.3)'):'rgba(255,255,255,.06)';
 
     html+='<div style="min-width:60px;padding:6px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';text-align:center;flex-shrink:0">'+
-      '<div style="font-size:7px;color:var(--tx3)">'+tl('Tier','티어','ティア','阶级')+' '+tierNum+'</div>'+
+      '<div style="font-size:7px;color:var(--tx3)">'+tl('Tier','티어','ティア','等级')+' '+tierNum+'</div>'+
       // Free track
       '<div style="margin:3px 0">';
     if(freeClaimed){
@@ -264,7 +264,7 @@ function claimPassTier(tier,isPremium){
     body:JSON.stringify({wallet:walletState.address,tier:tier,isPremium:isPremium})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); return; }
-    showAlert('🎁 '+tl('Tier','티어','ティア','阶级')+' '+tier+' '+tl('reward claimed','보상 수령','報酬受取','奖励领取')+': '+d.label,'success');
+    showAlert('🎁 '+tl('Tier','티어','ティア','等级')+' '+tier+' '+tl('reward claimed','보상 수령','報酬受取','奖励领取')+': '+d.label,'success');
     loadSeasonPass();
   }).catch(function(e){ showAlert(e.message); });
 }

@@ -798,8 +798,8 @@ async function viewWarScoreboard(warId){
     var d = await resp.json();
     if(d.error){ showToast(srvErr(d.error),'error'); return; }
     var gs = d.guildScores||{};
-    var atkName = gs.attacker?gs.attacker.name:tl('Attacker','공격','攻撃','攻击');
-    var defName = gs.defender?gs.defender.name:tl('Defender','방어','防御','防御');
+    var atkName = gs.attacker?gs.attacker.name:tl('Attacker','공격 길드','攻撃側','攻方');
+    var defName = gs.defender?gs.defender.name:tl('Defender','방어 길드','防御側','守方');
     var atkPts  = gs.attacker?gs.attacker.total:0;
     var defPts  = gs.defender?gs.defender.total:0;
     var topHtml = '';

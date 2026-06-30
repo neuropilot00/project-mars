@@ -169,9 +169,9 @@ function transportLaneAllianceStatus(originSector, destSector) {
     return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🛡 ' + tl('Alliance lane','동맹 항로','同盟航路','联盟航线') + ' · ' + transportAllianceLabel(destSector) + '</span>';
   }
   if (da) {
-    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🏛 ' + tl('Destination governed by','도착지 통치','目的地統治','目的地由其治理') + ' ' + transportAllianceLabel(destSector) + '</span>';
+    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🏛 ' + tl('Destination governed by','도착지 통치','目的地統治','目的地统治方') + ' ' + transportAllianceLabel(destSector) + '</span>';
   }
-  return '<span style="color:var(--tx3);font-size:8px">' + tl('Origin governed by','출발지 통치','出発地統治','出发地由其治理') + ' ' + transportAllianceLabel(originSector) + '</span>';
+  return '<span style="color:var(--tx3);font-size:8px">' + tl('Origin governed by','출발지 통치','出発地統治','出发地统治方') + ' ' + transportAllianceLabel(originSector) + '</span>';
 }
 
 function getTransportSectorById(id) {
@@ -1113,7 +1113,7 @@ function loadSellView(){
       +'</div>';
 
     // [v7.177 Phase 2] 함선 SELL 섹션 — 마켓에서 직접 함선 등록(이전엔 조선소 only)
-    html+='<div style="font-size:10px;color:#5cbbff;font-weight:800;letter-spacing:.5px;margin:14px 0 6px">🚀 '+tl('MY SHIPS','내 함선','所有艦船','我的舰船')+'</div>';
+    html+='<div style="font-size:10px;color:#5cbbff;font-weight:800;letter-spacing:.5px;margin:14px 0 6px">🚀 '+tl('MY SHIPS','내 함선','保有艦船','我的舰船')+'</div>';
     html+='<div id="mktSellShipsPane" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:10px 0;font-size:10px">'+tl('Loading ships...','함선 로딩 중...','艦船読み込み中...','加载舰船中...')+'</div></div>';
 
     el.innerHTML=html;

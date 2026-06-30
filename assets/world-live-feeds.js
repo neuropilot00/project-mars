@@ -577,9 +577,9 @@
     if (!wallet) return '';
     var roles = _govWalletRoles[wallet.toLowerCase()] || _govWalletRoles[wallet] || [];
     if (!roles.length) return '';
-    if (roles.indexOf('commander') >= 0) return '<span class="title-badge commander" title="'+tl('Commander','맹주','司令官','指挥官')+'">👑 '+tl('CMDR','맹주','総督','统帅')+'</span>';
-    if (roles.indexOf('governor') >= 0) return '<span class="title-badge governor" title="'+tl('Governor','거버너','総督','总督')+'">🏛 '+tl('GOV','거버너','知事','总督')+'</span>';
-    if (roles.indexOf('vice_commander') >= 0) return '<span class="title-badge vice" title="'+tl('Vice Commander','부맹주','副総督','副统帅')+'">⭐ '+tl('VICE','부맹주','副総督','副统帅')+'</span>';
+    if (roles.indexOf('commander') >= 0) return '<span class="title-badge commander" title="'+tl('Commander','맹주','司令官','统帅')+'">👑 '+tl('CMDR','맹주','司令官','统帅')+'</span>';
+    if (roles.indexOf('governor') >= 0) return '<span class="title-badge governor" title="'+tl('Governor','거버너','知事','总督')+'">🏛 '+tl('GOV','거버너','知事','总督')+'</span>';
+    if (roles.indexOf('vice_commander') >= 0) return '<span class="title-badge vice" title="'+tl('Vice Commander','부맹주','副司令官','副统帅')+'">⭐ '+tl('VICE','부맹주','副司令官','副统帅')+'</span>';
     return '';
   }
 
@@ -621,7 +621,7 @@
           var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
           return '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin-bottom:3px;background:rgba(255,209,102,.04);border-left:2px solid '+(isCmd?'var(--red)':'var(--gold)')+';border-radius:4px;font-size:9px">'
             +'<span style="width:22px;color:var(--gold);font-weight:700">'+medal+'</span>'
-            +(isCmd?'<span title="'+tl('Commander','맹주','司令官','指挥官')+'">👑</span>':'')
+            +(isCmd?'<span title="'+tl('Commander','맹주','司令官','统帅')+'">👑</span>':'')
             +'<span style="flex:1;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</span>'
             +'<span style="color:var(--gold);font-family:var(--fn)">'+taxStr+' GP</span>'
             +'</div>';
@@ -645,7 +645,7 @@
       var text;
       var name = c.nickname || (c.wallet ? c.wallet.slice(0,6)+'...'+c.wallet.slice(-4) : '???');
       if (c.type === 'commander') {
-        text = '⭐ ' + tl('NEW COMMANDER: ','신규 맹주: ','新総督: ','新统帅: ') + name + tl(' commands all of Mars!',' 님이 화성 전역을 지휘합니다!',' が火星全土を指揮します！',' 统领整个火星！');
+        text = '⭐ ' + tl('NEW COMMANDER: ','신규 맹주: ','新司令官: ','新统帅: ') + name + tl(' commands all of Mars!',' 님이 화성 전역을 지휘합니다!',' が火星全土を指揮します！',' 统领整个火星！');
       } else if (c.type === 'governor') {
         text = '👑 ' + tl('NEW GOVERNOR: ','신규 거버너: ','新知事: ','新总督: ') + name + tl(' rules ',' 님이 ',' が',' 统治 ') + (c.sectorName || tl('sector','섹터','セクター','区域')) + tl('!',' 섹터를 통치합니다!','を統治します！','！');
       }
@@ -1138,7 +1138,7 @@
       var aOdds = odds.option_a.odds ? odds.option_a.odds.toFixed(2)+'×' : '—';
       var bOdds = odds.option_b.odds ? odds.option_b.odds.toFixed(2)+'×' : '—';
       var aLabel = (odds.option_a.label || tl('Challenger','도전자','挑戦者','挑战者')).slice(0,22);
-      var bLabel = (odds.option_b.label || tl('Governor','거버너','総督','总督')).slice(0,22);
+      var bLabel = (odds.option_b.label || tl('Governor','거버너','知事','总督')).slice(0,22);
 
       // Pool bar
       var aFrac = total > 0 ? Math.round(aGP/total*100) : 50;
@@ -1200,7 +1200,7 @@
     var info = document.getElementById('betOptSel_'+code);
     if (aBtn) aBtn.style.opacity = opt === 'a' ? '1' : '0.4';
     if (bBtn) bBtn.style.opacity = opt === 'b' ? '1' : '0.4';
-    if (info) info.textContent = tl('Betting on: ','베팅 대상: ','ベット対象: ','投注于: ') + (opt === 'a' ? '⚔️ '+tl('Challenger','도전자','挑戦者','挑战者') : '🛡 '+tl('Governor','거버너','総督','总督'));
+    if (info) info.textContent = tl('Betting on: ','베팅 대상: ','ベット対象: ','投注于: ') + (opt === 'a' ? '⚔️ '+tl('Challenger','도전자','挑戦者','挑战者') : '🛡 '+tl('Governor','거버너','知事','总督'));
   };
 
   // ── Place bet ──
@@ -1231,7 +1231,7 @@
         showToast('⚠️ '+msg);
         return;
       }
-      showToast('🎰 '+tl('Bet placed! ','베팅 완료! ','ベット完了！ ','投注成功！ ')+amt+tl(' GP on ',' GP · ',' GP · ',' GP · ')+(opt==='a'?tl('Challenger','도전자','挑戦者','挑战者'):tl('Governor','거버너','総督','总督')));
+      showToast('🎰 '+tl('Bet placed! ','베팅 완료! ','ベット完了！ ','投注成功！ ')+amt+tl(' GP on ',' GP · ',' GP · ',' GP · ')+(opt==='a'?tl('Challenger','도전자','挑戦者','挑战者'):tl('Governor','거버너','知事','总督')));
       delete window._siegeBetOptions[code];
       loadSiegeInfoPanel(code);
     }).catch(function(){ showToast(tl('Failed to place bet','베팅 실패','ベット失敗','投注失败')); });
@@ -1950,7 +1950,7 @@
       // [Phase 3] 화성 맹주(Commander) — sov 지배 1위 길드
       if(d.commander){
         h += '<div style="text-align:center;padding:10px;margin-bottom:10px;border-radius:10px;background:linear-gradient(135deg,rgba(255,209,102,.18),rgba(255,109,0,.06));border:1px solid rgba(255,209,102,.5)">'
-          + '<div style="font-size:9px;color:#ffb74d;letter-spacing:2px;font-weight:700">👑 '+tl("MARS COMMANDER","화성 맹주","火星総督","火星统帅")+'</div>'
+          + '<div style="font-size:9px;color:#ffb74d;letter-spacing:2px;font-weight:700">👑 '+tl("MARS COMMANDER","화성 맹주","火星司令官","火星统帅")+'</div>'
           + '<div style="font-size:13px;color:var(--gold);font-weight:900;margin-top:3px">'+(d.commander.emblem||"🔴")+' ['+escapeHtml(d.commander.tag||"")+'] '+escapeHtml(d.commander.name||"")+'</div>'
           + '<div style="font-size:9px;color:var(--tx3);margin-top:2px">'+d.commander.sectors+' '+tl("sectors","섹터","セクター","区域")+' · core '+d.commander.core+'</div></div>';
       }
@@ -2074,10 +2074,10 @@
       if(cmdInfo && cmdInfo.commander){
         var chtml = '<div style="display:flex;flex-direction:column;gap:4px">';
         var cmdName = cmdInfo.commanderNickname || shortAddr(cmdInfo.commander);
-        chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">'+tl('COMMANDER','맹주','総督','统帅')+'</span><span style="font-size:10px;color:var(--gold);font-family:var(--fn)" title="'+(cmdInfo.commander||'')+'">'+cmdName+'</span></div>';
+        chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">'+tl('COMMANDER','맹주','司令官','统帅')+'</span><span style="font-size:10px;color:var(--gold);font-family:var(--fn)" title="'+(cmdInfo.commander||'')+'">'+cmdName+'</span></div>';
         if(cmdInfo.vice){
           var viceName = cmdInfo.viceNickname || shortAddr(cmdInfo.vice);
-          chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">'+tl('VICE','부맹주','副総督','副统帅')+'</span><span style="font-size:10px;color:var(--tx2);font-family:var(--fn)" title="'+(cmdInfo.vice||'')+'">'+viceName+'</span></div>';
+          chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">'+tl('VICE','부맹주','副司令官','副统帅')+'</span><span style="font-size:10px;color:var(--tx2);font-family:var(--fn)" title="'+(cmdInfo.vice||'')+'">'+viceName+'</span></div>';
         }
         if(cmdInfo.commanderGP!=null) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">'+tl('GP BALANCE','GP 잔액','GP残高','GP余额')+'</span><span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">'+parseFloat(cmdInfo.commanderGP).toFixed(0)+'</span></div>';
         if(cmdInfo.poolGP!=null) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">'+tl('POOL','풀','プール','奖池')+'</span><span style="font-size:10px;color:var(--gn);font-family:var(--fn)">'+parseFloat(cmdInfo.poolGP).toFixed(0)+' GP</span></div>';
@@ -2085,7 +2085,7 @@
         chtml += '</div>';
         cmdEl.innerHTML = chtml;
       } else {
-        cmdEl.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:8px 0">'+tl('No Commander elected yet.','아직 맹주가 선출되지 않았습니다.','まだ総督が選出されていません。','尚未选出统帅。')+'</div>';
+        cmdEl.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:8px 0">'+tl('No Commander elected yet.','아직 맹주가 선출되지 않았습니다.','まだ司令官が選出されていません。','尚未选出统帅。')+'</div>';
       }
 
       // ── ACTIVE EVENTS ──
@@ -2178,7 +2178,7 @@
       body: tl('Activate <b style="color:var(--mars)">','<b style="color:var(--mars)">','<b style="color:var(--mars)">','激活 <b style="color:var(--mars)">')+label+tl('</b> for the entire planet?<br>Duration: <b>','</b> 이벤트를 행성 전역에 발동하시겠습니까?<br>지속 시간: <b>','</b> を惑星全体に発動しますか？<br>持続時間: <b>','</b>（覆盖整个行星）？<br>持续时间: <b>')+hours+tl('h</b> · Daily limit: <b>1/day</b>','시간</b> · 일일 한도: <b>1/일</b>','時間</b> · 1日制限: <b>1/日</b>','小时</b> · 每日限制: <b>1/天</b>'),
       info: [
         { k:tl('COST','비용','コスト','费用'), v: cost+' GP' },
-        { k:tl('COMMANDER GP','맹주 GP','総督GP','统帅GP'), v: cmdGP.toFixed(0), insufficient: insufficient, ok: !insufficient },
+        { k:tl('COMMANDER GP','맹주 GP','司令官GP','统帅GP'), v: cmdGP.toFixed(0), insufficient: insufficient, ok: !insufficient },
         { k:tl('AFTER','이후','後','之后'), v: (cmdGP - cost).toFixed(0)+' GP', insufficient: insufficient }
       ],
       confirmText: insufficient ? tl('INSUFFICIENT GP','GP 부족','GP不足','GP不足') : tl('LAUNCH EVENT','이벤트 발동','イベント発動','发动活动'),
@@ -2206,7 +2206,7 @@
       icon:'🚀',
       body:tl('Schedule a rocket supply drop across Mars? Players will receive rewards at the landing zone.','화성 전역에 로켓 보급 투하를 예약하시겠습니까? 플레이어는 착륙 지점에서 보상을 받습니다.','火星全土にロケット補給投下を予約しますか？プレイヤーは着地地点で報酬を受け取ります。','在火星全境安排火箭补给投放？玩家将在着陆区获得奖励。'),
       info:[
-        { k:tl('COMMANDER GP','맹주 GP','総督GP','统帅GP'), v: cmdGP.toFixed(0), ok:true }
+        { k:tl('COMMANDER GP','맹주 GP','司令官GP','统帅GP'), v: cmdGP.toFixed(0), ok:true }
       ],
       confirmText:tl('LAUNCH ROCKET','로켓 발사','ロケット発射','发射火箭')
     }).then(function(ok){

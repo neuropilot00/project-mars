@@ -351,7 +351,7 @@ function renderLotteryPanel(round) {
     + '<button onclick="quickBuyTickets(1)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+1</button>'
     + '<button onclick="quickBuyTickets(5)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+5</button>'
     + '<button onclick="quickBuyTickets(10)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+10</button>'
-    + '<div style="text-align:center;font-size:8px;color:var(--tx3);padding:0 4px">' + tl('My','내 티켓','マイ','我的') + '<br><span style="font-size:11px;color:var(--gold);font-weight:700">' + userTickets + '</span></div>'
+    + '<div style="text-align:center;font-size:8px;color:var(--tx3);padding:0 4px">' + tl('My','내 티켓','マイ枚数','我的') + '<br><span style="font-size:11px;color:var(--gold);font-weight:700">' + userTickets + '</span></div>'
     + '</div></div>';
 
   // Recent winners
@@ -829,7 +829,7 @@ async function instantHarvest(){
     var resp=await fetch('/api/harvest-instant',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
     var d=await resp.json();
     if(!resp.ok){showToast(d.error||tl('Failed','실패했습니다','失敗しました','失败了'),'error');return}
-    showToast(tl('Cooldown skipped! Harvest now.','쿨다운을 건너뛰었습니다! 지금 수확하세요.','クールダウンをスキップしました！今すぐ採掘できます。','已跳过冷却！现在即可收获。'),'success');
+    showToast(tl('Cooldown skipped! Harvest now.','쿨다운을 건너뛰었습니다! 지금 수확하세요.','クールダウンをスキップしました！今すぐ収穫できます。','已跳过冷却！现在即可收获。'),'success');
     btn.style.display='none';
     document.getElementById('baseMineTimer').textContent=tl('Harvest available now!','지금 수확 가능!','今すぐ収穫できます！','现在可以收获！');
     if(window._mineTimerInterval) _clearActiveInterval(window._mineTimerInterval);

@@ -1914,7 +1914,7 @@ async function openTerritoryIdentityEdit() {
   var nickname = await gameInput({
     title: t('territory_identity_title'),
     label: t('territory_nickname'),
-    placeholder: tl('eg. Red Dust Base','예: 붉은 모래 기지','例: レッドダスト基地','例：红尘基地'),
+    placeholder: tl('eg. Red Dust Base','예: 붉은 모래 기지','例: レッドダスト基地','例：红沙基地'),
     defaultValue: current.nickname || '',
     maxLength: 40
   });

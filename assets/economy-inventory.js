@@ -469,7 +469,7 @@ function _showClaimPicker(claimList,itemCode,title){
       var shieldInfo=anyShield?' <span style="color:#50C8FF;font-size:10px">🛡️</span>':'';
       var nicks=grp.map(function(c){return c.nickname;}).filter(function(x){return !!x;});
       var lbl=nicks[0]||rep.label||tl('Territory','영토','領地','领地');
-      var sub=grp.length>1?(grp.length+' '+tl('merged','병합','統合','合并')):tl('1 claim','1개 클레임','1クレーム','1块领地');
+      var sub=grp.length>1?(grp.length+' '+tl('merged','병합','統合','合并')):tl('1 claim','1개 클레임','1区画','1块领地');
       inner+='<button data-claim-id="'+rep.id+'" class="_cp-btn" '
         +'style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx1);cursor:pointer;width:100%;text-align:left;font-size:13px">'
         +'<span><strong>'+lbl+'</strong> <span style="color:var(--tx3);font-size:10px">· '+sub+'</span></span>'

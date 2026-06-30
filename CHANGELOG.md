@@ -1,3 +1,25 @@
+## 2026-07-01 v7.445 — 로컬라이징 잔여 마감 (법적 본문 + JA/ZH 폴리시)
+
+"잔여도 다해야지" — v7.442~444 스윕 이후 남은 항목 정리. 두 작업 병렬(파일 겹침 없음) 후 메인 전수 검증.
+
+[법적/안내 본문 다국어화] index.html + assets/i18n.js (전담 에이전트)
+- 이용약관(ToS)·개인정보처리방침(Privacy, 쿠키 §6 포함)·카지노 디스클레이머·쿠키 배너 본문을 data-i18n + 4개국어.
+- 신규 키 4개(tos_body/privacy_body/cantina_disclaimer_body/cookie_banner_text), 각 4중(EN/KO/JA/ZH). i18n.js +16줄.
+- 본문 3종은 값에 HTML(<h3>/<p>/<ul>/<li>/<strong>/<br>) 포함 → applyI18n innerHTML 경로로 구조 보존(컨테이너에 기능 자식 없음 확인). 쿠키 배너는 평문 span → textContent.
+- 충실 번역(조항 가감 없음). EN/KO 가 법적 기준 원문, JA/ZH 는 가독성용. SEA(id/vi/th)는 EN 폴백.
+
+[JA/ZH 정밀 폴리시] 24개 asset js (워크플로 36에이전트, 12파일 수정)
+- inline tl(en,ko,ja,zh) 의 ja/zh 인자에서 **명백한 오류만** 최소 수정: 영문 누수, 오역, 깨진 문법, 파일 내 용어 불일치.
+- 멀쩡한 번역은 그대로(폴리시지 재작성 아님). 핵심 용어 글로서리(Commander/Governor/Fleet/Guild/Sector/Territory/Shipyard/Hijack/Siege) 일관화 권장.
+
+[검증 — 메인]
+- 폴리시: HEAD 대비 **en(원문) 인자 변경 0파일**, 영문 누수 잔존 0(3+글자 기준), 12파일 node --check PASS.
+- 법적: node --check i18n.js PASS, 4키 4중 존재, 본문 clobber 점검(값에 '<' → innerHTML, 컨테이너 기능자식 0) PASS.
+- 전체: 변경 14 js + index.html node/인라인 PASS, git diff --check 클린. sw mars-v132, 모든 ?v=7476.
+
+[로컬라이징 잔여 종결] 동적 렌더(v7.443 ~1,354건) + index.html 정적 라벨(v7.444 ~104) + 법적 본문(v7.445) + JA/ZH 폴리시(v7.445).
+⚠️ 남은 미세사항: JA/ZH 톤은 LLM 번역이라 일부 더 다듬을 여지 있음(신고 시 개별 보정). commander 용어(맹주/사령관) 코드베이스 전반 표준화는 오너 결정 사안으로 별도.
+
 ## 2026-06-30 v7.444 — index.html 정적 마크업 로컬라이징 (data-i18n + i18n.js)
 
 JS 동적 스윕(v7.443)에 이어 index.html 정적 마크업의 하드코딩 영문 라벨을 마감("다 잡아내" 완결).
