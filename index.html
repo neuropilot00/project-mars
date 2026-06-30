@@ -17,27 +17,27 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/manifest.json">
 <title>OCCUPY MARS — Claim Your Territory</title>
-<script src="/assets/app-config.js?v=7474"></script>
+<script src="/assets/app-config.js?v=7475"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
-<link href="/assets/tactical-lab-modal.css?v=7474" rel="stylesheet">
-<link href="/assets/ace-combat-modal.css?v=7474" rel="stylesheet">
-<link href="/assets/bug-reporter.css?v=7474" rel="stylesheet">
-<link href="/assets/ship-catalog-modals.css?v=7474" rel="stylesheet">
-<link href="/assets/shipyard-modal.css?v=7474" rel="stylesheet">
-<link href="/assets/fleet-command-modal.css?v=7474" rel="stylesheet">
-<link href="/assets/battle-hub-modal.css?v=7474" rel="stylesheet">
-<link href="/assets/war-betting-modal.css?v=7474" rel="stylesheet">
-<link href="/assets/utility-overlays.css?v=7474" rel="stylesheet">
-<link href="/assets/faction-modal.css?v=7474" rel="stylesheet">
-<link href="/assets/codex-guide.css?v=7474" rel="stylesheet">
-<link href="/assets/main.css?v=7474" rel="stylesheet">
-<script src="/assets/game-dialogs.js?v=7474"></script>
+<link href="/assets/tactical-lab-modal.css?v=7475" rel="stylesheet">
+<link href="/assets/ace-combat-modal.css?v=7475" rel="stylesheet">
+<link href="/assets/bug-reporter.css?v=7475" rel="stylesheet">
+<link href="/assets/ship-catalog-modals.css?v=7475" rel="stylesheet">
+<link href="/assets/shipyard-modal.css?v=7475" rel="stylesheet">
+<link href="/assets/fleet-command-modal.css?v=7475" rel="stylesheet">
+<link href="/assets/battle-hub-modal.css?v=7475" rel="stylesheet">
+<link href="/assets/war-betting-modal.css?v=7475" rel="stylesheet">
+<link href="/assets/utility-overlays.css?v=7475" rel="stylesheet">
+<link href="/assets/faction-modal.css?v=7475" rel="stylesheet">
+<link href="/assets/codex-guide.css?v=7475" rel="stylesheet">
+<link href="/assets/main.css?v=7475" rel="stylesheet">
+<script src="/assets/game-dialogs.js?v=7475"></script>
 <script src="/assets/lib/globe.gl.min.js"></script>
-<script src="/public/js/minigame-invaders.js?v=7474"></script>
-<script src="/public/js/minigame-runner.js?v=7474"></script>
-<script src="/public/js/minigame-digger.js?v=7474"></script>
-<script src="/assets/minigame-icons.js?v=7474"></script>
+<script src="/public/js/minigame-invaders.js?v=7475"></script>
+<script src="/public/js/minigame-runner.js?v=7475"></script>
+<script src="/public/js/minigame-digger.js?v=7475"></script>
+<script src="/assets/minigame-icons.js?v=7475"></script>
 
 </head>
 <body>
@@ -57,7 +57,7 @@
   <div id="loadQuote" style="position:relative;font-family:var(--fn);font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
   <div id="loadMsg" style="position:relative;font-family:var(--fn);font-size:11px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
 </div>
-<script src="/assets/loading-background.js?v=7474"></script>
+<script src="/assets/loading-background.js?v=7475"></script>
 
 <!-- Globe Container -->
 <div id="globe-wrap"></div>
@@ -282,17 +282,17 @@
         Share your code & earn PP<br>from live referral commission activity!
       </div>
       <div style="background:rgba(255,120,60,.06);border:1px solid var(--bdr);border-radius:6px;padding:8px;margin-bottom:8px">
-        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">MY REFERRAL CODE</div>
+        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="ref_my_code">MY REFERRAL CODE</div>
         <div style="display:flex;align-items:center;gap:4px">
           <span style="font-size:var(--fs-lg);color:var(--gold);letter-spacing:2px;flex:1" id="myRefCode">--</span>
-          <button class="sz-btn" data-action="copyRefCode" style="font-size:8px;padding:3px 8px">COPY</button>
+          <button class="sz-btn" data-action="copyRefCode" style="font-size:8px;padding:3px 8px" data-i18n="copy">COPY</button>
         </div>
       </div>
       <div id="enterRefWrap">
-        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">ENTER REFERRAL CODE</div>
+        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="ref_enter_code">ENTER REFERRAL CODE</div>
         <div style="display:flex;gap:4px">
-          <input type="text" class="ui" id="refCodeInput" placeholder="CODE..." style="flex:1;text-transform:uppercase;letter-spacing:1px">
-          <button class="sz-btn" data-action="registerReferral" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
+          <input type="text" class="ui" id="refCodeInput" placeholder="CODE..." data-i18n-placeholder="ref_code_ph" style="flex:1;text-transform:uppercase;letter-spacing:1px">
+          <button class="sz-btn" data-action="registerReferral" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)" data-i18n="apply">APPLY</button>
         </div>
         <div id="refStatus" style="font-size:8px;margin-top:3px;min-height:12px"></div>
       </div>
@@ -300,7 +300,7 @@
         Referred by: <span id="referredByAddr" style="color:var(--cyan)">--</span>
       </div>
       <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
-      <div class="stat-row"><span class="stat-label">REFERRALS</span><span class="stat-val" id="refCount">0</span></div>
+      <div class="stat-row"><span class="stat-label" data-i18n="referrals">REFERRALS</span><span class="stat-val" id="refCount">0</span></div>
       <div class="stat-row"><span class="stat-label" data-i18n="total_earned">TOTAL EARNED</span><span class="stat-val" style="color:var(--pp)" id="refEarned">0 PP</span></div>
       <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.6">
         <span data-i18n="ref_tiers">Tier 1: 15% · Tier 2: 10% · Tier 3: 5%</span><br>
@@ -438,19 +438,19 @@
     <button class="uf" id="infoBannerBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(239,154,154,.12),rgba(239,154,154,.06));border-color:rgba(239,154,154,.3);color:#ef9a9a" onclick="openBannerModal()" data-i18n="banner_btn">🚩 PLANT BANNER</button>
     <!-- Production summary (own territory only) -->
     <div id="infoProdRow" style="display:none;margin:8px 0 4px;padding:8px;background:rgba(255,171,64,.05);border:1px solid rgba(255,171,64,.15);border-radius:8px">
-      <div style="font-size:8px;color:#ffab40;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px">⚙ PRODUCTION</div>
+      <div style="font-size:8px;color:#ffab40;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px" data-i18n="prod_section">⚙ PRODUCTION</div>
       <div id="infoProdBody" style="font-size:9px;color:var(--tx2);line-height:1.6"></div>
     </div>
     <!-- Territory Upgrade panel (own territory only, P5-4) -->
     <div id="infoUpgradeRow" style="display:none;margin:8px 0 4px">
-      <div style="font-size:8px;color:#bb86fc;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px">🔧 UPGRADES</div>
+      <div style="font-size:8px;color:#bb86fc;font-family:var(--fn);font-weight:700;margin-bottom:6px;letter-spacing:1px" data-i18n="upgrades_section">🔧 UPGRADES</div>
       <div id="infoUpgradeBody"></div>
     </div>
     <!-- Territory Identity panel (own territory only, P6) -->
     <div id="infoIdentityRow" style="display:none;margin:10px 0 6px;border-radius:8px;background:rgba(225,190,231,.04);border:1px solid rgba(225,190,231,.12);padding:10px 12px;overflow:hidden">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div id="infoIdentityName" style="font-size:13px;color:#e1bee7;font-family:var(--fn);font-weight:700">🏔️ —</div>
-        <button id="infoIdentityEditBtn" type="button" onclick="openTerritoryIdentityEdit()" style="font-size:8px;background:rgba(225,190,231,.08);border:1px solid rgba(225,190,231,.2);color:#e1bee7;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:var(--fn)">✏ Edit</button>
+        <button id="infoIdentityEditBtn" type="button" onclick="openTerritoryIdentityEdit()" style="font-size:8px;background:rgba(225,190,231,.08);border:1px solid rgba(225,190,231,.2);color:#e1bee7;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:var(--fn)" data-i18n="edit_label">✏ Edit</button>
       </div>
       <div id="infoIdentityMeta" style="font-size:9px;color:var(--tx3);margin-bottom:8px;line-height:1.7"></div>
       <div id="infoIdentityBody" style="font-size:10px;color:var(--tx2);line-height:1.8"></div>
@@ -528,8 +528,8 @@
   <!-- BASE (Dashboard) -->
   <div class="p-section">
     <div class="p-title"><span data-i18n="my_base">MY BASE</span> <span class="help-tip" onclick="event.stopPropagation();showHelpTip('base')">?</span></div>
-    <button class="action-btn" id="openBaseBtn" data-action="openBaseModal" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35);position:relative" data-i18n="open_base">
-      OPEN BASE
+    <button class="action-btn" id="openBaseBtn" data-action="openBaseModal" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35);position:relative">
+      <span data-i18n="open_base">OPEN BASE</span>
       <span id="dailyHudDot" class="tab-dot" style="top:4px;right:4px;width:8px;height:8px"></span>
     </button>
     <button class="action-btn" onclick="openGacha()" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;background:linear-gradient(135deg,rgba(184,140,255,.2),rgba(255,122,69,.08));border-color:rgba(184,140,255,.5);color:#caa8ff;font-weight:800;letter-spacing:.5px" data-i18n="open_gacha">🎲 SHIP CRATES</button>
@@ -575,8 +575,8 @@
 
 <button class="campaign-quick" id="campaignQuickBtn" onclick="openCampaignHub()" title="Open campaign" aria-label="Open campaign hub">
   <span class="campaign-quick-icon">⚡</span>
-  <span>CAMPAIGN</span>
-  <span class="campaign-quick-sub">STORY</span>
+  <span data-i18n="campaign_quick">CAMPAIGN</span>
+  <span class="campaign-quick-sub" data-i18n="campaign_quick_sub">STORY</span>
 </button>
 
 <div class="mode-badge" id="modeBadge" data-i18n="mode_claim">🔴 CLICK MARS TO SELECT TERRITORY</div>
@@ -607,7 +607,7 @@
       </div>
       <!-- 함대 선택 (하이젝 전용) -->
       <div id="hijackFleetSelector" style="display:none;margin-top:8px;border-top:1px solid rgba(232,72,85,.25);padding-top:8px">
-        <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:5px;letter-spacing:.4px">⚔ SELECT YOUR FLEET</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:5px;letter-spacing:.4px" data-i18n="select_your_fleet">⚔ SELECT YOUR FLEET</div>
         <select id="hijackClaimFleetSelect" style="width:100%;padding:5px 8px;background:rgba(0,0,0,.4);border:1px solid rgba(232,72,85,.4);border-radius:5px;color:#fff;font-family:var(--fn);font-size:11px;cursor:pointer"></select>
         <div id="hijackFleetInfo" style="font-size:9px;color:rgba(255,255,255,.45);margin-top:3px"></div>
       </div>
@@ -702,8 +702,8 @@
 
         <!-- Action buttons -->
         <div style="display:flex;gap:8px">
-          <button class="uf" style="flex:1;font-size:10px" onclick="document.getElementById('editorFileInput').click()">CHANGE IMAGE</button>
-          <button class="uf" style="flex:1;font-size:10px;background:var(--mars);color:#fff;border-color:var(--mars)" onclick="saveEditorImage()">SAVE IMAGE</button>
+          <button class="uf" style="flex:1;font-size:10px" onclick="document.getElementById('editorFileInput').click()" data-i18n="change_image_btn">CHANGE IMAGE</button>
+          <button class="uf" style="flex:1;font-size:10px;background:var(--mars);color:#fff;border-color:var(--mars)" onclick="saveEditorImage()" data-i18n="save_image_btn">SAVE IMAGE</button>
         </div>
       </div>
 
@@ -717,19 +717,19 @@
 <div class="mbg" id="depositModal">
   <div class="mdl" style="width:420px">
     <div class="mhd">
-      <span class="mtl">DEPOSIT USDT</span>
+      <span class="mtl" data-i18n="deposit_usdt">DEPOSIT USDT</span>
       <button class="mx" onclick="closeDepositModal()">×</button>
     </div>
     <div class="mbd">
-      <div class="mf"><div class="mfl">CURRENT BALANCE</div><div class="mfv gn" id="depCurBal">0.00 USDT</div></div>
+      <div class="mf"><div class="mfl" data-i18n="current_balance">CURRENT BALANCE</div><div class="mfv gn" id="depCurBal">0.00 USDT</div></div>
       <!-- [v7.167] 첫 입금 보너스 강조 배너 — 조건 충족 시 노출(openDepositModal 에서 fetch) -->
       <div id="depFirstBonusBanner" style="display:none;margin:8px 0;padding:11px 13px;border-radius:9px;background:linear-gradient(135deg,rgba(255,209,102,.18),rgba(184,140,255,.08));border:1px solid rgba(255,209,102,.6);box-shadow:0 0 14px rgba(255,209,102,.25)">
-        <div style="font-size:11px;font-weight:900;color:#ffd166;letter-spacing:.5px">🎁 <span id="depFirstBonusTitle">FIRST DEPOSIT BONUS</span></div>
+        <div style="font-size:11px;font-weight:900;color:#ffd166;letter-spacing:.5px">🎁 <span id="depFirstBonusTitle" data-i18n="first_deposit_bonus">FIRST DEPOSIT BONUS</span></div>
         <div style="font-size:10px;color:rgba(255,255,255,.85);margin-top:3px;line-height:1.45" id="depFirstBonusBody">--</div>
       </div>
       <div class="mdv"></div>
       <div class="mf">
-        <div class="mfl">SELECT CHAIN</div>
+        <div class="mfl" data-i18n="select_chain">SELECT CHAIN</div>
         <div class="cr">
           <button class="cb base sel" id="depChainBase" onclick="selectDepChain('base')"><span class="ci">●</span><span class="cn">BASE</span></button>
           <button class="cb bnb" id="depChainBnb" onclick="selectDepChain('bnb')"><span class="ci">●</span><span class="cn">BNB</span></button>
@@ -737,9 +737,9 @@
         </div>
       </div>
       <div class="mf">
-        <div class="mfl">DEPOSIT ADDRESS</div>
+        <div class="mfl" data-i18n="deposit_address">DEPOSIT ADDRESS</div>
         <div style="background:rgba(0,0,0,.3);border:1px solid var(--bdr);border-radius:6px;padding:10px;word-break:break-all;font-family:var(--fn);font-size:11px;color:var(--cyan);cursor:pointer;user-select:all;margin-top:4px" id="depAddrDisplay" data-action="copyDepositAddr">--</div>
-        <button class="cfm" data-action="copyDepositAddr" style="margin-top:8px;font-size:var(--fs-xs)">📋 COPY ADDRESS</button>
+        <button class="cfm" data-action="copyDepositAddr" style="margin-top:8px;font-size:var(--fs-xs)" data-i18n="copy_address">📋 COPY ADDRESS</button>
       </div>
       <div class="dw-info">
         Send <b>USDT</b> on the selected chain to this address.<br>
@@ -756,24 +756,24 @@
 <div class="mbg" id="withdrawModal">
   <div class="mdl" style="width:400px">
     <div class="mhd">
-      <span class="mtl">WITHDRAW USDT</span>
+      <span class="mtl" data-i18n="withdraw_usdt">WITHDRAW USDT</span>
       <button class="mx" onclick="closeWithdrawModal()">×</button>
     </div>
     <div class="mbd">
-      <div class="mf"><div class="mfl">AVAILABLE USDT</div><div class="mfv gn" id="wdrAvail">0.00 USDT</div></div>
+      <div class="mf"><div class="mfl" data-i18n="available_usdt">AVAILABLE USDT</div><div class="mfv gn" id="wdrAvail">0.00 USDT</div></div>
       <div class="mdv"></div>
       <div class="mf">
-        <div class="mfl">WITHDRAW AMOUNT</div>
+        <div class="mfl" data-i18n="withdraw_amount">WITHDRAW AMOUNT</div>
         <div class="dw-amount-wrap">
           <input type="number" class="dw-amount" id="wdrAmount" placeholder="0.00" min="0" step="0.01">
-          <button class="dw-max" onclick="setWdrMax()">MAX</button>
+          <button class="dw-max" onclick="setWdrMax()" data-i18n="max_btn">MAX</button>
         </div>
       </div>
       <div class="dw-info">
         Withdraw USDT from game balance to your wallet.<br>
         Server signs the withdrawal for on-chain execution.
       </div>
-      <button class="cfm" id="wdrConfirmBtn" onclick="confirmWithdraw()">REQUEST WITHDRAWAL</button>
+      <button class="cfm" id="wdrConfirmBtn" onclick="confirmWithdraw()" data-i18n="request_withdrawal">REQUEST WITHDRAWAL</button>
       <div class="mn">Server verifies → Signs → You execute on-chain</div>
     </div>
   </div>
@@ -814,17 +814,17 @@
 <div class="mbg" id="swapModal" style="z-index:600">
   <div class="mdl" style="width:400px">
     <div class="mhd">
-      <span class="mtl" style="color:var(--pp)">SWAP PP → USDT</span>
+      <span class="mtl" style="color:var(--pp)" data-i18n="swap_pp_usdt_title">SWAP PP → USDT</span>
       <button class="mx" onclick="closeSwapModal()">×</button>
     </div>
     <div class="mbd">
-      <div class="mf"><div class="mfl">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="swpPPBal">0.00 PP</div></div>
+      <div class="mf"><div class="mfl" data-i18n="pp_balance">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="swpPPBal">0.00 PP</div></div>
       <div class="mdv"></div>
       <div class="mf">
-        <div class="mfl">SWAP AMOUNT (PP)</div>
+        <div class="mfl" data-i18n="swap_amount_pp">SWAP AMOUNT (PP)</div>
         <div class="dw-amount-wrap">
           <input type="number" class="dw-amount" id="swpAmount" placeholder="0.00" min="0" step="0.01" oninput="updateSwapPreview()">
-          <button class="dw-max" onclick="setSwpMax()">MAX</button>
+          <button class="dw-max" onclick="setSwpMax()" data-i18n="max_btn">MAX</button>
         </div>
       </div>
       <div class="dw-info">
@@ -840,28 +840,28 @@
 <div class="mbg" id="exchangeModal" style="z-index:600">
   <div class="mdl" style="width:400px">
     <div class="mhd">
-      <span class="mtl" style="color:var(--pp)">EXCHANGE PP → GP</span>
+      <span class="mtl" style="color:var(--pp)" data-i18n="exchange_pp_gp_title">EXCHANGE PP → GP</span>
       <button class="mx" onclick="closeExchangeModal()">×</button>
     </div>
     <div class="mbd">
-      <div class="mf"><div class="mfl">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="exchPPBal">0.00 PP</div></div>
-      <div class="mf"><div class="mfl">GP BALANCE</div><div class="mfv" style="color:var(--gn)" id="exchGPBal">0 GP</div></div>
+      <div class="mf"><div class="mfl" data-i18n="pp_balance">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="exchPPBal">0.00 PP</div></div>
+      <div class="mf"><div class="mfl" data-i18n="gp_balance">GP BALANCE</div><div class="mfv" style="color:var(--gn)" id="exchGPBal">0 GP</div></div>
       <div class="mdv"></div>
       <div style="text-align:center;font-size:10px;color:var(--tx3);font-family:var(--fn);margin:4px 0">
         Rate: <span id="exchRate" style="color:var(--gn)">1 PP = 10 GP</span> · Fee: <span id="exchFee" style="color:var(--red)">5%</span>
       </div>
       <div class="mf">
-        <div class="mfl">EXCHANGE AMOUNT (PP)</div>
+        <div class="mfl" data-i18n="exchange_amount_pp">EXCHANGE AMOUNT (PP)</div>
         <div class="dw-amount-wrap">
           <input type="number" class="dw-amount" id="exchAmount" placeholder="0.00" min="0" step="0.01" oninput="updateExchangePreview()">
-          <button class="dw-max" onclick="setExchMax()">MAX</button>
+          <button class="dw-max" onclick="setExchMax()" data-i18n="max_btn">MAX</button>
         </div>
       </div>
       <div class="dw-info">
         <span>You receive:</span> <span id="exchReceive" style="color:var(--gn);font-weight:700">0 GP</span>
         <br><span style="font-size:8px;color:var(--tx3)">Daily limit: <span id="exchDailyLeft">50</span> PP remaining</span>
       </div>
-      <button class="cfm" onclick="confirmExchange()" style="background:linear-gradient(135deg,var(--pp),#ff6600)">CONFIRM EXCHANGE</button>
+      <button class="cfm" onclick="confirmExchange()" style="background:linear-gradient(135deg,var(--pp),#ff6600)" data-i18n="confirm_exchange">CONFIRM EXCHANGE</button>
     </div>
   </div>
 </div>
@@ -881,29 +881,29 @@
         <button onclick="launchMinigame('invaders')" class="mg-sel-btn" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;cursor:pointer;font-family:var(--fn);transition:all .2s" onmouseenter="this.style.background='rgba(255,136,0,.1)';this.style.borderColor='rgba(255,136,0,.3)';this.style.transform='translateX(4px)'" onmouseleave="this.style.background='rgba(255,255,255,.03)';this.style.borderColor='rgba(255,255,255,.06)';this.style.transform=''">
           <div id="mgShipIcon" style="width:42px;height:42px;border-radius:10px;background:rgba(255,100,0,.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🚀</div>
           <div style="text-align:left;flex:1">
-            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px">Invaders</div>
-            <div style="font-size:9px;color:#555;margin-top:2px">Shoot & Survive</div>
+            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px" data-i18n="mg_invaders">Invaders</div>
+            <div style="font-size:9px;color:#555;margin-top:2px" data-i18n="mg_invaders_sub">Shoot & Survive</div>
           </div>
           <div style="color:rgba(255,136,0,.3);font-size:18px;font-weight:300">›</div>
         </button>
         <button onclick="launchMinigame('runner')" class="mg-sel-btn" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;cursor:pointer;font-family:var(--fn);transition:all .2s" onmouseenter="this.style.background='rgba(255,136,0,.1)';this.style.borderColor='rgba(255,136,0,.3)';this.style.transform='translateX(4px)'" onmouseleave="this.style.background='rgba(255,255,255,.03)';this.style.borderColor='rgba(255,255,255,.06)';this.style.transform=''">
           <div id="mgRunnerIcon" style="width:42px;height:42px;border-radius:10px;background:rgba(255,180,0,.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">👨‍🚀</div>
           <div style="text-align:left;flex:1">
-            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px">Runner</div>
-            <div style="font-size:9px;color:#555;margin-top:2px">Run & Dodge</div>
+            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px" data-i18n="mg_runner">Runner</div>
+            <div style="font-size:9px;color:#555;margin-top:2px" data-i18n="mg_runner_sub">Run & Dodge</div>
           </div>
           <div style="color:rgba(255,136,0,.3);font-size:18px;font-weight:300">›</div>
         </button>
         <button onclick="launchMinigame('digger')" class="mg-sel-btn" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;cursor:pointer;font-family:var(--fn);transition:all .2s" onmouseenter="this.style.background='rgba(255,136,0,.1)';this.style.borderColor='rgba(255,136,0,.3)';this.style.transform='translateX(4px)'" onmouseleave="this.style.background='rgba(255,255,255,.03)';this.style.borderColor='rgba(255,255,255,.06)';this.style.transform=''">
           <div id="mgDiggerIcon" style="width:42px;height:42px;border-radius:10px;background:rgba(200,130,60,.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛏️</div>
           <div style="text-align:left;flex:1">
-            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px">Digger</div>
-            <div style="font-size:9px;color:#555;margin-top:2px">Dig & Collect</div>
+            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:.5px" data-i18n="mg_digger">Digger</div>
+            <div style="font-size:9px;color:#555;margin-top:2px" data-i18n="mg_digger_sub">Dig & Collect</div>
           </div>
           <div style="color:rgba(255,136,0,.3);font-size:18px;font-weight:300">›</div>
         </button>
       </div>
-      <button onclick="closeMinigameOverlay()" style="display:block;width:100%;margin-top:14px;padding:8px;background:none;border:1px solid rgba(255,255,255,.06);border-radius:8px;color:#444;font-size:11px;cursor:pointer;font-family:var(--fn);transition:all .2s" onmouseenter="this.style.color='#888';this.style.borderColor='rgba(255,255,255,.12)'" onmouseleave="this.style.color='#444';this.style.borderColor='rgba(255,255,255,.06)'">CLOSE</button>
+      <button onclick="closeMinigameOverlay()" style="display:block;width:100%;margin-top:14px;padding:8px;background:none;border:1px solid rgba(255,255,255,.06);border-radius:8px;color:#444;font-size:11px;cursor:pointer;font-family:var(--fn);transition:all .2s" onmouseenter="this.style.color='#888';this.style.borderColor='rgba(255,255,255,.12)'" onmouseleave="this.style.color='#444';this.style.borderColor='rgba(255,255,255,.06)'" data-i18n="close_btn">CLOSE</button>
     </div>
     <!-- Game canvas (shown during gameplay) -->
     <div id="mgCanvasWrap" style="display:none;position:relative;max-width:100vw;max-height:100vh">
@@ -911,12 +911,12 @@
       <!-- Continue overlay -->
       <div id="mgContinueOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(8,4,12,.92);flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-family:var(--fn);backdrop-filter:blur(8px)">
         <div style="font-size:11px;font-weight:700;color:rgba(255,136,0,.5);letter-spacing:4px;margin-bottom:4px">MARS ARCADE</div>
-        <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:12px">GAME OVER</div>
+        <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:12px" data-i18n="game_over">GAME OVER</div>
         <div id="mgFinalScore" style="font-size:28px;font-weight:900;color:#FF8800;margin-bottom:6px"></div>
         <div id="mgContinueCost" style="font-size:10px;color:#555;margin-bottom:24px;text-align:center;padding:0 20px"></div>
         <div style="display:flex;flex-direction:column;gap:10px;width:220px">
-          <button id="mgContinueBtn" onclick="payAndContinue()" style="padding:14px 0;border-radius:12px;background:linear-gradient(135deg,#FF8800,#FF6600);border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);min-height:44px;letter-spacing:1px;transition:all .2s;box-shadow:0 4px 20px rgba(255,136,0,.3)" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(255,136,0,.4)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(255,136,0,.3)'">CONTINUE</button>
-          <button onclick="submitMinigameScore()" style="padding:14px 0;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);min-height:44px;letter-spacing:1px;transition:all .2s" onmouseenter="this.style.background='rgba(255,255,255,.1)';this.style.color='#fff'" onmouseleave="this.style.background='rgba(255,255,255,.06)';this.style.color='#aaa'">Submit Score</button>
+          <button id="mgContinueBtn" onclick="payAndContinue()" style="padding:14px 0;border-radius:12px;background:linear-gradient(135deg,#FF8800,#FF6600);border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);min-height:44px;letter-spacing:1px;transition:all .2s;box-shadow:0 4px 20px rgba(255,136,0,.3)" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(255,136,0,.4)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(255,136,0,.3)'" data-i18n="mg_continue">CONTINUE</button>
+          <button onclick="submitMinigameScore()" style="padding:14px 0;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);min-height:44px;letter-spacing:1px;transition:all .2s" onmouseenter="this.style.background='rgba(255,255,255,.1)';this.style.color='#fff'" onmouseleave="this.style.background='rgba(255,255,255,.06)';this.style.color='#aaa'" data-i18n="mg_submit_score">Submit Score</button>
         </div>
       </div>
       <button onclick="backToGameSelect()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;z-index:10">✕</button>
@@ -3236,7 +3236,7 @@
     <button class="mob-stamp-close" onclick="closeMobileStamp()">✕</button>
   </div>
   <input type="file" id="mStampFileInput" accept="image/*,image/gif" style="display:none">
-  <button class="uf" id="mStampFileBtn" onclick="document.getElementById('mStampFileInput').click()" style="min-height:48px;font-size:10px">SELECT IMAGE FILE</button>
+  <button class="uf" id="mStampFileBtn" onclick="document.getElementById('mStampFileInput').click()" style="min-height:48px;font-size:10px" data-i18n="select_image_file">SELECT IMAGE FILE</button>
   <div id="mStampPreview" style="display:none;margin-top:12px">
     <div style="display:flex;gap:10px;align-items:center">
       <img id="mStampThumb" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--bdr)">
@@ -3246,26 +3246,26 @@
       </div>
     </div>
     <div style="margin:12px 0">
-      <div class="stat-label" style="margin-bottom:6px;font-size:9px">SCALE</div>
+      <div class="stat-label" style="margin-bottom:6px;font-size:9px" data-i18n="scale_label">SCALE</div>
       <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-bottom:2px"><span>-100</span><span>0</span><span>+100</span></div>
       <input type="range" id="mStampSizeSlider" min="-100" max="100" value="0" style="width:100%;accent-color:var(--mars);height:28px" oninput="updateMobileStampSlider(+this.value)">
       <div style="display:flex;justify-content:space-between;margin-top:6px">
         <span class="stat-val" id="mStampSizeLabel" style="font-size:10px">--</span>
       </div>
       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-        <button class="sz-btn" onclick="setMobileStampSlider(-100)" style="min-height:40px;font-size:9px;flex:1">MIN</button>
+        <button class="sz-btn" onclick="setMobileStampSlider(-100)" style="min-height:40px;font-size:9px;flex:1" data-i18n="min_btn">MIN</button>
         <button class="sz-btn" onclick="setMobileStampSlider(-50)" style="min-height:40px;font-size:9px;flex:1">-50</button>
         <button class="sz-btn" onclick="setMobileStampSlider(0)" style="min-height:40px;font-size:9px;flex:1">0</button>
         <button class="sz-btn" onclick="setMobileStampSlider(50)" style="min-height:40px;font-size:9px;flex:1">+50</button>
-        <button class="sz-btn" onclick="setMobileStampSlider(100)" style="min-height:40px;font-size:9px;flex:1">MAX</button>
+        <button class="sz-btn" onclick="setMobileStampSlider(100)" style="min-height:40px;font-size:9px;flex:1" data-i18n="max_btn">MAX</button>
       </div>
     </div>
     <div style="margin-top:10px">
-      <div class="stat-label" style="margin-bottom:4px;font-size:9px">LINK URL</div>
-      <input type="text" class="ui" id="mStampLinkInput" placeholder="https://your-site.com" style="width:100%;min-height:40px;font-size:10px">
+      <div class="stat-label" style="margin-bottom:4px;font-size:9px" data-i18n="link_url_label">LINK URL</div>
+      <input type="text" class="ui" id="mStampLinkInput" placeholder="https://your-site.com" data-i18n-placeholder="link_url_ph" style="width:100%;min-height:40px;font-size:10px">
     </div>
-    <button class="action-btn" style="margin-top:14px;min-height:52px;font-size:11px;background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;border:none" onclick="startMobilePreview()">PREVIEW ON MARS</button>
-    <button class="action-btn" style="margin-top:6px;min-height:44px;font-size:10px;background:transparent;border:1px solid var(--bdr2);color:var(--tx3)" onclick="cancelMobileStamp()">CANCEL</button>
+    <button class="action-btn" style="margin-top:14px;min-height:52px;font-size:11px;background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;border:none" onclick="startMobilePreview()" data-i18n="preview_on_mars">PREVIEW ON MARS</button>
+    <button class="action-btn" style="margin-top:6px;min-height:44px;font-size:10px;background:transparent;border:1px solid var(--bdr2);color:var(--tx3)" onclick="cancelMobileStamp()" data-i18n="cancel_changes">CANCEL</button>
   </div>
 </div>
 
@@ -3284,9 +3284,9 @@
       <span style="font-size:10px;color:var(--tx3);font-family:var(--fn);min-width:50px;text-align:right" id="mobPreviewSizeLabel">--</span>
     </div>
     <div class="mob-stamp-bar-btns">
-      <button class="mob-stamp-bar-cancel" onclick="cancelMobileStamp()">✕ CANCEL</button>
-      <div class="mob-stamp-bar-hint">DRAG TO POSITION</div>
-      <button class="mob-stamp-bar-ok" onclick="confirmMobilePlacement()">✓ OK</button>
+      <button class="mob-stamp-bar-cancel" onclick="cancelMobileStamp()" data-i18n="stamp_cancel">✕ CANCEL</button>
+      <div class="mob-stamp-bar-hint" data-i18n="drag_to_position">DRAG TO POSITION</div>
+      <button class="mob-stamp-bar-ok" onclick="confirmMobilePlacement()" data-i18n="stamp_ok">✓ OK</button>
     </div>
   </div>
 </div>
@@ -3295,14 +3295,14 @@
 <div class="mbg" id="dailyLoginPopup">
   <div class="mdl" style="width:400px;max-width:95vw">
     <div class="mhd">
-      <span class="mtl" style="color:var(--gold)">DAILY CHECK-IN</span>
+      <span class="mtl" style="color:var(--gold)" data-i18n="daily_checkin_title">DAILY CHECK-IN</span>
       <button class="mx" onclick="closeDailyLogin()">×</button>
     </div>
     <div class="mbd" style="text-align:center;padding:12px">
       <div id="dailyStampBoard" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px"></div>
       <div id="dailyRewardText" style="font-size:12px;color:var(--gold);margin:8px 0;font-family:var(--fn)"></div>
       <div id="dailyMilestoneText" style="font-size:10px;color:var(--gn);margin:6px 0;display:none;font-family:var(--fn)"></div>
-      <button class="cfm" id="dailyClaimBtn" onclick="claimDailyLogin()" style="background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(255,209,102,.06));border-color:rgba(255,209,102,.4);color:var(--gold);font-size:11px;padding:10px 24px">CHECK IN TODAY</button>
+      <button class="cfm" id="dailyClaimBtn" onclick="claimDailyLogin()" style="background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(255,209,102,.06));border-color:rgba(255,209,102,.4);color:var(--gold);font-size:11px;padding:10px 24px" data-i18n="check_in_today">CHECK IN TODAY</button>
     </div>
   </div>
 </div>
@@ -3358,7 +3358,7 @@
         <!-- Game Wallet with copy (compact single-line) -->
         <div class="wallet-copy-row">
           <div class="wallet-copy-addr" id="authWallet">--</div>
-          <button class="wallet-copy-btn" onclick="copyGameWallet()">COPY</button>
+          <button class="wallet-copy-btn" onclick="copyGameWallet()" data-i18n="copy">COPY</button>
         </div>
 
         <!-- Compact 3-up balance strip (currency colors kept for quick distinction) -->
@@ -3408,14 +3408,14 @@
               <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="ref_my_code">MY REFERRAL CODE</div>
               <div style="display:flex;align-items:center;gap:4px">
                 <span style="font-size:13px;color:var(--gold);letter-spacing:2px;flex:1;font-family:var(--fn);font-weight:700" id="profileMyRefCode">--</span>
-                <button class="sz-btn" onclick="(function(){var c=document.getElementById('profileMyRefCode').textContent;if(c&&c!=='--')navigator.clipboard.writeText(c).then(function(){showToast(t('ref_code_copied'))});})()" style="font-size:8px;padding:3px 8px">COPY</button>
+                <button class="sz-btn" onclick="(function(){var c=document.getElementById('profileMyRefCode').textContent;if(c&&c!=='--')navigator.clipboard.writeText(c).then(function(){showToast(t('ref_code_copied'))});})()" style="font-size:8px;padding:3px 8px" data-i18n="copy">COPY</button>
               </div>
             </div>
             <div id="profileEnterRefWrap">
               <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="ref_enter_code">ENTER REFERRAL CODE</div>
               <div style="display:flex;gap:4px">
-                <input type="text" class="ui" id="profileRefInput" placeholder="CODE..." style="flex:1;text-transform:uppercase;letter-spacing:1px">
-                <button class="sz-btn" onclick="profileApplyRef()" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
+                <input type="text" class="ui" id="profileRefInput" placeholder="CODE..." data-i18n-placeholder="ref_code_ph" style="flex:1;text-transform:uppercase;letter-spacing:1px">
+                <button class="sz-btn" onclick="profileApplyRef()" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)" data-i18n="apply">APPLY</button>
               </div>
               <div id="profileRefStatus" style="font-size:8px;margin-top:3px;min-height:12px"></div>
             </div>
@@ -3425,11 +3425,11 @@
             <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
             <div style="display:flex;gap:8px;font-size:9px">
               <div style="flex:1;text-align:center;padding:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:4px">
-                <div style="color:var(--tx3);font-size:7px">REFERRALS</div>
+                <div style="color:var(--tx3);font-size:7px" data-i18n="referrals">REFERRALS</div>
                 <div style="color:var(--tx);font-weight:700" id="profileRefCount">0</div>
               </div>
               <div style="flex:1;text-align:center;padding:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:4px">
-                <div style="color:var(--tx3);font-size:7px">TOTAL EARNED</div>
+                <div style="color:var(--tx3);font-size:7px" data-i18n="total_earned">TOTAL EARNED</div>
                 <div style="color:var(--pp);font-weight:700" id="profileRefEarned">0 PP</div>
               </div>
             </div>
@@ -3468,34 +3468,34 @@
           <div class="prof-section-body" style="display:none">
             <!-- Motto -->
             <div style="margin-bottom:8px">
-              <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">MOTTO</div>
+              <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px" data-i18n="prof_motto">MOTTO</div>
               <div style="display:flex;gap:6px">
                 <input id="authMottoInput" maxlength="80" placeholder="Colony Motto…" data-i18n-placeholder="auth_motto_placeholder" style="flex:1;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-                <button onclick="_authSaveMotto()" style="padding:6px 10px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+                <button onclick="_authSaveMotto()" style="padding:6px 10px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="prof_set">SET</button>
               </div>
             </div>
             <!-- Status -->
             <div style="margin-bottom:8px">
-              <div style="font-size:9px;color:#ffcc02;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">💬 STATUS</div>
+              <div style="font-size:9px;color:#ffcc02;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px" data-i18n="prof_status">💬 STATUS</div>
               <div style="display:flex;gap:6px">
                 <input id="authStatusInput" maxlength="60" placeholder="Status message…" data-i18n-placeholder="auth_status_placeholder" style="flex:1;background:rgba(255,204,2,.06);border:1px solid rgba(255,204,2,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-                <button onclick="_authSaveStatus()" style="padding:6px 10px;background:rgba(255,204,2,.15);border:1px solid rgba(255,204,2,.35);color:#ffcc02;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+                <button onclick="_authSaveStatus()" style="padding:6px 10px;background:rgba(255,204,2,.15);border:1px solid rgba(255,204,2,.35);color:#ffcc02;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="prof_set">SET</button>
               </div>
             </div>
             <!-- Vanity Tag -->
             <div style="margin-bottom:8px">
-              <div style="font-size:9px;color:#ce93d8;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">🏷️ VANITY TAG</div>
+              <div style="font-size:9px;color:#ce93d8;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px" data-i18n="prof_vanity_tag">🏷️ VANITY TAG</div>
               <div style="display:flex;gap:6px">
                 <input id="authVtagInput" maxlength="12" placeholder="Tag…" data-i18n-placeholder="auth_vtag_placeholder" style="flex:1;background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
-                <button onclick="_authSaveVtag()" style="padding:6px 10px;background:rgba(206,147,216,.15);border:1px solid rgba(206,147,216,.35);color:#ce93d8;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+                <button onclick="_authSaveVtag()" style="padding:6px 10px;background:rgba(206,147,216,.15);border:1px solid rgba(206,147,216,.35);color:#ce93d8;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="prof_set">SET</button>
               </div>
             </div>
             <!-- Avatar Color -->
             <div style="margin-bottom:8px">
-              <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">AVATAR COLOR</div>
+              <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px" data-i18n="prof_avatar_color">AVATAR COLOR</div>
               <div style="display:flex;gap:6px;align-items:center">
                 <input id="authColorInput" type="color" value="#FF7840" style="width:44px;height:32px;background:transparent;border:1px solid rgba(244,143,177,.2);border-radius:6px;cursor:pointer;padding:2px">
-                <button onclick="_authSaveColor()" style="padding:6px 10px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+                <button onclick="_authSaveColor()" style="padding:6px 10px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="prof_set">SET</button>
               </div>
             </div>
           </div>
@@ -3564,22 +3564,22 @@
             <button class="profile-acct-btn profile-acct-danger" onclick="requestDeleteAccount()" data-i18n="acct_delete">🗑 Delete Account</button>
 
             <!-- Legal Links (moved from main-screen footer) -->
-            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">LEGAL</div>
-            <button class="profile-acct-btn" onclick="openTosModal()">📜 Terms of Service</button>
-            <button class="profile-acct-btn" onclick="openPrivacyModal()">🔒 Privacy Policy</button>
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px" data-i18n="settings_legal">LEGAL</div>
+            <button class="profile-acct-btn" onclick="openTosModal()" data-i18n="acct_tos">📜 Terms of Service</button>
+            <button class="profile-acct-btn" onclick="openPrivacyModal()" data-i18n="acct_privacy">🔒 Privacy Policy</button>
           </div>
         </div>
 
         <!-- Change Password Inline -->
         <div id="profileChangePw" style="display:none;border:1px solid var(--bdr);border-radius:6px;padding:10px;margin:8px 0">
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:8px">CHANGE PASSWORD</div>
-          <input type="password" class="auth-input" id="profCurPw" placeholder="Current password" style="margin-bottom:6px">
-          <input type="password" class="auth-input" id="profNewPw" placeholder="New password (8+ chars)" style="margin-bottom:6px">
-          <input type="password" class="auth-input" id="profNewPw2" placeholder="Confirm new password" style="margin-bottom:6px">
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:8px" data-i18n="change_password_title">CHANGE PASSWORD</div>
+          <input type="password" class="auth-input" id="profCurPw" placeholder="Current password" data-i18n-placeholder="current_password_ph" style="margin-bottom:6px">
+          <input type="password" class="auth-input" id="profNewPw" placeholder="New password (8+ chars)" data-i18n-placeholder="new_password_ph" style="margin-bottom:6px">
+          <input type="password" class="auth-input" id="profNewPw2" placeholder="Confirm new password" data-i18n-placeholder="confirm_password_ph" style="margin-bottom:6px">
           <div class="auth-err-msg" id="profPwErr"></div>
           <div style="display:flex;gap:6px">
-            <button class="cfm" onclick="doChangePassword()" style="flex:1;background:rgba(76,216,154,.06);border-color:rgba(76,216,154,.15);color:var(--gn)">SAVE</button>
-            <button class="cfm" onclick="document.getElementById('profileChangePw').style.display='none'" style="flex:1;color:var(--tx3);border-color:var(--bdr)">CANCEL</button>
+            <button class="cfm" onclick="doChangePassword()" style="flex:1;background:rgba(76,216,154,.06);border-color:rgba(76,216,154,.15);color:var(--gn)" data-i18n="save_btn">SAVE</button>
+            <button class="cfm" onclick="document.getElementById('profileChangePw').style.display='none'" style="flex:1;color:var(--tx3);border-color:var(--bdr)" data-i18n="cancel_changes">CANCEL</button>
           </div>
         </div>
 
@@ -3601,7 +3601,7 @@
           </div>
         </div>
 
-        <button class="sz-btn" data-action="openTelegramGroup" style="width:100%;font-size:10px;color:var(--mars);border-color:rgba(255,120,60,.22);background:rgba(255,120,60,.06);padding:8px;margin-top:8px">✈ JOIN TELEGRAM</button>
+        <button class="sz-btn" data-action="openTelegramGroup" style="width:100%;font-size:10px;color:var(--mars);border-color:rgba(255,120,60,.22);background:rgba(255,120,60,.06);padding:8px;margin-top:8px" data-i18n="join_telegram">✈ JOIN TELEGRAM</button>
 
         <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red);margin-top:8px" data-i18n="logout">LOGOUT</button>
       </div>
@@ -3623,15 +3623,15 @@
           <input type="text" class="auth-input" id="authRefInput" placeholder="Referral code (optional)" data-i18n-placeholder="referral_placeholder" style="text-transform:uppercase">
           <div class="tos-check-row">
             <input type="checkbox" id="tosAgree">
-            <span>I agree to the <a onclick="openTosModal();event.stopPropagation()">Terms of Service</a> and <a onclick="openPrivacyModal();event.stopPropagation()">Privacy Policy</a></span>
+            <span data-i18n="agree_terms">I agree to the <a onclick="openTosModal();event.stopPropagation()">Terms of Service</a> and <a onclick="openPrivacyModal();event.stopPropagation()">Privacy Policy</a></span>
           </div>
         </div>
         <div style="display:flex;gap:12px;margin:8px 0;align-items:center">
           <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:6.5px;color:var(--tx2);letter-spacing:.5px;font-family:var(--fn)">
-            <input type="checkbox" id="rememberMe" style="accent-color:var(--mars);width:14px;height:14px"> REMEMBER ID/PW
+            <input type="checkbox" id="rememberMe" style="accent-color:var(--mars);width:14px;height:14px"> <span data-i18n="remember_id_pw">REMEMBER ID/PW</span>
           </label>
           <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:6.5px;color:var(--tx2);letter-spacing:.5px;font-family:var(--fn)">
-            <input type="checkbox" id="autoLogin" style="accent-color:var(--gn);width:14px;height:14px"> AUTO LOGIN
+            <input type="checkbox" id="autoLogin" style="accent-color:var(--gn);width:14px;height:14px"> <span data-i18n="auto_login">AUTO LOGIN</span>
           </label>
         </div>
         <div class="auth-err-msg" id="authErrMsg"></div>
@@ -4410,32 +4410,32 @@
   </div>
 </div>
 
-<script src="/assets/core-runtime.js?v=7474"></script>
-<script src="/assets/world-globe.js?v=7474"></script>
-<script src="/assets/i18n.js?v=7474"></script>
-<script src="/assets/wallet-minigame.js?v=7474"></script>
-<script src="/assets/territory-ui.js?v=7474"></script>
-<script src="/assets/account-profile.js?v=7474"></script>
-<script src="/assets/economy-inventory.js?v=7474"></script>
-<script src="/assets/market-transport.js?v=7474"></script>
-<script src="/assets/ship-mining.js?v=7474"></script>
-<script src="/assets/base-navigation.js?v=7474"></script>
-<script src="/assets/guild-ops.js?v=7474"></script>
-<script src="/assets/season-base.js?v=7474"></script>
-<script src="/assets/campaign-system.js?v=7474"></script>
-<script src="/assets/quest-economy.js?v=7474"></script>
-<script src="/assets/mars-map-overlays.js?v=7474"></script>
-<script src="/assets/public-stats.js?v=7474"></script>
-<script src="/assets/arena-overlay.js?v=7474"></script>
-<script src="/assets/world-live-feeds.js?v=7474"></script>
-<script src="/assets/main-game.js?v=7474"></script>
+<script src="/assets/core-runtime.js?v=7475"></script>
+<script src="/assets/world-globe.js?v=7475"></script>
+<script src="/assets/i18n.js?v=7475"></script>
+<script src="/assets/wallet-minigame.js?v=7475"></script>
+<script src="/assets/territory-ui.js?v=7475"></script>
+<script src="/assets/account-profile.js?v=7475"></script>
+<script src="/assets/economy-inventory.js?v=7475"></script>
+<script src="/assets/market-transport.js?v=7475"></script>
+<script src="/assets/ship-mining.js?v=7475"></script>
+<script src="/assets/base-navigation.js?v=7475"></script>
+<script src="/assets/guild-ops.js?v=7475"></script>
+<script src="/assets/season-base.js?v=7475"></script>
+<script src="/assets/campaign-system.js?v=7475"></script>
+<script src="/assets/quest-economy.js?v=7475"></script>
+<script src="/assets/mars-map-overlays.js?v=7475"></script>
+<script src="/assets/public-stats.js?v=7475"></script>
+<script src="/assets/arena-overlay.js?v=7475"></script>
+<script src="/assets/world-live-feeds.js?v=7475"></script>
+<script src="/assets/main-game.js?v=7475"></script>
 <!-- ══════════════════════════════════════════════════════════ -->
 <!--  LEGAL: Terms of Service Modal                          -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div class="legal-modal-bg" id="tosModal" onclick="if(event.target===this)closeTosModal()">
   <div class="legal-modal">
     <div class="legal-modal-hd">
-      <h2>TERMS OF SERVICE</h2>
+      <h2 data-i18n="tos_title">TERMS OF SERVICE</h2>
       <button class="lm-close" onclick="closeTosModal()">&times;</button>
     </div>
     <div class="legal-modal-body">
@@ -4511,7 +4511,7 @@
 <div class="legal-modal-bg" id="privacyModal" onclick="if(event.target===this)closePrivacyModal()">
   <div class="legal-modal">
     <div class="legal-modal-hd">
-      <h2>PRIVACY POLICY</h2>
+      <h2 data-i18n="privacy_title">PRIVACY POLICY</h2>
       <button class="lm-close" onclick="closePrivacyModal()">&times;</button>
     </div>
     <div class="legal-modal-body">
@@ -4590,7 +4590,7 @@
 <div class="gamble-disclaimer-bg" id="gambleDisclaimer" onclick="if(event.target===this)return">
   <div class="gamble-disclaimer">
     <div class="gd-icon">&#9888;&#65039;</div>
-    <div class="gd-title">CANTINA GAMES DISCLAIMER</div>
+    <div class="gd-title" data-i18n="cantina_disclaimer_title">CANTINA GAMES DISCLAIMER</div>
     <div class="gd-text">
       The Cantina contains games of chance and skill.<br>
       <strong>You may lose PP (Potato Points). Play responsibly.</strong><br><br>
@@ -4599,7 +4599,7 @@
       If you feel you are developing a problem with gambling,<br>
       please take a break and seek help.
     </div>
-    <button class="gd-accept" onclick="acceptGambleDisclaimer()">I UNDERSTAND &mdash; ENTER CANTINA</button>
+    <button class="gd-accept" onclick="acceptGambleDisclaimer()" data-i18n="cantina_enter">I UNDERSTAND &mdash; ENTER CANTINA</button>
   </div>
 </div>
 
@@ -4608,20 +4608,20 @@
 <!-- ══════════════════════════════════════════════════════════ -->
 <div class="cookie-banner" id="cookieBanner">
   <span class="ck-text">We use cookies and localStorage for authentication, saving your preferences, and improving your experience.</span>
-  <button class="ck-accept" onclick="acceptCookies()">ACCEPT</button>
+  <button class="ck-accept" onclick="acceptCookies()" data-i18n="cookie_accept">ACCEPT</button>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════ -->
 <!--  LEGAL: Footer Links                                     -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div class="legal-footer" id="legalFooter">
-  <a onclick="openTosModal()">Terms of Service</a>
+  <a onclick="openTosModal()" data-i18n="footer_tos">Terms of Service</a>
   <span class="lf-sep">|</span>
-  <a onclick="openPrivacyModal()">Privacy Policy</a>
+  <a onclick="openPrivacyModal()" data-i18n="footer_privacy">Privacy Policy</a>
 </div>
 
-<script src="/assets/legal-consent.js?v=7474"></script>
-<script src="/assets/daily-engagement.js?v=7474"></script>
+<script src="/assets/legal-consent.js?v=7475"></script>
+<script src="/assets/daily-engagement.js?v=7475"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════
      GUILD WAR DECLARATION MODAL
@@ -4691,8 +4691,8 @@
     <div style="padding:14px 18px;border-bottom:1px solid rgba(255,120,60,.25);background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(232,72,85,.04));display:flex;align-items:center;gap:10px">
       <div style="font-size:20px">✎</div>
       <div style="flex:1">
-        <div style="font-size:13px;color:#fff;letter-spacing:1.5px;font-weight:700">EDIT GUILD</div>
-        <div style="font-size:9px;color:var(--tx3);letter-spacing:.5px">Rename · customize emblem · update description</div>
+        <div style="font-size:13px;color:#fff;letter-spacing:1.5px;font-weight:700" data-i18n="edit_guild_title">EDIT GUILD</div>
+        <div style="font-size:9px;color:var(--tx3);letter-spacing:.5px" data-i18n="edit_guild_sub">Rename · customize emblem · update description</div>
       </div>
       <button onclick="closeGuildEditModal()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:16px;width:28px;height:28px;border-radius:6px;cursor:pointer">✕</button>
     </div>
@@ -4701,57 +4701,57 @@
       <div style="display:flex;align-items:center;gap:14px;padding:12px;background:rgba(0,0,0,.3);border:1px solid var(--bdr);border-radius:8px;margin-bottom:14px">
         <div id="gePreview" style="width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.02);border-radius:6px"></div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px">PREVIEW</div>
-          <div style="font-size:8px;color:var(--tx3);line-height:1.5">Pixel-art emblem is auto-resized to 32×32. PNG/JPG under 2MB.</div>
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px" data-i18n="ge_preview">PREVIEW</div>
+          <div style="font-size:8px;color:var(--tx3);line-height:1.5" data-i18n="ge_preview_hint">Pixel-art emblem is auto-resized to 32×32. PNG/JPG under 2MB.</div>
         </div>
       </div>
 
       <!-- Name -->
       <div style="margin-bottom:12px">
-        <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">GUILD NAME <span style="color:var(--gold)">(100 GP to change)</span></label>
+        <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px"><span data-i18n="ge_guild_name">GUILD NAME</span> <span style="color:var(--gold)">(100 GP to change)</span></label>
         <input type="text" id="geName" maxlength="50" oninput="updateGuildEditCost()" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:12px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
       </div>
 
       <!-- Description -->
       <div style="margin-bottom:12px">
-        <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">DESCRIPTION <span style="color:var(--gold)">(20 GP to change)</span></label>
-        <input type="text" id="geDesc" maxlength="200" oninput="updateGuildEditCost()" placeholder="Guild slogan / description..." style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
+        <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px"><span data-i18n="ge_description">DESCRIPTION</span> <span style="color:var(--gold)">(20 GP to change)</span></label>
+        <input type="text" id="geDesc" maxlength="200" oninput="updateGuildEditCost()" placeholder="Guild slogan / description..." data-i18n-placeholder="ge_desc_ph" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
       </div>
 
       <!-- Emblem: emoji OR image upload -->
       <div style="margin-bottom:14px;padding:12px;background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,.15);border-radius:8px">
-        <label style="font-size:9px;color:var(--mars);letter-spacing:1px;display:block;margin-bottom:8px;font-weight:700">EMBLEM <span style="color:var(--gold)">(50 GP to change)</span></label>
+        <label style="font-size:9px;color:var(--mars);letter-spacing:1px;display:block;margin-bottom:8px;font-weight:700"><span data-i18n="ge_emblem">EMBLEM</span> <span style="color:var(--gold)">(50 GP to change)</span></label>
         <!-- Emoji fallback -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span style="font-size:9px;color:var(--tx3);letter-spacing:.5px;flex:0 0 60px">EMOJI</span>
+          <span style="font-size:9px;color:var(--tx3);letter-spacing:.5px;flex:0 0 60px" data-i18n="ge_emoji">EMOJI</span>
           <select id="geEmojiSelect" onchange="onGuildEmojiChange()" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:16px;padding:6px;border-radius:6px;text-align:center">
             <option>🔴</option><option>🔵</option><option>🟢</option><option>🟡</option><option>🟣</option><option>⚫</option><option>🟠</option><option>⚔️</option><option>🛡️</option><option>🚀</option><option>💀</option><option>🐉</option><option>🦅</option><option>🔥</option><option>⭐</option><option>🌋</option><option>❄️</option><option>⚡</option><option>👑</option><option>🎭</option>
           </select>
         </div>
         <!-- Custom pixel-art upload -->
         <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:9px;color:var(--tx3);letter-spacing:.5px;flex:0 0 60px">UPLOAD</span>
+          <span style="font-size:9px;color:var(--tx3);letter-spacing:.5px;flex:0 0 60px" data-i18n="ge_upload">UPLOAD</span>
           <label style="flex:1;display:flex;align-items:center;justify-content:center;padding:7px 10px;border-radius:6px;background:rgba(91,184,232,.1);border:1px dashed rgba(91,184,232,.35);color:var(--cyan);font-size:9px;cursor:pointer;font-family:var(--fn);letter-spacing:.5px">
             <input type="file" accept="image/*" onchange="onGuildEmblemFile(this)" style="display:none">
-            📁 CHOOSE IMAGE (AUTO 32×32)
+            <span data-i18n="ge_choose_image">📁 CHOOSE IMAGE (AUTO 32×32)</span>
           </label>
-          <button onclick="clearGuildEmblemImage()" style="padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)">CLEAR</button>
+          <button onclick="clearGuildEmblemImage()" style="padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)" data-i18n="ge_clear">CLEAR</button>
         </div>
-        <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.5">Bold silhouettes work best at 32×32. Transparent PNG is recommended for crisp pixel art.</div>
+        <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.5" data-i18n="ge_emblem_hint">Bold silhouettes work best at 32×32. Transparent PNG is recommended for crisp pixel art.</div>
       </div>
 
       <!-- Cost summary -->
       <div style="padding:10px 12px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.25);border-radius:8px;display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <div style="flex:1">
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px">TOTAL COST</div>
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px" data-i18n="ge_total_cost">TOTAL COST</div>
           <div style="font-size:8px;color:var(--tx3)" id="geCostBreakdown">(no changes)</div>
         </div>
         <div style="font-size:18px;color:var(--gold);font-weight:700"><span id="geCost">0</span> GP</div>
       </div>
 
       <div style="display:flex;gap:8px">
-        <button onclick="closeGuildEditModal()" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:11px;cursor:pointer;font-family:var(--fn);letter-spacing:1px">CANCEL</button>
-        <button id="geSaveBtn" onclick="saveGuildEdit()" disabled style="flex:2;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-size:11px;cursor:pointer;font-family:var(--fn);letter-spacing:1px;font-weight:700;opacity:0.4">SAVE CHANGES</button>
+        <button onclick="closeGuildEditModal()" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:11px;cursor:pointer;font-family:var(--fn);letter-spacing:1px" data-i18n="cancel_changes">CANCEL</button>
+        <button id="geSaveBtn" onclick="saveGuildEdit()" disabled style="flex:2;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-size:11px;cursor:pointer;font-family:var(--fn);letter-spacing:1px;font-weight:700;opacity:0.4" data-i18n="save_changes">SAVE CHANGES</button>
       </div>
     </div>
   </div>
@@ -4785,19 +4785,19 @@
 </div>
 
 
-<script src="/assets/codex-guide.js?v=7474"></script>
-<script src="/assets/faction-system.js?v=7474"></script>
+<script src="/assets/codex-guide.js?v=7475"></script>
+<script src="/assets/faction-system.js?v=7475"></script>
 
 <!-- ═══ A-1: Faction Selection Modal ═══ -->
 <div class="faction-modal-backdrop" id="factionModal">
   <div class="faction-modal">
-    <div class="faction-modal-title" id="factionModalTitle">FACTION SELECTION</div>
-    <div class="faction-modal-subtitle" id="factionModalSubtitle">// Select your faction</div>
+    <div class="faction-modal-title" id="factionModalTitle" data-i18n="faction_selection">FACTION SELECTION</div>
+    <div class="faction-modal-subtitle" id="factionModalSubtitle" data-i18n="faction_select_sub">// Select your faction</div>
     <div class="faction-cards" id="factionCards"></div>
     <div class="faction-warning" id="factionWarning" style="display:none"></div>
     <div class="faction-actions">
-      <button class="faction-btn" onclick="closeFactionModal()">Cancel</button>
-      <button class="faction-btn primary" id="factionConfirmBtn" onclick="confirmFaction()" disabled>Select</button>
+      <button class="faction-btn" onclick="closeFactionModal()" data-i18n="faction_cancel">Cancel</button>
+      <button class="faction-btn primary" id="factionConfirmBtn" onclick="confirmFaction()" disabled data-i18n="faction_select">Select</button>
     </div>
   </div>
 </div>
@@ -4899,7 +4899,7 @@
   </div>
 </div>
 
-<script src="/assets/shipyard-modal.js?v=7474"></script>
+<script src="/assets/shipyard-modal.js?v=7475"></script>
 
 <!-- ═══ A-3: Fleet Command Modal ═══ -->
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
@@ -4923,7 +4923,7 @@
   </div>
 </div>
 
-<script src="/assets/fleet-command-modal.js?v=7474"></script>
+<script src="/assets/fleet-command-modal.js?v=7475"></script>
 
 <!-- ═══ A-5: Battle Hub/Declare/Viewer HTML ═══ -->
 <!-- Battle Hub -->
@@ -5173,7 +5173,7 @@
   </div>
 </div>
 
-<script src="/assets/ship-catalog-modals.js?v=7474"></script>
+<script src="/assets/ship-catalog-modals.js?v=7475"></script>
 
 <!-- Alliance 모달 -->
 <div class="al-modal-backdrop" id="allianceModal">
@@ -5257,15 +5257,15 @@
 <!-- 섹션 3: JavaScript                                               -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 
-<script src="/assets/battle-hub-modal.js?v=7474"></script>
+<script src="/assets/battle-hub-modal.js?v=7475"></script>
 
 
-<script src="/assets/service-worker-registration.js?v=7474"></script>
-<script src="/assets/social-live-modal.js?v=7474"></script>
-<script src="/assets/app-startup.js?v=7474"></script>
-<script src="/assets/war-betting-modal.js?v=7474"></script>
-<script src="/assets/tactical-lab-modal.js?v=7474"></script>
-<script src="/assets/ace-combat-modal.js?v=7474"></script>
+<script src="/assets/service-worker-registration.js?v=7475"></script>
+<script src="/assets/social-live-modal.js?v=7475"></script>
+<script src="/assets/app-startup.js?v=7475"></script>
+<script src="/assets/war-betting-modal.js?v=7475"></script>
+<script src="/assets/tactical-lab-modal.js?v=7475"></script>
+<script src="/assets/ace-combat-modal.js?v=7475"></script>
 
 <!-- Tactical Lab Modal (v11.2 Formation/Maneuver) ================================ -->
 <div class="tlab-backdrop" id="tacticalLabBackdrop">
@@ -5340,22 +5340,22 @@
   </div>
 </div>
 
-<script src="/assets/bug-reporter.js?v=7474"></script>
+<script src="/assets/bug-reporter.js?v=7475"></script>
 
 <div id="onboardingHint" class="onboarding-hint" role="status" aria-live="polite">
   <div class="onboarding-hint__text">
-    <div class="onboarding-hint__title">FIRST LANDING</div>
-    <div class="onboarding-hint__body">Start by claiming your first Mars territory.</div>
+    <div class="onboarding-hint__title" data-i18n="onboarding_first_landing">FIRST LANDING</div>
+    <div class="onboarding-hint__body" data-i18n="onboarding_first_landing_body">Start by claiming your first Mars territory.</div>
   </div>
   <div class="onboarding-hint__actions">
-    <button type="button" onclick="onboardingAction()">OPEN BASE</button>
-    <button type="button" class="secondary" onclick="dismissOnboardingHint()">DISMISS</button>
+    <button type="button" onclick="onboardingAction()" data-i18n="onboarding_open_base">OPEN BASE</button>
+    <button type="button" class="secondary" onclick="dismissOnboardingHint()" data-i18n="onboarding_dismiss">DISMISS</button>
   </div>
 </div>
 
 <div id="chatOverlay" class="chat-overlay collapsed">
   <div class="chat-header" onclick="toggleChat()">
-    <span>💬 COMMS</span>
+    <span data-i18n="comms_label">💬 COMMS</span>
     <span id="chatUnreadBadge" class="chat-unread" style="display:none">0</span>
     <span class="chat-toggle-icon">▲</span>
   </div>

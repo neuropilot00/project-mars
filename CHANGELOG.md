@@ -1,3 +1,23 @@
+## 2026-06-30 v7.444 — index.html 정적 마크업 로컬라이징 (data-i18n + i18n.js)
+
+JS 동적 스윕(v7.443)에 이어 index.html 정적 마크업의 하드코딩 영문 라벨을 마감("다 잡아내" 완결).
+전담 에이전트(격리)가 처리하고 메인이 전수 검증 — 특히 textContent 교체로 자식요소가 소실되는 clobber 위험을 정밀 점검.
+
+[작업] index.html ~104개 라벨/placeholder 요소에 data-i18n 부여 + assets/i18n.js 4개 사전(EN/KO/JA/ZH)에 번역.
+- 신규 키 91개(각 4중 존재 확인) + 기존 키 12개 재사용. SEA(id/vi/th)는 t() EN 폴백.
+- 대상: 지갑(입금/출금/교환)·추천·미니게임(MARS ARCADE)·영토/캠페인·이미지 배치·길드 편집·파벌·법적고지 제목/버튼·인증/온보딩 등.
+- 보존: 브랜드(OCCUPY MARS), 통화(GP/PP/USDT), 체인(BASE/BNB/ETH), 언어 코드 버튼, PVP, JS가 채우는 동적 요소(닉네임/잔액/로딩/Season).
+- 긴 법적고지 본문은 라벨이 아니라 단락이라 제외(제목/버튼만 처리).
+
+[검증 후 수정 — 메인]
+- ⚠ clobber 버그 1건: `OPEN BASE` 버튼이 자식 `<span id="dailyHudDot">`(일일 알림 점)를 가졌는데 open_base 값에 '<' 없어
+  applyI18n 의 textContent 교체가 알림 점을 삭제할 위험 → data-i18n 을 버튼에서 떼고 "OPEN BASE" 텍스트만 span 으로 감싸 점 보존.
+- 나머지 id= 동반 의심(미니게임 버튼 등)은 전부 오탐 — 버튼 자기 id + 텍스트-only(textContent 안전) 또는 값에 '<' 있어 innerHTML 경로(서식 자식 보존: 시즌보상/공성안내/VIP/상자/프레스티지 설명, 약관 동의 앵커).
+
+[검증] node --check assets/i18n.js PASS, index.html 인라인 스크립트 파싱 PASS(인라인 블록 0), 신규 키 91개 전부 4중 존재,
+git diff --check 클린, 브랜드/통화/언어코드 오태깅 0. sw mars-v131, 모든 ?v=7475.
+한계: 모달 in-browser 육안은 로그인 게이트라 정적 검증(키/구조/clobber 점검). JA/ZH 일부 번역 톤은 후속 다듬기 가능.
+
 ## 2026-06-30 v7.443 — 전 모달 로컬라이징 대청소 (ultracode 멀티에이전트 스윕)
 
 사용자 제보(파벌 모달 영문 잔존)에서 확장 — "다 잡아내". 36개 렌더 asset js 전체를 멀티에이전트 워크플로로
