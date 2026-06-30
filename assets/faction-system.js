@@ -53,14 +53,25 @@ function openFactionModal() {
   var cardsEl = document.getElementById('factionCards');
   var subtitle = document.getElementById('factionModalSubtitle');
   var warning = document.getElementById('factionWarning');
-  subtitle.textContent = factionState.current ? '// 파벌을 변경하시겠습니까?' : '// 파벌을 선택하세요';
+  // [v7.442] 모달 제목/부제/확인 버튼 다국어화 (이전엔 제목/버튼이 영문, 부제가 한글 고정이었음)
+  var titleEl = document.getElementById('factionModalTitle');
+  if (titleEl) titleEl.textContent = tl('FACTION SELECTION', '파벌 선택', '派閥選択', '派系选择');
+  var confirmBtn = document.getElementById('factionConfirmBtn');
+  if (confirmBtn) confirmBtn.textContent = tl('Select', '선택', '選択', '选择');
+  subtitle.textContent = factionState.current
+    ? tl('// Change your faction?', '// 파벌을 변경하시겠습니까?', '// 派閥を変更しますか?', '// 要变更派系吗?')
+    : tl('// Select your faction', '// 파벌을 선택하세요', '// 派閥を選択してください', '// 请选择派系');
   if (factionState.current && factionState.current.is_locked) {
     var hoursLeft = Math.ceil((new Date(factionState.current.can_change_at) - new Date()) / 3600000);
     warning.style.display = 'block';
     warning.innerHTML = '⏱ ' + (LANG==='ko'?'파벌 변경 쿨다운 중':LANG==='ja'?'派閥変更クールダウン中':LANG==='zh'?'派系变更冷却中':'Faction change cooldown') + '<br>' + hoursLeft + (LANG==='ko'?'시간 후 변경 가능':LANG==='ja'?'時間後に変更可能':LANG==='zh'?'小时后可变更':' hrs until available');
   } else if (factionState.current) {
     warning.style.display = 'block';
-    warning.innerHTML = '⚠ 파벌 변경 시 <b>500 GP</b>가 소모됩니다.<br>변경 후 7일간 재변경이 불가능합니다.';
+    warning.innerHTML = tl(
+      '⚠ Changing faction costs <b>500 GP</b>.<br>You cannot change again for 7 days.',
+      '⚠ 파벌 변경 시 <b>500 GP</b>가 소모됩니다.<br>변경 후 7일간 재변경이 불가능합니다.',
+      '⚠ 派閥変更には <b>500 GP</b> が必要です。<br>変更後7日間は再変更できません。',
+      '⚠ 变更派系需消耗 <b>500 GP</b>。<br>变更后7天内无法再次变更。');
   } else {
     warning.style.display = 'none';
   }
@@ -94,12 +105,22 @@ function openFactionModal() {
       + '</div>'
       : '';
     var code = _factionSafeCode(f.code);
-    return '<div class="faction-card ' + code + (isCurrent ? ' current' : '') + '" data-code="' + code + '" onclick="selectFaction(\'' + code + '\')">'
+    // [v7.442] 파벌 이름/설명/특성을 현재 언어로. name 은 4개국어, desc/specialty 는 en/ko 만 있어 그 외엔 en 폴백.
+    var _l = (typeof LANG !== 'undefined' ? String(LANG) : 'en');
+    if (['en','ko','ja','zh'].indexOf(_l) < 0) _l = 'en';
+    var _nm = f['name_' + _l] || f.name_ko || f.name_en || code;
+    var _ds = f['description_' + _l] || f.description_en || f.description_ko || '';
+    var _sp = f['specialty_' + _l] || f.specialty_en || f.specialty_ko || '';
+    var atkL = tl('ATK','공격','攻撃','攻击');
+    var defL = tl('DEF','방어','防御','防御');
+    var spdL = tl('SPD','속도','速度','速度');
+    var curAttr = isCurrent ? ' data-current-label="' + _factionEsc(tl('CURRENT','현재','現在','当前')) + '"' : '';
+    return '<div class="faction-card ' + code + (isCurrent ? ' current' : '') + '" data-code="' + code + '"' + curAttr + ' onclick="selectFaction(\'' + code + '\')">'
       + '<div class="faction-icon">' + _factionEsc(f.icon_emoji||'⬢') + '</div>'
-      + '<div class="faction-name ' + code + '">' + _factionEsc(f.name_ko) + '</div>'
-      + '<div class="faction-desc">' + _factionEsc(f.description_ko||'') + '</div>'
-      + '<div class="faction-specialty">' + _factionEsc(f.specialty_ko||'') + '</div>'
-      + '<div class="faction-stats"><span>공격<b>' + f.atk_multiplier + '</b></span><span>방어<b>' + f.def_multiplier + '</b></span><span>속도<b>' + f.spd_multiplier + '</b></span></div>'
+      + '<div class="faction-name ' + code + '">' + _factionEsc(_nm) + '</div>'
+      + '<div class="faction-desc">' + _factionEsc(_ds) + '</div>'
+      + '<div class="faction-specialty">' + _factionEsc(_sp) + '</div>'
+      + '<div class="faction-stats"><span>' + atkL + '<b>' + f.atk_multiplier + '</b></span><span>' + defL + '<b>' + f.def_multiplier + '</b></span><span>' + spdL + '<b>' + f.spd_multiplier + '</b></span></div>'
       + statHtml
       + '</div>';
   }).join('');

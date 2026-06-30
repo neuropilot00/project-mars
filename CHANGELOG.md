@@ -1,3 +1,19 @@
+## 2026-06-30 v7.442 — 파벌 선택 모달 로컬라이징 보강
+
+사용자 제보(모바일 스샷): FACTION SELECTION 모달에 미번역 영문 잔존. 한국어 세션인데 제목/배지/일부 라벨이 영문.
+
+[수정] assets/faction-system.js / faction-modal.css / index.html
+- 모달 제목 "FACTION SELECTION" (index.html 하드코딩) → openFactionModal 에서 tl() 로 설정(파벌 선택/派閥選択/派系选择).
+- 확인 버튼 "Select" → tl(선택/選択/选择). 부제도 4개국어로(이전엔 한글 고정).
+- "CURRENT" 배지: CSS `content:'CURRENT'` → `content: attr(data-current-label)` + 카드에 현재 언어 배지값 주입(현재/現在/当前).
+- 파벌 카드 이름/설명/특성: `_ko` 고정 → 현재 언어(name 4개국어, desc/specialty 는 데이터가 en/ko 만 있어 그 외 언어는 en 폴백).
+- 스탯 라벨 공격/방어/속도 → tl(ATK/DEF/SPD …). 파벌 변경 경고문(500 GP)도 4개국어.
+- Players/Fleet 라벨은 기존부터 tl() 적용됨(배포가 구버전이라 영문 보였던 것 — 이 배포로 정합).
+
+검증(메인): node --check OK, git diff --check 클린. 카드 렌더 로직 node 하니스 9케이스 전수 PASS
+(KO 이름/공격/현재배지, EN 이름/ATK/비현재 배지없음, JA 이름/EN desc 폴백/攻撃). sw v129, ?v=7473.
+한계: 모달 in-browser 육안은 로그인 게이트라 하니스+정적 검증. desc/specialty 의 JA/ZH 원문 데이터는 부재(en 폴백) — DB 콘텐츠 보강은 별건.
+
 ## 2026-06-30 v7.441 — full-loss opt-in 플레이어 토글 (optin 모드 사용 가능화)
 
 v7.438 의 full_loss_mode=optin 을 유저가 실제로 쓸 수 있게 마감. optin 모드는 양측이 동의한 PvP 에서만

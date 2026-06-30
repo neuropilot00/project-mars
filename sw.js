@@ -102,7 +102,7 @@
 // 2026-06-16 v105: ACE 엔진 구현 — ace-combat.html size_class 뷰 프로파일/fleet-presets/postMessage 훅.
 // 2026-06-29 v123: v7.465 first-session 핸즈온 — 첫 클레임 연출 + BASE 골든패스 글로우 + globe 첫클릭 가이드.
 // 2026-06-29 v124: 주간 챌린지 UI + 섹터 서지 배너 + 전투 결과 부각 + 골든패스 step2→fleet 보정.
-const CACHE_NAME = 'mars-v128';
+const CACHE_NAME = 'mars-v129';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

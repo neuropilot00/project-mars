@@ -59,7 +59,8 @@
 .faction-card.selected.fsp { border-color: #81c784; box-shadow: 0 0 20px rgba(129, 199, 132, 0.3); }
 .faction-card.selected.cv  { border-color: #ef5350; box-shadow: 0 0 20px rgba(239, 83, 80, 0.3); }
 .faction-card.current::before {
-  content: 'CURRENT';
+  /* [v7.442] 배지 텍스트를 data-current-label 로 받아 다국어화(없으면 CURRENT 폴백) */
+  content: attr(data-current-label);
   position: absolute;
   top: 8px; right: 8px;
   font-size: 8px;
