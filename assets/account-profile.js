@@ -297,7 +297,7 @@ async function doFindEmail(){
     var d=await resp.json();
     if(!resp.ok){errEl.textContent=d.error||(LANG==='ko'?'찾을 수 없습니다':LANG==='ja'?'見つかりません':LANG==='zh'?'未找到':'Not found');return}
     document.getElementById('foundEmail').textContent=d.maskedEmail;
-    document.getElementById('foundWallet').textContent='Wallet: '+d.walletHint;
+    document.getElementById('foundWallet').textContent=tl('Wallet: ','지갑: ','ウォレット: ','钱包: ')+d.walletHint;
     document.getElementById('findEmailResult').style.display='';
   }catch(e){errEl.textContent=LANG==='ko'?'네트워크 오류':LANG==='ja'?'ネットワークエラー':LANG==='zh'?'网络错误':'Network error'}
 }
@@ -384,7 +384,7 @@ async function submitAuth(){
     return;
   }
 
-  if(!email||!pass){errEl.textContent='Email and password required';return}
+  if(!email||!pass){errEl.textContent=tl('Email and password required','이메일과 비밀번호를 입력하세요','メールアドレスとパスワードが必要です','需要邮箱和密码');return}
 
   var btn=document.getElementById('authSubmitBtn');
   _authSubmitInFlight=true;
@@ -398,7 +398,7 @@ async function submitAuth(){
       body.referralCode=document.getElementById('authRefInput').value.trim()||undefined;
       if(!body.referralCode&&window._pendingRefCode) body.referralCode=window._pendingRefCode;
       var tosBox=document.getElementById('tosAgree');
-      if(!tosBox||!tosBox.checked){errEl.textContent='You must agree to the Terms of Service';btn.disabled=false;btn.textContent=t(authTab);return}
+      if(!tosBox||!tosBox.checked){errEl.textContent=tl('You must agree to the Terms of Service','서비스 약관에 동의해야 합니다','利用規約に同意してください','您必须同意服务条款');btn.disabled=false;btn.textContent=t(authTab);return}
       body.tosAccepted=true;
     }
 
@@ -412,14 +412,14 @@ async function submitAuth(){
       });
     }catch(fetchErr){
       console.error('[Auth] fetch itself failed:',fetchErr);
-      errEl.textContent='Connection failed: '+fetchErr.message;
+      errEl.textContent=tl('Connection failed: ','연결 실패: ','接続に失敗しました: ','连接失败: ')+fetchErr.message;
       return;
     }
 
     var d;
     try{ d=await resp.json(); }catch(jsonErr){
       console.error('[Auth] JSON parse failed:',jsonErr,'status:',resp.status);
-      errEl.textContent='Server error (status '+resp.status+')';
+      errEl.textContent=tl('Server error (status ','서버 오류 (상태 ','サーバーエラー (ステータス ','服务器错误 (状态 ')+resp.status+')';
       return;
     }
 
@@ -430,7 +430,7 @@ async function submitAuth(){
         _authSubmitCooldownUntil=Date.now()+waitMs;
         _authQuietPublicReads(waitMs);
       }
-      errEl.textContent=d.error||'Failed';
+      errEl.textContent=d.error||tl('Failed','실패','失敗','失败');
       return;
     }
 
@@ -483,7 +483,7 @@ async function submitAuth(){
 
   }catch(e){
     console.error('[Auth] submitAuth error:', e);
-    errEl.textContent=(e.message||'Unknown error')+' ('+e.name+')';
+    errEl.textContent=(e.message||tl('Unknown error','알 수 없는 오류','不明なエラー','未知错误'))+' ('+e.name+')';
   }finally{
     _authSubmitInFlight=false;
     window._authSubmitInFlight = false;
@@ -541,8 +541,8 @@ function showAuthLoggedIn(){
 function copyGameWallet(){
   var el=document.getElementById('authWallet');
   var addr=(el && el.dataset && el.dataset.full)||el.textContent;
-  if(!addr||addr==='--'){showToast('NO WALLET');return}
-  navigator.clipboard.writeText(addr).then(function(){showToast('WALLET ADDRESS COPIED!')});
+  if(!addr||addr==='--'){showToast(tl('NO WALLET','지갑 없음','ウォレットなし','无钱包'));return}
+  navigator.clipboard.writeText(addr).then(function(){showToast(tl('WALLET ADDRESS COPIED!','지갑 주소 복사됨!','ウォレットアドレスをコピーしました!','钱包地址已复制!'))});
 }
 
 function editNickname(){
@@ -555,8 +555,8 @@ function cancelEditNick(){
 }
 async function saveNickname(){
   var newName=document.getElementById('nickEditInput').value.trim();
-  if(!newName){showToast('ENTER A NAME');return}
-  if(!emailAuth.token){showToast('NOT LOGGED IN');return}
+  if(!newName){showToast(tl('ENTER A NAME','이름을 입력하세요','名前を入力してください','请输入名称'));return}
+  if(!emailAuth.token){showToast(tl('NOT LOGGED IN','로그인이 필요합니다','ログインしていません','未登录'));return}
   try{
     var resp=await fetch('/api/auth/update-profile',{
       method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
@@ -567,9 +567,9 @@ async function saveNickname(){
       emailAuth.user.nickname=newName;
       document.getElementById('authNickname').textContent=newName;
       document.getElementById('nickEditWrap').style.display='none';
-      showToast('NAME UPDATED!');
-    }else{showToast(srvErr(d.error)||'FAILED','error')}
-  }catch(e){showToast('NETWORK ERROR')}
+      showToast(tl('NAME UPDATED!','이름이 변경되었습니다!','名前を更新しました!','名称已更新!'));
+    }else{showToast(srvErr(d.error)||tl('FAILED','실패','失敗','失败'),'error')}
+  }catch(e){showToast(tl('NETWORK ERROR','네트워크 오류','ネットワークエラー','网络错误'))}
 }
 
 function changeAvatar(){
@@ -678,20 +678,20 @@ async function doChangePassword(){
   var nw=document.getElementById('profNewPw').value;
   var nw2=document.getElementById('profNewPw2').value;
   var errEl=document.getElementById('profPwErr');
-  if(!cur){errEl.textContent='Enter current password';return;}
-  if(nw.length<8){errEl.textContent='New password must be 8+ characters';return;}
-  if(nw!==nw2){errEl.textContent='Passwords do not match';return;}
+  if(!cur){errEl.textContent=tl('Enter current password','현재 비밀번호를 입력하세요','現在のパスワードを入力してください','请输入当前密码');return;}
+  if(nw.length<8){errEl.textContent=tl('New password must be 8+ characters','새 비밀번호는 8자 이상이어야 합니다','新しいパスワードは8文字以上必要です','新密码至少8位');return;}
+  if(nw!==nw2){errEl.textContent=tl('Passwords do not match','비밀번호가 일치하지 않습니다','パスワードが一致しません','密码不一致');return;}
   if(!/[A-Z]/.test(nw)||!/[a-z]/.test(nw)||!/[0-9]/.test(nw)||!/[^A-Za-z0-9]/.test(nw)){
-    errEl.textContent='Need uppercase, lowercase, number, special char';return;}
+    errEl.textContent=tl('Need uppercase, lowercase, number, special char','대문자·소문자·숫자·특수문자 모두 필요','大文字・小文字・数字・特殊文字すべて必要','需包含大写、小写、数字与特殊字符');return;}
   try{
     // [v7.170 A-C1 fix] API 전역 미정의로 'undefined/auth/...' 호출되던 버그. 동일 origin '/api' 로 고정.
     var r=await fetch('/api/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
       body:JSON.stringify({currentPassword:cur,newPassword:nw})});
     var d=await r.json();
-    if(!r.ok){errEl.textContent=d.error||'Failed';return;}
+    if(!r.ok){errEl.textContent=d.error||tl('Failed','실패','失敗','失败');return;}
     document.getElementById('profileChangePw').style.display='none';
-    showToast('Password changed successfully');
-  }catch(e){errEl.textContent='Network error';}
+    showToast(tl('Password changed successfully','비밀번호가 변경되었습니다','パスワードを変更しました','密码修改成功'));
+  }catch(e){errEl.textContent=tl('Network error','네트워크 오류','ネットワークエラー','网络错误');}
 }
 function exportAccountData(){
   if(!emailAuth.user)return;
@@ -701,16 +701,16 @@ function exportAccountData(){
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download='occupymars_account_'+Date.now()+'.json';a.click();
   URL.revokeObjectURL(a.href);
-  showToast('Account data exported');
+  showToast(tl('Account data exported','계정 데이터를 내보냈습니다','アカウントデータをエクスポートしました','账户数据已导出'));
 }
 async function requestDeleteAccount(){
-  var ok1=await gameConfirm({icon:'⚠',title:'DELETE ACCOUNT',body:LANG==='ko'?'계정을 삭제하면 모든 영토와 PP가 사라지며 되돌릴 수 없습니다.':LANG==='ja'?'アカウントを削除すると、すべての領土とPPが失われ、元に戻せません。':LANG==='zh'?'删除账户将永久失去所有领地和PP，无法撤销。':'Deleting your account will erase all territory and PP. This cannot be undone.',confirmText:LANG==='ko'?'계속':LANG==='ja'?'続ける':LANG==='zh'?'继续':'Continue'});
+  var ok1=await gameConfirm({icon:'⚠',title:tl('DELETE ACCOUNT','계정 삭제','アカウント削除','删除账户'),body:LANG==='ko'?'계정을 삭제하면 모든 영토와 PP가 사라지며 되돌릴 수 없습니다.':LANG==='ja'?'アカウントを削除すると、すべての領土とPPが失われ、元に戻せません。':LANG==='zh'?'删除账户将永久失去所有领地和PP，无法撤销。':'Deleting your account will erase all territory and PP. This cannot be undone.',confirmText:LANG==='ko'?'계속':LANG==='ja'?'続ける':LANG==='zh'?'继续':'Continue'});
   if(!ok1)return;
-  var ok2=await gameConfirm({icon:'💀',title:'FINAL WARNING',body:'<b style="color:var(--red)">'+(LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'PERMANENT DELETE')+'</b> — '+(LANG==='ko'?'지갑, 영토, 모든 게임 데이터가 삭제됩니다.':LANG==='ja'?'ウォレット、領土、すべてのゲームデータが削除されます。':LANG==='zh'?'钱包、领地和所有游戏数据将被删除。':'Your wallet, territory, and all game data will be deleted.'),confirmText:LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'Delete Forever'});
+  var ok2=await gameConfirm({icon:'💀',title:tl('FINAL WARNING','최종 경고','最終警告','最终警告'),body:'<b style="color:var(--red)">'+(LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'PERMANENT DELETE')+'</b> — '+(LANG==='ko'?'지갑, 영토, 모든 게임 데이터가 삭제됩니다.':LANG==='ja'?'ウォレット、領土、すべてのゲームデータが削除されます。':LANG==='zh'?'钱包、领地和所有游戏数据将被删除。':'Your wallet, territory, and all game data will be deleted.'),confirmText:LANG==='ko'?'영구 삭제':LANG==='ja'?'完全削除':LANG==='zh'?'永久删除':'Delete Forever'});
   if(!ok2)return;
   fetch('/api/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
     .then(function(r){return r.json()})
-    .then(function(d){if(d.success){showToast(tl('Account deleted','계정이 삭제되었습니다','アカウントが削除されました','账号已删除'));logoutEmail();}else{showToast(srvErr(d.error)||'Failed to delete','error');}})
+    .then(function(d){if(d.success){showToast(tl('Account deleted','계정이 삭제되었습니다','アカウントが削除されました','账号已删除'));logoutEmail();}else{showToast(srvErr(d.error)||tl('Failed to delete','삭제 실패','削除に失敗しました','删除失败'),'error');}})
     .catch(function(){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'));});
 }
 function logoutEmail(){
@@ -771,7 +771,7 @@ async function loadReferralInfo(){
       var curr=parseFloat(d.totalEarned||0);
       if(!isNaN(prev) && curr>prev+0.0001){
         var delta=(curr-prev).toFixed(2);
-        showToast('💰 +'+delta+' PP commission earned!');
+        showToast('💰 +'+delta+tl(' PP commission earned!','PP 커미션을 받았습니다!','PPコミッションを獲得!',' PP佣金已到账!'));
       }
       localStorage.setItem(key,String(curr));
       // GP toast
@@ -780,7 +780,7 @@ async function loadReferralInfo(){
       var currGP=parseFloat(d.totalEarnedGP||0);
       if(!isNaN(prevGP) && currGP>prevGP+0.01){
         var deltaGP=(currGP-prevGP).toFixed(0);
-        showToast('💎 +'+deltaGP+' GP referral commission!');
+        showToast('💎 +'+deltaGP+tl(' GP referral commission!','GP 추천 커미션!','GP紹介コミッション!',' GP推荐佣金!'));
       }
       localStorage.setItem(gpKey,String(currGP));
     }catch(e){}
@@ -810,7 +810,7 @@ async function profileApplyRef(){
   var code=(inp?inp.value:'').trim().toUpperCase();
   if(!code){showToast(tl('Enter a code','코드를 입력하세요','コードを入力してください','请输入代码'));return}
   var status=document.getElementById('profileRefStatus');
-  if(status){ status.style.color='var(--tx3)'; status.textContent='Registering...'; }
+  if(status){ status.style.color='var(--tx3)'; status.textContent=tl('Registering...','등록 중...','登録中...','注册中...'); }
   try{
     var resp=await fetch('/api/referral/register',{
       method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
@@ -818,21 +818,21 @@ async function profileApplyRef(){
     });
     var d=await resp.json();
     if(d.success){
-      if(status){ status.style.color='var(--gn)'; status.textContent='Referred by '+d.referrer; }
-      showToast('REFERRAL REGISTERED!');
+      if(status){ status.style.color='var(--gn)'; status.textContent=tl('Referred by ','추천인: ','紹介者: ','推荐人: ')+d.referrer; }
+      showToast(tl('REFERRAL REGISTERED!','추천인이 등록되었습니다!','紹介を登録しました!','推荐已注册!'));
       loadReferralInfo();
     } else {
-      if(status){ status.style.color='var(--red)'; status.textContent=d.error||'Failed'; }
+      if(status){ status.style.color='var(--red)'; status.textContent=d.error||tl('Failed','실패','失敗','失败'); }
     }
-  }catch(e){ if(status){ status.style.color='var(--red)'; status.textContent='Network error'; } }
+  }catch(e){ if(status){ status.style.color='var(--red)'; status.textContent=tl('Network error','네트워크 오류','ネットワークエラー','网络错误'); } }
 }
 
 function copyRefCode(){
   var code=document.getElementById('myRefCode').textContent;
-  if(!code||code==='--'){showToast('NO CODE YET');return}
+  if(!code||code==='--'){showToast(tl('NO CODE YET','아직 코드가 없습니다','コードがありません','暂无代码'));return}
   var url=window.location.origin+'?ref='+code;
-  navigator.clipboard.writeText(url).then(function(){showToast('REFERRAL LINK COPIED!')}).catch(function(){
-    navigator.clipboard.writeText(code).then(function(){showToast('CODE COPIED: '+code)});
+  navigator.clipboard.writeText(url).then(function(){showToast(tl('REFERRAL LINK COPIED!','추천 링크가 복사되었습니다!','紹介リンクをコピーしました!','推荐链接已复制!'))}).catch(function(){
+    navigator.clipboard.writeText(code).then(function(){showToast(tl('CODE COPIED: ','코드 복사됨: ','コードをコピーしました: ','代码已复制: ')+code)});
   });
 }
 
@@ -841,7 +841,7 @@ async function registerReferral(){
   var code=document.getElementById('refCodeInput').value.trim().toUpperCase();
   if(!code){showToast(tl('Enter a code','코드를 입력하세요','コードを入力してください','请输入代码'));return}
   var status=document.getElementById('refStatus');
-  status.style.color='var(--tx3)';status.textContent='Registering...';
+  status.style.color='var(--tx3)';status.textContent=tl('Registering...','등록 중...','登録中...','注册中...');
   try{
     var resp=await fetch('/api/referral/register',{
       method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
@@ -849,13 +849,13 @@ async function registerReferral(){
     });
     var d=await resp.json();
     if(d.success){
-      status.style.color='var(--gn)';status.textContent='Referred by '+d.referrer;
-      showToast('REFERRAL REGISTERED!');
+      status.style.color='var(--gn)';status.textContent=tl('Referred by ','추천인: ','紹介者: ','推荐人: ')+d.referrer;
+      showToast(tl('REFERRAL REGISTERED!','추천인이 등록되었습니다!','紹介を登録しました!','推荐已注册!'));
       loadReferralInfo();
     } else {
-      status.style.color='var(--red)';status.textContent=d.error||'Failed';
+      status.style.color='var(--red)';status.textContent=d.error||tl('Failed','실패','失敗','失败');
     }
-  }catch(e){status.style.color='var(--red)';status.textContent='Network error'}
+  }catch(e){status.style.color='var(--red)';status.textContent=tl('Network error','네트워크 오류','ネットワークエラー','网络错误')}
 }
 
 // Auto-apply referral code from URL
@@ -979,7 +979,7 @@ async function loadDynastyTree(){
       direct.forEach(function(r){
         html+='<div style="display:flex;align-items:center;gap:6px;padding:6px;border-bottom:1px solid var(--bdr);font-size:10px;min-height:34px">'+
           '<span style="flex:1;min-width:0;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
-          (r.subCount>0?'<span style="color:var(--tx3);font-size:9px;flex-shrink:0">+'+r.subCount+' sub</span>':'')+
+          (r.subCount>0?'<span style="color:var(--tx3);font-size:9px;flex-shrink:0">+'+r.subCount+tl(' sub','명 하위',' サブ',' 下线')+'</span>':'')+
           '<span style="color:var(--pp);min-width:64px;text-align:right;flex-shrink:0">'+r.earnedFrom.toFixed(2)+' PP</span>'+
           '</div>';
       });

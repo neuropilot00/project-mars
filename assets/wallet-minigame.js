@@ -267,15 +267,15 @@ function updateDepositAddr(){
 
 function copyDepositAddr(){
   var addr=walletState.address;
-  if(!addr){showToast('NO ADDRESS');return}
+  if(!addr){showToast(tl('NO ADDRESS','주소 없음','アドレスなし','无地址'));return}
   navigator.clipboard.writeText(addr).then(function(){
-    showToast('ADDRESS COPIED!');
+    showToast(tl('ADDRESS COPIED!','주소 복사됨!','アドレスをコピーしました!','地址已复制!'));
   }).catch(function(){
     // Fallback
     var ta=document.createElement('textarea');
     ta.value=addr;document.body.appendChild(ta);ta.select();
     document.execCommand('copy');document.body.removeChild(ta);
-    showToast('ADDRESS COPIED!');
+    showToast(tl('ADDRESS COPIED!','주소 복사됨!','アドレスをコピーしました!','地址已复制!'));
   });
 }
 
@@ -334,7 +334,7 @@ function confirmRevealKey(){
         if(btn){ btn.disabled=false; btn.textContent=t('export_key_reveal_btn')||'REVEAL PRIVATE KEY'; }
       }
     })
-    .catch(function(e){ showToast('Error: '+e.message,'error'); if(btn){ btn.disabled=false; } });
+    .catch(function(e){ showToast(tl('Error:','오류:','エラー:','错误:')+' '+e.message,'error'); if(btn){ btn.disabled=false; } });
 }
 function copyExportKey(){
   var pk=document.getElementById('exportKeyPriv').textContent||'';
@@ -378,22 +378,22 @@ function updateExchangePreview(){
 }
 async function confirmExchange(){
   var amt = parseFloat(document.getElementById('exchAmount').value);
-  if(!amt||amt<=0){ showToast('ENTER AMOUNT'); return; }
-  if(amt > (walletState.gamePP||0)){ showToast('INSUFFICIENT PP'); return; }
+  if(!amt||amt<=0){ showToast(tl('ENTER AMOUNT','금액을 입력하세요','金額を入力','请输入金额')); return; }
+  if(amt > (walletState.gamePP||0)){ showToast(tl('INSUFFICIENT PP','PP 부족','PP不足','PP不足')); return; }
   try{
     var resp = await fetch('/api/exchange/pp-to-gp',{
       method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(emailAuth&&emailAuth.token||'')},
       body:JSON.stringify({ wallet:walletState.address, amount:amt })
     });
     var d = await resp.json();
-    if(!resp.ok){ showToast(srvErr(d.error)||'EXCHANGE FAILED','error'); return; }
+    if(!resp.ok){ showToast(srvErr(d.error)||tl('EXCHANGE FAILED','환전 실패','交換失敗','兑换失败'),'error'); return; }
     walletState.gamePP = d.ppBalance!=null ? d.ppBalance : (walletState.gamePP-amt);
     walletState.gameGP = d.gpBalance!=null ? d.gpBalance : (walletState.gameGP+(d.gpReceived||0));
     refreshEmailBalances();
     closeExchangeModal();
     showToast('💱 '+amt.toFixed(2)+' PP → '+(d.gpReceived||0)+' GP','success');
-    addFeed('💱 '+shortAddr(walletState.address)+' exchanged '+amt.toFixed(1)+' PP → '+(d.gpReceived||0)+' GP');
-  }catch(e){ showToast('EXCHANGE FAILED'); console.error(e); }
+    addFeed('💱 '+shortAddr(walletState.address)+' '+tl('exchanged','환전함','交換','兑换了')+' '+amt.toFixed(1)+' PP → '+(d.gpReceived||0)+' GP');
+  }catch(e){ showToast(tl('EXCHANGE FAILED','환전 실패','交換失敗','兑换失败')); console.error(e); }
 }
 
 // ═══════════════════════════════════════
@@ -414,7 +414,7 @@ function openMinigameOverlay(warId){
   document.getElementById('mgSelectPanel').style.display = '';
   document.getElementById('mgCanvasWrap').style.display = 'none';
   document.getElementById('mgContinueOverlay').style.display = 'none';
-  document.getElementById('mgWarInfo').textContent = 'War #'+warId+' — Play games to earn points for your guild!';
+  document.getElementById('mgWarInfo').textContent = tl('War #','전쟁 #','戦争 #','战争 #')+warId+tl(' — Play games to earn points for your guild!',' — 게임을 플레이해 길드 점수를 획득하세요!',' — ゲームをプレイしてギルドのポイントを獲得!',' — 玩游戏为公会赢取积分!');
   // Load continue costs
   walletReadJson('war-continue-cost', '/api/guild/war/continue-cost', 30000, false).then(function(d){
     if(d.gpCosts) _mgContinueCosts = d;
@@ -449,7 +449,7 @@ function launchMinigame(type){
   var canvas = document.getElementById('mgCanvas');
   var engines = { invaders: window.MarsInvaders, runner: window.MarsRunner, digger: window.MarsDigger };
   _mgCurrentEngine = engines[type];
-  if(!_mgCurrentEngine){ showToast('Game not found'); return; }
+  if(!_mgCurrentEngine){ showToast(tl('Game not found','게임을 찾을 수 없음','ゲームが見つかりません','找不到游戏')); return; }
   _mgCurrentEngine.init(canvas, function(score){
     // Game ended - show continue overlay
     _mgFinalScore = score;
@@ -461,12 +461,12 @@ function launchMinigame(type){
 function showContinueOverlay(score){
   var ov = document.getElementById('mgContinueOverlay');
   ov.style.display = 'flex';
-  document.getElementById('mgFinalScore').textContent = 'SCORE: '+score;
+  document.getElementById('mgFinalScore').textContent = tl('SCORE: ','점수: ','スコア: ','分数: ')+score;
   var nextNum = _mgContinueNum + 1;
   var btn = document.getElementById('mgContinueBtn');
   if(nextNum > _mgContinueCosts.maxContinues){
     btn.style.display = 'none';
-    document.getElementById('mgContinueCost').textContent = 'Max continues reached';
+    document.getElementById('mgContinueCost').textContent = tl('Max continues reached','컨티뉴 한도 도달','コンティニュー上限に達しました','已达续命上限');
     return;
   }
   btn.style.display = '';
@@ -482,8 +482,8 @@ function showContinueOverlay(score){
     btn.style.background = 'linear-gradient(135deg,#B388FF,#7C4DFF)';
     btn.style.color = '#fff';
   }
-  document.getElementById('mgContinueCost').textContent = 'Continue #'+nextNum+': '+costText;
-  btn.textContent = 'CONTINUE ('+costText+')';
+  document.getElementById('mgContinueCost').textContent = tl('Continue #','컨티뉴 #','コンティニュー #','续命 #')+nextNum+': '+costText;
+  btn.textContent = tl('CONTINUE','컨티뉴','コンティニュー','续命')+' ('+costText+')';
 }
 
 async function payAndContinue(){
@@ -495,7 +495,7 @@ async function payAndContinue(){
       body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, continueNum:nextNum })
     });
     var d = await resp.json();
-    if(!resp.ok){ showToast(srvErr(d.error)||'CONTINUE FAILED','error'); return; }
+    if(!resp.ok){ showToast(srvErr(d.error)||tl('CONTINUE FAILED','컨티뉴 실패','コンティニュー失敗','续命失败'),'error'); return; }
     // Update balances
     if(d.ppBalance!=null) walletState.gamePP = d.ppBalance;
     if(d.gpBalance!=null) walletState.gameGP = d.gpBalance;
@@ -504,8 +504,8 @@ async function payAndContinue(){
     _mgContinueNum = nextNum;
     document.getElementById('mgContinueOverlay').style.display = 'none';
     _mgCurrentEngine.continueGame();
-    showToast('▶ CONTINUE! (paid '+d.paid.amount+(d.paid.type==='pp'?' PP':' GP')+')');
-  }catch(e){ showToast('CONTINUE FAILED'); console.error(e); }
+    showToast('▶ '+tl('CONTINUE!','컨티뉴!','コンティニュー!','续命!')+' ('+tl('paid','지불','支払い','已支付')+' '+d.paid.amount+(d.paid.type==='pp'?' PP':' GP')+')');
+  }catch(e){ showToast(tl('CONTINUE FAILED','컨티뉴 실패','コンティニュー失敗','续命失败')); console.error(e); }
 }
 
 async function submitMinigameScore(){
@@ -518,14 +518,14 @@ async function submitMinigameScore(){
       body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, gameType:_mgCurrentGame, score:score })
     });
     var d = await resp.json();
-    if(!resp.ok){ showToast(srvErr(d.error)||'SUBMIT FAILED','error'); return; }
-    showToast('🎮 Score '+score+' submitted! (Plays left: '+(d.playsRemaining||0)+')','success');
+    if(!resp.ok){ showToast(srvErr(d.error)||tl('SUBMIT FAILED','제출 실패','送信失敗','提交失败'),'error'); return; }
+    showToast('🎮 '+tl('Score','점수','スコア','分数')+' '+score+' '+tl('submitted!','제출됨!','送信完了!','已提交!')+' ('+tl('Plays left:','남은 플레이:','残りプレイ:','剩余次数:')+' '+(d.playsRemaining||0)+')','success');
     // Go back to game select
     _mgCurrentEngine = null;
     document.getElementById('mgCanvasWrap').style.display = 'none';
     document.getElementById('mgSelectPanel').style.display = '';
-    if(d.playsRemaining!=null) document.getElementById('mgPlaysLeft').textContent = d.playsRemaining+' plays remaining today';
-  }catch(e){ showToast('SUBMIT FAILED'); console.error(e); }
+    if(d.playsRemaining!=null) document.getElementById('mgPlaysLeft').textContent = d.playsRemaining+' '+tl('plays remaining today','회 오늘 남음','回 本日残り','次 今日剩余');
+  }catch(e){ showToast(tl('SUBMIT FAILED','제출 실패','送信失敗','提交失败')); console.error(e); }
 }
 
 // ═══════════════════════════════════════
@@ -545,8 +545,8 @@ function playMissionMinigame(missionId, missionType){
   document.getElementById('mgSelectPanel').style.display = '';
   document.getElementById('mgCanvasWrap').style.display = 'none';
   document.getElementById('mgContinueOverlay').style.display = 'none';
-  var typeLabel = missionType==='invasion' ? '⚔️ INVASION BONUS' : '🛰 EXPLORATION BONUS';
-  document.getElementById('mgWarInfo').textContent = typeLabel+' — Play a game to boost your rewards!';
+  var typeLabel = missionType==='invasion' ? '⚔️ '+tl('INVASION BONUS','침공 보너스','侵攻ボーナス','入侵奖励') : '🛰 '+tl('EXPLORATION BONUS','탐사 보너스','探査ボーナス','探索奖励');
+  document.getElementById('mgWarInfo').textContent = typeLabel+tl(' — Play a game to boost your rewards!',' — 게임을 플레이해 보상을 늘리세요!',' — ゲームをプレイして報酬を増やそう!',' — 玩游戏提升你的奖励!');
   document.getElementById('minigameOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -571,7 +571,7 @@ submitMinigameScore = async function(){
   else if(score>=500) bonus=1.5;
   else if(score>=300) bonus=1.3;
   else if(score>=100) bonus=1.15;
-  showToast('🎮 Score: '+score+' → Bonus: '+bonus+'x','success');
+  showToast('🎮 '+tl('Score:','점수:','スコア:','分数:')+' '+score+' → '+tl('Bonus:','보너스:','ボーナス:','奖励:')+' '+bonus+'x','success');
   // Claim mission with minigame score
   try{
     var resp = await fetch('/api/missions/'+_missionMgId+'/claim',{
@@ -588,14 +588,14 @@ submitMinigameScore = async function(){
     if(r.gp>0) parts.push(r.gp+' GP');
     if(r.xp>0) parts.push(r.xp+' XP');
     if(r.item) parts.push(r.item.name);
-    if(!parts.length) parts.push('No reward');
+    if(!parts.length) parts.push(tl('No reward','보상 없음','報酬なし','无奖励'));
     var bonusTag = r.minigameBonus>1 ? ' (🎮×'+r.minigameBonus+')' : '';
     showAlert('✓ '+parts.join(' · ')+bonusTag,'success');
     if(d.mission.type==='invasion'){try{trackQuestAction('complete_invasion',1)}catch(e){}}
     if(d.mission.type==='exploration'){try{trackQuestAction('complete_exploration',1)}catch(e){}}
     loadOpsTab();
     if(typeof loadUserData==='function') loadUserData();
-  }catch(e){ showAlert('Claim failed: '+e.message); }
+  }catch(e){ showAlert(tl('Claim failed:','수령 실패:','受取失敗:','领取失败:')+' '+e.message); }
 };
 
 // Override payAndContinue for mission mode (free continues, no payment)
@@ -607,7 +607,7 @@ payAndContinue = async function(){
   _mgContinueNum = 1;
   document.getElementById('mgContinueOverlay').style.display = 'none';
   _mgCurrentEngine.continueGame();
-  showToast('▶ FREE CONTINUE!');
+  showToast('▶ '+tl('FREE CONTINUE!','무료 컨티뉴!','無料コンティニュー!','免费续命!'));
 };
 
 // Override showContinueOverlay for mission mode
@@ -616,28 +616,28 @@ showContinueOverlay = function(score){
   if(!_isMissionMinigame()) return _origShowContinueOverlay(score);
   var ov = document.getElementById('mgContinueOverlay');
   ov.style.display = 'flex';
-  document.getElementById('mgFinalScore').textContent = 'SCORE: '+score;
+  document.getElementById('mgFinalScore').textContent = tl('SCORE: ','점수: ','スコア: ','分数: ')+score;
   _mgFinalScore = score;
   var btn = document.getElementById('mgContinueBtn');
   if(_mgContinueNum >= 1){
     btn.style.display = 'none';
-    document.getElementById('mgContinueCost').textContent = 'No more continues';
+    document.getElementById('mgContinueCost').textContent = tl('No more continues','더 이상 컨티뉴 불가','これ以上コンティニュー不可','无法继续续命');
   } else {
     btn.style.display = '';
     btn.style.background = 'linear-gradient(135deg,#00E676,#00C853)';
     btn.style.color = '#000';
-    btn.textContent = 'FREE CONTINUE';
+    btn.textContent = tl('FREE CONTINUE','무료 컨티뉴','無料コンティニュー','免费续命');
     document.getElementById('mgContinueCost').textContent = LANG==='ko'?'무료 컨티뉴 1회 (미션 보너스)':LANG==='ja'?'無料コンティニュー1回 (ミッションボーナス)':LANG==='zh'?'免费续命1次 (任务奖励)':'FREE CONTINUE ×1 (Mission Bonus)';
   }
 };
 
 async function confirmWithdraw(){
   var amt=parseFloat(document.getElementById('wdrAmount').value);
-  if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
-  if(amt>walletState.gameUsdt){showToast('INSUFFICIENT BALANCE');return}
+  if(!amt||amt<=0){showToast(tl('ENTER AMOUNT','금액을 입력하세요','金額を入力','请输入金额'));return}
+  if(amt>walletState.gameUsdt){showToast(tl('INSUFFICIENT BALANCE','잔액 부족','残高不足','余额不足'));return}
 
   var btn=document.getElementById('wdrConfirmBtn');
-  btn.textContent='REQUESTING...';btn.disabled=true;
+  btn.textContent=tl('REQUESTING...','요청 중...','リクエスト中...','请求中...');btn.disabled=true;
 
   try{
     var resp=await fetch('/api/withdraw',{
@@ -646,19 +646,19 @@ async function confirmWithdraw(){
       body:JSON.stringify({amount:amt,chain:walletState.chain||'base'})
     });
     var d=await resp.json();
-    if(!resp.ok){showToast(srvErr(d.error)||'WITHDRAW FAILED','error');return}
+    if(!resp.ok){showToast(srvErr(d.error)||tl('WITHDRAW FAILED','출금 실패','出金失敗','提现失败'),'error');return}
 
     walletState.gameUsdt=d.usdtBalance!=null?d.usdtBalance:walletState.gameUsdt-amt;
     refreshEmailBalances();
     closeWithdrawModal();
-    showToast('WITHDRAWAL REQUESTED: '+amt.toFixed(2)+' USDT');
+    showToast(tl('WITHDRAWAL REQUESTED:','출금 요청됨:','出金リクエスト済み:','提现已请求:')+' '+amt.toFixed(2)+' USDT');
     try{_sfx.purchase()}catch(e){}
-    addFeed('💸 '+shortAddr(walletState.address)+' withdrew $'+amt.toFixed(2));
+    addFeed('💸 '+shortAddr(walletState.address)+' '+tl('withdrew','출금함','出金','提现了')+' $'+amt.toFixed(2));
   }catch(e){
-    showToast('WITHDRAW FAILED');
+    showToast(tl('WITHDRAW FAILED','출금 실패','出金失敗','提现失败'));
     console.error(e);
   }finally{
-    btn.textContent='REQUEST WITHDRAWAL';btn.disabled=false;
+    btn.textContent=tl('REQUEST WITHDRAWAL','출금 요청','出金リクエスト','请求提现');btn.disabled=false;
   }
 }
 
@@ -691,7 +691,7 @@ function setSwpMax(){
 function updateSwapPreview(){
   var amt=parseFloat(document.getElementById('swpAmount').value)||0;
   var fee=amt*_swpFeePct;
-  document.getElementById('swpReceive').textContent=(amt-fee).toFixed(2)+' USDT (fee: '+fee.toFixed(2)+')';
+  document.getElementById('swpReceive').textContent=(amt-fee).toFixed(2)+' USDT ('+tl('fee:','수수료:','手数料:','手续费:')+' '+fee.toFixed(2)+')';
 }
 
 async function confirmSwap(){
@@ -724,10 +724,10 @@ async function confirmSwap(){
     walletState.gameUsdt=d.usdtBalance!=null?d.usdtBalance:walletState.gameUsdt+received;
     refreshEmailBalances();
     closeSwapModal();
-    showToast('SWAPPED '+amt.toFixed(2)+' PP → '+received.toFixed(2)+' USDT');
-    addFeed('🔄 '+shortAddr(walletState.address)+' swapped '+amt.toFixed(0)+' PP');
+    showToast(tl('SWAPPED','환금 완료','スワップ完了','兑换完成')+' '+amt.toFixed(2)+' PP → '+received.toFixed(2)+' USDT');
+    addFeed('🔄 '+shortAddr(walletState.address)+' '+tl('swapped','환금함','スワップ','兑换了')+' '+amt.toFixed(0)+' PP');
   }catch(e){
-    showToast('SWAP FAILED');
+    showToast(tl('SWAP FAILED','환금 실패','スワップ失敗','兑换失败'));
     console.error(e);
   }
 }

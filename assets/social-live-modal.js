@@ -49,11 +49,11 @@ function renderMyAlliance(al) {
         ${al.faction_name ? `<span>${LANG==='ko'?'소속':LANG==='ja'?'所属':LANG==='zh'?'所属':'Faction'} <b>${al.faction_name}</b></span>` : ''}
       </div>
       <div style="margin-top:10px;display:flex;gap:6px">
-        ${al.role === 'leader' 
-          ? `<span class="al-role-badge al-role-leader">👑 LEADER</span>` 
+        ${al.role === 'leader'
+          ? `<span class="al-role-badge al-role-leader">👑 ${tl('LEADER','리더','リーダー','领袖')}</span>`
           : al.role === 'officer'
-            ? `<span class="al-role-badge al-role-officer">★ OFFICER</span>`
-            : `<span class="al-role-badge al-role-member">MEMBER</span>`}
+            ? `<span class="al-role-badge al-role-officer">★ ${tl('OFFICER','간부','幹部','干部')}</span>`
+            : `<span class="al-role-badge al-role-member">${tl('MEMBER','멤버','メンバー','成员')}</span>`}
         <button class="fd-btn" onclick="leaveMyAlliance()">${LANG==='ko'?'탈퇴':LANG==='ja'?'脱退':LANG==='zh'?'退出':'Leave'}</button>
       </div>
     </div>
@@ -119,7 +119,7 @@ async function openCreateAlliance() {
   const name = await gameInput({title:LANG==='ko'?'동맹 창설':LANG==='ja'?'同盟創設':LANG==='zh'?'创建联盟':'Create Alliance',label:LANG==='ko'?'동맹 이름 (60자 이하)':LANG==='ja'?'同盟名 (60文字以内)':LANG==='zh'?'联盟名称 (60字以内)':'Alliance name (max 60)',placeholder:LANG==='ko'?'예: 화성 연합':LANG==='ja'?'例: 火星連合':LANG==='zh'?'例: 火星联盟':'e.g. Mars Union',maxLength:60});
   if (!name || !name.trim()) return;
 
-  const tag = await gameInput({title:LANG==='ko'?'동맹 태그':LANG==='ja'?'同盟タグ':LANG==='zh'?'联盟标签':'Alliance Tag',label:LANG==='ko'?'태그 (2~6자, 선택)':LANG==='ja'?'タグ (2~6文字、任意)':LANG==='zh'?'标签 (2~6字，可选)':'Tag (2-6 chars, optional)',placeholder:'e.g. MRS',maxLength:6});
+  const tag = await gameInput({title:LANG==='ko'?'동맹 태그':LANG==='ja'?'同盟タグ':LANG==='zh'?'联盟标签':'Alliance Tag',label:LANG==='ko'?'태그 (2~6자, 선택)':LANG==='ja'?'タグ (2~6文字、任意)':LANG==='zh'?'标签 (2~6字，可选)':'Tag (2-6 chars, optional)',placeholder:tl('e.g. MRS','예: MRS','例: MRS','例: MRS'),maxLength:6});
   
   var ok=await gameConfirm({icon:'🤝',title:LANG==='ko'?'동맹 창설':LANG==='ja'?'同盟創設':LANG==='zh'?'创建联盟':'Create Alliance',body:(LANG==='ko'?'이름: ':LANG==='ja'?'名前: ':LANG==='zh'?'名称: ':'Name: ')+'<b>'+escapeHTML(name)+'</b>'+(tag?(` · ${LANG==='ko'?'태그':LANG==='ja'?'タグ':LANG==='zh'?'标签':'Tag'}: <b>`+escapeHTML(tag)+'</b>'):'')+'<br>'+(LANG==='ko'?'비용: ':LANG==='ja'?'費用: ':LANG==='zh'?'费用: ':'Cost: ')+'<b>5000 GP</b>',confirmText:LANG==='ko'?'창설':LANG==='ja'?'創設':LANG==='zh'?'创建':'Create'});
   if(!ok) return;

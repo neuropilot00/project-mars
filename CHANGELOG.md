@@ -1,3 +1,29 @@
+## 2026-06-30 v7.443 — 전 모달 로컬라이징 대청소 (ultracode 멀티에이전트 스윕)
+
+사용자 제보(파벌 모달 영문 잔존)에서 확장 — "다 잡아내". 36개 렌더 asset js 전체를 멀티에이전트 워크플로로
+스윕(파일당 fix→적대검증). 유저 화면에 렌더되는 하드코딩 영문만 tl(en,ko,ja,zh) 처리, 코드/CSS/API/키/CODE/단위/브랜드는 보존.
+
+[규모] 59 에이전트(36 수정 + 23 검증), 23개 파일에 tl() 약 1,354건 추가.
+주요 파일: daily-engagement(약 600), world-live-feeds(96), guild-ops(67+), arena-overlay(43), market-transport(42),
+economy-inventory(39), territory-ui(38), main-game(38), quest-economy(60줄), account-profile(26), wallet-minigame(26),
+mars-map-overlays(16), season-base(15), campaign-system(12) 등 + battle-hub/fleet-command/game-dialogs/ship-mining/
+ship-catalog/public-stats/social-live/world-globe/base-navigation 소량.
+
+[검증] 메인 전수 재검증: 23개 파일 node --check 전부 PASS, git diff --check 클린. 워크플로 적대검증 verdict 대부분 clean.
+과잉번역 스팟체크 — 코드/경로/속성키/className 오역 0건(유일 https:// 히트는 정상 에러문구 내 prose).
+
+[검증 후 보정 2건]
+- daily-engagement: tl('by','작성','by','by') 3곳 → ja/zh 미번역이라 작성자/投稿者/作者 로 수정.
+- world-live-feeds: Commander/Governor JA/ZH 가 i18n.js 표준과 충돌(특히 JA 総督 중복) → Commander=맹주/司令官/指挥官,
+  Governor=거버너/総督/总督 로 i18n.js 표준에 정렬(ko 게임 용어 유지).
+
+[처리 방식] 정적 마크업이 아니라 동적 렌더 문자열이므로 data-i18n 이 아닌 tl() 사용(파일 기존 패턴 일치). SEA(id/vi/th)는
+tl 4인자라 en 폴백. 모든 ?v= 7474, sw mars-v130 으로 캐시 버스트.
+
+⚠️ 잔여(후속): index.html 정적 마크업의 일부 하드코딩 라벨(입금/출금/교환/추천/미니게임 모달 등)은 data-i18n+i18n.js
+사전 추가가 필요해 이번 JS 스윕 범위 밖. 별도 패스로 처리 예정. world-live-feeds/i18n.js 의 commander 용어(맹주 vs 사령관)
+드리프트는 코드베이스 전반 표준화 사안이라 별건.
+
 ## 2026-06-30 v7.442 — 파벌 선택 모달 로컬라이징 보강
 
 사용자 제보(모바일 스샷): FACTION SELECTION 모달에 미번역 영문 잔존. 한국어 세션인데 제목/배지/일부 라벨이 영문.

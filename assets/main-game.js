@@ -938,43 +938,44 @@ function _showPOIPopup(poi) {
     // Type badge
     + '<div style="display:inline-block;padding:3px 12px;background:' + def.color + '18;border:1px solid ' + def.color + '44;border-radius:20px;font-size:9px;color:' + def.color + ';letter-spacing:2px;margin-bottom:8px">' + (def.label || poi.poiType.toUpperCase()) + '</div>'
     // Title
-    + '<div style="font-size:16px;font-weight:700;color:#FFF;margin-bottom:4px;text-shadow:0 0 12px ' + def.color + '66">' + (poi.label || def.label || 'Unknown POI') + '</div>'
+    + '<div style="font-size:16px;font-weight:700;color:#FFF;margin-bottom:4px;text-shadow:0 0 12px ' + def.color + '66">' + (poi.label || def.label || tl('Unknown POI','알 수 없는 POI','不明なPOI','未知地点')) + '</div>'
     // Sector
-    + '<div style="font-size:10px;color:var(--tx3);margin-bottom:6px">📍 ' + (poi.sectorName || 'Unknown Sector') + '</div>'
+    + '<div style="font-size:10px;color:var(--tx3);margin-bottom:6px">📍 ' + (poi.sectorName || tl('Unknown Sector','알 수 없는 섹터','不明なセクター','未知扇区')) + '</div>'
     // Territory bonus badge (territory is NOT required — just a bonus indicator)
     + (function(){
         var owned = (window._myOwnedSectors||[]).indexOf(poi.sectorId)>=0;
         if(owned){
-          return '<div style="font-size:9px;color:#4CD89A;margin-bottom:10px">✓ Home turf — you own territory here</div>';
+          return '<div style="font-size:9px;color:#4CD89A;margin-bottom:10px">✓ ' + tl('Home turf — you own territory here','홈 그라운드 — 이곳에 영토를 보유 중','ホームグラウンド — ここに領土を保有','主场 — 你在此拥有领地') + '</div>';
         }
         return '';
       })()
     // Reward hint
     + '<div style="display:flex;justify-content:center;gap:12px;margin:10px 0 14px">'
     + '<div style="text-align:center"><div style="font-size:16px">🪙</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">GP</div></div>'
-    + '<div style="text-align:center"><div style="font-size:16px">📦</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">ITEMS</div></div>'
-    + '<div style="text-align:center"><div style="font-size:16px">⭐</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">RARE PP</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px">📦</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">' + tl('ITEMS','아이템','アイテム','物品') + '</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px">⭐</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">' + tl('RARE PP','희귀 PP','レアPP','稀有PP') + '</div></div>'
     + '</div>'
     // Info + fee line
     + (function(){
         var fee = window._explorationFee||0;
         var feeLine = fee>0
-          ? '<div style="font-size:10px;color:var(--gold);margin-bottom:10px">💠 Cost: '+fee+' PP <span style="color:var(--tx3)">(you have '+(window._userPP||0).toFixed(2)+' PP)</span></div>'
+          ? '<div style="font-size:10px;color:var(--gold);margin-bottom:10px">💠 '+tl('Cost','비용','コスト','费用')+': '+fee+' PP <span style="color:var(--tx3)">('+tl('you have','보유','所持','持有')+' '+(window._userPP||0).toFixed(2)+' PP)</span></div>'
           : '';
-        return feeLine + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Anyone can discover — no territory required. First come, first served!</div>';
+        return feeLine + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">'+tl('Anyone can discover — no territory required. First come, first served!','누구나 발견 가능 — 영토 불필요. 선착순!','誰でも発見可能 — 領土不要。早い者勝ち！','任何人都能发现 — 无需领地。先到先得！')+'</div>';
       })()
     // Discover button — open to all wallets (no territory gate). Only blocked if PP fee unaffordable.
     + (function(){
         var fee = window._explorationFee||0;
         var hasPP = (window._userPP||0) >= fee;
         if(!hasPP){
-          return '<button onclick="showToast(\'Need '+fee+' PP to discover — earn more by harvesting\')" style="width:100%;padding:12px;background:rgba(232,72,85,0.2);color:#E84855;border:1px solid rgba(232,72,85,0.4);border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:1.5px">💠 NEED '+fee+' PP</button>';
+          var _needMsg = tl('Need','필요','必要','需要')+' '+fee+' '+tl('PP to discover — earn more by harvesting','PP 필요 — 수확으로 더 모으세요','PP必要 — ハーベストで貯めよう','PP — 通过收获获得更多');
+          return '<button onclick="showToast(\''+_needMsg.replace(/'/g,"\\'")+'\')" style="width:100%;padding:12px;background:rgba(232,72,85,0.2);color:#E84855;border:1px solid rgba(232,72,85,0.4);border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:1.5px">💠 '+tl('NEED','필요','必要','需要')+' '+fee+' PP</button>';
         }
-        return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 DISCOVER'+(fee>0?' ('+fee+' PP)':'')+'</button>';
+        return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 '+tl('DISCOVER','발견','発見','发现')+(fee>0?' ('+fee+' PP)':'')+'</button>';
       })()
     // Hint button
     + '<button onclick="getPOIHint()" style="width:100%;margin-top:8px;padding:9px;background:transparent;color:var(--gold);border:1px solid rgba(255,209,102,.25);border-radius:10px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
-    + '💡 POI HINT (0.2 PP)</button>'
+    + '💡 ' + tl('POI HINT','POI 힌트','POIヒント','地点提示') + ' (0.2 PP)</button>'
     + '</div></div>';
 
   overlay.appendChild(popup);
@@ -982,9 +983,9 @@ function _showPOIPopup(poi) {
 }
 
 function _discoverPOI(poiId) {
-  if (!walletState.address) { showToast('Connect wallet first'); return; }
+  if (!walletState.address) { showToast(tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続','请先连接钱包')); return; }
   var _btn = document.querySelector('#poiPopupOverlay button[onclick*="_discoverPOI"]');
-  if(_btn){ _btn.disabled=true; _btn.style.opacity='0.6'; _btn.textContent='🔍 SEARCHING...'; }
+  if(_btn){ _btn.disabled=true; _btn.style.opacity='0.6'; _btn.textContent='🔍 '+tl('SEARCHING...','검색 중...','検索中...','搜索中...'); }
   console.log('[POI] Discover request:', { wallet: walletState.address, poiId: poiId });
   fetch('/api/exploration/discover', {
     method: 'POST',
@@ -999,12 +1000,12 @@ function _discoverPOI(poiId) {
     });
   }).then(function(resp) {
     console.log('[POI] Discover response:', resp.status, resp.body || resp.text);
-    if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 DISCOVER'; }
+    if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 '+tl('DISCOVER','발견','発見','发现'); }
     var data = resp.body;
     if (!data) {
       // Non-JSON response — show status + snippet
       var snippet = (resp.text||'').slice(0,120).replace(/\s+/g,' ');
-      showToast('HTTP ' + resp.status + ' — ' + (snippet || 'no body'));
+      showToast('HTTP ' + resp.status + ' — ' + (snippet || tl('no body','응답 없음','レスポンスなし','无响应')));
       return;
     }
     if (data.error) {
@@ -1014,7 +1015,7 @@ function _discoverPOI(poiId) {
     }
     if (!data.success || !data.reward) {
       console.warn('[POI] Discover unexpected response:', resp.status, data);
-      showToast('Discovery failed — bad response');
+      showToast(tl('Discovery failed — bad response','발견 실패 — 잘못된 응답','発見失敗 — 不正なレスポンス','发现失败 — 响应错误'));
       return;
     }
     var rw = data.reward;
@@ -1032,7 +1033,7 @@ function _discoverPOI(poiId) {
     if (data.bonusCosmetic) {
       notifMsg += '\n🎁 BONUS: ' + (data.bonusCosmetic.icon||'✨') + ' ' + data.bonusCosmetic.name;
     }
-    addFeed('\u{1F50D} ' + (walletState.nickname || walletState.address.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText);
+    addFeed('\u{1F50D} ' + (walletState.nickname || walletState.address.slice(0,6)) + ' ' + tl('discovered','발견함','発見','发现了') + ' ' + data.label + ' — ' + rwText);
     // Get POI type before removing
     var _poiType = '';
     for(var _pi=0;_pi<_poiData.length;_pi++){ if(_poiData[_pi].id===poiId){_poiType=_poiData[_pi].poiType;break;} }
@@ -1046,8 +1047,8 @@ function _discoverPOI(poiId) {
     _showRewardSplash(data.label, rwText, data.xp, data.bonusCosmetic, _poiType || data.poiType || '');
   }).catch(function(err) {
     console.error('[POI] Discover network error:', err);
-    if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 DISCOVER'; }
-    showToast('Network error: ' + (err && err.message ? err.message : 'unknown'));
+    if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 '+tl('DISCOVER','발견','発見','发现'); }
+    showToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误') + ': ' + (err && err.message ? err.message : tl('unknown','알 수 없음','不明','未知')));
   });
 }
 
@@ -1072,7 +1073,7 @@ function _showRewardSplash(label, rwText, xp, bonusCosmetic, poiType) {
   popup.innerHTML = '<div style="background:rgba(12,10,8,.95);border-radius:12px;padding:12px 16px 12px;text-align:center;font-family:var(--fn)">'
     + '<div style="font-size:11px;color:' + c + ';font-weight:600;margin-bottom:8px">' + label + '</div>'
     + lines.map(function(l){ return '<div style="font-size:11px;color:#FFF;margin-bottom:3px">' + l + '</div>'; }).join('')
-    + '<button onclick="document.getElementById(\'rewardSplash\').remove()" style="width:100%;margin-top:8px;padding:6px;background:' + c + '18;border:1px solid ' + c + '33;border-radius:8px;color:' + c + ';font-family:var(--fn);font-size:10px;font-weight:600;cursor:pointer">OK</button>'
+    + '<button onclick="document.getElementById(\'rewardSplash\').remove()" style="width:100%;margin-top:8px;padding:6px;background:' + c + '18;border:1px solid ' + c + '33;border-radius:8px;color:' + c + ';font-family:var(--fn);font-size:10px;font-weight:600;cursor:pointer">' + tl('OK','확인','OK','确定') + '</button>'
     + '</div>';
 
   overlay.appendChild(popup);
@@ -1372,12 +1373,12 @@ function searchOwner(){
   var q=document.getElementById('ownerSearchInput').value.trim().toLowerCase();
   var box=document.getElementById('searchResults');
   box.innerHTML='';
-  if(!q){box.innerHTML='<div style="font-size:9px;color:var(--tx3)">Enter owner name or address</div>';return}
+  if(!q){box.innerHTML='<div style="font-size:9px;color:var(--tx3)">'+tl('Enter owner name or address','소유자 이름 또는 주소 입력','所有者名またはアドレスを入力','输入所有者名称或地址')+'</div>';return}
   var matches=claims.filter(function(c){
     var n=(c.nickname||'').toLowerCase();
     return c.owner.toLowerCase().indexOf(q)>=0||c.label.toLowerCase().indexOf(q)>=0||n.indexOf(q)>=0;
   });
-  if(!matches.length){box.innerHTML='<div style="font-size:9px;color:var(--red)">No results</div>';return}
+  if(!matches.length){box.innerHTML='<div style="font-size:9px;color:var(--red)">'+tl('No results','결과 없음','結果なし','无结果')+'</div>';return}
   matches.forEach(function(c){
     var d=document.createElement('div');
     d.className='search-result-item';
@@ -1423,8 +1424,8 @@ function renderAlerts(){
   var badge=document.getElementById('alertBadge');
   var pbadge=document.getElementById('profileAlertBadge');
   if(!alerts.length){
-    if(box) box.innerHTML='<div style="font-size:9px;color:var(--tx3)">No alerts yet</div>';
-    if(pbox) pbox.innerHTML='<div style="color:var(--tx3)">No alerts yet</div>';
+    if(box) box.innerHTML='<div style="font-size:9px;color:var(--tx3)">'+tl('No alerts yet','아직 알림 없음','まだ通知なし','暂无提醒')+'</div>';
+    if(pbox) pbox.innerHTML='<div style="color:var(--tx3)">'+tl('No alerts yet','아직 알림 없음','まだ通知なし','暂无提醒')+'</div>';
     if(badge) badge.style.display='none';
     if(pbadge) pbadge.style.display='none';
     return;
@@ -1436,7 +1437,7 @@ function renderAlerts(){
   alerts.forEach(function(a){
     var icon=a.type==='hijack'?'🎯':a.type==='earn'?'💰':'🔔';
     var ago=Math.round((Date.now()-a.time.getTime())/1000);
-    var timeStr=ago<60?ago+'s ago':Math.round(ago/60)+'m ago';
+    var timeStr=ago<60?ago+tl('s ago','초 전','秒前','秒前'):Math.round(ago/60)+tl('m ago','분 전','分前','分钟前');
     if(box){
       var d=document.createElement('div');
       d.className='alert-item '+(a.type||'');
@@ -1499,7 +1500,7 @@ function _captureGlobeScreenshot(){
 
 function _createShareImage(overlayText,callback){
   var srcCanvas=_captureGlobeScreenshot();
-  if(!srcCanvas){showToast('Could not capture globe view');return}
+  if(!srcCanvas){showToast(tl('Could not capture globe view','지구본 화면을 캡처할 수 없음','グローブ画面をキャプチャできません','无法截取地球视图'));return}
   var shareCanvas=document.createElement('canvas');
   var w=1200,h=630;
   shareCanvas.width=w;shareCanvas.height=h;
@@ -1526,7 +1527,7 @@ function _doShare(text,blob){
   // Season tracking: share action
   if(walletState.address) fetch('/api/season/share',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:walletState.address})}).catch(function(){});
   var shareUrl=window.location.origin;
-  var shareText=text||"I'm colonizing Mars! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80";
+  var shareText=text||tl("I'm colonizing Mars! Check out my territory on OCCUPY MARS","\uD654\uC131\uC744 \uAC1C\uCC99\uD558\uB294 \uC911! OCCUPY MARS\uC5D0\uC11C \uB0B4 \uC601\uD1A0\uB97C \uD655\uC778\uD558\uC138\uC694","\u706B\u661F\u3092\u958B\u62D3\u4E2D\uFF01OCCUPY MARS\u3067\u79C1\u306E\u9818\u571F\u3092\u30C1\u30A7\u30C3\u30AF","\u6211\u6B63\u5728\u6B96\u6C11\u706B\u661F\uFF01\u6765 OCCUPY MARS \u770B\u770B\u6211\u7684\u9886\u5730")+" \uD83D\uDD34\uD83D\uDE80";
   if(navigator.share&&blob){
     var file=new File([blob],'occupy-mars-territory.png',{type:'image/png'});
     navigator.share({title:'OCCUPY MARS',text:shareText,url:shareUrl,files:[file]}).catch(function(){
@@ -1539,11 +1540,11 @@ function _doShare(text,blob){
     // Fallback: copy link
     var copyText=shareText+' '+shareUrl;
     navigator.clipboard.writeText(copyText).then(function(){
-      showToast('Share text copied to clipboard!');
+      showToast(tl('Share text copied to clipboard!','공유 텍스트를 클립보드에 복사했습니다!','共有テキストをクリップボードにコピーしました！','分享文本已复制到剪贴板！'));
     }).catch(function(){
       // Final fallback
       var ta=document.createElement('textarea');ta.value=copyText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-      showToast('Share text copied to clipboard!');
+      showToast(tl('Share text copied to clipboard!','공유 텍스트를 클립보드에 복사했습니다!','共有テキストをクリップボードにコピーしました！','分享文本已复制到剪贴板！'));
     });
   }
 }
@@ -1555,7 +1556,7 @@ function shareTerritory(plot){
   var pxCount=plot._pixelCount||(pw*ph);
   var overlayText='I own '+pxCount.toLocaleString()+' pixels on Mars! \uD83D\uDD34 OCCUPY MARS';
   _createShareImage(overlayText,function(blob){
-    _doShare("I'm colonizing Mars! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80",blob);
+    _doShare(tl("I'm colonizing Mars! Check out my territory on OCCUPY MARS","\uD654\uC131\uC744 \uAC1C\uCC99\uD558\uB294 \uC911! OCCUPY MARS\uC5D0\uC11C \uB0B4 \uC601\uD1A0\uB97C \uD655\uC778\uD558\uC138\uC694","\u706B\u661F\u3092\u958B\u62D3\u4E2D\uFF01OCCUPY MARS\u3067\u79C1\u306E\u9818\u571F\u3092\u30C1\u30A7\u30C3\u30AF","\u6211\u6B63\u5728\u6B96\u6C11\u706B\u661F\uFF01\u6765 OCCUPY MARS \u770B\u770B\u6211\u7684\u9886\u5730")+" \uD83D\uDD34\uD83D\uDE80",blob);
   });
 }
 
@@ -1566,7 +1567,7 @@ function shareBaseStats(){
   var tCount=document.getElementById('myTerritoryCount')?document.getElementById('myTerritoryCount').textContent:'0';
   var overlayText='I own '+tCount+' territories on Mars! \uD83D\uDD34 OCCUPY MARS';
   _createShareImage(overlayText,function(blob){
-    var text="I'm colonizing Mars with "+totalPx+" pixels ("+rank+")! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80";
+    var text=tl("I'm colonizing Mars with","\uD654\uC131\uC744 \uAC1C\uCC99 \uC911 \u2014","\u706B\u661F\u3092\u958B\u62D3\u4E2D \u2014","\u6211\u6B63\u5728\u6B96\u6C11\u706B\u661F \u2014")+" "+totalPx+" "+tl("pixels","\uD53D\uC140","\u30D4\u30AF\u30BB\u30EB","\u50CF\u7D20")+" ("+rank+")! "+tl("Check out my territory on OCCUPY MARS","OCCUPY MARS\uC5D0\uC11C \uB0B4 \uC601\uD1A0\uB97C \uD655\uC778\uD558\uC138\uC694","OCCUPY MARS\u3067\u79C1\u306E\u9818\u571F\u3092\u30C1\u30A7\u30C3\u30AF","\u6765 OCCUPY MARS \u770B\u770B\u6211\u7684\u9886\u5730")+" \uD83D\uDD34\uD83D\uDE80";
     _doShare(text,blob);
   });
 }
@@ -1577,7 +1578,7 @@ function openTelegramGroup(){
   if(_telegramGroupUrl){
     window.open(_telegramGroupUrl,'_blank','noopener');
   }else{
-    showToast('Telegram group not configured yet');
+    showToast(tl('Telegram group not configured yet','텔레그램 그룹이 아직 설정되지 않음','Telegramグループは未設定','尚未配置 Telegram 群组'));
   }
 }
 // Fetch telegram URL from config

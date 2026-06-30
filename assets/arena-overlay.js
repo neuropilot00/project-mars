@@ -53,7 +53,7 @@ window.arenaConnectWallet = function() {
     arenaLoadBalance();
     arenaCheckActiveMines();
   } else {
-    arenaToast('Please login first', true);
+    arenaToast(tl('Please login first','먼저 로그인하세요','まずログインしてください','请先登录'), true);
     try { openAuthModal(); } catch(e) {}
   }
 };
@@ -226,8 +226,8 @@ function updateCrashDisplay() {
   if (!el || !status) return;
   if (crashState === 'waiting') {
     el.className = 'crash-mult-val waiting';
-    el.textContent = 'WAITING...';
-    status.textContent = 'Place your bets!';
+    el.textContent = tl('WAITING...','대기 중...','待機中...','等待中...');
+    status.textContent = tl('Place your bets!','베팅하세요!','ベットしてください！','下注吧！');
     status.style.color = 'var(--tx3)';
   } else if (crashState === 'running') {
     el.className = 'crash-mult-val running';
@@ -237,7 +237,7 @@ function updateCrashDisplay() {
   } else if (crashState === 'crashed') {
     el.className = 'crash-mult-val crashed';
     el.textContent = crashMultiplier.toFixed(2) + 'x';
-    status.textContent = 'CRASHED!';
+    status.textContent = tl('CRASHED!','폭락!','クラッシュ！','崩盘！');
     status.style.color = 'var(--red)';
   }
 }
@@ -248,30 +248,30 @@ function updateCrashBtn() {
   if (crashState === 'running' && myBet && !myBet.cashed) {
     var payout = (myBet.amount * crashMultiplier).toFixed(2);
     btn.className = 'btn-bet cashout';
-    btn.textContent = 'CASHOUT  ' + payout + ' ' + myBet.currency + '  (' + crashMultiplier.toFixed(2) + 'x)';
+    btn.textContent = tl('CASHOUT','캐시아웃','キャッシュアウト','提现') + '  ' + payout + ' ' + myBet.currency + '  (' + crashMultiplier.toFixed(2) + 'x)';
     btn.disabled = false;
     btn.onclick = doCrashCashout;
   } else if (crashState === 'running' && myBet && myBet.cashed) {
     var cashedMult = myBet.cashoutAt || crashMultiplier;
     var cashedPayout = myBet.payout || (myBet.amount * cashedMult);
     btn.className = 'btn-bet cashout';
-    btn.textContent = 'CASHED OUT ✓  +' + Number(cashedPayout).toFixed(2) + ' ' + myBet.currency + '  (' + Number(cashedMult).toFixed(2) + 'x)';
+    btn.textContent = tl('CASHED OUT','캐시아웃 완료','キャッシュアウト済','已提现') + ' ✓  +' + Number(cashedPayout).toFixed(2) + ' ' + myBet.currency + '  (' + Number(cashedMult).toFixed(2) + 'x)';
     btn.disabled = true; btn.onclick = null;
   } else if (crashState === 'running') {
     btn.className = 'btn-bet place';
-    btn.textContent = 'ROUND IN PROGRESS';
+    btn.textContent = tl('ROUND IN PROGRESS','라운드 진행 중','ラウンド進行中','回合进行中');
     btn.disabled = true; btn.onclick = null;
   } else if (crashState === 'crashed') {
     btn.className = 'btn-bet place';
-    btn.textContent = 'NEXT ROUND...';
+    btn.textContent = tl('NEXT ROUND...','다음 라운드...','次のラウンド...','下一回合...');
     btn.disabled = true; btn.onclick = null;
   } else if (crashState === 'waiting' && myBet) {
     btn.className = 'btn-bet cashout';
-    btn.textContent = 'BET PLACED (' + myBet.amount + ' ' + myBet.currency + ') -- WAITING...';
+    btn.textContent = tl('BET PLACED','베팅 완료','ベット完了','下注完成') + ' (' + myBet.amount + ' ' + myBet.currency + ') -- ' + tl('WAITING...','대기 중...','待機中...','等待中...');
     btn.disabled = true; btn.onclick = null;
   } else {
     btn.className = 'btn-bet place';
-    btn.textContent = 'PLACE BET';
+    btn.textContent = tl('PLACE BET','베팅하기','ベットする','下注');
     btn.disabled = !arenaWallet;
     btn.onclick = placeCrashBet;
   }
@@ -285,7 +285,7 @@ window.toggleAutoCashout = function() {
   toggle.classList.toggle('on', autoCashoutOn);
   var v = parseFloat(document.getElementById('crashAutoInput').value);
   if (autoCashoutOn && (!v || v < 1.1)) {
-    arenaToast('Set auto cashout multiplier first (min 1.1x)');
+    arenaToast(tl('Set auto cashout multiplier first (min 1.1x)','자동 캐시아웃 배율을 먼저 설정하세요 (최소 1.1x)','自動キャッシュアウト倍率を先に設定してください（最低1.1x）','请先设置自动提现倍数（最低1.1x）'));
     autoCashoutOn = false;
     toggle.classList.remove('on');
   }
@@ -301,10 +301,10 @@ window.qCrash = function(v) { document.getElementById('crashBetInput').value = v
 
 // ── Crash API calls ──
 window.placeCrashBet = function() {
-  if (!arenaWallet) return arenaToast('Connect wallet first', true);
-  if (crashState !== 'waiting') return arenaToast('Wait for next round', true);
+  if (!arenaWallet) return arenaToast(tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続してください','请先连接钱包'), true);
+  if (crashState !== 'waiting') return arenaToast(tl('Wait for next round','다음 라운드를 기다리세요','次のラウンドをお待ちください','请等待下一回合'), true);
   var amount = parseFloat(document.getElementById('crashBetInput').value);
-  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+  if (!amount || amount <= 0) return arenaToast(tl('Enter bet amount','베팅 금액을 입력하세요','ベット額を入力してください','请输入下注金额'), true);
   fetch(ARENA_API + '/crash/bet', {
     method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: crashCurrency })
@@ -316,7 +316,7 @@ window.placeCrashBet = function() {
     arenaLoadBalance();
     updateCrashBtn();
     pollCrashRound();
-  }).catch(function(){ arenaToast('Bet failed', true); });
+  }).catch(function(){ arenaToast(tl('Bet failed','베팅 실패','ベット失敗','下注失败'), true); });
 };
 
 function doCrashCashout() {
@@ -334,7 +334,7 @@ function doCrashCashout() {
     arenaLoadBalance();
     updateCrashBtn();
     pollCrashRound(); // refresh bets sidebar
-  }).catch(function(){ arenaToast('Cashout failed', true); });
+  }).catch(function(){ arenaToast(tl('Cashout failed','캐시아웃 실패','キャッシュアウト失敗','提现失败'), true); });
 }
 
 // ── Crash game loop (polling) ──
@@ -371,7 +371,7 @@ function pollCrashRound() {
         countdownInterval = _setActiveInterval(function(){
           crashCountdown--;
           var st = document.getElementById('crashStatusText');
-          if (st) st.textContent = 'Starting in ' + crashCountdown + 's...';
+          if (st) st.textContent = tl('Starting in ','시작까지 ','開始まで','开始倒计时 ') + crashCountdown + tl('s...','초...','秒...','秒...');
           if (crashCountdown <= 0) {
             _clearActiveInterval(countdownInterval);
             countdownInterval = null;
@@ -457,7 +457,7 @@ function renderCrashBets() {
       '</span><span class="cb-amt">' + b.bet.toFixed(2) +
       '</span><span class="cb-status ' + b.status + '">' +
       (b.status === 'cashed' ? b.cashout.toFixed(2) + 'x' :
-       b.status === 'busted' ? 'BUST' : 'LIVE') +
+       b.status === 'busted' ? tl('BUST','파산','バスト','爆掉') : tl('LIVE','진행','ライブ','进行')) +
       '</span></div>';
   }).join('');
 }
@@ -560,11 +560,11 @@ function updateMinesInfo() {
   if (!btn) return;
   if (minesActive) {
     btn.className = 'btn-mines cashout';
-    btn.textContent = 'CASHOUT  ' + (minesBetAmount * minesMultVal).toFixed(4) + ' ' + minesCurrency;
+    btn.textContent = tl('CASHOUT','캐시아웃','キャッシュアウト','提现') + '  ' + (minesBetAmount * minesMultVal).toFixed(4) + ' ' + minesCurrency;
     btn.disabled = minesRevealed.length === 0;
   } else {
     btn.className = 'btn-mines start';
-    btn.textContent = 'START GAME';
+    btn.textContent = tl('START GAME','게임 시작','ゲーム開始','开始游戏');
     btn.disabled = !arenaWallet;
   }
 }
@@ -574,9 +574,9 @@ window.minesAction = function() {
 };
 
 function startMines() {
-  if (!arenaWallet) return arenaToast('Connect wallet first', true);
+  if (!arenaWallet) return arenaToast(tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続してください','请先连接钱包'), true);
   var amount = parseFloat(document.getElementById('minesBetInput').value);
-  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+  if (!amount || amount <= 0) return arenaToast(tl('Enter bet amount','베팅 금액을 입력하세요','ベット額を入力してください','请输入下注金额'), true);
   fetch(ARENA_API + '/mines/start', {
     method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: minesCurrency, mines: mineCount })
@@ -595,8 +595,8 @@ function startMines() {
     initMinesGrid();
     updateMinesInfo();
     arenaLoadBalance();
-    arenaToast('Game started! Find the gems!');
-  }).catch(function(){ arenaToast('Failed to start game', true); });
+    arenaToast(tl('Game started! Find the gems!','게임 시작! 보석을 찾으세요!','ゲーム開始！宝石を見つけよう！','游戏开始！寻找宝石！'));
+  }).catch(function(){ arenaToast(tl('Failed to start game','게임 시작 실패','ゲーム開始に失敗','开始游戏失败'), true); });
 }
 
 function revealTile(pos) {
@@ -619,7 +619,7 @@ function revealTile(pos) {
       tile.classList.add('revealed', 'mine');
       tile.querySelector('.tile-icon').textContent = '\uD83D\uDCA3';
       setTimeout(function(){ updateMinesRevealed(); updateMinesInfo(); }, 500);
-      arenaToast('BOOM! You hit a mine!', true);
+      arenaToast(tl('BOOM! You hit a mine!','펑! 지뢰를 밟았습니다!','ドカン！地雷を踏みました！','轰！你踩到地雷了！'), true);
       arenaLoadBalance();
     } else {
       minesRevealed = d.revealed;
@@ -630,16 +630,16 @@ function revealTile(pos) {
       updateMinesInfo();
       if (d.safeRemaining === 0) {
         minesActive = false;
-        arenaToast('ALL GEMS FOUND! Auto cashout!');
+        arenaToast(tl('ALL GEMS FOUND! Auto cashout!','모든 보석 발견! 자동 캐시아웃!','全宝石発見！自動キャッシュアウト！','找到所有宝石！自动提现！'));
         cashoutMines();
       }
     }
-  }).catch(function(){ arenaToast('Error revealing tile', true); tile.style.pointerEvents = ''; });
+  }).catch(function(){ arenaToast(tl('Error revealing tile','타일 공개 오류','タイル公開エラー','翻开方块出错'), true); tile.style.pointerEvents = ''; });
 }
 
 function cashoutMines() {
   if (!minesActive || !minesGameId) return;
-  if (minesRevealed.length === 0) return arenaToast('Reveal at least one tile', true);
+  if (minesRevealed.length === 0) return arenaToast(tl('Reveal at least one tile','타일을 최소 하나 공개하세요','タイルを最低1つ公開してください','至少翻开一个方块'), true);
   fetch(ARENA_API + '/mines/cashout', {
     method: 'POST', headers: arenaAuthHeaders(),
     body: JSON.stringify({ wallet: arenaWallet, gameId: minesGameId })
@@ -650,10 +650,10 @@ function cashoutMines() {
     minesActive = false;
     minesGrid = d.grid;
     updateMinesRevealed();
-    arenaToast('Cashed out! +' + d.payout.toFixed(4) + ' ' + d.currency + ' @ ' + d.multiplier.toFixed(2) + 'x');
+    arenaToast(tl('Cashed out!','캐시아웃 완료!','キャッシュアウト完了！','已提现！') + ' +' + d.payout.toFixed(4) + ' ' + d.currency + ' @ ' + d.multiplier.toFixed(2) + 'x');
     arenaLoadBalance();
     updateMinesInfo();
-  }).catch(function(){ arenaToast('Cashout failed', true); });
+  }).catch(function(){ arenaToast(tl('Cashout failed','캐시아웃 실패','キャッシュアウト失敗','提现失败'), true); });
 }
 
 function arenaCheckActiveMines() {
@@ -715,7 +715,7 @@ function loadCoinflipHistory() {
     items.forEach(function(item){
       var dot = document.createElement('div');
       dot.className = 'cf-dot ' + (item.result || 'survive');
-      dot.title = (item.result === 'survive' ? 'HEADS' : 'TAILS') + ' | Bet: ' + item.bet + ' | Payout: ' + (item.payout || 0);
+      dot.title = (item.result === 'survive' ? tl('HEADS','앞면','表','正面') : tl('TAILS','뒷면','裏','反面')) + ' | ' + tl('Bet','베팅','ベット','下注') + ': ' + item.bet + ' | ' + tl('Payout','지급','配当','派彩') + ': ' + (item.payout || 0);
       el.appendChild(dot);
     });
   }).catch(function(){});
@@ -723,14 +723,14 @@ function loadCoinflipHistory() {
 
 window.playCoinflip = function() {
   if (cfPlaying) return;
-  if (!arenaWallet) return arenaToast('Connect wallet first', true);
+  if (!arenaWallet) return arenaToast(tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続してください','请先连接钱包'), true);
   var amount = parseFloat(document.getElementById('cfBetInput').value);
-  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+  if (!amount || amount <= 0) return arenaToast(tl('Enter bet amount','베팅 금액을 입력하세요','ベット額を入力してください','请输入下注金额'), true);
 
   cfPlaying = true;
   var btn = document.getElementById('cfPlayBtn');
   btn.disabled = true;
-  btn.textContent = 'FLIPPING...';
+  btn.textContent = tl('FLIPPING...','던지는 중...','フリップ中...','抛掷中...');
 
   var coin = document.getElementById('cfCoin');
   var resultEl = document.getElementById('cfResult');
@@ -746,7 +746,7 @@ window.playCoinflip = function() {
     setTimeout(function(){
       cfPlaying = false;
       btn.disabled = false;
-      btn.textContent = 'FLIP COIN';
+      btn.textContent = tl('FLIP COIN','동전 던지기','コインを投げる','抛硬币');
       if (!res.ok) {
         coin.className = 'cf-coin';
         arenaToast(res.data.error, true);
@@ -757,13 +757,13 @@ window.playCoinflip = function() {
       coin.className = 'cf-coin flip-' + d.result;
       if (d.won) {
         try{trackQuestAction('cantina_win',1)}catch(e){}
-        resultEl.textContent = 'WIN! +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency;
+        resultEl.textContent = tl('WIN!','승리!','勝利！','赢了！') + ' +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency;
         resultEl.style.color = 'var(--gn)';
-        arenaToast('You survived! +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency);
+        arenaToast(tl('You survived!','생존했습니다!','生き残った！','你活下来了！') + ' +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency);
       } else {
-        resultEl.textContent = 'LOST! -' + amount.toFixed(4) + ' ' + cfCurrency;
+        resultEl.textContent = tl('LOST!','패배!','敗北！','输了！') + ' -' + amount.toFixed(4) + ' ' + cfCurrency;
         resultEl.style.color = 'var(--red)';
-        arenaToast('You perished!', true);
+        arenaToast(tl('You perished!','사망했습니다!','やられた！','你死了！'), true);
       }
       arenaLoadBalance();
       loadCoinflipHistory();
@@ -772,9 +772,9 @@ window.playCoinflip = function() {
     setTimeout(function(){
       cfPlaying = false;
       btn.disabled = false;
-      btn.textContent = 'FLIP COIN';
+      btn.textContent = tl('FLIP COIN','동전 던지기','コインを投げる','抛硬币');
       coin.className = 'cf-coin';
-      arenaToast('Coinflip failed', true);
+      arenaToast(tl('Coinflip failed','동전 던지기 실패','コインフリップ失敗','抛硬币失败'), true);
     }, 900);
   });
 };
@@ -833,15 +833,15 @@ window.updateDiceUI = function() {
 
 window.playDice = function() {
   if (dicePlaying) return;
-  if (!arenaWallet) return arenaToast('Connect wallet first', true);
+  if (!arenaWallet) return arenaToast(tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続してください','请先连接钱包'), true);
   var amount = parseFloat(document.getElementById('diceBetInput').value);
-  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+  if (!amount || amount <= 0) return arenaToast(tl('Enter bet amount','베팅 금액을 입력하세요','ベット額を入力してください','请输入下注金额'), true);
   var target = parseInt(document.getElementById('diceSlider').value);
 
   dicePlaying = true;
   var btn = document.getElementById('dicePlayBtn');
   btn.disabled = true;
-  btn.textContent = 'ROLLING...';
+  btn.textContent = tl('ROLLING...','굴리는 중...','ロール中...','投掷中...');
 
   var resultEl = document.getElementById('diceRollResult');
   var labelEl = document.getElementById('diceRollLabel');
@@ -857,11 +857,11 @@ window.playDice = function() {
     setTimeout(function(){
       dicePlaying = false;
       btn.disabled = false;
-      btn.textContent = 'ROLL DICE';
+      btn.textContent = tl('ROLL DICE','주사위 굴리기','サイコロを振る','掷骰子');
       if (!res.ok) {
         resultEl.className = 'dice-roll-result';
         resultEl.textContent = '--';
-        labelEl.textContent = 'ROLL TO PLAY';
+        labelEl.textContent = tl('ROLL TO PLAY','굴려서 플레이','振ってプレイ','投掷开始');
         arenaToast(res.data.error, true);
         return;
       }
@@ -871,13 +871,13 @@ window.playDice = function() {
       resultEl.textContent = d.roll.toFixed(2);
       if (d.won) {
         try{trackQuestAction('cantina_win',1)}catch(e){}
-        labelEl.textContent = 'WIN! +' + (d.payout || 0).toFixed(4) + ' ' + diceCurrency + ' @ ' + (d.multiplier || 0).toFixed(2) + 'x';
+        labelEl.textContent = tl('WIN!','승리!','勝利！','赢了！') + ' +' + (d.payout || 0).toFixed(4) + ' ' + diceCurrency + ' @ ' + (d.multiplier || 0).toFixed(2) + 'x';
         labelEl.style.color = 'var(--gn)';
-        arenaToast('Roll ' + d.roll.toFixed(2) + ' — WIN! +' + (d.payout || 0).toFixed(4));
+        arenaToast(tl('Roll ','롤 ','ロール ','点数 ') + d.roll.toFixed(2) + ' — ' + tl('WIN!','승리!','勝利！','赢了！') + ' +' + (d.payout || 0).toFixed(4));
       } else {
-        labelEl.textContent = 'LOST! -' + amount.toFixed(4) + ' ' + diceCurrency;
+        labelEl.textContent = tl('LOST!','패배!','敗北！','输了！') + ' -' + amount.toFixed(4) + ' ' + diceCurrency;
         labelEl.style.color = 'var(--red)';
-        arenaToast('Roll ' + d.roll.toFixed(2) + ' — LOST!', true);
+        arenaToast(tl('Roll ','롤 ','ロール ','点数 ') + d.roll.toFixed(2) + ' — ' + tl('LOST!','패배!','敗北！','输了！'), true);
       }
       arenaLoadBalance();
     }, 600);
@@ -885,10 +885,10 @@ window.playDice = function() {
     setTimeout(function(){
       dicePlaying = false;
       btn.disabled = false;
-      btn.textContent = 'ROLL DICE';
+      btn.textContent = tl('ROLL DICE','주사위 굴리기','サイコロを振る','掷骰子');
       resultEl.className = 'dice-roll-result';
       resultEl.textContent = '--';
-      arenaToast('Dice roll failed', true);
+      arenaToast(tl('Dice roll failed','주사위 굴리기 실패','サイコロ失敗','掷骰子失败'), true);
     }, 600);
   });
 };
@@ -956,13 +956,13 @@ function updateHiloDisplay() {
   if (hiloActive) {
     if (higherBtn) higherBtn.disabled = false;
     if (lowerBtn) lowerBtn.disabled = false;
-    if (cashBtn) { cashBtn.disabled = hiloCards.length < 2; cashBtn.textContent = 'CASHOUT ' + (hiloBetAmount * hiloMultiplier).toFixed(4) + ' ' + hiloCurrency; }
-    if (startBtn) { startBtn.textContent = 'GAME IN PROGRESS'; startBtn.disabled = true; }
+    if (cashBtn) { cashBtn.disabled = hiloCards.length < 2; cashBtn.textContent = tl('CASHOUT','캐시아웃','キャッシュアウト','提现') + ' ' + (hiloBetAmount * hiloMultiplier).toFixed(4) + ' ' + hiloCurrency; }
+    if (startBtn) { startBtn.textContent = tl('GAME IN PROGRESS','게임 진행 중','ゲーム進行中','游戏进行中'); startBtn.disabled = true; }
   } else {
     if (higherBtn) higherBtn.disabled = true;
     if (lowerBtn) lowerBtn.disabled = true;
-    if (cashBtn) { cashBtn.disabled = true; cashBtn.textContent = 'CASHOUT'; }
-    if (startBtn) { startBtn.textContent = 'START GAME'; startBtn.disabled = !arenaWallet; }
+    if (cashBtn) { cashBtn.disabled = true; cashBtn.textContent = tl('CASHOUT','캐시아웃','キャッシュアウト','提现'); }
+    if (startBtn) { startBtn.textContent = tl('START GAME','게임 시작','ゲーム開始','开始游戏'); startBtn.disabled = !arenaWallet; }
   }
   renderHiloCards();
 }
@@ -986,13 +986,13 @@ function checkActiveHilo() {
 
 window.startHilo = function() {
   if (hiloActive) return;
-  if (!arenaWallet) return arenaToast('Connect wallet first', true);
+  if (!arenaWallet) return arenaToast(tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続してください','请先连接钱包'), true);
   var amount = parseFloat(document.getElementById('hiloBetInput').value);
-  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+  if (!amount || amount <= 0) return arenaToast(tl('Enter bet amount','베팅 금액을 입력하세요','ベット額を入力してください','请输入下注金额'), true);
 
   var btn = document.getElementById('hiloStartBtn');
   btn.disabled = true;
-  btn.textContent = 'STARTING...';
+  btn.textContent = tl('STARTING...','시작 중...','開始中...','开始中...');
 
   fetch(ARENA_API + '/hilo/start', {
     method: 'POST', headers: arenaAuthHeaders(),
@@ -1001,7 +1001,7 @@ window.startHilo = function() {
   .then(function(res){
     if (!res.ok) {
       btn.disabled = false;
-      btn.textContent = 'START GAME';
+      btn.textContent = tl('START GAME','게임 시작','ゲーム開始','开始游戏');
       return arenaToast(res.data.error, true);
     }
     var d = res.data;
@@ -1012,11 +1012,11 @@ window.startHilo = function() {
     hiloBetAmount = amount;
     updateHiloDisplay();
     arenaLoadBalance();
-    arenaToast('Game started! Higher or Lower?');
+    arenaToast(tl('Game started! Higher or Lower?','게임 시작! 높을까 낮을까?','ゲーム開始！ハイかローか？','游戏开始！大还是小？'));
   }).catch(function(){
     btn.disabled = false;
-    btn.textContent = 'START GAME';
-    arenaToast('Failed to start game', true);
+    btn.textContent = tl('START GAME','게임 시작','ゲーム開始','开始游戏');
+    arenaToast(tl('Failed to start game','게임 시작 실패','ゲーム開始に失敗','开始游戏失败'), true);
   });
 };
 
@@ -1045,23 +1045,23 @@ window.guessHilo = function(dir) {
       hiloActive = false;
       hiloGameId = null;
       updateHiloDisplay();
-      arenaToast('Wrong guess! Game over!', true);
+      arenaToast(tl('Wrong guess! Game over!','틀렸습니다! 게임 종료!','ハズレ！ゲームオーバー！','猜错了！游戏结束！'), true);
       arenaLoadBalance();
     } else {
       updateHiloDisplay();
-      arenaToast('Correct! Multiplier: ' + hiloMultiplier.toFixed(2) + 'x');
+      arenaToast(tl('Correct! Multiplier: ','정답! 배율: ','正解！倍率：','猜对了！倍数：') + hiloMultiplier.toFixed(2) + 'x');
     }
   }).catch(function(){
     if (hiloActive) { if (higherBtn) higherBtn.disabled = false; if (lowerBtn) lowerBtn.disabled = false; }
-    arenaToast('Guess failed', true);
+    arenaToast(tl('Guess failed','예측 실패','予想失敗','猜测失败'), true);
   });
 };
 
 window.cashoutHilo = function() {
   if (!hiloActive || !hiloGameId) return;
-  if (hiloCards.length < 2) return arenaToast('Make at least one guess first', true);
+  if (hiloCards.length < 2) return arenaToast(tl('Make at least one guess first','먼저 한 번 이상 예측하세요','まず1回以上予想してください','请先至少猜测一次'), true);
   var cashBtn = document.getElementById('hiloCashoutBtn');
-  if (cashBtn) { cashBtn.disabled = true; cashBtn.textContent = 'CASHING OUT...'; }
+  if (cashBtn) { cashBtn.disabled = true; cashBtn.textContent = tl('CASHING OUT...','캐시아웃 중...','キャッシュアウト中...','提现中...'); }
 
   fetch(ARENA_API + '/hilo/cashout', {
     method: 'POST', headers: arenaAuthHeaders(),
@@ -1069,18 +1069,18 @@ window.cashoutHilo = function() {
   }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
   .then(function(res){
     if (!res.ok) {
-      if (cashBtn) { cashBtn.disabled = false; cashBtn.textContent = 'CASHOUT'; }
+      if (cashBtn) { cashBtn.disabled = false; cashBtn.textContent = tl('CASHOUT','캐시아웃','キャッシュアウト','提现'); }
       return arenaToast(res.data.error, true);
     }
     var d = res.data;
     hiloActive = false;
     hiloGameId = null;
     updateHiloDisplay();
-    arenaToast('Cashed out! +' + (d.payout || 0).toFixed(4) + ' ' + (d.currency || hiloCurrency));
+    arenaToast(tl('Cashed out!','캐시아웃 완료!','キャッシュアウト完了！','已提现！') + ' +' + (d.payout || 0).toFixed(4) + ' ' + (d.currency || hiloCurrency));
     arenaLoadBalance();
   }).catch(function(){
-    if (cashBtn) { cashBtn.disabled = false; cashBtn.textContent = 'CASHOUT'; }
-    arenaToast('Cashout failed', true);
+    if (cashBtn) { cashBtn.disabled = false; cashBtn.textContent = tl('CASHOUT','캐시아웃','キャッシュアウト','提现'); }
+    arenaToast(tl('Cashout failed','캐시아웃 실패','キャッシュアウト失敗','提现失败'), true);
   });
 };
 

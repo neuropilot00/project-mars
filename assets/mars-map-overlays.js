@@ -405,7 +405,8 @@ function _drawSectorOverlay(ctx,w,h){
         ctx.font='bold '+Math.max(8,badgeSize*0.86)+'px monospace';
         ctx.globalAlpha=0.82;
         ctx.fillStyle=intel2.pressure==='WAR'?'#FF7043':'#FFD166';
-        ctx.fillText(intel2.pressure,cx,cy+fontSize*1.32);
+        var _pressureLbl=intel2.pressure==='WAR'?tl('WAR','전쟁','戦争','战争'):tl('CONTEST','분쟁','係争','争夺');
+        ctx.fillText(_pressureLbl,cx,cy+fontSize*1.32);
       }
     }
 
@@ -677,11 +678,11 @@ function _drawWeatherOverlay(ctx, w, h) {
 var _poiData = [];
 // Mars-theme harmonized palette (aligned to --gold/--mars/--gn/--cyan/--pp)
 var _poiDefs = {
-  ancient_ruins:  { icon: '⚜', color: '#FFD166', glow: '#FFE4A3', label: 'ANCIENT RUINS',  illust: '🏛️' },
-  ore_deposit:    { icon: '◆', color: '#FF7840', glow: '#FFB085', label: 'ORE DEPOSIT',    illust: '⛏️' },
-  crashed_probe:  { icon: '▼', color: '#4CD89A', glow: '#9CF0C8', label: 'CRASHED PROBE',  illust: '🛸' },
-  water_ice:      { icon: '◇', color: '#5BB8E8', glow: '#A8DCF5', label: 'WATER ICE',      illust: '🧊' },
-  alien_artifact: { icon: '✦', color: '#B888E0', glow: '#DCBCF0', label: 'ALIEN ARTIFACT', illust: '🔮' }
+  ancient_ruins:  { icon: '⚜', color: '#FFD166', glow: '#FFE4A3', label: tl('ANCIENT RUINS','고대 유적','古代遺跡','远古遗迹'),  illust: '🏛️' },
+  ore_deposit:    { icon: '◆', color: '#FF7840', glow: '#FFB085', label: tl('ORE DEPOSIT','광맥','鉱脈','矿脉'),    illust: '⛏️' },
+  crashed_probe:  { icon: '▼', color: '#4CD89A', glow: '#9CF0C8', label: tl('CRASHED PROBE','추락한 탐사선','墜落した探査機','坠毁探测器'),  illust: '🛸' },
+  water_ice:      { icon: '◇', color: '#5BB8E8', glow: '#A8DCF5', label: tl('WATER ICE','얼음','氷','水冰'),      illust: '🧊' },
+  alien_artifact: { icon: '✦', color: '#B888E0', glow: '#DCBCF0', label: tl('ALIEN ARTIFACT','외계 유물','異星の遺物','外星遗物'), illust: '🔮' }
 };
 
 // ══════════════════════════════════════
@@ -841,7 +842,7 @@ function _drawPOIMarkers(ctx, w, h) {
     ctx.font = 'bold 8px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    var labelText = '\u2039 ' + (def.label || 'SIGNAL') + ' \u203A';
+    var labelText = '\u2039 ' + (def.label || tl('SIGNAL','\uC2E0\uD638','\u4FE1\u53F7','\u4FE1\u53F7')) + ' \u203A';
     ctx.lineWidth = 2.5;
     ctx.lineJoin = 'round';
     ctx.strokeStyle = 'rgba(4,2,1,0.85)';
@@ -1012,7 +1013,7 @@ function _drawMissionRoutes(ctx, w, h){
       ctx.font = 'bold ' + Math.max(12, Math.floor(w/280)) + 'px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      var lbl = isInvade ? '⚔ INVADE' : '🛰 SCAN';
+      var lbl = isInvade ? '⚔ '+tl('INVADE','침공','侵攻','入侵') : '🛰 '+tl('SCAN','정찰','探査','扫描');
       ctx.fillText(lbl, tx2, ty + thickW);
     }
   });
@@ -1108,7 +1109,7 @@ function _drawMissionPreview(ctx, w, h){
     ctx.font = 'bold ' + Math.max(20, Math.floor(w/180)) + 'px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText('▸ PREVIEW', tx2, ty + thickW);
+    ctx.fillText('▸ '+tl('PREVIEW','미리보기','プレビュー','预览'), tx2, ty + thickW);
   }
 
   ctx.setLineDash([]);
@@ -1262,7 +1263,7 @@ function _drawRocketOverlay(ctx, w, h) {
       ctx.font = 'bold 9px monospace';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#FF4422';
-      ctx.fillText('INCOMING', x, y + 22);
+      ctx.fillText(tl('INCOMING','접근 중','接近中','来袭'), x, y + 22);
       if (_starshipImg.complete && _starshipImg.naturalWidth) {
         var sz = 42;
         ctx.globalAlpha = 0.9;
@@ -1296,7 +1297,7 @@ function _drawRocketOverlay(ctx, w, h) {
       ctx.font = 'bold 8px monospace';
       ctx.fillStyle = ev.eventType === 'rud_explosion' ? '#FF6644' : '#00FF88';
       var remaining = ev.totalRewards - ev.claimedRewards;
-      ctx.fillText(remaining + ' LOOT', x, y - 24);
+      ctx.fillText(remaining + ' ' + tl('LOOT','전리품','戦利品','战利品'), x, y - 24);
     }
   });
 
@@ -1533,7 +1534,9 @@ function _openInfoModal(title, bodyHtml, accentColor){
 function openMyMineralsPanel(){
   var w = walletState.address;
   if(!w){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
-  _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#81c784');
+  var _mineralsTitle = '💎 '+tl('MY MINERALS','내 광물','所持鉱物','我的矿石');
+  var _loadingHtml = '<div style="text-align:center;color:var(--tx3)">'+tl('Loading...','불러오는 중...','読み込み中...','加载中...')+'</div>';
+  _openInfoModal(_mineralsTitle, _loadingHtml, '#81c784');
   mapOverlayReadJson('resources-my', '/api/resources/my', 10000)
     .then(function(d){
       if(!d) return;
@@ -1553,18 +1556,20 @@ function openMyMineralsPanel(){
         body += '</div>';
       }
       var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('💎 MY MINERALS', body, '#81c784');
+      _openInfoModal(_mineralsTitle, body, '#81c784');
     })
     .catch(function(){
       var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--mars)">'+(LANG==='ko'?'로드 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>', '#81c784');
+      _openInfoModal(_mineralsTitle, '<div style="text-align:center;color:var(--mars)">'+(LANG==='ko'?'로드 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>', '#81c784');
     });
 }
 
 function openMyShipRegistry(){
   var w = walletState.address;
   if(!w){ showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录')); return; }
-  _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#5cbbff');
+  var _registryTitle = '🚀 '+tl('SHIP REGISTRY','함선 명부','艦船登録簿','舰船名册');
+  var _loadingHtml = '<div style="text-align:center;color:var(--tx3)">'+tl('Loading...','불러오는 중...','読み込み中...','加载中...')+'</div>';
+  _openInfoModal(_registryTitle, _loadingHtml, '#5cbbff');
   mapOverlayReadJson('ships-my', '/api/ships/my', 10000)
     .then(function(d){
       if(!d) return;
@@ -1578,7 +1583,7 @@ function openMyShipRegistry(){
         body += '<div style="text-align:center;color:var(--tx3);padding:14px">'+t('fleet_no_ships_hint')+'</div>';
       } else {
         body += '<div style="display:grid;grid-template-columns:1fr auto auto;gap:5px 10px;font-size:9px">';
-        body += '<div style="color:var(--tx3);font-weight:700">SHIP</div><div style="color:var(--tx3);font-weight:700;text-align:center">HP</div><div style="color:var(--tx3);font-weight:700;text-align:right">STATUS</div>';
+        body += '<div style="color:var(--tx3);font-weight:700">'+tl('SHIP','함선','艦船','舰船')+'</div><div style="color:var(--tx3);font-weight:700;text-align:center">HP</div><div style="color:var(--tx3);font-weight:700;text-align:right">'+tl('STATUS','상태','状態','状态')+'</div>';
         ships.forEach(function(s){
           var name = s.name || s.ship_type_name || s.ship_type_code || 'Ship#'+s.id;
           var hp = (s.current_hp!=null && s.max_hp!=null) ? (s.current_hp+'/'+s.max_hp) : (s.hp||'?');
@@ -1588,11 +1593,11 @@ function openMyShipRegistry(){
         body += '</div>';
       }
       var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('🚀 SHIP REGISTRY', body, '#5cbbff');
+      _openInfoModal(_registryTitle, body, '#5cbbff');
     })
     .catch(function(){
       var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
-      _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--mars)">'+(LANG==='ko'?'로드 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>', '#5cbbff');
+      _openInfoModal(_registryTitle, '<div style="text-align:center;color:var(--mars)">'+(LANG==='ko'?'로드 실패':LANG==='ja'?'読込失敗':LANG==='zh'?'加载失败':'Load failed')+'</div>', '#5cbbff');
     });
 }
 

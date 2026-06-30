@@ -14,13 +14,18 @@
 
   ensureEscapeHtml();
 
+  function _tl(en, ko, ja, zh) {
+    if (typeof window.tl === 'function') return window.tl(en, ko, ja, zh);
+    return en;
+  }
+
   window.gameConfirm = function(opts) {
     return new Promise(function(resolve) {
       confirmResolver = resolve;
       const dlg = document.getElementById('gameConfirm');
       if (!dlg) return resolve(false);
 
-      document.getElementById('gcTitle').textContent = opts.title || 'CONFIRM';
+      document.getElementById('gcTitle').textContent = opts.title || _tl('CONFIRM', '확인', '確認', '确认');
       document.getElementById('gcIcon').textContent = opts.icon || '⚠';
       document.getElementById('gcBody').innerHTML = opts.body || '';
 
@@ -36,7 +41,7 @@
       }
 
       const btn = document.getElementById('gcConfirmBtn');
-      btn.textContent = opts.confirmText || 'CONFIRM';
+      btn.textContent = opts.confirmText || _tl('CONFIRM', '확인', '確認', '确认');
       btn.disabled = !!opts.disabled;
       dlg.classList.add('open');
     });
@@ -56,7 +61,7 @@
       const dlg = document.getElementById('gameInput');
       if (!dlg) return resolve(null);
 
-      document.getElementById('giTitle').textContent = opts.title || 'INPUT';
+      document.getElementById('giTitle').textContent = opts.title || _tl('INPUT', '입력', '入力', '输入');
       document.getElementById('giLabel').textContent = opts.label || '';
       const input = document.getElementById('giInput');
       input.placeholder = opts.placeholder || '';
@@ -89,10 +94,10 @@
       const dlg = document.getElementById('gamePicker');
       if (!dlg) return resolve(null);
 
-      document.getElementById('gpTitle').textContent = opts.title || 'SELECT';
+      document.getElementById('gpTitle').textContent = opts.title || _tl('SELECT', '선택', '選択', '选择');
       const list = document.getElementById('gpList');
       if (!opts.items || !opts.items.length) {
-        list.innerHTML = '<div class="gp-empty">No options available</div>';
+        list.innerHTML = '<div class="gp-empty">' + escapeHTML(_tl('No options available', '선택 가능한 항목 없음', '選択肢がありません', '没有可选项')) + '</div>';
       } else {
         list.innerHTML = opts.items.map(function(item) {
           const selected = item.value == opts.selected ? ' selected' : '';

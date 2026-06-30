@@ -264,7 +264,7 @@ function compositeClaimsOnTexture(previewOnly){
           var lfs=Math.max(5,Math.min(rw*0.15,rh*0.28,12));
           ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',1)';ctx.font='bold '+lfs+'px sans-serif';
           ctx.textAlign='center';ctx.textBaseline='middle';
-          var lbl=ownerLabel||'CLAIMED';
+          var lbl=ownerLabel||tl('CLAIMED','점령됨','占領済み','已占领');
           var maxW=rw-4;
           if(ctx.measureText(lbl).width>maxW){
             while(lbl.length>1&&ctx.measureText(lbl+'…').width>maxW) lbl=lbl.slice(0,-1);
@@ -282,7 +282,7 @@ function compositeClaimsOnTexture(previewOnly){
         var lfs=Math.max(6,Math.min(rw,rh)*0.2);
         ctx.fillStyle='rgba(255,209,102,0.6)';ctx.font='bold '+lfs+'px sans-serif';
         ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText('LOADING',rx+rw/2,ry+rh/2);
+        ctx.fillText(tl('LOADING','로딩','読込中','加载中'),rx+rw/2,ry+rh/2);
       }
     }
     function _drawClaimRect(ctx,img,r,w,noImage,ownerLabel,oc,imgParams){
@@ -2028,7 +2028,7 @@ function _updateMyTerritories(){
   listEl.innerHTML='';
   if(mine.length===0){
     if(countEl) countEl.textContent='0';
-    listEl.innerHTML='<div style="font-size:10px;color:var(--tx3);padding:4px 0">No territories yet</div>';
+    listEl.innerHTML='<div style="font-size:10px;color:var(--tx3);padding:4px 0">'+tl('No territories yet','아직 영토가 없습니다','まだ領土がありません','还没有领地')+'</div>';
     return;
   }
   // _myTerritoryGroups 헬퍼로 그룹 목록 가져오기 (BASE 내 영토 탭 공통 로직)
@@ -2062,20 +2062,20 @@ function _updateMyTerritories(){
     var anyAuction=ec.some(function(c){var fs=_forSaleMap[c.id];return fs&&fs.saleType==='auction'});
     var sellBtn=document.createElement('button');
     if(anyForSale){
-      sellBtn.textContent=anyAuction?'🔨 AUCTION':'💰 FOR SALE';
+      sellBtn.textContent=anyAuction?tl('🔨 AUCTION','🔨 경매','🔨 オークション','🔨 拍卖'):tl('💰 FOR SALE','💰 판매중','💰 販売中','💰 出售中');
       sellBtn.style.cssText='font-size:7px;padding:2px 6px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.12);color:#4cd89a;cursor:pointer;font-family:var(--fn);font-weight:700;white-space:nowrap';
-      sellBtn.title='Currently listed for sale';
+      sellBtn.title=tl('Currently listed for sale','현재 판매 등록됨','現在販売登録中','当前已挂牌出售');
       sellBtn.onclick=function(e){e.stopPropagation();switchBaseTab('market',document.getElementById('baseTabMarket'));};
     } else {
-      sellBtn.textContent='💰 SELL';
+      sellBtn.textContent=tl('💰 SELL','💰 판매','💰 販売','💰 出售');
       sellBtn.style.cssText='font-size:7px;padding:2px 6px;border-radius:4px;border:1px solid rgba(160,100,220,.35);background:rgba(160,100,220,.08);color:#a064dc;cursor:pointer;font-family:var(--fn);font-weight:700;white-space:nowrap';
       (function(claimItem){
         sellBtn.onclick=function(e){
           e.stopPropagation();
-          if(!walletState||!walletState.address){showToast(t('connect_wallet')||'Connect wallet first','error');return;}
+          if(!walletState||!walletState.address){showToast(t('connect_wallet')||tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包'),'error');return;}
           // Direct sell: open listing modal immediately if we have the claim id
           if(claimItem&&claimItem.id){
-            openListModal('claim',claimItem.id,'Territory #'+claimItem.id,'🗺️',0);
+            openListModal('claim',claimItem.id,tl('Territory','영토','領土','领地')+' #'+claimItem.id,'🗺️',0);
           } else {
             // Fallback: navigate to market sell tab
             switchBaseTab('market',document.getElementById('baseTabMarket'));

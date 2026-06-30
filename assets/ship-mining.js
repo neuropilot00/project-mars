@@ -269,9 +269,9 @@
       html += '<select id="smFleetSelect" onchange="smUpdatePreview()" style="min-width:0;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;padding:8px;font-family:var(--fn);font-size:10px">';
       readyFleets.forEach(function (f) {
         var disabled = f.is_in_battle || busy[String(f.id)];
-        var label = (f.name || ('Fleet #' + f.id)) + ' · ' + fleetCount(f) + ' ships';
-        if (f.is_in_battle) label += ' · BATTLE';
-        if (busy[String(f.id)]) label += ' · MINING';
+        var label = (f.name || ('Fleet #' + f.id)) + ' · ' + fleetCount(f) + lang(' ships', '척', '隻', ' 艘');
+        if (f.is_in_battle) label += ' · ' + lang('BATTLE', '전투 중', '戦闘中', '战斗中');
+        if (busy[String(f.id)]) label += ' · ' + lang('MINING', '채굴 중', '採掘中', '采矿中');
         html += '<option value="' + txt(f.id) + '"' + (String(picks.fleetId || '') === String(f.id) ? ' selected' : '') + (disabled ? ' disabled' : '') + '>' + txt(label) + '</option>';
       });
       html += '</select>';
@@ -479,7 +479,7 @@
       return;
     }
     state.loading = true;
-    renderShell('Loading resource routes...');
+    renderShell(lang('Loading resource routes...', '채굴 항로 불러오는 중...', '採掘航路を読み込み中...', '正在加载采矿航线...'));
     Promise.all([
       miningReadFetch('ship-mining-info', '/api/mining/info', 15000),
       miningReadFetch('ship-mining-my', '/api/mining/my', 10000),

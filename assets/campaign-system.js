@@ -18,7 +18,7 @@ function loadCampaignStatus(){
   var el=document.getElementById('campaignList');
   var w=walletState.address;
   if(!el) return Promise.resolve();
-  if(!w){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">Login to view campaign chapters.</div>';return Promise.resolve();}
+  if(!w){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">'+tl('Login to view campaign chapters.','로그인하면 캠페인 챕터를 볼 수 있습니다.','ログインするとキャンペーンチャプターを表示できます。','登录后可查看战役章节。')+'</div>';return Promise.resolve();}
   // 파벌 정보가 아직 로드되지 않았으면 먼저 로드한다 — 파벌별 필터링이 정확하게 동작해야 한다.
   var factionPromise=(typeof factionState!=='undefined'&&factionState&&factionState.current!==null)
     ? Promise.resolve()
@@ -34,7 +34,7 @@ function loadCampaignStatus(){
       })
       .catch(function(){
         renderCampaignRewardInbox([]);
-        el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
+        el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">'+tl('Campaign unavailable.','캠페인을 불러올 수 없습니다.','キャンペーンを読み込めません。','无法加载战役。')+'</div>';
       });
   });
 }
@@ -48,7 +48,7 @@ function openCampaignProfileModal(){
     return;
   }
   var w = (walletState && walletState.address) || '';
-  if (!w) { showToast('Wallet not ready', 'error'); return; }
+  if (!w) { showToast(tl('Wallet not ready','지갑이 준비되지 않았습니다','ウォレットが準備できていません','钱包尚未就绪'), 'error'); return; }
   var old = document.getElementById('campaignProfileModal'); if (old) old.remove();
   var el = document.createElement('div');
   el.id = 'campaignProfileModal';
@@ -196,7 +196,7 @@ function renderCampaignReputation(rep,tiers){
 
 function campaignRewardLabel(r){
   var p=(r&&r.payload&&typeof r.payload==='object')?r.payload:{};
-  return p.label||p.labelKo||r.reward_code||'Campaign Reward';
+  return p.label||p.labelKo||r.reward_code||tl('Campaign Reward','캠페인 보상','キャンペーン報酬','战役奖励');
 }
 function campaignRewardTypeLabel(type){
   var maps={
@@ -456,7 +456,7 @@ function campaignObjectivesHtml(ch,limit){
     var actionable=state!=='done'&&!!action;
     var attrs=actionable?' actionable" onclick="handleCampaignObjectiveAction(event,\''+action+'\')"':'"';
     var actionHtml=actionable?'<span class="co-action">'+campaignObjectiveActionLabel(action)+'</span>':'';
-    var _oLabel=_campaignStoryText(o.label)||o.labelKo||o.label||o.id||'Objective';
+    var _oLabel=_campaignStoryText(o.label)||o.labelKo||o.label||o.id||tl('Objective','목표','目標','目标');
     // [depth #B] 완료된 objective 에 서버가 reputation/reward 메타를 줄 때만 '★ 평판 +N' 미니 라벨.
     // 서버 메타가 없으면 라벨 생략 — 임의 수치 날조 금지.
     var repHtml=(state==='done')?_campaignObjectiveRepLabel(o):'';
@@ -1398,7 +1398,7 @@ async function openCampaignChapter(questId){
   if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return;}
   var ch=_findCampaignChapter(questId);
   if(!ch){await loadCampaignStatus();ch=_findCampaignChapter(questId);}
-  if(!ch){showToast('Campaign not loaded');return;}
+  if(!ch){showToast(tl('Campaign not loaded','캠페인을 불러오지 못했습니다','キャンペーンを読み込めませんでした','未能加载战役'));return;}
   var p=ch.progress||{};
   if(isCampaignProgressDone(p)) return showCampaignResult(ch,p);
   if(isCampaignProgressActive(p)&&p.sessionId){
@@ -1416,7 +1416,7 @@ async function openCampaignChapter(questId){
     _campaignActive={chapter:ch,progress:p,sessionId:d.sessionId||p.sessionId};
     if(ch.scenes) showCampaignStory(ch);
     else showCampaignBriefing(ch,p);
-  }catch(e){showToast('Campaign start failed');}
+  }catch(e){showToast(tl('Campaign start failed','캠페인 시작에 실패했습니다','キャンペーン開始に失敗しました','战役开始失败'));}
 }
 
 function campaignStartErrorMessage(ch,payload){
@@ -1474,17 +1474,17 @@ function showCampaignBriefing(ch,p){
 
 async function chooseCampaignOption(choiceId){
   var w=walletState.address, a=_campaignActive;
-  if(!w||!a){showToast('Campaign session missing');return;}
+  if(!w||!a){showToast(tl('Campaign session missing','캠페인 세션이 없습니다','キャンペーンセッションがありません','缺少战役会话'));return;}
   try{
     var r=await fetch('/api/campaign/choice',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId,choice_id:choiceId})});
     var d=await r.json();
-    if(!r.ok){showToast(srvErr(d.error)||'Choice failed','error');return;}
+    if(!r.ok){showToast(srvErr(d.error)||tl('Choice failed','선택에 실패했습니다','選択に失敗しました','选择失败'),'error');return;}
     a.progress=d.progress||a.progress;
     // [depth #A] 서버가 선택을 확정한 직후에만 "YOU CHOSE" 1회성 강조 팝업을 띄운다.
     try{ _campaignChoiceMadePopup(a.chapter,choiceId); }catch(_){}
     try{loadCampaignStatus();}catch(_){}
     showCampaignSim(a.chapter,a.progress);
-  }catch(e){showToast('Choice failed');}
+  }catch(e){showToast(tl('Choice failed','선택에 실패했습니다','選択に失敗しました','选择失败'));}
 }
 
 // [depth #A] 분기 선택 영구성 강조 — 'YOU CHOSE [route]' 1회성 팝업 (sessionStorage 중복 억제).
@@ -1557,7 +1557,7 @@ async function pollCampaignProgress(immediate){
   try{
     var r=await fetch('/api/campaign/progress',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,session_id:a.sessionId})});
     var d=await r.json();
-    if(!r.ok){showToast(srvErr(d.error)||'Campaign progress failed','error');return;}
+    if(!r.ok){showToast(srvErr(d.error)||tl('Campaign progress failed','캠페인 진행 조회에 실패했습니다','キャンペーン進行の取得に失敗しました','获取战役进度失败'),'error');return;}
     a.progress=d.progress||a.progress;
     var preview=d.preview||{};
     var pct=Math.max(0,Math.min(100,Number(preview.progressPct||preview.oxygenRecoveryPct||0)));
@@ -1619,12 +1619,12 @@ async function completeCampaignMission(){
         _setCampaignModal(d.chapter||a.chapter,html);
         return;
       }
-      showToast(srvErr(d.error)||'Campaign complete failed','error');return;
+      showToast(srvErr(d.error)||tl('Campaign complete failed','캠페인 완료에 실패했습니다','キャンペーン完了に失敗しました','战役完成失败'),'error');return;
     }
     showCampaignResult(a.chapter,d.progress,d);
     loadCampaignStatus();
     try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast('Campaign complete failed');}
+  }catch(e){showToast(tl('Campaign complete failed','캠페인 완료에 실패했습니다','キャンペーン完了に失敗しました','战役完成失败'));}
 }
 
 function showCampaignResult(ch,p,result){

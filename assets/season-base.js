@@ -192,7 +192,7 @@ function renderSeasonPass(data){
   if(!xpLabel) return;
 
   xpLabel.textContent=data.xp+' XP';
-  tierLabel.textContent='Tier '+data.currentTier+(data.isPremium?' ⭐':'');
+  tierLabel.textContent=tl('Tier','티어','ティア','阶级')+' '+data.currentTier+(data.isPremium?' ⭐':'');
   premBtn.style.display=data.isPremium?'none':'';
 
   // Find next tier XP requirement
@@ -231,7 +231,7 @@ function renderSeasonPass(data){
     var bdr=unlocked?(freeClaimed?'rgba(76,216,154,.3)':'rgba(255,209,102,.3)'):'rgba(255,255,255,.06)';
 
     html+='<div style="min-width:60px;padding:6px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';text-align:center;flex-shrink:0">'+
-      '<div style="font-size:7px;color:var(--tx3)">Tier '+tierNum+'</div>'+
+      '<div style="font-size:7px;color:var(--tx3)">'+tl('Tier','티어','ティア','阶级')+' '+tierNum+'</div>'+
       // Free track
       '<div style="margin:3px 0">';
     if(freeClaimed){
@@ -264,7 +264,7 @@ function claimPassTier(tier,isPremium){
     body:JSON.stringify({wallet:walletState.address,tier:tier,isPremium:isPremium})
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); return; }
-    showAlert('🎁 Tier '+tier+' 보상 수령: '+d.label,'success');
+    showAlert('🎁 '+tl('Tier','티어','ティア','阶级')+' '+tier+' '+tl('reward claimed','보상 수령','報酬受取','奖励领取')+': '+d.label,'success');
     loadSeasonPass();
   }).catch(function(e){ showAlert(e.message); });
 }
@@ -334,8 +334,8 @@ async function loadCareerStats() {
       ['⚗️ ' + (t('cat_enhance') || 'Enhancements'), d.enhancements.total + ' ('+d.enhancements.successRate+'%)', 'var(--gold)'],
       ['🚢 ' + (t('cat_ships') || 'Ships Built'), d.ships.built + '', 'var(--gn)'],
       ['🛒 ' + (t('cat_trades') || 'Trades'), d.trades.total + '', 'var(--pp)'],
-      ['💰 GP in Battles', '+' + Math.floor(d.battles.gpWon) + ' GP', d.battles.gpWon > 0 ? 'var(--gn)' : 'var(--tx3)'],
-      ['⚗️ GP on Enhance', Math.floor(d.enhancements.totalGP) + ' GP', 'var(--mars)']
+      ['💰 ' + tl('GP in Battles','전투 GP','戦闘GP','战斗GP'), '+' + Math.floor(d.battles.gpWon) + ' GP', d.battles.gpWon > 0 ? 'var(--gn)' : 'var(--tx3)'],
+      ['⚗️ ' + tl('GP on Enhance','강화 GP','強化GP','强化GP'), Math.floor(d.enhancements.totalGP) + ' GP', 'var(--mars)']
     ];
     rows.forEach(function(row) {
       html += '<div style="padding:6px;background:rgba(255,255,255,.02);border:1px solid var(--bdr);border-radius:6px">' +
@@ -346,7 +346,7 @@ async function loadCareerStats() {
     html += '</div>';
     el.innerHTML = html;
     _careerStatsLoaded = true;
-  } catch(e) { el.innerHTML = '<div style="color:var(--mars);font-size:9px;text-align:center">Failed to load</div>'; }
+  } catch(e) { el.innerHTML = '<div style="color:var(--mars);font-size:9px;text-align:center">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'; }
 }
 
 function loadSeasonLeaderboard(){
@@ -373,7 +373,7 @@ function loadSeasonLeaderboard(){
             '<div style="font-size:11px;color:var(--gold);font-weight:700">'+p.value.toLocaleString()+'</div>'+
           '</div>';
         }).join('');
-      }).catch(function(){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Failed</div>';});
+      }).catch(function(){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">'+tl('Failed','실패','失敗','失败')+'</div>';});
     return;
   }
 
@@ -473,7 +473,7 @@ function _loadBaseSectorsStable() {
     }
     if (!data) {
       var list = document.getElementById('baseSectorList');
-      if (list) list.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">Sector data is cooling down. Try again in a moment.</div>';
+      if (list) list.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">'+tl('Sector data is cooling down. Try again in a moment.','섹터 데이터 갱신 대기 중입니다. 잠시 후 다시 시도하세요.','セクターデータの取得待機中です。少し待って再試行してください。','区域数据冷却中，请稍后重试。')+'</div>';
       return;
     }
     _baseSectorsCache = data;
@@ -713,7 +713,7 @@ function renderBaseUser(data){
     function renderZoneDrops(zoneKey, zoneLabel, zoneColor, hasTiles){
       var drops=DROPS[zoneKey];
       var opacity=hasTiles?'1':'0.35';
-      var noLand=hasTiles?'':' <span style="font-size:8px;color:var(--tx3)">(no land)</span>';
+      var noLand=hasTiles?'':' <span style="font-size:8px;color:var(--tx3)">('+tl('no land','영토 없음','領地なし','无领地')+')</span>';
       html+='<div style="margin-top:6px;opacity:'+opacity+'">';
       html+='<div style="font-size:9px;font-weight:700;color:'+zoneColor+';letter-spacing:1px;margin-bottom:2px">'+zoneLabel+noLand+'</div>';
       drops.forEach(function(d){
@@ -984,7 +984,7 @@ function _obStepContent(step) {
       + '</div>';
   }
   var skipBtn = (_obState && _obState.skipAllowed && step < 5)
-    ? '<button class="ob-btn-skip" onclick="obSkip()">SKIP</button>'
+    ? '<button class="ob-btn-skip" onclick="obSkip()">'+tl('SKIP','건너뛰기','スキップ','跳过')+'</button>'
     : '';
   return '<div class="ob-emoji">' + s.emoji + '</div>'
     + '<div class="ob-title">' + title + '</div>'
@@ -1481,11 +1481,11 @@ function renderSectorList(sectors){
       var badgeText = '';
       if(entryMin > 0) badgeText += '🔒 Lv ' + entryMin;
       if(entryMidReq > 0) badgeText += (badgeText?' · ':'') + '+' + entryMidReq + ' MID';
-      var tipText = satisfied ? ('Entry requirement met (Lv '+myLevel+')') : ('Requires Lv '+entryMin+' — you are Lv '+myLevel);
+      var tipText = satisfied ? (tl('Entry requirement met','진입 조건 충족','参入条件達成','已满足进入条件')+' (Lv '+myLevel+')') : (tl('Requires','필요','必要','需要')+' Lv '+entryMin+' — '+tl('you are Lv','현재 Lv','現在Lv','当前Lv')+' '+myLevel);
       html+='<span class="'+badgeCls+'" title="'+tipText+'">'+badgeText+'</span>';
     } else if(!entryActive && (entryMin > 0 || entryMidReq > 0)){
       // Requirement exists but globally disabled — show greyed
-      html+='<span class="sc-entry inactive" title="Entry check disabled globally">🔓 Lv '+entryMin+'</span>';
+      html+='<span class="sc-entry inactive" title="'+tl('Entry check disabled globally','진입 제한 전역 비활성','参入チェック全体無効','进入检查全局禁用')+'">🔓 Lv '+entryMin+'</span>';
     }
     html+='<span class="sc-mining">'+s.miningBonus+'x</span>';
     html+='<span class="sc-go" onclick="focusSector('+s.id+')">'+t('sector_go')+'</span>';
@@ -1622,7 +1622,7 @@ function loadNewsFeed() {
       if (!data) return;
       var items = data.news || [];
       if (!items.length) {
-        el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:12px;font-size:9px">No events yet — play more to generate news!</div>';
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:12px;font-size:9px">'+tl('No events yet — play more to generate news!','아직 이벤트가 없습니다 — 플레이하면 뉴스가 생성됩니다!','まだイベントがありません — プレイするとニュースが生成されます！','暂无事件 — 多游玩即可生成新闻！')+'</div>';
         return;
       }
       el.innerHTML = items.map(function(n) {
@@ -1636,7 +1636,7 @@ function loadNewsFeed() {
       }).join('');
     })
     .catch(function() {
-      if (el) el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:8px">Failed to load</div>';
+      if (el) el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:8px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>';
     });
 }
 
@@ -1722,7 +1722,7 @@ function renderNextBreakthrough(ranks, userRank){
     var panel=document.getElementById('breakthroughPanel');
     if(!d.nextGate){panel.style.display='none';return}
     panel.style.display='block';
-    document.getElementById('btGateTitle').textContent=d.nextGate.title||'BREAKTHROUGH';
+    document.getElementById('btGateTitle').textContent=d.nextGate.title||tl('BREAKTHROUGH','돌파','突破','突破');
     document.getElementById('btGateLevel').textContent='Lv.'+d.nextGate.level+' '+d.nextGate.name;
     var html='';
     d.progress.forEach(function(p){

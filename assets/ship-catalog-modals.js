@@ -61,7 +61,7 @@
     const grid = document.getElementById('regGrid');
     if (!grid) return;
     if (!regState.ships) {
-      grid.innerHTML = '<div class="reg-loading">Loading...</div>';
+      grid.innerHTML = '<div class="reg-loading">' + tl('Loading...', '로딩 중...', '読み込み中...', '加载中...') + '</div>';
       return;
     }
 
@@ -73,7 +73,7 @@
       return ship.faction_code === faction;
     });
     if (!list.length) {
-      grid.innerHTML = '<div class="reg-loading">No ships for this faction.</div>';
+      grid.innerHTML = '<div class="reg-loading">' + tl('No ships for this faction.', '이 파벌의 함선이 없습니다.', 'この派閥の艦船はありません。', '该派系没有舰船。') + '</div>';
       return;
     }
 
@@ -99,7 +99,7 @@
       const size = (ship.size_class || '').toUpperCase();
       const role = (ship.role || 'dps').toLowerCase();
       const lockBadge = ship.can_build ? '' : '<div class="reg-lock">🔒 ' + (ship.locks || []).join(' · ') + '</div>';
-      const capBadge = isCap ? '<span class="reg-cap">👑 CAPITAL</span>' : '';
+      const capBadge = isCap ? '<span class="reg-cap">👑 ' + tl('CAPITAL', '캐피털', 'キャピタル', '主力舰') + '</span>' : '';
       const serverCount = ship.max_per_server ? ' · ' + (ship.server_alive_count || 0) + '/' + ship.max_per_server : '';
       return `
         <div class="reg-card ${faction}">
@@ -113,8 +113,8 @@
             <div class="reg-stat-row"><span>SPD</span><span>${ship.base_speed || 0}</span></div>
           </div>
           <div class="reg-recipe">
-            <b>BUILD ${buildHrs}</b> · GP ${Number(ship.build_gp_cost || 0).toLocaleString()}<br>
-            ${escapeHtml(recipeRows || 'No recipe')}
+            <b>${tl('BUILD', '건조', '建造', '建造')} ${buildHrs}</b> · GP ${Number(ship.build_gp_cost || 0).toLocaleString()}<br>
+            ${escapeHtml(recipeRows || tl('No recipe', '레시피 없음', 'レシピなし', '无配方'))}
           </div>
           ${lockBadge}
         </div>
@@ -136,7 +136,7 @@
     const body = document.getElementById('minBody');
     if (!body) return;
     if (!regState.resources) {
-      body.innerHTML = '<div class="reg-loading">Loading...</div>';
+      body.innerHTML = '<div class="reg-loading">' + tl('Loading...', '로딩 중...', '読み込み中...', '加载中...') + '</div>';
       return;
     }
 
@@ -200,7 +200,7 @@
     const grid = document.getElementById('regGrid');
     if (!modal || !grid) return;
     modal.classList.add('active');
-    grid.innerHTML = '<div class="reg-loading">Loading...</div>';
+    grid.innerHTML = '<div class="reg-loading">' + tl('Loading...', '로딩 중...', '読み込み中...', '加载中...') + '</div>';
     await Promise.all([fetchRegistryShips(), fetchResourceCatalog()]);
     renderRegistry();
   };
@@ -224,7 +224,7 @@
     const body = document.getElementById('minBody');
     if (!modal || !body) return;
     modal.classList.add('active');
-    body.innerHTML = '<div class="reg-loading">Loading...</div>';
+    body.innerHTML = '<div class="reg-loading">' + tl('Loading...', '로딩 중...', '読み込み中...', '加载中...') + '</div>';
     await fetchResourceCatalog();
     renderMinerals();
   };

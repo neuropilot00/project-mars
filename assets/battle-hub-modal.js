@@ -254,7 +254,7 @@ function loadBattleRewardsHistory() {
     el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">' + tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录') + '</div>';
     return;
   }
-  el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">Loading...</div>';
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">' + tl('Loading...','로딩 중...','読み込み中...','加载中...') + '</div>';
   battleHubReadKeyed('rewards-mine', '/api/battles/rewards/mine?limit=20', 30000)
     .then(function(data) {
       if (!data) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:6px">' + tl('Please wait before refreshing.','잠시 후 다시 새로고침하세요.','少し待ってから更新してください。','请稍后再刷新。') + '</div>'; return; }
@@ -310,7 +310,7 @@ function loadBattleRewardsHistory() {
       el.innerHTML = html;
     })
     .catch(function() {
-      el.innerHTML = '<div style="text-align:center;color:var(--mars);padding:6px">Failed to load</div>';
+      el.innerHTML = '<div style="text-align:center;color:var(--mars);padding:6px">' + tl('Failed to load','로딩 실패','読み込み失敗','加载失败') + '</div>';
     });
 }
 
@@ -3549,5 +3549,5 @@ async function _showMyBattleStats() {
       confirmText: t('bvstat_close'),
       disabled: false
     });
-  } catch (_) { showToast('Stats unavailable', 'error'); }
+  } catch (_) { showToast(tl('Stats unavailable','통계를 불러올 수 없습니다','統計を取得できません','无法获取统计'), 'error'); }
 }

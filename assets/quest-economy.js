@@ -34,7 +34,7 @@ function loadQuests(wallet){
       if(loading) loading.style.display='none';
       if(!data){
         if(!hadContent){
-          container.innerHTML='<div style="text-align:center;padding:16px;color:var(--tx3);font-size:var(--fs-xs)">Refreshing too often. Please wait a moment.</div>';
+          container.innerHTML='<div style="text-align:center;padding:16px;color:var(--tx3);font-size:var(--fs-xs)">'+tl('Refreshing too often. Please wait a moment.','너무 자주 새로고침했습니다. 잠시만 기다려주세요.','更新が頻繁すぎます。少々お待ちください。','刷新过于频繁，请稍候。')+'</div>';
         }
         return;
       }
@@ -180,12 +180,12 @@ async function loadGpActivity(){
   if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_login">Login to view GP activity.</div>';applyI18n(el);return;}
   try{
     var d=await _questEconomyReadJson('gp-activity', '/api/gp/activity?limit=15', 15000);
-    if(!d){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Please wait a moment.</div>';return;}
+    if(!d){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">'+tl('Please wait a moment.','잠시만 기다려주세요.','少々お待ちください。','请稍候。')+'</div>';return;}
     if(!d.entries||!d.entries.length){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_empty">No GP activity yet.</div>';applyI18n(el);
       _gpActivityLoaded=true;return;
     }
-    var SOURCE_LABEL={'daily_login':'Daily Login','mission_reward':'Mission','enhance':'Enhancement','ship_build':'Ship Build','ship_upgrade':'Ship Upgrade','battle_stake':'Battle Stake','battle_win':'Battle Win','marketplace_buy':'Market Buy','marketplace_sell':'Market Sell','marketplace_list':'Listing Fee','auction_list':'Auction Fee','auction_bid':'Auction Bid','auction_buy':'Auction Buy','auction_sell':'Auction Sold','gp_transfer_out':'Sent GP','gp_transfer_in':'Received GP'};
+    var SOURCE_LABEL={'daily_login':tl('Daily Login','일일 로그인','デイリーログイン','每日登录'),'mission_reward':tl('Mission','미션','ミッション','任务'),'enhance':tl('Enhancement','강화','強化','强化'),'ship_build':tl('Ship Build','함선 건조','艦船建造','舰船建造'),'ship_upgrade':tl('Ship Upgrade','함선 강화','艦船強化','舰船强化'),'battle_stake':tl('Battle Stake','전투 베팅','戦闘ベット','战斗投注'),'battle_win':tl('Battle Win','전투 승리','戦闘勝利','战斗胜利'),'marketplace_buy':tl('Market Buy','마켓 구매','マーケット購入','市场购买'),'marketplace_sell':tl('Market Sell','마켓 판매','マーケット販売','市场出售'),'marketplace_list':tl('Listing Fee','등록 수수료','出品手数料','上架手续费'),'auction_list':tl('Auction Fee','경매 수수료','オークション手数料','拍卖手续费'),'auction_bid':tl('Auction Bid','경매 입찰','オークション入札','拍卖竞价'),'auction_buy':tl('Auction Buy','경매 구매','オークション購入','拍卖购买'),'auction_sell':tl('Auction Sold','경매 판매','オークション売却','拍卖售出'),'gp_transfer_out':tl('Sent GP','GP 송금','GP送金','已转出 GP'),'gp_transfer_in':tl('Received GP','GP 수령','GP受取','已收到 GP')};
     var html='';
     d.entries.forEach(function(e){
       var plus=e.delta>0;
@@ -199,7 +199,7 @@ async function loadGpActivity(){
     });
     el.innerHTML=html;
     _gpActivityLoaded=true;
-  }catch(e){el.innerHTML='<div style="text-align:center;color:var(--mars);padding:8px;font-size:9px">Failed to load</div>';}
+  }catch(e){el.innerHTML='<div style="text-align:center;color:var(--mars);padding:8px;font-size:9px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>';}
 }
 
 // ── GP Transfer (Migration 102) ──
@@ -221,10 +221,10 @@ async function loadGPTransfers() {
   var w = walletState.address;
   var el = document.getElementById('gpTransferList');
   if (!el) return;
-  if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Connect wallet to view.</div>'; return; }
+  if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">'+tl('Connect wallet to view.','지갑을 연결하면 볼 수 있습니다.','ウォレットを接続すると表示されます。','连接钱包后查看。')+'</div>'; return; }
   try {
     var d = await _questEconomyReadJson('gp-transfers', '/api/gp/transfers', 15000);
-    if (!d) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Please wait a moment.</div>'; return; }
+    if (!d) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">'+tl('Please wait a moment.','잠시만 기다려주세요.','少々お待ちください。','请稍候。')+'</div>'; return; }
     var transfers = d.transfers || [];
     if (!transfers.length) {
       el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">' + (t('gp_transfer_empty') || 'No transfers yet.') + '</div>';
@@ -248,7 +248,7 @@ async function loadGPTransfers() {
     el.innerHTML = html;
     _gpTransferLoaded = true;
   } catch (err) {
-    if (el) el.innerHTML = '<div style="color:var(--mars);font-size:9px;padding:4px">Failed to load.</div>';
+    if (el) el.innerHTML = '<div style="color:var(--mars);font-size:9px;padding:4px">'+tl('Failed to load.','불러오기 실패','読み込み失敗','加载失败')+'</div>';
   }
 }
 
@@ -286,7 +286,7 @@ async function sendGP() {
       _gpTransferLoaded = false;
       loadGPTransfers();
     } catch (err) {
-      showToast('Transfer failed', 'error');
+      showToast(tl('Transfer failed','송금 실패','送金失敗','转账失败'), 'error');
     }
   });
 }
@@ -305,13 +305,13 @@ function toggleLottery() {
 function loadLottery() {
   var el = document.getElementById('lotteryContent');
   if (!el) return;
-  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+tl('Loading...','불러오는 중...','読み込み中...','加载中...')+'</div>';
   var wallet = walletState.address || '';
 
   _questEconomyReadJson('lottery-current', '/api/lottery/current', 10000)
     .then(function(data) {
       if (!data) {
-        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Please wait a moment.</div>';
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+tl('Please wait a moment.','잠시만 기다려주세요.','少々お待ちください。','请稍候。')+'</div>';
         return;
       }
       var round = data.round;
@@ -322,7 +322,7 @@ function loadLottery() {
       renderLotteryPanel(round);
     })
     .catch(function() {
-      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
+      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>';
     });
 }
 
@@ -343,15 +343,15 @@ function renderLotteryPanel(round) {
     + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'
     + '<div><div style="font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px" data-i18n="lottery_round">Round #' + round.round_number + '</div>'
     + '<div style="font-size:20px;font-weight:900;color:var(--gold);font-family:var(--fn)">' + Math.round(prize) + '<span style="font-size:10px;margin-left:2px">GP</span></div>'
-    + '<div style="font-size:8px;color:var(--tx3)">' + round.ticket_count + ' tickets sold</div></div>'
+    + '<div style="font-size:8px;color:var(--tx3)">' + round.ticket_count + ' ' + tl('tickets sold','티켓 판매','枚販売','张已售')+'</div></div>'
     + '<div style="text-align:right"><div style="font-size:8px;color:var(--tx3)" data-i18n="lottery_ends">Ends in</div>'
     + '<div id="lotteryCountdown" style="font-size:11px;color:var(--cyan);font-family:var(--fn);font-weight:700">...</div>'
-    + '<div style="font-size:8px;color:var(--tx3)">' + ticketPrice + ' GP / ticket</div></div></div>'
+    + '<div style="font-size:8px;color:var(--tx3)">' + ticketPrice + ' ' + tl('GP / ticket','GP / 티켓','GP / 枚','GP / 张')+'</div></div></div>'
     + '<div style="display:flex;gap:6px;align-items:center">'
     + '<button onclick="quickBuyTickets(1)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+1</button>'
     + '<button onclick="quickBuyTickets(5)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+5</button>'
     + '<button onclick="quickBuyTickets(10)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+10</button>'
-    + '<div style="text-align:center;font-size:8px;color:var(--tx3);padding:0 4px">My<br><span style="font-size:11px;color:var(--gold);font-weight:700">' + userTickets + '</span></div>'
+    + '<div style="text-align:center;font-size:8px;color:var(--tx3);padding:0 4px">' + tl('My','내 티켓','マイ','我的') + '<br><span style="font-size:11px;color:var(--gold);font-weight:700">' + userTickets + '</span></div>'
     + '</div></div>';
 
   // Recent winners
@@ -396,7 +396,7 @@ function renderLotteryPanel(round) {
 }
 
 function quickBuyTickets(count) {
-  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  if (!walletState.address) return showToast(tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包'), 'error');
   var btn = event.target;
   btn.disabled = true;
 
@@ -409,13 +409,13 @@ function quickBuyTickets(count) {
     .then(function(d) {
       btn.disabled = false;
       if (d.error) return showToast(d.error, 'error');
-      showToast('+' + count + ' ticket(s)! Spent ' + d.totalCost + ' GP 🎰', 'success');
+      showToast(tl('+' + count + ' ticket(s)! Spent ' + d.totalCost + ' GP 🎰','+' + count + '장 구매! ' + d.totalCost + ' GP 사용 🎰','チケット+' + count + '枚！' + d.totalCost + ' GP 消費 🎰','+' + count + '张！消费 ' + d.totalCost + ' GP 🎰'), 'success');
       loadLottery();
       loadWalletData(); // refresh GP balance
     })
     .catch(function(e) {
       btn.disabled = false;
-      showToast('Error: ' + e.message, 'error');
+      showToast(tl('Error: ','오류: ','エラー: ','错误: ') + e.message, 'error');
     });
 }
 
@@ -433,7 +433,7 @@ function toggleLotteryHistory() {
 function loadLotteryHistory() {
   var c = document.getElementById('lotteryHistoryContent');
   if (!c) return;
-  c.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:8px">Loading...</div>';
+  c.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:8px">'+tl('Loading...','불러오는 중...','読み込み中...','加载中...')+'</div>';
   var wallet = walletState.address || '';
   var reqs = [_questEconomyReadJson('lottery-history', '/api/lottery/history?limit=10', 15000, false).then(function(d){ return d || { history: [] }; })];
   reqs.push(wallet
@@ -481,7 +481,7 @@ function loadLotteryHistory() {
 
     c.innerHTML = html;
   }).catch(function() {
-    c.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:9px;padding:8px">Failed to load</div>';
+    c.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:9px;padding:8px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>';
   });
 }
 
@@ -500,7 +500,7 @@ function toggleStaking() {
 function loadStakingPanel() {
   var el = document.getElementById('stakingContent');
   if (!el) return;
-  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+tl('Loading...','불러오는 중...','読み込み中...','加载中...')+'</div>';
   var wallet = walletState.address || '';
 
   Promise.all([
@@ -511,19 +511,19 @@ function loadStakingPanel() {
     .then(function(results) {
       _stakingInfo = results[0];
       if (!_stakingInfo) {
-        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Please wait a moment.</div>';
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+tl('Please wait a moment.','잠시만 기다려주세요.','少々お待ちください。','请稍候。')+'</div>';
         return;
       }
       var stakes = (results[1] && results[1].stakes) || [];
       var divInfo = results[2];
       if (!_stakingInfo.enabled) {
-        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Staking currently disabled</div>';
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+tl('Staking currently disabled','스테이킹이 현재 비활성화됨','ステーキングは現在無効です','质押当前已禁用')+'</div>';
         return;
       }
       renderStakingPanel(_stakingInfo, stakes, divInfo);
     })
     .catch(function() {
-      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
+      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>';
     });
 }
 
@@ -549,7 +549,7 @@ function renderStakingPanel(info, stakes, divInfo) {
   }).join('');
 
   var html = '<div style="background:linear-gradient(135deg,rgba(91,184,232,.08),rgba(76,216,154,.05));border:1px solid rgba(91,184,232,.2);border-radius:8px;padding:10px;margin-bottom:8px">'
-    + '<div style="font-size:8px;color:var(--tx3);margin-bottom:6px;letter-spacing:1px">APY: <span style="color:var(--gn);font-weight:700">' + apy + '%</span> &nbsp;|&nbsp; Active: <span style="color:var(--cyan)">' + (info.active_stakes || 0) + '/' + (info.max_active || 5) + '</span></div>'
+    + '<div style="font-size:8px;color:var(--tx3);margin-bottom:6px;letter-spacing:1px">'+tl('APY','APY','APY','年化')+': <span style="color:var(--gn);font-weight:700">' + apy + '%</span> &nbsp;|&nbsp; '+tl('Active','진행 중','アクティブ','活跃')+': <span style="color:var(--cyan)">' + (info.active_stakes || 0) + '/' + (info.max_active || 5) + '</span></div>'
     + '<div style="display:flex;gap:4px;margin-bottom:10px">' + optsHtml + '</div>'
     + '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
     + '<input type="number" id="stakeAmountInput" min="' + (info.min_amount||100) + '" max="' + (info.max_amount||10000) + '" placeholder="' + (info.min_amount||100) + '–' + (info.max_amount||10000) + ' GP" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px 10px;border-radius:6px;font-family:var(--fn)">'
@@ -563,29 +563,29 @@ function renderStakingPanel(info, stakes, divInfo) {
   var pastStakes   = stakes.filter(function(s){ return s.status === 'withdrawn'; }).slice(0, 3);
 
   if (activeStakes.length) {
-    html += '<div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:4px;letter-spacing:1px">ACTIVE STAKES</div>';
+    html += '<div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:4px;letter-spacing:1px">'+tl('ACTIVE STAKES','진행 중인 스테이킹','アクティブなステーキング','活跃质押')+'</div>';
     activeStakes.forEach(function(s) {
       var isReady = s.status === 'ready';
       var secsRem = parseFloat(s.seconds_remaining) || 0;
       var timeStr;
       if (isReady || secsRem <= 0) {
-        timeStr = '<span style="color:var(--gn);font-weight:700">✅ READY</span>';
+        timeStr = '<span style="color:var(--gn);font-weight:700">✅ '+tl('READY','준비됨','準備完了','可领取')+'</span>';
       } else {
         var h = Math.floor(secsRem / 3600);
         var d2 = Math.floor(secsRem / 86400);
         timeStr = d2 > 0 ? d2 + 'd ' + (h % 24) + 'h' : h + 'h ' + Math.floor((secsRem % 3600)/60) + 'm';
       }
       html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:4px;border:1px solid rgba(255,255,255,.07)">'
-        + '<div><div style="font-size:11px;color:var(--tx);font-weight:700">' + Math.round(s.amount) + ' GP <span style="font-size:9px;color:var(--tx3)">locked ' + s.lock_days + 'd</span></div>'
-        + '<div style="font-size:9px;color:var(--gn)">+' + s.yield_earned.toFixed(2) + ' GP yield</div></div>'
+        + '<div><div style="font-size:11px;color:var(--tx);font-weight:700">' + Math.round(s.amount) + ' GP <span style="font-size:9px;color:var(--tx3)">'+tl('locked','잠금','ロック','锁定')+' ' + s.lock_days + 'd</span></div>'
+        + '<div style="font-size:9px;color:var(--gn)">+' + s.yield_earned.toFixed(2) + ' GP '+tl('yield','수익','利息','收益')+'</div></div>'
         + '<div style="text-align:right">'
-        + (isReady ? '<button onclick="doWithdraw(' + s.id + ')" style="font-size:9px;padding:5px 10px;background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.35);color:var(--gn);border-radius:5px;cursor:pointer;font-weight:700">WITHDRAW</button>' : '<div style="font-size:9px">' + timeStr + '</div>')
+        + (isReady ? '<button onclick="doWithdraw(' + s.id + ')" style="font-size:9px;padding:5px 10px;background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.35);color:var(--gn);border-radius:5px;cursor:pointer;font-weight:700">'+tl('WITHDRAW','출금','引き出す','取出')+'</button>' : '<div style="font-size:9px">' + timeStr + '</div>')
         + '</div></div>';
     });
   }
 
   if (pastStakes.length) {
-    html += '<div style="font-size:9px;color:var(--tx3);margin-top:6px;margin-bottom:4px;letter-spacing:1px">RECENT WITHDRAWALS</div>';
+    html += '<div style="font-size:9px;color:var(--tx3);margin-top:6px;margin-bottom:4px;letter-spacing:1px">'+tl('RECENT WITHDRAWALS','최근 출금','最近の引き出し','近期取出')+'</div>';
     pastStakes.forEach(function(s) {
       html += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:9px;color:var(--tx3)">'
         + '<span>' + Math.round(s.amount) + ' GP × ' + s.lock_days + 'd</span>'
@@ -598,11 +598,11 @@ function renderStakingPanel(info, stakes, divInfo) {
   if (divInfo && divInfo.enabled) {
     var pool = parseFloat(divInfo.current_pool || 0);
     html += '<div style="margin-top:8px;padding:8px;background:rgba(160,100,220,.06);border-radius:6px;border:1px solid rgba(160,100,220,.2)">'
-      + '<div style="font-size:9px;color:#a064dc;font-weight:700;margin-bottom:4px;letter-spacing:1px">💰 WEEKLY DIVIDENDS</div>'
-      + '<div style="font-size:9px;color:var(--tx3)">This week\'s pool: <span style="color:var(--gold);font-weight:700">' + Math.round(pool) + ' GP</span> · Distributed every Monday to active stakers</div>';
+      + '<div style="font-size:9px;color:#a064dc;font-weight:700;margin-bottom:4px;letter-spacing:1px">💰 '+tl('WEEKLY DIVIDENDS','주간 배당','週間配当','每周分红')+'</div>'
+      + '<div style="font-size:9px;color:var(--tx3)">'+tl('This week\'s pool','이번 주 풀','今週のプール','本周奖池')+': <span style="color:var(--gold);font-weight:700">' + Math.round(pool) + ' GP</span> · '+tl('Distributed every Monday to active stakers','매주 월요일 활성 스테이커에게 분배','毎週月曜日にアクティブなステーカーへ分配','每周一分配给活跃质押者')+'</div>';
     if (divInfo.my_history && divInfo.my_history.length) {
       var lastDiv = divInfo.my_history[0];
-      html += '<div style="font-size:9px;color:var(--gn);margin-top:2px">Last dividend: +' + parseFloat(lastDiv.dividend_gp).toFixed(2) + ' GP (week ' + lastDiv.week_start + ')</div>';
+      html += '<div style="font-size:9px;color:var(--gn);margin-top:2px">'+tl('Last dividend','최근 배당','直近の配当','最近分红')+': +' + parseFloat(lastDiv.dividend_gp).toFixed(2) + ' GP ('+tl('week','주','週','周')+' ' + lastDiv.week_start + ')</div>';
     }
     html += '</div>';
   }
@@ -645,18 +645,18 @@ function updateStakePreview() {
 }
 
 async function doStake() {
-  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  if (!walletState.address) return showToast(tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包'), 'error');
   var amt = parseFloat(document.getElementById('stakeAmountInput')?.value);
-  if (!amt || amt <= 0) return showToast('Enter an amount', 'error');
+  if (!amt || amt <= 0) return showToast(tl('Enter an amount','금액을 입력하세요','金額を入力してください','请输入金额'), 'error');
   var info = _stakingInfo || {};
-  if (amt < (info.min_amount || 100)) return showToast('Minimum ' + (info.min_amount||100) + ' GP', 'error');
-  if (amt > (info.max_amount || 10000)) return showToast('Maximum ' + (info.max_amount||10000) + ' GP per stake', 'error');
+  if (amt < (info.min_amount || 100)) return showToast(tl('Minimum ','최소 ','最低 ','最低 ') + (info.min_amount||100) + ' GP', 'error');
+  if (amt > (info.max_amount || 10000)) return showToast(tl('Maximum ' + (info.max_amount||10000) + ' GP per stake','스테이킹당 최대 ' + (info.max_amount||10000) + ' GP','1回のステーキングで最大 ' + (info.max_amount||10000) + ' GP','每次质押最多 ' + (info.max_amount||10000) + ' GP'), 'error');
 
   var yld = document.getElementById('stakeYieldPreview')?.textContent || '';
   var ok = await gameConfirm({
     icon: '💎',
     title: (window.i18n?.staking_confirm_title) || 'STAKE GP',
-    body: 'Lock <b>' + Math.round(amt) + ' GP</b> for <b>' + _selectedLockDays + ' days</b><br>Expected yield: <b style="color:var(--gn)">' + yld + '</b>',
+    body: tl('Lock <b>' + Math.round(amt) + ' GP</b> for <b>' + _selectedLockDays + ' days</b>','<b>' + Math.round(amt) + ' GP</b>를 <b>' + _selectedLockDays + '일</b> 동안 잠금','<b>' + Math.round(amt) + ' GP</b>を<b>' + _selectedLockDays + '日間</b>ロック','锁定 <b>' + Math.round(amt) + ' GP</b> 共 <b>' + _selectedLockDays + ' 天</b>') + '<br>' + tl('Expected yield','예상 수익','予想利息','预计收益') + ': <b style="color:var(--gn)">' + yld + '</b>',
     confirmText: (window.i18n?.staking_confirm_btn) || 'STAKE',
   });
   if (!ok) return;
@@ -668,18 +668,18 @@ async function doStake() {
     });
     var d = await r.json();
     if (d.error) return showToast(d.error, 'error');
-    showToast('💎 Staked ' + Math.round(amt) + ' GP for ' + _selectedLockDays + 'd!', 'success');
+    showToast(tl('💎 Staked ' + Math.round(amt) + ' GP for ' + _selectedLockDays + 'd!','💎 ' + Math.round(amt) + ' GP를 ' + _selectedLockDays + '일 스테이킹했습니다!','💎 ' + Math.round(amt) + ' GP を ' + _selectedLockDays + '日間ステーキングしました！','💎 已质押 ' + Math.round(amt) + ' GP 共 ' + _selectedLockDays + ' 天！'), 'success');
     loadStakingPanel();
     loadWalletData();
-  } catch(e) { showToast('Stake failed', 'error'); }
+  } catch(e) { showToast(tl('Stake failed','스테이킹 실패','ステーキング失敗','质押失败'), 'error'); }
 }
 
 async function doWithdraw(stakeId) {
-  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  if (!walletState.address) return showToast(tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包'), 'error');
   var ok = await gameConfirm({
     icon: '✅',
     title: (window.i18n?.staking_withdraw_title) || 'WITHDRAW STAKE',
-    body: 'Withdraw your matured stake and collect principal + yield?',
+    body: tl('Withdraw your matured stake and collect principal + yield?','만기된 스테이킹을 출금하고 원금 + 수익을 받으시겠습니까?','満期のステーキングを引き出し、元本＋利息を受け取りますか？','取出已到期的质押并领取本金 + 收益？'),
     confirmText: (window.i18n?.staking_withdraw_btn) || 'WITHDRAW',
   });
   if (!ok) return;
@@ -691,10 +691,10 @@ async function doWithdraw(stakeId) {
     });
     var d = await r.json();
     if (d.error) return showToast(d.error, 'error');
-    showToast('✅ Received ' + d.totalReturn.toFixed(2) + ' GP!', 'success');
+    showToast(tl('✅ Received ','✅ ','✅ ','✅ 已收到 ') + d.totalReturn.toFixed(2) + tl(' GP!',' GP 수령!',' GP 受取！',' GP！'), 'success');
     loadStakingPanel();
     loadWalletData();
-  } catch(e) { showToast('Withdrawal failed', 'error'); }
+  } catch(e) { showToast(tl('Withdrawal failed','출금 실패','引き出し失敗','取出失败'), 'error'); }
 }
 
 // ── GP BURN (Migration 108) ──────────────────────────────────────────────────
@@ -760,7 +760,7 @@ async function harvestMining(){
   var w=walletState.address;
   if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var btn=document.getElementById('baseHarvestBtn');
-  btn.disabled=true;btn.textContent='HARVESTING...';
+  btn.disabled=true;btn.textContent=tl('HARVESTING...','수확 중...','収穫中...','收获中...');
   try{
     var headers={'Content-Type':'application/json'};
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
@@ -816,13 +816,13 @@ async function instantHarvest(){
   var w=walletState.address;
   if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
   var ihCost=window._instantHarvestCost||0.5;
-  var ok=await shopConfirm('','Skip Cooldown',
-    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">INSTANT HARVEST</div>'
-    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Skip the harvest cooldown and harvest immediately.</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+ihCost+' PP</div>','SKIP COOLDOWN');
+  var ok=await shopConfirm('',tl('Skip Cooldown','쿨다운 건너뛰기','クールダウンスキップ','跳过冷却'),
+    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">'+tl('INSTANT HARVEST','즉시 수확','即時収穫','立即收获')+'</div>'
+    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">'+tl('Skip the harvest cooldown and harvest immediately.','수확 쿨다운을 건너뛰고 즉시 수확합니다.','収穫のクールダウンをスキップしてすぐに収穫します。','跳过收获冷却并立即收获。')+'</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+ihCost+' PP</div>',tl('SKIP COOLDOWN','쿨다운 건너뛰기','クールダウンスキップ','跳过冷却'));
   if(!ok)return;
   var btn=document.getElementById('baseInstantHarvestBtn');
-  btn.disabled=true;btn.textContent='PROCESSING...';
+  btn.disabled=true;btn.textContent=tl('PROCESSING...','처리 중...','処理中...','处理中...');
   try{
     var headers={'Content-Type':'application/json'};
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
@@ -831,11 +831,11 @@ async function instantHarvest(){
     if(!resp.ok){showToast(d.error||tl('Failed','실패했습니다','失敗しました','失败了'),'error');return}
     showToast(tl('Cooldown skipped! Harvest now.','쿨다운을 건너뛰었습니다! 지금 수확하세요.','クールダウンをスキップしました！今すぐ採掘できます。','已跳过冷却！现在即可收获。'),'success');
     btn.style.display='none';
-    document.getElementById('baseMineTimer').textContent='Harvest available now!';
+    document.getElementById('baseMineTimer').textContent=tl('Harvest available now!','지금 수확 가능!','今すぐ収穫できます！','现在可以收获！');
     if(window._mineTimerInterval) _clearActiveInterval(window._mineTimerInterval);
     try{refreshEmailBalances()}catch(e){}
   }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
-  finally{btn.disabled=false;var ic=window._instantHarvestCost||0.5;btn.innerHTML='<span>HARVEST NOW ('+ic+' PP)</span>'}
+  finally{btn.disabled=false;var ic=window._instantHarvestCost||0.5;btn.innerHTML='<span>'+tl('HARVEST NOW','지금 수확','今すぐ収穫','立即收获')+' ('+ic+' PP)</span>'}
 }
 
 // ── Territory Rename (micro-transaction) ──
@@ -877,10 +877,10 @@ async function getPOIHint(){
       lng=Math.atan2(pos.x,pos.z)*180/Math.PI;
     }
   }catch(e){}
-  var ok=await shopConfirm('','POI Hint',
-    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">POI DIRECTION HINT</div>'
-    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Get the approximate direction to the nearest undiscovered POI.</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.2 PP</div>','GET HINT');
+  var ok=await shopConfirm('',tl('POI Hint','POI 힌트','POIヒント','POI 提示'),
+    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">'+tl('POI DIRECTION HINT','POI 방향 힌트','POI方向ヒント','POI 方向提示')+'</div>'
+    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">'+tl('Get the approximate direction to the nearest undiscovered POI.','가장 가까운 미발견 POI의 대략적인 방향을 얻습니다.','最も近い未発見POIのおおよその方向を取得します。','获取最近未发现 POI 的大致方向。')+'</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.2 PP</div>',tl('GET HINT','힌트 받기','ヒント取得','获取提示'));
   if(!ok)return;
   try{
     var headers={'Content-Type':'application/json'};
@@ -898,10 +898,10 @@ async function getPOIHint(){
 async function buyLootPriority(rocketEventId){
   var w=walletState.address;
   if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
-  var ok=await shopConfirm('','Priority Queue',
-    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">LOOT PRIORITY</div>'
-    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Get a 5-second head start notification when rocket loot drops.</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.3 PP</div>','GET PRIORITY');
+  var ok=await shopConfirm('',tl('Priority Queue','우선 대기열','優先キュー','优先队列'),
+    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">'+tl('LOOT PRIORITY','전리품 우선권','戦利品優先権','战利品优先权')+'</div>'
+    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">'+tl('Get a 5-second head start notification when rocket loot drops.','로켓 전리품이 떨어질 때 5초 빠른 알림을 받습니다.','ロケットの戦利品が落ちる際に5秒早い通知を受け取ります。','火箭战利品掉落时提前 5 秒收到通知。')+'</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.3 PP</div>',tl('GET PRIORITY','우선권 받기','優先権取得','获取优先权'));
   if(!ok)return;
   try{
     var headers={'Content-Type':'application/json'};

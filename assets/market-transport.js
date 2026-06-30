@@ -127,8 +127,8 @@ function populateTransportSectorSelects() {
     var lv = (s.entryMinLevel||0) > 0 ? (' Lv'+s.entryMinLevel) : '';
     return '<option value="'+(s.id||s.sector_id||'')+'">#'+(s.id||s.sector_id||'')+' '+escapeHtml(s.name||'')+tier+lv+'</option>';
   }).join('');
-  origin.innerHTML = '<option value="">— Select origin —</option>' + opts;
-  dest.innerHTML = '<option value="">— Select destination —</option>' + opts;
+  origin.innerHTML = '<option value="">— '+tl('Select origin','출발지 선택','出発地を選択','选择出发地')+' —</option>' + opts;
+  dest.innerHTML = '<option value="">— '+tl('Select destination','도착지 선택','目的地を選択','选择目的地')+' —</option>' + opts;
 }
 
 function formatTransportTier(tier) {
@@ -157,8 +157,8 @@ function transportAllianceLabel(sector) {
   if (!alliance) return '';
   var tag = alliance.tag ? '[' + escapeHtml(alliance.tag) + '] ' : '';
   var governed = parseInt(alliance.governedSectors, 10) || 0;
-  var name = escapeHtml(alliance.name || 'Alliance');
-  return tag + name + (governed > 0 ? ' · ' + governed + ' sectors' : '');
+  var name = escapeHtml(alliance.name || tl('Alliance','동맹','同盟','联盟'));
+  return tag + name + (governed > 0 ? ' · ' + governed + ' ' + tl('sectors','섹터','セクター','扇区') : '');
 }
 
 function transportLaneAllianceStatus(originSector, destSector) {
@@ -166,12 +166,12 @@ function transportLaneAllianceStatus(originSector, destSector) {
   var da = destSector && destSector.governor && destSector.governor.alliance;
   if (!oa && !da) return '';
   if (oa && da && String(oa.id) === String(da.id)) {
-    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🛡 Alliance lane · ' + transportAllianceLabel(destSector) + '</span>';
+    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🛡 ' + tl('Alliance lane','동맹 항로','同盟航路','联盟航线') + ' · ' + transportAllianceLabel(destSector) + '</span>';
   }
   if (da) {
-    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🏛 Destination governed by ' + transportAllianceLabel(destSector) + '</span>';
+    return '<span style="color:#80cbc4;font-size:8px;font-weight:700">🏛 ' + tl('Destination governed by','도착지 통치','目的地統治','目的地由其治理') + ' ' + transportAllianceLabel(destSector) + '</span>';
   }
-  return '<span style="color:var(--tx3);font-size:8px">Origin governed by ' + transportAllianceLabel(originSector) + '</span>';
+  return '<span style="color:var(--tx3);font-size:8px">' + tl('Origin governed by','출발지 통치','出発地統治','出发地由其治理') + ' ' + transportAllianceLabel(originSector) + '</span>';
 }
 
 function getTransportSectorById(id) {
@@ -300,13 +300,13 @@ function updateTransportPreview() {
   var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
   var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
   var cargo = parseInt((document.getElementById('tspCargoGp')||{}).value || '0');
-  if (!origin || !dest) { el.innerHTML = '<span style="color:var(--tx3)">Select origin &amp; destination to preview duration/reward.</span>'; return; }
-  if (origin === dest) { el.innerHTML = '<span style="color:#FF6B6B">✗ Origin must differ from destination.</span>'; return; }
-  if (!cargo) { el.innerHTML = '<span style="color:var(--tx3)">Enter cargo GP to preview.</span>'; return; }
+  if (!origin || !dest) { el.innerHTML = '<span style="color:var(--tx3)">'+tl('Select origin &amp; destination to preview duration/reward.','출발지와 도착지를 선택하면 소요시간/보상을 미리 봅니다.','出発地と目的地を選ぶと所要時間/報酬をプレビューします。','选择出发地和目的地以预览时长/奖励。')+'</span>'; return; }
+  if (origin === dest) { el.innerHTML = '<span style="color:#FF6B6B">✗ '+tl('Origin must differ from destination.','출발지와 도착지는 달라야 합니다.','出発地と目的地は異なる必要があります。','出发地和目的地必须不同。')+'</span>'; return; }
+  if (!cargo) { el.innerHTML = '<span style="color:var(--tx3)">'+tl('Enter cargo GP to preview.','화물 GP를 입력하면 미리 봅니다.','貨物GPを入力するとプレビューします。','输入货物GP以预览。')+'</span>'; return; }
   var minC = parseInt(_tspSettings.minCargo)||50;
   var maxC = parseInt(_tspSettings.maxCargo)||5000;
-  if (cargo < minC) { el.innerHTML = '<span style="color:#FF6B6B">✗ Min cargo: '+minC+' GP</span>'; return; }
-  if (cargo > maxC) { el.innerHTML = '<span style="color:#FF6B6B">✗ Max cargo: '+maxC+' GP</span>'; return; }
+  if (cargo < minC) { el.innerHTML = '<span style="color:#FF6B6B">✗ '+tl('Min cargo','최소 화물','最小貨物','最小货物')+': '+minC+' GP</span>'; return; }
+  if (cargo > maxC) { el.innerHTML = '<span style="color:#FF6B6B">✗ '+tl('Max cargo','최대 화물','最大貨物','最大货物')+': '+maxC+' GP</span>'; return; }
   var o = _tspSectors.find(function(x){ return (x.id||x.sector_id) == origin; });
   var d = _tspSectors.find(function(x){ return (x.id||x.sector_id) == dest; });
   if (!o || !d) { el.textContent = ''; return; }
@@ -327,16 +327,16 @@ function updateTransportPreview() {
   var destTax = Number.isFinite(parseFloat(d.taxRate)) ? parseFloat(d.taxRate).toFixed(1) + '%' : '-';
   var allianceLine = transportLaneAllianceStatus(o, d);
   el.innerHTML =
-    '<span style="color:var(--tx2)">Distance: <b style="color:#FFB347">'+dist.toFixed(1)+'°</b></span> · '
-    + '<span style="color:var(--tx2)">ETA: <b style="color:#FFB347">~'+duration+' min</b></span> · '
-    + '<span style="color:var(--tx2)">Reward: <b style="color:var(--gold)">+'+reward+' GP</b></span>'
+    '<span style="color:var(--tx2)">'+tl('Distance','거리','距離','距离')+': <b style="color:#FFB347">'+dist.toFixed(1)+'°</b></span> · '
+    + '<span style="color:var(--tx2)">ETA: <b style="color:#FFB347">~'+duration+' '+tl('min','분','分','分钟')+'</b></span> · '
+    + '<span style="color:var(--tx2)">'+tl('Reward','보상','報酬','奖励')+': <b style="color:var(--gold)">+'+reward+' GP</b></span>'
     + '<br><span style="color:'+risk.color+';font-size:8px;font-weight:700">'+risk.label+'</span>'
-    + '<span style="color:var(--tx3);font-size:8px"> · '+formatTransportTier(d.tier)+' destination'
-    + (tierBonusPct > 0 ? ' · +' + tierBonusPct + '% risk premium' : '')
-    + (destLv > 0 ? ' · Lv '+destLv+' gate' : '')
-    + ' · Tax '+destTax+'</span>'
+    + '<span style="color:var(--tx3);font-size:8px"> · '+formatTransportTier(d.tier)+' '+tl('destination','도착지','目的地','目的地')
+    + (tierBonusPct > 0 ? ' · +' + tierBonusPct + '% ' + tl('risk premium','위험 보너스','リスク報酬','风险奖励') : '')
+    + (destLv > 0 ? ' · Lv '+destLv+' '+tl('gate','제한','制限','门槛') : '')
+    + ' · '+tl('Tax','세금','税','税')+' '+destTax+'</span>'
     + (allianceLine ? '<br>'+allianceLine : '')
-    + '<br><span style="color:var(--tx3);font-size:8px">Raid window '+raidMin+'-'+raidMax+'% progress · loot at risk ~'+lootAtRisk+' GP. Merchants get faster ETA + bigger rewards + raid resistance.</span>';
+    + '<br><span style="color:var(--tx3);font-size:8px">'+tl('Raid window','약탈 가능 구간','略奪可能帯','可掠夺窗口')+' '+raidMin+'-'+raidMax+'% '+tl('progress · loot at risk','진행 · 위험 노출 손실','進行 · 略奪リスク','进度 · 风险损失')+' ~'+lootAtRisk+' GP. '+tl('Merchants get faster ETA + bigger rewards + raid resistance.','상인은 더 빠른 ETA + 더 큰 보상 + 약탈 저항을 얻습니다.','商人はより速いETA + より大きな報酬 + 略奪耐性を得ます。','商人可获得更快ETA + 更高奖励 + 抗掠夺能力。')+'</span>';
 }
 
 function submitTransportLaunch() {
@@ -397,13 +397,13 @@ function loadMyTransports() {
         }
         var raidLine = '';
         if (t.status==='raided') {
-          raidLine = '<div style="font-size:9px;color:#FF6B6B;margin-top:3px">🏴 Raided by '+escapeHtml(t.raider_nick||(t.raided_by||'').slice(0,8))+' · Lost '+(t.raid_loot_gp||0)+' GP</div>';
+          raidLine = '<div style="font-size:9px;color:#FF6B6B;margin-top:3px">🏴 '+tl('Raided by','약탈당함:','略奪された:','被掠夺:')+' '+escapeHtml(t.raider_nick||(t.raided_by||'').slice(0,8))+' · '+tl('Lost','손실','損失','损失')+' '+(t.raid_loot_gp||0)+' GP</div>';
         }
         var laneContext = renderTransportLaneContext(t.origin_sector_id, t.dest_sector_id);
         return '<div style="padding:10px;border-radius:7px;border:1px solid rgba(255,179,71,.18);background:rgba(255,179,71,.02);margin-bottom:8px">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
           + '<div><div style="font-size:10px;color:var(--tx);font-weight:700">#'+t.id+' · '+escapeHtml(t.origin_name||('S'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('S'+t.dest_sector_id))+'</div>'
-          + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">Cargo '+(t.cargo_value||0)+' GP · Reward +'+(t.reward_gp||0)+' GP'+(t.merchant_bonus?' · <span style="color:#FFB347">★MRC</span>':'')+'</div></div>'
+          + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">'+tl('Cargo','화물','貨物','货物')+' '+(t.cargo_value||0)+' GP · '+tl('Reward','보상','報酬','奖励')+' +'+(t.reward_gp||0)+' GP'+(t.merchant_bonus?' · <span style="color:#FFB347">★MRC</span>':'')+'</div></div>'
           + '<div style="text-align:right"><div style="font-size:10px;color:'+statusColor+';font-weight:700">'+escapeHtml(t.status||'')+'</div>'
           + '<div style="font-size:8px;color:var(--tx3)">'+timeLine+'</div></div>'
           + '</div>'
@@ -489,9 +489,9 @@ function loadRaidTargets() {
         return '<div style="padding:10px;border-radius:7px;border:1px solid rgba(255,107,107,.22);background:rgba(255,107,107,.03);margin-bottom:8px">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
           + '<div><div style="font-size:10px;color:var(--tx);font-weight:700">#'+t.id+' · '+escapeHtml(t.origin_name||('S'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('S'+t.dest_sector_id))+'</div>'
-          + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">Carrier: '+escapeHtml(t.carrier_nick||(t.carrier_wallet||'').slice(0,8))+(t.merchant_bonus?' <span style="color:#FFB347">★MRC</span>':'')+'</div>'
-          + '<div style="font-size:8px;color:var(--gold);margin-top:2px">Cargo: '+(t.cargo_value||0)+' GP · Loot ~'+lootEstimate+' GP · '+successPct.toFixed(1)+'% odds · EV +'+expectedGp+' GP</div>'
-          + '<div style="font-size:8px;color:'+threatColor+';font-weight:700;margin-top:2px">'+threatLabel+' · Progress '+prog+'%</div></div>'
+          + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">'+tl('Carrier','운송자','輸送者','运输者')+': '+escapeHtml(t.carrier_nick||(t.carrier_wallet||'').slice(0,8))+(t.merchant_bonus?' <span style="color:#FFB347">★MRC</span>':'')+'</div>'
+          + '<div style="font-size:8px;color:var(--gold);margin-top:2px">'+tl('Cargo','화물','貨物','货物')+': '+(t.cargo_value||0)+' GP · '+tl('Loot','전리품','略奪品','战利品')+' ~'+lootEstimate+' GP · '+successPct.toFixed(1)+'% '+tl('odds','확률','確率','概率')+' · EV +'+expectedGp+' GP</div>'
+          + '<div style="font-size:8px;color:'+threatColor+';font-weight:700;margin-top:2px">'+threatLabel+' · '+tl('Progress','진행','進行','进度')+' '+prog+'%</div></div>'
           + '<button onclick="submitRaidAttempt('+t.id+','+((t.cargo_value||0))+')" style="padding:8px 12px;font-size:10px;border-radius:5px;background:linear-gradient(135deg,#FF6B6B,#cc2020);border:none;color:#fff;font-weight:700;cursor:pointer" data-i18n="transport_raid_btn">🏴 RAID</button>'
           + '</div>' + bar
           + '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;font-size:8px;font-weight:800;font-family:var(--fn)">'
@@ -541,7 +541,7 @@ async function loadFleetCommandCard(){
       if (summary && d && d.fleets) {
         var total = d.fleets.length;
         var ships = d.fleets.reduce(function(s,f){ return s + (parseInt(f.ships_alive)||parseInt(f.ship_count)||0); }, 0);
-        summary.textContent = total + ' fleets · ' + ships + ' ships';
+        summary.textContent = total + ' ' + tl('fleets','함대','艦隊','舰队') + ' · ' + ships + ' ' + tl('ships','함선','艦船','舰船');
       }
     }
   } catch(_) {}
@@ -569,7 +569,7 @@ async function loadFleetCommandCard(){
               '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#ff6b6b,#ff3030);transition:width .3s"></div>' +
             '</div>' +
             '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">' +
-              '<div style="font-size:8px;color:var(--tx3)">HP ' + ev.hp_current + '/' + ev.hp_max + ' · ' + (ev.participant_count||0) + ' fighters</div>' +
+              '<div style="font-size:8px;color:var(--tx3)">HP ' + ev.hp_current + '/' + ev.hp_max + ' · ' + (ev.participant_count||0) + ' ' + tl('fighters','참전자','参戦者','参战者') + '</div>' +
               '<button onclick="openWorldEventDetail(' + ev.id + ')" style="font-size:9px;padding:3px 9px;border-radius:6px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff6b6b;cursor:pointer;font-family:var(--fn);font-weight:700" data-i18n="we_engage">⚔ ENGAGE</button>' +
             '</div>' +
             '<div style="font-size:8px;color:var(--gold);margin-top:5px;line-height:1.45">' + escapeHtml(reward || rule) + '</div>' +
@@ -606,7 +606,7 @@ window.openWorldEventDetail = async function(eventId) {
     var pct = parseFloat(ev.hp_pct) || 0;
     document.getElementById('weHpBar').style.width = pct + '%';
     document.getElementById('weHpText').textContent = 'HP ' + Number(ev.hp_current).toLocaleString() + '/' + Number(ev.hp_max).toLocaleString();
-    document.getElementById('weParticipants').textContent = (ev.participant_count || 0) + ' fighters';
+    document.getElementById('weParticipants').textContent = (ev.participant_count || 0) + ' ' + tl('fighters','참전자','参戦者','参战者');
     var meta = ev.meta || {};
     var rewardLine = weRewardText(ev);
     var ruleLine = weEngageRuleText(ev);
@@ -709,7 +709,7 @@ async function confirmWeEngage() {
     showToast(e.message || (LANG==='ko'?'교전 실패':LANG==='ja'?'交戦失敗':LANG==='zh'?'交战失败':'Engage failed'), 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '⚔ ENGAGE';
+    btn.textContent = '⚔ ' + tl('ENGAGE','출전','出撃','出击');
   }
 }
 
@@ -728,8 +728,8 @@ function populateMktSectorFilter(){
     secs.sort(function(a,b){ return (order[a.tier]||9)-(order[b.tier]||9) || String(a.name||'').localeCompare(String(b.name||'')); });
     var cur=sel.value;
     var icon={frontier:'🟢',mid:'🟡',core:'🔴'};
-    sel.innerHTML='<option value="">🌐 ALL SECTORS</option>'+secs.map(function(s){
-      return '<option value="'+s.id+'">'+(icon[s.tier]||'•')+' '+(s.name||('Sector '+s.id))+'</option>';
+    sel.innerHTML='<option value="">🌐 '+tl('ALL SECTORS','전체 섹터','全セクター','全部扇区')+'</option>'+secs.map(function(s){
+      return '<option value="'+s.id+'">'+(icon[s.tier]||'•')+' '+(s.name||(tl('Sector','섹터','セクター','扇区')+' '+s.id))+'</option>';
     }).join('');
     if(cur) sel.value=cur;
   }).catch(function(){ _mktSectorsPopulated=false; });
@@ -739,7 +739,7 @@ function loadMarketListings(){
   //   /api/ships/market/listings 호출 후 renderShipMarketCard 로 같은 그리드에 렌더.
   //   이전엔 함선이 마켓에 안 나와 거래 동선이 두 곳(조선소·일반 마켓)으로 갈렸음.
   var grid=document.getElementById('mktBrowseGrid');
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">Loading...</div>';
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+tl('Loading...','로딩 중...','読み込み中...','加载中...')+'</div>';
   populateMktSectorFilter();
   var type=document.getElementById('mktFilterType').value;
   var sort=document.getElementById('mktFilterSort').value;
@@ -828,7 +828,7 @@ function loadRecentSales(){
       el.innerHTML=sales.map(function(s){
         var meta=s.meta||{};
         var icon=meta.itemIcon||'🗺️';
-        var name=meta.itemName||(s.listing_type==='claim'?'Territory':'Item');
+        var name=meta.itemName||(s.listing_type==='claim'?tl('Territory','영토','領土','领地'):tl('Item','아이템','アイテム','物品'));
         var enh=meta.enhancementLevel>0?' <span style="color:var(--gold);font-weight:800">+'+meta.enhancementLevel+'</span>':'';
         var ago=Math.round((Date.now()-new Date(s.sold_at))/60000);
         var agoStr=ago<60?ago+'m':(Math.floor(ago/60)+'h');
@@ -850,8 +850,8 @@ function renderMarketCard(l){
   // ✅ [Resource System] 자원 타입 처리
   var isResource=l.listing_type==='resource';
   var icon=isResource?(meta.resourceIcon||'⛏️'):meta.itemIcon||'🗺️';
-  var name=isResource?((meta.resourceName||l.resource_code||'Resource')+' ×'+(l.resource_quantity||meta.resourceQty||1))
-    :(meta.itemName||(l.listing_type==='claim'?'Territory #'+l.claim_id:'Item'));
+  var name=isResource?((meta.resourceName||l.resource_code||tl('Resource','자원','資源','资源'))+' ×'+(l.resource_quantity||meta.resourceQty||1))
+    :(meta.itemName||(l.listing_type==='claim'?tl('Territory','영토','領土','领地')+' #'+l.claim_id:tl('Item','아이템','アイテム','物品')));
   var enhLv=meta.enhancementLevel||0;
   var enhTag=enhLv>0?_enhBadge(enhLv):'';
   var typeLabel=l.listing_type==='claim'?'🗺️':isResource?'⛏️':'🎨';
@@ -869,7 +869,7 @@ function renderMarketCard(l){
   return '<div class="'+_enhGlowClass(enhLv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center">'
     +'<span style="font-size:10px;font-weight:700;color:'+rarityColor+'">'+icon+' '+name+enhTag+'</span>'
-    +'<button onclick="showMarketDetail('+l.id+',\''+chartParam+'\',\''+name.replace(/'/g,"\\'")+'\')" style="font-size:8px;color:var(--tx3);background:none;border:none;cursor:pointer;padding:2px 4px;font-family:var(--fn)" title="Price history">📊</button>'
+    +'<button onclick="showMarketDetail('+l.id+',\''+chartParam+'\',\''+name.replace(/'/g,"\\'")+'\')" style="font-size:8px;color:var(--tx3);background:none;border:none;cursor:pointer;padding:2px 4px;font-family:var(--fn)" title="'+tl('Price history','가격 기록','価格履歴','价格记录')+'">📊</button>'
     +'</div>'
     +claimInfo
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">'
@@ -884,7 +884,7 @@ function renderMarketCard(l){
 
 // ── Market Price History Detail (Migration 103) ──
 function _renderSparkline(points, width, height){
-  if(!points||points.length<2) return '<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">No history yet</div>';
+  if(!points||points.length<2) return '<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+tl('No history yet','아직 기록 없음','履歴なし','暂无记录')+'</div>';
   var prices=points.map(function(p){return p.price});
   var mn=Math.min.apply(null,prices), mx=Math.max.apply(null,prices);
   var range=mx-mn||1;
@@ -922,11 +922,11 @@ function showMarketDetail(listingId, chartParam, name){
   dlg.style.cssText='position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7)';
   dlg.innerHTML='<div style="background:var(--surface1);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;width:min(340px,calc(100vw - 32px));max-height:80vh;overflow-y:auto">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
-    +'<span style="font-size:11px;font-weight:700;color:#a064dc">📊 '+(name||'Price History')+'</span>'
+    +'<span style="font-size:11px;font-weight:700;color:#a064dc">📊 '+(name||tl('Price History','가격 기록','価格履歴','价格记录'))+'</span>'
     +'<button onclick="document.getElementById(\'mktDetailDlg\').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:14px">✕</button>'
     +'</div>'
     +'<div id="mktDetailChart" style="width:100%;min-height:80px;display:flex;align-items:center;justify-content:center">'
-    +'<div style="font-size:9px;color:var(--tx3)">Loading chart...</div>'
+    +'<div style="font-size:9px;color:var(--tx3)">'+tl('Loading chart...','차트 로딩 중...','チャート読み込み中...','加载图表中...')+'</div>'
     +'</div>'
     +'<div id="mktDetailStats" style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px"></div>'
     +'</div>';
@@ -939,21 +939,21 @@ function showMarketDetail(listingId, chartParam, name){
       var statsEl=document.getElementById('mktDetailStats');
       if(!chartEl||!statsEl) return;
       if(!d){
-        chartEl.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:12px;text-align:center">Please wait before refreshing.</div>';
+        chartEl.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:12px;text-align:center">'+tl('Please wait before refreshing.','새로고침 전 잠시 기다리세요.','更新前に少しお待ちください。','刷新前请稍候。')+'</div>';
         return;
       }
       if(!d.points||!d.points.length){
-        chartEl.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:12px;text-align:center">No sales history yet.</div>';
+        chartEl.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:12px;text-align:center">'+tl('No sales history yet.','아직 거래 기록이 없습니다.','取引履歴がありません。','暂无交易记录。')+'</div>';
       } else {
         chartEl.innerHTML=_renderSparkline(d.points, 300, 80);
       }
       var currency=(d.points&&d.points[0]&&d.points[0].currency)||'GP';
       statsEl.innerHTML=[
-        {k:'SALES',v:d.count||0},
-        {k:'AVG',v:d.avg?(Math.round(d.avg)+' '+currency):'—'},
-        {k:'MIN',v:d.min?(Math.round(d.min)+' '+currency):'—'},
-        {k:'MAX',v:d.max?(Math.round(d.max)+' '+currency):'—'},
-        {k:'7D AVG',v:d.avg7d?(Math.round(d.avg7d)+' '+currency):'—'},
+        {k:tl('SALES','거래','取引','交易'),v:d.count||0},
+        {k:tl('AVG','평균','平均','均价'),v:d.avg?(Math.round(d.avg)+' '+currency):'—'},
+        {k:tl('MIN','최저','最低','最低'),v:d.min?(Math.round(d.min)+' '+currency):'—'},
+        {k:tl('MAX','최고','最高','最高'),v:d.max?(Math.round(d.max)+' '+currency):'—'},
+        {k:tl('7D AVG','7일 평균','7日平均','7天均价'),v:d.avg7d?(Math.round(d.avg7d)+' '+currency):'—'},
       ].map(function(s){
         return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px;text-align:center">'
           +'<div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">'+s.k+'</div>'
@@ -968,7 +968,7 @@ function showMarketDetail(listingId, chartParam, name){
 
 function buyMarketListing(listingId,price,currency,name){
   var w=(walletState&&walletState.address)||'';
-  if(!w){showToast('Connect wallet first','error');return;}
+  if(!w){showToast(tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包'),'error');return;}
   var myBal=currency==='GP'?(walletState.gameGP||0):(walletState.gamePP||0);
   var insufficient=myBal<price;
   function fmt(v){
@@ -982,17 +982,17 @@ function buyMarketListing(listingId,price,currency,name){
       {k:t('mkt_your_balance')||'Your Balance',v:Math.floor(myBal).toLocaleString()+' '+currency,insufficient:insufficient}
     ];
     if(quote){
-      info.push({k:'Buyer pays',v:fmt(quote.buyerPays||price)+' '+currency});
-      info.push({k:'Sale fee',v:fmt(quote.fee)+' '+currency});
+      info.push({k:tl('Buyer pays','구매자 지불','購入者支払','买家支付'),v:fmt(quote.buyerPays||price)+' '+currency});
+      info.push({k:tl('Sale fee','판매 수수료','販売手数料','销售手续费'),v:fmt(quote.fee)+' '+currency});
       if(quote.sectorId){
         var tariffLabel=quote.tariffAmount>0
-          ? fmt(quote.tariffAmount)+' '+currency+' → Sector #'+quote.sectorId
-          : (quote.tariffExempted?'Exempted':'None');
-        info.push({k:'Sector tariff',v:tariffLabel});
+          ? fmt(quote.tariffAmount)+' '+currency+' → '+tl('Sector','섹터','セクター','扇区')+' #'+quote.sectorId
+          : (quote.tariffExempted?tl('Exempted','면제','免除','免除'):tl('None','없음','なし','无'));
+        info.push({k:tl('Sector tariff','섹터 관세','セクター関税','扇区关税'),v:tariffLabel});
       }
-      info.push({k:'Seller receives',v:fmt(quote.sellerReceives)+' '+currency});
+      info.push({k:tl('Seller receives','판매자 수령','販売者受取','卖家收到'),v:fmt(quote.sellerReceives)+' '+currency});
     } else {
-      info.push({k:'Settlement',v:'Server quote unavailable'});
+      info.push({k:tl('Settlement','정산','精算','结算'),v:tl('Server quote unavailable','서버 견적 없음','サーバー見積もり不可','无法获取报价')});
     }
     gameConfirm({
       title:t('mkt_buy_title')||'Purchase Item', icon:'🛒',
@@ -1006,7 +1006,7 @@ function buyMarketListing(listingId,price,currency,name){
         if(d.error){showToast(srvErr(d.error),'error');return;}
         showToast('✅ '+(t('mkt_bought')||'Purchase successful!'),'success');
         refreshBalance(); loadMarketListings();
-      }).catch(function(){showToast('Purchase failed','error')});
+      }).catch(function(){showToast(tl('Purchase failed','구매 실패','購入失敗','购买失败'),'error')});
     });
   }
   mtReadFetch('market-purchase-quote:'+listingId, '/api/marketplace/listings/'+encodeURIComponent(listingId)+'/purchase-quote', 5000, true)
@@ -1027,15 +1027,15 @@ function cancelMarketListing(listingId){
       if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('✅ '+(t('mkt_cancelled')||'Listing cancelled'));
       loadMarketListings(); loadItemInstances();
-    }).catch(function(){showToast('Cancel failed','error')});
+    }).catch(function(){showToast(tl('Cancel failed','취소 실패','キャンセル失敗','取消失败'),'error')});
   });
 }
 
 function loadSellView(){
   var el=document.getElementById('mktSellView');
   var w=(walletState&&walletState.address)||'';
-  if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
-  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
+  if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">'+tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包')+'</div>';return;}
+  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">'+tl('Loading...','로딩 중...','読み込み中...','加载中...')+'</div>';
 
   // ── 아이템만 API에서, 영토는 이미 로컬에 있는 _ownerGroups 사용 ──
   mtReadArray('market-sell-items', '/api/items/instances', 10000, true).catch(function(){return []}).then(function(instances){
@@ -1067,7 +1067,7 @@ function loadSellView(){
         var centerLat=b?(b.minLat+b.maxLat)/2:ec[0].lat;
         var centerLng=b?(b.minLng+b.maxLng)/2:ec[0].lng;
         var totalPx=(b&&b.count)||ec.reduce(function(s,c){return s+(c._pixelCount||c.pixel_count||((c.w||c.size||10)*(c.h||c.size||10)));},0);
-        var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:8px">('+ec.length+' merged)</span>':'';
+        var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:8px">('+ec.length+' '+tl('merged','병합','統合','合并')+')</span>':'';
         var anyLocked=ec.some(function(c){return _forSaleMap[c.id];});
         var anyAuction=ec.some(function(c){var f=_forSaleMap[c.id];return f&&f.saleType==='auction';});
         var primaryId=ec[0].id;
@@ -1075,12 +1075,12 @@ function loadSellView(){
         html+='<div style="background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,'+(anyLocked?'.3':'.1')+');border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px">';
         html+='<div style="flex:1;min-width:0">';
         html+='<div style="font-size:10px;color:var(--tx2);font-weight:700">#'+(i+1)+' · '+coordStr+subLabel+'</div>';
-        html+='<div style="font-size:8px;color:var(--tx3);margin-top:1px">'+totalPx+'px · '+(ec.some(function(c){return c.imgUrl;})?'📷':'🏴 No image')+'</div>';
+        html+='<div style="font-size:8px;color:var(--tx3);margin-top:1px">'+totalPx+'px · '+(ec.some(function(c){return c.imgUrl;})?'📷':'🏴 '+tl('No image','이미지 없음','画像なし','无图像'))+'</div>';
         html+='</div>';
         if(anyLocked){
-          html+='<div style="font-size:8px;color:#4cd89a;font-weight:700;white-space:nowrap">'+( anyAuction?'🔨 AUCTION':'💰 FOR SALE')+'</div>';
+          html+='<div style="font-size:8px;color:#4cd89a;font-weight:700;white-space:nowrap">'+( anyAuction?'🔨 '+tl('AUCTION','경매','オークション','拍卖'):'💰 '+tl('FOR SALE','판매중','販売中','出售中'))+'</div>';
         }else{
-          html+='<button type="button" onclick="openListModal(\'claim\','+primaryId+',\'Territory #'+primaryId+'\',\'🗺️\',0)" style="font-size:8px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.4);background:rgba(255,120,60,.1);color:var(--mars);cursor:pointer;font-family:var(--fn);white-space:nowrap">💰 '+(t('mkt_list_sell')||'SELL')+'</button>';
+          html+='<button type="button" onclick="openListModal(\'claim\','+primaryId+',\''+tl('Territory','영토','領土','领地')+' #'+primaryId+'\',\'🗺️\',0)" style="font-size:8px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.4);background:rgba(255,120,60,.1);color:var(--mars);cursor:pointer;font-family:var(--fn);white-space:nowrap">💰 '+(t('mkt_list_sell')||'SELL')+'</button>';
         }
         html+='</div>';
       });
@@ -1096,7 +1096,7 @@ function loadSellView(){
       instances.forEach(function(inst){
         var lv=inst.enhancement_level||0;
         html+='<div class="'+_enhGlowClass(lv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
-          +'<div style="font-size:10px;font-weight:700;color:'+_enhLevelColor(lv)+'">'+(inst.icon||'🎨')+' '+(inst.name||'Item')+_enhBadge(lv)+'</div>'
+          +'<div style="font-size:10px;font-weight:700;color:'+_enhLevelColor(lv)+'">'+(inst.icon||'🎨')+' '+(inst.name||tl('Item','아이템','アイテム','物品'))+_enhBadge(lv)+'</div>'
           +'<button type="button" onclick="openListModal(\'cosmetic\','+inst.id+',\''+(inst.name||'').replace(/'/g,"\\'")+'\','+(inst.icon?'\''+inst.icon+'\'':'null')+','+lv+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+(t('mkt_list_sell')||'SELL')+'</button>'
           +'</div>';
       });
@@ -1109,7 +1109,7 @@ function loadSellView(){
       +'<div style="font-size:10px;font-weight:700;color:#4cd89a">💱 '+tl('GP↔PP auction bundle','GP↔PP 경매 번들','GP↔PP オークション束','GP↔PP 拍卖包')+'</div>'
       +'<div style="font-size:8px;color:var(--tx3);margin-top:2px">'+tl('Sell one currency for bids in the other.','한 통화를 내놓고 다른 통화로 입찰받습니다.','片方の通貨を出してもう片方で入札を受けます。','出售一种货币，用另一种货币竞价。')+'</div>'
       +'</div>'
-      +'<button type="button" onclick="openListModal(\'currency\',0,\'GP↔PP Trade\',\'💱\',0)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:#4cd89a;cursor:pointer;font-family:var(--fn);white-space:nowrap">🔨 '+(t('mkt_list_sell')||'SELL')+'</button>'
+      +'<button type="button" onclick="openListModal(\'currency\',0,\''+tl('GP↔PP Trade','GP↔PP 거래','GP↔PP 取引','GP↔PP 交易')+'\',\'💱\',0)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:#4cd89a;cursor:pointer;font-family:var(--fn);white-space:nowrap">🔨 '+(t('mkt_list_sell')||'SELL')+'</button>'
       +'</div>';
 
     // [v7.177 Phase 2] 함선 SELL 섹션 — 마켓에서 직접 함선 등록(이전엔 조선소 only)
@@ -1280,7 +1280,7 @@ function openListModal(type,idVal,name,icon,enhLv){
   var isCurrencyListing=type==='currency';
   gameConfirm({
     title:(t('mkt_list_title')||'판매 등록'), icon:icon||'💰',
-    body:'<div style="margin-bottom:10px;font-size:11px;color:#a064dc;font-weight:800">'+(icon||'')+(name||'Item')+(enhLv>0?' +'+enhLv:'')+'</div>'
+    body:'<div style="margin-bottom:10px;font-size:11px;color:#a064dc;font-weight:800">'+(icon||'')+(name||tl('Item','아이템','アイテム','物品'))+(enhLv>0?' +'+enhLv:'')+'</div>'
       // 판매 방식 선택
       +'<div style="display:flex;gap:6px;margin-bottom:10px">'
       +(isCurrencyListing?'':'<button type="button" id="listModeFixed" onclick="document.getElementById(\'listModeFixed\').style.background=\'rgba(160,100,220,.3)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(160,100,220,.7)\';document.getElementById(\'listModeAuction\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'none\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(160,100,220,.3);border:1px solid rgba(160,100,220,.7);color:#a064dc;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">💰 '+(LANG==='ko'?'고정가':LANG==='ja'?'固定価格':LANG==='zh'?'固定价格':'Fixed')+'</button>')
@@ -1355,20 +1355,20 @@ function openListModal(type,idVal,name,icon,enhLv){
 // ── 자원 마켓 등록 (인벤토리 → 마켓 SELL 탭 열기) ──
 function openResourceMarketListing(resourceCode){
   var w=(walletState&&walletState.address)||'';
-  if(!w){showToast('Connect wallet first','error');return;}
+  if(!w){showToast(tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包'),'error');return;}
   var resItem=(_resourceInventory||[]).find(function(r){return r.code===resourceCode;});
-  if(!resItem||resItem.quantity<=0){showToast('No resources to sell','error');return;}
+  if(!resItem||resItem.quantity<=0){showToast(tl('No resources to sell','판매할 자원이 없습니다','売却する資源がありません','没有可出售的资源'),'error');return;}
   var maxQty=resItem.quantity;
   gameConfirm({
     title:'⛏️ '+(t('res_sell_title')||'Sell Resource'), icon:resItem.icon_emoji||'🔷',
     body:'<div style="margin-bottom:8px;font-size:10px;color:#5cbbff;font-weight:700">'+(resItem.icon_emoji||'')+(resItem.name||resItem.code)+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px">'
       +'<div>'
-      +'<label style="font-size:9px;color:var(--tx3)">QTY (max '+maxQty+')</label>'
+      +'<label style="font-size:9px;color:var(--tx3)">'+tl('QTY','수량','数量','数量')+' ('+tl('max','최대','最大','最多')+' '+maxQty+')</label>'
       +'<input id="resListQty" type="number" min="1" max="'+maxQty+'" value="'+Math.min(maxQty,10)+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
       +'</div>'
       +'<div>'
-      +'<label style="font-size:9px;color:var(--tx3)">PRICE EACH</label>'
+      +'<label style="font-size:9px;color:var(--tx3)">'+tl('PRICE EACH','개당 가격','単価','单价')+'</label>'
       +'<input id="resListPrice" type="number" min="1" placeholder="'+resItem.base_pp_value+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
       +'</div>'
       +'</div>'
@@ -1380,22 +1380,22 @@ function openResourceMarketListing(resourceCode){
     var qty=parseInt(document.getElementById('resListQty').value)||1;
     var price=parseFloat(document.getElementById('resListPrice').value);
     var curr=document.getElementById('resListCurrency').value;
-    if(!price||price<=0){showToast('Enter a valid price','error');return;}
-    if(qty<1||qty>maxQty){showToast('Invalid quantity','error');return;}
+    if(!price||price<=0){showToast(tl('Enter a valid price','올바른 가격을 입력하세요','有効な価格を入力してください','请输入有效价格'),'error');return;}
+    if(qty<1||qty>maxQty){showToast(tl('Invalid quantity','수량이 올바르지 않습니다','数量が無効です','数量无效'),'error');return;}
     fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,type:'resource',resourceCode:resourceCode,resourceQuantity:qty,price:price,currency:curr})})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(srvErr(d.error),'error');return;}
-      showToast('✅ '+(qty)+'× '+(resItem.name||resItem.code)+' listed!');
+      showToast('✅ '+(qty)+'× '+(resItem.name||resItem.code)+' '+tl('listed!','등록 완료!','出品しました！','已上架！'));
       loadBaseInventory();
-    }).catch(function(){showToast('Listing failed','error')});
+    }).catch(function(){showToast(tl('Listing failed','등록 실패','出品失敗','上架失败'),'error')});
   });
 }
 
 function loadMyListings(){
   var el=document.getElementById('mktMyView');
   var w=(walletState&&walletState.address)||'';
-  if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
-  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
+  if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">'+tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包')+'</div>';return;}
+  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">'+tl('Loading...','로딩 중...','読み込み中...','加载中...')+'</div>';
   mtReadArray('market-my-listings', '/api/marketplace/my-listings', 10000, true).then(function(listings){
     if(!listings||!listings.length){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_no_listings')||'No listings yet')+'</div>';
@@ -1407,7 +1407,7 @@ function loadMyListings(){
       var statusColor=l.status==='active'?'#4cd89a':l.status==='sold'?'var(--gold)':l.status==='expired'?'var(--tx3)':'var(--red)';
       html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:center">'
         +'<div>'
-        +'<div style="font-size:10px;font-weight:700;color:#a064dc">'+(meta.itemIcon||'🗺️')+' '+(meta.itemName||(l.listing_type==='claim'?'Territory #'+l.claim_id:'Item'))+(meta.enhancementLevel>0?_enhBadge(meta.enhancementLevel):'')+'</div>'
+        +'<div style="font-size:10px;font-weight:700;color:#a064dc">'+(meta.itemIcon||'🗺️')+' '+(meta.itemName||(l.listing_type==='claim'?tl('Territory','영토','領土','领地')+' #'+l.claim_id:tl('Item','아이템','アイテム','物品')))+(meta.enhancementLevel>0?_enhBadge(meta.enhancementLevel):'')+'</div>'
         +'<div style="font-size:9px;color:var(--tx3)">'+parseFloat(l.price)+' '+l.currency+' · <span style="color:'+statusColor+'">'+l.status.toUpperCase()+'</span></div>'
         +'</div>'
         +(l.status==='active'?'<button onclick="cancelMarketListing('+l.id+')" style="font-size:9px;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>':'')
@@ -1441,7 +1441,7 @@ function _auctionTimeLeft(endsAt){
 function loadAuctions(){
   var el=document.getElementById('auctionGrid');
   if(!el) return;
-  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
+  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">'+tl('Loading...','로딩 중...','読み込み中...','加载中...')+'</div>';
   var typeFilter=document.getElementById('auctFilterType');
   var typeVal=typeFilter?typeFilter.value:'';
   var url='/api/auctions?status=active&limit=30'+(typeVal?'&listing_type='+encodeURIComponent(typeVal):'');
@@ -1461,12 +1461,12 @@ function loadAuctions(){
       var isSelf=(w&&a.seller_wallet&&w.toLowerCase()===a.seller_wallet.toLowerCase());
       var hasBid=a.current_bid>0;
       var minBid=hasBid?Math.ceil(a.current_bid*1.05):Math.ceil(parseFloat(a.current_price||a.start_price||0)+1);
-      var itemLabel=a.listing_type==='cosmetic'?(a.item_icon||'🎨')+' '+(a.item_name||'Cosmetic')
-        :a.listing_type==='item'?'📦 '+(a.item_name||'Item')
-        :a.listing_type==='claim'?'🗺️ Territory #'+a.claim_id
-        :a.listing_type==='resource'?'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||'Resource')
+      var itemLabel=a.listing_type==='cosmetic'?(a.item_icon||'🎨')+' '+(a.item_name||tl('Cosmetic','코스메틱','コスメ','装饰'))
+        :a.listing_type==='item'?'📦 '+(a.item_name||tl('Item','아이템','アイテム','物品'))
+        :a.listing_type==='claim'?'🗺️ '+tl('Territory','영토','領土','领地')+' #'+a.claim_id
+        :a.listing_type==='resource'?'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||tl('Resource','자원','資源','资源'))
         :a.listing_type==='currency'?'💱 '+(a.bundle_amount||0)+' '+(a.bundle_currency||'')+' → '+a.currency
-        :'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||'Resource');
+        :'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||tl('Resource','자원','資源','资源'));
       var enhLv=a.enhancement_level||0;
       html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,165,0,.15);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
         +'<div style="font-size:10px;font-weight:700;color:var(--gold)">'+itemLabel+(enhLv>0?_enhBadge(enhLv):'')+'</div>'
@@ -1518,7 +1518,7 @@ window.govPlaceAuctionBid=function(auctionId,minBid,currency){
       if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('🔨 '+(t('auc_bid_placed')||'Bid placed!'));
       refreshBalance();loadAuctions();
-    }).catch(function(){showToast('Bid failed','error')});
+    }).catch(function(){showToast(tl('Bid failed','입찰 실패','入札失敗','竞价失败'),'error')});
   });
 };
 
@@ -1536,7 +1536,7 @@ window.govAuctionBuyout=function(auctionId,currency){
       if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('⚡ '+(t('auc_bought')||'Item purchased!'));
       refreshBalance();loadAuctions();loadItemInstances();
-    }).catch(function(){showToast('Buyout failed','error')});
+    }).catch(function(){showToast(tl('Buyout failed','즉시구매 실패','即決失敗','立即购买失败'),'error')});
   });
 };
 
@@ -1554,7 +1554,7 @@ window.govCancelAuction=function(auctionId){
       if(d.error){showToast(srvErr(d.error),'error');return;}
       showToast('✅ '+(t('auc_cancelled')||'Auction cancelled'));
       refreshBalance();loadAuctions();
-    }).catch(function(){showToast('Cancel failed','error')});
+    }).catch(function(){showToast(tl('Cancel failed','취소 실패','キャンセル失敗','取消失败'),'error')});
   });
 };
 
@@ -1604,7 +1604,7 @@ function materializeItem(itemTypeId){
     showToast(t('enh_materialized')||'Item ready for enhancement!');
     loadBaseInventory();
     loadItemInstances();
-  }).catch(function(){showToast('Failed','error')});
+  }).catch(function(){showToast(tl('Failed','실패','失敗','失败'),'error')});
 }
 
 function dematerializeItem(instanceId){
@@ -1616,7 +1616,7 @@ function dematerializeItem(instanceId){
     showToast(t('enh_returned')||'Item returned to inventory');
     loadBaseInventory();
     loadItemInstances();
-  }).catch(function(){showToast('Failed','error')});
+  }).catch(function(){showToast(tl('Failed','실패','失敗','失败'),'error')});
 }
 
 function openEnhanceModal(instanceId){
@@ -1624,7 +1624,7 @@ function openEnhanceModal(instanceId){
   //   이제 /api/enhance/info/:id 로 scroll_status + available_recipes 받아 모달에 노출.
   //   protect/blessed scroll 보유 시 토글로 강화 안전성 즉시 향상 가능.
   var inst=_enhInstances.find(function(i){return i.id===instanceId});
-  if(!inst) return showToast('Item not found','error');
+  if(!inst) return showToast(tl('Item not found','아이템을 찾을 수 없습니다','アイテムが見つかりません','找不到物品'),'error');
   var lv=inst.enhancement_level||0;
   var cost=_enhCosts?_enhCosts.find(function(c){return c.from===lv}):null;
   var rate=(_enhRates&&!_enhRates.hidden)?_enhRates.find(function(r){return r.from===lv}):null;
@@ -1721,7 +1721,7 @@ function attemptEnhance(instanceId, opts){
         try{ markDailyOpsAction('ship_upgrade', 1); }catch(_e){}
       }
     });
-  }).catch(function(){showToast('Enhancement failed','error')});
+  }).catch(function(){showToast(tl('Enhancement failed','강화 실패','強化失敗','强化失败'),'error')});
 }
 
 // Load enhancement data on init

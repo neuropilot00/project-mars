@@ -53,7 +53,7 @@ function loadLeaderboard(){
     var container=document.getElementById('leaderboardList');
     var bsContainer=document.getElementById('bsLeaderboardList');
     if(!Array.isArray(arr)||arr.length===0){
-      var empty='<div style="font-size:var(--fs-xs);color:var(--tx3);padding:8px 0;text-align:center">No claims yet</div>';
+      var empty='<div style="font-size:var(--fs-xs);color:var(--tx3);padding:8px 0;text-align:center">'+tl('No claims yet','아직 점령 없음','まだ占領なし','暂无领地')+'</div>';
       if(container){ container.innerHTML=empty; var tg=document.getElementById('lbToggle'); if(tg) tg.style.display='none'; }
       if(bsContainer) bsContainer.innerHTML=empty;
       return;
@@ -94,7 +94,7 @@ function toggleLeaderboard(){
   var extras=document.querySelectorAll('#leaderboardList .lb-extra');
   extras.forEach(function(el){el.style.display=_lbExpanded?'flex':'none'});
   var toggle=document.getElementById('lbToggle');
-  if(toggle) toggle.innerHTML=_lbExpanded?'▲ TOP 3':'▼ TOP 10';
+  if(toggle) toggle.innerHTML=_lbExpanded?('▲ '+tl('TOP','상위','トップ','前')+' 3'):('▼ '+tl('TOP','상위','トップ','前')+' 10');
 }
 
 setLoadProgress(95,'Loading stats...');

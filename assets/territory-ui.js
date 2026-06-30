@@ -126,7 +126,7 @@ function activateLandSelect(){
   }
   landSelectMode=true; stampMode=false;
   landDragStart=null; landDragEnd=null; landDragRect=null;
-  document.getElementById('landSelectBtn').textContent=isMobile?'TAP MARS TO PLACE':'CLICK MARS TO START';
+  document.getElementById('landSelectBtn').textContent=isMobile?tl('TAP MARS TO PLACE','화성을 탭해 배치','タップして配置','点击火星放置'):tl('CLICK MARS TO START','화성을 클릭해 시작','クリックして開始','点击火星开始');
   document.getElementById('landSelectBtn').style.color='var(--gn)';
   document.getElementById('landSelectPreview').style.display='none';
   // Cancel stamp mode if active
@@ -293,7 +293,7 @@ function _updateMobLabels(){
 
 function cancelLandSelect(){
   landSelectMode=false; landDragStart=null; landDragEnd=null; landDragRect=null;
-  document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
+  document.getElementById('landSelectBtn').textContent=tl('DRAG TO SELECT LAND','드래그해 땅 선택','ドラッグして土地選択','拖动选择土地');
   document.getElementById('landSelectBtn').style.color='var(--mars)';
   document.getElementById('landSelectPreview').style.display='none';
   if(isMobile) _showMobSizeControls(false);
@@ -423,7 +423,7 @@ function _attachGlobeClick(){
       landDragEnd={lat:lat,lng:lng};
       landDragRect=computeLandRect(lat,lng,lat,lng);
       var _btn=document.getElementById('landSelectBtn');
-      if(_btn) _btn.textContent='CLICK AGAIN TO SET END';
+      if(_btn) _btn.textContent=tl('CLICK AGAIN TO SET END','다시 클릭해 끝점 설정','再クリックで終点設定','再次点击设置终点');
       showToast(tl('Start point set — click to set end point','시작 지점 설정 완료 — 종료 지점을 클릭하세요','開始地点を設定しました — 終了地点をクリックしてください','起点已设置 — 点击终点'));
       _setDragPreviewPolygon(landDragRect);
     }else{
@@ -432,7 +432,7 @@ function _attachGlobeClick(){
       updateLandSelectUI();
       var _btn2=document.getElementById('landSelectBtn');
       if(_btn2){
-        _btn2.textContent='DRAG TO SELECT LAND';
+        _btn2.textContent=tl('DRAG TO SELECT LAND','드래그해 땅 선택','ドラッグして土地選択','拖动选择土地');
         _btn2.style.color='var(--mars)';
       }
       landSelectMode=false;
@@ -595,7 +595,7 @@ function activateStamp(url){
     // Update UI
     document.getElementById('stampThumb').src=url;
     document.getElementById('stampImgInfo').textContent=img.width+'×'+img.height+'px';
-    document.getElementById('stampMinLabel').textContent='Min 1×1 px';
+    document.getElementById('stampMinLabel').textContent=tl('Min 1×1 px','최소 1×1 px','最小 1×1 px','最小 1×1 px');
     var slider=document.getElementById('stampSizeSlider');
     slider.min=-100; slider.max=100; slider.value=0;
     updateStampScale(100);
@@ -685,7 +685,7 @@ function closeMobileStampFull(){
 }
 document.getElementById('mStampFileInput').addEventListener('change',function(e){
   var file=e.target.files[0]; if(!file) return;
-  if(file.size>4.5*1024*1024){ showToast('⚠️ File too large (max 5MB). Choose a smaller image.'); e.target.value=''; return; }
+  if(file.size>4.5*1024*1024){ showToast(tl('⚠️ File too large (max 5MB). Choose a smaller image.','⚠️ 파일이 너무 큽니다 (최대 5MB). 더 작은 이미지를 선택하세요.','⚠️ ファイルが大きすぎます（最大5MB）。より小さい画像を選択してください。','⚠️ 文件过大（最大 5MB）。请选择更小的图片。')); e.target.value=''; return; }
   _stampOrigFile=file;
   activateStamp(URL.createObjectURL(file));
   syncMobileStampUI();
@@ -733,7 +733,7 @@ function setMobileStampSlider(v){
 // "PREVIEW ON MARS" → 바텀시트 닫고 반투명 이미지 중앙에 표시, 화성 드래그로 위치 선택
 var _mobPreviewRAF=null;
 function startMobilePreview(){
-  if(!stampImgUrl||!stampMode){showToast('SELECT AN IMAGE FIRST');return}
+  if(!stampImgUrl||!stampMode){showToast(tl('SELECT AN IMAGE FIRST','먼저 이미지를 선택하세요','まず画像を選択してください','请先选择图片'));return}
   closeMobileStamp();
   mobileStampPlacing=true;
   document.getElementById('mobStampCenterImg').src=stampImgUrl;
@@ -817,7 +817,7 @@ function confirmMobilePlacement(){
   // 극지방 체크
   var _halfH=stampH*0.1/2;
   if(lat+_halfH>70||lat-_halfH<-70){
-    showToast('POLAR ZONE — Cannot place here (beyond ±70°)');
+    showToast(tl('POLAR ZONE — Cannot place here (beyond ±70°)','극지대 — 여기에는 배치할 수 없습니다 (±70° 초과)','極地帯 — ここには配置できません（±70°超過）','极地区域 — 此处无法放置（超出 ±70°）'));
     return;
   }
   selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
@@ -944,7 +944,7 @@ function showTerritoryInfo(plot){
       hijackBtn.dataset.claimId = String(plot.claimId);
       hijackBtn.dataset.defWallet = String(plot.owner || '');
       var ownerLabel = plot.nickname || plot.label || (plot.owner ? plot.owner.slice(0,8)+'…' : '');
-      hijackBtn.title = '⚔ HIJACK ' + ownerLabel + ' · #' + plot.claimId;
+      hijackBtn.title = tl('⚔ HIJACK ','⚔ 하이젝 ','⚔ ハイジャック ','⚔ 劫持 ') + ownerLabel + ' · #' + plot.claimId;
     }
   }
   // Load tributes
@@ -1045,7 +1045,7 @@ function showTerritoryInfo(plot){
 // ── Territory Merge ──────────────────────────────────────────────────────────
 async function openTerritoryMergePanel() {
   var w = (walletState && walletState.address) || '';
-  if (!w) { gameAlert(t('connect_wallet_first') || 'Connect wallet first'); return; }
+  if (!w) { gameAlert(t('connect_wallet_first') || tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続してください','请先连接钱包')); return; }
   var lang = (typeof LANG !== 'undefined' ? LANG : 'ko');
 
   // Get all my territories
@@ -1320,7 +1320,7 @@ function loadTerritoryProduction(claimId,wallet){
   var prodRow=document.getElementById('infoProdRow');
   var prodBody=document.getElementById('infoProdBody');
   if(!prodRow||!prodBody) return;
-  prodBody.textContent='Loading…';
+  prodBody.textContent=tl('Loading…','로딩 중…','読込中…','加载中…');
   prodRow.style.display='';
   _territoryReadJson('production:'+claimId, '/api/territory/'+claimId+'/production', 8000)
     .then(function(d){
@@ -1914,7 +1914,7 @@ async function openTerritoryIdentityEdit() {
   var nickname = await gameInput({
     title: t('territory_identity_title'),
     label: t('territory_nickname'),
-    placeholder: 'eg. Red Dust Base',
+    placeholder: tl('eg. Red Dust Base','예: 붉은 모래 기지','例: レッドダスト基地','例：红尘基地'),
     defaultValue: current.nickname || '',
     maxLength: 40
   });
@@ -1923,7 +1923,7 @@ async function openTerritoryIdentityEdit() {
   var bio = await gameInput({
     title: t('territory_identity_title'),
     label: t('territory_bio'),
-    placeholder: 'eg. Our forward base in sector F9',
+    placeholder: tl('eg. Our forward base in sector F9','예: F9 섹터의 전진 기지','例: F9セクターの前哨基地','例：F9 区域的前哨基地'),
     defaultValue: current.bio || '',
     maxLength: 200
   });
@@ -1936,10 +1936,10 @@ async function openTerritoryIdentityEdit() {
       body: JSON.stringify({ nickname: nickname.trim(), bio: bio.trim() })
     });
     var resp = await res.json();
-    if (!resp.success) { showToast(resp.error || 'Update failed', 'error'); return; }
+    if (!resp.success) { showToast(resp.error || tl('Update failed','업데이트 실패','更新失敗','更新失败'), 'error'); return; }
     showToast('✓ ' + t('territory_save_identity'), 'success');
     loadTerritoryIdentity(claimId);
-  } catch(e) { showToast('Update failed', 'error'); }
+  } catch(e) { showToast(tl('Update failed','업데이트 실패','更新失敗','更新失败'), 'error'); }
 }
 
 // ── Cosmetic Panel ──
@@ -1961,10 +1961,10 @@ function toggleMobCosmeticPanel(){
 function _renderCosmeticSlotsInto(slotsId, plot){
   var slots=document.getElementById(slotsId);
   if(!slots) return;
-  if(!plot||!plot.id){slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">Select a claim first</div>';return;}
+  if(!plot||!plot.id){slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">'+tl('Select a claim first','먼저 영토를 선택하세요','まず領土を選択してください','请先选择领地')+'</div>';return;}
   var cos=plot.cosmetics||{};
   var w=walletState.address;
-  slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">Loading…</div>';
+  slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">'+tl('Loading…','로딩 중…','読込中…','加载中…')+'</div>';
   _territoryReadJson('cosmetic-inventory', '/api/shop/inventory', 10000).then(function(inv){
     if (!inv) inv = [];
     var html='';
@@ -1978,13 +1978,13 @@ function _renderCosmeticSlotsInto(slotsId, plot){
       if(def){
         html+='<span style="font-size:10px">'+def.icon+'</span><span style="font-size:9px;color:'+def.color+';font-family:var(--fn)">'+def.label+'</span>';
       }else{
-        html+='<span style="font-size:9px;color:var(--tx3)">None</span>';
+        html+='<span style="font-size:9px;color:var(--tx3)">'+tl('None','없음','なし','无')+'</span>';
       }
       html+='</div><div style="display:flex;gap:4px">';
       var owned=inv.filter(function(i){return i.quantity>0&&_cosmeticDefs[type]&&_cosmeticDefs[type][i.code]});
       if(owned.length>0){
         html+='<select onchange="equipCosmetic('+plot.id+',this.value)" style="font-size:8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:4px;padding:2px 4px;font-family:var(--fn)">';
-        html+='<option value="">Equip...</option>';
+        html+='<option value="">'+tl('Equip...','장착...','装備...','装备...')+'</option>';
         owned.forEach(function(o){
           var d=_cosmeticDefs[type][o.code];
           html+='<option value="'+o.code+'"'+(equipped===o.code?' selected':'')+'>'+d.icon+' '+d.label+' (×'+o.quantity+')</option>';
@@ -1997,7 +1997,7 @@ function _renderCosmeticSlotsInto(slotsId, plot){
       html+='</div></div>';
     });
     if(!inv.some(function(i){return i.quantity>0&&(i.category==='cosmetic')})){
-      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px 0;margin-top:4px">No cosmetics owned. <span style="color:#c088e0;cursor:pointer;text-decoration:underline" onclick="closeMobTerritoryModal();openItemShop();shopFilterCat(\'cosmetic\',document.querySelectorAll(\'.shop-cat-btn\')[5])">Visit Shop</span></div>';
+      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px 0;margin-top:4px">'+tl('No cosmetics owned.','보유한 코스메틱이 없습니다.','所持コスメティックがありません。','没有拥有的装饰。')+' <span style="color:#c088e0;cursor:pointer;text-decoration:underline" onclick="closeMobTerritoryModal();openItemShop();shopFilterCat(\'cosmetic\',document.querySelectorAll(\'.shop-cat-btn\')[5])">'+tl('Visit Shop','상점 가기','ショップへ','前往商店')+'</span></div>';
     }
     slots.innerHTML=html;
   }).catch(function(){slots.innerHTML='<div style="font-size:9px;color:var(--red)">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'});
@@ -2017,7 +2017,7 @@ function equipCosmetic(claimId,itemCode){
   fetch('/api/cosmetic/equip',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,claimId:claimId,itemCode:itemCode})})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(srvErr(d.error),'error');return;}
-    showToast('Cosmetic equipped!');
+    showToast(tl('Cosmetic equipped!','코스메틱 장착 완료!','コスメティックを装備しました！','装饰已装备！'));
     // Update local claim data
     var cl=claims.find(function(c){return c.id===claimId});
     if(cl){
@@ -2030,7 +2030,7 @@ function equipCosmetic(claimId,itemCode){
     }
     claimsSnapshot=null;compositeClaimsOnTexture();
     _refreshCosmeticPanels();
-  }).catch(function(){showToast('Failed to equip','error')});
+  }).catch(function(){showToast(tl('Failed to equip','장착 실패','装備失敗','装备失败'),'error')});
 }
 
 // Refresh whichever cosmetic panel is currently visible (desktop or mobile).
@@ -2046,26 +2046,26 @@ function unequipCosmetic(claimId,cosmeticType){
   fetch('/api/cosmetic/unequip',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,claimId:claimId,cosmeticType:cosmeticType})})
   .then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(srvErr(d.error),'error');return;}
-    showToast('Cosmetic removed');
+    showToast(tl('Cosmetic removed','코스메틱 해제됨','コスメティックを解除しました','装饰已移除'));
     var cl=claims.find(function(c){return c.id===claimId});
     if(cl&&cl.cosmetics) delete cl.cosmetics[cosmeticType];
     if(selectedPlot&&selectedPlot.id===claimId&&selectedPlot.cosmetics) delete selectedPlot.cosmetics[cosmeticType];
     claimsSnapshot=null;compositeClaimsOnTexture();
     _refreshCosmeticPanels();
-  }).catch(function(){showToast('Failed to remove','error')});
+  }).catch(function(){showToast(tl('Failed to remove','해제 실패','解除失敗','移除失败'),'error')});
 }
 
 // Save promo link for owned territory
 function savePromoLink(){
-  if(!selectedPlot||!selectedPlot.claimId) return showToast('No claim selected','error');
+  if(!selectedPlot||!selectedPlot.claimId) return showToast(tl('No claim selected','선택된 영토가 없습니다','選択された領土がありません','未选择领地'),'error');
   // Check both desktop and mobile inputs
   var desktopInput=document.getElementById('infoLinkInput');
   var mobileInput=document.getElementById('mtLinkInput');
   var link=(desktopInput&&desktopInput.offsetParent?desktopInput:mobileInput||desktopInput).value.trim();
   var normalizedLink=_normalizeExternalLink(link);
-  if(link&&!normalizedLink){return showToast('Invalid link. Use a valid domain or https:// URL','error');}
+  if(link&&!normalizedLink){return showToast(tl('Invalid link. Use a valid domain or https:// URL','잘못된 링크입니다. 올바른 도메인 또는 https:// URL을 사용하세요','無効なリンクです。正しいドメインまたは https:// URL を使用してください','链接无效。请使用有效域名或 https:// URL'),'error');}
   var w=walletState.address;
-  if(!w) return showToast('Not logged in','error');
+  if(!w) return showToast(tl('Not logged in','로그인되어 있지 않습니다','ログインしていません','未登录'),'error');
   fetch('/api/claim/'+selectedPlot.claimId+'/image',{
     method:'PUT',
     headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
@@ -2073,7 +2073,7 @@ function savePromoLink(){
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error) return showToast(srvErr(d.error),'error');
     selectedPlot.link=normalizedLink||'';
-    showToast('Link saved!');
+    showToast(tl('Link saved!','링크가 저장되었습니다!','リンクを保存しました！','链接已保存！'));
     // Update link display
     if(normalizedLink){
       document.getElementById('linkRow').style.display='';
@@ -2086,7 +2086,7 @@ function savePromoLink(){
       var mtHide=document.getElementById('mtLinkRow');
       if(mtHide) mtHide.style.display='none';
     }
-  }).catch(function(){showToast('Save failed','error')});
+  }).catch(function(){showToast(tl('Save failed','저장 실패','保存失敗','保存失败'),'error')});
 }
 
 // Expand image in full-screen overlay
@@ -2108,8 +2108,8 @@ var _editor={claim:null,img:null,scale:100,rotate:0,ox:0,oy:0,dragging:false,las
   maskW:0,maskH:0,canvasW:480,canvasH:360};
 
 function openImageEditor(plot){
-  if(!plot||!plot.id){showToast('Select a territory first','red');return}
-  if(!walletState.connected||plot.owner!==walletState.address){showToast('Not your territory','red');return}
+  if(!plot||!plot.id){showToast(tl('Select a territory first','먼저 영토를 선택하세요','まず領土を選択してください','请先选择领地'),'red');return}
+  if(!walletState.connected||plot.owner!==walletState.address){showToast(tl('Not your territory','내 영토가 아닙니다','自分の領土ではありません','不是你的领地'),'red');return}
   _editor.claim=plot;
   _editor.img=null;_editor.newFileDataUrl=null;
   // Load saved params if image exists, otherwise defaults
@@ -2250,7 +2250,7 @@ function _editorDraw(){
   if(!_editor.img){
     ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='bold 14px sans-serif';
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('Upload an image',W/2,H/2);
+    ctx.fillText(tl('Upload an image','이미지를 업로드하세요','画像をアップロード','上传图片'),W/2,H/2);
     return;
   }
 
@@ -2519,7 +2519,7 @@ document.addEventListener('DOMContentLoaded',function(){
   if(fi) fi.addEventListener('change',function(e){
     var file=e.target.files[0];
     if(!file) return;
-    if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','red');return}
+    if(file.size>5*1024*1024){showToast(tl('Image too large (max 5MB)','이미지가 너무 큽니다 (최대 5MB)','画像が大きすぎます（最大5MB）','图片过大（最大 5MB）'),'red');return}
     var reader=new FileReader();
     reader.onload=function(ev){
       var img=new Image();
@@ -2547,10 +2547,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
 // Save: upload ORIGINAL image (not cropped), store params for runtime rendering
 async function saveEditorImage(){
-  if(!_editor.img||!_editor.claim){showToast('No image to save','red');return}
+  if(!_editor.img||!_editor.claim){showToast(tl('No image to save','저장할 이미지가 없습니다','保存する画像がありません','没有可保存的图片'),'red');return}
   var status=document.getElementById('editorStatus');
   status.style.display='';status.style.background='rgba(255,160,60,.12)';status.style.color='var(--gold)';
-  status.textContent='Saving...';
+  status.textContent=tl('Saving...','저장 중...','保存中...','保存中...');
 
   try{
     var originalUrl=_editor.claim.originalImgUrl||_editor.claim.imgUrl||null;
@@ -2590,7 +2590,7 @@ async function saveEditorImage(){
     if(anyFail) throw new Error(anyFail.error||'Save failed');
 
     status.style.background='rgba(76,216,154,.12)';status.style.color='var(--grn)';
-    status.textContent='Image saved successfully!';
+    status.textContent=tl('Image saved successfully!','이미지가 저장되었습니다!','画像を保存しました！','图片保存成功！');
 
     // Update local claim data — keep original URL intact
     allClaims.forEach(function(ac){
@@ -2607,7 +2607,7 @@ async function saveEditorImage(){
     setTimeout(function(){closeImageEditor()},1200);
   }catch(err){
     status.style.background='rgba(232,72,85,.12)';status.style.color='var(--red)';
-    status.textContent='Error: '+err.message;
+    status.textContent=tl('Error: ','오류: ','エラー: ','错误: ')+err.message;
   }
 }
 
@@ -2843,7 +2843,7 @@ function openClaimModal(){
   var _isHijackMode=costInfo.overlapCount>0;
   if(_isHijackMode){
     hw.style.display='';
-    tl.textContent='⚔ HIJACK — FLEET BATTLE';tl.className='claim-title wrn';
+    tl.textContent=LANG==='ko'?'⚔ 하이젝 — 함대전':LANG==='ja'?'⚔ ハイジャック — 艦隊戦':LANG==='zh'?'⚔ 劫持 — 舰队战':'⚔ HIJACK — FLEET BATTLE';tl.className='claim-title wrn';
     // Build affected owners list (short display)
     var ownerKeys=Object.keys(costInfo.affectedOwners);
     var ownerDisplay=ownerKeys.map(function(o){return shortAddr(o);}).join(', ')||'--';
@@ -2884,7 +2884,7 @@ function openClaimModal(){
             _di.style.border='1px solid rgba(255,153,68,.4)';
             _di.style.color='#FFD0A0';
             if(_dic) _dic.textContent='⚠';
-            _dt.textContent=t('hijack_no_fleet_auto_win')||'No enemy fleet — auto-win (pixels transfer immediately)';
+            _dt.textContent=t('hijack_no_fleet_auto_win')||(LANG==='ko'?'적 함대 없음 — 자동 승리 (픽셀 즉시 이전)':LANG==='ja'?'敵艦隊なし — 自動勝利（ピクセルは即座に移転）':LANG==='zh'?'无敌方舰队 — 自动获胜（像素立即转移）':'No enemy fleet — auto-win (pixels transfer immediately)');
           }else{
             _di.style.background='rgba(232,72,85,.1)';
             _di.style.border='1px solid rgba(232,72,85,.4)';
@@ -2894,7 +2894,7 @@ function openClaimModal(){
           }
         })
         .catch(function(){
-          _dt.textContent=t('hijack_fleet_info_fail')||'Failed to check enemy fleet info';
+          _dt.textContent=t('hijack_fleet_info_fail')||(LANG==='ko'?'적 함대 정보 조회 실패':LANG==='ja'?'敵艦隊情報の確認に失敗':LANG==='zh'?'无法获取敌方舰队信息':'Failed to check enemy fleet info');
           _di.style.background='rgba(255,255,255,.04)';
           _di.style.border='1px solid rgba(255,255,255,.15)';
           _di.style.color='var(--tx3)';
@@ -2904,7 +2904,7 @@ function openClaimModal(){
     }
   }else{
     hw.style.display='none';
-    tl.textContent='CLAIM TERRITORY';tl.className='claim-title';
+    tl.textContent=LANG==='ko'?'영토 점령':LANG==='ja'?'領土を確保':LANG==='zh'?'占领领地':'CLAIM TERRITORY';tl.className='claim-title';
     document.getElementById('modalCostDisplay').textContent=costInfo.total.toFixed(2)+' PP ('+cw+'×'+ch+' = '+costInfo.totalPixels.toLocaleString()+'px)';
     // 하이젝 UI 숨기기
     var _fsel=document.getElementById('hijackFleetSelector');
@@ -2999,7 +2999,7 @@ async function _loadHijackFleets(){
         sel.onchange=function(){_hijackSelectedFleetId=parseInt(this.value)||null;};
         // 버튼 활성화
         if(_cfmBtn){_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';
-          _cfmBtn.textContent='⚔ DECLARE HIJACK';}
+          _cfmBtn.textContent=tl('⚔ DECLARE HIJACK','⚔ 하이젝 선언','⚔ ハイジャック宣言','⚔ 宣布劫持');}
       }
     }
   }catch(e){
@@ -3012,7 +3012,7 @@ function closeClaimModal(){
   document.getElementById('claimModal').classList.remove('open');
   // 버튼 텍스트 초기화
   var _cfmBtn=document.getElementById('claimConfirmBtn');
-  if(_cfmBtn){_cfmBtn.textContent=t('confirm_claim')||'CONFIRM CLAIM';_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';}
+  if(_cfmBtn){_cfmBtn.textContent=t('confirm_claim')||tl('CONFIRM CLAIM','점령 확인','確保を確認','确认占领');_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';}
   _hijackSelectedFleetId=null;
 }
 
@@ -3032,13 +3032,13 @@ function _showBattleAnimation(result){
     // Status text
     var statusEl=document.createElement('div');
     statusEl.style.cssText='font-size:14px;color:var(--gold);letter-spacing:2px;text-transform:uppercase';
-    statusEl.textContent='BATTLE IN PROGRESS...';
+    statusEl.textContent=tl('BATTLE IN PROGRESS...','전투 진행 중...','戦闘進行中...','战斗进行中...');
     ov.appendChild(statusEl);
 
     // Sub-info
     var subEl=document.createElement('div');
     subEl.style.cssText='font-size:10px;color:var(--tx3);margin-top:6px';
-    subEl.textContent='Attacking '+total+' pixels...';
+    subEl.textContent=tl('Attacking '+total+' pixels...',total+'px 공격 중...',total+'px を攻撃中...','正在攻击 '+total+' px...');
     ov.appendChild(subEl);
 
     document.body.appendChild(ov);
@@ -3119,9 +3119,9 @@ function _showBattleAnimation(result){
 
         // Labels
         ctx.fillStyle='#FF7840';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
-        ctx.fillText('ATTACKER',130,200);
+        ctx.fillText(tl('ATTACKER','공격','攻撃','进攻'),130,200);
         ctx.fillStyle='#4488CC';
-        ctx.fillText('DEFENDER',270,200);
+        ctx.fillText(tl('DEFENDER','방어','防御','防守'),270,200);
 
         // Progress bar
         var progress=Math.min(elapsed/2.5,1);
@@ -3147,15 +3147,15 @@ function _showBattleAnimation(result){
 
         ctx.font='bold 16px sans-serif';
         ctx.fillStyle=isWin?'#4CD89A':'#E84855';
-        ctx.fillText(isWin?'VICTORY':'DEFENDED',200,145);
+        ctx.fillText(isWin?tl('VICTORY','승리','勝利','胜利'):tl('DEFENDED','방어 성공','防衛成功','防御成功'),200,145);
 
         // Stats
         ctx.font='11px sans-serif';ctx.fillStyle='#E0E0E8';
-        ctx.fillText('Won: '+won+'px    Lost: '+lost+'px    New: '+newPx+'px',200,175);
+        ctx.fillText(tl('Won: '+won+'px    Lost: '+lost+'px    New: '+newPx+'px','획득: '+won+'px    손실: '+lost+'px    신규: '+newPx+'px','獲得: '+won+'px    損失: '+lost+'px    新規: '+newPx+'px','获得: '+won+'px    损失: '+lost+'px    新增: '+newPx+'px'),200,175);
 
         if(result.refundFromFailed>0){
           ctx.font='9px sans-serif';ctx.fillStyle='#FF7840';
-          ctx.fillText('Refund: '+result.refundFromFailed+' PP (90%)',200,195);
+          ctx.fillText(tl('Refund: '+result.refundFromFailed+' PP (90%)','환불: '+result.refundFromFailed+' PP (90%)','返金: '+result.refundFromFailed+' PP (90%)','退款: '+result.refundFromFailed+' PP (90%)'),200,195);
         }
 
         ctx.globalAlpha=1;
@@ -3213,7 +3213,7 @@ async function confirmClaim(){
 
   // Disable button while processing
   var btn=document.getElementById('claimConfirmBtn');
-  if(btn){btn.disabled=true;btn.textContent='PROCESSING...';}
+  if(btn){btn.disabled=true;btn.textContent=tl('PROCESSING...','처리 중...','処理中...','处理中...');}
 
   try{
     // ── Upload image: blob/data URL → server file → /uploads/xxx.jpg ──
@@ -3244,7 +3244,7 @@ async function confirmClaim(){
               reader.onload=function(){resolve(reader.result)};
               reader.readAsDataURL(_stampOrigFile);
             });
-            if(btn) btn.textContent='UPLOADING GIF...';
+            if(btn) btn.textContent=tl('UPLOADING GIF...','GIF 업로드 중...','GIFアップロード中...','上传 GIF 中...');
             var gifResp=await fetch('/api/upload',{
               method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
               body:JSON.stringify({dataUrl:gifDataUrl})
@@ -3273,7 +3273,7 @@ async function confirmClaim(){
           dataUrl=hasAlpha?cvs.toDataURL('image/png'):cvs.toDataURL('image/jpeg',0.92);
         }
         // Upload JPEG thumbnail
-        if(btn) btn.textContent='UPLOADING...';
+        if(btn) btn.textContent=tl('UPLOADING...','업로드 중...','アップロード中...','上传中...');
         var upResp=await fetch('/api/upload',{
           method:'POST',
           headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
@@ -3283,13 +3283,13 @@ async function confirmClaim(){
         if(upResp.ok&&upData.url){
           sendImageUrl=upData.url;
         }else{
-          showToast(upData.error||'IMAGE UPLOAD FAILED');
+          showToast(upData.error||tl('IMAGE UPLOAD FAILED','이미지 업로드 실패','画像アップロード失敗','图片上传失败'));
           if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
           return;
         }
       }catch(convErr){
         console.warn('Image upload failed:',convErr);
-        showToast('IMAGE UPLOAD FAILED');
+        showToast(tl('IMAGE UPLOAD FAILED','이미지 업로드 실패','画像アップロード失敗','图片上传失败'));
         if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
         return;
       }
@@ -3300,7 +3300,7 @@ async function confirmClaim(){
       // 함대 선택 확인
       if(!_hijackSelectedFleetId){
         showToast(LANG==='ko'?'⚠ 먼저 함대를 선택하세요':LANG==='ja'?'⚠ まず艦隊を選択してください':LANG==='zh'?'⚠ 请先选择舰队':'⚠ Select a fleet first');
-        if(btn){btn.disabled=false;btn.textContent='⚔ DECLARE HIJACK';}
+        if(btn){btn.disabled=false;btn.textContent=tl('⚔ DECLARE HIJACK','⚔ 하이젝 선언','⚔ ハイジャック宣言','⚔ 宣布劫持');}
         return;
       }
       // 슬로대 스타일 — 하이잭 진입 전 파벌 캐릭터 대사
@@ -3323,7 +3323,7 @@ async function confirmClaim(){
         })
       });
       var hjData=await hjResp.json();
-      if(btn){btn.disabled=false;btn.textContent='⚔ DECLARE HIJACK';}
+      if(btn){btn.disabled=false;btn.textContent=tl('⚔ DECLARE HIJACK','⚔ 하이젝 선언','⚔ ハイジャック宣言','⚔ 宣布劫持');}
       closeClaimModal();
       if(!hjResp.ok){
         var hjErrMap={
@@ -3368,7 +3368,7 @@ async function confirmClaim(){
       // 성공 처리
       if(hjData.auto_win){
         // 자동 승리 (수비자 함대 없음)
-        showNotification('hijack','⚔ AUTO-WIN',LANG==='ko'?'상대 함대 없음 — 즉시 영토 점령!':LANG==='ja'?'敵艦隊なし — 即座に領土制圧!':LANG==='zh'?'无敌方舰队 — 立即占领领地!':'No enemy fleet — territory captured!');
+        showNotification('hijack',tl('⚔ AUTO-WIN','⚔ 자동 승리','⚔ 自動勝利','⚔ 自动获胜'),LANG==='ko'?'상대 함대 없음 — 즉시 영토 점령!':LANG==='ja'?'敵艦隊なし — 即座に領土制圧!':LANG==='zh'?'无敌方舰队 — 立即占领领地!':'No enemy fleet — territory captured!');
         try{_sfx.hijackWin()}catch(e){}
         if (typeof refreshGP === 'function') refreshGP();
         // ── 즉시 _serverPixels 반영 (Railway DB 레이턴시와 무관하게 즉시 금색 표시) ──
@@ -3495,7 +3495,7 @@ async function confirmClaim(){
       _rebuildOwnerData();
       claimsSnapshot=null;
       compositeClaimsOnTexture();
-      showToast(srvErr(d.error)||'CLAIM FAILED','error');
+      showToast(srvErr(d.error)||tl('CLAIM FAILED','점령 실패','確保失敗','占领失败'),'error');
       try{_sfx.error()}catch(e){}
       if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
       return;
@@ -3633,7 +3633,7 @@ async function confirmClaim(){
     lastStampCost=null;
     landSelectMode=false; landDragStart=null; landDragEnd=null; landDragRect=null;
     document.getElementById('landSelectPreview').style.display='none';
-    document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
+    document.getElementById('landSelectBtn').textContent=tl('DRAG TO SELECT LAND','드래그해 땅 선택','ドラッグして土地選択','拖动选择土地');
     document.getElementById('landSelectBtn').style.color='var(--mars)';
     _clearDragPreviewPolygon();
     if(nc.imgUrl){
@@ -3661,11 +3661,11 @@ async function confirmClaim(){
     if(d.totalVolume!=null) document.getElementById('statTVL').textContent='$'+fmtNum(d.totalVolume);
 
     if(hasBattle){
-      var feedMsg='⚔ BATTLE: won '+d.attackWon+'/'+d.overlapCount+'px, claimed '+d.newCount+'px new';
-      if(d.attackLost>0) feedMsg+=' ('+d.attackLost+'px defended, refund '+d.refundFromFailed+' PP)';
+      var feedMsg=tl('⚔ BATTLE: won '+d.attackWon+'/'+d.overlapCount+'px, claimed '+d.newCount+'px new','⚔ 전투: '+d.attackWon+'/'+d.overlapCount+'px 승리, '+d.newCount+'px 신규 점령','⚔ 戦闘: '+d.attackWon+'/'+d.overlapCount+'px 勝利、'+d.newCount+'px 新規確保','⚔ 战斗：胜利 '+d.attackWon+'/'+d.overlapCount+'px，新占 '+d.newCount+'px');
+      if(d.attackLost>0) feedMsg+=tl(' ('+d.attackLost+'px defended, refund '+d.refundFromFailed+' PP)',' ('+d.attackLost+'px 방어됨, 환불 '+d.refundFromFailed+' PP)','（'+d.attackLost+'px 防衛、返金 '+d.refundFromFailed+' PP）','（'+d.attackLost+'px 被防御，退款 '+d.refundFromFailed+' PP）');
       addFeed(feedMsg);
     }else{
-      addFeed('⚡ YOU claimed ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]!');
+      addFeed(tl('⚡ YOU claimed ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]!','⚡ ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°] 점령!','⚡ ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°] を確保！','⚡ 已占领 ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]！'));
     }
     // Governance change alerts
     if(d.govChanges&&d.govChanges.length) addGovFeed(d.govChanges);
@@ -3699,12 +3699,12 @@ async function confirmClaim(){
     if(hasOverlap&&d.affectedOwners){
       for(var o in d.affectedOwners){
         var a=d.affectedOwners[o];
-        addAlert('earn','Hijack refund: '+(a.refund||0).toFixed(2)+' PP + '+(a.bonus||0).toFixed(2)+' PP bonus from '+myAddr,savePlot);
+        addAlert('earn',tl('Hijack refund: '+(a.refund||0).toFixed(2)+' PP + '+(a.bonus||0).toFixed(2)+' PP bonus from '+myAddr,'하이젝 환불: '+(a.refund||0).toFixed(2)+' PP + '+(a.bonus||0).toFixed(2)+' PP 보너스 ('+myAddr+')','ハイジャック返金: '+(a.refund||0).toFixed(2)+' PP + '+(a.bonus||0).toFixed(2)+' PP ボーナス ('+myAddr+')','劫持退款: '+(a.refund||0).toFixed(2)+' PP + '+(a.bonus||0).toFixed(2)+' PP 奖励 (来自 '+myAddr+')'),savePlot);
       }
     }
   }catch(e){
     console.error('Claim error:',e);
-    showToast('CLAIM FAILED: '+(e.message||'Network error'));
+    showToast(tl('CLAIM FAILED: ','점령 실패: ','確保失敗: ','占领失败: ')+(e.message||tl('Network error','네트워크 오류','ネットワークエラー','网络错误')));
   }finally{
     if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
   }

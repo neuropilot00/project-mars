@@ -39,7 +39,7 @@ function _loadFleetTabSummary(){
   if(!w){if(sumEl)sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">'+(LANG==='ko'?'로그인하면 함대 현황이 표시됩니다':LANG==='ja'?'ログインすると艦隊状況が表示されます':LANG==='zh'?'登录后将显示舰队状况':'Login to see fleet status')+'</div>';return;}
   if(!sumEl) return;
   var hadContent=!!sumEl.innerHTML.trim();
-  if(!hadContent) sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">Loading...</div>';
+  if(!hadContent) sumEl.innerHTML='<div style="color:var(--tx3);font-size:9px;text-align:center;padding:12px">'+tl('Loading...','로딩 중...','読み込み中...','加载中...')+'</div>';
 
   // 월드이벤트 복사 (기존)
   if(evEl){try{var srcEl=document.getElementById('fcmdWorldEventsList');if(srcEl)evEl.innerHTML=srcEl.innerHTML;}catch(_){}}

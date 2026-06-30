@@ -430,12 +430,12 @@ function renderFleetPreview(f) {
       (f.guild_emblem || f.guild_tag ? '<div class="fleet-guild-badge"' + (_accent ? ' style="border-color:' + _accent + '88"' : '') + '>' + (f.guild_emblem ? '<span class="fgb-emblem">' + fcEsc(f.guild_emblem) + '</span>' : '') + (f.guild_tag ? '<span class="fgb-tag">' + fcEsc(f.guild_tag) + '</span>' : '') + '</div>' : '') +
       _killTrophyBadge(f.account_kills) +
       boardShips +
-      (ships.length > visible.length ? '<div class="fleet-preview-more">+' + (ships.length - visible.length) + ' more</div>' : '') +
+      (ships.length > visible.length ? '<div class="fleet-preview-more">+' + (ships.length - visible.length) + ' ' + tl('more','더','他','更多') + '</div>' : '') +
     '</div>' +
     '<div class="fleet-comp-panel">' +
-      '<div class="fleet-comp-title">COMPOSITION</div>' + rows +
-      '<div class="fleet-comp-title" style="margin-top:4px">ROLES</div><div class="fleet-role-strip">' + roleChips + '</div>' +
-      '<div class="fleet-comp-title" style="margin-top:4px">DOCTRINE CHECK</div>' + adviceHtml +
+      '<div class="fleet-comp-title">' + tl('COMPOSITION','구성','編成','编成') + '</div>' + rows +
+      '<div class="fleet-comp-title" style="margin-top:4px">' + tl('ROLES','역할','役割','角色') + '</div><div class="fleet-role-strip">' + roleChips + '</div>' +
+      '<div class="fleet-comp-title" style="margin-top:4px">' + tl('DOCTRINE CHECK','편성 점검','編成チェック','编成检查') + '</div>' + adviceHtml +
       '<div class="fleet-doctrine">진형과 기동을 바꾸면 왼쪽 미리보기 배치가 즉시 바뀝니다. 작은 함선은 전열, 대형함/기함은 중심축으로 읽히게 표시됩니다.</div>' +
     '</div>' +
   '</div>';

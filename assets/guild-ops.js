@@ -289,7 +289,7 @@ function renderGuildAlliance(guild, myRole){
       '</div>';
       if(isLeader){
         html += '<div style="display:flex;gap:4px;margin-top:6px">'+
-          '<button onclick="openJoinAllianceModal('+guild.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(128,203,196,.1);border:1px solid rgba(128,203,196,.3);color:#80cbc4;font-size:9px;cursor:pointer;font-family:var(--fn)">🤝 JOIN ALLIANCE</button>'+
+          '<button onclick="openJoinAllianceModal('+guild.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(128,203,196,.1);border:1px solid rgba(128,203,196,.3);color:#80cbc4;font-size:9px;cursor:pointer;font-family:var(--fn)">🤝 '+tl('JOIN ALLIANCE','동맹 가입','同盟加入','加入联盟')+'</button>'+
         '</div>';
       }
       box.innerHTML = html;
@@ -306,7 +306,7 @@ function renderGuildAlliance(guild, myRole){
         var emblem = mg.emblem_emoji || '🔴';
         var name = '['+mg.guild_tag+'] '+mg.guild_name;
         var leaderName = mg.leader_nickname || (mg.leader_wallet ? mg.leader_wallet.slice(0,8)+'...' : '');
-        var marker = mg.guild_id === guild.id ? '<span style="font-size:8px;color:var(--cyan)">• YOU</span>' : '';
+        var marker = mg.guild_id === guild.id ? '<span style="font-size:8px;color:var(--cyan)">• '+tl('YOU','나','あなた','你')+'</span>' : '';
         return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px dashed rgba(128,203,196,.1)">'+
           '<span style="font-size:13px">'+_esc(emblem)+'</span>'+
           '<div style="flex:1;min-width:0">'+
@@ -320,35 +320,35 @@ function renderGuildAlliance(guild, myRole){
       if(isLeader){
         html += '<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">';
         if(guilds.length < 3){
-          html += '<button onclick="openInviteGuildToAllianceModal('+a.id+','+guild.id+')" style="flex:1;min-width:100px;padding:6px;border-radius:6px;background:rgba(128,203,196,.1);border:1px solid rgba(128,203,196,.3);color:#80cbc4;font-size:9px;cursor:pointer;font-family:var(--fn)">+ INVITE GUILD</button>';
+          html += '<button onclick="openInviteGuildToAllianceModal('+a.id+','+guild.id+')" style="flex:1;min-width:100px;padding:6px;border-radius:6px;background:rgba(128,203,196,.1);border:1px solid rgba(128,203,196,.3);color:#80cbc4;font-size:9px;cursor:pointer;font-family:var(--fn)">+ '+tl('INVITE GUILD','길드 초대','ギルド招待','邀请公会')+'</button>';
         }
-        html += '<button onclick="leaveAllianceAsGuild('+a.id+','+guild.id+')" style="flex:1;min-width:80px;padding:6px;border-radius:6px;background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.25);color:#ff8c42;font-size:9px;cursor:pointer;font-family:var(--fn)">⚡ LEAVE</button>';
-        html += '<button onclick="openBetrayAllianceModal('+guild.id+','+a.id+')" style="flex:1;min-width:80px;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)" title="Switch to another alliance immediately">⚔️ BETRAY</button>';
+        html += '<button onclick="leaveAllianceAsGuild('+a.id+','+guild.id+')" style="flex:1;min-width:80px;padding:6px;border-radius:6px;background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.25);color:#ff8c42;font-size:9px;cursor:pointer;font-family:var(--fn)">⚡ '+tl('LEAVE','탈퇴','脱退','退出')+'</button>';
+        html += '<button onclick="openBetrayAllianceModal('+guild.id+','+a.id+')" style="flex:1;min-width:80px;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)" title="'+tl('Switch to another alliance immediately','즉시 다른 동맹으로 전환','すぐに別の同盟へ切替','立即转入其他联盟')+'">⚔️ '+tl('BETRAY','배신','裏切り','背叛')+'</button>';
         html += '</div>';
       }
       box.innerHTML = html;
     }).catch(function(){
-      box.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load alliance guilds</div>';
+      box.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">'+tl('Failed to load alliance guilds','동맹 길드 로딩 실패','同盟ギルドの読込失敗','加载联盟公会失败')+'</div>';
     });
   }).catch(function(){
-    box.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load alliance</div>';
+    box.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">'+tl('Failed to load alliance','동맹 로딩 실패','同盟の読込失敗','加载联盟失败')+'</div>';
   });
 }
 
 function openJoinAllianceModal(guildId){
   fetch('/api/alliances').then(function(r){return r.json()}).then(function(d){
     var alliances = (d.alliances||[]).filter(function(a){ return !a.disbanded_at; });
-    if(!alliances.length){ showAlert('No alliances exist. Create one in the QUESTS tab → Alliance panel.'); return; }
-    var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">Pick an alliance to join. (Leader cooldown applies after leaving.)</div>';
+    if(!alliances.length){ showAlert(tl('No alliances exist. Create one in the QUESTS tab → Alliance panel.','동맹이 없습니다. QUESTS 탭 → 동맹 패널에서 생성하세요.','同盟がありません。QUESTSタブ → 同盟パネルで作成してください。','暂无联盟。请在 QUESTS 标签 → 联盟面板创建。')); return; }
+    var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">'+tl('Pick an alliance to join. (Leader cooldown applies after leaving.)','가입할 동맹을 선택하세요. (탈퇴 후 리더 쿨다운 적용)','加入する同盟を選択。(脱退後はリーダークールダウン適用)','选择要加入的联盟。(退出后适用会长冷却)')+'</div>';
     html += '<div style="display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto">';
     alliances.forEach(function(a){
       html += '<button onclick="addGuildToAlliance('+a.id+','+guildId+');_phdClosePicker();" style="padding:8px 10px;background:rgba(128,203,196,.08);border:1px solid rgba(128,203,196,.25);border-radius:6px;color:var(--tx);font-size:11px;text-align:left;cursor:pointer;font-family:var(--fn)">'+
         '<div style="font-weight:700;color:#80cbc4">['+_esc(a.tag||'')+'] '+_esc(a.name)+'</div>'+
-        '<div style="font-size:8px;color:var(--tx3)">members: '+(a.member_count||0)+'/'+(a.max_members||0)+'</div>'+
+        '<div style="font-size:8px;color:var(--tx3)">'+tl('members','멤버','メンバー','成员')+': '+(a.member_count||0)+'/'+(a.max_members||0)+'</div>'+
       '</button>';
     });
     html += '</div>';
-    _phdShowPicker('JOIN ALLIANCE', html);
+    _phdShowPicker(tl('JOIN ALLIANCE','동맹 가입','同盟加入','加入联盟'), html);
   });
 }
 
@@ -358,16 +358,16 @@ function addGuildToAlliance(allianceId, guildId){
     body: JSON.stringify({ guildId: guildId })
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error + (d.meta ? ' ('+JSON.stringify(d.meta)+')' : '')); return; }
-    showToast('🤝 Joined alliance');
+    showToast('🤝 '+tl('Joined alliance','동맹 가입 완료','同盟に加入','已加入联盟'));
     loadGuildTab();
-  }).catch(function(e){ showAlert(e.message||'Failed'); });
+  }).catch(function(e){ showAlert(e.message||tl('Failed','실패','失敗','失败')); });
 }
 
 function openInviteGuildToAllianceModal(allianceId, myGuildId){
-  var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">Enter target guild ID or name to invite:</div>'+
-    '<input type="text" id="_invGuildInput" placeholder="guild name or ID" style="width:100%;padding:8px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">'+
-    '<button onclick="_doInviteGuildToAlliance('+allianceId+')" style="margin-top:8px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(128,203,196,.3),rgba(128,203,196,.1));border:1px solid rgba(128,203,196,.5);color:#80cbc4;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;font-family:var(--fn)">INVITE</button>';
-  _phdShowPicker('INVITE GUILD TO ALLIANCE', html);
+  var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">'+tl('Enter target guild ID or name to invite:','초대할 길드 ID 또는 이름을 입력하세요:','招待するギルドIDまたは名前を入力:','输入要邀请的公会ID或名称:')+'</div>'+
+    '<input type="text" id="_invGuildInput" placeholder="'+tl('guild name or ID','길드 이름 또는 ID','ギルド名またはID','公会名称或ID')+'" style="width:100%;padding:8px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">'+
+    '<button onclick="_doInviteGuildToAlliance('+allianceId+')" style="margin-top:8px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(128,203,196,.3),rgba(128,203,196,.1));border:1px solid rgba(128,203,196,.5);color:#80cbc4;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;font-family:var(--fn)">'+tl('INVITE','초대','招待','邀请')+'</button>';
+  _phdShowPicker(tl('INVITE GUILD TO ALLIANCE','동맹에 길드 초대','同盟へギルド招待','邀请公会加入联盟'), html);
 }
 
 function _doInviteGuildToAlliance(allianceId){
@@ -377,13 +377,13 @@ function _doInviteGuildToAlliance(allianceId){
   if(/^\d+$/.test(v)) { addGuildToAlliance(allianceId, parseInt(v)); _phdClosePicker(); return; }
   fetch('/api/guild/search?q='+encodeURIComponent(v)).then(function(r){return r.json()}).then(function(d){
     var matches = d.guilds || [];
-    if(!matches.length){ showAlert('No guild found with that name'); return; }
+    if(!matches.length){ showAlert(tl('No guild found with that name','해당 이름의 길드가 없습니다','その名前のギルドが見つかりません','未找到该名称的公会')); return; }
     if(matches.length === 1){ addGuildToAlliance(allianceId, matches[0].id); _phdClosePicker(); return; }
-    var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">Multiple guilds match — pick one:</div>';
+    var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">'+tl('Multiple guilds match — pick one:','일치하는 길드가 여러 개입니다 — 하나를 선택하세요:','複数のギルドが一致 — 1つ選択:','匹配多个公会 — 请选择一个:')+'</div>';
     matches.forEach(function(g){
       html += '<button onclick="addGuildToAlliance('+allianceId+','+g.id+');_phdClosePicker();" style="display:block;width:100%;padding:6px 10px;margin-bottom:4px;background:rgba(128,203,196,.08);border:1px solid rgba(128,203,196,.25);border-radius:6px;color:var(--tx);font-size:11px;text-align:left;cursor:pointer;font-family:var(--fn)">['+_esc(g.tag)+'] '+_esc(g.name)+'</button>';
     });
-    _phdShowPicker('PICK GUILD', html);
+    _phdShowPicker(tl('PICK GUILD','길드 선택','ギルド選択','选择公会'), html);
   });
 }
 
@@ -395,9 +395,9 @@ async function leaveAllianceAsGuild(allianceId, guildId){
     body: JSON.stringify({ guildId: guildId })
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error); return; }
-    showToast('Left alliance');
+    showToast(tl('Left alliance','동맹 탈퇴 완료','同盟を脱退','已退出联盟'));
     loadGuildTab();
-  }).catch(function(e){ showAlert(e.message||'Failed'); });
+  }).catch(function(e){ showAlert(e.message||tl('Failed','실패','失敗','失败')); });
 }
 
 function openBetrayAllianceModal(guildId, fromAllianceId){
@@ -405,8 +405,8 @@ function openBetrayAllianceModal(guildId, fromAllianceId){
     var alliances = (d.alliances||[]).filter(function(a){
       return !a.disbanded_at && parseInt(a.id) !== parseInt(fromAllianceId);
     });
-    if(!alliances.length){ showAlert('No other alliance available to defect to.'); return; }
-    var html = '<div style="font-size:10px;color:var(--red);margin-bottom:8px">⚠️ BETRAYAL is permanent and recorded in the Chronicle. Pick the new alliance:</div>';
+    if(!alliances.length){ showAlert(tl('No other alliance available to defect to.','변절할 수 있는 다른 동맹이 없습니다.','裏切って移れる他の同盟がありません。','没有可叛变加入的其他联盟。')); return; }
+    var html = '<div style="font-size:10px;color:var(--red);margin-bottom:8px">⚠️ '+tl('BETRAYAL is permanent and recorded in the Chronicle. Pick the new alliance:','배신은 영구적이며 연대기에 기록됩니다. 새 동맹을 선택하세요:','裏切りは永続的で年代記に記録されます。新しい同盟を選択:','背叛是永久的并记入编年史。请选择新联盟:')+'</div>';
     html += '<div style="display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto">';
     alliances.forEach(function(a){
       html += '<button onclick="confirmBetrayAlliance('+guildId+','+fromAllianceId+','+a.id+');_phdClosePicker();" style="padding:8px 10px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);border-radius:6px;color:var(--tx);font-size:11px;text-align:left;cursor:pointer;font-family:var(--fn)">'+
@@ -414,7 +414,7 @@ function openBetrayAllianceModal(guildId, fromAllianceId){
       '</button>';
     });
     html += '</div>';
-    _phdShowPicker('⚔️ BETRAY ALLIANCE', html);
+    _phdShowPicker('⚔️ '+tl('BETRAY ALLIANCE','동맹 배신','同盟を裏切る','背叛联盟'), html);
   });
 }
 
@@ -424,9 +424,9 @@ function confirmBetrayAlliance(guildId, fromAllianceId, toAllianceId){
     body: JSON.stringify({ guildId: guildId, fromAllianceId: fromAllianceId, toAllianceId: toAllianceId })
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){ showAlert(d.error + (d.meta ? ' ('+JSON.stringify(d.meta)+')' : '')); return; }
-    showToast('⚔️ BETRAYED — defected to new alliance!');
+    showToast('⚔️ '+tl('BETRAYED — defected to new alliance!','배신 완료 — 새 동맹으로 이적!','裏切り完了 — 新しい同盟へ移籍！','背叛完成 — 已转入新联盟！'));
     loadGuildTab();
-  }).catch(function(e){ showAlert(e.message||'Failed'); });
+  }).catch(function(e){ showAlert(e.message||tl('Failed','실패','失敗','失败')); });
 }
 
 // ── Guild upgrade panel ──
@@ -673,7 +673,7 @@ function renderGuildWars(guildId){
         guildWarIntel(myScore, theirScore, hrs, mins)+
         '<div style="display:flex;gap:4px;margin-top:2px">'+
           '<button onclick="openGuildWarFight('+w.id+','+guildId+')" style="flex:2;padding:6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.28),rgba(200,40,40,.12));border:1px solid rgba(232,72,85,.5);color:#ff8a80;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚔️ '+(LANG==='ko'?'함대전 선포':LANG==='ja'?'艦隊戦宣戦':LANG==='zh'?'宣战舰队战':'Declare Battle')+'</button>'+
-          '<button onclick="viewWarScoreboard('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--gn);font-size:9px;cursor:pointer">📊 SCORES</button>'+
+          '<button onclick="viewWarScoreboard('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--gn);font-size:9px;cursor:pointer">📊 '+tl('SCORES','점수','スコア','积分')+'</button>'+
         '</div>'+
       '</div>';
     }).join('')+
@@ -786,7 +786,7 @@ function confirmDeclareWar(){
     if(d.error){ showToast(srvErr(d.error),'error'); return; }
     closeDeclareWarModal();
     var msg = '⚔️ '+(LANG==='ko'?'전쟁 선포 완료!':LANG==='ja'?'宣戦布告完了!':LANG==='zh'?'宣战完成!':'War declared!');
-    if (stake > 0) msg += ' (+'+stake+' GP stake)';
+    if (stake > 0) msg += ' (+'+stake+' GP '+tl('stake','베팅','賭け金','赌注')+')';
     showToast(msg,'success');
     loadGuildTab();
   }).catch(function(e){ btn.disabled=false; btn.textContent=t('war_declare_btn'); showToast(e.message,'error'); });
@@ -798,13 +798,13 @@ async function viewWarScoreboard(warId){
     var d = await resp.json();
     if(d.error){ showToast(srvErr(d.error),'error'); return; }
     var gs = d.guildScores||{};
-    var atkName = gs.attacker?gs.attacker.name:'Attacker';
-    var defName = gs.defender?gs.defender.name:'Defender';
+    var atkName = gs.attacker?gs.attacker.name:tl('Attacker','공격','攻撃','攻击');
+    var defName = gs.defender?gs.defender.name:tl('Defender','방어','防御','防御');
     var atkPts  = gs.attacker?gs.attacker.total:0;
     var defPts  = gs.defender?gs.defender.total:0;
     var topHtml = '';
     if(d.topPlayers&&d.topPlayers.length){
-      topHtml += '<div style="font-size:9px;color:var(--tx3);margin:8px 0 4px;letter-spacing:1px">TOP PLAYERS</div>';
+      topHtml += '<div style="font-size:9px;color:var(--tx3);margin:8px 0 4px;letter-spacing:1px">'+tl('TOP PLAYERS','상위 플레이어','トッププレイヤー','顶尖玩家')+'</div>';
       d.topPlayers.slice(0,10).forEach(function(p,i){
         topHtml += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:10px;border-bottom:1px solid rgba(255,255,255,.06)">'
           +'<span style="color:var(--tx)">'+(i+1)+'. '+(p.nickname||shortAddr(p.wallet))+'</span>'
@@ -813,13 +813,13 @@ async function viewWarScoreboard(warId){
       });
     }
     if(d.gameBreakdown&&d.gameBreakdown.length){
-      topHtml += '<div style="font-size:9px;color:var(--tx3);margin:8px 0 4px;letter-spacing:1px">BY GAME</div>';
+      topHtml += '<div style="font-size:9px;color:var(--tx3);margin:8px 0 4px;letter-spacing:1px">'+tl('BY GAME','게임별','ゲーム別','按游戏')+'</div>';
       d.gameBreakdown.forEach(function(g){
-        topHtml += '<div style="font-size:10px;color:var(--tx);padding:2px 0">'+g.game_type+': <b style="color:var(--gn)">'+g.total_points+' pts</b> ('+g.play_count+' plays)</div>';
+        topHtml += '<div style="font-size:10px;color:var(--tx);padding:2px 0">'+g.game_type+': <b style="color:var(--gn)">'+g.total_points+' pts</b> ('+g.play_count+' '+tl('plays','회','回','次')+')</div>';
       });
     }
     gameConfirm({
-      title:'WAR SCOREBOARD', icon:'📊',
+      title:tl('WAR SCOREBOARD','전쟁 점수판','戦争スコアボード','战争记分板'), icon:'📊',
       body:'<div style="font-family:var(--fn)">'
         +'<div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:8px">'
           +'<div style="text-align:center"><div style="font-size:10px;color:var(--cyan);font-weight:700">'+atkName+'</div><div style="font-size:22px;font-weight:900;color:var(--cyan)">'+atkPts+'</div></div>'
@@ -830,7 +830,7 @@ async function viewWarScoreboard(warId){
       +'</div>',
       confirmText:LANG==='ko'?'닫기':LANG==='ja'?'閉じる':LANG==='zh'?'关闭':'Close'
     });
-  }catch(e){ showToast('Failed to load scoreboard','error'); }
+  }catch(e){ showToast(tl('Failed to load scoreboard','점수판 로딩 실패','スコアボードの読込失敗','加载记分板失败'),'error'); }
 }
 
 // ── 길드전 함대전 선포 ──────────────────────────────────────────
@@ -954,7 +954,7 @@ async function _openDeclareBattleVsWallet(targetWallet){
 // Quick-launch: open BASE → OPS with a mission type pre-selected.
 function openOpsLauncher(type){
   try{
-    if(!walletState||!walletState.address){ showToast('Sign in first','error'); return; }
+    if(!walletState||!walletState.address){ showToast(tl('Sign in first','먼저 로그인하세요','先にログインしてください','请先登录'),'error'); return; }
     openBaseModal();
     setTimeout(function(){
       var tab=document.getElementById('baseTabOps');
@@ -994,7 +994,7 @@ function opsPickRandom(){
         && typeof c.lat==='number' && typeof c.lng==='number';
     });
     if(!enemies.length){
-      showToast('No enemy territories found on the map yet','error');
+      showToast(tl('No enemy territories found on the map yet','아직 지도에 적 영토가 없습니다','マップにまだ敵領土がありません','地图上暂无敌方领地'),'error');
       return;
     }
     var pick = enemies[Math.floor(Math.random()*enemies.length)];
@@ -1004,7 +1004,7 @@ function opsPickRandom(){
     document.getElementById('opsTargetWallet').dataset.display = pick.nickname || pick.owner.slice(0,10);
     updateOpsLaunchPreview();
     var who = pick.nickname || (pick.owner.slice(0,6)+'…'+pick.owner.slice(-4));
-    showToast('Target locked: '+who+' @ '+pick.lat.toFixed(1)+'°, '+pick.lng.toFixed(1)+'°','success');
+    showToast(tl('Target locked','표적 지정','標的ロック','已锁定目标')+': '+who+' @ '+pick.lat.toFixed(1)+'°, '+pick.lng.toFixed(1)+'°','success');
     return;
   }
   // Exploration: free-form Mars coord
@@ -1023,7 +1023,7 @@ function opsBrowseTargets(){
       && typeof c.lat==='number' && typeof c.lng==='number';
   });
   if(!enemies.length){
-    showToast('No enemy territories on the map yet','error');
+    showToast(tl('No enemy territories on the map yet','아직 지도에 적 영토가 없습니다','マップにまだ敵領土がありません','地图上暂无敌方领地'),'error');
     return;
   }
   // Sort by hijack count (juiciest first), then pixel-area
@@ -1039,7 +1039,7 @@ function opsBrowseTargets(){
     if(c.hijackCount) sub += ' · '+c.hijackCount+'⚔';
     return { value:String(c.id), label:label+'  —  '+sub };
   });
-  gamePicker({ title:'SELECT INVASION TARGET', items:items }).then(function(id){
+  gamePicker({ title:tl('SELECT INVASION TARGET','침공 대상 선택','侵攻対象を選択','选择入侵目标'), items:items }).then(function(id){
     if(!id) return;
     var pick = enemies.find(function(c){return String(c.id)===id});
     if(!pick) return;
@@ -1152,19 +1152,19 @@ function updateOpsLaunchPreview(){
   if(typeof requestRedraw==='function') requestRedraw();
   if(!window._opsSelectedPad){
     el.classList.remove('locked');
-    el.innerHTML='<span class="ops-prev-hint">⌖ Pick a launch pad above</span>';
+    el.innerHTML='<span class="ops-prev-hint">⌖ '+tl('Pick a launch pad above','위에서 발사대를 선택하세요','上で発射台を選択','在上方选择发射台')+'</span>';
     window._opsPreviewData = null;
     return;
   }
   if(isNaN(lat)||isNaN(lng)){
     el.classList.remove('locked');
-    el.innerHTML='<span class="ops-prev-hint">⌖ Awaiting target lock…</span>';
+    el.innerHTML='<span class="ops-prev-hint">⌖ '+tl('Awaiting target lock…','표적 지정 대기 중…','標的ロック待機中…','等待锁定目标…')+'</span>';
     window._opsPreviewData = null;
     return;
   }
   el.classList.add('locked');
   el.innerHTML='<span class="ops-prev-coord">⌖ PAD #'+window._opsSelectedPad.id+' → '+lat.toFixed(1)+'°, '+lng.toFixed(1)+'°</span>'
-    +'<span class="ops-prev-eta scanning">…computing trajectory</span>';
+    +'<span class="ops-prev-eta scanning">'+tl('…computing trajectory','…궤도 계산 중','…軌道計算中','…计算轨道中')+'</span>';
   if(_opsPreviewTimer) _clearActiveTimeout(_opsPreviewTimer);
   var seq=++_opsPreviewSeq;
   var padId = window._opsSelectedPad.id;
@@ -1229,7 +1229,7 @@ function loadOpsTab(){
       if(hasClaimableOps){ setBaseTabDot('ops', true); }
       if(typeof requestRedraw==='function') requestRedraw();
     })
-    .catch(function(){ document.getElementById('opsMissionList').innerHTML='Failed to load missions.'; });
+    .catch(function(){ document.getElementById('opsMissionList').innerHTML=tl('Failed to load missions.','미션 로딩 실패.','ミッションの読込失敗。','加载任务失败。'); });
   if(!_opsTimer) _opsTimer = _setActiveInterval(renderOpsMissionList, 1000);
 }
 
@@ -1255,7 +1255,7 @@ function renderOpsMissionList(){
       : (t('ops_explore_label')+' '+m.targetLat.toFixed(1)+'°, '+m.targetLng.toFixed(1)+'°');
     var btn;
     if(ready && m.status!=='failed'){
-      btn = '<button onclick="playMissionMinigame('+m.id+',\''+m.type+'\')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;margin-right:4px">🎮 PLAY</button>'+
+      btn = '<button onclick="playMissionMinigame('+m.id+',\''+m.type+'\')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;margin-right:4px">🎮 '+tl('PLAY','플레이','プレイ','开玩')+'</button>'+
         '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+' (1x)</button>';
     } else if(ready){
       btn = '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+'</button>';
@@ -1325,7 +1325,7 @@ function claimOpsMission(id){
     if(r.gp>0) parts.push(r.gp+' GP');
     if(r.xp>0) parts.push(r.xp+' XP');
     if(r.item) parts.push(r.item.name);
-    if(!parts.length) parts.push('No reward');
+    if(!parts.length) parts.push(tl('No reward','보상 없음','報酬なし','无奖励'));
     showAlert('✓ '+parts.join(' · '),'success');
     if(d.mission.type==='invasion'){try{trackQuestAction('complete_invasion',1)}catch(e){}}
     if(d.mission.type==='exploration'){try{trackQuestAction('complete_exploration',1)}catch(e){}}
@@ -1350,9 +1350,9 @@ function cancelOpsMission(id){
       body:JSON.stringify({wallet:walletState.address})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){ showToast(srvErr(d.error),'error'); return; }
-      showToast('Mission aborted · '+(d.refund||0).toFixed(2)+' PP refunded','success');
+      showToast(tl('Mission aborted','미션 취소됨','ミッション中止','任务已中止')+' · '+(d.refund||0).toFixed(2)+' '+tl('PP refunded','PP 환불','PP返金','PP已退还'),'success');
       loadOpsTab();
-    }).catch(function(e){ showToast('Cancel failed: '+e.message,'error'); });
+    }).catch(function(e){ showToast(tl('Cancel failed','취소 실패','取消失敗','取消失败')+': '+e.message,'error'); });
   });
 }
 
@@ -1647,7 +1647,7 @@ async function claimDailyOps(missionId) {
       body: JSON.stringify(body)
     });
     var data = await res.json();
-    if (!data.success) { showToast(srvErr(data.error || 'Claim failed'), 'error'); return; }
+    if (!data.success) { showToast(srvErr(data.error || tl('Claim failed','수령 실패','受取失敗','领取失败')), 'error'); return; }
     showToast('+' + data.total_gp + ' GP', 'success');
     // [v7.192 fix] dailyOps claim 직후 모든 관련 UI 즉시 갱신 — 이전엔 이 함수가
     //   loadDailyOpsBoard + loadUserData 만 호출 → 메인 화면 "오늘의 추천" 카드,
@@ -1673,7 +1673,7 @@ function renderGuildInvites(invites){
   list.innerHTML=invites.map(function(inv){
     return '<div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-radius:6px;margin-bottom:4px">'+
       '<span style="font-size:16px">'+(inv.emblem_emoji||'🔴')+'</span>'+
-      '<div style="flex:1"><div style="font-size:11px;color:var(--tx);font-weight:700">'+(inv.guild_name||'Guild')+'</div>'+
+      '<div style="flex:1"><div style="font-size:11px;color:var(--tx);font-weight:700">'+(inv.guild_name||tl('Guild','길드','ギルド','公会'))+'</div>'+
       '<div style="font-size:8px;color:var(--tx3)">'+t('guild_invited_by')+' '+(inv.invited_by_nickname||inv.invited_by.slice(0,8)+'...')+'</div></div>'+
       '<button onclick="guildAcceptInvite('+inv.id+')" style="padding:4px 10px;border-radius:4px;background:rgba(76,216,154,.12);border:1px solid rgba(76,216,154,.3);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn)">'+t('guild_accept_btn')+'</button>'+
       '<button onclick="guildDeclineInvite('+inv.id+')" style="padding:4px 8px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)">✕</button>'+
@@ -2250,7 +2250,7 @@ var _guildEmblemDataUrl=null;      // staged image payload
 var _guildEmblemMode='emoji';      // 'emoji' | 'image' | 'clear'
 
 function openGuildEditModal(){
-  if(!_myGuildData){ showToast('No guild','error'); return; }
+  if(!_myGuildData){ showToast(tl('No guild','길드 없음','ギルドなし','无公会'),'error'); return; }
   var g=_myGuildData;
   document.getElementById('geName').value=g.name||'';
   document.getElementById('geDesc').value=g.description||'';
@@ -2285,13 +2285,13 @@ function updateGuildEditCost(){
   var cost=0;
   var parts=[];
   // Cost constants mirror server settings (guild_rename_cost_gp etc.)
-  if(nm && nm !== g.name)       { cost += 100; parts.push('Name 100'); }
-  if(ds !== (g.description||'')){ cost += 20;  parts.push('Desc 20'); }
-  if(_guildEmblemMode==='image' && _guildEmblemDataUrl && _guildEmblemDataUrl !== g.emblemImage) { cost += 50; parts.push('Emblem 50'); }
-  else if(_guildEmblemMode==='clear' && g.emblemImage) { cost += 50; parts.push('Emblem 50'); }
-  else if(_guildEmblemMode==='emoji' && em !== g.emblem && !g.emblemImage) { cost += 50; parts.push('Emblem 50'); }
+  if(nm && nm !== g.name)       { cost += 100; parts.push(tl('Name','이름','名前','名称')+' 100'); }
+  if(ds !== (g.description||'')){ cost += 20;  parts.push(tl('Desc','설명','説明','描述')+' 20'); }
+  if(_guildEmblemMode==='image' && _guildEmblemDataUrl && _guildEmblemDataUrl !== g.emblemImage) { cost += 50; parts.push(tl('Emblem','엠블럼','エンブレム','徽章')+' 50'); }
+  else if(_guildEmblemMode==='clear' && g.emblemImage) { cost += 50; parts.push(tl('Emblem','엠블럼','エンブレム','徽章')+' 50'); }
+  else if(_guildEmblemMode==='emoji' && em !== g.emblem && !g.emblemImage) { cost += 50; parts.push(tl('Emblem','엠블럼','エンブレム','徽章')+' 50'); }
   document.getElementById('geCost').textContent=cost;
-  document.getElementById('geCostBreakdown').textContent=parts.length?('('+parts.join(' · ')+')'):'(no changes)';
+  document.getElementById('geCostBreakdown').textContent=parts.length?('('+parts.join(' · ')+')'):('('+tl('no changes','변경 없음','変更なし','无更改')+')');
   var btn=document.getElementById('geSaveBtn');
   btn.disabled=(cost===0);
   btn.style.opacity=(cost===0)?'0.4':'1';
@@ -2301,7 +2301,7 @@ function updateGuildEditCost(){
 function onGuildEmblemFile(input){
   var f=input.files && input.files[0];
   if(!f) return;
-  if(f.size > 2*1024*1024){ showToast('Max 2MB image','error'); return; }
+  if(f.size > 2*1024*1024){ showToast(tl('Max 2MB image','이미지 최대 2MB','画像は最大2MB','图片最大2MB'),'error'); return; }
   var reader=new FileReader();
   reader.onload=function(e){
     var img=new Image();
@@ -2322,7 +2322,7 @@ function onGuildEmblemFile(input){
       ctx.drawImage(tmp, 0, 0, SIZE, SIZE);
       var dataUrl=c.toDataURL('image/png');
       if(dataUrl.length > 8192){
-        showToast('Image too complex — try a simpler one','error');
+        showToast(tl('Image too complex — try a simpler one','이미지가 너무 복잡합니다 — 더 단순한 것을 시도하세요','画像が複雑すぎます — よりシンプルなものを','图片过于复杂 — 请换更简单的'),'error');
         return;
       }
       _guildEmblemDataUrl=dataUrl;
@@ -2331,7 +2331,7 @@ function onGuildEmblemFile(input){
         '<img src="'+dataUrl+'" style="width:64px;height:64px;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:6px;border:1px solid var(--bdr);background:#000">';
       updateGuildEditCost();
     };
-    img.onerror=function(){ showToast('Invalid image','error'); };
+    img.onerror=function(){ showToast(tl('Invalid image','잘못된 이미지','無効な画像','无效图片'),'error'); };
     img.src=e.target.result;
   };
   reader.readAsDataURL(f);
@@ -2355,7 +2355,7 @@ function onGuildEmojiChange(){
 }
 
 function saveGuildEdit(){
-  if(!_myGuildData || !walletState.address){ showToast('Login first','error'); return; }
+  if(!_myGuildData || !walletState.address){ showToast(tl('Login first','먼저 로그인하세요','先にログイン','请先登录'),'error'); return; }
   var g=_myGuildData;
   var nm=document.getElementById('geName').value.trim();
   var ds=document.getElementById('geDesc').value;
@@ -2367,21 +2367,21 @@ function saveGuildEdit(){
   if(_guildEmblemMode==='clear' && g.emblemImage) body.emblemImage = null;
   if(_guildEmblemMode==='emoji' && em !== g.emblem && !g.emblemImage) body.emblemEmoji = em;
 
-  if(Object.keys(body).length <= 2){ showToast('No changes','info'); return; }
+  if(Object.keys(body).length <= 2){ showToast(tl('No changes','변경 없음','変更なし','无更改'),'info'); return; }
 
   var btn=document.getElementById('geSaveBtn');
-  btn.disabled=true; btn.textContent='SAVING…';
+  btn.disabled=true; btn.textContent=tl('SAVING…','저장 중…','保存中…','保存中…');
   fetch('/api/guild/update',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
     .then(function(r){return r.json()})
     .then(function(data){
-      btn.disabled=false; btn.textContent='SAVE CHANGES';
+      btn.disabled=false; btn.textContent=tl('SAVE CHANGES','변경 저장','変更を保存','保存更改');
       if(data.error){ showToast(data.error,'error'); return; }
-      showToast('Guild updated (-'+data.cost+' GP)','success');
+      showToast(tl('Guild updated','길드 수정 완료','ギルド更新','公会已更新')+' (-'+data.cost+' GP)','success');
       closeGuildEditModal();
       loadGuildTab();
       try{ refreshEmailBalances(); }catch(_re){}
     })
-    .catch(function(){ btn.disabled=false; btn.textContent='SAVE CHANGES'; showToast('Failed to update','error'); });
+    .catch(function(){ btn.disabled=false; btn.textContent=tl('SAVE CHANGES','변경 저장','変更を保存','保存更改'); showToast(tl('Failed to update','수정 실패','更新失敗','更新失败'),'error'); });
 }
 
 async function guildDisband(){
