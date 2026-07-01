@@ -1,3 +1,17 @@
+## 2026-07-02 v7.464 — SEA 로컬라이징 유지보수 도구 (지속가능화)
+
+v7.446 로 만든 SEA(id/vi/th) 번역을 수동 절차 대신 재실행 가능한 도구로. 신규 문자열 추가 시 커버리지 회귀를 즉시 감지.
+
+[신규] tools/sea-i18n.js — node 단일 도구 (python 의존 제거, repo 표준 node)
+- `check`: 현재 tl()/data-i18n 대상 대비 i18n-sea.js 커버리지 리포트. 미커버(신규 문자열) 있으면 exit 1 (CI/pre-commit 용). 토큰(플레이스홀더+태그수) 불일치·영문누수도 표시.
+- `extract [dir]`: 미커버(신규)만 청크(in-NN.json)로 추출 → 번역 대상.
+- `assemble [dir]`: out-NN.json + 기존 번역 병합 → assets/i18n-sea.js 재작성(en 기반이라 기존 번역 재사용).
+- 추출 로직(tl 1st arg unescape, i18n.en 값, data-i18n 키)은 v7.446 생성 때와 동일 규칙이라 재현성 보장.
+
+[현재 상태 검증] `node tools/sea-i18n.js check` → 대상 2,382 / 커버 2,382 (100%) / 미커버 0 / 토큰 불일치 0.
+- 영문누수(id/vi/th==en) 85건은 **advisory** — 대부분 정당(인니어 영어 차용어 Level/Item/Total/Status/Input, 유지 게임용어 GAME OVER/OPEN BETA/HIJACK/스탯 ATK/DEF/SPD). 강제 번역 시 악화되므로 미수정. exit code 는 커버리지만 좌우한다.
+
+[검증] `node --check tools/sea-i18n.js`, `node tools/sea-i18n.js check` exit 0, `git diff --check`.
 ## 2026-07-01 v7.446 — SEA(인니/베트남/태국) 전체 로컬라이징 (id/vi/th)
 
 "다 해" — 그동안 영어 폴백이던 SEA 3개 언어(id 인도네시아/vi 베트남/th 태국)를 실제 번역으로 채움.

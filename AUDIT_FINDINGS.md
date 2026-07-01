@@ -1,3 +1,14 @@
+## 2026-07-02 — SEA 로컬라이징 유지보수 도구 감사 반영 (v7.464)
+
+### ✅ 수정 완료
+- **[LOW] SEA(id/vi/th) 재생성이 수동 절차뿐이라 신규 문자열 커버리지 회귀를 놓치기 쉬움**: `tools/sea-i18n.js`(check/extract/assemble) 추가. 신규 문자열 있으면 `check` 가 exit 1(CI/pre-commit 용).
+
+### 남은 정리 범위
+- 번역 자체는 LLM(워크플로) 몫. 도구는 추출/커버리지검증/조립만. 영문누수 85건은 인니어 차용어·유지 게임용어라 advisory(미수정).
+
+### 검증 완료
+- `node --check tools/sea-i18n.js`, `node tools/sea-i18n.js check` → 커버 2,382/2,382(100%)·미커버 0·토큰 불일치 0, exit 0.
+
 ## 2026-07-01 — SEA(id/vi/th) 전체 로컬라이징 감사 반영 (v7.446)
 
 ### ✅ 수정 완료
