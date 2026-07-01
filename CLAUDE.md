@@ -1,5 +1,7 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-06-11 v7.463 (System Cleanup Pass 39) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-07-01 v7.464 (로컬라이징 완결 + 재미 로드맵/정체성 결정) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+
+> **⚠️ 버전 번호 주의**: 2026-06-29~07-01 세션의 로컬라이징/기능 커밋이 `v7.435~446`으로 나갔는데, 이는 기존 라우트분리 감사(`v7.459~463`, 6/11)보다 **번호가 낮다**(날짜는 최신). 세션 초반 컨텍스트 기준으로 이어 붙이며 생긴 불일치다. 히스토리 재작성은 하지 않고, **앞으로는 실제 최대값 기준 `v7.464+`로 monotonic 이어간다.**
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -17,6 +19,19 @@
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 - 남은 작업은 `docs/CLAUDE_WORK_ORDER_2026-05-05.md`를 우선 작업지시서로 삼는다. `docs/FLEET_ASSAULT_STARFOX_RESEARCH.md`는 장기 리서치 참고용이며 현재 구현 우선순위가 아니다.
+
+### v7.464 최신 핸드오프 — 로컬라이징 완결(7개국어) + 재미 로드맵/정체성 결정 (2026-06-29~07-01 세션)
+
+**로컬라이징 (v7.442~446): en/ko/ja/zh 완전 + id/vi/th 전체 커버.**
+- 동적 렌더 asset js ~1,354건 tl() 추가(v7.443, 멀티에이전트 스윕) + index.html 정적 라벨 ~104개 data-i18n + i18n.js 91신규키(v7.444) + 법적 본문 4키(ToS/Privacy/카지노/쿠키, innerHTML 구조보존, v7.445) + JA/ZH 폴리시 12파일(v7.445).
+- **SEA(id/vi/th) 아키텍처 — 중요**: `assets/i18n-sea.js`는 **자동 생성물이라 수동 편집 금지**. `TL_SEA[en]={id,vi,th}`(inline `tl()` 폴백용) + `I18N.id/vi/th` 키 사전(data-i18n용)을 담는다. `assets/i18n.js`의 `tl(en,ko,ja,zh,id,vi,th)`는 SEA 언어이고 인라인 인자가 없으면 `TL_SEA[en]`을 조회한다(없으면 en 폴백). index.html은 i18n.js 다음에 i18n-sea.js를 로드한다.
+- **SEA 재생성 절차**: 새 `tl()`/`data-i18n` 문자열을 추가하면 재생성 전까지 en 폴백된다. 재생성 = (1) tl() 1st arg + data-i18n 키의 en 값을 추출·중복제거(JS 이스케이프 해제해 런타임 en과 매칭), (2) 청크 분할 후 각 en을 id/vi/th로 번역(플레이스홀더 `{n}`·HTML 태그·이모지·브랜드·통화 원위치 보존), (3) `TL_SEA` + `I18N.id/vi/th` 재조립해 `assets/i18n-sea.js` 재작성. en 기반 키라 기존 번역은 재사용된다. 검증: 커버리지 100%, 토큰(플레이스홀더+태그수) 불일치 0, node --check.
+- **clobber 규칙**: data-i18n는 applyI18n(main-game.js)이 `값에 '<' 있으면 innerHTML, 없으면 textContent`로 넣는다. 자식 요소(특히 id 가진 기능 요소)가 있는 컨테이너에 data-i18n을 붙일 땐 값이 '<'를 포함(innerHTML)하거나, 텍스트만 별도 span으로 분리해야 자식이 안 날아간다(v7.444 OPEN BASE dailyHudDot 사례).
+
+**재미 로드맵 + 정체성 3결정 (v7.435~441): 전부 기본값=현행, admin 설정으로 켜는 reversible 구조.**
+- 캠페인 행동 게이트, 주간 리텐션 훅(weeklyChallenge + 섹터 서지 실제 채굴 적용), 신규 full-loss 유예, 전투 능동성(교전 전 전술 브리프).
+- **오너 결정 3종(설정 OFF 기본, 켤 시점은 오너 몫)**: full-loss 마스터 모드(`full_loss_mode` always/off/seasonal/optin), 스코프 축소(`base_tab_min_levels`/`level_gating_enabled`), Web3 캐주얼 모드(`casual_mode_enabled` — 실자금 레일 UI 숨김 + 엔드포인트 403). full-loss opt-in 플레이어 토글(optin 모드에서만 노출).
+- DB 마이그레이션 329~335. 재미·리텐션 효과는 실유저 측정 몫(코드는 개선장치이지 검증 아님).
 
 ### v7.463 최신 핸드오프 — Redemption/Withdrawal 라우트 분리
 
