@@ -1,3 +1,64 @@
+## 2026-07-01 — SEA(id/vi/th) 전체 로컬라이징 감사 반영 (v7.446)
+
+### ✅ 수정 완료
+- **[MED] 인니/베트남/태국어가 영어 폴백만 됨(부분 현지화)**: `tl()`이 4인자라 id/vi/th는 en으로 표시되던 갭을 해소했다.
+- **[구현] 호출부 폭증 없는 아키텍처**: 신규 `assets/i18n-sea.js`(자동생성)에 `TL_SEA[en]={id,vi,th}`(inline tl 폴백) + `I18N.id/vi/th` 키 사전(data-i18n)을 담고, `assets/i18n.js`의 `tl()`이 SEA 언어일 때 `TL_SEA[en]`을 조회하도록 강화했다. 기존 tl 호출 ~1,500곳은 무변경.
+- **[생성] 2,382 문자열 × 3언어**: 27청크 병렬 번역 워크플로. 플레이스홀더/HTML/이모지/브랜드/통화 원위치 보존.
+
+### 남은 정리 범위
+- `i18n-sea.js`는 자동생성물(수동 편집 금지). 이후 신규 `tl()`/`data-i18n` 문자열은 재생성 전까지 en 폴백. id/vi/th 번역은 LLM 생성이라 원어민 검수는 별도.
+
+### 검증 완료
+- 조립 커버리지 2,382/2,382(누락 0), 토큰(플레이스홀더+태그수) 불일치 0.
+- 런타임 하니스: TL_SEA 1,604항목, I18N.id/vi/th 각 778키, tl() SEA 폴백 동작(id/vi/th≠en, en 원문 유지), data-i18n(I18N.id.tos_body≠en).
+- `node --check assets/i18n.js`, `node --check assets/i18n-sea.js`, index.html 인라인 파싱, `git diff --check`.
+
+## 2026-07-01 — 로컬라이징 잔여(법적 본문 + JA/ZH 폴리시) 감사 반영 (v7.445)
+
+### ✅ 수정 완료
+- **[LOW] 긴 법적/안내 본문(ToS/Privacy/카지노 디스클레이머/쿠키 배너)이 영문 고정**: data-i18n + i18n.js 4키×4언어(본문은 값에 HTML 포함→innerHTML 구조 보존). 조항 가감 없는 충실 번역.
+- **[LOW] JA/ZH 번역 품질(영문누수/오역/어색/파일내 용어불일치)**: 24개 asset js 워크플로(36에이전트, 12파일)로 명백한 오류만 최소 수정.
+
+### 검증 완료
+- 폴리시: HEAD 대비 en(원문) 인자 변경 0파일, 영문누수 잔존 0(3+글자), 12파일 `node --check` PASS.
+- 법적: 4키 4중 존재, 본문 clobber 점검(값에 '<'→innerHTML, 컨테이너 기능자식 0) PASS.
+
+## 2026-06-30 — index.html 정적 마크업 로컬라이징 감사 반영 (v7.444)
+
+### ✅ 수정 완료
+- **[LOW] index.html 정적 라벨 하드코딩 영문(지갑/입출금/교환/추천/미니게임/길드편집/파벌/온보딩 등)**: ~104 요소에 data-i18n 부여 + i18n.js 91 신규키(4중)·12 재사용키.
+- **[MED→fixed] clobber 버그**: `OPEN BASE` 버튼이 자식 `<span id="dailyHudDot">`(알림점)을 가져 textContent 교체 시 소실될 위험 → 텍스트만 span 분리해 보존. 나머지 id 동반은 오탐(버튼 자기 id / innerHTML 경로).
+
+### 검증 완료
+- `node --check assets/i18n.js`, index.html 인라인 파싱, 91키 4중 존재, 브랜드/통화/언어코드 오태깅 0.
+
+## 2026-06-30 — 동적 렌더 로컬라이징 스윕 감사 반영 (v7.442~443)
+
+### ✅ 수정 완료
+- **[MED] 파벌 선택 모달 영문 잔존(제보)**: 제목/CURRENT 배지(attr 기반)/카드 이름·설명·특성(LANG별)/스탯 라벨/변경 경고문 다국어화(v7.442).
+- **[MED] 동적 렌더 23개 asset js 하드코딩 영문**: 멀티에이전트 스윕(59에이전트, 파일당 fix→적대검증)으로 tl() ~1,354건 추가(v7.443).
+
+### 검증 완료
+- 23파일 `node --check` 전수 PASS, 과잉번역 0(코드/CSS/API/키/CODE/단위/브랜드 보존), `git diff --check` 클린.
+
+## 2026-06-29~30 — 재미 로드맵 + 정체성 3결정 감사 반영 (v7.435~441)
+
+### ✅ 수정 완료 (전부 기본값=현행, admin 설정으로 켜는 reversible 구조)
+- **[기능] 캠페인 행동 게이트(v7.435)**: FSP/CV CH1 first_claim+first_harvest 필수화(타이머→행동).
+- **[기능] 주간 리텐션 훅(v7.435~436)**: weeklyChallenge(주간 누적 lazy카운트, carve GP, FOR UPDATE+UNIQUE 멱등) + 섹터 서지 배율 실제 채굴 적용 + 주간챌린지/서지/전투결과 UI. mig331.
+- **[기능] 신규 full-loss 유예(v7.435)**: 보호 대상(온보딩 미완료 OR 계정 ≤3일) 격침함 대파 전환. [검증후수정] grace max_rank 5→0(전유저 보호=정체성 무력화 차단). mig332.
+- **[기능] 전투 능동성(v7.437)**: AI 교전 직전 전술 브리프(적 편성+내 진형/기동/매치업, gameConfirm). node 하니스 9케이스 PASS.
+- **[오너결정#1] full-loss 마스터 모드(v7.438)**: always/off/seasonal/optin 단일 게이트. battleEngine permanentLossActive. mig333. 하니스 9모드 PASS.
+- **[오너결정#2] 스코프 축소(v7.439)**: BASE 탭 레벨 게이팅 서버 튜닝화(/api/config levelGatingEnabled/baseTabMinLevels). mig334. 게이트 9케이스 PASS.
+- **[오너결정#3] Web3 분리(v7.440)**: 캐주얼 모드 — 실자금 레일(입금/출금/swap/PP→GP) UI 숨김(.web3-rail) + 엔드포인트 403 차단. mig335.
+- **[기능] full-loss opt-in 토글(v7.441)**: optin 모드에서만 노출되는 플레이어 동의 토글(GET/POST /api/me/full-loss-optin). /api/user/:wallet shadowing 회피.
+
+### 남은 범위(오너/실유저 몫)
+- 재미·리텐션 효과는 실유저 측정 필요(코드는 개선장치이지 검증 아님). full-loss/스코프/casual/optin은 켤 시점이 오너 결정. 서지 배율 UI wiring/전투 전 전술 베팅은 후속 여지.
+
+### 검증 완료
+- 각 커밋 `node --check` 전수 PASS, DB 마이그레이션(329~335) 적용, 결정 로직 node 하니스, 서버 클린 부팅, 엔드포인트 curl, `git diff --check` 클린.
+
 ## 2026-06-11 — Redemption/Withdrawal 라우트 분리 감사 반영 (v7.463)
 
 ### ✅ 수정 완료
