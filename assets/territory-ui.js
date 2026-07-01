@@ -1212,8 +1212,10 @@ async function harvestAllTerritories(){
         ? (lang==='ko'?'길드 영향력':lang==='ja'?'ギルド影響':lang==='zh'?'公会影响力':'guild influence')
         : (lang==='ko'?'섹터 영향력':lang==='ja'?'セクター影響':lang==='zh'?'区域影响力':'sector influence');
       var bInfTxt=(bd.influenceHits||0)>0?(' · '+bInfLabel+' ×'+(parseFloat(bd.bestInfluenceMult)||1).toFixed(2)+' ('+bd.influenceHits+')'):'';
+      // [v7.465] 정시 섹터 서지 보너스 체감 — 서지 적용 시 결과 토스트에 배율/건수 표시.
+      var bSurgeTxt=bd.surgeApplied?(' · '+tl('⚡ SURGE','⚡ 서지','⚡ サージ','⚡ 급증')+' ×'+(parseFloat(bd.surgeMultiplier)||1).toFixed(2)+((bd.surgeHits||0)>0?' ('+bd.surgeHits+')':'')):'';
       var bTotal=Math.round((parseFloat(bd.totalGP||bd.harvestedGP)||0)*10000)/10000;
-      showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+(bd.harvested||0)+(lang==='ko'?'건 (+'+bTotal+' GP)':lang==='ja'?'件 (+'+bTotal+' GP)':lang==='zh'?'个 (+'+bTotal+' GP)':' (+'+bTotal+' GP)')+bInfTxt+((bd.cooldown||0)>0?' · '+bd.cooldown+(lang==='ko'?' 쿨다운':' cd'):'')+bDropTxt,'success');
+      showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+(bd.harvested||0)+(lang==='ko'?'건 (+'+bTotal+' GP)':lang==='ja'?'件 (+'+bTotal+' GP)':lang==='zh'?'个 (+'+bTotal+' GP)':' (+'+bTotal+' GP)')+bInfTxt+bSurgeTxt+((bd.cooldown||0)>0?' · '+bd.cooldown+(lang==='ko'?' 쿨다운':' cd'):'')+bDropTxt,'success');
       try{ if(typeof loadGPBalance==='function') loadGPBalance(); }catch(_){}
       try{ if(typeof refreshGP==='function') refreshGP(); }catch(_){}
       try{ if(typeof _updateBaseTerritoryGroupList==='function') _updateBaseTerritoryGroupList(); }catch(_){}
@@ -1225,7 +1227,7 @@ async function harvestAllTerritories(){
       return;
     }
   }catch(_bulkErr){}
-  var harvested=0, cooldown=0, totalGP=0, drops={}, influenceHits=0, guildInfluenceHits=0, bestInfluenceMult=1;
+  var harvested=0, cooldown=0, totalGP=0, drops={}, influenceHits=0, guildInfluenceHits=0, bestInfluenceMult=1, surgeHit=0, surgeMult=1;
   for(var i=0;i<mine.length;i++){
     try{
       var r=await fetch('/api/territory/'+mine[i].id+'/harvest',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token}});
@@ -1238,6 +1240,7 @@ async function harvestAllTerritories(){
           if(d.sectorInfluenceBonus.source==='guild') guildInfluenceHits++;
           bestInfluenceMult=Math.max(bestInfluenceMult,d.sectorInfluenceBonus.multiplier);
         }
+        if(d.surgeApplied){ surgeHit++; surgeMult=Math.max(surgeMult,parseFloat(d.surgeMultiplier)||1); }
         if(d.resources){ d.resources.forEach(function(x){ drops[x.code]=(drops[x.code]||0)+x.quantity; }); }
       }
       else if(d.error==='harvest_on_cooldown'||r.status===429){ cooldown++; }
@@ -1251,7 +1254,8 @@ async function harvestAllTerritories(){
       ? (lang==='ko'?'길드 영향력':lang==='ja'?'ギルド影響':lang==='zh'?'公会影响力':'guild influence')
       : (lang==='ko'?'섹터 영향력':lang==='ja'?'セクター影響':lang==='zh'?'区域影响力':'sector influence');
     var infTxt=influenceHits>0?(' · '+infLabel+' ×'+bestInfluenceMult.toFixed(2)+' ('+influenceHits+')'):'';
-    showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+harvested+(lang==='ko'?'건 (+'+totalGP+' GP)':lang==='ja'?'件 (+'+totalGP+' GP)':lang==='zh'?'个 (+'+totalGP+' GP)':' (+'+totalGP+' GP)')+infTxt+(cooldown>0?' · '+cooldown+(lang==='ko'?' 쿨다운':' cd'):'')+dropTxt,'success');
+    var surgeTxt=surgeHit>0?(' · '+tl('⚡ SURGE','⚡ 서지','⚡ サージ','⚡ 급증')+' ×'+surgeMult.toFixed(2)+' ('+surgeHit+')'):'';
+    showToast((lang==='ko'?'⛏ 일괄 수확 ':lang==='ja'?'⛏ 一括収穫 ':lang==='zh'?'⛏ 批量收获 ':'⛏ Harvested ')+harvested+(lang==='ko'?'건 (+'+totalGP+' GP)':lang==='ja'?'件 (+'+totalGP+' GP)':lang==='zh'?'个 (+'+totalGP+' GP)':' (+'+totalGP+' GP)')+infTxt+surgeTxt+(cooldown>0?' · '+cooldown+(lang==='ko'?' 쿨다운':' cd'):'')+dropTxt,'success');
     try{ if(typeof loadGPBalance==='function') loadGPBalance(); }catch(_){}
     try{ if(typeof refreshGP==='function') refreshGP(); }catch(_){}
     try{ if(typeof _updateBaseTerritoryGroupList==='function') _updateBaseTerritoryGroupList(); }catch(_){}

@@ -1,3 +1,15 @@
+## 2026-07-02 v7.465 — 정시 서지 보상 체감(수확 결과에 서지 표시)
+
+서지 배율이 실제 채굴에는 적용되는데(v7.436) 수확 결과 토스트가 배율을 안 보여줘 "타임드 이벤트 보상" 체감이 빠져 있던 갭을 메움.
+
+[클라] 수확 결과에 서지 표시 (assets/territory-ui.js, assets/world-globe.js)
+- harvest-all(일괄): 응답 surgeApplied 시 토스트에 `⚡ 서지 ×2.5 (N)` 추가.
+- per-claim fallback 루프 + world-globe globe 개별 수확: 루프에서 surgeHit/surgeMult 집계 후 토스트에 표시.
+- 4개국어 tl() + SEA(id/vi/th) 사전 반영. 서버 응답 계약(surgeApplied/surgeMultiplier/surgeHits)만 소비, 계산 변경 없음.
+
+[도구 실전 검증] 새 tl('⚡ SURGE') 추가 → `node tools/sea-i18n.js check` 가 미커버 1 감지(exit 1) → extract→번역→assemble 로 i18n-sea.js 갱신 → 재검증 커버리지 2,383/2,383(100%). SEA 유지보수 파이프라인 end-to-end 동작 확인.
+
+[검증] node --check(territory-ui/world-globe/i18n-sea/app-config/sw) PASS, SEA check exit 0, git diff --check 클린. sw mars-v134, ?v=7478.
 ## 2026-07-02 v7.464 — SEA 로컬라이징 유지보수 도구 (지속가능화)
 
 v7.446 로 만든 SEA(id/vi/th) 번역을 수동 절차 대신 재실행 가능한 도구로. 신규 문자열 추가 시 커버리지 회귀를 즉시 감지.

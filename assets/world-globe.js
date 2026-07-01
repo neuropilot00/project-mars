@@ -2292,7 +2292,7 @@ async function _baseTerritoryHarvest(idx){
   var prodEl=document.getElementById('bterrProd'+idx);
   if(prodEl) prodEl.textContent=LANG==='ko'?'수확 중…':LANG==='ja'?'収穫中…':LANG==='zh'?'收获中…':'Harvesting…';
   // [v7.320] 그룹(병합 영토)의 모든 claim을 순회 수확 (이전엔 claims[0] 하나만 수확 → "안 누른 영토 수확 안됨"). 보상은 GP.
-  var harvested=0, cooldown=0, totalGP=0, allDrops={}, nextTimeStr='';
+  var harvested=0, cooldown=0, totalGP=0, allDrops={}, nextTimeStr='', surgeHitG=0, surgeMultG=1;
   try{
     var headers={'Content-Type':'application/json'};
     if(emailAuth&&emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
@@ -2302,6 +2302,7 @@ async function _baseTerritoryHarvest(idx){
         var d=await resp.json();
         if(resp.ok&&d.success){
           harvested++; totalGP+=(d.harvestedGP!=null?d.harvestedGP:0);
+          if(d.surgeApplied){ surgeHitG++; surgeMultG=Math.max(surgeMultG,parseFloat(d.surgeMultiplier)||1); }
           if(d.resources){ d.resources.forEach(function(x){ allDrops[x.code]=(allDrops[x.code]||0)+x.quantity; }); }
         } else if(resp.status===429){
           cooldown++;
@@ -2328,7 +2329,8 @@ async function _baseTerritoryHarvest(idx){
       var _RICONS={iron_dust:'🟤',red_sand:'🔴',basalt_chip:'⬛',ice_crystal:'🔵',regolith_ore:'🟠',volcanic_shard:'🌋',ancient_metal:'⭐',carbon_fiber:'🧵',iron_ore:'🪨',silicon_chip:'💠',xenomatter:'💠',nano_polymer:'🧬',plasma_crystal:'🔮',titanium_alloy:'⚙️',meteorite_fragment:'☄️',plasma_dust:'💜',dark_matter:'🌑',exotic_alloy:'✨',quantum_core:'⚡',alloy_frame:'⬢',hull_plate:'▣',plasma_coil:'⚡'};
       resStr=' + '+dk.map(function(c){return (_RICONS[c]||'💠')+allDrops[c];}).join(' ');
     }
-    showToast('⛏ +'+totalGP+' GP'+(cooldown>0?' · '+cooldown+(LANG==='ko'?' 쿨다운':' cd'):'')+resStr,'success');
+    var surgeStrG=surgeHitG>0?(' · '+tl('⚡ SURGE','⚡ 서지','⚡ サージ','⚡ 급증')+' ×'+surgeMultG.toFixed(2)):'';
+    showToast('⛏ +'+totalGP+' GP'+surgeStrG+(cooldown>0?' · '+cooldown+(LANG==='ko'?' 쿨다운':' cd'):'')+resStr,'success');
     // 수확 후 생산 정보 새로고침
     _bterrLoadProd(idx,g);
     // PP 잔액 갱신
