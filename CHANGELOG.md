@@ -1,3 +1,26 @@
+## 2026-07-01 v7.446 — SEA(인니/베트남/태국) 전체 로컬라이징 (id/vi/th)
+
+"다 해" — 그동안 영어 폴백이던 SEA 3개 언어(id 인도네시아/vi 베트남/th 태국)를 실제 번역으로 채움.
+호출부(tl 인자 ~1,500곳) 7인자 확장은 코드 폭증이라 배제하고, **en 문자열 기반 보조 사전 + tl() 폴백** 아키텍처로 구현.
+
+[아키텍처] 신규 assets/i18n-sea.js (자동 생성, 406K) + tl() 폴백
+- window.TL_SEA = { "<en 문자열>": {id,vi,th} } — inline tl(en,ko,ja,zh) 호출에서 SEA 언어일 때 en 기준 조회. 호출부 무변경.
+- I18N.id/vi/th = Object.assign(I18N.en, 기존 시드, 신규 키번역) — data-i18n(t()) 경로용 사전 확장.
+- assets/i18n.js tl() 강화: id/vi/th 이고 인라인 인자 없으면 TL_SEA[en][lang] 조회, 없으면 en 폴백. en/ko/ja/zh 동작 불변.
+- index.html 은 i18n.js 다음에 i18n-sea.js 로드.
+
+[생성] 27청크 병렬 번역 워크플로(27에이전트) — tl 고유 EN 1,604 + data-i18n 키 778 = 2,382 문자열 × 3언어.
+번역 규칙: 플레이스홀더 {n}·HTML 태그/속성·이모지·화살표·브랜드(OCCUPY MARS)·통화(GP/PP/USDT/HP/XP)·숫자/기호 원위치 보존, 사람이 읽는 단어만 번역.
+
+[검증 — 메인]
+- 조립 커버리지 2,382/2,382(누락 0), **토큰(플레이스홀더+태그수) 불일치 0**.
+- 런타임 하니스: TL_SEA 1,604항목, I18N.id/vi/th 각 778키 번역, tl() SEA 폴백 동작(id/vi/th≠en, en 원문 유지, ko en폴백), data-i18n(I18N.id.tos_body≠en).
+- node --check(i18n.js/i18n-sea.js/app-config/sw) PASS, index.html 인라인 파싱 PASS, git diff --check 클린. sw mars-v133, ?v=7477.
+
+⚠️ 유지보수: i18n-sea.js 는 **자동 생성물(수동 편집 금지)**. 이후 새 tl()/data-i18n 문자열을 추가하면 SEA 번역 없이 en 폴백되므로,
+주기적으로 추출→번역→재생성이 필요(en 기반 키라 기존 번역은 재사용됨). 번역 품질은 LLM 생성이라 원어민 검수는 별도.
+
+[로컬라이징 최종] en/ko/ja/zh 완전 + id/vi/th 전체 커버(보조 사전 방식). 7개 언어 UI 표면 종결.
 ## 2026-07-01 v7.445 — 로컬라이징 잔여 마감 (법적 본문 + JA/ZH 폴리시)
 
 "잔여도 다해야지" — v7.442~444 스윕 이후 남은 항목 정리. 두 작업 병렬(파일 겹침 없음) 후 메인 전수 검증.

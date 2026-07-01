@@ -3954,6 +3954,13 @@ function t(key){
   return (I18N[lang]&&I18N[lang][key]) || I18N.en[key] || key;
 }
 function tl(en,ko,ja,zh,id,vi,th){
+  var L = normalizeLang(LANG);
   var map = { en:en, ko:ko, ja:ja, zh:zh, id:id, vi:vi, th:th };
-  return map[normalizeLang(LANG)] || en;
+  var v = map[L];
+  if (v != null) return v;
+  // SEA(id/vi/th): 인라인 인자가 없으면 보조 사전(assets/i18n-sea.js)에서 en 기준 조회. 없으면 en 폴백.
+  if ((L === 'id' || L === 'vi' || L === 'th') && typeof TL_SEA !== 'undefined' && TL_SEA[en] && TL_SEA[en][L] != null) {
+    return TL_SEA[en][L];
+  }
+  return en;
 }
