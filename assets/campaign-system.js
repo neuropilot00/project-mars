@@ -621,6 +621,7 @@ function showCampaignStory(chapter){
   closeCampaignStory();
   var story=chapter&&chapter.scenes;
   _campaignScenes=Array.isArray(story)?story:((story&&Array.isArray(story.scenes))?story.scenes:null);
+  _campaignQuestId=(chapter&&(chapter.questId||chapter.id))||null; // 음성 파일명 기준
   _campaignSceneIndex=0;
   _campaignSceneLineIndex=0;
   if(!_campaignScenes||!_campaignScenes.length){showCampaignBriefing(chapter,chapter&&chapter.progress);return;}
@@ -1223,6 +1224,32 @@ function _campaignStopBgm(quick){
   }catch(_){}
 }
 
+// ── [v7.467] 캠페인 라인별 음성(영어 전용) ─────────────────────
+// narration/dialogue/ending 라인 렌더 시 /assets/audio/voice/<questId>_<sceneId>_l<lineIdx>.mp3 재생(BGM 위에 얹힘).
+// 파일명은 결정론적(씬 JSON 수정 0) — tools/voice-manifest.js 가 같은 규칙으로 제작 목록을 뽑는다.
+// 파일 없거나 자동재생 차단 시 무음. 전역 사운드 설정에 연동.
+var _campaignQuestId=null;
+var _campaignVoice={ el:null };
+function _campaignVoiceFile(scene,lineIdx){
+  if(!_campaignQuestId||!scene||!scene.id) return null;
+  return '/assets/audio/voice/'+_campaignQuestId+'_'+scene.id+'_l'+lineIdx+'.mp3';
+}
+function _campaignPlayVoice(scene,lineIdx){
+  try{
+    if(!scene) return;
+    if(scene.type!=='narration'&&scene.type!=='dialogue'&&scene.type!=='ending') return;
+    _campaignStopVoice();
+    if(!_campaignBgmEnabled()) return; // SFX/BGM 과 같은 사운드 스위치
+    var file=_campaignVoiceFile(scene,lineIdx); if(!file) return;
+    var base=(typeof _sfx!=='undefined'&&_sfx&&_sfx.volume!=null)?_sfx.volume:0.2;
+    var vol=Math.max(0.3,Math.min(1,base*3.5)); // 대사는 BGM 보다 또렷하게
+    var el=new Audio(file); el.volume=vol; el.preload='auto';
+    _campaignVoice.el=el;
+    var p=el.play(); if(p&&p.catch) p.catch(function(){ /* 파일 없음/자동재생 차단 — 무음 */ });
+  }catch(_){}
+}
+function _campaignStopVoice(){ try{ var el=_campaignVoice.el; _campaignVoice.el=null; if(el){ el.pause(); } }catch(_){} }
+
 function renderCampaignScene(){
   var overlay=document.querySelector('.story-overlay');
   var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
@@ -1277,6 +1304,7 @@ function renderCampaignScene(){
     var nNextScene=_campaignScenes[_campaignSceneIndex+1];
     var nNextLine=(scene.lines||[])[_campaignSceneLineIndex+1]||(nNextScene&&nNextScene.lines&&nNextScene.lines[0]);
     _campaignPreloadSceneAssets(nNextScene||scene,nNextLine);
+    _campaignPlayVoice(scene,_campaignSceneLineIndex);
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
@@ -1293,6 +1321,7 @@ function renderCampaignScene(){
     var dNextScene=_campaignScenes[_campaignSceneIndex+1];
     var dNextLine=(scene.lines||[])[_campaignSceneLineIndex+1]||(dNextScene&&dNextScene.lines&&dNextScene.lines[0]);
     _campaignPreloadSceneAssets(dNextScene||scene,dNextLine);
+    _campaignPlayVoice(scene,_campaignSceneLineIndex);
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }
@@ -1418,6 +1447,7 @@ function _finishCampaignNoChoiceFlow(){
 function closeCampaignStory(){
   // 오버레이와 타이머를 정리해 기존 캠페인 모달/시뮬레이션 흐름으로 안전하게 복귀한다.
   try{ _campaignStopBgm(); }catch(_){}
+  try{ _campaignStopVoice(); }catch(_){}
   var overlay=document.querySelector('.story-overlay');
   if(overlay) overlay.remove();
   _campaignClearTypingTimer();

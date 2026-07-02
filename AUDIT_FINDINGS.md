@@ -1,3 +1,15 @@
+## 2026-07-02 — 캠페인 라인별 음성(영어) 인프라 + audio gitignore 수정 감사 반영 (v7.467)
+
+### ✅ 수정 완료
+- **[기능] 캠페인 라인별 음성 재생**: narration/dialogue/ending 라인 렌더 시 결정론적 파일명(<questId>_<sceneId>_l<lineIdx>.mp3) 음성 재생. 이전 정지·사운드설정 연동·파일없으면 무음. tools/voice-manifest.js 로 제작 목록(2877라인/42화자/304K자) 생성.
+- **[MED→fixed] .gitignore 가 assets/audio/ 통째 무시**: v7.466 BGM README 미커밋 + 향후 mp3 배포 누락 위험(git→Railway). audio 하위 mp3/ogg/md/json/csv allowlist 로 수정.
+
+### 남은 정리 범위
+- 실제 음원 제작(영어 VO)·드롭은 오너 몫(PC TTS 툴). 대용량 mp3 는 git/CDN 선택.
+
+### 검증 완료
+- node --check(campaign-system/voice-manifest/app-config/sw) PASS. 음성 로직 하니스 6케이스 PASS(런타임==매니페스트 file 교차검증 포함). git check-ignore audio 추적 확인. `git diff --check`.
+
 ## 2026-07-02 — 캠페인 BGM 재생 인프라 감사 반영 (v7.466)
 
 ### ✅ 수정 완료

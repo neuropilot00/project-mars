@@ -1,3 +1,23 @@
+## 2026-07-02 v7.467 — 캠페인 라인별 음성(영어) 재생 인프라 + 제작 매니페스트 + audio gitignore 수정
+
+캠페인 음성 2단계. 유저 PC 의 TTS 툴로 음성을 제작해 드롭하면 자동 재생되는 파이프라인. 정책: 영어 전용.
+
+[클라] assets/campaign-system.js — 라인별 음성 재생
+- narration/dialogue/ending 라인 렌더 시 /assets/audio/voice/<questId>_<sceneId>_l<lineIdx>.mp3 재생(BGM 위). 파일명 결정론적 — 씬 JSON 수정 0.
+- 이전 라인 음성 정지 후 새 재생, 전역 사운드 설정 연동, 파일 없거나 자동재생 차단 시 무음. closeCampaignStory 에서 정지. showCampaignStory 가 chapter.questId 저장.
+
+[도구] tools/voice-manifest.js — 제작 목록 생성
+- docs/campaign-story/*.json 전 라인 → voice-manifest.csv/json (file, speaker, type, chars, text). 화자별 정렬(배치 생성용). 파일명 규칙은 런타임과 100% 동일.
+- 현황: 2,877 라인 / 42 화자 / 304,412자 / questId 39종. narrator 가 라인 절반·글자 74%.
+
+[인프라 수정] .gitignore — assets/audio/ allowlist
+- `assets/*` 규칙이 audio 를 통째로 무시해 **v7.466 BGM README 가 실제 커밋 안 됐고 향후 mp3 도 배포 안 될 뻔**(git→Railway 배포). bgm/voice 하위의 mp3/ogg/md/json/csv 를 allowlist 로 예외 처리해 음원이 배포되게 함. (대용량은 CDN 대안 — README 명시.)
+
+[검증] node --check(campaign-system/voice-manifest/app-config/sw) PASS. 음성 로직 node 하니스 6케이스 전수 PASS —
+narration 파일명 정확, **런타임 파일명 == 매니페스트 file(교차검증)**, dialogue, choice 무시, 이전 pause+새 재생, 사운드 OFF 무음.
+매니페스트 생성 실행 확인. git check-ignore 로 audio 추적 확인. sw mars-v136, ?v=7480.
+
+⚠️ 후속: 유저가 매니페스트대로 영어 음성 제작 → 파일명대로 assets/audio/voice/ 에 드롭. BGM 40트랙도 동일. 대용량 mp3 는 git vs CDN 판단(파일명만 맞으면 됨).
 ## 2026-07-02 v7.466 — 캠페인 BGM 재생 인프라 (배경음 우선)
 
 캠페인 음성 도입의 1단계. 씬 포맷에 bgm 필드는 있었으나 재생 로직이 아예 없던 것(미사용 메타)을 실제 재생으로 연결.
