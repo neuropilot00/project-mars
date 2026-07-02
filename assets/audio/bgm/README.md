@@ -49,3 +49,11 @@
 | prologue_choice.mp3 | 1 |
 
 총 40 트랙. tension_*/*_ambient 계열은 하나의 루프로 재사용 가능(같은 무드끼리 묶어 제작해도 됨).
+
+## 현재 트랙(v7.468) — 절차적 생성 플레이스홀더
+40트랙 전부 `tools/gen-bgm.js` 로 **절차 합성**한 앰비언트/텐션 루프다(24s, mono, 이음매 없는 무한루프, 로열티프리).
+프로 OST 는 아니고 "분위기 베드" 수준 — 언제든 **같은 파일명**의 프로 트랙으로 교체하면 그대로 적용된다.
+
+재생성: `node tools/gen-bgm.js /tmp/bgm-wav` → WAV 생성 후
+`for w in /tmp/bgm-wav/*.wav; do ffmpeg -y -i "$w" -codec:a libmp3lame -b:a 64k -ac 1 "assets/audio/bgm/$(basename "$w" .wav).mp3"; done`
+무드는 이름 키워드로 결정(battle/tension/defeat/victory·ending/choice/ambient…).
