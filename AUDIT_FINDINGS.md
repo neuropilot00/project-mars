@@ -1,3 +1,14 @@
+## 2026-07-02 — 캠페인 BGM 재생 인프라 감사 반영 (v7.466)
+
+### ✅ 수정 완료
+- **[LOW] 씬 bgm 필드가 미사용(재생 로직 부재)**: renderCampaignScene→_campaignPlayBgm 으로 루프 재생 연결. 같은 트랙 연속유지, 전역 사운드설정 연동, 파일 없으면 무음(additive). closeCampaignStory 에서 정지.
+
+### 남은 정리 범위
+- assets/audio/bgm/ 에 40개 트랙 mp3 드롭 필요(README 목록). 라인별 음성(영어 전용)은 후속 — 동일 재생 패턴으로 voice 필드 확장.
+
+### 검증 완료
+- `node --check assets/campaign-system.js`, BGM 로직 node 하니스 6케이스 PASS(연속/전환/무음/정지), `git diff --check`.
+
 ## 2026-07-02 — 정시 서지 보상 체감 감사 반영 (v7.465)
 
 ### ✅ 수정 완료

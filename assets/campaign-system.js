@@ -1187,10 +1187,47 @@ function typeText(element,text,onComplete){
   _campaignTypingFrame=requestAnimationFrame(step);
 }
 
+// ── [v7.466] 캠페인 BGM 재생 ──────────────────────────────────
+// 씬의 bgm 필드로 /assets/audio/bgm/<track>.mp3 를 루프 재생. 같은 트랙이면 안 끊고 유지,
+// 다른 트랙이면 짧게 페이드 전환. 오디오 파일이 없거나 자동재생 차단 시 조용히 무음(진행에 영향 없음).
+// 전역 사운드 설정(getNotifSetting('sound'))에 연동 — SFX 와 같은 스위치. 음원은 assets/audio/bgm/ 에 드롭.
+var _campaignBgm={ el:null, track:null, fadeTimer:null };
+function _campaignBgmEnabled(){ try{ return typeof getNotifSetting==='function'?getNotifSetting('sound'):true; }catch(_){ return true; } }
+function _campaignBgmVolume(){ var b=(typeof _sfx!=='undefined'&&_sfx&&_sfx.volume!=null)?_sfx.volume:0.2; return Math.max(0,Math.min(1,b*0.9)); }
+function _campaignPlayBgm(track){
+  try{
+    if(!track) return; // bgm 없는 씬 — 현재 재생 유지(끊지 않음)
+    if(_campaignBgm.track===track&&_campaignBgm.el&&!_campaignBgm.el.paused) return; // 동일 트랙 연속 — 유지
+    _campaignStopBgm(true); // 다른 트랙 — 기존 즉시 정지
+    if(!_campaignBgmEnabled()) return;
+    var vol=_campaignBgmVolume();
+    var el=new Audio('/assets/audio/bgm/'+track+'.mp3');
+    el.loop=true; el.volume=0; el.preload='auto';
+    _campaignBgm.el=el; _campaignBgm.track=track;
+    var p=el.play(); if(p&&p.catch) p.catch(function(){ /* 자동재생 차단/파일 없음 — 무음 */ });
+    var steps=0;
+    _campaignBgm.fadeTimer=setInterval(function(){
+      if(!_campaignBgm.el){ clearInterval(_campaignBgm.fadeTimer); _campaignBgm.fadeTimer=null; return; }
+      steps++; try{ _campaignBgm.el.volume=Math.min(vol,(vol/10)*steps); }catch(_){}
+      if(steps>=10){ clearInterval(_campaignBgm.fadeTimer); _campaignBgm.fadeTimer=null; }
+    },60);
+  }catch(_){ /* 오디오 미지원 — 무음 */ }
+}
+function _campaignStopBgm(quick){
+  try{
+    if(_campaignBgm.fadeTimer){ clearInterval(_campaignBgm.fadeTimer); _campaignBgm.fadeTimer=null; }
+    var el=_campaignBgm.el; _campaignBgm.el=null; _campaignBgm.track=null;
+    if(!el) return;
+    if(quick){ try{ el.pause(); }catch(_){} return; }
+    var v=el.volume,st=0,t=setInterval(function(){ st++; try{ el.volume=Math.max(0,v-(v/8)*st); }catch(_){} if(st>=8){ clearInterval(t); try{ el.pause(); }catch(_){} } },50);
+  }catch(_){}
+}
+
 function renderCampaignScene(){
   var overlay=document.querySelector('.story-overlay');
   var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
   if(!overlay||!scene){closeCampaignStory();return;}
+  try{ _campaignPlayBgm(scene.bgm); }catch(_){}
   _campaignClearTypingTimer();
   if(_campaignBattleTimer) _clearActiveTimeout(_campaignBattleTimer);
   _campaignBattleTimer=null; _campaignTypingDone=true;
@@ -1380,6 +1417,7 @@ function _finishCampaignNoChoiceFlow(){
 
 function closeCampaignStory(){
   // 오버레이와 타이머를 정리해 기존 캠페인 모달/시뮬레이션 흐름으로 안전하게 복귀한다.
+  try{ _campaignStopBgm(); }catch(_){}
   var overlay=document.querySelector('.story-overlay');
   if(overlay) overlay.remove();
   _campaignClearTypingTimer();
