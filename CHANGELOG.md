@@ -1,3 +1,15 @@
+## 2026-07-02 v7.469 — 캠페인 BGM 실제 CC0 음악으로 교체(절차 신디사이즈 폐기)
+
+절차 합성 BGM(v7.468)이 전자음이라 후졌다는 피드백 → **실제 로열티프리(CC0) 음악**으로 교체. 유저가 다운로드를 명시 허가.
+
+[교체] 절차 40트랙 삭제 → 실 CC0 6트랙 + 엔진 무드 별칭
+- OpenGameArt.org 의 **CC0(퍼블릭 도메인) 6트랙** 다운로드→mp3(stereo 96k, loudnorm): Forest Ambience(ambient), Cave Theme(dark), Battle(battle), Epic Boss Battle/Juhani Junkala(boss), New Sunrise/nene(victory), Field Of Dreams/pauliuw(sad). 라이선스 전부 CC0(출처 표기 의무 없음, 크레딧은 README 에 기재).
+- assets/campaign-system.js #_campaignBgmSrc: 씬 bgm 이름(40종) → mood_*.mp3(6종) 키워드 매핑. 연속성은 **해석된 src 기준**(같은 무드 연속 씬은 곡 유지, 재시작 안 함).
+- 40 physical 복사 대신 6 실파일 + 별칭 → 중복 0(총 9MB).
+
+[검증] node --check(campaign-system/app-config/sw) PASS. 별칭 하니스: 40 이름 전부 존재 무드파일로 매핑(누락 0), 연속성(tension_low==tension_medium src), 엣지(battle_theme→boss, casualty→sad) 정상. 6트랙 ffprobe/volumedetect(실음악, 무음 아님). **서버 서빙 확인**(mood_dark/boss → 200 audio/mpeg). sw mars-v137, ?v=7481.
+
+참고: tools/gen-bgm.js(절차 폴백)는 남겨두되 미사용. 라인별 음성(영어)은 유저 결정으로 보류(인프라는 v7.467 에 유지).
 ## 2026-07-02 v7.468 — 캠페인 BGM 40트랙 실제 생성(절차 합성) — 이제 소리 남
 
 v7.466 에서 BGM 재생 인프라만 있고 음원이 없어 무음이던 것을, **40트랙을 절차적으로 합성해 실제 mp3 로 채움**.

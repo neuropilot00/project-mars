@@ -1,59 +1,28 @@
-# 캠페인 BGM 트랙 (assets/audio/bgm/)
+# 캠페인 BGM (assets/audio/bgm/)
 
-캠페인 씬의 bgm 필드가 참조하는 배경음악. 아래 파일명으로 **.mp3** 를 이 폴더에 넣으면 자동 재생된다.
-(assets/campaign-system.js #_campaignPlayBgm — 루프 재생, 같은 트랙 연속 유지, 전역 사운드설정 연동. 파일 없으면 무음.)
+캠페인 씬의 `bgm` 필드(40종)를 **무드 6종**의 실제 CC0 음악으로 매핑해 재생한다.
+매핑은 `assets/campaign-system.js #_campaignBgmSrc` (이름 키워드 → mood_*.mp3). 파일 없으면 무음(진행 영향 0).
 
-음원: 로열티프리/CC0 권장(무료 라이선스 트랙). 라이선스 출처를 커밋에 남길 것.
+## 트랙 (6종, 전부 CC0 / 퍼블릭 도메인)
 
-| 파일명(.mp3) | 사용 씬 수 |
-|---|---|
-| tension_medium.mp3 | 284 |
-| tension_low.mp3 | 254 |
-| tension_high.mp3 | 187 |
-| hidden_ambient.mp3 | 178 |
-| cv_ambient.mp3 | 117 |
-| fsp_ambient.mp3 | 109 |
-| mcc_ambient.mp3 | 75 |
-| ambient_melancholy.mp3 | 47 |
-| victory_calm.mp3 | 44 |
-| defeat_ambient.mp3 | 33 |
-| choice_tension.mp3 | 31 |
-| prologue_ambient.mp3 | 29 |
-| ambient_quiet.mp3 | 24 |
-| mcc_ambient_warm.mp3 | 23 |
-| hidden_ambient_heavy.mp3 | 15 |
-| prologue_tension.mp3 | 12 |
-| battle_theme_mcc.mp3 | 10 |
-| battle_theme_cv.mp3 | 10 |
-| hellas_ambient.mp3 | 10 |
-| ambient_vast.mp3 | 9 |
-| battle_theme_fsp.mp3 | 9 |
-| ambient_engine_hum.mp3 | 8 |
-| tension_building.mp3 | 7 |
-| fsp_ambient_heavy.mp3 | 7 |
-| prologue_arrival.mp3 | 7 |
-| prologue_landing.mp3 | 5 |
-| mcc_ambient_low.mp3 | 3 |
-| ambient_night.mp3 | 3 |
-| ambient_wind.mp3 | 3 |
-| ending_theme_fsp.mp3 | 2 |
-| battle_build.mp3 | 2 |
-| landing_approach_tension.mp3 | 2 |
-| arrival_theme.mp3 | 2 |
-| choice_finale.mp3 | 1 |
-| battle_theme_finale.mp3 | 1 |
-| ending_theme_mcc.mp3 | 1 |
-| ending_theme_casualty.mp3 | 1 |
-| battle_intense.mp3 | 1 |
-| battle_fade.mp3 | 1 |
-| prologue_choice.mp3 | 1 |
+| 파일 | 무드 | 출처 (OpenGameArt.org, CC0) |
+|---|---|---|
+| `mood_ambient.mp3` | 평온 앰비언트 (일반 씬) | "Forest Ambience" — TinyWorlds |
+| `mood_dark.mp3` | 긴장/음산 (tension·hidden·choice·defeat 前) | "Cave Theme" |
+| `mood_battle.mp3` | 전투/액션 (battle_build·tension_high) | "Battle" |
+| `mood_boss.mp3` | 대규모 전투 (battle_theme_*·intense) | "Epic Boss Battle" — Juhani Junkala |
+| `mood_victory.mp3` | 승리/해소 (victory·ending·arrival) | "New Sunrise" — nene |
+| `mood_sad.mp3` | 비애 (melancholy·defeat·casualty) | "The Field Of Dreams" — pauliuw |
 
-총 40 트랙. tension_*/*_ambient 계열은 하나의 루프로 재사용 가능(같은 무드끼리 묶어 제작해도 됨).
+라이선스: 전부 **CC0(Creative Commons Zero, 퍼블릭 도메인)** — 출처 표기 의무 없음. 위 크레딧은 예의상 기재.
 
-## 현재 트랙(v7.468) — 절차적 생성 플레이스홀더
-40트랙 전부 `tools/gen-bgm.js` 로 **절차 합성**한 앰비언트/텐션 루프다(24s, mono, 이음매 없는 무한루프, 로열티프리).
-프로 OST 는 아니고 "분위기 베드" 수준 — 언제든 **같은 파일명**의 프로 트랙으로 교체하면 그대로 적용된다.
+## 매핑 분포 (40 씬이름 → 6 무드)
+dark 15 · ambient 9 · victory 5 · boss 5 · battle 3 · sad 3.
+같은 무드로 이어지는 연속 씬은 곡을 재시작하지 않고 유지한다(src 기준 연속성).
 
-재생성: `node tools/gen-bgm.js /tmp/bgm-wav` → WAV 생성 후
-`for w in /tmp/bgm-wav/*.wav; do ffmpeg -y -i "$w" -codec:a libmp3lame -b:a 64k -ac 1 "assets/audio/bgm/$(basename "$w" .wav).mp3"; done`
-무드는 이름 키워드로 결정(battle/tension/defeat/victory·ending/choice/ambient…).
+## 교체
+개별 무드가 마음에 안 들면 같은 파일명(`mood_<무드>.mp3`)의 다른 CC0/구매 트랙으로 덮으면 즉시 적용된다.
+더 세분화하려면 `_campaignBgmSrc` 의 무드 종류를 늘리고 그만큼 파일을 추가하면 된다.
+
+## 참고
+- `tools/gen-bgm.js` 는 절차 합성(전자음) 폴백 생성기다. 현재는 위 CC0 실음악을 쓰므로 사용하지 않는다.
