@@ -1,3 +1,13 @@
+## 2026-07-02 v7.470 — 캠페인 BGM 무드 6→12 확장(반복 감소)
+
+"더 늘려" — CC0 실음악 6트랙을 12트랙으로 확장. 가장 많이 겹치던 dark(15)·ambient(9) 버킷을 쪼갬.
+
+[추가] CC0 6트랙(전부 OpenGameArt, CC0) + 무드 세분화
+- 신규: mood_warm("A New Town"/cynicmusic), mood_vast("Space Music: Out There"), mood_horror("Post Apocalyptic Wastelands"/Juhani Junkala), mood_tension("Determined Pursuit"/Emma_MA), mood_ending("A Legend Will Rise"), mood_defeat("Lament of the War"/Cethiel).
+- _campaignBgmSrc 12무드 분기: defeat/sad/boss/battle/ending/victory/horror/tension/vast/warm/dark/ambient.
+- 최대 버킷 15→9(tension), 분포: tension9·vast6·boss5·ambient4·dark3·warm3·battle2·defeat2·ending2·horror2·sad1·victory1. 반복 대폭 감소.
+
+[검증] node --check PASS. 별칭 하니스: 40이름 전부 12무드로 매핑(누락 0), 파일 12개 일치, 연속성(src 기준). 6신규 트랙 ffprobe/volumedetect(실음악, 무음 아님). 서버 서빙 6종 200 audio/mpeg. 총 23MB. sw mars-v138, ?v=7482.
 ## 2026-07-02 v7.469 — 캠페인 BGM 실제 CC0 음악으로 교체(절차 신디사이즈 폐기)
 
 절차 합성 BGM(v7.468)이 전자음이라 후졌다는 피드백 → **실제 로열티프리(CC0) 음악**으로 교체. 유저가 다운로드를 명시 허가.

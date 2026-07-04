@@ -1195,16 +1195,21 @@ function typeText(element,text,onComplete){
 var _campaignBgm={ el:null, src:null, fadeTimer:null };
 function _campaignBgmEnabled(){ try{ return typeof getNotifSetting==='function'?getNotifSetting('sound'):true; }catch(_){ return true; } }
 function _campaignBgmVolume(){ var b=(typeof _sfx!=='undefined'&&_sfx&&_sfx.volume!=null)?_sfx.volume:0.2; return Math.max(0,Math.min(1,b*0.9)); }
-// 씬 bgm 이름(40종) → 실제 CC0 무드 트랙(6종) 별칭. assets/audio/bgm/mood_*.mp3.
+// 씬 bgm 이름(40종) → 실제 CC0 무드 트랙(12종) 별칭. assets/audio/bgm/mood_*.mp3. (순서 중요)
 function _campaignBgmSrc(track){
   var n=String(track||'').toLowerCase(), m;
-  if(/casualty|defeat|melancholy|field/.test(n)) m='sad';
+  if(/casualty|defeat/.test(n)) m='defeat';
+  else if(/melancholy|field/.test(n)) m='sad';
   else if(/battle_(theme|finale)|intense/.test(n)) m='boss';
   else if(/battle/.test(n)) m='battle';
-  else if(/tension_high/.test(n)) m='battle';
-  else if(/victory|arrival|ending|sunrise|resolve/.test(n)) m='victory';
-  else if(/tension|choice|hidden|night|wind|engine|building|landing/.test(n)) m='dark';
-  else if(n.indexOf('cv')===0) m='dark';
+  else if(/ending/.test(n)) m='ending';
+  else if(/victory/.test(n)) m='victory';
+  else if(/hidden/.test(n)) m='horror';
+  else if(/tension|building|pursuit|approach/.test(n)) m='tension';
+  else if(/choice/.test(n)) m='tension';
+  else if(/vast|space|arrival|landing|prologue|engine/.test(n)) m='vast';
+  else if(/mcc|warm/.test(n)) m='warm';
+  else if(/night|wind/.test(n)||n.indexOf('cv')===0) m='dark';
   else m='ambient';
   return '/assets/audio/bgm/mood_'+m+'.mp3';
 }

@@ -1,3 +1,11 @@
+## 2026-07-02 — 캠페인 BGM 무드 6→12 확장 감사 반영 (v7.470)
+
+### ✅ 수정 완료
+- **[LOW] BGM 6무드 반복 과다(dark 15·ambient 9)**: CC0 6트랙(warm/vast/horror/tension/ending/defeat) 추가로 12무드화. _campaignBgmSrc 세분화. 최대 버킷 15→9.
+
+### 검증 완료
+- node --check, 별칭 하니스(40→12 누락0·파일12·연속성), 6트랙 ffprobe/volumedetect 실음악, 서버 서빙 200 audio/mpeg. 전부 CC0.
+
 ## 2026-07-02 — 캠페인 BGM 실 CC0 음악 교체 감사 반영 (v7.469)
 
 ### ✅ 수정 완료
