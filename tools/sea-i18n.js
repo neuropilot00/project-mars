@@ -154,4 +154,75 @@ const mode = process.argv[2];
 if (mode === 'check') check();
 else if (mode === 'extract') extract(process.argv[3]);
 else if (mode === 'assemble') assemble(process.argv[3]);
-else { console.log('usage: node tools/sea-i18n.js <check|extract|assemble> [dir]'); process.exit(2); }
+else if (mode === 'repair') repairSea();
+else { console.log('usage: node tools/sea-i18n.js <check|extract|assemble|repair> [dir]'); process.exit(2); }
+
+// ── repair: 값 내 불완전 mojibake 복구 (v7.473) ─────────────────
+// 번역 파이프라인에서 C1 제어문자가 소실돼 lone 'ð '/'â ' 잔해만 남은 경우 라운드트립 복구가 불가능하다.
+// 대신 소스(en, 이미 복구됨)의 비ASCII 토큰(이모지/기호)을 순서대로 이식한다.
+// 안전장치: [A-Za-z] 에 인접한 latin-1 확장 문자는 건드리지 않음(베트남어 diacritics 보호).
+function repairSea() {
+  const items = collectTargets();
+  const byKey = { tl: {}, key: {} };
+  for (const it of items) byKey[it.t][it.k] = it.en;
+  const ex = loadExisting();
+  const JUNK = /[\u0080-\u00ff]+ ?/g;
+  const EMOJI = /(?:[\u2000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF])+/g;
+  function letterAdj(s, start, end) {
+    const p = start > 0 ? s[start - 1] : '';
+    const n = end < s.length ? s[end] : '';
+    // \p{L}: ASCII 뿐 아니라 모든 문자(예: 베트남어 Đ) 인접 시 보호 — 'Đã' 의 ã 오스트립 방지
+    return /\p{L}/u.test(p) || /\p{L}/u.test(n);
+  }
+  function fixVal(val, en) {
+    if (!val || !/[\u0080-\u00ff]/.test(val)) return { v: val, n: 0 };
+    const tokens = (String(en || '').match(EMOJI) || []);
+    let ti = 0, n = 0, out = '', last = 0, m;
+    JUNK.lastIndex = 0;
+    while ((m = JUNK.exec(val))) {
+      const clusterEnd = m.index + m[0].replace(/ $/, '').length;
+      if (letterAdj(val, m.index, clusterEnd)) continue; // 정상 라틴 확장(단어 내) 보호
+      out += val.slice(last, m.index);
+      const tok = tokens[ti] != null ? tokens[ti] : '';
+      ti++; n++;
+      out += tok + (/ $/.test(m[0]) ? ' ' : '');
+      last = m.index + m[0].length;
+    }
+    out += val.slice(last);
+    return { v: out, n };
+  }
+  const ex2 = { TL_SEA: ex.TL_SEA, id: ex.id, vi: ex.vi, th: ex.th };
+  let fixed = 0;
+  for (const k of Object.keys(ex2.TL_SEA)) {
+    const en = byKey.tl[k] != null ? byKey.tl[k] : k; // TL_SEA 키 자체가 en(이미 클린)
+    for (const L of ['id', 'vi', 'th']) {
+      const r = fixVal(ex2.TL_SEA[k][L], en);
+      if (r.n) { ex2.TL_SEA[k][L] = r.v; fixed += r.n; }
+    }
+  }
+  for (const L of ['id', 'vi', 'th']) {
+    for (const k of Object.keys(ex2[L])) {
+      const en = byKey.key[k];
+      if (en == null) continue; // en 복사분/미대상 키 스킵
+      const r = fixVal(ex2[L][k], en);
+      if (r.n) { ex2[L][k] = r.v; fixed += r.n; }
+    }
+  }
+  const j = o => JSON.stringify(o, null, 0);
+  const body = [
+    '// assets/i18n-sea.js — SEA(id/vi/th) 번역 (자동 생성, 수동 편집 금지). tools/sea-i18n.js 로 재생성.',
+    '// TL_SEA[en]={id,vi,th}: inline tl() 폴백용. I18N.id/vi/th: data-i18n 사전용.',
+    'window.TL_SEA = ' + j(ex2.TL_SEA) + ';',
+    '(function(){ if(typeof I18N==="undefined") return;',
+    '  var _id=' + j(ex2.id) + ';',
+    '  var _vi=' + j(ex2.vi) + ';',
+    '  var _th=' + j(ex2.th) + ';',
+    '  I18N.id = Object.assign({}, I18N.en, I18N.id||{}, _id);',
+    '  I18N.vi = Object.assign({}, I18N.en, I18N.vi||{}, _vi);',
+    '  I18N.th = Object.assign({}, I18N.en, I18N.th||{}, _th);',
+    '})();',
+    '',
+  ].join('\n');
+  fs.writeFileSync(SEA_FILE, body);
+  console.log('repair 완료: 잔해 클러스터 치환/제거 ' + fixed + ' 건 → assets/i18n-sea.js 재작성');
+}

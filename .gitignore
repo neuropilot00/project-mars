@@ -6,6 +6,10 @@ _claude_review/
 .env.production
 *.log
 assets/*
+# [v7.473] 소스 파일은 절대 무시 금지 — assets/* 규칙이 신규 루트 .js/.css 를 조용히 삼켜
+# i18n-sea.js 가 v7.446 부터 커밋 누락(프로덕션 404 → SEA 언어 영어 폴백)됐던 사고 재발 방지.
+!assets/*.js
+!assets/*.css
 !assets/textures/
 !assets/lib/
 !assets/avatars/
@@ -87,3 +91,4 @@ deploy/cache
 deploy/artifacts
 deploy/.env
 .gstack/
+assets/_backup*
