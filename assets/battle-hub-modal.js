@@ -1688,6 +1688,16 @@ function showRewardToast(reward) {
   } else {
     try { if (window._sfx) (reward.is_winner ? _sfx.hijackWin : _sfx.purchase)(); } catch(_) {}
   }
+  // [v7.472] 하이잭 전투 승리 → 영토 점령 연출 (선언 시 territory-ui 가 저장한 좌표 소비, 1회성)
+  try {
+    var _pfx = window._pendingHijackFx;
+    if (_pfx && reward.is_winner && Date.now() < _pfx.exp
+        && (!reward.battle_id || String(reward.battle_id) === String(_pfx.battleId))
+        && typeof hijackCaptureFx === 'function') {
+      window._pendingHijackFx = null;
+      setTimeout(function(){ try{ hijackCaptureFx(_pfx.lat, _pfx.lng); }catch(_){} }, 700);
+    }
+  } catch(_pfe) {}
   setTimeout(closeRewardToast, 10000);
 }
 

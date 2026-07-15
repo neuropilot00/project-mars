@@ -3407,6 +3407,8 @@ async function confirmClaim(){
           claimsSnapshot=null;
           compositeClaimsOnTexture();
         }
+        // [v7.472] 점령 연출 — 즉시 승리의 "뺏었다" 순간을 시각화 (카메라+충격파+배너)
+        try{ hijackCaptureFx(selectedPlot?selectedPlot.lat:0, selectedPlot?selectedPlot.lng:0); }catch(_fx){}
         // 맵 새로고침 — Railway DB 레이턴시 감안해 2s+6s 두 번 시도 (백업)
         function _refreshPixelsAfterHijack(){
           _guardedJsonFetch('hijack-pixels-refresh', '/api/pixels', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(sp){
@@ -3434,6 +3436,8 @@ async function confirmClaim(){
         if (typeof refreshGP === 'function') refreshGP();
         // Phase 1 battle viewer 자동 오픈 (10초 prep 후 시작)
         if (hjData.phase1_battle_id && typeof openBattleViewer === 'function') {
+          // [v7.472] 전투 승리 시 점령 연출용 좌표 저장 — battle-hub 보상 토스트가 소비.
+          try{ window._pendingHijackFx={ battleId:hjData.phase1_battle_id, lat:selectedPlot?selectedPlot.lat:0, lng:selectedPlot?selectedPlot.lng:0, exp:Date.now()+15*60*1000 }; }catch(_pf){}
           // [v7.227] 영토 탈취 개시 인트로 영상 → 끝나면(또는 탭 스킵) battle viewer.
           var _bid = hjData.phase1_battle_id;
           playHijackIntro().then(function(){
@@ -3822,3 +3826,54 @@ function maybeShowFirstClaimGuide(){
 // 초기 로드 후 globe/claims/지갑 상태가 자리잡을 시간을 주고 1회 시도.
 try{ setTimeout(maybeShowFirstClaimGuide, 4500); }catch(_e){}
 try{ window.maybeShowFirstClaimGuide=maybeShowFirstClaimGuide; window._removeFirstClaimGuide=_removeFirstClaimGuide; }catch(_e){}
+
+// ── [v7.472] 하이잭 점령 연출 (hijackCaptureFx) ──────────────────
+// 영토 강탈 성공 순간의 "내가 뺏었다" 체감: 카메라 플라이투 + 영토 위 충격파 링 + 붉은 플래시 + 임팩트 배너 + 사운드.
+// 호출: ① auto_win(즉시 점령) ② 하이잭 전투 승리(보상 토스트 시점, battle-hub 가 _pendingHijackFx 로 좌표 전달).
+// 전부 additive — 실패해도 게임 흐름에 영향 없음(try/catch). pointer-events:none 으로 입력 차단 없음.
+function _ensureHijackFxStyles(){
+  if(document.getElementById('hijackFxStyles')) return;
+  var st=document.createElement('style'); st.id='hijackFxStyles';
+  st.textContent=
+    '@keyframes hjfxFlash{0%{opacity:.85}100%{opacity:0}}'
+    +'.hjfx-flash{position:fixed;inset:0;z-index:12000;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,60,30,.28) 0%,rgba(255,60,30,.12) 45%,rgba(120,0,0,.35) 100%);animation:hjfxFlash .42s ease-out forwards}'
+    +'@keyframes hjfxRing{0%{transform:translate(-50%,-50%) scale(.15);opacity:1;border-color:#ff5030}70%{border-color:#ffd166}100%{transform:translate(-50%,-50%) scale(7);opacity:0;border-color:#ffd166}}'
+    +'.hjfx-wrap{position:fixed;z-index:12001;pointer-events:none;width:0;height:0}'
+    +'.hjfx-ring{position:absolute;left:0;top:0;width:64px;height:64px;border:3px solid #ff5030;border-radius:50%;transform:translate(-50%,-50%) scale(.15);animation:hjfxRing 1.15s cubic-bezier(.16,.84,.44,1) forwards;box-shadow:0 0 18px rgba(255,80,48,.55)}'
+    +'.hjfx-ring.r2{animation-delay:.16s;border-width:2px}'
+    +'.hjfx-ring.r3{animation-delay:.34s;border-width:1px}'
+    +'@keyframes hjfxCore{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}25%{transform:translate(-50%,-50%) scale(1.5);opacity:1}60%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(.8);opacity:0}}'
+    +'.hjfx-core{position:absolute;left:0;top:0;font-size:34px;transform:translate(-50%,-50%);animation:hjfxCore 1.5s ease-out forwards;text-shadow:0 0 22px rgba(255,209,102,.9)}'
+    +'@keyframes hjfxBanner{0%{transform:translateX(-50%) scale(2.6);opacity:0}55%{transform:translateX(-50%) scale(.94);opacity:1}75%{transform:translateX(-50%) scale(1.06)}100%{transform:translateX(-50%) scale(1);opacity:1}}'
+    +'.hjfx-banner{position:fixed;left:50%;top:16%;transform:translateX(-50%);z-index:12002;pointer-events:none;font-family:var(--fn,Orbitron,monospace);font-weight:900;font-size:clamp(20px,4.5vw,34px);letter-spacing:4px;color:#ffd166;background:linear-gradient(135deg,rgba(120,10,0,.92),rgba(60,0,0,.88));border:1px solid rgba(255,80,48,.65);border-radius:10px;padding:12px 26px;text-shadow:0 0 16px rgba(255,80,48,.8);box-shadow:0 8px 40px rgba(255,60,30,.35);animation:hjfxBanner .55s cubic-bezier(.2,1.4,.4,1) forwards;transition:opacity .45s ease}'
+    +'.hjfx-banner.out{opacity:0}';
+  document.head.appendChild(st);
+}
+function hijackCaptureFx(lat,lng){
+  try{
+    _ensureHijackFxStyles();
+    var g=window.globe||(typeof globe!=='undefined'?globe:null);
+    try{ if(g&&typeof g.pointOfView==='function') g.pointOfView({lat:lat,lng:lng,altitude:0.14},800); }catch(_pv){}
+    try{ if(window._sfx&&_sfx.hijackWin) _sfx.hijackWin(); }catch(_sx){}
+    var flash=document.createElement('div'); flash.className='hjfx-flash'; document.body.appendChild(flash);
+    setTimeout(function(){ try{flash.remove();}catch(_){} },500);
+    var banner=document.createElement('div'); banner.className='hjfx-banner';
+    banner.textContent=tl('⚔ TERRITORY CAPTURED','⚔ 영토 강탈 성공','⚔ 領土強奪成功','⚔ 领地夺取成功');
+    document.body.appendChild(banner);
+    setTimeout(function(){ try{banner.classList.add('out');}catch(_){} },2000);
+    setTimeout(function(){ try{banner.remove();}catch(_){} },2600);
+    // 카메라 정착 후 영토 스크린 좌표에 충격파 (좌표 실패 시 화면 중앙 폴백)
+    setTimeout(function(){
+      try{
+        var x=window.innerWidth/2, y=window.innerHeight/2;
+        try{ var sc=g&&g.getScreenCoords?g.getScreenCoords(lat,lng,0.01):null; if(sc&&isFinite(sc.x)&&isFinite(sc.y)){x=sc.x;y=sc.y;} }catch(_gc){}
+        var wrap=document.createElement('div'); wrap.className='hjfx-wrap';
+        wrap.style.left=x+'px'; wrap.style.top=y+'px';
+        wrap.innerHTML='<div class="hjfx-ring"></div><div class="hjfx-ring r2"></div><div class="hjfx-ring r3"></div><div class="hjfx-core">⚔</div>';
+        document.body.appendChild(wrap);
+        setTimeout(function(){ try{wrap.remove();}catch(_){} },1800);
+      }catch(_w){}
+    },850);
+  }catch(_e){}
+}
+try{ window.hijackCaptureFx=hijackCaptureFx; }catch(_e){}

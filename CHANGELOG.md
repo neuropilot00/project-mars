@@ -1,3 +1,17 @@
+## 2026-07-16 v7.472 — 하이잭 점령 연출 (게임성: "뺏었다" 순간의 juice)
+
+사용자 요청("영토 하이젝이펙트도 좋게하던지"). 하이잭 성공이 토스트+색갱신뿐이던 것을 점령 순간 연출로.
+
+[클라] territory-ui.js hijackCaptureFx(lat,lng) + battle-hub-modal.js 승리 훅
+- 연출: 카메라 플라이투(pointOfView alt 0.14) + 붉은 화면 플래시 + 영토 스크린좌표 3중 충격파 링(적→금 전환) +
+  ⚔ 코어 팝 + 임팩트 배너("⚔ 영토 강탈 성공" 4개국어+SEA, overshoot 스케일인) + hijackWin SFX. CSS 1회 주입, pointer-events:none.
+- 발동 2경로: ① auto_win(수비 함대 없음 — 즉시 점령) 직후 ② 하이잭 전투 승리 — 선언 시 _pendingHijackFx{battleId,lat,lng} 저장,
+  보상 토스트(showRewardToast)에서 battleId 매칭+is_winner 시 1회 소비. 실패 시 try/catch — 게임 흐름 영향 0.
+- globe 미가용/좌표 실패 시 화면 중앙 폴백. 리듀스드모션 대상 아님(1.5s 단발).
+
+[검증 — 브라우저 실증] 로컬 서버+브라우저판에서 dev 토큰 주입 로그인 후 발동:
+배너 텍스트/애니메이션(hjfxBanner)/z-12002, 플래시, 950ms 시점 링 3개+코어, 중앙 폴백 좌표 — DOM 전수 확인.
+node --check territory-ui/battle-hub PASS.
 ## 2026-07-04 v7.471 — 실시간 전투 개방: "보는 전투"→"조작하는 전투" (게임성 P0)
 
 레드팀 #1 게임성 갭(전투 능동성)의 본체. 검증된 라이브 전투 루프(simulateBattleLive — 서버권위 차지·스킬·틱당
