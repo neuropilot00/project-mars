@@ -118,6 +118,7 @@ async function runBattle(battleId) {
     // 전투 타입 미리 확인 (hijack 체크용)
     let battleType = null;
     let battlePhase = null;
+    let battleSummary = null; // [v7.471] fleet_realtime_mode=ai 판별용 (is_ai_battle)
 
     // 1. preparing → active + 참가 함대 lock을 한 트랜잭션에서 처리
     const startClient = await pool.connect();
@@ -128,7 +129,7 @@ async function runBattle(battleId) {
         UPDATE fleet_battles
         SET status = 'active', battle_started_at = COALESCE(battle_started_at, NOW())
         WHERE id = $1 AND status = 'preparing'
-        RETURNING battle_type, phase
+        RETURNING battle_type, phase, battle_summary
       `, [battleId]);
       if (!claimed[0]) {
         await startClient.query('ROLLBACK');
@@ -137,6 +138,7 @@ async function runBattle(battleId) {
       }
       battleType = claimed[0].battle_type;
       battlePhase = claimed[0].phase;
+      battleSummary = claimed[0].battle_summary || null;
 
       const { rows: fleetLocks } = await startClient.query(`
         SELECT f.id, f.is_in_battle, f.current_battle_id
@@ -200,32 +202,63 @@ async function runBattle(battleId) {
       console.warn(`[battleScheduler] AI strategy failed for battle ${battleId}:`, aiErr.message);
     }
 
-    // 2. 시뮬레이션 — [Phase 3] siege + siege_realtime_enabled 면 실시간 권위 라이브 루프,
-    //    아니면 기존 precompute → setTimeout stream(replay). 결과 shape 는 동일 → 이후 경로 공통.
+    // 2. 시뮬레이션 — [Phase 3] 라이브 게이트:
+    //    · siege: 기존 siege_realtime_enabled 게이트 그대로 (계약 불변 — tick/wallclock 도 siege_* 설정).
+    //    · 비-siege [v7.471]: fleet_realtime_mode(off|ai|all, 기본 ai) — ai 는 AI 연습전(is_ai_battle)만,
+    //      all 은 PvP/하이잭 포함 전부 라이브. off 면 기존 precompute → setTimeout stream(replay) 그대로.
+    //      단 NPC↔NPC 아레나 전투(npc_vs_npc/arena)는 지휘자·시청자가 없어 라이브 슬롯(수 분)만 점유하므로
+    //      두 모드 모두에서 제외 — npcArena 는 120초마다 스폰되어 concurrent 상한을 잠식할 수 있다.
+    //    결과 shape 는 simulateBattle 과 동일 → 이후 경로 공통.
     let result;
     let _liveEnabled = false;
-    try { _liveEnabled = (battleType === 'siege') && (String(await getSetting('siege_realtime_enabled', 'false')) === 'true'); } catch (_) {}
+    let _liveTickMs = 250, _liveWallMin = 10;
+    try {
+      if (battleType === 'siege') {
+        _liveEnabled = String(await getSetting('siege_realtime_enabled', 'false')) === 'true';
+        if (_liveEnabled) {
+          _liveTickMs = parseInt(await getSetting('siege_realtime_tick_ms', '250')) || 250;
+          _liveWallMin = parseInt(await getSetting('siege_realtime_wallclock_min', '10')) || 10;
+        }
+      } else {
+        const _mode = String(await getSetting('fleet_realtime_mode', 'ai')).replace(/"/g, '').toLowerCase();
+        const _summary = battleSummary || {};
+        const _isAi = _summary.is_ai_battle === true || _summary.is_ai_battle === 'true';
+        const _isNpcArena = _summary.npc_vs_npc === true || _summary.arena === true;
+        // [적대검증 fix] world event 전투는 worldEvents.engageEvent 가 runBattle 을 동기 await 한다 —
+        //   라이브(수 분 틱 루프)가 되면 HTTP engage 요청이 분 단위 블록되므로 제외(NPC 아레나와 동일 논리).
+        const _isWorldEvent = _summary.is_world_event === true;
+        if (_mode === 'all') _liveEnabled = !_isNpcArena && !_isWorldEvent;
+        else if (_mode === 'ai') _liveEnabled = _isAi && !_isNpcArena && !_isWorldEvent;
+        // 'off'(또는 알 수 없는 값) = 현행 precompute 유지
+        // [적대검증 fix] 동시성 포화 폴백 — runBattle 은 스캔 루프 외에 직접 dispatch(ai/fight, hijack,
+        //   tournament 등 8곳)로도 호출되어 battle_max_concurrent 를 우회한다. 라이브 루프는 수 분간
+        //   워커를 점유하므로, 포화 상태면 이 전투만 precompute 로 강등해 무제한 동시 라이브·스케줄 기아를 막는다.
+        //   (currentlyRunning 은 runBattle 진입 시 자기 몫 ++ 이후라 > 비교 — 상한 이내면 라이브 허용.)
+        if (_liveEnabled && currentlyRunning > MAX_CONCURRENT_CACHE) _liveEnabled = false;
+        if (_liveEnabled) {
+          _liveTickMs = parseInt(await getSetting('fleet_realtime_tick_ms', '120')) || 120;
+          _liveWallMin = parseInt(await getSetting('fleet_realtime_wallclock_min', '6')) || 6;
+        }
+      }
+    } catch (_) { _liveEnabled = false; }
 
     if (_liveEnabled) {
       // 라이브 틱 루프 — onFrame 으로 매 프레임 즉시 broadcast, 매 틱 명령 큐 드레인.
       //   권위: 이 워커(스케줄러 리더 = runBattle 실행자)가 단독 실행 + liveBattle.markActive 로 명령 수신 등록.
       const ws = require('../wsServer');
       const liveBattle = require('./liveBattle');
-      let tickMs = 250, wallMin = 10;
-      try { tickMs = parseInt(await getSetting('siege_realtime_tick_ms', '250')) || 250; } catch (_) {}
-      try { wallMin = parseInt(await getSetting('siege_realtime_wallclock_min', '10')) || 10; } catch (_) {}
       liveBattle.markActive(battleId);
       try {
         result = await battleEngine.simulateBattleLive(battleId, {
           drainCommands: () => liveBattle.drainCommands(battleId),
           onFrame: (frame) => { try { ws.broadcastBattleFrame(battleId, frame); } catch (_) {} },
-          tickMs, wallClockMs: wallMin * 60 * 1000,
+          tickMs: _liveTickMs, wallClockMs: _liveWallMin * 60 * 1000,
         });
       } finally { liveBattle.clearActive(battleId); }
       try {
         ws.broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats });
       } catch (_) {}
-      console.log(`[battleScheduler] LIVE siege ${battleId} done. Winner: ${result.winner_side}`);
+      console.log(`[battleScheduler] LIVE ${battleType} ${battleId} done. Winner: ${result.winner_side}`);
     } else {
       result = await battleEngine.simulateBattle(battleId);
 

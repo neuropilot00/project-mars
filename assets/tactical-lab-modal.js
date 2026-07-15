@@ -129,7 +129,10 @@
       formation: lang === 'ko' ? '🛡 진형' : lang === 'ja' ? '🛡 陣形' : lang === 'zh' ? '🛡 阵型' : '🛡 Formation',
       maneuver: lang === 'ko' ? '→ 기동' : lang === 'ja' ? '→ 機動' : lang === 'zh' ? '→ 机动' : '→ Maneuver',
       focus: lang === 'ko' ? '⚡ 집중공격' : lang === 'ja' ? '⚡ 集中攻撃' : lang === 'zh' ? '⚡ 集中攻击' : '⚡ Focus Fire',
-      emp: '💥 EMP'
+      emp: '💥 EMP',
+      beam_cannon: lang === 'ko' ? '☢ 빔포' : lang === 'ja' ? '☢ ビーム砲' : lang === 'zh' ? '☢ 光束炮' : '☢ Beam Cannon',
+      missile_barrage: lang === 'ko' ? '☄ 미사일' : lang === 'ja' ? '☄ ミサイル' : lang === 'zh' ? '☄ 导弹' : '☄ Missile Barrage',
+      overdrive: lang === 'ko' ? '합체필살' : lang === 'ja' ? '合体必殺' : lang === 'zh' ? '合体必杀' : 'Combine Strike'
     };
     return labels[cmd] || cmd;
   }
@@ -141,7 +144,9 @@
       focus: { actionType: 'focus_fire', params: { targetFleetId: d.payload && (d.payload.targetFleetId || d.payload.target) } },
       emp: { actionType: 'emp', params: { startTick: d.payload && d.payload.startTick } },
       beam_cannon: { actionType: 'beam', params: {} },
-      missile_barrage: { actionType: 'missile', params: {} }
+      missile_barrage: { actionType: 'missile', params: {} },
+      // [실시간 전투] 합체필살 — 라이브 전투에서만 iframe 이 브릿지한다(리플레이는 iframe 쪽에서 차단).
+      overdrive: { actionType: 'overdrive', params: {} }
     };
     var mapped = actionMap[d.cmd];
     if (!mapped) return;

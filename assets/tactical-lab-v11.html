@@ -499,6 +499,7 @@ const TL10N={
     design:'Design', specialty:'Specialty', naming:'Naming',
     unavailable:'Unavailable',
     noTarget:'No target',
+    replayOnly:'REPLAY — spectator only',
     missingBattleId:'battleId missing',
     retreatFailed:'retreat failed',
     fleetStatusMeta:'{alive}/{total} ships · HP {hp}% · {formation}/{maneuver}{suffix}',
@@ -547,6 +548,7 @@ const TL10N={
     design:'디자인', specialty:'특기', naming:'네이밍',
     unavailable:'사용 불가',
     noTarget:'목표 없음',
+    replayOnly:'REPLAY — 관전 전용',
     missingBattleId:'battleId 없음',
     retreatFailed:'후퇴 요청 실패',
     fleetStatusMeta:'{alive}/{total}척 · HP {hp}% · {formation}/{maneuver}{suffix}',
@@ -595,6 +597,7 @@ const TL10N={
     design:'デザイン', specialty:'特性', naming:'命名',
     unavailable:'使用不可',
     noTarget:'目標なし',
+    replayOnly:'REPLAY — 観戦専用',
     missingBattleId:'battleId 不明',
     retreatFailed:'撤退要求失敗',
     fleetStatusMeta:'{alive}/{total}隻 · HP {hp}% · {formation}/{maneuver}{suffix}',
@@ -643,6 +646,7 @@ const TL10N={
     design:'设计', specialty:'特长', naming:'命名',
     unavailable:'不可用',
     noTarget:'没有目标',
+    replayOnly:'REPLAY — 仅观战',
     missingBattleId:'battleId 缺失',
     retreatFailed:'撤退请求失败',
     fleetStatusMeta:'{alive}/{total}艘 · HP {hp}% · {formation}/{maneuver}{suffix}',
@@ -671,7 +675,7 @@ const TL10N={
     advance:'Maju', flank:'Flank', flank_left:'Kiri', flank_right:'Kanan', retreatMove:'Mundur', scatter:'Menyebar', rally:'Berkumpul',
     ships:'kapal', fleets:'armada', wiped:'Hancur', build:'BANGUN',
     design:'Desain', specialty:'Spesialisasi', naming:'Penamaan',
-    unavailable:'Tidak tersedia', noTarget:'Tidak ada target', missingBattleId:'battleId hilang', retreatFailed:'mundur gagal',
+    unavailable:'Tidak tersedia', noTarget:'Tidak ada target', replayOnly:'REPLAY — hanya menonton', missingBattleId:'battleId hilang', retreatFailed:'mundur gagal',
     fleetStatusMeta:'{alive}/{total} kapal · HP {hp}% · {formation}/{maneuver}{suffix}',
     ttl0:'TIER 0 — Mineral Dasar (Semua Sektor)', ttl1:'TIER 1 — Mineral Langka (Mid/Frontier)',
     ttl2:'TIER 2 — Material Spesial (Frontier/Event)', ttl3:'TIER 3 — Komponen (Crafted)',
@@ -696,7 +700,7 @@ const TL10N={
     advance:'Tiến lên', flank:'Đánh sườn', flank_left:'Mạn trái', flank_right:'Mạn phải', retreatMove:'Rút lui', scatter:'Tản ra', rally:'Tập hợp',
     ships:'tàu', fleets:'hạm đội', wiped:'Bị quét sạch', build:'ĐÓNG TÀU',
     design:'Thiết kế', specialty:'Sở trường', naming:'Đặt tên',
-    unavailable:'Không khả dụng', noTarget:'Không có mục tiêu', missingBattleId:'thiếu battleId', retreatFailed:'rút lui thất bại',
+    unavailable:'Không khả dụng', noTarget:'Không có mục tiêu', replayOnly:'REPLAY — chỉ quan sát', missingBattleId:'thiếu battleId', retreatFailed:'rút lui thất bại',
     fleetStatusMeta:'{alive}/{total} tàu · HP {hp}% · {formation}/{maneuver}{suffix}',
     ttl0:'TIER 0 — Khoáng cơ bản (Mọi khu vực)', ttl1:'TIER 1 — Khoáng hiếm (Mid/Frontier)',
     ttl2:'TIER 2 — Vật liệu đặc biệt (Frontier/Sự kiện)', ttl3:'TIER 3 — Linh kiện (Chế tạo)',
@@ -721,7 +725,7 @@ const TL10N={
     advance:'เดินหน้า', flank:'ตีด้านข้าง', flank_left:'กราบซ้าย', flank_right:'กราบขวา', retreatMove:'ถอย', scatter:'กระจาย', rally:'รวมตัว',
     ships:'ลำ', fleets:'กองยาน', wiped:'ถูกทำลาย', build:'สร้าง',
     design:'ดีไซน์', specialty:'จุดเด่น', naming:'การตั้งชื่อ',
-    unavailable:'ใช้ไม่ได้', noTarget:'ไม่มีเป้าหมาย', missingBattleId:'ไม่มี battleId', retreatFailed:'ถอยทัพล้มเหลว',
+    unavailable:'ใช้ไม่ได้', noTarget:'ไม่มีเป้าหมาย', replayOnly:'REPLAY — ชมอย่างเดียว', missingBattleId:'ไม่มี battleId', retreatFailed:'ถอยทัพล้มเหลว',
     fleetStatusMeta:'{alive}/{total} ลำ · HP {hp}% · {formation}/{maneuver}{suffix}',
     ttl0:'TIER 0 — แร่พื้นฐาน (ทุกเซกเตอร์)', ttl1:'TIER 1 — แร่หายาก (Mid/Frontier)',
     ttl2:'TIER 2 — วัสดุพิเศษ (Frontier/Event)', ttl3:'TIER 3 — ชิ้นส่วน (Crafted)',
@@ -1373,20 +1377,42 @@ function stopBattleMusic(){
   if(musicTimer){clearInterval(musicTimer);musicTimer=null;}
 }
 function updateChargeButtons(){
+  // [실시간 전투] battle 모드 부팅 직후엔 realtime 프레임 수신 전이라 리플레이 잠금이 기본이다.
+  // 라이브 전투면 첫 realtime 프레임에서 updateSpecialCharge 가 즉시 활성으로 되돌린다.
+  const replayLocked=tlManualSkillsReplayLocked();
   const beamBtn=document.getElementById('cmdBeam');
   const missileBtn=document.getElementById('cmdMissile');
   const overdriveBtn=document.getElementById('cmdOverdrive');
   if(beamBtn){
-    beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
-    beamBtn.classList.toggle('ready',beamCharge>=100);
+    if(replayLocked){
+      beamBtn.disabled=true;
+      beamBtn.classList.remove('ready');
+      beamBtn.textContent=`${tl('beam')} · ${tl('replayOnly')}`;
+    }else{
+      beamBtn.disabled=false;
+      beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
+      beamBtn.classList.toggle('ready',beamCharge>=100);
+    }
   }
   if(missileBtn){
-    missileBtn.textContent=`${tl('missile')} ${Math.floor(missileCharge)}%`;
-    missileBtn.classList.toggle('ready',missileCharge>=100);
+    if(replayLocked){
+      missileBtn.disabled=true;
+      missileBtn.classList.remove('ready');
+      missileBtn.textContent=`${tl('missile')} · ${tl('replayOnly')}`;
+    }else{
+      missileBtn.disabled=false;
+      missileBtn.textContent=`${tl('missile')} ${Math.floor(missileCharge)}%`;
+      missileBtn.classList.toggle('ready',missileCharge>=100);
+    }
   }
   if(overdriveBtn){
-    overdriveBtn.textContent=`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`;
-    overdriveBtn.classList.toggle('ready',overdriveCharge>=100);
+    if(replayLocked){
+      overdriveBtn.style.display='none';
+      overdriveBtn.classList.remove('ready');
+    }else{
+      overdriveBtn.textContent=`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`;
+      overdriveBtn.classList.toggle('ready',overdriveCharge>=100);
+    }
   }
 }
 async function toggleBattleAudio(){
@@ -2000,6 +2026,21 @@ function wsAssembledFrames(){
   const frames=(_wsLastFrame&&Array.isArray(_wsLastFrame.fleets))?_wsLastFrame.fleets:[];
   return frames.filter(f=>f.side==='atk'&&f.hasAssembled);
 }
+// [실시간 전투] battle 모드에서 realtime 프레임을 못 받았으면 사전계산 리플레이 관전이다.
+// 리플레이에서 수동 스킬(빔포/미사일/합체필살)은 서버 전투에 반영되지 않으므로 버튼을 정직하게 잠근다.
+// 진형/기동/후퇴/집중공격/EMP 버튼은 기존 동작을 유지한다. sandbox 는 항상 현행 유지.
+function tlManualSkillsReplayLocked(){
+  return TL_MODE==='battle' && !_wsRealtime;
+}
+// 라이브 프레임의 ATK 측 함대별 차지 최대값(0~100). 서버 값이 없으면 -1 (로컬 누적 유지 폴백).
+function wsLiveChargeMax(key){
+  const frames=(_wsLastFrame&&Array.isArray(_wsLastFrame.fleets))?_wsLastFrame.fleets:[];
+  return frames.reduce((max,f)=>{
+    if(f.side!=='atk') return max;
+    const v=Number(f[key]);
+    return Number.isFinite(v)?Math.max(max,Math.max(0,Math.min(100,v))):max;
+  },-1);
+}
 function updateSpecialCharge(dt){
   if(battleOver)return;
   const _wsActive = _wsBattle && _wsBattle.readyState === 1;
@@ -2025,17 +2066,44 @@ function updateSpecialCharge(dt){
   } else if(hasAssembled){
     overdriveCharge=Math.min(100,overdriveCharge+dt*(0.0018+assembledShips.length*0.0006));
   }
+  // [실시간 전투] 라이브면 게이지의 단일 소스는 서버 차지 값 — 로컬 누적치를 서버값으로 대체.
+  // 서버 값이 프레임에 없으면(-1) 로컬 누적 폴백 유지. 리플레이/샌드박스는 현행 그대로.
+  if(_wsRealtime){
+    const liveBeam=wsLiveChargeMax('beamCharge');
+    if(liveBeam>=0) beamCharge=liveBeam;
+    const liveMissile=wsLiveChargeMax('missileCharge');
+    if(liveMissile>=0) missileCharge=liveMissile;
+    // [적대검증 fix] 합체필살도 서버 함대 차지로 동기 — 로컬 게이지 100% 인데 서버 <100 이면
+    //   발동이 조용히 무시되면서 성공 토스트만 뜨는 불일치가 생긴다(beam/missile 과 동일 폴백 패턴).
+    const liveOd=wsLiveChargeMax('overdriveCharge');
+    if(liveOd>=0) overdriveCharge=liveOd;
+  }
+  const replayLocked=tlManualSkillsReplayLocked();
   const beamBtn=document.getElementById('cmdBeam');
   const missileBtn=document.getElementById('cmdMissile');
   const empBtn=document.getElementById('cmdEMP');
   const overdriveBtn=document.getElementById('cmdOverdrive');
   if(beamBtn){
-    beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
-    beamBtn.classList.toggle('ready',beamCharge>=100);
+    if(replayLocked){
+      beamBtn.disabled=true;
+      beamBtn.classList.remove('ready');
+      beamBtn.textContent=`${tl('beam')} · ${tl('replayOnly')}`;
+    }else{
+      beamBtn.disabled=false;
+      beamBtn.textContent=`${tl('beam')} ${Math.floor(beamCharge)}%`;
+      beamBtn.classList.toggle('ready',beamCharge>=100);
+    }
   }
   if(missileBtn){
-    missileBtn.textContent=`${tl('missile')} ${Math.floor(missileCharge)}%`;
-    missileBtn.classList.toggle('ready',missileCharge>=100);
+    if(replayLocked){
+      missileBtn.disabled=true;
+      missileBtn.classList.remove('ready');
+      missileBtn.textContent=`${tl('missile')} · ${tl('replayOnly')}`;
+    }else{
+      missileBtn.disabled=false;
+      missileBtn.textContent=`${tl('missile')} ${Math.floor(missileCharge)}%`;
+      missileBtn.classList.toggle('ready',missileCharge>=100);
+    }
   }
   if(empBtn){
     if(ewars.length===0){
@@ -2049,9 +2117,15 @@ function updateSpecialCharge(dt){
     }
   }
   if(overdriveBtn){
-    overdriveBtn.style.display=hasAssembled?'':'none';
-    overdriveBtn.textContent=`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`;
-    overdriveBtn.classList.toggle('ready',overdriveCharge>=100);
+    if(replayLocked){
+      // 리플레이 관전에서는 합체필살 버튼 자체를 숨긴다 — 눌러도 효과 없는 버튼 제거.
+      overdriveBtn.style.display='none';
+      overdriveBtn.classList.remove('ready');
+    }else{
+      overdriveBtn.style.display=hasAssembled?'':'none';
+      overdriveBtn.textContent=`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`;
+      overdriveBtn.classList.toggle('ready',overdriveCharge>=100);
+    }
   }
 }
 
@@ -3049,6 +3123,8 @@ function cmdEMP(){
   _bridgeToParent('emp', { duration_ms: 6000 });
 }
 function cmdBeamCannon(){
+  // [실시간 전투] 리플레이 관전에서는 서버에 반영되지 않으므로 실행/브릿지 차단.
+  if(tlManualSkillsReplayLocked()){addLog('wn',`${tl('beam')} · ${tl('replayOnly')}`);return;}
   if(beamCharge<100){addLog('wn',`${tl('beam')} ${Math.floor(beamCharge)}%`);return;}
   const guns=aliveAtkShips().filter(isCapitalShip);
   const target=findPriorityTarget();
@@ -3072,6 +3148,8 @@ function cmdBeamCannon(){
   _bridgeToParent('beam_cannon', { charge: 100, capital_count: guns.length });
 }
 function cmdMissileBarrage(){
+  // [실시간 전투] 리플레이 관전에서는 서버에 반영되지 않으므로 실행/브릿지 차단.
+  if(tlManualSkillsReplayLocked()){addLog('wn',`${tl('missile')} · ${tl('replayOnly')}`);return;}
   if(missileCharge<100){addLog('wn',`${tl('missile')} ${Math.floor(missileCharge)}%`);return;}
   const launchers=aliveAtkShips().filter(s=>['frigate','destroyer','cruiser'].includes(s.type.size));
   const targets=aliveDefShips();
@@ -3095,6 +3173,8 @@ function cmdMissileBarrage(){
   _bridgeToParent('missile_barrage', { charge: 100, launcher_count: launchers.length });
 }
 function cmdOverdrive(){
+  // [실시간 전투] 리플레이 관전에서는 서버에 반영되지 않으므로 실행/브릿지 차단.
+  if(tlManualSkillsReplayLocked()){addLog('wn',`${tl('overdrive')} · ${tl('replayOnly')}`);return;}
   if(overdriveCharge<100){addLog('wn',`${tl('overdrive')} ${Math.floor(overdriveCharge)}%`);return;}
   const _wsActive = _wsBattle && _wsBattle.readyState === 1;
   const assembledFrames=_wsActive?wsAssembledFrames():[];
@@ -3482,6 +3562,9 @@ let _wsBattle = null;
 let _wsLastFrame = null;
 let _wsEndPayload = null;
 let _wsMaxHpCalibrated = false;
+// [실시간 전투] 서버 도메인은 라이브 스케줄 프레임에만 realtime:true 를 넣는다(사전계산 리플레이 스트림에는 없음).
+// 한 번 라이브로 확인되면 세션 내내 라이브로 취급한다(sticky) — WS 순단으로 스킬 버튼이 깜빡이지 않게.
+let _wsRealtime = false;
 function connectBattleWs() {
   try {
     if (tlDisposed || document.hidden) return;
@@ -3499,6 +3582,8 @@ function connectBattleWs() {
       if (!m || !m.type) return;
       if (m.type === 'frame') {
         _wsLastFrame = m;
+        // [실시간 전투] 라이브 프레임 판별 — 리플레이 스트림 프레임에는 realtime 플래그가 없다.
+        if (m.realtime === true) _wsRealtime = true;
         // Phase 2-C: fleet 단위 위치/HP 동기화 — DB fleet_id 매칭
         try {
           if (m.fleets && Array.isArray(m.fleets) && fleets && fleets.length) {

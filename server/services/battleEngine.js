@@ -335,8 +335,12 @@ async function simulateBattleLive(battleId, hooks) {
 
     if (tick % 5 === 0) {
       const fr = captureFrame(state, tick);
+      // [v7.471] 라이브 표식 — 클라가 라이브/리플레이 구분 + 함대별 서버권위 스킬 게이지
+      //   (fleets[].beamCharge/missileCharge/overdriveCharge)를 신뢰하는 기준.
+      //   [적대검증 fix] realtime 스탬프는 broadcast 사본에만 — timeline 에 push 되는 원본에 찍으면
+      //   saveTimeline 으로 영속돼 리플레이 서빙 프레임까지 라이브로 오판된다.
       timeline.frames.push(fr);
-      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(fr); } catch (_) {} }
+      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
     }
 
     processAutoRetreat(state, events);
@@ -344,8 +348,8 @@ async function simulateBattleLive(battleId, hooks) {
     const defAlive = state.fleets.filter(f => f.side === 'def' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
     if (atkAlive === 0 || defAlive === 0) {
       winnerSide = atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
-      const fr = captureFrame(state, tick); timeline.frames.push(fr);
-      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(fr); } catch (_) {} }
+      const fr = captureFrame(state, tick); timeline.frames.push(fr); // realtime 은 broadcast 사본에만
+      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
       events.push({ tick, type: 'battle_ended', payload: { winner_side: winnerSide, duration_ticks: tick } });
       break;
     }

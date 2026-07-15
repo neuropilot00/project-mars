@@ -1,3 +1,17 @@
+## 2026-07-04 — 실시간 전투 개방 감사 반영 (v7.471)
+
+### ✅ 수정 완료
+- **[HIGH] 전투 뷰어 수동 스킬이 실전투에 무효(거짓 버튼)**: simulateBattleLive 를 fleet_realtime_mode(기본 ai)로 일반 전투에 개방. AI 연습전 라이브화, 리플레이는 버튼 정직 잠금. E2E 로 manual_skill 25발 실기록 증명.
+- **[HIGH→fixed] realtime 스탬프 타임라인 영속(리플레이 오염)**: broadcast 사본에만 스탬프. 저장 532프레임 전수 스캔 0 확인.
+- **[HIGH→fixed] 직접 dispatch 8곳의 동시성 상한 우회**: 포화 시 precompute 강등 폴백.
+- **[LOW→fixed] worldEvents 동기 await 지뢰(all 모드)**: 라이브 제외 게이트. overdrive 차지 미동기도 수정.
+
+### 남은 범위(오너)
+- fleet_realtime_mode=all(하이잭/PvP 라이브) 토글. all 전환 전 worldEvents 비동기화 권장.
+
+### 검증 완료
+- 워크플로 적대검증 2도메인 + 메인 수정 4건. 로컬 E2E: 라이브 실행/스킬 실발동/타임라인 클린/보상 경로/동시 precompute 공존/상태 복원. node --check 전수, mig336.
+
 ## 2026-07-02 — 캠페인 BGM 무드 6→12 확장 감사 반영 (v7.470)
 
 ### ✅ 수정 완료

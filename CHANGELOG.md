@@ -1,3 +1,34 @@
+## 2026-07-04 v7.471 — 실시간 전투 개방: "보는 전투"→"조작하는 전투" (게임성 P0)
+
+레드팀 #1 게임성 갭(전투 능동성)의 본체. 검증된 라이브 전투 루프(simulateBattleLive — 서버권위 차지·스킬·틱당
+명령 드레인)가 siege 전용 플래그(기본 OFF) 뒤에 잠들어 있어 실전투 전부가 사전계산 리플레이였고, 전투 뷰어의
+빔포/미사일 버튼은 아무도 안 읽는 큐로 사라졌다(성공 응답까지 하는 거짓 버튼). ultracode 워크플로(서버/클라
+2도메인 구현→적대검증 5건 지적→메인 수정) + 로컬 E2E 실증.
+
+[서버] battleScheduler/battleEngine + migration 336
+- fleet_realtime_mode(off|ai|all, 기본 ai): AI 연습전은 즉시 라이브. all(하이잭/PvP 라이브)은 오너 토글.
+  siege 는 기존 siege_realtime_enabled 계약 그대로. fleet_realtime_tick_ms(120)/wallclock_min(6).
+- 라이브 프레임에 realtime:true + 함대별 서버권위 차지(beamCharge/missileCharge/overdriveCharge).
+- [적대검증 반영] ① realtime 스탬프는 broadcast 사본에만 — 저장 타임라인 오염(리플레이를 라이브로 오판) 차단.
+  ② 동시성 포화 폴백 — 직접 dispatch 8곳(ai/fight, hijack 등)이 battle_max_concurrent 를 우회하므로 포화 시
+  해당 전투만 precompute 강등(무제한 동시 라이브·스케줄 기아 방지). ③ world event 전투 라이브 제외(engageEvent 가
+  runBattle 동기 await — all 모드에서 HTTP 분 단위 블록 지뢰). NPC 아레나도 제외(관전자 없는 슬롯 점유 방지).
+
+[클라] tactical-lab-v11.html/tactical-lab-modal.js/battle-hub-modal.js
+- 라이브: 수동 스킬 버튼 활성 + 게이지를 서버 차지로 표시(클라 누적 게이지 대체, 서버 권위). [적대검증 반영]
+  overdrive 도 서버 함대 차지 동기(로컬 100%인데 서버 <100 → 무시+거짓 성공 토스트 불일치 제거).
+- 리플레이: 수동 스킬 버튼 잠금 + 7개국어 "REPLAY — 관전 전용" 라벨(거짓 버튼 제거). 진형/기동/후퇴는 유지.
+- v7.437 사전 전술 브리프를 PvP 선언·하이잭 선언 흐름에도 확장(실패 시 fallthrough, 선언 비차단).
+
+[E2E 실증 — 로컬] AI 연습전 battle 56 을 라이브로 실행:
+- 전투 중 빔 명령 POST → 응답 {live:true,queued:true} → **fleet_battle_events 에 manual_skill(beam) 25발 기록**
+  (차지 리필 주기마다 실제 발동) → 전투 정상 종료(atk 승, 함선 실데미지 24000→8405) → 보상 경로 정상(AI 는 anti-mint).
+- 저장 타임라인 532프레임 전수 스캔: realtime 키 0(수정 검증). 프레임 fleets[] 에 3종 차지 존재(계약 검증).
+- 동시 실행 battle 57(NPC 아레나)은 precompute 로 정상 — 제외 게이트·동시성 회귀 없음. 테스트 후 함선/설정 원상복구.
+
+[검증] node --check 전수, tactical-lab 인라인 파싱, git diff --check, migration 336 적용. sw mars-v139, ?v=7483.
+⚠️ 남은 결정: fleet_realtime_mode=all(하이잭/PvP 라이브 — full-loss 스테이크 전투의 실시간화)은 오너 토글.
+   worldEvents 동기 await 리팩터는 all 전환 전 권장(현재는 제외 게이트로 방어).
 ## 2026-07-02 v7.470 — 캠페인 BGM 무드 6→12 확장(반복 감소)
 
 "더 늘려" — CC0 실음악 6트랙을 12트랙으로 확장. 가장 많이 겹치던 dark(15)·ambient(9) 버킷을 쪼갬.

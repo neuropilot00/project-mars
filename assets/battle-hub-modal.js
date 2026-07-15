@@ -871,6 +871,15 @@ let declareState = {
   sectorTier: '',
 };
 
+// 선언 직전 전술 브리프가 대상 정보를 재사용할 수 있게 검색/추천 결과를 fleet_id 기준으로 병합 캐시.
+function _declareCacheTargets(list) {
+  if (!Array.isArray(list)) return;
+  var byId = {};
+  (declareState.targetFleets || []).forEach(function(r){ if (r && r.fleet_id != null) byId[String(r.fleet_id)] = r; });
+  list.forEach(function(r){ if (r && r.fleet_id != null) byId[String(r.fleet_id)] = r; });
+  declareState.targetFleets = Object.keys(byId).map(function(k){ return byId[k]; });
+}
+
 // ─── Phase B: openDeclareBattle (추천 상대 + 실시간 검색) ───
 
 function clearDeclareSectorContext() {
@@ -923,6 +932,7 @@ async function openDeclareBattle(opts) {
   document.getElementById('declareTargetList').innerHTML =
     `<div class="bd-search-hint">${LANG==='ko'?'2자 이상 입력하면 검색됩니다':LANG==='ja'?'2文字以上入力すると検索されます':LANG==='zh'?'输入2字以上开始搜索':'Enter 2+ chars to search'}</div>`;
   declareState.selectedTargetFleetId = null;
+  declareState.targetFleets = [];
   document.getElementById('declareConfirmBtn').disabled = true;
   if (opts.sector) setDeclareSectorContext(opts.sector);
   else clearDeclareSectorContext();
@@ -944,20 +954,22 @@ window.openDeclareBattleWithFleet = async function(targetFleetId, nickname, ship
 
   const label = nickname || (LANG==='ko'?'추천 타깃':LANG==='ja'?'推奨標的':LANG==='zh'?'推荐目标':'Recommended Target');
   const alive = Math.max(0, parseInt(shipsAlive, 10) || 0);
+  const seededTarget = {
+    fleet_id: id,
+    nickname: label,
+    fleet_name: LANG==='ko'?'분쟁 추천 함대':LANG==='ja'?'紛争推奨艦隊':LANG==='zh'?'争端推荐舰队':'Conflict Recommended Fleet',
+    ships_alive: alive,
+    sector_code: sectorCode || '',
+    active_bounty_gp: Math.max(0, parseInt(bountyGp, 10) || 0),
+    combat_power: Math.max(0, parseInt(cpi, 10) || 0),
+    can_attack: true,
+    battles_won: 0,
+    battles_lost: 0
+  };
+  _declareCacheTargets([seededTarget]);
   const listEl = document.getElementById('declareTargetList');
   if (listEl) {
-    listEl.innerHTML = renderSearchResult({
-      fleet_id: id,
-      nickname: label,
-      fleet_name: LANG==='ko'?'분쟁 추천 함대':LANG==='ja'?'紛争推奨艦隊':LANG==='zh'?'争端推荐舰队':'Conflict Recommended Fleet',
-      ships_alive: alive,
-      sector_code: sectorCode || '',
-      active_bounty_gp: Math.max(0, parseInt(bountyGp, 10) || 0),
-      combat_power: Math.max(0, parseInt(cpi, 10) || 0),
-      can_attack: true,
-      battles_won: 0,
-      battles_lost: 0
-    });
+    listEl.innerHTML = renderSearchResult(seededTarget);
   }
   selectTargetFleet(id, label, alive);
 };
@@ -981,6 +993,7 @@ async function loadRecommendedOpponents() {
       return;
     }
 
+    _declareCacheTargets(data.results);
     chips.innerHTML = data.results.slice(0, 6).map(r => {
       const alliance = renderDeclareOpponentAlliance(r);
       const fleetName = r.fleet_name && r.fleet_name !== r.nickname
@@ -1090,6 +1103,7 @@ async function doSearchTargets() {
       return;
     }
 
+    _declareCacheTargets(data.results);
     listEl.innerHTML = data.results.map(r => renderSearchResult(r)).join('');
   } catch (err) {
     console.error('doSearchTargets:', err);
@@ -1153,7 +1167,33 @@ async function confirmDeclareBattle() {
     return;
   }
 
-  var ok=await gameConfirm({icon:'⚔',title:LANG==='ko'?'전투 선언':LANG==='ja'?'戦闘宣言':LANG==='zh'?'宣战':'Declare Battle',body:LANG==='ko'?'선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다.':LANG==='ja'?'宣言後に戦術指示(Commander Actions)を選択できます。':LANG==='zh'?'宣战后可选择战术指令(Commander Actions)。':'After declaring, you can choose tactical directives (Commander Actions).',confirmText:LANG==='ko'?'선언':LANG==='ja'?'宣言':LANG==='zh'?'宣战':'Declare'});
+  // [combat agency] PvP 선언 직전에도 AI 연습전(v7.437)과 같은 전술 브리프를 띄운다.
+  // 내 함대/대상 정보가 없거나 브리프가 실패하면 기존 선언 확인(gameConfirm)으로 폴백 — 선언 흐름을 막지 않는다.
+  var ok = false, briefDone = false;
+  try {
+    var myFleetInfo = (declareState.myFleets || []).find(function(f){ return String(f.id) === String(myFleetId); });
+    if (myFleetInfo) {
+      var pvpTarget = (declareState.targetFleets || []).find(function(r){ return String(r.fleet_id) === String(targetFleetId); }) || null;
+      var pvpProfile = pvpTarget ? pvpThreatProfile(pvpTarget) : null;
+      ok = await aiPreBattleBrief(
+        myFleetInfo,
+        pvpProfile,
+        pvpTarget ? (pvpTarget.nickname || pvpTarget.fleet_name || '') : tl('Enemy fleet','상대 함대','相手艦隊','敌方舰队'),
+        {
+          title: tl('Declare Battle','전투 선언','戦闘宣言','宣战'),
+          confirmText: tl('Declare','선언','宣言','宣战'),
+          enemyMetaLine: pvpProfile ? pvpProfile.metaLine : tl('Target intel unavailable — check after declaring','대상 정보 없음 — 선언 후 확인','対象情報なし — 宣言後に確認','无目标情报 — 宣战后确认'),
+          noteText: tl('After declaring you can pick Commander Actions. Formation & maneuver affect the result — change them in Fleet Command.',
+                       '선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다. 진형·기동은 전투 결과에 반영 — 변경은 [함대 지휘]에서.',
+                       '宣言後にCommander Actionsを選択できます。陣形・機動は戦闘結果に反映 — 変更は[艦隊指揮]で。',
+                       '宣战后可选择Commander Actions。阵形·机动会影响结果 — 可在[舰队指挥]中更改。')
+        });
+      briefDone = true;
+    }
+  } catch (_brief) { briefDone = false; /* 브리프 실패 → 기존 확인으로 폴백 */ }
+  if (!briefDone) {
+    ok = await gameConfirm({icon:'⚔',title:LANG==='ko'?'전투 선언':LANG==='ja'?'戦闘宣言':LANG==='zh'?'宣战':'Declare Battle',body:LANG==='ko'?'선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다.':LANG==='ja'?'宣言後に戦術指示(Commander Actions)を選択できます。':LANG==='zh'?'宣战后可选择战术指令(Commander Actions)。':'After declaring, you can choose tactical directives (Commander Actions).',confirmText:LANG==='ko'?'선언':LANG==='ja'?'宣言':LANG==='zh'?'宣战':'Declare'});
+  }
   if(!ok) return;
 
   try {
@@ -1761,7 +1801,12 @@ function _aiBriefWarnings(myFleet, enemyProfile) {
   return w;
 }
 // 교전 직전 브리프. true=교전 진행, false=취소. 실패 시 throw → 호출부에서 fallthrough.
-async function aiPreBattleBrief(myFleet, enemyProfile, enemyName) {
+// [일반화] AI 연습전(v7.437) 외에 PvP 선언/하이잭 선언에서도 재사용한다. opts 생략 시 기존 AI 계약 그대로.
+//   opts.title / opts.confirmText — 모달 제목/확인 버튼 교체
+//   opts.enemyMetaLine — 적 정보가 부분적일 때 있는 데이터만으로 만든 한 줄(plain text, 내부에서 escape)
+//   opts.noteText — 하단 안내 문구 교체
+async function aiPreBattleBrief(myFleet, enemyProfile, enemyName, opts) {
+  opts = opts || {};
   var fm = AI_BRIEF_FORMATION[myFleet.formation] || { i:'·', name: myFleet.formation||'-', tip:'' };
   var mv = AI_BRIEF_MOVEMENT[myFleet.movement]   || { i:'·', name: myFleet.movement||'-' };
   var hasFlag = (parseInt(myFleet.flagship_count,10)||0) > 0;
@@ -1777,10 +1822,13 @@ async function aiPreBattleBrief(myFleet, enemyProfile, enemyName) {
   var lblThreat= tl('Threat','위협','脅威','威胁');
   var shipU = (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships');
   var flagTxt = hasFlag ? '· '+tl('Flagship ✓','기함 ✓','旗艦 ✓','旗舰 ✓') : '· '+tl('No flagship','기함 ✕','旗艦 ✕','无旗舰');
-  var note = tl('Formation & maneuver affect the battle. Change them in Fleet Command.',
+  var note = opts.noteText || tl('Formation & maneuver affect the battle. Change them in Fleet Command.',
                 '진형·기동은 전투 결과 배율에 반영됩니다. 변경은 [함대 지휘]에서.',
                 '陣形・機動は戦闘結果に反映されます。変更は[艦隊指揮]で。',
                 '阵形·机动会影响战斗结果。可在[舰队指挥]中更改。');
+  var enemyMetaHtml = opts.enemyMetaLine
+    ? escapeHtml(String(opts.enemyMetaLine))
+    : (enemyShips+shipU+' · '+escapeHtml(lblThreat)+' '+enemyThreat+' · '+escapeHtml(diffU));
   var warnHtml = warns.length
     ? '<div style="margin-top:8px;padding:7px 9px;border-radius:7px;background:rgba(255,120,60,.12);border:1px solid rgba(255,120,60,.35);font-size:12px;line-height:1.5">⚠ '
         + warns.map(function(x){ return escapeHtml(x); }).join('<br>⚠ ') + '</div>'
@@ -1788,7 +1836,7 @@ async function aiPreBattleBrief(myFleet, enemyProfile, enemyName) {
   var body =
     '<div style="text-align:left;font-size:13px;line-height:1.55">'
     + '<div style="color:#ff8a6a;font-weight:700">'+escapeHtml(lblEnemy)+': '+escapeHtml(enemyName||'AI')+'</div>'
-    + '<div style="opacity:.85">'+enemyShips+shipU+' · '+escapeHtml(lblThreat)+' '+enemyThreat+' · '+escapeHtml(diffU)+'</div>'
+    + '<div style="opacity:.85">'+enemyMetaHtml+'</div>'
     + '<div style="height:1px;background:rgba(255,255,255,.12);margin:9px 0"></div>'
     + '<div style="color:#7fe0ff;font-weight:700">'+escapeHtml(lblMine)+': '+escapeHtml(myFleet.name||'-')+'</div>'
     + '<div style="opacity:.85">'+(parseInt(myFleet.ships_alive,10)||0)+shipU+' '+escapeHtml(flagTxt)+'</div>'
@@ -1801,10 +1849,30 @@ async function aiPreBattleBrief(myFleet, enemyProfile, enemyName) {
     + '</div>';
   return await gameConfirm({
     icon: '⚔',
-    title: tl('Tactical brief','전술 브리핑','戦術ブリーフィング','战术简报'),
+    title: opts.title || tl('Tactical brief','전술 브리핑','戦術ブリーフィング','战术简报'),
     body: body,
-    confirmText: tl('ENGAGE','교전 시작','交戦開始','开始交战')
+    confirmText: opts.confirmText || tl('ENGAGE','교전 시작','交戦開始','开始交战')
   });
+}
+
+// [PvP 브리프] 검색/추천 카드 데이터 → 브리프 위협 프로파일.
+//   전투력이 없으면 척수 기반 추정(fleetPowerEstimate 계수와 동일 계수 90).
+function pvpThreatProfile(r) {
+  var ships = Math.max(0, parseInt(r.ships_alive, 10) || 0);
+  var power = Math.max(0, parseInt(r.combat_power, 10) || 0) || Math.round(ships * 90);
+  var danger = power >= 1200 ? 'high' : power >= 450 ? 'mid' : 'low';
+  var dangerLabel = danger === 'high'
+    ? tl('HIGH RISK','고위험','高危険','高风险')
+    : danger === 'mid'
+      ? tl('CONTESTED','교전권','交戦圏','交战区')
+      : tl('PREY','사냥감','獲物','猎物');
+  var shipU = (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships');
+  return {
+    diff: danger === 'high' ? 'hard' : danger === 'mid' ? 'normal' : 'easy',
+    ships: ships,
+    threat: power,
+    metaLine: ships + shipU + ' · ' + tl('Power','전투력','戦力','战力') + ' ' + formatNum(power) + ' · ' + dangerLabel
+  };
 }
 
 async function loadAiFleets() {
@@ -2143,8 +2211,49 @@ function showHijackEntryHint() {
 }
 window.showHijackEntryHint = showHijackEntryHint;
 
+// [하이잭 브리프] 선언 전 수비측 요약(/api/hijack/defender-info) + 내 최강 출전 가능 함대 기준 전술 브리프.
+//   응답에 없는 정보는 만들지 않고 있는 데이터만 표시한다. 반환 false = 유저 취소, true = 진행.
+//   조회 실패는 삼키고 진행한다 — 하이잭 선언 흐름을 절대 막지 않는다.
+async function hijackPreBattleBrief(defWallet) {
+  var fleetsRes = null, defInfo = null;
+  try {
+    var r = await Promise.all([
+      fetch('/api/fleets', { headers: getAuthHeaders() }).then(function(x){ return x.ok ? x.json() : null; }).catch(function(){ return null; }),
+      fetch('/api/hijack/defender-info?targetWallet=' + encodeURIComponent(defWallet), { headers: getAuthHeaders() }).then(function(x){ return x.ok ? x.json() : null; }).catch(function(){ return null; })
+    ]);
+    fleetsRes = r[0]; defInfo = r[1];
+  } catch (_) {}
+  var combatFleets = ((fleetsRes && fleetsRes.fleets) || []).filter(function(f){ return f.ships_alive > 0 && !f.is_in_battle; });
+  if (!combatFleets.length) return true; // 출전 가능 함대 없음 → 브리프 생략, 기존 클레임 모달 안내에 위임
+  combatFleets.sort(function(a, b){ return fleetPowerEstimate(b) - fleetPowerEstimate(a); });
+  var myFleet = combatFleets[0];
+  var shipU = (LANG==='ko'?'척':LANG==='ja'?'隻':LANG==='zh'?'艘':' ships');
+  var ep = null, metaLine;
+  if (defInfo && defInfo.hasFleet && !defInfo.willAutoWin) {
+    var eShips = Math.max(0, parseInt(defInfo.aliveShips, 10) || 0);
+    var eFleets = Math.max(0, parseInt(defInfo.availableFleets, 10) || 0);
+    var ePower = Math.round(eShips * 90); // 척수 기반 추정 — fleetPowerEstimate 계수와 동일
+    ep = { diff: ePower >= 1200 ? 'hard' : ePower >= 450 ? 'normal' : 'easy', ships: eShips, threat: ePower };
+    metaLine = eFleets + tl(' fleets',' 함대',' 艦隊',' 舰队') + ' · ' + eShips + shipU + ' ' + tl('alive','생존','生存','存活');
+  } else if (defInfo && defInfo.willAutoWin) {
+    metaLine = tl('No defending fleet — auto capture expected','수비 함대 없음 — 자동 점령 예상','防衛艦隊なし — 自動占領見込み','无防守舰队 — 预计自动占领');
+  } else {
+    metaLine = tl('Defender intel unavailable','수비 정보 조회 불가','防衛情報を取得できません','无法获取防守情报');
+  }
+  var enemyName = defWallet && defWallet.length > 12 ? (defWallet.slice(0, 6) + '…' + defWallet.slice(-4)) : String(defWallet || '');
+  return await aiPreBattleBrief(myFleet, ep, enemyName, {
+    title: tl('Hijack brief','하이잭 전술 브리핑','ハイジャック戦術ブリーフィング','劫夺战术简报'),
+    confirmText: tl('PROCEED','계속 진행','続行','继续'),
+    enemyMetaLine: metaLine,
+    noteText: tl('Shown for your strongest ready fleet — the attacking fleet is picked in the claim window. Formation & maneuver affect the result.',
+                 '가장 강한 출전 가능 함대 기준 표시 — 실제 공격 함대는 클레임 창에서 선택합니다. 진형·기동은 전투 결과에 반영됩니다.',
+                 '最強の出撃可能艦隊基準 — 実際の攻撃艦隊はクレーム画面で選択します。陣形・機動は戦闘結果に反映されます。',
+                 '按最强可出战舰队显示 — 实际进攻舰队在占领窗口中选择。阵形·机动会影响战斗结果。')
+  });
+}
+
 // 영토 정보 패널의 "⚔ HIJACK 영토" 버튼 핸들러 — claim 모달 (PP 경로) 로 진입
-function hijackFromTerritoryInfo(){
+async function hijackFromTerritoryInfo(){
   const btn = document.getElementById('infoHijackBtn');
   if (!btn) return;
   const claimId = parseInt(btn.dataset.claimId);
@@ -2163,6 +2272,12 @@ function hijackFromTerritoryInfo(){
     w: plot.w || plot.width || plot.size || stampW,
     h: plot.h || plot.height || plot.size || stampH,
   };
+  // [combat agency] 하이잭 선언 전 전술 브리프 — 있는 데이터만으로 구성.
+  // 브리프/조회 실패 시 fallthrough — 클레임 모달 진입(선언 흐름)을 막지 않는다.
+  try {
+    var proceed = await hijackPreBattleBrief(defWallet);
+    if (proceed === false) return; // 유저가 백아웃 — 하이잭 취소
+  } catch (_brief) { /* 브리프 실패 → 기존 흐름 그대로 진입 */ }
   openClaimModal();
 }
 window.hijackFromTerritoryInfo = hijackFromTerritoryInfo;
