@@ -12,6 +12,43 @@ const battleTimeline = require('./battleTimeline');
 const battleRewards = require('./battleRewards');         // Phase B
 const hijackService = require('./hijack');                // Phase C
 const aiFleetManager = require('./aiFleetManager');       // Phase C
+const crypto = require('crypto');
+
+function battleEventUuid(source) {
+  const namespace = Buffer.from('6ba7b8109dad11d180b400c04fd430c8', 'hex');
+  const bytes = crypto.createHash('sha1').update(namespace).update(source).digest().subarray(0, 16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x50; bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = bytes.toString('hex');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+}
+
+async function recordBattleProductEvents(battleId, phase, battleType, summary, result) {
+  try {
+    const analytics = require('./productAnalytics');
+    const { rows } = await pool.query(`SELECT DISTINCT LOWER(p.wallet_address) AS wallet
+      FROM fleet_battle_participants p JOIN users u ON LOWER(u.wallet_address)=LOWER(p.wallet_address)
+      WHERE p.battle_id=$1 AND COALESCE(u.is_ai,false)=false`, [battleId]);
+    for (const { wallet } of rows) {
+      let eventName = 'battle_ended';
+      if (phase === 'started') {
+        const prior = await pool.query(`SELECT 1 FROM fleet_battles b
+          JOIN fleet_battle_participants p ON p.battle_id=b.id
+          JOIN fleet_battles current ON current.id=$1
+          WHERE LOWER(p.wallet_address)=$2 AND b.battle_started_at IS NOT NULL
+            AND (b.battle_started_at<current.battle_started_at OR
+                 (b.battle_started_at=current.battle_started_at AND b.id<current.id)) LIMIT 1`, [battleId, wallet]);
+        eventName = prior.rows.length ? 'second_battle_started' : 'first_battle_started';
+      }
+      await analytics.recordProductEvent({ wallet,
+        sessionId: battleEventUuid(`occupy:battle:${battleId}:${wallet}:session`), eventName,
+        eventKey: battleEventUuid(`occupy:battle:${battleId}:${wallet}:${phase}`),
+        metadata: { battle_id: String(battleId), battle_type: battleType,
+          session_source: 'battle', mode: summary?.duel_mode === 'standard_v1' ? 'standard_v1' : summary?.is_objective_operation ? 'objective' : summary?.is_frontier_battle ? 'frontier' : summary?.is_starter_battle ? 'starter' : summary?.is_ai_battle ? 'ai' : 'pvp',
+          ...(result ? { winner_side: result.winner_side } : {}) },
+      });
+    }
+  } catch (error) { console.error(`[battleScheduler] ${phase} analytics failed for ${battleId}:`, error.message); }
+}
 
 let intervalHandle = null;
 const CHECK_INTERVAL_MS = 30 * 1000;
@@ -118,6 +155,7 @@ async function runBattle(battleId) {
     // 전투 타입 미리 확인 (hijack 체크용)
     let battleType = null;
     let battlePhase = null;
+    let registeredModes = null;
     let battleSummary = null; // [v7.471] fleet_realtime_mode=ai 판별용 (is_ai_battle)
 
     // 1. preparing → active + 참가 함대 lock을 한 트랜잭션에서 처리
@@ -139,6 +177,8 @@ async function runBattle(battleId) {
       battleType = claimed[0].battle_type;
       battlePhase = claimed[0].phase;
       battleSummary = claimed[0].battle_summary || null;
+      await battleEngine.assertRegisteredFrontierBattle(startClient, battleId, battleSummary);
+      registeredModes = await battleEngine.assertRegisteredBattleModes(startClient, battleId, battleSummary);
 
       const { rows: fleetLocks } = await startClient.query(`
         SELECT f.id, f.is_in_battle, f.current_battle_id
@@ -176,6 +216,7 @@ async function runBattle(battleId) {
     } finally {
       startClient.release();
     }
+    await recordBattleProductEvents(battleId, 'started', battleType, battleSummary);
     
     await pool.query(`
       UPDATE fleet_battle_participants p SET
@@ -191,10 +232,18 @@ async function runBattle(battleId) {
       WHERE p.fleet_id = sub.fleet_id AND p.battle_id = $1
     `, [battleId, battlePhase || '', ['frigate', 'destroyer']]);
     
+    if (registeredModes.standardConfig) {
+      for (const fleetId of registeredModes.standardConfig.fleetIds) {
+        const ships = (await pool.query('SELECT id FROM ships WHERE fleet_id=$1 AND is_alive=true', [fleetId])).rows;
+        const hp = ships.reduce((sum, ship) => sum + Number(registeredModes.standardConfig.catalogByShipId[String(ship.id)].base_hp), 0);
+        await pool.query('UPDATE fleet_battle_participants SET hp_at_start=$1 WHERE battle_id=$2 AND fleet_id=$3', [hp, battleId, fleetId]);
+      }
+    }
+
     // 1-bis. AI 전략 — hijack 외 battle 에 자동 진형/기동 명령 (Phase 4)
     try {
       const ai = require('./aiStrategy');
-      const aiResult = await ai.applyAIStrategy(battleId, battleType);
+      const aiResult = registeredModes.standardConfig ? null : await ai.applyAIStrategy(battleId, battleType);
       if (aiResult && aiResult.applied) {
         console.log(`[battleScheduler] AI strategy applied to battle ${battleId}:`, aiResult.applied.length, 'sides');
       }
@@ -223,12 +272,14 @@ async function runBattle(battleId) {
         const _mode = String(await getSetting('fleet_realtime_mode', 'ai')).replace(/"/g, '').toLowerCase();
         const _summary = battleSummary || {};
         const _isAi = _summary.is_ai_battle === true || _summary.is_ai_battle === 'true';
+        const _isPlayerObjective = _summary.is_frontier_battle === true || _summary.is_objective_operation === true || _summary.duel_mode === 'standard_v1' ||
+          (_summary.is_starter_battle === true && _summary.trusted_source === 'starter_ops');
         const _isNpcArena = _summary.npc_vs_npc === true || _summary.arena === true;
         // [적대검증 fix] world event 전투는 worldEvents.engageEvent 가 runBattle 을 동기 await 한다 —
         //   라이브(수 분 틱 루프)가 되면 HTTP engage 요청이 분 단위 블록되므로 제외(NPC 아레나와 동일 논리).
         const _isWorldEvent = _summary.is_world_event === true;
         if (_mode === 'all') _liveEnabled = !_isNpcArena && !_isWorldEvent;
-        else if (_mode === 'ai') _liveEnabled = _isAi && !_isNpcArena && !_isWorldEvent;
+        else if (_mode === 'ai') _liveEnabled = (_isAi || _isPlayerObjective) && !_isNpcArena && !_isWorldEvent;
         // 'off'(또는 알 수 없는 값) = 현행 precompute 유지
         // [적대검증 fix] 동시성 포화 폴백 — runBattle 은 스캔 루프 외에 직접 dispatch(ai/fight, hijack,
         //   tournament 등 8곳)로도 호출되어 battle_max_concurrent 를 우회한다. 라이브 루프는 수 분간
@@ -242,6 +293,10 @@ async function runBattle(battleId) {
       }
     } catch (_) { _liveEnabled = false; }
 
+    // Registered objective timers and catalog combat share the same 200ms pace.
+    // Ordinary PvP keeps its existing configured pace.
+    if (_liveEnabled && registeredModes.objectiveConfig) _liveTickMs = battleEngine.TICK_MS;
+
     if (_liveEnabled) {
       // 라이브 틱 루프 — onFrame 으로 매 프레임 즉시 broadcast, 매 틱 명령 큐 드레인.
       //   권위: 이 워커(스케줄러 리더 = runBattle 실행자)가 단독 실행 + liveBattle.markActive 로 명령 수신 등록.
@@ -252,9 +307,17 @@ async function runBattle(battleId) {
         result = await battleEngine.simulateBattleLive(battleId, {
           drainCommands: () => liveBattle.drainCommands(battleId),
           onFrame: (frame) => { try { ws.broadcastBattleFrame(battleId, frame); } catch (_) {} },
+          onCommandResult: (commandResult) => ws.broadcastBattleCommandResult(battleId, commandResult),
           tickMs: _liveTickMs, wallClockMs: _liveWallMin * 60 * 1000,
         });
-      } finally { liveBattle.clearActive(battleId); }
+      } finally {
+        for (const command of liveBattle.clearActive(battleId)) {
+          ws.broadcastBattleCommandResult(battleId, {
+            commandId: command.commandId || null, cmd: command.action, fleetId: command.fleetId,
+            wallet: command.wallet, tick: null, status: 'rejected', reason: 'battle_ended',
+          });
+        }
+      }
       try {
         ws.broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats });
       } catch (_) {}
@@ -308,17 +371,39 @@ async function runBattle(battleId) {
     
     // 4. DB 반영
     await battleEngine.applyBattleResults(battleId, result);
+    await recordBattleProductEvents(battleId, 'ended', battleType, battleSummary, result);
+    if (result.winner_side === 'atk' && battleSummary?.trusted_source === 'starter_ops' &&
+        battleSummary?.is_starter_battle === true && battleSummary?.starter_training === true &&
+        battleSummary?.missionId === 'first_sortie') {
+      try { await require('./starterOperations').recordEvidence(battleSummary.starter_wallet, 'first_sortie', 'battle_won', 'fleet_battle', battleId); }
+      catch (missionErr) { console.error(`[battleScheduler] starter evidence pending for ${battleId}:`, missionErr); }
+    }
+
+    if (battleSummary?.is_frontier_battle === true) {
+      try { await require('./frontierIndustry').settleBattle(battleId); }
+      catch (settleErr) {
+        // The ended result is committed; frontier GET retries this settlement.
+        console.error(`[battleScheduler] frontier settlement pending for ${battleId}:`, settleErr);
+      }
+    }
+
+    const skipGenericProgress = battleSummary?.duel_mode === 'standard_v1' ||
+      battleSummary?.is_objective_operation === true || battleSummary?.is_frontier_battle === true ||
+      (battleSummary?.is_starter_battle === true && battleSummary?.trusted_source === 'starter_ops');
 
     // 4.5 CPI / Daily OPS 후속 처리
     try {
-      await _postBattleHooks(battleId, result);
+      if (!skipGenericProgress) await _postBattleHooks(battleId, result);
     } catch (hookErr) {
       console.error(`[battleScheduler] post battle hooks failed:`, hookErr);
     }
     
     // 5. 보상 분배 (Phase B)
     try {
-      const rewards = await battleRewards.distributeRewards(battleId);
+      // These registered objectives settle their own bounded rewards.
+      const hasObjectiveRewards = battleSummary?.is_frontier_battle === true ||
+        (battleSummary?.is_starter_battle === true && battleSummary?.trusted_source === 'starter_ops');
+      const rewards = hasObjectiveRewards || skipGenericProgress ? [] : await battleRewards.distributeRewards(battleId);
       console.log(`[battleScheduler] battle ${battleId} rewards distributed to ${rewards.length}`);
     } catch (rewardErr) {
       console.error(`[battleScheduler] reward failed:`, rewardErr);
@@ -326,7 +411,7 @@ async function runBattle(battleId) {
     
     // 5.5 길드전 포인트 적립 — 함대전 승리 시 진행 중인 길드전에 점수 추가
     try {
-      await _guildWarHook(battleId, result);
+      if (!skipGenericProgress) await _guildWarHook(battleId, result);
     } catch (gwErr) {
       console.error(`[battleScheduler] guild war hook failed:`, gwErr);
     }
@@ -346,7 +431,7 @@ async function runBattle(battleId) {
     
     // 7. AI respawn 예약 (Phase C)
     try {
-      await aiFleetManager.scheduleRespawnIfNeeded(battleId);
+      if (!skipGenericProgress) await aiFleetManager.scheduleRespawnIfNeeded(battleId);
     } catch (aiErr) {
       console.error(`[battleScheduler] AI respawn failed:`, aiErr);
     }

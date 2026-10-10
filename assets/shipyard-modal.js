@@ -3,6 +3,7 @@ var shipyardState = {
   currentTab: 'blueprints',
   currentSize: '',
   blueprints: [],
+  collection: [],
   queue: [],
   ships: [],
   marketListings: [],
@@ -678,6 +679,38 @@ var _rarityMeta = {
   titan:      { ko:'타이탄',   en:'Titan',      col:'#ff7a45', emoji:'👑' }
 };
 function _rarityLabel(c){ var m=_rarityMeta[c]; return m ? (LANG==='ko'?m.ko:m.en) : c; }
+function _cratePercent(value) { return Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 6 }) + '%'; }
+function _crateClassLabel(cls) {
+  var labels = { frigate:['Frigate','프리깃','フリゲート','护卫舰'], destroyer:['Destroyer','구축함','駆逐艦','驱逐舰'], cruiser:['Cruiser','순양함','巡洋艦','巡洋舰'], battleship:['Battleship','전함','戦艦','战列舰'], titan:['Titan','타이탄','タイタン','泰坦'] };
+  return labels[cls] ? tl.apply(null, labels[cls]) : escapeHtmlSafe(cls);
+}
+function _crateDisclosureHtml(c) {
+  var d = c.disclosure;
+  if (!d) return '';
+  var classes = d.personalized ? d.effective_class_odds : d.base_class_odds;
+  var classRows = Object.keys(classes || {}).map(function(cls){ return '<div><span>'+_crateClassLabel(cls)+'</span><b>'+_cratePercent(classes[cls])+'</b></div>'; }).join('');
+  var qualityRows = Object.keys(d.quality_odds || {}).map(function(q){ return '<div><span>'+escapeHtmlSafe(_qLabel(q))+'</span><b>'+_cratePercent(d.quality_odds[q])+'</b></div>'; }).join('');
+  var grouped = {};
+  (d.outcomes || []).forEach(function(o){
+    var key = o.faction + ':' + o.rarity + ':' + (o.error || '') + ':' + o.titan_substituted;
+    if (!grouped[key]) grouped[key] = { outcome:o, probability:0 };
+    grouped[key].probability += o.probability_pct;
+  });
+  var outcomes = Object.keys(grouped).map(function(key){ var entry=grouped[key],o=entry.outcome;
+    return '<li>'+escapeHtmlSafe(String(o.faction).toUpperCase())+' · '+_crateClassLabel(o.rarity)+' · '+_cratePercent(entry.probability)+' · '+
+      (o.error ? tl('Unavailable · no charge','한도/구성상 획득 불가 · 차감 없음','獲得不可・課金なし','无法获取·不扣款') : o.usable ? tl('Deployable','출격 가능','出撃可能','可出战') : tl('Storage / market only','창고 보관 / 시장 판매만','倉庫保管・市場販売のみ','仅仓库存储/市场出售'))+
+      (o.titan_substituted ? ' · '+tl('Titan replaced by battleship','타이탄 → 전함 대체','タイタン→戦艦に代替','泰坦→战列舰替代') : '')+'</li>';
+  }).join('');
+  return '<details class="crate-disclosure"><summary>'+tl('Full odds & usability','전체 확률과 사용 조건','全確率と使用条件','全部概率与使用条件')+'</summary>'+
+    '<p>'+ (d.personalized ? tl('Next draw · pity and current Titan cap applied.','다음 개봉 기준 · 현재 천장과 타이탄 한도 반영.','次の開封・現在の天井とタイタン上限を反映。','下次开箱·已计入当前保底与泰坦上限。') : tl('Base odds. Sign in and select a faction for your next-draw odds.','기본 확률입니다. 로그인과 진영 선택 후 다음 개봉 확률을 확인하세요.','基本確率です。ログイン・陣営選択後に次回確率を確認できます。','基础概率。登录并选择阵营后查看下次开箱概率。'))+'</p>'+
+    (d.first_recruit_own_faction ? '<p class="crate-guarantee">'+tl('First recruit: your faction guaranteed','첫 무료 영입: 내 진영 보장','初回無料募集：自陣営を保証','首次免费招募：保证本阵营')+'</p>' : '')+
+    '<strong>'+tl('Hull class','함급','艦級','舰级')+'</strong><div class="crate-odds-rows">'+classRows+'</div>'+
+    '<strong>'+tl('Engraving quality · separate roll','각인 품질 · 별도 추첨','刻印品質・別抽選','刻印品质·独立抽取')+'</strong><div class="crate-odds-rows">'+qualityRows+'</div>'+
+    '<p>'+tl('Quality rolls independently of hull class. Each stat bonus uses its grade range × 0.7–1.3, rounded to the stat precision.','함급과 품질은 별도로 추첨합니다. 각 스탯 보너스는 등급 범위 × 0.7~1.3을 적용한 뒤 반올림합니다.','艦級と品質は独立抽選です。各能力のボーナスは等級範囲×0.7～1.3を丸めます。','舰级和品质独立抽取。各属性加成按等级区间×0.7～1.3计算后四舍五入。')+'</p>'+
+    '<div class="crate-odds-rows">'+Object.keys(d.quality_bonus_ranges || {}).map(function(q){ var range=d.quality_bonus_ranges[q]; return '<div><span>'+escapeHtmlSafe(_qLabel(q))+' '+tl('base range','기본 범위','基本範囲','基础区间')+'</span><b>'+_cratePercent(range[0]*100)+'–'+_cratePercent(range[1]*100)+'</b></div>'; }).join('')+'</div>'+
+    (d.personalized ? '<p>'+tl('Deployable','출격 가능','出撃可能','可出战')+' '+_cratePercent(d.usable_pct)+' · '+tl('Other faction','타 진영','他陣営','其他阵营')+' '+_cratePercent(d.cross_faction_pct)+'</p><ul>'+outcomes+'</ul>' : '')+
+    '<p>'+tl('Server caps can change before opening. The server checks again before charging. Duplicates remain separate tradeable hulls; discovery stays after loss.','개봉 전 서버 한도는 변할 수 있으며 차감 직전에 다시 검사합니다. 중복 함선은 거래 가능한 별도 함체로 남고, 격침돼도 도감은 유지됩니다.','開封前に上限は変動します。課金直前に再確認します。重複艦は取引可能な別船体として残り、撃沈後も図鑑は保持されます。','开箱前服务器上限可能变化，扣款前重新检查。重复舰船仍为可交易独立舰体，击沉后图鉴保留。')+'</p></details>';
+}
 async function loadShipCrates() {
   var grid = document.getElementById('crateGrid');
   if (!grid) return;
@@ -702,9 +735,9 @@ async function loadShipCrates() {
     };
     var _crateDefault = { banner:'assets/banners/crate_standard.png', hero:'assets/ships/top/cv_frg.png', glow:'#7da6ff' };
     grid.innerHTML = d.crates.map(function(c, idx){
-      var oddsHtml = Object.keys(c.odds||{}).sort(function(a,b){ return (c.odds[b]-c.odds[a]); }).map(function(cls){
+      var oddsHtml = Object.keys((c.disclosure && c.disclosure.personalized ? c.disclosure.effective_class_odds : c.odds)||{}).sort(function(a,b){ return (c.odds[b]-c.odds[a]); }).map(function(cls){
         var m=_rarityMeta[cls]||{col:'#888',emoji:'•'};
-        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:'+m.col+';margin-right:8px">'+m.emoji+' '+_rarityLabel(cls)+' '+c.odds[cls]+'%</span>';
+        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;color:'+m.col+';margin-right:8px">'+m.emoji+' '+_rarityLabel(cls)+' '+c.odds[cls]+'%</span>';
       }).join('');
       // (도파민 #2 v7.390) pity 천장 게이지 — 텍스트만이던 것을 진행 바로 시각화(매몰비용 "한 번 더").
       var pityHtml = '';
@@ -716,7 +749,7 @@ async function loadShipCrates() {
         var pTop = (LANG==='ko'?'순양함+ 확정':LANG==='ja'?'巡洋艦+確定':LANG==='zh'?'巡洋舰+保底':'Cruiser+ guaranteed');
         var pSoon = pHot ? ' '+(LANG==='ko'?'임박!':LANG==='ja'?'目前!':LANG==='zh'?'临近!':'SOON!') : '';
         pityHtml = '<div style="margin-top:3px">'
-          + '<div style="font-size:8px;display:flex;justify-content:space-between;align-items:center">'
+          + '<div style="font-size:11px;display:flex;justify-content:space-between;align-items:center">'
           +   '<span style="color:var(--gold)">🎯 '+pTop+'</span>'
           +   '<span style="color:'+(pHot?'#ffd166':'var(--gold)')+';font-weight:800">'+since+'/'+c.pity_pulls+pSoon+'</span>'
           + '</div>'
@@ -725,12 +758,13 @@ async function loadShipCrates() {
           + '</div></div>';
       }
       var isFree = !(c.price_gp>0);
-      var dailyHtml = (c.daily_limit>0) ? '<div style="font-size:8px;color:#4fd1c5;margin-top:2px">🆓 '+(LANG==='ko'?('1일 '+c.daily_limit+'회 무료'):('Free · '+c.daily_limit+'/day'))+'</div>' : '';
+      var dailyHtml = (c.daily_limit>0) ? '<div style="font-size:12px;color:#4fd1c5;margin-top:2px">🆓 '+(LANG==='ko'?('1일 '+c.daily_limit+'회 무료'):('Free · '+c.daily_limit+'/day'))+'</div>' : '';
       var label = LANG==='ko' ? (c.label_ko||c.code) : (c.label_en||c.code);
       var art = _crateArt[c.code] || _crateDefault;
       var banner = art.banner, hero = art.hero, glow = art.glow;
       var priceLabel = isFree ? (LANG==='ko'?'무료':'FREE') : (c.price_gp+' GP');
-      var btnLabel = (LANG==='ko'?'개봉':'OPEN') + ' · ' + priceLabel;
+      var usedDaily = c.daily_limit > 0 && c.daily_remaining === 0;
+      var btnLabel = usedDaily ? tl('DAILY LIMIT REACHED','오늘 수령 완료','本日受取済み','今日已领取') : (LANG==='ko'?'개봉':'OPEN') + ' · ' + priceLabel;
       return '<div class="bp-card" style="padding:0;overflow:hidden;border:1px solid '+glow+'55;box-shadow:0 0 20px '+glow+'22">'
         + '<div style="position:relative;height:140px;background:radial-gradient(circle at 50% 28%, '+glow+'40, transparent 72%), #0a0e1a;display:flex;align-items:center;justify-content:center;overflow:hidden">'
         +   '<img src="'+banner+'" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:8px 8px 0 0;display:block" onerror="this.onerror=null;this.src=\''+hero+'\';this.style.width=\'auto\';this.style.height=\'120px\';this.style.objectFit=\'contain\';this.style.filter=\'drop-shadow(0 0 14px '+glow+'cc)\'">'
@@ -740,9 +774,10 @@ async function loadShipCrates() {
         + '</div>'
         + '<div style="padding:12px;display:flex;flex-direction:column;flex:1;gap:6px">'
         +   '<div style="line-height:1.8">'+oddsHtml+'</div>'
+        +   _crateDisclosureHtml(c)
         +   pityHtml
         +   dailyHtml
-        +   '<button type="button" onclick="openShipCrate(\''+c.code+'\','+c.price_gp+')" style="margin-top:auto;padding:11px;border-radius:8px;background:linear-gradient(135deg,'+glow+'4d,'+glow+'14);border:1px solid '+glow+'99;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer;text-shadow:0 1px 4px #000;letter-spacing:.5px">'+btnLabel+'</button>'
+        +   '<button type="button" '+(usedDaily?'disabled ':'')+' onclick="openShipCrate(\''+c.code+'\','+c.price_gp+')" style="margin-top:auto;padding:11px;border-radius:8px;background:linear-gradient(135deg,'+glow+'4d,'+glow+'14);border:1px solid '+glow+'99;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer;text-shadow:0 1px 4px #000;letter-spacing:.5px">'+btnLabel+'</button>'
         + '</div>'
         + '</div>';
     }).join('');
@@ -896,10 +931,19 @@ async function _refreshPerfectGachaBoxCard(card) {
   }
 }
 async function openShipCrate(code, priceGp) {
+  var currentCrate;
+  try {
+    var oddsResponse=await fetch('/api/ships/crates',{headers:getAuthHeaders()});
+    var oddsData=await oddsResponse.json();
+    if (!oddsResponse.ok) throw new Error(oddsData.error || 'SERVER_ERROR');
+    currentCrate=(oddsData.crates || []).find(function(c){return c.code===code;});
+    if (!currentCrate) throw new Error('CRATE_NOT_FOUND');
+    priceGp=Number(currentCrate.price_gp)||0;
+  } catch(e) { showToast(tl('Cannot load current odds.','현재 확률을 불러올 수 없습니다.','現在の確率を読み込めません。','无法加载当前概率。'),'error'); return; }
   var ok = await gameConfirm({
     icon: '🎲',
     title: LANG==='ko'?'상자 개봉':'Open Crate',
-    body: (LANG==='ko'?'무작위 함선 1척을 획득합니다.':'You will receive 1 random ship.'),
+    body: tl('Receive one random hull. Review the next-draw odds before confirming.','무작위 함체 1척을 획득합니다. 확인 전 다음 개봉 확률을 살펴보세요.','ランダム船体を1隻獲得します。確認前に次回確率を確認してください。','获得一个随机舰体，确认前请查看下次开箱概率。') + _crateDisclosureHtml(currentCrate),
     info: [{ k: LANG==='ko'?'비용':'Cost', v: (priceGp>0 ? (priceGp + ' GP') : (LANG==='ko'?'무료':'FREE')) }],
     confirmText: LANG==='ko'?'개봉':'OPEN'
   });
@@ -1073,7 +1117,7 @@ var _crateQualityMeta = {
   legendary: { ko:'신화 각인',  en:'Pristine',  col:'#ffb347', stars:4 },
   mythic:    { ko:'초월 각인',  en:'Mythic',    col:'#ff5cdf', stars:5 }
 };
-function _qLabel(q){ var m=_crateQualityMeta[q]||_crateQualityMeta.common; return (LANG==='ko'?m.ko:m.en); }
+function _qLabel(q){ var m=_crateQualityMeta[q]||_crateQualityMeta.common; var extra={common:['標準刻印','标准刻印'],uncommon:['精鋭刻印','精良刻印'],rare:['傑作刻印','杰作刻印'],epic:['伝説刻印','传说刻印'],legendary:['神話刻印','神话刻印'],mythic:['超越刻印','超越刻印']}; var x=extra[q]||extra.common; return tl(m.en,m.ko,x[0],x[1]); }
 function _fmtStat(n){ if(n===undefined||n===null) return '-'; return (Math.round(n*100)/100).toLocaleString(); }
 function _statRow(icon,label,total,bonus){
   var hasB = bonus && bonus>0;
@@ -1130,11 +1174,33 @@ function showCrateReveal(d, code, priceGp){
     +     _statRow('💨', tl('SPD','속도','速度','速度'),   st.speed, bonus.speed)
     +   '</div>'
     +   '<div style="margin-top:15px;display:flex;gap:8px">'
-    +     '<button type="button" onclick="document.getElementById(\'crateRevealModal\').remove()" style="flex:1;padding:12px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer">'+tl('CONFIRM','확인','確認','确认')+'</button>'
-    +     '<button type="button" '+(balOk?'':'disabled')+' onclick="document.getElementById(\'crateRevealModal\').remove();openShipCrate(\''+code+'\','+(priceGp||0)+')" style="flex:1.3;padding:12px;border-radius:9px;background:linear-gradient(135deg,'+glow+'55,'+glow+'1a);border:1px solid '+glow+'aa;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:'+(balOk?'pointer':'not-allowed')+';opacity:'+(balOk?'1':'.45')+'">🎲 '+againLabel+'</button>'
+    +     '<button type="button" onclick="viewCrateFleet()" style="flex:1;padding:12px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:12px;font-weight:800;cursor:pointer">'+(crossFaction?tl('VIEW / SELL SHIP','함선 확인 · 판매','艦船を確認・売却','查看 / 出售舰船'):tl('VIEW FLEET','함대 확인','艦隊を見る','查看舰队'))+'</button>'
+    +     (priceGp > 0 ? '<button type="button" '+(balOk?'':'disabled')+' onclick="document.getElementById(\'crateRevealModal\').remove();openShipCrate(\''+code+'\','+(priceGp||0)+')" style="flex:1.3;padding:12px;border-radius:9px;background:linear-gradient(135deg,'+glow+'55,'+glow+'1a);border:1px solid '+glow+'aa;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:'+(balOk?'pointer':'not-allowed')+';opacity:'+(balOk?'1':'.45')+'">🎲 '+againLabel+'</button>' : '')
     +   '</div>'
     + '</div>';
   document.body.appendChild(el);
+}
+
+// Fetch after the explicit result action, bypassing the passive polling gap.
+async function viewCrateFleet() {
+  {
+    try {
+      var responses = await Promise.all(['/api/ships/my', '/api/ships/summary'].map(function(url) {
+        return fetch(url, { headers: getAuthHeaders(), cache: 'no-store' });
+      }));
+      if (responses.some(function(response) { return !response.ok; })) throw new Error('SHIP_REFRESH_FAILED');
+      var data = await Promise.all(responses.map(function(response) { return response.json(); }));
+      shipyardState.ships = data[0].ships || [];
+      shipyardState.summary = data[1];
+      updateFooter();
+    } catch (_) {
+      showToast(tl('Could not refresh fleet. Try again.','함대 갱신에 실패했습니다. 다시 눌러주세요.','艦隊を更新できませんでした。再試行してください。','无法刷新舰队，请重试。'), 'error');
+      return;
+    }
+  }
+  var reveal = document.getElementById('crateRevealModal');
+  if (reveal) reveal.remove();
+  switchSyTab('fleet');
 }
 
 // ── 🪐 MY MARS PORTFOLIO 모달 (P2O = Play-to-Own 프레임) ──
@@ -1365,18 +1431,20 @@ function filterBySize(size) {
 
 async function refreshShipyard() {
   try {
-    var [bpData, jobsData, shipsData, marketData, summaryData, factionData] = await Promise.all([
+    var [bpData, jobsData, shipsData, marketData, summaryData, factionData, collectionData] = await Promise.all([
       _syReadJson('blueprints', '/api/ships/blueprints?includeLocked=1', 30000),
       _syReadJson('build-jobs', '/api/ships/build-jobs', 10000),
       _syReadJson('ships-my', '/api/ships/my', 10000),
       _syReadJson('market-listings', '/api/ships/market/listings', 15000),
       _syReadJson('summary', '/api/ships/summary', 15000),
       _syReadJson('faction-mine', '/api/factions/mine', 30000),
+      _syReadJson('collection', '/api/ships/collection', 0),
     ]);
     if (bpData) {
       shipyardState.blueprints = bpData.ships || [];
       shipyardState.materialSectorHints = bpData.materialSectorHints || {};
     }
+    if (collectionData) shipyardState.collection = collectionData.collection || [];
     if (jobsData) shipyardState.queue = jobsData.jobs || [];
     if (shipsData) shipyardState.ships = shipsData.ships || [];
     if (marketData) shipyardState.marketListings = marketData.listings || [];
@@ -2233,15 +2301,43 @@ async function cancelJob(jobId) {
   } catch(err) { showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
 }
 
+function renderPermanentCollection() {
+  var entries=shipyardState.collection || [];
+  if (!entries.length) return '';
+  return '<section class="ship-collection"><h3>'+tl('Permanent collection','영구 함선 도감','永久艦船図鑑','永久舰船图鉴')+' · '+entries.length+'</h3><p>'+tl('Discovery survives loss and sale. Rebuilding spends GP and materials for a common hull; quality bonuses and upgrades are not copied. Duplicate hulls retain their market value.','격침·판매 후에도 수집 기록이 남습니다. 재건조는 GP·재료를 소비해 표준 품질 함체를 만듭니다. 각인 보너스와 강화는 복제되지 않으며 중복 함체의 거래 가치는 유지됩니다.','撃沈・売却後も収集記録は保持されます。再建はGP・素材を消費する標準品質船体です。刻印と強化は複製されず、重複船体の取引価値は保持されます。','击沉或出售后收集记录保留。重建消耗GP和材料生成标准品质舰体，不复制刻印加成和强化，重复舰体保留交易价值。')+'</p><div class="ship-collection-grid">'+entries.map(function(entry){
+    var lost=(entry.lost_hulls || []).filter(function(h){return !h.rebuild_job_id;});
+    var myFaction=shipyardState.myFaction && shipyardState.myFaction.code;
+    return '<div class="ship-collection-item"><b>'+escapeHtmlSafe(LANG==='ko' ? (entry.name_ko || entry.ship_type_code) : (entry.name_en || entry.ship_type_code))+'</b><span>'+escapeHtmlSafe(String(entry.faction_code).toUpperCase())+' · '+_crateClassLabel(entry.size_class)+' · '+escapeHtmlSafe(entry.role || '')+'</span><span>'+tl('Active hulls','현역 함체','現役船体','现役舰体')+' '+entry.alive_count+' · '+tl('Collected quality','수집한 품질','収集品質','收集品质')+' '+(entry.qualities || []).map(_qLabel).map(escapeHtmlSafe).join(', ')+'</span>'+
+      (lost.length && myFaction === entry.faction_code ? '<button type="button" class="bp-build-btn" onclick="syRebuildShip('+Number(lost[0].id)+')">'+tl('Rebuild lost hull · quote','격침 함체 재건조 · 비용 보기','撃沈船体を再建・見積','重建损失舰体·查看费用')+'</button>' : '')+'</div>';
+  }).join('')+'</div></section>';
+}
+async function syRebuildShip(shipId) {
+  try {
+    var response=await fetch('/api/ships/collection/'+shipId+'/rebuild-quote',{headers:getAuthHeaders()});
+    var quote=await response.json();
+    if (!response.ok) throw new Error(quote.error || 'SERVER_ERROR');
+    var text=tl('Common replacement hull · engraving and upgrades are not copied.','표준 품질 재건 함체 · 기존 각인과 강화는 복제되지 않습니다.','標準品質の再建船体・刻印と強化は複製されません。','标准品质重建舰体·不复制刻印和强化。')+'<br><b>'+syFmt(quote.gp_cost)+' GP · '+Math.ceil(quote.build_seconds/60)+' '+tl('min','분','分','分钟')+'</b><br>'+
+      (quote.materials || []).map(function(m){return escapeHtmlSafe(m.code)+' '+m.have+'/'+m.need;}).join('<br>');
+    if (!quote.can_rebuild) { showFactionToast(tl('Cannot rebuild: ','재건조 조건 부족: ','再建不可：','无法重建：')+(quote.existing_job ? quote.existing_job.status : (quote.locks || []).join(', ')), 'error'); return; }
+    var confirmed=await gameConfirm({title:tl('Rebuild hull','함체 재건조','船体再建','舰体重建'),body:text,confirmText:tl('Spend & start','소비하고 시작','消費して開始','消耗并开始')});
+    if (!confirmed) return;
+    response=await fetch('/api/ships/collection/'+shipId+'/rebuild',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:'{}'});
+    var result=await response.json();
+    if (!response.ok) throw new Error(result.error || 'SERVER_ERROR');
+    showFactionToast(tl('Rebuild queued','재건조 대기열에 등록했습니다','再建をキューに登録しました','已加入重建队列'),'success');
+    await refreshShipyard(); switchSyTab('queue');
+  } catch(e) { showFactionToast(e.message,'error'); }
+}
+
 function renderShips() {
   var list = document.getElementById('shipList');
   if (shipyardState.ships.length === 0) {
-    list.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">보유 함선이 없습니다<br><span style="font-size:9px;opacity:.6">블루프린트에서 건조를 시작하세요</span></div>';
+    list.innerHTML = renderPermanentCollection() + '<div class="sy-empty" style="grid-column:1/-1">보유 함선이 없습니다<br><span style="font-size:9px;opacity:.6">블루프린트에서 건조를 시작하세요</span></div>';
     return;
   }
   var _myFac = (shipyardState.myFaction && (shipyardState.myFaction.code||'').toLowerCase()) || '';
   var repairSummary = renderShipRepairSummary(shipyardState.ships);
-  list.innerHTML = repairSummary + shipyardState.ships.map(function(s) {
+  list.innerHTML = renderPermanentCollection() + repairSummary + shipyardState.ships.map(function(s) {
     // [v7.322] 합체 유닛(pilgrim/assembled)은 전 유저 공용 — 진영 잠금 없이 UNIVERSAL 배지.
     var _universal = ((s.faction_code||'').toLowerCase() === 'pilgrim') || ((s.size_class||'').toLowerCase() === 'assembled');
     var crossFaction = !_universal && _myFac && s.faction_code && (s.faction_code.toLowerCase() !== _myFac);

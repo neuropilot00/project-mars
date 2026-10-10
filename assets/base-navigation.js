@@ -386,7 +386,7 @@ function switchBaseCat(cat, el) {
 }
 
 // [v7.137] 레벨별 탭 해금 — 고급 탭만 게이트(핵심 초반 루프는 항상 열림). 잠긴 탭은 🔒Lv N.
-var BASE_TAB_MIN_LEVEL = { fleet:3, transport:4, pvp:6, guild:8, govern:10 };
+var BASE_TAB_MIN_LEVEL = { fleet:1, transport:4, pvp:6, guild:1, govern:10 };
 function _myBaseLevel(){ return parseInt((document.getElementById('profileLevel')||{}).textContent||'0')||0; }
 function _tabGatingOn(){ return window.LEVEL_GATING_ENABLED!==false; }
 // 잠겨 있으면 필요 레벨 반환, 아니면 0. 레벨 미확정(0)이면 fail-open(잘못 잠그지 않음).
@@ -480,14 +480,9 @@ function stopBaseTransientWork(nextTab){
   }
 }
 function switchBaseTab(tab,el){
-  // 레벨 게이트: 고급 탭은 필요 레벨 미달 시 차단 + 안내
+  // Keep the selected category, tab and visible pane in sync, including locked tabs.
   var _need=baseTabLocked(tab);
-  if(_need){
-    var _lg=(typeof LANG!=='undefined'?LANG:'ko');
-    if(typeof showToast==='function') showToast((_lg==='ko'?'🔒 레벨 '+_need+' 부터 이용 가능합니다':_lg==='ja'?'🔒 レベル '+_need+' から利用可能':_lg==='zh'?'🔒 等级 '+_need+' 起可用':'🔒 Unlocks at Level '+_need),'error');
-    return;
-  }
-  stopBaseTransientWork(tab);
+  stopBaseTransientWork(_need ? 'locked' : tab);
   document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
   document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
   // el can be null when called programmatically — find tab button by id fallback
@@ -509,6 +504,26 @@ function switchBaseTab(tab,el){
         });
       }
     }
+  }
+  if(_need){
+    var locked=document.getElementById('basePane_locked');
+    if(!locked){
+      locked=document.createElement('div');
+      locked.id='basePane_locked';
+      locked.className='base-pane base-locked-pane';
+      locked.setAttribute('role','status');
+      locked.innerHTML='<div class="base-lock-icon" aria-hidden="true">🔒</div><h2></h2><p class="base-lock-level"></p><p class="base-lock-help"></p><button type="button"></button>';
+      document.querySelector('#baseModal .base-body').appendChild(locked);
+    }
+    var label=el && el.querySelector('span');
+    locked.querySelector('h2').textContent=label ? label.textContent : tab;
+    locked.querySelector('.base-lock-level').textContent=tl('Unlocks at level ','해금 레벨 ','解放レベル ','解锁等级 ','Terbuka di level ','Mở khóa ở cấp ','ปลดล็อกที่เลเวล ')+_need+' · '+tl('Current level ','현재 레벨 ','現在のレベル ','当前等级 ','Level saat ini ','Cấp hiện tại ','เลเวลปัจจุบัน ')+_myBaseLevel();
+    locked.querySelector('.base-lock-help').textContent=tl('Check your level progress in Territory and available missions in Mission.','영토에서 레벨 진행도를, 임무에서 지금 가능한 과제를 확인하세요.','領土でレベルの進行状況を、任務で今できる課題を確認できます。','在领土中查看等级进度，在任务中查看当前可做的任务。','Lihat progres level di Wilayah dan tugas yang tersedia di Misi.','Xem tiến độ cấp trong Lãnh thổ và nhiệm vụ có sẵn trong Nhiệm vụ.','ดูความคืบหน้าเลเวลในดินแดน และภารกิจที่ทำได้ในเมนูภารกิจ');
+    var next=locked.querySelector('button');
+    next.textContent=tl('View missions','임무 확인','任務を見る','查看任务','Lihat misi','Xem nhiệm vụ','ดูภารกิจ');
+    next.onclick=function(){ switchBaseTab('quests'); };
+    locked.classList.add('active');
+    return;
   }
   var pane = document.getElementById('basePane_'+tab);
   if(pane) pane.classList.add('active');

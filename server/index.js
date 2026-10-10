@@ -112,6 +112,7 @@ const phaseCRoutes = require('./routes/phaseC');             // Phase C: AI/Tour
 const phaseDRoutes = require('./routes/phaseD');             // Phase D: Alliance/Replay/Mobile
 const jobsRoutes         = require('./routes/jobs');               // Job System (mine/select/buffs)
 const onboardingV2Routes = require('./routes/onboardingRoutes');   // Onboarding Tutorial v2
+const starterOperationRoutes = require('./routes/starterOperations'); // First sortie + frontier starter path
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
 // Removed: gpBurn / weeklyChallenges (phantom tables, 0 fetch refs in index.html)
@@ -227,33 +228,41 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── Health Check (before rate limiting) ──
-app.get('/health', async (req, res) => {
+// ── Health/Readiness Checks (before rate limiting) ──
+async function healthCheck(req, res) {
   let dbStatus = 'ok';
-  try {
-    await pool.query('SELECT 1');
-  } catch (e) {
-    dbStatus = 'error';
-  }
-  const memoryMB = Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100;
-  const status = dbStatus === 'ok' ? 'ok' : 'degraded';
-  const httpStatus = status === 'ok' ? 200 : 503;
-  // 리더(스케줄러/입금 리스너 실행) 여부 노출 — 모니터링이 "워커 0개" 사고를 감지하도록.
+  try { await pool.query('SELECT 1'); }
+  catch (_) { dbStatus = 'error'; }
+
+  let redis = { status: 'unknown', configured: Boolean(process.env.REDIS_URL), mode: 'unknown' };
+  try { redis = await require('./services/cache').cacheDiagnostics(); }
+  catch (_) {}
+
+  // Redis is required for leader election only when this process is allowed to run
+  // worker jobs. A web-only instance may use Redis opportunistically for cache and
+  // rate-limit sharing, so its outage is visible without taking readiness down.
+  const redisRole = process.env.REDIS_URL
+    ? (process.env.RUN_SCHEDULERS === 'false' ? 'optional_shared_cache' : 'scheduler_leader_and_shared_cache')
+    : 'unused_memory_fallback';
+  const redisRequired = redisRole === 'scheduler_leader_and_shared_cache';
+  const redisHealthy = redis.status === 'ok' || !redisRequired;
+  const status = dbStatus === 'ok' && redisHealthy ? 'ok' : 'degraded';
+
   let leaderStatus = false;
   try { leaderStatus = require('./services/leader').isLeader(); } catch (_) {}
-  // Redis 실제 연결 상태 (off=인메모리 / ok=연결 / down=끊김) — 멀티 인스턴스 검증·모니터링.
-  let redisStatus = 'off';
-  try { redisStatus = await require('./services/cache').cachePing(); } catch (_) {}
-  res.status(httpStatus).json({
+  const memoryMB = Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100;
+  res.status(status === 'ok' ? 200 : 503).json({
     status,
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     database: dbStatus,
     memory: memoryMB,
-    scheduler_leader: leaderStatus,  // ⚠️ 전체 인스턴스에서 모두 false면 워커 0개 = 입금 처리 중단 경보
-    redis: redisStatus               // off=인메모리, ok=Redis 연결, down=Redis 끊김
+    scheduler_leader: leaderStatus,
+    redis: { ...redis, role: redisRole, required: redisRequired }
   });
-});
+}
+app.get('/health', healthCheck);
+app.get('/ready', healthCheck);
 
 // ── Rate Limiting ──
 const isDev = process.env.NODE_ENV !== 'production';
@@ -409,11 +418,17 @@ app.use('/api/auctions', require('./routes/auctionRoutes')); // M-090: 옥션 (m
 // Removed: territoryRoutes (0 frontend fetches — M-091 영토 매매 비주얼 미사용)
 // Removed: factionRoutes.js v2 (frontend uses v1 only — see services/factionSystem.js deletion)
 app.use('/api', auctionRoutes);
+app.use('/api', require('./routes/objectiveOperations'));
+app.use('/api', require('./routes/starterOperations'));
+app.use('/api/ship-parts', require('./routes/shipParts'));
+app.use('/api/frontier', require('./routes/frontierIndustry'));
+app.use('/api/analytics', require('./routes/productAnalytics'));
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
 app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
 app.use('/api', phaseDRoutes);               // Phase D: Alliance/Replay/Mobile
 app.use('/api/jobs', jobsRoutes);            // Job System (mine/select/buffs)
 app.use('/api/onboarding', onboardingV2Routes); // Onboarding Tutorial v2
+app.use('/api', starterOperationRoutes);
 // Removed: publicV2Routes mount (was Chronicle Enhanced Public API)
 // app.use('/api/titles', hofRoutes);             // [v7.172 G-Crit-5 disabled — frontend 호출 0건] Hall of Fame & Titles
 // app.use('/api/hof',    hofRoutes);             // [v7.172 G-Crit-5 disabled — frontend 호출 0건] Hall of Fame board
@@ -434,33 +449,35 @@ app.use('/api/killboard', require('./routes/killboard'));     // Killboard (ship
 app.use('/api/spy', require('./routes/spy'));                 // PvP 스파이/정찰 (적 함대 구성 노출)
 app.use('/api/ace', require('./routes/aceCombatRoutes'));     // ACE 명예 (런 기록/리더보드/칭호 — 코스메틱 전용)
 app.use('/api/daily-ops', dailyOpsRoutes);                    // Daily OPS 미션
-app.use('/api', apiLimiter, campaignRoutes);                  // Campaign + reputation/tag/lore routes
-app.use('/api', apiLimiter, itemEconomyRoutes);               // Shop + item instances + enhancement routes
-app.use('/api', apiLimiter, missionRoutes);                   // Mission launch/claim/cancel routes
-app.use('/api', apiLimiter, seasonRoutes);                    // Season status/rewards/pass routes
-app.use('/api', apiLimiter, worldOpsRoutes);                  // Weather/exploration/rocket routes
-app.use('/api', apiLimiter, dailyRoutes);                     // Daily login/streak/mission routes
-app.use('/api', apiLimiter, exchangeRoutes);                  // PP to GP exchange routes
-app.use('/api', apiLimiter, titleRoutes);                     // User titles + hall-of-fame routes
-app.use('/api', apiLimiter, notificationRoutes);              // Player notifications + away briefing
-app.use('/api', apiLimiter, configRoutes);                    // Public config + wallet bonus routes
-app.use('/api', apiLimiter, referralRoutes);                  // DYNASTY referral routes
-app.use('/api', apiLimiter, uploadRoutes);                    // Data image upload route
-app.use('/api', apiLimiter, mapQueryRoutes);                  // Map/user/claim read routes
-app.use('/api', apiLimiter, statsRoutes);                     // Public stats/rank routes
-app.use('/api', apiLimiter, userBaseRoutes);                  // BASE unified user summary route
+// Count each request once, including requests that fall through multiple routers.
+app.use('/api', apiLimiter);
+app.use('/api', campaignRoutes);                  // Campaign + reputation/tag/lore routes
+app.use('/api', itemEconomyRoutes);               // Shop + item instances + enhancement routes
+app.use('/api', missionRoutes);                   // Mission launch/claim/cancel routes
+app.use('/api', seasonRoutes);                    // Season status/rewards/pass routes
+app.use('/api', worldOpsRoutes);                  // Weather/exploration/rocket routes
+app.use('/api', dailyRoutes);                     // Daily login/streak/mission routes
+app.use('/api', exchangeRoutes);                  // PP to GP exchange routes
+app.use('/api', titleRoutes);                     // User titles + hall-of-fame routes
+app.use('/api', notificationRoutes);              // Player notifications + away briefing
+app.use('/api', configRoutes);                    // Public config + wallet bonus routes
+app.use('/api', referralRoutes);                  // DYNASTY referral routes
+app.use('/api', uploadRoutes);                    // Data image upload route
+app.use('/api', mapQueryRoutes);                  // Map/user/claim read routes
+app.use('/api', statsRoutes);                     // Public stats/rank routes
+app.use('/api', userBaseRoutes);                  // BASE unified user summary route
 app.use('/api/territory', territoryIdentityRoutes);           // 영토 정체성 (identity/FR)
 app.use('/api/sectors',   territoryIdentityRoutes);           // 섹터 갈등맵 (/api/sectors/conflict-map)
-app.use('/api', apiLimiter, sectorQueryRoutes);               // Legacy sector map query routes
-app.use('/api', apiLimiter, playerStatusRoutes);              // Achievements/news/onboarding/activity feed
-app.use('/api', apiLimiter, cosmeticRoutes);                  // Territory cosmetic equip/unequip routes
-app.use('/api', apiLimiter, questRoutes);                     // Legacy random quest routes
-app.use('/api', apiLimiter, economyUtilityRoutes);            // Marketplace overlay + GP utility routes
-app.use('/api', apiLimiter, sectorControlRoutes);             // Sector influence/control routes
-app.use('/api', apiLimiter, territoryManagementRoutes);       // Territory rename/tend/production/merge/upgrade routes
-app.use('/api', apiLimiter, redemptionRoutes);                // PP redemption and USDT withdrawal routes
-app.use('/api', apiLimiter, guildRoutes);                     // Guild, guild chat, guild war routes
-app.use('/api', apiLimiter, weeklyRoutes);                    // Phase3 리텐션 훅: 주간 챌린지 + 섹터 서지
+app.use('/api', sectorQueryRoutes);               // Legacy sector map query routes
+app.use('/api', playerStatusRoutes);              // Achievements/news/onboarding/activity feed
+app.use('/api', cosmeticRoutes);                  // Territory cosmetic equip/unequip routes
+app.use('/api', questRoutes);                     // Legacy random quest routes
+app.use('/api', economyUtilityRoutes);            // Marketplace overlay + GP utility routes
+app.use('/api', sectorControlRoutes);             // Sector influence/control routes
+app.use('/api', territoryManagementRoutes);       // Territory rename/tend/production/merge/upgrade routes
+app.use('/api', redemptionRoutes);                // PP redemption and USDT withdrawal routes
+app.use('/api', guildRoutes);                     // Guild, guild chat, guild war routes
+app.use('/api', weeklyRoutes);                    // Phase3 리텐션 훅: 주간 챌린지 + 섹터 서지
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
@@ -501,7 +518,7 @@ app.use('/api', tprestigeRoutes);
 app.use('/api', announceRoutes);
 app.use('/api', tombstoneRoutes);
 app.use('/api', milestoneRoutes);
-app.use('/api', apiLimiter, apiRoutes);
+app.use('/api', apiRoutes);
 try { app.use('/', require('./routes/bugReport')); } catch (e) { console.warn('[mount] bugReport skipped:', e.message); } // M-192: bug report submit + admin
 app.use('/api/admin', require('./routes/adminEconomyRoutes'));
 app.use('/api/arena', arenaRoutes);
@@ -1792,15 +1809,18 @@ async function start() {
     // ── 워커 게이트 끝 ────────────────────────────────────────────
 
     // Start HTTP server
-    // [v7.314] 자동 게임 운영 — GP 래플 + 파벌 예측배팅 자동 생성/정산 (어드민 불필요)
-    try {
-      require('./services/gamblingAuto').start();
-    } catch (e) { console.warn('[gamblingAuto] start failed:', e.message); }
+    // All periodic background work shares the same worker election decision.
+    if (_runSchedulers) {
+      // [v7.314] 자동 게임 운영 — GP 래플 + 파벌 예측배팅 자동 생성/정산
+      try {
+        require('./services/gamblingAuto').start();
+      } catch (e) { console.warn('[gamblingAuto] start failed:', e.message); }
 
-    // [v7.315] 자동 컨텐츠 운영 — 컨테스트 + 토너먼트 + 월드이벤트 자동 생성/정산 (어드민 불필요)
-    try {
-      require('./services/autoContent').start();
-    } catch (e) { console.warn('[autoContent] start failed:', e.message); }
+      // [v7.315] 자동 컨텐츠 운영 — 컨테스트 + 토너먼트 + 월드이벤트 자동 생성/정산
+      try {
+        require('./services/autoContent').start();
+      } catch (e) { console.warn('[autoContent] start failed:', e.message); }
+    }
 
     const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);

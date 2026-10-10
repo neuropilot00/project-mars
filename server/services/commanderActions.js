@@ -77,6 +77,12 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
     if (!partRows[0]) throw new Error('NOT_A_PARTICIPANT');
     const side = partRows[0].side;
 
+    // Standard duels never charge or apply paid pre-battle advantages.
+    const standard = await require('./fleetDuelInvitations').getAcceptedStandardDuel(battleId, client);
+    if (standard && (gpCost > 0 || !['formation_change', 'maneuver_change'].includes(actionType))) {
+      throw new Error('STANDARD_DUEL_PAID_ACTION_DISABLED');
+    }
+
     // 3) 쿼터 체크 — formation_change / maneuver_change 는 mutable 이라 quota 에서 제외
     const { rows: cntRows } = await client.query(
       `SELECT COUNT(*)::int AS c FROM commander_actions
@@ -227,7 +233,7 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
  * battleEngine 이 호출: 배틀 시작 시 action 목록을 적용하기 쉬운 형태로 반환
  * @returns {Object} { focusFireByWallet, empSchedule, wedgeSides, reinforcements }
  */
-async function loadForBattle(battleId) {
+async function loadForBattle(battleId, options = {}) {
   const actions = await listActions(battleId);
   const result = {
     focusFireByWallet: {},   // walletAddress -> targetFleetId
@@ -242,6 +248,7 @@ async function loadForBattle(battleId) {
   const empMult = parseFloat(await getSetting('emp_fire_interval_mult', '5.0')) || 5.0;
 
   for (const a of actions) {
+    if (options.standardFreeOnly && (Number(a.gp_cost) !== 0 || !['formation_change', 'maneuver_change'].includes(a.action_type))) continue;
     const p = a.params || {};
     if (a.action_type === 'focus_fire' && p.targetFleetId) {
       result.focusFireByWallet[a.wallet_address] = p.targetFleetId;

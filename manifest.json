@@ -7,5 +7,12 @@
   "background_color": "#000000",
   "theme_color": "#FF4500",
   "orientation": "any",
-  "icons": []
+  "icons": [
+    {
+      "src": "/assets/pwa/occupy-mars-icon-realistic.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }

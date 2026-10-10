@@ -91,7 +91,9 @@ router.post('/ai/fight', requireAuth, async (req, res) => {
 
     // AI 함대인지 확인: fleets.is_ai가 있으면 우선 반영하고, 없으면 owner user의 is_ai로 판별
     const aiSql = `
-      SELECT f.id, u.is_ai AS owner_is_ai, f.is_in_battle
+      SELECT f.id, u.is_ai AS owner_is_ai, f.is_in_battle,
+             COALESCE(to_jsonb(u)->>'is_frontier_npc','false')='true' AS is_frontier_npc,
+             COALESCE(to_jsonb(u)->>'is_objective_npc','false')='true' AS is_objective_npc
              ${hasFleetIsAi ? ', COALESCE(f.is_ai, false) AS fleet_is_ai' : ', false AS fleet_is_ai'}
       FROM fleets f
       JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
@@ -107,6 +109,14 @@ router.post('/ai/fight', requireAuth, async (req, res) => {
     if (!aiCheck[0].fleet_is_ai && !aiCheck[0].owner_is_ai) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'NOT_AI_FLEET' });
+    }
+    if (aiCheck[0].is_frontier_npc) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'FRONTIER_NPC_REQUIRES_REGISTERED_BATTLE' });
+    }
+    if (aiCheck[0].is_objective_npc) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'OBJECTIVE_NPC_REQUIRES_REGISTERED_BATTLE' });
     }
     if (aiCheck[0].is_in_battle) {
       await client.query('ROLLBACK');
@@ -325,6 +335,9 @@ router.post('/hijack/:id(\\d+)/phase2', requireAuth, async (req, res) => {
     const errorMap = {
       'HIJACK_NOT_FOUND': 404, 'NOT_ATTACKER': 403,
       'NOT_IN_PHASE2': 409, 'PHASE2_ALREADY_STARTED': 409,
+      'ATK_FLEET_NOT_FOUND': 404, 'DEF_FLEET_NOT_FOUND': 404,
+      'ATK_FLEET_IN_BATTLE': 409, 'DEF_FLEET_IN_BATTLE': 409,
+      'ATK_FLEET_MINING': 409, 'DEF_FLEET_MINING': 409,
     };
     const status = errorMap[err.message];
     if (status) return res.status(status).json({ error: err.message });

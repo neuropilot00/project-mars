@@ -17,6 +17,7 @@
 
 let _redis = null;
 let _mode = 'memory';
+const _redisConfigured = Boolean(process.env.REDIS_URL);
 const _mem = new Map(); // key -> { v, exp(ms, 0=무기한) }
 
 (function init() {
@@ -68,10 +69,24 @@ function cacheMode() { return _mode; }
 //   'off'  = REDIS_URL 미설정(인메모리 모드)
 //   'ok'   = Redis 연결 + PING 응답
 //   'down' = REDIS_URL 설정됐으나 PING 실패(연결 끊김)
-async function cachePing() {
-  if (!_redis) return 'off';
-  try { const r = await _redis.ping(); return r === 'PONG' ? 'ok' : 'down'; }
-  catch (_) { return 'down'; }
+async function cacheDiagnostics() {
+  if (!_redisConfigured) {
+    return { status: 'not_configured', configured: false, mode: 'memory' };
+  }
+  if (!_redis) {
+    return { status: 'down', configured: true, mode: 'memory' };
+  }
+  try {
+    const r = await _redis.ping();
+    return { status: r === 'PONG' ? 'ok' : 'down', configured: true, mode: 'redis' };
+  } catch (_) {
+    return { status: 'down', configured: true, mode: 'redis' };
+  }
 }
 
-module.exports = { cacheGet, cacheSet, cacheDel, cacheMode, cachePing };
+async function cachePing() {
+  const { status } = await cacheDiagnostics();
+  return status === 'not_configured' ? 'off' : status;
+}
+
+module.exports = { cacheGet, cacheSet, cacheDel, cacheMode, cachePing, cacheDiagnostics };

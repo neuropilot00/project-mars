@@ -101,12 +101,16 @@
       if (d.cmd === 'ws_end') {
         bv.battle.winner_side = d.payload.winner_side || bv.battle.winner_side;
         bv.battle.duration_seconds = d.payload.duration_seconds;
+        if (d.payload.objectiveResult) bv.battle.objective_result = d.payload.objectiveResult;
+        if (typeof renderBattleObjectiveResult === 'function') renderBattleObjectiveResult();
+        if (Array.isArray(d.payload.confirmedCommands)) bv.battle.command_events = d.payload.confirmedCommands;
+        if (typeof renderBattleCommandSummary === 'function') renderBattleCommandSummary();
         if (d.payload.stats) {
           bv.battle.atk_ships_total = d.payload.stats.atk?.ships_total || bv.battle.atk_ships_total;
           bv.battle.atk_ships_lost = d.payload.stats.atk?.ships_lost || 0;
           bv.battle.def_ships_total = d.payload.stats.def?.ships_total || bv.battle.def_ships_total;
           bv.battle.def_ships_lost = d.payload.stats.def?.ships_lost || 0;
-          bv.battle.battle_summary = { atk: d.payload.stats.atk, def: d.payload.stats.def };
+          bv.battle.battle_summary = Object.assign({}, bv.battle.battle_summary || {}, { atk: d.payload.stats.atk, def: d.payload.stats.def });
         }
       } else if (!bv.battle.winner_side && d.payload.winner_side) {
         bv.battle.winner_side = d.payload.winner_side;
@@ -155,13 +159,14 @@
       headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
       body: JSON.stringify({
         action_type: mapped.actionType,
-        params: mapped.params || {}
+        params: mapped.params || {},
+        commandId: d.payload && d.payload.commandId
       })
     }).then(function (r) {
       var lang = getLang();
       var label = getTacticalLabCommandLabel(d.cmd);
       if (r.ok) {
-        showBattleToast(label + (lang === 'ko' ? ' 명령 적용' : lang === 'ja' ? ' コマンド適用' : lang === 'zh' ? ' 命令已执行' : ' applied'), 'success');
+        showBattleToast(label + (lang === 'ko' ? ' 사전 명령 등록' : lang === 'ja' ? ' 事前指示を登録' : lang === 'zh' ? ' 已登记战前命令' : ' pre-battle order registered'), 'success');
       } else if (r.status === 401 || r.status === 403) {
         showBattleToast(label + (lang === 'ko' ? ' — 로그인 또는 권한 필요' : lang === 'ja' ? ' — ログインまたは権限が必要' : lang === 'zh' ? ' — 需要登录或权限' : ' — login or permission required'), 'error');
       } else {
@@ -177,6 +182,13 @@
     if (ev.origin !== location.origin) return;
     var d = ev && ev.data;
     if (!d || d.source !== 'tactical-lab' || d.cmd === 'ready' || !d.battleId) return;
+    if (d.cmd === 'command_summary') {
+      if (typeof bv !== 'undefined' && bv.battle && String(bv.battle.id) === String(d.battleId) && d.payload && Array.isArray(d.payload.events)) {
+        bv.battle.command_events = d.payload.events;
+        if (typeof renderBattleCommandSummary === 'function') renderBattleCommandSummary();
+      }
+      return;
+    }
     if (d.cmd === 'forfeit') return handleTacticalLabForfeitMessage(d);
     if (d.cmd === 'ws_end' || d.cmd === 'battle_final_done') return handleTacticalLabBattleEndMessage(d);
     submitTacticalLabCommanderAction(d);

@@ -711,11 +711,13 @@ async function getPlayerBattleStats(wallet) {
          COALESCE(SUM(CASE WHEN fbp.side='atk' THEN fb.def_ships_lost ELSE fb.atk_ships_lost END), 0) AS total_ships_destroyed,
          COALESCE(SUM(CASE WHEN fbp.side='atk' THEN fb.atk_damage_dealt ELSE fb.def_damage_dealt END), 0) AS total_damage_dealt,
          MAX(CASE WHEN fbp.side='atk' THEN fb.performance_rating_atk ELSE fb.performance_rating_def END) AS best_rating,
-         MODE() WITHIN GROUP (ORDER BY fbp.formation) AS favorite_formation
+         MODE() WITHIN GROUP (ORDER BY fl.formation) AS favorite_formation
        FROM fleet_battle_participants fbp
        JOIN fleet_battles fb ON fb.id = fbp.battle_id
+       LEFT JOIN fleets fl ON fl.id = fbp.fleet_id
        WHERE LOWER(fbp.wallet_address) = $1
-         AND fb.status = 'ended'`,
+         AND fb.status = 'ended'
+         AND NOT EXISTS (SELECT 1 FROM fleet_duel_invitations di WHERE di.battle_id=fb.id AND di.mode='standard_v1' AND di.status='accepted')`,
       [w]
     );
 
@@ -735,6 +737,7 @@ async function getPlayerBattleStats(wallet) {
          FROM fleet_battle_participants fbp
          JOIN fleet_battles fb ON fb.id = fbp.battle_id
          WHERE LOWER(fbp.wallet_address) = $1 AND fb.status = 'ended'
+           AND NOT EXISTS (SELECT 1 FROM fleet_duel_invitations di WHERE di.battle_id=fb.id AND di.mode='standard_v1' AND di.status='accepted')
          ORDER BY fb.ended_at DESC
          LIMIT 50`,
         [w]
@@ -754,9 +757,10 @@ async function getPlayerBattleStats(wallet) {
            COUNT(*) AS total
          FROM fleet_battle_participants fbp
          JOIN fleet_battles fb ON fb.id = fbp.battle_id
-         JOIN fleets fl ON fl.id = fbp.fleet_id
-         JOIN factions f ON f.id = fl.faction_id
+         JOIN users u ON LOWER(u.wallet_address) = LOWER(fbp.wallet_address)
+         JOIN factions f ON f.code = u.faction_code
          WHERE LOWER(fbp.wallet_address) = $1 AND fb.status = 'ended'
+           AND NOT EXISTS (SELECT 1 FROM fleet_duel_invitations di WHERE di.battle_id=fb.id AND di.mode='standard_v1' AND di.status='accepted')
          GROUP BY f.code`,
         [w]
       );
@@ -848,7 +852,8 @@ async function getRecommendedOpponents(wallet, limit = 10, opts = {}) {
          (SELECT COUNT(*) FROM fleet_battle_participants fbp2
           JOIN fleet_battles fb2 ON fb2.id = fbp2.battle_id
           WHERE LOWER(fbp2.wallet_address) = LOWER(f.owner_wallet)
-            AND fb2.winner_side = fbp2.side AND fb2.status = 'ended') AS wins,
+            AND fb2.winner_side = fbp2.side AND fb2.status = 'ended'
+            AND NOT EXISTS (SELECT 1 FROM fleet_duel_invitations di WHERE di.battle_id=fb2.id AND di.mode='standard_v1' AND di.status='accepted')) AS wins,
          (SELECT sector_code FROM claims
           WHERE LOWER(owner) = LOWER(f.owner_wallet)
             AND deleted_at IS NULL

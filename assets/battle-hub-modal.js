@@ -52,7 +52,7 @@ const BATTLEFIELD_LABELS = {
 };
 const BATTLEFIELD_BACKGROUNDS = {
   orbit_territory: '/assets/textures/battlefields/mars_orbit_territory.png',
-  garrison: '/assets/textures/battlefields/mars_garrison_topdown.png',
+  garrison: '/assets/textures/battlefields/mars_garrison_realistic.png',
   mining_site: '/assets/textures/battlefields/mars_mining_site_topdown.png',
   canyon_outpost: '/assets/textures/battlefields/mars_canyon_outpost_topdown.png',
   polar_ice: '/assets/textures/battlefields/mars_polar_ice_topdown.png',
@@ -392,9 +392,23 @@ async function bhLoad() {
     battleHubState.listCache[cacheKey] = data;
     const battles = data.battles || [];
     battles.forEach(rememberBattleContext);
+    var invitationsHtml = '';
+    if (tab === 'active' && getMyWallet()) {
+      try {
+        var inviteRes = await fetch('/api/battles/duel-invitations', { headers: getAuthHeaders() });
+        if (inviteRes.ok) {
+          var inviteData = await inviteRes.json();
+          battleHubState.duelInvitations = inviteData.invitations || [];
+          invitationsHtml = battleHubState.duelInvitations.filter(function(i) { return i.status === 'pending'; }).map(renderDuelInvitation).join('');
+        } else if (inviteRes.status !== 401) throw new Error('duel_list_unavailable');
+      } catch (_) {
+        invitationsHtml = '<div class="bh-empty">' + tl('Duel invitations could not load. Try again.', '결투 초대를 불러오지 못했습니다. 다시 확인해주세요.', '決闘の招待を読み込めませんでした。再度お試しください。', '决斗邀请加载失败，请重试。') + '</div>';
+      }
+    }
+    if (battleHubState.currentTab !== tab) return;
     
     if (battles.length === 0) {
-      container.innerHTML = `<div class="bh-empty">
+      container.innerHTML = invitationsHtml + `<div class="bh-empty">
         ${tab === 'active' ? (LANG==='ko'?'진행 중인 전투가 없습니다':LANG==='ja'?'進行中の戦闘がありません':LANG==='zh'?'没有进行中的战斗':'No active battles') : 
           tab === 'recent' ? (LANG==='ko'?'최근 전투가 없습니다':LANG==='ja'?'最近の戦闘がありません':LANG==='zh'?'没有最近的战斗':'No recent battles') : 
           (LANG==='ko'?'전투 기록이 없습니다':LANG==='ja'?'戦闘記録がありません':LANG==='zh'?'没有战斗记录':'No battle history')}
@@ -402,7 +416,7 @@ async function bhLoad() {
       return;
     }
     
-    container.innerHTML = battles.map(b => renderBattleCard(b, tab)).join('');
+    container.innerHTML = invitationsHtml + battles.map(b => renderBattleCard(b, tab)).join('');
   } catch (err) {
     console.error('bhLoad error:', err);
     container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
@@ -711,38 +725,49 @@ window.claimKillmailBounty = claimKillmailBounty;
 
 async function salvageKillmail(wreckId, btn) {
   if (!wreckId || (btn && btn.disabled)) return;
-  if (btn) { btn.disabled = true; btn.textContent = '...'; }
-  try {
-    const res = await fetch('/api/killboard/' + encodeURIComponent(wreckId) + '/salvage', {
-      method: 'POST',
-      headers: getAuthHeaders(),
-    });
-    const data = await res.json().catch(function(){ return {}; });
-    if (!res.ok || data.error) {
-      if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'회수 실패':LANG==='ja'?'回収失敗':LANG==='zh'?'回收失败':'Failed'; }
-      if (typeof showFactionToast === 'function') showFactionToast(data.error || 'SALVAGE_FAILED', 'error');
-      return;
-    }
-    const drops = data.drops || [];
-    const label = drops.length
-      ? drops.map(function(d){ return d.code + '×' + d.quantity; }).join(' · ')
-      : (LANG==='ko'?'회수 완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'Salvaged');
-    if (btn) {
-      btn.classList.add('done');
-      btn.textContent = LANG==='ko'?'회수완료':LANG==='ja'?'回収済':LANG==='zh'?'已回收':'Salvaged';
-    }
-    if (typeof rewardBurst === 'function') rewardBurst({ text: label, tier: drops.length > 2 ? 2 : 1, sound: window._sfx && _sfx.success });
-    if (typeof showFactionToast === 'function') showFactionToast(label, 'success');
-    try { if (typeof markDailyOpsAction === 'function') markDailyOpsAction('salvage_wreck'); } catch(_) {}
-    try { if (typeof loadBaseInventory === 'function') loadBaseInventory(); } catch(_) {}
-    try {
-      if (battleHubState.currentTab === 'killboard' && document.getElementById('battleHubModal')?.classList.contains('active')) {
-        _setActiveTimeout(bhLoad, 350);
-      }
-    } catch(_) {}
-  } catch (e) {
-    if (btn) { btn.disabled = false; btn.textContent = LANG==='ko'?'잔해 회수':LANG==='ja'?'残骸回収':LANG==='zh'?'回收残骸':'Salvage'; }
+  const readyLabel=tl('Salvage','잔해 회수','残骸回収','回收残骸');
+  function budgetLabel(budget) {
+    return Object.entries((budget && budget.remaining) || {}).map(function(entry){return entry[0]+'×'+entry[1];}).join(' · ');
   }
+  function showFailure(code,budget) {
+    const messages={
+      SALVAGE_DAILY_LIMIT:tl('Daily salvage limit. Wreck remains unclaimed.','일일 회수 한도입니다. 잔해는 미회수 상태로 유지됩니다.','本日の回収上限です。残骸は未回収のままです。','已达每日回收上限，残骸仍未回收。'),
+      PRACTICE_SALVAGE_FORBIDDEN:tl('Practice and AI battles do not issue salvage.','훈련·AI 전투에서는 잔해 자원을 지급하지 않습니다.','訓練・AI戦では残骸資源を支給しません。','训练和AI战斗不发放残骸资源。'),
+      STARTER_HULL_SALVAGE_FORBIDDEN:tl('Free starter hulls cannot issue salvage, including PvP losses.','무료 시작 함체는 PvP 격침에서도 잔해 자원을 지급하지 않습니다.','無料開始船体はPvP撃沈でも残骸資源を支給しません。','免费初始舰体即使在PvP中沉没也不发放残骸资源。'),
+      SELF_SALVAGE_FORBIDDEN:tl('Self-destruction cannot issue salvage.','자기 함선 격침으로 자원을 회수할 수 없습니다.','自艦撃沈から資源は回収できません。','击沉自己的舰船不能回收资源。'),
+      HULL_NOT_LOST:tl('This hull is active or restored. No salvage is available.','현역이거나 복구된 함체의 잔해는 회수할 수 없습니다.','現役・復旧済み船体の残骸は回収できません。','现役或已恢复舰体的残骸无法回收。'),
+      ALREADY_SALVAGED:tl('Already salvaged','이미 회수한 잔해입니다','回収済みです','已经回收'),
+      HULL_ALREADY_SALVAGED:tl('This hull has already issued salvage.','이 함체의 잔해는 이미 지급됐습니다.','この船体の残骸は支給済みです。','此舰体的残骸已经发放。'),
+      WRECK_EXPIRED:tl('Wreck expired','잔해 회수 기한이 만료됐습니다','残骸の回収期限切れです','残骸回收期限已过'),
+      NO_RECOVERABLE_RESOURCES:tl('No recoverable resources','회수 가능한 자원이 없습니다','回収可能な資源がありません','没有可回收资源')
+    };
+    if (btn) {btn.disabled=false;btn.textContent=readyLabel;}
+    if (typeof showFactionToast==='function') showFactionToast((messages[code] || tl('The server could not verify an eligible loss.','회수 가능한 격침 기록을 확인할 수 없습니다.','回収可能な撃沈記録を確認できません。','无法确认可回收的击沉记录。'))+
+      (budget ? ' '+tl('Today remaining: ','오늘 남은 회수량: ','本日の残量：','今日剩余：')+budgetLabel(budget) : ''),'error');
+  }
+  if (btn) {btn.disabled=true;btn.textContent='...';}
+  try {
+    const quoteResponse=await fetch('/api/killboard/'+encodeURIComponent(wreckId)+'/salvage-quote',{headers:getAuthHeaders()});
+    const quote=await quoteResponse.json();
+    if (!quoteResponse.ok || !quote.eligible) {showFailure(quote.error,quote.budget);return;}
+    const body=(quote.drops || []).map(function(drop){return escapeHtml(drop.code)+' ×'+drop.quantity;}).join('<br>')+
+      '<br><br>'+tl('Today remaining','오늘 남은 회수량','本日の残量','今日剩余')+': '+escapeHtml(budgetLabel(quote.budget))+
+      '<br>'+tl('Daily reset timezone','일일 초기화 시간대','日次リセットの時間帯','每日重置时区')+': '+escapeHtml((quote.budget && quote.budget.timezone) || '')+
+      '<br>'+tl('One claim per lost hull. The server rechecks the budget before issuing resources.','격침 함체마다 한 번 회수합니다. 지급 전에 서버가 한도를 다시 검사합니다.','撃沈船体ごとに1回回収できます。支給前に上限を再確認します。','每个击沉舰体限回收一次，发放前服务器重新检查上限。');
+    const confirmed=await gameConfirm({icon:'🧲',title:readyLabel,body,confirmText:tl('Recover resources','자원 회수','資源を回収','回收资源')});
+    if (!confirmed) {if(btn){btn.disabled=false;btn.textContent=readyLabel;}return;}
+    const res=await fetch('/api/killboard/'+encodeURIComponent(wreckId)+'/salvage',{method:'POST',headers:getAuthHeaders()});
+    const data=await res.json().catch(function(){return {};});
+    if (!res.ok || data.error) {showFailure(data.error,data.meta && data.meta.budget);return;}
+    const drops=data.drops || [];
+    const label=drops.length ? drops.map(function(d){return d.code+'×'+d.quantity;}).join(' · ') : tl('Salvaged','회수 완료','回収済','已回收');
+    if(btn){btn.classList.add('done');btn.textContent=tl('Salvaged','회수완료','回収済','已回收');}
+    if(typeof rewardBurst==='function') rewardBurst({text:label,tier:drops.length>2?2:1,sound:window._sfx && _sfx.success});
+    if(typeof showFactionToast==='function') showFactionToast(label,'success');
+    try{if(typeof markDailyOpsAction==='function')markDailyOpsAction('salvage_wreck');}catch(_){}
+    try{if(typeof loadBaseInventory==='function')loadBaseInventory();}catch(_){}
+    try{if(battleHubState.currentTab==='killboard' && document.getElementById('battleHubModal')?.classList.contains('active'))_setActiveTimeout(bhLoad,350);}catch(_){}
+  } catch(e){showFailure('NETWORK');}
 }
 window.salvageKillmail = salvageKillmail;
 
@@ -934,9 +959,23 @@ async function openDeclareBattle(opts) {
   declareState.selectedTargetFleetId = null;
   declareState.targetFleets = [];
   document.getElementById('declareConfirmBtn').disabled = true;
+  document.getElementById('declareConfirmBtn').textContent = tl('Send duel invitation','결투 초대 보내기','決闘の招待を送る','发送决斗邀请');
   if (opts.sector) setDeclareSectorContext(opts.sector);
   else clearDeclareSectorContext();
 
+  var modeRow = document.getElementById('declareDuelModeRow');
+  if (!modeRow) {
+    modeRow = document.createElement('div'); modeRow.id = 'declareDuelModeRow'; modeRow.className = 'bd-section';
+    sel.parentNode.insertAdjacentElement('afterend', modeRow);
+  }
+  modeRow.innerHTML = '<label for="declareDuelMode">' + tl('Duel rules','결투 규칙','決闘ルール','决斗规则') + '</label>' +
+    '<select id="declareDuelMode" class="bd-my-fleet-select" style="min-height:44px" onchange="updateDeclareDuelMode()">' +
+    '<option value="normal">' + tl('Normal duel — permanent loss possible','일반 결투 — 영구 손실 가능','通常の決闘 — 永久損失の可能性','普通决斗 — 可能永久损失') + '</option>' +
+    '<option value="standard_v1">' + tl('Standard fleet duel — no loss','표준 함대전 — 무손실','標準艦隊戦 — 損失なし','标准舰队战 — 无损失') + '</option></select><div id="declareDuelRules"></div>';
+  var title = document.querySelector('#declareBattleModal .bd-title');
+  if (title) title.textContent = tl('DUEL INVITATION','결투 초대','決闘の招待','决斗邀请');
+  document.getElementById('declareConfirmBtn').style.minHeight = '44px';
+  updateDeclareDuelMode();
   document.getElementById('declareBattleModal').classList.add('active');
 
   // 추천 상대 로드 (Phase B)
@@ -973,6 +1012,12 @@ window.openDeclareBattleWithFleet = async function(targetFleetId, nickname, ship
   }
   selectTargetFleet(id, label, alive);
 };
+
+function updateDeclareDuelMode() {
+  var select = document.getElementById('declareDuelMode');
+  var details = document.getElementById('declareDuelRules');
+  if (details) details.innerHTML = duelLossDetails({ mode: select ? select.value : 'normal', loss_terms:{} });
+}
 
 function closeDeclareBattle() {
   document.getElementById('declareBattleModal').classList.remove('active');
@@ -1155,8 +1200,9 @@ function selectTargetFleet(fleetId, nickname, shipsAlive) {
 }
 
 async function confirmDeclareBattle() {
-  const myFleetId = parseInt(document.getElementById('declareMyFleet').value);
-  const targetFleetId = declareState.selectedTargetFleetId;
+  const myFleetId = String(document.getElementById('declareMyFleet').value || '');
+  const targetFleetId = String(declareState.selectedTargetFleetId || '');
+  const duelMode = document.getElementById('declareDuelMode')?.value || 'normal';
 
   if (!myFleetId || !targetFleetId) {
     showFactionToast(LANG==='ko'?'함대 선택을 확인해주세요':LANG==='ja'?'艦隊の選択を確認してください':LANG==='zh'?'请确认舰队选择':'Please check fleet selection','error');
@@ -1167,49 +1213,31 @@ async function confirmDeclareBattle() {
     return;
   }
 
-  // [combat agency] PvP 선언 직전에도 AI 연습전(v7.437)과 같은 전술 브리프를 띄운다.
-  // 내 함대/대상 정보가 없거나 브리프가 실패하면 기존 선언 확인(gameConfirm)으로 폴백 — 선언 흐름을 막지 않는다.
-  var ok = false, briefDone = false;
-  try {
-    var myFleetInfo = (declareState.myFleets || []).find(function(f){ return String(f.id) === String(myFleetId); });
-    if (myFleetInfo) {
-      var pvpTarget = (declareState.targetFleets || []).find(function(r){ return String(r.fleet_id) === String(targetFleetId); }) || null;
-      var pvpProfile = pvpTarget ? pvpThreatProfile(pvpTarget) : null;
-      ok = await aiPreBattleBrief(
-        myFleetInfo,
-        pvpProfile,
-        pvpTarget ? (pvpTarget.nickname || pvpTarget.fleet_name || '') : tl('Enemy fleet','상대 함대','相手艦隊','敌方舰队'),
-        {
-          title: tl('Declare Battle','전투 선언','戦闘宣言','宣战'),
-          confirmText: tl('Declare','선언','宣言','宣战'),
-          enemyMetaLine: pvpProfile ? pvpProfile.metaLine : tl('Target intel unavailable — check after declaring','대상 정보 없음 — 선언 후 확인','対象情報なし — 宣言後に確認','无目标情报 — 宣战后确认'),
-          noteText: tl('After declaring you can pick Commander Actions. Formation & maneuver affect the result — change them in Fleet Command.',
-                       '선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다. 진형·기동은 전투 결과에 반영 — 변경은 [함대 지휘]에서.',
-                       '宣言後にCommander Actionsを選択できます。陣形・機動は戦闘結果に反映 — 変更は[艦隊指揮]で。',
-                       '宣战后可选择Commander Actions。阵形·机动会影响结果 — 可在[舰队指挥]中更改。')
-        });
-      briefDone = true;
-    }
-  } catch (_brief) { briefDone = false; /* 브리프 실패 → 기존 확인으로 폴백 */ }
-  if (!briefDone) {
-    ok = await gameConfirm({icon:'⚔',title:LANG==='ko'?'전투 선언':LANG==='ja'?'戦闘宣言':LANG==='zh'?'宣战':'Declare Battle',body:LANG==='ko'?'선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다.':LANG==='ja'?'宣言後に戦術指示(Commander Actions)を選択できます。':LANG==='zh'?'宣战后可选择战术指令(Commander Actions)。':'After declaring, you can choose tactical directives (Commander Actions).',confirmText:LANG==='ko'?'선언':LANG==='ja'?'宣言':LANG==='zh'?'宣战':'Declare'});
-  }
+  var ok = await gameConfirm({ icon:'⚔', title:tl('Invite to duel','결투 초대','決闘に招待','邀请决斗'),
+    body:tl('The other player must review both fleets and the loss conditions and accept. This invitation starts no battle and expires in 15 minutes.',
+      '상대가 양 함대와 손실 조건을 확인하고 수락해야 전투가 시작됩니다. 초대만으로 전투가 시작되지 않으며 15분 후 만료됩니다.',
+      '相手が両艦隊と損失条件を確認して承諾すると戦闘が始まります。招待は15分で期限切れになります。',
+      '对方确认双方舰队及损失条件并接受后才会开战。邀请15分钟后过期。') + duelLossDetails({mode:duelMode,loss_terms:{}}),
+    confirmText:tl('Send invitation','초대 보내기','招待を送る','发送邀请') });
   if(!ok) return;
 
   try {
-    const res = await fetch('/api/battles/declare-pvp', {
+    const res = await fetch('/api/battles/duel-invitations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({
         my_fleet_id: myFleetId,
         target_fleet_id: targetFleetId,
-        run_immediately: false,   // ← 지시 선택 후 별도로 /run 호출
+        mode: duelMode,
       })
     });
     const data = await res.json().catch(function(){ return {}; });
 
     if (!res.ok) {
       const msgMap = {
+        'STANDARD_HULL_INELIGIBLE': tl('Standard duels allow frigates, destroyers and cruisers with a positive catalog cost.','표준전은 카탈로그 비용이 있는 프리깃·구축함·순양함만 가능합니다.','標準戦は価格のあるフリゲート・駆逐艦・巡洋艦のみです。','标准战仅允许有目录成本的护卫舰、驱逐舰和巡洋舰。'),
+        'STANDARD_SHIP_LIMIT': tl('Each standard fleet can contain at most 5 ships.','표준 함대는 최대 5척입니다.','標準艦隊は最大5隻です。','标准舰队最多5艘。'),
+        'STANDARD_BUDGET_EXCEEDED': tl('Each standard fleet must fit the 5000 catalog budget.','각 표준 함대의 카탈로그 예산은 5000 이하여야 합니다.','各標準艦隊はカタログ予算5000以内です。','每支标准舰队目录预算不得超过5000。'),
         'MY_FLEET_NOT_FOUND': LANG==='ko'?'내 함대를 찾을 수 없음':LANG==='ja'?'自分の艦隊が見つかりません':LANG==='zh'?'找不到我的舰队':'My fleet not found',
         'MY_FLEET_IN_BATTLE': LANG==='ko'?'내 함대가 전투 중':LANG==='ja'?'自分の艦隊が戦闘中':LANG==='zh'?'我的舰队正在战斗中':'My fleet is in battle',
         'MY_FLEET_EMPTY': LANG==='ko'?'내 함대에 함선이 없음':LANG==='ja'?'自分の艦隊に艦船がありません':LANG==='zh'?'我的舰队没有舰船':'My fleet is empty',
@@ -1222,18 +1250,95 @@ async function confirmDeclareBattle() {
       return;
     }
 
-    const battleId = parseInt(data.battle_id);
-    if (!battleId) {
-      console.warn('[battle] declare-pvp response missing battle_id:', data);
-      showFactionToast(LANG==='ko'?'전투 생성 응답에 전투 ID가 없습니다':LANG==='ja'?'戦闘作成レスポンスに戦闘IDがありません':LANG==='zh'?'宣战响应缺少战斗ID':'Battle response missing battle ID','error');
-      return;
-    }
+    if (!data.invitation || data.status !== 'pending') throw new Error('invitation_missing');
     closeDeclareBattle();
-    openCmdActionsModal(battleId, targetFleetId);
+    showFactionToast(tl('Invitation sent. Waiting for the other player.', '초대를 보냈습니다. 상대의 수락을 기다립니다.', '招待を送りました。相手の承諾を待っています。', '邀请已发送，等待对方接受。'), 'success');
+    openBattleHub();
   } catch (err) {
     console.error('confirmDeclareBattle error:', err);
     showFactionToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error');
   }
+}
+
+// Fleet duel consent cards live in the active battle hub.
+function duelFleetDetails(f, invite) {
+  if (!f) return '';
+  return '<strong>' + escapeHtml(f.name || ('#' + f.id)) + ' (#' + escapeHtml(String(f.id)) + ')</strong><br>' +
+    escapeHtml(f.formation || '') + ' / ' + escapeHtml(f.movement || '') + '<br>' +
+    (f.ships || []).map(function(ship) {
+      var catalog = invite?.loss_terms?.standard?.catalog || [];
+      var base = catalog.find(function(t) { return t.code === ship.ship_type_code; });
+      if (invite?.mode === 'standard_v1' && base) return escapeHtml(ship.ship_type_code) + ' #' + escapeHtml(String(ship.id)) +
+        ' — ' + tl('Base HP ','기본 HP ','基礎HP ','基础HP ') + escapeHtml(String(base.base_hp)) +
+        ' · ATK ' + escapeHtml(String(base.base_atk)) + ' · DEF ' + escapeHtml(String(base.base_def)) +
+        ' · ' + escapeHtml(base.role || '');
+      return escapeHtml(ship.ship_type_code || '') + ' #' + escapeHtml(String(ship.id)) +
+        ' — HP ' + escapeHtml(String(ship.current_hp)) + '/' + escapeHtml(String(ship.max_hp));
+    }).join('<br>');
+}
+function duelLossDetails(invite) {
+  var terms = invite.loss_terms || {}, policy = terms.policy || [];
+  if (invite.mode === 'standard_v1') {
+    var budgets = terms.standard?.fleet_budgets || [];
+    return '<p style="color:var(--success,#8de4b8)">' + tl(
+      'Standard fleet duel: max 5 ships and 5000 catalog budget per fleet. Quality, upgrades, bonuses, shields and parts are disabled only in simulation; base hull skills, roles, counters and formation remain. Full base HP is simulated. No permanent loss, charges, rewards or OPS progress. Your owned ships keep their HP and stats. No territory transfer.',
+      '표준 함대전: 각 함대 최대 5척·카탈로그 예산 5000. 품질·강화·보너스·실드·부품은 시뮬레이션에서만 제외됩니다. 기본 선체 스킬·역할·상성·진형은 유지하고 기본 HP를 가득 채워 모의 전투합니다. 영구 손실·결제·보상·OPS 진행이 없습니다. 보유 함선의 HP와 능력치는 그대로이며 영토를 이전하지 않습니다.',
+      '標準艦隊戦: 各艦隊最大5隻・カタログ予算5000。品質・強化・ボーナス・シールド・部品はシミュレーションでのみ無効。船体スキル・役割・相性・陣形は維持し、基礎HP満タンで模擬戦します。永久損失・支払い・報酬・OPS進行なし。所有艦のHPと能力値、領土は変わりません。',
+      '标准舰队战：每队最多5艘、目录预算5000。仅模拟中禁用品质、升级、加成、护盾和部件，保留基础船体技能、角色、克制和阵型，以完整基础HP模拟。无永久损失、费用、奖励或OPS进度，实际舰船HP、属性及领土不变。') + '</p>' +
+      budgets.map(function(b) { return '<p>#' + escapeHtml(String(b.fleet_id)) + ' · ' + escapeHtml(String(b.ships)) + '/5 · ' +
+        tl('Catalog budget ','카탈로그 예산 ','カタログ予算 ','目录预算 ') + escapeHtml(String(b.catalog_budget)) + '/5000</p>'; }).join('');
+  }
+  var mode = policy.find(function(p) { return p.key === 'full_loss_mode'; });
+  return '<p style="color:var(--danger,#ff8b8b)">' + tl(
+    'Ships can be permanently destroyed. Current global loss policy and new-player protection apply at settlement and may change. This duel does not transfer territory.',
+    '함선이 영구 파괴될 수 있습니다. 전투 종료 시점의 전체 손실 정책과 신규 플레이어 보호가 적용되며 설정은 변경될 수 있습니다. 이 결투는 영토를 이전하지 않습니다.',
+    '艦船が永久に破壊される可能性があります。決着時の損失設定と初心者保護が適用され、設定は変更される場合があります。領土は移転しません。',
+    '舰船可能被永久摧毁。结算时适用全局损失政策及新玩家保护，设置可能变化。本次决斗不转移领土。') + '</p><p>' +
+    tl('Current loss mode: ','현재 손실 모드: ','現在の損失設定: ','当前损失模式：') + escapeHtml(mode ? mode.value : 'always') + '</p>';
+}
+function renderDuelInvitation(invite) {
+  var mine = String(getMyWallet()).toLowerCase(), incoming = invite.defender_wallet.toLowerCase() === mine;
+  var atk = invite.fleet_snapshot.find(function(f) { return String(f.id) === String(invite.inviter_fleet_id); });
+  var def = invite.fleet_snapshot.find(function(f) { return String(f.id) === String(invite.defender_fleet_id); });
+  var inviteId = String(invite.id); // Server-issued canonical decimal ID, never user HTML.
+  var busy = battleHubState.duelBusy === inviteId;
+  return '<div class="bh-card" style="padding:14px;overflow-wrap:anywhere"><h3>⚔ ' +
+    (incoming ? tl('Duel invitation','받은 결투 초대','決闘の招待','收到的决斗邀请') : tl('Awaiting consent','상대 수락 대기','承諾待ち','等待对方接受')) +
+    '</h3><p>' + duelFleetDetails(atk, invite) + '</p><p>VS</p><p>' + duelFleetDetails(def, invite) + '</p>' + duelLossDetails(invite) +
+    '<p>' + tl('Expires: ','만료: ','期限: ','到期：') + escapeHtml(new Date(invite.expires_at).toLocaleString()) + '</p>' +
+    (incoming ? '<div style="display:flex;gap:8px;flex-wrap:wrap"><button style="min-height:44px;padding:10px" ' + (busy ? 'disabled ' : '') +
+      'onclick="respondDuelInvitation(\'' + inviteId + '\',\'accept\')">' + tl('Review & accept','조건 확인 후 수락','条件を確認して承諾','确认条件并接受') +
+      '</button><button style="min-height:44px;padding:10px" ' + (busy ? 'disabled ' : '') + 'onclick="respondDuelInvitation(\'' + inviteId + '\',\'decline\')">' +
+      tl('Decline','거절','辞退','拒绝') + '</button></div>' : '') + '</div>';
+}
+async function respondDuelInvitation(inviteId, action) {
+  if (battleHubState.duelBusy) return;
+  var invite = (battleHubState.duelInvitations || []).find(function(i) { return String(i.id) === String(inviteId); });
+  if (!invite) return;
+  battleHubState.duelBusy = String(inviteId);
+  try {
+    if (action === 'accept') {
+      var ok = await gameConfirm({ icon:'⚔', title:invite.mode === 'standard_v1' ? tl('Accept standard fleet duel','표준 함대전 수락','標準艦隊戦を承諾','接受标准舰队战') : tl('Accept duel & loss risk','결투와 손실 위험 수락','決闘と損失リスクを承諾','接受决斗及损失风险'),
+        body:invite.fleet_snapshot.map(function(f) { return duelFleetDetails(f, invite); }).join('<p>VS</p>') + duelLossDetails(invite) + '<p>' +
+          tl('Accepting queues this battle immediately.', '수락하면 이 전투가 즉시 예약됩니다.', '承諾すると直ちに戦闘が予約されます。', '接受后立即安排本次战斗。') + '</p>',
+        confirmText:invite.mode === 'standard_v1' ? tl('Accept standard rules','표준 규칙에 동의하고 수락','標準ルールに同意して承諾','同意标准规则并接受') : tl('Accept loss risk & duel','손실 위험에 동의하고 수락','損失リスクに同意して承諾','同意损失风险并接受') });
+      if (!ok) return;
+    }
+    var res = await fetch('/api/battles/duel-invitations/' + encodeURIComponent(inviteId) + '/' + action, {
+      method:'POST', headers:{ 'Content-Type':'application/json', ...getAuthHeaders() },
+      body:JSON.stringify({ terms_token:invite.terms_token, accept_loss_terms:action === 'accept' }) });
+    var data = await res.json();
+    if (!res.ok) {
+      showFactionToast(tl('Invitation unavailable or fleets/conditions changed. Send a new invitation. ',
+        '초대가 만료·처리되었거나 함대·조건이 변경되었습니다. 새 초대가 필요합니다. ',
+        '招待が無効、または艦隊・条件が変更されました。新しい招待が必要です。 ',
+        '邀请不可用或舰队、条件已变更，请重新邀请。 ') + (data.error || ''), 'error');
+    } else {
+      showFactionToast(action === 'accept' ? tl('Duel accepted. Battle queued.','결투를 수락했습니다. 전투가 예약되었습니다.','決闘を承諾しました。戦闘が予約されました。','决斗已接受，战斗已安排。') : tl('Invitation declined.','초대를 거절했습니다.','招待を辞退しました。','已拒绝邀请。'), 'success');
+      delete battleHubState.listCache['list:active'];
+    }
+  } catch (_) { showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error'); }
+  finally { battleHubState.duelBusy = null; bhLoad(); }
 }
 
 // ═════════════════════════════════════════════════════════════════
@@ -2473,6 +2578,10 @@ async function openBattleViewer(battleId, startTick) {
   // [v7.406] 결과표시 게이트 리셋 — iframe 로컬 시뮬 완료(battle_final_done)에 맞춰 결과를 띄운다.
   bv._finalShown = false;
   bv._iframeActive = true;
+  bv._objectiveReplay = false;
+  bv._battleStatusSeen = false;
+  bv._objectiveReplayEndSent = false;
+  bv._objectiveReplayLastTick = null;
   if (bv._finalFallback) { _clearActiveTimeout(bv._finalFallback); bv._finalFallback = null; }
 
   // 준비 중이면 잠시 대기
@@ -2517,7 +2626,9 @@ async function openBattleViewer(battleId, startTick) {
       if (viewerSeq !== bv._viewerSeq) return;
       if (!infoData) { await _activeSleep(2000); continue; }
       if (infoData.error) { lastErr = 'info: ' + infoData.error; break; }
+      const liveCommandEvents = bv.battle && String(bv.battle.id) === String(battleId) ? bv.battle.command_events : null;
       bv.battle = infoData.battle;
+      if (bv.battle && Array.isArray(liveCommandEvents)) bv.battle.command_events = liveCommandEvents;
       if (infoData.battle) {
         rememberBattleContext(infoData.battle);
         const contextualBgKey = typeof pickBattlefieldKey === 'function' ? pickBattlefieldKey(battleId) : viewerBgKey;
@@ -2537,6 +2648,10 @@ async function openBattleViewer(battleId, startTick) {
       bv.events = infoData.events || [];
       const bStatus = infoData.battle && (infoData.battle.status || '');
       battleDone = (bStatus === 'ended' || bStatus === 'done');
+      if (!bv._battleStatusSeen) {
+        bv._objectiveReplay = battleDone && isObjectiveBattle(bv.battle);
+        bv._battleStatusSeen = true;
+      }
 
       // 타임라인
       const tlData = await battleHubReadKeyed('battle-timeline:' + battleId, `/api/battles/${battleId}/timeline`, 1500);
@@ -2713,6 +2828,7 @@ function bvAnimLoop(now) {
     }
     bv.playing = false;
     document.getElementById('bvPlayBtn').textContent = '⏵';
+    if (bv._objectiveReplay) { forwardObjectiveReplayEnd(); return; }
     // [v7.406] iframe 로컬 시뮬이 활성이면 결과는 battle_final_done(패배측 전멸 후)에 맞춘다 —
     //   레거시 타임라인(2프레임 AI전)이 먼저 결과를 띄워 보이는 전투를 자르지 않도록. fallback 만 건다.
     if (bv._iframeActive) {
@@ -2743,12 +2859,28 @@ _onPageHidden(function(){
   }
 });
 
+function forwardObjectiveReplayFrame(frame) {
+  if (!bv._objectiveReplay || !frame || bv._objectiveReplayLastTick === frame.t) return;
+  const iframe = document.getElementById('bvTacticalFrame');
+  if (!iframe || !iframe.contentWindow) return;
+  bv._objectiveReplayLastTick = frame.t;
+  iframe.contentWindow.postMessage({source:'occupy-battle-viewer',cmd:'replay_frame',battleId:bv.battle.id,payload:Object.assign({},frame,{type:'frame',tick:frame.t,realtime:false,tick_ms:bv.timeline.tick_ms})},location.origin);
+}
+function forwardObjectiveReplayEnd() {
+  if (!bv._objectiveReplay || bv._objectiveReplayEndSent) return;
+  const iframe = document.getElementById('bvTacticalFrame');
+  if (!iframe || !iframe.contentWindow) return;
+  bv._objectiveReplayEndSent = true;
+  iframe.contentWindow.postMessage({source:'occupy-battle-viewer',cmd:'replay_end',battleId:bv.battle.id,payload:{type:'end',winner_side:bv.battle.winner_side,duration_seconds:bv.battle.duration_seconds,objective_result:battleObjectiveResult(bv.battle)}},location.origin);
+}
+
 function redrawCurrentFrame() {
   // 보간할 프레임 찾기
   const frames = bv.timeline.frames;
   let i = 0;
   while (i < frames.length - 1 && frames[i+1].t <= bv.currentTick) i++;
   const f1 = frames[i];
+  forwardObjectiveReplayFrame(f1);
   const f2 = frames[Math.min(i + 1, frames.length - 1)];
   const t = f2.t > f1.t ? (bv.currentTick - f1.t) / (f2.t - f1.t) : 0;
   
@@ -3184,6 +3316,89 @@ function showBvEvent(ev) {
   while (feed.children.length > 20) feed.removeChild(feed.firstChild);
 }
 
+// Merge verified live results and persisted replay events; ACKs and rejections are not outcomes.
+function collectBattleCommandEvents(battle, events) {
+  const merged = new Map();
+  const direct = Array.isArray(battle && battle.command_events) ? battle.command_events : [];
+  for (const raw of direct.concat(Array.isArray(events) ? events : [])) {
+    const type = raw.event_type || raw.type;
+    const p = raw.payload || raw;
+    const manual = type === 'manual_skill';
+    if (!manual && p.status !== 'applied') continue;
+    let cmd = manual ? p.skill : p.cmd || p.action;
+    cmd = ({ beam_cannon: 'beam', missile_barrage: 'missile' })[cmd] || cmd;
+    if (!['formation', 'maneuver', 'focus', 'beam', 'missile', 'overdrive'].includes(cmd)) continue;
+    const tick = Number(raw.tick == null ? p.tick : raw.tick);
+    if (!Number.isFinite(tick) || tick < 0) continue;
+    const fleetId = raw.fleet_id == null ? p.fleetId : raw.fleet_id;
+    const event = Object.assign({}, p, { cmd, tick, fleetId });
+    const damage = manual ? p.total_damage : p.totalDamage;
+    const targetCount = manual ? p.target_count : p.targetCount;
+    if (damage != null && Number.isFinite(Number(damage))) event.totalDamage = Number(damage);
+    if (targetCount != null && Number.isFinite(Number(targetCount))) event.targetCount = Number(targetCount);
+    const key = tick + ':' + cmd + ':' + String(fleetId);
+    if (!merged.has(key) || event.totalDamage != null) merged.set(key, event);
+  }
+  return Array.from(merged.values()).sort((a, b) => a.tick - b.tick).slice(-2);
+}
+function renderBattleCommandSummary() {
+  const container = document.getElementById('bvCommandEvents');
+  if (!container) return;
+  container.replaceChildren();
+  const title = document.createElement('strong');
+  title.textContent = LANG === 'ko' ? '확인된 지휘 기록' : 'Confirmed command events';
+  container.appendChild(title);
+  const list = document.createElement('ol'); list.style.cssText = 'padding-left:20px;margin:8px 0 0;line-height:1.7';
+  const events = collectBattleCommandEvents(bv.battle, bv.events);
+  const labels = LANG === 'ko' ? {formation:'진형',maneuver:'기동',focus:'함대 집중',beam:'빔',missile:'미사일',overdrive:'합체필살'} : {formation:'Formation',maneuver:'Maneuver',focus:'Fleet focus',beam:'Beam',missile:'Missile',overdrive:'Combine'};
+  for (const event of events) {
+    const item = document.createElement('li');
+    item.textContent = 'tick ' + event.tick + ' · ' + labels[event.cmd];
+    if (event.totalDamage != null) item.textContent += ' · ' + (LANG === 'ko' ? '피해 ' : 'Damage ') + event.totalDamage + (event.targetCount != null ? ' · ' + event.targetCount + (LANG === 'ko' ? '표적' : ' targets') : '');
+    else item.textContent += ' · ' + (event.formation || event.movement || (event.focusFireTargetId != null ? '#' + event.focusFireTargetId : LANG === 'ko' ? '적용됨' : 'Applied'));
+    list.appendChild(item);
+  }
+  if (!events.length) { const item = document.createElement('li'); item.textContent = LANG === 'ko' ? '확인된 적용 기록이 없습니다.' : 'No confirmed command events available.'; list.appendChild(item); }
+  container.appendChild(list);
+}
+function bvResultNextAction(tab) {
+  if (typeof window.openCommandCenter !== 'function') return;
+  closeBattleViewer();
+  window.openCommandCenter(tab);
+}
+
+function battleObjectiveResult(battle) {
+  return battle && (battle.objective_result || (battle.battle_summary && battle.battle_summary.objective_result)) || null;
+}
+function isObjectiveBattle(battle) {
+  const summary = battle && battle.battle_summary || {};
+  return !!battleObjectiveResult(battle) || summary.is_objective_operation === true;
+}
+function objectiveResultText(battle, lang) {
+  if (!isObjectiveBattle(battle)) return '';
+  const result = battleObjectiveResult(battle);
+  const ko = lang === 'ko';
+  if (!result || result.complete !== true) return ko ? '서버 목표 결과 확인 중' : 'Waiting for the server objective result';
+  const seconds = result.hold_seconds != null && Number.isFinite(Number(result.hold_seconds)) ? Number(result.hold_seconds) : null;
+  const winReasons = ko ? {
+    relay_held: seconds == null ? '중계소 점유 목표 달성으로 승리' : '중계소 ' + seconds + '초 점유로 승리',
+    convoy_arrived: '보급선 항로 완주로 승리', flagship_destroyed: '표시된 적 지휘 기함 격파로 승리'
+  } : {
+    relay_held: seconds == null ? 'Victory: relay control objective completed' : 'Victory: relay held for ' + seconds + ' seconds',
+    convoy_arrived: 'Victory: supply convoy arrived', flagship_destroyed: 'Victory: marked enemy flagship destroyed'
+  };
+  const failReasons = ko ? {player_eliminated:'목표 실패 · 내 함대 전멸 또는 철수',convoy_lost:'목표 실패 · 보급 기함 손실',objective_deadline:'목표 실패 · 제한 시간 초과'} : {player_eliminated:'Objective failed: player fleets eliminated or withdrawn',convoy_lost:'Objective failed: convoy flagship lost',objective_deadline:'Objective failed: deadline reached'};
+  if (result.success === true) return winReasons[result.reason] || (ko ? '서버 확인 · 목표 달성' : 'Server confirmed: objective completed');
+  return failReasons[result.reason] || (ko ? '서버 확인 · 목표 실패' : 'Server confirmed: objective failed');
+}
+function renderBattleObjectiveResult() {
+  const root = document.getElementById('bvObjectiveResult');
+  if (!root) return;
+  const text = objectiveResultText(bv.battle, LANG);
+  root.hidden = !text;
+  root.textContent = text;
+}
+
 function showBattleResult() {
   const overlay = document.getElementById('bvResultOverlay');
   const card = document.getElementById('bvResultCard');
@@ -3250,6 +3465,7 @@ function showBattleResult() {
   const defResultBadge = defWon ? _winBadge : (!defWon && atkWon) ? _lossBadge : '';
 
   stats.innerHTML = `
+    <section id="bvObjectiveResult" hidden style="grid-column:1/-1;padding:12px;border:1px solid #81b99d;border-radius:8px;color:#d7f4e2;font:700 14px/1.5 system-ui"></section>
     <div class="bv-result-stat-group atk ${atkWon ? 'winner' : ''}${atkIsMe ? ' my-side' : ''}">
       <div class="bv-result-emblem atk">⚔</div>
       <div class="bv-result-stat-label" style="color:#4fc3f7">ATK${atkIsMe ? _meBadge : ''}${atkResultBadge}</div>
@@ -3267,10 +3483,19 @@ function showBattleResult() {
       <div class="bv-result-stat-row"><span>생존</span><b style="color:#66bb6a">${(bv.battle.def_ships_total || 0) - (bv.battle.def_ships_lost || 0)}</b></div>
       <div class="bv-result-stat-row"><span>총 데미지</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
     </div>
+    <section id="bvCommandEvents" style="grid-column:1/-1;border:1px solid #4b6346;border-radius:8px;padding:12px;font-size:14px;color:#d8efcc;overflow-wrap:anywhere"></section>
+    <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px">
+      <button type="button" onclick="bvResultNextAction('fleet')" style="flex:1;min-height:44px;min-width:120px;padding:10px;border:1px solid #688672;border-radius:8px;background:#183127;color:#e1f7e9;font:14px system-ui">${LANG==='ko'?'함대 · 수리/재건':'Fleet · repair / rebuild'}</button>
+      <button type="button" onclick="bvResultNextAction('front')" style="flex:1;min-height:44px;min-width:120px;padding:10px;border:1px solid #526b89;border-radius:8px;background:#172a42;color:#e2eeff;font:14px system-ui">${LANG==='ko'?'전선 · 다음 목표':'Front · next objective'}</button>
+    </div>
     <div id="bvReportSection" style="margin-top:12px;width:100%;border-top:1px solid rgba(255,255,255,.12);padding-top:10px">
       <div id="bvReportContent" style="color:rgba(255,255,255,.4);font-size:11px;text-align:center">${t('bv_report_loading')}</div>
     </div>
   `;
+
+  renderBattleCommandSummary();
+  renderBattleObjectiveResult();
+  card.style.minWidth='0';card.style.width='min(560px,92vw)';card.style.maxHeight='calc(100svh - 24px)';card.style.overflowY='auto';card.style.padding='20px 16px';
 
   // [v7.221 upgrade #3] AI 전투 리매치 버튼 — 이번 결과가 방금 끝낸 AI 전투(_lastAiChallenge.battleId 일치)일 때만 표시.
   try {
@@ -3376,6 +3601,7 @@ async function _loadBattleReport(battleId, mySide) {
     const r = data.report;
     if (!r) throw new Error('no report');
 
+    const objectiveBattle = isObjectiveBattle(bv.battle);
     const myData = mySide === 'atk' ? r.atk : mySide === 'def' ? r.def : null;
     const classBD = myData ? (myData.class_breakdown || []) : [];
     const allianceHtml = renderBattleReportAllianceBanner(r);
@@ -3497,7 +3723,7 @@ async function _loadBattleReport(battleId, mySide) {
     const analysisItems = Array.isArray(r.analysis_items) && r.analysis_items.length
       ? r.analysis_items
       : (r.analysis_ko ? [{ severity:'info', text:r.analysis_ko }] : []);
-    if (analysisItems.length > 0 && mySide) {
+    if (!objectiveBattle && analysisItems.length > 0 && mySide) {
       const iWon = mySide && r.winner_side && mySide === r.winner_side;
       const isDraw = r.winner_side === 'draw';
       const iLost = mySide && r.winner_side && !iWon && !isDraw;
@@ -3552,7 +3778,7 @@ async function _loadBattleReport(battleId, mySide) {
     const recommendationItems = Array.isArray(r.recommendation_items) && r.recommendation_items.length
       ? r.recommendation_items.map(x => x.text || '')
       : (r.recommendations_ko || []);
-    if (recommendationItems.length > 0 && mySide) {
+    if (!objectiveBattle && recommendationItems.length > 0 && mySide) {
       const recTitle = LANG==='ko'?'추천':LANG==='ja'?'おすすめ':LANG==='zh'?'建议':'Recommended';
       const recRows = recommendationItems.slice(0, 4).map(rec =>
         `<div style="font-size:10px;color:rgba(255,255,255,.72);padding:2px 0">→ ${escapeHtml(rec)}</div>`

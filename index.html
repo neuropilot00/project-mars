@@ -16,6 +16,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/assets/pwa/occupy-mars-icon-realistic.png">
 <title>OCCUPY MARS — Claim Your Territory</title>
 <script src="/assets/app-config.js?v=7485"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -24,14 +25,14 @@
 <link href="/assets/ace-combat-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/bug-reporter.css?v=7485" rel="stylesheet">
 <link href="/assets/ship-catalog-modals.css?v=7485" rel="stylesheet">
-<link href="/assets/shipyard-modal.css?v=7485" rel="stylesheet">
+<link href="/assets/shipyard-modal.css?v=7474-upgrade10" rel="stylesheet">
 <link href="/assets/fleet-command-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/battle-hub-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/war-betting-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/utility-overlays.css?v=7485" rel="stylesheet">
 <link href="/assets/faction-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/codex-guide.css?v=7485" rel="stylesheet">
-<link href="/assets/main.css?v=7485" rel="stylesheet">
+<link href="/assets/main.css?v=7474-upgrade10" rel="stylesheet">
 <script src="/assets/game-dialogs.js?v=7485"></script>
 <script src="/assets/lib/globe.gl.min.js"></script>
 <script src="/public/js/minigame-invaders.js?v=7485"></script>
@@ -39,6 +40,10 @@
 <script src="/public/js/minigame-digger.js?v=7485"></script>
 <script src="/assets/minigame-icons.js?v=7485"></script>
 
+<link rel="stylesheet" href="/assets/command-center.css?v=7474-upgrade10">
+<link rel="stylesheet" href="/assets/fleet-field-guide.css?v=7474-upgrade10">
+<link rel="stylesheet" href="/assets/ship-card-workshop.css?v=7474-upgrade10">
+<link rel="stylesheet" href="/assets/objective-operations.css?v=7474-upgrade10">
 </head>
 <body>
 
@@ -210,11 +215,11 @@
 <div class="panel-l" id="panelL">
   <div class="p-section">
     <div class="p-title" data-i18n="global_stats">GLOBAL STATS</div>
-    <div class="stat-row"><span class="stat-label" data-i18n="total_pixels">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)" id="statTotalPx">5,040,000</span></div>
-    <div class="stat-row"><span class="stat-label" data-i18n="pixels_sold">PIXELS SOLD</span><span class="stat-val gn" id="statPlots">8,450</span></div>
-    <div class="stat-row"><span class="stat-label" data-i18n="total_volume">TOTAL VOLUME</span><span class="stat-val gold" id="statTVL">$845</span></div>
-    <div class="stat-row"><span class="stat-label" data-i18n="hijacks_hr">HIJACKS / HR</span><span class="stat-val red" id="statHijacks">0</span></div>
-    <div class="stat-row"><span class="stat-label" data-i18n="active_users">ACTIVE USERS</span><span class="stat-val" id="statActiveUsers">1,247</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="total_pixels">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)" id="statTotalPx">—</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="pixels_sold">PIXELS SOLD</span><span class="stat-val gn" id="statPlots">—</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="total_volume">TOTAL VOLUME</span><span class="stat-val gold" id="statTVL">—</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="hijacks_hr">HIJACKS / HR</span><span class="stat-val red" id="statHijacks">—</span></div>
+    <div class="stat-row"><span class="stat-label" data-i18n="land_claimers_24h">24H LAND CLAIMERS</span><span class="stat-val" id="statActiveUsers">—</span></div>
   </div>
   <div class="p-section">
     <div class="p-title" data-i18n="leaderboard">LEADERBOARD</div>
@@ -1492,7 +1497,7 @@
               <div style="font-size:12px;color:var(--red);font-family:var(--fn);font-weight:700" id="bsStatHijacks">--</div>
             </div>
             <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;grid-column:span 2">
-              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px" data-i18n="active_users">ACTIVE USERS (24H)</div>
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px" data-i18n="land_claimers_24h">24H LAND CLAIMERS</div>
               <div style="font-size:12px;color:var(--tx);font-family:var(--fn);font-weight:700" id="bsStatActiveUsers">--</div>
             </div>
           </div>
@@ -3097,18 +3102,15 @@
 </div>
 
 
-<nav class="mob-bottom-nav" id="mobBottomNav">
-  <div class="nav-img-wrap">
-    <img class="mob-nav-bg" src="/assets/nav/main_buttons_mobile.png" alt="">
-    <button class="mob-nav-item mn-myland"  data-action="toggleMyLand"           id="mobNavMyLand" aria-label="My Land"></button>
-    <button class="mob-nav-item mn-cantina" data-action="openArena"              aria-label="Cantina"></button>
-    <button class="mob-nav-item mn-claim"   data-action="activateLandSelect"     id="mobNavClaim"  aria-label="Claim"></button>
-    <button class="mob-nav-item mn-items"   data-action="openMyItems" aria-label="Items"></button>
-    <button class="mob-nav-item mn-base"    data-action="openBaseModal"          aria-label="Base">
-      <span id="mobBaseDot" class="mob-base-dot" aria-hidden="true"></span>
-    </button>
-  </div>
+<nav class="mob-bottom-nav cc-nav" id="mobBottomNav" aria-label="Command navigation">
+  <button type="button" data-command-nav="front"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 8 5v10l-8 5-8-5V7zM4 7l8 5 8-5M12 12v10"/></svg><span>전선</span></button>
+  <button type="button" data-command-nav="fleet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 9 19-9-4-9 4zM12 7v10"/></svg><span>함대</span></button>
+  <button type="button" data-command-nav="missions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h12v18H5V5h2M9 3v3h6V3M8 11h8M8 16h8"/></svg><span>임무</span></button>
+  <button type="button" data-command-nav="base"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v11H3zM9 21v-8h6v8"/></svg><span>기지</span><span id="mobBaseDot" class="mob-base-dot" aria-hidden="true"></span></button>
 </nav>
+<section id="commandCenter" role="dialog" aria-modal="true" aria-labelledby="commandCenterTitle" hidden>
+  <div class="cc-shell"><header class="cc-header"><h2 id="commandCenterTitle">전선</h2><button type="button" data-cc="refresh" aria-label="Refresh">↻</button><button type="button" data-cc="close" aria-label="Close">✕</button></header><div class="cc-body"></div><div class="cc-status" role="status" aria-live="polite"></div></div>
+</section>
 
 <!-- Legacy Mobile FAB (hidden, replaced by bottom nav) -->
 <div class="mob-fab-wrap" id="mobFabWrap" style="display:none!important">
@@ -4412,7 +4414,7 @@
 
 <script src="/assets/core-runtime.js?v=7485"></script>
 <script src="/assets/world-globe.js?v=7485"></script>
-<script src="/assets/i18n.js?v=7485"></script>
+<script src="/assets/i18n.js?v=7486-upgrade3"></script>
 <script src="/assets/i18n-sea.js?v=7485"></script>
 <script src="/assets/wallet-minigame.js?v=7485"></script>
 <script src="/assets/territory-ui.js?v=7485"></script>
@@ -4420,7 +4422,7 @@
 <script src="/assets/economy-inventory.js?v=7485"></script>
 <script src="/assets/market-transport.js?v=7485"></script>
 <script src="/assets/ship-mining.js?v=7485"></script>
-<script src="/assets/base-navigation.js?v=7485"></script>
+<script src="/assets/base-navigation.js?v=7474-upgrade10"></script>
 <script src="/assets/guild-ops.js?v=7485"></script>
 <script src="/assets/season-base.js?v=7485"></script>
 <script src="/assets/campaign-system.js?v=7485"></script>
@@ -4900,7 +4902,7 @@
   </div>
 </div>
 
-<script src="/assets/shipyard-modal.js?v=7485"></script>
+<script src="/assets/shipyard-modal.js?v=7474-upgrade10"></script>
 
 <!-- ═══ A-3: Fleet Command Modal ═══ -->
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
@@ -5258,14 +5260,14 @@
 <!-- 섹션 3: JavaScript                                               -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 
-<script src="/assets/battle-hub-modal.js?v=7485"></script>
+<script src="/assets/battle-hub-modal.js?v=7474-upgrade10"></script>
 
 
 <script src="/assets/service-worker-registration.js?v=7485"></script>
-<script src="/assets/social-live-modal.js?v=7485"></script>
+<script src="/assets/social-live-modal.js?v=7474-upgrade10"></script>
 <script src="/assets/app-startup.js?v=7485"></script>
 <script src="/assets/war-betting-modal.js?v=7485"></script>
-<script src="/assets/tactical-lab-modal.js?v=7485"></script>
+<script src="/assets/tactical-lab-modal.js?v=7474-upgrade10"></script>
 <script src="/assets/ace-combat-modal.js?v=7485"></script>
 
 <!-- Tactical Lab Modal (v11.2 Formation/Maneuver) ================================ -->
@@ -5373,5 +5375,10 @@
   </div>
 </div>
 
+<script src="/assets/product-analytics.js?v=7474-upgrade10"></script>
+<script src="/assets/fleet-field-guide.js?v=7474-upgrade10"></script>
+<script src="/assets/ship-card-workshop.js?v=7474-upgrade10"></script>
+<script src="/assets/objective-operations.js?v=7474-upgrade10"></script>
+<script src="/assets/command-center.js?v=7474-upgrade10"></script>
 </body>
 </html>

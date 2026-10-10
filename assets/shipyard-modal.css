@@ -507,3 +507,12 @@
   .bp-visual.shipyard-top-preview { height: 190px; }
   .bp-role-text { white-space: normal; line-height: 1.45; }
 }
+
+/* Full draw disclosure and permanent discovery remain readable on mobile. */
+.crate-disclosure{font-size:12px;line-height:1.6;border:1px solid rgba(125,166,255,.35);border-radius:8px;padding:9px;color:#dbe6f5;background:#101827}
+.crate-disclosure summary{cursor:pointer;font-weight:700;color:#b8d1ff;min-height:28px}
+.crate-disclosure p{margin:8px 0}.crate-disclosure ul{margin:7px 0;padding-left:18px}.crate-disclosure li{margin:6px 0}
+.crate-odds-rows{margin:7px 0 12px}.crate-odds-rows>div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.crate-guarantee{color:#75e0c8;font-weight:700}.ship-collection{grid-column:1/-1;padding:16px;border:1px solid #385b79;border-radius:10px;background:#101b2a;color:#dce8f4;font-size:12px;line-height:1.6}
+.ship-collection h3{font-size:15px;margin:0 0 8px}.ship-collection p{margin:0 0 12px}.ship-collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.ship-collection-item{padding:12px;border:1px solid #304762;border-radius:8px;display:flex;flex-direction:column;gap:6px}.ship-collection-item span{color:#b8c9dd}.ship-collection-item button{margin-top:auto;min-height:44px;font-size:12px}

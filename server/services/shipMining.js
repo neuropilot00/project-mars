@@ -5,6 +5,7 @@
 //   땅 불필요. PP는 안 줌(무료 PP 폐지 정책). 격리 테이블(ship_mining_jobs) — 기존 흐름 무영향.
 // ════════════════════════════════════════════════════════════════
 const { pool } = require('../db');
+const { getActiveCargoFleetIds } = require('./fleetOccupancy');
 let seasonService;
 try { seasonService = require('./season'); } catch (_) { /* optional season service */ }
 let dailyOps;
@@ -310,6 +311,7 @@ async function launchMining(wallet, fleetId, durationH, destination) {
     );
     if (!fr.rows.length) { await client.query('ROLLBACK'); throw new Error('fleet_not_found'); }
     if (fr.rows[0].is_in_battle) { await client.query('ROLLBACK'); throw new Error('fleet_in_battle'); }
+    if ((await getActiveCargoFleetIds(client, [fleetId])).length) throw new Error('FLEET_TRANSPORTING');
     // [P0-1 fix] 활성 공성에 커밋된 함대는 채굴 출항 불가(전투↔채굴 이중 점유 방지).
     try {
       const sc = await client.query(

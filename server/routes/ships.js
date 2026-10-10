@@ -95,6 +95,7 @@ function shipErrorStatus(code) {
     MARKET_DISABLED: 409,
     SHIP_IN_BATTLE: 409,
     SHIP_LISTED_FOR_SALE: 409,
+    STARTER_HULL_LOCKED: 409,
     CANNOT_BUY_OWN_LISTING: 409,
     SELLER_NOT_FOUND: 409,
     INSUFFICIENT_GP: 402,
@@ -611,7 +612,8 @@ router.post('/:id/scrap', requireAuth, async (req, res) => {
     const map = {
       SHIP_NOT_FOUND: 404,
       SHIP_IN_BATTLE: 409,
-      SHIP_LISTED_FOR_SALE: 409
+      SHIP_LISTED_FOR_SALE: 409,
+      STARTER_HULL_LOCKED: 409
     };
     const s = map[err.message];
     if (s) return res.status(s).json({ error: err.message });
@@ -656,6 +658,26 @@ router.post('/:id/shield', requireAuth, async (req, res) => {
     console.error('[ships] shield error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });
   }
+});
+
+// Permanent collection and paid replacement hulls. Identity comes from JWT only.
+const shipCollection = require('../services/shipCollection');
+function collectionError(res, error) {
+  const code = error.message;
+  const status = { USER_NOT_FOUND:404, SHIP_NOT_FOUND:404, INVALID_SHIP_ID:400, SHIP_NOT_DESTROYED:409,
+    REBUILD_NOT_AVAILABLE:409, WRONG_FACTION:409, RANK_REQUIRED:409, SERVER_LIMIT_REACHED:409,
+    PLAYER_LIMIT_REACHED:409, PLAYER_FLEET_FULL:409, INSUFFICIENT_GP:402, INSUFFICIENT_MINERALS:402 }[code];
+  if (!status) console.error('[ships] collection error:', code);
+  return res.status(status || 500).json({ error: status ? code : 'SERVER_ERROR' });
+}
+router.get('/collection', requireAuth, async (req,res) => {
+  try { res.json(await shipCollection.listCollection(getWallet(req))); } catch (e) { collectionError(res,e); }
+});
+router.get('/collection/:shipId/rebuild-quote', requireAuth, async (req,res) => {
+  try { res.json(await shipCollection.getRebuildQuote(getWallet(req),req.params.shipId)); } catch (e) { collectionError(res,e); }
+});
+router.post('/collection/:shipId/rebuild', requireAuth, async (req,res) => {
+  try { res.json(await shipCollection.startRebuild(getWallet(req),req.params.shipId)); } catch (e) { collectionError(res,e); }
 });
 
 // ── 함선 가챠(Ship Crate) ──────────────────────────────────────

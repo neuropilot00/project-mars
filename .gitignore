@@ -19,6 +19,8 @@ assets/*
 assets/base/*
 !assets/base/*.png
 !assets/base/*.jpg
+!assets/pwa/
+!assets/pwa/*.png
 !assets/tactical-lab-v11.html
 !assets/campaign-editor.html
 !assets/ships/

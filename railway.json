@@ -6,6 +6,7 @@
   },
   "deploy": {
     "startCommand": "cd server && node index.js",
+    "healthcheckPath": "/ready",
     "restartPolicyType": "ALWAYS"
   }
 }

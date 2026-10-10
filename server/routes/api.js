@@ -455,6 +455,17 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
       pxParams
     );
 
+    // Claiming empty land must not bypass the fleet battle used by the UI.
+    // Reject the entire selection before charging or changing any territory.
+    if (existingRes.rows.some(row => String(row.owner).toLowerCase() !== wallet.toLowerCase())) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: 'FLEET_HIJACK_REQUIRED',
+        message: 'Enemy territory must be contested through a fleet battle.',
+        endpoint: '/api/hijack/declare-with-pp'
+      });
+    }
+
     // Build lookup map of existing pixels
     // IMPORTANT: parseFloat() to normalize DECIMAL(8,2) strings (e.g. "1.10" → 1.1)
     // so keys match JS number toString format used in lookups
@@ -832,13 +843,6 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     );
     const claimId = claimRes.rows[0].id;
 
-    // ── [Onboarding] Record first claim + advance territory claim step ──
-    if (onboardingService && isFirstOwnedClaim && onboardingState?.enabled && !onboardingState.completed && !onboardingState.skipped && onboardingState.current_step >= 2) {
-      try {
-        await onboardingService.completeStep(wallet.toLowerCase(), 2, { claim_id: claimId });
-      } catch (_oe) { /* non-critical */ }
-    }
-
     // ── Update claim dimensions if some battles were lost ──
     const claimPixels = [...newPixels, ...wonPixels];
     if (attackLost > 0 && claimPixels.length > 0) {
@@ -883,12 +887,19 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
         paramIdx += 6;
       }
       if (values.length > 0) {
-        await client.query(
+        const inserted = await client.query(
           `INSERT INTO pixels (lat, lng, owner, price, claim_id, sector_id, updated_at)
            VALUES ${values.join(',')}
-           ON CONFLICT (lat, lng) DO UPDATE SET owner=EXCLUDED.owner, price=EXCLUDED.price, claim_id=EXCLUDED.claim_id, sector_id=COALESCE(EXCLUDED.sector_id,pixels.sector_id), updated_at=NOW()`,
+           ON CONFLICT (lat, lng) DO UPDATE SET owner=EXCLUDED.owner, price=EXCLUDED.price, claim_id=EXCLUDED.claim_id, sector_id=COALESCE(EXCLUDED.sector_id,pixels.sector_id), updated_at=NOW()
+           WHERE pixels.owner IS NULL`,
           params
         );
+        // Empty coordinates cannot be row-locked. A competing claim may have
+        // acquired them since the initial read; never overwrite that owner.
+        if (inserted.rowCount !== chunk.length) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({ error: 'TERRITORY_CHANGED', message: 'Territory ownership changed. Refresh the map and try again.' });
+        }
       }
     }
 
@@ -1064,6 +1075,14 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     }
 
     await client.query('COMMIT');
+
+    // ── [Onboarding] Record first claim + advance territory claim step ──
+    if (onboardingService && isFirstOwnedClaim && onboardingState?.enabled && !onboardingState.completed && !onboardingState.skipped && onboardingState.current_step >= 2) {
+      try {
+        await onboardingService.completeStep(wallet.toLowerCase(), 2, { claim_id: claimId });
+      } catch (_oe) { /* non-critical */ }
+    }
+
 
     // ── Bounty payouts (fire-and-forget, non-blocking) ──
     if (bountySvc && attackWon > 0) {
@@ -1462,6 +1481,7 @@ router.post('/hijack/declare-with-pp', requireAuth, writeLimiter, async (req, re
       'ATK_FLEET_NOT_FOUND': 404,
       'DEF_FLEET_NOT_FOUND': 404,
       'ATK_FLEET_IN_BATTLE': 409,
+      'PIXEL_OWNERSHIP_CHANGED': 409,
       'DEF_FLEET_IN_BATTLE': 409,
       'ATK_FLEET_MINING': 409,
       'DEF_FLEET_MINING': 409,

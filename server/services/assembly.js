@@ -424,6 +424,8 @@ async function disassemble(shipId, wallet) {
     if (!ship) { await client.query('ROLLBACK'); return { error: 'SHIP_NOT_FOUND' }; }
     if (String(ship.owner_wallet).toLowerCase() !== w) { await client.query('ROLLBACK'); return { error: 'NOT_OWNER' }; }
     if (ship.is_market_listed) { await client.query('ROLLBACK'); return { error: 'SHIP_LISTED_FOR_SALE' }; }
+    const starter = await client.query('SELECT 1 FROM starter_fleet_grant_ships WHERE ship_id=$1', [sid]);
+    if (starter.rowCount) { await client.query('ROLLBACK'); return { error: 'STARTER_HULL_LOCKED' }; }
 
     // 이 함선이 어떤 합체 유닛인지
     const { rows: unitRows } = await client.query(`SELECT unit_code, disassemble_enabled FROM assembly_units WHERE ship_type_code = $1`, [ship.ship_type_code]);

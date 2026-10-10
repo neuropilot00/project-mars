@@ -25,6 +25,9 @@ try { jobService = require('./job'); } catch (_) { jobService = null; }
 // ─── 상수 ───
 
 const TICK_MS = 200;                    // 5 tick/sec
+const MANUAL_CONTROL_MS = 10000;
+const LIVE_FORMATIONS = new Set(['sphere', 'wedge', 'screen', 'pincer', 'line', 'echelon', 'vanguard']);
+const LIVE_MOVEMENTS = new Set(['advance', 'flank', 'retreat', 'scatter', 'rally']);
 const MAX_TICKS = 54000;                // 3시간 한도 — 실질적으로 HP 소진 전에 끝남
 const PRECOMPUTE_YIELD_EVERY_TICKS = 250; // keep Node responsive during large offline simulations
 const FIELD_W = 1000;
@@ -67,6 +70,7 @@ async function simulateBattle(battleId) {
   if (!battleData) throw new Error('BATTLE_NOT_FOUND');
 
   const state = initBattleState(battleData);
+  require('./objectiveOperations').initObjective(state, battleData.objectiveConfig);
 
   // Commander focus-fire 데미지 보너스 로드 (초기 state.focusFireDmgBonus=0)
   try {
@@ -110,6 +114,8 @@ async function simulateBattle(battleId) {
       if (fleet.ships.some(s => s.isAlive)) updateFleetPosition(fleet, state);
     }
 
+    require('./objectiveOperations').beforeTick(state);
+
     // 함선 위치 갱신 (진형 적용)
     for (const fleet of state.fleets) {
       if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet, state);
@@ -126,10 +132,11 @@ async function simulateBattle(battleId) {
     // 자동 퇴각 — HP 임계 이하 함대 후퇴(함선 보존)
     processAutoRetreat(state, events);
     // 승패 체크 — 살아있고 후퇴하지 않은 함선이 1척도 없는 사이드를 패배로 판정
+    const objectiveOutcome = require('./objectiveOperations').evaluateObjective(state);
     const atkAlive = state.fleets.filter(f => f.side === 'atk' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
     const defAlive = state.fleets.filter(f => f.side === 'def' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
-    if (atkAlive === 0 || defAlive === 0) {
-      winnerSide = atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
+    if (objectiveOutcome || (!state.objective && (atkAlive === 0 || defAlive === 0))) {
+      winnerSide = objectiveOutcome ? objectiveOutcome.winner_side : atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
       events.push({
         tick, type: 'battle_ended',
         payload: { winner_side: winnerSide, duration_ticks: tick }
@@ -162,42 +169,82 @@ async function simulateBattle(battleId) {
     timeline,
     events,
     stats,
+    objective_result: state.objective?.progress || null,
   };
 }
 
 function _sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 
+// PostgreSQL BIGINT IDs arrive as strings; JSON commands may use safe numbers.
+// Reject already-rounded numbers rather than selecting a neighboring fleet.
+function normalizeFocusFleetId(value) {
+  if (typeof value === 'number' && !Number.isSafeInteger(value)) return null;
+  if (!['string', 'number', 'bigint'].includes(typeof value)) return null;
+  const text = String(value);
+  if (!/^\d+$/.test(text) || text.length > 19) return null;
+  const id = BigInt(text);
+  return id > 0n && id <= 9223372036854775807n ? id.toString() : null;
+}
+
 // [Phase 3 실시간] 라이브 명령 적용 — 참가자가 자기 함대에 보낸 명령을 진행 중 state 에 반영.
 //   cmd: { fleetId, wallet, action('formation'|'maneuver'|'focus'), params }. 권한: 명령 wallet == 함대 owner (이중검증).
 function applyLiveCommand(state, cmd) {
-  if (!cmd || !cmd.fleetId) return false;
+  return applyLiveCommandResult(state, cmd).status === 'applied';
+}
+
+function applyLiveCommandResult(state, cmd) {
+  const result = {
+    commandId: cmd && cmd.commandId || null, cmd: cmd && cmd.action || null,
+    fleetId: cmd && cmd.fleetId || null, wallet: cmd && cmd.wallet || null,
+    tick: state.tick || 0, status: 'rejected', reason: null,
+  };
+  const reject = (reason, extra) => Object.assign(result, { reason }, extra);
+  const applied = (extra) => Object.assign(result, { status: 'applied' }, extra);
+  if (!cmd || !cmd.fleetId) return reject('fleetId_required');
   const fleet = state.fleets.find(f => String(f.id) === String(cmd.fleetId));
-  if (!fleet) return false;
+  if (!fleet) return reject('fleet_unavailable');
   // 권위 레이어 이중검증 — 남의 함대 명령 차단
-  if (cmd.wallet && String(fleet.owner_wallet || '').toLowerCase() !== String(cmd.wallet).toLowerCase()) return false;
+  if (cmd.wallet && String(fleet.owner_wallet || '').toLowerCase() !== String(cmd.wallet).toLowerCase()) return reject('not_your_fleet');
+  if (fleet.retreated || !fleet.ships.some(s => s.isAlive && !s.withdrawn)) return reject('fleet_unavailable');
   const p = cmd.params || {};
-  if (cmd.action === 'formation' && p.formation) { fleet.formation = String(p.formation); return true; }
-  if (cmd.action === 'maneuver'  && p.movement)  { fleet.movement = String(p.movement); fleet.maneuver = String(p.movement); return true; }
-  if (cmd.action === 'focus') { fleet.focusFireTargetId = p.targetFleetId || p.targetShipId || null; return true; }
+  if (cmd.action === 'formation' || cmd.action === 'maneuver') {
+    if (cmd.action === 'formation') {
+      if (!LIVE_FORMATIONS.has(p.formation)) return reject('invalid_formation');
+      fleet.formation = p.formation;
+      for (const ship of fleet.ships) ship.slotAssigned = false;
+    } else {
+      if (!LIVE_MOVEMENTS.has(p.movement)) return reject('invalid_maneuver');
+      fleet.movement = p.movement; fleet.maneuver = p.movement;
+    }
+    fleet.manualControlUntilTick = (state.tick || 0) + Math.ceil(MANUAL_CONTROL_MS / (state.liveTickMs || TICK_MS));
+    return applied({ formation: fleet.formation, movement: fleet.movement,
+      manualControlUntilTick: fleet.manualControlUntilTick,
+      manualControlRemainingMs: (fleet.manualControlUntilTick - (state.tick || 0)) * (state.liveTickMs || TICK_MS) });
+  }
+  if (cmd.action === 'focus') {
+    fleet.focusFireTargetId = normalizeFocusFleetId(p.targetFleetId || p.targetShipId || null);
+    return applied({ focusFireTargetId: fleet.focusFireTargetId });
+  }
   // [Phase 3 실시간] 수동 스킬 — 서버 권위 충전/쿨다운(레드팀: 클라 게이지 신뢰 금지). 충전 100% 일 때만 발동, 발동 후 0 리셋.
-  if (cmd.action === 'beam') {
-    if ((fleet.beamCharge || 0) < 100) return false;
-    if (_applySkill(state, fleet, 'beam', state.events || [])) { fleet.beamCharge = 0; return true; }
-    return false;
+  if (['beam', 'missile', 'overdrive'].includes(cmd.action)) {
+    const chargeKey = cmd.action + 'Charge';
+    const charge = fleet[chargeKey] || 0;
+    if (charge < 100) return reject('charge_insufficient', { charge, requiredCharge: 100 });
+    if (cmd.action === 'overdrive' && !fleet.ships.some(s => s.isAlive && s.size_class === 'assembled')) return reject('assembled_required');
+    const skillEvents = state.events || (state.events = []);
+    if (!_applySkill(state, fleet, cmd.action, skillEvents)) return reject('no_valid_target');
+    fleet[chargeKey] = 0;
+    const skillEvent = skillEvents[skillEvents.length - 1];
+    return applied({ charge: 0, requiredCharge: 100,
+      totalDamage: skillEvent.payload.total_damage, targetCount: skillEvent.payload.target_count,
+      targetShipIds: skillEvent.payload.target_ship_ids });
   }
-  if (cmd.action === 'missile') {
-    if ((fleet.missileCharge || 0) < 100) return false;
-    if (_applySkill(state, fleet, 'missile', state.events || [])) { fleet.missileCharge = 0; return true; }
-    return false;
-  }
-  // 합체 필살기 — 충전 100% + 살아있는 합체체 보유 시에만 발동(서버 권위)
-  if (cmd.action === 'overdrive') {
-    if ((fleet.overdriveCharge || 0) < 100) return false;
-    if (!fleet.ships.some(s => s.isAlive && s.size_class === 'assembled')) return false;
-    if (_applySkill(state, fleet, 'overdrive', state.events || [])) { fleet.overdriveCharge = 0; return true; }
-    return false;
-  }
-  return false;
+  return reject('unsupported_live_cmd');
+}
+
+function evaluateLiveTactics(fleet, state, events) {
+  if ((fleet.manualControlUntilTick || 0) > state.tick) return;
+  tacticsAI.evaluate(fleet, state, events);
 }
 
 // [Phase 3] 수동 스킬 데미지 적용 — beam: 우선순위 적함(기함/최대HP) 단일 강타, missile: 다수 분산.
@@ -287,6 +334,7 @@ async function simulateBattleLive(battleId, hooks) {
   const battleData = await loadBattleData(battleId);
   if (!battleData) throw new Error('BATTLE_NOT_FOUND');
   const state = initBattleState(battleData);
+  require('./objectiveOperations').initObjective(state, battleData.objectiveConfig);
   try { state.focusFireDmgBonus = parseFloat(await getSetting('focus_fire_dmg_bonus_pct', '15')) || 0; } catch (_) { state.focusFireDmgBonus = 15; }
   // [Phase 3] 수동 스킬 배율/충전율 — 서버 권위(클라 게이지 신뢰 금지)
   try {
@@ -308,16 +356,25 @@ async function simulateBattleLive(battleId, hooks) {
   const started = Date.now();
   const wallClockMs = hooks.wallClockMs || (10 * 60 * 1000);
   const tickMs = hooks.tickMs || TICK_MS;
+  state.liveTickMs = tickMs;
 
   for (let tick = 0; tick < MAX_TICKS; tick++) {
     state.tick = tick;
     // ① 명령 큐 드레인·적용
     if (typeof hooks.drainCommands === 'function') {
       let cmds; try { cmds = hooks.drainCommands() || []; } catch (_) { cmds = []; }
-      for (const c of cmds) { try { applyLiveCommand(state, c); } catch (_) {} }
+      for (const c of cmds) {
+        let result;
+        try { result = applyLiveCommandResult(state, c); }
+        catch (_) { result = { commandId: c && c.commandId || null, cmd: c && c.action || null, fleetId: c && c.fleetId || null, wallet: c && c.wallet || null, tick, status: 'rejected', reason: 'command_failed' }; }
+        events.push({ tick, type: 'command_result', fleet_id: result.fleetId,
+          payload: { command_id: result.commandId, action: result.cmd, status: result.status, reason: result.reason } });
+        if (typeof hooks.onCommandResult === 'function') { try { await hooks.onCommandResult(result); } catch (_) {} }
+      }
     }
-    for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) tacticsAI.evaluate(fleet, state, events);
+    for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) evaluateLiveTactics(fleet, state, events);
     for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateFleetPosition(fleet, state);
+    require('./objectiveOperations').beforeTick(state);
     for (const fleet of state.fleets) if (fleet.ships.some(s => s.isAlive)) updateShipPositions(fleet, state);
     processCombat(state, events);
 
@@ -344,10 +401,11 @@ async function simulateBattleLive(battleId, hooks) {
     }
 
     processAutoRetreat(state, events);
+    const objectiveOutcome = require('./objectiveOperations').evaluateObjective(state);
     const atkAlive = state.fleets.filter(f => f.side === 'atk' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
     const defAlive = state.fleets.filter(f => f.side === 'def' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
-    if (atkAlive === 0 || defAlive === 0) {
-      winnerSide = atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
+    if (objectiveOutcome || (!state.objective && (atkAlive === 0 || defAlive === 0))) {
+      winnerSide = objectiveOutcome ? objectiveOutcome.winner_side : atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
       const fr = captureFrame(state, tick); timeline.frames.push(fr); // realtime 은 broadcast 사본에만
       if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
       events.push({ tick, type: 'battle_ended', payload: { winner_side: winnerSide, duration_ticks: tick } });
@@ -367,7 +425,7 @@ async function simulateBattleLive(battleId, hooks) {
   if (!winnerSide) { winnerSide = 'draw'; events.push({ tick: state.tick, type: 'battle_timeout', payload: { winner_side: 'draw' } }); }
   const stats = computeBattleStats(state);
   console.log(`[battleEngine] LIVE battle ${battleId} ended. Winner: ${winnerSide}. Ticks: ${state.tick}.`);
-  return { winner_side: winnerSide, duration_ticks: state.tick, duration_seconds: Math.round(state.tick * TICK_MS / 1000), timeline, events, stats };
+  return { winner_side: winnerSide, duration_ticks: state.tick, duration_seconds: Math.round(state.tick * TICK_MS / 1000), timeline, events, stats, objective_result: state.objective?.progress || null };
 }
 
 // ─── 자동 퇴각 처리 ───
@@ -397,6 +455,8 @@ async function loadBattleData(battleId) {
   );
   if (!battleRows[0]) return null;
   const battle = battleRows[0];
+  await assertRegisteredFrontierBattle(pool, battleId, battle.battle_summary);
+  const { objectiveConfig, standardConfig } = await assertRegisteredBattleModes(pool, battleId, battle.battle_summary);
   
   // participants + fleets
   const { rows: fleetRows } = await pool.query(`
@@ -418,7 +478,7 @@ async function loadBattleData(battleId) {
   // 각 함대의 함선들 로드
   const fleets = [];
   for (const fr of fleetRows) {
-    const { rows: shipRows } = await pool.query(`
+    const { rows: rawShipRows } = await pool.query(`
       SELECT s.id, s.ship_type_code, s.current_hp, s.max_hp, s.is_flagship,
              s.bonus_atk, s.bonus_def, s.bonus_hp,
              COALESCE(s.bonus_speed, 0) AS bonus_speed,
@@ -433,10 +493,18 @@ async function loadBattleData(battleId) {
       ORDER BY s.is_flagship DESC, st.sort_order DESC
     `, [fr.fleet_id, battle.phase || '', HIJACK_PHASE1_SIZE_CLASSES]);
 
+    let shipRows;
+    if (standardConfig) shipRows = rawShipRows.map(s => normalizeStandardShip(s, standardConfig));
+    else {
+      const shipParts = require('./shipParts');
+      const partEffects = await shipParts.loadShipPartEffects(rawShipRows.map(s => s.id), pool);
+      shipRows = rawShipRows.map(s => shipParts.applyShipPartStats(s, partEffects[s.id] || []));
+    }
+
     // ✅ [Job] 직업별 전투력 배율 (warrior +30%, miner -30%, crafter -20%, merchant -20%)
     let combatPowerMult = 1.0;
     try {
-      if (jobService && fr.owner_wallet) {
+      if (!standardConfig && jobService && fr.owner_wallet) {
         const w = await jobService.getJobBuff(fr.owner_wallet, 'warrior_combat_power', 1.0);
         const m = await jobService.getJobBuff(fr.owner_wallet, 'miner_combat_power', 1.0);
         const c = await jobService.getJobBuff(fr.owner_wallet, 'crafter_combat_power', 1.0);
@@ -455,7 +523,7 @@ async function loadBattleData(battleId) {
   // Commander Actions (M-151) — 선언된 pre-battle 전술 로드
   let cmdActions = null;
   if (commanderActions) {
-    try { cmdActions = await commanderActions.loadForBattle(battleId); }
+    try { cmdActions = await commanderActions.loadForBattle(battleId, { standardFreeOnly: !!standardConfig }); }
     catch (e) { console.warn('[battleEngine] commanderActions load failed:', e.message); }
   }
 
@@ -504,7 +572,24 @@ async function loadBattleData(battleId) {
     }
   }
 
-  return { battle, fleets, commanderActions: cmdActions };
+  return { battle, fleets, commanderActions: cmdActions, objectiveConfig, standardConfig };
+}
+
+// Only simulation copies are normalized; BIGINT ship IDs remain exact strings.
+function normalizeStandardShip(ship, config) {
+  const type = config.catalogByShipId[String(ship.id)];
+  if (!type || type.code !== ship.ship_type_code) throw new Error('STANDARD_DUEL_REGISTRATION_MISMATCH');
+  return { ...ship, ...type, id: ship.id, ship_type_code: type.code,
+    current_hp: type.base_hp, max_hp: type.base_hp,
+    bonus_atk: 0, bonus_def: 0, bonus_hp: 0, bonus_speed: 0,
+    shield_hp: 0, shield_max: 0, part_effects: [] };
+}
+
+async function assertRegisteredBattleModes(db, battleId, summary) {
+  const objectiveConfig = await require('./objectiveOperations').loadRegisteredObjective(db, { id: battleId, battle_summary: summary });
+  const standardConfig = await require('./fleetDuelInvitations').getAcceptedStandardDuel(battleId, db);
+  if (objectiveConfig && standardConfig) throw new Error('BATTLE_MODE_REGISTRATION_MISMATCH');
+  return { objectiveConfig, standardConfig };
 }
 
 // ─── 전투 상태 초기화 ───
@@ -577,7 +662,7 @@ function initBattleState(battleData) {
     // focus_fire: owner_wallet 별 target 설정
     for (const f of stateFleets) {
       const tgt = cmdActions.focusFireByWallet?.[f.owner_wallet];
-      if (tgt) f.focusFireTargetId = tgt;
+      if (tgt) f.focusFireTargetId = normalizeFocusFleetId(tgt);
     }
     // wedge: 지정된 side 모든 함대 formation='wedge' 강제 (movement 아님)
     if (cmdActions.wedgeSides && cmdActions.wedgeSides.size > 0) {
@@ -662,6 +747,7 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult =
     bonus_def: bonusDef,
     bonus_hp: bonusHp,
     bonus_speed: bonusSpeed,
+    part_effects: shipData.part_effects || [],
     shield_hp: parseInt(shipData.shield_hp || 0),
     shield_max: parseInt(shipData.shield_max || 0),
 
@@ -983,8 +1069,9 @@ function processCombat(state, events) {
 
       // ── Commander Action: focus_fire 대상 강제 ──
       let targetFleet = null;
-      if (fleet.focusFireTargetId) {
-        const forced = enemies.find(e => e.id === fleet.focusFireTargetId);
+      const focusTargetId = normalizeFocusFleetId(fleet.focusFireTargetId);
+      if (focusTargetId) {
+        const forced = enemies.find(e => normalizeFocusFleetId(e.id) === focusTargetId);
         if (forced) targetFleet = forced;
       }
       if (!targetFleet) {
@@ -1015,7 +1102,7 @@ function processCombat(state, events) {
       if (fleet.ewUntilTick && state.tick <= fleet.ewUntilTick && fleet.ewAtkMult) {
         damage = Math.max(1, Math.floor(damage * fleet.ewAtkMult));
       }
-      if (fleet.focusFireTargetId && fleet.focusFireTargetId === targetFleet.id && state.focusFireDmgBonus > 0) {
+      if (focusTargetId && focusTargetId === normalizeFocusFleetId(targetFleet.id) && state.focusFireDmgBonus > 0) {
         damage = Math.floor(damage * (1 + state.focusFireDmgBonus / 100));
       }
       applyDamage(target, targetFleet, damage, ship, fleet, state, events);
@@ -1315,6 +1402,7 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
 function captureFrame(state, tick) {
   return {
     t: tick,
+    ...(state.objective ? { objective: { ...state.objective.progress } } : {}),
     fleets: state.fleets.map(f => ({
       id: f.id,
       cx: Math.round(f.cx * 10) / 10,
@@ -1331,6 +1419,13 @@ function captureFrame(state, tick) {
       missileCharge: Math.round(f.missileCharge || 0),
       overdriveCharge: Math.round(f.overdriveCharge || 0),
       hasAssembled: f.ships.some(s => s.isAlive && s.size_class === 'assembled'),
+      ...(state.liveTickMs ? {
+        owner_wallet: f.owner_wallet,
+        focusFireTargetId: f.focusFireTargetId,
+        retreated: !!f.retreated,
+        manualControlUntilTick: f.manualControlUntilTick || 0,
+        manualControlRemainingMs: Math.max(0, (f.manualControlUntilTick || 0) - tick) * state.liveTickMs,
+      } : {}),
     })),
     ships: state.fleets.flatMap(f =>
       f.ships.filter(s => s.isAlive).map(s => ({
@@ -1339,6 +1434,7 @@ function captureFrame(state, tick) {
         x: Math.round(s.x * 10) / 10,
         y: Math.round(s.y * 10) / 10,
         hp: s.hp,
+        maxHp: s.maxHp,
         ff: s.isFlagship ? 1 : 0,
         code: s.ship_type_code,
         facing: Math.round((s.facing || 0) * 100) / 100,
@@ -1382,6 +1478,8 @@ function computeBattleStats(state) {
         bonus_def: s.bonus_def || 0,
         bonus_hp: s.bonus_hp || 0,
         bonus_speed: s.bonus_speed || 0,
+        part_effects: s.part_effects || [],
+        combat_stats: { atk: s.atk, def: s.def, speed: s.speed },
         damage_dealt: Math.round(parseFloat(s.damageDealt) || 0),
         kills: s.killsDealt || 0,
       });
@@ -1452,7 +1550,9 @@ async function applyBattleResults(battleId, result) {
       return { skipped: true };
     }
     progressWinnerSide = result.winner_side;
-    progressIsAiBattle = !!(btRows[0].battle_summary && btRows[0].battle_summary.is_ai_battle);
+    await assertRegisteredFrontierBattle(client, battleId, btRows[0].battle_summary);
+    const { objectiveConfig, standardConfig } = await assertRegisteredBattleModes(client, battleId, btRows[0].battle_summary);
+    progressIsAiBattle = !!standardConfig || !!(btRows[0].battle_summary && btRows[0].battle_summary.is_ai_battle);
     const isHijackBattle = (btRows[0].battle_type || '').startsWith('hijack');
 
     // [v7.438] full-loss 마스터 모드 — 영구 함선손실 정책을 단일 설정으로 통제(전부 되돌림 가능, 기본=현행 always).
@@ -1487,6 +1587,9 @@ async function applyBattleResults(battleId, result) {
         permanentLossActive = true; // 'always'(기본)
       }
     } catch (_flErr) { permanentLossActive = true; /* 설정 조회 실패 시 현행 유지 */ }
+
+    const safeTrainingMode = await getSafeTrainingMode(client, battleId, btRows[0].battle_summary);
+    if (safeTrainingMode || standardConfig) permanentLossActive = false;
 
     // [v7.127][EVE 수요엔진] 하이젝에서도 함선 영구파괴 옵션(기본 OFF=현행 HP 보존).
     // 켜면 격침(sim HP≤0) 함선은 is_alive=false 로 영구 파괴 → 재건조 수요 발생(EVE full-loss).
@@ -1534,6 +1637,8 @@ async function applyBattleResults(battleId, result) {
         def: result.stats.def,
         by_player: result.stats.by_player,
         final_ships: result.stats.by_ship,
+        combat_policy: { permanent_loss: permanentLossActive, safe_training_mode: safeTrainingMode, standard_ruleset: standardConfig?.ruleset || null, asset_updates: !standardConfig },
+        ...(objectiveConfig ? { objective_result: result.objective_result } : {}),
       }),
       battleId
     ]);
@@ -1555,7 +1660,7 @@ async function applyBattleResults(battleId, result) {
           battles_lost = battles_lost + $3,
           updated_at = NOW()
         WHERE id = $4
-      `, [fleetStat.kills, won ? 1 : 0, won ? 0 : 1, fleetStat.fleet_id]);
+      `, [standardConfig ? 0 : fleetStat.kills, !standardConfig && won ? 1 : 0, !standardConfig && !won ? 1 : 0, fleetStat.fleet_id]);
       
       // fleet_battle_participants 통계 업데이트
       await client.query(`
@@ -1567,6 +1672,7 @@ async function applyBattleResults(battleId, result) {
       `, [fleetStat.ships_lost, fleetStat.damage_dealt, battleId, fleetStat.fleet_id]);
     }
     
+    if (!standardConfig) {
     // 3. 함선 상태 업데이트
     const finalShips = Array.isArray(result.stats?.by_ship)
       ? result.stats.by_ship.filter(s => parseInt(s.ship_id) > 0)
@@ -1734,6 +1840,8 @@ async function applyBattleResults(battleId, result) {
       console.warn('[battleEngine] killboard/wreck log failed:', _wreckErr.message);
     }
 
+    } // A registered standard duel only writes its battle record and releases fleets.
+
     // 4. 전투 이벤트 로그
     for (const ev of result.events.slice(0, 1000)) {  // 최대 1000개
       await client.query(`
@@ -1761,6 +1869,34 @@ async function applyBattleResults(battleId, result) {
   } finally {
     client.release();
   }
+}
+
+async function getSafeTrainingMode(client, battleId, summary) {
+  if (summary?.is_objective_operation === true) {
+    const config = await require('./objectiveOperations').loadRegisteredObjective(client, { id: battleId, battle_summary: summary });
+    return config ? 'objective_npc' : null;
+  }
+  if (summary?.is_starter_battle === true && summary?.trusted_source === 'starter_ops' && summary?.starter_training === true) return 'starter';
+  if (summary?.is_frontier_battle !== true || summary?.is_ai_battle !== true) return null;
+  const table = await client.query("SELECT to_regclass('public.frontier_battles') AS name");
+  if (!table.rows[0]?.name) return null;
+  const registered = await client.query(`SELECT 1 FROM frontier_battles f
+    JOIN fleet_battle_participants p ON p.battle_id=f.battle_id AND p.side='def'
+    JOIN users u ON LOWER(u.wallet_address)=LOWER(p.wallet_address)
+    WHERE f.battle_id=$1 AND u.is_ai=true LIMIT 1`, [battleId]);
+  return registered.rows.length ? 'frontier_npc' : null;
+}
+
+async function assertRegisteredFrontierBattle(client, battleId, summary) {
+  const protectedNpc = await client.query(`SELECT 1 FROM fleet_battle_participants p
+    JOIN users u ON LOWER(u.wallet_address)=LOWER(p.wallet_address)
+    WHERE p.battle_id=$1 AND COALESCE(to_jsonb(u)->>'is_frontier_npc','false')='true' LIMIT 1`, [battleId]);
+  if (!protectedNpc.rows.length) return;
+  if (summary?.is_frontier_battle !== true) throw new Error('FRONTIER_NPC_REQUIRES_REGISTERED_BATTLE');
+  const table = await client.query("SELECT to_regclass('public.frontier_battles') AS name");
+  if (!table.rows[0]?.name) throw new Error('FRONTIER_NPC_REQUIRES_REGISTERED_BATTLE');
+  const registered = await client.query('SELECT 1 FROM frontier_battles WHERE battle_id=$1', [battleId]);
+  if (!registered.rows.length) throw new Error('FRONTIER_NPC_REQUIRES_REGISTERED_BATTLE');
 }
 
 function recordBattleProgress(participants, winnerSide, opts) {
@@ -1795,6 +1931,8 @@ module.exports = {
   simulateBattleLive,
   applyLiveCommand,
   applyBattleResults,
+  assertRegisteredFrontierBattle,
+  assertRegisteredBattleModes,
   getShipMatchupMult,
   TICK_MS,
   MAX_TICKS,

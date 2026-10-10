@@ -103,6 +103,7 @@ function _goldenPathSteps(){
 }
 
 function _maybeGoldenPathNudge(opts){
+  if(typeof window.openCommandCenter==='function') return; // Starter operations provide the single first-session route.
   opts = opts || {};
   if(!walletState || !walletState.address) return;
   // Defer to the existing server-driven onboarding hint if it's on screen.

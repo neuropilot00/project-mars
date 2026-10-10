@@ -72,11 +72,15 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
         : (type === 'missile' || type === 'missile_barrage') ? 'missile'
         : (type === 'overdrive' || type === 'combine_ultimate') ? 'overdrive' : null;
       if (!liveAction) return res.status(400).json({ error: 'UNSUPPORTED_LIVE_ACTION' });
-      const ok = require('../wsServer').routeBattleCommand(battleId, {
+      const command = {
+        commandId: typeof req.body.commandId === 'string' && /^[A-Za-z0-9._:-]{1,80}$/.test(req.body.commandId) ? req.body.commandId : require('crypto').randomUUID(),
         fleetId, wallet, action: liveAction,
         params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId },
-      });
-      return res.json({ success: true, live: true, queued: ok, ...(ok ? {} : { error: 'RATE_LIMITED' }) });
+      };
+      const queued = require('../wsServer').routeBattleCommandResult(battleId, command);
+      return res.json({ success: queued.accepted, live: true, queued: queued.accepted, commandId: command.commandId,
+        status: queued.accepted ? 'accepted' : 'rejected', reason: queued.reason,
+        ...(queued.accepted ? {} : { error: queued.reason }) });
     }
   } catch (_) { /* liveBattle 미가용 — pre-battle 경로 */ }
 
@@ -93,6 +97,8 @@ router.post('/battles/:id/commander-action', requireAuth, async (req, res) => {
       ACTION_QUOTA_EXCEEDED: 429,
       ACTION_ALREADY_DECLARED: 409,
       COMMANDER_ACTIONS_DISABLED: 403,
+      STANDARD_DUEL_PAID_ACTION_DISABLED: 409,
+      STANDARD_DUEL_REGISTRATION_MISMATCH: 409,
       INVALID_ACTION_TYPE: 400,
       INSUFFICIENT_GP: 402,
       TARGET_FLEET_REQUIRED: 400,

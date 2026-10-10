@@ -17,8 +17,28 @@
 const { WebSocketServer } = require('ws');
 const jwt = require('jsonwebtoken');
 const url = require('url');
+const { randomUUID } = require('crypto');
 
-// battle_id -> Set<WebSocket>
+function _commandAck(ws, cmd, commandId, error, extra) {
+  _safeSendOrTerminate(ws, JSON.stringify({
+    type: error ? 'cmd_err' : 'cmd_ok', cmd, commandId,
+    status: error ? 'rejected' : 'accepted', reason: error || null,
+    ...(error ? { error } : {}), ...extra,
+  }));
+}
+
+// PostgreSQL BIGINT ids arrive as strings; URL/Redis callers must use the same
+// key without Number rounding. Reject values that cannot identify a DB row.
+function _battleKey(value) {
+  if (typeof value === 'number' && !Number.isSafeInteger(value)) return null;
+  if (!['string', 'number', 'bigint'].includes(typeof value)) return null;
+  const text = String(value);
+  if (!/^\d+$/.test(text) || text.length > 19) return null;
+  const id = BigInt(text);
+  return id > 0n && id <= 9223372036854775807n ? id.toString() : null;
+}
+
+// canonical decimal battle_id string -> Set<WebSocket>
 const _channels = new Map();
 // 라이브(채팅/활동피드) 연결 — 각 ws.subs(Set) 로 구독 채널 추적
 const _live = new Set();
@@ -82,7 +102,8 @@ function attachWsServer(httpServer) {
     socket.once('close', _socketRelease);
     socket.once('error', _socketRelease);
     if (isBattle) {
-      const battleId = parseInt(isBattle[1]);
+      const battleId = _battleKey(isBattle[1]);
+      if (!battleId) { socket.destroy(); return; }
       const wallet = _verifyToken(parsed.query.token); // 인증 실패해도 read-only 허용 (관전 모드)
       _wss.handleUpgrade(req, socket, head, (ws) => {
         _upgradeGuard.upgraded = true; // [v7.189] socket-level release 비활성화 — ws.close 가 release 담당
@@ -113,9 +134,11 @@ function attachWsServer(httpServer) {
       try { msg = JSON.parse(raw.toString()); } catch (_) { return; }
       if (!msg || !msg.type) return;
       if (msg.type === 'cmd') {
+        const commandId = typeof msg.commandId === 'string' && /^[A-Za-z0-9._:-]{1,80}$/.test(msg.commandId)
+          ? msg.commandId : randomUUID();
         // 부모 (commander_actions) 로 전달 — 인증된 wallet 만
         if (!ws.wallet) {
-          ws.send(JSON.stringify({ type: 'error', error: 'wallet_required' }));
+          _commandAck(ws, msg.cmd, commandId, 'wallet_required');
           return;
         }
         // [Phase 3 실시간] 라이브 전투 진행 중이면 실시간 명령 큐로 라우팅 (commanderActions 는 pre-battle 전용).
@@ -125,13 +148,13 @@ function attachWsServer(httpServer) {
           if (liveBattle.isActive(bid) || _redisReady) {
             const now = Date.now();
             ws._cmdTimes = (ws._cmdTimes || []).filter((t) => now - t < 1000);
-            if (ws._cmdTimes.length >= 3) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'rate_limited' })); return; }
+            if (ws._cmdTimes.length >= 3) { _commandAck(ws, msg.cmd, commandId, 'rate_limited'); return; }
             ws._cmdTimes.push(now);
             const fleetId = msg.payload && msg.payload.fleetId;
-            if (!fleetId) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'fleetId_required' })); return; }
+            if (!fleetId) { _commandAck(ws, msg.cmd, commandId, 'fleetId_required'); return; }
             const action = (msg.cmd === 'maneuver') ? 'maneuver' : (msg.cmd === 'focus') ? 'focus' : (msg.cmd === 'formation') ? 'formation'
-              : (msg.cmd === 'beam') ? 'beam' : (msg.cmd === 'missile') ? 'missile' : null;
-            if (!action) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'unsupported_live_cmd' })); return; }
+              : (msg.cmd === 'beam') ? 'beam' : (msg.cmd === 'missile') ? 'missile' : (msg.cmd === 'overdrive') ? 'overdrive' : null;
+            if (!action) { _commandAck(ws, msg.cmd, commandId, 'unsupported_live_cmd'); return; }
             const { pool } = require('./db');
             pool.query(
               `SELECT fb.status
@@ -143,7 +166,7 @@ function attachWsServer(httpServer) {
                 LIMIT 1`,
               [bid, fleetId, ws.wallet]
             ).then((r) => {
-              if (!r.rows.length) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'not_your_fleet' })); return; }
+              if (!r.rows.length) { _commandAck(ws, msg.cmd, commandId, 'not_your_fleet'); return; }
               if (r.rows[0].status !== 'active' && !liveBattle.isActive(bid)) {
                 const cmdSvc = require('./services/commanderActions');
                 const preBattleMap = {
@@ -153,19 +176,19 @@ function attachWsServer(httpServer) {
                   emp: { actionType: 'emp', params: { startTick: msg.payload && msg.payload.startTick } },
                 };
                 const mapped = preBattleMap[msg.cmd];
-                if (!mapped) { ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'battle_not_live' })); return; }
+                if (!mapped) { _commandAck(ws, msg.cmd, commandId, 'battle_not_live'); return; }
                 cmdSvc.declareAction(bid, ws.wallet, mapped.actionType, mapped.params)
-                  .then((result) => ws.send(JSON.stringify({ type: 'cmd_ok', cmd: msg.cmd, result })))
-                  .catch((err) => ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: err.message })));
+                  .then((result) => _commandAck(ws, msg.cmd, commandId, null, { result, status: 'declared', live: false }))
+                  .catch((err) => _commandAck(ws, msg.cmd, commandId, err.message));
                 return;
               }
               const p = msg.payload || {};
-              const ok = routeBattleCommand(bid, {
-                fleetId, wallet: ws.wallet, action,
+              const queued = routeBattleCommandResult(bid, {
+                commandId, fleetId, wallet: ws.wallet, action,
                 params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId },
               });
-              ws.send(JSON.stringify({ type: ok ? 'cmd_ok' : 'cmd_err', cmd: msg.cmd, live: true, error: ok ? undefined : 'not_authority' }));
-            }).catch(() => ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: 'validation_failed' })));
+              _commandAck(ws, msg.cmd, commandId, queued.accepted ? null : queued.reason, { live: true });
+            }).catch(() => _commandAck(ws, msg.cmd, commandId, 'validation_failed'));
             return; // 라이브 처리 완료
           }
         } catch (_) { /* liveBattle 미가용 — 아래 pre-battle 경로 */ }
@@ -179,12 +202,12 @@ function attachWsServer(httpServer) {
             emp:       { actionType: 'emp',              params: { startTick: msg.payload && msg.payload.startTick } },
           };
           const mapped = actionMap[msg.cmd];
-          if (!mapped) return;
+          if (!mapped) { _commandAck(ws, msg.cmd, commandId, 'unsupported_live_cmd'); return; }
           cmdSvc.declareAction(bid, ws.wallet, mapped.actionType, mapped.params)
-            .then((result) => ws.send(JSON.stringify({ type: 'cmd_ok', cmd: msg.cmd, result })))
-            .catch((err) => ws.send(JSON.stringify({ type: 'cmd_err', cmd: msg.cmd, error: err.message })));
+            .then((result) => _commandAck(ws, msg.cmd, commandId, null, { result, status: 'declared', live: false }))
+            .catch((err) => _commandAck(ws, msg.cmd, commandId, err.message));
         } catch (e) {
-          ws.send(JSON.stringify({ type: 'error', error: e.message }));
+          _commandAck(ws, msg.cmd, commandId, e.message);
         }
       }
     });
@@ -214,9 +237,9 @@ let _pub = null, _sub = null, _redisReady = false;
 function _enqueueLocalBattleCommand(battleId, command) {
   try {
     const liveBattle = require('./services/liveBattle');
-    return liveBattle.enqueueCommand(battleId, command);
+    return liveBattle.enqueueCommandResult(battleId, command);
   } catch (_) {
-    return false;
+    return { accepted: false, reason: 'not_authority' };
   }
 }
 function _initRedisPubSub() {
@@ -241,7 +264,16 @@ function _initRedisPubSub() {
       else if (m.kind === 'feed') _localFeed(m.event);
       else if (m.kind === 'battleFrame') _localBattleFrame(m.battleId, m.frame);
       else if (m.kind === 'battleEnd') _localBattleEnd(m.battleId, m.summary);
-      else if (m.kind === 'battleCmd') _enqueueLocalBattleCommand(m.battleId, m.command);
+      else if (m.kind === 'battleCmdResult') _localBattleCommandResult(m.battleId, m.result);
+      else if (m.kind === 'battleCmd') {
+        const queued = _enqueueLocalBattleCommand(m.battleId, m.command);
+        if (!queued.accepted && queued.reason !== 'not_authority') {
+          broadcastBattleCommandResult(m.battleId, {
+            commandId: m.command.commandId || null, cmd: m.command.action, fleetId: m.command.fleetId,
+            wallet: m.command.wallet, tick: null, status: 'rejected', reason: queued.reason,
+          });
+        }
+      }
     });
   } catch (e) { console.warn('[WS] Redis pub/sub init 실패 — 로컬 폴백:', e.message); _pub = null; _sub = null; _redisReady = false; }
 }
@@ -253,15 +285,40 @@ function _publishOrLocal(kind, payload, localFn) {
   localFn();
 }
 function routeBattleCommand(battleId, command) {
-  if (!battleId || !command) return false;
-  if (_enqueueLocalBattleCommand(battleId, command)) return true;
+  return routeBattleCommandResult(battleId, command).accepted;
+}
+function routeBattleCommandResult(battleId, command) {
+  battleId = _battleKey(battleId);
+  if (!battleId || !command) return { accepted: false, reason: 'invalid_command' };
+  if (!command.commandId) command.commandId = randomUUID();
+  const local = _enqueueLocalBattleCommand(battleId, command);
+  if (local.accepted || local.reason !== 'not_authority') return local;
   if (_redisReady && _pub) {
     try {
-      _pub.publish(_PUB_CH, JSON.stringify({ kind: 'battleCmd', battleId, command }));
-      return true;
+      _pub.publish(_PUB_CH, JSON.stringify({ kind: 'battleCmd', battleId, command })).catch(() => {
+        broadcastBattleCommandResult(battleId, { commandId: command.commandId, cmd: command.action,
+          fleetId: command.fleetId, wallet: command.wallet, tick: null, status: 'rejected', reason: 'delivery_failed' });
+      });
+      return { accepted: true, reason: null };
     } catch (_) {}
   }
-  return false;
+  return { accepted: false, reason: 'not_authority' };
+}
+
+function _localBattleCommandResult(battleId, result) {
+  const set = _channels.get(_battleKey(battleId));
+  if (!set || !result || !result.wallet) return;
+  const { wallet, ...publicResult } = result;
+  const payload = JSON.stringify({ type: 'cmd_result', battleId: _battleKey(battleId), ...publicResult });
+  for (const ws of set) {
+    if (ws.wallet && ws.wallet.toLowerCase() === String(wallet).toLowerCase()) _safeSendOrTerminate(ws, payload);
+  }
+}
+
+function broadcastBattleCommandResult(battleId, result) {
+  battleId = _battleKey(battleId);
+  if (!battleId) return;
+  _publishOrLocal('battleCmdResult', { battleId, result }, () => _localBattleCommandResult(battleId, result));
 }
 
 // ── Battle frame/end ──────────────────────────────────────────
@@ -277,6 +334,7 @@ function _safeSendOrTerminate(ws, payload) {
   try { ws.send(payload); return true; } catch (_) { return false; }
 }
 function _localBattleFrame(battleId, frame) {
+  battleId = _battleKey(battleId);
   const set = _channels.get(battleId);
   if (!set || set.size === 0) return 0;
   const payload = JSON.stringify({ type: 'frame', battleId, ...frame });
@@ -287,6 +345,7 @@ function _localBattleFrame(battleId, frame) {
   return sent;
 }
 function _localBattleEnd(battleId, summary) {
+  battleId = _battleKey(battleId);
   const set = _channels.get(battleId);
   if (!set || set.size === 0) return 0;
   const payload = JSON.stringify({ type: 'end', battleId, ...summary });
@@ -298,10 +357,14 @@ function _localBattleEnd(battleId, summary) {
 }
 /** Battle frame broadcast (battleScheduler 가 매 tick 호출). 멀티 인스턴스 시 Redis 팬아웃. */
 function broadcastBattleFrame(battleId, frame) {
+  battleId = _battleKey(battleId);
+  if (!battleId) return;
   _publishOrLocal('battleFrame', { battleId, frame }, () => _localBattleFrame(battleId, frame));
 }
 /** Battle 종료 broadcast — winner / summary. */
 function broadcastBattleEnd(battleId, summary) {
+  battleId = _battleKey(battleId);
+  if (!battleId) return;
   _publishOrLocal('battleEnd', { battleId, summary }, () => _localBattleEnd(battleId, summary));
 }
 
@@ -363,4 +426,4 @@ function channelStats() {
   return out;
 }
 
-module.exports = { attachWsServer, broadcastBattleFrame, broadcastBattleEnd, broadcastChat, broadcastFeed, channelStats, routeBattleCommand };
+module.exports = { attachWsServer, broadcastBattleFrame, broadcastBattleEnd, broadcastBattleCommandResult, broadcastChat, broadcastFeed, channelStats, routeBattleCommand, routeBattleCommandResult };

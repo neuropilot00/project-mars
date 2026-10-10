@@ -808,9 +808,22 @@ async function runOnboardingCheck() {
       try { if (typeof window._removeFirstClaimGuide === 'function') window._removeFirstClaimGuide(); } catch (_rg) {}
       return;
     }
+    // The starter campaign has its own persisted progress. Do not invite an
+    // existing commander to claim a second first fleet through legacy onboarding.
+    if ((status.step || 0) === 0 && typeof window.openCommandCenter === 'function') {
+      var starterRes = await fetch('/api/starter-ops/state', { headers: getAuthHeaders() });
+      if (!starterRes.ok || getOnboardingWallet() !== wallet) return;
+      var starterState = await starterRes.json();
+      if ((starterState.missions || []).some(function (mission) {
+        return ['active', 'completed', 'claimed'].includes(mission.status);
+      })) {
+        closeOnboardingHint();
+        return;
+      }
+    }
     showOnboardingHint(status.step || 0);
     // [first-session] 클레임 0인 신규 유저에게 globe 첫 클릭 가이드 시도(순수 추가 오버레이).
-    try { if (typeof window.maybeShowFirstClaimGuide === 'function') window.maybeShowFirstClaimGuide(); } catch (_fg) {}
+    try { if (typeof window.openCommandCenter !== 'function' && typeof window.maybeShowFirstClaimGuide === 'function') window.maybeShowFirstClaimGuide(); } catch (_fg) {}
   } catch (err) {
     console.warn('[onboarding] status failed:', err);
   }
@@ -832,8 +845,13 @@ function showOnboardingHint(step) {
       body: tl('Build your first ship in BASE, then follow the CAMPAIGN — the main story.','BASE에서 첫 함선을 만들고, 메인 스토리인 캠페인을 따라가세요.','BASEで最初の艦船を建造し、メインストーリーのキャンペーンを進めよう。','在BASE建造第一艘舰船，然后跟随主线剧情战役。') }
   ];
   var msg = messages[Math.max(0, Math.min(step, messages.length - 1))];
-  if (title) title.textContent = msg.title;
-  if (body) body.textContent = msg.body;
+  if (step === 0 && typeof window.openCommandCenter === 'function') {
+    msg = {title:tl('FIRST SORTIE','첫 출격','初出撃','首次出击'),body:tl('Get a free starter fleet and command your first safe battle.','무료 시작 함대로 안전한 첫 전투를 지휘하세요.','無料の初期艦隊で最初の安全な戦闘を指揮しよう。','领取免费初始舰队，指挥第一场安全战斗。')};
+    var cta=el.querySelector('.onboarding-hint__actions button');
+    if(cta){cta.removeAttribute('data-i18n');cta.textContent=tl('START OPERATIONS','첫 작전 시작','初作戦を開始','开始行动');}
+  }
+  if (title) {title.removeAttribute('data-i18n');title.textContent = msg.title;}
+  if (body) {body.removeAttribute('data-i18n');body.textContent = msg.body;}
   el.dataset.step = String(step);
   el.classList.add('active');
 }
@@ -860,6 +878,7 @@ function onboardingAction() {
   var step = parseInt(el && el.dataset.step, 10) || 0;
   closeOnboardingHint();
   if (step === 0) {
+    if (typeof window.openCommandCenter === 'function') { window.openCommandCenter('missions'); return; }
     try { openBaseModal(); switchBaseTab('territory', document.querySelector('[onclick*=territory]')); } catch (_) { try { openBaseModal(); } catch (_) {} }
     return;
   }

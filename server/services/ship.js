@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool, getSetting } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 // ─── 건조 가능 함선 블루프린트 조회 ───
 
@@ -474,6 +475,10 @@ async function completeBuildJob(jobId) {
     const st = stRows[0];
     if (!st) throw new Error('INVALID_SHIP_TYPE');
 
+    if (parseInt(st.max_per_server) > 0) {
+      await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['shipbuild:' + job.ship_type_code]);
+    }
+
     const claimed = await client.query(`
       UPDATE ship_build_jobs
       SET status = 'completed', completed_at = NOW()
@@ -504,6 +509,11 @@ async function completeBuildJob(jobId) {
       `SELECT id FROM fleets WHERE id = $1 AND LOWER(owner_wallet) = LOWER($2) FOR UPDATE`,
       [fleetId, job.wallet_address]
     );
+    try { await assertShipNotInBattle(client, fleetId); }
+    catch (error) {
+      if (!['SHIP_IN_BATTLE', 'FLEET_MINING', 'FLEET_TRANSPORTING'].includes(error.message)) throw error;
+      fleetId = await getOrCreateDefaultFleet(client, job.wallet_address);
+    }
     
     // 기함 여부: 함대에 기함이 없으면 이 함선을 기함으로
     const { rows: flagRows } = await client.query(
@@ -808,12 +818,15 @@ async function cancelBuildJob(jobId, walletAddress) {
 // ─── 함대 자동 생성 (유저의 첫 함선용) ───
 
 async function getOrCreateDefaultFleet(client, walletAddress) {
-  // 기존 함대가 있으면 첫 번째 반환
+  // Reserved fleets must not receive new hulls during a battle/mining/cargo run.
   const { rows: existing } = await client.query(
-    `SELECT id FROM fleets WHERE LOWER(owner_wallet) = LOWER($1) ORDER BY id ASC LIMIT 1 FOR UPDATE`,
+    `SELECT id FROM fleets WHERE LOWER(owner_wallet) = LOWER($1) ORDER BY id ASC FOR UPDATE`,
     [walletAddress]
   );
-  if (existing[0]) return existing[0].id;
+  for (const fleet of existing) {
+    try { await assertShipNotInBattle(client, fleet.id); return fleet.id; }
+    catch (error) { if (!['SHIP_IN_BATTLE', 'FLEET_MINING', 'FLEET_TRANSPORTING'].includes(error.message)) throw error; }
+  }
   
   // 없으면 기본 함대 생성
   const { rows: nick } = await client.query(
@@ -1580,8 +1593,16 @@ async function getShipForMarketLock(client, walletAddress, shipId) {
   return rows[0] || null;
 }
 
+async function assertNotStarterGrantShip(client, shipId) {
+  const grant = await client.query('SELECT 1 FROM starter_fleet_grant_ships WHERE ship_id=$1', [shipId]);
+  if (grant.rowCount) throw new Error('STARTER_HULL_LOCKED');
+}
+
 async function assertShipNotInBattle(client, fleetId) {
   if (!fleetId) return;
+  const reservation = await client.query('SELECT is_in_battle,current_battle_id FROM fleets WHERE id=$1 FOR UPDATE', [fleetId]);
+  if (reservation.rows[0]?.is_in_battle || reservation.rows[0]?.current_battle_id) throw new Error('SHIP_IN_BATTLE');
+  await assertFleetsNotMining(client, [fleetId]);
   // (격침회피 차단 v7.374) 기존엔 미사용 유령상태 'pending'을 보고 실제 전투-대기 상태인
   // 'preparing'(hijack declare가 fbp 행을 만드는 10초 윈도)을 빠뜨려, 그 사이 함선을 마켓에
   // 등록(fleet_id=NULL)해 full-loss를 회피할 수 있었다. 'preparing','active' 둘 다 차단.
@@ -1623,6 +1644,7 @@ async function listShipForSale(walletAddress, shipId, priceGp) {
 
     const ship = await getShipForMarketLock(client, wallet, shipId);
     if (!ship) throw new Error('SHIP_NOT_FOUND');
+    await assertNotStarterGrantShip(client, shipId);
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
     await assertShipNotInBattle(client, ship.fleet_id);
 
@@ -1837,6 +1859,7 @@ async function scrapShip(walletAddress, shipId) {
 
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     const ship = shipRows[0];
+    await assertNotStarterGrantShip(client, shipId);
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
 
     // 전투 중이면 해체 불가 — fleet_battle_participants엔 ship_id가 없으므로 함선의 함대(fleet_id)로 확인.

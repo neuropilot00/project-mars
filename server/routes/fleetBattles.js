@@ -2,7 +2,7 @@
 // ═══════════════════════════════════════════════════════════════
 // Fleet Battle API Routes
 //
-// POST   /api/battles/declare-pvp               — 유저간 즉시 전투 선언
+// POST   /api/battles/declare-pvp               — 상대 동의가 필요한 결투 초대
 // GET    /api/battles/:id                       — 전투 상세 정보
 // GET    /api/battles/:id/timeline              — 타임라인 JSON (재생용)
 // GET    /api/battles/:id/report                — 전투 결과 리포트 카드
@@ -102,178 +102,35 @@ function getOptionalWallet(req) {
 
 // ═══════════════════════════════════════════════════════════════
 
-/**
- * POST /api/battles/declare-pvp
- * PvP 즉시 전투 선언 (테스트 및 PvP duel용)
- * Body: {
- *   my_fleet_id: 123,        // 내가 투입할 함대
- *   target_wallet: '0x...',  // 상대 지갑
- *   target_fleet_id: 456,    // 상대 함대 (직접 지정)
- *   run_immediately: true    // true면 즉시 시뮬레이션
- * }
- */
-router.post('/declare-pvp', requireAuth, writeLimiter, async (req, res) => {
+// Both the legacy declaration URL and new URL create an invitation only.
+// No request flag can bypass the defender's consent.
+const fleetDuels = require('../services/fleetDuelInvitations');
+function duelError(res, err) {
+  if (!err.status) console.error('[battle] duel invitation error:', err);
+  return res.status(err.status || 500).json({ error: err.status ? err.message : 'SERVER_ERROR' });
+}
+router.post(['/declare-pvp', '/duel-invitations'], requireAuth, writeLimiter, async (req, res) => {
+  const wallet = getWallet(req);
+  if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
   try {
+    const invitation = await fleetDuels.create(wallet, req.body?.my_fleet_id, req.body?.target_fleet_id, req.body?.mode);
+    res.status(201).json({ success: true, status: 'pending', invitation });
+  } catch (err) { duelError(res, err); }
+});
+router.get('/duel-invitations', requireAuth, readLimiter, async (req, res) => {
+  const wallet = getWallet(req);
+  if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+  try { res.json({ invitations: await fleetDuels.list(wallet) }); }
+  catch (err) { duelError(res, err); }
+});
+for (const action of ['accept', 'decline']) {
+  router.post('/duel-invitations/:id/' + action, requireAuth, writeLimiter, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
-
-    const { my_fleet_id, target_fleet_id, run_immediately } = req.body || {};
-    if (!my_fleet_id || !target_fleet_id) {
-      return res.status(400).json({ error: 'FLEET_IDS_REQUIRED' });
-    }
-    if (my_fleet_id === target_fleet_id) {
-      return res.status(400).json({ error: 'CANNOT_ATTACK_SELF' });
-    }
-
-    // 내 함대 검증
-    const { rows: myFleet } = await pool.query(
-      `SELECT f.*, COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive
-       FROM fleets f LEFT JOIN ships s ON s.fleet_id=f.id
-       WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)
-       GROUP BY f.id`,
-      [my_fleet_id, wallet]
-    );
-    if (!myFleet[0]) return res.status(404).json({ error: 'MY_FLEET_NOT_FOUND' });
-    if (myFleet[0].is_in_battle) return res.status(409).json({ error: 'MY_FLEET_IN_BATTLE' });
-    if (parseInt(myFleet[0].ships_alive) === 0) {
-      return res.status(409).json({ error: 'MY_FLEET_EMPTY' });
-    }
-
-    // 상대 함대 검증
-    const { rows: targetFleet } = await pool.query(
-      `SELECT f.*, COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive
-       FROM fleets f LEFT JOIN ships s ON s.fleet_id=f.id
-       WHERE f.id = $1
-       GROUP BY f.id`,
-      [target_fleet_id]
-    );
-    if (!targetFleet[0]) return res.status(404).json({ error: 'TARGET_FLEET_NOT_FOUND' });
-    if ((targetFleet[0].owner_wallet || '').toLowerCase() === (wallet || '').toLowerCase()) {
-      return res.status(400).json({ error: 'CANNOT_ATTACK_OWN_FLEET' });
-    }
-    if (targetFleet[0].is_in_battle) return res.status(409).json({ error: 'TARGET_IN_BATTLE' });
-    if (parseInt(targetFleet[0].ships_alive) === 0) {
-      return res.status(409).json({ error: 'TARGET_EMPTY' });
-    }
-
-    // 전투 생성
-    const client = await pool.connect();
-    let battleId;
-    try {
-      await client.query('BEGIN');
-
-      // Re-check is_in_battle inside transaction with FOR UPDATE (TOCTOU 방지)
-      // 두 동시 선언이 모두 외부 체크를 통과한 뒤 같은 함대를 두 전투에 넣는 경쟁 조건 차단
-      const { rows: fleetLock } = await client.query(`
-        SELECT id, is_in_battle FROM fleets
-        WHERE id = ANY($1::int[]) FOR UPDATE`,
-        [[my_fleet_id, target_fleet_id]]
-      );
-      const atkLock = fleetLock.find(f => f.id === parseInt(my_fleet_id));
-      const defLock = fleetLock.find(f => f.id === parseInt(target_fleet_id));
-      if (!atkLock || atkLock.is_in_battle) {
-        await client.query('ROLLBACK');
-        return res.status(409).json({ error: 'MY_FLEET_IN_BATTLE' });
-      }
-      if (!defLock || defLock.is_in_battle) {
-        await client.query('ROLLBACK');
-        return res.status(409).json({ error: 'TARGET_IN_BATTLE' });
-      }
-
-      // Mining jobs also occupy fleets. Siege already blocks mining fleets;
-      // PvP declarations need the same guard to prevent double-use.
-      try {
-        const { rows: miningLocks } = await client.query(
-          `SELECT fleet_id
-             FROM ship_mining_jobs
-            WHERE fleet_id = ANY($1::int[])
-              AND status = 'mining'
-            LIMIT 1`,
-          [[my_fleet_id, target_fleet_id]]
-        );
-        if (miningLocks.length) {
-          await client.query('ROLLBACK');
-          return res.status(409).json({
-            error: miningLocks[0].fleet_id === parseInt(my_fleet_id, 10)
-              ? 'MY_FLEET_MINING'
-              : 'TARGET_FLEET_MINING'
-          });
-        }
-      } catch (e) {
-        if (e.code !== '42P01') throw e;
-      }
-
-      const { rows: sectorRows } = await client.query(
-        `SELECT c.id AS claim_id, c.sector_code, sd.id AS sector_id
-           FROM claims c
-           LEFT JOIN sector_definitions sd ON sd.code = c.sector_code
-          WHERE LOWER(c.owner) = LOWER($1)
-            AND c.deleted_at IS NULL
-            AND c.sector_code IS NOT NULL
-          ORDER BY (c.width * c.height) DESC, c.id ASC
-          LIMIT 1`,
-        [targetFleet[0].owner_wallet]
-      );
-      const sectorContext = sectorRows[0] || {};
-
-      const { rows: battleRows } = await client.query(`
-        INSERT INTO fleet_battles (
-          battle_type, status, phase,
-          sector_id, claim_id,
-          prepare_started_at, scheduled_start_at, battle_summary
-        ) VALUES ('pvp_duel', 'preparing', 'main', $1, $2, NOW(), NOW(), $3::jsonb)
-        RETURNING id
-      `, [
-        sectorContext.sector_id || null,
-        sectorContext.claim_id || null,
-        JSON.stringify({
-          sector_code: sectorContext.sector_code || null,
-          sector_conflict: !!sectorContext.sector_code
-        })
-      ]);
-      battleId = battleRows[0].id;
-
-      // Mark both fleets as in_battle before COMMIT (prevents duplicate scheduling)
-      await client.query(
-        `UPDATE fleets SET is_in_battle = true WHERE id = ANY($1::int[])`,
-        [[my_fleet_id, target_fleet_id]]
-      );
-
-      // participants 추가
-      await client.query(`
-        INSERT INTO fleet_battle_participants (battle_id, fleet_id, wallet_address, side)
-        VALUES
-          ($1, $2, $3, 'atk'),
-          ($1, $4, $5, 'def')
-      `, [battleId, my_fleet_id, wallet, target_fleet_id, targetFleet[0].owner_wallet]);
-
-      await client.query('COMMIT');
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
-    }
-
-    // 즉시 실행 옵션
-    if (run_immediately) {
-      // 비동기로 실행 (응답은 먼저)
-      battleScheduler.runBattle(battleId).catch(err => {
-        console.error(`[battle] runBattle ${battleId} error:`, err);
-      });
-    }
-
-    res.json({
-      success: true,
-      battle_id: battleId,
-      status: 'preparing',
-      run_immediately: !!run_immediately,
-    });
-  } catch (err) {
-    console.error('[battle] declare-pvp error:', err);
-    res.status(500).json({ error: 'SERVER_ERROR', message: err.message });
-  }
-});
+    try { res.json({ success: true, ...await fleetDuels.respond(wallet, req.params.id, action, req.body) }); }
+    catch (err) { duelError(res, err); }
+  });
+}
 
 /**
  * GET /api/battles/list/active

@@ -159,6 +159,8 @@ async function declareHijack(params) {
       WHERE id = $2
     `, [phase1BattleId, hijackId]);
     
+    await client.query('UPDATE fleets SET is_in_battle=true,current_battle_id=$2 WHERE id=ANY($1::bigint[])',
+      [[atk_fleet_id,def_fleet_id],phase1BattleId]);
     await client.query('COMMIT');
     
     return {
@@ -184,6 +186,10 @@ async function handlePhase1Complete(phase1BattleId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Same lock order as battle rewards: battle first, then hijack/users/claim FKs.
+    const ended = await client.query("SELECT id FROM fleet_battles WHERE id=$1 AND status='ended' FOR UPDATE", [phase1BattleId]);
+    if (!ended.rows.length) { await client.query('ROLLBACK'); return; }
+
 
     // Lock hijack row inside transaction — prevents double-processing on concurrent calls
     const { rows: hjRows } = await client.query(`
@@ -191,7 +197,7 @@ async function handlePhase1Complete(phase1BattleId) {
       FROM hijack_battles hb
       JOIN fleet_battles fb ON fb.id = hb.phase1_battle_id
       WHERE hb.phase1_battle_id = $1
-        AND hb.phase = 'phase1'
+        AND hb.phase = 'phase1' AND fb.status = 'ended'
       FOR UPDATE OF hb
     `, [phase1BattleId]);
 
@@ -261,6 +267,7 @@ async function handlePhase1Complete(phase1BattleId) {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error(`[hijack] handlePhase1Complete error:`, err.message);
+    throw err;
   } finally {
     client.release();
   }
@@ -283,6 +290,19 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
     if (hijack.phase !== 'phase2') throw new Error('NOT_IN_PHASE2');
     if (hijack.phase2_battle_id) throw new Error('PHASE2_ALREADY_STARTED');
 
+    const { rows: priorParts } = await client.query('SELECT fleet_id,wallet_address,side FROM fleet_battle_participants WHERE battle_id=$1', [hijack.phase1_battle_id]);
+    const defWallet = priorParts.find(p => p.side === 'def')?.wallet_address;
+    if (!defWallet) throw new Error('DEF_FLEET_NOT_FOUND');
+    const locked = await client.query('SELECT id,owner_wallet,is_in_battle,current_battle_id FROM fleets WHERE id=ANY($1::bigint[]) ORDER BY id FOR UPDATE', [[atkFleetId,defFleetId]]);
+    const atkFleet = locked.rows.find(f => String(f.id) === String(atkFleetId));
+    const defFleet = locked.rows.find(f => String(f.id) === String(defFleetId));
+    if (!atkFleet || atkFleet.owner_wallet.toLowerCase() !== walletAddress.toLowerCase()) throw new Error('ATK_FLEET_NOT_FOUND');
+    if (!defFleet || defFleet.owner_wallet.toLowerCase() !== defWallet.toLowerCase()) throw new Error('DEF_FLEET_NOT_FOUND');
+    if (atkFleet.is_in_battle || atkFleet.current_battle_id) throw new Error('ATK_FLEET_IN_BATTLE');
+    if (defFleet.is_in_battle || defFleet.current_battle_id) throw new Error('DEF_FLEET_IN_BATTLE');
+    await assertFleetsNotMining(client, [atkFleetId], 'ATK_FLEET_MINING');
+    await assertFleetsNotMining(client, [defFleetId], 'DEF_FLEET_MINING');
+
     // [v7.188 fix] hijack_ship_loss_enabled=true 시 Phase 1 에서 함선이 전멸할 수 있음.
     //   atk 함대에 살아있는 함선이 0 이면 Phase 2 battle 을 만들어도 simulateBattle 이 null 반환 → applyBattleResults 미호출 → 함대 영구 잠금.
     //   여기서 미리 차단하고 hijack 을 실패로 종료.
@@ -291,15 +311,11 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
       [atkFleetId]
     );
     if (!aliveRows[0] || aliveRows[0].cnt === 0) {
-      await client.query(`
-        UPDATE hijack_battles SET phase='failed', ended_at=NOW(),
-          result_payload = COALESCE(result_payload,'{}')::jsonb || '{"reason":"attacker_no_alive_ships_for_phase2"}'::jsonb
-        WHERE id = $1
-      `, [hijackId]);
-      await client.query(
-        `UPDATE fleets SET is_in_battle = false WHERE id IN ($1, $2)`,
-        [atkFleetId, defFleetId]
-      );
+      await client.query(`UPDATE hijack_battles SET phase='failed',completed_at=NOW(),final_result='defender_won' WHERE id=$1`, [hijackId]);
+      if (hijack.pending_pixels && parseFloat(hijack.attack_cost || 0) > 0) {
+        const refund = Math.round(parseFloat(hijack.attack_cost)*0.9*1000000)/1000000;
+        await client.query('UPDATE users SET pp_balance=pp_balance+$1 WHERE LOWER(wallet_address)=LOWER($2)', [refund,hijack.attacker_wallet]);
+      }
       await client.query('COMMIT');
       console.warn(`[hijack] ${hijackId} Phase 2 skipped — attacker fleet ${atkFleetId} has 0 alive ships`);
       return { success: false, error: 'ATTACKER_NO_ALIVE_SHIPS' };
@@ -321,13 +337,6 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
     ]);
     const phase2BattleId = bRows[0].id;
     
-    // 방어자 찾기 (phase1 수비자)
-    const { rows: defParts } = await client.query(`
-      SELECT wallet_address FROM fleet_battle_participants
-      WHERE battle_id = $1 AND side = 'def' LIMIT 1
-    `, [hijack.phase1_battle_id]);
-    const defWallet = defParts[0]?.wallet_address;
-    
     await client.query(`
       INSERT INTO fleet_battle_participants (battle_id, fleet_id, wallet_address, side)
       VALUES ($1, $2, $3, 'atk'), ($1, $4, $5, 'def')
@@ -339,6 +348,7 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
       WHERE id = $2
     `, [phase2BattleId, hijackId]);
 
+    await client.query('UPDATE fleets SET is_in_battle=true,current_battle_id=$2 WHERE id=ANY($1::bigint[])', [[atkFleetId,defFleetId],phase2BattleId]);
     await client.query('COMMIT');
 
     // [v7.173 C-M3 fix] Phase 2 자동 시작 시 방어자에게 in-game 알림 push (이전엔 silent 였음).
@@ -349,8 +359,8 @@ async function startPhase2(hijackId, walletAddress, atkFleetId, defFleetId) {
         const { notifyPlayer } = require('../db');
         if (typeof notifyPlayer === 'function') {
           notifyPlayer(defWallet,
-            '🚨 영토 방어! Hijack Phase 2 시작 — 함대를 점검하세요',
             'hijack_phase2_start',
+            '🚨 영토 방어! Hijack Phase 2 시작 — 함대를 점검하세요',
             { hijack_id: hijackId, battle_id: phase2BattleId, claim_id: hijack.target_claim_id }
           ).catch(() => {});
         }
@@ -382,6 +392,10 @@ async function handlePhase2Complete(phase2BattleId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Same lock order as battle rewards: battle first, then hijack/users/claim FKs.
+    const ended = await client.query("SELECT id FROM fleet_battles WHERE id=$1 AND status='ended' FOR UPDATE", [phase2BattleId]);
+    if (!ended.rows.length) { await client.query('ROLLBACK'); return; }
+
 
     // Lock hijack row inside transaction — prevents double pixel-transfer on concurrent calls
     const { rows } = await client.query(`
@@ -389,7 +403,7 @@ async function handlePhase2Complete(phase2BattleId) {
       FROM hijack_battles hb
       JOIN fleet_battles fb ON fb.id = hb.phase2_battle_id
       WHERE hb.phase2_battle_id = $1
-        AND hb.phase NOT IN ('completed', 'failed')
+        AND hb.phase = 'phase2' AND fb.status = 'ended'
       FOR UPDATE OF hb
     `, [phase2BattleId]);
 
@@ -421,50 +435,34 @@ async function handlePhase2Complete(phase2BattleId) {
       if (pixels.length > 0) {
         const attackerWallet = hijack.attacker_wallet;
 
-        // 수비자 환불+보너스 지급 (이제 승리 시에만 지급)
         const hijackMult = parseFloat(await getSetting('hijack_multiplier', '1.2')) || 1.2;
         const ownerBonusPct = (parseFloat(await getSetting('hijack_owner_bonus', '50')) || 50) / 100;
         const ownerCredits = {};
+        const transferred = [];
+        let newClaimId = hijack.new_claim_id;
+        // Credit only pixels actually transferred from their recorded previous owner.
+        // A stale third-party pixel must neither be overwritten nor pay the old owner.
         for (const px of pixels) {
           if (!px.prev_owner) continue;
-          const pxCost = parseFloat(px.price) * hijackMult;
-          if (!ownerCredits[px.prev_owner]) ownerCredits[px.prev_owner] = 0;
-          ownerCredits[px.prev_owner] += parseFloat(px.price) + (pxCost - parseFloat(px.price)) * ownerBonusPct;
+          const moved = await client.query(
+            `UPDATE pixels SET owner=$1,claim_id=$2
+             WHERE lat=$3 AND lng=$4 AND LOWER(owner)=LOWER($5) RETURNING lat,lng`,
+            [attackerWallet,newClaimId || null,px.lat,px.lng,px.prev_owner]);
+          if (!moved.rowCount) continue;
+          transferred.push(px);
+          const price = parseFloat(px.price) || 0;
+          ownerCredits[px.prev_owner] = (ownerCredits[px.prev_owner] || 0) + price + price * (hijackMult - 1) * ownerBonusPct;
         }
-        for (const [owner, credit] of Object.entries(ownerCredits)) {
-          if (credit > 0) {
-            // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 공격비용 PP 내부 수비자 보상.
-            await client.query(
-              `UPDATE users SET pp_balance = pp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-              [Math.round(credit * 1000000) / 1000000, owner]
-            );
-          }
-        }
-
-        // 픽셀 소유권 이전
-        // (stale 덮어쓰기 차단 v7.375) 선언 이후 소유권이 제3자로 바뀐 픽셀은 덮어쓰지 않는다.
-        // prev_owner가 있으면 현재 owner가 선언시점과 같을 때만 이전(case·null-safe).
-        // prev_owner 미상 픽셀은 기존 동작 유지(이전 자체가 깨지지 않도록).
-        let newClaimId = hijack.new_claim_id;
-        for (const px of pixels) {
-          if (px.prev_owner) {
-            await client.query(
-              `UPDATE pixels SET owner = $1, claim_id = $2
-               WHERE lat = $3 AND lng = $4 AND LOWER(owner) IS NOT DISTINCT FROM LOWER($5)`,
-              [attackerWallet, newClaimId || null, px.lat, px.lng, px.prev_owner]
-            );
-          } else {
-            await client.query(
-              `UPDATE pixels SET owner = $1, claim_id = $2 WHERE lat = $3 AND lng = $4`,
-              [attackerWallet, newClaimId || null, px.lat, px.lng]
-            );
-          }
+        for (const [owner,credit] of Object.entries(ownerCredits)) {
+          if (credit > 0) await client.query(
+            `UPDATE users SET pp_balance=pp_balance+$1 WHERE LOWER(wallet_address)=LOWER($2)`,
+            [Math.round(credit*1000000)/1000000,owner]);
         }
 
         // 새 claim이 없으면 생성
-        if (!newClaimId && pixels.length > 0) {
-          const lats = pixels.map(p => p.lat);
-          const lngs = pixels.map(p => p.lng);
+        if (!newClaimId && transferred.length > 0) {
+          const lats = transferred.map(p => p.lat);
+          const lngs = transferred.map(p => p.lng);
           const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
           const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
           const w = Math.round((Math.max(...lngs) - Math.min(...lngs)) / 0.22) + 1;
@@ -476,7 +474,7 @@ async function handlePhase2Complete(phase2BattleId) {
           );
           const createdId = cr[0].id;
           newClaimId = createdId;
-          for (const px of pixels) {
+          for (const px of transferred) {
             await client.query(
               `UPDATE pixels SET claim_id = $1 WHERE lat = $2 AND lng = $3 AND owner = $4`,
               [createdId, px.lat, px.lng, attackerWallet]
@@ -490,10 +488,10 @@ async function handlePhase2Complete(phase2BattleId) {
 
         // 원 소유자 claim은 보존 (Phase 2 승리 시에도 동일)
 
-        console.log(`[hijack] ${hijack.id} ATK WIN: ${pixels.length}px → ${attackerWallet}`);
+        console.log(`[hijack] ${hijack.id} ATK WIN: ${transferred.length}px → ${attackerWallet}`);
       }
 
-    } else if (winner === 'def' && isDeclareWithPP) {
+    } else if (winner !== 'atk' && isDeclareWithPP) {
       // ── 공격 실패: 90% 환불 ──
       const attackCost = parseFloat(hijack.attack_cost || 0);
       if (attackCost > 0) {
@@ -507,37 +505,24 @@ async function handlePhase2Complete(phase2BattleId) {
       }
     }
 
+    // Stats are part of the same once-only settlement, not a post-commit scope leak.
+    await client.query(`
+      INSERT INTO hijack_stats(wallet_address,hijacks_attempted,hijacks_succeeded,hijacks_failed,phase2_wins)
+      VALUES($1,1,$2,$3,$2)
+      ON CONFLICT(wallet_address) DO UPDATE SET
+        hijacks_attempted=hijack_stats.hijacks_attempted+1,
+        hijacks_succeeded=hijack_stats.hijacks_succeeded+EXCLUDED.hijacks_succeeded,
+        hijacks_failed=hijack_stats.hijacks_failed+EXCLUDED.hijacks_failed,
+        phase2_wins=hijack_stats.phase2_wins+EXCLUDED.phase2_wins,updated_at=NOW()`,
+      [hijack.attacker_wallet,winner === 'atk' ? 1 : 0,winner === 'atk' ? 0 : 1]);
     await client.query('COMMIT');
+    console.log(`[hijack] ${hijack.id} completed: ${finalResult}`);
+    return { success:true,hijack_id:hijack.id,final_result:finalResult };
   } catch (err) {
     await client.query('ROLLBACK');
     console.error(`[hijack] handlePhase2Complete error:`, err.message);
-  } finally {
-    client.release();
-  }
-
-  // hijack_stats 업데이트 (fire-and-forget)
-  if (winner === 'atk') {
-    pool.query(`
-      INSERT INTO hijack_stats (wallet_address, hijacks_attempted, hijacks_succeeded, phase2_wins)
-      VALUES ($1, 1, 1, 1)
-      ON CONFLICT (wallet_address) DO UPDATE SET
-        hijacks_attempted = hijack_stats.hijacks_attempted + 1,
-        hijacks_succeeded = hijack_stats.hijacks_succeeded + 1,
-        phase2_wins = hijack_stats.phase2_wins + 1,
-        updated_at = NOW()
-    `, [hijack.attacker_wallet]).catch(() => {});
-  } else {
-    pool.query(`
-      INSERT INTO hijack_stats (wallet_address, hijacks_attempted, hijacks_failed)
-      VALUES ($1, 1, 1)
-      ON CONFLICT (wallet_address) DO UPDATE SET
-        hijacks_attempted = hijack_stats.hijacks_attempted + 1,
-        hijacks_failed = hijack_stats.hijacks_failed + 1,
-        updated_at = NOW()
-    `, [hijack.attacker_wallet]).catch(() => {});
-  }
-
-  console.log(`[hijack] ${hijack.id} completed: ${finalResult}`);
+    throw err;
+  } finally { client.release(); }
 }
 
 // ─── 조회 ───
@@ -638,12 +623,11 @@ async function declareHijackWithPP(params) {
       newClaimId = cr[0].id;
 
       for (const px of new_pixels) {
-        await client.query(
-          `INSERT INTO pixels (lat, lng, owner, price, claim_id)
-           VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (lat, lng) DO UPDATE SET owner = $3, price = $4, claim_id = $5`,
-          [px.lat, px.lng, attacker_wallet, px.sectorPrice, newClaimId]
-        );
+        const inserted = await client.query(
+          `INSERT INTO pixels (lat,lng,owner,price,claim_id) VALUES($1,$2,$3,$4,$5)
+           ON CONFLICT(lat,lng) DO UPDATE SET owner=$3,price=$4,claim_id=$5 WHERE pixels.owner IS NULL`,
+          [px.lat,px.lng,attacker_wallet,px.sectorPrice,newClaimId]);
+        if (inserted.rowCount !== 1) throw new Error('PIXEL_OWNERSHIP_CHANGED');
       }
     }
 
@@ -675,6 +659,12 @@ async function declareHijackWithPP(params) {
     let autoWin = false;
 
     if (enemy_pixels && enemy_pixels.length > 0) {
+      for (const px of enemy_pixels) {
+        const current = await client.query('SELECT owner FROM pixels WHERE lat=$1 AND lng=$2 FOR UPDATE', [px.lat,px.lng]);
+        if (!px.prevOwner || !current.rows[0] || String(current.rows[0].owner || '').toLowerCase() !== px.prevOwner.toLowerCase()) {
+          throw new Error('PIXEL_OWNERSHIP_CHANGED');
+        }
+      }
       const pendingPixels = enemy_pixels.map(ep => ({
         lat: ep.lat,
         lng: ep.lng,
@@ -684,6 +674,9 @@ async function declareHijackWithPP(params) {
 
       if (!primary_def_fleet_id) {
         // ── 자동 승리: 수비자 함대 없음 → 즉시 픽셀 이전 + 수비자 지급 ──
+        const aliveDefender = await client.query(`SELECT f.id FROM fleets f WHERE LOWER(f.owner_wallet)=LOWER($1)
+          AND EXISTS(SELECT 1 FROM ships s WHERE s.fleet_id=f.id AND s.is_alive) ORDER BY f.id FOR UPDATE`, [primary_defender_wallet]);
+        if (aliveDefender.rows.length) throw new Error('DEF_FLEET_IN_BATTLE');
         autoWin = true;
 
         // 자동승리는 확정이므로 수비자 즉시 지급
@@ -840,6 +833,8 @@ async function declareHijackWithPP(params) {
       }
     }
 
+    if (phase1BattleId) await client.query('UPDATE fleets SET is_in_battle=true,current_battle_id=$2 WHERE id=ANY($1::bigint[])',
+      [[atk_fleet_id,primary_def_fleet_id],phase1BattleId]);
     await client.query('COMMIT');
 
     return {
@@ -866,6 +861,13 @@ async function declareHijackWithPP(params) {
 // [v7.188 fix] handlePhase1Complete 가 setTimeout(3000) 으로 Phase 2 를 비동기 시작 → 그 사이 프로세스가 죽으면
 // hijack 이 phase='phase2', phase2_battle_id=NULL 로 영원히 stuck. 서버 부팅 시 한 번 sweep.
 async function recoverOrphanedPhase2() {
+  const unsettled = await pool.query(`SELECT h.phase,h.phase1_battle_id,h.phase2_battle_id FROM hijack_battles h
+    LEFT JOIN fleet_battles p1 ON p1.id=h.phase1_battle_id LEFT JOIN fleet_battles p2 ON p2.id=h.phase2_battle_id
+    WHERE (h.phase='phase1' AND p1.status='ended') OR (h.phase='phase2' AND p2.status='ended') LIMIT 20`);
+  for (const h of unsettled.rows) {
+    if (h.phase === 'phase1') await handlePhase1Complete(h.phase1_battle_id);
+    else await handlePhase2Complete(h.phase2_battle_id);
+  }
   // [v7.189 fix] FOR UPDATE SKIP LOCKED — 멀티 인스턴스 부팅 시 두 워커가 같은 row 잡고 noisy log 내는 거 차단.
   //   pool.query 는 connection 즉시 release 라 lock 안 잡힘 → client 로 TX 안에서 SELECT/UPDATE.
   //   각 row 마다 별도 TX 로 락 잡고 startPhase2 호출하면, 다른 워커가 처리 중이면 SKIP LOCKED 로 즉시 0 row → silent skip.

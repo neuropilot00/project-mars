@@ -3,6 +3,7 @@
 // 상자를 GP로 구매·개봉하면 size_class 가중치에 따라 함선 1척을 획득해 함대에 편입한다.
 const crypto = require('crypto');
 const { pool, getSetting, logGPActivity } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 const RARE_CLASSES = ['cruiser', 'battleship', 'titan']; // 천장 대상(희귀 이상)
 
@@ -18,7 +19,7 @@ function rollRarity(weights, allow) {
     .filter(([cls, w]) => Number(w) > 0 && (!allow || allow.includes(cls)));
   const total = entries.reduce((s, [, w]) => s + Number(w), 0);
   if (total <= 0) return null;
-  let r = randInt(total);
+  let r = randFloat() * total;
   for (const [cls, w] of entries) {
     r -= Number(w);
     if (r < 0) return cls;
@@ -76,45 +77,114 @@ function rollBonusStats(quality, base) {
   };
 }
 
-async function listCrates(walletAddress) {
-  const enabled = String(await getSetting('ship_crate_enabled', 'true'));
-  if (enabled === 'false') return { enabled: false, crates: [] };
-  const { rows } = await pool.query(
-    `SELECT code, label_ko, label_en, price_gp, price_usdt, rarity_weights, pity_pulls, daily_limit
-     FROM ship_crate_types WHERE active = true ORDER BY sort_order ASC, price_gp ASC`
-  );
-  // [v7.168] 사용자 pity 카운터 — wallet 전달 시 각 crate 별 "다음 보장까지 N회" 표시용
-  let userPity = {};
-  if (walletAddress) {
-    try {
-      const w = String(walletAddress).toLowerCase().trim();
-      const pr = await pool.query(`SELECT crate_code, pulls_since_rare FROM ship_crate_pity WHERE LOWER(wallet) = LOWER($1)`, [w]);
-      for (const row of pr.rows) userPity[row.crate_code] = parseInt(row.pulls_since_rare, 10) || 0;
-    } catch (_) {}
-  }
-  // 확률 공개(odds disclosure): 가중치를 % 로 환산해 함께 내려준다(법적 대응).
-  const crates = rows.map(r => {
-    const w = r.rarity_weights || {};
-    const total = Object.values(w).reduce((s, v) => s + Number(v), 0) || 1;
-    const odds = {};
-    for (const [cls, val] of Object.entries(w)) odds[cls] = Math.round((Number(val) / total) * 1000) / 10; // 0.1% 단위
-    return {
-      code: r.code, label_ko: r.label_ko, label_en: r.label_en,
-      price_gp: r.price_gp, price_usdt: Number(r.price_usdt) || 0,
-      pity_pulls: r.pity_pulls, daily_limit: parseInt(r.daily_limit, 10) || 0, odds,
-      pulls_since_rare: userPity[r.code] || 0,
-      pity_remaining: (r.pity_pulls && r.pity_pulls > 0) ? Math.max(0, r.pity_pulls - (userPity[r.code] || 0)) : null
-    };
-  });
-  return { enabled: true, crates };
+function percent(value) { return Math.round(value * 100000000) / 1000000; }
+function normalizedWeights(weights, allow) {
+  const entries = Object.entries(weights || {}).filter(([key, value]) => Number.isFinite(Number(value)) && Number(value) > 0 && (!allow || allow.includes(key)));
+  const total = entries.reduce((sum, [, value]) => sum + Number(value), 0);
+  return entries.map(([key, value]) => [key, Number(value) / total]);
 }
 
-// 함선을 넣을 함대 확보(없으면 생성) — campaign 의 getOrCreateCampaignFleet 과 동일 규칙
+// Shared with the draw: probabilities describe outcomes BEFORE payment, including unavailable types.
+function buildDisclosure(crate, context) {
+  const pityActive = Number(crate.pity_pulls) > 0 && context.pullsSince + 1 >= Number(crate.pity_pulls);
+  const baseClasses = normalizedWeights(crate.rarity_weights);
+  let classes = normalizedWeights(crate.rarity_weights, pityActive ? RARE_CLASSES : null);
+  if (!classes.length) classes = baseClasses;
+  const firstRecruit = crate.code === 'recruit_crate' && context.firstRecruit;
+  const alternatives = context.factions.filter(f => f !== context.faction);
+  const cross = firstRecruit || !alternatives.length ? 0 : Math.max(0, Math.min(100, context.crossPct)) / 100;
+  const factions = context.faction ? [[context.faction, 1 - cross], ...alternatives.map(f => [f, cross / alternatives.length])].filter(([, p]) => p > 0) : [];
+  const outcomes = [];
+  for (const [requested, classP] of classes) {
+    for (const [faction, factionP] of factions) {
+      let rarity = requested;
+      let substituted = false;
+      if (rarity === 'titan') {
+        const titan = context.types.find(t => t.faction_code === faction && t.size_class === 'titan');
+        if (!titan || (Number(titan.max_per_server) > 0 && Number(titan.server_alive) >= Number(titan.max_per_server))) {
+          rarity = 'battleship'; substituted = true;
+        }
+      }
+      const types = context.types.filter(t => t.faction_code === faction && t.size_class === rarity);
+      if (!types.length) {
+        outcomes.push({ requested_class: requested, rarity, faction, ship_type_code: null, probability_pct: classP * factionP * 100, usable: false, titan_substituted: substituted, error: 'NO_SHIP_FOR_RARITY' });
+      } else for (const type of types) {
+        const error = context.maxShips > 0 && context.totalAlive >= context.maxShips ? 'PLAYER_FLEET_FULL'
+          : Number(type.max_per_player) > 0 && Number(type.my_alive) >= Number(type.max_per_player) ? 'SHIP_TYPE_LIMIT'
+          : Number(type.max_per_server) > 0 && Number(type.server_alive) >= Number(type.max_per_server) ? 'SERVER_LIMIT_REACHED' : null;
+        outcomes.push({ requested_class: requested, rarity, faction, ship_type_code: type.code, probability_pct: classP * factionP * 100 / types.length, usable: faction === context.faction && !error, titan_substituted: substituted, error });
+      }
+    }
+  }
+  const effective = {};
+  for (const outcome of outcomes) effective[outcome.rarity] = (effective[outcome.rarity] || 0) + outcome.probability_pct;
+  for (const rarity of Object.keys(effective)) effective[rarity] = percent(effective[rarity] / 100);
+  const quality = Object.fromEntries(normalizedWeights(CRATE_QUALITY_WEIGHTS[crate.code] || QUALITY_WEIGHTS_DEFAULT).map(([grade, p]) => [grade, percent(p)]));
+  return {
+    personalized: !!context.faction, snapshot_at: new Date().toISOString(),
+    base_class_odds: Object.fromEntries(baseClasses.map(([cls, p]) => [cls, percent(p)])),
+    effective_class_odds: effective, quality_odds: quality,
+    quality_bonus_ranges: QUALITY_BONUS_RANGE, quality_variance: [0.7, 1.3],
+    pity_active: pityActive, first_recruit_own_faction: !!firstRecruit,
+    cross_faction_pct: percent(cross), usable_pct: percent(outcomes.filter(o => o.usable).reduce((sum, o) => sum + o.probability_pct, 0) / 100),
+    unavailable_pct: percent(outcomes.filter(o => o.error).reduce((sum, o) => sum + o.probability_pct, 0) / 100),
+    outcomes, cap_snapshot: context.types.filter(t => t.size_class === 'titan').map(t => ({ code: t.code, faction: t.faction_code, alive: Number(t.server_alive), max: Number(t.max_per_server) || null }))
+  };
+}
+
+async function getDrawContext(db, wallet, faction, pullsSince, crossPct) {
+  const { rows: factions } = await db.query(`SELECT code FROM factions WHERE is_active = true ORDER BY code`);
+  const { rows: types } = await db.query(`SELECT st.*,
+    (SELECT COUNT(*) FROM ships s WHERE s.ship_type_code = st.code AND s.is_alive = true) AS server_alive,
+    (SELECT COUNT(*) FROM ships s WHERE s.ship_type_code = st.code AND LOWER(s.owner_wallet) = LOWER($1) AND s.is_alive = true) AS my_alive
+    FROM ship_types st WHERE st.is_active = true ORDER BY st.code`, [wallet || '']);
+  const { rows: recruit } = await db.query(`SELECT EXISTS(SELECT 1 FROM ship_crate_pulls WHERE wallet = $1 AND crate_code = 'recruit_crate') AS used`, [wallet || '']);
+  const { rows: limits } = await db.query(`SELECT
+    (SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet)=LOWER($1) AND is_alive=true) AS total_alive,
+    (SELECT value #>> '{}' FROM settings WHERE category='fleet' AND key='max_ships_per_player' LIMIT 1) AS max_ships`, [wallet || '']);
+  return { faction, pullsSince, crossPct, factions: factions.map(f => f.code), types, firstRecruit: !!wallet && !recruit[0].used,
+    totalAlive: Number(limits[0].total_alive), maxShips: Number(limits[0].max_ships) > 0 ? Number(limits[0].max_ships) : 200 };
+}
+
+async function listCrates(walletAddress) {
+  if (String(await getSetting('ship_crate_enabled', 'true')) === 'false') return { enabled: false, crates: [] };
+  const wallet = String(walletAddress || '').toLowerCase().trim();
+  const { rows } = await pool.query(`SELECT code, label_ko, label_en, price_gp, price_usdt, rarity_weights, pity_pulls, daily_limit FROM ship_crate_types WHERE active = true ORDER BY sort_order ASC, price_gp ASC`);
+  const userPity = {}, dailyUsed = {};
+  let faction = null;
+  if (wallet) {
+    const [{ rows: users }, { rows: pity }, { rows: used }] = await Promise.all([
+      pool.query(`SELECT faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1)`, [wallet]),
+      pool.query(`SELECT crate_code, pulls_since_rare FROM ship_crate_pity WHERE LOWER(wallet) = LOWER($1)`, [wallet]),
+      pool.query(`SELECT crate_code, COUNT(*)::int AS count FROM ship_crate_pulls WHERE wallet = $1 AND created_at >= date_trunc('day', NOW()) GROUP BY crate_code`, [wallet])
+    ]);
+    faction = users[0]?.faction_code || null;
+    for (const row of pity) userPity[row.crate_code] = Number(row.pulls_since_rare) || 0;
+    for (const row of used) dailyUsed[row.crate_code] = row.count;
+  }
+  const crossPct = Number(await getSetting('crate_cross_faction_pct', '18')) || 0;
+  const context = await getDrawContext(pool, wallet, faction, 0, crossPct);
+  return { enabled: true, crates: rows.map(r => {
+    const disclosure = buildDisclosure(r, { ...context, pullsSince: userPity[r.code] || 0 });
+    return { code: r.code, label_ko: r.label_ko, label_en: r.label_en, price_gp: r.price_gp, price_usdt: Number(r.price_usdt) || 0,
+      pity_pulls: r.pity_pulls, daily_limit: Number(r.daily_limit) || 0, odds: disclosure.base_class_odds, disclosure,
+      daily_remaining: r.daily_limit > 0 ? Math.max(0, r.daily_limit - (dailyUsed[r.code] || 0)) : null,
+      pulls_since_rare: userPity[r.code] || 0,
+      pity_remaining: Number(r.pity_pulls) > 0 ? Math.max(0, Number(r.pity_pulls) - (userPity[r.code] || 0)) : null };
+  }) };
+}
+
+// Put a draw into an idle fleet; reserved fleets must keep their registered hulls.
 async function getOrCreateFleet(client, wallet) {
   const { rows: existing } = await client.query(
-    `SELECT id FROM fleets WHERE owner_wallet = $1 ORDER BY id ASC LIMIT 1`, [wallet]
+    `SELECT id FROM fleets WHERE owner_wallet = $1 ORDER BY id ASC FOR UPDATE`, [wallet]
   );
-  if (existing[0]) return existing[0].id;
+  for (const fleet of existing) {
+    const reservation = await client.query('SELECT is_in_battle,current_battle_id FROM fleets WHERE id=$1 FOR UPDATE', [fleet.id]);
+    if (reservation.rows[0]?.is_in_battle || reservation.rows[0]?.current_battle_id) continue;
+    try { await assertFleetsNotMining(client, [fleet.id]); return fleet.id; }
+    catch (error) { if (!['FLEET_MINING','FLEET_TRANSPORTING'].includes(error.message)) throw error; }
+  }
   const { rows: nick } = await client.query('SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)', [wallet]);
   const name = `${nick[0]?.nickname || 'Commander'} 제1함대`;
   const { rows } = await client.query(
@@ -140,6 +210,15 @@ async function openCrate(wallet, crateCode) {
     const crate = crateRows[0];
     if (!crate) { await client.query('ROLLBACK'); return { error: 'CRATE_NOT_FOUND' }; }
 
+    // Serialize all crate draws for this user before checking the daily quota.
+    // Checking the count before this lock allowed concurrent free draws through.
+    const { rows: userRows } = await client.query(
+      `SELECT gp_balance, faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]
+    );
+    const user = userRows[0];
+    if (!user) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
+    if (!user.faction_code) { await client.query('ROLLBACK'); return { error: 'NO_FACTION' }; }
+
     // 일일 개봉 제한(무료/데일리 상자 함선 공급 통제). daily_limit=0 이면 무제한.
     const dailyLimit = parseInt(crate.daily_limit, 10) || 0;
     if (dailyLimit > 0) {
@@ -154,13 +233,6 @@ async function openCrate(wallet, crateCode) {
       }
     }
 
-    // 유저 락 + GP/파벌 확인
-    const { rows: userRows } = await client.query(
-      `SELECT gp_balance, faction_code FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]
-    );
-    const user = userRows[0];
-    if (!user) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
-    if (!user.faction_code) { await client.query('ROLLBACK'); return { error: 'NO_FACTION' }; }
     const price = parseInt(crate.price_gp, 10) || 0;
     if (Number(user.gp_balance) < price) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: price, current: Number(user.gp_balance) }; }
 
@@ -172,52 +244,19 @@ async function openCrate(wallet, crateCode) {
     const pity = parseInt(crate.pity_pulls, 10) || 0;
     const pityHit = pity > 0 && (pullsSince + 1) >= pity;
 
-    // 등급 롤 (천장 발동 시 희귀 이상만 후보)
-    const weights = crate.rarity_weights || {};
-    let rarity = rollRarity(weights, pityHit ? RARE_CLASSES : null);
-    if (!rarity) rarity = rollRarity(weights, null); // 천장 후보가 없으면 일반 롤로 폴백
-    if (!rarity) { await client.query('ROLLBACK'); return { error: 'CRATE_MISCONFIGURED' }; }
-
-    // Cross-faction 롤 — 다른 진영 함선이 나올 확률(settings 조정 가능, 기본 18%).
-    // 사용은 불가하지만 마켓에 팔 수 있어 cross-faction 시장 유동성을 생성한다.
-    const crossPct = parseFloat(await getSetting('crate_cross_faction_pct', '18')) || 0;
-    const isCrossFaction = crossPct > 0 && (randFloat() * 100) < crossPct;
-    let targetFaction = user.faction_code;
-    if (isCrossFaction) {
-      const { rows: factionRows } = await client.query(
-        `SELECT code FROM factions WHERE code <> $1 AND is_active = true`, [user.faction_code]
-      );
-      if (factionRows.length > 0) {
-        targetFaction = factionRows[randInt(factionRows.length)].code;
-      }
-    }
-
-    // 타이탄 서버 캡 존중: 캡 가득이면 battleship 으로 강등 (target faction 기준)
-    if (rarity === 'titan') {
-      const { rows: tRows } = await client.query(
-        `SELECT st.code, st.max_per_server,
-                (SELECT COUNT(*) FROM ships s WHERE s.ship_type_code = st.code AND s.is_alive = true) AS alive
-         FROM ship_types st WHERE st.faction_code = $1 AND st.size_class = 'titan' AND st.is_active = true LIMIT 1`,
-        [targetFaction]
-      );
-      const t = tRows[0];
-      if (!t || (t.max_per_server && parseInt(t.alive, 10) >= parseInt(t.max_per_server, 10))) {
-        rarity = 'battleship';
-      }
-    }
-
-    // target faction·등급의 함선 중 랜덤 선택 (base 스탯 포함)
-    const { rows: shipTypeRows } = await client.query(
-      `SELECT code, faction_code, base_hp, base_atk, base_def, base_speed, is_flagship_capable FROM ship_types
-       WHERE faction_code = $1 AND size_class = $2 AND is_active = true`,
-      [targetFaction, rarity]
-    );
-    if (!shipTypeRows.length) {
-      // 해당 등급 함선이 없으면(이론상 드묾) 한 단계 낮춰 재시도
-      await client.query('ROLLBACK');
-      return { error: 'NO_SHIP_FOR_RARITY', rarity };
-    }
-    const picked = shipTypeRows[randInt(shipTypeRows.length)];
+    // Lock capped types in the same order and namespace as ordinary construction.
+    // Different wallets cannot both consume the final Titan slot.
+    const { rows: capped } = await client.query(`SELECT code FROM ship_types WHERE is_active = true AND max_per_server > 0 ORDER BY code`);
+    for (const type of capped) await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, ['shipbuild:' + type.code]);
+    const crossPct = Number(await getSetting('crate_cross_faction_pct', '18')) || 0;
+    const context = await getDrawContext(client, w, user.faction_code, Number(pullsSince), crossPct);
+    const disclosure = buildDisclosure(crate, context);
+    if (!disclosure.outcomes.length) { await client.query('ROLLBACK'); return { error: 'CRATE_MISCONFIGURED' }; }
+    let remaining = randFloat() * disclosure.outcomes.reduce((sum, o) => sum + o.probability_pct, 0);
+    const outcome = disclosure.outcomes.find(o => { remaining -= o.probability_pct; return remaining < 0; }) || disclosure.outcomes.at(-1);
+    if (outcome.error) { await client.query('ROLLBACK'); return { error: outcome.error, rarity: outcome.rarity }; }
+    const rarity = outcome.rarity;
+    const picked = context.types.find(t => t.code === outcome.ship_type_code);
 
     // 각인 품질 롤 → 보너스 스탯(강화된 개체 가능)
     const baseStats = {
@@ -292,12 +331,15 @@ async function openCrate(wallet, crateCode) {
         }
       },
       was_pity: pityHit && isRare,
-      gp_spent: price
+      gp_spent: price,
+      disclosure
     };
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[shipCrate] openCrate error:', err.message);
     // 함급당 보유 한도(서버 트리거)에 걸리면 GP는 롤백되어 차감 없음 — 명확한 코드로 반환.
+    if (err && /SHIP_PLAYER_TOTAL_LIMIT/i.test(err.message || '')) return { error: 'PLAYER_FLEET_FULL' };
+    if (err && /SHIP_SERVER_LIMIT_REACHED/i.test(err.message || '')) return { error: 'SERVER_LIMIT_REACHED' };
     if (err && /SHIP_PLAYER_TYPE_LIMIT|per player/i.test(err.message || '')) {
       return { error: 'SHIP_TYPE_LIMIT' };
     }
@@ -307,4 +349,4 @@ async function openCrate(wallet, crateCode) {
   }
 }
 
-module.exports = { listCrates, openCrate };
+module.exports = { listCrates, openCrate, buildDisclosure, normalizedWeights };

@@ -211,8 +211,22 @@ async function respawnAiFleet(fleetId, aiWallet, newFactionCode, difficulty, ind
   try {
     await client.query('BEGIN');
 
-    // 기존 함선 삭제
-    await client.query(`DELETE FROM ships WHERE fleet_id = $1`, [fleetId]);
+    // Different schedulers can observe the same destroyed fleet. Serialize and
+    // recheck after acquiring the lock so a second caller cannot add a preset.
+    const { rows: locked } = await client.query(
+      'SELECT is_in_battle FROM fleets WHERE id=$1 FOR UPDATE', [fleetId]
+    );
+    const { rows: surviving } = await client.query(
+      'SELECT 1 FROM ships WHERE fleet_id=$1 AND is_alive=true LIMIT 1', [fleetId]
+    );
+    if (!locked[0] || locked[0].is_in_battle || surviving.length) {
+      await client.query('ROLLBACK');
+      return false;
+    }
+
+    // Preserve destroyed ships referenced by battle history and salvage records.
+    // They no longer occupy the active fleet; new ships can be spawned normally.
+    await client.query(`UPDATE ships SET fleet_id = NULL WHERE fleet_id = $1 AND is_alive = false`, [fleetId]);
 
     // 유저 파벌 업데이트
     await client.query(`
@@ -273,6 +287,7 @@ async function respawnAiFleet(fleetId, aiWallet, newFactionCode, difficulty, ind
 
     await client.query('COMMIT');
     console.log(`[aiFleet] respawned fleet ${fleetId} as ${newFactionCode}/${difficulty} #${index + 1}`);
+    return true;
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -334,8 +349,7 @@ async function ensureAiFleets() {
             // 랜덤 파벌 선택
             const randomFaction = ['mcc', 'fsp', 'cv'][Math.floor(Math.random() * 3)];
             try {
-              await respawnAiFleet(fleet.id, aiWallet, randomFaction, difficulty, i);
-              created++;
+              if (await respawnAiFleet(fleet.id, aiWallet, randomFaction, difficulty, i)) created++;
             } catch (err) {
               console.error(`[aiFleet] respawn failed:`, err.message);
             }
@@ -397,6 +411,8 @@ async function listAvailableAiFleets(playerFactionCode) {
     LEFT JOIN factions fa ON fa.code = u.faction_code
     LEFT JOIN ships s ON s.fleet_id = f.id
     WHERE u.is_ai = true
+      AND COALESCE(to_jsonb(u)->>'is_frontier_npc','false') <> 'true'
+      AND COALESCE(to_jsonb(u)->>'is_objective_npc','false') <> 'true'
       AND NOT f.is_in_battle
     GROUP BY f.id, u.ai_difficulty, u.nickname, fa.code, fa.name_ko, fa.color_primary
     HAVING COUNT(s.id) FILTER (WHERE s.is_alive) > 0

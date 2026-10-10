@@ -462,20 +462,20 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 @media (max-width:768px){
   /* [v7.212 revert] 모바일은 v7.190 위치 그대로 — bottom:118. 사용자 의도는 데스크탑만 아래로 옮기는 것이었음. */
   .campaign-quick{left:12px!important;top:auto!important;right:auto!important;bottom:118px!important;transform:none;
-    width:auto;height:34px;justify-content:center;padding:0 10px;font-size:9px}
+    width:auto;height:44px;justify-content:center;padding:0 12px;font-size:11px}
   .campaign-quick:hover{transform:translateY(-1px)}
   .campaign-quick:active{transform:none}
   .campaign-quick-sub{display:none}
-  .crates-quick{left:12px!important;top:auto!important;right:auto!important;bottom:160px!important;transform:none;
-    width:auto;height:34px;justify-content:center;padding:0 10px;font-size:9px}
+  .crates-quick{left:12px!important;top:auto!important;right:auto!important;bottom:170px!important;transform:none;
+    width:auto;height:44px;justify-content:center;padding:0 12px;font-size:11px}
   .crates-quick:hover{transform:translateY(-1px)}
   .crates-quick:active{transform:none}
   .crates-quick-sub{display:none}
   /* [v7.190] 모바일: 오늘의 추천 → 좌측 컬럼 함선 가챠(crates-quick) 위로 이동.
      이전엔 우측 zc 컬럼 위(42×42). 이제 좌측 캠페인/가챠와 같은 라인. */
   .ops-quick-split{left:12px!important;right:auto!important;top:auto!important;transform:none!important;
-    bottom:202px!important; /* crates(160) + 34px + gap */
-    width:auto!important;height:34px!important;
+    bottom:222px!important; /* 44px actions, separated by 8px */
+    width:auto!important;height:44px!important;
     background:rgba(8,10,16,.85);border:1px solid rgba(255,209,102,.45);
     border-radius:8px;overflow:hidden;padding:0 10px;display:flex;align-items:center}
   /* 내부 dailyHintBtn — 모바일은 아이콘 + 짧은 라벨 (좌측 컬럼은 가로 공간 충분) */
@@ -1233,6 +1233,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .base-body::-webkit-scrollbar-thumb{background:rgba(255,120,60,.2);border-radius:2px}
 .base-pane{display:none}
 .base-pane.active{display:block}
+.base-locked-pane{padding:28px 16px;text-align:center;border:1px solid var(--bdr);border-radius:12px;background:rgba(91,184,232,.05)}
+.base-lock-icon{font-size:28px;margin-bottom:12px}
+.base-locked-pane h2{font-size:20px;line-height:1.4;margin:0 0 12px;color:var(--tx)}
+.base-locked-pane p{font-size:14px;line-height:1.7;margin:8px 0;color:var(--tx2);overflow-wrap:anywhere}
+.base-locked-pane .base-lock-level{color:var(--gold);font-weight:700}
+.base-locked-pane button{display:block;min-height:44px;width:100%;margin-top:20px;padding:10px 16px;border:1px solid var(--cyan);border-radius:8px;background:rgba(91,184,232,.14);color:var(--tx);font:inherit;font-size:14px;cursor:pointer}
+@media(max-width:768px){
+  #baseCatRow>.bcat,#baseTabsRow>.base-tab,.base-close,#notifBellBtn{min-height:44px;min-width:44px}
+}
 
 .base-banner{width:100%;height:130px;border-radius:8px;margin-bottom:14px;overflow:hidden;
   position:relative;background:#0a0a12;border:1px solid var(--bdr)}
@@ -2248,7 +2257,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* ══════════════════════════════════════════════════
    Game-themed Confirm Dialog (Mars HUD style)
    ══════════════════════════════════════════════════ */
-.game-confirm{display:none;position:fixed;inset:0;z-index:10001;background:rgba(5,3,10,.78);
+.game-confirm{display:none;position:fixed;inset:0;z-index:22100;background:rgba(5,3,10,.78);
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;
   padding:20px}
 .game-confirm.open{display:flex}
@@ -3060,7 +3069,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .ai-card:active {
     opacity: 0.7;
   }
-
+}
 
 /* ── Onboarding v2 CSS ── */
 /* ═════ 온보딩 오버레이 ═════ */
@@ -3404,3 +3413,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 @keyframes cmdPulseMob{0%,100%{opacity:0.85}50%{opacity:1}}
 
 /* [v7.225] 로딩 배경 영상 — 데스크탑 가로(load_loop_01~04) / 모바일 세로(load_loop_v01~03). 양쪽 표시. */
+
+/* Mobile review: consent and quick actions must not compete for the same hit area. */
+@media(max-width:768px){
+  .cookie-banner .ck-accept{min-height:44px;min-width:88px;font-size:12px}
+  body:has(.cookie-banner.show) .campaign-quick,
+  body:has(.cookie-banner.show) .crates-quick,
+  body:has(.cookie-banner.show) .ops-quick-split,
+  body:has(.cookie-banner.show) .zc,
+  body:has(.onboarding-hint.active) .campaign-quick,
+  body:has(.onboarding-hint.active) .crates-quick,
+  body:has(.onboarding-hint.active) .ops-quick-split{visibility:hidden}
+  #tutHowtoBtn,#loginBtn{min-height:44px;min-width:44px}
+  .onboarding-hint button{min-height:44px;font-size:12px}
+  #shipyardModal .shipyard-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));flex-shrink:0}
+  #shipyardModal .sy-tab,#shipyardModal button,#crateRevealModal button{min-height:44px!important;min-width:44px}
+  #shipyardModal .sy-tab{font-size:11px;letter-spacing:0;white-space:normal;overflow-wrap:anywhere;line-height:1.3}
+}
+
+/* Confirmation must sit above the objective and card dialogs that open it. */
+.game-confirm .gc-body{font:14px/1.65 var(--font-body,system-ui)}
+.game-confirm .gc-btn{min-height:44px;font-size:14px}

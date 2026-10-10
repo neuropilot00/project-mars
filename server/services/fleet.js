@@ -59,7 +59,7 @@ async function listMyFleets(walletAddress) {
       COUNT(s.id) FILTER (WHERE NOT s.is_alive) AS ships_lost,
       COUNT(s.id) FILTER (WHERE s.is_alive AND s.is_flagship) AS flagship_count,
       COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive), 0) AS total_hp,
-      COALESCE(SUM(s.max_hp) FILTER (WHERE s.is_alive), 0) AS total_max_hp,
+      COALESCE(SUM(s.max_hp + COALESCE(s.bonus_hp, 0)) FILTER (WHERE s.is_alive), 0) AS total_max_hp,
       
       -- 크기별 집계
       COUNT(s.id) FILTER (WHERE s.is_alive AND st.size_class='frigate') AS frigate_count,
@@ -75,7 +75,7 @@ async function listMyFleets(walletAddress) {
          'ship_type_code', fs.ship_type_code,
          'name_ko', fst.name_ko,
          'current_hp', fs.current_hp,
-         'max_hp', fs.max_hp
+         'max_hp', fs.max_hp + COALESCE(fs.bonus_hp, 0)
        )
        FROM ships fs
        LEFT JOIN ship_types fst ON fst.code = fs.ship_type_code
@@ -124,7 +124,7 @@ async function getFleetDetail(fleetId, walletAddress) {
       (SELECT COALESCE(SUM(af.total_kills),0) FROM fleets af WHERE LOWER(af.owner_wallet) = LOWER(f.owner_wallet)) AS account_kills,
       COUNT(s.id) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false) AS ships_alive,
       COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_hp,
-      COALESCE(SUM(s.max_hp) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_max_hp
+      COALESCE(SUM(s.max_hp + COALESCE(s.bonus_hp, 0)) FILTER (WHERE s.is_alive AND COALESCE(s.is_market_listed, false) = false), 0) AS total_max_hp
     FROM fleets f
     LEFT JOIN ships s ON s.fleet_id = f.id
     WHERE f.id = $1 AND LOWER(f.owner_wallet) = LOWER($2)

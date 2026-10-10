@@ -1,0 +1,24 @@
+'use strict';
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
+async function main(){
+ const origin=process.argv[2]||'http://127.0.0.1:3187',id=process.argv[3]||'292';
+ const [info,timeline]=await Promise.all([fetch(origin+'/api/battles/'+id).then(r=>r.json()),fetch(origin+'/api/battles/'+id+'/timeline').then(r=>r.json())]);
+ assert.equal(info.battle.status,'ended');assert.ok(info.battle.battle_summary.objective_result);assert.ok(timeline.timeline.frames.length>2);
+ const html=fs.readFileSync(path.join(__dirname,'../../assets/tactical-lab-v11.html'),'utf8');const script=html.match(/<script>([\s\S]*)<\/script>/)[1];new vm.Script(script);
+ const hub=fs.readFileSync(path.join(__dirname,'../../assets/battle-hub-modal.js'),'utf8');new vm.Script(hub);
+ const posted=[],parent={};const pc=vm.createContext({bv:{battle:info.battle,timeline:timeline.timeline,_objectiveReplay:true},location:{origin},document:{getElementById:()=>({contentWindow:{postMessage:m=>posted.push(m)}})},battleObjectiveResult:b=>b.battle_summary.objective_result});
+ vm.runInContext(hub.slice(hub.indexOf('function forwardObjectiveReplayFrame('),hub.indexOf('function redrawCurrentFrame(')),pc);
+ const frames=timeline.timeline.frames;
+ const fleets=timeline.timeline.fleets_meta.map(meta=>({dbFleetId:meta.id,userId:meta.name,side:meta.side,hp:1,maxHp:1,ships:frames[0].ships.filter(s=>s.fid===meta.id).map(s=>({dbShipId:s.id,type:{code:s.code},isFlagship:!!s.ff,hp:1,maxHp:1}))}));
+ const displayed=[],notified=[];const c=vm.createContext({console,Number,String,Object,Array,Map,Set,Math,performance:{now:()=>1000},location:{origin},window:{parent},fleets,displayed,notified,FORMATIONS:{pincer:{},wedge:{}},MANEUVERS:{flank:{}},SHIPS:{},tlQuery:()=>id,closeBattleWs(){},renderObjectiveBanner:f=>displayed.push(f.objective),updateCommandDeck(){},loadPersistedActionSummary(){},renderActionSummary(){},addLog(){},mkExp(){},mkShockwave(){},notifyParent:(cmd,p)=>notified.push({cmd,p}),setTimeout:fn=>fn()});
+ vm.runInContext(`const TL_MODE='battle';let _parentReplay=false,_battleUiReady=false,_queuedReplayFrame=null,_queuedReplayEnd=null,_wsRealtime=false,_wsLastFrame=null,_wsEndPayload=null,_wsMaxHpCalibrated=false,_commandWallet='',focusFleet=null,atkMaxHP=1,defMaxHP=1,btMs=0,battleOver=false,tlDisposed=false,_wsPrevShips=new Map(),_confirmedActions=new Map();`,c);
+ for(const [start,end] of [['function advanceBattleClock(','function handleCommandResult('],['function syncServerShips(','function fleetRoleText('],['function receiveObjectiveReplayMessage(','window.addEventListener(\'message\',receiveObjectiveReplayMessage)'],['function processBattleMessage(','function closeBattleWs(']])vm.runInContext(script.slice(script.indexOf(start),script.indexOf(end)),c);
+ const receive=m=>c.receiveObjectiveReplayMessage({origin,source:parent,data:m});
+ pc.forwardObjectiveReplayFrame(frames[0]);receive(posted.pop());assert.equal(displayed.length,0);assert.ok(vm.runInContext('_queuedReplayFrame',c));
+ vm.runInContext('_battleUiReady=true',c);receive(vm.runInContext('_queuedReplayFrame',c));assert.equal(displayed.at(-1).kind,'hold');assert.equal(vm.runInContext('_parentReplay',c),true);assert.equal(vm.runInContext('_wsRealtime',c),false);
+ const middle=frames[Math.floor(frames.length/2)];pc.forwardObjectiveReplayFrame(middle);receive(posted.pop());assert.equal(displayed.at(-1).hold_seconds,middle.objective.hold_seconds);assert.equal(fleets[0].hp,middle.fleets[0].hp);assert.equal(fleets[0].ships[0].hp,middle.ships[0].hp);assert.equal(vm.runInContext('btMs',c),middle.objective.elapsed_seconds*1000);vm.runInContext('advanceBattleClock(17000)',c);assert.equal(vm.runInContext('btMs',c),middle.objective.elapsed_seconds*1000);
+ pc.forwardObjectiveReplayFrame(frames.at(-1));receive(posted.pop());pc.forwardObjectiveReplayEnd();receive(posted.pop());assert.equal(vm.runInContext('btMs',c),info.battle.duration_seconds*1000);assert.equal(vm.runInContext('battleOver',c),true);assert.equal(displayed.at(-1).reason,'relay_held');assert.ok(notified.some(n=>n.cmd==='battle_final_done'));pc.forwardObjectiveReplayEnd();assert.equal(posted.length,0);
+ const before=displayed.length; c.receiveObjectiveReplayMessage({origin:'https://invalid.example',source:parent,data:{source:'occupy-battle-viewer',battleId:id,cmd:'replay_frame',payload:frames[0]}});assert.equal(displayed.length,before);pc.bv._objectiveReplay=false;pc.forwardObjectiveReplayFrame(frames[0]);assert.equal(posted.length,0);
+ console.log('PASS: actual ended objective battle '+id+', '+frames.length+' stored frames: early-frame queue, parent bridge, objective progress, fleet/ship HP, recorded clock, replay lock, authoritative end/result, duplicate-end guard, origin guard, non-objective/live exclusion.');
+}
+main().catch(e=>{console.error(e);process.exitCode=1;});

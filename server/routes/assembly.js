@@ -77,7 +77,7 @@ router.post('/assembly/disassemble', requireAuth, async (req, res) => {
     const r = await assembly.disassemble(req.body?.ship_id, w);
     if (r.error) return res.status(400).json(r);
     res.json(r);
-  } catch (e) { console.error('[assembly/disassemble]', e.message); res.status(500).json({ error: 'internal_error' }); }
+  } catch (e) { if(e.message==='STARTER_HULL_LOCKED')return res.status(409).json({error:e.message});console.error('[assembly/disassemble]', e.message); res.status(500).json({ error: 'internal_error' }); }
 });
 
 router.post('/assembly/exchange', requireAuth, async (req, res) => {

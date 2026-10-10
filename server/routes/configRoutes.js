@@ -7,7 +7,7 @@ const { cfg, getDepositBonusPercent } = require('../utils/settingsCache');
 const router = express.Router();
 
 // [v7.439] base_tab_min_levels 설정 정규화 — JSONB object/문자열 모두 허용, 실패 시 현행 기본값.
-const DEFAULT_TAB_MIN_LEVELS = { fleet: 3, transport: 4, pvp: 6, guild: 8, govern: 10 };
+const DEFAULT_TAB_MIN_LEVELS = { fleet: 1, transport: 4, pvp: 6, guild: 1, govern: 10 };
 function _parseTabLevels(raw) {
   try {
     let v = raw;
