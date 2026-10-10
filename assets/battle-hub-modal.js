@@ -50,31 +50,7 @@ const BATTLEFIELD_LABELS = {
   dome_defense_line: 'Dome Defense Line',
   orbital_minefield: 'Orbital Minefield'
 };
-const BATTLEFIELD_BACKGROUNDS = {
-  orbit_territory: '/assets/textures/battlefields/mars_orbit_territory.png',
-  garrison: '/assets/textures/battlefields/mars_garrison_realistic.png',
-  mining_site: '/assets/textures/battlefields/mars_mining_site_topdown.png',
-  canyon_outpost: '/assets/textures/battlefields/mars_canyon_outpost_topdown.png',
-  polar_ice: '/assets/textures/battlefields/mars_polar_ice_topdown.png',
-  lava_tube: '/assets/textures/battlefields/mars_lava_tube_topdown.png',
-  crater_relay: '/assets/textures/battlefields/mars_crater_relay_topdown.png',
-  refinery_yard: '/assets/textures/battlefields/mars_refinery_yard_topdown.png',
-  colony_dome: '/assets/textures/battlefields/mars_colony_dome_topdown.png',
-  excavation_grid: '/assets/textures/battlefields/mars_excavation_grid_topdown.png',
-  dust_storm: '/assets/textures/battlefields/mars_dust_storm_topdown.png',
-  occupied_airspace: '/assets/textures/battlefields/mars_occupied_airspace_topdown.png',
-  shipyard_drydock: '/assets/textures/battlefields/mars_shipyard_drydock_topdown.png',
-  convoy_route: '/assets/textures/battlefields/mars_convoy_route_topdown.png',
-  ancient_ruins: '/assets/textures/battlefields/mars_ancient_ruins_topdown.png',
-  orbital_blockade: '/assets/textures/battlefields/mars_orbital_blockade_topdown.png',
-  garrison_rooftop: '/assets/textures/battlefields/mars_garrison_rooftop_topdown.png',
-  deep_mine: '/assets/textures/battlefields/mars_deep_mine_topdown.png',
-  settlement_airspace: '/assets/textures/battlefields/mars_settlement_airspace_topdown.png',
-  occupation_grid_airspace: '/assets/textures/battlefields/mars_occupation_grid_airspace_topdown.png',
-  minehead_trench: '/assets/textures/battlefields/mars_minehead_trench_topdown.png',
-  dome_defense_line: '/assets/textures/battlefields/mars_dome_defense_line_topdown.png',
-  orbital_minefield: '/assets/textures/battlefields/mars_orbital_blockade_topdown.png'
-};
+const BATTLEFIELD_BACKGROUNDS = window.BattlefieldArt.backgrounds;
 const SECTOR_BATTLEFIELD_BY_CODE = {
   olympus_crown: 'garrison_rooftop',
   tharsis_citadel: 'garrison_rooftop',
@@ -194,8 +170,20 @@ function _stableBattlefieldIndex(seed) {
   return Math.abs(hash) % BATTLEFIELD_KEYS.length;
 }
 
+// Registered objective operations share AI combat rules, but use their own terrain artwork.
+function objectiveBattlefieldKey(summary) {
+  summary = normalizeBattleSummary(summary);
+  if (summary.is_objective_operation !== true || summary.trusted_source !== 'objective_ops') return '';
+  if (summary.objective_mode === 'escort') return 'convoy_route';
+  if (summary.objective_mode === 'hold') return 'crater_relay';
+  if (summary.objective_mode === 'flagship') return 'orbital_blockade';
+  return '';
+}
+
 function pickBattlefieldKey(battleId) {
   const ctx = battleContextById[parseInt(battleId, 10)] || {};
+  const objectiveField = objectiveBattlefieldKey(ctx.battle_summary);
+  if (objectiveField) return objectiveField;
   if (ctx.battlefield_key && BATTLEFIELD_LABELS[ctx.battlefield_key]) return ctx.battlefield_key;
   const type = String(ctx.battle_type || '').toLowerCase();
   const sectorCode = String(ctx.sector_code || '').toLowerCase();
@@ -806,12 +794,13 @@ function renderBattleCard(b, tab) {
                    isPreparing ? `${t('bc_scheduled')||'Scheduled'}: ${formatShortTime(b.scheduled_start_at)}` :
                    formatShortTime(b.ended_at);
   const sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
-  const battlefieldKey = b.battlefield_key || pickBattlefieldKey(b.id);
-  const battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || '';
+  const objectiveField = objectiveBattlefieldKey(b.battle_summary);
+  const battlefieldKey = objectiveField || b.battlefield_key || pickBattlefieldKey(b.id);
+  const battlefieldLabel = (objectiveField ? BATTLEFIELD_LABELS[objectiveField] : b.battlefield_label) || BATTLEFIELD_LABELS[battlefieldKey] || '';
   const battlefieldMods = formatBattlefieldModifiers(b.environment_modifiers);
   const battlefieldObjective = b.environment_objective || '';
   const battlefieldSalvage = formatBattlefieldSalvageHint(b.environment_salvage_hint);
-  const battlefieldImage = battlefieldImageUrl(battlefieldKey);
+  const battlefieldImageStyle = window.BattlefieldArt.thumbnailStyle(battlefieldKey);
   const economyTags = renderBattleEconomyTags(b, battlefieldKey);
   const rewardGp = Math.round(parseFloat(b.my_reward_gp != null ? b.my_reward_gp : b.reward_total_gp) || 0);
   const rewardCount = parseInt(b.reward_count, 10) || 0;
@@ -823,7 +812,7 @@ function renderBattleCard(b, tab) {
   
   return `
     <div class="battle-card ${isLive ? 'active-battle' : ''} ${resultClass}">
-      <div class="bc-field-thumb" style="background-image:url('${escapeAttr(battlefieldImage)}')" title="${escapeAttr(battlefieldLabel || battlefieldKey)}"></div>
+      <div class="bc-field-thumb" style="${escapeAttr(battlefieldImageStyle)}" title="${escapeAttr(battlefieldLabel || battlefieldKey)}"></div>
       <div class="bc-status ${statusCls}">${statusLabel}</div>
       <div class="bc-info">
         <div class="bc-info-title">
@@ -2535,8 +2524,9 @@ async function loadBvSidePanels(battleId) {
     var b = battleInfo.battle;
     rememberBattleContext(b);
     var sectorLabel = b.sector_code ? (b.sector_name ? (b.sector_name + ' · ' + b.sector_code) : b.sector_code) : '';
-    var battlefieldKey = b.battlefield_key || pickBattlefieldKey(b.id);
-    var battlefieldLabel = b.battlefield_label || BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey || '';
+    var objectiveField = objectiveBattlefieldKey(b.battle_summary);
+    var battlefieldKey = objectiveField || b.battlefield_key || pickBattlefieldKey(b.id);
+    var battlefieldLabel = (objectiveField ? BATTLEFIELD_LABELS[objectiveField] : b.battlefield_label) || BATTLEFIELD_LABELS[battlefieldKey] || battlefieldKey || '';
     var battlefieldMods = formatBattlefieldModifiers(b.environment_modifiers);
     var battlefieldNote = b.environment_modifiers && b.environment_modifiers.note ? String(b.environment_modifiers.note) : '';
     var battlefieldObjective = b.environment_objective || '';

@@ -1,0 +1,81 @@
+{
+  "newSubjects": 19,
+  "preservedSubjects": 4,
+  "canvas": 1254,
+  "atlasGrid": "2x2",
+  "entries": [
+    {
+      "id": "crater_relay",
+      "prompt": "Use case: photorealistic-natural. Asset type: full-square top-down background texture for a realistic science fiction tactical fleet combat game. An ancient broad Martian impact crater with a compact metallic communications relay station at the exact center, low radar towers and thin service roads, natural eroded rim around the outer edges, broad flat reddish dust clearing across most of the center for readable combat overlays. No circular graphic outlines. Strict orthographic 90-degree overhead camera, premium photorealistic cinematic environment, physically believable geology and industrial materials, grounded rust orange and graphite palette, readable low-contrast central gameplay zone with detailed outskirts, natural directional sunlight. Square composition fills the entire canvas. No text, lettering, grid lines, arrows, icons, UI, markers, glow rings, pixel art, drawing, flat illustration or people. Rich realistic material detail, not a diagram. At least half the center should be open clear fighting space. This must look like high quality satellite cinematography of an inhabited Mars.",
+      "shipped": "assets/battlefields/realistic-crater-relay.webp",
+      "source": "exec-7b976a4f-0911-44fe-9bfa-733bdfa97098.png",
+      "encoding": "WebP q90; format conversion only; original PNG retained"
+    },
+    {
+      "id": "convoy_route",
+      "prompt": "Use case: photorealistic-natural. Asset type: full-square top-down background texture for a realistic science fiction tactical fleet combat game. A wide Martian red-rock logistics valley, one broad worn cargo road running diagonally from bottom left to upper right through the open center, realistic tire tracks and two small supply depots near the outer edges, natural stone ridges and rusty gravel. No vehicles or ships. Strict orthographic 90-degree overhead camera, premium photorealistic cinematic environment, physically believable geology and industrial materials, grounded rust orange and graphite palette, readable low-contrast central gameplay zone with detailed outskirts, natural directional sunlight. Square composition fills the entire canvas. No text, lettering, grid lines, arrows, icons, UI, markers, glow rings, pixel art, drawing, flat illustration or people. Rich realistic material detail, not a diagram. At least half the center should be open clear fighting space. This must look like high quality satellite cinematography of an inhabited Mars.",
+      "shipped": "assets/battlefields/realistic-convoy-route.webp",
+      "source": "exec-1d7c37c7-7812-4aad-9de3-354f969723ab.png",
+      "encoding": "WebP q90; format conversion only; original PNG retained"
+    },
+    {
+      "id": "orbital_blockade",
+      "prompt": "Use case: photorealistic-natural. Asset type: full-square top-down background texture for a realistic science fiction tactical fleet combat game. View directly downward toward Mars from high orbit, curved red planet limb occupying the lower left third with beautiful real atmospheric haze, dark space occupying the upper right, sparse distant starlight, one small believable abandoned metallic station structure at a far outer edge. Large uncluttered open space for player starship combat. No warships, no fleet symbols. Strict orthographic 90-degree overhead camera, premium photorealistic cinematic environment, physically believable geology and industrial materials, grounded rust orange and graphite palette, readable low-contrast central gameplay zone with detailed outskirts, natural directional sunlight. Square composition fills the entire canvas. No text, lettering, grid lines, arrows, icons, UI, markers, glow rings, pixel art, drawing, flat illustration or people. Rich realistic material detail, not a diagram. At least half the center should be open clear fighting space. This must look like high quality satellite cinematography of an inhabited Mars.",
+      "shipped": "assets/battlefields/realistic-orbital-blockade.webp",
+      "source": "exec-a532111b-0a58-4257-9412-6174cbc7806b.png",
+      "encoding": "WebP q90; format conversion only; original PNG retained"
+    },
+    {
+      "id": "a",
+      "prompt": "Create ONE SQUARE realistic sci-fi game terrain texture atlas, a strict 2x2 contact sheet containing exactly FOUR equal-size square panels. Entire canvas fully filled; NO gutters, NO divider lines, NO text, NO labels. Panel order top left, top right, bottom left, bottom right. Each panel is its own complete independent top-down 90-degree orthographic battleground, separated cleanly at 50% canvas axes with no objects crossing panels. Match premium realistic EVE-inspired Mars science fiction, photoreal detailed PBR materials, physically realistic light, muted rust orange / charcoal / industrial metal. NOT stylized, NOT pixel art, NOT vector illustration, NOT game screenshot. Every panel retains its central 60% visually calm and free for fleet combat overlays; detailed facilities/terrain chiefly toward its outer 20%. No ships, people, interface, holograms, drawn circles, arrows, glowing paths, icons, compass, border or frame. Four panels:\n1. orbital territory: black deep space above Mars limb in bottom left quarter, tiny derelict satellite near far edge, center open starfield\n2. mining site: rust terrain with realistic open-pit ore extraction terraces along left and right edges, mechanical excavation equipment tiny at edges, flat dusty center\n3. canyon outpost: Martian canyon with photoreal jagged red cliffs at sides, a tiny industrial outpost along upper border, wide open central canyon floor\n4. polar ice: Mars white blue carbon-dioxide ice sheets and cracked dark rock, frost deposits, open pale central plain\nMaintain 4 distinct compositions and highest texture detail.",
+      "shipped": "assets/battlefields/realistic-atlas-a.webp",
+      "scenes": [
+        "orbital territory: black deep space above Mars limb in bottom left quarter, tiny derelict satellite near far edge, center open starfield",
+        "mining site: rust terrain with realistic open-pit ore extraction terraces along left and right edges, mechanical excavation equipment tiny at edges, flat dusty center",
+        "canyon outpost: Martian canyon with photoreal jagged red cliffs at sides, a tiny industrial outpost along upper border, wide open central canyon floor",
+        "polar ice: Mars white blue carbon-dioxide ice sheets and cracked dark rock, frost deposits, open pale central plain"
+      ],
+      "source": "exec-83ed3f44-7d5f-4ed0-88e7-ec7d0be7c505.png",
+      "encoding": "WebP q90; format conversion only; original PNG retained"
+    },
+    {
+      "id": "b",
+      "prompt": "Create ONE SQUARE realistic sci-fi game terrain texture atlas, a strict 2x2 contact sheet containing exactly FOUR equal-size square panels. Entire canvas fully filled; NO gutters, NO divider lines, NO text, NO labels. Panel order top left, top right, bottom left, bottom right. Each panel is its own complete independent top-down 90-degree orthographic battleground, separated cleanly at 50% canvas axes with no objects crossing panels. Match premium realistic EVE-inspired Mars science fiction, photoreal detailed PBR materials, physically realistic light, muted rust orange / charcoal / industrial metal. NOT stylized, NOT pixel art, NOT vector illustration, NOT game screenshot. Every panel retains its central 60% visually calm and free for fleet combat overlays; detailed facilities/terrain chiefly toward its outer 20%. No ships, people, interface, holograms, drawn circles, arrows, glowing paths, icons, compass, border or frame. Four panels:\n1. lava tube: vast subterranean Martian basalt cave viewed from above, rugged edges, narrow dim lava seams near borders, open dark rock central floor\n2. refinery yard: realistic industrial refinery pipes tanks and steel structures at outer edges, dusty orange open center\n3. colony dome: a realistic geodesic habitat dome cluster near top left edge and power cables at bottom edges, wide open dusty central landing area\n4. excavation grid: large archaeological industrial excavation in orange Martian desert, dug rectilinear trenches and spoil piles at edges, open excavated center; no drawn grid overlay\nMaintain 4 distinct compositions and highest texture detail.",
+      "shipped": "assets/battlefields/realistic-atlas-b.webp",
+      "scenes": [
+        "lava tube: vast subterranean Martian basalt cave viewed from above, rugged edges, narrow dim lava seams near borders, open dark rock central floor",
+        "refinery yard: realistic industrial refinery pipes tanks and steel structures at outer edges, dusty orange open center",
+        "colony dome: a realistic geodesic habitat dome cluster near top left edge and power cables at bottom edges, wide open dusty central landing area",
+        "excavation grid: large archaeological industrial excavation in orange Martian desert, dug rectilinear trenches and spoil piles at edges, open excavated center; no drawn grid overlay"
+      ],
+      "source": "exec-edf3ad72-8f1a-4be1-9252-a7e9bd93e081.png",
+      "encoding": "WebP q90; format conversion only; original PNG retained"
+    },
+    {
+      "id": "c",
+      "prompt": "Create ONE SQUARE realistic sci-fi game terrain texture atlas, a strict 2x2 contact sheet containing exactly FOUR equal-size square panels. Entire canvas fully filled; NO gutters, NO divider lines, NO text, NO labels. Panel order top left, top right, bottom left, bottom right. Each panel is its own complete independent top-down 90-degree orthographic battleground, separated cleanly at 50% canvas axes with no objects crossing panels. Match premium realistic EVE-inspired Mars science fiction, photoreal detailed PBR materials, physically realistic light, muted rust orange / charcoal / industrial metal. NOT stylized, NOT pixel art, NOT vector illustration, NOT game screenshot. Every panel retains its central 60% visually calm and free for fleet combat overlays; detailed facilities/terrain chiefly toward its outer 20%. No ships, people, interface, holograms, drawn circles, arrows, glowing paths, icons, compass, border or frame. Four panels:\n1. dust storm: real photoreal red Martian dune surface under streaks of airborne amber dust, soft realistic shadows and open center\n2. occupied airspace: top down orbital satellite view of dense Martian occupied industrial city far below, orange perimeter and tiny dark realistic city blocks concentrated at outer edges, center broad open unmarked avenue plaza\n3. shipyard drydock: gigantic realistic SF orbital drydock steel ribs along left and right edges, center empty dark space berth, no ship\n4. ancient ruins: alien archaeological ruins half buried in rust Martian regolith, realistic eroded geometric stone monoliths at borders, open sandy central plaza\nMaintain 4 distinct compositions and highest texture detail.",
+      "shipped": "assets/battlefields/realistic-atlas-c.webp",
+      "scenes": [
+        "dust storm: real photoreal red Martian dune surface under streaks of airborne amber dust, soft realistic shadows and open center",
+        "occupied airspace: top down orbital satellite view of dense Martian occupied industrial city far below, orange perimeter and tiny dark realistic city blocks concentrated at outer edges, center broad open unmarked avenue plaza",
+        "shipyard drydock: gigantic realistic SF orbital drydock steel ribs along left and right edges, center empty dark space berth, no ship",
+        "ancient ruins: alien archaeological ruins half buried in rust Martian regolith, realistic eroded geometric stone monoliths at borders, open sandy central plaza"
+      ],
+      "source": "exec-29c9caba-3a28-43cc-8ef3-3a88779c1439.png",
+      "encoding": "WebP q90; format conversion only; original PNG retained"
+    },
+    {
+      "id": "d",
+      "prompt": "Create ONE SQUARE realistic sci-fi game terrain texture atlas, a strict 2x2 contact sheet containing exactly FOUR equal-size square panels. Entire canvas fully filled; NO gutters, NO divider lines, NO text, NO labels. Panel order top left, top right, bottom left, bottom right. Each panel is its own complete independent top-down 90-degree orthographic battleground, separated cleanly at 50% canvas axes with no objects crossing panels. Match premium realistic EVE-inspired Mars science fiction, photoreal detailed PBR materials, physically realistic light, muted rust orange / charcoal / industrial metal. NOT stylized, NOT pixel art, NOT vector illustration, NOT game screenshot. Every panel retains its central 60% visually calm and free for fleet combat overlays; detailed facilities/terrain chiefly toward its outer 20%. No ships, people, interface, holograms, drawn circles, arrows, glowing paths, icons, compass, border or frame. Four panels:\n1. garrison rooftop: realistic overhead fortified Martian military installation rooftops around border, central large empty industrial rooftop plaza, dark gunmetal orange dust\n2. deep mine: very deep Martian excavated underground mine chamber, rough dark rock borders, industrial lamps and steel beams at edges, open central floor\n3. settlement airspace: realistic high overhead satellite view of small Martian colony rooftops and domes around border, dusty open landing zone center, no aircraft\n4. orbital minefield: dark realistic space over thin rust Mars limb in bottom-left corner, a few tiny drifting spherical industrial mines only near outer edges, open dark central battle zone\nMaintain 4 distinct compositions and highest texture detail.",
+      "shipped": "assets/battlefields/realistic-atlas-d.webp",
+      "scenes": [
+        "garrison rooftop: realistic overhead fortified Martian military installation rooftops around border, central large empty industrial rooftop plaza, dark gunmetal orange dust",
+        "deep mine: very deep Martian excavated underground mine chamber, rough dark rock borders, industrial lamps and steel beams at edges, open central floor",
+        "settlement airspace: realistic high overhead satellite view of small Martian colony rooftops and domes around border, dusty open landing zone center, no aircraft",
+        "orbital minefield: dark realistic space over thin rust Mars limb in bottom-left corner, a few tiny drifting spherical industrial mines only near outer edges, open dark central battle zone"
+      ],
+      "source": "exec-31162c6b-5a14-4452-9878-1f5dedb1358e.png",
+      "encoding": "WebP q90; format conversion only; original PNG retained"
+    }
+  ]
+}

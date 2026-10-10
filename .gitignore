@@ -94,3 +94,13 @@ deploy/artifacts
 deploy/.env
 .gstack/
 assets/_backup*
+
+# Collectible inventory art
+!assets/items/
+assets/items/*
+!assets/items/*.webp
+
+# Realistic battlefield terrain atlases
+!assets/battlefields/
+assets/battlefields/*
+!assets/battlefields/*.webp

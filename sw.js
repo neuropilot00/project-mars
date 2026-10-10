@@ -102,7 +102,7 @@
 // 2026-06-16 v105: ACE 엔진 구현 — ace-combat.html size_class 뷰 프로파일/fleet-presets/postMessage 훅.
 // 2026-06-29 v123: v7.465 first-session 핸즈온 — 첫 클레임 연출 + BASE 골든패스 글로우 + globe 첫클릭 가이드.
 // 2026-06-29 v124: 주간 챌린지 UI + 섹터 서지 배너 + 전투 결과 부각 + 골든패스 step2→fleet 보정.
-const CACHE_NAME = 'mars-v154-upgrade10';
+const CACHE_NAME = 'mars-v162-upgrade18';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
@@ -190,7 +190,8 @@ self.addEventListener('fetch', (e) => {
       url.pathname.startsWith('/assets/factions/') ||     // [v7.175 SW] 파벌 일러스트
       url.pathname.startsWith('/assets/poi/') ||          // [v7.175 SW] POI 마커
       url.pathname.startsWith('/assets/login_bg/') ||     // [v7.175 SW] 로그인 배경
-      url.pathname.startsWith('/assets/fx/')) {           // [v7.180 SW] 전투 VFX (폭발/임팩트)
+      url.pathname.startsWith('/assets/fx/') ||
+      url.pathname.startsWith('/assets/battlefields/')) {           // [v7.180 SW] 전투 VFX (폭발/임팩트)
     e.respondWith(
       fetch(new Request(e.request, { cache: 'reload' }))
         .then((res) => {

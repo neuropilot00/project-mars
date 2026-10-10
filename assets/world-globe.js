@@ -1674,9 +1674,9 @@ function _initStep1(){
   setLoadProgress(20,'Generating bump map...');
   requestAnimationFrame(function(){
     marsBumpUrl=genMarsBump();
-    setLoadProgress(35,'Generating star field...');
+    setLoadProgress(35,'Preparing territory map...');
     requestAnimationFrame(function(){
-      starBgUrl=genStarBg();
+      starBgUrl=null; // Keep the strategy map focused; no decorative star texture.
       setLoadProgress(42,'Generating Mars terrain...');
       requestAnimationFrame(_initStep2);
     });
@@ -1827,7 +1827,7 @@ function _initStep3(){
     }
 
     // Auto-rotation
-    globe.controls().autoRotate=true;
+    globe.controls().autoRotate=false;
     globe.controls().autoRotateSpeed=0.6;
     globe.controls().enableDamping=true;
     globe.controls().dampingFactor=0.12;
@@ -1984,7 +1984,7 @@ function toggleMyLand(){
       _myLandIdx=-1;
       var btn=document.getElementById('myLandBtn');
       if(btn) btn.style.background='';
-      if(globe&&globe.controls) globe.controls().autoRotate=true;
+      if(globe&&globe.controls) globe.controls().autoRotate=false;
       claimsSnapshot=null;
       compositeClaimsOnTexture();
       document.getElementById('myTerritoriesSection').style.display='none';

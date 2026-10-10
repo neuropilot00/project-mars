@@ -164,10 +164,16 @@ router.get('/shop/inventory', requireAuth, readLimiter, async (req, res) => {
 
 // POST /api/shop/buy — purchase an item
 router.post('/shop/buy', requireAuth, writeLimiter, async (req, res) => {
-  const { itemCode, currency, quantity } = req.body;
+  const { itemCode, currency, quantity } = req.body || {};
   const w = getAuthWallet(req);
-  const qty = parseInt(quantity) || 1;
-  if (!w || !itemCode) return res.status(400).json({ error: 'Missing wallet or itemCode' });
+  const qty = quantity === undefined ? 1 :
+    (typeof quantity === 'number' || (typeof quantity === 'string' && /^\d+$/.test(quantity))) ? Number(quantity) : NaN;
+  if (!w || typeof itemCode !== 'string' || !itemCode) return res.status(400).json({ error: 'Missing wallet or itemCode' });
+  if (!Number.isSafeInteger(qty) || qty <= 0 || qty > 2147483647) {
+    return res.status(400).json({ error: 'Quantity must be a positive integer' });
+  }
+  const cur = currency === undefined ? 'PP' : typeof currency === 'string' ? currency.toUpperCase() : '';
+  if (!['PP', 'USDT', 'GP'].includes(cur)) return res.status(400).json({ error: 'Unsupported currency' });
 
   const client = await pool.connect();
   try {
@@ -178,29 +184,35 @@ router.post('/shop/buy', requireAuth, writeLimiter, async (req, res) => {
     if (itemRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Item not found' }); }
     const item = itemRes.rows[0];
 
-    // Check max stack
-    const existingRes = await client.query('SELECT quantity FROM user_items WHERE wallet = $1 AND item_type_id = $2', [w, item.id]);
-    const currentQty = existingRes.rows.length > 0 ? existingRes.rows[0].quantity : 0;
-    if (currentQty + qty > item.max_stack) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: `Max ${item.max_stack} of this item. You have ${currentQty}.` });
-    }
-
     // Calculate cost. Supported currencies: PP (default), USDT, GP.
-    const cur = (currency || 'PP').toUpperCase();
     let unitPrice, balCol;
-    if (cur === 'USDT')      { unitPrice = parseFloat(item.price_usdt); balCol = 'usdt_balance'; }
-    else if (cur === 'GP')   { unitPrice = parseFloat(item.price_gp || 0); balCol = 'gp_balance'; }
-    else                     { unitPrice = parseFloat(item.price_pp);   balCol = 'pp_balance'; }
-    if (unitPrice <= 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: `Item not purchasable with ${cur}` }); }
+    if (cur === 'USDT')      { unitPrice = Number(item.price_usdt); balCol = 'usdt_balance'; }
+    else if (cur === 'GP')   { unitPrice = Number(item.price_gp); balCol = 'gp_balance'; }
+    else                     { unitPrice = Number(item.price_pp); balCol = 'pp_balance'; }
+    if (!Number.isFinite(unitPrice) || unitPrice <= 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: `Item not purchasable with ${cur}` }); }
     const totalCost = unitPrice * qty;
+    if (!Number.isFinite(totalCost) || totalCost <= 0 || totalCost > Number.MAX_SAFE_INTEGER) {
+      await client.query('ROLLBACK'); return res.status(400).json({ error: 'Invalid purchase cost' });
+    }
 
     // Check balance — FOR UPDATE prevents concurrent double-spend
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
     if (balRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
-    if (parseFloat(balRes.rows[0].bal) < totalCost) {
+    const balance = Number(balRes.rows[0].bal);
+    if (!Number.isFinite(balance) || balance < totalCost) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: `Insufficient ${cur}. Need ${totalCost}, have ${parseFloat(balRes.rows[0].bal).toFixed(2)}` });
+    }
+
+    // Serialize purchases even when the inventory row does not exist yet.
+    // Materials cap bundles per order; their resources also come from mining.
+    const maxStack = Number(item.max_stack);
+    const existingRes = item.category === 'material' ? { rows: [] } :
+      await client.query('SELECT quantity FROM user_items WHERE wallet = $1 AND item_type_id = $2 FOR UPDATE', [w, item.id]);
+    const currentQty = existingRes.rows.length > 0 ? Number(existingRes.rows[0].quantity) : 0;
+    if (!Number.isSafeInteger(maxStack) || maxStack <= 0 || !Number.isSafeInteger(currentQty) || currentQty < 0 || currentQty + qty > maxStack) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Max ${item.max_stack} of this item. You have ${currentQty}.` });
     }
 
     // Deduct balance (AND guard prevents negative balance from concurrent edge cases)
@@ -215,7 +227,10 @@ router.post('/shop/buy', requireAuth, writeLimiter, async (req, res) => {
       // code 패턴: mat_{resource_code}  e.g. mat_iron_ore → iron_ore
       // effect_value = 지급 수량 per purchase
       const resourceCode = item.code.replace(/^mat_/, '');
-      const grantQty = (parseInt(item.effect_value) || 1) * qty;
+      const grantQty = Number(item.effect_value) * qty;
+      if (!Number.isSafeInteger(grantQty) || grantQty <= 0 || grantQty > 2147483647) {
+        await client.query('ROLLBACK'); return res.status(400).json({ error: 'Invalid material quantity' });
+      }
       // resources 테이블에서 resource_id 조회
       const rRes = await client.query('SELECT id FROM resources WHERE code = $1', [resourceCode]);
       if (rRes.rows.length === 0) {
@@ -223,25 +238,29 @@ router.post('/shop/buy', requireAuth, writeLimiter, async (req, res) => {
         return res.status(400).json({ error: `Unknown resource: ${resourceCode}` });
       }
       const resourceId = rRes.rows[0].id;
-      await client.query(
+      const grant = await client.query(
         `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
          VALUES ($1, $2, $3)
-         ON CONFLICT (wallet_address, resource_id) DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
+         ON CONFLICT (wallet_address, resource_id) DO UPDATE SET quantity = user_resource_inventory.quantity + $3
+         WHERE user_resource_inventory.quantity >= 0 AND user_resource_inventory.quantity <= 2147483647 - $3`,
         [w, resourceId, grantQty]
       );
+      if (!grant.rowCount) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Material inventory limit reached' }); }
     } else {
       // 일반 아이템: user_items에 추가
-      await client.query(
+      const grant = await client.query(
         `INSERT INTO user_items (wallet, item_type_id, quantity) VALUES ($1, $2, $3)
-         ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
-        [w, item.id, qty]
+         ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3
+         WHERE user_items.quantity >= 0 AND user_items.quantity <= $4 - $3`,
+        [w, item.id, qty, maxStack]
       );
+      if (!grant.rowCount) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Item inventory limit reached' }); }
     }
 
     // Log transaction
-    await client.query(
+    const purchase = await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
-       VALUES ('shop_purchase', $1, $2, $3, 0, $4)`,
+       VALUES ('shop_purchase', $1, $2, $3, 0, $4) RETURNING id`,
       [w, cur === 'USDT' ? totalCost : 0, cur === 'PP' ? totalCost : 0,
        JSON.stringify({ item: item.code, qty, name: item.name, currency: cur, gp: cur === 'GP' ? totalCost : 0 })]
     );
@@ -254,7 +273,8 @@ router.post('/shop/buy', requireAuth, writeLimiter, async (req, res) => {
     }
 
     await client.query('COMMIT');
-    res.json({ success: true, item: item.name, quantity: qty, cost: totalCost, currency: cur });
+    res.json({ success: true, item: item.name, quantity: qty, cost: totalCost, currency: cur,
+      transactionId: purchase.rows[0].id, itemCode: item.code, unitCost: unitPrice, category: item.category });
     // Season tracking: shop purchase (non-blocking)
     if (seasonService) {
       seasonService.addSeasonScore(w, 'item_use', qty).catch(() => {}); // shopper category

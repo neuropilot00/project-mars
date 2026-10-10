@@ -80,6 +80,7 @@ async function applyMigration(client, filename) {
 async function runMigrations() {
   const client = await pool.connect();
   try {
+    await client.query("SELECT set_config('TimeZone', $1, false)", [process.env.DB_SESSION_TZ || 'Asia/Seoul']);
     await ensureMigrationsTable(client);
     const applied = await getAppliedMigrations(client);
     const pending = getPendingFiles(applied);
@@ -106,6 +107,7 @@ async function runMigrations() {
 async function showStatus() {
   const client = await pool.connect();
   try {
+    await client.query("SELECT set_config('TimeZone', $1, false)", [process.env.DB_SESSION_TZ || 'Asia/Seoul']);
     await ensureMigrationsTable(client);
     const applied = await getAppliedMigrations(client);
 

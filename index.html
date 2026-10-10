@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="app-version" content="v7.201-2026-05-29">
+<meta name="app-version" content="v7.474-upgrade11-2026-10-10">
 <!-- [v7.208] v7.201 self-heal 코드 제거 — 모든 사용자가 v7.200+ 받은 시점에서 dead code.
      이 self-heal + SW controllerchange reload 가 동시에 트리거되면 페이지 2번 로드 됨.
      이제 SW controllerchange 만 (조건부) reload. -->
@@ -25,14 +25,19 @@
 <link href="/assets/ace-combat-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/bug-reporter.css?v=7485" rel="stylesheet">
 <link href="/assets/ship-catalog-modals.css?v=7485" rel="stylesheet">
-<link href="/assets/shipyard-modal.css?v=7474-upgrade10" rel="stylesheet">
+<link href="/assets/shipyard-modal.css?v=7474-upgrade18" rel="stylesheet">
 <link href="/assets/fleet-command-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/battle-hub-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/war-betting-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/utility-overlays.css?v=7485" rel="stylesheet">
 <link href="/assets/faction-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/codex-guide.css?v=7485" rel="stylesheet">
-<link href="/assets/main.css?v=7474-upgrade10" rel="stylesheet">
+<link href="/assets/main.css?v=7474-upgrade18" rel="stylesheet">
+<link rel="stylesheet" href="/assets/item-art.css?v=7474-upgrade18">
+<link rel="stylesheet" href="/assets/assembly-fusion.css?v=7474-upgrade18">
+<script src="/assets/item-art.js?v=7474-upgrade18"></script>
+<script src="/assets/battlefield-art.js?v=7474-upgrade18"></script>
+<script src="/assets/game-icons.js?v=7474-upgrade18"></script>
 <script src="/assets/game-dialogs.js?v=7485"></script>
 <script src="/assets/lib/globe.gl.min.js"></script>
 <script src="/public/js/minigame-invaders.js?v=7485"></script>
@@ -40,10 +45,12 @@
 <script src="/public/js/minigame-digger.js?v=7485"></script>
 <script src="/assets/minigame-icons.js?v=7485"></script>
 
-<link rel="stylesheet" href="/assets/command-center.css?v=7474-upgrade10">
-<link rel="stylesheet" href="/assets/fleet-field-guide.css?v=7474-upgrade10">
-<link rel="stylesheet" href="/assets/ship-card-workshop.css?v=7474-upgrade10">
-<link rel="stylesheet" href="/assets/objective-operations.css?v=7474-upgrade10">
+<link rel="stylesheet" href="/assets/command-center.css?v=7474-upgrade18">
+<link rel="stylesheet" href="/assets/game-icons.css?v=7474-upgrade18">
+<link rel="stylesheet" href="/assets/fleet-field-guide.css?v=7474-upgrade18">
+<link rel="stylesheet" href="/assets/ship-card-workshop.css?v=7474-upgrade18">
+<link rel="stylesheet" href="/assets/objective-operations.css?v=7474-upgrade18">
+<link rel="stylesheet" href="/assets/upgrade-theme.css?v=7474-upgrade18">
 </head>
 <body>
 
@@ -52,11 +59,6 @@
      백업 정책: 신규 폴더 assets/loading/ — 기존 텍스트 전용 화면이 폴백으로 항상 동작. -->
 <div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s;overflow:hidden">
   <div id="loadBg" style="position:absolute;inset:0;background:#0D0B14;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease"></div>
-  <!-- [v7.223] 로딩 배경 영상 (데스크탑 가로). 이미지(loadBg)가 즉시 poster 역할 → 영상 준비되면 위에 fade-in.
-       모바일은 CSS 로 숨김(세로 영상 별도 예정). muted/loop/playsinline = 자동재생 정책 충족. -->
-  <!-- [v7.224] src 는 아래 스크립트가 4종(load_loop_01~04) 중 랜덤 지정. -->
-  <video id="loadVideo" muted loop playsinline preload="auto"
-    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;pointer-events:none"></video>
   <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,11,20,.55) 0%,rgba(13,11,20,.85) 70%,rgba(13,11,20,.95) 100%);pointer-events:none"></div>
   <div style="position:relative;font-family:var(--fn);font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
   <div id="loadQuote" style="position:relative;font-family:var(--fn);font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
@@ -208,8 +210,8 @@
 <button class="mob-toggle right" style="right:0" data-action="toggleRight">LIVE ▶</button>
 
 <!-- Panel close buttons (fixed, outside panels) -->
-<button class="panel-close-fixed for-left" id="closeBtnLeft" data-action="closeLeft">✕</button>
-<button class="panel-close-fixed for-right" id="closeBtnRight" data-action="closeRight">✕</button>
+<button class="panel-close-fixed for-left game-icon-control" id="closeBtnLeft" data-action="closeLeft" aria-label="Close"><span data-game-icon="close"></span></button>
+<button class="panel-close-fixed for-right game-icon-control" id="closeBtnRight" data-action="closeRight" aria-label="Close"><span data-game-icon="close"></span></button>
 
 <!-- Left Panel -->
 <div class="panel-l" id="panelL">
@@ -417,7 +419,7 @@
         <div id="tombstoneCostHint" style="font-size:9px;color:#90a4ae;margin-bottom:8px"></div>
         <div style="display:flex;gap:8px">
           <button onclick="submitTombstone()" style="flex:1;padding:9px;background:rgba(176,190,197,.12);border:1px solid rgba(176,190,197,.3);color:#90a4ae;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="tombstone_place_btn">🪦 PLACE</button>
-          <button onclick="closeTombstoneModal()" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" data-i18n="cancel">✕</button>
+          <button onclick="closeTombstoneModal()" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span><span class="game-sr-only" data-i18n="cancel">Close</span></button>
         </div>
       </div>
     </div>
@@ -435,7 +437,7 @@
         <div id="prestigeModalBody" style="font-size:9px;color:var(--tx2);margin-bottom:14px"></div>
         <div style="display:flex;gap:8px">
           <button id="prestigeConfirmBtn" onclick="confirmPrestigeUpgrade()" style="flex:1;padding:9px;background:rgba(185,242,255,.15);border:1px solid rgba(185,242,255,.35);color:#b9f2ff;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="prestige_confirm_btn">UPGRADE</button>
-          <button onclick="closePrestigeModal()" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" data-i18n="cancel">✕</button>
+          <button onclick="closePrestigeModal()" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span><span class="game-sr-only" data-i18n="cancel">Close</span></button>
         </div>
       </div>
     </div>
@@ -592,7 +594,7 @@
     <!-- 타이틀 -->
     <div class="claim-title-row">
       <span class="claim-title" id="modalTitle" data-i18n="claim_territory">CLAIM TERRITORY</span>
-      <button class="claim-close" onclick="closeClaimModal()">✕</button>
+      <button class="claim-close game-icon-control" onclick="closeClaimModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <!-- 히어로 이미지 -->
     <div class="claim-hero" id="claimImgPreview">
@@ -668,7 +670,7 @@
   <div class="mdl imgEditorMdl" style="width:520px;max-height:90vh;overflow-y:auto">
     <div class="mhd">
       <span class="mtl" data-i18n="image_editor">IMAGE EDITOR</span>
-      <button class="mx" onclick="closeImageEditor()">×</button>
+      <button class="mx game-icon-control" onclick="closeImageEditor()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd" style="padding:12px">
       <!-- Upload area -->
@@ -723,7 +725,7 @@
   <div class="mdl" style="width:420px">
     <div class="mhd">
       <span class="mtl" data-i18n="deposit_usdt">DEPOSIT USDT</span>
-      <button class="mx" onclick="closeDepositModal()">×</button>
+      <button class="mx game-icon-control" onclick="closeDepositModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd">
       <div class="mf"><div class="mfl" data-i18n="current_balance">CURRENT BALANCE</div><div class="mfv gn" id="depCurBal">0.00 USDT</div></div>
@@ -762,7 +764,7 @@
   <div class="mdl" style="width:400px">
     <div class="mhd">
       <span class="mtl" data-i18n="withdraw_usdt">WITHDRAW USDT</span>
-      <button class="mx" onclick="closeWithdrawModal()">×</button>
+      <button class="mx game-icon-control" onclick="closeWithdrawModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd">
       <div class="mf"><div class="mfl" data-i18n="available_usdt">AVAILABLE USDT</div><div class="mfv gn" id="wdrAvail">0.00 USDT</div></div>
@@ -789,7 +791,7 @@
   <div class="mdl" style="width:420px">
     <div class="mhd">
       <span class="mtl" data-i18n="export_key_title">🔑 EXPORT WALLET KEY</span>
-      <button class="mx" onclick="closeExportKeyModal()">×</button>
+      <button class="mx game-icon-control" onclick="closeExportKeyModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd">
       <div id="exportKeyWarn">
@@ -820,7 +822,7 @@
   <div class="mdl" style="width:400px">
     <div class="mhd">
       <span class="mtl" style="color:var(--pp)" data-i18n="swap_pp_usdt_title">SWAP PP → USDT</span>
-      <button class="mx" onclick="closeSwapModal()">×</button>
+      <button class="mx game-icon-control" onclick="closeSwapModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd">
       <div class="mf"><div class="mfl" data-i18n="pp_balance">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="swpPPBal">0.00 PP</div></div>
@@ -846,7 +848,7 @@
   <div class="mdl" style="width:400px">
     <div class="mhd">
       <span class="mtl" style="color:var(--pp)" data-i18n="exchange_pp_gp_title">EXCHANGE PP → GP</span>
-      <button class="mx" onclick="closeExchangeModal()">×</button>
+      <button class="mx game-icon-control" onclick="closeExchangeModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd">
       <div class="mf"><div class="mfl" data-i18n="pp_balance">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="exchPPBal">0.00 PP</div></div>
@@ -924,7 +926,7 @@
           <button onclick="submitMinigameScore()" style="padding:14px 0;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);min-height:44px;letter-spacing:1px;transition:all .2s" onmouseenter="this.style.background='rgba(255,255,255,.1)';this.style.color='#fff'" onmouseleave="this.style.background='rgba(255,255,255,.06)';this.style.color='#aaa'" data-i18n="mg_submit_score">Submit Score</button>
         </div>
       </div>
-      <button onclick="backToGameSelect()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;z-index:10">✕</button>
+      <button onclick="backToGameSelect()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;z-index:10" aria-label="Cancel" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
   </div>
 </div>
@@ -934,7 +936,7 @@
   <div class="mdl" style="width:480px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
     <div class="mhd" style="flex-shrink:0">
       <span class="mtl" style="color:var(--gold)" data-i18n="item_shop_title">🛡️ ITEM SHOP</span>
-      <button class="mx" onclick="closeItemShop()">×</button>
+      <button class="mx game-icon-control" onclick="closeItemShop()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <!-- Shop/Inventory main tabs -->
     <div style="display:flex;border-bottom:1px solid var(--bdr);flex-shrink:0">
@@ -995,11 +997,11 @@
     <div class="base-header">
       <span class="base-header-title" data-i18n="my_base">MY BASE</span>
       <div style="display:flex;align-items:center;gap:8px">
-        <button id="notifBellBtn" onclick="toggleNotifPanel()" style="position:relative;background:none;border:none;cursor:pointer;padding:4px;color:var(--tx3);font-size:16px;line-height:1" title="Notifications">
-          🔔
+        <button id="notifBellBtn" onclick="toggleNotifPanel()" style="position:relative;background:none;border:none;cursor:pointer;padding:4px;color:var(--tx3);font-size:16px;line-height:1" title="Notifications" aria-label="Notifications" class="game-icon-control">
+          <span data-game-icon="notification"></span>
           <span id="notifUnreadBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-size:7px;font-weight:800;font-family:var(--fn);padding:1px 4px;border-radius:6px;min-width:14px;text-align:center;line-height:1.4">0</span>
         </button>
-        <button class="base-close" onclick="closeBaseModal()">✕</button>
+        <button class="base-close game-icon-control" onclick="closeBaseModal()" aria-label="Close"><span data-game-icon="close"></span></button>
       </div>
     </div>
     <!-- Notification Panel (dropdown) -->
@@ -1008,7 +1010,7 @@
         <span style="font-size:9px;color:var(--tx2);letter-spacing:1.5px;font-family:var(--fn)" data-i18n="notif_title">🔔 NOTIFICATIONS</span>
         <div style="display:flex;align-items:center;gap:10px">
           <button onclick="markAllNotifsRead()" style="font-size:8px;color:var(--cyan);background:none;border:none;cursor:pointer;font-family:var(--fn)" data-i18n="notif_read_all">MARK ALL READ</button>
-          <button onclick="closeNotifPanel()" aria-label="Close" style="font-size:14px;color:var(--tx2);background:none;border:none;cursor:pointer;line-height:1;padding:0 2px">✕</button>
+          <button onclick="closeNotifPanel()" aria-label="Close" style="font-size:14px;color:var(--tx2);background:none;border:none;cursor:pointer;line-height:1;padding:0 2px" class="game-icon-control"><span data-game-icon="close"></span></button>
         </div>
       </div>
       <div id="notifList" style="max-height:320px;overflow-y:auto;padding:6px 0">
@@ -1018,34 +1020,34 @@
 
     <!-- 대카테고리 바 -->
     <div class="base-cat-row" id="baseCatRow">
-      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)"><span data-i18n="bcat_territory">Territory</span></button>
-      <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)"><span data-i18n="bcat_fleet">Fleet</span></button>
-      <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)"><span data-i18n="bcat_economy">Economy</span></button>
-      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)"><span data-i18n="bcat_mission">Mission</span></button>
-      <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)"><span data-i18n="bcat_community">Community</span></button>
+      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)"><span data-game-icon="territory" data-icon-size="18"></span><span data-i18n="bcat_territory">Territory</span></button>
+      <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)"><span data-game-icon="fleet" data-icon-size="18"></span><span data-i18n="bcat_fleet">Fleet</span></button>
+      <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)"><span data-game-icon="market" data-icon-size="18"></span><span data-i18n="bcat_economy">Economy</span></button>
+      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)"><span data-game-icon="missions" data-icon-size="18"></span><span data-i18n="bcat_mission">Mission</span></button>
+      <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)"><span data-game-icon="guild" data-icon-size="18"></span><span data-i18n="bcat_community">Community</span></button>
     </div>
     <!-- 서브탭 (카테고리별로 보임/숨김) -->
     <div class="base-tabs" id="baseTabsRow">
       <!-- 영토 -->
-      <div class="base-tab cat-show active" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
-      <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
+      <div class="base-tab cat-show active" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-game-icon="territory" data-icon-size="18"></span><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
+      <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-game-icon="front" data-icon-size="18"></span><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
       <!-- 함대 -->
-      <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this);clearBaseTabDot('fleet')" style="color:#5cbbff"><span data-i18n="bcat_fleet">Fleet</span><span class="tab-dot" id="fleetDot"></span></div>
-      <div class="base-tab" data-cat="fleet" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span>PVP</span><span class="tab-dot" id="pvpDot"></span></div>
+      <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this);clearBaseTabDot('fleet')" style="color:#5cbbff"><span data-game-icon="fleet" data-icon-size="18"></span><span data-i18n="bcat_fleet">Fleet</span><span class="tab-dot" id="fleetDot"></span></div>
+      <div class="base-tab" data-cat="fleet" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span data-game-icon="attack" data-icon-size="18"></span><span>PVP</span><span class="tab-dot" id="pvpDot"></span></div>
       <!-- 경제 -->
-      <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span data-i18n="base_tab_shop">SHOP</span><span class="tab-dot" id="shopDot"></span></div>
-      <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
-      <div class="base-tab" data-cat="economy" id="baseTabItems" onclick="switchBaseTab('items',this);loadBaseInventory();clearBaseTabDot('items')" style="color:#ce93d8"><span data-i18n="base_tab_items">내 아이템</span><span class="tab-dot" id="itemsDot"></span></div>
+      <div class="base-tab" data-cat="economy" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" style="color:#ffd54f"><span data-game-icon="shop" data-icon-size="18"></span><span data-i18n="base_tab_shop">SHOP</span><span class="tab-dot" id="shopDot"></span></div>
+      <div class="base-tab" data-cat="economy" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-game-icon="market" data-icon-size="18"></span><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
+      <div class="base-tab" data-cat="economy" id="baseTabItems" onclick="switchBaseTab('items',this);loadBaseInventory();clearBaseTabDot('items')" style="color:#ce93d8"><span data-game-icon="resources" data-icon-size="18"></span><span data-i18n="base_tab_items">내 아이템</span><span class="tab-dot" id="itemsDot"></span></div>
 
       <!-- 임무 (퀘스트 → 작전 → 수송 → 시즌) -->
-      <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')" style="color:#64dc82"><span data-i18n="base_tab_mining">⛏ RESOURCE RUN</span><span class="tab-dot" id="miningDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-i18n="base_tab_ops">⚔ OPS CONSOLE</span><span class="tab-dot" id="opsDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-game-icon="missions" data-icon-size="18"></span><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')" style="color:#64dc82"><span data-game-icon="mining" data-icon-size="18"></span><span data-i18n="base_tab_mining">RESOURCE RUN</span><span class="tab-dot" id="miningDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-game-icon="objective" data-icon-size="18"></span><span data-i18n="base_tab_ops">OPS CONSOLE</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-game-icon="transport" data-icon-size="18"></span><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
+      <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-game-icon="rank" data-icon-size="18"></span><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
       <!-- 커뮤니티 (길드·거버넌스) -->
-      <div class="base-tab" data-cat="community" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
-      <div class="base-tab" data-cat="community" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
+      <div class="base-tab" data-cat="community" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-game-icon="guild" data-icon-size="18"></span><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
+      <div class="base-tab" data-cat="community" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-game-icon="base" data-icon-size="18"></span><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
     </div>
     <div class="base-body">
 
@@ -1754,7 +1756,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(144,202,249,.3);border-radius:12px;padding:20px;width:90%;max-width:420px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span style="color:#90caf9;font-weight:700;font-size:13px" data-i18n="broadcast_modal_title">📢 BROADCAST MESSAGE</span>
-              <button onclick="closeBroadcastModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeBroadcastModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="broadcast_modal_desc">Your message will be featured to all players for the selected duration.</div>
             <textarea id="broadcastMessageInput" maxlength="120" rows="3" placeholder="Your message to all Mars colonists…" style="width:100%;background:rgba(144,202,249,.06);border:1px solid rgba(144,202,249,.2);color:var(--tx);padding:8px;border-radius:6px;font-size:10px;font-family:var(--fn);resize:none;box-sizing:border-box;margin-bottom:8px"></textarea>
@@ -1796,7 +1798,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(239,154,154,.3);border-radius:12px;padding:18px;width:88%;max-width:340px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span id="wagerBetTitle" style="color:#ef9a9a;font-weight:700;font-size:13px">🎯 PLACE BET</span>
-              <button onclick="closeWagerBetModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeWagerBetModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div id="wagerBetInfo" style="font-size:9px;color:var(--tx3);margin-bottom:10px"></div>
             <div style="margin-bottom:8px">
@@ -1835,7 +1837,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(255,204,2,.3);border-radius:12px;padding:18px;width:88%;max-width:340px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span id="raffleBuyTitle" style="color:#ffcc02;font-weight:700;font-size:13px">🎟️ BUY TICKETS</span>
-              <button onclick="closeRaffleBuyModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeRaffleBuyModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div id="raffleBuyInfo" style="font-size:9px;color:var(--tx3);margin-bottom:10px"></div>
             <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
@@ -1869,7 +1871,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(165,214,167,.3);border-radius:12px;padding:18px;width:90%;max-width:380px;max-height:85vh;overflow-y:auto">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span style="color:#a5d6a7;font-weight:700;font-size:13px">📊 <span data-i18n="poll_create_title">CREATE POLL</span></span>
-              <button onclick="closeCreatePollModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeCreatePollModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div style="margin-bottom:10px">
               <div style="font-size:9px;color:#a5d6a7;font-family:var(--fn);margin-bottom:4px" data-i18n="poll_question_label">QUESTION</div>
@@ -1900,7 +1902,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(244,143,177,.3);border-radius:12px;padding:18px;width:90%;max-width:360px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span style="color:#f48fb1;font-weight:700;font-size:13px">🎗️ <span data-i18n="sponsor_modal_title">SPONSOR TERRITORY</span></span>
-              <button onclick="closeSponsorModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeSponsorModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div style="font-size:9px;color:var(--tx3);margin-bottom:10px" id="sponsorModalDesc"></div>
             <div style="margin-bottom:10px">
@@ -1921,7 +1923,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(255,204,128,.3);border-radius:12px;padding:18px;width:90%;max-width:360px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span style="color:#ffcc80;font-weight:700;font-size:13px">🪙 <span data-i18n="tribute_modal_title">TRIBUTE TERRITORY</span></span>
-              <button onclick="closeTributeModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeTributeModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div style="font-size:9px;color:var(--tx3);margin-bottom:10px" id="tributeModalDesc"></div>
             <div style="margin-bottom:10px">
@@ -1947,7 +1949,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(176,190,197,.3);border-radius:12px;padding:18px;width:90%;max-width:360px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span style="color:#b0bec5;font-weight:700;font-size:13px">✍️ <span data-i18n="graffiti_modal_title">SPRAY GRAFFITI</span></span>
-              <button onclick="closeGraffitiModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeGraffitiModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div style="font-size:9px;color:var(--tx3);margin-bottom:10px" id="graffitiModalDesc"></div>
             <div style="margin-bottom:10px">
@@ -1968,7 +1970,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(255,241,118,.3);border-radius:12px;padding:18px;width:90%;max-width:360px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span style="color:#fff176;font-weight:700;font-size:13px">✨ <span data-i18n="highlight_modal_title">HIGHLIGHT TERRITORY</span></span>
-              <button onclick="closeHighlightModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeHighlightModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div style="font-size:9px;color:var(--tx3);margin-bottom:10px" id="highlightModalDesc"></div>
             <!-- Color picker -->
@@ -1989,7 +1991,7 @@
           <div style="background:#1a1a2e;border:1px solid rgba(239,154,154,.3);border-radius:12px;padding:18px;width:90%;max-width:360px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
               <span style="color:#ef9a9a;font-weight:700;font-size:13px">🚩 <span data-i18n="banner_modal_title">PLANT VICTORY BANNER</span></span>
-              <button onclick="closeBannerModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+              <button onclick="closeBannerModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
             </div>
             <div style="font-size:9px;color:var(--tx3);margin-bottom:10px" id="bannerModalDesc"></div>
             <!-- Emoji picker -->
@@ -2099,7 +2101,7 @@
               <div id="journalCostHint" style="font-size:9px;color:#80cbc4;margin-bottom:6px"></div>
               <div style="display:flex;gap:6px">
                 <button onclick="publishJournalEntry()" style="flex:1;padding:9px;background:rgba(128,203,196,.15);border:1px solid rgba(128,203,196,.35);color:#80cbc4;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="journal_publish_btn">📖 PUBLISH ENTRY</button>
-                <button onclick="document.getElementById('journalWriteForm').style.display='none';document.getElementById('journalWriteBtn').style.display=''" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" data-i18n="cancel">✕</button>
+                <button onclick="document.getElementById('journalWriteForm').style.display='none';document.getElementById('journalWriteBtn').style.display=''" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" aria-label="Cancel" class="game-icon-control"><span data-game-icon="close"></span><span class="game-sr-only" data-i18n="cancel">Cancel</span></button>
               </div>
             </div>
             <button id="journalWriteBtn" onclick="openJournalWrite()" style="width:100%;padding:7px;background:rgba(128,203,196,.08);border:1px solid rgba(128,203,196,.2);color:#80cbc4;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700;margin-bottom:8px" data-i18n="journal_write_btn">✍ WRITE AN ENTRY</button>
@@ -2141,7 +2143,7 @@
               <div id="milestoneCostHint" style="font-size:9px;color:#ffd54f;margin-bottom:6px"></div>
               <div style="display:flex;gap:6px">
                 <button onclick="recordMilestone()" style="flex:1;padding:9px;background:rgba(255,213,79,.15);border:1px solid rgba(255,213,79,.35);color:#ffd54f;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="milestone_record_btn">🏆 RECORD MILESTONE</button>
-                <button onclick="document.getElementById('milestoneWriteForm').style.display='none';document.getElementById('milestoneWriteBtn').style.display=''" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" data-i18n="cancel">✕</button>
+                <button onclick="document.getElementById('milestoneWriteForm').style.display='none';document.getElementById('milestoneWriteBtn').style.display=''" style="padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:6px;cursor:pointer;font-size:10px" aria-label="Cancel" class="game-icon-control"><span data-game-icon="close"></span><span class="game-sr-only" data-i18n="cancel">Cancel</span></button>
               </div>
             </div>
             <button id="milestoneWriteBtn" onclick="openMilestoneWrite()" style="width:100%;padding:7px;background:rgba(255,213,79,.08);border:1px solid rgba(255,213,79,.2);color:#ffd54f;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700;margin-bottom:8px" data-i18n="milestone_write_btn">✍ RECORD MILESTONE</button>
@@ -2932,7 +2934,7 @@
             <div style="display:flex;gap:6px;margin-bottom:6px">
               <input id="vtagInput" maxlength="12" placeholder="Tag…" style="flex:1;background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn)">
               <button onclick="setMyVtag()" style="padding:7px 12px;background:rgba(206,147,216,.15);border:1px solid rgba(206,147,216,.35);color:#ce93d8;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="vtag_set_btn">SET</button>
-              <button onclick="clearMyVtag()" id="vtagClearBtn" style="display:none;padding:7px 10px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.25);color:#f66;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="vtag_clear_btn">✕</button>
+              <button onclick="clearMyVtag()" id="vtagClearBtn" style="display:none;padding:7px 10px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.25);color:#f66;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" aria-label="Cancel" class="game-icon-control"><span data-game-icon="close"></span><span class="game-sr-only" data-i18n="vtag_clear_btn">Cancel</span></button>
             </div>
             <div style="font-size:8px;color:var(--tx3)" id="vtagCostHint"></div>
           </div>
@@ -3103,13 +3105,13 @@
 
 
 <nav class="mob-bottom-nav cc-nav" id="mobBottomNav" aria-label="Command navigation">
-  <button type="button" data-command-nav="front"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 8 5v10l-8 5-8-5V7zM4 7l8 5 8-5M12 12v10"/></svg><span>전선</span></button>
-  <button type="button" data-command-nav="fleet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 9 19-9-4-9 4zM12 7v10"/></svg><span>함대</span></button>
-  <button type="button" data-command-nav="missions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h12v18H5V5h2M9 3v3h6V3M8 11h8M8 16h8"/></svg><span>임무</span></button>
-  <button type="button" data-command-nav="base"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v11H3zM9 21v-8h6v8"/></svg><span>기지</span><span id="mobBaseDot" class="mob-base-dot" aria-hidden="true"></span></button>
+  <button type="button" data-command-nav="front"><span data-game-icon="front" aria-hidden="true"></span><span data-command-label>전선</span></button>
+  <button type="button" data-command-nav="fleet"><span data-game-icon="fleet" aria-hidden="true"></span><span data-command-label>함대</span></button>
+  <button type="button" data-command-nav="missions"><span data-game-icon="missions" aria-hidden="true"></span><span data-command-label>임무</span></button>
+  <button type="button" data-command-nav="base"><span data-game-icon="base" aria-hidden="true"></span><span data-command-label>기지</span><span id="mobBaseDot" class="mob-base-dot" aria-hidden="true"></span></button>
 </nav>
-<section id="commandCenter" role="dialog" aria-modal="true" aria-labelledby="commandCenterTitle" hidden>
-  <div class="cc-shell"><header class="cc-header"><h2 id="commandCenterTitle">전선</h2><button type="button" data-cc="refresh" aria-label="Refresh">↻</button><button type="button" data-cc="close" aria-label="Close">✕</button></header><div class="cc-body"></div><div class="cc-status" role="status" aria-live="polite"></div></div>
+<section id="commandCenter" role="region" aria-labelledby="commandCenterTitle" hidden>
+  <div class="cc-shell"><header class="cc-header"><div class="cc-brand"><span>OCCUPY MARS</span><h2 id="commandCenterTitle">전선</h2></div><button type="button" data-cc="refresh" aria-label="Refresh"><span data-game-icon="refresh"></span></button><button type="button" data-cc="close" aria-label="View territory map" title="View territory map"><span data-game-icon="close"></span></button></header><div class="cc-body"></div><div class="cc-status" role="status" aria-live="polite"></div></div>
 </section>
 
 <!-- Legacy Mobile FAB (hidden, replaced by bottom nav) -->
@@ -3133,7 +3135,7 @@
           <div id="territoryUpgradeModalMeta" style="font-size:9px;color:var(--tx3);margin-top:1px"></div>
         </div>
       </div>
-      <button type="button" onclick="closeTerritoryUpgradeModal()" style="background:transparent;border:0;color:var(--tx3);font-size:18px;cursor:pointer;padding:4px 8px">✕</button>
+      <button type="button" onclick="closeTerritoryUpgradeModal()" style="background:transparent;border:0;color:var(--tx3);font-size:18px;cursor:pointer;padding:4px 8px" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
     <div id="territoryUpgradeModalBody" style="font-size:10px"></div>
   </div>
@@ -3145,7 +3147,7 @@
     <div class="mt-handle"></div>
     <div class="mt-title">
       <span data-i18n="territory_info">TERRITORY INFO</span>
-      <button class="mt-close" onclick="closeMobTerritoryModal()">✕</button>
+      <button class="mt-close game-icon-control" onclick="closeMobTerritoryModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mt-row"><span class="mt-label" data-i18n="coords">COORDS</span><span class="mt-val" id="mtCoords">--</span></div>
     <div class="mt-row"><span class="mt-label" data-i18n="owner">OWNER</span><span class="mt-val" id="mtOwner" style="color:var(--gold)">--</span></div>
@@ -3235,7 +3237,7 @@
   <div class="stamp-modal-handle"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
     <div class="p-title" style="border:none;padding:0;margin:0;font-size:11px" data-i18n="place_image">PLACE YOUR IMAGE</div>
-    <button class="mob-stamp-close" onclick="closeMobileStamp()">✕</button>
+    <button class="mob-stamp-close game-icon-control" onclick="closeMobileStamp()" aria-label="Close"><span data-game-icon="close"></span></button>
   </div>
   <input type="file" id="mStampFileInput" accept="image/*,image/gif" style="display:none">
   <button class="uf" id="mStampFileBtn" onclick="document.getElementById('mStampFileInput').click()" style="min-height:48px;font-size:10px" data-i18n="select_image_file">SELECT IMAGE FILE</button>
@@ -3298,7 +3300,7 @@
   <div class="mdl" style="width:400px;max-width:95vw">
     <div class="mhd">
       <span class="mtl" style="color:var(--gold)" data-i18n="daily_checkin_title">DAILY CHECK-IN</span>
-      <button class="mx" onclick="closeDailyLogin()">×</button>
+      <button class="mx game-icon-control" onclick="closeDailyLogin()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd" style="text-align:center;padding:12px">
       <div id="dailyStampBoard" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px"></div>
@@ -3314,7 +3316,7 @@
   <div class="mdl" style="width:440px">
     <div class="mhd">
       <span class="mtl" data-i18n="account">ACCOUNT</span>
-      <button class="mx" onclick="closeAuthModal()">×</button>
+      <button class="mx game-icon-control" onclick="closeAuthModal()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="mbd">
       <!-- Logged-in state: Full profile -->
@@ -3707,7 +3709,7 @@
 <!-- ── Job Selection Modal ── -->
 <div id="jobSelectModal" class="job-select-overlay" style="display:none" onclick="if(event.target===this)closeJobSelectModal()">
   <div class="job-select-modal" style="position:relative">
-    <button onclick="closeJobSelectModal()" aria-label="Close" style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:var(--tx3);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:1;font-family:var(--fn)" onmouseover="this.style.color='var(--tx)';this.style.borderColor='rgba(255,255,255,.35)'" onmouseout="this.style.color='var(--tx3)';this.style.borderColor='rgba(255,255,255,.15)'">✕</button>
+    <button onclick="closeJobSelectModal()" aria-label="Close" style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:var(--tx3);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:1;font-family:var(--fn)" onmouseover="this.style.color='var(--tx)';this.style.borderColor='rgba(255,255,255,.35)'" onmouseout="this.style.color='var(--tx3)';this.style.borderColor='rgba(255,255,255,.15)'" class="game-icon-control"><span data-game-icon="close"></span></button>
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:24px;margin-bottom:6px">🚀</div>
       <div style="font-size:14px;font-weight:900;color:var(--tx);font-family:var(--fn);letter-spacing:1px" data-i18n="job_modal_title">CHOOSE YOUR DESTINY</div>
@@ -3761,7 +3763,7 @@
   <div class="wb-modal">
     <div class="wb-header">
       <div class="wb-title" data-i18n="wb_title">🎯 WAR BETTING · 전쟁 베팅</div>
-      <button class="shipyard-close" onclick="closeWarBetting()" data-i18n="btn_close">✕ Close</button>
+      <button class="shipyard-close game-icon-control" onclick="closeWarBetting()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div class="wb-tabs">
       <button class="wb-tab active" data-tab="active" onclick="wbSwitchTab('active')" data-i18n="wb_tab_active">🔥 Active Events</button>
@@ -3849,7 +3851,7 @@
           <div class="campaign-title" id="campaignModalTitle" style="font-size:20px;margin-top:4px">Oxygen Rush</div>
           <div style="font-size:10px;color:var(--tx3);margin-top:6px" id="campaignModalSub">Erebus Crater Refinery Complex · Dust Storm incoming</div>
         </div>
-        <button onclick="closeCampaignModal()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--tx);border-radius:8px;padding:6px 10px;cursor:pointer">✕</button>
+        <button onclick="closeCampaignModal()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--tx);border-radius:8px;padding:6px 10px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
       </div>
     </div>
     <div class="campaign-body" id="campaignModalBody"></div>
@@ -3865,7 +3867,7 @@
         <div style="font-size:13px;font-weight:800;color:var(--gold);letter-spacing:1px" data-i18n="monument_place_title">PLACE MONUMENT</div>
         <div style="font-size:9px;color:var(--tx3)" id="monumentModalSubtitle">Select a territory</div>
       </div>
-      <button onclick="closeMonumentModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer">✕</button>
+      <button onclick="closeMonumentModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
 
     <!-- Territory Picker -->
@@ -3918,7 +3920,7 @@
         <div style="font-size:13px;font-weight:800;color:var(--mars);letter-spacing:1px" data-i18n="bounty_modal_title">POST BOUNTY</div>
         <div style="font-size:9px;color:var(--tx3)" data-i18n="bounty_modal_sub">Reward the first player to hijack this territory</div>
       </div>
-      <button onclick="closePostBountyModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer">✕</button>
+      <button onclick="closePostBountyModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
 
     <div style="margin-bottom:10px">
@@ -3957,7 +3959,7 @@
         <div style="font-size:13px;font-weight:800;color:#ff8c42;letter-spacing:1px" data-i18n="duel_modal_title">CHALLENGE TO DUEL</div>
         <div style="font-size:9px;color:var(--tx3)" data-i18n="duel_modal_sub">Winner takes pot minus 5% house fee</div>
       </div>
-      <button onclick="closeDuelModal()" style="margin-left:auto;background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+      <button onclick="closeDuelModal()" style="margin-left:auto;background:none;border:none;color:#888;font-size:18px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
 
     <div style="margin-bottom:10px">
@@ -3994,7 +3996,7 @@
   <div class="gp-card" style="min-width:300px">
     <div class="gp-header">
       <span class="gp-title" id="giTitle">INPUT</span>
-      <button class="gp-close" onclick="closeGameInput()">✕</button>
+      <button class="gp-close game-icon-control" onclick="closeGameInput()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div style="padding:14px 16px 6px">
       <div style="font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.5px" id="giLabel"></div>
@@ -4014,7 +4016,7 @@
   <div class="gp-card" style="min-width:320px;max-width:420px;width:92vw">
     <div class="gp-header">
       <span class="gp-title">⚠ VOID RAIDER</span>
-      <button class="gp-close" onclick="closeWeModal()" type="button">✕</button>
+      <button class="gp-close game-icon-control" onclick="closeWeModal()" type="button" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div style="padding:12px 16px 6px">
       <!-- HP Bar -->
@@ -4052,7 +4054,7 @@
   <div class="gp-card">
     <div class="gp-header">
       <span class="gp-title" id="gpTitle">SELECT</span>
-      <button class="gp-close" onclick="closeGamePicker()">✕</button>
+      <button class="gp-close game-icon-control" onclick="closeGamePicker()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="gp-list" id="gpList"></div>
   </div>
@@ -4413,18 +4415,18 @@
 </div>
 
 <script src="/assets/core-runtime.js?v=7485"></script>
-<script src="/assets/world-globe.js?v=7485"></script>
-<script src="/assets/i18n.js?v=7486-upgrade3"></script>
-<script src="/assets/i18n-sea.js?v=7485"></script>
+<script src="/assets/world-globe.js?v=7474-upgrade18"></script>
+<script src="/assets/i18n.js?v=7474-upgrade18"></script>
+<script src="/assets/i18n-sea.js?v=7474-upgrade18"></script>
 <script src="/assets/wallet-minigame.js?v=7485"></script>
 <script src="/assets/territory-ui.js?v=7485"></script>
 <script src="/assets/account-profile.js?v=7485"></script>
-<script src="/assets/economy-inventory.js?v=7485"></script>
-<script src="/assets/market-transport.js?v=7485"></script>
+<script src="/assets/economy-inventory.js?v=7474-upgrade18"></script>
+<script src="/assets/market-transport.js?v=7474-upgrade18"></script>
 <script src="/assets/ship-mining.js?v=7485"></script>
-<script src="/assets/base-navigation.js?v=7474-upgrade10"></script>
+<script src="/assets/base-navigation.js?v=7474-upgrade18"></script>
 <script src="/assets/guild-ops.js?v=7485"></script>
-<script src="/assets/season-base.js?v=7485"></script>
+<script src="/assets/season-base.js?v=7474-upgrade18"></script>
 <script src="/assets/campaign-system.js?v=7485"></script>
 <script src="/assets/quest-economy.js?v=7485"></script>
 <script src="/assets/mars-map-overlays.js?v=7485"></script>
@@ -4638,7 +4640,7 @@
         <div style="font-size:14px;font-weight:800;color:var(--red);letter-spacing:1px" data-i18n="war_declare_title">DECLARE WAR</div>
         <div style="font-size:9px;color:var(--tx3);margin-top:2px" data-i18n="war_declare_subtitle">전쟁을 선포할 길드를 선택하세요</div>
       </div>
-      <button onclick="closeDeclareWarModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer;padding:4px">×</button>
+      <button onclick="closeDeclareWarModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer;padding:4px" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
     <!-- Cost info -->
     <div style="padding:10px 18px;background:rgba(232,72,85,.04);border-bottom:1px solid rgba(232,72,85,.15)">
@@ -4697,7 +4699,7 @@
         <div style="font-size:13px;color:#fff;letter-spacing:1.5px;font-weight:700" data-i18n="edit_guild_title">EDIT GUILD</div>
         <div style="font-size:9px;color:var(--tx3);letter-spacing:.5px" data-i18n="edit_guild_sub">Rename · customize emblem · update description</div>
       </div>
-      <button onclick="closeGuildEditModal()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:16px;width:28px;height:28px;border-radius:6px;cursor:pointer">✕</button>
+      <button onclick="closeGuildEditModal()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:16px;width:28px;height:28px;border-radius:6px;cursor:pointer" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
     <div style="padding:16px 18px;overflow-y:auto;flex:1">
       <!-- Preview -->
@@ -4772,7 +4774,7 @@
         <div style="font-size:13px;color:#fff;letter-spacing:1.5px;font-weight:700">OCCUPY MARS — GUIDEBOOK</div>
         <div style="font-size:9px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game guidebook</div>
       </div>
-      <button onclick="closeCodex()" class="codex-close">✕</button>
+      <button onclick="closeCodex()" class="codex-close game-icon-control" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <!-- tabs (fixed) -->
     <div id="codexTabs" class="codex-tabs"></div>
@@ -4810,27 +4812,27 @@
 <div class="shipyard-modal-backdrop" id="shipyardModal" onclick="if(event.target===this)closeShipyard()">
   <div class="shipyard-modal">
     <div class="shipyard-header">
-      <div class="shipyard-title">⚒ SHIPYARD</div>
-      <button class="shipyard-close" onclick="closeShipyard()" data-i18n="btn_close">✕ Close</button>
+      <div class="shipyard-title"><span data-game-icon="industry"></span> SHIPYARD</div>
+      <button class="shipyard-close game-icon-control" onclick="closeShipyard()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div class="shipyard-tabs">
       <button class="sy-tab active" data-tab="blueprints" onclick="switchSyTab('blueprints')">
-        📋 <span data-i18n="sy_tab_blueprints">BLUEPRINTS</span>
+        <span data-game-icon="collection" data-icon-size="18"></span> <span data-i18n="sy_tab_blueprints">BLUEPRINTS</span>
       </button>
       <button class="sy-tab" data-tab="queue" onclick="switchSyTab('queue')">
-        🔨 <span data-i18n="sy_tab_queue">BUILD QUEUE</span> <span class="badge" id="syQueueBadge" style="display:none"></span>
+        <span data-game-icon="industry" data-icon-size="18"></span> <span data-i18n="sy_tab_queue">BUILD QUEUE</span> <span class="badge" id="syQueueBadge" style="display:none"></span>
       </button>
       <button class="sy-tab" data-tab="fleet" onclick="switchSyTab('fleet')">
-        🚀 <span data-i18n="sy_tab_fleet">MY FLEET</span>
+        <span data-game-icon="fleet" data-icon-size="18"></span> <span data-i18n="sy_tab_fleet">MY FLEET</span>
       </button>
       <button class="sy-tab" data-tab="assembly" onclick="switchSyTab('assembly')">
-        🜲 <span data-i18n="sy_tab_assembly">ASSEMBLY</span>
+        <span data-game-icon="assembly" data-icon-size="18"></span> <span data-i18n="sy_tab_assembly">ASSEMBLY</span>
       </button>
       <button class="sy-tab" data-tab="market" onclick="switchSyTab('market')">
-        🏷 <span data-i18n="sy_tab_market">SHIP MARKET</span>
+        <span data-game-icon="market" data-icon-size="18"></span> <span data-i18n="sy_tab_market">SHIP MARKET</span>
       </button>
       <button class="sy-tab" data-tab="crates" onclick="switchSyTab('crates')">
-        🎲 <span data-i18n="sy_tab_crates">CRATES</span>
+        <span data-game-icon="cargo" data-icon-size="18"></span> <span data-i18n="sy_tab_crates">CRATES</span>
       </button>
     </div>
     <div class="shipyard-filters" id="syFilters">
@@ -4902,14 +4904,14 @@
   </div>
 </div>
 
-<script src="/assets/shipyard-modal.js?v=7474-upgrade10"></script>
+<script src="/assets/shipyard-modal.js?v=7474-upgrade18"></script>
 
 <!-- ═══ A-3: Fleet Command Modal ═══ -->
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
   <div class="fleetcmd-modal" onclick="event.stopPropagation()">
     <div class="fleetcmd-header">
       <div class="fleetcmd-title">🎖 FLEET COMMAND · <span id="fleetCmdSubtitle">Command</span></div>
-      <button type="button" class="shipyard-close" onclick="event.preventDefault();closeFleetCmd()" data-i18n="btn_close">✕ Close</button>
+      <button type="button" class="shipyard-close game-icon-control" onclick="event.preventDefault();closeFleetCmd()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div class="fleetcmd-body">
       <div class="fleet-list">
@@ -4934,7 +4936,7 @@
   <div class="bh-modal">
     <div class="bh-header">
       <div class="bh-title">⚔ FLEET BATTLES · <span data-i18n="bh_title_kr">함대전</span></div>
-      <button onclick="closeBattleHub()" style="background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 14px;font-size:13px;border-radius:5px;cursor:pointer;font-weight:700">✕</button>
+      <button onclick="closeBattleHub()" style="background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 14px;font-size:13px;border-radius:5px;cursor:pointer;font-weight:700" aria-label="Close" class="game-icon-control"><span data-game-icon="close"></span></button>
     </div>
     <div class="bh-tabs">
       <button class="bh-tab active" data-tab="active" onclick="bhSwitchTab('active')">🔴 LIVE</button>
@@ -5106,7 +5108,7 @@
   <div class="ai-modal">
     <div class="bh-header">
       <div class="bh-title">🤖 <span data-i18n="pvp_ai_practice">AI 연습전</span></div>
-      <button class="shipyard-close" onclick="closeAiFight()" data-i18n="btn_close">✕ Close</button>
+      <button class="shipyard-close game-icon-control" onclick="closeAiFight()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div style="padding:10px 20px;font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px" data-i18n="ai_practice_desc">
       난이도별 AI 함대와 연습 전투. 보상은 일반 전투의 50%.
@@ -5120,7 +5122,7 @@
   <div class="tn-modal">
     <div class="bh-header">
       <div class="bh-title">🏆 TOURNAMENTS</div>
-      <button class="shipyard-close" onclick="closeTournaments()" data-i18n="btn_close">✕ Close</button>
+      <button class="shipyard-close game-icon-control" onclick="closeTournaments()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div class="tn-tabs">
       <button class="tn-tab active" data-tab="open" onclick="tnSwitchTab('open')">📢 <span data-i18n="tn_tab_open">모집중</span></button>
@@ -5141,7 +5143,7 @@
   <div class="tn-modal">
     <div class="bh-header">
       <div class="bh-title" id="bracketTitle">🏆 BRACKET</div>
-      <button class="shipyard-close" onclick="closeBracket()" data-i18n="btn_close">✕ Close</button>
+      <button class="shipyard-close game-icon-control" onclick="closeBracket()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div class="bracket-container" id="bracketContent"></div>
   </div>
@@ -5151,8 +5153,8 @@
 <div class="reg-modal-backdrop" id="shipRegistryModal">
   <div class="reg-modal">
     <div class="reg-header">
-      <div class="reg-title">🚀 SHIP REGISTRY</div>
-      <button class="reg-close" onclick="closeShipCatalog()">✕</button>
+      <div class="reg-title"><span data-game-icon="collection"></span> SHIP REGISTRY</div>
+      <button class="reg-close game-icon-control" onclick="closeShipCatalog()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="reg-tabs">
       <span style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3)">FACTION:</span>
@@ -5169,8 +5171,8 @@
 <div class="min-modal-backdrop" id="mineralsModal">
   <div class="min-modal">
     <div class="min-header">
-      <div class="min-title">💎 MINERAL CATALOG</div>
-      <button class="reg-close" onclick="closeMineralCatalog()">✕</button>
+      <div class="min-title"><span data-game-icon="resources"></span> MINERAL CATALOG</div>
+      <button class="reg-close game-icon-control" onclick="closeMineralCatalog()" aria-label="Close"><span data-game-icon="close"></span></button>
     </div>
     <div class="min-body" id="minBody"><div class="reg-loading">Loading...</div></div>
   </div>
@@ -5183,7 +5185,7 @@
   <div class="al-modal">
     <div class="bh-header">
       <div class="bh-title">🤝 ALLIANCES</div>
-      <button class="shipyard-close" onclick="closeAlliance()" data-i18n="btn_close">✕ Close</button>
+      <button class="shipyard-close game-icon-control" onclick="closeAlliance()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div id="allianceContent" style="flex:1;overflow-y:auto"></div>
   </div>
@@ -5194,7 +5196,7 @@
   <div class="rp-modal">
     <div class="bh-header">
       <div class="bh-title">📼 REPLAYS</div>
-      <button class="shipyard-close" onclick="closeReplays()" data-i18n="btn_close">✕ Close</button>
+      <button class="shipyard-close game-icon-control" onclick="closeReplays()"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
     </div>
     <div class="bh-tabs">
       <button class="bh-tab active" data-tab="featured" onclick="rpSwitchTab('featured')">⭐ <span data-i18n="rp_tab_featured">추천</span></button>
@@ -5226,7 +5228,7 @@
       <div id="bvSideBattleStats" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7" data-i18n="loading_dots">로딩 중...</div>
     </div>
 
-    <button class="bv-close" onclick="closeBattleViewer()" style="position:absolute;top:10px;right:10px;z-index:30;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.3);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
+    <button class="bv-close game-icon-control" onclick="closeBattleViewer()" style="position:absolute;top:10px;right:10px;z-index:30;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.3);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px" aria-label="Close"><span data-game-icon="close"></span></button>
 
     <!-- Hidden 보존 elements (legacy code refs 안 깨지게) -->
     <canvas id="battleCanvas" style="display:none"></canvas>
@@ -5248,7 +5250,7 @@
           <!-- [v7.221 upgrade #3] AI 전투 리매치 — 같은 상대 즉시 재도전. showBattleResult 가 AI 전투일 때만 표시. -->
           <button id="bvRematchBtn" class="primary" style="display:none;background:linear-gradient(135deg,#5cbbff,#4fc3f7);color:#001018" onclick="bvRematch()">🔄 <span data-i18n="bv_rematch">Rematch</span></button>
           <button class="primary" onclick="shareCurrentBattle()">📼 <span data-i18n="bv_share">Share</span></button>
-          <button onclick="closeBattleViewer()" data-i18n="btn_close">✕ Close</button>
+          <button onclick="closeBattleViewer()" class="game-icon-control"><span data-game-icon="close"></span><span data-i18n="btn_close">Close</span></button>
         </div>
       </div>
     </div>
@@ -5260,14 +5262,14 @@
 <!-- 섹션 3: JavaScript                                               -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 
-<script src="/assets/battle-hub-modal.js?v=7474-upgrade10"></script>
+<script src="/assets/battle-hub-modal.js?v=7474-upgrade18"></script>
 
 
 <script src="/assets/service-worker-registration.js?v=7485"></script>
-<script src="/assets/social-live-modal.js?v=7474-upgrade10"></script>
+<script src="/assets/social-live-modal.js?v=7474-upgrade18"></script>
 <script src="/assets/app-startup.js?v=7485"></script>
 <script src="/assets/war-betting-modal.js?v=7485"></script>
-<script src="/assets/tactical-lab-modal.js?v=7474-upgrade10"></script>
+<script src="/assets/tactical-lab-modal.js?v=7474-upgrade18"></script>
 <script src="/assets/ace-combat-modal.js?v=7485"></script>
 
 <!-- Tactical Lab Modal (v11.2 Formation/Maneuver) ================================ -->
@@ -5317,7 +5319,7 @@
     <h3>
       🐛 BUG REPORT
       <span id="bugReportIdHint" data-i18n="br_hint">Claude가 읽고 수정합니다</span>
-      <button class="br-close" type="button" onclick="closeBugReporter(event)">✕</button>
+      <button class="br-close game-icon-control" type="button" onclick="closeBugReporter(event)" aria-label="Close"><span data-game-icon="close"></span></button>
     </h3>
     <div class="br-body">
       <div>
@@ -5357,11 +5359,11 @@
 </div>
 
 <div id="chatOverlay" class="chat-overlay collapsed">
-  <div class="chat-header" onclick="toggleChat()">
-    <span data-i18n="comms_label">💬 COMMS</span>
+  <button type="button" class="chat-header" id="chatToggleBtn" aria-controls="chatBody" aria-expanded="false" aria-label="Open communications" onclick="toggleCommandChat()">
+    <span data-game-icon="chat" aria-hidden="true"></span><span class="chat-title" data-i18n="comms_label">COMMS</span>
     <span id="chatUnreadBadge" class="chat-unread" style="display:none">0</span>
-    <span class="chat-toggle-icon">▲</span>
-  </div>
+    <span class="chat-toggle-icon" data-game-icon="close" aria-hidden="true"></span>
+  </button>
   <div class="chat-body" id="chatBody">
     <div class="chat-channel-row">
       <button class="chat-ch active" onclick="switchChatChannel('global')">🌐 전체</button>
@@ -5369,16 +5371,16 @@
     </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-row">
-      <input id="chatInput" type="text" maxlength="200" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter')sendChatMessage()">
-      <button id="chatSendBtn" onclick="sendChatMessage()">▶</button>
+      <input id="chatInput" aria-label="Chat message" type="text" maxlength="200" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter')sendChatMessage()">
+      <button type="button" id="chatSendBtn" aria-label="Send message" onclick="sendChatMessage()"><span data-game-icon="arrow" aria-hidden="true"></span></button>
     </div>
   </div>
 </div>
 
-<script src="/assets/product-analytics.js?v=7474-upgrade10"></script>
-<script src="/assets/fleet-field-guide.js?v=7474-upgrade10"></script>
-<script src="/assets/ship-card-workshop.js?v=7474-upgrade10"></script>
-<script src="/assets/objective-operations.js?v=7474-upgrade10"></script>
-<script src="/assets/command-center.js?v=7474-upgrade10"></script>
+<script src="/assets/product-analytics.js?v=7474-upgrade18"></script>
+<script src="/assets/fleet-field-guide.js?v=7474-upgrade18"></script>
+<script src="/assets/ship-card-workshop.js?v=7474-upgrade18"></script>
+<script src="/assets/objective-operations.js?v=7474-upgrade18"></script>
+<script src="/assets/command-center.js?v=7474-upgrade18"></script>
 </body>
 </html>

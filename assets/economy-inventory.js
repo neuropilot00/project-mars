@@ -1,3 +1,31 @@
+// Item identities stay catalog codes; server icon strings are never inserted as HTML.
+function _ecoEsc(value){
+  return String(value == null ? '' : value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function _ecoInline(value){
+  return _ecoEsc(String(value == null ? '' : value).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029'));
+}
+function _ecoNum(value){ var n=Number(value);return Number.isFinite(n)?n:0; }
+function _ecoItemCode(item){
+  if(!item)return '';
+  var direct=item.source_item_code||item.output_code||item.item_code||item.code||item.resource_code||item.effect_type;
+  if(direct)return String(direct);
+  var id=item.output_item_type_id||item.item_type_id;
+  if(id==null)return '';
+  var catalog=(_baseShopItems||[]).concat(_shopItems||[]);
+  var found=catalog.find(function(i){return String(i.id||i.item_type_id)===String(id);});
+  return found?String(found.code||found.item_code||''):'';
+}
+function _ecoArt(code,size,name,quality){
+  return window.ItemArt ? window.ItemArt.render(code,{size:size||64,name:name||'',decorative:true,quality:quality}) : '<span class="eco-art-fallback" aria-hidden="true"></span>';
+}
+function _ecoCardArt(item,size){ return _ecoArt(_ecoItemCode(item),size||72,item.name||item.output_name,item.quality||item.rarity); }
+(function(){
+  var style=document.createElement('style');style.id='economy-item-card-style';
+  style.textContent='.eco-item-card{min-width:0;overflow-wrap:anywhere;box-sizing:border-box;background:linear-gradient(145deg,rgba(35,58,76,.25),rgba(9,16,25,.8))!important;border-color:rgba(127,172,206,.2)!important;border-radius:12px!important;gap:8px!important}.eco-item-card>.item-art{align-self:center;margin:3px auto 5px}.eco-item-card button,.eco-item-row button,.eco-item-card .si-price,#shopConfirmBtn,#shopConfirmModal button,#shopActiveList button,#enhanceAdvModal button,#mktDetailDlg button{min-height:44px;min-width:44px;box-sizing:border-box}.eco-item-card .si-price{display:inline-flex;align-items:center;justify-content:center}.eco-item-card .si-name{overflow-wrap:anywhere}.eco-item-card .si-icon,.eco-item-row .inv-icon{font-size:0}.eco-item-row{min-width:0;gap:10px!important;flex-wrap:wrap;overflow-wrap:anywhere;box-sizing:border-box}.eco-item-row>div{min-width:0}.eco-item-row .inv-info{flex:1;min-width:80px}.eco-hull-art{aspect-ratio:4/3;background:#080f19}.eco-hull-art>.item-art{display:block;width:100%;height:100%;border-radius:0}.eco-hull-art .item-art-image{object-fit:cover}.eco-hull-art .item-art-assembled .item-art-image{object-fit:contain}.eco-item-title{font-size:12px!important;line-height:1.4}.eco-item-card>div[style*="font-size:9px"]{font-size:11px!important;line-height:1.5}.eco-item-card input,.eco-item-card select{min-height:44px}.eco-item-card input,.eco-item-card select,#enhanceAdvModal input,#mktDetailDlg input{min-width:0;max-width:100%;box-sizing:border-box}.eco-resource-card{flex:1 1 230px;min-width:0!important;max-width:100%;box-sizing:border-box}.eco-art-fallback{display:inline-block;width:48px;height:48px;border:1px solid rgba(127,172,206,.3);border-radius:9px;background:linear-gradient(135deg,#1f3445,#080d15)}.eco-effect-art{display:inline-flex;vertical-align:middle;margin-right:4px}.eco-confirm-art{display:flex;justify-content:center;margin:4px auto 12px}.eco-item-title{min-width:0;overflow-wrap:anywhere}#baseShopGrid,#baseInvGrid,#baseInvGrid2,#craftingGrid,#mktBrowseGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#baseShopGrid button{white-space:normal!important;font-size:10px!important;flex:1 1 70px}#baseShopGrid .eco-item-card>div:last-child{flex-wrap:wrap}#enhanceAdvModal label{min-height:44px}#enhanceAdvModal input[type=checkbox]{width:20px;height:20px;flex:none}#enhanceAdvModal>div,#mktDetailDlg>div{box-sizing:border-box}#shopConfirmModal .sci,#shopConfirmIcon{height:auto;line-height:1}#tbActiveBuffs .tb-buff{display:inline-flex;align-items:center;gap:4px}@media(max-width:380px){#baseShopGrid,#baseInvGrid,#baseInvGrid2,#craftingGrid,#mktBrowseGrid{gap:6px!important}.eco-item-card{padding:9px!important}.eco-item-card>div[style*="justify-content:space-between"]{flex-wrap:wrap;gap:5px}.eco-item-row{padding:9px!important}#enhanceAdvModal>div{padding:14px!important}}';
+  document.head.appendChild(style);
+})();
+
 /* ── UI Helpers ──────────────────────────────────── */
 /* ── Mobile Nav Icon Customization ─────────────── */
 // To replace emoji icons with custom images, set paths here:
@@ -7,7 +35,9 @@ function applyNavIcons(){
   document.querySelectorAll('.mob-nav-item .nav-icon[data-icon]').forEach(function(el){
     var key=el.getAttribute('data-icon');
     if(NAV_ICONS[key]){
-      el.innerHTML='<img src="'+NAV_ICONS[key]+'" style="width:22px;height:22px;object-fit:contain" alt="'+key+'">';
+      el.innerHTML='<img src="'+_ecoEsc(NAV_ICONS[key])+'" style="width:22px;height:22px;object-fit:contain" alt="">';
+    }else if(window.GameIcons){
+      el.innerHTML=window.GameIcons.render(key,{size:22});
     }
   });
 }
@@ -31,10 +61,12 @@ function _economyReadFetch(key, url, auth, minGap) {
   }
   return fetch(url, auth ? { headers: getAuthHeaders() } : {}).then(function(r){ return r.json(); });
 }
-function shopConfirm(icon,title,msg,btnText){
+function shopConfirm(icon,title,msg,btnText,itemCode){
   return new Promise(function(resolve){
     _shopConfirmCb=resolve;
-    document.getElementById('shopConfirmIcon').textContent=icon||'🛒';
+    var iconEl=document.getElementById('shopConfirmIcon');
+    if(itemCode) iconEl.innerHTML=_ecoArt(itemCode,96,title);
+    else iconEl.textContent=icon||'🛒';
     document.getElementById('shopConfirmTitle').textContent=title||tl('Confirm','확인','確認','确认');
     document.getElementById('shopConfirmMsg').innerHTML=msg||'';
     document.getElementById('shopConfirmBtn').textContent=btnText||tl('CONFIRM','확인','確認','确认');
@@ -57,15 +89,7 @@ function _effectExpiryMs(e){
   return Number.isFinite(t)?t:null;
 }
 function _effectIcon(e){
-  if(e&&e.icon)return e.icon;
-  var type=e&&e.effect_type;
-  if(type==='attack_boost'||type==='siege_ram')return '🔥';
-  if(type==='mining_boost'||type==='harvest_surge')return '⛏️';
-  if(type==='pixel_doubler'||type==='xp_amplifier')return '✨';
-  if(type==='stealth_cloak'||type==='decoy_beacon')return '👻';
-  if(type==='radar_scan'||type==='territory_scan'||type==='recall_beacon')return '📡';
-  if(type==='gp_generator'||type==='lucky_charm')return '🪙';
-  return '⚡';
+  return '<span class="eco-effect-art">'+_ecoArt(_ecoItemCode(e),24,e&&e.name)+'</span>';
 }
 function _clearActiveEffectsRefresh(){
   if(!_activeEffectsRefreshTimer)return;
@@ -158,8 +182,8 @@ function renderActiveBuffs(){
     var nm=_itemName(e.effect_type)||e.name||'';
     // [v7.343] 남은시간 명확화: 'Nh Mm'(예 3h 12m) — 'h'를 'x'로 오인하던 문제. 효과명도 배지에 직접 표기(부모 pointer-events:none이라 title 호버 안 먹음).
     var dur=_formatEffectRemaining(e);
-    var label=_effectIcon(e)+' '+nm+(dur?(' · '+dur):'');
-    return '<div class="tb-buff '+cat+'" title="'+nm.replace(/"/g,'&quot;')+'">'+label+'</div>';
+    var label=_effectIcon(e)+' '+_ecoEsc(nm)+(dur?(' · '+_ecoEsc(dur)):'');
+    return '<div class="tb-buff '+cat+'" title="'+_ecoEsc(nm)+'">'+label+'</div>';
   }).join('');
 }
 
@@ -234,23 +258,23 @@ function renderShopItems(){
   grid.innerHTML=filtered.map(function(item){
     var owned=_shopInventory.find(function(inv){return inv.item_type_id===item.id});
     var ownedQty=owned?owned.quantity:0;
-    var durTxt=item.category==='cosmetic'?tl('Permanent','영구','永続','永久'):item.duration_hours>0?item.duration_hours+tl('h duration','시간 지속','時間持続','小时持续'):tl('Single use','1회 사용','1回使用','单次使用');
+    var durTxt=item.category==='cosmetic'?tl('Permanent','영구','永続','永久'):item.duration_hours>0?_ecoNum(item.duration_hours)+tl('h duration','시간 지속','時間持続','小时持续'):tl('Single use','1회 사용','1回使用','单次使用');
     var gpPrice=parseFloat(item.price_gp||0);
     var gpBtn=gpPrice>0
-      ? '<span class="si-price gp" style="background:linear-gradient(135deg,#FFD166,#FF9030);color:#000;font-weight:700" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'GP\')">'+gpPrice.toFixed(0)+' GP</span>'
+      ? '<button type="button" class="si-price gp" style="background:linear-gradient(135deg,#FFD166,#FF9030);color:#000;font-weight:700" onclick="event.stopPropagation();buyShopItem(\''+_ecoInline(item.code)+'\',\'GP\')">'+gpPrice.toFixed(0)+' GP</button>'
       : '';
-    return '<div class="shop-item-card" data-code="'+item.code+'">'
-      +'<span class="si-cat '+item.category+'">'+item.category+'</span>'
-      +'<span class="si-icon">'+item.icon+'</span>'
-      +'<div class="si-name">'+(_itemName(item.code)||item.name)+'</div>'
-      +'<div class="si-desc">'+(_itemDesc(item.code)||item.description)+'</div>'
-      +'<div class="si-effect">'+durTxt+(item.effect_value?' · '+item.effect_value+(item.category==='defense'?tl('% absorb','% 흡수','% 吸収','% 吸收'):item.code==='attack_boost'?tl('% boost','% 강화','% 強化','% 提升'):tl('x effect','x 효과','x 効果','x 效果')):'')+'</div>'
+    return '<div class="shop-item-card eco-item-card" data-code="'+_ecoEsc(item.code)+'">'
+      +'<span class="si-cat">'+_ecoEsc(item.category)+'</span>'
+      +'<span class="si-icon">'+_ecoCardArt(item,96)+'</span>'
+      +'<div class="si-name">'+_ecoEsc(_itemName(item.code)||item.name)+'</div>'
+      +'<div class="si-desc">'+_ecoEsc(_itemDesc(item.code)||item.description)+'</div>'
+      +'<div class="si-effect">'+durTxt+(item.effect_value?' · '+_ecoNum(item.effect_value)+(item.category==='defense'?tl('% absorb','% 흡수','% 吸収','% 吸收'):item.code==='attack_boost'?tl('% boost','% 강화','% 強化','% 提升'):tl('x effect','x 효과','x 効果','x 效果')):'')+'</div>'
       +'<div class="si-prices">'
-      +'<span class="si-price pp" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'PP\')">'+parseFloat(item.price_pp).toFixed(1)+' PP</span>'
-      +'<span class="si-price usdt" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'USDT\')">'+parseFloat(item.price_usdt).toFixed(1)+' USDT</span>'
+      +'<button type="button" class="si-price pp" onclick="event.stopPropagation();buyShopItem(\''+_ecoInline(item.code)+'\',\'PP\')">'+parseFloat(item.price_pp).toFixed(1)+' PP</button>'
+      +'<button type="button" class="si-price usdt" onclick="event.stopPropagation();buyShopItem(\''+_ecoInline(item.code)+'\',\'USDT\')">'+parseFloat(item.price_usdt).toFixed(1)+' USDT</button>'
       +gpBtn
       +'</div>'
-      +(ownedQty>0?'<div class="si-owned">'+tl('Owned','보유','所持','拥有')+': '+ownedQty+'/'+item.max_stack+'</div>':'<div class="si-qty">'+tl('Max','최대','最大','上限')+': '+item.max_stack+'</div>')
+      +(ownedQty>0?'<div class="si-owned">'+tl('Owned','보유','所持','拥有')+': '+_ecoNum(ownedQty)+'/'+_ecoNum(item.max_stack)+'</div>':'<div class="si-qty">'+tl('Max','최대','最大','上限')+': '+_ecoNum(item.max_stack)+'</div>')
       +'</div>';
   }).join('');
 }
@@ -280,7 +304,7 @@ function renderShopInventory(){
     if (!inv) return;
     _shopInventory=inv;
     var badge=document.getElementById('shopInvCount');
-    var total=inv.reduce(function(s,i){return s+i.quantity},0);
+    var total=inv.reduce(function(s,i){return s+_ecoNum(i.quantity)},0);
     if(total>0){badge.textContent=total;badge.style.display='';}else{badge.style.display='none';}
     if(inv.length===0){
       list.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--tx3);font-size:var(--fs-sm)">'+tl('No items yet. Visit the shop!','아직 아이템이 없습니다. 상점을 방문하세요!','まだアイテムがありません。ショップをご覧ください！','暂无物品，去商店看看吧！')+'</div>';
@@ -289,17 +313,17 @@ function renderShopInventory(){
     list.innerHTML=inv.map(function(item){
       var needsClaim=item.code.indexOf('shield')===0||item.code==='emp_strike'||item.code==='orbital_strike'||item.code==='virus_payload'||item.code==='decoy_beacon';
       var isCosmetic=item.category==='cosmetic';
-      return '<div class="inv-item">'
-        +'<span class="inv-icon">'+item.icon+'</span>'
+      return '<div class="inv-item eco-item-row">'
+        +'<span class="inv-icon">'+_ecoCardArt(item,64)+'</span>'
         +'<div class="inv-info">'
-        +'<div class="inv-name">'+(_itemName(item.code)||item.name)+'</div>'
-        +'<div class="inv-qty">×'+item.quantity+'</div>'
+        +'<div class="inv-name">'+_ecoEsc(_itemName(item.code)||item.name)+'</div>'
+        +'<div class="inv-qty">×'+_ecoNum(item.quantity)+'</div>'
         +'</div>'
         +(isCosmetic
           ?'<button class="inv-use" style="color:#c088e0;border-color:rgba(180,100,255,.3)" onclick="closeItemShop();showToast(\'Select your territory then click CUSTOMIZE\')">'+tl('EQUIP ON LAND','영토에 장착','領地に装着','装备到领地')+'</button>'
           :needsClaim
-          ?'<button class="inv-use" onclick="useShopItem(\''+item.code+'\',true)">'+tl('USE ON LAND','영토에 사용','領地で使用','在领地使用')+'</button>'
-          :'<button class="inv-use" onclick="useShopItem(\''+item.code+'\',false)">'+tl('USE','사용','使用','使用')+'</button>')
+          ?'<button class="inv-use" onclick="useShopItem(\''+_ecoInline(item.code)+'\',true)">'+tl('USE ON LAND','영토에 사용','領地で使用','在领地使用')+'</button>'
+          :'<button class="inv-use" onclick="useShopItem(\''+_ecoInline(item.code)+'\',false)">'+tl('USE','사용','使用','使用')+'</button>')
         +'</div>';
     }).join('');
   }).catch(function(){list.innerHTML='<div style="text-align:center;color:var(--red);font-size:var(--fs-sm)">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>'});
@@ -310,8 +334,8 @@ function renderShopInventory(){
   if(_activeEffects.length>0){
     actSec.style.display='';
     actList.innerHTML=_activeEffects.map(function(e){
-      var info=_effectIcon(e)+' <b>'+(_itemName(e.effect_type)||e.name)+'</b> — ';
-      if(e.uses_remaining!==null) info+=e.uses_remaining+' '+tl('uses left','회 남음','回残り','次剩余');
+      var info=_effectIcon(e)+' <b>'+_ecoEsc(_itemName(e.effect_type)||e.name)+'</b> — ';
+      if(e.uses_remaining!==null) info+=_ecoNum(e.uses_remaining)+' '+tl('uses left','회 남음','回残り','次剩余');
       else if(_effectExpiryMs(e)!=null){
         var mins=Math.max(0,Math.round((_effectExpiryMs(e)-Date.now())/60000));
         info+=(mins>60?Math.floor(mins/60)+'h '+mins%60+'m':mins+'m')+' '+tl('left','남음','残り','剩余');
@@ -322,7 +346,7 @@ function renderShopInventory(){
         var isOn=e.auto_renew===true;
         renewHTML='<div style="margin-top:4px;display:flex;align-items:center;gap:6px">'
           +'<span style="font-size:8px;color:var(--tx3)">'+tl('AUTO-RENEW','자동 갱신','自動更新','自动续期')+' ('+parseFloat(e.price_pp).toFixed(1)+' PP)</span>'
-          +'<button onclick="toggleAutoRenew(\'effect\','+e.id+','+isOn+')" style="font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid '+(isOn?'rgba(76,216,154,.4)':'rgba(255,255,255,.15)')+';background:'+(isOn?'rgba(76,216,154,.15)':'rgba(255,255,255,.05)')+';color:'+(isOn?'var(--gn)':'var(--tx3)')+';cursor:pointer;font-family:var(--fn)">'+(isOn?tl('ON','켜짐','オン','开'):tl('OFF','꺼짐','オフ','关'))+'</button>'
+          +'<button onclick="toggleAutoRenew(\'effect\','+_ecoNum(e.id)+','+isOn+')" style="font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid '+(isOn?'rgba(76,216,154,.4)':'rgba(255,255,255,.15)')+';background:'+(isOn?'rgba(76,216,154,.15)':'rgba(255,255,255,.05)')+';color:'+(isOn?'var(--gn)':'var(--tx3)')+';cursor:pointer;font-family:var(--fn)">'+(isOn?tl('ON','켜짐','オン','开'):tl('OFF','꺼짐','オフ','关'))+'</button>'
           +'</div>';
       }
       return '<div style="padding:6px 10px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:8px;font-size:var(--fs-xs);color:var(--gold);font-family:var(--fn)">'+info+renewHTML+'</div>';
@@ -330,7 +354,56 @@ function renderShopInventory(){
   }else{actSec.style.display='none';}
 }
 
+function closeShopPurchaseReceipt(){var modal=document.getElementById('shopPurchaseReceipt');if(modal)modal.remove();}
+function shopReceiptInventory(){closeShopPurchaseReceipt();openMyItems();}
+function shopReceiptCosmetic(){
+  closeShopPurchaseReceipt();
+  var plot=typeof selectedPlot!=='undefined'?selectedPlot:null;
+  var wallet=String(walletState&&walletState.address||'').toLowerCase();
+  if(plot&&String(plot.owner||'').toLowerCase()===wallet&&typeof openCosmeticPanel==='function'){
+    try{closeBaseModal();}catch(_){}
+    var panel=document.getElementById('cosmeticPanel');if(panel)panel.style.display='none';
+    openCosmeticPanel(plot);return;
+  }
+  try{closeBaseModal();}catch(_){}
+  if(typeof toggleMyLand==='function')toggleMyLand();
+  showToast(tl('Select your territory, then open CUSTOMIZE to equip this cosmetic.','내 영토를 선택하고 꾸미기를 열어 코스메틱을 장착하세요.','自分の領地を選び、カスタマイズで装備してください。','选择自己的领地，并打开装饰面板进行装备。'),'info');
+}
+function showShopPurchaseReceipt(receipt,item){
+  // This modal is created only after the server has committed a real purchase.
+  if(!receipt||receipt.success!==true||receipt.transactionId==null)return;
+  closeShopPurchaseReceipt();
+  var modal=document.createElement('div');modal.id='shopPurchaseReceipt';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','shopReceiptHeading');
+  modal.style.cssText='position:fixed;inset:0;z-index:100010;padding:16px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:rgba(13,11,20,.94);backdrop-filter:blur(5px)';
+  var code=receipt.itemCode||item.code||item.item_code;
+  var name=_itemName(code)||receipt.item||item.name||code;
+  var currency=String(receipt.currency||'');
+  var cosmetic=receipt.category==='cosmetic';
+  var balance=receipt.balance!=null?receipt.balance:currency==='GP'?receipt.gpBalance:currency==='PP'?receipt.ppBalance:receipt.usdtBalance;
+  var row=function(label,value){return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;overflow-wrap:anywhere"><span style="color:var(--tx3)">'+_ecoEsc(label)+'</span><strong style="text-align:right">'+_ecoEsc(value)+'</strong></div>';};
+  modal.innerHTML='<div class="eco-item-card" style="width:min(400px,100%);max-height:90vh;overflow:auto;padding:18px;display:flex;flex-direction:column;border:1px solid var(--bdr2)">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h3 id="shopReceiptHeading" style="font-size:16px;color:var(--gold);margin:0">'+_ecoEsc(tl('Purchase complete','구매 완료','購入完了','购买完成'))+'</h3><button type="button" onclick="closeShopPurchaseReceipt()" aria-label="'+_ecoEsc(tl('Close','닫기','閉じる','关闭'))+'" style="background:none;border:1px solid var(--bdr2);border-radius:7px;color:var(--tx);font-size:16px;cursor:pointer">×</button></div>'
+    +'<div class="eco-confirm-art">'+_ecoArt(code,112,name)+'</div>'
+    +'<strong class="eco-item-title" style="text-align:center">'+_ecoEsc(name)+'</strong>'
+    +'<div style="font-size:12px">'
+    +row(tl('Purchased quantity','구매 수량','購入数量','购买数量'),_ecoNum(receipt.quantity))
+    +(receipt.unitCost!=null?row(tl('Unit price','단가','単価','单价'),String(receipt.unitCost)+' '+currency):'')
+    +row(tl('Total paid','실제 결제','支払額','实际支付'),String(receipt.cost)+' '+currency)
+    +(balance!=null&&Number.isFinite(Number(balance))?row(tl('Balance after purchase','구매 후 잔액','購入後の残高','购买后余额'),String(balance)+' '+currency):'')
+    +(receipt.inventoryQuantity!=null?row(tl('Owned quantity','현재 보유','所持数量','当前持有'),_ecoNum(receipt.inventoryQuantity)):'')
+    +row(tl('Transaction','거래 번호','取引番号','交易编号'),'#'+receipt.transactionId)+'</div>'
+    +(cosmetic?'<div style="font-size:11px;line-height:1.6;color:var(--tx2)">'+_ecoEsc(tl('The cosmetic is in your inventory. Equip it on a territory you own.','코스메틱이 인벤토리에 지급됐습니다. 내 영토의 꾸미기에서 장착하세요.','コスメはインベントリに入りました。所有領地で装備できます。','装饰已发放至背包，可装备到自己的领地。'))+'</div>':'')
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" onclick="shopReceiptInventory()" style="flex:1;padding:10px;border-radius:7px;border:1px solid var(--mars);background:rgba(255,120,64,.14);color:var(--tx);font-family:var(--fn);cursor:pointer">'+_ecoEsc(tl('OPEN INVENTORY','인벤토리 열기','インベントリ','打开背包'))+'</button>'
+    +(cosmetic?'<button type="button" onclick="shopReceiptCosmetic()" style="flex:1;padding:10px;border-radius:7px;border:1px solid rgba(184,136,224,.5);background:rgba(184,136,224,.14);color:#caa8ff;font-family:var(--fn);cursor:pointer">'+_ecoEsc(tl('EQUIP ON LAND','내 영토에 장착','領地に装備','装备到领地'))+'</button>':'')+'</div></div>';
+  modal.addEventListener('click',function(event){if(event.target===modal)closeShopPurchaseReceipt();});
+  modal.addEventListener('keydown',function(event){if(event.key==='Escape')closeShopPurchaseReceipt();});
+  document.body.appendChild(modal);
+  var close=modal.querySelector('button');if(close)close.focus();
+}
+
+var _shopPurchaseBusy=false;
 function buyShopItem(code,currency){
+  if(_shopPurchaseBusy)return;
   try{_sfx.click()}catch(e){}
   if(!walletState||!walletState.address){showToast(tl('Connect wallet first','먼저 지갑을 연결하세요','まずウォレットを接続してください','请先连接钱包'),'error');return;}
   var w=walletState.address;
@@ -342,15 +415,17 @@ function buyShopItem(code,currency){
   if(currency==='USDT') price=parseFloat(item.price_usdt).toFixed(1)+' USDT';
   else if(currency==='GP') price=parseFloat(item.price_gp||0).toFixed(0)+' GP';
   else price=parseFloat(item.price_pp).toFixed(1)+' PP';
-  shopConfirm(item.icon||'🛒',tl('Purchase Item','아이템 구매','アイテム購入','购买物品'),
-    '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+(_itemName(code)||item.name)+'</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+price+'</div>',tl('BUY NOW','지금 구매','今すぐ購入','立即购买')
+  _shopPurchaseBusy=true;
+  shopConfirm('🛒',tl('Purchase Item','아이템 구매','アイテム購入','购买物品'),
+    '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+_ecoEsc(_itemName(code)||item.name)+'</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+price+'</div>',tl('BUY NOW','지금 구매','今すぐ購入','立即购买'),code
   ).then(function(ok){
     if(!ok)return;
-    fetch('/api/shop/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
+    return fetch('/api/shop/buy',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
       body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
     }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(srvErr(d.error),'error');try{_sfx.error()}catch(e){}return;}
+      if(d.error||d.success!==true){showToast(srvErr(d.error||'Purchase not confirmed'),'error');try{_sfx.error()}catch(e){}return;}
+      showShopPurchaseReceipt(d,item);
       showToast(tl('Purchased','구매 완료','購入完了','已购买')+' '+(_itemName(code)||item.name)+'!','success');
       try{trackQuestAction('buy_item',1)}catch(e){}
       try{_sfx.purchase()}catch(e){}
@@ -365,7 +440,7 @@ function buyShopItem(code,currency){
       // Also refresh inventory view inside BASE shop
       try{ if(typeof loadBaseInventory==='function') loadBaseInventory(); }catch(_){}
     }).catch(function(e){showToast(tl('Purchase failed','구매 실패','購入失敗','购买失败'),'error')});
-  });
+  }).finally(function(){_shopPurchaseBusy=false;});
 }
 
 function useShopItem(code,needsClaim){
@@ -394,9 +469,9 @@ function useShopItem(code,needsClaim){
     }
   }else{
     var invItem=_shopInventory.find(function(i){return i.code===code});
-    shopConfirm(invItem?invItem.icon:'⚡',tl('Use Item','아이템 사용','アイテム使用','使用物品'),
-      '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+(_itemName(code)||(invItem?invItem.name:code))+'</div>'
-      +'<div style="font-size:var(--fs-xs);color:var(--tx3)">'+tl('This will activate immediately','즉시 활성화됩니다','すぐに有効化されます','将立即生效')+'</div>',tl('USE NOW','지금 사용','今すぐ使用','立即使用')
+    shopConfirm('⚡',tl('Use Item','아이템 사용','アイテム使用','使用物品'),
+      '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+_ecoEsc(_itemName(code)||(invItem?invItem.name:code))+'</div>'
+      +'<div style="font-size:var(--fs-xs);color:var(--tx3)">'+tl('This will activate immediately','즉시 활성화됩니다','すぐに有効化されます','将立即生效')+'</div>',tl('USE NOW','지금 사용','今すぐ使用','立即使用'),code
     ).then(function(ok){
       if(!ok)return;
       _doUseItem(w,code,null);
@@ -534,25 +609,25 @@ function _doUseItem(w,code,claimId){
     try{trackQuestAction('use_item',1)}catch(e){}
     try{code.indexOf('shield')===0?_sfx.shield():_sfx.purchase()}catch(e){}
     // Visual feedback based on item type
-    if(code.indexOf('shield')===0&&claimId) _showItemEffect('shield',claimId);
-    else if(code==='emp_strike'&&claimId) _showItemEffect('emp',claimId);
-    else if(code==='stealth_cloak') _showItemEffect('stealth',null);
-    else if(code==='radar_scan') _showItemEffect('radar',null);
-    else if(code==='attack_boost') _showItemEffect('boost',null);
-    else if(code==='pixel_doubler') _showItemEffect('doubler',null);
-    else if(code==='mining_boost') _showItemEffect('mining',null);
-    else if(code==='orbital_strike'&&claimId) _showItemEffect('emp',claimId);
-    else if(code==='virus_payload'&&claimId) _showItemEffect('emp',claimId);
-    else if(code==='siege_ram') _showItemEffect('boost',null);
-    else if(code==='supply_crate') _showItemEffect('mining',null);
-    else if(code==='harvest_surge') _showItemEffect('mining',null);
-    else if(code==='xp_amplifier') _showItemEffect('boost',null);
-    else if(code==='gp_generator') _showItemEffect('boost',null);
-    else if(code==='lucky_charm') _showItemEffect('boost',null);
-    else if(code==='recall_beacon') _showItemEffect('radar',null);
-    else if(code==='territory_scan'){ _showItemEffect('radar',null); _showTerritoryScanResult(d.effect&&d.effect.scan); }
-    else if(code==='decoy_beacon') _showItemEffect('stealth',null);
-    else if(code==='shield_regen'&&claimId) _showItemEffect('shield',claimId);
+    if(code.indexOf('shield')===0&&claimId) _showItemEffect('shield',claimId,code);
+    else if(code==='emp_strike'&&claimId) _showItemEffect('emp',claimId,code);
+    else if(code==='stealth_cloak') _showItemEffect('stealth',null,code);
+    else if(code==='radar_scan') _showItemEffect('radar',null,code);
+    else if(code==='attack_boost') _showItemEffect('boost',null,code);
+    else if(code==='pixel_doubler') _showItemEffect('doubler',null,code);
+    else if(code==='mining_boost') _showItemEffect('mining',null,code);
+    else if(code==='orbital_strike'&&claimId) _showItemEffect('emp',claimId,code);
+    else if(code==='virus_payload'&&claimId) _showItemEffect('emp',claimId,code);
+    else if(code==='siege_ram') _showItemEffect('boost',null,code);
+    else if(code==='supply_crate') _showItemEffect('mining',null,code);
+    else if(code==='harvest_surge') _showItemEffect('mining',null,code);
+    else if(code==='xp_amplifier') _showItemEffect('boost',null,code);
+    else if(code==='gp_generator') _showItemEffect('boost',null,code);
+    else if(code==='lucky_charm') _showItemEffect('boost',null,code);
+    else if(code==='recall_beacon') _showItemEffect('radar',null,code);
+    else if(code==='territory_scan'){ _showItemEffect('radar',null,code); _showTerritoryScanResult(d.effect&&d.effect.scan); }
+    else if(code==='decoy_beacon') _showItemEffect('stealth',null,code);
+    else if(code==='shield_regen'&&claimId) _showItemEffect('shield',claimId,code);
     Promise.resolve(loadActiveEffects()).then(function(){
       renderShopInventory();
       try{ if(typeof loadBaseInventory==='function')loadBaseInventory(); }catch(_){}
@@ -571,7 +646,7 @@ function _doUseItem(w,code,claimId){
   }).catch(function(e){showToast(tl('Failed to use item','아이템 사용 실패','アイテムの使用に失敗','物品使用失败'),'error')});
 }
 // Visual effect overlay when using items
-function _showItemEffect(type,claimId){
+function _showItemEffect(type,claimId,itemCode){
   document.querySelectorAll('.item-effect-overlay').forEach(function(el){el.remove();});
   var overlay=document.createElement('div');
   overlay.className='item-effect-overlay';
@@ -583,7 +658,8 @@ function _showItemEffect(type,claimId){
   else if(type==='boost'){icon='🔥';color='#FF8800';label=tl('ATTACK BOOSTED','공격력 강화','攻撃力強化','攻击已强化');}
   else if(type==='doubler'){icon='✨';color='#FFD166';label=tl('PIXEL DOUBLER ON','픽셀 2배 활성','ピクセル2倍起動','像素翻倍开启');}
   else if(type==='mining'){icon='⛏️';color='#88DDFF';label=tl('MINING BOOST ON','채굴 부스트 활성','採掘ブースト起動','采矿加成开启');}
-  overlay.innerHTML='<div class="effect-icon">'+icon+'</div><div class="effect-label">'+label+'</div>';
+  var effectCode=itemCode||{shield:'shield_basic',emp:'emp_strike',stealth:'stealth_cloak',radar:'radar_scan',boost:'attack_boost',doubler:'pixel_doubler',mining:'mining_boost'}[type]||'';
+  overlay.innerHTML='<div class="effect-icon">'+_ecoArt(effectCode,128,label)+'</div><div class="effect-label">'+_ecoEsc(label)+'</div>';
   overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);pointer-events:none;animation:effectFadeOut 1.8s ease-out forwards';
   overlay.querySelector('.effect-icon').style.cssText='font-size:64px;animation:effectPop 0.4s ease-out';
   overlay.querySelector('.effect-label').style.cssText='font-size:24px;font-weight:800;letter-spacing:2px;margin-top:12px;color:'+color+';text-shadow:0 0 20px '+color;
@@ -766,7 +842,7 @@ function renderBaseShop(){
     var price = parseFloat(it.price_pp||0);
     var usdtPrice = parseFloat(it.price_usdt||0);
     var gpPrice = parseFloat(it.price_gp||0);
-    var code = (it.code||it.item_code||'').replace(/'/g,"\\'");
+    var code = _ecoInline(it.code||it.item_code||'');
     var _bs='font-size:8px;font-weight:700;padding:3px 6px;border-radius:4px;cursor:pointer;font-family:var(--fn);flex:1;text-align:center;white-space:nowrap;';
     var ppBtn = price>0
       ? '<button onclick="buyShopItem(\''+code+'\',\'PP\')" style="'+_bs+'border:1px solid rgba(176,136,224,.45);background:rgba(176,136,224,.12);color:#c088e0">'+price.toFixed(1)+' PP</button>'
@@ -777,12 +853,13 @@ function renderBaseShop(){
     var gpBtn = gpPrice>0
       ? '<button onclick="buyShopItem(\''+code+'\',\'GP\')" style="'+_bs+'border:none;background:linear-gradient(135deg,#FFD166,#FF9030);color:#000">'+gpPrice.toFixed(0)+' GP</button>'
       : '';
-    return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+    return '<div class="eco-item-card" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+      +_ecoCardArt(it,88)
       +'<div style="display:flex;justify-content:space-between;align-items:center">'
-      +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+ ' ' +(_itemName(it.code||it.item_code)||it.name||it.item_code)+'</span>'
-      +'<span style="font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--tx3)">'+(it.category||'')+'</span>'
+      +'<span class="eco-item-title" style="font-size:10px;font-weight:700;color:'+c+'">'+_ecoEsc(_itemName(it.code||it.item_code)||it.name||it.item_code)+'</span>'
+      +'<span style="font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--tx3)">'+_ecoEsc(it.category)+'</span>'
       +'</div>'
-      +'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+(_itemDesc(it.code||it.item_code)||it.description||'')+'</div>'
+      +'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+_ecoEsc(_itemDesc(it.code||it.item_code)||it.description)+'</div>'
       +'<div style="display:flex;gap:3px;align-items:center;margin-top:auto">'
       +ppBtn+usdtBtn+gpBtn
       +'</div></div>';
@@ -1002,7 +1079,12 @@ function loadCraftingView(){
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px" data-i18n="loading">Loading…</div>';
   var url='/api/crafting/recipes';
   if(_craftingCatFilter&&_craftingCatFilter!=='all') url+='?category='+encodeURIComponent(_craftingCatFilter);
-  _economyReadFetch('crafting-recipes:' + (_craftingCatFilter || 'all'), url, true, 15000).then(function(recipes){
+  Promise.all([
+    _economyReadFetch('crafting-recipes:' + (_craftingCatFilter || 'all'), url, true, 15000),
+    _baseShopItems.length||_shopItems.length ? Promise.resolve(null) : _economyReadFetch('craft-art-catalog','/api/shop/items',false,15000).catch(function(){return null;})
+  ]).then(function(result){
+    var recipes=result[0];
+    if(Array.isArray(result[1])) _shopItems=result[1];
     if (!recipes) {
       grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">'+tl('Please wait a moment.','잠시만 기다려 주세요.','少々お待ちください。','请稍候。')+'</div>';
       return;
@@ -1041,26 +1123,27 @@ function renderCraftingGrid(){
   grid.innerHTML=_craftingRecipes.map(function(r){
     var canCraft=!!r.canCraft;
     var ingText=(r.ingredients||[]).map(function(i){
-      return (i.item_name||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id))+' ×'+i.qty;
-    }).join(', ')||'—';
+      return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 5px 2px 0">'+_ecoArt(_ecoItemCode(i),28,i.item_name)+' '+_ecoEsc(i.item_name||_itemName(_ecoItemCode(i))||i.code||i.resource_code||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id))+' ×'+_ecoNum(i.qty)+'</span>';
+    }).join('')||'—';
     var costText=Number(r.gp_cost)>0?(Number(r.gp_cost).toFixed(0)+' GP'):tl('Free','무료','無料','免费');
-    var rateText=r.success_rate+'%';
+    var rateText=_ecoNum(r.success_rate)+'%';
     var seasonBadge=r.is_seasonal?'<span style="font-size:8px;background:rgba(255,183,77,.2);color:#ffb74d;border:1px solid rgba(255,183,77,.3);border-radius:8px;padding:1px 5px;margin-left:3px">'+tl('SEASONAL','시즌 한정','シーズン限定','季节限定')+'</span>':'';
-    var catBadge=r.category!=='general'?'<span style="font-size:8px;background:rgba(160,232,160,.1);color:#a0e8a0;border:1px solid rgba(160,232,160,.2);border-radius:8px;padding:1px 5px;margin-left:3px">'+r.category.toUpperCase()+'</span>':'';
+    var catBadge=r.category!=='general'?'<span style="font-size:8px;background:rgba(160,232,160,.1);color:#a0e8a0;border:1px solid rgba(160,232,160,.2);border-radius:8px;padding:1px 5px;margin-left:3px">'+_ecoEsc(String(r.category||'').toUpperCase())+'</span>':'';
     var btnStyle=canCraft
       ?'cursor:pointer;background:rgba(160,232,160,.2);border:1px solid rgba(160,232,160,.5);color:#a0e8a0'
       :'cursor:not-allowed;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--tx3);opacity:.6';
-    return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(160,232,160,'+(canCraft?'.2':'.07')+');border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
-      +'<div style="font-size:11px;font-weight:700;color:#a0e8a0">⚗️ '+_escHtml(r.output_name||r.name)+' ×'+r.output_qty+'</div>'
+    return '<div class="eco-item-card" style="background:rgba(255,255,255,.03);border:1px solid rgba(160,232,160,'+(canCraft?'.2':'.07')+');border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
+      +_ecoCardArt(r,88)
+      +'<div class="eco-item-title" style="font-size:11px;font-weight:700;color:#a0e8a0">'+_escHtml(r.output_name||r.name)+' ×'+_ecoNum(r.output_qty)+'</div>'
       +(r.description?'<div style="font-size:9px;color:var(--tx3)">'+_escHtml(r.description)+'</div>':'')
       +'<div style="font-size:9px;color:#888">'+seasonBadge+catBadge+'</div>'
-      +'<div style="font-size:9px;color:var(--tx3)"><b style="color:#888">'+tl('Need','필요','必要','需要')+':</b> '+_escHtml(ingText)+'</div>'
+      +'<div style="font-size:9px;color:var(--tx3)"><b style="color:#888">'+tl('Need','필요','必要','需要')+':</b> '+ingText+'</div>'
       +'<div style="display:flex;justify-content:space-between;font-size:9px">'
         +'<span style="color:var(--gold)">'+costText+'</span>'
         +'<span style="color:'+(Number(r.success_rate)>=80?'#a0e8a0':'#ffb74d')+'">'+rateText+' '+tl('success','성공률','成功率','成功率')+'</span>'
       +'</div>'
-      +(Number(r.fail_refund_pct)>0?'<div style="font-size:9px;color:#888">'+tl('Fail refund','실패 환급','失敗返金','失败返还')+': '+r.fail_refund_pct+'%</div>':'')
-      +'<button onclick="attemptCraft('+r.id+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'" data-i18n="craft_btn">⚗️ CRAFT</button>'
+      +(Number(r.fail_refund_pct)>0?'<div style="font-size:9px;color:#888">'+tl('Fail refund','실패 환급','失敗返金','失败返还')+': '+_ecoNum(r.fail_refund_pct)+'%</div>':'')
+      +'<button onclick="attemptCraft('+_ecoNum(r.id)+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'" data-i18n="craft_btn">⚗️ CRAFT</button>'
       +'</div>';
   }).join('');
 }
@@ -1074,12 +1157,12 @@ function attemptCraft(recipeId){
 
   var gpCost=Number(recipe.gp_cost);
   var ingList=(recipe.ingredients||[]).map(function(i){
-    return '• '+(i.item_name||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id))+' ×'+i.qty;
+    return '• '+(i.item_name||_itemName(_ecoItemCode(i))||i.code||i.resource_code||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id))+' ×'+_ecoNum(i.qty);
   }).join('\n');
   var confirmMsg=t('craft_confirm_title')||(tl('Craft','제작','クラフト','制作')+': '+recipe.output_name);
   var subMsg=(ingList?ingList+'\n':'')+(gpCost>0?tl('Cost','비용','コスト','花费')+': '+gpCost+' GP\n':'')+tl('Success','성공률','成功率','成功率')+': '+recipe.success_rate+'%';
 
-  gameConfirm({icon:'⚗️', title:confirmMsg, body:subMsg.replace(/\n/g,'<br>'), confirmText:tl('CRAFT','제작','クラフト','制作')}).then(function(ok){
+  gameConfirm({icon:'⚗️', title:confirmMsg, body:'<div class="eco-confirm-art">'+_ecoCardArt(recipe,96)+'</div>'+_ecoEsc(subMsg).replace(/\n/g,'<br>'), confirmText:tl('CRAFT','제작','クラフト','制作')}).then(function(ok){
     if(!ok) return;
     var btn=document.querySelector('[onclick="attemptCraft('+recipeId+')"]');
     if(btn){ btn.disabled=true; btn.textContent=tl('Crafting…','제작 중…','クラフト中…','制作中…'); }
@@ -1151,7 +1234,7 @@ function loadCraftHistory(){
     });
 }
 
-function _escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _escHtml(s){ return _ecoEsc(s); }
 // Global aliases used across the codebase
 var escHtml = _escHtml;
 window.escHtml = _escHtml;
@@ -1211,15 +1294,16 @@ function renderBaseInventory(){
   // Active effects bar
   if(_activeEffects&&_activeEffects.length>0){
     var effHTML=_activeEffects.map(function(e){
-      var info=_effectIcon(e)+' <b>'+(_itemName(e.effect_type)||e.name)+'</b>';
+      var info=_effectIcon(e)+' <b>'+_ecoEsc(_itemName(e.effect_type)||e.name)+'</b>';
       var remaining=_formatEffectRemaining(e);
-      if(remaining) info+=' · '+remaining;
+      if(remaining) info+=' · '+_ecoEsc(remaining);
       return '<span style="display:inline-block;padding:4px 8px;margin:0 4px 4px 0;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.25);border-radius:6px;font-size:9px;color:var(--gold);font-family:var(--fn)">'+info+'</span>';
     }).join('');
     parts.push('<div style="grid-column:1/-1;padding:6px;background:rgba(255,255,255,.02);border-radius:6px"><div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px">'+tl('ACTIVE EFFECTS','활성 효과','有効効果','生效中效果')+'</div>'+effHTML+'</div>');
   }
   var resWithQty=(_resourceInventory||[]).filter(function(r){return r.quantity>0});
-  if((!_baseInventory||_baseInventory.length===0)&&!resWithQty.length){
+  var hasCosmeticInstances=(_enhInstances||[]).some(function(i){return i.category==='cosmetic';});
+  if((!_baseInventory||_baseInventory.length===0)&&!resWithQty.length&&!hasCosmeticInstances){
     parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+tl('No items or resources yet. Harvest territory or buy items from the shop.','아직 보유 아이템/재료가 없습니다. 영토를 채굴하거나 상점에서 아이템을 구매하세요.','アイテム/素材がまだありません。領地採掘またはショップ購入を行ってください。','暂无物品或资源。请采集领地或在商店购买。')+'</div>');
     var emptyHtml=parts.join('');
     if(grid)grid.innerHTML=emptyHtml;
@@ -1239,39 +1323,40 @@ function renderBaseInventory(){
   // 여기서 return 하지 않는다.
   var catFilter=_baseInvCat||'all';
   var visibleCats=catFilter==='all'?catOrder:[catFilter];
-  var hasAny=visibleCats.some(function(c){return grouped[c]&&grouped[c].length;});
+  var hasAny=visibleCats.some(function(c){return (grouped[c]&&grouped[c].length)||(c==='cosmetic'&&hasCosmeticInstances);});
   if(!hasAny){
     parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(LANG==='ko'?'이 카테고리에 보유 아이템이 없습니다':LANG==='ja'?'このカテゴリにアイテムがありません':LANG==='zh'?'此分类下没有物品':'No items in this category')+'</div>');
   }
   visibleCats.forEach(function(cat){
-    var items=grouped[cat]; if(!items||!items.length) return;
+    var items=grouped[cat]||[]; if(!items.length&&!(cat==='cosmetic'&&hasCosmeticInstances)) return;
     var c=catColors[cat]||'var(--tx2)';
     // 전체 뷰에서만 카테고리 헤더 표시
     if(catFilter==='all'){
       parts.push('<div style="grid-column:1/-1;margin-top:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:6px">'
-        +'<span style="font-size:10px;font-weight:800;color:'+c+';letter-spacing:1px">'+(catLabels[cat]||cat.toUpperCase())+'</span>'
+        +'<span style="font-size:10px;font-weight:800;color:'+c+';letter-spacing:1px">'+_ecoEsc(catLabels[cat]||cat.toUpperCase())+'</span>'
         +'<span style="font-size:9px;color:var(--tx3)">('+items.length+')</span>'
         +'</div>');
     }
     items.forEach(function(it){
-      var code=(it.code||'').replace(/'/g,"\\'");
+      var code=_ecoInline(it.code||'');
       var needsClaim=code.indexOf('shield')===0||code==='emp_strike'||code==='orbital_strike'||code==='virus_payload'||code==='decoy_beacon';
       var isCosmetic=cat==='cosmetic';
       var useBtn;
       if(isCosmetic){
         useBtn='<button onclick="showToast(\'Select your territory then click CUSTOMIZE\',\'info\')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(192,136,224,.45);background:rgba(192,136,224,.12);color:#c088e0;cursor:pointer;font-family:var(--fn)">'+tl('EQUIP ON LAND','영토에 장착','領地に装着','装备到领地')+'</button>';
-        useBtn+=' <button onclick="materializeItem('+it.item_type_id+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)" title="'+(t('enh_materialize_tip')||'Convert to individual item for enhancement')+'">🔨 '+(t('enh_enhance')||'ENHANCE')+'</button>';
+        useBtn+=' <button onclick="materializeItem('+_ecoNum(it.item_type_id)+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)" title="'+_ecoEsc(t('enh_materialize_tip')||'Convert to individual item for enhancement')+'">🔨 '+(t('enh_enhance')||'ENHANCE')+'</button>';
       }else if(needsClaim){
         useBtn='<button onclick="useShopItem(\''+code+'\',true)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.45);background:rgba(255,120,60,.12);color:var(--mars);cursor:pointer;font-family:var(--fn)">'+tl('USE ON LAND','영토에 사용','領地で使用','在领地使用')+'</button>';
       }else{
         useBtn='<button onclick="useShopItem(\''+code+'\',false)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:var(--gn);cursor:pointer;font-family:var(--fn)">'+tl('USE','사용','使用','使用')+'</button>';
       }
-      parts.push('<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+      parts.push('<div class="eco-item-card" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+        +_ecoCardArt(it,88)
         +'<div style="display:flex;justify-content:space-between;align-items:center">'
-        +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+' '+(_itemName(it.code)||it.name||it.code)+'</span>'
-        +'<span style="font-size:9px;color:var(--gold);font-weight:700">×'+it.quantity+'</span>'
+        +'<span class="eco-item-title" style="font-size:10px;font-weight:700;color:'+c+'">'+_ecoEsc(_itemName(it.code)||it.name||it.code)+'</span>'
+        +'<span style="font-size:9px;color:var(--gold);font-weight:700">×'+_ecoNum(it.quantity)+'</span>'
         +'</div>'
-        +(function(){var d=_itemDesc(it.code)||it.description;return d?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+d+'</div>':'';})()
+        +(function(){var d=_itemDesc(it.code)||it.description;return d?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+_ecoEsc(d)+'</div>':'';})()
         +'<div style="display:flex;justify-content:flex-end;gap:4px;margin-top:auto;flex-wrap:wrap">'+useBtn+'</div>'
         +'</div>');
     });
@@ -1282,16 +1367,16 @@ function renderBaseInventory(){
         parts.push('<div style="grid-column:1/-1;margin-top:6px;padding:6px 8px;background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.12);border-radius:6px">'
           +'<div style="font-size:9px;color:var(--gold);font-weight:800;letter-spacing:.5px;margin-bottom:6px">🔨 '+(t('enh_workshop')||'ENHANCEMENT WORKSHOP')+'</div>');
         cosInst.forEach(function(inst){
-          var lv=inst.enhancement_level||0;
+          var lv=_ecoNum(inst.enhancement_level);
           var lvColor=_enhLevelColor(lv);
-          parts.push('<div class="'+_enhGlowClass(lv)+'" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);border-radius:6px;margin-bottom:4px">'
+          parts.push('<div class="eco-item-row '+_enhGlowClass(lv)+'" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);border-radius:6px;margin-bottom:4px">'
             +'<div style="display:flex;align-items:center;gap:6px">'
-            +'<span style="font-size:10px">'+(inst.icon||'🎨')+'</span>'
-            +'<span style="font-size:10px;font-weight:700;color:'+lvColor+'">'+(inst.name||tl('Item','아이템','アイテム','物品'))+_enhBadge(lv)+'</span>'
+            +_ecoCardArt(inst,48)
+            +'<span style="font-size:10px;font-weight:700;color:'+lvColor+'">'+_ecoEsc(inst.name||tl('Item','아이템','アイテム','物品'))+_enhBadge(lv)+'</span>'
             +'</div>'
             +'<div style="display:flex;gap:4px">'
-            +'<button onclick="openEnhanceModal('+inst.id+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)">'+(lv>=10?'✨ '+tl('MAX','최대','最大','满级'):'🔨 +'+(lv+1))+'</button>'
-            +(lv===0?'<button onclick="dematerializeItem('+inst.id+')" style="font-size:8px;padding:4px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:none;color:var(--tx3);cursor:pointer;font-family:var(--fn)" title="'+(t('enh_return_tip')||'Return to inventory stack')+'">↩</button>':'')
+            +'<button onclick="openEnhanceModal('+_ecoNum(inst.id)+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)">'+(lv>=10?'✨ '+tl('MAX','최대','最大','满级'):'🔨 +'+(lv+1))+'</button>'
+            +(lv===0?'<button onclick="dematerializeItem('+_ecoNum(inst.id)+')" style="font-size:8px;padding:4px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:none;color:var(--tx3);cursor:pointer;font-family:var(--fn)" title="'+_ecoEsc(t('enh_return_tip')||'Return to inventory stack')+'">↩</button>':'')
             +'</div>'
             +'</div>');
         });
@@ -1317,13 +1402,13 @@ function renderBaseInventory(){
       parts.push('<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px;padding:4px 0">');
       items.forEach(function(r){
         var marketBtn=r.is_tradeable
-          ? '<button onclick="openResourceMarketListing(\''+r.code+'\')" style="font-size:8px;padding:3px 7px;border-radius:4px;border:1px solid rgba(160,100,220,.4);background:rgba(160,100,220,.1);color:#c088e0;cursor:pointer;font-family:var(--fn);font-weight:700">'+(t('res_sell')||'SELL')+'</button>'
+          ? '<button onclick="openResourceMarketListing(\''+_ecoInline(r.code)+'\')" style="font-size:8px;padding:3px 7px;border-radius:4px;border:1px solid rgba(160,100,220,.4);background:rgba(160,100,220,.1);color:#c088e0;cursor:pointer;font-family:var(--fn);font-weight:700">'+(t('res_sell')||'SELL')+'</button>'
           : '';
-        parts.push('<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;min-width:120px">'
-          +'<span style="font-size:18px;line-height:1">'+(r.icon_emoji||'🔷')+'</span>'
+        parts.push('<div class="eco-item-row eco-resource-card" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;min-width:120px">'
+          +_ecoCardArt(r,64)
           +'<div style="flex:1;min-width:0">'
-          +'<div style="font-size:10px;font-weight:700;color:'+c+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.name||r.code)+'</div>'
-          +'<div style="font-size:9px;color:var(--tx3)">×<b style="color:var(--tx2)">'+r.quantity+'</b> · '+(r.base_pp_value||0)+' PP</div>'
+          +'<div style="font-size:10px;font-weight:700;color:'+c+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_ecoEsc(r.name||r.code)+'</div>'
+          +'<div style="font-size:9px;color:var(--tx3)">×<b style="color:var(--tx2)">'+_ecoNum(r.quantity)+'</b> · '+_ecoNum(r.base_pp_value)+' PP</div>'
           +'</div>'
           +marketBtn
           +'</div>');

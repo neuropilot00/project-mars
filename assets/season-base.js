@@ -174,125 +174,144 @@ function showSeasonTint(season){
 //  SEASON PASS
 // ═══════════════════════════════════════
 
-function loadSeasonPass(){
-  if(!walletState.address) return;
-  _seasonReadFetch('pass', '/api/season/pass', true, 15000).then(function(d){
-    if (!d) return;
-    if(d.error) return;
-    if(d.premiumCost) window._seasonPassCost=d.premiumCost;
-    renderSeasonPass(d);
-  }).catch(function(){});
+var _seasonPassData=null;
+var _seasonPassPurchaseBusy=false;
+function _passEsc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function _passNumber(value){var n=Number(value);return Number.isFinite(n)?n:0;}
+function _passExpiry(data){
+  var date=new Date(data.endsAt);
+  return Number.isFinite(date.getTime())?date.toLocaleString(LANG==='ko'?'ko-KR':LANG==='ja'?'ja-JP':LANG==='zh'?'zh-CN':'en-US',{timeZone:'Asia/Seoul'})+' (UTC+9)':tl('Unavailable','확인 불가','確認不可','无法确认');
 }
-
+function _passBenefitSummary(data){
+  var totals=Object.create(null);
+  (data.tiers||[]).filter(function(tier){return tier.is_premium;}).forEach(function(tier){
+    var type=String(tier.reward_type||'reward');totals[type]=(totals[type]||0)+_passNumber(tier.reward_amount);
+  });
+  return Object.keys(totals).map(function(type){return totals[type].toLocaleString(undefined,{maximumFractionDigits:8})+' '+type.toUpperCase();}).join(' · ')||tl('See the reward track','아래 보상 트랙 확인','報酬トラックを確認','查看奖励轨道');
+}
+function _passPolicyHTML(data){
+  var policy=data.contributionPolicy;
+  if(!policy)return '';
+  var actions=policy.actions||{};
+  return '<div style="margin-top:8px;padding:8px;border:1px solid rgba(105,191,255,.25);border-radius:7px;line-height:1.6">'
+    +_passEsc(tl('Industry contribution XP','산업 기여 XP','産業貢献XP','工业贡献XP'))+': '
+    +_passEsc(tl('Production collected','생산품 수령','生産品受取','领取生产物'))+' +'+_passNumber(actions.production)+' · '
+    +_passEsc(tl('Delivered cargo','화물 도착','貨物到着','货物送达'))+' +'+_passNumber(actions.delivery)+' · '
+    +_passEsc(tl('Restored ship HP','실제 함선 수리','艦船修理','舰船修复'))+' +'+_passNumber(actions.repair)+' XP<br>'
+    +_passEsc(tl('Industry XP daily cap','산업 XP 일일 한도','産業XPの1日上限','工业XP每日上限'))+': '+_passNumber(policy.dailyCap)+' XP (UTC+9)'
+    +(typeof policy.dailyUsed==='number'&&Number.isFinite(policy.dailyUsed)&&policy.dailyUsed>=0&&typeof policy.dailyRemaining==='number'&&Number.isFinite(policy.dailyRemaining)&&policy.dailyRemaining>=0?'<br>'+_passEsc(tl('Industry XP today','오늘 산업 XP','今日の産業XP','今日工业XP'))+': '+_passNumber(policy.dailyUsed)+' / '+_passNumber(policy.dailyCap)+' · '+_passEsc(tl('Remaining','남은 한도','残り','剩余'))+' '+_passNumber(policy.dailyRemaining):'')
+    +(policy.earned>0?'<br>'+_passEsc(tl('New contribution XP recorded','새 기여 XP 반영','新規貢献XPを反映','已记录新贡献XP'))+': +'+_passNumber(policy.earned):'')
+    +'</div>';
+}
+function loadSeasonPass(afterMutation){
+  if(!walletState.address)return Promise.resolve(null);
+  return _seasonReadFetch(afterMutation?'pass-mutation':'pass', '/api/season/pass', true, afterMutation?1:15000).then(function(d){
+    if(!d||d.error)return null;
+    renderSeasonPass(d);return d;
+  }).catch(function(){return null;});
+}
 function renderSeasonPass(data){
+  _seasonPassData=data;
+  window._seasonPassCost=data.premiumCost;
   var xpLabel=document.getElementById('seasonPassXPLabel');
   var tierLabel=document.getElementById('seasonPassTierLabel');
   var fill=document.getElementById('seasonPassXPFill');
   var premBtn=document.getElementById('seasonPassPremiumBtn');
-  if(!xpLabel) return;
-
-  xpLabel.textContent=data.xp+' XP';
-  tierLabel.textContent=tl('Tier','티어','ティア','等级')+' '+data.currentTier+(data.isPremium?' ⭐':'');
+  if(!xpLabel)return;
+  var cost=Number(data.premiumCost);
+  var validQuote=Number.isSafeInteger(cost)&&cost>0&&data.currency==='GP'&&data.paymentType==='gameplay_currency';
+  var expiryMs=new Date(data.endsAt).getTime();
+  var expired=!data.endsAt||!Number.isFinite(expiryMs)||expiryMs<=Date.now();
+  xpLabel.textContent=_passNumber(data.xp)+' XP';
+  tierLabel.textContent=tl('Tier','티어','ティア','等级')+' '+_passNumber(data.currentTier)+(data.isPremium?' ⭐':'');
   premBtn.style.display=data.isPremium?'none':'';
-
-  // Find next tier XP requirement
-  var tiers=data.tiers||[];
-  var nextTier=tiers.find(function(t){return !t.is_premium && t.xp_required>data.xp});
-  if(nextTier){
-    var prevXp=data.currentTier>0?tiers.filter(function(t){return !t.is_premium&&t.tier===data.currentTier})[0]:{xp_required:0};
-    var pXp=prevXp?prevXp.xp_required:0;
-    var pct=Math.min(100,Math.round((data.xp-pXp)/(nextTier.xp_required-pXp)*100));
-    fill.style.width=pct+'%';
-  } else {
-    fill.style.width='100%';
+  premBtn.textContent=tl('In-game GP Pass','게임 내 GP 패스','ゲーム内GPパス','游戏内GP通行证')+(validQuote?' · '+cost+' GP':'');
+  premBtn.disabled=_seasonPassPurchaseBusy||!validQuote||expired;
+  premBtn.style.minHeight='44px';premBtn.style.fontSize='11px';
+  var tip=document.getElementById('seasonPassTip');
+  if(tip){
+    tip.removeAttribute('data-i18n');tip.style.fontSize='11px';tip.style.opacity='1';
+    tip.innerHTML='<div style="line-height:1.6;overflow-wrap:anywhere">'
+      +_passEsc(tl('This pass uses gameplay GP. It is not a cash payment.','플레이로 사용하는 게임 내 GP 결제입니다. 현금 결제가 아닙니다.','ゲーム内GPで購入するパスです。現金決済ではありません。','使用游戏内GP购买，并非现金支付。'))+'<br>'
+      +(validQuote?_passEsc(tl('Pass price','패스 가격','パス価格','通行证价格'))+': '+cost+' GP<br>':'')
+      +_passEsc(tl('Season','시즌','シーズン','赛季'))+': '+_passEsc(data.seasonName||('#'+data.seasonId))+' · '
+      +_passEsc(tl('Ends','종료','終了','结束'))+': '+_passEsc(_passExpiry(data))+'<br>'
+      +_passEsc(tl('Premium track total','프리미엄 트랙 전체 보상','プレミアムトラック合計','高级轨道总奖励'))+': '+_passEsc(_passBenefitSummary(data))+'<br>'
+      +_passEsc(tl('Purchase unlocks this season’s premium track. Earn the required XP and claim each tier before the season ends.','구매하면 이번 시즌의 프리미엄 트랙이 열립니다. 필요한 XP를 달성하고 종료 전에 각 티어 보상을 수령하세요.','購入で今シーズンのプレミアムトラックが開きます。必要XPを獲得し、終了前に各報酬を受け取ってください。','购买解锁本赛季高级轨道。达到所需XP后，请在赛季结束前领取各级奖励。'))
+      +(data.isPremium?'<br><strong style="color:var(--gn)">'+_passEsc(tl('GP Pass active','GP 패스 활성','GPパス有効','GP通行证已启用'))+'</strong>':'')
+      +_passPolicyHTML(data)+'</div>';
   }
-
-  // Render tier nodes
-  var box=document.getElementById('seasonPassTiers');
-  var uniqueTiers={};
-  tiers.forEach(function(t){ if(!uniqueTiers[t.tier]) uniqueTiers[t.tier]={free:null,premium:null}; if(t.is_premium) uniqueTiers[t.tier].premium=t; else uniqueTiers[t.tier].free=t; });
-
-  var html='';
-  Object.keys(uniqueTiers).sort(function(a,b){return a-b}).forEach(function(tierNum){
-    var tt=uniqueTiers[tierNum];
-    var free=tt.free||{};
-    var prem=tt.premium||{};
-    var unlocked=data.xp>=free.xp_required;
-    var freeClaimed=free.claimed;
-    var premClaimed=prem.claimed;
-
-    var rewardIcon=free.reward_type==='pp'?'💎':free.reward_type==='gp'?'🪙':'🎁';
-    var premIcon=prem.reward_type==='pp'?'💎':prem.reward_type==='gp'?'🪙':prem.reward_type==='item'?'📦':'🎁';
-    var fmtAmt=function(amt,type){ var n=parseFloat(amt||0); if(type==='gp') return Math.floor(n); return n%1===0?n:n.toFixed(2); };
-    var freeAmt=fmtAmt(free.reward_amount,free.reward_type);
-    var premAmt=fmtAmt(prem.reward_amount,prem.reward_type);
-
-    var bg=unlocked?(freeClaimed?'rgba(76,216,154,.08)':'rgba(255,209,102,.1)'):'rgba(255,255,255,.02)';
-    var bdr=unlocked?(freeClaimed?'rgba(76,216,154,.3)':'rgba(255,209,102,.3)'):'rgba(255,255,255,.06)';
-
-    html+='<div style="min-width:60px;padding:6px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';text-align:center;flex-shrink:0">'+
-      '<div style="font-size:7px;color:var(--tx3)">'+tl('Tier','티어','ティア','等级')+' '+tierNum+'</div>'+
-      // Free track
-      '<div style="margin:3px 0">';
-    if(freeClaimed){
-      html+='<span style="font-size:9px;color:var(--gn)">✓</span>';
-    } else if(unlocked){
-      html+='<button onclick="claimPassTier('+tierNum+',false)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--gold);border:none;color:#000;cursor:pointer;font-weight:700">'+rewardIcon+' '+freeAmt+'</button>';
-    } else {
-      html+='<span style="font-size:8px;color:var(--tx3)">'+rewardIcon+' '+freeAmt+'</span>';
-    }
-    html+='</div>';
-    // Premium track
-    if(data.isPremium){
-      html+='<div style="border-top:1px solid rgba(184,136,224,.15);padding-top:2px;margin-top:2px">';
-      if(premClaimed){
-        html+='<span style="font-size:9px;color:var(--gn)">✓</span>';
-      } else if(unlocked){
-        html+='<button onclick="claimPassTier('+tierNum+',true)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--pp);border:none;color:#fff;cursor:pointer;font-weight:700">'+premIcon+' '+premAmt+'</button>';
-      } else {
-        html+='<span style="font-size:8px;color:var(--tx3)">'+premIcon+' '+premAmt+'</span>';
-      }
-      html+='</div>';
-    }
-    html+='</div>';
-  });
-  box.innerHTML=html;
+  var tiers=data.tiers||[];
+  var nextTier=tiers.find(function(tier){return !tier.is_premium&&tier.xp_required>data.xp;});
+  var prev=tiers.find(function(tier){return !tier.is_premium&&tier.tier===data.currentTier;});
+  var prevXP=prev?_passNumber(prev.xp_required):0;
+  fill.style.width=nextTier?Math.max(0,Math.min(100,Math.round((_passNumber(data.xp)-prevXP)/Math.max(1,_passNumber(nextTier.xp_required)-prevXP)*100)))+'%':'100%';
+  var unique=Object.create(null);
+  tiers.forEach(function(tier){var n=_passNumber(tier.tier);if(!unique[n])unique[n]={};unique[n][tier.is_premium?'premium':'free']=tier;});
+  document.getElementById('seasonPassTiers').innerHTML=Object.keys(unique).sort(function(a,b){return a-b;}).map(function(number){
+    var entry=unique[number];
+    return '<div style="min-width:114px;max-width:150px;flex-shrink:0;padding:8px;border:1px solid rgba(105,191,255,.22);border-radius:8px;background:rgba(14,25,38,.75);box-sizing:border-box">'
+      +'<strong style="font-size:11px">'+_passEsc(tl('Tier','티어','ティア','等级'))+' '+number+'</strong>'
+      +['free','premium'].map(function(track){
+        var reward=entry[track];if(!reward)return '';
+        var premium=track==='premium';
+        var unlocked=typeof reward.unlocked==='boolean'?reward.unlocked:_passNumber(data.xp)>=_passNumber(reward.xp_required);
+        var available=unlocked&&(!premium||data.isPremium)&&!expired;
+        var meta=reward.reward_meta||{};
+        var code=reward.reward_type==='item'?(meta.item_code||reward.item_code||''):reward.reward_type;
+        var art=window.ItemArt?window.ItemArt.render(code,{size:28,decorative:true}):'';
+        var amount=_passNumber(reward.reward_amount).toLocaleString(undefined,{maximumFractionDigits:8});
+        var label=amount+' '+String(reward.reward_type||'reward').toUpperCase();
+        var status=reward.claimed?tl('Claimed','수령 완료','受取済み','已领取'):premium&&!data.isPremium?tl('GP Pass required','GP 패스 필요','GPパスが必要','需要GP通行证'):_passNumber(reward.xp_required)+' XP';
+        return '<div style="margin-top:8px;border-top:1px solid rgba(184,136,224,.18);padding-top:6px;font-size:10px;line-height:1.5;overflow-wrap:anywhere">'
+          +'<div style="color:'+(premium?'#caa8ff':'var(--tx3)')+'">'+_passEsc(premium?tl('Premium','프리미엄','プレミアム','高级'):tl('Free','무료','無料','免费'))+'</div>'
+          +'<div style="display:flex;align-items:center;gap:4px;margin:3px 0">'+art+'<span>'+_passEsc(label)+'</span></div>'
+          +(available&&!reward.claimed?'<button type="button" onclick="claimPassTier('+_passNumber(number)+','+premium+')" style="min-height:44px;width:100%;font-size:11px;border-radius:5px;border:1px solid rgba(255,209,102,.5);background:rgba(255,209,102,.2);color:var(--gold);cursor:pointer">'+_passEsc(tl('CLAIM','수령','受取','领取'))+'</button>':'<span style="color:var(--tx3)">'+_passEsc(status)+'</span>')+'</div>';
+      }).join('')+'</div>';
+  }).join('');
 }
-
 function claimPassTier(tier,isPremium){
   fetch('/api/season/pass/claim',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
     body:JSON.stringify({wallet:walletState.address,tier:tier,isPremium:isPremium})
-  }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){ showAlert(d.error); return; }
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.error){showAlert(d.error);return;}
     showAlert('🎁 '+tl('Tier','티어','ティア','等级')+' '+tier+' '+tl('reward claimed','보상 수령','報酬受取','奖励领取')+': '+d.label,'success');
-    loadSeasonPass();
-  }).catch(function(e){ showAlert(e.message); });
+    loadSeasonPass(true);
+  }).catch(function(e){showAlert(e.message);});
 }
-
 function purchaseSeasonPass(){
-  var cost=window._seasonPassCost||500;
-  var myGP=walletState.gameGP||0;
-  var insufficient=myGP<cost;
+  if(_seasonPassPurchaseBusy)return;
+  var quote=_seasonPassData;
+  if(!quote||!Number.isSafeInteger(Number(quote.premiumCost))||Number(quote.premiumCost)<=0||quote.currency!=='GP'||quote.paymentType!=='gameplay_currency'||!quote.seasonId){loadSeasonPass(true);return;}
+  if(quote.isPremium||!quote.endsAt||!Number.isFinite(new Date(quote.endsAt).getTime())||new Date(quote.endsAt).getTime()<=Date.now())return;
+  var cost=Number(quote.premiumCost),seasonId=quote.seasonId,wallet=walletState.address;
+  var myGP=_passNumber(walletState.gameGP),insufficient=myGP<cost;
+  _seasonPassPurchaseBusy=true;
+  var button=document.getElementById('seasonPassPremiumBtn');if(button)button.disabled=true;
   gameConfirm({
-    title:t('season_pass_buy_title'),
-    icon:'⭐',
-    body:t('season_pass_buy_body'),
-    info:[
-      {k:t('season_pass_cost_label'),v:cost+' GP'},
-      {k:t('season_pass_balance_label'),v:Math.floor(myGP)+' GP',insufficient:insufficient}
-    ],
-    confirmText:t('season_pass_buy_confirm'),
-    disabled:insufficient
+    title:tl('In-game GP Pass','게임 내 GP 패스','ゲーム内GPパス','游戏内GP通行证'),icon:'⭐',
+    body:'<div style="font-size:12px;line-height:1.7;overflow-wrap:anywhere">'+_passEsc(tl('Gameplay GP payment; no cash payment.','게임 내 GP 결제 · 현금 결제 아님','ゲーム内GP決済・現金決済ではありません','游戏内GP支付，并非现金支付。'))+'<br>'
+      +_passEsc(quote.seasonName||('#'+seasonId))+' · '+_passEsc(tl('Ends','종료','終了','结束'))+' '+_passEsc(_passExpiry(quote))+'<br>'
+      +_passEsc(tl('Full premium track','전체 프리미엄 트랙','全プレミアムトラック','全部高级轨道'))+': '+_passEsc(_passBenefitSummary(quote))+'<br>'
+      +_passEsc(tl('Required XP still applies. Claim each unlocked tier before this season ends.','필요 XP 조건은 유지됩니다. 이번 시즌 종료 전에 열린 티어를 직접 수령하세요.','必要XPの条件があります。シーズン終了前に解放済み報酬を受け取ってください。','仍需达到所需XP，并在本赛季结束前领取已解锁奖励。'))+'</div>',
+    info:[{k:tl('Price','가격','価格','价格'),v:cost+' GP'},{k:tl('Balance','보유 GP','残高','余额'),v:myGP+' GP',insufficient:insufficient}],
+    confirmText:tl('UNLOCK GP PASS','GP 패스 열기','GPパスを開く','解锁GP通行证'),disabled:insufficient
   }).then(function(ok){
-    if(!ok) return;
-    fetch('/api/season/pass/purchase',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
-      body:JSON.stringify({wallet:walletState.address})
-    }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){ showAlert(d.error); return; }
-      showAlert('⭐ '+t('season_pass_buy_title')+' OK!','success');
-      loadSeasonPass();
-    }).catch(function(e){ showAlert(e.message); });
-  });
+    if(!ok)return;
+    return fetch('/api/season/pass/purchase',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:wallet,expectedCost:cost,expectedSeasonId:seasonId})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d.error){
+          showAlert(d.error==='PASS_PRICE_CHANGED'||d.error==='PASS_SEASON_CHANGED'?tl('The pass changed. Review the updated price and season.','패스 조건이 변경됐습니다. 새 가격과 시즌을 확인하세요.','パスが変更されました。価格とシーズンを確認してください。','通行证已变更，请确认新价格和赛季。'):d.error);
+          return loadSeasonPass(true);
+        }
+        if(d.success!==true)throw new Error(tl('Purchase not confirmed','구매 확인 실패','購入未確認','购买未确认'));
+        if(Number.isFinite(Number(d.gpBalance))&&d.gpBalance!=null)walletState.gameGP=Number(d.gpBalance);
+        var charged=_passNumber(d.charged);
+        showAlert(tl('GP Pass active','GP 패스 활성','GPパス有効','GP通行证已启用')+' · '+charged+' GP'+(d.alreadyOwned?' · '+tl('Already owned; no new charge','이미 보유 · 추가 차감 없음','取得済み・追加支払いなし','已拥有，无新增扣费'):'')+(d.transactionId?' · #'+d.transactionId:''),'success');
+        if(String(d.seasonId)===String(seasonId)){renderSeasonPass(Object.assign({},quote,{isPremium:true}));}
+        return loadSeasonPass(true);
+      });
+  }).catch(function(e){showAlert(e.message);}).finally(function(){_seasonPassPurchaseBusy=false;if(button&&_seasonPassData)renderSeasonPass(_seasonPassData);});
 }
 
 // ── Category Leaderboard (Migration 098) ──

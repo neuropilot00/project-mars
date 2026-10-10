@@ -476,9 +476,76 @@ async function getMyRewards(wallet) {
 //  SEASON PASS
 // ═══════════════════════════════════════
 
+async function getPremiumPassPrice(db = pool) {
+  const result = await db.query("SELECT value FROM settings WHERE key='season_pass_premium_cost_gp'");
+  const raw = result.rows[0]?.value;
+  if (raw != null && !['number', 'string'].includes(typeof raw)) throw new Error('INVALID_PASS_PRICE');
+  const price = raw === undefined || raw === null ? 150 : Number(raw);
+  if (!Number.isSafeInteger(price) || price <= 0) throw new Error('INVALID_PASS_PRICE');
+  return price;
+}
+
+// Only persisted, committed industrial actions qualify. GET frequency and client
+// payloads cannot create XP; a user lock serializes both the ledger and day cap.
+async function syncIndustryPassXP(wallet, season) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const user = await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
+    if (!user.rowCount) throw new Error('USER_NOT_FOUND');
+    wallet = user.rows[0].wallet_address;
+    const settings = await client.query("SELECT key,value FROM settings WHERE key IN ('season_pass_industry_daily_xp_cap','season_pass_xp_per_production','season_pass_xp_per_delivery','season_pass_xp_per_repair')");
+    const values = Object.fromEntries(settings.rows.map(r => [r.key, r.value]));
+    const configured = (key, fallback) => {
+      const raw = values[key] ?? fallback;
+      if (!['number', 'string'].includes(typeof raw)) throw new Error('INVALID_PASS_XP_SETTING');
+      const n = Number(raw);
+      if (!Number.isSafeInteger(n) || n < 0 || n > 10000) throw new Error('INVALID_PASS_XP_SETTING');
+      return n;
+    };
+    const cap = configured('season_pass_industry_daily_xp_cap', 100);
+    const awards = { production: configured('season_pass_xp_per_production', 5), delivery: configured('season_pass_xp_per_delivery', 10), repair: configured('season_pass_xp_per_repair', 5) };
+    const events = await client.query(`WITH actions AS (
+      SELECT 'production'::text source_type,id source_id,created_at occurred_at FROM frontier_production_events WHERE LOWER(wallet)=LOWER($1)
+      UNION ALL SELECT 'delivery',id,settled_at FROM frontier_cargo WHERE LOWER(wallet)=LOWER($1) AND status='arrived' AND received>0
+      UNION ALL SELECT 'repair',id,created_at FROM frontier_repairs WHERE LOWER(wallet)=LOWER($1) AND healed>0
+    ) SELECT a.*, (a.occurred_at AT TIME ZONE 'Asia/Seoul')::date::text event_day
+      FROM actions a WHERE a.occurred_at >= $2 AND a.occurred_at < $3 AND a.occurred_at <= NOW()
+      AND NOT EXISTS(SELECT 1 FROM season_pass_contributions c WHERE c.season_id=$4 AND c.wallet=$1 AND c.source_type=a.source_type AND c.source_id=a.source_id)
+      ORDER BY a.occurred_at,a.source_type,a.source_id`, [wallet, season.startsAt, season.endsAt, season.id]);
+    const daily = await client.query('SELECT event_day::text, SUM(xp)::int xp FROM season_pass_contributions WHERE season_id=$1 AND wallet=$2 GROUP BY event_day', [season.id, wallet]);
+    const used = new Map(daily.rows.map(r => [r.event_day, r.xp]));
+    let earned = 0;
+    for (const event of events.rows) {
+      const prior = used.get(event.event_day) || 0;
+      const xp = Math.min(awards[event.source_type], Math.max(0, cap - prior));
+      const saved = await client.query(`INSERT INTO season_pass_contributions(season_id,wallet,source_type,source_id,occurred_at,event_day,xp)
+        VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING RETURNING xp`, [season.id, wallet, event.source_type, event.source_id, event.occurred_at, event.event_day, xp]);
+      if (saved.rowCount) { used.set(event.event_day, prior + xp); earned += xp; }
+    }
+    if (earned > 0) await client.query(`INSERT INTO season_pass_progress(season_id,wallet,pass_xp) VALUES($1,$2,$3)
+      ON CONFLICT(season_id,wallet) DO UPDATE SET pass_xp=season_pass_progress.pass_xp+EXCLUDED.pass_xp`, [season.id, wallet, earned]);
+    // Report today's actual ledger, not this sync's earned XP: old source days
+    // can be credited now without consuming today's industrial allowance.
+    const today = await client.query(`SELECT COALESCE(SUM(xp),0)::int AS daily_used
+      FROM season_pass_contributions WHERE season_id=$1 AND wallet=$2
+      AND event_day=(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Seoul')::date`, [season.id, wallet]);
+    const dailyUsed = today.rows[0].daily_used;
+    await client.query('COMMIT');
+    return { earned, dailyCap: cap, dailyUsed, dailyRemaining: Math.max(0, cap - dailyUsed), actions: awards };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally { client.release(); }
+}
+
 async function getSeasonPass(wallet) {
   const season = await getActiveSeason();
   if (!season) return { error: 'No active season' };
+
+  wallet = String(wallet || '').toLowerCase().trim();
+  const contributionPolicy = await syncIndustryPassXP(wallet, season);
+  const premiumCost = await getPremiumPassPrice();
 
   // Get or create progress
   await pool.query(
@@ -505,6 +572,9 @@ async function getSeasonPass(wallet) {
   return {
     seasonId: season.id,
     seasonName: season.name,
+    endsAt: season.endsAt,
+    premiumCost, currency: 'GP', paymentType: 'gameplay_currency',
+    contributionPolicy,
     xp: p.pass_xp,
     currentTier: p.current_tier,
     isPremium: p.is_premium,
@@ -583,43 +653,36 @@ async function addPassXP(wallet, action) {
   );
 }
 
-async function purchasePremiumPass(wallet) {
+async function purchasePremiumPass(wallet, expected = {}) {
+  wallet = String(wallet || '').toLowerCase().trim();
   const season = await getActiveSeason();
   if (!season) return { error: 'No active season' };
-
-  const cost = parseInt(await getSetting('season_pass_premium_cost_gp') || '150');
-
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-
-    // Check already premium
-    const prog = await client.query(
-      'SELECT is_premium FROM season_pass_progress WHERE season_id = $1 AND wallet = $2',
-      [season.id, wallet]
-    );
+    // All pass money operations lock the user before pass progress.
+    const gp = await client.query('SELECT wallet_address,gp_balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
+    if (!gp.rowCount) throw new Error('USER_NOT_FOUND');
+    wallet = gp.rows[0].wallet_address;
+    const active = await client.query('SELECT id FROM seasons WHERE id=$1 AND active=true AND starts_at<=NOW() AND ends_at>NOW() FOR SHARE', [season.id]);
+    if (!active.rowCount) throw new Error('PASS_SEASON_CHANGED');
+    const price = await getPremiumPassPrice(client);
+    const prog = await client.query('SELECT is_premium FROM season_pass_progress WHERE season_id=$1 AND wallet=$2 FOR UPDATE', [season.id, wallet]);
     if (prog.rows[0]?.is_premium) {
-      await client.query('ROLLBACK');
-      return { error: 'Already have premium pass' };
+      await client.query('COMMIT');
+      return { success: true, alreadyOwned: true, cost: 0, charged: 0, premiumCost: price, currency: 'GP', seasonId: season.id };
     }
-
-    // Check GP
-    const gp = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [wallet]);
-    if (parseFloat(gp.rows[0]?.gp_balance || 0) < cost) {
-      await client.query('ROLLBACK');
-      return { error: `Need ${cost} GP for premium pass` };
-    }
-
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [cost, wallet]);
-    await client.query(
-      `INSERT INTO season_pass_progress (season_id, wallet, is_premium, purchased_at)
-       VALUES ($1, $2, true, NOW())
-       ON CONFLICT (season_id, wallet) DO UPDATE SET is_premium = true, purchased_at = NOW()`,
-      [season.id, wallet]
-    );
-
+    if (expected.expectedSeasonId !== undefined && Number(expected.expectedSeasonId) !== season.id) throw new Error('PASS_SEASON_CHANGED');
+    if (expected.expectedCost !== undefined && Number(expected.expectedCost) !== price) throw new Error('PASS_PRICE_CHANGED');
+    if (Number(gp.rows[0].gp_balance) < price) throw new Error(`Need ${price} GP for premium pass`);
+    const debit = await client.query('UPDATE users SET gp_balance=gp_balance-$1 WHERE wallet_address=$2 AND gp_balance >= $1 RETURNING gp_balance', [price, wallet]);
+    if (!debit.rowCount) throw new Error('INSUFFICIENT_GP');
+    await client.query(`INSERT INTO season_pass_progress(season_id,wallet,is_premium,purchased_at) VALUES($1,$2,true,NOW())
+      ON CONFLICT(season_id,wallet) DO UPDATE SET is_premium=true,purchased_at=NOW()`, [season.id, wallet]);
+    const receipt = await client.query(`INSERT INTO transactions(type,from_wallet,usdt_amount,pp_amount,fee,meta)
+      VALUES('shop_purchase',$1,0,0,0,$2::jsonb) RETURNING id`, [wallet, JSON.stringify({ action: 'season_pass_purchase', currency: 'GP', gp: price, seasonId: season.id })]);
     await client.query('COMMIT');
-    return { success: true, cost };
+    return { success: true, cost: price, charged: price, premiumCost: price, currency: 'GP', seasonId: season.id, transactionId: receipt.rows[0].id, gpBalance: Number(debit.rows[0].gp_balance) };
   } catch (e) {
     await client.query('ROLLBACK');
     return { error: e.message };
@@ -627,12 +690,17 @@ async function purchasePremiumPass(wallet) {
 }
 
 async function claimPassTier(wallet, tier, isPremium) {
+  wallet = String(wallet || '').toLowerCase().trim();
   const season = await getActiveSeason();
   if (!season) return { error: 'No active season' };
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    const user = await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
+    if (!user.rowCount) throw new Error('USER_NOT_FOUND');
+    wallet = user.rows[0].wallet_address;
 
     // Get progress
     const prog = await client.query(
@@ -872,7 +940,7 @@ module.exports = {
   // Category leaderboards + career stats (migration 098)
   getCategoryLeaderboard, getCareerStats,
   // Season Pass (migration 068)
-  getSeasonPass, addPassXP, purchasePremiumPass, claimPassTier,
+  getSeasonPass, getPremiumPassPrice, syncIndustryPassXP, addPassXP, purchasePremiumPass, claimPassTier,
   // Auto rotation
   autoRotateSeason
 };

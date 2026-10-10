@@ -1588,6 +1588,10 @@ async function applyBattleResults(battleId, result) {
       }
     } catch (_flErr) { permanentLossActive = true; /* 설정 조회 실패 시 현행 유지 */ }
 
+    // Registered frontier PvP always requires both real hull owners' opt-in, even in global 'always' mode.
+    const frontierLossConsent = await getRegisteredFrontierLossConsent(client, battleId);
+    if (frontierLossConsent !== null) permanentLossActive = permanentLossActive && frontierLossConsent;
+
     const safeTrainingMode = await getSafeTrainingMode(client, battleId, btRows[0].battle_summary);
     if (safeTrainingMode || standardConfig) permanentLossActive = false;
 
@@ -1637,7 +1641,7 @@ async function applyBattleResults(battleId, result) {
         def: result.stats.def,
         by_player: result.stats.by_player,
         final_ships: result.stats.by_ship,
-        combat_policy: { permanent_loss: permanentLossActive, safe_training_mode: safeTrainingMode, standard_ruleset: standardConfig?.ruleset || null, asset_updates: !standardConfig },
+        combat_policy: { permanent_loss: permanentLossActive, safe_training_mode: safeTrainingMode, standard_ruleset: standardConfig?.ruleset || null, asset_updates: !standardConfig, ...(frontierLossConsent !== null ? { frontier_mutual_optin: frontierLossConsent } : {}) },
         ...(objectiveConfig ? { objective_result: result.objective_result } : {}),
       }),
       battleId
@@ -1869,6 +1873,30 @@ async function applyBattleResults(battleId, result) {
   } finally {
     client.release();
   }
+}
+
+// Registration, fleet ownership and actual user consent are authoritative; summary flags grant no exemption.
+async function getRegisteredFrontierLossConsent(client, battleId) {
+  const table = await client.query("SELECT to_regclass('public.frontier_battles') AS name");
+  if (!table.rows[0]?.name) return null;
+  const { rows } = await client.query(`SELECT r.wallet AS attacker_wallet, p.side, p.wallet_address,
+      f.owner_wallet, u.wallet_address AS user_wallet, u.is_ai, u.full_loss_optin
+    FROM frontier_battles r
+    LEFT JOIN fleet_battle_participants p ON p.battle_id=r.battle_id
+    LEFT JOIN fleets f ON f.id=p.fleet_id
+    LEFT JOIN users u ON LOWER(u.wallet_address)=LOWER(f.owner_wallet)
+    WHERE r.battle_id=$1`, [battleId]);
+  if (!rows.length) return null;
+  const lower = value => String(value || '').toLowerCase();
+  const owners = { atk: new Set(), def: new Set() };
+  for (const row of rows) {
+    const owner = lower(row.owner_wallet);
+    if (!owners[row.side] || !owner || row.is_ai !== false || row.full_loss_optin !== true ||
+        lower(row.user_wallet) !== owner || lower(row.wallet_address) !== owner ||
+        (row.side === 'atk' && lower(row.attacker_wallet) !== owner)) return false;
+    owners[row.side].add(owner);
+  }
+  return owners.atk.size === 1 && owners.def.size === 1 && [...owners.atk][0] !== [...owners.def][0];
 }
 
 async function getSafeTrainingMode(client, battleId, summary) {

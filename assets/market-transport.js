@@ -1,6 +1,24 @@
 // ══════════════════════════════════════
 // MARKETPLACE
 // ══════════════════════════════════════
+// Marketplace visuals resolve immutable item identities, never server icon HTML.
+var _mktArtListings=Object.create(null);
+var _mktSellInstances=[];
+function _mktArtCode(l){
+  var meta=l.meta||{};
+  return l.resource_code||meta.resourceCode||l.item_code||meta.itemCode||l.bundle_currency||'';
+}
+function _mktArt(l,size){
+  if(l.listing_type==='claim')return window.GameIcons?window.GameIcons.render('claim',{size:size||64}):_ecoArt('',size||64);
+  return _ecoArt(_mktArtCode(l),size||72,_mktName(l),(l.meta||{}).rarity);
+}
+function _mktName(l){
+  var meta=l.meta||{};
+  if(l.listing_type==='resource')return (meta.resourceName||l.resource_name||l.resource_code||tl('Resource','자원','資源','资源'))+' ×'+_ecoNum(l.resource_quantity||meta.resourceQty||1);
+  if(l.listing_type==='currency')return _ecoNum(l.bundle_amount)+' '+(l.bundle_currency||'')+' → '+(l.currency||'');
+  return meta.itemName||l.item_name||(l.listing_type==='claim'?tl('Territory','영토','領土','领地')+' #'+_ecoNum(l.claim_id):tl('Item','아이템','アイテム','物品'));
+}
+
 var _mktView='browse';
 
 function switchMarketView(view,el){
@@ -729,7 +747,7 @@ function populateMktSectorFilter(){
     var cur=sel.value;
     var icon={frontier:'🟢',mid:'🟡',core:'🔴'};
     sel.innerHTML='<option value="">🌐 '+tl('ALL SECTORS','전체 섹터','全セクター','全部扇区')+'</option>'+secs.map(function(s){
-      return '<option value="'+s.id+'">'+(icon[s.tier]||'•')+' '+(s.name||(tl('Sector','섹터','セクター','扇区')+' '+s.id))+'</option>';
+      return '<option value="'+_ecoNum(s.id)+'">'+(icon[s.tier]||'•')+' '+_ecoEsc(s.name||(tl('Sector','섹터','セクター','扇区')+' '+s.id))+'</option>';
     }).join('');
     if(cur) sel.value=cur;
   }).catch(function(){ _mktSectorsPopulated=false; });
@@ -765,7 +783,7 @@ function loadMarketListings(){
                (nm.indexOf(q)>=0);
       });
       // stats chip
-      var statsBar = stats ? ('<div style="grid-column:1/-1;display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap"><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(184,140,255,.12);border:1px solid rgba(184,140,255,.4);color:#caa8ff;font-weight:700">🚀 '+tl('Active','활성','活性','活跃')+': '+(stats.active_listings||0)+'</div><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.35);color:#ffd166;font-weight:700">📊 '+tl('7d sales','7일 거래','7日取引','7天交易')+': '+(stats.sales_7d||0)+'</div><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.35);color:#69f0ae;font-weight:700">💰 '+(stats.volume_gp_7d||0).toLocaleString()+' GP</div></div>') : '';
+      var statsBar = stats ? ('<div style="grid-column:1/-1;display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap"><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(184,140,255,.12);border:1px solid rgba(184,140,255,.4);color:#caa8ff;font-weight:700">🚀 '+tl('Active','활성','活性','活跃')+': '+_ecoNum(stats.active_listings)+'</div><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.35);color:#ffd166;font-weight:700">📊 '+tl('7d sales','7일 거래','7日取引','7天交易')+': '+_ecoNum(stats.sales_7d)+'</div><div style="font-size:9px;padding:4px 9px;border-radius:12px;background:rgba(105,240,174,.1);border:1px solid rgba(105,240,174,.35);color:#69f0ae;font-weight:700">💰 '+_ecoNum(stats.volume_gp_7d).toLocaleString()+' GP</div></div>') : '';
       if (!ships.length) { grid.innerHTML = statsBar + '<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_empty')||'No ship listings')+'</div>'; return; }
       // 정렬 적용
       ships = ships.slice();
@@ -775,18 +793,18 @@ function loadMarketListings(){
         // [v7.177 Phase 2] 마켓 함선 카드 — 인라인 구매 흐름. 클릭 시 확인 모달 → buy API 직접 호출.
         //   이전엔 조선소로 이동 강제했음.
         grid.innerHTML = statsBar + ships.map(function(s){
-          var portrait = 'assets/ships/reveal/' + (s.ship_type_code||'') + '.jpg';
+          var portrait = _ecoArt(s.ship_type_code,128,s.name_ko,s.quality);
           var nm = (typeof syShipName==='function') ? syShipName(s) : (s.name_ko||s.ship_type_code||'Ship');
           var qm = (typeof _crateQualityMeta!=='undefined' && s.quality) ? _crateQualityMeta[s.quality] : null;
           var qBadge = (qm && qm.stars > 0) ? '<span style="position:absolute;top:5px;left:5px;font-size:9px;font-weight:900;color:'+qm.col+';background:rgba(20,18,28,.92);border:1px solid '+qm.col+'80;padding:2px 6px;border-radius:5px">'+('★'.repeat(qm.stars))+'</span>' : '';
-          return '<div class="mkt-card" onclick="openMarketShipBuy('+(s.listing_id||0)+',\''+escapeHtmlSafe(nm).replace(/\047/g,"\\\047")+'\','+(parseInt(s.price_gp)||0)+',\''+(s.ship_type_code||'')+'\',\''+(s.faction_code||'')+'\')" style="background:var(--surface1);border:1px solid rgba(184,140,255,.35);border-radius:8px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column">'
-            + '<div style="position:relative;aspect-ratio:4/3;background:#0a0e1a;overflow:hidden">'
-            +   '<img src="'+portrait+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'
+          return '<div class="mkt-card eco-item-card" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click()}" onclick="openMarketShipBuy('+_ecoNum(s.listing_id)+',\''+_ecoInline(nm)+'\','+(parseInt(s.price_gp)||0)+',\''+_ecoInline(s.ship_type_code)+'\',\''+_ecoInline(s.faction_code)+'\')" style="background:var(--surface1);border:1px solid rgba(184,140,255,.35);border-radius:8px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column">'
+            + '<div class="eco-hull-art" style="position:relative;aspect-ratio:4/3;background:#0a0e1a;overflow:hidden">'
+            +   portrait
             +   qBadge
             +   '<div style="position:absolute;top:5px;right:5px;font-size:8px;font-weight:800;background:rgba(184,140,255,.85);color:#fff;padding:2px 6px;border-radius:4px">🚀 SHIP</div>'
             +   '<div style="position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(180deg,transparent,rgba(6,8,15,.8));pointer-events:none"></div>'
             + '</div>'
-            + '<div style="padding:7px 8px"><div style="font-size:10px;font-weight:800;color:'+(s.faction_color||'#fff')+'">'+escapeHtmlSafe(nm)+'</div>'
+            + '<div style="padding:7px 8px"><div style="font-size:10px;font-weight:800;color:'+_ecoEsc(/^#[0-9a-f]{3,8}$/i.test(s.faction_color||'')?s.faction_color:'#fff')+'">'+escapeHtmlSafe(nm)+'</div>'
             + '<div style="font-size:8px;color:var(--tx3);margin-top:1px">'+escapeHtmlSafe(s.class_label||s.size_class||'')+'</div>'
             + '<div style="font-size:11px;font-weight:900;color:#ffd166;margin-top:3px">'+(parseInt(s.price_gp)||0).toLocaleString()+' GP</div></div>'
             + '</div>';
@@ -827,16 +845,16 @@ function loadRecentSales(){
       }
       el.innerHTML=sales.map(function(s){
         var meta=s.meta||{};
-        var icon=meta.itemIcon||'🗺️';
-        var name=meta.itemName||(s.listing_type==='claim'?tl('Territory','영토','領土','领地'):tl('Item','아이템','アイテム','物品'));
-        var enh=meta.enhancementLevel>0?' <span style="color:var(--gold);font-weight:800">+'+meta.enhancementLevel+'</span>':'';
+        var icon=_mktArt(s,32);
+        var name=_mktName(s);
+        var enh=meta.enhancementLevel>0?' <span style="color:var(--gold);font-weight:800">+'+_ecoNum(meta.enhancementLevel)+'</span>':'';
         var ago=Math.round((Date.now()-new Date(s.sold_at))/60000);
         var agoStr=ago<60?ago+'m':(Math.floor(ago/60)+'h');
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:6px">'
-          +'<span style="font-size:9px;color:var(--tx2)">'+icon+' '+name+enh+'</span>'
+        return '<div class="eco-item-row" style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:6px">'
+          +'<span style="font-size:9px;color:var(--tx2)">'+icon+' '+_ecoEsc(name)+enh+'</span>'
           +'<div style="display:flex;align-items:center;gap:8px">'
           +'<span style="font-size:10px;font-weight:800;color:var(--gold)">'+parseFloat(s.sale_price||s.price).toLocaleString()+'</span>'
-          +'<span style="font-size:8px;color:var(--tx3)">'+s.currency+'</span>'
+          +'<span style="font-size:8px;color:var(--tx3)">'+_ecoEsc(s.currency)+'</span>'
           +'<span style="font-size:8px;color:var(--tx3)">'+agoStr+'</span>'
           +'</div></div>';
       }).join('');
@@ -849,10 +867,10 @@ function renderMarketCard(l){
   var meta=l.meta||{};
   // ✅ [Resource System] 자원 타입 처리
   var isResource=l.listing_type==='resource';
-  var icon=isResource?(meta.resourceIcon||'⛏️'):meta.itemIcon||'🗺️';
-  var name=isResource?((meta.resourceName||l.resource_code||tl('Resource','자원','資源','资源'))+' ×'+(l.resource_quantity||meta.resourceQty||1))
-    :(meta.itemName||(l.listing_type==='claim'?tl('Territory','영토','領土','领地')+' #'+l.claim_id:tl('Item','아이템','アイテム','物品')));
-  var enhLv=meta.enhancementLevel||0;
+  _mktArtListings[l.id]=l;
+  var icon=_mktArt(l,88);
+  var name=_mktName(l);
+  var enhLv=_ecoNum(meta.enhancementLevel);
   var enhTag=enhLv>0?_enhBadge(enhLv):'';
   var typeLabel=l.listing_type==='claim'?'🗺️':isResource?'⛏️':'🎨';
   var rarityColor=isResource?{common:'var(--tx2)',rare:'var(--cyan)',special:'var(--gold)'}[meta.rarity||'common']:'#a064dc';
@@ -863,22 +881,23 @@ function renderMarketCard(l){
   var timeStr=remaining>24?Math.floor(remaining/24)+'d':remaining+'h';
   var isOwn=walletState&&walletState.address&&l.seller===walletState.address.toLowerCase();
   var claimInfo='';
-  if(l.listing_type==='claim'&&meta.pixelCount) claimInfo='<div style="font-size:8px;color:var(--tx3)">'+meta.pixelCount+' px</div>';
+  if(l.listing_type==='claim'&&meta.pixelCount) claimInfo='<div style="font-size:8px;color:var(--tx3)">'+_ecoNum(meta.pixelCount)+' px</div>';
   // Price history chart trigger params
   var chartParam=l.listing_type==='claim'?'claimId='+l.claim_id:'itemTypeId='+(meta.itemTypeId||0)+'&enhLevel='+enhLv;
-  return '<div class="'+_enhGlowClass(enhLv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+  return '<div class="eco-item-card '+_enhGlowClass(enhLv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+    +'<div class="eco-confirm-art">'+icon+'</div>'
     +'<div style="display:flex;justify-content:space-between;align-items:center">'
-    +'<span style="font-size:10px;font-weight:700;color:'+rarityColor+'">'+icon+' '+name+enhTag+'</span>'
-    +'<button onclick="showMarketDetail('+l.id+',\''+chartParam+'\',\''+name.replace(/'/g,"\\'")+'\')" style="font-size:8px;color:var(--tx3);background:none;border:none;cursor:pointer;padding:2px 4px;font-family:var(--fn)" title="'+tl('Price history','가격 기록','価格履歴','价格记录')+'">📊</button>'
+    +'<span class="eco-item-title" style="font-size:10px;font-weight:700;color:'+rarityColor+'">'+_ecoEsc(name)+enhTag+'</span>'
+    +'<button onclick="showMarketDetail('+_ecoNum(l.id)+',\''+_ecoInline(chartParam)+'\',\''+_ecoInline(name)+'\')" style="font-size:8px;color:var(--tx3);background:none;border:none;cursor:pointer;padding:2px 4px;font-family:var(--fn)" title="'+tl('Price history','가격 기록','価格履歴','价格记录')+'">📊</button>'
     +'</div>'
     +claimInfo
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">'
-    +'<div><span style="font-size:12px;font-weight:800;color:var(--gold)">'+price+'</span> <span style="font-size:9px;color:var(--tx3)">'+currency+'</span></div>'
-    +'<div style="font-size:8px;color:var(--tx3)">'+seller+' · '+timeStr+'</div>'
+    +'<div><span style="font-size:12px;font-weight:800;color:var(--gold)">'+price+'</span> <span style="font-size:9px;color:var(--tx3)">'+_ecoEsc(currency)+'</span></div>'
+    +'<div style="font-size:8px;color:var(--tx3)">'+_ecoEsc(seller)+' · '+timeStr+'</div>'
     +'</div>'
     +'<div style="display:flex;justify-content:flex-end;gap:4px;margin-top:4px">'
-    +(isOwn?'<button onclick="cancelMarketListing('+l.id+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.4);background:rgba(232,72,85,.1);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>'
-    :'<button onclick="buyMarketListing('+l.id+','+price+',\''+currency+'\',\''+name.replace(/'/g,"\\'")+'\')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn)">'+(t('mkt_buy')||'BUY')+'</button>')
+    +(isOwn?'<button onclick="cancelMarketListing('+_ecoNum(l.id)+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.4);background:rgba(232,72,85,.1);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>'
+    :'<button onclick="buyMarketListing('+_ecoNum(l.id)+','+price+',\''+_ecoInline(currency)+'\',\''+_ecoInline(name)+'\')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn)">'+(t('mkt_buy')||'BUY')+'</button>')
     +'</div></div>';
 }
 
@@ -916,13 +935,15 @@ function _renderSparkline(points, width, height){
 }
 
 function showMarketDetail(listingId, chartParam, name){
+  var listing=_mktArtListings[listingId];
   // Show a gameConfirm-style modal with price history
   var dlg=document.createElement('div');
   dlg.id='mktDetailDlg';
   dlg.style.cssText='position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7)';
   dlg.innerHTML='<div style="background:var(--surface1);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;width:min(340px,calc(100vw - 32px));max-height:80vh;overflow-y:auto">'
+    +(listing?'<div class="eco-confirm-art">'+_mktArt(listing,96)+'</div>':'')
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
-    +'<span style="font-size:11px;font-weight:700;color:#a064dc">📊 '+(name||tl('Price History','가격 기록','価格履歴','价格记录'))+'</span>'
+    +'<span style="font-size:11px;font-weight:700;color:#a064dc">📊 '+_ecoEsc(name||tl('Price History','가격 기록','価格履歴','价格记录'))+'</span>'
     +'<button onclick="document.getElementById(\'mktDetailDlg\').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:14px">✕</button>'
     +'</div>'
     +'<div id="mktDetailChart" style="width:100%;min-height:80px;display:flex;align-items:center;justify-content:center">'
@@ -996,7 +1017,7 @@ function buyMarketListing(listingId,price,currency,name){
     }
     gameConfirm({
       title:t('mkt_buy_title')||'Purchase Item', icon:'🛒',
-      body:name,
+      body:(_mktArtListings[listingId]?'<div class="eco-confirm-art">'+_mktArt(_mktArtListings[listingId],96)+'</div>':'')+_ecoEsc(name),
       info:info,
       confirmText:t('mkt_buy_confirm')||'BUY NOW', disabled:insufficient
     }).then(function(ok){
@@ -1039,7 +1060,8 @@ function loadSellView(){
 
   // ── 아이템만 API에서, 영토는 이미 로컬에 있는 _ownerGroups 사용 ──
   mtReadArray('market-sell-items', '/api/items/instances', 10000, true).catch(function(){return []}).then(function(instances){
-    instances=Array.isArray(instances)?instances:(instances||[]);
+    instances=Array.isArray(instances)?instances:[];
+    _mktSellInstances=instances;
     var html='';
 
     // ── TERRITORIES: _ownerGroups 기반 (BASE 내 영토 탭과 동일 로직) ──
@@ -1094,10 +1116,11 @@ function loadSellView(){
     }else{
       html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
       instances.forEach(function(inst){
-        var lv=inst.enhancement_level||0;
-        html+='<div class="'+_enhGlowClass(lv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
-          +'<div style="font-size:10px;font-weight:700;color:'+_enhLevelColor(lv)+'">'+(inst.icon||'🎨')+' '+(inst.name||tl('Item','아이템','アイテム','物品'))+_enhBadge(lv)+'</div>'
-          +'<button type="button" onclick="openListModal(\'cosmetic\','+inst.id+',\''+(inst.name||'').replace(/'/g,"\\'")+'\','+(inst.icon?'\''+inst.icon+'\'':'null')+','+lv+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+(t('mkt_list_sell')||'SELL')+'</button>'
+        var lv=_ecoNum(inst.enhancement_level);
+        html+='<div class="eco-item-card '+_enhGlowClass(lv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+          +_ecoCardArt(inst,88)
+          +'<div style="font-size:11px;font-weight:700;color:'+_enhLevelColor(lv)+'">'+_ecoEsc(inst.name||tl('Item','아이템','アイテム','物品'))+_enhBadge(lv)+'</div>'
+          +'<button type="button" onclick="openListModal(\'cosmetic\','+_ecoNum(inst.id)+',null,null,'+_ecoNum(lv)+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+(t('mkt_list_sell')||'SELL')+'</button>'
           +'</div>';
       });
       html+='</div>';
@@ -1128,15 +1151,15 @@ function loadSellView(){
         return;
       }
       pane.innerHTML=ships.slice(0,12).map(function(s){
-        var portrait='assets/ships/reveal/'+(s.ship_type_code||'')+'.jpg';
+        var portrait=_ecoArt(s.ship_type_code,128,s.name_ko,s.quality);
         var nm=(typeof syShipName==='function')?syShipName(s):(s.name_ko||s.ship_type_code||'Ship');
         var qm=(typeof _crateQualityMeta!=='undefined'&&s.quality)?_crateQualityMeta[s.quality]:null;
         var qBadge=(qm&&qm.stars>0)?'<span style="font-size:8px;color:'+qm.col+';margin-left:4px">'+('★'.repeat(qm.stars))+'</span>':'';
-        return '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.25);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:5px">'
-          + '<div style="position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#0a0e1a"><img src="'+portrait+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"></div>'
-          + '<div style="font-size:10px;font-weight:700;color:'+(s.faction_color||'#fff')+'">'+escapeHtmlSafe(nm)+qBadge+'</div>'
+        return '<div class="eco-item-card" style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.25);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:5px">'
+          + '<div class="eco-hull-art" style="position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#0a0e1a">'+portrait+'</div>'
+          + '<div style="font-size:10px;font-weight:700;color:'+_ecoEsc(/^#[0-9a-f]{3,8}$/i.test(s.faction_color||'')?s.faction_color:'#fff')+'">'+escapeHtmlSafe(nm)+qBadge+'</div>'
           + '<div style="font-size:8px;color:var(--tx3)">'+escapeHtmlSafe(s.class_label||s.size_class||'')+'</div>'
-          + '<button type="button" onclick="openShipSellModal('+s.id+',\''+escapeHtmlSafe(nm).replace(/\047/g,"\\\047")+'\')" style="font-size:9px;font-weight:700;padding:5px;border-radius:5px;border:1px solid rgba(92,187,255,.45);background:rgba(92,187,255,.12);color:#5cbbff;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+tl('LIST SHIP','함선 등록','艦船を出品','上架舰船')+'</button>'
+          + '<button type="button" onclick="openShipSellModal('+_ecoNum(s.id)+',\''+_ecoInline(nm)+'\')" style="font-size:9px;font-weight:700;padding:5px;border-radius:5px;border:1px solid rgba(92,187,255,.45);background:rgba(92,187,255,.12);color:#5cbbff;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+tl('LIST SHIP','함선 등록','艦船を出品','上架舰船')+'</button>'
           + '</div>';
       }).join('');
     }).catch(function(){
@@ -1156,14 +1179,14 @@ function openMarketShipBuy(listingId, name, priceGp, shipTypeCode, shipFaction){
   var insufficient = myGP < priceGp;
   var myFaction = (typeof shipyardState!=='undefined' && shipyardState.myFaction && (shipyardState.myFaction.code||'').toLowerCase()) || '';
   // [v7.322] 합체 유닛(pilgrim/assembled)은 전 유저 공용 — cross-faction 경고 없음.
-  var _univBuy = ((shipFaction||'').toLowerCase() === 'pilgrim') || ((shipSize||'').toLowerCase() === 'assembled');
+  var _univBuy = ((shipFaction||'').toLowerCase() === 'pilgrim') || (window.ItemArt && window.ItemArt.resolve(shipTypeCode).kind === 'assembled');
   var crossFaction = !_univBuy && myFaction && shipFaction && (myFaction !== (shipFaction||'').toLowerCase());
 
   var info = [
     { k: tl('Price','가격','価格','价格'), v: priceGp.toLocaleString() + ' GP' },
     { k: tl('Balance','보유 GP','残高','余额'), v: Math.floor(myGP).toLocaleString() + ' GP', insufficient: insufficient }
   ];
-  var body = tl('Buy this ship from the market.','마켓에서 이 함선을 구매합니다.','市場でこの艦船を購入します。','从市场购买这艘舰船。');
+  var body = '<div class="eco-confirm-art">'+_ecoArt(shipTypeCode,128,name)+'</div>'+tl('Buy this ship from the market.','마켓에서 이 함선을 구매합니다.','市場でこの艦船を購入します。','从市场购买这艘舰船。');
   // [v7.178 Phase 3] 가격 히스토리 sparkline — 최근 30건 판매가 inline SVG
   // [v7.190] race 가드 토큰 — gameConfirm 모달에 listingId 기록. 응답 도착 시 토큰 일치할 때만 append.
   try {
@@ -1276,11 +1299,14 @@ function openShipSellModal(shipId, shipName){
 }
 
 function openListModal(type,idVal,name,icon,enhLv){
+  var instance=(type==='cosmetic'||type==='item')?_mktSellInstances.concat(_enhInstances||[]).find(function(i){return String(i.id)===String(idVal);}):null;
+  if(type==='cosmetic'&&instance)name=instance.name||name;
+  var art=instance?_ecoCardArt(instance,96):_mktArt({listing_type:type,bundle_currency:type==='currency'?'gp':''},72);
   var w=(walletState&&walletState.address)||'';
   var isCurrencyListing=type==='currency';
   gameConfirm({
-    title:(t('mkt_list_title')||'판매 등록'), icon:icon||'💰',
-    body:'<div style="margin-bottom:10px;font-size:11px;color:#a064dc;font-weight:800">'+(icon||'')+(name||tl('Item','아이템','アイテム','物品'))+(enhLv>0?' +'+enhLv:'')+'</div>'
+    title:(t('mkt_list_title')||'판매 등록'), icon:'💰',
+    body:'<div class="eco-item-card" style="background:none!important;border:0!important"><div class="eco-confirm-art">'+art+'</div><div style="margin-bottom:10px;font-size:11px;color:#a064dc;font-weight:800">'+_ecoEsc(name||tl('Item','아이템','アイテム','物品'))+(enhLv>0?' +'+enhLv:'')+'</div>'
       // 판매 방식 선택
       +'<div style="display:flex;gap:6px;margin-bottom:10px">'
       +(isCurrencyListing?'':'<button type="button" id="listModeFixed" onclick="document.getElementById(\'listModeFixed\').style.background=\'rgba(160,100,220,.3)\';document.getElementById(\'listModeFixed\').style.borderColor=\'rgba(160,100,220,.7)\';document.getElementById(\'listModeAuction\').style.background=\'rgba(0,0,0,.2)\';document.getElementById(\'listModeAuction\').style.borderColor=\'rgba(255,255,255,.1)\';document.getElementById(\'listAuctionFields\').style.display=\'none\'" style="flex:1;padding:8px;border-radius:7px;background:rgba(160,100,220,.3);border:1px solid rgba(160,100,220,.7);color:#a064dc;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">💰 '+(LANG==='ko'?'고정가':LANG==='ja'?'固定価格':LANG==='zh'?'固定价格':'Fixed')+'</button>')
@@ -1307,7 +1333,7 @@ function openListModal(type,idVal,name,icon,enhLv){
       +'<select id="mktAuctionDur" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="1">1'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="6">6'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="12">12'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="24" selected>24'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="48">48'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="72">72'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option></select>'
       +'</div>'
       +'</div>'
-      +'<div style="font-size:8px;color:var(--tx3)">'+(LANG==='ko'?'수수료: 낙찰가의 5%':LANG==='ja'?'手数料: 落札額の5%':LANG==='zh'?'手续费: 成交价5%':'Fee: 5% of sale')+'</div>',
+      +'<div style="font-size:8px;color:var(--tx3)">'+(LANG==='ko'?'수수료: 낙찰가의 5%':LANG==='ja'?'手数料: 落札額の5%':LANG==='zh'?'手续费: 成交价5%':'Fee: 5% of sale')+'</div></div>',
     info:[], confirmText:LANG==='ko'?'등록하기':LANG==='ja'?'出品する':LANG==='zh'?'发布':'List Item'
   }).then(function(ok){
     if(!ok) return;
@@ -1358,10 +1384,10 @@ function openResourceMarketListing(resourceCode){
   if(!w){showToast(tl('Connect wallet first','지갑을 먼저 연결하세요','先にウォレットを接続してください','请先连接钱包'),'error');return;}
   var resItem=(_resourceInventory||[]).find(function(r){return r.code===resourceCode;});
   if(!resItem||resItem.quantity<=0){showToast(tl('No resources to sell','판매할 자원이 없습니다','売却する資源がありません','没有可出售的资源'),'error');return;}
-  var maxQty=resItem.quantity;
+  var maxQty=_ecoNum(resItem.quantity);
   gameConfirm({
-    title:'⛏️ '+(t('res_sell_title')||'Sell Resource'), icon:resItem.icon_emoji||'🔷',
-    body:'<div style="margin-bottom:8px;font-size:10px;color:#5cbbff;font-weight:700">'+(resItem.icon_emoji||'')+(resItem.name||resItem.code)+'</div>'
+    title:'⛏️ '+(t('res_sell_title')||'Sell Resource'), icon:'⛏️',
+    body:'<div class="eco-item-card" style="background:none!important;border:0!important"><div class="eco-confirm-art">'+_ecoCardArt(resItem,96)+'</div><div style="margin-bottom:8px;font-size:11px;color:#5cbbff;font-weight:700">'+_ecoEsc(resItem.name||resItem.code)+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px">'
       +'<div>'
       +'<label style="font-size:9px;color:var(--tx3)">'+tl('QTY','수량','数量','数量')+' ('+tl('max','최대','最大','最多')+' '+maxQty+')</label>'
@@ -1369,11 +1395,11 @@ function openResourceMarketListing(resourceCode){
       +'</div>'
       +'<div>'
       +'<label style="font-size:9px;color:var(--tx3)">'+tl('PRICE EACH','개당 가격','単価','单价')+'</label>'
-      +'<input id="resListPrice" type="number" min="1" placeholder="'+resItem.base_pp_value+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
+      +'<input id="resListPrice" type="number" min="1" placeholder="'+_ecoNum(resItem.base_pp_value)+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
       +'</div>'
       +'</div>'
       +'<select id="resListCurrency" style="width:100%;font-size:10px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box"><option value="GP">GP</option><option value="PP">PP</option></select>'
-      +'<div style="font-size:8px;color:var(--tx3);margin-top:4px">'+(t('mkt_fee_note')||'Listing fee: 2 GP · Sale fee: 5%')+'</div>',
+      +'<div style="font-size:8px;color:var(--tx3);margin-top:4px">'+(t('mkt_fee_note')||'Listing fee: 2 GP · Sale fee: 5%')+'</div></div>',
     info:[], confirmText:t('mkt_list_confirm')||'LIST FOR SALE'
   }).then(function(ok){
     if(!ok) return;
@@ -1405,12 +1431,13 @@ function loadMyListings(){
     listings.forEach(function(l){
       var meta=l.meta||{};
       var statusColor=l.status==='active'?'#4cd89a':l.status==='sold'?'var(--gold)':l.status==='expired'?'var(--tx3)':'var(--red)';
-      html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:center">'
+      html+='<div class="eco-item-row" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:center">'
+        +_mktArt(l,64)
         +'<div>'
-        +'<div style="font-size:10px;font-weight:700;color:#a064dc">'+(meta.itemIcon||'🗺️')+' '+(meta.itemName||(l.listing_type==='claim'?tl('Territory','영토','領土','领地')+' #'+l.claim_id:tl('Item','아이템','アイテム','物品')))+(meta.enhancementLevel>0?_enhBadge(meta.enhancementLevel):'')+'</div>'
-        +'<div style="font-size:9px;color:var(--tx3)">'+parseFloat(l.price)+' '+l.currency+' · <span style="color:'+statusColor+'">'+l.status.toUpperCase()+'</span></div>'
+        +'<div style="font-size:10px;font-weight:700;color:#a064dc">'+_ecoEsc(_mktName(l))+(meta.enhancementLevel>0?_enhBadge(meta.enhancementLevel):'')+'</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">'+parseFloat(l.price)+' '+_ecoEsc(l.currency)+' · <span style="color:'+statusColor+'">'+_ecoEsc(String(l.status||'').toUpperCase())+'</span></div>'
         +'</div>'
-        +(l.status==='active'?'<button onclick="cancelMarketListing('+l.id+')" style="font-size:9px;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>':'')
+        +(l.status==='active'?'<button onclick="cancelMarketListing('+_ecoNum(l.id)+')" style="font-size:9px;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>':'')
         +'</div>';
     });
     html+='</div>';
@@ -1461,22 +1488,18 @@ function loadAuctions(){
       var isSelf=(w&&a.seller_wallet&&w.toLowerCase()===a.seller_wallet.toLowerCase());
       var hasBid=a.current_bid>0;
       var minBid=hasBid?Math.ceil(a.current_bid*1.05):Math.ceil(parseFloat(a.current_price||a.start_price||0)+1);
-      var itemLabel=a.listing_type==='cosmetic'?(a.item_icon||'🎨')+' '+(a.item_name||tl('Cosmetic','코스메틱','コスメ','装饰'))
-        :a.listing_type==='item'?'📦 '+(a.item_name||tl('Item','아이템','アイテム','物品'))
-        :a.listing_type==='claim'?'🗺️ '+tl('Territory','영토','領土','领地')+' #'+a.claim_id
-        :a.listing_type==='resource'?'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||tl('Resource','자원','資源','资源'))
-        :a.listing_type==='currency'?'💱 '+(a.bundle_amount||0)+' '+(a.bundle_currency||'')+' → '+a.currency
-        :'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||a.resource_name||tl('Resource','자원','資源','资源'));
-      var enhLv=a.enhancement_level||0;
-      html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,165,0,.15);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
+      var itemLabel=_ecoEsc(_mktName(a));
+      var enhLv=_ecoNum(a.enhancement_level);
+      html+='<div class="eco-item-card" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,165,0,.15);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
+        +'<div class="eco-confirm-art">'+_mktArt(a,88)+'</div>'
         +'<div style="font-size:10px;font-weight:700;color:var(--gold)">'+itemLabel+(enhLv>0?_enhBadge(enhLv):'')+'</div>'
-        +'<div style="font-size:9px;color:var(--tx3)">'+(t('auc_current_bid')||'Bid')+': <span style="color:#fff;font-weight:700">'+(hasBid?a.current_bid:a.start_price)+' '+a.currency+'</span></div>'
-        +(a.buyout_price?'<div style="font-size:8px;color:#4cd89a">'+(t('auc_buyout')||'Buyout')+': '+a.buyout_price+' '+a.currency+'</div>':'')
-        +'<div class="auc-timer-'+a.id+'" style="font-size:8px;color:var(--tx3)">⏱ '+_auctionTimeLeft(a.ends_at)+'</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">'+(t('auc_current_bid')||'Bid')+': <span style="color:#fff;font-weight:700">'+_ecoNum(hasBid?a.current_bid:a.start_price)+' '+_ecoEsc(a.currency)+'</span></div>'
+        +(a.buyout_price?'<div style="font-size:8px;color:#4cd89a">'+(t('auc_buyout')||'Buyout')+': '+_ecoNum(a.buyout_price)+' '+_ecoEsc(a.currency)+'</div>':'')
+        +'<div class="auc-timer-'+_ecoNum(a.id)+'" style="font-size:8px;color:var(--tx3)">⏱ '+_ecoEsc(_auctionTimeLeft(a.ends_at))+'</div>'
         +'<div style="display:flex;gap:4px;margin-top:auto">'
-        +(!isSelf?'<button onclick="govPlaceAuctionBid('+a.id+','+minBid+',\''+a.currency+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(255,165,0,.4);background:rgba(255,165,0,.1);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔨 '+(t('auc_bid')||'BID')+'</button>':'')
-        +(a.buyout_price&&!isSelf?'<button onclick="govAuctionBuyout('+a.id+',\''+a.currency+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.1);color:#4cd89a;cursor:pointer;font-family:var(--fn)">⚡ '+(t('auc_buy_now')||'BUY')+'</button>':'')
-        +(isSelf&&!hasBid?'<button onclick="govCancelAuction('+a.id+')" style="flex:1;font-size:8px;padding:4px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('auc_cancel')||'CANCEL')+'</button>':'')
+        +(!isSelf?'<button onclick="govPlaceAuctionBid('+_ecoNum(a.id)+','+minBid+',\''+_ecoInline(a.currency)+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(255,165,0,.4);background:rgba(255,165,0,.1);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔨 '+(t('auc_bid')||'BID')+'</button>':'')
+        +(a.buyout_price&&!isSelf?'<button onclick="govAuctionBuyout('+_ecoNum(a.id)+',\''+_ecoInline(a.currency)+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.1);color:#4cd89a;cursor:pointer;font-family:var(--fn)">⚡ '+(t('auc_buy_now')||'BUY')+'</button>':'')
+        +(isSelf&&!hasBid?'<button onclick="govCancelAuction('+_ecoNum(a.id)+')" style="flex:1;font-size:8px;padding:4px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('auc_cancel')||'CANCEL')+'</button>':'')
         +'</div>'
         +'</div>';
     });
@@ -1502,11 +1525,11 @@ window.govPlaceAuctionBid=function(auctionId,minBid,currency){
   if(!w){showToast(t('connect_wallet')||'Connect wallet first','error');return;}
   gameConfirm({
     title:t('auc_bid_title')||'Place Bid',icon:'🔨',
-    body:'<div style="margin-bottom:8px;font-size:10px;color:var(--gold)">'+(t('auc_min_bid')||'Minimum bid')+': <strong>'+minBid+' '+currency+'</strong></div>'
+    body:'<div style="margin-bottom:8px;font-size:10px;color:var(--gold)">'+(t('auc_min_bid')||'Minimum bid')+': <strong>'+minBid+' '+_ecoEsc(currency)+'</strong></div>'
       +'<div style="display:flex;gap:6px;align-items:center">'
       +'<label style="font-size:9px;color:var(--tx3);min-width:50px">'+(t('auc_your_bid')||'Your bid')+'</label>'
       +'<input id="aucBidAmt" type="number" min="'+minBid+'" value="'+minBid+'" style="flex:1;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,165,0,.3);color:#fff;border-radius:4px;font-family:var(--fn)">'
-      +'<span style="font-size:9px;color:var(--tx3)">'+currency+'</span>'
+      +'<span style="font-size:9px;color:var(--tx3)">'+_ecoEsc(currency)+'</span>'
       +'</div>',
     info:[],confirmText:t('auc_confirm_bid')||'PLACE BID'
   }).then(function(ok){
@@ -1565,10 +1588,11 @@ var _enhCosts=null,_enhRates=null,_enhInstances=[];
 
 function _enhBadge(lv){
   if(!lv||lv<=0) return '';
+  lv=_ecoNum(lv);
   var cls=lv<=3?'enh-badge-low':lv<=6?'enh-badge-mid':lv<=9?'enh-badge-high':'enh-badge-max';
   return '<span class="enh-badge '+cls+'">+'+lv+'</span>';
 }
-function _enhGlowClass(lv){ return 'enh-'+(lv||0); }
+function _enhGlowClass(lv){ return 'enh-'+_ecoNum(lv); }
 function _enhLevelColor(lv){
   if(!lv||lv<=0) return 'var(--tx3)';
   if(lv<=3) return 'rgba(200,200,220,.8)';
@@ -1625,7 +1649,7 @@ function openEnhanceModal(instanceId){
   //   protect/blessed scroll 보유 시 토글로 강화 안전성 즉시 향상 가능.
   var inst=_enhInstances.find(function(i){return i.id===instanceId});
   if(!inst) return showToast(tl('Item not found','아이템을 찾을 수 없습니다','アイテムが見つかりません','找不到物品'),'error');
-  var lv=inst.enhancement_level||0;
+  var lv=_ecoNum(inst.enhancement_level);
   var cost=_enhCosts?_enhCosts.find(function(c){return c.from===lv}):null;
   var rate=(_enhRates&&!_enhRates.hidden)?_enhRates.find(function(r){return r.from===lv}):null;
   var gpCost=cost?cost.cost:0;
@@ -1633,7 +1657,7 @@ function openEnhanceModal(instanceId){
   var insufficient=myGP<gpCost;
   var maxed=lv>=10;
   if(maxed){
-    return gameConfirm({title:(inst.icon||'')+' '+(inst.name||'Item')+' +10', icon:'✨', body:t('enh_maxed_body')||'This item has reached maximum enhancement.', confirmText:'OK', disabled:true});
+    return gameConfirm({title:(inst.name||'Item')+' +10', icon:'✨', body:'<div class="eco-confirm-art">'+_ecoCardArt(inst,96)+'</div>'+_ecoEsc(t('enh_maxed_body')||'This item has reached maximum enhancement.'), confirmText:'OK', disabled:true});
   }
 
   // 스크롤·레시피 정보 비동기 fetch — 폴백: 정보 없으면 기존 흐름 그대로 동작
@@ -1652,10 +1676,11 @@ function _showEnhanceModalWithInfo(inst, lv, gpCost, myGP, insufficient, rate, i
   el.style.cssText='position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(4,6,12,.82);backdrop-filter:blur(6px);padding:18px;animation:crFade .2s ease';
   el.onclick=function(e){ if(e.target===el) el.remove(); };
   function statRow(icon,label,val,extra){
-    return '<div style="display:flex;justify-content:space-between;padding:6px 11px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:5px"><span style="font-size:11px;color:var(--tx2)">'+icon+' '+label+'</span><span style="font-size:12px;font-weight:800;color:'+(extra==='insufficient'?'#ff5252':'#fff')+'">'+val+'</span></div>';
+    return '<div style="display:flex;justify-content:space-between;padding:6px 11px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:5px"><span style="font-size:11px;color:var(--tx2)">'+icon+' '+_ecoEsc(label)+'</span><span style="font-size:12px;font-weight:800;color:'+(extra==='insufficient'?'#ff5252':'#fff')+'">'+_ecoEsc(val)+'</span></div>';
   }
   var html='<div style="position:relative;width:min(440px,94vw);max-height:92vh;overflow:auto;border-radius:14px;background:radial-gradient(circle at 50% 0%,rgba(255,209,102,.18),rgba(10,12,22,.98) 65%);border:1.5px solid rgba(255,209,102,.55);box-shadow:0 0 30px rgba(255,209,102,.25),0 18px 60px rgba(0,0,0,.7);padding:20px;animation:crPop .3s cubic-bezier(.2,1.3,.5,1)">'
-    + '<div style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#ffd166">🔨 '+tl('ENHANCE','강화','強化','强化')+' '+(inst.icon||'')+' '+(inst.name||'Item')+' +'+lv+' → +'+(lv+1)+'</div>'
+    + '<div class="eco-confirm-art">'+_ecoCardArt(inst,112)+'</div>'
+    + '<div class="eco-item-title" style="text-align:center;font-size:14px;font-weight:900;letter-spacing:1.5px;color:#ffd166">'+tl('ENHANCE','강화','強化','强化')+' '+_ecoEsc(inst.name||'Item')+' +'+lv+' → +'+(lv+1)+'</div>'
     + '<div style="margin-top:13px">'
     +   statRow('💰', tl('Cost','비용','コスト','费用'), gpCost+' GP')
     +   statRow('💎', tl('Balance','보유 GP','残高','余额'), Math.floor(myGP)+' GP', insufficient?'insufficient':'')
@@ -1666,22 +1691,22 @@ function _showEnhanceModalWithInfo(inst, lv, gpCost, myGP, insufficient, rate, i
     html += '<div style="margin-top:12px;padding:11px;border-radius:9px;background:rgba(184,140,255,.07);border:1px solid rgba(184,140,255,.3)">'
       + '<div style="font-size:10px;font-weight:800;color:#caa8ff;letter-spacing:.8px;margin-bottom:6px">📜 '+tl('SCROLLS — Enhance safety','스크롤 — 강화 안전 옵션','スクロール — 強化安全オプション','卷轴 — 强化安全选项')+'</div>';
     if (protectOwned>0) {
-      html += '<label style="display:flex;align-items:center;gap:7px;font-size:10px;color:#e8d8ff;cursor:pointer;padding:3px 0"><input type="checkbox" id="enhUseProtect" style="cursor:pointer"> 🛡 '+tl('Protect scroll','보호 스크롤','保護スクロール','保护卷轴')+' — '+tl('No level drop on failure','실패 시 레벨 유지','失敗時もレベル維持','失败时保留等级')+' ('+protectOwned+' '+tl('owned','보유','所持','持有')+')</label>';
+      html += '<label style="display:flex;align-items:center;gap:7px;font-size:10px;color:#e8d8ff;cursor:pointer;padding:3px 0"><input type="checkbox" id="enhUseProtect" style="cursor:pointer"> 🛡 '+tl('Protect scroll','보호 스크롤','保護スクロール','保护卷轴')+' — '+tl('No level drop on failure','실패 시 레벨 유지','失敗時もレベル維持','失败时保留等级')+' ('+_ecoNum(protectOwned)+' '+tl('owned','보유','所持','持有')+')</label>';
     }
     if (blessedOwned>0) {
-      html += '<label style="display:flex;align-items:center;gap:7px;font-size:10px;color:#e8d8ff;cursor:pointer;padding:3px 0"><input type="checkbox" id="enhUseBlessed" style="cursor:pointer"> ✨ '+tl('Blessed scroll','축복 스크롤','祝福スクロール','祝福卷轴')+' — '+tl('Success rate boost','성공률 +20%','成功率+20%','成功率 +20%')+' ('+blessedOwned+' '+tl('owned','보유','所持','持有')+')</label>';
+      html += '<label style="display:flex;align-items:center;gap:7px;font-size:10px;color:#e8d8ff;cursor:pointer;padding:3px 0"><input type="checkbox" id="enhUseBlessed" style="cursor:pointer"> ✨ '+tl('Blessed scroll','축복 스크롤','祝福スクロール','祝福卷轴')+' — '+tl('Success rate boost','성공률 +20%','成功率+20%','成功率 +20%')+' ('+_ecoNum(blessedOwned)+' '+tl('owned','보유','所持','持有')+')</label>';
     }
     html += '</div>';
   }
   // 레시피
   if (recipes && recipes.length) {
     html += '<div style="margin-top:10px;padding:9px;border-radius:9px;background:rgba(76,216,154,.06);border:1px solid rgba(76,216,154,.25)"><div style="font-size:10px;font-weight:800;color:#5cd6a8;letter-spacing:.5px;margin-bottom:4px">🧪 '+tl('AVAILABLE RECIPES (bonus)','적용 가능 레시피 (보너스)','適用可能レシピ(ボーナス)','可用配方（加成）')+'</div>'
-      + recipes.slice(0,3).map(function(r){return '<div style="font-size:9.5px;color:rgba(232,245,255,.85);padding:2px 0">• '+escapeHtmlSafe(r.label||r.id||'recipe')+(r.bonus_pct?' (+'+r.bonus_pct+'%)':'')+'</div>';}).join('')
+      + recipes.slice(0,3).map(function(r){return '<div style="font-size:9.5px;color:rgba(232,245,255,.85);padding:2px 0">• '+escapeHtmlSafe(r.label||r.id||'recipe')+(r.bonus_pct?' (+'+_ecoNum(r.bonus_pct)+'%)':'')+'</div>';}).join('')
       + '</div>';
   }
   html += '<div style="margin-top:15px;display:flex;gap:8px">'
     + '<button type="button" onclick="document.getElementById(\'enhanceAdvModal\').remove()" style="flex:1;padding:11px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer">'+tl('CANCEL','취소','キャンセル','取消')+'</button>'
-    + '<button type="button" '+(insufficient?'disabled':'')+' onclick="(function(){var u={useProtectScroll:(document.getElementById(\'enhUseProtect\')||{}).checked||false,useBlessedScroll:(document.getElementById(\'enhUseBlessed\')||{}).checked||false};document.getElementById(\'enhanceAdvModal\').remove();attemptEnhance('+inst.id+',u);})()" style="flex:1.4;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,209,102,.5),rgba(255,209,102,.15));border:1px solid rgba(255,209,102,.7);color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:'+(insufficient?'not-allowed':'pointer')+';opacity:'+(insufficient?'.5':'1')+'">🔨 '+tl('ENHANCE','강화','強化','强化')+'</button>'
+    + '<button type="button" '+(insufficient?'disabled':'')+' onclick="(function(){var u={useProtectScroll:(document.getElementById(\'enhUseProtect\')||{}).checked||false,useBlessedScroll:(document.getElementById(\'enhUseBlessed\')||{}).checked||false};document.getElementById(\'enhanceAdvModal\').remove();attemptEnhance('+_ecoNum(inst.id)+',u);})()" style="flex:1.4;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,209,102,.5),rgba(255,209,102,.15));border:1px solid rgba(255,209,102,.7);color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:'+(insufficient?'not-allowed':'pointer')+';opacity:'+(insufficient?'.5':'1')+'">🔨 '+tl('ENHANCE','강화','強化','强化')+'</button>'
     + '</div></div>';
   el.innerHTML = html;
   document.body.appendChild(el);

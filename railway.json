@@ -5,7 +5,7 @@
     "buildCommand": "cd server && npm install"
   },
   "deploy": {
-    "startCommand": "cd server && node index.js",
+    "startCommand": "cd server && node migrate.js && node index.js",
     "healthcheckPath": "/ready",
     "restartPolicyType": "ALWAYS"
   }

@@ -22,6 +22,7 @@ const writeLimiter = makeRateLimiter({
 });
 
 function getCosmeticType(itemCode) {
+  if (typeof itemCode !== 'string') return null;
   if (itemCode.endsWith('_border')) return 'border';
   if (itemCode.endsWith('_glow') || itemCode === 'dark_aura') return 'glow';
   if (itemCode.endsWith('_terrain')) return 'terrain';
@@ -29,7 +30,7 @@ function getCosmeticType(itemCode) {
 }
 
 router.post('/cosmetic/equip', requireAuth, writeLimiter, async (req, res) => {
-  const { claimId, itemCode } = req.body;
+  const { claimId, itemCode } = req.body || {};
   const wallet = getAuthWallet(req);
   if (!wallet || !claimId || !itemCode) return res.status(400).json({ error: 'Missing params' });
 
@@ -41,30 +42,34 @@ router.post('/cosmetic/equip', requireAuth, writeLimiter, async (req, res) => {
     await client.query('BEGIN');
     const settings = await cfg();
 
-    const claimRes = await client.query('SELECT owner FROM claims WHERE id = $1 AND deleted_at IS NULL', [claimId]);
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
+    const claimRes = await client.query('SELECT owner FROM claims WHERE id = $1 AND deleted_at IS NULL FOR UPDATE', [claimId]);
     if (!claimRes.rows[0] || claimRes.rows[0].owner.toLowerCase() !== wallet) {
       await client.query('ROLLBACK');
       return res.status(403).json({ error: 'Not your claim' });
     }
 
-    const invRes = await client.query(
-      `SELECT ui.id, ui.quantity, ui.item_type_id FROM user_items ui
-       JOIN item_types it ON it.id = ui.item_type_id
-       WHERE ui.wallet = $1 AND it.code = $2 AND ui.quantity > 0
-       FOR UPDATE`,
-      [wallet, itemCode]
-    );
-    if (!invRes.rows[0]) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'You don\'t own this cosmetic' });
-    }
-
     const prevRes = await client.query(
       `SELECT cosmetic_code FROM user_cosmetics
-        WHERE claim_id = $1 AND cosmetic_type = $2`,
+        WHERE claim_id = $1 AND cosmetic_type = $2 FOR UPDATE`,
       [claimId, cosmeticType]
     );
     const prevCode = prevRes.rows[0]?.cosmetic_code || null;
+    // Repeating the current equip is safe even after its inventory quantity is 0.
+    if (prevCode === itemCode) {
+      await client.query('COMMIT');
+      return res.json({ success: true, alreadyEquipped: true, cosmeticType, cosmeticCode: itemCode, feePP: 0 });
+    }
+    const invRes = await client.query(
+      `SELECT ui.id, ui.quantity, ui.item_type_id FROM user_items ui
+       JOIN item_types it ON it.id = ui.item_type_id
+       WHERE ui.wallet = $1 AND it.code = $2 AND it.category='cosmetic' AND ui.quantity > 0
+       FOR UPDATE`, [wallet, itemCode]
+    );
+    if (!invRes.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: "You don't own this cosmetic" });
+    }
 
     if (prevCode && prevCode !== itemCode) {
       await client.query(
@@ -149,6 +154,7 @@ router.post('/cosmetic/unequip', requireAuth, writeLimiter, async (req, res) => 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
     const result = await client.query(
       'DELETE FROM user_cosmetics WHERE wallet = $1 AND claim_id = $2 AND cosmetic_type = $3 RETURNING cosmetic_code',
       [wallet, claimId, cosmeticType]

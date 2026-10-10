@@ -1,0 +1,20 @@
+/* Sharp monochrome command symbols; imagery belongs to the item-art surfaces. */
+.game-icon{display:inline-block;vertical-align:middle;flex:0 0 auto;max-width:none;overflow:visible;pointer-events:none}
+.game-icon-control{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;min-width:44px!important;min-height:44px!important;box-sizing:border-box;padding:8px!important}
+.bcat{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.shipyard-tabs .sy-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:58px}
+[data-game-icon]{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;line-height:1}
+.game-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.cc-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;max-width:100%;overflow-wrap:anywhere}
+.cc-button>span{min-width:0}
+.cc-stock .cc-button{display:flex}
+.cc-node-icon .game-icon{width:26px;height:26px}
+.cc-body .cc-objective-status{display:inline-flex;vertical-align:middle;margin-right:5px;color:#9ceacb}
+.cc-body summary:before{content:none}
+.cc-body details summary>.game-icon{transition:transform .15s}
+.cc-body details[open] summary>.game-icon{transform:rotate(90deg)}
+.fleet-field-guide .ffg-role{display:flex;align-items:center;gap:7px}
+.fleet-field-guide .ffg-header button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px}
+@media(max-width:768px){.shipyard-tabs{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}.shipyard-tabs .sy-tab{flex:0 0 auto;min-width:86px;white-space:nowrap;padding:10px 8px}}
+@media(max-width:360px){.cc-button{gap:5px;padding-left:10px;padding-right:10px}.cc-actions .cc-button{min-width:100px}.cc-node strong{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.cc-body details summary>.game-icon{transition:none}}

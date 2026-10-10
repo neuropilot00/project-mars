@@ -43,6 +43,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="fleet-field-guide.css">
 <script src="fleet-field-guide.js" defer></script>
+<script src="battlefield-art.js"></script>
 <title>OCCUPY MARS — Tactical Lab v11.1 + VFX (v7.229)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
@@ -971,7 +972,7 @@ function localizeStaticUI(){
    광물 — 기본값(오프라인 폴백). boot()에서 /api/tactical-lab/catalog로 덮어씀
    ═══════════════════════════════════════════════════════════ */
 let MINERALS = {
-  iron_dust:{ko:'철 먼지',en:'Iron Dust',icon:'🟤',color:'#795548',tier:0,src:'모든 섹터 · 흔함'},
+  iron_dust:{ko:'철 분말',en:'Iron Dust',icon:'🟤',color:'#795548',tier:0,src:'모든 섹터 · 흔함'},
   red_sand:{ko:'붉은 모래',en:'Red Sand',icon:'🔴',color:'#e57373',tier:0,src:'모든 섹터 · 흔함'},
   silicate:{ko:'규산염',en:'Silicate',icon:'⚪',color:'#cfd8dc',tier:0,src:'모든 섹터 · 흔함'},
   ice_crystal:{ko:'얼음 결정',en:'Ice Crystal',icon:'🔵',color:'#4fc3f7',tier:1,src:'극지 섹터 · Mid Freq'},
@@ -980,7 +981,7 @@ let MINERALS = {
   ancient_metal:{ko:'고대 금속',en:'Ancient Metal',icon:'⭐',color:'#ffd700',tier:2,src:'Frontier · Very Rare'},
   meteorite_frag:{ko:'운석 파편',en:'Meteorite Frag.',icon:'☄️',color:'#b39ddb',tier:2,src:'유성우 이벤트'},
   xenomatter:{ko:'외계 물질',en:'Xenomatter',icon:'💠',color:'#00e5ff',tier:2,src:'외계 함선 격파'},
-  hull_plate:{ko:'장갑판',en:'Hull Plate',icon:'▣',color:'#607d8b',tier:3,src:'제작: iron_dust×50 + silicate×20'},
+  hull_plate:{ko:'함체 판재',en:'Hull Plate',icon:'▣',color:'#607d8b',tier:3,src:'제작: iron_dust×50 + silicate×20'},
   plasma_coil:{ko:'플라즈마 코일',en:'Plasma Coil',icon:'⚡',color:'#ff6d00',tier:3,src:'제작: volcanic_shard×10 + rare_metal×3'},
   alloy_frame:{ko:'합금 프레임',en:'Alloy Frame',icon:'⬢',color:'#29b6f6',tier:3,src:'제작: iron_dust×80 + ice_crystal×15 + rare_metal×2'},
 };
@@ -1155,31 +1156,7 @@ const MARS_BATTLE_BG=new Image();
 let marsBattleBgReady=false;
 MARS_BATTLE_BG.decoding='async';
 MARS_BATTLE_BG.onload=()=>{marsBattleBgReady=true;};
-const BATTLEFIELD_BACKGROUNDS={
-  orbit_territory:'textures/battlefields/mars_orbit_territory.png',
-  garrison:'textures/battlefields/mars_garrison_realistic.png',
-  mining_site:'textures/battlefields/mars_mining_site_topdown.png',
-  canyon_outpost:'textures/battlefields/mars_canyon_outpost_topdown.png',
-  polar_ice:'textures/battlefields/mars_polar_ice_topdown.png',
-  lava_tube:'textures/battlefields/mars_lava_tube_topdown.png',
-  crater_relay:'textures/battlefields/mars_crater_relay_topdown.png',
-  refinery_yard:'textures/battlefields/mars_refinery_yard_topdown.png',
-  colony_dome:'textures/battlefields/mars_colony_dome_topdown.png',
-  excavation_grid:'textures/battlefields/mars_excavation_grid_topdown.png',
-  dust_storm:'textures/battlefields/mars_dust_storm_topdown.png',
-  occupied_airspace:'textures/battlefields/mars_occupied_airspace_topdown.png',
-  shipyard_drydock:'textures/battlefields/mars_shipyard_drydock_topdown.png',
-  convoy_route:'textures/battlefields/mars_convoy_route_topdown.png',
-  ancient_ruins:'textures/battlefields/mars_ancient_ruins_topdown.png',
-  orbital_blockade:'textures/battlefields/mars_orbital_blockade_topdown.png',
-  garrison_rooftop:'textures/battlefields/mars_garrison_rooftop_topdown.png',
-  deep_mine:'textures/battlefields/mars_deep_mine_topdown.png',
-  settlement_airspace:'textures/battlefields/mars_settlement_airspace_topdown.png',
-  occupation_grid_airspace:'textures/battlefields/mars_occupation_grid_airspace_topdown.png',
-  minehead_trench:'textures/battlefields/mars_minehead_trench_topdown.png',
-  dome_defense_line:'textures/battlefields/mars_dome_defense_line_topdown.png',
-  orbital_minefield:'textures/battlefields/mars_orbital_blockade_topdown.png',
-};
+const BATTLEFIELD_BACKGROUNDS=window.BattlefieldArt.backgrounds;
 const _bgKey=String(tlQuery('bg')||'').toLowerCase();
 const CURRENT_BATTLEFIELD_BG=BATTLEFIELD_BACKGROUNDS[_bgKey]||'';
 const CURRENT_BATTLEFIELD_LABEL=String(tlQuery('bgLabel')||_bgKey||'Mars Orbit').replace(/[_-]+/g,' ').slice(0,40);
@@ -2559,7 +2536,8 @@ function drawShipByFaction(ctx,s){
 function drawBG(){
   CX.fillStyle='#02030a';CX.fillRect(0,0,W,H);
   if(marsBattleBgReady&&MARS_BATTLE_BG.naturalWidth){
-    const iw=MARS_BATTLE_BG.naturalWidth,ih=MARS_BATTLE_BG.naturalHeight;
+    const crop=window.BattlefieldArt.sourceRect(_bgKey,MARS_BATTLE_BG.naturalWidth,MARS_BATTLE_BG.naturalHeight);
+    const iw=crop.width,ih=crop.height;
     const scale=Math.max(W/iw,H/ih)*1.22;
     const dw=iw*scale,dh=ih*scale;
     const t=performance.now();
@@ -2567,11 +2545,11 @@ function drawBG(){
     const y=-(dh-H)*.48+Math.sin(t*.00008)*H*.025;
     CX.save();
     CX.globalAlpha=CURRENT_BATTLEFIELD_BG?.86:.72;
-    for(let x=-drift-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y,dw,dh);
+    for(let x=-drift-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,crop.x,crop.y,crop.width,crop.height,x,y,dw,dh);
     if(!CURRENT_BATTLEFIELD_BG){
       CX.globalAlpha=.34;
       CX.globalCompositeOperation='screen';
-      for(let x=-drift*.55-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,x,y+H*.035,dw,dh);
+      for(let x=-drift*.55-dw;x<W+dw;x+=dw)CX.drawImage(MARS_BATTLE_BG,crop.x,crop.y,crop.width,crop.height,x,y+H*.035,dw,dh);
     }
     CX.restore();
   }

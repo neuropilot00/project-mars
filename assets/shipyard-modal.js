@@ -330,6 +330,7 @@ function openGacha() {
 }
 
 function closeShipyard() {
+  if (_asmBusy) return;
   document.getElementById('shipyardModal').classList.remove('active');
   if (shipyardState.queueTimer) {
     _clearActiveInterval(shipyardState.queueTimer);
@@ -338,6 +339,7 @@ function closeShipyard() {
 }
 
 function switchSyTab(tab) {
+  if (_asmBusy) return;
   shipyardState.currentTab = tab;
   document.querySelectorAll('.sy-tab').forEach(function(t) {
     t.classList.toggle('active', t.dataset.tab === tab);
@@ -365,6 +367,8 @@ var _asmUnit = null;        // 현재 선택된 유닛 코드
 var _asmUnits = [];         // 활성 유닛 목록
 var _asmBusy = false;
 var _asmBoxBusy = false;
+var _asmFusion = null;
+var _asmReturnFocus = null;
 function _asmName(o){ return LANG==='ko'?(o.name_ko||o.name_en):LANG==='ja'?(o.name_ja||o.name_en):LANG==='zh'?(o.name_zh||o.name_en):o.name_en; }
 // 이미지(PNG) → 없으면 이모지 폴백. art: assets/ships/top/<ship>.png, assets/assembly/parts/<part>.png
 function _asmImg(src, emoji, px){
@@ -502,6 +506,15 @@ function _asmBindModalDelegation(){
   if (!modal || modal.dataset.delegated) return;
   modal.dataset.delegated = '1';
   modal.addEventListener('click', _asmOnModalClick);
+  modal.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); _asmCloseUnitModal(); return; }
+    if (ev.key !== 'Tab') return;
+    var nodes = Array.from(modal.querySelectorAll('button:not(:disabled), summary, [tabindex="0"]')).filter(function(el){ return el.getClientRects().length; });
+    if (!nodes.length) return;
+    var first = nodes[0], last = nodes[nodes.length-1];
+    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+  });
 }
 async function _asmFetchUnitState(unitCode){
   var w = (typeof getMyWallet === 'function' ? getMyWallet() : '') || '';
@@ -514,7 +527,13 @@ async function _asmFetchUnitState(unitCode){
 async function _asmOpenUnitModal(unitCode){
   var modal = document.getElementById('asmUnitModal');
   var c = document.getElementById('asmUnitModalContent');
-  if (!modal || !c) return;
+  if (!modal || !c || _asmBusy) return;
+  _asmReturnFocus = document.activeElement;
+  _asmBindModalDelegation();
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('tabindex', '-1');
+  modal.setAttribute('aria-label', tl('Unit assembly','유닛 조립','ユニット組立','单位组装'));
   _asmUnit = unitCode || _asmUnit;
   modal.style.display = 'flex';
   c.innerHTML = '<div style="padding:24px;text-align:center;color:var(--tx3);font-size:10px">'+tl('Loading…','로딩 중…','読み込み中…','加载中…')+'</div>';
@@ -525,8 +544,47 @@ async function _asmOpenUnitModal(unitCode){
   } catch(e) { c.innerHTML = '<div style="padding:24px;color:#ef5350;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
 function _asmCloseUnitModal(){
+  if (_asmBusy) return;
   var modal = document.getElementById('asmUnitModal');
   if (modal) modal.style.display = 'none';
+  if (_asmReturnFocus && _asmReturnFocus.isConnected) _asmReturnFocus.focus();
+}
+async function _asmConfirm(options){
+  var modal = document.getElementById('asmUnitModal');
+  var dialog = document.getElementById('gameConfirm');
+  var previousFocus = document.activeElement;
+  var wasInert = modal && modal.inert;
+  var previousAriaModal = modal && modal.getAttribute('aria-modal');
+  function keys(ev){
+    if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); gameConfirmResolve(false); return; }
+    if (ev.key !== 'Tab') return;
+    var buttons = Array.from(dialog.querySelectorAll('button:not(:disabled)'));
+    var first = buttons[0], last = buttons[buttons.length-1];
+    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+    ev.stopPropagation();
+  }
+  try {
+    var result = gameConfirm(options);
+    if (modal) { modal.inert = true; modal.setAttribute('aria-modal', 'false'); }
+    if (dialog) {
+      dialog.addEventListener('keydown', keys);
+      var button = dialog.querySelector('#gcConfirmBtn:not(:disabled), button:not(:disabled)');
+      if (button) button.focus({preventScroll:true});
+    }
+    return await result;
+  } finally {
+    if (dialog) dialog.removeEventListener('keydown', keys);
+    if (modal) {
+      modal.inert = !!wasInert;
+      if (previousAriaModal === null) modal.removeAttribute('aria-modal');
+      else modal.setAttribute('aria-modal', previousAriaModal);
+      if (!modal.inert && modal.style.display !== 'none') {
+        if (previousFocus && previousFocus.isConnected && !previousFocus.disabled) previousFocus.focus({preventScroll:true});
+        else modal.focus({preventScroll:true});
+      }
+    }
+  }
 }
 function _asmQualityStars(q){
   var qm = (typeof _crateQualityMeta !== 'undefined' && q) ? _crateQualityMeta[q] : null;
@@ -537,110 +595,165 @@ function _asmQualityLabel(q){
   if (!qm) return '';
   return LANG === 'ko' ? qm.ko : qm.en;
 }
-function _asmRenderUnitModal(d){
+function _asmIcon(code, name, size){
+  if (window.ItemArt && typeof window.ItemArt.render === 'function') return window.ItemArt.render(code, {size:size || 48, name:name || code, decorative:true});
+  if ((code || '').indexOf('voltaris_') === 0 || (_asmState && (_asmState.parts || []).some(function(p){ return p.part_code === code; }))) return _asmImg('assets/assembly/parts/'+encodeURIComponent(code)+'.png', '', size || 48);
+  return '<span class="asm-art-placeholder" aria-hidden="true">◇</span>';
+}
+function _asmControlIcon(name){
+  return window.GameIcons && window.GameIcons.render ? window.GameIcons.render(name, {size:20}) : '<span aria-hidden="true">'+(name==='close'?'×':name==='fleet'?'↗':'◇')+'</span>';
+}
+function _asmCloseButton(){
+  return '<button type="button" class="asm-close" data-action="asm-modal-close" aria-label="'+tl('Close','닫기','閉じる','关闭')+'">'+_asmControlIcon('close')+'</button>';
+}
+function _asmRenderUnitModal(d, error){
   var c = document.getElementById('asmUnitModalContent');
   if (!c) return;
   var unit = d.unit || {};
-  var pct = d.total_parts ? Math.round((d.distinct_owned||0) / d.total_parts * 100) : 0;
-  var maxReached = parseInt(d.built_count,10) >= parseInt(d.max_per_player,10);
-  var mob = (typeof window!=="undefined") && window.innerWidth <= 760;
-  var slots = (d.parts||[]).map(function(p){
-    var has = parseInt(p.owned,10) >= 1;
-    return '<div style="min-height:118px;text-align:center;padding:10px 6px;border-radius:8px;border:1px solid '+(has?'rgba(179,136,255,.58)':'rgba(255,255,255,.1)')+';background:'+(has?'rgba(179,136,255,.12)':'rgba(255,255,255,.025)')+'">' +
-      '<div style="height:42px;display:flex;align-items:center;justify-content:center;filter:'+(has?'none':'grayscale(1) opacity(.38)')+'">'+_asmImg('assets/assembly/parts/'+(p.part_code||'')+'.png', p.icon||'🜲', 38)+'</div>' +
-      '<div style="font-size:8px;color:'+(has?'#e1bee7':'rgba(255,255,255,.42)')+';margin-top:7px;line-height:1.35">'+escapeHtmlSafe(_asmName(p)||p.part_code||'Part')+'</div>' +
-      '<div style="font-size:8px;color:'+(has?'#81c784':'#ef9a9a')+';margin-top:5px">'+(has?tl('OWNED','보유','所持','拥有'):tl('MISSING','미보유','未所持','缺少'))+'</div>' +
-    '</div>';
+  var total = (d.parts || []).length;
+  var owned = (d.parts || []).filter(function(p){ return Number(p.owned)>=1; }).length;
+  var maxReached = Number(d.built_count) >= Number(d.max_per_player);
+  var slots = (d.parts || []).map(function(p){
+    var has = Number(p.owned) >= 1;
+    var cost = Number(p.exchange_cost) || Number(d.shard_exchange_cost) || 40;
+    return '<article class="asm-part-card '+(has?'is-owned':'is-missing')+'">'+
+      '<div class="asm-part-art">'+_asmIcon(p.part_code, _asmName(p), 96)+'</div>'+
+      '<h3>'+escapeHtmlSafe(_asmName(p) || p.part_code)+'</h3>'+
+      '<p class="asm-part-count">'+tl('Owned','보유','所持','持有')+' <b>'+formatNum(p.owned || 0)+'</b> / '+tl('Need','필요','必要','需要')+' <b>1</b></p>'+
+      (has ? '<span class="asm-part-ready">'+tl('Ready · consumes 1','준비 완료 · 1개 소비','準備完了 · 1個消費','已就绪 · 消耗1个')+'</span>' :
+        '<button type="button" class="asm-exchange" data-action="asm-exchange" data-part-code="'+escapeHtmlSafe(p.part_code)+'" '+(Number(d.shards)>=cost?'':'disabled')+'>'+tl('Exchange','교환','交換','兑换')+' · '+formatNum(cost)+' '+tl('shards','조각','シャード','碎片')+'</button>')+'</article>';
   }).join('');
-  var exchangeBtns = (d.parts||[]).filter(function(p){ return parseInt(p.owned,10) < 1; }).map(function(p){
-    var cost = parseInt(p.exchange_cost,10) || parseInt(d.shard_exchange_cost,10) || 40;
-    var enough = (parseInt(d.shards,10)||0) >= cost;
-    return '<button type="button" class="fd-btn" data-action="asm-exchange" data-part-code="'+escapeHtmlSafe(p.part_code||'')+'" '+(enough?'':'disabled')+' style="font-size:8px">'+(p.icon||'🜲')+' '+escapeHtmlSafe(_asmName(p)||p.part_code||'Part')+' · '+formatNum(cost)+'</button>';
+  var built = Number(d.built_count)>0;
+  var actions = (built ? '<div class="asm-owned-note">'+tl('Unit deployed in your fleet','함대에 배치된 유닛','艦隊に配備済み','单位已部署至舰队')+' ('+Number(d.built_count)+'/'+Number(d.max_per_player)+')</div><div class="asm-actions"><button type="button" class="fd-btn primary" data-action="asm-upgrade">'+_asmControlIcon('fleet')+' '+tl('Open fleet','함대 보기','艦隊へ','查看舰队')+'</button>'+(d.disassemble_enabled?'<button type="button" class="fd-btn danger" data-action="asm-disassemble">'+tl('Disassemble','해체','分解','拆解')+'</button>':'')+'</div>' : '')+
+    (!maxReached ? '<button type="button" class="fd-btn primary asm-assemble" data-action="asm-assemble" '+(d.can_assemble?'':'disabled')+'>'+_asmControlIcon('fusion')+' '+tl('Assemble unit','유닛 합체','ユニット合体','合成单位')+'</button>' : '');
+  c.innerHTML = '<div class="asm-workshop">'+_asmCloseButton()+
+    '<div class="asm-preview"><img src="assets/assembly/portrait/'+encodeURIComponent(d.unit_code || d.ship_type_code || '')+'.png?v='+ASSET_VER+'" alt="" onerror="this.style.visibility=\'hidden\'"><div class="asm-preview-caption"><span class="asm-kicker">'+tl('ASSEMBLY BLUEPRINT','합체 설계도','合体設計図','合成蓝图')+'</span><h2>'+escapeHtmlSafe(_asmName(unit) || d.unit_code)+'</h2><p>'+escapeHtmlSafe(_asmKindLabel(d.kind || ''))+' · '+tl('Result preview','결과 미리보기','完成プレビュー','结果预览')+'</p></div></div>'+
+    '<div class="asm-method">'+(error?'<p class="asm-error" role="alert">'+escapeHtmlSafe(error)+'</p>':'')+
+    '<div class="asm-section-title"><h3>'+tl('Parts → unit','부품 → 유닛','パーツ → ユニット','零件 → 单位')+'</h3><b>'+owned+'/'+total+'</b></div>'+
+    '<p class="asm-explain">'+tl('Combine one of every part below into one unit. Quality and bonus stats are assigned by the server when assembly completes.','아래 모든 부품을 1개씩 합쳐 유닛 1기를 만듭니다. 품질과 추가 능력치는 합체 완료 시 서버가 결정합니다.','下記パーツを各1個合体して1ユニットを作ります。品質と追加能力は完成時にサーバーが決定します。','消耗下列每种零件各1个，合成1个单位。品质与额外属性由服务器在完成时决定。')+'</p>'+
+    '<div class="asm-modal-parts">'+slots+'</div>'+
+    '<div class="asm-cost-row"><div>'+_asmIcon('gp','GP',48)+'<span>'+tl('Assembly cost','합체 비용','合体コスト','合成消耗')+'<b>'+formatNum(d.assemble_gp_cost || 0)+' GP</b></span></div><div>'+_asmIcon('assembly_shards',tl('Shards','조각','シャード','碎片'),48)+'<span>'+tl('Owned shards','보유 조각','所持シャード','持有碎片')+'<b>'+formatNum(d.shards || 0)+'</b></span></div></div>'+
+    '<p class="asm-consumption">'+tl('Confirmation required: one of each part and the GP cost are consumed once.','확인 후 각 부품 1개와 GP 비용을 한 번 소비합니다.','確認後、各パーツ1個とGPコストを一度消費します。','确认后一次性消耗每种零件各1个及GP费用。')+'</p>'+actions+
+    '<details class="asm-details"><summary>'+tl('Unit role & battle preview','유닛 역할과 전투 미리보기','役割と戦闘プレビュー','单位职责与战斗预览')+'</summary>'+_asmTraitPanel(d,unit)+_asmBattlePreview(d,unit)+'</details></div></div>';
+  var close = c.querySelector('[data-action="asm-modal-close"]'); if (close) close.focus({preventScroll:true});
+}
+function _asmSetBusy(busy){
+  _asmBusy = busy;
+  var modal = document.getElementById('asmUnitModal');
+  if (!modal) return;
+  modal.setAttribute('aria-busy', String(busy));
+  modal.querySelectorAll('button').forEach(function(btn){
+    if (btn.dataset.action === 'asm-skip') return;
+    if (busy) { btn.dataset.asmWasDisabled = String(btn.disabled); btn.disabled = true; }
+    else if (btn.dataset.asmWasDisabled !== undefined) { btn.disabled = btn.dataset.asmWasDisabled === 'true'; delete btn.dataset.asmWasDisabled; }
+  });
+}
+function _asmRenderFusion(d){
+  var c = document.getElementById('asmUnitModalContent');
+  c.innerHTML = '<section class="asm-fusion is-scanning" aria-label="'+tl('Assembly progress','합체 진행','合体進行','合成进度')+'"><span class="asm-kicker">'+tl('FUSION CHAMBER','합체 챔버','合体チャンバー','合成舱')+'</span><h2>'+escapeHtmlSafe(_asmName(d.unit || {}) || d.unit_code)+'</h2><div class="asm-fusion-stage"><div class="asm-fusion-core"></div>'+ (d.parts || []).map(function(p,i){ return '<div class="asm-fusion-part" style="--part-index:'+i+'">'+_asmIcon(p.part_code,_asmName(p),72)+'</div>'; }).join('') +'<div class="asm-scan-line"></div></div><p id="asmFusionStatus" role="status" aria-live="polite">'+tl('Scanning parts · awaiting server confirmation…','부품 스캔 · 서버 확인 대기…','パーツスキャン · サーバー確認中…','扫描零件 · 等待服务器确认…')+'</p><button type="button" class="fd-btn" data-action="asm-skip">'+tl('Skip animation','연출 건너뛰기','演出をスキップ','跳过动画')+'</button></section>';
+  var skip = c.querySelector('[data-action="asm-skip"]'); if (skip) skip.focus({preventScroll:true});
+}
+function _asmFusionPhase(phase, text){
+  var el = document.querySelector('#asmUnitModalContent .asm-fusion');
+  if (el) el.className = 'asm-fusion is-'+phase;
+  var status = document.getElementById('asmFusionStatus'); if (status) status.textContent = text;
+}
+function _asmFusionWait(ms){
+  if (!_asmFusion || _asmFusion.skip || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return Promise.resolve();
+  return new Promise(function(resolve){
+    var run = _asmFusion;
+    var timer = setTimeout(function(){ run.finishWait = null; resolve(); },ms);
+    run.finishWait = function(){ clearTimeout(timer); run.finishWait = null; resolve(); };
+  });
+}
+function _asmRenderFusionResult(res,d,refreshFailed){
+  var c = document.getElementById('asmUnitModalContent');
+  var unit = d.unit || {}, bonus = res.bonus || {};
+  var qm = _crateQualityMeta[res.quality] || _crateQualityMeta.common;
+  var stats = [['atk','ATK',unit.base_atk],['def','DEF',unit.base_def],['hp','HP',unit.base_hp],['speed','SPD',unit.base_speed]].map(function(row){
+    var add = Number(bonus[row[0]]) || 0;
+    return '<div><span>'+row[1]+'</span><b>'+_fmtStat((Number(row[2]) || 0)+add)+'</b><small>'+tl('Base','기본','基本','基础')+' '+_fmtStat(Number(row[2]) || 0)+' · +'+_fmtStat(add)+'</small></div>';
   }).join('');
-  var built = parseInt(d.built_count,10)>0;
-  var actionHtml = built
-    ? '<div style="padding:11px 13px;border:1px solid rgba(129,199,132,.32);border-radius:10px;background:rgba(129,199,132,.07)">' +
-        '<div style="font-size:10px;color:#a5d6a7;letter-spacing:.6px;margin-bottom:8px">✓ '+tl("ACTIVATED — deployed in your fleet","기동 완료 — 함대에 배치됨","起動完了 — 艦隊配備","已启动 — 已部署")+'</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-          '<button type="button" class="fd-btn primary" data-action="asm-upgrade" style="flex:1;min-width:130px">⬆ '+tl("Go to Upgrade","강화하러 가기","強化へ","前往强化")+'</button>' +
-          '<button type="button" class="fd-btn danger" data-action="asm-disassemble" style="flex:1;min-width:130px">🔧 '+tl("DISASSEMBLE","해체","分解","拆解")+'</button>' +
-        '</div></div>'
-    : '<button type="button" class="fd-btn primary" data-action="asm-assemble" '+(d.can_assemble && !maxReached ? '' : 'disabled')+' style="width:100%;padding:13px;font-size:13px;letter-spacing:1px">🜲 '+(maxReached?tl('MAX OWNED','최대 보유','上限所持','已达上限'):tl('ACTIVATE','기동','起動','启动'))+(d.assemble_gp_cost>0?(' · '+formatNum(d.assemble_gp_cost)+' GP'):'')+'</button>';
-  var shardHtml = '<div style="padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025)">' +
-        '<div style="font-size:9px;color:rgba(255,255,255,.58);letter-spacing:.8px">💎 '+tl('SHARDS','조각','シャード','碎片')+': <b style="color:#fff">'+formatNum(d.shards)+'</b> · '+tl('exchange cost','교환 비용','交換コスト','兑换消耗')+' <b style="color:#e1bee7">'+formatNum(d.shard_exchange_cost)+'</b></div>' +
-        (exchangeBtns ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'+exchangeBtns+'</div>' : '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:8px">'+tl('All parts collected','모든 파츠 보유','全パーツ所持','已集齐')+'</div>') +
-      '</div>';
-  c.innerHTML =
-    '<div class="asm-modal-grid" style="display:grid;grid-template-columns:'+(mob?'1fr':'minmax(280px,42%) 1fr')+';gap:0">' +
-      // ── 좌: 대형 히어로샷 ──
-      '<div style="position:relative;min-height:'+(mob?'40vh':'520px')+';background:radial-gradient(circle at 50% 32%,rgba(179,136,255,.22),#05060c 72%);overflow:hidden;border-radius:'+(mob?'14px 14px 0 0':'14px 0 0 14px')+'">' +
-        '<img src="assets/assembly/portrait/'+(d.unit_code||d.ship_type_code||'')+'.png?v='+ASSET_VER+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;position:absolute;inset:0" onerror="this.style.display=\'none\'">' +
-        '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,6,12,.96))"></div>' +
-        '<div style="position:absolute;top:12px;left:12px;display:flex;gap:6px">' +
-          '<span style="font-size:9px;padding:3px 9px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(4px)">'+escapeHtmlSafe(_asmKindLabel(d.kind||''))+'</span>' +
-          (d.season&&d.season!=='permanent'?'<span style="font-size:9px;padding:3px 9px;border-radius:999px;background:rgba(255,209,102,.2);border:1px solid #ffd166;color:#ffd166">'+tl('Limited','한정','限定','限定')+'</span>':'') +
-        '</div>' +
-        '<div style="position:absolute;bottom:14px;left:16px;right:16px">' +
-          '<div style="font-family:Orbitron,monospace;font-size:24px;font-weight:900;color:#fff;text-shadow:0 0 18px rgba(179,136,255,.9),0 2px 10px #000;letter-spacing:1px">'+escapeHtmlSafe(_asmName(unit)||d.unit_code||'Unit')+'</div>' +
-          (unit.base_hp?'<div style="font-size:10px;color:#e1bee7;margin-top:5px;text-shadow:0 1px 4px #000">HP '+formatNum(unit.base_hp)+' · ATK '+formatNum(unit.base_atk)+' · DEF '+formatNum(unit.base_def)+'</div>':'') +
-        '</div>' +
-      '</div>' +
-      // ── 우: 정보/파츠/액션 ──
-      '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px;position:relative">' +
-        '<button type="button" class="shipyard-close" data-action="asm-modal-close" style="position:absolute;top:12px;right:14px">✕</button>' +
-        _asmTraitPanel(d, unit) +
-        _asmBattlePreview(d, unit) +
-        '<div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7dd3fc,#b388ff)"></div></div><div style="font-size:13px;color:#b388ff;font-weight:800">'+(d.distinct_owned||0)+'/'+(d.total_parts||0)+'</div></div>' +
-        '<div class="asm-modal-parts" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+slots+'</div>' +
-        actionHtml +
-        shardHtml +
-      '</div>' +
-    '</div>';
+  c.innerHTML = '<section class="asm-result" style="--fusion-color:'+qm.col+'">'+_asmCloseButton()+'<div class="asm-result-portrait"><img src="assets/assembly/portrait/'+encodeURIComponent(res.unit_code || d.unit_code)+'.png?v='+ASSET_VER+'" alt="" onerror="this.style.visibility=\'hidden\'"></div><div class="asm-result-info"><span class="asm-kicker">'+tl('ASSEMBLY COMPLETE','합체 완료','合体完了','合成完成')+'</span><h2>'+escapeHtmlSafe(_asmName(unit) || res.unit_code)+'</h2><p class="asm-result-quality">'+escapeHtmlSafe(_asmQualityLabel(res.quality) || res.quality)+' '+('★'.repeat(Math.max(0,Math.min(5,Number(res.quality_stars) || 0))))+'</p><p class="asm-ship-id">'+tl('Created ship','생성된 함선','生成艦','已创建舰船')+' #'+escapeHtmlSafe(String(res.ship_id))+(res.is_flagship?' · '+tl('Flagship','기함','旗艦','旗舰'):'')+'</p><div class="asm-result-stats">'+stats+'</div><p class="asm-consumption">'+tl('Consumed: one of each part','소비됨: 각 부품 1개','消費済: 各パーツ1個','已消耗：每种零件各1个')+' · '+formatNum(d.assemble_gp_cost || 0)+' GP</p>'+(refreshFailed?'<p class="asm-error" role="status">'+tl('Unit created. Balance refresh is delayed; reopen assembly to update counts.','유닛이 생성되었습니다. 잔액 갱신이 지연되어 조립 화면을 다시 열면 수량을 확인할 수 있습니다.','ユニット生成済み。残高の更新が遅れています。組立画面を再度開いて確認してください。','单位已创建。余额刷新延迟，请重新打开组装界面查看数量。')+'</p>':'')+'<div class="asm-actions"><button type="button" class="fd-btn primary" data-action="asm-upgrade">'+_asmControlIcon('fleet')+' '+tl('View in fleet','함대에서 보기','艦隊で見る','在舰队中查看')+'</button><button type="button" class="fd-btn" data-action="asm-result-back">'+tl('Back to assembly','조립으로 돌아가기','組立に戻る','返回组装')+'</button></div></div></section>';
+  var button = c.querySelector('[data-action="asm-upgrade"]'); if (button) button.focus({preventScroll:true});
+}
+async function _asmSyncAfterAction(unitCode){
+  var d = await _asmFetchUnitState(unitCode);
+  if (!d || d.error) throw new Error('assembly_refresh_failed');
+  await loadAssembly();
+  try { await refreshShipyard(); } catch(_){}
+  return d;
 }
 async function _asmOnModalClick(ev){
   var modal = document.getElementById('asmUnitModal');
-  if (ev.target === modal) { _asmCloseUnitModal(); return; }
   var btn = ev.target.closest('[data-action]');
-  if (!btn || btn.disabled) return;
-  var act = btn.getAttribute('data-action');
-  if (act === 'asm-modal-close') { _asmCloseUnitModal(); return; }
-  if (act === 'asm-upgrade') { _asmCloseUnitModal(); try { switchSyTab('fleet'); } catch(_){} return; }
+  var act = btn && btn.getAttribute('data-action');
+  if (act === 'asm-skip' && _asmFusion) {
+    _asmFusion.skip = true;
+    if (_asmFusion.finishWait) _asmFusion.finishWait();
+    btn.disabled = true;
+    btn.textContent = tl('Waiting for result…','결과 대기 중…','結果を待っています…','等待结果…');
+    return;
+  }
   if (_asmBusy) return;
+  if (ev.target === modal || act === 'asm-modal-close') { _asmCloseUnitModal(); return; }
+  if (!btn || btn.disabled) return;
   ev.preventDefault(); ev.stopPropagation();
-  console.log('[BTN] '+act+' triggered');
+  if (act === 'asm-upgrade') { _asmCloseUnitModal(); try { switchSyTab('fleet'); } catch(_){} return; }
+  if (act === 'asm-result-back' || act === 'asm-refresh') { await _asmOpenUnitModal(_asmUnit); return; }
+  if (['asm-assemble','asm-disassemble','asm-exchange'].indexOf(act) === -1) return;
   var w = (typeof getMyWallet === 'function' ? getMyWallet() : '') || '';
-  if (!w || !_asmUnit) return;
-  var prev = btn.textContent;
-  _asmBusy = true; btn.disabled = true; btn.textContent = '…';
+  if (!w || !_asmUnit || !_asmState) return;
+  var unitCode = _asmUnit, snapshot = _asmState;
+  var committed = null;
+  _asmSetBusy(true);
   try {
-    var res = null;
+    var res;
     if (act === 'asm-assemble') {
-      res = await _asmPost('/api/assembly/assemble', w, { unit_code: _asmUnit });
-      if (res.error) showFactionToast(_asmErr(res), 'error');
-      else {
-        var qTxt = res.quality ? (_asmQualityStars(res.quality)+_asmQualityLabel(res.quality)).trim()+' ' : '';
-        showFactionToast('🜲 '+qTxt+tl('Activated!','기동 완료!','起動完了！','启动完成！'), 'success');
-      }
-    } else if (act === 'asm-disassemble') {
-      var ok = await gameConfirm({ icon:'🔧', title:tl('Disassemble','해체','分解','拆解'), body:tl('Return parts and remove the assembled unit?','파츠로 환원하고 합체체를 해체할까요?','パーツに戻して合体ユニットを解体しますか？','拆解为零件并移除合体单位？'), confirmText:tl('Disassemble','해체','分解','拆解') });
+      if (!snapshot.can_assemble) return;
+      var ok = await _asmConfirm({icon:'◇', title:tl('Confirm assembly','합체 확인','合体確認','确认合成'), body:'<p>'+tl('Consume each listed part ×1 to create one unit:','다음 부품을 각 1개 소비해 유닛 1기를 만듭니다:','各パーツ1個を消費して1ユニットを作成:','消耗下列每种零件各1个，创建1个单位：')+'</p><ul>'+ (snapshot.parts || []).map(function(p){return '<li>'+escapeHtmlSafe(_asmName(p) || p.part_code)+' ×1</li>';}).join('')+'</ul><b>'+tl('GP consumed','소비 GP','消費GP','消耗GP')+': '+formatNum(snapshot.assemble_gp_cost || 0)+'</b>',confirmText:tl('Consume & assemble','소비하고 합체','消費して合体','消耗并合成')});
       if (!ok) return;
-      res = await _asmDisassemble(w);
-      if (res.error) showFactionToast(_asmErr(res), 'error');
-      else showFactionToast(tl('Disassembled','해체 완료','分解完了','已拆解'), 'success');
-    } else if (act === 'asm-exchange') {
-      res = await _asmPost('/api/assembly/exchange', w, { unit_code: _asmUnit, part_code: btn.getAttribute('data-part-code') });
-      if (res.error) showFactionToast(_asmErr(res), 'error');
-      else showFactionToast(tl('Exchanged','교환 완료','交換完了','已兑换'), 'success');
+      _asmFusion = {skip:false,finishWait:null};
+      _asmRenderFusion(snapshot);
+      res = await _asmPost('/api/assembly/assemble',w,{unit_code:unitCode});
+      if (res.error) throw new Error(_asmErr(res));
+      if (!res.success || !res.ship_id || !res.quality || !res.bonus) throw new Error(tl('Unexpected result. Refresh to check your unit.','응답을 확인할 수 없습니다. 갱신 후 유닛을 확인하세요.','応答を確認できません。更新してユニットを確認してください。','无法确认结果，请刷新查看单位。'));
+      committed = res;
+      var chamber = document.querySelector('#asmUnitModalContent .asm-fusion');
+      if (chamber) chamber.style.setProperty('--fusion-color',(_crateQualityMeta[res.quality] || _crateQualityMeta.common).col);
+      _asmFusionPhase('converging',tl('Confirmed · combining parts…','확인 완료 · 부품 결합…','確認済み · パーツ合体中…','已确认 · 合并零件…'));
+      await _asmFusionWait(850);
+      _asmFusionPhase('charging',tl('Core charged · revealing your unit…','코어 충전 · 유닛 공개…','コア充電 · ユニット公開…','核心充能 · 揭晓单位…'));
+      await _asmFusionWait(750);
+      var fresh = snapshot, delayed = false;
+      try { fresh = await _asmSyncAfterAction(unitCode); } catch(_) { delayed = true; _asmState = null; }
+      _asmRenderFusionResult(res,fresh,delayed);
+    } else {
+      if (act === 'asm-disassemble') {
+        var hull = await _asmFindDisassembleHull(w, snapshot.ship_type_code || unitCode);
+        var confirm = await _asmConfirm({icon:'◇',title:tl('Disassemble','해체','分解','拆解')+' #'+hull.id,body:'<p>'+escapeHtmlSafe(_asmName(hull) || snapshot.unit_code)+'</p><p>'+tl('Return one of each part and permanently remove this hull:','각 부품 1개를 돌려받고 다음 함체를 영구 제거합니다:','各パーツ1個を回収し、次の船体を永久に削除します:','收回每种零件各1个，并永久移除以下舰船：')+' <b>#'+escapeHtmlSafe(String(hull.id))+'</b></p>',confirmText:tl('Remove hull & return parts','함체 제거 및 부품 회수','船体削除・パーツ回収','移除舰船并收回零件')});
+        if (!confirm) return;
+        res = await _asmDisassemble(w, hull.id);
+      } else {
+        res = await _asmPost('/api/assembly/exchange',w,{unit_code:unitCode,part_code:btn.getAttribute('data-part-code')});
+      }
+      if (res.error) throw new Error(_asmErr(res));
+      _asmRenderUnitModal(await _asmSyncAfterAction(unitCode));
+      showFactionToast(act === 'asm-exchange' ? tl('Exchanged','교환 완료','交換完了','已兑换') : tl('Disassembled','해체 완료','分解完了','已拆解'),'success');
     }
-    var d = await _asmFetchUnitState(_asmUnit);
-    if (d && !d.error) _asmRenderUnitModal(d);
-    await loadAssembly();
-    try { refreshShipyard(); } catch(_){}
   } catch(e) {
-    showFactionToast(tl('Network error','네트워크 오류','ネットワークエラー','网络错误'), 'error');
-    btn.disabled = false; btn.textContent = prev;
+    var message = e.message || tl('Network error','네트워크 오류','ネットワークエラー','网络错误');
+    if (committed) _asmRenderFusionResult(committed,snapshot,true);
+    else {
+      try { _asmRenderUnitModal(await _asmSyncAfterAction(unitCode),message); }
+      catch(_) {
+        _asmState = null;
+        document.getElementById('asmUnitModalContent').innerHTML = '<div class="asm-recovery">'+_asmCloseButton()+'<p role="alert">'+escapeHtmlSafe(message)+'</p><p>'+tl('The request may have completed. Refresh your actual parts and unit before trying again.','요청이 완료되었을 수 있습니다. 다시 시도하기 전에 실제 부품과 유닛 상태를 갱신하세요.','処理が完了している可能性があります。再試行前にパーツとユニット状態を更新してください。','请求可能已完成。重试前请刷新实际零件与单位状态。')+'</p><button class="fd-btn primary" data-action="asm-refresh">'+tl('Refresh state','상태 갱신','状態更新','刷新状态')+'</button></div>';
+      }
+    }
   } finally {
-    _asmBusy = false;
+    _asmFusion = null;
+    _asmSetBusy(false);
   }
 }
 
@@ -653,11 +766,22 @@ async function _asmRefreshAfterBoxPull(){
 function _asmPost(url, w, body) {
   return fetch(url, { method:'POST', headers:Object.assign({'Content-Type':'application/json','x-wallet':w}, getAuthHeaders()), body:JSON.stringify(Object.assign({wallet:w}, body)) }).then(function(r){return r.json();});
 }
-async function _asmDisassemble(w) {
-  var sid = _asmState && (_asmState.ship_id || _asmState.assembled_ship_id || _asmState.shipId);
-  if (sid) return await _asmPost('/api/assembly/disassemble', w, { ship_id: String(sid) });
-  return await _asmPost('/api/assembly/disassemble', w, { unit_code: _asmUnit });
+async function _asmFindDisassembleHull(w, shipTypeCode) {
+  var response = await fetch('/api/ships/my', {headers:Object.assign({'x-wallet':w},getAuthHeaders()),cache:'no-store'});
+  var data = await response.json();
+  if (data.error || response.ok === false) throw new Error(_asmErr(data));
+  var matches = (data.ships || []).filter(function(ship){
+    return ship.ship_type_code === shipTypeCode && ship.id && ship.is_alive !== false && ship.is_alive !== 0 && ship.is_alive !== 'false';
+  });
+  if (!matches.length) throw new Error(_asmErr({error:'SHIP_NOT_FOUND'}));
+  if (matches.length > 1) throw new Error(tl('Multiple matching units found. Open your fleet to identify the hull; disassembly requires one unique unit.','같은 유닛이 여러 기 있습니다. 함대에서 대상 함체를 확인하세요. 해체에는 하나의 명확한 유닛이 필요합니다.','同じユニットが複数あります。艦隊で対象船体を確認してください。分解には単一のユニットが必要です。','找到多个相同单位。请在舰队中确认目标舰船；拆解需要唯一确定的单位。'));
+  return matches[0];
 }
+async function _asmDisassemble(w, shipId) {
+  if (!shipId) return {error:'SHIP_NOT_FOUND'};
+  return await _asmPost('/api/assembly/disassemble', w, {ship_id:String(shipId)});
+}
+
 function _asmErr(r) {
   var m = {
     INSUFFICIENT_GP: tl('Not enough GP','GP 부족','GP不足','GP不足'),
@@ -2022,7 +2146,7 @@ function syOwnedResourceQty(code) {
 
 function syResourceName(code) {
   var nameMap = LANG === 'ko' ? MINERAL_KO : MINERAL_EN;
-  return (MINERAL_ICONS[code] || '') + ' ' + (nameMap[code] || MINERAL_EN[code] || code);
+  return nameMap[code] || MINERAL_EN[code] || code;
 }
 
 function syRequirementStatusText(have, need) {
@@ -2032,11 +2156,11 @@ function syRequirementStatusText(have, need) {
   return syFmt(have) + ' owned / ' + syFmt(need) + ' needed';
 }
 
-function syNeedChip(label, have, need, okClass) {
+function syNeedChip(label, have, need, okClass, artCode) {
   var enough = Number(have) >= Number(need);
   var state = enough ? (LANG==='ko'?'보유':LANG==='ja'?'所持':LANG==='zh'?'足够':'OK') : (LANG==='ko'?'부족':LANG==='ja'?'不足':LANG==='zh'?'不足':'Low');
   return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + (okClass ? ' ' + okClass : '') + '" title="' + syRequirementStatusText(have, need) + '">' +
-    '<span class="req-state">' + state + '</span><span>' + fcEsc(label) + '</span><b>' + syFmt(have) + '</b><span class="need">/ ' + syFmt(need) + '</span>' +
+    (artCode ? _asmIcon(artCode, label, 48) : '') + '<span class="req-state">' + state + '</span><span>' + fcEsc(label) + '</span><b>' + syFmt(have) + '</b><span class="need">/ ' + syFmt(need) + '</span>' +
   '</span>';
 }
 
@@ -2084,7 +2208,7 @@ function syMissingMaterialPlan(recipe) {
   var first = priority.concat(Object.keys(byHint)).find(function(k) { return byHint[k] && byHint[k].length; }) || 'frontier';
   var label = _SECTOR_BADGE_LABEL[first] || first;
   var top = byHint[first].slice(0, 2).map(function(m) {
-    return syResourceName(m.code) + ' ' + syFmt(m.have) + '/' + syFmt(m.need);
+    return _asmIcon(m.code, syResourceName(m.code), 48) + ' ' + fcEsc(syResourceName(m.code)) + ' ' + syFmt(m.have) + '/' + syFmt(m.need);
   }).join(' · ');
   var shown = Math.min(2, byHint[first].length);
   var more = missing.length > shown ? ' +' + (missing.length - shown) : '';
@@ -2100,7 +2224,7 @@ function renderBlueprintCard(s) {
   var mineralCheck = Object.entries(recipe).map(function(e) {
     var code = e[0], need = e[1];
     var have = syOwnedResourceQty(code);
-    return syNeedChip(syResourceName(code), have, need) + sySectorBadge(code);
+    return syNeedChip(syResourceName(code), have, need, '', code) + sySectorBadge(code);
   }).join('');
   var gpHave = syGpBalance();
   var gpShort = s.build_gp_cost > gpHave;
@@ -2141,7 +2265,7 @@ function renderBlueprintCard(s) {
       '<div class="bp-stat"><div class="bp-stat-label">DEF</div><div class="bp-stat-value">' + s.base_def + '</div></div>' +
       '<div class="bp-stat"><div class="bp-stat-label">SPD</div><div class="bp-stat-value">' + s.base_speed + '</div></div>' +
     '</div>' +
-    '<div class="bp-cost"><div class="bp-cost-line">' + syNeedChip('💰 GP', gpHave, s.build_gp_cost) + '</div>' +
+    '<div class="bp-cost"><div class="bp-cost-line">' + syNeedChip('GP', gpHave, s.build_gp_cost, '', 'gp') + '</div>' +
       (mineralCheck ? '<div class="bp-cost-line" style="margin-top:4px">' + mineralCheck + '</div>' : '') +
       materialPlan +
       '<div class="bp-build-time">⏱ 건조: ' + buildTime + '</div></div>' +
@@ -2467,7 +2591,7 @@ function syUpgradeBtn(ship, stat, label) {
   var _matShortLbl = LANG==='ko'?'부족':LANG==='ja'?'不足':LANG==='zh'?'不足':'Low';
   var _successLbl = LANG==='ko'?'% 성공':LANG==='ja'?'% 成功':LANG==='zh'?'% 成功':'% success';
   var _upgradeTip = LANG==='ko'?label+' 영구 강화':LANG==='ja'?label+' 永続強化':LANG==='zh'?label+' 永久强化':label+' permanent upgrade';
-  var material = offer ? (tierBadge + (matShort ? _matShortLbl+' ' : _matOkLbl+' ') + syResourceName(offer.material_code) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
+  var material = offer ? (tierBadge + (matShort ? _matShortLbl+' ' : _matOkLbl+' ') + _asmIcon(offer.material_code, syResourceName(offer.material_code), 48) + ' ' + fcEsc(syResourceName(offer.material_code)) + ' ' + syFmt(matHave) + '/' + syFmt(matNeed)) : '';
   return '<button class="ship-upgrade-btn ' + (gpShort || matShort ? 'need' : '') + '" ' + (ship.is_market_listed ? 'disabled' : '') + ' onclick="syUpgradeShipStat(' + ship.id + ',\'' + stat + '\')" title="' + _upgradeTip + '">' +
     label + ' +' +
     '<span class="cost ' + (gpShort ? 'short' : '') + '">' + cost + '</span>' +

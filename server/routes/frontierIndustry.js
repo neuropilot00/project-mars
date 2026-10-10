@@ -5,7 +5,7 @@ const service=require('../services/frontierIndustry');
 const router=express.Router();
 router.use(makeRateLimiter({windowMs:60000,max:90,message:{error:'FRONTIER_RATE_LIMIT'}}));
 router.use((req,res,next)=>{try{const token=(req.headers.authorization||'').replace(/^Bearer\s+/i,'');const u=jwt.verify(token,process.env.JWT_SECRET);req.frontierWallet=String(u.wallet_address||u.wallet||u.walletAddress||'').toLowerCase();if(!req.frontierWallet)return res.status(401).json({error:'NO_WALLET'});next();}catch(_){res.status(401).json({error:'UNAUTHORIZED'});}});
-const action=fn=>async(req,res)=>{try{res.json(await fn(req));}catch(e){const known=/^(INVALID_|NOT_|NODE_|FLEET_|DAILY_|ALREADY_|PRODUCTION_|INSUFFICIENT_|CARGO_|PUBLIC_|CANNOT_|RAID_|SHIP_|REPAIR_|BATTLE_|FRONTIER_|WAREHOUSE_)/.test(e.message);if(!known)console.error('[frontier]',e);res.status(known?409:500).json({error:known?e.message:'SERVER_ERROR'});}};
+const action=fn=>async(req,res)=>{try{res.json(await fn(req));}catch(e){const known=/^(INVALID_|NOT_|NODE_|FLEET_|DAILY_|ALREADY_|PRODUCTION_|INSUFFICIENT_|CARGO_|PUBLIC_|CANNOT_|RAID_|SHIP_|REPAIR_|BATTLE_|FRONTIER_|WAREHOUSE_|GUILD_)/.test(e.message);if(!known)console.error('[frontier]',e);res.status(known?409:500).json({error:known?e.message:'SERVER_ERROR'});}};
 router.get('/state',action(r=>service.getState(r.frontierWallet)));
 router.post('/nodes/:id/attack',action(r=>service.attackNode(r.frontierWallet,r.params.id,r.body.fleetId,{riskConsent:r.body.riskConsent===true})));
 router.post('/nodes/:id/capture',action(r=>service.captureNode(r.frontierWallet,r.params.id,r.body.battleId)));

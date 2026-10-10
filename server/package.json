@@ -23,8 +23,14 @@
     "express-rate-limit": "^7.5.0",
     "ioredis": "^5.11.0",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^8.0.4",
+    "nodemailer": "~10.1.0",
     "pg": "^8.13.0",
-    "ws": "^8.20.0"
+    "ws": "~8.21.0"
+  },
+  "overrides": {
+    "@ethersproject/providers": {
+      "ws": "$ws"
+    },
+    "qs": "6.16.0"
   }
 }

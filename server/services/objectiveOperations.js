@@ -16,6 +16,61 @@ const fail=(code,meta)=>{const e=new Error(code);e.meta=meta;throw e;};
 const low=v=>String(v||'').trim().toLowerCase();
 const idKey=v=>{const text=String(v);if(!/^[1-9]\d{0,18}$/.test(text)||BigInt(text)>9223372036854775807n||(typeof v==='number'&&!Number.isSafeInteger(v)))fail('INVALID_FLEET_ID');return text;};
 const fleetIds=values=>{if(!Array.isArray(values)||!values.length)fail('FLEET_REQUIRED');return [...new Set(values.map(idKey))].sort((a,b)=>BigInt(a)<BigInt(b)?-1:1);};
+const FIRST_CLEAR_REWARDS=Object.freeze([{code:'iron_dust',amount:10},{code:'hull_plate',amount:1}]);
+const CLEAR_REASONS={escort:'convoy_arrived',hold:'relay_held',flagship:'flagship_destroyed'};
+
+// Progress comes from persisted, registered, authoritative battle results. A run
+// status or a client-supplied battle id alone cannot authorize a material grant.
+async function verifiedClears(db,wallet,mode=null) {
+  const {rows}=await db.query(`SELECT r.mode,r.battle_id,b.ended_at,b.battle_summary->'objective_result' AS result
+    FROM objective_operation_runs r JOIN fleet_battles b ON b.id=r.battle_id
+    WHERE LOWER(r.wallet_address)=$1 AND ($2::text IS NULL OR r.mode=$2)
+      AND b.status='ended' AND b.winner_side='atk'
+      AND b.battle_summary->>'trusted_source'='objective_ops'
+      AND b.battle_summary->>'is_objective_operation'='true'
+      AND b.battle_summary->>'is_ai_battle'='true'
+      AND LOWER(b.battle_summary->>'objective_wallet')=$1
+      AND r.config->>'kind'=r.mode AND r.config->>'version'='1'
+      AND b.battle_summary->'objective' = r.config
+      AND EXISTS(SELECT 1 FROM fleet_battle_participants p
+        WHERE p.battle_id=r.battle_id AND LOWER(p.wallet_address)=$1 AND p.side='atk'
+        AND r.fleet_ids @> to_jsonb(p.fleet_id::text))
+    ORDER BY b.ended_at,r.battle_id`,[low(wallet),mode]);
+  return rows.filter(row=>row.result?.complete===true&&row.result?.success===true&&
+    row.result?.kind===row.mode&&row.result?.reason===CLEAR_REASONS[row.mode]&&
+    Number.isFinite(Number(row.result.elapsed_seconds))&&Number(row.result.elapsed_seconds)>0&&Number(row.result.elapsed_seconds)<=150);
+}
+async function masteryState(db,wallet) {
+  const clears=await verifiedClears(db,wallet);
+  const {rows:claims}=await db.query('SELECT mode,battle_id,claimed_at FROM objective_operation_claims WHERE LOWER(wallet_address)=$1',[low(wallet)]);
+  return CATALOG.map(item=>{
+    const wins=clears.filter(r=>r.mode===item.id),last=wins[wins.length-1],claim=claims.find(c=>c.mode===item.id);
+    return {mode:item.id,clears:wins.length,first_clear:wins[0]||null,last_clear:last||null,
+      best_seconds:wins.length?Math.min(...wins.map(r=>Number(r.result.elapsed_seconds))):null,
+      reward:{status:claim?'claimed':wins.length?'available':'locked',claimed_at:claim?.claimed_at||null,materials:FIRST_CLEAR_REWARDS}};
+  });
+}
+async function claimFirstClear(wallet,mode) {
+  if(!CATALOG.some(c=>c.id===mode))fail('INVALID_OPERATION');
+  const db=await pool.connect();
+  try {
+    await db.query('BEGIN');
+    const user=(await db.query('SELECT wallet_address,is_ai FROM users WHERE LOWER(wallet_address)=$1 FOR UPDATE',[low(wallet)])).rows[0];
+    if(!user||user.is_ai)fail('PLAYER_REQUIRED');
+    const prior=(await db.query('SELECT claimed_at FROM objective_operation_claims WHERE wallet_address=$1 AND mode=$2',[user.wallet_address,mode])).rows[0];
+    if(prior){await db.query('COMMIT');return {success:true,alreadyClaimed:true,mode,claimedAt:prior.claimed_at,rewards:[]};}
+    const clears=await verifiedClears(db,user.wallet_address,mode);if(!clears.length)fail('FIRST_CLEAR_REQUIRED');
+    const resources=(await db.query('SELECT id,code FROM resources WHERE code=ANY($1::text[])',[FIRST_CLEAR_REWARDS.map(r=>r.code)])).rows;
+    if(FIRST_CLEAR_REWARDS.some(reward=>!resources.some(r=>r.code===reward.code)))fail('REWARD_CATALOG_UNAVAILABLE');
+    const receipt=(await db.query(`INSERT INTO objective_operation_claims(wallet_address,mode,battle_id,rewards)
+      VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING RETURNING claimed_at`,[user.wallet_address,mode,clears[0].battle_id,JSON.stringify(FIRST_CLEAR_REWARDS)])).rows[0];
+    if(!receipt)fail('CLAIM_CHANGED');
+    for(const reward of FIRST_CLEAR_REWARDS)await db.query(`INSERT INTO user_resource_inventory(wallet_address,resource_id,quantity)
+      VALUES($1,$2,$3) ON CONFLICT(wallet_address,resource_id) DO UPDATE SET quantity=user_resource_inventory.quantity+EXCLUDED.quantity,updated_at=NOW()`,
+      [user.wallet_address,resources.find(r=>r.code===reward.code).id,reward.amount]);
+    await db.query('COMMIT');return {success:true,alreadyClaimed:false,mode,battleId:idKey(clears[0].battle_id),claimedAt:receipt.claimed_at,rewards:FIRST_CLEAR_REWARDS};
+  }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();}
+}
 
 async function refreshRuns(db,wallet) {
   await db.query(`UPDATE objective_operation_runs r SET status=CASE WHEN b.winner_side='atk' THEN 'succeeded' ELSE 'failed' END,
@@ -34,7 +89,15 @@ async function getState(wallet) {
     FROM fleets f LEFT JOIN ships s ON s.fleet_id=f.id AND s.is_alive AND s.current_hp>0 LEFT JOIN ship_types st ON st.code=s.ship_type_code
     WHERE LOWER(f.owner_wallet)=$1 GROUP BY f.id ORDER BY f.id`,[w]);
   const {rows:runs}=await pool.query(`SELECT r.*,b.status AS battle_status,b.winner_side,b.battle_summary->'objective_result' AS objective_result FROM objective_operation_runs r JOIN fleet_battles b ON b.id=r.battle_id WHERE LOWER(r.wallet_address)=$1 ORDER BY r.started_at DESC LIMIT 12`,[w]);
-  return {catalog:CATALOG,fleets,runs,policy:{permanent_loss:false,hull_floor_pct:15,currency_rewards:false,salvage:false,actual_catalog_stats:true,normal_fleet_count:[3,5]}};
+  const mastery=await masteryState(pool,w);
+  const {rows:materials}=await pool.query(`SELECT r.code,COALESCE(SUM(i.quantity),0) AS quantity FROM resources r
+    LEFT JOIN user_resource_inventory i ON i.resource_id=r.id AND LOWER(i.wallet_address)=$1
+    WHERE r.code IN('iron_dust','hull_plate') GROUP BY r.code ORDER BY r.code`,[w]);
+  const user=(await pool.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address)=$1',[w])).rows[0];
+  return {catalog:CATALOG,fleets,runs,mastery,inventory:{materials,gp_balance:Number(user?.gp_balance||0)},
+    nextGoal:{mode:['hold','escort','flagship'].find(mode=>!mastery.find(m=>m.mode===mode).clears)||null,completed:mastery.filter(m=>m.clears>0).length,total:3,
+      fitting_cost:{gp:100,iron_dust:20,hull_plate:2}},
+    policy:{permanent_loss:false,hull_floor_pct:15,currency_rewards:false,first_clear_materials:FIRST_CLEAR_REWARDS,replay_rewards:false,salvage:false,actual_catalog_stats:true,normal_fleet_count:[3,5]}};
 }
 async function addNpc(db,faction,name,types,isConvoy=false) {
   const wallet='0x'+crypto.randomUUID().replaceAll('-','');
@@ -166,4 +229,4 @@ function evaluateObjective(state) {
   progress.complete=!!winner;progress.success=winner==='atk';progress.reason=reason;objective.progress=progress;objective.winnerSide=winner;
   return winner?{winner_side:winner,progress}:null;
 }
-module.exports={CATALOG,getState,createOperation,getRun,loadRegisteredObjective,initObjective,beforeTick,evaluateObjective};
+module.exports={CATALOG,getState,createOperation,getRun,claimFirstClear,loadRegisteredObjective,initObjective,beforeTick,evaluateObjective};

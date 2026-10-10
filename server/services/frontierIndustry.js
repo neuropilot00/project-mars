@@ -2,7 +2,7 @@
 // Industrial control is a separate right: never changes claims/pixels/governance.
 const crypto = require('crypto');
 const { pool } = require('../db');
-const { assertFleetsNotMining } = require('./fleetOccupancy');
+const { assertFleetsNotMining, getActiveMiningFleetIds } = require('./fleetOccupancy');
 const BALANCE = Object.freeze({ batchMinutes:30, batchCap:4, ironPerBatch:20, platePerBatch:4, cargoMinutes:10, cargoCap:100, warehouseCap:10000, dailyAttacks:3, protectionMinutes:30 });
 const integer=(v,max=Number.MAX_SAFE_INTEGER)=>{const n=Number(v);if(!Number.isSafeInteger(n)||n<1||n>max)throw Error('INVALID_INTEGER');return n;};
 const lower=v=>String(v||'').trim().toLowerCase();
@@ -11,8 +11,8 @@ function track(c,wallet,eventName,id,metadata){c.frontierEvents.push({wallet,ses
 async function transaction(fn){const c=await pool.connect();c.frontierEvents=[];let result,events;try{await c.query('BEGIN');result=await fn(c);await c.query('COMMIT');events=c.frontierEvents;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}for(const event of events){try{await require('./productAnalytics').recordProductEvent(event);}catch(e){console.error('[frontier] analytics:',e.message);}}return result;}
 async function context(c,wallet,options={}){
  const user=(await c.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address)=$1',[lower(wallet)])).rows[0];if(!user)throw Error('USER_NOT_FOUND');
- const gm=(await c.query('SELECT guild_id FROM guild_members WHERE LOWER(wallet)=$1 FOR SHARE',[lower(wallet)])).rows[0];
- return {wallet:user.wallet_address,ownerKey:gm&&!options.training?'guild:'+gm.guild_id:'wallet:'+lower(wallet),frontKey:gm&&!options.training?'public':'solo:'+lower(wallet),guildId:gm&&!options.training?Number(gm.guild_id):null,training:options.training===true};
+ const gm=(await c.query('SELECT guild_id,role FROM guild_members WHERE LOWER(wallet)=$1 FOR SHARE',[lower(wallet)])).rows[0];
+ return {wallet:user.wallet_address,ownerKey:gm&&!options.training?'guild:'+gm.guild_id:'wallet:'+lower(wallet),frontKey:gm&&!options.training?'public':'solo:'+lower(wallet),guildId:gm&&!options.training?Number(gm.guild_id):null,guildRole:gm&&!options.training?gm.role:null,training:options.training===true};
 }
 async function ensureBoard(c,ctx){
  const sector=(await c.query("SELECT id FROM sectors WHERE tier='frontier' ORDER BY id LIMIT 1")).rows[0];if(!sector)throw Error('FRONTIER_SECTOR_MISSING');
@@ -27,11 +27,14 @@ async function stock(c,key,depot,code,delta){
  await c.query('INSERT INTO frontier_stocks(owner_key,depot,resource_code) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',[key,depot,code]);
  const row=(await c.query('UPDATE frontier_stocks SET quantity=quantity+$4 WHERE owner_key=$1 AND depot=$2 AND resource_code=$3 AND quantity+$4 BETWEEN 0 AND 10000 RETURNING quantity',[key,depot,code,delta])).rows[0];if(!row)throw Error(delta<0?'INSUFFICIENT_STOCK':'WAREHOUSE_FULL');return row.quantity;
 }
-async function fleet(c,ctx,id,{alive=true,allowMoving=false}={}){
+async function fleet(c,ctx,id,{alive=true,cargoId=null}={}){
  const f=(await c.query('SELECT * FROM fleets WHERE id=$1 AND LOWER(owner_wallet)=LOWER($2) FOR UPDATE',[integer(id),ctx.wallet])).rows[0];if(!f)throw Error('FLEET_NOT_FOUND');
  if(f.is_in_battle||f.current_battle_id)throw Error('FLEET_IN_BATTLE');
- await assertFleetsNotMining(c,[f.id]);
- if(!allowMoving&&(await c.query("SELECT 1 FROM frontier_cargo WHERE fleet_id=$1 AND status='moving'",[f.id])).rowCount)throw Error('FLEET_TRANSPORTING');
+ if(cargoId===null)await assertFleetsNotMining(c,[f.id]);
+ else if((await getActiveMiningFleetIds(c,[f.id])).length)throw Error('FLEET_MINING');
+ const moving=(await c.query("SELECT id FROM frontier_cargo WHERE fleet_id=$1 AND status='moving'",[f.id])).rows;
+ if(moving.some(r=>String(r.id)!==String(cargoId)))throw Error('FLEET_TRANSPORTING');
+ if(cargoId!==null&&!moving.some(r=>String(r.id)===String(cargoId)))throw Error('CARGO_NOT_RAIDABLE');
  if(alive&&!(await c.query('SELECT 1 FROM ships WHERE fleet_id=$1 AND is_alive AND current_hp>0 LIMIT 1',[f.id])).rowCount)throw Error('FLEET_EMPTY');return f;
 }
 async function production(c,node){
@@ -39,7 +42,12 @@ async function production(c,node){
  // Watermark advances for every elapsed interval, even when storage is full; no catch-up mint after collect.
  const r=(await c.query(`UPDATE frontier_nodes SET stored_batches=LEAST(4,stored_batches+FLOOR(EXTRACT(EPOCH FROM(NOW()-production_at))/1800)::integer),
  production_at=production_at+(FLOOR(EXTRACT(EPOCH FROM(NOW()-production_at))/1800)*INTERVAL '30 minutes') WHERE id=$1 AND production_at<=NOW()-INTERVAL '30 minutes' RETURNING *`,[node.id])).rows[0];
- if(r){const elapsed=Math.floor((new Date(r.production_at)-new Date(node.production_at))/1800000);if(node.owner_key.startsWith('guild:'))await c.query(`INSERT INTO frontier_season_score(owner_key,season,hold_points) VALUES($1,TO_CHAR(NOW(),'YYYY-MM'),$2) ON CONFLICT(owner_key,season) DO UPDATE SET hold_points=LEAST(4464,frontier_season_score.hold_points+EXCLUDED.hold_points)`,[node.owner_key,Math.min(48,elapsed)]);Object.assign(node,r);}
+ if(r){const elapsed=Math.floor((new Date(r.production_at)-new Date(node.production_at))/1800000);if(node.owner_key.startsWith('guild:'))await c.query(`
+ WITH months AS (SELECT generate_series(date_trunc('month',$2::timestamptz),date_trunc('month',$3::timestamptz),INTERVAL '1 month') AS month),
+ credits AS (SELECT month,GREATEST(0,LEAST($4::bigint,CEIL(EXTRACT(EPOCH FROM(month+INTERVAL '1 month'-$2::timestamptz))/1800)::bigint-1)
+ -GREATEST(1,CEIL(EXTRACT(EPOCH FROM(month-$2::timestamptz))/1800)::bigint)+1)::integer AS points FROM months)
+ INSERT INTO frontier_season_score(owner_key,season,hold_points) SELECT $1,TO_CHAR(month,'YYYY-MM'),LEAST(4464,points) FROM credits WHERE points>0
+ ON CONFLICT(owner_key,season) DO UPDATE SET hold_points=LEAST(4464,frontier_season_score.hold_points+EXCLUDED.hold_points)`,[node.owner_key,node.production_at,r.production_at,elapsed]);Object.assign(node,r);}
 }
 async function settleBattleIn(c,battleId){
  const fb=(await c.query('SELECT * FROM frontier_battles WHERE battle_id=$1 FOR UPDATE',[integer(battleId)])).rows[0];if(!fb)throw Error('FRONTIER_BATTLE_NOT_FOUND');if(fb.settled_at)return fb;
@@ -65,6 +73,11 @@ async function settleBattleIn(c,battleId){
     await c.query("UPDATE frontier_cargo SET status='raided',received=$2,settled_at=NOW() WHERE id=$1",[cargo.id,cargo.amount-loot]);result='raided';}
   }
  }else if(fb.cargo_id)result=b.status==='cancelled'?'cancelled':'defended';
+ if(b.status==='ended'&&b.winner_side==='def'){
+ const defending=(await c.query("SELECT p.wallet_address FROM fleet_battle_participants p JOIN users u ON u.wallet_address=p.wallet_address WHERE p.battle_id=$1 AND p.side='def' AND NOT COALESCE(u.is_ai,false) ORDER BY p.fleet_id LIMIT 1",[fb.battle_id])).rows[0];
+ const asset=fb.cargo_id?(await c.query('SELECT owner_key FROM frontier_cargo WHERE id=$1',[fb.cargo_id])).rows[0]:(await c.query('SELECT owner_key,generation FROM frontier_nodes WHERE id=$1',[fb.node_id])).rows[0];
+ if(defending&&asset?.owner_key&&(fb.cargo_id||asset.generation===fb.generation))await progress(c,{ownerKey:asset.owner_key,wallet:defending.wallet_address},'defended',1);
+ }
  return (await c.query('UPDATE frontier_battles SET result=$2,settled_at=NOW() WHERE battle_id=$1 RETURNING *',[fb.battle_id,result])).rows[0];
 }
 async function settleBattle(battleId){return transaction(c=>settleBattleIn(c,battleId));}
@@ -127,7 +140,7 @@ async function startCargo(wallet,fleetId,amount,resourceCode='iron_dust',options
  const cargo=(await c.query("INSERT INTO frontier_cargo(wallet,owner_key,fleet_id,front_key,resource_code,amount,arrives_at,mission_id) VALUES($1,$2,$3,$4,$5,$6,NOW()+$7*INTERVAL '1 minute',$8) RETURNING *",[ctx.wallet,ctx.ownerKey,f.id,ctx.frontKey,resourceCode,amount,duration,options.missionId||null])).rows[0];return {success:true,cargo};});}
 async function cancelCargo(wallet,id){return transaction(async c=>{const ctx=await context(c,wallet);const cargo=(await c.query('SELECT * FROM frontier_cargo WHERE id=$1 AND LOWER(wallet)=LOWER($2) FOR UPDATE',[integer(id),ctx.wallet])).rows[0];if(!cargo||(cargo.owner_key!==ctx.ownerKey&&cargo.owner_key!=='wallet:'+lower(ctx.wallet)))throw Error('CARGO_NOT_FOUND');if(cargo.status!=='moving')return {success:true,cargo};if(cargo.raid_battle_id||Date.now()-new Date(cargo.started_at).getTime()>60000)throw Error('CARGO_CANCEL_WINDOW_CLOSED');await stock(c,cargo.owner_key,'mine',cargo.resource_code,cargo.amount);return {success:true,cargo:(await c.query("UPDATE frontier_cargo SET status='cancelled',settled_at=NOW() WHERE id=$1 RETURNING *",[cargo.id])).rows[0]};});}
 async function attackCargo(wallet,id,fleetId,options={}){const result=await transaction(async c=>{const ctx=await context(c,wallet);if(options.riskConsent!==true)throw Error('PUBLIC_RISK_CONSENT_REQUIRED');await settlePending(c,ctx);const cargo=(await c.query('SELECT * FROM frontier_cargo WHERE id=$1 FOR UPDATE',[integer(id)])).rows[0];if(!cargo||cargo.front_key!=='public'||ctx.frontKey!=='public')throw Error('PUBLIC_CARGO_REQUIRED');if(cargo.owner_key===ctx.ownerKey||lower(cargo.wallet)===lower(ctx.wallet))throw Error('CANNOT_RAID_OWN_CARGO');if(cargo.status!=='moving'||cargo.raid_battle_id)throw Error('CARGO_NOT_RAIDABLE');const pct=(Date.now()-new Date(cargo.started_at))/(new Date(cargo.arrives_at)-new Date(cargo.started_at));if(pct<0.2||pct>0.9)throw Error('RAID_WINDOW_CLOSED');await attackQuota(c,ctx);
- const n=(await c.query("SELECT * FROM frontier_nodes WHERE front_key='public' AND node_type='logistics' FOR UPDATE")).rows[0];const atk=await fleet(c,ctx,fleetId),def=await defender(c,{...n,owner_key:cargo.owner_key},cargo.fleet_id);const r=await declare(c,ctx,atk,def,n,cargo,options);await c.query('UPDATE frontier_cargo SET raid_battle_id=$2 WHERE id=$1',[cargo.id,r.battleId]);return r;});return options.dispatch===false?result:dispatch(result);}
+ const n=(await c.query("SELECT * FROM frontier_nodes WHERE front_key='public' AND node_type='logistics' FOR UPDATE")).rows[0];const atk=await fleet(c,ctx,fleetId),escort=await fleet(c,{wallet:cargo.wallet},cargo.fleet_id,{cargoId:cargo.id}),def={fleet:escort,wallet:cargo.wallet};const r=await declare(c,ctx,atk,def,n,cargo,options);await c.query('UPDATE frontier_cargo SET raid_battle_id=$2 WHERE id=$1',[cargo.id,r.battleId]);return r;});return options.dispatch===false?result:dispatch(result);}
 async function repairCost(c,ctx,quote,options={}){
  await c.query('SELECT pg_advisory_xact_lock(hashtext($1))',[ctx.ownerKey]);
  if(options.training===true&&options.missionId===4&&ctx.ownerKey==='wallet:'+lower(ctx.wallet)){
@@ -149,10 +162,10 @@ async function repair(wallet,shipId,targetHpPct=100,options={}){shipId=integer(s
  await stock(c,ctx.ownerKey,'repair','iron_dust',-iron);
  if(!(await c.query('UPDATE users SET gp_balance=gp_balance-$2 WHERE wallet_address=$1 AND gp_balance>=$2 RETURNING wallet_address',[ctx.wallet,cost.gp_cost])).rowCount)throw Error('INSUFFICIENT_GP');
  await c.query('UPDATE ships SET current_hp=$2 WHERE id=$1',[shipId,quote.target_hp]);const row=(await c.query('INSERT INTO frontier_repairs(wallet,owner_key,ship_id,healed,iron_used,gp_cost,mission_id,tutorial_subsidy) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',[ctx.wallet,ctx.ownerKey,shipId,quote.healed,iron,cost.gp_cost,options.missionId||null,cost.tutorial_subsidy===true])).rows[0];await progress(c,ctx,'repaired',quote.healed);track(c,ctx.wallet,'repair_completed',row.id,{shipId,healed:quote.healed,repairId:Number(row.id)});return {success:true,repair:row,currentHp:quote.target_hp};});}
-async function withdrawStock(wallet,depot,resourceCode,amount){amount=integer(amount,100);if(!['mine','repair'].includes(depot)||!['iron_dust','hull_plate'].includes(resourceCode))throw Error('INVALID_STOCK');return transaction(async c=>{const ctx=await context(c,wallet);await stock(c,ctx.ownerKey,depot,resourceCode,-amount);await c.query(`INSERT INTO user_resource_inventory(wallet_address,resource_id,quantity) SELECT $1,id,$3 FROM resources WHERE code=$2 ON CONFLICT(wallet_address,resource_id) DO UPDATE SET quantity=user_resource_inventory.quantity+EXCLUDED.quantity,updated_at=NOW()`,[ctx.wallet,resourceCode,amount]);return {success:true,resourceCode,amount};});}
+async function withdrawStock(wallet,depot,resourceCode,amount){amount=integer(amount,100);if(!['mine','repair'].includes(depot)||!['iron_dust','hull_plate'].includes(resourceCode))throw Error('INVALID_STOCK');return transaction(async c=>{const ctx=await context(c,wallet);if(ctx.guildId&&!['leader','officer'].includes(ctx.guildRole))throw Error('GUILD_WITHDRAW_ROLE_REQUIRED');await stock(c,ctx.ownerKey,depot,resourceCode,-amount);await c.query(`INSERT INTO user_resource_inventory(wallet_address,resource_id,quantity) SELECT $1,id,$3 FROM resources WHERE code=$2 ON CONFLICT(wallet_address,resource_id) DO UPDATE SET quantity=user_resource_inventory.quantity+EXCLUDED.quantity,updated_at=NOW()`,[ctx.wallet,resourceCode,amount]);return {success:true,resourceCode,amount};});}
 async function saveDefense(wallet,nodeId,fleetId,options={}){return transaction(async c=>{const ctx=await context(c,wallet,options);if(ctx.frontKey==='public'&&options.riskConsent!==true)throw Error('PUBLIC_RISK_CONSENT_REQUIRED');const n=await checkedNode(c,ctx,nodeId);if(n.owner_key!==ctx.ownerKey)throw Error('NOT_NODE_CONTROLLER');const f=await fleet(c,ctx,fleetId);
  const shipIds=(await c.query('SELECT id FROM ships WHERE fleet_id=$1 AND is_alive ORDER BY id',[f.id])).rows.map(x=>Number(x.id));const preset={formation:f.formation,movement:f.movement,shipIds,riskConsent:ctx.frontKey==='public'};
- await c.query('INSERT INTO frontier_defense(node_id,wallet,owner_key,fleet_id,preset) VALUES($1,$2,$3,$4,$5::jsonb) ON CONFLICT(node_id) DO UPDATE SET wallet=EXCLUDED.wallet,owner_key=EXCLUDED.owner_key,fleet_id=EXCLUDED.fleet_id,preset=EXCLUDED.preset,updated_at=NOW()',[n.id,ctx.wallet,ctx.ownerKey,f.id,JSON.stringify(preset)]);await progress(c,ctx,'defended',1);const event=(await c.query('INSERT INTO frontier_defense_events(wallet,owner_key,node_id,fleet_id,mission_id,preset) VALUES($1,$2,$3,$4,$5,$6::jsonb) RETURNING *',[ctx.wallet,ctx.ownerKey,n.id,f.id,options.missionId||null,JSON.stringify(preset)])).rows[0];return {success:true,event,preset};});}
+ await c.query('INSERT INTO frontier_defense(node_id,wallet,owner_key,fleet_id,preset) VALUES($1,$2,$3,$4,$5::jsonb) ON CONFLICT(node_id) DO UPDATE SET wallet=EXCLUDED.wallet,owner_key=EXCLUDED.owner_key,fleet_id=EXCLUDED.fleet_id,preset=EXCLUDED.preset,updated_at=NOW()',[n.id,ctx.wallet,ctx.ownerKey,f.id,JSON.stringify(preset)]);const event=(await c.query('INSERT INTO frontier_defense_events(wallet,owner_key,node_id,fleet_id,mission_id,preset) VALUES($1,$2,$3,$4,$5,$6::jsonb) RETURNING *',[ctx.wallet,ctx.ownerKey,n.id,f.id,options.missionId||null,JSON.stringify(preset)])).rows[0];return {success:true,event,preset};});}
 async function getState(wallet,options={}){return transaction(async c=>{const ctx=await context(c,wallet,options);await ensureBoard(c,ctx);await settlePending(c,ctx);const nodes=(await c.query('SELECT * FROM frontier_nodes WHERE front_key=$1 ORDER BY id FOR UPDATE',[ctx.frontKey])).rows;for(const n of nodes)await production(c,n);
  const stocks=(await c.query('SELECT * FROM frontier_stocks WHERE owner_key=$1 ORDER BY depot,resource_code',[ctx.ownerKey])).rows;
  const cargo=(await c.query('SELECT * FROM frontier_cargo WHERE owner_key=$1 OR LOWER(wallet)=LOWER($2) ORDER BY id DESC LIMIT 20',[ctx.ownerKey,ctx.wallet])).rows;
@@ -161,5 +174,5 @@ async function getState(wallet,options={}){return transaction(async c=>{const ct
  const score=(await c.query("SELECT * FROM frontier_season_score WHERE owner_key=$1 AND season=TO_CHAR(NOW(),'YYYY-MM')",[ctx.ownerKey])).rows[0]||{hold_points:0,delivery_points:0};
  const battles=(await c.query('SELECT f.*,b.status,b.winner_side FROM frontier_battles f JOIN fleet_battles b ON b.id=f.battle_id WHERE f.owner_key=$1 ORDER BY f.battle_id DESC LIMIT 20',[ctx.ownerKey])).rows;
  const defenses=(await c.query('SELECT * FROM frontier_defense WHERE node_id=ANY($1::bigint[])',[nodes.map(n=>n.id)])).rows;
- return {success:true,mode:ctx.guildId?'guild_front':'solo_training',...ctx,nodes,stocks,cargo,raidTargets,contributions,score,battles,defenses,balance:BALANCE,tutorialRepairPolicy:options.training?{missionId:4,oncePerAccount:true,ironCost:10,gpCost:0,requiresGrantedHull:true}:null,objective:{target:'생산 → 10분 운송 → 실제 함선 정비 → 방어 편성',teamSize:'3–5',complete:contributions.some(p=>p.produced>0)&&contributions.some(p=>p.delivered>0)&&contributions.some(p=>p.repaired>0)&&contributions.some(p=>p.defended>0)}};});}
+ return {success:true,mode:ctx.guildId?'guild_front':'solo_training',...ctx,canWithdrawStock:!ctx.guildId||['leader','officer'].includes(ctx.guildRole),nodes,stocks,cargo,raidTargets,contributions,score,battles,defenses,balance:BALANCE,tutorialRepairPolicy:options.training?{missionId:4,oncePerAccount:true,ironCost:10,gpCost:0,requiresGrantedHull:true}:null,objective:{target:'생산 → 10분 운송 → 실제 함선 정비 → 실제 방어 승리',teamSize:'3–5',complete:contributions.some(p=>p.produced>0)&&contributions.some(p=>p.delivered>0)&&contributions.some(p=>p.repaired>0)&&contributions.some(p=>p.defended>0)}};});}
 module.exports={BALANCE,getState,attackNode,captureNode,settleBattle,collectProduction,startCargo,cancelCargo,attackCargo,repairQuote,repair,withdrawStock,saveDefense};

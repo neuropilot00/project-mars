@@ -1,6 +1,5 @@
 const express = require('express');
 const { makeRateLimiter } = require('../utils/rateLimiters');
-const { getSetting } = require('../db');
 const { requireAuth, getAuthWallet } = require('../utils/apiHelpers');
 
 let seasonService;
@@ -137,7 +136,6 @@ router.get('/season/pass', requireAuth, readLimiter, async (req, res) => {
   try {
     const pass = await seasonService.getSeasonPass(w);
     if (pass.error) return res.status(400).json(pass);
-    pass.premiumCost = parseInt(await getSetting('season_pass_premium_cost_gp') || '500');
     res.json(pass);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -147,7 +145,7 @@ router.post('/season/pass/purchase', requireAuth, writeLimiter, async (req, res)
   if (!w) return res.status(400).json({ error: 'Missing wallet' });
   if (!requireSeasonService(res)) return;
   try {
-    const r = await seasonService.purchasePremiumPass(w);
+    const r = await seasonService.purchasePremiumPass(w, { expectedCost: req.body?.expectedCost, expectedSeasonId: req.body?.expectedSeasonId });
     if (r.error) return res.status(400).json(r);
     res.json(r);
   } catch (e) { res.status(500).json({ error: e.message }); }
