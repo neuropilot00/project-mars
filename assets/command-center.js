@@ -161,11 +161,11 @@
     document.addEventListener('keydown',function(e){if(root.hidden)return;if(e.key==='Escape'&&document.getElementById('chatOverlay')&&!document.getElementById('chatOverlay').classList.contains('collapsed')){window.toggleCommandChat();document.getElementById('chatToggleBtn').focus();e.stopPropagation();return;}if(e.key==='Escape'&&!document.getElementById('gameConfirm')?.classList.contains('open')){close();e.stopPropagation();}});
     document.addEventListener('visibilitychange',function(){if(!document.hidden&&!root.hidden&&!state.busy)load();});
     window.addEventListener('online',function(){if(!root.hidden&&!state.busy)load();});
-    // The existing auth UI update is the session-ready hook; no extra auth polling.
-    var homeWallet='';
-    function showHome(){var wallet=window.walletState;if(wallet&&wallet.connected&&localStorage.getItem('pw_token')&&wallet.address!==homeWallet){homeWallet=wallet.address;if(typeof closeAuthModal==='function')closeAuthModal();open('front');}}
-    if(typeof window.updateWalletUI==='function'){var updateWallet=window.updateWalletUI;window.updateWalletUI=function(){var result=updateWallet.apply(this,arguments);showHome();return result;};}
-    showHome();
+    // Keep Mars and its painted menu as home; the command panel opens only on request.
+    document.addEventListener('click',function(e){
+      if(!root.hidden&&e.target.closest('.mob-nav-item,.col-fab'))close();
+    },true);
+
   }
   window.openCommandCenter=open;window.closeCommandCenter=close;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

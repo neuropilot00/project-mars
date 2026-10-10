@@ -3418,3 +3418,41 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* Confirmation must sit above the objective and card dialogs that open it. */
 .game-confirm .gc-body{font:14px/1.65 var(--font-body,system-ui)}
 .game-confirm .gc-btn{min-height:44px;font-size:14px}
+
+/* Restore the painted Mars dock; reserve distinct slots for map controls and communications. */
+:root{--main-dock-space:128px}
+.panel-close-fixed{min-width:44px;min-height:44px;padding:8px}
+.panel-close-fixed:not(.visible){display:none!important}
+.col-fab:focus-visible,.mob-nav-item:focus-visible{outline:2px solid var(--gold);outline-offset:-3px;border-radius:8px}
+body:not(.command-center-open)>#chatOverlay.collapsed{left:auto!important;right:12px!important;bottom:16px!important}
+.zc .zb,#bugReportBtn{min-width:44px;min-height:44px}
+.campaign-quick,.crates-quick{min-height:44px}
+@media(max-width:1024px){
+  :root{--main-dock-space:clamp(76px,calc(16.91vw + 14px),110px)}
+  #mobBottomNav{bottom:5px;padding:0 2px env(safe-area-inset-bottom);background:transparent;border:0}
+  #mobBottomNav .nav-img-wrap{max-width:560px;min-height:64px;aspect-ratio:1118/189;overflow:hidden}
+  #mobBottomNav .mob-nav-bg{width:117.98%;max-width:none;left:-10.2%;object-fit:contain}
+  #mobBottomNav .mn-myland{left:0.3%;width:23.2%}
+  #mobBottomNav .mn-cantina{left:23.66%;width:18.76%}
+  #mobBottomNav .mn-claim{left:42.54%;width:16.52%}
+  #mobBottomNav .mn-items{left:59.17%;width:19.46%}
+  #mobBottomNav .mn-base{left:78.62%;width:21.12%}
+  #mobBottomNav .mob-nav-item{min-height:44px}
+  body:not(.command-center-open)>#chatOverlay.collapsed{bottom:calc(var(--main-dock-space) + 8px + env(safe-area-inset-bottom))!important}
+  .zc{right:12px!important;bottom:calc(var(--main-dock-space) + 64px + env(safe-area-inset-bottom))!important}
+  .zc .zb{min-width:44px;min-height:44px}
+  #bugReportBtn{left:auto!important;top:auto!important;right:66px!important;bottom:calc(var(--main-dock-space) + 8px + env(safe-area-inset-bottom))!important;min-width:44px;min-height:44px}
+  .mode-badge{bottom:calc(var(--main-dock-space) + 8px + env(safe-area-inset-bottom))!important;max-width:calc(100vw - 138px);white-space:normal}
+  .campaign-quick,.crates-quick{top:auto!important;left:12px!important;right:auto!important;transform:none}
+  .campaign-quick{bottom:calc(var(--main-dock-space) + 46px + env(safe-area-inset-bottom))!important}
+  .crates-quick{bottom:calc(var(--main-dock-space) + 98px + env(safe-area-inset-bottom))!important}
+  .mob-toggle{min-width:44px;min-height:44px!important}
+}
+@media(orientation:landscape) and (max-height:500px){
+  .zc{flex-direction:row;gap:6px;align-items:center}
+  .zc .zb{margin:0!important}
+}
+
+/* Keep the original live notice readable after removing decorative motion. */
+.announce-track{padding-left:0}
+@media(prefers-reduced-motion:reduce){.announce-track{animation:none!important}}

@@ -14,6 +14,7 @@ function normalizeLang(lang){
 var LANG = normalizeLang(localStorage.getItem('pw_lang') || 'en');
 var I18N = {
   en: {
+    command_room: 'COMMAND',
     login: 'LOGIN', register: 'REGISTER', logout: 'LOGOUT', account: 'ACCOUNT',
     email_login: 'EMAIL LOGIN / REGISTER', my_wallet: 'MY WALLET',
     wallet_cta_desc: 'Login to deposit USDT,<br>claim territories & earn rewards',
@@ -991,6 +992,7 @@ var I18N = {
     cookie_banner_text: 'We use cookies and localStorage for authentication, saving your preferences, and improving your experience.',
   },
   ko: {
+    command_room: '작전실',
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
     email_login: '이메일 로그인 / 가입', my_wallet: '내 지갑',
     wallet_cta_desc: '로그인하여 USDT를 입금하고,<br>영토를 점령하고 보상을 받으세요',
@@ -1965,6 +1967,7 @@ var I18N = {
     cookie_banner_text: '당사는 인증, 설정 저장, 이용 경험 개선을 위해 쿠키와 localStorage를 사용합니다.',
   },
   ja: {
+    command_room: '作戦室',
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
     email_login: 'メールログイン / 登録', my_wallet: 'マイウォレット',
     wallet_cta_desc: 'ログインしてUSDTを入金、<br>領土を獲得して報酬を得よう',
@@ -2926,6 +2929,7 @@ var I18N = {
     cookie_banner_text: '当社は認証、設定の保存、ユーザー体験の改善のためにクッキーとlocalStorageを使用します。',
   },
   zh: {
+    command_room: '指挥室',
     login: '登录', register: '注册', logout: '退出', account: '账户',
     email_login: '邮箱登录 / 注册', my_wallet: '我的钱包',
     wallet_cta_desc: '登录以存入USDT，<br>占领领土并获得奖励',
@@ -3889,6 +3893,7 @@ var I18N = {
 };
 
 I18N.id = Object.assign({}, I18N.en, {
+  command_room: 'KOMANDO',
   login:'MASUK', logout:'KELUAR', email_login:'MASUK / DAFTAR EMAIL', my_wallet:'DOMPET SAYA',
   profile_language:'BAHASA', profile_prefs:'PREFERENSI', tut_howto:'CARA BERMAIN',
   my_assets_btn:'ASET SAYA', global_stats:'STATISTIK GLOBAL', leaderboard:'PAPAN PERINGKAT',
@@ -3909,6 +3914,7 @@ I18N.id = Object.assign({}, I18N.en, {
   bug_report_label:'BUG', bug_report_title:'LAPORKAN BUG', bug_report_submit:'KIRIM LAPORAN'
 });
 I18N.vi = Object.assign({}, I18N.en, {
+  command_room: 'CHỈ HUY',
   login:'ĐĂNG NHẬP', logout:'ĐĂNG XUẤT', email_login:'ĐĂNG NHẬP / ĐĂNG KÝ EMAIL', my_wallet:'VÍ CỦA TÔI',
   profile_language:'NGÔN NGỮ', profile_prefs:'TÙY CHỌN', tut_howto:'CÁCH CHƠI',
   my_assets_btn:'TÀI SẢN CỦA TÔI', global_stats:'THỐNG KÊ TOÀN CẦU', leaderboard:'BẢNG XẾP HẠNG',
@@ -3929,6 +3935,7 @@ I18N.vi = Object.assign({}, I18N.en, {
   bug_report_label:'BUG', bug_report_title:'BÁO LỖI', bug_report_submit:'GỬI BÁO CÁO'
 });
 I18N.th = Object.assign({}, I18N.en, {
+  command_room: 'บัญชาการ',
   login:'เข้าสู่ระบบ', logout:'ออกจากระบบ', email_login:'เข้าสู่ระบบ / สมัครด้วยอีเมล', my_wallet:'กระเป๋าของฉัน',
   profile_language:'ภาษา', profile_prefs:'การตั้งค่า', tut_howto:'วิธีเล่น',
   my_assets_btn:'ทรัพย์สินของฉัน', global_stats:'สถิติรวม', leaderboard:'อันดับ',
