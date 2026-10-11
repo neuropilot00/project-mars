@@ -141,6 +141,32 @@ var previewRafId=null;
 var marsCanvasTexture=null; // THREE.CanvasTexture for direct GPU upload (no JPEG)
 var nasaBaseImg=null; // cached NASA texture Image for composite
 
+// Coalesce mobile uploads without dropping the last canvas state.
+var _mobileTexPending=null, _mobileTexTimer=null;
+function _flushMobileTextureUpload(){
+  if(_mobileTexTimer!==null){_clearActiveTimeout(_mobileTexTimer);_mobileTexTimer=null;}
+  if(_mobileTexPending===null || !globe || !marsCanvas) return;
+  var remaining=(_mobileTexPending?500:160)-(Date.now()-(window._lastMobileTexUpload||0));
+  if(remaining>0 || !_pageIsActive()){
+    _mobileTexTimer=_setActiveTimeout(function(){
+      _mobileTexTimer=null;
+      _flushMobileTextureUpload();
+    },Math.max(0,remaining));
+    return;
+  }
+  var fullQuality=_mobileTexPending;
+  _mobileTexPending=null;
+  try{
+    globe.globeImageUrl(marsCanvas.toDataURL('image/jpeg',fullQuality?0.92:0.60));
+    window._lastMobileTexUpload=Date.now();
+  }catch(_mu){console.warn('[Mars] Mobile texture upload failed:',_mu.message);}
+}
+function _queueMobileTextureUpload(previewOnly){
+  // A later preview must not downgrade a queued committed update.
+  _mobileTexPending=_mobileTexPending===true || !previewOnly;
+  _flushMobileTextureUpload();
+}
+
 // Per-user territory color from wallet address hash
 function _ownerColor(addr){
   if(!addr) return {r:255,g:120,b:60};
@@ -1245,29 +1271,7 @@ function compositeClaimsOnTexture(previewOnly){
   //  on some mobile GPUs — only the TextureLoader path is reliable.)
   // Desktop: direct CanvasTexture GPU upload (fastest, no encoding cost).
   if(_isMob){
-    // Preview drags (previewOnly=true) happen every animation frame while the
-    // user moves the claim pin — re-encoding a 2K JPEG at 0.95 each frame
-    // tanks the framerate. Use a coarser quality + tighter throttle while
-    // previewing, and only do a high-quality upload on commit.
-    try{
-      var _now = Date.now();
-      var _lastUp = window._lastMobileTexUpload || 0;
-      if(previewOnly){
-        // Coalesce preview uploads — max ~6 fps, quality 0.6 (tiny encode cost)
-        if(_now - _lastUp < 160) return;
-        window._lastMobileTexUpload = _now;
-        var _dataUrlP = marsCanvas.toDataURL('image/jpeg', 0.60);
-        globe.globeImageUrl(_dataUrlP);
-      } else {
-        // Full rebuild — commit quality. Throttle light (500ms).
-        if(_now - _lastUp < 500) return;
-        window._lastMobileTexUpload = _now;
-        var _dataUrlF = marsCanvas.toDataURL('image/jpeg', 0.92);
-        globe.globeImageUrl(_dataUrlF);
-      }
-    }catch(_mu){
-      console.warn('[Mars] Mobile texture upload failed:', _mu.message);
-    }
+    _queueMobileTextureUpload(previewOnly);
     return;
   }
 

@@ -3456,3 +3456,8 @@ body:not(.command-center-open)>#chatOverlay.collapsed{left:auto!important;right:
 /* Keep the original live notice readable after removing decorative motion. */
 .announce-track{padding-left:0}
 @media(prefers-reduced-motion:reduce){.announce-track{animation:none!important}}
+
+/* Fleet create/rename input fits a 320px phone without changing the desktop card. */
+@media(max-width:768px){
+  #gameInput .gp-card{min-width:0!important;max-width:360px;width:100%}
+}

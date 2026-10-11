@@ -2440,9 +2440,15 @@ function editorReset(){
     if(!canvas) canvas=document.getElementById('editorCanvas');
     return canvas;
   }
-  var _pinchDist=0;
+  var _pinchDist=0, gestureActive=false;
+  function editorIsOpen(){
+    var modal=document.getElementById('imgEditorModal');
+    return _editor.img && modal && modal.classList.contains('open');
+  }
   function onDown(e){
-    if(!_editor.img) return;
+    if(!editorIsOpen()) return;
+    if(e.touches && Array.prototype.some.call(e.touches,function(t){return t.target!==getCanvas();})) return;
+    gestureActive=true;
     e.preventDefault();
     if(e.touches&&e.touches.length===2){
       // Pinch start
@@ -2458,9 +2464,11 @@ function editorReset(){
     getCanvas().style.cursor='grabbing';
   }
   function onMove(e){
-    if(!_editor.img) return;
+    if(!editorIsOpen()){onUp();return;}
+    if(!gestureActive) return;
     // Pinch to zoom
     if(e.touches&&e.touches.length===2){
+      if(Array.prototype.some.call(e.touches,function(t){return t.target!==getCanvas();})) return;
       e.preventDefault();
       var dx=e.touches[0].clientX-e.touches[1].clientX;
       var dy=e.touches[0].clientY-e.touches[1].clientY;
@@ -2468,8 +2476,9 @@ function editorReset(){
       if(_pinchDist>0){
         var delta=(dist-_pinchDist)*0.3;
         if(Math.abs(delta)>1) editorZoom(delta>0?3:-3);
-        _pinchDist=dist;
       }
+      _pinchDist=dist;
+      _editor.dragging=false;
       return;
     }
     if(!_editor.dragging) return;
@@ -2487,6 +2496,7 @@ function editorReset(){
     _editorDraw();
   }
   function onUp(){
+    gestureActive=false;
     _editor.dragging=false;
     _pinchDist=0;
     if(getCanvas()) getCanvas().style.cursor='grab';
@@ -2512,8 +2522,10 @@ function editorReset(){
     window.addEventListener('touchmove',onMove,{passive:false});
     window.addEventListener('mouseup',onUp);
     window.addEventListener('touchend',onUp);
+    window.addEventListener('touchcancel',onUp);
     c.addEventListener('wheel',onWheel,{passive:false});
   }
+  _onPageHidden(onUp);
   document.addEventListener('DOMContentLoaded',_edBind);
   setTimeout(_edBind,200);
 })();
